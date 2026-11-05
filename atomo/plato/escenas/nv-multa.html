@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La multa de Massachusetts · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-MULTA (frase 7, «multa»). Cinco planos (la frase dura 24 s: con cuatro, el último pasaba de 7 s):
+// 1. El libro de leyes de Massachusetts (inserto, fondo local) sobre un escritorio de 1659: la página pasa sola; el
+//    acebo tachado; la mano del escribano escribe el «5» en «five», cae el chelín en «shilling» y raya la cuenta de 22
+//    rayas desde «fine» hasta «22», que escribe en rojo.
+// 2. Boston (general): el barco con la bandera real entra en el puerto («King Charles the Second»); en «drop it» el
+//    alguacil descuelga la multa del poste y la rompe; en «1681» los vecinos saltan.
+// 3. El rincón del escribano en 1856 (uso libre): el señor de 1857 cruza tras la mesa hasta el calendario y en «legal
+//    holiday» rodea en verde la casilla del acebo; la dama aplaude; en «1856» sale el número.
+// 4. Glasgow (general), mañana de Navidad de los años 50: la gente va a trabajar con abrigo y fiambrera; el obrero y la
+//    obrera se cruzan y se saludan en «Christmas Day»; el autobús pasa por detrás.
+// 5. La parada (uso libre): la cola patea de frío; el autobús llega en «late 1950s» y suben.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { PIEZAS_NV as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-multa');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// un fondo fijo: se pinta una vez en su búfer y se copia en cada fotograma
+const FIJOS = new Map();
+const fijo = (clave, dibuja) => { let b = FIJOS.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); FIJOS.set(clave, b); } R.copiar(b); };
+const K = hex('#16121a'), BLANCO = hex('#f6f4ee');
+const suave = (u) => u * u * (3 - 2 * u);
+// la llama de una vela con la mecha en (x, y)
+const llama = (x, y, t, k = 0) => { const f = Math.sin(t * 11 + k * 3) * Math.sin(t * 5.3 + k); R.pset(x, y - 4 - (f > 0.3 ? 1 : 0), hex('#fff6d0')); R.rect(x, y - 3, x, y - 1, hex('#ffd060')); R.pset(x + (f > 0 ? 1 : -1), y - 2, hex('#f08a2a')); R.pset(x, y, hex('#3a2a1a')); };
+// el halo cálido de una llama: aclara los píxeles de alrededor
+const halo = (x, y, r, t, k = 0) => { const rr = r + Math.sin(t * 9 + k) * 0.8; for (let j = -Math.ceil(rr); j <= rr; j++) for (let i = -Math.ceil(rr); i <= rr; i++) { const d = Math.hypot(i, j) / rr; if (d < 1) { const px = Math.round(x + i), py = Math.round(y + j); R.pset(px, py, mez(R.pget(px, py), hex('#ffe6a0'), 0.22 * (1 - d))); } } };
+// nieve que cae dentro de la caja [x0, y0, x1, y1] (y dentro de dentro(x, y), si se da)
+const nieve = (t, n, [x0, y0, x1, y1], dentro, k = 0) => { for (let i = 0; i < n; i++) { const v = 7 + hh(i, 1, k) * 9, x = x0 + ((hh(i, 2, k) * (x1 - x0) + Math.sin(t * 1.3 + i) * 3 + t * 3) % (x1 - x0 + 1)), y = y0 + ((hh(i, 3, k) * (y1 - y0) + t * v) % (y1 - y0 + 1)); const px = Math.round(x), py = Math.round(y); if (dentro && !dentro(px, py)) continue; R.pset(px, py, hh(i, 4, k) < 0.3 ? hex('#c8d4e2') : hex('#f4f8fc')); } };
+// un destello de cuatro puntas (brillo) de radio r
+const destello = (x, y, r, c = hex('#fff4c0')) => { for (let i = -r; i <= r; i++) { R.pset(x + i, y, Math.abs(i) < r / 2 ? BLANCO : c); R.pset(x, y + i, Math.abs(i) < r / 2 ? BLANCO : c); } R.pset(x - 1, y - 1, c); R.pset(x + 1, y + 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y - 1, c); };
+// una X roja gruesa con su contorno, centrada en (x, y), de medio lado r
+const equis = (x, y, r) => { for (const [c, w] of [[K, 2], [hex('#d8302a'), 1]]) for (let d = -r; d <= r; d++) for (let a = -w; a <= w; a++) { R.pset(x + d + a, y + d, c); R.pset(x + d + a, y - d, c); } };
+
+const m = (f) => en('multa', f);
+const P2 = m(0.255), P3 = m(0.505), P4 = m(0.715), P5 = m(0.91);
+const vuelta = 0.35, cinco = m(0.14), chelin = m(0.155), raya0 = m(0.17), veinti = m(0.21);
+const rey = m(0.29), quita = m(0.40), ano81 = m(0.44), rompe = m(0.47);
+const festivo = m(0.605), ano56 = m(0.67), dia = m(0.88), cincuenta = m(0.945);
+
+// ── 1 · El libro de leyes: el 5 y las 22 rayas ──
+const TALLY = []; for (let k = 0; k < 22; k++) { const g = Math.floor(k / 5), i = k % 5, row = g < 3 ? 0 : 1, gx = 176 + (g % 3) * 24, gy = row ? 122 : 96;
+  TALLY.push(i < 4 ? [gx + 2 + i * 4, gy, gx + 2 + i * 4, gy + 14] : [gx - 1, gy + 11, gx + 16, gy + 3]); }
+const VENT = [188, 6, 262, 40];
+const libro = () => fijo('libro', () => {
+  const { rect, pset, linea, disco } = R;
+  // la pared de tablas (tranquila arriba) con la estantería de libros
+  for (let y = 0; y < 46; y++) for (let x = 0; x < 320; x++) pset(x, y, y % 7 === 0 ? hex('#4a3420') : y % 7 === 1 ? hex('#8a6a4a') : hh(x >> 2, y, 50) < 0.12 ? hex('#6a4c32') : hex('#7a5c3e'));
+  rect(22, 40, 112, 43, hex('#4a2e1c')); rect(22, 40, 112, 40, hex('#8a6440'));
+  let bx = 24; for (let k = 0; bx < 108; k++) { const w = 4 + Math.floor(hh(k, 1, 51) * 4), hgt = 11 + Math.floor(hh(k, 2, 51) * 7), c = [hex('#6a2a22'), hex('#2e4a32'), hex('#5a4026'), hex('#2a3a5a'), hex('#7a5a2a')][k % 5];
+    if (k === 6) { linea(bx, 39, bx + 8, 39 - hgt + 3, K); linea(bx + 1, 39, bx + 9, 39 - hgt + 3, c); bx += 10; continue; }
+    rect(bx, 40 - hgt, bx + w - 1, 39, c); rect(bx, 40 - hgt, bx, 39, mez(c, BLANCO, 0.25)); rect(bx + 1, 43 - hgt, bx + w - 2, 43 - hgt, hex('#d8b860')); rect(bx + 1, 36, bx + w - 2, 36, hex('#d8b860')); bx += w; }
+  // la ventana al puerto de Boston (el mástil y la nieve se pintan encima)
+  rect(VENT[0] - 3, VENT[1] - 2, VENT[2] + 3, VENT[3] + 4, hex('#3a2416')); rect(VENT[0] - 4, VENT[3] + 3, VENT[2] + 4, VENT[3] + 5, hex('#8a6440'));
+  for (let y = VENT[1]; y <= VENT[3]; y++) for (let x = VENT[0]; x <= VENT[2]; x++) pset(x, y, y > 30 ? (y > 33 && hh(x, y, 52) < 0.2 ? hex('#8aa2b8') : hex('#6a88a4')) : y > 26 && x > 236 ? hex('#eef4fa') : y > 24 && x > 240 ? hex('#7a6a64') : mez(hex('#b8c4d2'), hex('#dfe6ee'), (30 - y) / 26));
+  for (let x = VENT[0]; x <= VENT[2]; x++) if (x < 220) { const y = 28 - Math.round(Math.abs(Math.sin(x * 0.15)) * 3); for (let yy = y; yy <= 30; yy++) pset(x, yy, yy === y ? hex('#eef4fa') : hex('#5a6a7a')); }
+  // el escritorio de roble en perspectiva
+  for (let y = 46; y < 180; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.05 + Math.sin(y * 0.4 + x * 0.01) * 2 + y * 0.6); const junta = y === 78 || y === 118 || y === 160;
+    pset(x, y, junta ? hex('#2e1c10') : y === 79 || y === 119 || y === 161 ? hex('#8a5e3a') : v > 0.82 ? hex('#4e3220') : v < -0.85 ? hex('#7e5434') : hh(x >> 3, y, 53) < 0.1 ? hex('#5a3a24') : hex('#6a4429')); }
+  rect(0, 46, 319, 47, hex('#8a5e3a'));
+  // la luz cálida de la vela sobre la mesa
+  for (let y = 60; y < 180; y++) for (let x = 0; x < 120; x++) { const d = Math.hypot(x - 34, (y - 110) * 1.3) / 70; if (d < 1) pset(x, y, mez(R.pget(x, y), hex('#ffcf80'), 0.2 * (1 - d))); }
+  // los papeles sueltos de debajo
+  for (let y = 148; y < 178; y++) for (let x = 6; x < 62; x++) { const xx = x + Math.round((y - 148) * 0.25); if (xx > 62) continue; pset(xx, y, (y - 150) % 5 === 0 && x > 10 && x < 56 && hh(x >> 1, y, 54) > 0.3 ? hex('#8a7a60') : hex('#e4d8b8')); }
+  // la sombra del libro y el libro: tapas de cuero, cantos de las hojas, las dos páginas
+  for (let y = 54; y < 172; y++) for (let x = 62; x < 270; x++) pset(x, y, mez(R.pget(x, y), K, 0.45));
+  for (let y = 50; y <= 166; y++) for (let x = 58; x <= 262; x++) { const esq = (x < 61 || x > 259) && (y < 53 || y > 163); if (esq) continue; pset(x, y, x === 58 || x === 262 || y === 50 || y === 166 ? hex('#2a0e08') : hex('#5a2416')); }
+  for (let y = 54; y <= 162; y++) for (let x = 63; x <= 257; x++) { const g = Math.abs(x - 160);
+    const borde = x < 66 || x > 254 || y > 159; if (borde) { pset(x, y, (x + y) % 2 ? hex('#d8caa4') : hex('#b8a880')); continue; }
+    let co = mez(hex('#f2e6c6'), hex('#b8a47c'), g < 12 ? (12 - g) / 14 : 0); if (hh(x, y, 55) < 0.04) co = mez(co, hex('#c8b48a'), 0.6);
+    const arriba = 56 + Math.round(Math.max(0, 10 - g) * 0.25); if (y < arriba) continue; pset(x, y, co); }
+  rect(159, 55, 160, 160, hex('#8a7654'));
+  // renglones (sin letras): rayas de tinta con huecos
+  const renglones = (x0, x1, y0, y1, k) => { for (let y = y0; y <= y1; y += 5) { let x = x0; while (x < x1) { const w = 3 + Math.floor(hh(x, y, k) * 9); for (let i = 0; i < w && x + i < x1; i++) pset(x + i, y, hh(x + i, y, k + 1) < 0.2 ? hex('#a89870') : hex('#6a5a44')); x += w + 2; } } };
+  renglones(72, 152, 112, 154, 56); renglones(168, 250, 60, 84, 57); renglones(168, 250, 146, 154, 58);
+  rect(70, 60, 72, 106, hex('#b8a47c'));
+  // el acebo tachado (la ley contra la Navidad)
+  if (PZ.acebo) PZ.acebo(R, 92, 84, { s: 2 });
+  // la cinta roja del marcapáginas
+  for (let y = 50; y < 178; y++) { const x = 162 + Math.round(Math.sin(y * 0.08) * 1.5); pset(x, y, hex('#a01820')); pset(x + 1, y, hex('#c8303a')); }
+  rect(161, 176, 164, 178, hex('#a01820'));
+  // el tintero, el lacre, el sello, la jarra de peltre y el reloj de arena
+  disco(282, 124, 9, K); disco(282, 124, 8, hex('#2a2a3a')); disco(279, 121, 2, hex('#6a6a88')); rect(277, 112, 287, 116, K); rect(278, 113, 286, 115, hex('#b8903a')); rect(278, 113, 286, 113, hex('#f0c850'));
+  rect(268, 100, 296, 103, K); rect(269, 101, 295, 102, hex('#a8202a')); rect(269, 101, 295, 101, hex('#d84a4a'));
+  rect(14, 136, 36, 166, K); rect(15, 137, 35, 165, hex('#8a8e98')); rect(16, 137, 19, 165, hex('#c8ccd6')); rect(31, 137, 35, 165, hex('#5a5e68')); rect(14, 134, 36, 136, hex('#6a6e78'));
+  for (let y = 142; y < 162; y++) { pset(37 + Math.round(Math.sin((y - 142) / 20 * Math.PI) * 5), y, K); pset(38 + Math.round(Math.sin((y - 142) / 20 * Math.PI) * 5), y, hex('#8a8e98')); }
+  rect(284, 134, 308, 137, hex('#4a2e1c')); rect(284, 168, 308, 171, hex('#4a2e1c')); rect(284, 134, 308, 134, hex('#8a6440'));
+  for (const x of [286, 305]) rect(x, 137, x + 1, 168, hex('#6a4426'));
+  for (let y = 138; y <= 167; y++) { const w = Math.round(1 + Math.abs(y - 152.5) * 0.55); rect(296 - w, y, 296 + w, y, hex('#c8d8e4')); pset(296 - w, y, hex('#e8f0f6')); }
+  // la vela en su palmatoria de latón
+  for (let y = 108; y <= 116; y++) { const w = Math.round(12 * Math.sqrt(Math.max(0, 1 - ((y - 112) / 4.5) ** 2))); rect(35 - w, y, 35 + w, y, y < 111 ? hex('#f0c850') : hex('#b8903a')); }
+  rect(31, 80, 39, 110, hex('#f2ead6')); rect(31, 80, 32, 110, hex('#fffaf0')); rect(37, 82, 39, 110, hex('#d8ccb0'));
+  for (const [x, l] of [[33, 9], [38, 14], [35, 5]]) rect(x, 81, x, 81 + l, hex('#fffaf0'));
+});
+const p1 = (t) => {
+  libro();
+  // fuera: el mástil de un barco que se mece y la nieve
+  R.recorte(VENT); { const o = Math.round(Math.sin(t * 1.3) * 1.5); R.linea(232 + o, 12, 232, 32, hex('#3a2a20')); R.linea(214 + o, 18, 248 + o, 18, hex('#3a2a20')); R.linea(218 + o, 24, 246 + o, 24, hex('#3a2a20')); R.linea(232 + o, 12, 250, 31, hex('#5a4a40')); } R.recorte(null);
+  nieve(t, 26, VENT, null, 7); R.rect(224, VENT[1], 225, VENT[3], hex('#3a2416')); R.rect(VENT[0], 22, VENT[2], 23, hex('#3a2416'));
+  halo(35, 74, 14, t); llama(35, 79, t);
+  // la arena del reloj
+  { const u = (t % 20) / 20; for (let y = 139; y < 152; y++) { if (y < 139 + u * 12) continue; const w = Math.round(Math.abs(y - 152.5) * 0.55) - 1; if (w >= 0) R.rect(296 - w, y, 296 + w, y, hex('#d8b060')); }
+    for (let y = 153; y < 167; y++) if (Math.floor(t * 20 + y) % 3) R.pset(296, y, hex('#d8b060')); for (let y = 167 - Math.round(u * 8); y <= 167; y++) { const w = Math.round(Math.abs(y - 152.5) * 0.55) - 1; R.rect(296 - w, y, 296 + w, y, hex('#c8a050')); } }
+  // el «5», el chelín, las 22 rayas y el «22» (lo que la voz dice)
+  if (t > cinco) R.numero('5', 124, 104, { tam: 16, centro: true, n: Math.round((t - cinco) * 60) });
+  if (t > chelin) { const u = tramo(t, chelin, chelin + 0.3), y = Math.round(lerp(60, 98, u * u)) - (u >= 1 ? 0 : 0); R.disco(146, y, 8, K); R.disco(146, y, 7, hex('#b8bcc8')); R.disco(146, y, 5, hex('#d8dce4')); R.linea(146, y - 4, 146, y + 4, hex('#8a8e98')); R.linea(142, y, 150, y, hex('#8a8e98')); R.pset(143, y - 3, BLANCO); if (u >= 1 && t < chelin + 0.5) destello(152, 90, 3); }
+  equis(92, 77, 9);
+  const n = t < raya0 ? 0 : Math.min(22, Math.floor(tramo(t, raya0, veinti) * 22) + 1);
+  for (let k = 0; k < n; k++) { const [a, b, c, d] = TALLY[k]; R.linea(a, b, c, d, hex('#2a1a10')); R.linea(a + 1, b, c + 1, d, hex('#4a3020')); }
+  if (t > veinti) R.numero('22', 236, 156, { tam: 16, centro: true, n: Math.round((t - veinti) * 80), rampa: [hex('#ffb0a0'), hex('#e84a3a'), hex('#a01820'), hex('#601010')] });
+  // la página que pasa sola al empezar
+  { const u = tramo(t, 0.25, 0.25 + vuelta * 3); if (u > 0 && u < 1) { const e = suave(u), xr = Math.round(lerp(254, 66, e)), alza = Math.sin(e * Math.PI) * 14;
+    for (let y = 56; y <= 158; y++) { const xa = Math.min(160, xr), xb = Math.max(160, xr), curva = Math.round(alza * Math.sin((y - 56) / 102 * Math.PI) * 0.3); for (let x = xa; x <= xb; x++) R.pset(x + (xr < 160 ? -curva : curva), y - Math.round(alza * Math.abs(x - 160) / 94), x === xr ? hex('#b8a47c') : mez(hex('#f6ecd0'), hex('#c8b48a'), Math.abs(x - 160) / 120)); } } }
+  // la mano del escribano con la pluma, cerca del borde: entra, cuenta golpeando con la pluma y escribe el «22»
+  const reposo = [252, 172];
+  let tip = reposo;
+  const ir = (p, q, ta, tb) => { const u = suave(tramo(t, ta, tb)); return [lerp(p[0], q[0], u), lerp(p[1], q[1], u)]; };
+  if (t < 1.4) tip = [330, 220];
+  else if (t < raya0) tip = ir([330, 220], reposo, 1.4, 2.3);
+  else if (t < veinti - 0.25) tip = [reposo[0], reposo[1] - (Math.floor((t - raya0) * 18) % 2 ? 2 : 0)];
+  else if (t < veinti) tip = ir(reposo, [226, 153], veinti - 0.25, veinti);
+  else if (t < veinti + 0.35) { const w = tramo(t, veinti, veinti + 0.35); tip = [226 + w * 22, 153 + Math.sin(w * 12) * 3]; }
+  else tip = ir([248, 153], reposo, veinti + 0.35, veinti + 0.9);
+  const [tx, ty] = tip.map(Math.round), wx = tx + 13, wy = ty - 3;
+  T.brazo(R, wx + 46, wy + 46, wx, wy, '#2a2a34', -1, {});
+  R.linea(tx, ty + 1, tx + 14, ty - 20, hex('#5a4a3a')); for (let i = 4; i < 18; i++) { const x = Math.round(tx + i * 0.7), y = Math.round(ty + 1 - i * 1.4); R.pset(x - 1, y, hex('#f2f0e8')); R.pset(x + 1, y + 1, hex('#d8d4c8')); R.pset(x - 2, y - 1, i % 3 ? hex('#f2f0e8') : hex('#c8c4b8')); } R.pset(tx, ty + 1, K);
+  // la tinta de las rayas que se van escribiendo brilla un momento
+  if (n > 0 && n < 22) { const [a2, b2, c2, d2] = TALLY[n - 1]; R.pset(c2, d2, hex('#6a4a8a')); }
+};
+
+// ── 2 · Boston, 1681: el barco del rey y la multa rota ──
+const p2 = (t) => {
+  T.siglo17(R, t, { encuadre: 'boston', barco: suave(tramo(t, P2 + 0.2, quita - 0.2)) });
+  const tiene = t > quita + 0.45, rota = t > rompe;
+  const al = R.actor(EL.alguacil, 64, 166, t, { dir: t > rey - 0.3 && t < quita - 0.3 ? 1 : -1, sorpresa: t > rey && t < quita - 0.3, dedo: t > quita - 0.3 && t < quita + 0.3, sostiene: tiene && !rota ? [60, 146] : false, enfado: t > rompe && t < rompe + 0.6 });
+  // vecinos que miran; en «1681» saltan de alegría
+  const salta = (k) => (t > ano81 ? Math.round(Math.abs(Math.sin((t - ano81) * 7 + k)) * 5) : 0);
+  R.actor(EL.vecinoPastel, 118, 166, t, { dir: t > rey && t < quita ? 1 : -1, habla: t < rey && Math.sin(t * 6) > 0.2, sonrisa: t > ano81 - 0.2, salto: salta(0) });
+  R.actor(EL.vecina, 142, 168, t, { dir: t > rey + 0.2 && t < quita ? 1 : -1, sorpresa: t > rey + 0.2 && t < quita, brazos: t > ano81, sonrisa: t > ano81 - 0.2, salto: salta(1.6) });
+  R.actor(EL.puritana, 176, 166, t, { dir: -1, habla: t > ano81 && Math.sin(t * 7) > 0, sonrisa: t > ano81 + 0.3 });
+  T.siglo17Delante(R, t, { encuadre: 'boston', aviso: t < quita });
+  // el aviso que cae a la mano del alguacil y que rompe en dos
+  const papel = (x, y, a, w, hgt) => { const ca = Math.cos(a), sa = Math.sin(a); for (let j = 0; j < hgt; j++) for (let i = 0; i < w; i++) { const c = j === 0 || i === 0 ? hex('#c8b890') : (j % 3 === 2 && i > 1 && i < w - 1) ? hex('#8a7a60') : hex('#f4e8c8'); R.pset(Math.round(x + (i - w / 2) * ca - (j - hgt / 2) * sa), Math.round(y + (i - w / 2) * sa + (j - hgt / 2) * ca), c); } };
+  if (t > quita && !tiene) { const u = tramo(t, quita, quita + 0.45); papel(lerp(52, 60, u) + Math.sin(u * 9) * 4, lerp(122, 142, u * u), u * 4, 9, 13); }
+  if (tiene && !rota) papel(al.mano[0], al.mano[1] - 6, 0.1, 9, 13);
+  if (rota) { const u = tramo(t, rompe, rompe + 0.9); for (const s of [-1, 1]) papel(60 + s * (4 + u * 10), lerp(140, 164, u * u), s * u * 3, 5, 12); if (u < 0.3) destello(60, 138, 3); }
+};
+
+// ── 3 · 1856: la Navidad, fiesta legal en Massachusetts ──
+const p3 = (t) => {
+  const g = T.siglo17(R, t, { encuadre: 'parlamento', camara: 'escribano', tacha: 0, libres: 0 });
+  const nav = g.casillas?.navidad ?? [192, 97, 203, 113], cx = (nav[0] + nav[2]) / 2, cy = (nav[1] + nav[3]) / 2;
+  const v = tramo(t, P3 + 0.2, festivo - 0.5);
+  R.actor(EL.senor1857, Math.round(lerp(110, 184, suave(v))), 145, t, { dir: v < 1 ? 1 : -1, anda: v > 0 && v < 1, dedo: t > festivo - 0.3 && t < ano56 + 0.4, habla: t > ano56 && Math.sin(t * 8) > 0, sonrisa: t > festivo });
+  T.siglo17Delante(R, t, { encuadre: 'parlamento', camara: 'escribano' });
+  R.actor(EL.dama1857, 14, 172, t, { dir: 1, habla: t < festivo - 0.6 && Math.sin(t * 6) > 0.3, brazos: t > festivo + 0.1 && t < ano56 + 0.8, sonrisa: t > festivo, salto: t > festivo + 0.1 && t < ano56 ? Math.round(Math.abs(Math.sin(t * 8)) * 3) : 0 });
+  // el aro verde se dibuja alrededor del acebo en «legal holiday»; el 1856 se estampa
+  if (t > festivo) { const u = tramo(t, festivo, festivo + 0.6); for (let i = 0; i < 80 * u; i++) { const a = i / 80 * Math.PI * 2 - Math.PI / 2, x = Math.round(cx + Math.cos(a) * 11), y = Math.round(cy + Math.sin(a) * 13); R.rect(x - 1, y - 1, x + 1, y + 1, K); }
+    for (let i = 0; i < 80 * u; i++) { const a = i / 80 * Math.PI * 2 - Math.PI / 2; R.rect(Math.round(cx + Math.cos(a) * 11), Math.round(cy + Math.sin(a) * 13), Math.round(cx + Math.cos(a) * 11), Math.round(cy + Math.sin(a) * 13) + 1, hex('#3ac85a')); }
+    if (u >= 1 && t < festivo + 1.2) destello(Math.round(cx + 10), Math.round(cy - 12), 4); }
+  if (t > ano56) { const e = tramo(t, ano56, ano56 + 0.15); R.numero('1856', 122, Math.round(44 - (1 - e) * 6), { tam: 16, centro: true }); }
+};
+
+// ── 4 · Glasgow, años 50: a trabajar el día de Navidad ──
+const p4 = (t) => {
+  const g = T.siglo17(R, t, { encuadre: 'escocia', bus: tramo(t, P4 + 0.3, P4 + 3.6) });
+  const a = tramo(t, P4, dia - 0.3), b = tramo(t, P4 + 0.2, dia - 0.3);
+  R.actor(EL.obreroEscoces, Math.round(lerp(-16, 130, a)), 168, t, { dir: 1, anda: a > 0 && a < 1, habla: t > dia - 0.2 && Math.sin(t * 8) > 0, sonrisa: t > dia - 0.3 });
+  R.actor(EL.obreraEscocesa, Math.round(lerp(300, 156, b)), 170, t, { dir: -1, anda: b > 0 && b < 1, dedo: t > dia && t < dia + 0.8, sonrisa: t > dia - 0.3 });
+  const c = tramo(t, P4 + 0.6, P5 + 0.4);
+  R.actor(EL.obreroEscoces, Math.round(lerp(250, 186, c) + (t > dia ? 0 : 0)), 166, t, { dir: -1, anda: c > 0 && c < 1, pal: { C: hex('#4a4e5a'), c: hex('#34363e'), u: hex('#8a2a2a') } });
+  T.siglo17Delante(R, t, { encuadre: 'escocia' });
+};
+
+// ── 5 · La parada: el autobús de las 7 llega en «late 1950s» ──
+const p5 = (t) => {
+  const llega = suave(tramo(t, P5 + 0.1, cincuenta + 0.3));
+  T.siglo17(R, t, { encuadre: 'escocia', camara: 'parada', bus: llega });
+    const cola = [[EL.obreraEscocesa, 150, 0, null], [EL.obreroEscoces, 126, 1.3, null], [EL.obreroEscoces, 102, 2.1, { C: hex('#5a4a3a'), c: hex('#3e3428'), u: hex('#2a4a7a') }], [EL.obreraEscocesa, 78, 0.7, { C: hex('#7a3a4a'), c: hex('#5a2a36'), u: hex('#e0c060') }]];
+  for (const [k, [def, x0, f, pal]] of cola.entries()) { const s = tramo(t, cincuenta + 0.4 + k * 0.3, cincuenta + 3.6 + k * 0.3), x = Math.round(x0 + s * 200);
+    R.actor(def, x, 168, t, { dir: 1, anda: s > 0 && s < 1, salto: t < cincuenta && Math.sin(t * 5 + f * 3) > 0.85 ? 1 : 0, sonrisa: t > cincuenta, sorpresa: t > cincuenta - 0.2 && t < cincuenta + 0.4 && k === 0, ...(pal ? { pal } : {}) }); }
+  // el vaho del aliento en el frío
+  for (const [k, x] of [[0, 166], [1, 142], [2, 118]]) { const u = ((t * 0.8 + k * 0.33) % 1); if (u < 0.6 && t < cincuenta + 0.6) R.disco(x + Math.round(u * 8), 147 - Math.round(u * 6), 1 + u * 2, mez(hex('#dce6f0'), hex('#9aa6b4'), u)); }
+  T.siglo17Delante(R, t, { encuadre: 'escocia', camara: 'parada' });
+};
+
+const efectos = [[0.3, 'papel'], [cinco, 'lapiz'], [chelin + 0.3, 'golpecito'], [veinti, 'pop'], [P2 + 0.4, 'ola'], [quita, 'papel'], [ano81, 'publico'], [rompe, 'papel'], [festivo, 'lapiz'], [ano56, 'sello'], [P4 + 0.6, 'motor'], [m(0.85), 'silbato'], [P5 + 0.2, 'motor'], [cincuenta + 0.5, 'puerta']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t < P2 ? 1659 : t < P3 ? 1681 : t < P4 ? 1856 : 1958) });
+</script>
+</body>
+</html>

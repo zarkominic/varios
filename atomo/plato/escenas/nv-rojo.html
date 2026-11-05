@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El traje rojo · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-ROJO (frase 10), sin cartela; barra 2026 → 1890 → 1931 → 1964. Cuatro planos:
+// 1. el salón de hoy: un chico entra con la botella sin etiqueta y la levanta en «Coca-Cola»; la galleta salta en la
+//    mesita y sale la «X» grande en «didn't»; la niña cuelga un adorno en el árbol (corta en «He»);
+// 2. el estudio, el tendedero de postales: Santa, de rojo, señala las postales rojas («already red»); en «green»,
+//    «brown» y «blue» se prueba esos trajes (bocanada a cada cambio) y la galleta llega con el traje rojo y se lo pasa
+//    (gag 3) (corta en «What»);
+// 3. 1931, la parada del autobús: el cartelero pega el cartel del Santa rojo con la botella sin etiqueta en «1931»;
+//    los de la cola lo miran (corta en «the same way»);
+// 4. la calle: el mismo cartel aparece en una fachada tras otra («every year»: la barra corre de 1931 a 1964) y en
+//    «everywhere» brillan todos; pasa el autobús.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-rojo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('rojo', f);
+const P2 = a(0.173), P3 = a(0.574), P4 = a(0.781), FIN = E.duracion;
+const cola = a(0.041), noHizo = a(0.082), yaRojo = a(0.197), postales = a(0.317), aunque = a(0.376), verde = a(0.443), marron = a(0.482), azul = a(0.522);
+const ano31 = a(0.672), pinta = a(0.749), cadaAno = a(0.827), hasta = a(0.867), traje = a(0.911), todas = a(0.962);
+const K = T.C.k;
+// el cartel de 1931: marco crema, fondo rojo oscuro, Santa rojo grande y la botella sin etiqueta (x0, y0 arriba a la
+// izquierda; w × h; u 0–1 cuánto se ha desenrollado de arriba abajo)
+const cartel = (x0, y0, w, h, u = 1, brilla = 0) => {
+  const hv = Math.round(h * u); if (hv <= 0) return;
+  R.rect(x0, y0, x0 + w, y0 + hv, K); R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + hv - 1, hex('#f2e6c8')); if (hv > 4) R.rect(x0 + 3, y0 + 3, x0 + w - 3, Math.min(y0 + hv - 3, y0 + h - 3), hex('#7a1a22'));
+  R.recorte([x0 + 3, y0 + 3, x0 + w - 3, y0 + hv - 3]);
+  const cx = x0 + Math.round(w * 0.42), s = h / 36;
+  R.disco(cx, y0 + Math.round(h * 0.66), Math.round(8 * s), hex('#d8303a')); R.disco(cx - 2, y0 + Math.round(h * 0.6), Math.round(3 * s), hex('#f05a5a'));
+  R.disco(cx, y0 + Math.round(h * 0.36), Math.round(6 * s), hex('#f6f2ea')); R.disco(cx, y0 + Math.round(h * 0.3), Math.round(4 * s), hex('#f6c290'));
+  R.poligono([[cx - 5 * s, y0 + h * 0.25], [cx + 5 * s, y0 + h * 0.25], [cx + 8 * s, y0 + h * 0.1], [cx, y0 + h * 0.12]], hex('#d8303a')); R.disco(Math.round(cx + 8 * s), Math.round(y0 + h * 0.1), Math.max(1, Math.round(1.5 * s)), hex('#f6f2ea'));
+  R.linea(cx - 7 * s, y0 + h * 0.68, cx + 7 * s, y0 + h * 0.68, K); R.pset(cx - 1, y0 + Math.round(h * 0.29), K); R.pset(cx + 1, y0 + Math.round(h * 0.29), K);
+  const bx = x0 + Math.round(w * 0.78), bb = y0 + Math.round(h * 0.86);
+  if (bb < y0 + hv - 3) R.rect(bx - 2 * s, bb - 13 * s, bx + 2 * s, bb, K); if (bb < y0 + hv - 3) { R.rect(bx - 1 * s, bb - 12 * s, bx + 1 * s, bb - 1, hex('#3a1a14')); R.rect(bx - 1, bb - 13 * s - 1, bx + 1, bb - 13 * s, hex('#c8c8d0')); R.pset(bx, bb - 9 * s, hex('#c87a5a')); }
+  R.recorte(null);
+  if (brilla > 0 && Math.sin(brilla * 20) > -0.2) { R.linea(x0 - 1, y0 - 1, x0 + w + 1, y0 - 1, hex('#fff0a0')); R.linea(x0 - 1, y0 + h + 1, x0 + w + 1, y0 + h + 1, hex('#fff0a0')); R.linea(x0 - 1, y0, x0 - 1, y0 + h, hex('#fff0a0')); R.linea(x0 + w + 1, y0, x0 + w + 1, y0 + h, hex('#fff0a0')); }
+};
+// la bocanada del cambio de traje: una nube blanca que se abre y se deshace
+const bocanada = (x, y, u) => { if (u <= 0 || u >= 1) return; for (let k = 0; k < 7; k++) { const ang = k / 7 * Math.PI * 2, r = 4 + u * 10; R.disco(Math.round(x + Math.cos(ang) * r), Math.round(y + Math.sin(ang) * r * 0.7), Math.round(5 * (1 - u) + 2), k % 2 ? hex('#f2f0ec') : hex('#d8dce4')); } };
+
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'salon' });
+  // la niña cuelga una bola en el árbol (sube la mano, la deja, baja)
+  const cu = tramo(t, 0.5, 1.3) - tramo(t, 2.0, 2.6);
+  const n = R.actor(EL.nina, 104, 146, t, { dir: 1, sostiene: cu > 0 ? [116, Math.round(lerp(120, 104, cu))] : false, sonrisa: t > 1.3 && t < noHizo, sorpresa: t > noHizo && t < noHizo + 0.8 });
+  if (t < 1.6 && cu > 0) { R.disco(n.mano[0] + 2, n.mano[1] + 3, 2, hex('#c8303a')); R.pset(n.mano[0] + 1, n.mano[1] + 2, hex('#ffb0b0')); }
+  if (t >= 1.6) { R.disco(119, 107, 2, hex('#c8303a')); R.pset(118, 106, hex('#ffb0b0')); }
+  // el chico entra por la alfombra, se para junto a la mesita y señala la botella en «Coca-Cola»; en «didn't» se asombra
+  const e = tramo(t, 0.1, cola - 0.1), x = Math.round(lerp(330, 232, e));
+  R.actor(EL.chico, x, 172, t, { dir: -1, anda: e > 0 && e < 1, dedo: t > cola - 0.1 && t < noHizo + 0.1, sonrisa: t < noHizo, sorpresa: t > noHizo + 0.1 && t < noHizo + 1.2, habla: t > noHizo + 1.2 && Math.sin(t * 7) > 0 });
+  T.hoyDelante(R, t, { encuadre: 'salon' });
+  // la botella sin etiqueta, grande en la mesita, que destella en «Coca-Cola»
+  const bx = 186; T.PIEZAS_NV.botella(R, bx, 154, { s: 2 });
+  if (t > cola && t < cola + 0.5) { R.pset(bx - 2, 132, hex('#ffffff')); R.linea(bx - 5, 132, bx + 1, 132, hex('#fff0a0')); R.linea(bx - 2, 129, bx - 2, 135, hex('#fff0a0')); }
+  // la galleta en la mesita: mira la botella, salta y niega; la «X» roja grande sale sobre la botella en «didn't»
+  const sa = tramo(t, noHizo - 0.3, noHizo) - tramo(t, noHizo, noHizo + 0.3);
+  const niega = t > noHizo + 0.3 && t < noHizo + 1.3 ? (Math.sin(t * 16) > 0 ? 1 : -1) : 1;
+  T.galleta(R, 152, 154 - Math.round(sa * 10), t, { cara: t > noHizo - 0.3 ? 'susto' : 'normal', dir: niega });
+  const xx = tramo(t, noHizo, noHizo + 0.25);
+  if (xx > 0) { const k = Math.round(lerp(1, 4, xx)); R.icono('X', bx - Math.round(2.5 * k), 140 - 6 * k, hex('#e83a3a'), K, k); }
+};
+// el perchero con los trajes de colores (los que Santa se va probando desaparecen de su gancho) y el espejo de pie
+const percha = (x, y, c1, c2) => { R.linea(x, y - 2, x, y, K); R.rect(x - 6, y, x + 6, y + 1, hex('#5a3a22')); R.rect(x - 5, y + 2, x + 5, y + 15, K); R.rect(x - 4, y + 2, x + 4, y + 14, c1); R.rect(x + 2, y + 3, x + 4, y + 14, c2); R.rect(x - 4, y + 12, x + 4, y + 13, hex('#f6f2ea')); R.rect(x - 1, y + 3, x, y + 11, hex('#f6f2ea')); };
+const TRAJES = { verde: ['#3a8a4a', '#2a6a36'], marron: ['#8a5a34', '#64401f'], azul: ['#3a5ab0', '#2a4080'], rojo: ['#d23a3a', '#a02828'] };
+const p2 = (t) => {
+  // las postales: rojas casi todas, y una verde, una marrón y una azul que se encienden cuando la voz las nombra
+  const g = T.epoca(R, t, { encuadre: 'estudio', camara: 'tablero', postales: ['rojo', 'verde', 'rojo', 'marron', 'rojo', 'azul'], gordo: 0.8 });
+  const cajas = g.postales || [];
+  const marco = (i, c) => { const b = cajas[i]; if (!b) return; R.linea(b[0] - 1, b[1] - 1, b[2] + 1, b[1] - 1, c); R.linea(b[0] - 1, b[3] + 1, b[2] + 1, b[3] + 1, c); R.linea(b[0] - 1, b[1] - 1, b[0] - 1, b[3] + 1, c); R.linea(b[2] + 1, b[1] - 1, b[2] + 1, b[3] + 1, c); };
+  if (t > yaRojo && t < aunque && Math.sin(t * 9) > -0.3) for (const i of [0, 2, 4]) marco(i, hex('#fff0a0'));
+  if (t > verde - 0.1 && t < marron - 0.1) marco(1, hex('#fff0a0')); if (t > marron - 0.1 && t < azul - 0.1) marco(3, hex('#fff0a0')); if (t > azul - 0.1 && t < P3) marco(5, hex('#fff0a0'));
+  const da = a(0.53);   // la galleta le da el traje
+  const tr = t < verde ? 'rojo' : t < marron ? 'verde' : t < azul ? 'marron' : t < da + 0.15 ? 'azul' : 'rojo';
+  // el perchero de madera a la izquierda (pie, barra y tres trajes colgados)
+  R.rect(20, 92, 22, 162, K); R.rect(21, 92, 21, 161, hex('#7a4e2e')); R.rect(14, 160, 28, 163, K); R.rect(15, 160, 27, 162, hex('#5a3a22'));
+  R.rect(20, 92, 66, 94, K); R.rect(21, 93, 65, 93, hex('#8a5a34')); R.rect(64, 92, 66, 162, K); R.rect(65, 93, 65, 161, hex('#7a4e2e')); R.rect(58, 160, 72, 163, K); R.rect(59, 160, 71, 162, hex('#5a3a22'));
+  [['verde', 30, verde], ['marron', 43, marron], ['azul', 56, azul]].forEach(([c, x, tc]) => { if (t < tc - 0.15) percha(x, 95, hex(TRAJES[c][0]), hex(TRAJES[c][1])); else R.linea(x - 5, 96, x + 5, 96, hex('#8a8494')); });
+  // el espejo de pie: marco de nogal y el cristal con el reflejo del traje de ahora
+  R.rect(148, 104, 170, 164, K); R.rect(149, 105, 169, 158, hex('#6a4226')); R.rect(152, 108, 166, 155, hex('#a8c4d8')); R.linea(153, 109, 160, 109, hex('#e8f4ff')); R.linea(153, 109, 153, 120, hex('#e8f4ff'));
+  R.rect(155, 132, 163, 150, hex(TRAJES[tr][0])); R.rect(161, 132, 163, 150, hex(TRAJES[tr][1])); R.disco(159, 126, 4, hex('#f2f0ec')); R.disco(159, 124, 2, hex('#f6c290')); R.rect(155, 119, 163, 121, hex(TRAJES[tr][0]));
+  R.rect(144, 158, 174, 164, K); R.rect(145, 159, 173, 163, hex('#5a3a22'));
+  // Santa: de rojo señala las postales; se prueba el verde, el marrón y el azul (bocanada a cada cambio) y pone mala
+  // cara; la galleta le pasa el rojo y Santa lo celebra
+  const en2 = tramo(t, P2 + 0.05, yaRojo + 0.6), sx = Math.round(lerp(196, 104, en2));
+  R.actor(EL.santa, sx, 164, t, { traje: tr, anda: en2 > 0 && en2 < 1, dir: t > verde - 0.4 && t < da - 0.4 ? 1 : -1, dedo: t > yaRojo + 0.6 && t < aunque, habla: t > yaRojo + 0.6 && t < postales + 0.5 && Math.sin(t * 7) > 0, sorpresa: (t > verde && t < verde + 0.4) || (t > marron && t < marron + 0.4), triste: t > azul && t < da, sonrisa: t > da + 0.2, brazos: t > da + 0.3 && t < P3 - 0.1 });
+  for (const tc of [verde, marron, azul, da + 0.15]) bocanada(sx + 7, 146, tramo(t, tc - 0.1, tc + 0.35));
+  // la galleta entra corriendo por la izquierda con el traje rojo doblado sobre la cabeza, se lo tiende y Santa lo coge
+  const gx = Math.round(lerp(-10, 84, tramo(t, aunque + 0.3, marron + 0.2)));
+  const corre = t > aunque + 0.3 && t < marron + 0.2;
+  T.galleta(R, gx, 164 - (t > da - 0.2 && t < da + 0.1 ? 4 : t > marron + 0.3 && t < da - 0.3 && Math.sin(t * 14) > 0.6 ? 1 : 0), t, { corre, cara: t > da + 0.2 ? 'feliz' : 'normal', dir: 1 });
+  if (t < da + 0.1 && t > aunque + 0.3) { const ty = 164 - 17 - (t > da - 0.3 ? 5 : 0); R.rect(gx - 6, ty - 6, gx + 7, ty + 1, K); R.rect(gx - 5, ty - 5, gx + 6, ty, hex('#d23a3a')); R.rect(gx - 5, ty - 1, gx + 6, ty, hex('#f6f2ea')); R.rect(gx - 1, ty - 5, gx, ty - 1, hex('#f6f2ea')); }
+};
+const p3 = (t) => {
+  const g = T.siglo17(R, t, { encuadre: 'escocia', camara: 'parada', bus: tramo(t, pinta - 0.4, FIN) });
+  // el cartelero llega con el rollo y la brocha, pega el cartel en «1931» y lo alisa
+  const e = tramo(t, P3 + 0.1, ano31 - 0.7), x = Math.round(lerp(-20, 88, e));
+  const pega = tramo(t, ano31 - 0.5, ano31 + 0.5);
+  const cx0 = 100, cy0 = 70;
+  cartel(cx0, cy0, 40, 50, pega, tramo(t, pinta, pinta + 0.8) > 0 && t < pinta + 0.8 ? t : 0);
+  const brocha = t > ano31 - 0.5 && t < pinta + 0.6;
+  const m = R.actor(EL.obrero, x, 168, t, { dir: 1, anda: e > 0 && e < 1, sostiene: brocha ? [cx0 + 6 + Math.round(Math.sin(t * 10) * 4), cy0 + Math.round(lerp(4, 46, pega))] : true, sonrisa: t > pinta });
+  if (brocha) { R.rect(m.mano[0] + 1, m.mano[1] - 3, m.mano[0] + 2, m.mano[1] + 2, hex('#8a5a30')); R.rect(m.mano[0] + 3, m.mano[1] - 2, m.mano[0] + 7, m.mano[1] + 1, hex('#d8d0b8')); }
+  else { R.rect(m.mano[0] - 2, m.mano[1] - 2, m.mano[0] + 8, m.mano[1] + 2, K); R.rect(m.mano[0] - 1, m.mano[1] - 1, m.mano[0] + 7, m.mano[1] + 1, hex('#f2e6c8')); }
+  // la cola de la parada: miran el cartel; una señora sonríe y un niño lo señala
+  R.actor(EL.obreraEscocesa, 150, 168, t, { dir: -1, sonrisa: t > ano31 + 0.3, habla: t > pinta && Math.sin(t * 6) > 0.3 });
+  R.actor(EL.chico, 176, 168, t, { dir: -1, dedo: t > ano31 + 0.4 && t < pinta + 1.2, sorpresa: t > ano31 + 0.2 && t < ano31 + 0.9 });
+  R.actor(EL.obreroEscoces, 204, 168, t, { dir: -1, sostiene: t > pinta + 0.3 ? true : false });
+  T.siglo17Delante(R, t, { encuadre: 'escocia', camara: 'parada' });
+};
+const p4 = (t) => {
+  T.siglo17(R, t, { encuadre: 'escocia', bus: tramo(t, traje - 1.4, FIN - 0.2) });
+  // los carteles: uno por «año», por las fachadas y los cierres de las tiendas, hasta llenar la calle
+  const sitios = [[30, 92, 20, 26], [70, 100, 18, 24], [118, 92, 20, 26], [160, 104, 16, 20], [196, 92, 20, 26], [236, 100, 18, 24], [10, 52, 16, 20], [104, 54, 16, 20], [214, 56, 16, 20], [258, 64, 16, 20]];
+  sitios.forEach(([x, y, w, h], i) => { const ti = lerp(P4 + 0.4, todas - 0.3, i / (sitios.length - 1)); cartel(x, y, w, h, tramo(t, ti, ti + 0.3), t > todas ? t : 0); });
+  // la gente por la acera: el obrero con la fiambrera mira los carteles; la señora y el niño con su botella
+  const e = tramo(t, P4, FIN), x = Math.round(lerp(-20, 300, e));
+  R.actor(EL.obreroEscoces, x, 168, t, { dir: 1, anda: true, sorpresa: t > todas });
+  const e2 = tramo(t, P4 + 0.8, FIN), x2 = Math.round(lerp(340, 60, e2));
+  const m = R.actor(EL.chico, x2, 172, t, { dir: -1, anda: true, sostiene: true, sonrisa: true });
+  T.PIEZAS_NV.botella(R, m.mano[0] + 1, m.mano[1] + 4, {});
+  R.actor(EL.obreraEscocesa, 150, 168, t, { dir: 1, dedo: t > hasta && t < todas + 0.6, sonrisa: t > todas });
+  T.siglo17Delante(R, t, { encuadre: 'escocia' });
+};
+const efectos = [[cola + 0.05, 'pop'], [noHizo + 0.02, 'boing'], [yaRojo + 0.1, 'brillo'], [verde - 0.05, 'pop'], [marron - 0.05, 'pop'], [azul - 0.05, 'pop'], [a(0.53) + 0.15, 'brillo'],
+  [P3 + 0.3, 'carro'], [ano31 - 0.4, 'papel'], [pinta + 0.2, 'motor'], [P4 + 0.5, 'papel'], [cadaAno, 'papel'], [traje - 1.2, 'motor'], [todas, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => t < P2 ? 2026 : t < P3 ? 1890 : t < P4 ? 1931 : Math.round(lerp(1931, 1964, tramo(t, P4 + 0.4, todas))) });
+</script>
+</body>
+</html>

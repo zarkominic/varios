@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La fecha · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-CALENDARIO (frase 11), cartela «354», barra 354. Cuatro planos:
+// 1. la Biblia abierta (inserto): el dedo recorre los renglones buscando la fecha y no la hay: «?» en «never says», y
+//    el calendario de la mesa con la hoja en blanco (corta en «and the first»);
+// 2. el scriptorium romano: el calígrafo pinta el calendario; en «354» sale el número; entra el cristiano rico de toga
+//    con la bolsa en «made for a wealthy Christian» y se la tiende (corta tras «Christian»);
+// 3. la hoja del calendario de cerca: la mano llega a la casilla del 25 en «December 25th», se enciende la estrella en
+//    «Bethlehem» y, en «that same day», el sol a la vez (corta en «same day»);
+// 4. el templo del Sol al alba: la fiesta del Sol Invicto; la gente con antorchas sube y en «Sun» el disco de la puerta
+//    se enciende y alza los brazos.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-calendario');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('fecha', f);
+const P2 = a(0.211), P3 = a(0.566), P4 = a(0.866), FIN = E.duracion;
+const biblia = a(0.082), nunca = a(0.097), nacio = a(0.179), romano = a(0.346), ano354 = a(0.42), hecho = a(0.489), rico = a(0.514);
+const dic = a(0.618), cristo = a(0.681), belen = a(0.729), libro = a(0.781), mismo = a(0.849), fiesta = a(0.9), sol = a(0.975);
+const K = T.C.k;
+const p1 = (t) => {
+  const g = T.epoca(R, t, { encuadre: 'copista', camara: 'pagina', ji: 0 });
+  // el dedo recorre los últimos renglones de la página de la izquierda, buscando la fecha, y se aparta en «born»
+  const u = tramo(t, 0.3, nunca + 0.3), fila = Math.min(2, Math.floor(u * 3)), fr = (u * 3) % 1, sale = tramo(t, nacio - 0.2, nacio + 0.5);
+  const tx = Math.round(lerp(u >= 1 ? 150 : lerp(52, 150, fr), 330, sale)), ty = Math.round(lerp(122 + fila * 12, 210, sale));
+  T.brazo(R, tx + 34, 204, tx + 13, ty + 3, '#7a5a3a', -1, { codo: [tx + 30, Math.round(lerp(ty, 204, 0.5))], puno: '#e8dcc0' });
+  // donde iría la fecha, el recuadro azul vacío: el «?» dorado grande que salta y tiembla en «never says»
+  const q = tramo(t, nunca, nunca + 0.3); if (q > 0) { const k = Math.round(lerp(2, 5, q)); R.icono('?', 214 - Math.round(2.5 * k) + Math.round(Math.sin(t * 12) * 0.7), 98 - Math.round(3.5 * k), hex('#f0c040'), K, k); }
+  // el calendario de la mesa: la hoja en blanco con un «?» en lugar del día, que cae en «born»
+  const c = tramo(t, nacio - 0.6, nacio);
+  if (c > 0) { T.PIEZAS_NV.calendario(R, 252, Math.round(lerp(130, 176, c)), { s: 2 }); if (c >= 1) R.icono('?', 247, 146, hex('#c8303a'), K, 2); }
+};
+const p2 = (t) => {
+  const g = T.roma(R, t, { encuadre: 'scriptorium' });
+  // el calígrafo pinta (la mano va y viene sobre la hoja) y se vuelve a saludar al cliente
+  const viene = tramo(t, hecho - 1.4, rico), tiende = t > rico + 0.2;
+  R.actor(EL.caligrafo, 182, 158, t, { dir: -1, sostiene: t < rico ? [150 + Math.round(Math.sin(t * 9) * 4), 138 + Math.round(Math.cos(t * 6))] : (tiende ? [168, 128] : false), sonrisa: t > rico, habla: t > rico && Math.sin(t * 7) > 0.3 });
+  // el 354 que sale sobre el pupitre
+  const n = tramo(t, ano354, ano354 + 0.3) - tramo(t, hecho - 0.8, hecho - 0.4);
+  if (n > 0) R.numero('354', 141, Math.round(lerp(128, 118, n)), { tam: 16, centro: true });
+  // el cristiano rico entra por la izquierda con la bolsa, se para ante el pupitre y la tiende
+  const x = Math.round(lerp(-20, 100, viene));
+  if (viene > 0) { const m = R.actor(EL.cristianoRico, x, 158, t, { dir: 1, anda: viene > 0 && viene < 1, sostiene: tiende ? [x + 18, 130] : true, sonrisa: tiende });
+    T.PIEZAS_NV.bolsa(R, m.mano[0] + 1, m.mano[1] + 5, {}); }
+  T.romaDelante(R, t, { encuadre: 'scriptorium' });
+};
+const p3 = (t) => {
+  const esc = lerp(0.68, 1, tramo(t, P3 + 0.2, dic + 0.2)), br = tramo(t, libro, libro + 0.6);
+  const g = T.roma(R, t, { encuadre: 'scriptorium', camara: 'mesa', escrito: esc, brilla: br });
+  const fy = g.fila || ((r) => r < 24 ? 48 + r * 3 : r === 24 ? 120 : 130 + (r - 25) * 3);
+  // la estrella sola se enciende primero, en «Bethlehem»
+  const es = tramo(t, cristo, belen);
+  if (es > 0 && br === 0) { for (let r = 2; r <= 4 + es * 5; r++) for (let k = 0; k < 10; k++) { const an = k / 10 * Math.PI * 2 + t; if ((k + r) % 3 === 0) R.pset(Math.round(221 + Math.cos(an) * r), Math.round(123 + Math.sin(an) * r * 0.8), hex('#fff0a0')); } R.rect(220, 121, 222, 125, hex('#f0c040')); R.rect(219, 123, 223, 123, hex('#f0c040')); }
+  // la mano con el cálamo escribe la columna de diciembre renglón a renglón, llega al 25 en «December 25th», lo señala
+  // y se aparta en «Christ»
+  const r = Math.min(31, Math.round(esc * 31)), sale = tramo(t, cristo - 0.2, cristo + 0.5);
+  const tx = Math.round(lerp(r >= 25 && r < 31 ? 224 : 220 + Math.sin(t * 14) * 3, 330, sale)), ty = Math.round(lerp(r >= 25 && t > dic ? 124 : fy(Math.max(0, r - 1)), 200, sale));
+  const fx = tx + 14, fyy = ty + 12;
+  R.linea(tx, ty, fx, fyy, hex('#c8b070')); R.linea(tx + 1, ty, fx + 1, fyy, hex('#8a7040')); R.pset(tx, ty, K);
+  T.brazo(R, fx + 34, 204, fx + 13, fyy + 2, '#e8dcc0', -1, { codo: [fx + 32, Math.round(lerp(fyy, 204, 0.5))] });
+  T.romaDelante(R, t, { encuadre: 'scriptorium', camara: 'mesa' });
+};
+const p4 = (t) => {
+  const g = T.roma(R, t, { encuadre: 'templo' });
+  // el disco del Sol de la puerta se enciende en «Sun»
+  const s = tramo(t, sol - 0.3, sol + 0.2);
+  if (s > 0) for (let r = 4; r < 4 + s * 14; r += 2) for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2 + t * 0.6; if ((k + r) % 2 === 0) R.pset(Math.round(165 + Math.cos(an) * r), Math.round(86 + Math.sin(an) * r), hex('#fff0a0')); }
+  // la gente de la fiesta: dos que suben con antorchas, una romana con laurel y uno que alza los brazos en «Sun»
+  const u = tramo(t, P4 + 0.1, sol - 0.2);
+  const m1 = R.actor(EL.romanoPileo, Math.round(lerp(40, 112, u)), 166, t, { dir: 1, anda: u > 0 && u < 1, sostiene: true, brazos: t > sol, sonrisa: true });
+  if (!(t > sol)) { R.rect(m1.mano[0], m1.mano[1] - 8, m1.mano[0] + 1, m1.mano[1] + 2, hex('#6a4422')); R.disco(m1.mano[0], m1.mano[1] - 10, 2, hex('#f0a040')); R.pset(m1.mano[0], m1.mano[1] - 13 + (Math.sin(t * 20) > 0 ? 0 : 1), hex('#fff0a0')); }
+  const m2 = R.actor(EL.romanoPileo2, Math.round(lerp(290, 218, u)), 166, t, { dir: -1, anda: u > 0 && u < 1, sostiene: true, brazos: t > sol + 0.1, sonrisa: true });
+  if (!(t > sol + 0.1)) { R.rect(m2.mano[0], m2.mano[1] - 8, m2.mano[0] + 1, m2.mano[1] + 2, hex('#6a4422')); R.disco(m2.mano[0], m2.mano[1] - 10, 2, hex('#f0a040')); R.pset(m2.mano[0], m2.mano[1] - 13 + (Math.sin(t * 21) > 0 ? 0 : 1), hex('#fff0a0')); }
+  R.actor(EL.romana, 160, 172, t, { dir: -1, dedo: t > fiesta && t < sol, brazos: t > sol + 0.2, sonrisa: true });
+  R.actor(EL.cristianoRico, 252, 174, t, { dir: -1, sorpresa: t > sol, habla: t > fiesta && t < sol && Math.sin(t * 7) > 0 });
+};
+const efectos = [[0.5, 'papel'], [nunca + 0.05, 'pop'], [nacio, 'golpecito'], [P2 + 0.4, 'lapiz'], [ano354, 'brillo'], [hecho - 1.2, 'puerta'], [rico + 0.3, 'toc'],
+  [P3 + 0.3, 'lapiz'], [belen, 'brillo'], [libro + 0.1, 'campana'], [P4 + 0.3, 'publico'], [sol, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '354', efectos, año: 354 });
+</script>
+</body>
+</html>

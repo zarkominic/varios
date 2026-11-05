@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Saturnales · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-SATURNALES (frase 13), 354. Tres planos:
+// 1. (calle) la calle en Saturnales de noche: dos romanos con píleo se cruzan y él le regala una figurita de barro; un
+//    pregonero entra con el calendario en su pértiga y los días del 17 al 23 se marcan en rojo («17th» … «23rd»);
+// 2. (banquete) corta en «and most historians»: el banquete; llega el tercero y se sienta, brindan en «feasts», ella le pasa
+//    una figurita en «small gifts» y ríen todos en «mood»;
+// 3. (fondo local, la mesa) corta en «but there's no proof»: a un lado las Saturnales (figurita, píleo, calendario del 17 al
+//    23), al otro un arbolito de Navidad; un sello cae en medio («no proof») con su «≠» y la flecha que va de un lado al
+//    otro («copied») rebota y se tacha.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-saturnales');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const H = (c) => hex(c), K = hex('#1a1420');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], umbral = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const capas = new Map();
+const capa = (clave, dibuja) => { let b = capas.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); capas.set(clave, b); } return b; };
+const fondo = (clave, dibuja) => R.copiar(capa(clave, dibuja));
+// halo: mezcla col sobre lo que ya hay, más fuerte en el centro
+const halo = (cx, cy, r, col, a) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j) / r; if (d < 1) { const x = cx + i, y = cy + j; R.pset(x, y, mez(R.pget(x, y), col, a * (1 - d) ** 1.4)); } } };
+// nube de tres tonos (sombra, medio, luz)
+const nube3 = (x, y, w, cs) => { x = Math.round(x); const n = Math.max(2, Math.round(w / 7));
+  for (let i = 0; i < n; i++) { const r = 3 + Math.round(3 * Math.sin((i + 0.5) / n * Math.PI)); R.disco(x + i * 7, y + 2, r, cs[0]); }
+  for (let i = 0; i < n; i++) { const r = 2 + Math.round(3 * Math.sin((i + 0.5) / n * Math.PI)); R.disco(x + i * 7, y, r, cs[1]); }
+  for (let i = 0; i < n; i++) { const r = Math.round(2 * Math.sin((i + 0.5) / n * Math.PI)); if (r > 0) R.disco(x + i * 7 - 1, y - 2, r, cs[2]); } };
+const pajaro = (x, y, t, k, c) => { const a = Math.sin(t * 11 + k) > 0; x = Math.round(x); y = Math.round(y); R.pset(x, y, c); R.pset(x - 1, y - (a ? 1 : 0), c); R.pset(x + 1, y - (a ? 1 : 0), c); R.pset(x - 2, y - (a ? 2 : -1), c); R.pset(x + 2, y - (a ? 2 : -1), c); };
+// madera con vetas, nudos y juntas (tablas horizontales de alto h)
+const madera = (x0, y0, x1, y1, h, base, veta, luz, junta, k = 0) => { R.rect(x0, y0, x1, y1, base);
+  for (let y = y0; y <= y1; y++) { const tabla = Math.floor((y - y0) / h), dy = (y - y0) % h; if (dy === 0) { R.rect(x0, y, x1, y, junta); continue; } if (dy === 1) { R.rect(x0, y, x1, y, luz); continue; }
+    for (let x = x0; x <= x1; x++) { const v = Math.sin(x * 0.045 + tabla * 7 + Math.sin(x * 0.013 + tabla) * 3 + dy * 0.9); if (v > 0.93) R.pset(x, y, veta); else if (hh(x >> 1, y, k + tabla) < 0.05) R.pset(x, y, veta); } }
+  for (let n = 0; n < (x1 - x0) / 40; n++) { const nx = x0 + Math.round(hh(n, 1, k) * (x1 - x0)), ny = y0 + Math.round(hh(n, 2, k) * (y1 - y0)); R.disco(nx, ny, 2, veta); R.pset(nx, ny, junta); } };
+// estrella de cinco puntas grande (relleno y contorno)
+const estrella5 = (cx, cy, r, col, borde) => { const P = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; P.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+  R.poligono(P.map(([x, y]) => [x + 1, y + 1]), borde); R.poligono(P.map(([x, y]) => [x - 1, y]), borde); R.poligono(P.map(([x, y]) => [x, y - 1]), borde); R.poligono(P, col); };
+
+const Q2 = en('saturnales', 0.3828), Q3 = en('saturnales', 0.8129);
+const figurita = (x, y, s = 1) => { // figurita de barro (sigillaria) con la base en (x, y)
+  const p = (i, j, c) => R.rect(x + i * s, y - j * s, x + i * s + s - 1, y - j * s + s - 1, c);
+  for (let j = 0; j < 9; j++) for (let i = -2; i <= 2; i++) { const dentro = j < 2 ? true : j < 6 ? Math.abs(i) <= 1 : j < 8 ? Math.abs(i) <= 1 : Math.abs(i) <= 0; if (dentro) p(i, j, i < 0 ? H('#d8844a') : H('#b8603a')); }
+  p(-2, 0, H('#8a4024')); p(2, 0, H('#8a4024')); p(0, 7, H('#f0a870')); p(-1, 4, H('#8a4024')); p(1, 4, H('#8a4024')); };
+// ── 1 · la calle ──
+const p1 = (t) => { const g = T.roma(R, t, { encuadre: 'calle' });
+  const u = tramo(t, en('saturnales', -0.0126), en('saturnales', 0.1137)), v = tramo(t, en('saturnales', 0.0063), en('saturnales', 0.1263)), xA = Math.round(lerp(-14, 100, u)), xB = Math.round(lerp(330, 122, v));
+  const da = tramo(t, en('saturnales', 0.1516), en('saturnales', 0.1895)), regalo = t > en('saturnales', 0.1421);
+  const a = R.actor(EL.romanoPileo, xA, g.suelo, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: u >= 1, sostiene: regalo && da < 1 ? [xA + 22, g.suelo - 14] : undefined, habla: u >= 1 && t < en('saturnales', 0.1453) && Math.sin(t * 9) > 0 });
+  const b = R.actor(EL.romana, xB, g.suelo, t, { dir: -1, anda: v > 0 && v < 1, sonrisa: da >= 1, sorpresa: da > 0 && da < 1, sostiene: da >= 1 ? true : undefined });
+  if (regalo && da < 1) { const [mx, my] = a.mano, [bx, by] = b.mano; figurita(Math.round(lerp(mx, bx, da)), Math.round(lerp(my, by, da) - Math.sin(da * Math.PI) * 6)); }
+  else if (da >= 1) figurita(b.mano[0], b.mano[1]);
+  // el pregonero con el calendario en la pértiga: del 17 al 23
+  const w = tramo(t, en('saturnales', 0.1958), en('saturnales', 0.2527)), xP = Math.round(lerp(336, 214, w)), marca = Math.floor(tramo(t, en('saturnales', 0.2628), en('saturnales', 0.331)) * 6.999);
+  const p = R.actor(EL.romanoPileo2, xP, g.suelo, t, { dir: -1, anda: w > 0 && w < 1, sostiene: [xP - 4, g.suelo - 20], habla: w >= 1 && Math.sin(t * 8) > 0, dedo: t > en('saturnales', 0.3411) });
+  const [hx, hy] = p.mano; R.rect(hx, hy - 18, hx + 1, hy + 2, H('#5a3a20')); R.pset(hx, hy - 18, H('#8a5a30'));
+  T.PIEZAS_NV.calendario(R, hx + 1, hy - 16, { s: 2, marca: t > en('saturnales', 0.2628) ? [17, 17 + marca] : [0, -1] });
+  if (t > en('saturnales', 0.2628)) { const x0 = hx + 1 - 21, y0 = hy - 16 - 44; for (let d = 17; d <= 17 + marca; d++) { const c = (d - 1) % 7, f = Math.floor((d - 1) / 7), cx = x0 + (4 + c * 2) * 2, cy = y0 + (8 + f * 2) * 2; R.rect(cx - 1, cy - 1, cx + 2, cy + 2, H('#d8201a')); } }
+  if (marca === 6 && t < en('saturnales', 0.3663)) halo(hx + 1, hy - 38, 22, H('#ffd0a0'), 0.3);
+};
+// ── 2 · el banquete ──
+const p2 = (t) => { const g = T.roma(R, t, { encuadre: 'calle', camara: 'banquete' }), [s1, s2, s3] = g.sitios;
+  const u = tramo(t, Q2 + 0.1, en('saturnales', 0.4927)), x3 = Math.round(lerp(330, s3, u));
+  const brinda = t > en('saturnales', 0.6259) && t < en('saturnales', 0.6948), pasa = tramo(t, en('saturnales', 0.6916), en('saturnales', 0.7264)), rien = t > en('saturnales', 0.7409);
+  const a = R.actor(EL.romanoPileo, s1, g.suelo, t, { dir: 1, habla: t > en('saturnales', 0.3916) && t < en('saturnales', 0.5432) && Math.sin(t * 9) > 0, sonrisa: rien || brinda, sostiene: brinda ? [s1 + 18, g.suelo - 22] : undefined, salto: rien && t < en('saturnales', 0.7769) ? Math.round(Math.abs(Math.sin(t * 10)) * 2) : 0 });
+  if (brinda) { const [mx, my] = a.mano; R.rect(mx - 2, my - 6, mx + 2, my, K); R.rect(mx - 1, my - 5, mx + 1, my - 1, H('#b8603a')); R.pset(mx, my - 5, H('#7a1a2a')); }
+  const b = R.actor(EL.romana, s2, g.suelo, t, { dir: pasa > 0 ? 1 : -1, sonrisa: rien || brinda, habla: t > en('saturnales', 0.5495) && t < en('saturnales', 0.619) && Math.sin(t * 8) > 0, sostiene: pasa > 0 && pasa < 1 ? true : undefined, dedo: t > en('saturnales', 0.4485) && t < en('saturnales', 0.5116) });
+  const c = R.actor(EL.romanoPileo2, x3, g.suelo, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: rien || pasa >= 1, sostiene: pasa >= 1 ? true : undefined, sorpresa: pasa > 0.6 && pasa < 1 });
+  if (pasa > 0 && pasa < 1) { const [bx, by] = b.mano, [cx, cy] = c.mano; figurita(Math.round(lerp(bx, cx, pasa)), Math.round(lerp(by, cy, pasa) - Math.sin(pasa * Math.PI) * 8)); }
+  else if (pasa >= 1) figurita(c.mano[0], c.mano[1]);
+  T.romaDelante(R, t, { encuadre: 'calle', camara: 'banquete' });
+};
+// ── 3 · la mesa: Saturnales ≠ Navidad ──
+const mesa = () => { const { rect, pset, disco, linea } = R;
+  madera(0, 0, 319, 179, 30, H('#8a5a34'), H('#6a4224'), H('#a26c40'), H('#3a2414'), 31);
+  // el paño de las Saturnales (rojo con greca) a la izquierda y el de la Navidad (verde con cenefa) a la derecha
+  rect(10, 26, 146, 168, H('#3a1410')); rect(11, 27, 145, 167, H('#9a2a24')); for (let y = 27; y < 168; y++) for (let x = 11; x < 146; x++) if (hh(x, y, 32) < 0.07) pset(x, y, H('#82201c'));
+  for (let x = 14; x < 142; x += 8) { rect(x, 30, x + 5, 30, H('#e0b040')); rect(x + 5, 30, x + 5, 33, H('#e0b040')); rect(x + 2, 33, x + 5, 33, H('#e0b040')); rect(x, 163, x + 5, 163, H('#e0b040')); rect(x, 160, x, 163, H('#e0b040')); rect(x, 160, x + 3, 160, H('#e0b040')); }
+  rect(174, 26, 310, 168, H('#0e2a16')); rect(175, 27, 309, 167, H('#1e5a32')); for (let y = 27; y < 168; y++) for (let x = 175; x < 310; x++) if (hh(x, y, 33) < 0.07) pset(x, y, H('#174a28'));
+  for (let x = 178; x < 306; x += 6) { disco(x, 31, 1, H('#e8e0d0')); disco(x + 3, 163, 1, H('#c8302a')); }
+  // nueces, castañas y migas sobre la madera
+  for (let k = 0; k < 18; k++) { const x = Math.round(hh(k, 1, 34) * 316), y = Math.round(hh(k, 2, 34) * 176); if ((x > 6 && x < 150) || (x > 170 && x < 314)) if (y > 22 && y < 172) continue; disco(x, y, 2, H('#5a3418')); pset(x - 1, y - 1, H('#8a5a30')); }
+};
+const p3 = (t) => { fondo('mesa', mesa);
+  // la lucerna con su llama y la polilla
+  halo(36, 52, 22, H('#ffc870'), 0.3); R.rect(22, 50, 46, 58, K); R.rect(23, 51, 45, 57, H('#c07a40')); R.rect(23, 51, 45, 52, H('#e09a5a')); R.disco(46, 54, 3, K); R.disco(46, 54, 2, H('#c07a40'));
+  const fl = Math.sin(t * 13) > 0; R.rect(48, 50, 49, 53, H('#ff9a30')); R.pset(48 + (fl ? 1 : 0), 48, H('#ffe090')); R.pset(48, 49, H('#fff4c0'));
+  const pa = t * 3; R.pset(Math.round(48 + Math.cos(pa) * 9), Math.round(44 + Math.sin(pa * 1.3) * 6), H('#d8ccb0'));
+  // las Saturnales: figuritas de barro, el píleo, velas de cera de regalo, monedas y el calendario del 17 al 23
+  figurita(46, 126, 4); figurita(76, 118, 3);
+  R.poligono([[84, 82], [118, 82], [108, 50], [94, 50]], K); R.poligono([[86, 81], [116, 81], [107, 52], [95, 52]], H('#e8dcc0')); R.poligono([[86, 81], [96, 81], [99, 52], [95, 52]], H('#f6eedc')); R.rect(86, 76, 116, 81, H('#c8b898')); R.rect(86, 76, 116, 76, H('#d8ccb0')); R.pset(101, 54, H('#ffffff'));
+  for (let k = 0; k < 3; k++) { const y = 140 + k * 4; R.rect(22, y - 1, 58, y + 2, K); R.rect(23, y, 57, y + 1, k === 1 ? H('#e8d8a0') : H('#f4ecc8')); R.pset(58, y, H('#3a2a1a')); }
+  T.PIEZAS_NV.monedas(R, 132, 98, { s: 2 });
+  T.PIEZAS_NV.calendario(R, 104, 160, { s: 2, marca: [17, 23] });
+  for (const [x, y] of [[26, 98], [134, 62], [136, 150], [70, 154]]) { R.disco(x, y, 4, K); R.disco(x, y, 3, H('#7a4a24')); R.pset(x - 1, y - 2, H('#aa7440')); R.pset(x, y, H('#5a3418')); }
+  // la Navidad: el arbolito en su maceta, los regalos, la vela, el acebo y las galletas
+  const ax = 236, ay = 120; R.rect(ax - 9, ay, ax + 9, ay + 16, K); R.rect(ax - 8, ay + 1, ax + 8, ay + 15, H('#b8603a')); R.rect(ax - 8, ay + 1, ax - 6, ay + 15, H('#d8844a')); R.rect(ax - 9, ay, ax + 9, ay + 2, H('#8a4024'));
+  for (let j = 0; j < 4; j++) { const y0 = ay - 4 - j * 15, w = 30 - j * 6; R.poligono([[ax - w - 1, y0 + 1], [ax + w + 1, y0 + 1], [ax, y0 - 22]], K); R.poligono([[ax - w, y0], [ax + w, y0], [ax, y0 - 20]], j % 2 ? H('#2a7a3a') : H('#1e6a30')); R.poligono([[ax - w, y0], [ax - 3, y0], [ax, y0 - 20]], H('#3a8a4a')); for (let q = -w + 4; q < w - 2; q += 5) R.pset(ax + q, y0 - 1, H('#145a26')); }
+  for (const [dx, dy, c] of [[-16, -12, '#c8302a'], [12, -20, '#f0c040'], [-8, -30, '#3a6ab0'], [14, -38, '#c8302a'], [-12, -46, '#f0c040'], [5, -58, '#c8302a'], [-22, -8, '#f0c040'], [20, -8, '#3a6ab0']]) { R.disco(ax + dx, ay + dy, 3, K); R.disco(ax + dx, ay + dy, 2, H(c)); if (Math.sin(t * 4 + dx) > 0.6) R.pset(ax + dx - 1, ay + dy - 1, H('#ffffff')); }
+  estrella5(ax, ay - 86, 7, H('#f8d048'), K); if (Math.sin(t * 5) > 0) R.pset(ax - 1, ay - 89, H('#ffffff'));
+  for (const [gx, gy, c1, c2] of [[196, 150, '#c8302a', '#f0c040'], [284, 138, '#3a6ab0', '#f6f0e2']]) { R.rect(gx - 12, gy - 12, gx + 12, gy + 8, K); R.rect(gx - 11, gy - 11, gx + 11, gy + 7, H(c1)); R.rect(gx - 1, gy - 11, gx + 1, gy + 7, H(c2)); R.rect(gx - 11, gy - 3, gx + 11, gy - 1, H(c2)); R.disco(gx - 3, gy - 13, 3, H(c2)); R.disco(gx + 3, gy - 13, 3, H(c2)); R.pset(gx, gy - 12, K); }
+  T.PIEZAS_NV.vela(R, 292, 166, { t, s: 2 }); T.PIEZAS_NV.acebo(R, 200, 58, { s: 2 }); T.PIEZAS_NV.acebo(R, 286, 52, { s: 2, dir: -1 });
+  for (const [cx, cy] of [[270, 160], [252, 164]]) { R.disco(cx, cy, 5, K); R.disco(cx, cy, 4, H('#b8743a')); R.pset(cx - 2, cy - 1, H('#f8f4ec')); R.pset(cx + 2, cy - 1, H('#f8f4ec')); R.pset(cx, cy + 2, H('#f8f4ec')); }
+  // la raya del medio, el sello que cae con su «≠» y la flecha que rebota
+  const raya = tramo(t, Q3, en('saturnales', 0.8432)); for (let y = 8; y < 8 + 166 * raya; y++) if (y % 8 < 5) R.rect(159, y, 160, y, H('#f0e6d0'));
+  const baja = tramo(t, en('saturnales', 0.8274), en('saturnales', 0.8546)), sube = tramo(t, en('saturnales', 0.8748), en('saturnales', 0.9096)), marca = t > en('saturnales', 0.8546);
+  if (marca) { for (let j = -16; j <= 16; j++) for (let i = -16; i <= 16; i++) { const d = Math.hypot(i, j); if (d > 12 && d < 16 && hh(i, j, 35) > 0.12) R.pset(160 + i, 94 + j, H('#c8201a')); }
+    for (const yy of [88, 98]) R.rect(150, yy, 170, yy + 2, H('#c8201a')); for (let d = -1; d <= 1; d++) R.linea(170 + d, 80, 150 + d, 108, H('#c8201a')); }
+  if (baja > 0 && sube < 1) { const sx = Math.round(lerp(lerp(260, 160, baja), 270, sube)), sy = Math.round(lerp(lerp(-10, 72, baja), -30, sube)) + (t > en('saturnales', 0.8546) && t < en('saturnales', 0.8685) ? 3 : 0);
+    R.rect(sx - 12, sy, sx + 12, sy + 10, K); R.rect(sx - 11, sy + 1, sx + 11, sy + 8, H('#8a5a34')); R.rect(sx - 11, sy + 1, sx + 11, sy + 2, H('#a87448')); R.rect(sx - 11, sy + 9, sx + 11, sy + 9, H('#c8201a'));
+    R.rect(sx - 4, sy - 10, sx + 4, sy, K); R.rect(sx - 3, sy - 9, sx + 3, sy - 1, H('#6a4224')); R.disco(sx, sy - 13, 5, K); R.disco(sx, sy - 13, 4, H('#8a5a34')); R.pset(sx - 2, sy - 15, H('#c08a5a'));
+    T.brazo(R, sx + 70, sy - 70, sx + 9, sy - 12, '#6a4a8a', -1, { codo: [sx + 46, sy - 22] }); }
+  const fl2 = tramo(t, en('saturnales', 0.9329), en('saturnales', 0.9601)), reb = tramo(t, en('saturnales', 0.9759), en('saturnales', 1.0169)); if (fl2 > 0) { const xf = Math.round(lerp(96, 140, fl2) - reb * 24), ya = 106;
+    for (let x = 96; x < xf; x += 6) { R.rect(x, ya - 2, x + 3, ya + 2, K); R.rect(x, ya - 1, x + 3, ya + 1, H('#f6ecd0')); } R.poligono([[xf - 1, ya - 8], [xf - 1, ya + 8], [xf + 9, ya]], K); R.poligono([[xf, ya - 6], [xf, ya + 6], [xf + 7, ya]], H('#f6ecd0'));
+    if (t > en('saturnales', 0.9759)) R.icono('X', xf - 2, ya - 8, H('#c8201a'), K, 3); }
+};
+const efectos = [[en('saturnales', 0.0253), 'publico'], [en('saturnales', 0.1579), 'pop'], [en('saturnales', 0.2628), 'papel'], [Q2 + 0.4, 'publico'], [en('saturnales', 0.6285), 'toc'], [en('saturnales', 0.6948), 'pop'], [en('saturnales', 0.7453), 'palmada'], [en('saturnales', 0.8546), 'sello'], [en('saturnales', 0.9348), 'whoosh'], [en('saturnales', 0.9759), 'golpecito']];
+T.rodar(E, R, [[0, p1], [Q2, p2], [Q3, p3]], { efectos, año: 354 });
+</script>
+</body>
+</html>

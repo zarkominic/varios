@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>San Nicolás de Mira · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-NICOLAS (frase 8, «nicolas»), siglo IV. Tres planos:
+// 1. Mira de noche (general): el obispo Nicolás sale de la iglesia con una bolsita, cruza la plaza junto al pozo y el
+//    olivo; en «Santa Claus» le brilla la mitra; en «Saint Nicholas» se para junto a la ventana de la casa pobre y mira
+//    atrás para que nadie le vea.
+// 2. El mapa del Mediterráneo oriental (fondo local, pergamino sobre la mesa): una mano clava la chincheta en Mira en
+//    «Myra»; en «Turkey» Anatolia se tiñe; en «legend» sale el «?»; un barquito cruza el mar.
+// 3. La ventana de cerca (ventana): la mano de manga roja deja tres bolsitas en el alféizar en «secretly gave», «three»
+//    y «money»; las tres hermanas se sorprenden, las cogen y sonríen en «marry».
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { PIEZAS_NV as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { equirect, pintar } from '/atomo/plato/escenas/ov-mapas.js';
+const { E, R, M } = await T.preparar('nv-nicolas');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// un fondo fijo: se pinta una vez en su búfer y se copia en cada fotograma
+const FIJOS = new Map();
+const fijo = (clave, dibuja) => { let b = FIJOS.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); FIJOS.set(clave, b); } R.copiar(b); };
+const K = hex('#16121a'), BLANCO = hex('#f6f4ee');
+const suave = (u) => u * u * (3 - 2 * u);
+// la llama de una vela con la mecha en (x, y)
+const llama = (x, y, t, k = 0) => { const f = Math.sin(t * 11 + k * 3) * Math.sin(t * 5.3 + k); R.pset(x, y - 4 - (f > 0.3 ? 1 : 0), hex('#fff6d0')); R.rect(x, y - 3, x, y - 1, hex('#ffd060')); R.pset(x + (f > 0 ? 1 : -1), y - 2, hex('#f08a2a')); R.pset(x, y, hex('#3a2a1a')); };
+// el halo cálido de una llama: aclara los píxeles de alrededor
+const halo = (x, y, r, t, k = 0) => { const rr = r + Math.sin(t * 9 + k) * 0.8; for (let j = -Math.ceil(rr); j <= rr; j++) for (let i = -Math.ceil(rr); i <= rr; i++) { const d = Math.hypot(i, j) / rr; if (d < 1) { const px = Math.round(x + i), py = Math.round(y + j); R.pset(px, py, mez(R.pget(px, py), hex('#ffe6a0'), 0.22 * (1 - d))); } } };
+// nieve que cae dentro de la caja [x0, y0, x1, y1] (y dentro de dentro(x, y), si se da)
+const nieve = (t, n, [x0, y0, x1, y1], dentro, k = 0) => { for (let i = 0; i < n; i++) { const v = 7 + hh(i, 1, k) * 9, x = x0 + ((hh(i, 2, k) * (x1 - x0) + Math.sin(t * 1.3 + i) * 3 + t * 3) % (x1 - x0 + 1)), y = y0 + ((hh(i, 3, k) * (y1 - y0) + t * v) % (y1 - y0 + 1)); const px = Math.round(x), py = Math.round(y); if (dentro && !dentro(px, py)) continue; R.pset(px, py, hh(i, 4, k) < 0.3 ? hex('#c8d4e2') : hex('#f4f8fc')); } };
+// un destello de cuatro puntas (brillo) de radio r
+const destello = (x, y, r, c = hex('#fff4c0')) => { for (let i = -r; i <= r; i++) { R.pset(x + i, y, Math.abs(i) < r / 2 ? BLANCO : c); R.pset(x, y + i, Math.abs(i) < r / 2 ? BLANCO : c); } R.pset(x - 1, y - 1, c); R.pset(x + 1, y + 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y - 1, c); };
+// una X roja gruesa con su contorno, centrada en (x, y), de medio lado r
+const equis = (x, y, r) => { for (const [c, w] of [[K, 2], [hex('#d8302a'), 1]]) for (let d = -r; d <= r; d++) for (let a = -w; a <= w; a++) { R.pset(x + d + a, y + d, c); R.pset(x + d + a, y - d, c); } };
+
+const m = (f) => en('nicolas', f);
+const P2 = m(0.315), P3 = m(0.725);
+const santa = m(0.18), san = m(0.26), mira = m(0.41), turquia = m(0.495), leyenda = m(0.68);
+const B = [m(0.795), m(0.84), m(0.895)], boda = m(0.965);
+
+// ── 1 · Mira de noche ──
+const p1 = (t) => {
+  const g = T.roma(R, t, { encuadre: 'mira' });
+  const u = tramo(t, 0.4, san - 0.1), x = Math.round(lerp(58, 194, suave(u)));
+  const mirAtras = t > san + 0.05 && t < san + 0.75;
+  const n = R.actor(EL.nicolas, x, 160, t, { dir: mirAtras ? -1 : 1, anda: u > 0 && u < 1, sostiene: true, sonrisa: t > san + 0.8 });
+  if (PZ.bolsa) PZ.bolsa(R, n.mano[0], n.mano[1] + 8, {});
+  if (t > santa && t < santa + 0.7) destello(x + 7, n.cabeza[1] - 4, Math.round(2 + Math.sin((t - santa) / 0.7 * Math.PI) * 3));
+  if (t > san + 0.9) { const k = Math.floor((t - san) * 3) % 2; R.pset(g.ventana[0] + 6, g.ventana[1] + 4 + k, hex('#ffe08a')); }
+};
+
+// ── 2 · El mapa: Mira, en lo que hoy es Turquía ──
+const P = equirect([8, 8, 312, 172], [18.5, 38.5, 32.5, 42.5]);
+const ANATOLIA = [[29.0, 41.1], [30.2, 41.2], [31.4, 41.3], [32.6, 41.8], [33.6, 42.0], [35.0, 42.05], [35.4, 41.7], [36.3, 41.4], [37.2, 41.1], [38.6, 41.0], [38.6, 36.9], [36.6, 36.9], [36.2, 36.6], [35.8, 36.75], [35.4, 36.6], [34.7, 36.8], [34.1, 36.4], [33.6, 36.15], [32.9, 36.05], [32.3, 36.4], [31.6, 36.6], [30.9, 36.85], [30.6, 36.8], [30.5, 36.4], [30.4, 36.2], [30.1, 36.3], [29.9, 36.2], [29.6, 36.15], [29.3, 36.3], [29.1, 36.65], [28.6, 36.75], [28.1, 36.6], [27.6, 36.7], [28.0, 37.0], [27.4, 37.05], [27.2, 37.4], [27.3, 37.9], [26.8, 38.2], [26.3, 38.3], [26.8, 38.5], [26.9, 38.9], [26.6, 39.3], [26.1, 39.45], [26.2, 39.95], [26.5, 40.3], [27.3, 40.4], [28.0, 40.4], [28.9, 40.45], [29.5, 40.75], [29.0, 41.0]];
+const BALCANES = [[18.5, 42.5], [28.0, 42.5], [27.9, 42.0], [28.0, 41.6], [29.0, 41.25], [28.6, 41.0], [27.5, 40.97], [26.7, 40.5], [26.2, 40.05], [26.1, 40.6], [25.5, 40.9], [24.4, 40.85], [23.9, 40.4], [23.6, 40.0], [23.0, 40.4], [22.6, 40.4], [22.9, 39.6], [22.9, 39.1], [23.4, 38.7], [24.1, 38.3], [24.0, 37.7], [23.5, 37.9], [23.1, 37.5], [23.2, 36.5], [22.5, 36.4], [22.4, 36.8], [21.9, 36.75], [21.7, 37.2], [21.1, 37.8], [21.6, 38.3], [21.2, 38.4], [20.8, 38.9], [20.2, 39.5], [19.9, 40.0], [19.4, 40.5], [19.5, 41.0], [19.4, 41.8], [18.9, 42.1], [18.5, 42.4]];
+const ISLAS = [
+  [[23.5, 35.3], [24.2, 35.55], [25.0, 35.42], [25.8, 35.35], [26.3, 35.3], [26.2, 35.0], [25.0, 34.95], [24.3, 35.1], [23.6, 35.2]],
+  [[32.3, 35.05], [32.9, 35.4], [33.6, 35.37], [34.6, 35.7], [34.0, 35.0], [33.9, 34.9], [32.9, 34.6], [32.4, 34.75]],
+  [[27.7, 36.15], [28.2, 36.45], [28.25, 36.38], [27.85, 35.9]],
+  [[25.85, 39.15], [26.4, 39.4], [26.6, 39.05], [26.2, 38.95]], [[25.85, 38.5], [26.15, 38.6], [26.1, 38.2], [25.9, 38.25]], [[26.6, 37.8], [27.05, 37.75], [26.9, 37.65], [26.6, 37.68]],
+  [[22.9, 38.95], [23.6, 38.75], [24.6, 38.1], [24.4, 38.0], [23.4, 38.5], [22.8, 38.85]],
+  [[24.9, 37.1], [25.2, 37.2], [25.1, 36.95]], [[25.3, 37.08], [25.6, 37.12], [25.5, 36.95]], [[27.0, 36.9], [27.35, 36.9], [27.2, 36.75]],
+  [[20.3, 39.75], [19.9, 39.45], [20.0, 39.8]], [[20.5, 38.4], [20.8, 38.3], [20.6, 38.1]],
+];
+const LEVANTE = [[38.6, 36.9], [38.6, 32.5], [34.9, 32.5], [35.1, 33.1], [35.5, 33.9], [35.9, 34.6], [35.8, 35.5], [35.9, 35.9], [36.2, 36.6], [36.6, 36.9]];
+const CIRENAICA = [[20.0, 32.5], [21.6, 32.92], [22.6, 32.8], [23.2, 32.5]];
+const MYRA = P([29.98, 36.26]).map(Math.round);
+let TIERRA_ANA = null;
+const dentroPol = (pts, x, y) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+const mapa = () => fijo('mapaMira', () => {
+  const { rect, pset, linea } = R;
+  const MAR = [hex('#86a6bc'), hex('#7898b0'), hex('#6c8aa2')], TIE = hex('#e8dcbc'), TIES = hex('#d8c8a4'), COSTA = hex('#4a3e34');
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, hh(x >> 2, y, 60) < 0.1 ? MAR[1] : MAR[0]);
+  // retícula punteada
+  for (let lon = 20; lon <= 38; lon += 5) for (let y = 8; y < 172; y += 3) pset(Math.round(P([lon, 0])[0]), y, MAR[2]);
+  for (let lat = 35; lat <= 42; lat += 5) for (let x = 8; x < 312; x += 3) pset(x, Math.round(P([0, lat])[1]), MAR[2]);
+  const trama = (x, y) => (hh(x >> 1, y, 61) < 0.08 ? TIES : TIE);
+  pintar(R, P, [BALCANES, ANATOLIA, LEVANTE, CIRENAICA, ...ISLAS], trama, { somera: hex('#a4c0d0'), borde: COSTA });
+  // la costa sombreada por dentro y las ondas de buril en el mar, junto a la costa
+  const esMar = (x, y) => { const c = R.pget(x, y); return c === MAR[0] || c === MAR[1] || c === MAR[2]; };
+  for (let y = 10; y < 170; y += 4) for (let x = 10 + (y % 8 ? 0 : 5); x < 310; x += 10) if (esMar(x, y) && esMar(x + 4, y) && esMar(x - 3, y) && !(x > 270 && y < 48)) { pset(x, y, MAR[2]); pset(x + 1, y - 1, MAR[2]); pset(x + 2, y, MAR[2]); pset(x + 3, y - 1, MAR[2]); }
+  // los ríos: el Halys, el Sangario y el Meandro
+  for (const rio of [[[38.4, 39.7], [37.0, 39.4], [35.6, 39.0], [34.4, 39.6], [34.2, 40.6], [35.0, 41.2], [35.9, 41.7]], [[31.5, 39.3], [30.7, 39.8], [30.3, 40.4], [30.6, 41.1]], [[30.2, 38.1], [29.4, 37.9], [28.4, 37.8], [27.3, 37.5]], [[22.4, 41.6], [22.6, 41.0], [22.9, 40.6]]]) for (let i = 1; i < rio.length; i++) { const [ax, ay] = P(rio[i - 1]), [bx, by] = P(rio[i]); for (let k = 0; k <= 12; k++) { const x = Math.round(lerp(ax, bx, k / 12) + Math.sin(k * 1.7 + i) * 1.2), y = Math.round(lerp(ay, by, k / 12)); pset(x, y, hex('#5a86b0')); } }
+  // los montes del Tauro y del interior (trazos «^») y algún bosquecillo
+  for (const [lon, lat] of [[30.5, 37.4], [31.6, 37.3], [32.6, 37.1], [33.6, 37.2], [34.6, 37.4], [35.4, 37.6], [29.6, 37.0], [28.6, 37.5], [22.0, 41.0], [21.0, 41.6], [23.2, 41.6], [22.0, 39.6], [21.6, 40.4], [33.0, 39.0], [31.5, 39.6], [34.6, 39.8], [36.5, 38.6], [37.4, 37.8], [36.4, 37.6], [31.0, 38.4], [29.4, 39.2], [32.4, 40.6], [36.4, 40.2], [37.6, 39.4], [24.6, 41.6], [21.4, 39.0]]) {
+    const [x, y] = P([lon, lat]).map(Math.round); if (x > 272 && y < 50) continue; linea(x - 3, y + 2, x, y - 2, hex('#8a7a5a')); linea(x, y - 2, x + 3, y + 2, hex('#b8a888')); pset(x, y - 2, hex('#6a5a40')); }
+  for (const [lon, lat] of [[27.6, 39.6], [28.4, 40.0], [30.6, 40.6], [32.4, 41.2], [24.4, 41.4], [26.0, 41.9], [20.6, 39.2]]) { const [x, y] = P([lon, lat]).map(Math.round); for (const [dx, dy] of [[0, 0], [4, 1], [-3, 2]]) { R.disco(x + dx, y + dy, 1.6, hex('#8a9a6a')); pset(x + dx, y + dy + 2, hex('#6a5a40')); } }
+  // los puntos de las ciudades de entonces (sin nombres)
+  for (const ll of [[28.97, 41.01], [23.72, 37.98], [27.34, 37.94], [27.14, 38.42], [36.2, 36.2], [24.0, 38.0]]) { const [x, y] = P(ll).map(Math.round); R.disco(x, y, 1.5, COSTA); pset(x, y, hex('#c8402a')); }
+  // la rosa de los vientos, en el mar de Libia
+  { const x = 52, y = 140; for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 - Math.PI / 2, l = k % 2 ? 6 : 12; for (let i = 0; i <= l; i++) { const w = (l - i) / l * (k % 2 ? 1 : 2); for (let s = -w; s <= w; s += 0.5) pset(Math.round(x + Math.cos(a) * i - Math.sin(a) * s), Math.round(y + Math.sin(a) * i + Math.cos(a) * s), k === 0 ? hex('#c8402a') : s < 0 ? COSTA : hex('#a8987a')); } } R.disco(x, y, 2, TIE); pset(x, y, COSTA); }
+  // el papel viejo: manchas, dobleces y bordes oscuros; la mesa alrededor
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { let c = R.pget(x, y); const d = Math.max(Math.abs(x - 160) / 152, Math.abs(y - 90) / 82);
+    if (d > 0.84 && hh(x, y, 62) < (d - 0.84) * 5) c = mez(c, hex('#6a5a40'), 0.35);
+    if (Math.hypot(x - 96, y - 52) < 14 && Math.hypot(x - 96, y - 52) > 12) c = mez(c, hex('#a08a60'), 0.25);
+    if (x === 160 || y === 90) c = mez(c, BLANCO, 0.25); if (x === 161 || y === 91) c = mez(c, K, 0.18);
+    pset(x, y, c); }
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (x < 7 || x > 312 || y < 7 || y > 172) pset(x, y, (y + Math.round(Math.sin(x * 0.05) * 2)) % 6 < 2 ? hex('#4a2e1a') : hex('#5a3a22'));
+  rect(7, 7, 312, 7, K); rect(7, 172, 312, 172, K); rect(7, 7, 7, 172, K); rect(312, 7, 312, 172, K);
+  for (const [x, y] of [[12, 12], [307, 167], [12, 167]]) { R.disco(x, y, 2, hex('#a87a18')); pset(x - 1, y - 1, hex('#f0c850')); }
+  // la máscara de Anatolia, para teñirla en «Turkey»
+  TIERRA_ANA = []; const pa = ANATOLIA.map((p) => P(p));
+  for (let y = 8; y < 172; y++) for (let x = 8; x < 312; x++) if (dentroPol(pa, x + 0.5, y + 0.5)) TIERRA_ANA.push([x, y]);
+});
+const p2 = (t) => {
+  mapa();
+  // Anatolia se tiñe en «Turkey»
+  const ti = tramo(t, turquia - 0.1, turquia + 0.4) * (0.7 + 0.3 * Math.sin((t - turquia) * 4)); if (ti > 0) { const c = hex('#d86a4a'); for (const [x, y] of TIERRA_ANA) if ((x + y) % 2 === 0 || ti > 0.6) R.pset(x, y, mez(R.pget(x, y), c, 0.32 * ti)); }
+  // el barquito de vela que cruza de Creta a Licia (solo por el mar)
+  { const u = (t * 0.035 + 0.1) % 1, [x, y] = P([lerp(24.5, 31.5, u), lerp(34.6, 35.6, u) + Math.sin(u * 9) * 0.1]).map(Math.round), b = Math.round(Math.sin(t * 3)); R.rect(x - 4, y + 1 + b, x + 4, y + 2 + b, hex('#5a3a22')); R.pset(x - 5, y + b, hex('#5a3a22')); R.pset(x + 5, y + b, hex('#5a3a22')); R.linea(x, y - 7 + b, x, y + b, hex('#3a2416')); R.poligono([[x + 1, y - 7 + b], [x + 6, y - 1 + b], [x + 1, y - 1 + b]], hex('#f2ead6')); R.pset(x + 2, y - 4 + b, hex('#c8402a')); for (let i = 1; i < 6; i++) if (Math.sin(t * 4 + i) > 0) R.pset(x - 5 - i * 2, y + 3 + b, hex('#a4c0d0')); }
+  // la mariquita que recorre el canto de la mesa
+  { const u = (t * 0.06) % 1, x = Math.round(20 + u * 280); R.disco(x, 176, 2, hex('#c82a2a')); R.pset(x - 2, 176, K); R.pset(x, 175, K); R.pset(x + 1, 177, K); }
+  // la mano clava la chincheta en Mira; el obispo (mitra) y el «?» de la leyenda
+  const [mx, my] = MYRA, baja = tramo(t, mira - 0.25, mira);
+  const ent = suave(tramo(t, P2 + 0.2, mira - 0.25)), sal = suave(tramo(t, mira + 0.3, mira + 1.0));
+  if (ent > 0 && sal < 1) { const wx = Math.round(lerp(330, mx + 16, ent) + sal * 80), wy = Math.round(lerp(196, my - 2, ent) + sal * 50) - (baja < 1 ? Math.round((1 - baja) * 6) : 0);
+    if (baja < 1) T.chincheta(R, wx - 14, wy + 4, t, hex('#c8202a'), { baja: 1 });
+    T.brazo(R, 340, 214, wx, wy, '#6a4a32', -1, { codo: [Math.round(wx + 40), Math.round(Math.min(210, wy + 30))] }); }
+  if (baja >= 1) { T.chincheta(R, mx, my, t, hex('#c8202a'), { pulso: t > mira && t < mira + 1.6 }); }
+  if (t > mira + 0.4) { const x = mx + 10, y = my - 30, e = tramo(t, mira + 0.4, mira + 0.7); if (e > 0.3) { const mi = (d) => [[x - d, y + 16 + d], [x - d, y + 6], [x + 6, y - d], [x + 12 + d, y + 6], [x + 12 + d, y + 16 + d]]; R.poligono(mi(1), K); R.poligono(mi(0), BLANCO); R.linea(x + 1, y + 6, x + 6, y + 1, hex('#c8ccd6')); R.rect(x, y + 13, x + 12, y + 15, hex('#f0c850')); R.rect(x + 5, y + 2, x + 7, y + 13, hex('#f0c850')); R.rect(x + 3, y + 7, x + 9, y + 8, hex('#f0c850')); R.pset(x + 6, y + 7, hex('#c8202a')); for (const lx of [x + 2, x + 9]) { R.rect(lx, y + 17, lx + 1, y + 21, hex('#c8202a')); R.pset(lx, y + 22, hex('#f0c850')); } } }
+  if (t > leyenda) { const e = tramo(t, leyenda, leyenda + 0.25); R.icono('?', mx - 28, my - 40 - Math.round(e * 4 + Math.sin(t * 4)), hex('#fff2c0'), K, 3); }
+};
+
+// ── 3 · La ventana: tres bolsitas para tres hermanas ──
+const p3 = (t) => {
+  const g = T.roma(R, t, { encuadre: 'mira', camara: 'ventana' });
+  const suelo = g.suelo ?? 142, alf = g.alfeizar ?? 138, SITIO = [194, 178, 162];
+  const coge = (k) => t > B[2] + 0.45 + k * 0.25;
+  R.recorte(g.hueco ?? [108, 38, 212, 138]);
+  const H = [[EL.hermana1, 124], [EL.hermana2, 146], [EL.hermana3, 168]];
+  const manos = [];
+  for (const [k, [def, x]] of H.entries()) { const ve = t > B[2 - k]; const r = R.actor(def, x, suelo, t, { dir: k === 2 ? 1 : 1, triste: !ve, sorpresa: ve && t < B[2 - k] + 0.8, sonrisa: t > boda - 0.4 || (ve && t > B[2 - k] + 0.8), sostiene: coge(k) ? [x + 18, 128] : false, salto: t > boda ? Math.round(Math.abs(Math.sin((t - boda) * 7 + k)) * 3) : 0 }); manos.push(r.mano); }
+  R.recorte(null);
+  T.romaDelante(R, t, { encuadre: 'mira', camara: 'ventana' });
+  // las bolsitas: en el alféizar o ya en la mano de cada hermana
+  for (let k = 0; k < 3; k++) { if (t < B[k]) continue; const her = 2 - k; if (coge(her)) { PZ.bolsa(R, manos[her][0], manos[her][1] + 9, {}); if (t < boda + 0.6 && Math.sin(t * 8 + k) > 0.5) destello(manos[her][0] + 4, manos[her][1] - 4, 2); } else PZ.bolsa(R, SITIO[k], alf, { s: 2 }); }
+  // la mano de manga roja que deja las bolsitas, una por una
+  for (let k = 0; k < 3; k++) { const a = B[k] - 0.55, b = B[k], c = B[k] + 0.4; if (t < a || t > c) continue;
+    const ent = suave(tramo(t, a, b)), sal = suave(tramo(t, b, c)), wx = Math.round(lerp(236, SITIO[k] + 14, ent) + sal * 30), wy = Math.round(lerp(112, alf - 23, ent) + sal * 6);
+    R.recorte([100, 60, 213, 160]); if (t < b) PZ.bolsa(R, wx - 8, wy + 23, { s: 2 }); T.brazo(R, 262, 150, wx, wy, '#b8283a', -1, { codo: [236, Math.round(wy + 10)], sombra: false }); R.recorte(null); }
+  if (t > boda && t < boda + 0.8) for (let k = 0; k < 3; k++) destello(122 + k * 24, 108 - Math.round((t - boda) * 10), 3);
+};
+
+const efectos = [[santa, 'brillo'], [mira, 'toc'], [turquia, 'whoosh'], [leyenda, 'pop'], [B[0], 'golpecito'], [B[2], 'golpecito'], [boda, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 330 });
+</script>
+</body>
+</html>

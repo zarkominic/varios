@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jingle Bells · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-JINGLE (frase 17), 1857 → 1965, sin cartela. Cuatro planos:
+// 1. la carrera de trineos de 1857 (0 → «It»): dos trineos de caballos corren por el camino nevado; a «Jingle Bells» los
+//    cascabeles suenan y salen notas de los arneses; el público de detrás de la cerca se vuelve a mirarlos y vitorea;
+// 2. la meta («written in 1857» → «once»): el autor canta su partitura en primer plano y salen notas; el trineo cruza la
+//    meta y rompe la cinta («sleigh races»), la tribuna vitorea, una dama agita el pañuelo y los niños saltan; a
+//    «doesn't mention Christmas» al autor le sale un bocadillo con un abeto tachado (la canción no la nombra);
+// 3. la Gemini 6A en órbita, 1965 («Even so» → «aboard»): la cápsula se mece sobre la Tierra que gira; a «played from
+//    space» salen notas por la ventanilla y flotan girando en la ingravidez; la Gemini 7 lejos;
+// 4. la cabina («aboard Gemini 6A» → fin): un astronauta saca la armónica diminuta y toca («harmonica»); el otro hace
+//    sonar los cascabeles («a few bells»); las notas flotan y dan vueltas por la cabina; el lápiz atado flota.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-jingle');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const j = (f) => en('jingle', f);
+const P2 = j(0.2530), P3 = j(0.4950), P4 = j(0.7907);
+const jingle = j(0.1313), nunca = j(0.1758), anyo = j(0.2848), carreras = j(0.3556), menciona = j(0.4183), espacio = j(0.6381), desde = j(0.7053), armonica = j(0.8979), cascabeles = j(0.9592);
+const K = T.C.k;
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const spr = (filas, x, y, pal, s = 1) => filas.forEach((f, jj) => { for (let i = 0; i < f.length; i++) { const c = pal[f[i]]; if (c != null) R.rect(x + i * s, y + jj * s, x + i * s + s - 1, y + jj * s + s - 1, c); } });
+const NOTA = ['...kk..', '...kOk.', '...kOOk', '...kOkk', '...kOk.', '.kkkOk.', 'kOOOOk.', 'kOOOk..', '.kkk...'];
+const NOTA2 = ['..kkkkk', '..kOOOk', '..kOkOk', '..kOkOk', '.kkOkOk', 'kOOkOkk', 'kOkOOk.', '.kkkk..'];
+const notaPal = (c) => ({ k: K, O: hex(c) });
+const COLN = ['#f0c040', '#ffffff', '#e86a6a', '#8ad0ff'];
+// una nota que sale de (x0, y0) en t0 y sube flotando; vida: cuánto dura
+const nota = (t, t0, x0, y0, k, vida = 2.2, vx = 6, vy = -14, s = 1) => {
+  const u = (t - t0) / vida; if (u < 0 || u > 1) return;
+  const x = Math.round(x0 + vx * u * vida + Math.sin(u * 7 + k) * 3), y = Math.round(y0 + vy * u * vida);
+  spr(k % 2 ? NOTA2 : NOTA, x, y, notaPal(COLN[k % 4]), s);
+};
+
+// ── 1. la carrera de 1857
+const p1 = (t) => {
+  const o = { encuadre: 'trineos', carrera: false };
+  T.hoy(R, t, o);
+  const xa = Math.round(lerp(70, 392, lin(t, 0, P2 + 0.5))), xb = Math.round(lerp(40, 360, lin(t, 0, P2 + 0.3)));
+  T.e_trineo(R, xb, 128, t, { dir: 1, color: hex('#2a5aa8'), caballo: hex('#3a2a20') });
+  T.e_trineo(R, xa, 139, t, { dir: 1, color: hex('#c0302a') });
+  // las notas que salen de los cascabeles a «Jingle Bells»
+  for (let k = 0; k < 5; k++) { nota(t, jingle - 0.1 + k * 0.4, xa - 12, 116, k, 1.8, -14, -18, 2); nota(t, jingle + 0.1 + k * 0.4, xb - 12, 104, k + 1, 1.8, -14, -18, 2); }
+  // el público detrás de la cerca: se vuelve con los trineos y vitorea al pasar
+  const gente = [[EL.senor1857, 34], [EL.dama1857, 58], [EL.ninoVictoriano, 112], [EL.ninaVictoriana, 132], [EL.senor1857, 222], [EL.dama1857, 250], [EL.ninaVictoriana, 290]];
+  gente.forEach(([d, x], k) => { const pasa = Math.abs(xa - 20 - x) < 46; R.actor(d, x, 160, t, { dir: xa - 20 > x ? 1 : -1, brazos: pasa && Math.sin(t * 9 + k) > -0.2, sonrisa: true, salto: pasa && k % 3 === 2 ? Math.round(Math.abs(Math.sin(t * 10)) * 3) : 0 }); });
+  T.hoyDelante(R, t, o);
+};
+
+// ── 2. la meta y el autor con su partitura
+const p2 = (t) => {
+  const cruce = lin(t, carreras - 1.2, carreras + 0.9), o = { encuadre: 'trineos', camara: 'meta', cruce, cinta: lin(t, carreras + 0.25, carreras + 0.5) };
+  const geo = T.hoy(R, t, o); const S = geo.suelo;
+  // la dama del pañuelo y los niños de la meta
+  const llega = t > carreras + 0.3;
+  const dm = R.actor(EL.dama1857, 136, S, t, { dir: 1, sostiene: [150, Math.round(S - 26 + (llega ? Math.sin(t * 14) * 3 : 0))], sonrisa: true });
+  { const [hx, hy] = dm.mano, f = llega ? Math.round(Math.sin(t * 14) * 2) : 0; R.poligono([[hx, hy - 1], [hx + 7, hy - 3 + f], [hx + 8, hy + 3 + f], [hx + 1, hy + 4]], K); R.poligono([[hx + 1, hy], [hx + 6, hy - 2 + f], [hx + 7, hy + 2 + f], [hx + 1, hy + 3]], hex('#e83a4a')); }
+  for (const [d, x, k] of [[EL.ninoVictoriano, 214, 0], [EL.ninaVictoriana, 254, 1]]) R.actor(d, x, S, t, { dir: -1, brazos: llega, sonrisa: llega, salto: llega && t < carreras + 2 ? Math.round(Math.abs(Math.sin(t * 9 + k)) * 4) : 0 });
+  // el autor con la partitura: canta (salen notas) y luego el bocadillo del abeto tachado
+  const au = R.actor(EL.senor1857, 52, S, t, { dir: 1, habla: t < carreras + 0.3 && Math.sin(t * 8) > -0.3, sostiene: [68, S - 18 + (t > anyo && t < anyo + 1 ? -3 : 0)], sonrisa: t > carreras, sorpresa: t > menciona && t < menciona + 0.6 });
+  { const [hx, hy] = au.mano; R.rect(hx - 1, hy - 10, hx + 11, hy + 2, K); R.rect(hx, hy - 9, hx + 10, hy + 1, hex('#f2ead6')); for (let y = hy - 8; y < hy; y += 2) R.rect(hx + 1, y, hx + 9, y, hex('#7a6a5a')); for (const [nx, ny] of [[hx + 2, hy - 7], [hx + 5, hy - 4], [hx + 8, hy - 6]]) { R.pset(nx, ny, K); R.pset(nx + 1, ny, K); R.pset(nx + 1, ny - 1, K); R.pset(nx + 1, ny - 2, K); } }
+  for (let k = 0; k < 4; k++) nota(t, P2 + 0.2 + k * 0.5, 64, S - 36, k, 1.6, 6, -16, 2);
+  if (t > menciona) {
+    const u = lin(t, menciona, menciona + 0.25), bx = 30, by = S - 72, w = 30, hh = 26;
+    if (u > 0) { R.rect(bx - 1, by - 1, bx + w + 1, by + hh + 1, K); R.rect(bx, by, bx + w, by + hh, hex('#ffffff')); for (const [cx, cy] of [[bx + 16, by + hh + 4], [bx + 20, by + hh + 9]]) { R.disco(cx, cy, 2, K); R.disco(cx, cy, 1, hex('#ffffff')); }
+      // el abeto con su estrella
+      for (let jj = 0; jj < 16; jj++) { const ww = Math.round(jj * 0.5); R.rect(bx + 15 - ww, by + 5 + jj, bx + 15 + ww, by + 5 + jj, jj % 4 === 3 ? hex('#2a6a3a') : hex('#3a8a4a')); }
+      R.rect(bx + 14, by + 21, bx + 16, by + 23, hex('#6a3a1a')); R.pset(bx + 15, by + 4, hex('#f0c040')); R.pset(bx + 13, by + 12, hex('#e83a4a')); R.pset(bx + 17, by + 16, hex('#f0c040'));
+      if (t > menciona + 0.35) for (let k = -1; k <= 1; k++) { R.linea(bx + 4 + k, by + 3, bx + w - 4 + k, by + hh - 3, hex('#d8202a')); R.linea(bx + w - 4 + k, by + 3, bx + 4 + k, by + hh - 3, hex('#d8202a')); } }
+  }
+  T.hoyDelante(R, t, o);
+};
+
+// ── 3. la Gemini 6A en órbita
+const p3 = (t) => {
+  const cx = Math.round(168 + Math.sin(t * 0.6) * 3), cy = Math.round(54 + Math.sin(t * 0.9) * 2);
+  const geo = T.hoy(R, t, { encuadre: 'espacio', capsula: [cx, cy] });
+  // las notas salen por la ventanilla y flotan girando (recortadas a la zona libre)
+  R.recorte([96, 26, 272, 104]);
+  for (let k = 0; k < 9; k++) { const t0 = espacio - 0.3 + k * 0.4, u = (t - t0) / 3.4; if (u < 0 || u > 1) continue;
+    const a = -2.6 + (k % 5) * 0.55, x = Math.round(cx - 34 + Math.cos(a) * u * 80 + Math.sin(t * 2 + k) * 4), y = Math.round(cy - 10 + Math.sin(a) * u * 40 + Math.cos(t * 1.7 + k) * 3);
+    spr(k % 2 ? NOTA2 : NOTA, x, y, notaPal(COLN[k % 4]), 2); }
+  R.recorte(null);
+};
+
+// ── 4. la cabina: la armónica y los cascabeles
+const p4 = (t) => {
+  const o = { encuadre: 'espacio', camara: 'cabina' };
+  const geo = T.hoy(R, t, o); const S = geo.suelo, [xa, xb] = geo.actores;
+  const sube = lin(t, P4 + 0.4, armonica - 0.6), toca = t > armonica - 0.6;
+  const a1 = R.actor(EL.astronauta, xa, S, t, { dir: 1, sonrisa: true, salto: toca && Math.sin(t * 9) > 0.4 ? 1 : 0, sostiene: [Math.round(lerp(xa + 16, xa + 12, sube)), Math.round(lerp(S - 14, S - 21, sube))] });
+  { const [hx, hy] = a1.mano; T.PIEZAS_NV.armonica(R, hx + 4, hy + 4 + (toca && Math.sin(t * 12) > 0 ? 1 : 0), { s: 2 }); }
+  const sacude = t > cascabeles - 0.3;
+  const saluda = t > P4 + 0.2 && t < P4 + 1.4;
+  const a2 = R.actor(EL.astronauta2, xb, S, t, { dir: -1, sonrisa: true, dedo: saluda, salto: sacude && Math.sin(t * 9) > 0.4 ? 1 : 0, habla: !sacude && !saluda && t < cascabeles - 1.5 && Math.sin(t * 6) > 0, sostiene: saluda ? false : [xb - 4 + (sacude ? Math.round(Math.sin(t * 22) * 2) : 0), S - 20 + (sacude ? Math.round(Math.cos(t * 22) * 2) : 0)] });
+  if (!saluda) { const [hx, hy] = a2.mano; T.PIEZAS_NV.cascabeles(R, hx - 6, hy + 4, { t: sacude ? t : undefined }); }
+  else T.PIEZAS_NV.cascabeles(R, xb - 14, S - 22 + Math.round(Math.sin(t * 2.2) * 2), {});   // flotan a su lado mientras saluda
+  T.hoyDelante(R, t, o);
+  // las notas en ingravidez: salen de la armónica y de los cascabeles, flotan y dan vueltas
+  for (let k = 0; k < 10; k++) { const t0 = armonica - 0.4 + k * 0.4, u = (t - t0) / 4; if (u < 0 || u > 1) continue;
+    const ox = a1.mano[0] + 8, oy = a1.mano[1] - 4, a = k * 1.9 + t * 0.5, rr = u * 46;
+    const x = Math.round(ox + u * 70 + Math.cos(a) * rr * 0.4), y = Math.round(oy - 6 + Math.sin(a) * rr * 0.5);
+    if (y > 78 && y < 130 && x > 40 && x < 266) spr(k % 2 ? NOTA2 : NOTA, x, y, notaPal(COLN[k % 4]), k % 3 ? 2 : 1); }
+  for (let k = 0; k < 5; k++) { const t0 = cascabeles + k * 0.35, u = (t - t0) / 2.6; if (u < 0 || u > 1) continue;
+    const x = Math.round(a2.mano[0] - 10 - u * 50 + Math.sin(t * 3 + k) * 4), y = Math.round(a2.mano[1] - 8 - u * 24 + Math.cos(t * 2 + k) * 3);
+    if (y > 78 && x > 40) spr(k % 2 ? NOTA : NOTA2, x, y, notaPal(COLN[(k + 2) % 4]), 2); }
+};
+const efectos = [[0.4, 'carro'], [jingle, 'campana'], [jingle + 1.2, 'publico'], [carreras + 0.3, 'publico'], [menciona + 0.3, 'pop'], [P3 + 0.3, 'whoosh'], [espacio, 'brillo'], [armonica - 0.5, 'golpecito'], [cascabeles, 'campana']];
+const año = (t) => (t < P3 ? 1857 : 1965);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Japón · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-JAPON (frase 25), Japón, sin cartela. Tres planos:
+// 1. (japon general) la calle en Nochebuena: el tren pasa, la cola de gente con abrigo avanza hacia la tienda de pollo;
+//    un taxi cruza por delante; en «fried chicken» sale un cliente con su cubeta y se va contento;
+// 2. (japon 'mostrador', corta en «It») la freidora con la cesta que sube; en «1974» cae la hoja del calendario y
+//    aparece el 1974 (la barra del año dice 1974); el dependiente trae la cubeta al mostrador y una mano se la lleva;
+// 3. (fondo local: un salón japonés de noche, corta en «and today») la madre rodea el 24 en el calendario («order…
+//    weeks in advance»); el padre abre la puerta corredera y trae la cubeta a la mesa; el niño lo celebra.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-japon');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P2 = en('japon', 0.381), P3 = en('japon', 0.758);
+const pollo = en('japon', 0.301), campana = en('japon', 0.481), ano = en('japon', 0.541), kentucky = en('japon', 0.640), navidad = en('japon', 0.701);
+const pide = en('japon', 0.853), cubo = en('japon', 0.897), semanas = en('japon', 0.916), antes = en('japon', 0.957);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const K = hex('#14121c');
+// la cubeta que se sostiene (centro x, base y)
+const cubeta = (x, y, s = 1) => T.PIEZAS_NV.cubeta(R, x, y, { s });
+// un taxi japonés (verde oscuro, con su luz en el techo) que cruza por delante
+const taxi = (x, y) => {
+  R.rect(x, y - 10, x + 44, y - 3, K); R.rect(x + 9, y - 17, x + 33, y - 10, K);
+  R.rect(x + 1, y - 9, x + 43, y - 4, hex('#2a5a4a')); R.rect(x + 1, y - 9, x + 43, y - 9, hex('#4a8a72')); R.rect(x + 10, y - 16, x + 32, y - 11, hex('#2a5a4a'));
+  R.rect(x + 12, y - 15, x + 20, y - 11, hex('#8ab8d8')); R.rect(x + 22, y - 15, x + 30, y - 11, hex('#8ab8d8')); R.pset(x + 13, y - 15, hex('#d8f0ff'));
+  R.rect(x + 17, y - 20, x + 25, y - 18, K); R.rect(x + 18, y - 19, x + 24, y - 18, hex('#f0d040'));
+  R.rect(x + 42, y - 8, x + 43, y - 6, hex('#fff0a0')); R.rect(x + 1, y - 8, x + 2, y - 6, hex('#e83a2a')); R.rect(x + 3, y - 5, x + 41, y - 5, hex('#1a3a30'));
+  for (const wx of [x + 10, x + 34]) { R.disco(wx, y - 2, 4, K); R.disco(wx, y - 2, 2, hex('#6a6a7a')); }
+  for (let k = 0; k < 18; k++) R.pset(x + 46 + k * 2, y - 7 + (k % 3 === 0 ? 1 : 0), hex('#fff0a0'));
+};
+const COLA = [[EL.japonesa, { C: '#8a3a3a', c: '#6a2a2a' }], [EL.japones, {}], [EL.japonesa, {}], [EL.japones, { C: '#4a5a3a', c: '#344228' }], [EL.japonesa, { C: '#3a4a7a', c: '#2a365a' }], [EL.japones, { C: '#6a4a3a', c: '#4a3428' }]];
+
+const p1 = (t) => {
+  T.mundo(R, t, { encuadre: 'japon' });
+  // la cola avanza un paso en «minority»; el primero entra por la puerta
+  const paso = tramo(t, 2.6, 3.4);
+  COLA.forEach(([d, pal], k) => { const x0 = 228 + k * 15, x = Math.round(x0 - paso * 15); if (k === 0 && paso > 0.5) return; R.actor(d, x, 158, t, { dir: -1, pal, anda: paso > 0 && paso < 1, habla: k === 2 && t > 0.8 && t < 2.2 && Math.sin(t * 8) > 0, dedo: k === 3 && t > 4.4 && t < 5.4, sonrisa: k % 2 === 0 }); });
+  // el cliente sale con su cubeta en «fried chicken» y se va calle abajo
+  const us = tramo(t, pollo - 0.5, P2 + 0.3);
+  if (t > pollo - 0.6) { const x = Math.round(lerp(206, 96, us)); const a = R.actor(EL.japones, x, 160, t, { dir: -1, pal: { C: '#2a2a2a', c: '#1a1a1a' }, anda: us > 0 && us < 1, sostiene: [x - 3, 150], sonrisa: true }); cubeta(a.mano[0] - 2, a.mano[1] + 7, 1); }
+  // un taxi cruza por delante de la cola
+  const ut = (t - 0.4) / 3.2; if (ut > 0 && ut < 1) taxi(Math.round(lerp(-60, 330, ut)), 177);
+};
+
+const p2 = (t) => {
+  T.mundo(R, t, { encuadre: 'japon', camara: 'mostrador' });
+  // el calendario de la pared: en «1974» cae la hoja del mes y queda el año
+  const cae = tramo(t, ano - 0.3, ano + 0.4);
+  T.PIEZAS_NV.calendario(R, 156, 112, { s: 2, dia: 1974 });
+  if (cae < 1) { const y = Math.round(112 + cae * 60), dx = Math.round(cae * 14); R.recorte([0, 0, 319, 141]); T.PIEZAS_NV.calendario(R, 156 + dx, y, { s: 2 }); R.recorte(null); }
+  if (t > ano + 0.2 && t < ano + 1.4) for (let k = 0; k < 8; k++) { const a = k * 0.785 + t, r = 26 + Math.sin(t * 9 + k) * 2; R.pset(Math.round(156 + Math.cos(a) * r), Math.round(90 + Math.sin(a) * r * 0.9), hex('#fff0a0')); }
+  // la dependienta de la freidora sube la cesta del aceite y la sacude
+  const sube = Math.max(0, Math.sin((t - P2) * 1.6)), cy = Math.round(128 - sube * 8);
+  const d1 = R.actor(EL.japonesa, 104, 148, t, { dir: -1, pal: { C: '#c8303a', c: '#8a1a24' }, sostiene: [96, cy], sonrisa: true, habla: t > P2 + 2.6 && t < P2 + 3.4 && Math.sin(t * 9) > 0 });
+  { const [mx, my] = d1.mano; R.rect(mx - 6, my - 1, mx - 1, my, K); R.rect(mx - 18, my - 1, mx - 6, my + 6, K); for (let i = mx - 17; i < mx - 6; i += 2) for (let j = 0; j < 6; j += 2) R.pset(i, my + j, hex('#c8c8d0')); for (let i = mx - 16; i < mx - 7; i += 3) R.disco(i, my + 2, 1.5, hex('#d8902a')); if (sube > 0.6) for (let k = 0; k < 3; k++) R.pset(mx - 14 + k * 3, my + 8 + Math.floor(t * 10 + k) % 4, hex('#f0c040')); }
+  // el dependiente trae la cubeta en «Kentucky» y la deja en el mostrador; en «Christmas» el cliente se la lleva
+  const ut = tramo(t, campana, kentucky), deja = t > kentucky, coge = navidad - 0.1;
+  const xd = Math.round(lerp(290, 190, ut)), d2 = R.actor(EL.japones, xd, 148, t, { dir: -1, pal: { C: '#c8303a', c: '#8a1a24' }, anda: ut > 0 && ut < 1, sostiene: deja ? null : [xd - 4, 132], sonrisa: deja, dedo: deja && t < navidad + 0.4 });
+  T.mundoDelante(R, t, { encuadre: 'japon', camara: 'mostrador' });
+  if (!deja) cubeta(d2.mano[0] - 2, d2.mano[1] + 8, 1.4);
+  else if (t < coge) cubeta(178, 142, 1.6);
+  // los clientes delante del mostrador (asoman la cabeza): uno habla, otro espera; el del centro coge la cubeta y se va
+  R.actor(EL.japonesa, 34, 186, t, { dir: 1, pal: { C: '#3a4a7a', c: '#2a365a' }, habla: t > P2 + 2.4 && t < P2 + 3.6 && Math.sin(t * 9) > 0, sonrisa: true });
+  R.actor(EL.japones, 270, 188, t, { dir: -1, pal: { C: '#4a5a3a', c: '#344228' }, sorpresa: t > ano && t < ano + 0.6, sonrisa: t > ano + 0.6 });
+  const vase = tramo(t, navidad + 0.4, P3 + 0.4), xc = Math.round(lerp(172, 40, vase)), alza = t > coge - 0.5 && t < coge + 0.5;
+  const cl = R.actor(EL.japones, xc, 186, t, { dir: -1, pal: { C: '#2a2a2a', c: '#1a1a1a' }, salto: alza ? 4 : 0, sostiene: t > coge - 0.5 ? [xc - 2, alza ? 160 : 170] : null, anda: vase > 0 && vase < 1, sonrisa: t > coge });
+  if (t > coge) cubeta(cl.mano[0] - 1, cl.mano[1] + 8, 1.6);
+  if (t > coge && t < coge + 1.0) for (let k = 0; k < 5; k++) { const a = k * 1.26 + t * 3; R.pset(Math.round(cl.mano[0] + Math.cos(a) * 14), Math.round(cl.mano[1] - 2 + Math.sin(a) * 9), hex('#fff0a0')); }
+};
+
+// el fondo local del plano 3: un salón japonés de noche (vigas, la hornacina con el rollo de un monte y la luna, el
+// arbolito con luces, el calendario de pared, las puertas correderas de papel con la ciudad encendida detrás, el tatami)
+let FJ = null;
+const fondoJapon = () => {
+  if (FJ) return FJ;
+  FJ = R.nuevo(); const prev = R.usar(FJ);
+  // la pared de barro claro, con su textura
+  for (let y = 0; y < 118; y++) for (let x = 0; x < 320; x++) { const n = hh(x >> 1, y >> 1, 21); R.pset(x, y, n < 0.15 ? hex('#c8b48e') : n > 0.88 ? hex('#ecdcb8') : hex('#dccaa2')); }
+  // las vigas y los pilares de madera
+  const mad = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, x === x0 || y === y0 ? hex('#2a1a10') : hh(x >> 1, y >> 3, 22) < 0.3 ? hex('#5a3a22') : hex('#7a5232')); };
+  mad(0, 18, 270, 23); mad(0, 112, 319, 118); for (const px of [10, 112, 168, 268]) mad(px, 18, px + 5, 118);
+  // la hornacina: el rollo colgado con el monte y la luna, el jarrón con la rama y la tarima
+  mad(118, 98, 166, 104); R.rect(122, 30, 162, 97, hex('#a8946e'));
+  R.rect(132, 32, 152, 86, K); R.rect(133, 33, 151, 85, hex('#f0e8d4'));
+  for (let x = 133; x <= 151; x++) { const ym = 70 - Math.max(0, 10 - Math.abs(x - 142) * 1.2); for (let y = Math.round(ym); y <= 85; y++) R.pset(x, y, y < ym + 3 ? hex('#6a7a8a') : hex('#9aa8b4')); }
+  R.disco(146, 44, 3, hex('#e85a3a')); R.rect(131, 31, 153, 32, hex('#5a3a22')); R.rect(131, 86, 153, 88, hex('#5a3a22'));
+  R.poligono([[150, 98], [156, 98], [157, 88], [149, 88]], K); R.poligono([[151, 97], [155, 97], [156, 89], [150, 89]], hex('#3a5a8a'));
+  R.linea(153, 88, 158, 74, hex('#3a2a1a')); R.linea(153, 88, 146, 78, hex('#3a2a1a')); for (const [bx, by] of [[158, 74], [146, 78], [156, 79], [149, 82]]) { R.disco(bx, by, 1.5, hex('#f0a0b8')); R.pset(bx, by, hex('#ffffff')); }
+  // las puertas correderas (shoji): la izquierda fija; la derecha se abre en la escena
+  // el tatami: esteras con su trenzado y sus bordes oscuros
+  for (let y = 119; y < 180; y++) for (let x = 0; x < 320; x++) { const d = (y - 119) / 61, xx = (x - 160) / (0.6 + d * 0.4) + 160, mx = ((xx % 96) + 96) % 96, borde = mx < 3 || (y > 146 && y < 150);
+    let c = borde ? hex('#2a3a2a') : ((y + (x >> 2)) % 3 === 0 ? hex('#a8a46a') : hh(x >> 1, y, 23) < 0.2 ? hex('#b0aa72') : hex('#c4bc84')); if (!borde && (x + y) % 41 === 0) c = hex('#8a8658'); R.pset(x, y, c); }
+  R.usar(prev); return FJ;
+};
+// las puertas correderas con la ciudad de noche detrás (abre 0–1: la de la derecha se desliza)
+const shoji = (t, abre) => {
+  const x0 = 174, x1 = 266, y0 = 24, y1 = 111;
+  // la noche detrás: cielo, bloques con ventanas encendidas que parpadean, nieve
+  R.recorte([x0, y0, x1, y1]);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, y < 60 ? hex('#1a2448') : hex('#24305a'));
+  for (const [bx, bw, top] of [[176, 20, 54], [198, 26, 44], [226, 18, 60], [246, 22, 50]]) { R.poligono([[bx, top], [bx + bw, top], [bx + bw, y1], [bx, y1]], hex('#121830')); for (let y = top + 3; y < y1 - 2; y += 5) for (let x = bx + 2; x < bx + bw - 2; x += 4) if (hh(x, y, 24) < 0.5) R.pset(x, y, Math.sin(t * 1.5 + x * y) > 0.9 ? hex('#ffe08a') : hex('#e0a050')); }
+  for (let k = 0; k < 14; k++) { const x = x0 + Math.round(hh(k, 1, 25) * 92), y = y0 + Math.round(((t * 9 + hh(k, 2, 25) * 90) % 88)); R.pset(x + Math.round(Math.sin(t + k) * 2), y, hex('#e8eef8')); }
+  R.recorte(null);
+  // los paneles de papel con su enrejado (iluminados desde dentro)
+  const panel = (px, w) => { R.rect(px, y0, px + w, y1, hex('#3a2414')); R.rect(px + 2, y0 + 2, px + w - 2, y1 - 2, hex('#f4ecd8')); for (let x = px + 2; x < px + w - 2; x += 8) R.rect(x, y0 + 2, x, y1 - 2, hex('#6a4a2a')); for (let y = y0 + 2; y < y1 - 2; y += 11) R.rect(px + 2, y, px + w - 2, y, hex('#6a4a2a')); for (let y = y0 + 3; y < y1 - 2; y += 2) if (hh(px, y, 26) < 0.3) R.rect(px + 3, y, px + w - 3, y, hex('#e8dcc0')); };
+  panel(x0, 46); panel(Math.round(x0 + 46 + abre * 42), 46);
+};
+const p3 = (t) => {
+  R.copiar(fondoJapon());
+  const abre = tramo(t, cubo - 0.6, cubo) - tramo(t, antes + 0.3, antes + 1.0);
+  shoji(t, abre);
+  // el calendario de diciembre: en «order» la madre rodea el 24
+  T.PIEZAS_NV.calendario(R, 62, 100, { s: 3, marca: t > pide + 0.3 ? [24, 24] : undefined });
+  if (t > pide - 0.4) { const u = tramo(t, pide - 0.4, pide + 0.3); for (let a = 0; a < u * 6.28; a += 0.15) { const x = Math.round(CAL24[0] + Math.cos(a) * 6), y = Math.round(CAL24[1] + Math.sin(a) * 5); R.pset(x, y, hex('#e8303a')); R.pset(x + 1, y, hex('#e8303a')); } }
+  // el arbolito con luces y la lámpara de papel (andon) que da luz al suelo
+  { const tx = 290, tb = 110; R.rect(tx - 1, tb - 4, tx + 1, tb, hex('#5a3a22')); R.poligono([[tx, tb - 30], [tx - 12, tb - 4], [tx + 12, tb - 4]], hex('#1e5a2a')); for (let k = 0; k < 10; k++) { const lx = tx + Math.round((hh(k, 1, 27) - 0.5) * 18 * (hh(k, 2, 27))), ly = tb - 8 - Math.round(hh(k, 2, 27) * 18); if (Math.sin(t * 3 + k * 1.7) > -0.2) R.pset(lx, ly, [hex('#f0c040'), hex('#f05a7a'), hex('#5ac0f0')][k % 3]); } R.pset(tx, tb - 31, hex('#ffe08a')); }
+  { const ax = 26, ab = 154; R.rect(ax - 7, ab - 26, ax + 7, ab, K); R.rect(ax - 6, ab - 25, ax + 6, ab - 2, hex('#f8e0a0')); for (let y = ab - 22; y < ab - 2; y += 6) R.rect(ax - 6, y, ax + 6, y, hex('#a07a4a')); R.rect(ax, ab - 25, ax, ab - 2, hex('#a07a4a')); const fl = 0.5 + 0.5 * Math.sin(t * 6); if (fl > 0.3) R.rect(ax - 2, ab - 14, ax + 2, ab - 10, hex('#fff8d0')); for (let k = 0; k < 30; k++) { const a = hh(k, 1, 28) * 6.28, r = 10 + hh(k, 2, 28) * 16; R.pset(Math.round(ax + Math.cos(a) * r * 1.4), Math.round(ab + 2 + Math.abs(Math.sin(a)) * r * 0.3), hex('#e8d890')); } }
+  // los cojines (zabuton) junto a la mesa
+  for (const zx of [128, 270]) { R.poligono([[zx - 12, 168], [zx + 12, 168], [zx + 15, 178], [zx - 15, 178]], K); R.poligono([[zx - 11, 169], [zx + 11, 169], [zx + 14, 177], [zx - 14, 177]], hex('#4a5a9a')); R.pset(zx, 173, hex('#f0d8a0')); }
+  // la madre rodea el 24 y va a la mesa; el padre entra por la corredera con la cubeta y la deja; el niño lo celebra
+  const vm = tramo(t, pide + 0.6, semanas + 0.4), xm = Math.round(lerp(92, 150, vm)), sm = Math.round(lerp(130, 160, vm));
+  R.actor(EL.japonesa, xm, sm, t, { dir: t < pide + 0.6 ? -1 : 1, anda: vm > 0 && vm < 1, dedo: t > pide - 0.6 && t < pide + 0.5, sonrisa: t > pide, brazos: t > antes && t < antes + 0.6 });
+  const nino = R.actor(EL.ninoCatalan, 196, 157, t, { dir: t > cubo ? 1 : -1, pal: { H: '#1c1424', h: '#3a3046', C: '#e8a030', c: '#b87a20' }, sinObjeto: true, sonrisa: t > cubo, salto: t > semanas + 0.7 && Math.floor(t * 6) % 2 ? 3 : 0, brazos: t > semanas + 0.7, sorpresa: t > cubo - 0.2 && t < cubo + 0.4, habla: t < pide && Math.sin(t * 8) > 0 });
+  const up = tramo(t, cubo - 0.1, semanas + 0.6), xp = Math.round(lerp(232, 226, up)), sp = Math.round(lerp(124, 162, up)), deja = t > semanas + 0.6;
+  const pa = (t > cubo - 0.4) ? R.actor(EL.japones, xp, sp, t, { dir: -1, anda: up > 0 && up < 1, sostiene: deja ? null : [xp - 3, sp - 14], sonrisa: true, dedo: deja && t < antes + 0.8 }) : null;
+  if (pa && !deja) cubeta(pa.mano[0] - 2, pa.mano[1] + 9, 1.4);
+  // la mesa baja (kotatsu) con su colcha, las mandarinas, el té que humea y la cubeta
+  const kx0 = 150, kx1 = 254, ky = 150;
+  R.rect(kx0 - 6, ky, kx1 + 6, ky + 4, K); R.rect(kx0 - 5, ky + 1, kx1 + 5, ky + 3, hex('#7a5232')); R.rect(kx0 - 5, ky + 1, kx1 + 5, ky + 1, hex('#a07a4a'));
+  R.poligono([[kx0 - 4, ky + 4], [kx1 + 4, ky + 4], [kx1 + 12, ky + 26], [kx0 - 12, ky + 26]], K);
+  R.poligono([[kx0 - 3, ky + 5], [kx1 + 3, ky + 5], [kx1 + 11, ky + 25], [kx0 - 11, ky + 25]], (x, y) => ((Math.floor(x / 6) + Math.floor(y / 4)) % 2 ? hex('#a83a3a') : hex('#c84a4a')));
+  for (let x = kx0 - 10; x < kx1 + 10; x += 9) R.disco(x, ky + 16, 1, hex('#f0d8a0'));
+  R.disco(166, ky - 2, 6, K); R.disco(166, ky - 2, 5, hex('#3a5a8a')); R.rect(160, ky - 2, 172, ky, hex('#3a5a8a'));
+  for (const [ox, oy] of [[163, ky - 5], [168, ky - 6], [166, ky - 8]]) { R.disco(ox, oy, 2.5, hex('#c86010')); R.disco(ox, oy, 2, hex('#f0901a')); R.pset(ox - 1, oy - 1, hex('#ffc060')); }
+  R.rect(240, ky - 7, 246, ky - 1, K); R.rect(241, ky - 6, 245, ky - 1, hex('#5a7a5a'));
+  for (let k = 0; k < 3; k++) { const u = (t * 0.6 + k / 3) % 1; R.pset(243 + Math.round(Math.sin(t * 2 + k) * 2), Math.round(ky - 9 - u * 12), hex('#f0f0f0')); }
+  if (deja) cubeta(214, ky, 1.6);
+  if (deja && t < antes + 1.4) for (let k = 0; k < 6; k++) { const a = k * 1.05 + t * 2; R.pset(Math.round(214 + Math.cos(a) * 15), Math.round(ky - 12 + Math.sin(a) * 8), hex('#fff0a0')); }
+  // el gato duerme en la colcha
+  T.gato(R, 104, 172, t, { dir: 1 });
+};
+const CAL24 = [57, 78];
+const efectos = [[0.6, 'coche'], [2.7, 'toc'], [pollo - 0.4, 'puerta'], [P2 + 0.4, 'burbujas'], [ano - 0.2, 'papel'], [kentucky + 0.05, 'toc'], [navidad, 'bip'], [pide - 0.3, 'lapiz'], [cubo - 0.5, 'puerta'], [semanas + 0.6, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t >= P2 && t < P3 ? 1974 : 2026) });
+</script>
+</body>
+</html>

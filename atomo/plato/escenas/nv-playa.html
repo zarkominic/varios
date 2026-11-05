@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La playa y la Befana · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-PLAYA (frase 26), Australia e Italia, sin cartela. Cuatro planos:
+// 1. (australia general) la playa en Navidad: un surfista corre al agua con su tabla en «beach», una niña hace un
+//    castillo, la pelota rueda, las banderas ondean;
+// 2. (australia 'parrilla', corta en «summer») Santa en bañador da la vuelta a las salchichas en «barbecue», se pone
+//    crema en la nariz en «sunscreen» y en «flip-flops» sale de detrás de la parrilla en chanclas;
+// 3. (italia general, corta en «And») los tejados de noche con la luna: la Befana cruza en escoba por delante de la luna,
+//    aterriza en el caballete y se mete por la chimenea en «brings»;
+// 4. (italia 'chimenea', corta en «brings») baja por el hogar con un poco de hollín, llena los calcetines de dulces en
+//    «Sweets», echa el carbón en uno en «coal», que brilla de azúcar en «sugar», y se pone a barrer.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-playa');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P2 = en('playa', 0.213), P3 = en('playa', 0.412), P4 = en('playa', 0.705);
+const playa = en('playa', 0.101), parrilla = en('playa', 0.244), crema = en('playa', 0.286), santa = en('playa', 0.325), chanclas = en('playa', 0.355);
+const italia = en('playa', 0.460), enero = en('playa', 0.489), befana = en('playa', 0.554), escoba = en('playa', 0.671);
+const ultimos = en('playa', 0.727), dulces = en('playa', 0.814), buenos = en('playa', 0.849), resto = en('playa', 0.910), carbon = en('playa', 0.938), azucar = en('playa', 0.975);
+const K = hex('#14121c');
+// la escoba de la Befana bajo ella (x: el centro, y: el palo), con chispitas detrás
+const escobaVuela = (x, y, t, dir = 1) => { T.PIEZAS_NV.escoba(R, x, y + 6, { dir: -dir }); for (let k = 0; k < 6; k++) { const u = (t * 2 + k / 6) % 1; R.pset(Math.round(x - dir * (16 + u * 26)), Math.round(y + 1 + Math.sin(t * 7 + k) * 3 + u * 2), u < 0.5 ? hex('#fff0a0') : hex('#f0c040')); } };
+
+const p1 = (t) => {
+  T.mundo(R, t, { encuadre: 'australia' });
+  // el surfista corre hacia el agua con la tabla en «beach»; otra surfista llega andando
+  const us = tramo(t, 0.5, playa + 1.6), xs = Math.round(lerp(40, 226, us));
+  R.actor(EL.surfista, xs, Math.round(lerp(150, 124, us)), t, { dir: 1, anda: us > 0 && us < 1, sonrisa: true, salto: us > 0.2 && us < 1 && Math.floor(t * 6) % 2 ? 1 : 0 });
+  const u2 = tramo(t, 0.2, P2), x2 = Math.round(lerp(330, 206, u2));
+  R.actor(EL.surfista2, x2, 162, t, { dir: -1, anda: u2 > 0 && u2 < 1, sonrisa: true, dedo: u2 >= 1 });
+  // la niña del castillo: pone la última torre y aplaude en «summer»
+  const torre = tramo(t, 2.4, 3.2);
+  R.actor(EL.ninaCatalana, 140, 166, t, { dir: -1, pal: { C: '#2a9ac8', c: '#1a7aa8', F: '#2a9ac8' }, sostiene: torre < 1 ? [134, 160] : null, brazos: t > 3.6 && Math.floor(t * 6) % 2 === 0, sonrisa: t > 3.2 });
+  if (torre < 1) { const a = 0; R.rect(132 - 3, 156, 132 + 1, 160, hex('#c8a46a')); } else { R.rect(124, 140, 128, 145, hex('#14121c')); R.rect(125, 141, 127, 145, hex('#f0d8a0')); R.pset(126, 139, hex('#e03a2a')); }
+};
+
+const p2 = (t) => {
+  T.mundo(R, t, { encuadre: 'australia', camara: 'parrilla' });
+  // una bañista pasa por la orilla con su tabla
+  { const u = (t - P2) / 4.2, x = Math.round(lerp(-20, 150, u)); R.actor(EL.surfista2, x, 118, t, { dir: 1, anda: true, pal: { C: '#3aa070', c: '#2a7a50' } }); }
+  // Santa en bañador junto a la parrilla: da la vuelta a las salchichas con las pinzas en «barbecue»; en «sunscreen»,
+  // crema en la nariz; en «flip-flops» da un saltito y se le ven las chanclas
+  const xs = 106, ys = 168, pinzas = t < crema - 0.3 || t > crema + 0.9, bote = !pinzas;
+  const voltea = pinzas && t > parrilla - 0.2 && Math.sin((t - parrilla) * 6) > 0;
+  const salta = t > chanclas - 0.1 && t < chanclas + 0.9;
+  const s = R.actor(EL.santaPlaya, xs, ys, t, { dir: 1, sostiene: pinzas ? [xs + 22, voltea ? 147 : 152] : [xs + 15, 146], sonrisa: true, sorpresa: t > crema && t < crema + 0.35, salto: salta ? Math.round(Math.abs(Math.sin((t - chanclas) * 7)) * 4) : 0, habla: t > chanclas + 1 && Math.sin(t * 8) > 0 });
+  if (pinzas) { const [mx, my] = s.mano, px = 146, py = voltea ? 136 : 140; R.linea(mx, my, px, py, hex('#4a4e58')); R.linea(mx, my + 1, px, py + 2, hex('#b8bcc4')); if (voltea) { R.rect(px - 2, py - 3, px + 5, py - 1, K); R.rect(px - 1, py - 2, px + 4, py - 2, hex('#d07a40')); } }
+  if (bote) { const [mx, my] = s.mano; R.rect(mx - 1, my - 7, mx + 2, my, K); R.rect(mx, my - 6, mx + 1, my - 1, hex('#f8f6f0')); R.rect(mx, my - 3, mx + 1, my - 3, hex('#f0a030')); if (t > crema - 0.1 && t < crema + 0.3) for (let k = 0; k < 3; k++) R.pset(mx - 1 - k, my - 8 - k, hex('#ffffff')); }
+  if (t > crema) { const nx = s.cabeza[0] + 5, ny = s.cabeza[1] + 7; R.rect(nx - 1, ny - 1, nx + 1, ny, hex('#ffffff')); }
+  // las chanclas: en «flip-flops», un destello alrededor de los pies
+  if (t > chanclas - 0.1 && t < chanclas + 1.2) for (let k = 0; k < 6; k++) { const a = k * 1.05 + t * 4; R.pset(Math.round(xs + 7 + Math.cos(a) * 11), Math.round(ys - 1 + Math.sin(a) * 3), hex('#fff0a0')); }
+  T.mundoDelante(R, t, { encuadre: 'australia', camara: 'parrilla' });
+  // una gaviota llega volando, se posa en la nevera y mira las salchichas
+  { const u = tramo(t, P2 + 0.5, P2 + 2.0), gx = Math.round(lerp(-10, 50, u)), gy = Math.round(lerp(96, 134, u)), p = u < 1 && Math.floor(t * 8) % 2;
+    R.rect(gx, gy - 3, gx + 5, gy - 1, hex('#f8f6f0')); R.rect(gx + 1, gy - 1, gx + 4, gy - 1, hex('#c8c8cc')); R.pset(gx + 6, gy - 4, hex('#f8f6f0')); R.pset(gx + 7, gy - 4, hex('#f0a020')); R.pset(gx + 5, gy - 4, K);
+    if (u < 1) { R.linea(gx + 1, gy - 3, gx - 2, gy - (p ? 7 : 1), hex('#c8c8cc')); } else { R.pset(gx + 2, gy, hex('#f0a020')); R.pset(gx + 4, gy, hex('#f0a020')); } }
+};
+
+// la Befana: vuela en escoba por delante de la luna, aterriza en el caballete y se mete por la chimenea
+let BI = null;
+const ATERRIZA = en('playa', 0.608) - 0.1;
+const p3 = (t) => {
+  if (!BI) BI = R.nuevo();
+  const prev = R.usar(BI); T.mundo(R, t, { encuadre: 'italia' }); R.usar(prev); R.copiar(BI);
+  // el vuelo por tramos: entra por la izquierda, cruza por delante de la luna en «January 6th», gira y baja al caballete
+  const RUTA = [[P3 + 0.1, -30, 66], [enero, 70, 52], [befana, 150, 70], [ATERRIZA, 172, 139]];
+  if (t < ATERRIZA) {
+    let k = 0; while (k < RUTA.length - 2 && t > RUTA[k + 1][0]) k++;
+    const [ta, xa, ya] = RUTA[k], [tb, xb, yb] = RUTA[k + 1], u = Math.max(0, Math.min(1, (t - ta) / (tb - ta)));
+    const x = Math.round(lerp(xa, xb, u)), y = Math.round(lerp(ya, yb, u) - Math.sin(u * Math.PI) * (k === 1 ? 10 : 0));
+    escobaVuela(x + 7, y + 1, t, 1);
+    R.actor(EL.befana, x, y, t, { dir: 1, sonrisa: true, dedo: t > enero - 0.3 && t < enero + 0.9 });
+    if (t > enero - 0.4 && t < enero + 0.5) for (let j = 0; j < 8; j++) { const a = j * 0.785; R.pset(Math.round(x + 7 + Math.cos(a) * 18), Math.round(y - 12 + Math.sin(a) * 18), hex('#fff8d0')); }
+  } else {
+    // en el caballete: camina a la chimenea, salta y se mete por ella (la chimenea la tapa)
+    const w = tramo(t, ATERRIZA + 0.1, ATERRIZA + 0.7), salta = tramo(t, escoba - 0.5, escoba + 0.5);
+    const xb = Math.round(lerp(172, 180, w) + (salta < 0.45 ? salta / 0.45 * 9 : 9));
+    const yb = Math.round(salta < 0.45 ? lerp(139, 112, salta / 0.45) - Math.sin(salta / 0.45 * Math.PI) * 10 : 112 + (salta - 0.45) / 0.55 * 36);
+    if (salta < 1) {
+      R.actor(EL.befana, xb, yb, t, { dir: 1, anda: w > 0 && w < 1, sostiene: [xb + 15, yb - 11], sonrisa: true, brazos: false });
+      R.linea(xb + 16, yb - 20, xb + 16, yb, hex('#6a3a1a')); R.linea(xb + 17, yb - 20, xb + 17, yb, hex('#3a1a0a'));
+      for (let k = -2; k <= 2; k++) R.linea(xb + 16 + k, yb - 21, xb + 16 + k * 2, yb - 26, hex('#c8a040'));
+    }
+    // la chimenea de delante, repintada encima para que la Befana se meta dentro
+    if (salta > 0.45) for (let y = 113; y < 180; y++) for (let x = 182; x < 210; x++) R.pset(x, y, BI[y * 320 + x]);
+    if (salta > 0.55 && salta < 1) for (let k = 0; k < 5; k++) R.pset(190 + k * 3, 110 - Math.floor((t * 20 + k * 3) % 8), hex('#8a8a92'));
+  }
+  // un gato en el tejado se despierta y la mira pasar
+  T.gato(R, 268, 140, t, { dir: -1 });
+};
+
+const p4 = (t) => {
+  const ll = tramo(t, dulces, buenos + 0.3), cb = t > carbon ? 3 : -1;
+  T.mundo(R, t, { encuadre: 'italia', camara: 'chimenea', llenos: ll, carbon: cb });
+  // la Befana baja por el hogar (del hueco de arriba al suelo) con una nube de hollín
+  // la guirnalda de rama de pino con naranjas secas sobre la pared y el reloj de pared que hace tictac
+  for (let x = 24; x <= 256; x++) { const y = Math.round(28 + Math.sin((x - 24) / 232 * Math.PI * 4) ** 2 * 8); R.linea(x, y - 2, x - 1, y - 5, hex('#1e5a2a')); R.linea(x, y + 2, x - 1, y + 5, x % 3 ? hex('#2e7a3a') : hex('#14401e')); }
+  for (const x of [53, 111, 169, 227]) { const y = 30 + Math.round(Math.sin(t * 1.3 + x) * 0.6); R.disco(x, y, 3, hex('#a84a0a')); R.disco(x, y, 2, hex('#f0901a')); R.pset(x, y, hex('#f8e0a0')); }
+  { const cx = 262, cy = 70; R.disco(cx, cy, 9, K); R.disco(cx, cy, 8, hex('#8a5a3a')); R.disco(cx, cy, 6, hex('#f0ece0')); for (let k = 0; k < 12; k++) R.pset(Math.round(cx + Math.cos(k * 0.52) * 5), Math.round(cy + Math.sin(k * 0.52) * 5), K); const a = t * 6.28 / 6; R.linea(cx, cy, Math.round(cx + Math.cos(a) * 5), Math.round(cy + Math.sin(a) * 5), hex('#c82a2a')); R.linea(cx, cy, cx, cy - 4, K); R.linea(cx, cy + 9, cx + Math.round(Math.sin(t * 3.14) * 4), cy + 20, K); R.disco(cx + Math.round(Math.sin(t * 3.14) * 4), cy + 21, 2, hex('#d8a030')); }
+  const sale = tramo(t, P4 - 0.25, P4 + 0.3), baja = sale, xb = Math.round(152 + sale * 14);
+  const yb = Math.round(lerp(100, 166, sale) - Math.sin(sale * Math.PI) * 16);
+  // los dulces que vuelan del saco a los calcetines (y el carbón al último)
+  const escoba2 = t > azucar - 0.2;
+  const b = R.actor(EL.befana, xb + (t > carbon + 0.5 ? Math.round(Math.sin((t - carbon) * 5) * 10) : 0), yb, t, { dir: t > dulces - 0.4 && t < resto ? 1 : -1, sorpresa: baja > 0.8 && t < P4 + 1.1, sonrisa: t > P4 + 1.1, anda: false, dedo: t > ultimos && t < ultimos + 1.0, brazos: t > dulces - 0.2 && t < buenos + 0.3, sostiene: escoba2 ? [xb + 2, 156] : null });
+  if (sale > 0.8 && t < P4 + 2.4) for (let k = 0; k < 12; k++) { const u = (t - P4 - 0.75) * 0.7 + k / 12; const a = k * 0.52; R.pset(Math.round(xb + 7 + Math.cos(a) * (6 + u * 18)), Math.round(162 - Math.abs(Math.sin(a)) * (3 + u * 10)), k % 2 ? hex('#5a5a62') : hex('#8a8a92')); }
+  // el saco de tela a sus pies
+  if (sale >= 1) T.PIEZAS_NV.bolsa(R, xb + 22, 166, { s: 1 });
+  [108, 142, 176, 210].forEach((cx, k) => { const t0 = dulces - 0.3 + k * 0.15, u = tramo(t, t0, t0 + 0.55); if (u <= 0 || u >= 1 || k === 3 && false) return; const x = lerp(xb + 22, cx + 2, u), y = lerp(150, 80, u) - Math.sin(u * Math.PI) * 20; R.disco(Math.round(x), Math.round(y), 1.6, [hex('#f04a8a'), hex('#3ac0e0'), hex('#f8c020'), hex('#7ad040')][k]); });
+  { const u = tramo(t, carbon - 0.4, carbon + 0.15); if (u > 0 && u < 1) { const x = lerp(xb + 22, 212, u), y = lerp(150, 80, u) - Math.sin(u * Math.PI) * 24; T.PIEZAS_NV.carbon(R, Math.round(x), Math.round(y), { s: 1 }); } }
+  if (t > azucar - 0.1) for (let k = 0; k < 8; k++) { const a = k * 0.785 + t * 3, r = 6 + Math.sin(t * 8 + k) * 2; R.pset(Math.round(210 + Math.cos(a) * r), Math.round(80 + Math.sin(a) * r), hex('#ffffff')); }
+  // al final, barre con la escoba (polvo que se levanta)
+  if (escoba2) { const m = b.mano, sw = Math.sin(t * 9) * 4; R.linea(m[0], m[1] - 8, Math.round(m[0] + sw), m[1] + 8, hex('#6a3a1a')); R.poligono([[m[0] + sw - 4, m[1] + 8], [m[0] + sw + 4, m[1] + 8], [m[0] + sw + 3, m[1] + 13], [m[0] + sw - 3, m[1] + 13]], hex('#c8a040')); for (let k = 0; k < 4; k++) R.pset(Math.round(m[0] + sw + (k - 2) * 3), m[1] + 12 - (Math.floor(t * 10 + k) % 4), hex('#b8b0a0')); }
+};
+const efectos = [[0.8, 'ola'], [playa + 0.2, 'whoosh'], [3.2, 'palmada'], [parrilla, 'vapor'], [crema + 0.05, 'chof'], [chanclas, 'toc'], [P3 + 0.4, 'whoosh'], [befana + 1.4, 'toc'], [escoba + 0.8, 'whoosh'], [P4 + 0.8, 'chof'], [dulces, 'pop'], [carbon + 0.1, 'toc'], [azucar, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
