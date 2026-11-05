@@ -112,7 +112,7 @@ Auctions · entrevistas a J. K. Rowling · Harry Potter y la piedra filosofal (e
 
 - **Miniatura:** `atomo/plato/escenas/hp-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
-- **Para escuchar antes de subir:** EN 1 (un hueco corto antes de «there's»: lo más probable es que suene bien); ES 12 («Mactír», con una pausa breve detrás); ES 14 («Pivs, el fantasma…»: el reconocedor oye «pips»); ES 6 («Jans Tsímer» podría sonar con algo de «t»). El resto de avisos son nombres escritos como se pronuncian, que el reconocedor entiende como el nombre real, que es lo que buscamos.
+- **Para escuchar antes de subir:** EN 1 (un hueco corto antes de «there's»: lo más probable es que suene bien); ES 12 («Mactír», con una pausa breve detrás); ES 14 («Pivs, el fantasma…»: el reconocedor oye «pips»); ES 6 («Jans Tsímer» podría sonar con algo de «t»); ES 9 («achebeó avisa…»: el reconocedor oye «hvo»). El resto de avisos son nombres escritos como se pronuncian, que el reconocedor entiende como el nombre real, que es lo que buscamos.
 - **Derechos** (como en el 19 y el 20): personajes reconocibles dibujados por nosotros, sin clips, logos, escudos ni
   música. Si llega una reclamación, se responde como comentario y análisis (uso legítimo) y se avisa.
 - **Antes de subirlo, mira si hay avance o noticia nueva** (fecha, reparto, número de episodios): si cambia algo de lo
@@ -123,19 +123,19 @@ Auctions · entrevistas a J. K. Rowling · Harry Potter y la piedra filosofal (e
 Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
 español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elige el episodio completo.
 
-### Short 1 · El niño que vuelve al colegio (39 s) · tramo 0.25-38.85
+### Short 1 · El niño que vuelve al colegio (38 s) · tramo 0.25-38.75
 - **EN:** Harry Potter Is Back This Christmas on HBO #Shorts
 - **ES:** Harry Potter vuelve esta Navidad en HBO #Shorts
 - **EN:** This Christmas, the boy who lived goes back to school. On December 25, HBO premieres a Harry Potter series with one book per season, and eight episodes for book one. The full story is in the linked video. #HarryPotter #HarryPotterHBO #Hogwarts #ASKAtom #Shorts
 - **ES:** Esta Navidad, el niño que sobrevivió vuelve al colegio. El 25 de diciembre, HBO estrena una serie de Harry Potter con un libro por temporada, y ocho episodios para el primero. La historia completa, en el vídeo enlazado. #HarryPotter #HarryPotterHBO #Hogwarts #ASKAtom #Shorts
 
-### Short 2 · La escena de Peeves que se cortó (26 s) · tramo 172.05-198.15
+### Short 2 · La escena de Peeves que se cortó (26 s) · tramo 171.9-198.0
 - **EN:** Harry Potter: The Peeves Scene the Movie Cut #Shorts
 - **ES:** Harry Potter: la escena de Peeves que se cortó #Shorts
 - **EN:** In 2001 they actually filmed Peeves, the prankster poltergeist, with Rik Mayall… and his scene ended up on the cutting-room floor. In the HBO series he's played by Peter Serafinowicz. The full story is in the linked video. #HarryPotter #Peeves #HarryPotterHBO #ASKAtom #Shorts
 - **ES:** En 2001 rodaron de verdad a Peeves, el fantasma bromista, con Rik Mayall… y su escena acabó en el suelo de la sala de montaje. En la serie de HBO lo interpreta Peter Serafinowicz. La historia completa, en el vídeo enlazado. #HarryPotter #Peeves #HarryPotterHBO #ASKAtom #Shorts
 
-### Short 3 · Cómo nació Harry Potter (48 s) · tramo 384.8-432.8
+### Short 3 · Cómo nació Harry Potter (48 s) · tramo 384.85-432.85
 - **EN:** How Harry Potter Began on a Delayed Train in 1990 #Shorts
 - **ES:** Harry Potter nació en un tren retrasado en 1990 #Shorts
 - **EN:** In 1990, a train from Manchester to London was delayed four hours, and a boy who didn't know he was a wizard was born. About a dozen publishers said no; Bloomsbury printed just 500 hardcovers in 1997. The full story is in the linked video. #HarryPotter #JKRowling #Bloomsbury #ASKAtom #Shorts

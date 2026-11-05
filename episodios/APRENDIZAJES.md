@@ -324,4 +324,9 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   lo que haya antes de retomar.
 - **Un decorado de otro episodio** (la librería del 20) se coló en una escena; la pasada de decorados hizo una propia.
 - Control final: un subtítulo inglés a 20,3 caracteres/s; se arregló moviendo 60 ms el corte con el siguiente.
+- **Corrección del usuario tras la entrega:** el español decía «HB… O» y «Jari». Ahora «achebeó» (siglas en una palabra)
+  y «Jarri» (r fuerte doble); regla en la skill. El control de la voz no lo podía ver: el reconocedor entendía el
+  nombre real. Al rehacer la voz, la mezcla inglesa salió con un pico real de +0,1 dBFS (a 2:37) que ni un TP más bajo
+  en loudnorm quitó; se arregló con un `alimiter` a 0,70 sobre el audio del mp4 (−14,1 LUFS, pico −3,1). El subtítulo
+  rápido del cierre volvió al regenerar los SRT: se corrige también en `build/largo/<ep>/subtitulos-en.srt`.
 
