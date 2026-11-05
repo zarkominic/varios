@@ -10,13 +10,15 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HP-BINNS (frase 18), 1991, sin cartela. Tres planos:
-// 1. la pizarra del aula: «classes begin», entran Harry, Ron y Neville; Hermione señala; un borrador vuela solo, limpia
-//    un trozo y la tiza dibuja un rollo de película que tacha con una X en «never appears in the movies»; corta en
-//    «History»;
-// 2. la sala común junto al fuego, «Professor Binns»: el viejo profesor lee en la butaca con su manta, se duerme en «fell
-//    asleep» (zetas), el fuego chisporrotea en «fire» y en «got up» su fantasma se levanta y lo deja durmiendo;
+// 1. la pizarra del aula: suena la campana y, en «classes begin», entran Harry, Ron y Neville; Hermione señala; un
+//    borrador vuela solo, limpia un trozo y la tiza dibuja un rollo de película que tacha con una X en «never appears in
+//    the movies»; una lechuza se posa fuera de la ventana, mira la clase y se va al tachar; corta en «History»;
+// 2. la sala común junto al fuego, «Professor Binns»: el viejo profesor lee en la butaca con su manta y pasa la página;
+//    una alumna baja por la escalera de caracol y se para junto al ajedrez (que juega solo); él se duerme en «fell asleep»
+//    (el libro cae sobre la manta, zetas, la alumna sonríe), el fuego chisporrotea en «fire» y en «got up» su fantasma se
+//    levanta y lo deja durmiendo (la alumna se asusta);
 // 3. el aula con pupitres: el fantasma sale de la pared junto a la chimenea en «without his body», flota hasta la mesa y
-//    da clase en «kept teaching»; los alumnos se duermen uno a uno (zetas) salvo Hermione, que toma apuntes.
+//    da clase en «kept teaching»; los alumnos se duermen uno a uno (cabezazo, zetas) salvo Hermione, que toma apuntes.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-binns');
@@ -32,6 +34,13 @@ const zetas = (x, y, t0, t, n = 2) => { if (t < t0) return; for (let i = 0; i < 
 const mez = (c, d, a) => { const ch = (k) => Math.round(((c >>> k) & 255) * (1 - a) + ((d >>> k) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
 const halo = (cx, cy, r, a = 0.3) => { for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= cx + r; x++) { const d = Math.hypot(x - cx, (y - cy) * 0.8) / r; if (d < 1) { const p = R.pget(x, y); if (p) R.pset(x, y, mez(p, hex('#d8f0ff'), a * (1 - d))); } } };
 const tiza = (x0, y0, x1, y1, u) => { if (u <= 0) return; const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0)); for (let i = 0; i <= n * Math.min(1, u); i++) { const x = Math.round(x0 + (x1 - x0) * i / n), y = Math.round(y0 + (y1 - y0) * i / n); R.pset(x, y, TIZA); if ((i * 7) % 5 < 3) R.pset(x + 1, y, hex('#c8d4c0')); } };
+
+// lo que pinta una pieza de PIEZAS_HP (con R.rect) queda dentro de box = [x0, y0, x1, y1]
+const enRecorte = (box, fn) => {
+  const r0 = R.rect;
+  R.rect = (a, b2, c, d, col) => { const x0 = Math.max(Math.min(a, c), box[0]), y0 = Math.max(Math.min(b2, d), box[1]), x1 = Math.min(Math.max(a, c), box[2]), y1 = Math.min(Math.max(b2, d), box[3]); if (x0 <= x1 && y0 <= y1) r0(x0, y0, x1, y1, col); };
+  try { fn(); } finally { R.rect = r0; }
+};
 
 // 1 · la pizarra: el borrador limpia y la tiza tacha una película
 let muestra = null;
@@ -52,6 +61,13 @@ const p1 = (t) => {
   if (d > 0.7) { R.disco(120, 46, 3, TIZA); R.disco(120, 46, 2, hex('#2e4a3a')); R.rect(140, 42, 146, 50, TIZA); R.rect(141, 43, 145, 49, hex('#2e4a3a')); R.poligono([[160, 42], [168, 46], [160, 50]], TIZA); }
   const x = tramo(t, MOVIES - 0.55, MOVIES + 0.05);
   if (x > 0) { const c = hex('#f07a6a'); const n = Math.min(1, x); for (let i = 0; i < 80 * n; i++) { R.rect(Math.round(102 + i), Math.round(28 + i * 0.45), Math.round(104 + i), Math.round(29 + i * 0.45), c); } for (let i = 0; i < 80 * Math.max(0, x - 0.15) / 0.85; i++) { R.rect(Math.round(180 - i), Math.round(28 + i * 0.45), Math.round(182 - i), Math.round(29 + i * 0.45), c); } }
+  // una lechuza llega al alféizar de fuera de la ventana, mira la clase y se va al tachar la película (recortada al cristal)
+  { const VEN = [286, 66, 311, 109], ll = tramo(t, 0.9, 1.9), va = tramo(t, MOVIES + 0.1, MOVIES + 0.9);
+    let lx, ly, vuela = true, ldir = -1;
+    if (va > 0) { lx = lerp(300, 270, va); ly = lerp(108, 70, va); }
+    else if (ll < 1) { lx = lerp(330, 300, ll); ly = lerp(76, 108, ll * ll); }
+    else { lx = 300; ly = 108; vuela = false; ldir = Math.floor(t * 1.3) % 2 ? -1 : 1; }
+    if (ll > 0) enRecorte(VEN, () => PZ.lechuza(R, Math.round(lx), Math.round(ly), { vuela, t, dir: ldir })); }
   T.hogwartsDelante(R, t, o);
   // la tiza que vuela sola
   if (d > 0 && x < 1) { const tx = x > 0 ? lerp(102, 182, x) : lerp(110, 174, Math.min(1, d * 2)), ty = x > 0 ? lerp(28, 64, x) : 34; R.rect(Math.round(tx) + 1, Math.round(ty) - 4, Math.round(tx) + 2, Math.round(ty), TIZA); R.pset(Math.round(tx) + 2, Math.round(ty) - 4, K); }
@@ -80,7 +96,18 @@ const p2 = (t) => {
   R.rect(171, 128, 195, 128, K); R.rect(171, 128, 171, 141, K);
   // el libro abierto que cae sobre la manta
   PZ.libro(R, cuerpo.mano[0], cuerpo.mano[1] + 6, { abierto: true, t });
+  // con «Professor Binns» pasa la página: la hoja se levanta y cae al otro lado
+  const pg = tramo(t, PROF - 0.1, PROF + 0.35);
+  if (pg > 0 && pg < 1) { const a = Math.PI * pg, bx = cuerpo.mano[0], by = cuerpo.mano[1] + 1; R.linea(bx, by, Math.round(bx - Math.cos(a) * 5), Math.round(by - Math.sin(a) * 5), hex('#fffaf0')); R.pset(Math.round(bx - Math.cos(a) * 5), Math.round(by - Math.sin(a) * 5), hex('#c8c0a8')); }
   zetas(184, 104, ASLEEP + 0.1, t, 3);
+  // una alumna baja por la escalera de caracol, se para junto al ajedrez, ve al profesor dormido y sonríe; cuando se levanta
+  // el fantasma, se lleva un susto
+  { const ba = tramo(t, P2 + 0.3, P2 + 2.1), al = tramo(t, P2 + 2.1, P2 + 2.7);
+    const ax = Math.round(al > 0 ? lerp(266, 254, al) : lerp(316, 266, ba)), ay = Math.round(al > 0 ? lerp(116, 124, al) : lerp(66, 116, ba));
+    const susto = t > GOT - 0.1;
+    R.actor(EL.alumna, ax, ay, t, { dir: -1, anda: (ba > 0 && ba < 1) || (al > 0 && al < 1), sonrisa: t > ASLEEP + 0.2 && !susto, sorpresa: susto, brazos: susto && t < GOT + 0.4 });
+    // la barandilla de la escalera vuelve a pasar por delante de ella
+    if (ba < 1) { R.linea(258, 100, 319, 41, hex('#3a2010')); R.linea(258, 99, 319, 40, hex('#7a4a28')); } }
   // el fantasma se levanta del cuerpo en «got up» y flota hacia la chimenea
   const g = tramo(t, GOT - 0.35, P2 + 0.0 + (P3 - GOT) * 0.9);
   if (g > 0) { halo(Math.round(lerp(178, 140, g)) + 7, Math.round(lerp(141, 118, Math.min(1, g * 1.6))) - 14, 18, 0.35 * Math.min(1, g * 3)); R.actor(EL.binns, Math.round(lerp(178, 140, g)), Math.round(lerp(141, 118, Math.min(1, g * 1.6))), t, { dir: -1, sonrisa: g > 0.3, dedo: g > 0.5 }); }
@@ -108,7 +135,8 @@ const p3 = (t) => {
   if (t > P3 + 1.4) { const px = 224 + Math.round(Math.sin(t * 9) * 2); R.linea(px, 118, px + 4, 112, hex('#f0f0f8')); R.pset(px + 4, 112, hex('#c8c8d8')); R.pset(px, 119, K); }
   for (const [x, y, k] of [[30, 106, 0], [72, 106, 2], [270, 106, 1], [30, 142, 3], [72, 142, 4], [228, 142, 5], [270, 142, 6]]) if (dormido(k)) zetas(x + 12, y, TEACH + 0.3 + k * 0.38, t, 2);
 };
-const efectos = [[BEGIN + 0.45, 'whoosh'], [NEVER, 'lapiz'], [MOVIES - 0.5, 'lapiz'], [GOT - 0.3, 'brillo'], [P3 + 0.1, 'whoosh'], [TEACH + 1.0, 'tic']];
+const efectos = [[0.4, 'campana'], [BEGIN + 0.45, 'whoosh'], [NEVER, 'lapiz'], [MOVIES - 0.5, 'lapiz'], [PROF, 'papel'], [ASLEEP + 0.15, 'golpecito'], [GOT - 0.3, 'brillo'], [P3 + 0.1, 'whoosh'],
+  [TEACH + 0.32, 'golpecito'], [TEACH + 1.15, 'tic'], [TEACH + 1.95, 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1991 });
 </script>
 </body>
