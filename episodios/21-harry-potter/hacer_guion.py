@@ -95,18 +95,18 @@ PREVIO = {
 # de México; los compuestos primero.
 PRONUNCIA = {
     'en': [],
-    'es': [('Harry Potter y la piedra filosofal', 'Jari Póter y la piedra filosofal'), ('Harry Potter', 'Jari Póter'),
+    'es': [('Harry Potter y la piedra filosofal', 'Jarri Póter y la piedra filosofal'), ('Harry Potter', 'Jarri Póter'),
            ('Francesca Gardiner', 'Franchésca Gárdiner'), ('Mark Mylod', 'Mark Máilod'), ('Hans Zimmer', 'Jans Tsímer'),
            ('John Williams', 'Yon Uíliams'), ('Dominic McLaughlin', 'Dóminic Macláflin'), ('Alastair Stout', 'Álister Staut'),
            ('Arabella Stanton', 'Arabéla Stánton'), ('Nick Frost', 'Nik Frost'), ('Janet McTeer', 'Yánet Mactír'),
            ('John Lithgow', 'Yon Lízgou'), ('Paapa Essiedu', 'Pápa Esiédu'), ('Luke Thallon', 'Luk Tálon'),
            ('Warwick Davis', 'Uórik Déivis'), ('Peter Serafinowicz', 'Píter Serafínovich'), ('Rik Mayall', 'Rik Méiol'),
            ('Charlie Weasley', 'Chárli Uísli'), ('Sirius Black', 'Sírius Black'), ('Draco Malfoy', 'Dráco Málfoi'),
-           ('Nicolas Flamel', 'Nicolás Flamel'), ('HBO Max', 'ache be o Max'), ('HBO', 'ache be o'),
+           ('Nicolas Flamel', 'Nicolás Flamel'), ('HBO Max', 'achebeó Max'), ('HBO', 'achebeó'),
            ('Hogwarts', 'Jógwarts'), ('Dumbledore', 'Dámbldor'), ('Hagrid', 'Jágrid'), ('Hermione', 'Jermáioni'),
            ('McGonagall', 'Macgónagal'), ('Quirrell', 'Cuírel'), ('Flitwick', 'Flítuic'), ('Peeves', 'Pivs'),
            ('Binns', 'Bins'), ('Neville', 'Nével'), ('Hufflepuff', 'Jáfelpaf'), ('Scabbers', 'Scábers'), ('Percy', 'Pérsi'),
-           ('Griphook', 'Grípjuk'), ('Snape', 'Snéip'), ('Harry', 'Jari'), ('Diagon', 'Diágon'), ('Leavesden', 'Lívsden'),
+           ('Griphook', 'Grípjuk'), ('Snape', 'Snéip'), ('Harry', 'Jarri'), ('Diagon', 'Diágon'), ('Leavesden', 'Lívsden'),
            ('Succession', 'Sacséshon'), ('Bloomsbury', 'Blúmsberi'), ('quidditch', 'quídich'), ('snitch', 'snich'),
            ('Edimburgo', 'Edimburgo'), ('Mánchester', 'Mánchester')],
 }

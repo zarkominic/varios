@@ -222,7 +222,9 @@ Antes, el inglés se partía en cada coma y la entonación volvía a empezar en 
      - `PRONUNCIA['es']` (los nombres propios escritos como se dicen, primero los compuestos). **Regla del usuario
        (05/11/2026): en español, TODOS los nombres propios extranjeros (personas, lugares, títulos, marcas) se escriben
        como se dicen en español de México**, sin excepción, y cada uno se apunta en la lista de «para escuchar» si el
-       control de la voz lo marca; Empieza por lo que ya
+       control de la voz lo marca. Corregido por el usuario en el 21: la r fuerte se escribe doble («Harry» →
+       «Jarri», nunca «Jari») y las siglas que se deletrean van en una sola palabra con acento al final («HBO» →
+       «achebeó»): separadas («ache be o»), Kokoro hace pausas y suena «HB… O». Empieza por lo que ya
        se corrigió en otros episodios: `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md` lo busca
        en el guion y lo deja listo para pegar (míralo: alguna entrada es el arreglo de una frase concreta);
      - `numero`, `estado` y `titulo`.
