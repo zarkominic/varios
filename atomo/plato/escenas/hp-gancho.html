@@ -12,8 +12,8 @@
 // HP-GANCHO (frases 1–2), Navidad de 2026. Cuatro planos:
 // 1. Privet Drive en Nochebuena, nevando: de la chimenea del 4 salen cartas a cientos (gag 2) y la snitch entre ellas;
 //    Harry llega por la acera, se asombra, salta y caza una carta en «school»; una vecina se para a mirar;
-// 2. (corta en «and») el andén de Hogsmeade: entra el expreso echando vapor; bajan Harry (con su carta), Ron y Hermione,
-//    y Hagrid levanta el farol en «everything»;
+// 2. (corta en «and») el andén de Hogsmeade: entra el expreso echando vapor; bajan en fila junto a la cabina Harry (con su
+//    carta), Ron, Hermione y un alumno, a 24 px uno de otro, y van hacia Hagrid, que levanta el farol en «everything»;
 // 3. (corta en «Because») el salón de la fan en Navidad: la tele pone el calendario 12·25 dorado en «December 25th», luego
 //    las gafas con el castillo en «premieres» y «un libro = una temporada» en «one book per season»; la fan salta y señala;
 // 4. (corta en «The plan») el lago y el castillo de noche: siete libros salen del agua y se encienden uno a uno en «seven
@@ -52,12 +52,14 @@ const p2 = (t) => {
   T.hogwarts(R, t, { encuadre: 'anden', llega: ll });
   // Hagrid espera con el farol y lo levanta llamando a los de primero
   R.actor(EL.hagridFarol, 18, 174, t, { dir: 1, habla: t > every - 0.3 && Math.sin(t * 9) > 0, sonrisa: t > every, brazos: t > every && t < every + 1.3 });
-  // bajan del tren y van hacia él: Harry con su carta, Ron y Hermione; luego dos alumnos más
-  const ninos = [[EL.harryCalle, 0.0, 96], [EL.ronJersey, 0.35, 118], [EL.hermione, 0.7, 140], [EL.alumno, 1.3, 176], [EL.alumna, 1.6, 200]];
-  ninos.forEach(([d, re, xf], k) => {
-    const t0 = a(0.71) + re, v = tramo(t, t0, t0 + 1.7), baja = tramo(t, t0 - 0.25, t0), x = Math.round(lerp(150 + k * 4, xf, v)), y = Math.round(lerp(158, 168 + (k % 2) * 3, baja));
-    if (t < t0 - 0.25) return;
-    const r = R.actor(d, x, y, t, { dir: -1, anda: v > 0 && v < 1, sonrisa: v >= 1, sorpresa: k === 0 && t > every && t < every + 0.6, sostiene: k === 0 ? true : false });
+  // bajan del tren en fila junto a la cabina (x 136, a la izquierda del chorro de los cilindros, que el decorado pinta
+  // antes que ellos) y van hacia él al mismo paso: Harry con su carta, Ron, Hermione y un alumno, 0,7 s uno tras otro,
+  // así que van siempre a 24 px entre sí y se paran a la vez, sin pisarse; se pintan de atrás (y menor) adelante
+  const ninos = [[EL.harryCalle, 0.0, 60, 168], [EL.ronJersey, 0.7, 84, 171], [EL.hermione, 1.4, 108, 168], [EL.alumno, 2.1, 132, 171]];
+  ninos.map((n, k) => [n, k]).sort((p, q) => p[0][3] - q[0][3]).forEach(([[d, re, xf, yf], k]) => {
+    const t0 = a(0.71) + re; if (t < t0 - 0.25) return;
+    const baja = tramo(t, t0 - 0.25, t0), x = Math.round(Math.max(xf, 136 - 34 * Math.max(0, t - t0))), y = Math.round(lerp(158, yf, baja)), quieto = x === xf;
+    const r = R.actor(d, x, y, t, { dir: -1, anda: t > t0 && !quieto, sonrisa: quieto, sorpresa: k === 0 && t > every && t < every + 0.6, sostiene: k === 0 });
     if (k === 0) P.carta(R, r.mano[0], r.mano[1] + 3, {});
   });
   // la lechuza de Harry vuela del tren al farol de la izquierda

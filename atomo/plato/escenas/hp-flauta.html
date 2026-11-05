@@ -11,15 +11,18 @@
 <script type="module">
 // HP-FLAUTA (frase 19), 1991–1992, sin cartela. Tres planos:
 // 1. la puerta de la cabaña nevada en Navidad: un petirrojo picotea en la leña (se espanta al abrirse la puerta y
-//    vuelve); Hagrid abre (un pegote de nieve cae del alero, plof), sale y le da a Harry una flauta en «gives»; Harry la coge en «flute»; Hagrid se señala orgulloso
+//    vuelve); Hagrid abre (un pegote de nieve cae del alero, plof), sale con la flauta en la mano y se la tiende en «gives»;
+//    las dos manos se juntan y Harry la coge en «flute» (siempre en una mano, nunca en el aire); Hagrid se señala orgulloso
 //    en «carved himself» y Harry la toca (notas; el petirrojo se vuelve y baila); corta en «that»;
 // 2. la cabaña desde lejos, meses después: la sombra de tres cabezas (solo la sombra, con orejas caídas) ladra con un
 //    respingo; Harry toca la flauta y la sombra va bajando hasta dormirse en «sleep»; en «Norbert» Hagrid sale de casa con el bebé dragón en brazos y Harry
 //    señala hacia la torre;
 // 3. las almenas a medianoche (campana lejana; tres murciélagos salen de la torre del fondo): Harry y Hermione traen la
 //    caja con Norberto; llegan cuatro escobas en «Charlie Weasley's
-//    friends», bajan las cuerdas y la suben en «pick him up»; el dragón estornuda una chispa que chamusca a la snitch (gag
+//    friends» (las pinta la escena: entran bajas por la derecha y suben a su sitio a la izquierda de x 262, sin pasar por
+//    la esquina de Atom; al irse deshacen el camino), bajan las cuerdas y la suben en «pick him up»; el dragón estornuda una chispa que chamusca a la snitch (gag
 //    5) y las escobas se lo llevan mientras los chicos dicen adiós; luego se juntan y chocan las manos (destello).
+// Sonido: efectos el ~50 % del tiempo (se quitaron los de relleno; quedan chof, campana, estornudo y palmada).
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-flauta');
@@ -53,13 +56,21 @@ const petirrojo = (x, y, t, mira) => {
 const p1 = (t) => {
   const o = { encuadre: 'cabana', camara: 'puerta', puerta: tramo(t, 0.25, 0.85) };
   T.exterior(R, t, o);
-  const sale = tramo(t, 0.8, GIVES - 0.1), hx = Math.round(lerp(124, 150, sale));
+  const sale = tramo(t, 0.8, GIVES - 0.1), hx = Math.round(lerp(124, 158, sale));
   const da = tramo(t, GIVES - 0.1, FLUTE - 0.15), pasa = tramo(t, FLUTE - 0.15, FLUTE + 0.15), toca = t > CARVED + 0.65;
-  const hg = o.puerta < 0.6 ? { mano: [hx + 22, 138] } : R.actor(EL.hagrid, hx, 170, t, { dir: 1, anda: sale > 0 && sale < 1, sonrisa: true, sostiene: t > GIVES - 0.2 && pasa < 1 ? [Math.round(lerp(hx + 22, 190, da)), Math.round(lerp(138, 146, da))] : false, dedo: t > CARVED && t < CARVED + 0.9 });
-  const yaH = pasa >= 1;
-  const hr = R.actor(EL.harry, 222, 170, t, { dir: -1, sostiene: t > GIVES + 0.1 ? (toca ? [216, 153] : [206, 151]) : false, sonrisa: yaH && !toca, sorpresa: t > GIVES && !yaH });
-  // la flauta: de la mano de Hagrid a la de Harry, y luego a la boca
-  if (t > GIVES - 0.2) { const a = pasa < 1 ? hg.mano : hr.mano, b2 = hr.mano, u = pasa > 0 && pasa < 1 ? pasa : (yaH ? 1 : 0); const fx = lerp(a[0], b2[0], u), fy = lerp(a[1], b2[1], u); PZ.flauta(R, Math.round(fx - 4), Math.round(fy + 2), { t }); }
+  // Hagrid sale con la flauta en la mano; en «gives» la tiende y Harry alarga la suya: las dos manos se juntan y la
+  // flauta pasa de una a otra en el centro de «flute» (siempre en una mano, nunca en el aire)
+  const yaH = pasa >= 0.5;
+  const hgS = yaH ? false : t > GIVES - 0.2 ? [hx + 22, Math.round(lerp(140, 190, da))] : true;
+  const hg = o.puerta < 0.6 ? null : R.actor(EL.hagrid, hx, 170, t, { dir: 1, anda: sale > 0 && sale < 1, sonrisa: true, sostiene: hgS, dedo: t > CARVED && t < CARVED + 0.9 });
+  // Harry se acerca a Hagrid y alarga la mano hasta la punta de la flauta (Hagrid baja la suya hacia él); con ella en la
+  // mano, vuelve a su sitio
+  const acerca = tramo(t, GIVES - 0.2, FLUTE - 0.15), vuelve = tramo(t, FLUTE + 0.15, FLUTE + 0.75), hrx0 = hx + 27, hrx = Math.round(lerp(lerp(222, hrx0, acerca), 216, vuelve));
+  const hrS = t > GIVES + 0.1 ? (toca ? [hrx - 6, 153] : !yaH ? [hrx - 5, 148] : [hrx - 16, 151]) : false;
+  const hr = R.actor(EL.harry, hrx, 170, t, { dir: -1, anda: (acerca > 0 && acerca < 1) || (vuelve > 0 && vuelve < 1), sostiene: hrS, sonrisa: yaH && !toca, sorpresa: t > GIVES && !yaH });
+  // la flauta, siempre en la mano de quien la tiene (y luego en la boca de Harry)
+  const dueño = !yaH ? (hg && hgS ? hg.mano : null) : hr.mano;
+  if (dueño) PZ.flauta(R, Math.round(dueño[0] - (yaH ? 4 : 1)), Math.round(dueño[1] + 2), { t });
   if (toca) notas(hr.mano[0] - 10, hr.mano[1] - 6, CARVED + 0.8, t, -1);
   // las virutas de madera junto a las botas (la ha tallado él)
   for (const [x, y] of [[176, 169], [182, 170], [188, 168], [173, 170]]) { R.pset(x, y, hex('#d8a860')); R.pset(x + 1, y - 1, hex('#b8803a')); }
@@ -105,7 +116,24 @@ const p2 = (t) => {
 };
 
 // 3 · las almenas a medianoche: las escobas se llevan la caja con Norberto
-const brazos = (ne, t) => [[150, 62], [184, 52], [218, 68], [250, 56]].map(([fx, fy], k) => { const u = Math.max(0, Math.min(1, ne * 1.4 - k * 0.12)), e = u * u * (3 - 2 * u); return [lerp(370 + k * 34, fx, e), lerp(20 + k * 10, fy, e) + Math.sin(t * 2.2 + k) * 2]; });
+// las cuatro escobas (las pinta la escena, no el decorado: las del decorado entran y salen cruzando la esquina de Atom).
+// Llegan desde la derecha a ras de las almenas (asiento y ≥ 72, así la cabeza queda por debajo de y 48) y solo suben a
+// su sitio cuando ya han pasado x 262; al irse deshacen el mismo camino, bajas, hacia la derecha.
+const FIN = [[150, 62], [184, 52], [218, 68], [250, 56]];
+const brazos = (ne, t) => FIN.map(([fx, fy], k) => { const u = Math.max(0, Math.min(1, ne * 1.4 - k * 0.12)), e = u * u * (3 - 2 * u), sx = 352 + k * 26, sy = 76 + k * 5;
+  const eA = (sx - 262) / (sx - fx), v = Math.max(0, Math.min(1, (e - eA) / (1 - eA))), sube = v * v * (3 - 2 * v);
+  return [lerp(sx, fx, e), lerp(sy, fy, sube) + Math.sin(t * 2.2 + k) * 2, u]; });
+// un jinete en escoba a contraluz (el mismo dibujo que el del decorado): x, y el asiento; s escala; mira a la izquierda
+const jinete = (x, y, t, s, k) => {
+  x = Math.round(x); y = Math.round(y); const dir = -1, os = hex('#0e1024'), filo = hex('#5a6aa0');
+  R.linea(x - 8 * s * dir, y + 1, x + 7 * s * dir, y - 1, hex('#5a3a22')); R.linea(x - 8 * s * dir, y, x + 4 * s * dir, y - 1, hex('#8a6038'));
+  for (let i = 0; i < 4; i++) R.linea(x + 7 * s * dir, y - 1, x + (10 + i * 0.6) * s * dir, y - 3 + i * 1.6 * s, hex('#a8844a'));
+  const cap = Math.round(Math.sin(t * 8 + k) * 1.5 * s);
+  R.poligono([[x - 1 * s * dir, y - 7 * s], [x + 2 * s * dir, y - 1], [x + (6 + Math.abs(cap)) * s * dir, y - 2 + cap]], os);
+  R.rect(Math.min(x, x - 2 * s * dir), y - 7 * s, Math.max(x, x - 2 * s * dir) + Math.round(s), y, os);
+  R.disco(x - 1 * s * dir, y - 9 * s, 2 * s, os); R.pset(x - 2 * s * dir, y - 10 * s, filo); R.linea(x - 2 * s * dir, y - 6 * s, x - 2 * s * dir, y - 2, filo);
+  R.linea(x, y, x - 2 * s * dir, y + 3 * s, os); R.linea(x - 1 * s * dir, y - 5 * s, x - 5 * s * dir, y - 2 * s, os);
+};
 const caja = (x, y, t, estornudo) => {
   // el dragón asoma por arriba, la caja de tablas por delante
   PZ.dragon(R, Math.round(x + 2), Math.round(y - 12), { t, estornudo });
@@ -118,9 +146,10 @@ const caja = (x, y, t, estornudo) => {
 };
 const p3 = (t) => {
   const ne = tramo(t, CHARLIE - 0.5, PICK - 0.2) - tramo(t, TALLEST, TALLEST + 4.4);
-  const o = { encuadre: 'torre', camara: 'almenas', escobas: ne };
+  const o = { encuadre: 'torre', camara: 'almenas', escobas: 0 };
   T.exterior(R, t, o);
-  const B = brazos(ne, t), [x1, y1] = B[1], [x2, y2] = B[2];
+  const B = brazos(Math.max(0, ne), t), [x1, y1] = B[1], [x2, y2] = B[2];
+  for (let k = 0; k < 4; k++) if (B[k][2] > 0) jinete(B[k][0], B[k][1], t, 2, k);
   // la campana de medianoche: tres murciélagos salen de la torre lejana y cruzan el cielo
   { const mb = tramo(t, P3 + 0.15, P3 + 2.6);
     if (mb > 0 && mb < 1) for (let k = 0; k < 3; k++) { const u = Math.max(0, Math.min(1, mb * 1.3 - k * 0.12)); if (u <= 0 || u >= 1) continue;
@@ -153,8 +182,11 @@ const p3 = (t) => {
   if (t > UP - 0.3 && tramo(t, f(0.86) + 0.1, f(0.86) + 1.4) < 1) { T.snitch(R, quema ? sx + Math.round(tramo(t, f(0.86) + 0.1, f(0.86) + 1.4) * 150) : sx, quema ? sy - Math.round(tramo(t, f(0.86) + 0.1, f(0.86) + 1.4) * 8) : sy, t, { s: 2, cara: quema ? 'susto' : 'feliz', vuela: 0.3 });
     if (quema) { const u = tramo(t, f(0.86) + 0.1, f(0.86) + 1.4), qx = sx + u * 150, qy = sy - u * 8; for (let i = 0; i < 4; i++) R.disco(Math.round(qx - 12 - i * 5), Math.round(qy - 10 - i * 2 + Math.sin(t * 6 + i)), 2 - (i > 1 ? 1 : 0), hex('#5a5a62')); for (const dx of [-14, 12]) { R.pset(Math.round(qx + dx), Math.round(qy - 8), K); R.pset(Math.round(qx + dx + 1), Math.round(qy - 9), K); } } }
 };
-const efectos = [[0.3, 'puerta'], [1.2, 'chof'], [FLUTE, 'pop'], [CARVED + 0.85, 'aldea', { k: 0 }], [P2 + 0.12, 'guau'], [P2 + 1.0, 'aldea', { k: 2 }], [P2 + 2.0, 'aldea', { k: 4 }],
-  [NORBERT - 0.3, 'puerta'], [DRAGON + 0.1, 'vapor'], [P3 + 0.05, 'campana', { lejos: true }], [P3 + 1.0, 'golpecito'], [CHARLIE + 0.5, 'whoosh'], [UP, 'golpecito'], [f(0.86), 'pop'], [TALLEST, 'whoosh'], [TALLEST + 1.4, 'palmada']];
+// efectos (densidad ~50 %, objetivo 40–60): fuera el pop de la flauta, la tercera nota, la segunda puerta (la de
+// lejos, en el plano 2) y el whoosh de la despedida; quedan puerta, chof, notas, ladrido, vapor, campana, cuerdas,
+// estornudo y palmada
+const efectos = [[0.3, 'puerta'], [1.2, 'chof'], [CARVED + 0.85, 'aldea', { k: 0 }], [P2 + 0.12, 'guau'], [P2 + 1.0, 'aldea', { k: 2 }],
+  [DRAGON + 0.1, 'vapor'], [P3 + 0.05, 'campana', { lejos: true }], [P3 + 1.0, 'golpecito'], [CHARLIE + 0.5, 'whoosh'], [UP, 'golpecito'], [f(0.86), 'pop'], [TALLEST + 1.4, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P2 ? 1991 : 1992) });
 </script>
 </body>

@@ -10,13 +10,16 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HP-CORTES (frase 15). Dos planos:
-// 1. el corcho de las pistas de cerca (2026): una mano trae una ficha nueva y la clava en «list» con una chincheta: la
-//    lista sin letras de lo que la película dejó fuera (Peeves, el dragón, la flauta, las botellas, los centauros); en
-//    «left out» se tachan una a una con una X roja y la pista de las tijeras se enciende; la snitch se posa en la ficha
-//    (corta en «In»);
-// 2. la moviola de 2001 de cerca: en el visor corre la toma de Peeves («filmed him»); en «his scene» entra la mano con las
-//    tijeras, en «ended» corta la tira, el trozo con la silueta de Peeves resbala por la mesa y en «floor» cae al suelo
-//    entre los otros recortes; la snitch baja, lo coge y se lo lleva.
+// 1. inserto: la lista sobre el corcho muy de cerca (2026), otro encuadre que el corcho de hp-hola: arriba la pared
+//    tranquila con la guirnalda de luces que parpadean y el canto del marco de roble; el corcho a grano grueso con la
+//    luz del flexo y motas de polvo; cortadas por los bordes, la nota amarilla (con la esquina que se levanta), la hoja
+//    del calendario 12/25, la tira de película y la tarjeta del «?» con la moto y sus hilos. Una mano trae la ficha
+//    grande y la clava por la esquina en «list» (chincheta roja y su pulso); el hilo nuevo se tiende del «?» a la ficha
+//    y se enciende; en «left out» se tachan las cinco filas una a una con una X roja; la snitch se posa en la ficha;
+// 2. la moviola de 2001 de cerca: en el visor corre la toma de Peeves («filmed him»); en «his scene» entra la mano con
+//    las tijeras grandes (hojas de acero de 22 px con su filo de luz), las abre y cierra junto a la tira que cuelga bajo
+//    el canto de la mesa; en «ended» las cierra del todo sobre la tira con una chispa; el trozo de Peeves, ya con filo
+//    claro, resbala por la mesa y en «floor» cae al suelo levantando polvo; la snitch baja, lo coge y se lo lleva.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-cortes');
@@ -27,35 +30,159 @@ const P2 = at(5.26);
 const trae = at(1.0), clava = at(2.52), tacha = at(3.3), comienza = at(4.22);
 const mano2 = at(8.3), corta = at(9.34), cae = at(10.9), coge = at(11.35);
 const K = T.C.k, ROJO = hex('#d02a2a'), PAPEL = hex('#f4ecd6'), PAPELS = hex('#d8ccae');
-// la ficha de la lista (sin letras): cinco filas con su icono y una raya; la X roja tacha las que van saliendo
-const ficha = (x, y, t, nx) => {
-  R.rect(x + 2, y + 2, x + 64, y + 76, hex('#2a1a10')); R.rect(x - 1, y - 1, x + 62, y + 74, K); R.rect(x, y, x + 61, y + 73, PAPEL); R.rect(x, y + 70, x + 61, y + 73, PAPELS);
-  for (let j = 0; j < 5; j++) R.linea(x + 3, y + 14 + j * 13, x + 58, y + 14 + j * 13, hex('#b8c8e0'));
-  R.linea(x + 18, y + 2, x + 18, y + 71, hex('#e8a8a8'));
+// ---- plano 1: el inserto, la lista sobre el corcho muy de cerca ----
+// ruido por píxel, la trama de Bayer y la mezcla de dos colores
+const hh = (x, y, k) => { let n = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(k, 1442695041)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => (B4[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const mez = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+// una chincheta grande (de cerca) con su sombra en el corcho
+const pinG = (x, y, c, cc) => { R.disco(x + 2, y + 2, 3, hex('#3e2210')); R.disco(x, y, 4, K); R.disco(x, y, 3, c); R.disco(x - 1, y - 1, 1, cc); R.pset(x - 1, y - 2, hex('#ffffff')); };
+// el hilo rojo con su comba (y su sombra un píxel más abajo); luz enciende un pulso que corre de a a b
+const hilo = (a, b, frac = 1, luz = -1) => { const L = Math.max(4, Math.hypot(b[0] - a[0], b[1] - a[1])), n = Math.round(L * frac); let ant = a;
+  for (let i = 1; i <= n; i++) { const u = i / L, p = [Math.round(a[0] + (b[0] - a[0]) * u), Math.round(a[1] + (b[1] - a[1]) * u + Math.sin(u * Math.PI) * L * 0.07)];
+    R.pset(p[0], p[1] + 2, hex('#3e1a0c')); const pul = luz >= 0 && Math.abs(luz - u) < 0.05; R.linea(ant[0], ant[1], p[0], p[1], pul ? hex('#fff0c0') : hex('#c8202a')); R.pset(p[0], p[1] + 1, pul ? hex('#ffd060') : hex('#6a0a10')); ant = p; } };
+const Q = [127, 77];   // la chincheta de la tarjeta del «?», de donde sale el hilo nuevo
+let FONDO1 = null;
+const fondo1 = () => {
+  if (FONDO1) return; FONDO1 = R.nuevo(); const prev = R.usar(FONDO1);
+  const luz = (x, y) => Math.max(0, 1 - Math.hypot(x + 30, y - 210) / 330) * 1.7;
+  // la pared de yeso de arriba (tranquila a la derecha, donde va Atom) con una grieta fina
+  const PARED = ['#10162a', '#18203a', '#212b46', '#2a3654', '#344262'].map(hex);
+  for (let y = 0; y < 46; y++) for (let x = 0; x < 320; x++) { const calma = x > 262; let v = 1.05 + luz(x, y) + (calma ? 0 : (hh(x, y, 1) - 0.5) * 0.5 + (hh(x >> 3, y >> 3, 2) - 0.5) * 0.4); let l = Math.floor(v); if (v - l > b4(x, y)) l++; R.pset(x, y, PARED[cl(l, 0, 4)]); }
+  for (let y = 18; y < 44; y++) { const x = Math.round(204 + Math.sin(y * 0.4) * 2 + (y - 18) * 0.3); R.pset(x, y, hex('#0a0e1c')); if (y % 3 === 0) R.pset(x + 1, y, hex('#3a4868')); }
+  // el canto de arriba del marco de roble, con sus vetas, y la sombra que echa sobre el corcho
+  const MARCO = ['#24140c', '#3e2416', '#5a3620', '#74482a', '#946038', '#b47e4c'].map(hex);
+  for (let y = 46; y <= 53; y++) for (let x = 0; x < 320; x++) { const g = Math.sin(x * 0.09 + Math.sin(x * 0.021) * 3 + y * 0.8) * 0.55 + (hh(x, y, 3) - 0.5) * 0.6, base = y === 46 ? 4.4 : y === 47 ? 3.4 : y >= 52 ? 0.4 : 2.4; let v = base + g + luz(x, y) * 0.5; let l = Math.floor(v); if (v - l > b4(x, y)) l++; R.pset(x, y, MARCO[cl(l, 0, 5)]); }
+  for (let x = 0; x < 320; x += 37) { R.pset(x + 9, 49, hex('#24140c')); R.pset(x + 10, 49, hex('#24140c')); }
+  // el corcho de cerca: el grano a 2 px, motas claras y oscuras, la luz cálida del flexo desde abajo a la izquierda
+  const CO = ['#5a3618', '#7a4e26', '#986434', '#b47e46', '#cc9a5c', '#e4b878'].map(hex);
+  for (let y = 54; y < 180; y++) for (let x = 0; x < 320; x++) { let v = 1.8 + luz(x, y) * 1.5 + (hh(x >> 1, y >> 1, 4) - 0.5) * 1.3 + (hh(x >> 2, y >> 2, 5) < 0.07 ? -1.3 : 0) + (hh(x >> 1, y >> 1, 6) < 0.045 ? 1.3 : 0) - (y < 60 ? (60 - y) * 0.3 : 0); let l = Math.floor(v); if (v - l > b4(x, y)) l++; R.pset(x, y, CO[cl(l, 0, 5)]); }
+  // los agujeros de chinchetas viejas y los restos de papel arrancado
+  for (let k = 0; k < 46; k++) { const x = 4 + Math.floor(hh(k, 1, 7) * 312), y = 60 + Math.floor(hh(k, 2, 7) * 116); R.rect(x, y, x + 1, y + 1, hex('#3a200e')); R.pset(x + 1, y + 1, hex('#d8a868')); }
+  for (const [x, y, c] of [[70, 62, '#f0e8d0'], [166, 146, '#f8e870'], [248, 172, '#e8d8b0'], [168, 60, '#e8d8b0']]) { R.poligono([[x, y], [x + 8, y + 1], [x + 3, y + 7]], hex(c)); R.linea(x + 3, y + 7, x + 8, y + 1, mez(hex(c), K, 0.4)); R.pset(x + 1, y + 1, hex('#ffffff')); R.disco(x + 2, y + 2, 1, hex('#5a5a6a')); }
+  // la nota amarilla de la izquierda, cortada por el borde: su banda de pegamento, renglones y la sombra
+  const NA = [[-6, 64], [58, 60], [61, 112], [-4, 116]];
+  R.poligono(NA.map(([x, y]) => [x + 3, y + 4]), hex('#4a2a12')); R.poligono(NA, hex('#f8e870')); R.poligono([[-6, 64], [58, 60], [58, 67], [-6, 71]], hex('#ecd650'));
+  R.linea(58, 60, 61, 112, hex('#c8b040')); R.linea(-4, 116, 61, 112, hex('#d0b840'));
+  for (let i = 0; i < 4; i++) { const y = 80 + i * 8, w = [44, 30, 40, 22][i]; for (const d of [0, 1]) R.linea(4, y + d, 4 + w, y + d - Math.round(w * 0.06), hex(d ? '#a8983a' : '#6a5a1a')); }
+  for (let k = 0; k < 40; k++) R.pset(Math.floor(hh(k, 3, 8) * 56), 70 + Math.floor(hh(k, 4, 8) * 40), hex('#fff6a0'));
+  pinG(28, 67, ROJO, hex('#ff8a8a'));
+  // la hoja del calendario de abajo a la izquierda, cortada por el borde de abajo: 12 / 25
+  R.rect(11, 129, 83, 179, hex('#4a2a12')); R.rect(8, 126, 80, 179, K); R.rect(9, 127, 79, 179, hex('#f6f2e6'));
+  for (let k = 0; k < 50; k++) R.pset(10 + Math.floor(hh(k, 5, 8) * 68), 148 + Math.floor(hh(k, 6, 8) * 30), hex('#dcd4c0'));
+  R.rect(9, 127, 79, 146, hex('#c8282e')); R.rect(9, 145, 79, 146, hex('#8a1a1e')); R.rect(9, 127, 79, 127, hex('#e85a5a'));
+  for (let x = 16; x < 76; x += 10) { R.rect(x, 123, x + 1, 130, K); R.pset(x, 124, hex('#c8ccd8')); R.pset(x, 125, hex('#a8acbc')); }
+  R.numero('12', 44, 144, { centro: true, tam: 16, rampa: [hex('#ffffff'), hex('#ffffff'), hex('#ffffff'), hex('#ffffff')] });
+  R.numero('25', 44, 175, { centro: true, tam: 16, rampa: [hex('#2a1a1a'), hex('#5a1a1a'), hex('#8a2020'), hex('#c8282e')] });
+  // la tira de película de 3 fotogramas sujeta en diagonal (la pista de los cortes)
+  { const a0 = [86, 150], a1 = [168, 166], L = Math.hypot(a1[0] - a0[0], a1[1] - a0[1]), ux = (a1[0] - a0[0]) / L, uy = (a1[1] - a0[1]) / L;
+    for (const pasa of [0, 1]) for (let i = 0; i <= L; i += 0.5) for (let s = -7; s <= 7; s += 0.5) { const X = Math.round(a0[0] + ux * i - uy * s + (pasa ? 0 : 2)), Y = Math.round(a0[1] + uy * i + ux * s + (pasa ? 0 : 3));
+      if (!pasa) { R.pset(X, Y, hex('#4a2a12')); continue; } const as = Math.abs(s), ii = Math.floor(i);
+      R.pset(X, Y, as > 6 ? K : as > 4 ? ((ii % 4 < 2 && as > 4.6 && as < 5.6) ? hex('#e8dcc0') : hex('#2a1e14')) : (ii % 26 < 2 ? K : (as > 3.4 ? hex('#7a5632') : (ii % 26 > 8 && ii % 26 < 16 && s > -1 ? hex('#f0e0c0') : hex('#a8865a'))))); } }
+  pinG(92, 152, hex('#e8b830'), hex('#fff0a0'));
+  // la tarjeta del «?» con la moto: foto sepia, el «?» rojo, la moto y dos rayas de pie
+  R.rect(93, 75, 167, 143, hex('#4a2a12')); R.rect(89, 71, 164, 140, K); R.rect(90, 72, 163, 139, hex('#ece2c8'));
+  for (let y = 76; y <= 126; y++) R.rect(94, y, 159, y, mez(hex('#a08a64'), hex('#5a4a34'), (y - 76) / 50));
+  for (let k = 0; k < 70; k++) R.pset(94 + Math.floor(hh(k, 7, 8) * 65), 76 + Math.floor(hh(k, 8, 8) * 50), hex('#c8b490'));
+  R.icono('?', 97, 80, hex('#e8282e'), hex('#5a1414'), 4);
+  for (const [cx, cy] of [[128, 116], [150, 116]]) { R.disco(cx, cy, 7, K); R.disco(cx, cy, 5, hex('#3a3a3a')); R.disco(cx, cy, 3, hex('#7a6a50')); R.disco(cx, cy, 1, hex('#c8c8d0')); R.pset(cx - 4, cy - 4, hex('#a8a8b0')); }
+  for (const [a, b, c, d] of [[128, 116, 137, 106], [137, 106, 150, 116], [137, 106, 149, 104], [149, 104, 152, 99], [131, 105, 139, 105]]) { R.linea(a, b, c, d, K); R.linea(a, b - 1, c, d - 1, K); }
+  R.rect(139, 103, 147, 107, hex('#8a2a2a')); R.rect(139, 103, 147, 103, hex('#c85a4a')); R.rect(152, 98, 154, 99, hex('#e8c040'));
+  R.rect(96, 130, 140, 131, hex('#7a6a4a')); R.rect(96, 134, 124, 135, hex('#9a8a6a'));
+  // los hilos que ya estaban: de la nota y del calendario a la tarjeta del «?»
+  // la polaroid del castillo de noche, cortada por el borde de la derecha
+  R.rect(287, 121, 319, 175, hex('#4a2a12')); R.rect(283, 117, 319, 171, K); R.rect(284, 118, 319, 170, hex('#f0ece0'));
+  for (let y = 122; y <= 156; y++) R.rect(288, y, 319, y, mez(hex('#141a40'), hex('#4a3a6a'), (y - 122) / 34));
+  for (const [x, y] of [[292, 126], [304, 130], [314, 125], [298, 134]]) R.pset(x, y, hex('#fff6d0'));
+  for (const [x0, a, w] of [[290, 14, 5], [296, 20, 4], [301, 11, 7], [309, 24, 4], [314, 16, 5]]) { R.rect(x0, 156 - a, x0 + w, 156, hex('#0a0c1a')); R.pset(x0 + (w >> 1), 156 - a - 2, hex('#0a0c1a')); R.pset(x0 + (w >> 1), 156 - a + 4, hex('#ffd060')); }
+  R.rect(288, 153, 319, 156, hex('#1a2a4a')); R.rect(290, 162, 312, 163, hex('#a8a498'));
+  pinG(301, 121, hex('#3aa86a'), hex('#9ae8b8'));
+  hilo([28, 67], Q); hilo([44, 130], Q);
+  pinG(Q[0], Q[1], hex('#2a6ad8'), hex('#8ab8ff'));
+  R.usar(prev);
+};
+// la ficha de la lista, grande (sin letras): cabecera con la tira y las tijeras, cinco filas con su icono, dos rayas de
+// texto y la X roja que tacha las que van saliendo (nx: cuántas, 0–5)
+const fichaG = (x, y, t, nx) => { const W = 96, H = 114;
+  for (let yy = y + 3; yy <= y + H + 4; yy++) for (let xx = x + 4; xx <= x + W + 4; xx++) if (((xx + yy) & 1) || xx > x + W + 1 || yy > y + H + 1) R.pset(xx, yy, hex('#3a200c'));
+  R.rect(x - 1, y - 1, x + W + 1, y + H + 1, K); R.rect(x, y, x + W, y + H, PAPEL);
+  for (let k = 0; k < 70; k++) R.pset(x + 1 + Math.floor(hh(k, 1, 9) * (W - 2)), y + 1 + Math.floor(hh(k, 2, 9) * (H - 2)), PAPELS);
+  R.rect(x, y, x + W, y + 3, ROJO); R.rect(x, y + 3, x + W, y + 3, hex('#8a1a1e'));
+  // la cabecera: el pictograma de la tira de película y el de las tijeras, y el «5» en su círculo
+  R.rect(x + 28, y + 7, x + 62, y + 15, K); R.rect(x + 29, y + 8, x + 61, y + 14, hex('#3a2a1e'));
+  for (let i = 0; i < 3; i++) R.rect(x + 31 + i * 10, y + 10, x + 38 + i * 10, y + 12, hex('#c8a878'));
+  for (let xx = x + 30; xx < x + 61; xx += 3) { R.pset(xx, y + 8, PAPEL); R.pset(xx, y + 14, PAPEL); }
+  R.linea(x + 66, y + 7, x + 74, y + 13, hex('#6c7688')); R.linea(x + 66, y + 13, x + 74, y + 7, hex('#6c7688')); R.anillo(x + 66, y + 7, 2, ROJO); R.anillo(x + 66, y + 13, 2, ROJO);
+  R.anillo(x + 12, y + 11, 6, ROJO); R.numero('5', x + 12, y + 15, { centro: true, rampa: [hex('#2a1a1a'), hex('#3a2a2a'), hex('#5a3a3a'), hex('#7a4a4a')] });
+  R.linea(x + 24, y + 4, x + 24, y + H - 1, hex('#e8a8a8'));
   const filas = [
-    () => R.actor(EL.peeves, x + 1, y + 13 + 12, t, { opaco: true, sonrisa: true, quieto: true }),
-    () => T.PIEZAS_HP.dragon(R, x + 9, y + 25 + 12, { t }),
-    () => T.PIEZAS_HP.flauta(R, x + 9, y + 38 + 12, { t }),
-    () => T.PIEZAS_HP.botellas(R, x + 9, y + 51 + 12, { t }),
-    () => T.PIEZAS_HP.huevoDragon(R, x + 9, y + 64 + 10, { t }),
+    (cx, b) => R.actor(EL.peeves, cx - 7, b + 8, t, { opaco: true, sonrisa: true, quieto: true }),
+    (cx, b) => T.PIEZAS_HP.dragon(R, cx, b, { t }),
+    (cx, b) => T.PIEZAS_HP.flauta(R, cx, b, { t }),
+    (cx, b) => T.PIEZAS_HP.botellas(R, cx, b, { t }),
+    (cx, b) => T.PIEZAS_HP.huevoDragon(R, cx, b - 2, { t }),
   ];
-  for (let j = 0; j < 5; j++) { R.recorte([x, y + j * 13 + 2, x + 17, y + j * 13 + 14]); filas[j](); R.recorte(null);
-    for (let k = 0; k < 4; k++) R.linea(x + 22, y + 6 + j * 13 + (k % 2) * 3, x + 22 + 10 + ((j * 7 + k * 5) % 22), y + 6 + j * 13 + (k % 2) * 3, hex('#5a5a6a'));
-    const v = tramo(nx, j, j + 1); if (v > 0) { const cx = x + 50, cy = y + 8 + j * 13, r = 4; R.linea(cx - r, cy - r, Math.round(cx - r + 2 * r * Math.min(1, v * 2)), Math.round(cy - r + 2 * r * Math.min(1, v * 2)), ROJO); if (v > 0.5) R.linea(cx + r, cy - r, Math.round(cx + r - 2 * r * (v - 0.5) * 2), Math.round(cy - r + 2 * r * (v - 0.5) * 2), ROJO); }
+  for (let j = 0; j < 5; j++) { const ry = y + 18 + j * 19;
+    R.linea(x + 1, ry + 18, x + W - 1, ry + 18, hex('#b8c8e0'));
+    R.recorte([x + 2, ry + 1, x + 22, ry + 17]); filas[j](x + 12, ry + 16); R.recorte(null);
+    for (let k = 0; k < 2; k++) { const w = 18 + ((j * 7 + k * 11) % 30); R.rect(x + 29, ry + 5 + k * 6, x + 29 + w, ry + 6 + k * 6, hex('#4a4a5a')); R.rect(x + 29, ry + 5 + k * 6, x + 29 + w, ry + 5 + k * 6, hex('#6a6a7a')); }
+    const v = tramo(nx, j, j + 1); if (v > 0) { const cx = x + 85, cy = ry + 9, r = 6, a = Math.min(1, v * 2), b = Math.max(0, (v - 0.5) * 2);
+      for (const d of [0, 1]) { R.linea(cx - r + d, cy - r, Math.round(cx - r + d + 2 * r * a), Math.round(cy - r + 2 * r * a), ROJO); if (b > 0) R.linea(cx + r + d, cy - r, Math.round(cx + r + d - 2 * r * b), Math.round(cy - r + 2 * r * b), ROJO); }
+      if (v >= 1) R.pset(cx - r + 1, cy + r + 1, hex('#8a1a1e')); }
   }
+  // la esquina de abajo, un poco levantada
+  R.poligono([[x + W - 7, y + H], [x + W, y + H - 7], [x + W - 2, y + H - 2]], PAPELS); R.linea(x + W - 7, y + H, x + W, y + H - 7, hex('#a89878'));
 };
 const p1 = (t) => {
-  T.hoy(R, t, { encuadre: 'corcho', camara: 'cerca', pistas: 2 + tramo(t, tacha, comienza) });
-  // la mano trae la ficha desde abajo a la derecha y la clava
-  const u = tramo(t, trae, clava - 0.1), fx = Math.round(lerp(330, 246, u)), fy = Math.round(lerp(150, 76, u) + (1 - u) * Math.sin(t * 9) * 2);
-  ficha(fx, fy, t, tramo(t, tacha, comienza + 0.6) * 5);
-  if (t > clava - 0.05) { R.disco(fx + 31, fy + 2, 3, K); R.disco(fx + 31, fy + 2, 2, ROJO); R.pset(fx + 30, fy + 1, hex('#ffb0b0')); }
-  const suelta = tramo(t, clava + 0.2, clava + 0.9);
-  if (suelta < 1) { const hx = fx + 40 + Math.round(suelta * 40), hy = fy + 8 + Math.round(suelta * 30); T.brazo(R, hx + 44, hy + 30, hx, hy, '#3a4a6a', -1, { codo: [hx + 26, hy + 24] }); }
-  // la snitch llega volando y se posa en la esquina de la ficha
+  fondo1(); R.copiar(FONDO1);
+  // la guirnalda de luces de la pared: el cable en dos combas y las bombillas que parpadean y tiñen la pared
+  const cuelga = (x) => x < 130 ? 17 + Math.sin(x / 130 * Math.PI) * 11 : 18 + Math.sin((x - 130) / 132 * Math.PI) * 11;
+  for (let x = 0; x <= 262; x++) { const y = Math.round(cuelga(x)); R.pset(x, y, hex('#06080e')); }
+  R.disco(130, 18, 1, hex('#8a8a9a'));
+  const BOMB = ['#ff5a4a', '#ffd04a', '#5ad08a', '#5aa0ff', '#ff8ad0'].map(hex);
+  for (let k = 0; k < 14; k++) { const x = 9 + k * 18, y = Math.round(cuelga(x)), c = BOMB[k % 5], on = Math.sin(t * 2.4 + k * 1.7) > -0.35;
+    if (on) for (let dy = -3; dy <= 6; dy++) for (let dx = -4; dx <= 4; dx++) { const d = Math.hypot(dx, dy - 3); if (d < 4.5 && ((x + dx + y + dy) & 1)) R.pset(x + dx, y + 3 + dy, mez(R.pget(x + dx, y + 3 + dy), c, 0.3)); }
+    R.pset(x, y + 1, hex('#3a3a46')); R.rect(x, y + 2, x + 1, y + 4, on ? c : mez(c, K, 0.6)); if (on) R.pset(x, y + 2, hex('#ffffff')); }
+  // las motas de polvo que flotan en la luz del flexo
+  for (let k = 0; k < 18; k++) { const x = Math.round((hh(k, 1, 20) * 210 + Math.sin(t * 0.7 + k) * 6)), y = Math.round(178 - ((hh(k, 2, 20) * 120 + t * (3 + (k % 3) * 2)) % 120));
+    if (Math.sin(t * 3 + k * 2) > -0.5) R.pset(x, y, mez(R.pget(x, y), hex('#fff0c8'), 0.65)); }
+  // la esquina de la nota amarilla, que el aire del flexo levanta un poco
+  { const k = Math.round((0.5 + 0.5 * Math.sin(t * 1.8)) * 3); R.poligono([[52, 113], [61, 104 + k], [55 - k, 106 + k]], hex('#fff4a0')); R.linea(52, 113, 61, 104 + k, hex('#c8b040')); }
+  // la ficha: la mano la trae desde abajo a la derecha y la clava por la esquina de arriba con una chincheta roja
+  const u = tramo(t, trae, clava - 0.15), ee = u * u * (3 - 2 * u), golpe = Math.abs(t - clava) < 0.07 ? 1 : 0;
+  const fx = Math.round(lerp(300, 180, ee)), fy = Math.round(lerp(186, 62, ee) + (1 - u) * Math.sin(t * 9) * 2) + golpe;
+  const pin = [fx + 86, fy + 6];
+  // el hilo nuevo, de la tarjeta del «?» a la chincheta de la ficha (pasa por debajo de ella), que se tiende y luego se
+  // enciende con un pulso
+  const hl = tramo(t, clava + 0.3, tacha); if (hl > 0) hilo(Q, pin, hl, t > tacha ? (t * 0.7) % 1 : -1);
+  fichaG(fx, fy, t, tramo(t, tacha, comienza + 0.6) * 5);
+  if (u > 0) { pinG(pin[0], pin[1] - (t < clava ? 2 : 0), ROJO, hex('#ffb0b0'));
+    const pr = tramo(t, clava, clava + 0.45); if (pr > 0 && pr < 1) { const r = 3 + Math.round(pr * 7); for (let a = 0; a < 6.28; a += 0.35) R.pset(Math.round(pin[0] + Math.cos(a) * r), Math.round(pin[1] + Math.sin(a) * r * 0.7), hex('#fff0c0')); } }
+  const suelta = tramo(t, clava + 0.15, clava + 0.85);
+  if (u > 0 && suelta < 1) { const s2 = suelta * suelta, hx = fx + 99 + Math.round(s2 * 54), hy = fy + 7 + Math.round(s2 * 48); T.brazo(R, hx + 66, hy + 86, hx, hy, '#3a4a6a', -1, { codo: [hx + 40, hy + 40] }); }
+  // la snitch revolotea por la izquierda, llega y se posa en la esquina de la ficha
   const v = tramo(t, clava + 0.4, comienza);
-  T.snitch(R, Math.round(lerp(30, fx + 10, v)) + (v < 1 ? Math.sin(t * 3) * 6 : 0), Math.round(lerp(40, fy - 2, v)), t, { vuela: v < 1 ? 0.7 : 0, cara: t > tacha && t < comienza ? 'susto' : 'feliz' });
+  T.snitch(R, Math.round(lerp(44, fx + 10, v)) + (v < 1 ? Math.sin(t * 3) * 6 : 0), Math.round(lerp(98, fy - 2, v)), t, { vuela: v < 1 ? 0.7 : 0, cara: t > tacha && t < comienza ? 'susto' : 'feliz' });
 };
+// las tijeras grandes de montaje: eje en (px, py), las hojas hacia el ángulo ang, abiertas ab radianes; cada hoja de acero
+// de 22 px con su filo de luz y su sombra, y detrás del eje los dos ojos rojos que coge la mano
+const tijeras = (px, py, ang, ab, t) => {
+  for (const sg of [1, -1]) { const a = ang + sg * ab / 2, ca = Math.cos(a), sa = Math.sin(a), nx = -sa * sg, ny = ca * sg, L = 22, tip = [px + ca * L, py + sa * L];
+    const pts = (g) => [[px + nx * (2.4 + g) - ca * g, py + ny * (2.4 + g) - sa * g], [tip[0] + ca * g, tip[1] + sa * g], [px - nx * (1.4 + g) - ca * g, py - ny * (1.4 + g) - sa * g]].map(([x, y]) => [Math.round(x), Math.round(y)]);
+    const ox = Math.round(px - ca * 9 + nx * 2), oy = Math.round(py - sa * 9 + ny * 2);
+    for (let w = -1; w <= 1; w++) R.linea(px, py + w, ox, oy + w, K); R.linea(px, py, ox, oy, hex('#5a6272'));
+    R.disco(ox, oy, 5, K); R.disco(ox, oy, 4, ROJO); R.disco(ox, oy, 2, K); R.pset(ox - 2, oy - 2, hex('#ff8a8a'));
+    R.poligono(pts(1), K); R.poligono(pts(0), hex('#c4ccd8'));
+    R.linea(Math.round(px + nx * 1.6), Math.round(py + ny * 1.6), Math.round(tip[0]), Math.round(tip[1]), hex('#f6f8ff'));
+    R.linea(Math.round(px - nx * 0.8), Math.round(py - ny * 0.8), Math.round(tip[0] - nx * 0.6), Math.round(tip[1] - ny * 0.6), hex('#7c86a0'));
+    const g = (t * 1.3 + (sg > 0 ? 0 : 0.5)) % 1; R.pset(Math.round(px + ca * L * g + nx), Math.round(py + sa * L * g + ny), hex('#ffffff')); }
+  R.disco(px, py, 2, K); R.pset(px, py, hex('#e8c040'));
+};
+// la chispa del corte (u: 0–1): la estrella blanca y amarilla que crece y las chispitas que saltan y caen
+const chispa = (x, y, u) => { const r = Math.round(2 + u * 6), c = u < 0.5 ? hex('#ffffff') : hex('#ffe070'), d = Math.round(r * 0.6);
+  R.linea(x - r, y, x + r, y, c); R.linea(x, y - r, x, y + r, c); R.linea(x - d, y - d, x + d, y + d, hex('#ffd040')); R.linea(x - d, y + d, x + d, y - d, hex('#ffd040')); R.disco(x, y, u < 0.5 ? 2 : 1, hex('#ffffff'));
+  for (let k = 0; k < 7; k++) { const a = k * 0.9 + 0.3, q = u * 14; R.pset(Math.round(x + Math.cos(a) * q), Math.round(y + Math.sin(a) * q + u * u * 8), hex('#ffe070')); } };
 const p2 = (t) => {
   const cortada = t > corta;
   // el visor: corre la toma de Peeves (sepia, con su grano y su raya) y después de cortar, la toma siguiente sin él
@@ -67,8 +194,10 @@ const p2 = (t) => {
     if (fl) R.linea(x0 + ((Math.floor(t * 6) * 13) % (x1 - x0)), y0, x0 + ((Math.floor(t * 6) * 13) % (x1 - x0)), y1, hex('#e8dcc0')); };
   const g = T.hoy(R, t, { encuadre: 'montaje', camara: 'moviola', pantalla: visor, gira: cortada ? 0.3 : 1 });
   // los recortes que ya estaban en el suelo, a la derecha
-  const trozo = (x, y, ang, sil) => { const c = Math.cos(ang), s = Math.sin(ang);
-    for (const borde of [1, 0]) for (let i = -11; i <= 11; i += 0.5) for (let j = -6; j <= 6; j += 0.5) { if (!borde && (Math.abs(i) > 10 || Math.abs(j) > 5)) continue; const X = Math.round(x + c * i - s * j), Y = Math.round(y + s * i + c * j);
+  // (luz: el trozo cortado lleva un filo claro para que se lea sobre la mesa y el suelo oscuros)
+  const trozo = (x, y, ang, sil, luz) => { const c = Math.cos(ang), s = Math.sin(ang);
+    for (const borde of luz ? [2, 1, 0] : [1, 0]) for (let i = -12; i <= 12; i += 0.5) for (let j = -7; j <= 7; j += 0.5) { if (borde < 2 && (Math.abs(i) > 11 || Math.abs(j) > 6)) continue; if (!borde && (Math.abs(i) > 10 || Math.abs(j) > 5)) continue; const X = Math.round(x + c * i - s * j), Y = Math.round(y + s * i + c * j);
+      if (borde === 2) { R.pset(X, Y, hex('#f8e4b0')); continue; }
       const fant = sil && ((Math.hypot(i, j + 0.6) < 2.8) || (Math.abs(i) < 2.2 && j > 0 && j < 3)), ojo = sil && Math.abs(Math.abs(i) - 1) < 0.5 && Math.abs(j + 0.8) < 0.5;
       R.pset(X, Y, borde ? K : Math.abs(j) > 3.5 ? ((Math.floor(i) & 2) ? hex('#2a1e14') : hex('#e8dcc0')) : ojo ? K : fant ? hex('#f4f6ff') : Math.abs(i) < 0.6 || Math.abs(Math.abs(i) - 6) < 0.6 ? hex('#3a2818') : hex('#7a5632')); } };
   [[262, 170, 0.3, false], [300, 172, -0.5, false], [282, 176, 1.2, false], [312, 165, 0.9, false]].forEach(([x, y, a, s]) => trozo(x, y, a, s));
@@ -78,21 +207,22 @@ const p2 = (t) => {
   if (r > 0) { tx = lerp(132, 244, r); ty = lerp(132, 126, r); ta = lerp(1.57, 0.2, r); }
   if (f > 0) { tx = lerp(244, 286, f); ty = 126 + (172 - 126) * f * f; ta = 0.2 + f * 2.2; }
   if (lev > 0) { tx = lerp(286, 236, lev); ty = lerp(172, 60, lev) + Math.sin(lev * 9) * 3; ta = 2.4 + Math.sin(t * 8) * 0.3; }
-  trozo(tx, ty, ta, true);
+  trozo(tx, ty, ta, true, t > corta);
+  // el polvo que levanta al caer al suelo
+  const pol = tramo(t, cae, cae + 0.5); if (pol > 0 && pol < 1) for (let k = 0; k < 8; k++) { const a = 3.3 + k * 0.4, q = 4 + pol * 10; R.pset(Math.round(286 + Math.cos(a) * q * 1.4), Math.round(174 + Math.sin(a) * q * 0.4 - pol * 3), hex(pol < 0.5 ? '#e8dcc0' : '#a89878')); }
   const bajada = tramo(t, cae - 0.1, coge);
   const sx = lev > 0 ? tx : lerp(300, 286, bajada) + (bajada < 1 ? Math.sin(t * 3) * 6 : 0), sy = lev > 0 ? ty - 9 : lerp(70, 163, bajada);
   T.snitch(R, sx, sy, t, { vuela: 0.2, cara: lev > 0 ? 'feliz' : 'normal' });
   T.hoyDelante(R, t, { encuadre: 'montaje', camara: 'moviola' });
-  // la mano con las tijeras: entra desde abajo a la izquierda, corta en «ended» y se va
-  const m = tramo(t, mano2, corta - 0.15) - tramo(t, corta + 0.4, corta + 1.2);
-  if (m > 0) { const hx = Math.round(lerp(70, 112, m)), hy = Math.round(lerp(200, 156, m)), ab = t < corta ? Math.abs(Math.sin(t * 6)) : 0;
-    // las tijeras: dos hojas de acero de 20 px que se abren y se cierran sobre la tira, y sus ojos rojos en la mano
-    const bx = hx + 4, by = hy - 8;
-    for (const sg of [-1, 1]) { const ex = bx + 26, ey = by - 10 + sg * Math.round(ab * 7);
-      for (let w = -1; w <= 1; w++) R.linea(bx, by + w, ex, ey + w, K); R.linea(bx, by, ex - 1, ey, sg < 0 ? hex('#eef0f8') : hex('#a8acbc')); }
-    R.disco(bx, by, 2, K); R.pset(bx, by, hex('#e8c040'));
-    for (const [dx, dy] of [[-5, 4], [-2, 8]]) { R.disco(bx + dx, by + dy, 4, K); R.disco(bx + dx, by + dy, 3, ROJO); R.disco(bx + dx, by + dy, 1, K); R.pset(bx + dx - 2, by + dy - 2, hex('#ff8a8a')); }
+  // la mano con las tijeras: entra desde abajo a la izquierda hasta la tira, justo bajo el canto de la mesa; abre y cierra
+  // las hojas, en «ended» las cierra del todo sobre la tira (con su chispa) y se va
+  const m = tramo(t, mano2, corta - 0.3) - tramo(t, corta + 0.45, corta + 1.25);
+  if (m > 0) { const e = m * m * (3 - 2 * m), hx = Math.round(lerp(58, 102, e)), hy = Math.round(lerp(204, 146, e));
+    const ab = t < corta - 0.32 ? 0.2 + 0.22 * Math.abs(Math.sin(t * 7)) : t < corta - 0.06 ? 0.55 : t < corta ? 0.55 * (corta - t) / 0.06 : 0;
+    tijeras(hx + 14, hy - 6, -0.36, ab, t);
     T.brazo(R, 20, 214, hx, hy, '#c8a878', 1, { codo: [hx - 30, hy + 40] }); }
+  // la chispa del corte, donde se cierran las hojas sobre la tira
+  const ch = tramo(t, corta, corta + 0.4); if (ch > 0 && ch < 1) chispa(133, 134, ch);
 };
 const efectos = [[trae + 0.1, 'papel'], [clava, 'pop'], [tacha + 0.2, 'lapiz'], [P2 + 0.2, 'zumbido'], [corta, 'golpecito'], [cae, 'papel'], [coge + 0.1, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: (t) => (t < P2 ? 2026 : 2001) });

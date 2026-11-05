@@ -11,10 +11,13 @@
 <script type="module">
 // HP-SUBASTA (frase 32), 2021 y hoy. Dos planos:
 // 1. (0 → «$471», 7,2 s) el atril de cerca: el subastador enseña el libro de 1997 (brilla en «1997»); en «2021» empiezan
-//    las pujas: suben paletas numeradas por abajo, él señala a cada lado y la pantalla grande sube de cifra hasta
-//    471000 en «$471»; coge el martillo y lo levanta.
+//    las pujas: en primer término, el público de espaldas en sus sillas a los dos lados del atril y el pie de micro;
+//    cinco pujadores suben su paleta numerada (12, 27, 31, 4, 19) y la tienen arriba unos dos segundos, él señala a
+//    cada lado y la pantalla grande sube de cifra hasta 471000 en «$471»; coge el martillo y lo levanta. Las chispas
+//    del marco no pasan de x 276 (zona de Atom libre).
 // 2. (→ fin, 7,1 s) la sala entera: el martillo cae en «record» (polvo y la sala aplaude levantando las paletas); en
-//    «Today» la montaña de libros de siete colores crece detrás hasta el techo, el subastador la mira asombrado y la
+//    «Today» la montaña de libros de siete colores crece detrás hasta y≈33 (montana ≤ 0,83: ni ella ni el libro que
+//    cae entran en la barra del año), el subastador la mira asombrado y la
 //    pantalla pasa a 600000000 con un libro en «600 million».
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -27,19 +30,56 @@ const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c
 const hsh = (x, y, k) => { const v = Math.sin(x * 12.9898 + y * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
 const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x + y) & 1) && hsh(x, y, k % 3) < (1 - d) * (1 - d) * 1.4 + 0.08) R.pset(x, y, c); } };
 // destellos en cruz que giran alrededor de (cx, cy)
-const chispas = (cx, cy, r, t, c = hex('#fff4c0'), n = 5) => { for (let k = 0; k < n; k++) { const a = k * 6.283 / n + t * 3, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8); if (Math.sin(t * 11 + k * 2) > -0.2) { R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+const chispas = (cx, cy, r, t, c = hex('#fff4c0'), n = 5) => { for (let k = 0; k < n; k++) { const a = k * 6.283 / n + t * 3, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8); if (x + 1 > 276 && y - 1 < 46) continue; if (Math.sin(t * 11 + k * 2) > -0.2) { R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
 // un sprite de letras con su paleta (s: escala)
 const pinta = (g, x0, y0, pal, s = 1) => { for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = pal[g[j][i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } };
 
 const P2 = en('subasta', 0.531);
 const libros = en('subasta', 0.026), a1997 = en('subasta', 0.140), a2021 = en('subasta', 0.271), cifraT = en('subasta', 0.428), record = en('subasta', 0.645), hoyT = en('subasta', 0.725), seis = en('subasta', 0.858);
-// las pujas: [instante, cifra, x de la paleta, número de la paleta]
-const PUJAS = [[a2021, '100000', 34, '12'], [a2021 + 0.55, '180000', 286, '27'], [a2021 + 1.05, '260000', 64, '31'], [a2021 + 1.5, '350000', 256, '4'], [cifraT, '471000', 22, '19']];
-const paleta = (x, sube, n, t) => {
-  const y = Math.round(lerp(196, 146, sube) + Math.sin(t * 6 + x) * (sube > 0.9 ? 1 : 0));
-  R.rect(x - 1, y + 8, x + 1, 180, K); R.rect(x, y + 8, x, 180, hex('#8a5a30'));
+// las pujas: [instante, cifra, x del pujador (asiento del público), número de la paleta]
+const PUJAS = [[a2021, '100000', 46, '12'], [a2021 + 0.55, '180000', 262, '27'], [a2021 + 1.05, '260000', 14, '31'], [a2021 + 1.5, '350000', 228, '4'], [cifraT, '471000', 298, '19']];
+// el público de espaldas en primer término, a los lados del atril: [x, fila (0 delante, 1 detrás), pelo, ropa]
+const PELOS = [hex('#3a2a1a'), hex('#c8a060'), hex('#8a8a90'), hex('#1a1a1a'), hex('#8a4a2a'), hex('#e0d8cc')];
+const ROPAS = [hex('#2a2a36'), hex('#4a3a5a'), hex('#3a4a3a'), hex('#5a3a2a'), hex('#2a3a5a')];
+const PUB = [[30, 1, 4, 2], [212, 1, 2, 3], [246, 1, 0, 4], [280, 1, 5, 1], [14, 0, 1, 0], [46, 0, 3, 1], [196, 0, 4, 2], [228, 0, 0, 3], [262, 0, 2, 0], [298, 0, 5, 4]];
+const cabezaY = (f) => (f ? 147 : 160);
+// la paleta numerada: el mango baja por detrás del pujador (se pinta antes que él y la mano queda tapada por su cuerpo)
+const paleta = (x, hy, sube, n, t) => {
+  const y = Math.round(lerp(hy + 8, hy - 20, sube) + Math.sin(t * 6 + x) * (sube > 0.9 ? 1 : 0));
+  R.rect(x - 1, y + 8, x + 1, hy + 14, K); R.rect(x, y + 8, x, hy + 14, hex('#8a5a30'));
   R.disco(x, y, 10, K); R.disco(x, y, 9, hex('#f4f0e4')); R.disco(x - 2, y - 2, 5, hex('#ffffff'));
-  R.numero(n, x, y + 4, { centro: true });
+  for (let a = 0; a < 6; a++) R.pset(Math.round(x + Math.cos(0.3 + a * 0.25) * 8), Math.round(y + Math.sin(0.3 + a * 0.25) * 8), hex('#c8c0b0'));
+  R.numero(n, x, y + 4, { centro: true, color: hex('#2a2a36') });
+};
+// un pujador de espaldas: nuca con brillo, orejas, cuello de camisa, hombros con pliegue y el respaldo de su silla
+const pujador = (x, f, pelo, ropa, t, k) => {
+  const hy = cabezaY(f) + (Math.sin(t * 1.7 + k * 1.9) > 0.92 ? -1 : 0), r = f ? 4 : 5, gira = Math.sin(t * 0.9 + k * 2.7);
+  const ropaL = mez(ropa, hex('#ffffff'), 0.18), ropaS = mez(ropa, K, 0.4), sy = hy + r, yb = f ? 167 : 180;   // la fila de atrás acaba en su asiento
+  R.rect(x - r - 3, sy + 1, x + r + 3, yb, K); R.rect(x - r - 2, sy, x + r + 2, yb, ropa);
+  R.rect(x - r - 2, sy, x + r + 2, sy, ropaL); R.rect(x - r - 2, sy + 1, x - r - 2, yb, ropaL); R.rect(x + r + 2, sy + 1, x + r + 2, yb, ropaS);
+  R.linea(x, sy + 2, x, yb, ropaS); R.linea(x - 4, sy + 4, x - 3, yb, ropaS);
+  R.rect(x - 2, sy - 1, x + 2, sy, hex('#f0ece0'));
+  R.disco(x, hy, r + 1, K); R.disco(x, hy, r, pelo);
+  R.pset(x - r - 1, hy + 1, hex('#e8b890')); R.pset(x + r + 1, hy + 1, hex('#e8b890'));
+  if (gira > 0.6) { R.pset(x + r, hy + 1, hex('#f0c8a0')); R.pset(x + r, hy + 2, hex('#e8b890')); }
+  else if (gira < -0.6) { R.pset(x - r, hy + 1, hex('#f0c8a0')); R.pset(x - r, hy + 2, hex('#e8b890')); }
+  const pl = mez(pelo, hex('#ffffff'), 0.35); R.pset(x - 2, hy - r + 1, pl); R.pset(x - 1, hy - r + 1, pl); R.pset(x - 2, hy - r + 2, pl); R.pset(x + 1, hy - 1, mez(pelo, K, 0.3));
+  // el respaldo de la silla (madera con su canto dorado y el tapizado granate)
+  // (en la de atrás, respaldo corto y sus dos patas sobre la moqueta, con su sombra)
+  const cy = f ? 157 : 171, cw = r + 5, cb = f ? 166 : 180;
+  if (f) { for (const lx of [x - cw + 1, x + cw - 1]) R.rect(lx, cb, lx, 171, hex('#24160e')); R.linea(x - cw, 172, x + cw, 172, mez(hex('#7a1a28'), K, 0.5)); }
+  R.rect(x - cw, cy, x + cw, cb, hex('#3a2418')); R.rect(x - cw, cy, x + cw, cy, hex('#c8902a')); R.rect(x - cw + 2, cy + 2, x + cw - 2, cb - (f ? 1 : 0), hex('#7a1a28'));
+  for (let yy = cy + 3; yy < cb; yy += 3) R.pset(x - cw + 3 + ((yy / 3) & 1) * 2, yy, hex('#9a2a38')); R.rect(x + cw - 1, cy + 1, x + cw, cb, hex('#24160e'));
+};
+// el pie de micro de la sala, entre el atril y el público (trípode, barra con su rosca y la jirafa hacia la tarima)
+const micro = (t) => {
+  const x = 183;
+  for (const dx of [-7, 0, 7]) R.linea(x, 166, x + dx, 177, K); R.linea(x - 6, 177, x + 8, 177, hex('#2a2a30'));
+  R.rect(x - 1, 118, x + 1, 167, K); R.rect(x, 118, x, 167, hex('#8a8e9a')); R.rect(x - 2, 140, x + 2, 142, hex('#5a5e6a')); R.pset(x - 1, 140, hex('#c8ccd6'));
+  R.linea(x, 118, x - 12, 112, K); R.linea(x, 119, x - 12, 113, hex('#6a6e7a'));
+  R.rect(x - 17, 110, x - 11, 114, K); R.rect(x - 16, 111, x - 12, 113, hex('#3a3a44')); R.pset(x - 15, 111, hex('#9aa0b0'));
+  if (Math.sin(t * 5) > 0.6) R.pset(x - 17, 112, hex('#e85a3a'));   // el piloto rojo del micro encendido
+  R.linea(x, 167, x + 10, 179, hex('#1a1a20'));   // el cable por la moqueta
 };
 const mazo = (mx, my, abajo) => { P.martillo(R, mx + 4, my + 4, { golpe: !abajo, s: 2 }); };
 const p1 = (t) => {
@@ -49,7 +89,7 @@ const p1 = (t) => {
   // la cifra nueva brilla; la final, más
   const marco = (g) => { for (let d = 3; d <= 5; d++) { const c = d === 4 ? hex('#ffe890') : hex('#c8902a'); if ((Math.floor(t * 8) + d) % 2 || g > 1) { R.linea(166 - d, 30 - d, 266 + d, 30 - d, c); R.linea(166 - d, 92 + d, 266 + d, 92 + d, c); R.linea(166 - d, 30 - d, 166 - d, 92 + d, c); R.linea(266 + d, 30 - d, 266 + d, 92 + d, c); } } };
   if (k >= 0 && t < PUJAS[k][0] + 0.4 && t < cifraT) marco(1);
-  if (t > cifraT) { marco(2); if (t < cifraT + 1.4) { chispas(160, 28, 10, t); chispas(272, 28, 10, t); chispas(160, 94, 10, t); chispas(272, 94, 10, t); } }
+  if (t > cifraT) { marco(2); if (t < cifraT + 1.4) { chispas(160, 28, 10, t); chispas(266, 28, 10, t); chispas(160, 94, 10, t); chispas(266, 94, 10, t); } }
   // el subastador: enseña el libro, luego señala cada puja y por fin levanta el martillo
   const sx = 100, ensena = t < a2021 - 0.1, lado = k >= 0 ? (PUJAS[k][2] < 160 ? -1 : 1) : 1;
   const obj = ensena ? [sx + 18, t > a1997 - 0.2 && t < a1997 + 0.6 ? 106 : 112] : coge ? [sx + 19, 100] : null;
@@ -58,12 +98,18 @@ const p1 = (t) => {
   if (ensena) { if (t > a1997 - 0.2 && t < a1997 + 0.8) halo(rs.mano[0] + 7, rs.mano[1] - 6, 16, hex('#ffe890'), Math.floor(t * 7)); P.libro(R, rs.mano[0] + 7, rs.mano[1] + 6, { s: 2 }); }
   else P.libro(R, 136, 150, {});
   if (coge) mazo(rs.mano[0], rs.mano[1], false);
-  // las paletas de los pujadores, por delante de todo: suben con cada puja
-  PUJAS.forEach(([a, , x, n]) => { const s = tramo(t, a - 0.15, a + 0.1) * (1 - tramo(t, a + 1.1, a + 1.4)); if (s > 0) paleta(x, s, n, t); });
+  // el micro de sala y el público de espaldas, por delante de todo: cada pujador sube su paleta en su puja y la tiene
+  // arriba un par de segundos (se ven tres o cuatro a la vez); la última, la del récord, ya no baja
+  micro(t);
+  PUB.forEach(([x, f, pe, ro], k) => {
+    const pj = PUJAS.findIndex((p) => p[2] === x);
+    if (pj >= 0) { const a = PUJAS[pj][0], s = tramo(t, a - 0.25, a + 0.05) * (pj === PUJAS.length - 1 ? 1 : 1 - tramo(t, a + 2.2, a + 2.5)); if (s > 0) paleta(x, cabezaY(f), s, PUJAS[pj][3], t); }
+    pujador(x, f, PELOS[pe], ROPAS[ro], t, k);
+  });
 };
 const p2 = (t) => {
   const crece = tramo(t, hoyT + 0.1, seis + 0.9), golpe = tramo(t, record, record + 0.5);
-  const g = T.real(R, t, { encuadre: 'subasta', montana: crece, cifra: '471000', martillo: false });
+  const g = T.real(R, t, { encuadre: 'subasta', montana: crece * 0.83, cifra: '471000', martillo: false });
   // a partir de «600 million», la pantalla cuenta libros, no dinero
   if (t > seis) {
     const [x0, y0, x1, y1] = g.pantalla;

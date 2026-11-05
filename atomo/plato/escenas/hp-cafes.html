@@ -13,7 +13,8 @@
 // 1. (0 → «And», 6 s) un café de Edimburgo con lluvia: la escritora escribe a mano en la mesa de la ventana; un cliente
 //    entra por la derecha, pide en el mostrador y recoge su taza; con «baby daughter asleep» ella se vuelve al carrito,
 //    sonríe y sube un corazoncito; luego sigue escribiendo.
-// 2. (→ fin, 4,3 s) la mesa de cerca: termina la última línea («finished it») y levanta los brazos; con «about a dozen»
+// 2. (→ fin, 4,3 s) la mesa de cerca: sentada en su silla de madera curvada, con hombros, brazos y la mano con el boli
+//    por encima del tablero, termina la última línea («finished it») y levanta los dos brazos; con «about a dozen»
 //    van cayendo doce sobres en la mesa (el contador sube hasta 12); con «said no» un sello rojo «X» los tacha; ella se
 //    entristece y vuelve a coger el bolígrafo.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
@@ -70,7 +71,15 @@ const p2 = (t) => {
   const esc = lerp(0.72, 1, tramo(t, P2, acaba + 0.15));
   const o = { encuadre: 'cafe', camara: 'mesa', escrito: esc }, g = T.real(R, t, o);
   const escribe = t < acaba + 0.15 || t > no + 1.0, alegre = t > acaba + 0.15 && t < docena - 0.1, susto = t > docena - 0.1 && t < no, pena = t > no && t <= no + 1.0;
-  const w = R.actor(EL.escritora, 106, g.suelo, t, { dir: 1, sostiene: escribe ? [124 + Math.round(Math.sin(t * 8) * 2) + (t > no ? 0 : 3), 149] : undefined, brazos: alegre, salto: alegre ? Math.round(Math.abs(Math.sin((t - acaba) * 9)) * 2) : 0, sonrisa: alegre || t > no + 1.0, sorpresa: susto, triste: pena });
+  // sentada en una silla de café de madera curvada (el respaldo asoma tras los hombros); el asiento la sube 6 px para
+  // que por encima del tablero se le vean los hombros, los brazos y la mano con el boli sobre la libreta
+  const MS = hex('#6a3e22'), MB = hex('#a86c3c'), ML = hex('#d89a62');
+  for (const [px, lx] of [[101, 103], [124, 122]]) { R.rect(px, 139, px, 151, K); R.rect(Math.min(px, lx) + 1, 139, Math.max(px, lx) - 1, 151, MB); R.rect(lx, 140, lx, 151, ML); }
+  R.linea(102, 137, 106, 134, K); R.linea(106, 134, 118, 134, K); R.linea(118, 134, 123, 137, K);
+  R.linea(103, 138, 107, 135, MB); R.linea(107, 135, 117, 135, MB); R.linea(117, 135, 122, 138, MB); R.linea(107, 136, 117, 136, ML); R.linea(104, 138, 107, 137, MS); R.linea(117, 137, 121, 138, MS);
+  R.linea(104, 144, 121, 144, ML); R.linea(104, 145, 121, 145, MB); R.linea(104, 146, 121, 146, MS);
+  R.pset(112, 135, ML); R.pset(110 + Math.round(Math.sin(t * 1.3)), 136, hex('#f0c08a'));   // brillo del barniz con la luz de la ventana
+  const w = R.actor(EL.escritora, 106, g.suelo - 6, t, { dir: 1, sostiene: escribe ? [124 + Math.round(Math.sin(t * 8) * 2) + (t > no ? 0 : 3), 146] : undefined, brazos: alegre, salto: alegre ? Math.round(Math.abs(Math.sin((t - acaba) * 9)) * 2) : 0, sonrisa: alegre || t > no + 1.0, sorpresa: susto, triste: pena });
   T.realDelante(R, t, o);
   if (escribe) { const [mx, my] = w.mano; R.linea(mx + 1, my, mx + 5, my - 5, BOLI); R.pset(mx + 5, my - 5, hex('#c8c8d0')); }
   // doce sobres que caen en la mesa, uno tras otro

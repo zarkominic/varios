@@ -17,12 +17,14 @@
 // 2. El vestíbulo de mármol: el duende guía a Hagrid (con el paquete) y a Harry hacia la salida; en «Griphook» se vuelve y
 //    señala; en «final book» le sale encima un «7» dorado. Detrás del mostrador, otro duende echa una moneda en la balanza
 //    (tintinea) y sella dos recibos. Corta en «When».
-// 3. El aula del espejo: Harry mira el espejo; Dumbledore entra y le habla; en «sees himself» aparece en el cristal su
-//    reflejo, con algo en las manos. Un ratón huye por el suelo delante de Dumbledore y una lechuza cruza la ventana.
-//    Corta en «woollen».
-// 4. El espejo de cerca (gag 7): Dumbledore levanta los calcetines de lana (y su reflejo también); la snitch llega, le roba
-//    uno y se lo pone de gorro, feliz; en «doesn't quite believe him» el reflejo tiembla y la snitch pone cara de «?».
-// 5. El campo de quidditch de día: el padre de Harry, en escoba, baja en picado y desvía de un golpe una bludger que iba
+// 3. El aula del espejo: Harry da un paso hacia el espejo y toca el marco; Dumbledore entra por la izquierda; en «sees
+//    himself» aparece en el cristal su reflejo con los calcetines (Harry se asusta) y Harry se vuelve hacia Dumbledore y le
+//    sonríe mientras él señala el espejo y le habla. Un ratón huye por el suelo y una lechuza cruza la ventana. Corta en «woollen».
+// 4. El espejo en contrapicado (gag 7), OTRA composición: el marco cortado por arriba entre dos cortinones, la sábana caída
+//    y un candelero con polilla delante. Dumbledore entra hasta el espejo, de perfil, y levanta dos calcetines; su reflejo,
+//    de cara a él, igual; la snitch le quita uno (se va de la mano y del reflejo) y se lo pone de gorro; en «doesn't quite
+//    believe him» el reflejo tiembla y la snitch pone cara de «?».
+// 5. El campo de quidditch de día: el padre de Harry (sin cicatriz, pelo castaño y túnica escarlata), en escoba, baja en picado y desvía de un golpe una bludger que iba
 //    hacia un Snape jovencito que lee por el campo («saved Snape's life»); el público de las gradas se levanta y aplaude;
 //    luego sube persiguiendo a la snitch, que se le escapa. Corta en «in».
 // 6. Una librería: siete libros de pie en la mesa; en «Book 3» sube y brilla el tercero (con su «3»); en «the last one»,
@@ -111,41 +113,160 @@ const reflejoD = (s) => (R, t, [x0, y0, x1, y1]) => {
 const p3 = (t) => {
   const s = tramo(t, refleja, refleja + 0.7);
   T.hogwarts(R, t, { encuadre: 'espejo', reflejo: reflejoD(s) });
-  const dx = Math.round(lerp(330, 204, tramo(t, P3 + 0.05, llega)));
-  R.actor(EL.harry, 100, 166, t, { dir: t > llega - 0.3 && t < refleja + 0.4 ? 1 : 1, sorpresa: s > 0 && s < 1, sonrisa: s >= 1, habla: t > llega && t < refleja && Math.sin(t * 9) > 0 });
-  R.actor(EL.dumbledore, dx, 166, t, { dir: -1, anda: t < llega, habla: t > refleja && Math.sin(t * 8) > -0.2, dedo: t > a(0.45) });
-  // un ratón que huye por delante de Dumbledore y se mete bajo los pupitres
-  { const u = tramo(t, P3 + 0.1, P3 + 1.3), mx = Math.round(lerp(300, 128, u)), my = 172 - (Math.floor(t * 14) % 2); if (u < 1) { R.rect(mx - 2, my - 2, mx + 2, my, hex('#6a5e58')); R.rect(mx - 1, my - 3, mx + 1, my - 3, hex('#6a5e58')); R.pset(mx - 3, my - 1, hex('#8a7e78')); R.pset(mx - 3, my - 2, K); R.pset(mx - 2, my - 4, hex('#c89a9a')); R.linea(mx + 3, my, mx + 6, my - 1, hex('#c89a9a')); } }
+  // Harry da un paso hacia el espejo y toca el marco; cuando sale el reflejo se asusta, y luego se vuelve hacia
+  // Dumbledore, que ha entrado por la izquierda, y le sonríe mientras él le habla
+  const hp = tramo(t, P3, P3 + 0.7), hx = Math.round(lerp(86, 104, hp)), vuelto = t > refleja + 0.8;
+  R.actor(EL.harry, hx, 166, t, { dir: vuelto ? -1 : 1, anda: hp > 0 && hp < 1, sostiene: !vuelto && hp >= 1 ? [126, 144] : false, sorpresa: (s > 0 && s < 1) || (vuelto && t < refleja + 1.3), sonrisa: t >= refleja + 1.3, habla: t > a(0.47) && Math.sin(t * 9) > 0.4 });
+  const du = tramo(t, P3, refleja + 0.5), dx = Math.round(lerp(-16, 54, du));
+  R.actor(EL.dumbledore, dx, 166, t, { dir: 1, anda: du > 0 && du < 1, habla: du >= 1 && Math.sin(t * 8) > -0.2, dedo: t > refleja + 0.6 && t < a(0.47), sonrisa: t > a(0.47) });
+  // un ratón que huye por delante de Dumbledore hacia la derecha y se mete bajo los pupitres
+  { const u = tramo(t, P3 + 0.1, P3 + 1.6), mx = Math.round(lerp(20, 300, u)), my = 172 - (Math.floor(t * 14) % 2); if (u > 0 && u < 1) { R.rect(mx - 2, my - 2, mx + 2, my, hex('#6a5e58')); R.rect(mx - 1, my - 3, mx + 1, my - 3, hex('#6a5e58')); R.pset(mx + 3, my - 1, hex('#8a7e78')); R.pset(mx + 3, my - 2, K); R.pset(mx + 2, my - 4, hex('#c89a9a')); R.linea(mx - 3, my, mx - 6, my - 1, hex('#c89a9a')); } }
   // una lechuza cruza por delante de la luna, al otro lado de la ventana (recortada a su hueco)
   { const u = tramo(t, P3 + 0.6, P3 + 2.2); if (u > 0 && u < 1) { R.recorte([20, 30, 60, 96]); const ox = Math.round(lerp(12, 70, u)), oy = Math.round(60 - Math.sin(u * Math.PI) * 8); for (let k = -1; k <= 1; k++) { R.pset(ox + k, oy, hex('#14101c')); } R.pset(ox, oy - 1, hex('#14101c')); const al = Math.sin(t * 16) > 0; R.linea(ox - 4, oy + (al ? -2 : 1), ox - 1, oy, hex('#14101c')); R.linea(ox + 1, oy, ox + 4, oy + (al ? -2 : 1), hex('#14101c')); R.recorte(null); } }
   T.hogwartsDelante(R, t, { encuadre: 'espejo' });
 };
-// el plano 4: el espejo de cerca, los calcetines y la snitch con su gorro
+// el plano 4: OTRA composición, el espejo en contrapicado y de cerca. El marco dorado sube cortado por arriba y por los
+// lados entre dos cortinones de terciopelo; dentro, el reflejo de la sala (ventana con luna, rayo con polvo, pila de
+// sillas, la vela de enfrente); delante, la sábana que lo tapaba caída en el suelo y un candelero con su vela y una
+// polilla. Dumbledore entra hasta el espejo, de perfil hacia él, y levanta los calcetines; su reflejo, de cara a él, lo
+// mismo; la snitch le quita uno de verdad (desaparece de la mano y del reflejo) y se lo pone de gorro; en «doesn't
+// quite believe him» el reflejo tiembla y la snitch pone cara de «?».
 const roba = a(0.575), puesto = a(0.6), duda = a(0.62);
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16), b4 = (x, y) => B4[((y & 3) << 2) | (x & 3)];
+const hs = (a, b, c = 1) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };
+const tono = (cols, l, x, y) => cols[Math.max(0, Math.min(cols.length - 1, Math.floor(l * (cols.length - 1) + b4(x, y))))];
+// el cristal: borde izquierdo y derecho a cada altura (se cierra hacia arriba: contrapicado); el ancho del marco
+const e4L = (y) => 52 + 22 * (146 - y) / 146, e4R = (y) => 268 - 22 * (146 - y) / 146, e4W = (y) => 10 + 4 * Math.max(0, y) / 146;
+const ORO = ['#4a300c', '#7a5414', '#a8781e', '#d8a830', '#f0cc58', '#fff0a0'].map(hex);
+const TERC = ['#1e0810', '#340e1a', '#4c1424', '#661c30', '#80283e', '#9a3a50'].map(hex);
+const MAD = ['#2a1a10', '#3e2818', '#543822', '#6a4a2e', '#86603c'].map(hex);
+const VID = ['#0e0c1a', '#16142a', '#201c38', '#2c2848', '#3a3460', '#4e4878'].map(hex);
+let fondo4 = null;
+const pintaFondo4 = () => {
+  const vela = [300, 88];
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    // los cortinones: pliegues verticales que ondulan un poco, más oscuros arriba y templados por la vela a la derecha
+    const f = Math.sin(x * 0.42 + Math.sin(y * 0.035 + x * 0.01) * 1.6), dv = Math.hypot(x - vela[0], y - vela[1]);
+    let l = (0.25 + 0.38 * (0.5 + 0.5 * f) + 0.04 * hs(x, y >> 2)) * (0.45 + 0.55 * Math.min(1, y / 110)) + Math.max(0, 0.3 - dv / 260);
+    if (x > 270 && y < 50) l *= 0.6;
+    R.pset(x, y, tono(TERC, l, x, y));
+  }
+  // el alzapaños dorado del cortinón izquierdo (la tela se frunce en él) y su borla
+  for (let x = 0; x <= 40; x++) { const y = Math.round(104 + Math.sin(x * 0.15) * 2); R.pset(x, y, ORO[2]); R.pset(x, y + 1, ORO[4]); R.pset(x, y + 2, ORO[1]); if (x % 3 === 0) R.pset(x, y + 1, ORO[5]); }
+  R.rect(30, 107, 33, 110, ORO[3]); for (let i = 0; i < 6; i++) R.linea(29 + i, 111, 28 + i + (i > 2 ? 1 : 0), 122, ORO[i % 2 ? 2 : 4]); R.linea(28, 123, 35, 123, ORO[1]);
+  // el suelo de tablas (a ras de suelo: las juntas fugan hacia el centro)
+  for (let y = 158; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const k = 0.3 + 0.7 * (y - 156) / 24, p = (x - 160) / k + 400, tb = Math.floor(p / 16), ft = p - tb * 16;
+    if (ft < 1.1) { R.pset(x, y, MAD[0]); continue; }
+    const dv = Math.hypot(x - 300, y - 150);
+    const l = 0.35 + 0.25 * hs(tb, 3) + 0.12 * Math.sin(ft * 0.9 + tb + y * 0.5) * (hs(tb, 9) > 0.5 ? 1 : 0.4) + Math.max(0, 0.35 - dv / 300) - (y < 161 ? 0.25 : 0);
+    R.pset(x, y, tono(MAD, l, x, y));
+  }
+  // el cristal: el reflejo de la sala, en violetas, con la pared, la ventana con la luna, la pila de sillas y el suelo
+  for (let y = 0; y <= 146; y++) { const x0 = Math.ceil(e4L(y)), x1 = Math.floor(e4R(y)); for (let x = x0; x <= x1; x++) {
+    let l = 0.38 + 0.22 * (1 - Math.abs(x - 160) / 110) - 0.12 * (1 - y / 146);
+    if (y < 116) { const fila = Math.floor(y / 9), jx = (x + (fila & 1) * 9) % 18; if (y % 9 === 0 || jx === 0) l -= 0.1; else l += 0.05 * hs(Math.floor((x + (fila & 1) * 9) / 18), fila); }
+    else { const k = 0.25 + 0.75 * (y - 116) / 30, p = (x - 160) / k + 400; if (p % 14 < 1.2) l -= 0.14; else l += 0.04 * Math.sin(p * 0.7 + y); l += 0.06; }
+    // el rayo de luna del reflejo, de la ventana al suelo
+    const bx = 98 + (y - 70) * 0.55, bw = 30 + (y - 70) * 0.5; if (y > 66 && x > bx && x < bx + bw) l += 0.16 * (1 - Math.abs(x - bx - bw / 2) / (bw / 2));
+    R.pset(x, y, tono(VID, l, x, y));
+  } }
+  // la ventana del reflejo (en arco, con su parteluz), la luna y estrellas
+  for (let y = 18; y <= 70; y++) for (let x = 96; x <= 126; x++) { const dy = y - 32, dx = x - 111; if (y < 32 && dx * dx + dy * dy > 225) continue; const borde = x === 96 || x === 126 || y === 70 || (y < 32 && dx * dx + dy * dy > 180) || x === 111 || y === 46; R.pset(x, y, borde ? VID[0] : tono(['#1a2048', '#26306a', '#34408a'].map(hex), 0.3 + 0.4 * (y - 18) / 52, x, y)); }
+  R.disco(104, 28, 4, hex('#c8c8e0')); R.pset(103, 27, hex('#eeeef8')); R.pset(105, 29, hex('#a0a0c0'));
+  for (const [x, y] of [[118, 24], [100, 40], [121, 55], [114, 36], [101, 60]]) R.pset(x, y, hex('#9a9ad0'));
+  // la pila de sillas y pupitres del reflejo (siluetas con un filo de luna)
+  for (const [x0, y0, w] of [[78, 98, 24], [84, 86, 18], [80, 112, 30]]) { R.rect(x0, y0, x0 + w, y0 + 3, VID[1]); R.rect(x0, y0, x0 + w, y0, VID[4]); R.linea(x0 + 2, y0 + 4, x0 + 1, y0 + 12, VID[1]); R.linea(x0 + w - 2, y0 + 4, x0 + w - 1, y0 + 12, VID[1]); R.linea(x0 + 5, y0 - 1, x0 + 7, y0 - 10, VID[1]); }
+  // el armario del reflejo, al fondo a la derecha: dos puertas con cuarterones, el copete y un filo de luna
+  R.rect(176, 54, 222, 117, VID[0]); R.rect(177, 58, 221, 116, VID[2]); R.rect(174, 52, 224, 57, VID[1]); R.rect(174, 52, 224, 52, VID[4]);
+  for (const x0 of [180, 201]) { R.rect(x0, 61, x0 + 17, 113, VID[1]); for (const y0 of [64, 90]) { R.rect(x0 + 3, y0, x0 + 14, y0 + 20, VID[3]); R.rect(x0 + 4, y0 + 1, x0 + 13, y0 + 19, VID[2]); R.linea(x0 + 3, y0, x0 + 14, y0, VID[4]); } }
+  R.pset(198, 88, VID[5]); R.pset(203, 88, VID[5]); R.rect(176, 116, 222, 117, VID[0]);
+  // la telaraña de la esquina del reflejo
+  for (let k = 0; k < 4; k++) R.linea(75 + k * 2, 0, 75, 6 + k * 3, VID[4]); R.linea(77, 2, 78, 6, VID[3]); R.linea(78, 4, 80, 2, VID[3]);
+  // el candelero del reflejo (la vela de enfrente, al fondo)
+  R.linea(238, 72, 238, 118, VID[0]); R.linea(239, 72, 239, 118, VID[3]); R.linea(232, 118, 244, 118, VID[0]); R.rect(234, 70, 243, 71, VID[0]); R.rect(237, 64, 240, 69, hex('#8a8090'));
+  // el marco: los dos postes, que suben cortados por arriba, con su moldura (filo, bocel, garganta y cuentas)
+  for (let y = 0; y <= 158; y++) {
+    const w = e4W(Math.min(y, 146));
+    for (const lado of [-1, 1]) {
+      const xin = lado < 0 ? e4L(Math.min(y, 146)) : e4R(Math.min(y, 146)), luz = lado > 0 ? 0.1 : -0.05;
+      for (let i = 0; i <= w; i++) {
+        const x = Math.round(xin + lado * (i + 1)), k = i / w;
+        let l = k < 0.12 || k > 0.92 ? 0.08 : k < 0.32 ? 0.55 + 0.4 * (1 - Math.abs(k - 0.22) / 0.1) : k < 0.5 ? 0.25 : 0.62 + 0.25 * Math.sin(k * 9 + y * 0.3);
+        if (k > 0.55 && k < 0.8 && y % 7 < 2) l = 0.92;
+        R.pset(x, y, tono(ORO, Math.min(1, l + luz + 0.08 * y / 158), x, y));
+      }
+    }
+  }
+  // el travesaño de abajo, con la piedra roja en su cartela y volutas; las patas de garra sobre el suelo
+  for (let y = 146; y <= 158; y++) for (let x = Math.round(e4L(146) - 14); x <= Math.round(e4R(146) + 14); x++) {
+    const k = (y - 146) / 12; let l = k < 0.12 ? 0.1 : k < 0.35 ? 0.85 : k < 0.5 ? 0.3 : k < 0.9 ? 0.6 + 0.2 * Math.sin(x * 0.5) : 0.08;
+    if (k > 0.55 && k < 0.85 && x % 8 < 2) l = 0.95;
+    R.pset(x, y, tono(ORO, l + (x > 160 ? 0.08 : 0), x, y));
+  }
+  R.disco(160, 151, 7, ORO[0]); R.disco(160, 151, 6, ORO[3]); R.disco(160, 151, 3, hex('#7a1020')); R.disco(160, 151, 2, hex('#c8283a')); R.pset(159, 150, hex('#ffb0b8'));
+  for (const cx of [110, 210]) { R.linea(cx - 8, 152, cx - 3, 149, ORO[0]); R.linea(cx - 3, 149, cx + 3, 153, ORO[0]); R.linea(cx + 3, 153, cx + 8, 150, ORO[0]); R.pset(cx - 8, 151, ORO[5]); R.pset(cx + 8, 149, ORO[5]); }
+  for (const cx of [60, 260]) { R.rect(cx - 4, 159, cx + 4, 163, ORO[2]); R.disco(cx, 166, 5, ORO[0]); R.disco(cx, 166, 4, ORO[3]); R.pset(cx - 1, 164, ORO[5]); for (const d of [-4, 0, 4]) { R.linea(cx + d, 166, cx + d + Math.sign(d), 171, ORO[0]); R.pset(cx + d, 168, ORO[4]); } }
+  // la sábana que tapaba el espejo, caída en el suelo a la izquierda (pliegues con luz y sombra)
+  for (let y = 154; y < 180; y++) for (let x = 0; x < 80; x++) {
+    const top = 162 - 8 * Math.sin(x * 0.07) + 3 * Math.sin(x * 0.31) + Math.max(0, x - 54) * 0.8; if (y < top) continue;
+    const l = 0.45 + 0.35 * Math.sin(x * 0.28 + y * 0.12) + (y - top < 1 ? 0.3 : 0);
+    R.pset(x, y, y - top < 1 ? hex('#5a5a6a') : tono(['#4a4a5a', '#7a7a8c', '#a4a4b4', '#c8c8d4', '#e4e4ec'].map(hex), l, x, y));
+  }
+  // el candelero de hierro a la derecha, delante: fuste, bandeja, pie de tres patas y la vela con sus chorretones
+  R.rect(298, 108, 302, 176, K); R.rect(299, 108, 300, 175, hex('#4a4652')); R.pset(301, 120, hex('#6a6676')); R.rect(296, 130, 304, 132, K); R.rect(297, 130, 303, 130, hex('#6a6676'));
+  R.linea(300, 174, 290, 179, K); R.linea(300, 174, 310, 179, K); R.linea(300, 174, 300, 179, K);
+  R.rect(290, 105, 310, 108, K); R.rect(291, 105, 309, 106, hex('#6a6676'));
+  R.rect(296, 92, 304, 104, hex('#e8dcc0')); R.rect(302, 92, 304, 104, hex('#c4b494')); R.rect(296, 92, 304, 92, hex('#fff4dc')); R.rect(297, 96, 297, 101, hex('#fff4dc')); R.pset(303, 105, hex('#e8dcc0')); R.pset(295, 104, hex('#e8dcc0')); R.linea(300, 89, 300, 91, K);
+};
+// el reflejo de Dumbledore (recortado al cristal y teñido de violeta): de cara a él, con los mismos calcetines
 const p4 = (t) => {
+  if (!fondo4) { fondo4 = R.nuevo(); const prev = R.usar(fondo4); pintaFondo4(); R.usar(prev); }
+  R.copiar(fondo4);
   const tiembla = t > duda && t < duda + 1.2;
-  T.hogwarts(R, t, { encuadre: 'espejo', camara: 'cerca', reflejo: (R, t, q) => { reflejoD(1)(R, t, q); if (tiembla) { const [x0, y0, x1, y1] = q; for (let y = y0; y <= y1; y += 3) { const d = Math.round(Math.sin(y * 0.3 + t * 30) * 2); for (let x = x0; x <= x1; x++) if ((x + y) % 5 === 0) R.pset(x + d, y, mix(R.pget(x, y), hex('#e8e0ff'), 0.3)); } } } });
-  const d = R.actor(EL.dumbledore, 44, 176, t, { dir: 1, sostiene: [74, 150], sonrisa: t < roba || t > puesto + 0.4, sorpresa: t > roba && t < puesto + 0.4 });
+  const anda = tramo(t, P4, P4 + 0.8), xd = Math.round(lerp(84, 118, anda)), sube = tramo(t, P4 + 0.6, P4 + 1.0), robado = t > roba;
+  // dentro del cristal: el polvo del rayo de luna, la vela del reflejo y el reflejo de Dumbledore
+  R.recorte([Math.ceil(e4L(0)), 0, Math.floor(e4R(0)), 146]);
+  for (let k = 0; k < 18; k++) { const fy = (hs(k, 1) * 70 + t * (2 + hs(k, 2) * 3)) % 70, y = Math.round(72 + fy), x = Math.round(100 + fy * 0.55 + hs(k, 3) * 30 + Math.sin(t * 0.7 + k) * 2); if (Math.sin(t * 1.3 + k * 2) > -0.4) R.pset(x, y, VID[5]); }
+  { const f = hs(Math.floor(t * 9), 5); R.pset(238, 62, hex('#ffd890')); R.pset(238 + (f > 0.6 ? 1 : 0), 61, hex('#ffb060')); halo(238, 62, 8, hex('#8a7aa8'), 0.25 + f * 0.1); }
+  const rx = 300 - xd, ry = 142;
+  halo(rx + 7, ry - 14, 22, hex('#c8b8f0'), 0.18);
+  const caja = [], X0 = rx - 16, Y0 = ry - 34; for (let y = Y0; y <= ry + 1; y++) for (let x = X0; x <= rx + 22; x++) caja.push(R.pget(x, y));
+  const r = R.actor(EL.dumbledore, rx, ry, t, { dir: -1, anda: anda > 0 && anda < 1, sostiene: [rx - 6, Math.round(ry - 16 - sube * 8)], sonrisa: true });
+  PIEZAS_HP.calcetin(R, r.mano[0] - 1, r.mano[1] + 6, { dir: -1 }); if (!robado) PIEZAS_HP.calcetin(R, r.mano[0] - 6, r.mano[1] + 7, { dir: -1 });
+  // el reflejo se tiñe del cristal
+  { let i = 0; for (let y = Y0; y <= ry + 1; y++) for (let x = X0; x <= rx + 22; x++, i++) { const c = R.pget(x, y); if (c !== caja[i]) R.pset(x, y, mix(c, hex('#3a3060'), 0.3)); } }
+  if (tiembla) for (let y = 4; y <= 144; y += 3) { const d = Math.round(Math.sin(y * 0.3 + t * 30) * 2); for (let x = Math.ceil(e4L(y)); x <= e4R(y); x++) if ((x + y) % 5 === 0) R.pset(x + d, y, mix(R.pget(x, y), hex('#e8e0ff'), 0.3)); }
+  // el brillo que recorre el cristal
+  { const s = ((t * 0.5) % 2.2) * 260 - 40; for (let y = 0; y <= 146; y++) for (let k = 0; k < 4; k++) { const x = Math.round(s - y * 0.6 + k * (k > 1 ? 3 : 1)); if (x > e4L(y) && x < e4R(y)) R.pset(x, y, mix(R.pget(x, y), hex('#ffffff'), 0.16)); } }
+  R.recorte(null);
+  // Dumbledore de verdad, delante del espejo y de perfil hacia él: entra y levanta los calcetines
+  const d = R.actor(EL.dumbledore, xd, 176, t, { dir: 1, anda: anda > 0 && anda < 1, sostiene: [xd + 20, Math.round(160 - sube * 8)], sonrisa: t < roba || t > puesto + 0.4, sorpresa: t > roba && t < puesto + 0.4 });
   const [mx, my] = d.mano;
-  PIEZAS_HP.calcetin(R, mx + 1, my + 9, {});
-  if (t < roba) PIEZAS_HP.calcetin(R, mx + 6, my + 10, {});
-  // la snitch: llega, coge el segundo calcetín y se lo pone de gorro
+  PIEZAS_HP.calcetin(R, mx + 1, my + 6, {}); if (!robado) PIEZAS_HP.calcetin(R, mx + 6, my + 7, {});
+  // la snitch: llega por la derecha, coge el segundo calcetín, sube y se lo pone de gorro
   const v = tramo(t, a(0.55), roba), w = tramo(t, roba, puesto);
-  let sx = lerp(330, mx + 8, v), sy = lerp(70, my + 4, v);
-  if (w > 0) { sx = lerp(mx + 8, 196, w); sy = lerp(my + 4, 92, w) - Math.sin(w * Math.PI) * 24; }
-  if (t > puesto) { sx = 196 + Math.sin(t * 2) * 4; sy = 92 + Math.sin(t * 3.3) * 3; }
+  let sx = lerp(330, mx + 9, v), sy = lerp(60, my + 4, v);
+  if (w > 0) { sx = lerp(mx + 9, 162, w); sy = lerp(my + 4, 92, w) - Math.sin(w * Math.PI) * 20; }
+  if (t > puesto) { sx = 162 + Math.sin(t * 2) * 4; sy = 92 + Math.sin(t * 3.3) * 3; }
   if (v > 0) {
     const cara = t > duda ? (Math.sin(t * 2) > 0 ? 'normal' : 'feliz') : t > puesto ? 'feliz' : 'normal';
     halo(sx, sy - 4, 14, hex('#fff0b0'), 0.25);
-    const sn = T.snitch(R, Math.round(sx), Math.round(sy), t, { cara });
-    if (w > 0 && w < 1) PIEZAS_HP.calcetin(R, Math.round(sx) + 1, Math.round(sy) + 9, {});
+    T.snitch(R, Math.round(sx), Math.round(sy), t, { cara });
+    if (w > 0 && w < 1) PIEZAS_HP.calcetin(R, Math.round(sx) + 1, Math.round(sy) + 6, {});
     if (t >= puesto) PIEZAS_HP.calcetin(R, Math.round(sx) - 1, Math.round(sy) - 6, { dir: -1 });
     if (t > duda) R.icono('?', Math.round(sx) + 12, Math.round(sy) - 22, hex('#f8f0d0'), K, 2);
   }
-  T.hogwartsDelante(R, t, { encuadre: 'espejo', camara: 'cerca' });
+  // la vela de delante: la llama, su luz cálida y una polilla que le da vueltas
+  { const f = hs(Math.floor(t * 9), 7); halo(300, 86, 26, hex('#ffc070'), 0.22 + f * 0.05); R.pset(300, 88, hex('#fff4c0')); R.pset(300, 87, hex('#ffd060')); R.pset(300 + (f > 0.6 ? 1 : 0), 86, f > 0.3 ? hex('#ffd060') : hex('#ff8a30')); R.pset(300, 85 - (f > 0.5 ? 1 : 0), hex('#ff8a30'));
+    const an = t * 3.1, ox = Math.round(300 + Math.cos(an) * 12), oy = Math.round(84 + Math.sin(an * 1.7) * 7), al = Math.sin(t * 30) > 0; R.pset(ox, oy, hex('#c8b8a0')); R.pset(ox - 1, oy - (al ? 1 : 0), hex('#e8dcc8')); R.pset(ox + 1, oy - (al ? 1 : 0), hex('#e8dcc8')); }
+  // la corriente de aire mueve el borde de la sábana caída
+  for (let x = 4; x < 60; x += 3) { const top = Math.round(162 - 8 * Math.sin(x * 0.07) + 3 * Math.sin(x * 0.31)), dd = Math.round(Math.sin(t * 2 + x * 0.3)); R.pset(x, top - 1 + dd, hex('#c8c8d4')); }
 };
 // el plano 5: el campo de quidditch, la bludger y la escoba en picado
 const pica = a(0.735), salva = a(0.764), persigue = a(0.8);
+// el padre de Harry: el sprite de Harry sin la cicatriz, con el pelo castaño oscuro y la túnica escarlata de quidditch
+const JAMES = { ...EL.harry, pal: { ...EL.harry.pal, r: EL.harry.pal.S, H: hex('#3a2418'), h: hex('#5a3a26'), C: hex('#b0202e'), c: hex('#7a1420') } };
 const vuela = (def, bx, by, t, o = {}) => { R.actor(def, bx - 8, by + 8, t, { quieto: true, ...o }); PIEZAS_HP.escoba(R, bx, by + 2, { dir: o.dir ?? 1 }); };
 const p5 = (t) => {
   const g5 = T.exterior(R, t, { encuadre: 'quidditch' });
@@ -169,7 +290,7 @@ const p5 = (t) => {
   else { const u = tramo(t, salva + 0.2, P6); jx = lerp(sxp - 24, 250, u); jy = lerp(140, 80, Math.sqrt(u)); }
   // la snitch que se le escapa
   if (t > persigue) { const u = tramo(t, persigue, P6); const sx = jx + 26 + Math.sin(t * 7) * 6, sy = jy - 10 + Math.sin(t * 11) * 5; T.snitch(R, Math.round(sx), Math.round(sy), t, { cara: 'feliz' }); }
-  vuela(EL.harry, Math.round(jx), Math.round(jy), t, { dir, dedo: t > persigue, sonrisa: t > salva });
+  vuela(JAMES, Math.round(jx), Math.round(jy), t, { dir, dedo: t > persigue, sonrisa: t > salva });
   // el público de las gradas: tras la parada, brazos arriba y bufandas que se agitan
   const vit = tramo(t, salva + 0.15, salva + 0.4) - tramo(t, salva + 1.8, salva + 2.3);
   if (vit > 0) for (const [gx, top] of g5.gradas ?? []) { const caja = top + 18; for (let i = 0; i < 6; i++) { if (((i * 7 + gx) % 10) / 10 > vit) continue; const px = gx - 11 + i * 5, sb = Math.sin(t * 14 + i * 1.3 + gx) > 0 ? 1 : 0, py = caja + 3 - sb;

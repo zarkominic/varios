@@ -16,10 +16,15 @@
 //    parpadea con la señal; en «spoilers» la snitch se posa en el cartel y se tapa los ojos (gag); corta en «The first»;
 // 2. la puerta de la cabaña: Hagrid abre; Harry, con la lupa, repasa la moto aparcada: en «clues» la moto echa un «?»
 //    dorado, en «disguised» el paraguas rosa, en «details» el farol; corta en «In chapter 1»;
-// 3. Privet Drive de noche, la ventana del 4: la moto baja del cielo con el faro encendido y Hagrid con el bebé en
-//    brazos; el gato de la tapia la sigue con la cabeza; en «mentions in passing» Hagrid habla; corta en «young»;
-// 4. el callejón: la moto aparcada y Hagrid que la palmea; en «Sirius Black» llega un perro negro que la olfatea y menea
-//    el rabo; en «That name» se va corriendo y deja las huellas; en «Book 3» sale un libro con un «3».
+// 3. Privet Drive de noche, plano general con el cielo de estrellas, nubes y luna: la moto baja del cielo en diagonal desde
+//    la izquierda, con el faro encendido y Hagrid con el bebé (la manta clara, a doble tamaño) en brazos, y se posa en la
+//    acera del 4 con un rebote y polvo; el gato atigrado, en la tapia de ladrillo del primer término, la sigue con la
+//    cabeza y da un respingo («!») al posarse; en «mentions in passing» Hagrid habla y mece al bebé; antes del corte para
+//    el motor (se apagan el faro y el humo); corta en «young»;
+// 4. el callejón: Hagrid sentado en la moto parada, que apoya la mano en el depósito y lo palmea en «lent it to
+//    him»; en «Sirius Black» llega un perro negro que la olfatea y menea el rabo; en «That name» se va
+//    corriendo y deja las huellas; en «Book 3» sube un libro de verdad (lomo con nervios, canto de páginas, tapa escarlata
+//    con el rayo dorado) con su halo y un «3» grande al lado.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-aviso');
@@ -132,50 +137,124 @@ const p2 = (t) => {
   T.exteriorDelante(R, t, o);
 };
 
-// 3 · Privet Drive de noche: la moto baja del cielo con Hagrid y el bebé, se para junto a la casa y baja a la calle
+// 3 · Privet Drive de noche, plano general: la moto baja del cielo en diagonal con Hagrid y el bebé y se posa en la acera
+// del 4; el gato de la tapia de primer término la sigue con la cabeza
+// la tapia de ladrillo del primer término (el jardín de enfrente, al lado de la cámara), abajo a la izquierda
+const tapiaDelante = (t) => {
+  const L = hex('#6a3a30'), LS = hex('#4a2620'), LL = hex('#8a5040'), J = hex('#2a1e22'), P = hex('#8a8a96'), PL = hex('#b0b0bc'), PS = hex('#5a5a68');
+  for (let y = 156; y <= 179; y++) for (let x = 0; x <= 96; x++) {
+    const f = Math.floor((y - 156) / 5), off = (f & 1) * 6, dx = (x + off) % 12, dy = (y - 156) % 5;
+    let c = dx === 0 || dy === 0 ? J : ((x * 7 + f * 13) % 11 < 3 ? LS : L);
+    if (c !== J && dy === 1 && dx > 1 && dx < 10) c = LL;
+    if (c !== J && ((x * 31 + y * 17) % 23 === 0)) c = LS;
+    // la luz de la farola que lame la cara de la tapia por la derecha
+    if (x > 60 && c !== J && (x + y) % 3 === 0) c = mix(c, hex('#f0b860'), 0.18);
+    R.pset(x, y, c);
+  }
+  // el musgo y la hiedra en las juntas de abajo
+  for (let k = 0; k < 18; k++) { const x = (k * 37) % 96, y = 172 + (k % 3) * 2; R.pset(x, y, hex('#2e4a26')); R.pset(x + 1, y, hex('#3e6030')); R.pset(x, y - 1, hex('#3e6030')); }
+  // la albardilla de piedra con su goterón y su sombra
+  R.rect(0, 150, 99, 155, J); R.rect(0, 150, 98, 154, P); R.rect(0, 150, 98, 150, PL); R.rect(0, 154, 98, 154, PS); R.rect(0, 156, 96, 156, mix(LS, J, 0.5));
+  for (let x = 4; x < 98; x += 11) { R.pset(x, 152, PS); R.pset(x + 1, 153, PS); }
+  // el pilar de la verja con su remate
+  R.rect(84, 140, 101, 179, J); R.rect(85, 141, 100, 179, P); R.rect(85, 141, 86, 179, PL); R.rect(98, 141, 100, 179, PS);
+  for (let y = 145; y < 179; y += 6) R.linea(86, y, 97, y, PS);
+  R.rect(83, 137, 102, 140, J); R.rect(84, 137, 101, 139, PL); R.disco(92, 134, 3, J); R.disco(92, 134, 2, P); R.pset(91, 133, PL);
+};
+// el gato atigrado de la tapia: sigue la moto con la cabeza (mira hacia mx), mueve la cola por la cara de la tapia y se
+// sobresalta cuando se posa
+const gatoTapia = (t, mx, my, sal) => {
+  const gx = 46, gy = 150 - sal, dir = mx < gx + 6 ? -1 : 1;
+  // la cola colgando por la cara de la tapia, que se balancea
+  for (let i = 0; i < 12; i++) { const a = Math.sin(t * 1.7 + i * 0.45) * (i / 12) * 4; const x = Math.round(gx - 7 * dir + a), y = gy + 1 + i; R.pset(x, y, K); R.pset(x + 1, y, i % 3 ? hex('#8a7a6a') : hex('#5a4a3a')); R.pset(x + 2, y, K); }
+  PZ.gato(R, gx, gy, { dir, s: 2 });
+  // la cabeza alzada hacia la moto: un brillo en los ojos cuando el faro la ilumina
+  const ojo = mx > -20 && mx < 300 && (t % 3.1) > 0.12;
+  if (ojo) { const ex = gx + (dir > 0 ? 3 : -7); R.pset(ex, gy - 20, hex('#f0e040')); R.pset(ex + 4, gy - 20, hex('#f0e040')); }
+};
 const p3 = (t) => {
-  const o = { encuadre: 'calle', camara: 'ventana', luz: 'noche' };
+  const o = { encuadre: 'calle', luz: 'noche', gato: false };
   T.muggle(R, t, o);
-  const u = tramo(t, P3 + 0.05, LLEGA + 0.9), s = 1 - (1 - u) * (1 - u), baja = tramo(t, P4 - 0.7, P4 + 0.1);
-  const mx = Math.round(lerp(-50, 60, s)), my = Math.round(lerp(-20, 122, s) + Math.sin(t * 3) * 2 + baja * baja * 90);
-  // el haz del faro por delante, hacia la derecha y abajo
-  for (let i = 0; i < 34; i++) for (let j = -i * 0.4; j <= i * 0.4; j++) { const X = mx + 26 + i, Y = Math.round(my - 15 + j + i * 0.3); if (X >= 0 && X < 320 && Y >= 0 && Y < 180 && ((X + Y) & 1)) R.pset(X, Y, mix(R.pget(X, Y), hex('#fff2b0'), 0.5 - i / 80)); }
-  // Hagrid montado (la moto le tapa las piernas) con el bebé en brazos
-  const hr = R.actor(EL.hagrid, mx - 14, my - 6, t, { dir: 1, quieto: true, sostiene: [mx + 8, my - 24], sonrisa: t < MENCIONA, habla: t > MENCIONA && t < P4 - 0.6 && Math.sin(t * 8) > 0 });
-  PZ.moto(R, mx, my, { faro: true });
-  PZ.bebe(R, hr.mano[0] + 1, hr.mano[1] + 4, {});
-  // el humo del tubo de escape
-  for (let k = 0; k < 5; k++) { const v = ((t * 1.4 + k / 5) % 1); R.disco(Math.round(mx - 26 - v * 18 - k), Math.round(my - 4 - v * 10), 1 + v * 2, mix(hex('#8a8aa8'), hex('#2a2a48'), v)); }
+  // la moto baja del cielo por la izquierda en una curva y se posa en la acera del 4; rebota un poco al tocar el suelo
+  const toca = MENCIONA - 0.3, u = tramo(t, P3 - 0.3, toca), s = 1 - (1 - u) ** 1.6;
+  const rebote = t > toca && t < toca + 0.5 ? Math.round(Math.sin((t - toca) / 0.5 * Math.PI) * -2) : 0;
+  const mx = Math.round(lerp(16, 168, s)), my = Math.round(70 + 70 * s ** 1.5 + (u < 1 ? Math.sin(t * 3) * 2 * (1 - u) : 0)) + rebote;
+  const enSuelo = u >= 1, apaga = tramo(t, P4 - 1.5, P4 - 1.1);
+  // al parar el motor, Hagrid se baja con el bebé y echa a andar hacia la verja del 4
+  const baja = tramo(t, P4 - 1.1, P4 - 0.7), anda = tramo(t, P4 - 0.7, P4 + 0.3);
+  // la sombra de la moto en la acera, que crece y se afila según baja
+  { const d = 140 - my, w = Math.max(6, 24 - d * 0.15), a = Math.max(0, 0.55 - d / 200); if (a > 0) for (let i = -w; i <= w; i++) for (let j = -2; j <= 2; j++) { const X = Math.round(mx + i), Y = 141 + j; if (X >= 0 && X < 320 && (i * i) / (w * w) + (j * j) / 5 < 1 && ((X + Y) & 1)) R.pset(X, Y, mix(R.pget(X, Y), K, a)); } }
+  // el haz del faro hacia delante y abajo (se apaga cuando Hagrid para el motor)
+  const haz = (enSuelo ? 0.32 : 0.5) * (1 - apaga);
+  if (haz > 0) for (let i = 0; i < 40; i++) for (let j = -i * 0.4; j <= i * 0.4; j++) { const X = mx + 22 + i, Y = Math.round(my - 15 + j + i * (enSuelo ? 0.05 : 0.45)); if (X >= 0 && X < 320 && Y >= 0 && Y < 180 && ((X + Y) & 1)) R.pset(X, Y, mix(R.pget(X, Y), hex('#fff2b0'), haz - i / 100)); }
+  // Hagrid montado (la moto le tapa las piernas) con el bebé envuelto en la manta en brazos, delante del pecho
+  const montado = baja < 1, hx = montado ? Math.round(mx - 16 - baja * 18) : Math.round(lerp(mx - 34, mx - 58, anda)), hy = montado ? Math.round(my - 6 + Math.sin(baja * Math.PI) * -5 + baja * 6) : 140;
+  if (!montado) PZ.moto(R, mx, my, { faro: false });
+  const hr = R.actor(EL.hagrid, hx, hy, t, { dir: montado ? 1 : -1, quieto: montado, anda: !montado && anda > 0 && anda < 1, sostiene: montado ? [hx + 18, hy - 12] : [hx + 2, hy - 12], sonrisa: t < MENCIONA || !montado, habla: t > MENCIONA && t < P4 - 1.1 && Math.sin(t * 8) > 0 });
+  if (montado) PZ.moto(R, mx, my, { faro: apaga < 1 });
+  // el bebé: la manta clara de cerca (doble tamaño), mecido despacio
+  const mece = enSuelo ? Math.round(Math.sin(t * 2.4)) : 0;
+  PZ.bebe(R, hr.mano[0] + (montado ? 2 : -2), hr.mano[1] + 7 + mece, { s: 2 });
+  if (enSuelo && Math.sin(t * 1.3) > 0.7) R.pset(hr.mano[0] + 4, hr.mano[1] - 12, hex('#c8d0f0'));
+  // el humo del tubo de escape (más fino en el suelo y nada cuando para el motor)
+  if (apaga < 1) for (let k = 0; k < 5; k++) { const v = ((t * 1.4 + k / 5) % 1); R.disco(Math.round(mx - 26 - v * 18 - k), Math.round(my - 4 - v * (enSuelo ? 4 : 10)), 1 + v * 2, mix(hex('#8a8aa8'), hex('#2a2a48'), v)); }
+  // el polvo y las hojas que levanta al posarse
+  if (t > toca && t < toca + 0.9) { const v = (t - toca) / 0.9; for (let k = 0; k < 8; k++) { const dx = (k - 3.5) * (6 + v * 14), y = Math.round(140 - Math.sin(v * Math.PI) * (3 + (k % 3) * 2)); R.pset(Math.round(mx + dx), y, k % 2 ? hex('#a8a090') : hex('#6a7a4a')); } }
   T.muggleDelante(R, t, o);
-  // el gato atigrado en el alféizar sigue la moto con la cabeza; se sobresalta cuando llega
-  const gsal = brinco(t, LLEGA, 0.4, 4);
-  PZ.gato(R, 198, 128 - gsal, { dir: -1, s: 2 });
-  if ((t + 0.3) % 2.4 > 0.15) { R.pset(186, 113 - gsal, hex('#f0e040')); R.pset(190, 113 - gsal, hex('#f0e040')); }
-  if (t > LLEGA && t < LLEGA + 1.2) R.bocadillo(196, 98, { icono: '!' });
+  tapiaDelante(t);
+  const gsal = brinco(t, toca, 0.4, 3);
+  gatoTapia(t, mx, my, gsal);
+  if (t > toca && t < toca + 1.1) R.bocadillo(40, 112, { icono: '!' });
 };
 
-// 4 · el callejón: la moto aparcada, el perro negro que la olfatea y el libro 3
+// 4 · el callejón: la moto aparcada, Hagrid la palmea, el perro negro la olfatea y sale el libro 3
+// el libro 3: de pie, en tres cuartos: el lomo a la izquierda con sus nervios dorados, la tapa escarlata con el marco y
+// el rayo dorados, y el canto de las páginas claro a la derecha y arriba (x: borde izquierdo del lomo, y: el pie)
+const libro3 = (x, y, t) => {
+  const W = 22, H = 30, LO = 5, x0 = x + LO, y0 = y - H;
+  const T1 = hex('#b8282e'), T2 = hex('#8a1820'), TL = hex('#e04a46'), O = hex('#e8b830'), OS = hex('#a87a18'), PG = hex('#f4ecd0'), PS = hex('#c8b890');
+  R.rect(x - 1, y0 - 4, x0 + W + 4, y + 1, K);
+  // el canto de las páginas, arriba y a la derecha, con sus rayitas
+  R.poligono([[x0, y0 - 3], [x0 + W + 3, y0 - 3], [x0 + W + 3, y - 3], [x0 + W, y], [x0 + W, y0]], PG);
+  for (let j = y0; j < y - 3; j += 2) R.linea(x0 + W + 1, j, x0 + W + 2, j, PS);
+  for (let i = x0 + 1; i < x0 + W; i += 3) R.pset(i, y0 - 2, PS);
+  // el lomo, redondeado, con los nervios
+  R.rect(x, y0 - 3, x0 - 1, y, T2); R.linea(x + 1, y0 - 2, x + 1, y - 1, TL);
+  for (const j of [y0 + 2, y0 + 10, y0 + 18, y - 4]) R.linea(x, j, x0 - 1, j, O);
+  // la tapa
+  R.rect(x0, y0, x0 + W - 1, y, T1); R.rect(x0, y0, x0 + W - 1, y0, TL); R.rect(x0 + W - 2, y0, x0 + W - 1, y, T2);
+  for (let j = y0 + 2; j < y; j += 3) for (let i = x0 + 1; i < x0 + W - 2; i += 4) R.pset(i + (j % 2), j, T2);
+  R.rect(x0 + 2, y0 + 2, x0 + W - 4, y0 + 2, O); R.rect(x0 + 2, y - 2, x0 + W - 4, y - 2, O); R.rect(x0 + 2, y0 + 2, x0 + 2, y - 2, O); R.rect(x0 + W - 4, y0 + 2, x0 + W - 4, y - 2, O);
+  R.icono('rayo', x0 + 6, y0 + 7, O, OS, 2);
+  // el brillo que barre la tapa
+  const b = ((t * 0.8) % 2) * (W + H); for (let k = 0; k < H; k++) { const i = Math.round(b - k); if (i >= 0 && i < W - 2 && (k & 1) === 0) R.pset(x0 + i, y0 + k, hex('#ffd0c0')); }
+};
 const p4 = (t) => {
   const o = { encuadre: 'calle' };
   T.diagon(R, t, o);
+  // Hagrid, sentado a horcajadas en el sillín (la moto le tapa las piernas), apoya la mano en el depósito y lo palmea
+  // mientras dice «lent it to him»
+  const palmea = t > SIRIUS - 0.1 && t < NOMBRE, golpe = palmea && Math.sin(t * 11) > 0 ? -2 : 0;
+  R.actor(EL.hagrid, 102, 158, t, { dir: 1, quieto: true, sostiene: palmea ? [123, 141 + golpe] : [124, 138], habla: t < NOMBRE && Math.sin(t * 7) > 0.1, sorpresa: t > NOMBRE + 0.3 && t < LIBRO3, sonrisa: t > LIBRO3 || palmea });
+  // la sombra de la moto en los adoquines y la moto, a doble tamaño
+  for (let i = -26; i <= 26; i++) for (let j = 0; j <= 2; j++) { const X = 120 + i, Y = 157 + j; if ((X + Y) & 1 && (i * i) / 676 + (j * j) / 6 < 1) R.pset(X, Y, mix(R.pget(X, Y), K, 0.4)); }
   PZ.moto(R, 120, 158, {});
-  // Hagrid palmea la moto y habla en «lent it to him»
-  R.actor(EL.hagrid, 56, 158, t, { dir: 1, habla: t < NOMBRE && Math.sin(t * 7) > 0.1, dedo: t > SIRIUS + 0.9 && t < NOMBRE, sorpresa: t > NOMBRE + 0.3 && t < LIBRO3, sonrisa: t > LIBRO3 });
+  if (palmea && golpe < 0 && Math.sin(t * 11) > 0.9) { R.pset(126, 135, hex('#fff6c8')); R.pset(128, 137, hex('#fff6c8')); R.pset(120, 135, hex('#fff6c8')); }
   // el perro negro llega en «Sirius Black», olfatea, menea el rabo y en «That name» se va corriendo
   const lle = tramo(t, SIRIUS - 0.3, SIRIUS + 0.9), ve = tramo(t, NOMBRE + 0.2, NOMBRE + 1.4);
-  const px = ve > 0 ? lerp(156, 340, ve) : lerp(330, 156, lle), dir = ve > 0 ? 1 : -1;
+  const px = ve > 0 ? lerp(172, 340, ve) : lerp(330, 172, lle), dir = ve > 0 ? 1 : -1;
   // las huellas que deja en los adoquines
-  for (let k = 0; k < 9; k++) { const hxp = 166 + k * 16; if ((ve > 0 && hxp < px) || (lle > 0 && hxp > px && ve === 0)) { R.pset(hxp, 162 + (k % 2) * 2, hex('#2a2430')); R.pset(hxp + 1, 162 + (k % 2) * 2, hex('#2a2430')); R.pset(hxp, 161 + (k % 2) * 2, hex('#3a3440')); } }
+  for (let k = 0; k < 9; k++) { const hxp = 178 + k * 16; if ((ve > 0 && hxp < px) || (lle > 0 && hxp > px && ve === 0)) { R.pset(hxp, 162 + (k % 2) * 2, hex('#2a2430')); R.pset(hxp + 1, 162 + (k % 2) * 2, hex('#2a2430')); R.pset(hxp, 161 + (k % 2) * 2, hex('#3a3440')); } }
   if (px < 330) perro(px, 160, t, dir, (lle > 0 && lle < 1) || (ve > 0 && ve < 1), lle >= 1 && ve === 0);
-  if (lle >= 1 && ve === 0 && Math.sin(t * 6) > 0) R.pset(Math.round(px) - 14, 148, hex('#c8ccd8'));
-  // el libro 3 que sale en «Book 3»
+  if (lle >= 1 && ve === 0 && Math.sin(t * 6) > 0) { R.pset(Math.round(px) - 27, 141, hex('#c8ccd8')); R.pset(Math.round(px) - 29, 139, hex('#c8ccd8')); }
+  // el libro 3 que sube en «Book 3», con su halo, y el «3» al lado
   const lb = tramo(t, LIBRO3 - 0.1, LIBRO3 + 0.4);
-  if (lb > 0) { const y = Math.round(lerp(140, 104, lb)); halo(240, y - 10, 22, hex('#fff2b0'), 0.5); PZ.libro(R, 236, y, { s: 2 }); R.numero('3', 266, y - 6, { tam: 16, centro: true }); brilla(220, y - 24, t); }
+  if (lb > 0) { const y = Math.round(lerp(150, 122, lb)); halo(232, y - 16, 26, hex('#fff2b0'), 0.5); libro3(218, y, t); R.numero('3', 262, y - 16, { tam: 16, centro: true }); brilla(214, y - 32, t); brilla(250, y - 4, t + 1); }
   T.diagonDelante(R, t, o);
 };
 
 const efectos = [[AHORA, 'aviso'], [AVISO, 'golpecito'], [DESTRIPE, 'whoosh'], [P2 + 0.15, 'puerta'], [PISTAS, 'brillo'], [DETALLES, 'pop'],
-  [P3 + 0.3, 'motor'], [VUELA, 'miau'], [SIRIUS + 0.4, 'guau'], [LIBRO3, 'pop']];
+  [P3 + 0.3, 'motor'], [MENCIONA - 0.3, 'miau'], [SIRIUS + 0.4, 'guau'], [LIBRO3, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P2 ? 2026 : 1997) });
 </script>
 </body>

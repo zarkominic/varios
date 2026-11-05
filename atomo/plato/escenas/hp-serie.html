@@ -12,10 +12,16 @@
 // HP-SERIE (frase 5), 2026, cartela «2026». Cuatro planos:
 // 1. el plató: la claqueta se abre y chasca en «beginning» con el director que da la orden; la guionista entra con el
 //    libro y lo levanta en «book»; la grúa, el tramoyista y el pintor trabajan;
-// 2. (corta en «Harry») lo alto de la torre: Harry levanta la piedra roja, que brilla en «Philosopher's Stone»; cuatro
-//    jinetes en escoba llegan y, en «coming to HBO», se van a repartirla; Hermione se asombra;
-// 3. (corta en «across») el monitor del rodaje: el director señala el castillo en «Latin America»; la guionista llega con
-//    su libreta y escribe en «written»; en «Succession» él se vuelve y sonríe;
+// 2. (corta en «Harry») lo alto de la torre: Harry sale de la garita con la piedra roja a la altura del pecho y va al
+//    pretil mientras Hermione se adelanta a la mesita; en «Philosopher's Stone» la alza a un lado y brilla, Hermione se
+//    vuelve asombrada; llegan cuatro jinetes en escoba y, en «coming to HBO», Harry lanza la piedra al primero, que la
+//    alza; Hermione los señala y Harry lo celebra y se acerca al pretil. El banderín de la garita baja a un mástil del
+//    muro para dejar libre la barra del año;
+// 3. (corta en «across») el monitor del rodaje: el director cruza hasta el monitor y en «Latin America» señala el castillo,
+//    que queda rodeado por un círculo de rotulador; la guionista llega con su libreta y escribe en «written» (el lápiz va y
+//    viene); en «Succession» se la enseña y él se vuelve y sonríe. Detrás, desenfocados, la grúa barre, un foco se enciende
+//    y un tramoyista pasa con un baúl; el carrito lleva el módulo de vídeo con pilotos y vúmetro, cajones, cinta con marcas
+//    y cables al rollo del suelo, con el baúl de material y el saco de arena;
 // 4. (corta en «and several») la sala de montaje: el montador junto a la moviola, que gira; el visor cuenta episodios;
 //    el director entra y señala el visor en «directed».
 import * as T from '/atomo/plato/escenas/hp-comun.js';
@@ -39,25 +45,131 @@ const p1 = (t) => {
   if (alto) halo(rg.mano[0] + 1, rg.mano[1] - 1, 11, hex('#ffe890'), Math.floor(t * 6));
   T.hoyDelante(R, t, { encuadre: 'plato' });
 };
+// utilidades de los planos 2 y 3: mezcla de colores, tinte de un píxel y un azar fijo por píxel
+const mez = (c, d, k) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - k) + ((d >>> s) & 255) * k); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+const tine = (x, y, c, k) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; const q = R.pget(x, y); if (q) R.pset(x, y, mez(q, c, k)); };
+const az = (x, y, k = 0) => { let n = (x * 374761393 + y * 668265263 + k * 1442695041) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const yCuerpo = (def, suelo) => suelo - def.altoCuerpo;
+// la posición del primer jinete (la misma cuenta que c_torre: llega, flota y se va por la derecha)
+const jinete0 = (t, ne) => { const u = Math.max(0, Math.min(1, ne * 1.4)), e = u * u * (3 - 2 * u); return [lerp(360, 176, e), lerp(30, 66, e) + Math.sin(t * 2.2) * 1.5]; };
 const p2 = (t) => {
-  const ne = tramo(t, P2 + 0.1, piedra + 1) - tramo(t, llega, latam - 0.3);
+  const ne = tramo(t, P2 + 0.1, piedra + 1);   // llegan y se quedan: al irse cruzaban la zona de Atom
   T.exterior(R, t, { encuadre: 'torre', escobas: ne });
-  // Hermione con su libro mira; Harry levanta la piedra y despide a los jinetes
-  R.actor(EL.hermione, 86, 160, t, { dir: 1, sorpresa: t > piedra && t < llega, sonrisa: t > llega });
-  const arriba = t > piedra - 0.3 && t < llega;
-  const rh = R.actor(EL.harry, 128, 160, t, { dir: 1, sostiene: arriba ? [148, 118] : t < llega ? true : false, brazos: t > llega && t < llega + 1.4, sonrisa: t > piedra });
-  if (t < llega) { if (arriba) halo(rh.mano[0], rh.mano[1] - 4, 13, hex('#ffe890'), Math.floor(t * 6)); P.piedra(R, rh.mano[0], rh.mano[1] + (arriba ? 4 : 3), { brillo: arriba, t, s: arriba ? 2 : 1 }); }
+  // la punta de la garita: el banderín entraba en la barra del año; se tapa con el cielo de al lado (la punta queda en
+  // y 16) y el banderín pasa a un mástil corto que sale del muro de la garita, por debajo de la barra
+  for (let y = 4; y <= 15; y++) for (let x = 24; x <= 40; x++) R.pset(x, y, R.pget(x + 20, y));
+  { const on = Math.floor(t * 5) % 2; R.linea(62, 60, 72, 52, hex('#2a2c40')); R.pset(72, 51, hex('#c8a040'));
+    for (let i = 1; i <= 7; i++) for (let j = 0; j < 4 - (i >> 1); j++) R.pset(72 + i, 52 + j + ((i + on) % 3 === 0 ? 1 : 0), j === 0 ? hex('#f0c840') : hex('#c8283a')); }
+  // Harry sale de la garita con la piedra y va al pretil; Hermione se adelanta hacia la mesita de las cartas del cielo
+  const uh = tramo(t, P2 + 0.05, piedra + 0.35), u2 = tramo(t, llega + 2.0, llega + 3.0);
+  const hx = Math.round(lerp(40, 138, uh) + lerp(0, 26, u2)), andaH = (uh > 0 && uh < 1) || (u2 > 0 && u2 < 1);
+  const ue = tramo(t, P2, piedra + 0.1), ex = Math.round(lerp(80, 188, ue));
+  const ycH = yCuerpo(EL.harry, 160);
+  // Hermione: llega a la mesa, se vuelve al ver brillar la piedra y señala a los jinetes cuando llegan
+  const vuelta = t > piedra + 0.15 && t < llega - 0.1;
+  R.actor(EL.hermione, ex, 160, t, { dir: vuelta ? -1 : 1, anda: ue > 0 && ue < 1, sorpresa: vuelta, dedo: t > llega - 0.1 && t < llega + 1.6, habla: t > llega && t < llega + 1.4 && Math.sin(t * 9) > 0, sonrisa: t > llega });
+  // Harry: la piedra a la altura del pecho mientras anda; en «Philosopher's Stone» la alza a un lado (no delante de la
+  // cara) y brilla; en «coming to HBO» la lanza al primer jinete y celebra con los brazos arriba
+  const lanza = llega + 0.15, alza = t > piedra - 0.1 && t < lanza;
+  const tiene = t < lanza, celebra = t > lanza + 0.25 && t < llega + 1.8;
+  const rh = R.actor(EL.harry, hx, 160, t, { dir: 1, anda: andaH, sostiene: tiene ? (alza ? [hx + 22, ycH + 1] : [hx + 19, ycH + 6]) : false, brazos: celebra, sonrisa: t > piedra, habla: celebra && Math.sin(t * 9) > 0 });
+  if (tiene) { const [mx, my] = rh.mano; if (alza) halo(mx + 1, my - 1, 7, hex('#ffe890'), Math.floor(t * 6)); P.piedra(R, mx, my + 3, { brillo: alza, t }); }
+  // la piedra vuela en arco hasta la mano del primer jinete, que la alza brillando
+  if (t >= lanza) {
+    const [jx, jy] = jinete0(t, ne), dest = [jx - 4, jy - 3], v = tramo(t, lanza, lanza + 0.6);
+    const ox = hx + 21, oy = ycH + 1, px = lerp(ox, dest[0], v), py = lerp(oy, dest[1], v) - Math.sin(v * Math.PI) * 26;
+    if (v < 1) for (let k = 1; k <= 4; k++) { const w = Math.max(0, v - k * 0.05); R.pset(Math.round(lerp(ox, dest[0], w)), Math.round(lerp(oy, dest[1], w) - Math.sin(w * Math.PI) * 26), k < 3 ? hex('#ffe890') : hex('#c8a040')); }
+    if (px < 330) { halo(px, py, 5, hex('#ffe890'), Math.floor(t * 6)); P.piedra(R, Math.round(px), Math.round(py) + 3, { brillo: true, t }); }
+  }
   T.snitch(R, 180 + Math.sin(t * 3) * 20, 112 + Math.sin(t * 7) * 4, t, { cara: 'feliz' });
   T.exteriorDelante(R, t, { encuadre: 'torre', escobas: ne });
 };
+// el carrito del monitor por delante: paneles de flight case con cantoneras, el módulo de vídeo con rejilla, pilotos y
+// vúmetro, los cajones con tiradores cromados, la cinta de carrocero con marcas, pegatinas, rozaduras y los cables
+const consola = (t) => {
+  const { rect, pset, linea, disco } = R;
+  for (let y = 133; y <= 160; y++) for (let x = 108; x <= 258; x++) { const q = az(x >> 1, y, 3), v = az(x, y, 4); pset(x, y, v < 0.04 ? hex('#30303c') : q < 0.3 ? hex('#1a1a22') : q < 0.8 ? hex('#1e1e27') : hex('#23232d')); }
+  linea(108, 133, 258, 133, hex('#5a5a6a')); linea(108, 134, 108, 160, hex('#3a3a48')); linea(258, 134, 258, 160, hex('#0a0a10')); linea(108, 160, 258, 160, hex('#0a0a10'));
+  for (const [cx, cy, sx, sy] of [[108, 133, 1, 1], [258, 133, -1, 1], [108, 160, 1, -1], [258, 160, -1, -1]]) { for (let i = 0; i < 6; i++) { pset(cx + i * sx, cy, hex('#a8a8b8')); pset(cx, cy + i * sy, hex('#a8a8b8')); pset(cx + i * sx, cy + sy, hex('#6a6a7a')); pset(cx + sx, cy + i * sy, hex('#6a6a7a')); } pset(cx + 3 * sx, cy + 3 * sy, hex('#c8c8d8')); }
+  // el módulo de vídeo: frontal con orejas de rack y tornillos
+  rect(112, 136, 168, 157, hex('#26262f')); linea(112, 136, 168, 136, hex('#44444f')); linea(112, 157, 168, 157, hex('#101016')); linea(168, 137, 168, 157, hex('#101016'));
+  for (const [x, y] of [[114, 138], [114, 155], [166, 138], [166, 155]]) { pset(x, y, hex('#9a9aaa')); pset(x + 1, y + 1, hex('#3a3a46')); }
+  for (let y = 138; y <= 145; y += 2) { linea(118, y, 142, y, hex('#0a0a10')); linea(118, y + 1, 142, y + 1, hex('#34343e')); }
+  const piloto = [[148, hex('#3aff6a'), 0.6, 0.9], [153, hex('#3aff6a'), 2.3, 0.2], [158, hex('#ffb030'), 1.1, 0.5], [163, hex('#ff3a3a'), 0.8, 0]];
+  for (const [x, c, f, ph] of piloto) { const on = Math.sin(t * 6 * f + ph * 6) > -0.3; rect(x, 140, x + 2, 142, hex('#0a0a10')); rect(x, 140, x + 1, 141, on ? c : mez(c, hex('#101016'), 0.8)); if (on) { tine(x - 1, 140, c, 0.3); tine(x + 2, 141, c, 0.25); } }
+  // el vúmetro de dos canales que baila con el sonido del rodaje
+  for (let ch = 0; ch < 2; ch++) { const lvl = 6 + Math.round(3 * Math.sin(t * 7.3 + ch) + 2 * Math.sin(t * 13.1 + ch * 2) + Math.sin(t * 23)); for (let k = 0; k < 12; k++) { const x = 117 + k * 3, y = 149 + ch * 4, c = k > 9 ? hex('#ff3a3a') : k > 7 ? hex('#ffb030') : hex('#3ad85a'); rect(x, y, x + 1, y + 1, k < lvl ? c : mez(c, hex('#14141a'), 0.82)); } }
+  disco(161, 152, 3, hex('#0e0e14')); disco(161, 152, 2, hex('#3a3a46')); { const a = t * 0.4; pset(161 + Math.round(Math.cos(a) * 2), 152 + Math.round(Math.sin(a) * 2), hex('#e0e0ea')); }
+  // los dos cajones con bisel y tirador cromado
+  for (const y of [136, 148]) { rect(174, y, 254, y + 9, hex('#191920')); linea(174, y, 254, y, hex('#3a3a46')); linea(174, y, 174, y + 9, hex('#2e2e38')); linea(174, y + 9, 254, y + 9, hex('#0a0a10')); linea(254, y, 254, y + 9, hex('#0a0a10'));
+    rect(204, y + 4, 224, y + 5, hex('#9a9aaa')); linea(204, y + 4, 224, y + 4, hex('#e8e8f2')); linea(205, y + 6, 225, y + 6, hex('#0a0a10')); pset(203, y + 5, hex('#5a5a6a')); pset(225, y + 5, hex('#5a5a6a')); }
+  // la cinta de carrocero con marcas de rotulador (trazos y flechas, sin letras) y un brillo que corre por el canto
+  for (let x = 178; x <= 200; x++) for (let y = 137; y <= 140; y++) if (!((x === 178 || x === 200) && az(x, y, 5) < 0.5)) pset(x, y, y === 137 ? hex('#efe6c8') : hex('#d8ceaa'));
+  linea(181, 139, 185, 138, hex('#2a2a6a')); linea(188, 139, 191, 139, hex('#2a2a6a')); pset(192, 138, hex('#2a2a6a')); pset(192, 140, hex('#2a2a6a')); linea(195, 138, 197, 140, hex('#c8283a'));
+  for (let x = 230; x <= 233; x++) for (let y = 147; y <= 159; y++) pset(x, y, x === 230 ? hex('#3a6ac8') : hex('#2a5ab8'));
+  R.poligono([[240, 158], [244, 151], [248, 158]], hex('#f0c840')); pset(244, 154, hex('#1a1a22')); pset(244, 156, hex('#1a1a22'));
+  for (let k = 0; k < 14; k++) { const x = 110 + Math.floor(az(k, 1, 6) * 146), y = 134 + Math.floor(az(k, 2, 6) * 25); if (!(x > 111 && x < 169 && y > 135 && y < 158)) linea(x, y, x + 2, y, hex('#34343f')); }
+  { const g = ((t * 40) % 260) - 30; for (let i = 0; i < 6; i++) { const x = Math.round(108 + g + i); if (x >= 108 && x <= 258) pset(x, 133, hex('#c8c8d8')); } }
+  // los cables que bajan del carrito al suelo y van al rollo de la derecha
+  const cable = (x0, c, cl, x2, y2) => { let px = x0, py = 160; for (let i = 1; i <= 30; i++) { const u = i / 30, x = Math.round((1 - u) * (1 - u) * x0 + 2 * (1 - u) * u * (x0 + 6) + u * u * x2), y = Math.round((1 - u) * (1 - u) * 160 + 2 * (1 - u) * u * 176 + u * u * y2); linea(px, py, x, y, c); linea(px, py - 1, x, y - 1, mez(c, hex('#000000'), 0.4)); pset(x, y + 1, cl); px = x; py = y; } };
+  cable(236, hex('#14141a'), hex('#3a3a48'), 300, 174); cable(242, hex('#b85a20'), hex('#e88a40'), 296, 172); cable(248, hex('#1a2a5a'), hex('#4a6ab0'), 304, 176);
+};
+// el plató desenfocado detrás del monitor: la grúa que barre, el foco que se enciende y alguien que pasa con un baúl
+const fondoVivo = (t) => {
+  // la grúa: el brazo con su contrapeso y la cámara en la punta, barriendo despacio (solo a la izquierda del monitor)
+  const a = 0.5 + 0.22 * Math.sin(t * 0.55), bx = 8, by = 104, tx = bx + Math.cos(a) * 74, ty = by - Math.sin(a) * 74, cx = bx - Math.cos(a) * 16, cy = by + Math.sin(a) * 16;
+  for (let i = 0; i <= 90; i++) { const u = i / 90, x = lerp(cx, tx, u), y = lerp(cy, ty, u); for (let j = -2; j <= 2; j++) for (let k = -1; k <= 1; k++) { const xx = Math.round(x + k), yy = Math.round(y + j); if (xx < 103 && yy > 18 && yy < 110) tine(xx, yy, hex('#0c0e16'), Math.abs(j) === 2 ? 0.25 : 0.55); } }
+  for (let j = -5; j <= 5; j++) for (let k = -6; k <= 6; k++) { const d = Math.hypot(k / 6, j / 5), xx = Math.round(tx + k), yy = Math.round(ty + j); if (d < 1 && xx < 103 && yy > 18) tine(xx, yy, hex('#0a0c12'), (1 - d) * 0.8); }
+  if (Math.sin(t * 4) > 0) tine(Math.round(tx + 3), Math.round(ty - 2), hex('#ff3a3a'), 0.9);
+  for (let y = by; y < 128; y++) for (let k = -2; k <= 2; k++) tine(bx + k, y, hex('#0c0e16'), Math.abs(k) === 2 ? 0.25 : 0.55);
+  for (let j = -4; j <= 4; j++) for (let k = -4; k <= 4; k++) { const d = Math.hypot(k, j) / 4.5; if (d < 1) tine(Math.round(cx + k), Math.round(cy + j), hex('#0a0c12'), (1 - d) * 0.7); }
+  // el foco de la parrilla que se enciende con un parpadeo y echa su cono de luz cálida
+  const on = t < P3 + 0.8 ? 0 : t < P3 + 1.1 ? (Math.floor(t * 20) % 2) : 1;
+  for (let j = -3; j <= 3; j++) for (let k = -5; k <= 5; k++) tine(78 + k, 24 + j, on ? hex('#fff0c0') : hex('#1a1c24'), on ? (1 - Math.hypot(k / 5, j / 3)) * 0.9 : 0.6);
+  if (on) { for (let y = 28; y < 104; y++) { const w = 3 + (y - 28) * 0.36, f = 0.16 * (1 - (y - 28) / 76) + 0.03 * Math.sin(t * 9); for (let x = Math.round(78 - w); x <= Math.round(78 + w); x++) if (x < 103 && ((x + y) & 1)) tine(x, y, hex('#ffe0a0'), f); }
+    for (let k = 0; k < 6; k++) { const x = Math.round(78 + Math.sin(t * 0.7 + k * 1.7) * (6 + k * 2)), y = Math.round(34 + ((t * 6 + k * 13) % 60)); if (x < 103) tine(x, y, hex('#fff4d0'), 0.6); } }
+  // a la derecha, borroso: un tramoyista empuja un baúl con ruedas por detrás del pie del foco
+  { const u = ((t + 3) / 7) % 1, x = Math.round(340 - u * 110); for (let j = -18; j <= 14; j++) for (let i = -14; i <= 14; i++) { const xx = x + i, yy = 112 + j; if (xx < 259 || xx > 319) continue;
+      const cab = Math.hypot((i - 8) / 4, (j + 14) / 4), cue = Math.hypot((i - 8) / 5, (j + 1) / 11), baul = i > -13 && i < 3 && j > -2 && j < 12;
+      if (cab < 1) tine(xx, yy, hex('#14161c'), (1 - cab) * 0.85); else if (cue < 1) tine(xx, yy, hex('#1a1c26'), (1 - cue) * 0.8); else if (baul) tine(xx, yy, (j === -1 || i === -12) ? hex('#6a6a7a') : hex('#24262e'), 0.75); }
+    R.rect(292, 92, 293, 128, hex('#3a3a46')); R.rect(292, 92, 292, 128, hex('#6a6a7a')); }
+};
+// en el suelo: el baúl de material a la derecha (detrás de los actores) y, delante, el saco de arena y el rollo de cable
+const suelo3 = () => {
+  const { rect, pset, linea } = R;
+  rect(263, 148, 285, 169, hex('#2a2a34')); linea(263, 148, 285, 148, hex('#b8b8c8')); linea(263, 149, 263, 169, hex('#8a8a9a')); linea(285, 149, 285, 169, hex('#4a4a58')); linea(263, 169, 285, 169, hex('#14141a'));
+  linea(264, 157, 284, 157, hex('#8a8a9a')); for (const x of [268, 279]) { rect(x, 155, x + 2, 159, hex('#b8b8c8')); pset(x + 1, 156, hex('#2a2a34')); }
+  rect(266, 162, 282, 163, hex('#e8e4d8')); for (const x of [264, 284]) { pset(x, 150, hex('#d8d8e8')); pset(x, 167, hex('#d8d8e8')); }
+  for (let y = 170; y <= 172; y++) for (let x = 262; x <= 287; x++) if ((x + y) & 1) tine(x, y, hex('#000000'), 0.4);
+};
+const delante3 = () => {
+  const { pset, linea } = R;
+  // el saco de arena con sus costuras
+  for (let y = 169; y <= 178; y++) for (let x = 1; x <= 20; x++) { const d = Math.hypot((x - 10.5) / 10, (y - 174) / 5); if (d < 1) pset(x, y, d > 0.85 ? hex('#3a2a14') : y < 172 ? hex('#a8844a') : az(x, y, 7) < 0.3 ? hex('#7a5a2a') : hex('#8a6a36')); }
+  linea(4, 173, 17, 173, hex('#5a4020')); linea(10, 169, 10, 178, hex('#5a4020'));
+  // el rollo de cable negro, con sus vueltas y brillos
+  for (let r = 0; r < 4; r++) for (let a = 0; a < Math.PI * 2; a += 0.05) { const x = Math.round(306 + Math.cos(a) * (10 - r * 1.5)), y = Math.round(174 + Math.sin(a) * (4 - r * 0.6)); pset(x, y, Math.sin(a) < -0.5 ? hex('#4a4a58') : hex('#101016')); }
+  pset(302, 171, hex('#8a8a9a')); pset(311, 172, hex('#6a6a7a'));
+};
 const p3 = (t) => {
   T.hoy(R, t, { encuadre: 'plato', camara: 'monitor' });
-  // el director señala el monitor; la guionista llega, escribe en «written» y él se vuelve en «Succession»
-  R.actor(EL.director, 90, 164, t, { dir: t > suc ? -1 : 1, dedo: t > latam - 0.3 && t < escrita, habla: (t > P3 && t < latam - 0.3 && Math.sin(t * 8) > 0) || (t > suc + 0.3 && Math.sin(t * 8) > 0), sonrisa: t > suc });
-  const u = tramo(t, P3 + 0.2, escrita - 0.3), gx = Math.round(lerp(-18, 52, u));
-  const rg = R.actor(EL.guionista, gx, 164, t, { dir: 1, anda: u > 0 && u < 1, sostiene: true, sonrisa: t > suc });
-  const [mx, my] = rg.mano; R.rect(mx - 3, my - 1, mx + 4, my + 6, C.k); R.rect(mx - 2, my, mx + 3, my + 5, hex('#f6f0dc')); R.rect(mx - 2, my, mx + 3, my, hex('#c8283a'));
-  if (t > escrita) { const n = Math.min(4, Math.floor((t - escrita) * 3)); for (let i = 0; i < n; i++) R.linea(mx - 1, my + 2 + i, mx + 1 + ((i * 3 + 1) % 3), my + 2 + i, hex('#3a3a5a')); const lx = mx + Math.round(Math.sin(t * 14) * 2); R.linea(lx, my - 4, lx + 2, my + 1, hex('#e8b830')); }
+  fondoVivo(t); consola(t); suelo3();
+  // el monitor: el director rodea el castillo en «Latin America» con un círculo de rotulador de vídeo que se dibuja
+  { const v = tramo(t, latam - 0.25, latam + 0.5), cx = 172, cy = 72; for (let a = 0; a < v * Math.PI * 2; a += 0.03) { const x = Math.round(cx + Math.cos(a - 1.6) * 24), y = Math.round(cy + Math.sin(a - 1.6) * 16); R.pset(x, y, hex('#ffd84a')); R.pset(x, y + 1, hex('#c88a20')); }
+    if (v > 0 && v < 1) { const a = v * Math.PI * 2 - 1.6; R.disco(Math.round(cx + Math.cos(a) * 24), Math.round(cy + Math.sin(a) * 16), 1, hex('#fff4c0')); } }
+  // el director cruza hasta el monitor, señala el castillo y explica; en «Succession» se vuelve a la guionista y sonríe
+  const ud = tramo(t, P3 + 0.05, latam - 0.35), dx = Math.round(lerp(50, 84, ud));
+  R.actor(EL.director, dx, 164, t, { dir: t > suc ? -1 : 1, anda: ud > 0 && ud < 1, dedo: t > latam - 0.35 && t < escrita - 0.2 || t > suc + 0.2 && t < suc + 1.4, habla: (t > latam - 0.2 && t < escrita - 0.4 && Math.sin(t * 8) > 0) || (t > suc + 0.3 && Math.sin(t * 8) > 0), sonrisa: t > suc });
+  // la guionista llega con la libreta, escribe en «written» (el lápiz va y viene y los renglones crecen) y se la enseña
+  const u = tramo(t, P3 + 0.5, escrita - 0.35), gx = Math.round(lerp(-28, 50, u)), ycG = yCuerpo(EL.guionista, 164), ensena = t > suc - 0.4;
+  const rg = R.actor(EL.guionista, gx, 164, t, { dir: 1, anda: u > 0 && u < 1, sostiene: ensena ? [gx + 21, ycG - 1] : [gx + 19, ycG + 5], sonrisa: t > suc, sorpresa: t > escrita + 1.2 && t < escrita + 1.6 });
+  const [mx, my] = rg.mano;
+  if (gx >= -12) {   // la libreta solo cuando ya asoma ella (si no, flotaba sola en el borde)
+  R.rect(mx - 4, my - 3, mx + 5, my + 6, C.k); R.rect(mx - 3, my - 2, mx + 4, my + 5, hex('#f6f0dc')); R.rect(mx - 3, my - 2, mx + 4, my - 2, hex('#c8283a')); for (let y = my - 1; y <= my + 5; y += 2) R.pset(mx - 4, y, hex('#a8a8b8'));
+  if (t > escrita - 0.1) { const w = (t - escrita + 0.1) * 5, n = Math.min(4, Math.floor(w / 6) + 1);
+    for (let i = 0; i < n; i++) { const L = i < n - 1 ? 6 : Math.min(6, w % 6); for (let k = 0; k <= L; k++) R.pset(mx - 2 + k, my + i * 2 - (k % 2), hex('#3a3a6a')); }
+    if (t < suc - 0.4) { const L = Math.min(6, w % 6), lx = mx - 2 + Math.round(L), ly = my + (n - 1) * 2 + Math.round(Math.sin(t * 22)); R.linea(lx, ly, lx + 3, ly - 5, hex('#e8b830')); R.pset(lx, ly, hex('#2a2a2a')); R.pset(lx + 3, ly - 5, hex('#e88aa0')); } } }
+  delante3();
 };
 // el visor de la moviola: el fotograma del castillo y el contador de episodios que pasa
 const visor = (R, t, cl) => {

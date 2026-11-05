@@ -14,9 +14,12 @@
 //    saltito («recognize»), alza la varita en «Flitwick» y la pluma sube de la mesa y flota en ocho; los alumnos de
 //    delante se asombran y aplauden («again»), la pluma hace un bucle («movies») y en «And someone» una tiza entra
 //    volando por la izquierda y se estrella contra la pizarra (corta en «you've»);
-// 2. la sala común, la chimenea de cerca: Harry lee en su butaca y Ron dormita en la otra; en «Peeves» el poltergeist sale
-//    del fuego entre chispas, saca tizas del gorro y en «prankster» tira una a la butaca de Ron y otra a la snitch, que la
-//    esquiva (gag 3); en «played by» hace una voltereta riéndose y en el final se va chimenea arriba.
+// 2. la sala común, la chimenea de cerca: Harry lee y pasa página, Ron dormita; el fuego se aviva, Harry levanta la vista y
+//    en «Peeves» el poltergeist sale entre chispas (con filo oscuro y aura fría, para leerse sobre el fuego), vuela junto
+//    a Harry y en «prankster» le tira una tiza al libro: Harry lo cierra y se tapa la cabeza con él; Peeves cruza la sala
+//    y la segunda tiza rebota en el respaldo de Ron, que se despierta de un bote; vuelve al centro, tira la tercera a la
+//    snitch, que la esquiva (gag 3), y se estrella en el estandarte; Ron le señala enfadado, Peeves da una voltereta
+//    cabeza abajo riéndose («played by») y al final se mete chimenea arriba mientras Harry se ríe.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-peeves');
@@ -75,38 +78,82 @@ const p1 = (t) => {
   R.actor(EL.hermione, 246, 190, t, { dir: -1, sonrisa: asombro && !ducha, dedo: aplau, sorpresa: ducha });
   R.actor(EL.alumno, 286, 192, t, { dir: -1, sorpresa: ducha, sonrisa: asombro && !ducha, brazos: aplau, salto: bote(4), pal: { H: hex('#c8783a'), h: hex('#e09a5a') } });
 };
+// Peeves se dibuja en su búfer y se pega con un filo oscuro y un aura fría que titila, para que se lea sobre el ladrillo y
+// el fuego; o.vuelta lo pinta cabeza abajo (la voltereta) y o.techo lo corta por arriba (se mete por el tiro)
+const PB = R.nuevo();
+const peevesNitido = (dibuja, x0, y0, x1, y1, t, o = {}) => {
+  PB.fill(0); const prev = R.usar(PB); dibuja(); R.usar(prev);
+  const FILO = hex('#241a3e'), AURA = hex('#8a9ae8'), AURA2 = hex('#d8e4ff');
+  const src = (x, y) => { if (x < x0 || x > x1 || y < y0 || y > y1) return 0; const yy = o.vuelta ? y0 + y1 - y : y; return yy >= 0 && yy < 180 && x >= 0 && x < 320 ? PB[yy * 320 + x] : 0; };
+  for (let y = y0 - 2; y <= y1 + 2; y++) for (let x = x0 - 2; x <= x1 + 2; x++) {
+    if (o.techo != null && y < o.techo) continue;
+    const c = src(x, y); if (c) { R.pset(x, y, c); continue; }
+    if (src(x - 1, y) || src(x + 1, y) || src(x, y - 1) || src(x, y + 1)) { R.pset(x, y, FILO); continue; }
+    if ((src(x - 2, y) || src(x + 2, y) || src(x, y - 2) || src(x, y + 2)) && (x + y + Math.floor(t * 9)) % 3 === 0) R.pset(x, y, (x * 7 + y) % 5 ? AURA : AURA2);
+  }
+};
+// el recorrido de Peeves (x = izquierda del sprite, y = su base): sale del fuego, va a la izquierda junto a Harry, cruza
+// la chimenea hasta Ron, vuelve al centro y al final sube por el tiro
+const lisa = (u) => u * u * (3 - 2 * u);
+const RUTA = [[sale - 0.15, 152, 140], [sale + 0.35, 140, 102], [tiro1 - 0.05, 96, 100], [tiro1 + 0.15, 96, 100], [tiro2 - 0.05, 206, 98],
+  [tiro2 + 0.15, 206, 98], [rie - 0.05, 150, 92], [vase, 152, 90], [vase + 0.9, 152, 24]];
+const ruta = (t) => {
+  if (t <= RUTA[0][0]) return [RUTA[0][1], RUTA[0][2]];
+  for (let k = 1; k < RUTA.length; k++) if (t <= RUTA[k][0]) { const [a, xa, ya] = RUTA[k - 1], [b, xb, yb] = RUTA[k], u = lisa((t - a) / (b - a)); return [lerp(xa, xb, u), lerp(ya, yb, u)]; }
+  const l = RUTA[RUTA.length - 1]; return [l[1], l[2]];
+};
+// la chispa del impacto de una tiza: polvo blanco que se abre y cae
+const polvo = (x, y, d) => { for (let k = 0; k < 9; k++) { const a = k * 0.7 - 0.4; R.pset(Math.round(x + Math.cos(a) * d * 9), Math.round(y - Math.abs(Math.sin(a)) * d * 6 + d * d * 8), k % 3 ? TZ : hex('#ffffff')); } };
+const tiro3 = rie + 0.1;
 const p2 = (t) => {
   T.hogwarts(R, t, { encuadre: 'sala', camara: 'chimenea' });
-  // Peeves sale del fuego entre chispas, sube y se queda flotando delante de la chimenea, meciéndose
-  const s = tramo(t, sale - 0.15, sale + 0.7), va = tramo(t, vase, vase + 0.9);
-  const flota = Math.sin(t * 2.6) * 3, vx = Math.round(152 + Math.sin(t * 1.1) * 10 * s + va * 40), vy = Math.round(lerp(140, 98, s) + flota - va * 120);
-  const voltea = tramo(t, vuelta, vuelta + 0.7);
-  const conTiza1 = t > sale + 0.4 && t < tiro1, conTiza2 = t > tiro1 + 0.15 && t < tiro2;
-  // Harry lee en su butaca; Ron dormita en la otra
-  const golpe = t > tiro1 + 0.45, sorpresa = t > sale && t < tiro1;
-  const h = R.actor(EL.harry, 26, 150, t, { dir: 1, sostiene: t < sale ? true : undefined, sorpresa, sonrisa: t > rie, habla: t > tiro2 + 0.5 && t < rie && Math.sin(t * 8) > 0 });
-  if (t < sale) T.PIEZAS_HP.libro(R, h.mano[0] + 2, h.mano[1] + 4, { abierto: true });
-  R.actor(EL.ron, 276, 150 - (golpe && t < tiro1 + 0.8 ? 4 : 0), t, { dir: -1, sorpresa: golpe && t < rie, enfado: t > rie && t < vase, quieto: t < sale });
-  if (t < sale) for (let k = 0; k < 3; k++) { const z = (t * 0.7 + k / 3) % 1, r = Math.round(1 + z * 2); R.disco(Math.round(272 - z * 10), Math.round(116 - z * 16), r, hex('#cfe0f4')); R.pset(Math.round(271 - z * 10), Math.round(115 - z * 16), hex('#ffffff')); }
+  const s = tramo(t, sale - 0.15, sale + 0.35), va = tramo(t, vase, vase + 0.9), voltea = tramo(t, vuelta, vuelta + 0.8);
+  // antes de salir, el fuego se aviva: un borbotón de chispas que crece en la boca de la chimenea
+  if (t > sale - 0.9 && t < sale + 0.6) chispas(160, 128, t, 16, 8 + 30 * tramo(t, sale - 0.9, sale + 0.2));
+  // la snitch revolotea sobre el estandarte y la tercera tiza la obliga a esquivar hacia arriba
+  const esq = tramo(t, tiro3 + 0.15, tiro3 + 0.35) - tramo(t, tiro3 + 0.9, tiro3 + 1.6);
+  T.snitch(R, 98 + Math.sin(t * 1.7) * 8, 54 - esq * 16, t, { vuela: 0.6, cara: esq > 0.1 ? 'susto' : t > vuelta ? 'feliz' : 'normal' });
+  // Harry lee y pasa página; con el fogonazo levanta la vista, la primera tiza le da en el libro: lo cierra de golpe y se
+  // tapa la cabeza con él mientras Peeves cruza; luego lo baja y se ríe mirándolo subir
+  const golpeH = t > tiro1 + 0.4, escudo = t > tiro1 + 0.55 && t < tiro2 + 0.5, agacha = escudo ? 3 : 0;
+  const h = R.actor(EL.harry, 26, 150 + agacha, t, { dir: 1, sostiene: escudo ? [40, 118 + agacha] : true, sorpresa: t > sale - 0.35 && t < tiro2 + 0.5,
+    sonrisa: t > tiro3 + 0.4, habla: t > vuelta + 0.9 && t < vase && Math.sin(t * 8) > 0 });
+  const salta = golpeH && t < tiro1 + 0.7 ? -2 : 0;
+  T.PIEZAS_HP.libro(R, h.mano[0] + 2, h.mano[1] + 4 + salta, { abierto: !golpeH });
+  if (!golpeH && Math.floor((t - P2) * 0.9) % 2 === 1 && (t * 0.9) % 1 < 0.25) R.linea(h.mano[0] + 2, h.mano[1] - 1, h.mano[0] + 4, h.mano[1] + 1, hex('#f6f2e6'));   // pasa la página
+  // Ron dormita (zetas); la segunda tiza rebota en el respaldo y le da en la cabeza: salta, se enfada y le señala
+  const golpeR = t > tiro2 + 0.5, bote = golpeR && t < tiro2 + 0.9;
+  R.actor(EL.ron, 276, 150, t, { dir: -1, salto: bote ? 5 : 0, sorpresa: golpeR && t < rie + 0.2, enfado: t > rie + 0.2, dedo: t > rie + 0.2 && t < vase + 0.6, quieto: !golpeR });
+  if (!golpeR) for (let k = 0; k < 3; k++) { const z = (t * 0.7 + k / 3) % 1, r = Math.round(1 + z * 2); R.disco(Math.round(272 - z * 10), Math.round(116 - z * 16), r, hex('#cfe0f4')); R.pset(Math.round(271 - z * 10), Math.round(115 - z * 16), hex('#ffffff')); }
+  // Peeves, con su filo y su estela de bruma
+  const [rx, ry] = ruta(t), flota = Math.sin(t * 2.6) * 2;
+  const vx = Math.round(rx + Math.sin(t * 1.9) * 2), vy = Math.round(ry + flota - (voltea > 0 && voltea < 1 ? Math.sin(voltea * Math.PI) * 10 : 0));
+  const objetivo = t < tiro1 + 0.15 ? -1 : t < tiro2 + 0.15 ? 1 : -1;   // mira a Harry, a Ron y a la snitch
+  const conTiza = (t > sale + 0.3 && t < tiro1) || (t > tiro1 + 0.2 && t < tiro2) || (t > tiro2 + 0.2 && t < tiro3);
+  const lanza = [tiro1, tiro2, tiro3].some((m) => t > m && t < m + 0.3);
+  const mano = (x, y, d) => [d > 0 ? x + 17 : x - 2, y - 21];
   if (s > 0 && va < 1) {
-    if (t < sale + 0.5 && Math.floor(t * 20) % 2) { /* parpadea al aparecer */ } else {
-      // el halo frío del fantasma, para que se lea sobre el hogar oscuro
-      for (let k = 0; k < 26; k++) { const a = k * 0.83 + t * 1.5, d = 15 + Math.sin(t * 3 + k) * 2; R.pset(Math.round(vx + 7 + Math.cos(a) * d), Math.round(vy - 13 + Math.sin(a) * d * 1.05), k % 2 ? hex('#a8c0f0') : hex('#e8f0ff')); }
-      const p = R.actor(EL.peeves, vx, vy, t, { opaco: true, dir: t < tiro1 + 0.3 ? 1 : -1, sonrisa: true, salto: voltea > 0 && voltea < 1 ? Math.round(Math.sin(voltea * Math.PI) * 12) : 0,
-        sostiene: conTiza1 ? [vx + 18, vy - 20] : conTiza2 ? [vx - 4, vy - 22] : undefined, dedo: (t > tiro1 && t < tiro1 + 0.3) || (t > tiro2 && t < tiro2 + 0.3), habla: t > rie && Math.sin(t * 10) > 0 });
-      if (conTiza1 || conTiza2) tiza(p.mano[0], p.mano[1] - 1);
+    for (let k = 1; k <= 6; k++) { const [ax, ay] = ruta(t - k * 0.06); R.pset(Math.round(ax + 7 + Math.sin(t * 9 + k) * 2), Math.round(ay - 6 + k), k < 3 ? hex('#d8e4ff') : hex('#8a9ae8')); }
+    if (!(t < sale + 0.3 && Math.floor(t * 20) % 2)) {
+      let pm = null;
+      peevesNitido(() => { const p = R.actor(EL.peeves, vx, vy, t, { opaco: true, dir: objetivo, sonrisa: true, sostiene: conTiza ? mano(vx, vy, objetivo) : undefined, dedo: lanza,
+        habla: t > rie && t < vase && Math.sin(t * 10) > 0 }); pm = p.mano; }, vx - 10, vy - 40, vx + 26, vy + 2, t, { vuelta: voltea > 0.3 && voltea < 0.7, techo: va > 0 ? 52 : null });
+      if (conTiza && pm && va === 0) tiza(pm[0], pm[1] - 1);
     }
-    chispas(160, 132, t, s < 1 ? 12 : 4, s < 1 ? 26 : 10);
   }
-  // la tiza a la butaca de Ron y la otra a la snitch, que la esquiva
-  const u1 = tramo(t, tiro1, tiro1 + 0.45); if (u1 > 0 && u1 < 1) { estela(172, 78, 268, 128, u1); tiza(lerp(172, 268, u1), lerp(78, 128, u1) - Math.sin(Math.PI * u1) * 18); }
-  if (u1 >= 1 && t < tiro1 + 1.4) { const d = tramo(t, tiro1 + 0.45, tiro1 + 1.4); tiza(268 - d * 20, 128 + d * d * 40); }
-  const u2 = tramo(t, tiro2, tiro2 + 0.5); if (u2 > 0 && u2 < 1) { estela(148, 74, 40, 80, u2); tiza(lerp(148, 74 + 0, u2) * 0 + lerp(148, 40, u2), lerp(74, 80, u2) - Math.sin(Math.PI * u2) * 18); }
-  const esq = tramo(t, tiro2 + 0.2, tiro2 + 0.45) - tramo(t, tiro2 + 0.9, tiro2 + 1.5);
-  T.snitch(R, 80 + Math.sin(t * 1.7) * 8, 70 - esq * 22, t, { vuela: 0.6, cara: esq > 0.1 ? 'susto' : t > rie + 1 ? 'feliz' : 'normal' });
+  // las tres tizas: al libro de Harry, al respaldo de Ron (rebota en su cabeza) y a la snitch (pasa y se estrella en el estandarte)
+  const vuelo = (m, x0, y0, x1, y1, dur, alto) => { const u = tramo(t, m, m + dur); if (u > 0 && u < 1) { estela(x0, y0, x1, y1, u); tiza(lerp(x0, x1, u), lerp(y0, y1, u) - Math.sin(Math.PI * u) * alto); } return u; };
+  const [a1x, a1y] = mano(...ruta(tiro1).map(Math.round), -1), [a2x, a2y] = mano(...ruta(tiro2).map(Math.round), 1), [a3x, a3y] = mano(...ruta(tiro3).map(Math.round), -1);
+  // (cada tiza acaba tumbada en el brazo de una butaca y se queda ahí hasta el final del plano)
+  if (vuelo(tiro1, a1x, a1y, 46, 130, 0.4, 10) >= 1) { const d = tramo(t, tiro1 + 0.4, tiro1 + 1.0); if (d < 1) polvo(46, 130, d); tiza(46 + d * 16, 130 + Math.sin(d * Math.PI) * -5 + d * 9); }
+  if (vuelo(tiro2, a2x, a2y, 266, 112, 0.45, 12) >= 1) { const d = tramo(t, tiro2 + 0.45, tiro2 + 0.65), e = tramo(t, tiro2 + 0.65, tiro2 + 1.3);   // rebota en el respaldo, le da en la cabeza y cae al asiento
+    if (e < 1) polvo(266, 112, Math.min(1, (d + e) * 1.2)); tiza(e > 0 ? lerp(282, 262, e) : lerp(266, 282, d), e > 0 ? lerp(121, 139, e) - Math.sin(e * Math.PI) * 8 : lerp(112, 121, d)); }
+  if (vuelo(tiro3, a3x, a3y, 58, 50, 0.5, 8) >= 1) { const d = tramo(t, tiro3 + 0.5, tiro3 + 1.3); if (d < 1) polvo(58, 50, Math.min(1, d * 2)); tiza(58 + d * 14, 50 + d * d * 89); }
+  // la bocanada de hollín y chispas cuando se mete por el tiro
+  if (va > 0 && va < 1) chispas(160, 60, t, 10, 6 + va * 16);
   T.hogwartsDelante(R, t, { encuadre: 'sala', camara: 'chimenea' });
 };
-const efectos = [[salta, 'boing'], [varita + 0.05, 'brillo'], [aplauso + 0.1, 'palmada'], [tizaV + 0.55, 'golpecito'], [sale, 'whoosh'], [tiro1 + 0.45, 'golpecito'], [tiro2 + 0.25, 'whoosh'], [vuelta, 'boing'], [vase + 0.1, 'whoosh']];
+const efectos = [[salta, 'boing'], [varita + 0.05, 'brillo'], [aplauso + 0.1, 'palmada'], [tizaV + 0.55, 'golpecito'], [sale, 'whoosh'], [tiro1 + 0.45, 'golpecito'], [tiro2 + 0.5, 'golpecito'], [tiro3, 'whoosh'], [vuelta, 'boing'], [vase + 0.1, 'whoosh']];
 T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
 </script>
 </body>

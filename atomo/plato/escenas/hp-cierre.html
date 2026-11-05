@@ -12,12 +12,18 @@
 // HP-CIERRE (frases 34–35), hoy. Cuatro planos:
 // 1. (0 → «In this world», 4,5 s) el claro del bosque: Harry entra con una lupa enorme; en «details» se para y el
 //    cristal agranda una moto en miniatura escondida junto a las setas; se asombra («!») y el faro se enciende en
-//    «episode»; la snitch se asoma tras el tronco.
-// 2. (→ «decoration», 4,2 s) la tienda de túnicas: Hermione registra con la lupa la mesita de la costurera, que toma
-//    medidas a un alumno subido al taburete; en «accident» el cristal encuentra un calcetín de lana entre los carretes.
-// 3. (→ «Tell», 5,9 s) el Gran Comedor vacío de noche: la snitch arrastra la lupa por la mesa más cercana; en «clue»
-//    descubre a la rata dormida, que abre un ojo; en «which house» se encienden uno a uno los cuatro estandartes y sale
-//    un «?».
+//    «episode»; la snitch se asoma tras el tronco. La esquina de Atom queda despejada: el tronco grande y las copas de la
+//    derecha se quitan desde la escena (se repinta el fondo del claro sin ellos) y allí se ve cielo tramado con estrellas
+//    que titilan, una nube tenue y una copa lejana azulada que se mece, con los troncos lejanos debajo.
+// 2. (→ «decoration», 4,2 s) la tienda de túnicas: Hermione entra con la lupa, se sube al escabel junto a la estantería
+//    de los carretes y la pasea por la balda de abajo mientras la costurera toma medidas a un alumno subido al taburete;
+//    en «accident» el cristal se para sobre el calcetín de lana escondido entre los carretes, que en la lupa se ve grande
+//    (a rayas rojas y crema, con su puño de canalé, el talón y la puntera verdes) sobre los carretes aumentados.
+// 3. (→ «Tell», 5,9 s) el Gran Comedor vacío de noche, a ras de una mesa de las casas (cámara del estrado, en penumbra
+//    azul y con el haz de luna del ventanal): la mesa larga entra en diagonal en primer término con su banco; la snitch
+//    arrastra la lupa de objeto en objeto (plato, copa, la moto en miniatura, la vela que humea, la jarra, el calcetín, el
+//    libro); en «clue» se para sobre la rata dormida junto al cabo de vela, que abre un ojo; en «which
+//    house» se encienden uno a uno los cuatro estandartes y sale un «?» sobre el ventanal.
 // 4. (→ fin, 6,2 s) las gradas del campo: cuatro hinchas levantan sus banderas de los cuatro colores en «Tell me in the
 //    comments»; en «Meanwhile» Atom baja de su sitio; en «catch» se lanza a por la snitch, que se escapa por arriba en
 //    «again»: Atom choca, da vueltas con estrellas, la grada se ríe y él vuelve a su sitio (gag final).
@@ -27,6 +33,9 @@ const { E, R, M } = await T.preparar('hp-cierre');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const P = T.PIEZAS_HP, C = T.C, K = hex('#141018');
+// el decorado pega el fondo fijo con R.copiar: se guarda el último búfer copiado para repintar el claro sin el tronco grande
+let copiado = null; const copiar0 = R.copiar; R.copiar = (b) => { copiado = b; return copiar0(b); };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], umb = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
 const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255, r2 = c2 & 255, g2 = (c2 >>> 8) & 255, b2 = (c2 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (b2 - b1) * a) << 16) | (Math.round(g1 + (g2 - g1) * a) << 8) | Math.round(r1 + (r2 - r1) * a)) >>> 0; };
 // un halo tramado (no tapa: puntea) alrededor de (cx, cy)
 const hsh = (x, y, k) => { const v = Math.sin(x * 12.9898 + y * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
@@ -67,8 +76,34 @@ const motoMini = (x, y, faro = false) => pinta(MOTO_MINI, x, y, { k: K, A: hex('
 const P2 = en('detalles', 0.334), P3 = en('detalles', 0.685), P4 = en('casa', 0.288);
 const detalles = en('detalles', 0.174), episodio = en('detalles', 0.249), accidente = en('detalles', 0.553), pista = en('detalles', 0.880), ultimo = en('detalles', 0.927);
 const casaT = en('casa', 0.065), dime = en('casa', 0.298), mientras = en('casa', 0.537), atrapa = en('casa', 0.757), otra = en('casa', 0.908);
+// la esquina de arriba a la derecha del claro sin el tronco grande ni las copas oscuras (detrás de Atom): de arriba abajo,
+// cielo tramado con estrellas, una nube tenue que pasa despacio, una copa lejana azulada que se mece y, debajo, el fondo
+// del claro tal cual (troncos lejanos, sotobosque y hierba) con la niebla que corre por el suelo
+const borde = (y) => 259 + Math.round(hsh(0, y >> 2, 5) * 3);
+const copaArriba = (x) => Math.round(lerp(18, 50, Math.min(1, (x - 256) / 30)) + Math.sin(x * 0.45) * 2 + hsh(x >> 1, 0, 6) * 3);
+const copaAbajo = (x) => Math.round(70 + Math.sin(x * 0.3) * 3 + hsh(x >> 1, 1, 6) * 4);
+const esquina = (t) => {
+  const F = copiado, B = R.buf; if (!F) return;
+  const N0 = hex('#0a0e22'), N1 = hex('#111840'), N2 = hex('#18224e');
+  for (let y = 0; y <= 156; y++) for (let x = borde(y); x < 320; x++) {
+    const ya = copaArriba(x), yb = copaAbajo(x), i = y * 320 + x;
+    if (y < ya) { const f = y / 52 * 2, k = Math.min(1, Math.floor(f)), g = f - k; B[i] = g > umb(x, y) ? (k ? N2 : N1) : (k ? N1 : N0); }
+    else if (y < yb) { const q = hsh(x >> 1, y >> 1, 8), m = Math.sin(t * 0.9 + x * 0.12) * 0.12, bor = y - ya;
+      B[i] = bor < 1 ? hex('#3a4a80') : bor < 3 && q > 0.35 ? hex('#2c3a6a') : q + m > 0.72 ? hex('#26325e') : q + m < 0.2 ? hex('#121a36') : hex('#1a2448'); }
+    else B[i] = F[i];
+  }
+  // las estrellas (unas fijas, otras titilan) y la nube tenue de tres tonos que pasa despacio, por debajo de Atom
+  for (let k = 0; k < 16; k++) { const x = 262 + Math.floor(hsh(k, 1, 9) * 56), y = 2 + Math.floor(hsh(k, 2, 9) * 40); if (y >= copaArriba(x) - 1) continue; const b = Math.sin(t * (1.5 + hsh(k, 3, 9) * 2) + k * 1.7);
+    R.pset(x, y, b > 0.6 ? hex('#ffffff') : b > -0.3 ? hex('#8a9ad0') : hex('#3a4a80')); if (k % 5 === 0 && b > 0.85) { R.pset(x - 1, y, hex('#5a6aa8')); R.pset(x + 1, y, hex('#5a6aa8')); } }
+  { const nx = 250 + ((t * 2.2) % 90), ny = 48; for (let j = -3; j <= 3; j++) for (let i = -14; i <= 14; i++) { const x = Math.round(nx + i), y = ny + j, e = (i / 14) ** 2 + (j / 3.4) ** 2 - hsh(x >> 1, y, 10) * 0.25;
+    if (e < 1 && x >= borde(y) && x < 320 && y < copaArriba(x) + 2) R.pset(x, y, e < 0.35 && j < 0 ? hex('#46548a') : e < 0.7 ? hex('#26305c') : ((x + y) & 1) ? hex('#151c42') : R.pget(x, y)); } }
+  // la niebla del suelo, que el repintado había quitado, corre otra vez por la esquina
+  for (let y = 132; y <= 156; y++) for (let x = borde(y); x < 320; x++) { const v = Math.sin(x * 0.08 + t * 0.7 + y * 0.3) + Math.sin(x * 0.03 - t * 0.4); if (v > 0.6 && ((x + y) & 1)) R.pset(x, y, mez(R.pget(x, y), hex('#8a9ac8'), 0.3)); }
+};
 const p1 = (t) => {
+  copiado = null;
   T.exterior(R, t, { encuadre: 'bosque', camara: 'claro' });
+  esquina(t);
   // la moto en miniatura, escondida entre la hierba junto a las setas
   motoMini(194, 157, t > episodio && Math.sin(t * 6) > -0.3);
   // la snitch se asoma por detrás del tronco caído
@@ -82,38 +117,139 @@ const p1 = (t) => {
   lente(rh.mano[0] + 22, rh.mano[1] + 10 + bus, 18, lerp(2.2, 3.2, tramo(t, detalles, detalles + 0.4)), rh.mano);
   if (t > detalles + 0.15 && t < episodio + 0.8) R.icono('!', rh.cabeza[0] - 3, rh.cabeza[1] - 26, hex('#ffe890'), K, 2);
 };
+// el calcetín escondido en la balda de abajo de la estantería (7 × 9, entre los carretes) y el mismo, grande, en la lupa
+// (18 × 22: puño de canalé, rayas rojas y crema con el punto de la lana, talón y puntera verdes)
+const CALC_P = ['kkkk...', 'kDDk...', 'kRRk...', 'kDDk...', 'kRRk...', 'kDDkk..', 'kRRRRk.', 'kHDDDHk', '.kkkkk.'];
+const CALC_G = ['kkkkkkkkkk........', 'kWdWdWdWdk........', 'kWdWdWdWdk........', 'kWdWdWdWdk........', 'kkkkkkkkkk........',
+  'klRRRRRRrk........', 'klRrRRrRrk........', 'klRRRRRRrk........', 'klDDDDDDdk........', 'klDdDDdDdk........', 'klDDDDDDdk........',
+  'klRRRRRRrk........', 'klRrRRrRrk........', 'klRRRRRRrk........', 'kHHDDDDDDdkk......', 'kHHHDdDDdDDDkk....', 'kHHHRRRRRRRRRRkk..',
+  'kHHHRrRRrRRrRRHHk.', 'kHHHDDDDDDDDDDHHHk', 'khHHDdDDdDDdDDHHhk', '.khhHHHHHHHHHHHhhk', '..kkkkkkkkkkkkkkk.'];
+const CALC_PAL = { k: hex('#2a1418'), R: hex('#d0283a'), r: hex('#9a1a2a'), D: hex('#f4e8cc'), d: hex('#c8b898'), W: hex('#fff6e0'), l: hex('#ffd8d8'), H: hex('#2e9a52'), h: hex('#1a6a36') };
+const CALC_X = 47, CALC_Y = 90;
+// pinta un sprite donde ok(x, y) lo permita
+const pintaSi = (g, x0, y0, pal, ok) => { for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = pal[g[j][i]]; if (c != null && ok(x0 + i, y0 + j)) R.pset(x0 + i, y0 + j, c); } };
 const p2 = (t) => {
   T.diagon(R, t, { encuadre: 'tunicas' });
   // un alumno en el taburete; la costurera le toma medidas con la cinta y se vuelve en «accident»
   R.actor(EL.alumno, 183, 146, t, { dir: -1, sonrisa: true, sorpresa: t > accidente && t < accidente + 0.8 });
   const mide = Math.sin(t * 3) > 0;
-  const rc = R.actor(EL.costurera, 204, 166, t, { dir: t > accidente ? -1 : -1, sostiene: mide ? [196, 140] : [198, 150], sorpresa: t > accidente + 0.1 && t < accidente + 0.9 });
+  const rc = R.actor(EL.costurera, 204, 166, t, { dir: -1, sostiene: mide ? [196, 140] : [198, 150], sorpresa: t > accidente + 0.1 && t < accidente + 0.9 });
   R.linea(rc.mano[0], rc.mano[1], 190, mide ? 136 : 148, hex('#f0d040'));
-  // en la mesita, carretes y, escondido entre ellos, el calcetín de lana
+  // en la mesita, los carretes de hilo
   for (const [x, c] of [[98, '#3a6ad8'], [104, '#c8283a'], [118, '#3a9a3a']]) { R.rect(x - 2, 118, x + 2, 124, K); R.rect(x - 1, 119, x + 1, 123, hex(c)); R.linea(x - 2, 118, x + 2, 118, hex('#a87a4a')); R.linea(x - 2, 124, x + 2, 124, hex('#a87a4a')); }
-  R.rect(104, 124, 120, 126, K); R.rect(105, 125, 119, 125, hex('#2a6a4a')); P.calcetin(R, 111, 125, {});
-  // Hermione entra por la izquierda registrándolo todo con la lupa
-  const u = tramo(t, P2 + 0.05, accidente - 0.15), hx = Math.round(lerp(-46, 66, u));
-  const rh = R.actor(EL.hermione, hx, 166, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [hx + 18, 142], sorpresa: t > accidente && t < accidente + 0.6, sonrisa: t > accidente + 0.6 });
+  R.rect(104, 124, 120, 126, K); R.rect(105, 125, 119, 125, hex('#2a6a4a'));
+  // el escabel de madera junto a la estantería (tablero en y 146, peldaño en 156, patas hasta el suelo) y su sombra
+  for (let x = 48; x <= 76; x++) if ((x & 1) === 0 || (x > 52 && x < 72)) R.pset(x, 167, mez(R.pget(x, 167), K, 0.5));
+  for (const [x, c] of [[54, hex('#4a2a14')], [68, hex('#4a2a14')]]) R.rect(x, 149, x + 1, 163, c);
+  for (const [x0, x1] of [[51, 53], [70, 72]]) { R.rect(x0, 149, x1, 166, hex('#3a2010')); R.rect(x0 + 1, 149, x1 - 1, 166, hex('#8a5a32')); R.pset(x0 + 1, 152, hex('#b07a44')); R.pset(x0 + 1, 160, hex('#6a3e22')); }
+  R.rect(50, 155, 73, 158, hex('#3a2010')); R.rect(51, 156, 72, 157, hex('#9a6436')); R.linea(51, 156, 72, 156, hex('#c08a50'));
+  R.rect(49, 145, 74, 149, hex('#3a2010')); R.rect(50, 146, 73, 148, hex('#9a6436')); R.linea(50, 146, 73, 146, hex('#c8925a')); for (let x = 53; x < 72; x += 6) R.pset(x, 147, hex('#7a4a28'));
+  // Hermione entra, se sube al escabel y levanta la lupa hacia la balda de abajo de la estantería
+  const u = tramo(t, P2 + 0.05, P2 + 1.15), sube = tramo(t, P2 + 1.2, P2 + 1.55);
+  const hx = Math.round(lerp(-46, 42, u * (2 - u)) + sube * 12), hy = Math.round(lerp(166, 146, sube) - Math.sin(sube * Math.PI) * 6);
+  const rh = R.actor(EL.hermione, hx, hy, t, { dir: 1, anda: (u > 0 && u < 1) || (sube > 0 && sube < 1), sostiene: [hx + 15, hy - 34], sorpresa: t > accidente && t < accidente + 0.6, sonrisa: t > accidente + 0.6 });
   T.diagonDelante(R, t, { encuadre: 'tunicas' });
-  const bus = u < 1 ? Math.sin(t * 6) * 4 : 0;
-  lente(rh.mano[0] + 22 + bus, rh.mano[1] - 22, 17, lerp(2.2, 3.4, tramo(t, accidente, accidente + 0.4)), rh.mano);
-  if (t > accidente + 0.1 && t < accidente + 1.3) chispas(rh.mano[0] + 22, rh.mano[1] - 22, 22, t);
+  // la lupa: junto a ella mientras anda; luego busca por la balda de derecha a izquierda (frena en cada carrete) y en
+  // «accident» se para sobre el calcetín
+  const busca = tramo(t, P2 + 1.45, accidente - 0.1), w = busca - Math.sin(busca * Math.PI * 4) / (Math.PI * 4) * 0.8, para = tramo(t, accidente - 0.1, accidente + 0.25), pp = para * (2 - para);
+  const ir = tramo(t, P2 + 1.3, P2 + 1.6);
+  let lx = lerp(lerp(rh.mano[0] + 20, 90, ir), lerp(90, 68, w), busca > 0 ? 1 : 0), ly = lerp(rh.mano[1] - 18, 92, ir);
+  lx = lerp(lx, CALC_X + 3, pp); ly = lerp(ly + (para < 1 ? Math.sin(t * 6) * 2 : 0), CALC_Y + 4, pp);
+  const lr = 21, lk = 1.7 + Math.sin(tramo(t, accidente, accidente + 0.5) * Math.PI) * 0.25;
+  const LX = Math.round(lx), LY = Math.round(ly);
+  lente(LX, LY, lr, lk, rh.mano);
+  // el calcetín pequeño se ve fuera del cristal; dentro, el grande, donde le toca según el aumento (se recorta al cristal)
+  pintaSi(CALC_P, CALC_X, CALC_Y, CALC_PAL, (x, y) => Math.hypot(x - LX, y - LY) > lr + 2);
+  const gx = Math.round(LX + (CALC_X + 3.5 - LX) * lk - 9), gy = Math.round(LY + (CALC_Y + 4.5 - LY) * lk - 11);
+  pintaSi(CALC_G, gx, gy, CALC_PAL, (x, y) => Math.hypot(x - LX, y - LY) <= lr - 3);
+  // el reflejo del cristal vuelve a pasar por encima del calcetín
+  for (let j = -lr; j <= lr; j++) for (let i = -lr; i <= lr; i++) { const d = Math.hypot(i, j), dg = i + j; if (d <= lr - 3 && ((dg < -lr * 0.85 && dg > -lr * 1.05) || (dg < -lr * 1.2 && dg > -lr * 1.28))) { const x = LX + i, y = LY + j; if (x >= gx && x < gx + 18 && y >= gy && y < gy + 22) R.pset(x, y, mez(R.pget(x, y), hex('#ffffff'), 0.4)); } }
+  if (t > accidente + 0.1 && t < accidente + 1.3) chispas(LX, LY, 26, t);
 };
-// la rata dormida en la mesa de delante; la snitch arrastra la lupa
+// plano 3: el Gran Comedor vacío de noche visto a ras de una mesa de las casas (cámara 'mesa' del estrado, oscurecida
+// y con luz de luna). La mesa larga entra en diagonal en primer término (más cerca a la derecha), con vetas, juntas y su
+// banco; encima, platos, copas, la moto en miniatura, una vela apagada que humea, la jarra, el calcetín, un libro y, al
+// final, la rata dormida junto a un cabo de vela encendido. La snitch arrastra la lupa por la mesa de objeto en objeto.
+const MB = (x) => 124 + x * 0.035, MF = (x) => 140 + x * 0.115;   // borde del fondo y de delante del tablero
+const sobreMesa = (x, v) => Math.round(MB(x) + (MF(x) - MB(x)) * v);
+const elipse = (cx, cy, rx, ry, f) => { for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) { const d = (i * i) / (rx * rx) + (j * j) / (ry * ry); if (d <= 1) { const c = f(i, j, d); if (c != null) R.pset(cx + i, cy + j, c); } } };
+const COPA = ['kkkkkkk', 'kGooOgk', 'kOoOOgk', '.kOOgk.', '..kgk..', '..kgk..', '..kgk..', '.kOOgk.', 'kkkkkkk'];
+const JARRA = ['.kkkkk..', 'kSssSSk.', 'kSsSSSkkk', 'kSsSSSk.k', 'kSsSSSk.k', 'kSsSSSkkk', 'kSSSSSk..', '.kkkkk...'];
+const CANDE = ['....k....', '...kWk...', '..kWWck..', '..kWWck..', '..kWcck..', '..kWWck..', '.kkkkkkk.', 'kOoOOOOgk', '.kkkOkkk.', '...kOk...', '..kOOgk..', '.kkkkkkk.'];
+const LIBRO = ['.kkkkkkkkkk.', 'kRRRRRRRRRRk', 'kRrRRRRRRRRk', 'kppppppppppk', 'kPPPPPPPPPPk', '.kkkkkkkkkk.'];
+const OBJ_PAL = { k: K, O: hex('#d0a038'), o: hex('#f4dc8a'), g: hex('#8a6420'), G: hex('#3a1418'), S: hex('#8a8c9c'), s: hex('#c8cad8'),
+  W: hex('#d8d4c4'), c: hex('#a8a498'), R: hex('#6a2a3a'), r: hex('#a84a5a'), p: hex('#e8e0c8'), P: hex('#b8ae94') };
+const sombraObj = (x, y, rx) => elipse(x + 2, y, rx, 1, (i, j) => ((i + j) & 1 ? null : hex('#1c120c')));
+const plato = (x, y, s) => { sombraObj(x, y, 7 * s); elipse(x, y - 1, 7 * s, 2 * s + 1, (i, j, d) => (d > 0.78 ? K : d > 0.5 ? (j < 0 ? hex('#f0d080') : hex('#c8902a')) : j < 0 ? hex('#a8701e') : hex('#c8902a'))); R.pset(x - 3 * s, y - 2 * s, hex('#fff4c0')); };
+const mesaCasa = (t) => {
+  // el tablero: tablas a lo largo con juntas, vetas que se estiran con la cercanía, nudos y el canto de luz del fondo
+  const TON = [hex('#4a2e1c'), hex('#563622'), hex('#4e3220'), hex('#5c3a24')];
+  for (let x = 0; x < 320; x++) {
+    const yb = MB(x), yf = MF(x), alto = yf - yb, y0 = Math.ceil(yb), y1 = Math.floor(yf);
+    R.pset(x, y0 - 1, K);
+    for (let y = y0; y <= y1; y++) {
+      const v = (y - yb) / alto, tb = Math.min(3, Math.floor(v * 4)), tbAntes = Math.floor(Math.max(0, (y - 1 - yb) / alto) * 4);
+      let c = TON[tb];
+      if (y === y0) c = hex('#8a5a34');
+      else if (tb !== tbAntes) c = hex('#24160e');
+      else { const g = Math.sin(x * 0.19 / (0.6 + v * 0.8) + tb * 5 + Math.sin(x * 0.045 + tb * 2) * 2.2 + (v * 4 - tb) * 2.5); if (g > 0.8) c = hex('#3a2416'); else if (g < -0.92) c = hex('#6e4a2e'); if (hsh(Math.floor(x / 9), tb, 2) > 0.93 && Math.abs((x % 9) - 4) < 2 && Math.abs(v * 4 - tb - 0.5) < 0.2) c = hex('#2a1a10'); }
+      R.pset(x, y, c);
+    }
+    // el canto de delante, con su moldura punteada
+    const gr = 3 + Math.round(x * 0.015);
+    for (let k = 1; k <= gr; k++) R.pset(x, y1 + k, k === 1 ? hex('#6a4428') : k === gr ? K : (x + k) % 7 === 0 ? hex('#2a1a10') : hex('#3a2416'));
+    // por debajo: la sombra bajo la mesa, el banco y las losas del suelo
+    const ys = y1 + gr + 1, bt = Math.round(yf + 13 + x * 0.02), bg = 3 + Math.round(x * 0.01);
+    for (let y = ys; y < 180; y++) {
+      let c;
+      if (y < bt) c = ((x + y) & 1) ? hex('#120c14') : hex('#1c141e');
+      else if (y === bt) c = hex('#7a5232');
+      else if (y < bt + bg) c = (x % 23 === 0) ? hex('#2a1a10') : hex('#5e3e26');
+      else if (y === bt + bg) c = K;
+      else { const fx = (x + (Math.floor(y / 7) & 1) * 12) % 24, fy = y % 7; c = fx === 0 || fy === 0 ? hex('#1a1820') : hsh(Math.floor(x / 24), Math.floor(y / 7), 1) > 0.5 ? hex('#2e2a36') : hex('#36323e'); if (fy === 1 && fx > 2 && fx < 8) c = hex('#46424e'); }
+      R.pset(x, y, c);
+    }
+    // las patas de la mesa y del banco, torneadas
+    for (const px of [34, 168]) if (x >= px && x < px + 5 + Math.round(px * 0.01)) for (let y = ys; y < Math.min(180, bt); y++) R.pset(x, y, x === px ? K : (y % 6 === 0 ? hex('#5e3e26') : hex('#3a2416')));
+  }
+};
 const p3 = (t) => {
-  T.hogwarts(R, t, { encuadre: 'comedor', vacio: true });
+  T.hogwarts(R, t, { encuadre: 'comedor', camara: 'mesa', vacio: true });
+  // de noche y sin nadie: todo el salón en penumbra azul (el techo encantado ya es de noche), y la luna otra vez clara
+  for (let y = 27; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, mez(R.pget(x, y), hex('#0a0e24'), (x + y) & 1 ? 0.54 : 0.47));
+  R.disco(142, 58, 4, hex('#fff8dc')); R.pset(144, 60, hex('#d8d0b0')); halo(142, 58, 10, hex('#c8d8ff'), Math.floor(t * 4));
   // los cuatro estandartes se encienden en «which house» (rojo, amarillo, verde, azul)
-  const BAN = [[72, '#ff6a5a'], [118, '#ffe060'], [186, '#6aff8a'], [232, '#6aa8ff']];
-  BAN.forEach(([x, c], i) => { const on = tramo(t, casaT + i * 0.15, casaT + i * 0.15 + 0.2); if (on > 0) { halo(x, 66, 18 + Math.sin(t * 6 + i) * 2, hex(c), Math.floor(t * 8) + i); if (t < casaT + i * 0.15 + 0.8) chispas(x, 66, 14, t, hex(c), 4); } });
-  if (t > casaT + 0.7) { const q = tramo(t, casaT + 0.7, casaT + 1.0); R.icono('?', 151, Math.round(lerp(40, 30, q)), hex('#ffe890'), K, 3); }
-  // la rata sobre el tablero de la mesa de la derecha
-  const ojo = t > pista + 0.35 && t < ultimo + 1.5;
-  P.rata(R, 236, 160, { ojo });
-  // la snitch arrastra la lupa a lo largo de la mesa y se para sobre la rata en «clue»
-  const u = tramo(t, P3 + 0.1, pista - 0.1), ue = u * (2 - u), lx = Math.round(lerp(40, 236, ue)), ly = Math.round(lerp(150, 155, ue) + (u < 1 ? Math.sin(t * 7) * 3 : 0));
-  const sx = lx + 22, sy = ly - 30 + Math.round(Math.sin(t * 9) * 2);
-  lente(lx, ly, 18, lerp(2.2, 3.0, tramo(t, pista, pista + 0.4)), [sx - 2, sy + 2]);
+  const BAN = [[24, '#ff6a5a'], [84, '#ffe060'], [236, '#6aff8a'], [266, '#6aa8ff']];
+  BAN.forEach(([x, c], i) => { const on = tramo(t, casaT + i * 0.15, casaT + i * 0.15 + 0.2); if (on > 0) { halo(x, 68, 17 + Math.sin(t * 6 + i) * 2, hex(c), Math.floor(t * 8) + i); if (t < casaT + i * 0.15 + 0.8) chispas(x, 68, 13, t, hex(c), 4); } });
+  mesaCasa(t);
+  // los objetos sobre la mesa, de lejos (izquierda) a cerca (derecha)
+  plato(26, sobreMesa(26, 0.55), 1);
+  { const y = sobreMesa(52, 0.5); sombraObj(52, y, 4); pinta(COPA, 49, y - 9, OBJ_PAL); }
+  { const y = sobreMesa(80, 0.55); sombraObj(80, y, 6); motoMini(74, y - 7); }
+  { const x = 102, y = sobreMesa(x, 0.45); sombraObj(x, y, 5); pinta(CANDE, x - 9, y - 24, OBJ_PAL, 2);
+    for (let j = 1; j < 9; j++) { const u = ((t * 0.5 + j / 9) % 1), sx = Math.round(x - 1 + Math.sin(t * 1.7 + u * 6) * u * 5), sy = Math.round(y - 25 - u * 26); if ((sx + sy) & 1) R.pset(sx, sy, mez(R.pget(sx, sy), hex('#a8a8bc'), 0.5 * (1 - u))); } }
+  { const y = sobreMesa(134, 0.5); sombraObj(134, y, 9); pinta(JARRA, 126, y - 16, OBJ_PAL, 2); }
+  { const y = sobreMesa(170, 0.6); plato(170, y, 2); P.calcetin(R, 172, y - 2, { s: 2 }); }
+  { const y = sobreMesa(212, 0.5); sombraObj(212, y, 13); pinta(LIBRO, 200, y - 12, OBJ_PAL, 2); }
+  // la rata dormida (respira) y, a su lado, un cabo de vela encendido que da luz cálida a la punta de la mesa
+  const ojo = t > pista + 0.35 && t < ultimo + 1.5, ry = sobreMesa(250, 0.55);
+  { const fx = 298, fy = sobreMesa(fx, 0.38), f = Math.sin(t * 13) + Math.sin(t * 7.3);
+    halo(fx, fy - 18, 12 + f, hex('#ffc860'), Math.floor(t * 3));
+    sombraObj(fx, fy, 9); R.rect(fx - 7, fy - 3, fx + 7, fy, K); R.rect(fx - 6, fy - 2, fx + 6, fy - 1, hex('#c8902a')); R.linea(fx - 6, fy - 2, fx + 6, fy - 2, hex('#f0d080'));
+    R.rect(fx - 4, fy - 14, fx + 4, fy - 3, K); R.rect(fx - 3, fy - 13, fx + 3, fy - 3, hex('#e8e0c8')); R.rect(fx + 2, fy - 13, fx + 3, fy - 3, hex('#b8ae94')); R.rect(fx - 3, fy - 10, fx - 2, fy - 6, hex('#fff8e8'));
+    R.pset(fx, fy - 15, K); R.disco(fx, fy - 18 + Math.round(f * 0.3), 2, hex('#ffb030')); R.pset(fx, fy - 18, hex('#fff4c0')); R.pset(fx, fy - 21 + Math.round(f * 0.5), hex('#ffe070')); }
+  sombraObj(250, ry, 12);
+  P.rata(R, 250, ry + (Math.sin(t * 2.2) > 0.6 ? -1 : 0), { s: 2, ojo });
+  // el haz de luna que entra por el ventanal y cae en diagonal sobre la mesa, con el polvo que flota dentro
+  for (let y = 116; y < 180; y++) { const x0 = Math.round(126 + (y - 116) * 0.55), x1 = Math.round(194 + (y - 116) * 1.15); for (let x = x0; x <= x1; x++) if (((x + y) & 1) === 0) R.pset(x, y, mez(R.pget(x, y), hex('#b4c8f0'), 0.2)); }
+  for (let k = 0; k < 22; k++) { const u = (hsh(k, 1, 0) + t * (0.03 + hsh(k, 2, 0) * 0.03)) % 1, y = Math.round(118 + u * 56), x = Math.round(130 + (y - 116) * 0.85 + (hsh(k, 3, 0) - 0.5) * (68 + (y - 116) * 0.6) + Math.sin(t * 0.7 + k) * 3); if (Math.sin(t * 1.5 + k * 2.3) > -0.2) R.pset(x, y, mez(R.pget(x, y), hex('#e0ecff'), 0.6)); }
+  // los cuatro estandartes y el «?» sobre el ventanal
+  if (t > casaT + 0.7) { const q = tramo(t, casaT + 0.7, casaT + 1.0); R.icono('?', 153, Math.round(lerp(72, 62, q)), hex('#ffe890'), K, 3); }
+  // la snitch arrastra la lupa a lo largo de la mesa, objeto a objeto (frena sobre cada uno), y se para sobre la rata en «clue»
+  const u = tramo(t, P3, pista - 0.1), ue = u * (2 - u), w = ue - Math.sin(ue * Math.PI * 8) / (Math.PI * 8) * 0.8, lx = Math.round(lerp(26, 253, w));
+  const ly = Math.round(sobreMesa(lx, 0.5) - 4 - lx * 0.04 + (u < 1 ? Math.sin(t * 7) * 2 : 0)), lr = Math.round(15 + lx * 0.02);
+  const sx = lx + lr + 4, sy = ly - lr - 12 + Math.round(Math.sin(t * 9) * 2);
+  lente(lx, ly, lr, lerp(2.4, 2.0, tramo(t, pista - 0.3, pista + 0.2)), [sx - 2, sy + 2]);
   R.linea(sx - 2, sy + 2, sx + 2, sy - 2, K);
   T.snitch(R, sx + 4, sy, t, { cara: ojo ? 'susto' : t > casaT ? 'feliz' : 'normal' });
   if (ojo && t < pista + 1.5) R.icono('!', sx - 2, sy - 22, hex('#ffe890'), K, 2);

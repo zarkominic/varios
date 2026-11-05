@@ -14,7 +14,10 @@
 //    de una en una (la más lejana primero) y cada luz vuela, con su estela, a meterse en el aparato; el gato lo mira desde la
 //    tapia y una lechuza cruza el cielo y se posa en un tejado a mirar, girando la cabeza con cada farola. Corta en
 //    «the Put-Outer».
-// 2. El bosque de noche (el último libro): Ron anda a oscuras por el sendero; cruje una rama (se sobresalta) y mira a los
+// 2. El bosque de noche (el último libro), con decorado propio de la escena para no repetir hp-bosque: la orilla de un
+//    arroyo bajo las copas, con un hueco de cielo (luna y nubes de tres tonos), la luna reflejada en el agua que corre, una
+//    cascadita, bruma, juncos, una lechuza parda en la rama y un ciervo que bebe en la otra orilla, alza la cabeza con el
+//    crujido y huye cuando sale la luz; delante, el tronco grande con hiedra y los helechos. Ron anda a oscuras por el sendero; cruje una rama (se sobresalta) y mira a los
 //    lados; una ráfaga arrastra hojas secas entre los troncos; murciélagos revolotean; saca el mismo apagador, clic en «Ron», y sale una bolita de luz azulada que flota delante
 //    y le alumbra: un conejo huye a saltos por el sendero; él sonríe y la sigue. Corta en «And».
 // 3. La casa de los reptiles del zoo: un niño da golpecitos al cristal y se aburre; a la izquierda, un cuidador friega el
@@ -89,15 +92,138 @@ const p1 = (t) => {
   { const u = tramo(t, 0.05, 1.95); if (u > 0 && u < 1) cocheNoche(lerp(-48, 372, u), 174, hex('#3a5a7a'), t); }
   T.muggleDelante(R, t, { encuadre: 'calle' });
 };
+// ── el decorado propio del plano 2: la orilla de un arroyo en el bosque, de noche (no repite el bosque de hp-bosque 2
+// ni el claro de hp-bosque 1 y hp-cierre). Tres términos: los troncos lejanos azulados por la bruma con la orilla de
+// enfrente (y su ciervo), el arroyo con la luna reflejada y una cascadita; el sendero de la orilla de acá; y delante el
+// tronco grande de la izquierda y los helechos de la derecha. Arriba, las copas con un hueco de cielo (luna y nubes).
+const hs = (x, y, s) => { let n = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s, 1442695041)) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const rn = (x, y, sc, s) => { const X = x / sc, Y = y / sc, x0 = Math.floor(X), y0 = Math.floor(Y), fx = X - x0, fy = Y - y0, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+  return (hs(x0, y0, s) * (1 - u) + hs(x0 + 1, y0, s) * u) * (1 - v) + (hs(x0, y0 + 1, s) * (1 - u) + hs(x0 + 1, y0 + 1, s) * u) * v; };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], umb = (x, y) => B4[(y & 3) * 4 + (x & 3)] / 16;
+const LUNA = [222, 24];
+const hueco = (x, y) => ((x - 200) / 64) ** 2 + ((y + 4) / 54) ** 2 + (rn(x, y, 7, 11) - 0.5) * 0.5;   // < 1: se ve el cielo
+const orilla = (x) => 118 + Math.round(rn(x, 0, 12, 15) * 6) + (x > 250 && x < 266 ? 4 : 0);       // el borde de la orilla de enfrente
+const TR_MED = [[42, 54, 1], [98, 106, 2], [176, 181, 3], [236, 246, 4], [292, 304, 5]];          // los troncos de en medio (orilla de enfrente)
+// un tronco con corteza: vetas verticales, la sombra a un lado, el filo de luna al otro, nudos y raíces
+const tronco = (x0, x1, y0, y1, [cS, c, cV, cL], k, luzDcha = true, raiz = true) => {
+  const w = x1 - x0;
+  for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) {
+    const u0 = (x - x0) / Math.max(1, w), u = luzDcha ? u0 : 1 - u0, v = rn(x * 3, y * 0.4, 6, 20 + k);
+    let p = u < 0.28 ? cS : v > 0.62 ? cV : c; if (u > 0.86) p = cL; else if (u > 0.76 && v > 0.45) p = cL; if (hs(x, (y / 3) | 0, 30 + k) < 0.05) p = cS; R.pset(x, y, p); }
+  for (let i = 0; i < 3; i++) { const ny = y0 + 12 + Math.floor(hs(i, 1, 40 + k) * Math.max(1, y1 - y0 - 30)), nx = x0 + 2 + Math.floor(hs(i, 2, 40 + k) * Math.max(1, w - 4)); R.disco(nx, ny, 1.4, cS); R.pset(nx + (luzDcha ? 1 : -1), ny - 1, cV); }
+  if (raiz) for (const d of [-1, 1]) { const bx = d < 0 ? x0 + 1 : x1 - 1, L = Math.max(4, w * 0.8); R.poligono([[bx, y1 - 8], [bx + d * L, y1 + 2], [bx + d * L * 0.5, y1 + 3], [bx - d * 2, y1 + 1]], (x, y) => ((x + y) % 3 === 0 ? cS : c)); R.linea(bx, y1 - 7, bx + d * L, y1 + 2, d > 0 === luzDcha ? cL : cS); }
+};
+// una hoja de helecho que sale de (x, y) hacia dir, de largo L, con sus foliolos (m: lo que se mece)
+const helecho = (x, y, L, dir, col, colL, m = 0) => {
+  let px = x, py = y;
+  for (let i = 1; i <= L; i++) { const s = i / L, nx = x + dir * i * 0.9 + m * s * s * 4, ny = y - Math.sin(s * Math.PI * 0.75) * L * 0.55 + s * s * L * 0.25; R.linea(Math.round(px), Math.round(py), Math.round(nx), Math.round(ny), col);
+    if (i % 2 === 0) { const f = Math.max(1, Math.round((1 - s) * 5)); R.linea(Math.round(nx), Math.round(ny), Math.round(nx - dir), Math.round(ny + f), col); R.linea(Math.round(nx), Math.round(ny), Math.round(nx + dir * f * 0.6), Math.round(ny - f * 0.5), colL); }
+    px = nx; py = ny; }
+};
+// el fondo fijo: cielo, luna, troncos lejanos, la orilla de enfrente, el agua, la orilla de acá y el sendero
+const pintaFondo2 = () => {
+  const P = R.pset;
+  const SK = [hex('#080d28'), hex('#0c1434'), hex('#121c44'), hex('#18244f'), hex('#1e2c5a')];
+  for (let y = 0; y < 100; y++) for (let x = 0; x < 320; x++) { const f = Math.min(3.999, y / 18), i = Math.floor(f); P(x, y, SK[f - i > umb(x, y) ? i + 1 : i]); }
+  for (let i = 0; i < 70; i++) { const x = 130 + Math.floor(hs(i, 1, 50) * 140), y = Math.floor(hs(i, 2, 50) * 50); P(x, y, i % 6 ? hex('#7a8ac0') : hex('#ffffff')); }
+  // dos filas de troncos lejanos, cada vez más azulados
+  for (let i = 0; i < 30; i++) { const x = Math.floor(hs(i, 1, 51) * 330) - 5, w = 2 + Math.floor(hs(i, 2, 51) * 3); tronco(x, x + w, 20, 116, [hex('#24305a'), hex('#2a3864'), hex('#303f6c'), hex('#3e4e80')], 60 + i, x < LUNA[0], false); }
+  // la bruma de abajo: el aire se aclara hacia la orilla de enfrente
+  for (let y = 70; y < 122; y++) for (let x = 0; x < 320; x++) if (umb(x, y) < (y - 70) / 52 * 0.45) P(x, y, mix(R.pget(x, y), hex('#4a5a8a'), 0.35));
+  for (let i = 0; i < 16; i++) { const x = Math.floor(hs(i, 1, 52) * 330) - 5, w = 3 + Math.floor(hs(i, 2, 52) * 4); tronco(x, x + w, 12, 118, [hex('#141c3a'), hex('#1a2448'), hex('#202c54'), hex('#34427a')], 80 + i, x < LUNA[0], false); }
+  // la luna (por delante de los troncos lejanos, que en el hueco son solo bruma) con su halo tramado, sus mares y el filo
+  for (let j = -18; j <= 18; j++) for (let i = -18; i <= 18; i++) { const d = Math.hypot(i, j), X = LUNA[0] + i, Y = LUNA[1] + j; if (d > 7 && d < 18 && umb(X, Y) < 0.5 * (1 - (d - 7) / 11)) P(X, Y, mix(R.pget(X, Y), hex('#8a9ad8'), 0.45)); }
+  R.disco(LUNA[0], LUNA[1], 7, hex('#e8ecf8')); R.disco(LUNA[0] + 1, LUNA[1] + 1, 6, hex('#d8dcf0')); R.disco(LUNA[0] - 2, LUNA[1] - 1, 2, hex('#b8c0dc')); R.disco(LUNA[0] + 3, LUNA[1] + 2, 1.4, hex('#b8c0dc')); P(LUNA[0] - 3, LUNA[1] - 4, hex('#ffffff'));
+  // el sotobosque de la otra orilla en silueta, con matas
+  for (let x = 0; x < 320; x++) { const a = 104 + Math.round(rn(x, 0, 8, 53) * 12 - Math.abs(Math.sin(x * 0.23)) * 4); for (let y = a; y < 124; y++) P(x, y, y === a ? hex('#2a3c56') : rn(x, y, 3, 54) > 0.6 ? hex('#1a2842') : hex('#142036')); }
+  // la orilla de enfrente: tierra con musgo arriba y su borde de luz, piedras
+  for (let x = 0; x < 320; x++) { const o = orilla(x); for (let y = o; y < 130; y++) { const q = rn(x, y, 3, 55); let c = y - o < 2 ? (q > 0.5 ? hex('#3a5a4a') : hex('#2e4a3e')) : q > 0.6 ? hex('#2a2420') : hex('#1e1a18'); if (y - o === 0 && x > 120) c = hex('#5a7a6a'); if (hs(x, y, 56) < 0.04) c = hex('#4a3e30'); P(x, y, c); } }
+  // el agua: oscura, con vetas horizontales y el reflejo de los troncos de en medio
+  for (let y = 124; y < 147; y++) for (let x = 0; x < 320; x++) { if (y < orilla(x) + 6) continue; const q = rn(x * 0.4, y * 3, 5, 57), d = (y - 124) / 22;
+    let c = q > 0.66 ? hex('#22345e') : q > 0.4 ? hex('#18284c') : hex('#12203e'); if (TR_MED.some(([a, b]) => x >= a && x <= b)) c = mix(c, hex('#060810'), 0.5);
+    if (Math.abs(x - LUNA[0]) < 10 - d * 4 && umb(x, y) < 0.35) c = mix(c, hex('#a8b8e8'), 0.35); if (y === orilla(x) + 6) c = hex('#0c1428'); P(x, y, c); }
+  // las piedras de la cascadita, a la derecha
+  for (const [x, y, r] of [[248, 124, 5], [270, 125, 6], [258, 134, 3], [242, 138, 2]]) { R.disco(x, y, r, hex('#2a2c3a')); R.disco(x - 1, y - 1, r - 1.5, hex('#3e4252')); R.linea(x - r + 2, y - r + 1, x + 1, y - r, hex('#7a8098')); }
+  // la orilla de acá: hierba con borde irregular sobre el agua, piedras redondas
+  for (let x = 0; x < 320; x++) { const b = 145 + Math.round(rn(x, 0, 6, 58) * 5); for (let y = b; y < 158; y++) { const q = rn(x, y, 3, 59), hq = hs(x, y, 60); let c = y === b ? hex('#3e5a48') : q > 0.6 ? hex('#2a3e30') : q > 0.3 ? hex('#22342a') : hex('#1a2a22'); if (hq > 0.95) c = hex('#4e6e54'); else if (hq < 0.04) c = hex('#121c16'); P(x, y, c); } }
+  for (let i = 0; i < 9; i++) { const x = 30 + Math.floor(hs(i, 1, 61) * 270), y = 150 + Math.floor(hs(i, 2, 61) * 5); R.disco(x, y, 2, hex('#2e3040')); P(x - 1, y - 1, hex('#7a8098')); P(x, y - 2, hex('#5a6078')); }
+  // el sendero: tierra apisonada con roderas, hojarasca ocre, guijarros, la luz de luna en la parte de la derecha
+  for (let y = 156; y < 180; y++) for (let x = 0; x < 320; x++) { const top = 155 + Math.round(rn(x, 1, 7, 62) * 3), bot = 174 + Math.round(rn(x, 2, 9, 63) * 4); if (y < top) continue;
+    const q = rn(x, y, 4, 64), hq = hs(x, y, 65), sen = y < bot; let c;
+    if (sen) { c = q > 0.62 ? hex('#4a4440') : q > 0.35 ? hex('#3c3834') : hex('#322e2c'); if (Math.abs(y - 164 - Math.sin(x * 0.05)) < 1 || Math.abs(y - 171 + Math.sin(x * 0.04)) < 1) c = hex('#2a2624'); }
+    else c = q > 0.55 ? hex('#1e1c18') : hex('#161412');
+    if (hq > 0.965) c = hex(['#8a6a3a', '#a87e44', '#6a4a2a'][Math.floor(hq * 1000) % 3]); else if (hq < 0.025) c = hex('#5a5a62');
+    const dl = ((x - 216) / 52) ** 2 + ((y - 166) / 9) ** 2; if (sen && dl < 1 && umb(x, y) < (1 - dl) * 0.5) c = mix(c, hex('#a8b8e8'), 0.28);
+    P(x, y, c); }
+  // una raíz que cruza el sendero
+  for (let x = 120; x < 168; x++) { const y = 172 + Math.round(Math.sin(x * 0.11) * 1.5); P(x, y, hex('#1c1828')); P(x, y - 1, hex('#4a4058')); P(x, y + 1, hex('#0e0c14')); }
+};
+// lo de en medio (se pega encima, con huecos): los troncos de la otra orilla, sus ramas y las copas con el hueco del cielo
+const pintaMedio2 = () => {
+  for (const [x0, x1, k] of TR_MED) tronco(x0, x1, 0, orilla((x0 + x1) >> 1) + 2, [hex('#0e0c18'), hex('#18142a'), hex('#221e36'), hex('#4a4e7a')], k, x0 < LUNA[0]);
+  for (const [a, b, c, d] of [[54, 70, 112, 60], [106, 52, 138, 40], [236, 58, 206, 44], [304, 66, 276, 52]]) { R.linea(a, b, c, d, hex('#120f1a')); R.linea(a, b + 1, c, d + 1, hex('#18142a')); R.linea(a, b - 1, c, d - 1, hex('#3a3a5e')); }
+  for (let y = 0; y < 80; y++) for (let x = 0; x < 320; x++) { const d = hueco(x, y), fin = 34 + rn(x, 0, 10, 70) * 30 + (x > 270 ? 12 : 0); if (d < 1 || y > fin || (y > fin - 3 && hs(x, y, 71) < 0.5)) continue;
+    const q = rn(x, y, 3, 72) + rn(x, y, 9, 73) * 0.4, quieta = x > 274 && y < 48; let c = q > 1.0 ? hex('#1e3230') : q > 0.7 ? hex('#121e22') : hex('#080e14');
+    if (!quieta && d < 1.25 && q > 0.75) c = hex('#2e4a44'); if (!quieta && hs(x, y, 74) < 0.02 && q > 0.8) c = hex('#4a6a64'); R.pset(x, y, c); }
+};
+// delante: el tronco grande de la izquierda con hiedra y raíces
+const pintaFrente2 = () => {
+  tronco(-4, 14, 0, 172, [hex('#06050c'), hex('#0e0c16'), hex('#16131f'), hex('#34345a')], 9, true, false);
+  R.poligono([[14, 150], [30, 178], [22, 179], [8, 179]], (x, y) => ((x + y) % 3 ? hex('#0e0c16') : hex('#06050c'))); R.linea(14, 152, 29, 177, hex('#34345a'));
+  for (let i = 0; i < 26; i++) { const y = 20 + i * 5 + Math.floor(hs(i, 1, 75) * 4), x = 4 + Math.round(Math.sin(i * 0.7) * 5); R.pset(x, y, hex('#1e3a2a')); R.pset(x + 1, y, hex('#2a5a3a')); R.pset(x + 1, y - 1, hex('#3e7a4a')); }
+};
+let fondo2 = null, medio2 = null, frente2 = null;
+const capa2 = (pinta) => { const b = R.nuevo(), prev = R.usar(b); pinta(); R.usar(prev); return b; };
+const pegar2 = (b, x0, x1, y0, y1) => { const B = R.buf; for (let y = y0; y <= y1; y++) for (let i = y * 320 + x0, n = y * 320 + x1; i <= n; i++) { const v = b[i]; if (v) B[i] = v; } };
+// un ciervo pequeño en la otra orilla (x: el centro, s: el suelo): bebe con la cabeza baja, la levanta y huye a saltos
+const ciervo = (x, s, t, alza, dir, salta) => {
+  x = Math.round(x); const c = hex('#4a4664'), cl = hex('#9aa0c8'), cs = hex('#24223a'), p = salta ? Math.round(Math.abs(Math.sin(t * 9)) * 3) : 0, y = s - p;
+  // el lomo con su filo de luna, la tripa en sombra y la cola blanca
+  R.rect(x - 6, y - 12, x + 5, y - 8, c); R.rect(x - 5, y - 13, x + 4, y - 13, c); R.linea(x - 5, y - 13, x + 4, y - 13, cl); R.linea(x - 6, y - 8, x + 5, y - 8, cs);
+  R.rect(x - 7 * dir, y - 13, x - 7 * dir, y - 11, hex('#e8e8f0'));
+  const pa = salta ? (Math.sin(t * 9) > 0 ? 1 : -1) : 0;
+  for (const [lx, d] of [[x - 5, -1], [x - 4, 1], [x + 3, -1], [x + 4, 1]]) { R.linea(lx, y - 8, lx + pa * d * 2, y - 1 + (salta ? 0 : 1), d > 0 ? c : cs); }
+  const hx = x + 7 * dir, hy = alza ? y - 20 : y - 5;
+  // el cuello (sube o baja al agua) y la cabeza con el hocico
+  for (let k = 0; k < 2; k++) R.linea(x + (4 + k) * dir, y - 12, hx + k * dir, hy + 2, k ? cl : c);
+  R.rect(Math.min(hx, hx + 3 * dir), hy, Math.max(hx, hx + 3 * dir), hy + 2, c); R.pset(hx + 4 * dir, hy + 2, cs); R.pset(hx + dir, hy, cl);
+  R.pset(hx - dir, hy - 1, c); R.pset(hx - 2 * dir, hy - 1, cl);   // la oreja
+  R.linea(hx, hy - 1, hx - dir, hy - 5, cl); R.linea(hx - dir, hy - 3, hx - 3 * dir, hy - 4, cl); R.linea(hx, hy - 1, hx + dir, hy - 4, cl);   // las cuernas
+  if (alza) R.pset(hx + dir, hy + 1, hex('#e8e0b0'));   // el ojo que brilla
+};
 // el plano 2: Ron en el bosque, con la bolita de luz que le guía
 const clic2 = a(0.378), sigue = a(0.415);
 const p2 = (t) => {
-  T.exterior(R, t, { encuadre: 'bosque' });
+  if (!fondo2) { fondo2 = capa2(pintaFondo2); medio2 = capa2(pintaMedio2); frente2 = capa2(pintaFrente2); }
+  R.copiar(fondo2);
+  // las nubes del hueco: tres tonos a tres velocidades (pasan por delante de la luna)
+  R.recorte([130, 0, 270, 56]);
+  for (const [n, vel, y0, sc, c0, c1, c2] of [[3, 1.6, 6, 0.8, hex('#141c40'), hex('#1c2650'), hex('#2e3a6a')], [3, 3.2, 40, 1, hex('#1a2248'), hex('#26325e'), hex('#4a5a8e')], [2, 5.5, 50, 1.2, hex('#202a52'), hex('#34406e'), hex('#6a7aa8')]])
+    for (let k = 0; k < n; k++) { const x = 100 + ((k * 73 + y0 * 3 + t * vel) % 210), y = y0 + k * 3 + Math.sin(k * 2) * 3;
+      for (let j = 0; j < 4; j++) { const dx = (j - 1.5) * 6 * sc, r = (4 - Math.abs(j - 1.5)) * 1.6 * sc; R.disco(Math.round(x + dx), Math.round(y + 1), r, c0); R.disco(Math.round(x + dx), Math.round(y), r - 0.6, c1); R.disco(Math.round(x + dx - 1), Math.round(y - r * 0.5), Math.max(1, r - 2), c2); } }
+  R.recorte(null);
+  const cruje = a(0.335), salir = tramo(t, clic2 + 0.05, clic2 + 0.8);
+  // el ciervo de la otra orilla: bebe, levanta la cabeza con el crujido y huye a la izquierda cuando sale la luz (por detrás de los troncos)
+  { const u = tramo(t, clic2 + 0.2, clic2 + 1.6); if (u < 1) ciervo(lerp(78, -24, u), orilla(78) + 1, t, t > cruje, u > 0 ? -1 : 1, u > 0); }
+  pegar2(medio2, 0, 319, 0, 126);
+  // el agua corre: destellos que se mueven a la izquierda, el reflejo de la luna que tiembla y la cascadita
+  for (let i = 0; i < 46; i++) { const y = 128 + Math.floor(hs(i, 1, 90) * 17), L = 2 + Math.floor(hs(i, 3, 90) * 4), x = Math.round(330 - ((hs(i, 2, 90) * 360 + t * (10 + (y - 128) * 0.7)) % 360));
+    if (y < orilla(x) + 7 || x < 0) continue; R.linea(x, y, Math.min(319, x + L), y, Math.abs(x - LUNA[0]) < 12 ? hex('#8a9ad0') : hex('#2e4472')); }
+  for (let y = 130; y < 146; y += 2) { const w = 2 + Math.round(Math.sin(t * 3 + y) * 1.5), cx = LUNA[0] + Math.round(Math.sin(t * 2 + y * 0.7) * 2); R.linea(cx - w, y, cx + w, y, hex('#c8d4f8')); }
+  for (let x = 252; x <= 264; x++) { for (let k = 0; k < 2; k++) { const y = 120 + Math.floor((t * 26 + hs(x, k, 91) * 12) % 12); R.pset(x, y, hex('#a8b8e8')); } R.pset(x, 119, hex('#6a7aa8')); }
+  for (let k = 0; k < 6; k++) { const an = t * 5 + k * 1.1; R.pset(Math.round(258 + Math.cos(an) * (3 + k % 3)), Math.round(133 + Math.sin(an * 1.3)), k % 2 ? hex('#e8f0ff') : hex('#a8b8e8')); }
+  // la bruma que se arrastra sobre el agua
+  for (let y = 112; y < 150; y++) { const fy = Math.sin((y - 112) / 38 * Math.PI); for (let x = 0; x < 320; x++) { const g = (rn(x + t * 8, y * 2.2, 22, 92) - 0.45) * 2 * fy; if (g > umb(x, y) * 0.9) R.pset(x, y, mix(R.pget(x, y), hex('#6a7aa8'), 0.22)); } }
+  // los juncos de la orilla de acá, que se mecen
+  for (let k = 0; k < 14; k++) { const x = 34 + k * 19 + Math.floor(hs(k, 1, 93) * 8), b = 148 + Math.floor(hs(k, 2, 93) * 4), m = Math.sin(t * 1.8 + k) * 1.5; R.linea(x, b, Math.round(x + m), b - 9, hex('#2e4a34')); R.linea(x + 2, b, Math.round(x + 3 + m), b - 7, hex('#3e5e44')); if (k % 3 === 0) R.rect(Math.round(x + m), b - 12, Math.round(x + m), b - 9, hex('#4a3a2a')); }
+  // la lechuza parda en la rama de la izquierda: parpadea, gira la cabeza con el crujido y luego mira la luz
+  { const x = 86, y = 62, ojo = (t % 3.7) < 0.15, d = t > clic2 ? 1 : t > cruje ? (Math.sin(t * 2.5) > 0 ? 1 : -1) : -1;
+    R.rect(x - 2, y - 4, x + 2, y + 2, hex('#5a4632')); R.rect(x - 1, y - 2, x + 1, y + 1, hex('#8a7050')); R.rect(x - 2, y - 7, x + 2, y - 4, hex('#6a5238')); R.pset(x - 2, y - 8, hex('#4a3624')); R.pset(x + 2, y - 8, hex('#4a3624'));
+    if (!ojo) { R.pset(x - 1 + (d > 0 ? 1 : 0), y - 6, hex('#ffd040')); R.pset(x + (d > 0 ? 1 : 0) + 1, y - 6, hex('#ffd040')); } R.pset(x + d, y - 5, hex('#e8a830')); R.pset(x - 1, y + 3, hex('#c8a040')); R.pset(x + 1, y + 3, hex('#c8a040')); }
   T.tinte(R, 0, 179, [6, 10, 26], 0.45 - 0.2 * tramo(t, clic2 + 0.1, clic2 + 0.9));
   const w = tramo(t, P2 + 0.1, a(0.35)), z = tramo(t, sigue, P3 + 0.2);
-  const rx = Math.round(lerp(18, 112, w) + lerp(0, 70, z));
+  const rx = Math.round(lerp(26, 112, w) + lerp(0, 70, z));
   // la bolita: sale del aparato, sube y se queda flotando delante; luego tira hacia el sendero
-  const salir = tramo(t, clic2 + 0.05, clic2 + 0.8);
   const bx = lerp(rx + 22, 170, salir) + lerp(0, 70, z) + Math.sin(t * 2.4) * 3, by = lerp(138, 118, salir) + Math.sin(t * 3.1) * 3;
   if (salir > 0) { halo(bx, by, 46, AZUL, 0.32 * Math.min(1, salir * 2)); halo(bx, 168, 34, AZUL, 0.25 * Math.min(1, salir * 2)); }
   // dos murciélagos que revolotean entre los troncos
@@ -111,7 +237,7 @@ const p2 = (t) => {
     else if (fase === 1) { R.rect(x, y - 1, x, y + 1, c); R.pset(x, y + 1, cs); }
     else { R.pset(x - 1, y - 1, c); R.pset(x, y, c); R.pset(x + 1, y + 1, cs); R.pset(x + 1, y, c); } } }
   // la rama que cruje bajo el pie: se sobresalta y luego mira a los lados
-  const cruje = a(0.335), susto = t > cruje && t < cruje + 0.5;
+  const susto = t > cruje && t < cruje + 0.5;
   if (t > cruje - 0.05 && t < cruje + 0.35) { const qx = rx + 6; R.linea(qx - 5, 167, qx + 5, 166, hex('#5a4630')); R.pset(qx, 165, hex('#8a7050')); R.pset(qx + 1, 164, hex('#c8b090')); R.pset(qx - 1, 164, hex('#c8b090')); }
   const mira = t > cruje + 0.5 && t < clic2 - 0.25;
   const ac = R.actor(EL.ronJersey, rx, 166, t, { dir: mira && Math.sin(t * 3) > 0 ? -1 : 1, anda: !susto && ((w > 0 && w < 1) || (z > 0 && z < 1)), salto: susto ? Math.round(Math.sin(tramo(t, cruje, cruje + 0.3) * Math.PI) * 2) : 0, sostiene: t > clic2 - 0.6 && t < sigue + 0.3 ? [rx + 22, 140] : false, sonrisa: salir > 0.6, sorpresa: susto || (salir > 0 && salir <= 0.6) });
@@ -124,7 +250,13 @@ const p2 = (t) => {
   if (salir > 0) bola(bx, by, AZUL, 3);
   // luciérnagas que se acercan a la luz
   if (salir > 0.5) for (let k = 0; k < 4; k++) { const an = t * 1.7 + k * 1.57; R.pset(Math.round(bx + Math.cos(an) * (12 + k * 3)), Math.round(by + Math.sin(an) * 7), hex('#d8f070')); }
-  T.exteriorDelante(R, t, { encuadre: 'bosque' });
+  // luciérnagas que vagan sobre el agua y entre los juncos
+  for (let k = 0; k < 10; k++) { const x = Math.round(40 + ((hs(k, 1, 94) * 250 + Math.sin(t * 0.7 + k) * 14 + t * 2) % 250)), y = Math.round(118 + hs(k, 2, 94) * 34 + Math.sin(t * 1.1 + k * 2) * 5), b = Math.sin(t * 2.4 + k * 1.7);
+    if (b > -0.3) { R.pset(x, y, b > 0.5 ? hex('#f0ff9a') : hex('#a8c85a')); if (b > 0.7) for (const [i, j] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.pset(x + i, y + j, hex('#5a7a3a')); } }
+  // delante: el tronco grande de la izquierda, los helechos de la derecha (el conejo se mete detrás) y unas matas que se mecen
+  pegar2(frente2, 0, 30, 0, 179);
+  for (const [x, y, L, d, k] of [[300, 180, 28, -1, 0], [308, 179, 32, -1, 1], [296, 180, 20, 1, 2], [314, 180, 22, -1, 3], [288, 179, 18, -1, 4], [318, 178, 24, -1, 5]]) helecho(x, y, L, d, k % 2 ? hex('#2a4a30') : hex('#335a3a'), hex('#6a9a6a'), Math.sin(t * 1.3 + k) * 1.2);
+  for (let k = 0; k < 7; k++) { const x = 44 + k * 34 + Math.floor(hs(k, 1, 95) * 10), m = Math.sin(t * 1.6 + k * 0.9); for (let j = -2; j <= 2; j++) R.linea(x + j, 180, Math.round(x + j * 2 + m), 175 - (2 - Math.abs(j)), j % 2 ? hex('#1a2a1e') : hex('#2a4430')); }
 };
 // el plano 3: el zoo, Harry le habla a la boa
 const llega = a(0.528), hablaA = a(0.539), encoge = a(0.6);

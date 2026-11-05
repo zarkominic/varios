@@ -10,10 +10,13 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HP-POSTER (frase 8), 2026. Dos planos:
-// 1. lo alto de la torre de noche (cámara 'almenas'): sobre las almenas, unas gafas redondas gigantes; a «first poster» un
-//    barrido de luz las descubre y los dos alumnos del adarve se sorprenden; a «castle» se encienden una a una las ventanas
-//    del castillo que reflejan los cristales; a «reflected» llega la snitch, se mira en el cristal derecho (su reflejo le
-//    devuelve la sonrisa) y a «glasses» le da un golpecito; la alumna se acerca y señala; corta en «and»;
+// 1. lo alto de la torre de noche (cámara 'almenas'): entre dos mástiles atados a las almenas (vientos de cuerda, gallardetes
+//    al viento) cuelga de un travesaño una gran lona escarlata con ribete dorado, enrollada; a «first poster» se desenrolla
+//    hacia abajo y descubre el póster: unas gafas redondas pintadas (recortadas a la lona, con pliegues que ondean y una fila
+//    de barras doradas por título) y los dos alumnos del adarve se sorprenden; la alumna echa a andar hacia el póster; a
+//    «castle» se encienden una a una las ventanas del castillo que reflejan los cristales; a «reflected» llega la snitch, se
+//    mira en el cristal derecho (su reflejo le devuelve la sonrisa) y a «glasses» le da un golpecito; la alumna, ya debajo,
+//    señala el póster hasta el corte, y sonríe tras el golpecito; corta en «and»;
 // 2. el lago (cámara 'lago'): las barcas con farol cruzan en una sola fila a «one line»; a «everyone» salen del castillo
 //    lechuzas con cartas hacia todas partes; en el embarcadero tres alumnos las miran y a «name» brilla sobre el castillo
 //    un rayo dorado, la cicatriz, y lo celebran.
@@ -90,44 +93,99 @@ const montura = (cx, cy, r, revela) => {
   for (let j = -r - 4; j <= r + 4; j++) for (let i = -r - 4; i <= r + 4; i++) { const d = Math.hypot(i, j); if (d <= r || d > r + 4) continue; const x = cx + i; if (x > revela) continue;
     const an = Math.atan2(j, i); R.pset(x, cy + j, d > r + 3.2 || d < r + 0.8 ? K : (an < -1.2 && an > -2.8 ? hex('#6a6478') : an > 0.6 && an < 2.4 ? hex('#1a1820') : hex('#2e2a38'))); }
 };
-const GL = [123, 53], GR = [197, 53], GRAD = 31;
+const GL = [124, 60], GR = [196, 60], GRAD = 28;
 const gafasGigantes = (t, luces, revela, snitchRefl) => {
   const r = GRAD;
-  // la sombra que echan en las almenas
-  for (let y = 86; y <= 93; y++) for (let x = 86; x <= 234; x++) if (x <= revela && (Math.abs(x - GL[0]) < 32 || Math.abs(x - GR[0]) < 32)) tine(x, y, hex('#000010'), 0.4 - (y - 86) * 0.04);
   lente(GL[0], GL[1], r, t, luces, false, revela); lente(GR[0], GR[1], r, t, luces + 0.3, true, revela);
   if (snitchRefl) snitchRefl();
   montura(GL[0], GL[1], r, revela); montura(GR[0], GR[1], r, revela);
   // el puente y las patillas
-  if (revela > 154) for (let k = 0; k <= 12; k++) { const x = 154 + k, y = Math.round(46 - Math.sin(k / 12 * Math.PI) * 5); R.rect(x, y - 2, x, y + 1, K); R.pset(x, y - 1, hex('#5a5468')); R.pset(x, y, hex('#2e2a38')); }
-  if (revela > 88) { R.linea(89, 42, 74, 49, K); R.linea(89, 43, 74, 50, hex('#3e3a4a')); R.linea(89, 44, 74, 51, K); }
-  if (revela > 232) { R.linea(231, 42, 246, 49, K); R.linea(231, 43, 246, 50, hex('#3e3a4a')); R.linea(231, 44, 246, 51, K); }
-  // el filo del barrido que las descubre
-  if (revela < 240) for (let y = 16; y < 92; y++) { const x = revela + Math.round(Math.sin(y * 0.5) * 2); if (Math.hypot(x - GL[0], y - GL[1]) < r + 5 || Math.hypot(x - GR[0], y - GR[1]) < r + 5) { R.pset(x, y, hex('#fff4b0')); if (y % 5 === 0) R.pset(x + 2, y - 1, hex('#ffd36a')); } }
+  for (let k = 0; k <= 16; k++) { const x = 152 + k, y = Math.round(53 - Math.sin(k / 16 * Math.PI) * 5); for (let yy = y - 2; yy <= y + 1; yy++) R.pset(x, yy, K); R.pset(x, y - 1, hex('#5a5468')); R.pset(x, y, hex('#2e2a38')); }
+  R.linea(93, 49, 86, 53, K); R.linea(93, 50, 86, 54, hex('#3e3a4a')); R.linea(93, 51, 86, 55, K);
+  R.linea(227, 49, 234, 53, K); R.linea(227, 50, 234, 54, hex('#3e3a4a')); R.linea(227, 51, 234, 55, K);
 };
+
+// el póster: la lona escarlata entre dos mástiles atados a las almenas. Se desenrolla de arriba abajo (u de 0 a 1);
+// dentro, recortadas a la lona, las gafas. Los pliegues ondean con el viento.
+const MER = (x) => x >= 0 && ((x + 10) % 66) < 40;   // las almenas del decorado (cámara 'almenas'), para la sombra
+const LX0 = 80, LX1 = 240, LY0 = 24, LY1 = 99;   // el mástil izquierdo, a la derecha del farol de la almena
+const MAD = [hex('#2a1a10'), hex('#5a3a20'), hex('#8a5e34'), hex('#b8864a')];
+const madero = (x0, y0, x1, y1) => { R.rect(x0, y0, x1, y1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, MAD[1]); R.rect(x0 + 1, y0 + 1, x1 - 1, y0 + 1, MAD[2]);
+  for (let x = x0 + 2; x < x1 - 1; x += 5) R.pset(x + ((x * 7) % 3), y1 - 1, MAD[0]); };
+const mastil = (x, t, sentido) => {
+  // el palo: luz a la izquierda (la luna), sombra a la derecha, vetas; los herrajes que lo sujetan a la almena
+  for (let y = 15; y <= 124; y++) { R.pset(x - 2, y, K); R.pset(x - 1, y, MAD[2]); R.pset(x, y, ((y * 13) % 7) === 0 ? MAD[0] : MAD[1]); R.pset(x + 1, y, MAD[0]); R.pset(x + 2, y, K); }
+  for (const y of [94, 104, 116]) { R.rect(x - 3, y, x + 3, y + 2, K); R.rect(x - 2, y, x + 2, y + 1, hex('#4a4a5a')); R.pset(x - 2, y, hex('#9a9ab0')); R.pset(x + 3, y + 1, hex('#2a2a36')); }
+  // el remate dorado y el gallardete que ondea hacia fuera
+  R.disco(x, 15, 2, K); R.disco(x, 15, 1, hex('#d8a83a')); R.pset(x - 1, 14, hex('#fff0b0'));
+  for (let k = 0; k <= 11; k++) { const xx = x + sentido * (3 + k), w = Math.sin(t * 6 - k * 0.6) * (k / 11) * 2, alto = Math.round((11 - k) / 11 * 3);
+    const yc = Math.round(18 + w); for (let j = -alto; j <= alto; j++) R.pset(xx, yc + j, j === -alto ? hex('#e8c060') : (k + j) % 4 === 0 ? hex('#7a1a22') : hex('#b02a32')); R.pset(xx, yc + alto + 1, K); }
+};
+const lona = (t, u) => {
+  const bajo = Math.round(lerp(LY0 + 1, LY1, u));
+  // la sombra de la lona sobre las almenas (solo en la piedra; por los huecos se ve el cielo)
+  if (u > 0.9) for (let y = 101; y <= 106; y++) for (let x = LX0 + 6; x <= LX1 + 6; x++) if (MER(x)) tine(x, y, hex('#05050f'), 0.35 - (y - 101) * 0.05);
+  // la tela: tramada (urdimbre y trama), los pliegues que ondean, la luz de luna desde arriba a la izquierda
+  if (bajo > LY0) {
+    for (let y = LY0; y <= bajo; y++) for (let x = LX0; x <= LX1; x++) {
+      const pl = Math.sin((x - LX0) * 0.21 + Math.sin(t * 1.6 + y * 0.07) * 1.3 + t * 0.8), luz = 0.5 + pl * 0.28 - (x - LX0) / 640 - (y - LY0) / 500 + (hs(x, y) - 0.5) * 0.12;
+      let c = luz > 0.66 ? hex('#a8323a') : luz > 0.44 ? hex('#8a2630') : luz > 0.26 ? hex('#6a1a24') : hex('#4a1018');
+      if ((y & 1) && hs(x, y, 2) > 0.7) c = mez(c, hex('#2a0810'), 0.25); if (!(x % 3) && hs(x, y, 3) > 0.8) c = mez(c, hex('#d0606a'), 0.2);
+      R.pset(x, y, c);
+    }
+    // el ribete dorado y su costura
+    R.recorte([LX0, LY0, LX1, bajo]);
+    for (let x = LX0; x <= LX1; x++) { R.pset(x, LY0 + 2, hex('#d8a83a')); R.pset(x, LY0 + 3, hex('#8a6420')); R.pset(x, LY1 - 3, hex('#d8a83a')); R.pset(x, LY1 - 2, hex('#8a6420')); }
+    for (let y = LY0 + 2; y <= LY1 - 2; y++) { R.pset(LX0 + 3, y, hex('#d8a83a')); R.pset(LX0 + 4, y, hex('#8a6420')); R.pset(LX1 - 4, y, hex('#d8a83a')); R.pset(LX1 - 3, y, hex('#8a6420')); }
+    for (let x = LX0 + 6; x <= LX1 - 6; x += 3) { R.pset(x, LY0 + 5, hex('#5a1820')); R.pset(x, LY1 - 5, hex('#5a1820')); }
+    // las estrellitas doradas de las esquinas
+    for (const [ex, ey] of [[LX0 + 10, LY0 + 9], [LX1 - 10, LY0 + 9], [LX0 + 10, LY1 - 10], [LX1 - 10, LY1 - 10]]) { const on = Math.sin(t * 3 + ex) > -0.3;
+      R.pset(ex, ey, hex(on ? '#fff0b0' : '#d8a83a')); R.pset(ex - 1, ey, hex('#d8a83a')); R.pset(ex + 1, ey, hex('#d8a83a')); R.pset(ex, ey - 1, hex('#d8a83a')); R.pset(ex, ey + 1, hex('#d8a83a')); }
+    // las gafas pintadas
+    gafasGigantes(t, castillo, 999, (u >= 1 && snitchRefl) ? snitchRefl : null);
+    // el título insinuado: una fila de barras doradas bajo las gafas
+    for (const [x0, w] of [[118, 14], [135, 22], [160, 9], [172, 26]]) { R.linea(x0, 93, x0 + w, 93, hex('#f0c860')); R.linea(x0, 94, x0 + w, 94, hex('#a87a28')); }
+    R.recorte(null);
+  }
+  // el rollo de tela que baja (al acabar queda el madero de abajo, con sus pesas)
+  const gr = Math.round(lerp(6, 2, u));
+  if (u < 1) { for (let j = 0; j <= gr; j++) { const c = j === 0 || j === gr ? K : j === 1 ? hex('#c84a52') : j < gr / 2 + 1 ? hex('#8a2630') : hex('#4a1018'); R.linea(LX0 - 2, bajo + j, LX1 + 2, bajo + j, c); }
+    for (let x = LX0 + 6; x < LX1; x += 23) R.pset(x, bajo + 2, hex('#5a1820')); }
+  else { madero(LX0 - 3, LY1 + 1, LX1 + 3, LY1 + 4); for (const x of [LX0 + 20, 160, LX1 - 20]) { R.linea(x, LY1 + 5, x, LY1 + 6, hex('#3a3a46')); R.rect(x - 1, LY1 + 7, x + 1, LY1 + 9, K); R.pset(x, LY1 + 8, hex('#7a7a90')); } }
+  // el travesaño de arriba con las anillas
+  madero(LX0 - 6, LY0 - 3, LX1 + 6, LY0); for (let x = LX0 + 4; x <= LX1 - 4; x += 12) { R.pset(x, LY0 + 1, hex('#c8c8d8')); R.pset(x - 1, LY0 + 1, K); R.pset(x + 1, LY0 + 1, K); }
+  // los mástiles, las ataduras de la lona a los mástiles y los vientos de cuerda hasta las almenas
+  mastil(LX0 - 4, t, -1); mastil(LX1 + 4, t, 1);
+  for (let y = LY0 + 4; y <= Math.min(bajo, LY1) - 2; y += 9) { R.linea(LX0 - 2, y, LX0 + 1, y + 1, hex('#c8b080')); R.linea(LX1 + 2, y, LX1 - 1, y + 1, hex('#c8b080')); }
+  const cuerda = (x0, y0, x1, y1) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0)); for (let k = 0; k <= n; k++) { const s = k / n, x = Math.round(lerp(x0, x1, s)), y = Math.round(lerp(y0, y1, s) + Math.sin(s * Math.PI) * 3); R.pset(x, y, (k % 3) ? hex('#a8906a') : hex('#6a5a40')); } };
+  cuerda(LX0 - 5, 20, 22, 87); cuerda(LX1 + 5, 20, 290, 87);
+  for (const x of [22, 290]) { R.rect(x - 2, 86, x + 2, 88, K); R.pset(x, 87, hex('#7a7a90')); }
+};
+let snitchRefl = null;
 
 const p1 = (t) => {
   const o = { encuadre: 'torre', camara: 'almenas' };
   T.exterior(R, t, o);
-  const revela = Math.round(lerp(84, 242, suave(lin(t, poster - 0.05, poster + 0.75))));
+  const desen = suave(lin(t, poster - 0.05, poster + 0.75));
   // la snitch llega a «reflected», se para junto al cristal derecho, se mira y a «glasses» le da un golpecito
   const v = lin(t, castillo - 0.3, refleja + 0.3), tap = t > gafas && t < gafas + 0.25 ? 4 : 0;
-  const sx = Math.round(lerp(330, 252 - tap, suave(v))), sy = Math.round(lerp(40, 82, suave(v)) + (v >= 1 ? Math.sin(t * 3) * 2 : 0));
+  const sx = Math.round(lerp(332, 238 - tap, suave(v))), sy = Math.round(lerp(70, 84, suave(v)) + (v >= 1 ? Math.sin(t * 3) * 2 : 0));
   const cara = t > gafas && t < gafas + 0.6 ? 'susto' : v >= 1 ? 'feliz' : 'normal';
-  gafasGigantes(t, castillo, revela, v >= 0.85 ? () => { const rx = 186, ry = 72 + Math.round(sy - 82);
-    PZ.snitch(R, rx, ry, { t: t + 0.05, cara, s: 2 }); for (let j = ry - 20; j <= ry + 2; j++) for (let i = rx - 21; i <= rx + 21; i++) if (Math.hypot(i - GR[0], j - GR[1]) < GRAD) tine(i, j, hex('#3a4a8a'), 0.3); } : null);
+  snitchRefl = v >= 0.85 ? () => { const rx = 186, ry = 76 + Math.round(sy - 84);
+    PZ.snitch(R, rx, ry, { t: t + 0.05, cara, s: 2 }); for (let j = ry - 20; j <= ry + 2; j++) for (let i = rx - 21; i <= rx + 21; i++) if (Math.hypot(i - GR[0], j - GR[1]) < GRAD) tine(i, j, hex('#3a4a8a'), 0.3); } : null;
+  lona(t, desen);
   if (v > 0) PZ.snitch(R, sx, sy, { t, cara, s: 2, dir: -1 });
-  if (t > gafas && t < gafas + 0.5) { const s2 = (t - gafas) / 0.5; for (let k = 0; k < 6; k++) { const an = k * 1.05; R.pset(Math.round(230 + Math.cos(an) * s2 * 9), Math.round(72 + Math.sin(an) * s2 * 9), hex('#fff8d0')); } }
+  if (t > gafas && t < gafas + 0.5) { const s2 = (t - gafas) / 0.5; for (let k = 0; k < 6; k++) { const an = k * 1.05; R.pset(Math.round(226 + Math.cos(an) * s2 * 9), Math.round(72 + Math.sin(an) * s2 * 9), hex('#fff8d0')); } }
   // la lechuza de la almena de la derecha se asusta con el barrido y vuelve a posarse
   { const asus = t > poster && t < poster + 0.9; PZ.lechuza(R, 274, asus ? 82 - Math.round(Math.sin((t - poster) / 0.9 * Math.PI) * 8) : 86, { vuela: asus, t }); }
-  // los dos alumnos del adarve: se sorprenden con el póster; ella se acerca y señala el castillo de los cristales
+  // los dos alumnos del adarve: se sorprenden con el póster; ella se acerca hasta debajo y lo señala
   // el alumno mira por el telescopio desde «castle» y luego señala
   const mira = t > castillo - 0.1 && t < refleja + 0.5;
   const al = R.actor(EL.alumno, 82, 168, t, { dir: 1, sorpresa: t > poster + 0.2 && t < castillo - 0.1, sonrisa: t > refleja + 0.5, dedo: t > refleja + 0.5 && t < gafas + 0.6, sostiene: mira ? [104, 150] : undefined });
   { const lat = hex('#c8a040'), lo = hex('#7a5a1a'); for (const dx of [-8, 0, 8]) { R.linea(112, 152, 112 + dx, 168, K); R.linea(113, 152, 113 + dx, 168, hex('#5a3e26')); }
     for (let k = -1; k <= 1; k++) R.linea(100, 149 + k, 128, 134 + k, k ? K : lat); R.linea(102, 149, 126, 136, lo); R.rect(126, 131, 131, 137, K); R.rect(127, 132, 130, 136, lat); R.pset(128, 133, hex('#fff0b0')); R.rect(97, 147, 101, 151, K); R.rect(98, 148, 100, 150, lo); }
-  const u = suave(lin(t, harry, castillo + 0.4)), ax = Math.round(lerp(290, 206, u));
-  R.actor(EL.alumna, ax, 168, t, { dir: -1, anda: u > 0 && u < 1, sorpresa: t > poster + 0.2 && t < harry, dedo: t > castillo + 0.5 && t < gafas, sonrisa: t > gafas + 0.3 });
+  const u = suave(lin(t, poster + 0.3, harry + 0.9)), ax = Math.round(lerp(292, 204, u));
+  R.actor(EL.alumna, ax, 168, t, { dir: -1, anda: u > 0 && u < 1, sorpresa: t > poster + 0.2 && t < poster + 0.3, dedo: t > harry + 1.0, sonrisa: t > gafas + 0.3 });
   T.exteriorDelante(R, t, o);
 };
 

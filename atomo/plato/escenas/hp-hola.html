@@ -16,7 +16,12 @@
 //    clava una chincheta en la cuarta pista («?» con la moto) en «clues»; la snitch, perdida, echa «?» en «don't make sense»;
 // 3. (corta en «I'm») el campo de quidditch: Atom baja de su sitio y saluda dando botes en «I'm Atom»; la snitch se le
 //    acerca y, cuando él la mira, se esconde detrás de él (gag 1); en «Let's find out» Atom vuelve arriba, la snitch sale
-//    disparada y Harry corre tras ella con su escoba.
+//    disparada y Harry corre tras ella con su escoba. El césped va lleno: calvas de tierra pisada ante los aros, en el
+//    punto central y junto al banco; sombras de torres y aros; las líneas de cal de las áreas y sus banderines que ondean;
+//    el baúl de las pelotas abierto, con las dos bludgers que tiran de sus correas (el baúl da respingos) y el hueco vacío
+//    de la snitch; la quaffle, dos escobas y un bate en la hierba; la bolsa del equipo y su cantimplora; toallas en el
+//    banco y en el suelo; el agua del cubo y la esponja; pisadas, tepes, tréboles; un guardián y un cazador entrenan en
+//    escoba a media distancia, y briznas y matas que mueve el viento.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-hola');
@@ -72,9 +77,124 @@ R.companero = (t, e) => {
   if (bote > 0) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 4, rr = r + 8 + Math.sin(t * 9) * 2; R.pset(Math.round(x + Math.cos(an) * rr), Math.round(y + Math.sin(an) * rr), hex('#c8f0ff')); }
   R.atomo(x, y, t, { r, orbita: R.PAL.ATOM[7], energia: bote > 0 ? 0.8 : e });
 };
+// el campo de cerca, encima del decorado: el césped vivido (calvas de tierra pisada en las porterías y en el punto
+// central, tepes arrancados, sombras de las torres y de los aros, las líneas de cal de las áreas), el baúl de las
+// pelotas abierto con las dos bludgers que se revuelven contra sus correas y el hueco vacío de la snitch, la quaffle en
+// la hierba, escobas tiradas, toallas en el banco y en el suelo, el cubo con la esponja, y dos jugadores que entrenan
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c, d, f) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - f) + ((d >>> s) & 255) * f); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+const verde = (c) => { const r = (c >>> 16) & 255, g = (c >>> 8) & 255, bb = c & 255; return g > r + 18 && g > bb + 18; };
+const SOMBRA = hex('#1a3a1a');
+const oscurece = (x, y, f) => { if (x >= 0 && x < 320 && y >= 0 && y < 180) R.pset(x, y, mez(R.pget(x, y), SOMBRA, f)); };
+// una calva de tierra pisada: el centro de tierra, el borde mordido por la hierba
+const calva = (cx, cy, rx, ry, k) => {
+  for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) {
+    const e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2, q = hh(x, y, k);
+    if (e > 1 || e > 0.55 + q * 0.45) continue;
+    R.pset(x, y, q < 0.18 ? hex('#5a3e22') : q > 0.86 ? hex('#b89a6a') : e > 0.6 && q > 0.5 ? hex('#6a8a3a') : (x + y) & 1 ? hex('#8a6a40') : hex('#7a5a34'));
+  }
+};
+const campo = (t) => {
+  const { pset, rect, linea, disco } = R;
+  // las sombras de las torres de las gradas (el sol, arriba a la izquierda) y la de cada aro con su poste, en la hierba
+  for (const tx of [76, 110, 144, 178, 212, 246]) for (let y = 117; y < 129; y++) { const d = y - 117, f = 0.42 * (1 - d / 14), w = 9 - Math.floor(d / 3);
+    for (let x = tx - w + Math.round(d * 1.4); x <= tx + w + Math.round(d * 1.4); x++) if (((x + y) & 1) || d < 6) oscurece(x, y, f); }
+  for (const [ax, ay] of [[24, 66], [40, 56], [56, 70], [264, 70], [280, 60], [296, 74]]) { const L = (114 - ay) * 0.42, ex = ax + 1 + L * 1.6, ey = 117 + L * 0.42;
+    for (let k = 0; k <= 30; k++) { const u = k / 30; oscurece(Math.round(lerp(ax + 1, ex, u)), Math.round(lerp(117, ey, u)), 0.42); oscurece(Math.round(lerp(ax + 2, ex + 1, u)), Math.round(lerp(117, ey, u)), 0.3); }
+    for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2; oscurece(Math.round(ex + 3 + Math.cos(an) * 4), Math.round(ey + 1 + Math.sin(an) * 1.6), 0.4); } }
+  // la tierra pisada delante de los aros, en el punto central, junto al banco y en el paso hacia el baúl
+  calva(40, 120, 26, 3.6, 1); calva(280, 120, 26, 3.6, 2); calva(160, 132, 6, 1.6, 3); calva(254, 166, 13, 3, 4); calva(88, 172, 10, 2.4, 5); calva(120, 147, 5, 1.4, 6);
+  // las líneas de cal de las dos áreas, gastadas a trozos, que solo se pintan sobre la hierba
+  for (const cx of [40, 280]) for (let a = 0; a <= 360; a++) { const an = a / 360 * Math.PI, x = Math.round(cx + Math.cos(an) * 64), y = Math.round(116 + Math.sin(an) * 20);
+    if (x < 0 || x > 319 || hh(x, y, 9) < 0.1) continue; if (verde(R.pget(x, y))) pset(x, y, hh(x, y, 8) < 0.25 ? hex('#b8d8a8') : hex('#e0f0d0')); }
+  // tréboles y margaritas en la hierba de delante, que se mecen
+  for (let k = 0; k < 26; k++) { const fx = Math.floor(hh(k, 1, 40) * 316) + 2, fy = 140 + Math.floor(hh(k, 2, 41) * 38), s = Math.sin(t * 2.2 + fx * 0.08) > 0.6 ? 1 : 0;
+    if (fx > 46 && fx < 86 && fy > 140 && fy < 176) continue; if (fx > 246 && fx < 314 && fy < 166) continue;
+    pset(fx + s, fy - 1, k % 3 ? hex('#f8f8f0') : hex('#f0e070')); pset(fx, fy, hex('#3a7a28')); if (k % 3) pset(fx + s, fy - 2, hex('#e8e0a0')); }
+  // los tepes arrancados por los tacos: un terrón de tierra con su mata y la marca oscura de donde salió
+  for (const [dx, dy] of [[128, 140], [204, 152], [112, 162], [236, 132], [20, 150], [182, 170]]) { rect(dx - 2, dy, dx + 1, dy, hex('#4a3420')); pset(dx + 3, dy - 1, hex('#7a5a34')); pset(dx + 4, dy - 1, hex('#5aa83a')); pset(dx + 4, dy - 2, hex('#8ad05a')); pset(dx + 3, dy, hex('#2e5a1e')); }
+  // los banderines de las esquinas de las áreas, que ondean, y las pisadas que van del baúl al círculo central
+  for (const fx of [104, 216]) { R.rect(fx, 112, fx, 124, hex('#e8e0d0')); R.pset(fx, 112, hex('#e8c040')); for (let x = fx; x <= fx + 2; x++) oscurece(x + 1, 125, 0.4);
+    for (let i = 1; i <= 6; i++) { const ond = Math.round(Math.sin(t * 7 - i * 0.9) * (i / 4)); for (let j = 0; j <= Math.max(0, 4 - Math.floor(i * 0.6)); j++) pset(fx + i, 113 + j + ond, i < 4 ? hex('#c8282e') : hex('#e8b830')); } }
+  for (let k = 0; k < 9; k++) { const u = k / 8, px = Math.round(lerp(86, 132, u)) + (k & 1) * 2, py = Math.round(lerp(158, 138, u)); oscurece(px, py, 0.4); oscurece(px + 1, py, 0.4); }
+  // dos jugadores que entrenan a media distancia: el guardián que vigila los aros de la izquierda y un cazador que da
+  // vueltas con la quaffle bajo el brazo
+  const jinete = (x, y, c, cS, d, k, quaffle) => { x = Math.round(x); y = Math.round(y);
+    linea(x - 8 * d, y + 2, x + 8 * d, y, hex('#5a3a1e')); linea(x - 8 * d, y + 1, x + 8 * d, y - 1, hex('#9a7048'));
+    for (let i = -2; i <= 2; i++) linea(x - 8 * d, y + 1, x - 12 * d, y + 1 + i, i & 1 ? hex('#a8803e') : hex('#d8b070'));
+    const fl = Math.sin(t * 10 + k) > 0 ? 1 : 0;
+    for (let j = 0; j < 4; j++) pset(x - (3 + j) * d, y - 5 + j + fl * (j > 1 ? 1 : 0), cS);   // la capa que ondea
+    rect(x - 2, y - 6, x + 1, y, c); for (let j = -6; j <= 0; j++) pset(x - 2 * d + (d < 0 ? -1 : 0), y + j, cS);
+    pset(x + d, y + 1, hex('#2a2a2a')); pset(x + d, y + 2, hex('#2a2a2a'));   // la bota en el estribo
+    pset(x + 2 * d, y - 3, c); pset(x + 3 * d, y - 2, hex('#f0c8a0'));        // el brazo que agarra el palo
+    rect(x - 1, y - 9, x + 1, y - 7, hex('#f0c8a0')); rect(x - 1, y - 10, x + 1, y - 10, hex('#3a2a1a')); pset(x + d, y - 8, hex('#1a1a1a'));
+    if (quaffle) { disco(x - d, y - 2, 2, hex('#a83222')); pset(x - d - 1, y - 3, hex('#e87a5a')); } };
+  const gx = 40 + Math.sin(t * 1.1) * 13, gy = 84 + Math.sin(t * 2.2) * 2.5;
+  jinete(gx, gy, hex('#b8282e'), hex('#7a1a1e'), Math.cos(t * 1.1) > 0 ? 1 : -1, 0, false);
+  const ca = t * 0.9, cx2 = 226 + Math.cos(ca) * 24, cy2 = 90 + Math.sin(ca) * 7;
+  jinete(cx2, cy2, hex('#b8282e'), hex('#7a1a1e'), -Math.sin(ca) > 0 ? 1 : -1, 2, true);
+};
+// lo que va en la hierba a la altura de los personajes: el baúl abierto, la quaffle, las escobas, las toallas y el cubo
+const campoSuelo = (t) => {
+  const { pset, rect, linea, disco, poligono } = R;
+  // las bludgers se revuelven por turnos: el baúl da un respingo y suelta polvo
+  const tiron = (i) => { const p = (t * 1.25 + i * 0.85) % 1.7; return p < 0.4 ? Math.sin(p / 0.4 * Math.PI) : 0; };
+  const t0 = tiron(0), t1 = tiron(1), sx = Math.round((t0 - t1) * 1.2), X = 50 + sx;
+  for (let x = 46; x <= 84; x++) for (let y = 171; y <= 173; y++) if (((x + y) & 1) || y === 172) oscurece(x, y, y === 172 ? 0.45 : 0.25);
+  // la tapa abierta, apoyada hacia atrás: el forro de terciopelo rojo y el marco de madera
+  poligono([[X + 1, 154], [X + 29, 154], [X + 31, 144], [X - 1, 144]], hex('#2a160c'));
+  poligono([[X + 2, 153], [X + 28, 153], [X + 29, 146], [X + 1, 146]], hex('#8a2030'));
+  for (let y = 147; y <= 152; y += 2) for (let x = X + 3; x <= X + 27; x += 4) pset(x + (y & 2 ? 2 : 0), y, hex('#5a1420'));
+  rect(X, 144, X + 30, 144, hex('#8a5a2a')); for (const hx2 of [X + 5, X + 25]) rect(hx2, 154, hx2 + 1, 155, hex('#9a9aa8'));
+  // la caja por dentro: el forro y sus huecos (el de la snitch, pequeño y dorado, está vacío)
+  rect(X + 1, 155, X + 29, 159, hex('#5a1420')); rect(X + 1, 155, X + 29, 155, hex('#2a0a10'));
+  disco(X + 26, 158, 1.6, hex('#c8a040')); disco(X + 26, 158, 0.8, hex('#2a0a10'));
+  // las dos bludgers (negras, con su brillo) que tiran de las correas de cuero
+  for (const [i, bx] of [[0, X + 8], [1, X + 19]]) { const by = 158 - Math.round((i ? t1 : t0) * 4);
+    disco(bx, by, 3.6, hex('#1e1e24')); disco(bx - 1, by - 1, 2, hex('#3a3a46')); pset(bx - 2, by - 2, hex('#b8b8c8')); pset(bx + 2, by + 2, hex('#0a0a0e'));
+    linea(bx - 5, 160, bx - 1, by - 3, hex('#7a4a24')); linea(bx + 5, 160, bx + 1, by - 3, hex('#7a4a24')); rect(bx - 1, by - 4, bx + 1, by - 3, hex('#c8a040')); }
+  // el frente del baúl: tablas con veta, cantoneras, correas y la cerradura
+  for (let y = 160; y <= 171; y++) for (let x = X; x <= X + 30; x++) { const q = hh(x, y, 31), tb = (y - 160) % 4 === 3;
+    pset(x, y, y === 160 ? hex('#8a5a2a') : y === 171 ? hex('#2a160c') : tb ? hex('#3a2010') : x < X + 3 ? hex('#7a4a22') : q < 0.12 ? hex('#4a2a14') : q > 0.9 ? hex('#7a4a22') : hex('#5a3418')); }
+  for (const kx of [X, X + 28]) { rect(kx, 160, kx + 2, 162, hex('#8a8a98')); rect(kx, 169, kx + 2, 171, hex('#6a6a78')); pset(kx + 1, 161, hex('#d8d8e8')); }
+  for (const kx of [X + 6, X + 23]) rect(kx, 160, kx + 1, 171, hex('#2a1a12'));
+  rect(X + 13, 162, X + 17, 166, hex('#c8a040')); rect(X + 13, 162, X + 17, 162, hex('#f0d070')); pset(X + 15, 164, hex('#3a2a12'));
+  // el polvo que levanta cada respingo
+  for (const [i, f] of [[0, t0], [1, t1]]) if (f > 0.2) for (let k = 0; k < 4; k++) pset(X + (i ? 31 + k * 2 : -1 - k * 2), 170 - Math.round(f * (2 + k)), hex('#c8b890'));
+  // la quaffle en la hierba, con su sombra y sus costuras
+  for (let x = 30; x <= 42; x++) oscurece(x, 175, 0.4); for (let x = 32; x <= 40; x++) oscurece(x, 176, 0.25);
+  disco(36, 171, 4.4, hex('#7a2018')); disco(35.5, 170.5, 3.6, hex('#b83a2a')); disco(34.5, 169.5, 1.5, hex('#e87a5a'));
+  pset(36, 167, hex('#5a1810')); pset(36, 175, hex('#5a1810')); pset(32, 171, hex('#5a1810')); pset(40, 171, hex('#5a1810'));
+  // dos escobas tiradas en la hierba, con su sombra
+  for (const [ex, ey, d] of [[112, 175, 1], [240, 176, -1]]) { for (let x = ex - 2; x <= ex + 24; x++) oscurece(x, ey + 7, 0.35); P.escoba(R, ex, ey, { dir: d }); }
+  // el bate de golpeador que alguien dejó en la hierba, con su sombra
+  for (let x = 138; x <= 156; x++) oscurece(x, 161 + (x > 147 ? 1 : 0), 0.38);
+  R.linea(140, 157, 148, 159, hex('#5a3418')); R.linea(140, 158, 148, 160, hex('#8a5a2a')); rect(148, 158, 155, 160, hex('#8a5a2a')); rect(148, 158, 155, 158, hex('#c8904a')); rect(155, 159, 156, 160, hex('#5a3418')); rect(139, 157, 140, 158, hex('#2a1a12'));
+  // la bolsa de cuero del equipo, abierta, con una toalla que asoma y su cantimplora al lado
+  for (let x = 178; x <= 198; x++) oscurece(x, 171, 0.42);
+  poligono([[179, 170], [181, 162], [195, 162], [197, 170]], hex('#6a3a1a')); rect(181, 162, 195, 163, hex('#9a6a3a')); rect(180, 169, 196, 170, hex('#3a2010'));
+  for (let x = 183; x <= 193; x += 3) pset(x, 166, hex('#4a2810')); R.linea(182, 162, 188, 157, hex('#3a2010')); R.linea(188, 157, 194, 162, hex('#3a2010'));
+  rect(184, 160, 189, 162, hex('#c8282e')); rect(184, 160, 189, 160, hex('#e8b830')); rect(192, 160, 194, 161, hex('#c8c8d0'));
+  rect(200, 165, 202, 170, hex('#8a8a98')); rect(200, 165, 200, 170, hex('#c8c8d8')); rect(200, 164, 202, 164, hex('#3a3a46'));
+  // la toalla a rayas colgada del banco, que el viento mueve, y la otra arrugada en el suelo junto al cubo
+  for (let x = 292; x <= 300; x++) { const lg = 158 + Math.round(Math.sin(t * 3 + x * 0.7) * 1.2); for (let y = 149; y <= lg; y++) pset(x, y, y === 149 ? hex('#f0e8d8') : ((y - 149) >> 1) % 3 === 1 ? hex('#c8282e') : ((y - 149) >> 1) % 3 === 2 ? hex('#e8b830') : x === 300 ? hex('#b8b0a0') : hex('#e8e0d0')); pset(x, lg + 1, (x & 1) ? hex('#c8c0b0') : SOMBRA); }
+  for (let x = 294; x <= 306; x++) oscurece(x, 170, 0.4);
+  poligono([[294, 169], [298, 165], [304, 166], [306, 169]], hex('#e8e0d0')); linea(296, 168, 304, 167, hex('#2a4a8a')); linea(297, 169, 305, 169, hex('#b8b0a0')); pset(300, 166, hex('#ffffff'));
+  // el cubo: el agua que se mece y la esponja
+  for (let x = 305; x <= 311; x++) pset(x, 155, Math.sin(t * 4 + x) > 0.4 ? hex('#c8e0f8') : hex('#5a8ac8'));
+  rect(306, 153, 308, 154, hex('#e8c840')); pset(306, 153, hex('#f8e888'));
+};
+// la brisa delante: briznas y hojas sueltas que cruzan el campo y matas altas que se mecen
+const brisa = (t) => {
+  for (let i = 0; i < 12; i++) { const x = ((t * (34 + i * 3) + i * 41) % 360) - 20, y = 122 + ((i * 23) % 52) + Math.sin(t * 3 + i) * 3, l = Math.sin(t * 6 + i) > 0 ? 1 : 0;
+    R.pset(Math.round(x), Math.round(y), i % 3 ? hex('#a8e070') : hex('#d8c060')); R.pset(Math.round(x) - 1, Math.round(y) + l, i % 3 ? hex('#6ab840') : hex('#a88a3a')); }
+  for (const mx of [8, 66, 140, 196, 258, 314]) { const s = Math.sin(t * 2.4 + mx * 0.05) * 2;
+    for (let j = -2; j <= 2; j++) R.linea(mx + j * 2, 179, Math.round(mx + j * 3 + s), 172 + Math.abs(j), j & 1 ? hex('#3a8a28') : hex('#7ac850')); }
+};
 const p3 = (t) => {
   escondida = null;
   T.exterior(R, t, { encuadre: 'quidditch' });
+  campo(t); campoSuelo(t);
   // Harry y Ron esperan con la escoba; en «Let's find out» Harry sale corriendo detrás de la snitch
   const c = tramo(t, vamos + 0.15, vamos + 1.5), hx = Math.round(lerp(96, 340, c * c)), hy = Math.round(lerp(166, 92, c));
   R.actor(EL.harry, hx, hy, t, { dir: 1, dedo: t > b(0.03) && t < explica + 0.4, sorpresa: t > mira && t < vamos, sonrisa: t > vamos });
@@ -84,6 +204,7 @@ const p3 = (t) => {
   if (t < mira) { const v = tramo(t, P3 + 0.2, mira), sx = lerp(110, 144, v) + Math.sin(t * 5) * 14, sy = lerp(96, 124, v) + Math.sin(t * 9) * 4; T.snitch(R, sx, sy, t, { cara: 'feliz' }); }
   else if (t < vamos + 0.2) escondida = (x, y) => { const asoma = Math.sin((t - mira) * 2.4) > 0.55 ? 13 : 3; T.snitch(R, x + asoma, y + 5, t, { cara: 'susto' }); };
   else { const v = tramo(t, vamos + 0.2, vamos + 1.2); T.snitch(R, lerp(176, 340, v), lerp(128, 96, v) + Math.sin(t * 12) * 4, t, { cara: 'feliz' }); }
+  brisa(t);
   T.exteriorDelante(R, t, { encuadre: 'quidditch' });
 };
 const efectos = [[nuevo, 'brillo'], [quien, 'pop'], [corto, 'brillo'], [pistas - 0.05, 'golpecito'], [noSe, 'boing'],

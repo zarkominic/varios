@@ -16,9 +16,10 @@
 // 2. la mesa de cerca: Hermione lee el pergamino; en «seven» salen los números del 1 al 7 sobre las botellas; en «without
 //    a wand» deja la varita en la mesa (con su «X»); piensa (la luz va de botella en botella) y en «logic» señala la
 //    pequeña, que brilla; Harry sonríe; corta en «Oh»;
-// 3. la sala del espejo: Harry llega y se mira; en el cristal, su reflejo; en «green eyes» un destello verde en los ojos
-//    del reflejo (no en Harry) y en «mother» aparece detrás de él, en el espejo, una mujer pelirroja que le pone la mano
-//    en el hombro; Harry sonríe.
+// 3. la sala del espejo: Harry entra por la izquierda y se para delante del espejo, centrado con el marco (x 154), a
+//    mirarlo; su reflejo entra en el cristal con él, a su misma x y escala, vuelto hacia él; en «green eyes» un destello
+//    verde en los ojos del reflejo (no en Harry) y en «mother» llega por detrás del reflejo, en el espejo, una mujer
+//    pelirroja que le pone la mano en el hombro; Harry y el reflejo sonríen.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-pociones');
@@ -91,22 +92,25 @@ const p2 = (t) => {
 };
 
 // 3 · el espejo: el reflejo, el destello verde y la madre
+// Harry entra desde la izquierda y se para delante del espejo, centrado con el marco (cristal 132–188): su x en cada t
+const harryX = (t) => Math.round(lerp(-16, 154, tramo(t, P3 + 0.1, DETALLE)));
 const reflejo = (t) => (R2, tt, [x0, y0, x1, y1]) => {
-  const cx = (x0 + x1) >> 1, pie = y1 - 4;
+  const pie = y1 - 4, rx = harryX(t), anda = t > P3 + 0.1 && t < DETALLE;
+  // la madre llega por detrás del reflejo (más arriba = más al fondo) y le pone la mano en el hombro
   const m = tramo(t, MADRE - 0.6, MADRE + 0.3);
-  if (m > 0) { const mx = Math.round(lerp(x1 + 4, cx - 2, m)); halo(mx + 7, pie - 16, 14, hex('#fff0d0'), 0.25 * m); R.actor(EL.vecina, mx, pie - 4, t, { dir: -1, pal: { H: hex('#c0401a'), h: hex('#e0602a'), C: hex('#5a7a4a'), c: hex('#3e5a34') }, sonrisa: true, sostiene: m >= 1 ? [cx - 4, pie - 16] : false }); }
-  const llega = tramo(t, P3 + 0.2, DETALLE);
-  if (llega > 0.3) R.actor(EL.harry, cx - 9, pie, t, { dir: -1, sonrisa: t > MADRE });
+  if (m > 0) { const mx = Math.round(lerp(x1 + 4, rx + 8, m)); halo(mx + 7, pie - 18, 14, hex('#fff0d0'), 0.25 * m); R.actor(EL.vecina, mx, pie - 3, t, { dir: -1, pal: { H: hex('#c0401a'), h: hex('#e0602a'), C: hex('#5a7a4a'), c: hex('#3e5a34') }, sonrisa: true, sostiene: m >= 1 ? [rx + 6, pie - 16] : false }); }
+  // el reflejo de Harry: su misma x y su misma escala, mirando hacia él (al revés); entra en el cristal con él
+  if (rx > x0 - 16) R.actor(EL.harry, rx, pie, t, { dir: -1, anda, sorpresa: t > VERDES - 0.1 && t < VERDES + 0.7, sonrisa: t > MADRE });
   // el destello verde en los ojos del reflejo
   const v = campana(t, VERDES - 0.1, VERDES + 1.3);
-  if (v > 0) { halo(cx - 2, pie - 19, 12, hex('#5aff7a'), 0.6 * v); for (let k = 0; k < 4; k++) { const an = k * Math.PI / 2 + tt * 2; R.pset(Math.round(cx - 3 + Math.cos(an) * (6 + 3 * v)), Math.round(pie - 19 + Math.sin(an) * (6 + 3 * v)), hex('#b8ffc8')); } brilla(cx + 6, pie - 26, tt, hex('#9affb0'), 3); }
+  if (v > 0) { halo(rx + 5, pie - 19, 12, hex('#5aff7a'), 0.6 * v); for (let k = 0; k < 4; k++) { const an = k * Math.PI / 2 + tt * 2; R.pset(Math.round(rx + 4 + Math.cos(an) * (6 + 3 * v)), Math.round(pie - 19 + Math.sin(an) * (6 + 3 * v)), hex('#b8ffc8')); } brilla(rx + 13, pie - 26, tt, hex('#9affb0'), 3); }
 };
 const p3 = (t) => {
   const o = { encuadre: 'espejo', reflejo: reflejo(t) };
   T.hogwarts(R, t, o);
-  // Harry entra desde la izquierda y se para junto al espejo a mirarse
-  const u = tramo(t, P3 + 0.1, DETALLE), x = Math.round(lerp(-16, 100, u));
-  R.actor(EL.harry, x, 166, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > VERDES - 0.1 && t < VERDES + 0.7, sonrisa: t > MADRE, dedo: t > HARRY && t < VERDES - 0.1 });
+  // Harry, delante del espejo y mirándolo; señala el reflejo antes del destello
+  const x = harryX(t);
+  R.actor(EL.harry, x, 166, t, { dir: 1, anda: t > P3 + 0.1 && t < DETALLE, sorpresa: t > VERDES - 0.1 && t < VERDES + 0.7, sonrisa: t > MADRE, dedo: t > HARRY && t < VERDES - 0.1 });
   T.hogwartsDelante(R, t, o);
 };
 
