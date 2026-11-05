@@ -66,24 +66,26 @@ function pelicula(x0, y0, x1, y1, A = 26, fase = 0) {
   }
 }
 
+// el visor de la moviola: la luz cálida del fotograma vacío (la escena que ya no está), sin contador
+const visor = (R, t, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const d = Math.hypot((x - (x0 + x1) / 2) / (x1 - x0), (y - (y0 + y1) / 2) / (y1 - y0)); R.pset(x, y, mezcla(hex('#f4e6c4'), hex('#a8906a'), Math.max(0, 1 - d * 1.6))); } };
 const dibujar = (t) => {
   // la moviola de cerca, en penumbra (velada hacia el violeta de la noche) para que lo de delante salte
-  T.hoy(R, t, { encuadre: 'montaje', camara: 'moviola' }); T.hoyDelante(R, t, { encuadre: 'montaje', camara: 'moviola' });
+  T.hoy(R, t, { encuadre: 'montaje', camara: 'moviola', pantalla: visor }); T.hoyDelante(R, t, { encuadre: 'montaje', camara: 'moviola' });
   for (let k = 0; k < 57600; k++) R.buf[k] = mezcla(hex('#0c0a22'), R.buf[k], 0.45);
   // un foco suave detrás de las tijeras y de Peeves
-  R.halo(166, 62, 46, [hex('#2a2450'), hex('#3a3470')], 0.6);
+  R.halo(164, 84, 50, [hex('#2a2450'), hex('#3a3470')], 0.6);
 
   // la tira de película sale del visor por la izquierda y las tijeras la cortan (una hoja detrás y otra delante)
-  tijeras(170, 20, Math.PI / 2 + 0.12, 0.6, 52, [-1]);
-  pelicula(96, 50, 172, 56, 22, 3);
-  tijeras(170, 20, Math.PI / 2 + 0.12, 0.6, 52, [1]);
+  tijeras(166, 44, Math.PI / 2 + 0.12, 0.6, 50, [-1]);
+  pelicula(96, 70, 166, 76, 22, 3);
+  tijeras(166, 44, Math.PI / 2 + 0.12, 0.6, 50, [1]);
   // el trozo cortado cae girado
   R.usar(pj); pj.fill(VACIO); pelicula(30, 120, 56, 120, 22, 8); R.usar(null);
-  ponGiro(pj, 29, 57, 108, 132, 190, 92, 1, 0.5);
+  ponGiro(pj, 29, 57, 108, 132, 194, 108, 1, 0.5);
 
   // Peeves al doble cayendo (recto): las rayas de la caída por encima y él con la boca abierta de susto
-  const PX = 136, PY = 104;
-  for (const [x0, y0, l] of [[142, 82, 16], [152, 76, 20], [166, 80, 14], [176, 86, 10]]) { R.rect(x0, y0, x0, y0 + l, hex('#8a7ac8')); R.pset(x0, y0 + l + 2, hex('#8a7ac8')); }
+  const PX = 138, PY = 110;
+  for (const [x0, y0, l] of [[144, 92, 12], [154, 86, 16], [168, 90, 12], [178, 96, 8]]) { R.rect(x0, y0, x0, y0 + l, hex('#b8acf0')); R.rect(x0, y0 + l + 2, x0, y0 + l + 3, hex('#b8acf0')); }
   R.usar(pj); pj.fill(VACIO); R.actor(EL.peeves, 20, 70, 0.5, { dir: 1, quieto: true, opaco: true, sorpresa: true }); R.usar(tmp); tmp.fill(VACIO);
   pon(pj, 18, 36, 38, 70, PX, PY, 2); contorno(tmp, 1, hex('#f6e6b8')); R.usar(null); vuelca(tmp);
 };
