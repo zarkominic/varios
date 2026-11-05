@@ -3646,16 +3646,16 @@ Object.assign(TOCADOS, {
     '.kDDDDDDDDDDk..',
     '.kkkkkkkkkkkk..',
   ], -1],
-  // el píleo romano de las Saturnales: gorro de fieltro (J/j) en punta redondeada
+  // el píleo romano de las Saturnales: gorro de fieltro (J/j) sin ala, en cúpula ajustada a la cabeza
   pileo: [[
-    '......kk.......',
-    '.....kJJk......',
-    '....kJJJJk.....',
-    '...kJJJJjJk....',
+    '.....kkkk......',
+    '...kkJJJJkk....',
+    '..kJJJJJJjJk...',
     '..kJJjJJJJJk...',
     '.kJJJJJJJJJJk..',
+    '.kjjjjjjjjjjk..',
     '.kkkkkkkkkkkk..',
-  ], -5],
+  ], -4],
   // el gorro de papel doblado del impresor (X/x)
   gorroPapel: [[
     '...kkkkkkkk....',
@@ -3692,14 +3692,14 @@ Object.assign(TOCADOS, {
     '..kJJk.........',
     '...kk..........',
   ], -1],
-  // el manto azul de María (A/a con el velo blanco W): cae por detrás hasta los hombros, la cara entera
+  // el manto azul de María (A con el ribete a): cae por detrás hasta los hombros, la cara entera
   manto: [[
     '...kkkkkkkk....',
     '..kAAAAAAAAk...',
     '.kAAaAAAAAAAk..',
     'kAAAAAAAAAAAAk.',
-    'kAAAAWWWWWWWWk.',
-    'kAAAkkkkkkkkkk.',
+    'kAAAAAAAAAAAAk.',
+    'kAAAkaaaaaaaak.',
     'kAAAk..........',
     'kAaAk..........',
     'kAAAk..........',
@@ -3732,12 +3732,12 @@ Object.assign(TOCADOS, {
   ], -3],
   // los cuernos del Krampus (J/j): suben y se abren hacia fuera desde lo alto de la cabeza
   cuernosK: [[
-    'k...........k..',
-    'kjk........kjk.',
-    '.kJk......kJk..',
-    '.kJJk....kJJk..',
-    '..kJJk..kJJk...',
-    '...kJJkkJJk....',
+    'kk.........kk..',
+    'kjk.......kjk..',
+    'kJjk.....kjJk..',
+    '.kJJk...kJJk...',
+    '.kJJJk.kJJJk...',
+    '..kJJJkJJJk....',
   ], -5],
   // el casco de obra (J/j): los obreros que vuelven a levantar la cabra de Gävle
   cascoObra: [[
@@ -3776,20 +3776,20 @@ const CAB_KRAMPUS_NV = [
 
 // ── cuerpos ──
 // Santa barrigón: traje (C/c) con el ribete de piel blanca (W), cinturón (G) con hebilla (O) y botas (n)
-const CUERPO_SANTA_NV = [
-  '...kkWWWWWkk...',
-  '..kCCCCWCCCCk..',
-  '.kCkCCCWCCCkCk.',
-  '.kCkCCCWCCCkCk.',
-  '.kWkCCCWCCCkWk.',
-  '.kSkGGGOGGGkSk.',
-  '.kkCCCCWCCCCkk.',
-  '.kCCCCCWCCCCCk.',
-  '..kWWWWWWWWWk..',
-  '...kCCCkCCCk...',
-  '...knnnknnnk...',
-  '..knnnnknnnnk..',
-  '..kkkkkkkkkkk..',
+const CUERPO_SANTA_NV = [   // 17 de ancho (dxCuerpo −1): la barriga sale por los lados
+  '....kkWWWWWkk....',
+  '...kCCCCWCCCCk...',
+  '.kCkCCCCWCCCCkCk.',
+  '.kCkCCCCWCCCCkCk.',
+  '.kWkCCCCWCCCCkWk.',
+  '.kSkGGGGOGGGGkSk.',
+  '.kkCCCCCWCCCCCkk.',
+  'kCCCCCCCWCCCCCCCk',
+  'kcCCCCCCWCCCCCCck',
+  '.kWWWWWWWWWWWWWk.',
+  '....knnnknnnk....',
+  '...knnnnknnnnk...',
+  '...kkkkkkkkkkk...',
 ];
 // Santa delgado (el de 1823 y los primeros de Nast): abrigo largo de piel con el ribete blanco
 const CUERPO_SANTA_FLACO_NV = [
@@ -4141,7 +4141,7 @@ export const ELENCO_NV = {
   nast: { ...B22, cab: CAB_BARBA, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#2a1c14'), delante: conLapizNV, pal: CLN({ H: '#3a2a1c', h: '#5a4230', C: '#7a2a32', c: '#561c24', W: '#f2eee2', o: '#c8a040', F: '#3a3a44' }) },
   // Santa: barba blanca, gorro con borla y el traje (o.traje: 'rojo' | 'verde' | 'marron' | 'azul'): barrigón (el de
   // 1931 en adelante), delgado (el de los primeros grabados) y elfo (el «viejo elfo» pequeño del poema de 1823)
-  santa: { ...B_SANTA, cuerpo: CUERPO_SANTA_NV, pal: CLN(SANTA_PAL) },
+  santa: { ...B_SANTA, cuerpo: CUERPO_SANTA_NV, dxCuerpo: -1, brazoCol: 13, pal: CLN(SANTA_PAL) },
   santaDelgado: { ...B_SANTA, cuerpo: CUERPO_SANTA_FLACO_NV, pal: CLN(SANTA_PAL) },
   santaElfo: { ...B_SANTA, cuerpo: CUERPO_SANTA_ELFO_NV, altoCuerpo: 10, pal: CLN(SANTA_PAL) },
   // la reina Victoria (1848): pelo oscuro recogido con moño, vestido de gala marfil con la banda azul y la corona
@@ -4281,9 +4281,9 @@ const galletaNV = (R, x, y, o = {}) => {
   px(5, 5, 'k'); px(6, 6, 'k'); px(7, 6, 'k'); px(8, 5, 'k');
 };
 // la multa: papel (X) con el «5» grande, una línea de texto falsa (x, sin letras) y el sello rojo; o.mini, la diminuta
-// del gag (7 × 8)
+// del gag (9 × 9)
 const MULTA_NV = ['kkkkkkkkkkk', 'kXXXXXXXXXk', 'kXxxxxxxxXk', 'kXXXXXXXXXk', 'kXXXkkkXXXk', 'kXXXkXXXXXk', 'kXXXkkkXXXk', 'kXXXXXkXXXk', 'kXXXkkkXXXk', 'kXXXXXXXXXk', 'kXxxxxXRRXk', 'kXXXXXXRRXk', 'kkkkkkkkkkk'];
-const MULTA_MINI_NV = ['kkkkkkk', 'kXkkkXk', 'kXkXXXk', 'kXkkkXk', 'kXXXkXk', 'kXkkkXk', 'kXXXRXk', 'kkkkkkk'];
+const MULTA_MINI_NV = ['kkkkkkkkk', 'kXXXXXXXk', 'kXXkkkXXk', 'kXXkXXXXk', 'kXXkkkXXk', 'kXXXXkXXk', 'kXXkkkXXk', 'kXXXXXXRk', 'kkkkkkkkk'];
 const multaNV = (R, x, y, o = {}) => pintaNV(R, o.mini ? MULTA_MINI_NV : MULTA_NV, x, y, o);
 // el acebo: dos hojas con pinchos (V/v) y tres bayas rojas (R)
 const ACEBO_NV = ['.k.k...k.k.', 'kVkVk.kVkVk', '.kVVVkVVVk.', 'kVvVVRVVvVk', '.kVVRRRVVk.', 'kVkVkRkVkVk', '.k.k.k.k.k.'];
@@ -4297,13 +4297,12 @@ const CORONA_ACEBO_NV = forma(21, 21, ({ disco, put, rect }) => {
   rect(8, 15, 12, 17, 'R'); put(7, 16, 'R'); put(13, 16, 'R'); rect(5, 14, 7, 18, 'R'); rect(13, 14, 15, 18, 'R'); put(10, 16, 'r'); put(9, 18, 'R'); put(8, 19, 'R'); put(11, 18, 'R'); put(12, 19, 'R');
 });
 const coronaAceboNV = (R, x, y, o = {}) => pintaNV(R, CORONA_ACEBO_NV, x, y, o);
-// el muérdago colgado de su cinta roja: ramitas (b), hojas alargadas verde claro (l/V) y bayas blancas (C)
-const MUERDAGO_NV = forma(13, 14, ({ rect, linea, put }) => {
-  rect(6, 0, 6, 3, 'R'); put(5, 2, 'R'); put(7, 2, 'R'); put(4, 1, 'R'); put(8, 1, 'R');
-  linea(6, 4, 6, 8, 'b'); linea(6, 6, 3, 9, 'b'); linea(6, 6, 9, 9, 'b');
-  for (const [a, b, c2, d] of [[3, 9, 1, 12], [4, 9, 2, 12], [9, 9, 11, 12], [8, 9, 10, 12], [6, 8, 5, 11], [6, 8, 7, 11]]) linea(a, b, c2, d, 'l');
-  put(1, 12, 'V'); put(11, 12, 'V'); put(5, 11, 'V'); put(7, 11, 'V');
-  for (const [a, b] of [[4, 8], [8, 8], [6, 9], [5, 10], [7, 10], [3, 10], [9, 10]]) put(a, b, 'C');
+// el muérdago colgado de su cinta roja: ramitas (b), hojas en V verde claro (l/V) y bayas blancas (C)
+const MUERDAGO_NV = forma(15, 15, ({ rect, linea, put }) => {
+  rect(7, 0, 7, 3, 'R'); put(6, 1, 'R'); put(8, 1, 'R'); put(5, 0, 'R'); put(9, 0, 'R');
+  linea(7, 4, 7, 7, 'b'); linea(7, 6, 3, 9, 'b'); linea(7, 6, 11, 9, 'b');
+  for (const [a, b, sx] of [[3, 9, -1], [11, 9, 1], [7, 7, 0]]) { for (const d of [0, 1]) { linea(a, b, a - 2 + (sx || -1) * 0 - d, b + 3, 'l'); linea(a, b, a + 2 + d, b + 3, 'l'); } put(a - 2, b + 3, 'V'); put(a + 2, b + 3, 'V'); }
+  for (const [a, b] of [[3, 10], [11, 10], [7, 8], [3, 12], [11, 12], [7, 11], [7, 13], [2, 13], [12, 13]]) put(a, b, 'C');
 });
 const muerdagoNV = (R, x, y, o = {}) => pintaNV(R, MUERDAGO_NV, x, y, o);
 // la baya blanca del muérdago (la que le cae en la cabeza a la galleta)
@@ -4324,24 +4323,25 @@ const SANTITA_NV = ['..kkk..', '.kRRRk.', 'kWkRRRk', '.kWWWWk', '.kHSkSk', '.kHH
 const SACO_NV = ['.kkk.', 'kLbLk', 'kLLLk', 'kLLbk', '.kkk.'];
 const RENO_NV = {};
 for (const f of [0, 1]) RENO_NV[f] = forma(16, 15, ({ rect, linea, put }) => {
-  linea(11, 3, 10, 0, 'b'); linea(10, 1, 8, 0, 'b'); linea(12, 3, 13, 0, 'b'); put(14, 1, 'b');
+  linea(11, 3, 9, 0, 'c'); put(8, 1, 'c'); linea(12, 3, 13, 0, 'c'); put(14, 1, 'c');
   rect(11, 4, 13, 6, 'M'); put(14, 5, 'M'); put(15, 5, 'n');
   rect(9, 5, 11, 8, 'M'); rect(2, 7, 11, 10, 'M'); rect(3, 10, 10, 10, 'n'); put(1, 7, 'X'); put(1, 8, 'W');
   rect(9, 8, 10, 8, 'R'); put(10, 9, 'O');
   if (f === 0) { linea(9, 11, 12, 13, 'M'); linea(10, 11, 13, 13, 'n'); linea(4, 11, 1, 13, 'M'); linea(3, 11, 0, 13, 'n'); }
   else { linea(9, 11, 8, 14, 'M'); linea(10, 11, 10, 14, 'n'); linea(4, 11, 4, 14, 'M'); linea(3, 11, 2, 14, 'n'); }
 });
+const RENO_ATRAS_NV = { ...PAL_NV, ...COLORES({ M: '#7a5230', n: '#4e321a', c: '#b8a888', X: '#c8c0b0', W: '#c8c0b0' }) };
 const trineoNV = (R, x, y, o = {}) => {
-  const n = Math.max(1, Math.min(8, o.renos ?? 8)), pares = Math.ceil(n / 2), t = o.t ?? 0, W = 26 + 4 + pares * 15, H = 17;
+  const n = Math.max(1, Math.min(8, o.renos ?? 8)), pares = Math.ceil(n / 2), t = o.t ?? 0, W = 26 + 4 + pares * 18, H = 18;
   const sub = subNV(R, W, H, x, y, o);
   // las riendas, por detrás de todo
-  for (let i = 20; i < 26 + 4 + pares * 15 - 6; i++) sub(['k'], i, 8);
-  if (o.santa !== false) { sub(SACO_NV, 1, 0); sub(SANTITA_NV, 9, 0); }
-  sub(TRINEO_NV, 0, 3);
+  for (let i = 20; i < W - 6; i++) sub(['k'], i, 9);
+  if (o.santa !== false) { sub(SACO_NV, 1, 1); sub(SANTITA_NV, 9, 1); }
+  sub(TRINEO_NV, 0, 4);
   for (let p = pares - 1; p >= 0; p--) {
-    const i0 = 28 + p * 15, f = (Math.floor(t * 8) + p) % 2;
-    if (2 * p + 1 < n) sub(RENO_NV[1 - f], i0 + 2, 0);   // el de atrás de la pareja
-    sub(RENO_NV[f], i0, 2);
+    const i0 = 28 + p * 18, f = (Math.floor(t * 8) + p) % 2;
+    if (2 * p + 1 < n) sub(RENO_NV[1 - f], i0 + 4, 0, RENO_ATRAS_NV);   // el de atrás de la pareja, más oscuro
+    sub(RENO_NV[f], i0, 3);
   }
 };
 // EL TIÓ: un tronco (B/b) tumbado sobre dos patitas, con la cara sonriente pintada en el corte (T/t), la barretina roja
@@ -4366,7 +4366,7 @@ const tioNV = (R, x, y, o = {}) => {
 const CABRA_NV = forma(30, 30, ({ rect, disco, linea, put }) => {
   rect(5, 12, 21, 19, 'T'); disco(6, 15, 4, 'T'); disco(20, 15, 4, 'T');
   rect(19, 6, 23, 14, 'T'); rect(21, 4, 26, 9, 'T'); put(27, 7, 'T'); put(27, 8, 'T');
-  linea(22, 4, 18, 0, 't'); linea(23, 4, 19, 0, 't'); linea(24, 4, 21, 1, 't'); put(17, 1, 't'); put(17, 2, 't'); put(18, 3, 't');
+  linea(22, 4, 19, 0, 't'); linea(21, 4, 18, 0, 't'); linea(18, 0, 15, 1, 't'); linea(18, 1, 15, 2, 't'); linea(15, 2, 15, 5, 't'); linea(16, 2, 16, 4, 't');
   put(20, 5, 'T'); put(19, 5, 'T');
   for (const i of [6, 10, 16, 20]) rect(i, 20, i + 2, 28, 'T');
   linea(2, 12, 0, 10, 't'); linea(3, 12, 1, 10, 't');
@@ -4374,7 +4374,7 @@ const CABRA_NV = forma(30, 30, ({ rect, disco, linea, put }) => {
   for (let j = 6; j < 13; j += 2) put(21, j, 't');
   rect(19, 12, 23, 13, 'R'); put(18, 13, 'R'); put(24, 13, 'R'); put(17, 14, 'R'); put(25, 14, 'R');
   for (const i of [6, 10, 16, 20]) rect(i, 25, i + 2, 25, 'R');
-  rect(19, 3, 20, 3, 'R'); put(0, 10, 'R'); put(1, 10, 'R');
+  put(15, 5, 'R'); put(16, 4, 'R'); put(0, 10, 'R'); put(1, 10, 'R');
   put(27, 9, 't'); put(26, 10, 't');
 });
 const cabraNV = (R, x, y, o = {}) => { pintaNV(R, CABRA_NV, x, y, o); const px = encimaNV(R, 30, 30, x, y, o); px(24, 6, 'k'); };
@@ -4402,7 +4402,7 @@ const PINATA_NV = forma(29, 31, ({ put, disco, linea }) => {
     const an = -Math.PI / 2 + (k + 0.5) * 2 * Math.PI / 7, tx = cx + Math.cos(an) * 12.5, ty = cy + Math.sin(an) * 12.5;
     for (let j = 0; j < 31; j++) for (let i = 0; i < 29; i++) {
       const vx = i - cx, vy = j - cy, along = vx * Math.cos(an) + vy * Math.sin(an), perp = Math.abs(-vx * Math.sin(an) + vy * Math.cos(an));
-      if (along > 3 && along < 12 && perp < (12 - along) * 0.32 + 0.4) put(i, j, cols[k]);
+      if (along > 3 && along < 12.4 && perp < (12.4 - along) * 0.36 + 0.5) put(i, j, cols[k]);
     }
     put(tx, ty, cols[(k + 3) % 7]); put(tx + Math.cos(an), ty + Math.sin(an), cols[(k + 3) % 7]);
   }
@@ -4422,7 +4422,8 @@ const florNV = (R, x, y, o = {}) => pintaNV(R, FLOR_NV, x, y, o);
 const CUBETA_NV = forma(13, 14, ({ put, disco }) => {
   for (let j = 5; j <= 12; j++) { const m = Math.round((j - 5) / 7); for (let i = 1 + m; i <= 11 - m; i++) put(i, j, Math.floor((i - 1) / 2) % 2 ? 'W' : 'R'); }
   for (let i = 1; i <= 11; i++) put(i, 5, 'W');
-  disco(4, 3.5, 2, 'B'); disco(8, 2.5, 2.3, 'B'); disco(10.5, 4, 1.4, 'B'); put(3, 3, 'b'); put(8, 2, 'b'); put(9, 4, 'b'); put(5, 4, 'T'); put(7, 1, 'T');
+  disco(3.5, 3.5, 2, 'B'); disco(9, 3, 2.2, 'B'); put(6, 1, 'X'); put(6, 2, 'X'); put(5, 3, 'B'); put(6, 3, 'B'); put(7, 3, 'B'); put(6, 4, 'B'); put(12, 2, 'X'); put(11, 3, 'B');
+  put(3, 3, 'b'); put(9, 2, 'b'); put(8, 4, 'b'); put(4, 2, 'T'); put(10, 2, 'T'); put(6, 3, 'b');
 });
 const cubetaNV = (R, x, y, o = {}) => pintaNV(R, CUBETA_NV, x, y, o);
 // la botella de refresco SIN etiqueta: cristal oscuro con brillo (E) y chapa (Z)
@@ -4464,12 +4465,12 @@ const velaNV = (R, x, y, o = {}) => {
   const on = Math.sin((o.t ?? 0) * 11 + x) > 0, cera = o.color === 'roja' ? 'R' : 'X', sombra = o.color === 'roja' ? 'r' : 'x';
   pintaNV(R, [on ? '.o.' : '..o', on ? 'oYo' : '.oY', '.y.', '.k.', `k${cera}k`, `k${cera}k`, `k${cera}k`, `k${sombra}k`, 'kkk'], x, y, o);
 };
-// el zapato de cuero (B/b) junto a la ventana o junto a la puerta; o.asoma: la galleta asoma la cabeza por dentro
-const ZAPATO_NV = ['.kkkk........', 'kBddBk.......', 'kBddBBkk.....', 'kBBBBBBBkk...', 'kBBBBBBBBBkk.', 'kBBBBBBBBBBBk', 'kbbbbbbbbbbbk', 'kkkkkkkkkkkkk'];
+// el zapato de cuero oscuro (b/d) con cordones, junto a la ventana o la puerta; o.asoma: la galleta asoma la cabeza
+// (con los ojos) por dentro
+const ZAPATO_NV = ['.kkkk..........', 'kbKKbk.........', 'kbKKbbkk.......', 'kbbbbbbbkk.....', 'kbbbbbXbXbkk...', 'kbbbbbbbbbbbk..', 'kbbbbbbbbbbbbk.', 'kdddddddddddddk', 'kkkkkkkkkkkkkkk'];
 const zapatoNV = (R, x, y, o = {}) => {
-  if (o.asoma) subNV(R, 13, 8, x, y, o)(['.kkkkk.', 'kJJJJJk', 'kJkJkJk', 'kJkJkJk', 'kJJJJJk'], -1, -4);
+  if (o.asoma) { const sub = subNV(R, 15, 9, x, y, o); sub(['..kkkkk..', '.kJJJJJk.', 'kJiJJJJJk', 'kJkJJJkJk', 'kJkJJJkJk', 'kJJkJkJJk', 'kJJJkJJJk', 'kJJJJJJJk'], -2, -7); sub(['.k.', 'kWk', 'kJk'], -2, -1); sub(['.k.', 'kWk', 'kJk'], 4, -1); }
   pintaNV(R, ZAPATO_NV, x, y, o);
-  if (o.asoma) { const px = encimaNV(R, 13, 8, x, y, o); px(1, 0, 'k'); px(4, 0, 'k'); px(2, 1, 'J'); px(3, 1, 'J'); }
 };
 // las monedas de oro apiladas (O/g)
 const MONEDAS_NV = ['.kkkkk.....', 'kOoOOOk....', 'kgggggk....', 'kOOOOOk....', 'kgggggk.kkk', 'kOOOOOkkOok', 'kgggggkkOgk', '.kkkkk..kk.'];
