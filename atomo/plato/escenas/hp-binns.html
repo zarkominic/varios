@@ -12,12 +12,14 @@
 // HP-BINNS (frase 18), 1991, sin cartela. Tres planos:
 // 1. la pizarra del aula: suena la campana y, en «classes begin», entran Harry, Ron y Neville; Hermione señala; un
 //    borrador vuela solo, limpia un trozo y la tiza dibuja un rollo de película que tacha con una X en «never appears in
-//    the movies»; una lechuza se posa fuera de la ventana, mira la clase y se va al tachar; corta en «History»;
+//    the movies»; una lechuza se posa fuera de la ventana, mira la clase y se va al tachar (aleteo); corta en «History»;
 // 2. la sala común junto al fuego, «Professor Binns»: el viejo profesor lee en la butaca con su manta y pasa la página;
-//    una alumna baja por la escalera de caracol y se para junto al ajedrez (que juega solo); él se duerme en «fell asleep»
+//    una alumna baja por la escalera de caracol y se para junto al ajedrez (que juega solo); un tronco chasca (chispas y
+//    una brasa que salta; él da un respingo); él se duerme en «fell asleep»
 //    (el libro cae sobre la manta, zetas, la alumna sonríe), el fuego chisporrotea en «fire» y en «got up» su fantasma se
 //    levanta y lo deja durmiendo (la alumna se asusta);
-// 3. el aula con pupitres: el fantasma sale de la pared junto a la chimenea en «without his body», flota hasta la mesa y
+// 3. el aula con pupitres: el fantasma sale de la pared junto a la chimenea (deja una neblina fría que se desvanece) en
+//    «without his body», flota hasta la mesa y
 //    da clase en «kept teaching»; los alumnos se duermen uno a uno (cabezazo, zetas) salvo Hermione, que toma apuntes.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -88,9 +90,14 @@ const p2 = (t) => {
   // chispas del fuego en «fire»
   const f = tramo(t, FIRE - 0.2, FIRE + 1.0);
   if (f > 0 && f < 1) for (let i = 0; i < 12; i++) { const u = (f * 1.4 + i / 12) % 1; R.pset(Math.round(96 + i * 3 + Math.sin(u * 9 + i) * 4), Math.round(108 - u * 34), u < 0.5 ? hex('#fff0a0') : hex('#f08020')); }
-  const duerme = t > ASLEEP - 0.1, cae = tramo(t, ASLEEP - 0.3, ASLEEP + 0.2);
+  // un tronco que chasca antes de que se duerma: un chorro de chispas y una brasa que salta a la defensa del hogar
+  const CHASCA = P2 + 2.45, ch = tramo(t, CHASCA, CHASCA + 0.7);
+  if (ch > 0 && ch < 1) { for (let i = 0; i < 16; i++) { const a = -Math.PI / 2 + (i / 15 - 0.5) * 1.5, r = 6 + ch * (26 + (i * 7) % 12), yy = 100 + Math.sin(a) * r + ch * ch * 14, xx = Math.round(110 + Math.cos(a) * r);
+      if (((i + Math.floor(t * 20)) % 5) !== 0) { const c = ch < 0.5 ? hex('#fffad0') : hex('#ffb040'); R.rect(xx, Math.round(yy), xx + (i % 2), Math.round(yy) + 1, c); } }
+    const bx = Math.round(lerp(114, 132, ch)), by = Math.round(112 - Math.sin(Math.PI * ch) * 14 + ch * 30); R.rect(bx, by, bx + 1, by + 1, hex('#ff7a2a')); R.pset(bx, by, hex('#fff0a0')); }
+  const duerme = t > ASLEEP - 0.1, cae = tramo(t, ASLEEP - 0.3, ASLEEP + 0.2), respingo = t > CHASCA && t < CHASCA + 0.6;
   // el cuerpo, que sigue dormido en la butaca
-  const cuerpo = R.actor(EL.binns, 178, 141, t, { dir: -1, opaco: true, parpadea: duerme, sonrisa: !duerme, sostiene: [168, Math.round(lerp(122, 130, cae))] });
+  const cuerpo = R.actor(EL.binns, 178, 141, t, { dir: -1, opaco: true, parpadea: duerme, sonrisa: !duerme && !respingo, sorpresa: respingo, sostiene: [168, Math.round(lerp(122, 130, cae))] });
   // la manta de cuadros sobre las rodillas
   for (let y = 129; y <= 141; y++) for (let x = 172; x <= 194; x++) { const c = (Math.floor(x / 3) + Math.floor(y / 3)) % 2 ? hex('#3a6a4a') : hex('#a83a3a'); R.pset(x, y, (x % 6 === 0 || y % 6 === 0) ? hex('#e8c860') : c); }
   R.rect(171, 128, 195, 128, K); R.rect(171, 128, 171, 141, K);
@@ -127,6 +134,9 @@ const p3 = (t) => {
   const sal = tramo(t, P3 + 0.05, P3 + 0.9), va = tramo(t, P3 + 0.9, TEACH - 0.25);
   const gx = Math.round(sal < 1 ? lerp(40, 92, sal) : lerp(92, 153, va)), gy = Math.round(sal < 1 ? 110 : lerp(110, 124, va));
   halo(gx + 7, gy - 13, 20, 0.4);
+  // la neblina fría que deja al atravesar la pared: bocanadas que se abren y se desvanecen
+  const nb = tramo(t, P3 + 0.15, P3 + 1.9);
+  if (nb > 0 && nb < 1) for (let i = 0; i < 5; i++) { const e = nb * 1.6 - i * 0.14; if (e <= 0 || e >= 1) continue; const nx = Math.round(60 + i * 9 + e * 6), ny = Math.round(100 - i * 2 - e * 8 + Math.sin(t * 3 + i) * 2); halo(nx, ny, 3 + Math.round(e * 5), 0.65 * (1 - e)); }
   if (sal < 1) R.recorte([57, 0, 319, 179]);
   R.actor(EL.binns, gx, gy + Math.round(Math.sin(t * 2.4) * 1.5), t, { dir: 1, habla: t > TEACH - 0.2 && Math.sin(t * 9) > 0, dedo: t > TEACH - 0.2 && Math.floor(t * 1.5) % 2 === 0, sonrisa: t < TEACH - 0.2 });
   R.recorte(null);
@@ -135,7 +145,7 @@ const p3 = (t) => {
   if (t > P3 + 1.4) { const px = 224 + Math.round(Math.sin(t * 9) * 2); R.linea(px, 118, px + 4, 112, hex('#f0f0f8')); R.pset(px + 4, 112, hex('#c8c8d8')); R.pset(px, 119, K); }
   for (const [x, y, k] of [[30, 106, 0], [72, 106, 2], [270, 106, 1], [30, 142, 3], [72, 142, 4], [228, 142, 5], [270, 142, 6]]) if (dormido(k)) zetas(x + 12, y, TEACH + 0.3 + k * 0.38, t, 2);
 };
-const efectos = [[0.4, 'campana'], [BEGIN + 0.45, 'whoosh'], [NEVER, 'lapiz'], [MOVIES - 0.5, 'lapiz'], [PROF, 'papel'], [ASLEEP + 0.15, 'golpecito'], [GOT - 0.3, 'brillo'], [P3 + 0.1, 'whoosh'],
+const efectos = [[0.4, 'campana'], [BEGIN + 0.45, 'whoosh'], [NEVER, 'lapiz'], [MOVIES - 0.5, 'lapiz'], [MOVIES + 0.45, 'whoosh'], [P2 + 2.45, 'tic'], [PROF, 'papel'], [ASLEEP + 0.15, 'golpecito'], [GOT - 0.3, 'brillo'], [P3 + 0.25, 'vapor'],
   [TEACH + 0.32, 'golpecito'], [TEACH + 1.15, 'tic'], [TEACH + 1.95, 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1991 });
 </script>

@@ -15,8 +15,8 @@
 //    salta, abre la puerta redonda del 713 en «Vault 713» (polvo) y Hagrid coge del suelo el paquetito y lo enseña.
 //    Murciélagos cruzan la cueva y gotea el techo. Corta en «and».
 // 2. El vestíbulo de mármol: el duende guía a Hagrid (con el paquete) y a Harry hacia la salida; en «Griphook» se vuelve y
-//    señala; en «final book» le sale encima un «7» dorado. Detrás del mostrador, otro duende pesa monedas en la balanza y
-//    sella dos recibos. Corta en «When».
+//    señala; en «final book» le sale encima un «7» dorado. Detrás del mostrador, otro duende echa una moneda en la balanza
+//    (tintinea) y sella dos recibos. Corta en «When».
 // 3. El aula del espejo: Harry mira el espejo; Dumbledore entra y le habla; en «sees himself» aparece en el cristal su
 //    reflejo, con algo en las manos. Un ratón huye por el suelo delante de Dumbledore y una lechuza cruza la ventana.
 //    Corta en «woollen».
@@ -26,7 +26,7 @@
 //    hacia un Snape jovencito que lee por el campo («saved Snape's life»); el público de las gradas se levanta y aplaude;
 //    luego sube persiguiendo a la snitch, que se le escapa. Corta en «in».
 // 6. Una librería: siete libros de pie en la mesa; en «Book 3» sube y brilla el tercero (con su «3»); en «the last one»,
-//    el séptimo («7»), y la snitch se posa encima; una lectora se acerca a mirarlos; la librera pasa un libro por el lector
+//    el séptimo («7»), y la snitch se posa encima; una lectora entra por la izquierda y se acerca a mirarlos; la librera pasa un libro por el lector
 //    de la caja (el rayo rojo).
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -82,11 +82,12 @@ const p2 = (t) => {
   // el duende de detrás del mostrador: echa una moneda a la balanza y sella dos recibos (golpe en sella1 y sella2)
   const sella1 = a(0.215), sella2 = a(0.29), golpe = (s) => tramo(t, s - 0.35, s) - tramo(t, s + 0.05, s + 0.3);
   const gp = Math.max(golpe(sella1), golpe(sella2)), echa = t > a(0.25) && t < a(0.27);
-  const dd = R.actor(EL.duende, 252, 132, t, { dir: -1, habla: Math.sin(t * 3) > 0.6 && gp === 0, sostiene: echa ? [266, 104] : [247, Math.round(104 + gp * 8)], sonrisa: gp > 0.8 });
+  // (subido a su taburete, a la izquierda de la balanza, para que asomen la cabeza y los hombros por encima del mostrador)
+  const dd = R.actor(EL.duende, 228, 126, t, { dir: 1, habla: Math.sin(t * 3) > 0.6 && gp === 0, sostiene: echa ? [252, 100] : [241, Math.round(100 + gp * 8)], sonrisa: gp > 0.8 });
   { const [mx, my] = dd.mano; if (!echa) { R.rect(mx - 1, my - 4, mx + 1, my, hex('#6a3a1a')); R.rect(mx - 3, my + 1, mx + 3, my + 3, K); R.rect(mx - 2, my + 1, mx + 2, my + 2, hex('#a82a2a')); }
     else PIEZAS_HP.moneda(R, mx, my + 4, {});
     // el recibo con su sello rojo (aparece tras el primer golpe)
-    R.rect(242, 114, 252, 116, hex('#f0e6c8')); R.rect(242, 114, 252, 114, hex('#c8bc9c')); if (t > sella1) R.rect(244, 115, 246, 116, hex('#c83a3a')); if (t > sella2) R.rect(248, 115, 250, 116, hex('#c83a3a'));
+    R.rect(235, 114, 246, 116, hex('#f0e6c8')); R.rect(235, 114, 246, 114, hex('#c8bc9c')); if (t > sella1) R.rect(237, 115, 239, 116, hex('#c83a3a')); if (t > sella2) R.rect(242, 115, 244, 116, hex('#c83a3a'));
     if ((t > sella1 && t < sella1 + 0.15) || (t > sella2 && t < sella2 + 0.15)) brilla(mx, my + 5, 1, hex('#fff0a0')); }
   const hgx = gx + 22, hrx = gx + 50, andan = (u > 0 && u < 1) || (v > 0 && v < 1);
   const h = R.actor(EL.hagrid, hgx, 162, t, { dir: -1, anda: andan, sostiene: [hgx - 4, 130], sonrisa: !andan });
@@ -157,6 +158,10 @@ const p5 = (t) => {
   // la bludger: sale del baúl y va derecha a Snape; el golpe la manda al cielo
   const bv = tramo(t, a(0.71), salva), bw = tramo(t, salva, salva + 0.9);
   if (bv > 0) { const x = bw > 0 ? lerp(sxp - 8, 120, bw) : lerp(66, sxp - 8, bv), y = bw > 0 ? lerp(150, 20, bw) : lerp(158, 150, bv) - Math.sin(bv * Math.PI) * 24; if (bw < 1) { R.disco(Math.round(x), Math.round(y), 4, K); R.disco(Math.round(x), Math.round(y), 3, hex('#3a3440')); R.pset(Math.round(x) - 1, Math.round(y) - 2, hex('#8a8494')); if (bw > 0) for (let k = 1; k < 4; k++) R.pset(Math.round(x + k * 3), Math.round(y + k * 6), hex('#f0f0f0')); } }
+  // el baúl de las pelotas: al soltarse la bludger, la tapa salta (un destello en el cierre)
+  { const [b0, by0, b1] = g5.baul ?? [54, 160, 76], ab = tramo(t, a(0.71) - 0.05, a(0.71) + 0.1) - tramo(t, a(0.71) + 0.5, a(0.71) + 0.8);
+    if (ab > 0) { const h = Math.round(ab * 7); R.linea(b0, by0 - 1, b1, by0 - 1 - h, K); R.linea(b0, by0 - 2, b1, by0 - 2 - h, hex('#7a4a24')); R.linea(b0 + 1, by0 - 3, b1 - 1, by0 - 3 - h, hex('#9a6a3a')); }
+    if (t > a(0.71) - 0.02 && t < a(0.71) + 0.2) brilla((b0 + b1) >> 1, by0 - 6, 1, hex('#fff0a0')); }
   if (t > salva && t < salva + 0.25) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4; R.pset(Math.round(sxp - 8 + Math.cos(an) * 7), Math.round(150 + Math.sin(an) * 7), hex('#fff0a0')); }
   // el padre de Harry en escoba: cruza alto, baja en picado, desvía la bludger y sube tras la snitch
   let jx, jy, dir = 1;
@@ -189,8 +194,8 @@ const p6 = (t) => {
   }
   const n3 = tramo(t, tres, tres + 0.3); if (n3 > 0) R.numero('3', 144, Math.round(lerp(118, 100, n3)), { centro: true, tam: 16 });
   const n7 = tramo(t, siete7, siete7 + 0.3); if (n7 > 0) R.numero('7', 188, Math.round(lerp(118, 100, n7)), { centro: true, tam: 16 });
-  // la lectora entra por la puerta y se acerca a la mesa
-  const lv = tramo(t, P6 + 0.2, lee), lx = Math.round(lerp(40, 92, lv));
+  // la lectora entra por la izquierda y se acerca a la mesa
+  const lv = tramo(t, P6 + 0.1, lee), lx = Math.round(lerp(-10, 92, lv));
   R.actor(EL.chica, lx, 166, t, { dir: 1, anda: lv > 0 && lv < 1, sorpresa: t > siete7 && t < siete7 + 0.5, sonrisa: t > siete7 + 0.5, dedo: t > tres + 0.4 && t < tres + 1.4 && lv >= 1 });
   // la snitch: revolotea y acaba posada en el séptimo
   const sv = tramo(t, siete7 - 0.6, siete7 + 0.1), sx = sv > 0 ? lerp(60, 192, sv) : 60 + Math.sin(t * 1.3) * 20, sy = sv > 0 ? lerp(80, 106, sv) : 80 + Math.sin(t * 2.2) * 8;
@@ -198,7 +203,7 @@ const p6 = (t) => {
   J.realDelante(R, t, { encuadre: 'libreria', torre: 0.2 });
 };
 const año = (t) => t < P6 ? 1997 : t < siete7 ? 1999 : 2007;
-const efectos = [[0.3, 'carro'], [frena, 'golpecito'], [abre, 'cerrojo'], [coge, 'pop'], [a(0.215), 'sello'], [a(0.29), 'sello'], [siete, 'brillo'], [refleja, 'brillo'], [roba, 'whoosh'], [puesto, 'pop'], [duda + 0.15, 'boing'], [pica, 'whoosh'], [salva, 'golpecito'], [salva + 0.6, 'publico'], [tres, 'brillo'], [a(0.915), 'bip'], [siete7, 'brillo']];
+const efectos = [[0.3, 'carro', { largo: 1.7 }], [0.75, 'whoosh'], [frena, 'golpecito'], [abre, 'cerrojo'], [abre + 0.45, 'puerta'], [coge, 'pop'], [a(0.215), 'sello'], [a(0.268), 'golpecito'], [a(0.29), 'sello'], [siete, 'brillo'], [P3 + 1.3, 'tic'], [refleja, 'brillo'], [roba, 'whoosh'], [puesto, 'pop'], [duda + 0.15, 'boing'], [a(0.71), 'cerrojo'], [pica, 'whoosh'], [salva, 'golpecito'], [salva + 0.6, 'publico'], [tres, 'brillo'], [a(0.915), 'bip'], [siete7, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
 </script>
 </body>

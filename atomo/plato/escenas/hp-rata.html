@@ -19,10 +19,11 @@
 //    asusta y huye. Corta en «And».
 // 3. La chimenea de la sala común: Neville lee en la butaca la carta de su abuela con el sapo en el regazo; el sapo salta a
 //    la alfombra, Neville se levanta (la carta cae), lo persigue y lo coge, sonriendo; Hermione pasa página en la otra butaca;
-//    el gato de la alfombra sigue al sapo con la mirada y da un respingo cuando cae a su lado. Corta en «the answer».
+//    el gato de la alfombra sigue al sapo con la mirada y da un respingo (maúlla) cuando cae a su lado. Corta en «the answer».
 // 4. El escaparate de la tienda de túnicas: Neville, con su sapo, pasea de la mano de su abuela (el sombrero con el buitre,
 //    insinuado, y otro igual expuesto en el escaparate); un mago con un paquete pasa por delante y una lechuza cruza con
-//    otro; se paran, ella le pone la mano en el hombro, la costurera abre la puerta (campanilla) y les hace pasar.
+//    otro; se paran, ella le pone la mano en el hombro, la costurera abre la puerta (la puerta y la campanilla) y les hace
+//    pasar.
 import * as T from '/atomo/plato/escenas/hp-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hp-rata');
@@ -153,10 +154,10 @@ const p4 = (t) => {
   // un mago con un paquete pasa por delante, por los adoquines, camino de otra tienda
   { const u = tramo(t, P4, P4 + 3.4), px = Math.round(lerp(338, -24, u)); if (u > 0 && u < 1) { const m = R.actor(EL.alumno, px, 177, t, { dir: -1, anda: true, sostiene: true, pal: { C: '#2a3a5a', c: '#1a2440' } }); R.rect(m.mano[0] - 4, m.mano[1] - 2, m.mano[0] + 4, m.mano[1] + 4, K); R.rect(m.mano[0] - 3, m.mano[1] - 1, m.mano[0] + 3, m.mano[1] + 3, hex('#b8875a')); R.rect(m.mano[0], m.mano[1] - 1, m.mano[0], m.mano[1] + 3, hex('#f0e0c0')); } }
   // una lechuza cruza la calle con una carta en las garras
-  { const u = tramo(t, P4 + 1.2, P4 + 3.6); if (u > 0 && u < 1) { const ox = Math.round(lerp(-12, 250, u)), oy = Math.round(54 + Math.sin(u * 7) * 3); PIEZAS_HP.lechuza(R, ox, oy, { vuela: true, t, dir: 1 }); R.rect(ox - 3, oy + 1, ox + 3, oy + 4, K); R.rect(ox - 2, oy + 2, ox + 2, oy + 3, hex('#f0e6c8')); } }
+  { const u = tramo(t, P4 + 1.2, P4 + 3.6); if (u > 0 && u < 1) { const ox = Math.round(lerp(-12, 340, u)), oy = Math.round(54 + Math.sin(u * 7) * 3); PIEZAS_HP.lechuza(R, ox, oy, { vuela: true, t, dir: 1 }); R.rect(ox - 3, oy + 1, ox + 3, oy + 4, K); R.rect(ox - 2, oy + 2, ox + 2, oy + 3, hex('#f0e6c8')); } }
   T.diagonDelante(R, t, { encuadre: 'calle', camara: 'escaparate' });
 };
-const efectos = [[0.4, 'carro'], [enseña + 0.1, 'pop'], [3.7, 'golpecito'], [entra, 'whoosh'], [entra + 1.0, 'masca'], [ojo, 'boing'], [huye, 'whoosh'], [a(0.49), 'papel'], [salta, 'pop'], [a(0.6), 'papel'], [coge, 'pop'], [hombro + 0.25, 'campana']];
+const efectos = [[0.4, 'carro', { largo: 2.2 }], [enseña + 0.1, 'pop'], [3.7, 'golpecito'], [entra, 'whoosh'], [entra + 1.0, 'masca'], [ojo, 'boing'], [huye, 'whoosh'], [a(0.49), 'papel'], [salta, 'pop'], [salta + 0.62, 'miau'], [coge, 'pop'], [P4 + 2.2, 'whoosh'], [hombro + 0.25, 'puerta'], [hombro + 0.5, 'campana']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1997 });
 </script>
 </body>
