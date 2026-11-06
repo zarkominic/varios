@@ -17,7 +17,9 @@
 //    «?»; en «There were» entra por la derecha el Valentín de Terni y en «two» sale un «2» entre los dos;
 // 3. en «in the third century»: el fresco de los dos santos de cerca: en «Rome» se enciende el medallón del Coliseo y
 //    en «Turney» el de la cascada de Terni; la romana sube la lucerna, el romano señala; en «So little» salen dos «?»;
-// 4. en «the Catholic Church»: un despacho del Vaticano en 1969 (fondo local): el obispo teclea, se levanta y señala
+//    las grietas del fresco pasan por detrás de los santos (ninguna cruza una cara);
+// 4. en «the Catholic Church»: un despacho del Vaticano en 1969 (fondo local; la ventana en arco y la barra de la
+//    cortina empiezan en y = 17, fuera de la franja de la barra del año): el obispo teclea, se levanta y señala
 //    el calendario de 1969 y en «took his feast off» la casilla del 14 se apaga despacio; en «still honored» la abuela
 //    enciende una vela a la estatuilla del santo.
 import * as T from '/atomo/plato/escenas/tr-comun.js';
@@ -231,9 +233,17 @@ const medallon = (cx, cy, t, t0, cual) => {
   chispas(t, t0, cx, cy, H('#fff0a0'), 12);
 };
 const lucerna = (x, y, t) => { R.rect(x - 3, y, x + 3, y + 2, K); R.rect(x - 2, y, x + 2, y + 1, H('#c87a3a')); R.pset(x + 4, y, K); const f = Math.sin(t * 17) > 0 ? 1 : 0; R.pset(x + 4, y - 1, H('#ffd860')); R.pset(x + 4, y - 2 - f, H('#fff4b0')); R.pset(x + 5, y - 1, H('#f0a030')); };
+// las grietas del fresco (las mismas siete que pinta el decorado) pasan por DETRÁS de los santos: donde una cruza
+// la aureola, la cara o la túnica del santo de la derecha se le quita el tinte (se deshace la mezcla con el negro)
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const GRIETA_K = H('#1c1418'), GRIETA_A = 0.45;
+const SOBRE_SANTO = (x, y) => [120, 200].some((sx) => (x - sx) ** 2 + (y - 42) ** 2 <= 11.5 * 11.5 || (y >= 50 && y <= 112 && Math.abs(x - sx) <= 15));
+const GRIETAS_SANTO = (() => { const m = []; for (let g = 0; g < 7; g++) { let x = 54 + hh(g, 1, 438) * 212, y = 16 + hh(g, 2, 438) * 40; for (let i = 0; i < 26; i++) { const px = Math.round(x), py = Math.round(y); if (SOBRE_SANTO(px, py)) m.push([px, py]); x += hh(g, i, 439) * 1.6 - 0.8; y += 1; if (y > 124) break; } } return m; })();
+const sinGrietas = () => { for (const [x, y] of GRIETAS_SANTO) { const c = R.pget(x, y); let r = 0; for (const s of [0, 8, 16]) r |= Math.max(0, Math.min(255, Math.round((((c >>> s) & 255) - ((GRIETA_K >>> s) & 255) * GRIETA_A) / (1 - GRIETA_A)))) << s; R.pset(x, y, (r | 0xff000000) >>> 0); } };
 const p3 = (t) => {
   const o = { encuadre: 'iglesia', camara: 'vitral' };
   T.amor(R, t, o);
+  sinGrietas();
   medallon(91, 76, t, ROMA, 'roma');
   medallon(229, 76, t, TERNI, 'terni');
   // la romana entra con la lucerna y la sube; el romano señala; luego hablan
@@ -260,8 +270,9 @@ const FONDO4 = capa(() => {
   for (let y = 152; y < 180; y++) for (let x = 0; x < 320; x++) { const c = (Math.floor(x / 16) + Math.floor((y - 152) / 8)) % 2, r = rnd(x, y, 13), vena = Math.abs(Math.sin(x * 0.11 + y * 0.31 + c * 2)) < 0.06; R.pset(x, y, c ? (vena ? H('#3a3a44') : r < 0.1 ? H('#2a2a32') : H('#4a4a56')) : (vena ? H('#b8b0a0') : r < 0.1 ? H('#d8d0c0') : H('#ece6d8'))); }
   R.rect(0, 151, 319, 152, H('#2a1a10'));
   // la ventana en arco con las cortinas de terciopelo
-  R.rect(14, 22, 76, 102, K); R.disco(45, 34, 31, K);
-  R.rect(17, 34, 73, 99, H('#e8e0cc')); R.disco(45, 34, 28, H('#e8e0cc'));
+  // (el arco empieza en y = 17: la franja de la barra del año queda como damasco tranquilo)
+  R.rect(14, 36, 76, 102, K); R.disco(45, 48, 31, K);
+  R.rect(17, 48, 73, 99, H('#e8e0cc')); R.disco(45, 48, 28, H('#e8e0cc'));
   // el crucifijo de madera
   R.rect(232, 36, 236, 66, K); R.rect(225, 43, 243, 47, K); R.rect(233, 37, 235, 65, H('#8a5230')); R.rect(226, 44, 242, 46, H('#8a5230')); R.rect(233, 44, 235, 46, H('#c8a050'));
   // la hornacina con la estatuilla del santo (túnica blanca, aureola, sin rostro) y el velero de las velas
@@ -269,10 +280,13 @@ const FONDO4 = capa(() => {
   R.disco(94, 64, 4, H('#e8b830')); R.disco(94, 66, 3, H('#e8c8a0')); R.poligono([[89, 70], [99, 70], [101, 96], [87, 96]], H('#f2eee2')); R.linea(94, 72, 94, 95, H('#c8c0b0')); R.linea(91, 74, 88, 92, H('#c8c0b0')); R.linea(99, 76, 102, 84, H('#4a8a3a')); R.pset(100, 82, H('#6ab04a'));
   R.rect(86, 97, 102, 102, H('#c8a050')); R.rect(86, 101, 102, 102, H('#8a6a28'));
 });
+// el hueco de la ventana en arco (centro del arco en (45, 48), radio 28): nubes y palomas se recortan a él
+const HUECO4 = (x, y) => x >= 17 && x <= 73 && y <= 99 && (y >= 48 || (x - 45) ** 2 + (y - 48) ** 2 <= 28 * 28);
+const nube4 = (cx, cy, r, c) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) if (i * i + j * j <= r * r && HUECO4(cx + i, cy + j)) R.pset(cx + i, cy + j, c); };
 const VENTANA4 = (t) => {
-  R.recorte([17, 6, 73, 99]);
-  for (let y = 6; y <= 99; y++) for (let x = 17; x <= 73; x++) { const dx = x - 45, dy = y - 34; if (y < 34 && dx * dx + dy * dy > 28 * 28) continue; R.pset(x, y, trama([H('#5a8ad8'), H('#7aa4e4'), H('#a0c0ec'), H('#d0dcec')], (y - 6) / 70 * 3, x, y)); }
-  for (const [x0, y, w, v] of [[20, 26, 16, 1], [60, 40, 12, 1.8], [40, 16, 10, 0.6]]) { const x = 14 + ((x0 + t * v * 2) % 70); R.disco(Math.round(x), y, Math.round(w / 3), H('#f4f8fc')); R.disco(Math.round(x + w / 3), y + 1, Math.round(w / 4), H('#ffffff')); R.disco(Math.round(x - w / 4), y + 2, Math.round(w / 5), H('#c8d4e4')); }
+  R.recorte([17, 20, 73, 99]);
+  for (let y = 20; y <= 99; y++) for (let x = 17; x <= 73; x++) { if (!HUECO4(x, y)) continue; R.pset(x, y, trama([H('#5a8ad8'), H('#7aa4e4'), H('#a0c0ec'), H('#d0dcec')], (y - 20) / 60 * 3, x, y)); }
+  for (const [x0, y, w, v] of [[20, 34, 16, 1], [60, 46, 12, 1.8], [40, 28, 10, 0.6]]) { const x = 14 + ((x0 + t * v * 2) % 70); nube4(Math.round(x), y, Math.round(w / 3), H('#f4f8fc')); nube4(Math.round(x + w / 3), y + 1, Math.round(w / 4), H('#ffffff')); nube4(Math.round(x - w / 4), y + 2, Math.round(w / 5), H('#c8d4e4')); }
   // la cúpula con su linterna, el tambor con columnas y los tejados de Roma
   R.disco(46, 70, 15, H('#8a96a8')); R.disco(45, 69, 14, H('#a8b4c4')); R.disco(42, 66, 9, H('#c0cad8'));
   for (let k = -3; k <= 3; k++) R.linea(46 + k * 4, 70, 46 + k * 2, 56, H('#7a8698'));
@@ -280,12 +294,13 @@ const VENTANA4 = (t) => {
   R.rect(43, 50, 49, 56, H('#d8ccb0')); R.rect(45, 46, 47, 50, H('#a8b4c4')); R.pset(46, 44, H('#e8b830')); R.pset(46, 45, H('#e8b830'));
   for (let x = 17; x <= 73; x++) { const ty = 84 + Math.round(Math.sin(x * 0.4) * 1.5) + (x % 13 < 6 ? 0 : 3); for (let y = ty; y <= 99; y++) R.pset(x, y, (y - ty) % 3 === 0 ? H('#a85a34') : (x + y) % 4 ? H('#c8784a') : H('#e0a070')); }
   // las palomas
-  for (let k = 0; k < 3; k++) { const u = ((t * 0.12 + k * 0.33) % 1), x = Math.round(lerp(78, 10, u)), y = Math.round(30 + k * 12 + Math.sin(u * 12 + k) * 4), al = Math.floor(t * 8 + k) % 2; R.pset(x, y, H('#5a5a6a')); R.pset(x + 1, y, H('#5a5a6a')); R.pset(x - 1, y - 1 + al * 2, H('#3a3a4a')); R.pset(x + 2, y - 1 + al * 2, H('#3a3a4a')); }
+  for (let k = 0; k < 3; k++) { const u = ((t * 0.12 + k * 0.33) % 1), x = Math.round(lerp(78, 10, u)), y = Math.round(36 + k * 10 + Math.sin(u * 12 + k) * 4), al = Math.floor(t * 8 + k) % 2; for (const [i, j, c] of [[0, 0, '#5a5a6a'], [1, 0, '#5a5a6a'], [-1, -1 + al * 2, '#3a3a4a'], [2, -1 + al * 2, '#3a3a4a']]) if (HUECO4(x + i, y + j)) R.pset(x + i, y + j, H(c)); }
   R.recorte(null);
-  R.rect(44, 6, 46, 99, H('#e8e0cc')); R.rect(17, 58, 73, 60, H('#e8e0cc'));
+  R.rect(44, 20, 46, 99, H('#e8e0cc')); R.rect(17, 58, 73, 60, H('#e8e0cc'));
   // las cortinas
-  for (const [x0, x1] of [[8, 22], [68, 82]]) for (let y = 14; y <= 106; y++) for (let x = x0; x <= x1; x++) { if (y > 70 && (x0 < 30 ? x > x0 + 6 + (y - 70) * 0.1 : x < x1 - 6 - (y - 70) * 0.1)) continue; const pl = Math.sin((x - x0) * 1.2 + y * 0.02 + Math.sin(t * 0.8) * 0.2); R.pset(x, y, x === x0 || x === x1 ? K : pl > 0.5 ? H('#b83a40') : pl < -0.4 ? H('#5a1418') : H('#8a2028')); }
-  R.rect(6, 12, 84, 14, H('#c8a050')); R.rect(6, 14, 84, 14, H('#8a6a28'));
+  for (const [x0, x1] of [[8, 22], [68, 82]]) for (let y = 19; y <= 106; y++) for (let x = x0; x <= x1; x++) { if (y > 70 && (x0 < 30 ? x > x0 + 6 + (y - 70) * 0.1 : x < x1 - 6 - (y - 70) * 0.1)) continue; const pl = Math.sin((x - x0) * 1.2 + y * 0.02 + Math.sin(t * 0.8) * 0.2); R.pset(x, y, x === x0 || x === x1 ? K : pl > 0.5 ? H('#b83a40') : pl < -0.4 ? H('#5a1418') : H('#8a2028')); }
+  // la barra de la cortina, bajo la franja de la barra del año
+  R.rect(6, 17, 84, 19, H('#c8a050')); R.rect(6, 19, 84, 19, H('#8a6a28')); R.pset(5, 18, H('#e8b830')); R.pset(85, 18, H('#e8b830'));
   for (const x of [15, 75]) { R.rect(x - 2, 72, x + 2, 74, H('#e8b830')); R.linea(x, 74, x, 80, H('#e8b830')); }
 };
 // el calendario litúrgico de 1969: cabecera morada con el año, febrero de 1969 (el 1 es sábado) y una marca de color

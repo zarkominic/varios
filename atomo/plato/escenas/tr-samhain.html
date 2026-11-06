@@ -12,9 +12,9 @@
 // TR-SAMHAIN (frase 14), sin cartela; cuatro planos:
 // 1. en la cubierta de un velero al atardecer de otoño: los colonos alemanes con la liebre se van y, en «another tradition»,
 //    suben la madre irlandesa y el niño con su linterna de nabo, que la levanta en «same trip» (1720 → 1847);
-// 2. «Halloween» (731): el fresco de los santos; el sacerdote enciende las velas una a una en «All Saints' Day», llegan
+// 2. «Halloween» (la barra sigue en 1847, el año del viaje: el siglo VIII queda fuera de la escala 1415–2026): el fresco de los santos (repintado más bajo: su marco empieza en y = 22, con la pared encalada por encima, libre la barra del año); el sacerdote enciende las velas una a una en «All Saints' Day», llegan
 //    dos aldeanas con su vela, y en «first of November» la hoja del 31 de octubre vuela y queda el 1 de noviembre;
-// 3. «There really was» (800): la hoguera de Samhain en la colina; dos parejas bailan y un niño echa un tronco en «Gaelic
+// 3. «There really was» (sigue en 1847, por lo mismo): la hoguera de Samhain en la colina; dos parejas bailan y un niño echa un tronco en «Gaelic
 //    festival»: la llamarada sube en «Samhain»;
 // 4. «the Celtic festival» (1880): el estudioso del bombín escribe en su gabinete; en su cuaderno se dibuja la hoguera y,
 //    en «dead», una calavera de cuento; en «invented» sonríe y un colega entra con un libro; la goma la borra.
@@ -124,8 +124,29 @@ const p1 = (t) => {
 // ── 2. el fresco de los santos con las velas de Todos los Santos (iglesia, vitral) ──
 const VELAS = []; for (let i = 0; i < 14; i++) { const x = 50 + i * 16; if ([100, 160, 220].some((l) => Math.abs(l - x) < 6)) continue; VELAS.push(x); }
 const xCura = (t) => Math.round(lerp(26, 262, tramo(t, a(0.255), a(0.37))));
+// el marco del decorado sube hasta y = 10 y quedaba bajo la barra del año: se repinta encima la pared encalada (y 0–21) y
+// el borde superior del marco baja a y = 22 (el fresco empieza en y = 28); la paloma baja a y = 32, sobre la corona
+const MARCO = (() => { const L = [], B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => (B4[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+  const Y = RP('#cbb286', '#e6d2a8', '#f4e6c4', '#9a805c'), [negro, rojo, rojoL, ocre, ocreS, az, azS, lino, oroS, ocre2] = RP('#2a1e1c', '#9a3022', '#c04e34', '#cc9634', '#946620', '#2e4a78', '#1e3054', '#f4eee0', '#a87a26', '#cc9634');
+  // la pared encalada, con la misma trama de manchas, grano y dos grietas finas
+  for (let y = 0; y <= 21; y++) for (let x = 47; x <= 273; x++) { const k = 430, v = 0.5 + 0.2 * Math.sin(x * 0.061 + y * 0.023 + k) + 0.16 * Math.sin(y * 0.093 - x * 0.031 + k * 2) + (hh(x >> 2, y >> 2, k) - 0.5) * 0.34, n = hh(x, y, k + 7), b = b4(x, y);
+    let c = Y[1]; if (v > 0.68 && b < (v - 0.68) * 2.6) c = Y[2]; else if (v < 0.32 && b < (0.32 - v) * 2.6) c = Y[0]; if (n < 0.03) c = Y[0]; else if (n > 0.982) c = Y[2];
+    if (y >= 19 && x >= 49 && x <= 271 && b < (y - 18) * 0.22) c = Y[0]; // la sombra suave que hace el marco sobre la pared
+    L.push(x, y, c); }
+  for (const [gx, gy, n] of [[96, 2, 12], [214, 4, 9]]) { let x = gx; for (let i = 0; i < n; i++) { L.push(Math.round(x), gy + i, Y[3]); x += hh(gx, i, 9) - 0.35; } }
+  // el borde superior del marco: filete negro, banda roja con su luz, puntos ocres y el filete ocre interior
+  for (let x = 48; x <= 272; x++) { L.push(x, 22, negro); for (let y = 23; y <= 27; y++) { const lado = x === 48 || x === 272; let c = lado ? negro : y === 23 ? rojoL : rojo;
+    if (!lado && y === 26 && x >= 52 && x <= 268) c = ocre; if (!lado && y === 27 && (x === 52 || x === 268)) c = ocre; if (!lado && y === 24 && x >= 50 && x <= 270 && (x - 50) % 6 === 0) c = ocreS; L.push(x, y, c); } }
+  for (let x = 49; x <= 53; x++) L.push(x, 23, rojoL);
+  // el cielo bajo el marco donde estaba la paloma, y la paloma más baja
+  for (let y = 28; y <= 31; y++) for (let x = 150; x <= 170; x++) L.push(x, y, (y - 16) / 84 < 0.3 && b4(x, y) < (0.3 - (y - 16) / 84) * 2 ? azS : az);
+  for (const [i, j] of [[-7, -1], [-6, -2], [-5, -2], [-4, -1], [-3, 0], [-2, 0], [-1, 0], [0, 0], [1, 0], [2, 0], [3, -1], [4, -2], [5, -2], [6, -1], [0, 1], [1, 1], [-1, 1], [1, -1], [2, -1], [0, 2], [-1, 2]]) L.push(160 + i, 32 + j, lino);
+  L.push(162, 31, oroS, 163, 32, ocre2);
+  return L; })();
+const marcoBajo = () => { for (let i = 0; i < MARCO.length; i += 3) pset(MARCO[i], MARCO[i + 1], MARCO[i + 2]); };
 const p2 = (t) => {
   T.amor(R, t, { encuadre: 'iglesia', camara: 'vitral' });
+  marcoBajo();
   // las velas de la repisa: se encienden cuando pasa el sacerdote
   const xc = xCura(t);
   for (const x of VELAS) { const enc = xc > x - 4 && t > a(0.255); if (enc) halo(x, 114, 11, RP('#a86a2a', '#d8a048', '#f8d070'), 0.9);
@@ -213,7 +234,7 @@ const p4 = (t) => {
   }
 };
 const efectos = [[0.4, 'ola'], [a(0.12), 'viento'], [a(0.195), 'brillo'], [a(0.25), 'campana'], [a(0.26), 'brillo'], [a(0.448), 'papel'], [P3 + 0.3, 'palmada'], [a(0.62), 'whoosh'], [P4 + 0.5, 'lapiz'], [a(0.84), 'lapiz'], [a(0.87), 'puerta'], [a(0.92), 'papel']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < a(0.12) ? 1720 : t < P2 ? 1847 : t < P3 ? 731 : t < P4 ? 800 : 1880) });
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < a(0.12) ? 1720 : t < P4 ? 1847 : 1880) });
 </script>
 </body>
 </html>

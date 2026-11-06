@@ -10,15 +10,21 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TR-ARGOLLA (frase 22), sin cartela; la barra dice 2026 salvo en el rollo romano. Cuatro planos:
-// 1. el taller del joyero: la ayudanta entra con la bandeja de anillos; el joyero levanta la argolla («ring») y se la
-//    pasa a la novia, que la recibe en el dedo («finger»); un pulso de luz sube de su mano al pecho y sale un corazón
-//    («heart»); el novio da un saltito;  2. corte en «It's a lovely ancient idea»: sobre una mesa romana con su candil, un
-//    papiro se desenrolla; la tinta dibuja la vena roja del anular al corazón («Roman writers»), los renglones y, en
-//    «Egyptians», el sol y las pirámides;  3. corte en «but anatomy»: la lámina de cerca; la vena del anular se enciende,
-//    sale una X y se apaga («doesn't back it up»); en «Every finger» se encienden las cinco; el joyero las señala;
-//  4. corte en «And in many countries»: el mapa de Europa sobre la mesa del joyero; Alemania se tiñe con su chincheta
-//    («Germany»), la ruta corre hasta Rusia («Russia»); en la tarjeta de la esquina, la argolla salta de la mano izquierda
-//    a la derecha («right hand»).
+// 1. el taller del joyero: la ayudanta entra con la bandeja de anillos; el joyero levanta la argolla («ring», un aro
+//    dorado hueco con su brillo) y se la pasa a la novia, que la recibe en el dedo («finger»); un pulso de luz sube de su
+//    mano al pecho y sale un corazón («heart»); el novio da un saltito;  2. corte en «It's a lovely ancient idea»: sobre
+//    una mesa romana con su candil (la esquina de Atom, en sombra tramada con la veta), un papiro se desenrolla; la tinta
+//    dibuja una manita esquemática (la canónica de 14 px, a plumilla), un círculo de llamada en el anular y, desde ahí,
+//    la vena roja hasta un corazón grande («Roman writers»), los renglones y, en «Egyptians», el sol y las pirámides;
+//  3. corte en «but anatomy»: la lámina de cerca (el esquema del decorado); el joyero, a la izquierda, de
+//    cabeza y hombros sobre el banco, da un paso y señala con un puntero láser: el punto rojo sigue el pulso de la vena del anular
+//    hasta el corazón, sale una X sobre el corazón y se apaga («doesn't back it up»); en «Every finger» el punto salta
+//    de yema en yema (1 a 5) y el joyero da un paso con cada una; acaba en el corazón, sonriendo;
+//  4. corte en «And in many countries»: un mapa grabado de Europa sobre la mesa del joyero (tierra de pergamino, costas
+//    con sombra y ondas, fronteras punteadas, montes tramados, ríos, bosques, ciudades, rosa de los vientos y barquitos);
+//    en «many countries» se encienden uno tras otro los países de la mano derecha; Alemania se tiñe con su chincheta
+//    («Germany»), la ruta corre hasta Rusia («Russia»); en la tarjeta de la esquina, la argolla salta de la mano
+//    izquierda a la derecha («right hand»).
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-argolla');
@@ -32,7 +38,15 @@ const destello = (x, y, c = BL) => { R.pset(x, y, c); for (const [a, b] of [[1, 
 const P2 = en('argolla', 0.2799), P3 = en('argolla', 0.5096), P4 = en('argolla', 0.7508);
 const ANILLO = en('argolla', 0.0090), DEDO = en('argolla', 0.0321), VENA = en('argolla', 0.1339), CORAZON = en('argolla', 0.2412);
 const ORO = hex('#f0c040'), OROS = hex('#a87a18'), ROJO = hex('#d8303a'), ROJOS = hex('#7a1424'), ROSA = hex('#ff8aa0');
-const argolla = (x, y, t, s = 1) => { PZ.argolla(R, x, y + 3 * s, { t, s }); if (Math.sin(t * 6 + x) > 0.55) destello(x + 2 * s, y - 3 * s); };
+// la argolla: un aro dorado hueco (se ve el fondo por dentro), algo de canto, con su luz arriba a la izquierda y su brillo
+const argolla = (x, y, t, s = 1) => {
+  const r = s >= 2 ? 4 : 2.8, cy = y + 1;
+  for (let j = -5; j <= 5; j++) for (let i = -6; i <= 6; i++) {
+    const d = Math.hypot(i * 0.9, j * 1.55); if (d > r + 0.9 || d < r - 1.7) continue;
+    R.pset(x + i, cy + j, d > r + 0.1 ? K : d < r - 1 ? OROS : j < 0 && i <= 0 ? hex('#fff0a0') : j > 0 ? OROS : ORO);
+  }
+  if (Math.sin(t * 6 + x) > 0.55) destello(x - 2, cy - 4);
+};
 const halo = (x, y, r, c, t) => { for (let a = 0; a < 24; a++) if ((a + Math.floor(t * 8)) % 3) { const g = a / 24 * Math.PI * 2; R.pset(Math.round(x + Math.cos(g) * r), Math.round(y + Math.sin(g) * r), c); } };
 
 // 1 · el taller del joyero
@@ -84,7 +98,9 @@ const mesaRomana = () => {
       let c = veta > 0.62 ? M1 : veta < -0.9 ? M2 : M0;
       if (hh(x >> 2, y, tabla) > 0.97) c = M2;
       if (yy === 0) c = NEG; else if (yy === 1) c = M2; else if (yy === 2) c = mez(M0, NEG, 0.2);
-      const d = Math.hypot((x - 158) / 1.3, (y - 100) * 1.05) / 150 + (x > 262 && y < 54 ? 0.5 : 0) + (y < 16 ? 0.35 : 0);
+      // la esquina de Atom y la franja del año, en sombra que se funde tramada (sin bordes rectos): la veta sigue debajo
+      const sx = Math.max(0, Math.min(1, (x - 232) / 74)), sy = Math.max(0, Math.min(1, (70 - y) / 62)), som = sx * sy * (3 - 2 * sx) * sy;
+      const d = Math.hypot((x - 158) / 1.3, (y - 100) * 1.05) / 150 + 0.42 * som + 0.3 * Math.max(0, Math.min(1, (22 - y) / 16)) + (hh(x, y, 11) - 0.5) * 0.08;
       R.pset(x, y, mez(c, NEG, Math.min(0.9, Math.max(0, d - 0.42) * 1.5)));
     }
     // nudos de la madera
@@ -137,17 +153,22 @@ const p2 = (t) => {
   const renglon = (x0, x1, y, n = 1, c = mez(TINTA, PAP, 0.35)) => { let x = x0; let k = 0; while (x < x0 + (x1 - x0) * n) { const l = 2 + Math.floor(hh(x, y, 7) * 5); R.linea(x, y, Math.min(x + l, x0 + (x1 - x0) * n), y, c); if (hh(x, y, 8) > 0.6) R.pset(x + 1, y - 1, c); x += l + 2; k++; } };
   for (const y of [64, 70, 76]) renglon(70, 146, y);
   for (const y of [64, 70]) renglon(214, 250, y);
-  // la mano dibujada con la argolla en el anular
-  const LH = [[186, 118], [186, 100], [178, 92], [181, 89], [188, 97], [188, 80], [191, 78], [192, 96], [193, 75], [196, 75], [197, 96], [198, 77], [201, 77], [202, 97], [203, 83], [206, 83], [206, 118]];
-  for (let i = 0; i + 1 < LH.length; i++) R.linea(...LH[i], ...LH[i + 1], TINTA);
-  R.linea(188, 118, 188, 128, TINTA); R.linea(204, 118, 204, 128, TINTA); R.linea(190, 106, 200, 108, mez(TINTA, PAP, 0.5));
-  R.linea(197, 88, 202, 88, K); R.linea(197, 89, 202, 89, ORO); R.pset(198, 87, hex('#fff0a0'));
+  // el esquema: la manita a plumilla (la canónica de 14 px, pasada a tinta), el trazo de la muñeca y la argolla en el anular
+  { const hx = 182, hy = 110, SK = hex('#f6c290'), SS = hex('#d48a5a');
+    T.mano(R, hx, hy, 1, '#e6d2a0', { sinManga: true });
+    for (let y = hy - 5; y <= hy + 4; y++) for (let x = hx - 4; x <= hx + 11; x++) { const c = R.pget(x, y); if (c === SK) R.pset(x, y, PAPL); else if (c === SS) R.pset(x, y, PAPS); else if (c === K) R.pset(x, y, TINTA); }
+    for (const [y, l] of [[hy - 2, 12], [hy + 2, 10]]) for (let x = hx - 4 - l; x < hx - 4; x++) if ((x + y) % 4) R.pset(x, y, mez(TINTA, PAP, 0.3));
+    R.linea(hx + 6, hy - 1, hx + 6, hy + 1, K); R.linea(hx + 7, hy - 1, hx + 7, hy + 1, ORO); R.pset(hx + 7, hy - 1, hex('#fff0a0'));
+    // el círculo de llamada alrededor del anular, a puntos
+    for (let k = 0; k < 28; k++) if (k % 2 === 0) { const g = k / 28 * Math.PI * 2; R.pset(Math.round(hx + 7 + Math.cos(g) * 7), Math.round(hy + Math.sin(g) * 6), mez(TINTA, PAP, 0.2)); } }
   // la vena roja del anular al corazón (la tinta corre con «Roman writers»)
-  const VE = [[200, 92], [200, 104], [204, 112], [214, 108], [222, 98], [228, 90]];
+  const VE = [[196, 108], [204, 104], [210, 97], [214, 90], [221, 85], [228, 83], [233, 82]];
   const pv = tramo(t, en('argolla', 0.3210), en('argolla', 0.3761));
-  if (pv > 0) { const n = Math.floor(pv * 40); for (let k = 0; k <= n; k++) { const f = k / 40 * (VE.length - 1), i = Math.min(VE.length - 2, Math.floor(f)), q = f - i; const x = lerp(VE[i][0], VE[i + 1][0], q), y = lerp(VE[i][1], VE[i + 1][1], q); if (k % 3 !== 2) R.pset(Math.round(x), Math.round(y), hex('#b8302a')); if (k === n && pv < 1) destello(Math.round(x), Math.round(y), hex('#ffb0a0')); } }
+  if (pv > 0) { const n = Math.floor(pv * 48); for (let k = 0; k <= n; k++) { const f = k / 48 * (VE.length - 1), i = Math.min(VE.length - 2, Math.floor(f)), q = f - i; const x = lerp(VE[i][0], VE[i + 1][0], q), y = lerp(VE[i][1], VE[i + 1][1], q); R.pset(Math.round(x), Math.round(y), hex('#b8302a')); if (k % 2) R.pset(Math.round(x), Math.round(y) + 1, hex('#8a2420')); if (k === n && pv < 1) destello(Math.round(x), Math.round(y), hex('#ffb0a0')); } }
   const pc = tramo(t, en('argolla', 0.3711), en('argolla', 0.3912));
-  if (pc > 0) { const r = pc < 1 ? 1 + pc * 4 : 4 + (Math.sin(t * 6) > 0.6 ? 0.6 : 0), cx = 232, cy = 84; R.disco(cx - r * 0.5, cy - r * 0.3, r * 0.62, hex('#b8302a')); R.disco(cx + r * 0.5, cy - r * 0.3, r * 0.62, hex('#b8302a')); R.poligono([[cx - r * 1.1, cy - r * 0.1], [cx + r * 1.1, cy - r * 0.1], [cx, cy + r * 1.1]], hex('#b8302a')); R.pset(cx - Math.round(r * 0.6), cy - Math.round(r * 0.5), hex('#ff9a8a')); }
+  if (pc > 0) { const r = (pc < 1 ? 1 + pc * 5 : 6 + (Math.sin(t * 6) > 0.6 ? 0.7 : 0)), cx = 240, cy = 80;
+    const cor = (rr, c) => { R.disco(cx - rr * 0.5, cy - rr * 0.3, rr * 0.62, c); R.disco(cx + rr * 0.5, cy - rr * 0.3, rr * 0.62, c); R.poligono([[cx - rr * 1.1, cy - rr * 0.1], [cx + rr * 1.1, cy - rr * 0.1], [cx, cy + rr * 1.1]], c); };
+    cor(r + 1, TINTA); cor(r, hex('#b8302a')); if (r > 3) { R.poligono([[cx + 1, cy - r * 0.3], [cx + r * 1.0, cy - r * 0.1], [cx + 1, cy + r * 1.0]], hex('#8a2420')); R.pset(cx - Math.round(r * 0.6), cy - Math.round(r * 0.5), hex('#ff9a8a')); R.pset(cx - Math.round(r * 0.6) + 1, cy - Math.round(r * 0.5), hex('#ff9a8a')); } }
   // los renglones nuevos («writers credited…»)
   const pr = tramo(t, en('argolla', 0.3812), en('argolla', 0.4413));
   for (let k = 0; k < 3; k++) { const f = Math.max(0, Math.min(1, pr * 3 - k)); if (f > 0) renglon(212, 252, 116 + k * 7, f, TINTA); }
@@ -171,21 +192,54 @@ const p2 = (t) => {
   }
 };
 
-// 3 · la lámina de cerca
+// 3 · la lámina de cerca: el joyero, de cabeza y hombros sobre el banco, señala con un puntero láser
+const LASER = hex('#ff3a3a');
 const p3 = (t) => {
-  const vena = tramo(t, P3 + 0.05, en('argolla', 0.5417)) * (1 - tramo(t, en('argolla', 0.5717), en('argolla', 0.5968))), todas = tramo(t, en('argolla', 0.6069), en('argolla', 0.6570));
+  const VN = en('argolla', 0.5417), XA = en('argolla', 0.5517), XB = en('argolla', 0.6018), TA = en('argolla', 0.6069), TB = en('argolla', 0.6971);
+  const vena = tramo(t, P3 + 0.05, VN) * (1 - tramo(t, en('argolla', 0.5717), en('argolla', 0.5968))), todas = tramo(t, TA, en('argolla', 0.6570));
   const o = { encuadre: 'joyero', camara: 'lamina', vena, todas };
-  T.fiestas(R, t, o);
-  R.actor(EL.joyero, 280, 159, t, { dir: -1, dedo: (t > P3 + 0.3 && t < en('argolla', 0.5417)) || (t > en('argolla', 0.6119) && t < en('argolla', 0.6971)), habla: t > en('argolla', 0.5366) && t < en('argolla', 0.5918) && Math.sin(t * 9) > 0, enfado: t > en('argolla', 0.5467) && t < en('argolla', 0.5968), sonrisa: t > en('argolla', 0.6269) });
+  const G = T.fiestas(R, t, o), Y = G.yemas, CO = G.corazon, AN = G.anular, W = [155, 84];
+  // adónde apunta el punto: al anular y, con el pulso, por la vena hasta el corazón; luego de yema en yema (1→5) y al corazón
+  let obj = null, paso = 0;
+  if (t > P3 + 0.12 && t < XA) { const v = tramo(t, P3 + 0.12, VN); obj = v < 0.5 ? [lerp(AN[0], W[0], v * 2), lerp(AN[1], W[1], v * 2)] : [lerp(W[0], CO[0] - 6, v * 2 - 1), lerp(W[1], CO[1], v * 2 - 1)]; }
+  else if (t >= TA - 0.05) { const f = tramo(t, TA - 0.05, TB) * 5; paso = Math.min(5, Math.floor(f)); const q = f - Math.floor(f), sal = Math.min(1, q * 2.5);
+    const de = paso === 0 ? CO : Y[paso - 1], a = paso < 5 ? Y[paso] : CO;
+    obj = [lerp(de[0], a[0], sal), lerp(de[1], a[1], sal) - Math.sin(Math.PI * sal) * 8]; }
+  // el joyero da un paso hacia la lámina al empezar y otro con cada yema
+  const ue = tramo(t, P3, P3 + 0.4), xj = Math.round(lerp(14, 24, ue * (2 - ue)) + Math.min(paso, 5) * 2 + (t > TB ? 2 : 0));
+  const an = (ue > 0 && ue < 1) || (t >= TA - 0.05 && t < TB && ((tramo(t, TA - 0.05, TB) * 5) % 1) < 0.35);
+  const enf = t > en('argolla', 0.5467) && t < XB, apunta = obj && !enf;
+  const jo = R.actor(EL.joyero, xj, 156, t, { dir: 1, anda: an, sostiene: apunta ? [xj + 20, 128] : true, habla: t > en('argolla', 0.5366) && t < en('argolla', 0.5918) && Math.sin(t * 9) > 0, enfado: enf, sonrisa: t > en('argolla', 0.6269) });
   T.fiestasDelante(R, t, o);
-  const x = tramo(t, en('argolla', 0.5517), en('argolla', 0.5617));
-  if (x > 0 && t < en('argolla', 0.6018) && !(t > en('argolla', 0.5868) && Math.floor(t * 10) % 2)) R.icono('X', 243, 47, hex('#e83a3a'), hex('#5a0a10'), 2);
+  // el puntero en la mano (un lápiz de metal con la punta roja) y, encendido, el haz tenue y el punto rojo
+  { const [mx, my] = jo.mano, tg = apunta ? obj : [mx + 8, my - 3], d = Math.hypot(tg[0] - mx, tg[1] - my) || 1, ux = (tg[0] - mx) / d, uy = (tg[1] - my) / d;
+    const px = Math.round(mx + ux * 6), py = Math.round(my + uy * 6);
+    R.linea(mx - Math.round(ux * 2), my - Math.round(uy * 2) + 1, px, py + 1, K); R.linea(mx - Math.round(ux * 2), my - Math.round(uy * 2), px, py, hex('#9aa4b4')); R.pset(px, py, apunta ? LASER : hex('#7a1a1a'));
+    if (apunta) {
+      const [ox, oy] = obj.map(Math.round), n = Math.ceil(Math.hypot(ox - px, oy - py));
+      for (let i = 2; i < n - 2; i++) if ((i + Math.floor(t * 30)) % 4 === 0) { const x = Math.round(px + (ox - px) * i / n), y = Math.round(py + (oy - py) * i / n); R.pset(x, y, mez(R.pget(x, y), LASER, 0.45)); }
+      for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) { const r = Math.hypot(i, j); if (r < 3.4) R.pset(ox + i, oy + j, mez(R.pget(ox + i, oy + j), LASER, r < 1.2 ? 1 : 0.5 - r * 0.1)); }
+      R.pset(ox, oy, hex('#ffd0d0')); halo(ox, oy, 5 + Math.round(Math.sin(t * 9)), mez(LASER, BL, 0.3), t);
+    } }
+  // la X sobre el corazón: el anular no tiene una vena especial
+  const x = tramo(t, XA, en('argolla', 0.5617));
+  if (x > 0 && t < XB && !(t > en('argolla', 0.5868) && Math.floor(t * 10) % 2)) R.icono('X', CO[0] - 7, CO[1] - 8, hex('#e83a3a'), hex('#5a0a10'), 2);
 };
 
 // 4 · el mapa de Europa en la mesa del joyero
-let BM = null;
-const RC = [8, 18, 262, 170], VI = [-2, 48, 40.5, 59];
+let BM = null, MAR = null, CHISPAS = null;
+const RC = [8, 18, 262, 170], VI = [-11, 50, 35.5, 61];
 const P = (lo, la) => R.proyMapa(lo, la, RC, VI).map(Math.round);
+const dentro = (x, y) => x > RC[0] + 2 && x < RC[2] - 2 && y > RC[1] + 2 && y < RC[3] - 2;
+const esMar = (x, y) => dentro(x, y) && MAR[y * 320 + x] === 1;
+// los datos del grabado (lon, lat): ríos, fronteras, montes, bosques y ciudades
+const RIOS = [[[6.0, 51.9], [7.0, 50.9], [7.6, 50.3], [8.3, 49.9], [8.4, 49.0], [7.6, 47.6]], [[9.0, 53.9], [10.6, 53.3], [11.8, 52.5], [12.4, 51.8], [13.7, 51.0], [14.3, 50.6]], [[14.3, 53.8], [14.6, 52.6], [15.6, 51.9], [17.0, 51.1], [18.2, 50.0]], [[18.8, 54.3], [18.6, 53.1], [20.0, 52.4], [21.0, 52.2], [21.5, 51.0], [19.5, 50.0]], [[8.5, 48.0], [11.0, 48.7], [13.5, 48.5], [16.4, 48.2], [18.9, 47.5], [19.0, 46.0], [20.5, 44.8], [22.6, 44.6], [25.0, 43.7], [28.0, 44.0], [29.6, 45.2]], [[33.0, 55.0], [30.5, 54.0], [30.5, 51.5], [30.5, 50.4], [32.5, 49.2], [35.0, 47.8], [33.5, 46.8], [32.5, 46.5]], [[38.5, 53.5], [39.2, 51.5], [40.0, 50.0], [42.0, 48.8], [41.0, 47.6], [39.5, 47.1]], [[33.0, 57.0], [36.0, 57.2], [38.0, 57.6], [40.0, 57.6], [42.0, 56.3], [44.0, 56.3], [46.0, 56.0], [48.5, 55.8], [48.8, 53.2], [46.0, 51.5], [45.5, 48.7], [47.8, 46.2]], [[0.1, 49.4], [1.5, 49.0], [2.4, 48.8], [3.5, 48.5], [4.5, 47.9]], [[-2.1, 47.3], [-0.5, 47.4], [1.0, 47.5], [2.5, 47.4], [3.0, 46.5], [4.0, 45.2]], [[7.3, 45.0], [9.2, 45.1], [11.0, 45.0], [12.4, 44.9]], [[-9.3, 38.7], [-8.2, 39.5], [-6.0, 39.7], [-4.0, 39.9], [-2.0, 40.6]], [[0.8, 40.7], [-0.9, 41.6], [-2.6, 42.5]], [[21.0, 56.1], [24.0, 56.6], [26.6, 55.9], [28.0, 55.4], [30.2, 55.2]], [[4.8, 43.4], [4.8, 45.8], [5.9, 46.2], [6.6, 46.4]]];
+const FRONTERAS = [[[-1.8, 43.4], [0.5, 42.7], [3.2, 42.4]], [[-8.9, 41.9], [-6.2, 41.6], [-6.9, 40.2], [-7.0, 39.0], [-7.5, 37.5]], [[2.5, 51.1], [4.2, 50.0], [5.8, 49.5], [6.4, 49.5], [7.6, 49.0], [7.6, 47.6]], [[6.1, 46.2], [7.0, 45.9], [6.6, 45.1], [7.5, 43.8]], [[6.1, 46.2], [7.6, 47.6], [9.5, 47.6]], [[7.0, 45.9], [8.4, 46.3], [9.0, 45.8], [10.4, 46.6], [12.2, 47.0], [13.7, 46.5], [16.0, 46.7]], [[13.0, 47.5], [13.8, 48.6], [15.0, 49.0], [16.9, 48.6], [16.9, 48.0], [16.0, 46.7]], [[14.8, 50.9], [16.3, 50.7], [18.8, 49.5], [22.6, 49.1]], [[16.9, 48.0], [18.8, 47.8], [22.1, 48.4]], [[22.1, 48.4], [21.0, 46.2], [18.9, 45.9], [16.5, 46.5]], [[22.1, 48.4], [24.9, 47.7], [26.6, 48.2], [28.2, 46.5], [28.2, 45.5]], [[22.7, 44.2], [25.0, 43.7], [28.6, 43.8]], [[22.4, 41.3], [26.1, 41.3], [28.0, 42.0]], [[19.0, 45.9], [19.4, 44.2], [19.2, 43.0], [20.3, 42.3], [22.4, 41.3]], [[22.7, 44.2], [22.4, 42.3], [22.4, 41.3]], [[23.5, 54.3], [23.9, 52.7], [23.6, 51.5], [24.1, 50.8], [22.6, 49.1]], [[23.6, 51.5], [27.0, 51.6], [30.6, 51.3], [31.8, 52.1]], [[23.5, 53.9], [26.6, 55.7], [28.2, 56.1]], [[21.0, 56.1], [26.6, 55.7]], [[24.3, 57.9], [27.4, 57.6]], [[12.0, 59.0], [12.5, 60.5], [12.2, 61.0]], [[13.7, 46.5], [15.5, 45.5], [19.0, 45.0]], [[28.0, 42.0], [29.0, 41.2]]];
+const MONTES = [[[6.5, 45.4], [8.5, 46.3], [10.5, 46.6], [12.5, 46.9], [14.5, 47.1]], [[-1.5, 42.9], [0.5, 42.7], [2.5, 42.5]], [[19.0, 49.4], [22.0, 49.0], [24.5, 47.8], [25.8, 46.0], [24.0, 45.4], [22.5, 45.3]], [[9.5, 44.2], [11.5, 43.8], [13.2, 42.6], [15.0, 41.0], [16.0, 39.8]], [[19.5, 42.6], [21.5, 42.0], [23.5, 42.7], [25.5, 42.7]], [[40.0, 43.4], [42.5, 43.0], [45.0, 42.5], [47.5, 41.8]], [[6.0, 60.5], [8.0, 60.8], [9.5, 61.0]], [[2.5, 45.2], [3.3, 45.6]], [[-6.0, 40.4], [-4.5, 40.6], [-3.0, 41.0]], [[-6.0, 37.2], [-3.5, 37.1]], [[33.5, 44.6], [34.5, 44.8]], [[7.0, 48.3], [8.0, 48.0]]];
+const BOSQUES = [[24, 57], [27, 54.5], [33, 56], [36, 59], [42, 59.5], [31, 52.5], [26, 52.5], [18, 56.7], [15.0, 59.5], [10.0, 50.8], [21.0, 50.5], [39, 55.5], [45, 58], [29, 59]];
+const CIUDADES = [[2.35, 48.85], [12.5, 41.9], [16.37, 48.2], [21.0, 52.2], [30.5, 50.45], [-0.12, 51.5], [18.07, 59.3], [12.57, 55.68], [4.9, 52.37], [-3.7, 40.4], [-9.1, 38.7], [14.4, 50.1], [19.0, 47.5], [26.1, 44.4], [23.7, 37.97], [10.75, 59.9], [27.6, 53.9], [20.5, 44.8], [23.3, 42.7], [24.1, 56.95], [28.98, 41.0], [-6.26, 53.35], [4.35, 50.85], [9.19, 45.46], [24.9, 60.17], [30.3, 59.94], [44.5, 48.7], [-3.2, 55.95], [7.45, 46.95]];
+// los países que llevan la argolla en la derecha: se encienden uno tras otro en «many countries»
+const DERECHA = [[10.75, 59.9], [12.57, 55.68], [21.0, 52.2], [16.37, 48.2], [-3.7, 40.4], [20.5, 44.8], [23.3, 42.7], [23.7, 37.97], [30.5, 50.45], [27.6, 53.9]];
 const mesaJoyero = () => {
   if (!BM) {
     BM = R.nuevo(); const prev = R.usar(BM);
@@ -193,7 +247,8 @@ const mesaJoyero = () => {
     for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
       const tabla = Math.floor(x / 64), xx = x % 64, veta = Math.sin(y * 0.05 + tabla * 5 + Math.sin(x * 0.3) * 1.2) + Math.sin(y * 0.21 + x * 0.6) * 0.3;
       let c = veta > 0.6 ? M1 : veta < -0.95 ? M2 : M0; if (xx === 0) c = NEG; else if (xx === 1) c = M2;
-      const d = (x > 266 && y < 52 ? 0.75 : 0) + (y < 14 ? 0.6 : 0) + Math.hypot(x - 140, y - 100) / 420;
+      const sx = Math.max(0, Math.min(1, (x - 236) / 70)), sy = Math.max(0, Math.min(1, (66 - y) / 58)), som = sx * sy * (3 - 2 * sx) * sy;
+      const d = 0.55 * som + 0.45 * Math.max(0, Math.min(1, (20 - y) / 16)) + Math.hypot(x - 140, y - 100) / 420 + (hh(x, y, 12) - 0.5) * 0.08;
       R.pset(x, y, mez(c, NEG, Math.min(0.88, d)));
     }
     // a la derecha, las herramientas: el estuche abierto con su argolla, la lupa y los alicates
@@ -203,33 +258,87 @@ const mesaJoyero = () => {
     R.linea(276, 64, 300, 76, K); R.linea(276, 66, 300, 74, K); R.linea(277, 65, 299, 75, hex('#9a9eae')); R.linea(300, 76, 312, 82, hex('#c83a2a')); R.linea(300, 74, 312, 70, hex('#c83a2a')); R.disco(300, 75, 2, hex('#5a5e6e'));
     // la regla de latón abajo
     R.rect(20, 172, 200, 177, K); R.rect(21, 173, 199, 176, hex('#c8a04a')); for (let x = 24; x < 198; x += 4) R.rect(x, 173, x, x % 20 === 0 ? 175 : 174, hex('#7a5a1a'));
+    // la sombra del mapa en la mesa
+    for (let y = RC[1] + 3; y <= RC[3] + 3; y++) for (let x = RC[0] + 3; x <= RC[2] + 3; x++) R.pset(x, y, mez(R.pget(x, y), K, 0.4));
+    // el mapa: de R.mapa solo se toma la forma de la tierra y el mar; se vuelve a grabar entero en pergamino
+    R.mapa(0, { rc: RC, vista: VI, marco: false });
+    MAR = new Uint8Array(320 * 180);
+    for (let y = RC[1]; y <= RC[3]; y++) for (let x = RC[0]; x <= RC[2]; x++) { const c = R.pget(x, y); MAR[y * 320 + x] = ((c >>> 16) & 255) > (c & 255) + 10 ? 1 : 0; }
+    const PG = hex('#eadbb0'), PGS = hex('#d8c48e'), PGD = hex('#c4a46a'), COS = hex('#6a4424'), MA = hex('#9ab4c0'), MAS = hex('#7e9cac'), MAD = hex('#5e7e94'), MAL = hex('#b8ccd0');
+    const T0 = RC[0] + 1, T1 = RC[2] - 1, U0 = RC[1] + 1, U1 = RC[3] - 1, esM = (x, y) => (x < T0 || x > T1 || y < U0 || y > U1) ? true : MAR[y * 320 + x] === 1;
+    CHISPAS = [];
+    for (let y = U0; y <= U1; y++) for (let x = T0; x <= T1; x++) {
+      const m = esM(x, y); let dc = 9;
+      for (let r = 1; r <= 7 && dc === 9; r++) for (let j = -r; j <= r && dc === 9; j++) for (let i = -r; i <= r; i++) { if (Math.max(Math.abs(i), Math.abs(j)) !== r) continue; const xx = x + i, yy = y + j; if (xx < T0 || xx > T1 || yy < U0 || yy > U1) continue; if (esM(xx, yy) !== m) { dc = r; break; } }
+      let c;
+      if (m) {   // el mar grabado: rayado horizontal, las ondas de la costa y el agua somera más clara
+        c = dc <= 1 ? MAL : (dc === 3 || dc === 5) ? MAS : y % 3 === 0 && hh(x >> 3, y, 21) > 0.25 ? MAS : MA;
+        if (dc > 6 && (y + (x >> 4)) % 6 === 0 && hh(x >> 2, y, 22) > 0.5) c = MAD;
+        if (dc > 2 && hh(x, y, 23) > 0.992) CHISPAS.push([x, y, hh(x, y, 24) * 6.28]);
+      } else {   // la tierra de pergamino: grano, fibras, manchas de humedad y la sombra de la costa por dentro
+        const man = Math.sin(x * 0.07 + Math.sin(y * 0.09) * 2) * Math.sin(y * 0.06 + x * 0.02) + (hh(x >> 3, y >> 3, 25) - 0.5) * 0.6;
+        c = man > 0.55 ? PGS : PG; if (hh(x, y, 26) > 0.9) c = mez(c, PGD, 0.5); if ((y * 3 + (x >> 2)) % 23 === 0 && hh(x >> 2, y, 27) > 0.6) c = mez(c, PGS, 0.6);
+        if (dc === 1) c = COS; else if (dc === 2) c = PGD; else if (dc === 3 && (x + y) % 2) c = PGS;
+      }
+      R.pset(x, y, c);
+    }
+    // la cuadrícula de meridianos y paralelos, a puntos, solo en el mar
+    for (let lo = -10; lo <= 35; lo += 10) for (let la = 36; la <= 61; la += 0.15) { const [x, y] = P(lo, la); if (esMar(x, y) && y % 2 === 0) R.pset(x, y, MAD); }
+    for (let la = 40; la <= 60; la += 5) for (let lo = -11; lo <= 50; lo += 0.2) { const [x, y] = P(lo, la); if (esMar(x, y) && x % 2 === 0) R.pset(x, y, MAD); }
+    R.recorte([RC[0] + 2, RC[1] + 2, RC[2] - 2, RC[3] - 2]);
+    // los montes tramados: piquitos con la ladera de sombra rayada
+    for (const sierra of MONTES) for (let i = 0; i + 1 < sierra.length; i++) { const [a, b] = P(...sierra[i]), [c2, d2] = P(...sierra[i + 1]), n = Math.max(1, Math.round(Math.hypot(c2 - a, d2 - b) / 5));
+      for (let k = 0; k < n; k++) { const x = Math.round(lerp(a, c2, k / n) + (hh(k, i, 28) - 0.5) * 3), y = Math.round(lerp(b, d2, k / n) + (hh(k, i, 29) - 0.5) * 3); if (esMar(x, y)) continue;
+        R.linea(x - 3, y + 2, x, y - 2, COS); R.linea(x, y - 2, x + 3, y + 2, COS); R.linea(x + 1, y - 1, x + 2, y + 1, PGD); R.pset(x + 1, y + 1, PGD); R.pset(x - 1, y, PGL()); } }
+    // los bosques: grupitos de arbolitos
+    for (const [lo, la] of BOSQUES) { const [bx, by] = P(lo, la); for (let k = 0; k < 6; k++) { const x = bx + Math.round((hh(k, lo, 30) - 0.5) * 14), y = by + Math.round((hh(k, la, 31) - 0.5) * 8); if (esMar(x, y) || esMar(x, y + 2)) continue; R.disco(x, y, 1.6, hex('#6a7a3a')); R.pset(x - 1, y - 1, hex('#9aa85a')); R.pset(x, y + 2, COS); } }
+    // los ríos grabados y las fronteras punteadas (solo en tierra)
+    for (const rio of RIOS) for (let i = 0; i + 1 < rio.length; i++) R.linea(...P(...rio[i]), ...P(...rio[i + 1]), (x, y) => (esMar(x, y) ? null : hex('#4a78b0')));
+    for (const fr of FRONTERAS) { let k = 0; for (let i = 0; i + 1 < fr.length; i++) R.linea(...P(...fr[i]), ...P(...fr[i + 1]), (x, y) => (esMar(x, y) || (k++ % 3) === 2 ? null : hex('#8a3a5a'))); }
+    for (const pol of [ALEMANIA, RUSIA.slice(0, 22)]) { let k = 0; for (let i = 0; i + 1 < pol.length; i++) R.linea(...P(...pol[i]), ...P(...pol[i + 1]), (x, y) => (esMar(x, y) || (k++ % 3) === 2 ? null : hex('#8a3a5a'))); }
+    R.linea(...P(...ALEMANIA[ALEMANIA.length - 1]), ...P(...ALEMANIA[0]), (x, y) => (esMar(x, y) ? null : hex('#8a3a5a')));
+    // las ciudades
+    for (const c of CIUDADES) { const [x, y] = P(...c); if (!dentro(x, y)) continue; R.disco(x, y, 1.6, K); R.pset(x, y, hex('#f4e8c0')); R.pset(x + 2, y + 1, mez(K, PG, 0.6)); }
+    // la rosa de los vientos en el Atlántico
+    { const [cx, cy] = P(-8.4, 49.6); R.anillo(cx, cy, 7, COS); for (let k = 0; k < 8; k++) { const g = k * Math.PI / 4, l = k % 2 ? 5 : 9; R.linea(cx, cy, Math.round(cx + Math.cos(g) * l), Math.round(cy + Math.sin(g) * l), k === 6 ? hex('#b8202a') : COS); } R.disco(cx, cy, 1.5, hex('#f4e8c0')); R.poligono([[cx - 2, cy - 9], [cx + 2, cy - 9], [cx, cy - 13]], hex('#b8202a')); }
+    R.recorte(null);
+    // el filete doble del borde del mapa, con su greca de tramos claros y oscuros
+    R.rect(RC[0], RC[1], RC[2], RC[1], K); R.rect(RC[0], RC[3], RC[2], RC[3], K); R.rect(RC[0], RC[1], RC[0], RC[3], K); R.rect(RC[2], RC[1], RC[2], RC[3], K);
+    for (let x = RC[0] + 1; x < RC[2]; x++) { const c = Math.floor((x - RC[0]) / 6) % 2 ? hex('#2a1a10') : hex('#f4e8c0'); R.pset(x, RC[1] + 1, c); R.pset(x, RC[3] - 1, c); }
+    for (let y = RC[1] + 1; y < RC[3]; y++) { const c = Math.floor((y - RC[1]) / 6) % 2 ? hex('#2a1a10') : hex('#f4e8c0'); R.pset(RC[0] + 1, y, c); R.pset(RC[2] - 1, y, c); }
+    R.rect(RC[0] + 2, RC[1] + 2, RC[2] - 2, RC[1] + 2, COS); R.rect(RC[0] + 2, RC[3] - 2, RC[2] - 2, RC[3] - 2, COS); R.rect(RC[0] + 2, RC[1] + 2, RC[0] + 2, RC[3] - 2, COS); R.rect(RC[2] - 2, RC[1] + 2, RC[2] - 2, RC[3] - 2, COS);
     R.usar(prev);
   }
   R.copiar(BM);
 };
+const PGL = () => hex('#f6ecc8');
 const ALEMANIA = [[6.0, 51.8], [6.1, 50.8], [6.4, 49.5], [7.6, 49.0], [7.6, 47.6], [9.5, 47.6], [10.2, 47.3], [13.0, 47.5], [13.8, 48.6], [12.1, 50.3], [14.8, 50.9], [14.6, 52.6], [14.2, 53.9], [12.0, 54.3], [10.9, 54.0], [9.9, 54.8], [8.6, 54.9], [8.6, 53.9], [7.0, 53.5], [7.0, 52.3]];
-const RUSIA = [[27.8, 59.5], [28.0, 57.5], [28.2, 56.2], [30.9, 55.6], [31.8, 53.1], [32.7, 52.3], [34.3, 51.7], [35.4, 50.6], [38.2, 50.0], [40.0, 49.6], [39.7, 48.0], [38.3, 47.6], [39.2, 47.0], [38.3, 46.4], [37.6, 45.5], [36.7, 45.3], [37.4, 44.7], [38.8, 44.3], [40.0, 43.4], [42.5, 43.2], [46.0, 41.9], [49, 41.9], [49, 59.5]];
-const RIOS = [[[6.0, 51.9], [7.0, 50.9], [7.6, 50.3], [8.3, 49.9], [8.4, 49.0], [7.6, 47.6]], [[9.0, 53.9], [10.6, 53.3], [11.8, 52.5], [12.4, 51.8], [13.7, 51.0], [14.3, 50.6]], [[18.8, 54.3], [18.6, 53.1], [20.0, 52.4], [21.0, 52.2], [21.5, 51.0], [19.5, 50.0]], [[8.5, 48.0], [11.0, 48.7], [13.5, 48.5], [16.4, 48.2], [18.9, 47.5], [19.0, 46.0], [20.5, 44.8], [22.6, 44.6], [25.0, 43.7], [28.0, 44.0], [29.6, 45.2]], [[33.0, 55.0], [30.5, 54.0], [30.5, 51.5], [30.5, 50.4], [32.5, 49.2], [35.0, 47.8], [33.5, 46.8], [32.5, 46.5]], [[38.5, 53.5], [39.2, 51.5], [40.0, 50.0], [42.0, 48.8], [41.0, 47.6], [39.5, 47.1]], [[33.0, 57.0], [36.0, 57.2], [38.0, 57.6], [40.0, 57.6], [42.0, 56.3], [44.0, 56.3], [46.0, 56.0], [48.5, 55.8]]];
-const CIUDADES = [[2.35, 48.85], [12.5, 41.9], [16.37, 48.2], [21.0, 52.2], [30.5, 50.45], [-0.12, 51.5], [18.07, 59.3], [12.57, 55.68], [4.9, 52.37]];
-const esMar = (c) => ((c >>> 16) & 255) > (c & 255) + 10;
+const RUSIA = [[28.6, 61.0], [27.8, 59.5], [28.0, 57.5], [28.2, 56.2], [30.9, 55.6], [31.8, 53.1], [32.7, 52.3], [34.3, 51.7], [35.4, 50.6], [38.2, 50.0], [40.0, 49.6], [39.7, 48.0], [38.3, 47.6], [39.2, 47.0], [38.3, 46.4], [37.6, 45.5], [36.7, 45.3], [37.4, 44.7], [38.8, 44.3], [40.0, 43.4], [42.5, 43.0], [45.0, 42.6], [46.5, 41.9], [48.5, 41.9], [48.5, 45.5], [47.0, 46.5], [46.7, 48.5], [47.2, 49.9], [48.8, 50.4], [50.5, 51.2], [50.5, 61.0]];
 const tinte = (pol, a, c, t) => {
-  if (a <= 0) return; const pts = pol.map(([lo, la]) => P(lo, la)), lat = 0.62 * a + 0.08 * a * Math.sin(t * 4);
-  R.recorte([RC[0] + 2, RC[1] + 2, RC[2] - 2, RC[3] - 2]);
-  R.poligono(pts, (x, y) => { const c0 = R.pget(x, y); return esMar(c0) ? c0 : mez(c0, c, (x + y) % 3 === 0 ? lat + 0.2 : lat); });
+  if (a <= 0) return; const pts = pol.map(([lo, la]) => P(lo, la)), lat = 0.55 * a + 0.08 * a * Math.sin(t * 4);
+  R.recorte([RC[0] + 3, RC[1] + 3, RC[2] - 3, RC[3] - 3]);
+  R.poligono(pts, (x, y) => { const c0 = R.pget(x, y); return esMar(x, y) ? c0 : mez(c0, c, (x + y) % 3 === 0 ? lat + 0.2 : lat); });
   const n = Math.floor(pts.length * Math.min(1, a * 1.5));
-  for (let i = 0; i < n; i++) R.linea(...pts[i], ...pts[(i + 1) % pts.length], mez(c, K, 0.55));
+  for (let i = 0; i < n; i++) R.linea(...pts[i], ...pts[(i + 1) % pts.length], (x, y) => (esMar(x, y) ? null : mez(c, K, 0.55)));
   R.recorte(null);
+};
+// un barquito de vela que cruza su mar (solo se pinta sobre agua)
+const barco = (lo0, la0, lo1, la1, per, fase, t) => {
+  const u = ((t / per + fase) % 1), [x0, y0] = P(lo0, la0), [x1, y1] = P(lo1, la1), x = Math.round(lerp(x0, x1, u)), y = Math.round(lerp(y0, y1, u)) + (Math.sin(t * 3 + fase * 9) > 0.6 ? 1 : 0), d = x1 > x0 ? 1 : -1;
+  if (!esMar(x - 3, y) || !esMar(x + 3, y) || !esMar(x, y - 5)) return;
+  for (let k = 2; k < 8; k++) if (esMar(x - d * (k + 3), y + 1) && k % 2) R.pset(x - d * (k + 3), y + 1, hex('#e4eef0'));
+  R.linea(x - 3, y, x + 3, y, K); R.linea(x - 2, y + 1, x + 2, y + 1, hex('#5a3418')); R.linea(x, y - 1, x, y - 6, K);
+  R.poligono([[x + d, y - 6], [x + d, y - 1], [x + d * 4, y - 1]], hex('#f4ecd8')); R.pset(x + d, y - 6, hex('#b8202a'));
 };
 const p4 = (t) => {
   mesaJoyero();
-  R.mapa(t, { rc: RC, vista: VI });
-  // el mapa se vuelve de papel viejo: la tierra en sepia y el mar más apagado, para que los dos países se lean
-  for (let y = RC[1] + 2; y < RC[3] - 1; y++) for (let x = RC[0] + 2; x < RC[2] - 1; x++) { const c = R.pget(x, y); R.pset(x, y, esMar(c) ? mez(c, hex('#6a8aa8'), 0.35) : mez(c, hex('#e6d6a8'), 0.62)); }
-  // los ríos grabados (Rin, Elba, Vístula, Danubio, Dniéper, Don, Volga) y las ciudades en punto
-  R.recorte([RC[0] + 2, RC[1] + 2, RC[2] - 2, RC[3] - 2]);
-  for (const rio of RIOS) for (let i = 0; i + 1 < rio.length; i++) R.linea(...P(...rio[i]), ...P(...rio[i + 1]), (x, y) => (esMar(R.pget(x, y)) ? null : hex('#4a78b0')));
-  for (const c of CIUDADES) { const [x, y] = P(...c); R.disco(x, y, 2, K); R.pset(x, y, hex('#e6d6a8')); }
-  R.recorte(null);
+  // el mar vivo: destellos que van y vienen, y tres barquitos (mar del Norte, Báltico y Mediterráneo)
+  for (const [x, y, f] of CHISPAS) { const s2 = Math.sin(t * 2.4 + f); if (s2 > 0.55) { R.pset(x, y, hex('#e8f2f4')); if (s2 > 0.85) { R.pset(x - 1, y, hex('#c8dce0')); R.pset(x + 1, y, hex('#c8dce0')); } } }
+  barco(-1, 55.6, 6.5, 56.8, 26, 0.1, t); barco(14.5, 55.2, 19.5, 57.5, 22, 0.5, t); barco(5, 41.2, 11.8, 39.3, 24, 0.3, t); barco(31.5, 43.8, 37.5, 43.0, 30, 0.7, t);
+  // «many countries»: los países de la mano derecha se encienden uno tras otro y se quedan con su aro
+  for (let k = 0; k < DERECHA.length; k++) { const t0 = P4 + 0.12 + k * 0.1; if (t < t0) continue; const [x, y] = P(...DERECHA[k]), u = Math.min(1, (t - t0) / 0.5);
+    if (u < 1) halo(x, y, Math.round(3 + u * 6), hex('#ffe070'), t); R.disco(x, y, 2.6, K); R.disco(x, y, 1.8, hex('#e89a20')); R.pset(x - 1, y - 1, hex('#fff0a0'));
+    if (u >= 1 && Math.sin(t * 3 + k) > 0.3) halo(x, y, 4, hex('#e89a20'), t); }
   const DE = en('argolla', 0.8110), RU = en('argolla', 0.8421), DER = en('argolla', 0.9614);
   tinte(ALEMANIA, tramo(t, DE - 0.1, DE + 0.4), hex('#e89a20'), t);
   tinte(RUSIA, tramo(t, RU - 0.05, RU + 0.6), hex('#e89a20'), t);
@@ -238,19 +347,20 @@ const p4 = (t) => {
   if (pr > 0) R.ruta([be, [va[0], va[1] - 6], [mi[0], mi[1] - 8], mo], pr, hex('#b8202a'), { grueso: true });
   T.chincheta(R, be[0], be[1], t, hex('#d8303a'), { baja: tramo(t, DE - 0.3, DE), pulso: t > DE + 0.2 });
   T.chincheta(R, mo[0], mo[1], t, hex('#d8303a'), { baja: tramo(t, RU - 0.1, RU + 0.2), pulso: t > RU + 0.4 });
-  // la tarjeta clavada en el mar con las dos manos: la argolla salta de la izquierda a la derecha
-  const ct = tramo(t, P4 + 0.62, P4 + 1.0), cy = Math.round(lerp(196, 124, ct * ct * (3 - 2 * ct)));
+  // la tarjeta clavada en el Atlántico con las dos manos: la argolla salta de la izquierda a la derecha
+  const ct = tramo(t, P4 + 0.62, P4 + 1.0), cy = Math.round(lerp(196, 126, ct * ct * (3 - 2 * ct)));
   if (ct > 0) {
-    R.rect(20, cy + 2, 116, cy + 46, mez(K, hex('#1a2a4a'), 0.3)); R.rect(16, cy - 2, 112, cy + 42, K); R.rect(17, cy - 1, 111, cy + 41, hex('#f4ead0'));
-    for (let x = 18; x < 111; x += 2) if (hh(x, cy, 3) > 0.6) R.pset(x, cy + 40, hex('#d8c8a0'));
-    R.rect(64, cy + 6, 64, cy + 36, hex('#d8c8a0'));
-    const my = cy + 24;
-    T.mano(R, 34, my, 1, '#e8e0cc', { sinManga: true }); T.mano(R, 94, my, -1, '#e8e0cc', { sinManga: true });
-    const j = tramo(t, DER - 0.3, DER + 0.25), A = [42, my - 1], B = [86, my - 1];
-    if (j <= 0) { argolla(A[0], A[1] + Math.round(t > en('argolla', 0.9228) && t < DER - 0.3 ? Math.abs(Math.sin(t * 14)) * -1 : 0), t); if (t > en('argolla', 0.8812)) halo(A[0] + 1, A[1] - 2, 7, hex('#e89a20'), t); }
-    else if (j < 1) { const x = lerp(A[0], B[0], j), y = lerp(A[1], B[1], j) - Math.sin(Math.PI * j) * 16; argolla(Math.round(x), Math.round(y), t); for (let k = 1; k < 5; k++) { const f = Math.max(0, j - k * 0.06); R.pset(Math.round(lerp(A[0], B[0], f)), Math.round(lerp(A[1], B[1], f) - Math.sin(Math.PI * f) * 16) - 2, mez(hex('#f0c040'), hex('#f4ead0'), k * 0.2)); } }
-    else { argolla(B[0], B[1], t); halo(B[0] + 1, B[1] - 2, 7 + Math.round(Math.sin(t * 6)), hex('#e89a20'), t); if (t < DER + 0.9) for (const [a, b] of [[-8, -6], [8, -7], [0, -11]]) destello(B[0] + a, B[1] + b, hex('#fff0a0')); if (t > DER + 0.3) R.icono('X', 31, my - 18, hex('#a8a090'), hex('#5a5448'), 1); }
-    T.chincheta(R, 64, cy + 4, t, hex('#3a6ab0'), { baja: tramo(t, P4 + 0.95, P4 + 1.15) });
+    const X0 = 12, X1 = 86, XM = 49;
+    R.rect(X0 + 4, cy + 2, X1 + 4, cy + 42, mez(K, hex('#1a2a4a'), 0.3)); R.rect(X0, cy - 2, X1, cy + 38, K); R.rect(X0 + 1, cy - 1, X1 - 1, cy + 37, hex('#f4ead0'));
+    for (let x = X0 + 2; x < X1 - 1; x++) { if (hh(x, cy, 3) > 0.6) R.pset(x, cy + 36, hex('#d8c8a0')); if (hh(x, 7, 4) > 0.8) R.pset(x, cy + 1, hex('#e4d8b8')); }
+    R.rect(XM, cy + 6, XM, cy + 32, hex('#d8c8a0'));
+    const my = cy + 21;
+    T.mano(R, X0 + 14, my, 1, '#e8e0cc', { sinManga: true }); T.mano(R, X1 - 14, my, -1, '#e8e0cc', { sinManga: true });
+    const j = tramo(t, DER - 0.3, DER + 0.25), A = [X0 + 21, my - 2], B = [X1 - 21, my - 2];
+    if (j <= 0) { argolla(A[0], A[1] + Math.round(t > en('argolla', 0.9228) && t < DER - 0.3 ? Math.abs(Math.sin(t * 14)) * -1 : 0), t); if (t > en('argolla', 0.8812)) halo(A[0], A[1] + 1, 7, hex('#e89a20'), t); }
+    else if (j < 1) { const x = lerp(A[0], B[0], j), y = lerp(A[1], B[1], j) - Math.sin(Math.PI * j) * 14; argolla(Math.round(x), Math.round(y), t); for (let k = 1; k < 5; k++) { const f = Math.max(0, j - k * 0.06); R.pset(Math.round(lerp(A[0], B[0], f)), Math.round(lerp(A[1], B[1], f) - Math.sin(Math.PI * f) * 14) - 2, mez(hex('#f0c040'), hex('#f4ead0'), k * 0.2)); } }
+    else { argolla(B[0], B[1], t); halo(B[0], B[1] + 1, 7 + Math.round(Math.sin(t * 6)), hex('#e89a20'), t); if (t < DER + 0.9) for (const [a, b] of [[-8, -6], [8, -7], [0, -11]]) destello(B[0] + a, B[1] + b, hex('#fff0a0')); if (t > DER + 0.3) R.icono('X', X0 + 9, my - 17, hex('#a8a090'), hex('#5a5448'), 1); }
+    T.chincheta(R, XM, cy + 4, t, hex('#3a6ab0'), { baja: tramo(t, P4 + 0.95, P4 + 1.15) });
   }
 };
 

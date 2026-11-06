@@ -15,11 +15,18 @@
 //    «eggs» levanta uno a la luz; en «Easter» la campana se mece y la niña llega corriendo y la señala;
 // 2. («Christians» → «why») la cocina: la madre ordena los huevos tras la mesa, el padre entra de domingo con un ramo de
 //    lirios y lo pone en la jarra; por la ventana la campana de la iglesia; en «question» el niño se vuelve con un «?»;
-// 3. («why» → «the hens») FONDO LOCAL, la despensa (inserto): la cesta grande en la mesa; en «rabbit» asoma una liebre con
-//    su «?» y se va; una gallina pone en «explanation» y el huevo rueda a la cesta; en «Lent» la pizarra se llena de 40
-//    rayas y el cuenco de huevos; una mano va a coger uno y la gallina se la picotea («didn't eat them»);
-// 4. («the hens» → fin) la mesa de los tintes: la cesta se llena, la gallina pone en la ventana, la madre moja un huevo
-//    en el tinte («boiled»), una mano con pincel pinta la fila («painted») y la madre le regala uno a la niña («given»).
+// 3. («why» → «the hens») FONDO LOCAL, la despensa (inserto): la cesta grande en la mesa; la pizarra lleva desde el
+//    principio las rayas de los días ya contados, los borrones de semanas pasadas y un huevo de tiza por cada huevo
+//    guardado, y suma una raya (con su polvillo) cada medio segundo; en «rabbit» asoma una liebre con su «?» y se va; una
+//    gallina pone en «explanation» y el huevo rueda a la cesta; en «Lent» la pizarra se llena hasta las 40 rayas y el
+//    cuenco de huevos; una mano va a coger uno y la gallina se la picotea («didn't eat them»);
+// 4. («the hens» → fin) FONDO LOCAL, el hogar y la mesa de los tintes (inserto de manos, otra composición: la campana
+//    tiznada, la lumbre, el caldero colgado de los llares y la ventana honda con el campo y la iglesia): la gallina del
+//    alféizar pone dos veces y el huevo rueda al montón («kept laying»); una mano echa huevos en la cesta hasta colmarla
+//    («plenty left over»); el caldero hierve con los huevos dentro y una mano moja un huevo DENTRO del lebrillo de tinte
+//    de cebolla y lo saca rojo al nido de paja («boiled»); las manos de abajo llevan el codo dentro del cuadro y la
+//    muñeca no sube de y 136 (≤45 px de manga a la vista); otra mano con pincel pinta la fila del paño («painted») y la
+//    madre le da el primero, azul, a la mano pequeña de la niña, que entra por la derecha («given»).
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-huevos');
@@ -199,6 +206,10 @@ const despensa = () => {
   // la pizarra de la Cuaresma colgada de un clavo
   R.linea(256, 40, 214, 52, c('#8a7a5a')); R.linea(256, 40, 298, 52, c('#8a7a5a')); ps(256, 39, K);
   rc(208, 50, 302, 106, K); rc(209, 51, 301, 105, c('#8a5a30')); rc(212, 54, 298, 102, c('#2e3438')); for (let k = 0; k < 40; k++) ps(214 + Math.floor(hh(k, 5) * 82), 56 + Math.floor(hh(k, 6) * 44), c('#3e464c'));
+  // los borrones de tiza de las semanas pasadas, el trapo de borrar y la tiza en el canto del marco
+  for (let k = 0; k < 7; k++) { const y0 = 57 + k * 6 + Math.floor(hh(k, 7) * 3), x0 = 214 + Math.floor(hh(k, 8) * 34), w = 22 + Math.floor(hh(k, 9) * 34); for (let x = x0; x < Math.min(297, x0 + w); x++) if (hh(x, y0, 10) > 0.4) ps(x, y0 + ((x >> 3) % 2), c(k % 2 ? '#465056' : '#40494e')); }
+  rc(220, 103, 233, 107, K); rc(221, 103, 232, 106, c('#a8a49a')); rc(221, 103, 232, 103, c('#c8c4ba')); for (const x of [224, 228]) ps(x, 105, c('#8a867c'));
+  rc(270, 102, 277, 104, K); rc(271, 102, 276, 103, c('#f4f4ee'));
   // la mesa de tablas con el paño de lino
   for (let y = 132; y < 180; y++) for (let x = 0; x < 320; x++) { const r = hh(x >> 2, y, 3); ps(x, y, (y - 132) % 12 === 0 ? c('#6a4024') : r < 0.12 ? c('#94603a') : r > 0.9 ? c('#c08a52') : c('#a87444')); }
   rc(0, 132, 319, 133, c('#c89a62'));
@@ -230,7 +241,12 @@ const rayas = (n) => { for (let k = 0; k < n; k++) { const g = Math.floor(k / 5)
 const p3 = (t) => {
   R.copiar(despensa());
   // la pizarra: las rayas de los cuarenta días se llenan en «Lent»
-  const nr = Math.round(40 * tramo(t, cuaresma, en('huevos', 0.7430))); rayas(nr);
+  // desde el principio ya hay días contados y se suma una raya cada poco, con su polvillo de tiza
+  const nd = Math.floor((t - P3) / 0.55), nr = Math.max(Math.min(19, 11 + nd), Math.round(40 * tramo(t, cuaresma, en('huevos', 0.7430)))); rayas(nr);
+  if (nr < 40 && ((t - P3) / 0.55) % 1 < 0.3) { const g = Math.floor((nr - 1) / 5), i = (nr - 1) % 5, gx = 218 + (g % 4) * 20 + (i < 4 ? i * 3 : 5), gy = 60 + Math.floor(g / 4) * 22; for (const [dx, dy] of [[-2, -2], [2, -3], [0, 15], [3, 14], [-3, 13]]) R.pset(gx + dx, gy + dy, c('#a8b0b0')); }
+  // un huevo de tiza, relleno y con su sombra, por cada huevo guardado en el cuenco
+  const ce = 2 + Math.round(6 * tramo(t, cuaresma, en('huevos', 0.7430)));
+  for (let k = 0; k < ce; k++) { const x = 218 + k * 10; R.rect(x + 1, 96, x + 2, 96, c('#e4e6e0')); R.rect(x, 97, x + 3, 99, c('#e4e6e0')); R.rect(x + 1, 100, x + 2, 100, c('#c8ccc8')); R.pset(x + 3, 99, c('#b0b6b4')); }
   if (nr >= 40) R.numero('40', 255, Math.round(lerp(130, 124, tramo(t, en('huevos', 0.7430), en('huevos', 0.7529)))), { tam: 16, centro: true });
   // la liebre asoma en «rabbit» con su «?» y se va por la derecha
   const li = tramo(t, P3 + 0.1, conejo), lo = tramo(t, en('huevos', 0.5691), en('huevos', 0.5889));
@@ -243,37 +259,198 @@ const p3 = (t) => {
   pz('gallina', xg, 168 - (pica ? 2 : 0), { t, s: 2, picotea: (g >= 1 && t < explica - 0.3) || pica, dir: pica ? -1 : 1 });
   if (t > explica - 0.05 && rueda < 1) pz('huevo', Math.round(lerp(100, 132, rueda)), 170, { s: 2 });
   // el cuenco de huevos de la izquierda se llena en la Cuaresma
-  cuenco(38, 160, 2 + Math.round(6 * tramo(t, cuaresma, en('huevos', 0.7430))));
+  cuenco(38, 160, ce);
   // la mano que va a coger un huevo y se retira
   const va = tramo(t, en('huevos', 0.6936), noComen), vuelve = tramo(t, noComen + 0.15, noComen + 0.6), am = va * (1 - vuelve);
   if (am > 0.02) T.brazo(R, -22, 214, Math.round(lerp(-6, 34, am)), Math.round(lerp(196, 150, am)), '#6a7a9a', 1, { codo: [Math.round(lerp(-12, 6, am)), Math.round(lerp(200, 176, am))] });
   if (pica) R.icono('!', 52, 128, c('#d83030'), K, 2);
 };
-// ── plano 4: la mesa de los tintes ──
+// ── plano 4: el hogar y la mesa de los tintes (fondo local, inserto de manos) ──
+// un huevo de 7×9 (anclado abajo en el centro) que no se pinta de ylim para abajo: lo que queda bajo el tinte no se ve
+const HV = ['..kkk..', '.kYYYk.', 'kYEYYYk', 'kYYYYYk', 'kYYYYYk', 'kYYYYyk', 'kYYYyyk', '.kyyyk.', '..kkk..'];
+const HCOL = { blanco: ['#f6f0e0', '#d8ccb0'], rojo: ['#d8303a', '#9a1e28'] };
+const huevoHasta = (x, yb, col, ylim = 999) => { const [a, b] = HCOL[col].map(c), E = c('#ffffff'); for (let j = 0; j < 9; j++) { const y = yb - 9 + j; if (y >= ylim) break; for (let i = 0; i < 7; i++) { const ch = HV[j][i]; if (ch !== '.') R.pset(x - 3 + i, y, ch === 'k' ? K : ch === 'Y' ? a : ch === 'y' ? b : E); } } };
+let FH = null;
+const OY = -12;
+const hogar = () => {
+  if (FH) return FH;
+  const b = R.nuevo(), prev = R.usar(b);
+  // la pared de sillares: juntas, piedras de cuatro tonos con su arista de luz y su sombra, y motas (tranquila arriba a la derecha)
+  const PI = ['#b4a690', '#a89a84', '#bcae98', '#9e927e'].map(c), PL = c('#cfc2aa'), PS = c('#857a68'), JU = c('#6e6252');
+  for (let y = 0; y < 142; y++) { const fila = Math.floor(y / 11), yy = y % 11; for (let x = 0; x < 320; x++) { const xs = x + fila * 13 + (fila % 2) * 7, bi = Math.floor(xs / 23), xx = xs % 23, n = hh(x, y, 22), calma = x > 272 && y < 48;
+    R.pset(x, y, yy === 0 || xx === 0 ? JU : yy === 1 || xx === 1 ? PL : yy === 10 || xx === 22 ? PS : !calma && n < 0.06 ? PS : !calma && n > 0.96 ? PL : PI[Math.floor(hh(bi, fila, 21) * 4)]); } }
+  // lo de la pared va 12 px más arriba que la trama de sillares, para que la mesa sea más honda
+  const ps = (x, y, col) => R.pset(x, y + OY, col), rc = (x0, y0, x1, y1, col) => R.rect(x0, y0 + OY, x1, y1 + OY, col), di = (x, y, r, col) => R.disco(x, y + OY, r, col), li = (x0, y0, x1, y1, col) => R.linea(x0, y0 + OY, x1, y1 + OY, col), po = (P, col) => R.poligono(P.map(([x, y]) => [x, y + OY]), col);
+  // la campana de la chimenea, encalada y tiznada de hollín hacia la boca, con una grieta
+
+  const HO = ['#dcd0b8', '#c4b8a2', '#9a8e7e', '#6e6458', '#4a423c'].map(c);
+  for (let y = 0; y <= 46; y++) { const xl = Math.round(34 - 30 * y / 46), xr = Math.round(126 + 28 * y / 46); for (let x = xl; x <= xr; x++) { const s = (y / 46) * 1.6 - Math.abs(x - 80) / 70 + (hh(x >> 1, y >> 1, 23) - 0.5) * 0.5 + ((x + y) & 1 ? 0.12 : -0.12);
+    ps(x, y, x <= xl + 1 || x >= xr - 1 ? K : x <= xl + 3 ? HO[0] : x >= xr - 5 ? HO[s > 0.5 ? 3 : 2] : HO[Math.max(0, Math.min(4, Math.floor(s * 2.4)))]); } }
+  { let xx = 112, yy = 18; for (let i = 0; i < 16; i++) { ps(xx, yy, HO[2]); xx += hh(i, 4, 27) > 0.6 ? 1 : 0; yy += 1; } }
+  // la repisa de madera con su veta; encima el candil de latón, dos platos de loza, el romero y la jarrita
+  rc(0, 46, 158, 52, K); rc(1, 47, 157, 51, c('#6a4424')); rc(1, 47, 157, 47, c('#8e5e34')); for (let x = 2; x < 157; x++) if (hh(x, 3, 24) > 0.8) ps(x, 49 + (x % 2), c('#553620'));
+  rc(16, 41, 26, 46, K); rc(17, 42, 25, 45, c('#c89a3a')); rc(17, 42, 25, 42, c('#f0d070')); rc(19, 30, 23, 41, K); rc(20, 31, 22, 40, c('#f2ecdc')); ps(20, 31, c('#ffffff')); ps(21, 29, K);
+  for (const [x, r, col] of [[100, 8, '#3a6ab0'], [116, 6, '#4a8a4a']]) { di(x, 46 - r, r, K); di(x, 46 - r, r - 1, c('#f0ead8')); di(x, 46 - r, r - 3, c(col)); di(x, 46 - r, r - 4, c('#f0ead8')); ps(x - r + 2, 46 - r - 2, c('#ffffff')); }
+  for (let k = 0; k < 7; k++) { li(44 + k, 46, 40 + k * 2, 36 + (k % 3), c(k % 2 ? '#4e8a3a' : '#6aa84a')); } rc(43, 43, 52, 44, c('#8a5a30'));
+  rc(132, 34, 146, 46, K); rc(133, 35, 145, 45, c('#b86a3a')); rc(133, 35, 135, 45, c('#d88a5a')); rc(143, 35, 145, 45, c('#8a4a28')); rc(135, 31, 143, 34, K); rc(136, 32, 142, 33, c('#9a5a2a')); li(146, 37, 149, 40, K); li(149, 40, 146, 43, K);
+  // la boca del hogar: ladrillo tiznado, más cálido abajo por la lumbre, y la placa de hierro con su sol
+  const LA = ['#2a1e1a', '#3a2820', '#55301e', '#7a3e1e'].map(c), LJ = c('#160e0c');
+  for (let y = 52; y < 128; y++) for (let x = 20; x < 140; x++) { const row = Math.floor((y - 52) / 6), xb = (x + (row % 2) * 7) % 14, g = Math.max(0, (y - 78) / 50) * Math.max(0, 1 - Math.abs(x - 80) / 62) * 3.4 + (hh(x, y, 25) - 0.5) * 0.6; ps(x, y, (y - 52) % 6 === 0 || xb === 0 ? LJ : LA[Math.max(0, Math.min(3, Math.floor(g)))]); }
+  rc(58, 56, 102, 90, K); rc(59, 57, 101, 89, c('#2e2e34')); rc(59, 57, 101, 57, c('#4a4a52')); rc(62, 60, 98, 60, c('#3e3e46')); rc(62, 86, 98, 86, c('#3e3e46'));
+  di(80, 73, 6, c('#45454e')); di(80, 73, 4, c('#2e2e34')); for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; li(Math.round(80 + Math.cos(a) * 8), Math.round(73 + Math.sin(a) * 8), Math.round(80 + Math.cos(a) * 11), Math.round(73 + Math.sin(a) * 11), c('#45454e')); }
+  // las jambas de sillería, más claras, con su arista y su sombra
+  for (const x0 of [6, 140]) for (const [y0, y1] of [[52, 77], [78, 102], [103, 128]]) { rc(x0, y0, x0 + 13, y1, K); for (let y = y0 + 1; y < y1; y++) for (let x = x0 + 1; x < x0 + 13; x++) ps(x, y, y === y0 + 1 || x === x0 + 1 ? c('#ddd0b8') : y === y1 - 1 || x === x0 + 12 ? c('#9a8e78') : hh(x, y, 28) < 0.08 ? c('#a89c86') : c('#c4b69e')); }
+  // la losa del hogar con la ceniza, y su canto de piedra
+  for (let y = 128; y < 142; y++) for (let x = 0; x < 162; x++) { const d = Math.abs(x - 80) / 50 + (hh(x, y, 29) - 0.5) * 0.5; ps(x, y, y === 128 ? K : y < 135 ? (d < 0.8 ? ((x + y) % 3 ? c('#cfcac0') : c('#b8b2a8')) : c('#b8aa92')) : (x % 32 === 0 || y === 135) ? c('#5e5446') : c('#8a7e6a')); }
+  // los morillos de hierro y los troncos (corteza, cara cortada con sus anillos y el tizón negro de arriba)
+  for (const x of [50, 108]) { rc(x - 1, 108, x + 2, 128, K); rc(x, 109, x + 1, 127, c('#3a3a40')); di(x, 107, 2, K); ps(x, 106, c('#6a6a74')); }
+  for (const [x0, x1, y, col] of [[46, 112, 120, '#5a3a22'], [58, 102, 115, '#6a4428']]) { rc(x0, y - 3, x1, y + 3, K); rc(x0 + 1, y - 2, x1 - 1, y + 2, c(col)); rc(x0 + 1, y - 2, x1 - 1, y - 2, c('#2a1a14')); for (let x = x0 + 3; x < x1 - 2; x += 5) ps(x, y + (x % 2), c('#3a2414')); di(x1, y, 3, K); di(x1, y, 2, c('#c8a070')); ps(x1, y, c('#8a6a40')); }
+  // entre el hogar y la ventana: el fuelle colgado de su clavo y las tenazas apoyadas en la jamba
+  ps(166, 56, K); li(166, 57, 163, 62, c('#8a7a5a')); li(166, 57, 169, 62, c('#8a7a5a'));
+  rc(164, 58, 168, 64, K); rc(165, 59, 167, 63, c('#c89a3a'));
+  po([[159, 64], [173, 64], [178, 78], [174, 92], [158, 92], [154, 78]], K); po([[160, 66], [172, 66], [176, 78], [173, 90], [159, 90], [156, 78]], c('#8a5a30'));
+  for (let y = 70; y < 90; y += 4) li(158, y, 174, y, c('#6a4224')); li(160, 67, 160, 89, c('#a8763e')); rc(159, 92, 161, 100, K); rc(171, 92, 173, 100, K);
+  li(156, 98, 160, 141, K); li(157, 98, 161, 141, c('#4a4a52')); li(158, 98, 164, 141, K); li(159, 98, 165, 141, c('#5a5a62'));
+  // la ventana honda: el derrame encalado (luz a la izquierda, sombra arriba y a la derecha)
+  rc(184, 22, 264, 92, K);
+  for (let y = 23; y < 92; y++) for (let x = 185; x < 264; x++) { if (x >= 193 && x <= 255 && y >= 29 && y <= 89) continue; const sh = x > 255 ? 2 : y < 29 ? 1 : x < 193 ? 0 : 1; ps(x, y, (x + y) % 7 === 0 ? PS : [c('#e2d8c2'), c('#cabfa8'), c('#b0a48e')][sh]); }
+  li(185, 23, 193, 29, c('#a89a84')); li(263, 23, 255, 29, c('#a89a84'));
+  rc(193, 29, 255, 89, c('#6a4a2a')); rc(193, 29, 255, 29, c('#8a6a3a'));
+  // el campo: cielo tramado, colinas lejanas, la colina verde con lindes y arbolitos, el pueblo y la iglesia con su campanario
+  for (let y = 31; y <= 88; y++) for (let x = 195; x <= 253; x++) { const u = (y - 31) / 34 * 3 + ((x + y) & 1 ? 0.3 : -0.3); ps(x, y, u < 1 ? c('#78aee4') : u < 2 ? c('#94c2ec') : c('#b4d6f2')); }
+  for (let x = 195; x <= 253; x++) { const t1 = Math.round(62 + 3 * Math.sin(x / 6)); for (let y = t1; y <= 88; y++) ps(x, y, y === t1 ? c('#a8c4d4') : c('#8aaac0')); const t2 = Math.round(72 + 3 * Math.sin(x / 10 + 1)); for (let y = t2; y <= 88; y++) ps(x, y, y === t2 ? c('#a8d878') : (x * 3 + y) % 9 === 0 ? c('#5e9a42') : y > 80 && (x + y * 2) % 13 === 0 ? c('#f0e8a0') : c('#74b050')); }
+  for (let x = 196; x < 253; x += 3) ps(x, 79 + Math.round(Math.sin(x / 8) * 2), c('#4e7a34'));
+  for (const [x, y] of [[200, 72], [212, 70], [250, 73]]) { di(x, y, 2, c('#3e7a2a')); ps(x - 1, y - 1, c('#6aa84a')); }
+  for (const [x, y] of [[204, 70], [214, 69]]) { rc(x - 3, y - 2, x + 3, y + 2, c('#f0ead8')); rc(x - 4, y - 4, x + 4, y - 3, c('#c04a2a')); ps(x, y + 1, c('#5a3a22')); }
+  rc(228, 61, 244, 71, K); rc(229, 62, 243, 70, c('#d8cdb4')); po([[227, 61], [245, 61], [241, 57], [231, 57]], c('#9a4a2a'));
+  rc(237, 47, 244, 71, K); rc(238, 48, 243, 70, c('#e2d8c2')); rc(239, 51, 242, 54, c('#3a2a22')); ps(240, 54, c('#e0b030')); po([[236, 47], [245, 47], [240, 40]], c('#9a4a2a')); ps(240, 38, K); ps(240, 39, K); ps(239, 39, K); ps(241, 39, K);
+  for (const x of [232, 235]) rc(x, 64, x, 67, c('#3a2a22'));
+  // el alféizar de piedra, ancho
+  rc(178, 88, 270, 97, K); rc(179, 89, 269, 96, c('#c4b69e')); rc(179, 89, 269, 89, c('#e0d6c0')); rc(179, 96, 269, 96, c('#9a8e78')); for (let x = 180; x < 269; x++) if (hh(x, 90, 30) < 0.1) ps(x, 92 + (x % 3), c('#a89c86'));
+  rc(180, 98, 268, 99, c('#857a68'));
+  // el vasar bajo la ventana: la tabla con sus escuadras, el almirez con su mano, dos jarritas y el salero
+  rc(196, 118, 262, 121, K); rc(197, 118, 261, 120, c('#8a5a30')); rc(197, 118, 261, 118, c('#a8763e')); for (const x of [202, 254]) { li(x, 121, x + 4, 128, K); li(x + 1, 121, x + 5, 128, c('#6a4424')); }
+  rc(204, 108, 216, 117, K); rc(205, 109, 215, 117, c('#c8b088')); rc(205, 109, 207, 117, c('#e0cca4')); rc(203, 108, 217, 109, K); li(212, 108, 220, 100, K); li(213, 108, 221, 101, c('#a8763e'));
+  for (const [x, hgt, col] of [[230, 10, '#b86a3a'], [242, 7, '#3a6ab0']]) { rc(x - 4, 117 - hgt, x + 4, 117, K); rc(x - 3, 118 - hgt, x + 3, 117, c(col)); rc(x - 3, 118 - hgt, x - 2, 117, c('#f0d0a0')); rc(x - 2, 116 - hgt, x + 2, 117 - hgt, K); }
+  rc(250, 111, 258, 117, K); rc(251, 112, 257, 117, c('#d8c49a')); rc(250, 110, 258, 111, c('#6a4424'));
+  // la mesa de roble en escorzo: tablas que se juntan hacia el fondo, vetas, nudos y el canto de luz
+  const MA = ['#8a5a32', '#94643a', '#7e5230'].map(c), MV = c('#6a4224'), MLz = c('#a87446');
+  for (let y = 130; y < 180; y++) { const k = 240 / (y + 60); for (let x = 0; x < 320; x++) { const xb = 160 + (x - 160) * k + 520, pl = Math.floor(xb / 26), fr = xb - pl * 26; R.pset(x, y, fr < 1.1 ? K : fr < 2.1 ? MLz : hh(Math.floor(xb / 2), Math.floor(y / 4), 26 + pl) > 0.86 ? MV : MA[pl % 3]); } }
+  for (const [x, y] of [[150, 174], [262, 134], [30, 140]]) { R.disco(x, y, 2, MV); R.pset(x, y, K); }
+  R.rect(0, 128, 319, 128, K); R.rect(0, 129, 319, 129, c('#c08a52'));
+  // el paño de lino con la cenefa roja, su trama y el pliegue
+  for (let y = 138; y <= 166; y++) for (let x = 200; x <= 312; x++) R.pset(x, y, x === 200 || x === 312 || y === 138 || y === 166 ? c('#b8ae98') : (x < 205 || x > 307) ? ((y >> 1) % 2 ? c('#b84a3a') : c('#efe8d6')) : (x + y) % 5 === 0 ? c('#ddd4c0') : (x * 3 + y) % 11 === 0 ? c('#f8f4ea') : c('#efe8d6'));
+  R.linea(256, 139, 256, 165, c('#d4cab4')); R.linea(257, 139, 257, 165, c('#f8f4ea')); R.rect(201, 167, 311, 167, c('#5a3a20'));
+  // las pieles de cebolla (el tinte) y una cebolla entera junto al lebrillo
+  for (let k = 0; k < 12; k++) { const x = 6 + Math.floor(hh(k, 11) * 78), y = 154 + Math.floor(hh(k, 12) * 12); if (x > 20 && x < 72 && y < 164) continue; R.linea(x, y, x + 2, y - 1, c(k % 3 ? '#c8803a' : '#a85a24')); R.pset(x + 3, y, c('#e0a060')); }
+  R.disco(12, 158, 5, K); R.disco(12, 158, 4, c('#c8803a')); R.disco(11, 157, 2, c('#e0a060')); R.linea(12, 153, 14, 150, c('#8a6a30'));
+  // el nido de paja donde se secan los huevos teñidos
+  for (let j = -4; j <= 4; j++) for (let i = -13; i <= 13; i++) { const d = (i / 13) ** 2 + (j / 4.5) ** 2; if (d <= 1) R.pset(92 + i, 160 + j, d > 0.8 ? c('#8a6a30') : (i + j * 3) % 4 === 0 ? c('#f0d880') : (i - j) % 5 === 0 ? c('#a8883a') : c('#d8b860')); }
+  for (let k = 0; k < 8; k++) R.linea(80 + k * 3, 155 + (k % 2), 82 + k * 3, 153, c('#e8cc70'));
+  // los botes de pintura de barro: rojo, azul, amarillo y verde
+  for (const [x, y, col] of [[172, 144, '#d8303a'], [186, 142, '#3a7ad8'], [176, 158, '#f0d040'], [190, 156, '#4aa84a']]) { R.rect(x - 5, y - 5, x + 5, y + 5, K); R.rect(x - 4, y - 4, x + 4, y + 4, c('#b86a3a')); R.rect(x - 4, y - 4, x - 3, y + 4, c('#d88a5a')); R.rect(x + 3, y - 4, x + 4, y + 4, c('#8a4a28')); R.rect(x - 4, y - 5, x + 4, y - 3, c(col)); R.pset(x - 2, y - 4, c('#ffffff')); R.rect(x - 4, y + 6, x + 6, y + 6, c('#5a3a20')); }
+  R.usar(prev); return (FH = b);
+};
+// la cesta de la mesa: el asa por detrás, los huevos amontonados y el cuerpo de mimbre trenzado con su borde
+const cestita = (cx, base, n) => {
+  for (let a = 0; a <= 40; a++) { const u = a / 40 * Math.PI, x = Math.round(cx - Math.cos(u) * 18), y = Math.round(base - 16 - Math.sin(u) * 18); R.rect(x - 1, y - 1, x + 1, y + 1, K); R.pset(x, y, c('#c8964a')); }
+  const pos = [[-12, 0], [-4, 0], [4, 0], [12, 0], [-8, -5], [0, -5], [8, -5], [-14, -3], [14, -3], [-4, -10], [4, -10], [0, -14]];
+  for (let k = 0; k < Math.min(12, n); k++) pz('huevo', cx + pos[k][0], base - 13 + pos[k][1], { color: k % 3 === 1 ? 'marron' : 'blanco' });
+  for (let j = 0; j < 17; j++) { const w = 20 - Math.round(j * 0.25), y = base - 16 + j; R.rect(cx - w - 1, y, cx + w + 1, y, K); if (j > 0 && j < 16) for (let x = cx - w; x <= cx + w; x++) R.pset(x, y, ((x + (Math.floor(j / 3) % 2) * 3) % 6 < 3) ? (j % 3 === 0 ? c('#8a5a2a') : c('#c8964a')) : (j % 3 === 0 ? c('#6a4220') : c('#a8763a'))); }
+  R.rect(cx - 21, base - 18, cx + 21, base - 15, K); R.rect(cx - 20, base - 17, cx + 20, base - 16, c('#d8a860')); for (let x = cx - 20; x <= cx + 20; x += 3) R.pset(x, base - 17, c('#8a5a2a'));
+  R.rect(cx - 19, base + 1, cx + 21, base + 1, c('#5a3a20'));
+};
+// el lebrillo de tinte: el fondo (borde de atrás, vidriado verde y el tinte rojo oscuro) y luego el labio de delante y el cuerpo
+const LBX = 46, LBY = 144;
+const lebrilloFondo = (t, onda) => {
+  for (let j = -6; j <= 6; j++) for (let i = -23; i <= 23; i++) { const d = (i / 23) ** 2 + (j / 6.5) ** 2, e = (i / 19) ** 2 + (j / 4.5) ** 2; if (d > 1) continue; R.pset(LBX + i, LBY + j, d > 0.86 ? K : e > 1 ? (j < 0 ? c('#5a8a4a') : c('#c87a44')) : (Math.sin(i * 0.7 + t * 3) > 0.85 && j < 0) ? c('#a83a28') : (i + j) % 4 === 0 ? c('#6a1e14') : c('#7a2418')); }
+  if (onda > 0) for (let a = 0; a < 40; a++) { const u = a / 40 * Math.PI * 2, r = 4 + onda * 10, x = Math.round(LBX + Math.cos(u) * r), y = Math.round(LBY + Math.sin(u) * r * 0.32); if ((((x - LBX) / 19) ** 2 + ((y - LBY) / 4.5) ** 2) < 1) R.pset(x, y, c('#c85a40')); }
+};
+const lebrilloDelante = () => {
+  for (let j = 0; j <= 6; j++) for (let i = -23; i <= 23; i++) { const d = (i / 23) ** 2 + (j / 6.5) ** 2, e = (i / 19) ** 2 + (j / 4.5) ** 2; if (d <= 1 && e > 1) R.pset(LBX + i, LBY + j, d > 0.86 ? K : c('#d88a5a')); }
+  for (let j = 7; j <= 20; j++) { const w = 22 - Math.round((j - 7) * 0.5); R.rect(LBX - w - 1, LBY + j, LBX + w + 1, LBY + j, K); if (j < 20) for (let x = LBX - w; x <= LBX + w; x++) { const r = (x - LBX) / w; R.pset(x, LBY + j, r < -0.6 ? c('#d88a5a') : r > 0.55 ? c('#8a4a28') : j % 6 === 0 ? c('#a85e30') : c('#b86a3a')); } }
+  R.rect(LBX - 16, LBY + 21, LBX + 20, LBY + 21, c('#5a3a20'));
+};
 const p4 = (t) => {
-  const hv = lerp(0.55, 1, tramo(t, P4, sobran)), pin = tramo(t, pintan - 0.1, en('huevos', 0.9683));
-  T.estaciones(R, t, { encuadre: 'gallinero', camara: 'cestas', huevos: hv, pintados: pin });
-  // la gallina de la ventana pone en «kept laying»
-  pz('gallina', 248, 90, { t, picotea: t > en('huevos', 0.7944), dir: -1 }); if (t > en('huevos', 0.7778)) pz('huevo', 260, 91, {});
-  // la madre llena la cesta, moja un huevo en el tinte caliente y luego lleva uno pintado a la niña
-  const f = ((t - P4) * 1.4) % 1, lleva = tramo(t, en('huevos', 0.9406), en('huevos', 0.9663));
-  let ml = false;
-  if (t < sobran) ml = f < 0.5 ? [84, 104] : [104, 110];
-  else if (t > hierven - 0.4 && t < hierven + 0.5) ml = [136, t < hierven ? 112 : 118];
-  else if (t >= en('huevos', 0.9406)) ml = [Math.round(lerp(122, 186, lleva)) + 10, lleva >= 1 ? 104 : 106];
-  const xm = Math.round(lerp(106, 170, lleva));
-  const ma = R.actor(EL.labriega, xm, 118, t, { dir: 1, anda: lleva > 0 && lleva < 1, sostiene: ml, sinObjeto: true, sonrisa: t > sobran, habla: t > regalan && cada(t, 5) });
-  // la niña llega por la derecha y recibe el huevo pintado
-  const n = tramo(t, en('huevos', 0.9248), en('huevos', 0.9525)), xn = Math.round(lerp(330, 202, n)), tiene = t > en('huevos', 0.9703);
-  const ni = R.actor(EL.ninaCampo, xn, 118, t, { dir: -1, anda: n > 0 && n < 1, sostiene: tiene ? [200, 100] : false, sonrisa: tiene, salto: tiene && t < en('huevos', 0.9841) ? 2 : 0 });
-  T.estacionesDelante(R, t, { encuadre: 'gallinero', camara: 'cestas', huevos: hv, pintados: pin });
-  if (t < sobran && f < 0.5) pz('huevo', ma.mano[0], ma.mano[1] + 2, { color: 'marron' });
-  if (t > hierven - 0.4 && t < hierven + 0.5) { pz('huevo', ma.mano[0], ma.mano[1] + 3, { color: t > hierven ? 'rojo' : 'blanco' }); for (let k = 0; k < 5; k++) { const a = (t * 0.8 + k / 5) % 1; R.pset(Math.round(124 + k * 6 + Math.sin(t * 3 + k) * 2), Math.round(118 - a * 26), c('#f4f0ea')); } }
-  if (t >= hierven + 0.5) for (let k = 0; k < 3; k++) { const a = (t * 0.6 + k / 3) % 1; R.pset(Math.round(130 + k * 8 + Math.sin(t * 2 + k) * 2), Math.round(116 - a * 18), c('#e8e4dc')); }
-  if (t >= en('huevos', 0.9406) && !tiene) pz('huevo', ma.mano[0], ma.mano[1] + 3, { color: 'azul', dibujo: 'rayas' });
-  if (tiene) { pz('huevo', ni.mano[0], ni.mano[1] + 3, { color: 'azul', dibujo: 'rayas' }); if (t < en('huevos', 0.9960)) for (const [dx, dy] of [[-6, -8], [6, -8], [0, -12]]) R.pset(ni.mano[0] + dx, ni.mano[1] + dy, c('#ffe08a')); }
-  // la mano con el pincel pinta la fila de huevos en «painted»
-  if (pin > 0 && pin < 1) { const bx = Math.round(210 + pin * 7.6 * 13); T.brazo(R, bx + 34, 214, bx + 8, 160, '#a8503a', -1, { codo: [bx + 26, 186] }); R.linea(bx + 2, 160, bx - 3, 152, c('#8a5a30')); R.rect(bx - 4, 151, bx - 3, 152, c('#d8303a')); }
+  R.copiar(hogar());
+  const hirv = 0.35 + 0.65 * tramo(t, hierven - 1.2, hierven), fr = Math.floor(t * 8);
+  const pS = (x, y, col) => R.pset(x, y + OY, col), rS = (x0, y0, x1, y1, col) => R.rect(x0, y0 + OY, x1, y1 + OY, col), dS = (x, y, r, col) => R.disco(x, y + OY, r, col), lS = (x0, y0, x1, y1, col) => R.linea(x0, y0 + OY, x1, y1 + OY, col), poS = (P, col) => R.poligono(P.map(([x, y]) => [x, y + OY]), col);
+  // el resplandor de la lumbre en el ladrillo, las lenguas de tres tonos y las brasas
+  for (let k = 0; k < 26; k++) pS(24 + Math.floor(hh(k, fr, 31) * 112), 96 + Math.floor(hh(k, fr, 32) * 14), c(k % 2 ? '#8a4420' : '#6a3418'));
+  for (let k = 0; k < 7; k++) { const bx = 54 + k * 9, hg = 13 + Math.round(5 * Math.sin(t * 7 + k * 1.7) + 3 * Math.sin(t * 13 + k * 2.3)), sw = Math.round(2 * Math.sin(t * 5 + k)); for (const [f, col] of [[1, '#d84a20'], [0.68, '#f0a030'], [0.38, '#f8e070']]) { const hw = Math.max(1, Math.round(5 * f)); poS([[bx - hw, 121], [bx + hw, 121], [bx + sw, 121 - Math.round(hg * f)]], c(col)); } }
+  for (let k = 0; k < 10; k++) if (hh(k, fr, 34) > 0.4) pS(48 + k * 6, 117 + (k % 2) * 6, c(k % 3 ? '#f0a030' : '#f8e070'));
+  for (let k = 0; k < 6; k++) { const a = (t * 0.8 + k / 6) % 1, x = Math.round(60 + k * 7 + Math.sin(t * 3 + k) * 4), y = Math.round(112 - a * 54); if (a < 0.85) pS(x, y, c(a < 0.45 ? '#f8e070' : '#f0a030')); }
+  // el caldero colgado de los llares: hierro con su brillo, el culo rojizo de la lumbre y el asa
+  for (let y = 52; y < 70; y += 3) { rS(78, y, 80, y + 1, K); pS(79, y + 1, c('#5a5a62')); } rS(78, 70, 80, 72, K);
+  for (let a = 0; a <= 40; a++) { const u = a / 40 * Math.PI, x = Math.round(79 - Math.cos(u) * 22), y = Math.round(84 - Math.sin(u) * 13); pS(x, y, K); pS(x, y + 1, c('#4a4850')); }
+  for (let y = 84; y <= 110; y++) { const w = Math.round(23 * Math.sqrt(Math.max(0, 1 - ((y - 92) / 19) ** 2))); for (let x = 79 - w; x <= 79 + w; x++) { const r = (x - 79) / Math.max(1, w); pS(x, y, x === 79 - w || x === 79 + w || y === 110 ? K : y > 103 ? (hh(x, fr, 35) > 0.7 ? c('#8a4a28') : c('#5a2e1e')) : r < -0.62 ? c('#5a5860') : r < -0.5 ? c('#46444c') : r > 0.5 ? c('#1e1c20') : c('#2e2c32')); } }
+  for (const x of [55, 103]) { rS(x - 1, 86, x + 1, 89, K); }
+  // el agua hirviendo con los huevos que bailan, las burbujas y el vapor que sube a la campana
+  for (let j = -3; j <= 3; j++) for (let i = -22; i <= 22; i++) { const d = (i / 22) ** 2 + (j / 3.5) ** 2, e = (i / 19) ** 2 + (j / 2.4) ** 2; if (d <= 1) pS(79 + i, 84 + j, e <= 1 ? ((i + j) & 1 ? c('#a8b4b8') : c('#94a2a8')) : d > 0.8 ? K : c('#4a4850')); }
+  for (let k = 0; k < 3; k++) { const ex = 69 + k * 10, ey = 84 + Math.round(Math.sin(t * 9 * hirv + k * 2) * 1); for (let j = -3; j <= 0; j++) for (let i = -3; i <= 3; i++) { const q = i * i + j * j; if (q <= 9) pS(ex + i, ey + j, q > 4 ? K : i < 0 && j < -1 ? c('#ffffff') : c(k === 1 ? '#d8a070' : '#f6f0e0')); } }
+  for (let k = 0; k < Math.round(10 * hirv); k++) pS(64 + Math.floor(hh(k, fr, 36) * 30), 83 + Math.floor(hh(k, fr, 37) * 3), c('#ffffff'));
+  for (let k = 0; k < 12; k++) { const a = (t * (0.35 + 0.35 * hirv) + k / 12) % 1, x = Math.round(79 + (hh(k, 1, 33) - 0.5) * 30 + Math.sin(t * 2 + k) * 3), y = Math.round(80 - a * 27); if (a < 0.9) rS(x, y, x + (a < 0.5 ? 1 : 0), y, c(k % 2 ? '#e8e4dc' : '#cfcac2')); }
+  // por la ventana (recortado a su hueco): nubes de tres tonos a tres velocidades y un pájaro; luego el parteluz
+  R.recorte([195, 31 + OY, 253, 88 + OY]);
+  for (const [x0, y0, w, v] of [[0, 36, 7, 2.5], [45, 42, 5, 4.5], [85, 33, 6, 1.6]]) { const x = 195 + ((x0 + t * v) % 100) - 22; for (const [dx, dy, r, col] of [[-w + 2, 2, w - 3, '#c8d2e0'], [w - 1, 1, w - 2, '#e0e6ee'], [0, 0, w - 1, '#f4f6f8']]) dS(Math.round(x + dx), y0 + dy, Math.max(1, r), c(col)); }
+  { const x = Math.round(195 + ((t * 11) % 90) - 15), y = Math.round(49 + Math.sin(t * 2) * 2), a = Math.sin(t * 10) > 0 ? 1 : 0; pS(x, y, K); pS(x - 1, y - a, K); pS(x + 1, y - a, K); pS(x - 2, y - 1, K); pS(x + 2, y - 1, K); }
+  R.recorte(null);
+  rS(223, 30, 225, 88, c('#6a4a2a')); rS(223, 30, 223, 88, c('#8a6a3a')); rS(195, 57, 253, 59, c('#6a4a2a')); rS(195, 57, 253, 57, c('#8a6a3a'));
+  // la ristra de cebollas (de su piel sale el tinte) que se mece en la pared de la derecha
+  const sw = Math.sin(t * 1.3) * 1.5; rS(293, 62, 295, 64, c('#6a4424')); pS(294, 61, K); lS(294, 64, Math.round(294 + sw), 110, c('#8a7a5a'));
+  for (let k = 0; k < 9; k++) { const y = 68 + k * 5, x = Math.round(294 + sw * (k / 9) + (k % 2 ? 3 : -3)); dS(x, y, 3, K); dS(x, y, 2, c(k % 3 ? '#c8803a' : '#b06a2a')); pS(x - 1, y - 1, c('#e8a860')); pS(x + (k % 2 ? 2 : -2), y - 3, c('#8a6a30')); }
+  // la gallina del alféizar pone («kept laying») y el huevo rueda al montón
+  const LAYS = [en('huevos', 0.7778), en('huevos', 0.8150), en('huevos', 0.8820)], puestos = LAYS.filter((L) => t > L + 0.45).length, pone = LAYS.find((L) => t > L - 0.4 && t < L + 0.45);
+  const MON = [[188, 90], [196, 90], [204, 90], [212, 90], [192, 81], [200, 81], [208, 81]].map(([x, y]) => [x, y + OY]);
+  pz('gallina', 240, 89 + OY - (pone !== undefined && t < pone ? 2 : 0), { t, s: 2, dir: -1, picotea: pone === undefined });
+  for (let x = 226; x <= 254; x++) { pS(x, 89 + ((x * 7) % 3 === 0 ? -1 : 0), c(x % 3 ? '#d8b860' : '#a8883a')); pS(x, 90, c('#8a6a30')); }
+  for (let k = 0; k < 3 + puestos; k++) pz('huevo', MON[k][0], MON[k][1], { color: k % 3 === 1 ? 'marron' : 'blanco' });
+  if (pone !== undefined && t >= pone) { const u = tramo(t, pone, pone + 0.45), [mx, my] = MON[3 + puestos]; pz('huevo', lerp(228, mx, u), my - (my < 90 + OY ? Math.round(Math.sin(u * Math.PI) * 4) : 0), { color: 'blanco' }); }
+  // las manos de abajo: el brazo canónico con el codo DENTRO del cuadro y el hombro fuera; la muñeca no sube de y 136,
+  // así que de manga se ven como mucho ~44 px desde el borde (antes, un palo recto de 55 px)
+  const brazoAbajo = (wx, wy) => T.brazo(R, wx - 28, wy + 62, wx, wy, '#a8503a', 1, { codo: [wx - 12 - Math.round(Math.max(0, wy - 136) * 0.15), wy + 30] });
+  // la cesta: una mano la llena hasta colmarla («plenty left over»); en «left over» brilla
+  const per = 0.6, ciclos = Math.floor((sobran - P4) / per), ci = Math.floor((t - P4) / per), fc = ((t - P4) / per) % 1, echados = Math.min(ciclos, ci + (fc > 0.5 ? 1 : 0));
+  cestita(134, 160, 7 + echados);
+  if (t > sobran && t < sobran + 0.6) for (const [dx, dy] of [[-10, -40], [12, -36], [0, -46]]) { const r = cada(t, 6) ? 2 : 1; R.pset(134 + dx, 160 + dy, c('#fff4c0')); R.pset(134 + dx - r, 160 + dy, c('#ffe08a')); R.pset(134 + dx + r, 160 + dy, c('#ffe08a')); R.pset(134 + dx, 160 + dy - r, c('#ffe08a')); R.pset(134 + dx, 160 + dy + r, c('#ffe08a')); }
+  // los huevos de la fila del paño: morenos y, al paso del pincel, de colores con rayas
+  const COLS = ['azul', 'rojo', 'amarillo', 'verde', 'morado', 'naranja', 'rosa'], EX = (k) => 216 + k * 13;
+  const pin = tramo(t, pintan - 0.1, en('huevos', 0.9560)), pintados = pin >= 1 ? 7 : Math.floor(pin * 7);
+  const dar = tramo(t, en('huevos', 0.9480), en('huevos', 0.9580)), llevar = tramo(t, en('huevos', 0.9600), en('huevos', 0.9690)), tiene = t > en('huevos', 0.9703);
+  for (let k = 0; k < 7; k++) if (!(k === 0 && dar >= 1)) pz('huevo', EX(k), 154, { color: k < pintados ? COLS[k] : 'marron', dibujo: k < pintados ? 'rayas' : 'liso' });
+  // el lebrillo: una mano moja el huevo DENTRO del tinte («boiled»), lo saca rojo y lo deja en el nido de paja
+  const kf = [[hierven - 0.75, 14, 198], [hierven - 0.25, 38, 136], [hierven - 0.05, 38, 140], [hierven + 0.35, 38, 140], [hierven + 0.55, 40, 136], [hierven + 0.9, 84, 149], [hierven + 0.95, 84, 149], [hierven + 1.3, 60, 204]];
+  let dw = null; for (let i = 0; i < kf.length - 1; i++) if (t >= kf[i][0] && t < kf[i + 1][0]) { const u = tramo(t, kf[i][0], kf[i + 1][0]); dw = [Math.round(lerp(kf[i][1], kf[i + 1][1], u)), Math.round(lerp(kf[i][2], kf[i + 1][2], u))]; if (i === 2) dw[1] += Math.round(Math.sin(t * 18)); }
+  const sumerge = t > hierven - 0.1 && t < hierven + 0.4, rojo = t > hierven + 0.35, conHuevo = t < hierven + 0.95;
+  lebrilloFondo(t, sumerge ? ((t - hierven + 0.1) * 2) % 1 : 0);
+  if (dw && conHuevo) huevoHasta(dw[0] + 8, dw[1] + 11, rojo ? 'rojo' : 'blanco', dw[1] + 11 > LBY - 3 && Math.abs(dw[0] + 8 - LBX) < 18 ? LBY + 1 : 999);
+  lebrilloDelante();
+  for (let k = 0; k < 5; k++) { const a = (t * 0.5 + k / 5) % 1; R.pset(Math.round(36 + k * 5 + Math.sin(t * 2 + k) * 2), Math.round(138 - a * 20), c('#e8e4dc')); }
+  if (t > hierven + 0.35 && t < hierven + 0.9 && dw) for (let k = 0; k < 2; k++) { const a = (t * 3 + k / 2) % 1; R.pset(dw[0] + 8, Math.round(dw[1] + 12 + a * 8), c('#d8303a')); }
+  if (!conHuevo) { huevoHasta(92, 160, 'rojo'); if (t < hierven + 2.2) for (let k = 0; k < 3; k++) { const a = (t * 0.7 + k / 3) % 1; R.pset(Math.round(91 + k * 2 + Math.sin(t * 3 + k)), Math.round(150 - a * 12), c('#e8e4dc')); } }
+  // la mano del lebrillo: codo bien doblado hacia la derecha y el hombro que baja a la sombra de quien tiñe (fuera de
+  // cuadro, a la izquierda); la manga se pierde en esa penumbra del borde de abajo: con luz se ven ~30 px
+  if (dw) { const [wx, wy] = dw;
+    T.brazo(R, wx - 8, wy + 58, wx, wy, '#a8503a', 1, { codo: [wx + 15, wy + 20] });
+    const sx = wx - 4, y0 = Math.max(156, wy + 24);
+    const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+    for (let y = y0; y < 180; y++) { const k = Math.min(1, Math.pow((y - y0) / 14, 0.8)) * 0.95;
+      for (let x = Math.max(0, sx - 34); x <= Math.min(319, sx + 30); x++) { const d = Math.abs(x - sx + (y - y0) * 0.3) / 32, lat = d >= 1 ? 0 : Math.min(1, (1 - d * d) * 1.8);
+        if (lat > 0) R.pset(x, y, mez(R.pget(x, y), c('#140c08'), k * lat)); } } }
+  // la mano de la cesta (antes de «left over»): sube con un huevo, lo suelta y baja a por otro
+  if (t >= P4 && ci < ciclos) { const up = fc < 0.45 ? fc / 0.45 : fc < 0.55 ? 1 : 1 - (fc - 0.55) / 0.45, wx = Math.round(lerp(112, 124, up)), wy = Math.round(lerp(196, 136, up)); if (fc < 0.5) pz('huevo', wx + 8, wy + 11, { color: ci % 2 ? 'marron' : 'blanco' }); brazoAbajo(wx, wy); }
+  // la mano del pincel pinta la fila («painted»)
+  const entra = tramo(t, pintan - 0.35, pintan - 0.1), sale = tramo(t, en('huevos', 0.9560), en('huevos', 0.9640));
+  if (entra > 0 && sale < 1) { const cur = Math.min(6, Math.floor(pin * 7)), ex = EX(cur) + Math.round((pin * 7 - cur) * 4); let wx = ex + 20, wy = 148 + (pin > 0 && pin < 1 ? Math.round(Math.sin(t * 30)) : 0); wx = Math.round(lerp(EX(0) + 40, wx, entra) + sale * 30); wy = Math.round(lerp(200, wy, entra) + sale * 44);
+    T.brazo(R, wx + 30, 216, wx, wy, '#a8503a', -1, { codo: [wx + 22, Math.round((wy + 216) / 2 + 2)] }); R.linea(wx - 11, wy, wx - 16, wy - 3, c('#8a5a30')); R.rect(wx - 17, wy - 4, wx - 16, wy - 3, c(['#3a7ad8', '#d8303a', '#f0d040', '#4aa84a', '#9a4ab8', '#f08a2a', '#f0a0b8'][cur])); }
+  // la madre coge el primero, el azul, y se lo da a la mano pequeña de la niña que entra por la derecha («given»)
+  const nin = tramo(t, en('huevos', 0.9580), en('huevos', 0.9690)), nout = tramo(t, en('huevos', 0.9760), en('huevos', 0.9920)), mout = tramo(t, en('huevos', 0.9730), en('huevos', 0.9880));
+  if (dar > 0 && mout < 1) { let mx = Math.round(lerp(196, 208, dar)), my = Math.round(lerp(204, 143, dar)); if (llevar > 0) { mx = Math.round(lerp(208, 250, llevar)); my = Math.round(lerp(143, 136, llevar)); } if (mout > 0) { mx = Math.round(lerp(250, 236, mout)); my = Math.round(lerp(136, 206, mout)); }
+    if (dar >= 1 && !tiene) pz('huevo', mx + 8, my + 11, { color: 'azul', dibujo: 'rayas' });
+    brazoAbajo(mx, my); }
+  if (nin > 0) { const nx = Math.round(lerp(346, 276, nin) + nout * 10), ny = 134;
+    if (tiene) { pz('huevo', nx - 10, ny + 11, { color: 'azul', dibujo: 'rayas' }); if (t < en('huevos', 0.9960)) for (const [dx, dy] of [[-16, -6], [-4, -8], [-10, -12]]) { R.pset(nx + dx, ny + dy, c('#fff4c0')); if (cada(t, 6)) { R.pset(nx + dx - 1, ny + dy, c('#ffe08a')); R.pset(nx + dx + 1, ny + dy, c('#ffe08a')); } } }
+    T.brazo(R, 350, 152, nx, ny, '#e07a9a', -1, { codo: [Math.round((nx + 350) / 2), ny + 8] }); }
 };
 const efectos = [[huevosW, 'pop'], [pascua, 'campana'], [celebra, 'campana'], [jesus, 'golpecito'], [pregunta + 0.1, 'pop'], [conejo - 0.2, 'boing'], [explica, 'pop'], [noComen, 'toc'], [en('huevos', 0.7778), 'pop'], [hierven, 'burbujas'], [pintan, 'lapiz'], [en('huevos', 0.9703), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1450 });

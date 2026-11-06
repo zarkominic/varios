@@ -10,16 +10,21 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TR-VELAS (frase 18), cartela 1746; cinco planos:
-// 1. «Halloween has its own day» (hoy): la puerta de la nevera con el calendario de octubre; una mano rodea el 31 con el
-//    rotulador en «own day» y, en «some celebrations don't», pasa las hojas: cada mes lleva un pastelito en otro día;
+// 1. «Halloween has its own day» (hoy): la puerta de la nevera con el calendario de octubre colgado abajo; la mano (brazo
+//    canónico, solo el antebrazo entra por abajo con el codo en el borde) rodea el 31 con el rotulador en «own day» y, en
+//    «some celebrations don't», pasa las hojas: cada mes lleva un pastelito en otro día;
 // 2. «because everyone gets their own» (¿?): un cuarto a oscuras; una sombra entra con una vela, en «Nobody knows who» le
-//    sale un «?», en «candle» la clava en un pastel y en «birthday cake» se enciende y la luz llena el cuarto;
+//    sale un «?», en «candle» la clava en un pastel y en «birthday cake» se enciende: un halo cálido crece y aclara pared,
+//    mesa y muebles, con sombras bajo la mesa y del barril; una polilla viene a la llama, una nube tapa la luna y flota
+//    polvo en el rayo de luna;
 // 3. «the Greek goddess Artemis»: el templo en ruinas bajo la luna, con la estatua de Artemisa y su pastel de luna; el
 //    erudito la mira con la lupa, el «?» se deshace en «no evidence» y en «accounts» abre su libro;
-// 4. «In 1746 in Germany» (1746): el salón rococó; el conde entra, se alegra en «celebrated» y en «one candle for each
-//    year» enciende las velas una a una (1…46) mientras los niños aplauden;
-// 5. «in 1801 the writer Goethe» (1801): el pastel de cerca: Goethe escribe; en «about 50» sale el 50; GAG 6: la uva
-//    llega corriendo por el mantel, sopla… y se apagan todas menos una.
+// 4. «In 1746 in Germany» (1746): el salón rococó; el conde entra por la derecha y se planta delante de la esquina de la
+//    mesa (se le ve entero), se alegra en «celebrated» y en «one candle for each year» enciende las velas una a una con
+//    su encendedor de vara; la cuenta (1…46) va en una placa de azúcar en el frente del pastel; los niños aplauden;
+// 5. «in 1801 the writer Goethe» (1801): el pastel de cerca; Goethe lo cuenta con su mano (canónica, manga azul y puño
+//    de encaje): moja la pluma en el tintero y escribe la hoja sobre el mantel renglón a renglón; en «about 50» sale el
+//    50; GAG 6: la uva llega corriendo por el mantel, sopla… y se apagan todas menos una.
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-velas');
@@ -99,8 +104,8 @@ const fondoNevera = capa(() => {
   rect(134, 76, 148, 83, H('#f4e0c8')); rect(134, 76, 148, 77, H('#e87aa0')); for (const x of [137, 141, 145]) { rect(x, 72, x, 75, H('#5aa8e8')); pset(x, 71, H('#ffb030')); }
   disco(142, 52, 3, K); disco(142, 52, 2.4, H('#c84ac8'));
   // el dibujo del gato con ceras debajo del calendario
-  rect(150, 156, 196, 180, H('#c8c4b8')); rect(151, 157, 195, 180, H('#fbfaf4')); disco(170, 170, 7, H('#3a3a3a')); disco(176, 163, 5, H('#3a3a3a')); poligono([[172, 160], [174, 155], [176, 159]], H('#3a3a3a')); poligono([[177, 159], [180, 155], [181, 160]], H('#3a3a3a')); pset(175, 163, H('#e8c030')); pset(178, 163, H('#e8c030')); linea(163, 172, 156, 165, H('#3a3a3a')); for (let x = 152; x < 195; x += 3) pset(x, 178, H('#4aa84a'));
-  disco(173, 156, 3, K); disco(173, 156, 2.4, H('#3a7ad8'));
+  rect(130, 156, 176, 180, H('#c8c4b8')); rect(131, 157, 175, 180, H('#fbfaf4')); disco(150, 170, 7, H('#3a3a3a')); disco(156, 163, 5, H('#3a3a3a')); poligono([[152, 160], [154, 155], [156, 159]], H('#3a3a3a')); poligono([[157, 159], [160, 155], [161, 160]], H('#3a3a3a')); pset(155, 163, H('#e8c030')); pset(158, 163, H('#e8c030')); linea(143, 172, 136, 165, H('#3a3a3a')); for (let x = 132; x < 175; x += 3) pset(x, 178, H('#4aa84a'));
+  disco(153, 156, 3, K); disco(153, 156, 2.4, H('#3a7ad8'));
   // la postal de la playa y la tabla de estrellitas en el congelador
   rect(76, 17, 114, 36, H('#b8b0a0')); rect(77, 18, 113, 35, H('#f8f4ea')); for (let y = 19; y < 35; y++) for (let x = 78; x < 113; x++) pset(x, y, y < 27 ? tone(RP('#7ab8e8', '#a8d4f0'), (y - 19) / 8, x, y) : y < 30 ? H('#3a8ab8') : H('#e8d098')); disco(104, 23, 3, H('#ffd040')); linea(84, 31, 84, 24, H('#6a4a2a')); for (let k = 0; k < 5; k++) pset(81 + k * 2, 24 + (k % 2), H('#4a9a3a')); disco(95, 17, 2.4, K); disco(95, 17, 1.8, H('#e84a3a'));
   rect(196, 12, 236, 34, H('#b8b0a0')); rect(197, 13, 235, 33, H('#fbfaf4')); for (let j = 0; j < 3; j++) for (let i = 0; i < 6; i++) { const x = 200 + i * 6, y = 17 + j * 6; rect(x, y, x + 3, y + 3, H('#d8d8e0')); if (hh(i, j, 3) < 0.7) { pset(x + 1, y, H('#e8c030')); rect(x, y + 1, x + 3, y + 2, H('#e8c030')); pset(x + 1, y + 3, H('#e8c030')); } }
@@ -125,7 +130,7 @@ const p1 = (t) => {
   // el calendario: octubre con el 31 y su calabaza; luego las hojas vuelan y cada mes trae un pastelito en otro día
   const hojas = [[10, 31], [11, 19], [12, 7], [1, 23], [2, 11]], vu = (t - en('velas', 0.0900)) / 0.38;
   const k = Math.max(0, Math.min(3, Math.floor(vu))), vol = vu > 0 && vu < 4, nv = vu <= 0 ? 0 : vol ? k + 1 : 4;
-  const [mes, dia] = hojas[nv]; const CX = 212, CY = 150;
+  const [mes, dia] = hojas[nv]; const CX = 212, CY = 172;   // el calendario cuelga bajo: así la mano entra de cerca por abajo
   PZ.calendario(R, CX, CY, { s: 3, mes, dia });
   if (nv === 0) PZ.calabaza(R, CX + 18, CY - 4, { s: 1 }); else PZ.pastel(R, CX + 17, CY - 3, { velas: 1, t });
   // la marca de rotulador alrededor del día (solo en octubre)
@@ -139,7 +144,8 @@ const p1 = (t) => {
     else { const f = vol ? Math.sin((vu % 1) * 3.14) : 0; px = CX + 24 - f * 8; py = CY - 4 - f * 12; }
     // la punta del rotulador en (px, py); la muñeca, 16 px a la derecha
     const wx = Math.round(lerp(330, px + 16, entra)), wy = Math.round(lerp(210, py + 3, entra));
-    T.brazo(R, 300, 200, wx, wy, '#3a6a9a', -1, { codo: [Math.round((300 + wx) / 2 + 10), Math.round((200 + wy) / 2 + 8)] });
+    // el codo justo en el borde de abajo, siguiendo a la muñeca: solo se ve el antebrazo (≤ 42 px), en diagonal
+    T.brazo(R, wx + 34, 204, wx, wy, '#3a6a9a', -1, { codo: [wx + 22, 178] });
     const tx = wx - 16, ty = wy - 3; linea(tx, ty, tx + 9, ty + 3, K); linea(tx + 1, ty - 1, tx + 9, ty + 2, H('#e8e8f0')); pset(tx, ty, H('#d0202a')); pset(tx - 1, ty, H('#d0202a')); }
 };
 // ── 2. el cuarto a oscuras: nadie sabe quién puso la primera vela (fondo local, con luz y sin luz) ──
@@ -194,23 +200,44 @@ const p2 = (t) => {
   const xs = Math.round(t < en('velas', 0.3683) ? lerp(-18, 112, entra) : lerp(112, -24, vase));
   const SUELO = 166, yC = SUELO - 13;
   const mano = clava < 1 ? [Math.round(lerp(xs + 20, 160, clava)), Math.round(lerp(yC, 118, clava))] : null;
-  const lx = mano ? mano[0] : 160, ly = mano ? mano[1] - 8 : 102, r = mano ? 34 + Math.sin(t * 9) : lerp(34, 160, prende) + Math.sin(t * 7) * 2;
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot(x - lx, (y - ly) * 1.15) / r, i = y * 320 + x; pset(x, y, d < 1 - (hh(x, y, 5) - .5) * .25 ? B[i] : A[i]); }
+  const lx = mano ? mano[0] : 160, ly = mano ? mano[1] - 10 : 99, r = mano ? 34 + Math.sin(t * 9) : lerp(34, 170, prende) + Math.sin(t * 7) * 2;
+  // la luz cálida: un halo que crece al prender y aclara pared, mesa y muebles (una sola pasada con el cuarto con y sin luz)
+  const rL = (mano ? 52 : lerp(52, 250, prende)) + Math.sin(t * 9) * 2 + Math.sin(t * 23) * 1, fI = mano ? 0.55 : 0.55 + 0.75 * prende;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const dx = x - lx, dy = y - ly, d = Math.hypot(dx, dy * 1.15) / r, i = y * 320 + x;
+    let c = d < 1 - (hh(x, y, 5) - .5) * .25 ? B[i] : A[i]; const q = 1 - Math.hypot(dx, dy * 1.1) / rL;
+    if (q > 0) { const f = q * q * fI, cr = c & 255, cg = (c >>> 8) & 255, cb = (c >>> 16) & 255;
+      c = (0xff000000 | (Math.min(255, Math.round(cb * (1 + 0.35 * f) + 4 * f)) << 16) | (Math.min(255, Math.round(cg * (1 + 1.0 * f) + 14 * f)) << 8) | Math.min(255, Math.round(cr * (1 + 1.45 * f) + 26 * f))) >>> 0; }
+    pset(x, y, c); }
   // la ventana: la noche, la luna y las nubes
   R.recorte([214, 34, 260, 90]); for (let y = 34; y <= 90; y++) for (let x = 214; x <= 260; x++) { if (y < 56 && Math.hypot(x - 237, y - 56) > 23) continue; pset(x, y, tone(RP('#0a0c1e', '#141a36', '#22284a'), (y - 34) / 56 * 2, x, y)); }
   disco(246, 50, 6, H('#f4ecc8')); disco(244, 49, 5, H('#fff8e0')); for (const [x0, y, v] of [[0, 60, 4], [30, 74, 2.5]]) nube(214 + ((x0 + t * v) % 60) - 10, y, 10, RP('#1a1e36', '#2a2e4a', '#4a4e6a'));
+  // la nube que tapa la luna y la destapa (lo que queda de la luna se ve como un filo claro por debajo)
+  { const nx = Math.round(206 + (t - P2) * 9); nube(nx, 50, 16, RP('#2a2e4a', '#4a4e6a', '#8a8eaa')); }
   estrellas(t, 8, 216, 36, 258, 88, 4); R.recorte(null);
   for (let y = 34; y <= 90; y++) for (let x = 210; x <= 264; x++) { const dEn = (y < 56 ? Math.hypot(x - 237, y - 56) : Math.abs(x - 237)); if (dEn > 23 && dEn <= 26 && (y >= 56 || Math.hypot(x - 237, y - 56) <= 26)) pset(x, y, prende > .3 ? H('#5a4638') : H('#2a2028')); }
   rect(212, 90, 262, 93, prende > .3 ? H('#7a5e44') : H('#2a2028'));
   // el ratón que cruza el suelo
   const rt = (t - en('velas', 0.1823)) / 2.2; if (rt > 0 && rt < 1) { const rx = Math.round(330 - rt * 360), ry = 174, pa = Math.floor(t * 12) % 2; rect(rx, ry - 3, rx + 5, ry, H('#4a4048')); pset(rx - 1, ry - 2, H('#4a4048')); pset(rx + 1, ry - 4, H('#6a5e66')); pset(rx, ry - 2, K); linea(rx + 6, ry - 1, rx + 11, ry - 2 - pa, H('#6a5e66')); pset(rx + 1 + pa, ry + 1, K); pset(rx + 4 - pa, ry + 1, K); }
-  // el pastel y la vela (cuando ya está clavada)
+  // las motas de polvo que flotan en el rayo de luna
+  for (let k = 0; k < 14; k++) { const f = (t * 0.05 + hh(k, 6)) % 1, u = 0.15 + hh(k, 7) * 0.8, y = Math.round(100 + u * 76 - f * 16), x = Math.round(lerp(lerp(214, 150, u), lerp(260, 214, u), hh(k, 8)) + Math.sin(t * 0.8 + k) * 3); if (Math.sin(t * 2 + k * 1.7) > -0.3) pset(x, y, H('#a8b4e0')); }
+  // al prender, las sombras: bajo la mesa en el suelo, el barril contra la pared y la alacena en el suelo
+  if (prende > 0) { const a = 0.5 * prende;
+    for (let y = 150; y < 180; y++) { const w = (y - 136) * 0.5; for (let x = Math.round(96 - w * 0.4); x < 226 + w * 0.4; x++) if (hh(x, y, 11) > 0.08) pset(x, y, mez(R.pget(x, y), H('#0a0608'), a * (0.75 - (y - 150) / 90))); }
+    for (let y = 118; y < 168; y++) for (let x = 0; x < 18; x++) { const fx = 1 - x / 18, by = Math.abs(y - 145) / 23; if (by < 1) pset(x, y, mez(R.pget(x, y), H('#0a0608'), a * 0.55 * (1 - by * by) * (0.4 + fx * 0.6))); }
+    for (let y = 160; y < 180; y++) for (let x = 268; x < 320; x++) pset(x, y, mez(R.pget(x, y), H('#0a0608'), a * 0.45 * (1 - (y - 160) / 24))); }
+  // el pastel y la vela (cuando ya está clavada): más grande, con su cera, el pabilo y una llama de cuatro tonos
   tarta(160, 128);
-  const velaEn = (x, y, encendida) => { rect(x - 1, y - 9, x + 1, y, K); rect(x, y - 8, x, y - 1, H('#f4ece0')); pset(x, y - 8, H('#c8202a'));
-    if (encendida) { const on = Math.sin(t * 13) > 0; pset(x, y - 10, H('#fff0a0')); pset(x, y - 11, on ? H('#ffd040') : H('#ffb030')); pset(x + (on ? 0 : 1), y - 12, H('#ff8a20')); pset(x - 1, y - 10, H('#ffb030')); pset(x + 1, y - 10, H('#ffb030')); } };
+  const velaEn = (x, y, encendida) => { rect(x - 2, y - 13, x + 2, y, K); rect(x - 1, y - 12, x + 1, y - 1, H('#f4ece0')); rect(x + 1, y - 12, x + 1, y - 1, H('#c8bca8')); for (let k = 0; k < 4; k++) pset(x - 1 + (k & 1), y - 10 + k * 3, H('#e04050')); pset(x - 1, y - 12, H('#fffaf0'));
+    pset(x, y - 13, K); pset(x, y - 14, K);
+    if (encendida) { const on = Math.sin(t * 13) > 0, fx = x + (Math.sin(t * 5) > 0.6 ? 1 : 0);
+      for (let j = 0; j < 7; j++) { const w = j < 2 ? 1 : j < 5 ? 2 : 1; for (let i = -w; i <= w; i++) pset(fx + i, y - 14 - j, i === -w || i === w ? H('#ff8a20') : j < 3 ? H('#fff8d0') : H('#ffd040')); }
+      pset(fx, y - 21, on ? H('#ffb030') : H('#ff8a20')); pset(fx + (on ? 1 : -1), y - 22, H('#ff8a20')); pset(fx, y - 15, H('#6a9ae0')); } };
   // la sombra que nadie conoce (se queda en sombra aunque haya luz)
   silueta(() => R.actor(EL.estudioso, xs, SUELO, t, { dir: t < en('velas', 0.3683) ? 1 : -1, anda: (entra > 0 && entra < 1) || (vase > 0 && vase < 1), sostiene: mano ?? undefined, brazos: t > en('velas', 0.3441) && t < en('velas', 0.3665) }), H('#0a0610'), 1, 0, 0, 0, 0);
-  if (mano) velaEn(mano[0], mano[1] + 1, true); else velaEn(160, 113, true);
+  if (mano) velaEn(mano[0], mano[1] + 1, true); else velaEn(160, 114, true);
+  // la polilla que viene a la luz y le da vueltas a la llama
+  if (prende > 0.4) { const ent = sube(en('velas', 0.3423), en('velas', 0.3683), t), mx = Math.round(lerp(250, 160 + Math.cos(t * 4.3) * 13, ent)), my = Math.round(lerp(40, 98 + Math.sin(t * 6.1) * 7, ent)), ala = Math.floor(t * 18) % 2;
+    pset(mx, my, H('#3a3028')); pset(mx + 1, my, H('#3a3028')); pset(mx - 1, my - ala, H('#c8b898')); pset(mx + 2, my - ala, H('#c8b898')); pset(mx - 1, my + 1 - ala, H('#a89878')); pset(mx + 2, my + 1 - ala, H('#a89878')); }
   if (prende > 0) for (let k = 0; k < 10; k++) { const f = (t * .15 + k / 10) % 1; pset(Math.round(120 + hh(k, 2) * 80 + Math.sin(t + k) * 4), Math.round(60 + hh(k, 3) * 60 - f * 20), prende > .5 && f < .7 ? H('#e8c890') : H('#8a6a4a')); }
   // «Nobody knows who…»: el «?»
   const q = sube(en('velas', 0.2277), en('velas', 0.2381), t) * (1 - sube(en('velas', 0.2790), en('velas', 0.2902), t)); bocadillo(xs + 10, yC - 34, '?', q);
@@ -287,23 +314,25 @@ const p4 = (t) => {
   const aplaude = t > en('velas', 0.7962);
   R.actor(EL.ninaBarroca, 56, 160, t, { dir: 1, sorpresa: t > en('velas', 0.7441) && !aplaude, brazos: aplaude && Math.sin(t * 12) > 0, sonrisa: aplaude, habla: t < en('velas', 0.6659) && Math.sin(t * 7) > 0 });
   R.actor(EL.ninoBarroco, 78, 160, t, { dir: 1, sorpresa: t > en('velas', 0.7478) && !aplaude, brazos: aplaude && Math.sin(t * 12 + 1) > 0, sonrisa: aplaude, salto: aplaude ? Math.round(Math.abs(Math.sin(t * 8)) * 2) : 0 });
-  // el conde entra, se alegra y enciende las velas con su cerilla larga
-  const ll = sube(P4 + 0.1, en('velas', 0.6734), t), xc = Math.round(lerp(330, 194, ll)), prende = t > en('velas', 0.7292) && t < en('velas', 0.7999);
-  const tx = Math.round(lerp(184, 140, sube(en('velas', 0.7400), en('velas', 0.7947), t)));
-  const c = R.actor(EL.conde, xc, 150, t, { dir: -1, anda: ll > 0 && ll < 1, brazos: t > en('velas', 0.6812) && t < en('velas', 0.7143), sonrisa: t > en('velas', 0.6812), sostiene: prende ? [tx + 4, 112] : undefined, habla: t > en('velas', 0.7143) && t < en('velas', 0.7329) && Math.sin(t * 8) > 0 });
+  // el conde entra por la derecha y se planta DELANTE de la esquina de la mesa (se le ve entero, sin nada delante de la
+  // cara), se alegra y enciende las velas con su encendedor de vara (una vara de latón con la mecha en la punta)
   T.fiestasDelante(R, t, o);
-  if (prende) { const [hx, hy] = c.mano; linea(hx, hy, hx - 7, hy + 4, H('#e8dcc0')); pset(hx - 8, hy + 4, Math.sin(t * 13) > 0 ? H('#ffd040') : H('#ff8a20')); pset(hx - 8, hy + 3, H('#fff0a0')); }
-  // la cuenta: una vela por año
-  if (n > 0) { const py = 96; disco(160, py - 4, 10, K); disco(160, py - 4, 9, BL); disco(158, py - 6, 5, H('#fffdf6')); R.numero(String(n), 161, py, { tam: 8, centro: true, color: K, sombra: false }); }
+  const lu = sube(en('velas', 0.7400), en('velas', 0.7947), t);
+  const ll = sube(P4 + 0.1, en('velas', 0.6734), t), xc = Math.round(lerp(330, 206, ll) - lu * 8), prende = t > en('velas', 0.7292) && t < en('velas', 0.7999);
+  const tx = Math.round(lerp(182, 142, lu)), ty = 121 + Math.round(Math.sin(lu * 40) * 1.5);
+  const c = R.actor(EL.conde, xc, 160, t, { dir: -1, anda: ll > 0 && ll < 1, brazos: t > en('velas', 0.6812) && t < en('velas', 0.7143), sonrisa: t > en('velas', 0.6812), sostiene: prende ? [tx, ty] : undefined, habla: t > en('velas', 0.7143) && t < en('velas', 0.7329) && Math.sin(t * 8) > 0 });
+  if (prende) { const [hx, hy] = c.mano; linea(hx, hy + 1, tx + 1, ty + 1, K); linea(hx, hy, tx, ty, H('#c8a050')); linea(hx - 1, hy, tx, ty - 1, H('#f0d890'));
+    pset(tx - 1, ty - 1, H('#fff0a0')); pset(tx - 1, ty - 2, Math.sin(t * 13) > 0 ? H('#ffd040') : H('#ff8a20')); pset(tx - 2, ty - 1, H('#ffb030')); pset(tx - 1, ty - 3, H('#ff8a20')); }
+  // la cuenta: una vela por año, en una placa de azúcar clavada en el frente del pastel
+  if (n > 0) { const px = 160, py = 133; rect(px - 9, py - 6, px + 9, py + 5, K); rect(px - 8, py - 5, px + 8, py + 4, H('#fff8ec')); rect(px - 8, py + 3, px + 8, py + 4, H('#e8d8c0')); rect(px - 8, py - 5, px + 8, py - 5, H('#e8c060')); rect(px - 8, py + 4, px + 8, py + 4, H('#e8c060'));
+    R.numero(String(n), px + 1, py + 3, { tam: 8, centro: true, color: H('#8a2a3a'), sombra: false }); }
 };
 // ── 5. el pastel de Goethe de cerca, con el gag de la uva ──
 const p5 = (t) => {
   const sopla = sube(en('velas', 1.0045), en('velas', 1.0194), t), o = { encuadre: 'salon1746', camara: 'pastel', velas: 50, encendidas: sopla >= 1 ? 1 : 50, humo: true, centro: false };
   T.fiestas(R, t, o);
-  // Goethe, detrás de la mesa, escribe la descripción con su pluma
-  const escribe = t > en('velas', 0.8735) && t < en('velas', 0.9487);
-  const gq = R.actor(EL.goethe, 262, 128, t, { dir: -1, sostiene: [252, 110 + (escribe && Math.sin(t * 14) > 0 ? 1 : 0)], sorpresa: t > en('velas', 1.0305), habla: t > P5 && t < en('velas', 0.8706) && Math.sin(t * 7) > 0, sonrisa: t > en('velas', 0.9509) && t < en('velas', 1.0305) });
   T.fiestasDelante(R, t, o);
+  const escribe = t > en('velas', 0.8735) && t < en('velas', 0.9487);
   // las llamas: se buscan en el pastel y se les pone su halo (así se lee si están encendidas)
   const fl = []; for (let y = 73; y < 104; y++) for (let x = 104; x < 218; x++) { const c = R.pget(x, y), r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255; if (r > 225 && g > 120 && b < 120) fl.push([x, y]); }
   const AU = H('#ffd870'), sola = sopla >= 1;
@@ -312,8 +341,26 @@ const p5 = (t) => {
   else if (fl.length) { const x = Math.round(fl.reduce((a, p) => a + p[0], 0) / fl.length), y = Math.round(fl.reduce((a, p) => a + p[1], 0) / fl.length), on = Math.sin(t * 13) > 0;
     brillo(x, y - 1, 15, 0.7); pset(x, y - 1, H('#fff4c0')); pset(x, y - 2, H('#ffd040')); pset(x - 1, y - 1, H('#ffb030')); pset(x + 1, y - 1, H('#ffb030')); pset(x + (on ? 0 : 1), y - 3, H('#ff9a20')); pset(x, y - 4, on ? H('#ff8a20') : H('#ffd040')); }
   if (sopla >= 1) { const f = t - en('velas', 1.0194); if (f < 2) for (let k = 0; k < 24; k++) { const x0 = 118 + (k * 37) % 86, ph = (f * 0.9 + hh(k, 2) * 0.3); if (ph > 1) continue; pset(Math.round(x0 + Math.sin(f * 3 + k) * 3 * ph), Math.round(76 - ph * 30 - (k % 3) * 3), ph < .5 ? H('#d8d4d0') : H('#a8a4a0')); } }
-  { const [hx, hy] = gq.mano; rect(hx - 12, hy - 6, hx - 1, hy + 6, K); rect(hx - 11, hy - 5, hx - 2, hy + 5, H('#f4ecd0')); const lineas = escribe ? Math.floor((t - en('velas', 0.8735)) * 3) % 6 : 5; for (let k = 0; k <= lineas; k++) linea(hx - 10, hy - 3 + k * 2, hx - 4 - (k % 2) * 2, hy - 3 + k * 2, H('#5a4a3a'));
-    linea(hx - 2, hy - 1, hx + 4, hy - 9, H('#f8f8f0')); linea(hx - 1, hy - 1, hx + 5, hy - 8, H('#c8c8c0')); pset(hx - 3, hy, K); }
+  // Goethe lo cuenta con su mano (la canónica, con la manga azul de su casaca y el puño de encaje): moja la pluma en el
+  // tintero y escribe la descripción en una hoja sobre el mantel, renglón a renglón; al acabar levanta la pluma
+  { const e0 = en('velas', 0.8735), e1 = en('velas', 0.9487), pr = Math.max(0, Math.min(1, (t - e0) / (e1 - e0))) * 6, fila = Math.min(5, Math.floor(pr));
+    // la hoja (un poco en perspectiva), su sombra y los renglones ya escritos
+    poligono([[18, 135], [52, 133], [55, 154], [20, 156]].map(([x, y]) => [x + 2, y + 2]), H('#b8b0a0')); poligono([[17, 134], [53, 132], [56, 155], [19, 157]], K); poligono([[18, 135], [52, 133], [55, 154], [20, 156]], H('#f6eed8'));
+    for (let y = 136; y < 155; y++) for (let x = 20; x < 54; x++) if (hh(x, y, 13) < 0.06 && R.pget(x, y) === H('#f6eed8')) pset(x, y, H('#e8dcc0'));
+    const largo = (k) => 28 - (k % 3) * 5 - (k === 5 ? 10 : 0), fy = (k) => 138 + k * 3;
+    for (let k = 0; k <= fila; k++) { const L = k < fila ? largo(k) : Math.round(largo(k) * (pr - fila)); if (pr <= 0) break; for (let i = 0; i < L; i++) if (hh(i, k, 14) > 0.18) pset(22 + i, fy(k) - (i % 4 === 1 ? 1 : 0) + Math.round(i * 0.04), H('#2a2438')); }
+    // el tintero de cristal con su tinta
+    const ix = 30, iy = 127; rect(ix - 4, iy - 5, ix + 4, iy + 3, K); rect(ix - 3, iy - 4, ix + 3, iy + 2, H('#3a4a6a')); rect(ix - 3, iy - 4, ix - 2, iy + 2, H('#8a9ac0')); rect(ix - 2, iy - 7, ix + 2, iy - 5, K); rect(ix - 1, iy - 6, ix + 1, iy - 6, H('#1a1a2a')); linea(ix - 4, iy + 4, ix + 5, iy + 4, H('#b8b0a0'));
+    // la punta de la pluma: al tintero (antes de escribir), por el renglón (escribiendo) y arriba (al acabar)
+    let nx, ny; const moja = sube(P5 + 0.004, P5 + 0.03, t) * (1 - sube(e0 - 0.03, e0, t));
+    if (t < e0) { nx = lerp(24, ix, moja); ny = lerp(140, iy - 6, moja) + (moja > 0.9 ? Math.round(Math.sin(t * 10)) : 0); }
+    else if (t < e1) { const L = largo(fila); nx = 22 + L * (pr - fila) + Math.sin(t * 30) * 0.6; ny = fy(fila) - 1 - (Math.sin(t * 22) > 0 ? 1 : 0); }
+    else { const u = sube(e1, e1 + 0.02, t); nx = lerp(22 + largo(5), 32, u); ny = lerp(fy(5) - 1, 130, u); }
+    nx = Math.round(nx); ny = Math.round(ny); const wx = nx - 12, wy = ny - 3;
+    T.brazo(R, -24, 158, wx, wy, '#2a3e6a', 1, { codo: [Math.round(wx * 0.5 - 4), wy + 14], puno: '#f4f0e0' });
+    // la pluma de ave: el cañón con la punta en (nx, ny) y las barbas blancas hacia arriba
+    linea(nx, ny, nx - 9, ny - 15, K); linea(nx - 1, ny - 1, nx - 9, ny - 14, H('#e8e0c8')); pset(nx, ny, H('#1a1a2a'));
+    for (let k = 4; k < 15; k++) { const bx = Math.round(nx - k * 0.6), by = ny - k; pset(bx - 2, by + 1, H('#f8f6f0')); pset(bx - 1, by, H('#ffffff')); pset(bx + 1, by + 1, H('#d8d4cc')); if (k > 7) pset(bx - 3, by + 2, H('#e8e4dc')); } }
   // «about 50»
   const v50 = sube(en('velas', 0.9509), en('velas', 0.9599), t) * (1 - sube(en('velas', 0.9933), en('velas', 1.0008), t)); if (v50 > 0) R.numero('50', 160, Math.round(64 - v50 * 4), { tam: 16, centro: true });
   // GAG 6: la uva llega corriendo por el mantel, sopla y se apagan todas menos una

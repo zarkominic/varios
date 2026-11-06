@@ -12,15 +12,19 @@
 // TR-RACION (frase 17), sin cartela; tres planos:
 // 1. «During World War II» (1943): la cocina de un piso de EE. UU. en guerra (fondo local): la radio se enciende y habla
 //    en la estantería, la madre la escucha y, en «rationed», arranca un cupón de la cartilla; en «candy was scarce» el
-//    niño sacude el frasco de azúcar y caen los últimos granos (se pone triste); al final la tetera silba y él se vuelve.
+//    niño pone boca abajo el frasquito de azúcar que tiene en la mano (a su escala), lo sacude y caen los últimos granos
+//    por detrás de la mesa (se pone triste); en la mesa, el azucarero de loza vacío y destapado; al final la tetera silba
+//    y él se vuelve.
 //    Fuera pasa un chico con el carro de chatarra; el gato del alféizar mueve la cola; el reloj anda.
 // 2. «It came back strong» (1950): la calle de las afueras en Halloween: tres niños disfrazados (vaquero, princesa,
-//    pirata) llegan corriendo con sus cubos; un sedán de dos tonos pasa por el carril de atrás; en «magazines» el niño del
-//    cómic pasa la página y en «comic strips» otra; en «cartoons» todos levantan los cubos ante la puerta.
+//    pirata) llegan corriendo con sus cubos; el cielo de arriba se repinta desde la escena con tres capas de nubes de tres
+//    tonos a distintas velocidades y más murciélagos, y el humo de la chimenea se deshace antes de llegar a la barra del
+//    año; un sedán de dos tonos pasa por el carril de atrás; en «magazines» el niño del cómic pasa la página y en
+//    «comic strips» otra; en «cartoons» todos levantan los cubos ante la puerta.
 // 3. «and today» (2026): el porche de cerca, con la tele que echa el dibujo animado: dos niños de hoy suben, cogen
 //    caramelos del cuenco en «spend»; en «$10 billion» crecen las pilas de monedas, se escribe $10,000,000,000 y la chica
-//    les hace una foto con el móvil (flash); en «every Halloween» los dos saltan de alegría. Por el escalón de abajo pasan
-//    un padre, un fantasma y un pirata camino de la casa de al lado.
+//    les hace una foto con el móvil (flash); en «every Halloween» los dos saltan de alegría. Por el escalón de abajo (subido
+//    6 px para que se vean enteros con el cubo) pasan un padre, un fantasma y un pirata camino de la casa de al lado.
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-racion');
@@ -148,6 +152,34 @@ const tazaYCuenco = (t) => {
   for (const [x, y, c] of [[128, 168, '#c83a2a'], [134, 171, '#3a5aa8'], [139, 167, '#c83a2a']]) { R.disco(x, y, 2.5, K); R.disco(x, y, 2, H(c)); pset(x - 1, y - 1, BL); }
   linea(66, 176, 84, 170, H('#e0b030')); linea(66, 177, 84, 171, H('#a87820')); pset(85, 170, K); pset(65, 177, H('#e08a8a'));
 };
+// el frasquito de azúcar en la mano del niño (a escala chibi: 7 × 9 px con su contorno); boca abajo y sin tapa cuando
+// lo sacude; nivel 0–1 de azúcar
+const frasquito = (x, y, inv, nivel) => { x = Math.round(x); y = Math.round(y);
+  const y0 = inv ? y - 1 : y - 7, y1 = inv ? y + 5 : y + 1;
+  rect(x - 3, y0, x + 3, y1, K); rect(x - 2, y0 + 1, x + 2, y1 - 1, H('#c8e0ec')); rect(x - 2, y0 + 1, x - 2, y1 - 1, H('#f4fbff'));
+  const n = Math.round(nivel * 5); for (let j = 0; j < n; j++) { const yy = inv ? y0 + 1 + j : y1 - 1 - j; rect(x - 1, yy, x + 2, yy, j === n - 1 ? BL : H('#e8e4d8')); }
+  if (!inv) { rect(x - 2, y0 - 1, x + 2, y0, K); rect(x - 1, y0 - 1, x + 1, y0 - 1, H('#c8a040')); }
+  else { rect(x - 2, y1, x + 2, y1, H('#8aa8b8')); }
+  pset(x + 2, inv ? y1 - 2 : y0 + 2, H('#8aa8b8')); };
+// el azucarero de loza blanca con la franja azul, destapado; la tapa apoyada al lado
+const azucarero = (x, y) => {
+  // el cuerpo panzudo (elipse cortada arriba y abajo), con luz a la izquierda y sombra a la derecha
+  const cy = y - 9, rx = 10, ry = 9, dentro = (i, j) => (i * i) / (rx * rx) + (j * j) / (ry * ry) <= 1;
+  rect(x - 12, y, x + 12, y + 1, H('#a07868')); rect(x - 9, y + 2, x + 9, y + 2, H('#b88c7a'));
+  for (let j = -6; j <= 8; j++) for (let i = -rx - 1; i <= rx + 1; i++) { if (!dentro(i, j) && !dentro(i - 1, j) && !dentro(i + 1, j) && !dentro(i, j - 1)) continue;
+    const X = x + i, Y = cy + j; if (!dentro(i, j) || j === 8) { pset(X, Y, K); continue; }
+    pset(X, Y, j === -1 || j === 0 ? (((i + 20) % 4) === 0 ? H('#f4f2ec') : H('#3a5aa8')) : i > 5 ? H('#c8c4bc') : i < -6 ? H('#fbfaf6') : j > 5 ? H('#d8d4cc') : H('#ece8e0')); }
+  // las asas a los lados
+  for (const d of [-1, 1]) { pset(x + d * 11, cy - 3, K); pset(x + d * 12, cy - 2, K); pset(x + d * 12, cy - 1, K); pset(x + d * 12, cy, K); pset(x + d * 11, cy + 1, K); pset(x + d * 11, cy - 2, H('#ece8e0')); pset(x + d * 11, cy - 1, H('#ece8e0')); pset(x + d * 11, cy, H('#ece8e0')); }
+  // la boca abierta: el borde y el fondo vacío, con tres granos
+  rect(x - 8, cy - 7, x + 8, cy - 6, K); rect(x - 7, cy - 7, x + 7, cy - 7, H('#f8f6f0')); rect(x - 6, cy - 6, x + 6, cy - 6, H('#6a6258'));
+  pset(x - 2, cy - 6, BL); pset(x + 3, cy - 6, BL); pset(x + 1, cy - 6, H('#e8e4d8'));
+  pset(x - 5, cy - 3, BL); pset(x - 5, cy + 3, BL); pset(x - 4, cy + 4, H('#fbfaf6'));
+  // la tapa, apoyada al lado, con su pomo
+  const tx = x - 21, ty = y; for (let j = 0; j < 4; j++) rect(tx - 7 + j, ty - 3 + j, tx + 7 - j, ty - 3 + j, j === 0 ? H('#fbfaf6') : j === 3 ? H('#c8c4bc') : H('#ece8e0'));
+  rect(tx - 8, ty - 4, tx + 8, ty - 4, K); for (let j = 0; j < 4; j++) { pset(tx - 8 + j, ty - 3 + j, K); pset(tx + 8 - j, ty - 3 + j, K); } rect(tx - 4, ty + 1, tx + 4, ty + 1, K);
+  rect(tx - 5, ty - 2, tx + 5, ty - 2, H('#3a5aa8')); rect(tx - 2, ty - 7, tx + 2, ty - 5, K); rect(tx - 1, ty - 6, tx + 1, ty - 5, H('#ece8e0')); pset(tx - 1, ty - 6, BL);
+  rect(tx - 7, ty + 2, tx + 7, ty + 2, H('#a07868')); };
 const p1 = (t) => {
   fondoCocina();
   // por la ventana: nubes y el chico que arrastra el carro de chatarra
@@ -176,19 +208,23 @@ const p1 = (t) => {
   // la madre: escucha la radio, habla con el niño y arranca el cupón
   const arranca = t > en('guerra', 0.1924), vuela = sube(en('guerra', 0.1924), en('guerra', 0.2176), t);
   const ma = R.actor(EL.madre62, 62, 130, t, { dir: 1, habla: (t > en('guerra', -0.0189) && t < en('guerra', 0.0568)) && Math.sin(t * 8) > 0, sostiene: arranca ? [90, 112] : undefined, dedo: t > en('guerra', 0.0946) && t < en('guerra', 0.1766), sonrisa: t < en('guerra', 0.0694) });
-  // el niño: mira el frasco, lo sacude y se entristece
+  // el niño: tiene en la mano el frasquito de azúcar, lo mira, en «candy was scarce» lo pone boca abajo y lo sacude
+  // (caen los últimos granos, por detrás de la mesa), se entristece y lo baja; al final la tetera silba y él se vuelve
   const sacude = t > en('guerra', 0.2378) && t < en('guerra', 0.2807), triste = t > en('guerra', 0.2712);
-  const ni = R.actor(EL.nino62, 208, 130, t, { dir: silba && t > en('guerra', 0.2870) + 0.25 ? 1 : -1, sostiene: sacude ? [222, 122 + (Math.sin(t * 30) > 0 ? 1 : 0)] : undefined, sorpresa: t > en('guerra', 0.0063) && t < en('guerra', 0.0568), triste });
+  const dirN = silba && t > en('guerra', 0.2870) + 0.25 ? 1 : -1, tb = Math.sin(t * 30) > 0 ? 1 : 0;
+  const ni = R.actor(EL.nino62, 208, 130, t, { dir: dirN, sostiene: sacude ? [203 + tb, 110 + tb] : dirN < 0 ? [205, 117] : true, sorpresa: t > en('guerra', 0.0063) && t < en('guerra', 0.0568), triste });
+  const nivelN = lerp(0.5, 0.05, sube(en('guerra', 0.2397), en('guerra', 0.2775), t));
+  frasquito(ni.mano[0], ni.mano[1], sacude, nivelN);
+  if (sacude) for (let k = 0; k < 7; k++) { const f = ((t - en('guerra', 0.2378)) * 2.6 + k / 7) % 1; if (t - en('guerra', 0.2378) < k * 0.06) continue;
+    pset(ni.mano[0] + (k % 3) - 1, Math.round(ni.mano[1] + 5 + f * f * 14), k % 2 ? BL : H('#e8e4d8')); }
   mesaHule();
   tazaYCuenco(t);
   // la cartilla (un cupón menos desde «rationed») y el cupón que vuela a la mano de la madre
   PZ.cartilla(R, 104, 174, { s: 3, cupones: arranca ? 4 : 5 });
   if (arranca) { const x = Math.round(lerp(118, ma.mano[0] + 2, vuela)), y = Math.round(lerp(150, ma.mano[1] - 2, vuela) - Math.sin(vuela * 3.14) * 12); rect(x - 4, y - 3, x + 4, y + 3, K); rect(x - 3, y - 2, x + 3, y + 2, H('#e8dcc0')); rect(x - 2, y - 1, x + 2, y, H('#c83a2a')); pset(x + 3, y + 2, H('#b8a888')); }
-  // el frasco de azúcar: tiembla y caen los últimos granos en la cuchara
-  const jx = sacude ? (Math.sin(t * 40) > 0 ? 1 : -1) : 0, nivel = lerp(0.15, 0.04, sube(en('guerra', 0.2397), en('guerra', 0.2775), t));
-  PZ.frasco(R, 230 + jx, 174, { s: 3, nivel });
-  rect(252, 168, 268, 169, H('#9a9aa0')); R.disco(270, 168, 3, H('#9a9aa0')); R.disco(270, 168, 2, H('#d8d8dc'));
-  if (t > en('guerra', 0.2460)) for (let k = 0; k < 6; k++) { const f = Math.min(1, (t - en('guerra', 0.2460) - k * 0.07) * 3); if (f <= 0) continue; pset(Math.round(246 + k % 3 + f * 20), Math.round(150 + f * f * 16), BL); }
+  // el azucarero de loza, vacío y destapado, con la tapa al lado y la cucharilla con dos granos
+  azucarero(240, 170);
+  rect(252, 168, 268, 169, H('#9a9aa0')); R.disco(270, 168, 3, H('#9a9aa0')); R.disco(270, 168, 2, H('#d8d8dc')); pset(269, 167, BL); pset(271, 168, BL);
 };
 // ── 2. la calle de las afueras en 1950: vuelven los disfraces y los cómics ──
 const cubo = (x, y, c = '#e07a1a') => { rect(x - 3, y - 4, x + 3, y + 2, K); rect(x - 2, y - 3, x + 2, y + 1, H(c)); pset(x - 1, y - 2, H('#fff0a0')); pset(x + 1, y - 2, H('#fff0a0')); rect(x - 1, y, x + 1, y, H('#3a1a0a')); linea(x - 3, y - 4, x, y - 7, K); linea(x + 3, y - 4, x, y - 7, K); };
@@ -216,8 +252,59 @@ const coche50 = (x, s, t, dir = -1) => { x = Math.round(x);
   for (let k = 1; k < 9; k++) for (let j = -k / 3; j <= k / 3; j++) if ((k + Math.round(j)) % 2) pset(X(29 + k), Math.round(s - 8 + j), H('#f8e8a0'));
   for (const dx of [-16, 18]) { const wx = X(dx); disco(wx, s - 3, 5, K); disco(wx, s - 3, 4, H('#2a2a32')); disco(wx, s - 3, 2.5, H('#f0ece0')); disco(wx, s - 3, 1.2, CRS); const a = t * 14; pset(Math.round(wx + Math.cos(a) * 2), Math.round(s - 3 + Math.sin(a) * 2), K); }
 };
+// ── el cielo de arriba de la calle50 (y 0–37), repintado desde la escena: el mismo degradado, estrellas, luna, nube y humo
+// del decorado (copiados de tr-comun.js para que la costura en y 38 no se vea), más tres capas de nubes de tres tonos a
+// distintas velocidades y murciélagos; el humo de la chimenea se deshace antes de y 24 (lejos de la barra del año)
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], um = (x, y) => (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const cmez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const CIELO50 = ['#1a1e4e', '#262866', '#3a3274', '#5a3a7a', '#8a4a78', '#c0606a', '#e8804e', '#f4a456'].map(hex);
+const nube3 = (cx, cy, w, [cS, c, cL]) => { const r = Math.max(2, w * 0.28), B = [[-w * 0.38, 1.2, r * 0.7], [-w * 0.14, -0.6, r * 0.95], [w * 0.14, -1, r], [w * 0.38, 1, r * 0.72]];
+  for (const [dx, dy, rr] of B) disco(cx + dx, cy + dy + 1.2, rr, cS);
+  poligono([[cx - w * 0.5, cy + r * 0.4], [cx + w * 0.5, cy + r * 0.4], [cx + w * 0.46, cy + r * 0.95], [cx - w * 0.46, cy + r * 0.95]], cS);
+  for (const [dx, dy, rr] of B) disco(cx + dx, cy + dy, rr * 0.88, c);
+  for (const [dx, dy, rr] of B) disco(cx + dx - rr * 0.25, cy + dy - rr * 0.3, rr * 0.5, cL); };
+const nubes3 = (t, lista, tonos) => { for (const [x0, y, w, v] of lista) { const span = 320 + 2 * w, cx = ((x0 + t * v) % span + span) % span - w; nube3(cx, y, w, tonos); } };
+const cielo50 = capa(() => {
+  const B = R.buf, n = CIELO50.length - 1;
+  for (let y = 0; y <= 130; y++) { const u = y / 130 * n, k = Math.min(n - 1, Math.floor(u)), f = u - k; for (let x = 0; x < 320; x++) B[y * 320 + x] = f > um(x, y) ? CIELO50[k + 1] : CIELO50[k]; }
+  for (let i = 0; i < 120; i++) { const x = Math.floor(hh(i, 1, 609) * 320), y = Math.floor(hh(i, 2, 609) ** 1.4 * 40), q = hh(i, 3, 609);
+    if ((x >= 274 && y <= 46) || q > 0.6 || um(x, y) > 0.5) continue;
+    const z = i % 7 === 0 ? Math.sin(i) : 0; pset(x, y, z > 0.6 ? hex('#ffffff') : q < 0.15 ? hex('#e8ecff') : q < 0.5 ? hex('#a8b4e0') : hex('#6a76b0'));
+    if (z > 0.85 && i % 14 === 0) { pset(x - 1, y, hex('#6a76b0')); pset(x + 1, y, hex('#6a76b0')); pset(x, y - 1, hex('#6a76b0')); pset(x, y + 1, hex('#6a76b0')); } }
+});
+const CB = R.nuevo(), NB = R.nuevo();
+const cieloArriba = (t) => {
+  let prev = R.usar(CB); cielo50();
+  // la luna creciente con su halo (como en el decorado)
+  { const x = 238, y = 30, r = 6, cl = CIELO50[1];
+    R.halo(x, y, r * 2.6, [cmez(cl, hex('#ffffff'), 0.06), cmez(cl, hex('#ffffff'), 0.12), cmez(cl, hex('#ffffff'), 0.2)], 1.1);
+    disco(x, y, r, (px, py, d) => { const sh = (px - x) * 0.6 + (py - y) * 0.4; return d > 0.86 && sh > 0 ? hex('#c8c2a4') : sh > r * 0.45 ? hex('#e4dec0') : hex('#f6f2dc'); });
+    disco(x + r * 0.55, y - r * 0.25, r * 0.9, cl); }
+  nubes3(t, [[250, 34, 30, 1.8]], [hex('#2a2452'), hex('#4a3a6a'), hex('#8a5a78')]);
+  R.usar(prev);
+  // las tres capas nuevas de nubes (lejos y lentas, medio, cerca y rápidas), en un búfer aparte para deshacerlas antes de
+  // la esquina de Atom
+  NB.fill(0); prev = R.usar(NB);
+  nubes3(t, [[10, 26, 14, 0.7], [96, 26, 12, 0.7], [180, 27, 14, 0.7], [262, 26, 12, 0.7]], [hex('#20204c'), hex('#2c2a5c'), hex('#3e3a70')]);
+  nubes3(t, [[40, 28, 18, 1.5], [150, 29, 16, 1.5], [236, 28, 18, 1.5]], [hex('#28224e'), hex('#3c3264'), hex('#6a4a7a')]);
+  nubes3(t, [[-10, 30, 22, 2.6], [130, 30, 22, 2.6]], [hex('#2a2250'), hex('#463868'), hex('#9a6080')]);
+  // dos murciélagos más, arriba
+  for (let i = 0; i < 2; i++) { const x = Math.round(((t * (9 + i * 5) + i * 170 + 60) % 360) - 20), y = Math.round(24 + i * 6 + Math.sin(t * 2.6 + i) * 3); if (x > 262) continue; const a = Math.sin(t * 16 + i) > 0 ? -1 : 1, c = hex('#141020'); pset(x, y, c); pset(x, y - 1, c); linea(x - 1, y, x - 3, y + a, c); linea(x + 1, y, x + 3, y + a, c); }
+  R.usar(prev);
+  for (let y = 15; y <= 37; y++) for (let x = 0; x < 320; x++) { const c = NB[y * 320 + x]; if (c && !(x > 248 && hh(x, y, 5) < (x - 248) / 20)) CB[y * 320 + x] = c; }
+  // el humo de la chimenea (como el del decorado) que se deshace en tramado y no pasa de y 24
+  prev = R.usar(CB);
+  const hc = [hex('#5a4a6a'), hex('#7a6a88'), hex('#4a3a5a')];
+  for (let i = 0; i < 6; i++) { const u = ((t * 0.32 + i / 6 + 0.13) % 1); if (u > 0.5) continue; const r = 1 + u * 3, xx = 180 + Math.sin(u * 5 + i + t * 0.6) * 1.5 + u * 24 * -0.7, yy = 36 - u * 24, q = u < 0.32 ? 1 : 1 - (u - 0.32) / 0.18;
+    const dd = (cx, cy, rr, c) => { for (let py = Math.floor(cy - rr); py <= Math.ceil(cy + rr); py++) for (let px = Math.floor(cx - rr); px <= Math.ceil(cx + rr); px++) if ((px - cx) ** 2 + (py - cy) ** 2 <= rr * rr && (q >= 1 || hh(px, py, i + Math.floor(t * 6)) < q)) pset(px, py, c); };
+    if (q >= 1) { disco(Math.round(xx + 0.5), Math.round(yy + 0.6), r, hc[2]); disco(Math.round(xx), Math.round(yy), r * 0.85, u > 0.6 ? hc[1] : hc[0]); }
+    else { dd(Math.round(xx + 0.5), Math.round(yy + 0.6), r, hc[2]); dd(Math.round(xx), Math.round(yy), r * 0.85, u > 0.6 ? hc[1] : hc[0]); } }
+  R.usar(prev);
+  const B = R.buf; for (let i = 0; i < 38 * 320; i++) B[i] = CB[i];
+};
 const p2 = (t) => {
   const g = T.estaciones(R, t, { encuadre: 'calle50', camara: 'general' }), S = g.suelo ?? 150;
+  cieloArriba(t);
   // los tres disfrazados llegan corriendo por la acera hasta el camino de la casa del centro
   const ll = sube(P2 + 0.1, en('guerra', 0.5614), t), alza = t > en('guerra', 0.6560);
   const kids = [[EL.pirata50, 330, 168, '#e07a1a'], [EL.princesa50, 352, 188, '#d86ac8'], [EL.vaquero50, 374, 208, '#e0a02a']];
@@ -258,9 +345,9 @@ const p3 = (t) => {
   // por el escalón de abajo pasan un fantasma de sábana y un pirata con su padre, camino de la casa de al lado
   const pv = tramo(t, P3 + 0.2, P3 + 6.4);
   if (pv > 0 && pv < 1) { const px = lerp(-20, 350, pv);
-    R.actor(EL.padre62, Math.round(px), 178, t, { dir: 1, anda: true, habla: Math.sin(t * 3) > 0.6 });
-    const f = R.actor(EL.fantasma27, Math.round(px + 16), 179, t, { dir: 1, anda: true, sostiene: true }); cubo(f.mano[0], f.mano[1] + 6, '#e8e8f0');
-    const p = R.actor(EL.pirata50, Math.round(px + 30), 179, t, { dir: 1, anda: true, sostiene: true, sonrisa: true }); cubo(p.mano[0], p.mano[1] + 6); }
+    R.actor(EL.padre62, Math.round(px), 172, t, { dir: 1, anda: true, habla: Math.sin(t * 3) > 0.6 });
+    const f = R.actor(EL.fantasma27, Math.round(px + 16), 173, t, { dir: 1, anda: true, sostiene: true }); cubo(f.mano[0], f.mano[1] + 6, '#e8e8f0');
+    const p = R.actor(EL.pirata50, Math.round(px + 30), 173, t, { dir: 1, anda: true, sostiene: true, sonrisa: true }); cubo(p.mano[0], p.mano[1] + 6); }
   T.estacionesDelante(R, t, o);
 };
 const efectos = [[en('guerra', 0.0883), 'interruptor'], [en('guerra', 0.1955), 'papel'], [en('guerra', 0.2428), 'golpecito'], [en('guerra', 0.2890), 'vapor'],
