@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El broche · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-BROCHE (frases 34–35), hoy y Juegos 74, sin cartela. Tres planos:
+// 1. el corcho de la fan, de noche: el pan cruza el escritorio, se para bajo el corcho y en «clues» señala la foto del
+//    broche, que se enciende (la primera chincheta, con halo y destello); en «plain sight» da saltitos de risa;
+// 2. (corte en «The first») el Quemador, el puesto de cerca: la vendedora coge el broche de la bandeja de baratijas y en
+//    «mockingjay pin» lo levanta, brillando; Katniss entra por la izquierda y se acerca al mostrador; en «2012» la
+//    vendedora se lo ofrece y en «given it» se lo lanza en arco; Katniss lo atrapa y sonríe;
+// 3. (corte al final de «market») el libro abierto sobre la mesa, de cerca: una mano pasa la página en «But in the book»;
+//    aparece el dibujo del broche (s 3) con su brillo; en «pin» salta un «?» rojo; en «owner» se dibuja en la otra
+//    página la silueta de una chica con el broche, y el pan, que se había asomado a mirarlo, da un respingo.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-broche');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mez = (c1, c2, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((c1 >>> s) & 255) * (1 - k) + ((c2 >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const hh = (a, b, c = 0) => { let n = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1274126177); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const rr = (x0, y0, x1, y1, c) => { for (let y = Math.round(y0); y <= Math.round(y1); y++) for (let x = Math.round(x0); x <= Math.round(x1); x++) R.pset(x, y, c); };
+const aclara = (x, y, k, col = 0xffffffff) => { const c = R.pget(x, y); if (c) R.pset(x, y, mez(c, col, k)); };
+const K0 = hex('#14101c'), ORO = hex('#f0c040'), OROS = hex('#a87a18'), OROL = hex('#fff0a0'), BLANCO = hex('#fffbe8');
+R.ICONOS.nota = ['..##', '..#.', '..#.', '..#.', '###.', '###.'];
+R.ICONOS.nota2 = ['.####', '.#..#', '.#..#', '.#..#', '##.##', '##.##'];
+// halo de luz (aclara lo pintado) que cae hacia fuera
+const halo = (xc, yc, r, k = 0.4, col = hex('#fff2b0')) => { for (let y = Math.round(yc - r); y <= Math.round(yc + r); y++) for (let x = Math.round(xc - r); x <= Math.round(xc + r); x++) { const d = Math.hypot(x - xc, y - yc) / r; if (d < 1) aclara(x, y, k * (1 - d) * (1 - d) * 1.6 > k ? k : k * (1 - d) * (1 - d) * 1.6, col); } };
+// destello de cuatro rayos que late
+const destello = (x, y, n, t, col = OROL) => { x = Math.round(x); y = Math.round(y); const m = Math.max(1, Math.round(n * (0.6 + 0.4 * Math.abs(Math.sin(t * 7))))); R.pset(x, y, BLANCO);
+  for (let i = 1; i <= m; i++) { const c = i > m - 1 ? col : BLANCO; R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); }
+  if (m > 2) for (const [a, b] of [[1, 1], [-1, 1], [1, -1], [-1, -1]]) R.pset(x + a, y + b, col); };
+// el broche a escala de personaje (7 px): aro de oro, el pájaro oscuro dentro, un brillo
+const miniBroche = (x, y) => { x = Math.round(x); y = Math.round(y); R.disco(x, y, 3, K0); R.disco(x, y, 2, ORO); R.pset(x + 1, y + 1, OROS); R.pset(x + 2, y, OROS);
+  R.pset(x, y, K0); R.pset(x - 1, y, K0); R.pset(x + 1, y - 1, K0); R.pset(x - 1, y - 1, K0); R.pset(x - 1, y - 2, OROL); };
+// una nota que flota de (x0, y0) a (x1, y1) con u 0–1, ondulando
+const notaVuela = (x0, y0, x1, y1, u, col, fase = 0, grande = false, esc = 1) => { if (u <= 0 || u >= 1) return; const x = lerp(x0, x1, u), y = lerp(y0, y1, u) + Math.sin(u * 9 + fase) * 4 * esc;
+  R.icono(grande ? 'nota2' : 'nota', Math.round(x), Math.round(y), col, K0, esc); };
+
+const a = (f) => en('pistas', f), b = (f) => en('broche', f);
+// palabras (segundos de la escena): clues 1.90, plain 3.58, The 5.74, mocking 6.41, 2012 8.06, given 10.09, market 10.67, But 11.63, pin 12.80, owner 13.32
+const P2 = b(0) - 0.1, P3 = b(0.665);
+const CLUES = a(0.17), PLAIN = a(0.73), MOCK = b(0.083), DOCE = b(0.288), GIVEN = b(0.539), PAGINA = b(0.73), PIN = b(0.876), OWNER = b(0.94);
+// ── 1 · el corcho
+const p1 = (t) => {
+  const on = t > CLUES + 0.1;
+  T.hoy(R, t, { encuadre: 'cuarto', camara: 'corcho', luz: 'noche', pistas: on ? 1 : 0, hilo: 0 });
+  // el halo y el destello de la foto del broche cuando se enciende la pista
+  if (on) { const k = tramo(t, CLUES + 0.1, CLUES + 0.6); halo(53, 56, 30, 0.32 * k + 0.08 * Math.sin(t * 5)); destello(40, 36, 4 * k, t); destello(70, 66, 3 * k, t + 1); }
+  // el pan cruza el escritorio, se para debajo de la foto, señala y se ríe
+  const u = tramo(t, 0.2, CLUES - 0.15), x = Math.round(lerp(236, 112, u));
+  const rie = t > PLAIN - 0.1 && t < P2 - 0.4;
+  T.pan(R, x, 166, t, { s: 2, dir: -1, anda: u > 0 && u < 1, señala: t > CLUES - 0.2 && !rie ? [60, 70] : null, expresion: rie ? 'risa' : 'normal', saluda: t > P2 - 0.4 });
+  if (t > CLUES - 0.1 && t < CLUES + 0.9) R.bocadillo(x - 4, 128, { icono: '!' });
+};
+// ── 2 · el puesto del Quemador
+const QO = { encuadre: 'quemador', camara: 'puesto', luz: 'dia' };
+const p2 = (t) => {
+  T.distrito(R, t, QO);
+  // la vendedora, detrás del mostrador: coge el broche de la bandeja, lo levanta, se gira y lo lanza
+  const coge = t > MOCK - 0.5, vuelve = t > DOCE - 0.5, lanza = t > GIVEN - 0.05;
+  const objetivo = !coge ? true : !vuelve ? [t < MOCK ? 202 : 196, t < MOCK ? 137 : 124] : lanza ? [170, 122] : [172, 130];
+  const v = R.actor(EL.vendedoraHob, 178, 150, t, { dir: vuelve ? -1 : 1, sostiene: coge ? objetivo : undefined, sonrisa: t > MOCK + 0.3, habla: t > DOCE - 0.3 && t < GIVEN - 0.2 && Math.sin(t * 13) > 0 });
+  T.distritoDelante(R, t, QO);
+  // Katniss entra por la izquierda y se acerca; abre la mano para atraparlo
+  const w = tramo(t, P2 + 0.3, DOCE - 0.2), kx = Math.round(lerp(-18, 96, w)), recibe = t > GIVEN - 0.3;
+  const k = R.actor(EL.katniss, kx, 170, t, { dir: 1, anda: w > 0 && w < 1, sostiene: recibe ? [kx + 26, 146] : undefined, sorpresa: t > GIVEN + 0.05 && t < GIVEN + 0.45, sonrisa: t > GIVEN + 0.45, pal: { O: '#7a4a2a' } });
+  // el broche: en la bandeja, en la mano de la vendedora, en el aire y en la mano de Katniss
+  const vuela = tramo(t, GIVEN, GIVEN + 0.5);
+  let bx, by;
+  if (!coge || (t < MOCK - 0.3)) { bx = 204; by = 136; }
+  else if (vuela <= 0) { [bx, by] = v.mano; by -= 2; }
+  else if (vuela < 1) { const [x0, y0] = [170, 120], [x1, y1] = [k.mano[0], k.mano[1] - 2]; bx = lerp(x0, x1, vuela); by = lerp(y0, y1, vuela) - Math.sin(vuela * Math.PI) * 22;
+    for (let i = 1; i <= 4; i++) { const uu = vuela - i * 0.06; if (uu > 0) R.pset(Math.round(lerp(x0, x1, uu)), Math.round(lerp(y0, y1, uu) - Math.sin(uu * Math.PI) * 22), i % 2 ? OROL : ORO); } }
+  else { bx = k.mano[0]; by = k.mano[1] - 2; }
+  const brilla = t > MOCK - 0.1;
+  if (brilla) halo(bx, by, 11, 0.35 + 0.1 * Math.sin(t * 6));
+  miniBroche(bx, by);
+  if (brilla && (t < MOCK + 1.2 || (vuela >= 1 && t < GIVEN + 1.3))) destello(bx + 4, by - 4, 3, t);
+  else if (Math.sin(t * 3) > 0.8) R.pset(Math.round(bx) - 1, Math.round(by) - 2, BLANCO);
+  // la lupa: el broche de cerca (s 3) en un círculo dorado, unido a la mano, mientras se habla de él
+  const lr = 27 * tramo(t, MOCK - 0.15, MOCK + 0.15) * (1 - tramo(t, GIVEN - 0.5, GIVEN - 0.2));
+  if (lr > 2) { const cx = 146, cy = 82;
+    R.linea(Math.round(bx) - 3, Math.round(by) - 3, cx + Math.round(lr * 0.7), cy + Math.round(lr * 0.7), K0); R.linea(Math.round(bx) - 3, Math.round(by) - 4, cx + Math.round(lr * 0.7), cy + Math.round(lr * 0.7) - 1, OROL);
+    R.disco(cx, cy, lr + 3, K0); R.disco(cx, cy, lr + 2, ORO); R.disco(cx, cy, lr + 1, OROS); R.disco(cx, cy, lr, hex('#2a1e2e'));
+    for (let y = cy - lr; y <= cy + lr; y++) for (let x = cx - lr; x <= cx + lr; x++) if ((x + y) % 4 === 0 && Math.hypot(x - cx, y - cy) < lr - 1) R.pset(x, y, hex('#3a2a3e'));
+    if (lr > 26) { halo(cx, cy, 24, 0.3 + 0.08 * Math.sin(t * 5)); T.PIEZAS_JH.broche(R, cx, cy + 22, { s: 3, brillo: true }); destello(cx - 12, cy - 14, 4, t); destello(cx + 14, cy + 10, 2, t + 2); }
+    for (let i = 0; i < 6; i++) { const an = -2.4 + i * 0.12; R.pset(Math.round(cx + Math.cos(an) * (lr - 3)), Math.round(cy + Math.sin(an) * (lr - 3)), hex('#8a7a9a')); } }
+};
+// ── 3 · el libro abierto (fondo local)
+let fondo3 = null;
+const libroFondo = () => {
+  const b = R.nuevo(), prev = R.usar(b);
+  // la pared de noche: papel pintado ciruela con rayas y un motivo de puntos; un estante con libros; un cuadrito
+  for (let y = 0; y < 62; y++) for (let x = 0; x < 320; x++) { const raya = x % 12 < 2, mot = (x % 12 === 6 && y % 8 === 3) || (x % 12 === 5 && y % 8 === 4) || (x % 12 === 7 && y % 8 === 4);
+    R.pset(x, y, mez(raya ? hex('#3a2c46') : mot ? hex('#463454') : hex('#2e2238'), K0, y < 10 ? 0.2 : 0)); }
+  rr(8, 44, 132, 47, hex('#5a3a24')); rr(8, 48, 132, 49, hex('#3a2416'));
+  const lomos = ['#8a3a3a', '#3a5a8a', '#c8a050', '#4a7a4a', '#7a4a8a', '#c86a3a', '#2a4a6a', '#a8a8a0', '#6a2a2a', '#3a6a6a', '#b8883a', '#5a5a8a'];
+  let lx = 12; for (let i = 0; lx < 124; i++) { const w = 5 + Math.floor(hh(i, 3) * 4), hgt = 14 + Math.floor(hh(i, 4) * 8), c = hex(lomos[i % lomos.length]);
+    rr(lx, 44 - hgt, lx + w - 1, 43, K0); rr(lx + 1, 45 - hgt, lx + w - 2, 43, c); R.linea(lx + 1, 45 - hgt, lx + 1, 43, mez(c, BLANCO, 0.25)); R.linea(lx + 1, 48 - hgt, lx + w - 2, 48 - hgt, mez(c, OROL, 0.5)); R.linea(lx + 1, 40, lx + w - 2, 40, mez(c, K0, 0.4)); lx += w; }
+  // un cuadrito con montes (sin letras)
+  rr(196, 18, 238, 50, hex('#6a4a2a')); rr(198, 20, 236, 48, hex('#2a3a5a')); R.poligono([[198, 48], [210, 30], [222, 44], [228, 36], [236, 48]], hex('#4a5a6a')); R.poligono([[208, 33], [210, 30], [212, 33]], BLANCO); R.disco(228, 26, 3, hex('#f0e8c0'));
+  // la mesa de madera: tablones con vetas, nudos y el canto de delante iluminado
+  for (let y = 58; y < 180; y++) for (let x = 0; x < 320; x++) { const tabla = Math.floor((y - 58) / 24), off = tabla * 37, junta = (y - 58) % 24 === 23 || (x + off) % 140 === 0;
+    const veta = Math.sin((x + off) * 0.06 + Math.sin(y * 0.4 + tabla) * 1.6 + tabla) > 0.82, n = hh(x >> 1, y, 7);
+    let c = hex(['#6e4428', '#74482a', '#684026'][tabla % 3]); if (veta) c = mez(c, hex('#4a2a16'), 0.55); else if (n > 0.86) c = mez(c, hex('#8a5a34'), 0.5); if (junta) c = hex('#3a2212');
+    const d = Math.hypot((x - 120) / 1.6, y - 110) / 160; c = mez(c, K0, Math.min(0.55, Math.max(0, d - 0.25))); R.pset(x, y, c); }
+  rr(0, 58, 319, 59, hex('#9a6a40')); rr(0, 60, 319, 60, hex('#3a2212'));
+  for (const [nx, ny] of [[52, 96], [276, 148], [244, 74]]) { R.disco(nx, ny, 3, hex('#4a2a16')); R.disco(nx, ny, 1, hex('#2a160a')); }
+  // la lámpara de mesa a la izquierda (base, brazo, pantalla) y su charco de luz
+  rr(18, 146, 44, 152, K0); rr(19, 147, 43, 151, hex('#2a4a3a')); R.linea(20, 147, 42, 147, hex('#4a7a5a')); R.linea(31, 146, 36, 96, K0); R.linea(32, 146, 37, 96, hex('#3a5a4a'));
+  R.poligono([[22, 96], [52, 96], [46, 74], [28, 74]], K0); R.poligono([[24, 95], [50, 95], [45, 75], [29, 75]], hex('#2a6a4a')); R.linea(29, 76, 25, 94, hex('#4a9a6a'));
+  for (let y = 96; y < 180; y++) for (let x = 0; x < 300; x++) { const d = Math.hypot((x - 120) / 1.9, (y - 120) / 0.9) / 90; if (d < 1) aclara(x, y, 0.22 * (1 - d), hex('#ffe0a0')); }
+  // el libro abierto: tapas, el canto de las hojas y las dos páginas curvadas hacia el lomo
+  R.poligono([[56, 70], [264, 70], [270, 166], [50, 166]], K0); R.poligono([[57, 72], [263, 72], [268, 164], [52, 164]], hex('#6a2a2a'));
+  for (let i = 0; i < 4; i++) { R.linea(60, 160 - i * 2, 158, 162 - i * 2, mez(hex('#e8dcc0'), K0, i * 0.08)); R.linea(162, 162 - i * 2, 260, 160 - i * 2, mez(hex('#e8dcc0'), K0, i * 0.08)); }
+  for (let x = 62; x <= 258; x++) { const top = 74 + Math.round(Math.pow(1 - Math.abs(x - 160) / 98, 3) * 4), bot = 154 + Math.round(Math.pow(1 - Math.abs(x - 160) / 98, 3) * 2);
+    R.linea(x, top - 1, x, top - 1, K0); for (let y = top; y <= bot; y++) { const s = Math.abs(x - 160); R.pset(x, y, s < 6 ? mez(hex('#f2e6c8'), hex('#8a7a5a'), (6 - s) / 7) : s > 94 ? hex('#e0d2b0') : hex('#f2e6c8')); } }
+  R.linea(160, 76, 160, 156, hex('#8a7a5a'));
+  // las líneas de texto (barras grises, sin letras) de la página izquierda y de la parte alta y baja de la derecha
+  for (let y = 84, j = 0; y < 150; y += 6, j++) { const l = 70 + Math.round(hh(j, 1) * 14); R.linea(70, y, 70 + l, y, hex('#9a8a72')); if (hh(j, 2) > 0.6) R.linea(70 + l + 4, y, 150, y, hex('#9a8a72')); }
+  for (const y of [84, 90, 140, 146]) { const l = 60 + Math.round(hh(y, 5) * 22); R.linea(170, y, 170 + l, y, hex('#9a8a72')); }
+  // la cinta roja del marcapáginas que cuelga, la taza que humea (se pinta viva) y los lápices
+  R.poligono([[158, 156], [162, 156], [163, 176], [160, 172], [157, 176]], hex('#c8303a')); R.linea(158, 156, 158, 175, hex('#8a1a22'));
+  rr(270, 120, 292, 146, K0); rr(271, 121, 291, 145, hex('#e8e0d0')); rr(271, 121, 291, 124, hex('#5a3a24')); R.linea(272, 125, 272, 144, BLANCO); rr(292, 126, 298, 138, K0); rr(293, 128, 296, 136, hex('#e8e0d0')); rr(294, 129, 295, 135, K0);
+  for (let i = 0; i < 3; i++) { const y = 168 + i * 3; R.linea(196 + i * 6, y, 246 + i * 6, y - 4, K0); R.linea(196 + i * 6, y - 1, 244 + i * 6, y - 5, hex(['#f0c040', '#3a8ae8', '#e84a3a'][i])); R.pset(246 + i * 6, y - 5, hex('#f4cc80')); }
+  rr(70, 166, 120, 174, K0); rr(71, 167, 119, 173, hex('#e8dcc0')); R.linea(74, 170, 112, 170, hex('#9a8a72'));
+  R.usar(prev); return b;
+};
+const p3 = (t) => {
+  if (!fondo3) fondo3 = libroFondo();
+  R.copiar(fondo3);
+  // vapor de la taza
+  for (let i = 0; i < 6; i++) { const f = ((t * 0.5 + i / 6) % 1); R.pset(Math.round(281 + Math.sin(f * 8 + i) * 3), Math.round(116 - f * 26), mez(hex('#e8e0d0'), hex('#3a2c46'), f)); }
+  // la luz de la lámpara que titila un poco
+  if (Math.sin(t * 23) > 0.92) halo(37, 92, 14, 0.15, hex('#ffe0a0'));
+  // la página que se pasa (de derecha a izquierda), con la mano que la levanta
+  const pg = tramo(t, PAGINA - 0.05, PAGINA + 0.6), nueva = pg >= 0.5;
+  if (nueva) {
+    const k = tramo(t, PAGINA + 0.3, PAGINA + 0.9);
+    halo(208, 118, 34, 0.3 * k + 0.06 * Math.sin(t * 4), hex('#fff0b0'));
+    if (k > 0) { R.recorte([176, 94, 240, 144]); for (let y = 96; y < 144; y++) for (let x = 178; x < 240; x++) if (hh(x, y, 9) > 0.92) aclara(x, y, 0.08, hex('#8a7a5a')); R.recorte(null);
+      T.PIEZAS_JH.broche(R, 208, 142, { s: 3, brillo: true }); if (k < 1) for (let y = 96; y < 144; y++) for (let x = 184; x < 233; x++) if (hh(x, y, 3) > k) R.pset(x, y, hex('#f2e6c8')); }
+    if (t > PIN) { const e = tramo(t, PIN, PIN + 0.25); R.icono('?', 236, Math.round(lerp(96, 86, e)), hex('#d83a3a'), K0, 2); }
+    if (t > PIN + 0.2) destello(186, 102, 4, t);
+  } else { for (const y of [100, 106, 112, 118, 124, 130]) R.linea(170, y, 170 + 50 + Math.round(hh(y, 8) * 30), y, hex('#9a8a72')); }
+  if (pg > 0 && pg < 1) {
+    const ex = 160 + Math.cos(pg * Math.PI) * 98, lev = Math.sin(pg * Math.PI) * 10;
+    R.poligono([[160, 76], [ex, 74 - lev], [ex, 154 - lev * 0.6], [160, 156]], K0);
+    R.poligono([[161, 77], [ex + (ex > 160 ? -1 : 1), 75 - lev], [ex + (ex > 160 ? -1 : 1), 153 - lev * 0.6], [161, 155]], pg < 0.5 ? hex('#e8dcc0') : hex('#f6ecd2'));
+  }
+  if (t < PAGINA + 0.45) { const u = tramo(t, PAGINA - 0.5, PAGINA), lv = tramo(t, PAGINA, PAGINA + 0.15), sal = tramo(t, PAGINA + 0.15, PAGINA + 0.45);
+    const hx = lerp(300, 272, u) - lv * 10 + sal * 46, hy = lerp(178, 152, u) - lv * 12 + sal * 46;
+    T.brazo(R, 320, 202, hx, hy, '#5a7ab8', -1); }
+  // la silueta de la dueña, en sepia, que se dibuja en la página izquierda en «owner»
+  const s = tramo(t, OWNER - 0.1, OWNER + 0.5);
+  if (s > 0) { const cx = 112, SEP = hex('#8a6a4a');
+    R.recorte([82, 92, 144, 152]);
+    for (let y = 94; y <= 150; y++) for (let x = 84; x <= 140; x++) if (hh(x, y, 5) < s) R.pset(x, y, x === 84 || x === 140 || y === 94 || y === 150 ? SEP : hex('#f6ecd4'));
+    for (let y = 96; y < 150; y++) for (let x = 86; x < 139; x++) { const w = y < 117 ? 0 : y < 121 ? 2 : y < 124 ? 9 - (y - 121) : y < 132 ? 6 : 6 + (y - 132) * 0.7;
+      const cab = Math.hypot((x - cx) / 0.9, y - 108) < 8, cuello = y >= 116 && y < 121 && Math.abs(x - cx) < 2, cuerpo = y >= 121 && Math.abs(x - cx) < w, trenza = y > 106 && y < 132 && Math.abs(x - cx - 8 - Math.sin(y * 0.5)) < 1.5, pelo = cab && y < 104;
+      if ((cab || cuello || cuerpo || trenza) && hh(x, y, 4) < s) R.pset(x, y, pelo || trenza ? hex('#5a3a22') : ((x + y) % 2 && cuerpo) ? mez(SEP, hex('#f2e6c8'), 0.45) : SEP); }
+    R.recorte(null);
+    if (s > 0.6) { miniBroche(cx + 4, 126); halo(cx + 4, 126, 9, 0.35); destello(cx + 9, 121, 3, t); }
+  }
+  // el pan se asoma por la derecha, mira el dibujo, lo señala y da un respingo con la silueta
+  const u = tramo(t, PAGINA + 0.4, PIN - 0.3), px = Math.round(lerp(330, 252, u));
+  T.pan(R, px, 176, t, { s: 2, dir: -1, anda: u > 0 && u < 1, señala: t > PIN - 0.2 && t < OWNER ? [214, 120] : null, expresion: t > OWNER + 0.2 ? 'susto' : 'normal' });
+};
+const efectos = [[CLUES + 0.1, 'brillo'], [PLAIN, 'boing'], [MOCK, 'brillo'], [GIVEN, 'whoosh'], [GIVEN + 0.5, 'golpecito'], [PAGINA, 'papel'], [PIN, 'pop'], [OWNER, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t >= P2 && t < P3 ? 74 : null) });
+</script>
+</body>
+</html>

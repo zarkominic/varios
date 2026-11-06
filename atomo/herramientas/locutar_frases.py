@@ -12,7 +12,8 @@ Sustituye a locutar_escenas.py + preparar_largo.py desde el episodio 3 (ver atom
   3. Alineación por frases. Cada pareja de frases empieza a la vez en las dos pistas.
      - El idioma principal (guion «principal», inglés por defecto) va a su velocidad natural.
      - El otro se sintetiza a una velocidad que lo acerque (entre 0,85 y 1,10, para que siga sonando
-       natural) y luego se estira entero con rubberband, como mucho un 10 % en cada sentido (desde el episodio 4: con un 5 % quedaban frases de casi 1 s de diferencia).
+       natural). Hasta el 15 se partía en las comas y se estiraba con rubberband hasta un 10 %; desde el 16 va entero
+       y sin estirar (ENTERA), porque así sonaba entrecortado.
      - Si aun así es más largo, la frase ocupa lo que dure el más largo y el principal deja silencio
        detrás; si es más corto, el silencio lo deja él. Nunca se acelera una voz hasta que suene con prisa.
   4. Las marcas son el inicio de cada frase (con «_fin» al final de la frase principal), así caen
@@ -45,6 +46,7 @@ PAUSA = {'.': 0.8, '?': 0.9, '!': 0.85, ':': 0.6}   # silencio tras la frase (un
 # comas con 0 s de pausa. Como en el modo por cláusulas de PyKokoro, la frase se locuta en trozos
 # partidos por los signos y la pausa se pone entre clips, así nunca cae dentro de una palabra.
 PAUSA_DENTRO = {',': 0.3, ';': 0.42, ':': 0.42, '—': 0.32, '.': 0.6, '?': 0.65, '!': 0.6}
+PAUSA_DENTRO['·'] = 0.32   # modo cuento: el respiro entre dos oraciones de un mismo párrafo
 RAPIDO, LENTO = 1.10, 0.90                          # cuánto se puede estirar el idioma que se adapta
 VEL_MIN, VEL_MAX = 0.85, 1.10                       # velocidades de síntesis que siguen sonando naturales
 # Pronunciaciones que se corrigen en los fonemas. «Atom» en americano lleva una t blanda (ˈæɾəm) y
@@ -255,16 +257,38 @@ def trozos_voz(texto):
             out[k - 1][0] += ' ' + out[k][0]; out[k - 1][1] = out[k][1]; out.pop(k)
     return [tuple(x) for x in out]
 
+def cuento(texto):
+    """Modo cuento (desde el 21, elegido por el usuario de oído el 05/11/2026, la muestra «B»): la frase (un párrafo) se
+    locuta por oraciones enteras, sin cortar en las comas, con un respiro corto entre una y otra (PAUSA_CUENTO). Partida
+    en las comas, la entonación volvía a empezar en cada trozo y el inglés sonaba «a robot, a frases sueltas»."""
+    p = [x for x in re.split(r'(?<=[.?!])\s+', texto) if x.strip()]
+    junt = []
+    for x in p:   # «J. K. Rowling»: una inicial con punto no cierra oración
+        if junt and re.search(r'(^|\s)[A-ZÁÉÍÓÚ]\.$', junt[-1]):
+            junt[-1] += ' ' + x
+        else:
+            junt.append(x)
+    return [(x, '·' if k + 1 < len(junt) else '') for k, x in enumerate(junt)]
+
 def oraciones(texto):
     """Para Chatterbox, que hace bien sus comas: solo se parte por oraciones (y dos puntos)."""
     p = [x for x in re.split(r'(?<=[.?!:])\s+', texto) if x.strip()]
     return [(x, x[-1] if k + 1 < len(p) else '') for k, x in enumerate(p)]
 
+# Desde el 16 (el usuario, de oído, eligió la «B» el 30/10/2026): el idioma que no es el principal se locuta con la frase
+# entera de una vez y sin estirarla con rubberband. Partida en las comas, la entonación volvía a empezar en cada trozo y
+# se oía entrecortada; estirada, algunas palabras sonaban raras. Si no cabe, se ajusta solo la velocidad de Kokoro.
+ENTERA = {PRINCIPAL: False, OTRO: True}
+CUENTO = g.get('narracion') == 'cuento'
+if CUENTO:   # pausas de narración seguida, no de lista: entre párrafos medio segundo, al empezar un acto menos de un segundo
+    PAUSA = {'.': 0.5, '?': 0.55, '!': 0.5, ':': 0.45}
+    ENTRADA_ACTO = 0.9
+
 def frase_voz(texto, l, velocidades):
     """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
     partes, oidas, prob, av, vels, t = [], [], [], [], [], 0.0
     cb = VOCES[l].get('motor') == 'chatterbox'
-    for trozo, signo in (oraciones(texto) if cb else trozos_voz(texto)):
+    for trozo, signo in (cuento(texto) if CUENTO else [(texto, '')] if ENTERA[l] else oraciones(texto) if cb else trozos_voz(texto)):
         a, f, vel, p, v = clip_limpio(trozo, l, velocidades)
         oidas += [(w, s + t, x + t) for w, s, x in oir(f, l)]
         prob += p; av += v; vels.append(vel)
@@ -314,7 +338,7 @@ for e in escenas:
         r = len(a_o) / SR / d_p
         vel = v0[OTRO] if 0.95 <= r <= 1.05 else float(np.clip(v0[OTRO] * r / (1.03 if r > 1 else 0.98), VEL_MIN, VEL_MAX))
         a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
-        tempo = float(np.clip(len(a_o) / SR / d_p, LENTO, RAPIDO))
+        tempo = 1.0 if ENTERA[OTRO] else float(np.clip(len(a_o) / SR / d_p, LENTO, RAPIDO))
         oidas = {PRINCIPAL: oid_p, OTRO: [(w, s / tempo, x / tempo) for w, s, x in oid_o]}
         a_o = estirar(a_o, tempo)
         hueco = max(d_p, len(a_o) / SR)

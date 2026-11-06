@@ -1,0 +1,328 @@
+E = {}
+
+E['te-gancho'] = ('Viernes 13', '''// TE-GANCHO (frases 1–3), 1307, cartela «1307». Cinco planos:
+// 1. (calle, alba) París amanece entre niebla; un gato negro cruza el barro en «Friday»; tres soldados del rey llegan con
+//    antorchas al portón del Temple; el capitán llama («1307»), enseña a los suyos el rollo sellado y vuelve a llamar;
+// 2. (mapa, corte en «the King's») la orden sale de París en líneas de tinta hacia toda Francia; tres viñetas clavadas en
+//    el mapa (tres puertas del Temple) y en «knock» los tres capitanes llaman a la vez y se encienden las antorchas de las
+//    ciudades; en «doors» se abren las tres puertas y en «Knights Templar» asoman tres templarios medio dormidos;
+// 3. (patio, golpe en «They are») la fila de templares entra en el patio, el soldado lee el rollo sellado, la campana
+//    tañe; en «hundreds» salen dos más de la torre y en «chains» una cadena les une las manos (sin golpes);
+// 4. (torre) en «march into» los soldados bajan por la escalera y van a los arcones; el escribano escribe sin parar;
+//    en «temple» el capitán señala los arcones;
+// 5. (cofres) en «Open the chests» se abren las tapas: casi vacíos; sale una polilla, un soldado saca una sola moneda en
+//    «inventory» y en «everything» se rasca la cabeza («?»).''', r'''
+const a = (f) => en('amanecer', f), b = (f) => en('presos', f), c = (f) => en('inventario', f);
+const P2 = a(0.552), P3 = b(-0.015), P4 = c(-0.008), P5 = c(0.585);
+const K = T.C.k;
+// una antorcha en la mano (x, y): mango de madera, cabeza de estopa y la llama que tiembla con su halo
+const antorcha = (x, y, t, k = 0) => {
+  x = Math.round(x); y = Math.round(y);
+  R.linea(x, y + 3, x, y - 6, hex('#3a2414')); R.linea(x + 1, y + 3, x + 1, y - 6, hex('#6a4426'));
+  R.rect(x - 1, y - 8, x + 2, y - 6, hex('#2a1a10')); R.pset(x, y - 8, hex('#5a3a20'));
+  const f = Math.sin(t * 17 + k * 2.1), g = Math.sin(t * 11 + k);
+  for (let j = 0; j < 8; j++) { const w = Math.max(0, Math.round((8 - j) / 3 + (j < 3 ? 0.5 : 0))), dx = Math.round((f * j) / 5);
+    for (let i = -w; i <= w + 1; i++) { const r = Math.abs(i - 0.5) / (w + 1); R.pset(x + i + dx, y - 9 - j, j > 5 ? hex('#e84a1a') : r < 0.35 && j < 4 ? hex('#fff6c0') : r < 0.7 ? hex('#ffc040') : hex('#f07a20')); } }
+  if (g > 0.3) R.pset(x + 2 + Math.round(f * 2), y - 19 - Math.round(g * 2), hex('#ffc040'));
+  for (let i = 0; i < 10; i++) { const an = i * 0.63 + t, r = 7 + (i % 3); const px = Math.round(x + Math.cos(an) * r), py = Math.round(y - 12 + Math.sin(an) * r * 0.8); if (R.b4(px, py) < 0.18) R.pset(px, py, hex('#f8b860')); }
+};
+// el rollo sellado de la orden del rey en la mano (x, y): pergamino enrollado con el sello rojo colgando
+const rolloSellado = (x, y, abierto = 0) => {
+  x = Math.round(x); y = Math.round(y);
+  const L = Math.round(4 + abierto * 9);
+  R.rect(x - 2, y - 2, x + 2, y + L, K); R.rect(x - 1, y - 1, x + 1, y + L - 1, hex('#ecdcb0')); R.rect(x + 1, y - 1, x + 1, y + L - 1, hex('#c8b080'));
+  if (abierto > 0.5) for (let j = 2; j < L - 1; j += 2) R.pset(x - 1 + (j % 4 ? 0 : 1), y + j, hex('#6a4a2a'));
+  R.rect(x - 3, y - 3, x + 3, y - 2, hex('#a08a5a'));
+  R.linea(x, y + L, x + 1, y + L + 3, hex('#c8303a')); R.disco(x + 1, y + L + 5, 2, hex('#6a1a1e')); R.disco(x + 1, y + L + 4, 1.6, hex('#c8303a')); R.pset(x, y + L + 3, hex('#e86a6a'));
+};
+// un gato negro que cruza andando (x: el centro, base: la y de las patas)
+const gatoNegro = (x, base, t, dir) => {
+  x = Math.round(x); const p = Math.floor(t * 8) % 2, X = (i) => x + dir * i;
+  for (let i = -5; i <= 4; i++) { R.pset(X(i), base - 4, K); R.pset(X(i), base - 5, K); R.pset(X(i), base - 3, i > -4 && i < 3 ? hex('#1e1a24') : K); }
+  for (let i = -4; i <= 3; i++) R.pset(X(i), base - 6, i % 3 ? hex('#2e2a38') : K);
+  for (const [i, ad] of [[-4, p], [-2, 1 - p], [2, p], [4, 1 - p]]) { R.pset(X(i + (ad ? 1 : 0)), base - 2, K); R.pset(X(i), base - 1, K); R.pset(X(i), base, K); }
+  R.rect(Math.min(X(4), X(7)), base - 8, Math.max(X(4), X(7)), base - 5, K); R.pset(X(4), base - 9, K); R.pset(X(7), base - 9, K);
+  R.pset(X(6), base - 7, hex('#f0e040')); R.pset(X(8), base - 6, K);
+  const cola = Math.round(Math.sin(t * 5) * 1.5); R.linea(X(-5), base - 5, X(-7), base - 9 + cola, K); R.linea(X(-7), base - 9 + cola, X(-6), base - 12 + cola, K);
+};
+
+// 1 · la calle al alba: el gato negro, los soldados que llegan con antorchas y el capitán que llama al portón
+const LLAMA = a(0.29), ROLLO = a(0.43), OTRA = a(0.50);
+const p1 = (t) => {
+  const d = T.temple(R, t, { encuadre: 'calle', luz: 'alba' });
+  // los tres soldados que llegan entre la niebla, el capitán delante (entran por detrás del carro, sin pisarlo)
+  [[EL.soldado, 112, 190], [EL.soldado, 90, 168], [EL.soldado, 68, 146]].forEach(([def, x0, x1], k) => {
+    const e0 = 1.3 + k * 0.15, e1 = LLAMA - 0.35 + k * 0.1, x = Math.round(lerp(x0, x1, tramo(t, e0, e1))), anda = t > e0 && t < e1;
+    if (k === 0) {
+      // el capitán llama tres veces con el puño, enseña el rollo sellado del rey a los suyos y vuelve a llamar
+      const g1 = t > LLAMA && t < LLAMA + 1.0, g2 = t > OTRA + 0.25 && t < OTRA + 1.0, golpe = g1 || g2 ? Math.max(0, Math.sin((t - (g1 ? LLAMA : OTRA + 0.25)) * Math.PI * 3.3)) : 0;
+      const ens = t > ROLLO && t < OTRA + 0.2;
+      const o = { dir: ens ? -1 : 1, anda, habla: ens && Math.sin(t * 8) > 0 };
+      if (ens) o.sostiene = [x - 2, d.suelo - 18]; else if (g1 || g2) o.sostiene = [x + 15 + Math.round(golpe * 2), d.suelo - 15];
+      const m = R.actor(def, x, d.suelo, t, o).mano;
+      if (ens) rolloSellado(m[0], m[1] - 4, tramo(t, ROLLO, ROLLO + 0.4));
+      if (golpe > 0.85) { R.pset(m[0] + 3, m[1] - 3, hex('#fff0c0')); R.pset(m[0] + 4, m[1] + 1, hex('#fff0c0')); R.pset(m[0] + 3, m[1] + 4, hex('#fff0c0')); }
+    } else {
+      const m = R.actor(def, x, d.suelo, t, { dir: 1, anda, sostiene: [x + 13, d.suelo - 15], sonrisa: k === 1 && t > ROLLO + 0.2 && t < OTRA }).mano;
+      antorcha(m[0], m[1], t, k);
+    }
+  });
+  // el cuarto soldado espera al otro lado del portón con su antorcha y mira a la calle
+  { const m = R.actor(EL.soldado, 252, d.suelo, t, { dir: -1, sostiene: [250, d.suelo - 15] }).mano; antorcha(m[0], m[1], t, 4); }
+  // el gato negro del viernes 13 cruza el barro por delante, de derecha a izquierda
+  const g = tramo(t, 1.4, 5.6); if (g > 0 && g < 1) gatoNegro(lerp(276, 70, g), 170, t, -1);
+};
+
+// 2 · el mapa: de París salen las órdenes a toda Francia; tres viñetas muestran tres puertas del Temple, y en «knock»
+// los tres capitanes llaman a la vez; se encienden las antorchas de las ciudades; en «doors» se abren las tres puertas y
+// en «Knights Templar» asoman tres templarios medio dormidos y las ciudades se vuelven cruces
+const SALEN = a(0.56), KNOCK = a(0.661), MISMO = a(0.737), PUERTAS = a(0.84), CRUZ = a(0.913);
+const CIUDADES = [[1.1, 49.44], [4.03, 49.26], [4.07, 48.3], [0.34, 46.58], [-1.15, 46.16], [-0.58, 44.84], [1.44, 43.6], [4.83, 45.76], [5.37, 43.3]];
+const VB = R.nuevo(), CROP = [184, 76, 66, 84];
+const mez = (p, q, u) => { let r = 0; for (const s of [0, 8, 16]) { const ca = (p >>> s) & 255, cb = (q >>> s) & 255; r += Math.round(ca + (cb - ca) * u) * (1 << s); } return (0xff000000 + r) >>> 0; };
+const VIN = [
+  { x: 28, y: 46, espejo: false, tinte: null, ciudad: [-1.15, 46.16], quien: EL.templario, pal: null },
+  { x: 100, y: 58, espejo: true, tinte: [hex('#5a6aa0'), 0.22], ciudad: [2.35, 48.85], quien: EL.templario2, pal: null },
+  { x: 172, y: 40, espejo: false, tinte: [hex('#f0a060'), 0.18], ciudad: [1.44, 43.6], quien: EL.templario, pal: { H: '#9a9a9a', h: '#c0c0c0' } },
+];
+const vineta = (t, v, k) => {
+  const [cx0, cy0, W, H] = CROP, u = tramo(t, SALEN + 0.35 + k * 0.12, SALEN + 0.75 + k * 0.12), hv = Math.round(H * u);
+  if (hv < 2) return;
+  const { x: vx, y: vy, espejo, tinte } = v;
+  R.rect(vx + 1, vy + 2, vx + W + 3, vy + hv + 3, hex('#3a2a1a'));
+  R.rect(vx - 2, vy - 2, vx + W + 1, vy + hv + 1, K); R.rect(vx - 1, vy - 1, vx + W, vy + hv, hex('#c8a040')); R.rect(vx - 1, vy + hv, vx + W, vy + hv, hex('#8a6a2a'));
+  for (let j = 0; j < hv; j++) for (let i = 0; i < W; i++) { const sx = espejo ? cx0 + W - 1 - i : cx0 + i, c = VB[(cy0 + j) * 320 + sx]; R.pset(vx + i, vy + j, tinte ? mez(c, tinte[0], tinte[1]) : c); }
+  R.recorte([vx, vy, vx + W - 1, vy + hv - 1]);
+  const X = (x, w = 14) => (espejo ? vx + (W - 1 - (x - cx0)) - w : vx + (x - cx0)), Y = (y) => vy + (y - cy0), dir = espejo ? -1 : 1;
+  // el templario medio dormido que abre (bosteza con los ojos cerrados y se despierta de golpe)
+  if (t > CRUZ - 0.2) { const ve = t > CRUZ + 0.55 + k * 0.1; R.actor(v.quien, X(215), Y(147), t, { dir: -dir, parpadea: !ve, habla: !ve && Math.sin(t * 3 + k) > 0, sorpresa: ve, pal: v.pal || undefined }); }
+  // el capitán de cada puerta llama a la vez que los otros
+  const g = (t0) => t > t0 && t < t0 + 0.75 ? Math.max(0, Math.sin((t - t0) * Math.PI * 4)) : -1;
+  const golpe = Math.max(g(KNOCK), g(MISMO));
+  const o = { dir, sorpresa: t > CRUZ + 0.3 && t < CRUZ + 0.9, habla: t > CRUZ + 0.9 && Math.sin(t * 8 + k) > 0 };
+  if (golpe >= 0) o.sostiene = [X(186 + 15 + Math.round(golpe * 2), 0), Y(141)]; else if (t < KNOCK) o.dedo = true;
+  const m = R.actor(EL.soldado, X(186), Y(156), t, o).mano;
+  if (golpe > 0.85) for (const [i, j] of [[3, -3], [4, 1], [3, 4]]) R.pset(m[0] + dir * i, m[1] + j, hex('#fff0c0'));
+  R.recorte(null);
+  // la chincheta de latón arriba
+  R.disco(vx + (W >> 1), vy - 2, 2.2, K); R.disco(vx + (W >> 1), vy - 2, 1.6, hex('#e8c050')); R.pset(vx + (W >> 1) - 1, vy - 3, hex('#fff0c0'));
+};
+const p2 = (t) => {
+  // las tres puertas se pintan en un búfer aparte (la misma hora del alba en toda Francia: se abren a la vez)
+  { const prev = R.usar(VB); T.temple(R, t, { encuadre: 'calle', luz: 'alba', puerta: tramo(t, PUERTAS, PUERTAS + 0.6) }); R.usar(prev); }
+  const d = T.puerto(R, t, { encuadre: 'mapa', rutas: 0 });
+  const P = d.proyecta, [px, py] = P(2.35, 48.85).map(Math.round), [x0, y0, x1, y1] = d.papel;
+  R.recorte([x0 + 1, y0 + 1, x1 - 1, y1 - 1]);
+  CIUDADES.forEach(([lon, lat], k) => {
+    const [cx, cy] = P(lon, lat).map(Math.round), u = tramo(t, SALEN + k * 0.05, KNOCK - 0.1);
+    // la línea de tinta de la orden, que sale de París hacia la ciudad
+    if (u > 0) { const n = Math.max(1, Math.round(Math.hypot(cx - px, cy - py))); for (let i = 0; i <= n * u; i++) if (i % 3 !== 2) R.pset(Math.round(px + (cx - px) * i / n), Math.round(py + (cy - py) * i / n), hex('#5a2a1a')); }
+    if (t < KNOCK) { R.pset(cx, cy, hex('#3a2418')); return; }
+    if (t < CRUZ) {
+      // la antorcha que se enciende a la vez en todas, con su onda en cada golpe
+      const fl = Math.sin(t * 19 + k * 3) > 0;
+      R.disco(cx, cy, 2.6, hex('#3a1a10')); R.disco(cx, cy, 1.9, fl ? hex('#ffc040') : hex('#f07a20')); R.pset(cx, cy - 1, hex('#fff6c0')); R.pset(cx + (fl ? 1 : 0), cy - 3, hex('#ffc040'));
+      for (const t0 of [KNOCK, MISMO]) { const w = tramo(t, t0, t0 + 0.8); if (w > 0 && w < 1) { const r = 3 + w * 6; for (let q = 0; q < 24; q++) { const an = q / 24 * Math.PI * 2; if ((q + k) % 2) R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r * 0.8), w < 0.5 ? hex('#e84a1a') : hex('#b86a3a')); } } }
+    } else {
+      // la cruz templaria roja sobre un disco blanco
+      const s = tramo(t, CRUZ + k * 0.03, CRUZ + 0.25 + k * 0.03) > 0.5;
+      R.disco(cx, cy, 3.2, K); R.disco(cx, cy, 2.5, hex('#f2eee2'));
+      if (s) { R.rect(cx - 2, cy, cx + 2, cy, T.C.cruzT); R.rect(cx, cy - 2, cx, cy + 2, T.C.cruzT); } else R.pset(cx, cy, hex('#ffc040'));
+    }
+  });
+  // los hilos de tinta de cada viñeta a su ciudad
+  VIN.forEach((v, k) => { const u = tramo(t, SALEN + 0.6 + k * 0.12, SALEN + 1.0 + k * 0.12); if (u <= 0) return; const [cx, cy] = P(...v.ciudad).map(Math.round), ax = v.x + (CROP[2] >> 1), ay = v.y + CROP[3] + 2;
+    const n = Math.round(Math.hypot(cx - ax, cy - ay)); for (let i = 0; i <= n * u; i++) if (i % 4 < 2) R.pset(Math.round(ax + (cx - ax) * i / n), Math.round(ay + (cy - ay) * i / n + Math.sin(i / n * Math.PI) * 8), hex('#8a2a1a')); });
+  // París: la corona del rey de donde salen las órdenes, que late mientras salen
+  { const lat = t > SALEN && t < KNOCK ? (t * 2) % 1 : -1; R.disco(px, py, 4, K); R.disco(px, py, 3.3, T.C.azulRey);
+    for (const i of [-2, 0, 2]) R.pset(px + i, py - 2 - (i === 0 ? 1 : 0), T.C.oroRey); R.rect(px - 2, py - 1, px + 2, py, T.C.oroRey); R.pset(px, py, hex('#c8303a'));
+    if (lat >= 0) for (let q = 0; q < 20; q++) if (q % 2) { const an = q / 20 * Math.PI * 2; R.pset(Math.round(px + Math.cos(an) * (5 + lat * 4)), Math.round(py + Math.sin(an) * (5 + lat * 4)), T.C.azulRey); } }
+  R.recorte(null);
+  VIN.forEach((v, k) => vineta(t, v, k));
+};
+
+// 3 · el patio: la fila de templares, el rollo, la campana, los que salen de la torre y la cadena
+const RICOS = b(0.073), CIENTOS = b(0.631), CADENA = b(0.872);
+const FILA = [134, 156, 178, 200, 222];
+const p3 = (t) => {
+  const d = T.temple(R, t, { encuadre: 'calle', camara: 'patio', campana: 1 });
+  const S = d.suelo, ent = tramo(t, P3, b(0.4)), off = Math.round(lerp(80, 0, 1 - (1 - ent) * (1 - ent)));
+  const xs = FILA.map((x) => x + off);
+  // los dos que salen de la torre y se suman al final de la fila
+  const v = tramo(t, CIENTOS - 0.3, CADENA - 0.2); if (v > 0) { xs.push(Math.round(lerp(330, 244, v))); xs.push(Math.round(lerp(356, 266, v))); }
+  // la cadena que une las manos de toda la fila (se pinta antes que ellos: los cuerpos la tapan)
+  const ca = tramo(t, CADENA - 0.15, CADENA + 0.45);
+  if (ca > 0) { const xa = xs[0] + 1, xb = xs[xs.length - 1] + 4, fin = Math.round(lerp(xa, xb, ca)); for (let x = xa; x <= fin; x++) { const y = S - 11 + Math.round(Math.sin(((x - xa) % 22) / 22 * Math.PI) * 2); R.pset(x, y, x % 2 ? hex('#5a5a66') : hex('#c0c4d0')); if (x % 2 === 0) R.pset(x, y + 1, hex('#3a3a44')); } }
+  const def = [EL.templario, EL.templario2, EL.templario, EL.templario2, EL.templario, EL.templario2, EL.templario];
+  const pal = [null, null, { H: '#8a8a8a', h: '#b0b0b0' }, null, { H: '#2a1a10' }, { H: '#c8a060' }, { H: '#6a4a2a' }];
+  xs.forEach((x, k) => {
+    const anda = (k < 5 && ent > 0 && ent < 1) || (k >= 5 && v > 0 && v < 1);
+    const mira = k === 2 && t > RICOS + 0.3 && t < RICOS + 1.6;   // uno se vuelve a mirar su torre
+    R.actor(def[k], x, S, t, { dir: mira ? 1 : -1, anda, triste: !anda && k % 2 === 0, sorpresa: t > CADENA && t < CADENA + 0.6 && k < 3, pal: pal[k] || undefined, sostiene: ca > 0.3 ? true : false });
+  });
+  // el soldado que lee la orden sellada delante de la fila
+  { const lee = t > RICOS - 0.2, m = R.actor(EL.soldado, 98, S, t, { dir: 1, sostiene: [116, S - 16], habla: lee && t < CIENTOS && Math.sin(t * 8) > 0 }).mano; rolloSellado(m[0], m[1] - 6, tramo(t, RICOS - 0.4, RICOS + 0.2)); }
+  // el soldado que cierra la fila, con la alabarda (un asta con su hoja), que avanza con ellos
+  { const x = Math.min(300, xs[xs.length - 1] + 26), m = R.actor(EL.soldado, x, S, t, { dir: -1, anda: v > 0 && v < 1, sostiene: [x - 1, S - 14] }).mano;
+    R.linea(m[0], m[1] + 8, m[0], m[1] - 22, hex('#5a3a1a')); R.rect(m[0] - 2, m[1] - 26, m[0] + 1, m[1] - 21, hex('#8a8a96')); R.pset(m[0] - 2, m[1] - 26, hex('#e0e4ec')); R.pset(m[0], m[1] - 28, hex('#c0c4d0')); }
+};
+
+// 4 · la torre: los soldados bajan la escalera y van a los arcones; el escribano escribe sin parar
+const MARCHA = c(0.19), TORRE = c(0.40);
+const p4 = (t) => {
+  const d = T.temple(R, t, { encuadre: 'torre' });
+  const S = 162;
+  // el escribano en el escritorio, la pluma que no para
+  { const m = R.actor(EL.escribano, 220, S, t, { dir: 1, sostiene: [241, 136 + Math.round(Math.sin(t * 9))] }).mano; const px = m[0] + 1 + Math.round(Math.sin(t * 13) * 2);
+    R.linea(px, m[1] - 1, px + 3, m[1] - 7, hex('#f2eee2')); R.linea(px + 1, m[1] - 1, px + 4, m[1] - 7, hex('#c8c0b0')); R.pset(px, m[1], K);
+    if (Math.sin(t * 13) > 0.6) R.pset(px - 1, m[1] + 1, hex('#2a1a10')); }
+  // los soldados que bajan por la escalera y cruzan hasta los arcones
+  [[30, 120, 0], [10, 82, 0.5], [-14, 30, 1.0]].forEach(([x0, x1, dl], k) => {
+    const u = tramo(t, MARCHA - 0.4 + dl, TORRE + 0.3 + dl), x = Math.round(lerp(x0, x1, u));
+    const señala = k === 0 && t > TORRE + 0.7;
+    const m = R.actor(EL.soldado, x, S, t, { dir: k === 0 && señala ? -1 : 1, anda: u > 0 && u < 1, dedo: señala, sostiene: k === 2 ? [x + 13, S - 15] : false }).mano;
+    if (k === 2) antorcha(m[0], m[1], t, 7);
+  });
+};
+
+// 5 · los cofres: se abren casi vacíos; la polilla, la moneda sola y el «?»
+const ABRIR = c(0.60), INV = c(0.792), TODO = c(0.901);
+const p5 = (t) => {
+  const abre = tramo(t, ABRIR, ABRIR + 0.6);
+  const d = T.temple(R, t, { encuadre: 'torre', camara: 'cofres', abre });
+  const S = 164;
+  // la polilla que sale volando del cofre del medio
+  { const u = tramo(t, ABRIR + 0.6, TODO + 0.3); if (u > 0 && u < 1) { const x = Math.round(160 + Math.sin(u * 9) * 10 + u * 30), y = Math.round(120 - u * 80), al = Math.sin(t * 30) > 0;
+    R.pset(x, y, hex('#d8d0c0')); R.pset(x - 1, y - (al ? 1 : 0), hex('#f2eee2')); R.pset(x + 1, y - (al ? 1 : 0), hex('#f2eee2')); R.pset(x - 2, y - (al ? 2 : -1), hex('#c8c0b0')); R.pset(x + 2, y - (al ? 2 : -1), hex('#c8c0b0')); } }
+  // el soldado de la izquierda mira dentro y saca la única moneda
+  { const coge = t > INV - 0.3, m = R.actor(EL.soldado, 98, S, t, { dir: -1, sorpresa: t > ABRIR + 0.6 && t < INV, sostiene: coge ? [92, S - 18 - Math.round(tramo(t, INV - 0.3, INV + 0.2) * 4)] : false, triste: t > TODO }).mano;
+    if (coge) { R.disco(m[0], m[1] - 3, 2, hex('#8a5a1a')); R.disco(m[0], m[1] - 3, 1.5, hex('#f0c040')); R.pset(m[0] - 1, m[1] - 4, hex('#fff6c0')); if (Math.sin(t * 9) > 0.5) { R.pset(m[0] + 3, m[1] - 6, hex('#ffffff')); R.pset(m[0] + 4, m[1] - 7, hex('#fff6c0')); } } }
+  // el de la derecha se asoma al cofre del medio y se rasca la cabeza
+  R.actor(EL.soldado, 194, S, t, { dir: -1, sorpresa: t > ABRIR + 0.5 && t < TODO, dedo: t > TODO, triste: t > TODO + 0.6 });
+  if (t > TODO) R.bocadillo(203, 128, { icono: '?' });
+  // el escribano del inventario, en el borde, apunta en su tablilla
+  { const m = R.actor(EL.escribano, 290, S, t, { dir: -1, sostiene: [284, S - 15], habla: t > INV && t < INV + 0.6 }).mano;
+    R.rect(m[0] - 6, m[1] - 4, m[0] + 1, m[1] + 4, K); R.rect(m[0] - 5, m[1] - 3, m[0], m[1] + 3, hex('#8a6a3a')); R.rect(m[0] - 4, m[1] - 2, m[0] - 1, m[1] + 2, hex('#3a2a1a'));
+    const n = Math.min(4, Math.floor(tramo(t, INV - 0.2, TODO + 0.4) * 5)); for (let i = 0; i < n; i++) R.pset(m[0] - 4 + (i % 2) * 2, m[1] - 1 + Math.floor(i / 2) * 2, hex('#e8d8a8')); }
+};
+
+const efectos = [[2.1, 'miau'], [LLAMA + 0.15, 'toc'], [OTRA + 0.4, 'toc'], [KNOCK, 'toc'], [MISMO, 'toc'], [PUERTAS, 'puerta'], [CRUZ, 'pop'], [RICOS - 0.4, 'papel'], [CADENA, 'cerrojo'], [MARCHA + 0.2, 'golpecito'], [P4 + 1.4, 'lapiz'], [ABRIR, 'cerrojo'], [INV, 'brillo'], [TODO + 0.1, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '1307', efectos, año: 1307 });
+''')
+
+E['te-pregunta'] = ('La pregunta', '''// TE-PREGUNTA (frases 4–6). Cuatro planos:
+// 1. (palacio, 1307) un soldado trae un cofre al rey Felipe, que baja del trono con su libro de cuentas; en «treasure» se
+//    abre la tapa: vacío; en «never found it» el rey se enfada y da un pisotón;
+// 2. (hoy, campo, 2026, corte en «700») el buscador barre el prado con su detector junto al castillo en ruinas y en
+//    «digging» el detector pita como loco;
+// 3. (hoy, el hoyo de cerca, corte en «for the Templars' gold») sube… una lata (gag 1); en «Holy Grail» la alza como un
+//    cáliz y luego la tira por encima del hombro;
+// 4. (hoy, el mapa de cerca, corte en «engraved») las tres marcas aparecen (la cruz, la copa, el rollo en «copper»); en
+//    «which … real» un «?» sobre cada una; en «find them» la mano del buscador entra por abajo y da dos toques en el rollo.''', r'''
+const a = (f) => en('tesoro', f), b = (f) => en('cavando', f), c = (f) => en('cuales', f);
+const P2 = 6.62, P3 = b(0.35), P4 = b(0.825);
+const K = T.C.k;
+// el libro de cuentas del rey en su mano (x, y)
+const libro = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x - 4, y - 3, x + 3, y + 3, K); R.rect(x - 3, y - 2, x + 2, y + 2, hex('#8a2a2a')); R.rect(x - 3, y - 2, x - 2, y + 2, hex('#5a1a1a')); R.pset(x, y, T.C.oroRey); R.rect(x - 3, y + 2, x + 2, y + 2, hex('#ecdcb0')); };
+
+// 1 · el palacio: el cofre que llega vacío y el enfado del rey
+const TRAE = 0.3, DEJA = 2.2, TESORO = a(0.443), NUNCA = a(0.844);
+const p1 = (t) => {
+  const d = T.temple(R, t, { encuadre: 'palacio' });
+  const S = d.suelo, CX = 128;
+  // el soldado que trae el cofre en brazos desde la izquierda y lo deja en la alfombra; luego levanta la tapa
+  const u = tramo(t, TRAE, DEJA), sx = Math.round(lerp(-12, CX - 36, u)), lleva = t < DEJA;
+  const abre = tramo(t, TESORO - 0.25, TESORO + 0.35);
+  if (!lleva) { T.cofre(R, CX, S + 2, t, { s: 1.7, abre, vacio: true, k: 2 });
+    // el polvo que sale al abrir y la polilla que escapa del cofre vacío
+    const pv = tramo(t, TESORO, TESORO + 0.8); if (pv > 0 && pv < 1) for (let k = 0; k < 9; k++) { const an = -Math.PI * (0.15 + 0.7 * k / 8), r = 4 + pv * 12; if (R.b4(k, 3) < 1 - pv) R.pset(Math.round(CX + Math.cos(an) * r * 1.3), Math.round(S - 18 + Math.sin(an) * r), hex('#d8ccb0')); }
+    const pm = tramo(t, TESORO + 0.2, NUNCA + 0.6); if (pm > 0 && pm < 1) { const x = Math.round(CX + Math.sin(pm * 10) * 8 - pm * 30), y = Math.round(S - 20 - pm * 70), al = Math.sin(t * 30) > 0;
+      R.pset(x, y, hex('#a89880')); R.pset(x - 1, y - (al ? 1 : 0), hex('#f2eee2')); R.pset(x + 1, y - (al ? 1 : 0), hex('#f2eee2')); R.pset(x - 2, y - (al ? 2 : -1), hex('#d8d0c0')); R.pset(x + 2, y - (al ? 2 : -1), hex('#d8d0c0')); } }
+  const m = R.actor(EL.soldado, sx, S, t, { dir: 1, anda: u > 0 && u < 1, sostiene: lleva ? [sx + 16, S - 14] : t > TESORO - 0.4 && t < TESORO + 0.6 ? [CX - 12, S - 18 - Math.round(abre * 3)] : false, sorpresa: t > TESORO + 0.4 && t < NUNCA }).mano;
+  if (lleva) T.cofre(R, m[0] + 6, m[1] + 8, t, { s: 1.0, k: 2 });
+  // el otro soldado espera junto al banco con la alabarda
+  { const m2 = R.actor(EL.soldado, 40, S, t, { dir: 1, sostiene: [54, S - 14] }).mano; R.linea(m2[0], m2[1] + 8, m2[0], m2[1] - 22, hex('#5a3a1a')); R.rect(m2[0] - 1, m2[1] - 26, m2[0] + 2, m2[1] - 21, hex('#8a8a96')); R.pset(m2[0] + 2, m2[1] - 26, hex('#e0e4ec')); }
+  // el rey: sentado en el trono, baja por la alfombra con su libro de cuentas y se asoma al cofre
+  const baja = tramo(t, 1.4, TESORO - 0.2), kx = Math.round(lerp(153, 150, baja)), ky = Math.round(lerp(128, S + 1, baja));
+  const pis = t > NUNCA + 0.1 && t < NUNCA + 0.7 ? Math.round(Math.abs(Math.sin((t - NUNCA) * Math.PI * 3)) * 3) : 0;
+  const mk = R.actor(EL.felipe, kx, ky, t, { dir: -1, anda: baja > 0 && baja < 1, salto: pis, sostiene: [kx - 1, ky - 14], sorpresa: t > TESORO + 0.3 && t < NUNCA - 0.2, enfado: t > NUNCA - 0.2, habla: t > a(0.72) && t < NUNCA && Math.sin(t * 9) > 0 }).mano;
+  libro(mk[0], mk[1] - 2);
+  if (t > NUNCA + 0.2) R.bocadillo(kx + 8, ky - 30, { icono: 'X' });
+  // un paje con un candil al fondo, junto al tapiz de la derecha, que se vuelve a mirar
+  R.actor(EL.escribano, 250, S, t, { dir: -1, sorpresa: t > NUNCA && t < NUNCA + 1, habla: t > 0.8 && t < 2 && Math.sin(t * 8) > 0 });
+};
+
+// 2 · el prado de hoy: el buscador barre con el detector y en «digging» pita como loco
+const PITA = b(0.21);
+const p2 = (t) => {
+  const d = T.hoy(R, t, { encuadre: 'campo' });
+  const S = d.suelo, u = tramo(t, P2, PITA), x = Math.round(lerp(70, 184, u - (u * u * (1 - u)) * 0.4));
+  const pita = tramo(t, PITA, PITA + 0.5);
+  const m = R.actor(EL.buscador, x, S, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [x + 15, S - 12], sorpresa: pita > 0.5, salto: t > PITA + 0.5 && t < PITA + 0.9 ? 2 : 0 }).mano;
+  T.detector(R, m[0], m[1], t, { dir: 1, suelo: S, barre: u < 1 ? 1 : 0, pita });
+  if (t > PITA + 0.15 && t < PITA + 1.0) R.bocadillo(x + 8, S - 30, { icono: '!' });
+};
+
+// 3 · el hoyo de cerca: sube la lata (gag 1), la alza como un cáliz y la tira
+const ORO = b(0.42), GRIAL = b(0.558), TIRA = b(0.70);
+const p3 = (t) => {
+  const sube = tramo(t, P3 + 0.1, ORO), coge = t > ORO + 0.35 && t < TIRA;
+  const d = T.hoy(R, t, { encuadre: 'campo', camara: 'suelo', lata: coge || t >= TIRA ? 0 : sube });
+  const S = d.suelo;
+  // la lata ya está en su mano: se tapa la del fondo del hoyo con la tierra de al lado
+  if (coge || t >= TIRA) for (let y = 144; y <= 157; y++) for (let x = 174; x <= 184; x++) R.pset(x, y, R.pget(x - 6, y - 6));   // la trama de la tierra va en diagonal: se copia en diagonal
+  // el detector, en el suelo junto al hoyo, sigue pitando hasta que sale la lata
+  T.detector(R, 96, S - 1, t, { dir: 1, tumbado: true, pita: t < ORO ? 1 : 0 });
+  const alza = tramo(t, GRIAL - 0.3, GRIAL + 0.1), x = 128;
+  const mano = coge ? [x + 16, Math.round(S - 14 - alza * 8)] : t > ORO && t <= ORO + 0.35 ? [x + 19, S - 6] : false;
+  const m = R.actor(EL.buscador, x, S, t, { dir: 1, sostiene: mano, sonrisa: t > ORO - 0.2 && t < ORO + 0.4, sorpresa: t > ORO + 0.4 && t < GRIAL - 0.3, triste: t > GRIAL + 0.6, dedo: false }).mano;
+  if (coge) { T.e_lata(R, m[0], m[1] + 5, t, { tierra: true });
+    if (alza > 0.9 && t < GRIAL + 0.9) for (let k = 0; k < 6; k++) { const an = t * 3 + k * 1.05, r = 9 + Math.sin(t * 7 + k) * 1.5; R.pset(Math.round(m[0] + Math.cos(an) * r), Math.round(m[1] - 3 + Math.sin(an) * r * 0.7), k % 2 ? hex('#fff6c0') : hex('#ffe08a')); } }
+  // la lata vuela por encima del hombro y rebota fuera del plano
+  const v = tramo(t, TIRA, TIRA + 0.7); if (v > 0 && v < 1) { const lx = Math.round(lerp(x + 14, -10, v)), ly = Math.round(lerp(S - 20, S - 6, v) - Math.sin(v * Math.PI) * 30); T.e_lata(R, lx, ly, t, { tumbada: Math.floor(v * 8) % 2 === 1 }); }
+};
+
+// 4 · el mapa de cerca: las tres marcas, los «?» y el dedo que las toca
+const COBRE = b(0.93), REAL = c(0.30), FIND = c(0.55);
+const p4 = (t) => {
+  const marcas = Math.min(3, tramo(t, P4 + 0.1, P4 + 0.5) * 2 + tramo(t, COBRE - 0.2, COBRE + 0.3));
+  const d = T.hoy(R, t, { encuadre: 'mesa', camara: 'mapa', marcas, preguntas: tramo(t, REAL - 0.3, REAL + 0.2) });
+  // un «?» grande sobre cada marca, una tras otra, en «which … real»
+  [d.marcas.cruz, d.marcas.copa, d.marcas.rollo].forEach(([mx, my], k) => { if (t > REAL - 0.3 + k * 0.15) R.bocadillo(mx + 10, my - 12 - Math.round(Math.sin(t * 3 + k) * 1.2), { icono: '?' }); });
+  // la mano del buscador entra por abajo y da dos toques en el rollo de cobre, el más cercano, en «find them»
+  const w = tramo(t, FIND - 0.35, FIND), sale = tramo(t, E.duracion - 1.0, E.duracion - 0.3);
+  if (w > 0 && sale < 1) {
+    const [mx, my] = d.marcas.rollo, k = (t - FIND) / 0.32, toca = t > FIND && k < 2 ? Math.sin((k % 1) * Math.PI) * 3 : 0;
+    const e = w * (1 - sale), hx = Math.round(lerp(196, mx + 10, e)), hy = Math.round(lerp(200, my + 14, e) - toca);
+    T.brazo(R, hx + 34, 196, hx, hy, '#c8bc9a', -1, { codo: [hx + 26, hy + 30] });
+  }
+};
+
+const efectos = [[DEJA, 'golpecito'], [TESORO - 0.2, 'cerrojo'], [NUNCA + 0.15, 'golpecito'], [PITA, 'bip'], [PITA + 0.5, 'aviso'], [ORO, 'pop'], [GRIAL, 'brillo'], [TIRA + 0.6, 'boing'], [P4 + 0.2, 'lapiz'], [COBRE, 'lapiz'], [REAL, 'pop'], [FIND, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P2 ? 1307 : 2026) });
+''')
+
+E['te-hola'] = ('Hola', '''// TE-HOLA (frase 7). Un plano, el cuarto del buscador de noche. Empieza junto a la estantería mirando el tablero de
+// corcho; en «I'm Atom» se vuelve hacia Atom y lo saluda con la mano («!»); en «explain the things» cruza el cuarto por
+// delante de la mesa señalando el tablero con los hilos rojos; en «Let's find out» coge el detector de la mesa (pita) y
+// sale por la derecha, de aventura. El gato de la estantería levanta la cabeza al pitido.''', r'''
+const HOLA = en('hola', 0.03), CRUZA = en('hola', 0.26), VAMOS = en('hola', 0.82);
+const p1 = (t) => {
+  const coge = t > VAMOS + 0.15;
+  const d = T.hoy(R, t, { encuadre: 'mesa', detector: !coge, pita: t > VAMOS - 0.1 && t < VAMOS + 0.3 ? 1 : 0 });
+  const S = d.suelo;
+  const u = tramo(t, CRUZA, VAMOS - 0.3), w = tramo(t, VAMOS + 0.45, E.duracion);
+  const x = Math.round(lerp(64, 226, u) + lerp(0, 74, w));
+  const saluda = t > HOLA && t < CRUZA, señala = t > CRUZA + 0.2 && t < VAMOS - 0.5;
+  const o = { dir: t < HOLA || señala ? (t < HOLA ? -1 : 1) : 1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sonrisa: saluda || coge, habla: señala && Math.sin(t * 7) > 0, sorpresa: t > VAMOS - 0.1 && t < VAMOS + 0.3 };
+  if (saluda) o.dedo = Math.sin(t * 10) > -0.4; else if (señala) o.dedo = true;
+  if (coge) o.sostiene = [x + 15, S - 12]; else if (t > VAMOS - 0.3) o.sostiene = [d.detector[0], d.detector[1]];
+  const m = R.actor(EL.buscador, x, S, t, o).mano;
+  if (coge) T.detector(R, m[0], m[1], t, { dir: 1, suelo: S, pita: t < VAMOS + 0.8 ? 0.7 : 0 });
+  if (saluda && t > HOLA + 0.15) R.bocadillo(x + 8, S - 30, { icono: '!' });
+  // la mirada al tablero: un hilo rojo que brilla un momento mientras lo señala
+  if (señala) { const k = Math.floor((t - CRUZA) * 2.5) % 3, [bx0, by0, bx1, by1] = d.tablero, px = bx0 + 24 + k * 30, py = by0 + 24 + (k % 2) * 16; if (Math.sin(t * 12) > -0.2) { R.pset(px, py, hex('#ff6a6a')); R.pset(px + 1, py, hex('#ffd0d0')); R.pset(px, py + 1, hex('#ff6a6a')); } }
+};
+const efectos = [[HOLA + 0.15, 'pop'], [VAMOS - 0.1, 'bip']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+''')

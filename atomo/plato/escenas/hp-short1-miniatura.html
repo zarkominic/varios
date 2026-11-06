@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep21 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep21, «El niño que vuelve al colegio» (el gancho: la serie se
+// estrena el 25 de diciembre). Arriba, el 25 grande con el arbolito de Navidad; en medio, el expreso rojo parado en el
+// andén de noche echando vapor; delante, Harry al doble (gafas finas redondas, cicatriz, boca de sorpresa; sin ojos
+// verdes) y, junto a su cabeza, la snitch con ojos. Todo lo que cuenta va en la columna central x 110–210 (lo que queda
+// en 9:16). Sin palabras: solo la cifra.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_HP as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#05060f');
+// copia un recuadro de un búfer (sin lo VACIO) a escala s
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+// pone contorno alrededor de lo pintado en un búfer VACIO (n pasadas = grosor)
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+
+// ── el arbolito de Navidad con su estrella (el de la miniatura del episodio) ──
+function arbolito(x, base, s = 1) {
+  R.usar(tmp); tmp.fill(VACIO);
+  const V = [hex('#3ac060'), hex('#1e8a3e'), hex('#0e5a2a')];
+  for (let k = 0; k < 3; k++) { const top = base - 34 * s + k * 9 * s, alto = 14 * s; for (let j = 0; j <= alto; j++) { const w = Math.round((4 + k * 2.4) * s * j / alto + 1); R.rect(x - w, top + j, x + w, top + j, j < 3 ? V[0] : V[1]); R.rect(x + Math.round(w * 0.4), top + j, x + w, top + j, V[2]); } }
+  R.rect(x - 2 * s, base - 7 * s + 1, x + 2 * s, base, hex('#7a4a2a'));
+  for (const [i, j, c] of [[-3, -12, '#ff4a4a'], [4, -17, '#ffd84a'], [-5, -23, '#4ad8ff'], [2, -25, '#ff4a4a'], [6, -9, '#4ad8ff'], [-1, -18, '#ffffff']]) R.rect(x + i * s, base + j * s, x + i * s + 1, base + j * s + 1, hex(c));
+  const sy = base - 36 * s; R.rect(x - 1, sy - 4, x + 1, sy + 4, hex('#fff4a0')); R.rect(x - 4, sy - 1, x + 4, sy + 1, hex('#fff4a0')); R.rect(x - 2, sy - 2, x + 2, sy + 2, hex('#ffd84a')); R.pset(x, sy, hex('#ffffff'));
+  contorno(tmp, 1); R.usar(null); vuelca(tmp);
+}
+
+// ── la cara de Harry sobre el muñeco al doble (la caraHarry de hp-miniatura.html, redibujada a esta escala): gafas
+// redondas finas (dos aros de un píxel, el puente y la patilla), el cristal claro con los ojos OSCUROS detrás (nunca
+// verdes) y su brillo, la cicatriz del rayo fina y la boca de sorpresa ──
+const PIEL = hex('#f6c290'), PIELS = hex('#d48a5b'), ARO = hex('#1a1222'), OJO = hex('#1a1424'), BLANCO = hex('#ffffff');
+function caraHarry(HX, HY, S = 2) {
+  const P = (sx, sy) => [HX + (sx - 18) * S, HY + (sy - 43) * S];
+  const celda = (sx, sy, c) => { const [x, y] = P(sx, sy); R.rect(x, y, x + S - 1, y + S - 1, c); };
+  // borra la banda de las gafas del muñeco, la cicatriz gruesa y la boca de bloque
+  for (let sy = 51; sy <= 53; sy++) for (let sx = 24; sx <= 31; sx++) celda(sx, sy, PIEL);
+  celda(32, 51, pj[52 * 320 + 32]);
+  for (const [sx, sy] of [[30, 48], [29, 49], [30, 49], [29, 50], [28, 50]]) celda(sx, sy, PIEL);
+  celda(30, 55, PIEL); celda(31, 55, PIEL); celda(30, 54, PIEL); celda(31, 54, PIEL);
+  R.pset(HX + 20, HY + 22, PIELS);
+  // la cicatriz: un rayo fino de un píxel
+  for (const [i, j] of [[23, 9], [22, 10], [22, 11], [23, 11], [23, 12], [22, 13]]) R.pset(HX + i, HY + j, hex('#c42430'));
+  // las gafas: el cristal claro, los ojos oscuros abiertos mirando a la derecha con su brillo, y los aros finos
+  const cy = HY + 18.5, L = [HX + 15.5, HX + 25.5], r = 3.8;
+  for (const cx of L) for (let y = Math.floor(cy - r - 1); y <= cy + r + 1; y++) for (let x = Math.floor(cx - r - 1); x <= cx + r + 1; x++) {
+    const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
+    if (d < r - 1) R.pset(x, y, mezcla(hex('#eaf6ff'), R.buf[y * 320 + x], 0.3)); else if (d <= r) R.pset(x, y, ARO);
+  }
+  for (const cx of L) { const ex = Math.floor(cx), ey = Math.floor(cy); R.rect(ex, ey - 1, ex + 1, ey + 1, OJO); R.pset(ex, ey - 1, BLANCO); R.pset(ex - 2, ey - 2, BLANCO); }
+  R.rect(Math.ceil(L[0] + r) - 1, Math.floor(cy) - 1, Math.floor(L[1] - r) + 1, Math.floor(cy) - 1, ARO);
+  R.rect(HX + 9, Math.floor(cy) - 1, Math.floor(L[0] - r), Math.floor(cy) - 1, ARO);
+  // la boca abierta de sorpresa: una o pequeña
+  const mx = HX + 21, my = HY + 23;
+  for (const [i, j, c] of [[1, 0, '#3a0e18'], [0, 1, '#3a0e18'], [1, 1, '#6a1a28'], [2, 1, '#3a0e18'], [0, 2, '#3a0e18'], [1, 2, '#c8485a'], [2, 2, '#3a0e18'], [1, 3, '#3a0e18']]) R.pset(mx + i, my + j, hex(c));
+}
+
+const fondo = R.nuevo(), DX = 40;
+const dibujar = (t) => {
+  // el andén de noche con el expreso parado echando vapor (el morro de la locomotora en la columna)
+  // corrido 40 px a la derecha, para que en la columna queden la cabina roja, la caldera y la chimenea
+  R.usar(fondo); T.hogwarts(R, t, { encuadre: 'anden' }); T.hogwartsDelante(R, t, { encuadre: 'anden' }); R.usar(null);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const sx = Math.abs(x - DX); R.buf[y * 320 + x] = fondo[y * 320 + sx]; }
+
+  // arriba, el 25 grande sobre un halo oscuro, con el arbolito de Navidad: la fecha del estreno
+  R.halo(150, 34, 34, [hex('#1a1a40'), hex('#2a2a5a')], 0.75);
+  R.usar(pj); pj.fill(VACIO); T.a_cifras(R, '25', 30, 120); R.usar(null);
+  pon(pj, 23, 37, 111, 121, 120, 12, 4);
+  arbolito(196, 60, 1);
+
+  // Harry al doble, en el andén delante de la locomotora, mirando a la derecha, con un filo claro que lo despega
+  const HX = 126, HY = 118, HS = 2;
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.harry, 20, 70, 0.5, { dir: 1, quieto: true, sorpresa: true }); R.usar(tmp); tmp.fill(VACIO);
+  pon(pj, 18, 36, 43, 70, HX, HY, HS); contorno(tmp, 1, hex('#f6e6b8')); R.usar(null); vuelca(tmp);
+  caraHarry(HX, HY, HS);
+
+  // la snitch con ojos junto a su cabeza
+  R.halo(190, 112, 16, [hex('#f8d870'), hex('#fff4c8')], 0.7);
+  PZ.snitch(R, 190, 120, { s: 2, cara: 'normal', t });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La leyenda de la flota · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TE-LEYENDA (frases 21–23). La flota se vuelve leyenda. Cinco planos:
+// 1. (puerto de noche, La Rochelle) las galeras salen por la bocana con la vela de la cruz y se vuelven fantasmas en la
+//    niebla; un templario carga un cofre por el muelle y se para a mirar; otro, en el bolardo, levanta el farol y lo
+//    mece despidiendo a la flota en «La Rochelle»;
+// 2. (mapa, corte en «and the fleet») una mano con pluma (brazo corto con codo) marca La Rochelle con un círculo de tinta y se retira en «on its
+//    own»: la flota dibujada navega sola: llega a Escocia en «Scotland», a Portugal en «Portugal» y a América en
+//    «America» (chincheta);
+// 3. (mapa de Nueva Escocia, corte en «Some») en «pit» un cubo de tinta baja por el pozo dibujado; en «Nova Scotia» una
+//    lupa entra y aumenta Oak Island; en «told you» cae una tarjeta con el «14» (el vídeo de Oak Island);
+// 4. (hoy, el prado al atardecer, corte en «And every») el buscador pasa el detector junto a una piedra vieja; en «finds»
+//    pita, lo deja en la hierba y con la brocha limpia la piedra: en «carved» sale la cruz tallada («!»);
+// 5. (la piedra de cerca, en el hoyo, corte en «The question») la cruz grande; en «question» el «?»; en «Templars pass»
+//    un templario fantasma cruza por detrás del hoyo y se desvanece; el buscador se gira tarde y se rasca la cabeza.
+// La luz de 4 y 5 es la del decorado (T.hoy con luz 'atardecer': sol bajo y cielo de la tarde), sin tinte encima.
+import * as T from '/atomo/plato/escenas/te-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('te-leyenda');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('rochelle', f), b = (f) => en('oak', f), c = (f) => en('cruz', f);
+const P2 = a(0.423), P3 = b(-0.028), P4 = c(-0.03), P5 = c(0.54);
+const K = T.C.k;
+// la luz caliente de un farol de mano en (x, y): asa, jaula de hierro, cristal y la llama con su halo
+const farol = (x, y, t, k = 0) => {
+  x = Math.round(x); y = Math.round(y);
+  R.linea(x, y, x, y + 2, hex('#2a2024'));
+  for (let i = 0; i < 26; i++) { const an = i / 26 * Math.PI * 2, r = 7 + Math.sin(t * 9 + i) * 0.6; const px = Math.round(x + Math.cos(an) * r), py = Math.round(y + 7 + Math.sin(an) * r * 0.9); if (R.b4(px, py) < 0.35) R.pset(px, py, hex('#c89a50')); }
+  R.rect(x - 3, y + 3, x + 3, y + 3, K); R.rect(x - 3, y + 11, x + 3, y + 12, K);
+  R.rect(x - 2, y + 4, x + 2, y + 10, hex('#f8d070')); R.rect(x - 1, y + 5, x + 1, y + 9, hex('#fff2b0'));
+  R.linea(x - 3, y + 4, x - 3, y + 10, K); R.linea(x + 3, y + 4, x + 3, y + 10, K); R.linea(x, y + 4, x, y + 10, hex('#3a2a20'));
+  const f = Math.sin(t * 13 + k) > 0; R.pset(x + (f ? 1 : -1), y + 6, hex('#ffffff')); R.pset(x - 1, y + 2, hex('#5a4a3a')); R.pset(x + 1, y + 2, hex('#5a4a3a'));
+};
+// un cofre pequeño de madera con herrajes, en brazos (x, y: la mano)
+const cofrecito = (x, y) => {
+  x = Math.round(x); y = Math.round(y);
+  R.rect(x - 7, y - 6, x + 5, y + 3, K); R.rect(x - 6, y - 5, x + 4, y + 2, hex('#8a5a2a')); R.rect(x - 6, y - 5, x + 4, y - 4, hex('#b07a3a'));
+  R.rect(x - 6, y - 2, x + 4, y - 2, hex('#3a2418')); R.linea(x - 4, y - 5, x - 4, y + 2, hex('#c8a040')); R.linea(x + 2, y - 5, x + 2, y + 2, hex('#c8a040'));
+  R.pset(x - 1, y - 1, hex('#f0d070')); R.pset(x - 1, y, hex('#3a2418'));
+};
+
+// 1 · La Rochelle de noche: las galeras salen entre la niebla y se vuelven fantasmas; el del farol las despide
+const ROCH = a(0.31), PORT = a(0.23);
+const p1 = (t) => {
+  const d = T.puerto(R, t, { flota: 0.08 + tramo(t, 0.2, P2 + 0.3) * 0.72 });
+  const S = d.suelo;
+  // el templario que carga un cofre por el muelle y se para a mirar cómo se van
+  { const u = tramo(t, 0.2, PORT + 0.2), x = Math.round(lerp(40, 112, u)), anda = u > 0 && u < 1;
+    const m = R.actor(EL.templario2, x, S, t, { dir: 1, anda, sostiene: [x + 14, S - 15], sorpresa: t > ROCH && t < ROCH + 0.8 }).mano;
+    cofrecito(m[0] + 2, m[1]); }
+  // el del bolardo: suelta la amarra y luego levanta el farol y lo mece en «La Rochelle»
+  { const x = 204, alza = tramo(t, ROCH - 0.4, ROCH), mece = t > ROCH ? Math.sin((t - ROCH) * 6) * 3 : 0;
+    const suelta = t < PORT;
+    const o = { dir: -1, habla: t > ROCH + 0.3 && t < ROCH + 1.0 && Math.sin(t * 9) > 0 };
+    if (suelta) o.sostiene = [x - 2, S - 8 - Math.round(Math.abs(Math.sin(t * 5)) * 2)];
+    else o.sostiene = [x - 4 + Math.round(mece), S - 16 - Math.round(alza * 10)];
+    const m = R.actor(EL.templario, x, S, t, o).mano;
+    if (suelta) { // la amarra que se desata del bolardo
+      const fl = tramo(t, PORT - 0.6, PORT); R.linea(m[0], m[1], Math.round(lerp(m[0] - 2, 180, fl)), Math.round(lerp(m[1] + 2, 150, fl)), hex('#b89a6a')); }
+    else farol(m[0], m[1] + 1, t, 2); }
+  // una gaviota que se posa en los barriles y otra que cruza la niebla
+  { const u = tramo(t, 0.4, 2.2), x = Math.round(lerp(330, 290, u)), y = Math.round(lerp(96, 137, u)), al = u < 1 ? Math.sin(t * 14) > 0 : false;
+    R.rect(x - 2, y - 1, x + 2, y, hex('#e8e8e8')); R.pset(x - 3, y - 1, hex('#f0a020')); R.pset(x + 3, y, hex('#9a9aa6'));
+    if (al) { R.pset(x - 1, y - 2, hex('#d8d8e0')); R.pset(x, y - 3, hex('#d8d8e0')); R.pset(x + 1, y - 2, hex('#d8d8e0')); } else { R.pset(x + 1, y - 2, hex('#9a9aa6')); R.pset(x, y + 1, hex('#f0a020')); R.pset(x + 1, y + 1, hex('#f0a020')); } }
+};
+
+// 2 · el mapa: la pluma marca La Rochelle y se retira; la flota de tinta navega sola a Escocia, Portugal y América
+const FLEET = a(0.44), SOLA = a(0.57), SCOT = a(0.67), PORTU = a(0.78), AMER = a(0.93);
+const ru = (t) => t < FLEET + 0.25 ? 0 : t < SCOT ? 0.4 * tramo(t, FLEET + 0.25, SCOT) : t < PORTU ? 0.4 + 0.2 * tramo(t, SCOT, PORTU) : 0.6 + 0.4 * tramo(t, PORTU, AMER);
+const pluma = (x, y) => {   // la pluma de ave con su punta en (x, y), inclinada hacia arriba a la derecha
+  x = Math.round(x); y = Math.round(y);
+  for (let i = 0; i <= 22; i++) { const px = x + Math.round(i * 0.8), py = y - i; R.pset(px, py, i < 3 ? hex('#1a1418') : hex('#c8b890'));
+    if (i > 6) { const w = Math.round(Math.min(3, (i - 6) * 0.5) * (i > 19 ? (23 - i) / 4 : 1)); for (let s = 1; s <= w; s++) { R.pset(px - s, py - (s >> 1), s === w ? hex('#b8b0a0') : hex('#f2eee2')); R.pset(px + s, py + (s >> 1), s === w ? hex('#a8a090') : hex('#e2dcd0')); } } }
+};
+const p2 = (t) => {
+  const d = T.puerto(R, t, { encuadre: 'mapa', rutas: ru(t) });
+  const [lx, ly] = d.rochelle;
+  // el círculo de tinta que la pluma traza alrededor de La Rochelle
+  { const u = tramo(t, P2 + 0.35, FLEET + 0.35); for (let i = 0; i < 40 * u; i++) { const an = i / 40 * Math.PI * 2 - 1.2; R.pset(Math.round(lx + Math.cos(an) * 7), Math.round(ly + Math.sin(an) * 6), hex('#3a2418')); } }
+  // las ondas de llegada en cada destino
+  for (const [p, t0] of [[d.escocia, SCOT], [d.portugal, PORTU], [d.oak, AMER]]) { const w = tramo(t, t0, t0 + 0.7); if (w > 0 && w < 1) for (let q = 0; q < 20; q++) if (q % 2) { const an = q / 20 * Math.PI * 2; R.pset(Math.round(p[0] + Math.cos(an) * (3 + w * 8)), Math.round(p[1] + Math.sin(an) * (3 + w * 6)), hex('#8a1e24')); } }
+  // la mano con la pluma: entra por la derecha, traza el círculo y se retira en «on its own»
+  const ent = tramo(t, P2 - 0.1, P2 + 0.35), sal = tramo(t, SOLA - 0.2, SOLA + 0.5), v = ent * (1 - sal);
+  if (v > 0) {
+    const u = tramo(t, P2 + 0.35, FLEET + 0.35), an = u * Math.PI * 2 - 1.2, tx = lx + Math.cos(an) * 7 * (u > 0 && u < 1 ? 1 : 0), ty = ly + Math.sin(an) * 6 * (u > 0 && u < 1 ? 1 : 0) - (u >= 1 ? 3 : 0);
+    const wx = Math.round(lerp(352, tx + 16, v)), wy = Math.round(lerp(150, ty - 4, v));
+    pluma(wx - 16, wy + 4);
+    // brazo canónico corto (≤ 40 px): hombro abajo a la derecha y el codo caído, que se nota
+    T.brazo(R, wx + 34, wy + 20, wx, wy, '#3a4a6a', -1, { codo: [wx + 16, wy + 19] });
+  }
+};
+
+// 3 · Nueva Escocia de cerca: el cubo baja por el pozo dibujado, la lupa aumenta Oak Island y cae la tarjeta del «14»
+const PIT = b(0.21), NOVA = b(0.28), OAKI = b(0.49), TOLD = b(0.71);
+const p3 = (t) => {
+  const d = T.puerto(R, t, { encuadre: 'mapa', camara: 'oeste', rutas: 1 });
+  // el cubo de tinta que baja por el pozo dibujado y vuelve a subir
+  { const u = tramo(t, PIT - 0.2, PIT + 1.6), v = u < 1 ? Math.sin(u * Math.PI) : 0, x = 222, y = Math.round(48 + v * 30);
+    R.recorte([211, 40, 245, 85]);
+    R.linea(x + 2, 42, x + 2, y - 1, hex('#3a2418'));
+    R.rect(x, y, x + 4, y + 3, hex('#3a2418')); R.rect(x + 1, y, x + 3, y + 2, hex('#a07040')); R.pset(x + 2, y - 1, hex('#3a2418'));
+    R.recorte(null); }
+  // la lupa: entra por la izquierda en «Nova Scotia», se queda sobre Oak Island y se va
+  const [ox, oy] = d.oak, ent = tramo(t, NOVA - 0.5, NOVA + 0.2), sal = tramo(t, TOLD - 0.6, TOLD), v = ent * (1 - sal);
+  if (v > 0) {
+    const cx = Math.round(lerp(-30, ox + 2 + Math.sin(t * 1.7) * 2, v)), cy = Math.round(lerp(150, oy - 2 + Math.cos(t * 1.3) * 1.5, v)), r = 13;
+    // lo de debajo, aumentado al doble dentro del cristal
+    const src = []; for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) src.push(R.pget(cx + (i >> 1), cy + (j >> 1)));
+    let n = 0; for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++, n++) { const q = Math.hypot(i, j); if (q <= r - 1) { R.pset(cx + i, cy + j, src[n]); } }
+    for (let s = 0; s < 64; s++) { const an = s / 64 * Math.PI * 2; R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r), hex('#5a3a1a')); R.pset(Math.round(cx + Math.cos(an) * (r + 1)), Math.round(cy + Math.sin(an) * (r + 1)), K); if (an > 3.5 && an < 4.6) R.pset(Math.round(cx + Math.cos(an) * (r - 1)), Math.round(cy + Math.sin(an) * (r - 1)), hex('#ffffff')); }
+    // el mango de madera hacia la mano y el brazo que entra por la izquierda
+    const hx = cx - 24, hy = cy + 16;
+    for (let i = 0; i <= 14; i++) { const px = Math.round(lerp(cx - r * 0.7, hx + 4, i / 14)), py = Math.round(lerp(cy + r * 0.7, hy - 1, i / 14)); R.rect(px - 1, py - 1, px + 1, py + 1, K); R.pset(px, py, hex('#8a5a2a')); }
+    T.brazo(R, hx - 40, hy + 14, hx, hy, '#6a3a2a', 1);
+  }
+  // la tarjeta del «14» que cae con su chincheta junto al pozo
+  { const u = tramo(t, TOLD, TOLD + 0.4); if (u > 0) { const y = Math.round(lerp(60, 96, u)), x = 254;
+    R.rect(x + 1, y + 1, x + 25, y + 17, hex('#3a2a1a')); R.rect(x - 1, y - 1, x + 23, y + 15, K); R.rect(x, y, x + 22, y + 14, hex('#f6eed6')); R.rect(x, y + 13, x + 22, y + 14, hex('#d8c8a0'));
+    R.numero('14', x + 4, y + 12, { tam: 8, color: hex('#8a1e24'), sombra: false });
+    T.chincheta(R, x + 11, y + 2, t, T.C.rojo, { baja: tramo(t, TOLD + 0.3, TOLD + 0.6) }); } }
+};
+
+// 4 · hoy, el prado al atardecer: el detector pita junto a una piedra vieja; la brocha saca la cruz tallada
+const FIND = c(0.15), CARV = c(0.27), STONE = c(0.41);
+const piedra = (x, base, cruz) => {   // una estela vieja de granito con liquen; cruz (0–1): la cruz tallada que aparece
+  for (let j = 0; j < 24; j++) { const w = j > 19 ? Math.round(Math.sqrt(1 - ((j - 19) / 5) ** 2) * 8) : 8; for (let i = -w - 1; i <= w + 1; i++) { const y = base - j, e = Math.abs(i) > w;
+    R.pset(x + i, y, e ? K : i < -w + 2 ? hex('#a8a498') : i > w - 2 ? hex('#5e5a54') : (i * 7 + j * 13) % 11 === 0 ? hex('#6e6a62') : hex('#8a867c')); } }
+  R.rect(x - 9, base - 25, x + 9, base - 25, K);
+  for (const [i, j, cc] of [[-5, 4, '#c8b84a'], [-4, 5, '#a8a03a'], [5, 15, '#c8b84a'], [6, 16, '#d8c86a'], [-6, 18, '#8aa04a'], [3, 2, '#7a9a4a'], [4, 3, '#8aa04a']]) R.pset(x + i, base - j, hex(cc));
+  if (cruz > 0) { const cc = cruz > 0.6 ? hex('#3a362e') : hex('#6a665e'); const n = Math.round(cruz * 6);
+    for (let s = 0; s <= n; s++) { R.pset(x, base - 13 + s, cc); R.pset(x, base - 13 - s, cc); R.pset(x + s, base - 13, cc); R.pset(x - s, base - 13, cc); }
+    if (cruz > 0.9) { for (const [i, j] of [[-1, -6], [1, -6], [-1, 6], [1, 6], [-6, -1], [-6, 1], [6, -1], [6, 1]]) R.pset(x + i, base - 13 + j, cc); R.pset(x + 1, base - 14, hex('#b8b4a8')); } }
+};
+const p4 = (t) => {
+  const d = T.hoy(R, t, { encuadre: 'campo', luz: 'atardecer' });
+  const S = d.suelo, px = 214;
+  // la piedra vieja, con su sombra larga del atardecer
+  for (let i = 0; i < 26; i++) R.pset(px + 9 + i, S + 1 - (i >> 3), hex('#3a5a2a'));
+  const cruz = tramo(t, CARV - 0.1, STONE);
+  piedra(px, S, cruz);
+  // el buscador: barre con el detector, pita en «finds», lo deja en la hierba y cepilla la piedra
+  const deja = t > FIND + 0.45, x = Math.round(deja ? lerp(176, 190, tramo(t, FIND + 0.45, FIND + 0.8)) : lerp(150, 176, tramo(t, P4, FIND - 0.2)));
+  const anda = (t < FIND - 0.2 && t > P4 + 0.05) || (t > FIND + 0.45 && t < FIND + 0.8);
+  const cepilla = t > FIND + 0.8 && t < STONE + 0.2, sorp = t > STONE && t < STONE + 1.4;
+  if (deja) T.detector(R, 150, S - 1, t, { dir: 1, tumbado: true, pita: t < FIND + 1.2 ? 0.5 : 0 });
+  const o = { dir: 1, anda, sorpresa: (t > FIND && t < FIND + 0.45) || sorp, sonrisa: t > STONE + 1.4 };
+  if (!deja) o.sostiene = [x + 15, S - 12];
+  else if (cepilla) o.sostiene = [px - 7, S - 14 + Math.round(Math.sin(t * 14) * 3)];
+  else o.sostiene = [x + 15, S - 16];
+  const m = R.actor(EL.buscador, x, S, t, o).mano;
+  if (!deja) T.detector(R, m[0], m[1], t, { dir: 1, suelo: S, barre: t < FIND ? 1 : 0, pita: tramo(t, FIND - 0.3, FIND + 0.1) });
+  else { // la brocha: mango rojo y cerdas claras
+    R.rect(m[0] - 1, m[1] - 5, m[0] + 1, m[1] - 1, K); R.pset(m[0], m[1] - 4, hex('#c8303a')); R.pset(m[0], m[1] - 2, hex('#c8303a'));
+    R.rect(m[0] - 2, m[1] + 1, m[0] + 2, m[1] + 4, hex('#3a2a1a')); R.rect(m[0] - 1, m[1] + 1, m[0] + 1, m[1] + 3, hex('#e8d8a8')); }
+  // el polvo que salta de la piedra al cepillar
+  if (cepilla) for (let k = 0; k < 6; k++) { const u = (t * 2.4 + k / 6) % 1; R.pset(Math.round(px - 9 - u * 10 + Math.sin(k * 3) * 2), Math.round(S - 14 - Math.sin(u * 3) * 6 + u * 12), u < 0.5 ? hex('#d8c8a0') : hex('#b8a880')); }
+  if (sorp) R.bocadillo(x + 8, S - 30, { icono: '!' });
+};
+
+// 5 · la cruz de cerca, en el hoyo: el «?» y el templario fantasma que cruza por detrás
+const QUES = c(0.55), DID = c(0.78), PASS = c(0.87), HERE = c(0.93);
+const FB = R.nuevo();
+const mz = (p, q, u) => { let r = 0; for (const s of [0, 8, 16]) { const ca = (p >>> s) & 255, cb = (q >>> s) & 255; r += Math.round(ca + (cb - ca) * u) * (1 << s); } return (0xff000000 + r) >>> 0; };
+const losa = (x0, y0, x1, y1) => {   // la losa de piedra medio enterrada, con las esquinas rotas y una cruz templaria en un círculo
+  const roto = (x, y) => (x - x0 < 5 && y - y0 < 5 - (x - x0)) || (x1 - x < 4 && y - y0 < 4 - (x1 - x) + ((x * 3) % 2));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (roto(x, y)) continue; const e = x === x0 || x === x1 || y === y0 || roto(x, y - 1) || roto(x - 1, y) || roto(x + 1, y);
+    const n = ((x * 13 + y * 7) % 17) / 17, cc = e ? K : y < y0 + 2 || roto(x, y - 2) ? hex('#b4b0a4') : x > x1 - 3 ? hex('#5e5a52') : n < 0.12 ? hex('#706c64') : n > 0.9 ? hex('#a29e92') : hex('#8c887e'); R.pset(x, y, cc); }
+  const cx = (x0 + x1) >> 1, cy = y0 + 16;
+  // el círculo tallado (surco oscuro con su labio de luz)
+  for (let s = 0; s < 120; s++) { const an = s / 120 * Math.PI * 2; for (const [rr, cc] of [[13, '#3a3630'], [12, '#5a2a24'], [14, '#b8b4a8']]) R.pset(Math.round(cx + Math.cos(an) * rr), Math.round(cy + Math.sin(an) * rr), hex(cc)); }
+  // la cruz de brazos finos que se abren en la punta (tallada, con restos de pintura roja en el fondo)
+  const dentro = (p, q) => { const ap = Math.abs(p), aq = Math.abs(q); return (aq <= 10 && ap <= (aq > 6 ? aq - 5 : 1)) || (ap <= 10 && aq <= (ap > 6 ? ap - 5 : 1)); };
+  for (let j = -11; j <= 11; j++) for (let i = -11; i <= 11; i++) if (dentro(i, j)) {
+    const luz = !dentro(i + 1, j + 1), som = !dentro(i - 1, j - 1);
+    R.pset(cx + i, cy + j, luz ? hex('#c4c0b4') : som ? hex('#2e2a26') : (i * 5 + j * 3) % 4 ? hex('#8a3a30') : hex('#5a4a44')); }
+  // grietas y liquen
+  for (const [sx, sy, dx, dy, n] of [[x0 + 3, y0 + 9, 1, 1, 7], [x1 - 6, y1 - 4, -1, -1, 6]]) for (let k = 0; k < n; k++) R.pset(sx + dx * k + (k % 2), sy + dy * k, hex('#3a3630'));
+  for (let k = 0; k < 22; k++) { const x = x0 + 6 + ((k * 37) % (x1 - x0 - 10)), y = y0 + 2 + ((k * 23) % 7); if (Math.hypot(x - cx, y - cy) < 15) continue; R.pset(x, y, k % 3 ? hex('#c8b84a') : hex('#8aa04a')); if (k % 2) R.pset(x + 1, y, hex('#a8a03a')); }
+  // la tierra que todavía la tapa por abajo, con terrones y raíces
+  for (let x = x0 - 4; x <= x1 + 5; x++) { const al = 4 + Math.round(Math.sin(x * 0.7) * 1.5 + Math.sin(x * 0.23) * 2); for (let y = y1 - al; y <= y1 + 1; y++) R.pset(x, y, y === y1 - al ? hex('#8a6a3a') : (x * 7 + y * 3) % 5 ? hex('#6a4a2a') : hex('#4a3020')); }
+};
+const p5 = (t) => {
+  const d = T.hoy(R, t, { encuadre: 'campo', camara: 'suelo', luz: 'atardecer' });
+  const S = d.suelo;
+  // el templario fantasma: cruza por detrás del hoyo, translúcido, y se desvanece
+  const g = tramo(t, DID - 0.2, HERE + 0.5);
+  if (g > 0 && g < 1) {
+    FB.fill(0); const prev = R.usar(FB); const gx = Math.round(lerp(262, 196, g)); R.actor(EL.templario, gx, S, t, { dir: -1, anda: true }); R.usar(prev);
+    const al = Math.min(1, g * 4, (1 - g) * 3) * 0.85, GC = hex('#bfe4ff'), GO = hex('#3a5a8a');
+    for (let y = S - 34; y <= S + 1; y++) for (let x = gx - 4; x <= gx + 20; x++) { const q = FB[y * 320 + x]; if (!q) continue; const s0 = R.pget(x, y);
+      const lum = ((q & 255) + ((q >>> 8) & 255) + ((q >>> 16) & 255)) / 765, obj = lum < 0.2 ? GO : mz(GC, q, 0.3);
+      R.pset(x, y, mz(s0, obj, al)); }
+    for (let k = 0; k < 5; k++) { const u = (t * 1.5 + k / 5) % 1; R.pset(gx + 16 + Math.round(u * 10), S - 8 - k * 4 + Math.round(Math.sin(u * 6) * 2), hex('#d8e8f0')); }
+  }
+  // la losa con la cruz, medio desenterrada junto al hoyo
+  losa(94, 96, 146, 136);
+  // el buscador, a la izquierda: mira la cruz, se pregunta, se gira tarde y se rasca la cabeza
+  const tarde = t > HERE + 0.2, x = 64;
+  const m = R.actor(EL.buscador, x, S, t, { dir: tarde ? -1 : 1, sostiene: t < QUES - 0.1 ? [x + 18, S - 18 + Math.round(Math.sin(t * 14) * 2)] : false,
+    dedo: t > QUES && t < DID, sorpresa: t > PASS && t < HERE + 0.6, brazos: false, triste: false, sonrisa: t > HERE + 1.2 }).mano;
+  if (t < QUES - 0.1) { R.rect(m[0] - 1, m[1] - 5, m[0] + 1, m[1] - 1, K); R.pset(m[0], m[1] - 4, hex('#c8303a')); R.rect(m[0] - 2, m[1] + 1, m[0] + 2, m[1] + 4, hex('#3a2a1a')); R.rect(m[0] - 1, m[1] + 1, m[0] + 1, m[1] + 3, hex('#e8d8a8')); }
+  if (t > QUES && t < DID + 0.4) R.bocadillo(x + 8, S - 30, { icono: '?' });
+  if (t > HERE + 0.8) R.bocadillo(x + 8, S - 30, { icono: '?' });
+};
+
+const efectos = [[0.2, 'ola'], [ROCH, 'viento'], [P2 + 0.4, 'lapiz'], [SCOT, 'pop'], [PORTU, 'pop'], [AMER, 'brillo'], [NOVA, 'whoosh'], [TOLD + 0.55, 'pop'],
+  [FIND, 'bip'], [FIND + 0.9, 'papel'], [STONE, 'brillo'], [QUES, 'pop'], [PASS - 0.3, 'whoosh']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t < P3 ? 1307 : t < P4 ? 1795 : 2026) });
+</script>
+</body>
+</html>

@@ -35,7 +35,8 @@
 
 ## Qué aplicamos en ASK Atom
 
-- **Desde el episodio 9, primero el gancho y después Atom, en una línea.** En el episodio 4 se fue el 60 % de la gente en los primeros 20 s, mientras Atom se presentaba. El vídeo abre con lo que promete el título, sigue con la pregunta y solo entonces: «Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo.» («I'm Atom, and I explain what school didn't teach you. Let's find out.»)
+- **Desde el episodio 9, primero el gancho y después Atom, en una línea.** En el episodio 4 se fue el 60 % de la gente en los primeros 20 s, mientras Atom se presentaba. El vídeo abre con lo que promete el título, sigue con la pregunta y solo entonces: «Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.» («I'm Atom, and I explain the things you've always wondered about. Let's find out.»)
+  - **Desde el episodio 17** (elegida por el usuario el 30/10/2026). Hasta el 16 era «te explico lo que no te contaron en clase» («what school didn't teach you»); se cambió porque muchos temas (los juegos, una ciudad, los ovnis) no son cosas que se deberían enseñar en la escuela: la frase tiene que valer para cualquier tema.
 - **Hasta el episodio 8, Atom se presentaba al empezar, en una frase:** quién es y qué hace.
   - Fórmula: «Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.»
   - En inglés: «Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.»
@@ -86,6 +87,15 @@
   - Después del gancho, la historia empieza por la persona y en orden: la explicación no abre el vídeo.
   - Personas reales: solo hechos comprobados, con trato justo. Los gags van con máquinas y objetos, nunca para ridiculizar a nadie real.
 - **Cifras en el guion:** los años van en cifras (`hacer_guion.py` los pasa a palabras para la voz). Cualquier otra cifra va en palabras en los dos idiomas («nine billion», «ciento setenta y cinco mil»), porque un número de tres cifras se leería como un año («175» → «one seventy-five»). Si tiene que ir en cifras, va en `PREVIO` de `hacer_guion.py`, como las fechas con día.
+
+## Narrar como un cuento (desde el 21, regla del usuario)
+
+«Se escucha como frases sueltas, parecen robots, no es una narración de un cuento» (05/11/2026). Desde el 21:
+- cada fila del guion es un párrafo de 2–4 oraciones, no una frase con un dato;
+- los párrafos encadenan: «Pero…», «Y ahí…», «Así que…», «Ahora, imagina…», «Por cierto…»;
+- hay un hilo que avanza (una noche, un viaje, una pregunta), y los datos van dentro de la historia, no en lista;
+- la voz se graba por oraciones enteras, sin cortar en las comas (la muestra «B»);
+- en español, todos los nombres propios extranjeros se escriben como se dicen en español de México.
 
 ## Títulos
 

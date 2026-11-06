@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep14</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OI-HOLA (frase 7), hoy, 2026. Un plano: la orilla de Oak Island de hoy al atardecer, con la marea que entra (sube
+// la línea del agua), la calzada con su coche y la gaviota en la roca. Un buscador con detector de metales recorre la
+// playa barriendo la arena; la vecina hace una foto al sol con el móvil («And I explain»: el flash); los correlimos corren
+// tras las olas. «Let's find out»: el detector pita, la luz se pone roja, ondas en la arena; el buscador se para, «!»,
+// sonríe y señala abajo.
+import * as T from '/atomo/plato/escenas/oi-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('oi-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const K = hex('#1a1214'), BL = hex('#f6f2e4');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// un fondo fijo pintado una vez en su búfer y copiado en cada fotograma (con R.usar(prev), para no romper los fundidos)
+const BUF = {};
+const fijo = (k, pinta) => { let b = BUF[k]; if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); BUF[k] = b; } R.copiar(b); };
+// sombra suave en el suelo (oscurece lo que hay)
+const sombra = (cx, cy, rx, ry, a = 0.35) => { for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) if ((x * x) / (rx * rx) + (y * y) / (ry * ry) <= 1) R.pset(cx + x, cy + y, mez(R.pget(cx + x, cy + y), K, a)); };
+// recorrido por fotogramas clave [t, x, suelo]: dónde está, si anda y hacia dónde mira
+const ruta = (t, kf) => { if (t <= kf[0][0]) return { x: kf[0][1], s: kf[0][2], mv: false, d: kf[0][3] ?? 1 };
+  for (let i = 0; i + 1 < kf.length; i++) if (t < kf[i + 1][0]) { const [t0, x0, s0] = kf[i], [t1, x1, s1] = kf[i + 1], u = (t - t0) / (t1 - t0); return { x: Math.round(lerp(x0, x1, u)), s: Math.round(lerp(s0, s1, u)), mv: x1 !== x0, d: x1 < x0 ? -1 : x1 > x0 ? 1 : (kf[i + 1][3] ?? 1) }; }
+  const u = kf[kf.length - 1]; return { x: u[1], s: u[2], mv: false, d: u[3] ?? 1 }; };
+// bocadillo de pensamiento: nubecitas con borde y las bolitas que bajan a la cabeza
+const piensa = (cx, cy, rx, ry, hx, hy, u = 1) => {
+  if (u <= 0) return; const sx = Math.max(1, Math.round(rx * u)), sy = Math.max(1, Math.round(ry * u));
+  for (let k = 0; k < 3; k++) { const f = (k + 1) / 4, bx = Math.round(lerp(hx, cx, f * 0.7)), by = Math.round(lerp(hy, cy + sy, f * 0.9)); R.disco(bx, by, 1 + k, K); R.disco(bx, by, k, BL); }
+  const bolas = [[0, 0, 1], [-0.62, 0.2, 0.62], [0.62, 0.2, 0.62], [-0.32, -0.42, 0.62], [0.32, -0.42, 0.62]];
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx * sx), Math.round(cy + dy * sy), Math.round(r * sy) + 1, K);
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx * sx), Math.round(cy + dy * sy), Math.round(r * sy), BL);
+  for (let x = -sx; x <= sx; x += 2) R.pset(Math.round(cx + x), Math.round(cy + sy * 0.86), hex('#d8d2c2'));
+};
+// bocadillo grande con un símbolo ('?' o '!') a escala 2, con su piquito hacia abajo en (x, y)
+const globo = (x, y, icono, c = hex('#c8282a')) => { const w = icono === '!' ? 3 : 5; R.rect(x - 8, y - 20, x + 8, y - 3, K); R.rect(x - 7, y - 19, x + 7, y - 4, BL); R.rect(x - 7, y - 5, x + 7, y - 4, hex('#d8d2c2'));
+  R.pset(x - 1, y - 2, K); R.pset(x, y - 1, K); R.pset(x - 1, y - 3, BL); R.pset(x, y - 2, BL); R.pset(x + 1, y - 2, K); R.icono(icono, x - w, y - 17, c, hex('#8a8478'), 2); };
+// la piedra de los símbolos (sin letras: rayas, puntos, triángulos, círculos), de frente: (x, y) esquina de arriba,
+// w × hh; rev 0–1 los símbolos se encienden (tallados con su filo de luz); luz: tono de la cara
+const SIMB = ['tri', 'pp', 'bar', 'circ', 'tri2', 'p3', 'cruz', 'bar2', 'circp', 'tri', 'p2', 'bar', 'tri2', 'circ', 'pp', 'bar2', 'p3', 'tri', 'cruz', 'circp', 'tri2', 'bar', 'pp', 'circ'];
+const simbolo = (tipo, x, y, c, cl) => {
+  const P = (a, b) => { R.pset(x + a, y + b + 1, cl); R.pset(x + a, y + b, c); };
+  if (tipo === 'tri') { for (let i = 0; i < 5; i++) { P(2 - (i >> 1), i); P(2 + (i >> 1), i); } for (let i = 0; i < 5; i++) P(i, 4); }
+  else if (tipo === 'tri2') { for (let i = 0; i < 5; i++) P(i, 0); for (let i = 0; i < 5; i++) { P(2 - (i >> 1), 4 - i); P(2 + (i >> 1), 4 - i); } }
+  else if (tipo === 'pp') { P(0, 1); P(1, 1); P(3, 3); P(4, 3); }
+  else if (tipo === 'p2') { P(1, 2); P(3, 2); }
+  else if (tipo === 'p3') { P(2, 0); P(0, 4); P(4, 4); }
+  else if (tipo === 'bar') { for (let i = 0; i < 5; i++) P(1, i); for (let i = 0; i < 5; i++) P(3, i); }
+  else if (tipo === 'bar2') { for (let i = 0; i < 5; i++) P(i, 1); for (let i = 0; i < 5; i++) P(i, 3); }
+  else if (tipo === 'circ') { for (const [a, b] of [[1, 0], [2, 0], [3, 0], [0, 1], [4, 1], [0, 2], [4, 2], [0, 3], [4, 3], [1, 4], [2, 4], [3, 4]]) P(a, b); }
+  else if (tipo === 'circp') { for (const [a, b] of [[1, 0], [2, 0], [3, 0], [0, 1], [4, 1], [0, 2], [4, 2], [0, 3], [4, 3], [1, 4], [2, 4], [3, 4], [2, 2]]) P(a, b); }
+  else if (tipo === 'cruz') { for (let i = 0; i < 5; i++) { P(2, i); P(i, 2); } }
+};
+const piedra = (x, y, w, hh, rev = 1, o = {}) => {
+  const c0 = hex(o.c0 ?? '#7c766a'), c1 = hex(o.c1 ?? '#a29c8c'), c2 = hex(o.c2 ?? '#56514a'), cs = hex('#3a3632');
+  const P = []; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2, r = 1 + (h(i, w, 300) - 0.5) * 0.08; P.push([Math.round(x + w / 2 + Math.cos(a) * w / 2 * r), Math.round(y + hh / 2 + Math.sin(a) * hh / 2 * r)]); }
+  R.poligono(P.map(([a, b]) => [a + 1, b + 2]), cs); R.poligono(P.map(([a, b]) => [a, b + 1]), K); R.poligono(P, c0);
+  for (let j = y; j < y + hh; j++) for (let i = x; i < x + w; i++) { if (R.pget(i, j) !== c0) continue; const v = h(i >> 1, j >> 1, 301); if (v < 0.12) R.pset(i, j, c2); else if (v > 0.9 || j < y + 3) R.pset(i, j, c1); }
+  // las vetas de la losa
+  for (let k = 0; k < 3; k++) { const yy = y + Math.round(hh * (0.25 + k * 0.3)); for (let i = x + 4; i < x + w - 4; i++) if (h(i, k, 302) < 0.55) R.pset(i, yy + Math.round(Math.sin(i * 0.2 + k) * 0.8), c2); }
+  if (rev <= 0) return;
+  const cols = Math.max(3, Math.floor((w - 6) / 7)), filas = Math.max(2, Math.floor((hh - 4) / 7)), x0 = x + Math.round((w - cols * 7) / 2) + 1, y0 = y + Math.round((hh - filas * 7) / 2) + 1;
+  const tallo = hex(o.talla ?? '#241e1a'), filo = mez(c1, hex('#fff2c8'), 0.5 * rev);
+  for (let f = 0; f < filas; f++) for (let c = 0; c < cols; c++) { const n = f * cols + c; if (h(n, 7, 303) > rev * 1.2) continue; simbolo(SIMB[(n * 5 + f) % SIMB.length], x0 + c * 7, y0 + f * 7, tallo, filo); }
+};
+
+const D = E.duracion, PITA = en('hola', 0.795), FOTO = en('hola', 0.25);
+const pajaros = (t, yAgua) => {   // tres correlimos que corren detrás de la ola y escapan cuando vuelve
+  for (let k = 0; k < 3; k++) { const v = Math.sin(t * 1.7 + k * 0.8), x = Math.round(150 + k * 16 + Math.sin(t * 0.6 + k) * 8 + v * 4), y = Math.round(yAgua + 10 + v * 3 + k % 2);
+    const pata = Math.floor(t * 12 + k) % 2; R.pset(x - 1, y + 3, K); R.pset(x + (pata ? 1 : -2), y + 3, K); R.pset(x, y + 2, K); R.pset(x - 1, y + 2, K);
+    R.rect(x - 4, y - 3, x + 3, y + 1, K); R.rect(x - 3, y - 2, x + 2, y - 1, hex('#6a5438')); R.rect(x - 3, y, x + 2, y, hex('#f6f2e8')); R.pset(x - 1, y - 2, hex('#a88a60'));
+    R.rect(x + 2, y - 5, x + 4, y - 3, K); R.pset(x + 3, y - 4, hex('#f6f2e8')); R.pset(x + 5, y - 4, K); R.pset(x + 6, y - 4, K); R.pset(x - 5, y - 2, K); }
+};
+const detector = (x, s, t, pita, para) => {   // el detector de metales: mango desde la mano, caja con luz y el plato que barre
+  const sw = para ? 0 : Math.sin(t * 3.2) * 6, hx = x + 13, hy = s - 11, px = Math.round(x + 27 + sw), py = s - 1;
+  R.linea(hx, hy, px - 2, py - 2, K); R.linea(hx, hy - 1, px - 2, py - 3, hex('#8a96a2'));
+  R.rect(hx - 1, hy - 3, hx + 3, hy, K); R.rect(hx, hy - 2, hx + 2, hy - 1, hex('#e8783a'));
+  R.pset(hx + 1, hy - 4, pita && Math.floor(t * 8) % 2 ? hex('#ff4a3a') : hex('#4ae86a'));
+  sombra(px, py + 2, 6, 1, 0.3); R.rect(px - 6, py - 1, px + 6, py + 1, K); R.rect(px - 5, py - 1, px + 5, py, hex('#3a3a46')); R.rect(px - 3, py - 1, px + 3, py - 1, hex('#6a6a7a'));
+  if (pita) for (let r = 0; r < 3; r++) { const rr = 4 + ((t * 10 + r * 4) % 12); for (let a = 0; a < 6.28; a += 0.25) if (Math.sin(a) < 0.2) R.pset(Math.round(px + Math.cos(a) * rr * 1.6), Math.round(py + Math.sin(a) * rr * 0.4), mez(R.pget(Math.round(px + Math.cos(a) * rr * 1.6), Math.round(py + Math.sin(a) * rr * 0.4)), hex('#fff2a0'), 0.7)); }
+};
+const p1 = (t) => {
+  const g = T.isla1795(R, t, { encuadre: 'orilla', hoy: true, atardecer: true, marea: lerp(0.32, 0.66, t / D) });
+  pajaros(t, g.marea ?? 130);
+  // la vecina hace una foto al sol con el móvil
+  const fotoA = t > FOTO - 0.6;
+  R.actor(EL.vecina, 230, 166, t, { dir: -1, dedo: fotoA && t < FOTO + 1.4, sonrisa: t > FOTO + 0.4 });
+  if (fotoA && t < FOTO + 1.4) { R.rect(226, 135, 229, 140, K); R.rect(227, 136, 228, 139, hex('#3a4a6a')); if (t > FOTO && t < FOTO + 0.12) { R.disco(227, 137, 4, hex('#fffbe0')); R.disco(227, 137, 2, BL); } }
+  // el buscador con su detector: barre la arena hasta que pita
+  const q = ruta(t, [[0, 112, 162], [PITA - 0.1, 178, 168]]), pita = t > PITA, para = t > PITA - 0.1;
+  sombra(q.x + 7, q.s + 1, 7, 1, 0.3);
+  R.actor(EL.sudadera, q.x, q.s, t, { dir: 1, anda: q.mv, sorpresa: pita && t < PITA + 0.6, sonrisa: t > PITA + 0.6, dedo: t > PITA + 0.7 });
+  detector(q.x, q.s, t, pita, para);
+  if (t > PITA + 0.15) globo(q.x + 7, q.s - 27 - Math.round(2 * Math.sin(t * 6)), '!');
+  if (t > PITA + 0.5) { const gx = q.x + 27, gy = q.s + 2, f = Math.sin(t * 7) > 0; R.pset(gx, gy, BL); for (let r = 1; r < (f ? 4 : 3); r++) { R.pset(gx + r, gy, hex('#ffe890')); R.pset(gx - r, gy, hex('#ffe890')); R.pset(gx, gy + r, hex('#ffe890')); R.pset(gx, gy - r, hex('#ffe890')); } }
+  T.a_islaDelante(R, t, { encuadre: 'orilla', atardecer: true, hoy: true });
+};
+const efectos = [[0.7, 'ola'], [FOTO, 'flash'], [PITA, 'bip'], [PITA + 0.35, 'bip']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

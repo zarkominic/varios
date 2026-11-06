@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El grabado · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-GRABADO (frase 15), 1848 → 1850, sin cartela. Cuatro planos:
+// 1. Windsor, el salón (0 → «London»): los niños entran corriendo hacia el árbol de velas; el príncipe Alberto cuelga
+//    una bola roja; la reina lo señala; junto a la chimenea un pintor dibuja la escena en su caballete («a picture»): el
+//    boceto se va completando; el spaniel mueve la cola;
+// 2. inserto en la imprenta de Londres («London newspaper» → «two»): la página del periódico recién impresa sobre la
+//    forma de la prensa (cabecera de barras con el escudo, columnas de barras y, en medio, la estampa de Windsor en sepia,
+//    con el mantel y los arrimaderos rayados como un grabado); la tinta fresca brilla y se asienta («newspaper showed»);
+//    dentro de la estampa la reina señala («Queen Victoria»), Alberto se inclina («Prince Albert») y los niños saltan
+//    («around a tree»); a «Windsor Castle» la hoja se retira hacia abajo y deja ver la forma (los tipos y el taco de boj
+//    con la estampa al revés), y el rodillo de la prensa sube por sus raíles y la deja negra y brillante; a los lados, la
+//    losa de entintar con las balas, el montón de periódicos, el componedor y la palmatoria con su llama;
+// 3. el taller del grabador americano en 1850 («two years later» → «The»; el techo oscuro y tranquilo detrás del año, con
+//    la moldura por debajo): el aprendiz entra con el periódico de Londres
+//    («American magazine»), el grabador lo coge, se vuelve al tablero y lo copia («reprinted»: la estampa aparece en su
+//    plancha), y a «one small change» se para, levanta el dedo y salta un «!»;
+// 4. inserto: la revista abierta sobre la mesa del grabador con la estampa al doble; entra una lupa («The Queen's
+//    crown») que aumenta la cabeza de la reina: la corona se deshace en polvo («was gone»); la vela tiembla.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-grabado');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const g = (f) => en('grabado', f);
+const P2 = g(0.2577), P3 = g(0.6072), P4 = g(0.8972);
+const foto = g(0.1064), anyo = g(0.1754), papel = g(0.2729), reina = g(0.3388), alberto = g(0.4173), alrededor = g(0.4591), castillo = g(0.5249);
+const revista = g(0.6933), reimprime = g(0.7313), cambio = g(0.7921), corona = g(0.9289), ido = g(0.9694);
+const K = T.C.k;
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const spr = (filas, x, y, pal, s = 1) => filas.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const c = pal[f[i]]; if (c != null) R.rect(x + i * s, y + j * s, x + i * s + s - 1, y + j * s + s - 1, c); } });
+
+// ── la estampa de Windsor: se pinta una vez en tres búferes (el periódico de Londres; la revista americana con
+// corona y sin ella), con la reina y Alberto juntos delante del árbol
+let B1 = null, B2 = null, B3 = null, CORONA = [70, 140];
+const estampa = () => {
+  if (B1) return;
+  const pinta = (c, rev) => {
+    const o = { encuadre: 'windsor', camara: 'arbol' };
+    T.epoca(R, 2.2, o);
+    R.actor(EL.ninaVictoriana, 50, 166, 2.2, { dir: 1, sonrisa: true });
+    R.actor(EL.victoria, 70, 166, 2.2, { dir: 1, sonrisa: true, corona: c });
+    R.actor(EL.alberto, 90, 166, 2.2, { dir: -1, sonrisa: true });
+    R.actor(EL.ninoVictoriano, 110, 166, 2.2, { dir: -1, sonrisa: true });
+    T.epocaDelante(R, 2.2, { ...o, grabado: 1, revista: rev });
+  };
+  B1 = R.nuevo(); B2 = R.nuevo(); B3 = R.nuevo();
+  const prev = R.usar(B1); pinta(true, false); R.usar(B2); pinta(true, true); R.usar(B3); pinta(false, true); R.usar(prev);
+  // dónde está la corona: lo que cambia entre los dos búferes de la revista
+  let x0 = 320, y0 = 180, x1 = 0, y1 = 0;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (B2[y * 320 + x] !== B3[y * 320 + x]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 >= x0) CORONA = [(x0 + x1) >> 1, (y0 + y1) >> 1];
+};
+const px1 = (x, y) => B1[y * 320 + x];
+
+// ── 1. el salón de Windsor
+const p1 = (t) => {
+  T.epoca(R, t, { encuadre: 'windsor' });
+  // el caballete del pintor (delante de la chimenea): patas, lienzo y el boceto que avanza
+  const cx0 = 58, cy0 = 112, cw = 26, ch = 20, u = lin(t, foto - 1.2, P2 - 0.4);
+  R.linea(cx0 + 3, cy0 + ch, cx0 - 1, 160, K); R.linea(cx0 + 4, cy0 + ch, cx0, 160, hex('#8a5a30'));
+  R.linea(cx0 + cw - 3, cy0 + ch, cx0 + cw + 1, 160, K); R.linea(cx0 + cw - 4, cy0 + ch, cx0 + cw, 160, hex('#8a5a30'));
+  R.linea(cx0 + 13, cy0 - 4, cx0 + 13, 158, K); R.rect(cx0 - 2, cy0 + ch + 1, cx0 + cw + 2, cy0 + ch + 3, K); R.rect(cx0 - 1, cy0 + ch + 2, cx0 + cw + 1, cy0 + ch + 2, hex('#a8743c'));
+  R.rect(cx0 - 1, cy0 - 1, cx0 + cw + 1, cy0 + ch + 1, K); R.rect(cx0, cy0, cx0 + cw, cy0 + ch, hex('#f4ecd8'));
+  for (let y = cy0 + 2; y < cy0 + ch; y += 3) R.rect(cx0 + 1, y, cx0 + 2, y, hex('#e0d4b8'));
+  // el boceto: el árbol, la mesa y las figuras, trazo a trazo
+  const ax = cx0 + 13, top = cy0 + 3;
+  for (let j = 0; j < 12; j++) { if (j / 12 > u * 1.6) break; const w = Math.round(j * 0.6); R.rect(ax - w, top + j, ax + w, top + j, j % 3 === 2 ? hex('#3a6a3a') : hex('#5a8a4a')); }
+  if (u > 0.55) { R.rect(ax - 8, top + 13, ax + 8, top + 14, hex('#8a5a3a')); }
+  if (u > 0.7) { R.rect(cx0 + 3, top + 9, cx0 + 4, top + 15, hex('#3a3a5a')); R.pset(cx0 + 3, top + 8, hex('#e8b830')); }
+  if (u > 0.85) { R.rect(cx0 + cw - 4, top + 9, cx0 + cw - 3, top + 15, hex('#24304a')); }
+  for (const [k, v] of [[0, 0.2], [1, 0.4], [2, 0.6]]) if (u > v) R.pset(ax - 3 + k * 3, top + 4 + k * 2, hex('#c8303a'));
+  // el pintor: dibuja con el lápiz en el lienzo, de arriba abajo
+  const pin = R.actor(EL.impresor, 34, 160, t, { dir: 1, sostiene: [cx0 - 1, Math.round(cy0 + 6 + Math.abs(Math.sin(t * 3)) * 8)], habla: false });
+  R.linea(pin.mano[0] - 1, pin.mano[1] + 2, pin.mano[0] + 3, pin.mano[1] - 3, K); R.pset(pin.mano[0] + 3, pin.mano[1] - 3, hex('#3a3a5a'));
+  // los niños entran corriendo y saltan delante del árbol
+  const n1 = lin(t, 0.2, 1.8), n2 = lin(t, 0.5, 2.3);
+  const salta = (t0) => (t > t0 && t < t0 + 0.5 ? Math.round(Math.sin((t - t0) / 0.5 * Math.PI) * 4) : 0);
+  R.actor(EL.ninaVictoriana, Math.round(lerp(-18, 132, n1)), 160, t, { dir: 1, anda: n1 > 0 && n1 < 1, sonrisa: true, salto: salta(foto + 0.1), dedo: t > foto + 0.7 });
+  R.actor(EL.ninoVictoriano, Math.round(lerp(330, 228, n2)), 160, t, { dir: -1, anda: n2 > 0 && n2 < 1, sonrisa: true, salto: salta(foto + 0.3) });
+  // la reina señala el árbol; Alberto cuelga una bola roja en una rama
+  R.actor(EL.victoria, 106, 160, t, { dir: 1, sonrisa: true, dedo: t > anyo - 0.2 && t < P2 - 0.3 });
+  const cuelga = lin(t, 0.9, 2.0), bx = 182, by = 96;
+  const al = R.actor(EL.alberto, 204, 160, t, { dir: -1, sonrisa: cuelga >= 1, sostiene: cuelga < 1 ? [Math.round(lerp(196, bx, cuelga)), Math.round(lerp(128, by + 2, cuelga))] : false });
+  const [bxx, byy] = cuelga < 1 ? [al.mano[0], al.mano[1] - 2] : [bx, by];
+  R.linea(bxx, byy - 3, bxx, byy - 1, hex('#e8b830')); R.disco(bxx, byy + 1, 2, K); R.disco(bxx, byy + 1, 1, hex('#d8303a')); R.pset(bxx - 1, byy, hex('#ffb0b0'));
+  if (cuelga >= 1 && t < 2.4) for (const [dx, dy] of [[-4, -2], [4, -2], [0, -5]]) R.pset(bx + dx, by + dy, hex('#fff4c0'));
+  T.epocaDelante(R, t, { encuadre: 'windsor' });
+};
+
+// ── 2. inserto: la página del periódico de Londres recién impresa, sobre la forma de la prensa
+// La estampa de la página es la escena de Windsor viva (1:1, 6 px más abajo) en sepia, con trama de grabado en los
+// claros (mantel y arrimaderos rayados). Debajo de la hoja, la forma: los tipos y el taco de madera con la estampa al revés.
+const S4 = hex('#f0e4c6') >>> 0, S3 = hex('#d4c09a') >>> 0, S2 = hex('#a08460') >>> 0;
+const OY = 6, EX0 = 44, EX1 = 254, EY0 = 36, EY1 = 166, HX0 = 32, HX1 = 266, HY0 = 20;
+let F2 = null, F2i = null, HOJA = null, VIVO = null;
+const rnd = (a, b, k = 0) => { let n = (a * 374761393 + b * 668265263 + k * 1442695041) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const luz = (c) => (((c >>> 16) & 255) * 0.3 + ((c >>> 8) & 255) * 0.59 + (c & 255) * 0.11) / 255;
+const fondo2 = (tinta) => {
+  const b = R.nuevo(), prev = R.usar(b);
+  // el banco de roble: tablas con vetas y juntas
+  const mad = [hex('#5e3e22'), hex('#4e321a'), hex('#6e4a2a'), hex('#2e1c0e')];
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const tabla = Math.floor(y / 26), yy = y % 26;
+    const v = Math.sin(x * 0.05 + tabla * 5 + Math.sin(x * 0.017 + tabla) * 3 + yy * 0.2) + Math.sin(x * 0.19 + y * 0.07 + tabla) * 0.25;
+    R.pset(x, y, yy === 0 ? mad[3] : yy === 1 ? mad[1] : v > 0.95 ? mad[2] : v < -0.85 ? mad[1] : mad[0]);
+  }
+  for (const [mx, my, r] of [[9, 172, 3], [300, 176, 2], [12, 26, 2]]) { R.disco(mx, my, r, hex('#1a1416')); R.pset(mx - 1, my - 1, hex('#3a3440')); }
+  // arriba: el travesaño de hierro de la prensa, oscuro y tranquilo (detrás del año)
+  R.rect(0, 0, 319, 13, hex('#24232a')); R.rect(0, 11, 319, 11, hex('#2e2d35')); R.rect(0, 12, 319, 12, hex('#3a3942')); R.rect(0, 13, 319, 13, hex('#4e4d58')); R.rect(0, 14, 319, 15, K);
+  for (const x of [196, 236, 266]) { R.pset(x, 6, hex('#5a5a66')); R.pset(x + 1, 7, K); }
+  // la esquina de arriba a la derecha (detrás de Atom): en sombra tranquila que se funde con el banco
+  for (let y = 16; y < 52; y++) for (let x = 275; x < 320; x++) if (rnd(x, y, 3) < 1 - (y - 16) / 36) R.pset(x, y, (x + y) % 7 ? hex('#2a1c10') : hex('#33220f'));
+  // la cama de hierro de la prensa, con su óxido, los raíles del rodillo y los remaches
+  R.rect(23, 16, 275, 179, K); R.rect(24, 16, 274, 179, hex('#3a3a42'));
+  R.rect(24, 16, 274, 17, hex('#5e5e6a')); R.rect(24, 16, 25, 179, hex('#55555f')); R.rect(273, 18, 274, 179, hex('#2a2a30'));
+  for (let y = 18; y < 180; y++) for (let x = 26; x < 273; x++) if (x < 30 || x > 268 || y < 22) { const r = rnd(x, y, 7); if (r < 0.12) R.pset(x, y, hex('#46464f')); else if (r > 0.95) R.pset(x, y, hex('#5a3a2a')); }
+  for (const x of [27, 271]) { R.rect(x, 18, x, 179, hex('#62626e')); for (let y = 30; y < 180; y += 28) { R.pset(x, y, hex('#9a9aa6')); R.pset(x + 1, y + 1, K); } }
+  // la rama (el marco de la forma) y los tipos: renglones de 2 px con su regleta, palabras de 3 a 9 px
+  R.rect(30, 22, 268, 179, hex('#2c2c32')); R.rect(30, 22, 268, 22, hex('#6a6a74')); R.rect(30, 22, 31, 179, hex('#4a4a52')); R.rect(267, 22, 268, 179, hex('#4a4a52'));
+  const cara = (x, y, j) => (tinta ? (rnd(x, y, 14) < 0.07 ? hex('#56546a') : j ? hex('#141218') : hex('#201e26')) : (rnd(x, y, 14) < 0.08 ? hex('#b4b4c0') : j ? hex('#6a6a74') : hex('#8a8a96')));
+  for (let y = 24; y < 180; y += 3) { const alta = y < 34; let x = 33; while (x < 266) { const w = alta ? 6 + Math.floor(rnd(x, y, 11) * 9) : 3 + Math.floor(rnd(x, y, 11) * 7); for (let i = 0; i < w && x + i < 266; i++) for (let j = 0; j < (alta ? 3 : 2); j++) R.pset(x + i, y + j, cara(x + i, y + j, j)); x += w + 1 + (rnd(x, y, 12) < 0.2 ? 2 : 0); } if (alta) y += 3; }
+  // los corondeles de latón y el taco de boj con la estampa al revés (en relieve lo que imprime negro)
+  for (const x of [42, 256]) R.rect(x, 36, x, 167, tinta ? hex('#5a4a2a') : hex('#c09a48'));
+  R.rect(43, 35, 255, 167, hex('#2a1a0e'));
+  for (let y = EY0; y <= EY1; y++) for (let x = EX0; x <= EX1; x++) {
+    const l = luz(B1[(y - OY) * 320 + (EX0 + EX1 - x)] >>> 0), r = rnd(x, y, 15);
+    let c;
+    // seco: el relieve pulido claro y lo vaciado en sombra; entintado: el relieve negro y brillante sobre el boj claro
+    if (l < 0.42) c = tinta ? (r < 0.03 ? hex('#6a6678') : hex('#16141a')) : (r < 0.1 ? hex('#d8b080') : hex('#c09868'));
+    else if (l < 0.66) c = tinta ? ((x + y) & 1 ? hex('#3a2a22') : hex('#a07a4c')) : (r < 0.5 ? hex('#7a5230') : hex('#6a4628'));
+    else c = tinta ? ((x + y * 3) % 9 === 0 ? hex('#a87e50') : hex('#c49a68')) : (x + y * 3) % 9 === 0 ? hex('#4a2e18') : hex('#3a2414');
+    R.pset(x, y, c);
+  }
+  // a la izquierda: la losa de entintar con su película de tinta y las dos balas de cuero
+  R.rect(1, 36, 21, 170, K); R.rect(2, 37, 20, 169, hex('#52525a'));
+  for (let y = 37; y < 170; y++) for (let x = 2; x < 21; x++) { const r = rnd(x, y, 16); if (r < 0.12) R.pset(x, y, hex('#62626a')); else if (r > 0.93) R.pset(x, y, hex('#3e3e46')); }
+  for (let y = 44; y < 104; y++) { const a = 4 + Math.round(Math.sin(y * 0.21) * 2), w = 9 + Math.round(Math.sin(y * 0.13 + 1) * 3); R.rect(a, y, Math.min(19, a + w), y, hex('#1a181e')); if (y % 7 === 0) R.pset(a + 2, y, hex('#6a6878')); }
+  for (const by of [124, 152]) { R.disco(11, by, 8, K); R.disco(11, by, 7, hex('#5a3a1e')); R.disco(10, by - 1, 5, hex('#7a5232')); R.disco(9, by - 2, 2, hex('#9a6a42'));
+    for (let a = 0; a < 8; a++) R.pset(11 + Math.round(Math.cos(a * 0.785) * 6), by + Math.round(Math.sin(a * 0.785) * 6), hex('#d8b860')); R.disco(11, by, 2, K); R.disco(11, by, 1, hex('#b8884e')); }
+  // a la derecha (por debajo de la esquina de Atom): el montón de periódicos ya tirados, el componedor y la palmatoria
+  R.rect(279, 62, 317, 118, K);
+  for (let y = 63; y < 118; y++) R.rect(280, y, 316, y, y > 108 ? (y % 2 ? hex('#c8bc9c') : hex('#e2d8bc')) : hex('#ece2c6'));
+  R.rect(284, 66, 312, 69, hex('#3a3028')); R.rect(284, 71, 312, 71, hex('#5a5040')); R.rect(288, 74, 308, 92, hex('#8a7a62')); R.rect(289, 75, 307, 91, hex('#b4a284'));
+  for (let y = 78; y < 91; y += 3) R.rect(291, y, 291 + Math.floor(rnd(y, 1, 17) * 14), y, hex('#6a5a44'));
+  for (let y = 95; y < 107; y += 2) { R.rect(284, y, 284 + Math.floor(3 + rnd(y, 2, 17) * 10), y, hex('#9a8e74')); R.rect(300, y, 300 + Math.floor(3 + rnd(y, 3, 17) * 10), y, hex('#9a8e74')); }
+  R.rect(278, 128, 318, 134, K); R.rect(279, 129, 317, 133, hex('#8a8a96')); R.rect(279, 129, 317, 129, hex('#c8c8d4')); for (let x = 281; x < 312; x += 2) R.rect(x, 130, x, 132, (x * 7) % 5 ? hex('#5a5a66') : hex('#3a3a44')); R.rect(312, 128, 318, 134, hex('#6a6a76'));
+  R.disco(298, 162, 11, K); R.disco(298, 162, 10, hex('#a8843c')); R.disco(297, 161, 7, hex('#c8a050')); R.disco(298, 162, 3, hex('#8a6a2a'));
+  R.rect(295, 146, 301, 161, K); R.rect(296, 147, 300, 160, hex('#f0e8d0')); R.rect(296, 147, 296, 160, hex('#fff8e8')); R.rect(300, 149, 300, 160, hex('#d0c4a8')); R.rect(299, 146, 300, 147, hex('#e0d8c0'));
+  R.usar(prev); return b;
+};
+const hoja2 = () => {
+  const b = R.nuevo(), prev = R.usar(b);
+  // la sombra de la hoja sobre la forma y el papel con sus fibras
+  R.rect(HX0 + 3, HY0 + 3, HX1 + 3, 179, hex('#141016'));
+  for (let y = HY0; y < 180; y++) for (let x = HX0; x <= HX1; x++) { const r = rnd(x, y, 21); R.pset(x, y, r < 0.06 ? hex('#ddd0b0') : r > 0.97 ? hex('#f8f0dc') : hex('#ece2c6')); }
+  R.rect(HX0, HY0, HX1, HY0, hex('#f8f0dc')); R.rect(HX0, HY0, HX0, 179, hex('#c8bc9c')); R.rect(HX1, HY0, HX1, 179, hex('#b8ac8c'));
+  // la cabecera: barras gruesas (sin letras) a los dos lados del escudo con la corona
+  for (const [a, z] of [[48, 140], [158, 250]]) { let x = a; while (x < z) { const w = Math.min(z - x, 7 + Math.floor(rnd(x, 5, 22) * 12)); R.rect(x, 23, x + w - 1, 29, hex('#2a2018')); R.rect(x + 1, 24, x + w - 2, 24, hex('#4a4034')); x += w + 3; } }
+  R.disco(149, 26, 5, hex('#2a2018')); R.disco(149, 26, 4, hex('#ece2c6')); R.rect(146, 26, 152, 28, hex('#2a2018')); for (const dx of [-3, 0, 3]) { R.pset(149 + dx, 25, hex('#2a2018')); R.pset(149 + dx, 24, hex('#2a2018')); }
+  R.rect(36, 31, 262, 31, hex('#2a2018')); R.rect(36, 33, 262, 33, hex('#2a2018'));
+  // las dos columnas de los lados (renglones de barras) y el pie de la estampa
+  for (const [a, z] of [[35, 41], [257, 263]]) for (let y = 37; y < 168; y += 2) { if (rnd(a, y, 23) < 0.1) continue; R.rect(a, y, Math.min(z, a + 2 + Math.floor(rnd(a, y, 24) * 6)), y, hex('#8a8070')); }
+  R.rect(EX0 - 1, EY0 - 1, EX1 + 1, EY1 + 1, hex('#2a2018'));
+  R.rect(90, 170, 208, 171, hex('#6a6050')); R.rect(110, 174, 188, 174, hex('#8a8070')); R.rect(HX0 + 2, 177, HX1 - 2, 177, hex('#c8bc9c'));
+  R.usar(prev); return b;
+};
+const p2 = (t) => {
+  estampa(); if (!F2) { F2 = fondo2(false); F2i = fondo2(true); HOJA = hoja2(); VIVO = R.nuevo(); }
+  // la hoja se retira hacia abajo a «Windsor Castle» y deja ver la forma; luego el rodillo de la prensa sube y la entinta
+  const sale = lin(t, castillo - 0.2, castillo + 0.55), dy = Math.round((sale * sale) * 182);
+  const ru = lin(t, castillo + 0.45, castillo + 1.2), ry = Math.round(lerp(192, 24, 1 - (1 - ru) ** 2));
+  R.copiar(F2);
+  if (ru > 0) { const B = R.buf; for (let y = Math.max(22, ry + 6); y < 180; y++) { const o = y * 320; for (let x = 30; x <= 268; x++) B[o + x] = F2i[o + x]; } }
+  // la llama de la palmatoria y su reflejo en el latón
+  const fl = Math.sin(t * 11) + Math.sin(t * 17.3) * 0.5;
+  R.rect(297, 141 + (fl > 0.8 ? 1 : 0), 299, 145, hex('#f8b030')); R.pset(298, 139 + (fl > 0.8 ? 1 : 0), hex('#ffe890')); R.pset(298, 140, hex('#fff8d0')); R.pset(298, 145, hex('#4a3020'));
+  if (fl > -0.3) R.pset(294, 158, hex('#ffe8a0'));
+  if (dy < 182) {
+    // la escena viva de Windsor, en sepia: la reina señala, Alberto se inclina y los niños saltan alrededor del árbol
+    const prev = R.usar(VIVO), o = { encuadre: 'windsor', camara: 'arbol', grabado: 1 };
+    T.epoca(R, t, o);
+    const salta = (t0, k) => (t > t0 + k && t < t0 + k + 0.45 ? Math.round(Math.sin((t - t0 - k) / 0.45 * Math.PI) * 4) : 0);
+    R.actor(EL.ninaVictoriana, 60, 158, t, { dir: 1, sonrisa: true, salto: salta(alrededor, 0) });
+    R.actor(EL.victoria, 82, 158, t, { dir: 1, sonrisa: true, dedo: t > reina && t < reina + 1.5 });
+    R.actor(EL.ninoVictoriano, 220, 158, t, { dir: -1, sonrisa: true, salto: salta(alrededor, 0.25) });
+    const inclina = t > alberto && t < alberto + 0.9;
+    R.actor(EL.alberto, 242, 158 + (inclina ? 1 : 0), t, { dir: -1, sonrisa: true, habla: inclina, brazos: inclina && t < alberto + 0.4 });
+    T.epocaDelante(R, t, o);
+    R.usar(prev);
+    const B = R.buf;
+    for (let y = HY0; y < 180 - dy; y++) { const o2 = y * 320, d = (y + dy) * 320; for (let x = HX0; x <= HX1 + 3; x++) { const c = HOJA[o2 + x]; if (c) B[d + x] = c; } }
+    for (let y = EY0; y <= EY1 && y + dy < 180; y++) { const sy = y - OY, o2 = sy * 320, d = (y + dy) * 320;
+      for (let x = EX0; x <= EX1; x++) { let c = VIVO[o2 + x] >>> 0; if (c === S4) c = ((x + sy) & 3) === 0 ? S3 : S4; else if (c === S3 && ((x - sy) & 7) === 0) c = S2; B[d + x] = c; } }
+    // la tinta fresca brilla y se asienta en los primeros segundos
+    const fresca = 1 - lin(t, P2, P2 + 1.8);
+    if (fresca > 0) for (let k = 0; k < 140; k++) { const x = EX0 + Math.floor(rnd(k, 1, 31) * (EX1 - EX0)), y = EY0 + Math.floor(rnd(k, 2, 31) * (EY1 - EY0)); if (rnd(k, 3, 31) > fresca || luz(VIVO[(y - OY) * 320 + x] >>> 0) > 0.35 || y + dy > 179) continue; R.pset(x, y + dy, (k + Math.floor(t * 8)) % 3 ? hex('#7a6e62') : hex('#a89c8a')); }
+  }
+  // el rodillo de la prensa, sobre sus raíles: rueda y deja la forma negra y brillante por detrás
+  if (ru > 0 && ry < 186) {
+    R.rect(30, ry + 6, 268, ry + 8, hex('#141016'));
+    R.rect(28, ry - 6, 270, ry + 6, K); R.rect(29, ry - 5, 269, ry - 3, hex('#5a5a68')); R.rect(29, ry - 2, 269, ry + 2, hex('#2a2a34')); R.rect(29, ry + 3, 269, ry + 5, hex('#18181e'));
+    for (let x = 32; x < 268; x += 9) R.pset(x + ((ry * 2) % 9), ry - 4, hex('#9a9aac'));
+    for (const wx of [26, 272]) { R.disco(wx, ry, 5, K); R.disco(wx, ry, 4, hex('#a8843c')); R.disco(wx, ry, 1, hex('#5a4220')); for (let a = 0; a < 3; a++) { const an = a * 2.09 - ry * 0.25; R.pset(wx + Math.round(Math.cos(an) * 3), ry + Math.round(Math.sin(an) * 3), hex('#5a4220')); } }
+  }
+};
+
+// ── 3. el taller del grabador americano (1850)
+const p3 = (t) => {
+  estampa();
+  const geo = T.epoca(R, t, { encuadre: 'estudio', gordo: 0.2 });
+  const S = geo.suelo, [hx0, hy0, hx1, hy1] = geo.tablero.hoja;
+  // el techo, oscuro y tranquilo detrás del «1850» (y 0–21), y la moldura crema por debajo (y 22–26)
+  R.rect(0, 0, 319, 21, hex('#2e2a25')); for (let x = 1; x < 320; x += 3) if ((x < 16 || x > 176) && (x * 37) % 10 < 4) R.rect(x, 0, x, 18, hex('#36322c'));
+  R.rect(0, 19, 319, 21, hex('#26231f')); R.rect(0, 22, 319, 22, hex('#e8e0cc')); R.rect(0, 23, 319, 25, hex('#cfc4ae')); R.rect(0, 24, 319, 24, hex('#a89c84'));
+  for (let x = 1; x < 320; x += 4) R.rect(x, 25, x + 1, 25, hex('#b8ac94')); R.rect(0, 26, 319, 26, hex('#8a7e68'));
+  // el aprendiz entra con el periódico doblado bajo el brazo y se lo da
+  const ent = lin(t, P3 + 0.2, revista + 0.1), da = t > revista + 0.5;
+  const ax = Math.round(lerp(-20, 92, ent)) - (da ? Math.round(lin(t, cambio + 0.3, P4) * 6) : 0);
+  const ap = R.actor(EL.aprendiz, ax, S, t, { dir: 1, anda: ent > 0 && ent < 1, sonrisa: da, sostiene: !da ? [ax + 17, S - 14] : false, habla: t > revista && t < revista + 0.5 });
+  const papelito = (x, y) => { R.rect(x - 1, y - 6, x + 9, y + 1, K); R.rect(x, y - 5, x + 8, y, hex('#e8dcc0')); for (let yy = y - 4; yy < y; yy += 2) R.rect(x + 1, yy, x + 7, yy, hex('#8a7a5a')); R.rect(x + 1, y - 5, x + 4, y - 3, hex('#5a4a3a')); };
+  if (!da) papelito(ap.mano[0] - 2, ap.mano[1] + 2);
+  // el grabador: se vuelve, coge el periódico, vuelve al tablero y copia; a «one small change» levanta el dedo
+  const mira = t > revista - 0.4 && t < reimprime;
+  const graba = t >= reimprime && t < cambio;
+  const gr = R.actor(EL.impresor, 124, S, t, { dir: mira ? -1 : 1, sonrisa: t > cambio, habla: mira, dedo: t > cambio + 0.2 && t < cambio + 1.4,
+    sostiene: mira && da ? [112, S - 14] : graba ? [Math.round(160 + ((t * 9) % 1) * 30), Math.round(126 + Math.sin(t * 7) * 6)] : false });
+  if (mira && da) papelito(gr.mano[0] - 8, gr.mano[1] + 2);
+  T.epocaDelante(R, t, { encuadre: 'estudio', gordo: 0.2 });
+  // la estampa de Windsor aparece en la plancha mientras la copia (la mitad del tamaño, de izquierda a derecha)
+  const w = hx1 - hx0 - 1, hh = hy1 - hy0 - 1, prog = lin(t, reimprime, cambio + 0.2);
+  R.rect(hx0, hy0, hx1, hy1, K); R.rect(hx0 + 1, hy0 + 1, hx1 - 1, hy1 - 1, hex('#efe3c6'));
+  for (let j = 0; j < hh; j++) for (let i = 0; i < w; i++) {
+    if (i > prog * w) break;
+    const bx = Math.min(319, 20 + Math.round(i * 280 / w)), by = Math.min(179, 40 + Math.round(j * 130 / hh));
+    R.pset(hx0 + 1 + i, hy0 + 1 + j, px1(bx, by));
+  }
+  if (graba) { const ix = hx0 + 1 + Math.round(prog * w); R.linea(ix, hy0 + 2, ix + 4, hy0 - 6, K); R.linea(ix + 1, hy0 + 2, ix + 5, hy0 - 6, hex('#c8ccd8')); }
+  if (t > cambio + 0.25) { const b = Math.min(1, (t - cambio - 0.25) / 0.2); R.icono('!', gr.cabeza[0] - 1, gr.cabeza[1] - 16 + Math.round((1 - b) * 4), hex('#f0c040'), K, 2); }
+};
+
+// ── 4. inserto: el periódico de Londres y la revista americana, lado a lado sobre la mesa del grabador
+// recorte de la estampa (x 44..112, y 118..170 del búfer) al doble: 136 × 104 en cada página
+const RX = 44, RY = 118, RW = 68, RH = 52;
+let FONDO4 = null;
+const pagina = (x0, y0, rev) => {
+  const w = RW * 2 + 12, hh = RH * 2 + 26;
+  R.rect(x0 + 3, y0 + 3, x0 + w + 3, y0 + hh + 3, hex('#2a1a0e'));
+  R.rect(x0, y0, x0 + w, y0 + hh, K); R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + hh - 1, rev ? hex('#f4ead2') : hex('#e2ddd0'));
+  if (rev) { for (let x = x0 + 3; x < x0 + w - 2; x += 3) { R.pset(x, y0 + 3, hex('#3a5a8a')); R.pset(x, y0 + hh - 3, hex('#3a5a8a')); } for (let y = y0 + 3; y < y0 + hh - 2; y += 3) { R.pset(x0 + 3, y, hex('#3a5a8a')); R.pset(x0 + w - 3, y, hex('#3a5a8a')); } R.rect(x0 + 40, y0 + 7, x0 + w - 40, y0 + 9, hex('#8a3a3a')); }
+  else { R.rect(x0 + 6, y0 + 5, x0 + w - 6, y0 + 9, hex('#2a2a2a')); R.rect(x0 + 6, y0 + 11, x0 + w - 6, y0 + 11, hex('#5a5a5a')); }
+  for (let y = y0 + RH * 2 + 18; y < y0 + hh - 3; y += 3) R.rect(x0 + 8, y, x0 + w - 8 - ((y * 11) % 24), y, hex('#8a8478'));
+  return [x0 + 6, y0 + 14];
+};
+const mesa4 = () => {
+  FONDO4 = R.nuevo(); const prev = R.usar(FONDO4);
+  // la mesa de nogal: tablas con vetas, juntas y nudos
+  const mad = [hex('#6a4426'), hex('#5a3a1e'), hex('#7a5232'), hex('#3a2412')];
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const tabla = Math.floor((y + 4) / 30), yy = (y + 4) % 30;
+    const v = Math.sin(x * 0.045 + tabla * 7 + Math.sin(x * 0.013 + tabla) * 3 + yy * 0.18) + Math.sin(x * 0.21 + y * 0.05 + tabla) * 0.25;
+    R.pset(x, y, yy === 0 ? mad[3] : yy === 1 ? mad[1] : v > 0.95 ? mad[2] : v < -0.85 ? mad[1] : mad[0]);
+  }
+  for (const [nx, ny] of [[40, 30], [300, 70], [250, 22], [18, 172]]) { R.disco(nx, ny, 3, mad[1]); R.disco(nx, ny, 1, mad[3]); }
+  // arriba: la regla, las tijeras, el buril, el tintero con la pluma y las gafas (fuera de la esquina de Atom)
+  R.rect(176, 22, 248, 27, K); R.rect(177, 23, 247, 26, hex('#d8b878')); for (let x = 179; x < 247; x += 3) R.rect(x, 23, x, x % 15 === 14 ? 25 : 24, hex('#5a3a1e'));
+  R.linea(30, 24, 56, 30, K); R.linea(30, 30, 56, 22, K); R.linea(31, 24, 56, 29, hex('#c8ccd8')); R.linea(31, 29, 56, 23, hex('#c8ccd8'));
+  for (const [cx, cy] of [[26, 23], [26, 31]]) { R.disco(cx, cy, 3, K); R.disco(cx, cy, 2, hex('#2a2a3a')); R.disco(cx, cy, 1, mad[0]); }
+  R.linea(116, 40, 146, 32, K); R.linea(116, 39, 140, 33, hex('#c8ccd8')); R.disco(146, 32, 3, K); R.disco(146, 32, 2, hex('#8a5a2a'));
+  R.rect(66, 22, 84, 38, K); R.rect(67, 23, 83, 37, hex('#1a1a2a')); R.rect(68, 24, 74, 26, hex('#5a5a7a')); R.rect(70, 19, 80, 22, K); R.rect(71, 20, 79, 21, hex('#2a2a3a'));
+  R.linea(76, 20, 104, 34, K); R.linea(76, 19, 104, 33, hex('#f6f2e6')); for (let k = 0; k < 12; k++) { R.linea(90 + k, 24 + k * 0.45, 92 + k, 28 + k * 0.45, hex('#e8e2d0')); }
+  for (const cx of [214, 228]) { R.disco(cx, 36, 5, K); R.disco(cx, 36, 4, hex('#c8d8e0')); R.disco(cx - 1, 35, 2, hex('#f0f8ff')); } R.linea(219, 35, 223, 35, K); R.linea(209, 34, 196, 30, K); R.linea(233, 34, 246, 30, K);
+  // la taza de té en su plato (arriba, entre las gafas y la esquina de Atom)
+  R.disco(262, 38, 8, K); R.disco(262, 38, 7, hex('#f0ece0')); R.disco(262, 38, 5, hex('#d8d0c0')); R.rect(256, 28, 268, 38, K); R.rect(257, 29, 267, 37, hex('#f4f2ec')); R.rect(257, 29, 267, 30, hex('#7a4a22')); R.rect(259, 33, 265, 33, hex('#3a5aa8')); R.rect(269, 31, 271, 35, K); R.pset(270, 33, hex('#f4f2ec'));
+  // la página del periódico de Londres (fija, a la izquierda)
+  const [ix, iy] = pagina(8, 46, false);
+  for (let j = 0; j < RH; j++) for (let i = 0; i < RW; i++) R.rect(ix + i * 2, iy + j * 2, ix + i * 2 + 1, iy + j * 2 + 1, B1[(RY + j) * 320 + RX + i]);
+  R.usar(prev);
+};
+const p4 = (t) => {
+  estampa(); if (!FONDO4) mesa4();
+  R.copiar(FONDO4);
+  // la revista americana entra desliza por la derecha y se queda al lado
+  const llega = lin(t, P4 + 0.05, P4 + 0.6), x0 = Math.round(lerp(330, 160, 1 - (1 - llega) ** 2));
+  const [ix, iy] = pagina(x0, 46, true);
+  const [cx, cy] = CORONA, borra = lin(t, ido - 0.25, ido + 0.25);
+  for (let j = 0; j < RH; j++) for (let i = 0; i < RW; i++) {
+    const bx = RX + i, by = RY + j; let c = B2[by * 320 + bx];
+    if (borra > 0) { const d = B3[by * 320 + bx]; if (d !== c) { const hsh = ((bx * 73856093) ^ (by * 19349663)) >>> 0; if ((hsh % 100) / 100 < borra) c = d; } }
+    R.rect(ix + i * 2, iy + j * 2, ix + i * 2 + 1, iy + j * 2 + 1, c);
+  }
+  // el polvo dorado de la corona que se deshace (a «was gone»)
+  const hx = ix + (cx - RX) * 2, hy = iy + (cy - RY) * 2;
+  if (borra > 0) for (let k = 0; k < 12; k++) { const u = (t - ido + 0.25) * 0.8 - (k % 4) * 0.06; if (u <= 0 || u > 1) continue; R.pset(hx - 5 + (k * 5) % 12 + Math.round(Math.sin(k + t * 4) * 2), hy + Math.round(u * 26) + (k % 3), k % 2 ? hex('#e8c050') : hex('#a87a28')); }
+  // los dos círculos rojos: primero la corona de Londres («The Queen's crown»), luego el hueco en la americana («gone»)
+  const aro = (ax, ay, u) => { for (let a = 0; a < Math.PI * 2 * u; a += 0.03) { const x = Math.round(ax + Math.cos(a - 1.6) * 13), y = Math.round(ay + Math.sin(a - 1.6) * 10); R.rect(x, y, x + 1, y + 1, hex('#d8202a')); } };
+  const lx = 14 + (cx - RX) * 2, ly = 60 + (cy - RY) * 2;
+  aro(lx, ly + 2, lin(t, corona - 0.4, corona + 0.2));
+  aro(hx, hy + 2, lin(t, ido - 0.1, ido + 0.4));
+  if (t > ido + 0.5) { const b = Math.min(1, (t - ido - 0.5) / 0.25); R.icono('?', hx + 16, hy - 20 + Math.round((1 - b) * 4), hex('#d8202a'), K, 2); }
+  // el vapor del té que sube (por debajo de la esquina de Atom)
+  for (let k = 0; k < 6; k++) { const u = (t * 0.45 + k / 6) % 1; R.pset(Math.round(262 + Math.sin(u * 7 + k + t) * 3), Math.round(27 - u * 18), u < 0.5 ? hex('#f0ece0') : hex('#c8b8a0')); }
+};
+const efectos = [[foto, 'lapiz'], [2.0, 'golpecito'], [papel + 0.1, 'papel'], [alrededor + 0.1, 'pop'], [castillo - 0.15, 'papel'], [castillo + 0.5, 'maquina'], [revista + 0.5, 'papel'], [reimprime + 0.2, 'lapiz'], [cambio + 0.25, 'pop'], [P4 + 0.1, 'papel'], [corona, 'lapiz'], [ido, 'brillo']];
+const año = (t) => (t < P3 ? 1848 : 1850);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Uso: node herramientas/efectos.cjs <carpeta_linea> [--hasta segundos]
+// Uso: node herramientas/efectos.cjs <carpeta_linea> [--hasta segundos] [--ocupado %]
 // Sintetiza los efectos de sonido de un episodio en <carpeta_linea>/efectos.wav (estéreo, 48 kHz, 32 bits).
 // - Los instantes vienen de <carpeta_linea>/efectos.json, que escribe render-escenas.mjs con lo que declara cada escena.
 // - Todo se genera en código con el motor de herramientas/sonido/: no hay muestras ni licencias de terceros.
@@ -95,6 +95,50 @@ function motor({ dur = 10 } = {}) {
   }
   return out;
 }
+// ambientes con duración (desde el 13: «motor», que es una avioneta, hacía de cortacésped, coche y sopladora). Todos con
+// entrada y salida suaves de 0,4 s y { dur } en segundos.
+const suave = (t, dur, f = 0.4) => Math.min(1, t / f, (dur - t) / f);
+// público de estadio: murmullo de muchas voces (ruido en la banda de la voz, con vaivén lento) y algún «¡oh!» que crece
+function publico({ dur = 3, ola = 0 } = {}) {
+  const out = buf(dur), w = rng(41), bp1 = new SVF(), bp2 = new SVF(), lp = new OnePole();
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR, n = w(), vaiven = 0.75 + 0.25 * Math.sin(TAU * 0.7 * t) * Math.sin(TAU * 1.9 * t + 1);
+    const oh = ola ? Math.exp(-((t - dur * 0.55) ** 2) / 0.18) * ola : 0;
+    out[i] = (bp1.bp(n, 520, 1.2) * 0.9 + bp2.bp(n, 1400 + 300 * oh, 1.6) * (0.4 + oh) + lp.lp(n, 180) * 0.3) * (vaiven + oh) * suave(t, dur);
+  }
+  return out;
+}
+// máquina de taller (coser, cortar, cinta): traqueteo regular de golpecitos metálicos sobre un zumbido de motor eléctrico
+function maquina({ dur = 3, ritmo = 9 } = {}) {
+  const out = buf(dur), w = rng(43), bp = new SVF();
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR, f = (t * ritmo) % 1, golpe = Math.exp(-f * 38);
+    out[i] = (bp.bp(w(), 2400, 3) * golpe * 1.4 + Math.sin(TAU * 100 * t) * 0.12 + Math.sin(TAU * 200 * t) * 0.05) * suave(t, dur, 0.15);
+  }
+  return out;
+}
+// coche que pasa o avanza: motor de explosión grave (diente de sierra filtrado) con el ralentí que tiembla
+function coche({ dur = 3, rpm = 1 } = {}) {
+  const out = buf(dur), w = rng(45), lp = new OnePole(), lp2 = new OnePole();
+  let ph = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR; ph += (34 * rpm + 3 * Math.sin(TAU * 2.3 * t)) / SR;
+    const saw = 2 * (ph % 1) - 1;
+    out[i] = (lp.lp(saw, 260) * 1.2 + lp2.lp(w(), 400) * 0.5) * suave(t, dur, 0.6);
+  }
+  return out;
+}
+// viento continuo en exteriores: ruido rosa que silba entre 300 y 800 Hz con rachas lentas (no es la «rafaga» corta)
+function viento({ dur = 4 } = {}) {
+  const out = buf(dur), w = rng(47), bp = new SVF();
+  let rosa = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR; rosa = rosa * 0.97 + w() * 0.03;
+    const racha = 0.6 + 0.4 * Math.sin(TAU * 0.31 * t) * Math.sin(TAU * 0.17 * t + 2);
+    out[i] = bp.bp(rosa, 380 + 300 * racha, 1.4) * racha * 4 * suave(t, dur, 0.8);
+  }
+  return out;
+}
 // destello al sol: tres campanitas agudas que se desvanecen
 function brillo() {
   const out = buf(1.6);
@@ -146,8 +190,51 @@ const firma = () => I.scribble(1.1, 47);
 // un ladrido corto y alegre: armónicos que caen de tono, con un soplo de ruido al principio
 function guau() { const out = buf(0.3), w = rng(48), lp = new OnePole(); let ph = 0; for (let i = 0; i < out.length; i++) { const t = i / SR, f = 560 - 900 * Math.min(0.25, t); ph += f / SR; let v = 0; for (let k = 1; k <= 6; k++) v += Math.sin(TAU * ph * k) / k * (k === 3 || k === 4 ? 1.6 : 1); out[i] = (v * 0.5 + lp.lp(w(), 2500) * (t < 0.03 ? 0.6 : 0.1)) * Math.min(1, t / 0.006) * Math.exp(-t * 14); } return out; }
 const aviso = () => I.ting(88);
+// desde el episodio 12 (huracanes): el trueno (un golpe grave con el chasquido de ruido que se apaga), la ráfaga de
+// viento, un golpe de lluvia y una ola que rompe (cortos: con colas largas el episodio pasaba del 65 % de tiempo con
+// efectos)
+function trueno() {
+  const out = buf(1.5), a = I.subBoom(1.5, 55, 24), b = I.noiseSweep(1.3, 1500, 250, { q: 0.6, pink: true, seed: 37, shape: (x) => Math.exp(-3 * x) * (1 - x) });
+  for (let i = 0; i < out.length; i++) out[i] = (a[i] ?? 0) + (b[i] ?? 0) * 0.8;
+  return out;
+}
+const rafaga = () => I.noiseSweep(1.1, 300, 900, { q: 0.6, pink: true, seed: 31, shape: (x) => Math.pow(Math.sin(Math.PI * x), 1.5) });
+const lluvia = () => I.noiseSweep(1.5, 4200, 3600, { q: 0.4, seed: 33, shape: (x) => Math.min(1, x * 4) * Math.min(1, (1 - x) * 4) });
+const ola = () => I.noiseSweep(1.1, 600, 2400, { q: 0.5, pink: true, seed: 35, shape: (x) => (x < 0.3 ? x / 0.3 : Math.exp(-(x - 0.3) * 4)) });
+
+// Desde el 17 (aprobadas por el usuario el 31/10/2026): una campana de iglesia y un carro de madera, que faltaban para el
+// patio del Temple, la catedral de Valencia y los carros de los hospitalarios.
+// campana: los parciales de una campana de bronce (hum, prima, tercera menor, quinta, nominal…) con caídas largas y un
+// poco de batido; o.nota (midi, 57 por omisión), o.lejos (true: más apagada y con menos ataque)
+function campana({ nota = 57, lejos = false } = {}) {
+  const len = 3.2, out = buf(len), f = 440 * 2 ** ((nota - 69) / 12);
+  const P = [[0.5, 0.55, 2.6], [1, 0.8, 2.0], [1.2, 0.5, 1.6], [1.5, 0.35, 1.3], [2, 0.45, 1.1], [2.5, 0.22, 0.7], [3, 0.18, 0.5], [4.2, 0.1, 0.3]];
+  for (const [r, a, d] of P) {
+    if (lejos && r > 2.6) continue;
+    const fr = f * r, b = 0.6 + r * 0.3;
+    for (let i = 0; i < out.length; i++) { const t = i / SR; out[i] += a * Math.exp(-t / d) * Math.sin(2 * Math.PI * fr * t) * (1 + 0.08 * Math.sin(2 * Math.PI * b * t)); }
+  }
+  const ataque = lejos ? 0.02 : 0.004;
+  for (let i = 0; i < out.length; i++) out[i] *= Math.min(1, i / SR / ataque) * (lejos ? 0.6 : 1);
+  return out;
+}
+// carro: el rodar de unas ruedas de madera sobre piedra (ruido grave que tiembla), los golpes de las juntas del empedrado
+// y el chirrido del eje; o.largo (s, 1,6 por omisión)
+function carro({ largo = 1.6 } = {}) {
+  const out = buf(largo), rodar = I.noiseSweep(largo, 180, 140, { q: 0.5, pink: true, seed: 41, shape: (x) => Math.min(1, x * 5) * Math.min(1, (1 - x) * 5) });
+  for (let i = 0; i < out.length; i++) out[i] = (rodar[i] ?? 0) * (0.7 + 0.3 * Math.sin(2 * Math.PI * 7 * i / SR));
+  for (let t = 0.08, k = 0; t < largo - 0.15; t += 0.21 + 0.05 * Math.sin(k * 1.7), k++) {
+    const g = I.woodTick(0.55 + 0.1 * (k % 3)), i0 = Math.round(t * SR);
+    for (let i = 0; i < g.length && i0 + i < out.length; i++) out[i0 + i] += g[i] * 0.55;
+  }
+  const chirrido = I.noiseSweep(0.35, 1800, 2300, { q: 6, seed: 43, shape: (x) => Math.sin(Math.PI * x) });
+  const i1 = Math.round(largo * 0.45 * SR);
+  for (let i = 0; i < chirrido.length && i1 + i < out.length; i++) out[i1 + i] += chirrido[i] * 0.25;
+  return out;
+}
 
 const RECETAS = {
+  campana, carro,
   timbre, puerta, firma, aviso, guau,
   tecleo,
   golpecito, sello, miau,
@@ -156,6 +243,8 @@ const RECETAS = {
   bip, ring, toc, cerrojo, avalancha, interruptor,
   jet, burbujas, zumbido, motor, brillo, lapiz, palmada, arranque, masca, flash, papel: () => I.paperFwip(0.8), tic: () => I.woodTick(1.3),
   gluglu,
+  trueno, rafaga, lluvia, ola,
+  publico, maquina, coche, viento,
   boing: () => I.boing(),
   claxon,
   silbato,
@@ -168,7 +257,10 @@ const RECETAS = {
 // nivel (dB RMS) y posición (−1 izquierda, 1 derecha) de cada efecto; las aldeas se solapan, por eso van más bajas
 const NIVEL = { guau: [-30, -0.1], timbre: [-31, -0.3], puerta: [-31, 0.2], firma: [-32, 0.1], aviso: [-33, 0.2], gluglu: [-30, 0.3], boing: [-29, -0.2], claxon: [-31, -0.5], silbato: [-32, 0.1], vapor: [-34, 0.1],
   pop: [-28, 0], whoosh: [-32, 0], aldea: [-35, 0], jet: [-24, 0], burbujas: [-33, 0.1], zumbido: [-31, 0],
-  motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0] };
+  motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0],
+  trueno: [-28, 0], rafaga: [-33, 0], lluvia: [-36, 0], ola: [-33, 0],
+  publico: [-37, 0], maquina: [-35, 0.2], coche: [-35, 0], viento: [-37, 0],
+  campana: [-33, -0.2], carro: [-34, 0] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);
@@ -177,12 +269,46 @@ const rms = (b) => {
   return 10 * Math.log10(m / n + 1e-20);
 };
 
-const bus = new Bus(Math.ceil(dur * SR));
-for (const [t, nombre, o = {}] of lista) {
-  if (t >= dur) continue;
+// Densidad: medir-sonido.py pide que algún efecto suene entre el 40 y el 65 % del tiempo (ventanas de 0,5 s por encima de
+// −45 dB). Si se pasa de OCUPADO, se quitan efectos de relleno (los de QUITABLES, nunca los de un gag) uno a uno, por
+// grupos: primero los golpes cortos, luego los ambientes y solo al final truenos y motores; dentro del grupo, el que más
+// ventanas deja en silencio. Se avisa de cada uno.
+const OCUPADO = Number(arg('--ocupado', 62)) / 100, VENT = 0.5, UMBRAL = 10 ** (-45 / 10);
+const QUITABLES = [['pop', 'tic', 'golpecito', 'brillo', 'papel', 'lapiz', 'whoosh', 'toc', 'bip'],
+  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo', 'viento', 'publico', 'maquina', 'campana', 'carro'], ['trueno', 'motor', 'coche']];
+const eventos = lista.filter((e) => e[0] < dur).map(([t, nombre, o = {}]) => {
   if (!RECETAS[nombre]) throw new Error(`efecto desconocido: ${nombre}`);
-  const [db, pan] = NIVEL[nombre], b = RECETAS[nombre](o);
-  bus.addMono(b, t, 10 ** ((db - rms(b)) / 20), nombre === 'aldea' ? -0.6 + 0.1 * o.k : o.pan ?? pan);
+  const [db, pan] = NIVEL[nombre], b = RECETAS[nombre](o), g = 10 ** ((db - rms(b)) / 20);
+  // la energía que pone en cada ventana (en mono, como la mide medir-sonido.py)
+  const w = Math.round(VENT * SR), i0 = Math.round(t * SR), en = new Map();
+  for (let i = 0; i < b.length; i++) { const k = Math.floor((i0 + i) / w); en.set(k, (en.get(k) || 0) + (b[i] * g) ** 2 / w * 0.5); }
+  const P = nombre === 'aldea' ? -0.6 + 0.1 * (o.k ?? 0) : o.pan ?? pan;
+  // un NaN en un efecto (en el 14, la «aldea» sin o.k) estropea toda la pista y el montaje falla al final: se para aquí
+  if (!Number.isFinite(g) || !Number.isFinite(P) || b.some((x) => !Number.isFinite(x))) throw new Error(`efecto con NaN: ${nombre} en t=${t} (${JSON.stringify(o)})`);
+  return { t, nombre, o, b, g, pan: P, en, vivo: true };
+});
+const nV = Math.floor(dur / VENT), E = new Float64Array(nV + 64);
+for (const e of eventos) for (const [k, v] of e.en) E[k] += v;
+const ocupadas = () => { let n = 0; for (let k = 0; k < nV; k++) if (E[k] > UMBRAL) n++; return n; };
+let llenas = ocupadas();
+const quitados = [];
+while (llenas / nV > OCUPADO) {
+  let mejor = null, gana = 0;
+  for (const grupo of QUITABLES) {
+    for (const e of eventos) {
+      if (!e.vivo || !grupo.includes(e.nombre)) continue;
+      let g = 0; for (const [k, v] of e.en) if (k < nV && E[k] > UMBRAL && E[k] - v <= UMBRAL) g++;
+      if (g > gana) { mejor = e; gana = g; }
+    }
+    if (mejor) break;
+  }
+  if (!mejor) break;
+  mejor.vivo = false; for (const [k, v] of mejor.en) E[k] -= v; llenas -= gana; quitados.push(`${mejor.nombre} ${mejor.t.toFixed(2)}`);
 }
+if (quitados.length) console.log(`densidad: quito ${quitados.length} efectos de relleno: ${quitados.join(', ')}`);
+console.log(`ocupado: ${(100 * llenas / nV).toFixed(0)} % (máximo ${OCUPADO * 100})`);
+
+const bus = new Bus(Math.ceil(dur * SR));
+for (const e of eventos) if (e.vivo) bus.addMono(e.b, e.t, e.g, e.pan);
 MIX.writeWav(path.join(dir, 'efectos.wav'), bus);
-console.log(`efectos.wav: ${lista.filter((e) => e[0] < dur).length} efectos en ${dur.toFixed(1)} s`);
+console.log(`efectos.wav: ${eventos.filter((e) => e.vivo).length} efectos en ${dur.toFixed(1)} s`);

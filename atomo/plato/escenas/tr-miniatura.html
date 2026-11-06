@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-MINIATURA · la miniatura del episodio 23 (se captura en t = 1, 1920 × 1080). Partida en diagonal: a la izquierda,
+// la Puerta del Sol de noche con el reloj de la torre a punto de dar las doce y un «1909» grande tachado en rojo (lo que
+// todos creen); a la derecha, el comedor burgués de Madrid con el racimo a la francesa, el burgués de chistera con su
+// copa y un gran «1894» dorado que brilla (lo que pasó de verdad). Abajo, en el centro, la uva con ojos, muy pagada de
+// sí misma. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/tr-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un actor (o una pieza) en su búfer, copiado a escala s con su contorno (filo de color c)
+const enGrande = (pinta, bx, dx, dy, s, filo) => {
+  R.usar(pj); pj.fill(VACIO); pinta(); R.usar(tmp); tmp.fill(VACIO);
+  pon(pj, bx[0], bx[1], bx[2], bx[3], dx, dy, s); contorno(tmp, 1, filo); R.usar(null); vuelca(tmp);
+};
+// un brillo suave: aclara hacia el color c en un círculo de radio r
+const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
+const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
+
+// la diagonal: de arriba (x 176) a abajo (x 148)
+const corte = (y) => 176 - Math.round(y * 0.16);
+
+const dibujar = (t) => {
+  // los dos decorados, cada uno en su búfer
+  R.usar(izq); T.anuevo(R, t, { encuadre: 'sol', camara: 'reloj', bola: 1, campanada: 0, fuegos: 0.6, minuto: 59.8 });
+  R.usar(der); T.anuevo(R, t, { encuadre: 'casa1890' });
+  R.usar(null);
+  const B = R.buf, DXI = 120, DXD = 0;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    if (x < corte(y)) { const sx = Math.min(319, x + DXI); B[y * 320 + x] = mezcla(hex('#0a0c30'), izq[y * 320 + sx], 0.22); continue; }
+    const sx = x + DXD; B[y * 320 + x] = der[y * 320 + (sx < 0 ? -sx : sx)];
+  }
+  // el filo de la diagonal, dorado con su sombra
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, K); R.pset(x, y, hex('#ffe08a')); R.pset(x + 1, y, hex('#c89a3a')); R.pset(x + 2, y, K); }
+
+  // el «1909» de lo que todos creen, sobre el cielo, tachado con una cruz roja
+  brillo(72, 26, 46, hex('#8aa0ff'), 0.25);
+  R.numero('1909', 72, 40, { tam: 24, centro: true, rampa: [hex('#ffffff'), hex('#d8dcf0'), hex('#9aa0c0'), hex('#5a6080')] });
+  for (const [c, r] of [[hex('#3a0608'), 2.6], [hex('#e8282a'), 1.6]]) trazo(22, 40, 122, 18, r, c);
+
+  // el «1894» dorado de lo que pasó de verdad, con su resplandor y unas chispas
+  brillo(250, 28, 62, hex('#fff0a0'), 0.5);
+  R.numero('1894', 250, 42, { tam: 24, centro: true });
+  for (const [x, y] of [[196, 12], [306, 18], [214, 52], [296, 54]]) { R.pset(x, y, hex('#ffffff')); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(x + a, y + b, hex('#ffe08a')); }
+
+  // el burgués de chistera, al triple, brindando con su copa
+  enGrande(() => R.actor(EL.burgues, 20, 70, 0.5, { quieto: true, dir: -1 }), [8, 44, 34, 70], 214, 72, 3, hex('#ffe8b0'));
+
+  // el velador de caoba con la frutera de plata y el racimo a la francesa (granos dibujados a resolución de lienzo)
+  { const cx = 196, mesa = 140;
+    R.rect(cx - 2, mesa, cx + 2, 172, hex('#4a2410')); R.rect(cx - 1, mesa, cx - 1, 172, hex('#8a4a24'));
+    R.rect(cx - 12, 172, cx + 12, 174, hex('#3a1a0a')); R.rect(cx - 12, 172, cx + 12, 172, hex('#7a3e1c'));
+    elipse(cx, mesa, 22, 4, K); elipse(cx, mesa - 0.5, 21, 3.2, hex('#7a3a18')); elipse(cx - 3, mesa - 1.5, 14, 1.5, hex('#a85a2c'));
+    // la frutera: pie, copa y borde de plata
+    R.rect(cx - 3, mesa - 7, cx + 3, mesa - 3, hex('#8a8ea0')); R.rect(cx - 2, mesa - 7, cx - 2, mesa - 3, hex('#e0e4f0'));
+    elipse(cx, mesa - 9, 17, 4, K); elipse(cx, mesa - 9.5, 16, 3, hex('#b8bccc')); elipse(cx - 4, mesa - 10.5, 8, 1, hex('#f4f6ff'));
+    brillo(cx, mesa - 26, 30, hex('#f0ffc0'), 0.4);
+    // los granos, de abajo arriba en triángulo invertido: verdes dorados, con filo, sombra y brillo
+    const filas = [[5, mesa - 14], [6, mesa - 20], [5, mesa - 26], [4, mesa - 32], [3, mesa - 38]];
+    const granos = []; filas.forEach(([n, y], f) => { for (let k = 0; k < n; k++) granos.push([cx + (k - (n - 1) / 2) * 6.4 + (f % 2 ? 0 : 0.6), y]); });
+    granos.sort((p, q) => p[1] - q[1]);
+    for (const [x, y] of granos.reverse()) { elipse(x, y, 3.9, 3.9, K); elipse(x, y, 3.2, 3.2, hex('#7aa83a')); elipse(x + 0.6, y + 0.8, 2.2, 2, hex('#a8d860')); elipse(x - 1.1, y - 1.2, 1, 1, hex('#f4ffd0')); }
+    // el rabillo y una hoja de parra
+    trazo(cx, mesa - 42, cx + 2, mesa - 48, 1, hex('#5a3a1a'));
+    for (let u = 0; u <= 1; u += 0.05) { const x = cx + 4 + u * 12, y = mesa - 46 - Math.sin(u * Math.PI) * 3, r = Math.sin(u * Math.PI) * 4 + 0.5; elipse(x, y, r, r * 0.8, u > 0.5 ? hex('#3a8a3a') : hex('#4aa848')); }
+    trazo(cx + 4, mesa - 46, cx + 15, mesa - 47, 0.4, hex('#1e5a24')); }
+
+  // la uva con ojos, grande, abajo en el centro, satisfecha, con su brillo
+  brillo(150, 150, 34, hex('#e0b0ff'), 0.4);
+  enGrande(() => T.uva(R, 20, 70, t, { cara: 'feliz' }), [10, 40, 40, 72], 112, 84, 3, hex('#f4e0ff'));
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

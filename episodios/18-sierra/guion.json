@@ -1,0 +1,884 @@
+{
+ "serie": "ASK Atom",
+ "numero": 18,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Sierra: The Adventure Games That Killed You a Hundred Ways",
+  "es": "Sierra: los juegos de aventura que te mataban de cien maneras"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "si-gancho",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [
+    "foso"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "foso",
+     "es": "Un caballero diminuto cruza el puente de un castillo, da un paso de más y se cae al foso.",
+     "en": "A tiny knight crosses a castle bridge, takes one step too many, and falls into the moat.",
+     "visual": "B: el castillo de cuento con su foso; el caballerito cruza el puente levadizo, da un paso de más y cae al foso con un «chof» y un chorro de agua (gag 1)."
+    },
+    {
+     "n": 2,
+     "marca": "cuadro",
+     "es": "La pantalla se para, sale un cuadro con un chiste sobre su muerte, y vuelta a empezar.",
+     "en": "The screen freezes, a box pops up with a joke about how he died, and it's back to square one.",
+     "visual": "D: la pantalla se congela; sale el cuadro de la muerte (sin letras): una calavera que guiña un ojo y un reloj de arena; un dedo de cursor parpadea."
+    },
+    {
+     "n": 3,
+     "marca": "media",
+     "es": "Si no habías guardado la partida, perdías media hora de juego por un solo paso en falso.",
+     "en": "If you hadn't saved your game, you lost half an hour of play over a single misstep.",
+     "visual": "D (otra cámara): el disquete con ojos llega corriendo, tarde; un reloj de pared da vueltas hacia atrás media hora y el disquete se tapa los ojos."
+    }
+   ]
+  },
+  {
+   "id": "si-pregunta",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "cada",
+     "es": "En los juegos de Sierra te morías a cada paso: por un puente, por una roca, por tocar lo que no debías.",
+     "en": "In Sierra's games you died at every turn: off a bridge, under a rock, for touching the wrong thing.",
+     "visual": "B (otra cámara): tres muertes de cuento seguidas: una roca rueda colina abajo, el caballero toca una seta y se pone verde, un pájaro le roba el sombrero y tropieza; cada vez, un «chof» de humo y vuelve a aparecer."
+    },
+    {
+     "n": 5,
+     "marca": "millones",
+     "es": "Y aun así, millones de jugadores los adoraban.",
+     "en": "And yet millions of players loved them.",
+     "visual": "A: un salón de los ochenta con jugadores (un niño, una abuela, un adolescente) frente a monitores, riendo y aplaudiendo; cajas de juegos apiladas."
+    },
+    {
+     "n": 6,
+     "marca": "pareja",
+     "es": "¿Cómo una pareja de California inventó estas aventuras, y por qué morir era parte de la diversión?",
+     "en": "So how did a couple from California invent these adventures, and why was dying part of the fun?",
+     "visual": "A (otra cámara): una pareja joven de espaldas en un porche de California al atardecer, delante de un ordenador antiguo; un «?» grande sobre ellos."
+    }
+   ]
+  },
+  {
+   "id": "si-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "H: el disquete con ojos saluda a Atom y se pone en guardia, listo para guardar; Atom se presenta."
+    }
+   ]
+  },
+  {
+   "id": "si-casa",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 1979",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "terminal",
+     "es": "En 1979, en California, Roberta Williams prueba un juego en el terminal que su marido, Ken, tiene en casa conectado al ordenador de su trabajo.",
+     "en": "In 1979, in California, Roberta Williams tries a game on the terminal her husband, Ken, has at home, hooked up to the computer at his work.",
+     "visual": "A: la cocina de una casa de California de noche; Roberta, con su taza, se sienta ante el terminal que Ken ha traído del trabajo; Ken mira por encima de su hombro.",
+     "acto": true,
+     "es_voz": "En mil novecientos setenta y nueve, en California, Robérta Uílliams prueba un juego en el terminal que su marido, Ken, tiene en casa conectado al ordenador de su trabajo.",
+     "en_voz": "In nineteen seventy-nine, in California, Roberta Williams tries a game on the terminal her husband, Ken, has at home, hooked up to the computer at his work."
+    },
+    {
+     "n": 9,
+     "marca": "cueva",
+     "es": "Se llama Colossal Cave Adventure: no tiene dibujos, solo texto, y tú escribes órdenes como «coge la lámpara».",
+     "en": "It's called Colossal Cave Adventure: it has no pictures, just text, and you type commands like \"take lamp.\"",
+     "visual": "A (cerca): la pantalla verde con renglones de trazos (sin letras), un cursor que parpadea y, al lado, el icono de una lámpara y de una cueva.",
+     "es_voz": "Se llama Colósal Kéiv Advénchur: no tiene dibujos, solo texto, y tú escribes órdenes como «coge la lámpara»."
+    },
+    {
+     "n": 10,
+     "marca": "crowther",
+     "es": "La había escrito en los años setenta un programador aficionado a explorar cuevas de verdad, y se pasaba de ordenador en ordenador.",
+     "en": "It had been written in the seventies by a programmer who explored real caves, and it was passed from computer to computer.",
+     "visual": "A: una cueva de verdad con estalactitas; un explorador con casco y linterna dibuja un mapa; un cable sale de la cueva y salta de ordenador en ordenador."
+    }
+   ],
+   "cartela": "1979"
+  },
+  {
+   "id": "si-idea",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "idea",
+     "es": "Roberta se engancha, y se le ocurre una idea: una aventura en la que puedas ver lo que pasa.",
+     "en": "Roberta gets hooked, and she has an idea: an adventure where you can see what's happening.",
+     "visual": "A: Roberta en la mesa de la cocina con una bombilla que se enciende sobre su cabeza; aparta los platos y saca papel."
+    },
+    {
+     "n": 12,
+     "marca": "dibuja",
+     "es": "Ella escribe la historia y hace los dibujos, y Ken la programa en un Apple Two.",
+     "en": "She writes the story and draws the pictures, and Ken programs it on an Apple II.",
+     "visual": "A (otra cámara): Roberta dibuja una casa vieja en papel cuadriculado; Ken teclea en un Apple II con la caja abierta y cables por la mesa.",
+     "es_voz": "Ella escribe la historia y hace los dibujos, y Ken la programa en un Ápol Tu.",
+     "en_voz": "She writes the story and draws the pictures, and Ken programs it on an Apple Two."
+    },
+    {
+     "n": 13,
+     "marca": "mystery",
+     "es": "En 1980 sale Mystery House, un misterio en una casa vieja, con unos setenta dibujos sencillos en blanco y negro.",
+     "en": "In 1980 they release Mystery House, a mystery set in an old house, with about seventy simple black-and-white drawings.",
+     "visual": "A (cerca): el monitor muestra la casa vieja en líneas blancas sobre negro, con una ventana iluminada y un relámpago; un gato negro cruza.",
+     "es_voz": "En mil novecientos ochenta sale Místeri Jáus, un misterio en una casa vieja, con unos setenta dibujos sencillos en blanco y negro.",
+     "en_voz": "In nineteen eighty they release Mystery House, a mystery set in an old house, with about seventy simple black-and-white drawings."
+    }
+   ]
+  },
+  {
+   "id": "si-bolsas",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "bolsas",
+     "es": "Se considera la primera aventura con gráficos, y la vendían en bolsas de plástico con cierre, con un disquete y una hoja de papel.",
+     "en": "It's considered the first adventure game with graphics, and they sold it in zip-top plastic bags, with a floppy disk and a sheet of paper.",
+     "visual": "A: la mesa del salón cubierta de bolsas con cierre, disquetes y hojas fotocopiadas; Roberta y Ken llenan bolsas en cadena."
+    },
+    {
+     "n": 15,
+     "marca": "super",
+     "es": "Las hojas eran fotocopias, las bolsas se llenaban a mano, y Roberta volvía del supermercado con el carro lleno de bolsas.",
+     "en": "The sheets were photocopies, the bags were packed by hand, and Roberta came home from the grocery store with a cart full of bags.",
+     "visual": "A (otra cámara, el supermercado): Roberta empuja un carro lleno hasta arriba de cajas de bolsas; la cajera la mira con una ceja levantada (gag 2)."
+    }
+   ]
+  },
+  {
+   "id": "si-sierra",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "miles",
+     "es": "Vendió más de diez mil copias, y la pequeña compañía del matrimonio acabaría llamándose Sierra.",
+     "en": "It sold more than ten thousand copies, and the couple's little company would come to be called Sierra.",
+     "visual": "A: cajas de envíos apiladas hasta el techo, el cartero con un saco y un mapa de EE. UU. lleno de chinchetas."
+    },
+    {
+     "n": 17,
+     "marca": "montana",
+     "es": "Se mudaron a un pueblo de montaña cerca de Yosemite, entre pinos, y la compañía tomó el nombre de esa sierra.",
+     "en": "They moved to a mountain town near Yosemite, among the pines, and the company took its name from those mountains.",
+     "visual": "C: una camioneta cargada por una carretera entre pinos hasta un pueblo de montaña con nieve en las cumbres; una oficina pequeña encima de una tienda.",
+     "es_voz": "Se mudaron a un pueblo de montaña cerca de Yosémiti, entre pinos, y la compañía tomó el nombre de esa sierra."
+    }
+   ]
+  },
+  {
+   "id": "si-ibm",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1983",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "ibm",
+     "es": "En 1983, IBM les encarga un juego para su nuevo ordenador doméstico, y Roberta diseña King's Quest.",
+     "en": "In 1983, IBM asks them for a game for its new home computer, and Roberta designs King's Quest.",
+     "visual": "C: en la oficina de la montaña, dos hombres de traje y corbata dejan en la mesa un ordenador pequeño con su teclado; Roberta abre su cuaderno.",
+     "acto": true,
+     "es_voz": "En mil novecientos ochenta y tres, I be eme les encarga un juego para su nuevo ordenador doméstico, y Roberta diseña Kings Kuést.",
+     "en_voz": "In nineteen eighty-three, IBM asks them for a game for its new home computer, and Roberta designs King's Quest."
+    },
+    {
+     "n": 19,
+     "marca": "graham",
+     "es": "Es un cuento de hadas: un caballero llamado Graham tiene que encontrar tres tesoros para salvar el reino.",
+     "en": "It's a fairy tale: a knight named Graham has to find three treasures to save the kingdom.",
+     "visual": "B: el salón del trono de un castillo de cuento; el viejo rey le encarga la misión al caballero Graham, que hace una reverencia con su gorro de pluma.",
+     "es_voz": "Es un cuento de hadas: un caballero llamado Gréiam tiene que encontrar tres tesoros para salvar el reino."
+    },
+    {
+     "n": 20,
+     "marca": "tesoros",
+     "es": "Los tres tesoros son un espejo mágico, un escudo mágico y un cofre que nunca se vacía de oro.",
+     "en": "The three treasures are a magic mirror, a magic shield, and a chest that never runs out of gold.",
+     "visual": "B (cerca): los tres tesoros sobre cojines: un espejo mágico que brilla, un escudo mágico y un cofre que rebosa monedas sin parar."
+    }
+   ],
+   "cartela": "1983"
+  },
+  {
+   "id": "si-anda",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "arboles",
+     "es": "Y tiene algo que nunca se había visto en una aventura: el caballero anda por la pantalla, y puede pasar por delante o por detrás de los árboles.",
+     "en": "And it has something never seen before in an adventure: the knight walks around the screen, and he can pass in front of or behind the trees.",
+     "visual": "B: el bosque del reino; Graham pasa por detrás de un árbol y desaparece de verdad; un pájaro lo busca rama por rama (gag 3)."
+    },
+    {
+     "n": 22,
+     "marca": "dentro",
+     "es": "Ya no mirabas un dibujo: estabas dentro de él.",
+     "en": "You weren't just looking at a picture anymore: you were inside it.",
+     "visual": "B (otra cámara): Graham sale por delante de otro árbol, saluda y anda hacia el fondo, más pequeño a cada paso."
+    },
+    {
+     "n": 23,
+     "marca": "escribe",
+     "es": "Se escribía lo que querías hacer, como antes, pero ahora el mundo se movía.",
+     "en": "You still typed what you wanted to do, but now the world moved.",
+     "visual": "C: un jugador teclea en el ordenador de la oficina; en la pantalla, el caballero responde y anda; un bocadillo con un icono de mano."
+    }
+   ]
+  },
+  {
+   "id": "si-lago",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "lago",
+     "es": "Podías nadar en el lago, trepar a un árbol o hablar con un gnomo, y el juego intentaba entender lo que escribías.",
+     "en": "You could swim in the lake, climb a tree or talk to a gnome, and the game tried to understand whatever you typed.",
+     "visual": "B: el lago del reino: Graham nada, trepa a un árbol y habla con un gnomo barbudo que sale de un tocón."
+    },
+    {
+     "n": 25,
+     "marca": "exito",
+     "es": "King's Quest fue un éxito, y Roberta siguió contando la historia de la familia de Graham durante casi quince años.",
+     "en": "King's Quest was a hit, and Roberta kept telling the story of Graham's family for almost fifteen years.",
+     "visual": "C (otra cámara): la oficina de la montaña celebra: cajas con una corona dibujada, globos, una cola de clientes por la ventana.",
+     "es_voz": "Kings Kuést fue un éxito, y Roberta siguió contando la historia de la familia de Gréiam durante casi quince años."
+    }
+   ]
+  },
+  {
+   "id": "si-goose",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "goose",
+     "es": "Y en 1987 hizo algo distinto: Mixed-Up Mother Goose, un juego para niños pequeños en el que devolvías a los personajes de las canciones infantiles a su sitio.",
+     "en": "And in 1987 she made something different: Mixed-Up Mother Goose, a game for little kids where you returned nursery rhyme characters to their homes.",
+     "visual": "B: un pueblo de canciones infantiles: un niño devuelve una oveja a su pastora, una vaca salta sobre la luna, un gato con violín.",
+     "es_voz": "Y en mil novecientos ochenta y siete hizo algo distinto: Míxt Ap Máder Gus, un juego para niños pequeños en el que devolvías a los personajes de las canciones infantiles a su sitio.",
+     "en_voz": "And in nineteen eighty-seven she made something different: Mixed-Up Mother Goose, a game for little kids where you returned nursery rhyme characters to their homes."
+    },
+    {
+     "n": 27,
+     "marca": "nadie",
+     "es": "Era uno de los pocos juegos de Sierra en los que nadie podía morir.",
+     "en": "It was one of the few Sierra games where nobody could die.",
+     "visual": "B (otra cámara): los personajes celebran en corro; una calavera tachada y un corazón flotan en el cielo."
+    }
+   ]
+  },
+  {
+   "id": "si-rosella",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "rosella",
+     "es": "En 1988, King's Quest Cuatro cambia de protagonista: ahora la heroína es su hija, la princesa Rosella, que tiene que salvar a su padre.",
+     "en": "In 1988, King's Quest Four switches heroes: now the star is his daughter, Princess Rosella, who has to save her father.",
+     "visual": "B: el castillo de noche; la princesa Rosella sale con su farol y su vestido de viaje; el rey enfermo, en la cama, la despide.",
+     "es_voz": "En mil novecientos ochenta y ocho, Kings Kuést Cuatro cambia de protagonista: ahora la heroína es su hija, la princesa Rosella, que tiene que salvar a su padre.",
+     "en_voz": "In nineteen eighty-eight, King's Quest Four switches heroes: now the star is his daughter, Princess Rosella, who has to save her father."
+    },
+    {
+     "n": 29,
+     "marca": "orquesta",
+     "es": "Fue una de las primeras aventuras protagonizadas por una chica, y de las primeras que sonaban con una tarjeta de música, como una pequeña orquesta.",
+     "en": "It was one of the first adventures starring a girl, and one of the first to play music through a sound card, like a little orchestra.",
+     "visual": "G: una tarjeta de sonido sobre la mesa; de ella salen músicos diminutos (violín, trompa, timbal) que tocan; un altavoz bota."
+    }
+   ]
+  },
+  {
+   "id": "si-muerte",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "lobo",
+     "es": "Pero en ese reino todo podía matarte: un lobo, un ogro, un río, un mal paso en una escalera.",
+     "en": "But in that kingdom, everything could kill you: a wolf, an ogre, a river, one wrong step on a staircase.",
+     "visual": "B (otra cámara): un lobo, un ogro, un río con corriente y una escalera sin barandilla; el caballero pasa de puntillas por todos.",
+     "acto": true
+    },
+    {
+     "n": 31,
+     "marca": "police",
+     "es": "En Police Quest, de 1987, diseñado por un antiguo policía de carreteras, había que seguir el reglamento al pie de la letra.",
+     "en": "In Police Quest, from 1987, designed by a former highway patrol officer, you had to follow the rulebook to the letter.",
+     "visual": "F (de día): una calle de ciudad con una comisaría; un policía con gorra revisa el coche patrulla dando la vuelta y mira las ruedas.",
+     "es_voz": "En Políss Kuést, de mil novecientos ochenta y siete, diseñado por un antiguo policía de carreteras, había que seguir el reglamento al pie de la letra.",
+     "en_voz": "In Police Quest, from nineteen eighty-seven, designed by a former highway patrol officer, you had to follow the rulebook to the letter."
+    },
+    {
+     "n": 32,
+     "marca": "cuneta",
+     "es": "Si te subías al coche patrulla sin dar antes la vuelta para revisarlo, se te pinchaba una rueda y se acababa la partida.",
+     "en": "If you got into your patrol car without walking around it to check it first, you'd blow a tire and your game was over.",
+     "visual": "F (otra cámara): otro policía sube sin revisar, arranca y a los pocos metros revienta una rueda con un «¡pum!»; el coche se queda torcido y el policía se tapa la cara."
+    }
+   ]
+  },
+  {
+   "id": "si-guardar",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 33,
+     "marca": "chiste",
+     "es": "Y cada muerte venía con su chiste, como si el narrador se riera un poco de ti.",
+     "en": "And every death came with its own joke, as if the narrator were laughing at you a little.",
+     "visual": "D: el cuadro de la muerte con la calavera que guiña; un altavoz se ríe con ondas; la calavera se pone unas gafas de broma."
+    },
+    {
+     "n": 34,
+     "marca": "partidas",
+     "es": "Los jugadores aprendieron a tener muchas partidas guardadas: una antes de cada puente, de cada puerta y de cada monstruo.",
+     "en": "Players learned to keep lots of saved games: one before every bridge, every door and every monster.",
+     "visual": "D (otra cámara): el disquete con ojos corre a guardar antes de un puente, de una puerta y de un monstruo; una pila de disquetes crece (gag 4)."
+    },
+    {
+     "n": 35,
+     "marca": "consejo",
+     "es": "Así nació el consejo más famoso de Sierra: guarda la partida a menudo.",
+     "en": "That's how Sierra's most famous piece of advice was born: save your game often.",
+     "visual": "D (cerca): un disquete gigante como un escudo, con un reloj de arena; el disquete pequeño saluda militarmente."
+    }
+   ]
+  },
+  {
+   "id": "si-peor",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [
+    "peor"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 36,
+     "marca": "peor",
+     "es": "Había algo peor que morir: perder un objeto al principio y no darte cuenta hasta el final, cuando ya no había vuelta atrás.",
+     "en": "There was something worse than dying: losing an item early on and not noticing until the end, when there was no going back.",
+     "visual": "B: al final del juego, Graham ante una puerta cerrada con un candado; recuerdo: la llave olvidada en la hierba al principio del camino; se lleva las manos a la cabeza."
+    },
+    {
+     "n": 37,
+     "marca": "lucas",
+     "es": "Justo lo contrario de LucasArts, que prometía que nunca morirías, como te conté en otro vídeo.",
+     "en": "The exact opposite of LucasArts, which promised you would never die, as I told you in another video.",
+     "visual": "D (dividido): a la izquierda, un cartel con una calavera tachada y un sol (la regla del otro estudio); a la derecha, la calavera que guiña y el disquete.",
+     "es_voz": "Justo lo contrario de Lúcas Arts, que prometía que nunca morirías, como te conté en otro vídeo."
+    }
+   ]
+  },
+  {
+   "id": "si-gracia",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 38,
+     "marca": "gracia",
+     "es": "Para muchos jugadores, ese peligro era la gracia: cada paso daba un poco de miedo, y cada acierto sabía a victoria.",
+     "en": "For many players, that danger was the point: every step felt a little scary, and every success tasted like victory.",
+     "visual": "B (otra cámara): Graham cruza un tronco sobre un barranco, tiembla, llega al otro lado y levanta los brazos con confeti."
+    },
+    {
+     "n": 39,
+     "marca": "proposito",
+     "es": "Y como cada muerte tenía su propio chiste, muchos jugadores morían a propósito, solo para ver qué decía el narrador.",
+     "en": "And since every death had its own joke, many players died on purpose, just to see what the narrator would say.",
+     "visual": "H (otra época): un salón de los noventa; dos amigos se tiran a propósito por un acantilado en la pantalla y se ríen a carcajadas con el cuadro de la calavera."
+    }
+   ]
+  },
+  {
+   "id": "si-andromeda",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1986",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 40,
+     "marca": "dos",
+     "es": "En 1986, dos empleados de Sierra, Mark Crowe y Scott Murphy, que se hacían llamar los Dos Tipos de Andrómeda, crean Space Quest.",
+     "en": "In 1986, two Sierra employees, Mark Crowe and Scott Murphy, who called themselves the Two Guys from Andromeda, create Space Quest.",
+     "visual": "C (otra cámara): dos dibujantes con antenas de alien de broma en la cabeza, en sus mesas de la oficina de la montaña, se chocan los cinco.",
+     "acto": true,
+     "es_voz": "En mil novecientos ochenta y seis, dos empleados de Sierra, Mark Cráu y Scot Mérfi, que se hacían llamar los Dos Tipos de Andrómeda, crean Spéis Kuést.",
+     "en_voz": "In nineteen eighty-six, two Sierra employees, Mark Crowe and Scott Murphy, who called themselves the Two Guys from Andromeda, create Space Quest."
+    },
+    {
+     "n": 41,
+     "marca": "conserje",
+     "es": "Su héroe no es un caballero: es Roger Wilco, el conserje de una nave espacial.",
+     "en": "Their hero isn't a knight: he's Roger Wilco, the janitor on a spaceship.",
+     "visual": "E: el pasillo de una nave espacial; Roger, el conserje, barre con su escoba y silba; un robot de limpieza le sigue.",
+     "es_voz": "Su héroe no es un caballero: es Róyer Uílco, el conserje de una nave espacial."
+    },
+    {
+     "n": 42,
+     "marca": "radio",
+     "es": "Su nombre es una broma de radio: «roger» quiere decir «recibido», y «wilco», «lo haré».",
+     "en": "His name is a radio joke: \"roger\" means \"message received,\" and \"wilco\" means \"will comply.\"",
+     "visual": "E (cerca): la consola de radio de la nave: dos bocadillos con un «✓» y una mano que dice «vale».",
+     "es_voz": "Su nombre es una broma de radio: «róyer» quiere decir «recibido», y «uílco», «lo haré»."
+    }
+   ],
+   "cartela": "1986"
+  },
+  {
+   "id": "si-asalto",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 43,
+     "marca": "armario",
+     "es": "Mientras él duerme en el armario de las escobas, unos alienígenas asaltan la nave, y le toca salvar la galaxia con lo que lleva en los bolsillos.",
+     "en": "While he's napping in a broom closet, aliens raid the ship, and it's up to him to save the galaxy with whatever's in his pockets.",
+     "visual": "E (otra cámara): Roger duerme en el armario de las escobas con un cubo de almohada; por la ventanilla, una nave alienígena se acopla y salen alienígenas con cascos."
+    },
+    {
+     "n": 44,
+     "marca": "pelis",
+     "es": "Space Quest se reía de las películas de ciencia ficción, y presumía de tener las muertes más absurdas del espacio.",
+     "en": "Space Quest made fun of science fiction movies, and it boasted the most ridiculous deaths in space.",
+     "visual": "E: un planeta desértico; Roger barre tan tranquilo mientras detrás la nave entera explota en fuegos de colores sin que se entere (gag 5).",
+     "es_voz": "Spéis Kuést se reía de las películas de ciencia ficción, y presumía de tener las muertes más absurdas del espacio."
+    }
+   ]
+  },
+  {
+   "id": "si-creadores",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 45,
+     "marca": "rescate",
+     "es": "En la tercera entrega, Roger tiene que rescatar a sus propios creadores: los Dos Tipos de Andrómeda, secuestrados por una empresa de videojuegos malvada.",
+     "en": "In the third game, Roger has to rescue his own creators: the Two Guys from Andromeda, kidnapped by an evil video game company.",
+     "visual": "E: la sede de una empresa de videojuegos malvada en un asteroide; Roger abre una jaula y salen los dos dibujantes con sus antenas."
+    },
+    {
+     "n": 46,
+     "marca": "tiempo",
+     "es": "Y en la cuarta, Roger viaja en el tiempo hasta el primer juego de su propia serie, y hasta dos entregas del futuro que nunca existieron.",
+     "en": "And in the fourth, Roger travels in time back into the very first game of his own series, and even into two future sequels that never existed.",
+     "visual": "E (otra cámara): un portal del tiempo en forma de espiral; Roger salta dentro con su escoba."
+    },
+    {
+     "n": 47,
+     "marca": "pixeles",
+     "es": "Al llegar al juego antiguo, todo se vuelve de píxeles gordos y de dieciséis colores: un chiste que solo entendían los que lo habían jugado.",
+     "en": "When he lands in the old game, everything turns into chunky pixels and sixteen colors: a joke only people who had played it would get.",
+     "visual": "E (cerca): Roger aterriza en un mundo de píxeles gordos y dieciséis colores; se mira a sí mismo, cuadrado, y se rasca la cabeza."
+    }
+   ]
+  },
+  {
+   "id": "si-larry",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 48,
+     "marca": "larry",
+     "es": "En 1987 llega Leisure Suit Larry, una comedia para adultos sobre un tipo con mala suerte en el amor.",
+     "en": "In 1987 came Leisure Suit Larry, a comedy for grown-ups about a guy with bad luck in love.",
+     "visual": "F: una calle de noche con neones (sin letras); un tipo con traje blanco de los setenta ofrece flores y una ventana se le cierra en la cara.",
+     "acto": true,
+     "es_voz": "En mil novecientos ochenta y siete llega Léyer Sut Lári, una comedia para adultos sobre un tipo con mala suerte en el amor.",
+     "en_voz": "In nineteen eighty-seven came Leisure Suit Larry, a comedy for grown-ups about a guy with bad luck in love."
+    },
+    {
+     "n": 49,
+     "marca": "lowe",
+     "es": "La escribió Al Lowe, un antiguo profesor de música que llenó el juego de chistes y de finales absurdos.",
+     "en": "It was written by Al Lowe, a former music teacher who filled the game with jokes and ridiculous endings.",
+     "visual": "F (otra cámara): un bar con un piano; un hombre con gafas y un saxofón (el antiguo profesor de música) se ríe mientras escribe chistes en servilletas.",
+     "es_voz": "La escribió Al Lóu, un antiguo profesor de música que llenó el juego de chistes y de finales absurdos."
+    },
+    {
+     "n": 50,
+     "marca": "examen",
+     "es": "Para empezar a jugar tenías que responder preguntas que, en teoría, solo sabía un adulto.",
+     "en": "To start playing, you had to answer trivia questions that, in theory, only an adult would know.",
+     "visual": "F (cerca): ante una puerta con un cartel de interrogación, un muñeco responde un examen con iconos (un tocadiscos, un coche viejo) y se rasca la cabeza (gag 6)."
+    }
+   ]
+  },
+  {
+   "id": "si-gloria",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 51,
+     "marca": "cole",
+     "es": "Y en 1989, Lori y Corey Cole crean la serie que acabaría llamándose Quest for Glory, en la que tu héroe además mejora sus habilidades con la práctica, como en un juego de rol.",
+     "en": "And in 1989, Lori and Corey Cole create the series that became Quest for Glory, where your hero also gets better at things with practice, like in a role-playing game.",
+     "visual": "F: un pueblo de fantasía con un gremio de aventureros; una pareja (Lori y Corey) clava en el tablón un dibujo de un héroe con una estrella de nivel.",
+     "es_voz": "Y en mil novecientos ochenta y nueve, Lóri y Cóuri Cóul crean la serie que acabaría llamándose Kuést for Glóri, en la que tu héroe además mejora sus habilidades con la práctica, como en un juego de rol.",
+     "en_voz": "And in nineteen eighty-nine, Lori and Corey Cole create the series that became Quest for Glory, where your hero also gets better at things with practice, like in a role-playing game."
+    },
+    {
+     "n": 52,
+     "marca": "clases",
+     "es": "Allí podías ser guerrero, mago o ladrón, y cada uno resolvía los problemas a su manera.",
+     "en": "There you could be a fighter, a wizard or a thief, and each one solved problems in their own way.",
+     "visual": "F (otra cámara): una puerta cerrada y tres héroes: el guerrero la tumba, el mago la abre con un rayo, el ladrón con una ganzúa."
+    },
+    {
+     "n": 53,
+     "marca": "llevar",
+     "es": "Y podías llevar a tu héroe, con todo lo que había aprendido, de un juego de la serie al siguiente.",
+     "en": "And you could carry your hero, with everything they'd learned, from one game in the series to the next.",
+     "visual": "F (camino): el héroe con su mochila cruza de un mapa a otro; sus estrellas de nivel viajan con él."
+    }
+   ]
+  },
+  {
+   "id": "si-raton",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1990",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 54,
+     "marca": "raton",
+     "es": "En 1990, King's Quest Cinco cambia otra vez las reglas: deja de escribirse y se juega con el ratón.",
+     "en": "In 1990, King's Quest Five changes the rules again: no more typing, you play with the mouse.",
+     "visual": "G: el estudio de 1990; una mano mueve un ratón y en la pantalla el cursor hace andar al caballero; el teclado se va a dormir.",
+     "acto": true,
+     "es_voz": "En mil novecientos noventa, Kings Kuést Cinco cambia otra vez las reglas: deja de escribirse y se juega con el ratón.",
+     "en_voz": "In nineteen ninety, King's Quest Five changes the rules again: no more typing, you play with the mouse."
+    },
+    {
+     "n": 55,
+     "marca": "colores",
+     "es": "Sus fondos se pintan a mano y se pasan al ordenador con doscientos cincuenta y seis colores, cuando casi todo usaba dieciséis.",
+     "en": "Its backgrounds are painted by hand and brought into the computer in two hundred fifty-six colors, when almost everything used sixteen.",
+     "visual": "G (otra cámara): dos monitores lado a lado: el mismo bosque en dieciséis colores y en doscientos cincuenta y seis; el caballero se mira las manos, maravillado (gag 7); un pintor con su lienzo al lado."
+    }
+   ],
+   "cartela": "1990"
+  },
+  {
+   "id": "si-voces",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 56,
+     "marca": "voces",
+     "es": "Y en su versión en CD, los personajes hablan con voces de verdad, algunas grabadas por la propia gente de la compañía.",
+     "en": "And in its CD version, the characters speak with real voices, some recorded by people who worked at the company.",
+     "visual": "G (cerca): una cabina de grabación; un empleado con gafas y otro con camisa de cuadros hablan al micrófono con un bocadillo de ondas; el técnico levanta el pulgar."
+    },
+    {
+     "n": 57,
+     "marca": "musica",
+     "es": "Sierra tenía su propio departamento de música, y sus juegos sonaban mejor si tenías una tarjeta de sonido.",
+     "en": "Sierra had its own music department, and its games sounded better if you owned a sound card.",
+     "visual": "G: el departamento de música: teclados, sintetizadores, un compositor con cascos y un altavoz grande que bota."
+    }
+   ]
+  },
+  {
+   "id": "si-gabriel",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 58,
+     "marca": "gabriel",
+     "es": "De esos años salieron también Gabriel Knight, un misterio escrito por Jane Jensen, y muchos otros mundos.",
+     "en": "Those years also brought Gabriel Knight, a mystery written by Jane Jensen, and many other worlds.",
+     "visual": "F (de noche, otra calle): una calle antigua de Nueva Orleans con balcones de hierro y farolas; una librería con un gato; una escritora con su cuaderno.",
+     "es_voz": "De esos años salieron también Guéibriel Náit, un misterio escrito por Yéin Yénsen, y muchos otros mundos."
+    },
+    {
+     "n": 59,
+     "marca": "curry",
+     "es": "En su versión en CD, al protagonista le puso voz un actor de Hollywood, Tim Curry.",
+     "en": "In its CD version, the hero was voiced by a Hollywood actor, Tim Curry.",
+     "visual": "G (otra cámara): un actor de Hollywood con bufanda graba en la cabina, con una estrella dorada en la puerta; el técnico aplaude.",
+     "es_voz": "En su versión en CD, al protagonista le puso voz un actor de Jólibud, Tim Cárri."
+    }
+   ]
+  },
+  {
+   "id": "si-retiro",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 60,
+     "marca": "ocho",
+     "es": "Roberta diseñó King's Quest hasta su retirada en 1999, y con ella la serie llegó a ocho juegos.",
+     "en": "Roberta designed King's Quest until she retired in 1999, and under her the series grew to eight games.",
+     "visual": "C: la oficina de la montaña con una estantería con ocho cajas con corona; Roberta, con su abrigo, se despide con la mano; nieve por la ventana.",
+     "acto": true,
+     "es_voz": "Roberta diseñó Kings Kuést hasta su retirada en mil novecientos noventa y nueve, y con ella la serie llegó a ocho juegos.",
+     "en_voz": "Roberta designed King's Quest until she retired in nineteen ninety-nine, and under her the series grew to eight games."
+    },
+    {
+     "n": 61,
+     "marca": "pandemia",
+     "es": "Pero la historia tiene un epílogo precioso: durante la pandemia, Ken y Roberta volvieron a hacer un juego juntos.",
+     "en": "But the story has a lovely epilogue: during the pandemic, Ken and Roberta made a game together again.",
+     "visual": "H: una casa de hoy; Ken y Roberta, mayores, en la mesa del salón con portátiles, plantas y un puzle a medias; se miran y sonríen."
+    }
+   ]
+  },
+  {
+   "id": "si-cueva",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 62,
+     "marca": "cueva3d",
+     "es": "¿Y qué eligieron? Colossal Cave, la aventura de texto que los enganchó en 1979, ahora en 3D y con gafas de realidad virtual.",
+     "en": "And what did they choose? Colossal Cave, the text adventure that hooked them in 1979, now in 3D and in virtual reality.",
+     "visual": "H (cerca): unas gafas de realidad virtual; dentro, la cueva en 3D con estalactitas y la lámpara; el disquete con ojos se pone las gafas y se asombra (gag 8).",
+     "es_voz": "¿Y qué eligieron? Colósal Kéiv, la aventura de texto que los enganchó en mil novecientos setenta y nueve, ahora en 3D y con gafas de realidad virtual.",
+     "en_voz": "And what did they choose? Colossal Cave, the text adventure that hooked them in nineteen seventy-nine, now in 3D and in virtual reality."
+    },
+    {
+     "n": 63,
+     "marca": "mesa",
+     "es": "Roberta volvió a diseñar y Ken a programar, como cuarenta años antes en la mesa de su casa.",
+     "en": "Roberta designed and Ken programmed again, just like they had forty years earlier at home.",
+     "visual": "H (otra cámara): Roberta dibuja en una tableta y Ken programa, codo con codo como en la cocina de 1979; una foto antigua de los dos en la pared."
+    }
+   ]
+  },
+  {
+   "id": "si-hoy",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 2026",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 64,
+     "marca": "hoy",
+     "es": "Muchos de aquellos juegos se pueden jugar hoy en ordenadores modernos, y los aficionados todavía comparten mapas y trucos para no morir.",
+     "en": "Many of those games can still be played on modern computers, and fans still share maps and tips for staying alive.",
+     "visual": "H: el cuarto de un chico de hoy; juega una aventura antigua en un ordenador moderno; en la pared, un mapa dibujado a mano con trucos."
+    },
+    {
+     "n": 65,
+     "marca": "cromos",
+     "es": "Y en internet hay quien colecciona todas las muertes posibles de cada juego, una por una, como si fueran cromos.",
+     "en": "And online, some fans collect every possible death in each game, one by one, like trading cards.",
+     "visual": "H (otra cámara): un álbum de cromos abierto con cromos de muertes (calaveras que guiñan, un caballero mojado, un conserje chamuscado); el chico pega el último."
+    }
+   ],
+   "cartela": "2026"
+  },
+  {
+   "id": "si-reglas",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 66,
+     "marca": "dos",
+     "es": "Así que en los noventa había dos maneras de vivir una aventura: la de LucasArts, donde nunca morías, y la de Sierra, donde guardabas cada dos minutos.",
+     "en": "So in the nineties there were two ways to live an adventure: LucasArts', where you never died, and Sierra's, where you saved every two minutes.",
+     "visual": "D (dividido, otra cámara): a la izquierda, el sol y la calavera tachada; a la derecha, el disquete guardando; Atom en medio.",
+     "acto": true,
+     "es_voz": "Así que en los noventa había dos maneras de vivir una aventura: la de Lúcas Arts, donde nunca morías, y la de Sierra, donde guardabas cada dos minutos."
+    },
+    {
+     "n": 67,
+     "marca": "viaje",
+     "es": "Y las dos nos enseñaron lo mismo: que equivocarse es parte del viaje.",
+     "en": "And both of them taught us the same thing: getting it wrong is part of the journey.",
+     "visual": "B: Graham cae al foso, sale chorreando, se sacude y vuelve a intentarlo sonriendo."
+    }
+   ]
+  },
+  {
+   "id": "si-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 68,
+     "marca": "puente",
+     "es": "Aunque en Sierra, por si acaso, mejor guarda la partida antes de cruzar el puente.",
+     "en": "Though in a Sierra game, just in case, you'd better save before you cross that bridge.",
+     "visual": "B (otra cámara): ante el puente, el disquete con ojos guarda con un clic; Graham cruza con cuidado y llega al otro lado."
+    },
+    {
+     "n": 69,
+     "marca": "adios",
+     "es": "¿Qué quieres que te explique ahora?",
+     "en": "What do you want me to explain next?",
+     "visual": "B: el atardecer sobre el castillo; Graham y el disquete saludan; Atom."
+    }
+   ]
+  }
+ ]
+}

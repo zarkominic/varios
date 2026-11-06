@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-HOLA (frases 3–4), sin cartela; barra 2026 → 1848. Tres planos:
+// 1. la mesa del salón de Atom: la galleta en el plato mira cada pista cuando la voz la nombra (el traje rojo, el «25»,
+//    el abeto y la partitura, que suelta notas y la galleta baila);  2. «around the world»: una calle alpina a la hora
+//    azul, un desfile de niños con velas tras San Nicolás… y un Krampus que asoma («differently»);  3. «I'm Atom»: el
+//    árbol victoriano; el príncipe se acerca a la mesa contando y gesticula; una niña va a coger la galleta del platito,
+//    la galleta salta y se escapa (gag 1, «Let's find out»); el perrito spaniel que dormía bajo la mesa se despierta y sale
+//    corriendo tras ella, y el príncipe se gira y la señala riéndose.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('mitos', f), b = (f) => en('hola', f);
+const P2 = a(0.601), P3 = b(0);
+const PZ = T.PIEZAS_NV, K = hex('#1a1418');
+const rojo = a(0.29), fecha = a(0.362), arbol = a(0.418), canta = a(0.514), viaja = a(0.643), distinto = a(0.845), celebra = a(0.919);
+const explica = b(0.2175), coge = b(0.6), salta = b(0.7995);
+// una estrellita de brillo de cuatro puntas
+const brillo = (x, y, r, c) => { R.pset(x, y, c); for (let k = 1; k <= r; k++) { R.pset(x + k, y, c); R.pset(x - k, y, c); R.pset(x, y + k, c); R.pset(x, y - k, c); } };
+// la corchea que flota
+const nota = (x, y, c) => { R.rect(x, y - 6, x, y, c); R.rect(x - 2, y - 1, x, y + 1, c); R.rect(x + 1, y - 6, x + 2, y - 5, c); R.pset(x + 3, y - 4, c); };
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'salon', camara: 'mesa' });
+  T.hoyDelante(R, t, { encuadre: 'salon', camara: 'mesa' });
+  // las pistas: cada una brilla cuando la voz la nombra
+  const pistas = [[rojo, 48, 128], [fecha, 96, 126], [arbol, 226, 126], [canta, 270, 128]];
+  let mira = 0, salto = 0;
+  pistas.forEach(([t0, x, y], i) => {
+    const u = (t - t0) / 0.9; if (u > 0 && u < 1) { const r = Math.round(10 + u * 6); for (let k = 0; k < 4; k++) { const an = k * Math.PI / 2 + u * 2; brillo(Math.round(x + Math.cos(an) * r), Math.round(y + Math.sin(an) * r * 0.7), u < 0.5 ? 2 : 1, hex(k % 2 ? '#fff6c0' : '#ffffff')); } }
+    if (t > t0) { mira = x < 160 ? -1 : 1; salto = Math.max(salto, t - t0 < 0.3 ? Math.round(Math.sin((t - t0) / 0.3 * Math.PI) * 5) : 0); }
+  });
+  // las notas que suben de la partitura
+  if (t > canta) for (let k = 0; k < 4; k++) { const u = ((t - canta) * 0.7 + k * 0.25) % 1; if (t - canta > k * 0.3) nota(Math.round(266 + Math.sin(u * 6 + k) * 6 + k * 3), Math.round(132 - u * 40), hex(k % 2 ? '#3a2a6a' : '#6a2a3a')); }
+  // la galleta, de pie en el plato: mira a un lado y a otro, salta hacia cada pista y baila con la música
+  const busca = t < rojo ? (Math.sin(t * 2.4) > 0 ? 1 : -1) : mira;
+  const baila = t > canta + 0.2;
+  T.galleta(R, 160, 145 - salto - (baila && Math.floor(t * 4) % 2 ? 2 : 0), t, { dir: baila ? (Math.floor(t * 2) % 2 ? 1 : -1) : busca, corre: baila, cara: baila || (t > rojo && t < rojo + 0.6) ? 'feliz' : 'normal' });
+};
+const p2 = (t) => {
+  T.mundo(R, t, { encuadre: 'austria' });
+  // el desfile de los niños con sus velas detrás de San Nicolás
+  const u = tramo(t, P2, P2 + 5.6), d = Math.round(lerp(-30, 150, u)), para = t > celebra;
+  R.actor(EL.nicolasAlpino, d + 50, 160, t, { dir: 1, anda: u < 1 && !para, dedo: t > celebra + 0.4, habla: t > celebra + 0.4 && Math.sin(t * 7) > 0 });
+  const n1 = R.actor(EL.ninaCatalana, d + 26, 164, t, { dir: 1, anda: u < 1 && !para, habla: !para && Math.sin(t * 5) > 0, sorpresa: para, sostiene: true });
+  PZ.vela(R, n1.mano[0], n1.mano[1] + 1, { t });
+  const n2 = R.actor(EL.ninoCatalan, d + 4, 166, t, { dir: 1, anda: u < 1 && !para, habla: !para && Math.sin(t * 5 + 2) > 0, sorpresa: para, sostiene: true });
+  PZ.vela(R, n2.mano[0], n2.mano[1] + 1, { t, color: 'roja' });
+  // un vecino lejos saluda desde su balcón con un farolillo
+  R.actor(EL.adultoCatalan, 262, 158, t, { dir: -1, brazos: t > viaja && t < viaja + 1.2, sonrisa: true });
+  // el Krampus asoma por la derecha («differently») y hace «¡bu!» en «celebrate»
+  const k = tramo(t, distinto - 0.2, celebra - 0.15);
+  R.actor(EL.krampus2, Math.round(lerp(334, 286, k)), 168, t, { dir: -1, anda: k > 0 && k < 1, brazos: t > celebra && t < celebra + 0.9 });
+  T.mundoDelante(R, t, { encuadre: 'austria' });
+};
+// la mesita de costura con su tapete y el platito de la galleta
+const mesita = () => {
+  R.rect(280, 145, 314, 148, K); R.rect(281, 145, 313, 147, hex('#8a5432')); R.rect(281, 145, 313, 145, hex('#b07a4a'));
+  for (let x = 282; x < 313; x += 3) R.pset(x, 148, hex('#e8e0d0'));
+  R.rect(284, 149, 286, 166, K); R.rect(285, 149, 285, 165, hex('#6a3e22')); R.rect(308, 149, 310, 166, K); R.rect(309, 149, 309, 165, hex('#6a3e22'));
+  R.rect(286, 157, 308, 158, K); R.rect(286, 157, 308, 157, hex('#7a4a2a'));
+  R.rect(288, 142, 306, 145, K); R.rect(289, 143, 305, 144, hex('#f2f2ea')); R.rect(291, 143, 303, 143, hex('#5a7ac8'));
+};
+// el perrito spaniel (blanco con manchas canela): e 0 duerme y respira, 0–1 levanta la cabeza, corre: las patas a
+// galope; x0 es el borde izquierdo de su caja de 22 px, y el suelo, dir −1 mira a la izquierda y 1 a la derecha
+const perrito = (x0, y, t, e, corre, dir) => {
+  // dir 1 lo voltea (mira a la derecha): las x se reflejan dentro de su caja de 22 px
+  const x = 0, X = (d) => dir > 0 ? x0 + 21 - d : x0 + d, rect = (a, b, c, d, col) => R.rect(Math.min(X(a), X(c)), b, Math.max(X(a), X(c)), d, col), pset = (a, b, col) => R.pset(X(a), b, col), linea = (a, b, c, d, col) => R.linea(X(a), b, X(c), d, col);
+  const pa = hex('#a0522d'), ps = hex('#6a3418'), bl = hex('#f4efe4'), bs = hex('#cfc4b0'), so = hex('#3a2412');
+  const ar = corre ? 3 + Math.round(Math.abs(Math.sin(t * 22))) : 0, resp = !corre && e < 0.5 && Math.sin(t * 2.4) > 0 ? 1 : 0;
+  const yc = y - ar, cab = corre ? 4 : Math.round(e * 3);
+  rect(x + 2, y + 1, x + 18, y + 1, so);
+  // las patas: tumbado, dobladas debajo; corriendo, a galope (delante y detrás alternan)
+  if (corre) { const g = Math.sin(t * 22) > 0; for (const [lx, dx] of [[x + 6, g ? -2 : 1], [x + 8, g ? -1 : 2], [x + 14, g ? 1 : -2], [x + 16, g ? 2 : -1]]) linea(lx, yc - 1, lx + dx, y, K); }
+  else for (const lx of [x + 3, x + 6, x + 14]) { rect(lx, y - 1, lx + 2, y, K); pset(lx + 1, y - 1, bl); }
+  // el cuerpo con su mancha y la luz de las velas arriba
+  rect(x + 5, yc - 6 - resp, x + 18, yc - 1, K); rect(x + 6, yc - 5 - resp, x + 17, yc - 2, bl); rect(x + 6, yc - 2, x + 17, yc - 2, bs);
+  rect(x + 10, yc - 5 - resp, x + 14, yc - 3, pa); rect(x + 11, yc - 5 - resp, x + 13, yc - 5 - resp, hex('#c87a4a'));
+  // la cola de plumero, que barre el suelo dormido y va tiesa al correr
+  const c = corre ? -2 : Math.round(Math.sin(t * (e > 0 ? 12 : 3)) * 1.5);
+  linea(x + 18, yc - 4, x + 21, yc - 6 + c, K); pset(x + 20, yc - 5 + c, bl); pset(x + 21, yc - 7 + c, bl);
+  // la cabeza canela con la oreja larga y el hocico blanco; dormido, los ojos son una raya
+  const hy = yc - 2 - cab;
+  rect(x, hy - 6, x + 7, hy, K); rect(x + 1, hy - 5, x + 6, hy - 1, pa); rect(x + 1, hy - 2, x + 3, hy - 1, bl); pset(x, hy - 2, K);
+  rect(x + 5, hy - 5, x + 7, hy + 2, K); rect(x + 6, hy - 4, x + 6, hy + 1, ps); pset(x + 2, hy - 5, hex('#c87a4a'));
+  if (e > 0.5 || corre) { pset(x + 3, hy - 4, K); pset(x + 4, hy - 4, bl); } else rect(x + 3, hy - 3, x + 4, hy - 3, ps);
+  if (corre && Math.sin(t * 22) > 0) pset(x + 1, hy, hex('#e86a7a'));
+  // dormido, el aliento sube en puntitos
+  if (!corre && e === 0) for (let k = 0; k < 3; k++) { const u = (t * 0.6 + k / 3) % 1; if (u < 0.75) pset(x - 2 - Math.round(u * 4), hy - 6 - Math.round(u * 9), u < 0.4 ? bs : hex('#8a7a6a')); }
+};
+const p3 = (t) => {
+  T.epoca(R, t, { encuadre: 'windsor', camara: 'arbol' });
+  mesita();
+  // la galleta: salta del platito, cae en la alfombra y se escapa corriendo hacia la izquierda (gag 1)
+  const s = tramo(t, salta, salta + 0.55), r = tramo(t, salta + 0.6, salta + 2.0);
+  let gx = 297, gy = 142;
+  if (s > 0) { gx = lerp(297, 238, s); gy = lerp(142, 166, s) - Math.sin(s * Math.PI) * 34; }
+  if (r > 0) gx = lerp(238, -16, r);
+  // el perrito duerme bajo la mesa mirando a la niña, levanta la cabeza cuando la galleta cae a su lado, la mira pasar y
+  // sale disparado detrás de ella (va por detrás de la gente: está bajo la mesa, más al fondo)
+  // (la persigue a 40 px: sale cuando la galleta le ha pasado y no la alcanza dentro del plano)
+  const ep = tramo(t, salta + 0.5, salta + 0.75), px = r > 0 ? Math.min(150, Math.round(gx) + 40) : 150, corre = px < 150;
+  perrito(px, 165, t, ep, corre, corre || (r > 0 && gx < 160) ? -1 : 1);
+  // el príncipe se acerca a la mesa y a la niña contando, gesticula con «I explain» y, cuando la galleta le pasa por
+  // delante, se gira tras ella, se ríe y la señala
+  const ua = tramo(t, P3 + 0.3, P3 + 2.6), ax = Math.round(lerp(24, 100, ua)), gira = r > 0 && gx < ax;
+  R.actor(EL.alberto, ax, 166, t, { dir: gira ? -1 : 1, anda: ua > 0 && ua < 1, habla: t < coge && Math.sin(t * 6) > 0,
+    brazos: t > explica && t < explica + 0.8, sonrisa: t > salta + 0.3, dedo: t > salta + 0.5 });
+  // la niña se acerca, mira la galleta y alarga la mano…
+  const u = tramo(t, P3 + 0.2, explica + 0.8), nx = Math.round(lerp(196, 262, u));
+  R.actor(EL.ninaVictoriana, nx, 166, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: t < salta, sorpresa: t > salta, sostiene: t > coge && t < salta + 0.3 ? [292, 138] : undefined });
+  T.galleta(R, Math.round(gx), Math.round(gy), t, { cara: s > 0 ? 'susto' : 'normal', corre: r > 0, dir: s > 0 ? -1 : 1 });
+  T.epocaDelante(R, t, { encuadre: 'windsor', camara: 'arbol' });
+};
+const efectos = [[rojo, 'brillo'], [canta, 'pop'], [viaja, 'campana'], [celebra, 'whoosh'], [salta, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => t < P3 ? 2026 : 1848 });
+</script>
+</body>
+</html>

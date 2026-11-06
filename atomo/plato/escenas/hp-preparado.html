@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Preparados · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-PREPARADO (frase 33), hoy. Dos planos:
+// 1. (0 → «because», 7,2 s) el sofá de cara: Atom baja de su sitio y cae en el sofá junto a la snitch en «So», y la manta
+//    se extiende sobre los dos; en «December 25th» la tele pone la hoja del calendario con el 25; en «rewatch the first
+//    movie», la película (el castillo con el triángulo de reproducir) y la snitch caza una palomita al vuelo; en «or
+//    better yet» la tele se pausa y, en «read the first book», la snitch vuela al libro de la mesa, que brilla con su
+//    piedra roja.
+// 2. (→ fin, 5,9 s) el plató: en «series» caen ocho claquetas numeradas del 1 al 8 en fila, una tras otra («8» en
+//    «8»); en «tell everything» chascan en ola; en «couldn't fit» la lata de película de la mesa revienta y salen la moto,
+//    el calcetín, la rata y la flauta, que caen sobre las claquetas; el director lo señala asombrado y la guionista
+//    aplaude.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-preparado');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P = T.PIEZAS_HP, C = T.C, K = hex('#141018');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255, r2 = c2 & 255, g2 = (c2 >>> 8) & 255, b2 = (c2 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (b2 - b1) * a) << 16) | (Math.round(g1 + (g2 - g1) * a) << 8) | Math.round(r1 + (r2 - r1) * a)) >>> 0; };
+// un halo tramado (no tapa: puntea) alrededor de (cx, cy)
+const hsh = (x, y, k) => { const v = Math.sin(x * 12.9898 + y * 78.233 + k * 37.719) * 43758.5453; return v - Math.floor(v); };
+const halo = (cx, cy, r, c, k = 0) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x + y) & 1) && hsh(x, y, k % 3) < (1 - d) * (1 - d) * 1.4 + 0.08) R.pset(x, y, c); } };
+// destellos en cruz que giran alrededor de (cx, cy)
+const chispas = (cx, cy, r, t, c = hex('#fff4c0'), n = 5) => { for (let k = 0; k < n; k++) { const a = k * 6.283 / n + t * 3, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r * 0.8); if (Math.sin(t * 11 + k * 2) > -0.2) { R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+// un sprite de letras con su paleta (s: escala)
+const pinta = (g, x0, y0, pal, s = 1) => { for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { const c = pal[g[j][i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } };
+
+// la lupa grande: aumenta k veces lo que hay debajo (copia antes los píxeles), aro de latón con su luz, el reflejo del
+// cristal y el mango de madera hacia la mano (mano = [x, y]) o hacia donde se diga
+const lente = (cx, cy, r, k = 2.5, mano = null) => {
+  cx = Math.round(cx); cy = Math.round(cy);
+  const n = 2 * r + 1, S = new Array(n * n);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) S[j * n + i] = R.pget(cx - r + i, cy - r + j);
+  if (mano) {
+    const [hx, hy] = mano, a = Math.atan2(hy - cy, hx - cx), L = Math.hypot(hx - cx, hy - cy);
+    for (let d = r + 1; d <= L + 1; d += 0.5) R.disco(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), 2, K);
+    for (let d = r + 1; d <= L; d += 0.5) { const x = Math.round(cx + Math.cos(a) * d), y = Math.round(cy + Math.sin(a) * d); R.disco(x, y, 1, d < r + 5 ? hex('#c8902a') : hex('#7a4422')); if (d > r + 5) R.pset(x, y - 1, hex('#a86a3a')); }
+  }
+  for (let j = -r - 2; j <= r + 2; j++) for (let i = -r - 2; i <= r + 2; i++) {
+    const d = Math.hypot(i, j);
+    if (d <= r - 2.5) {
+      let c = S[Math.round(r + j / k) * n + Math.round(r + i / k)] || K;
+      c = mez(c, hex('#e4f2ff'), 0.1);
+      const diag = i + j;
+      if ((diag < -r * 0.85 && diag > -r * 1.05) || (diag < -r * 1.2 && diag > -r * 1.28)) c = mez(c, hex('#ffffff'), 0.55);
+      R.pset(cx + i, cy + j, c);
+    } else if (d <= r - 1.5) R.pset(cx + i, cy + j, hex('#6a4a18'));
+    else if (d <= r + 0.9) { const luz = i + j; R.pset(cx + i, cy + j, luz < -r * 0.6 ? hex('#fff0b0') : luz < r * 0.3 ? hex('#e8b440') : hex('#a8701e')); }
+    else if (d <= r + 1.9) R.pset(cx + i, cy + j, K);
+  }
+};
+// la moto en miniatura (12 × 7), tan pequeña que solo se ve con la lupa
+const MOTO_MINI = ['.....kk.....', '....kAAk.kk.', '..kkAAAAkOk.', '.kKkkkkkkKk.', 'kKlKk..kKlKk', 'kKKKk..kKKKk', '.kkk....kkk.'];
+const motoMini = (x, y, faro = false) => pinta(MOTO_MINI, x, y, { k: K, A: hex('#d8283a'), K: hex('#4a4a56'), l: hex('#d8d8e8'), O: hex(faro ? '#fff8c0' : '#c8a040') });
+
+const P2 = en('preparado', 0.574);
+const so = en('preparado', 0.000), dic = en('preparado', 0.134), peli = en('preparado', 0.261), mejor = en('preparado', 0.404), leer = en('preparado', 0.490), libroT = en('preparado', 0.531);
+const serie = en('preparado', 0.659), ocho = en('preparado', 0.720), todo = en('preparado', 0.823), cabe = en('preparado', 0.933), fit = en('preparado', 0.973);
+// la tele: el calendario, la película y la pausa
+const tele = (R, t, [x0, y0, x1, y1]) => {
+  const cx = Math.round((x0 + x1) / 2), cy = Math.round((y0 + y1) / 2);
+  if (t < dic) { for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, (y & 1) ? hex('#1a2a5a') : hex('#24346a')); for (let i = 0; i < 4; i++) { const bx = x0 + 8 + i * 19; R.poligono([[bx, y0 + 14], [bx + 15, y0 + 14], [bx + 15, y0 + 34], [bx, y0 + 34]], [hex('#c8283a'), hex('#3a6ad8'), hex('#3a9a3a'), hex('#e8b830')][i]); } R.linea(x0 + 8 + 19 * Math.floor(t % 4), y0 + 36, x0 + 23 + 19 * Math.floor(t % 4), y0 + 36, hex('#ffffff')); return; }
+  if (t < peli) {   // la hoja del calendario: banda roja, anillas y el 25
+    for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, hex('#2a4a3a'));
+    R.poligono([[cx - 22, y0 + 6], [cx + 22, y0 + 6], [cx + 22, y1 - 4], [cx - 22, y1 - 4]], hex('#f4f0e4'));
+    R.poligono([[cx - 22, y0 + 6], [cx + 22, y0 + 6], [cx + 22, y0 + 14], [cx - 22, y0 + 14]], hex('#c8283a'));
+    for (const ax of [-12, 0, 12]) R.disco(cx + ax, y0 + 6, 1, hex('#8a8a96'));
+    R.numero('25', cx, y1 - 9, { centro: true, tam: 16 });
+    for (let k = 0; k < 6; k++) { const sx = x0 + ((k * 37 + Math.floor(t * 20)) % (x1 - x0)), sy = y0 + ((k * 23 + Math.floor(t * 30)) % (y1 - y0)); R.pset(sx, sy, hex('#ffffff')); }
+    return;
+  }
+  // la película: el castillo de noche, la luna y la tira con sus perforaciones que corre
+  for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, y < cy ? hex('#1a2050') : hex('#22305a'));
+  R.disco(x1 - 14, y0 + 12, 5, hex('#fff4c8'));
+  R.poligono([[cx - 26, y1], [cx - 24, cy + 2], [cx - 18, cy + 2], [cx - 18, cy - 8], [cx - 14, cy - 14], [cx - 10, cy - 8], [cx - 10, cy], [cx - 2, cy], [cx - 2, cy - 18], [cx + 3, cy - 26], [cx + 8, cy - 18], [cx + 8, cy], [cx + 16, cy], [cx + 16, cy - 10], [cx + 20, cy - 16], [cx + 24, cy - 10], [cx + 24, y1]], hex('#0a0c1e'));
+  for (const [i, j] of [[-14, -6], [3, -14], [20, -6], [-6, 4], [12, 6]]) if (Math.sin(t * 2 + i) > -0.6) R.pset(cx + i, cy + j, hex('#ffd84a'));
+  const off = Math.floor(t * 12) % 8;
+  for (const yy of [y0 + 1, y1 - 2]) { R.linea(x0, yy, x1, yy, K); R.linea(x0, yy + 1, x1, yy + 1, K); for (let x = x0 + off; x < x1; x += 8) { R.pset(x, yy, hex('#e8e0c8')); R.pset(x + 1, yy, hex('#e8e0c8')); } }
+  if (t < mejor) R.poligono([[cx - 5, cy - 7], [cx + 7, cy], [cx - 5, cy + 7]], mez(hex('#ffffff'), hex('#1a2050'), tramo(t, peli + 0.8, peli + 1.2)));
+  else { for (let y = y0; y <= y1; y += 2) R.linea(x0, y, x1, y, hex('#141830')); R.poligono([[cx - 7, cy - 7], [cx - 3, cy - 7], [cx - 3, cy + 7], [cx - 7, cy + 7]], hex('#ffffff')); R.poligono([[cx + 3, cy - 7], [cx + 7, cy - 7], [cx + 7, cy + 7], [cx + 3, cy + 7]], hex('#ffffff')); }
+};
+// Atom: baja al sofá en «So»; la snitch vuela al libro en «read»; la manta los tapa a los dos
+const ATOM_SOFA = [112, 104];
+const sAt = (t) => { const v = tramo(t, leer - 0.2, leer + 0.6); return v > 0 ? [lerp(136, 113, v), lerp(108, 140, v) - Math.sin(v * Math.PI) * 26] : [136, 108]; };
+const comp0 = R.companero;
+R.companero = (t, e) => {
+  if (t > P2 + 0.2) return comp0(t, e);
+  const baja = tramo(t, 0.15, so), ue = baja * baja * (3 - 2 * baja), bote = t > so && t < so + 0.5 ? Math.round(Math.sin((t - so) / 0.5 * Math.PI) * 5) : 0;
+  const x = Math.round(lerp(297, ATOM_SOFA[0], ue)), y = Math.round(lerp(24, ATOM_SOFA[1] - 3, ue) - bote - Math.sin(ue * Math.PI) * 18) + Math.round(Math.sin(t * 2.6) * 1);
+  const r = lerp(10, 13, ue);
+  if (ue > 0.2) R.disco(x, y, Math.round(r * 0.95), hex('#14204a'));
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const g = 1 - Math.hypot(i, j) / (r + 6); if (g > 0.25 && (ue < 0.2 ? ((i + j) & 1) : g > 0.45 || ((i + j) & 1))) R.pset(x + i, y + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(x, y, t, { r, orbita: R.PAL.ATOM[7], energia: t > leer ? 0.9 : e });
+  // la manta de lana crema con cuadros rojos: se despliega sobre los dos al caer Atom (dos bultos: Atom y la snitch)
+  const m = tramo(t, so, so + 0.6);
+  if (m > 0) {
+    const x0 = 90, x1 = Math.round(lerp(98, 154, m)), top = (xx) => Math.round(110 - Math.max(0, 3 - Math.abs(xx - 110) / 5) - (t < leer ? Math.max(0, 2 - Math.abs(xx - 137) / 4) : 0) + Math.sin(xx * 0.3) * 0.6);
+    for (let xx = x0; xx <= x1; xx++) {
+      const y0 = top(xx), y1 = 127 + ((xx * 7) % 3 === 0 ? 1 : 0);
+      R.pset(xx, y0 - 1, K);
+      for (let yy = y0; yy <= y1; yy++) {
+        const rx = (xx - x0) % 9, ry = (yy - 110) % 9;
+        let c = hex('#ecdcb4'); if (rx < 2 || ry < 2) c = hex('#b8283a'); if (rx < 2 && ry < 2) c = hex('#7a1a28'); if (rx === 5 || ry === 5) c = mez(c, hex('#3a7a4a'), 0.6);
+        if (((xx - x0) % 14 === 7) && yy > y0 + 2) c = mez(c, K, 0.25);
+        R.pset(xx, yy, c);
+      }
+      R.pset(xx, y1 + 1, K); if (xx % 2 === 0) { R.pset(xx, y1 + 2, hex('#ecdcb4')); R.pset(xx, y1 + 3, hex('#c8b890')); }
+    }
+    for (let yy = top(x0); yy <= 128; yy++) { R.pset(x0 - 1, yy, K); R.pset(x1 + 1, yy, K); }
+  }
+};
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'salon', camara: 'sofa', pantalla: tele });
+  // la snitch, bajo la manta junto a Atom: caza una palomita en «movie» y vuela al libro en «read»
+  const [sx, sy] = sAt(t);
+  const pal = tramo(t, peli + 0.3, peli + 1.0);
+  T.hoyDelante(R, t, { encuadre: 'salon', camara: 'sofa' });
+  if (pal > 0 && pal < 1) { const px = Math.round(lerp(80, 138, pal)), py = Math.round(lerp(150, 104, pal) - Math.sin(pal * Math.PI) * 24); R.disco(px, py, 2, K); R.disco(px, py, 1, hex('#fff4d8')); R.pset(px, py - 1, hex('#ffffff')); }
+  // el libro brilla en «read the first book»
+  if (t > leer - 0.1) { halo(113, 148, 22 + Math.sin(t * 5) * 2, hex('#ffe890'), Math.floor(t * 6)); if (t < libroT + 1) chispas(113, 146, 16, t); }
+  T.snitch(R, sx, sy + (t > leer + 0.6 ? Math.sin(t * 7) * 1.5 : 0), t, { cara: t > peli + 0.9 && t < mejor ? 'feliz' : t > leer + 0.5 ? 'feliz' : 'normal' });
+};
+// las ocho claquetas, en fila sobre el suelo del plató
+const claqueta = (x, y, n, abre, t) => {
+  R.rect(x - 9, y - 11, x + 9, y, K); R.rect(x - 8, y - 10, x + 8, y - 1, hex('#2a2a32')); R.rect(x - 8, y - 10, x + 8, y - 10, hex('#4a4a56'));
+  R.numero(String(n), x, y - 2, { centro: true });
+  // el palo de arriba, con rayas, que se abre y chasca
+  const a = abre * 0.5, L = 18;
+  for (let i = 0; i <= L; i++) { const px = Math.round(x - 9 + Math.cos(-a) * i), py = Math.round(y - 13 + Math.sin(-a) * i); R.pset(px, py, K); R.pset(px, py - 1, ((i >> 2) & 1) ? hex('#f4f0e8') : hex('#2a2a32')); R.pset(px, py - 2, K); }
+};
+const LLENA = [(x, y) => motoMini(x - 6, y - 7), (x, y) => P.calcetin(R, x, y, {}), (x, y) => P.rata(R, x, y, { ojo: true }), (x, y) => P.flauta(R, x, y, {})];
+const p2 = (t) => {
+  T.hoy(R, t, { encuadre: 'plato', claqueta: t > todo && t < todo + 0.3 ? 1 : 0 });
+  // la lata de película sobre la mesa del decorado: tiembla y revienta en «fit»
+  const rev = t > fit, tiem = t > cabe - 0.4 && !rev ? Math.round(Math.sin(t * 40)) : 0;
+  const lx = 137 + tiem;
+  R.disco(lx, 104, 9, K); R.disco(lx, 104, 8, hex('#8a8a96')); R.disco(lx, 104, 5, hex('#6a6a78')); R.disco(lx, 104, 2, hex('#c8c8d8'));
+  if (rev) { const tp = tramo(t, fit, fit + 0.5); R.disco(Math.round(lx + 14 * tp), Math.round(104 - 20 * tp), 7, K); R.disco(Math.round(lx + 14 * tp), Math.round(104 - 20 * tp), 6, hex('#a8a8b8')); }
+  else R.linea(lx - 8, 96 - (tiem ? 1 : 0), lx + 8, 96, hex('#c8c8d8'));
+  // la guionista aplaude al final; el director entra, señala las claquetas y se asombra en «fit»
+  const u = tramo(t, P2 + 0.1, serie + 0.2), dx = Math.round(lerp(330, 236, u));
+  R.actor(EL.director, dx, 154, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > serie && t < cabe - 0.2, sorpresa: t > fit - 0.1 && t < fit + 0.8, sonrisa: t > fit + 0.8, habla: t > todo && t < cabe - 0.2 && Math.sin(t * 8) > 0 });
+  R.actor(EL.guionista, 46, 154, t, { dir: 1, brazos: t > fit + 0.6 && Math.sin(t * 12) > -0.2, sonrisa: t > ocho, sorpresa: t > fit && t < fit + 0.6 });
+  // las claquetas caen una tras otra en «series» … «8» y chascan en ola en «tell everything»
+  for (let i = 0; i < 8; i++) {
+    const a = serie + i * ((ocho - serie) / 7), c = tramo(t, a - 0.25, a);
+    if (c <= 0) continue;
+    const x = 70 + i * 21, y = Math.round(lerp(-20, 150, c * c)) - (c >= 1 ? Math.round(Math.max(0, Math.sin((t - a) * 14)) * 3 * Math.max(0, 1 - (t - a) * 3)) : 0);
+    const w = todo + i * 0.08, abre = t < a + 0.3 ? 1 : t > w - 0.2 && t < w ? 1 : 0;
+    claqueta(x, y, i + 1, abre, t);
+    if (i === 7 && t > ocho && t < ocho + 1.2) { halo(x, y - 6, 16, hex('#ffe890'), Math.floor(t * 8)); chispas(x, y - 6, 14, t); }
+  }
+  // lo que no cupo en la película sale de la lata y cae sobre las claquetas 2, 4, 6 y 8
+  if (rev) LLENA.forEach((f, k) => { const v = tramo(t, fit + k * 0.1, fit + 0.8 + k * 0.1), tx = 91 + k * 42, x = Math.round(lerp(137, tx, v)), y = Math.round(lerp(100, 136, v) - Math.sin(v * Math.PI) * 34); f(x, y); });
+  T.hoyDelante(R, t, { encuadre: 'plato' });
+};
+const efectos = [[0.2, 'whoosh'], [so, 'pop'], [dic, 'bip'], [peli, 'interruptor'], [peli + 0.95, 'masca'], [leer, 'brillo'],
+  [ocho, 'pop'], [todo, 'palmada'], [fit, 'boing'], [fit + 0.6, 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

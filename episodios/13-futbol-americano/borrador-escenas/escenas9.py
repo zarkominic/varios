@@ -1,0 +1,272 @@
+E = {}
+
+# piezas comunes de fa-cierre y fa-adios (se pegan delante de cada cuerpo)
+COMUN = r'''
+const C = T.C, K = C.k;
+const suave = (u) => u * u * (3 - 2 * u);
+const parpadeo = (t, f = 6) => Math.sin(t * f) > 0;
+// dónde lleva algo un personaje en la mano que cuelga (x, suelo, dir) y dónde, con el brazo levantado (o.dedo)
+const enMano = (x, suelo, dir) => [dir > 0 ? x + 12 : x + 2, suelo - 9];
+const enAlto = (x, suelo, dir) => [dir > 0 ? x + 15 : x - 1, suelo - 30];
+// jugadores sin nombre: el Ejército (1913) y los dos equipos inventados de hoy (verde azulado / granate)
+const ejer = (k) => ({ ...EL.soldadoJugador, pal: { ...EL.soldadoJugador.pal, H: [hex('#5a3418'), hex('#2a2430'), hex('#8a5a2a')][k % 3] } });
+const nd = (k) => ({ ...EL.dorais, pal: { ...EL.dorais.pal, H: [hex('#6a3a1a'), hex('#a8743c'), hex('#3a2418')][k % 3] } });
+const verde = (k) => ({ ...EL.quarterback, pal: { ...EL.quarterback.pal, H: [hex('#1c1424'), hex('#5a3418'), hex('#a8743c'), hex('#3a2418')][k % 4] } });
+const granate = (k) => ({ ...EL.liniero, pal: { ...EL.liniero.pal, H: [hex('#1c1424'), hex('#6a3a1a'), hex('#c8904c'), hex('#2a2430')][k % 4] } });
+// cifras de 3×5 (para la pantalla del marcador y los rótulos de año): solo números
+const DIG = ['111101101101111', '010110010010111', '111001111100111', '111001111001111', '101101111001001', '111100111001111', '111100111101111', '111001001001001', '111101111101111', '111101111001111'];
+const cifras = (s, x, y, col, sombra) => { for (let n = 0; n < s.length; n++) { const d = DIG[+s[n]]; for (let j = 0; j < 5; j++) for (let i = 0; i < 3; i++) if (d[j * 3 + i] === '1') { if (sombra != null) R.pset(x + n * 4 + i + 1, y + j + 1, sombra); R.pset(x + n * 4 + i, y + j, col); } } };
+// destello de cuatro puntas (brillo de los cordones, el flash)
+const destello = (x, y, r, col) => { x = Math.round(x); y = Math.round(y); R.linea(x - r, y, x + r, y, col); R.linea(x, y - r, x, y + r, col); R.pset(x, y, C.blanco); if (r > 2) { R.pset(x - 1, y - 1, col); R.pset(x + 1, y + 1, col); R.pset(x + 1, y - 1, col); R.pset(x - 1, y + 1, col); } };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const bay = (x, y) => BAY[(y & 3) * 4 + (x & 3)] / 16;
+'''
+
+E['fa-cierre'] = ('El cierre', '''// FA-CIERRE (frases 35–36), 2027 / 1913. Cuatro planos, de vuelta al gancho:
+// 1. («And there. Just like at West Point in 1913. Someone will let loose a long pass.») El estadio de hoy de noche, la
+//    Super Bowl de 2027: el equipo verde azulado sale del corro y forma frente al granate; a «there» se encienden los
+//    móviles y el público aplaude; el quarterback canta la jugada; a «West Point» la pantalla del marcador pasa a una
+//    repetición en sepia del pase de 1913 y a «1913» sale la cifra; el saque, el quarterback retrocede y a «let loose»
+//    lanza largo: el balón sube por encima de la grada y sale por arriba; el receptor sale corriendo por la banda.
+//    Corta en «The ball».
+// 2. («The ball stitched in Ada will spin 600 times a minute. Tip its nose down in the air») Pantalla partida: a la
+//    izquierda West Point 1913 (Dorais baja el brazo, Rockne corre, la grada de cadetes), a la derecha el estadio de hoy
+//    (el quarterback, el receptor por la banda). Los dos balones suben en espiral a la vez; a «Ada» brillan los cordones
+//    del de hoy, a «600» sale el «600» junto a él y a «down» los dos bajan la punta en el mismo instante (destello en las
+//    dos puntas y la raya del medio se ilumina). Corta en «and drop».
+// 3. («and drop into a pair of hands running all alone down the sideline.») West Point desde la banda, 1913: el balón de
+//    1913 baja con la punta por delante a las manos de Rockne, que corre solo por la banda; los dos del Ejército quedan
+//    lejos; los cadetes de la banda de acá saltan y uno lanza la gorra; el fotógrafo dispara el magnesio; y la mula,
+//    mientras todos miran, se come el programa del cadete (eco del gag del gancho). Corta en «More».
+// 4. («More than a century of rules. Leather and physics. Also, a ball shaped like a melon can fly straight.») El balón
+//    de hoy vuela recto, de lado, y los decorados del episodio pasan por debajo: la Casa Blanca de 1905 (las reglas), la
+//    calle de la fábrica de Ada (el cuero), el parque del estanque (la física) y la pasarela de las antenas del estadio;
+//    en cada uno la gente mira arriba, se sorprende y lo señala al pasar. A «fly straight» el balón acelera y sale por la
+//    derecha; los técnicos lo siguen con el dedo.''', COMUN + r'''
+const a = (f) => en('cierre', f), s = (f) => en('siglo', f);
+// los cortes, en las palabras: «The ball», «and drop», «More»
+const P2 = a(0.3732), P3 = a(0.7653), P4 = s(0);
+// los instantes de la voz
+const ALLI = a(0.0091), WP = a(0.0947), Y1913 = a(0.1438), LANZA = a(0.2709), ADA = a(0.4316), SEIS = a(0.4895), PUNTA = a(0.6420), MANOS = a(0.8341), SOLO = a(0.8814);
+const RECTO = s(0.8605), LEATHER = s(0.2930);
+const SAQUE = Y1913 + 0.75;
+
+// ── 1 · la Super Bowl: forma el equipo, la repetición de 1913 en el marcador, el pase largo ────────────────────────
+// la repetición en sepia en la pantalla del marcador (x 188–226, y 17–30), recortada a su hueco
+const repeticion = (t) => {
+  const u = tramo(t, WP, WP + 0.25); if (u <= 0) return;
+  R.recorte([188, 17, 226, 30]);
+  const filas = Math.round(u * 14);
+  for (let y = 17; y < 17 + filas; y++) for (let x = 188; x <= 226; x++) {
+    const cielo = y < 22, q = bay(x, y) + (cielo ? (y - 17) / 8 : 0.4 + ((x + y * 3) % 7) / 14);
+    R.pset(x, y, cielo ? (q > 0.7 ? hex('#d8c49a') : hex('#c8b088')) : (q > 0.85 ? hex('#8a7048') : hex('#a08458')));
+  }
+  if (u >= 1) {
+    // la grada lejana, los postes en H y las líneas de cal, en tonos de foto vieja
+    for (let x = 188; x <= 226; x += 2) R.pset(x, 22, hex('#6a5434')); for (let x = 189; x <= 226; x += 3) R.pset(x, 21, hex('#7a6040'));
+    for (let k = 0; k < 4; k++) R.linea(194 + k * 9, 23, 192 + k * 10, 30, hex('#d8c8a4'));
+    R.linea(222, 19, 222, 24, hex('#4a3a24')); R.linea(225, 19, 225, 24, hex('#4a3a24')); R.linea(222, 22, 225, 22, hex('#4a3a24'));
+    // los dos jugadorcitos y el balón que vuela de uno a otro en curva
+    const v = tramo(t, WP + 0.3, Y1913 + 0.6), px = Math.round(lerp(198, 216, v));
+    R.pset(192, 27, hex('#2a2018')); R.pset(192, 28, hex('#2a2018')); R.pset(192, 26, hex('#e8c8a0'));
+    R.pset(px, 27, hex('#2a2018')); R.pset(px, 28, hex('#2a2018')); R.pset(px, 26, hex('#e8c8a0'));
+    if (v > 0 && v < 1) { const bx = lerp(193, px, v), by = 25 - Math.sin(v * Math.PI) * 6; R.pset(Math.round(bx), Math.round(by), hex('#3a2a18')); R.pset(Math.round(bx) - 1, Math.round(by), hex('#5a4228')); }
+    // «1913» en la esquina de la pantalla, cuando la voz lo dice
+    if (t > Y1913) cifras('1913', 189, 18, hex('#fff2d0'), hex('#5a4228'));
+    // la raya de exploración del vídeo viejo que baja
+    const ry = 17 + Math.floor(((t * 9) % 14)); for (let x = 188; x <= 226; x++) if ((x + ry) % 2) R.pset(x, ry, hex('#e8dcc0'));
+  }
+  R.recorte(null);
+};
+const p1 = (t) => {
+  T.estadioHoy(R, t, { encuadre: 'noche', moviles: 0.25 + 0.6 * tramo(t, ALLI - 0.2, ALLI + 0.8), marcador: [17, 14] });
+  repeticion(t);
+  const pasa = t > SAQUE, emp = pasa ? Math.round(Math.sin(t * 10)) : 0;
+  // el equipo verde azulado sale del corro (x 70–110) y ocupa la línea (x 138); los granates ya esperan en x 166
+  const forma = tramo(t, 0.2, 1.6);
+  const OL = [[140, 129], [137, 140], [134, 151]], DL = [[168, 131], [166, 142], [163, 153]];
+  const corro = [[84, 136], [98, 140], [86, 147]];
+  const fila = [];
+  OL.forEach(([x, y], k) => { const xx = Math.round(lerp(corro[k][0], x, suave(forma))), yy = Math.round(lerp(corro[k][1], y, suave(forma)));
+    fila.push([yy, () => R.actor(verde(k), xx + (pasa ? emp : 0), yy, t, { dir: 1, anda: forma > 0 && forma < 1, salto: pasa && Math.sin(t * 9 + k) > 0.6 ? 1 : 0, enfado: pasa })]); });
+  DL.forEach(([x, y], k) => fila.push([y, () => R.actor(granate(k), x - (pasa ? emp + Math.round(tramo(t, SAQUE, SAQUE + 1.5) * 6) : 0), y, t, { dir: -1, salto: pasa && Math.sin(t * 9 + k + 1) > 0.6 ? 1 : 0, enfado: pasa, habla: !pasa && parpadeo(t + k, 4) && t > 2 })]));
+  // el quarterback: sale del corro, canta la jugada con la mano, recibe el saque, retrocede y lanza a «let loose»
+  const qa = tramo(t, 0.4, 1.8), qx0 = Math.round(lerp(90, 112, suave(qa))), atras = tramo(t, SAQUE + 0.15, LANZA - 0.15), qx = Math.round(lerp(qx0, 92, suave(atras)));
+  const canta = t > ALLI + 0.4 && t < WP + 0.3, brazo = t > LANZA - 0.45 && t < LANZA + 0.35;
+  fila.push([144, () => R.actor(EL.quarterback, qx, 144, t, { dir: 1, anda: (qa > 0 && qa < 1) || (atras > 0 && atras < 1), habla: canta && parpadeo(t, 7), dedo: canta || brazo, sonrisa: t > LANZA + 0.6 })]);
+  // el receptor en la banda de acá: espera agachado, sale disparado con el saque y se va por la derecha
+  const ru = tramo(t, SAQUE + 0.05, E.duracion), rx = Math.round(lerp(128, 128 + 210, ru * ru * 0.4 + ru * 0.6));
+  fila.push([168, () => R.actor(EL.receptor, rx, 168, t, { dir: 1, anda: ru > 0, salto: !pasa && Math.sin(t * 3) > 0.9 ? 1 : 0 })]);
+  fila.sort((p, q) => p[0] - q[0]).forEach(([, f]) => f());
+  // el balón: en el suelo junto al centro, el saque hacia atrás, en la mano y el pase largo que sale por arriba
+  const sq = tramo(t, SAQUE, SAQUE + 0.22);
+  if (t < SAQUE) T.balon(R, 154, 150, t, { s: 0.75, ang: 0 });
+  else if (sq < 1) T.balon(R, lerp(156, qx + 12, sq), lerp(146, 135, sq) - Math.sin(sq * Math.PI) * 4, t, { s: 0.8, gira: 3 });
+  else if (t < LANZA) { const [hx, hy] = brazo ? enAlto(qx, 144, 1) : enMano(qx, 144, 1); T.balon(R, hx, hy, t, { s: 0.8, ang: brazo ? -0.7 : -0.2 }); }
+  else { const u = tramo(t, LANZA, P2 + 0.05), x = lerp(107, 268, u), y = 114 - 136 * u - 34 * Math.sin(Math.PI * u), dx = 161, dy = -136 - 34 * Math.PI * Math.cos(Math.PI * u);
+    if (u < 1) T.balon(R, x, y, t, { s: 0.9 + u * 0.3, gira: 3, ang: Math.atan2(dy, dx), estela: 0.7 }); }
+  T.h_estadioDelante(R, t, { encuadre: 'noche', down: 1 });
+};
+
+// ── 2 · pantalla partida: 1913 y hoy, los dos balones bajan la punta a la vez ──────────────────────────────────────
+let bHoy = null;
+// el vuelo, igual en las dos mitades: sube desde abajo a la izquierda, cima en «Tip» y punta abajo en «down»
+const CIMA = PUNTA - 0.2;
+const vuelo = (t) => { const x = 10 + 23 * (t - P2), y = 48 + 6.2 * (t - CIMA) ** 2, vx = 23, vy = 12.4 * (t - CIMA); return [x, y, Math.atan2(vy, vx)]; };
+const p2 = (t) => {
+  if (!bHoy) bHoy = R.nuevo();
+  const [lx, ly, ang] = vuelo(t), baja = tramo(t, PUNTA - 0.15, PUNTA + 0.25);
+  // la mitad de hoy, en su búfer: el estadio de noche, la línea, el quarterback, el receptor y su balón
+  const prev = R.usar(bHoy);
+  T.estadioHoy(R, t, { encuadre: 'noche', moviles: 0.85, marcador: [17, 14] });
+  R.recorte([161, 0, 319, 179]);
+  for (let k = 0; k < 2; k++) { R.actor(granate(k), 232 + k * 10 - Math.round(tramo(t, P2, P3) * 12), 134 + k * 14, t, { dir: -1, anda: true, enfado: true });
+    R.actor(verde(k + 1), 204 + k * 6, 138 + k * 14, t, { dir: 1, salto: Math.sin(t * 8 + k) > 0.7 ? 1 : 0, enfado: true }); }
+  R.actor(EL.quarterback, 172, 150, t, { dir: 1, dedo: t < P2 + 0.6, sonrisa: t > P2 + 0.6, habla: t > PUNTA && parpadeo(t, 6) });
+  const rx = Math.round(230 + (t - P2) * 6); R.actor(EL.receptor, rx, 170, t, { dir: 1, anda: true, brazos: t > PUNTA + 0.6 });
+  T.balon(R, 160 + lx, ly, t, { s: 1.6, gira: 2.6, ang, estela: 1.1 });
+  // a «Ada» brillan los cordones; a «600», el «600» junto al balón con su flecha de giro
+  if (t > ADA && t < ADA + 0.6) destello(160 + lx + 2, ly - 4, 2 + Math.round(Math.sin((t - ADA) * 10)), hex('#fff2b0'));
+  const n6 = tramo(t, SEIS - 0.05, SEIS + 0.2);
+  if (n6 > 0 && t < PUNTA - 0.3) { const nx = Math.round(160 + lx - 4), ny = Math.round(ly + 16 - (1 - n6) * 4);
+    R.rect(nx - 2, ny - 2, nx + 13, ny + 6, K); R.rect(nx - 1, ny - 1, nx + 12, ny + 5, hex('#1a2a3a')); cifras('600', nx + 1, ny, hex('#7ad8d8'), null);
+    const g = t * 6; for (let k = 0; k < 6; k++) { const an = g + k * 0.6; R.pset(Math.round(nx + 16 + Math.cos(an) * 3), Math.round(ny + 2 + Math.sin(an) * 3), k > 3 ? hex('#7ad8d8') : hex('#3a8a8a')); } }
+  if (baja > 0 && baja < 1) destello(160 + lx + Math.cos(ang) * 12, ly + Math.sin(ang) * 12, 3, hex('#fff2b0'));
+  R.recorte(null);
+  R.usar(prev);
+  // la mitad de 1913: West Point a ras de campo, la cámara que sigue despacio
+  T.westPoint(R, t, { encuadre: 'campo', pan: Math.round(60 + (t - P2) * 22), defensas: true });
+  R.recorte([0, 0, 158, 179]);
+  R.actor(EL.dorais, 8, 162, t, { dir: 1, dedo: t < P2 + 0.6, sonrisa: t > P2 + 0.6, brazos: t > PUNTA + 0.4 && t < PUNTA + 1.2 });
+  for (let k = 0; k < 2; k++) R.actor(nd(k), 46 + k * 12, 150 + k * 4, t, { dir: 1, salto: Math.sin(t * 7 + k) > 0.7 ? 1 : 0 });
+  const kx = Math.round(70 + (t - P2) * 9); R.actor(EL.rockne, kx, 160, t, { dir: 1, anda: true, brazos: t > PUNTA + 0.6 });
+  T.balon(R, lx, ly, t, { epoca: '1913', s: 1.6, gira: 2.6, ang, estela: 1.1 });
+  if (t > ADA && t < ADA + 0.6) destello(lx - 3, ly - 3, 1, hex('#f6e8c0'));
+  if (baja > 0 && baja < 1) destello(lx + Math.cos(ang) * 12, ly + Math.sin(ang) * 12, 3, hex('#fff2b0'));
+  R.recorte(null);
+  // pegar la mitad de hoy y la raya del medio (que se ilumina cuando bajan las dos puntas)
+  const B = R.buf; for (let y = 0; y < 180; y++) for (let x = 161; x < 320; x++) B[y * 320 + x] = bHoy[y * 320 + x];
+  const luz = baja > 0 && baja < 1;
+  R.rect(158, 0, 160, 179, K); R.rect(159, 0, 159, 179, luz ? hex('#fff2b0') : hex('#c8a040'));
+  for (let y = 4; y < 180; y += 8) R.pset(159, y, luz ? C.blanco : hex('#8a6a28'));
+  // los años de cada mitad, abajo, en su chapa
+  R.rect(4, 168, 22, 176, K); R.rect(5, 169, 21, 175, hex('#5a4228')); cifras('1913', 6, 170, hex('#f6e8c0'), null);
+  R.rect(296, 168, 314, 176, K); R.rect(297, 169, 313, 175, hex('#1a2a3a')); cifras('2027', 298, 170, hex('#7ad8d8'), null);
+};
+
+// ── 3 · West Point desde la banda: Rockne lo atrapa y corre solo; la mula se come el programa ─────────────────────
+const COME = MANOS + 1.0, FLASH = SOLO + 0.2;
+const p3 = (t) => {
+  const come = tramo(t, COME, COME + 1.6);
+  T.westPoint(R, t, { encuadre: 'grada', equipos: false, mula: { x: 30, suelo: 171, dir: 1, come } });
+  // los dos del Ejército, lejos y cada vez más atrás; Dorais, al fondo, levanta los brazos
+  for (let k = 0; k < 2; k++) R.actor(ejer(k), Math.round(lerp(-30, 96, tramo(t, P3, P4)) - k * 18), 126 + k * 6, t, { dir: 1, anda: true, enfado: true });
+  R.actor(EL.dorais, 70, 130, t, { dir: 1, brazos: t > MANOS, sonrisa: t > MANOS, dedo: t < MANOS });
+  // Rockne corre por la banda con los brazos arriba, lo atrapa en «hands» y sigue solo con el balón bajo el brazo
+  const rx = Math.round(lerp(70, 240, tramo(t, P3 - 0.6, P4 + 0.3))), suelo = 146, tiene = t >= MANOS;
+  R.actor(EL.rockne, rx, suelo, t, { dir: 1, anda: true, brazos: !tiene && t > P3 + 0.3, sonrisa: tiene });
+  if (!tiene) { const u = tramo(t, P3 - 0.25, MANOS), [hx, hy] = enAlto(rx, suelo, 1), x = lerp(-14, hx - 3, u), y = lerp(8, hy + 2, u) - Math.sin(u * Math.PI) * 6;
+    T.balon(R, x, y, t, { epoca: '1913', s: 1.1, gira: 2.6, ang: 0.62, estela: 0.8 }); }
+  else { const [hx, hy] = enMano(rx, suelo, 1); T.balon(R, hx, hy + 1, t, { epoca: '1913', s: 0.8, ang: -0.3 }); }
+  // la banda de acá: el cadete del programa mira la jugada con los brazos arriba (no ve a la mula); otros dos saltan,
+  // uno lanza la gorra; el periodista con su cámara de fuelle dispara el magnesio
+  const salta = (k) => (tiene && Math.sin(t * 9 + k) > 0.1 ? 3 : 0);
+  R.actor(EL.cadete, 50, 175, t, { dir: 1, brazos: t > MANOS - 0.3, sorpresa: t > MANOS - 0.3 && t < MANOS + 0.4, sonrisa: t > MANOS + 0.4, habla: t < MANOS - 0.3 && parpadeo(t, 6) });
+  R.actor({ ...EL.cadete, pal: { ...EL.cadete.pal, H: hex('#2a2430') } }, 120, 176, t, { dir: 1, salto: salta(1), brazos: tiene, sonrisa: tiene });
+  R.actor(EL.cadete, 196, 175, t, { dir: -1, salto: salta(2), dedo: !tiene && t > P3 + 0.4, sonrisa: tiene });
+  const gorra = tramo(t, MANOS + 0.3, MANOS + 1.5); if (gorra > 0 && gorra < 1) { const gx = Math.round(130 + gorra * 22), gy = Math.round(146 - Math.sin(gorra * Math.PI) * 30 + gorra * 12); R.rect(gx, gy, gx + 5, gy + 2, K); R.rect(gx + 1, gy, gx + 4, gy + 1, hex('#5a5a6a')); R.pset(gx + 5, gy + 2, hex('#2a2430')); }
+  const fx = 160; R.actor(EL.periodista, fx, 177, t, { dir: 1, dedo: t > FLASH - 0.3 && t < FLASH + 0.3, sorpresa: t > FLASH && t < FLASH + 0.5 });
+  R.rect(fx + 14, 152, fx + 24, 160, K); R.rect(fx + 15, 153, fx + 23, 159, hex('#3a2a20')); R.rect(fx + 24, 154, fx + 27, 158, hex('#2a2430')); R.disco(fx + 27, 156, 1.6, hex('#6a7a8a'));
+  for (const [x0, x1] of [[fx + 16, fx + 12], [fx + 19, fx + 19], [fx + 22, fx + 26]]) R.linea(x0, 160, x1, 179, hex('#5a3a24'));
+  const fl = tramo(t, FLASH, FLASH + 0.45); if (fl > 0 && fl < 1) { const r = Math.round(2 + fl * 4); R.disco(fx + 16, 147, r, hex('#f8f4d8')); destello(fx + 16, 147, r + 4, hex('#f8f4d8')); }
+  if (fl > 0.6) for (let k = 0; k < 5; k++) { const u = (t - FLASH) * 0.6 + k * 0.1; R.pset(Math.round(fx + 16 + Math.sin(u * 7 + k) * 3 + u * 8), Math.round(146 - u * 24), (k % 2) ? hex('#d8d4cc') : hex('#a8a49c')); }
+};
+
+// ── 4 · el balón vuela recto y los decorados del episodio pasan por debajo ────────────────────────────────────────
+// Cada decorado se pinta en su búfer; la pantalla enseña un mundo en el que cada uno ocupa una franja (A: dónde empieza
+// en el mundo; o: qué columna de su búfer cae ahí) y la cámara corre de izquierda a derecha. Las juntas se funden con
+// trama de 20 px. Al principio se ve casi entera la Casa Blanca; al final, entera la pasarela de las antenas.
+const DEC = [
+  { A: -999, o: 40, año: 1905, pinta: (t) => {
+      T.casaBlanca(R, t, { encuadre: 'fuera' });
+      gente(t, [[EL.periodista, 150, 154], [EL.jugador1905, 196, 155]]); } },
+  { A: 240, o: 85, año: 2026, pinta: (t) => {
+      T.fabricaAda(R, t, { encuadre: 'calle' });
+      gente(t, [[EL.obrera, 110, 141], [EL.obrero, 206, 141]]); } },
+  { A: 390, o: 85, año: 2026, pinta: (t) => {
+      T.labGiro(R, t, { encuadre: 'parque' });
+      gente(t, [[EL.fisico, 156, 170], [EL.fisica, 198, 172]]); } },
+  { A: 540, o: 0, año: 2027, pinta: (t) => {
+      T.estadioHoy(R, t, { encuadre: 'antenas' });
+      gente(t, [[EL.tecnica, 96, 148], [EL.tecnico, 150, 147], [{ ...EL.tecnico, pal: { ...EL.tecnico.pal, H: hex('#1c1424') } }, 210, 149]]); } },
+];
+DEC[0].A = 0;
+const SEAMS = [240, 390, 540], BOLA_X = 150, BOLA_Y = 62, FIN_CAM = s(0.76);
+const dueño = (X) => (X < SEAMS[0] ? 0 : X < SEAMS[1] ? 1 : X < SEAMS[2] ? 2 : 3);
+const colSin = (X, k) => X - DEC[k].A + DEC[k].o;
+const col = (X, k) => Math.max(0, Math.min(319, Math.round(colSin(X, k))));
+// la cámara: casi constante (mitad lineal, mitad suavizada), de −40 a 540, hasta poco antes de «fly straight»
+const camara = (t) => { const u = tramo(t, P4 - 0.2, FIN_CAM); return -40 + 580 * (0.5 * u + 0.5 * suave(u)); };
+// dónde va el balón en la pantalla: quieto en el centro y, a «fly straight», acelera y sale por la derecha
+const bolaX = (t) => BOLA_X + 210 * tramo(t, RECTO - 0.2, E.duracion - 0.2) ** 2;
+// la gente de cada decorado mira arriba cuando el balón le pasa por encima: sorpresa al llegar, lo señala y sonríe
+let bolaCol = 0;
+const gente = (t, lista) => lista.forEach(([def, x, suelo], k) => {
+  const d = bolaCol - (x + 8), cerca = Math.abs(d) < 60, llega = d > -60 && d < -18;
+  R.actor(def, x, suelo, t, { dir: d > 0 ? 1 : -1, sorpresa: llega, dedo: cerca && d > -18, sonrisa: d > 24, habla: !cerca && d < -60 && parpadeo(t + k, 5) });
+});
+const bufs = DEC.map(() => null);
+const p4 = (t) => {
+  const cam = camara(t), bxp = bolaX(t);
+  const k0 = dueño(cam - 8), k1 = dueño(cam + 327);
+  for (let k = k0; k <= k1; k++) {
+    if (!bufs[k]) bufs[k] = R.nuevo();
+    const prev = R.usar(bufs[k]);
+    bolaCol = colSin(cam + bxp, k);
+    R.delante = null; DEC[k].pinta(t);
+    if (R.delante) { R.delante(); R.delante = null; }   // el tráfico de la Casa Blanca, dentro de su franja
+    R.usar(prev);
+  }
+  const B = R.buf;
+  for (let x = 0; x < 320; x++) {
+    const X = cam + x; let hecho = false;
+    // la junta: 20 px de trama entre un decorado y el siguiente
+    for (let i = 0; i < 3; i++) { const f = (X - SEAMS[i] + 10) / 20; if (f > 0 && f < 1) {
+      const ca = col(X, i), cb = col(X, i + 1); for (let y = 0; y < 180; y++) B[y * 320 + x] = bay(x, y) < f ? bufs[i + 1][y * 320 + cb] : bufs[i][y * 320 + ca];
+      hecho = true; break; } }
+    if (hecho) continue;
+    const k = dueño(X), cx = col(X, k), src = bufs[k]; for (let y = 0; y < 180; y++) B[y * 320 + x] = src[y * 320 + cx];
+  }
+  // el balón de hoy, de lado, recto, girando sobre su eje y con su estela; un leve balanceo
+  if (bxp < 350) T.balon(R, bxp, BOLA_Y + Math.round(Math.sin(t * 2.2)), t, { s: 2.3, gira: 2.6, ang: 0, estela: 1.5 + tramo(t, RECTO - 0.2, RECTO + 0.6) });
+};
+const año = (t) => {
+  if (t < P3) return 2027;
+  if (t < P4) return 1913;
+  return DEC[dueño(camara(t) + bolaX(t))].año;
+};
+const efectos = [[ALLI + 0.05, 'palmada'], [WP + 0.05, 'bip'], [SAQUE, 'toc'], [LANZA, 'whoosh'], [SEIS, 'tic'], [PUNTA + 0.05, 'brillo'],
+  [MANOS + 0.05, 'palmada'], [FLASH, 'flash'], [COME + 0.6, 'masca'], [P4 + 0.3, 'whoosh'], [RECTO - 0.1, 'whoosh']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+''')
+
+E['fa-adios'] = ('Adiós', '''// FA-ADIOS (frase 37), 2027. Un plano (la escena dura 3 s): el estadio cubierto de hoy, a ras de césped. El receptor
+// corre solo por la banda con las manos arriba; el balón que venía volando baja y aterriza en sus manos en «want»;
+// sigue corriendo, cruza la línea de gol en «explain» y levanta el balón; el defensa granate se para a lo lejos; los
+// flashes del público y la cámara de televisión lo siguen. Atom pregunta.''', COMUN + r'''
+const d = (f) => en('adios', f);
+const ATRAPA = d(0.18), GOL = d(0.5);
+const p1 = (t) => {
+  T.estadioPatada(R, t, { lugar: 'vegas', encuadre: 'pateo', linea: false });
+  const rx = Math.round(lerp(40, 214, suave(tramo(t, -0.3, GOL + 0.5)))), suelo = 166, tiene = t >= ATRAPA, fiesta = t > GOL + 0.2;
+  // el defensa granate, lejos, que se rinde y se para
+  const dx = Math.round(lerp(-6, 120, tramo(t, 0, GOL + 0.3))); R.actor(granate(1), dx, 150, t, { dir: 1, anda: t < GOL + 0.3, triste: t > GOL + 0.3 });
+  R.actor(EL.receptor, rx, suelo, t, { dir: 1, anda: !fiesta, brazos: !tiene, dedo: fiesta, sonrisa: tiene, salto: fiesta && Math.sin(t * 9) > 0.3 ? 2 : 0 });
+  if (!tiene) { const u = tramo(t, -0.4, ATRAPA), [hx, hy] = enAlto(rx, suelo, 1), x = lerp(-20, hx - 3, u), y = lerp(18, hy + 2, u) - Math.sin(u * Math.PI) * 8;
+    T.balon(R, x, y, t, { s: 1.2, gira: 2.6, ang: 0.55, estela: 0.8 }); }
+  else if (!fiesta) { const [hx, hy] = enMano(rx, suelo, 1); T.balon(R, hx, hy + 1, t, { s: 0.8, ang: -0.3 }); }
+  else { const [hx, hy] = enAlto(rx, suelo, 1); T.balon(R, hx, hy, t, { s: 0.85, ang: -0.9 }); }
+  if (t > ATRAPA && t < ATRAPA + 0.3) { const [hx, hy] = enMano(rx, suelo, 1); destello(hx, hy - 4, 3, hex('#fff2b0')); }
+};
+T.rodar(E, R, [[0, p1]], { año: 2027, efectos: [[ATRAPA, 'golpecito'], [GOL + 0.1, 'palmada']] });
+''')

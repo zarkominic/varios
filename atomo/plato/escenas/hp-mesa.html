@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La mesa de los profesores · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-MESA (frase 13), 2026. Tres planos, cada profesor en el momento en que la voz lo nombra:
+// 1. el Gran Comedor: Harry sube por el pasillo central entre las mesas de las casas; en el estrado, Dumbledore se levanta
+//    en «smiling», abre los brazos y sonríe en «Dumbledore»; las velas se avivan;
+// 2. (corta en «The one glaring») la mazmorra de pociones (suelo de losas con juntas, charcos que reflejan las velas):
+//    Harry entra andando desde el borde izquierdo con su libro hasta la mesa; Snape remueve el caldero (vapor y burbujas),
+//    hacia «robes» deja el cucharón, se gira enfadado y da un paso; en «Snape» le apunta con la varita y Harry retrocede;
+// 3. (corta en «And») el aula: Quirrell detrás de su mesa, con el turbante morado, tiembla y suda; en «nervous» se cae
+//    un libro de un pupitre, golpea el pupitre de abajo y rebota hasta quedar tumbado; Quirrell da un salto; los alumnos
+//    se giran. En la pizarra, un caldero de tiza en lugar de la pluma entre flechas (que se leía como una letra).
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-mesa');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('profesores', f);
+const P2 = a(0.436), P3 = a(0.731);
+const barba = a(0.146), smile = a(0.205), dumb = a(0.263), lith = a(0.369), glare = a(0.454), robes = a(0.511), snape = a(0.573), paapa = a(0.619);
+const turb = a(0.772), nerv = a(0.853), quir = a(0.899);
+const C = T.C, P = T.PIEZAS_HP;
+const halo = (cx, cy, r, c, k = 0, dens = 3) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && (((x * 374761 + y * 668265 + k * 1013) >>> 0) % 97) / 97 < (1 - d) * (1 - d) * dens * 0.25) R.pset(x, y, c); } };
+const sube = (t, t0, d = 0.5) => { const u = tramo(t, t0, t0 + d); return u > 0 && u < 1 ? Math.round(Math.sin(u * Math.PI) * 6) : 0; };
+const p1 = (t) => {
+  const g = T.hogwarts(R, t, { encuadre: 'comedor', lleno: 0.9 });
+  // Dumbledore delante de la mesa de los profesores: se levanta en «smiling» y abre los brazos en «Dumbledore»
+  const lev = tramo(t, smile - 0.4, smile);
+  const dy = Math.round(lerp(112, 108, lev));
+  if (t > smile - 0.2) halo(161, 96, 16, hex('#ffe8a0'), Math.floor(t * 6), 1.6 * tramo(t, smile - 0.2, dumb));
+  R.actor(EL.dumbledore, 153, dy, t, { dir: 1, sonrisa: t > barba, brazos: t > dumb - 0.1 && t < dumb + 1.1, habla: t > lith - 0.4 && t < P2 - 0.3 && Math.sin(t * 7) > 0 });
+  // Harry sube por el pasillo central (de espaldas no se puede: va hacia arriba, de lado) y se para a mirar
+  const u = tramo(t, 0.1, smile), hx = Math.round(lerp(150, 160, u)), hy = Math.round(lerp(190, 166, u));
+  R.actor(EL.harry, hx, hy, t, { dir: -1, anda: u > 0 && u < 1, sorpresa: t > smile && t < dumb + 0.4, sonrisa: t > dumb + 0.4 });
+  if (t > dumb && t < dumb + 0.8) R.bocadillo(hx + 7, hy - 30, { icono: '!' });
+  // las velas de encima de Dumbledore se avivan: destellos de cuatro puntas
+  if (t > dumb - 0.1 && t < lith + 0.6) for (let k = 0; k < 6; k++) { const v = (t * 1.3 + k / 6) % 1, an = k * 1.05 + t * 0.6, sx = Math.round(161 + Math.cos(an) * (12 + v * 8)), sy = Math.round(94 + Math.sin(an) * (8 + v * 5)); if (v < 0.7) { const c = hex(v < 0.35 ? '#ffffff' : '#ffe08a'); R.pset(sx, sy, c); R.pset(sx - 1, sy, c); R.pset(sx + 1, sy, c); R.pset(sx, sy - 1, c); R.pset(sx, sy + 1, c); } }
+  T.hogwartsDelante(R, t, { encuadre: 'comedor', lleno: 0.9 });
+};
+// mezcla de dos colores (ABGR) y ruido fijo por píxel, para el suelo de la mazmorra
+const mez = (a, b, k) => { const f = (s) => Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k); return (0xff000000 | (f(16) << 16) | (f(8) << 8) | f(0)) >>> 0; };
+const ru = (x, y, k) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// el suelo de losas de la mazmorra, por encima del decorado: el canto de cada losa cogido por la luz de la corona de velas,
+// juntas, piedras gastadas y manchas, dos charcos que reflejan las velas y brillos húmedos que titilan
+const sueloPociones = (t) => {
+  const BR = hex('#b08868'), NE = hex('#000000'), CL = hex('#8a7a98'), fl = 0.9 + Math.sin(t * 9) * 0.06 + Math.sin(t * 23 + 1) * 0.04;
+  for (let y = 151; y < 180; y++) {
+    const fy = [155, 161, 168, 180].findIndex((v) => y < v), canto = y === 151 || y === 155 || y === 161 || y === 168, paso = 5 / (y - 100);
+    for (let x = 0; x < 320; x++) {
+      const ux = (x - 160) / (y - 100) * 5 + fy * 0.5, fr = ((ux % 1) + 1) % 1, losa = Math.floor(ux);
+      if ([155, 161, 168].includes(y) || fr < 0.06) continue;
+      const L = Math.max(0, 1 - Math.abs(x - 160) / 120) * fl;
+      let c = R.pget(x, y);
+      const tono = ru(losa, fy, 31);
+      c = mez(c, tono < 0.35 ? NE : tono < 0.7 ? CL : hex('#5a4a6a'), tono < 0.35 ? 0.18 : 0.16);
+      if (canto) c = mez(c, BR, 0.35 + 0.45 * L);
+      else if (y === 152 || y === 156 || y === 162 || y === 169) c = mez(c, BR, 0.12 + 0.2 * L);
+      else if (fr < 0.06 + paso) c = mez(c, BR, 0.25 + 0.4 * L);
+      else if (fr > 1 - paso || y === 154 || y === 160 || y === 167 || y === 179) c = mez(c, NE, 0.35);
+      const q = ru(x >> 1, y, 32 + losa);
+      if (q < 0.07) c = mez(c, NE, 0.4); else if (q > 0.95) c = mez(c, CL, 0.5);
+      c = mez(c, hex('#c88a50'), 0.18 * L);
+      R.pset(x, y, c);
+    }
+  }
+  // dos charcos con el reflejo de las velas que tiembla y una onda que se abre de vez en cuando
+  for (const [cx, cy, w, k] of [[62, 175, 16, 0], [196, 158, 10, 1]]) {
+    for (let i = -w; i <= w; i++) { const hh = Math.round(Math.sqrt(1 - (i / w) ** 2) * 2.2); R.rect(cx + i, cy - hh, cx + i, cy + hh, hex('#1a1838')); if (hh > 0) { R.pset(cx + i, cy - hh, hex('#4a4a7a')); R.pset(cx + i, cy + hh, hex('#0c0a18')); } if (hh > 1 && Math.abs(i) < w * 0.6 && (i + Math.floor(t * 3)) % 5 === 0) R.pset(cx + i, cy - 1, hex('#3a3a6a')); }
+    for (let j = 0; j < 4; j++) { const rx = cx - w + 4 + j * Math.round((2 * w - 8) / 3) + Math.round(Math.sin(t * 3 + j + k) * 1), on = Math.sin(t * 7 + j * 2 + k) > -0.3; if (on) { R.pset(rx, cy, hex(j % 2 ? '#ffd890' : '#ff9a3a')); R.pset(rx, cy - 1, hex('#7a5a3a')); } }
+    const u = ((t + k * 0.9) % 2.4) / 1.2; if (u < 1) for (let a = 0; a < 20; a++) { const an = a / 20 * Math.PI * 2, r = 2 + u * (w - 3); R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r * 0.22), hex('#3a3a6a')); }
+  }
+  // brillos húmedos de las velas en las losas (cerca de la luz)
+  for (let i = 0; i < 14; i++) { const x = 96 + Math.floor(ru(i, 1, 33) * 130), y = 153 + Math.floor(ru(i, 2, 33) * 25); if (Math.sin(t * 4 + i * 1.9) > 0.55) { R.pset(x, y, hex('#ffe0a8')); R.pset(x + 1, y, hex('#a07850')); } }
+  // ingredientes caídos: un frasco roto con su charquito verde y unas raíces
+  R.rect(102, 176, 107, 177, hex('#2a6a3a')); R.pset(104, 176, hex('#5ac87a')); R.linea(106, 174, 109, 172, hex('#a8d8e8')); R.pset(110, 172, hex('#ffffff')); R.linea(104, 173, 106, 174, hex('#6a9aa8'));
+  R.linea(18, 160, 24, 158, hex('#6a4a2a')); R.linea(20, 159, 22, 161, hex('#8a6a3a')); R.pset(25, 157, hex('#5a3a1a'));
+};
+// el caldero al fuego sobre la losa, burbujeando, con su vapor morado en bocanadas de tres tonos (va delante de la mesa)
+const caldero = (t, cx, cy, quieto) => {
+  for (let k = 0; k < 5; k++) { const fl = Math.round(Math.abs(Math.sin(t * 11 + k * 1.7)) * 3); R.rect(cx - 8 + k * 4, cy - 1 - fl, cx - 7 + k * 4, cy + 1, hex(k % 2 ? '#ff9a3a' : '#ffd060')); R.pset(cx - 8 + k * 4, cy - 2 - fl, hex('#fff0b0')); }
+  R.disco(cx, cy - 10, 10, C.k); R.disco(cx, cy - 10, 9, hex('#2a2a34')); R.disco(cx - 3, cy - 13, 3, hex('#4a4a5a')); R.pset(cx - 4, cy - 14, hex('#8a8a9a'));
+  for (let k = -6; k <= 6; k++) if (Math.sin(t * 9 + k) > 0.2) R.pset(cx + k, cy - 2, hex('#ff8a2a'));   // el fuego que lame el fondo
+  R.rect(cx - 11, cy - 20, cx + 11, cy - 17, C.k); R.rect(cx - 10, cy - 19, cx + 10, cy - 18, hex('#7a5ac8')); R.rect(cx - 10, cy - 19, cx + 10, cy - 19, hex('#a888f0'));
+  // burbujas que suben, se hinchan y revientan en la superficie
+  for (let k = 0; k < 4; k++) { const u = (t * 1.6 + k * 0.29) % 1, bx = cx - 7 + k * 5 + Math.round(Math.sin(k * 3.1) * 1); if (u < 0.7) R.disco(bx, cy - 19, u < 0.35 ? 0 : 1, hex('#e0c8ff')); else if (u < 0.85) { R.pset(bx - 2, cy - 21, hex('#c8a0ff')); R.pset(bx + 2, cy - 21, hex('#c8a0ff')); R.pset(bx, cy - 22, hex('#e0c8ff')); } }
+  // el vapor: bocanadas que suben y se deshacen hacia la derecha
+  for (let k = 0; k < 7; k++) { const v = (t * 0.55 + k / 7) % 1, bx = Math.round(cx - 6 + (k % 4) * 4 + Math.sin(t * 2 + k * 1.7) * 3 + v * 8), by = Math.round(cy - 22 - v * 34), r = v < 0.3 ? 1 : v < 0.7 ? 2 : 1; if (v < 0.92) R.disco(bx, by, r, hex(v < 0.35 ? '#d8b8ff' : v < 0.7 ? '#a080e0' : '#6a4aa8')); }
+};
+const p2 = (t) => {
+  T.exterior(R, t, { encuadre: 'pociones' });
+  sueloPociones(t);
+  // Snape, a la derecha de la mesa, remueve el caldero sin levantar la vista; hacia «robes» deja el cucharón,
+  // se gira hacia Harry con cara de enfado y da un paso hacia él; en «Snape» le apunta con la varita (brazo del actor)
+  const cx = 230, cy = 168, deja = robes - 0.1, apunta = snape - 0.15;
+  const remueve = t < deja, señala = t > apunta;
+  const pasoS = tramo(t, deja + 0.1, deja + 0.5), sx = Math.round(lerp(252, 246, pasoS));
+  // Harry entra andando desde el borde izquierdo con su libro y se para junto a la mesa; en «Snape» da un paso atrás
+  const u = tramo(t, P2, snape - 0.45), atr = tramo(t, snape + 0.05, snape + 0.4);
+  const hx = Math.round(lerp(-18, 86, u) - atr * 16);
+  const rh = R.actor(EL.harry, hx, 168, t, { dir: 1, anda: (u > 0 && u < 1) || (atr > 0 && atr < 1), sorpresa: t > snape, sostiene: true });
+  P.libro(R, rh.mano[0], rh.mano[1] + 6, {});
+  if (t > snape + 0.05 && t < snape + 0.9) R.bocadillo(hx + 7, 136, { icono: '!' });
+  caldero(t, cx, cy);
+  const rs = R.actor(EL.snape, sx, 168, t, { dir: -1, anda: pasoS > 0 && pasoS < 1, sostiene: remueve ? [cx + 8 + Math.round(Math.sin(t * 6) * 3), 150 + Math.round(Math.cos(t * 6))] : señala ? [sx - 14, 140] : false, enfado: !remueve, habla: t > snape && t < snape + 0.7 && Math.sin(t * 9) > 0 });
+  if (remueve) { R.linea(rs.mano[0], rs.mano[1], cx + 2 + Math.round(Math.sin(t * 6) * 2), cy - 18, hex('#3a2418')); R.pset(rs.mano[0], rs.mano[1] - 1, hex('#5a3a22')); }
+  else { R.linea(cx + 5, cy - 18, cx + 13, cy - 29, hex('#3a2418')); R.pset(cx + 13, cy - 30, hex('#5a3a22')); }   // el cucharón se queda apoyado en el borde
+  if (señala) {
+    // la varita, horizontal hacia Harry, con chispas verdes en la punta
+    const [mx, my] = rs.mano, px = mx - 11, py = my - 6;
+    R.linea(mx - 1, my + 1, px, py + 1, C.k); R.linea(mx - 1, my, px, py, hex('#9a6a3a')); R.linea(mx - 2, my, px + 1, py, hex('#6a4222')); R.pset(px, py, hex('#ffffff')); R.pset(px - 1, py, hex('#c8ffd0'));
+    if (t > snape - 0.05) for (let k = 0; k < 4; k++) { const v = (t * 2.2 + k / 4) % 1, an = k * 1.6 + t * 3, r = 1 + v * 5, qx = Math.round(px + Math.cos(an) * r), qy = Math.round(py + Math.sin(an) * r * 0.7); if (v < 0.75) { const c = hex(v < 0.3 ? '#e8ffe0' : '#6ae08a'); R.pset(qx, qy, c); if (v < 0.4) { R.pset(qx - 1, qy, c); R.pset(qx + 1, qy, c); R.pset(qx, qy - 1, c); R.pset(qx, qy + 1, c); } } }
+  }
+  T.exteriorDelante(R, t, { encuadre: 'pociones' });
+};
+const p3 = (t) => {
+  const g = T.hogwarts(R, t, { encuadre: 'aula' });
+  pizarra(t);
+  // Quirrell detrás de su mesa: tiembla, mira a un lado y a otro; en «nervous» da un salto
+  const tiem = Math.round(Math.sin(t * 40) * 0.6), sal = t > nerv && t < nerv + 0.5 ? Math.round(Math.sin((t - nerv) / 0.5 * Math.PI) * 6) : 0;
+  const qx = 153 + tiem, mira = Math.sin(t * 2.7) > 0 ? 1 : -1;
+  R.actor(EL.quirrell, qx, 130, t, { dir: mira, salto: sal, sorpresa: t > nerv - 0.1 && t < nerv + 1.4, habla: t > turb && t < nerv && Math.sin(t * 13) > 0, triste: t < turb });
+  // gotas de sudor
+  if (t > turb - 0.5) for (let k = 0; k < 2; k++) { const v = (t * 1.5 + k * 0.5) % 1, gx = qx + 1 + k * 13, gy = 102 + Math.round(v * 9); R.pset(gx, gy, hex('#ffffff')); R.pset(gx, gy + 1, hex('#8ad0ff')); R.pset(gx - 1, gy + 1, hex('#8ad0ff')); R.pset(gx + 1, gy + 1, hex('#5aa0e0')); R.pset(gx, gy + 2, hex('#5aa0e0')); }
+  if (t > nerv && t < nerv + 0.9) R.bocadillo(qx + 8, 96 - sal, { icono: '!' });
+  // los alumnos en los pupitres: Harry en la primera fila; se giran en «nervous»
+  const gira = t > nerv + 0.1;
+  for (const [d, x, y, dd] of [[EL.harry, 72, 136, 1], [EL.ron, 30, 136, 1], [EL.hermione, 228, 136, -1], [EL.neville, 270, 136, -1], [EL.alumna, 30, 172, 1], [EL.alumno, 270, 172, -1]]) R.actor(d, x, y, t, { dir: dd, sorpresa: gira && t < nerv + 1.3, sonrisa: gira && t > nerv + 1.3 && x === 30, habla: !gira && x === 270 && y === 136 && Math.sin(t * 6) > 0 });
+  T.hogwartsDelante(R, t, { encuadre: 'aula' });
+  // el libro que se cae del pupitre de Neville en «nervous»
+  // el libro que se cae del pupitre de Neville en «nervous»: cae, golpea el pupitre de abajo, rebota y se queda tumbado
+  const c = tramo(t, nerv - 0.3, nerv), rb = tramo(t, nerv, nerv + 0.32);
+  const ly = c < 1 ? Math.round(lerp(128, 164, c * c)) : 164 - Math.round(Math.sin(rb * Math.PI) * 5);
+  P.libro(R, Math.round(lerp(282, 295, c)), ly, {});
+  if (t > nerv && t < nerv + 0.5) { const v = (t - nerv) / 0.5; for (const d of [-1, 1]) for (let k = 0; k < 3; k++) R.pset(295 + d * Math.round(6 + v * 6 + k * 2), 163 - k - Math.round(v * 2), hex(k ? '#c8b8a0' : '#e8dcc8')); }
+};
+// la pizarra: los trazos de la derecha (la pluma entre dos flechas, que se leía como una letra) se borran con la tiza del
+// fondo y en su sitio va un caldero dibujado con tiza, con sus patas, el fuego y tres burbujas
+const pizarra = (t) => {
+  for (let y = 46; y <= 66; y++) for (let x = 175; x <= 197; x++) { const c = R.pget(x, y), l = (c & 255) + ((c >> 8) & 255) + ((c >> 16) & 255); if (l > 330) { let k = 1; while (k < 10) { const d = R.pget(x - k, y), ld = (d & 255) + ((d >> 8) & 255) + ((d >> 16) & 255); if (ld <= 330) break; k++; } R.pset(x, y, R.pget(x - k, y)); } }
+  const TZ = hex('#e6ece2'), TS = hex('#9aa69c'), cx = 186, cy = 58;
+  for (let a = 0; a <= 28; a++) { const an = -0.35 + a / 28 * (Math.PI + 0.7); R.pset(Math.round(cx + Math.cos(an) * 6), Math.round(cy + 1 + Math.sin(an) * 6), TZ); }
+  R.linea(cx - 6, cy - 1, cx + 6, cy - 1, TZ); R.pset(cx - 7, cy - 2, TZ); R.pset(cx + 7, cy - 2, TZ); R.linea(cx - 4, cy + 3, cx - 2, cy + 5, TS);
+  R.pset(cx - 4, cy + 8, TZ); R.pset(cx + 4, cy + 8, TZ);
+  for (const dx of [-3, 0, 3]) R.linea(cx + dx, cy + 10, cx + dx + 1, cy + 8, TS);
+  for (const [bx, by, r] of [[cx - 2, cy - 5, 1], [cx + 2, cy - 8, 1.5], [cx - 1, cy - 12, 1]]) for (let a = 0; a < 10; a++) { const an = a / 10 * Math.PI * 2; R.pset(Math.round(bx + Math.cos(an) * r), Math.round(by + Math.sin(an) * r), a & 1 ? TS : TZ); }
+};
+const efectos = [[0.3, 'publico'], [dumb, 'brillo'], [P2 + 0.2, 'burbujas'], [snape, 'golpecito'], [nerv - 0.05, 'chof'], [nerv + 0.05, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
