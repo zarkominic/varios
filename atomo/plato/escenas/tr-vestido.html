@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El vestido blanco · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-VESTIDO (frase 21), cartela «1840». Cinco planos:
+// 1. (cartela → «The white dress») la capilla real de St James's en 1840: el paje sube por la alfombra echando pétalos; en
+//    «weddings» las campanas, los invitados echan pétalos y entran Victoria y Alberto por el pasillo;
+// 2. («The white dress» → «until») la puerta de una iglesia de pueblo: salen las novias de otras épocas con su mejor
+//    vestido de color: la de azul (1400) en «The white dress», la de rojo (1600) en «Brides» y la de gris (1830) en «best
+//    dress»; en «whatever its color» cada una brilla en su color; los vecinos echan pétalos;
+// 3. («until» → «But») el altar: Victoria de blanco y Alberto llegan; él le pone el anillo en «married»; en «in white» el
+//    vestido brilla; en «penny post» el sello de un penique vuela con el viento tras el ventanal;
+// 4. («But» → «in Paris») Notre Dame en 1558 (la barra vuelve de 1840 a 1558): María Estuardo de blanco recorre el tablado
+//    hasta el delfín en «Mary Queen of Scots»; se dan la mano en «married in white»; la corte de blanco mira desde la nave;
+// 5. («in Paris» → fin) el tablado de cerca: los novios ante los reclinatorios; en «royal mourning» la corte de luto blanco
+//    inclina la cabeza y una dama se lleva el pañuelo a los ojos; la campana; al final los novios se miran.
+import * as T from '/atomo/plato/escenas/tr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tr-vestido');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P2 = en('vestido', 0.211), P3 = en('vestido', 0.430), P4 = en('vestido', 0.675), P5 = en('vestido', 0.878);
+const FIESTA = en('vestido', 0.073), BODAS = en('vestido', 0.172), NOVIAS = en('vestido', 0.304), MEJOR = en('vestido', 0.353), COLOR = en('vestido', 0.390);
+const CASO = en('vestido', 0.474), ALBERTO = en('vestido', 0.490), DEBLANCO = en('vestido', 0.523), PENIQUE = en('vestido', 0.629);
+const A1558 = en('vestido', 0.732), MARIA = en('vestido', 0.780), CASADA = en('vestido', 0.842), DEBLANCO2 = en('vestido', 0.867), BLANCO2 = en('vestido', 0.917), LUTO = en('vestido', 0.966);
+const K = T.C.k, PZ = T.PIEZAS_TR;
+const hs = (x, y, k = 0) => { let n = (x * 374761393 + y * 668265263 + k * 1274126177) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const aclara = (x, y, a, c) => R.pset(x, y, mez(R.pget(x, y), c, a));
+const umb = (x, y) => [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]][y & 3][x & 3] / 16;
+const degr = (y0, y1, x0, x1, st) => { for (let y = y0; y <= y1; y++) { const f = (y - y0) / Math.max(1, y1 - y0); let k = 0; while (k < st.length - 2 && f > st[k + 1][0]) k++;
+  const [f0, c0] = st[k], [f1, c1] = st[k + 1], u = Math.max(0, Math.min(1, (f - f0) / Math.max(1e-6, f1 - f0))); for (let x = x0; x <= x1; x++) R.pset(x, y, u > umb(x, y) ? c1 : c0); } };
+const BLANCO = hex('#f8f6f0'), OROL = hex('#fff0a0'), ORO = hex('#e8b830');
+// un pétalo que cae (dos píxeles, gira)
+const PET = ['#f8f6f0', '#f0b8c8', '#f6e0e8', '#e8c8d8'].map(hex);
+const petalo = (x, y, t, k, col) => { const g = Math.floor(t * 6 + k) % 2; R.pset(x, y, col ?? PET[k % 4]); R.pset(x + (g ? 1 : 0), y + (g ? 0 : 1), col ?? PET[(k + 1) % 4]); };
+const brillo = (x, y, t, k, c = BLANCO) => { const f = Math.floor(t * 8 + k) % 4; if (f === 3) return; const r = f === 1 ? 2 : 1; R.pset(x, y, c); for (let i = 1; i <= r; i++) { R.pset(x - i, y, c); R.pset(x + i, y, c); R.pset(x, y - i, c); R.pset(x, y + i, c); } };
+// copia un búfer de sprite pixel a pixel (pset respeta R.recorte)
+const pegaSprite = (b, sx0, sy0, w, h, dx, dy) => { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const c = b[(sy0 + j) * 320 + sx0 + i]; if (c) R.pset(dx + i, dy + j, c); } };
+let SELLO = null;
+
+// ── plano 1: la capilla real, 1840 ───────────────────────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  T.fiestas(R, t, { encuadre: 'capilla', camara: 'general' });
+  // el paje sube por la alfombra echando pétalos de su cesta; los pétalos quedan en el pasillo
+  const u = tramo(t, 1.5, BODAS - 0.5), py = Math.round(lerp(186, 128, u)), px = Math.round(lerp(150, 154, u));
+  for (let k = 0; k < 18; k++) { const uk = k / 18; if (uk > u) break; const yy = Math.round(lerp(186, 128, uk)) + 1, xx = Math.round(lerp(150, 154, uk)) + 4 + Math.round((hs(k, 1, 5) - 0.5) * 14); petalo(xx, yy, 0, k); }
+  // en «weddings» entran los novios por el pasillo (de espaldas a nosotros, hacia el altar)
+  const v = tramo(t, BODAS - 0.4, P2 + 0.3), nv = Math.round(lerp(200, 166, v));
+  if (u < 1 || t < BODAS) { const d = R.actor(EL.ninoKinder, px, py, t, { dir: Math.floor(t * 1.2) % 2 ? 1 : -1, anda: u > 0 && u < 1, sonrisa: true, sostiene: true });
+    const [hx, hy] = d.mano; R.rect(hx - 3, hy - 1, hx + 3, hy + 3, K); R.rect(hx - 2, hy, hx + 2, hy + 2, hex('#c8a060')); R.pset(hx - 1, hy - 1, PET[1]); R.pset(hx + 1, hy - 1, PET[0]);
+    if (u > 0 && u < 1) for (let k = 0; k < 3; k++) { const f = ((t * 2 + k / 3) % 1); petalo(hx + Math.round(Math.sin(f * 5 + k) * 4), Math.round(hy + f * 10), t, k); } }
+  else { const d = R.actor(EL.ninoKinder, 154, 128, t, { dir: -1, sonrisa: true, dedo: t > BODAS + 0.4 }); }
+  T.fiestasDelante(R, t, { encuadre: 'capilla', camara: 'general' });
+  if (v > 0) { R.actor(EL.albertoBoda, 165, nv, t, { dir: -1, anda: v < 1, sonrisa: true }); R.actor(EL.victoriaNovia, 145, nv + 1, t, { dir: 1, anda: v < 1, sonrisa: true }); }
+  // en «weddings», los invitados echan pétalos desde los bancos y suenan las campanas (las ondas bajo el ventanal)
+  if (t > BODAS) { for (let k = 0; k < 26; k++) { const b = BODAS + (k % 13) * 0.08, c = t - b; if (c < 0) continue; const lado = k < 13 ? -1 : 1, x0 = 160 + lado * (40 + (k % 5) * 12), f = (c * 0.7) % 1.4;
+      const x = Math.round(x0 - lado * f * 30 + Math.sin(c * 4 + k) * 3), y = Math.round(120 + f * 40 - Math.sin(f * 2.2) * 30); if (y < 178) petalo(x, y, t, k); }
+    const c = (t - BODAS) % 1.2; if (t < BODAS + 2.4) for (const r of [6 + c * 14, 12 + c * 14]) R.anillo(160, 64, Math.round(r), mez(OROL, hex('#c8a040'), c / 1.2), 2); }
+};
+
+// ── plano 2: la puerta de la iglesia del pueblo, novias de otras épocas ───────────────────────────────────────────
+const IG = { piedra: hex('#d8c8a4'), piedraL: hex('#ecdcb8'), piedraS: hex('#b0a07c'), piedraD: hex('#8a7a5a'), junta: hex('#a8987a'), teja: hex('#b85a3a'), tejaS: hex('#8a3a24'), tejaL: hex('#d87a54'),
+  cal: hex('#f0ead8'), calS: hex('#d4ccb4'), madera: hex('#6a4024'), maderaL: hex('#8a5a34'), maderaS: hex('#4a2a14'), hierba: hex('#6aa84a'), hierbaS: hex('#4a8a3a'), hierbaL: hex('#8ac85a'), adoq: hex('#a89a88'), adoqS: hex('#7a6e60'), adoqL: hex('#c8bcaa') };
+let FONDO_IG = null;
+const sillares = (x0, y0, x1, y1, k) => { for (let y = y0; y <= y1; y++) { const fila = Math.floor((y - y0) / 6), dy = (y - y0) % 6; for (let x = x0; x <= x1; x++) { const dx = (x - x0 + (fila % 2) * 7) % 14;
+  let c = dy === 5 || dx === 13 ? IG.junta : hs(Math.floor((x - x0 + (fila % 2) * 7) / 14), fila, k) < 0.3 ? IG.piedraL : hs(x, y, k) < 0.05 ? IG.piedraS : IG.piedra; if (dy === 0 && dx !== 13) c = mez(c, BLANCO, 0.2); R.pset(x, y, c); } } };
+const casa = (x0, x1, yT, yS, pared, k) => {
+  R.rect(x0, yT, x1, yS, K); for (let y = yT + 1; y < yS; y++) for (let x = x0 + 1; x < x1; x++) R.pset(x, y, hs(x, y, k) < 0.06 ? IG.calS : pared);
+  for (const xx of [x0 + 1, x1 - 4]) R.rect(xx, yT + 1, xx + 2, yS - 1, IG.maderaS); R.rect(x0 + 1, yT + 20, x1 - 1, yT + 22, IG.maderaS);
+  for (let j = 0; j < 14; j++) { const y = yT - 14 + j, a = x0 - 4 + (14 - j) * 0.2, b = x1 + 4 - (14 - j) * 0.2; for (let x = Math.round(a); x <= Math.round(b); x++) R.pset(x, y, j === 13 ? IG.tejaS : (x + Math.floor(y / 3) * 2) % 5 === 0 ? IG.tejaS : (y % 3 === 0 ? IG.tejaL : IG.teja)); }
+  R.linea(x0 - 4, yT - 1, x1 + 4, yT - 1, K);
+  const wx = Math.round((x0 + x1) / 2) - 6; R.rect(wx, yT + 6, wx + 12, yT + 17, K); R.rect(wx + 1, yT + 7, wx + 11, yT + 16, hex('#3a4a6a')); R.linea(wx + 6, yT + 7, wx + 6, yT + 16, IG.cal); R.linea(wx + 1, yT + 11, wx + 11, yT + 11, IG.cal);
+  R.rect(wx - 5, yT + 6, wx - 1, yT + 17, IG.hierbaS); R.rect(wx + 13, yT + 6, wx + 17, yT + 17, IG.hierbaS); R.rect(wx - 1, yT + 17, wx + 13, yT + 19, IG.madera);
+  for (let i = 0; i < 6; i++) R.pset(wx + i * 2, yT + 16, i % 2 ? hex('#e84a6a') : hex('#f0d040'));
+};
+const pintaIglesia = () => {
+  degr(0, 96, 0, 319, [[0, hex('#5a9ad8')], [0.5, hex('#8cc0ec')], [1, hex('#d8eef6')]]);
+  for (let x = 0; x < 320; x++) { const yA = Math.round(80 + Math.sin(x * 0.021) * 6 + Math.sin(x * 0.057 + 1) * 3); for (let y = yA; y < 130; y++) R.pset(x, y, y < yA + 2 ? hex('#9ab8a8') : ((x + y) % 2 ? hex('#7aa08a') : hex('#86aa94'))); }
+  for (let x = 0; x < 320; x++) { const yB = Math.round(98 + Math.sin(x * 0.034 + 2) * 4); for (let y = yB; y < 140; y++) R.pset(x, y, (Math.floor(x / 22) + Math.floor(y / 6)) % 2 ? IG.hierba : hex('#7ab85a')); R.pset(x, yB, IG.hierbaS); }
+  for (let k = 0; k < 14; k++) { const x = Math.round(hs(k, 2, 9) * 320), y = Math.round(94 + hs(k, 3, 9) * 6); R.disco(x, y, 3, hex('#4a7a4a')); R.disco(x - 1, y - 1, 2, hex('#5a9a5a')); }
+  casa(0, 50, 84, 140, IG.cal, 1); casa(244, 302, 86, 140, hex('#f0e0c0'), 2);
+  R.rect(254, 64, 262, 76, K); R.rect(255, 65, 261, 76, IG.piedraS); R.rect(253, 63, 263, 65, K);
+  // el árbol de la plaza
+  R.rect(228, 100, 233, 142, K); R.rect(229, 100, 232, 142, IG.maderaS); R.linea(230, 102, 230, 140, IG.madera);
+  for (let k = 0; k < 40; k++) { const a = hs(k, 1, 77) * 6.28, r = hs(k, 2, 77) * 18, x = Math.round(231 + Math.cos(a) * r), y = Math.round(88 + Math.sin(a) * r * 0.75); R.disco(x, y, 4, k < 14 ? hex('#3a7a3a') : k < 28 ? hex('#4a9a44') : hex('#6ab85a')); }
+  // la torre del campanario con su tejado y la tronera de la campana
+  sillares(64, 28, 102, 146, 3); R.rect(63, 28, 63, 146, K); R.rect(103, 28, 103, 146, K);
+  R.poligono([[60, 30], [83, 16], [106, 30]], K); R.poligono([[62, 29], [83, 18], [104, 29]], (x, y) => ((x + y) % 4 === 0 ? IG.tejaS : x < 83 ? IG.tejaL : IG.teja));
+  R.rect(73, 34, 93, 56, K); R.rect(74, 35, 92, 56, hex('#2a2018')); R.disco(83, 35, 10, K); R.disco(83, 36, 9, hex('#2a2018')); R.rect(72, 56, 94, 58, IG.piedraD);
+  R.rect(64, 60, 102, 61, IG.piedraD); for (let x = 74; x < 92; x += 4) R.rect(x, 96, x + 1, 104, K);
+  // la fachada de la iglesia: sillares, el hastial, el rosetón y la portada con arquivoltas
+  sillares(104, 52, 220, 146, 4);
+  for (let y = 26; y < 52; y++) { const a = Math.round(161 - (y - 26) * 2.3), b = Math.round(161 + (y - 26) * 2.3); for (let x = Math.max(104, a); x <= Math.min(220, b); x++) { const fila = Math.floor(y / 6); R.pset(x, y, y % 6 === 5 || (x + fila * 7) % 14 === 13 ? IG.junta : IG.piedra); } }
+  R.linea(100, 54, 161, 24, K); R.linea(161, 24, 222, 54, K); R.linea(101, 55, 161, 25, IG.piedraL); R.linea(161, 25, 221, 55, IG.piedraS); R.rect(104, 146, 220, 146, K); R.linea(104, 54, 104, 146, K); R.linea(220, 54, 220, 146, K);
+  R.disco(161, 64, 11, K); R.disco(161, 64, 10, IG.piedraD); R.disco(161, 64, 8, hex('#3a4a8a'));
+  for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; R.linea(161, 64, Math.round(161 + Math.cos(a) * 8), Math.round(64 + Math.sin(a) * 8), IG.piedraD); R.pset(Math.round(161 + Math.cos(a + 0.4) * 5), Math.round(64 + Math.sin(a + 0.4) * 5), [hex('#d84a4a'), hex('#f0c040'), hex('#4ab84a'), hex('#4a8ad8')][k % 4]); }
+  R.disco(161, 64, 2, hex('#f0c040'));
+  for (const xw of [118, 198]) { R.rect(xw, 84, xw + 7, 104, K); R.rect(xw + 1, 87, xw + 6, 104, hex('#3a4a6a')); R.disco(xw + 3, 87, 3, K); R.disco(xw + 3, 87, 2, hex('#3a4a6a')); R.pset(xw + 2, 90, hex('#8aa0c8')); }
+  for (let r = 25; r >= 20; r--) R.disco(160, 106, r, r % 2 ? IG.piedraL : IG.piedraS); R.disco(160, 106, 26, K); for (let r = 25; r >= 20; r--) R.disco(160, 106, r, r % 2 ? IG.piedraL : IG.piedraS);
+  R.rect(134, 106, 186, 146, IG.piedra); for (let y = 106; y < 146; y += 2) { R.pset(135, y, IG.piedraS); R.pset(185, y, IG.piedraS); }
+  for (let k = 0; k < 15; k++) { const a = Math.PI + k / 14 * Math.PI, x = Math.round(160 + Math.cos(a) * 27), y = Math.round(106 + Math.sin(a) * 27); R.disco(x, y, 2, [hex('#e84a6a'), hex('#f0d040'), BLANCO, hex('#f09ab8')][k % 4]); R.pset(x, y + 2, IG.hierbaS); }
+  // las gradas, el banco, las macetas, el pozo y el empedrado de la plaza
+  for (const [a, b, y0, y1] of [[126, 194, 146, 151], [118, 202, 151, 156], [110, 210, 156, 161]]) { R.rect(a, y0, b, y1, K); R.rect(a + 1, y0 + 1, b - 1, y1 - 1, IG.piedra); R.rect(a + 1, y0 + 1, b - 1, y0 + 1, IG.piedraL); }
+  for (let y = 140; y < 180; y++) for (let x = 0; x < 320; x++) { if (y < 161 && x > 108 && x < 212) continue; if (y < 142 && (x < 104 || x > 220) && y < 140) continue;
+    const fila = Math.floor(y / 5), dx = (x + (fila % 2) * 4) % 8, dy = y % 5; R.pset(x, y, dx === 7 || dy === 4 ? IG.adoqS : hs(Math.floor((x + (fila % 2) * 4) / 8), fila, 5) < 0.3 ? IG.adoqL : IG.adoq); }
+  for (let x = 0; x < 320; x++) { if (x > 104 && x < 220) continue; R.pset(x, 140, IG.hierbaS); R.pset(x, 139, x % 3 ? IG.hierba : hex('#f0d040')); }
+  R.rect(18, 150, 50, 152, K); R.rect(19, 151, 49, 151, IG.maderaL); R.rect(20, 153, 22, 160, IG.maderaS); R.rect(46, 153, 48, 160, IG.maderaS); R.rect(18, 142, 50, 144, IG.madera);
+  for (const xm of [116, 200]) { R.rect(xm, 140, xm + 8, 151, K); R.rect(xm + 1, 141, xm + 7, 150, IG.teja); for (let k = 0; k < 5; k++) R.disco(xm + 1 + k * 2, 137 - (k % 2) * 2, 2, k % 2 ? hex('#e84a6a') : hex('#f0d040')); R.linea(xm + 4, 140, xm + 4, 134, IG.hierbaS); }
+  R.disco(276, 156, 14, K); R.rect(262, 150, 290, 166, K); R.rect(263, 151, 289, 165, IG.piedra); R.rect(263, 151, 289, 152, IG.piedraL); for (let x = 264; x < 289; x += 7) R.rect(x, 153, x, 165, IG.junta);
+  R.rect(263, 126, 265, 150, IG.maderaS); R.rect(287, 126, 289, 150, IG.maderaS); R.poligono([[258, 128], [276, 116], [294, 128]], K); R.poligono([[260, 127], [276, 118], [292, 127]], IG.teja); R.linea(264, 134, 288, 134, IG.madera);
+};
+const p2 = (t) => {
+  if (!FONDO_IG) { FONDO_IG = R.nuevo(); const prev = R.usar(FONDO_IG); pintaIglesia(); R.usar(prev); }
+  R.copiar(FONDO_IG);
+  // las nubes de tres tonos y las golondrinas; el humo de la chimenea
+  for (const [x0, y, w, v] of [[10, 34, 40, 3], [150, 22, 30, 5], [260, 46, 34, 2], [90, 58, 24, 7]]) { const x = ((x0 + t * v) % 380) - 30; if (Math.abs(x - 298) < 30 && y < 48) continue; R.nube(Math.round(x), y, w); }
+  for (let k = 0; k < 4; k++) R.gaviota(Math.round(((t * (20 + k * 4) + k * 70) % 360) - 20), 30 + k * 7 + Math.round(Math.sin(t * 2 + k) * 3), t, k);
+  for (let k = 0; k < 5; k++) { const u = (t * 0.35 + k / 5) % 1; R.disco(Math.round(258 + u * 8 + Math.sin(u * 6) * 2), Math.round(60 - u * 28), u < 0.5 ? 2 : 3, u < 0.5 ? hex('#d8d8e0') : hex('#e8e8f0')); }
+  // la campana que tañe
+  { const a = Math.sin(t * 5) * (t > NOVIAS - 0.2 ? 0.5 : 0.12); R.poligono([[83 + Math.round(Math.sin(a) * 2) - 6, 52], [83 + Math.round(Math.sin(a) * 6) - 4, 40], [83 + Math.round(Math.sin(a) * 6) + 4, 40], [83 + Math.round(Math.sin(a) * 2) + 6, 52]], ORO);
+    R.linea(77, 52, 89, 52, hex('#a87a18')); R.pset(83 + Math.round(Math.sin(a) * 9), 54, K); }
+  // la puerta: dos hojas de madera que se abren
+  const ab = tramo(t, P2 + 0.2, P2 + 0.7);
+  R.rect(140, 106, 180, 146, hex('#1e1612')); for (let k = 0; k < 4; k++) { R.disco(150 + k * 7, 118, 1, hex('#f0c060')); }
+  R.recorte([140, 82, 180, 146]); R.disco(160, 106, 20, hex('#1e1612')); R.recorte(null);
+  for (const lado of [-1, 1]) { const w = Math.round(20 * (1 - ab * 0.8)), xa = lado < 0 ? 140 : 180 - w, xb = lado < 0 ? 140 + w : 180;
+    for (let y = 87; y <= 146; y++) for (let x = xa; x <= xb; x++) { if (Math.hypot(x - 160, y - 106) > 20 && y < 106) continue; R.pset(x, y, (x - xa) % 5 === 0 ? IG.maderaS : IG.madera); }
+    for (const yy of [100, 130]) R.linea(xa, yy, xb, yy, K); }
+  // las tres novias que salen por la puerta, cada una en su año, y bajan a la plaza
+  const novias = [[EL.noviaAzul, P2 + 0.45, 84, 166], [EL.noviaRoja, NOVIAS, 148, 172], [EL.noviaGris, MEJOR, 212, 166]];
+  const vivas = novias.map(([d, b, xf, sf], k) => { const u = tramo(t, b, b + 1.1); if (t < b) return null; return { d, k, x: Math.round(lerp(153, xf, u)), s: Math.round(lerp(146, sf, Math.min(1, u * 1.4))), anda: u < 1, b }; }).filter(Boolean).sort((a, b) => a.s - b.s);
+  // los vecinos que echan pétalos y los niños
+  R.actor(EL.labriego, 26, 168, t, { dir: 1, dedo: Math.sin(t * 5) > 0.3, sonrisa: true });
+  R.actor(EL.labriega, 280, 170, t, { dir: -1, dedo: Math.sin(t * 5 + 1) > 0.3, sonrisa: true });
+  { const u = tramo(t, P2 + 1.2, P3 - 0.2), x = Math.round(lerp(330, 236, u)); R.actor(EL.ninaCampo, x, 176, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: true, brazos: u >= 1 && Math.sin(t * 6) > 0 }); }
+  for (const v of vivas) { R.actor(v.d, v.x, v.s, t, { dir: v.anda ? (v.x < 153 ? -1 : 1) : v.k === 0 ? 1 : v.k === 2 ? -1 : (Math.floor(t) % 2 ? 1 : -1), anda: v.anda, sonrisa: !v.anda || t > COLOR });
+    if (t > COLOR - 0.1 && t < P3) { const c = [hex('#5a8ae8'), hex('#e83a4a'), hex('#a8a8b8')][v.k]; for (let i = 0; i < 6; i++) { const a = i * 1.047 + t * 3; brillo(Math.round(v.x + 7 + Math.cos(a) * 12), Math.round(v.s - 14 + Math.sin(a) * 13), t, i, c); } } }
+  // las palomas de la plaza, que se espantan cuando sale la primera novia
+  for (let k = 0; k < 3; k++) { const vuela = tramo(t, P2 + 0.8 + k * 0.1, P2 + 2.4); const x = Math.round(60 + k * 14 + vuela * 90), y = Math.round(172 - vuela * 120 - (vuela ? 0 : Math.abs(Math.sin(t * 4 + k)) * 1));
+    if (y > -4) { R.rect(x - 2, y - 2, x + 2, y, hex('#8a8a98')); R.pset(x + 3, y - 3, hex('#6a6a78')); R.pset(x + 4, y - 3, hex('#e8a040')); if (vuela > 0) { const a = Math.sin(t * 20 + k) > 0; R.linea(x - 1, y - 2, x - 3, y - (a ? 6 : 1), hex('#c8c8d0')); } } }
+  // pétalos que vuelan hacia las novias
+  for (let k = 0; k < 16; k++) { const f = (t * 0.6 + k / 16) % 1, lado = k % 2 ? 1 : -1, x0 = lado < 0 ? 40 : 282, x1 = 150 + Math.sin(k) * 50;
+    const x = Math.round(lerp(x0, x1, f)), y = Math.round(150 - Math.sin(f * Math.PI) * 40 + f * 14); petalo(x, y, t, k); }
+};
+
+// ── plano 3: el altar, Victoria y Alberto ─────────────────────────────────────────────────────────────────────────
+const p3 = (t) => {
+  T.fiestas(R, t, { encuadre: 'capilla', camara: 'altar' });
+  // tras el ventanal: palomas y, en «penny post», el sello de un penique que vuela con el viento (recortado al hueco)
+  if (!SELLO) { SELLO = R.nuevo(); const prev = R.usar(SELLO); PZ.sello(R, 14, 36, { s: 1 }); R.usar(prev); }
+  R.recorte([119, 19, 201, 65]);
+  for (let k = 0; k < 2; k++) { const x = Math.round(((t * 16 + k * 50) % 120) + 100), y = 30 + k * 12 + Math.round(Math.sin(t * 2 + k) * 2), a = Math.sin(t * 10 + k) > 0; R.disco(x, y, 2, BLANCO); R.linea(x - 1, y, x - 4, y - (a ? 4 : -1), BLANCO); R.linea(x + 1, y, x + 3, y - (a ? 4 : -1), hex('#d8d8e0')); }
+  R.recorte(null);
+  { const u = tramo(t, PENIQUE - 1.0, PENIQUE + 1.1); if (u > 0 && u < 1) { const x = Math.round(lerp(112, 210, u)), y = Math.round(20 + Math.sin(u * 8) * 2);
+    R.recorte([119, 19, 201, 36]); pegaSprite(SELLO, 7, 19, 14, 18, x - 7, y);
+    const a = Math.sin(t * 12) > 0; R.disco(x + 12, y + 4, 2, BLANCO); R.linea(x + 11, y + 3, x + 8, y - (a ? 2 : -4) + 3, BLANCO); R.linea(x + 13, y + 3, x + 16, y - (a ? 2 : -4) + 3, hex('#d8d8e0')); R.pset(x + 14, y + 4, hex('#e8a040')); R.linea(x + 10, y + 5, x + 6, y + 3, hex('#c8a040'));
+    R.recorte(null); } }
+  // los novios llegan desde la izquierda; él le pone el anillo en «married»; en «in white» el vestido brilla
+  const u = tramo(t, P3 + 0.05, CASO - 0.15), xa = Math.round(lerp(-20, 168, u)), xv = Math.round(lerp(-40, 138, u));
+  const anillo = t > CASO && t < DEBLANCO + 0.2;
+  R.actor(EL.victoriaNovia, xv, 160, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: true, sorpresa: t > CASO + 0.3 && t < ALBERTO + 0.2 });
+  for (const [dx, k] of [[-22, 0], [-38, 1]]) { const xd = Math.round(lerp(-60 - k * 16, 138 + dx, u)); R.actor(EL.ninaKinder, xd, 160, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: true, pal: { C: hex('#f8f6f0'), c: hex('#d8d4cc') } }); }
+  const al = R.actor(EL.albertoBoda, xa, 160, t, { dir: u < 1 ? 1 : -1, anda: u > 0 && u < 1, sonrisa: true, sostiene: anillo ? [158, 140] : undefined });
+  if (anillo) { const [hx, hy] = al.mano; R.disco(hx - 1, hy - 3, 2, K); R.disco(hx - 1, hy - 3, 1, ORO); R.pset(hx - 1, hy - 3, K); }
+  if (t > DEBLANCO - 0.1) { const g = Math.min(1, (t - DEBLANCO + 0.1) / 0.5); for (let y = 122; y < 162; y++) for (let x = 128; x < 160; x++) if ((x + y) % 2 === 0 && Math.hypot((x - 145) / 16, (y - 145) / 22) < 1) aclara(x, y, 0.22 * g, hex('#fffaf0'));
+    for (let k = 0; k < 6; k++) brillo(Math.round(140 + hs(k, 1, 2) * 14), Math.round(130 + hs(k, 2, 2) * 26), t, k, BLANCO); }
+  T.fiestasDelante(R, t, { encuadre: 'capilla', camara: 'altar' });
+  // pétalos blancos que caen despacio
+  for (let k = 0; k < 14; k++) { const f = (t * 0.12 + k / 14) % 1, x = Math.round(80 + (k * 37) % 170 + Math.sin(t * 1.5 + k) * 6), y = Math.round(f * 170); if (x > 270 && y < 48) continue; petalo(x, y, t, k); }
+};
+
+// ── plano 4: Notre Dame, 1558 ─────────────────────────────────────────────────────────────────────────────────────
+const p4 = (t) => {
+  T.fiestas(R, t, { encuadre: 'paris1558', camara: 'general' });
+  // la corte de blanco en la nave: miran hacia el tablado, una dama se abanica
+  R.actor(EL.damaBlanca, 32, 168, t, { dir: 1, sorpresa: t > MARIA && t < MARIA + 0.6 });
+  R.actor(EL.cortesano, 56, 168, t, { dir: 1, dedo: t > MARIA - 0.2 && t < MARIA + 1 });
+  R.actor(EL.damaBlanca, 80, 168, t, { dir: 1, pal: { H: hex('#8a5a2a'), h: hex('#a87038') }, sonrisa: t > CASADA });
+  // el delfín espera bajo el dosel; María Estuardo cruza el tablado de blanco hasta él y se dan la mano
+  const u = tramo(t, MARIA - 0.9, MARIA + 0.9), xm = Math.round(lerp(270, 214, u)), mano = t > CASADA - 0.1;
+  R.actor(EL.cortesano, 190, 126, t, { dir: 1, pal: { J: hex('#f8f6f0'), C: hex('#f8f6f0') }, sonrisa: t > MARIA + 0.5, sostiene: mano ? [206, 112] : undefined });
+  R.actor(EL.mariaEstuardo, xm, 126, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: u >= 1, sostiene: mano ? [206, 112] : undefined });
+  if (mano) { const g = Math.min(1, (t - CASADA) / 0.5); for (let k = 0; k < 5; k++) brillo(Math.round(206 + Math.cos(k * 1.25 + t) * 10 * g), Math.round(108 + Math.sin(k * 1.25 + t) * 8 * g), t, k, OROL); }
+  T.fiestasDelante(R, t, { encuadre: 'paris1558', camara: 'general' });
+};
+
+// ── plano 5: el tablado de cerca, el luto blanco ──────────────────────────────────────────────────────────────────
+const p5 = (t) => {
+  T.fiestas(R, t, { encuadre: 'paris1558', camara: 'nave' });
+  const inclina = t > LUTO - 0.15 && t < LUTO + 2.4;
+  // en «where white», bajan del dosel los paños blancos del luto y entra un rayo de luz
+  { const g = tramo(t, BLANCO2 - 0.3, BLANCO2 + 1.2), yb = Math.round(56 + g * 70); if (g > 0) for (const x0 of [87, 220]) { for (let y = 56; y <= yb; y++) { const o = Math.round(Math.sin(y * 0.15 + t * 1.5) * 1.5); R.pset(x0 - 1 + o, y, K); R.pset(x0 + 13 + o, y, K);
+      for (let x = x0; x <= x0 + 12; x++) R.pset(x + o, y, (x - x0) % 4 === 0 ? hex('#d8d4cc') : x - x0 > 9 ? hex('#e4e0d8') : BLANCO); } R.linea(x0 - 1, yb, x0 + 13, yb, K); for (let x = x0; x <= x0 + 12; x += 3) R.pset(x, yb + 1, OROL); } }
+  if (t > BLANCO2) { const g = Math.min(1, (t - BLANCO2) / 0.8); for (let y = 0; y < 142; y++) for (let x = 0; x < 320; x++) { const d = Math.abs(x - 60 - y * 0.75); if (d < 22 && (x + y) % 2 === 0) aclara(x, y, 0.28 * g * (1 - d / 22), hex('#fffaf0')); } }
+  // la corte de luto blanco a los lados del tablado
+  R.actor(EL.damaBlanca, 66, 142, t, { dir: 1, triste: inclina, salto: inclina ? -1 : 0 });
+  const dp = R.actor(EL.damaBlanca, 88, 142, t, { dir: 1, pal: { H: hex('#8a5a2a'), h: hex('#a87038') }, triste: inclina, salto: inclina ? -1 : 0, sostiene: inclina ? [96, 126] : undefined });
+  if (inclina) { const [hx, hy] = dp.mano; R.rect(hx - 3, hy - 3, hx + 2, hy + 2, K); R.rect(hx - 2, hy - 2, hx + 1, hy + 1, BLANCO); R.pset(hx + 1, hy + 2, BLANCO); }
+  R.actor(EL.cortesano, 222, 142, t, { dir: -1, triste: inclina, salto: inclina ? -1 : 0 });
+  R.actor(EL.damaBlanca, 244, 142, t, { dir: -1, pal: { H: hex('#3a2a1c'), h: hex('#5a4030') }, triste: inclina, salto: inclina ? -1 : 0, habla: t > BLANCO2 && t < LUTO - 0.3 && Math.sin(t * 7) > 0 });
+  // los novios ante los reclinatorios: se dan la mano; al final se miran y sonríen
+  const juntos = t > P5 + 0.4 && t < LUTO + 2.6;
+  R.actor(EL.mariaEstuardo, 138, 142, t, { dir: 1, sonrisa: !inclina, sostiene: juntos ? [158, 128] : undefined });
+  R.actor(EL.cortesano, 170, 142, t, { dir: -1, pal: { J: hex('#f8f6f0'), C: hex('#f8f6f0') }, sonrisa: !inclina, sostiene: juntos ? [160, 128] : undefined });
+  T.fiestasDelante(R, t, { encuadre: 'paris1558', camara: 'nave' });
+};
+
+const año = (t) => t < P2 ? 1840 : t < P3 ? (t < NOVIAS ? 1400 : t < MEJOR ? 1600 : 1830) : t < P4 ? 1840 : t < P5 ? Math.round(lerp(1840, 1558, tramo(t, P4 + 0.05, A1558))) : 1558;
+const efectos = [[BODAS, 'campana'], [P2 + 0.2, 'puerta'], [COLOR, 'brillo'], [ALBERTO, 'brillo'], [PENIQUE - 0.3, 'whoosh'], [A1558 - 0.7, 'whoosh'], [CASADA, 'campana'], [LUTO, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '1840', efectos, año });
+</script>
+</body>
+</html>

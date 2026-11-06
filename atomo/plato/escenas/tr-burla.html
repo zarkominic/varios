@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La burla · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-BURLA (frase 4), sin cartela. Cuatro planos:
+// 1. el salón burgués de Madrid de 1894: el caballero lee el periódico (en «newspaper») y la señora coge una uva del
+//    frutero; en «France» brindan con champán a la francesa;
+// 2. en «and some believe»: la calle de abajo de noche: en el balcón la familia brinda en silueta; abajo, el chulapo y la
+//    chulapa los imitan de broma: copa invisible con el meñique y reverencia (en «mocking»), uvas a dos carrillos;
+// 3. en «Most likely»: el viñedo de Alicante en la vendimia de 1909: el viticultor baja por el camino y levanta un racimo
+//    enorme en «both things happened»; la labriega y la niña llenan las cestas;
+// 4. en «and the grape surplus»: el almacén: las cajas se apilan hasta el techo, el viticultor estampa «1909» en una caja
+//    y el labriego sale con la carretilla cargada por la puerta en «spread it across the country».
+import * as T from '/atomo/plato/escenas/tr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tr-burla');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const b = (f) => en('burla', f), K = T.C.k;
+const P2 = b(0.2675), P3 = b(0.4961), P4 = b(0.7704);
+// 1 · el salón burgués
+const lee = b(0.0961), coge = b(0.0229), brindis = b(0.2249);
+const p1 = (t) => {
+  const o = { encuadre: 'casa1890' };
+  T.anuevo(R, t, o);
+  // delante del balcón: él lee el periódico (en «newspaper») y ella se come las uvas a la francesa; en «France», brindan
+  const brinda = t > brindis - 0.4 && t < brindis + 0.9, choca = t > brindis - 0.1 && t < brindis + 0.3;
+  const a = R.actor(EL.burgues, 222, 162, t, { dir: 1, sostiene: brinda ? [244 - (choca ? 0 : 3), 136] : t > lee - 0.3 ? [240, 146] : [238, 150], sonrisa: brinda, habla: t > lee + 0.8 && t < brindis - 0.5 && Math.sin(t * 7) > 0 });
+  if (brinda) T.PIEZAS_TR.copa(R, a.mano[0], a.mano[1] + 6);
+  else if (t > lee - 0.3) T.PIEZAS_TR.periodico(R, a.mano[0] + 4, a.mano[1] + 10, { anio: 1894 });
+  else T.PIEZAS_TR.copa(R, a.mano[0], a.mano[1] + 6);
+  const come = t > coge + 0.3 && t < lee + 1.2 && Math.sin((t - coge) * 5) > 0.3;
+  const c = R.actor(EL.senoraMantilla, 262, 162, t, { dir: -1, sostiene: brinda ? [250 + (choca ? 0 : 3), 136] : come ? [254, 145] : [251, 151], sonrisa: t > lee + 1.2 || brinda, habla: t > lee + 1.4 && t < brindis - 0.5 && Math.sin(t * 6) > 0 });
+  if (brinda) T.PIEZAS_TR.copa(R, c.mano[0], c.mano[1] + 6);
+  else T.PIEZAS_TR.racimo(R, c.mano[0], c.mano[1] + 15, { color: 'verde', hueco: t > coge + 1 });
+  // el criado entra por la izquierda con la bandeja de copas
+  const w = tramo(t, 0.4, 3.4), sx = Math.round(lerp(-20, 70, w));
+  const s = R.actor(EL.chulapo, sx, 162, t, { dir: 1, anda: w > 0 && w < 1, sostiene: [sx + 20, 140], sonrisa: w >= 1, pal: { C: '#2a2a32', c: '#1a1a22' } });
+  R.rect(s.mano[0] - 4, s.mano[1] - 1, s.mano[0] + 8, s.mano[1], K); R.rect(s.mano[0] - 3, s.mano[1] - 1, s.mano[0] + 7, s.mano[1] - 1, hex('#d8d8e0'));
+  T.PIEZAS_TR.copa(R, s.mano[0], s.mano[1] - 2); T.PIEZAS_TR.copa(R, s.mano[0] + 5, s.mano[1] - 2);
+  T.anuevoDelante(R, t, o);
+  if (t > brindis && t < brindis + 0.5) for (let k = 0; k < 6; k++) { const an = k * 1.05, r = 4 + (t - brindis) * 20; R.pset(Math.round(247 + Math.cos(an) * r), Math.round(126 + Math.sin(an) * r), hex('#fff0a0')); }
+};
+// 2 · la calle de abajo: la burla
+const burla = b(0.3714), ricos = b(0.4047), copian = b(0.4483);
+const p2 = (t) => {
+  const o = { encuadre: 'casa1890', camara: 'calle' };
+  T.anuevo(R, t, o);
+  const rev = t > burla && t < burla + 0.8;
+  // el chulapo levanta un racimo como si fuera una copa de champán, hacia el balcón, y hace la reverencia
+  const a = R.actor(EL.chulapo, 116, 164, t, { dir: 1, sostiene: rev ? undefined : [132, 132 + Math.round(Math.sin(t * 4))], brazos: rev, salto: rev ? Math.round(Math.abs(Math.sin((t - burla) * 8)) * 3) : 0, sonrisa: true, habla: t < burla && Math.sin(t * 8) > 0 });
+  if (!rev) T.PIEZAS_TR.racimo(R, a.mano[0] + 1, a.mano[1] + 16);
+  const ch = R.actor(EL.chulapa, 152, 164, t, { dir: -1, sonrisa: true, sostiene: t > copian ? [146, 140] : [144, 148], habla: t > ricos && t < copian && Math.sin(t * 9) > 0 });
+  if (t < copian + 0.3) { const [mx, my] = ch.mano; R.rect(mx - 2, my + 1, mx + 2, my + 6, K); R.rect(mx - 1, my + 2, mx + 1, my + 5, hex('#6a2a7a')); R.pset(mx - 1, my + 2, hex('#b07ac8')); }
+  // los mofletes llenos de uvas
+  if (t > copian + 0.3) { R.pset(146, 164 - 17, hex('#f0a0a0')); R.pset(147, 164 - 16, hex('#f0a0a0')); }
+  // un pilluelo que se ríe y se va corriendo
+  const n = tramo(t, copian, copian + 1.6); R.actor(EL.ninoCampo, Math.round(lerp(196, 260, n)), 164, t, { dir: n > 0 ? 1 : -1, anda: n > 0 && n < 1, sonrisa: true });
+};
+// 3 · el viñedo de Alicante en 1909
+const ambas = b(0.5257), nace = b(0.6390);
+const p3 = (t) => {
+  const o = { encuadre: 'vinedo' };
+  T.anuevo(R, t, o);
+  const w = tramo(t, P3, ambas - 0.2), vx = Math.round(lerp(126, 150, w)), arriba = t > ambas - 0.2 && t < nace + 0.6;
+  const a = R.actor(EL.viticultor, vx, 160, t, { dir: 1, anda: w > 0 && w < 1, sostiene: arriba ? [vx + 18, 128] : [vx + 18, 146], sonrisa: arriba });
+  T.PIEZAS_TR.racimo(R, a.mano[0] + 1, a.mano[1] + 16);
+  R.actor(EL.labriega, 182, 160, t, { dir: -1, sostiene: Math.sin(t * 3) > 0 ? [176, 148] : [174, 154], sonrisa: t > nace });
+  const n = tramo(t, nace, nace + 1.4); R.actor(EL.ninaCampo, Math.round(lerp(96, 120, n)), 162, t, { dir: 1, anda: n > 0 && n < 1, sonrisa: true });
+  T.anuevoDelante(R, t, o);
+  if (arriba && t < ambas + 0.4) for (let k = 0; k < 6; k++) { const an = k * 1.05, r = 6 + (t - ambas + 0.2) * 24; R.pset(Math.round(a.mano[0] + Math.cos(an) * r), Math.round(a.mano[1] + 6 + Math.sin(an) * r), hex('#fff0a0')); }
+};
+// 4 · el almacén: las cajas que sobran
+const caja = (x, y, n = 1) => {
+  R.rect(x, y, x + 15, y + 9, K); R.rect(x + 1, y + 3, x + 14, y + 8, hex('#c8965a'));
+  R.rect(x + 1, y + 5, x + 14, y + 5, hex('#8a5a2a')); R.rect(x + 1, y + 8, x + 14, y + 8, hex('#8a5a2a'));
+  for (let i = 1; i <= 14; i += 2) { const c = (i + n) % 5 === 0 ? hex('#b07ac8') : (i + n) % 3 ? hex('#6a2a7a') : hex('#3e1450'); R.rect(x + i, y + 1, x + i + 1, y + 2, c); }
+};
+const sobra = b(0.8120), sello = b(0.8551), lleva = b(0.9055);
+const p4 = (t) => {
+  const o = { encuadre: 'vinedo', camara: 'cajas' };
+  T.anuevo(R, t, o);
+  // la pila que crece
+  const n = Math.min(9, 2 + Math.floor(tramo(t, P4 + 0.2, sello) * 7));
+  const PILA = [[110, 152], [126, 152], [142, 152], [118, 142], [134, 142], [150, 152], [126, 132], [142, 142], [134, 122]];
+  PILA.slice(0, n).forEach(([x, y], i) => caja(x, y, i));
+  // el viticultor estampa la caja
+  const sel = t > sello - 0.25 && t < sello + 0.25;
+  R.actor(EL.viticultor, 170, 162, t, { dir: -1, sostiene: sel ? [158, 148] : [160, 140], dedo: t > sello + 0.6, sonrisa: t > sello });
+  if (t > sello) { const e = tramo(t, sello, sello + 0.25); R.numero('1909', 140, 112 - Math.round((1 - e) * 4), { tam: 16, centro: true }); }
+  if (t > sello && t < sello + 0.4) R.icono('!', 160, 116, hex('#ffe08a'), K, 2);
+  // el labriego se lleva la carretilla cargada por la puerta
+  const w = tramo(t, lleva - 0.3, E.duracion - 0.3), lx = Math.round(lerp(240, 30, w));
+  R.actor(EL.labriego, lx, 162, t, { dir: -1, anda: w > 0 && w < 1, sostiene: [lx - 8, 150] });
+  R.rect(lx - 30, 146, lx - 8, 154, K); R.rect(lx - 29, 147, lx - 9, 153, hex('#8a5a2a')); caja(lx - 28, 138, 3); caja(lx - 26, 130, 5);
+  R.disco(lx - 26, 157, 4, K); R.disco(lx - 26, 157, 3, hex('#5a3a1a'));
+  T.anuevoDelante(R, t, o);
+};
+const efectos = [[b(0.0961), 'papel'], [brindis, 'brillo'], [burla, 'boing'], [copian + 0.3, 'masca'], [ambas, 'brillo'], [sobra, 'golpecito'], [sello, 'sello'], [lleva, 'carro']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => t < P3 ? 1894 : 1909 });
+</script>
+</body>
+</html>

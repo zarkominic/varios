@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-HOLA (frase 3), sin cartela. Un plano: la pared de la ventana grande a medianoche; los chicos saludan a Atom en «I'm
+// Atom»; el chico explica con el dedo; en «Let's find out» la uva con ojos salta de la mesa y se esconde detrás del
+// calendario de la pared, y asoma los ojos.
+import * as T from '/atomo/plato/escenas/tr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tr-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (f) => en('hola', f), K = T.C.k;
+const atom = h(0.0349), explica = h(0.218), vamos = h(0.80);
+const p1 = (t) => {
+  const o = { encuadre: 'medianoche', confeti: 0.6 };
+  T.hoy(R, t, o);
+  // el calendario de pared, entre la ventana y el reloj
+  T.PIEZAS_TR.calendario(R, 218, 66, { mes: 12, s: 1 });
+  R.linea(218, 42, 218, 44, K);
+  R.actor(EL.chicaHoy, 128, 146, t, { dir: 1, brazos: t > atom && t < atom + 1.4, sonrisa: true, habla: t > explica + 1.4 && t < vamos && Math.sin(t * 7) > 0.2 });
+  R.actor(EL.chicoHoy, 170, 146, t, { dir: 1, dedo: t > atom && t < vamos, sonrisa: t > vamos, habla: t > explica && t < explica + 1.4 && Math.sin(t * 8) > 0 });
+  const pa = R.actor(EL.padre62, 62, 146, t, { dir: 1, sonrisa: true, sostiene: t > atom && t < atom + 2 ? [80, 112] : [78, 124] }); T.PIEZAS_TR.copa(R, pa.mano[0], pa.mano[1] + 4);
+  T.hoyDelante(R, t, o);
+  // la uva: corretea por la mesa, salta a la pared y se esconde detrás del calendario
+  const a = tramo(t, 0.3, vamos), b = tramo(t, vamos, vamos + 0.6);
+  if (b < 1) { const x = b > 0 ? lerp(200, 218, b) : lerp(110, 200, a), y = b > 0 ? lerp(146, 62, b) - Math.sin(b * Math.PI) * 16 : 146; T.uva(R, Math.round(x), Math.round(y), t, { cara: b > 0 ? 'susto' : 'normal', corre: (a > 0 && a < 1) || b > 0 }); }
+  else { // asoma los ojos por el borde del calendario
+    const s = Math.sin((t - vamos) * 3) > 0 ? 1 : 0; R.rect(229, 50 - s, 231, 52 - s, hex('#6a2a7a')); R.pset(229, 50 - s, hex('#f2f2f2')); R.pset(230, 51 - s, K);
+  }
+  T.PIEZAS_TR.calendario(R, 218, 66, { mes: 12, s: 1 });
+};
+T.rodar(E, R, [[0, p1]], { efectos: [[atom, 'brillo'], [vamos + 0.3, 'boing']], año: 2026 });
+</script>
+</body>
+</html>

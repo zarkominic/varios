@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las hermanas Hill · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-HILL (frase 19), cartela 1893; tres planos:
+// 1. «In 1893, two sisters from Kentucky» (1893): el kínder de Louisville; Mildred toca el piano y suben las notas;
+//    Patty entra hasta el círculo, da palmas en «1893» y en «two sisters» señala a su hermana, que se vuelve y sonríe;
+// 2. «Mildred and Patti Hill»: el piano de cerca: Mildred toca, Patty dirige y en «published» levanta la partitura;
+//    en «children» entran dos niños, y en «good morning» saludan con los brazos;
+// 3. «With different lyrics» (1912 → hoy): el mapamundi: las notas salen de Louisville y en «became» se vuelven un pastel
+//    con velas; en «most famous birthday song in the world» vuelan a todo el mundo y en cada ciudad se enciende un pastel.
+import * as T from '/atomo/plato/escenas/tr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { equirect, pintar, PAPEL, chincheta } from '/atomo/plato/escenas/ov-mapas.js';
+import { TIERRA } from '/atomo/plato/escenas/geo-ov.js';
+const { E, R, M } = await T.preparar('tr-hill');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const { rect, pset, linea, poligono, disco, halo, tone } = R;
+const PZ = T.PIEZAS_TR, H = (s) => hex(s), RP = (...c) => c.map(hex), K = hex('#1c1622'), BL = hex('#f6f2e6');
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const sube = (a, b, t) => { const u = tramo(t, a, b); return u * u * (3 - 2 * u); };
+const capa = (fn) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); fn(); R.usar(prev); } R.copiar(b); }; };
+const capaT = (fn) => { let b = null, idx = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); fn(); R.usar(prev); idx = []; for (let i = 0; i < b.length; i++) if (b[i]) idx.push(i); } for (const i of idx) pset(i % 320, (i / 320) | 0, b[i]); }; };
+// mezcla de dos colores (0 = c1, 1 = c2)
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// sombra chinesca: lo que pinta fn se pega en un color (o en el que devuelva luz(c)), a escala esc, de [ax, ay] a [bx, by]
+const SB = R.nuevo();
+const silueta = (fn, col, esc, ax, ay, bx, by, luz) => {
+  SB.fill(0); const prev = R.usar(SB); fn(); R.usar(prev);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const c = SB[y * 320 + x]; if (!c) continue;
+    const X = bx + (x - ax) * esc, Y = by + (y - ay) * esc, c2 = luz ? luz(c) : col; for (let a = 0; a < esc; a++) for (let b = 0; b < esc; b++) pset(X + a, Y + b, c2); }
+};
+// nube de tres tonos (sombra, cuerpo, luz)
+const nube = (x, y, w, c) => { x = Math.round(x); const B = [[0, 0, .24], [.26, -.1, .2], [.5, 0, .2], [-.24, .04, .15], [.72, .05, .13]];
+  for (const [dx, dy, r] of B) disco(x + dx * w, y + dy * w + 1.5, r * w, c[0]);
+  for (const [dx, dy, r] of B) disco(x + dx * w, y + dy * w, r * w - 0.6, c[1]);
+  for (const [dx, dy, r] of B) disco(x + dx * w - 1, y + dy * w - 1.5, r * w * 0.55, c[2]); };
+const aves = (t, n, y0, v, col, k = 0, x0 = -30, x1 = 350) => { for (let i = 0; i < n; i++) { const x = Math.round(x0 + ((i * 53 + k * 31 + t * v * (0.8 + 0.4 * hh(i, k))) % (x1 - x0))), y = Math.round(y0 + 10 * hh(i, k, 3) + 2 * Math.sin(t * 2 + i)), a = Math.sin(t * 9 + i * 2) > 0;
+  pset(x, y, col); pset(x - 1, y - (a ? 1 : 0), col); pset(x + 1, y - (a ? 1 : 0), col); pset(x - 2, y - (a ? 2 : -1), col); pset(x + 2, y - (a ? 2 : -1), col); } };
+const cieloT = (y0, y1, rp, x0 = 0, x1 = 319) => { for (let y = y0; y < y1; y++) for (let x = x0; x <= x1; x++) pset(x, y, tone(rp, (y - y0) / (y1 - y0) * (rp.length - 1) + (hh(x >> 3, y >> 2) - 0.5) * 0.3, x, y)); };
+const estrellas = (t, n, x0, y0, x1, y1, k = 0) => { for (let i = 0; i < n; i++) { const x = Math.floor(x0 + hh(i, k, 7) * (x1 - x0)), y = Math.floor(y0 + hh(i, k, 8) * (y1 - y0)); if (x > 276 && y < 46) continue; const b = Math.sin(t * (1.5 + hh(i, k)) + i) > 0.3; pset(x, y, b ? H('#f6f0d8') : H('#8a8ab0')); if (b && i % 7 === 0) { pset(x - 1, y, H('#6a6a98')); pset(x + 1, y, H('#6a6a98')); } } };
+// una nota musical (corchea) con su contorno, para que se lea
+const notaF = (x, y, c, k = 0) => { x = Math.round(x); y = Math.round(y);
+  const f = (X, Y, col) => { disco(X, Y, 1.7, col); pset(X + 1, Y - 1, col); linea(X + 2, Y, X + 2, Y - 7, col); linea(X + 2, Y - 7, X + 5, Y - 4, col); if (k % 2) { linea(X + 2, Y - 5, X + 5, Y - 2, col); } };
+  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) f(x + dx, y + dy, K); f(x, y, c); pset(x - 1, y - 1, BL); };
+// bocadillo blanco con un icono (R.icono a escala 2); u 0–1 lo hace aparecer (tramado) o desaparecer
+const bocadillo = (x, y, ico, u = 1, col = K) => { if (u <= 0) return; const ver = (X, Y) => u >= 1 || hh(X, Y, 3) < u;
+  for (let j = -12; j <= 12; j++) for (let i = -10; i <= 10; i++) { const d = (i * i) / 110 + (j * j) / 156; if (d > 1.02) continue; const X = x + i, Y = y + j; if (!ver(X, Y)) continue; pset(X, Y, d > 0.8 ? K : BL); }
+  for (const [i, j] of [[-2, 12], [-3, 13], [-4, 14], [-2, 13], [-3, 14], [-5, 15]]) if (ver(x + i, y + j)) pset(x + i, y + j, j > 12 && (i === -2 || i === -5) ? K : BL);
+  if (u >= 0.6) R.icono(ico, x - 5, y - 7, col, H('#c8c0b0'), 2); };
+
+const P2 = en('hill', 0.3647), P3 = en('hill', 0.7405);
+const COLN = ['#e8402a', '#3a7ad8', '#e8a020', '#4aa84a', '#c84ac8'];
+// ── 1. el kínder de Louisville ──
+const p1 = (t) => {
+  const o = { encuadre: 'kinder', camara: 'general' };
+  T.fiestas(R, t, o);
+  // Mildred al piano: las manos van y vienen por el teclado; en «two sisters» se vuelve y sonríe
+  const vuelve = t > en('hill', 0.2422) && t < en('hill', 0.3391);
+  R.actor(EL.mildred, 60, 134, t, { dir: vuelve ? 1 : -1, sostiene: vuelve ? undefined : [52 + Math.round(Math.sin(t * 5) * 3), 104 + (Math.sin(t * 11) > 0 ? 1 : 0)], sonrisa: true, dedo: vuelve });
+  // las notas que suben del piano
+  for (let k = 0; k < 6; k++) { const f = ((t - 0.5) * 0.4 + k / 6) % 1; if (t < 1.2 + k * 0.2) continue; notaF(40 + k * 7 + Math.sin(t * 2 + k) * 6 + f * 30, 66 - f * 40, H(COLN[k % 5]), k); }
+  // Patty entra hasta el círculo, da palmas y señala a su hermana
+  const ll = sube(en('hill', 0.0069), en('hill', 0.1315), t), xp = Math.round(lerp(330, 143, ll)), palmas = t > en('hill', 0.1377) && t < en('hill', 0.2353);
+  R.actor(EL.patty, xp, 150, t, { dir: -1, anda: ll > 0 && ll < 1, brazos: palmas && Math.sin(t * 14) > 0, dedo: t > en('hill', 0.2374) && t < en('hill', 0.3322), sonrisa: t > en('hill', 0.1315), habla: t > en('hill', 0.2969) && Math.sin(t * 8) > 0 });
+  T.fiestasDelante(R, t, o);
+};
+// ── 2. el piano de cerca ──
+const p2 = (t) => {
+  const o = { encuadre: 'kinder', camara: 'piano', toca: true, notas: true };
+  T.fiestas(R, t, o);
+  // los dos niños que entran a dar los buenos días
+  const ll = sube(en('hill', 0.5419), en('hill', 0.5952), t), saluda = t > en('hill', 0.5987);
+  for (const [def, x0, x1, k] of [[EL.ninaKinder, 330, 252, 0], [EL.ninoKinder, 350, 272, 1]]) { const x = Math.round(lerp(x0, x1, ll)); if (x < 324) R.actor(def, x, 176, t, { dir: -1, anda: ll > 0 && ll < 1, brazos: saluda && Math.sin(t * 9 + k) > -0.2, sonrisa: saluda, habla: saluda && Math.sin(t * 8 + k) > 0, salto: saluda ? Math.round(Math.abs(Math.sin(t * 7 + k)) * 2) : 0 }); }
+  // Mildred toca (de espaldas a nosotros, las manos sobre el teclado)
+  R.actor(EL.mildred, 82, 174, t, { dir: 1, sostiene: [104 + Math.round(Math.sin(t * 4) * 8), 152 + (Math.sin(t * 10) > 0 ? 1 : 0)], sonrisa: true });
+  // Patty dirige; en «published» levanta la partitura impresa
+  const parti = t > en('hill', 0.4727) && t < en('hill', 0.5606);
+  const pt = R.actor(EL.patty, 206, 174, t, { dir: -1, dedo: !parti && Math.sin(t * 4) > 0, sostiene: parti ? [196, 136 - Math.round(sube(en('hill', 0.4727), en('hill', 0.4914), t) * 6)] : undefined, habla: Math.sin(t * 7) > 0.1, sonrisa: true });
+  if (parti) { const [hx, hy] = pt.mano; rect(hx - 9, hy - 16, hx + 3, hy, K); rect(hx - 8, hy - 15, hx + 2, hy - 1, H('#f8f4e4')); for (let s2 = 0; s2 < 2; s2++) for (let l = 0; l < 4; l++) linea(hx - 7, hy - 13 + s2 * 7 + l * 1.5, hx + 1, hy - 13 + s2 * 7 + l * 1.5, H('#8a8a9a')); for (const [dx, dy] of [[-6, -12], [-3, -10], [0, -11], [-5, -5], [-2, -4]]) { pset(hx + dx, hy + dy, K); pset(hx + dx + 1, hy + dy, K); } }
+  // las notas que salen de Patty al cantar
+  for (let k = 0; k < 3; k++) { const f = (t * 0.5 + k / 3) % 1; notaF(204 + Math.sin(t * 3 + k) * 4 - f * 20, 140 - f * 50, H(COLN[(k + 2) % 5]), k); }
+};
+// ── 3. el mapamundi: la canción da la vuelta al mundo ──
+const PM = equirect([10, 22, 310, 166], [-168, 192, -58, 80]);
+const LOU = [-85.76, 38.25];
+const CIUDADES = [[-0.13, 51.5], [-99.1, 19.4], [-43.2, -22.9], [2.35, 48.85], [3.4, 6.5], [37.6, 55.7], [31.2, 30.0], [77.2, 28.6], [116.4, 39.9], [139.7, 35.7], [151.2, -33.9], [18.4, -33.9], [-74.0, 4.6], [-123.1, 49.3]];
+const fondoMapa = capa(() => {
+  // el marco de madera y el papel (un mapa escolar enrollable colgado en la pared)
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, tone(RP('#3a2414', '#5a3a20', '#7a5030', '#9a6a40'), 2 + ((x * 3 + (y >> 2) * 7) % 29 === 0 ? -1 : 0) + (hh(x >> 4, y) - .5) * .6, x, y));
+  R.recorte([10, 22, 310, 166]);
+  for (let y = 22; y <= 166; y++) for (let x = 10; x <= 310; x++) pset(x, y, tone(RP('#7a9aa0', '#8aaab0', '#9cbabc', '#b0c8c4'), 2 + (hh(x >> 3, y >> 3) - .5) * .7 - (hh(x, y, 4) < .04 ? 1 : 0), x, y));
+  for (let lon = -180; lon <= 180; lon += 30) for (let lat = -58; lat <= 80; lat += 1) { const [x, y] = PM([lon, lat]); if (lat % 3 === 0) pset(Math.round(x), Math.round(y), H('#6a8a90')); }
+  for (let lat = -30; lat <= 60; lat += 30) for (let lon = -168; lon <= 192; lon += 1) { const [x, y] = PM([lon, lat]); if (lon % 3 === 0) pset(Math.round(x), Math.round(y), H('#6a8a90')); }
+  pintar(R, PM, TIERRA, (x, y) => tone(RP('#9a8a5a', '#b8a670', '#d0c08a', '#e2d6a4'), 2 + (hh(x >> 2, y >> 2, 7) - .5) * 1 + (y > 120 ? -.4 : 0) + (y < 40 ? .6 : 0), x, y), { somera: H('#a8c4c4'), borde: H('#4a3a20') });
+  // los bosques y desiertos insinuados
+  for (let k = 0; k < 260; k++) { const x = 10 + Math.floor(hh(k, 1) * 300), y = 22 + Math.floor(hh(k, 2) * 144); const c = R.pget(x, y); if (c !== R.pget(x + 1, y) || !c) continue; const tierra = ((c & 255) > 140); if (!tierra) continue; if (y > 60 && y < 110 && hh(k, 5) < .5) { pset(x, y, H('#c89a5a')); pset(x + 2, y + 1, H('#c89a5a')); } else { pset(x, y - 1, H('#5a7a3a')); pset(x - 1, y, H('#5a7a3a')); pset(x + 1, y, H('#4a6a2a')); pset(x, y, H('#3a5a2a')); } }
+  R.recorte(null);
+  // las varillas de arriba y abajo del mapa enrollable y el cordón
+  rect(4, 16, 316, 21, H('#2a1a10')); for (let x = 5; x < 316; x++) { pset(x, 17, H('#a8784a')); pset(x, 18, H('#8a5a30')); pset(x, 19, H('#6a4428')); }
+  rect(4, 167, 316, 172, H('#2a1a10')); for (let x = 5; x < 316; x++) { pset(x, 168, H('#a8784a')); pset(x, 169, H('#8a5a30')); pset(x, 170, H('#6a4428')); }
+  disco(160, 176, 3, H('#c8a050')); linea(160, 172, 160, 174, H('#c8a050'));
+  // la rosa de los vientos en el Pacífico sur
+  const rx = 40, ry = 140; for (let k = 0; k < 8; k++) { const a = k * .785 - 1.57, l = k % 2 ? 4 : 9; linea(rx, ry, Math.round(rx + Math.cos(a) * l), Math.round(ry + Math.sin(a) * l), k === 0 ? H('#c8202a') : H('#4a3a20')); } disco(rx, ry, 1.5, H('#e2d6a4'));
+});
+const arco = (a, b, u) => { const x = lerp(a[0], b[0], u), y = lerp(a[1], b[1], u) - Math.sin(u * 3.14) * Math.min(40, Math.hypot(b[0] - a[0], b[1] - a[1]) * 0.35); return [x, y]; };
+const p3 = (t) => {
+  fondoMapa();
+  const L = PM(LOU).map(Math.round);
+  R.recorte([10, 22, 310, 166]);
+  // el reflejo de la luz que cruza el papel
+  const bx = Math.round(((t - P3) * 30) % 500) - 100; for (let y = 22; y <= 166; y++) for (let k = 0; k < 6; k++) { const x = bx + k + Math.round((y - 22) * 0.4); if (k % 2 === 0) pset(x, y, mez(R.pget(x, y), BL, 0.25)); }
+  // las notas que giran sobre Louisville y en «became» se vuelven el pastel
+  const junta = sube(en('hill', 0.7682), en('hill', 0.8125), t);
+  if (junta < 1) for (let k = 0; k < 5; k++) { const a = t * 2 + k * 1.256, r = lerp(22, 2, junta); notaF(L[0] + Math.cos(a) * r, L[1] - 10 + Math.sin(a) * r * 0.6, H(COLN[k]), k); }
+  // las rutas a las ciudades y los pasteles que se encienden al llegar
+  CIUDADES.forEach((c, i) => { const D = PM(c).map(Math.round), t0 = en('hill', 0.8374) + i * 0.18, u = tramo(t, t0, t0 + 0.9);
+    if (u <= 0) return;
+    for (let s = 0; s < u; s += 0.03) { const [x, y] = arco(L, D, s); if (Math.floor(s * 33) % 2 === 0) pset(Math.round(x), Math.round(y), H('#8a3a2a')); }
+    if (u < 1) { const [x, y] = arco(L, D, u); notaF(x, y, H(COLN[i % 5]), i); }
+    else { const pop = Math.min(1, (t - t0 - 0.9) * 5); if (pop > 0.3) PZ.pastel(R, D[0], D[1] + 3, { velas: 3, t: t + i, s: 1 }); if (pop < 1) R.anillo(D[0], D[1] - 2, 3 + pop * 6, BL); } });
+  R.recorte(null);
+  // Louisville: la chincheta y su pastel grande
+  chincheta(R, L[0], L[1], t, H('#c8202a'), { pulso: true });
+  if (junta > 0.6) { PZ.pastel(R, L[0], L[1] - 6, { velas: 5, t, s: 2 }); if (junta < 1) halo(L[0], L[1] - 14, 16, RP('#f8e8a0', '#fff8d8'), 1.2); }
+};
+const efectos = [[en('hill', 0.1419), 'palmada'], [en('hill', 0.2422), 'pop'], [en('hill', 0.4775), 'papel'], [en('hill', 0.6021), 'palmada'], [en('hill', 0.8125), 'brillo'], [en('hill', 0.8997), 'pop'], [en('hill', 0.9551), 'pop'], [en('hill', 1.0105), 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '1893', efectos, año: (t) => (t < P3 ? 1893 : Math.round(lerp(1912, 2026, tramo(t, P3 + 0.5, en('hill', 1.1143))))) });
+</script>
+</body>
+</html>
