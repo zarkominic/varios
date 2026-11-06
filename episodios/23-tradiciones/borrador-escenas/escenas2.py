@@ -10,8 +10,8 @@ E['tr-campanadas'] = ('Las campanadas', '''// TR-CAMPANADAS (frase 5). 1962 → 
 // 3. (fondo local: una calle de México en Nochevieja) en «red» el viento sacude los calzones rojos del tendedero y la
 //    vecina tiende los amarillos («yellow»); en «walking» sale un vecino con la maleta, da la vuelta a la manzana y
 //    vuelve por la izquierda («suitcase») con un «?» encima;
-// 4. (hoy medianoche general) «Nobody has found»: los de la mesa se encogen de hombros con «?»; en «millions» el reloj
-//    da las doce: confeti, todos se comen las uvas, el de la maleta salta y la niña de debajo de la mesa también come.''', r'''
+// 4. (sol general, hoy) la bola baja por el mástil; «Nobody has found»: «?» sobre el de la maleta, que da la vuelta a la
+//    plaza, y sobre los de delante; en «millions» suenan las campanadas: la multitud y los de delante se comen las uvas.''', r'''
 import { equirect, pintar, PAPEL, rosa } from '/atomo/plato/escenas/ov-mapas.js';
 import { TIERRA } from '/atomo/plato/escenas/geo-ov.js';
 const a = (f) => en('tele', f);
@@ -51,17 +51,16 @@ const p1 = (t) => {
   for (const c of [CH1, CH2]) { const u = (t - c) / 0.5; if (u > 0 && u < 1) { R.recorte([48, 60, 86, 92]); for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, r0 = 6 + u * 4, r1 = 9 + u * 8; R.linea(67 + Math.cos(an) * r0, 71 + Math.sin(an) * r0, 67 + Math.cos(an) * r1, 71 + Math.sin(an) * r1, BL); } R.recorte(null); } }
   // la luz de la tele en el suelo cuando se enciende
   if (t > ENCIENDE) for (let y = 162; y < 178; y++) for (let x = 40 + (y - 162); x < 120 - (y - 162) * 2; x++) if (((x + y) & 3) === 0 && h(x, y, 5) < 0.5) R.pset(x, y, mez(R.pget(x, y), hex('#dce8f0'), 0.35));
-  // el niño señala la tele y salta; la madre le habla; la abuela sonríe
-  comeUvas(EL.nino62, 128, 162, t, -1, [CH1 + 0.1, CH2 + 0.1], { dedo: t > ENCIENDE - 0.2 && t < CH1 - 0.7, sorpresa: t > ENCIENDE && t < ENCIENDE + 1, salto: t > ENCIENDE && t < ENCIENDE + 0.35 ? 3 : t > CH1 + 0.3 && t < CH1 + 0.6 ? 2 : 0 });
-  comeUvas(EL.madre62, 150, 160, t, -1, [CH1, CH2], { habla: t < ENCIENDE && Math.sin(t * 8) > 0 });
-  comeUvas(EL.abuela62, 174, 160, t, -1, [CH1 + 0.15, CH2 + 0.15], { sonrisa: t > ENCIENDE + 0.4 });
-  // el padre entra por la derecha con el plato de uvas y lo deja en la mesita
-  const u = tramo(t, 0.2, 2.6), xp = Math.round(lerp(330, 198, u));
-  if (t < 3.0) {
-    const r = R.actor(EL.padre62, xp, 160, t, { dir: -1, anda: u > 0 && u < 1, sostiene: t < 2.75 ? [xp - 4, 146] : [xp - 6, 152] });
-    if (t < 2.75) { const [mx, my] = r.mano; R.rect(mx - 6, my - 2, mx + 4, my, K); R.rect(mx - 5, my - 2, mx + 3, my - 1, hex('#f4f0e6')); grano(mx - 3, my - 4); grano(mx, my - 5); grano(mx - 1, my - 7); grano(mx + 2, my - 4); }
-  } else comeUvas(EL.padre62, 198, 160, t, -1, [CH1 + 0.05, CH2 + 0.05], {});
   T.anuevoDelante(R, t, o);
+  // la familia, delante de la mesita, mirando la tele: el niño señala y salta; la madre le habla; la abuela sonríe
+  comeUvas(EL.nino62, 100, 172, t, -1, [CH1 + 0.1, CH2 + 0.1], { dedo: t > ENCIENDE - 0.2 && t < CH1 - 0.7, sorpresa: t > ENCIENDE && t < ENCIENDE + 1, salto: t > ENCIENDE && t < ENCIENDE + 0.35 ? 3 : t > CH1 + 0.3 && t < CH1 + 0.6 ? 2 : 0 });
+  comeUvas(EL.madre62, 128, 177, t, -1, [CH1, CH2], { habla: t < ENCIENDE && Math.sin(t * 8) > 0 });
+  comeUvas(EL.abuela62, 150, 177, t, -1, [CH1 + 0.15, CH2 + 0.15], { sonrisa: t > ENCIENDE + 0.4 });
+  // el padre entra por la derecha con el plato de uvas y se lo ofrece a la familia
+  const u = tramo(t, 0.2, 2.8), xp = Math.round(lerp(330, 172, u));
+  const r = R.actor(EL.padre62, xp, 177, t, { dir: -1, anda: u > 0 && u < 1, sostiene: [xp - 4, 163], sonrisa: u >= 1, habla: u >= 1 && t < CH1 - 0.6 && Math.sin(t * 7) > 0 });
+  { const [mx, my] = r.mano; R.rect(mx - 7, my - 1, mx + 4, my + 1, K); R.rect(mx - 6, my - 1, mx + 3, my, hex('#f4f0e6')); const quedan = 5 - (t > CH1 - 0.6 ? 2 : 0) - (t > CH2 - 0.6 ? 2 : 0);
+    [[-4, -3], [-1, -4], [2, -3], [-2, -6], [0, -2]].slice(0, Math.max(1, quedan)).forEach(([dx, dy]) => grano(mx + dx, my + dy)); }
 };
 
 // ── 2 · el mapa del mundo con las uvas ──
@@ -257,31 +256,30 @@ const p3 = (t) => {
   for (let k = 0; k < 40; k++) { const an = k * 0.157, r = 10 + Math.sin(t * 3 + k) * 1.5; if (k & 1) R.pset(Math.round(271 + Math.cos(an) * r), Math.round(67 + Math.sin(an) * r * 0.6), hex('#a89a70')); }
 };
 
-// ── 4 · hoy, la medianoche ──
+// ── 4 · hoy, la Puerta del Sol ──
 const p4 = (t) => {
-  const o = { encuadre: 'medianoche', hora: 24 - MIL / 3600, confeti: t < MIL ? 0.3 : 1 };
-  T.hoy(R, t, o);
-  // la niña, debajo de la esquina de la mesa
-  comeUvas(EL.chicaHoy, 92, 178, t, 1, [MIL + 0.1, MIL + 0.8, MIL + 1.5], { sonrisa: t > MIL });
-  // los cuatro de la mesa: se encogen de hombros, y a las doce se comen las uvas
-  const cs = [MIL, MIL + 0.7, MIL + 1.4];
-  comeUvas(EL.filipina, 106, 146, t, 1, cs.map((c) => c + 0.1), { sorpresa: t > NADIE && t < HALLA + 0.8, habla: t < NADIE && Math.sin(t * 7) > 0 });
-  comeUvas(EL.mexicana, 132, 146, t, 1, cs, { sorpresa: t > NADIE && t < NADIE + 1.4 });
-  comeUvas(EL.mexicano, 170, 146, t, -1, cs.map((c) => c + 0.05), { sorpresa: t > HALLA && t < HALLA + 1.4 });
-  comeUvas(EL.filipino, 196, 146, t, -1, cs.map((c) => c + 0.15), { dedo: t > HALLA + 1 && t < MIL - 0.4 });
-  // el de la maleta, listo para la vuelta a la manzana: salta a las doce con la maleta en alto
-  const salta = t > MIL && t < MIL + 0.45, r = R.actor(EL.chicoHoy, 270, 156, t, { dir: -1, salto: salta ? 4 : 0, sostiene: t > MIL ? [268, 128] : true, sonrisa: t > MIL });
-  T.PIEZAS_TR.maleta(R, r.mano[0] - 2, r.mano[1] + 13, { color: '#3a6a9a' });
-  T.hoyDelante(R, t, o);
+  const camp = t < MIL ? 0 : Math.min(12, 1 + (t - MIL) / 0.7);
+  const o = { encuadre: 'sol', bola: tramo(t, P4, MIL - 0.1), campanada: camp, fuegos: tramo(t, MIL + 1.6, MIL + 2.6) };
+  T.anuevo(R, t, o);
+  const cs = [MIL, MIL + 0.7, MIL + 1.4, MIL + 2.1];
+  comeUvas(EL.filipina, 70, 160, t, 1, cs.map((c) => c + 0.1), { sorpresa: t > NADIE && t < HALLA + 0.6, habla: t < NADIE && Math.sin(t * 7) > 0 });
+  comeUvas(EL.filipino, 88, 160, t, -1, cs, { dedo: t > HALLA && t < MIL - 0.5 });
+  comeUvas(EL.mexicana, 236, 160, t, 1, cs.map((c) => c + 0.05), { sorpresa: t > NADIE + 0.4 && t < NADIE + 1.6 });
+  comeUvas(EL.chicaHoy, 254, 160, t, -1, cs.map((c) => c + 0.15), { sonrisa: true });
+  // el de la maleta da su vuelta a la plaza, por delante
+  const u = tramo(t, P4 - 0.3, E.duracion), x = Math.round(lerp(10, 300, u)), salta = t > MIL && t < MIL + 0.4;
+  const r = R.actor(EL.mexicano, x, 166, t, { dir: 1, anda: !salta, salto: salta ? 3 : 0, sostiene: true, sonrisa: t > MIL });
+  T.PIEZAS_TR.maleta(R, r.mano[0] + 3, r.mano[1] + 13, {});
+  T.anuevoDelante(R, t, o);
   // los «?»: nadie sabe de dónde salieron
-  const q = (x, c0) => { if (t > c0 && t < c0 + 1.5) R.icono('?', x, 104 - (t < c0 + 0.15 ? 2 : 0), hex('#f8f0d0'), K, 2); };
-  q(134, NADIE + 0.1); q(172, HALLA); q(108, HALLA + 0.4);
+  const q = (xq, c0, d) => { if (t > c0 && t < c0 + d) R.icono('?', xq, 112 - (t < c0 + 0.15 ? 2 : 0), hex('#f8f0d0'), K, 2); };
+  q(x + 1, NADIE + 0.1, 2.0); q(74, HALLA, 1.3); q(240, NADIE + 0.5, 1.2);
 };
 
 const efectos = [[ENCIENDE - 0.3, 'interruptor'], [CH1, 'campana'], [CH1 + 0.4, 'masca'], [CH2, 'campana'],
   [UVAS, 'pop'], [MEX, 'pop'], [FIL, 'pop'], [FOTO + 0.1, 'papel'],
   [ROJO, 'viento'], [SALE - 0.5, 'puerta'], [MALETA + 0.3, 'pop'],
-  [NADIE + 0.1, 'pop'], [MIL, 'campana'], [MIL + 0.75, 'masca'], [MIL + 1.3, 'boom']];
+  [NADIE + 0.1, 'pop'], [MIL, 'campana'], [MIL + 0.75, 'masca'], [MIL + 1.4, 'campana'], [MIL + 2.2, 'boom']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P2 ? 1962 : 2026) });
 ''')
 
@@ -316,13 +314,13 @@ const p1 = (t) => {
   const pasa = tramo(t, ENERO - 0.5, ENERO), o = { encuadre: 'despacho', mes: t < ENERO ? 3 : 1, pasa: t < ENERO ? pasa : 0 };
   T.anuevo(R, t, o);
   // la hoja de marzo que cae revoloteando hasta el suelo
-  const c = tramo(t, ENERO, ENERO + 1.4); if (t > ENERO && c < 1) { const x = Math.round(128 - c * 30 + Math.sin(c * 9) * 8), y = Math.round(lerp(78, 166, c)); T.PIEZAS_TR.hojaCalendario(R, x, y, { mes: 3, dia: 25, s: 2 }); }
-  if (c >= 1) T.PIEZAS_TR.hojaCalendario(R, 96, 167, { mes: 3, dia: 25, s: 2 });
+  const c = tramo(t, ENERO, ENERO + 1.4); if (t > ENERO && c < 1) { const x = Math.round(128 - c * 24 + Math.sin(c * 9) * 8), y = Math.round(lerp(78, 172, c)); T.PIEZAS_TR.hojaCalendario(R, x, y, { mes: 3, dia: 25, s: 2 }); }
+  if (c >= 1) T.PIEZAS_TR.hojaCalendario(R, 104, 172, { mes: 3, dia: 25, s: 2 });
   // el aprendiz con la pértiga: la engancha y tira
   const tira = tramo(t, ENERO - 0.55, ENERO - 0.05), alza = tramo(t, 0.6, ENERO - 0.6);
   const ap = R.actor(EL.aprendiz, 74, 164, t, { dir: 1, sostiene: [94, 144], sonrisa: t > ENERO + 0.3 });
   const [hx, hy] = ap.mano, gx = Math.round(lerp(100, 112, alza) + tira * 6), gy = Math.round(lerp(120, 74, alza) - tira * 10);
-  R.linea(hx, hy, gx, gy, K); R.linea(hx + 1, hy, gx + 1, gy, hex('#8a5a30')); R.linea(gx + 1, gy, gx + 3, gy - 2, hex('#c8c8d0')); R.pset(gx + 3, gy - 1, hex('#c8c8d0'));
+  R.linea(hx - 1, hy, gx - 1, gy, K); R.linea(hx + 2, hy, gx + 2, gy, K); R.linea(hx, hy, gx, gy, hex('#8a5a30')); R.linea(hx + 1, hy, gx + 1, gy, hex('#c8904a')); R.linea(gx + 1, gy, gx + 3, gy - 2, hex('#c8c8d0')); R.pset(gx + 3, gy - 1, hex('#c8c8d0'));
   // el recaudador, detrás del escritorio: escribe, se sorprende y señala
   R.actor(EL.recaudador, 162, 145, t, { dir: -1, habla: t > TRUCO - 0.6 && t < TRUCO + 0.4 && Math.sin(t * 8) > 0, sorpresa: t > TRUCO && t < ENERO + 0.8, dedo: t > ROMA - 0.2 });
   T.anuevoDelante(R, t, o);
@@ -336,7 +334,7 @@ const foroFijo = capa(() => {
   const CI = rampa('#4a86d0', '#5e98da', '#78acE4', '#94c0ec', '#b4d4f2');
   for (let y = 0; y < 118; y++) for (let x = 212; x < 320; x++) R.pset(x, y, R.tone(CI, y / 26 + (h(x >> 2, y >> 2, 1) - 0.5) * 0.4, x, y));
   // el Palatino con sus pinos
-  R.poligono([[212, 104], [240, 92], [272, 96], [300, 88], [320, 92], [320, 120], [212, 120]], hex('#7a9a5a'));
+  R.poligono([[212, 104], [240, 92], [272, 96], [300, 88], [320, 92], [320, 140], [212, 140]], hex('#7a9a5a')); for (let k = 0; k < 120; k++) R.pset(214 + Math.round(h(k, 1, 6) * 104), 100 + Math.round(h(k, 2, 6) * 38), k % 2 ? hex('#6a8a4a') : hex('#8aaa64'));
   for (const x of [236, 262, 300]) { R.rect(x, 88, x + 1, 98, hex('#5a3a2a')); R.disco(x, 86, 6, hex('#3a6a3a')); R.disco(x - 2, 85, 4, hex('#4a7a44')); }
   // el templo del foro (pórtico, columnas y frontón sin letras)
   R.rect(232, 112, 320, 138, MAR[1]); for (let y = 114; y < 138; y += 4) R.rect(232, y, 320, y, MAR[0]);
@@ -642,7 +640,7 @@ const p3 = (t) => {
   // la corona: en la mano del sacerdote, por el aire hasta el ayudante, y al altar
   const vuela = tramo(t, QUITA + 0.5, INSIG - 0.2), deja = t > INSIG + 0.2;
   const ay = R.actor(EL.sacerdote, 196, 162, t, { dir: vuela >= 1 && !deja ? 1 : -1, sostiene: vuela > 0.85 && !deja ? [210, 140] : undefined, pal: { C: hex('#e8d8b0'), c: hex('#b8a880'), D: hex('#2e6a4a'), G: hex('#2e6a4a') } });
-  if (t > QUITA + 0.35 && vuela < 1 && t < INSIG) { const [mx, my] = sac.mano; const x = Math.round(lerp(mx, 204, vuela)), y = Math.round(lerp(my - 1, 136, vuela) - Math.sin(vuela * Math.PI) * 20); T.PIEZAS_TR.corona(R, x, y, {}); }
+  if (t > QUITA + 0.35 && vuela < 1 && t < INSIG) { const [mx, my] = sac.mano; const x = Math.round(lerp(mx, 204, vuela)), y = Math.round(lerp(my - 1, 136, vuela) - Math.sin(vuela * Math.PI) * 20); T.PIEZAS_TR.corona(R, x, y, {}); for (let k = 1; k < 4; k++) { const w = Math.max(0, vuela - k * 0.08), xx = Math.round(lerp(mx, 204, w)), yy = Math.round(lerp(my - 1, 136, w) - Math.sin(w * Math.PI) * 20) - 5; R.pset(xx, yy, hex('#f8e8a0')); } }
   else if (vuela >= 1 && !deja) { const [mx, my] = ay.mano; T.PIEZAS_TR.corona(R, mx, my - 1, {}); }
   T.anuevoDelante(R, t, o);
   // en el altar: la corona y el cetro
@@ -706,6 +704,7 @@ const p4 = (t) => {
   estrellitas(reyX + 7, 140, t, SEG);
   // la lágrima: brota del ojo, rueda por la mejilla, cae y brilla
   const l = t - LLORA; if (l > 0 && l < 1.6) { const ex = reyX + 11, ey = 158 + 7 - 25 + 7; const y = l < 0.6 ? ey + Math.round(l * 6) : Math.round(ey + 4 + (l - 0.6) ** 2 * 60); if (y < 158) { R.rect(ex - 1, y - 1, ex + 1, y + 2, hex('#2a4a8a')); R.rect(ex, y, ex, y + 1, hex('#8ad0f8')); R.pset(ex, y - 2, hex('#2a4a8a')); R.pset(ex - 1, y, BL); } if (l < 0.5) destello(ex + 4, ey - 3, 2, hex('#c8f0ff')); }
+  if (l > 0.1 && l < 2.2) R.icono('gota', reyX + 18, 112 - Math.round(Math.min(1, l * 3) * 4), hex('#8ad0f8'), K, 2);
   const alza = t > SEG - 0.5 && t < SEG, da = t >= SEG && t < SEG + 0.25;
   R.actor(EL.sacerdote, 166, 158, t, { dir: -1, dedo: alza || t > BUENA - 0.2, sostiene: da ? [158, 142] : undefined, sonrisa: t > LLORA + 0.3, enfado: alza });
   if (da) for (let k = 0; k < 6; k++) { const an = k * 1.05; R.pset(Math.round(157 + Math.cos(an) * 6), Math.round(141 + Math.sin(an) * 6), hex('#f8f0d0')); }
