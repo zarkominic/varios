@@ -108,8 +108,9 @@ Spring in February» (1981) · National Retail Federation · Biblioteca del Cong
 
 - **Miniatura:** `atomo/plato/escenas/tr-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
-- **Para escuchar antes de subir:** los avisos del reconocedor de voz (abajo, en el control) son nombres escritos como se
-  dicen.
+- **Para escuchar antes de subir:** nada obligatorio. El reconocedor de voz solo dio dos avisos, y los dos son falsos: «hare»
+  lo escribe «hair» (suenan igual) y en «$2 million» no ve la palabra «dollars» porque la escribe como «$». En español,
+  si quieres, escucha «Sáuin» (Samhain) y «Gúete» (Goethe), escritos como se dicen.
 - **Marcas y canciones:** «Happy Birthday» solo se nombra en la voz; no suena ni se ve su letra. Ningún logo en pantalla.
 
 ## Shorts

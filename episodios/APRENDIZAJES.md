@@ -343,3 +343,17 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   trabajo del 21 en el scratchpad (ya entregado).
 - **Reinicio del contenedor en la calidad:** se retomó con `resumeFromRunId` tras hacer commit de lo editado.
 
+
+## Episodio 23 · Las tradiciones del año (6/11/2026)
+
+- **Tema sugerido por YouTube Studio** («mitos históricos de tradiciones populares»), elegido por el usuario: todas las
+  tradiciones, con Año Nuevo como entrada (el giro de las uvas de 1894 y no de 1909) y la Navidad fuera, porque ya tuvo
+  su episodio.
+- **La barra del año no baja de su escala:** en tr-samhain marcaba 731 y 800 con la barra empezando en 1415. Al escribir
+  el año de un plano, comprobar que cae dentro de los tramos del episodio (o usar null para ocultarla).
+- **Calidad:** 58 de 91 planos suspendidos en la primera revisión y uno al final (un brazo recto de 55 px en tr-huevos
+  p4), que se arregló a mano con el codo doblado y la manga hundida en penumbra, como en tr-orleans p4.
+- **Disco:** tras borrar los fotogramas del 22 quedaban 8,9 GB y el render pedía 9,0. Se liberaron 340 MB con hojas de
+  revisión viejas del scratchpad. El render en sí tardó 11 minutos.
+- **Miniatura:** la pieza del racimo a escala ×3 parecía una piña verde; se dibujó a resolución de lienzo, grano a grano,
+  en una frutera sobre un velador.
