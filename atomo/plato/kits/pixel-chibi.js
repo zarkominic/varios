@@ -4536,3 +4536,844 @@ export const PIEZAS_NV = {
   carbon: carbonNV, dulces: dulcesNV, pastel: pastelNV, aviso: avisoNV, tabla: tablaNV, gatoYule: gatoYuleNV,
   fiambrera: fiambreraNV, termo: termoNV,
 };
+
+// ── Episodio 23 (Las tradiciones del año: de dónde vienen de verdad) ─────────────────────────────────────────────────
+// el reparto: Madrid de 1890 y la Puerta del Sol, Alicante 1909, una familia de 1962, Inglaterra 1752, Roma, Babilonia,
+// los Valentines, Chaucer, Carlos de Orleans, el correo victoriano y Esther Howland, la Pascua (gallinas, la liebre de
+// 1682, Pensilvania), Irlanda y Halloween (nabos, Jack, 1927, los cincuenta), el conde de 1746 y Goethe, las hermanas
+// Hill, el pleito de 2015, las bodas (Victoria y Alberto, María Estuardo, novias de otras épocas) y el joyero.
+// Sin logos ni letras; el pelo nunca tapa la cara; cada uno se reconoce por sus atributos.
+
+// ── tocados nuevos ──
+Object.assign(TOCADOS, {
+  // la mantilla de encaje negro (J, el dibujo j) sobre la peineta alta: cae por detrás hasta los hombros, la cara entera
+  mantilla: [[
+    '..kk.kk.kk.....',
+    '.kJJkJJkJJk....',
+    '.kJjJJjJJJk....',
+    '..kJJJJJJJJk...',
+    '.kJJjJJJjJJJk..',
+    'kJjJJJjJJJJJJk.',
+    'kJJJkkkkkkkkk..',
+    'kjJJk..........',
+    'kJJjk..........',
+    'kJjJk..........',
+    'kjJJk..........',
+    'kJJjk..........',
+    'kJjJk..........',
+    'kJJjk..........',
+    '.kJJk..........',
+    '..kk...........',
+  ], -4],
+  // el bombín (J/j): copa redonda y ala corta (el estudioso del XIX)
+  bombin: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '..kJJjJJJJJk...',
+    '..kJJJJJJJJk...',
+    '..kjjjjjjjjk...',
+    'kkkkkkkkkkkkkk.',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+  // la parpusa del chulapo: gorra de cuadros (J/j) pegada a la cabeza, el botón (o) arriba y la visera corta delante
+  parpusa: [[
+    '......kk.......',
+    '....kkokkk.....',
+    '..kkJjJjJjkk...',
+    '.kJjJjJjJjJJk..',
+    '.kjJjJjJjJjJJkk',
+    '.kkkkkkkkkkkkkk',
+  ], -3],
+  // el sombrero de paja del campo (T/t) con la cinta oscura (D): el viticultor de Alicante, el campesino
+  sombreroPaja: [[
+    '....kkkkkkk....',
+    '...kTTTtTTTk...',
+    '...kTtTTTtTk...',
+    '...kDDDDDDDk...',
+    'kkkkkkkkkkkkkkk',
+    'kTtTTtTTtTTtTTk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+  // la toca francesa del siglo XVI (attifet): blanca (X/x) con el borde de oro (o) sobre la frente, el pelo de delante
+  // a la vista y la caída por detrás; la cara entera (María Estuardo, las damas de la corte)
+  attifet: [[
+    '...kkkkkkkk....',
+    '..kXXXXXXXXk...',
+    '.kXXxXXXXXXXk..',
+    'kXXXXkooooook..',
+    'kXXXo..........',
+    'kXXXo..........',
+    'kXxXo..........',
+    'kXXXk..........',
+    'kXxXk..........',
+    '.kXXk..........',
+    '..kk...........',
+  ], -1],
+  // los cuernecitos del diablillo de cuento (J)
+  cuernitos: [[
+    '...k.....k.....',
+    '..kJk...kJk....',
+    '..kJJk..kJJk...',
+  ], -2],
+  // orejas de gato (J) del disfraz
+  orejasGato: [[
+    '...k.....k.....',
+    '..kJk...kJk....',
+    '..kJJk.kJJJk...',
+  ], -2],
+  // la diadema de princesa de juguete: oro (o) con la piedra (D)
+  tiara: [[
+    '....k.k.k......',
+    '...kokDkok.....',
+    '..kooooooook...',
+  ], -1],
+  // corona de flores de colores (R, Y, E) con hojas (V): novias de otras épocas
+  coronaFlores: [[
+    '..kk.kk.kk.k...',
+    '.kRRkYYkEEkRk..',
+    '.kVVkVVkVVkVk..',
+  ], 0],
+  // la corona de azahar (flores blancas E, hojas V): la reina Victoria de novia
+  azahar: [[
+    '..k.k.k.k.k....',
+    '.kEkEkEkEkEk...',
+    '.kVEVEVEVEVk...',
+  ], 0],
+});
+
+// ── cabezas ──
+// la peluca larga de rizos de 1682 (alonga): rizos en la frente y la melena rizada hasta los hombros
+const CAB_ALONGA_TR = [...CAB_RIZOS.slice(0, 4), ...parche(CAB_LARGO, [[1, 5, 'h'], [2, 7, 'h'], [1, 9, 'h'], [2, 10, 'h']]).slice(4)];
+// el corte en tazón del siglo XV (Carlos de Orleans): el flequillo recto por encima de las cejas
+const CAB_TAZON_TR = parche(CAB_CORTO, [[3, 4, 'HHHHHHHHHH']]);
+// barba rizada de rey de Babilonia (rizos h); y la de Chaucer, partida en dos puntas
+const CAB_BARBA_RIZOS_TR = parche(CAB_BARBA, [[4, 9, 'h.h.h.h'], [4, 10, '.h.h.h'], [5, 11, 'h.h.h']]);
+const CAB_BARBA_PARTIDA_TR = parche(CAB_BARBA, [[7, 12, 'k']]);
+// media melena por encima de los hombros (la madre de 1962): la de la guionista
+const CAB_MEDIA_TR = parche(CAB_LARGO, [[1, 9, 'kHHHk'], [1, 10, 'kkkk'], [0, 11, '.....'], [0, 12, '....']]);
+
+// ── cuerpos ──
+// el jubón del siglo XV (C/c) con flores de lis de oro (o), cinturón (G), calzas (F) y zapatos (n): Carlos de Orleans;
+// con colores pardos, la túnica corta del campesino
+const CUERPO_JUBON_TR = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCoCCCoCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCoCCCoCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el vestido de los años 1840 (C/c): cuello de encaje (W), talle y falda ancha acampanada (Esther Howland)
+const CUERPO_1840_TR = [
+  '....kkWWWkk....',
+  '..kkCWWWWWCkk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kSkcCCCCCckSk.',
+  '..kkCCCCCCCkk..',
+  '..kCCCCCCCCCk..',
+  '..kCcCCCCCcCk..',
+  '.kCCCCCCCCCCCk.',
+  '.kcCCcCCCcCCck.',
+  'kccccccccccccck',
+  'kkkkkkkkkkkkkkk',
+];
+// la blusa de 1893 con las mangas de jamón (W), el broche (o), el cinturón (I) y la falda larga (C/c): las hermanas Hill
+const CUERPO_1893_TR = [
+  '....kkWWWkk....',
+  '.kkkWWWWWWWkkk.',
+  'kWWkWWWWWWWkWWk',
+  'kWWkWWWoWWWkWWk',
+  '.kWkWWWWWWWkWk.',
+  '.kSkIIIIIIIkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kcCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el vestido del Renacimiento (C/c): escote cuadrado, collar de perlas (o), peto de pedrería (O) y falda ancha:
+// María Estuardo, las damas de luto blanco y la novia de 1600
+const CUERPO_RENAC_TR = [
+  '....kkSSSkk....',
+  '..kkCSSSSSCkk..',
+  '.kCkCoSoSoCkCk.',
+  '.kCkCCOOOCCkCk.',
+  '.kCkcCCOCCckCk.',
+  '.kSkkcCOCckkSk.',
+  '..kkCCkOkCCkk..',
+  '..kCCCCCCCCCk..',
+  '..kCCCCCCCCCk..',
+  '.kCCCcCCCcCCCk.',
+  '.kcCCCCCCCCCck.',
+  'kccccccccccccck',
+  'kkkkkkkkkkkkkkk',
+];
+// el vestido de Babilonia (C/c): brazos al aire, el chal en diagonal (D), la faja (G) y los flecos (Y)
+const CUERPO_BABILONIO_TR = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kSkCCCCDCCkSk.',
+  '.kSkCCCDCCCkSk.',
+  '.kSkCCDCCCCkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCcCCcCCk...',
+  '...kCCCCCCCk...',
+  '...kYkYkYkYk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// la casaca del siglo XVIII cerrada hasta la rodilla, con medias blancas (w) y zapatos de hebilla (O): el recaudador,
+// el conde
+const CUERPO_CASACA_TR = parche(CUERPO_EUROPEO, [[3, 7, 'kCCCCCCCk'], [3, 8, 'kcCFkFCck'], [3, 10, 'kwwwkwwwk'], [3, 11, 'kwwwkwwwk'], [5, 12, 'O'], [10, 12, 'O']]);
+// el uniforme de mariscal (el príncipe Alberto en su boda): charreteras (O) y la banda (A) en diagonal
+const CUERPO_UNIFORME_TR = parche(CUERPO_EUROPEO, [[3, 1, 'O'], [11, 1, 'O'], [5, 2, 'A'], [6, 3, 'A'], [7, 4, 'A'], [8, 5, 'A'], [9, 6, 'A']]);
+// la toga negra del juez con el cuello blanco (W); y la del erudito de 1682 con las tiras blancas del cuello
+const CUERPO_TOGA_JUEZ_TR = parche(CUERPO_TUNICA_LARGA, [[6, 0, 'WWW']]);
+const CUERPO_ERUDITO_TR = parche(CUERPO_TUNICA_LARGA, [[6, 0, 'WWW'], [7, 1, 'W'], [7, 2, 'W']]);
+// el blusón negro del campo con la faja (G): el viticultor de Alicante
+const CUERPO_BLUSON_TR = parche(CUERPO_MANGA, [[4, 5, 'GGGGGGG'], [4, 6, 'CCCCCCC']]);
+// el niño disfrazado de fantasma: una sábana blanca (W/w) hasta los tobillos
+const CUERPO_SABANA_TR = [
+  '...kkWWWWWkk...',
+  '..kWWWWWWWWWk..',
+  '.kWWWWWWWWWWWk.',
+  '.kWwWWWWWWWwWk.',
+  '.kWWWWWWWWWWWk.',
+  '.kWWWWWwWWWWWk.',
+  '.kWwWWWWWWWwWk.',
+  '.kWkWWkWWkWWk..',
+  '..k.kkLkkLkk...',
+  '....kLk.kLk....',
+];
+// el delantal de los niños de 1893 (W) sobre el vestido (C)
+const CUERPO_DELANTAL_NINA_TR = parche(CUERPO_NINA, [[5, 2, 'WWWWW'], [5, 3, 'WWWWW'], [5, 4, 'WWWWW'], [5, 5, 'WWWWW'], [5, 6, 'WWWWW']]);
+// el pirata de los cincuenta: camiseta a rayas (C/W)
+const CUERPO_RAYAS_NINO_TR = parche(CUERPO_NINO, [[4, 1, 'WWWWWWW'], [4, 3, 'WWWWWWW']]);
+
+// ── lo que llevan en la mano y otros detalles ──
+const PAL_MANO_TR = COLORES({
+  O: '#f0c040', g: '#a87a18', o: '#ffe890', y: '#f08a2a', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', X: '#f6f2e6',
+  x: '#c8c0b0', B: '#a8743c', b: '#6a4422', U: '#6a2a7a', u: '#3e1450', I: '#b07ac8', V: '#4a9a3a', R: '#c8303a',
+  r: '#8a1e26', P: '#f0a0b8', W: '#f6f0e0', w: '#d8ccb0', Y: '#f0d040', K: '#2a2832', A: '#3a6ad8', p: '#8a4aa8',
+});
+// la copa de champán de 1890 (O con burbujas o)
+const conCopaTR = enMano(['k...k', 'kOoOk', '.kOk.', '..k..', '..k..', '.kkk.'], 12, 0, PAL_MANO_TR);
+// el racimo de uvas colgando de la mano
+const conRacimoTR = enMano(['..k..', '.kVk.', 'kUIUk', 'kUUuk', '.kUk.', '..k..'], 12, 3, PAL_MANO_TR);
+// las tijeras de recortar encaje
+const conTijerasTR = enMano(['k...k', 'kZ.Zk', '.kZk.', '.kZk.', 'kOkOk', 'kkkkk'], 12, 1, PAL_MANO_TR);
+// el cuenco de madera de los que piden pastelitos
+const conCuencoTR = enMano(['k...k', 'kBBBk', 'kbBbk', '.kkk.'], 12, 3, PAL_MANO_TR);
+// la tarjeta de San Valentín (encaje W y corazón R)
+const conTarjetaTR = enMano(['kkkkk', 'kWRWk', 'kRRRk', 'kWRWk', 'kkkkk'], 12, 2, PAL_MANO_TR);
+// el ramo de novia: blanco (azahar) o de colores
+const conRamoTR = enMano(['.kkk.', 'kEwEk', 'kwEwk', '.kVk.', '.kRk.', '..k..'], 12, 1, PAL_MANO_TR);
+const conRamoColorTR = enMano(['.kkk.', 'kRYPk', 'kYPRk', '.kVk.', '.kAk.', '..k..'], 12, 1, PAL_MANO_TR);
+// la argolla de oro entre los dedos (el joyero)
+const conArgollaTR = enMano(['.kk.', 'kOOk', 'kOgk', '.kk.'], 13, 2, PAL_MANO_TR);
+// la cesta pequeña (la campesina)
+const conCestaTR = enMano(['.kkk.', 'k...k', 'kBbBk', 'kbBbk', '.kkk.'], 12, 3, PAL_MANO_TR);
+// el libro de tapas pardas (el erudito, el recaudador)
+const conLibroTR = enMano(['kkkkk', 'kBBBk', 'kBOBk', 'kBBXk', 'kkkkk'], 12, 2, PAL_MANO_TR);
+// el pastelito de alma en la mano
+const conPastelitoTR = enMano(['.kkk.', 'kiJik', 'kJJJk', '.kkk.'], 12, 3, { ...PAL_MANO_TR, ...COLORES({ J: '#c07a3a', i: '#e0a060' }) });
+// la linterna de nabo colgada de un cordel, con la cara tallada que brilla (la brasa parpadea con t)
+const conNaboTR = (c) => {
+  if (!manoLibre(c)) return;
+  const on = Math.sin(c.t * 11 + c.x) > 0, l = on ? 'Y' : 'o';
+  c.cuerpo.rej(['..k..', '..k..', '.kVk.', 'kWpWk', `k${l}W${l}k`, 'kWWWk', `kW${l}Wk`, '.kkk.'], 11, 4, PAL_MANO_TR);
+};
+// el bigote (del color del pelo)
+const bigoteTR = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, c.pal.H); };
+// la máscara de papel de los que van disfrazados en Escocia: papel (X) con dibujos (D), con los agujeros de los ojos
+const antifazTR = (c) => {
+  for (let i = 6; i <= 13; i++) { c.cab.px(i, 4, P.k); c.cab.px(i, 8, P.k); }
+  for (let j = 5; j <= 7; j++) { for (let i = 6; i <= 13; i++) if (!((i === 8 || i === 12) && j >= 6)) c.cab.px(i, j, (i === 10 || (j === 5 && i % 2)) ? c.pal.D : c.pal.X); c.cab.px(14, j, P.k); }
+};
+// la aureola dorada por detrás de la cabeza (los santos)
+const AUREOLA_TR = ['...kkkkkkkk....', '..kOOOOOOOOk...', '.kOk......kOk..', 'kOk........kOk.', 'kOk........kOk.'];
+const aureolaTR = (c) => c.cab.rej(AUREOLA_TR, 0, -3, { ...c.pal, ...COLORES({ O: '#f0c840' }) });
+// el velo de novia de encaje (X/x) que cae por detrás
+const VELO_TR = ['.kk.', 'kXXk', 'kXxk', 'kXXk', 'kxXk', 'kXXk', 'kXxk', 'kXXk', 'kxXk', 'kXXk', 'kXxk', 'kXXk', 'kxXk', 'kXXk', 'kXxk', 'kXXk', '.kk.'];
+const veloTR = (c) => c.cab.rej(VELO_TR, -2, 2, { ...c.pal, ...COLORES({ X: '#f8f6f0', x: '#c8c4c0' }) });
+// el moño bajo en la nuca (el rey de Babilonia)
+const monoBajoTR = (c) => c.cab.rej(['.kk.', 'kHHk', 'kHhk', 'kHHk', '.kk.'], -2, 7);
+// LA CORONA ALTA DE BABILONIA (oro O con bandas de lapislázuli D): o.corona false se la quita (el sacerdote)
+const POLOS_TR = ['....kk....', '...kOOk...', '.kkkkkkkk.', '.kOOOOOOk.', '.kDDDDDDk.', '.kOgOgOOk.', '.kOOOOOOk.', 'kDDDDDDDDk', 'kOOOOOOOOk', 'kkkkkkkkkk'];
+const PAL_POLOS_TR = COLORES({ O: '#f0c040', g: '#a87a18', D: '#2e4aa0' });
+const polosTR = (c) => { if (c.o.corona === false) return; c.cab.rej(POLOS_TR, 2, -7, { ...c.pal, ...PAL_POLOS_TR }); };
+// el grillete del preso (Z) con la cadena por el suelo; o.libre lo quita
+const grilleteTR = (c) => { if (c.o.libre) return; const pal = { ...c.pal, ...PAL_MANO_TR }; c.cuerpo.rej(['kZZZk'], 7, 10, pal); c.cuerpo.rej(['zkzkzkz'], -2, 12, pal); };
+// la saca de cartero en bandolera (B/b); o.saca 'llena': asoman las cartas
+const SACA_TR = ['.kkkkk.', 'kBBBBBk', 'kBbbbBk', 'kBBBBBk', 'kBBBBbk', '.kkkkk.'];
+const SACA_LLENA_TR = ['.kXkAk.', '.kXkPk.', ...SACA_TR];
+const sacaTR = (c) => {
+  if (c.o.sinObjeto) return;
+  const pal = { ...c.pal, ...PAL_MANO_TR };
+  for (let k = 0; k < 5; k++) c.cuerpo.px(10 - k, k, pal.b);
+  if (c.o.saca === 'llena') c.cuerpo.rej(SACA_LLENA_TR, 1, 3, pal); else c.cuerpo.rej(SACA_TR, 1, 5, pal);
+};
+// la lupa de joyero en la frente, sujeta con una cinta
+const lupaTR = (c) => { const K = hex('#2a2832'); for (let i = 4; i <= 8; i++) c.cab.px(i, 3, K); c.cab.rej(['.kk.', 'kKKk', 'kFFk', '.kk.'], 9, 1, { ...c.pal, ...COLORES({ K: '#2a2832', F: '#b8e0f0' }) }); };
+// la cola del diablillo con la punta de flecha (R)
+const colaTR = (c) => c.cuerpo.rej(['kk....', 'kRk...', '.kRk..', '..kRk.', '...kRk', '....kk'], -4, 2);
+// el clavel rojo en la solapa
+const clavelTR = (c) => { c.cuerpo.px(5, 1, hex('#d8303a')); c.cuerpo.px(5, 2, hex('#4a9a3a')); };
+
+// ── el reparto del 23 ──
+const B23 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B23M = { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO };
+const B23N = { ...B23, cuerpo: CUERPO_NINO, altoCuerpo: 10 };
+const B23NA = { ...B23N, cab: CAB_LARGO, cuerpo: CUERPO_NINA };
+const CLT = (o) => CLARA({ n: '#2a2430', ...o });
+const MOT = (o) => MORENA({ n: '#2a2430', ...o });
+export const ELENCO_TR = {
+  // ── A. Año Nuevo: Madrid, Alicante, 1962, la Puerta del Sol de hoy ──
+  // el burgués de 1890: chistera, bigote, frac negro con la pechera blanca y la copa de champán
+  burgues: { ...B23, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, tocado: 'chistera', ceja: hex('#3a2418'), delante: varios(bigoteTR, conCopaTR),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#24202c', c: '#14111a', W: '#f6f4f0', o: '#24202c', F: '#24202c', J: '#1c1c24', j: '#3a3a48' }) },
+  // la señora con mantilla negra y peineta, vestido granate de seda y el abanico
+  senoraMantilla: { ...B23M, cuerpo: CUERPO_1840_TR, tocado: 'mantilla', ceja: hex('#1c1424'), delante: conAbanico,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', J: '#1c1c24', j: '#4a4458', C: '#7a1e34', c: '#561424', W: '#2a2430', L: '#1c1c24' }) },
+  // el chulapo: parpusa de cuadros, pañuelo blanco al cuello, chaleco negro, el clavel y pantalón de cuadros gris
+  chulapo: { ...B23, cuerpo: CUERPO_CHALECO_NV, tocado: 'parpusa', ceja: hex('#2a1c14'), delante: varios(bigoteTR, clavelTR),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', J: '#4a4a52', j: '#2a2a32', o: '#2a2a32', C: '#1c1c24', c: '#121218', W: '#f6f4ee', F: '#6a6a72' }) },
+  // la chulapa: pañuelo blanco a la cabeza, mantón de Manila rojo de flecos sobre los hombros y falda oscura
+  chulapa: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_BEFANA_NV, tocado: 'panuelo', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#f6f4ee', y: '#d8303a', u: '#c8303a', C: '#24202c', c: '#14111a', D: '#24202c', Y: '#24202c', L: '#1c1c24' }) },
+  // el viticultor de Alicante (1909): sombrero de paja, blusón negro, faja roja y el racimo
+  viticultor: { ...B23, cab: CAB_SIENES, cuerpo: CUERPO_BLUSON_TR, tocado: 'sombreroPaja', ceja: hex('#2a1c14'), delante: varios(bigoteTR, conRacimoTR),
+    pal: OSCURA({ H: '#2a1c14', h: '#4a3424', w: '#a8a8b4', T: '#e8c870', t: '#b89040', D: '#3a2a20', C: '#24242e', c: '#16161e', G: '#c8303a', F: '#4a4038', n: '#d8c8a0' }) },
+  // la familia de 1962: el padre con traje gris y corbata, la madre con media melena y vestido de pliegues, el niño con
+  // jersey y pantalón corto, y la abuela de luto con el moño
+  padre62: { ...B23, cab: CAB_ENGOMINADO, ceja: hex('#2a1c14'), pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#5e6270', c: '#464a56', W: '#f6f4ee', o: '#8a2a2a', F: '#4e525e' }) },
+  madre62: { ...B23, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PLIEGUES, ceja: hex('#4a2a1a'), pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#3a7aa8', c: '#2a5a80', I: '#f2eee2', W: '#f2eee2', L: '#2a2430' }) },
+  nino62: { ...B23N, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', C: '#a8302a', c: '#7a2420', F: '#5a5e6a', S: '#f6c290' }) },
+  abuela62: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: VESTIDO_LISO, ceja: hex('#9a9aa8'), delante: monoHP, mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#b8b8c4', h: '#d8d8e0', C: '#24222a', c: '#16141a', W: '#3a3a44', L: '#16141a' }) },
+  // hoy: la chica con coleta y sudadera morada (come las uvas debajo de la mesa) y el chico con abrigo y bufanda
+  chicaHoy: { ...B23M, cuerpo: CUERPO_MANGA, ceja: hex('#4a2a1a'), detras: coleta, pal: MOT({ H: '#3a2418', h: '#5a3a24', C: '#7a3a9a', c: '#5a2a74', F: '#2a3a5a' }) },
+  chicoHoy: { ...B23, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#6a4020'), pal: CLT({ H: '#7a5030', h: '#9a6c44', C: '#2a3a5a', c: '#1e2a44', u: '#d8a030', o: '#e8dcc0', F: '#3a3a44' }) },
+  // ── el calendario: Inglaterra 1752 y Roma ──
+  // el recaudador inglés de 1752: peluca blanca con lazo, quevedos, casaca parda, medias blancas y la pluma
+  recaudador: { ...B23, cab: CAB_PELUCA, cuerpo: CUERPO_CASACA_TR, tocado: 'gafas', ceja: hex('#8a7a6a'), detras: lazo, delante: conPlumaNV,
+    pal: CLT({ H: '#ecebe6', h: '#c4c0b8', J: '#2a2430', C: '#5a4a3a', c: '#3e3226', W: '#f2eee2', o: '#c8a040', F: '#3e3226', w: '#f2eee2', O: '#c8ccd8' }) },
+  // Julio César en el relieve: el emperador del 20 (corona de laurel y toga con la banda morada)
+  cesar: ELENCO_JH.emperador,
+  // ── Babilonia ──
+  // el rey: barba negra rizada, el moño en la nuca, la corona alta de oro (o.corona: false se la quita) y el vestido azul
+  // y oro con flecos
+  reyBabilonia: { ...B23, cab: CAB_BARBA_RIZOS_TR, cuerpo: CUERPO_BABILONIO_TR, ceja: hex('#1c1424'), detras: monoBajoTR, delante: polosTR,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#2e4aa0', c: '#1e3474', D: '#f0c040', G: '#f0c040', Y: '#f0c040', L: '#6a4020' }) },
+  // el sacerdote: calvo y sin barba, vestido de lino blanco con el chal rojo y los flecos
+  sacerdote: { ...B23, cab: CAB_CALVO, cuerpo: CUERPO_BABILONIO_TR, ceja: hex('#5a3a24'),
+    pal: MOT({ C: '#f2eade', c: '#c8bea8', D: '#b8303a', G: '#b8303a', Y: '#c8a040', L: '#6a4020' }) },
+  // ── el amor ──
+  // los dos Valentines, con la aureola: el sacerdote de Roma (tonsura, túnica roja) y el obispo de Terni (mitra, casulla
+  // verde)
+  valentinRoma: { ...B23, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#3a2418'), detras: aureolaTR,
+    pal: CLT({ H: '#4a3020', h: '#6a4630', C: '#a8283a', c: '#7a1c2a', o: '#f0c840', G: '#f0c840', L: '#4a3020' }) },
+  valentinTerni: { ...B23, cuerpo: CUERPO_CASULLA_NV, tocado: 'mitra', ceja: hex('#8a8a96'), detras: aureolaTR, delante: barbaMediaNV,
+    pal: CLT({ H: '#c8c8d0', h: '#e0e0e8', W: '#e8e8f0', w: '#b8bccc', X: '#f6f4ee', C: '#3a8a4a', c: '#2a6a36', o: '#f0c840', L: '#4a3020' }) },
+  // Geoffrey Chaucer (siglo XIV): capucha gris oscura, barba gris partida en dos, túnica negra larga y la pluma
+  chaucer: { ...B23, cab: CAB_BARBA_PARTIDA_TR, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#7a7a86'), delante: conPlumaNV,
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', B: '#4a4a56', b: '#34343e', C: '#2a2832', c: '#1c1a22', o: '#5a5a66', G: '#6a4a2a', L: '#1c1a22' }) },
+  // Carlos de Orleans (1415, preso): corte en tazón, jubón azul con flores de lis de oro, calzas granate, la pluma y el
+  // grillete en el tobillo (o.libre lo quita)
+  orleans: { ...B23, cab: CAB_TAZON_TR, cuerpo: CUERPO_JUBON_TR, ceja: hex('#4a2a14'), delante: varios(conPlumaNV, grilleteTR),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#2a4aa0', c: '#1e3474', o: '#f0c840', G: '#6a4020', F: '#7a2a3a', n: '#3a2418' }) },
+  // el cartero victoriano (1840): chistera de castor, levita roja con el cuello azul, botones de latón y la saca en
+  // bandolera (o.saca: 'llena', con las cartas que asoman)
+  carteroVictoriano: { ...B23, cab: CAB_PATILLAS_NV, tocado: 'chistera', ceja: hex('#3a2418'), delante: varios(bigoteTR, sacaTR),
+    pal: CLT({ H: '#4a3020', h: '#6a4630', J: '#1c1c24', j: '#3a3a48', C: '#c8303a', c: '#962230', W: '#24304a', o: '#f0c040', F: '#24304a' }) },
+  // Esther Howland (Worcester, años 1840): raya en medio, moño, vestido verde de los cuarenta con cuello de encaje y la
+  // tarjeta; y sus ayudantes, con delantal y las tijeras de recortar el encaje
+  esther: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1840_TR, ceja: hex('#4a2a14'), delante: varios(monoHP, conTarjetaTR),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#3a7a6a', c: '#2a5a4e', W: '#f6f4ee' }) },
+  ayudanta: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_VESTIDO, ceja: hex('#8a5428'), delante: varios(monoHP, conTijerasTR),
+    pal: CLT({ H: '#a85a2a', h: '#c8783a', C: '#8a4a6a', c: '#6a3450', W: '#f6f4ee', L: '#2a2430' }) },
+  ayudanta2: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_VESTIDO, ceja: hex('#a8743c'), delante: varios(monoHP, conTijerasTR), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#4a5a8a', c: '#34406a', W: '#f6f4ee', L: '#2a2430' }) },
+  // ── la primavera ──
+  // la familia del campo (Cuaresma y Pascua): él con sombrero de paja y túnica parda; ella con pañuelo, delantal y la
+  // cesta; los niños
+  labriego: { ...B23, cuerpo: CUERPO_JUBON_TR, tocado: 'sombreroPaja', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', T: '#e8c870', t: '#b89040', D: '#6a4020', C: '#7a6a4a', c: '#5a4e36', o: '#7a6a4a', G: '#4a3020', F: '#5a4a3a', n: '#3a2418' }) },
+  labriega: { ...B23M, tocado: 'panuelo', ceja: hex('#6a3a1a'), mejillas: [[6, 8], [12, 8]], delante: conCestaTR,
+    pal: CLT({ H: '#7a4424', h: '#9a5e36', s: '#e8a080', J: '#c8303a', y: '#f2eee2', C: '#6a7a4a', c: '#4e5a36', W: '#f2eee2', L: '#3a2418' }) },
+  ninoCampo: { ...B23N, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#8a6a44', c: '#6a4e30', F: '#5a4a3a' }) },
+  ninaCampo: { ...B23NA, ceja: hex('#6a3a1a'), mejillas: [[6, 8], [12, 8]], detras: coleta, pal: CLT({ H: '#7a4424', h: '#9a5e36', s: '#e8a080', C: '#a8503a', c: '#7a3a2a', W: '#f2eee2', L: '#3a2418' }) },
+  // los niños de 1682 que buscan los huevos: él con casaca azul y sombrero de tres picos; ella con cofia y vestido rojo
+  ninoBarroco: { ...B23N, tocado: 'tricornio', ceja: hex('#6a4020'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#7a5030', h: '#9a6c44', s: '#e8a080', J: '#2a2430', j: '#5a5a66', C: '#2e4a8a', c: '#1e3468', F: '#2a2430' }) },
+  ninaBarroca: { ...B23NA, tocado: 'cofia', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#b8303a', c: '#8a2228', W: '#f6f4ee', w: '#c8c4bc' }) },
+  // el erudito alemán de 1682 (el que escribe lo de la liebre): peluca larga de rizos, toga negra con las tiras blancas
+  // y el libro
+  erudito: { ...B23, cab: CAB_ALONGA_TR, cuerpo: CUERPO_ERUDITO_TR, ceja: hex('#4a2a14'), delante: conLibroTR,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#24222a', c: '#16141a', o: '#24222a', G: '#24222a', W: '#f6f4ee', L: '#16141a' }) },
+  // los colonos de Pensilvania: los del 15 (sombrero alto y cofia)
+  colonoPA: ELENCO_NY.colono,
+  colonaPA: ELENCO_NY.colona,
+  // ── el otoño: Irlanda, Halloween ──
+  // los aldeanos irlandeses: él con gorra plana, chaleco y camisa; ella pelirroja con el chal verde; el niño de la
+  // gorra con la linterna de nabo
+  irlandes: { ...B23, cuerpo: CUERPO_CHALECO_NV, tocado: 'gorraPlana', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#6a6458', j: '#4e4a40', C: '#3a3a44', c: '#2a2a32', o: '#c8a040', W: '#f2eee2', F: '#5a4a3a' }) },
+  irlandesa: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_BEFANA_NV, ceja: hex('#b8501a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8582a', h: '#e87a3a', s: '#e8a080', u: '#3a7a4a', C: '#5a4a6a', c: '#40344e', D: '#5a4a6a', Y: '#5a4a6a', L: '#2a2430' }) },
+  ninoIrlandes: { ...B23N, cab: CAB_RIZOS, tocado: 'gorraPlana', ceja: hex('#b8501a'), mejillas: [[6, 8], [12, 8]], delante: conNaboTR,
+    pal: CLT({ H: '#d0602a', h: '#f08a4a', s: '#e8a080', J: '#5a5a4a', j: '#40403a', C: '#7a6a5a', c: '#5a4e40', F: '#4a4a5a' }) },
+  // la leyenda de Jack (en sombra chinesca): el tacaño de greñas con abrigo remendado y su nabo; y el diablillo de cuento,
+  // rojo, con cuernecitos y la cola (cómico, nada de miedo)
+  jack: { ...B23, cab: CAB_GRENAS, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorraPlana', ceja: hex('#4a3020'), delante: conNaboTR,
+    pal: CLT({ H: '#6a4a2a', h: '#8a6440', u: '#5a3a24', r: '#e8907a', J: '#3a3a30', j: '#5a5a4a', C: '#5a4a34', c: '#40341f', o: '#7a6a4a', F: '#3a3040' }) },
+  diablillo: { ...B23N, cab: CAB_CALVO, cuerpo: CUERPO_NINO, tocado: 'cuernitos', ceja: hex('#5a1a1a'), detras: colaTR,
+    pal: COLORES({ S: '#d84a3a', s: '#a83228', J: '#3a1a1a', C: '#b8302a', c: '#8a2220', F: '#b8302a', R: '#b8302a', n: '#3a1a1a' }) },
+  // los pobres de la Edad Media que piden pastelitos de puerta en puerta: capa con capucha y el cuenco
+  pobreCapa: { ...B23, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#4a3020'), delante: conCuencoTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', B: '#6a5a4a', b: '#4e4234', C: '#7a6a5a', c: '#5a4e40', o: '#7a6a5a', G: '#4a3020', L: '#3a2a1a' }) },
+  pobreCapa2: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_POBRE_NV, tocado: 'capucha', ceja: hex('#6a3a1a'), delante: conPastelitoTR,
+    pal: CLT({ H: '#7a4424', h: '#9a5e36', B: '#5a4a5a', b: '#403440', C: '#8a7a62', c: '#6a5c48', W: '#c8bc9a', u: '#6a5a4a', L: '#3a2a1a' }) },
+  // los disfrazados de Escocia con máscara de papel: uno con abrigo pardo y otro con gorro de papel
+  disfrazado: { ...B23, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#4a3020'), delante: antifazTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', X: '#f2e8c8', D: '#c8303a', C: '#6a5a3a', c: '#4e4228', u: '#3a6a4a', o: '#6a5a3a', F: '#3a3a44' }) },
+  disfrazado2: { ...B23, cab: CAB_RIZOS, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPapel', ceja: hex('#b8501a'), delante: antifazTR,
+    pal: CLT({ H: '#d0602a', h: '#f08a4a', X: '#f0e060', D: '#2a5aa8', C: '#4a5a6a', c: '#34404e', u: '#a83a3a', o: '#4a5a6a', F: '#3a3a44' }) },
+  // el estudioso del XIX que se inventa lo de los druidas: bombín, bigote, levita verde oscura y el cuaderno
+  estudioso: { ...B23, cab: CAB_SIENES, tocado: 'bombin', ceja: hex('#3a2a20'), delante: varios(bigoteTR, conLibreta),
+    pal: CLT({ H: '#4a3a2a', h: '#6a5440', w: '#c8c8d0', J: '#24202c', j: '#3e3a48', C: '#2a4a3a', c: '#1e3628', W: '#f2eee2', o: '#a8303a', F: '#3a3a44' }) },
+  // los niños disfrazados de 1927 (Canadá): la brujita, el fantasma de sábana y el gato
+  brujita27: { ...B23NA, tocado: 'bruja', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', V: '#2a2430', v: '#4a4458', o: '#f08a2a', C: '#2a2430', c: '#1c1a22', W: '#f08a2a', L: '#1c1a22' }) },
+  fantasma27: { ...B23N, cuerpo: CUERPO_SABANA_TR, tocado: 'capucha', ceja: hex('#6a4020'), pal: CLT({ H: '#7a5030', h: '#9a6c44', B: '#f6f6f6', b: '#d8dce8', W: '#f6f6f6', w: '#d8dce8', L: '#2a2430' }) },
+  gato27: { ...B23N, tocado: 'orejasGato', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#24202c', h: '#3e3a48', s: '#e8a080', J: '#24202c', C: '#24202c', c: '#16141a', F: '#24202c', n: '#16141a' }) },
+  // los disfrazados de los cincuenta: el vaquero, la princesa y el pirata
+  vaquero50: { ...B23N, tocado: 'vaquero', ceja: hex('#6a4020'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#7a5030', h: '#9a6c44', s: '#e8a080', V: '#a8743c', v: '#7a5028', C: '#c8303a', c: '#962230', F: '#3a5aa0', n: '#6a4020' }) },
+  princesa50: { ...B23NA, tocado: 'tiara', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#d8a850', h: '#f0cc7a', s: '#e8a080', o: '#f0c840', D: '#3a8ad8', C: '#f0a0c0', c: '#d07898', W: '#f6f6f6', L: '#d07898' }) },
+  pirata50: { ...B23N, cuerpo: CUERPO_RAYAS_NINO_TR, tocado: 'panuelo', ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', J: '#c8303a', y: '#f6f6f6', C: '#24304a', c: '#1c2438', W: '#f6f6f6', F: '#3a3a44' }) },
+  // ── los cumpleaños ──
+  // el conde alemán de 1746: peluca blanca con lazo, casaca granate con galones de oro y medias blancas
+  conde: { ...B23, cab: CAB_PELUCA, cuerpo: CUERPO_CASACA_TR, ceja: hex('#8a7a6a'), detras: lazo,
+    pal: CLT({ H: '#f2f0ec', h: '#d0ccc4', J: '#2a2430', C: '#7a1e34', c: '#561424', W: '#f6f4ee', o: '#f0c040', F: '#561424', w: '#f6f4ee', O: '#f0c040' }) },
+  // Goethe en 1801: entradas, pelo castaño con la coleta, frac azul, chaleco amarillo, corbata blanca y calzón claro
+  goethe: { ...B23, cab: CAB_ENTRADAS, cuerpo: parche(CUERPO_EUROPEO, [[5, 0, 'XXXXX']]), ceja: hex('#3a2418'), detras: lazo,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#2a2430', C: '#2a4a8a', c: '#1e3468', W: '#e8c040', X: '#f6f4ee', o: '#e8c040', F: '#d8c8a0' }) },
+  // las hermanas Hill (1893): blusa blanca con mangas de jamón y moño; Mildred, la del piano (falda azul), y Patty, la
+  // maestra (falda granate y quevedos)
+  mildred: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, ceja: hex('#5a3418'), delante: monoHP,
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', W: '#f6f4ee', o: '#c8a040', I: '#24304a', C: '#2a3a6a', c: '#1e2a4e' }) },
+  patty: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, tocado: 'gafas', ceja: hex('#2a1c14'), delante: monoHP,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', W: '#f6f4ee', o: '#c8a040', I: '#3a1a24', C: '#6a2a3a', c: '#4e1e2a' }) },
+  // los niños del kínder de 1893: los dos niños victorianos del 22 y una niña con delantal
+  ninoKinder: ELENCO_NV.ninoVictoriano,
+  ninaKinder: ELENCO_NV.ninaVictoriana,
+  ninaDelantal: { ...B23NA, cuerpo: CUERPO_DELANTAL_NINA_TR, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], detras: coleta, pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#3a6aa8', c: '#2a5088', W: '#f6f6f6', L: '#2a2430' }) },
+  // el pleito de 2015: el director del rodaje (el del 21), la cantante (la actriz del 16), el ejecutivo de la disquera
+  // (el del 16) y el juez con toga negra, el cuello blanco, gafas y el mazo
+  directorCine: ELENCO_HP.director,
+  cantante: ELENCO_SI.actriz,
+  disquera: ELENCO_SI.ejecutivo,
+  juezToga: { ...B23, cab: CAB_SIENES, cuerpo: CUERPO_TOGA_JUEZ_TR, tocado: 'gafas', ceja: hex('#6a6a76'), delante: conMazo,
+    pal: OSCURA({ H: '#3a3a44', h: '#5a5a66', w: '#c8c8d0', C: '#1c1c24', c: '#121218', o: '#1c1c24', G: '#1c1c24', W: '#f6f4ee', L: '#121218' }) },
+  // ── las bodas ──
+  // la reina Victoria de novia (1840): el moño, la corona de azahar, el velo de encaje y el vestido de seda blanca;
+  // y la de 1848 del 22, por si sale de reina
+  victoriaNovia: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1840_TR, tocado: 'azahar', ceja: hex('#3a2418'), detras: veloTR, delante: varios(monoHP, conRamoTR),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#f8f6f0', c: '#d8d4cc', W: '#e8e2d8', L: '#2a2430' }) },
+  victoria: ELENCO_NV.victoria,
+  // el príncipe Alberto: el del 22 (levita azul) y de novio, con el uniforme rojo de mariscal, las charreteras y la banda
+  alberto: ELENCO_NV.alberto,
+  albertoBoda: { ...B23, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_UNIFORME_TR, ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2a1c', h: '#5a4230', C: '#b8283a', c: '#8a1c2a', W: '#f2eee2', o: '#f0c040', O: '#f0c040', A: '#3a5ab0', F: '#f2eee2' }) },
+  // María Estuardo (París, 1558): pelo cobrizo, toca blanca con el borde de oro y vestido blanco con perlas; y la corte de
+  // luto blanco: la dama (toca y vestido blancos) y el cortesano (jubón y calzas blancos, gorra blanca)
+  mariaEstuardo: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'attifet', ceja: hex('#8a3a1a'),
+    pal: CLT({ H: '#a8502a', h: '#c8683a', X: '#f8f6f0', x: '#d0ccc4', o: '#f0d070', O: '#e8d8b8', C: '#f8f6f0', c: '#d0ccc4' }) },
+  damaBlanca: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'attifet', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', X: '#f2f0ea', x: '#c8c4bc', o: '#c8c4bc', O: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc' }) },
+  cortesano: { ...B23, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#5a3418'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3418', h: '#8a5428', J: '#f2f0ea', j: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc', o: '#c8c4bc', G: '#c8c4bc', F: '#e8e4dc', n: '#c8c4bc' }) },
+  // novias de otras épocas, con vestidos de colores: la medieval de azul con la corona de flores, la de 1600 de rojo y la
+  // del XIX con su mejor vestido gris; y la de hoy, de blanco con velo
+  noviaAzul: { ...B23M, cuerpo: VESTIDO_LISO, tocado: 'coronaFlores', ceja: hex('#a8743c'), delante: conRamoColorTR, pal: CLT({ H: '#c89a50', h: '#e0b868', C: '#3a6ab0', c: '#2a5090', W: '#f2eee2', L: '#2a2430' }) },
+  noviaRoja: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'coronaFlores', ceja: hex('#2a1c14'), delante: conRamoColorTR, pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#b8283a', c: '#8a1c2a', o: '#f0c040', O: '#f0c040' }) },
+  noviaGris: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, ceja: hex('#6a3a1a'), delante: varios(monoHP, conRamoTR), pal: CLT({ H: '#7a4424', h: '#9a5e36', W: '#8a8a9a', o: '#c8a040', I: '#5a5a6a', C: '#6a6a7a', c: '#4e4e5c' }) },
+  noviaBlanca: { ...B23M, cuerpo: VESTIDO_LISO, ceja: hex('#2a1c14'), detras: veloTR, delante: conRamoTR, pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#f8f6f0', c: '#d8d4cc', W: '#f8f6f0', L: '#d8d4cc' }) },
+  // el joyero: canoso con entradas, bigote, la lupa en la frente, mandil de cuero sobre la camisa y la argolla
+  joyero: { ...B23, cab: CAB_ENTRADAS, cuerpo: CUERPO_TALLER_NV, ceja: hex('#6a6a76'), delante: varios(bigoteTR, lupaTR, conArgollaTR),
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', W: '#e8eef6', B: '#6a4a30', b: '#4e3420', G: '#3a2a1a', F: '#3a3a44' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_TR);
+
+// ── piezas del 23 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_TR = { ...PAL_NV, ...COLORES({
+  U: '#6a2a7a', u: '#3e1450', I: '#b07ac8', l: '#7ab83a', F: '#b8e0f0', f: '#7ab0d0', D: '#2e4aa0', e: '#5a3218',
+  N: '#24202c', a: '#e8e4dc',
+}) };
+const pintaTR = (R, g, x, y, o = {}, pal = PAL_TR) => pintaJH(R, g, x, y, o, pal);
+const encimaTR = (R, w, hgt, x, y, o, pal = PAL_TR) => encimaNV(R, w, hgt, x, y, o, pal);
+const subTR = (R, w, hgt, x, y, o, pal = PAL_TR) => subNV(R, w, hgt, x, y, o, pal);
+// un tono más oscuro de un color (para las sombras de los colores que se eligen con o.color)
+const oscuroTR = (c, f = 0.68) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(c.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+
+// LA UVA CON OJOS, el gag del episodio: grano morado (U, sombra u, brillo I) con el rabito y la hoja (V/l), bracitos y
+// pies. o.cara: 'normal' (parpadea con o.t), 'susto' (ojos grandes, boca en O y una gota), 'feliz' (ojos cerrados de
+// gusto, sonrisa y mofletes); o.corre (con o.t): corre con los pies y los brazos alternos; o.color: 'morada' (por
+// omisión), 'verde', 'roja' o 'colores' (a rayas: la que pinta la liebre); o.corazon: un corazón pintado en la barriga
+const UVA_TR = {};
+const DENTRO_UVA_TR = (i, j) => Math.hypot(i - 6, j - 8.5) <= 5.55;
+const cuerpoUvaTR = (pose) => forma(13, 17, ({ rect, put }) => {
+  rect(6, 1, 6, 3, 'b'); put(7, 1, 'V'); put(8, 1, 'V'); put(8, 0, 'l'); put(9, 0, 'l'); put(7, 2, 'V');
+  for (let j = 2; j <= 15; j++) for (let i = 0; i < 13; i++) if (DENTRO_UVA_TR(i, j)) put(i, j, (i - 6) + (j - 8.5) > 4.2 ? 'u' : 'U');
+  put(3, 5, 'I'); put(4, 4, 'I'); put(3, 6, 'I');
+  if (pose === 'quieta') { rect(4, 14, 5, 15, 'u'); rect(7, 14, 8, 15, 'u'); put(0, 9, 'u'); put(12, 9, 'u'); put(0, 10, 'u'); put(12, 10, 'u'); }
+  else if (pose === 'a') { rect(2, 15, 4, 15, 'u'); put(4, 14, 'u'); rect(8, 13, 10, 13, 'u'); put(0, 8, 'u'); put(12, 11, 'u'); put(0, 7, 'u'); put(12, 12, 'u'); }
+  else { rect(8, 15, 10, 15, 'u'); put(8, 14, 'u'); rect(2, 13, 4, 13, 'u'); put(0, 11, 'u'); put(12, 8, 'u'); put(0, 12, 'u'); put(12, 7, 'u'); }
+});
+UVA_TR.quieta = cuerpoUvaTR('quieta'); UVA_TR.a = cuerpoUvaTR('a'); UVA_TR.b = cuerpoUvaTR('b');
+const COLOR_UVA_TR = { morada: ['#6a2a7a', '#3e1450', '#b07ac8'], verde: ['#8ac04a', '#5a8a2a', '#d0f08a'], roja: ['#b8304a', '#7a1a30', '#f08aa0'] };
+const uvaTR = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, cara = o.cara ?? 'normal', corre = !!o.corre, f = corre ? (Math.floor(t * 8) % 2 ? 'a' : 'b') : 'quieta';
+  const yy = corre && f === 'a' ? y - (o.s ?? 1) : y, [c1, c2, c3] = COLOR_UVA_TR[o.color] ?? COLOR_UVA_TR.morada;
+  const pal = { ...PAL_TR, ...COLORES({ U: c1, u: c2, I: c3 }) };
+  pintaTR(R, UVA_TR[f], x, yy, o, pal);
+  const px = encimaTR(R, 13, 17, x, yy, o, pal);
+  if (o.color === 'colores') { const bandas = ['R', 'y', 'Y', 'V', 'A', 'p']; for (let j = 3; j <= 14; j++) for (let i = 0; i < 13; i++) if (DENTRO_UVA_TR(i, j) && Math.hypot(i - 6, j - 8.5) <= 4.6) px(i, j, bandas[Math.floor((j - 3 + (i > 6 ? 1 : 0)) / 2) % 6]); }
+  if (o.corazon) { for (const [a, b] of [[8, 11], [10, 11], [8, 12], [9, 12], [10, 12], [9, 13]]) px(a, b, 'R'); px(8, 11, 'P'); }
+  if (cara === 'susto') { for (const e of [3, 7]) { for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]) px(e + a, 6 + b, 'E'); px(e + 1, 7, 'k'); } px(5, 10, 'k'); px(6, 10, 'k'); px(5, 11, 'm'); px(6, 11, 'm'); px(5, 12, 'k'); px(6, 12, 'k'); px(11, 4, 'F'); px(11, 5, 'F'); return; }
+  if (cara === 'feliz') { for (const e of [3, 7]) { px(e, 8, 'k'); px(e + 1, 7, 'k'); px(e + 2, 8, 'k'); } px(2, 9, 'P'); px(10, 9, 'P'); px(4, 10, 'k'); px(8, 10, 'k'); for (let i = 5; i <= 7; i++) { px(i, 11, 'k'); px(i, 10, 'm'); } return; }
+  const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12;
+  for (const e of [3, 7]) { if (cierra) { px(e, 8, 'k'); px(e + 1, 8, 'k'); } else { px(e, 7, 'E'); px(e, 8, 'E'); px(e + 1, 7, 'k'); px(e + 1, 8, 'k'); } }
+  px(4, 10, 'k'); px(5, 11, 'k'); px(6, 11, 'k'); px(7, 10, 'k');
+};
+// el racimo de uvas (U con brillo I, el rabo b y la hoja V); o.hueco: le falta un grano (el que se ha escapado);
+// o.color 'verde' para las blancas
+const granosTR = (hueco) => forma(11, 15, ({ rect, put, disco }) => {
+  rect(5, 0, 5, 2, 'b'); put(6, 1, 'V'); put(7, 1, 'V'); put(7, 0, 'l'); put(6, 2, 'V');
+  const G = [[2.2, 4.4], [5.2, 4], [8.2, 4.4], [3.6, 7.2], [6.8, 7.2], [2, 7.4], [9, 7.4], [5.2, 10], [3.4, 10.2], [7, 10.2], [5.2, 12.6]];
+  G.forEach(([cx, cy], n) => { if (hueco && n === 4) { disco(cx, cy, 1.2, 'u'); return; } disco(cx, cy, 1.55, 'u'); disco(cx - 0.4, cy - 0.4, 1.05, 'U'); put(cx - 1, cy - 1, 'I'); });
+});
+const RACIMO_TR = granosTR(false), RACIMO_HUECO_TR = granosTR(true);
+const racimoTR = (R, x, y, o = {}) => { const [c1, c2, c3] = COLOR_UVA_TR[o.color] ?? COLOR_UVA_TR.morada; pintaTR(R, o.hueco ? RACIMO_HUECO_TR : RACIMO_TR, x, y, o, { ...PAL_TR, ...COLORES({ U: c1, u: c2, I: c3 }) }); };
+// la copa de champán de 1890 (cristal F, champán O con burbujas o); o.llena false, vacía
+const COPA_TR = ['k.....k', 'kFoOoFk', '.kOOOk.', '..kkk..', '..kFk..', '..kFk..', '..kFk..', '.kkFkk.', 'kFFFFFk', 'kkkkkkk'];
+const copaTR = (R, x, y, o = {}) => pintaTR(R, o.llena === false ? COPA_TR.map((f) => f.replace(/[Oo]/g, 'F')) : COPA_TR, x, y, o);
+// LA TELE DE 1962: mueble de madera (B/b) con patas, la pantalla redondeada y los mandos; o.encendida (por omisión)
+// en blanco y negro con las rayas, y o.reloj (por omisión) el reloj de la Puerta del Sol en la torre, con las agujas casi
+// en las doce; o.pantalla(R, [x0, y0, x1, y1]) pinta otra cosa dentro (la escena)
+const TELE_TR = forma(24, 24, ({ rect, put, disco }) => {
+  rect(1, 1, 22, 17, 'B'); rect(1, 17, 22, 17, 'b'); rect(1, 1, 22, 1, 'T');
+  rect(2, 2, 15, 15, 'K'); rect(3, 3, 14, 14, 'u');
+  rect(17, 3, 21, 15, 'b'); disco(19, 5, 1.2, 'Z'); disco(19, 9, 1.2, 'Z'); for (let j = 12; j <= 14; j++) for (let i = 17; i <= 21; i += 2) put(i, j, 'e');
+  put(19, 4, 'k'); put(20, 9, 'k');
+  for (const [a, b] of [[3, 18], [4, 19], [4, 20], [5, 21], [5, 22], [20, 18], [19, 19], [19, 20], [18, 21], [18, 22]]) put(a, b, 'b');
+});
+const teleTR = (R, x, y, o = {}) => {
+  pintaTR(R, TELE_TR, x, y, o);
+  if (o.encendida === false) return;
+  const px = encimaTR(R, 24, 24, x, y, o), t = o.t ?? 0;
+  for (let j = 3; j <= 14; j++) for (let i = 3; i <= 14; i++) px(i, j, (j + Math.floor(t * 6)) % 3 ? 'h' : 'Z');
+  if (typeof o.pantalla === 'function') { const s = o.s ?? 1, x0 = Math.round(x - 12 * s), y0 = Math.round(y - 24 * s); o.pantalla(R, [x0 + 3 * s, y0 + 3 * s, x0 + 15 * s - 1, y0 + 15 * s - 1]); return; }
+  if (o.reloj === false) return;
+  for (let j = 10; j <= 14; j++) for (let i = 3; i <= 14; i++) px(i, j, 'G');
+  for (let j = 6; j <= 9; j++) for (let i = 7; i <= 10; i++) px(i, j, 'G');
+  px(8, 4, 'G'); px(9, 4, 'G'); px(8, 5, 'G'); px(9, 5, 'G');
+  for (const [a, b, c] of [[7, 6, 'k'], [8, 6, 'k'], [9, 6, 'H'], [10, 6, 'k'], [7, 7, 'H'], [8, 7, 'k'], [9, 7, 'H'], [10, 7, 'H'], [7, 8, 'k'], [8, 8, 'H'], [9, 8, 'H'], [10, 8, 'k']]) px(a, b, c);
+  for (const i of [4, 6, 11, 13]) { px(i, 11, 'H'); px(i, 13, 'H'); }
+};
+// los calzones de la suerte, colgados con dos pinzas (B): o.color 'rojo' (por omisión) o 'amarillo'; o.pinzas false
+// sin las pinzas
+const CALZONES_TR = forma(13, 11, ({ rect, put }) => {
+  rect(1, 2, 11, 3, 'r'); rect(1, 4, 11, 5, 'R');
+  for (let j = 6; j <= 9; j++) { rect(1 + (j - 6), j, 5, j, 'R'); rect(7, j, 11 - (j - 6), j, 'R'); }
+  rect(5, 6, 7, 6, 'R'); put(6, 7, 'R'); put(3, 4, 'E');
+});
+const COL_CALZONES_TR = { rojo: ['#d8303a', '#9a1e28'], amarillo: ['#f0c830', '#c89a18'] };
+const calzonesTR = (R, x, y, o = {}) => {
+  const [c1, c2] = COL_CALZONES_TR[o.color] ?? COL_CALZONES_TR.rojo;
+  pintaTR(R, CALZONES_TR, x, y, o, { ...PAL_TR, ...COLORES({ R: c1, r: c2 }) });
+  if (o.pinzas !== false) { const px = encimaTR(R, 13, 11, x, y, o); for (const i of [2, 10]) { px(i - 1, 0, 'k'); px(i, 0, 'B'); px(i + 1, 0, 'k'); px(i - 1, 1, 'k'); px(i, 1, 'B'); px(i + 1, 1, 'k'); px(i, 2, 'b'); } }
+};
+// la maleta de cuero (B/b, o.color cambia el cuero) con el asa, las correas (b) y las esquinas de metal (Z)
+const MALETA_TR = forma(17, 13, ({ rect, put }) => {
+  rect(6, 0, 10, 0, 'b'); put(6, 1, 'b'); put(10, 1, 'b'); put(6, 2, 'b'); put(10, 2, 'b');
+  rect(1, 3, 15, 11, 'B'); rect(1, 11, 15, 11, 'b'); rect(1, 3, 15, 3, 'i');
+  for (const i of [4, 12]) rect(i, 3, i, 11, 'b');
+  for (const [a, b] of [[1, 3], [15, 3], [1, 11], [15, 11]]) put(a, b, 'Z');
+  put(4, 6, 'O'); put(12, 6, 'O');
+});
+const maletaTR = (R, x, y, o = {}) => pintaTR(R, MALETA_TR, x, y, o, o.color ? { ...PAL_TR, ...COLORES({ B: o.color, b: oscuroTR(o.color), i: o.color }) } : PAL_TR);
+// EL CALENDARIO DE PARED de 19 × 22: las anillas, la cabecera del color del mes (o.mes 1–12) con el número del mes en
+// blanco (sin letras) y la hoja (X). o.dia: un número grande (1, 14, 1752…); sin o.dia, la cuadrícula del mes con
+// o.marca [desde, hasta] en el color del mes
+const MESES_TR = ['#3a6ad8', '#d84a7a', '#4a9a3a', '#8ab83a', '#e8a030', '#e8c030', '#e8783a', '#c8503a', '#8a5a34', '#e06a1a', '#6a4a8a', '#c8303a'];
+const CAL_TR = forma(19, 22, ({ rect }) => { rect(1, 3, 17, 20, 'X'); rect(1, 3, 17, 9, 'R'); rect(1, 9, 17, 9, 'r'); rect(2, 20, 17, 20, 'x'); });
+const calendarioTR = (R, x, y, o = {}) => {
+  const m = Math.max(1, Math.min(12, o.mes ?? 1)), col = MESES_TR[m - 1], pal = { ...PAL_TR, ...COLORES({ R: col, r: oscuroTR(col) }) };
+  pintaTR(R, CAL_TR, x, y, o, pal);
+  const px = encimaTR(R, 19, 22, x, y, o, pal);
+  for (const i of [3, 15]) { px(i, 1, 'k'); px(i, 2, 'Z'); px(i, 3, 'Z'); px(i, 4, 'k'); }
+  numeroNV(px, m, Math.round(9.5 - anchoNumeroNV(m) / 2), 4, 'W');
+  if (o.dia != null) { const e = String(o.dia).length <= 2 ? 2 : 1, w = anchoNumeroNV(o.dia, e); numeroNV(px, o.dia, Math.round(9.5 - w / 2), e === 2 ? 10 : 13, 'k', e); return; }
+  const [m0, m1] = o.marca ?? [0, -1];
+  for (let d = 1; d <= 31; d++) { const c = (d - 1) % 7, f = Math.floor((d - 1) / 7); px(3 + c * 2, 11 + f * 2, d >= m0 && d <= m1 ? 'R' : 'x'); }
+};
+// LA HOJA DE CALENDARIO suelta, arrancada (para que vuele): borde de arriba roto, la cabecera del color del mes con su
+// número (o.mes) y el día (o.dia) grande; la esquina doblada
+const HOJA_CAL_TR = forma(13, 15, ({ rect, put }) => { rect(1, 1, 11, 13, 'X'); rect(1, 1, 11, 6, 'R'); for (let i = 1; i <= 11; i += 2) put(i, 0, 'R'); put(11, 13, 'x'); put(10, 13, 'x'); put(11, 12, 'x'); });
+const hojaCalendarioTR = (R, x, y, o = {}) => {
+  const m = Math.max(1, Math.min(12, o.mes ?? 1)), col = MESES_TR[m - 1], pal = { ...PAL_TR, ...COLORES({ R: col }) };
+  pintaTR(R, HOJA_CAL_TR, x, y, o, pal);
+  const px = encimaTR(R, 13, 15, x, y, o, pal);
+  numeroNV(px, m, Math.round(6.5 - anchoNumeroNV(m) / 2), 1, 'W');
+  if (o.dia != null) numeroNV(px, o.dia, Math.round(6.5 - anchoNumeroNV(o.dia) / 2), 8, 'k');
+};
+// EL SELLO DE UN PENIQUE (1840): dentado (X), tinta negra (N; o.color 'rojo' el de 1841), el perfil de la reina en
+// blanco y un «1» (sin letras)
+const SELLO_TR = forma(13, 17, ({ rect, put }) => {
+  for (let j = 0; j < 17; j++) for (let i = 0; i < 13; i++) if (i === 0 || j === 0 || i === 12 || j === 16) { if ((i + j) % 2 === 0) put(i, j, 'X'); } else put(i, j, 'X');
+  rect(2, 2, 10, 14, 'N');
+  for (const [a, b, c] of [[6, 3, 3], [5, 4, 4], [4, 5, 5], [3, 6, 5], [4, 7, 4], [5, 8, 3], [5, 9, 5]]) rect(a, b, a + c - 1, b, 'W');
+  put(8, 3, 'x'); put(9, 4, 'x'); put(9, 5, 'x');
+  put(6, 12, 'W'); put(5, 11, 'W'); put(6, 11, 'W'); put(6, 13, 'W'); put(6, 10, 'W'); rect(5, 13, 7, 13, 'W');
+});
+const selloTR = (R, x, y, o = {}) => pintaTR(R, SELLO_TR, x, y, o, o.color === 'rojo' ? { ...PAL_TR, ...COLORES({ N: '#a83a3a' }) } : PAL_TR);
+// LA TARJETA DE SAN VALENTÍN de Esther Howland: encaje de papel (X, calados x) con el borde festoneado, el fondo rosa
+// (P) y el corazón rojo (R, o.color lo cambia)
+const TARJETA_TR = forma(17, 15, ({ rect, put }) => {
+  rect(1, 1, 15, 13, 'X');
+  for (let i = 1; i <= 15; i += 2) { put(i, 0, 'X'); put(i, 14, 'X'); }
+  for (let j = 1; j <= 13; j += 2) { put(0, j, 'X'); put(16, j, 'X'); }
+  for (let i = 2; i <= 14; i += 2) { put(i, 2, 'x'); put(i, 12, 'x'); }
+  for (let j = 4; j <= 10; j += 2) { put(2, j, 'x'); put(14, j, 'x'); }
+  rect(4, 4, 12, 10, 'P');
+  for (const [r, a, b] of [[4, 5, 6], [4, 9, 10], [5, 5, 11], [6, 5, 11], [7, 6, 10], [8, 7, 9], [9, 8, 8]]) rect(a, r, b, r, 'R');
+  put(6, 5, 'E');
+});
+const tarjetaTR = (R, x, y, o = {}) => pintaTR(R, TARJETA_TR, x, y, o, o.color ? { ...PAL_TR, ...COLORES({ R: o.color }) } : PAL_TR);
+// EL HUEVO: o.color 'blanco' (por omisión), 'marron', 'rojo', 'azul', 'verde', 'amarillo', 'morado', 'rosa' o
+// 'naranja'; o.dibujo 'liso', 'rayas' (zigzag blanco) o 'puntos' (los de color, a rayas si no se dice)
+const HUEVO_TR = ['..kkk..', '.kYYYk.', 'kYEYYYk', 'kYYYYYk', 'kYYYYYk', 'kYYYYyk', 'kYYYyyk', '.kyyyk.', '..kkk..'];
+const COL_HUEVO_TR = { blanco: ['#f6f0e0', '#d8ccb0'], marron: ['#d8a070', '#a87448'], rojo: ['#d8303a', '#9a1e28'], azul: ['#3a7ad8', '#2a54a0'], verde: ['#4aa84a', '#2e7a34'], amarillo: ['#f0d040', '#c8a020'], morado: ['#9a4ab8', '#6a2a8a'], rosa: ['#f0a0b8', '#c87090'], naranja: ['#f08a2a', '#b85a18'] };
+const huevoTR = (R, x, y, o = {}) => {
+  const c = o.color ?? 'blanco', [c1, c2] = COL_HUEVO_TR[c] ?? COL_HUEVO_TR.blanco, pal = { ...PAL_TR, ...COLORES({ Y: c1, y: c2 }) };
+  pintaTR(R, HUEVO_TR, x, y, o, pal);
+  const dib = o.dibujo ?? (c === 'blanco' || c === 'marron' ? 'liso' : 'rayas'), px = encimaTR(R, 7, 9, x, y, o, pal);
+  if (dib === 'rayas') { for (const i of [1, 3, 5]) px(i, 4, 'W'); for (const i of [2, 4]) px(i, 5, 'W'); }
+  else if (dib === 'puntos') for (const [a, b] of [[2, 4], [4, 3], [4, 6], [2, 6], [5, 5]]) px(a, b, 'W');
+};
+// LA CESTA DE MIMBRE con huevos (o.n de 0 a 5, por omisión 4): naturales (blancos y morenos) o de colores (o.colores)
+const CESTA_TR = forma(17, 13, ({ rect, put, linea }) => {
+  linea(2, 6, 4, 1, 'b'); linea(4, 1, 12, 1, 'b'); linea(12, 1, 14, 6, 'b');
+  rect(1, 7, 15, 11, 'B'); rect(2, 12, 14, 12, 'B'); rect(1, 7, 15, 7, 'b');
+  for (let j = 8; j <= 11; j++) for (let i = 1 + (j % 2); i <= 15; i += 2) put(i, j, 'b');
+});
+const cestaTR = (R, x, y, o = {}) => {
+  const n = Math.max(0, Math.min(5, o.n ?? 4)), sub = subTR(R, 17, 13, x, y, o);
+  pintaTR(R, CESTA_TR, x, y, o);
+  const cols = o.colores ? ['rojo', 'azul', 'amarillo', 'verde', 'morado'] : ['blanco', 'marron', 'blanco', 'marron', 'blanco'];
+  [[3, 4], [10, 4], [6, 3], [8, 5], [12, 5]].slice(0, n).forEach(([i, j], k) => { const [c1, c2] = COL_HUEVO_TR[cols[k]]; sub(['.kk.', 'kYYk', 'kYyk', 'kyyk'], i, j, COLORES({ k: '#1c1222', Y: c1, y: c2 })); });
+  if (n) sub(['bbbbbbbbbbbbb'], 2, 7);
+};
+// LA LIEBRE DE PASCUA: parda (M, sombra n, barriga c), orejas largas por dentro rosas (P), cola blanca; sentada o con
+// o.salta (con o.t) a saltos; o.cesta: la cestita de huevos a la espalda
+const LIEBRE_SENTADA_TR = forma(20, 17, ({ rect, disco, linea, put }) => {
+  for (const d of [0, 1]) { linea(12 + d, 5, 10 + d, 0, 'M'); linea(14 + d, 5, 15 + d, 0, 'M'); }
+  put(11, 2, 'P'); put(11, 3, 'P'); put(15, 2, 'P'); put(15, 3, 'P');
+  disco(7, 11.5, 4.6, 'M'); disco(5.5, 12.5, 3.6, 'n'); disco(5, 12.2, 3, 'M');
+  disco(14, 7.5, 3, 'M'); rect(10, 9, 13, 12, 'M'); rect(10, 11, 12, 14, 'c');
+  rect(12, 13, 13, 15, 'M'); rect(9, 15, 13, 15, 'n'); rect(3, 15, 7, 15, 'n');
+  put(2, 9, 'W'); put(1, 10, 'W'); put(2, 10, 'W');
+  put(17, 8, 'P'); put(16, 9, 'c');
+});
+const LIEBRE_SALTA_TR = forma(22, 15, ({ rect, disco, linea, put }) => {
+  for (const d of [0, 1]) linea(15 + d, 5, 11 + d, 0, 'M');
+  put(13, 2, 'P'); put(14, 3, 'P');
+  disco(6, 9, 3.4, 'M'); disco(10, 8, 3.6, 'M'); disco(16, 6.5, 2.8, 'M'); rect(12, 7, 14, 9, 'M');
+  rect(8, 10, 12, 11, 'c');
+  for (const d of [0, 1]) { linea(4, 11 + d, 0, 13 + d, 'n'); linea(13, 10 + d, 19, 12 + d, 'M'); }
+  put(2, 7, 'W'); put(2, 8, 'W'); put(3, 7, 'W');
+  put(19, 7, 'P');
+});
+const liebreTR = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, salta = !!o.salta && Math.floor(t * 4) % 2 === 0, s = o.s ?? 1;
+  const g = salta ? LIEBRE_SALTA_TR : LIEBRE_SENTADA_TR, w = salta ? 22 : 20, h = salta ? 15 : 17, yy = salta ? y - Math.round(Math.abs(Math.sin(t * Math.PI * 4)) * 4 * s) : y;
+  if (o.cesta) { const sub = subTR(R, w, h, x, yy, o); sub(['.kkkk.', 'kOkkOk', 'kBRYBk', 'kBbBbk', '.kkkk.'], salta ? 6 : 3, salta ? 2 : 4); }
+  pintaTR(R, g, x, yy, o);
+  const px = encimaTR(R, w, h, x, yy, o);
+  if (salta) { px(17, 6, 'k'); px(18, 6, 'E'); } else { px(15, 7, 'k'); px(16, 7, 'E'); }
+};
+// EL NABO TALLADO de Irlanda: nabo blanco (W/w) con la corona morada (p), las hojas cortadas (V) y la cara tallada; con
+// o.luz (y o.t) la brasa de dentro brilla y parpadea (Y/o), sin luz la talla queda oscura (K)
+const NABO_TR = forma(11, 14, ({ rect, put, disco }) => {
+  put(4, 0, 'V'); put(5, 0, 'V'); put(6, 1, 'V'); put(5, 1, 'V'); put(3, 1, 'V');
+  disco(5, 7.5, 4.6, 'W'); for (let j = 3; j <= 5; j++) for (let i = 1; i <= 9; i++) if (Math.hypot(i - 5, j - 7.5) <= 4.95) put(i, j, 'p');
+  put(8, 9, 'w'); put(8, 10, 'w'); put(7, 11, 'w'); put(5, 12, 'w'); put(5, 13, 'w');
+});
+const naboTR = (R, x, y, o = {}) => {
+  pintaTR(R, NABO_TR, x, y, o);
+  const px = encimaTR(R, 11, 14, x, y, o), l = !o.luz ? 'K' : Math.sin((o.t ?? 0) * 11 + x) > 0 ? 'Y' : 'o';
+  for (const [a, b] of [[3, 6], [2, 7], [3, 7], [7, 6], [7, 7], [8, 7], [5, 8], [3, 9], [4, 10], [5, 10], [6, 10], [7, 9]]) px(a, b, l);
+};
+// LA CALABAZA TALLADA (y, sombra Q y gajos q) con el rabo (b) y la hoja (V); o.tallada false: sin cara; o.luz (con o.t)
+// la cara brilla y parpadea
+const CALABAZA_TR = forma(17, 14, ({ rect, put, disco }) => {
+  rect(8, 0, 9, 2, 'b'); put(10, 1, 'V'); put(11, 1, 'V'); put(11, 0, 'V');
+  disco(4.6, 8, 4.6, 'y'); disco(12.4, 8, 4.6, 'y'); disco(8.5, 7.8, 5.6, 'y');
+  for (const i of [5, 8, 11]) for (let j = 4; j <= 12; j++) put(i + (j < 6 || j > 10 ? (i < 8 ? 1 : i > 8 ? -1 : 0) : 0), j, 'Q');
+  rect(3, 12, 14, 12, 'q');
+});
+const calabazaTR = (R, x, y, o = {}) => {
+  pintaTR(R, CALABAZA_TR, x, y, o);
+  if (o.tallada === false) return;
+  const px = encimaTR(R, 17, 14, x, y, o), l = !o.luz ? 'K' : Math.sin((o.t ?? 0) * 11 + x) > 0 ? 'Y' : 'o';
+  for (const [a, b] of [[4, 6], [3, 7], [4, 7], [5, 7], [12, 6], [11, 7], [12, 7], [13, 7], [8, 8], [9, 8]]) px(a, b, l);
+  for (let i = 3; i <= 14; i++) px(i, 10, l);
+  for (const i of [4, 7, 10, 13]) px(i, 9, l);
+  for (const i of [5, 8, 11]) px(i, 11, l);
+};
+// el pastelito de alma (soul cake): torta dorada (J, brillo i) con la cruz marcada (j) y pasas (d)
+const PASTELITO_TR = forma(11, 7, ({ rect, put }) => { rect(2, 1, 8, 5, 'J'); rect(1, 2, 9, 4, 'J'); rect(2, 1, 8, 1, 'i'); rect(3, 3, 7, 3, 'j'); rect(5, 2, 5, 4, 'j'); put(3, 2, 'd'); put(7, 4, 'd'); put(8, 2, 'd'); put(2, 4, 'd'); });
+const pastelitoTR = (R, x, y, o = {}) => pintaTR(R, PASTELITO_TR, x, y, o);
+// LA CARTILLA DE RACIONAMIENTO (años cuarenta): tapa crema (c) con la franja azul (A) y el sello rojo (R), sin letras, y
+// la hoja de cupones (X, con los cortes x); o.cupones: los que quedan (0–12, por omisión 5), los arrancados se ven vacíos
+const CARTILLA_TR = forma(17, 13, ({ rect }) => { rect(1, 1, 15, 11, 'c'); rect(1, 1, 15, 2, 'A'); rect(1, 11, 15, 11, 'x'); });
+const cartillaTR = (R, x, y, o = {}) => {
+  pintaTR(R, CARTILLA_TR, x, y, o);
+  const px = encimaTR(R, 17, 13, x, y, o), n = Math.max(0, Math.min(12, o.cupones ?? 5));
+  for (let k = 0; k < 12; k++) { const i0 = 2 + (k % 4) * 3, j0 = 4 + Math.floor(k / 4) * 2; if (k < n) { px(i0, j0, 'X'); px(i0 + 1, j0, 'X'); px(i0 + 2, j0, 'x'); px(i0, j0 + 1, 'x'); px(i0 + 1, j0 + 1, 'x'); } else { px(i0, j0, 'w'); px(i0 + 1, j0, 'w'); } }
+  px(14, 4, 'R'); px(13, 4, 'R'); px(14, 5, 'R');
+};
+// EL FRASCO DE AZÚCAR: cristal (F, reflejo E) con la tapa de lata (Z/z) y el azúcar (W/w) hasta o.nivel (0–1, por
+// omisión 0.15: casi vacío)
+const FRASCO_TR = forma(11, 15, ({ rect }) => { rect(2, 1, 8, 2, 'Z'); rect(2, 2, 8, 2, 'z'); rect(1, 3, 9, 13, 'F'); rect(2, 4, 2, 11, 'E'); rect(1, 13, 9, 13, 'f'); });
+const frascoTR = (R, x, y, o = {}) => {
+  pintaTR(R, FRASCO_TR, x, y, o);
+  const px = encimaTR(R, 11, 15, x, y, o), alto = Math.round(Math.max(0, Math.min(1, o.nivel ?? 0.15)) * 10);
+  for (let j = 13 - alto + 1; j <= 13; j++) for (let i = 1; i <= 9; i++) px(i, j, j === 13 - alto + 1 ? 'W' : (i + j) % 3 ? 'W' : 'w');
+};
+// EL PASTEL DE CUMPLEAÑOS: bizcocho rosa (P) con el glaseado (W) que chorrea, la capa de fresa (R) y el plato (Z/z);
+// o.velas: cuántas velas (1–60, por omisión 5; con muchas, en dos o tres filas y el pastel más ancho); o.encendidas:
+// true (por omisión), false o cuántas quedan encendidas (las del centro: la del gag es 1); o.humo con las apagadas
+// (con o.t)
+const PASTEL_CACHE_TR = new Map();
+const COL_VELAS_TR = ['A', 'R', 'Y', 'V', 'p', 'y'];
+const medidaPastelTR = (n) => { const filas = n <= 12 ? 1 : n <= 30 ? 2 : 3, porFila = Math.ceil(n / filas); return { filas, porFila, W: Math.max(15, porFila * 2 + 5) }; };
+const velasPastelTR = (n) => {
+  const { filas, porFila, W } = medidaPastelTR(n), out = [];
+  for (let k = 0; k < filas; k++) { const m = Math.min(porFila, n - k * porFila), x0 = Math.round((W - (m * 2 - 1)) / 2) + (k % 2 && m === porFila && x0Ok(W, m) ? 1 : 0); for (let i = 0; i < m; i++) out.push([x0 + i * 2, 5 + 2 * k, out.length]); }
+  return out;
+};
+const x0Ok = (W, m) => Math.round((W - (m * 2 - 1)) / 2) + m * 2 < W - 2;
+const gridPastelTR = (n) => {
+  if (PASTEL_CACHE_TR.has(n)) return PASTEL_CACHE_TR.get(n);
+  const { filas, W } = medidaPastelTR(n), S1 = 5 + 2 * (filas - 1), H = S1 + 10;
+  const g = forma(W, H, ({ rect, put }) => {
+    rect(2, 5, W - 3, S1, 'W');
+    rect(2, S1 + 1, W - 3, S1 + 6, 'P'); rect(2, S1 + 4, W - 3, S1 + 4, 'R');
+    for (let i = 2; i <= W - 3; i++) if (i % 3 !== 1) put(i, S1 + 1, 'W');
+    for (let i = 3; i <= W - 4; i += 5) put(i, S1 + 2, 'W');
+    rect(1, S1 + 7, W - 2, S1 + 7, 'Z'); rect(2, S1 + 8, W - 3, S1 + 8, 'z');
+    for (const [i, j, k] of velasPastelTR(n)) for (let d = 1; d <= 3; d++) put(i, j - d, COL_VELAS_TR[k % COL_VELAS_TR.length]);
+  });
+  const r = { g, W, H }; PASTEL_CACHE_TR.set(n, r); return r;
+};
+const pastelCumpleTR = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(60, Math.round(o.velas ?? 5))), { g, W, H } = gridPastelTR(n), t = o.t ?? 0;
+  pintaTR(R, g, x, y, o);
+  const px = encimaTR(R, W, H, x, y, o), velas = velasPastelTR(n), cx = W / 2;
+  const enc = o.encendidas ?? true, lit = new Set(enc === true ? velas.map((v) => v[2]) : enc === false ? [] : [...velas].sort((a, b) => Math.abs(a[0] - cx) + a[1] * 0.1 - Math.abs(b[0] - cx) - b[1] * 0.1).slice(0, enc).map((v) => v[2]));
+  for (const [i, j, k] of velas) {
+    if (lit.has(k)) { const on = Math.sin(t * 11 + k * 1.7) > 0; px(i, j - 4, on ? 'Y' : 'y'); px(i + (on ? 0 : 1), j - 5, 'o'); }
+    else { px(i, j - 4, 'k'); if (o.humo) { const f = Math.floor(t * 3 + k) % 3; px(i + (f === 1 ? 1 : 0), j - 6 - f, 'h'); } }
+  }
+};
+// el mazo del juez (B/b) apoyado sobre su taco redondo (b)
+const MAZO_TR = forma(15, 9, ({ rect, put }) => { rect(1, 1, 6, 4, 'B'); rect(1, 1, 6, 1, 'i'); for (const i of [2, 5]) rect(i, 1, i, 4, 'b'); rect(7, 2, 13, 3, 'b'); put(13, 2, 'B'); rect(2, 6, 12, 7, 'b'); rect(3, 6, 11, 6, 'B'); });
+const mazoTR = (R, x, y, o = {}) => pintaTR(R, MAZO_TR, x, y, o);
+// LA CAJA FUERTE de la disquera (Z/z gris) con la rueda de la combinación (K/Z), la manivela (O) y las patas; o.abierta:
+// la puerta abierta a un lado y dentro las monedas apiladas (o.monedas 0–1, por omisión 0.7)
+const CAJA_TR = forma(21, 21, ({ rect, disco, put }) => {
+  rect(1, 1, 19, 18, 'Z'); rect(1, 1, 19, 1, 'H'); rect(19, 1, 19, 18, 'z');
+  rect(3, 3, 17, 16, 'z'); rect(4, 4, 16, 15, 'Z');
+  disco(10, 9, 3, 'K'); disco(10, 9, 1.6, 'Z'); put(10, 6, 'H'); put(13, 9, 'H'); put(10, 12, 'H'); put(7, 9, 'H');
+  rect(14, 7, 15, 11, 'O'); put(14, 6, 'g');
+  rect(2, 19, 4, 19, 'K'); rect(16, 19, 18, 19, 'K');
+});
+const CAJA_ABIERTA_TR = forma(26, 21, ({ rect, put }) => {
+  rect(1, 1, 19, 18, 'Z'); rect(1, 1, 19, 1, 'H'); rect(3, 3, 17, 16, 'K'); rect(3, 3, 17, 4, 'u');
+  rect(20, 2, 24, 17, 'z'); rect(21, 3, 23, 16, 'Z'); put(22, 9, 'O'); put(22, 10, 'O');
+  rect(2, 19, 4, 19, 'K'); rect(16, 19, 18, 19, 'K');
+});
+const cajaFuerteTR = (R, x, y, o = {}) => {
+  if (!o.abierta) { pintaTR(R, CAJA_TR, x, y, o); return; }
+  pintaTR(R, CAJA_ABIERTA_TR, x, y, o);
+  const px = encimaTR(R, 26, 21, x, y, o), alto = Math.round(Math.max(0, Math.min(1, o.monedas ?? 0.7)) * 12);
+  for (let j = 16 - alto + 1; j <= 16; j++) for (let i = 4; i <= 16; i++) px(i, j, j % 2 ? 'O' : (i % 4 === 0 ? 'o' : 'g'));
+};
+// la argolla de oro (O, sombra g); con o.t el brillo (E) parpadea
+const ARGOLLA_TR = ['.kkkk.', 'kOooOk', 'kOkkgk', 'kOkkgk', 'kgOOgk', '.kkkk.'];
+const argollaTR = (R, x, y, o = {}) => { pintaTR(R, ARGOLLA_TR, x, y, o); if (o.t != null && Math.sin(o.t * 5 + x) > 0.6) { const px = encimaTR(R, 6, 6, x, y, o); px(1, 1, 'E'); } };
+// EL RAMO DE NOVIA: flores (o.color 'blanco', por omisión, el azahar E/w; 'colores' rojas, amarillas y rosas), las hojas
+// (V), los tallos (l) y la cinta (R)
+const RAMO_TR = forma(11, 15, ({ rect, disco, put }) => {
+  disco(5, 4, 3.8, 'V');
+  for (const [a, b] of [[3, 2], [6, 1], [8, 3], [2, 5], [5, 4], [8, 6], [4, 7], [6, 7]]) { put(a, b, 'E'); put(a + 1, b, 'E'); put(a, b + 1, 'w'); put(a + 1, b + 1, 'E'); }
+  rect(4, 8, 6, 13, 'l'); rect(3, 9, 7, 10, 'R'); put(2, 11, 'R'); put(8, 11, 'R'); put(2, 12, 'R'); put(8, 12, 'R');
+});
+const ramoTR = (R, x, y, o = {}) => pintaTR(R, RAMO_TR, x, y, o, o.color === 'colores' ? { ...PAL_TR, ...COLORES({ E: '#e8486a', w: '#f0c840' }) } : PAL_TR);
+// LA CORONA DE REY suelta: o.tipo 'babilonia' (por omisión: la alta de oro con lapislázuli, la que el sacerdote le quita
+// al rey) o 'europea' (de puntas, con piedras rojas)
+const CORONA_EUROPEA_TR = ['.k..k..k..k.', 'kOk.kOk.kOk.', 'kOOkOOOkOOk.', 'kOOODOODOOOk', 'kgOOOOOOOOgk', 'kkkkkkkkkkkk'].map((f) => f.padEnd(12, '.'));
+const coronaReyTR = (R, x, y, o = {}) => pintaTR(R, o.tipo === 'europea' ? CORONA_EUROPEA_TR : POLOS_TR, x, y, o, { ...PAL_TR, ...PAL_POLOS_TR, ...(o.tipo === 'europea' ? COLORES({ D: '#c8303a' }) : {}) });
+// LA GALLINA de corral: blanca (W/w) o parda (o.color 'parda'), con la cresta (R), el pico (y) y las patas; o.picotea
+// (con o.t) baja la cabeza al suelo
+const GALLINA_TR = {};
+for (const pica of [0, 1]) GALLINA_TR[pica] = forma(15, 13, ({ rect, disco, put, linea }) => {
+  disco(6, 7, 4, 'W'); disco(5, 8, 3, 'w'); disco(6, 6.6, 3, 'W');
+  linea(2, 6, 0, 2, 'W'); linea(3, 6, 1, 2, 'w'); put(0, 1, 'W'); put(2, 2, 'W');
+  const hx = pica ? 12 : 10, hy = pica ? 8 : 3;
+  rect(9, pica ? 6 : 4, 10, 7, 'W'); disco(hx, hy, 1.8, 'W'); put(hx, hy - 2, 'R'); put(hx - 1, hy - 2, 'R'); put(hx + 1, hy - 1, 'R');
+  put(hx + 2, hy, 'y'); put(hx + 1, hy + 2, 'R');
+  rect(5, 11, 5, 12, 'y'); rect(8, 11, 8, 12, 'y'); put(9, 12, 'y'); put(6, 12, 'y');
+});
+const gallinaTR = (R, x, y, o = {}) => {
+  const pica = o.picotea && Math.floor((o.t ?? 0) * 3 + x) % 3 === 0 ? 1 : 0;
+  const pal = o.color === 'parda' ? { ...PAL_TR, ...COLORES({ W: '#b8703a', w: '#8a4e24' }) } : { ...PAL_TR, ...COLORES({ w: '#d8d0c4' }) };
+  pintaTR(R, GALLINA_TR[pica], x, y, o, pal);
+  const px = encimaTR(R, 15, 13, x, y, o, pal); px(pica ? 12 : 10, pica ? 7 : 2, 'k');
+};
+// LA SACA DE CORREOS de lona (T/t) atada con el cordel (b); o.llena: rebosa de cartas (X, P, A)
+const SACA_PZ_TR = forma(13, 14, ({ rect, disco, put }) => { rect(4, 1, 8, 3, 'T'); disco(6, 9, 5, 'T'); rect(2, 8, 10, 12, 'T'); rect(4, 3, 8, 3, 'b'); put(3, 10, 't'); put(8, 7, 't'); put(9, 11, 't'); rect(2, 12, 10, 12, 't'); });
+const SACA_LLENA_PZ_TR = forma(13, 14, ({ rect, disco, put }) => { disco(6, 9, 5, 'T'); rect(2, 8, 10, 12, 'T'); rect(2, 4, 10, 5, 'b'); rect(3, 0, 5, 3, 'X'); rect(6, 1, 8, 3, 'P'); rect(8, 0, 10, 2, 'A'); put(4, 1, 'R'); put(3, 10, 't'); put(9, 11, 't'); rect(2, 12, 10, 12, 't'); });
+const sacaPiezaTR = (R, x, y, o = {}) => pintaTR(R, o.llena ? SACA_LLENA_PZ_TR : SACA_PZ_TR, x, y, o);
+// EL PERIÓDICO antiguo, sin letras: la cabecera (K), las columnas de texto falso (x), el dibujo (o.dibujo 'uvas', por
+// omisión, o 'calabaza') y el año (o.anio, en cifras: 1894, 1927)
+const PERIODICO_TR = forma(19, 19, ({ rect }) => { rect(1, 1, 17, 17, 'X'); rect(2, 2, 16, 3, 'K'); rect(2, 10, 16, 10, 'x'); for (let j = 12; j <= 16; j += 2) rect(2, j, 8, j, 'x'); });
+const periodicoTR = (R, x, y, o = {}) => {
+  pintaTR(R, PERIODICO_TR, x, y, o);
+  const sub = subTR(R, 19, 19, x, y, o), px = encimaTR(R, 19, 19, x, y, o);
+  for (let j = 11; j <= 16; j++) for (let i = 10; i <= 16; i++) px(i, j, 'c');
+  if (o.dibujo === 'calabaza') sub(['.kkk.', 'kyyyk', 'kKyKk', 'kyKyk', '.kkk.'], 11, 11); else sub(['.kVk.', 'kUUUk', 'kUIUk', '.kUk.', '..k..'], 11, 11);
+  if (o.anio != null) numeroNV(px, o.anio, Math.round(9.5 - anchoNumeroNV(o.anio) / 2), 5, 'K');
+  else for (let j = 5; j <= 8; j++) rect2(px, 2, j, 16, 'x');
+};
+const rect2 = (px, i0, j, i1, c) => { if (j % 2) for (let i = i0; i <= i1; i++) px(i, j, c); };
+export const PIEZAS_TR = {
+  uva: uvaTR, racimo: racimoTR, copa: copaTR, tele1962: teleTR, calzones: calzonesTR, maleta: maletaTR,
+  calendario: calendarioTR, hojaCalendario: hojaCalendarioTR, sello: selloTR, tarjeta: tarjetaTR, huevo: huevoTR,
+  cesta: cestaTR, liebre: liebreTR, nabo: naboTR, calabaza: calabazaTR, pastelito: pastelitoTR, cartilla: cartillaTR,
+  frasco: frascoTR, pastel: pastelCumpleTR, mazo: mazoTR, cajaFuerte: cajaFuerteTR, argolla: argollaTR, ramo: ramoTR,
+  corona: coronaReyTR, gallina: gallinaTR, saca: sacaPiezaTR, periodico: periodicoTR,
+};
