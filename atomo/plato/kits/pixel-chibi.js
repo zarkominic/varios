@@ -4546,12 +4546,12 @@ export const PIEZAS_NV = {
 
 // ── tocados nuevos ──
 Object.assign(TOCADOS, {
-  // la mantilla de encaje negro (J, el dibujo j) sobre la peineta alta: cae por detrás hasta los hombros, la cara entera
+  // la mantilla de encaje negro (J, el dibujo j) sobre la peineta alta de carey (B/b): cae por detrás hasta los hombros, la cara entera
   mantilla: [[
     '..kk.kk.kk.....',
-    '.kJJkJJkJJk....',
-    '.kJjJJjJJJk....',
-    '..kJJJJJJJJk...',
+    '.kBBkBBkBBk....',
+    '.kBbBBbBBBk....',
+    '..kkkkkkkkkk...',
     '.kJJjJJJjJJJk..',
     'kJjJJJjJJJJJJk.',
     'kJJJkkkkkkkkk..',
@@ -4779,7 +4779,7 @@ const conTijerasTR = enMano(['k...k', 'kZ.Zk', '.kZk.', '.kZk.', 'kOkOk', 'kkkkk
 // el cuenco de madera de los que piden pastelitos
 const conCuencoTR = enMano(['k...k', 'kBBBk', 'kbBbk', '.kkk.'], 12, 3, PAL_MANO_TR);
 // la tarjeta de San Valentín (encaje W y corazón R)
-const conTarjetaTR = enMano(['kkkkk', 'kWRWk', 'kRRRk', 'kWRWk', 'kkkkk'], 12, 2, PAL_MANO_TR);
+const conTarjetaTR = enMano(['kkkkk', 'kRXRk', 'kRRRk', 'kXRXk', 'kkkkk'], 12, 2, PAL_MANO_TR);
 // el ramo de novia: blanco (azahar) o de colores
 const conRamoTR = enMano(['.kkk.', 'kEwEk', 'kwEwk', '.kVk.', '.kRk.', '..k..'], 12, 1, PAL_MANO_TR);
 const conRamoColorTR = enMano(['.kkk.', 'kRYPk', 'kYPRk', '.kVk.', '.kAk.', '..k..'], 12, 1, PAL_MANO_TR);
@@ -4795,7 +4795,7 @@ const conPastelitoTR = enMano(['.kkk.', 'kiJik', 'kJJJk', '.kkk.'], 12, 3, { ...
 const conNaboTR = (c) => {
   if (!manoLibre(c)) return;
   const on = Math.sin(c.t * 11 + c.x) > 0, l = on ? 'Y' : 'o';
-  c.cuerpo.rej(['..k..', '..k..', '.kVk.', 'kWpWk', `k${l}W${l}k`, 'kWWWk', `kW${l}Wk`, '.kkk.'], 11, 4, PAL_MANO_TR);
+  c.cuerpo.rej(['..k..', '..k..', '.kVk.', 'kWpWk', `k${l}W${l}k`, 'kWWWk', `kW${l}Wk`, '.kkk.'], 12, 5, { ...c.pal, ...PAL_MANO_TR });
 };
 // el bigote (del color del pelo)
 const bigoteTR = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, c.pal.H); };
@@ -4997,13 +4997,13 @@ export const ELENCO_TR = {
   albertoBoda: { ...B23, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_UNIFORME_TR, ceja: hex('#2a1c14'), delante: bigoteTR,
     pal: CLT({ H: '#3a2a1c', h: '#5a4230', C: '#b8283a', c: '#8a1c2a', W: '#f2eee2', o: '#f0c040', O: '#f0c040', A: '#3a5ab0', F: '#f2eee2' }) },
   // María Estuardo (París, 1558): pelo cobrizo, toca blanca con el borde de oro y vestido blanco con perlas; y la corte de
-  // luto blanco: la dama (toca y vestido blancos) y el cortesano (jubón y calzas blancos, gorra blanca)
+  // luto blanco: la dama (toca y vestido blancos) y el cortesano barbudo (gorra y jubón blancos con oro, calzas grises)
   mariaEstuardo: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'attifet', ceja: hex('#8a3a1a'),
     pal: CLT({ H: '#a8502a', h: '#c8683a', X: '#f8f6f0', x: '#d0ccc4', o: '#f0d070', O: '#e8d8b8', C: '#f8f6f0', c: '#d0ccc4' }) },
   damaBlanca: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'attifet', ceja: hex('#2a1c14'),
     pal: CLT({ H: '#2a1c14', h: '#4a3424', X: '#f2f0ea', x: '#c8c4bc', o: '#c8c4bc', O: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc' }) },
-  cortesano: { ...B23, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#5a3418'), delante: bigoteTR,
-    pal: CLT({ H: '#5a3418', h: '#8a5428', J: '#f2f0ea', j: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc', o: '#c8c4bc', G: '#c8c4bc', F: '#e8e4dc', n: '#c8c4bc' }) },
+  cortesano: { ...B23, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#5a3418'), barba: true, delante: bigoteTR,
+    pal: CLT({ H: '#5a3418', h: '#8a5428', J: '#f2f0ea', j: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc', o: '#d8b040', G: '#d8b040', F: '#9a9aa8', n: '#3a3a44' }) },
   // novias de otras épocas, con vestidos de colores: la medieval de azul con la corona de flores, la de 1600 de rojo y la
   // del XIX con su mejor vestido gris; y la de hoy, de blanco con velo
   noviaAzul: { ...B23M, cuerpo: VESTIDO_LISO, tocado: 'coronaFlores', ceja: hex('#a8743c'), delante: conRamoColorTR, pal: CLT({ H: '#c89a50', h: '#e0b868', C: '#3a6ab0', c: '#2a5090', W: '#f2eee2', L: '#2a2430' }) },
@@ -5059,10 +5059,10 @@ const uvaTR = (R, x, y, o = {}) => {
 };
 // el racimo de uvas (U con brillo I, el rabo b y la hoja V); o.hueco: le falta un grano (el que se ha escapado);
 // o.color 'verde' para las blancas
-const granosTR = (hueco) => forma(11, 15, ({ rect, put, disco }) => {
-  rect(5, 0, 5, 2, 'b'); put(6, 1, 'V'); put(7, 1, 'V'); put(7, 0, 'l'); put(6, 2, 'V');
-  const G = [[2.2, 4.4], [5.2, 4], [8.2, 4.4], [3.6, 7.2], [6.8, 7.2], [2, 7.4], [9, 7.4], [5.2, 10], [3.4, 10.2], [7, 10.2], [5.2, 12.6]];
-  G.forEach(([cx, cy], n) => { if (hueco && n === 4) { disco(cx, cy, 1.2, 'u'); return; } disco(cx, cy, 1.55, 'u'); disco(cx - 0.4, cy - 0.4, 1.05, 'U'); put(cx - 1, cy - 1, 'I'); });
+const granosTR = (hueco) => forma(13, 17, ({ rect, put, disco }) => {
+  rect(6, 0, 6, 2, 'b'); put(7, 1, 'V'); put(8, 1, 'V'); put(8, 0, 'l'); put(7, 2, 'V');
+  const G = [[3.5, 4.5], [6.5, 4.5], [9.5, 4.5], [2, 7.5], [5, 7.5], [8, 7.5], [11, 7.5], [3.5, 10.5], [6.5, 10.5], [9.5, 10.5], [5, 13.5], [8, 13.5]];
+  G.forEach(([cx, cy], n) => { if (hueco && n === 5) { disco(cx, cy, 1.4, 'k'); return; } disco(cx, cy, 1.75, 'k'); disco(cx, cy, 1.3, 'U'); put(cx + 1, cy + 1, 'u'); put(cx - 1, cy - 1, 'I'); });
 });
 const RACIMO_TR = granosTR(false), RACIMO_HUECO_TR = granosTR(true);
 const racimoTR = (R, x, y, o = {}) => { const [c1, c2, c3] = COLOR_UVA_TR[o.color] ?? COLOR_UVA_TR.morada; pintaTR(R, o.hueco ? RACIMO_HUECO_TR : RACIMO_TR, x, y, o, { ...PAL_TR, ...COLORES({ U: c1, u: c2, I: c3 }) }); };
