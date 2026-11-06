@@ -10,15 +10,18 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TR-TARJETAS (frase 11), 1840 → 1848 → hoy. Cuatro planos:
-// 1. (0 → «and» tras «penny post») la oficina de correos de Londres nevada: un caballero entra con su tarjeta, se la da al
-//    cartero, que deja de repartir cartas en los casilleros, la arrastra por el mostrador y la sella en «penny»;
+// 1. (0 → «and» tras «penny post») la oficina de correos de Londres nevada: el chico de los recados deja un fajo de
+//    cartas en las sacas; un caballero entra con su tarjeta, se la da al cartero, que deja de repartir cartas en los
+//    casilleros, la arrastra por el mostrador y la sella en «penny»; la señora de la cola, junto a la estufa, mira;
 // 2. («and within a few years» → «In») el mostrador de cerca: las tarjetas llegan cada vez más seguidas por el mostrador,
-//    el cartero las sella a ritmo y van al montón, que crece; 10,000 en «tens», 100,000 en «hundreds»;
+//    el cartero las sella a ritmo y van al montón, que crece; el chico, detrás, coge fajos del montón y los mete en los
+//    casilleros sin parar; 10,000 en «tens», 100,000 en «hundreds»;
 // 3. («In the United States» → «and») el taller de Worcester: Esther Howland entra con la caja de encaje, la deja en la
-//    mesa, recorta el encaje (los recortes caen) y en «1840s» enseña la tarjeta acabada; su ayudanta trae otro montón;
-// 4. («and today» → fin) la mesa de cerca: el lazo acaba la tarjeta, Esther se va, la barra salta a 2026 y la cuenta sube
-//    hasta 100,000,000 en «million»; gag 3: la uva se pinta un corazón con el pincel de la cola, se lo da a la uva verde
-//    y la verde se va rodando de vergüenza.
+//    mesa, recorta el encaje (los recortes caen) y en «1840s» enseña la tarjeta acabada; su ayudanta trae otro montón y
+//    la aprendiza sale del cuarto de al lado, mira y aplaude;
+// 4. («and today» → fin) la mesa de cerca: el lazo acaba la tarjeta, Esther se va, la ayudanta deja otro montón en la
+//    mesa, la barra salta a 2026 y la cuenta sube hasta 100,000,000 en «million»; gag 3: la uva se pinta un corazón con
+//    el pincel de la cola, se lo da a la uva verde y la verde se va rodando de vergüenza.
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-tarjetas');
@@ -43,10 +46,15 @@ const ENC = '#f6f0e4', ROJO = '#b8202a';
 // la tarjeta pequeña de encaje (en la mano o en el mostrador) y el sello de mano con su tampón
 const tarjetita = (x, y, sellada) => { R.rect(x - 5, y - 4, x + 5, y + 3, K); R.rect(x - 4, y - 3, x + 4, y + 2, c(ENC)); for (let i = -4; i <= 4; i += 2) { R.pset(x + i, y - 3, c('#d8c8b0')); R.pset(x + i, y + 2, c('#d8c8b0')); } R.pset(x - 1, y - 1, c(ROJO)); R.pset(x + 1, y - 1, c(ROJO)); R.rect(x - 1, y, x + 1, y, c(ROJO)); R.pset(x, y + 1, c(ROJO)); if (sellada) { R.rect(x + 2, y - 3, x + 4, y - 1, c('#24202c')); R.pset(x + 3, y - 2, c('#e8e4dc')); } };
 const sellador = (x, y) => { R.rect(x - 2, y - 8, x + 2, y - 5, K); R.rect(x - 1, y - 7, x + 1, y - 6, c('#8a5a30')); R.rect(x, y - 5, x, y - 2, c('#4a2a14')); R.rect(x - 4, y - 2, x + 4, y + 1, K); R.rect(x - 3, y - 1, x + 3, y - 1, c('#6a6470')); R.rect(x - 3, y, x + 3, y, c('#24202c')); };
+// el fajo de cartas atado con un cordel
+const fajo = (x, y) => { R.rect(x - 5, y - 3, x + 5, y + 2, K); for (let k = 0; k < 3; k++) R.rect(x - 4, y - 2 + k * 1.5 | 0, x + 4 - (k % 2), (y - 2 + k * 1.5 | 0), c(k % 2 ? '#e8dcc0' : '#f6f0e4')); R.rect(x - 4, y + 1, x + 4, y + 1, c('#c8b898')); R.rect(x, y - 3, x, y + 2, c('#8a4a2a')); R.pset(x - 1, y - 4, c('#8a4a2a')); R.pset(x + 1, y - 4, c('#8a4a2a')); };
 const p1 = (t) => {
   T.amor(R, t, { encuadre: 'correos', tarjetas: 0.3 });
   // la señora de la cola se calienta junto a la estufa y le habla al perrito; luego mira al mostrador
   R.actor(EL.mildred, 72, 151, t, { dir: t < 2.4 ? -1 : 1, habla: t > 0.5 && t < 2.2 && cada(t, 4), sonrisa: t > 2.4 });
+  // el chico de los recados ya va de camino con un fajo de cartas atado: lo deja en lo alto de las sacas y mira al mostrador
+  const rv = tramo(t, 0, 1.5), xr = Math.round(lerp(30, 98, rv)), poneR = tramo(t, 1.5, 1.8), dejoR = t >= 1.8;
+  const nr = R.actor(EL.ninoKinder, xr, 154, t, { dir: 1, anda: rv < 1, sostiene: dejoR ? false : poneR > 0 ? [Math.round(lerp(xr + 8, 118, poneR)), Math.round(lerp(140, 126, poneR))] : true, sonrisa: dejoR && t < 3.2, sorpresa: t > penny && t < penny + 0.6, habla: t > 2.0 && t < 2.6 && cada(t, 6) });
   // el caballero entra con su tarjeta y se la tiende al cartero
   const u = tramo(t, 0.2, 2.6), xb = Math.round(lerp(-18, 120, u)), da = tramo(t, 3.0, 3.55);
   const sb = t < 3.7 ? (da > 0 ? [Math.round(lerp(xb + 16, 150, da)), Math.round(lerp(134, 129, da))] : true) : false;
@@ -61,6 +69,7 @@ const p1 = (t) => {
   const cart = R.actor(EL.carteroVictoriano, 220, 146, t, { dir: mira ? -1 : 1, sostiene: mc ?? false, habla: t > 2.6 && t < 3.5 && cada(t, 7), sonrisa: t > 5.3, saca: 'llena' });
   T.amorDelante(R, t, { encuadre: 'correos', tarjetas: 0.3 });
   if (t < 3.7) tarjetita(b.mano[0], b.mano[1] - 3, false);
+  if (!dejoR) fajo(nr.mano[0], nr.mano[1] - 2); else fajo(118, 126);
   if (!mira) { R.rect(cart.mano[0] - 2, cart.mano[1] - 4, cart.mano[0] + 2, cart.mano[1], K); R.rect(cart.mano[0] - 1, cart.mano[1] - 3, cart.mano[0] + 1, cart.mano[1] - 1, c('#f2eee2')); }
   if (t >= 3.7 && t < 5.25) tarjetita(cx, 132, t > penny);
   if (t >= 4.35 && t < 5.25) sellador(cart.mano[0], cart.mano[1] + 7);
@@ -72,9 +81,16 @@ const p2 = (t) => {
   const n = 0.12 + 0.88 * tramo(t, numero, miles);
   T.amor(R, t, { encuadre: 'correos', camara: 'mostrador', tarjetas: n });
   // el cartero sella a ritmo: cada vez más deprisa
-  const rit = t < tens ? 1.6 : t < hundreds ? 3 : 4.6, fase = ((t - P2) * rit) % 1, abajo = t > P2 + 0.7 && fase < 0.32;
+  const abajo = golpeP2(t);
   const cart = R.actor(EL.carteroVictoriano, 150, 152, t, { dir: 1, sostiene: [176, abajo ? 132 : 122], sonrisa: t > hundreds + 0.5, sorpresa: t > hundreds - 0.1 && t < hundreds + 0.5, sinObjeto: true });
+  // el chico de los recados, detrás del mostrador, entra y no para: coge un fajo del montón y lo mete en los casilleros
+  const en0 = tramo(t, P2 + 0.1, P2 + 0.7), ci = Math.max(0, t - P2 - 0.7) / 1.9, fc = ci % 1;
+  let xr = lerp(336, 238, en0), mr = true;
+  if (en0 >= 1) { if (fc < 0.15) { xr = 238; mr = [230, Math.round(lerp(122, 130, fc / 0.15))]; } else if (fc < 0.45) { xr = lerp(238, 262, (fc - 0.15) / 0.3); mr = true; } else if (fc < 0.7) { xr = 262; mr = [268, Math.round(lerp(118, 98, Math.min(1, (fc - 0.45) / 0.12)))]; } else { xr = lerp(262, 238, (fc - 0.7) / 0.3); mr = false; } }
+  const llevaF = en0 >= 1 && fc < 0.62;
+  const nr = R.actor(EL.ninoKinder, Math.round(xr), 152, t, { dir: en0 < 1 ? -1 : fc < 0.45 ? 1 : fc < 0.7 ? 1 : -1, anda: en0 < 1 || (fc > 0.15 && fc < 0.45) || fc > 0.7, sostiene: mr, sonrisa: t > hundreds + 0.5, sorpresa: t > hundreds && t < hundreds + 0.5 });
   T.amorDelante(R, t, { encuadre: 'correos', camara: 'mostrador', tarjetas: n });
+  if (llevaF) fajo(nr.mano[0], nr.mano[1] - 2);
   // las tarjetas llegan por el mostrador desde la izquierda, se sellan y saltan al montón
   for (let k = 0; k < 18; k++) {
     const s0 = P2 + 0.25 + (k < 4 ? k * 0.75 : 3.0 + (k - 4) * 0.27), a = t - s0;
@@ -89,6 +105,9 @@ const p2 = (t) => {
   if (abajo) for (const [dx, dy] of [[-10, 8], [10, 8], [-8, 3], [8, 3]]) R.pset(176 + dx, 134 + dy, c('#ffe08a'));
   if (t > tens) { const e = tramo(t, tens, tens + 0.3), e2 = tramo(t, hundreds, hundreds + 0.3); R.numero(t < hundreds ? '10,000' : '100,000', 136, Math.round(lerp(84, 74, t < hundreds ? e : e2)), { tam: 16, centro: true }); }
 };
+// el sello baja a ritmo, cada vez más deprisa (y suena en algunos golpes, como mucho uno por segundo)
+function golpeP2(t) { const rit = t < tens ? 1.6 : t < hundreds ? 3 : 4.6, fase = ((t - P2) * rit) % 1; return t > P2 + 0.7 && t < P3 - 0.15 && fase < 0.32; }
+const SELLOS_P2 = []; { let ant = false, ult = -9; for (let t = P2; t < P3; t += 1 / 60) { const a = golpeP2(t); if (a && !ant && t - ult >= 0.95) { SELLOS_P2.push([t, 'sello']); ult = t; } ant = a; } }
 const p3 = (t) => {
   T.amor(R, t, { encuadre: 'taller' });
   // Esther entra con la caja de encaje, la deja en la mesa, recorta y enseña la tarjeta acabada
@@ -101,6 +120,9 @@ const p3 = (t) => {
   // la ayudanta trae otro montón de tarjetas desde la chimenea y se queda mirando
   const v = tramo(t, P3 + 0.3, en('correo', 0.6094)), xa = Math.round(lerp(330, 230, v)), dejaA = en('correo', 0.6342);
   const ay = R.actor(EL.ayudanta2, xa, 152, t, { dir: -1, anda: v > 0 && v < 1, sostiene: t < dejaA ? true : false, habla: t > recorta + 0.3 && t < anios40 - 0.2 && cada(t, 5), sonrisa: t > anios40 });
+  // la aprendiza sale del cuarto de al lado, se acerca a la mesa a mirar y aplaude cuando la tarjeta está hecha
+  const na = tramo(t, P3 + 1.3, P3 + 2.9), aplaude = t > anios40 + 0.7 && t < anios40 + 1.3;
+  if (t > P3 + 1.3) R.actor(EL.ninaDelantal, Math.round(lerp(140, 86, na)), Math.round(lerp(136, 152, na)), t, { dir: na < 1 ? -1 : 1, anda: na > 0 && na < 1, sorpresa: t > recorta && t < recorta + 0.6, brazos: aplaude, salto: aplaude && cada(t, 8) ? 1 : 0, sonrisa: t > anios40, habla: t > P3 + 3.1 && t < recorta - 0.1 && cada(t, 6) });
   T.amorDelante(R, t, { encuadre: 'taller' });
   // lo que llevan en las manos y lo que dejan en la mesa
   const caja = (x, y) => { R.rect(x - 6, y - 5, x + 6, y, K); R.rect(x - 5, y - 4, x + 5, y - 1, c('#c8a8d8')); for (let i = -5; i <= 5; i += 2) R.pset(x + i, y - 4, c(ENC)); R.rect(x - 4, y - 3, x + 4, y - 3, c(ENC)); };
@@ -119,7 +141,12 @@ const p4 = (t) => {
   // Esther ata el lazo y se va: la tarjeta queda hecha
   const sale = tramo(t, en('correo', 0.8621), en('correo', 0.9215)), xe = Math.round(lerp(78, -26, sale));
   R.actor(EL.esther, xe, 150, t, { dir: sale > 0 ? -1 : 1, anda: sale > 0 && sale < 1, sostiene: sale === 0 ? [Math.round(122 + 3 * Math.sin(t * 8)), 140] : false, sonrisa: t > en('correo', 0.8423), sinObjeto: true });
+  // la ayudanta entra con otro montón de tarjetas acabadas, lo deja en la mesa y vuelve a su trabajo
+  const av = tramo(t, P4 + 1.0, P4 + 2.0), avu = tramo(t, P4 + 4.4, P4 + 5.4), xa2 = Math.round(avu > 0 ? lerp(206, 340, avu) : lerp(340, 206, av)), dejaP = t > P4 + 2.3;
+  const susto = t > en('correo', 1.0503) && t < en('correo', 1.0503) + 0.7;
+  const ay = R.actor(EL.ayudanta2, xa2, 150, t, { dir: avu > 0 ? 1 : -1, anda: (av > 0 && av < 1) || (avu > 0 && avu < 1), sostiene: dejaP ? false : av >= 1 ? [Math.round(lerp(200, 194, tramo(t, P4 + 2.0, P4 + 2.3))), 136] : true, sonrisa: dejaP && !susto, sorpresa: susto, habla: t > P4 + 2.4 && t < P4 + 2.9 && cada(t, 6) });
   T.amorDelante(R, t, { encuadre: 'taller', camara: 'mesa', tarjeta: tj });
+  { const pila = (x, y) => { for (let k = 0; k < 4; k++) tarjetita(x + (k % 2), y - k * 2, false); }; if (!dejaP) pila(ay.mano[0] - 2, ay.mano[1] + 1); else pila(194, 140); }
   // hoy: la cuenta sube hasta cien millones
   if (t > mas - 0.1) { const e = tramo(t, mas, millon); R.numero(Math.round(1e8 * e).toLocaleString('en-US'), 150, 44, { tam: 16, centro: true }); }
   // gag 3: la uva se pinta un corazón, se lo da a la uva verde y la verde se va rodando
@@ -130,7 +157,8 @@ const p4 = (t) => {
   T.uva(R, xb, yb, t, { s: 2, color: 'verde', cara: da >= 1 ? 'feliz' : 'normal', corre: rueda > 0, corazon: da >= 1, dir: rueda > 0 ? (cada(t, 7) ? 1 : -1) : -1 });
   if (da > 0 && da < 1) R.icono('corazon', Math.round(lerp(xa - 4, xb - 8, da)), Math.round(150 - Math.sin(da * Math.PI) * 14), c('#d8303a'), K, 2);
 };
-const efectos = [[3.75, 'papel'], [penny, 'sello'], [tens, 'sello'], [hundreds, 'sello'], [recorta, 'papel'], [anios40, 'brillo'], [millon, 'brillo'], [en('correo', 0.9488), 'lapiz'], [en('correo', 1.0355), 'pop'], [en('correo', 1.0528), 'whoosh']];
+const efectos = [[0.9, 'papel'], [1.8, 'golpecito'], [3.75, 'papel'], [penny, 'sello'], [5.45, 'brillo'], ...SELLOS_P2, [en('correo', 0.6461), 'golpecito'], [recorta, 'papel'], [anios40, 'brillo'], [anios40 + 0.8, 'palmada'],
+  [P4 + 0.3, 'papel'], [P4 + 2.3, 'golpecito'], [en('correo', 0.9700), 'lapiz'], [en('correo', 1.0157), 'pop'], [en('correo', 1.0560), 'whoosh']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => t < P3 ? 1840 : t < hoyT ? 1848 : 2026 });
 </script>
 </body>

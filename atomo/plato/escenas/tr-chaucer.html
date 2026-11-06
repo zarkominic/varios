@@ -11,12 +11,15 @@
 <script type="module">
 // TR-CHAUCER (frase 9), sin cartela. Tres planos:
 // 1. la plaza romana del Lupercal (fondo local): la loba de bronce con los gemelos sobre su pedestal, la cueva, la
-//    higuera, el templo y el puesto de fruta; un romano la señala en «Roman festival», pasa una cabra, y el «?» que sale
-//    en «replaced» crece en «Lupercalia» y se deshace antes del corte;
-// 2. en «but there's no document»: el gabinete de Chaucer: busca en un códice de la librería y sale una «X»; en
-//    «love» le sale un corazón, va al pupitre y en «Chaucer» moja la pluma y escribe; la criada entra y sale;
-// 3. en «who around 1380»: la ventana de cerca: Chaucer escribe en su rollo mirando la rama; llega un pájaro y se
-//    posa junto al que estaba solo; en «chose its mate» salen corazones sobre las parejas y Chaucer sonríe y señala.
+//    higuera, el templo y el puesto de fruta; la cabra llega al puesto y mordisquea la fruta caída, la frutera da una
+//    palmada y la cabra se va dando saltos; un romano llega y señala la loba en «Roman festival», el otro se sorprende,
+//    y el «?» que sale en «replaced» crece en «Lupercalia» y se deshace antes del corte;
+// 2. en «but there's no document»: el gabinete de Chaucer: abre un códice de la librería y sale una «X»; la criada
+//    entra, deja la jarra en el arcón y se va; Chaucer devuelve el códice al estante, en «love» le sale un corazón, va
+//    al pupitre y en «Chaucer» moja la pluma y escribe;
+// 3. en «who around 1380»: la ventana de cerca: un gorrión picotea migas en el alféizar; Chaucer escribe en su rollo;
+//    llega un pájaro y se posa junto al que estaba solo, el gorrión vuela a la rama en «every bird»; en «chose its
+//    mate» salen corazones sobre las parejas y Chaucer sonríe y señala.
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-chaucer');
@@ -113,14 +116,14 @@ const cabra = (x, y, t, anda) => {
   R.linea(x + 11, y - 7, x + 13, y - 9, G);
   for (const [lx, ph] of [[x + 1, p], [x + 3, 1 - p], [x + 8, p], [x + 10, 1 - p]]) R.linea(lx, y - 3, lx + (ph ? 1 : 0), y, K);
 };
-const PREG = C9(0.1420), LUPER = C9(0.2545), BORRA0 = P2 - 0.8;
+const PREG = C9(0.1420), LUPER = C9(0.2545), BORRA0 = P2 - 0.8, PALMADA = 1.9;
 const p1 = (t) => {
   FONDO1();
   // nubes a tres velocidades (lejos de la esquina de Atom) y golondrinas
   for (const [x0, y, w, v] of [[30, 33, 30, 1.2], [150, 32, 40, 0.7], [250, 36, 22, 2.0], [90, 30, 16, 1.6]]) { const x = ((x0 + t * v * 3) % 380) - 30; R.nube(Math.round(x), y, w); }
   for (let k = 0; k < 3; k++) { const u = ((t * 0.15 + k * 0.3) % 1), x = Math.round(lerp(10, 240, u)), y = Math.round(36 + k * 9 + Math.sin(u * 20 + k) * 3), al = Math.floor(t * 9 + k) % 2; R.pset(x, y, H('#2a2a3a')); R.pset(x - 1, y - al, H('#2a2a3a')); R.pset(x + 1, y - al, H('#2a2a3a')); }
   // la frutera tras su puesto
-  R.actor(EL.romana, 272, 140, t, { dir: -1, habla: t > 0.6 && t < 2.0 && Math.sin(t * 9) > 0 });
+  R.actor(EL.romana, 272, 140, t, { dir: -1, brazos: t > PALMADA - 0.15 && t < PALMADA + 0.35, sorpresa: t > PALMADA - 0.5 && t < PALMADA, habla: t > PALMADA + 0.4 && t < PALMADA + 1.4 && Math.sin(t * 9) > 0 });
   R.rect(244, 128, 316, 150, K); madera(245, 129, 315, 149, [H('#8a5a34'), H('#a8744a'), H('#6a4024')], 28);
   for (const [x, c] of [[252, '#e87a2a'], [262, '#c8303a'], [274, '#6a2a7a'], [286, '#e8b830'], [298, '#5aaa3a'], [306, '#e87a2a']]) { R.disco(x, 127, 4, K); R.disco(x, 127, 3, H(c)); R.pset(x - 1, 126, H('#ffffff')); }
   for (const x of [256, 296]) { R.rect(x - 3, 138, x + 3, 148, K); R.rect(x - 2, 139, x + 2, 147, H('#c8784a')); R.rect(x - 1, 136, x + 1, 138, H('#c8784a')); }
@@ -128,8 +131,12 @@ const p1 = (t) => {
   R.actor(EL.romanoPileo2, 82, 156, t, { dir: 1, habla: t > C9(0.0489) && t < PREG && Math.sin(t * 9) > 0, sorpresa: t > LUPER && t < LUPER + 0.8, triste: t > LUPER + 0.8 });
   const k = lin(t, 0.3, 2.4), xp = Math.round(lerp(332, 206, k));
   R.actor(EL.romanoPileo, xp, 158, t, { dir: -1, anda: k > 0 && k < 1, dedo: t > C9(0.1841) && t < LUPER + 0.6, sonrisa: t > C9(0.1841) && t < LUPER });
-  // una cabra cruza la plaza (las Lupercales tenían cabras)
-  { const kc = lin(t, 0.8, 5.8), xc = Math.round(lerp(330, 220, kc)); cabra(xc, 172, t, kc > 0 && kc < 1); }
+  // la cabra llega al puesto y mordisquea una fruta caída; en la palmada de la frutera se va dando saltos
+  { const k1 = lin(t, 0.2, 1.1), k2 = lin(t, PALMADA + 0.1, PALMADA + 1.1), k3 = lin(t, PALMADA + 1.1, P2);
+    const xc = Math.round(k2 > 0 ? (k3 > 0 ? lerp(226, 196, k3) : lerp(284, 226, k2)) : lerp(334, 284, k1));
+    const salta = k2 > 0 && k2 < 1 ? Math.round(Math.abs(Math.sin(k2 * Math.PI * 3)) * 3) : 0;
+    if (t < PALMADA + 0.1) { R.disco(279, 170, 2, K); R.disco(279, 170, 1, H('#e87a2a')); if (t > 1.1) R.pset(280, 169, H('#ffd0a0')); }
+    cabra(xc, 172 - salta, t, (k1 > 0 && k1 < 1) || k2 > 0); }
   // el «?» sobre la loba: sale en «replaced», crece en «Lupercalia» y se deshace antes del corte
   if (t > PREG) { const esc = t > LUPER ? rebote(t, LUPER, 3) : rebote(t, PREG, 2), a = 1 - lin(t, BORRA0, P2 - 0.1); const w = 5 * esc; glifo('?', 160 - w / 2, (t > LUPER ? 40 : 48) + Math.round(Math.sin(t * 4) * 1.5), esc, H('#ffe08a'), a); if (t > LUPER) chispas(t, LUPER, 160, 52); }
 };
@@ -139,14 +146,18 @@ const NODOC = C9(0.3420), XX = C9(0.3829), AMOR = C9(0.4858), VA0 = C9(0.4574), 
 const p2 = (t) => {
   const o = { encuadre: 'chaucer' };
   T.amor(R, t, o);
-  // la criada entra por la derecha, deja la jarra en el arcón y se va
-  { const ent = lin(t, P2 + 0.2, P2 + 1.6), sal = lin(t, AMOR + 1.0, AMOR + 2.6), xc = Math.round(lerp(lerp(332, 212, ent), 332, sal)); const anda = (ent > 0 && ent < 1) || (sal > 0 && sal < 1); const a = R.actor(EL.criada, xc, 150, t, { dir: sal > 0 ? 1 : -1, anda, sonrisa: t > AMOR && t < AMOR + 1.0, sostiene: sal > 0 ? undefined : true }); if (sal === 0) { const [mx, my] = a.mano; R.rect(mx - 2, my - 5, mx + 2, my, K); R.rect(mx - 1, my - 4, mx + 1, my - 1, H('#c8784a')); R.pset(mx - 1, my - 4, H('#e8a070')); } }
-  // Chaucer: ante la librería con el códice, «X»; camina al pupitre y escribe
-  const kv = lin(t, VA0, VA1), xc = Math.round(lerp(28, 92, kv)), libro = t < VA0;
+  // la criada entra por la derecha, deja la jarra en el arcón (lejos del gato) y se va
+  const JARRA = P2 + 1.3;
+  { const ent = lin(t, P2 + 0.2, JARRA - 0.3), sal = lin(t, JARRA + 0.6, JARRA + 2.4), xc = Math.round(lerp(lerp(334, 298, ent), 334, sal)); const anda = (ent > 0 && ent < 1) || (sal > 0 && sal < 1);
+    const a = R.actor(EL.criada, xc, 150, t, { dir: sal > 0 ? 1 : -1, anda, sonrisa: t > JARRA - 0.3 && t < JARRA + 1.0, sostiene: t < JARRA ? [xc - 2, 110 + (t > JARRA - 0.3 ? Math.round(lin(t, JARRA - 0.3, JARRA) * 5) : 0)] : undefined });
+    if (t < JARRA) { const [mx, my] = a.mano; R.rect(mx - 2, my - 5, mx + 2, my, K); R.rect(mx - 1, my - 4, mx + 1, my - 1, H('#c8784a')); R.pset(mx - 1, my - 4, H('#e8a070')); } }
+  if (t >= JARRA) { R.rect(292, 111, 296, 116, K); R.rect(293, 112, 295, 115, H('#c8784a')); R.pset(293, 112, H('#e8a070')); R.pset(297, 112, K); R.pset(297, 113, K); }
+  // Chaucer: ante la librería con el códice, «X»; lo devuelve al estante, va al pupitre y escribe
+  const kv = lin(t, VA0, VA1), xc = Math.round(lerp(28, 92, kv)), libro = t < VA0, guarda = lin(t, VA0 - 0.45, VA0 - 0.05);
   const sacude = t > XX && t < XX + 0.6;
-  const a = R.actor(EL.chaucer, xc, 150, t, { dir: sacude ? (Math.floor(t * 8) % 2 ? 1 : -1) : kv >= 1 ? -1 : 1, anda: kv > 0 && kv < 1, triste: t > XX && t < VA0, sonrisa: t > AMOR, sostiene: libro ? [xc + 18, 134] : kv >= 1 && t > MOJA ? [xc - 2, 138] : undefined });
+  const a = R.actor(EL.chaucer, xc, 150, t, { dir: sacude ? (Math.floor(t * 8) % 2 ? 1 : -1) : kv >= 1 ? -1 : 1, anda: kv > 0 && kv < 1, triste: t > XX && t < VA0, sonrisa: t > AMOR, sostiene: libro ? [xc + 18 - Math.round(guarda * 4), 134 - Math.round(guarda * 14)] : kv >= 1 && t > MOJA ? [xc - 2, 138] : undefined });
   if (libro) {
-    const [mx, my] = a.mano, abierto = t > NODOC;
+    const [mx, my] = a.mano, abierto = t > NODOC && guarda === 0;
     if (!abierto) { R.rect(mx - 4, my - 6, mx + 3, my + 1, K); R.rect(mx - 3, my - 5, mx + 2, my, H('#7a3a2a')); R.rect(mx - 1, my - 4, mx, my - 3, H('#e8b830')); }
     else { R.rect(mx - 7, my - 5, mx + 6, my + 1, K); R.rect(mx - 6, my - 4, mx - 1, my, H('#f4ead0')); R.rect(mx, my - 4, mx + 5, my, H('#e8dcc0')); for (let k = 0; k < 3; k++) { R.linea(mx - 5, my - 3 + k * 1, mx - 2, my - 3 + k, H('#8a7a6a')); R.linea(mx + 1, my - 3 + k, mx + 4, my - 3 + k, H('#8a7a6a')); } if (Math.floor(t * 3) % 2 && t < XX) R.linea(mx, my - 6, mx + 3, my - 5, H('#f4ead0')); }
   }
@@ -159,7 +170,16 @@ const p2 = (t) => {
 };
 
 // ── 3 · la ventana: los pájaros se emparejan en la rama ─────────────────────────────────────────────────────────
-const ESCRIBE = C9(0.7733), PAREJA = C9(0.9721), ELIGE = C9(0.8948);
+// un gorrión pequeño (x, y = patas) mirando a la derecha; pica: la cabeza abajo; vuela: las alas abiertas
+const gorrion = (x, y, t, pica, vuela) => {
+  const P = H('#8a5a34'), p = H('#5a3a20'), c = H('#e8d8b8');
+  R.rect(x - 3, y - 4, x + 2, y - 1, K); R.rect(x - 2, y - 3, x + 1, y - 2, P); R.pset(x - 1, y - 2, c); R.pset(x, y - 2, c);
+  R.pset(x - 4, y - 3, K); R.pset(x - 5, y - 4, p);
+  const hy = pica ? y - 2 : y - 5; R.rect(x + 1, hy - 1, x + 4, hy + 1, K); R.pset(x + 2, hy, p); R.pset(x + 3, hy, K); R.pset(x + 5, hy + 1, H('#e8b830'));
+  if (vuela) { const al = Math.floor(t * 14) % 2; R.linea(x - 2, y - 4, x - 5, y - 7 - al * 2, K); R.linea(x - 1, y - 4, x - 3, y - 8 + al * 2, p); }
+  else { R.pset(x - 1, y, K); R.pset(x + 1, y, K); R.linea(x - 2, y - 3, x, y - 3, p); }
+};
+const ESCRIBE = C9(0.7733), PAREJA = C9(0.9721), ELIGE = C9(0.8948), VUELA = C9(0.8667), PICA = P3 + 0.55;
 const p3 = (t) => {
   // el reloj del decorado se desplaza para que el pájaro que llega empiece su vuelo al abrir el plano
   const tt = t - P3 + 70;
@@ -174,12 +194,22 @@ const p3 = (t) => {
     const n = Math.floor(w * 5); for (let k = 0; k < n; k++) R.linea(mx - 3, my - 9 + k * 2, mx + 4 - (k % 2) * 2, my - 9 + k * 2, H('#3a2a2a'));
     if (t > ESCRIBE && t < ELIGE) { const px = Math.round(mx - 3 + ((t * 6) % 7)), py = my - 9 + n * 2; R.linea(px, py, px + 6, py - 10, H('#f4f4ec')); R.linea(px + 1, py, px + 7, py - 10, H('#c8c8c0')); R.pset(px, py, K); }
   }
+  // el gorrión del alféizar: salta y picotea migas; en «every bird» vuela a la rama
+  { const vuela = lin(t, VUELA, VUELA + 0.9), hop = lin(t, P3 + 0.3, VUELA), xg0 = Math.round(lerp(150, 176, hop)) + (Math.floor(t * 2.5) % 2);
+    const pica = vuela === 0 && Math.sin(t * 9) > 0.4, salto = vuela === 0 && Math.abs(Math.sin(t * 5)) > 0.85 ? 2 : 0;
+    const xg = Math.round(lerp(xg0, 214, vuela)), yg = Math.round(lerp(132 - salto, 84, vuela) - Math.sin(vuela * Math.PI) * 14);
+    if (vuela > 0) R.recorte([96, 20, 224, 133]);
+    gorrion(xg, yg + (vuela >= 1 ? 0 : 0), t, vuela >= 1 ? Math.sin(t * 3) > 0.7 : pica, vuela > 0 && vuela < 1);
+    R.recorte(null);
+    if (t < VUELA) for (const [mx, k] of [[160, 0], [166, 1], [171, 2], [178, 3]]) if (t < P3 + 0.8 + k * 0.9) R.pset(mx, 132, H('#e8d8a8')); }
   // en «chose its mate»: un corazón sobre cada pareja de la rama
   if (t > PAREJA - 0.2) for (const [hx, hy, d] of [[132, 60, 0], [166, 56, 0.12], [200, 54, 0.24]]) if (t > PAREJA - 0.2 + d) { glifo('corazon', hx, hy - Math.round(lin(t, PAREJA, PAREJA + 2) * 6), rebote(t, PAREJA - 0.2 + d, 2), H('#e8406a')); }
 };
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], {
-  efectos: [[PREG, 'pop'], [BORRA0 + 0.1, 'whoosh'], [NODOC, 'papel'], [AMOR, 'pop'], [MOJA + 0.2, 'lapiz'], [P3 + 3.1, 'brillo'], [PAREJA - 0.2, 'pop']],
+  efectos: [[PALMADA, 'palmada'], [PREG, 'pop'], [LUPER, 'brillo'], [BORRA0 + 0.1, 'whoosh'],
+    [NODOC, 'papel'], [P2 + 1.3, 'toc'], [AMOR, 'pop'], [MOJA + 0.2, 'lapiz'],
+    [PICA, 'tic'], [ESCRIBE, 'lapiz'], [P3 + 3.15, 'brillo'], [VUELA + 0.1, 'whoosh'], [PAREJA - 0.2, 'pop']],
   año: (t) => (t < P2 ? 400 : 1380),
 });
 </script>

@@ -10,13 +10,16 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TR-MODA (frase 23), 2026, sin cartela. Cuatro planos:
-// 1. el salón de Atom: el chico en el sofá; la chica entra por la derecha con el álbum, lo deja en la mesita
-//    («the same way») y lo señala;  2. corte en «A fashion»: el álbum abierto de cerca, sobre el mantel con el chocolate y
-//    la vela; caen las estampas en su sitio: el vestido («fashion»), las uvas («joke»), el pastel, la liebre, la
-//    tarjeta («cards») y el nabo («candy»); la de las uvas brilla en «grapes»;  3. corte en «And within a generation»: el
-//    calendario de cerca; el chico sube al taburete, levanta la hoja y los meses vuelan solos; sonríe en «existed»;
-//  4. corte en «But»: la medianoche: la familia brinda alrededor de la mesa («ours»), el chico llega con el pastel y
-//    todos lo celebran juntos («who you celebrate them with») con el confeti.
+// 1. el salón de Atom: el chico, en el sofá, saluda a la chica que entra por la derecha con el álbum; salta por encima
+//    del respaldo (boing) y va a la mesita; ella deja el álbum («the same way»), la tapa se abre y los dos lo señalan;
+// 2. corte en «A fashion»: el álbum abierto de cerca, sobre el mantel con el chocolate y la vela; caen las estampas en
+//    su sitio: el vestido («fashion»), las uvas («joke»), el pastel, la liebre, la tarjeta («cards») y el nabo («candy»);
+//    la mano (T.brazo desde abajo) alisa las dos de la fila de abajo; la uva del racimo se asoma y salta en «grapes»;
+// 3. corte en «And within a generation»: el calendario de cerca; las estampas enmarcadas se encienden una tras otra; el
+//    chico sube al taburete, levanta la hoja y los meses vuelan solos (whoosh); la chica aplaude en «existed»;
+// 4. corte en «But»: la medianoche: el padre descorcha el cava (el corcho vuela y cae en la mesa), el reloj de caja alta
+//    da las doce en «ours» y brindan; un cohete grande estalla en la ventana en «what matters»; el chico llega con el
+//    pastel y todos lo celebran juntos («who you celebrate them with») con el confeti.
 import * as T from '/atomo/plato/escenas/tr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tr-moda');
@@ -42,12 +45,17 @@ const p1 = (t) => {
   T.hoy(R, t, o);
   // el chico, sentado en el sofá, se gira hacia la chica que llega
   const llega = tramo(t, 0.4, 3.3), xc = Math.round(lerp(332, 160, llega));
-  R.actor(EL.chicoHoy, 36, 150, t, { dir: 1, habla: t > 1.0 && t < 1.9 && Math.sin(t * 9) > 0, sorpresa: t > 3.4 && t < 3.9, sonrisa: t > 4.2 });
-  const deja = en('moda', 0.1699), pone = t > deja;
+  // el chico la ve llegar desde el sofá, salta por encima del respaldo y va a la mesita a mirar
+  const deja = en('moda', 0.1699), pone = t > deja, abre = tramo(t, deja + 0.25, deja + 0.6);
+  const sal = tramo(t, 2.0, 2.5), va = tramo(t, 2.5, 3.6), xs = Math.round(sal < 1 ? lerp(36, 84, sal) : lerp(84, 112, va)), ys = sal > 0 && sal < 1 ? Math.round(150 - Math.sin(sal * Math.PI) * 10) : 150;
+  R.actor(EL.chicoHoy, xs, sal >= 1 ? 151 : ys, t, { dir: 1, anda: va > 0 && va < 1, habla: t > 1.0 && t < 1.9 && Math.sin(t * 9) > 0, dedo: t > 0.5 && t < 1.0 || (abre >= 1 && t < deja + 1.3), sorpresa: t > 3.4 && t < 3.9, sonrisa: t > 4.2 });
   const ch = R.actor(EL.chicaHoy, xc, 147, t, { dir: -1, anda: llega > 0 && llega < 1, sostiene: !pone ? [xc - 2, 132] : false, dedo: pone && t < deja + 0.8, sonrisa: pone, habla: pone && t > deja + 0.8 && Math.sin(t * 8) > 0 });
   T.hoyDelante(R, t, o);
   if (!pone) albumCerrado(ch.mano[0], ch.mano[1]);
-  else albumAbierto(170, 155, t);
+  else if (abre < 1) { // la tapa se levanta y cae al otro lado
+    albumCerrado(170, 155); const a = abre * Math.PI, w = Math.round(Math.cos(a) * 12), hgt = Math.round(Math.sin(a) * 6);
+    R.poligono([[170, 152], [170 + w, 152 - hgt], [170 + w, 158 - hgt], [170, 158]], K); R.poligono([[170, 153], [170 + w - Math.sign(w), 153 - hgt], [170 + w - Math.sign(w), 157 - hgt], [170, 157]], hex(abre < 0.5 ? '#a8283a' : '#f2e8d0'));
+  } else albumAbierto(170, 155, t);
 };
 
 // 2 · el álbum abierto de cerca, sobre el mantel
@@ -121,6 +129,13 @@ const p2 = (t) => {
     ESTAMPAS[k](x, y + dy, t);
     if (u < 1 || t < c + 0.25) for (const [a, b] of [[-4, 4], [53, 6], [26, -5]]) destello(x + a, y + dy + b, hex('#fff0a0'));
   });
+  // una mano (la canónica, con su brazo desde abajo) alisa cada estampa de la fila de abajo cuando cae
+  for (const k of [2, 5]) { const c = CAEN[k], a = tramo(t, c - 0.05, c + 0.25), b = tramo(t, c + 0.75, c + 1.05); if (a <= 0 || b >= 1) continue;
+    const [x, y] = RAN[k], sal = Math.round(lerp(0, 40, Math.max(1 - a, b))), roza = Math.round(Math.sin((t - c) * 14) * 3) * (a >= 1 && b <= 0 ? 1 : 0);
+    T.brazo(R, x + 40, 196 + sal, x + 14 + roza, 150 + sal, '#7a3aa8', 1, { codo: [x + 34, 172 + sal] }); }
+  // la uva del racimo del mantel se asoma y salta de alegría cuando dice «grapes»
+  { const G = en('moda', 0.4233), asoma = tramo(t, G - 1.2, G - 0.7), sa = t > G && t < G + 1.1 ? Math.round(Math.abs(Math.sin((t - G) * 9)) * 6) : 0;
+    if (asoma > 0) T.uva(R, 290, Math.round(lerp(186, 166, asoma)) - sa, t, { s: 1, cara: sa ? 'feliz' : 'normal', corazon: false }); }
   // la estampa de las uvas brilla en «grapes»
   if (t > en('moda', 0.4233) && t < en('moda', 0.4500)) { const [x, y] = RAN[1]; for (let i = 0; i < 4; i++) destello(x + 10 + i * 10, y + 6 + (i % 2) * 30, BL); }
 };
@@ -132,7 +147,9 @@ const p3 = (t) => {
   let mes = 12, h = hoja;
   if (t > VUELA) { const f = (t - VUELA) * 7 * (1 - tramo(t, SIEMPRE - 0.4, SIEMPRE)), n = Math.floor(f); mes = ((12 + n) % 12) + 1; h = Math.min(1, (f - n) * 1.6); if (t > SIEMPRE) { mes = 12; h = 0; } }
   else if (hoja >= 1) { mes = 1; h = 0; }
-  const o = { encuadre: 'salon', camara: 'calendario', mes, hoja: h, dia: 31 };
+  // las estampas enmarcadas se van encendiendo una tras otra: «una generación o dos» y ya son de siempre
+  const estampas = [tramo(t, GE - 0.1, GE + 0.3), tramo(t, VUELA - 0.2, VUELA + 0.2), tramo(t, SIEMPRE - 0.6, SIEMPRE - 0.2)];
+  const o = { encuadre: 'salon', camara: 'calendario', mes, hoja: h, dia: 31, estampas };
   T.hoy(R, t, o);
   const an = tramo(t, P3 + 0.05, en('moda', 0.5556)), x = Math.round(lerp(118, 190, an));
   const suelo = sube > 0 ? Math.round(lerp(168, 146, sube) - Math.sin(Math.PI * sube) * 6) : 168;
@@ -147,25 +164,40 @@ const p3 = (t) => {
 // 4 · la medianoche: la familia celebra junta
 const p4 = (t) => {
   const NUESTRAS = en('moda', 0.7838), IMPORTA = en('moda', 0.8325), CON = en('moda', 0.9289), PON = en('moda', 0.9045);
-  const o = { encuadre: 'medianoche', hora: 23.9, confeti: t < CON ? 0.3 : Math.min(1, 0.3 + (t - CON) * 1.5) };
+  const o = { encuadre: 'medianoche', hora: 24 - NUESTRAS / 3600, confeti: t < CON ? 0.3 : Math.min(1, 0.3 + (t - CON) * 1.5) };
   T.hoy(R, t, o);
+  // un cohete grande estalla en la ventana cuando dice «what matters» (recortado al cristal)
+  { const B = IMPORTA + 0.4, u = (t - B) / 1.4; R.recorte([79, 23, 201, 93]);
+    if (t > B - 0.6 && t < B) { const y = Math.round(lerp(93, 46, (t - B + 0.6) / 0.6)); R.pset(132, y, hex('#fff0a0')); R.pset(132, y + 2, hex('#e8a040')); R.pset(132, y + 4, hex('#a85a2a')); }
+    if (u > 0 && u < 1) for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2, r = 4 + 22 * Math.sqrt(u), x = 132 + Math.cos(a) * r, y = 46 + Math.sin(a) * r + u * u * 8, c = hex(['#ff7aa8', '#ffe07a', '#8ad8ff'][k % 3]);
+      if (u < 0.85 || k % 2) { R.disco(Math.round(x), Math.round(y), u < 0.3 ? 1.2 : 0.6, c); R.pset(Math.round(132 + Math.cos(a) * r * 0.75), Math.round(46 + Math.sin(a) * r * 0.75 + u * u * 6), mez(c, K, 0.4)); } }
+    R.recorte(null); }
   const fiesta = t > CON, bote = (k) => (fiesta ? Math.round(2 * Math.abs(Math.sin((t - CON) * 8 + k))) : 0);
-  const alza = t > NUESTRAS - 0.2 && t < NUESTRAS + 1.4;
+  const alza = t > NUESTRAS - 0.2 && t < NUESTRAS + 1.4, CORCHO = P4 + 0.35, botella = t < NUESTRAS - 0.35;
   R.actor(EL.abuela62, 104, 145, t, { dir: 1, sonrisa: true, habla: t > P4 + 0.2 && t < P4 + 1.2 && Math.sin(t * 8) > 0, brazos: fiesta, salto: bote(0) });
-  const pa = R.actor(EL.padre62, 124, 145, t, { dir: 1, sostiene: alza ? [141, 124] : false, sonrisa: t > NUESTRAS, brazos: fiesta, salto: bote(1) });
+  const pa = R.actor(EL.padre62, 124, 145, t, { dir: 1, sostiene: alza ? [141, 124] : botella ? [138, 126] : false, sonrisa: t > CORCHO, sorpresa: t > CORCHO && t < CORCHO + 0.4, brazos: fiesta, salto: bote(1) });
   const ma = R.actor(EL.madre62, 172, 145, t, { dir: -1, sostiene: alza ? [168, 124] : false, sonrisa: t > NUESTRAS, habla: t > P4 + 1.2 && t < NUESTRAS - 0.3 && Math.sin(t * 8) > 0, brazos: fiesta, salto: bote(2) });
   R.actor(EL.chicaHoy, 148, 145, t, { dir: 1, sonrisa: true, sorpresa: t > IMPORTA + 0.4 && t < PON, brazos: fiesta, salto: bote(3) });
   const v = tramo(t, IMPORTA - 0.2, PON - 0.3), xc = Math.round(lerp(330, 196, v));
   const ch = R.actor(EL.chicoHoy, xc, 145, t, { dir: -1, anda: v > 0 && v < 1, sostiene: t < PON ? [xc - 3, 130] : false, sonrisa: true, brazos: fiesta, salto: bote(4) });
   T.hoyDelante(R, t, o);
   if (alza) { PZ.copa(R, pa.mano[0], pa.mano[1] + 2, {}); PZ.copa(R, ma.mano[0], ma.mano[1] + 2, {}); if (Math.abs(t - NUESTRAS) < 0.25) destello(155, 116, BL); }
+  // el padre descorcha el cava: el corcho sale volando y vuelve a caer en la mesa, con la espuma
+  if (botella && !alza) { const [bx, by] = pa.mano; R.rect(bx - 2, by - 4, bx + 2, by + 7, K); R.rect(bx - 1, by - 3, bx + 1, by + 6, hex('#2a6a3a')); R.pset(bx - 1, by - 2, hex('#6ab87a')); R.rect(bx - 1, by - 8, bx + 1, by - 4, hex('#e8c040')); R.rect(bx - 1, by + 1, bx + 1, by + 3, hex('#f0e8d0'));
+    if (t < CORCHO) { R.rect(bx - 1, by - 10, bx + 1, by - 9, hex('#c8a070')); }
+    else if (t < CORCHO + 0.8) for (let k = 0; k < 5; k++) { const f = ((t - CORCHO) * 2 + k / 5) % 1; R.pset(Math.round(bx + Math.sin(k * 2.3) * 3 * f), Math.round(by - 9 - f * 5), BL); } }
+  if (t > CORCHO && t < CORCHO + 1.0) { const u = (t - CORCHO) / 1.0, x = Math.round(138 + u * 30), y = Math.round(116 - Math.sin(u * Math.PI) * 30 + u * 16); R.rect(x - 1, y - 1, x + 1, y, K); R.pset(x, y - 1, hex('#c8a070')); R.pset(x - 1, y, hex('#a8804a')); }
+  else if (t >= CORCHO + 1.0) { R.rect(167, 131, 169, 132, K); R.pset(168, 131, hex('#c8a070')); }
   if (t < PON) { if (v > 0) PZ.pastel(R, ch.mano[0], ch.mano[1] + 6, { velas: 5, encendidas: 5, t }); }
   else PZ.pastel(R, 202, 148, { velas: 5, encendidas: 5, t });
 };
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], {
   año: 2026,
-  efectos: [[en('moda', 0.1699), 'golpecito'], [en('moda', 0.2121), 'sello'], [en('moda', 0.2902), 'sello'], [en('moda', 0.3912), 'sello'], [en('moda', 0.4233), 'brillo'], [en('moda', 0.4830), 'sello'], [en('moda', 0.5717), 'papel'], [en('moda', 0.6750), 'palmada'], [en('moda', 0.7838), 'brillo'], [en('moda', 0.9045), 'golpecito'], [en('moda', 0.9321), 'palmada']],
+  efectos: [[2.1, 'boing'], [en('moda', 0.1699), 'golpecito'], [en('moda', 0.1699) + 0.6, 'papel'],
+    [en('moda', 0.2121), 'sello'], [en('moda', 0.2902), 'sello'], [en('moda', 0.3912), 'sello'], [en('moda', 0.4233), 'brillo'], [en('moda', 0.4830), 'sello'],
+    [en('moda', 0.5717), 'papel'], [en('moda', 0.6098), 'whoosh'], [en('moda', 0.6750), 'palmada'],
+    [P4 + 0.35, 'pop'], [en('moda', 0.7838), 'campana'], [en('moda', 0.8325) + 0.4, 'boom'], [en('moda', 0.9045), 'golpecito'], [en('moda', 0.9321) + 0.3, 'palmada']],
 });
 </script>
 </body>
