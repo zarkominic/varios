@@ -40,6 +40,7 @@ una pasada o detalle no entra.
 | 19 | ~11 h de reloj, estimadas (31 escenas, 147 planos; el reparto de 48 personajes aparte) | ~15,1 M (8,0 M en calidad, 3,3 M en el borrador de escenas, 2,6 M en los decorados, 0,5 M en la pasada de decorados, 0,6 M en datos, verificación y reparto) | 64 de 147 | 64 → 2 → 0 | 100 | no (el «18» de la placa se leía «1S»: re-render de una escena y montaje) |
 | 20 | ~10 h de reloj desde el OK al guion (31 escenas, 97 planos; los 3 Shorts aparte) | ~12,6 M (6,6 M en calidad, 2,5 M en el borrador de escenas, 1,7 M en los decorados, 0,65 M en la pasada de decorados, 0,43 M en movimiento, 0,7 M en datos, verificación y reparto) | 55 de 97 | 4 previos → 55 → 0 | — | sí |
 | 21 | ~11 h de reloj desde el OK al guion, con un reinicio del contenedor a mitad de las pasadas (29 escenas, 95 planos; los 3 Shorts aparte) | ~13 M (7,2 M en calidad, 2,4 M en el borrador de escenas, 1,6 M en los decorados, 0,7 M en la pasada de decorados, 0,4 M en movimiento, 0,6 M en reparto y miniaturas) | 58 de 95 | 3 previos → 58 → 0 | — | sí |
+| 22 | ~13 h de reloj desde el OK al guion, con un reinicio del contenedor en la pasada de calidad (27 escenas, 98 planos; los 3 Shorts aparte) | ~15 M (4,6 M en calidad tras el reinicio y ~2,5 M antes, 2,8 M en el borrador de escenas, 1,5 M en los decorados, 0,7 M en la pasada de decorados, 0,4 M en movimiento, 0,9 M en investigación, verificación, reparto y miniaturas) | 46 de 98 | 4 previos → 46 → 0 | — | sí |
 
 ### Fallos de calidad por tipo
 
@@ -329,4 +330,16 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   nombre real. Al rehacer la voz, la mezcla inglesa salió con un pico real de +0,1 dBFS (a 2:37) que ni un TP más bajo
   en loudnorm quitó; se arregló con un `alimiter` a 0,70 sobre el audio del mp4 (−14,1 LUFS, pico −3,1). El subtítulo
   rápido del cierre volvió al regenerar los SRT: se corrige también en `build/largo/<ep>/subtitulos-en.srt`.
+
+## Episodio 22 · La Navidad estuvo prohibida (5–6/11/2026)
+
+- **Tema global, no centrado en México** (corrección del usuario): el giro que sorprende en cualquier país (la Navidad
+  estuvo prohibida) y los mitos que se repiten en todo el mundo; México es una parada más del viaje.
+- **La vuelta al mundo como viaje por el calendario** (de septiembre en Filipinas al 6 de enero en Italia): el revisor
+  de narración lo pidió para que una lista de países no suene a frases sueltas.
+- **El reparto de encuadres con huecos libres:** con 98 planos y 54 encuadres no caben todos; se asignaron 66 y el resto
+  lo eligieron los agentes de la lista «con un uso libre», con fondos locales o insertos. Salió sin repeticiones.
+- **Disco:** el render pide ~9,5 GB; tras borrar los fotogramas del 21 quedaban 9,1. Se liberó con las capturas de
+  trabajo del 21 en el scratchpad (ya entregado).
+- **Reinicio del contenedor en la calidad:** se retomó con `resumeFromRunId` tras hacer commit de lo editado.
 
