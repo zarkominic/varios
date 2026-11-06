@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep22 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep22, «La Navidad era ilegal». Canterbury nevado de noche en
+// 1647: la puerta de roble con el aviso del acebo tachado clavado, y delante el alguacil puritano (sombrero de copa negro,
+// ceño fruncido) que tiende la multa con el «5» rojo enorme; arriba, el «1647» dorado grande. Todo lo que cuenta va en la
+// columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos. El aviso, la multa y el
+// alguacil son los de nv-miniatura.html, a la misma escala, corridos a la columna.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const fondo = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un actor en su búfer, copiado a escala s con su contorno (filo de color c)
+const actorGrande = (def, op, bx, dx, dy, s, filo, borra = []) => {
+  R.usar(pj); pj.fill(VACIO); R.actor(def, 20, 70, 0.5, { quieto: true, ...op }); R.usar(tmp); tmp.fill(VACIO);
+  for (const [x, y] of borra) pj[y * 320 + x] = VACIO;
+  pon(pj, bx[0], bx[1], bx[2], bx[3], dx, dy, s); contorno(tmp, 1, filo); R.usar(null); vuelca(tmp);
+};
+
+// un brillo suave: aclara hacia el color c en un círculo de radio r
+const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
+// una elipse rellena (a resolución de lienzo)
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
+// un trazo grueso de (x0, y0) a (x1, y1), de radio r
+const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
+
+// ── la puerta de roble de Canterbury, con herrajes, y el aviso del acebo tachado clavado ──
+const ROBLE = [hex('#6a4426'), hex('#4e3018'), hex('#36200e'), hex('#22140a')], HIERRO = hex('#2a2a34');
+function puerta(x0, x1, y0, y1) {
+  const cx = (x0 + x1) / 2, rx = (x1 - x0) / 2;
+  // el marco de piedra y el arco
+  for (let y = y0 - 6; y <= y1; y++) for (let x = x0 - 6; x <= x1 + 6; x++) {
+    const arco = y < y0 + rx ? Math.hypot((x - cx) / (rx + 6), (y - y0 - rx) / (rx + 6)) <= 1 : true;
+    if (!arco) continue;
+    const dentro = y < y0 + rx ? Math.hypot((x - cx) / rx, (y - y0 - rx) / rx) <= 1 : x >= x0 && x <= x1;
+    if (!dentro) { R.pset(x, y, (Math.floor(y / 6) + Math.floor(x / 9)) % 2 ? hex('#5a5e78') : hex('#4a4e68')); if ((y % 6) === 0) R.pset(x, y, hex('#2a2c40')); continue; }
+    const tabla = Math.floor((x - x0) / 9), u = (x - x0) % 9;
+    let c = u === 0 ? ROBLE[3] : u === 1 ? ROBLE[0] : hh(tabla, Math.floor(y / 3), 9) < 0.15 ? ROBLE[2] : ROBLE[1];
+    R.pset(x, y, c);
+  }
+  // los herrajes: dos bisagras largas con clavos
+  for (const yb of [y0 + rx + 10, y1 - 26]) { R.rect(x0, yb, x1 - 10, yb + 2, HIERRO); R.rect(x0, yb, x1 - 10, yb, hex('#5a5a6a')); for (let x = x0 + 3; x < x1 - 10; x += 7) R.pset(x, yb + 1, hex('#8a8a9a')); elipse(x1 - 10, yb + 1, 2.5, 2.5, HIERRO); }
+  // la aldaba
+  elipse(x1 - 9, y0 + rx + 52, 3, 3, HIERRO); R.pset(x1 - 10, y0 + rx + 51, hex('#8a8a9a'));
+}
+// el aviso, a escala grande y redibujado fino: pergamino clavado con el acebo y la cruz roja encima
+function aviso(cx, y0, w, h) {
+  const x0 = Math.round(cx - w / 2), x1 = x0 + w, y1 = y0 + h;
+  // la sombra
+  R.rect(x0 + 2, y0 + 2, x1 + 2, y1 + 2, hex('#140c08'));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const borde = x === x0 || x === x1 || y === y0 || y === y1;
+    const curl = (x - x0 + y1 - y) < 5;
+    if (curl) continue;
+    R.pset(x, y, borde ? hex('#2a1a10') : hh(x >> 1, y >> 1, 3) < 0.12 ? hex('#e2d2a8') : y > y1 - 4 ? hex('#d8c494') : hex('#f4e8c6'));
+  }
+  // la esquina doblada
+  for (let k = 0; k < 5; k++) for (let j = 0; j <= k; j++) R.pset(x0 + j, y1 - 4 + k - j + j, hex('#c8b080'));
+  // el clavo
+  elipse(cx, y0 + 3, 1.6, 1.6, hex('#4a4a5a')); R.pset(Math.round(cx) - 1, y0 + 2, hex('#c8c8d8'));
+  // el acebo: dos hojas con pinchos y tres bayas
+  const hy = y0 + h * 0.55;
+  for (const lado of [-1, 1]) {
+    for (let u = 0; u <= 1; u += 0.02) { const x = cx + lado * (2 + u * w * 0.36), y = hy - u * 5, r = Math.sin(u * Math.PI) * 5.5 + 0.6; for (let v = -r; v <= r; v += 0.5) { const yy = Math.round(y + v), xx = Math.round(x); R.pset(xx, yy, v < -r + 1.2 || v > r - 1.2 ? hex('#0e3a1a') : v < 0 ? hex('#3a9a4a') : hex('#1e6a32')); } }
+    for (let k = 1; k <= 3; k++) { const u = k / 4, x = cx + lado * (2 + u * w * 0.36), y = hy - u * 5, r = Math.sin(u * Math.PI) * 5.5 + 1.8; R.pset(Math.round(x), Math.round(y - r), hex('#0e3a1a')); R.pset(Math.round(x), Math.round(y + r), hex('#0e3a1a')); }
+  }
+  // las bayas, en la cuña de abajo de la cruz, para que se vean (en la miniatura del episodio quedaban debajo)
+  const cc = (y0 + 8 + y1 - 5) / 2;
+  for (const [i, j] of [[-2.6, 9.5], [2.6, 9.5], [0, 6.5]]) { elipse(cx + i, cc + j, 2.6, 2.6, hex('#4a0a10')); elipse(cx + i, cc + j, 2, 2, hex('#d8202a')); R.pset(Math.round(cx + i - 1), Math.round(cc + j - 1), hex('#ffb0a0')); }
+  // la cruz roja que lo tacha
+  const m = 5;
+  for (const [c, r] of [[hex('#3a0608'), 2.6], [hex('#e8282a'), 1.6]]) { trazo(x0 + m, y0 + m + 3, x1 - m, y1 - m, r, c); trazo(x1 - m, y0 + m + 3, x0 + m, y1 - m, r, c); }
+}
+
+// ── la multa grande con su «5» ──
+function multa(x0, y0, w, h) {
+  const x1 = x0 + w, y1 = y0 + h;
+  R.rect(x0 + 2, y0 + 2, x1 + 2, y1 + 2, hex('#140c08'));
+  R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, K);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, hh(x >> 1, y >> 1, 4) < 0.1 ? hex('#e8dcb8') : hex('#fbf4dc'));
+  R.rect(x0 + 3, y0 + 3, x1 - 3, y0 + 3, hex('#9a8a6a')); R.rect(x0 + 3, y0 + 6, x1 - 8, y0 + 6, hex('#9a8a6a'));
+  // el sello de lacre
+  elipse(x1 - 6, y1 - 6, 4, 4, hex('#5a0a10')); elipse(x1 - 6, y1 - 6, 3, 3, hex('#c8202a')); R.pset(x1 - 7, y1 - 8, hex('#ff8a7a'));
+}
+
+// el alguacil al triple, corrido OX a la derecha (el de la miniatura del episodio, que estaba en x 0)
+const OX = 100, AL = { s: 3, dx: OX, dy: 84, bx: [16, 42, 38, 70] };
+const enAlg = (px, py) => [AL.dx + (px - AL.bx[0]) * AL.s, AL.dy + (py - AL.bx[2]) * AL.s];
+const PIEL = hex('#f6c290'), PIELS = hex('#d8946a');
+// la cara del alguacil: ojos pequeños y severos, cejas grises fruncidas, el bigote canoso y la boca torcida
+function caraAlguacil() {
+  const [fx0, fy0] = enAlg(24, 49), [fx1, fy1] = enAlg(33, 56);
+  R.rect(fx0, fy0, fx1 - 1, fy1 - 4, PIEL);
+  R.rect(fx0, fy0, fx1 - 1, fy0 + 1, hex('#e0a878'));
+  for (const ex of [fx0 + 13, fx0 + 25]) { const ey = fy0 + 9;
+    elipse(ex, ey, 1.8, 2.4, hex('#1a1424')); R.pset(ex, ey - 1, hex('#ffffff'));
+    // la ceja gris, gruesa y fruncida hacia la nariz
+    for (let i = -4; i <= 3; i++) { const y = ey - 5 + Math.round(i * 0.45); R.rect(ex + i, y, ex + i, y + 1, hex('#8c8ca0')); R.pset(ex + i, y - 1, hex('#5a5a6a')); } }
+  // la nariz
+  R.rect(fx0 + 28, fy0 + 11, fx0 + 30, fy0 + 14, PIELS); R.pset(fx0 + 30, fy0 + 15, PIELS);
+  // el bigote canoso
+  for (let i = 0; i <= 12; i++) { const x = fx0 + 18 + i, y = fy0 + 16 + Math.round(Math.abs(i - 7) * 0.3); elipse(x, y, 1.3, 1.5, hex('#a8acbc')); }
+  R.rect(fx0 + 19, fy0 + 18, fx0 + 29, fy0 + 18, hex('#6a6a7a'));
+  // la boca, una raya severa
+  R.rect(fx0 + 21, fy0 + 20, fx0 + 27, fy0 + 20, hex('#7a3a2a'));
+}
+
+const dibujar = (t) => {
+  // Canterbury en la Navidad de 1647, de noche: todo hacia el azul noche, la nieve se queda clara y azulada
+  R.usar(fondo); T.siglo17(R, t, { encuadre: 'canterbury', nieve: 0.6 }); R.usar(null);
+  const B = R.buf, DX = 0;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const c = fondo[y * 320 + Math.min(319, x + DX)];
+    const l = ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) / 765;
+    B[y * 320 + x] = l > 0.84 && y > 40 ? mezcla(hex('#b8c8ec'), c, 0.75) : mezcla(hex('#081030'), c, 0.5 + 0.35 * (1 - y / 180)); }
+  for (let k = 0; k < 60; k++) { const x = Math.floor(hh(k, 1, 11) * 320), y = Math.floor(hh(k, 2, 11) * 60); const c = B[y * 320 + x], l = ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) / 765; if (l < 0.3) R.pset(x, y, k % 5 ? hex('#8a9ad8') : hex('#ffffff')); }
+
+  // la puerta de roble con el aviso del acebo tachado, alumbrada por el farol
+  puerta(114, 162, 40, 179);
+  brillo(138, 62, 40, hex('#ffc870'), 0.38);
+  aviso(138, 42, 40, 42);
+
+  // el alguacil, al triple, sin el bastón, con su brazo tendiendo la multa
+  actorGrande(EL.alguacil, { dir: 1, sinObjeto: true }, AL.bx, AL.dx, AL.dy, AL.s, hex('#a8b8e8'));
+  caraAlguacil();
+  const X = (x) => x + OX;
+  const PANO = hex('#3a2e2a'), FILO = hex('#a8b8e8'), BR = [[X(57), 148, X(71), 144], [X(71), 144, X(80), 131]];
+  for (const [a, b, c, d] of BR) trazo(a, b, c, d, 6, FILO);
+  for (const [a, b, c, d] of BR) trazo(a, b, c, d, 5, K);
+  for (const [a, b, c, d] of BR) trazo(a, b, c, d, 4, PANO);
+  for (const [a, b, c, d] of BR) trazo(a + 0.5, b - 2, c + 0.5, d - 2, 1, hex('#6a5a50'));
+  trazo(X(75), 136, X(78), 133, 5, K); trazo(X(75), 136, X(78), 133, 4.2, hex('#f6f2ea'));
+  brillo(X(93), 110, 24, hex('#fff4d0'), 0.3);
+  multa(X(80), 92, 28, 36);
+  R.numero('5', X(95), 124, { tam: 24, centro: true, sombra: false, rampa: [hex('#ff8070'), hex('#e02820'), hex('#a01018'), hex('#600810')] });
+  elipse(X(82), 126, 4.8, 4.6, K); elipse(X(82), 126, 3.8, 3.6, PIEL); elipse(X(83), 128, 2.4, 1.6, PIELS); trazo(X(83), 122, X(86), 120, 1.9, K); trazo(X(83), 122, X(86), 120, 1, PIEL);
+
+  // arriba, el 1647 dorado sobre su resplandor
+  brillo(160, 20, 46, hex('#fff0a0'), 0.4);
+  R.numero('1647', 160, 31, { tam: 24, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
