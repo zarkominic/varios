@@ -4869,7 +4869,7 @@ export const ELENCO_TR = {
   chicoHoy: { ...B23, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#6a4020'), pal: CLT({ H: '#7a5030', h: '#9a6c44', C: '#2a3a5a', c: '#1e2a44', u: '#d8a030', o: '#e8dcc0', F: '#3a3a44' }) },
   // ── el calendario: Inglaterra 1752 y Roma ──
   // el recaudador inglés de 1752: peluca blanca con lazo, quevedos, casaca parda, medias blancas y la pluma
-  recaudador: { ...B23, cab: CAB_PELUCA, cuerpo: CUERPO_CASACA_TR, tocado: 'gafas', ceja: hex('#8a7a6a'), detras: lazo, delante: conPlumaNV,
+  recaudador: { ...B23, cab: CAB_PELUCA, cuerpo: CUERPO_CASACA_TR, tocado: 'gafas', ceja: hex('#8a7a6a'), detras: lazo, delante: varios(conPlumaNV, cristalHP),
     pal: CLT({ H: '#ecebe6', h: '#c4c0b8', J: '#2a2430', C: '#5a4a3a', c: '#3e3226', W: '#f2eee2', o: '#c8a040', F: '#3e3226', w: '#f2eee2', O: '#c8ccd8' }) },
   // Julio César en el relieve: el emperador del 20 (corona de laurel y toga con la banda morada)
   cesar: ELENCO_JH.emperador,
@@ -4973,7 +4973,7 @@ export const ELENCO_TR = {
   // maestra (falda granate y quevedos)
   mildred: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, ceja: hex('#5a3418'), delante: monoHP,
     pal: CLT({ H: '#6a4020', h: '#8a5a30', W: '#f6f4ee', o: '#c8a040', I: '#24304a', C: '#2a3a6a', c: '#1e2a4e' }) },
-  patty: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, tocado: 'gafas', ceja: hex('#2a1c14'), delante: monoHP,
+  patty: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, tocado: 'gafas', ceja: hex('#2a1c14'), delante: varios(monoHP, cristalHP),
     pal: CLT({ H: '#2a1c14', h: '#4a3424', W: '#f6f4ee', o: '#c8a040', I: '#3a1a24', C: '#6a2a3a', c: '#4e1e2a' }) },
   // los niños del kínder de 1893: los dos niños victorianos del 22 y una niña con delantal
   ninoKinder: ELENCO_NV.ninoVictoriano,
@@ -4984,7 +4984,7 @@ export const ELENCO_TR = {
   directorCine: ELENCO_HP.director,
   cantante: ELENCO_SI.actriz,
   disquera: ELENCO_SI.ejecutivo,
-  juezToga: { ...B23, cab: CAB_SIENES, cuerpo: CUERPO_TOGA_JUEZ_TR, tocado: 'gafas', ceja: hex('#6a6a76'), delante: conMazo,
+  juezToga: { ...B23, cab: CAB_SIENES, cuerpo: CUERPO_TOGA_JUEZ_TR, tocado: 'gafas', ceja: hex('#6a6a76'), delante: varios(conMazo, cristalHP),
     pal: OSCURA({ H: '#3a3a44', h: '#5a5a66', w: '#c8c8d0', C: '#1c1c24', c: '#121218', o: '#1c1c24', G: '#1c1c24', W: '#f6f4ee', L: '#121218' }) },
   // ── las bodas ──
   // la reina Victoria de novia (1840): el moño, la corona de azahar, el velo de encaje y el vestido de seda blanca;
