@@ -17,10 +17,11 @@
 //    alguacil descuelga la multa del poste y la rompe; en «1681» los vecinos saltan; las gaviotas planean sobre el puerto.
 // 3. El rincón del escribano en 1856 (uso libre): el señor de 1857 cruza tras la mesa hasta el calendario y en «legal
 //    holiday» rodea en verde la casilla del acebo; la dama aplaude; el chico de los recados entra con el periódico y en
-//    «1856» lo alza y salta; en «1856» sale el número.
+//    «1856» lo alza y salta; en «1856» sale el número. Sin parche detrás de Atom: el decorado ya deja esa esquina en penumbra.
 // 4. Glasgow (general), mañana de Navidad de los años 50: la gente va a trabajar con abrigo y fiambrera; el obrero y la
 //    obrera se cruzan y se saludan en «Christmas Day»; el autobús pasa por detrás.
-// 5. La parada (uso libre): la cola patea de frío; el autobús llega en «late 1950s» y suben.
+// 5. La parada (uso libre): la cola patea de frío junto al poste; el autobús llega en «late 1950s» y frena con la
+//    plataforma de atrás junto al poste (x 214); la cola sube por ella uno tras otro y desaparece dentro.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { PIEZAS_NV as PZ } from '/atomo/plato/kits/pixel-chibi.js';
@@ -167,11 +168,6 @@ const p3 = (t) => {
   const g = T.siglo17(R, t, { encuadre: 'parlamento', camara: 'escribano', tacha: 0, libres: 0 });
   const nav = g.casillas?.navidad ?? [192, 97, 203, 113], cx = (nav[0] + nav[2]) / 2, cy = (nav[1] + nav[3]) / 2;
   const v = tramo(t, P3 + 0.2, festivo - 0.5);
-  // PARCHE DECORADO: siglo17 parlamento/escribano: las vetas del arrimadero detrás de Atom (x 274–319, y 3–47) hacían
-  // ruido; un cuarterón liso de madera barnizada, con su moldura fuera de la zona de Atom
-  for (let y = 3; y <= 47; y++) for (let x = 273; x <= 319; x++) {
-    const c = x === 273 || y === 47 ? hex('#3a2214') : x === 274 || y === 46 ? hex('#8a5a34') : mez(hex('#6a4024'), hex('#7a4a2a'), (y - 3) / 44 * 0.6 + ((x + y) % 2) * 0.08);
-    R.pset(x, y, c); }
   R.actor(EL.senor1857, Math.round(lerp(110, 184, suave(v))), 142, t, { dir: v < 1 ? 1 : -1, anda: v > 0 && v < 1, dedo: t > festivo - 0.3 && t < ano56 + 0.4, habla: t > ano56 && Math.sin(t * 8) > 0, sonrisa: t > festivo });
   T.siglo17Delante(R, t, { encuadre: 'parlamento', camara: 'escribano' });
   // el chico de los recados entra por la derecha con el periódico; en «1856» lo alza y salta
@@ -198,15 +194,31 @@ const p4 = (t) => {
   T.siglo17Delante(R, t, { encuadre: 'escocia' });
 };
 
-// ── 5 · La parada: el autobús de las 7 llega en «late 1950s» ──
+// ── 5 · La parada: el autobús de las 7 llega en «late 1950s» y para junto al poste; la cola sube por la plataforma ──
+// el camino de la cola (x es el borde izquierdo del actor): la acera hasta el poste, en diagonal hasta el bordillo junto
+// a la plataforma de atrás, el escalón y, ya dentro, hacia la izquierda, tapados por el costado del autobús
+const CAMINO = [[120, 168], [192, 168], [218, 136], [216, 126], [194, 126]];
+const LARGOS = CAMINO.slice(1).map(([x, y], i) => Math.hypot(x - CAMINO[i][0], y - CAMINO[i][1]));
+const enCamino = (d) => { for (let i = 0; i < LARGOS.length; i++) { if (d <= LARGOS[i] || i === LARGOS.length - 1) { const u = Math.min(1, d / LARGOS[i]); return { x: lerp(CAMINO[i][0], CAMINO[i + 1][0], u), y: lerp(CAMINO[i][1], CAMINO[i + 1][1], u), tramo: i }; } d -= LARGOS[i]; } };
+const FIN = LARGOS.reduce((a, b) => a + b, 0);
 const p5 = (t) => {
-  const llega = suave(tramo(t, P5 + 0.1, cincuenta + 0.3));
-  T.siglo17(R, t, { encuadre: 'escocia', camara: 'parada', bus: llega });
-    const cola = [[EL.obreraEscocesa, 150, 0, null], [EL.obreroEscoces, 126, 1.3, null], [EL.obreroEscoces, 102, 2.1, { C: hex('#5a4a3a'), c: hex('#3e3428'), u: hex('#2a4a7a') }], [EL.obreraEscocesa, 78, 0.7, { C: hex('#7a3a4a'), c: hex('#5a2a36'), u: hex('#e0c060') }]];
-  for (const [k, [def, x0, f, pal]] of cola.entries()) { const s = tramo(t, cincuenta + 0.4 + k * 0.3, cincuenta + 3.6 + k * 0.3), x = Math.round(x0 + s * 200);
-    R.actor(def, x, 168, t, { dir: 1, anda: s > 0 && s < 1, salto: t < cincuenta && Math.sin(t * 5 + f * 3) > 0.85 ? 1 : 0, sonrisa: t > cincuenta, sorpresa: t > cincuenta - 0.2 && t < cincuenta + 0.4 && k === 0, ...(pal ? { pal } : {}) }); }
-  // el vaho del aliento en el frío
-  for (const [k, x] of [[0, 166], [1, 142], [2, 118]]) { const u = ((t * 0.8 + k * 0.33) % 1); if (u < 0.6 && t < cincuenta + 0.6) R.disco(x + Math.round(u * 8), 147 - Math.round(u * 6), 1 + u * 2, mez(hex('#dce6f0'), hex('#9aa6b4'), u)); }
+  // el autobús frena con la plataforma junto al poste (x 214): se pide su x y se traduce al 0–1 del decorado
+  const llega = suave(tramo(t, P5 + 0.1, cincuenta + 0.3)), bxQ = lerp(420, 182, llega);
+  const g = T.siglo17(R, t, { encuadre: 'escocia', camara: 'parada', bus: 1 - Math.sqrt(Math.max(0, 1 - (420 - bxQ) / 300)) });
+  const x0 = g.bus - 49, platL = x0 + 87;   // el costado del autobús (de 97 px) y el borde de su plataforma de atrás
+  const cola = [[EL.obreraEscocesa, 0, null], [EL.obreroEscoces, 1.3, null], [EL.obreroEscoces, 2.1, { C: hex('#5a4a3a'), c: hex('#3e3428'), u: hex('#2a4a7a') }], [EL.obreraEscocesa, 0.7, { C: hex('#7a3a4a'), c: hex('#5a2a36'), u: hex('#e0c060') }]];
+  const gente = cola.map(([def, f, pal], k) => { const sale = cincuenta + 0.25 + k * 0.2, d = 72 - 22 * k + Math.max(0, t - sale) * 40; return { def, f, pal, k, d, anda: t > sale, ...enCamino(Math.min(d, FIN)) }; })
+    .filter((p) => p.d < FIN).sort((a, b) => a.y - b.y);
+  for (const p of gente) {
+    const x = Math.round(p.x), y = Math.round(p.y), dentro = p.tramo === 3;
+    // ya en la plataforma, hacia dentro: se guarda el costado del autobús y se repinta encima (lo tapa)
+    let guardado = null;
+    if (dentro) { guardado = []; for (let yy = 70; yy <= 132; yy++) for (let xx = x0; xx < platL; xx++) guardado.push(R.pget(xx, yy)); }
+    R.actor(p.def, x, y, t, { dir: dentro ? -1 : 1, anda: p.anda, salto: !p.anda && t < cincuenta && Math.sin(t * 5 + p.f * 3) > 0.85 ? 1 : 0, sonrisa: t > cincuenta, sorpresa: t > cincuenta - 0.2 && t < cincuenta + 0.4 && p.k === 0, ...(p.pal ? { pal: p.pal } : {}) });
+    if (guardado) { let i = 0; for (let yy = 70; yy <= 132; yy++) for (let xx = x0; xx < platL; xx++) R.pset(xx, yy, guardado[i++]); }
+    // el vaho del aliento en el frío, mientras esperan
+    if (!p.anda) { const u = ((t * 0.8 + p.k * 0.33) % 1); if (u < 0.6) R.disco(x + 16 + Math.round(u * 8), 147 - Math.round(u * 6), 1 + u * 2, mez(hex('#dce6f0'), hex('#9aa6b4'), u)); }
+  }
   T.siglo17Delante(R, t, { encuadre: 'escocia', camara: 'parada' });
 };
 

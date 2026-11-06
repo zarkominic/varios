@@ -17,7 +17,8 @@
 //    de la ventana y llama a la puerta roja, que se abre (luz cálida en la nieve) y se cierra; otro da un salto; al final miran atrás: dos ojos amarillos (corta en «because»);
 // 3. la ladera: el gato de Yule asoma enorme tras la colina («Yule cat»), el muchacho del jersey viejo huye a la granja y
 //    el del jersey nuevo abre los brazos con chispas; la puertecita se abre para el que huye y se cierra; el gato se vuelve
-//    a esconder. La esquina de Atom del plano 1 es sombra lisa (sin tablas ni trama).
+//    a esconder. La esquina de Atom del plano 1 es una penumbra del interior: las tablas a medio tono, el pie derecho de la
+//    esquina con su tornapunta y la viga del techo en sombra (fondo tranquilo, sin bloque liso).
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-islandia');
@@ -257,8 +258,23 @@ const fondoCasa = () => {
   const { rect, pset, linea, poligono, disco } = R;
   // la pared de tablas horizontales de la baðstofa, con la esquina de Atom en sombra tranquila
   d_tablas7(R, 0, 0, 319, 128, hex('#7a5434'), hex('#4e3420'), hex('#94683e'), 7, false, 1);
-  for (let y = 0; y < 76; y++) for (let x = 236; x < 320; x++) { if (x >= 270 && y <= 52) { pset(x, y, hex('#3a2818')); continue; } const a = Math.min(1, Math.max(0, 1 - Math.hypot(Math.max(0, 270 - x) / 30, Math.max(0, y - 52) / 22))); const u = d_umbral7(x, y); if (u < a) pset(x, y, u < a - 0.35 ? hex('#3a2818') : d_mezcla7(R.pget(x, y), hex('#3a2818'), 0.6)); }
+  // la esquina de Atom en penumbra: las tablas siguen viéndose (vetas y juntas a medio tono), la sombra crece hacia la
+  // esquina con trama suave y nunca llega a un color liso
+  const SOMB = hex('#2e1f12');
+  for (let y = 0; y < 80; y++) for (let x = 230; x < 320; x++) {
+    const a = Math.min(1, Math.max(0, 1 - Math.hypot(Math.max(0, 272 - x) / 34, Math.max(0, y - 50) / 26)));
+    if (a <= 0) continue;
+    const f = a * (0.5 + 0.12 * Math.min(1, (x - 272) / 40)) + (d_umbral7(x, y) - 0.5) * 0.08 * a;
+    pset(x, y, d_mezcla7(R.pget(x, y), SOMB, Math.max(0, f)));
+  }
+  // el pie derecho de la esquina (madera vieja con vetas, el canto que mira a la ventana con un hilo de luz) y su tornapunta
+  rect(262, 0, 268, 128, hex('#3e2a18')); linea(262, 0, 262, 128, hex('#5a3e24')); linea(268, 0, 268, 128, hex('#24160c'));
+  for (let y = 2; y < 128; y += 3) { const v = h7(y, 3, 730); if (v < 0.55) pset(264 + Math.round(v * 6) % 4, y, hex('#33220f')); if (v > 0.85) pset(265, y, hex('#4c341e')); }
+  for (let y = 8; y < 128; y += 23) { pset(265, y, hex('#1a0f08')); pset(266, y, hex('#5c4026')); }
+  for (let k = 0; k <= 14; k++) { const x = 261 - k, y = 20 - k; rect(x - 2, y, x, y + 2, hex('#3a2716')); pset(x - 2, y + 2, hex('#22150b')); pset(x, y, hex('#52381f')); }
   rect(0, 0, 250, 5, hex('#3a2616')); for (let x = 0; x < 250; x += 40) { rect(x, 0, x + 6, 9, hex('#4a3020')); rect(x, 9, x + 6, 9, hex('#2a1a0e')); }
+  // la viga del techo sigue en sombra hasta la esquina
+  rect(251, 0, 319, 5, hex('#2a1b0f')); linea(251, 6, 319, 6, hex('#1c1109')); for (let x = 254; x < 320; x += 9) pset(x + (x % 4), 2, hex('#34230f'));
   // el hueco de la ventana en el muro grueso de tepe: derrame de yeso blanco, con luz de un lado
   poligono([[VEN[0] - 16, VEN[1] - 12], [VEN[2] + 16, VEN[1] - 12], [VEN[2] + 2, VEN[1] - 2], [VEN[0] - 2, VEN[1] - 2]], hex('#cfc4ae'));
   poligono([[VEN[0] - 16, VEN[1] - 12], [VEN[0] - 2, VEN[1] - 2], [VEN[0] - 2, VEN[3] + 2], [VEN[0] - 16, VEN[3] + 10]], hex('#e4dac4'));
