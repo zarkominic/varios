@@ -15,8 +15,11 @@
 //    atrás para que nadie le vea.
 // 2. El mapa del Mediterráneo oriental (fondo local, pergamino sobre la mesa): una mano clava la chincheta en Mira en
 //    «Myra»; en «Turkey» Anatolia se tiñe; en «legend» sale el «?»; un barquito cruza el mar.
-// 3. La ventana de cerca (ventana): la mano de manga roja deja tres bolsitas en el alféizar en «secretly gave», «three»
-//    y «money»; las tres hermanas se sorprenden, las cogen y sonríen en «marry».
+// 3. La ventana de cerca (ventana): el obispo está fuera, a la derecha (en la pared se ve su sombra con la mitra, que
+//    se inclina al alargar el brazo); él queda tapado por la jamba y la contraventana. Su brazo canónico de manga roja
+//    (37 px, codo marcado) asoma por el canto derecho de la jamba, por encima de la maceta, deja cada bolsita en el
+//    alféizar y la empuja hasta la hermana que le toca, en «secretly gave», «three» y «money»; luego
+//    la sombra se va por la derecha. Las hermanas se sorprenden, las cogen y sonríen en «marry».
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { PIEZAS_NV as PZ } from '/atomo/plato/kits/pixel-chibi.js';
@@ -133,7 +136,7 @@ const p2 = (t) => {
 // ── 3 · La ventana: tres bolsitas para tres hermanas ──
 const p3 = (t) => {
   const g = T.roma(R, t, { encuadre: 'mira', camara: 'ventana' });
-  const suelo = g.suelo ?? 142, alf = g.alfeizar ?? 138, SITIO = [194, 178, 162];
+  const suelo = g.suelo ?? 142, alf = g.alfeizar ?? 138, SITIO = [168, 150, 132], DEJA = 186;
   const coge = (k) => t > B[2] + 0.45 + k * 0.25;
   R.recorte(g.hueco ?? [108, 38, 212, 138]);
   const H = [[EL.hermana1, 124], [EL.hermana2, 146], [EL.hermana3, 168]];
@@ -141,12 +144,40 @@ const p3 = (t) => {
   for (const [k, [def, x]] of H.entries()) { const ve = t > B[2 - k]; const r = R.actor(def, x, suelo, t, { dir: k === 2 ? 1 : 1, triste: !ve, sorpresa: ve && t < B[2 - k] + 0.8, sonrisa: t > boda - 0.4 || (ve && t > B[2 - k] + 0.8), sostiene: coge(k) ? [x + 18, 128] : false, salto: t > boda ? Math.round(Math.abs(Math.sin((t - boda) * 7 + k)) * 3) : 0 }); manos.push(r.mano); }
   R.recorte(null);
   T.romaDelante(R, t, { encuadre: 'mira', camara: 'ventana' });
+  // el brazo de cada bolsita: entra (a → b0), la posa junto a la maceta (b0 → b1), la empuja por el alféizar hasta su
+  // sitio (b1 → B[k]) y se retira (B[k] → c)
+  const fase = (k) => { const a = B[k] - 0.5, b0 = B[k] - 0.28, b1 = B[k] - 0.2, c = B[k] + 0.22; return { a, b0, b1, c }; };
+  let alarga = 0; for (let k = 0; k < 3; k++) { const { a, b0, c } = fase(k); if (t > a && t < c) alarga = Math.max(alarga, Math.min(suave(tramo(t, a, b0)), 1 - suave(tramo(t, B[k], c)))); }
+  // la sombra del obispo en la pared encalada (la luna le da desde la izquierda): mitra, cabeza y capa; respira, se
+  // inclina hacia la ventana al alargar el brazo y, con la tercera bolsita dejada, se va por la derecha sin que le vean
+  const vase = suave(tramo(t, B[2] + 0.35, B[2] + 1.3)) * 80, sx = 266 - Math.round(alarga * 4) + Math.round(vase), sy = 66 + Math.round(Math.sin(t * 1.6)), inc = alarga * 0.12;
+  const enSombra = (x, y) => { const dy = y - sy, cx = sx - dy * inc; if (dy < 0) return false;
+    if (dy < 30) return dy > 5 || Math.abs(x - cx) > 1 ? Math.abs(x - cx) <= 3 + dy * 0.2 : false; // la mitra, con su hendidura
+    if (dy < 50) return Math.hypot((x - cx) / 9, (dy - 40) / 10) < 1;             // la cabeza
+    return Math.abs(x - cx) <= Math.min(30, 10 + (dy - 50) * 0.9); };             // los hombros y la capa
+  for (let y = sy; y < 180; y++) for (let x = 242; x < 320; x++) if (enSombra(x, y)) { const borde = !enSombra(x - 2, y) || !enSombra(x + 2, y); R.pset(x, y, mez(R.pget(x, y), hex('#1a1c34'), borde ? 0.28 : 0.42)); }
   // las bolsitas: en el alféizar o ya en la mano de cada hermana
-  for (let k = 0; k < 3; k++) { if (t < B[k]) continue; const her = 2 - k; if (coge(her)) { PZ.bolsa(R, manos[her][0], manos[her][1] + 9, {}); if (t < boda + 0.6 && Math.sin(t * 8 + k) > 0.5) destello(manos[her][0] + 4, manos[her][1] - 4, 2); } else PZ.bolsa(R, SITIO[k], alf, { s: 2 }); }
-  // la mano de manga roja que deja las bolsitas, una por una
-  for (let k = 0; k < 3; k++) { const a = B[k] - 0.55, b = B[k], c = B[k] + 0.4; if (t < a || t > c) continue;
-    const ent = suave(tramo(t, a, b)), sal = suave(tramo(t, b, c)), wx = Math.round(lerp(236, SITIO[k] + 14, ent) + sal * 30), wy = Math.round(lerp(112, alf - 23, ent) + sal * 6);
-    R.recorte([100, 60, 213, 160]); if (t < b) PZ.bolsa(R, wx - 8, wy + 23, { s: 2 }); T.brazo(R, 262, 150, wx, wy, '#b8283a', -1, { codo: [236, Math.round(wy + 10)], sombra: false }); R.recorte(null); }
+  for (let k = 0; k < 3; k++) { if (t < B[k]) continue; const her = 2 - k; if (coge(her)) { PZ.bolsa(R, manos[her][0], manos[her][1] + 9, {}); if (t < boda + 0.6 && Math.sin(t * 8 + k) > 0.5) destello(manos[her][0] + 4, manos[her][1] - 4, 2); } else PZ.bolsa(R, SITIO[k], alf, { s: 1 }); }
+  // el brazo de manga roja (canónico, 37 px con el codo marcado): el obispo está fuera, a la derecha, tapado por la
+  // jamba y la contraventana; el brazo asoma por el canto de la jamba (recortado al hueco, así el hombro queda detrás),
+  // deja la bolsita junto a la maceta, la empuja y se retira por donde vino
+  const JX = 213, HOM = [229, 118];
+  for (let k = 0; k < 3; k++) { const { a, b0, b1, c } = fase(k); if (t < a || t > c) continue;
+    const ent = suave(tramo(t, a, b0)), baja = suave(tramo(t, b0, b1)), emp = 1 - (1 - tramo(t, b1, B[k])) ** 2, sal = suave(tramo(t, B[k], c));
+    const wx = Math.round(lerp(HOM[0] - 2, DEJA + 8, ent) - (t > b1 && t < B[k] ? Math.sin(emp * Math.PI) * 4 : 0) + sal * 34), wy = Math.round(lerp(112, alf - 26, ent) + baja * 3 - sal * 4);
+    R.recorte([100, 36, JX, alf - 1]);
+    // la bolsita: colgando de la mano, posada junto a la maceta y empujada hasta su sitio
+    if (t < b1) PZ.bolsa(R, wx - 8, Math.min(alf, wy + 23), { s: 1 });
+    R.recorte(null);
+    if (t >= b1 && t < B[k]) { const bx = Math.round(lerp(DEJA, SITIO[k], emp)); PZ.bolsa(R, bx, alf, { s: 1 }); if (emp > 0.2) for (let i = 0; i < 3; i++) R.pset(bx + 10 + i * 3 + Math.round(emp * 4), alf - 1 - (i % 2), hex('#c8ccd8')); }
+    // el codo, a medio camino y caído; se marca más cuanto más estirado está el brazo
+    const ext = Math.min(1, Math.max(0, (HOM[0] - wx) / 35));
+    const codo = [Math.round((HOM[0] + wx) / 2 + 1), Math.round(Math.max(HOM[1], wy) + 2 + ext * 4)];
+    R.recorte([100, 36, JX, alf - 1]);
+    T.brazo(R, HOM[0], HOM[1], wx, wy, '#b8283a', -1, { codo, sombra: false });
+    R.recorte(null);
+    // la sombra que el canto de la jamba echa sobre la manga, justo donde asoma
+    if (wx < JX - 2) for (let y = HOM[1] - 6; y < Math.min(alf - 1, codo[1] + 8); y++) for (let x = JX - 2; x <= JX; x++) R.pset(x, y, mez(R.pget(x, y), hex('#1a1c34'), x === JX ? 0.35 : 0.2)); }
   if (t > boda && t < boda + 0.8) for (let k = 0; k < 3; k++) destello(122 + k * 24, 108 - Math.round((t - boda) * 10), 3);
 };
 

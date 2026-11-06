@@ -12,8 +12,10 @@
 // NV-SATURNALES (frase 13), 354. Tres planos:
 // 1. (calle) la calle en Saturnales de noche: dos romanos con píleo se cruzan y él le regala una figurita de barro; un
 //    pregonero entra con el calendario en su pértiga y los días del 17 al 23 se marcan en rojo («17th» … «23rd»);
-// 2. (banquete) corta en «and most historians»: el banquete; llega el tercero y se sienta, brindan en «feasts», ella le pasa
-//    una figurita en «small gifts» y ríen todos en «mood»;
+// 2. (banquete) corta en «and most historians»: el banquete; llega el tercero y se sienta, brindan en «feasts» (a la copa se
+//    le escapa una gota y la mancha crece en el mantel), ella le pasa una figurita en «small gifts» y ríen todos en «mood».
+//    La tercera guirnalda se cuelga corta de un clavo (x 276) para dejar lisa la esquina de Atom; el mantel lleva pliegues,
+//    luz de vela que tiembla, sombras de la vajilla, manchas de vino y cera, migas y el bajo festoneado;
 // 3. (fondo local, la mesa) corta en «but there's no proof»: a un lado las Saturnales (figurita, píleo, calendario del 17 al
 //    23), al otro un arbolito de Navidad; un sello cae en medio («no proof») con su «≠» y la flecha que va de un lado al
 //    otro («copied») rebota y se tacha.
@@ -67,8 +69,61 @@ const p1 = (t) => { const g = T.roma(R, t, { encuadre: 'calle' });
   if (t > en('saturnales', 0.2628)) { const x0 = hx + 1 - 21, y0 = hy - 16 - 44; for (let d = 17; d <= 17 + marca; d++) { const c = (d - 1) % 7, f = Math.floor((d - 1) / 7), cx = x0 + (4 + c * 2) * 2, cy = y0 + (8 + f * 2) * 2; R.rect(cx - 1, cy - 1, cx + 2, cy + 2, H('#d8201a')); } }
   if (marca === 6 && t < en('saturnales', 0.3663)) halo(hx + 1, hy - 38, 22, H('#ffd0a0'), 0.3);
 };
+// el friso del banquete en la esquina de Atom: se repinta el estuco (x 248–319, y 19–44) y la tercera guirnalda se cuelga
+// más corta, de un clavo en x 276, con su lámpara en x 263; así la esquina de Atom queda lisa de estuco tramado
+const friso = (t) => { let base = 0, lum = -1; for (const [x, y] of [[2, 41], [3, 42], [6, 42], [7, 43], [1, 40]]) { const c = R.pget(x, y), l = (c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255); if (l > lum) { lum = l; base = c; } }
+  const osc = mez(base, K, 0.15), ocre = R.pget(3, 44), vena = mez(base, H('#c8a878'), 0.35);
+  for (let y = 19; y <= 44; y++) for (let x = 248; x < 320; x++) { if (y === 44) { R.pset(x, y, ocre); continue; }
+    let c = hh(x >> 2, y >> 2, 471) < 0.22 && umbral(x, y) < 0.45 ? osc : base; if (hh(x >> 3, y >> 1, 9) < 0.05 && (x & 1)) c = vena; R.pset(x, y, c); }
+  const hS = H('#1a4420'), hM = H('#2e6a32'), hL = H('#5a9a4a'), mi = H('#b8302a'), br = H('#b8863a'), brL = H('#e8c070'), brS = H('#7a5424');
+  const sw = Math.sin(t * 1.1 + 2) * 1.2, x0 = 250, x1 = 276;
+  for (let x = x0; x <= x1; x++) { const u = (x - x0) / (x1 - x0), y = Math.round(22 + u * 2 + Math.sin(u * Math.PI) * (9 + sw)); R.pset(x, y, hS); R.pset(x, y - 1, (x & 1) ? hM : hS); R.pset(x, y + 1, x % 3 ? hM : hL); if (x % 7 === 0) R.pset(x, y + 2, mi); }
+  // el clavo de bronce y la cinta que cuelga y se mece (no baja de y 34 ni pasa de x 277)
+  R.rect(275, 22, 277, 24, K); R.pset(276, 23, brL);
+  const cs = Math.round(Math.sin(t * 1.7) * 1); for (let j = 0; j < 9; j++) { const xx = 276 + (j > 4 ? cs : 0); R.pset(Math.min(277, xx), 25 + j, j % 3 === 2 ? H('#8a2020') : mi); }
+  R.pset(275, 25, hL); R.pset(277, 26, hM); R.pset(274, 26, hS);
+  // la lámpara colgada en el centro de este tramo
+  const lx = Math.round(263 + sw * 1.5), ly = 33 + Math.round(sw); R.linea(263, 31, lx, ly, K); R.rect(lx - 3, ly, lx + 3, ly + 2, br); R.rect(lx - 3, ly, lx + 3, ly, brL); R.rect(lx - 2, ly + 3, lx + 2, ly + 3, brS);
+  const f = Math.sin(t * 11 + 4.6) * 0.5 + Math.sin(t * 17.3 + 2) * 0.5, al = Math.max(2, Math.round(3 + f)); for (let j = 0; j <= al; j++) { const w = j < al * 0.6 ? 1 : 0; R.rect(lx + 3 - w, ly - 1 - j, lx + 3 + w, ly - 1 - j, j < al * 0.5 ? H('#ffe08a') : H('#ff9a30')); }
+  halo(lx + 1, ly + 2, 14, H('#ffe08a'), 0.22); };
+// el mantel del banquete con vida: pliegues sombreados, luz de las velas que tiembla, sombras de la vajilla, manchas de vino y
+// de cera, migas, el bajo festoneado, y en «feasts» la copa que se derrama y deja una mancha que crece
+const TELA = [H('#9c907a'), H('#b4a890'), H('#c8bca4'), H('#d8ccb4'), H('#e4d8c0'), H('#ece2cc'), H('#f4ecd8'), H('#fbf5e6')];
+const ES_TELA = new Set([H('#ece2cc'), H('#d8ccb4'), H('#f4ecd8'), H('#e4d8c0'), H('#c8bca4'), H('#b8ac94')]);
+const SOMBRAS = [[41, 7], [62, 7], [78, 7], [94, 9], [120, 3], [135, 5], [161, 16], [190, 8], [222, 3], [236, 5], [260, 11], [280, 3], [296, 5]];
+const MANCHAS = [[104, 157, 2.6, 1], [226, 158, 2.2, 2], [151, 159, 1.8, 3], [72, 158, 1.5, 4]];
+const mantel = (t, xc) => { const luzV = (x) => 0.2 * Math.exp(-(((x - 41) / 46) ** 2)) * (1 + 0.12 * Math.sin(t * 7)) + 0.17 * Math.exp(-(((x - 296) / 40) ** 2)) * (1 + 0.12 * Math.sin(t * 6.3 + 1)) + 0.08 * Math.exp(-(((x - 135) / 70) ** 2));
+  const vino = H('#8a2a3a'), cera = H('#f4e4a8');
+  // derrame en «feasts»: la gota cae de la copa y la mancha crece donde cae
+  const cae = tramo(t, en('saturnales', 0.6372), en('saturnales', 0.6513)), crece = tramo(t, en('saturnales', 0.6513), en('saturnales', 0.6853));
+  const gx = xc;
+  for (let y = 153; y < 180; y++) { const frente = y >= 161;
+    for (let x = 0; x < 320; x++) { const c0 = R.pget(x, y); const cenefa = y >= 167 && y <= 171;
+      if (!ES_TELA.has(c0) && !(frente && cenefa)) continue;
+      const pl = Math.sin(x * 0.25 + Math.sin(x * 0.05) * 2), pl2 = Math.sin(x * 0.09 + 1.3);
+      let v = frente ? 0.5 + 0.26 * pl + 0.1 * pl2 - (y - 161) * 0.006 : 0.66 - (y - 153) * 0.012 + 0.04 * pl2 + ((x + (y >> 1)) % 4 === 0 ? 0.05 : 0) + (hh(x >> 2, y, 5) - 0.5) * 0.08;
+      v += luzV(x) - (x < 24 ? (24 - x) * 0.01 : 0) - (x > 300 ? (x - 300) * 0.01 : 0);
+      if (!frente) { if (x % 53 === 0) v += 0.08; else if (x % 53 === 1) v -= 0.07; for (const [sx, w] of SOMBRAS) if (Math.abs(x - sx - 2) <= w && y <= 155) v -= 0.24 * (1 - (y - 153) / 3); }
+      if (cenefa) { R.pset(x, y, v < 0.4 ? mez(c0, K, 0.3) : v > 0.72 ? mez(c0, H('#fff0d0'), 0.18) : c0); continue; }
+      const iv = Math.max(0, Math.min(TELA.length - 1, Math.floor(v * TELA.length + umbral(x, y) - 0.5))); let c = TELA[iv];
+      if (luzV(x) > 0.12 && umbral(x, y) < 0.3) c = mez(c, H('#ffd8a0'), 0.25);
+      // el bajo festoneado con flecos
+      if (y >= 176) { const fe = (x % 8), arco = 177 + Math.round(Math.abs(fe - 3.5) / 3.5 * 2); if (y > arco) c = mez(c, K, 0.35); else if (y === arco) c = TELA[1]; if (y === 179 && fe === 0) c = H('#a87a18'); }
+      R.pset(x, y, c); } }
+  // manchas de vino viejas y la que crece, con borde irregular (solo sobre tela)
+  const mancha = (cx, cy, r, k, a) => { for (let j = -4; j <= 4; j++) for (let i = -5; i <= 5; i++) { const d = Math.hypot(i, j * 1.6) / (r + hh(i, j, k) * 1.2); if (d < 1) { const c = R.pget(cx + i, cy + j); if (cy + j >= 153 && (ES_TELA.has(c) || TELA.includes(c))) R.pset(cx + i, cy + j, mez(c, vino, a * (d > 0.7 ? 0.6 : 1))); } } };
+  for (const [x, y, r, k] of MANCHAS) mancha(x, y, r, k, 0.55);
+  // el reguero de vino que baja por el borde delantero y la cera que gotea de las velas
+  for (let j = 0; j < 5; j++) { R.pset(228, 161 + j, mez(R.pget(228, 161 + j), vino, 0.45 - j * 0.06)); if (j < 3) R.pset(229, 161 + j, mez(R.pget(229, 161 + j), vino, 0.3)); }
+  for (const [cx, n] of [[42, 3], [297, 2]]) { for (let i = -n; i <= n; i++) { R.pset(cx + i, 154, cera); if (Math.abs(i) < n) R.pset(cx + i, 155, mez(cera, K, 0.12)); } R.pset(cx - 1, 154, H('#fffbe8')); }
+  { const g = 1 + Math.floor(((t * 0.35) % 1) * 4); for (let j = 0; j < g; j++) R.pset(296, 161 + j, j === g - 1 ? mez(cera, K, 0.15) : cera); }
+  // migas de pan y huesos de aceituna
+  for (const [x, y, c] of [[68, 157, '#c88a3a'], [71, 159, '#e0a858'], [84, 156, '#c88a3a'], [56, 158, '#9a5e24'], [113, 156, '#3a2a1a'], [244, 157, '#3a2a1a'], [270, 158, '#b8743a']]) R.pset(x, y, H(c));
+  if (crece > 0) mancha(gx, 157, 0.6 + crece * 2.6, 7, 0.5);
+  if (cae > 0 && cae < 1) { const yy = Math.round(lerp(130, 156, cae * cae)); R.pset(gx, yy, vino); R.pset(gx, yy - 1, mez(vino, H('#ffffff'), 0.2)); }
+  if (cae >= 1 && crece < 0.4) { R.pset(gx - 2, 155, vino); R.pset(gx + 2, 155, vino); } };
 // ── 2 · el banquete ──
-const p2 = (t) => { const g = T.roma(R, t, { encuadre: 'calle', camara: 'banquete' }), [s1, s2, s3] = g.sitios;
+const p2 = (t) => { const g = T.roma(R, t, { encuadre: 'calle', camara: 'banquete' }), [s1, s2, s3] = g.sitios; friso(t);
   const u = tramo(t, Q2 + 0.1, en('saturnales', 0.4927)), x3 = Math.round(lerp(330, s3, u));
   const brinda = t > en('saturnales', 0.6259) && t < en('saturnales', 0.6948), pasa = tramo(t, en('saturnales', 0.6916), en('saturnales', 0.7264)), rien = t > en('saturnales', 0.7409);
   const a = R.actor(EL.romanoPileo, s1, g.suelo, t, { dir: 1, habla: t > en('saturnales', 0.3916) && t < en('saturnales', 0.5432) && Math.sin(t * 9) > 0, sonrisa: rien || brinda, sostiene: brinda ? [s1 + 18, g.suelo - 22] : undefined, salto: rien && t < en('saturnales', 0.7769) ? Math.round(Math.abs(Math.sin(t * 10)) * 2) : 0 });
@@ -77,7 +132,7 @@ const p2 = (t) => { const g = T.roma(R, t, { encuadre: 'calle', camara: 'banquet
   const c = R.actor(EL.romanoPileo2, x3, g.suelo, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: rien || pasa >= 1, sostiene: pasa >= 1 ? true : undefined, sorpresa: pasa > 0.6 && pasa < 1 });
   if (pasa > 0 && pasa < 1) { const [bx, by] = b.mano, [cx, cy] = c.mano; figurita(Math.round(lerp(bx, cx, pasa)), Math.round(lerp(by, cy, pasa) - Math.sin(pasa * Math.PI) * 8)); }
   else if (pasa >= 1) figurita(c.mano[0], c.mano[1]);
-  T.romaDelante(R, t, { encuadre: 'calle', camara: 'banquete' });
+  T.romaDelante(R, t, { encuadre: 'calle', camara: 'banquete' }); mantel(t, s1 + 18);
 };
 // ── 3 · la mesa: Saturnales ≠ Navidad ──
 const mesa = () => { const { rect, pset, disco, linea } = R;

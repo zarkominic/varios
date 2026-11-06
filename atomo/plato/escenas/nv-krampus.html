@@ -15,7 +15,9 @@
 // 2. la puerta tallada: Nicolás deja dulces en la bota; con él salta el Krampus del cencerro y levanta las garras; la
 //    galleta se mete en la bota y asoma los ojos (gag 5); la niña de la ventana se esconde; Nicolás le riñe (corta en «who»);
 // 3. el desfile (fondo local): dos filas de Krampus con antorchas, antorchas que bajan por el monte y por el callejón;
-//    un niño tira una bola de nieve, el Krampus salta hacia él y se agacha tras la valla; el público vitorea.
+//    un niño tira una bola de nieve (con estela) y le da en la cabeza al Krampus (estallido; la nieve se le queda en la
+//    melena); el Krampus salta hacia él con su sombra en el suelo y el niño corre a esconderse tras su madre; la fila de
+//    atrás deja hueco al gag; ya escondido, el niño hace otra bola y la madre se vuelve y le riñe con el dedo; la valla va a la altura del pecho del público, que vitorea.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-krampus');
@@ -338,14 +340,14 @@ const fondoDesfile = () => {
   d_piedras7(R, 0, 146, 319, 179, [hex('#4a4866'), hex('#36344e'), hex('#64627e'), hex('#26243a')], 5, 9, 7);
   for (let y = 146; y < 180; y++) for (let x = 0; x < 320; x++) { const n = h7(x >> 2, y >> 1, 703); if (n < 0.28 + Math.sin(x * 0.05) * 0.1) pset(x, y, n < 0.12 ? hex('#e4ecf8') : hex('#b8c4dc')); }
 };
-// la valla de madera por delante del público (capa transparente)
+// la valla de madera por delante del público (capa transparente): a la altura del pecho, para que no cruce ninguna cara
 const vallaDesfile = () => { const { rect, pset } = R;
-  for (let x = 0; x < 320; x += 18) { rect(x, 128, x + 2, 147, T.C.k); rect(x, 129, x + 1, 147, hex('#6a4a2e')); rect(x - 1, 127, x + 3, 128, hex('#e4ecf8')); }
-  for (const y of [132, 140]) { rect(0, y, 319, y + 3, T.C.k); rect(0, y + 1, 319, y + 2, hex('#7a5636')); for (let x = 0; x < 320; x += 3) if (h7(x, y, 704) < 0.3) pset(x, y + 1, hex('#5a3e24')); rect(0, y, 319, y, hex('#d8e0f0')); }
+  for (let x = 0; x < 320; x += 18) { rect(x, 134, x + 2, 147, T.C.k); rect(x, 135, x + 1, 147, hex('#6a4a2e')); rect(x - 1, 133, x + 3, 134, hex('#e4ecf8')); pset(x - 1, 135, hex('#b8c4dc')); }
+  for (const y of [137, 143]) { rect(0, y, 319, y + 3, T.C.k); rect(0, y + 1, 319, y + 2, hex('#7a5636')); for (let x = 0; x < 320; x += 3) if (h7(x, y, 704) < 0.3) pset(x, y + 1, hex('#5a3e24')); rect(0, y, 319, y, hex('#d8e0f0')); for (let x = 0; x < 320; x++) if (h7(x, y, 705) < 0.2) pset(x, y - 1, hex('#c8d4ec')); }
 };
 const PUBLICO = [[8, EL.vigilante], [26, EL.vecina], [44, EL.adultoCatalan], [62, EL.ninaCatalana], [82, EL.vecino], [100, EL.obreraEscocesa], [120, EL.ninoCatalan], [186, EL.dama1857 ?? EL.vecina], [204, EL.senor1857 ?? EL.vecino], [268, EL.obreroEscoces], [286, EL.vecinoPastel ?? EL.vecino], [304, EL.ninaVictoriana]];
 const p3 = (t) => {
-  const lanza = SCARES - 0.25;
+  const lanza = SCARES - 0.05, GOLPE = SCARES + 0.3; // la bola sale con el «whoosh» de «scares» (ya fuera del fundido)
   fondoDesfile && fondo7('kr-desfile', fondoDesfile);
   d_estrellas7(R, t, 50, 70, 705, hex('#8a90c8'), hex('#f4f0ff'));
   d_nubes7(R, t, 60, [hex('#262a58'), hex('#343a6c'), hex('#4c5288')], 3, 0.6, 5);
@@ -361,26 +363,34 @@ const p3 = (t) => {
   for (const x of [58, 118, 198, 262]) antorcha7(x, 108, t);
   // el público detrás de la valla: aplauden y vitorean cuando llega el desfile grande
   const vitorea = t > PARADES;
-  for (const [x, d] of PUBLICO) R.actor(d, x, 146, t, { dir: x < 160 ? 1 : -1, sonrisa: vitorea || x % 3 === 0, brazos: vitorea && Math.sin(t * 7 + x) > 0.3, habla: !vitorea && Math.sin(t * 5 + x) > 0.6 });
+  for (const [x, d] of PUBLICO) R.actor(d, x, 143, t, { dir: x < 160 ? 1 : -1, sonrisa: vitorea || x % 3 === 0, brazos: vitorea && Math.sin(t * 7 + x) > 0.3, habla: !vitorea && Math.sin(t * 5 + x) > 0.6 });
   d_pegar7(R, d_capa7(R, 'kr-valla', vallaDesfile, true), 126, 148);
   // el desfile: dos filas de Krampus (algunos con antorcha) de izquierda a derecha
-  const linea7 = (suelo, v, sep, fase, n, salta) => { for (let k = 0; k < n; k++) { const x = Math.round(((k * sep + fase + t * v) % (n * sep)) - 30); if (x < -30 || x > 340 || (salta && t < MISB + 1.2 && x > 110 && x < 330)) continue;
+  const linea7 = (suelo, v, sep, fase, n, salta) => { for (let k = 0; k < n; k++) { const x = Math.round(((k * sep + fase + t * v) % (n * sep)) - 30); if (x < -30 || x > 340 || (salta && t < MISB + 1.2 && x > 110 && x < 330) || (!salta && t < MISB + 0.8 && x > 176 && x < 262)) continue;
     const def = (k + fase) % 3 ? EL.krampus : EL.krampus2, ant = (k + fase) % 2 === 0, a = R.actor(def, x, suelo, t, { dir: 1, anda: true, sostiene: ant ? [x + 15, suelo - 24] : false });
     if (ant) { R.linea(a.mano[0], a.mano[1] + 2, a.mano[0] + 1, a.mano[1] - 6, hex('#5a3a1a')); llama7(a.mano[0] + 1, a.mano[1] - 6, t); } } };
   // el Krampus del susto (fila de atrás): le da la bola, se vuelve, salta hacia el niño y sigue su camino
   const KX = ruta7(t, [[P3, 128, 176], [SCARES + 0.1, 212, 176], [CHILDREN - 0.05, 212, 176], [CHILDREN + 0.3, 236, 174], [MISB + 0.6, 236, 174], [E.duracion, 340, 176]]);
   linea7(160, 16, 44, 7, 9, false);
-  { const salto = t > CHILDREN - 0.05 && t < CHILDREN + 0.35 ? Math.round(Math.sin(tramo(t, CHILDREN - 0.05, CHILDREN + 0.35) * Math.PI) * 12) : 0, asusta = t > CHILDREN && t < MISB + 0.6;
-    R.actor(EL.krampus, KX.x + (asusta && Math.sin(t * 28) > 0 ? 1 : 0), KX.s, t, { dir: 1, anda: KX.mv, brazos: asusta, salto }); }
-  // la bola de nieve en el aire y su golpe en blanco
-  { const u = tramo(t, lanza, SCARES + 0.1); if (u > 0 && u < 1) { const x = Math.round(lerp(256, 226, u)), y = Math.round(lerp(156, 150, u) - Math.sin(u * Math.PI) * 12); R.disco(x, y, 2, T.C.k); R.disco(x, y, 1, T.C.nieve); }
-    if (t > SCARES + 0.1 && t < SCARES + 0.5) for (let k = 0; k < 6; k++) { const a = k * 1.05, r = 2 + (t - SCARES - 0.1) * 14; R.pset(Math.round(226 + Math.cos(a) * r), Math.round(150 + Math.sin(a) * r), T.C.nieve); } }
+  { const salto = t > CHILDREN - 0.05 && t < CHILDREN + 0.4 ? Math.round(Math.sin(tramo(t, CHILDREN - 0.05, CHILDREN + 0.4) * Math.PI) * 16) : 0, asusta = t > CHILDREN && t < MISB + 0.6;
+    // su sombra en la nieve se queda en el suelo mientras salta (así se lee el salto)
+    { const sx = KX.x, sw = salto > 0 ? 7 - Math.round(salto / 5) : 8; for (let x = sx - sw; x <= sx + sw; x++) { d_tinta7(R, x, KX.s, hex('#141830'), 0.55); d_tinta7(R, x, KX.s + 1, hex('#141830'), 0.35); } }
+    const ak = R.actor(EL.krampus, KX.x + (asusta && Math.sin(t * 28) > 0 ? 1 : 0), KX.s, t, { dir: 1, anda: KX.mv, brazos: asusta, salto });
+    // la nieve de la bola se le queda en los cuernos y la melena, y se le va cayendo
+    if (t > GOLPE) { const [cx, cy] = ak.cabeza; for (const [dx, dy] of [[-3, -5], [-2, -6], [-1, -5], [0, -6], [1, -5], [2, -4], [-4, -3], [3, -3]]) R.pset(cx + dx, cy + dy, (dx + dy) & 1 ? T.C.nieve : hex('#c8d4ec'));
+      for (let k = 0; k < 5; k++) { const v = ((t - GOLPE) * 0.9 + k * 0.2) % 1; if (t - GOLPE < 3.5) R.pset(cx - 4 + k * 2, Math.round(cy - 2 + v * 16), T.C.nieve); } }
+  }
+  // la bola de nieve en el aire (con su estela) y el golpe: un estallido de nieve en la cabeza del Krampus
+  { const u = tramo(t, lanza, GOLPE), bx = (v) => Math.round(lerp(240, 214, v)), by = (v) => Math.round(lerp(156, 150, v) - Math.sin(v * Math.PI) * 14);
+    if (u > 0 && u < 1) { for (const [k, a] of [[0.24, 0.35], [0.16, 0.55], [0.08, 0.8]]) if (u - k > 0) d_tinta7(R, bx(u - k), by(u - k), T.C.nieve, a); R.disco(bx(u), by(u), 3, T.C.k); R.disco(bx(u), by(u), 2, T.C.nieve); R.pset(bx(u) - 1, by(u) - 1, hex('#ffffff')); }
+    if (t > GOLPE && t < GOLPE + 0.5) { const r = 2 + (t - GOLPE) * 22; for (let k = 0; k < 10; k++) { const a = k * 0.63, x = Math.round(214 + Math.cos(a) * r), y = Math.round(150 + Math.sin(a) * r * 0.8 + (t - GOLPE) * 10); R.rect(x, y, x + 1, y + 1, k % 2 ? T.C.nieve : hex('#ffffff')); } } }
   linea7(176, 20, 40, 3, 10, true);
   // en primer término, el niño travieso y su madre: tira la bola, el Krampus salta hacia él y se esconde detrás de ella
   const huye = tramo(t, CHILDREN + 0.05, CHILDREN + 0.45);
-  const an = R.actor(EL.ninoVictoriano, Math.round(lerp(266, 302, huye)), 179, t, { dir: huye > 0 && huye < 1 ? 1 : -1, anda: huye > 0 && huye < 1, sostiene: t < lanza ? [254, 158 - Math.round(tramo(t, P3, lanza) * 4)] : false, sorpresa: t > CHILDREN && t < MISB + 0.8, sonrisa: t < lanza + 0.3 || t > MISB + 1.2 });
-  if (t < lanza) { R.disco(an.mano[0], an.mano[1] - 1, 2, T.C.k); R.disco(an.mano[0], an.mano[1] - 1, 1, T.C.nieve); }
-  R.actor(EL.vecina, 288, 179, t, { dir: -1, dedo: t > MISB + 0.2 && t < MISB + 1.6, sonrisa: t > MISB + 0.2, sorpresa: t > CHILDREN && t < CHILDREN + 0.3 });
+  const otra = t > PARADES + 0.6; // ya escondido, el niño hace otra bola (y su madre le vuelve a reñir)
+  const an = R.actor(EL.ninoVictoriano, Math.round(lerp(250, 302, huye)), 179, t, { dir: huye > 0 && huye < 1 ? 1 : -1, anda: huye > 0 && huye < 1, sostiene: t < lanza ? [240, 158 - Math.round(tramo(t, P3, lanza) * 4)] : otra ? [294, 162 - Math.round(Math.sin(t * 6) * 1.5)] : false, sorpresa: t > CHILDREN && t < MISB + 0.8, sonrisa: t < lanza + 0.3 || t > MISB + 1.2 });
+  if (t < lanza || otra) { R.disco(an.mano[0], an.mano[1] - 1, 2, T.C.k); R.disco(an.mano[0], an.mano[1] - 1, 1, T.C.nieve); }
+  R.actor(EL.vecina, 288, 179, t, { dir: otra && t > PARADES + 1.1 ? 1 : -1, dedo: (t > MISB + 0.2 && t < MISB + 1.6) || t > PARADES + 1.1, sonrisa: t > MISB + 0.2, sorpresa: t > CHILDREN && t < CHILDREN + 0.3 });
   if (t > CHILDREN - 0.1 && t < CHILDREN + 0.9) R.icono('!', an.cabeza[0] - 4, an.cabeza[1] - 26, hex('#ffd040'), T.C.k, 2);
   d_nieve7(R, t, 45, hex('#b8c4e0'), hex('#f4f8ff'), 1, 6);
 };

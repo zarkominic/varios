@@ -12,11 +12,15 @@
 // NV-TIO (frase 24), Cataluña hoy, sin cartela. Tres planos:
 // 1. (cataluna general) la cocina con el hogar: tres niños entran y se juntan alrededor del Tió; la abuela pone un plato
 //    en la mesa de atrás; en «log» la niña aplaude y en «face» señala la cara del tronco;
-// 2. (cataluna 'tio', corta en «feeding») la niña le echa una piel de naranja que se come («feeding for weeks»); en
-//    «tap» los dos niños le dan golpecitos con palos y cantan (notas); en «help» entra la abuela y la manta empieza a subir;
-// 3. (fondo local: a ras de las rajolas, corta en «gives») el brazo de la abuela levanta la manta y salen turrones y
-//    caramelos; la galleta sale de entre los dulces (gag 6); en «polite» los niños se ríen y aplauden, la galleta se asusta con un
-//    «!» y se escapa corriendo.
+// 2. (cataluna 'tio' sin el Tió del decorado, corta en «feeding») el Tió de la escena a escala de los niños (≈33 px,
+//    con la punta de atrás pintada como corte con anillos y su sombra), el cesto de leña y el plato de pieles delante;
+//    la niña le echa una piel de naranja que se come («feeding for weeks»); en «tap» los dos niños le dan golpecitos con
+//    palos y cantan (notas); en «help» entra la abuela con el cesto de turrones (la ayuda de los mayores);
+// 3. (inserto, fondo local a ras de las rajolas, corta en «gives»; sin niños en cuadro) el Tió de frente, grande, con la
+//    manta que cae por la derecha; el brazo de la abuela (T.brazo, ≈35 px con codo) entra por la derecha y levanta la
+//    esquina; el Tió tiembla, mira a los dulces y salen turrones y caramelos que ruedan hacia la cámara; al fondo, el
+//    hogar, el cesto, el gato y el taburete con las pieles; la galleta sale de entre los dulces (gag 6); las notas
+//    entran por la izquierda (los niños, fuera de cuadro); en «polite» la galleta se asusta con un «!» y se escapa.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-tio');
@@ -31,7 +35,7 @@ const NOTAS = [hex('#f0c040'), hex('#f05a7a'), hex('#5ac0f0')];
 // notas que suben de la boca de quien canta (x, y: la boca; desde t0)
 const notas = (x, y, t, t0, k = 0) => { if (t < t0) return; for (let i = 0; i < 3; i++) { const u = ((t - t0) * 0.7 + i / 3 + k * 0.17) % 1; R.icono('nota', Math.round(x + Math.sin(u * 6 + i) * 3 + i * 2), Math.round(y - u * 26), NOTAS[(i + k) % 3], hex('#3a1a10')); } };
 // el palo en la mano (de la mano hacia la punta), con su contorno
-const palo = (m, px, py) => { R.linea(m[0], m[1] + 1, px, py + 1, hex('#2a1608')); R.linea(m[0], m[1], px, py, hex('#9a6a38')); R.pset(px, py, hex('#5a3a1a')); };
+const palo = (m, px, py) => { R.linea(m[0], m[1] + 1, px, py + 1, hex('#2a1608')); R.linea(m[0] + 1, m[1] + 1, px + 1, py + 1, hex('#2a1608')); R.linea(m[0], m[1] - 1, px, py - 1, hex('#2a1608')); R.linea(m[0], m[1], px, py, hex('#e0b070')); R.linea(m[0] + 1, m[1], px + 1, py, hex('#a8743a')); R.pset(px, py, hex('#5a3a1a')); };
 // el golpecito: el brazo sube y baja; devuelve si toca ahora
 const golpea = (t, t0, fase) => t > t0 ? ((t - t0) * 1.8 + fase) % 1 : 0.7;
 const chispa = (x, y, c) => { R.pset(x, y - 2, c); R.pset(x, y + 2, c); R.pset(x - 2, y, c); R.pset(x + 2, y, c); R.pset(x, y, hex('#ffffff')); };
@@ -65,30 +69,63 @@ const p1 = (t) => {
 };
 const reune1 = en('tio', 0.210) + 0.6, reune2 = en('tio', 0.260) + 0.4;
 
+// el suelo del plano 2 junto al hogar: el cesto de leña, el atizador apoyado, el plato con las pieles de naranja de
+// estas semanas («feeding for weeks») y el cuenco de agua; la sombra del Tió en las rajolas
+const sombra = (cx, cy, rx, ry) => { for (let y = Math.round(cy - ry); y <= cy + ry; y++) for (let x = Math.round(cx - rx); x <= cx + rx; x++) { const e = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; if (e < 1 && (e < 0.45 || (x + y) % 2 === 0)) R.pset(x, y, hex('#5a2414')); } };
+const pielN = (x, y, k) => { R.rect(x - 2, y - 1, x + 2, y, hex('#a84a0a')); R.rect(x - 1, y - 1, x + 1 + (k % 2), y - 1, hex('#f0901a')); R.pset(x - 2 + (k % 3), y, hex('#ffc060')); };
+// el cesto de mimbre con los leños (x: borde izquierdo, y: el suelo)
+const cesto = (x0, y1) => {
+  sombra(x0 + 12, y1, 14, 3);
+  R.rect(x0, y1 - 17, x0 + 24, y1, hex('#140c08'));
+  for (let y = y1 - 16; y < y1; y++) for (let x = x0 + 1; x < x0 + 24; x++) R.pset(x, y, (x + (y >> 1)) % 4 === 0 ? hex('#6a4420') : (y % 3 === 0 ? hex('#8a5a2a') : hex('#b08040')));
+  R.rect(x0 + 1, y1 - 16, x0 + 23, y1 - 15, hex('#d0a060'));
+  for (const [dx, dy] of [[4, -21], [12, -23], [18, -20]]) { const lx = x0 + dx, ly = y1 + dy; R.rect(lx - 3, ly - 3, lx + 3, ly + 3, hex('#140c08')); R.rect(lx - 2, ly - 2, lx + 2, ly + 2, hex('#7a5a3a')); R.disco(lx - 2, ly, 2, hex('#e0c08a')); R.pset(lx - 2, ly, hex('#a07a4a')); }
+};
+const suelo2 = (t) => {
+  // el cesto de mimbre con los leños, junto al hogar
+  cesto(56, 165);
+  // el atizador de hierro apoyado en la jamba
+  R.linea(48, 120, 54, 166, hex('#140c08')); R.linea(49, 120, 55, 166, hex('#5a5a62')); R.pset(48, 119, hex('#8a8a92'));
+};
+// el plato de barro con las pieles de naranja y el cuenco de agua, delante del tronco (se pinta después del Tió)
+const plato2 = (t) => {
+  sombra(186, 175, 13, 2);
+  for (let y = 168; y <= 178; y++) for (let x = 174; x <= 198; x++) { const e = ((x - 186) / 11) ** 2 + ((y - 173) / 4.4) ** 2; if (e < 1) R.pset(x, y, e > 0.75 ? hex('#140c08') : e > 0.45 ? hex('#8a3e22') : y < 172 ? hex('#e89a6a') : hex('#d8784a')); }
+  for (let k = 0; k < 4; k++) pielN(180 + k * 4, 172 - (k % 2), k);
+  R.rect(201, 167, 211, 175, hex('#140c08')); R.rect(202, 168, 210, 174, hex('#3a6ab0')); R.rect(202, 168, 210, 169, hex('#c8d8f0'));
+  R.pset(204 + Math.round(Math.sin(t * 2) + 1), 169, hex('#ffffff'));
+};
+
 const p2 = (t) => {
-  const lev = tramo(t, mayores, P3) * 0.35;
-  T.mundo(R, t, { encuadre: 'cataluna', camara: 'tio', manta: lev });
+  // el Tió del decorado no se pinta aquí: va el de la escena, a escala de los niños (≈33 px de alto, 1,3 veces un niño)
+  T.mundo(R, t, { encuadre: 'cataluna', camara: 'tio', tio: false });
   guirnalda(t);
-  const S = 174;
+  suelo2(t);
+  const S = 174, TX = 150, TB = 170;
+  sombra(TX + 30, TB, 42, 4);
+  tioGrande(TX, TB, 1.4, t, 0);
+  plato2(t);
   // la niña: la piel de naranja en la mano, la lanza a la boca del Tió en «feeding»; luego canta
-  const lanza = come - 0.45;
-  const n = R.actor(EL.ninaCatalana, 50, S, t, { dir: 1, sostiene: t < lanza ? [66, 154] : null, dedo: t > lanza && t < come + 0.6, sonrisa: t > come, habla: t > canta && Math.sin(t * 8) > -0.2 });
-  if (t < lanza) { R.disco(n.mano[0] + 2, n.mano[1] - 1, 2.5, hex('#a84a0a')); R.disco(n.mano[0] + 2, n.mano[1] - 1, 1.8, hex('#f0901a')); }
-  else if (t < come + 0.1) { const u = tramo(t, lanza, come + 0.1), px = lerp(70, 112, u), py = lerp(152, 138, u) - Math.sin(u * Math.PI) * 18; R.disco(Math.round(px), Math.round(py), 2.5, hex('#a84a0a')); R.disco(Math.round(px), Math.round(py), 1.8, hex('#f0901a')); }
-  else if (t < come + 1.2) { const m = Math.floor((t - come) * 8) % 2; for (const [dx, dy] of [[-3, 0], [4, -1], [1, 3]]) R.pset(112 + dx * (1 + m), 140 + dy + m, hex('#f0901a')); }
-  notas(64, S - 20, t, canta, 0);
-  // los dos niños con palos: uno a la izquierda (al lomo de abajo) y otro a la derecha (al extremo de atrás)
+  const lanza = come - 0.45, boca = [TX, 157];
+  const n = R.actor(EL.ninaCatalana, 92, S, t, { dir: 1, sostiene: t < lanza ? [106, 154] : null, dedo: t > lanza && t < come + 0.6, sonrisa: t > come, habla: t > canta && Math.sin(t * 8) > -0.2 });
+  if (t < lanza) { R.disco(n.mano[0] + 2, n.mano[1] - 1, 2, hex('#a84a0a')); R.disco(n.mano[0] + 2, n.mano[1] - 1, 1.4, hex('#f0901a')); }
+  else if (t < come + 0.1) { const u = tramo(t, lanza, come + 0.1), px = lerp(108, boca[0], u), py = lerp(152, boca[1], u) - Math.sin(u * Math.PI) * 14; R.disco(Math.round(px), Math.round(py), 2, hex('#a84a0a')); R.disco(Math.round(px), Math.round(py), 1.4, hex('#f0901a')); }
+  else if (t < come + 1.2) { const m = Math.floor((t - come) * 8) % 2; for (const [dx, dy] of [[-3, 0], [4, -1], [1, 3]]) R.pset(boca[0] + dx * (1 + m), boca[1] + dy + m, hex('#f0901a')); }
+  notas(102, S - 20, t, canta, 0);
+  // los dos niños con palos: uno junto a la cara (al lomo de abajo) y otro detrás (a la punta de atrás)
   const ga = golpea(t, golpe, 0), gb = golpea(t, golpe + 0.25, 0.5);
-  const arribaA = ga < 0.5, mA = R.actor(EL.ninoCatalan, 70, S, t, { dir: 1, pal: NINO2, sostiene: arribaA ? [84, 146] : [86, 156], sonrisa: t > golpe, habla: t > canta && Math.sin(t * 8 + 1) > -0.2, sorpresa: t > come - 0.1 && t < come + 0.4 });
-  palo(mA.mano, mA.mano[0] + (arribaA ? 6 : 13), mA.mano[1] + (arribaA ? -12 : 3));
-  if (t > golpe && !arribaA && ga < 0.62) chispa(mA.mano[0] + 14, mA.mano[1] + 3, hex('#fff0a0'));
-  const arribaB = gb < 0.5, mB = R.actor(EL.ninoCatalan, 226, S, t, { dir: -1, sostiene: arribaB ? [222, 146] : [219, 156], sonrisa: true, habla: t > canta && Math.sin(t * 8 + 2) > -0.2 });
-  palo(mB.mano, mB.mano[0] - (arribaB ? 6 : 12), mB.mano[1] + (arribaB ? -12 : 2));
-  if (t > golpe && !arribaB && gb < 0.62) chispa(mB.mano[0] - 13, mB.mano[1] + 2, hex('#fff0a0'));
-  notas(234, S - 20, t, canta + 0.3, 1);
-  // la abuela entra por la derecha en «help» y le guiña a los niños
-  const ua = tramo(t, ayuda - 0.3, mayores), xa = Math.round(lerp(336, 262, ua));
-  R.actor(EL.adultoCatalan, xa, S + 2, t, { dir: -1, anda: ua > 0 && ua < 1, dedo: t > mayores, sonrisa: true });
+  const arribaA = ga < 0.5, mA = R.actor(EL.ninoCatalan, 118, S, t, { dir: 1, pal: NINO2, sostiene: arribaA ? [126, 148] : [127, 156], sonrisa: t > golpe, habla: t > canta && Math.sin(t * 8 + 1) > -0.2, sorpresa: t > come - 0.1 && t < come + 0.4 });
+  palo(mA.mano, mA.mano[0] + (arribaA ? 5 : 11), mA.mano[1] + (arribaA ? -11 : 5));
+  if (t > golpe && !arribaA && ga < 0.62) chispa(mA.mano[0] + 12, mA.mano[1] + 5, hex('#fff0a0'));
+  const arribaB = gb < 0.5, mB = R.actor(EL.ninoCatalan, 232, S, t, { dir: -1, sostiene: arribaB ? [226, 146] : [223, 154], sonrisa: true, habla: t > canta && Math.sin(t * 8 + 2) > -0.2 });
+  palo(mB.mano, mB.mano[0] - (arribaB ? 5 : 11), mB.mano[1] + (arribaB ? -11 : 2));
+  if (t > golpe && !arribaB && gb < 0.62) chispa(mB.mano[0] - 12, mB.mano[1] + 2, hex('#fff0a0'));
+  notas(240, S - 20, t, canta + 0.3, 1);
+  // la abuela entra por la derecha en «help» con el cesto de los turrones (la ayuda de los mayores) y le guiña a los niños
+  const ua = tramo(t, ayuda - 0.3, mayores), xa = Math.round(lerp(338, 270, ua));
+  const ab = R.actor(EL.adultoCatalan, xa, S + 2, t, { dir: -1, anda: ua > 0 && ua < 1, sostiene: [xa - 8, 152], sonrisa: true, habla: t > mayores && t < mayores + 0.8 && Math.sin(t * 9) > 0 });
+  { const [cx, cy] = ab.mano; R.rect(cx - 6, cy, cx + 5, cy + 7, hex('#140c08')); for (let y = cy + 1; y < cy + 7; y++) for (let x = cx - 5; x < cx + 5; x++) R.pset(x, y, (x + y) % 3 ? hex('#b08040') : hex('#7a5428')); R.linea(cx - 5, cy, cx - 2, cy - 4, hex('#6a4420')); R.linea(cx + 4, cy, cx + 1, cy - 4, hex('#6a4420'));
+    R.rect(cx - 4, cy - 2, cx - 1, cy, hex('#f0e0b0')); R.pset(cx - 3, cy - 1, hex('#c89a50')); R.disco(cx + 2, cy - 1, 1.4, hex('#f04a8a')); }
 };
 
 // el fondo local del plano 3: la pared encalada con el zócalo de rajoles pintadas, la balda con los platos y la ristra
@@ -133,7 +170,9 @@ const tioGrande = (x, base, s, t, lev) => {
   const cuerpo = [[x, fy - r], [x + L, by - r], [x + L, by + r], [x, fy + r]];
   for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(cuerpo.map(([a, b]) => [a + dx, b + dy]), CT.k);
   R.poligono(cuerpo, (xx, yy) => { const cy = cyA(xx), v = (yy - cy) / r, veta = Math.floor((yy + Math.sin(xx * 0.12) * 2) / 3), n = hh(veta, Math.floor(xx / 7), 11); if (hh(xx, yy, 12) < 0.025) return CT.k; return v < -0.55 ? (n < 0.5 ? CT.trL : CT.tr) : v > 0.45 ? (n < 0.3 ? CT.k : CT.trS) : n < 0.25 ? CT.trS : n > 0.85 ? CT.trL : CT.tr; });
-  R.disco(x + L, by, r, CT.k); R.disco(x + L, by, r - 1, (xx, yy) => { const d = Math.hypot(xx - x - L, yy - by) / r; return d > 0.86 ? CT.trS : Math.floor(d * 6) % 2 && d > 0.25 ? CT.anillo : CT.corteS; });
+  // la punta de atrás es el corte del tronco: anillos marrones sobre la madera clara, la corteza alrededor y la sombra abajo
+  R.disco(x + L, by, r, CT.k); R.disco(x + L, by, r - 1, (xx, yy) => { const d = Math.hypot(xx - x - L, yy - by) / r; if (d > 0.84) return CT.trS; const sh = yy - by > r * 0.35; return Math.floor(d * 6) % 2 && d > 0.2 ? (sh ? CT.trS : CT.anillo) : (sh ? CT.corteS : CT.corte); });
+  R.pset(Math.round(x + L), Math.round(by), CT.trS);
   // los dulces escondidos debajo de la manta (asoman cuando sube)
   // la manta a cuadros, con flecos: la esquina de la derecha sube con la mano
   const x0 = x + 15 * s, x1 = x + 41 * s, RT = [x1 + 10 * lev, cyA(x1) - r - 2 - 34 * lev], RB = [x1 + 3 + 16 * lev, cyA(x1) + r + 3 - 30 * lev];
@@ -144,49 +183,119 @@ const tioGrande = (x, base, s, t, lev) => {
   for (let i = 0; i <= 16; i++) { const u = i / 16, fx = Math.round(lerp(LB[0], RB[0], u)), fy2 = Math.round(lerp(LB[1], RB[1], u)); R.rect(fx, fy2 + 1, fx, fy2 + 3 + Math.round(Math.sin(t * 3 + i) * 0.6), CT.mantaL); }
   // la cara en el corte: anillos, ojos que parpadean, nariz roja, sonrisa y mejillas
   R.disco(x, fy, r + 1, CT.k); R.disco(x, fy, r, (xx, yy) => { const d = Math.hypot(xx - x, yy - fy) / r; return d > 0.88 ? CT.trS : Math.floor(d * 6) % 2 && d > 0.3 ? CT.anillo : (xx < x - r * 0.3 ? CT.corte : CT.corteS); });
-  const parp = (t % 3.1) < 0.14;
-  for (const dx of [-0.35, 0.35]) { const ex = Math.round(x + dx * r), ey = Math.round(fy - r * 0.2); if (parp) R.rect(ex - 3, ey, ex + 3, ey, CT.ojo); else { R.disco(ex, ey, 3.2, CT.ojo); R.pset(ex - 1, ey - 1, hex('#ffffff')); } }
-  R.disco(x, Math.round(fy + r * 0.1), 3.5, CT.k); R.disco(x, Math.round(fy + r * 0.1), 2.6, CT.bar); R.pset(x - 1, Math.round(fy + r * 0.05) - 1, CT.barL);
-  for (let i = -6; i <= 6; i++) { const yy = Math.round(fy + r * 0.42 + (1 - (i / 6) ** 2) * r * 0.2); R.pset(x + i * 2, yy, CT.ojo); R.pset(x + i * 2 + 1, yy, CT.ojo); }
-  for (const dx of [-0.58, 0.58]) R.disco(Math.round(x + dx * r), Math.round(fy + r * 0.3), 3, CT.mej);
+  // los rasgos se escalan con s (a s 3 son los de antes; a s 1,4, la cara del plano 2 cabe en sus 25 px)
+  const parp = (t % 3.1) < 0.14, q = s / 3, fx = Math.round(x);
+  for (const dx of [-0.35, 0.35]) { const ex = Math.round(x + dx * r), ey = Math.round(fy - r * 0.2), er = Math.max(1.2, 3.2 * q); if (parp) R.rect(ex - Math.round(er), ey, ex + Math.round(er), ey, CT.ojo); else { R.disco(ex, ey, er, CT.ojo); R.pset(ex - (q > 0.6 ? 1 : 0), ey - 1, hex('#ffffff')); } }
+  R.disco(fx, Math.round(fy + r * 0.1), Math.max(1.6, 3.5 * q), CT.k); R.disco(fx, Math.round(fy + r * 0.1), Math.max(1.1, 2.6 * q), CT.bar); R.pset(fx - 1, Math.round(fy + r * 0.05) - 1, CT.barL);
+  { const n = Math.max(3, Math.round(6 * q)), paso = 13 * q / n; for (let i = -n; i <= n; i++) { const yy = Math.round(fy + r * 0.42 + (1 - (i / n) ** 2) * r * 0.2); R.pset(Math.round(x + i * paso), yy, CT.ojo); if (q > 0.6) R.pset(Math.round(x + i * paso) + 1, yy, CT.ojo); } }
+  for (const dx of [-0.58, 0.58]) R.disco(Math.round(x + dx * r), Math.round(fy + r * 0.3), Math.max(1, 3 * q), CT.mej);
   const pts = [[x - r * 0.8, fy - r * 0.6], [x + r * 0.7, fy - r * 0.82], [x + 16 * s, fy - r * 0.95 + 2 * s], [x + 20 * s, fy - r * 0.3], [x + 15 * s, fy - r * 0.45], [x + r * 0.3, fy - r * 0.38]];
   for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(pts.map(([a, b]) => [a + dx, b + dy]), CT.k);
   R.poligono(pts, (xx, yy) => (yy > fy - r * 0.52 && xx < x + r * 0.6 ? CT.barS : xx > x + 12 * s ? CT.barS : yy < fy - r * 0.78 ? CT.barL : CT.bar));
   return RT;
 };
 
-// los dulces que salen de debajo de la manta: dónde caen (dx, dy desde la boca de la manta), tipo y cuándo
-const DULCES = [[0, 0, 'turron', 0], [26, 4, 'caramelos', 0.15], [-22, 10, 'caramelos', 0.3], [44, 12, 'caramelos', 0.45], [8, 16, 'caramelos', 0.55], [60, 2, 'turron', 0.7]];
+// el Tió de frente para el inserto del plano 3 (cámara a ras de las rajolas): la cara en el corte mirando a cámara, el
+// tronco que se va hacia atrás y a la derecha, las patitas y la manta que lo cubre y cae hasta el suelo por la derecha.
+// lev 0–1 levanta la esquina de atrás de la manta (la mano de la abuela); devuelve dónde está esa esquina
+const tioFrente = (cx, cy, r0, t, lev, tiembla) => {
+  const bx = cx + 46, by = cy - 18, rb = r0 - 4, suelo = cy + r0 + 10, sb = suelo - 7;
+  const dl = Math.hypot(bx - cx, by - cy), ux = (bx - cx) / dl, uy = (by - cy) / dl, nx = -uy, ny = ux;
+  const ox = tiembla ? Math.round(Math.sin(t * 40)) : 0;
+  cx += ox;
+  // la sombra en el suelo
+  sombra(cx + 30, suelo - 2, 62, 6);
+  // las patitas de atrás (más altas: están más lejos)
+  for (const lx of [bx - 10, bx + 6]) { R.linea(lx, by + rb - 6, lx - 2, sb, CT.k); R.linea(lx + 1, by + rb - 6, lx - 1, sb, CT.trS); R.linea(lx + 2, by + rb - 6, lx, sb, CT.trS); R.linea(lx + 3, by + rb - 6, lx + 1, sb, CT.k); }
+  // los dulces escondidos debajo, a la derecha (la manta los tapa hasta que sube)
+  for (let k = 0; k < 11; k++) { const dx = bx - 14 + (k % 6) * 9 + (k > 5 ? 4 : 0), dy = sb + 4 - (k > 5 ? 6 : 0); if (k % 3 === 0) { R.rect(dx - 5, dy - 4, dx + 5, dy, CT.k); R.rect(dx - 4, dy - 3, dx + 4, dy - 1, hex('#e8c88a')); R.rect(dx - 4, dy - 3, dx + 4, dy - 3, hex('#f8f0e0')); R.pset(dx - 1, dy - 2, hex('#a0703a')); R.pset(dx + 2, dy - 2, hex('#a0703a')); }
+    else { const col = [hex('#f04a8a'), hex('#3ac0e0'), hex('#f8c020'), hex('#7ad040')][k % 4]; R.disco(dx, dy - 2, 2.4, CT.k); R.disco(dx, dy - 2, 1.8, col); R.pset(dx - 3, dy - 2, col); R.pset(dx + 3, dy - 2, col); R.pset(dx - 1, dy - 3, hex('#ffffff')); } }
+  // el tronco: el disco de atrás y el cuerpo con la corteza en vetas a lo largo, luz arriba (el fuego) y sombra abajo
+  R.disco(bx, by, rb + 1, CT.k); R.disco(bx, by, rb, CT.trS);
+  const cuerpo = [[cx - nx * r0, cy - ny * r0], [bx - nx * rb, by - ny * rb], [bx + nx * rb, by + ny * rb], [cx + nx * r0, cy + ny * r0]];
+  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(cuerpo.map(([a, b]) => [a + dx, b + dy]), CT.k);
+  R.poligono(cuerpo, (xx, yy) => { const a = (xx - cx) * ux + (yy - cy) * uy, v = ((xx - cx) * nx + (yy - cy) * ny) / (r0 - a / dl * (r0 - rb)), veta = Math.floor((v * 18 + Math.sin(a * 0.2) * 1.2) / 2), n = hh(veta, Math.floor(a / 6), 21);
+    if (hh(xx, yy, 22) < 0.025) return CT.k; return v < -0.55 ? (n < 0.5 ? CT.trL : CT.tr) : v > 0.45 ? (n < 0.35 ? CT.k : CT.trS) : n < 0.25 ? CT.trS : n > 0.85 ? CT.trL : CT.tr; });
+  // un nudo y una rama cortada en el lomo
+  R.disco(cx + 30, cy - 20, 3, CT.k); R.disco(cx + 30, cy - 20, 2, CT.corteS); R.pset(cx + 30, cy - 20, CT.anillo);
+  // las patitas de delante
+  for (const lx of [cx - 13, cx + 9]) { R.linea(lx, cy + r0 - 8, lx - 1, suelo, CT.k); for (let k = 1; k <= 3; k++) R.linea(lx + k, cy + r0 - 8, lx - 1 + k, suelo, k === 3 ? CT.k : k === 1 ? CT.tr : CT.trS); R.rect(lx - 2, suelo, lx + 3, suelo, CT.k); }
+  // la manta a cuadros sobre el lomo, que cae hasta el suelo por la derecha; la esquina de atrás sube con la mano
+  const C0 = [bx + rb + 14, sb + 3], C1 = [C0[0] + 16, C0[1] - 50], C = [Math.round(lerp(C0[0], C1[0], lev)), Math.round(lerp(C0[1], C1[1], lev) - Math.sin(lev * Math.PI) * 4)];
+  const D = [Math.round(cx + r0 + 6 + lev * 6), Math.round(suelo + 2 - lev * 8)], A = [cx + Math.round(r0 * 0.15), cy - r0 - 4], B = [bx + 2, by - rb - 5];
+  // la sombra de debajo y el forro de la manta cuando se levanta
+  const m = [A, B, C, D];
+  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(m.map(([a, b]) => [a + dx, b + dy]), CT.k);
+  R.poligono(m, (xx, yy) => { const a = Math.floor((xx - cx + 400) / 8), b = Math.floor((yy + (xx - cx) * 0.35 + 400) / 8), f = (xx - cx + 400) % 8 === 0 || Math.floor(yy + (xx - cx) * 0.35 + 400) % 8 === 0; const sh = (yy - by) > (xx - bx) * 0.2 + 14;
+    return f ? (sh ? CT.mantaS : CT.mantaL) : (a + b) % 2 ? (sh ? CT.mantaS : CT.manta) : (sh ? hex('#5a0a0a') : CT.mantaS); });
+  // el forro: cuando la esquina sube, se ve el revés de la manta, más oscuro, junto al borde de abajo
+  if (lev > 0.05) { const E = [Math.round(lerp(D[0], C[0], 0.5) - 3), Math.round(lerp(D[1], C[1], 0.5) + 2 + 6 * lev)]; R.poligono([D, C, [C[0] - 4, C[1] + Math.round(9 * lev)], E], (xx, yy) => ((xx + yy) % 3 ? hex('#6a1010') : CT.mantaS)); R.linea(D[0], D[1], C[0], C[1], CT.k); }
+  // los pliegues de la manta (bajan del lomo hacia el borde de abajo)
+  for (const u of [0.3, 0.55, 0.8]) { const p0 = [lerp(A[0], B[0], u), lerp(A[1], B[1], u) + 3], p1 = [lerp(D[0], C[0], u), lerp(D[1], C[1], u) - 2]; R.linea(Math.round(p0[0]), Math.round(p0[1]), Math.round(p1[0]), Math.round(p1[1]), hex('#5a0a0a')); }
+  // los flecos del borde de abajo, que se mueven
+  for (let i = 0; i <= 18; i++) { const u = i / 18, fx = Math.round(lerp(D[0], C[0], u)), fy = Math.round(lerp(D[1], C[1], u)); R.rect(fx, fy + 1, fx, fy + 3 + Math.round(Math.sin(t * 3 + i) * 0.7 + lev), CT.mantaL); }
+  // la cara en el corte: anillos, ojos que parpadean y miran a los dulces, nariz roja, sonrisa y mejillas
+  R.disco(cx, cy, r0 + 1, CT.k); R.disco(cx, cy, r0, (xx, yy) => { const d = Math.hypot(xx - cx, yy - cy) / r0; return d > 0.9 ? (yy < cy ? CT.trL : CT.trS) : Math.floor(d * 7) % 2 && d > 0.25 ? CT.anillo : (xx + yy < cx + cy - r0 * 0.3 ? CT.corte : CT.corteS); });
+  for (let k = 0; k < 5; k++) R.pset(cx - r0 + 4 + k * 3, cy - 6 + (k % 2) * 3, CT.anillo);
+  const parp = (t % 2.7) < 0.14, mira = lev > 0.3 ? 2 : 0;
+  for (const dx of [-0.36, 0.36]) { const ex = Math.round(cx + dx * r0), ey = Math.round(cy - r0 * 0.2); if (parp) R.rect(ex - 4, ey, ex + 4, ey + 1, CT.ojo); else { R.disco(ex, ey, 4.4, CT.k); R.disco(ex, ey, 3.6, hex('#f8f0e0')); R.disco(ex + mira, ey + 1, 2.4, CT.ojo); R.pset(ex + mira - 1, ey, hex('#ffffff')); } }
+  R.disco(cx, Math.round(cy + r0 * 0.1), 4.6, CT.k); R.disco(cx, Math.round(cy + r0 * 0.1), 3.6, CT.bar); R.pset(cx - 2, Math.round(cy + r0 * 0.1) - 2, CT.barL);
+  { const ab = lev > 0.3 ? 1 : 0; for (let i = -8; i <= 8; i++) { const yy = Math.round(cy + r0 * 0.42 + (1 - (i / 8) ** 2) * r0 * (0.2 + ab * 0.06)); R.pset(cx + i * 1.4 | 0, yy, CT.ojo); R.pset((cx + i * 1.4 | 0), yy + 1, CT.ojo); }
+    if (ab) R.rect(cx - 4, Math.round(cy + r0 * 0.5), cx + 4, Math.round(cy + r0 * 0.56), hex('#8a1a1a')); }
+  for (const dx of [-0.6, 0.6]) { R.disco(Math.round(cx + dx * r0), Math.round(cy + r0 * 0.3), 3.6, CT.mej); R.pset(Math.round(cx + dx * r0) - 1, Math.round(cy + r0 * 0.3) - 1, hex('#f8b0a0')); }
+  // la barretina, de frente: el gorro rojo que cae hacia atrás y a la derecha, con su franja oscura
+  const pts = [[cx - r0 * 0.82, cy - r0 * 0.5], [cx + r0 * 0.8, cy - r0 * 0.62], [cx + r0 * 1.35, cy - r0 * 1.0], [cx + r0 * 1.15, cy - r0 * 1.22], [cx + r0 * 0.2, cy - r0 * 1.18], [cx - r0 * 0.55, cy - r0 * 0.95]];
+  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(pts.map(([a, b]) => [a + dx, b + dy]), CT.k);
+  R.poligono(pts, (xx, yy) => (yy > cy - r0 * 0.66 ? CT.barS : xx > cx + r0 * 0.9 ? CT.barS : yy < cy - r0 * 1.05 || (xx < cx - r0 * 0.3 && yy < cy - r0 * 0.8) ? CT.barL : (hh(xx, yy, 23) < 0.12 ? CT.barS : CT.bar)));
+  R.pset(Math.round(cx + r0 * 1.2), Math.round(cy - r0 * 1.12), CT.barL);
+  return C;
+};
+
+// los dulces que salen de debajo de la manta y ruedan hacia la cámara: dónde caen (x, y), tipo y cuándo
+const DULCES = [[216, 170, 'turron', 0], [270, 174, 'caramelos', 0.12], [176, 176, 'caramelos', 0.24], [118, 170, 'turron', 0.36], [240, 178, 'caramelos', 0.46], [86, 176, 'caramelos', 0.58], [300, 178, 'turron', 0.66]];
 const p3 = (t) => {
   R.copiar(fondoTio());
-  // la luz del fuego (fuera, a la izquierda) que tiembla en la pared y en el suelo
   // el hogar a la izquierda: la jamba de piedra y las llamas que bailan, con chispas
   for (let y = 24; y < 102; y++) for (let x = 0; x < 14; x++) R.pset(x, y, y < 60 ? hex('#2a1e18') : hex('#140c08'));
   for (let x = 0; x < 14; x++) { const hgt = 22 * (0.6 + 0.4 * Math.sin(x * 0.9 + t * 9) * Math.sin(x * 0.3 - t * 5)); for (let j = 0; j < hgt; j++) { const q = j / hgt; R.pset(x, 100 - j, q < 0.3 ? hex('#ffe070') : q < 0.7 ? hex('#ff8a20') : hex('#d8401a')); } }
   for (let k = 0; k < 4; k++) { const u = (t * 0.9 + k / 4) % 1; R.pset(Math.round(4 + k * 3 + Math.sin(t * 3 + k) * 2), Math.round(76 - u * 40), hex('#ffe070')); }
   for (let y = 18; y < 104; y++) for (let x = 14; x < 26; x++) { const b = Math.floor((y + (Math.floor(y / 9) % 2) * 4) / 9); R.pset(x, y, (y % 9 === 0 || x === 14 || x === 25) ? hex('#3a2e24') : hh(b, x >> 2, 13) < 0.4 ? hex('#6a5444') : hex('#9a8270')); }
-  T.gato(R, 300, 99, t, { dir: -1 });
+  // al fondo, junto al fuego: el cesto de leña, el gato que dormita y el taburete de enea con el plato de las pieles
+  cesto(30, 124);
+  T.gato(R, 66, 124, t, { dir: 1 });
+  sombra(112, 136, 16, 2);
+  for (const lx of [100, 122]) { R.rect(lx, 122, lx + 2, 136, hex('#140c08')); R.rect(lx + 1, 122, lx + 1, 135, hex('#8a5a2a')); }
+  R.rect(110, 124, 112, 134, hex('#140c08')); R.rect(102, 130, 120, 130, hex('#5a3a1a'));
+  R.rect(96, 116, 128, 122, hex('#140c08')); for (let x = 97; x < 128; x++) for (let y = 117; y < 122; y++) R.pset(x, y, (x + y * 2) % 4 < 2 ? hex('#c8a050') : hex('#9a7430'));
+  R.rect(97, 117, 127, 117, hex('#e0c070'));
+  R.rect(102, 112, 122, 115, hex('#140c08')); R.rect(103, 113, 121, 114, hex('#d8784a')); R.rect(103, 113, 121, 113, hex('#e89a6a'));
+  for (let k = 0; k < 4; k++) pielN(106 + k * 4, 112 - (k % 2), k);
+  // el vaho del fuego: unas motas de ceniza que flotan en la luz
+  for (let k = 0; k < 6; k++) { const u = (t * 0.3 + k / 6) % 1; R.pset(Math.round(30 + k * 12 + Math.sin(t + k * 2) * 4), Math.round(100 - u * 50), u < 0.5 ? hex('#ffe070') : hex('#c8a080')); }
+  // el Tió de frente, grande (inserto: aquí no hay niños); tiembla un poco cuando «da» los dulces
   const lev = tramo(t, P3 + 0.15, dulce - 0.05);
-  const RT = tioGrande(140, 168, 3, t, lev);
-  // los dulces salen y se desparraman por el suelo
-  const bx = 228, by = 156;
-  for (const [dx, dy, tipo, d] of DULCES) { const u = tramo(t, dulce + d - 0.2, dulce + d + 0.35); if (u <= 0) continue; const x = Math.round(lerp(bx - 10, bx + dx, u)), y = Math.round(lerp(by - 6, by + 12 + dy, u) - Math.sin(u * Math.PI) * 8); T.PIEZAS_NV.dulces(R, x, y, { s: 2, tipo: tipo === 'turron' ? 'turron' : undefined }); }
-  // la galleta sale de entre los dulces (gag 6), se asusta con la letra de la canción y se escapa
+  const C = tioFrente(194, 114, 30, t, lev, t > dulce - 0.4 && t < dulce + 0.3);
+  // primer término: dos pieles de naranja y uno de los palos de los niños tirado en las rajolas
+  pielN(40, 172, 0); pielN(74, 176, 1);
+  R.linea(4, 168, 58, 160, hex('#2a1608')); R.linea(4, 167, 58, 159, hex('#9a6a38')); R.linea(4, 166, 40, 161, hex('#b88a50')); R.pset(58, 159, hex('#5a3a1a'));
+  // los dulces salen y ruedan hacia la cámara (más grandes cuanto más cerca)
+  for (const [x1, y1, tipo, d] of DULCES) { const u = tramo(t, dulce + d - 0.2, dulce + d + 0.35); if (u <= 0) continue; const x = Math.round(lerp(250, x1, u)), y = Math.round(lerp(150, y1, u) - Math.sin(u * Math.PI) * 10); T.PIEZAS_NV.dulces(R, x, y, { s: y > 170 ? 2 : 2, tipo: tipo === 'turron' ? 'turron' : undefined }); }
+  // la galleta sale de entre los dulces (gag 6), se asusta con la letra de la canción y se escapa corriendo a la izquierda
   if (t > galle - 0.2) {
     const ug = tramo(t, galle - 0.2, galle + 0.5), sale = tramo(t, educada + 0.9, fin + 1.6);
-    const gx = Math.round(lerp(226, 250, ug) + sale * 110), gy = Math.round(lerp(150, 172, ug) - Math.sin(ug * Math.PI) * 26);
+    const gx = Math.round(lerp(256, 150, ug) - sale * 200), gy = Math.round(lerp(152, 176, ug) - Math.sin(ug * Math.PI) * 24);
     const susto = t > educada && t < educada + 0.9;
-    T.galleta(R, gx, gy, t, { s: 2, cara: susto ? 'susto' : 'feliz', corre: sale > 0 && sale < 1 });
+    T.galleta(R, gx, gy, t, { s: 2, cara: susto ? 'susto' : 'feliz', corre: sale > 0 && sale < 1, dir: sale > 0 ? -1 : 1 });
     if (susto) R.bocadillo(gx, gy - 38, { icono: '!' });
   }
-  // el brazo de la abuela entra por la derecha y sube la manta por la esquina
-  const sube = tramo(t, P3 - 0.3, P3 + 0.15);
-  { const hx = Math.round(lerp(340, RT[0] + 3, sube)), hy = Math.round(lerp(130, RT[1] + 2, sube)); T.brazo(R, 348, 122, hx, hy, '#3a7a5a', -1, { codo: [Math.round((348 + hx) / 2 + 4), Math.round((122 + hy) / 2 + 12)] }); }
-  // los niños a la izquierda cantan; en «polite» se ríen y dan saltitos
+  // la canción de los niños (fuera de cuadro, a la izquierda): las notas entran por el borde; en «polite» saltan risas
   const rie = t > educada - 0.1;
-  R.actor(EL.ninaCatalana, 22, 176, t, { dir: 1, habla: !rie && Math.sin(t * 8) > -0.2, sonrisa: true, salto: rie && Math.floor(t * 5) % 2 ? 2 : 0, brazos: rie && t < educada + 1.4 && Math.floor(t * 7) % 2 === 0, sorpresa: t > dulce && t < dulce + 0.5 });
-  R.actor(EL.ninoCatalan, 48, 178, t, { dir: 1, pal: NINO2, habla: !rie && Math.sin(t * 8 + 1) > -0.2, sonrisa: true, salto: rie && Math.floor(t * 5 + 1) % 2 ? 2 : 0, dedo: t > galle && t < galle + 1.2 });
-  if (!rie) { notas(32, 154, t, P3 - 0.5, 0); notas(58, 156, t, P3 - 0.2, 1); }
+  if (!rie) { notas(6, 150, t, P3 - 0.5, 0); notas(16, 138, t, P3 - 0.2, 1); }
+  else for (let k = 0; k < 3; k++) { const u = ((t - educada) * 1.2 + k / 3) % 1; R.icono('nota', Math.round(4 + k * 6 + Math.sin(u * 9) * 2), Math.round(150 - u * 30), NOTAS[k], hex('#3a1a10')); }
+  // el brazo de la abuela entra por la derecha (≈35 px, con el codo abajo) y sube la manta por la esquina
+  const sube = tramo(t, P3 - 0.3, P3 + 0.15);
+  { const hx = Math.round(lerp(338, C[0] + 2, sube)), hy = Math.round(lerp(C[1] + 4, C[1] + 2, sube)), sx = Math.round(lerp(352, 344, lev)), sy = Math.round(lerp(150, 116, lev));
+    T.brazo(R, sx, sy, hx, hy, '#3a7a5a', -1, { codo: [Math.round((sx + hx) / 2 + 2), Math.round(Math.max(sy, hy) + 8)] }); }
 };
 // los golpes de los palos caen a la vez (golpe + 0.28 + k / 1.8): uno de cada dos suena, para no llenarlo
 const GOLPES = [0, 2, 4, 6].map((k) => golpe + 0.28 + k / 1.8);

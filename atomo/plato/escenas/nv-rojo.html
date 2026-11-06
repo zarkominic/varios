@@ -17,8 +17,9 @@
 //    (gag 3) (corta en «What»);
 // 3. 1931, la parada del autobús: el cartelero pega el cartel del Santa rojo con la botella sin etiqueta en «1931»;
 //    los de la cola lo miran (corta en «the same way»);
-// 4. la calle: el mismo cartel aparece en una fachada tras otra («every year»: la barra corre de 1931 a 1964) y en
-//    «everywhere» brillan todos; pasa el autobús.
+// 4. la calle: el mismo cartel aparece en una fachada tras otra («every year»: la barra corre de 1931 a 1964), pegado
+//    en los entrepaños de piedra entre ventanas y en el muro de la iglesia bajo su cornisa, y en «everywhere» brillan
+//    todos; el autobús pasa por delante de la fachada (y de los carteles).
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-rojo');
@@ -119,9 +120,16 @@ const p3 = (t) => {
 };
 const p4 = (t) => {
   T.siglo17(R, t, { encuadre: 'escocia', bus: tramo(t, traje - 1.4, FIN - 0.2) });
-  // los carteles: uno por «año», por las fachadas y los cierres de las tiendas, hasta llenar la calle
-  const sitios = [[30, 92, 20, 26], [70, 100, 18, 24], [118, 92, 20, 26], [160, 104, 16, 20], [196, 92, 20, 26], [236, 100, 18, 24], [10, 52, 16, 20], [104, 54, 16, 20], [214, 56, 16, 20], [258, 64, 16, 20]];
+  // los carteles: uno por «año», hasta llenar la calle. Van en los entrepaños de piedra entre los miradores y las
+  // ventanas de los tenements (columnas x 44, 108, 172, 236; pisos y 47, 67, 87, sin pisar marcos ni impostas) y en el
+  // muro de la iglesia de ladrillo, entre dos ventanas y por debajo de su cornisa. Nada en los cierres de las tiendas:
+  // ahí pasa la gente pequeña de la acera de enfrente. Se pintan antes que el autobús y la gente (siglo17Delante y
+  // los actores van después), así el autobús pasa por delante de la fachada.
+  const sitios = [[44, 87, 14, 17], [172, 87, 14, 17], [108, 67, 14, 17], [236, 87, 14, 17], [44, 47, 14, 17], [272, 92, 10, 15], [108, 87, 14, 17], [172, 67, 14, 17], [236, 47, 14, 17], [172, 47, 14, 17]];
   sitios.forEach(([x, y, w, h], i) => { const ti = lerp(P4 + 0.4, todas - 0.3, i / (sitios.length - 1)); cartel(x, y, w, h, tramo(t, ti, ti + 0.3), t > todas ? t : 0); });
+  // los pájaros de la cornisa (los mismos de siglo17) vuelan por delante de los carteles: se repintan encima
+  for (let k = 0; k < 3; k++) { const bx = Math.round(((t * (12 + k * 5) + k * 110) % 360) - 20), by = Math.round(60 + k * 8 + Math.sin(t * 2 + k) * 3), f = Math.floor(t * 7 + k * 1.7) % 4, al = [-2, -1, 1, 0][f], c = hex('#5a5a6a'), ya = by + Math.min(0, al) + (al > 0 ? 1 : 0);
+    R.pset(bx, by, c); R.pset(bx + 1, by, c); R.pset(bx - 1, ya, c); R.pset(bx + 2, ya, c); R.pset(bx - 2, by + al, c); R.pset(bx + 3, by + al, c); }
   // la gente por la acera: el obrero con la fiambrera mira los carteles; la señora y el niño con su botella
   const e = tramo(t, P4, FIN), x = Math.round(lerp(-20, 300, e));
   R.actor(EL.obreroEscoces, x, 168, t, { dir: 1, anda: true, sorpresa: t > todas });

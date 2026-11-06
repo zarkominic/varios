@@ -13,7 +13,9 @@
 // 1. la mesa del salón de Atom: la galleta en el plato mira cada pista cuando la voz la nombra (el traje rojo, el «25»,
 //    el abeto y la partitura, que suelta notas y la galleta baila);  2. «around the world»: una calle alpina a la hora
 //    azul, un desfile de niños con velas tras San Nicolás… y un Krampus que asoma («differently»);  3. «I'm Atom»: el
-//    árbol victoriano; una niña va a coger la galleta del platito y la galleta salta y se escapa (gag 1, «Let's find out»).
+//    árbol victoriano; el príncipe se acerca a la mesa contando y gesticula; una niña va a coger la galleta del platito,
+//    la galleta salta y se escapa (gag 1, «Let's find out»); el perrito spaniel que dormía bajo la mesa se despierta y sale
+//    corriendo tras ella, y el príncipe se gira y la señala riéndose.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-hola');
@@ -69,19 +71,54 @@ const mesita = () => {
   R.rect(286, 157, 308, 158, K); R.rect(286, 157, 308, 157, hex('#7a4a2a'));
   R.rect(288, 142, 306, 145, K); R.rect(289, 143, 305, 144, hex('#f2f2ea')); R.rect(291, 143, 303, 143, hex('#5a7ac8'));
 };
+// el perrito spaniel (blanco con manchas canela): e 0 duerme y respira, 0–1 levanta la cabeza, corre: las patas a
+// galope; x0 es el borde izquierdo de su caja de 22 px, y el suelo, dir −1 mira a la izquierda y 1 a la derecha
+const perrito = (x0, y, t, e, corre, dir) => {
+  // dir 1 lo voltea (mira a la derecha): las x se reflejan dentro de su caja de 22 px
+  const x = 0, X = (d) => dir > 0 ? x0 + 21 - d : x0 + d, rect = (a, b, c, d, col) => R.rect(Math.min(X(a), X(c)), b, Math.max(X(a), X(c)), d, col), pset = (a, b, col) => R.pset(X(a), b, col), linea = (a, b, c, d, col) => R.linea(X(a), b, X(c), d, col);
+  const pa = hex('#a0522d'), ps = hex('#6a3418'), bl = hex('#f4efe4'), bs = hex('#cfc4b0'), so = hex('#3a2412');
+  const ar = corre ? 3 + Math.round(Math.abs(Math.sin(t * 22))) : 0, resp = !corre && e < 0.5 && Math.sin(t * 2.4) > 0 ? 1 : 0;
+  const yc = y - ar, cab = corre ? 4 : Math.round(e * 3);
+  rect(x + 2, y + 1, x + 18, y + 1, so);
+  // las patas: tumbado, dobladas debajo; corriendo, a galope (delante y detrás alternan)
+  if (corre) { const g = Math.sin(t * 22) > 0; for (const [lx, dx] of [[x + 6, g ? -2 : 1], [x + 8, g ? -1 : 2], [x + 14, g ? 1 : -2], [x + 16, g ? 2 : -1]]) linea(lx, yc - 1, lx + dx, y, K); }
+  else for (const lx of [x + 3, x + 6, x + 14]) { rect(lx, y - 1, lx + 2, y, K); pset(lx + 1, y - 1, bl); }
+  // el cuerpo con su mancha y la luz de las velas arriba
+  rect(x + 5, yc - 6 - resp, x + 18, yc - 1, K); rect(x + 6, yc - 5 - resp, x + 17, yc - 2, bl); rect(x + 6, yc - 2, x + 17, yc - 2, bs);
+  rect(x + 10, yc - 5 - resp, x + 14, yc - 3, pa); rect(x + 11, yc - 5 - resp, x + 13, yc - 5 - resp, hex('#c87a4a'));
+  // la cola de plumero, que barre el suelo dormido y va tiesa al correr
+  const c = corre ? -2 : Math.round(Math.sin(t * (e > 0 ? 12 : 3)) * 1.5);
+  linea(x + 18, yc - 4, x + 21, yc - 6 + c, K); pset(x + 20, yc - 5 + c, bl); pset(x + 21, yc - 7 + c, bl);
+  // la cabeza canela con la oreja larga y el hocico blanco; dormido, los ojos son una raya
+  const hy = yc - 2 - cab;
+  rect(x, hy - 6, x + 7, hy, K); rect(x + 1, hy - 5, x + 6, hy - 1, pa); rect(x + 1, hy - 2, x + 3, hy - 1, bl); pset(x, hy - 2, K);
+  rect(x + 5, hy - 5, x + 7, hy + 2, K); rect(x + 6, hy - 4, x + 6, hy + 1, ps); pset(x + 2, hy - 5, hex('#c87a4a'));
+  if (e > 0.5 || corre) { pset(x + 3, hy - 4, K); pset(x + 4, hy - 4, bl); } else rect(x + 3, hy - 3, x + 4, hy - 3, ps);
+  if (corre && Math.sin(t * 22) > 0) pset(x + 1, hy, hex('#e86a7a'));
+  // dormido, el aliento sube en puntitos
+  if (!corre && e === 0) for (let k = 0; k < 3; k++) { const u = (t * 0.6 + k / 3) % 1; if (u < 0.75) pset(x - 2 - Math.round(u * 4), hy - 6 - Math.round(u * 9), u < 0.4 ? bs : hex('#8a7a6a')); }
+};
 const p3 = (t) => {
   T.epoca(R, t, { encuadre: 'windsor', camara: 'arbol' });
   mesita();
-  // el príncipe, junto al árbol, habla y luego se ríe de la fuga
-  R.actor(EL.alberto, 34, 166, t, { dir: 1, habla: t < explica + 1 && Math.sin(t * 6) > 0, sonrisa: t > salta + 0.4, dedo: t > salta + 0.8 });
-  // la niña se acerca, mira la galleta y alarga la mano…
-  const u = tramo(t, P3 + 0.2, explica + 0.8), nx = Math.round(lerp(196, 262, u));
-  R.actor(EL.ninaVictoriana, nx, 166, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: t < salta, sorpresa: t > salta, sostiene: t > coge && t < salta + 0.3 ? [292, 138] : undefined });
-  // …y la galleta salta del platito, cae en la alfombra y se escapa corriendo (gag 1)
-  const s = tramo(t, salta, salta + 0.55), r = tramo(t, salta + 0.6, salta + 1.6);
+  // la galleta: salta del platito, cae en la alfombra y se escapa corriendo hacia la izquierda (gag 1)
+  const s = tramo(t, salta, salta + 0.55), r = tramo(t, salta + 0.6, salta + 2.0);
   let gx = 297, gy = 142;
   if (s > 0) { gx = lerp(297, 238, s); gy = lerp(142, 166, s) - Math.sin(s * Math.PI) * 34; }
   if (r > 0) gx = lerp(238, -16, r);
+  // el perrito duerme bajo la mesa mirando a la niña, levanta la cabeza cuando la galleta cae a su lado, la mira pasar y
+  // sale disparado detrás de ella (va por detrás de la gente: está bajo la mesa, más al fondo)
+  // (la persigue a 40 px: sale cuando la galleta le ha pasado y no la alcanza dentro del plano)
+  const ep = tramo(t, salta + 0.5, salta + 0.75), px = r > 0 ? Math.min(150, Math.round(gx) + 40) : 150, corre = px < 150;
+  perrito(px, 165, t, ep, corre, corre || (r > 0 && gx < 160) ? -1 : 1);
+  // el príncipe se acerca a la mesa y a la niña contando, gesticula con «I explain» y, cuando la galleta le pasa por
+  // delante, se gira tras ella, se ríe y la señala
+  const ua = tramo(t, P3 + 0.3, P3 + 2.6), ax = Math.round(lerp(24, 100, ua)), gira = r > 0 && gx < ax;
+  R.actor(EL.alberto, ax, 166, t, { dir: gira ? -1 : 1, anda: ua > 0 && ua < 1, habla: t < coge && Math.sin(t * 6) > 0,
+    brazos: t > explica && t < explica + 0.8, sonrisa: t > salta + 0.3, dedo: t > salta + 0.5 });
+  // la niña se acerca, mira la galleta y alarga la mano…
+  const u = tramo(t, P3 + 0.2, explica + 0.8), nx = Math.round(lerp(196, 262, u));
+  R.actor(EL.ninaVictoriana, nx, 166, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: t < salta, sorpresa: t > salta, sostiene: t > coge && t < salta + 0.3 ? [292, 138] : undefined });
   T.galleta(R, Math.round(gx), Math.round(gy), t, { cara: s > 0 ? 'susto' : 'normal', corre: r > 0, dir: s > 0 ? -1 : 1 });
   T.epocaDelante(R, t, { encuadre: 'windsor', camara: 'arbol' });
 };

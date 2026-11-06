@@ -19,6 +19,9 @@
 // 3. el scriptorium: un copista escribe en su pupitre; otro entra con un códice y lo levanta abierto con la X de oro
 //    («scribes were already using it»); el del pupitre se vuelve, sonríe y señala; el monje de la ventana asiente y
 //    brotan tres X de oro sobre los libros («almost a thousand years ago»).
+// Pulido (calidad, ronda 1): en 1 y 2 solo la mano canónica (sinManga) con su sombra, sin brazo que cruce el cuadro;
+// en 3 el escriba sostiene el códice (≤22 px) a la altura del pecho y adelantado, con la cara a la vista; la sombra de
+// las vigas oscurece la cornisa de estuco para que el año 1100 se lea.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-xmas');
@@ -154,7 +157,9 @@ const p1 = (t) => {
     const wx = px + 16, wy = py + 2;
     // el rotulador: cuerpo rojo con capuchón negro, la punta en (px, py)
     R.linea(px, py, px + 3, py - 2, T.C.k); for (let d = -1; d <= 1; d++) R.linea(px + 3, py - 2 + d, px + 20, py - 13 + d, d === -1 ? hex('#e8505a') : d === 1 ? hex('#7a1018') : hex('#c8202a')); R.linea(px + 2, py - 4, px + 21, py - 15, T.C.k); R.linea(px + 4, py, px + 21, py - 11, T.C.k);
-    T.brazo(R, wx + 70, wy + 80, wx, wy, '#2a6a4a', -1, { codo: [wx + 34, wy + 46], puno: '#e8dcc0' });
+    // solo la mano canónica (sin manga): un brazo hasta el borde cruzaría medio cuadro; su sombra blanda en la postal
+    for (let j = -4; j <= 4; j++) for (let i = -9; i <= 9; i++) if ((i / 9) ** 2 + (j / 4) ** 2 < 1) s6_tin(wx - 5 + i, wy + 8 + j, T.C.k, 0.22);
+    T.mano(R, wx - 3, wy, -1, '#2a6a4a', { sinManga: true });
     for (let d = -1; d <= 1; d++) R.linea(px + 17, py - 11 + d, px + 22, py - 14 + d, hex('#1a1a22'));
   }
 };
@@ -183,7 +188,9 @@ const p2 = (t) => {
     // la pluma de ave: cañón y barbas blancas
     R.linea(px, py, px + 22, py - 20, T.C.k); R.linea(px + 1, py, px + 23, py - 20, hex('#e8e0c8'));
     for (let i = 8; i < 24; i++) { const x = px + i, y = py - Math.round(i * 0.9); R.linea(x, y, x - 3, y - 4, i % 3 ? hex('#f4ecdc') : hex('#c8bca0')); R.linea(x, y, x + 3, y + 2, hex('#d8ccb0')); }
-    T.brazo(R, px + 96, py + 90, px + 16, py + 3, '#5a4028', -1, { codo: [px + 52, py + 50], puno: '#7a5a3a' });
+    // solo la mano canónica con la pluma (un brazo hasta el borde cruzaría la página), con su sombra en el pergamino
+    for (let j = -4; j <= 4; j++) for (let i = -9; i <= 9; i++) if ((i / 9) ** 2 + (j / 4) ** 2 < 1) s6_tin(px + 11 + i, py + 10 + j, T.C.k, 0.2);
+    T.mano(R, px + 13, py + 3, -1, '#5a4028', { sinManga: true });
   }
 };
 
@@ -199,19 +206,30 @@ const p3 = (t) => {
   // la X pequeña que el copista dibuja en su hoja
   const xs = tramo(t, ESCRIBAS + 0.3, ESCRIBAS + 1.1); if (xs > 0) { const c = hex('#d8a020'); R.linea(130, 136, Math.round(lerp(130, 138, Math.min(1, xs * 2))), Math.round(lerp(136, 143, Math.min(1, xs * 2))), c); if (xs > 0.5) R.linea(138, 136, Math.round(lerp(138, 130, xs * 2 - 1)), Math.round(lerp(136, 143, xs * 2 - 1)), c); }
   // el otro escriba entra por la derecha con un códice abierto y lo levanta: la gran X de oro
-  const r = s6_ruta(t, [[P3 + 0.1, 334, S], [ESCRIBAS + 0.8, 212, S]]), alza = t > USANDO - 0.25;
-  const ab = R.actor(EL.copista, r.x, S, t, { dir: -1, anda: r.mv, sostiene: alza ? [r.x - 8, S - 32] : [r.x - 2, S - 16], sonrisa: alza, pal: { H: hex('#c8b090'), h: hex('#e0d0b0'), C: hex('#3a4a6a'), c: hex('#2a3450') } });
-  { const [mx, my] = ab.mano, a = tramo(t, USANDO - 0.25, USANDO + 0.1), w = Math.round(lerp(12, 36, a)), x0 = mx - Math.round(w / 2), y0 = my - Math.round(lerp(8, 24, a));
-    if (a > 0.6) s6_halo(mx, my - 10, 22, hex('#ffd060'), 0.45 * (0.6 + 0.4 * Math.sin(t * 5)));
-    R.rect(x0 - 1, y0 - 1, x0 + w + 1, my + 1, T.C.k); R.rect(x0, y0, x0 + w, my, hex('#7a2a1a'));
-    if (a > 0.3) { R.rect(x0 + 1, y0 + 1, x0 + w - 1, my - 1, hex('#f2e6c8')); R.rect(mx, y0 + 1, mx, my - 1, hex('#c8b890'));
-      const cx = Math.round(x0 + w * 0.75), cy = Math.round((y0 + my) / 2), rr = Math.round(lerp(1, 7, a)); for (let d = -1; d <= 1; d++) { R.linea(cx - rr + d, cy - rr, cx + rr + d, cy + rr, hex('#e8b030')); R.linea(cx + rr + d, cy - rr, cx - rr + d, cy + rr, hex('#e8b030')); }
+  const r = s6_ruta(t, [[P3 + 0.1, 334, S], [ESCRIBAS + 0.8, 212, S]]), a = tramo(t, USANDO - 0.25, USANDO + 0.1);
+  // lo sostiene a la altura del pecho y adelantado hacia el pupitre: la cara siempre a la vista
+  const ab = R.actor(EL.copista, r.x, S, t, { dir: -1, anda: r.mv, sostiene: [Math.round(lerp(r.x - 2, r.x - 10, a)), Math.round(lerp(S - 15, S - 16, a))], sonrisa: a > 0.5, pal: { H: hex('#c8b090'), h: hex('#e0d0b0'), C: hex('#3a4a6a'), c: hex('#2a3450') } });
+  { const [mx, my] = ab.mano, w = Math.round(lerp(9, 22, a)), hh = Math.round(lerp(6, 14, a)), x1 = mx + 1, x0 = x1 - w, y1 = my + 3, y0 = y1 - hh, cx0 = Math.round((x0 + x1) / 2);
+    if (a > 0.6) s6_halo(cx0, Math.round((y0 + y1) / 2), 16, hex('#ffd060'), 0.4 * (0.6 + 0.4 * Math.sin(t * 5)));
+    // la sombra del códice en la túnica y las tapas de cuero con su cantonera
+    for (let y = y0 + 2; y <= y1 + 2; y++) s6_tin(x1 + 2, y, T.C.k, 0.25);
+    R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, T.C.k); R.rect(x0, y0, x1, y1, hex('#7a2a1a')); R.rect(x0, y1, x1, y1, hex('#4a160c'));
+    if (a <= 0.3) { R.rect(x0 + 1, y0 + 1, x1 - 1, y0 + 1, hex('#9a3a24')); R.pset(x1 - 1, Math.round((y0 + y1) / 2), hex('#e8b030')); }
+    else { const mid = cx0;
+      R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, hex('#f2e6c8')); R.rect(x0 + 1, y1 - 1, x1 - 1, y1 - 1, hex('#d8c8a0')); R.rect(mid, y0 + 1, mid, y1 - 1, hex('#b8a47c'));
+      for (let y = y0 + 3; y < y1 - 1; y += 2) R.rect(x0 + 2, y, mid - 2, y, hex('#9a8a6a'));   // las líneas de la página izquierda
+      const cx = Math.round((mid + x1) / 2), cy = Math.round((y0 + y1) / 2), rr = Math.round(lerp(1, 4, a));   // la X de oro en la derecha
+      for (let d = 0; d <= 1; d++) { R.linea(cx - rr + d, cy - rr, cx + rr + d, cy + rr, hex('#d89a20')); R.linea(cx + rr + d, cy - rr, cx - rr + d, cy + rr, hex('#d89a20')); }
       R.linea(cx - rr, cy - rr, cx + rr, cy + rr, hex('#fff0a0'));
-      for (let y = y0 + 3; y < my - 1; y += 2) R.rect(x0 + 2, y, mx - 2, y, hex('#9a8a6a')); } }
+      if (a > 0.9 && Math.sin(t * 6) > 0.4) s6_destello(cx + rr + 1, cy - rr - 1, 2, hex('#fff6c0')); }
+    // el pulgar que sujeta el canto
+    R.pset(x1 + 1, my - 1, T.C.k); R.pset(x1, my - 1, hex('#f6c290')); R.pset(x1, my, hex('#d48a5a')); }
   // tres X de oro que brotan sobre los libros del armario, una tras otra («almost a thousand years»)
   [[124, 40], [160, 32], [196, 40]].forEach(([x, y], k) => { const u = tramo(t, MIL - 0.4 + k * 0.3, MIL - 0.1 + k * 0.3); if (u <= 0) return; const yy = Math.round(y + (1 - u) * 6 + Math.sin(t * 3 + k) * 1);
     s6_halo(x + 7, yy + 7, 14, hex('#ffd060'), 0.6 * u); R.icono('X', x, yy, hex('#f8d040'), T.C.k, 3); });
   T.romaDelante(R, t, { encuadre: 'scriptorium' });
+  // la sombra de las vigas sobre la cornisa de estuco (más honda bajo la barra del año, para que el 1100 se lea)
+  for (let y = 11; y <= 27; y++) { const a = y <= 20 ? 0.66 - (y - 11) * 0.012 : 0.55 * (1 - (y - 20) / 8) ** 1.2; for (let x = 0; x < 320; x++) s6_tin(x, y, hex('#3a2010'), a * (x < 180 ? 1 : 0.75 + 0.25 * Math.max(0, 1 - (x - 180) / 60))); }
 };
 const año = (t) => (t < P2 ? 2026 : t < P2 + 0.9 ? Math.round(lerp(2026, 1100, tramo(t, P2, P2 + 0.9))) : 1100);
 const efectos = [[0.8, 'golpecito'], [ESCRIBE + 0.05, 'lapiz'], [ESCRIBE + 0.6, 'lapiz'], [MODERNO, 'bip'], [CRISTO + 0.4, 'brillo'], [P2 + 0.1, 'whoosh'], [JI + 0.05, 'lapiz'], [CHI, 'brillo'], [PRIMERA, 'pop'], [ESCRIBAS + 0.9, 'papel'], [USANDO, 'brillo'], [MIL - 0.3, 'tic']];

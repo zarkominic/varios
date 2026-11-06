@@ -12,10 +12,15 @@
 // NV-JAPON (frase 25), Japón, sin cartela. Tres planos:
 // 1. (japon general) la calle en Nochebuena: el tren pasa, la cola de gente con abrigo avanza hacia la tienda de pollo;
 //    un taxi cruza por delante; en «fried chicken» sale un cliente con su cubeta y se va contento;
-// 2. (japon 'mostrador', corta en «It») la freidora con la cesta que sube; en «1974» cae la hoja del calendario y
-//    aparece el 1974 (la barra del año dice 1974); el dependiente trae la cubeta al mostrador y una mano se la lleva;
+// 2. (japon 'mostrador', corta en «It») la freidora con la cesta que sube; el dependiente llena la cubeta en la encimera
+//    (saca muslos de debajo y los echa dentro); en «1974» cae la hoja del calendario y aparece el 1974 (la barra del año
+//    dice 1974); en «Kentucky» presenta la cubeta; en «Christmas» la tiende por encima del mostrador y el cliente, de
+//    puntillas, la coge y se va. El frente del mostrador se repinta más bajo, con suelo de baldosas delante: los clientes
+//    se ven enteros (pictogramas bajos en los paneles, ninguno sobre una cabeza);
 // 3. (fondo local: un salón japonés de noche, corta en «and today») la madre rodea el 24 en el calendario («order…
-//    weeks in advance»); el padre abre la puerta corredera y trae la cubeta a la mesa; el niño lo celebra.
+//    weeks in advance») y va a la punta de la mesa; el padre abre la corredera y trae la cubeta colgada al costado (nunca
+//    delante de la cara) y la deja en la mesa; el niño, detrás de la mesa con cabeza y hombros, lo celebra. Los tres
+//    separados: madre x 124, niño 172, cubeta 216, padre 230.
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-japon');
@@ -52,6 +57,29 @@ const p1 = (t) => {
   const ut = (t - 0.4) / 3.2; if (ut > 0 && ut < 1) taxi(Math.round(lerp(-60, 330, ut)), 177);
 };
 
+// el frente del mostrador del plano 2, más bajo que el del decorado (y 147–167) y el suelo de baldosas delante (168–179)
+const FP = { k: hex('#0c0a14'), rojo: hex('#d0202a'), rojoS: hex('#8a1018'), rojoL: hex('#f05a50'), blanco: hex('#f4f0ea'), blancoS: hex('#c8c4c0'), acero: hex('#a8b0bc'), aceroS: hex('#6a7280'), aceroL: hex('#dce2ea'), pollo: hex('#c87830'), polloS: hex('#8a4a18'), polloL: hex('#f0a850'),
+  bal: hex('#d8d2c4'), balL: hex('#ece6d8'), balS: hex('#b8b0a0'), junta: hex('#8a8478'), refl: hex('#c89a90') };
+const frenteP2 = (t) => {
+  R.rect(0, 147, 319, 162, FP.rojo); R.rect(0, 147, 319, 147, FP.k); R.rect(0, 148, 319, 148, FP.rojoS);
+  for (let x = 4; x < 320; x += 50) R.rect(x, 149, x, 161, FP.rojoS);   // las juntas de las chapas
+  for (let x = 0; x < 320; x += 3) if (hh(x, 1, 31) < 0.4) R.pset(x, 161, FP.rojoL);   // el canto con luz
+  for (let x = 10, k = 0; x < 320; x += 50, k++) {
+    R.rect(x, 150, x + 38, 160, FP.rojoS); R.rect(x + 1, 151, x + 37, 159, FP.blanco); R.rect(x + 1, 159, x + 37, 159, FP.blancoS); R.rect(x + 1, 151, x + 37, 151, hex('#ffffff'));
+    // los pictogramas, bajos en el panel (y 154–158), para que ninguna cabeza los lleve de sombrero
+    if (k % 2) { const cx = x + 19; for (let j = 0; j < 4; j++) for (let i = -5 + (j >> 1); i <= 5 - (j >> 1); i++) R.pset(cx + i, 155 + j, ((i + 5) >> 1) % 2 ? FP.blanco : FP.rojo); R.rect(cx - 5, 154, cx + 5, 154, FP.rojoS); R.rect(cx - 6, 155, cx - 6, 157, FP.k); R.rect(cx + 6, 155, cx + 6, 157, FP.k); R.rect(cx - 3, 159, cx + 3, 159, FP.k); for (const ox of [-3, 0, 3]) R.pset(cx + ox, 153, FP.pollo); }
+    else for (let j = 0; j < 3; j++) { const mx = x + 9 + j * 9, my = 155 + (j % 2); R.disco(mx, my, 2, FP.polloS); R.disco(mx - 0.5, my - 0.5, 1.5, FP.pollo); R.pset(mx - 1, my - 1, FP.polloL); R.linea(mx + 2, my + 1, mx + 4, my + 3, FP.polloS); R.pset(mx + 4, my + 3, FP.blanco); }
+  }
+  // el zócalo de acero con su rejilla de ventilación
+  R.rect(0, 163, 319, 167, FP.acero); R.rect(0, 163, 319, 163, FP.aceroL); R.rect(0, 167, 319, 167, FP.aceroS); R.rect(0, 162, 319, 162, FP.k);
+  for (let x = 14; x < 320; x += 50) for (let i = 0; i < 6; i++) R.rect(x + i * 4, 165, x + i * 4 + 2, 165, FP.aceroS);
+  // el suelo de baldosas: dos filas (la de atrás más baja), juntas, el reflejo rojo del frente y motas
+  for (let y = 168; y < 180; y++) { const fila = y < 173 ? 0 : 1, y0 = fila ? 173 : 168, an = fila ? 26 : 22, off = fila ? 13 : 0;
+    for (let x = 0; x < 320; x++) { const u = (x + off) % an, v = y - y0; let c = u === 0 || v === 0 ? FP.junta : hh((x + off) / an | 0, fila, 32) < 0.5 ? FP.bal : FP.balL;
+      if (c !== FP.junta) { if (v === 1 || u === 1) c = FP.balL; else if (u === an - 1) c = FP.balS; if (y < 171 && (x + y) % 2 === 0) c = FP.refl; else if (hh(x, y, 33) < 0.04) c = FP.balS; }
+      R.pset(x, y, c); } }
+  R.rect(0, 168, 319, 168, FP.balS);   // la sombra del zócalo
+};
 const p2 = (t) => {
   T.mundo(R, t, { encuadre: 'japon', camara: 'mostrador' });
   // el calendario de la pared: en «1974» cae la hoja del mes y queda el año
@@ -63,19 +91,33 @@ const p2 = (t) => {
   const sube = Math.max(0, Math.sin((t - P2) * 1.6)), cy = Math.round(128 - sube * 8);
   const d1 = R.actor(EL.japonesa, 104, 148, t, { dir: -1, pal: { C: '#c8303a', c: '#8a1a24' }, sostiene: [96, cy], sonrisa: true, habla: t > P2 + 2.6 && t < P2 + 3.4 && Math.sin(t * 9) > 0 });
   { const [mx, my] = d1.mano; R.rect(mx - 6, my - 1, mx - 1, my, K); R.rect(mx - 18, my - 1, mx - 6, my + 6, K); for (let i = mx - 17; i < mx - 6; i += 2) for (let j = 0; j < 6; j += 2) R.pset(i, my + j, hex('#c8c8d0')); for (let i = mx - 16; i < mx - 7; i += 3) R.disco(i, my + 2, 1.5, hex('#d8902a')); if (sube > 0.6) for (let k = 0; k < 3; k++) R.pset(mx - 14 + k * 3, my + 8 + Math.floor(t * 10 + k) % 4, hex('#f0c040')); }
-  // el dependiente trae la cubeta en «Kentucky» y la deja en el mostrador; en «Christmas» el cliente se la lleva
-  const ut = tramo(t, campana, kentucky), deja = t > kentucky, coge = navidad - 0.1;
-  const xd = Math.round(lerp(290, 190, ut)), d2 = R.actor(EL.japones, xd, 148, t, { dir: -1, pal: { C: '#c8303a', c: '#8a1a24' }, anda: ut > 0 && ut < 1, sostiene: deja ? null : [xd - 4, 132], sonrisa: deja, dedo: deja && t < navidad + 0.4 });
+  // el dependiente llena la cubeta en el mostrador: saca muslos de debajo de la encimera (la mano baja y se esconde
+  // tras ella) y los echa dentro; en «Kentucky» la presenta; en «Christmas» la levanta por el borde y la tiende por
+  // encima del mostrador al cliente, que se pone de puntillas y la coge desde abajo
+  const coge = navidad - 0.1, ofrece = tramo(t, navidad - 0.75, navidad - 0.25), xd = 180, CB = [168, 142];
+  const llena = t < kentucky - 0.2, ciclo = ((t - P2) * 1.7) % 1, arriba = ciclo > 0.45;
+  if (t < navidad - 0.75) cubeta(CB[0], CB[1], 1.6);   // en la encimera, detrás de su mano
+  const d2 = R.actor(EL.japones, xd, 148, t, { dir: -1, pal: { C: '#c8303a', c: '#8a1a24' }, sonrisa: !llena, habla: t > kentucky && t < kentucky + 0.5 && Math.sin(t * 9) > 0,
+    dedo: !llena && t > kentucky && t < navidad - 0.8,
+    sostiene: llena ? (arriba ? [172, 126] : [176, 150]) : t >= navidad - 0.75 && t < coge ? [Math.round(lerp(172, 171, ofrece)), Math.round(lerp(130, 141, ofrece))] : null });
+  if (llena && arriba) { const [mx, my] = d2.mano, u = (ciclo - 0.45) / 0.55; if (u < 0.7) { R.disco(mx - 1, my - 2, 2.2, hex('#8a4a18')); R.disco(mx - 1, my - 3, 1.6, hex('#d08838')); } else { const yy = Math.round(my + (u - 0.7) * 12); R.disco(mx - 4, yy, 1.8, hex('#c87830')); } }
   T.mundoDelante(R, t, { encuadre: 'japon', camara: 'mostrador' });
-  if (!deja) cubeta(d2.mano[0] - 2, d2.mano[1] + 8, 1.4);
-  else if (t < coge) cubeta(178, 142, 1.6);
-  // los clientes delante del mostrador (asoman la cabeza): uno habla, otro espera; el del centro coge la cubeta y se va
-  R.actor(EL.japonesa, 34, 186, t, { dir: 1, pal: { C: '#3a4a7a', c: '#2a365a' }, habla: t > P2 + 2.4 && t < P2 + 3.6 && Math.sin(t * 9) > 0, sonrisa: true });
-  R.actor(EL.japones, 270, 188, t, { dir: -1, pal: { C: '#4a5a3a', c: '#344228' }, sorpresa: t > ano && t < ano + 0.6, sonrisa: t > ano + 0.6 });
-  const vase = tramo(t, navidad + 0.4, P3 + 0.4), xc = Math.round(lerp(172, 40, vase)), alza = t > coge - 0.5 && t < coge + 0.5;
-  const cl = R.actor(EL.japones, xc, 186, t, { dir: -1, pal: { C: '#2a2a2a', c: '#1a1a1a' }, salto: alza ? 4 : 0, sostiene: t > coge - 0.5 ? [xc - 2, alza ? 160 : 170] : null, anda: vase > 0 && vase < 1, sonrisa: t > coge });
-  if (t > coge) cubeta(cl.mano[0] - 1, cl.mano[1] + 8, 1.6);
-  if (t > coge && t < coge + 1.0) for (let k = 0; k < 5; k++) { const a = k * 1.26 + t * 3; R.pset(Math.round(cl.mano[0] + Math.cos(a) * 14), Math.round(cl.mano[1] - 2 + Math.sin(a) * 9), hex('#fff0a0')); }
+  // el frente del mostrador, repintado más bajo: frente rojo con sus paneles de pictogramas, zócalo de acero y delante el
+  // suelo de baldosas, donde los clientes caben enteros (antes asomaban solo la cabeza cortada por el borde)
+  frenteP2(t);
+  if (t >= navidad - 0.75 && t < coge) { const [mx, my] = d2.mano; cubeta(mx - 10, my + 14, 1.6); }
+  if (!llena && t < navidad - 0.75 && t > kentucky && t < kentucky + 0.9) for (let k = 0; k < 6; k++) { const a = k * 1.05 + t * 3; R.pset(Math.round(CB[0] + Math.cos(a) * 14), Math.round(CB[1] - 12 + Math.sin(a) * 9), hex('#fff0a0')); }
+  // los clientes, enteros sobre las baldosas: una habla, otro se sorprende con el 1974; el del centro coge la cubeta y se va
+  for (const cx of [30, 276]) R.rect(cx + 2, 178, cx + 13, 178, hex('#8a8478'));   // sus sombras en las baldosas
+  R.actor(EL.japonesa, 30, 177, t, { dir: 1, pal: { C: '#3a4a7a', c: '#2a365a' }, habla: t > P2 + 2.4 && t < P2 + 3.6 && Math.sin(t * 9) > 0, sonrisa: true });
+  R.actor(EL.japones, 276, 177, t, { dir: -1, pal: { C: '#4a5a3a', c: '#344228' }, sorpresa: t > ano && t < ano + 0.6, sonrisa: t > ano + 0.6 });
+  const vase = tramo(t, navidad + 0.4, P3 + 0.3), xc = Math.round(lerp(140, 80, vase)), alza = t > coge - 0.45 && t < coge + 0.35, ida = t > navidad + 0.4;
+  const espera = t > kentucky && t < kentucky + 0.5 ? (Math.floor(t * 8) % 2 ? 2 : 0) : 0;
+  R.rect(xc + 2, 178, xc + 13, 178, hex('#8a8478'));
+  const cl = R.actor(EL.japones, xc, 177, t, { dir: ida ? -1 : 1, pal: { C: '#2a2a2a', c: '#1a1a1a' }, salto: alza ? 4 : espera, anda: vase > 0 && vase < 1, sonrisa: t > coge, sorpresa: t > kentucky - 0.1 && t < kentucky + 0.3,
+    sostiene: ida ? [xc - 4, 157] : t > coge - 0.5 ? [xc + 24, 152] : null });
+  if (t >= coge) { const [mx, my] = cl.mano; cubeta(mx + (ida ? -8 : 8), my - 1, 1.6); }
+  if (t > coge && t < coge + 1.0) for (let k = 0; k < 5; k++) { const a = k * 1.26 + t * 3; R.pset(Math.round(cl.mano[0] + Math.cos(a) * 14), Math.round(cl.mano[1] - 10 + Math.sin(a) * 9), hex('#fff0a0')); }
 };
 
 // el fondo local del plano 3: un salón japonés de noche (vigas, la hornacina con el rollo de un monte y la luna, el
@@ -127,25 +169,28 @@ const p3 = (t) => {
   { const ax = 26, ab = 154; R.rect(ax - 7, ab - 26, ax + 7, ab, K); R.rect(ax - 6, ab - 25, ax + 6, ab - 2, hex('#f8e0a0')); for (let y = ab - 22; y < ab - 2; y += 6) R.rect(ax - 6, y, ax + 6, y, hex('#a07a4a')); R.rect(ax, ab - 25, ax, ab - 2, hex('#a07a4a')); const fl = 0.5 + 0.5 * Math.sin(t * 6); if (fl > 0.3) R.rect(ax - 2, ab - 14, ax + 2, ab - 10, hex('#fff8d0')); for (let k = 0; k < 30; k++) { const a = hh(k, 1, 28) * 6.28, r = 10 + hh(k, 2, 28) * 16; R.pset(Math.round(ax + Math.cos(a) * r * 1.4), Math.round(ab + 2 + Math.abs(Math.sin(a)) * r * 0.3), hex('#e8d890')); } }
   // los cojines (zabuton) junto a la mesa
   for (const zx of [128, 270]) { R.poligono([[zx - 12, 168], [zx + 12, 168], [zx + 15, 178], [zx - 15, 178]], K); R.poligono([[zx - 11, 169], [zx + 11, 169], [zx + 14, 177], [zx - 14, 177]], hex('#4a5a9a')); R.pset(zx, 173, hex('#f0d8a0')); }
-  // la madre rodea el 24 y va a la mesa; el padre entra por la corredera con la cubeta y la deja; el niño lo celebra
-  const vm = tramo(t, pide + 0.6, semanas + 0.4), xm = Math.round(lerp(92, 150, vm)), sm = Math.round(lerp(130, 160, vm));
+  // la madre rodea el 24 y va a la punta de la mesa; el padre entra por la corredera con la cubeta colgando al costado
+  // (lejos de la cara) y la deja en la mesa; el niño, detrás de la mesa con cabeza y hombros fuera, lo celebra.
+  // Los tres separados: madre en la punta (x 124), niño a la izquierda (172), cubeta (216) y padre a la derecha (230)
+  const vm = tramo(t, pide + 0.6, semanas + 0.4), xm = Math.round(lerp(92, 124, vm)), sm = Math.round(lerp(130, 160, vm));
   R.actor(EL.japonesa, xm, sm, t, { dir: t < pide + 0.6 ? -1 : 1, anda: vm > 0 && vm < 1, dedo: t > pide - 0.6 && t < pide + 0.5, sonrisa: t > pide, brazos: t > antes && t < antes + 0.6 });
-  const nino = R.actor(EL.ninoCatalan, 196, 157, t, { dir: t > cubo ? 1 : -1, pal: { H: '#1c1424', h: '#3a3046', C: '#e8a030', c: '#b87a20' }, sinObjeto: true, sonrisa: t > cubo, salto: t > semanas + 0.7 && Math.floor(t * 6) % 2 ? 3 : 0, brazos: t > semanas + 0.7, sorpresa: t > cubo - 0.2 && t < cubo + 0.4, habla: t < pide && Math.sin(t * 8) > 0 });
-  const up = tramo(t, cubo - 0.1, semanas + 0.6), xp = Math.round(lerp(232, 226, up)), sp = Math.round(lerp(124, 162, up)), deja = t > semanas + 0.6;
-  const pa = (t > cubo - 0.4) ? R.actor(EL.japones, xp, sp, t, { dir: -1, anda: up > 0 && up < 1, sostiene: deja ? null : [xp - 3, sp - 14], sonrisa: true, dedo: deja && t < antes + 0.8 }) : null;
-  if (pa && !deja) cubeta(pa.mano[0] - 2, pa.mano[1] + 9, 1.4);
+  const nino = R.actor(EL.ninoCatalan, 172, 152, t, { dir: t > cubo ? 1 : -1, pal: { H: '#1c1424', h: '#3a3046', C: '#e8a030', c: '#b87a20' }, sinObjeto: true, sonrisa: t > cubo, salto: t > semanas + 0.7 && Math.floor(t * 6) % 2 ? 3 : 0, brazos: t > semanas + 0.7, sorpresa: t > cubo - 0.2 && t < cubo + 0.4, habla: t < pide && Math.sin(t * 8) > 0 });
+  const up = tramo(t, cubo - 0.1, semanas + 0.2), xp = Math.round(lerp(232, 230, up)), sp = Math.round(lerp(124, 152, up)), deja = t > semanas + 0.6, posa = tramo(t, semanas + 0.2, semanas + 0.6);
+  const pa = (t > cubo - 0.1) ? R.actor(EL.japones, xp, sp, t, { dir: -1, anda: up > 0 && up < 1, sostiene: deja ? null : [Math.round(xp - 4 - posa * 8), Math.round(sp - 6 - posa * 6)], sonrisa: true, dedo: deja && t < antes + 0.8 }) : null;
+  // la cubeta cuelga de la mano por el borde, del lado de fuera: nunca delante de la cara (detrás de la mesa, que la tapa al llegar)
+  if (pa && !deja) cubeta(pa.mano[0] - 8, pa.mano[1] + 14, 1.5);
   // la mesa baja (kotatsu) con su colcha, las mandarinas, el té que humea y la cubeta
   const kx0 = 150, kx1 = 254, ky = 150;
   R.rect(kx0 - 6, ky, kx1 + 6, ky + 4, K); R.rect(kx0 - 5, ky + 1, kx1 + 5, ky + 3, hex('#7a5232')); R.rect(kx0 - 5, ky + 1, kx1 + 5, ky + 1, hex('#a07a4a'));
   R.poligono([[kx0 - 4, ky + 4], [kx1 + 4, ky + 4], [kx1 + 12, ky + 26], [kx0 - 12, ky + 26]], K);
   R.poligono([[kx0 - 3, ky + 5], [kx1 + 3, ky + 5], [kx1 + 11, ky + 25], [kx0 - 11, ky + 25]], (x, y) => ((Math.floor(x / 6) + Math.floor(y / 4)) % 2 ? hex('#a83a3a') : hex('#c84a4a')));
   for (let x = kx0 - 10; x < kx1 + 10; x += 9) R.disco(x, ky + 16, 1, hex('#f0d8a0'));
-  R.disco(166, ky - 2, 6, K); R.disco(166, ky - 2, 5, hex('#3a5a8a')); R.rect(160, ky - 2, 172, ky, hex('#3a5a8a'));
-  for (const [ox, oy] of [[163, ky - 5], [168, ky - 6], [166, ky - 8]]) { R.disco(ox, oy, 2.5, hex('#c86010')); R.disco(ox, oy, 2, hex('#f0901a')); R.pset(ox - 1, oy - 1, hex('#ffc060')); }
-  R.rect(240, ky - 7, 246, ky - 1, K); R.rect(241, ky - 6, 245, ky - 1, hex('#5a7a5a'));
-  for (let k = 0; k < 3; k++) { const u = (t * 0.6 + k / 3) % 1; R.pset(243 + Math.round(Math.sin(t * 2 + k) * 2), Math.round(ky - 9 - u * 12), hex('#f0f0f0')); }
-  if (deja) cubeta(214, ky, 1.6);
-  if (deja && t < antes + 1.4) for (let k = 0; k < 6; k++) { const a = k * 1.05 + t * 2; R.pset(Math.round(214 + Math.cos(a) * 15), Math.round(ky - 12 + Math.sin(a) * 8), hex('#fff0a0')); }
+  R.disco(158, ky - 2, 6, K); R.disco(158, ky - 2, 5, hex('#3a5a8a')); R.rect(152, ky - 2, 164, ky, hex('#3a5a8a'));
+  for (const [ox, oy] of [[155, ky - 5], [160, ky - 6], [158, ky - 8]]) { R.disco(ox, oy, 2.5, hex('#c86010')); R.disco(ox, oy, 2, hex('#f0901a')); R.pset(ox - 1, oy - 1, hex('#ffc060')); }
+  R.rect(249, ky - 7, 255, ky - 1, K); R.rect(250, ky - 6, 254, ky - 1, hex('#5a7a5a'));
+  for (let k = 0; k < 3; k++) { const u = (t * 0.6 + k / 3) % 1; R.pset(252 + Math.round(Math.sin(t * 2 + k) * 2), Math.round(ky - 9 - u * 12), hex('#f0f0f0')); }
+  if (deja) cubeta(216, ky, 1.5);
+  if (deja && t < antes + 1.4) for (let k = 0; k < 6; k++) { const a = k * 1.05 + t * 2; R.pset(Math.round(216 + Math.cos(a) * 15), Math.round(ky - 12 + Math.sin(a) * 8), hex('#fff0a0')); }
   // el gato duerme en la colcha
   T.gato(R, 104, 172, t, { dir: 1 });
 };

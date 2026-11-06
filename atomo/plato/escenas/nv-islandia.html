@@ -15,9 +15,11 @@
 //    muchachos bajan del monte (corta en «but»);
 // 2. la granja por fuera: los trece muchachos llegan uno a uno y la cuenta sube hasta 13; uno deja un dulce en el zapato
 //    de la ventana y llama a la puerta roja, que se abre (luz cálida en la nieve) y se cierra; otro da un salto; al final miran atrás: dos ojos amarillos (corta en «because»);
-// 3. la ladera: el gato de Yule asoma enorme tras la colina («Yule cat»), el muchacho del jersey viejo huye a la granja y
-//    el del jersey nuevo abre los brazos con chispas; la puertecita se abre para el que huye y se cierra; el gato se vuelve
-//    a esconder. La esquina de Atom del plano 1 es una penumbra del interior: las tablas a medio tono, el pie derecho de la
+// 3. la ladera: el gato de Yule (pintado a 1 px en la escena: pelo en dos tonos, filo de aurora en orejas y lomo, ojos que
+//    brillan con la pupila que sigue al que huye, parpadeo, bigotes que se mueven) asoma enorme tras la colina («Yule cat»);
+//    el muchacho del jersey viejo se para en el sendero, baja corriendo la ladera por la izquierda de la casa blanca hasta
+//    la nieve de delante y cruza a la puertecita, que se abre para él y se cierra; el del jersey nuevo abre los brazos con
+//    chispas y el gato, mirándolo, se vuelve a esconder. La esquina de Atom del plano 1 es una penumbra del interior: las tablas a medio tono, el pie derecho de la
 //    esquina con su tornapunta y la viga del techo en sombra (fondo tranquilo, sin bloque liso).
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -394,6 +396,53 @@ const p2 = (t) => {
   d_nieve7(R, t, 30, hex('#b8c8dc'), hex('#eef4fa'), 0.8, 5);
 };
 
+// el gato de Yule, pintado a mano a 1 px: cabeza y lomo con pelo en dos tonos (mechones que bajan), el filo de luz verde
+// y rosa de la aurora en las orejas, la coronilla y el lomo, el interior rosado de las orejas, ojos amarillos que brillan
+// con la pupila rasgada que sigue a quien mira (mx −2…2, my −1…1), parpadeo, nariz y bigotes; (x, y) = centro de la base
+const gatoYule7 = (R, x, y, t, mx = 0, my = 0) => {
+  const x0 = x - 31, y0 = y - 40, resp = Math.round(Math.sin(t * 2.2) * 0.6), oreja = ((t * 0.7) % 2.6) < 0.15 ? 1 : 0;
+  const dentro = (u, v) => {
+    const vh = v - resp;
+    if (((u * u) / 441 + ((vh - 22) * (vh - 22)) / 256) <= 1) return 1;
+    if (v >= 28 && ((u * u) / 900 + ((v - 42) * (v - 42)) / 196) <= 1) return 1;
+    for (const s of [-1, 1]) { const ap = s > 0 ? oreja : 0, vv = vh - ap; if (vv < 0 || vv > 14) continue;
+      const lo = Math.min(s * (-17 - 4 * vv / 14), s * (-17 + 11 * Math.min(1, vv / 12))), hi = Math.max(s * (-17 - 4 * vv / 14), s * (-17 + 11 * Math.min(1, vv / 12)));
+      if (u >= lo && u <= hi) return vv < 12 && u > lo + 1.5 && u < hi - 1.5 && vv > 3 ? 2 : 1; }
+    return 0;
+  };
+  const C0 = hex('#0c0a14'), C1 = hex('#1c1828'), C2 = hex('#383454'), OI = hex('#4a2a40'), RV = hex('#6ee0a8'), RR = hex('#e070a0');
+  const brilla = 0.55 + 0.45 * Math.sin(t * 1.3);
+  for (let v = 0; v <= 40; v++) for (let u = -31; u <= 31; u++) {
+    const k = dentro(u, v); if (!k) continue; const X = x0 + 31 + u, Y = y0 + v;
+    if (k === 2) { R.pset(X, Y, d_umbral7(X, Y) < 0.5 ? OI : hex('#38203a')); continue; }
+    // pelo: mechones inclinados que bajan desde la coronilla, más claros arriba y a la izquierda (de donde viene la aurora)
+    const h = ((u * 7 + Math.floor((v + Math.abs(u) * 0.5) / 3) * 13) & 15) / 16, luz = 0.55 - v / 70 - u / 120 + (h - 0.5) * 0.5;
+    let c = luz > d_umbral7(X, Y) * 0.9 + 0.2 ? C2 : luz > d_umbral7(X, Y) * 0.5 - 0.05 ? C1 : C0;
+    if (((u + v * 2) % 9 === 0) && v > 6) c = C2; // mechón suelto
+    // filo de luz: el píxel de arriba ya es cielo
+    if (!dentro(u, v - 1)) c = d_mezcla7(c, (u + Math.floor(t * 6)) % 11 < 7 ? RV : RR, 0.55 + 0.35 * brilla);
+    else if (!dentro(u, v - 2)) c = d_mezcla7(c, RV, 0.25 * brilla);
+    else if (!dentro(u - 1, v) && u < 0) c = d_mezcla7(c, RV, 0.3 * brilla);
+    R.pset(X, Y, c);
+  }
+  // los ojos: amarillos con su halo, la pupila rasgada mira hacia mx, my; parpadea cada 3,4 s
+  const cierra = ((t + 1.3) % 3.4) < 0.14, ey = y0 + 21 + resp;
+  for (const s of [-1, 1]) { const ex = x0 + 31 + s * 8;
+    for (let j = -6; j <= 6; j++) for (let i = -7; i <= 7; i++) { const d = (i * i) / 49 + (j * j) / 36; if (d > 1 || d < 0.35) continue; d_tinta7(R, ex + i, ey + j, hex('#f0c040'), 0.12 * (1 - d)); }
+    if (cierra) { R.rect(ex - 4, ey, ex + 4, ey, hex('#05040a')); R.rect(ex - 3, ey + 1, ex + 3, ey + 1, hex('#3a3450')); continue; }
+    for (let j = -3; j <= 3; j++) for (let i = -5; i <= 5; i++) { if ((i * i) / 25 + (j * j) / 12.5 > 1) continue; R.pset(ex + i, ey + j, j < 0 ? hex('#ffe468') : j === 0 ? hex('#f0c838') : hex('#c89420')); }
+    const px = ex + Math.max(-2, Math.min(2, mx)), py = ey + Math.max(-1, Math.min(1, my));
+    R.rect(px, py - 3 + (py < ey ? 1 : 0), px, py + 3 - (py > ey ? 1 : 0), hex('#05040a')); R.pset(px + 1, py, hex('#05040a'));
+    R.pset(ex - 3, ey - 2, hex('#fffbe0')); R.pset(ex - 2, ey - 2, hex('#fffbe0'));
+    R.rect(ex - 4, ey - 4, ex + 4, ey - 4, hex('#05040a')); }
+  // nariz, boca y bigotes
+  const nx = x0 + 31, ny = y0 + 28 + resp;
+  R.rect(nx - 1, ny, nx + 1, ny, hex('#a05070')); R.pset(nx, ny + 1, hex('#803858'));
+  R.pset(nx - 1, ny + 2, hex('#05040a')); R.pset(nx + 1, ny + 2, hex('#05040a'));
+  const bg = hex('#8a8aa8'), mueve = Math.round(Math.sin(t * 3) * 0.6);
+  for (const s of [-1, 1]) for (const [dy, fy] of [[0, -2], [2, 1], [4, 4]]) R.linea(nx + s * 5, ny + 1 + dy / 2, nx + s * 20, ny + fy + mueve, (dy === 2) ? bg : d_mezcla7(bg, C1, 0.4));
+};
+
 // 3 · la ladera con la granja: el gato de Yule asoma enorme tras la colina; el muchacho del jersey viejo y remendado
 //     huye a la granja; el del jersey nuevo se queda tan tranquilo (chispas) y el gato se vuelve a esconder
 const p3 = (t) => {
@@ -402,11 +451,14 @@ const p3 = (t) => {
   // dos muchachos lejos, bajando por lo alto del sendero
   for (const [k, t0] of [[0, P3 - 3], [1, P3 + 0.5], [2, P3 + 3]]) { const u = Math.min(1, (t - t0) / 12), x = Math.round(lerp(34, 170, u)), y = Math.round(lerp(62, 100, u)); d_gente7(R, x, y, t, { anda: u < 1, dir: 1, c: [hex('#2a5a8a'), hex('#3a7a4a'), hex('#c8a040')][k], gorro: hex('#d83a2a'), alto: 8 }); }
   // el gato: sube tras la colina cuando lo nombran, sigue al que huye y se esconde al ver el jersey nuevo
-  const sube = tramo(t, CAT - 0.3, CAT + 0.25) - tramo(t, CLOTHES + 0.6, E.duracion - 0.3), gx = Math.round(lerp(112, 146, tramo(t, GOES - 0.2, GOES + 1.3)));
-  if (sube > 0) { R.recorte([0, 0, 319, 150]); PZ.gatoYule(R, gx, Math.round(lerp(158, 128, sube)), { s: 2, t, dir: t > NEW ? 1 : -1 }); R.recorte(null); }
+  const sube = tramo(t, CAT - 0.3, CAT + 0.25) - tramo(t, CLOTHES + 0.6, E.duracion - 0.3), gx = Math.round(lerp(104, 128, tramo(t, GOES - 0.2, GOES + 1.3)));
+  // el del jersey viejo (gris, con remiendos): baja por el sendero, ve al gato, se para y corre ladera abajo hasta la nieve
+  // de delante de las casas (por la izquierda de la casa blanca, nunca encima) y cruza a su puerta
+  const v = ruta7(t, [[P3, 182, 108], [CAT + 0.4, 190, 115], [GOES - 0.1, 190, 115], [GOES + 0.35, 184, 134], [GOES + 0.7, 189, 155], [GOES + 1.1, 212, 155], [GOES + 1.4, 218, 151]]);
+  // el gato mira al que huye; cuando ya ha entrado, al del jersey nuevo
+  const gy = Math.round(lerp(160, 130, sube)), objX = t < GOES + 1.45 ? v.x : 290, objY = t < GOES + 1.45 ? v.s - 12 : 150;
+  if (sube > 0) { R.recorte([0, 0, 319, 150]); gatoYule7(R, gx, gy, t, Math.round((objX - gx) / 25), Math.round((objY - (gy - 19)) / 20)); R.recorte(null); }
   T.mundoDelante(R, t, { encuadre: 'islandia', camara: 'general', colinaDelante: true });
-  // el del jersey viejo (gris, con remiendos): baja por el sendero, ve al gato y corre a la puerta de la granja
-  const v = ruta7(t, [[P3, 186, 110], [CAT + 0.4, 206, 120], [GOES - 0.1, 206, 120], [GOES + 0.4, 222, 132], [GOES + 0.8, 236, 146], [GOES + 1.4, 218, 150]]);
   if (t < GOES + 1.45) { const susto = t > CAT + 0.4; R.actor(EL.muchachoYule3, v.x, v.s, t, { dir: susto && !v.mv ? -1 : v.d || 1, anda: v.mv, sorpresa: susto, pal: { C: hex('#6a6a6e'), c: hex('#4a4a50') } });
     if (true) { R.rect(v.x + 6, v.s - 12, v.x + 8, v.s - 10, hex('#8a6a3a')); R.pset(v.x + 10, v.s - 8, hex('#5a4a2a')); R.pset(v.x + 5, v.s - 7, hex('#8a6a3a')); } }
   // el del jersey nuevo delante de la granja: saluda y luego, orgulloso, abre los brazos

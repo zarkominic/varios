@@ -14,8 +14,9 @@
 //    brilla en «Canterbury»; la mano trae la foto de la trinchera de 1914 y la pega en «trenches»; un hilo rojo une las
 //    dos fechas en «same story»;  2. el bosque nevado de noche: una procesión de gente de todas las épocas (romano, monje,
 //    puritana, San Nicolás, la dama de 1857, la mexicana, el filipino, el soldado, la japonesa) pasa la llama de vela en
-//    vela («many hands»); el alguacil intenta pararlos con el dedo, una ráfaga tumba las llamas que vuelven a prender, y
-//    en «stop them» un niño le da una vela y sonríe;  3. un edificio de noche con cuatro ventanas: en tres, una familia
+//    vela («many hands») sin pararse nunca; el alguacil entra andando por la izquierda (delante, pies 176), alza el dedo
+//    en «centuries» para pararlos, una ráfaga tumba las llamas que vuelven a prender, y en «stop them» un niño (a 18 px,
+//    sin solaparse) le tiende una vela y él la levanta y sonríe; la fila (pies 166/170) pasa por detrás, a ≥26 px;  3. un edificio de noche con cuatro ventanas: en tres, una familia
 //    hace su costumbre (el parol de Filipinas, el Tió de Cataluña, la cubeta de Japón); en «your family» se enciende la
 //    cuarta, vacía, con un «?» grande; en «surprise» los vecinos se asoman a mirarla;  4. la mesa del salón con el álbum
 //    abierto: Atom baja de su esquina, se lanza a por la galleta en «catch» y la galleta salta; Atom se da contra el
@@ -132,7 +133,7 @@ const p2 = (t) => {
   const u0 = t - P2, rafaga = tramo(t, nobody + 0.2, nobody + 1.2);
   // la fila avanza de derecha a izquierda; la llama pasa de una vela a la siguiente desde «many hands»
   FILA.forEach((d, i) => {
-    const x = Math.round(112 + i * 28 - u0 * 13), s = 166 + (i % 2) * 4;
+    const x = Math.round(170 + i * 28 - u0 * 13), s = 166 + (i % 2) * 4;   // la cabeza acaba en x≈88, lejos del grupo del alguacil
     if (x < -20 || x > 330) return;
     const alza = t > hands + i * 0.08 && t < centuries + 0.6;
     const a = R.actor(d, x, s, t, { dir: -1, anda: true, sostiene: alza ? [x - 2, s - 26] : true, sonrisa: t > hands - 0.3 + i * 0.25 });
@@ -145,12 +146,17 @@ const p2 = (t) => {
   });
   // la ráfaga de «nobody»: copos que barren el plano de derecha a izquierda
   if (rafaga > 0 && rafaga < 1) for (let k = 0; k < 18; k++) { const x = Math.round(330 - rafaga * 360 + k * 9), y = 110 + (k * 13) % 60; R.linea(x, y, x + 6, y, hex('#e8f0ff')); }
-  // el alguacil, quieto en su sitio a la izquierda: dedo y enfado; en «stop them» un niño le da una vela y sonríe
-  const da = t > stop - 0.4;
-  const al = R.actor(EL.alguacil, 22, 178, t, { dir: 1, dedo: !da && t > nobody - 0.4, enfado: !da && t > nobody - 0.4, sorpresa: t > stop - 0.4 && t < stop + 0.1, sonrisa: t > stop + 0.1, sostiene: da ? true : undefined, habla: !da && t > nobody && Math.sin(t * 9) > 0 });
-  const ni = tramo(t, stop - 1.2, stop - 0.45), nx = Math.round(lerp(96, 42, ni));
-  if (t > stop - 1.4) { const n = R.actor(EL.ninoVictoriano, nx, 179, t, { dir: -1, anda: ni > 0 && ni < 1, sostiene: !da ? true : undefined, sonrisa: true }); if (!da) PZ.vela(R, n.mano[0], n.mano[1] + 2, { t }); }
-  if (da) { PZ.vela(R, al.mano[0], al.mano[1] + 2, { t }); halo(al.mano[0], al.mano[1] - 5, 12, hex('#ffd890'), 0.45); }
+  // el alguacil entra andando por la izquierda y se planta delante (pies 176); alza el dedo en «centuries» para
+  // pararlos; en «stop them» el niño, a su lado (a 18 px), le tiende una vela y él la levanta y sonríe.
+  // Se pintan después de la fila (pies 166/170): orden por y de pies.
+  const da = t > stop - 0.4, ax = Math.round(lerp(-8, 44, suave(tramo(t, P2 + 0.2, hands + 0.3))));
+  const anda = t > P2 + 0.2 && t < hands + 0.3, alza = t > stop + 0.1;
+  const ni = tramo(t, stop - 1.5, stop - 0.55), nx = Math.round(lerp(132, 62, ni));
+  let n = null;
+  if (t > stop - 1.6) n = R.actor(EL.ninoVictoriano, nx, 177, t, { dir: -1, anda: ni > 0 && ni < 1, sostiene: !da ? (ni >= 1 ? [nx - 7, 160] : true) : undefined, sonrisa: true });
+  const al = R.actor(EL.alguacil, ax, 176, t, { dir: 1, anda, dedo: !da && !anda && t > centuries - 0.2, enfado: !da && t > centuries - 0.2, sorpresa: t > stop - 0.4 && t < stop + 0.1, sonrisa: t > stop + 0.1, sostiene: da ? (alza ? [ax + 13, 160] : true) : undefined, habla: !da && t > nobody && Math.sin(t * 9) > 0 });
+  if (n && !da) PZ.vela(R, n.mano[0], n.mano[1] + 2, { t });
+  if (da) { PZ.vela(R, al.mano[0], al.mano[1] + 2, { t }); halo(al.mano[0] + 2, al.mano[1] - 5, 8, hex('#ffd890'), 0.4); if (t < stop) chispa(al.mano[0], al.mano[1] - 7, hex('#fff0a0'), 2); }
   T.epocaDelante(R, t, { encuadre: 'bosque' });
 };
 // 3 · el edificio de las cuatro ventanas (fondo local)

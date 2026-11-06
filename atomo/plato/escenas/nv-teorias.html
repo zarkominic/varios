@@ -12,8 +12,8 @@
 // NV-TEORIAS (frase 12), 354. Cuatro planos:
 // 1. (fondo local) el Circo Máximo al amanecer del 25 de diciembre, la fiesta del Sol: dos cuadrigas pasan entre el
 //    gentío; dos cristianos llegan por delante y, en «replace», él alza una estrella y otra se enciende junto al sol;
-// 2. (copista) corta en «But»: el copista entra por la puerta, deja el códice y escribe; en su globo, el calendario del
-//    25 («conceived»), el «=» («same day») y el otro 25 («died»): la concepción y la muerte el mismo día;
+// 2. (copista) corta en «But»: el copista entra por la puerta, deja el códice y escribe; el globo crece desde los puntitos con el
+//    primer 25 dibujándose a pluma (nunca sale vacío), hecho en «conceived», el «=» («same day») y el otro 25 («died»): la concepción y la muerte el mismo día;
 // 3. (fondo local) corta en «March»: la rueda del año en el muro pintado; marzo se enciende con su «25» y la aguja salta
 //    nueve meses (1…9, en «nine months later») hasta diciembre, que se enciende con su «25»;
 // 4. (templo, altar) corta en «Historians»: el escriba de un lado y el copista del otro discuten, cada uno con su
@@ -139,14 +139,28 @@ const p2 = (t) => { const g = T.epoca(R, t, { encuadre: 'copista' });
   if (!escribe) { const [mx, my] = a.mano; R.rect(mx - 4, my - 4, mx + 2, my + 1, K); R.rect(mx - 3, my - 3, mx + 1, my, H('#7a3a24')); R.pset(mx - 1, my - 2, H('#e0b040')); }
   T.epocaDelante(R, t, { encuadre: 'copista' });
   // el globo de lo que pensaban: 25 (la concepción) = 25 (la muerte)
-  const b = tramo(t, en('teorias', 0.3778), en('teorias', 0.4043)); if (b > 0) {
-    for (const [k, px, py] of [[0, 150, 124], [1, 156, 114], [2, 162, 102]]) if (b > k * 0.25) { R.disco(px, py, 2 + k, K); R.disco(px, py, 1 + k, H('#f6f0e2')); }
-    if (b > 0.7) { const X0 = 122, Y0 = 22, X1 = 240, Y1 = 92;
-      for (let x = X0; x <= X1; x += 10) for (const y of [Y0, Y1]) { R.disco(x, y, 8, K); } for (let y = Y0; y <= Y1; y += 10) for (const x of [X0, X1]) R.disco(x, y, 8, K);
-      for (let x = X0; x <= X1; x += 10) for (const y of [Y0, Y1]) R.disco(x, y, 7, H('#f6f0e2')); for (let y = Y0; y <= Y1; y += 10) for (const x of [X0, X1]) R.disco(x, y, 7, H('#f6f0e2'));
+  // los puntitos suben a 0.412–0.425; el globo crece desde ellos (0.423–0.437) y el primer calendario del 25 se va
+  // dibujando con la pluma de arriba abajo (0.432–0.444) hasta quedar hecho en «conceived»: el globo nunca sale vacío
+  const b = tramo(t, en('teorias', 0.4120), en('teorias', 0.4250)); if (b > 0) {
+    for (const [k, px, py] of [[0, 150, 124], [1, 156, 114], [2, 162, 102]]) if (b > k * 0.3) { R.disco(px, py, 2 + k, K); R.disco(px, py, 1 + k, H('#f6f0e2')); }
+    const kg = tramo(t, en('teorias', 0.4230), en('teorias', 0.4370)), kc = 1 - (1 - kg) * (1 - kg);
+    if (kg > 0) { const X0 = Math.round(lerp(158, 122, kc)), Y0 = Math.round(lerp(84, 22, kc)), X1 = Math.round(lerp(182, 240, kc)), Y1 = Math.round(lerp(96, 92, kc)), rr = Math.round(lerp(4, 8, kc)), pa = Math.max(4, Math.round(10 * kc));
+      for (let x = X0; x <= X1; x += pa) for (const y of [Y0, Y1]) { R.disco(x, y, rr, K); } for (let y = Y0; y <= Y1; y += pa) for (const x of [X0, X1]) R.disco(x, y, rr, K);
+      R.disco(X1, Y0, rr, K); R.disco(X1, Y1, rr, K);
+      for (let x = X0; x <= X1; x += pa) for (const y of [Y0, Y1]) R.disco(x, y, rr - 1, H('#f6f0e2')); for (let y = Y0; y <= Y1; y += pa) for (const x of [X0, X1]) R.disco(x, y, rr - 1, H('#f6f0e2'));
+      R.disco(X1, Y0, rr - 1, H('#f6f0e2')); R.disco(X1, Y1, rr - 1, H('#f6f0e2'));
       R.rect(X0, Y0, X1, Y1, H('#f6f0e2')); for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) if (hh(x, y, 20) < 0.06) R.pset(x, y, H('#e8e0cc'));
-      const c1 = tramo(t, en('teorias', 0.4442), en('teorias', 0.4548)), c2 = tramo(t, en('teorias', 0.5251), en('teorias', 0.5357)), ig = tramo(t, en('teorias', 0.4914), en('teorias', 0.5005));
-      if (c1 > 0) { T.PIEZAS_NV.calendario(R, 152, 88 - Math.round((1 - c1) * 6), { dia: 25, s: 2 }); estrella5(152, 33, 5, H('#f0c040'), K); }
+      const dib = tramo(t, en('teorias', 0.4320), en('teorias', 0.4442)), c1 = tramo(t, en('teorias', 0.4442), en('teorias', 0.4548)), c2 = tramo(t, en('teorias', 0.5251), en('teorias', 0.5357)), ig = tramo(t, en('teorias', 0.4914), en('teorias', 0.5005));
+      if (dib > 0) { // el calendario se dibuja de arriba abajo: lo que queda por debajo de la pluma se repone con el papel del globo
+        const bx0 = 126, by0 = 40, bx1 = 178, by1 = 91, foto = []; for (let y = by0; y <= by1; y++) for (let x = bx0; x <= bx1; x++) foto.push(R.pget(x, y));
+        T.PIEZAS_NV.calendario(R, 152, 88, { dia: 25, s: 2 });
+        const yp = Math.round(lerp(by0 + 4, by1 + 1, dib));
+        if (dib < 1) { let n = (yp - by0) * (bx1 - bx0 + 1); for (let y = yp; y <= by1; y++) for (let x = bx0; x <= bx1; x++) R.pset(x, y, foto[n++]);
+          // la pluma que dibuja, yendo y viniendo sobre la línea
+          const xp = Math.round(140 + 22 * (0.5 + 0.5 * Math.sin(t * 14)));
+          R.linea(xp, yp, xp + 6, yp - 8, K); R.linea(xp + 1, yp - 1, xp + 6, yp - 7, H('#f4ecd8')); R.linea(xp + 3, yp - 2, xp + 7, yp - 6, H('#c8b898')); R.pset(xp, yp, H('#2a2030')); }
+      }
+      if (c1 > 0) estrella5(152, 33, Math.round(2 + 3 * c1), H('#f0c040'), K);
       if (ig > 0) { R.rect(176, 52, 186, 54, K); R.rect(176, 60, 186, 62, K); R.rect(177, 53, 185 - Math.round((1 - ig) * 8), 53, H('#3a5ab0')); R.rect(177, 61, 185 - Math.round((1 - ig) * 8), 61, H('#3a5ab0')); }
       if (c2 > 0) { T.PIEZAS_NV.calendario(R, 210, 88 - Math.round((1 - c2) * 6), { dia: 25, s: 2 }); R.rect(209, 26, 211, 38, K); R.rect(206, 29, 214, 31, K); R.rect(210, 27, 210, 37, H('#c89a40')); R.rect(207, 30, 213, 30, H('#c89a40')); }
     } }

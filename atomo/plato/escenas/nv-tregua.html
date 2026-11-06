@@ -15,8 +15,13 @@
 //    canto del otro lado y asoma un farol por encima del parapeto: se miran, sonríen y uno sube la escalera («climbed»);
 // 2. la tierra de nadie al atardecer: los nuestros salen por detrás del parapeto y los de enfrente de su trinchera,
 //    caminan hasta el centro y se dan la mano en «shook hands»; en «sang carols» el alemán alza una vela y cantan;
-// 3. el centro de la tierra de nadie a ras de nieve: patadas al balón entre los dos bandos («kicked a ball»); llega
-//    un oficial, se para con un «?» en «Nobody had ordered it»… y en «They just did it» el balón le llega y lo chuta.
+// 3. a ras de nieve (fondo local, horizonte bajo en y 130): cielo gris tramado con cirros, el sol pálido y nubes de tres
+//    tonos; lejos, las dos trincheras con soldaditos que asoman, la iglesia sin techo y el tronco roto con su cuervo; la
+//    nieve de cerca con surcos, montoncitos, pisadas y las porterías marcadas con gorras. En «kicked a ball» el británico
+//    chuta el balón de cuero y todos corren detrás de él; el oficial entra andando, se para con un «?» en «Nobody had
+//    ordered it»… y en «They just did it» el balón le llega, lo chuta y entra entre las gorras alemanas.
+// (Pulido: en los planos 1 y 2 las nubes ya no pasan por detrás del año; en el 2 la nube rosa del decorado se quita y
+//  pasa otra entre el año y Atom.)
 import * as T from '/atomo/plato/escenas/nv-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nv-tregua');
@@ -109,7 +114,7 @@ const arbolito = (t, enc) => {
 const p1 = (t) => {
   fijo('trinchera', fondoTrinchera);
   // las nubes que pasan delante de la luna (tres tonos) y la nieve
-  for (const [x0, y, w, v, c] of [[180, 20, 40, 2.2, '#2a3058'], [40, 36, 54, 1.2, '#3a4070'], [250, 44, 30, 3.0, '#4a4a7a']]) { const x = ((x0 + t * v) % 380) - 40; for (let k = 0; k < 4; k++) { const cx = Math.round(x + k * w / 4), cy = y + (k % 2); if (!quieta(cx, cy)) R.disco(cx, cy, Math.round(w / 6), hex(c)); } }
+  for (const [x0, y, w, v, c] of [[180, 34, 40, 2.2, '#2a3058'], [40, 38, 54, 1.2, '#3a4070'], [250, 44, 30, 3.0, '#4a4a7a']]) { const x = ((x0 + t * v) % 380) - 40; for (let k = 0; k < 4; k++) { const cx = Math.round(x + k * w / 4), cy = y + (k % 2); if (!quieta(cx, cy)) R.disco(cx, cy, Math.round(w / 6), hex(c)); } }
   // el brasero: brasas que laten, humo, y su luz en las tablas
   const br = Math.sin(t * 9) > 0; R.rect(20, 138, 32, 141, br ? hex('#ff8a3a') : hex('#e85a2a')); for (let k = 0; k < 4; k++) R.pset(21 + k * 3, 137 - (Math.floor(t * 8 + k) % 3), hex('#ffd060'));
   for (let k = 0; k < 4; k++) { const u = (t * 0.45 + k / 4) % 1; R.disco(26 + Math.round(Math.sin(u * 5 + k) * 4 + u * 8), 132 - Math.round(u * 50), 1 + Math.round(u * 3), mz(hex('#8a8a96'), hex('#2a3058'), u)); }
@@ -140,6 +145,11 @@ const p1 = (t) => {
 };
 const p2 = (t) => {
   T.hoy(R, t, { encuadre: 'tregua', luz: 'tarde' });
+  // la nube rosa del decorado que cruzaba por detrás del año se quita (vuelve el cielo limpio, sacado del mismo decorado
+  // a otra hora) y pasa otra a la derecha del año, entre el número y Atom
+  { const cielo = capa('cielo2', () => T.hoy(R, 100, { encuadre: 'tregua', luz: 'tarde' })), NC = [hex('#4a3e5e'), hex('#7a5a7a'), hex('#e0a08a')].map((c) => c >>> 0);
+    for (let y = 4; y <= 46; y++) for (let x = 98; x <= 200; x++) if (NC.includes(R.pget(x, y) >>> 0)) R.pset(x, y, cielo[y * 320 + x]);
+    nube(222 + t * 0.5, 36, 44, 1, NC); }
   const sal = (t0) => tramo(t, t0, t0 + 0.7);
   // los de enfrente salen de su trinchera (y≈104) y bajan al centro
   const FR = [[EL.soldadoAleman, 250, P2 + 0.2, 168, 150], [EL.soldadoAleman, 280, P2 + 0.6, 222, 146]];
@@ -162,33 +172,153 @@ const p2 = (t) => {
   if (canta) canto(t, sang + 0.4, pC.x + 8, pC.s - 30, ORO, 2);
   T.hoyDelante(R, t, { encuadre: 'tregua', luz: 'tarde' });
 };
+// 3 · a ras de nieve (fondo local): horizonte bajo (y 130), cielo gris de invierno, la nieve del primer plano grande
+// el cielo y lo de enfrente quedan libres de la barra del año (hasta y 28) y de la zona de Atom
+const libre = (x, y) => !(x >= 272 && y <= 48) && !(y <= 28 && x >= 14 && x <= 184);
+// ruido de valor suave (para la nieve)
+const vn = (x, y, k) => { const xi = Math.floor(x), yi = Math.floor(y), fx = suave(x - xi), fy = suave(y - yi), a = hs(xi, yi, k), b = hs(xi + 1, yi, k), c = hs(xi, yi + 1, k), d = hs(xi + 1, yi + 1, k); return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy; };
+const NV = { L: hex('#f6f9fc'), n: hex('#e2e8f0'), S: hex('#c2cad8'), D: hex('#98a2b6'), A: hex('#7a8498') };
+const NUBE3 = [hex('#8a92a4'), hex('#b8bcc8'), hex('#e6e6ec')];
+// una nube de tres tonos (sombra abajo, cuerpo y luz arriba) con su base plana
+const nube = (cx, cy, w, k, cols) => {
+  const n = 3 + (k % 3), r0 = w / (n + 1), B = [];
+  for (let i = 0; i < n; i++) { const u = i / (n - 1) - 0.5; B.push([u * w * 0.78, -Math.cos(u * Math.PI) * r0 * 0.9 + (hs(i, k, 61) - 0.5) * 2, r0 * (0.75 + Math.cos(u * Math.PI) * 0.5)]); }
+  for (const [dx, dy, r] of B) R.disco(Math.round(cx + dx), Math.round(cy + dy + 1), Math.round(r), cols[0]);
+  for (const [dx, dy, r] of B) R.disco(Math.round(cx + dx), Math.round(cy + dy - 0.5), Math.round(r * 0.88), cols[1]);
+  for (const [dx, dy, r] of B) R.disco(Math.round(cx + dx - r * 0.25), Math.round(cy + dy - r * 0.35), Math.max(1, Math.round(r * 0.5)), cols[2]);
+  for (let x = Math.round(cx - w * 0.45); x <= cx + w * 0.45; x++) { R.pset(x, Math.round(cy + r0 * 0.55), cols[0]); if (hs(x, k, 62) < 0.5) R.pset(x, Math.round(cy + r0 * 0.55) + 1, cols[0]); }
+};
+// la gorra en la nieve que marca la portería: británica (caqui, de visera) o alemana (gris con la banda roja)
+const gorra = (x, y, ale) => {
+  const c = ale ? hex('#7a8270') : hex('#8a7a4a'), cS = mz(c, K, 0.35), cL = mz(c, hex('#ffffff'), 0.3);
+  for (let i = -5; i <= 5; i++) R.pset(x + i, y + 1, mz(NV.S, K, 0.12)); // su sombra
+  R.rect(x - 4, y - 3, x + 3, y, K); R.rect(x - 3, y - 2, x + 2, y - 1, c); R.rect(x - 3, y - 2, x, y - 2, cL); R.rect(x - 3, y, x + 2, y, cS);
+  if (ale) { R.rect(x - 3, y - 1, x + 2, y - 1, hex('#c8303a')); R.pset(x - 1, y - 2, hex('#e8e0c8')); } else { R.rect(x + 3, y - 1, x + 6, y, K); R.rect(x + 3, y - 1, x + 5, y - 1, cS); }
+  R.pset(x - 4, y + 1, NV.L); R.pset(x + 4, y + 1, NV.L);
+};
+// el cielo gris de invierno, tramado, con cirros finos arriba (fuera de la barra del año y de Atom) y el sol pálido
+const cieloRas = () => {
+  const { pset } = R;
+  degr(0, 0, 319, 129, [hex('#8a94aa'), hex('#a0a8ba'), hex('#b6bcc9'), hex('#ccd0d8'), hex('#dcdee2')]);
+  for (const [y, x0, w, k] of [[34, 186, 70, 0], [40, 20, 120, 1], [46, 200, 64, 2], [30, 196, 60, 3], [52, 40, 90, 4]]) for (let x = x0; x < x0 + w; x++) { const v = Math.sin((x - x0) / w * Math.PI); if (hs(x, y, 50 + k) < v * 0.8 && libre(x, y)) pset(x, y, hex('#d0d4de')); if (hs(x, y + 1, 50 + k) < v * 0.5 && libre(x, y + 1)) pset(x, y + 1, hex('#9aa2b6')); }
+  for (let j = -16; j <= 16; j++) for (let i = -16; i <= 16; i++) { const d = Math.hypot(i, j); if (d < 6) pset(232 + i, 70 + j, d < 4 ? hex('#fbf6e8') : hex('#eee8d8')); else if (d < 16 && di(232 + i, 70 + j, (1 - d / 16) * 0.6)) pset(232 + i, 70 + j, hex('#d8d6d4')); }
+};
+const fondoRas = () => {
+  const { rect, pset, linea, poligono } = R;
+  R.copiar(capa('rasCielo', cieloRas));
+  // lejos, en el horizonte: la arboleda y los chopos, la iglesia sin techo y el granero, más claros (la distancia)
+  const lj = hex('#9aa0b0'), ljS = hex('#8a90a2');
+  for (let x = 0; x < 320; x++) { const a = 4 + Math.round(vn(x * 0.08, 0, 52) * 6); rect(x, 128 - a, x, 129, x % 3 ? lj : ljS); }
+  for (const [x, a] of [[96, 18], [104, 13], [186, 16], [194, 21], [250, 14]]) for (let y = 128 - a; y <= 124; y++) { const w = Math.round(Math.sin((y - (128 - a)) / a * Math.PI * 0.9) * 2.4); for (let xx = x - w; xx <= x + w; xx++) pset(xx, y, xx > x ? ljS : lj); }
+  { rect(134, 104, 154, 126, lj); poligono([[132, 104], [140, 96], [146, 101], [149, 94], [156, 104]], lj); rect(147, 84, 151, 104, ljS); poligono([[146, 84], [149, 78], [152, 84]], ljS); for (const x of [137, 143]) { rect(x, 110, x + 2, 116, ljS); pset(x + 1, 109, ljS); } rect(132, 104, 156, 104, hex('#e8ecf2')); rect(146, 84, 152, 84, hex('#e8ecf2')); }
+  { rect(162, 114, 180, 126, lj); poligono([[160, 114], [171, 106], [182, 114]], ljS); rect(168, 118, 172, 126, ljS); }
+  // las dos trincheras lejos a los lados: sacos con nieve, la alambrada abierta y los postes
+  const saco = (x0, x1) => { for (let f = 0; f < 3; f++) { const y = 127 - f * 3, dx = f & 1 ? 3 : 0; for (let x = x0 - dx; x < x1; x += 6) for (let yy = y; yy < y + 3; yy++) for (let xx = Math.max(x0, x); xx <= Math.min(x1, x + 5); xx++) pset(xx, yy, xx === x || xx === x + 5 ? hex('#6a604c') : yy === y ? hex('#a89c7c') : hex('#8a7e62')); } for (let x = x0; x <= x1; x++) { pset(x, 118, NV.L); if (hs(x, 2, 53) < 0.6) pset(x, 119, NV.n); } };
+  saco(0, 92); saco(212, 319);
+  for (const x of [22, 70, 236, 300]) { rect(x, 106, x, 118, hex('#5a4a3a')); rect(x - 3, 106, x + 3, 106, hex('#5a4a3a')); }
+  for (let x = 4; x < 320; x += 14) { if (x > 92 && x < 214) continue; linea(x - 2, 131, x + 2, 127, hex('#5a4e44')); linea(x + 2, 131, x - 2, 127, hex('#5a4e44')); }
+  // el tronco roto en medio campo, a la izquierda: corteza, astillas y nieve encima
+  for (let y = 70; y <= 140; y++) { const w = 3 + (y - 70) * 0.03; for (let x = Math.round(40 - w); x <= Math.round(40 + w); x++) pset(x, y, x < 38 ? hex('#7a6a58') : x > 41 ? hex('#3a2e24') : (y % 6 === 0 || hs(x, y, 54) < 0.12 ? hex('#3a2e24') : hex('#5a4a3a'))); }
+  poligono([[36, 70], [38, 62], [40, 68], [42, 58], [45, 70]], hex('#5a4a3a')); linea(42, 88, 58, 78, hex('#4a3a2e')); linea(42, 89, 58, 79, hex('#3a2e24')); linea(58, 78, 62, 80, hex('#4a3a2e')); rect(36, 69, 44, 69, NV.L); rect(44, 87, 54, 86 - 6, NV.L);
+  // el suelo: nieve de cerca, con ondas suaves, surcos del campo arado bajo la nieve, montoncitos, pisadas y matas
+  for (let y = 130; y <= 179; y++) { const u = (y - 130) / 49; for (let x = 0; x < 320; x++) {
+    const n = vn(x * 0.05, (y - 126) * 0.16 / (0.3 + u), 55) * 0.65 + vn(x * 0.21, y * 0.45, 56) * 0.35; let c = NV.n;
+    if (n < 0.34 && di(x, y, 0.6)) c = NV.S; else if (n > 0.66 && di(x, y, 0.55)) c = NV.L; if (u < 0.08 && di(x, y, 0.5)) c = NV.S;
+    if (u > 0.55 && n < 0.24 && di(x, y, 0.5)) c = NV.D; pset(x, y, c); } }
+  for (let x = 0; x < 320; x++) { pset(x, 130, NV.L); if (hs(x, 3, 57) < 0.5) pset(x, 131, NV.L); if (x < 94 || x > 210) pset(x, 132, NV.S); }
+  // los surcos: líneas que se abren hacia nosotros (sombra azul a un lado, la luz al otro), irregulares
+  for (let k = -7; k <= 7; k++) { const xb = 160 + k * 44; for (let y = 134; y <= 179; y++) { const u = (y - 124) / 55, fx = 160 + (xb - 160) * u + Math.sin(y * 0.31 + k) * u * 1.6, x = Math.round(fx); if (hs(k, y, 58) < 0.18) continue; pset(x, y, u > 0.35 ? NV.D : NV.S); if (u > 0.3) pset(x + 1, y, u > 0.7 ? NV.D : NV.S); pset(x - 1, y, NV.L); if (u > 0.75) pset(x + 2, y, di(x + 2, y, 0.5) ? NV.S : NV.n); } }
+  // los montoncitos de nieve: la luz arriba a la izquierda, la sombra abajo y la sombra que echan
+  for (let k = 0; k < 16; k++) { const cy = 136 + Math.round(hs(k, 1, 59) ** 0.8 * 42), u = (cy - 130) / 49, cx = Math.round(hs(k, 2, 59) * 320), rx = Math.round(4 + u * 13 + hs(k, 3, 59) * 4), ry = Math.max(2, Math.round(rx * 0.32));
+    for (let j = 0; j <= ry + 2; j++) for (let i = -rx; i <= rx + 4; i++) { if ((i / (rx + 3)) ** 2 + (j / (ry * 0.6 + 1)) ** 2 < 1 && di(cx + i + 3, cy + j, 0.55)) pset(cx + i + 3, cy + j, NV.D); }
+    for (let j = -ry; j <= 0; j++) for (let i = -rx; i <= rx; i++) { const d = (i / rx) ** 2 + (j / ry) ** 2; if (d > 1) continue; pset(cx + i, cy + j, (d > 0.7 && i > 0) || (j > -ry * 0.35 && i > -rx * 0.3 && di(cx + i, cy + j, 0.5)) ? NV.S : (i < rx * 0.2 && j < -ry * 0.25) ? NV.L : NV.n); }
+    for (let i = -rx + 1; i < rx; i++) if (di(cx + i, cy, 0.6)) pset(cx + i, cy, NV.S); }
+  // las pisadas del partido (más en medio, más grandes cerca) y las del camino de cada trinchera
+  for (let k = 0; k < 120; k++) { const y = 138 + Math.round(hs(k, 4, 60) * 40), u = (y - 130) / 49, x = Math.round(60 + hs(k, 5, 60) * 210 + (hs(k, 6, 60) - 0.5) * 30), w = 1 + Math.round(u * 2);
+    for (let i = 0; i < w; i++) { pset(x + i, y, NV.D); pset(x + i, y + 1, NV.S); pset(x + i, y + 2, NV.L); } if (u > 0.5) pset(x + w, y, NV.S); pset(x - 1, y + 1, NV.S); }
+  for (const [a, b] of [[[96, 132], [150, 156]], [[214, 132], [186, 154]]]) for (let k = 0; k < 14; k++) { const u = k / 14, x = Math.round(a[0] + (b[0] - a[0]) * u + (k & 1) * 2), y = Math.round(a[1] + (b[1] - a[1]) * u); pset(x, y, NV.D); pset(x + 1, y, NV.S); pset(x, y + 1, NV.L); }
+  // la raya de las porterías, rascada con la bota entre las dos gorras de atrás y las de delante
+  for (const [x0, y0, x1, y1] of [[22, 146, 14, 174], [290, 146, 300, 174]]) for (let k = 0; k <= 28; k++) { if (k % 4 === 3) continue; const u = k / 28, x = Math.round(x0 + (x1 - x0) * u), y = Math.round(y0 + (y1 - y0) * u); pset(x, y, NV.D); pset(x + 1, y, NV.S); }
+  // matas secas que asoman (más grandes cerca) y una lata y una bufanda olvidadas
+  for (let k = 0; k < 34; k++) { const y = 134 + Math.round(hs(k, 7, 61) ** 0.9 * 44), u = (y - 130) / 49, x = Math.round(hs(k, 8, 61) * 320), s = 2 + u * 9; if (x > 76 && x < 262 && y > 146) continue; for (let i = 0; i < 5; i++) linea(x + i - 2, y, Math.round(x + i - 2 + (i - 2) * 0.8), Math.round(y - 2 - hs(k, i, 62) * s), i % 2 ? hex('#a8844a') : hex('#6a4a2a')); }
+  { rect(194, 174, 199, 178, K); rect(195, 175, 198, 177, hex('#8a8a92')); pset(195, 175, hex('#d0d0d8')); rect(195, 176, 198, 176, hex('#c83a3a')); }
+  { for (let i = 0; i < 12; i++) pset(112 + i, 172 + Math.round(Math.sin(i * 0.7)), i % 3 ? hex('#a83a3a') : hex('#e8e0d0')); for (let i = 0; i < 12; i++) pset(112 + i, 173 + Math.round(Math.sin(i * 0.7)), hex('#7a2a2a')); }
+  // las gorras de atrás de cada portería (las de delante van delante del balón)
+  gorra(22, 146, false); gorra(290, 146, true);
+};
+// los soldaditos lejanos en los parapetos: asoman y saludan
+const soldadito = (x, y, t, ale, k) => {
+  const c = ale ? hex('#6a6e74') : hex('#7a6a44'), up = Math.sin(t * 1.7 + k * 2) > -0.3 ? 0 : 1;
+  R.rect(x - 1, y - 5 + up, x + 1, y, c); R.pset(x, y - 6 + up, hex('#e8b890')); R.rect(x - 1, y - 7 + up, x + 1, y - 7 + up, ale ? hex('#4a4a52') : hex('#6a5a3a'));
+  if (k % 2 === 0) { const a = Math.sin(t * 6 + k) > 0; R.pset(x + 2, y - 4 + up, c); R.pset(x + 2 + (a ? 1 : 0), y - 6 + up, hex('#e8b890')); }
+};
+// el balón de cuero redondo (7 px): contorno, cuero con sombra abajo, el brillo, y las costuras que giran al rodar
+const balonCuero = (x, y, giro) => {
+  R.disco(x, y, 4, K); R.disco(x, y, 3, hex('#9a6430')); R.disco(x + 1, y + 1, 2, hex('#7a4a22'));
+  R.pset(x - 2, y - 1, hex('#c88a4a')); R.pset(x - 1, y - 2, hex('#e0b070')); R.pset(x - 1, y - 1, hex('#f4d8a0'));
+  const g = ((Math.round(giro) % 5) + 5) % 5 - 2; for (let j = -2; j <= 2; j++) R.pset(x + g, y + j, hex('#4a2a10')); R.pset(x + g - 1, y - 1, hex('#e8d8b0')); R.pset(x + g + 1, y + 1, hex('#e8d8b0'));
+};
+// el recorrido del balón: [t, x, y en el suelo, altura del bote]
+const KB = () => [[P3, 134, 164, 0], [kicked, 134, 164, 0], [kicked + 0.7, 214, 160, 22], [kicked + 1.25, 226, 162, 0], [nobody - 0.1, 252, 158, 6],
+  [nobody + 0.5, 210, 166, 0], [ordered + 0.4, 182, 168, 10], [just + 0.1, 98, 172, 16], [did, 96, 172, 0], [did + 0.9, 296, 160, 36], [99, 297, 160, 0]];
+const bola = (t) => { const k = KB(); let x = k[0][1], y = k[0][2], h = 0; for (let i = 1; i < k.length; i++) if (t >= k[i - 1][0]) { const u = tramo(t, k[i - 1][0], k[i][0]); x = lerp(k[i - 1][1], k[i][1], u); y = lerp(k[i - 1][2], k[i][2], u); h = Math.sin(u * Math.PI) * k[i][3]; } return { x, y, h }; };
+// los jugadores corren detrás del balón (con su retraso y su sitio): [quién, carril (pies), retraso, desplazamiento, x de salida]
+const JUG = [[EL.soldadoBritanico, 170, 0.45, -24, 102], [EL.soldadoAleman, 162, 0.25, 18, 236], [EL.soldadoAleman, 150, 0.6, -12, 268], [EL.soldadoBritanico, 157, 0.8, 40, 176]];
+const OFICIAL = { ...EL.soldadoBritanico, bigote: true };
 const p3 = (t) => {
-  // el balón: a «kicked» sale del primero hacia el de enfrente; rebota; luego al oficial, que lo chuta en «did»
-  const KB = [[P3, 132, 148, 0], [kicked, 132, 148, 0], [kicked + 0.7, 222, 150, 24], [nobody - 0.2, 226, 150, 0], [nobody + 0.4, 196, 150, 8], [just + 0.1, 104, 152, 14], [did, 98, 152, 0], [did + 0.8, 250, 146, 30], [99, 250, 146, 0]];
-  let bx = KB[0][1], by = KB[0][2];
-  for (let i = 1; i < KB.length; i++) if (t >= KB[i - 1][0]) { const u = tramo(t, KB[i - 1][0], KB[i][0]); bx = lerp(KB[i - 1][1], KB[i][1], u); by = lerp(KB[i - 1][2], KB[i][2], u) - Math.sin(u * Math.PI) * KB[i][3]; }
-  bx = Math.round(bx); by = Math.round(by);
-  T.hoy(R, t, { encuadre: 'tregua', camara: 'cerca', balon: false });
-  // el británico corre al balón y lo chuta en «kicked»; los demás corren detrás
-  const c1 = tramo(t, P3, kicked - 0.05);
-  R.actor(EL.soldadoBritanico, Math.round(lerp(96, 118, c1)), 152, t, { dir: 1, anda: c1 < 1 || (t > did && t < did + 1.2), salto: t > kicked - 0.05 && t < kicked + 0.2 ? 2 : 0, sonrisa: true, brazos: t > did + 0.4 && t < did + 1.6 });
-  // el alemán lo para con el pecho, se lo pasa al compañero
-  R.actor(EL.soldadoAleman, 222, 150, t, { dir: -1, salto: t > kicked + 0.6 && t < kicked + 0.9 ? 3 : 0, sonrisa: t > kicked + 0.8, sorpresa: t > kicked + 0.2 && t < kicked + 0.8, brazos: t > did + 0.4 && t < did + 1.6 });
-  R.actor(EL.soldadoAleman, Math.round(lerp(262, 200, tramo(t, nobody - 0.6, nobody - 0.1))), 146, t, { dir: -1, anda: t > nobody - 0.6 && t < nobody - 0.1, salto: t > nobody - 0.1 && t < nobody + 0.15 ? 2 : 0, sonrisa: true, habla: t > did + 0.6 && Math.sin(t * 9) > 0 });
-  R.actor(EL.soldadoBritanico, Math.round(160 + Math.sin(t * 1.4) * 10), 156, t, { dir: Math.cos(t * 1.4) > 0 ? 1 : -1, anda: true, sonrisa: true, brazos: t > kicked && t < kicked + 0.6 });
-  // el oficial entra por la izquierda, se para con un «?» en «ordered»… y chuta él en «did»
-  const of = tramo(t, nobody - 0.4, ordered - 0.1);
-  const ox = Math.round(lerp(-20, 84, of));
-  R.actor(EL.soldadoBritanico, ox, 154, t, { dir: 1, anda: of > 0 && of < 1, enfado: t > ordered - 0.1 && t < just - 0.2, sorpresa: t > ordered - 0.1 && t < ordered + 0.4, sonrisa: t > just, salto: t > did - 0.05 && t < did + 0.2 ? 3 : 0, dedo: t > ordered + 0.4 && t < just - 0.2 });
-  if (t > ordered && t < just) { const y = 110 - (t < ordered + 0.12 ? 3 : 0), x = ox + 8; R.rect(x - 9, y - 18, x + 9, y, K); R.rect(x - 8, y - 17, x + 8, y - 1, hex('#fbfbf4')); R.rect(x - 8, y - 2, x + 8, y - 1, hex('#d8dce4')); R.rect(x - 1, y + 1, x + 1, y + 1, K); R.pset(x, y + 2, K); R.icono('?', x - 7, y - 16, hex('#c02030'), hex('#f0b0b0'), 2); }
-  if (t > did && t < did + 0.25) chispa(98, 146, hex('#ffffff'), 3);
-  // el balón de cuero (a ×2), con su sombra en la nieve; al chutarlo salta la nieve
-  let sy = 152; for (let i = 1; i < KB.length; i++) if (t >= KB[i - 1][0]) { const u = tramo(t, KB[i - 1][0], KB[i][0]); sy = Math.round(lerp(KB[i - 1][2], KB[i][2], u)); }
-  for (let i = -6; i <= 6; i++) R.pset(bx + i, sy + 1, mz(R.pget(bx + i, sy + 1), hex('#8a9ab0'), 0.6));
-  PZ.balon(R, bx, by + 1, { s: 2 });
-  for (const tk of [kicked, kicked + 0.7, did]) if (t > tk && t < tk + 0.35) { const u = (t - tk) / 0.35; for (let k = 0; k < 6; k++) R.pset(Math.round(bx - 4 + k * 2 + (k - 3) * u * 4), Math.round(sy - 2 - Math.sin(k + 1) * 6 * u + u * u * 8), hex('#ffffff')); }
-  T.hoyDelante(R, t, { encuadre: 'tregua', camara: 'cerca' });
-  copos(t, 30, 0, 0, 319, 179, hex('#eef4fa'), hex('#ffffff'), 5);
+  fijo('ras', fondoRas);
+  // las nubes de tres tonos a tres velocidades (por debajo de y 46: lejos de la barra del año y de Atom)
+  for (const [x0, cy, w, v, k] of [[60, 72, 72, 0.9, 2], [230, 90, 54, 1.7, 1], [150, 104, 40, 2.6, 2], [300, 62, 30, 0.5, 0], [20, 98, 34, 2.1, 0]]) nube(((x0 + t * v) % 400) - 40, cy, w, k, NUBE3);
+  // las nubes van por detrás de lo lejano: se vuelve a poner encima todo lo que no es cielo (del horizonte hacia arriba)
+  { const cielo = capa('rasCielo', cieloRas), todo = capa('ras', fondoRas); for (let y = 52; y <= 131; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x; if (todo[i] !== cielo[i]) R.pset(x, y, todo[i]); } }
+  // la bandada de cuervos que cruza, despacio
+  for (let k = 0; k < 6; k++) { const u = (t / 30 + k * 0.03) % 1, x = Math.round(330 - u * 380 + (k % 3) * 7), y = Math.round(54 + (k % 2) * 5 + (k % 3) * 3 + Math.sin(t * 1.3 + k) * 2), a = Math.sin(t * 9 + k) > 0; if (!libre(x, y)) continue; R.pset(x, y, K); R.pset(x - 1, y - (a ? 1 : 0), K); R.pset(x + 1, y - (a ? 1 : 0), K); R.pset(x - 2, y - (a ? 2 : 0), K); R.pset(x + 2, y - (a ? 2 : 0), K); }
+  // el humo de los braseros de las dos trincheras, los faroles que parpadean y los soldaditos que asoman
+  for (const [x, k] of [[48, 0], [262, 1]]) for (let i = 0; i < 6; i++) { const u = (t * 0.25 + i / 6 + k * 0.3) % 1; R.disco(x + Math.round(Math.sin(u * 4 + k) * 3 + u * 14), 118 - Math.round(u * 40), 1 + Math.round(u * 3), mz(hex('#b4b8c4'), hex('#d4d6dc'), u)); }
+  for (const x of [70, 236]) { const b = Math.sin(t * 4.3 + x) > -0.3; R.rect(x + 1, 107, x + 3, 110, hex('#2a2a2e')); R.pset(x + 2, 108, b ? hex('#ffd060') : hex('#c87a30')); }
+  for (const [x, k] of [[12, 0], [30, 1], [58, 2], [84, 3]]) soldadito(x, 121, t, false, k);
+  for (const [x, k] of [[222, 4], [248, 5], [276, 6], [306, 7]]) soldadito(x, 121, t, true, k);
+  // el cuervo en lo alto del tronco roto
+  { const ph = (t * 0.7) % 1, d = ph < 0.5 ? 1 : -1, pica = ph > 0.8 && ph < 0.9; R.rect(38, 64, 41, 66, K); R.pset(39 - 3 * d + 1, 65, K); R.pset(40 + d, pica ? 65 : 63, K); R.pset(40 + 2 * d, pica ? 66 : 63, hex('#4a4030')); R.pset(39, 64, hex('#4a4656')); }
+  // la nieve que levanta el viento a ras de suelo
+  for (let k = 0; k < 24; k++) { const u = (t * 0.5 + hs(k, 1, 63)) % 1, x = Math.round(u * 360 - 20), y = 132 + Math.round(hs(k, 2, 63) * 40) - Math.round(Math.sin(u * 9 + k) * 2); R.pset(x, y, hex('#ffffff')); if (k % 3 === 0) { R.pset(x - 1, y, NV.L); R.pset(x - 2, y, NV.L); } }
+  // el balón y quién lo toca: en cada toque, el jugador más cercano da el saltito
+  const B = bola(t), bx = Math.round(B.x), by = Math.round(B.y), bh = Math.round(B.h);
+  const pos = JUG.map(([d, s, lag, off, x0], i) => {
+    const sigue = (tt) => bola(Math.min(tt, ordered + 0.5)).x + off, ent = tramo(t, P3, i === 0 ? kicked - 0.05 : kicked + 0.6);
+    const xa = i === 0 && t < kicked ? lerp(x0, 112, ent) : lerp(x0, sigue(t - lag), i === 0 ? 1 : suave(ent));
+    const xb = i === 0 && t < kicked ? lerp(x0, 112, tramo(t - 0.1, P3, kicked - 0.05)) : lerp(x0, sigue(t - lag - 0.1), i === 0 ? 1 : suave(tramo(t - 0.1, P3, kicked + 0.6)));
+    const v = (xa - xb) / 0.1;
+    return { d, s: s + Math.round(Math.sin(t * 0.9 + i * 2) * 1.5), x: Math.round(xa), v };
+  });
+  // no se amontonan: si dos quedan casi en el mismo sitio, se apartan un poco el uno del otro
+  for (let it = 0; it < 3; it++) for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) { const a = pos[i], b = pos[j], dx = b.x - a.x; if (Math.abs(a.s - b.s) < 24 && Math.abs(dx) < 16) { const e = Math.ceil((16 - Math.abs(dx)) / 2), sg = dx >= 0 ? 1 : -1; a.x -= sg * e; b.x += sg * e; } }
+  for (const p of pos) p.x = Math.max(66, Math.min(262, p.x));
+  const toques = KB().slice(1, 9).map((k) => k[0]);
+  const juega = (p, i) => { const tq = toques.find((tk) => t > tk - 0.08 && t < tk + 0.2); let cerca = -1, dm = 99; if (tq !== undefined && t < did - 0.2) pos.forEach((q, j) => { const dd = Math.abs(q.x - bola(tq).x); if (dd < dm) { dm = dd; cerca = j; } });
+    const gol = t > did + 0.85, dir = Math.abs(p.v) > 6 ? Math.sign(p.v) : (bx > p.x ? 1 : -1);
+    R.actor(p.d, p.x, p.s, t, { dir, anda: Math.abs(p.v) > 6 && !gol, salto: cerca === i ? 2 : 0, sonrisa: true, habla: gol && Math.sin(t * 9 + i) > 0, brazos: gol && t < did + 2.4 && (i + Math.floor(t * 2)) % 2 === 0 }); };
+  // el oficial entra andando por la izquierda antes del «?», se para en «ordered»… y chuta él en «did»
+  const of = tramo(t, kicked + 0.5, ordered - 0.15), ox = Math.round(lerp(-14, 84, of)), os = 172;
+  const oficial = () => { const o = R.actor(OFICIAL, ox, os, t, { dir: 1, anda: of > 0 && of < 1, pal: { C: hex('#9a8a5a'), o: hex('#e8c050') }, sostiene: t < ordered + 0.4 || t > just - 0.2 ? true : undefined, sorpresa: t > ordered - 0.15 && t < ordered + 0.4, dedo: t > ordered + 0.4 && t < just - 0.2, sonrisa: t > just, salto: t > did - 0.05 && t < did + 0.2 ? 3 : 0, brazos: t > did + 0.9 && t < did + 2.2 });
+    if (o.mano && (t < ordered + 0.4 || t > just - 0.2)) { R.linea(o.mano[0] - 3, o.mano[1] + 3, o.mano[0] + 4, o.mano[1] - 3, hex('#3a2414')); R.pset(o.mano[0] + 4, o.mano[1] - 3, hex('#e8c050')); } };
+  // por orden de profundidad: primero los de atrás, el balón donde le toca y los de delante después
+  const capas = pos.map((p, i) => [p.s, () => juega(p, i)]);
+  capas.push([os, oficial]);
+  capas.push([by + 0.5, () => {
+    for (let i = -4; i <= 4; i++) { if (Math.abs(i) > 4 - Math.min(3, bh / 8)) continue; R.pset(bx + i, by + 4, mz(R.pget(bx + i, by + 4), NV.A, 0.55)); if (Math.abs(i) < 3) R.pset(bx + i, by + 5, mz(R.pget(bx + i, by + 5), NV.A, 0.35)); }
+    balonCuero(bx, by - bh, B.x * 0.4);
+    for (const tk of toques.concat([did])) if (t > tk && t < tk + 0.35) { const u = (t - tk) / 0.35; for (let k = 0; k < 6; k++) R.pset(Math.round(bx - 5 + k * 2 + (k - 2.5) * u * 5), Math.round(by + 2 - Math.sin(k + 1) * 6 * u + u * u * 8), hex('#ffffff')); }
+  }]);
+  capas.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
+  // las gorras de delante de cada portería, por delante del balón
+  gorra(14, 174, false); gorra(300, 174, true);
+  if (t > ordered && t < just) { const y = 132 - (t < ordered + 0.12 ? 3 : 0), x = ox + 8; R.rect(x - 9, y - 18, x + 9, y, K); R.rect(x - 8, y - 17, x + 8, y - 1, hex('#fbfbf4')); R.rect(x - 8, y - 2, x + 8, y - 1, hex('#d8dce4')); R.rect(x - 1, y + 1, x + 1, y + 1, K); R.pset(x, y + 2, K); R.icono('?', x - 7, y - 16, hex('#c02030'), hex('#f0b0b0'), 2); }
+  if (t > did && t < did + 0.25) chispa(100, 166, hex('#ffffff'), 3);
+  if (t > did + 0.9 && t < did + 1.3) { chispa(296, 150, ORO, 3); chispa(284, 142, hex('#ffffff'), 2); }
+  // las matas de las esquinas, delante de todo, que mueve el viento
+  for (const [x0, k] of [[30, 0], [244, 1], [310, 2]]) for (let i = 0; i < 7; i++) { const sw = Math.sin(t * 2 + i + k) * 1.4; R.linea(x0 + i * 2, 179, Math.round(x0 + i * 2 + (i - 3) * 1.4 + sw), 179 - 8 - Math.round(hs(i, k, 64) * 8), i % 2 ? hex('#a8844a') : hex('#6a4a2a')); }
+  copos(t, 34, 0, 0, 319, 179, hex('#ffffff'), hex('#ffffff'), 5);
 };
 const efectos = [[1.6, 'brillo'], [soldiers + 0.2, 'campana'], [both + 0.4, 'golpecito'],
   [P2 + 0.2, 'golpecito'], [shook, 'palmada'], [sang, 'campana'],
