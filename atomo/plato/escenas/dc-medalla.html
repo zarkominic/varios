@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La medalla · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-MEDALLA (frase 18). Cuatro planos:
+// 1. 1945, de noche, en la tienda de radio: en el mapa clavado salen las chinchetas de las operaciones una a una y,
+//    con «20», el número grande; el oficial las señala, el radio teclea y, con «saved thousands of lives», entra un
+//    soldado con la noticia y los tres lo celebran (corta en «But»);
+// 2. la caja de archivo con el candado, el polvo y la telaraña; la etiqueta cuenta los años de 1945 a 1996 (la barra
+//    también) y, con «1996», el candado salta y cae, y la tapa se abre (corta en «Some»);
+// 3. 1960, el taller de los artistas: la modelo desfila con el vestido granate; con «fashion designer» el diseñador
+//    la presenta y, con «Bill Blass», le pone la banda de oro al maniquí; con «painter» el pintor, subido a su cajón,
+//    pinta un campo de color en el cuadro (corta en «and in 2024»);
+// 4. 2024, la sala del Capitolio: los tres veteranos muy mayores en la tarima; con «received» la presentadora y el
+//    presentador les cuelgan la medalla (el primero se la pone a su compañero), y con «Gold Medal» brilla la medalla
+//    grande sobre el telón; flashes.
+import * as T from '/atomo/plato/escenas/dc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dc-medalla');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('medalla', f);
+const P2 = a(0.273), P3 = a(0.488), P4 = a(0.79);
+const veinte = a(0.048), salvan = a(0.18), noventa6 = a(0.41), moda = a(0.619), blass = a(0.676), pintor = a(0.715), reciben = a(0.898), oro = a(0.964);
+const k = T.C.k, ORO = hex('#f0c840'), AZ = hex('#2a4a9a'), BL = hex('#fff6d0');
+const hh = (i, s = 0) => { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const suave = (u) => u * u * (3 - 2 * u);
+// la medalla pequeña en la mano: la cinta azul y el disco de oro
+const medallita = (x, y) => { R.rect(x - 1, y - 5, x + 1, y - 2, k); R.pset(x, y - 4, AZ); R.pset(x, y - 3, AZ); R.disco(x, y, 2, k); R.disco(x, y, 1, ORO); R.pset(x - 1, y - 1, BL); };
+const destello = (x, y, r, c = BL) => { for (let i = 1; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } R.pset(x, y, hex('#ffffff')); };
+
+// 1 · la tienda de radio, 1945: las chinchetas de las operaciones
+const TIENDA = { encuadre: 'campo44', camara: 'tienda' };
+const PINES = [];
+for (let i = 0; PINES.length < 20 && i < 600; i++) {
+  const x = 62 + Math.round(hh(i, 1) * 72), y = 62 + Math.round(hh(i, 2) * 34);
+  if (x < 102 && y > 72) continue;   // ahí la tapa la radio
+  if (PINES.some(([u, v]) => Math.abs(u - x) < 6 && Math.abs(v - y) < 6)) continue;
+  PINES.push([x, y]);
+}
+const p1 = (t) => {
+  T.guerra(R, t, TIENDA);
+  const n = Math.floor(20 * tramo(t, 0.45, veinte));
+  for (let i = 0; i < n; i++) {
+    const [x, y] = PINES[i], nueva = i === n - 1 && t < veinte + 0.2;
+    R.pset(x + 1, y + 2, hex('#6a5a3a')); R.pset(x + 2, y + 2, hex('#6a5a3a'));
+    R.rect(x - 1, y - 1, x + 1, y + 1, k); R.pset(x, y, i % 5 === 4 ? hex('#3a6ad8') : hex('#e8402a')); R.pset(x - 1, y - 1, i % 5 === 4 ? hex('#a8c8ff') : hex('#ffb0a0'));
+    if (nueva) destello(x, y - 3, 2);
+  }
+  // el número grande: veinte operaciones
+  const e = tramo(t, veinte, veinte + 0.3);
+  if (e > 0) R.numero('20', 100, Math.round(lerp(60, 52, suave(e))) + Math.round(Math.sin(t * 3) * 0.6), { tam: 16, centro: true });
+  // el oficial señala el mapa; el radio teclea el Morse; con «saved» entra el soldado con la noticia
+  const fiesta = t > salvan + 0.15 && t < salvan + 1.3;
+  R.actor(EL.oficialAliado2, 104, 160, t, { dir: -1, dedo: t > 0.5 && t < veinte + 1.6, habla: t > veinte + 0.4 && t < salvan - 0.4 && Math.sin(t * 7) > 0, brazos: fiesta, sonrisa: t > salvan });
+  const vuelve = t > salvan;
+  R.actor(EL.operadorRadio, 156, 160, t, { dir: vuelve ? -1 : 1, sostiene: !vuelve && !fiesta ? [171, 150] : undefined, brazos: fiesta, sonrisa: vuelve });
+  const u = tramo(t, 2.6, salvan - 0.1), xs = Math.round(lerp(270, 240, u));
+  R.actor(EL.soldadoGA2, xs, 160, t, { dir: -1, anda: u > 0 && u < 1, brazos: t > salvan && t < salvan + 1.5, sonrisa: t > salvan, habla: t > salvan + 1.5 && Math.sin(t * 6) > 0 });
+  T.guerraDelante(R, t, { ...TIENDA, morse: vuelve ? 0 : true });
+};
+
+// 2 · la caja de archivo cerrada con candado hasta 1996
+const CAJA = { encuadre: 'archivos2004', camara: 'caja' };
+const LATON = hex('#c8a040'), LATONL = hex('#f0d880'), LATONS = hex('#7a5a20'), ACERO = hex('#a8b0bc'), ACEROS = hex('#5a6270');
+const candado = (x, y, abierto, ang = 0) => {   // (x, y): el centro de arriba del cuerpo
+  const dy = abierto ? -3 : 0;
+  // el arco
+  for (const [i, j] of [[-3, 0], [-3, -1], [-3, -2], [-3, -3], [-2, -4], [-1, -5], [0, -5], [1, -5], [2, -4], [3, -3], [3, -2], [3, -1], [3, 0]]) {
+    const xx = x + i + Math.round(ang * j), yy = y + j + (i > 0 ? dy : dy) - (i > 0 && abierto ? 0 : 0);
+    R.pset(xx - 1, yy, k); R.pset(xx + 1, yy, k); R.pset(xx, yy - 1, k); R.pset(xx, yy, i < 0 ? ACERO : ACEROS);
+  }
+  R.rect(x - 6, y, x + 6, y + 10, k); R.rect(x - 5, y + 1, x + 5, y + 9, LATON); R.rect(x - 5, y + 1, x + 5, y + 2, LATONL); R.rect(x - 5, y + 8, x + 5, y + 9, LATONS); R.rect(x + 4, y + 3, x + 5, y + 7, LATONS);
+  R.disco(x, y + 5, 1, k); R.rect(x, y + 6, x, y + 8, k);
+};
+let candadoCae = null;
+const p2 = (t) => {
+  const abre = tramo(t, noventa6 + 0.45, P3 - 0.35);
+  T.animales(R, t, { ...CAJA, abre });
+  // el polvo sobre la tapa y la telaraña de la esquina (hasta que se abre)
+  if (abre === 0) {
+    for (let i = 0; i < 70; i++) { const x = 100 + Math.round(hh(i, 7) * 140), y = 83 + Math.round(hh(i, 8) * 8); R.pset(x, y, (i & 1) ? hex('#d8d4c8') : hex('#b8b4a8')); }
+    const [cx, cy] = [233, 84];
+    for (const [ex, ey] of [[262, 60], [270, 80], [246, 52], [276, 96]]) R.linea(cx, cy, ex, ey, hex('#d8dce4'));
+    for (let r = 6; r <= 24; r += 6) for (let s = 0; s < 3; s++) { const a1 = -1.3 + s * 0.45, a2 = a1 + 0.45; R.linea(cx + Math.round(Math.cos(a1) * r * 1.3), cy + Math.round(Math.sin(a1) * r), cx + Math.round(Math.cos(a2) * r * 1.3), cy + Math.round(Math.sin(a2) * r), hex('#c8ccd4')); }
+    // la araña que baja por su hilo
+    const ay = 30 + Math.round(10 * Math.sin(t * 1.3));
+    R.linea(258, 0, 258, ay, hex('#c8ccd4')); R.rect(257, ay, 259, ay + 2, hex('#2a2430')); R.pset(256, ay + 1, k); R.pset(260, ay + 1, k);
+  } else {
+    const s = tramo(t, noventa6 + 0.45, noventa6 + 1.4);
+    if (s < 1) for (let i = 0; i < 24; i++) { const a0 = hh(i, 3) * Math.PI - Math.PI, d = s * (12 + hh(i, 4) * 26); R.pset(Math.round(170 + Math.cos(a0) * d * 2.2), Math.round(86 + Math.sin(a0) * d), (i & 1) ? hex('#e4e0d4') : hex('#bcb8ac')); }
+  }
+  // la etiqueta que cuenta los años y el candado
+  const año = Math.round(lerp(1945, 1996, tramo(t, P2 + 0.3, noventa6)));
+  const caida = tramo(t, noventa6 + 0.2, noventa6 + 0.75);
+  const lx = Math.round(170 - 52 * caida), ly = Math.round(93 + 70 * caida * caida), ang = -caida * 0.6;
+  // el pasador de la tapa
+  if (abre === 0) { R.rect(165, 84, 175, 95, k); R.rect(166, 85, 174, 94, ACERO); R.rect(166, 85, 174, 86, hex('#d8e0ea')); R.rect(169, 89, 171, 92, k); }
+  if (caida < 1) {
+    candado(lx, ly, t > noventa6, ang);
+    const tx = lx + 12, ty = ly + 6;
+    R.linea(lx + 3, ly + 4, tx, ty, hex('#8a7a5a'));
+    R.rect(tx, ty - 4, tx + 34, ty + 8, k); R.rect(tx + 1, ty - 3, tx + 33, ty + 7, hex('#e0c890')); R.rect(tx + 1, ty + 6, tx + 33, ty + 7, hex('#b89a60')); R.disco(tx + 4, ty + 2, 1, hex('#8a7a5a'));
+    R.numero(String(año), tx + 20, ty + 6, { centro: true, color: año >= 1996 ? hex('#c8282a') : hex('#3a2a1a'), sombra: false });
+  } else {
+    // en la mesa, abierto, con su etiqueta
+    candado(118, 163, true, 0.0);
+    R.linea(121, 167, 128, 170, hex('#8a7a5a')); R.rect(128, 165, 162, 177, k); R.rect(129, 166, 161, 176, hex('#e0c890')); R.disco(132, 171, 1, hex('#8a7a5a'));
+    R.numero('1996', 147, 175, { centro: true, color: hex('#c8282a'), sombra: false });
+  }
+  if (t > noventa6 && t < noventa6 + 0.35) destello(lx + 5, ly - 4, 3);
+};
+
+// 3 · el taller de los artistas, 1960
+const TALLER = { encuadre: 'capitolio', camara: 'taller' };
+const VESTIDO = { C: hex('#9a1a3e'), c: hex('#62102a') };
+const p3 = (t) => {
+  T.guerra(R, t, TALLER);
+  // el cajón del pintor (para llegar al cuadro)
+  R.rect(110, 136, 138, 150, k); R.rect(111, 137, 137, 149, hex('#8a6a3a')); R.rect(111, 137, 137, 138, hex('#b8925a'));
+  for (const y of [141, 145]) R.rect(112, y, 136, y, hex('#6a4a24')); R.rect(113, 150, 136, 151, hex('#5a4630'));
+  // el campo de color nuevo que pinta (de abajo a la izquierda del cuadro)
+  const pin = tramo(t, pintor, P4 - 0.3);
+  if (pin > 0) { const x1 = 146 + Math.round(16 * Math.min(1, pin * 1.4)), y0 = 112 - Math.round(26 * pin); R.rect(146, y0, x1, 112, hex('#1e8a4a')); R.rect(146, y0, x1, y0, hex('#3ab06a')); }
+  // el pintor, con el pincel largo
+  const pinta = t > pintor - 0.1 && t < P4 - 0.2;
+  const tipX = pinta ? 150 + Math.round(6 + 6 * Math.sin(t * 9)) : 150 + Math.round(Math.sin(t * 2) * 2), tipY = pinta ? 112 - Math.round(26 * pin * (0.5 + 0.5 * Math.abs(Math.sin(t * 4.5)))) : 104;
+  const pi = R.actor(EL.pintorGA, 118, 136, t, { dir: 1, sostiene: [tipX - 10, Math.min(118, tipY + 14)], sonrisa: t > pintor + 1 });
+  const [mx, my] = pi.mano; R.linea(mx, my, tipX, tipY, k); R.linea(mx + 1, my, tipX + 1, tipY, hex('#c89a5a')); R.rect(tipX - 1, tipY - 1, tipX + 1, tipY + 1, k); R.pset(tipX, tipY, hex('#1e8a4a'));
+  // la modelo desfila con el vestido granate
+  let xm = 168, dm = 1, anda = false;
+  if (t < P3 + 1.6) { const u = tramo(t, P3 + 0.1, P3 + 1.6); xm = Math.round(lerp(168, 198, u)); anda = u > 0 && u < 1; }
+  else if (t < moda + 0.8) { xm = 198; dm = t < P3 + 2.0 || (t > P3 + 2.25 && t < P3 + 2.45) ? 1 : -1; }
+  else { const u = tramo(t, moda + 0.8, moda + 2.0); xm = Math.round(lerp(198, 164, u)); dm = -1; anda = u > 0 && u < 1; }
+  R.actor(EL.madre62, xm, 152, t, { dir: dm, anda, pal: VESTIDO, sonrisa: t > P3 + 1.6, salto: t > P3 + 2.1 && t < P3 + 2.4 ? 1 : 0 });
+  // el diseñador: la presenta y luego le pone la banda de oro al maniquí
+  const alManiqui = t > moda + 0.9;
+  const xd = alManiqui ? Math.round(lerp(222, 230, tramo(t, moda + 0.9, moda + 1.2))) : 222;
+  R.actor(EL.disenadorModa, xd, 150, t, { dir: alManiqui ? 1 : -1, dedo: t > moda && t < moda + 0.9, sostiene: alManiqui && t < pintor + 0.4 ? [248, 112] : undefined, sonrisa: t > moda, habla: t > moda - 1 && t < moda && Math.sin(t * 7) > 0, anda: t > moda + 0.9 && t < moda + 1.2 });
+  const banda = tramo(t, blass - 0.3, blass + 0.4);
+  if (banda > 0) { const n = Math.round(16 * banda); for (let i = 0; i <= n; i++) { const x = 245 + i, y = 100 + Math.round(i * 0.7); R.pset(x, y, ORO); R.pset(x, y + 1, hex('#a87a18')); } if (t > blass && t < blass + 0.5) destello(253, 104, 3); }
+  T.guerraDelante(R, t, TALLER);
+};
+
+// 4 · el Capitolio, 2024: la medalla de oro del Congreso
+const CAP = { encuadre: 'capitolio' };
+const p4 = (t) => {
+  T.guerra(R, t, CAP);
+  const g1 = reciben + 0.1, g3 = reciben + 0.5, g2 = reciben + 1.0;
+  // el presentador sale de detrás del atril con dos medallas; la presentadora entra por la derecha
+  const ua = tramo(t, P4 + 0.3, reciben - 0.4), xa = Math.round(lerp(150, 175, ua));
+  const da = R.actor(EL.portavoz, xa, 131, t, { dir: 1, anda: ua > 0 && ua < 1, sostiene: t < g1 + 0.3 ? (t > reciben - 0.4 ? [198, 116] : true) : undefined, sonrisa: t > g1, habla: t < P4 + 0.3 && Math.sin(t * 6) > 0 });
+  if (t < g1) { medallita(da.mano[0], da.mano[1] + 2); }
+  const ub = tramo(t, P4 + 0.6, reciben - 0.3), xb = Math.round(lerp(290, 250, ub));
+  const db = R.actor(EL.expertoAIR2, xb, 131, t, { dir: -1, anda: ub > 0 && ub < 1, sostiene: t < g3 + 0.3 ? (t > reciben - 0.2 ? [238, 116] : true) : undefined, sonrisa: t > g3 });
+  if (t < g3) medallita(db.mano[0], db.mano[1] + 2);
+  // los tres veteranos, muy mayores
+  const v1 = R.actor(EL.veterano, 192, 131, t, { dir: t > g1 + 0.4 && t < g2 + 0.8 ? 1 : -1, medalla: t > g1, sonrisa: t > g1, sostiene: t > g1 + 0.4 && t < g2 + 0.2 ? [211, 117] : undefined });
+  if (t > g1 && t < g2) medallita(v1.mano[0], v1.mano[1] + 2);
+  R.actor(EL.veterano2, 212, 131, t, { dir: -1, medalla: t > g2, sonrisa: t > g2, dedo: t > P4 + 0.8 && t < P4 + 1.8 });
+  R.actor(EL.veterana, 232, 131, t, { dir: -1, medalla: t > g3, sonrisa: t > g3 || t < P4 + 1.5, brazos: t > P4 + 0.2 && t < P4 + 1.2 });
+  for (const [g, x] of [[g1, 199], [g2, 219], [g3, 239]]) if (t > g && t < g + 0.4) destello(x, 118, 3);
+  T.guerraDelante(R, t, { ...CAP, medalla: t > oro - 0.25, medallaEn: [165, 66] });
+};
+
+const efectos = [[veinte, 'pop'], [salvan + 0.15, 'palmada'], [noventa6, 'cerrojo'], [noventa6 + 0.75, 'golpecito'], [P3 - 0.9, 'papel'],
+  [moda, 'flash'], [blass, 'brillo'], [pintor + 0.1, 'lapiz'], [reciben + 0.1, 'flash'], [oro - 0.2, 'brillo'], [oro + 0.4, 'publico']];
+const año = (t) => t < P2 ? 1945 : t < P3 ? Math.round(lerp(1945, 1996, tramo(t, P2 + 0.3, noventa6))) : t < P4 ? 1960 : 2024;
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

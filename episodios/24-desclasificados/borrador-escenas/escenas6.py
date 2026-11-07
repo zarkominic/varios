@@ -334,9 +334,9 @@ const p4 = (t) => {
   if (g > 0 && g < 1) { const pap = R.pget(137, 64), yb = Math.round(lerp(64, 118, g)); rect(136, yb, 184, 117, pap);
     const xs = Math.round(160 + Math.sin(t * 30) * 20); for (let i = 0; i < 4; i++) pset(xs + Math.round(h2(i, Math.floor(t * 15)) * 6) - 3, yb - Math.round(h2(i, 9) * 3), H('#4a4a58')); }
   // el gato espía de verdad asoma por abajo, se ve en el dibujo y se le pone el «!»
-  const s = tramo(t, GATO1 - 0.1, GATO1 + 0.4), sal = tramo(t, P5 - 0.6, P5 - 0.15);
-  if (s > 0) { const y = Math.round(lerp(200, 181, s) + sal * 22); T.gatoEspia(R, 168, y, t, { cara: t > GATO1 + 0.9 ? 'travieso' : 'normal' });
-    if (t > GATO1 + 0.35 && t < P5 - 0.6) { bocadillo(176, 140, 190, 160, 176, 166); R.icono('!', 181, 144, H('#c8282a'), K, 2); } }
+  const s = tramo(t, GATO1 - 0.3, GATO1 + 0.15), sal = tramo(t, P5 - 0.2, P5 + 0.1);
+  if (s > 0) { const y = Math.round(lerp(200, 175, s) + sal * 26); T.gatoEspia(R, 168, y, t, { cara: t > GATO1 + 0.9 ? 'travieso' : 'normal' });
+    if (t > GATO1 + 0.25 && t < P5 - 0.2) { bocadillo(176, 140, 190, 160, 176, 166); R.icono('!', 181, 144, H('#c8282a'), K, 2); } }
 };
 
 // ── 5 · la mesa con los fajos: $20,000,000 (inserto local) ───────────────────────────────────────────────────────────
@@ -719,9 +719,9 @@ const fondo2 = () => fondoFijo(CACHE, 'muelle', () => {
   // cajas al fondo del muelle y barriles
   for (const [x, y, w, hh] of [[272, 104, 22, 16], [294, 108, 20, 12], [278, 92, 16, 12]]) { rect(x, y, x + w, y + hh, K); rect(x + 1, y + 1, x + w - 1, y + hh - 1, H('#a87a48')); for (let j = y + 4; j < y + hh; j += 4) rect(x + 1, j, x + w - 1, j, H('#7a5430')); linea(x + 1, y + 1, x + w - 1, y + hh - 1, H('#7a5430')); }
   // el casco del barco a la izquierda, con remaches, ojos de buey y la puerta del costado
-  for (let y = 14; y < 119; y++) for (let x = 0; x < 98; x++) pset(x, y, rampa(HS(['#4a525e', '#5a6470', '#6a7480']), 1.4 + (x > 92 ? -1 : 0) + (h2(x >> 2, y >> 3) - 0.5) * 0.6, x, y));
-  for (let y = 22; y < 118; y += 16) rect(0, y, 97, y, H('#46505c')); for (let x = 10; x < 98; x += 12) for (let y = 24; y < 118; y += 4) pset(x, y, H('#7a8490'));
-  rect(0, 12, 99, 15, K); rect(0, 12, 99, 12, H('#8a949e')); for (let x = 2; x < 98; x += 6) linea(x, 4, x, 12, H('#a8a8a0')); linea(0, 4, 98, 4, H('#c8c8c0')); linea(0, 8, 98, 8, H('#a8a8a0'));
+  for (let y = 24; y < 119; y++) for (let x = 0; x < 98; x++) pset(x, y, rampa(HS(['#4a525e', '#5a6470', '#6a7480']), 1.4 + (x > 92 ? -1 : 0) + (h2(x >> 2, y >> 3) - 0.5) * 0.6, x, y));
+  for (let y = 32; y < 118; y += 16) rect(0, y, 97, y, H('#46505c')); for (let x = 10; x < 98; x += 12) for (let y = 34; y < 118; y += 4) pset(x, y, H('#7a8490'));
+  rect(0, 22, 99, 25, K); rect(0, 22, 99, 22, H('#8a949e')); for (let x = 2; x < 98; x += 6) linea(x, 16, x, 22, H('#a8a8a0')); linea(0, 16, 98, 16, H('#c8c8c0')); linea(0, 19, 98, 19, H('#a8a8a0'));
   for (const x of [14, 36, 58]) { disco(x, 40, 3.5, K); disco(x, 40, 2.5, H('#8aa8c4')); pset(x - 1, 39, H('#e8f0f8')); }
   for (const [x, l] of [[8, 30], [30, 22], [52, 36], [78, 18], [44, 14]]) for (let y = 44; y < 44 + l; y++) if (h2(x, y) > 0.25) pset(x + (y % 3 === 0 ? 1 : 0), y, H('#8a5a3a'));
   for (let x = 4; x < 94; x += 1) for (const y of [58, 59]) pset(x, y, x % 4 < 3 ? H('#c8ccd0') : H('#9aa0a8'));
