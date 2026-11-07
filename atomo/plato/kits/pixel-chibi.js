@@ -5377,3 +5377,539 @@ export const PIEZAS_TR = {
   frasco: frascoTR, pastel: pastelCumpleTR, mazo: mazoTR, cajaFuerte: cajaFuerteTR, argolla: argollaTR, ramo: ramoTR,
   corona: coronaReyTR, gallina: gallinaTR, saca: sacaPiezaTR, periodico: periodicoTR,
 };
+
+
+// ── Episodio 24 (los archivos desclasificados): 1942–1945, la Luna de 1958, la CIA de los sesenta, los videntes de los
+// setenta y los archivos de 2004–2024 ─────────────────────────────────────────────────────────────────────────────────
+// tocados nuevos del 24 (nombres con DC para no pisar los de otros episodios)
+Object.assign(TOCADOS, {
+  // el casco M1 de la Segunda Guerra Mundial (V/v verde oliva): cúpula redonda con el ala corta, sin tapar la frente
+  cascoM1DC: [[
+    '....kkkkkkk....',
+    '..kkVVVVVVVkk..',
+    '.kVVwVVVVVVVVk.',
+    '.kVVVVVVVVVVVk.',
+    'kVVVVVVVVVVVVVk',
+    'kkkkkkkkkkkkkkk',
+  ], -2],
+  // el gorro de punto ceñido, sin borla (J/j): el pintor del ejército fantasma y los técnicos de la nieve
+  gorroPuntoDC: [[
+    '...kkkkkkkk....',
+    '..kJjJJjJJjk...',
+    '.kJJjJJjJJjJk..',
+    '.kJJjJJjJJjJk..',
+    '.kjjjjjjjjjjk..',
+    '.kkkkkkkkkkkk..',
+  ], -3],
+  // la gorra de plato de marino: copa blanca (X/x), cinta negra (J), el emblema de oro (O) y la visera negra
+  gorraNavalDC: [[
+    '..kkkkkkkkkk...',
+    '.kXXXXXXXXXXk..',
+    '.kXxXXXXXXXXk..',
+    '.kJJJJOOJJJJk..',
+    '.kkkkkkkkkkkkk.',
+    '..........kkkk.',
+  ], -3],
+  // la gorra de veterano, sin letras: azul marino (J) con la franja bordada de oro (O) y la visera hacia delante
+  gorraVetDC: [[
+    '...kkkkkkk.....',
+    '..kJJJJJJJk....',
+    '.kJOOOOOOOJk...',
+    '.kkkkkkkkkkkkk.',
+    '..........kkk..',
+  ], -1],
+  // el gorro canadiense de orejeras: copa de paño (J/j), la vuelta de borrego (X) y la orejera que baja por detrás
+  orejerasDC: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '..kJJjJJJJJk...',
+    '.kJJJJJjJJJJk..',
+    'kXXXXXXXXXXXXk.',
+    'kXXkkkkkkkkkk..',
+    'kXXk...........',
+    'kXXk...........',
+    'kXXk...........',
+    '.kk............',
+  ], -3],
+});
+
+// ── cabezas ──
+// pelo oscuro abundante peinado de lado (Sagan a los 23): volumen arriba y el mechón que cruza la frente hacia delante
+const CAB_LADO_DC = parche(CAB_CORTO, [[2, 0, 'kkkkkkkkkk'], [1, 1, 'kHHhhHHHHHkk'], [0, 2, 'kHhHHHHhHHHHk'], [0, 3, 'kHHHHHHHHHHHHHk'], [4, 4, 'HHHHH']]);
+// calvo con entradas hondas (Skinner): pelo solo detrás de la oreja y una línea fina arriba
+const CAB_CALVA_ENTRADAS_DC = parche(CAB_CORTO, [[5, 1, 'SSSS'], [4, 2, 'SSSSSSSS'], [4, 3, 'SSSSSSSSS'], [3, 4, 'S']]);
+// entradas, barba poblada y descuidada con pelos sueltos (Pyke)
+const CAB_PYKE_DC = parche(CAB_BARBA, [[6, 3, 'SSSSSS'], [5, 4, 'S'], [12, 9, 'h'], [3, 10, 'h'], [9, 11, 'h'], [4, 12, 'kHkHkHk']]);
+// barba corta recortada y bigote (Targ): solo la mandíbula y la barbilla, la boca a la vista
+const CAB_BARBA_CORTA_DC = parche(CAB_CORTO, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+
+// ── cuerpos ──
+// la bata de laboratorio larga hasta la rodilla (C/c) abierta sobre la camisa (W) con la corbata (o)
+const CUERPO_BATA_DC = [
+  '...kkWWoWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCcCoCcCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCWWWCCkSk.',
+  '..kkCCFFFCCkk..',
+  '...kCCFkFCCk...',
+  '...kCcFkFcCk...',
+  '...kkkFkFkkk...',
+  '....kFFkFFk....',
+  '....knnknnk....',
+  '...kkkk.kkkk...',
+];
+// camisa de manga larga (C) con corbata fina (o) de arriba abajo: los ingenieros de la CIA
+const CUERPO_CAMISA_DC = parche(CUERPO_MANGA, [[7, 0, 'o'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o']]);
+// camisa de los setenta (C) con la corbata ancha (o/O) que se ensancha al bajar: los científicos del SRI
+const CUERPO_CORBATA_ANCHA_DC = parche(CUERPO_MANGA, [[7, 0, 'o'], [7, 1, 'o'], [6, 2, 'ooo'], [6, 3, 'oOo'], [6, 4, 'ooo'], [7, 5, 'o']]);
+// la camisa de cuello ancho de los setenta: cuello de picos grandes (X), abierta al cuello y estampada (p): Ingo Swann
+const CUERPO_CUELLO_ANCHO_DC = parche(CUERPO_MANGA, [[5, 0, 'XXSXX'], [4, 1, 'XX.S.XX'], [4, 2, 'X'], [10, 2, 'X'], [6, 3, 'p'], [9, 3, 'p'], [8, 2, 'p'], [5, 5, 'p'], [8, 5, 'p']]);
+// jersey de cuello de pico (C) con la camisa blanca (W) que asoma: Sagan
+const CUERPO_PICO_DC = parche(CUERPO_MANGA, [[5, 0, 'WWWWW'], [6, 1, 'WWW'], [7, 2, 'W']]);
+// traje con corbata (o) de arriba abajo
+const CUERPO_TRAJE_DC = parche(CUERPO_EUROPEO, [[7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [7, 5, 'C']]);
+// traje con el pañuelo en el bolsillo (X): el diseñador elegante
+const CUERPO_TRAJE_PANUELO_DC = parche(CUERPO_TRAJE_DC, [[9, 2, 'X']]);
+// chaqueta de pana (C con los canales c) sobre la camisa (W) abierta
+const CUERPO_PANA_DC = parche(CUERPO_EUROPEO, [[5, 2, 'c'], [9, 2, 'c'], [5, 4, 'c'], [9, 4, 'c'], [4, 6, 'c'], [10, 6, 'c'], [7, 3, 'W'], [7, 5, 'W']]);
+// rebeca abotonada (C, botones o) sobre la camisa (W) con la corbata (J): el padre de 1957 y la archivista
+const CUERPO_REBECA_DC = parche(CUERPO_REBECA, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'J'], [6, 3, 'o'], [6, 5, 'o']]);
+// guerrera de la Fuerza Aérea: camisa azul (W), corbata (J), charreteras (O) y los pasadores de colores (D, A, Y)
+const CUERPO_AF_DC = parche(CUERPO_EUROPEO, [[7, 1, 'J'], [7, 2, 'J'], [3, 1, 'O'], [11, 1, 'O'], [4, 2, 'DA'], [4, 3, 'YD']]);
+// el uniforme azul marino de marino: botones de oro (o), corbata (J) y los galones de oro en la bocamanga (O)
+const CUERPO_NAVAL_DC = parche(CUERPO_EUROPEO, [[7, 1, 'J'], [7, 2, 'J'], [2, 4, 'O'], [12, 4, 'O']]);
+// el uniforme blanco de gala de Mountbatten: cuello alto, botones (o), charreteras y galones de oro (O) y los pasadores
+const CUERPO_GALA_BLANCA_DC = parche(CUERPO_EUROPEO, [[5, 0, 'CCCCC'], [3, 1, 'O'], [11, 1, 'O'], [2, 4, 'O'], [12, 4, 'O'], [4, 2, 'DA'], [4, 3, 'AY'], [7, 1, 'o'], [7, 2, 'C'], [7, 4, 'C']]);
+// el oficial británico de 1943: guerrera caqui con el correaje cruzado (G) y el cinturón
+const CUERPO_OFICIAL_DC = parche(CUERPO_EUROPEO, [[7, 1, 'J'], [7, 2, 'J'], [10, 1, 'G'], [9, 2, 'G'], [8, 3, 'G'], [4, 5, 'GGGOGGG']]);
+// la gabardina con cinturón, la camisa (W) y la corbata (o); las manos de piel (no los guantes de Gambito)
+const CUERPO_GABARDINA_DC = parche(CUERPO_GABARDINA, [[2, 5, 'S'], [12, 5, 'S'], [5, 0, 'CWoW'], [5, 1, 'CWoW'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o']]);
+// el uniforme verde oliva de 1944 de EE. UU.: el de 1914 con la guerrera de bolsillos (o) y las polainas de lona (P)
+const CUERPO_GI_DC = CUERPO_SOLDADO_NV;
+// el traje viejo y arrugado de Pyke: la chaqueta con arrugas (c), la camisa por fuera y un remiendo (u)
+const CUERPO_PYKE_DC = parche(CUERPO_ARRUGADO, [[7, 1, 'o'], [7, 2, 'o'], [9, 3, 'u'], [5, 5, 'c']]);
+// polo de manga corta (C) con el cuello (W): el vidente de paisano
+const CUERPO_POLO_DC = parche(CUERPO_CALLE, [[5, 0, 'WW.WW'], [7, 0, 'S'], [7, 1, 'o'], [7, 2, 'o']]);
+// la chaqueta del veterano (C) sobre la camisa (W) abierta
+const CUERPO_CHAQUETA_DC = parche(CUERPO_EUROPEO, [[7, 3, 'W'], [7, 5, 'W']]);
+
+// ── detalles (delante) ──
+// gafas de pasta oscura (los cincuenta y sesenta), redondas de metal (Skinner), grandes de los setenta (Puthoff) y finas
+// (montura oscura con el puente fino y la piel a la vista dentro del cristal, para que no parezcan gafas de sol)
+const GAFAS_PASTA_DC = ['..kkkkkkkkk', 'kkk...k...k', '..k...k...k', '..kkkkkkkkk'];
+const gafasPastaDC = (c) => { c.cab.rej(GAFAS_PASTA_DC, 4, 5, { ...c.pal, k: hex('#2e2226') }); const v = hex('#e4eef6'); c.cab.px(9, 6, v); c.cab.px(13, 6, v); };
+const gafasFinasDC = varios(gafasHP(GAFAS_CUADRADAS, 6, '#6a6a76'), cristalHP);
+const gafasRedondasDC = varios(gafasHP(GAFAS_REDONDAS, 5, '#5a5a66'), cristalHP);
+// (las grandes de los setenta, de concha parda: una fila más altas, con la ceja dentro del cristal)
+const GAFAS_GRANDES_DC = ['..kkkkkkkkk', 'kkk...k...k', '..k...k...k', '..k...k...k', '..kkkkkkkkk'];
+const gafasGrandesDC = (c) => { c.cab.rej(GAFAS_GRANDES_DC, 4, 4, { ...c.pal, k: hex('#7a4e2a') }); const v = hex('#e4eef6'); c.cab.px(9, 5, v); c.cab.px(13, 5, v); };
+// bigote espeso de los setenta (dos filas): Swann
+const bigoteDobleDC = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, c.pal.H); c.cab.px(8, 9, c.pal.H); c.cab.px(13, 9, c.pal.H); };
+// bigote blanco del veterano
+const bigoteCanoDC = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, hex('#e8e8ee')); };
+// las arrugas de los muy mayores: bolsas bajo los ojos y el surco de la mejilla
+const arrugasDC = (c) => { c.cab.px(8, 8, c.pal.s); c.cab.px(12, 8, c.pal.s); c.cab.px(6, 9, c.pal.s); };
+// la medalla de oro colgada al cuello (o.medalla: la cinta y el disco; la dan en la ceremonia de 2024)
+const medallaDC = (c) => { if (!c.o.medalla) return; const pal = { ...c.pal, ...COLORES({ A: '#2a4a9a', O: '#f0c840', g: '#a87a18' }) }; c.cuerpo.px(6, 0, pal.A); c.cuerpo.px(8, 0, pal.A); c.cuerpo.px(6, 1, pal.A); c.cuerpo.px(8, 1, pal.A); c.cuerpo.rej(['kOk', 'kgk', '.k.'], 6, 2, pal); };
+// el cuaderno de dibujo del pintor con el lápiz
+const conCuadernoDC = enMano(['kkkkkk', 'kXXXXk', 'kXVxXk', 'kXxXXk', 'kkkkkk'], 12, 2, { ...PAL_MANO, ...COLORES({ V: '#6a6444' }) });
+// la carpeta del archivo (beige T con el sello rojo R): el archivista y el portavoz
+const conCarpetaDC = enMano(['kkkkkk', 'kTTTTk', 'kTRTTk', 'kTTTTk', 'kkkkkk'], 12, 2, { ...PAL_MANO, ...COLORES({ T: '#d8c08a', R: '#c8303a' }) });
+// la regla de cálculo (Sagan): una tira clara con la reglilla del medio
+const conReglaDC = enMano(['kkkkkkk', 'kXXZXXk', 'kxxxxxk', 'kkkkkkk'], 11, 3, PAL_MANO);
+// la libreta de taquigrafía de los periodistas
+const conLibretaDC = conLibreta;
+
+// ── el reparto del 24 ──
+const B24 = B23, B24M = B23M, B24N = B23N;
+export const ELENCO_DC = {
+  // ── A · la Luna, 1957–1958 ──
+  // la familia del suburbio de 1957 que oye el bip del Sputnik: el padre con el pelo engominado, rebeca parda, camisa
+  // blanca y corbata; la madre con media melena y vestido verde agua de pliegues; el niño rubio con el jersey de rayas
+  padre57: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_REBECA_DC, ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#8a6a44', c: '#6a4e30', W: '#f2eee2', J: '#2a3a6a', o: '#c8b48a', F: '#4e525e' }) },
+  madre57: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PLIEGUES, ceja: hex('#7a4a24'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#9a6232', h: '#b8804a', s: '#e8a080', C: '#4aa89a', c: '#2e8078', I: '#f2eee2', W: '#f2eee2', L: '#2a2430' }) },
+  nino57: { ...B24N, cuerpo: CUERPO_RAYAS_NINO_TR, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#c8403a', c: '#962e2a', W: '#f6f2e6', F: '#3a4a7a' }) },
+  // los generales de la Fuerza Aérea (azul, gorra de plato): el del 10 y otro con entradas, bigote, charreteras y pasadores
+  generalAF: ELENCO_OV.generalAzul,
+  generalAF2: { ...B24, cab: CAB_ENTRADAS, cuerpo: CUERPO_AF_DC, tocado: 'general', ceja: hex('#4a3a2a'), delante: bigoteTR,
+    pal: CLT({ H: '#5a4a3a', h: '#7a6a58', C: '#46587e', c: '#334262', F: '#46587e', W: '#a8c0e0', J: '#24283a', o: '#e8b830', O: '#e8b830' }) },
+  // Leonard Reiffel (1958, ~30 años): pelo corto engominado, gafas de pasta, bata blanca larga con camisa y corbata
+  reiffel: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), delante: gafasPastaDC,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f4f4f8', c: '#c8ccd8', W: '#c8d8ec', o: '#2a3a6a', F: '#4a4a5a', n: '#2a2430' }) },
+  // Carl Sagan (1958, 23 años): pelo oscuro abundante peinado de lado, jersey granate de pico sobre la camisa blanca,
+  // pantalón caqui y la regla de cálculo
+  sagan: { ...B24, cab: CAB_LADO_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1424'), delante: conReglaDC,
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#7a2e3a', c: '#5a1e2a', W: '#f6f2e6', F: '#a8946a', n: '#4a3020' }) },
+  // el biógrafo (2000): pelo castaño con canas, gafas finas, chaqueta de pana marrón con la camisa azul abierta
+  biografo: { ...B24, cab: CAB_SIENES, cuerpo: CUERPO_PANA_DC, ceja: hex('#4a3020'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d0', C: '#9a6a3a', c: '#74502a', W: '#a8c8e8', o: '#a8c8e8', F: '#4a4a5a' }) },
+  // Reiffel en 2000: el pelo blanco con entradas, las mismas gafas de pasta, chaqueta gris azulada y corbata granate
+  reiffelMayor: { ...B24, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#a8a8b4'), delante: varios(gafasPastaDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#c0c0cc', C: '#5a6a7e', c: '#445264', W: '#f2eee2', o: '#8a2a3a', F: '#3a3e4a' }) },
+  // el periodista de 2000: americana azul marino, camisa abierta y la libreta
+  periodista2000: { ...B24, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#6a4020'), delante: conLibretaDC,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#2a3a5a', c: '#1e2a44', W: '#e8eef6', o: '#e8eef6', F: '#5e5e70' }) },
+  // ── B · los animales espía ──
+  // los ingenieros de la CIA (años sesenta): camisa blanca, corbata fina negra, gafas de pasta; el segundo con los
+  // auriculares de escuchar (en la furgoneta)
+  ingenieroCIA: { ...B24, cuerpo: CUERPO_CAMISA_DC, ceja: hex('#6a4a2a'), delante: gafasPastaDC,
+    pal: CLT({ H: '#8a5a2a', h: '#a8743c', C: '#f4f4f8', c: '#c8ccd8', o: '#1c1c24', F: '#4a4a5a' }) },
+  ingenieroCIA2: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_CAMISA_DC, tocado: 'auriculares', ceja: hex('#1c1424'), delante: gafasPastaDC,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#eef0f6', c: '#c4c8d4', o: '#1c1c24', F: '#5a5a66', M: '#3a3a44' }) },
+  // los dos del banco del parque: gabardina con cinturón y sombrero de fieltro (beige con el sombrero gris; gris con el
+  // sombrero pardo)
+  hombreBanco: { ...B24, cuerpo: CUERPO_GABARDINA_DC, tocado: 'fedora', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#b8a272', c: '#8e7a50', W: '#f2eee2', o: '#8a2a2a', I: '#8e7a50', F: '#4a4a54', G: '#1c1c24', n: '#2a2430' }) },
+  hombreBanco2: { ...B24, cuerpo: CUERPO_GABARDINA_DC, tocado: 'fedora', ceja: hex('#5a5a66'), delante: bigoteTR,
+    pal: CLT({ H: '#6a6a76', h: '#8a8a96', C: '#7a7e88', c: '#5a5e68', W: '#f2eee2', o: '#2a3a6a', I: '#5a5e68', F: '#5a4232', G: '#2a2018', n: '#2a2430' }) },
+  // B. F. Skinner (años cuarenta): calvo con entradas hondas, gafas redondas, bata blanca con corbata
+  skinner: { ...B24, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_BATA_DC, ceja: hex('#6a4a2a'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#7a5a3a', h: '#9a7652', C: '#f4f4f8', c: '#c8ccd8', W: '#f2eee2', o: '#6a2a2a', F: '#5a5046', n: '#2a2430' }) },
+  // el oficial de la Marina que mira con duda: gorra de plato blanca y uniforme azul marino con botones y galones de oro
+  oficialNaval: { ...B24, cuerpo: CUERPO_NAVAL_DC, tocado: 'gorraNavalDC', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#1e2848', c: '#141c34', F: '#1e2848', W: '#f2eee2', J: '#1c1c24', o: '#e8b830', O: '#e8b830', X: '#f6f6f6', x: '#c8ccd8' }) },
+  // los técnicos británicos de la nieve (años cincuenta): abrigo largo, bufanda y gorro de punto
+  tecnicoBritanico: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPuntoDC', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', s: '#e8907a', C: '#5a4632', c: '#403222', u: '#b8303a', o: '#8a7458', F: '#3a3a44', J: '#4a5a4a', j: '#34403a' }) },
+  tecnicoBritanico2: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPuntoDC', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8904c', h: '#e0ac64', s: '#e8907a', C: '#3a4a5e', c: '#283444', u: '#d8a030', o: '#6a7a8e', F: '#3a3a44', J: '#8a3a3a', j: '#6a2a2a' }) },
+  // el archivo británico de 2004: la archivista con rebeca morada y gafas y la carpeta; el portavoz (Tom O'Leary) con
+  // traje gris, corbata azul y el pelo canoso corto; los periodistas con su libreta
+  archivista: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_REBECA_DC, ceja: hex('#5a3418'), delante: varios(gafasFinasDC, conCarpetaDC),
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', C: '#7a3a6a', c: '#5a2a4e', W: '#f2eee2', J: '#f2eee2', o: '#e8c8e0', F: '#3a3a44' }) },
+  portavoz: { ...B24, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a96'),
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#6a6e7a', c: '#50545e', W: '#f2eee2', o: '#2a4a8a', F: '#5a5e68' }) },
+  periodistaUK: { ...B24, cab: CAB_RIZOS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), delante: conLibretaDC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#6a5a3a', c: '#4e4228', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44' }) },
+  periodistaUK2: { ...B24M, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#a8743c'), delante: conLibretaDC,
+    pal: CLT({ H: '#c89a50', h: '#e0b868', C: '#2a6a6a', c: '#1e4e4e', W: '#f2eee2', o: '#f2eee2', F: '#2a2a34' }) },
+  // ── C · los videntes, años setenta ──
+  // Ingo Swann: pelo oscuro rizado, bigote espeso, camisa naranja estampada de cuello ancho y pantalón pardo (para
+  // dibujar con los ojos cerrados, la escena le pasa parpadea: true)
+  swann: { ...B24, cab: CAB_RIZOS, cuerpo: CUERPO_CUELLO_ANCHO_DC, ceja: hex('#1c1424'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#d0783a', c: '#a85a2a', X: '#f2e2c0', p: '#f0d070', F: '#5a3a24', n: '#2a2018' }) },
+  // los científicos del SRI: Puthoff con las gafas grandes de los setenta, camisa amarilla clara y corbata ancha parda;
+  // Targ con barba corta y bigote, camisa azul clara y corbata ancha granate
+  cientificoSRI: { ...B24, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#5a3a24'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#ece2b0', c: '#c8bc88', o: '#9a5a2a', O: '#c88a4a', F: '#6a5a44' }) },
+  cientificoSRI2: { ...B24, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#b8d0e8', c: '#90aac8', o: '#7a2a3a', O: '#a84a5a', F: '#4a4a54' }) },
+  // el vidente de Fort Meade (años ochenta): militar de paisano, pelo muy corto, bigote, polo azul y pantalón caqui
+  videnteFM: { ...B24, ceja: hex('#7a5030'), cuerpo: CUERPO_POLO_DC, delante: bigoteTR,
+    pal: CLT({ H: '#8a5a30', h: '#a8743c', C: '#3a6aa8', c: '#2a5088', W: '#f2eee2', o: '#f2eee2', F: '#a89870', n: '#4a3020' }) },
+  // los expertos de 1995 que cierran el programa: el escéptico (entradas canosas, gafas, traje pardo) y la estadística
+  // (media melena, traje azul)
+  expertoAIR: { ...B24, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a96'), delante: gafasFinasDC,
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e0', C: '#6a5a46', c: '#4e4232', W: '#f2eee2', o: '#2a5a3a', F: '#4e4232' }) },
+  expertoAIR2: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a2a14'),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#2e4a7a', c: '#20365c', W: '#f2eee2', o: '#c8a040', F: '#20365c' }) },
+  // ── D · el ejército fantasma (1944–1945) ──
+  // los soldados de EE. UU.: guerrera y pantalón verde oliva, correaje caqui, polainas de lona, botas y el casco M1
+  soldadoGA: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'cascoM1DC', ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', V: '#5e6440', v: '#454a2e', w: '#7a8256' }) },
+  soldadoGA2: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'cascoM1DC', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', V: '#5e6440', v: '#454a2e', w: '#7a8256' }) },
+  soldadoGA3: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'cascoM1DC', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8904c', h: '#e0ac64', s: '#e8907a', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', V: '#5e6440', v: '#454a2e', w: '#7a8256' }) },
+  // el pintor del ejército fantasma: el mismo uniforme con el gorro de punto y el cuaderno de dibujo
+  pintorGA: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'gorroPuntoDC', ceja: hex('#6a4020'), delante: conCuadernoDC,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', J: '#5a5a3a', j: '#44442a' }) },
+  // el operador de radio: el mismo uniforme sin casco, con los auriculares
+  operadorRadio: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'auriculares', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', M: '#2a2a30' }) },
+  // los veteranos de 2024, muy mayores: gorra de veterano sin letras, chaqueta, arrugas; o.medalla les cuelga la de oro
+  veterano: { ...B24, cuerpo: CUERPO_CHAQUETA_DC, tocado: 'gorraVetDC', ceja: hex('#c8c8d0'), delante: varios(gafasFinasDC, arrugasDC, medallaDC),
+    pal: CLT({ H: '#b4b4c0', h: '#d0d0da', C: '#2a3a5a', c: '#1e2a44', W: '#f2eee2', o: '#f2eee2', F: '#5e5e70', J: '#1e2a44' }) },
+  veterano2: { ...B24, cab: CAB_CALVO, cuerpo: CUERPO_CHAQUETA_DC, tocado: 'gorraVetDC', ceja: hex('#c8c8d0'), delante: varios(bigoteCanoDC, arrugasDC, medallaDC),
+    pal: CLT({ H: '#d8d8e0', h: '#c8c8d2', C: '#7a6a52', c: '#5a4e3c', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44', J: '#2a2430' }) },
+  veterana: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CHAQUETA_DC, tocado: 'gorraVetDC', ceja: hex('#c8c8d0'), delante: varios(arrugasDC, medallaDC),
+    pal: CLT({ H: '#bcbcc8', h: '#d8d8e2', C: '#8a3a4a', c: '#6a2a38', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44', J: '#1e2a44' }) },
+  // Bill Blass joven: pelo engominado, traje azul noche impecable con corbata granate y el pañuelo en el bolsillo
+  disenadorModa: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_PANUELO_DC, ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#6a4a30', C: '#24283a', c: '#181c2a', W: '#f6f6f6', o: '#8a2a3a', X: '#f6f6f6', F: '#24283a' }) },
+  // ── D · Habakuk (1942–1943) ──
+  // Geoffrey Pyke: entradas, barba poblada y descuidada, traje viejo arrugado pardo con la camisa por fuera y un remiendo
+  pyke: { ...B24, cab: CAB_PYKE_DC, cuerpo: CUERPO_PYKE_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#6a4a2a', h: '#8a6440', C: '#6a5e4a', c: '#4e4434', W: '#d8d0b8', o: '#5a3a3a', u: '#8a7a5a', F: '#5a5446' }) },
+  // lord Mountbatten: uniforme blanco de la Marina con galones y charreteras de oro, pasadores y gorra de plato blanca
+  mountbatten: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_GALA_BLANCA_DC, tocado: 'gorraNavalDC', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f6f4ee', c: '#c8c4b8', W: '#f6f4ee', F: '#e8e4da', o: '#e8b830', O: '#e8b830', J: '#1c1c24', X: '#f6f6f6', x: '#c8ccd8', n: '#2a2430' }) },
+  // los ingenieros del lago Patricia (Canadá): abrigo grueso con el cuello de borrego y el gorro de orejeras
+  ingenieroCA: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'orejerasDC', ceja: hex('#5a3a24'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#6a4426', h: '#8a6040', s: '#e8907a', C: '#6a4a2e', c: '#4e3420', u: '#d8c8a8', o: '#3a2a1a', F: '#3a3a44', J: '#5a4632', j: '#40321f', X: '#d8c8a8' }) },
+  ingenieroCA2: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'orejerasDC', ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#a8343a', c: '#7a242a', u: '#2a2430', o: '#2a2430', F: '#3a3a44', J: '#2a2430', j: '#44404e', X: '#c8c0b0' }) },
+  // los oficiales aliados de la reunión: el británico (guerrera caqui con correaje, gorra de plato caqui) y el de EE. UU.
+  // (el del 12)
+  oficialAliado: { ...B24, cab: CAB_SIENES, cuerpo: CUERPO_OFICIAL_DC, tocado: 'general', ceja: hex('#5a4a3a'), delante: bigoteTR,
+    pal: CLT({ H: '#6a5a4a', h: '#8a7a6a', w: '#c8c8d0', C: '#8a7a52', c: '#6a5c3c', W: '#c8b890', J: '#4a4030', G: '#5a3a20', O: '#c8a040', o: '#c8a040', F: '#8a7a52' }) },
+  oficialAliado2: ELENCO_HU.duckworth,
+};
+Object.assign(ELENCO_CHIBI, ELENCO_DC);
+
+// ── piezas del 24 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_DC = { ...PAL_TR, ...COLORES({
+  M: '#9a9aa8', m: '#686878', B: '#d4d4dc', P: '#e89aa8', R: '#c8303a', r: '#8a1e26', Z: '#c8ccd8', z: '#7a7e90', K: '#2a2832',
+  E: '#ffffff', Y: '#f0d040', T: '#d8c08a', t: '#b09868', X: '#f6f2e6', x: '#b8b0a0',
+}) };
+const pintaDC = (R, g, x, y, o = {}, pal = PAL_DC) => pintaJH(R, g, x, y, o, pal);
+const encimaDC = (R, w, hgt, x, y, o, pal = PAL_DC) => encimaNV(R, w, hgt, x, y, o, pal);
+const subDC = (R, w, hgt, x, y, o, pal = PAL_DC) => subNV(R, w, hgt, x, y, o, pal);
+
+// EL GATO ESPÍA, el gag del episodio: gato gris atigrado (M, rayas m, pecho B) sentado, con el collar rojo (R), el
+// micrófono diminuto colgando (Z/z) y la antena fina que sube por detrás de la cabeza (K, la bolita roja arriba).
+// o.t: la cola se mueve y la antena se balancea; o.cara: 'normal' (parpadea con o.t) o 'travieso' (ojos entornados y
+// media sonrisa); o.anda (con o.t): de perfil caminando, patas alternas; o.microfono: lleva en la boca el micrófono de
+// Atom (el gag del final). Sentado mide 18 × 17 (con la antena), andando 21 × 15.
+const COLAS_GATO_DC = [
+  [[5, 15], [4, 15], [3, 15], [2, 14], [1, 13], [1, 12], [1, 11], [1, 10], [2, 9], [3, 8]],
+  [[5, 15], [4, 15], [3, 15], [2, 14], [1, 13], [1, 12], [1, 11], [1, 10], [1, 9], [2, 8]],
+  [[5, 15], [4, 15], [3, 15], [2, 14], [2, 13], [2, 12], [2, 11], [2, 10], [3, 9], [4, 9]],
+];
+const GATO_SENTADO_DC = COLAS_GATO_DC.map((cola) => forma(18, 17, ({ rect, disco, put }) => {
+  cola.forEach(([i, j], n) => put(i, j, n >= cola.length - 2 || n % 3 === 2 ? 'm' : 'M'));
+  disco(8, 13, 3.3, 'M'); rect(11, 10, 13, 15, 'M'); rect(12, 15, 14, 15, 'M');
+  disco(13.5, 8, 3, 'M');
+  put(11, 4, 'M'); put(11, 5, 'P'); put(12, 5, 'M'); put(16, 4, 'M'); put(16, 5, 'P'); put(15, 5, 'M');
+  for (const [i, j] of [[6, 11], [6, 12], [8, 10], [8, 11], [5, 13], [10, 12], [7, 15], [13, 5], [14, 5]]) put(i, j, 'm');
+  put(12, 13, 'B'); put(13, 13, 'B'); put(12, 14, 'B'); put(13, 14, 'B'); put(13, 15, 'm');
+  rect(11, 11, 15, 11, 'R'); put(14, 12, 'Z'); put(14, 13, 'z');
+}));
+const GATO_ANDA_DC = [0, 1].map((f) => forma(21, 15, ({ rect, disco, put }) => {
+  const s = Math.sin(f * 2) > 0 ? 1 : 0;
+  for (const [i, j] of [[4, 9], [3, 8], [2, 7], [2, 6], [2, 5], [3, 4 - s]]) put(i, j, j < 6 ? 'm' : 'M');
+  rect(5, 8, 13, 11, 'M'); disco(6, 9.5, 1.6, 'M'); disco(12, 9.5, 1.6, 'M');
+  disco(16, 7, 2.6, 'M');
+  put(14, 3, 'M'); put(14, 4, 'P'); put(15, 4, 'M'); put(18, 3, 'M'); put(18, 4, 'P'); put(17, 4, 'M');
+  const pat = f ? [[5, 12], [5, 13], [8, 12], [8, 13], [11, 12], [11, 13], [14, 12], [14, 13]] : [[4, 12], [4, 13], [7, 12], [7, 13], [12, 12], [12, 13], [15, 12], [15, 13]];
+  for (const [i, j] of pat) put(i, j, 'M');
+  for (const [i, j] of [[6, 8], [6, 9], [8, 8], [8, 9], [10, 8], [10, 9], [16, 4]]) put(i, j, 'm');
+  rect(8, 11, 12, 11, 'B');
+  rect(14, 9, 14, 10, 'R'); put(13, 9, 'R'); put(14, 11, 'Z');
+}));
+const gatoEspiaDC = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, anda = !!o.anda, tr = o.cara === 'travieso';
+  if (anda) {
+    const f = Math.floor(t * 6) % 2;
+    pintaDC(R, GATO_ANDA_DC[f], x, y - (f ? 0 : 0), o);
+    const px = encimaDC(R, 21, 15, x, y, o);
+    const bal = Math.round(Math.sin(t * 5) * 0.8);
+    for (let j = 1; j <= 8; j++) px(j < 5 ? 12 + (j < 3 ? bal : 0) : 12, j, 'K');
+    px(12 + bal, 0, 'R');
+    if (tr) { px(16, 6, 'm'); px(16, 7, 'k'); px(17, 6, 'm'); px(17, 7, 'k'); px(18, 9, 'k'); px(19, 8, 'k'); }
+    else { const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12; if (cierra) px(17, 7, 'k'); else { px(17, 6, 'k'); px(17, 7, 'k'); } }
+    px(19, 7, 'P'); px(20, 8, 'z');
+    if (o.microfono) { px(19, 9, 'K'); px(20, 9, 'K'); px(20, 10, 'z'); px(19, 10, 'Z'); px(20, 11, 'K'); }
+    return;
+  }
+  const fase = Math.floor(((Math.sin(t * 2.2) + 1) / 2) * 2.99);
+  pintaDC(R, GATO_SENTADO_DC[o.t == null ? 0 : fase], x, y, o);
+  const px = encimaDC(R, 18, 17, x, y, o);
+  const bal = o.t == null ? 0 : Math.round(Math.sin(t * 3.1) * 0.8);
+  for (let j = 2; j <= 10; j++) px(j < 6 ? 10 + (j < 4 ? bal : 0) : 10, j, 'K');
+  px(10 + bal, 1, 'R'); px(10 + bal, 0, 'k');
+  if (tr) {
+    for (const e of [12, 15]) { px(e, 7, 'k'); px(e + (e === 12 ? -1 : 1), 6, 'k'); px(e, 8, 'Y'); }
+    px(13, 10, 'k'); px(14, 10, 'k'); px(15, 9, 'k');
+  } else {
+    const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12;
+    for (const e of [12, 15]) { if (cierra) px(e, 8, 'k'); else { px(e, 7, 'k'); px(e, 8, 'k'); } }
+    px(14, 10, 'k');
+  }
+  px(13, 9, 'P'); px(14, 9, 'P'); px(17, 9, 'z'); px(17, 10, 'z');
+  if (o.microfono) { px(13, 10, 'K'); px(12, 10, 'K'); px(12, 11, 'z'); px(13, 11, 'Z'); px(13, 12, 'K'); }
+};
+
+// LA PALOMA bravía: gris azulada (G, ala g con las dos barras negras), el cuello tornasolado (V verde, U morado), el pico
+// (b) y las patas rosas (P); o.picotea (con o.t) baja la cabeza; o.vuela (con o.t) bate las alas
+const PAL_PALOMA_DC = { ...PAL_DC, ...COLORES({ G: '#9aa4b8', g: '#6e788e', V: '#4a9a7a', U: '#8a5aa8', b: '#3a3a44', P: '#d8607a', y: '#e8783a' }) };
+const PALOMA_DC = {};
+for (const pose of ['quieta', 'pica', 'alaArriba', 'alaAbajo']) PALOMA_DC[pose] = forma(14, 11, ({ rect, disco, put }) => {
+  disco(6, 7, 2.6, 'G'); rect(1, 6, 3, 7, 'g'); put(0, 6, 'g');
+  const [hx, hy] = pose === 'pica' ? [10, 8] : [10, 4];
+  disco(hx, hy, 1.5, 'G'); put(hx - 1, hy + 2, 'V'); put(hx - 2, hy + 2, 'U'); put(9, 6, 'V'); put(8, 5, 'U'); put(hx + 2, hy, 'b');
+  if (pose === 'alaArriba') { rect(4, 1, 7, 4, 'g'); put(5, 2, 'k'); put(6, 3, 'k'); }
+  else if (pose === 'alaAbajo') { rect(4, 8, 7, 9, 'g'); put(5, 9, 'k'); }
+  else { rect(4, 6, 7, 7, 'g'); put(5, 6, 'k'); put(6, 7, 'k'); }
+  if (pose !== 'alaArriba' && pose !== 'alaAbajo') { put(5, 10, 'P'); put(7, 10, 'P'); }
+});
+const palomaDC = (R, x, y, o = {}) => {
+  const t = o.t ?? 0;
+  const pose = o.vuela ? (Math.floor(t * 10) % 2 ? 'alaArriba' : 'alaAbajo') : o.picotea && Math.floor(t * 3 + x) % 3 === 0 ? 'pica' : 'quieta';
+  pintaDC(R, PALOMA_DC[pose], x, y, o, PAL_PALOMA_DC);
+  const px = encimaDC(R, 14, 11, x, y, o, PAL_PALOMA_DC);
+  const [hx, hy] = pose === 'pica' ? [10, 8] : [10, 4];
+  px(hx, hy - 1, 'y'); px(hx + 1, hy - 1, 'k');
+};
+
+// LA GALLINA: la del 23 (blanca o parda, o.picotea); o.sentada: echada a empollar, sin patas, con el pecho hinchado
+const GALLINA_SENTADA_DC = forma(16, 11, ({ rect, disco, put }) => {
+  disco(7, 7, 3.8, 'W'); rect(2, 7, 12, 9, 'W'); rect(2, 10, 12, 10, 'w');
+  put(2, 4, 'W'); put(1, 3, 'W'); put(1, 2, 'W'); put(2, 3, 'W'); put(3, 4, 'W'); put(2, 5, 'W');
+  put(5, 6, 'w'); put(6, 7, 'w'); put(7, 7, 'w'); put(8, 7, 'w'); put(9, 6, 'w');
+  rect(10, 4, 11, 6, 'W'); disco(11.5, 3, 1.7, 'W'); put(11, 0, 'R'); put(12, 0, 'R'); put(13, 1, 'R'); put(14, 3, 'y'); put(13, 5, 'R');
+});
+const gallinaDC = (R, x, y, o = {}) => {
+  if (!o.sentada) return gallinaTR(R, x, y, o);
+  const pal = o.color === 'parda' ? { ...PAL_TR, ...COLORES({ W: '#b8703a', w: '#8a4e24' }) } : { ...PAL_TR, ...COLORES({ w: '#d8d0c4' }) };
+  pintaTR(R, GALLINA_SENTADA_DC, x, y, o, pal);
+  const px = encimaTR(R, 16, 11, x, y, o, pal);
+  if (o.t != null && ((o.t + x * 0.13) % 3) < 0.15) px(12, 3, 'w'); else px(12, 2, 'k');
+};
+
+// LA RADIO DE ONDA CORTA de los cincuenta: caja de madera (B/b, filo de luz T) con la rejilla de tela (t), el dial redondo
+// crema (X) con su aguja, los dos mandos y la antena telescópica; o.dial 0–1 mueve la aguja (si no, con o.t barre
+// despacio); o.encendida: el dial se ilumina y la lucecita verde; o.antena false la quita. 22 × 13 (la antena sube 9 más)
+const RADIO_DC = forma(22, 13, ({ rect, disco, put }) => {
+  rect(1, 1, 20, 12, 'B'); rect(1, 1, 20, 1, 'T'); rect(1, 12, 20, 12, 'b'); rect(20, 1, 20, 12, 'b');
+  rect(2, 3, 9, 10, 't'); for (let j = 4; j <= 10; j += 2) rect(2, j, 9, j, 'x');
+  disco(15, 6, 3.3, 'X'); put(13, 11, 'K'); put(17, 11, 'K'); put(12, 11, 'K'); put(18, 11, 'K');
+  rect(3, 11, 8, 11, 'T');
+});
+const radioOndaDC = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, enc = !!o.encendida;
+  const pal = { ...PAL_DC, ...COLORES({ B: '#a8743c', b: '#6a4422', T: '#d8a868', t: '#c8b48a', ...(enc ? { X: '#fff0a0' } : {}) }) };
+  if (o.antena !== false) { const pxA = encimaDC(R, 22, 13, x, y, o, pal); for (let k = 0; k <= 8; k++) pxA(18 - Math.round(k * 0.5), -k, k > 5 ? 'z' : 'Z'); pxA(14, -9, 'K'); }
+  pintaDC(R, RADIO_DC, x, y, o, pal);
+  const px = encimaDC(R, 22, 13, x, y, o, pal);
+  for (const [i, j] of [[13, 4], [15, 3], [17, 4], [18, 6], [12, 6]]) px(i, j, 'x');
+  const d = o.dial != null ? o.dial : (Math.sin(t * 0.7) + 1) / 2, a = Math.PI * (1.15 - d * 1.3);
+  for (let r = 0; r <= 3; r++) px(Math.round(15 + Math.cos(a) * r), Math.round(6 - Math.sin(a) * r), r === 0 ? 'K' : 'R');
+  px(19, 3, enc ? (Math.sin(t * 6) > -0.6 ? 'l' : 'V') : 'v');
+};
+
+// LA CARPETA de expediente: cartulina beige (T, sombra t) con la pestaña, el canto de las hojas (X) y el sello rojo
+// redondo con una raya (R), sin letras; o.dibujo: 'luna' | 'gato' | 'gallina' | 'ojo' | 'tanque' | 'hielo' (o 'barco'),
+// el dibujo de la tapa; o.sello false lo quita (o 'sonrojado': el sello con la cara colorada del final); o.abierta: abierta
+// de par en par (34 × 15) con la hoja de rayas (sin letras), el dibujo en la hoja y el sello. Cerrada 19 × 15
+const DIBUJOS_DC = {
+  luna: [['kkkkkkk', 'kNNYYNk', 'kNYYyYk', 'kNYyYYk', 'kNNYYNk', 'kNNNNNk', 'kkkkkkk'], { N: '#24305a', Y: '#f6f0c8', y: '#c8c098' }],
+  gato: [['R......', 'K.k...k', 'KkMk.kM', 'KkMMMMM', 'KkkMMkM', 'K.kMPMk', '..kRRk.'], { M: '#8a8a98', K: '#2a2832', P: '#e89aa8', R: '#c8303a' }],
+  gallina: [['....RR.', '...kWWk', '.k.kWkWy', 'kWkWWWk', 'kWWWWWk', '.kWWWk.', '..y.y..'], { W: '#f6f2e6', R: '#c8303a', y: '#e8a030' }],
+  ojo: [['.u..u.', 'u.kk.u', '.kEAk.', 'u.kk.u', '.u..u.', '......'], { E: '#ffffff', A: '#3a6ad8', u: '#8a5aa8' }],
+  tanque: [['..kk..', '.kVVkk', 'kVVVVk', 'kvvvvk', 'kgkgkk', '......'], { V: '#6a6e44', v: '#4e5232', g: '#8a8e5a' }],
+  hielo: [['...k..', '..kWk.', '.kkkkk', 'kFFFFk', '.kFFk.', 'AAAAAA'], { W: '#8a6a4a', F: '#c8ecf8', A: '#3a6ad8' }],
+};
+DIBUJOS_DC.barco = DIBUJOS_DC.hielo;
+const CARPETA_DC = forma(19, 15, ({ rect }) => { rect(1, 2, 17, 14, 'T'); rect(2, 0, 7, 1, 'T'); rect(9, 1, 16, 1, 'X'); rect(17, 3, 17, 14, 't'); rect(1, 14, 17, 14, 't'); rect(1, 3, 17, 3, 't'); });
+const CARPETA_ABIERTA_DC = forma(34, 15, ({ rect }) => {
+  rect(1, 1, 16, 14, 't'); rect(2, 2, 15, 13, 'T'); rect(17, 1, 32, 14, 'T'); rect(18, 2, 31, 13, 'X');
+  for (let j = 4; j <= 12; j += 2) rect(19, j, j === 12 ? 25 : 30, j, 'x');
+  rect(17, 1, 17, 14, 't'); rect(3, 3, 14, 12, 'X'); rect(4, 4, 13, 4, 'x');
+});
+const SELLO_MARCA_DC = ['..RRR..', '.R...R.', 'R.....R', 'RRRRRRR', 'R.....R', '.R...R.', '..RRR..'];
+const SELLO_CARA_DC = ['..RRR..', '.R...R.', 'R.k.k.R', 'RP...PR', 'R.kkk.R', '.R...R.', '..RRR..'];
+const carpetaDC = (R, x, y, o = {}) => {
+  const dib = o.dibujo && DIBUJOS_DC[o.dibujo], sello = o.sello === false ? null : o.sello === 'sonrojado' ? SELLO_CARA_DC : SELLO_MARCA_DC;
+  const palS = { ...PAL_DC, ...COLORES({ R: '#c8303a', P: '#f08aa0' }) };
+  if (o.abierta) {
+    pintaDC(R, CARPETA_ABIERTA_DC, x, y, o);
+    const sub = subDC(R, 34, 15, x, y, o, palS);
+    if (dib) sub(dib[0], 5, 6, { ...PAL_DC, ...COLORES(dib[1]) });
+    if (sello) sub(sello, 24, 6, palS);
+    return;
+  }
+  pintaDC(R, CARPETA_DC, x, y, o);
+  const sub = subDC(R, 19, 15, x, y, o, palS);
+  if (dib) sub(dib[0], 3, 6, { ...PAL_DC, ...COLORES(dib[1]) });
+  if (sello) sub(sello, 10, 5, palS);
+};
+
+// EL SELLO DE GOMA: puño de madera (B/b), mango y la base con la goma roja (R); o.tipo 'marca': solo la marca de tinta
+// (el círculo con la raya, 7 × 7); o.cara 'sonrojada' (con 'marca'): la marca es una cara colorada (el final)
+const SELLO_DC = forma(11, 14, ({ rect, disco }) => { disco(5, 2.5, 2.3, 'B'); rect(4, 4, 6, 8, 'b'); rect(1, 9, 9, 10, 'B'); rect(1, 10, 9, 10, 'b'); rect(1, 11, 9, 12, 'R'); });
+const selloDC = (R, x, y, o = {}) => {
+  const palS = { ...PAL_DC, ...COLORES({ R: '#c8303a', P: '#f08aa0' }) };
+  if (o.tipo === 'marca') return pintaDC(R, o.cara === 'sonrojada' ? SELLO_CARA_DC : SELLO_MARCA_DC, x, y, o, palS);
+  pintaDC(R, SELLO_DC, x, y, o, { ...PAL_DC, ...COLORES({ B: '#a8743c', b: '#6a4422' }) });
+  const px = encimaDC(R, 11, 14, x, y, o, { ...PAL_DC, ...COLORES({ o: '#e0a868' }) }); px(4, 1, 'o'); px(4, 2, 'o');
+};
+
+// LA MINA BLUE PEACOCK: cilindro de acero enorme tumbado (Z, luz E, sombra z, fondo u) con los aros de remaches (w), la
+// tapa de registro arriba con sus pernos, el cable y las cajas de mando; o.escarcha: la capa blanca de nieve encima.
+// 44 × 22
+const MINA_DC = forma(44, 22, ({ rect, disco, put }) => {
+  rect(5, 3, 38, 20, 'Z'); disco(5, 11.5, 8.3, 'Z'); disco(38, 11.5, 8.3, 'Z'); rect(5, 3, 38, 20, 'Z');
+  for (let i = 0; i < 44; i++) for (let j = 0; j < 22; j++) {
+    const den = Math.hypot(i - Math.min(38, Math.max(5, i)), j - 11.5) <= 8.6 && j >= 3 && j <= 20;
+    if (!den) continue;
+    put(i, j, j <= 5 ? 'E' : j >= 17 ? 'z' : j >= 15 ? 'u' : 'Z');
+  }
+  for (const c of [12, 22, 32]) for (let j = 3; j <= 20; j++) put(c, j, j % 3 === 0 ? 'w' : 'z');
+  rect(19, 0, 25, 2, 'z'); rect(20, 0, 24, 1, 'Z'); put(19, 0, 'w'); put(25, 0, 'w');
+  rect(1, 10, 3, 13, 'u'); put(2, 11, 'w');
+  rect(40, 9, 43, 13, 'u'); rect(41, 10, 42, 12, 'K');
+});
+const minaPeacockDC = (R, x, y, o = {}) => {
+  const pal = { ...PAL_DC, ...COLORES({ Z: '#8a92a2', E: '#b8c0cc', z: '#6a7282', u: '#4e5464', w: '#c8ccd6', K: '#c8303a' }) };
+  pintaDC(R, MINA_DC, x, y, o, pal);
+  if (o.escarcha) { const px = encimaDC(R, 44, 22, x, y, o, { ...pal, ...COLORES({ X: '#f6f8fc', x: '#d8e4f0' }) }); for (let i = 4; i <= 39; i++) { px(i, 3, 'X'); if ((i * 7) % 5 < 3) px(i, 4, 'x'); } }
+};
+
+// EL TANQUE DE GOMA del ejército fantasma: un Sherman hinchable verde oliva (V, sombra v, brillo de goma l) con sus costuras
+// (k), las ruedas pintadas (g) y la válvula; o.inflado 0–1 (1 por omisión): al bajar se aplasta, se arruga y el cañón se
+// cae. 38 × 20
+const TANQUE_CACHE_DC = new Map();
+const tanqueGomaFormaDC = (n) => forma(38, 20, ({ rect, disco, put, linea }) => {
+  const f = 0.3 + 0.7 * n / 8, Y = (j) => Math.round(19 - (19 - j) * f);
+  for (let j = Y(12); j <= 18; j++) for (let i = 2; i <= 35; i++) put(i, j, 'V');
+  for (let j = Y(9); j < Y(12); j++) for (let i = 5; i <= 32; i++) put(i, j, 'V');
+  for (let j = Y(3); j < Y(9); j++) for (let i = 12; i <= 23; i++) put(i, j, 'V');
+  for (let i = 2; i <= 35; i++) { put(i, 18, 'v'); put(i, Y(15), 'v'); }
+  for (let k = 0; k < 5; k++) disco(7 + k * 6, (Y(15) + 18) / 2 + 0.5, Math.max(0.6, 1.6 * f), 'g');
+  for (let i = 13; i <= 22; i++) put(i, Y(4), 'l'); for (let i = 6; i <= 31; i++) put(i, Y(10), 'l');
+  const cy = Y(5), caida = Math.round((1 - n / 8) * 7);
+  linea(24, cy, 36, cy + caida, 'V'); linea(24, cy + 1, 36, cy + 1 + caida, 'v');
+  put(17, Y(3) - 1, 'v');
+  if (n < 8) for (let k = 0; k < 8 - n; k++) { const i = 5 + ((k * 11) % 27), j = Y(10) + (k % 3); put(i, j, 'v'); put(i + 1, j + 1, 'v'); }
+});
+const tanqueGomaDC = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.inflado ?? 1)) * 8);
+  if (!TANQUE_CACHE_DC.has(n)) TANQUE_CACHE_DC.set(n, tanqueGomaFormaDC(n));
+  pintaDC(R, TANQUE_CACHE_DC.get(n), x, y, o, { ...PAL_DC, ...COLORES({ V: '#6a6e44', v: '#4c5030', l: '#90946a', g: '#3e4228' }) });
+};
+
+// EL BLOQUE DE PYKRETE: hielo con serrín, gris azulado (cara A, tapa a, lado n) con las motas del serrín (d); o.tipo
+// 'hielo': el bloque de hielo normal, claro y con brillo; o.roto (con 'hielo'): partido en tres trozos. 15 × 12
+const BLOQUE_DC = forma(15, 12, ({ rect, put }) => {
+  for (let j = 1; j <= 3; j++) for (let i = 4 - j; i <= 13 - j; i++) put(i, j, 'a');
+  rect(1, 4, 10, 11, 'A');
+  rect(11, 3, 11, 10, 'n'); rect(12, 2, 12, 9, 'n'); rect(13, 1, 13, 8, 'n');
+});
+const BLOQUE_ROTO_DC = forma(19, 12, ({ rect, put }) => {
+  rect(1, 6, 5, 11, 'A'); put(2, 5, 'a'); put(3, 5, 'a'); put(4, 5, 'a');
+  rect(7, 8, 11, 11, 'A'); rect(8, 7, 10, 7, 'a');
+  rect(13, 5, 17, 11, 'A'); rect(14, 4, 17, 4, 'a'); put(17, 3, 'n');
+  put(6, 10, 'a'); put(12, 11, 'a');
+});
+const bloqueHieloDC = (R, x, y, o = {}) => {
+  const hielo = o.tipo === 'hielo';
+  const pal = { ...PAL_DC, ...COLORES(hielo ? { A: '#b8e4f4', a: '#e4f6fc', n: '#88c4dc', d: '#ffffff' } : { A: '#8a9cae', a: '#aebccc', n: '#6a7a8c', d: '#7a5a3a' }) };
+  if (hielo && o.roto) { pintaDC(R, BLOQUE_ROTO_DC, x, y, o, pal); return; }
+  pintaDC(R, BLOQUE_DC, x, y, o, pal);
+  const px = encimaDC(R, 15, 12, x, y, o, pal);
+  if (hielo) { px(2, 5, 'd'); px(2, 6, 'd'); px(3, 5, 'd'); px(7, 2, 'd'); }
+  else for (const [i, j] of [[2, 5], [5, 7], [8, 5], [3, 9], [7, 10], [9, 8], [6, 2], [9, 3], [12, 5], [4, 7]]) px(i, j, 'd');
+};
+
+// EL MICRÓFONO DE MESA de Atom: cápsula redonda con la rejilla plateada (Z/z) y el aro oscuro (K), el pie y la base;
+// o.encendido: la lucecita roja del pie. 9 × 16
+const MICRO_DC = forma(9, 16, ({ rect, disco, put }) => {
+  disco(4, 3.5, 3.2, 'Z'); for (let j = 1; j <= 6; j++) for (let i = 1; i <= 7; i++) if ((i + j) % 2 === 0 && Math.hypot(i - 4, j - 3.5) <= 2.8) put(i, j, 'z');
+  rect(1, 4, 7, 4, 'K'); rect(4, 7, 4, 13, 'K'); rect(3, 8, 5, 9, 'K'); rect(1, 14, 7, 15, 'K'); rect(2, 13, 6, 13, 'K');
+});
+const microfonoDC = (R, x, y, o = {}) => {
+  pintaDC(R, MICRO_DC, x, y, o, { ...PAL_DC, ...COLORES({ K: '#3a3a48' }) });
+  const px = encimaDC(R, 9, 16, x, y, o); px(2, 2, 'E');
+  if (o.encendido) px(4, 14, 'R');
+};
+
+export const PIEZAS_DC = {
+  gatoEspia: gatoEspiaDC, paloma: palomaDC, gallina: gallinaDC, radioOnda: radioOndaDC, carpeta: carpetaDC, sello: selloDC,
+  minaPeacock: minaPeacockDC, tanqueGoma: tanqueGomaDC, bloqueHielo: bloqueHieloDC, microfono: microfonoDC,
+};
