@@ -92,7 +92,8 @@ const p2 = (t) => {
   else palomaPica(240, 120, t, Math.sin(t * 6) > 0.3);
   const o = tramo(t, P2 + 0.3, PALOMAS + 0.6);
   R.actor(EL.oficialNaval, Math.round(lerp(330, 280, o)), 170, t, { dir: -1, anda: o > 0 && o < 1, enfado: t > PUNTA, habla: t > BOMBA && t < PUNTA && Math.sin(t * 7) > 0.3 });
-  const rf = R.actor(EL.reiffel, 62, g.detrasMesa, t, { dir: 1, sostiene: [82 + Math.round(Math.sin(t * 6) * 2), 140], habla: Math.sin(t * 3) > 0.6 });
+  // el ayudante del laboratorio (un oficinista de los cuarenta), que apunta los picotazos
+  const rf = R.actor(EL.oficinista, 62, g.detrasMesa, t, { dir: 1, sostiene: [82 + Math.round(Math.sin(t * 6) * 2), 140], habla: Math.sin(t * 3) > 0.6 });
   // el lápiz con el que apunta los picotazos en el cuaderno
   R.linea(rf.mano[0] + 1, rf.mano[1] - 1, rf.mano[0] + 4, rf.mano[1] - 5, hex('#e8b030')); R.pset(rf.mano[0] + 4, rf.mano[1] - 5, k);
   T.animalesDelante(R, t, { encuadre: 'labSkinner' });
