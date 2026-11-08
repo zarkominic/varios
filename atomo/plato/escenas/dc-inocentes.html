@@ -230,9 +230,9 @@ const p4 = (t) => {
   T.animales(R, t, { encuadre: 'archivos2004', dia: 1, mes: 4, flash, flashes: [[80, 136], [262, 120]] });
   // al fondo, una archivista sube por la escalera de biblioteca con una caja y la deja en el estante de arriba
   { const sube = tramo(t, P4 + 0.4, explica + 1.6), baja = tramo(t, pero + 0.4, cierto + 2.4), y = Math.round(lerp(lerp(124, 72, sube), 124, baja));
-    const ar = R.actor(EL.oficinista2, 84, y, t, { dir: 1, sostiene: baja > 0 ? false : [96, y - 14], anda: (sube > 0 && sube < 1) || (baja > 0 && baja < 1) });
-    if (baja > 0) { R.rect(95, 51, 105, 59, k); R.rect(96, 52, 104, 58, hex('#8a8e96')); R.rect(98, 54, 102, 55, hex('#e8e4d8')); }
-    if (baja <= 0) { R.rect(ar.mano[0] - 1, ar.mano[1] - 7, ar.mano[0] + 9, ar.mano[1] + 1, k); R.rect(ar.mano[0], ar.mano[1] - 6, ar.mano[0] + 8, ar.mano[1], hex('#8a8e96')); R.rect(ar.mano[0] + 2, ar.mano[1] - 4, ar.mano[0] + 6, ar.mano[1] - 3, hex('#e8e4d8')); } }
+    const ar = R.actor(EL.oficinista2, 84, y, t, { dir: -1, sostiene: baja > 0 ? false : [72, y - 14], anda: (sube > 0 && sube < 1) || (baja > 0 && baja < 1) });
+    if (baja > 0) { R.rect(64, 52, 74, 60, k); R.rect(65, 53, 73, 59, hex('#8a8e96')); R.rect(67, 55, 71, 56, hex('#e8e4d8')); }
+    if (baja <= 0) { R.rect(ar.mano[0] - 9, ar.mano[1] - 7, ar.mano[0] + 1, ar.mano[1] + 1, k); R.rect(ar.mano[0] - 8, ar.mano[1] - 6, ar.mano[0], ar.mano[1], hex('#8a8e96')); R.rect(ar.mano[0] - 6, ar.mano[1] - 4, ar.mano[0] - 2, ar.mano[1] - 3, hex('#e8e4d8')); } }
   const serio = t > pero;
   const vp = tramo(t, P4 + 0.1, P4 + 1.3);
   R.actor(EL.portavoz, Math.round(lerp(128, 156, vp)), 151, t, { dir: 1, anda: vp > 0 && vp < 1, habla: vp >= 1 && t < pero + 0.9 && Math.sin(t * 8) > 0, dedo: serio, enfado: serio && t < cierto + 1.2 });

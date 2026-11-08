@@ -181,7 +181,7 @@ const p3 = (t) => {
   const u = tramo(t, P3 + 0.1, P3 + 1.5), rx = Math.round(lerp(326, 226, u));
   const habla = u >= 1 && Math.sin(t * 9) > -0.2;
   // al fondo, una compañera cruza con las hojas recién impresas y otro vuelve con su café
-  { const u = tramo(t, P3 + 0.2, P4 - 0.2), x = Math.round(lerp(-12, 250, u)); if (u > 0 && u < 1) { const c = R.actor(EL.periodistaUK2, x, 146, t, { dir: 1, anda: true, sostiene: true }); const [hx, hy] = c.mano; rect(hx - 3, hy - 2, hx + 4, hy + 3, K); rect(hx - 2, hy - 1, hx + 3, hy + 2, hex('#f6f4ee')); pset(hx - 1, hy, hex('#8a8a90')); pset(hx + 1, hy + 1, hex('#8a8a90')); } }
+  { const u = tramo(t, P3 + 0.2, P4 + 0.4), x = Math.round(lerp(-12, 336, u)); if (u > 0 && u < 1) { const c = R.actor(EL.periodistaUK2, x, 146, t, { dir: 1, anda: true, sostiene: true }); const [hx, hy] = c.mano; rect(hx - 3, hy - 2, hx + 4, hy + 3, K); rect(hx - 2, hy - 1, hx + 3, hy + 2, hex('#f6f4ee')); pset(hx - 1, hy, hex('#8a8a90')); pset(hx + 1, hy + 1, hex('#8a8a90')); } }
   { const u = tramo(t, P3 + 1.8, P3 + 3.0), x = Math.round(lerp(334, 302, u)); if (u > 0) { const c = R.actor(EL.periodistaUK, x, 148, t, { dir: -1, anda: u < 1, sostiene: true, sonrisa: u >= 1 }); const [hx, hy] = c.mano; rect(hx - 2, hy - 3, hx + 2, hy + 1, K); rect(hx - 1, hy - 2, hx + 1, hy, hex('#f0ece0')); if (Math.floor(t * 4) % 2) pset(hx, hy - 5, hex('#c8c8d0')); } }
   R.actor(EL.periodista2000, 100, 141, t, { dir: 1, habla: false, sorpresa: t > DOSMIL && t < DOSMIL + 1.2, sonrisa: t > DOSMIL + 1.2, dedo: t > CUENTA && t < DOSMIL && Math.sin(t * 6) > 0 });
   R.actor(EL.reiffelMayor, rx, 160, t, { dir: -1, anda: u > 0 && u < 1, habla, dedo: t > a(0.72) && t < a(0.8), sonrisa: t > DOSMIL });
@@ -302,7 +302,7 @@ const fondoAcero = () => capa('acero', () => {
     const esc = Math.min(x, 319 - x, y, 179 - y);
     if (esc < 14 && hh(x, y, 5) > esc / 14) v = 0.95;
     // la esquina de Atom (x ≥ 268, y ≤ 50): chapa lisa en sombra, sin rombos ni escarcha
-    if (x >= 268 && y <= 50) { pset(x, y, S[1]); continue; }
+    if (x >= 268 && y <= 50) { pset(x, y, S[2]); continue; }
     pset(x, y, ramp(S, v, x, y));
   }
   for (const x of [8, 312]) for (let y = 30; y < 170; y += 28) { if (x === 312 && y < 56) continue; disco(x, y, 2, S[0]); pset(x - 1, y - 1, S[4]); }

@@ -78,7 +78,7 @@ const p1 = (t) => {
   const b = R.actor(EL.soldadoGA2, 168, 152, t, { dir: -1, sostiene: saca ? [162, 128] : false, dedo: t > suelta + 0.3 && t < GUERRA, sonrisa: true });
   if (saca) palomaPica(b.mano[0], b.mano[1] - 1, t, Math.sin(t * 3) > 0.7, { dir: -1 });
   // un tercero cruza al fondo con otra cesta
-  const c = tramo(t, 0.4, P2 - 0.3); R.actor(EL.soldadoGA3, Math.round(lerp(300, 200, c)), 140, t, { dir: -1, anda: c > 0 && c < 1 });
+  const c = tramo(t, 0.4, P2 - 0.3); R.actor(EL.soldadoGA3, Math.round(lerp(204, 296, c)), 140, t, { dir: 1, anda: c > 0 && c < 1 });
   T.guerraDelante(R, t, { encuadre: 'campo44', tanque: false, altavoz: 0 });
 };
 
