@@ -617,9 +617,9 @@ const prensa = () => fijo('prensa', () => {
   for (let j = 0; j < 7; j++) for (let i = 0; i < 12; i++) { if ((i + j) % 2) continue; const x = 68 + i * 16, y = 20 + j * 14; if (x > 108 && x < 212 && y < 104) continue; R.rect(x, y, x + 5, y + 4, Q.telonL); R.rect(x + 2, y, x + 3, y + 4, Q.telonS); }
   R.rect(62, 18, 258, 20, Q.oroS); R.rect(62, 18, 258, 18, Q.oroL);
   // la pantalla del telón (el libro se pinta en vivo)
-  caja(110, 24, 210, 72, Q.blancoS); R.rect(112, 26, 208, 70, hex('#1a2440'));
+  caja(110, 24, 210, 68, Q.blancoS); R.rect(112, 26, 208, 66, hex('#1a2440'));
   // el cartel del contador bajo la pantalla
-  caja(118, 76, 202, 98, Q.k); R.rect(119, 77, 201, 97, hex('#141a30')); R.rect(119, 77, 201, 77, hex('#2a345a'));
+  caja(118, 70, 202, 92, Q.k); R.rect(119, 71, 201, 91, hex('#141a30')); R.rect(119, 71, 201, 71, hex('#2a345a'));
   // la tarima de madera con su canto y la moqueta
   madera(0, 118, 319, 126, Q.roble, Q.robleL, Q.robleS, Q.robleD, 4, 403); R.rect(0, 126, 319, 128, Q.robleD);
   for (let y = 128; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, hh(x >> 1, y >> 1, 404) > 0.8 ? Q.moqS : (x + y * 2) % 7 === 0 ? Q.moqL : Q.moq);
@@ -641,13 +641,13 @@ const p1 = (t) => {
   prensa();
   const i = turno(t), tc = t - CAMBIOS[i];
   // la pantalla: el libro abierto, que brilla
-  PIEZAS_VM.libroVoynich(R, 160, 66, { abierto: true, pagina: ['planta', 'estrellas', 'estanques', 'tarros', 'planta'][i], s: 2, brilla: Math.sin(t * 4) > 0 });
+  PIEZAS_VM.libroVoynich(R, 160, 64, { abierto: true, pagina: ['planta', 'estrellas', 'estanques', 'tarros', 'planta'][i], s: 2, brilla: Math.sin(t * 4) > 0 });
   // el contador de años
-  R.numero(String(ANOS[i]), 160, 95, { tam: 16, centro: true, color: i === 4 ? Q.oroL : Q.blanco });
+  R.numero(String(ANOS[i]), 160, 89, { tam: 16, centro: true, color: i === 4 ? Q.oroL : Q.blanco });
   // quien anuncia (cada pocos años, otro) alza el libro tras el atril
   const QUIEN = [EL.profesor, EL.cientifico, EL.ingeniero, EL.fisica, EL.investigadorIA];
   const sube = ease(tramo(tc, 0.1, 0.4)), x = 153;
-  const a = R.actor(QUIEN[i], x, 121, t, { dir: 1, sostiene: [x + 18, Math.round(lerp(106, 94, sube))], sonrisa: true, habla: tc > 0.4 && Math.sin(t * 9) > 0 });
+  const a = R.actor(QUIEN[i], x, 121, t, { dir: 1, sostiene: [x + 18, Math.round(lerp(114, 108, sube))], sonrisa: true, habla: tc > 0.4 && Math.sin(t * 9) > 0 });
   PIEZAS_VM.libroVoynich(R, a.mano[0], a.mano[1] + 4, {});
   if (t > ANUNCIA && t < ANUNCIA + 0.9) globo(a.cabeza[0], a.cabeza[1] - 4, '!');
   atril();
@@ -998,7 +998,7 @@ const p4 = (t) => {
   // la bibliotecaria: entra en «nobody», alarga las manos a la tapa en «close» y da un salto en «case»
   const u = tramo(t, NOBODY - 0.6, CLOSE - 0.3), x = Math.round(lerp(330, 190, ease(u)));
   const bi = R.actor(EL.bibliotecaria, x, 156, t, { dir: -1, anda: u > 0 && u < 1, sostiene: t > CLOSE - 0.4 && t < CASE + 0.1 ? [bx + 22, by - 30] : false, sorpresa: t > CASE, salto: t > CASE && t < CASE + 0.45 ? Math.round(Math.sin((t - CASE) / 0.45 * Math.PI) * 6) : 0 });
-  if (t > CASE + 0.3) globo(bx, by - 58, '?');
+  if (t > CASE + 0.3) globo(bx - 42, by - 30, '?');
 };
 
 const efectos = [[DOESNT, 'toc'], [ADD, 'tic'], [UP + 0.05, 'pop'], [GIB, 'lapiz'], [FIVE, 'pop'], [P3 + 0.75, 'golpecito'], [REAL + 0.05, 'golpecito'], [HARD - 0.1, 'brillo'], [SEIS, 'tic'], [CLOSE + 0.1, 'golpecito'], [CASE + 0.1, 'boing'], [CASE + 0.35, 'brillo']];
