@@ -5913,3 +5913,823 @@ export const PIEZAS_DC = {
   gatoEspia: gatoEspiaDC, paloma: palomaDC, gallina: gallinaDC, radioOnda: radioOndaDC, carpeta: carpetaDC, sello: selloDC,
   minaPeacock: minaPeacockDC, tanqueGoma: tanqueGomaDC, bloqueHielo: bloqueHieloDC, microfono: microfonoDC,
 };
+
+// ── Episodio 26 (Atari, el juego enterrado): el bar de 1972, el salón de 1977, las oficinas de 1982, la tienda de
+// juguetes, Tokio 1983, el vertedero de Alamogordo (1983 y 2014) y la consulta de hoy ──────────────────────────────────
+// Sin logos ni letras: las consolas, los cartuchos y las camisetas son genéricos; las personas reales (Warshaw, Heller)
+// se reconocen solo por sus atributos. Los nombres nuevos llevan AT para no pisar los de otros episodios.
+
+// tocados nuevos del 26
+Object.assign(TOCADOS, {
+  // el sombrero de ala de fieltro (J/j copa, D cinta): los arqueólogos de 2014 (y Tepenec en el 25)
+  alaAT: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '...kJjJJJJk....',
+    '...kDDDDDDk....',
+    '.kkkkkkkkkkkk..',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+});
+
+// ── cabezas ──
+// rizos con barba gris corta (Warshaw de hoy): la cabeza de rizos con la barba recortada del 24, la boca a la vista
+const CAB_RIZOS_BARBA_AT = parche(CAB_RIZOS, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+// el volumen de los rizos abundantes (Warshaw a los 24, la madre de 1985): una masa de pelo por detrás y por encima de
+// la cabeza, que se pinta antes (detras) para que la cabeza la tape por dentro y nunca toque la cara
+const RIZOS_AT = [
+  '...kk.kk.kk......',
+  '..kHHkHHkHHkk....',
+  '.kHhHHHHhHHHHk...',
+  'kHHHHHHHHHHHhHk..',
+  'kHhHHHHHHHHHHHk..',
+  'kHHHHk...........',
+  'kHHhHk...........',
+  'kHhHHk...........',
+  'kHHHHk...........',
+  'kHHhHk...........',
+  '.kHHk............',
+  '..kk.............',
+];
+const rizosAT = (c) => c.cab.rej(RIZOS_AT, -2, -2);
+// la cinta del pelo de los setenta (u), en la frente por encima de las cejas
+const cintaAT = (c) => { for (let i = 1; i <= 12; i++) c.cab.px(i, 3, c.pal.u); };
+
+// ── cuerpos ──
+// los pantalones de campana de 1972: la pierna se abre desde la rodilla
+const BAJOS_CAMPANA_AT = [[2, 10, 'kFFFFkFFFFk'], [1, 11, 'kFFFFFkFFFFFk'], [1, 12, 'kkkkkk kkkkkk']];
+// él: la camisa de cuello ancho estampada (la de Swann) con campana
+const CUERPO_CAMPANA_AT = parche(CUERPO_CUELLO_ANCHO_DC, BAJOS_CAMPANA_AT);
+// ella: la blusa de manga corta con flores (p) y campana
+const CUERPO_CAMPANA_F_AT = parche(CUERPO_CALLE, [[5, 0, 'CSSSC'], [5, 2, 'p'], [9, 2, 'p'], [7, 3, 'p'], [5, 5, 'p'], [9, 5, 'p'], ...BAJOS_CAMPANA_AT]);
+// traje oscuro con la corbata ancha (o, el nudo O) de finales de los setenta
+const CUERPO_TRAJE_ANCHA_AT = parche(CUERPO_EUROPEO, [[7, 1, 'O'], [6, 2, 'ooo'], [6, 3, 'ooo'], [6, 4, 'ooo'], [7, 5, 'o']]);
+// la camisa de cuadros (C con las rayas p), el cuello abierto y los vaqueros: Warshaw en 1982
+const CUERPO_CUADROS_AT = parche(CUERPO_MANGA, [[5, 0, 'WCSCW'], [5, 1, 'p'], [9, 1, 'p'], [5, 2, 'p'], [9, 2, 'p'], [4, 3, 'ppppppp'], [2, 3, 'p'], [12, 3, 'p'], [5, 4, 'p'], [9, 4, 'p'], [5, 5, 'p'], [9, 5, 'p'], [4, 6, 'ppppppp']]);
+// el pijama de niño (10 filas): manga y pantalón largos con lunares (p)
+const CUERPO_PIJAMA_AT = [
+  '...kkCCCCCkk...',
+  '..kCCpCCCpCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCpCCCpCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCpCCCkk..',
+  '...kCCCkCCCk...',
+  '...kCpCkCpCk...',
+  '...kCCCkCCCk...',
+  '..kkkkk.kkkkk..',
+];
+// el chaleco de la tienda (C) sobre la camisa (W) con la plaquita del nombre (X, sin letras)
+const CUERPO_CHALECO_ROJO_AT = parche(CUERPO_CHALECO_NV, [[9, 2, 'XX']]);
+// la camisa blanca remangada (el puño c), la corbata (o) y los bolígrafos en el bolsillo (A): el gerente del almacén
+const CUERPO_REMANGADA_AT = parche(CUERPO_CALLE, [[5, 0, 'WWSWW'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [2, 2, 'c'], [12, 2, 'c'], [9, 2, 'A']]);
+// el chaleco reflectante de los ochenta (V) con las dos franjas (Y) sobre la camisa de manga larga (C)
+const CUERPO_REFLECTANTE_AT = parche(CUERPO_MANGA, [[4, 2, 'VVCCCVV'], [4, 3, 'VVVCVVV'], [4, 4, 'YYYYYYY'], [4, 5, 'VVVVVVV'], [4, 6, 'YYYYYYY']]);
+// el mono de trabajo de una pieza (C/c) con la cremallera (o), los bolsillos (u) y las botas (n)
+const CUERPO_MONO_AT = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCuCoCuCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kCuCkCuCk...',
+  '...kCCCkCCCk...',
+  '...kcCCkCCck...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// la americana de los ochenta con hombreras (la madre de 1985): el traje sastre con los hombros más anchos
+const CUERPO_HOMBRERAS_AT = parche(CUERPO_SASTRE, [[1, 1, 'kC'], [12, 1, 'Ck']]);
+// las camisetas retro de 2014, sin letras: un joystick en el pecho (X, la bola Q) o un corazón de píxeles (Q)
+const CUERPO_RETRO_AT = parche(CUERPO_CALLE, [[7, 2, 'Q'], [7, 3, 'X'], [6, 4, 'XXX']]);
+const CUERPO_RETRO2_AT = parche(CUERPO_CALLE, [[5, 2, 'QQ.QQ'], [5, 3, 'QQQQQ'], [6, 4, 'QQQ'], [7, 5, 'Q']]);
+// la sudadera con el dibujo de un mando (X, los botones k y Q) y el bolsillo canguro (c): el paciente
+const CUERPO_SUDADERA_AT = parche(CUERPO_MANGA, [[5, 0, 'cCCCc'], [5, 2, 'XXXXX'], [5, 3, 'XkXQX'], [5, 4, 'XX.XX'], [5, 6, 'ccccc']]);
+// el delantal (V/v) atado sobre la camisa (W) y el jubón o chaleco (C): el vendedor de Tokio (y Tepenec en el 25)
+const CUERPO_DELANTAL_AT = parche(CUERPO_EUROPEO, [[6, 2, 'VVV'], [5, 3, 'VVVVV'], [4, 4, 'VVVVVVV'], [4, 5, 'VVVVVVV'], [4, 6, 'VvVVVvV'], [4, 7, 'VVVVVVV'], [4, 8, 'VvVVVvV'], [4, 9, 'vvvvvvv']]);
+
+// ── lo que llevan en la mano ──
+// la linterna encendida (los chicos del pueblo, de noche): el cuerpo oscuro (K), el aro (Z) y la luz (Y)
+const conLinternaAT = enMano(['kkkkk.', 'kKKZYk', 'kkkkk.'], 11, 4, { ...PAL_MANO, ...COLORES({ K: '#3a3a48', Z: '#c8ccd8', Y: '#fff0a0' }) });
+
+// ── el reparto del 26 ──
+const B26 = B23, B26M = B23M, B26N = B23N;
+export const ELENCO_AT = {
+  // ── el bar de California, 1972 (la máquina del Pong) ──
+  // él: melena con raya hasta los hombros, bigote, camisa naranja de cuello ancho estampada y vaqueros de campana
+  jugadorPong: { ...B26, cab: CAB_MELENA_H, cuerpo: CUERPO_CAMPANA_AT, ceja: hex('#4a2a14'), delante: bigoteTR,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', C: '#d0783a', c: '#a85a2a', X: '#f2e2c0', p: '#f0d070', F: '#3e5e9a', n: '#4a3020' }) },
+  // ella: pelo largo liso con la cinta en la frente, blusa amarilla de flores y campana
+  jugadoraPong: { ...B26, cab: CAB_LARGO, cuerpo: CUERPO_CAMPANA_F_AT, ceja: hex('#8a5a24'), mejillas: [[6, 8], [12, 8]], delante: cintaAT,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', s: '#e8a080', u: '#c8403a', C: '#e8d070', c: '#c8b050', p: '#d84a6a', F: '#4a6aa8', n: '#4a3020' }) },
+  // ── el salón de 1977 ──
+  // el padre: patillas largas, bigote, jersey de cuello alto pardo y pantalón de pana beige
+  padre77: { ...B26, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_MANGA, ceja: hex('#3a2414'), delante: bigoteTR,
+    pal: CLT({ H: '#4a2e1a', h: '#6a4428', C: '#8a5a2a', c: '#6a4220', F: '#c8a868', n: '#4a3020' }) },
+  // la madre: pelo rizado de permanente y vestido naranja de pliegues con el cinturón pardo
+  madre77: { ...B26, cab: CAB_RIZOS, cuerpo: CUERPO_PLIEGUES, ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', s: '#e8a080', C: '#d8803a', c: '#a85e2a', I: '#5a3418', W: '#f2e2c0', L: '#4a3020' }) },
+  // el niño: corte en tazón y camiseta de rayas verdes
+  nino77: { ...B26N, cab: CAB_TAZON_TR, cuerpo: CUERPO_RAYAS_NINO_TR, ceja: hex('#7a4a24'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a5a2a', h: '#a8743c', s: '#e8a080', C: '#3a8a5a', c: '#2a6a44', W: '#f6f2e6', F: '#6a5a3a' }) },
+  // el ejecutivo de la Warner que compra Atari (1976): sienes canosas, traje azul noche y la corbata ancha granate
+  ejecutivoWarner: { ...B26, cab: CAB_SIENES, cuerpo: CUERPO_TRAJE_ANCHA_AT, ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#3a2a20', h: '#5a4434', w: '#c8c8d2', C: '#24283a', c: '#181c2a', W: '#e8eef6', o: '#8a2a3a', O: '#a83a4a', F: '#24283a' }) },
+  // ── las oficinas de Atari, 1982 ──
+  // los ejecutivos: camisa clara y corbata ancha; el segundo con entradas, bigote, camisa blanca y corbata fina
+  ejecutivoAtari: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#5a3a24'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#b8d0e8', c: '#90aac8', o: '#3a4a7a', O: '#5a6a9a', F: '#4a4a54' }) },
+  ejecutivoAtari2: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_CAMISA_DC, ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f4f4f8', c: '#c8ccd8', o: '#8a2a2a', F: '#5a4a3a' }) },
+  // Howard Scott Warshaw a los 24: pelo oscuro rizado y abundante, camisa de cuadros roja y vaqueros
+  warshaw: { ...B26, cab: CAB_RIZOS, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#1c1424'), detras: rizosAT,
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#c84a3a', c: '#963028', p: '#6a2420', W: '#f2eee2', F: '#3e5e9a', n: '#4a3020' }) },
+  // Warshaw de hoy (2014–2026): los rizos canosos, la barba gris corta, gafas y americana oscura con la camisa azul
+  warshawHoy: { ...B26, cab: CAB_RIZOS_BARBA_AT, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#8a8a96'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#2a2e3a', c: '#1e2230', W: '#7a9ac8', o: '#7a9ac8', F: '#3a3a44' }) },
+  // ── la cola del cine, 1982 ──
+  espectador: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_CAZADORA, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#3a5a8a', c: '#2a4468', W: '#e8e0c8', O: '#c8c8d2', F: '#4a5a7a', n: '#4a3020' }) },
+  espectadora: { ...B26, cab: CAB_MEDIA_TR, cuerpo: CUERPO_MANGA, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#d86a8a', c: '#b04a6a', F: '#3a4a7a' }) },
+  // ── la Navidad de 1982 y la tienda de juguetes ──
+  // el niño en pijama azul de lunares amarillos
+  ninoNavidad: { ...B26N, cuerpo: CUERPO_PIJAMA_AT, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#4a7ac8', c: '#3a5aa0', p: '#f0d040' }) },
+  // el dependiente: chaleco rojo de la tienda con la plaquita, camisa blanca y pantalón gris
+  dependiente: { ...B26, cuerpo: CUERPO_CHALECO_ROJO_AT, ceja: hex('#6a3418'),
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', C: '#c8303a', c: '#962428', W: '#f2eee2', o: '#f0c040', X: '#f6f6f6', F: '#4a4a54' }) },
+  // el comprador que duda: entradas, gafas grandes de los ochenta y la cazadora beige
+  comprador: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#5a3a24'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#b8a272', c: '#8e7a50', W: '#7a3a3a', o: '#7a3a3a', F: '#4a4a5a' }) },
+  // ── el almacén y el vertedero, 1983 ──
+  // el gerente: entradas, gafas de pasta, camisa blanca remangada, corbata y los bolígrafos en el bolsillo
+  gerenteAlmacen: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_REMANGADA_AT, ceja: hex('#3a2a20'), delante: gafasPastaDC,
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#eef0f6', c: '#c4c8d4', W: '#eef0f6', o: '#3a4a6a', A: '#3a6ad8', F: '#5a5a66', n: '#2a2430' }) },
+  // los camioneros: gorra, camisa de manga larga y el chaleco reflectante (naranja con franjas plateadas; amarillo)
+  camionero: { ...B26, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'beisbol', ceja: hex('#5a3a24'), delante: bigoteTR,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#3a5a8a', j: '#2a4468', C: '#8a6a4a', c: '#6a4e34', V: '#f08a2a', Y: '#e8e8ee', F: '#4a5a7a', n: '#4a3020' }) },
+  camionero2: { ...B26, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#a83a3a', j: '#7a2a2a', C: '#5a7a5a', c: '#44603f', V: '#e8d040', Y: '#c8ccd8', F: '#3a3a44', n: '#4a3020' }) },
+  // el operario de la apisonadora: casco de obra amarillo y mono azul
+  operario: { ...B26, cuerpo: CUERPO_MONO_AT, tocado: 'cascoObra', ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#f0c040', j: '#c89a20', C: '#3a5a8a', c: '#2a4468', o: '#c8ccd8', u: '#2a4468', G: '#2a3448', n: '#3a2a1a' }) },
+  // los chicos del pueblo, de noche, con la linterna: él con sudadera roja; ella con coleta y cazadora vaquera
+  chicoPueblo: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_MANGA, ceja: hex('#7a4a24'), delante: conLinternaAT,
+    pal: CLT({ H: '#8a5428', h: '#a86e3a', C: '#b8343a', c: '#8a2428', F: '#3e4e7a' }) },
+  chicaPueblo: { ...B26, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], cuerpo: CUERPO_CAZADORA, delante: varios(coleta, conLinternaAT),
+    pal: CLT({ H: '#c8904c', h: '#e0ac64', s: '#e8907a', C: '#5a7aa8', c: '#44608a', W: '#f2eee2', O: '#c8c8d2', F: '#3a3a4a', n: '#2a2430' }) },
+  // ── Tokio, 1983 ──
+  // el vendedor: pelo negro, camisa blanca y el delantal azul de la tienda
+  vendedorTokio: { ...B26, cuerpo: CUERPO_DELANTAL_AT, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1424', h: '#3a3046', W: '#f2eee2', C: '#f2eee2', o: '#c8ccd8', V: '#2e4a8a', v: '#20366a', F: '#2a2a34' }) },
+  // el niño de la cola: corte en tazón negro y jersey azul
+  ninoJapones: { ...B26N, cab: CAB_TAZON_TR, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#1c1424', h: '#3a3046', s: '#e8a080', C: '#3a7ac8', c: '#2a5aa0', F: '#2a2a44' }) },
+  // ── la familia de 1985 que vuelve a comprar ──
+  padre85: { ...B26, cuerpo: CUERPO_POLO_DC, ceja: hex('#3a2418'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#2e8a8a', c: '#226a6a', W: '#f2eee2', o: '#f2eee2', F: '#c8b890', n: '#4a3020' }) },
+  madre85: { ...B26, cab: CAB_MEDIA_TR, cuerpo: CUERPO_HOMBRERAS_AT, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], detras: rizosAT,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#a83a8a', c: '#7a2a66', W: '#f2eee2', I: '#2a2430', o: '#f0c040' }) },
+  nino85: { ...B26N, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#c8403a', c: '#962e2a', F: '#3a4a7a' }) },
+  // ── la excavación de 2014 ──
+  // el público con camisetas retro sin letras y gorras: él con barba corta y la del joystick; ella con la del corazón
+  publico2014: { ...B26, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_RETRO_AT, tocado: 'beisbol', ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', J: '#2a2a34', j: '#44445a', C: '#2a6a5a', c: '#1e4e42', X: '#f2eee2', Q: '#e8503a', F: '#3e4e7a' }) },
+  publico2014b: { ...B26, cab: CAB_LARGO, cuerpo: CUERPO_RETRO2_AT, tocado: 'beisbol', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#c8303a', j: '#962428', C: '#3a3a5a', c: '#2a2a44', Q: '#e83a5a', F: '#4a5a7a' }) },
+  // los arqueólogos: sombrero de ala, chaleco de bolsillos, camisa de campo y botas; él con barba, ella con media melena
+  arqueologo: { ...B26, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_BUSCADOR, tocado: 'alaAT', ceja: hex('#5a3a24'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#a8865a', j: '#86683e', D: '#4a2e16', C: '#d8c8a0', V: '#6a6a3e', o: '#4e4e2a', G: '#4a2e16', F: '#8a7a5a', f: '#6a5a3e', L: '#4a2e16' }) },
+  arqueologa: { ...B26, cab: CAB_MEDIA_TR, cuerpo: CUERPO_BUSCADOR, tocado: 'alaAT', ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', J: '#c8b48a', j: '#a8946a', D: '#7a3a2a', C: '#a8c0d8', V: '#8a6a44', o: '#6a4e30', G: '#4a2e16', F: '#5a5a4a', f: '#44443a', L: '#4a2e16' }) },
+  // James Heller ya mayor: pelo blanco con entradas, gafas, arrugas y polo azul
+  heller: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_POLO_DC, ceja: hex('#c8c8d0'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#c8c8d2', C: '#3a5a8a', c: '#2a4468', W: '#f2eee2', o: '#f2eee2', F: '#a89870', n: '#4a3020' }) },
+  // el paciente de la consulta: sudadera gris con el dibujo de un mando
+  paciente: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_AT, ceja: hex('#4a2a14'),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#5a5a6a', c: '#444452', X: '#e8e8ee', Q: '#e8503a', F: '#3a4a6a' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían: operario, paciente… ya eran de otros episodios)
+for (const [k, v] of Object.entries(ELENCO_AT)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 26 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_AT = { ...PAL_DC, ...COLORES({
+  K: '#24222c', u: '#4a4856', U: '#8a8898', B: '#8a5a2e', b: '#5e3a1c', T: '#b8834a', N: '#0c0a12', G: '#5a5a66',
+  Z: '#c8ccd8', z: '#8c90a4', d: '#6a4a2e', D: '#3a2a1a',
+}) };
+const pintaAT = (R, g, x, y, o = {}, pal = PAL_AT) => pintaJH(R, g, x, y, o, pal);
+const encimaAT = (R, w, hgt, x, y, o, pal = PAL_AT) => encimaNV(R, w, hgt, x, y, o, pal);
+// pinta una rejilla de letras con el px de encima (los '.' no se pintan)
+const rejAT = (px, g, i0, j0, esc = 1) => g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') for (let a = 0; a < esc; a++) for (let b = 0; b < esc; b++) px(i0 + i * esc + a, j0 + j * esc + b, f[i]); });
+// los colores con nombre de las etiquetas y su sombra
+const COLOR_AT = { rojo: '#d0383a', azul: '#3a6ad8', verde: '#3a9a4a', naranja: '#e8803a', morado: '#8a4ab8', amarillo: '#e8c840', rosa: '#e86a9a', turquesa: '#2aa8a0', gris: '#9a9aa8' };
+const oscAT = (h, f = 0.68) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(h.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+const colorAT = (c, d = 'rojo') => (typeof c === 'string' && c[0] === '#' ? c : COLOR_AT[c] ?? COLOR_AT[d]);
+
+// LOS DIBUJOS DE LAS ETIQUETAS (6 × 6, sin letras): 'foso' (el muñequito amarillo sobre el agujero negro), 'comecocos'
+// (un bocadito de queso redondo con agujeros y un mordisco en el borde, NO el de la marca), 'nave', 'flor'
+const ICONOS_AT = {
+  foso: ['..S...', '.AAA..', '..A...', '.A.A..', 'VV..VV', 'VVkkVV'],
+  comecocos: ['.YYY..', 'YYYyY.', 'YyYYYY', 'YYYYyY', 'YYyYYY', '.YYYY.'],
+  nave: ['..A...', '..A...', '.AEA..', 'AAAAA.', 'A.R.A.', '..R...'],
+  flor: ['.P.P..', 'PPYPP.', '.PPP..', '..V...', '.VV...', '..V...'],
+};
+const PAL_ICONOS_AT = COLORES({ S: '#f6c290', Y: '#f0d040', y: '#d8802a', V: '#3a9a4a', A: '#a8c8f0', E: '#ffffff', R: '#f0603a', P: '#f07aa8', k: '#05040a' });
+
+// EL CARTUCHO genérico de los setenta y ochenta: plástico negro (K, canto u) con la etiqueta de color (o.color: 'rojo',
+// 'azul', 'verde', 'naranja', 'morado', 'amarillo', 'rosa', 'turquesa', 'gris' o '#rrggbb'), la ventanita oscura con el
+// dibujo (o.icono: 'foso' | 'comecocos' | 'nave' | 'flor') y las estrías de agarre. 12 × 15
+const CARTUCHO_AT = forma(12, 15, ({ rect, put }) => {
+  rect(1, 0, 10, 14, 'K'); rect(1, 0, 10, 0, 'U');
+  rect(2, 1, 9, 8, 'L'); rect(3, 2, 8, 7, 'n');
+  for (let j = 10; j <= 13; j += 2) rect(2, j, 9, j, 'u');
+  rect(10, 1, 10, 14, 'u'); put(1, 14, 'u');
+});
+const cartuchoAT = (R, x, y, o = {}) => {
+  const col = colorAT(o.color), pal = { ...PAL_AT, ...COLORES({ L: col, n: '#1a2440' }) };
+  pintaAT(R, CARTUCHO_AT, x, y, o, pal);
+  if (o.icono && ICONOS_AT[o.icono]) rejAT(encimaAT(R, 12, 15, x, y, o, { ...pal, ...PAL_ICONOS_AT }), ICONOS_AT[o.icono], 3, 2);
+};
+
+// LA CAJA DEL CARTUCHO: cartón del color de la etiqueta (o.color) con el lateral en sombra, la franja negra de arriba
+// y la portada oscura con el dibujo en grande (o.icono, al doble). 17 × 20
+const CAJA_AT = forma(17, 20, ({ rect }) => {
+  rect(1, 0, 14, 19, 'L'); rect(15, 1, 15, 19, 'l');
+  rect(1, 0, 14, 3, 'K'); rect(2, 2, 13, 2, 'U');
+  rect(2, 5, 13, 16, 'n'); rect(1, 18, 14, 18, 'l');
+});
+const cajaCartuchoAT = (R, x, y, o = {}) => {
+  const col = colorAT(o.color), pal = { ...PAL_AT, ...COLORES({ L: col, l: oscAT(col), n: '#1a2440' }) };
+  pintaAT(R, CAJA_AT, x, y, o, pal);
+  const px = encimaAT(R, 17, 20, x, y, o, { ...pal, ...PAL_ICONOS_AT });
+  if (o.icono && ICONOS_AT[o.icono]) rejAT(px, ICONOS_AT[o.icono], 2, 5, 2);
+  px(3, 6, 'E'); px(4, 6, 'E');
+};
+
+// LA CONSOLA VIEJA de madera y negro (genérica, sin logo): la tapa negra con las rejillas de ventilación (u), la ranura
+// del cartucho en medio, la fila de seis palancas plateadas (Z/z) y el frente de madera con vetas (B/b). o.cartucho: un
+// color (o true) pincha un cartucho en la ranura; o.palancas: 0–63, qué palancas están bajadas (bits). 34 × 14
+const CONSOLA_AT = forma(34, 14, ({ rect }) => {
+  rect(1, 3, 32, 8, 'K');
+  for (let i = 3; i <= 9; i += 2) rect(i, 4, i, 5, 'u');
+  for (let i = 24; i <= 30; i += 2) rect(i, 4, i, 5, 'u');
+  rect(12, 3, 21, 4, 'u'); rect(13, 4, 20, 4, 'N');
+  rect(1, 6, 32, 6, 'u');
+  rect(1, 9, 32, 12, 'B');
+  for (const [i, j, n] of [[3, 10, 6], [12, 11, 7], [22, 10, 8], [6, 12, 4], [26, 12, 5]]) rect(i, j, i + n - 1, j, 'b');
+  rect(1, 9, 32, 9, 'T'); rect(32, 3, 32, 12, 'u');
+  rect(2, 13, 4, 13, 'K'); rect(29, 13, 31, 13, 'K');
+});
+const consolaViejaAT = (R, x, y, o = {}) => {
+  pintaAT(R, CONSOLA_AT, x, y, o);
+  const px = encimaAT(R, 34, 14, x, y, o, { ...PAL_AT, ...COLORES({ L: colorAT(o.cartucho === true ? 'rojo' : o.cartucho) }) });
+  const bits = o.palancas ?? 0;
+  [8, 11, 14, 19, 22, 25].forEach((i, n) => { const baja = (bits >> n) & 1; px(i, 8, 'z'); px(i - 1, 8, 'u'); px(i + 1, 8, 'u'); if (baja) px(i, 7, 'z'); else { px(i, 7, 'Z'); px(i, 6, 'Z'); } });
+  if (o.cartucho) { rejAT(px, ['kkkkkkkk', 'kKLLLLKk', 'kKLLLLKk', 'kKKKKKKk', '.kuuuuk.'], 13, -1); }
+};
+
+// EL JOYSTICK: la base negra (K, tapa u) con el botón rojo (R) y la palanca con su bola; o.inclina −1–1 la ladea;
+// o.pulsado: el botón hundido y encendido. 11 × 14
+const JOY_CACHE_AT = new Map();
+const joystickAT = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(-1, Math.min(1, o.inclina ?? 0)) * 2);
+  if (!JOY_CACHE_AT.has(n)) JOY_CACHE_AT.set(n, forma(11, 14, ({ rect, linea, disco }) => {
+    rect(1, 7, 9, 12, 'K'); rect(1, 7, 9, 7, 'u'); rect(9, 7, 9, 12, 'u');
+    rect(2, 13, 8, 13, 'K');
+    linea(5, 8, 5 + n, 3, 'K'); disco(5 + n, 2, 1.4, 'u');
+    rect(2, 8, 3, 8, 'R');
+  }));
+  pintaAT(R, JOY_CACHE_AT.get(n), x, y, o);
+  const px = encimaAT(R, 11, 14, x, y, o, { ...PAL_AT, ...COLORES({ L: '#ff6a5a' }) });
+  px(4 + n, 1, 'U');
+  if (o.pulsado) { px(2, 8, 'L'); px(3, 8, 'L'); } else px(2, 8, 'E');
+};
+
+// LA TELE DE TUBO de los setenta y ochenta: mueble de madera (B/b, filo T) con las antenas de conejo, el marco negro,
+// la pantalla redondeada, el panel de mandos (dos ruedas y la rejilla del altavoz) y las patas. o.pantalla(R, [x0, y0,
+// x1, y1]) pinta la pantalla (se le pasa el hueco en píxeles); si no, nieve que corre con o.t; o.encendida false: apagada
+// con un reflejo. 28 × 30
+const TELE_AT = forma(28, 30, ({ rect, linea, disco }) => {
+  linea(13, 5, 7, 0, 'Z'); linea(14, 5, 21, 0, 'Z'); rect(11, 5, 16, 6, 'K');
+  rect(0, 7, 27, 26, 'B'); rect(0, 7, 27, 7, 'T'); rect(27, 7, 27, 26, 'b'); rect(0, 26, 27, 26, 'b');
+  for (const [i, j, n] of [[1, 9, 1], [1, 15, 1], [1, 21, 1], [20, 24, 5], [3, 25, 9]]) rect(i, j, i + n - 1, j + (n === 1 ? 2 : 0), 'b');
+  rect(2, 8, 19, 25, 'K'); rect(3, 9, 18, 24, 'G');
+  rect(21, 9, 25, 24, 'u'); disco(23, 11.5, 1.5, 'Z'); disco(23, 16, 1.5, 'Z');
+  for (let j = 19; j <= 23; j += 2) rect(22, j, 24, j, 'K');
+  rect(3, 27, 4, 29, 'K'); rect(23, 27, 24, 29, 'K');
+});
+const teleCRTAT = (R, x, y, o = {}) => {
+  pintaAT(R, TELE_AT, x, y, o);
+  const px = encimaAT(R, 28, 30, x, y, o), t = o.t ?? 0, s = o.s ?? 1, dir = o.dir ?? 1;
+  px(23, 11, 'k'); px(23, 16, 'k'); px(24, 12, 'z'); px(22, 16, 'z');
+  if (typeof o.pantalla === 'function') {
+    const x0 = Math.round(x - 14 * s) + (dir > 0 ? 3 : 9) * s, y0 = Math.round(y - 30 * s) + 9 * s;
+    o.pantalla(R, [x0, y0, x0 + 16 * s - 1, y0 + 16 * s - 1]);
+  } else if (o.encendida === false) {
+    for (let j = 9; j <= 24; j++) for (let i = 3; i <= 18; i++) px(i, j, 'u');
+    for (let k = 0; k < 4; k++) px(5 + k, 11 + k, 'G');
+  } else {
+    for (let j = 9; j <= 24; j++) for (let i = 3; i <= 18; i++) px(i, j, ((i * 7 + j * 13 + Math.floor(t * 12) * 5) % 9) < 3 ? 'z' : (j + Math.floor(t * 8)) % 4 ? 'Z' : 'U');
+  }
+  for (const [i, j] of [[3, 9], [18, 9], [3, 24], [18, 24]]) px(i, j, 'K');
+};
+
+// EL FOSO: un agujero negro que se abre en el suelo (N el fondo, b la pared de enfrente iluminada, T los terrones del
+// borde); o.abierto 0–1 (0 no pinta nada). 32 × 10
+const FOSO_CACHE_AT = new Map();
+const fosoAT = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.abierto ?? 1)) * 10);
+  if (!n) return;
+  if (!FOSO_CACHE_AT.has(n)) FOSO_CACHE_AT.set(n, forma(32, 10, ({ put }) => {
+    const rx = 1.5 + 13.5 * n / 10, ry = 0.8 + 3.4 * n / 10;
+    for (let j = 0; j < 10; j++) for (let i = 0; i < 32; i++) {
+      const d = ((i - 15.5) / rx) ** 2 + ((j - 5) / ry) ** 2;
+      if (d <= 1) put(i, j, j < 5 && d > 0.62 ? 'b' : 'N');
+    }
+    if (n >= 4) for (const a of [0.7, 3.9]) put(Math.round(15.5 + Math.cos(a) * (rx + 1)), Math.round(5 + Math.sin(a) * (ry + 1)), 'T');
+  }));
+  pintaAT(R, FOSO_CACHE_AT.get(n), x, y, o);
+};
+
+// LA CONSOLA JAPONESA de 1983, roja y blanca (genérica, sin logo): la carcasa blanca (X, sombra x) con la ranura arriba,
+// la base roja oscura (R/r), los dos mandos rojos encajados a los lados (la cruz k y los botones), la palanca dorada de
+// expulsar (O) y el interruptor. 32 × 12
+const CONSOLA_JP_AT = forma(32, 12, ({ rect, put }) => {
+  rect(1, 2, 30, 6, 'X'); rect(1, 6, 30, 6, 'x'); rect(30, 2, 30, 6, 'x');
+  rect(10, 2, 21, 3, 'x'); rect(11, 2, 20, 2, 'N');
+  rect(1, 7, 30, 10, 'R'); rect(1, 10, 30, 10, 'r'); rect(30, 7, 30, 10, 'r');
+  rect(2, 3, 8, 5, 'r'); rect(3, 3, 7, 4, 'R'); rect(23, 3, 29, 5, 'r'); rect(24, 3, 28, 4, 'R');
+  put(4, 3, 'k'); put(26, 3, 'k'); put(6, 4, 'O'); put(7, 4, 'O'); put(27, 4, 'O'); put(28, 4, 'O');
+  rect(13, 8, 14, 9, 'O'); rect(18, 8, 19, 8, 'x');
+  rect(2, 11, 4, 11, 'K'); rect(27, 11, 29, 11, 'K');
+});
+const consolaJaponesaAT = (R, x, y, o = {}) => pintaAT(R, CONSOLA_JP_AT, x, y, o, { ...PAL_AT, ...COLORES({ X: '#f2eee2', x: '#c8c0b0', R: '#a8282e', r: '#76181e', O: '#d8a838' }) });
+
+// LA CONSOLA GRIS de 1985 (genérica, sin logo): caja de carga frontal, tapa gris clara (Z) con la trampilla y sus
+// estrías, la franja negra, el frente gris oscuro (G) con la portezuela, los dos enchufes de los mandos, los botones y
+// la luz roja (o.encendida). 32 × 12
+const CONSOLA_GRIS_AT = forma(32, 12, ({ rect }) => {
+  rect(1, 1, 30, 5, 'Z'); rect(30, 1, 30, 5, 'z');
+  rect(6, 1, 25, 4, 'z'); rect(7, 1, 24, 3, 'Z'); for (let j = 1; j <= 3; j += 2) rect(8, j, 23, j, 'U');
+  rect(1, 6, 30, 6, 'K');
+  rect(1, 7, 30, 10, 'G'); rect(1, 10, 30, 10, 'u');
+  rect(7, 7, 20, 9, 'u'); for (let i = 8; i <= 19; i += 2) rect(i, 7, i, 9, 'G');
+  rect(2, 8, 3, 9, 'K'); rect(4, 8, 5, 9, 'K');
+  rect(23, 8, 25, 8, 'U'); rect(26, 8, 28, 8, 'U');
+  rect(2, 11, 4, 11, 'K'); rect(27, 11, 29, 11, 'K');
+});
+const consolaGrisAT = (R, x, y, o = {}) => {
+  const pal = { ...PAL_AT, ...COLORES({ Z: '#c8c8cc', z: '#9a9aa2', U: '#e0e0e4', G: '#6a6a72', u: '#4a4a52' }) };
+  pintaAT(R, CONSOLA_GRIS_AT, x, y, o, pal);
+  const px = encimaAT(R, 32, 12, x, y, o, pal); px(29, 8, o.encendida ? 'R' : 'r'); px(2, 8, 'Z'); px(4, 8, 'Z');
+};
+
+// EL SELLO DORADO DE CALIDAD (sin letras): la medalla de borde dentado (O, sombra g) con la estrella (Y) y las dos
+// cintas rojas; con o.t, un destello que recorre el borde. 15 × 17
+const SELLO_AT = forma(15, 17, ({ rect, disco, put }) => {
+  rect(3, 10, 5, 16, 'R'); rect(9, 10, 11, 16, 'R'); put(4, 16, '.'); put(10, 16, '.'); rect(5, 10, 5, 15, 'r'); rect(11, 10, 11, 15, 'r');
+  for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8; put(7 + Math.cos(a) * 6.4, 6.5 + Math.sin(a) * 6.4, 'O'); }
+  disco(7, 6.5, 5.6, 'O'); disco(7, 6.5, 4.4, 'g'); disco(7, 6.5, 3.6, 'O');
+  for (const [i, j] of [[7, 4], [6, 5], [7, 5], [8, 5], [5, 6], [6, 6], [7, 6], [8, 6], [9, 6], [6, 7], [7, 7], [8, 7], [6, 8], [8, 8]]) put(i, j, 'Y');
+});
+const selloCalidadAT = (R, x, y, o = {}) => {
+  const pal = { ...PAL_AT, ...COLORES({ O: '#e8b830', g: '#a87a18', Y: '#fff0a0', R: '#c8303a', r: '#8a1e26' }) };
+  pintaAT(R, SELLO_AT, x, y, o, pal);
+  if (o.t != null) { const a = o.t * 3, px = encimaAT(R, 15, 17, x, y, o, pal); px(Math.round(7 + Math.cos(a) * 5), Math.round(6.5 + Math.sin(a) * 5), 'E'); }
+};
+
+// LA PALA: el puño en D (T), el mango de madera (B/b) y la hoja de acero (Z, sombra z) con la punta; o.tierra: con
+// tierra encima. 9 × 26
+const PALA_AT = forma(9, 26, ({ rect, put }) => {
+  rect(3, 0, 5, 0, 'T'); put(2, 1, 'T'); put(6, 1, 'T'); rect(3, 2, 5, 2, 'T');
+  rect(4, 3, 4, 17, 'B'); rect(5, 3, 5, 17, 'b');
+  rect(3, 17, 5, 18, 'z');
+  rect(1, 19, 7, 23, 'Z'); rect(2, 24, 6, 24, 'Z'); rect(3, 25, 5, 25, 'Z'); rect(7, 19, 7, 23, 'z'); put(6, 24, 'z');
+});
+const palaAT = (R, x, y, o = {}) => {
+  pintaAT(R, PALA_AT, x, y, o);
+  const px = encimaAT(R, 9, 26, x, y, o); px(2, 20, 'E');
+  if (o.tierra) for (const [i, j] of [[2, 19], [3, 19], [4, 19], [5, 19], [3, 20], [4, 20], [5, 20], [6, 19], [4, 21]]) px(i, j, (i + j) % 3 ? 'd' : 'D');
+};
+
+export const PIEZAS_AT = {
+  cartucho: cartuchoAT, cajaCartucho: cajaCartuchoAT, consolaVieja: consolaViejaAT, joystick: joystickAT, teleCRT: teleCRTAT,
+  foso: fosoAT, consolaJaponesa: consolaJaponesaAT, consolaGris: consolaGrisAT, selloCalidad: selloCalidadAT, pala: palaAT,
+};
+
+// ── Episodio 25 (el manuscrito Voynich, 1600–2026): la Praga de Rodolfo II, Marci, Baresch y Kircher, Voynich y su
+// librería, los descifradores del siglo XX, el carbono 14 de 2009 y la sala de libros raros de Yale ─────────────────
+// Las personas reales se reconocen solo por sus atributos (gola, perilla, bonete, bigote, quevedos); los escribas son
+// inventados. Las letras del libro son signos inventados que no son de ningún alfabeto. Nombres nuevos con VM.
+
+// tocados nuevos del 25
+Object.assign(TOCADOS, {
+  // el gorro de piel del alquimista (M/m, el pelaje a mechones)
+  gorroPielVM: [[
+    '...kkkkkkkk....',
+    '..kMmMMmMMMk...',
+    '.kMMMMmMMmMMk..',
+    '.kmMMmMMMMmMk..',
+    'kMMmMMMmMMMMMk.',
+    'kkkkkkkkkkkkkk.',
+  ], -3],
+  // el bonete de los jesuitas (J/j): cuadrado, con las tres crestas y la borla
+  boneteVM: [[
+    '......kk.......',
+    '.....kJJk......',
+    '...kkkkkkkk....',
+    '..kJjJJjJJjk...',
+    '..kJjJJjJJjk...',
+    '.kJJJJJJJJJJk..',
+    '.kkkkkkkkkkkk..',
+  ], -4],
+  // la corona imperial de Rodolfo II: el aro de oro (O/o) con piedras (Q roja, A azul), las dos mitras rojas (D) a los
+  // lados, el arco de oro por encima y la cruz
+  coronaImperialVM: [[
+    '.......k.......',
+    '......kOk......',
+    '.....kkOkk.....',
+    '...kkDkOkDkk...',
+    '..kDDDkOkDDDk..',
+    '..kDDDkOkDDDk..',
+    '..kOoOOOOOoOk..',
+    '..kOQOOAOOQOk..',
+    '..kkkkkkkkkkk..',
+  ], -6],
+});
+
+// ── cabezas ──
+// la perilla puntiaguda bajo la barbilla (Marci): con el bigote (bigoteTR) queda la barba de médico de 1665
+const CAB_PERILLA_VM = parche(CAB_CORTO, [[9, 10, 'HHH'], [8, 11, 'HH'], [8, 12, 'HHk']]);
+// barba corta y la mandíbula prominente, adelantada (Rodolfo II): la barbilla baja y sale una fila
+const CAB_HABSBURGO_VM = parche(CAB_BARBA_CORTA_DC, [[5, 11, 'HHHHHH'], [11, 11, 'k'], [5, 12, 'kkkkkk'], [12, 10, 'k'], [11, 10, 'H']]);
+// el pelo corto de ella (Lisa Fagin Davis): el de siempre con la nuca un poco más larga
+const CAB_CORTA_VM = parche(CAB_CORTO, [[0, 8, 'kHH'], [0, 9, 'kHHk'], [1, 10, 'kk']]);
+
+// ── cuerpos ──
+// el jubón negro de 1600–1665 (C/c) con la gola blanca de lechuguilla plisada (X/x), los botones (o), las calzas (F) y
+// las medias (w): Marci, Rodolfo
+const CUERPO_GOLA_VM = [
+  '..kXxXxXxXxXk..',
+  '..kxXxXxXxXxk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkcCCCCCckk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kwwwkwwwk...',
+  '...kwwwkwwwk...',
+  '..kkkkk.kkkkk..',
+];
+// el del emperador: la cadena de oro (O) colgando en pico sobre el pecho
+const CUERPO_GOLA_ORO_VM = parche(CUERPO_GOLA_VM, [[4, 2, 'O'], [10, 2, 'O'], [5, 3, 'O'], [9, 3, 'O'], [6, 4, 'OOO']]);
+// el traje de tweed de 1921 (C con las motas c) con la corbata (o)
+const CUERPO_TWEED_VM = parche(CUERPO_TRAJE_DC, [[4, 2, 'c'], [9, 3, 'c'], [5, 4, 'c'], [10, 5, 'c'], [5, 6, 'c'], [9, 6, 'c'], [4, 1, 'c']]);
+// rebeca (C) con la blusa (W) y la falda por debajo de la rodilla (F), medias (S) y zapatos (L): las descifradoras de
+// los cuarenta
+const CUERPO_FALDA_VM = parche(CUERPO_REBECA, [[3, 7, 'kFFFFFFFk'], [3, 8, 'kFFFFFFFk'], [3, 9, 'kFFFFFFFk'], [3, 10, 'kkkkkkkkk'], [3, 11, ' kSk kSk '], [2, 12, ' kLLk kLLk ']]);
+// la bibliotecaria de Yale: la misma ropa con los guantes blancos de algodón (X)
+const CUERPO_GUANTES_VM = parche(CUERPO_FALDA_VM, [[2, 5, 'X'], [12, 5, 'X']]);
+// la sudadera de 2018 (C) con los cordones de la capucha (X) y el bolsillo canguro (c)
+const CUERPO_SUDADERA_VM = parche(CUERPO_MANGA, [[5, 0, 'cCCCc'], [6, 1, 'X.X'], [6, 2, 'X.X'], [5, 5, 'ccccc']]);
+
+// ── detalles (delante) ──
+// el gran bigote de puntas caídas (Voynich)
+const bigoteGrandeVM = (c) => { for (let i = 7; i <= 12; i++) c.cab.px(i, 8, c.pal.H); c.cab.px(7, 9, c.pal.H); c.cab.px(12, 9, c.pal.h); };
+// la barba larga del alquimista, que le cae sobre el pecho
+const barbaLargaVM = (c) => c.cuerpo.rej(['kHHHHk', 'kHhHHk', '.kHHk.', '..kk..'], 6, 0);
+// la capa roja del emperador por detrás (Q/q), que asoma a los lados de las piernas
+const CAPA_VM = ['..kkkkkkkkkk...', '.kQQQQQQQQQQk..', '.kQQQQQQQQQQk..', 'kQQQQQQQQQQQQk.', 'kQQQQQQQQQQQQk.', 'kQQQQQQQQQQQQk.', 'kQQQQQQQQQQQQk.', 'kQqQQQQQQQQqQk.', 'kqQQQQQQQQQQqk.', 'kqQqQQQQQQqQqk.', 'kqqqqqqqqqqqqk.', 'kkkkkkkkkkkkkk.'];
+const capaVM = (c) => c.cuerpo.rej(CAPA_VM, 0, 1);
+const PAL_MANO_VM = { ...PAL_MANO, ...COLORES({ X: '#efe6cc', x: '#c8b88a', R: '#c8303a', A: '#2a3a5a', E: '#a8d8f0', Z: '#9a9aa8', Y: '#f0c840', b: '#7a4a24', V: '#3a8a3a' }) };
+// la carta doblada con el lacre rojo (Marci)
+const conCartaVM = enMano(['kkkkkk', 'kXXXXk', 'kxRRxk', 'kXXXXk', 'kkkkkk'], 12, 2, PAL_MANO_VM);
+// el portátil abierto en las manos (2018): la pantalla (A, el brillo E) y el teclado (Z)
+const conPortatilVM = enMano(['kkkkkk.', 'kAAAAk.', 'kAEAAk.', 'kAAAAk.', 'kkkkkkk', '.kZZZZk', '..kkkkk'], 10, 1, PAL_MANO_VM);
+// el girasol de verdad que compara el botánico
+const conGirasolVM = enMano(['.kkk.', 'kYYYk', 'kYbYk', 'kYYYk', '.kVk.', '..kV.', '..k..'], 12, 0, PAL_MANO_VM);
+// el mazo de fichas perforadas (las descifradoras)
+const conFichasVM = enMano(['kkkkk', 'kXkXk', 'kXXkk', 'kxkxk', 'kkkkk'], 12, 2, PAL_MANO_VM);
+
+// ── el reparto del 25 ──
+const B25 = B23, B25M = B23M;
+export const ELENCO_VM = {
+  // ── Praga, 1600–1665 ──
+  // Johannes Marcus Marci (1665): el pelo gris corto, bigote y perilla gris, gola blanca y todo de negro; la carta
+  marci: { ...B25, cab: CAB_PERILLA_VM, cuerpo: CUERPO_GOLA_VM, ceja: hex('#8a8a96'), delante: varios(bigoteTR, arrugasDC, conCartaVM),
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#24202c', c: '#16121c', X: '#f6f4ee', x: '#c8c4bc', o: '#4a4458', F: '#24202c', w: '#2a2430' }) },
+  // Athanasius Kircher: jesuita con la sotana negra, el bonete y la barba oscura
+  kircher: { ...B25, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_SOTANA, tocado: 'boneteVM', ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#1e1a24', c: '#141018', W: '#e8e4da', o: '#3a3446', J: '#1e1a24', j: '#3a3446', L: '#1e1a24' }) },
+  // Georg Baresch, alquimista (hacia 1639): barba larga canosa, gorro de piel y el mandil de cuero sobre la camisa
+  baresch: { ...B25, cab: CAB_BARBA, cuerpo: CUERPO_TALLER_NV, tocado: 'gorroPielVM', ceja: hex('#5a4a3a'), delante: varios(barbaLargaVM, arrugasDC),
+    pal: CLT({ H: '#8a7a6a', h: '#a89888', M: '#6a4426', m: '#4a2e18', W: '#d8d0b8', B: '#8a5a2e', b: '#6a4220', G: '#4a2e16', F: '#4a4a3a', n: '#3a2a1a' }) },
+  // el emperador Rodolfo II (hacia 1610): barba castaña, la mandíbula adelantada, la gola, el jubón negro con la cadena
+  // de oro, la capa roja y la corona imperial
+  rodolfo: { ...B25, cab: CAB_HABSBURGO_VM, cuerpo: CUERPO_GOLA_ORO_VM, tocado: 'coronaImperialVM', ceja: hex('#5a3a1e'), detras: capaVM,
+    pal: CLT({ H: '#7a5030', h: '#9a6a40', C: '#24202c', c: '#16121c', X: '#f6f4ee', x: '#c8c4bc', o: '#f0c040', O: '#f0c040', F: '#24202c', w: '#e8e4da', Q: '#b02a34', q: '#7a1a22', D: '#b02a34' }) },
+  // Jacobus Horcicky de Tepenec, químico y jardinero del emperador: sombrero de ala y el delantal verde de jardinero
+  tepenec: { ...B25, cuerpo: CUERPO_DELANTAL_AT, tocado: 'alaAT', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#3a2a1a', j: '#5a4430', D: '#6a5a3a', W: '#e8e0c8', C: '#5a4a3a', o: '#c8b48a', V: '#3a7a3a', v: '#2a5a2a', F: '#4a3a2a' }) },
+  // ── el librero, 1912–1960 ──
+  // Wilfrid Voynich: entradas oscuras, el gran bigote, los quevedos (las gafas redondas de metal) y el traje oscuro
+  voynich: { ...B25, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1424'), delante: varios(gafasRedondasDC, bigoteGrandeVM),
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#34343e', c: '#24242c', W: '#f2eee2', o: '#6a2a3a', F: '#34343e' }) },
+  // Ethel Voynich (1930): señora con el pelo corto canoso y el vestido azul de pliegues
+  ethel: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PLIEGUES, ceja: hex('#8a8a96'), delante: arrugasDC,
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e2', C: '#4a5a8a', c: '#36446a', I: '#2a2a3a', W: '#f2eee2', L: '#2a2430' }) },
+  // Anne Nill (1960): la secretaria con las gafas de pasta y el traje sastre verde
+  nill: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SASTRE, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: gafasPastaDC,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#5a8a7a', c: '#3e6a5a', W: '#f2eee2', o: '#f0c040', I: '#2a2a34' }) },
+  // Hans P. Kraus (los sesenta): calvo con entradas, gafas de pasta, traje gris y pajarita
+  kraus: { ...B25, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_FRAC, ceja: hex('#3a3a44'), delante: gafasPastaDC,
+    pal: CLT({ H: '#4a4a54', h: '#6a6a76', C: '#4a4e5a', c: '#363a44', W: '#f2eee2', o: '#8a2a3a', F: '#4a4e5a' }) },
+  // ── los descifradores, 1921–1945 ──
+  // William Newbold (1921): sienes canosas, bigote, traje de tweed pardo con la corbata verde
+  newbold: { ...B25, cab: CAB_SIENES, cuerpo: CUERPO_TWEED_VM, ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d2', C: '#8a7a5a', c: '#6a5a3e', W: '#f2eee2', o: '#3a6a3a', F: '#6a5a3e' }) },
+  // John Manly (1931): pelo blanco, gafas redondas y traje gris
+  manly: { ...B25, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#c8c8d0'), delante: varios(gafasRedondasDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#c8c8d2', C: '#5a5a6a', c: '#444452', W: '#f2eee2', o: '#2a3a6a', F: '#5a5a6a' }) },
+  // William Friedman (los cuarenta): pelo engominado, bigote fino, gafas redondas, traje pardo y pajarita
+  friedman: { ...B25, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, ceja: hex('#2a1c14'), delante: varios(bigoteTR, gafasRedondasDC),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#6a5a4a', c: '#4e4234', W: '#f2eee2', o: '#2a2430', F: '#6a5a4a' }) },
+  // su equipo: dos descifradoras con rebeca, blusa, falda y el pelo recogido en un moño; un descifrador con camisa y
+  // tirantes
+  descifradora: { ...B25, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_FALDA_VM, ceja: hex('#4a2a14'), mejillas: [[6, 8], [12, 8]], delante: varios(monoBajoTR, conFichasVM),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', s: '#e8a080', C: '#8a3a4a', c: '#6a2a38', W: '#f2eee2', F: '#4a4a5a', L: '#2a2430' }) },
+  descifradora2: { ...B25, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_FALDA_VM, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], delante: varios(monoBajoTR, gafasFinasDC),
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#4a7a6a', c: '#365a4e', W: '#f2eee2', F: '#5a4a3a', L: '#2a2430' }) },
+  descifrador: { ...B25, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TIRANTES, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#e8eef6', c: '#c4ccd8', W: '#c4ccd8', G: '#4a3a2a', F: '#5a5a66', n: '#2a2430' }) },
+  // ── 2009–2019 ──
+  // Greg Hodgins (2009): sienes canosas, gafas, bata blanca con la camisa azul
+  hodgins: { ...B25, cab: CAB_SIENES, cuerpo: CUERPO_BATA_DC, ceja: hex('#4a3a2a'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4a3a', h: '#7a6a58', w: '#c8c8d0', C: '#f4f4f8', c: '#c8ccd8', W: '#a8c0e0', o: '#2a4a6a', F: '#4a4a5a', n: '#2a2430' }) },
+  // Lisa Fagin Davis: pelo corto, gafas y la americana azul marino
+  davis: { ...B25, cab: CAB_CORTA_VM, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#4a3a2a'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4a3a', h: '#7a6a58', s: '#e8a080', C: '#2a3a5a', c: '#1e2a44', W: '#e8e0d0', o: '#e8e0d0', F: '#2a2a34' }) },
+  // los botánicos de 2013: él con barba, camisa de campo verde y el girasol; su colega con gafas y rebeca naranja
+  botanico: { ...B25, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_MANGA, ceja: hex('#5a3a24'), delante: conGirasolVM,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#7a8a5a', c: '#5e6c44', F: '#8a7a5a' }) },
+  colega: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_REBECA, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: gafasPastaDC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#c87a3a', c: '#a05a2a', W: '#f2eee2', F: '#3a4a6a' }) },
+  // los investigadores de la inteligencia artificial (2018): sudadera con capucha y el portátil abierto
+  investigadorIA: { ...B25, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#1c1424'), delante: conPortatilVM,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#3a4a6a', c: '#2a3654', X: '#e8e8ee', F: '#2a2a34' }) },
+  investigadoraIA: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#7a4a24'), mejillas: [[6, 8], [12, 8]], delante: conPortatilVM,
+    pal: CLT({ H: '#8a5428', h: '#a86e3a', s: '#e8a080', C: '#8a3a5a', c: '#6a2a44', X: '#f2eee2', F: '#3a4a6a' }) },
+  // el académico británico de 2019: entradas, gafas y la chaqueta de pana marrón sobre la camisa azul
+  academicoBritanico: { ...B25, cab: CAB_ENTRADAS, cuerpo: CUERPO_PANA_DC, ceja: hex('#5a3a24'), delante: gafasFinasDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#8a6a3a', c: '#6a4e2a', W: '#a8c8e8', o: '#a8c8e8', F: '#4a4a5a' }) },
+  // ── el siglo XV: cinco escribas inventados, cada uno con su túnica, su gorro y su pluma ──
+  escriba1: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'pileo', ceja: hex('#5a3418'), delante: conPlumaNV,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', J: '#a83a3a', j: '#7a2a2a', C: '#3a5a9a', c: '#2a4478', o: '#2a4478', G: '#4a2e16', L: '#3a2a1a' }) },
+  escriba2: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'boina', ceja: hex('#2a1c14'), delante: varios(bigoteTR, conPlumaNV),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', J: '#2a4a2a', j: '#3a5e3a', C: '#a8343a', c: '#7a242a', o: '#7a242a', G: '#2a2018', L: '#3a2a1a' }) },
+  escriba3: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#7a4a24'), delante: conPlumaNV,
+    pal: CLT({ H: '#8a5428', h: '#a86e3a', B: '#6a4a2a', b: '#4e3420', C: '#6a6a3a', c: '#4e4e2a', o: '#4e4e2a', G: '#3a2a1a', L: '#3a2a1a' }) },
+  escriba4: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'cofia', ceja: hex('#8a5a24'), mejillas: [[6, 8], [12, 8]], delante: conPlumaNV,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', s: '#e8a080', W: '#f2eee2', w: '#c8c4bc', C: '#7a4a8a', c: '#5a3468', o: '#5a3468', G: '#c8a040', L: '#3a2a1a' }) },
+  escriba5: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'pileo', ceja: hex('#a8a8b4'), delante: varios(arrugasDC, conPlumaNV),
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e2', J: '#2a2430', j: '#4c4660', C: '#c8903a', c: '#9a6a28', o: '#9a6a28', G: '#4a2e16', L: '#3a2a1a' }) },
+  // la bibliotecaria de la sala de libros raros de Yale: media melena, gafas, rebeca gris y los guantes blancos
+  bibliotecaria: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_GUANTES_VM, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#4a4a5a', c: '#36364a', W: '#f2eee2', X: '#ffffff', F: '#2a2a34', L: '#1e1a24' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían)
+for (const [k, v] of Object.entries(ELENCO_VM)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 25 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_VM = { ...PAL_DC, ...COLORES({
+  X: '#efe6cc', x: '#c8b88a', P: '#e8d8a8', p: '#c4ac78', e: '#5a3a24', V: '#4a8a3a', v: '#2e6a2a', l: '#8ac04a',
+  T: '#d8b878', B: '#a8743c', b: '#6a4422', A: '#3a6ad8', a: '#9ab8e0', U: '#4a9a8a', O: '#e8b830', g: '#a87a18',
+  o: '#ffe890', Q: '#c0603a', q: '#8a3e22', R: '#c8303a', r: '#8a1e26', Y: '#f0d040', G: '#6a7a72', u: '#4e5a54',
+  K: '#24222c', d: '#5a3a22', S: '#f6c290', M: '#c8a070', I: '#f07aa8',
+}) };
+const pintaVM = (R, g, x, y, o = {}, pal = PAL_VM) => pintaJH(R, g, x, y, o, pal);
+const encimaVM = (R, w, hgt, x, y, o, pal = PAL_VM) => encimaNV(R, w, hgt, x, y, o, pal);
+
+// LOS SIGNOS INVENTADOS del libro (2 × 2, y los «de horca» de 3 × 3 que suben una fila): trazos sueltos que no son
+// letras de ningún alfabeto; una línea es una serie de palabras de 2–4 signos con un hueco entre ellas, siempre igual
+// para la misma semilla; las líneas van cada 3 filas
+const SIGNOS_VM = [['ee', 'e.'], ['e.', 'ee'], ['.e', 'ee'], ['ee', '.e'], ['e.', '.e'], ['.e', 'e.'], ['ee', 'ee']];
+const HORCA_VM = [['e.e', 'eee', '.e.'], ['.ee', 'e.e', 'e..']];
+const lineaSignosVM = (px, i0, j0, ancho, semilla, tinta, mueve = 0) => {
+  let i = i0, k = semilla * 7 + 3;
+  const rnd = () => { k = (k * 1103515245 + 12345) & 0x7fffffff; return k / 0x7fffffff; };
+  while (i < i0 + ancho) {
+    const n = 2 + Math.floor(rnd() * 3);
+    for (let m = 0; m < n && i < i0 + ancho - 1; m++) {
+      const horca = m === 0 && rnd() < 0.3, g = horca ? HORCA_VM[Math.floor(rnd() * 2)] : SIGNOS_VM[Math.floor(rnd() * SIGNOS_VM.length)];
+      if (i + g[0].length > i0 + ancho) break;
+      const dj = (mueve ? Math.round(Math.sin(mueve + i * 0.9) * 0.8) : 0) - (horca ? 1 : 0);
+      g.forEach((f, j) => { for (let a = 0; a < f.length; a++) if (f[a] !== '.') px(i + a, j0 + j + dj, tinta); });
+      i += g[0].length + 1;
+    }
+    i += 1;
+  }
+};
+// los dibujos de las páginas (12 × 12 en la hoja, a la izquierda): 'planta' (la planta de raíces como patas), 'estrellas'
+// (la rueda de estrellas), 'estanques' (figuritas vestidas en los estanques verdes unidos por tubos) y 'tarros'
+const DIBUJO_PLANTA_VM = ['....rAr.....', '.....V......', '..VVlVVV....', '.VlVVVVlV...', '..VV.V.VV...', '.....V......', '...VVVVV....', '..VlV.VlV...', '.....B......', '....BBB.....', '...B.B.B....', '..B..B..B...'];
+const dibujoPaginaVM = (px, pag, i0, j0) => {
+  if (pag === 'estrellas') {
+    for (let a = 0; a < 40; a++) { const t = a / 40 * Math.PI * 2; px(i0 + Math.round(6 + Math.cos(t) * 5.5), j0 + Math.round(6 + Math.sin(t) * 5.5), 'e'); }
+    for (let a = 0; a < 20; a++) { const t = a / 20 * Math.PI * 2; px(i0 + Math.round(6 + Math.cos(t) * 2.6), j0 + Math.round(6 + Math.sin(t) * 2.6), 'e'); }
+    for (let a = 0; a < 8; a++) { const t = a / 8 * Math.PI * 2 + 0.3; px(i0 + Math.round(6 + Math.cos(t) * 4), j0 + Math.round(6 + Math.sin(t) * 4), a % 2 ? 'Y' : 'A'); }
+    for (const [a, b] of [[6, 5], [5, 6], [6, 6], [7, 6], [6, 7]]) px(i0 + a, j0 + b, 'Y');
+    return;
+  }
+  if (pag === 'estanques') {
+    for (const [cx, cy] of [[3.5, 3.5], [8.5, 9.5]]) for (let j = -2; j <= 2; j++) for (let i = -4; i <= 4; i++) if ((i / 3.6) ** 2 + (j / 1.8) ** 2 <= 1) px(i0 + Math.round(cx + i), j0 + Math.round(cy + j), Math.abs(j) === 2 || Math.abs(i) >= 4 ? 'e' : 'U');
+    for (const [a, b] of [[6, 5], [7, 6], [7, 7], [8, 8]]) { px(i0 + a, j0 + b, 'V'); px(i0 + a + 1, j0 + b, 'v'); }
+    for (const [a, b, c] of [[2, 3, 'A'], [4, 3, 'R'], [7, 9, 'R'], [10, 9, 'A']]) { px(i0 + a, j0 + b - 1, 'S'); px(i0 + a, j0 + b, c); }
+    return;
+  }
+  if (pag === 'tarros') {
+    const tarro = (x0, y0, w, h, c) => { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) px(i0 + x0 + i, j0 + y0 + j, i === 0 || i === w - 1 || j === h - 1 ? 'e' : c); for (let i = 1; i < w - 1; i++) px(i0 + x0 + i, j0 + y0 - 1, 'B'); };
+    tarro(0, 5, 4, 7, 'A'); tarro(4, 2, 4, 10, 'R'); tarro(8, 6, 4, 6, 'V');
+    px(i0 + 5, j0 + 6, 'Y'); px(i0 + 1, j0 + 8, 'a');
+    return;
+  }
+  DIBUJO_PLANTA_VM.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') px(i0 + i, j0 + j, f[i] === 'r' ? 'R' : f[i]); });
+};
+
+// EL MANUSCRITO VOYNICH: cerrado, la encuadernación flexible de pergamino (X, sombra x) con las manchas de los siglos
+// (T) y el canto de las hojas (p); o.abierto: las dos páginas amarillentas (P/p) con el dibujo de o.pagina ('planta' |
+// 'estrellas' | 'estanques' | 'tarros') y las líneas de signos inventados en tinta parda; o.brilla: los signos brillan
+// en oro; o.mueve (con o.t): los signos se mueven para no dejarse leer. Cerrado 14 × 17, abierto 34 × 18
+const LIBRO_VM = forma(14, 17, ({ rect, put }) => {
+  rect(1, 1, 12, 15, 'X'); rect(1, 1, 2, 15, 'x'); rect(12, 2, 12, 15, 'p'); rect(2, 15, 12, 15, 'p');
+  for (const [i, j] of [[8, 4], [9, 4], [5, 10], [6, 11], [10, 12]]) put(i, j, 'T');
+  rect(4, 7, 10, 7, 'x');
+});
+const LIBRO_ABIERTO_VM = forma(34, 18, ({ rect, put }) => {
+  rect(0, 16, 33, 17, 'x'); rect(1, 1, 16, 16, 'P'); rect(17, 1, 32, 16, 'P');
+  rect(15, 1, 16, 16, 'p'); rect(17, 1, 17, 16, 'p'); put(1, 1, '.'); put(32, 1, '.');
+  rect(1, 16, 32, 16, 'p');
+});
+const libroVoynichVM = (R, x, y, o = {}) => {
+  if (!o.abierto) { pintaVM(R, LIBRO_VM, x, y, o); return; }
+  pintaVM(R, LIBRO_ABIERTO_VM, x, y, o);
+  const px = encimaVM(R, 34, 18, x, y, o), tinta = o.brilla ? 'Y' : 'e', mv = o.mueve ? (o.t ?? 0) * 6 : 0;
+  dibujoPaginaVM(px, o.pagina ?? 'planta', 2, 2);
+  for (let n = 0; n < 4; n++) lineaSignosVM(px, 19, 3 + n * 3, 12, n + 2 + (o.pagina ?? 'planta').length, tinta, mv);
+  lineaSignosVM(px, 19, 15, 7, 9, tinta, mv);
+  if (o.brilla) for (const [i, j] of [[21, 2], [28, 8], [24, 13]]) px(i, j, 'o');
+};
+
+// LA PLANTA IMPOSIBLE en su maceta de barro (Q/q): el bulbo de raíz (T) de pie sobre la tierra con tres patas, el tallo
+// que sube (V) y las hojas en espiral que se enroscan (V, luz l, sombra v); o.crece 0–1 (1 por omisión) la hace crecer;
+// o.flor: la flor rosa en la punta; o.t: se mece. 20 × 36
+const PLANTA_CACHE_VM = new Map();
+const plantaFormaVM = (n, flor, mece) => forma(20, 36, ({ rect, put, linea, disco }) => {
+  rect(4, 29, 15, 30, 'Q'); rect(4, 29, 15, 29, 'T'); rect(5, 28, 14, 28, 'd');
+  rect(5, 31, 14, 34, 'Q'); rect(6, 35, 13, 35, 'Q'); rect(13, 31, 14, 34, 'q'); rect(12, 35, 13, 35, 'q'); rect(5, 32, 12, 32, 'q');
+  disco(9.5, 21.5, 2, 'T'); put(8, 20, 'M'); put(11, 23, 'B');
+  linea(8, 23, 5, 25, 'B'); linea(5, 25, 4, 27, 'B'); linea(10, 23, 10, 27, 'B'); linea(11, 23, 14, 25, 'B'); linea(14, 25, 15, 27, 'B'); put(3, 27, 'B'); put(9, 27, 'B'); put(16, 27, 'B');
+  const L = 2 + Math.round(14 * n / 10), sx = (k) => Math.round(9.5 + mece * (k / 19) * 2);
+  for (let k = 0; k <= L; k++) put(sx(k), 19 - k, 'V');
+  for (let k = 3, lado = 1; k <= L - 2; k += 4, lado = -lado) {
+    const x0 = sx(k), y0 = 19 - k, t = k > 12 ? 0.7 : 1;
+    const hoja = t < 1 ? [[1, 0, 'V'], [2, -1, 'l'], [2, -2, 'V'], [1, -2, 'v']] : [[1, 0, 'V'], [2, 0, 'V'], [3, -1, 'l'], [3, -2, 'V'], [2, -3, 'V'], [1, -2, 'v']];
+    for (const [a, b, c] of hoja) put(x0 + a * lado, y0 + b, c);
+  }
+  const tx = sx(L), ty = 19 - L;
+  if (flor) { for (const [a, b] of [[0, -2], [-2, 0], [2, 0], [-1, -2], [1, -2], [-2, -1], [2, -1], [0, 1]]) put(tx + a, ty - 1 + b, 'I'); put(tx, ty - 1, 'Y'); put(tx - 1, ty - 1, 'Y'); put(tx + 1, ty - 1, 'o'); }
+  else { put(tx, ty - 1, 'l'); put(tx + 1, ty - 1, 'V'); }
+});
+const plantaImposibleVM = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.crece ?? 1)) * 10), mece = o.t == null ? 0 : Math.round(Math.sin(o.t * 1.7));
+  const clave = n + (o.flor ? 'f' : '') + mece;
+  if (!PLANTA_CACHE_VM.has(clave)) PLANTA_CACHE_VM.set(clave, plantaFormaVM(n, !!o.flor, mece));
+  pintaVM(R, PLANTA_CACHE_VM.get(clave), x, y, o);
+};
+
+// EL MICROSCOPIO DE LATÓN de 1921: el ocular negro, el tubo de latón (O, luz o, anillos g), el brazo, la platina negra,
+// el espejo redondo (Z) y el pie en herradura; con o.t el espejo destella. 14 × 20
+const MICRO_VM = forma(14, 20, ({ rect, disco }) => {
+  rect(4, 0, 6, 1, 'K'); rect(4, 2, 6, 10, 'O'); rect(4, 2, 4, 10, 'o'); rect(4, 4, 6, 4, 'g'); rect(4, 8, 6, 8, 'g'); rect(5, 11, 5, 11, 'K');
+  rect(7, 5, 9, 6, 'g'); rect(9, 5, 10, 16, 'O'); rect(10, 5, 10, 16, 'g');
+  rect(2, 12, 8, 12, 'K'); disco(5, 15, 1.3, 'Z');
+  rect(3, 17, 11, 17, 'u'); rect(1, 18, 12, 19, 'K');
+});
+const microscopioVM = (R, x, y, o = {}) => {
+  pintaVM(R, MICRO_VM, x, y, o, { ...PAL_VM, ...COLORES({ Z: '#c8ccd8', u: '#4a4856' }) });
+  if (o.t != null && Math.sin(o.t * 4) > 0.6) encimaVM(R, 14, 20, x, y, o, { E: hex('#ffffff') })(4, 14, 'E');
+};
+
+// LA CARTA CON LACRE: cerrada, el papel doblado (X, pliegues x) con el sello de lacre rojo (R/r); o.abierta: la hoja
+// desplegada con renglones ondulados de tinta (sin letras) y el lacre partido abajo. Cerrada 14 × 9, abierta 14 × 16
+const CARTA_VM = forma(14, 9, ({ rect, linea, disco, put }) => {
+  rect(1, 1, 12, 7, 'X'); linea(1, 1, 6, 4, 'x'); linea(12, 1, 7, 4, 'x');
+  disco(6.5, 4.5, 1.7, 'R'); put(7, 5, 'r'); put(6, 4, 'o');
+});
+const CARTA_ABIERTA_VM = forma(14, 16, ({ rect, put }) => {
+  rect(1, 0, 12, 15, 'X'); rect(1, 5, 12, 5, 'x'); rect(1, 10, 12, 10, 'x');
+  for (let j = 2; j <= 12; j += 2) for (let i = 2; i <= (j === 12 ? 7 : 11); i++) if ((i * 3 + j) % 7 !== 0) put(i, j + ((i + j) % 3 === 0 ? -1 : 0), 'e');
+  rect(5, 14, 6, 14, 'R'); put(8, 14, 'R'); put(7, 13, 'r');
+});
+const cartaLacreVM = (R, x, y, o = {}) => pintaVM(R, o.abierta ? CARTA_ABIERTA_VM : CARTA_VM, x, y, o);
+
+// LA BOLSA DE MONEDAS de cuero (B, sombra b) atada con el cordón (T); o.abierta: la boca abierta con las monedas de oro
+// (O/g) que asoman y dos más por el suelo. 14 × 13
+const BOLSA_VM = forma(14, 13, ({ rect, disco, put }) => {
+  disco(7, 8.5, 4.3, 'B'); rect(5, 3, 9, 5, 'B'); put(4, 2, 'B'); put(5, 1, 'B'); put(7, 1, 'B'); put(9, 1, 'B'); put(10, 2, 'B');
+  rect(5, 4, 9, 4, 'T'); put(10, 5, 'T'); put(11, 6, 'T');
+  for (const [i, j] of [[9, 10], [10, 9], [8, 11], [4, 7]]) put(i, j, 'b');
+});
+const BOLSA_ABIERTA_VM = forma(16, 13, ({ rect, disco, put }) => {
+  disco(7, 8.5, 4.3, 'B'); rect(4, 3, 10, 5, 'B'); rect(4, 1, 10, 2, 'b');
+  rect(5, 1, 9, 2, 'O'); put(6, 0, 'O'); put(8, 0, 'O'); put(7, 1, 'g'); put(5, 2, 'g');
+  rect(4, 4, 10, 4, 'T'); for (const [i, j] of [[9, 10], [10, 9], [8, 11], [4, 7]]) put(i, j, 'b');
+  rect(13, 11, 14, 12, 'O'); put(14, 12, 'g'); rect(12, 12, 12, 12, 'O');
+});
+const bolsaMonedasVM = (R, x, y, o = {}) => pintaVM(R, o.abierta ? BOLSA_ABIERTA_VM : BOLSA_VM, x, y, o);
+
+// LAS FICHAS PERFORADAS: un mazo de tarjetas color crema (X, la trama de las columnas impresas x) con la esquina
+// cortada y los agujeros (k); o.n: cuántas (1–5, 3 por omisión), en abanico. Una ficha 15 × 9 (el abanico, 2 px más
+// por ficha)
+const FICHA_VM = forma(15, 9, ({ rect, put }) => {
+  rect(1, 1, 13, 7, 'X'); put(1, 1, '.'); rect(1, 7, 13, 7, 'x');
+  for (let i = 3; i <= 12; i++) for (let j = 2; j <= 6; j++) put(i, j, (i * 5 + j * 3) % 7 === 0 ? 'k' : (i + j) % 2 ? 'X' : 'x');
+});
+const tarjetasPerforadasVM = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(5, Math.round(o.n ?? 3))), s = o.s ?? 1, dir = o.dir ?? 1;
+  for (let c = 0; c < n; c++) pintaVM(R, FICHA_VM, x + (c - (n - 1) / 2) * 2 * s * dir, y - (n - 1 - c) * s, o, { ...PAL_VM, ...COLORES({ X: '#f2e6bc', x: '#d8c898' }) });
+};
+
+// LA MÁQUINA DE DESCIFRAR de los cuarenta (genérica): el mueble gris verdoso (G, sombra u) con dos esferas (Z), la fila
+// de luces ámbar que parpadean con o.t, el teclado (X), el rodillo de arriba y la tira de papel que sale por la derecha,
+// cae y corre por el suelo; o.tira 0–1 su largo (hasta 60 px más allá de la máquina); o.pregunta: un «?» al final de la
+// tira. 28 × 22 (más la tira)
+const MAQUINA_VM = forma(28, 22, ({ rect, disco }) => {
+  rect(1, 4, 26, 20, 'G'); rect(1, 4, 26, 4, 'a'); rect(26, 4, 26, 20, 'u'); rect(1, 20, 26, 20, 'u');
+  rect(5, 0, 22, 3, 'Z'); rect(4, 1, 4, 2, 'K'); rect(23, 1, 23, 2, 'K');
+  rect(3, 6, 24, 10, 'u'); disco(6.5, 8, 1.6, 'Z'); disco(11.5, 8, 1.6, 'Z');
+  for (let j = 13; j <= 17; j += 2) for (let i = 4; i <= 22; i += 3) rect(i, j, i + 1, j, 'X');
+  rect(2, 21, 4, 21, 'K'); rect(23, 21, 25, 21, 'K');
+});
+const PREGUNTA_VM = ['.kkk.', 'k...k', '...k.', '..k..', '..k..', '.....', '..k..'];
+const maquinaDescifrarVM = (R, x, y, o = {}) => {
+  const pal = { ...PAL_VM, ...COLORES({ G: '#6a7a72', u: '#4e5a54', a: '#8a9a92', Z: '#c8ccd8', X: '#efe6cc', L: '#f0a030', l: '#6a4a24' }) };
+  pintaVM(R, MAQUINA_VM, x, y, o, pal);
+  const px = encimaVM(R, 28, 22, x, y, o, pal), t = o.t ?? 0;
+  px(6, 7, 'k'); px(7, 8, 'k'); px(11, 8, 'k'); px(12, 7 + (Math.sin(t * 3) > 0 ? 0 : 2), 'k');
+  for (let i = 15; i <= 23; i += 2) px(i, 8, Math.sin(t * 7 + i * 1.3) > 0 ? 'L' : 'l');
+  for (let i = 6; i <= 21; i += 3) px(i + (Math.floor(t * 8) % 3), 2, 'z');
+  // la tira: sale del rodillo hacia la derecha, cae al suelo y corre por él
+  const largo = Math.round(Math.max(0, Math.min(1, o.tira ?? 0.5)) * 80);
+  const camino = [];
+  for (let i = 23; i <= 29; i++) camino.push([i, 1]);
+  for (let j = 2; j <= 20; j++) camino.push([29 + (j > 14 ? 1 : 0), j]);
+  for (let i = 31; i < 31 + 60; i++) camino.push([i, 21]);
+  const n = Math.min(camino.length, largo), tira = new Map(), clave = (i, j) => i + ',' + j;
+  for (let k = 0; k < n; k++) { const [i, j] = camino[k], v = j > 1 && j < 21; for (const [a, b] of v ? [[0, 0], [1, 0]] : [[0, 0], [0, -1]]) tira.set(clave(i + a, j + b), k % 4 === 1 ? 'u' : 'X'); }
+  for (const c of tira.keys()) { const [i, j] = c.split(',').map(Number); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!tira.has(clave(i + a, j + b)) && j + b <= 21 && i + a > 22) px(i + a, j + b, 'k'); }
+  for (const [c, l] of tira) { const [i, j] = c.split(',').map(Number); px(i, j, l); }
+  if (o.pregunta && n > 0) {
+    const [i, j] = camino[n - 1], i0 = j === 21 ? i + 1 : i + 2, j0 = j === 21 ? 12 : j - 4;
+    for (let a = -1; a <= 5; a++) for (let b = -1; b <= 7; b++) px(i0 + a, j0 + b, a === -1 || a === 5 || b === -1 || b === 7 ? 'k' : 'X');
+    rejAT(px, PREGUNTA_VM, i0, j0);
+  }
+};
+
+// LA PLUMA de ave para escribir: el cañón (x) en diagonal, las barbas blancas (X, sombra x) y la punta mojada en tinta
+// (L, o.tinta '#rrggbb'). 10 × 16
+const PLUMA_VM = forma(10, 16, ({ put, linea }) => {
+  linea(2, 15, 8, 0, 'x');
+  for (let k = 4; k <= 14; k++) {
+    const xx = Math.round(2 + 6 * (k / 15)), yy = 15 - k, w = Math.round(2.2 * Math.sin(Math.PI * (k - 3) / 12));
+    for (let d = 1; d <= w; d++) { put(xx + d, yy, 'X'); put(xx - d, yy, d === w ? 'x' : 'X'); }
+  }
+  put(2, 15, 'L'); put(1, 15, 'L'); put(3, 14, 'K');
+});
+const plumaVM = (R, x, y, o = {}) => pintaVM(R, PLUMA_VM, x, y, o, { ...PAL_VM, ...COLORES({ L: o.tinta ?? '#2a2832', X: '#f6f2e6', x: '#b8b0a0' }) });
+
+// EL TINTERO de vidrio oscuro (K, brillos Z) con el cuello y la tinta (A); o.pluma: con la pluma metida; o.tinta: el
+// color de la tinta. 9 × 9 (la pluma sube 12 más)
+const TINTERO_VM = forma(9, 9, ({ rect, disco }) => { disco(4, 5.5, 3.2, 'K'); rect(3, 1, 5, 2, 'K'); rect(2, 1, 6, 1, 'u'); });
+const tinteroVM = (R, x, y, o = {}) => {
+  const pal = { ...PAL_VM, ...COLORES({ A: o.tinta ?? '#2a3a6a', Z: '#8a92b0', u: '#4a4856', X: '#f6f2e6', x: '#b8b0a0' }) };
+  pintaVM(R, TINTERO_VM, x, y, o, pal);
+  const px = encimaVM(R, 9, 9, x, y, o, pal);
+  px(2, 4, 'Z'); px(2, 5, 'Z'); px(3, 3, 'Z'); px(4, 1, 'A');
+  if (o.pluma) { for (let k = 0; k <= 11; k++) { const i = 4 + Math.round(k * 0.4), j = 0 - k; px(i, j, 'x'); if (k > 4) { px(i + 1, j, 'X'); px(i - 1, j, k > 9 ? 'x' : 'X'); px(i + 2, j, 'k'); px(i - 2, j, 'k'); } else { px(i + 1, j, 'k'); px(i - 1, j, 'k'); } } px(9, -12, 'k'); }
+};
+
+export const PIEZAS_VM = {
+  libroVoynich: libroVoynichVM, plantaImposible: plantaImposibleVM, lupa, microscopio: microscopioVM, cartaLacre: cartaLacreVM,
+  bolsaMonedas: bolsaMonedasVM, tarjetasPerforadas: tarjetasPerforadasVM, maquinaDescifrar: maquinaDescifrarVM,
+  pluma: plumaVM, tintero: tinteroVM,
+};
