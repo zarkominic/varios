@@ -260,7 +260,8 @@ const espalda = (x, y, pelo, ropa, f = 0) => {
 const bocadilloG = (cx, cy, ids, col, hx, hy, u = 1, esc = 1) => {
   if (u <= 0) return; const w = anchoP(ids, esc) + 8, h = 5 + 9 * esc, W = Math.max(4, Math.round(w * Math.min(1, u))), H = Math.max(3, Math.round(h * Math.min(1, u)));
   const x0 = Math.round(cx - W / 2), y0 = Math.round(cy - H / 2);
-  raya(cx, cy, hx, hy, Q.k, 1); raya(cx, cy, Math.round(lerp(cx, hx, 0.85)), Math.round(lerp(cy, hy, 0.85)), Q.blanco, 0);
+  { const d = Math.max(1, Math.hypot(hx - cx, hy - cy)), L = Math.min(d, H / 2 + 7); hx = Math.round(cx + (hx - cx) / d * L); hy = Math.round(cy + (hy - cy) / d * L); }
+  raya(cx, cy, hx, hy, Q.k, 1); raya(cx, cy, Math.round(lerp(cx, hx, 0.8)), Math.round(lerp(cy, hy, 0.8)), Q.blanco, 0);
   R.rect(x0 + 1, y0, x0 + W - 1, y0 + H, Q.k); R.rect(x0, y0 + 1, x0 + W, y0 + H - 1, Q.k); R.rect(x0 + 1, y0 + 1, x0 + W - 1, y0 + H - 1, Q.blanco); R.rect(x0 + 2, y0 + H - 1, x0 + W - 1, y0 + H - 1, Q.blancoS);
   if (u >= 1) palabra(ids, x0 + 4, y0 + 4 + 6 * esc, esc, col);
 };
@@ -444,8 +445,9 @@ const LORO_ABRE = LORO.map((f, j) => j === 4 ? '..kGGGGGkWWk' : j === 5 ? '..kRG
 const PAL_LORO = { k: Q.k, G: Q.loro, L: Q.loroL, S: Q.loroS, Y: Q.loroY, A: Q.loroA, R: Q.loroR, W: Q.loroP, w: Q.blanco, f: Q.gris };
 const loro = (x, y, t, abre, aletea) => {
   const s = 2, bob = Math.sin(t * 3) > 0.6 ? 1 : 0;
-  if (aletea) { R.poligono([[x + 2, y + 16], [x - 10, y - 4], [x - 2, y + 4], [x + 6, y + 20]], Q.k); R.poligono([[x + 3, y + 15], [x - 8, y - 2], [x - 1, y + 5], [x + 6, y + 18]], Q.loroS); R.rect(x - 6, y, x - 4, y + 2, Q.loroA); }
-  spr(abre ? LORO_ABRE : LORO, x, y + bob, s, PAL_LORO, 1);
+  const hop = aletea ? -3 : 0;
+  spr(abre ? LORO_ABRE : LORO, x, y + bob + hop, s, PAL_LORO, 1);
+  if (aletea) for (const d of [-1, 1]) { const wx = x + 8 + d * 9, wy = y + 16 + hop; R.poligono([[wx, wy], [wx + d * 8, wy - 8], [wx + d * 4, wy + 4]], Q.k); R.poligono([[wx, wy + 1], [wx + d * 6, wy - 6], [wx + d * 3, wy + 3]], Q.loroS); }
 };
 const loroFijo = () => fijo('loro', () => {
   // la pared de yeso cálido (tranquila arriba a la derecha) y el friso de cuarterones
