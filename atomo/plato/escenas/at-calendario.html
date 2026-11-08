@@ -14,7 +14,7 @@
 //    cartuchos camino de las tiendas («Christmas»);  2. el calendario gigante: julio y agosto salen volando (gag 2), en
 //    «1st of September» se rodea el 1 en rojo; «six months»: el cronómetro da la vuelta y sale el 6;
 // 3. el pasillo de los trofeos (fondo local): Warshaw, joven y de pelo rizado, entra y señala su cartucho de oro
-//    enmarcado en «Raiders»; el jefe llega por la derecha;  4. inserto, la mesa de Warshaw: la mano del jefe deja el reloj
+//    enmarcado en «Raiders»; el jefe llega por la derecha; los fluorescentes, fuera de la barra del año (borde izq. y x 180);  4. inserto, la mesa de Warshaw: la mano del jefe deja el reloj
 //    de arena y el 5; las cinco semanas se van tachando una tras otra.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -104,8 +104,9 @@ const fondo3 = () => {
 };
 const p3 = (t) => {
   fondo3();
-  // los fluorescentes (uno parpadea) y la demo de la recreativa
-  for (const [x, k] of [[60, 0], [180, 1]]) { const on = k === 0 || hh(Math.floor(t * 9), 3, 8) > 0.12; R.rect(x, 4, x + 50, 9, K); R.rect(x + 1, 5, x + 49, 8, on ? hex('#fbfbe8') : hex('#a8a89a')); }
+  // los fluorescentes (uno parpadea) y la demo de la recreativa; el fijo asoma por el borde izquierdo (x −38…12), fuera
+  // de la barra del año (x 20–170), y el que parpadea queda a la derecha (x 180–230)
+  for (const [x, k] of [[-38, 0], [180, 1]]) { const on = k === 0 || hh(Math.floor(t * 9), 3, 8) > 0.12; R.rect(x, 4, x + 50, 9, K); R.rect(x + 1, 5, x + 49, 8, on ? hex('#fbfbe8') : hex('#a8a89a')); }
   { const bx = 7 + Math.round((Math.sin(t * 3) + 1) * 7), by = 66 + Math.round((Math.cos(t * 2.3) + 1) * 7); R.rect(6, 64, 23, 84, hex('#101820')); R.rect(bx, by, bx + 1, by + 1, hex('#a8f0a0')); R.rect(7, 80 - Math.round(Math.sin(t * 3) * 2), 10, 81, hex('#f0c840')); }
   // el marco grande del cartucho de oro (el juego de antes de Warshaw), con el foco que se enciende en «Raiders»
   const luz = tramo(t, RAID - 0.2, RAID + 0.3);

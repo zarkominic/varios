@@ -10,6 +10,9 @@
 // dentro de una escena un encuadre no se repite. LO QUE VA DELANTE DE LOS PERSONAJES (mostradores, mesas, la barra del
 // bar, vallas) va en su propia función <x>Delante, y la cabecera lo dice: «llama a <x>Delante después de los actores».
 // La esquina de Atom (x 278–318, y 4–44), siempre tranquila, y la barra del tiempo (x 20–170, y 0–14), también.
+// Pulido de la calidad (ronda 1): el cordón de la taquilla del cine baja a la cintura (y 162–168, postes desde y 160);
+// el brazo de la pala sale por arriba en x ≥ 190, lejos de la barra del año; la barra de las cortinas del estudio baja a
+// y 15–16 y las cortinas empiezan en y 17 (antes pisaban la barra del año).
 //
 //   import * as T from '/atomo/plato/escenas/at-comun.js';
 //   const { E, R, M } = await T.preparar('at-gancho');
@@ -3045,13 +3048,16 @@ function m_taquilla(R, t, o = {}) {
   { const x = 30, y = 170; rect(x, y, x + 8, y + 2, hex('#c83a4a')); rect(x, y, x + 8, y, hex('#e86a6a')); pset(x + 3, y + 1, hex('#f8e0b0')); }
   return { suelo: 176 };
 }
-// los postes de latón con el cordón de terciopelo, que cuelga hacia los bordes (por delante de los personajes)
+// los postes de latón con el cordón de terciopelo, que cuelga hacia los bordes (por delante de los personajes). Postes
+// bajos, a la altura de la cintura de un chibi con suelo 176: el cordón va de y 162 a y 168 y nunca cruza las caras
+// (que están en y ~151–160); en la punta de cada poste, el gancho del cordón
 function m_cordon(R, t) {
   const { rect, pset, disco } = R;
   for (const [x, hacia] of [[96, 0], [228, 319]]) {
     const sw = Math.round(Math.sin(t * 1.2 + x) * 1);
-    for (let i = 0; i <= Math.abs(hacia - x); i++) { const xx = x + Math.sign(hacia - x) * i, u = i / Math.abs(hacia - x), y = Math.round(150 + Math.sin(u * Math.PI) * 7 + sw * Math.sin(u * Math.PI)); pset(xx, y, hex('#a81a2a')); pset(xx, y + 1, hex('#6a0e1a')); if (i % 9 === 4) pset(xx, y, hex('#d84a5a')); }
-    rect(x - 1, 148, x + 1, 176, hex('#c8a040')); rect(x - 1, 148, x - 1, 176, MC.oroL); rect(x + 1, 148, x + 1, 176, MC.oroS); disco(x, 147, 2, hex('#c8a040')); pset(x - 1, 146, MC.oroL);
+    for (let i = 0; i <= Math.abs(hacia - x); i++) { const xx = x + Math.sign(hacia - x) * i, u = i / Math.abs(hacia - x), y = Math.round(162 + Math.sin(u * Math.PI) * 5 + sw * Math.sin(u * Math.PI)); pset(xx, y, hex('#a81a2a')); pset(xx, y + 1, hex('#6a0e1a')); if (i % 9 === 4) pset(xx, y, hex('#d84a5a')); }
+    rect(x - 1, 161, x + 1, 176, hex('#c8a040')); rect(x - 1, 161, x - 1, 176, MC.oroL); rect(x + 1, 161, x + 1, 176, MC.oroS); disco(x, 160, 2, hex('#c8a040')); pset(x - 1, 159, MC.oroL);
+    rect(x - 2, 162, x + 2, 163, MC.oroS); pset(x + Math.sign(hacia - x) * 2, 162, hex('#a81a2a'));
     rect(x - 5, 175, x + 5, 177, hex('#c8a040')); rect(x - 5, 175, x + 5, 175, MC.oroL); rect(x - 6, 178, x + 6, 178, hex('#7a6a5a'));
   }
 }
@@ -4214,12 +4220,14 @@ function c_pala(R, t, o) {
   // la cuchara vista de frente: sube desde la fosa (saca 0) hasta media altura (saca 1), cargada y algo inclinada
   const bx = 170, by = Math.round(lerp(198, 112, sa)), ang = lerp(0.14, -0.08, sa), ca = Math.cos(ang), sn = Math.sin(ang);
   const Q = (u, v) => [bx + u * ca - v * sn, by + u * sn + v * ca];
-  // el balancín (sube recto, entre las dos orejas) y el cilindro cromado, fuera de las esquinas tranquilas
-  R.poligono([Q(-16, -50), Q(12, -50), [236, by - 150], [212, by - 150]], CD.amarS); R.poligono([Q(-12, -50), Q(8, -50), [232, by - 150], [216, by - 150]], CD.amar); linea(...Q(-12, -50), 216, by - 150, CD.amarL);
-  for (let j = 0; j < 5; j++) { const f = (j + 1) / 6, x = Math.round(lerp(Q(-2, -50)[0], 224, f)), y = Math.round(lerp(Q(-2, -50)[1], by - 150, f)); R.disco(x - 6, y, 1.2, CD.amarSS); R.disco(x + 6, y, 1.2, CD.amarSS); pset(x - 7, y - 1, CD.amarL); }
-  for (const dx of [-9, -7]) linea(...Q(-14 + dx * 0.2, -48), 212 + dx, by - 150, (x, y, n) => (n % 9 < 1 ? CD.aceroS : CD.chasis));   // las mangueras hidráulicas
+  // el balancín (sube en diagonal hacia la derecha, entre las dos orejas) y el cilindro cromado, fuera de las esquinas
+  // tranquilas: sale por arriba en x ≥ 190 (lejos del final de la barra del año, x 170) y antes de la zona de Atom (x 278)
+  const XB = 240;
+  R.poligono([Q(-16, -50), Q(12, -50), [XB + 24, by - 150], [XB, by - 150]], CD.amarS); R.poligono([Q(-12, -50), Q(8, -50), [XB + 20, by - 150], [XB + 4, by - 150]], CD.amar); linea(...Q(-12, -50), XB + 4, by - 150, CD.amarL);
+  for (let j = 0; j < 5; j++) { const f = (j + 1) / 6, x = Math.round(lerp(Q(-2, -50)[0], XB + 12, f)), y = Math.round(lerp(Q(-2, -50)[1], by - 150, f)); R.disco(x - 6, y, 1.2, CD.amarSS); R.disco(x + 6, y, 1.2, CD.amarSS); pset(x - 7, y - 1, CD.amarL); }
+  for (const dx of [-9, -7]) linea(...Q(-14 + dx * 0.2, -48), XB + dx, by - 150, (x, y, n) => (n % 9 < 1 ? CD.aceroS : CD.chasis));   // las mangueras hidráulicas
   { const [x, y] = Q(-2, -50); R.poligono([[x - 13, y - 6], [x + 9, y - 6], [x + 11, y + 2], [x - 15, y + 2]], CD.amarS); linea(x - 13, y - 6, x + 9, y - 6, CD.amarL); }
-  linea(...Q(24, -46), 252, by - 150, CD.cromo); linea(...Q(25, -46), 253, by - 150, CD.cromoS); linea(...Q(23, -46), 251, by - 150, CD.aceroL);
+  linea(...Q(24, -46), XB + 40, by - 150, CD.cromo); linea(...Q(25, -46), XB + 41, by - 150, CD.cromoS); linea(...Q(23, -46), XB + 39, by - 150, CD.aceroL);
   // las orejas con sus bulones
   for (const u of [-24, 16]) { R.poligono([Q(u, -30), Q(u + 8, -30), Q(u + 7, -52), Q(u + 1, -52)], CD.amarS); R.disco(...Q(u + 4, -46), 3.5, CD.aceroS); R.disco(...Q(u + 4, -46), 1.6, CD.aceroL); }
   // la carga: un montón de tierra por encima del borde, con cartuchos, una caja rota y un periódico
@@ -4563,7 +4571,8 @@ function e_estudioFijo(R) {
   rect(10, 62, 78, 65, hex('#e8d8b0')); rect(10, 62, 78, 62, C.blanco); rect(10, 65, 78, 66, hex('#8a6a4a'));
   rect(24, 55, 30, 61, hex('#b8582a')); rect(26, 49, 28, 55, hex('#4a8a3a')); rect(25, 51, 25, 53, hex('#4a8a3a')); rect(29, 50, 29, 52, hex('#4a8a3a')); pset(27, 48, hex('#ff7aa8'));
   rect(56, 53, 62, 61, hex('#9aa4b4')); rect(57, 54, 61, 57, hex('#c8d0dc')); pset(58, 55, hex('#5ad8f0')); pset(60, 55, hex('#5ad8f0')); rect(59, 51, 59, 52, hex('#6c7688')); pset(59, 50, hex('#e83a3a'));
-  rect(6, 11, 82, 12, hex('#6a4a2a')); disco(6, 11, 1.5, hex('#8a6a4a')); disco(82, 11, 1.5, hex('#8a6a4a'));
+  // la barra de la cortina, por debajo de la barra del año (y 0–14): y 15–16, con sus pomos
+  rect(6, 15, 82, 16, hex('#6a4a2a')); rect(6, 15, 82, 15, hex('#8a6a4a')); disco(6, 16, 1.5, hex('#8a6a4a')); disco(82, 16, 1.5, hex('#8a6a4a')); pset(5, 15, hex('#c8a070')); pset(81, 15, hex('#c8a070'));
   // el puf de pana en la esquina de delante y la pila de revistas (rayas de colores) junto a la mesa
   e_sombra(R, 12, 178, 18, 3, 0.35);
   for (let y = 158; y < 180; y++) for (let x = 0; x < 28; x++) { const d = ((x - 10) / 18) ** 2 + ((y - 172) / 14) ** 2; if (d > 1) continue; let c = d > 0.85 ? hex('#5a3a1a') : x + (y - 158) * 0.5 < 14 ? hex('#c89a40') : hex('#a87a2a'); if (x % 3 === 0 && d < 0.85) c = e_mezcla(c, C.k, 0.15); pset(x, y, c); }
@@ -4592,7 +4601,7 @@ function e_ventanaEstudio(R, t) {
   for (let i = 0; i < 12; i++) { R.pset(24 + i, 34 - i, e_mezcla(R.pget(24 + i, 34 - i), C.blanco, 0.35)); }
   R.rect(44, 18, 45, 60, hex('#e8d8b0')); R.rect(18, 38, 70, 39, hex('#e8d8b0')); R.rect(45, 18, 45, 60, hex('#b8a880'));
   // las cortinas de cuadros, que se mecen un poco
-  for (const [x0, lado] of [[8, 1], [68, -1]]) for (let y = 13; y < 72; y++) { const sw = Math.round(Math.sin(t * 1.2 + y * 0.08) * (y - 13) / 40); for (let i = 0; i < 12; i++) { const x = x0 + i + sw * lado;
+  for (const [x0, lado] of [[8, 1], [68, -1]]) for (let y = 17; y < 72; y++) { const sw = Math.round(Math.sin(t * 1.2 + y * 0.08) * (y - 17) / 40); for (let i = 0; i < 12; i++) { const x = x0 + i + sw * lado;
     let c = (i % 4 === 0) ? P.cortinaS : (i % 4 === 2) ? P.cortinaL : P.cortina; if ((y >> 2) % 3 === 0 && i % 4 !== 0) c = e_mezcla(c, hex('#f0d8a0'), 0.35); if (i === 0 || i === 11) c = P.cortinaS; R.pset(x, y, c); } }
 }
 

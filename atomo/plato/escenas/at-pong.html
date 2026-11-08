@@ -10,7 +10,7 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // AT-PONG (frase 4), 1972 → 1981, cartela «1972». Seis planos:
-// 1. el bar de California en 1972: una pareja juega al Pong, un parroquiano entra a mirar, ella marca y salta;
+// 1. el bar de California en 1972 (el camarero asoma tras la barra secando un vaso): una pareja juega al Pong, un parroquiano entra a mirar, ella marca y salta;
 // 2. la pantalla de cerca, con las dos manos en los mandos: «two lines» las palas se iluminan, «ball» la pelota;
 // 3. inserto, 1976: el despacho de la Warner; la mano de Atari empuja su Pong de casa, «film» gira la bobina, «music» el disco, y
 //    «bought» la mano del traje azul firma;  4. el salón de 1977: el padre entra con la caja de la consola, «console» se
@@ -34,9 +34,10 @@ const K = hex('#141016'), BL = hex('#f6f2e6');
 // 1 · el bar de 1972
 const p1 = (t) => {
   T.atari(R, t, { encuadre: 'bar72', marcador: t < GOL ? [3, 2] : [3, 3] });
-  // el camarero, detrás de la barra, seca un vaso y mira la partida
-  const cm = R.actor(EL.dependiente, 196, 140, t, { dir: -1, sostiene: true, sonrisa: t > GOL });
-  { const [mx, my] = cm.mano, v = Math.round(Math.sin(t * 6) * 1); R.rect(mx - 3, my - 6 + v, mx + 2, my + 1 + v, K); R.rect(mx - 2, my - 5 + v, mx + 1, my + v, hex('#c8e4ec')); R.pset(mx - 2, my - 5 + v, BL); }
+  // el camarero, detrás de la barra (asoman cabeza y hombros), seca un vaso a la altura del pecho y mira la partida
+  const v = Math.round(Math.sin(t * 6) * 1);
+  const cm = R.actor(EL.dependiente, 203, 132, t, { dir: -1, sostiene: [197, 127 + v], sonrisa: t > GOL });
+  { const [mx, my] = cm.mano; R.rect(mx - 3, my - 5, mx + 2, my + 1, K); R.rect(mx - 2, my - 4, mx + 1, my, hex('#c8e4ec')); R.pset(mx - 2, my - 4, BL); R.pset(mx + 1, my - 1, hex('#8ab4c4')); }
   // el parroquiano entra por la izquierda y se pone a mirar
   const u = tramo(t, 1.5, 3.0), px = Math.round(lerp(-18, 30, u));
   R.actor(EL.padre77, px, 156, t, { dir: 1, anda: u > 0 && u < 1, pal: { C: hex('#4a6a8a'), c: hex('#34506a') }, brazos: t > GOL && t < GOL + 0.9, sonrisa: t > GOL });

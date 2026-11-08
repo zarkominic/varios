@@ -13,7 +13,7 @@
 // 1. la calle del cine al anochecer de 1982 (la luna del medallón, sola y con estrellas): un niño pasa corriendo con la
 //    caja de un cartucho en alto y otro detrás; la pareja de la acera se vuelve a mirarlo («hottest company»);
 // 2. el mapa de EE. UU. sobre la mesa: una mano clava la chincheta en California y las teles se encienden por todo el
-//    país («millions of homes»); en el Pacífico, el montón de cartuchos supera al de bobinas («outsold plenty of movies»);
+//    país («millions of homes»; ninguna tele ni sus ondas pisan la barra del año); en el Pacífico, el montón de cartuchos supera al de bobinas («outsold plenty of movies»);
 // 3. la taquilla del cine: la cola, la entrada que sale en «E.T.», la clienta se va contenta y avanza el siguiente;
 // 4. la sala de juntas: el ejecutivo pone el maletín en la mesa, «fortune» lo abre lleno de billetes, «rights» firma el
 //    de la Warner, y en «Christmas» la pantalla pasa a un abeto con el cartucho y el 25.
@@ -67,11 +67,14 @@ const tele = (x, y, t, k, s) => { const sy = y - Math.round((1 - s) * 3);
   R.rect(x - 5, sy - 7, x + 5, sy, K); R.rect(x - 4, sy - 6, x + 4, sy - 1, hex('#8a5a2a')); const on = Math.sin(t * 5 + k * 1.7) > -0.6;
   R.rect(x - 3, sy - 5, x + 1, sy - 2, on ? (k % 3 === 0 ? hex('#7ae0f0') : k % 3 === 1 ? hex('#a8f0a0') : hex('#f0d080')) : hex('#4a8aa8')); R.pset(x + 3, sy - 4, hex('#e8c050')); R.pset(x + 3, sy - 2, hex('#e8c050'));
   R.pset(x - 2, sy - 8, K); R.pset(x - 3, sy - 9, K); R.pset(x + 1, sy - 8, K); R.pset(x + 2, sy - 9, K);
-  if (s < 1) for (let i = 0; i < 6; i++) { const an = i / 6 * 6.28, r = 6 + s * 5; R.pset(Math.round(x + Math.cos(an) * r), Math.round(sy - 3 + Math.sin(an) * r), hex('#fff6a0')); } };
+  if (s < 1) for (let i = 0; i < 6; i++) { const an = i / 6 * 6.28, r = 6 + s * 5, px = Math.round(x + Math.cos(an) * r), py = Math.round(sy - 3 + Math.sin(an) * r); if (py > 14 || px > 172) R.pset(px, py, hex('#fff6a0')); } };
 const p2 = (t) => {
   const P = T.mapa(R, t, { zona: 'eeuu' });
   // las teles, desde California hacia el este, entre «console» y «homes»
-  for (let k = 0; k < ORDEN.length; k++) { const t0 = P2 + 0.75 + (CASAS - P2 - 0.8) * k / ORDEN.length; if (t < t0) continue; const [x, y] = P(ORDEN[k]); tele(Math.round(x), Math.round(y), t, k, tramo(t, t0, t0 + 0.25)); }
+  for (let k = 0; k < ORDEN.length; k++) { const t0 = P2 + 0.75 + (CASAS - P2 - 0.8) * k / ORDEN.length; if (t < t0) continue; let [x, y] = P(ORDEN[k]); x = Math.round(x); y = Math.round(y);
+    // la barra del año queda limpia: la tele que caería encima (Seattle) baja bajo la barra y se aparta de la de Portland
+    if (x < 175 && y < 24) { y = 24; x += 12; }
+    tele(x, y, t, k, tramo(t, t0, t0 + 0.25)); }
   // la chincheta roja de Atari en California, que clava una mano
   const [cx, cy] = P([-122.04, 37.37]), b = tramo(t, P2 + 0.15, P2 + 0.6);
   T.chincheta(R, Math.round(cx), Math.round(cy), t, hex('#d82a2a'), { baja: b, pulso: t > P2 + 0.8 });
