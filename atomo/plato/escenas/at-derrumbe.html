@@ -10,18 +10,22 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // AT-DERRUMBE (frase 12), cartela «1983». Cinco planos:
-// 1. la juguetería de 1984 de bajón: la torre de cajas del mostrador se viene abajo a «collapse» (golpe); el dependiente
-//    se lleva las manos a la cara y, a «marked down», levanta el cartel con el 5; una clienta pasa sin mirar;
+// 1. la juguetería de 1984 de bajón: la torre de cajas del mostrador se viene abajo a «collapse» (avalancha); el
+//    dependiente se lleva las manos a la cara y, a «marked down», levanta el cartel con el 5; un niño rebusca en la cesta
+//    de saldo, saca un cartucho, lo mira, lo devuelve (toc) y se va; una clienta pasa sin mirar;
 // 2. la cesta de saldo de cerca (gag 4): el cartel dice 35; a «to $5» la mano del dependiente tacha y el precio baja hasta
 //    5 mientras el cartucho de encima se encoge de vergüenza (ojos, colores y gota de sudor); a «still didn't sell» una
 //    mano se acerca, duda y se va; a «By 1985» baja una araña y teje su tela: pasa el tiempo;
-// 3. un despacho con un rotafolio (fondo local): junto a la barra de 1982 se dibujan las de 1983, 1984 y 1985, cada vez
-//    más bajas; a «fallen» cae la línea roja y el que presenta la sigue con el puntero; a «97» se escribe -97 % y los dos
-//    consejeros sentados dan un respingo;
+// 3. la sala de presentaciones (fondo local): pantalla enrollable con la luz del retroproyector, puerta, ventana con nubes
+//    y pájaros, ficus; el presentador pinta en la transparencia con el rotulador las barras de 1983, 1984 y 1985 (su
+//    sombra se ve en la pantalla); a «fallen» traza la línea roja que cae; a «97» escribe -97 %, se asusta y se queda
+//    cabizbajo; los dos consejeros comentan, uno señala, y dan un respingo; la secretaria abre la puerta, asoma con
+//    papeles y a «97» se va y cierra (puerta);
 // 4. la mesa de juntas de cerca (fondo local): una mano apila fajos hasta la torre de 1983 ($3,200,000,000) y a «to about»
-//    deja al lado el único fajo de 1985 ($100,000,000); el humo del cenicero sube;
-// 5. el despacho de un programador de noche: a «companies» mete sus cosas en una caja, a «shut down» se apagan la
-//    terminal, la tele y el flexo, y se va con la caja.
+//    deja al lado el único fajo de 1985 ($100,000,000); el humo del cenicero sube y el reloj anda;
+// 5. el despacho de un programador de noche: mete el último cartucho en la caja a «companies», la levanta; a «shut down»
+//    se apagan la terminal, la tele y el flexo, y se va con la caja; luego el haz de la linterna del vigilante barre la
+//    habitación.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_AT as A, PIEZAS_AT as PZ } from '/atomo/plato/kits/pixel-chibi.js';
@@ -30,7 +34,7 @@ const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const C = T.C;
 const c = (f) => en('derrumbe', f);
-const P2 = c(0.1973), P3 = c(0.4564), P4 = c(0.6797), P5 = c(0.927);
+const P2 = c(0.1973), P3 = c(0.4564), P4 = c(0.6797), P5 = c(0.895);
 const derrumbe = c(0.0509), rebaja = c(0.1347), treinta = c(0.2091), a5 = c(0.2453), cinco = c(0.2786), aun = c(0.3207), ochenta5 = c(0.3878);
 const caido = c(0.569), noventa = c(0.6229), tres = c(0.7169), aCien = c(0.806), cien = c(0.856), empresas = c(0.9437), cierran = c(0.9613);
 const parp = (t, v = 7) => Math.sin(t * v) > 0;
@@ -41,9 +45,9 @@ const SUELO = [[214, 172], [236, 176], [196, 178], [256, 179], [226, 166]];
 const p1 = (t) => {
   T.tiendas(R, t, { encuadre: 'jugueteria84', gente: true });
   // un niño rebusca en la cesta de saldo de la izquierda: saca un cartucho, lo mira a «marked down», lo devuelve y se va
-  { const saca = t > rebaja - 0.9 && t < P2 - 1.0, va = tramo(t, P2 - 0.9, P2 - 0.1), nx = Math.round(lerp(70, 20, va));
-    const rn = R.actor(EL.nino77, nx, 158, t, { dir: va > 0 ? -1 : 1, anda: va > 0 && va < 1, sostiene: saca ? [nx + 12, 138] : [nx + 10, 150 + Math.round(Math.sin(t * 9) * 2)], triste: t > rebaja, sorpresa: t > derrumbe && t < derrumbe + 0.6 });
-    if (saca) PZ.cartucho(R, rn.mano[0] + 1, rn.mano[1] + 6, { color: 'naranja', icono: 'foso' }); }
+  { const saca = t > rebaja - 0.9 && t < P2 - 1.0, va = tramo(t, P2 - 0.9, P2 - 0.1), nx = Math.round(lerp(116, 160, va));
+    const rn = R.actor(EL.nino77, nx, 168, t, { dir: va > 0 ? 1 : -1, anda: va > 0 && va < 1, sostiene: saca ? [nx - 10, 146] : [nx - 12, 156 + Math.round(Math.sin(t * 9) * 2)], triste: t > rebaja, sorpresa: t > derrumbe && t < derrumbe + 0.6 });
+    if (saca) PZ.cartucho(R, rn.mano[0] - 1, rn.mano[1] + 6, { color: 'naranja', icono: 'foso' }); }
   // la clienta pasa por delante sin mirar las cestas
   const v = tramo(t, 1.4, P2 - 0.2), vx = Math.round(lerp(-20, 200, v));
   R.actor(EL.espectadora, vx, 162, t, { dir: 1, anda: v > 0 && v < 1, triste: t > derrumbe + 0.4 });
@@ -281,17 +285,16 @@ const p5 = (t) => {
   const va = tramo(t, cierran + 0.35, cierran + 2.6), x = Math.round(lerp(104, 330, va));
   // antes de «companies» la caja está en el escritorio y él va metiendo sus cosas (la taza, luego el cartucho);
   // a «companies» cae el último cartucho dentro, levanta la caja y, tras el apagón, se va con ella
-  const levanta = t > empresas - 0.1, mete = (t - P5) % 1.1 / 1.1;
-  const destino = levanta ? [x + 18, 134] : [Math.round(lerp(x + 16, 128, Math.min(1, mete * 1.6))), Math.round(134 - Math.sin(Math.min(1, mete * 1.6) * Math.PI) * 6)];
+  const levanta = t > empresas - 0.1, mete = tramo(t, P5 + 0.15, empresas - 0.15);
+  const destino = levanta ? [x + 18, 134] : [Math.round(lerp(x + 16, 128, mete)), Math.round(134 - Math.sin(mete * Math.PI) * 6)];
   const r = R.actor(EL.ejecutivoAtari2, x, 152, t, { dir: 1, anda: va > 0 && va < 1, sostiene: destino, triste: true });
-  // la caja de cartón con sus cosas: una planta, la taza y el cartucho
+  // la caja de cartón con sus cosas: una planta, la taza y, a «companies», el cartucho
   const [mx, my] = r.mano, bx = levanta ? mx - 4 : 128, by = levanta ? my - 6 : 136;
   R.rect(bx - 6, by, bx + 10, by + 10, C.k); R.rect(bx - 5, by + 1, bx + 9, by + 9, hex('#c8a06a')); R.rect(bx - 5, by + 1, bx + 9, by + 2, hex('#e4c48c')); R.linea(bx - 6, by - 2, bx - 3, by, hex('#b08a58')); R.linea(bx + 10, by - 2, bx + 7, by, hex('#b08a58'));
   R.rect(bx - 2, by - 6, bx + 1, by, hex('#3a9a4a')); R.pset(bx - 3, by - 5, hex('#5ac85a')); R.pset(bx + 2, by - 4, hex('#5ac85a'));
-  if (t > P5 + 1.1) { R.rect(bx + 3, by - 3, bx + 6, by, C.k); R.rect(bx + 4, by - 2, bx + 5, by, hex('#e8e4d8')); }
-  if (t > empresas - 0.3) { R.rect(bx + 4, by - 4, bx + 8, by, C.k); R.rect(bx + 5, by - 3, bx + 7, by - 1, hex('#e8c840')); }
-  // lo que lleva en la mano de camino a la caja: la taza en la primera vuelta, el cartucho en la segunda
-  if (!levanta && mete < 0.62) { if (t < P5 + 1.1) { R.rect(mx - 1, my - 4, mx + 2, my, C.k); R.rect(mx, my - 3, mx + 1, my - 1, hex('#e8e4d8')); } else if (t > empresas - 0.9) { R.rect(mx - 2, my - 5, mx + 2, my, C.k); R.rect(mx - 1, my - 4, mx + 1, my - 1, hex('#e8c840')); } }
+  R.rect(bx + 3, by - 3, bx + 6, by, C.k); R.rect(bx + 4, by - 2, bx + 5, by, hex('#e8e4d8'));
+  if (mete >= 1) { R.rect(bx - 6, by - 4, bx - 3, by, C.k); R.rect(bx - 5, by - 3, bx - 4, by - 1, hex('#e8c840')); }
+  else { R.rect(mx - 2, my - 5, mx + 2, my, C.k); R.rect(mx - 1, my - 4, mx + 1, my - 1, hex('#e8c840')); }
   T.atariDelante(R, t, { encuadre: 'despachoProg' });
   // a «shut down» se apagan la terminal, la tele de pruebas y el flexo: la habitación se queda a oscuras
   if (apaga) {
@@ -299,6 +302,16 @@ const p5 = (t) => {
     R.rect(38, 110, 76, 138, hex('#0a0e0a')); R.rect(214, 103, 242, 121, hex('#0a0a12'));
     if (k < 1) { R.rect(56 - Math.round((1 - k) * 18), 123, 56 + Math.round((1 - k) * 18), 124, hex('#8aff8a')); }
     T.tinte(R, 0, 179, [10, 12, 30], 0.35 * k);
+    // cuando él ya se ha ido, el vigilante pasa por el pasillo y el haz de su linterna barre la moqueta y el escritorio
+    const lz = tramo(t, cierran + 2.2, cierran + 3.6);
+    if (lz > 0 && lz < 1) {
+      const cx = Math.round(lerp(330, 60, lz)), cy = 166 - Math.round(Math.sin(lz * Math.PI) * 8);
+      for (let y = cy - 9; y <= cy + 9; y++) for (let x = cx - 22; x <= cx + 22; x++) {
+        const d = ((x - cx) / 22) ** 2 + ((y - cy) / 9) ** 2; if (d > 1 || x < 0 || x > 319 || y > 179) continue;
+        if ((x + y) % 2 === 0 || d < 0.35) R.pset(x, y, d < 0.35 ? hex('#a8a478') : hex('#6a6a5a'));
+      }
+      R.linea(319, 120, cx + 16, cy - 6, hex('#3a3a3a')); R.linea(319, 132, cx + 18, cy + 4, hex('#3a3a3a'));
+    }
   }
 };
 
@@ -307,7 +320,7 @@ T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], {
   año: (t) => (t < ochenta5 ? 1983 : 1985),
   efectos: [[derrumbe, 'avalancha'], [rebaja, 'papel'], [P2 - 1.0, 'toc'], [a5, 'lapiz'], [cinco, 'boing'], [aun + 0.1, 'whoosh'], [ochenta5 + 0.2, 'tic'],
     [P3 + 0.3, 'lapiz'], [P3 + 1.5, 'lapiz'], [noventa, 'boom'], [noventa + 0.75, 'puerta'],
-    [P4 + 0.3, 'papel'], [P4 + 1.4, 'papel'], [aCien + 0.4, 'papel'], [P5 + 0.7, 'toc'], [empresas - 0.2, 'golpecito'], [cierran, 'interruptor']],
+    [P4 + 0.3, 'papel'], [P4 + 1.4, 'papel'], [aCien + 0.4, 'papel'], [empresas - 0.2, 'golpecito'], [cierran, 'interruptor'], [cierran + 2.3, 'tic']],
 });
 </script>
 </body>
