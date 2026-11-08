@@ -18,8 +18,11 @@
 //    la ruta se dibuja hacia el norte y la recorren los camioncitos (cartel con el 86);
 // 3. la carretera del vertedero: camión tras camión hacia la verja; en el arcén de enfrente la fotógrafa del periódico
 //    local dispara el flash a «reported» y el reportero cuenta camiones (el número sube con cada uno); corta en «crushed»;
-// 4. la fosa de cerca (gag 5): la rueda de púas de la apisonadora entra y aplasta las cajas («crushed»), un cartucho
-//    sale disparado, le salen patitas y huye cuesta arriba por el borde; a «concrete» el cemento lo cubre todo.
+// 4. la fosa de cerca (gag 5): la rueda de púas del compactador entra por la derecha y avanza hacia la izquierda
+//    aplastando las cajas («crushed»): por delante saltan trozos de caja y el polvo sale en nubecillas que se deshacen;
+//    detrás deja una franja de cartón prensado con las huellas de las púas. Un cartucho sale disparado, le salen patitas
+//    y huye cuesta arriba; a «covered» el cemento avanza desde la izquierda, cubre la franja y el compactador recula
+//    delante de él hasta salir por la derecha.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('at-camiones');
@@ -283,19 +286,76 @@ const rueda = (cx, cy, r, t) => {
   for (let k = 0; k < 6; k++) { const a = ang + k * Math.PI / 3; R.disco(Math.round(cx + Math.cos(a) * r * 0.3), Math.round(cy + Math.sin(a) * r * 0.3), 1, H('#2a2a30')); }
   R.disco(cx, cy, 4, K); R.disco(cx, cy, 3, H('#8a8a94')); R.pset(cx - 1, cy - 1, BL);
 };
+// el compactador: entra por la derecha y avanza despacio hacia la izquierda aplastando las cajas; cuando llega el
+// cemento (que viene de la izquierda) recula delante de él por la franja que ya ha aplastado y sale por la derecha
+const entra = P4 - 0.15, finCem = A(1.0) + 2.2;
+const xfAt = (t) => lerp(-10, 330, Math.min(1, tramo(t, covered - 0.1, finCem)));   // el frente del cemento (como el decorado)
+const fwdAt = (t) => { const d = Math.max(0, t - entra); return 352 - 55 * d - 30 * (1 - Math.exp(-d * 6)); };
+const cxAt = (t) => { const a = fwdAt(t), b = xfAt(t) + 60, k = 6; return Math.max(a, b) + k * Math.log(1 + Math.exp(-Math.abs(a - b) / k)); };
+const dirAt = (t) => Math.sign(cxAt(t + 0.04) - cxAt(t - 0.04));   // -1 avanza (aplasta), +1 recula
+const minCx = (t) => { let m = 999; for (let i = 0; i <= 40; i++) m = Math.min(m, cxAt(lerp(entra, Math.max(entra, t), i / 40))); return m; };
+// la franja aplastada: cartón y plástico prensados en láminas, con las huellas de las púas
+const LAM = [H('#c09060'), H('#d8b080'), H('#a87a4a'), H('#a84434'), H('#d8ccb0'), H('#b88a58')];
+const CEM = [H('#76766e'), H('#a2a29c'), H('#c4c4bc'), H('#dedcd2')];
+const topeF = (x) => 110 + Math.round(Math.sin(x * 0.13) * 1.5 + ru(x >> 2, 7, 5) * 2.4);
+const franja = (t, bx, cem, xf) => {
+  for (let y = 108; y < 180; y++) {
+    const fr = cem > 0 ? Math.round(xf - (y - 130) ** 2 * 0.008 + Math.sin(y * 0.3 + t * 2.4) * 3) : -99;
+    for (let x = Math.max(0, Math.min(284, Math.round(bx))); x < 320; x++) {
+      const tp = topeF(x); if (y < tp) continue;
+      if (x < fr + 2) { if (x < 284) continue;   // el decorado ya pinta el cemento; aquí tapa la rueda fija del fondo
+        const ond = Math.sin(x * 0.05 + Math.sin(y * 0.08 + x * 0.01) * 2.2 - t * 1.2), g = ru(x, y, 21);
+        R.pset(x, y, x >= fr ? H('#4a3a2a') : fr - x < 2 ? CEM[2] : fr - x < 6 ? CEM[0] : ond > 0.985 ? CEM[3] : ond > 0.8 ? CEM[2] : g < 0.08 ? CEM[0] : CEM[1]); continue; }
+      const wob = Math.round(Math.sin(x * 0.045 + y * 0.03) * 2 + Math.sin(x * 0.17) * 0.8), yw = y + wob, fila = Math.floor(yw / 6), ry = yw - fila * 6;
+      const largo = 18 + Math.floor(ru(fila, 4, 9) * 22), off = Math.floor(ru(fila, 3, 9) * 40), sg = Math.floor((x + off) / largo), rc = ru(sg, fila, 13);
+      const base = rc < 0.05 ? LAM[3] : rc < 0.15 ? LAM[4] : rc < 0.48 ? LAM[0] : rc < 0.74 ? LAM[2] : LAM[5], OS = H('#3a2814');
+      let c = ru(x, y, 14) < 0.45 ? base : mez(base, OS, 0.14);
+      const pl = ((x * 2 - y * 3 + sg * 7) % 13 + 13) % 13; if (pl === 0) c = mez(c, BL, 0.3); else if (pl === 1) c = mez(c, OS, 0.3);   // las arrugas del cartón
+      if (ry === 0) c = ru(sg, fila, 16) > 0.35 ? H('#4a3018') : mez(c, OS, 0.4); else if (ry === 1) c = mez(c, BL, 0.2); else if (ry === 5) c = mez(c, OS, 0.2);
+      if ((x + off) % largo === 0 && ry < 4) c = H('#5a3e22');
+      // las huellas de las púas, en filas
+      if ((x + (y >> 3) * 7) % 19 < 2 && y % 9 === 4) c = H('#2e1e10'); else if ((x + (y >> 3) * 7) % 19 === 2 && y % 9 === 4) c = mez(c, BL, 0.4);
+      // la sombra del borde de cajas enteras y la del cemento que se acerca
+      const yy = y - tp; if (yy < 3) c = mez(c, H('#2e1e10'), 0.5 - yy * 0.15); if (cem > 0 && x - fr < 8) c = mez(c, H('#2e1e10'), 0.25);
+      R.pset(x, y, c);
+    }
+    // el labio de las cajas enteras (dobladas hacia arriba)
+  }
+  for (let x = Math.max(0, Math.min(284, Math.round(bx))); x < 320; x += 5) { const tp = topeF(x), fr = cem > 0 ? xf - (tp - 130) ** 2 * 0.008 : -99; if (x < fr + 3) continue;
+    R.linea(x, tp, x + 3, tp - 2, H('#e0c08a')); R.pset(x + 1, tp, H('#8a6438')); }
+  // cartuchos prensados en la franja (plástico negro y su etiqueta)
+  for (let i = 0; i < 9; i++) { const x = Math.round(ru(i, 1, 31) * 300 + 10), y = Math.round(118 + ru(i, 2, 31) * 56), fr = cem > 0 ? xf - (y - 130) ** 2 * 0.008 : -99;
+    if (x < bx + 4 || x + 8 > 320 || x < fr + 6) continue;
+    R.rect(x, y, x + 8, y + 1, H('#1a1a22')); R.rect(x + 2, y, x + 5, y, [H('#d0383a'), H('#3a70c8'), H('#e8b830')][i % 3]); R.pset(x + 8, y - 1, H('#5a5a64')); }
+};
+// una nubecilla de polvo que crece y se deshace (u 0–1 su vida)
+const nubecilla = (x0, y0, rad, u, k) => {
+  const r = Math.ceil(rad);
+  for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const d = Math.hypot(dx, dy * 1.25); if (d > rad) continue; const x = Math.round(x0 + dx), y = Math.round(y0 + dy);
+    if (x < 0 || x > 319 || y < 0 || y > 179 || ru(x, y, k) < u * 0.9 + d / rad * 0.2 - 0.1) continue;
+    tinta(x, y, dy < -rad * 0.3 && dx < 1 ? H('#f4ead2') : dy > rad * 0.35 ? H('#a88a5c') : H('#dcc69c'), 0.92 - u * 0.25); }
+};
 const p4 = (t) => {
-  const ce = tramo(t, covered - 0.1, A(1.0) + 2.2);
+  const ce = tramo(t, covered - 0.1, finCem);
   T.desierto(R, t, { encuadre: 'vertedero83', camara: 'cemento', cemento: ce });
-  // la rueda delantera de la apisonadora entra por la derecha, aplasta y se queda
-  const w = ease(tramo(t, P4 - 0.15, P4 + 0.45)), cx = Math.round(lerp(352, 238, w)), cy = 136, r = 38;
-  // lo que deja aplastado detrás
-  for (let x = cx + 10; x < 320; x += 2) for (let y = 168; y <= 178; y++) if (ru(x, y, 11) > 0.55) R.pset(x, y, tono([H('#8a6a3a'), H('#6a4a24')], ru(x, y, 12) * 2, x, y));
+  const cx = Math.round(cxAt(t)), dir = dirAt(t), r = 38, cy = 136 + (dir < 0 && Math.floor(t * 11) % 2 ? 1 : 0), xf = Math.round(xfAt(t));
+  // lo que deja aplastado detrás (desde lo más a la izquierda a que ha llegado), recortado por el cemento
+  franja(t, minCx(t), ce, xf);
   // el bastidor que sale hacia la derecha (por debajo de la zona de Atom)
   R.rect(cx, cy - 8, 330, cy - 2, K); R.rect(cx, cy - 7, 330, cy - 3, H('#e0b028')); R.rect(cx, cy - 7, 330, cy - 7, H('#f8d860')); for (let x = cx + 8; x < 330; x += 10) R.pset(x, cy - 5, H('#7a5a10'));
+  R.rect(cx + 30, cy - 18, 330, cy - 14, K); R.rect(cx + 30, cy - 17, 330, cy - 15, H('#c89820')); R.linea(cx + 30, cy - 16, cx + 6, cy - 6, K);
+  // el polvo, en nubecillas que nacen donde la rueda pisa, salen por delante y se deshacen (la rueda tapa las que alcanza)
+  for (let i = 0; i < 9; i++) { const ts = (Math.floor(t / 0.11) - i) * 0.11, u = (t - ts) / 0.8; if (u < 0 || u > 1 || ts < entra) continue;
+    const cxs = cxAt(ts), ds = dirAt(ts); if (ds === 0 || cxs > 350) continue;
+    const ks = Math.floor(ts / 0.11), x0 = cxs - 36 - ru(ks, 1, 44) * 8, y0 = 171 + Math.round(ru(ks, 2, 44) * 5), g = ds < 0 ? 1 : 0.6;   // al recular, menos polvo
+    nubecilla(x0 - u * (40 + ru(ks, 3, 44) * 22) * g, y0 - u * (12 + ru(ks, 4, 44) * 12), (3.5 + u * 8.5) * g, u, ks % 7 + 50); }
   rueda(cx, cy, r, t);
-  for (let k = 0; k < 6; k++) { const u = (t * 2 + k / 6) % 1; if (w > 0 && w < 1) R.disco(Math.round(cx - r + 4 - u * 18), Math.round(cy + r - 2 - u * 10), 1 + Math.round(u * 2), mez(H('#a8885a'), H('#e8d8b8'), u)); }
+  // al avanzar: trozos de caja que saltan por delante de la rueda
+  if (dir < 0) for (let i = 0; i < 8; i++) { const ts = (Math.floor(t / 0.13) - i) * 0.13, u = t - ts; if (u < 0 || u > 0.6 || ts < entra) continue;
+    const x0 = cxAt(ts) - 38, vx = -(25 + ru(i, ts * 10, 41) * 45), vy = -(45 + ru(i, ts * 10, 42) * 35), x = Math.round(x0 + vx * u), y = Math.round(170 + vy * u + 160 * u * u);
+    if (y > 178) continue; const c = LAM[Math.floor(ru(ts * 10, 3, 43) * 6)]; R.rect(x, y, x + 2, y + 1, c); R.pset(x + 2, y + 1, H('#5a3e22')); }
   // el cartucho: aplastado un instante, salta, le salen patitas y huye cuesta arriba
-  const c0 = [216, 168], c1 = [178, 128], c2 = [204, 50];
+  const c0 = [276, 168], c1 = [178, 128], c2 = [204, 50];
   let x, y, sq = 0, pat = false;
   if (t < salta) { x = c0[0]; y = c0[1]; sq = t > salta - 0.25 ? 1 : 0; }
   else if (t < aterriza) { const u = (t - salta) / (aterriza - salta); x = lerp(c0[0], c1[0], u); y = lerp(c0[1], c1[1], u) - Math.sin(u * Math.PI) * 30; }

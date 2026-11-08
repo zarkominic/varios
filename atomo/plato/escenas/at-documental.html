@@ -15,7 +15,7 @@
 //    foso (el hilo de gags) y el público aplaude;
 // 2. corta en «and one of»: el museo: la vitrina central está a oscuras; en «collection» el conservador enciende su foco;
 //    una niña y su padre llegan y la niña señala el cartucho («Smithsonian»);
-// 3. corta en «The game»: la vitrina de cerca: un visitante saca el móvil; en «worst» su pantalla enseña una X roja; en
+// 3. corta en «The game»: la vitrina de cerca: un visitante saca el móvil (16×26 px, en su mano canónica); en «worst» su pantalla enseña una X roja; en
 //    «museum piece» hace la foto con flash y el cartucho brilla bajo su foco.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -151,20 +151,25 @@ const p3 = (t) => {
   // el brillo del cartucho en «museum piece»
   const br = tramo(t, pieza, pieza + 0.3) - tramo(t, pieza + 1.2, pieza + 2);
   if (br > 0) for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2 + t, r = 34 + Math.sin(t * 5 + k) * 3; const x = 150 + Math.round(Math.cos(a) * r), y = 94 + Math.round(Math.sin(a) * r * 0.9); R.pset(x, y, hex('#fff6c0')); R.pset(x + 1, y, hex('#e8c040')); R.pset(x - 1, y, hex('#e8c040')); R.pset(x, y + 1, hex('#e8c040')); R.pset(x, y - 1, hex('#e8c040')); }
-  // el móvil del visitante sube desde abajo a la derecha
-  const sube = tramo(t, P3 + 0.2, peor - 0.4), mx = 250, my = Math.round(lerp(236, 150, sube) + Math.sin(t * 1.7));
-  R.rect(mx - 15, my - 46, mx + 13, my + 2, K); R.rect(mx - 14, my - 45, mx + 12, my + 1, hex('#3a3a44')); R.rect(mx - 14, my - 45, mx + 12, my - 45, hex('#6a6a78'));
-  const sx0 = mx - 12, sy0 = my - 42, sx1 = mx + 10, sy1 = my - 4; R.rect(sx0, sy0, sx1, sy1, hex('#1e2c5e'));
+  // el móvil del visitante sube desde abajo a la derecha: 16×26 px (1,8 manos), sujeto por la mano canónica
+  const sube = tramo(t, P3 + 0.2, peor - 0.4), mx = 250, my = Math.round(lerp(212, 146, sube) + Math.sin(t * 1.7));
+  R.rect(mx - 8, my - 25, mx + 7, my, K); R.rect(mx - 7, my - 24, mx + 6, my - 1, hex('#3a3a44'));
+  R.rect(mx - 7, my - 24, mx + 6, my - 24, hex('#6a6a78')); R.rect(mx - 7, my - 24, mx - 7, my - 1, hex('#55555f'));
+  R.rect(mx - 2, my - 23, mx + 1, my - 23, K); R.pset(mx + 4, my - 23, hex('#20202a'));
+  const sx0 = mx - 6, sy0 = my - 22, sx1 = mx + 5, sy1 = my - 3; R.rect(sx0, sy0, sx1, sy1, hex('#1e2c5e'));
   R.recorte([sx0, sy0, sx1, sy1]);
-  for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) if (y > sy1 - 10) R.pset(x, y, hex('#d8b47a'));
-  PZ.cartucho(R, mx - 1, sy1 - 4, { s: 2, color: 'naranja', icono: 'foso' });
-  if (t > peor && t < pieza) R.icono('X', mx - 8, sy0 + 2, hex('#ff3a3a'), K, 2);
-  if (t > pieza) for (const [dx, dy] of [[-8, 6], [6, 4], [-1, 2]]) { R.rect(mx + dx - 1, sy0 + dy, mx + dx + 1, sy0 + dy, hex('#e8c040')); R.rect(mx + dx, sy0 + dy - 1, mx + dx, sy0 + dy + 1, hex('#e8c040')); }
+  for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { if (y > sy1 - 4) R.pset(x, y, H(x, y) < 0.3 ? hex('#c09a62') : hex('#d8b47a')); else if (y < sy0 + 6 && H(x, y + 7) < 0.05) R.pset(x, y, hex('#3e5498')); }
+  PZ.cartucho(R, mx, sy1 - 1, { s: 1, color: 'naranja', icono: 'foso' });
+  if (t > peor && t < pieza) { R.rect(sx0, sy0, sx1, sy0 + 7, hex('#2a0c14')); R.icono('X', mx - 3, sy0 + 1, hex('#ff3a3a'), K, 1); }
+  if (t > pieza) for (const [dx, dy] of [[-4, 3], [3, 2], [0, 5]]) { R.pset(mx + dx, sy0 + dy, hex('#fff6c0')); R.pset(mx + dx - 1, sy0 + dy, hex('#e8c040')); R.pset(mx + dx + 1, sy0 + dy, hex('#e8c040')); R.pset(mx + dx, sy0 + dy - 1, hex('#e8c040')); R.pset(mx + dx, sy0 + dy + 1, hex('#e8c040')); }
+  // reflejo en el cristal del móvil
+  R.pset(sx1 - 1, sy0 + 1, hex('#8aa0d8')); R.pset(sx1 - 2, sy0 + 2, hex('#5a70b0'));
   R.recorte(null);
-  T.brazo(R, 344, 214, mx + 6, my - 2, '#8a5ab8', -1, { codo: [300, 200] });
+  R.rect(mx - 1, my - 1, mx, my - 1, hex('#6a6a78'));
+  T.brazo(R, 344, 214, mx + 3, my - 1, '#8a5ab8', -1, { codo: [300, 194] });
   // el flash
   const fl = tramo(t, pieza, pieza + 0.05) - tramo(t, pieza + 0.1, pieza + 0.35);
-  if (fl > 0) { oscurece(0, 0, 319, 179, 0.5 * fl, hex('#ffffff')); R.disco(mx + 7, my - 42, 3, BLANCO); }
+  if (fl > 0) { oscurece(0, 0, 319, 179, 0.5 * fl, hex('#ffffff')); R.disco(mx + 4, my - 25, 2, BLANCO); }
 };
 
 const año = (t) => t < P3 ? 2014 : 2026;

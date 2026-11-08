@@ -10,7 +10,9 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // AT-JAPON (frase 14), 1983. Cuatro planos:
-// 1. el mapa del Pacífico clavado en la pared: sobre EE. UU. una nube de tormenta que llueve y relampaguea («crisis»),
+// 1. el mapa del Pacífico clavado en la pared: el mar con su profundidad (somero claro, hondo oscuro, isobatas y fosas),
+//    islas y atolones, olas a dos tonos, cotas, rosa de los vientos y escala; las rutas de barco punteadas se dibujan
+//    desde Japón, un carguero cruza hacia América, un pesquero cabecea y una ballena sopla junto a Hawái; sobre EE. UU. una nube de tormenta que llueve y relampaguea («crisis»),
 //    tres cartuchos que se tachan con una X roja y la flecha roja que baja («American one»); la mano del puntero da dos
 //    golpecitos en EE. UU. y a la última sílaba cruza el océano hasta Japón, donde luce el sol;
 // 2. la tienda de Tokio: un niño llega corriendo a la cola; a «Nintendo released» el vendedor saca la caja de la
@@ -42,35 +44,71 @@ const cajaJP = (x, y, s = 1) => { const w = 7 * s, h = 9 * s; R.rect(x - w - 1, 
 
 // ── 1 · el mapa del Pacífico: la crisis es de América ──
 const MX0 = 8, MX1 = 268, MY0 = 20, MY1 = 166;
+let MAR = null, DIST = null;   // qué es mar (1) o línea de costa (2) y la distancia a tierra, del mapa fijo
 const PJ = (lon, lat) => { const l = lon < -30 ? lon + 360 : lon; return [MX0 + (l - 100) / 200 * (MX1 - MX0), MY0 + (62 - lat) / 76 * (MY1 - MY0)]; };
 const mapaFijo = fijo(() => {
   const { rect, pset, linea } = R;
   // la pared: papel pintado verde oliva tranquilo, con su friso; a la derecha una lámpara de pie y un archivador
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, tono(['#5a6a4e', '#627356', '#6a7c5e'], 1.2 + R.vnoise(x * 0.05, y * 0.05) * 0.8, x, y));
   for (let y = 172; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, y === 172 ? T.C.k : tono(['#5a3a1e', '#6a4626', '#7a522e'], 1.4 + Math.sin(x * 0.07 + y) * 0.7, x, y));
-  // el marco de madera y el mar del mapa, con sus líneas de buril y la cuadrícula
+  // el marco de madera; el mar se pinta primero con un color testigo para saber luego qué es agua y qué es tierra
   rect(MX0 - 5, MY0 - 5, MX1 + 5, MY1 + 5, T.C.k); rect(MX0 - 4, MY0 - 4, MX1 + 4, MY1 + 4, H('#7a4a24')); rect(MX0 - 4, MY0 - 4, MX1 + 4, MY0 - 3, H('#a06a38')); rect(MX0 - 1, MY0 - 1, MX1 + 1, MY1 + 1, H('#3a2414'));
-  for (let y = MY0; y <= MY1; y++) for (let x = MX0; x <= MX1; x++) pset(x, y, tono(['#8ab4c8', '#9cc2d4', '#aed0de', '#c0dce6'], 2.2 + (R.vnoise(x * 0.04, y * 0.04) - 0.5) * 1.4 + (y - MY0) / 160, x, y));
-  for (let y = MY0 + 4; y < MY1; y += 7) for (let x = MX0 + ((y * 7) % 11); x < MX1 - 4; x += 13) { pset(x, y, H('#7aa4ba')); pset(x + 1, y - 1, H('#7aa4ba')); pset(x + 2, y, H('#7aa4ba')); }
-  for (let lon = 120; lon < 300; lon += 30) { const [x] = PJ(lon > 180 ? lon - 360 : lon, 0); for (let y = MY0; y < MY1; y += 3) pset(Math.round(x), y, H('#6a94aa')); }
-  for (let lat = 0; lat <= 60; lat += 20) { const [, y] = PJ(150, lat); for (let x = MX0; x < MX1; x += 3) pset(x, Math.round(y), H('#6a94aa')); }
+  const TESTIGO = H('#010203'), COSTA = H('#7aa4ba');
+  rect(MX0, MY0, MX1, MY1, TESTIGO);
   // las tierras: tono de pergamino con punteado, costa en tinta y una línea de agua por fuera
   R.recorte([MX0, MY0, MX1, MY1]);
   const tierras = Object.entries(CONTINENTES);
   for (const [k, pts] of tierras) {
     if (k === 'groenlandia' || k === 'africa' || k === 'britania' || k === 'madagascar') continue;
     const pp = pts.map(([a, b]) => PJ(a, b).map(Math.round));
-    R.poligono(pp.map(([x, y]) => [x + 1, y + 1]), H('#7aa4ba'));
+    R.poligono(pp.map(([x, y]) => [x + 1, y + 1]), COSTA);
     R.poligono(pp, (x, y) => tono(['#c8b88a', '#d4c498', '#e0d0a6'], 1.4 + (R.vnoise(x * 0.09, y * 0.09) - 0.5) * 1.6, x, y));
     for (let i = 0; i < pp.length; i++) { const [ax, ay] = pp[i], [bx, by] = pp[(i + 1) % pp.length]; linea(ax, ay, bx, by, H('#5a4a2e')); }
   }
+  // las islas del Pacífico: Hawái, Midway, las Aleutianas y las Marianas, con su costa en tinta
+  const isla = (x, y, r) => { R.disco(x + 1, y + 1, r, COSTA); R.disco(x, y, r + 0.6, H('#5a4a2e')); R.disco(x, y, r, H('#d4c498')); if (r > 1) pset(x - 1, y - 1, H('#e0d0a6')); };
+  for (const [x, y, r] of [[142, 100, 2], [138, 97, 1.2], [135, 96, 1], [132, 95, 0.8], [115, 85, 0.8], [66, 107, 1], [67, 111, 1], [66, 115, 0.8], [68, 119, 0.8]]) isla(x, y, r);
+  for (let i = 0; i < 9; i++) isla(101 + i * 3.4, Math.round(41 - Math.sin(i / 8 * Math.PI) * 3), i % 3 ? 0.8 : 1.2);
+  R.recorte(null);
+  // qué es mar: el color testigo (la línea de agua de la costa cuenta como mar somero)
+  const MW = MX1 - MX0 + 1, MH = MY1 - MY0 + 1; MAR = new Uint8Array(MW * MH); DIST = new Float32Array(MW * MH);
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { const c = R.pget(MX0 + x, MY0 + y), i = y * MW + x; MAR[i] = c === TESTIGO ? 1 : c === COSTA ? 2 : 0; DIST[i] = MAR[i] === 1 ? 999 : 0; }
+  // distancia a la costa (chaflán en dos pasadas): da la profundidad del agua
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { const i = y * MW + x; if (!DIST[i]) continue; let d = DIST[i]; if (x > 0) d = Math.min(d, DIST[i - 1] + 1); if (y > 0) { d = Math.min(d, DIST[i - MW] + 1); if (x > 0) d = Math.min(d, DIST[i - MW - 1] + 1.4); if (x < MW - 1) d = Math.min(d, DIST[i - MW + 1] + 1.4); } DIST[i] = d; }
+  for (let y = MH - 1; y >= 0; y--) for (let x = MW - 1; x >= 0; x--) { const i = y * MW + x; if (!DIST[i]) continue; let d = DIST[i]; if (x < MW - 1) d = Math.min(d, DIST[i + 1] + 1); if (y < MH - 1) { d = Math.min(d, DIST[i + MW] + 1); if (x < MW - 1) d = Math.min(d, DIST[i + MW + 1] + 1.4); if (x > 0) d = Math.min(d, DIST[i + MW - 1] + 1.4); } DIST[i] = d; }
+  // el mar por profundidad: somero claro junto a la costa, azul hondo mar adentro, con vetas de corriente
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+    const i = y * MW + x; if (MAR[i] !== 1) continue; const d = DIST[i], X = MX0 + x, Y = MY0 + y;
+    const v = 5.2 - Math.min(d, 46) / 9 + (R.vnoise(X * 0.05, Y * 0.05) - 0.5) * 0.9 + Math.sin(X * 0.11 + Y * 0.04 + R.vnoise(X * 0.02, Y * 0.03) * 6) * 0.25;
+    pset(X, Y, tono(['#5e8aa6', '#6e9ab4', '#80aac2', '#92bacc', '#a6cad8', '#c0dce6'], v, X, Y));
+    // las isobatas: dos líneas de puntos que siguen la costa
+    if ((Math.abs(d - 6) < 0.5 && (X + Y) % 2 === 0) || (Math.abs(d - 16) < 0.5 && (X + Y) % 3 === 0)) pset(X, Y, H(d < 10 ? '#7aa4ba' : '#5a88a2'));
+  }
+  // la cuadrícula de meridianos y paralelos, solo en el agua
+  const enMar = (x, y) => MAR[(y - MY0) * MW + (x - MX0)] === 1;
+  for (let lon = 120; lon < 300; lon += 30) { const [x] = PJ(lon > 180 ? lon - 360 : lon, 0); for (let y = MY0; y < MY1; y += 3) if (enMar(Math.round(x), y)) pset(Math.round(x), y, H('#5a86a0')); }
+  for (let lat = 0; lat <= 60; lat += 20) { const [, y] = PJ(150, lat); for (let x = MX0; x < MX1; x += 3) if (enMar(x, Math.round(y))) pset(x, Math.round(y), H('#5a86a0')); }
+  // las fosas: la del Japón y la de las Aleutianas, en un azul más hondo con su raya
+  for (const [x0, y0, x1, y1] of [[68, 52, 70, 76], [70, 76, 72, 104], [104, 47, 136, 47], [136, 47, 158, 44]]) for (let k = 0; k <= 24; k++) { const x = Math.round(lerp(x0, x1, k / 24)), y = Math.round(lerp(y0, y1, k / 24)); for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if ((x + dx + y + dy) % 2 === 0 && Math.abs(dx) + Math.abs(dy) < 3 && enMar(x + dx, y + dy)) pset(x + dx, y + dy, H(Math.abs(dx) + Math.abs(dy) < 2 ? '#56809c' : '#6a94b0')); }
   // los bosques y matas en tierra
   for (let k = 0; k < 400; k++) { const x = MX0 + Math.floor(ru(k, 1) * (MX1 - MX0)), y = MY0 + Math.floor(ru(k, 2) * (MY1 - MY0)); const c = R.pget(x, y); if (c === H('#d4c498') || c === H('#c8b88a')) { pset(x, y, H('#7a8a4a')); pset(x + 1, y, H('#6a7a3a')); pset(x, y - 1, H('#8a9a5a')); } }
   // Japón resaltado: más claro, con la costa más gruesa
+  R.recorte([MX0, MY0, MX1, MY1]);
   { const pp = CONTINENTES.japon.map(([a, b]) => PJ(a, b).map(Math.round)); R.poligono(pp, H('#f0e0b0')); for (let i = 0; i < pp.length; i++) { const [ax, ay] = pp[i], [bx, by] = pp[(i + 1) % pp.length]; linea(ax, ay, bx, by, H('#5a4a2e')); linea(ax + 1, ay, bx + 1, by, H('#5a4a2e')); } }
+  // los atolones del sur: anillos de coral con su laguna
+  for (const [x, y, r] of [[142, 136, 2.5], [150, 131, 2], [157, 139, 2.5], [134, 142, 1.5]]) { R.anillo(x, y, r + 1, H('#a6cad8')); R.anillo(x, y, r, H('#d4c498')); pset(x + Math.round(r), y, H('#7a8a4a')); }
+  // la rosa de los vientos: ocho puntas a dos tonos, el norte en rojo, el anillo con sus marcas
+  const [rx, ry] = [104, 138];
+  R.disco(rx, ry, 16, H('#a6cad8')); R.anillo(rx, ry, 15, H('#3a4a5a')); R.anillo(rx, ry, 12, H('#5a6a7a'));
+  for (let k = 0; k < 32; k++) { const a = k / 32 * Math.PI * 2; pset(Math.round(rx + Math.cos(a) * 13.5), Math.round(ry + Math.sin(a) * 13.5), H(k % 4 ? '#7a8a9a' : '#2a3440')); }
+  const punta = (a, L, ancho, c1, c2) => { const tip = [rx + Math.cos(a) * L, ry + Math.sin(a) * L], i1 = [rx + Math.cos(a + Math.PI / 2) * ancho, ry + Math.sin(a + Math.PI / 2) * ancho], i2 = [rx + Math.cos(a - Math.PI / 2) * ancho, ry + Math.sin(a - Math.PI / 2) * ancho]; const r2 = (p) => p.map(Math.round);
+    R.poligono([tip, i1, [rx, ry]].map(r2), H(c1)); R.poligono([tip, i2, [rx, ry]].map(r2), H(c2)); linea(...r2(tip), ...r2(i1), H('#2a3440')); linea(...r2(tip), ...r2(i2), H('#2a3440')); };
+  for (let k = 0; k < 4; k++) punta(Math.PI / 4 + k * Math.PI / 2, 9, 2.4, '#e8e0c8', '#6a7a8a');
+  for (let k = 0; k < 4; k++) punta(-Math.PI / 2 + k * Math.PI / 2, 14, 3.2, k === 0 ? '#e85a4a' : '#f2ecd8', k === 0 ? '#a82a2a' : '#3a4a5a');
+  R.disco(rx, ry, 1.6, H('#2a3440')); pset(rx, ry, H('#f0c040'));
+  // la escala gráfica: tramos blancos y negros
+  rect(178, 156, 222, 160, H('#2a3440')); for (let i = 0; i < 4; i++) rect(179 + i * 11, 157, 188 + i * 11, 159, H(i % 2 ? '#2a3440' : '#f2ecd8')); for (const x of [178, 200, 222]) rect(x, 154, x, 155, H('#2a3440'));
   R.recorte(null);
-  // la rosa de los vientos en mitad del océano
-  const [rx, ry] = [150, 128]; R.disco(rx, ry, 9, H('#c0dce6')); for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; R.poligono([[rx + Math.cos(a) * 9, ry + Math.sin(a) * 9], [rx + Math.cos(a + 0.5) * 3, ry + Math.sin(a + 0.5) * 3], [rx, ry], [rx + Math.cos(a - 0.5) * 3, ry + Math.sin(a - 0.5) * 3]].map(([u, v]) => [Math.round(u), Math.round(v)]), k === 0 ? H('#c83a2a') : H('#3a4a5a')); }
   // la lámpara de pie y el archivador con una planta (a la derecha, por debajo de Atom)
   rect(288, 70, 290, 171, H('#2a2a2e')); R.poligono([[278, 70], [300, 70], [296, 56], [282, 56]], H('#e8d8a8')); linea(278, 70, 300, 70, H('#b8a878')); rect(282, 168, 296, 171, H('#2a2a2e'));
   for (let y = 71; y < 100; y++) for (let x = 276 - (y - 71) / 2; x < 302 + (y - 71) / 2; x++) if (ru(x, y) > 0.7) pset(Math.round(x), y, H('#7a8a6a'));
@@ -78,8 +116,50 @@ const mapaFijo = fijo(() => {
   rect(300, 104, 312, 120, T.C.k); rect(301, 105, 311, 119, H('#b8603a')); for (const [dx, dy] of [[-4, -10], [0, -14], [4, -9], [-2, -6], [3, -5]]) { R.disco(306 + dx, 104 + dy, 3, H('#3a7a3a')); R.pset(306 + dx, 103 + dy, H('#5aaa5a')); }
 });
 const nubeT = (cx, cy, t, luz) => { const c = luz ? ['#e8e8f0', '#c8c8d4', '#a0a0b0'] : ['#8a8a96', '#6a6a78', '#4a4a58']; for (let k = 0; k < 3; k++) for (const [dx, dy, r] of [[-12, 3, 6], [-4, -1, 8], [6, 0, 9], [15, 4, 6]]) R.disco(cx + dx, cy + dy + k * 1.5, r - k * 1.6, H(c[k])); };
+// el océano vivo: olas a dos tonos, las rutas de barco que se dibujan de Japón a América, el carguero que cruza,
+// el pesquero frente a Japón y la ballena que sopla junto a Hawái; todo solo en el agua y dentro del marco
+const MW1 = MX1 - MX0 + 1;
+const agua = (x, y) => x >= MX0 && x <= MX1 && y >= MY0 && y <= MY1 && MAR && MAR[(y - MY0) * MW1 + (x - MX0)] === 1;
+const hondo = (x, y) => (agua(x, y) ? DIST[(y - MY0) * MW1 + (x - MX0)] : 0);
+let OLAS = null;
+const bez = (p0, p1, p2, u) => [(1 - u) * (1 - u) * p0[0] + 2 * u * (1 - u) * p1[0] + u * u * p2[0], (1 - u) * (1 - u) * p0[1] + 2 * u * (1 - u) * p1[1] + u * u * p2[1]];
+const RUTA1 = Array.from({ length: 161 }, (_, i) => bez([64, 72], [122, 30], [190, 66], i / 160));      // Tokio → San Francisco, por el norte
+const RUTA2 = [...Array.from({ length: 81 }, (_, i) => bez([62, 76], [96, 98], [140, 103], i / 80)), ...Array.from({ length: 121 }, (_, i) => bez([144, 103], [200, 126], [244, 120], i / 120))];   // Tokio → Hawái → Panamá
+const ruta = (pts, prog, t, c, paso) => { const n = Math.floor(pts.length * prog), m = Math.floor(t * 5); for (let i = 0; i < n; i++) { if ((i + m) % paso >= Math.ceil(paso / 2)) continue; const [x, y] = pts[i].map(Math.round); if (agua(x, y)) R.pset(x, y, H(c)); } };
+const oceano = (t) => {
+  if (!OLAS) { OLAS = []; for (let k = 0; OLAS.length < 90 && k < 3000; k++) { const x = MX0 + 4 + Math.floor(ru(k, 7) * (MX1 - MX0 - 8)), y = MY0 + 4 + Math.floor(ru(k, 8) * (MY1 - MY0 - 8)); if (hondo(x, y) > 4 && Math.hypot(x - 104, y - 138) > 19) OLAS.push([x, y, ru(k, 9) * 6.28]); } }
+  // las olas: cresta clara y seno oscuro, que van y vienen y se apagan a ratos
+  for (const [x, y, ph] of OLAS) { if (Math.sin(t * 1.4 + ph * 3) < -0.55) continue; const ox = x + Math.round(Math.sin(t * 0.9 + ph) * 1.5);
+    for (const [dx, dy, c] of [[-2, 0, '#e4f2f8'], [-1, -1, '#e4f2f8'], [0, -1, '#f4fafc'], [1, 0, '#5a86a2'], [2, 1, '#5a86a2'], [3, 1, '#4e7a96']]) if (agua(ox + dx, y + dy)) R.pset(ox + dx, y + dy, H(c)); }
+  // las rutas punteadas que se dibujan desde Japón: la del norte (roja, la del carguero) y la del sur por Hawái
+  ruta(RUTA2, tramo(t, 0.6, 2.4), t, '#2e3e5a', 3);
+  ruta(RUTA1, tramo(t, 0.1, 1.6), t, '#b0302e', 4);
+  for (const [x, y] of [[64, 72], [190, 66]]) if (tramo(t, 0.1, 1.6) >= (x > 100 ? 1 : 0)) { R.anillo(x, y, 2.5, H('#b0302e')); }
+  // el pesquero frente a Japón, que cabecea con su vela
+  { const x = 82, y = 92 + Math.round(Math.sin(t * 2.6) * 0.8); R.linea(x - 3, y, x + 3, y, T.C.k); R.linea(x - 2, y + 1, x + 2, y + 1, H('#6a3a1e')); R.linea(x, y - 1, x, y - 6, T.C.k); R.poligono([[x + 1, y - 6], [x + 1, y - 1], [x + 4 + Math.round(Math.sin(t * 3)), y - 1]], H('#f2ecd8')); if (agua(x - 5, y + 1)) R.pset(x - 5, y + 1, H('#f4fafc')); }
+  // la ballena junto a Hawái: el lomo asoma, sopla y se hunde, y luego la cola
+  { const c = (t * 0.45) % 1, bx = 166, by = 112;
+    if (c < 0.55) { const s = Math.sin(c / 0.55 * Math.PI); const h = Math.round(s * 3);
+      for (let dx = -5; dx <= 5; dx++) { const top = by - Math.round(Math.sqrt(Math.max(0, 1 - (dx / 5.5) ** 2)) * h); for (let y = top; y <= by; y++) R.pset(bx + dx, y, H(y === top ? '#5a6a7a' : '#2e3a48')); }
+      if (h > 0) for (let dx = -7; dx <= 7; dx += 2) R.pset(bx + dx, by + 1, H('#e4f2f8'));
+      if (c > 0.15 && c < 0.45) { const u = (c - 0.15) / 0.3; for (let k = 0; k < 5; k++) R.pset(bx - 2 + Math.round((k - 2) * u * 1.5), by - 4 - Math.round(u * 5) + Math.abs(k - 2), H(k % 2 ? '#e4f2f8' : '#ffffff')); }
+    } else if (c > 0.62 && c < 0.8) { const h = Math.round(Math.sin((c - 0.62) / 0.18 * Math.PI) * 4); R.linea(bx + 3, by, bx + 3, by - h, H('#2e3a48')); R.linea(bx + 1, by - h - 1, bx + 5, by - h - 1, H('#2e3a48')); R.pset(bx + 1, by - h - 2, H('#2e3a48')); R.pset(bx + 5, by - h - 2, H('#2e3a48')); R.pset(bx + 2, by + 1, H('#e4f2f8')); R.pset(bx + 4, by + 1, H('#e4f2f8')); }
+  }
+  // el carguero que cruza por la ruta roja hacia América, con su estela
+  const u = 0.1 + 0.5 * tramo(t, 0, P2), i = Math.floor(u * (RUTA1.length - 1)), [sx, sy] = RUTA1[i].map(Math.round), bob = Math.round(Math.sin(t * 3) * 0.6);
+  for (let k = 3; k < 18; k += 2) { const j = Math.max(0, i - k), [wx, wy] = RUTA1[j].map(Math.round); if (agua(wx, wy + 1)) R.pset(wx, wy + 1 + (k % 4 ? 0 : 1), H(k < 10 ? '#f4fafc' : '#c0dce6')); }
+  const y0 = sy + bob;
+  R.poligono([[sx - 7, y0 - 2], [sx + 8, y0 - 2], [sx + 6, y0 + 2], [sx - 6, y0 + 2]], T.C.k); R.linea(sx - 6, y0 - 1, sx + 7, y0 - 1, H('#2a2e3a')); R.linea(sx - 5, y0 + 1, sx + 5, y0 + 1, H('#a8282e'));
+  for (let k = 0; k < 3; k++) { R.rect(sx - 1 + k * 3, y0 - 4, sx + 1 + k * 3, y0 - 2, T.C.k); R.rect(sx - 1 + k * 3, y0 - 4, sx + 1 + k * 3, y0 - 4, H(k % 2 ? '#f2eee2' : '#c8303a')); R.pset(sx + k * 3, y0 - 3, H(k % 2 ? '#c8303a' : '#f2eee2')); }
+  R.rect(sx - 6, y0 - 6, sx - 3, y0 - 2, T.C.k); R.rect(sx - 5, y0 - 5, sx - 4, y0 - 3, H('#ece8e0')); R.pset(sx - 4, y0 - 7, H('#c8303a'));
+  for (let k = 0; k < 3; k++) { const a = (t * 0.9 + k / 3) % 1; R.pset(sx - 5 - Math.round(a * 6), y0 - 8 - Math.round(a * 3), H(a > 0.5 ? '#c0c4cc' : '#8a8e96')); }
+  if (agua(sx + 9, y0)) R.pset(sx + 9, y0, H('#f4fafc'));
+  // las cotas de sondeo, en números pequeños de tinta azul
+  for (const [n, x, y] of [['8', 118, 118], ['5', 176, 98], ['6', 214, 140], ['7', 150, 64], ['9', 92, 66], ['4', 240, 104]]) R.numero(n, x, y, { fina: true, color: H('#3e6884'), sombra: false });
+};
 const p1 = (t) => {
   mapaFijo();
+  oceano(t);
   // EE. UU.: la nube de tormenta que llueve, el rayo, los cartuchos tachados y la flecha roja
   R.recorte([MX0, MY0, MX1, MY1]);
   const [ux, uy] = PJ(-98, 39), ncx = Math.round(ux - 6 + Math.sin(t * 0.8) * 3), ncy = MY0 + 14;

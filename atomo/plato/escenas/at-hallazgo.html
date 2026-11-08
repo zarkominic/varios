@@ -18,7 +18,8 @@
 //    en «hits» el operario alza uno que brilla; arena que cae de la pared, polvo en el sol, nubes y cuervos;
 // 3. (inserto local: la lona de los hallazgos) cartuchos en filas; una mano pone la consola en «consoles» y otra el
 //    mando en «parts»; en «grave for E.T.» se marcan los tres del foso y luego todos los demás: solo eran una parte;
-// 4. (almacen/pasillo, 1983) el almacén entero de la empresa: el gerente baja por el pasillo con su carpeta, un mozo
+// 4. (almacen/pasillo, 1983; en primer plano a la derecha, el pilar de hormigón con el extintor, que deja la esquina de
+//    Atom en penumbra) el almacén entero de la empresa: el gerente baja por el pasillo con su carpeta, un mozo
 //    cruza con la carretilla de cajas, y en «trouble» se cae una caja y el gerente se hunde.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -249,7 +250,45 @@ const p4 = (t) => {
   const c = tramo(t, apuros - 0.45, apuros), cx = Math.round(lerp(64, 84, c)), cyy = Math.round(lerp(78, 166, c * c)), rebota = t > apuros && t < apuros + 0.3 ? Math.round(Math.sin((t - apuros) / 0.3 * Math.PI) * 3) : 0;
   R.rect(cx - 9, cyy - 14 - rebota, cx + 9, cyy - rebota, K); R.rect(cx - 8, cyy - 13 - rebota, cx + 8, cyy - 1 - rebota, hex('#c8a06a')); R.rect(cx - 8, cyy - 13 - rebota, cx + 8, cyy - 12 - rebota, hex('#e0bc88')); R.rect(cx - 2, cyy - 10 - rebota, cx + 3, cyy - 5 - rebota, hex('#c8303a'));
   if (t > apuros) for (let i = 0; i < 6; i++) { const f = tramo(t, apuros, apuros + 0.8); if (f < 1) R.disco(cx - 12 + i * 5, 164 - Math.round(f * 6 * (i % 2 + 1)), 1 + Math.round(f), hex('#d8d0c0')); }
+  pilar(t);
   T.tinte(R, 0, 179, [200, 160, 110], 0.12);
+};
+// el pilar de hormigón de la nave, en primer plano a la derecha (deja la esquina de Atom en penumbra tranquila): la cara
+// lateral en sombra, la frontal con la luz suave de las lámparas del pasillo, juntas de encofrado, poros y una grieta, el
+// tubo eléctrico con sus abrazaderas y la caja con el piloto, el extintor con su placa, y el guardapilar a franjas abajo
+const pilar = (t) => {
+  const SOM = hex('#1c1d23'), BAS = hex('#2c2e36'), MED = hex('#363943'), LUZ = hex('#434752'), CAL = hex('#56565a');
+  for (let y = 0; y < 180; y++) for (let x = 276; x < 320; x++) {
+    const r = H(x, y, 7);
+    if (x < 281) { let c = x === 280 ? MED : SOM; if (x === 276) c = mez(SOM, K, 0.5); if (r > 0.93) c = BAS; R.pset(x, y, c); continue; }
+    // la luz de las lámparas entra por la izquierda y se apaga hacia la derecha; arriba, un halo cálido muy suave
+    const u = (x - 281) / 38, halo = Math.max(0, 0.22 - Math.hypot((x - 300) / 40, (y - 22) / 34) * 0.22);
+    let c = (1 - u) * 0.9 > bay(x, y) + 0.25 ? LUZ : u > 0.75 && bay(x, y) < 0.5 ? BAS : MED;
+    if (halo > bay(x, y) * 0.3) c = mez(c, CAL, 0.35);
+    if (r < 0.05) c = SOM; else if (r > 0.97) c = LUZ;
+    if (y % 34 === 33) c = mez(c, SOM, 0.6);                         // juntas del encofrado
+    if (x === 281) c = mez(c, hex('#5a5e68'), 0.6);                 // la arista que recibe la luz
+    R.pset(x, y, c);
+  }
+  // la grieta fina que baja zigzagueando
+  for (let y = 60, x = 296; y < 96; y++) { if (H(y, 1, 8) > 0.6) x += H(y, 2, 8) > 0.5 ? 1 : -1; R.pset(x, y, SOM); }
+  // el tubo eléctrico vertical, con abrazaderas, y la caja de registro con su piloto verde que late
+  R.rect(312, 0, 314, 120, SOM); R.rect(312, 0, 312, 120, MED);
+  for (let y = 10; y < 120; y += 22) { R.rect(311, y, 315, y + 1, hex('#4a4e58')); R.pset(311, y, hex('#62666e')); }
+  R.rect(306, 120, 317, 132, K); R.rect(307, 121, 316, 131, hex('#3e424c')); R.rect(307, 121, 316, 121, hex('#565a64'));
+  R.pset(311, 125, Math.sin(t * 3) > 0 ? hex('#4ad86a') : hex('#1e5a2e'));
+  // la placa del extintor (pictograma: llama blanca sobre rojo) y el extintor en su soporte
+  R.rect(288, 92, 297, 101, K); R.rect(289, 93, 296, 100, hex('#b8282e')); R.rect(292, 95, 293, 99, BL); R.pset(291, 97, BL); R.pset(294, 96, BL); R.rect(291, 99, 294, 99, BL);
+  R.rect(290, 106, 296, 107, hex('#5a5e68'));
+  R.rect(289, 108, 296, 128, K); R.rect(290, 109, 295, 127, hex('#c8303a')); R.rect(290, 109, 291, 126, hex('#e85a5a')); R.rect(294, 110, 295, 127, hex('#8a1e24'));
+  R.rect(291, 113, 294, 116, hex('#d8d0c0')); R.rect(291, 105, 294, 108, K); R.rect(295, 104, 298, 105, K); R.rect(297, 105, 298, 118, K);
+  // el guardapilar a franjas amarillas y negras, rozado por las carretillas
+  for (let y = 146; y < 180; y++) for (let x = 277; x < 320; x++) {
+    let c = ((x + y) >> 3) % 2 ? hex('#e8b830') : hex('#2a2a30');
+    if (x < 281) c = mez(c, SOM, 0.55); else c = mez(c, BAS, (x - 281) / 38 * 0.35);
+    if (y === 146) c = hex('#f0d070'); if (H(x, y, 9) < 0.07 && y > 150) c = hex('#8a8a90');
+    R.pset(x, y, c);
+  }
 };
 const año = (t) => t < P4 ? 2014 : 1983;
 const efectos = [[0.5, 'motor'], [cartucho, 'brillo'], [aparece, 'publico'], [verdad + 0.1, 'palmada'], [juegos, 'golpecito'], [exitos, 'brillo'], [consolas + 0.1, 'golpecito'], [piezas + 0.1, 'toc'], [tumba, 'aviso'], [P4 + 0.4, 'carro'], [apuros, 'golpecito']];

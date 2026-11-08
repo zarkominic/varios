@@ -11,13 +11,18 @@
 <script type="module">
 // AT-HELLER (frase 23), 2014 (el plano 2, 1983). Cuatro planos:
 // 1. la excavación de 2014: Heller, ya mayor, llega a la valla y habla a la reportera y a las cámaras; flash en su
-//    nombre; señala hacia la fosa en «burial»;
+//    nombre; señala hacia la fosa en «burial». Detrás de la prensa, el borde de arena de la fosa (x 152–319, cresta en
+//    y 128 y, a la derecha, en y 122) tapa el fondo revuelto (basura de colores y la fila de público lejana) para que
+//    Heller y la prensa se recorten; el público lejano de ese lado mira ahora desde lo alto del montón (x 284–312);
 // 2. corta en «said»: 1983, el cemento cae sobre las cajas; un marcador baja de 5,000,000 («millones») a 728,000
 //    («728,000»); en «not millions», la cifra de la leyenda cae tachada;
 // 3. corta en «and that ET»: el hangar con las mesas de cartuchos ordenados (unos 1.300); los naranjas, los del juego,
-//    se encienden («only a part»); el marcador de la pared cuenta hasta 1,300 y la arqueóloga coloca los últimos;
+//    se encienden («only a part»); el marcador de la pared cuenta hasta 1,300 y la arqueóloga, en el pasillo entre la
+//    mesa del medio y la de delante (cabeza y hombros a la vista), deja la caja en la mesa y coloca en sus huecos los
+//    tres últimos cartuchos, uno a uno, con la mano;
 // 4. corta en «some went»: la pantalla del ordenador: un museo recibe un cartucho, la subasta en línea sube y el mazo
-//    golpea (el gato salta: gag), y las monedas van al pueblo, que se ilumina («the city»).
+//    golpea (el gato salta: gag), y las monedas van al pueblo, que se ilumina («the city»). La mano del ratón es el
+//    brazo canónico que entra por abajo (hombro en x 262, codo en x 266, unos 45 px a la vista).
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_AT as A } from '/atomo/plato/kits/pixel-chibi.js';
@@ -53,8 +58,46 @@ const nombre = h(0.091), entierro = h(0.176), n728 = h(0.239), noMill = h(0.42),
 const museos = h(0.776), subasta = h(0.85), online = h(0.877), dinero = h(0.928), ciudad = h(0.977);
 
 // ── 1 · la excavación: Heller ante las cámaras ─────────────────────────────────────────────────
+// el borde de arena de este lado de la fosa, donde está la prensa: tapa lo revuelto de detrás (la basura de colores del
+// fondo de la fosa y la fila de público lejana de la derecha) para que Heller y la prensa se recorten sobre arena lisa
+// de luz, con su textura: ondas del viento, roderas, piedras, pisadas, la manguera del cable de la cámara y su maleta
+const ARN = ['#f0d6a2', '#dcb880', '#c8a068', '#a8844e', '#7e6038'].map(hex);
+const cresta = (x) => x < 152 ? 999 : x < 166 ? Math.round(147 - (x - 152) * 18 / 14) : x < 272 ? 128 + Math.round(Math.sin(x * 0.09) + H(x >> 2, 7)) : x < 280 ? Math.round(128 - (x - 272) * 0.75) : 122 + Math.round(Math.sin(x * 0.11) * 0.8 + H(x >> 2, 8));
+const borde = (t) => {
+  for (let x = 152; x < 320; x++) { const top = cresta(x);
+    for (let y = top; y < 150; y++) { const n = H(x, y + 300); let c = n < 0.07 ? ARN[2] : n > 0.95 ? ARN[0] : ARN[1];
+      if (y === top) c = ARN[0]; else if (y === top + 1) c = n < 0.5 ? ARN[0] : ARN[1];
+      else if ((x * 2 + y * 7) % 23 === 0 || (x * 2 + y * 7) % 23 === 1) c = ARN[2];   // ondas del viento
+      if (x < 168 && x - 152 < (y - top) * 0.6 + 3) c = n < 0.5 ? ARN[3] : ARN[2];     // la cara del talud, en sombra
+      if (y > 146) c = mez(c, ARN[3], 0.35);                                              // la sombra de la valla
+      R.pset(x, y, c); }
+    if (x < 272) R.pset(x, top - 1, mez(R.pget(x, top - 1), ARN[4], 0.5)); }
+  // las roderas de las cadenas, las piedras y las pisadas
+  for (let x = 178; x < 320; x++) for (const y0 of [135, 139]) if (x % 3) { const y = y0 + Math.round((x - 178) * 0.03); if (y >= cresta(x) + 2) R.pset(x, y, ARN[2]); }
+  for (let i = 0; i < 14; i++) { const x = 160 + Math.round(H(i, 21) * 156), y = Math.round(cresta(x) + 3 + H(i, 22) * (146 - cresta(x) - 3)); R.pset(x, y, ARN[4]); R.pset(x + 1, y, ARN[3]); R.pset(x, y - 1, ARN[0]); }
+  for (let i = 0; i < 9; i++) { const x = 182 + i * 7 + (i % 2) * 2, y = 143 - (i % 2); R.pset(x, y, ARN[3]); R.pset(x + 1, y, ARN[3]); }
+  // el cable de la cámara, que serpentea hasta la maleta de la unidad móvil
+  for (let x = 246; x < 300; x++) R.pset(x, 145 + Math.round(Math.sin(x * 0.2) * 1.4), K);
+  R.rect(296, 136, 312, 146, K); R.rect(297, 137, 311, 145, hex('#3a3a46')); R.rect(297, 137, 311, 137, hex('#6a6a78')); R.rect(302, 134, 306, 135, K); for (const x of [299, 309]) R.pset(x, 141, hex('#c8ccd8'));
+  // la arena que se desmorona por el talud hacia la fosa
+  for (let k = 0; k < 5; k++) { const f = (t * 0.7 + k / 5) % 1, x = Math.round(160 - f * 10 + k), y = Math.round(lerp(cresta(160 + k) + 1, 150, f)); R.pset(x, y, ARN[k % 2 ? 0 : 2]); }
+  // un remolino de polvo que cruza la explanada
+  { const u = (t * 0.09) % 1, x = Math.round(lerp(180, 330, u)), y = 140; for (let k = 0; k < 10; k++) { const a = t * 7 + k * 0.8, r = 1 + k * 0.4; const px = Math.round(x + Math.cos(a) * r), py = Math.round(y - k * 0.9); if (px < 320) R.pset(px, py, mez(R.pget(px, py), ARN[0], 0.6)); } }
+};
+// el público lejano de la derecha, ahora en lo alto del montón de tierra: saluda y graba con el móvil
+const mirones = (t) => {
+  const pieles = ['#f0c090', '#d8a070', '#a86a44', '#f4d0a8'].map(hex), ropas = ['#d0383a', '#3a6ad8', '#e8c840', '#3a9a4a', '#2aa8a0'].map(hex);
+  for (const [x, s, i] of [[286, 108, 0], [293, 110, 1], [300, 113, 2], [307, 117, 3], [313, 121, 4]]) {
+    const b = Math.sin(t * 3 + i * 1.7) > 0.6 ? -1 : 0, y = s + b, c = ropas[i];
+    R.rect(x - 1, y - 3, x - 1, y, K); R.rect(x + 1, y - 3, x + 1, y, K);
+    R.rect(x - 2, y - 7, x + 2, y - 4, c); R.pset(x + 2, y - 4, mez(c, NEGRO, 0.35));
+    R.rect(x - 1, y - 10, x + 1, y - 8, pieles[i % 4]); R.rect(x - 1, y - 10, x + 1, y - 10, hex(['#3a2a1a', '#6a4020', '#c8a060', '#1a1414', '#3a2a1a'][i]));
+    if (i % 2 === 0) { const m = Math.sin(t * 6 + i) > 0 ? 1 : 0; R.linea(x + 2, y - 7, x + 3 + m, y - 11, pieles[i % 4]); if (i === 2) R.rect(x + 3, y - 13, x + 4, y - 12, hex('#2a2a34')); }
+  }
+};
 const p1 = (t) => {
   T.desierto(R, t, { encuadre: 'excavacion14' });
+  borde(t); mirones(t);
   const u = tramo(t, 0.2, 1.9), xh = Math.round(lerp(270, 198, u));
   R.actor(A.heller, xh, 160, t, { dir: -1, anda: u > 0 && u < 1, habla: t > 1.9 && Math.sin(t * 8) > -0.2, dedo: t > entierro - 0.4 && t < entierro + 0.9, sonrisa: t < 1.9 });
   const rr = R.actor(EL.periodista2000, 166, 160, t, { dir: 1, sostiene: [182, 143 + Math.round(Math.sin(t * 1.3))], sonrisa: true });
@@ -123,7 +166,7 @@ function mesaCart(x0, x1, y0, y1, filas, id, t = 0, opts = {}) {
   for (const x of [x0 + 4, x1 - 6]) { R.rect(x, y1 + 3, x + 2, y1 + 3 + (y1 - y0) + 8, K); R.rect(x + 1, y1 + 3, x + 1, y1 + 3 + (y1 - y0) + 7, hex('#8a8e96')); }
   const n = Math.floor((x1 - x0 - 6) / 6), dy = (y1 - y0) / filas;
   for (let j = 0; j < filas; j++) for (let i = 0; i < n; i++) {
-    const idx = j * n + i; if (opts.lleno != null && idx >= opts.lleno) continue;
+    if (opts.hueco && opts.hueco(i, j)) continue;
     const x = x0 + 4 + i * 6, y = Math.round(y0 + 1 + j * dy), c = colorDe(i + id * 97, j), base = hex(ETIQ[c]);
     const brilla = c === 'naranja' && opts.realza > 0 && Math.sin(t * 9 + i) > -0.3;
     const ap = opts.realza > 0 && c !== 'naranja';
@@ -149,13 +192,33 @@ const p3 = (t) => {
   const ua = tramo(t, P3 + 0.3, P4 - 0.4), xa = Math.round(lerp(40, 170, ua));
   R.actor(A.arqueologo, xa, 134, t, { dir: 1, anda: Math.sin(t * 2.2) > 0.2 && ua < 1, dedo: true, habla: t > et && t < parte + 0.4 && Math.sin(t * 8) > 0 });
   mesaCart(6, 230, 120, 132, 3, 1, t, { realza: t > et + 0.2 && t < parte + 1 });
-  // detrás de la mesa de delante: la arqueóloga trae una caja de cartuchos y coloca los últimos
-  const ub = tramo(t, P3 + 0.2, n1300 - 0.4), xb = Math.round(lerp(-18, 150, ub)), pon = t > n1300 - 0.4;
-  const rb = R.actor(A.arqueologa, xb, 160, t, { dir: 1, anda: ub > 0 && ub < 1, sostiene: pon ? [xb + 18, 148 + Math.round(Math.abs(Math.sin(t * 6)) * 3)] : true, sonrisa: t > recup });
-  const n = Math.floor((318 - 0 - 6) / 6), total = n * 4, lleno = Math.round(total - 22 + tramo(t, n1300 - 0.3, recup) * 22);
-  mesaCart(0, 318, 150, 166, 4, 2, t, { realza: t > et + 0.2 && t < parte + 1, lleno });
-  const [mx, my] = rb.mano; if (!pon) { R.rect(mx - 6, my - 8, mx + 6, my, K); R.rect(mx - 5, my - 7, mx + 5, my - 1, hex('#c8a06a')); for (let k = 0; k < 4; k++) R.rect(mx - 4 + k * 3, my - 9, mx - 3 + k * 3, my - 7, hex(ETIQ[COLS[k]])); }
-  else { R.rect(mx - 1, my - 3, mx + 3, my, K); R.rect(mx, my - 3, mx + 2, my - 2, hex(ETIQ.naranja)); }
+  // la arqueóloga, en el pasillo entre la mesa del medio y la de delante (asoman cabeza, hombros y pecho): trae la caja
+  // de cartuchos, la deja en la mesa de delante y coloca, uno a uno con la mano, los tres últimos en sus huecos
+  const XB = 105, SX = XB + 12, SUELO = 157;                                   // SX: el hombro del brazo que coloca
+  const ub = tramo(t, P3 + 0.2, n1300 - 0.7), xb = Math.round(lerp(-18, XB, ub)), deja = t > n1300 - 0.6;
+  const HUECOS = [[19, 0], [20, 0], [19, 1]], t0 = n1300 - 0.45, t1 = recup + 0.25, fase = tramo(t, t0, t1) * HUECOS.length;
+  const kk = Math.min(HUECOS.length - 1, Math.floor(fase)), f = fase - kk, puestos = t < t0 ? 0 : t >= t1 ? HUECOS.length : kk + (f > 0.78 ? 1 : 0);
+  const caja = [SX - 4, 152], ranura = ([i, j]) => [4 + i * 6 + 2, j === 0 ? 151 : 155];
+  let objetivo = true, lleva = false;
+  if (deja && t < t1) { const [cx, cy] = caja, [rx, ry] = ranura(HUECOS[kk]);
+    if (t < t0) objetivo = [cx, cy - 4];
+    else if (f < 0.3) { objetivo = [cx, cy - 2 + Math.round(Math.sin(f / 0.3 * Math.PI) * 2)]; lleva = f > 0.18; }   // coge uno de la caja
+    else if (f < 0.62) { const v = (f - 0.3) / 0.32; objetivo = [Math.round(lerp(cx, rx, v)), Math.round(lerp(cy - 2, ry - 1, v) - Math.sin(v * Math.PI) * 3)]; lleva = true; }
+    else { objetivo = [rx, ry - 1 + (f < 0.78 ? Math.round((f - 0.62) / 0.16 * 1) : 0)]; lleva = f < 0.78; } }
+  else if (deja) objetivo = [SX + 3, 146];
+  const optsB = { dir: 1, anda: ub > 0 && ub < 1, sostiene: objetivo, sonrisa: t > recup };
+  const rb = R.actor(A.arqueologa, xb, SUELO, t, optsB);
+  const hecho = (i, j) => { const q = HUECOS.findIndex(([a, b]) => a === i && b === j); return q >= 0 && q >= puestos; };
+  mesaCart(0, 318, 150, 166, 4, 2, t, { realza: t > et + 0.2 && t < parte + 1, hueco: hecho });
+  // la caja, ya en la mesa
+  const cajaEn = (x, y) => { R.rect(x - 6, y - 8, x + 6, y, K); R.rect(x - 5, y - 7, x + 5, y - 1, hex('#c8a06a')); R.rect(x - 5, y - 7, x + 5, y - 7, hex('#e0bc84')); R.rect(x + 3, y - 6, x + 5, y - 1, hex('#a07a48')); for (let k = 0; k < 4; k++) R.rect(x - 4 + k * 3, y - 9, x - 3 + k * 3, y - 7, hex(ETIQ[COLS[k]])); };
+  if (deja) { cajaEn(caja[0], caja[1] + 5); R.rect(caja[0] - 6, caja[1] + 6, caja[0] + 7, caja[1] + 6, hex('#a8a49c')); }
+  // el brazo y la mano que alcanzan por encima del canto de la mesa: se vuelven a pintar sobre ella (solo lo de la
+  // derecha del hombro, para que el cuerpo siga detrás de la mesa)
+  if (deja) { R.recorte([SX + 2, 138, SX + 14, 160]); R.actor(A.arqueologa, xb, SUELO, t, optsB); R.recorte(null); }
+  const [mx, my] = rb.mano;
+  if (!deja) cajaEn(mx, my);
+  else if (lleva) { R.rect(mx - 1, my - 3, mx + 3, my, K); R.rect(mx, my - 3, mx + 2, my - 2, hex(ETIQ.naranja)); }
 };
 
 // ── 4 · la pantalla: el museo, la subasta y el dinero para el pueblo ──────────────────────────────────
@@ -242,7 +305,7 @@ const p4 = (t) => {
   // el ratón y la mano canónica que pulsa en «online»
   const cl = t > online - 0.05 && t < online + 0.15 ? 1 : 0, mxr = 244 + Math.round(Math.sin(t * 0.9) * 3);
   R.rect(mxr - 10, 134 + cl, mxr - 2, 144, K); R.rect(mxr - 9, 135 + cl, mxr - 3, 143, hex('#d8d8e0')); R.rect(mxr - 6, 135 + cl, mxr - 6, 138, K);
-  T.brazo(R, 340, 186, mxr, 140 + cl, '#3a5a8a', -1, { codo: [300, 176] });
+  T.brazo(R, 262, 186, mxr, 140 + cl, '#3a5a8a', -1, { codo: [266, 164] });
   // el gato que dormía en la mesa salta con el mazo (gag)
   const sa = tramo(t, online + 0.05, online + 0.35) - tramo(t, online + 0.6, online + 1.0);
   gato(282, 162 - Math.round(sa * 14), t, sa > 0.05);

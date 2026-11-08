@@ -13,9 +13,11 @@
 // 1. (ny85) la calle nevada de Nueva York: el dependiente sale de la juguetería con la campanilla y saluda; la familia
 //    llega por la acera, el niño corre delante y salta junto al escaparate en «feet»; un comprador sale con su consola
 //    en caja (el dependiente le aguanta la puerta, efecto «puerta») y se va por la derecha; los taxis pasan por delante;
-// 2. (mapa) el carguero con humo y dos gaviotas cruza el Pacífico hasta la costa en «arrived», la consola gris viaja
+// 2. (mapa, encuadrado algo a la izquierda para que la esquina de Atom quede en el Atlántico) el carguero con humo y dos gaviotas cruza el Pacífico hasta la costa en «arrived», la consola gris viaja
 //    por la ruta roja y en «United States» cae la chincheta de Nueva York; destello en «Nintendo's»;
-// 3. (ny85 escaparate) la familia ante el cristal y una señora con su bolsa que pasa por detrás mirando el escaparate:
+// 3. (ny85 escaparate, la cámara corrida 32 px: el cristal sale por la izquierda y acaba en x 270; a la derecha la
+//    pared de ladrillo, tranquila arriba, con el farol que tiembla y su gorrión, la placa del número y un abeto con luces)
+//    la familia ante el cristal y una señora con su bolsa que pasa por detrás mirando el escaparate:
 //    en «approved» salen los vistos verdes en las cajas, en «seal» el sello dorado echa rayos, el niño salta y aplaude;
 //    el padre señala el sello en «quality» y habla con la madre;
 // 4. (juntas/gráfica) una gráfica propia: 83 alta, 84–85 hundidas con el montón de cartuchos del «chaos»; en «came
@@ -98,7 +100,8 @@ const barco = (x, y, t) => {
 };
 // 2 · el mapa: del Pacífico a Nueva York
 const p2 = (t) => {
-  const P = T.mapa(R, t, { zona: 'eeuu' });
+  // el mapa algo corrido a la izquierda: la esquina de Atom (arriba a la derecha) queda en el Atlántico, sin costa
+  const P = T.mapa(R, t, { zoom: 1, centro: [-89, 37.5], rosa: [282, 100] });
   const [sx, sy] = P([-122.4, 37.8]).map(Math.round), [nx, ny] = P([-74.0, 40.7]).map(Math.round);
   const b = tramo(t, P2, llega), bx = Math.round(lerp(20, Math.max(34, sx - 10), b)), by = sy + 10 + Math.round(Math.sin(t * 4));
   if (b < 1) for (let i = 1; i < 7; i++) { R.pset(bx - 4 - i * 3, by + 1 + (i % 2), hex('#e8f0f6')); R.pset(bx - 5 - i * 3, by + 2, hex('#c8d8e8')); }
@@ -118,19 +121,75 @@ const p2 = (t) => {
   destello(fin[0] + 12, fin[1] - 12, tramo(t, nint, nint + 0.7));
 };
 // 3 · el escaparate
+// la cámara del escaparate corrida 32 px a la derecha (el cristal sale por la izquierda y acaba en x 270): se corre la
+// imagen del decorado (un recorrido) y lo que queda libre a la derecha (x 288–319) se rellena con su borde de ladrillo
+const corre32 = () => { const B = R.buf; for (let y = 0; y < 180; y++) { const o = y * 320;
+  for (let x = 0; x < 288; x++) B[o + x] = B[o + x + 32]; for (let x = 288; x < 320; x++) B[o + x] = B[o + 304 + ((x - 288) & 15)]; } };
+// la pared de la derecha (x 275–319): ladrillo tranquilo arriba (el toldo acaba en x 274, la esquina de Atom queda
+// lisa de ladrillo), un farol de pared con su halo cálido que tiembla y un gorrión que picotea la nieve de su sombrerete,
+// la placa de latón con el número y un abeto con luces en su maceta, sobre el montón de nieve
+const LAD = ['#b08a64', '#b8926c', '#a8825e', '#9a7656'].map(hex);
+const ladrillo = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) { const fila = y >> 2;
+  for (let x = x0; x <= x1; x++) { const dx = x + (fila & 1) * 4; if ((y & 3) === 3 || (dx & 7) === 7) { R.pset(x, y, LAD[3]); continue; }
+    const v = H(dx >> 3, fila, 17); R.pset(x, y, v < 0.2 ? LAD[2] : v > 0.82 ? LAD[1] : H(x, y, 20) < 0.05 ? LAD[2] : (y & 3) === 0 && v > 0.5 ? LAD[1] : LAD[0]); } } };
+const paredDerecha = (t) => {
+  const { rect, pset, disco, linea } = R;
+  ladrillo(275, 0, 319, 172);
+  // el canto del toldo, cortado limpio con su sombra y el soporte de hierro
+  rect(275, 15, 275, 25, hex('#6a5a4a')); rect(276, 16, 277, 26, LAD[3]); linea(270, 26, 275, 14, hex('#3a3a40'));
+  // la sombra que deja el marco del escaparate en la pared y la nieve que se junta en la cornisa de abajo
+  for (let y = 26; y <= 172; y++) if (bay(275, y) < 0.6) pset(275, y, mez(LAD[0], hex('#5a4030'), 0.5));
+  // el halo cálido del farol sobre el ladrillo (tiembla con la llama)
+  const fx = 298, fy = 66, fl = 0.85 + Math.sin(t * 7) * 0.08 + Math.sin(t * 17.3) * 0.05;
+  for (let y = 46; y <= 92; y++) for (let x = 276; x <= 319; x++) { const d = Math.hypot(x - fx, (y - fy) * 1.2) / 24; if (d >= 1) continue;
+    const a = (1 - d) * (1 - d) * 0.55 * fl; if (a > bay(x, y) * 0.6) pset(x, y, mez(R.buf[y * 320 + x], hex('#ffd890'), a)); }
+  // el brazo de hierro y el farol: tejadillo con nieve, cristales con la llama, base
+  rect(306, 52, 316, 52, hex('#2a2a30')); rect(316, 50, 317, 56, hex('#2a2a30')); linea(306, 53, 313, 58, hex('#2a2a30'));
+  rect(292, 54, 304, 55, hex('#2a2a30')); rect(294, 52, 302, 53, hex('#3a3a42')); rect(297, 50, 299, 51, hex('#2a2a30'));
+  rect(292, 51, 304, 52, hex('#eef4f8')); pset(291, 52, hex('#d8e6f2')); pset(305, 52, hex('#d8e6f2')); rect(295, 50, 301, 50, MC_BL);
+  rect(293, 56, 303, 74, hex('#2a2a30'));
+  const vid = [hex('#ffe9a8'), hex('#ffd070'), hex('#f0a840')];
+  for (let y = 57; y <= 73; y++) for (let x = 294; x <= 302; x++) { if (x === 298) { pset(x, y, hex('#3a3a42')); continue; }
+    const d = Math.hypot(x - 298, (y - 66 + Math.sin(t * 9) * 0.6) * 0.7); pset(x, y, d < 2.5 * fl ? MC_BL : d < 4.5 ? vid[0] : d < 6.5 ? vid[1] : vid[2]); }
+  pset(295, 58, MC_BL); pset(295, 59, vid[0]);
+  rect(292, 75, 304, 76, hex('#2a2a30')); rect(296, 77, 300, 78, hex('#2a2a30')); pset(298, 79, hex('#2a2a30'));
+  for (const [x, L] of [[293, 3], [297, 2], [303, 4]]) for (let j = 0; j < L; j++) pset(x, 77 + j, j < L - 1 ? hex('#d8e6f2') : MC_BL);
+  // el gorrión sobre el sombrerete: picotea la nieve, se sacude y vuelve
+  { const pk = Math.sin(t * 2.3) > 0.4 && Math.sin(t * 13) > 0, gx = 300 + Math.round(Math.sin(t * 0.6) * 2), gy = 49;
+    rect(gx - 2, gy - 2, gx + 1, gy, hex('#7a5a3a')); pset(gx - 1, gy - 2, hex('#a8845a')); pset(gx - 3, gy - 1, hex('#5a3a2a')); pset(gx - 4, gy - 1, hex('#5a3a2a'));
+    const cx = gx + 2, cy = pk ? gy - 1 : gy - 3; rect(cx - 1, cy, cx, cy + 1, hex('#6a4a2a')); pset(cx, cy, K); pset(cx + 1, cy + (pk ? 1 : 0), hex('#e8b830'));
+    pset(gx - 1, gy + 1, hex('#c8903a')); pset(gx + 1, gy + 1, hex('#c8903a')); }
+  // la placa de latón con el número de la calle
+  rect(290, 85, 308, 95, hex('#6a4a1a')); rect(291, 86, 307, 94, hex('#c8a040')); rect(291, 86, 307, 86, hex('#f0d880')); rect(291, 94, 307, 94, hex('#8a6a20'));
+  R.numero('85', 299, 87, { color: hex('#3a2a10'), centro: true, sombra: false, fina: true });
+  if ((t % 3.2) < 0.5) { const sx = 291 + Math.round((t % 3.2) / 0.5 * 16); pset(sx, 87, MC_BL); pset(sx + 1, 88, hex('#fff0c0')); }
+  // el abeto en su maceta de madera junto a la pared: ramas en pisos con nieve encima y luces que se encienden por turnos
+  rect(291, 156, 309, 171, hex('#5a3a22')); rect(291, 156, 309, 157, hex('#8a5a32')); for (const x of [295, 300, 305]) rect(x, 158, x, 171, hex('#3e2816')); rect(291, 163, 309, 163, hex('#c8a040'));
+  rect(299, 150, 301, 155, hex('#4a2e1a'));
+  for (let y = 110; y <= 150; y++) { const k = (y - 110) % 10, piso = (y - 110) / 10 | 0, w = Math.round(2 + piso * 3 + k * 0.9), mece = Math.round(Math.sin(t * 1.1 + y * 0.1) * 0.5);
+    for (let x = 300 - w; x <= 300 + w; x++) { const xx = x + mece, l = x < 300 - w * 0.3; pset(xx, y, k < 2 && Math.abs(x - 300) < w - 1 ? hex('#eef4f8') : l ? hex('#3a7a46') : bay(x, y) < 0.35 ? hex('#1e4a2e') : hex('#2a5e38')); }
+    pset(300 - w + mece, y, hex('#163a24')); pset(300 + w + mece, y, hex('#163a24')); }
+  rect(299, 106, 301, 108, hex('#f8d84a')); pset(300, 105, hex('#fff0a0')); pset(298, 107, hex('#f8d84a')); pset(302, 107, hex('#f8d84a')); if (Math.sin(t * 3) > 0.3) pset(300, 107, MC_BL);
+  for (let k = 0; k < 12; k++) { const y = 114 + (k * 3) % 34, w = Math.round(2 + ((y - 110) / 10 | 0) * 3 + ((y - 110) % 10) * 0.9) - 1, x = 300 + Math.round((H(k, 7) * 2 - 1) * w);
+    const c = [hex('#ff4a4a'), hex('#4aff6a'), hex('#ffd84a'), hex('#4a8aff')][k % 4], on = (k + Math.floor(t * 2.5)) % 3 !== 0; pset(x, y, on ? c : mez(c, K, 0.55)); if (on) pset(x, y - 1, mez(c, BL, 0.5)); }
+  // el montón de nieve al pie de la pared
+  for (let x = 276; x <= 319; x++) { const a = Math.round(4 + Math.sin(x * 0.3) * 1.5 + H(x, 2) * 2 + (x > 284 && x < 312 ? 2 : 0)); rect(x, 172 - a, x, 173, hex('#eef4f8')); pset(x, 172 - a, MC_BL); if (H(x, 5) < 0.3) pset(x, 173 - a, hex('#c8d4e2')); }
+};
+const MC_BL = hex('#ffffff');
 const p3 = (t) => {
   T.mundo(R, t, NYE);
-  [[57, 84], [46, 124], [80, 124]].forEach(([x, y], i) => { const t0 = aprob + i * 0.22; if (t > t0) T.visto(R, x - 8, y - 8 - Math.round((1 - tramo(t, t0, t0 + 0.2)) * 5), 2); });
+  corre32(); paredDerecha(t);
+  [[25, 84], [14, 124], [48, 124]].forEach(([x, y], i) => { const t0 = aprob + i * 0.22; if (t > t0) T.visto(R, x - 8, y - 8 - Math.round((1 - tramo(t, t0, t0 + 0.2)) * 5), 2); });
   const b = tramo(t, sello - 0.05, sello + 1.1);
-  if (b > 0 && b < 1) { R.recorte([26, 34, 294, 146]); for (let k = 0; k < 12; k++) { const g = k / 12 * 6.283 + t * 0.7, r0 = 24 + b * 6, r1 = r0 + 5 + Math.sin(b * Math.PI) * 12;
-    R.linea(Math.round(246 + Math.cos(g) * r0), Math.round(72 + Math.sin(g) * r0), Math.round(246 + Math.cos(g) * r1), Math.round(72 + Math.sin(g) * r1), k % 2 ? hex('#fff0a0') : hex('#e8b830')); } R.recorte(null); }
-  destello(264, 52, tramo(t, sello, sello + 0.6)); destello(230, 92, tramo(t, sello + 0.3, sello + 0.9));
+  if (b > 0 && b < 1) { R.recorte([0, 34, 262, 146]); for (let k = 0; k < 12; k++) { const g = k / 12 * 6.283 + t * 0.7, r0 = 24 + b * 6, r1 = r0 + 5 + Math.sin(b * Math.PI) * 12;
+    R.linea(Math.round(214 + Math.cos(g) * r0), Math.round(72 + Math.sin(g) * r0), Math.round(214 + Math.cos(g) * r1), Math.round(72 + Math.sin(g) * r1), k % 2 ? hex('#fff0a0') : hex('#e8b830')); } R.recorte(null); }
+  destello(232, 52, tramo(t, sello, sello + 0.6)); destello(198, 92, tramo(t, sello + 0.3, sello + 0.9));
   // por la acera pasa una señora con su bolsa de regalos (detrás de la familia) y mira el escaparate al pasar
   { const u = tramo(t, P3 + 0.2, P3 + 5.6), xv = Math.round(lerp(-14, 334, u)); if (u > 0 && u < 1) { const rv = R.actor(A.espectadora, xv, 175, t, { dir: 1, anda: true, sostiene: true, sonrisa: xv > 200 && xv < 280 }); bolsa(rv.mano); } }
-  const rm = R.actor(A.madre85, 94, 178, t, { dir: 1, sonrisa: t > sello, habla: t > resp && t < resp + 1.2 && Math.sin(t * 8) > 0, sostiene: true }); bolsa(rm.mano);
+  const rm = R.actor(A.madre85, 66, 178, t, { dir: 1, sonrisa: t > sello, habla: t > resp && t < resp + 1.2 && Math.sin(t * 8) > 0, sostiene: true }); bolsa(rm.mano);
   const sj = t > sello && t < sello + 0.5 ? Math.round(Math.sin((t - sello) / 0.5 * Math.PI) * 6) : 0;
-  R.actor(A.nino85, 146, 177, t, { dir: 1, salto: sj, sorpresa: t > sello && t < sello + 1.4, brazos: (t > sello && t < sello + 0.7) || (t > sello + 0.9 && t < sello + 1.7 && Math.sin(t * 16) > 0), sonrisa: t > sello + 1.4, dedo: t > aprob && t < sello });
-  const w = tramo(t, P3 + 0.3, P3 + 1.7), xp = Math.round(lerp(336, 204, w));
+  R.actor(A.nino85, 118, 177, t, { dir: 1, salto: sj, sorpresa: t > sello && t < sello + 1.4, brazos: (t > sello && t < sello + 0.7) || (t > sello + 0.9 && t < sello + 1.7 && Math.sin(t * 16) > 0), sonrisa: t > sello + 1.4, dedo: t > aprob && t < sello });
+  const w = tramo(t, P3 + 0.3, P3 + 1.7), xp = Math.round(lerp(336, 176, w));
   R.actor(A.padre85, xp, 178, t, { dir: t > calidad ? 1 : -1, anda: w > 0 && w < 1, dedo: t > calidad && t < resp + 0.3, habla: t > resp + 0.3 && Math.sin(t * 7) > 0, sonrisa: t > calidad });
   T.mundoDelante(R, t, NYE);
 };
