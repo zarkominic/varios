@@ -378,3 +378,24 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 **Pendiente para el próximo:**
 - Resultado de la prueba A/B de miniaturas del 23 (la simple con la uva frente a la de dos decorados): decide el estilo.
 - Retención del 19 y el 20 (gancho nuevo) en cuanto el usuario la exporte.
+
+## Episodio 26 · Atari enterró sus juegos en el desierto (8/11/2026)
+
+- **Dos episodios a la vez** (el 26 y el 25): mientras corría la pasada de calidad del 26, el 25 hizo sus decorados y
+  lanzó sus escenas. Funciona sin bajar el nivel; el aviso de «cambios sin guardar» salta a menudo por los agentes que
+  trabajan: se guarda a mitad de pasada solo lo que ya terminó su comprobación.
+- **Derechos vigilados desde el reparto:** sin E.T. (ni la luna con la bicicleta), sin marcianos de Space Invaders ni la
+  boca del comecocos, sin logos. El juego inventado lleva un robotito naranja propio. Se pasó como fallo a la calidad
+  para TODAS las escenas, y no apareció nada.
+- **Miniaturas:** el usuario dijo que las de chibis «parecen para bebés». Se pasó al noir y luego pidió un punto
+  intermedio: se hacen las dos (noir e intermedia, atardecer y objetos de colores) para la prueba A/B. A tamaño de lista,
+  la noir pierde los objetos (los cartuchos eran una mancha gris): en la intermedia se reconocen.
+- **Efectos de más:** la calidad dejó 9 escenas por encima del 65 % (motores, público y máquinas repetidos). Se quitaron
+  unos 20 efectos largos repetidos: del 59 al 53 % en total. Al cierre (11 s) le quitamos efectos y siguió en el 84 %:
+  no viene de su lista.
+- **Disco:** 7,2 GB. Con el permiso del usuario se borraron los montajes de ep03–ep24 (atomo/build/largo, ~9 GB, se
+  regeneran); los vídeos de build/salida quedan.
+
+**Pendiente para el próximo:**
+- Resultado de la prueba A/B noir frente a intermedia en el 26 (y el 25): decide el estilo de las miniaturas.
+- Por qué at-cierre marca el 84 % de efectos sin tener casi efectos en su lista (¿efecto final del episodio?).
