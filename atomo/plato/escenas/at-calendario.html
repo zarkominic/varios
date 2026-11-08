@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El calendario · ep26</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AT-CALENDARIO (frase 6), 1982. Cuatro planos:
+// 1. las oficinas de Atari: el de Atari y el de la Warner se dan la mano en «closed»; detrás pasa uno con una caja de
+//    cartuchos camino de las tiendas («Christmas»);  2. el calendario gigante: julio y agosto salen volando (gag 2), en
+//    «1st of September» se rodea el 1 en rojo; «six months»: el cronómetro da la vuelta y sale el 6;
+// 3. el pasillo de los trofeos (fondo local): Warshaw, joven y de pelo rizado, entra y señala su cartucho de oro
+//    enmarcado en «Raiders»; el jefe llega por la derecha;  4. inserto, la mesa de Warshaw: la mano del jefe deja el reloj
+//    de arena y el 5; las cinco semanas se van tachando una tras otra.
+import * as T from '/atomo/plato/escenas/at-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('at-calendario');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('calendario', f);
+const P2 = a(0.317), P3 = a(0.615), P4 = a(0.887);
+const CAL = a(0.042), CIERRA = a(0.112), JUL = a(0.166), NAV = a(0.273), UNO = a(0.41), NORMAL = a(0.495), SEIS = a(0.551);
+const HOWARD = a(0.619), PROG = a(0.703), RAID = a(0.776), JUEGO = a(0.854), DADO = a(0.898), CINCO = a(0.944);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, u) => { const A = [c1 & 255, (c1 >>> 8) & 255, (c1 >>> 16) & 255], B = [c2 & 255, (c2 >>> 8) & 255, (c2 >>> 16) & 255]; const m = A.map((v, i) => Math.round(v + (B[i] - v) * u)); return (0xff000000 | (m[2] << 16) | (m[1] << 8) | m[0]) >>> 0; };
+const K = hex('#141016'), BL = hex('#f6f2e6');
+
+// 1 · las oficinas: el apretón de manos
+const p1 = (t) => {
+  T.atari(R, t, { encuadre: 'oficinas' });
+  // el de la caja de cartuchos cruza por detrás, camino de las tiendas
+  const w = tramo(t, NAV - 1.2, P2 + 0.2), wx = Math.round(lerp(84, 250, w));
+  if (w > 0 && w < 1) { const r = R.actor(EL.ejecutivoAtari2, wx, 140, t, { dir: 1, anda: true, sostiene: true }); const [mx, my] = r.mano; R.rect(mx - 6, my - 6, mx + 8, my + 4, K); R.rect(mx - 5, my - 5, mx + 7, my + 3, hex('#c8a06a')); R.rect(mx - 5, my - 5, mx + 7, my - 4, hex('#8a6a3a')); for (let k = 0; k < 3; k++) R.rect(mx - 4 + k * 4, my - 8, mx - 2 + k * 4, my - 5, [hex('#c8303a'), hex('#3a6ac8'), hex('#3a9a4a')][k]); }
+  // los dos se acercan, se dan la mano en «closed» y la sacuden
+  const u = tramo(t, 0.2, CIERRA - 0.3), da = t > CIERRA - 0.25 && t < CIERRA + 1.0, sac = da ? Math.round(Math.sin((t - CIERRA) * 18) * 1.5) : 0;
+  const xa = Math.round(lerp(96, 134, u)), xw = Math.round(lerp(222, 156, u));
+  R.actor(EL.ejecutivoAtari, xa, 150, t, da ? { dir: 1, sostiene: [151, 135 + sac], sonrisa: true } : { dir: 1, anda: u > 0 && u < 1, sonrisa: t > CIERRA, habla: t > JUL - 0.2 && t < NAV && Math.sin(t * 7) > 0 });
+  R.actor(EL.ejecutivoWarner, xw, 150, t, da ? { dir: -1, sostiene: [152, 135 + sac], sonrisa: true } : { dir: -1, anda: u > 0 && u < 1, dedo: t > NAV - 0.3 && t < NAV + 0.7, sonrisa: t > CIERRA });
+  T.atariDelante(R, t, { encuadre: 'oficinas' });
+};
+
+// 2 · el calendario gigante: las hojas vuelan y el 1 de septiembre se rodea en rojo
+const H1 = P2 + 0.35, H2 = P2 + 0.85;
+const p2 = (t) => {
+  const mes = t < H1 + 0.4 ? 7 : t < H2 + 0.4 ? 8 : 9, hojas = mes === 7 ? tramo(t, H1, H1 + 0.4) : mes === 8 ? tramo(t, H2, H2 + 0.4) : 0;
+  T.atari(R, t, { encuadre: 'oficinas', camara: 'calendario', mes, hojas, dia: mes === 7 ? 31 : mes === 8 ? 31 : 0, marca: tramo(t, UNO - 0.05, UNO + 0.5), crono: tramo(t, NORMAL, SEIS + 0.3) });
+  // «six months»: el 6 grande bajo el cronómetro
+  const s = tramo(t, SEIS - 0.1, SEIS + 0.2); if (s > 0) R.numero('6', 236, Math.round(112 - s * 4), { tam: 16, centro: true });
+  // el ejecutivo: se sorprende con las hojas, señala el 1 y mira el cronómetro preocupado
+  R.actor(EL.ejecutivoAtari, 262, 170, t, { dir: -1, sorpresa: t > H1 && t < H2 + 0.6, dedo: t > UNO - 0.1 && t < UNO + 0.9, triste: t > SEIS, habla: t > NORMAL - 0.3 && t < SEIS && Math.sin(t * 7) > 0 });
+};
+
+// 3 · el pasillo de los trofeos (fondo local)
+let F3 = null;
+const fondo3 = () => {
+  if (F3) { R.copiar(F3); return; }
+  F3 = R.nuevo(); const prev = R.usar(F3);
+  // el techo de placas con su rejilla
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 320; x++) R.pset(x, y, x % 40 === 0 || y === 7 ? hex('#b8b4a8') : (hh(x, y, 2) < 0.08 ? hex('#cfcbbf') : hex('#dcd8cc')));
+  R.rect(0, 16, 319, 18, hex('#8a8478'));
+  // la pared de corcho beis con tramado suave y el friso de madera
+  for (let y = 19; y < 112; y++) for (let x = 0; x < 320; x++) { const n = hh(x >> 1, y >> 1, 5), raya = (x % 16 === 0) && !(x >= 272 && y < 50); R.pset(x, y, x >= 272 && y < 50 ? hex('#d8ccb0') : raya ? hex('#c8ba9a') : n < 0.18 ? hex('#cbbd9e') : n > 0.9 ? hex('#e6dcc4') : hex('#dacfb4')); }
+  // la sombra del techo en la pared y el zócalo de luz
+  for (let x = 0; x < 320; x++) { R.pset(x, 19, hex('#a89a7c')); if (x % 2) R.pset(x, 20, hex('#bcae90')); }
+  for (let y = 112; y < 126; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y === 112 ? hex('#a8744a') : Math.sin(x * 0.2 + y * 1.3) > 0.8 ? hex('#5a3418') : hex('#7a4a28'));
+  // la moqueta azul con rombos y luz
+  for (let y = 126; y < 180; y++) for (let x = 0; x < 320; x++) { const fx = (x + (y - 126) * 0.4) % 28, fy = (y - 126) % 14, junta = fx < 1 || fy === 0, d = Math.abs(fx - 14) + Math.abs(fy - 7) * 2 < 5;
+    R.pset(x, y, junta ? hex('#24305e') : d ? hex('#4a5aa0') : hh(x, y, 9) < 0.12 ? hex('#2a3668') : hex('#34448a')); }
+  // la alfombra de paso, roja con su greca, y la luz de la ventana del fondo en la moqueta
+  for (let y = 150; y < 176; y++) for (let x = 110; x < 250; x++) { const b = y < 152 || y > 173 || x < 112 || x > 247, g = (y === 154 || y === 171) && (x + y) % 4 < 2; R.pset(x, y, b ? hex('#5a1a1a') : g ? hex('#e8c050') : hh(x, y, 7) < 0.1 ? hex('#8a2a2a') : hex('#a8343a')); }
+  // el tablón de corcho con notas (sin letras: rayas, dibujos y chinchetas)
+  R.rect(110, 24, 150, 54, hex('#5a3418')); R.rect(111, 25, 149, 53, hex('#b8844a')); for (let k = 0; k < 40; k++) R.pset(112 + Math.round(hh(k, 1, 11) * 36), 26 + Math.round(hh(k, 2, 11) * 26), hex('#946a38'));
+  for (const [x, y, c] of [[114, 28, '#f4ecc8'], [128, 27, '#f8d0e0'], [139, 32, '#c8e8f8'], [118, 40, '#f8f0a0'], [134, 42, '#f4ecc8']]) { R.rect(x, y, x + 9, y + 9, hex(c)); R.rect(x + 1, y + 3, x + 7, y + 3, hex('#8a8a94')); R.rect(x + 1, y + 6, x + 6, y + 6, hex('#8a8a94')); R.pset(x + 4, y, hex('#d82a2a')); }
+  // la puerta del fondo con su ventanuco y el letrero de salida (un pictograma)
+  R.rect(212, 52, 236, 126, hex('#3a2414')); R.rect(214, 54, 234, 126, hex('#8a6a4a')); R.rect(218, 60, 230, 76, K); R.rect(219, 61, 229, 75, hex('#a8c8e0')); R.rect(219, 61, 222, 75, hex('#d8e8f4')); R.disco(231, 94, 1, hex('#e8c050'));
+  // el estante de trofeos: copitas doradas y una placa
+  R.rect(240, 108, 286, 110, hex('#5a3418')); for (const [x, hgt] of [[246, 9], [258, 12], [272, 8]]) { R.rect(x - 1, 108 - hgt, x + 5, 107 - hgt + 4, hex('#c89a30')); R.rect(x, 108 - hgt + 1, x + 1, 107 - hgt + 3, hex('#f0d070')); R.rect(x + 1, 108 - hgt + 5, x + 3, 106, hex('#a87a20')); R.rect(x - 1, 106, x + 5, 107, hex('#5a3a14')); }
+  // tres marcos con cartuchos de la casa y sus placas doradas sin letras
+  for (const [x0, y0, c, ic] of [[34, 38, 'azul', 'nave'], [96, 42, 'verde', 'flor']]) {
+    R.rect(x0, y0, x0 + 34, y0 + 42, hex('#3a2414')); R.rect(x0 + 2, y0 + 2, x0 + 32, y0 + 40, hex('#1e1e2a'));
+    for (let y = y0 + 3; y < y0 + 40; y++) for (let x = x0 + 3; x < x0 + 32; x++) if ((x + y) % 5 === 0) R.pset(x, y, hex('#28283a'));
+    T.PIEZAS_AT.cartucho?.(R, x0 + 17, y0 + 32, { color: c, icono: ic });
+    R.rect(x0 + 8, y0 + 34, x0 + 26, y0 + 37, hex('#c8a040')); R.rect(x0 + 9, y0 + 35, x0 + 25, y0 + 35, hex('#f0d070'));
+  }
+  // el póster de un juego inventado (un muñeco que salta un foso) y un reloj de pared
+  R.rect(246, 54, 278, 100, K); R.rect(247, 55, 277, 99, hex('#2a3a6a'));
+  for (let y = 56; y < 70; y++) for (let x = 248; x < 277; x++) if (hh(x, y, 4) < 0.08) R.pset(x, y, BL);
+  R.rect(248, 88, 276, 98, hex('#3a8a3a')); R.rect(260, 88, 266, 98, K); R.rect(254, 74, 258, 80, hex('#f0c840')); R.rect(255, 80, 257, 84, hex('#e85a2a'));
+  R.disco(84, 28, 7, K); R.disco(84, 28, 6, hex('#f4f0e4')); for (let k = 0; k < 12; k++) { const an = k / 12 * 6.28; R.pset(Math.round(84 + Math.cos(an) * 5), Math.round(28 + Math.sin(an) * 5), hex('#5a5a66')); }
+  // la máquina recreativa de la izquierda (el mueble; la demo va en cada fotograma)
+  R.rect(2, 54, 26, 150, K); R.rect(3, 55, 25, 149, hex('#c8303a')); R.rect(3, 55, 6, 149, hex('#e85a5a')); R.rect(6, 64, 23, 84, hex('#111')); R.rect(5, 90, 24, 96, hex('#3a3a44')); R.disco(10, 93, 2, hex('#f0c840')); R.disco(18, 93, 2, hex('#3a8ae8'));
+  for (let y = 100; y < 148; y += 4) R.rect(6, y, 22, y, hex('#a8242a'));
+  // la fuente de agua con su garrafa y la planta
+  R.rect(288, 92, 304, 150, K); R.rect(289, 93, 303, 149, hex('#e8e8e0')); R.rect(290, 112, 302, 113, hex('#b8b8b0')); R.rect(294, 118, 298, 121, hex('#3a8ae8'));
+  R.disco(296, 82, 9, K); R.disco(296, 82, 8, hex('#a8d8f0')); R.rect(290, 82, 302, 90, hex('#a8d8f0')); R.rect(288, 90, 304, 92, K); R.pset(292, 78, BL);
+  R.rect(262, 136, 278, 152, K); R.rect(263, 137, 277, 151, hex('#c86a3a')); for (let k = 0; k < 9; k++) { const an = -2.6 + k * 0.35; R.linea(270, 136, Math.round(270 + Math.cos(an) * 16), Math.round(136 + Math.sin(an) * 18), hex('#2a7a3a')); R.pset(Math.round(270 + Math.cos(an) * 16), Math.round(136 + Math.sin(an) * 18), hex('#5ab85a')); }
+  // el banco y un cable por la moqueta
+  R.rect(40, 140, 96, 144, K); R.rect(41, 141, 95, 143, hex('#8a5a2a')); R.rect(44, 144, 46, 156, K); R.rect(90, 144, 92, 156, K);
+  R.usar(prev); R.copiar(F3);
+};
+const p3 = (t) => {
+  fondo3();
+  // los fluorescentes (uno parpadea) y la demo de la recreativa
+  for (const [x, k] of [[60, 0], [180, 1]]) { const on = k === 0 || hh(Math.floor(t * 9), 3, 8) > 0.12; R.rect(x, 4, x + 50, 9, K); R.rect(x + 1, 5, x + 49, 8, on ? hex('#fbfbe8') : hex('#a8a89a')); }
+  { const bx = 7 + Math.round((Math.sin(t * 3) + 1) * 7), by = 66 + Math.round((Math.cos(t * 2.3) + 1) * 7); R.rect(6, 64, 23, 84, hex('#101820')); R.rect(bx, by, bx + 1, by + 1, hex('#a8f0a0')); R.rect(7, 80 - Math.round(Math.sin(t * 3) * 2), 10, 81, hex('#f0c840')); }
+  // el marco grande del cartucho de oro (el juego de antes de Warshaw), con el foco que se enciende en «Raiders»
+  const luz = tramo(t, RAID - 0.2, RAID + 0.3);
+  for (let y = 19; y < 112; y++) { const w = (y - 19) * 0.32; for (let x = Math.round(176 - w); x <= 176 + w; x++) if ((x + y) % 2 === 0 || luz > 0.5) R.pset(x, y, mez(R.pget(x, y), hex('#fff4c0'), 0.1 + luz * 0.2)); }
+  R.rect(154, 36, 198, 92, hex('#7a5418')); R.rect(156, 38, 196, 90, hex('#e8c050')); R.rect(159, 41, 193, 87, hex('#3a1a1a'));
+  for (let y = 42; y < 87; y++) for (let x = 160; x < 193; x++) if ((x * 3 + y) % 7 === 0) R.pset(x, y, hex('#4a2424'));
+  T.PIEZAS_AT.cartucho?.(R, 176, 76, { s: 2, color: '#e8c040' });
+  // el cofre del tesoro en la ventanita del cartucho de oro
+  R.rect(170, 55, 182, 63, K); R.rect(171, 57, 181, 62, hex('#8a4a1a')); R.rect(171, 56, 181, 57, hex('#f0c840')); R.rect(175, 58, 177, 60, hex('#f0c840'));
+  if (luz > 0) for (let k = 0; k < 4; k++) { const an = t * 3 + k * 1.57, r = 26 + Math.sin(t * 5 + k) * 2; R.pset(Math.round(176 + Math.cos(an) * r), Math.round(64 + Math.sin(an) * r * 0.9), hex('#fff6a0')); }
+  { const an = t * 0.8; R.linea(84, 28, Math.round(84 + Math.cos(an) * 4), Math.round(28 + Math.sin(an) * 4), K); R.linea(84, 28, 84, 25, K); }
+  // una compañera lee en el banco y pasa la hoja
+  { const r = R.actor(EL.espectadora, 60, 144, t, { dir: 1, sostiene: true, sonrisa: t > RAID }); const [mx, my] = r.mano, f = Math.floor(t * 0.7) % 2; R.rect(mx - 4, my - 6, mx + 4, my + 1, K); R.rect(mx - 3, my - 5, mx + 3, my, f ? BL : hex('#f4ecc8')); R.rect(mx - 2, my - 3, mx + 2, my - 3, hex('#8a8a94')); }
+  // un compañero pasa por detrás con papeles
+  const c = tramo(t, P3 + 0.2, P3 + 3.0); if (c > 0 && c < 1) { const r = R.actor(EL.ejecutivoAtari2, Math.round(lerp(330, 200, c)), 136, t, { dir: -1, anda: true, sostiene: true }); R.rect(r.mano[0] - 4, r.mano[1] - 4, r.mano[0] + 3, r.mano[1] + 2, BL); }
+  // Warshaw entra, se vuelve sonriente en «programmer» y señala su cartucho de oro en «Raiders»
+  const u = tramo(t, P3 + 0.1, PROG - 0.3), wx = Math.round(lerp(-20, 130, u));
+  R.actor(EL.warshaw, wx, 158, t, { dir: u < 1 || t > RAID - 0.3 ? 1 : -1, anda: u > 0 && u < 1, sonrisa: t > PROG - 0.3, dedo: t > RAID - 0.2 && t < JUEGO, habla: t > JUEGO && Math.sin(t * 7) > 0 && t < JUEGO + 0.6 });
+  // el jefe llega por la derecha (el encargo es en el plano siguiente)
+  const j = tramo(t, JUEGO - 0.4, P4 + 0.1); if (j > 0) R.actor(EL.ejecutivoAtari, Math.round(lerp(330, 214, j)), 160, t, { dir: -1, anda: j < 1, dedo: j >= 1 });
+};
+
+// 4 · inserto: la mesa de Warshaw, el reloj de arena y las cinco semanas
+let F4 = null;
+const fondo4 = () => {
+  if (F4) { R.copiar(F4); return; }
+  F4 = R.nuevo(); const prev = R.usar(F4);
+  // la pared del fondo, desenfocada (bloques azules) con un póster, y el canto de la mesa
+  for (let y = 0; y < 52; y++) for (let x = 0; x < 320; x++) R.pset(x, y, x >= 266 && y < 48 ? hex('#34405a') : (y % 12 === 0 || (x + (Math.floor(y / 12) % 2) * 12) % 24 === 0) ? hex('#2a3448') : hh(x >> 2, y >> 2, 6) < 0.1 ? hex('#2e3a52') : hex('#34405a'));
+  R.rect(196, 6, 240, 44, hex('#1a1a24')); R.rect(197, 7, 239, 43, hex('#e8e0cc')); for (let k = 0; k < 3; k++) { R.rect(201 + k * 13, 30, 209 + k * 13, 38, K); R.rect(202 + k * 13, 31, 208 + k * 13, 37, hex('#1a1a20')); } R.rect(199, 26, 237, 28, hex('#3a8a3a')); R.rect(214, 14, 218, 24, hex('#f0c840'));
+  R.rect(0, 50, 319, 54, hex('#3a2414')); R.rect(0, 50, 319, 50, hex('#8a5a32'));
+  // el tablero de formica de madera clara con vetas
+  for (let y = 55; y < 180; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.04 + y * 0.5 + Math.sin(x * 0.01 + y * 0.05) * 4); R.pset(x, y, v > 0.75 ? hex('#a87a4a') : v < -0.8 ? hex('#d8aa72') : hh(x, y, 1) < 0.02 ? hex('#9a6a3a') : hex('#c8945e')); }
+  // la libreta con los dibujos de los fosos (sin letras), abajo a la izquierda
+  R.rect(4, 118, 104, 179, K); R.rect(5, 119, 103, 179, hex('#f4ecc8')); for (let y = 126; y < 179; y += 6) R.rect(6, y, 102, y, hex('#a8c8e8')); R.rect(12, 119, 13, 179, hex('#e88a8a'));
+  for (let k = 0; k < 3; k++) { const x = 20 + k * 27; R.rect(x, 150, x + 14, 151, hex('#2a2a6a')); R.rect(x + 4, 151, x + 10, 160, hex('#2a2a6a')); R.rect(x + 5, 152, x + 9, 159, hex('#f4ecc8')); }
+  R.rect(24, 134, 26, 140, hex('#2a2a6a')); R.disco(25, 132, 2, hex('#2a2a6a')); R.linea(28, 134, 40, 128, hex('#2a2a6a')); R.linea(40, 128, 50, 134, hex('#2a2a6a'));
+  // los manuales apilados, el bote de lápices, la placa de prototipo y la lámpara
+  for (let k = 0; k < 4; k++) { const y = 74 - k * 6; R.rect(6 + k, y, 62 - k, y + 6, K); R.rect(7 + k, y + 1, 61 - k, y + 5, [hex('#c8303a'), hex('#3a6ac8'), hex('#e8c040'), hex('#3a9a4a')][k]); R.rect(7 + k, y + 1, 61 - k, y + 1, BL); }
+  R.rect(72, 66, 86, 88, K); R.rect(73, 67, 85, 87, hex('#5a6a8a')); for (const [x, c] of [[75, '#e8c040'], [79, '#c8303a'], [82, '#3a8ae8']]) R.rect(x, 58, x + 1, 66, hex(c));
+  R.rect(118, 142, 196, 176, K); R.rect(119, 143, 195, 175, hex('#2a7a3a')); for (let k = 0; k < 3; k++) { R.rect(128 + k * 22, 152, 144 + k * 22, 161, K); for (let i = 0; i < 7; i++) { R.pset(129 + k * 22 + i * 2, 151, hex('#c8c8d0')); R.pset(129 + k * 22 + i * 2, 162, hex('#c8c8d0')); } } for (let x = 122; x < 192; x += 3) R.pset(x, 170, hex('#e8c040')); R.rect(184, 144, 192, 150, hex('#3a3a44'));
+  R.rect(110, 98, 118, 102, K); R.rect(111, 99, 117, 101, hex('#d8d8e0'));
+  // el papel continuo de la impresora, plegado en acordeón, con las rayas verdes y los agujeros de arrastre
+  for (let k = 0; k < 4; k++) { const y = 82 - k * 3; R.rect(252 + k, y, 312 - k, y + 16, K); R.rect(253 + k, y + 1, 311 - k, y + 15, BL); for (let j = 0; j < 3; j++) R.rect(258 + k, y + 3 + j * 4, 306 - k, y + 4 + j * 4, hex('#c8e8c8')); for (let j = 0; j < 4; j++) { R.pset(255 + k, y + 2 + j * 4, hex('#8a8a94')); R.pset(309 - k, y + 2 + j * 4, hex('#8a8a94')); } }
+  R.usar(prev); R.copiar(F4);
+};
+const p4 = (t) => {
+  fondo4();
+  // la taza de café humeante
+  R.disco(222, 150, 12, K); R.disco(222, 150, 11, hex('#e8e0d0')); R.disco(222, 148, 8, hex('#4a2a14')); R.rect(232, 144, 238, 154, K); R.rect(233, 146, 237, 152, hex('#e8e0d0')); R.pset(219, 146, hex('#7a5a3a'));
+  for (let k = 0; k < 6; k++) { const u = (t * 0.6 + k / 6) % 1; R.pset(Math.round(222 + Math.sin(u * 6 + k) * 3), Math.round(136 - u * 26), u < 0.5 ? hex('#f0ece4') : hex('#c8c0b4')); }
+  // las cinco semanas: cinco hojas de taco que aparecen en «five» y se van tachando (gag 2: el tiempo vuela)
+  for (let k = 0; k < 5; k++) { const t0 = CINCO - 0.1 + k * 0.08; if (t < t0) continue; const x = 98 + k * 30, y = 62, s = tramo(t, t0, t0 + 0.15);
+    R.rect(x, y - Math.round((1 - s) * 4), x + 24, y + 30, K); R.rect(x + 1, y + 1, x + 23, y + 29, BL); R.rect(x + 1, y + 1, x + 23, y + 6, hex('#c8303a'));
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 7; i++) R.rect(x + 3 + i * 3, y + 10 + j * 5, x + 4 + i * 3, y + 11 + j * 5, hex('#8a8a94'));
+    const ta = tramo(t, CINCO + 0.9 + k * 0.42, CINCO + 1.15 + k * 0.42); if (ta > 0) { const n = Math.round(ta * 18); for (let i = 0; i < n; i++) { R.rect(x + 3 + i, y + 8 + i, x + 4 + i, y + 9 + i, hex('#d82a2a')); R.rect(x + 20 - i, y + 8 + i, x + 21 - i, y + 9 + i, hex('#d82a2a')); } } }
+  if (t > CINCO - 0.1) { const s = tramo(t, CINCO - 0.1, CINCO + 0.15); R.numero('5', 172, Math.round(126 - s * 4), { tam: 16, centro: true }); }
+  // la mano de Warshaw (camisa de cuadros roja) dibuja en la libreta; se para cuando llega el reloj
+  const dib = t < DADO + 0.2, lx = 44 + Math.round(dib ? Math.sin(t * 9) * 8 : 0), ly = 150 + Math.round(dib ? Math.cos(t * 7) * 3 : 0);
+  T.brazo(R, -14, 194, lx, ly, '#c83a3a', 1);
+  R.linea(lx + 9, ly - 2, lx + 15, ly - 10, K); R.linea(lx + 10, ly - 2, lx + 16, ly - 10, hex('#e8c040')); R.pset(lx + 8, ly - 1, K);
+  // la mano del jefe deja el reloj de arena en «given» y se va
+  const ba = tramo(t, P4 + 0.05, DADO + 0.15), va = tramo(t, DADO + 0.5, DADO + 1.0);
+  const rx = 282, ry = 150 - Math.round((1 - ba) * 36);
+  const arena = tramo(t, DADO + 0.2, P4 + 4.4);
+  R.rect(rx - 10, ry - 34, rx + 10, ry - 31, K); R.rect(rx - 9, ry - 33, rx + 9, ry - 32, hex('#8a5a2a')); R.rect(rx - 10, ry - 1, rx + 10, ry + 2, K); R.rect(rx - 9, ry, rx + 9, ry + 1, hex('#8a5a2a'));
+  for (let j = 0; j < 29; j++) { const y = ry - 30 + j, w = Math.round(1 + Math.abs(j - 14) * 0.55); R.rect(rx - w - 1, y, rx + w + 1, y, K); R.rect(rx - w, y, rx + w, y, hex('#d8eef4'));
+    const arriba = j < 14 && j > 14 - Math.round((1 - arena) * 12), abajo = j > 28 - Math.round(arena * 12); if (arriba || abajo) R.rect(rx - w, y, rx + w, y, hex('#e8c060')); }
+  if (arena > 0 && arena < 1) for (let y = ry - 15; y < ry - 1; y++) if ((y + Math.floor(t * 20)) % 2) R.pset(rx, y, hex('#e8c060'));
+  if (va < 1) T.brazo(R, 340, 196, rx + 12 + Math.round(va * 40), ry - 16 + Math.round(va * 40), '#dfe6ee', -1);
+};
+
+const efectos = [[CIERRA, 'palmada'], [H1 + 0.1, 'papel'], [H2 + 0.1, 'papel'], [UNO, 'lapiz'], [SEIS, 'tic'], [RAID, 'brillo'], [DADO, 'golpecito'], [CINCO, 'pop'], [CINCO + 1.0, 'lapiz']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1982 });
+</script>
+</body>
+</html>

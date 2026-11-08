@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chatarra · ep26</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AT-CHATARRA (frase 11), 1982. Cinco planos:
+// 1. un garaje de noche (fondo local): un aficionado teclea en su terminal; a «make games» sale un cartucho de su
+//    grabadora casera, lo coge y a «Atari's console» lo pincha en la consola: la tele se enciende con su juego y él
+//    levanta los brazos; fuera pasa un coche y titila la farola;
+// 2. el estante de la juguetería de cerca: a «flooded» llueven cajas chillonas que se amontonan delante de las baldas;
+//    a «rushed out» una mano mete deprisa una caja más en lo alto, que se tambalea y se cae;
+// 3. la juguetería: el comprador duda con una caja en la mano (los «?»), la cambia por otra de la pirámide, vuelve a dudar
+//    y a «stopped taking chances» la deja y se va con las manos vacías; el dependiente sonríe y luego se desinfla; al
+//    fondo un niño juega a la tele de demostración;
+// 4. el mostrador de cerca (fondo local): la consola con su precio y el ordenador con el suyo; a «starting to cost» la
+//    mano del dependiente pega encima el precio nuevo, 199 junto a 149, y aparece la balanza;
+// 5. la tele del salón de cerca: en el ordenador conectado a la tele, el juego da paso a la hoja de cálculo; a «use them»
+//    las manos del padre teclean cifras y a «work» crecen las barras y sale el visto bueno.
+import * as T from '/atomo/plato/escenas/at-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_AT as A, PIEZAS_AT as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('at-chatarra');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const b = (f) => en('chatarra', f);
+const P2 = b(0.182), P3 = b(0.4077), P4 = b(0.6608), P5 = b(0.8676);
+const hacer = b(0.0686), consola = b(0.1134), inunda = b(0.2148), prisas = b(0.35), distinguir = b(0.4644), bueno = b(0.4863), malo = b(0.527), dejan = b(0.5718);
+const ordenadores = b(0.7184), cuesta = b(0.7672), casi = b(0.8079), usar = b(0.9283), trabajo = b(0.963);
+const parp = (t, v = 7) => Math.sin(t * v) > 0;
+const COLS = ['rosa', 'naranja', 'turquesa', 'amarillo', 'morado', 'verde', 'rojo', 'azul'], ICOS = ['nave', 'flor', 'foso', 'comecocos'];
+
+// ── 1 · el garaje (fondo local): cualquiera hacía juegos ────────────────────────────────────────────────────────
+let fondo1 = null;
+const pinta1 = () => {
+  const { rect, linea, pset, disco } = R;
+  const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+  // las vigas del techo y la pared de tablero perforado con herramientas colgadas
+  rect(0, 0, 319, 18, hex('#3a2e24')); for (let x = 10; x < 320; x += 40) rect(x, 0, x + 5, 18, hex('#5a4634'));
+  for (let y = 18; y < 132; y++) for (let x = 0; x < 230; x++) pset(x, y, (x % 6 === 3 && y % 6 === 3) ? hex('#7a5a3a') : hh(x >> 2, y >> 2, 1) > 0.9 ? hex('#c09a6a') : hex('#b48e5e'));
+  // martillo, sierra, llave inglesa y destornilladores
+  rect(20, 30, 22, 50, hex('#7a4a2a')); rect(16, 28, 26, 32, hex('#6a6a76'));
+  for (let k = 0; k < 18; k++) pset(34 + k, 36 + (k % 2), hex('#9a9eaa')); rect(34, 30, 52, 35, hex('#c8ccd8')); rect(30, 30, 34, 38, hex('#8a4a2a'));
+  linea(62, 28, 70, 48, hex('#9a9eaa')); disco(61, 27, 3, hex('#9a9eaa')); disco(61, 27, 1, hex('#b48e5e'));
+  for (let k = 0; k < 4; k++) { rect(80 + k * 6, 28, 81 + k * 6, 40, hex('#c8ccd8')); rect(79 + k * 6, 40, 82 + k * 6, 46, [hex('#d0383a'), hex('#e8c840'), hex('#3a6ad8'), hex('#3a9a4a')][k]); }
+  // la estantería con latas de pintura, cajas y un gato que duerme
+  rect(110, 52, 222, 54, hex('#5a3a1a')); rect(110, 80, 222, 82, hex('#5a3a1a'));
+  for (let k = 0; k < 5; k++) { rect(114 + k * 14, 40, 124 + k * 14, 51, C.k); rect(115 + k * 14, 41, 123 + k * 14, 50, hex(['#9a9eaa', '#c83a3a', '#3a6ad8', '#e8c840', '#5a9a4a'][k])); rect(115 + k * 14, 41, 123 + k * 14, 42, hex('#c8ccd8')); }
+  for (let k = 0; k < 3; k++) { rect(114 + k * 24, 64, 134 + k * 24, 79, C.k); rect(115 + k * 24, 65, 133 + k * 24, 78, hex('#c8a06a')); rect(115 + k * 24, 65, 133 + k * 24, 67, hex('#e4c48c')); }
+  // la puerta del garaje abierta a la calle de noche (x 230–319)
+  rect(230, 18, 319, 150, C.k);
+  for (let y = 19; y < 120; y++) for (let x = 232; x < 320; x++) pset(x, y, hh(x, y, 5) > 0.992 ? hex('#e8e8f8') : y < 60 ? hex('#141a3a') : hex('#1c2448'));
+  rect(232, 88, 319, 120, hex('#2a2a3a')); rect(246, 72, 284, 100, hex('#3a2e3a')); R.poligono([[242, 72], [265, 58], [288, 72]], hex('#4a3a4a')); rect(252, 80, 260, 88, hex('#f0d878')); rect(270, 80, 278, 88, hex('#f0d878')); rect(262, 90, 268, 100, hex('#2a1e2a'));
+  rect(232, 120, 319, 150, hex('#3a3a46')); rect(232, 132, 319, 132, hex('#c8c84a'));
+  rect(300, 58, 301, 120, hex('#4a4a56')); rect(294, 56, 304, 59, hex('#4a4a56'));
+  rect(230, 18, 319, 23, hex('#8a7a6a')); for (let x = 232; x < 320; x += 4) pset(x, 21, hex('#6a5a4a'));
+  // el suelo de cemento con la mancha de aceite
+  for (let y = 132; y < 180; y++) for (let x = 0; x < 232; x++) pset(x, y, hh(x >> 1, y >> 1, 6) > 0.92 ? hex('#7a7a80') : hex('#8e8e94'));
+  disco(60, 170, 8, hex('#6a6a72')); disco(62, 170, 5, hex('#5a5a62'));
+  // la entrada del garaje: el cemento de fuera, el carril de la puerta y la junta
+  for (let y = 150; y < 180; y++) for (let x = 230; x < 320; x++) pset(x, y, hh(x >> 1, y >> 1, 7) > 0.9 ? hex('#6a6a72') : hex('#7a7a84'));
+  rect(230, 150, 319, 151, hex('#4a4a52')); rect(226, 18, 229, 179, hex('#5a4a3a'));
+  // la caja de herramientas roja y la caja de cartuchos vírgenes en el suelo
+  rect(150, 158, 182, 176, C.k); rect(151, 159, 181, 175, hex('#c83a3a')); rect(151, 159, 181, 161, hex('#e86a5a')); rect(160, 154, 172, 158, C.k); rect(161, 155, 171, 157, hex('#8a8e9a'));
+  rect(96, 160, 132, 178, C.k); rect(97, 161, 131, 177, hex('#c8a06a')); rect(97, 161, 131, 163, hex('#e4c48c'));
+  for (let k = 0; k < 4; k++) { rect(100 + k * 8, 154, 106 + k * 8, 161, C.k); rect(101 + k * 8, 155, 105 + k * 8, 160, hex('#2a2a30')); }
+  // las bobinas de cable y una caja de cartuchos vírgenes en el suelo
+  disco(20, 160, 9, C.k); disco(20, 160, 8, hex('#3a3a46')); disco(20, 160, 3, hex('#8a8e9a'));
+};
+const p1 = (t) => {
+  if (!fondo1) { fondo1 = R.nuevo(); const prev = R.usar(fondo1); pinta1(); R.usar(prev); }
+  R.copiar(fondo1);
+  const { rect, linea, pset, disco } = R;
+  // la farola de la calle y un coche que pasa con los faros
+  disco(300, 61, 2, hex('#fff0a0')); for (let k = 0; k < 4; k++) pset(296 + Math.round(Math.sin(t * 7 + k) * 5), 66 + k * 2, hex('#e8e0a0'));
+  const cx = Math.round(lerp(350, 200, ((t * 0.5) % 1)));
+  R.recorte([232, 18, 319, 150]); disco(cx, 124, 3, C.k); disco(cx + 22, 124, 3, C.k); R.poligono([[cx - 4, 122], [cx - 2, 112], [cx + 6, 108], [cx + 20, 108], [cx + 26, 114], [cx + 28, 122]], hex('#7a3a2a')); disco(cx - 3, 118, 1, hex('#fff8c0')); R.recorte(null);
+  // el programador detrás del banco: teclea, coge el cartucho que sale a «make games» y lo pincha en la consola
+  const coge = t > hacer, va = tramo(t, hacer + 0.3, consola + 0.2), pincha = t > consola + 0.2, x = Math.round(lerp(98, 168, va));
+  R.actor(EL.jugadorPong, x, 128, t, { dir: 1, anda: va > 0 && va < 1, habla: !coge && parp(t, 9), sostiene: coge && !pincha ? [x + 18, 108] : undefined, brazos: t > consola + 1.1, sonrisa: t > consola + 0.6 });
+  // el banco de trabajo (delante): tablero de madera, la terminal, la grabadora de cartuchos y la tele con la consola
+  rect(10, 118, 226, 123, C.k); rect(11, 119, 225, 122, hex('#a8784a')); rect(11, 119, 225, 119, hex('#c89a6a'));
+  rect(14, 123, 222, 150, hex('#6a4a2a')); for (let x = 20; x < 220; x += 50) rect(x, 128, x + 40, 146, hex('#7a5a36')); for (let x = 40; x < 220; x += 50) rect(x - 2, 136, x + 2, 137, hex('#c8a040'));
+  // la terminal con texto verde que sale línea a línea
+  rect(20, 88, 60, 118, C.k); rect(21, 89, 59, 117, hex('#c8bca0')); rect(25, 92, 55, 112, hex('#0a140a'));
+  for (let k = 0; k < 6; k++) { const l = 6 + Math.floor(((t * 3 + k * 1.7) % 1) * 20); if (k < Math.floor(t * 4) % 7) rect(27, 94 + k * 3, 27 + l, 94 + k * 3, hex('#5adc5a')); }
+  // la grabadora (caja gris con su luz) y el cartucho que sale a «make games»
+  rect(66, 106, 96, 118, C.k); rect(67, 107, 95, 117, hex('#8a8e9a')); rect(70, 108, 92, 110, hex('#2a2a30')); disco(90, 114, 1, Math.floor(t * 6) % 2 ? hex('#f06a5a') : hex('#5a2a2a'));
+  const sale = tramo(t, hacer - 0.4, hacer);
+  if (!coge) PZ.cartucho(R, 81, Math.round(108 - 8 * sale), { color: 'turquesa', icono: 'flor' });
+  else if (!pincha) { const tx = x + 18; PZ.cartucho(R, tx, 113, { color: 'turquesa', icono: 'flor' }); }
+  // la pila de cartuchos ya hechos, la taza y el soldador que humea
+  for (let k = 0; k < 4; k++) PZ.cartucho(R, 140 + (k % 2) * 13, 118 - Math.floor(k / 2) * 6, { color: ['rojo', 'naranja', 'morado', 'verde'][k], icono: ['nave', 'foso', 'flor', 'nave'][k] });
+  rect(124, 110, 130, 118, C.k); rect(125, 111, 129, 117, hex('#e8e4d8'));
+  for (let k = 0; k < 4; k++) { const f = (t * 0.7 + k / 4) % 1; pset(Math.round(127 + Math.sin(f * 8) * 2), Math.round(108 - f * 18), hex('#c8c8d0')); }
+  // la tele pequeña con la consola: se enciende con el juego cuando pincha el cartucho
+  PZ.consolaVieja(R, 194, 118, { s: 1, cartucho: pincha ? 'turquesa' : undefined });
+  PZ.teleCRT(R, 194, 104, { s: 1, t, encendida: pincha ? undefined : false, pantalla: pincha ? (RR, [x0, y0, x1, y1]) => { RR.rect(x0, y0, x1, y1, hex('#3a8ae8')); RR.rect(x0, y1 - 4, x1, y1, hex('#5adc5a')); const gx = Math.round(lerp(x0 + 2, x1 - 4, (t * 0.6) % 1)); RR.rect(gx, y1 - 9 - Math.round(Math.abs(Math.sin(t * 5)) * 3), gx + 2, y1 - 5, hex('#f0d040')); RR.disco(x0 + 10, y1 - 6, 1, hex('#f07aa8')); } : undefined });
+  if (t > consola + 0.6 && t < consola + 1.4) for (let k = 0; k < 6; k++) { const an = k * 1.05 + t * 5; pset(Math.round(194 + Math.cos(an) * 20), Math.round(90 + Math.sin(an) * 14), hex('#fff0a0')); }
+};
+
+// ── 2 · el estante: llueven cajas ────────────────────────────────────────────────────────────────────────────────
+const MONTON = [[60, 186], [100, 186], [140, 186], [180, 186], [220, 186], [260, 186], [80, 146], [120, 146], [160, 146], [200, 146], [240, 146], [100, 106], [140, 106], [180, 106], [220, 106]];
+const p2 = (t) => {
+  T.tiendas(R, t, { encuadre: 'jugueteria82', camara: 'estante' });
+  MONTON.forEach(([x, yb], i) => {
+    const t0 = inunda - 0.1 + i * 0.16, u = (t - t0) / 0.45; if (u <= 0) return;
+    const y = u < 1 ? lerp(-10, yb, u * u) : yb - Math.max(0, Math.sin((u - 1) * 9) * 6 * Math.exp(-(u - 1) * 5));
+    PZ.cajaCartucho(R, x + (i % 3) - 1, Math.round(y), { s: 2, color: COLS[(i * 3) % 8], icono: ICOS[i % 4] });
+  });
+  // a «rushed out» una mano mete deprisa una caja más en lo alto; se tambalea y se cae
+  const mete = tramo(t, prisas - 0.6, prisas - 0.1), quita = tramo(t, prisas + 0.1, prisas + 0.6);
+  const hx = Math.round(lerp(340, 262, mete) + lerp(0, 80, quita)), hy = 70;
+  const cae = tramo(t, prisas + 0.4, prisas + 1.0), tamb = t > prisas - 0.1 && t < prisas + 0.4 ? Math.round(Math.sin(t * 40) * 2) : 0;
+  if (quita <= 0) PZ.cajaCartucho(R, hx - 19, hy + 20, { s: 2, color: 'rojo', icono: 'nave' });
+  else if (cae < 1) PZ.cajaCartucho(R, 243 + tamb + Math.round(cae * 60), Math.round(66 + cae * cae * 130), { s: 2, color: 'rojo', icono: 'nave' });
+  if (hx < 336) T.brazo(R, 352, 104, hx, hy, '#c83a3a', -1, { codo: [hx + 40, hy + 28] });
+};
+
+// ── 3 · la juguetería: el comprador que no se atreve ─────────────────────────────────────────────────────────────
+const p3 = (t) => {
+  T.tiendas(R, t, { encuadre: 'jugueteria82', ordenador: true, precioPC: 599, gente: true });
+  // el niño juega a la tele de demostración
+  R.actor(EL.nino77, 152, 140, t, { dir: -1, sostiene: [146, 128], salto: Math.sin(t * 5) > 0.85 ? 2 : 0, sonrisa: true });
+  // el comprador: caja A en la mano, duda; la cambia por la B; duda; a «stopped» la deja y se va
+  const cambia = tramo(t, malo - 0.25, malo + 0.25), deja = tramo(t, dejan - 0.1, dejan + 0.4), va = tramo(t, dejan + 0.5, P4 - 0.2);
+  const x = Math.round(lerp(176, -24, va)), sostiene = deja < 0.5 && !(cambia > 0.3 && cambia < 0.7);
+  const r = R.actor(A.comprador, x, 158, t, { dir: va > 0 ? -1 : 1, anda: va > 0 && va < 1, sostiene: sostiene ? [x + 18, 140 - (t > bueno && t < bueno + 0.6 ? 4 : 0)] : undefined, dedo: cambia > 0.3 && cambia < 0.7, triste: deja > 0, enfado: t > malo + 0.3 && t < dejan });
+  if (sostiene) PZ.cajaCartucho(R, r.mano[0] + 2, r.mano[1] + 8, { color: cambia < 0.5 ? 'rosa' : 'turquesa', icono: cambia < 0.5 ? 'nave' : 'flor' });
+  if ((t > P3 + 0.4 && t < malo - 0.3) || (t > malo + 0.3 && t < dejan)) R.icono('?', x + 4, 118 + (parp(t, 5) ? 0 : 1), hex('#f0d040'), C.k, 2);
+  if (va > 0) R.icono('X', x + 5, 122, hex('#f06a5a'), C.k);
+  // las dos cajas que se cambian van y vuelven a la pirámide
+  if (!sostiene && deja < 0.5) PZ.cajaCartucho(R, 200, 145, { color: cambia < 0.5 ? 'turquesa' : 'rosa', icono: cambia < 0.5 ? 'flor' : 'nave' });
+  if (deja >= 0.5) PZ.cajaCartucho(R, 200, 145, { color: 'turquesa', icono: 'flor' });
+  // el dependiente: sonríe y señala la pirámide; cuando el comprador se va, se desinfla
+  R.actor(A.dependiente, 262, 150, t, { dir: -1, sonrisa: t < dejan, dedo: t > P3 + 0.3 && t < P3 + 1.3, triste: t > dejan + 0.3, habla: t > P3 + 0.3 && t < P3 + 1.3 && parp(t, 8) });
+  T.tiendasDelante(R, t, { encuadre: 'jugueteria82' });
+};
+
+// ── 4 · el mostrador de cerca: el precio del ordenador (fondo local) ─────────────────────────────────────────────
+let fondo4 = null;
+const pinta4 = () => {
+  const { rect, linea, pset, disco } = R;
+  const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+  // la pared de la tienda desenfocada: tablero perforado con cajitas borrosas de colores, la franja naranja y el reloj
+  for (let y = 0; y < 112; y++) for (let x = 0; x < 320; x++) pset(x, y, (x % 8 === 4 && y % 8 === 4) ? hex('#b8a888') : hex('#d8c8a4'));
+  rect(0, 16, 319, 21, hex('#e07a2a')); rect(0, 22, 319, 25, hex('#7a4a24'));
+  const vivos = ['#e86a9a', '#e8803a', '#2aa8a0', '#e8c840', '#8a4ab8', '#3a9a4a', '#d0383a', '#3a6ad8'];
+  for (let f = 0; f < 3; f++) { rect(0, 52 + f * 26, 270, 53 + f * 26, hex('#8a6a4a')); for (let k = 0; k < 15; k++) { const x = 6 + k * 17 + (f % 2) * 6, c = hex(vivos[(k + f * 3) % 8]); rect(x, 36 + f * 26, x + 11, 51 + f * 26, hex('#c8b898')); rect(x + 1, 37 + f * 26, x + 10, 50 + f * 26, c); rect(x + 2, 40 + f * 26, x + 9, 47 + f * 26, hex('#2a2a40')); } }
+  rect(286, 50, 310, 74, hex('#c8b898')); disco(298, 62, 10, hex('#7a4a24')); disco(298, 62, 9, hex('#f4ecd8'));
+  // el mostrador de madera con vetas, el canto de latón y el cristal con reflejos
+  for (let y = 112; y < 180; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.05 + Math.sin(y * 0.3) * 2 + y * 0.02); pset(x, y, v > 0.6 ? hex('#9a6a3a') : v > -0.2 ? hex('#8a5a2e') : hex('#7a4e26')); }
+  rect(0, 112, 319, 114, hex('#d8b850')); rect(0, 115, 319, 115, hex('#8a6a2a'));
+  for (let k = 0; k < 20; k++) { const x = Math.floor(hh(k, 9) * 320), y = 120 + Math.floor(hh(k, 8) * 56); linea(x, y, x + 6, y, hex('#a87a4a')); }
+  // un bloc de recibos, el bolígrafo, un bote de caramelos y un cartucho suelto
+  rect(14, 140, 46, 166, C.k); rect(15, 141, 45, 165, hex('#f4f0e4')); for (let y = 145; y < 164; y += 4) linea(18, y, 42, y, hex('#a8b8d8'));
+  linea(50, 168, 70, 156, C.k); linea(51, 168, 71, 156, hex('#3a3ad8'));
+  rect(274, 130, 300, 162, C.k); rect(275, 131, 299, 161, hex('#c8e0e8')); for (let k = 0; k < 14; k++) disco(279 + (k * 7) % 18, 136 + Math.floor(k / 3) * 5, 2, hex(vivos[k % 8])); rect(273, 126, 301, 130, hex('#d0383a'));
+};
+const ordenador = (x, y) => {
+  // un ordenador doméstico genérico de teclado (sin marca): la carcasa beige en cuña, las teclas oscuras y la luz roja
+  const { rect, pset, linea } = R;
+  rect(x, y, x + 110, y + 30, C.k); rect(x + 1, y + 1, x + 109, y + 29, hex('#d8ccb0')); rect(x + 1, y + 1, x + 109, y + 4, hex('#ece4cc')); rect(x + 1, y + 25, x + 109, y + 29, hex('#b0a488'));
+  for (let f = 0; f < 4; f++) for (let k = 0; k < 13 - (f === 3 ? 4 : 0); k++) { const kx = x + 8 + k * 7 + f * 2, ky = y + 6 + f * 5; rect(kx, ky, kx + 5, ky + 3, hex('#4a4038')); pset(kx + 1, ky, hex('#7a6e60')); }
+  rect(x + 30, y + 26, x + 70, y + 27, hex('#4a4038')); rect(x + 100, y + 7, x + 103, y + 9, hex('#d0383a'));
+  // el monitor encima, con la cuadrícula de cifras
+  rect(x + 24, y - 52, x + 86, y - 2, C.k); rect(x + 25, y - 51, x + 85, y - 3, hex('#c8bca0')); rect(x + 30, y - 46, x + 80, y - 10, hex('#2a3a8a'));
+  for (let f = 0; f < 5; f++) for (let k = 0; k < 4; k++) rect(x + 33 + k * 12, y - 43 + f * 7, x + 40 + k * 12, y - 41 + f * 7, hex('#8aa8f0'));
+  rect(x + 40, y - 2, x + 70, y, hex('#a89c80'));
+};
+const etiqueta = (x, y, txt, c, brillo) => {
+  const w = txt.length * 8 + 8;
+  R.linea(x + (w >> 1), y - 8, x + (w >> 1), y, hex('#d8d8e0'));
+  R.rect(x - 1, y - 1, x + w, y + 14, C.k); R.rect(x, y, x + w - 1, y + 13, brillo ? hex('#fff8c0') : hex('#fffaf0')); R.rect(x, y, x + 2, y + 13, c);
+  R.numero(txt, x + 6, y + 11, { color: c });
+};
+const p4 = (t) => {
+  if (!fondo4) { fondo4 = R.nuevo(); const prev = R.usar(fondo4); pinta4(); R.usar(prev); }
+  R.copiar(fondo4);
+  // las agujas del reloj de la pared
+  const an = t * 0.8; R.linea(298, 62, Math.round(298 + Math.cos(an) * 7), Math.round(62 + Math.sin(an) * 7), C.k); R.linea(298, 62, 298, 56, C.k);
+  // la consola a la izquierda con su precio, el ordenador a la derecha con el suyo
+  PZ.consolaVieja(R, 76, 146, { s: 3, cartucho: 'amarillo' });
+  ordenador(150, 120);
+  const brilla = t > casi && t < casi + 1.4 && parp(t, 10);
+  etiqueta(48, 78, '$149', hex('#3a6ad8'), brilla);
+  const pega = tramo(t, cuesta - 0.5, cuesta), sale = tramo(t, cuesta + 0.35, cuesta + 0.9);
+  // el precio viejo, y encima el nuevo que trae la mano del dependiente
+  etiqueta(244, 78, '$599', hex('#d0383a'), false);
+  const nx = Math.round(lerp(330, 244, pega)), ny = Math.round(lerp(60, 78, pega));
+  if (pega > 0) etiqueta(nx, ny, '$199', hex('#3a9a4a'), brilla);
+  if (pega > 0 && sale < 1) { const hx = nx + Math.round(lerp(0, 60, sale)) + 44, hy = ny + 7; T.brazo(R, 340, hy + 26, hx, hy, '#f4f4ec', -1); }
+  // a «almost as much» aparece la balanza entre los dos precios
+  if (t > casi) { const s = tramo(t, casi, casi + 0.3); if (s > 0.5) R.icono('balanza', 140, 66 + Math.round(Math.sin(t * 6)), hex('#f0d040'), C.k, 4); }
+};
+
+// ── 5 · el ordenador conectado a la tele del salón ───────────────────────────────────────────────────────────────
+const pantalla = (t, [x0, y0, x1, y1]) => {
+  const { rect, pset } = R;
+  const hoja = t > usar - 0.2;
+  rect(x0, y0, x1, y1, hex('#7a8ae8'));
+  rect(x0 + 8, y0 + 8, x1 - 8, y1 - 8, hex('#2a32a8'));
+  if (!hoja) {
+    // el juego: un muñequito que salta entre plataformas
+    const gx = Math.round(lerp(x0 + 14, x1 - 20, (t * 0.4) % 1)), gy = y1 - 22 - Math.round(Math.abs(Math.sin(t * 5)) * 10);
+    rect(x0 + 10, y1 - 14, x1 - 10, y1 - 11, hex('#5adc5a')); rect(x0 + 40, y1 - 30, x0 + 70, y1 - 28, hex('#5adc5a'));
+    rect(gx, gy, gx + 3, gy + 6, hex('#f0d040')); pset(gx + 1, gy + 1, C.k);
+    return;
+  }
+  // la hoja de cálculo: cuadrícula con cifras que se van escribiendo y barras que crecen a «work»
+  for (let x = x0 + 10; x < x1 - 9; x += 30) for (let y = y0 + 10; y < y1 - 10; y++) pset(x, y, hex('#4a5ad8'));
+  for (let y = y0 + 20; y < y1 - 10; y += 11) for (let x = x0 + 10; x < x1 - 9; x++) pset(x, y, hex('#4a5ad8'));
+  const filas = ['1983', '120', '45', '380', '75'], n = Math.floor((t - usar) * 10);
+  filas.forEach((s, i) => { const vis = Math.max(0, Math.min(s.length, n - i * 3)); if (vis > 0) R.numero(s, x0 + 14, y0 + 19 + i * 11, { color: hex('#c8d8ff'), n: vis * 8, sombra: false }); });
+  const cr = tramo(t, trabajo - 0.3, trabajo + 0.4);
+  [16, 28, 22, 34].forEach((hgt, i) => { const h2 = Math.round(hgt * cr), bx = x0 + 74 + i * 12; if (h2 > 0) rect(bx, y1 - 14 - h2, bx + 7, y1 - 14, [hex('#f0d040'), hex('#5adc5a'), hex('#f06a5a'), hex('#5ad8d8')][i]); });
+  if (t > trabajo + 0.3) T.visto(R, x1 - 26, y0 + 12, 1);
+  if (Math.floor(t * 3) % 2) rect(x0 + 14 + Math.min(4, Math.max(0, n)) * 8, y0 + 64, x0 + 20 + Math.min(4, Math.max(0, n)) * 8, y0 + 66, hex('#c8d8ff'));
+};
+const p5 = (t) => {
+  T.atari(R, t, { encuadre: 'salon77', camara: 'tele', pantalla: (RR, t2, rc) => pantalla(t, rc) });
+  // el ordenador de teclado en la moqueta, delante de la consola, con su cable a la tele
+  const { rect, pset, linea } = R;
+  linea(204, 150, 230, 124, C.k);
+  rect(96, 146, 206, 176, C.k); rect(97, 147, 205, 175, hex('#d8ccb0')); rect(97, 147, 205, 150, hex('#ece4cc')); rect(97, 171, 205, 175, hex('#b0a488'));
+  const tecla = Math.floor(t * 9);
+  for (let f = 0; f < 4; f++) for (let k = 0; k < 14 - (f === 3 ? 4 : 0); k++) { const kx = 102 + k * 7 + f * 2, ky = 152 + f * 5, pul = t > usar && (tecla * 7 + f * 3) % 37 === k; rect(kx, ky + (pul ? 1 : 0), kx + 5, ky + 3, pul ? hex('#2a2018') : hex('#4a4038')); pset(kx + 1, ky, hex('#7a6e60')); }
+  rect(196, 153, 199, 155, t > usar ? hex('#f06a5a') : hex('#8a2a2a'));
+  // las manos del padre: llegan a «use them» y teclean
+  const llega = tramo(t, usar - 0.6, usar), golpe = t > usar ? Math.round(Math.abs(Math.sin(t * 16)) * 3) : 0, golpe2 = t > usar ? Math.round(Math.abs(Math.cos(t * 13)) * 3) : 0;
+  const li = Math.round(lerp(200, 160, llega)), ld = Math.round(lerp(200, 160, llega));
+  T.brazo(R, 92, 214, 128, li - golpe, '#8a5a3a', 1, { codo: [100, 186] });
+  T.brazo(R, 224, 214, 176, ld - golpe2, '#8a5a3a', -1, { codo: [216, 186] });
+};
+
+const año = 1982;
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], {
+  año,
+  efectos: [[0.4, 'pop'], [1.6, 'pop'], [consola - 0.3, 'whoosh'], [consola + 0.9, 'brillo'], [inunda, 'avalancha'], [prisas + 0.9, 'golpecito'], [bueno, 'papel'], [dejan + 0.1, 'toc'], [cuesta, 'papel'], [casi + 0.1, 'brillo'], [usar, 'tecleo'], [trabajo + 0.3, 'bip']],
+});
+</script>
+</body>
+</html>
