@@ -203,7 +203,7 @@ const p2 = (t) => {
   if (f > 0) for (let i = 0; i < 10; i++) { const a = i / 10 * 6.28 + t * 1.5, r = 30 + Math.sin(t * 4 + i) * 3; tine(224 + Math.cos(a) * r, 146 + Math.sin(a) * r * 0.35, 0.5 * f, Q.lila); }
   if (f > 0 && f < 1) destello(196 + f * 56, 140, 3);
   // la mano de bata blanca entra por abajo, señala la firma y la recorre
-  const [hx, hy] = camino([[NOMBRE + 0.1, 330, 200], [NOMBRE + 0.6, 268, 162], [NOMBRE + 1.1, 266, 160], [NOMBRE + 1.8, 214, 162], [@12.0@, 210, 163]], t);
+  const [hx, hy] = camino([[NOMBRE + 0.1, 330, 200], [NOMBRE + 0.6, 260, 156], [NOMBRE + 1.1, 256, 154], [NOMBRE + 1.8, 208, 157], [@12.0@, 204, 158]], t);
   if (t > NOMBRE + 0.1) T.brazo(R, 340, 214, Math.round(hx), Math.round(hy), '#ecebf2', -1, { codo: [Math.round((340 + hx) / 2 + 10), Math.round((214 + hy) / 2 + 6)] });
 };
 // 3 · los jardines reales: Tepenec riega los tulipanes
@@ -261,7 +261,7 @@ const p3 = (t) => {
   { const cx = 96, cy = 160; R.linea(cx - 18, cy - 14, cx - 2, cy - 4, Q.nogS); R.linea(cx - 18, cy - 13, cx - 2, cy - 3, Q.nog); R.poligono([[cx - 2, cy - 12], [cx + 20, cy - 12], [cx + 16, cy - 2], [cx + 2, cy - 2]], Q.k); R.poligono([[cx - 1, cy - 11], [cx + 19, cy - 11], [cx + 15, cy - 3], [cx + 3, cy - 3]], Q.roble); R.linea(cx, cy - 11, cx + 18, cy - 11, Q.robleL);
     R.disco(cx + 9, cy - 14, 6, Q.k); R.disco(cx + 9, cy - 14, 5, Q.gravaS); R.pset(cx + 7, cy - 17, Q.grava); R.disco(cx + 18, cy - 1, 4, Q.k); R.disco(cx + 18, cy - 1, 2, Q.nog); R.linea(cx + 4, cy - 2, cx + 3, cy + 2, Q.nogS); }
   // el jardinero del fondo rastrilla la grava
-  { const rx = 254 + Math.round(Math.sin(t * 0.6) * 8), r = Math.sin(t * 5), g = R.actor(EL.cortesano, rx, 148, t, { dir: -1, sostiene: [rx - 4 + Math.round(r * 2), 140] });
+  { const rx = 156 + Math.round(Math.sin(t * 0.6) * 6), r = Math.sin(t * 5), g = R.actor(EL.cortesano, rx, 148, t, { dir: -1, sostiene: [rx - 4 + Math.round(r * 2), 140] });
     const [mx, my] = g.mano, px = mx - 12 + Math.round(r * 3); R.linea(mx, my - 3, px, 147, Q.nog); R.linea(mx + 1, my - 3, px + 1, 147, Q.nogL); R.linea(px - 4, 148, px + 4, 148, Q.k); for (let i = -4; i <= 4; i += 2) R.pset(px + i, 149, Q.k); }
   // el pavo real por el camino: abre la cola con «royal gardens»
   { const pv = tramo(t, P3, JARDIN), px = Math.round(lerp(28, 70, pv)), py = 146, cola = ease(tramo(t, JARDIN, JARDIN + 0.6));
@@ -334,7 +334,7 @@ const p4 = (t) => {
     for (const x of [22, 38, 54]) { rect(x - 2, 96, x + 2, 110, Q.papel); rect(x + 1, 96, x + 2, 110, Q.papelS); rect(x - 3, 110, x + 3, 112, Q.bronce); }
     rect(70, 120, 86, 122, Q.nog); rect(70, 140, 86, 142, Q.nog); for (const x of [71, 85]) rect(x, 122, x, 140, Q.nogS);
     poligono([[72, 123], [84, 123], [79, 131], [77, 131]], Q.aguaL); poligono([[77, 131], [79, 131], [84, 139], [72, 139]], Q.aguaL);
-    rect(64, 140, 76, 148, Q.k); rect(65, 141, 75, 147, Q.vidrio); rect(66, 142, 68, 144, Q.vidrioL); linea(72, 140, 88, 122, Q.blanco); linea(73, 140, 89, 123, Q.blancoS); linea(88, 122, 92, 118, Q.blancoS);
+    rect(98, 140, 110, 148, Q.k); rect(99, 141, 109, 147, Q.vidrio); rect(100, 142, 102, 144, Q.vidrioL); linea(106, 140, 116, 120, Q.blanco); linea(107, 140, 117, 121, Q.blancoS); linea(116, 120, 119, 115, Q.blancoS);
     disco(222, 132, 13, Q.bronceS); disco(222, 132, 12, Q.bronce); disco(222, 132, 9, Q.bronceS); disco(222, 132, 8, Q.oroD); rect(220, 116, 224, 120, Q.bronce);
     for (let a = 0; a < 6.28; a += 0.26) pset(Math.round(222 + Math.cos(a) * 11), Math.round(132 + Math.sin(a) * 11), Q.bronceL);
     // el cojín de terciopelo granate con borlas donde está el libro
@@ -408,11 +408,11 @@ E['vm-mondragone'] = ('La villa', '''// VM-MONDRAGONE (frase 10, cartela 1912): 
 //    el libro, y con «Jesuits were selling» la mano del jesuita recibe las monedas;
 // 3. fondo local, una sala de exposiciones (1915): Voynich en el estrado alza el libro a un lado y a otro («showed it
 //    everywhere»); con «treasure» el libro brilla en oro y salta el flash del fotógrafo; el público, de espaldas, se
-//    asombra;
-// 4. inserto local, el escritorio de Voynich: su mano entinta un sello y lo estampa en la tapa del libro; queda su
-//    ex libris (la silueta del bigote y los quevedos, sin letras) y con «today» la barra salta a hoy y el ex libris
+//    asombra (corta en el silencio después de «Rome»);
+// 4. inserto local, el escritorio de Voynich (corta en «that's why»): su mano entinta dos veces el sello y con «his
+//    name» lo estampa en la tapa del libro; queda su ex libris (la silueta del bigote y los quevedos, sin letras) y con «today» la barra salta a hoy y el ex libris
 //    brilla.''', COMUN + marcas('vm-mondragone', r'''
-const P2 = @6.20@, P3 = @12.80@, P4 = @17.12@;
+const P2 = @6.20@, P3 = @12.30@, P4 = @16.28@;
 const ANIO = @5.20@;
 // 1 · la villa: pasan dos siglos y llega Voynich
 const p1 = (t) => {
@@ -499,6 +499,9 @@ const p3 = (t) => {
     R.rect(228, 118, 248, 132, Q.k); R.rect(229, 119, 247, 131, Q.nog); R.rect(229, 119, 247, 120, Q.nogL); R.rect(220, 121, 229, 129, Q.k); R.rect(221, 122, 228, 128, Q.negro); R.disco(219, 125, 3, Q.k); R.pset(218, 124, Q.aguaL);
     R.rect(250, 104, 262, 106, Q.k); R.rect(251, 104, 261, 105, Q.grisL);
     if (flash > 0 && flash < 1) { R.disco(256, 100, Math.round(4 + flash * 8), Q.blanco); for (let i = 0; i < 8; i++) { const v = flash, a = i * 0.8; R.pset(Math.round(256 + Math.cos(a) * 14 * v), Math.round(98 - v * 16 + Math.sin(a) * 4), Q.grisL); } } }
+  // el foco del techo sobre el estrado, con motas
+  for (let y = 34; y < 130; y++) { const w = 6 + (y - 34) * 0.32; for (let x = Math.round(160 - w); x <= 160 + w; x++) if ((x + y) % 2 === 0) tine(x, y, 0.16, Q.luz); }
+  for (let i = 0; i < 8; i++) { const v = (t * 0.2 + i / 8) % 1; R.pset(Math.round(150 + hh(i, 1, 3) * 20 + Math.sin(t + i) * 3), Math.round(40 + v * 86), Q.luz); }
   // Voynich en el estrado alza el libro a un lado y a otro
   const lado = t < MUESTRA ? 1 : Math.floor((t - MUESTRA) / 0.7) % 2 ? -1 : 1, alza = t > MUESTRA - 0.3;
   const v = R.actor(EL.voynich, 152, 128, t, { dir: t > TESORO ? 1 : lado, sostiene: alza ? [lado > 0 ? 172 : 150, 100] : [168, 116], habla: t < MUESTRA + 1.6 && parpadeo(t, 7), sonrisa: t > TESORO });
@@ -520,7 +523,7 @@ const p3 = (t) => {
   if (flash > 0 && flash < 0.35) for (let y = 0; y < 180; y += 1) for (let x = (y % 2); x < 320; x += 2) tine(x, y, 0.55 * (1 - flash / 0.35), Q.blanco);
 };
 // 4 · el ex libris: la mano estampa el sello de Voynich en la tapa
-const ESTAMPA = @17.70@, HOY = @17.96@;
+const ESTAMPA = @17.50@, HOY = @17.96@;
 const p4 = (t) => {
   fijo('mesaVoy', () => {
     const { rect, pset, linea, poligono, disco } = R;
@@ -549,7 +552,7 @@ const p4 = (t) => {
   // el humo de la pipa
   for (let i = 0; i < 6; i++) { const v = (t * 0.5 + i / 6) % 1; R.disco(Math.round(280 + Math.sin(v * 6 + i) * 3 + v * 6), Math.round(124 - v * 40), Math.round(1 + v * 2), mez(Q.grisL, Q.verde, v)); }
   // la mano con el sello: lo entinta, lo estampa con «today»… no: lo estampa y con «today» brilla
-  const [sx, sy] = camino([[P4, 238, 146], [P4 + 0.18, 238, 130], [ESTAMPA - 0.12, 166, 112], [ESTAMPA, 166, 134], [ESTAMPA + 0.3, 166, 110], [@18.9@, 236, 132], [@19.15@, 236, 140]], t);
+  const [sx, sy] = camino([[P4, 238, 146], [P4 + 0.2, 238, 130], [P4 + 0.42, 238, 146], [P4 + 0.62, 238, 130], [ESTAMPA - 0.12, 166, 112], [ESTAMPA, 166, 134], [ESTAMPA + 0.3, 166, 110], [@18.9@, 236, 132], [@19.15@, 236, 140]], t);
   const dejaSello = t > @19.15@;
   const marcado = t > ESTAMPA;
   if (marcado) { const g = tramo(t, HOY, HOY + 0.8); R.disco(166, 141, 11, Q.k); for (let x = 156; x <= 176; x++) for (let y = 132; y <= 150; y++) if (((x - 166) / 10) ** 2 + ((y - 141) / 9) ** 2 < 1) R.pset(x, y, Q.papel);
@@ -627,7 +630,7 @@ const p1 = (t) => {
   // Voynich detrás del escritorio: escribe, se rinde, se levanta y se va
   const sale = tramo(t, @2.95@, @3.95@), vx = Math.round(lerp(140, 262, ease(sale)));
   const sentado = sale <= 0, escribe = t < NOPUDO - 0.1;
-  const v = R.actor(EL.voynich, vx, sentado ? 141 : 140, t, { dir: sale > 0 ? 1 : 1, anda: sale > 0 && sale < 1, sostiene: escribe ? [vx + 22, 126] : undefined, triste: t > NOPUDO && sale <= 0, sorpresa: false });
+  const v = R.actor(EL.voynich, vx, sentado ? 136 : 138, t, { dir: sale > 0 ? 1 : 1, anda: sale > 0 && sale < 1, sostiene: escribe ? [vx + 22, 126] : undefined, triste: t > NOPUDO && sale <= 0, sorpresa: false });
   if (t > NOPUDO + 0.1 && sale <= 0.3) globo(vx + 10, 110 + Math.round(Math.sin(t * 5)), '?');
   // el escritorio por delante, con la lámpara de banquero (se apaga con LUZ), el libro, las hojas tachadas y el tintero
   const on = t < LUZ;
@@ -752,7 +755,7 @@ const p4 = (t) => {
   const llega = tramo(t, @16.1@, NADIE - 0.2), sigue = tramo(t, @18.6@, P5);
   const sx = Math.round(lerp(-20, 142, ease(llega)) + sigue * 200), niega = t > NADIE && t < @18.55@;
   R.actor(EL.clienta, sx, 160, t, { dir: niega ? (Math.floor(t * 7) % 2 ? 1 : -1) : 1, anda: (llega > 0 && llega < 1) || (sigue > 0 && sigue < 1), sorpresa: t > NADIE - 0.2 && t < NADIE + 0.2, triste: false, enfado: niega });
-  if (niega) R.bocadillo(sx + 10, 128, { icono: 'X' });
+  if (niega) globo(sx + 10, 130, 'X');
   // el taxi amarillo pasa por delante de todo
   if (taxi > 0 && taxi < 1) { const x = Math.round(lerp(-70, 340, taxi)), y = 178;
     R.rect(x, y - 14, x + 56, y - 4, Q.k); R.rect(x + 1, y - 13, x + 55, y - 5, Q.taxi); R.rect(x + 1, y - 7, x + 55, y - 5, Q.taxiS); R.poligono([[x + 12, y - 14], [x + 18, y - 22], [x + 40, y - 22], [x + 46, y - 14]], Q.k); R.poligono([[x + 14, y - 14], [x + 19, y - 21], [x + 39, y - 21], [x + 44, y - 14]], Q.taxi);

@@ -86,7 +86,8 @@ Over (Zak Penn, 2014) · Museo Nacional de Historia Estadounidense del Smithsoni
 
 ## Antes de publicar
 
-- **Miniatura:** `atomo/plato/escenas/at-miniatura.html`, capturada en t = 1.
+- **Miniaturas (prueba A/B):** sube las dos en Studio → Probar y comparar: la noir (`at-miniatura.html`) y la
+  intermedia (`at-miniatura-mix.html`), capturadas en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
 - **Para escuchar antes de subir:** ES 7 («Uórshou lo» que el reconocedor oye «por solo») y EN 25 («E.T.»).
 

@@ -79,6 +79,9 @@ const borde = (t) => {
   // el cable de la cámara, que serpentea hasta la maleta de la unidad móvil
   for (let x = 246; x < 300; x++) R.pset(x, 145 + Math.round(Math.sin(x * 0.2) * 1.4), K);
   R.rect(296, 136, 312, 146, K); R.rect(297, 137, 311, 145, hex('#3a3a46')); R.rect(297, 137, 311, 137, hex('#6a6a78')); R.rect(302, 134, 306, 135, K); for (const x of [299, 309]) R.pset(x, 141, hex('#c8ccd8'));
+  // la estaca de topógrafo en la cresta, con su banderín que ondea
+  R.linea(288, 112, 288, 123, hex('#8a5a2e')); R.pset(289, 123, ARN[3]);
+  for (let i = 0; i < 6; i++) { const y = 112 + Math.round(Math.sin(t * 6 - i * 0.9) * (i / 4)); R.pset(289 + i, y, i % 2 ? BLANCO : hex('#e8503a')); R.pset(289 + i, y + 1, hex('#e8503a')); }
   // la arena que se desmorona por el talud hacia la fosa
   for (let k = 0; k < 5; k++) { const f = (t * 0.7 + k / 5) % 1, x = Math.round(160 - f * 10 + k), y = Math.round(lerp(cresta(160 + k) + 1, 150, f)); R.pset(x, y, ARN[k % 2 ? 0 : 2]); }
   // un remolino de polvo que cruza la explanada

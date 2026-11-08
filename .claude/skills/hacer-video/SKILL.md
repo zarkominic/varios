@@ -450,6 +450,12 @@ Es la imagen más trabajada del episodio:
 - sin palabras; nada morboso;
 - lo que promete el título.
 
+**Dos versiones para la prueba A/B de YouTube** (decisión del usuario, 08/11/2026, «Ok ambas»), hasta que la prueba
+diga cuál gana: la noir (`<pref>-miniatura.html`) y una **intermedia** (`<pref>-miniatura-mix.html`): la misma
+composición adulta (siluetas, sin chibis, una idea, el año en blanco hueso), pero con el color de antes: cielo de
+atardecer saturado, objetos de colores y viñeta suave. Plantilla: `at-miniatura-mix.html`. Las dos van a la ficha y al
+chat; el usuario sube ambas en Studio → Probar y comparar. Cuando haya ganadora, se deja solo ese estilo.
+
 El vídeo sigue en su estilo canónico (pixel chibi): esto es solo la miniatura. Se mide en el paso 15: si sube el
 porcentaje de clics y cae la retención de los primeros 30 s, se propone al usuario un gancho más sobrio.
 
