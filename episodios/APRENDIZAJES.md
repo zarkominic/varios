@@ -357,3 +357,24 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   revisión viejas del scratchpad. El render en sí tardó 11 minutos.
 - **Miniatura:** la pieza del racimo a escala ×3 parecía una piña verde; se dibujó a resolución de lienzo, grano a grano,
   en una frutera sobre un velador.
+
+## Episodio 24 · Los archivos desclasificados (7–8/11/2026)
+
+- **Tema por la IA de YouTube Studio** (los archivos secretos retienen mejor: el de los ovnis, 3:52 de media) llevado a
+  casos concretos con documento; la verificación tumbó 12 cosas (el «nadie confió en la paloma» de un almirante, «la
+  mitad tachada», quién disparó al pykrete, «desclasificado» para lo que solo se publicó). El título que se propuso
+  («It's in the Declassified Files») no cabía en 60 caracteres y además no era exacto: pasó a «The Report Is Real».
+- **El reparto lo hizo un agente** (43 personajes y 10 piezas, con hoja estática) mientras se locutaba: ahorró tiempo sin
+  pérdida de nivel.
+- **Anacronismos de los agentes:** la pasada de movimiento metió a Reiffel (1958) en el laboratorio de Skinner (1940s).
+  Al leer los resúmenes de las pasadas, buscar personajes fuera de su época.
+- **Nada morboso, vigilado en el borrador:** el primer borrador de Pyke tenía un torpedo que escoraba un mercante; la
+  calidad lo cambió por la amenaza sin impacto. Conviene decirlo en las indicaciones de las escenas de guerra.
+- **Herramienta arreglada:** los SRT podían escribir «,1000» en los milisegundos (redondeo de 59,9996 s) y dar un
+  subtítulo fuera de norma. `_hms` de subtitulos.py, locutar_frases.py y preparar_largo.py cuenta ahora en ms enteros.
+- **Disco:** 7,7 GB libres al llegar al render (pide ~8,9). Se liberó borrando hojas de revisión ya usadas del scratchpad,
+  carpeta a carpeta. El render tardó 11 minutos.
+
+**Pendiente para el próximo:**
+- Resultado de la prueba A/B de miniaturas del 23 (la simple con la uva frente a la de dos decorados): decide el estilo.
+- Retención del 19 y el 20 (gancho nuevo) en cuanto el usuario la exporte.

@@ -112,7 +112,7 @@ de la CIA · Federation of American Scientists (Star Gate) · Ghost Army Legacy 
 Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
 español, sus dos SRT y su miniatura vertical. En «Vídeo relacionado» se elige el episodio completo.
 
-### Short 1 · Estados Unidos planeó una bomba en la Luna · tramo 0.25-20.3,71.3-96.4
+### Short 1 · Estados Unidos planeó una bomba en la Luna · tramo 0.25-20.3,71.4-96.4
 - **EN:** The US Planned to Nuke the Moon in 1958 #Shorts
 - **ES:** Estados Unidos planeó una bomba atómica en la Luna #Shorts
 - **EN:** In 1958, the US Air Force studied setting off an atomic bomb on the Moon so the whole world could see the flash, and a young Carl Sagan did the math. The full story is in the linked video. #Moon #ColdWar #ASKAtom #Shorts
