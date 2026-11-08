@@ -899,7 +899,8 @@ const p3 = (t) => {
   const bo = (cx, cy, k, u, hx, hy) => { if (u <= 0) return; const W = Math.round(30 * u), H = Math.round(14 * u); raya(cx, cy, hx, hy, Q.k, 1); R.rect(cx - W / 2, cy - H / 2, cx + W / 2, cy + H / 2, Q.k); R.rect(cx - W / 2 + 1, cy - H / 2 + 1, cx + W / 2 - 1, cy + H / 2 - 1, Q.blanco); if (u >= 1) for (let i = 0; i < 3; i++) runa(k + i, cx - 12 + i * 9, cy - 4, 1, Q.sepia); };
   if (vanse <= 0) { bo(84, 112, 0, tramo(t, P3 + 0.1, P3 + 0.25) * (1 - tramo(t, LOST + 0.8, LOST + 0.9)), 78, 132); bo(112, 104, 1, tramo(t, LOST + 0.9, LOST + 1.05) * (1 - tramo(t, ALPHABET - 0.2, ALPHABET - 0.1)), 108, 134); }
   // la niebla se traga el pueblo, la gente y los signos del muro (el libro queda)
-  if (niebla > 0) for (let y = 40; y < 172; y++) { const dy = 1 - Math.abs(y - 112) / 72; for (let x = 0; x < 320; x++) { if (x > 238 && y > 118) continue; const n = hh(x >> 2, (y >> 2) + Math.floor(t * 2), 93), v = niebla * (0.45 + 0.4 * dy) - n * 0.3 + Math.sin(x * 0.05 + t * 0.8 + y * 0.02) * 0.08; if (v > 0.62) R.pset(x, y, Q.nieblaL); else if (v > 0.45) { if ((x + y) & 1) R.pset(x, y, Q.niebla); } else if (v > 0.3 && (x + 2 * y) % 4 === 0) R.pset(x, y, Q.niebla); } }
+  const tf = Math.min(t, BEHIND + 0.3);   // la niebla se asienta al final (y el corte queda limpio)
+  if (niebla > 0) for (let y = 40; y < 172; y++) { const dy = 1 - Math.abs(y - 112) / 72; for (let x = 0; x < 320; x++) { if (x > 238 && y > 118) continue; const n = hh(x >> 2, (y >> 2) + Math.floor(tf * 2), 93), v = niebla * (0.45 + 0.4 * dy) - n * 0.3 + Math.sin(x * 0.05 + tf * 0.8 + y * 0.02) * 0.08; if (v > 0.62) R.pset(x, y, Q.nieblaL); else if (v > 0.45) { if ((x + y) & 1) R.pset(x, y, Q.niebla); } else if (v > 0.3 && (x + 2 * y) % 4 === 0) R.pset(x, y, Q.niebla); } }
   // el libro sobre la piedra, que brilla cuando todo se ha ido
   const brilla = t > BEHIND;
   T.PIEZAS_VM.libroVoynich(R, 276, 158, { abierto: true, pagina: 'estrellas', s: 2, brilla, t });

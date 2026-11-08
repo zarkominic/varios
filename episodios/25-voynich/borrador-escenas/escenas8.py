@@ -647,7 +647,7 @@ const p1 = (t) => {
   // quien anuncia (cada pocos años, otro) alza el libro tras el atril
   const QUIEN = [EL.profesor, EL.cientifico, EL.ingeniero, EL.fisica, EL.investigadorIA];
   const sube = ease(tramo(tc, 0.1, 0.4)), x = 153;
-  const a = R.actor(QUIEN[i], x, 128, t, { dir: 1, sostiene: [x + 18, Math.round(lerp(114, 102, sube))], sonrisa: true, habla: tc > 0.4 && Math.sin(t * 9) > 0 });
+  const a = R.actor(QUIEN[i], x, 121, t, { dir: 1, sostiene: [x + 18, Math.round(lerp(106, 94, sube))], sonrisa: true, habla: tc > 0.4 && Math.sin(t * 9) > 0 });
   PIEZAS_VM.libroVoynich(R, a.mano[0], a.mano[1] + 4, {});
   if (t > ANUNCIA && t < ANUNCIA + 0.9) globo(a.cabeza[0], a.cabeza[1] - 4, '!');
   atril();
@@ -811,7 +811,7 @@ const p5 = (t) => {
   const vuelca = ease(tramo(t, SENSE, SENSE + 0.6));
   const sitio = (i) => [36 + i * 42, 101];
   // las fichas de abajo, esperando
-  for (let i = 3; i < 6; i++) { const b = Math.sin(t * 2 + i) > 0.9 ? 1 : 0; ficha(70 + (i - 3) * 64, 140 - b + Math.round(vuelca * 8), i); }
+  for (let i = 3; i < 6; i++) { const b = Math.sin(t * 2 + i) > 0.9 ? 1 : 0; ficha(92 + (i - 3) * 56, 148 - b + Math.round(vuelca * 8), i); }
   // la primera ya en el riel
   { const e = ease(tramo(t, P5 + 0.1, WORDS)), [sx, sy] = sitio(0); ficha(lerp(50, sx, e), lerp(140, sy, e) + vuelca * 30, 0, Q.papel); }
   // la segunda y la tercera: llegan y rebotan
@@ -821,7 +821,9 @@ const p5 = (t) => {
   // las manos: la de la izquierda empuja la primera, la de la derecha las otras dos
   { const [wx, wy] = camino([[P5, 40, 200], [P5 + 0.3, 60, 158], [WORDS, 76, 118], [WORDS + 0.4, 50, 170], [DIDNT + 0.6, 40, 214]], t); if (wy < 196) T.brazo(R, Math.round(wx) - 30, 212, Math.round(wx), Math.round(wy), '#5a3a6a', 1, { codo: [Math.round(wx) - 26, Math.round(wy) + 28] }); }
   { const [wx, wy] = camino([[P5, 300, 214], [WORDS, 170, 172], [DIDNT - 0.1, 128, 120], [DIDNT + 0.4, 172, 166], [FORM, 170, 124], [FORM + 0.5, 210, 168], [SENSE + 0.2, 240, 160], [SENSE + 0.9, 300, 214]], t); if (wy < 196) T.brazo(R, Math.round(wx) + 34, 212, Math.round(wx), Math.round(wy), '#5a3a6a', -1, { codo: [Math.round(wx) + 30, Math.round(wy) + 28] }); }
-  if (t > SENSE + 0.3) { const s = Math.sin(t * 6) > -0.5; if (s) { R.rect(150, 18, 172, 46, Q.k); R.rect(152, 20, 170, 44, Q.blanco); R.icono('?', 154, 24, Q.rojo, Q.blanco, 2); } }
+  if (t > SENSE + 0.3) { const s = Math.sin(t * 6) > -0.5, y = Math.round(lerp(96, 56, ease(tramo(t, SENSE + 0.3, SENSE + 0.6)))); if (s) { R.rect(178, y, 200, y + 28, Q.k); R.rect(180, y + 2, 198, y + 26, Q.blanco); R.icono('?', 182, y + 6, Q.rojo, Q.blanco, 2); } }
+  // el impreso de la propuesta, ya sellado con el «no», junto a las gafas
+  caja(140, 48, 176, 84, Q.papel); R.rect(141, 49, 175, 51, Q.ambar); for (let j = 0; j < 5; j++) renglon(144, 58 + j * 5, 170 - (j % 2) * 6, 150 + j, Q.grisS); selloNo(164, 74, 7, 1);
   // la taza de café con su vapor
   R.disco(280, 140, 12, Q.k); R.disco(280, 140, 11, Q.blanco); R.disco(280, 139, 8, Q.k); R.disco(280, 139, 7, hex('#4a2a14'));
   for (let k = 0; k < 4; k++) { const u = (t * 0.45 + k / 4) % 1; if (u < 0.85) R.pset(Math.round(280 + Math.sin(t * 2 + k) * (1 + u * 4)), Math.round(130 - u * 22), u < 0.5 ? Q.blanco : Q.blancoS); }
@@ -855,8 +857,8 @@ const mesaA = () => fijo('mesaA', () => {
   raya(62, 168, 100, 150, Q.blanco, 1); raya(64, 168, 100, 152, Q.blancoS, 0); R.pset(62, 168, Q.k);
   caja(232, 64, 288, 78, Q.perg); for (const x of [232, 288]) { R.disco(x, 71, 7, Q.pergD); R.disco(x, 71, 5, Q.pergS); } R.rect(258, 64, 260, 78, Q.rojo);
   // la pizarrita con su marco y la suma a tiza
-  caja(146, 20, 232, 56, Q.nogD); for (let y = 23; y <= 53; y++) for (let x = 149; x <= 229; x++) R.pset(x, y, hh(x >> 1, y >> 1, 502) > 0.85 ? hex('#3a4040') : hex('#2a3030'));
-  R.numero('1+1=', 156, 44, { color: Q.tiza, sombra: false });
+  caja(146, 24, 232, 60, Q.nogD); for (let y = 27; y <= 57; y++) for (let x = 149; x <= 229; x++) R.pset(x, y, hh(x >> 1, y >> 1, 502) > 0.85 ? hex('#3a4040') : hex('#2a3030'));
+  R.numero('1+1=', 156, 48, { color: Q.tiza, sombra: false });
   // el candil de aceite de la izquierda
   caja(20, 132, 52, 140, Q.bronceS); R.poligono([[22, 132], [50, 132], [44, 120], [28, 120]], Q.bronce); R.rect(28, 120, 44, 121, Q.bronceL); R.rect(50, 126, 58, 128, Q.bronce);
 });
@@ -879,9 +881,9 @@ const p1 = (t) => {
     for (let i = 0; i < 6; i++) { const mueve = j === 2 && i < 2, x = 134 + i * 9 + (mueve ? Math.round(corre * 70 * (1 - i * 0.2)) : (j === 4 && i < 1 ? 70 : 0)), c = [Q.rojo, Q.amar, Q.verdeT, Q.azulT, Q.tercL][j];
       R.disco(x, y, 4, Q.k); R.disco(x, y, 3, c); R.pset(x - 1, y - 2, Q.blanco); } }
   // la mano que corre las cuentas
-  { const [wx, wy] = camino([[0, 250, 214], [ADD - 0.5, 158, 140], [UP, 222, 140], [UP + 0.4, 250, 170], [P2, 260, 214]], t); if (wy < 196) T.brazo(R, Math.round(wx) + 40, 210, Math.round(wx), Math.round(wy), '#6a4a8a', -1, { codo: [Math.round(wx) + 30, Math.round(wy) + 30] }); }
+  { const [wx, wy] = camino([[0, 250, 214], [ADD - 0.5, 158, 137], [UP, 222, 137], [UP + 0.4, 250, 170], [P2, 260, 214]], t); if (wy < 196) T.brazo(R, Math.round(wx) + 40, 210, Math.round(wx), Math.round(wy), '#6a4a8a', -1, { codo: [Math.round(wx) + 30, Math.round(wy) + 30] }); }
   // el resultado: en «up» un «?» rojo que salta en la pizarrita
-  if (t > UP) { const s = ease(tramo(t, UP, UP + 0.2)), y = Math.round(lerp(60, 28, s)); R.recorte([149, 23, 229, 53]); R.icono('?', 206, y, Q.rojoL, Q.k, 3); R.recorte(null); }
+  if (t > UP) { const s = ease(tramo(t, UP, UP + 0.2)), y = Math.round(lerp(64, 32, s)); R.recorte([149, 27, 229, 57]); R.icono('?', 206, y, Q.rojoL, Q.k, 3); R.recorte(null); }
 };
 
 // ── plano 2: los cinco escribas ──
@@ -965,7 +967,7 @@ const archivo = () => fijo('archivo', () => {
   caja(136, 34, 184, 112, Q.nogS); R.rect(140, 38, 180, 70, hex('#c8d8e0')); for (let y = 38; y < 70; y++) for (let x = 140; x <= 180; x++) if ((x + y) % 4 === 0) R.pset(x, y, hex('#b0c4ce')); R.rect(140, 74, 180, 108, Q.nog); R.rect(176, 86, 178, 90, Q.oro);
   R.disco(208, 40, 8, Q.k); R.disco(208, 40, 7, Q.blanco); R.pset(208, 40, Q.k); R.linea(208, 40, 208, 35, Q.k); R.linea(208, 40, 212, 42, Q.k);
   // el contador de la pared (el número va en vivo)
-  caja(138, 17, 182, 31, Q.k); R.rect(139, 18, 181, 30, hex('#2a2420'));
+  caja(140, 40, 180, 54, Q.k); R.rect(141, 41, 179, 53, hex('#2a2420'));
   // el suelo de linóleo a cuadros
   for (let y = 120; y < 180; y++) for (let x = 0; x < 320; x++) { const a = (Math.floor((x - 160) / (14 + (y - 120) * 0.3)) + Math.floor((y - 120) / 10)) & 1; R.pset(x, y, a ? hex('#9a9488') : hex('#b4aea0')); }
   // la mesa de consulta (el tablero; la caja va en vivo) con un flexo
@@ -975,8 +977,8 @@ const archivo = () => fijo('archivo', () => {
 const p4 = (t) => {
   archivo();
   // el contador: de 1420 a 2026 y, en «600», el «600» dorado
-  const c = ease(tramo(t, P4 + 0.1, LATER)); R.numero(String(Math.round(lerp(1420, 2026, c))), 160, 28, { color: Q.ambar, sombra: false, centro: true });
-  if (t > SEIS) { const s = ease(tramo(t, SEIS, SEIS + 0.3)), y = Math.round(lerp(34, 64, s)); R.rect(140, y - 18, 180, y + 2, Q.k); R.rect(141, y - 17, 179, y + 1, Q.oroD); R.numero('600', 160, y - 1, { tam: 16, centro: true }); }
+  const c = ease(tramo(t, P4 + 0.1, LATER)); R.numero(String(Math.round(lerp(1420, 2026, c))), 160, 51, { color: Q.ambar, sombra: false, centro: true });
+  if (t > SEIS) { const s = ease(tramo(t, SEIS, SEIS + 0.3)), y = Math.round(lerp(56, 82, s)); R.rect(140, y - 18, 180, y + 2, Q.k); R.rect(141, y - 17, 179, y + 1, Q.oroD); R.numero('600', 160, y - 1, { tam: 16, centro: true }); }
   // la luz del flexo sobre la mesa y las motas
   for (let y = 100; y < 140; y++) for (let x = 120; x < 200; x++) { const d = Math.hypot(x - 150, (y - 130) * 1.6); if (d < 34 && ((x + y) & 1)) tine(x, y, 0.25 * (1 - d / 34), Q.luz); }
   for (let i = 0; i < 6; i++) { const a = t * 2 + i; R.pset(Math.round(134 + Math.cos(a) * (6 + i)), Math.round(110 + Math.sin(a * 1.3) * 5), Q.blancoS); }
@@ -987,7 +989,7 @@ const p4 = (t) => {
   const abierta = salta > 0 ? 1 : 1 - cierra, bx = 160, by = 132, sb = salta > 0 && salta < 1 ? Math.round(Math.sin(salta * Math.PI) * 8) : 0;
   // la tapa (por detrás, abierta hacia arriba), el libro asomando y el frente de la caja
   { const h = Math.round(abierta * 22); if (h + sb > 2) { R.rect(bx - 30, by - 30 - h - sb, bx + 30, by - 28, Q.k); R.rect(bx - 29, by - 29 - h - sb, bx + 29, by - 29, Q.cartonS); R.rect(bx - 29, by - 29 - h - sb, bx + 29, by - 28 - h - sb, Q.cartonL); } }
-  if (abierta > 0.3) PIEZAS_VM.libroVoynich(R, bx, by - 16 + Math.round((1 - abierta) * 10), { abierto: true, pagina: 'estrellas', brilla: salta > 0, mueve: salta > 0, t });
+  if (abierta > 0.3) PIEZAS_VM.libroVoynich(R, bx, by - 26 + Math.round((1 - abierta) * 10), { abierto: true, pagina: 'estrellas', brilla: salta > 0, mueve: salta > 0, t });
   caja(bx - 30, by - 28, bx + 30, by, Q.carton); R.rect(bx - 29, by - 27, bx + 29, by - 26, Q.cartonL); R.rect(bx + 23, by - 27, bx + 29, by - 1, Q.cartonS);
   caja(bx - 10, by - 22, bx + 10, by - 6, Q.papel, Q.cartonD); R.icono('?', bx - 3, by - 18, Q.rojo, Q.papel);
   R.numero('408', bx - 26, by - 4, { color: Q.cartonD, sombra: false, fina: true });
