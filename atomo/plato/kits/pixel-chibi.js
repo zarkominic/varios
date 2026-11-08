@@ -6570,7 +6570,12 @@ const dibujoPaginaVM = (px, pag, i0, j0) => {
 // 'estrellas' | 'estanques' | 'tarros') y las líneas de signos inventados en tinta parda; o.brilla: los signos brillan
 // en oro; o.mueve (con o.t): los signos se mueven para no dejarse leer. Cerrado 14 × 17, abierto 34 × 18
 const LIBRO_VM = forma(14, 17, ({ rect, put }) => {
-  rect(1, 1, 12, 15, 'X'); rect(1, 1, 2, 15, 'x'); rect(12, 2, 12, 15, 'p'); rect(2, 15, 12, 15, 'p');
+  // tapa de vitela clara (X), lomo oscuro (x), y el grueso de las hojas a la derecha y abajo con sus rayas (p/x), para
+  // que se lea como un libro y no como una hoja suelta (aviso de las escenas del 25)
+  rect(1, 1, 11, 14, 'X'); rect(1, 1, 2, 15, 'x');
+  rect(12, 2, 13, 15, 'p'); for (let j = 3; j <= 14; j += 2) put(13, j, 'x');
+  rect(3, 15, 13, 16, 'p'); for (let i = 4; i <= 12; i += 2) put(i, 16, 'x');
+  rect(11, 1, 11, 14, 'x'); rect(3, 14, 11, 14, 'x');
   for (const [i, j] of [[8, 4], [9, 4], [5, 10], [6, 11], [10, 12]]) put(i, j, 'T');
   rect(4, 7, 10, 7, 'x');
 });
