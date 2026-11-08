@@ -438,13 +438,20 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
 
 ### 10. Miniatura
 
-`<pref>-miniatura.html`, copiada de `th-miniatura.html` y hecha después de las pasadas (usa los decorados por su nombre).
+`<pref>-miniatura.html`, en **estilo noir** (regla del usuario, 08/11/2026: las de chibis y mascotas «parecen para
+bebés» y el público es de 25–35 años). Parte de `dc-miniatura.html` y de las ayudas de `atomo/plato/escenas/noir-mini.js`.
 Es la imagen más trabajada del episodio:
-- dos decorados de verdad, partidos por una diagonal (antes y después, promesa y realidad);
-- el protagonista y uno o dos personajes con el sprite chibi al doble;
-- una cifra o un año grande, y un símbolo;
-- sin palabras;
+- **ningún chibi ni mascota con cara** (ni el hilo de gags del episodio): personas en silueta o de proporción adulta, y
+  objetos que transmitan riesgo o secreto (documentos tachados, sellos, miras, relojes, mapas);
+- paleta oscura con **un solo color de acento** y luz dramática: contraluz con filo, haces, sombras de persiana, humo,
+  grano de película y viñeta;
+- **una sola idea fuerte** que se lea a 320 × 180;
+- una cifra o un año en blanco hueso (nunca dorado brillante);
+- sin palabras; nada morboso;
 - lo que promete el título.
+
+El vídeo sigue en su estilo canónico (pixel chibi): esto es solo la miniatura. Se mide en el paso 15: si sube el
+porcentaje de clics y cae la retención de los primeros 30 s, se propone al usuario un gancho más sobrio.
 
 El primer borrador ya se hizo con los decorados (paso 5); aquí se termina con los decorados finales. La captura y el
 escalado los hace `producir.sh`. **Mírala** a tamaño completo y a 320 × 180 antes de enviarla.
@@ -528,9 +535,9 @@ aquí, con los fotogramas del render todavía en disco.
    La mezcla es la «B» y se lee de `montar-largo.sh`. Si los fotogramas ya se borraron, primero:
    `node atomo/herramientas/render-escenas.mjs atomo/build/largo/<ep> --solo <ids>`.
 3. **La miniatura vertical** de cada Short va en `atomo/plato/escenas/<pref>-short<N>-miniatura.html`.
-   - Partes de `la-short1-miniatura.html` y dibujas en el lienzo de siempre, pero todo lo que cuenta va en la columna
+   - Partes de `dc-short1-miniatura.html` y dibujas en el lienzo de siempre, pero todo lo que cuenta va en la columna
      central (x 110–210), que es lo que queda en 9:16.
-   - Los personajes van al doble: al triple, los brazos tapan la cara y el brillo se rompe.
+   - Mismo estilo noir que la principal (paso 10): siluetas y objetos, nada de chibis ni mascotas con cara.
    - No lleva texto.
    - Para capturarla y recortarla:
    ```
