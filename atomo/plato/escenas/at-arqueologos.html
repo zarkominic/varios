@@ -13,12 +13,14 @@
 // 1. la carpa de los arqueólogos: uno limpia con el pincel un cartucho; la arqueóloga entra con una bolsa numerada y la
 //    deja en la mesa; el cámara de la productora entra por la derecha y graba («production company»);
 // 2. corta en «dig»: la pared de la fosa con sus capas (tierra, basura, periódicos, cajas, cemento) y la cuadrícula de
-//    cuerdas; la arqueóloga, subida a un tablón, limpia un cartucho de la pared («excavation site») y el arqueólogo
-//    pone una etiqueta numerada en cada capa («each layer»); un cubo sube por la cuerda;
+//    cuerdas; la arqueóloga, subida a un tablón, limpia un cartucho de la pared («excavation site»); el arqueólogo sube
+//    por la escalera de mano y, al bajar, clava una etiqueta numerada en cada capa, de la 1 a la 6 («each layer»); un
+//    cubo sube por la cuerda y el público mira desde el borde;
 // 3. corta en «checked»: la mesa de cerca: la mano con la lupa recorre la fecha del periódico de 1983 («dates») y luego
 //    el cartucho que salió con él («boxes»);
 // 4. corta en «And that's how»: dentro de la carpa, los periódicos de la fosa colgados de una cuerda por fechas; la
-//    arqueóloga cuelga la bolsa con el cartucho junto al último («cartridges») y sale «1983» con el visto bueno.
+//    arqueóloga cuelga la bolsa con el cartucho junto al último («cartridges») y sale «1983» con el visto bueno; la
+//    fotógrafa de la productora entra por la derecha y dispara el flash; el arqueólogo celebra.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_AT as A } from '/atomo/plato/kits/pixel-chibi.js';
@@ -74,6 +76,11 @@ const p1 = (t) => {
   camaraTV(rc.mano[0], rc.mano[1], -1, t);
 };
 
+// la escalera de mano de aluminio apoyada en la pared (los largueros, detrás del arqueólogo) y sus peldaños, por delante
+const escalera = (x, y0, y1) => { for (const dx of [-8, 8]) { R.rect(x + dx - 1, y0, x + dx + 1, y1, K); R.rect(x + dx, y0, x + dx, y1, hex('#c8ccd8')); }
+  for (let y = y0 + 4; y < y1; y += 8) { R.rect(x - 7, y, x + 7, y, hex('#8a8e98')); R.rect(x - 7, y + 1, x + 7, y + 1, mez(hex('#5e4632'), NEGRO, 0.3)); }
+  R.rect(x - 10, y1 - 1, x - 6, y1, NEGRO); R.rect(x + 6, y1 - 1, x + 10, y1, NEGRO); };
+const peldanos = (x, y0, y1) => { for (let y = y0 + 4; y < y1; y += 16) for (const dx of [-8, 8]) R.rect(x + dx - 1, y, x + dx + 1, y + 1, hex('#e8ecf0')); };
 // ── 2 · la pared de la fosa, con sus capas y la cuadrícula ──────────────────────────────────────
 const CAPAS = [[40, '#c8a46a', '#a8844a', '#e4c890'], [56, '#7a5e42', '#54402c', '#a08260'], [72, '#cec6b4', '#8e887a', '#efe9da'],
   [87, '#5e4632', '#40301f', '#806248'], [118, '#d4bc8c', '#b49c6c', '#ecdcb0'], [133, '#9a9a96', '#6a6a66', '#bcbcb6']].map(([y, ...c]) => [y, ...c.map(hex)]);
@@ -140,13 +147,18 @@ const p2 = (t) => {
   if (t < sitio + 0.5) { const [mx, my] = ra.mano; R.linea(mx, my, mx - 5, my - 1, hex('#8a5a2e')); R.rect(mx - 8, my - 2, mx - 5, my, hex('#e8d8b0')); }
   for (let k = 0; k < 6; k++) { const f = (t * 1.6 + k * 0.17) % 1; if (t < sitio + 0.6) R.pset(90 + Math.round(H(k, 31) * 8), 112 + Math.round(f * 18), hex('#a8844a')); }
   if (t > sitio && t < sitio + 0.9) for (const [dx, dy] of [[-15, -14], [15, -12], [-16, 4], [16, 6], [0, -19]]) { R.pset(88 + dx, 104 + dy, hex('#fff6c0')); R.pset(88 + dx + 1, 104 + dy, hex('#e8c040')); R.pset(88 + dx - 1, 104 + dy, hex('#e8c040')); R.pset(88 + dx, 104 + dy + 1, hex('#e8c040')); R.pset(88 + dx, 104 + dy - 1, hex('#e8c040')); }
-  // el arqueólogo pone una etiqueta numerada en cada capa
-  const yo = capa - 0.9;
-  const rb = R.actor(A.arqueologo, 206, 172, t, { dir: 1, dedo: t > yo && t < yo + 2.4, sostiene: t < yo || t > yo + 2.4, sonrisa: t > yo + 2.4 });
-  if (t < yo || t > yo + 2.4) { const [mx, my] = rb.mano; R.rect(mx - 1, my - 7, mx + 6, my + 1, K); R.rect(mx, my - 6, mx + 5, my, hex('#f0ece0')); R.rect(mx + 1, my - 7, mx + 4, my - 7, hex('#c8ccd8')); for (let r = 0; r < 3; r++) R.rect(mx + 1, my - 4 + r * 2, mx + 4, my - 4 + r * 2, hex('#8a8a96')); }
+  // el arqueólogo sube por la escalera de mano y, al bajar, clava una etiqueta numerada en cada capa (de arriba abajo)
+  const yo = capa - 0.9, LX = 222;
+  escalera(LX, 36, 172);
+  const sube = tramo(t, P2 + 0.4, yo - 0.15), bajaE = tramo(t, yo, yo + 5 * 0.38 + 0.2);
+  const yS = t < yo ? Math.round(lerp(172, 60, sube)) : Math.round(lerp(60, 153, bajaE));
+  const ent = bajaE > 0 && bajaE < 1 && Math.sin(t * 16) > 0 ? 1 : 0;
+  const rb = R.actor(A.arqueologo, LX, yS, t, { dir: 1, anda: (sube > 0 && sube < 1) || (bajaE > 0 && bajaE < 1), sostiene: [LX + 9 + ent, yS - 12], sonrisa: bajaE >= 1 });
+  { const [mx, my] = rb.mano; if (bajaE < 1) { R.rect(mx - 1, my - 3, mx + 3, my + 1, K); R.rect(mx, my - 2, mx + 2, my, hex('#fffbe8')); } else { R.linea(mx, my, mx + 3, my - 3, hex('#8a5a2e')); } }
+  peldanos(LX, 36, 172);
   ETQ.forEach(([y, n], i) => {
     const e = tramo(t, yo + i * 0.38, yo + i * 0.38 + 0.22); if (e <= 0) return;
-    const x = 232, s = e < 1 ? 1 : 0; R.pset(x + 4, y - 6, hex('#5a5a66'));
+    const x = 236, s = e < 1 ? 1 : 0; R.pset(x + 4, y - 6, hex('#5a5a66'));
     R.rect(x - 1 - s, y - 5 - s, x + 9 + s, y + 5 + s, K); R.rect(x - s, y - 4 - s, x + 8 + s, y + 4 + s, hex('#fffbe8'));
     R.numero(n, x + 4, y + 4, { centro: true, fina: true, color: hex('#c83a3a'), sombra: false });
   });
@@ -259,6 +271,11 @@ const p4 = (t) => {
   // el arqueólogo compara con su tablilla y celebra
   const rb = R.actor(A.arqueologo, 150, 172, t, { dir: 1, sostiene: t < confirma, dedo: t > confirma && t < tarde83, brazos: t > tarde83 + 0.1 && t < tarde83 + 1.5, salto: t > tarde83 + 0.1 && t < tarde83 + 0.6 ? Math.round(Math.sin(tramo(t, tarde83 + 0.1, tarde83 + 0.6) * Math.PI) * 4) : 0, sonrisa: t > tarde83 });
   if (t < confirma) { const [hx, hy] = rb.mano; R.rect(hx - 1, hy - 7, hx + 6, hy + 1, K); R.rect(hx, hy - 6, hx + 5, hy, hex('#f0ece0')); for (let r = 0; r < 3; r++) R.rect(hx + 1, hy - 4 + r * 2, hx + 4, hy - 4 + r * 2, hex('#8a8a96')); }
+  // la fotógrafa de la productora entra por la derecha, enfoca y dispara el flash en «1983»
+  { const v = tramo(t, P4 + 0.8, P4 + 2.4), xf = Math.round(lerp(336, 288, v)), dispara = t > tarde83 + 0.9 && t < tarde83 + 1.1;
+    const rf = R.actor(A.espectadora, xf, 174, t, { dir: -1, anda: v > 0 && v < 1, sostiene: [xf - 6, 152], sonrisa: t > tarde83 + 1.2 });
+    const [cx, cy] = rf.mano; R.rect(cx - 5, cy - 4, cx + 2, cy + 1, K); R.rect(cx - 4, cy - 3, cx + 1, cy, hex('#3a3a46')); R.rect(cx - 6, cy - 2, cx - 5, cy - 1, hex('#6a8ab0')); R.rect(cx - 2, cy - 6, cx, cy - 5, hex('#c8ccd8'));
+    if (dispara) { R.disco(cx - 1, cy - 6, 4, BLANCO); for (let r = 5; r < 11; r++) { R.pset(cx - 1 - r, cy - 6, hex('#fff6c0')); R.pset(cx - 1, cy - 6 - r, hex('#fff6c0')); R.pset(cx - 1 + r, cy - 6, hex('#fff6c0')); } } }
   // «1983» con el visto bueno
   const e = tramo(t, tarde83, tarde83 + 0.3);
   if (e > 0) {
@@ -267,7 +284,8 @@ const p4 = (t) => {
   }
 };
 
-const efectos = [[camara + 0.7, 'bip'], [deja, 'papel'], [sitio, 'brillo'], [capa - 0.9, 'golpecito'], [fechas, 'toc'], [cajas + 0.1, 'toc'], [cartuchos, 'papel'], [tarde83, 'sello']];
+const efectos = [[0.6, 'lapiz'], [camara + 0.7, 'bip'], [deja + 0.15, 'papel'], [sitio, 'brillo'], [capa - 0.9, 'golpecito'], [capa - 0.9 + 5 * 0.38, 'golpecito'],
+  [fechas, 'toc'], [cajas + 0.1, 'toc'], [confirma - 0.4, 'lapiz'], [cartuchos + 0.2, 'papel'], [tarde83, 'sello'], [tarde83 + 0.95, 'flash']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2014 });
 </script>
 </body>

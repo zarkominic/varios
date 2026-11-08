@@ -191,7 +191,8 @@ export function atariDelante(R, t, o = {}) {
 //     o.etiqueta false: sin el cartel (lo pinta la escena).
 //   'almacen': un almacén enorme: cerchas de acero con claraboyas y haces de luz con polvo, lámparas colgadas que se mecen,
 //     la pared de chapa, la estantería de palés (cuatro calles × cinco alturas) con cajas de cartón hasta el techo, cada
-//     una con el dibujo de o.icono ('comecocos' por omisión, 'foso', 'varios'), la puerta de carga abierta (x 244–314,
+//     una con el dibujo de o.icono ('varios' por omisión: queso, nave, flor y foso alternados; o uno solo: 'comecocos', que es
+//     el bocadito de queso con agujeros, 'foso', 'nave', 'flor' o 'consola'), la puerta de carga abierta (x 244–314,
 //     y 53–124) con el remolque de un camión (o.camion, true) y el cielo con nubes detrás, la carretilla elevadora que va y
 //     viene con un palé (o.carretilla, true; o.carretillaX fija su x), un mozo pequeño al fondo con su carretilla de mano
 //     y el suelo de hormigón con juntas, líneas amarillas, manchas de aceite y la luz de la puerta. Lo de delante (el palé
@@ -2016,18 +2017,19 @@ function b_estante(R, t, o, e84) {
     const pts = []; for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8 - Math.PI / 2 + sw * 0.05, r = k % 2 ? 6 : 10; pts.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r]); }
     R.poligono(pts.map(([x, y]) => [x + 1, y + 1]), P.rojoS); R.poligono(pts, e84 ? b_mez(P.oro, P.gondS, 0.4) : P.oro); R.disco(cx, cy, 5, P.rojo); R.icono('!', cx - 1, cy - 3, P.crema, P.rojoS); }
   // motas de polvo que brillan en la luz
-  for (let k = 0; k < (e84 ? 12 : 5); k++) { const x = Math.round(h(k, 1, 27) * 320 + Math.sin(t * 0.5 + k) * 5), y = Math.round((h(k, 2, 27) * 180 + t * 4) % 180); if (Math.sin(t * 2 + k) > 0.2) pset(x, y, P.crema); }
+  for (let k = 0; k < (e84 ? 12 : 5); k++) { const x = Math.round(h(k, 1, 27) * 320 + Math.sin(t * 0.5 + k) * 5), y = Math.round((h(k, 2, 27) * 180 + t * 4) % 180); if ((x >= 274 && y <= 48) || (x <= 176 && y <= 18)) continue; if (Math.sin(t * 2 + k) > 0.2) pset(x, y, P.crema); }
   return { suelo: 179, baldas: [94, 152], cajas: { x0: 20, paso: 36, filas: [94, 152], ancho: 34, alto: 40 } };
 }
-
 function b_estanteFijo(R, e84) {
   const { rect, pset } = R, P = b_P;
-  // arriba, el canto de la balda de encima en sombra (tranquilo para la barra del año y para Atom)
+  // arriba, el tablero perforado en la sombra de la balda de encima (tranquilo para la barra del año y para Atom: el canto
+  // de la balda va por debajo de su esquina, en y 45–52), con los blísteres de mandos colgados de sus ganchos en medio
   rect(0, 0, 319, 179, P.peg);
   for (let y = 1; y < 180; y += 4) for (let x = 2 + ((y >> 2) & 1) * 3; x < 320; x += 6) { pset(x, y, P.pegH); pset(x + 1, y, P.pegS); }
-  for (let y = 0; y < 34; y++) for (let x = 0; x < 320; x++) if ((x + y) % 2 === 0 || y < 22) b_tinta(R, x, y, 0.28 - y * 0.004);
-  rect(0, 34, 319, 41, b_mez(P.labio, P.negro, 0.25)); rect(0, 34, 319, 34, P.labio); rect(0, 41, 319, 41, P.labioS);
-  for (let x = 0; x < 320; x++) for (let y = 42; y < 46; y++) if ((x + y) % 2 === 0) b_tinta(R, x, y, 0.3);
+  for (let y = 0; y < 45; y++) for (let x = 0; x < 320; x++) if ((x + y) % 2 === 0 || y < 24) b_tinta(R, x, y, 0.3 - y * 0.004);
+  b_blisteres(R);
+  rect(0, 45, 319, 52, b_mez(P.labio, P.negro, 0.25)); rect(0, 45, 319, 45, P.labio); rect(0, 52, 319, 52, P.labioS);
+  for (let x = 0; x < 320; x++) for (let y = 53; y < 55; y++) if ((x + y) % 2 === 0) b_tinta(R, x, y, 0.3);
   // las tres filas de cajas iguales: la misma portada en colores chillones
   const filas = [[94, 'nave', 0], [152, 'nave', 3], [210, 'flor', 5]];
   for (const [yb, ico, d] of filas) {
@@ -2045,7 +2047,6 @@ function b_estanteFijo(R, e84) {
   // el montante de la góndola a la izquierda
   rect(0, 0, 4, 179, P.gondS); rect(0, 0, 0, 179, P.gondD); rect(1, 0, 1, 179, P.gond); for (let y = 3; y < 180; y += 6) pset(3, y, P.gondD);
 }
-
 // ════ cámara 'cesta' ════
 // la cesta de rejilla a pantalla casi completa (borde delantero en y 104, x 14–306); el cartel en x 214–274, y 46–82. Si
 // la escena pone un cartucho que se encoge, va encima del montón, en y 70–100.
@@ -2089,8 +2090,14 @@ function b_cestaFondo(R) {
     }
   }
   for (let y = 98; y < 106; y++) for (let x = 0; x < 320; x++) if ((x + y) % 2 === 0) b_tinta(R, x, y, 0.2);
+  // el suelo de baldosas, desenfocado, que asoma a los lados de la cesta (y 106–179), con la sombra de la cesta
+  for (let y = 106; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const u = (y - 106) / 74, X = Math.floor((x - 160) / (14 + u * 18) + 100), Y = Math.floor((y - 106) / (6 + u * 10));
+    let c = des((X + Y) % 2 ? P.s2 : P.s1); if (h(x, y, 33) < 0.06) c = b_mez(c, P.junta, 0.4);
+    if (x < 12 || x > 308) c = b_mez(c, P.negro, Math.max(0, 0.35 - Math.min(Math.abs(x - 10), Math.abs(x - 310)) * 0.04));
+    pset(x, y, c);
+  }
 }
-
 function b_cestaCapa(R) {
   const { rect, pset, linea } = R, P = b_P;
   rect(10, 88, 310, 92, P.gris); rect(10, 88, 310, 88, P.grisL);
@@ -2113,7 +2120,7 @@ function b_cestaCapa(R) {
 // suelo 160 (x 50–290 libre; la puerta de carga, a la derecha: el gerente señala hacia x 280, y 90); la carretilla va y
 // viene entre x 40 y 160 con las ruedas en y 141 (detrás de los personajes); el mozo pequeño pasa al fondo en y 127
 function b_almacen(R, t, o) {
-  const { rect, pset, linea, disco } = R, P = b_P, ico = o.icono ?? 'comecocos', cam = o.camion !== false;
+  const { rect, pset, linea, disco } = R, P = b_P, ico = o.icono ?? 'varios', cam = o.camion !== false;
   b_fijo(R, 'alm|' + ico + '|' + cam, () => b_almacenFijo(R, ico, cam));
   // el cielo y la vida de fuera, solo por el hueco de la puerta
   R.recorte([244, 53, 314, 124]);
@@ -2140,7 +2147,6 @@ function b_almacen(R, t, o) {
   }
   return { suelo: 160, puerta: [244, 53, 314, 124], camion: cam ? [252, 66, 306, 118] : null, carretilla: o.carretilla !== false ? 141 : null, estanteria: [0, 231, 22, 124] };
 }
-
 // la carretilla elevadora amarilla (x = el centro, suelo = donde apoyan las ruedas): contrapeso, asiento, el conductor con
 // casco, el techo protector, el mástil con las horquillas a la altura o.alza, el palé con cajas, la luz naranja que gira
 function b_carretilla(R, x, suelo, t, o = {}) {
@@ -2170,14 +2176,12 @@ function b_carton(R, x, yb, w, hh, ico, k) {
   const { rect, pset } = R, P = b_P, y0 = yb - hh + 1, c = [P.carton, b_mez(P.carton, P.cartonL, 0.5), b_mez(P.carton, P.cartonS, 0.3)][k % 3];
   rect(x, y0, x + w - 1, yb, c); rect(x, y0, x + w - 2, y0, P.cartonL); rect(x + w - 1, y0, x + w - 1, yb, P.cartonS); rect(x, yb, x + w - 1, yb, P.cartonD);
   const m = x + (w >> 1); rect(m, y0, m, yb - 1, P.cinta);
-  const i = (k >> 1) % 3, d = ico === 'varios' ? ['comecocos', 'foso', 'consola'][k % 3] : ico, ix = x + 2 + (k % 2) * (w - 7), iy = y0 + 2;
+  const i = (k >> 1) % 3, d = b_icoDe(ico, k), grande = hh >= 11 && w >= 11, n = grande ? 6 : 3, ix = x + 2 + (k % 2) * (w - 4 - n), iy = y0 + 2;
   if (hh < 6) return;
-  if (d === 'comecocos') { rect(ix, iy, ix + 2, iy + 2, P.oro); pset(ix + 1, iy, P.oroL); pset(ix + 2, iy + 1, c); }
-  else if (d === 'foso') { rect(ix, iy + 2, ix + 2, iy + 2, P.negro); pset(ix + 1, iy, P.oro); pset(ix + 1, iy + 1, P.verde); }
-  else { rect(ix, iy, ix + 3, iy + 1, P.negro); rect(ix, iy + 2, ix + 3, iy + 2, P.madera); }
-  if (i === 0 && w > 10) rect(x + w - 5, yb - 3, x + w - 3, yb - 2, P.papel);
+  b_icoCaja(R, ix, iy, d, 1, (q) => b_mez(q, c, 0.18), !grande);   // impreso sobre el cartón: un poco comido por su color
+  if (grande) { rect(ix - 1, iy + 7, ix + 6, iy + 7, P.cartonS); if (w >= 18) for (let j = 0; j < 4; j++) rect(x + w - 8 + j, yb - 5, x + w - 8 + j, yb - 3 - (j % 2), j % 2 ? P.cartonD : P.negro); }   // la raya de debajo y el código de barras
+  if (i === 0 && w > 10) { rect(x + w - 5, yb - 3, x + w - 3, yb - 2, P.papel); pset(x + w - 4, yb - 2, P.cartonS); }
 }
-
 // lo fijo del almacén: cubierta y cerchas, claraboyas con sus haces, la pared de chapa, la estantería de palés llena, la
 // puerta de carga con el camión (o el patio), el suelo de hormigón, la luz de la puerta y el palé del centro
 function b_almacenFijo(R, ico, cam) {
@@ -2226,7 +2230,7 @@ function b_almacenFijo(R, ico, cam) {
   // la puerta de carga: dintel con la persiana enrollada, jambas con franjas amarillas y negras
   rect(240, 44, 318, 52, P.chapaS); for (let x = 241; x < 318; x += 3) rect(x, 45, x, 51, P.chapa); rect(240, 44, 318, 44, P.chapaL); rect(240, 52, 318, 52, P.negro);
   for (const [a, b] of [[240, 243], [315, 318]]) for (let y = 53; y <= 124; y++) for (let x = a; x <= b; x++) pset(x, y, ((x + y) >> 2) % 2 ? P.amarillo : P.negro);
-  b_patio(R, cam);
+  b_patio(R, cam, ico);
   // el suelo de hormigón: textura, juntas que fugan, líneas amarillas, manchas de aceite y rodadas
   for (let y = 125; y < 180; y++) for (let x = 0; x < 320; x++) { const r = h(x, y, 45); pset(x, y, r > 0.9 ? P.hormiS : r < 0.08 ? P.hormiL : P.hormi); }
   for (let y = 125; y < 180; y++) for (let x = 0; x < 320; x++) if ((x + y) % 2 === 0) { const d = (y - 125) / 55, k = 0.18 * (1 - d); if (k > 0.02) pset(x, y, b_mez(R.pget(x, y), P.hormiD, k)); }
@@ -2245,10 +2249,9 @@ function b_almacenFijo(R, ico, cam) {
   for (let y = 106; y < 132; y += 4) linea(197, y, 229, y + 3, b_mez(P.carton, P.crema, 0.45));
   rect(160, 132, 186, 133, P.rojoS); rect(160, 131, 186, 131, P.rojo); rect(186, 118, 187, 132, P.rojoS); rect(184, 117, 190, 118, P.negro); disco(162, 134, 1, P.negro); disco(184, 134, 1, P.negro);
 }
-
 // lo que se ve por la puerta de carga (x 244–314, y 53–124): el cielo tramado, la sierra lejana, la valla y el patio; con
 // el camión, la trasera del remolque con las puertas abiertas, la carga dentro, el parachoques y la rampa
-function b_patio(R, cam) {
+function b_patio(R, cam, ico = 'varios') {
   const { rect, pset, linea, disco } = R, P = b_P;
   R.recorte([244, 53, 314, 124]);
   for (let y = 53; y < 96; y++) for (let x = 244; x <= 314; x++) { const u = (y - 53) / 43 + (h(x >> 1, y >> 1, 46) - 0.5) * 0.25; pset(x, y, u < 0.35 ? P.cielo1 : u < 0.7 ? P.cielo2 : P.cielo3); }
@@ -2262,7 +2265,7 @@ function b_patio(R, cam) {
     rect(255, 70, 303, 116, hex('#2a2622'));
     R.poligono([[255, 70], [303, 70], [292, 80], [266, 80]], hex('#3a3430')); R.poligono([[255, 116], [303, 116], [292, 104], [266, 104]], hex('#4a3e30'));
     rect(266, 80, 292, 104, hex('#3a3430'));
-    for (let f = 0; f < 3; f++) for (let k = 0; k < 2; k++) b_carton(R, 268 + k * 12, 103 - f * 8, 11, 8, 'comecocos', k + f);
+    for (let f = 0; f < 3; f++) for (let k = 0; k < 2; k++) b_carton(R, 268 + k * 12, 103 - f * 8, 11, 8, ico, k + f);
     for (let y = 106; y < 116; y += 3) rect(258 + (y - 106), y, 300 - (y - 106), y, hex('#5a4a38'));
     rect(244, 68, 250, 117, hex('#9a9ea8')); rect(308, 68, 314, 117, hex('#9a9ea8')); rect(249, 68, 249, 117, hex('#6a6e78')); rect(309, 68, 309, 117, hex('#6a6e78'));
     rect(250, 116, 308, 119, P.negro); rect(250, 116, 308, 116, P.gris);
@@ -2274,16 +2277,15 @@ function b_patio(R, cam) {
   }
   R.recorte(null);
 }
-
 // lo de delante en el almacén: el palé de cajas grandes de la izquierda (la de arriba abierta, con cartuchos que asoman y
 // el film que brilla) y el bolardo amarillo y negro de la derecha
 function b_almacenDelante(R, t, o) {
-  const { rect, pset, linea } = R, P = b_P, ico = o.icono ?? 'comecocos';
+  const { rect, pset, linea } = R, P = b_P, ico = o.icono ?? 'varios';
   rect(0, 172, 46, 179, P.madera); rect(0, 172, 46, 172, P.maderaL); for (let x = 2; x < 46; x += 10) rect(x, 175, x + 4, 179, P.maderaD);
   for (let f = 0; f < 2; f++) for (let k = 0; k < 2; k++) b_carton(R, k * 22 - 2, 171 - f * 17, 22, 17, ico, k + f + 1);
   // la caja de arriba, abierta: el fondo oscuro, los cartuchos que asoman, el frente y las solapas
   rect(0, 120, 23, 127, P.cartonD);
-  for (let k = 0; k < 3; k++) PIEZAS_AT.cartucho?.(R, 5 + k * 7, 131 - (k % 2) * 3, { color: ['amarillo', 'verde', 'naranja'][k], icono: ico === 'foso' ? 'foso' : 'comecocos', dir: k % 2 ? -1 : 1 });
+  for (let k = 0; k < 3; k++) PIEZAS_AT.cartucho?.(R, 5 + k * 7, 131 - (k % 2) * 3, { color: ['amarillo', 'verde', 'naranja'][k], icono: b_icoDe(ico, k + 1, true), dir: k % 2 ? -1 : 1 });
   rect(0, 127, 23, 137, P.carton); rect(0, 127, 23, 127, P.cartonL); rect(23, 127, 23, 137, P.cartonS); rect(11, 127, 11, 136, P.cinta); rect(0, 137, 23, 137, P.cartonD);
   R.poligono([[23, 127], [33, 119], [33, 123], [24, 129]], P.cartonS); R.linea(23, 127, 33, 119, P.cartonL);
   R.poligono([[0, 120], [6, 113], [12, 113], [8, 120]], P.carton); R.linea(6, 113, 12, 113, P.cartonL);
@@ -2292,16 +2294,21 @@ function b_almacenDelante(R, t, o) {
   for (let y = 132; y <= 179; y++) for (let x = 304; x <= 316; x++) { const borde = x === 304 || x === 316; pset(x, y, borde ? P.negro : ((y >> 2) % 2 ? P.amarillo : P.negro)); }
   rect(305, 130, 315, 133, P.amarilloL); rect(305, 130, 315, 130, P.crema); rect(305, 132, 305, 179, b_mez(P.amarillo, P.crema, 0.4));
 }
-
 // ════ cámara 'pasillo' ════
 // perspectiva central: fuga en (160, 88); el suelo de un punto a profundidad z está en y = 88 + 240 / z y las caras de las
 // estanterías en x = 160 ± 320 / z. Un personaje con los pies en y 165 está en z ≈ 3.1 (pasillo libre entre x 60 y 260);
 // en y 150, x 108–212. Al fondo (z 30), la puerta iluminada en x 152–168, y 76–96.
 function b_pasillo(R, t, o) {
-  const { rect, pset } = R, P = b_P, ico = o.icono ?? 'comecocos';
+  const { rect, pset } = R, P = b_P, ico = o.icono ?? 'varios';
   b_fijo(R, 'pas|' + ico, () => b_pasilloFijo(R, ico));
-  // la lámpara del fondo que parpadea
+  // la lámpara del fondo que parpadea, y la baliza naranja que gira sobre la puerta del fondo
   if (b_falla(t, 3)) { rect(157, 69, 163, 69, hex('#5a5a5a')); }
+  { const f = Math.floor(t * 4) % 4; rect(159, 72, 161, 72, f === 0 ? hex('#ffb040') : hex('#8a5a2a')); if (f === 0) { pset(157, 72, b_mez(hex('#ffb040'), P.cubierta, 0.5)); pset(163, 72, b_mez(hex('#ffb040'), P.cubierta, 0.5)); } }
+  // el cartel con el número de la calle, colgado del techo con dos cadenas, que se mece un poco
+  { const sw = Math.round(Math.sin(t * 0.8) * 1.2), cx = 160 + sw;
+    for (const d of [-6, 6]) R.linea(160 + d, 18, cx + d, 30, P.gris);
+    rect(cx - 9, 30, cx + 9, 42, P.negro); rect(cx - 8, 31, cx + 8, 41, P.amarillo); rect(cx - 8, 31, cx + 8, 31, P.amarilloL); rect(cx - 8, 41, cx + 8, 41, P.amarilloS);
+    R.numero('7', cx, 40, { color: P.negro, centro: true, sombra: false }); }
   // la carretilla que cruza al fondo, recortada al hueco del pasillo
   R.recorte([149, 60, 171, 97]);
   { const u = (t % 10) / 10, x = Math.round(140 + u * 44), s = 97; rect(x - 4, s - 3, x + 3, s - 1, P.amarillo); rect(x - 4, s - 3, x + 3, s - 3, P.amarilloL); rect(x - 2, s - 7, x - 2, s - 3, P.negro); rect(x + 1, s - 7, x + 1, s - 3, P.negro); rect(x - 2, s - 7, x + 1, s - 7, P.negro); rect(x + 4, s - 9, x + 4, s - 1, P.gris); rect(x + 5, s - 4, x + 8, s - 3, P.carton); pset(x - 3, s, P.negro); pset(x + 2, s, P.negro); }
@@ -2312,38 +2319,93 @@ function b_pasillo(R, t, o) {
   for (let k = 0; k < 30; k++) { const z = 2.5 + h(k, 1, 48) * 14, X = (h(k, 2, 48) - 0.5) * 4 + Math.sin(t * 0.3 + k) * 0.3, Y = ((h(k, 3, 48) * 7 + t * 0.15) % 7) - 4.8, x = Math.round(160 + X * 100 / z), y = Math.round(88 + Y * 100 / z); if (Math.sin(t * 1.5 + k * 1.9) > -0.2) pset(x, y, z < 6 ? P.crema : P.chapaL); }
   return { suelo: 165, fuga: [160, 88], libre: [60, 260], puertaFondo: [152, 76, 168, 96] };
 }
-
+// lo fijo del pasillo: techo con la tubería de los rociadores y la bandeja de cables, el suelo con sus juntas, rodadas y la
+// mancha de aceite, la pared del fondo con la puerta, las lámparas y las dos estanterías de cajas con su cartón, su luz y
+// lo impreso (el dibujo de ico, la etiqueta con el código de barras, las flechas de «hacia arriba» y el asa)
 function b_pasilloFijo(R, ico) {
-  const { rect, pset, poligono } = R, P = b_P, VX = 160, VY = 88, F = 100, ZF = 30;
+  const { rect, pset, poligono, linea } = R, P = b_P, VX = 160, VY = 88, F = 100, ZF = 30;
   const px = (X, z) => VX + X * F / z, py = (Y, z) => VY + Y * F / z, niebla = hex('#2a2a30');
+  const fogz = (c, z) => b_mez(c, niebla, Math.min(0.8, z / ZF * 0.85));
   const quad = (X1, Y1, z1, X2, Y2, z2, c, modo) => {   // un rectángulo en el plano X = cte (modo 'x') o z = cte (modo 'z')
     const p = modo === 'x' ? [[px(X1, z1), py(Y1, z1)], [px(X1, z2), py(Y1, z2)], [px(X1, z2), py(Y2, z2)], [px(X1, z1), py(Y2, z1)]]
       : [[px(X1, z1), py(Y1, z1)], [px(X2, z1), py(Y1, z1)], [px(X2, z1), py(Y2, z1)], [px(X1, z1), py(Y2, z1)]];
     poligono(p.map(([x, y]) => [Math.round(x), Math.round(y)]), c);
   };
   const lamps = [3, 7, 11, 15, 19, 23, 27];
-  // el techo y el suelo, píxel a píxel, con la niebla del fondo y los charcos de luz de las lámparas
+  // el techo y el suelo, píxel a píxel, con la niebla del fondo y los charcos de luz de las lámparas; en el suelo, las
+  // rodadas de las carretillas y una mancha de aceite
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
     let c;
     if (y > VY) {
       const z = 240 / (y - VY); if (z > ZF) { c = hex('#6a6a70'); pset(x, y, c); continue; }
       const X = (x - VX) * z / F, r = h(x, y, 49); c = r > 0.9 ? P.hormiS : r < 0.08 ? P.hormiL : P.hormi;
       if (Math.abs(Math.abs(X) - 0.25) < 0.05 + z * 0.002) c = P.amarillo;
+      if (Math.abs(Math.abs(X) - 1.05) < 0.07 + z * 0.002 && h(Math.floor(z * 2), X > 0 ? 1 : 2, 53) < 0.7 && r < 0.75) c = b_mez(c, P.hormiD, 0.35);
+      if ((X - 0.7) ** 2 / 0.12 + (z - 5.6) ** 2 / 0.6 < 1 && (x + y) % 2 === 0) c = b_mez(c, P.hormiD, 0.6);
       if ((z % 2) < 0.04 * z ** 0.6) c = P.hormiS;
       let luz = 0; for (const zl of lamps) luz += Math.exp(-((z - zl) ** 2) / 1.5 - X * X / 2.5) * 0.45;
       if (luz > 0.05 && (x + y) % 2 === 0) c = b_mez(c, P.crema, Math.min(0.6, luz));
-      c = b_mez(c, niebla, Math.min(0.8, z / ZF * 0.85));
+      c = fogz(c, z);
     } else {
       const z = 600 / (VY - y + 0.001); if (z > ZF || y >= VY) { pset(x, y, hex('#3a3a40')); continue; }
-      c = (z % 2) < 0.05 * z ** 0.6 ? P.cerchaL : P.cubierta; c = b_mez(c, niebla, Math.min(0.7, z / ZF * 0.7));
+      const X = (x - VX) * z / F;
+      c = (z % 2) < 0.05 * z ** 0.6 ? P.cerchaL : Math.abs(X % 0.8) < 0.03 ? hex('#343842') : P.cubierta;
+      let luz = 0; for (const zl of lamps) luz += Math.exp(-((z - zl) ** 2) / 0.8 - X * X / 1.2) * 0.3;
+      if (luz > 0.04 && (x + y) % 2 === 0) c = b_mez(c, P.crema, Math.min(0.35, luz));
+      c = b_mez(c, niebla, Math.min(0.7, z / ZF * 0.7));
     }
     pset(x, y, c);
+  }
+  // por el techo: la tubería roja de los rociadores y la bandeja de cables, que fugan al fondo, con sus colgadores
+  for (const [X, Y, c, cl] of [[-1.5, -5.6, P.rojoS, P.rojo], [1.5, -5.65, hex('#5a5e68'), hex('#9a9ea8')]]) {
+    for (let z = 8; z < ZF; z += 0.5) { const w = Math.max(1, Math.round(0.14 * F / z)); for (let d = 0; d < w; d++) linea(Math.round(px(X, z)), Math.round(py(Y, z)) + d, Math.round(px(X, z + 0.5)), Math.round(py(Y, z + 0.5)) + d, fogz(d === 0 ? cl : c, z)); }
+    for (let z = 9; z < ZF; z += 3) { const x = Math.round(px(X, z)); linea(x, Math.round(py(-6, z)), x, Math.round(py(Y, z)), fogz(P.cercha, z)); if (X < 0) pset(x, Math.round(py(Y, z)) + 1, fogz(P.oro, z)); }
   }
   // la pared del fondo con su puerta iluminada y el pictograma de salida
   rect(Math.round(px(-3.2, ZF)), Math.round(py(-6, ZF)), Math.round(px(3.2, ZF)), Math.round(py(2.4, ZF)), hex('#5a5a62'));
   rect(155, 79, 165, 96, hex('#f0e8c8')); rect(155, 79, 165, 79, hex('#c8c0a0')); rect(158, 74, 162, 77, P.verde); pset(159, 75, P.crema); pset(160, 75, P.crema);
   // las lámparas del techo en fila
   for (const z of lamps) poligono([[px(-0.7, z), py(-6, z)], [px(0.7, z), py(-6, z)], [px(0.7, z + 0.6), py(-6, z + 0.6)], [px(-0.7, z + 0.6), py(-6, z + 0.6)]].map(([x, y]) => [Math.round(x), Math.round(y)]), b_mez(P.tubo, niebla, Math.min(0.6, z / ZF * 0.6)));
+  // la cara de una caja que da al pasillo (X = ±3,2, de z1 a z2, de yt a yb), de cerca: el cartón con motas y rozaduras,
+  // la luz de las lámparas, la solapa de arriba, la cinta y el canto del fondo en sombra; y lo impreso, que se aparta de
+  // la esquina de Atom y de la barra del año: el dibujo, la etiqueta con su código de barras, las flechas y el asa
+  const cara = (X, s, z1, z2, yt, yb, c, n) => {
+    const xa = Math.round(px(X, z1)), xb = Math.round(px(X, z2));
+    for (let x = Math.max(0, Math.min(xa, xb)); x <= Math.min(319, Math.max(xa, xb)); x++) {
+      const z = x === VX ? -1 : X * F / (x - VX); if (z < z1 - 0.01 || z > z2 + 0.01) continue;
+      const u = (z - z1) / (z2 - z1), ya = Math.max(0, Math.round(py(yt, z))), yB = Math.min(179, Math.round(py(yb, z)));
+      const ym = py((yt + yb) / 2, z), cin = 0.05 * F / z, sol = py(yt + 0.16, z);
+      let luz = 0; for (const zl of lamps) luz += Math.exp(-((z - zl) ** 2) / 2) * 0.2;
+      for (let y = ya; y <= yB; y++) {
+        const r = h(x, y, 52); let col = r < 0.05 ? P.cartonS : r > 0.96 ? P.cartonL : c;
+        if (Math.abs(y - ym) <= cin) col = r < 0.3 ? b_mez(P.cinta, P.cartonL, 0.5) : P.cinta;
+        else if (Math.abs(y - sol) < 0.6) col = P.cartonS;
+        if (y === ya) col = P.cartonL;
+        col = b_mez(col, P.cartonD, Math.max(0, u - 0.8) * 2.2 + Math.max(0, (y - ya) / Math.max(1, yB - ya) - 0.7) * 0.5);
+        pset(x, y, fogz(b_mez(col, P.crema, Math.min(0.3, luz)), z));
+      }
+    }
+    const zi = z1 + 0.14, e = 0.065 * F / zi; if (e < 0.6) return;
+    const sc = Math.max(1, Math.round(e)), lado = 6 * sc, xi = Math.round(s < 0 ? px(X, zi) : px(X, zi) - lado), yi = Math.round(py(yt + 0.24, zi));
+    const libre = (a, b, c2, d) => !(c2 >= 274 && b <= 48) && !(c2 >= 16 && a <= 176 && b <= 18) && a >= 0 && c2 <= 319;
+    if (libre(xi, yi, xi + lado, yi + lado)) b_icoCaja(R, xi, yi, b_icoDe(ico, n), sc, (q) => fogz(b_mez(q, c, 0.15), zi));
+    if (sc < 2) return;
+    // la etiqueta blanca con el código de barras
+    const za = z1 + 0.5, zb = z1 + 0.75, ya2 = yt + 0.26, yb2 = yt + 0.52;
+    const ex = [Math.round(px(X, za)), Math.round(px(X, zb))], ey = Math.round(py(ya2, za));
+    if (libre(Math.min(...ex), ey, Math.max(...ex), Math.round(py(yb2, za)))) {
+      quad(X, ya2, za, 0, yb2, zb, fogz(P.papel, za), 'x');
+      for (let k = 0; k < 9; k++) { const zz = lerp(za + 0.03, zb - 0.03, k / 8); if (h(k, n, 54) < 0.6) { const x = Math.round(px(X, zz)); linea(x, Math.round(py(ya2 + 0.12, zz)), x, Math.round(py(yb2 - 0.03, zz)), fogz(P.negro, zz)); } }
+      quad(X, ya2 + 0.03, za + 0.03, 0, ya2 + 0.07, zb - 0.06, fogz(P.cartonS, za), 'x');
+    }
+    // las dos flechas de «hacia arriba», abajo, y el asa troquelada
+    for (const zz of [z1 + 0.18, z1 + 0.3]) {
+      const x = Math.round(px(X, zz)), y0 = Math.round(py(yb - 0.3, zz)), y1 = Math.round(py(yb - 0.08, zz)), a = Math.max(1, Math.round(0.04 * F / zz));
+      if (!libre(x - a, y0, x + a, y1)) continue;
+      linea(x, y0, x, y1, fogz(P.cartonD, zz)); linea(x - a, y0 + a, x, y0, fogz(P.cartonD, zz)); linea(x + a, y0 + a, x, y0, fogz(P.cartonD, zz));
+    }
+    { const z0 = z1 + 0.55, z3 = z1 + 0.72; if (libre(Math.min(px(X, z0), px(X, z3)), py(yb - 0.3, z0), Math.max(px(X, z0), px(X, z3)), py(yb - 0.2, z0))) quad(X, yb - 0.3, z0, 0, yb - 0.21, z3, fogz(P.cartonD, z0), 'x'); }
+  };
   // las estanterías de los dos lados, de atrás hacia delante: fondo oscuro, cajas, largueros y postes
   const nivel = [[1.0, 2.4], [-0.6, 1.0], [-2.2, -0.6], [-3.8, -2.2], [-5.4, -3.8]];
   for (let za = ZF - 1.5; za > 0.3; za -= 2) {
@@ -2360,24 +2422,20 @@ function b_pasilloFijo(R, ico) {
           quad(X, yt, z1, 0, yb, z2, fog(c, z1), 'x');
           quad(X, yt, z1, 0, yt + 0.06, z2, fog(P.cartonL, z1), 'x');
           quad(X, (yt + yb) / 2 - 0.05, z1, 0, (yt + yb) / 2 + 0.05, z2, fog(P.cinta, z1), 'x');
-          if (z1 < 9) {   // la etiqueta y el dibujo impreso, que solo se leen cerca
-            const zm = z1 + 0.2, xm = Math.round(px(X, zm)), ym = Math.round(py(yt + 0.3, zm)), e = Math.max(1, Math.round(28 / zm));
-            if (ico === 'foso') { R.rect(xm - e, ym + e, xm + e, ym + e + Math.max(0, e - 1), b_mez(P.negro, niebla, 0.2)); R.disco(xm, ym, Math.max(1, e >> 1), P.oro); }
-            else { const cx = xm + s * e, cy = ym + e; R.disco(cx, cy, e, fog(P.oro, z1)); R.poligono([[cx, cy], [cx + s * (e + 1), cy - Math.ceil(e * 0.6)], [cx + s * (e + 1), cy + Math.ceil(e * 0.6)]], fog(c, z1)); if (e > 2) R.disco(cx, cy - Math.round(e * 0.5), Math.max(1, e >> 3), fog(P.negro, z1)); }
-            if (e > 3) R.rect(xm - s * e - 1, ym + 3 * e, xm - s * e + s * Math.round(e * 0.8), ym + 3 * e + Math.round(e * 0.5), fog(P.papel, z1));
-          }
+          if (z1 < 12) cara(X, s, z1, z2, yt, yb, c, Math.floor(za) * 5 + l * 3 + (z1 > za + 1 ? 1 : 0) + (s > 0 ? 2 : 0));
         }
         quad(X, y2 - 0.25, za, 0, y2, zb, fog(P.madera, za), 'x');
+        if (za < 10) for (let zz = za + 0.3; zz < zb; zz += 0.5) quad(X, y2 - 0.2, zz, 0, y2 - 0.05, zz + 0.12, fog(P.maderaD, za), 'x');   // las tablas del palé
         quad(X, y2, za, 0, y2 + 0.22, zb, fog(P.viga, za), 'x'); quad(X, y2, za, 0, y2 + 0.05, zb, fog(P.vigaL, za), 'x');
       });
       quad(X, -5.6, za - 0.08, 0, 2.4, za + 0.08, fog(P.acero, za), 'x'); quad(X + 1.2 * s, -5.6, za - 0.08, 0, 2.4, za + 0.08, fog(P.aceroS, za), 'x');
       quad(X, -5.6, za - 0.08, X + 1.2 * s, 2.4, za - 0.08, fog(P.aceroL, za), 'z');
+      if (za < 14) for (let Y = -5.2; Y < 2.2; Y += 0.4) { const x = Math.round(px(X, za)), y = Math.round(py(Y, za)); if (y > 50 && y < 179) pset(x + s * -1, y, fog(P.aceroS, za)); }   // los taladros del poste
     }
   }
-  // la sombra del techo arriba (la barra del año y la esquina de Atom, tranquilas) y la sombra al pie de las estanterías
+  // la sombra del techo arriba (la barra del año y la esquina de Atom, tranquilas)
   for (let y = 0; y < 56; y++) { const k = (56 - y) / 56 * 0.55; for (let x = 0; x < 320; x++) pset(x, y, b_mez(R.pget(x, y), hex('#14161c'), k)); }
 }
-
 // la trama ordenada 4 × 4 (0–1): degradados, halos y brumas tramados
 const M_B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
@@ -3438,9 +3496,18 @@ function c_volquete(R, x0, s, t, k, vuelco, gira, chorro, o = {}) {
   R.linea(...P(56, 25), ...P(62, 31), k(CD.cajaR));
   // el portón de atrás: cerrado, o colgando de arriba cuando la caja se levanta
   const [gx, gy] = P(0, 24); if (vuelco > 0.12) { R.rect(Math.round(gx) - 2, Math.round(gy), Math.round(gx), Math.round(gy) + 21, k(CD.cajaRS)); R.pset(Math.round(gx) - 1, Math.round(gy), k(CD.cromo)); } else R.linea(gx, gy, ...P(0, 0), k(CD.cajaRS));
-  // las cajas que caen a la fosa por detrás, a chorro
-  if (vuelco > 0.3 && chorro > 0 && chorro < 1) for (let i = 0; i < 7; i++) { const u = (t * 1.3 + i / 7) % 1, bx = Math.round(Hx - 4 - u * 20 - (i % 3) * 3), by = Math.round(Hy - 8 + u * u * 34);
-    R.rect(bx - 3, by - 3, bx + 3, by + 2, k([CD.carton, CD.cajaR, CD.cartonL, CD.crema][i % 4])); R.rect(bx - 3, by - 3, bx + 3, by - 3, k(CD.cartonL)); R.rect(bx + 2, by - 2, bx + 3, by + 2, k(CD.cartonS)); if (i % 2) c_cartuchito(R, bx - 8, by + 4, i, k); }
+  // de noche: el foco de trabajo de atrás del chasis (encendido mientras bascula) y su charco de luz sobre la fosa
+  if (o.noche && (vuelco > 0.05 || chorro > 0)) { c_charcoLuz(R, Hx - 20, Hy + 14, 50, 24, 0.5); const bri = 0.85 + Math.sin(t * 23) * 0.15;
+    for (let j = 0; j < 14; j++) { const f = j / 13, y = Math.round(s - 12 + f * 8); for (let x = Math.round(x0 - f * 16); x <= x0; x++) if (c_umbral(x, y) < 0.35 * (1 - f)) R.pset(x, y, c_mezcla(R.pget(x, y), CD.luzL, 0.5 * bri)); }
+    R.rect(x0 + 1, s - 16, x0 + 5, s - 13, CD.chasis); R.rect(x0 + 1, s - 15, x0 + 2, s - 14, CD.luzL); R.pset(x0 + 3, s - 15, CD.luz); }
+  // las cajas que caen a la fosa por detrás, a chorro: cajas de cartón con su contorno oscuro, la tapa clara, la cinta y
+  // el canto en sombra (de noche, encendidas por el foco); dan vueltas al caer
+  if (vuelco > 0.3 && chorro > 0 && chorro < 1) { const kc = o.noche ? c_lucido : k;
+    for (let i = 0; i < 7; i++) { const u = (t * 1.3 + i / 7) % 1, bx = Math.round(Hx - 4 - u * 20 - (i % 3) * 3), by = Math.round(Hy - 8 + u * u * 34), gi = Math.floor(u * 4 + i) % 2;
+      const col = [CD.carton, CD.cajaR, CD.cartonL, CD.crema][i % 4], colS = i % 4 === 1 ? CD.cajaRS : CD.cartonS, colL = i % 4 === 1 ? CD.cajaRL : CD.cartonL, w = gi ? 3 : 4, hh = gi ? 4 : 3;
+      R.rect(bx - w - 1, by - hh - 1, bx + w + 1, by + hh, CD.negro); R.rect(bx - w, by - hh, bx + w, by + hh - 1, kc(col)); R.rect(bx - w, by - hh, bx + w, by - hh, kc(o.noche ? CD.blanco : colL));
+      R.rect(bx + w - 1, by - hh + 1, bx + w, by + hh - 1, kc(colS)); R.rect(bx - 1 + gi, by - hh, bx + gi, by + hh - 1, kc(CD.cinta)); if (i % 3 === 0) { R.rect(bx - w + 1, by, bx - w + 2, by + 1, kc(CD.chasis)); R.pset(bx - w + 1, by, kc(CD.amar)); }
+      if (i % 2) c_cartuchito(R, bx - 9, by + 4, i, kc); } }
   // la cabina crema con la franja naranja y marrón, el capó, la parrilla y el parachoques
   R.rect(x0 + 62, s - 40, x0 + 85, s - 13, k(CD.crema)); R.rect(x0 + 62, s - 40, x0 + 63, s - 13, k(CD.cremaS)); R.rect(x0 + 62, s - 40, x0 + 85, s - 40, k(CD.cremaSS));
   R.rect(x0 + 84, s - 28, x0 + 96, s - 13, k(CD.crema)); R.rect(x0 + 84, s - 28, x0 + 96, s - 28, k(CD.blanco)); R.rect(x0 + 84, s - 16, x0 + 96, s - 13, k(CD.cremaS));
@@ -3461,7 +3528,6 @@ function c_volquete(R, x0, s, t, k, vuelco, gira, chorro, o = {}) {
   // de noche: los faros abren su cono hacia la derecha
   if (o.noche) for (let x = x0 + 98; x < x0 + 150; x++) { const d = x - x0 - 98, y0 = s - 24 - d * 0.18, y1 = s - 24 + d * 0.32; for (let y = Math.round(y0); y <= y1; y++) if (c_umbral(x, y) < 0.5 - d / 110) R.pset(x, y, c_mezcla(R.pget(x, y), CD.luz, 0.35)); }
 }
-
 // la compactadora de vertedero (una apisonadora de ruedas de acero con púas): amarilla, la pala delante, la cabina con su
 // jaula, el motor detrás con su escape y la baliza naranja que gira. x: la rueda de atrás menos 14; mira a la derecha
 function c_compactadora(R, x, s, t, k, gira, o = {}) {
@@ -3607,11 +3673,16 @@ function c_vallaVertedero(R, t, k, noche) {
 }
 
 function c_cementoCerca(R, t, o) {
-  const noche = !!o.noche, k = noche ? c_oscuro : c_igual, { pset, linea } = R, cem = o.cemento ?? 0.4;
-  c_fijo(R, 'v83c' + (noche ? 'n' : 'd'), () => {
-    // arriba, el borde de la fosa con una franja de cielo y la sierra
-    c_cieloFijo(R, 30, noche, [40, 12, 6]);
-    for (let x = 0; x < 320; x++) { const yc = Math.round(22 + 4 * Math.sin(x * 0.03 + 1) + 2 * Math.sin(x * 0.09)); for (let y = yc; y < 34; y++) pset(x, y, k(h(x >> 1, y, 69) < 0.2 ? CD.sierraS : y < yc + 2 ? CD.sierraL : CD.sierra)); }
+  const noche = !!o.noche, k = noche ? c_lunar : c_igual, { pset, linea } = R, cem = o.cemento ?? 0.4;
+  const cresta = c_fijo(R, 'v83c' + (noche ? 'n' : 'd'), () => {
+    // arriba, el borde de la fosa con una franja de cielo y la sierra (sin sol: la barra del año queda tranquila)
+    c_cieloFijo(R, 30, noche, [-40, -40, 6]); const cr = new Int16Array(320);
+    for (let x = 0; x < 320; x++) { const yc = Math.round(22 + 4 * Math.sin(x * 0.03 + 1) + 2 * Math.sin(x * 0.09)); cr[x] = yc; for (let y = yc; y < 38; y++) pset(x, y, k(h(x >> 1, y, 69) < 0.2 ? CD.sierraS : y < yc + 2 ? CD.sierraL : CD.sierra)); }
+    // de noche, la torre de focos en el borde de enfrente (x 228–244), con su caseta de chapa y el generador
+    if (noche) { const tx = 180; for (let y = 16; y < 48; y++) { pset(tx + Math.round((y - 16) * -0.08), y, CD.chasis); pset(tx + 12 + Math.round((y - 16) * 0.08), y, CD.chasis); }
+      for (let y = 18; y < 46; y += 6) { linea(tx, y, tx + 12, y + 6, CD.chasis); linea(tx + 12, y, tx, y + 6, CD.chasis); }
+      R.rect(tx - 4, 8, tx + 16, 15, CD.chasis); R.rect(tx - 3, 9, tx + 15, 9, k(CD.aceroL));
+      R.rect(tx + 20, 40, tx + 34, 48, k(CD.amarS)); R.rect(tx + 20, 40, tx + 34, 41, k(CD.amar)); for (let i = 0; i < 3; i++) R.rect(tx + 23 + i * 4, 43, tx + 24 + i * 4, 46, CD.chasis); }
     for (let x = 0; x < 320; x++) for (let y = 30; y < 58; y++) { const top = 52 + Math.round(Math.sin(x * 0.07) * 2); if (y < top - 18) continue; pset(x, y, k(y < top - 16 ? CD.arenaM : y < top ? (h(x, y, 70) < 0.1 ? CD.arenaS : CD.arena) : y === top ? CD.tierraL : CD.tierra)); }
     // la pared de la fosa con estratos y el fondo de cajas aplastadas
     for (let y = 54; y < 180; y++) for (let x = 0; x < 320; x++) { const est = (y + Math.round(Math.sin(x * 0.05) * 2)) % 7; let c = y < 76 ? (est === 0 ? CD.estrato : est === 4 ? CD.tierraS : CD.tierra) : (h(x >> 2, y >> 1, 71) < 0.3 ? CD.tierraS : CD.tierraSS); if (y >= 54 && y < 76 && h(x, y, 72) < 0.04) c = CD.tierraL; pset(x, y, k(c)); }
@@ -3620,7 +3691,13 @@ function c_cementoCerca(R, t, o) {
       R.poligono([[x, y], [x + w, y + a], [x + w - 2, y + a - 6], [x + 2, y - 7]], k(c_mezcla(col, CD.cartonSS, 0.25))); linea(x + 2, y - 7, x + w - 2, y + a - 6, k(i % 5 === 2 ? CD.cajaRL : CD.cartonL)); linea(x, y, x + w, y + a, k(CD.cartonSS));
       linea(x + w / 2, y - 6 + a / 2, x + w / 2 + 2, y + a / 2, k(CD.cinta)); if (i % 4 === 0) { R.rect(x + 4, y - 5, x + 7, y - 3, k(CD.chasis)); pset(x + 5, y - 4, k(CD.amar)); } }
     for (let i = 0; i < 26; i++) { const x = Math.round(h(i, 5, 73) * 300 + 6), y = Math.round(92 + h(i, 6, 73) * 84); c_cartuchito(R, x, y, i, k); }
+    // de noche: el foco de la torre ilumina el fondo de la fosa (cajas, tapas claras y cartuchos que se leen)
+    if (noche) { const B = R.buf; for (let y = 54; y < 180; y++) for (let x = 0; x < 320; x++) { const f = c_focoCem(x, y); if (f <= 0) continue; const l = Math.min(3, Math.floor(f * 3.4 + c_umbral(x, y) - 0.2)); if (l > 0) B[y * 320 + x] = c_mezcla(B[y * 320 + x], CD.luz, [0, 0.16, 0.3, 0.42][l]); }
+      // el haz que baja del foco por el aire hasta la fosa, tramado
+      for (let y = 16; y < 64; y++) { const f = (y - 16) / 48, xa = 184 - f * 110, xb = 190 - f * 20; for (let x = Math.round(xa); x <= xb; x++) if (c_umbral(x, y) < 0.22 - f * 0.1) B[y * 320 + x] = c_mezcla(B[y * 320 + x], CD.luzL, 0.3); } }
+    return cr;
   });
+  c_cieloVivo(R, t, 30, noche, cresta, [-40, -40, 6]);
   // la canaleta de la hormigonera arriba a la izquierda y el chorro que cae
   const xf = Math.round(lerp(-10, 330, Math.min(1, cem)));
   R.poligono([[0, 26], [44, 44], [44, 50], [0, 33]], k(CD.acero)); linea(0, 26, 44, 44, k(CD.aceroL)); linea(0, 33, 44, 50, k(CD.aceroS));
@@ -3630,21 +3707,26 @@ function c_cementoCerca(R, t, o) {
   if (cem > 0) for (let y = 80; y < 180; y++) { const fr = Math.round(xf - (y - 130) ** 2 * 0.008 + Math.sin(y * 0.3 + t * 2.4) * 3);
     for (let x = 0; x < Math.min(320, fr); x++) { const ond = Math.sin(x * 0.05 + Math.sin(y * 0.08 + x * 0.01) * 2.2 - t * 1.2), g = h(x, y, 115);
       const lento = Math.sin(x * 0.02 + y * 0.035 + 1.7); let c = ond > 0.985 ? CD.cementoH : ond > 0.8 ? CD.cementoL : lento < -0.6 && c_umbral(x, y) < 0.5 ? CD.cementoS : lento > 0.6 && c_umbral(x, y) < 0.4 ? CD.cementoL : CD.cemento; if (g < 0.08) c = CD.cementoS; else if (g > 0.975) c = CD.cementoH; else if (g > 0.93) c = hex('#8a8478'); else if (fr - x < 44 && (fr - x + Math.round(Math.sin(y * 0.2) * 2)) % 8 === 0) c = CD.cementoL; else if (fr - x < 44 && (fr - x + Math.round(Math.sin(y * 0.2) * 2)) % 8 === 1) c = CD.cementoS;
-      if (fr - x < 6) c = fr - x < 2 ? CD.cementoL : CD.cementoS; pset(x, y, k(c)); }
+      if (fr - x < 6) c = fr - x < 2 ? CD.cementoL : CD.cementoS;
+      if (noche) { const f = c_focoCem(x, y); let q = k(c); if (f > 0) { const l = Math.min(3, Math.floor(f * 3.4 + c_umbral(x, y) - 0.2)); q = c_mezcla(q, CD.luz, [0, 0.18, 0.34, 0.48][Math.max(0, l)]);
+        if (ond > 0.95 && f > 0.25) q = (x + 2 * y + Math.floor(t * 5)) % 4 ? c_mezcla(q, CD.luzL, 0.55) : CD.luzL; else if (ond > 0.82 && f > 0.4 && c_umbral(x, y) < 0.4) q = c_mezcla(q, CD.luzL, 0.4); } pset(x, y, q); } else pset(x, y, k(c)); }
     if (fr >= 0 && fr < 318) { pset(fr, y, k(CD.tierraSS)); pset(fr + 1, y, k(CD.tierraSS)); } }
   // las cajas medio hundidas que asoman del cemento, manchadas de gris
   if (cem > 0) for (let i = 0; i < 9; i++) { const x = Math.round(10 + h(i, 1, 116) * 300), y = Math.round(96 + h(i, 2, 116) * 78); if (x > xf - 30) continue; const w = 10 + Math.round(h(i, 3, 116) * 10);
-    R.poligono([[x, y], [x + w, y - 3], [x + w + 2, y - 9], [x + 3, y - 7]], k(i % 3 === 1 ? CD.cajaRS : CD.cartonS)); linea(x + 3, y - 7, x + w + 2, y - 9, k(i % 3 === 1 ? CD.cajaR : CD.carton)); linea(x, y, x + w, y - 3, k(CD.cementoS)); for (let j = 0; j < 4; j++) pset(x + 2 + j * 3, y - 2 - (j % 2), k(CD.cementoL)); }
+    const kb = noche && c_focoCem(x, y) > 0.2 ? c_lucido : k;
+    R.poligono([[x - 1, y + 1], [x + w + 1, y - 2], [x + w + 3, y - 10], [x + 2, y - 8]], noche ? CD.negro : k(CD.cartonSS));
+    R.poligono([[x, y], [x + w, y - 3], [x + w + 2, y - 9], [x + 3, y - 7]], kb(i % 3 === 1 ? CD.cajaRS : CD.cartonS)); linea(x + 3, y - 7, x + w + 2, y - 9, kb(i % 3 === 1 ? CD.cajaRL : CD.cartonL)); linea(x + 4, y - 6, x + w + 1, y - 8, kb(i % 3 === 1 ? CD.cajaR : CD.carton)); linea(x, y, x + w, y - 3, k(CD.cementoS)); for (let j = 0; j < 4; j++) pset(x + 2 + j * 3, y - 2 - (j % 2), k(CD.cementoL)); }
   // los papeles que vuelan con el viento por encima de la fosa
   for (let i = 0; i < 3; i++) { const u = (t * (0.12 + i * 0.03) + i * 0.33) % 1, x = Math.round(lerp(-10, 330, u)), y = Math.round(64 + i * 22 + Math.sin(t * 2 + i) * 8), f = Math.sin(t * 8 + i) > 0;
     R.poligono([[x, y], [x + 6, y + (f ? -1 : 1)], [x + 5, y + 4], [x - 1, y + 3]], k(CD.papel)); linea(x + 1, y + 1, x + 4, y + 1, k(CD.papelS)); }
   // la rueda de púas de la compactadora que asoma a la derecha
   { const cx = 318, cy = 150; R.disco(cx, cy, 30, k(CD.aceroS)); R.disco(cx, cy, 26, k(CD.acero)); R.disco(cx - 3, cy - 3, 18, k(CD.aceroL)); R.disco(cx, cy, 9, k(CD.amar)); R.disco(cx - 1, cy - 1, 6, k(CD.amarL));
     for (let i = 0; i < 14; i++) { const a = -t * 0.4 + i * Math.PI / 7, px = Math.round(cx + Math.cos(a) * 31), py = Math.round(cy + Math.sin(a) * 31); R.disco(px, py, 3, k(CD.aceroS)); R.pset(px - 1, py - 1, k(CD.aceroL)); } }
-  if (noche) for (let y = 54; y < 180; y++) for (let x = 120; x < 240; x++) { const d = Math.hypot(x - 180, (y - 120) * 1.4); if (d < 60 && c_umbral(x, y) < 0.3 - d / 220) pset(x, y, c_mezcla(R.pget(x, y), CD.luz, 0.35)); }
+  // de noche: los cuatro focos de la torre encendidos (uno parpadea) y las polillas que dan vueltas a su luz
+  if (noche) { const tx = 180; for (let i = 0; i < 4; i++) { const on = i !== 2 || Math.sin(t * 17) > -0.6; R.rect(tx - 2 + i * 5, 10, tx + i * 5, 13, on ? CD.luzL : CD.luzN); if (on) pset(tx - 1 + i * 5, 11, CD.blanco); }
+    for (let i = 0; i < 5; i++) { const a = t * (3 + i * 0.7) + i * 1.3; pset(Math.round(tx + 7 + Math.cos(a) * (6 + i * 2)), Math.round(18 + Math.sin(a * 1.4) * (3 + i)), (i + Math.floor(t * 8)) % 2 ? CD.luzL : CD.cremaS); } }
   return { suelo: 52 };
 }
-
 // una fachada de ladrillo entre x0 y x1, de y0 a la acera: ladrillos en hileras con sus juntas, cornisa y zócalo
 function c_ladrillo(R, x0, y0, x1, y1, k) {
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const fila = Math.floor((y - y0) / 3), jx = (x - x0 + (fila % 2) * 4) % 8; let c = (y - y0) % 3 === 2 || jx === 0 ? CD.junta : h(Math.floor((x - x0 + (fila % 2) * 4) / 8), fila, 75) < 0.3 ? CD.ladrilloS : h(x >> 3, fila, 76) > 0.85 ? CD.ladrilloL : CD.ladrillo;
@@ -3678,6 +3760,8 @@ function c_pueblo(R, t, o) {
     rect(14, 74, 46, 90, k(CD.marron)); rect(15, 75, 45, 89, k(CD.crema)); rect(24, 79, 33, 86, k(hex('#d04a3a'))); rect(34, 81, 36, 84, k(hex('#d04a3a'))); for (let i = 0; i < 3; i++) pset(26 + i * 3, 77 - (i % 2), k(CD.lonaS));
     // la imprenta: dos plantas de ladrillo, cornisa, ventanas encendidas abajo y una arriba, y la puerta
     c_ladrillo(R, 64, 56, 150, 140, k); rect(64, 96, 150, 98, k(CD.cremaS));
+    // el bajante de chapa entre el café y la imprenta, con sus abrazaderas
+    rect(63, 58, 63, 140, k(CD.aceroS)); for (let y = 64; y < 140; y += 14) pset(63, y, k(CD.aceroL));
     rect(98, 108, 116, 140, k(CD.cremaSS)); rect(100, 110, 114, 140, CD.luzN); for (let y = 110; y < 140; y++) for (let x = 100; x <= 114; x++) if (c_umbral(x, y) < 0.35) pset(x, y, CD.luz); rect(106, 110, 107, 140, k(CD.marron)); rect(98, 104, 116, 106, k(CD.crema));
     // el rótulo de la imprenta: un periódico pintado (barras, sin letras) sobre la puerta
     rect(84, 62, 130, 76, k(CD.tinta)); rect(86, 64, 128, 74, k(CD.papel)); rect(88, 66, 126, 67, k(CD.tinta)); for (let x = 88; x < 126; x += 7) rect(x, 70, x + 4, 72, k(CD.papelS));
@@ -3753,7 +3837,6 @@ function c_pueblo(R, t, o) {
     pset(x + 7, y - 5, Math.sin(t * 0.9) > 0.9 ? hex('#1c1c28') : hex('#c8e05a')); const c = Math.round(Math.sin(t * 2) * 2); linea(x, y - 1, x - 3, y - 4 + c, hex('#1c1c28')); }
   return { suelo: 148, calzada: 172 };
 }
-
 // un coche de 1983 que cruza la calzada por delante (un sedán ancho con faros encendidos); x: su parte de atrás
 function c_cocheCalle(R, x, s, t, dir) {
   const k = c_oscuro, c = hex('#b84a3a'), cS = hex('#7a2a20');
@@ -3811,8 +3894,8 @@ function c_imprenta(R, t, o) {
     rect(226, 120, 300, 123, CD.madera); rect(226, 120, 300, 120, hex('#a8704a')); rect(226, 123, 300, 124, CD.maderaS); for (const x of [229, 296]) rect(x, 124, x + 2, 162, CD.maderaS);
     rect(230, 150, 298, 152, CD.maderaS);
   });
-  // las lámparas verdes que cuelgan y se mecen un poco, con su luz
-  for (const lx of [124, 176]) { const m = Math.round(Math.sin(t * 0.8 + lx) * 1); linea(lx, 0, lx + m, 14, CD.tinta); R.poligono([[lx + m - 7, 20], [lx + m - 3, 14], [lx + m + 3, 14], [lx + m + 7, 20]], hex('#2a6a4a')); R.rect(lx + m - 7, 20, lx + m + 7, 20, hex('#1a4a30')); R.rect(lx + m - 2, 21, lx + m + 2, 21, CD.luzL);
+  // las lámparas verdes que cuelgan y se mecen un poco, con su luz (fuera de la barra del año: x 20–170)
+  for (const lx of [10, 178]) { const m = Math.round(Math.sin(t * 0.8 + lx) * 1); linea(lx, 0, lx + m, 14, CD.tinta); R.poligono([[lx + m - 7, 20], [lx + m - 3, 14], [lx + m + 3, 14], [lx + m + 7, 20]], hex('#2a6a4a')); R.rect(lx + m - 7, 20, lx + m + 7, 20, hex('#1a4a30')); R.rect(lx + m - 2, 21, lx + m + 2, 21, CD.luzL);
     for (let y = 22; y < 120; y++) { const d = y - 22; for (let x = Math.round(lx + m - 6 - d * 0.35); x <= lx + m + 6 + d * 0.35; x++) if (c_umbral(x, y) < 0.14 - d / 900) pset(x, y, c_mezcla(R.pget(x, y), CD.luzL, 0.3)); } }
   // las agujas del reloj
   { const a = t * 0.5 - Math.PI / 2, b = t * 0.04 + 1; linea(210, 30, Math.round(210 + Math.cos(a) * 7), Math.round(30 + Math.sin(a) * 7), CD.tinta); linea(210, 30, Math.round(210 + Math.cos(b) * 5), Math.round(30 + Math.sin(b) * 5), CD.tinta); pset(210, 30, hex('#c8503a')); }
@@ -3850,7 +3933,6 @@ function c_imprenta(R, t, o) {
   if (o.sale != null) { const s = Math.min(1, Math.max(0, o.sale)), x = Math.round(lerp(220, 150, s)), y = Math.round(lerp(110, 132, s)), w = Math.round(lerp(18, 64, s)), hh = Math.round(lerp(12, 44, s)); c_periodico(R, x, y, w, hh, k, s > 0.6); }
   return { suelo: 162, mesa: [226, 120, 300, 162] };
 }
-
 // la excavadora de cadenas amarilla (mira a la izquierda): las cadenas con sus rodillos que corren, la tornamesa, la
 // cabina de cristal, el contrapeso, la pluma y el balancín con sus cilindros cromados y la cuchara con dientes. x: la
 // punta izquierda de las cadenas; e: escala; fase 0–1: el ciclo del brazo (baja, cava, sube con carga, gira); carga:
@@ -3908,7 +3990,7 @@ function c_excavacion(R, t, o) {
     R.rect(0, X_HOR + 3, 319, X_HOR + 4, CD.asfaltoL); for (let x = 0; x < 320; x += 6) pset(x, X_HOR + 3, CD.amarL);
     // la excavación: el hoyo irregular con la pared de capas de basura de 1983 (cartón, plástico de colores, papeles)
     for (let y = 100; y < 146; y++) for (let x = 80; x < 250; x++) { const bx = 80 + (146 - y) * 0.2 + Math.sin(y * 0.3) * 2, ex = 250 - (146 - y) * 0.15 - Math.sin(y * 0.25) * 2, top = 100 + Math.sin(x * 0.07) * 2 + h(x >> 3, 1, 91) * 2;
-      if (x < bx || x > ex || y < top) continue; const capa = Math.floor((y - top + Math.sin(x * 0.05) * 2) / 5); let c = [CD.tierraL, CD.tierra, CD.estrato, CD.tierraS, CD.tierra, CD.tierraSS, CD.tierraS, CD.tierraSS, CD.tierraSS][Math.min(8, capa)];
+      if (x < bx || x > ex || y < top) continue; const capa = Math.floor((y - top + Math.sin(x * 0.05) * 2) / 5); let c = [CD.tierraL, CD.tierra, CD.estrato, CD.tierraS, CD.tierra, CD.tierraSS, CD.tierraS, CD.tierraSS, CD.tierraSS][Math.max(0, Math.min(8, capa))];
       const n = h(x, y, 92); if (capa >= 2 && n < 0.1) c = [CD.cajaR, CD.vidrio, CD.carton, CD.papel, hex('#3a9a4a'), CD.amar][Math.floor(n * 60) % 6]; else if (capa >= 2 && n < 0.16) c = CD.cartonL;
       if (y > 136) c = h(x >> 1, y, 93) < 0.4 ? CD.tierraSS : CD.tierraS; pset(x, y, c); }
     // los montones de tierra y basura sacada, con su lado al sol y en sombra
@@ -3949,7 +4031,6 @@ function c_excavacion(R, t, o) {
     for (let yy = Math.round(y - r); yy <= y + r; yy++) for (let xx = Math.round(x - r); xx <= x + r; xx++) if (Math.hypot(xx - x, yy - y) < r && c_umbral(xx, yy) < 0.4 * (1 - u)) pset(xx, yy, c_mezcla(R.pget(xx, yy), CD.arenaL, 0.5)); }
   return { suelo: 160, fosa: [84, 100, 244, 142] };
 }
-
 // la valla de obra de delante (barandillas metálicas galvanizadas, de lado a lado, y 150–166) y el público de espaldas
 // de abajo, con camisetas de colores, que se mueve y levanta los móviles
 function c_vallaObra(R, t) {
@@ -3973,8 +4054,10 @@ function c_pala(R, t, o) {
     // arriba, el cielo y el borde de la fosa con el público asomado (detrás) y la pared de capas de basura
     c_cieloFijo(R, 34, false, [40, 10, 5]);
     for (let x = 0; x < 320; x++) for (let y = 26; y < 34; y++) pset(x, y, h(x >> 1, y, 98) < 0.3 ? CD.sierraS : CD.sierra);
+    // la llanura lejana entre la sierra y el borde de la fosa (donde el borde baja)
+    for (let x = 0; x < 320; x++) for (let y = 34; y < 42; y++) pset(x, y, y === 34 ? CD.arenaS : h(x >> 1, y, 97) < 0.25 ? CD.arenaS : CD.arenaM);
     for (let y = 30; y < 180; y++) for (let x = 0; x < 320; x++) { const top = 36 + Math.round(Math.sin(x * 0.05) * 3); if (y < top) continue;
-      const capa = Math.floor((y - top + Math.sin(x * 0.04) * 4) / 12); let c = [CD.arenaM, CD.tierraL, CD.estrato, CD.tierra, CD.tierraS, CD.tierra, CD.tierraS, CD.tierraSS, CD.tierraSS, CD.tierraSS, CD.tierraSS, CD.tierraSS][Math.min(11, capa)];
+      const capa = Math.floor((y - top + Math.sin(x * 0.04) * 4) / 12); let c = [CD.arenaM, CD.tierraL, CD.estrato, CD.tierra, CD.tierraS, CD.tierra, CD.tierraS, CD.tierraSS, CD.tierraSS, CD.tierraSS, CD.tierraSS, CD.tierraSS][Math.max(0, Math.min(11, capa))];
       if (y === top) c = CD.arenaL; const n = h(x >> 1, y >> 1, 99); if (capa >= 3 && n < 0.006) c = [CD.cajaR, CD.vidrio, CD.cartonL, CD.papel, hex('#3a9a4a'), CD.amar][Math.floor(n * 1000) % 6]; else if (n > 0.8) c = c_mezcla(c, CD.negro, 0.12);
       if ((y - top + Math.round(Math.sin(x * 0.04) * 4)) % 12 === 0 && capa > 0) c = c_mezcla(c, CD.negro, 0.25); pset(x, y, c); }
     // trozos de cajas y periódicos enterrados en la pared
@@ -4019,7 +4102,6 @@ function c_pala(R, t, o) {
   for (let i = 0; i < 6; i++) { const u = (t * 0.4 + i / 6) % 1, x = Math.round(bx - 40 + i * 16 + u * 30), y = Math.round(by + 30 - u * 30), r = 3 + u * 6; for (let yy = Math.round(y - r); yy <= y + r; yy++) for (let xx = Math.round(x - r); xx <= x + r; xx++) if (Math.hypot(xx - x, yy - y) < r && c_umbral(xx, yy) < 0.3 * (1 - u)) pset(xx, yy, c_mezcla(R.pget(xx, yy), CD.arenaL, 0.5)); }
   return { suelo: 172, cuchara: Q(0, -30).map(Math.round) };
 }
-
 function c_carpa(R, t, o) {
   const { pset, linea, rect } = R, k = c_igual;
   const cresta = c_fijo(R, 'carpa', () => {
@@ -4934,3 +5016,73 @@ function e_vitrina(R, t, o) {
   for (const [v, w, a, k] of [[9, 10, 0.16, 0], [6, 4, 0.22, 1]]) { const g = ((t * v + k * 120) % 340) - 60; for (let y = 21; y < 136; y++) { const xa = Math.round(g + (136 - y) * 0.5); for (let x = xa; x < xa + w; x++) if (x > 30 && x < 270) R.pset(x, y, e_mezcla(R.pget(x, y), C.blanco, a)); } }
   return { suelo: 143, vitrina: [31, 21, 269, 135], cartucho: [150, 124], caja: [222, 128], tarjeta: [58, 104, 101, 123] };
 }
+
+// los blísteres colgados del tablero de arriba (x 96–156 y 186–266, y 15–43, por debajo de la barra del año): el gancho, el cartón de color con su
+// agujero, la burbuja de plástico con el brillo y dentro un mando (palanca con su botón rojo o la rueda de un paddle)
+function b_blisteres(R) {
+  const { rect, pset, linea, disco } = R, P = b_P;
+  [96, 118, 140, 186, 208, 230, 252].forEach((x, i) => {
+    const y = 19 + (i % 2) * 2, c = b_mez(hex(b_CHILLON_HEX[b_CHILLON[(i * 3 + 1) % 8]]), P.negro, 0.22);
+    linea(x + 7, 15, x + 7, y + 2, P.gondD); pset(x + 7, 15, P.gondS); rect(x + 6, 15, x + 8, 15, P.gondD);
+    rect(x + 1, y + 1, x + 15, y + 24, b_mez(P.pegH, P.negro, 0.3));
+    rect(x, y, x + 14, y + 23, c); rect(x, y, x + 14, y, b_mez(c, P.crema, 0.3)); rect(x + 14, y, x + 14, y + 23, b_mez(c, P.negro, 0.3));
+    rect(x + 6, y + 2, x + 8, y + 3, b_mez(P.pegH, P.negro, 0.4));
+    rect(x + 2, y + 6, x + 12, y + 21, b_mez(c, P.crema, 0.35)); rect(x + 2, y + 6, x + 12, y + 6, P.crema); rect(x + 2, y + 6, x + 2, y + 21, b_mez(P.crema, c, 0.3));
+    if (i % 3 === 2) { disco(x + 7, y + 13, 4, hex('#2a2628')); disco(x + 7, y + 13, 2, P.gris); pset(x + 7, y + 10, P.crema); rect(x + 5, y + 18, x + 9, y + 19, hex('#2a2628')); }
+    else { rect(x + 4, y + 16, x + 10, y + 20, hex('#2a2628')); rect(x + 4, y + 16, x + 10, y + 16, P.gris); rect(x + 7, y + 10, x + 7, y + 15, P.negro); disco(x + 7, y + 10, 1, P.rojo); pset(x + 9, y + 18, P.rojo); }
+    pset(x + 11, y + 8, P.papel); pset(x + 11, y + 9, P.papel); pset(x + 3, y + 20, P.papel);
+    rect(x + 1, y + 22, x + 13, y + 22, b_mez(c, P.negro, 0.35));
+  });
+}
+
+// los dibujos impresos en las cajas (6 × 6, los de las etiquetas de PIEZAS_AT, sin letras ni marcas): el bocadito de queso
+// con agujeros ('comecocos'), el muñequito sobre el foso, la nave, la flor y la consola con su franja de madera
+const b_ICO = {
+  comecocos: ['.YYY..', 'YYYyY.', 'YyYYYY', 'YYYYyY', 'YYyYYY', '.YYYY.'],
+  foso: ['..S...', '.AAA..', '..A...', '.A.A..', 'VV..VV', 'VVkkVV'],
+  nave: ['..A...', '..A...', '.AEA..', 'AAAAA.', 'A.R.A.', '..R...'],
+  flor: ['.P.P..', 'PPYPP.', '.PPP..', '..V...', '.VV...', '..V...'],
+  consola: ['......', 'kkkkkk', 'kEkkRk', 'kkkkkk', 'MMMMMM', 'kkkkkk'],
+};
+
+// los mismos en 3 × 3, para los cartones pequeños de la estantería
+const b_ICO3 = { comecocos: ['YY.', 'YyY', 'YYY'], foso: ['.S.', '.A.', 'kkk'], nave: ['.A.', 'AEA', 'R.R'], flor: ['.P.', 'PYP', '.V.'], consola: ['kRk', 'kkk', 'MMM'] };
+
+const b_ICO_COL = Object.fromEntries(Object.entries({ S: '#f6c290', Y: '#f0d040', y: '#a8602a', V: '#3a9a4a', A: '#a8c8f0', E: '#ffffff', R: '#f0603a', P: '#f07aa8', k: '#1a1418', M: '#a8703a' }).map(([k, v]) => [k, hex(v)]));
+
+// 'varios' (lo de por omisión): los cuatro dibujos propios, alternados
+const b_VARIOS = ['comecocos', 'nave', 'flor', 'foso'];
+
+// el dibujo que toca a la caja n con la opción ico (las de PIEZAS_AT, si solo valen esas: sin la consola)
+const b_icoDe = (ico, n, pieza = false) => ico === 'varios' || !b_ICO[ico] || (pieza && ico === 'consola') ? b_VARIOS[((n % 4) + 4) % 4] : ico;
+
+// pinta el dibujo d con la esquina de arriba a la izquierda en (x, y), cada celda de sc × sc; tono(c) lo oscurece o lo empaña
+function b_icoCaja(R, x, y, d, sc = 1, tono = (c) => c, mini = false) {
+  const filas = (mini ? b_ICO3 : b_ICO)[d] ?? b_ICO3.comecocos;
+  filas.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const c = b_ICO_COL[f[i]]; if (c != null) R.rect(x + i * sc, y + j * sc, x + i * sc + sc - 1, y + j * sc + sc - 1, tono(c)); } });
+}
+
+// la versión de noche de un color pero iluminada por un foco cercano (se lee casi con su color de día), con memoria
+const c_LUCIDO = new Map();
+
+function c_lucido(c) {
+  let n = c_LUCIDO.get(c); if (n === undefined) { n = c_mezcla(c_oscuro(c), c, 0.82); c_LUCIDO.set(c, n); } return n;
+}
+
+// la noche de luna del fondo de la fosa (más clara y con más contraste que c_oscuro), con memoria
+const c_LUNAR = new Map();
+
+function c_lunar(c) {
+  let n = c_LUNAR.get(c); if (n === undefined) { n = c_mezcla(c_oscuro(c), c, 0.3); c_LUNAR.set(c, n); } return n;
+}
+
+// un charco de luz cálida tramado en bandas (elipse de centro cx, cy y radios rx, ry; fuerza máx. de mezcla): aclara lo
+// que ya está pintado, con tres escalones de luz y el tramado ordenado entre ellos
+function c_charcoLuz(R, cx, cy, rx, ry, fuerza, col = CD.luz) {
+  const B = R.buf, x0 = Math.max(0, Math.round(cx - rx)), x1 = Math.min(319, Math.round(cx + rx)), y0 = Math.max(0, Math.round(cy - ry)), y1 = Math.min(179, Math.round(cy + ry));
+  for (let y = y0; y <= y1; y++) { const dy = ((y - cy) / ry) ** 2; for (let x = x0; x <= x1; x++) { const d = ((x - cx) / rx) ** 2 + dy; if (d >= 1) continue;
+    const l = Math.min(3, Math.floor((1 - d) * 3 + c_umbral(x, y))); if (l > 0) B[y * 320 + x] = c_mezcla(B[y * 320 + x], col, fuerza * [0, 0.38, 0.7, 1][l]); } }
+}
+
+// el foco de la torre de noche sobre la fosa de cerca (0–1): un charco ancho centrado abajo a la izquierda del foco
+const c_focoCem = (x, y) => { const d = ((x - 150) / 128) ** 2 + ((y - 126) / 62) ** 2; return d < 1 ? 1 - d : 0; };

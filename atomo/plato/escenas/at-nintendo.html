@@ -11,14 +11,17 @@
 <script type="module">
 // AT-NINTENDO (frase 19), 1985, cartela «1985». Cuatro planos:
 // 1. (ny85) la calle nevada de Nueva York: el dependiente sale de la juguetería con la campanilla y saluda; la familia
-//    llega por la acera, el niño corre delante y salta junto al escaparate en «feet»; los taxis pasan por delante;
-// 2. (mapa) un barco cruza el Pacífico hasta la costa en «arrived», la consola gris viaja por la ruta roja y en
-//    «United States» cae la chincheta de Nueva York; destello en «Nintendo's»;
-// 3. (ny85 escaparate) la familia ante el cristal: en «approved» salen los vistos verdes en las cajas, en «seal» el
-//    sello dorado echa rayos y el niño salta; el padre señala el sello en «quality» y habla con la madre;
+//    llega por la acera, el niño corre delante y salta junto al escaparate en «feet»; un comprador sale con su consola
+//    en caja (el dependiente le aguanta la puerta, efecto «puerta») y se va por la derecha; los taxis pasan por delante;
+// 2. (mapa) el carguero con humo y dos gaviotas cruza el Pacífico hasta la costa en «arrived», la consola gris viaja
+//    por la ruta roja y en «United States» cae la chincheta de Nueva York; destello en «Nintendo's»;
+// 3. (ny85 escaparate) la familia ante el cristal y una señora con su bolsa que pasa por detrás mirando el escaparate:
+//    en «approved» salen los vistos verdes en las cajas, en «seal» el sello dorado echa rayos, el niño salta y aplaude;
+//    el padre señala el sello en «quality» y habla con la madre;
 // 4. (juntas/gráfica) una gráfica propia: 83 alta, 84–85 hundidas con el montón de cartuchos del «chaos»; en «came
 //    back» crecen 86–89, cada barra con su sello, y en «bigger than ever» la última pasa la raya del pico de 1983
-//    (destello y «!»); el puntero láser las sigue; la barra del año va de 1985 a 1989.
+//    (destello y «!»); el presentador, a la derecha, lleva el puntero láser que sigue las barras y celebra al final;
+//    la barra del año va de 1985 a 1989.
 import * as T from '/atomo/plato/escenas/at-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_AT } from '/atomo/plato/kits/pixel-chibi.js';
@@ -60,14 +63,21 @@ const P2 = a(0.2245), P3 = a(0.4395), P4 = a(0.7902);
 const pies = a(0.096), llega = a(0.285), estados = a(0.347), nint = a(0.391);
 const aprob = a(0.512), sello = a(0.6385), calidad = a(0.664), resp = a(0.714);
 const vuelven = a(0.8636), vino = a(0.9104), mayor = a(0.9424);
+const SALE = 3.5;   // el comprador sale por la puerta
 const NY = { encuadre: 'ny85' }, NYE = { encuadre: 'ny85', camara: 'escaparate' };
 // la bolsa de papel de la madre, colgada de la mano
+// la caja de la consola recién comprada (gris, con la franja roja y la foto), en la mano
+const cajaNES = ([x, y]) => { R.rect(x - 6, y - 7, x + 6, y + 2, K); R.rect(x - 5, y - 6, x + 5, y + 1, hex('#c8c8d2')); R.rect(x - 5, y - 6, x + 5, y - 6, hex('#e8e8f0'));
+  R.rect(x - 5, y - 4, x + 5, y - 3, hex('#c8303a')); R.rect(x - 3, y - 2, x + 1, y, hex('#5a5a66')); R.pset(x + 3, y - 1, hex('#e8b830')); R.rect(x + 5, y - 6, x + 5, y + 1, hex('#9a9aa6')); };
 const bolsa = ([x, y]) => { R.rect(x - 4, y - 1, x + 3, y + 8, K); R.rect(x - 3, y, x + 2, y + 7, hex('#b8925a')); R.rect(x - 3, y, x + 2, y + 1, hex('#d8b47a')); R.pset(x - 2, y - 2, K); R.pset(x + 1, y - 2, K); R.rect(x - 2, y + 3, x + 1, y + 5, hex('#c8303a')); };
 // 1 · la calle
 const p1 = (t) => {
   T.mundo(R, t, NY);
+  // un comprador sale de la juguetería con su consola en caja (las familias vuelven a comprar) y se va por la derecha;
+  // va detrás del dependiente, que le aguanta la puerta
+  if (t > SALE) { const c = tramo(t, SALE, SALE + 2.4), rc = R.actor(A.comprador, Math.round(lerp(222, 334, c)), 148, t, { dir: 1, anda: c < 1, sostiene: true, sonrisa: true }); cajaNES(rc.mano); }
   const s = tramo(t, 1.5, 2.2);
-  R.actor(A.dependiente, Math.round(lerp(214, 232, s)), Math.round(lerp(140, 150, s)), t, { dir: -1, anda: s > 0 && s < 1, sonrisa: true, habla: t > 2.4 && t < 3.4 && Math.sin(t * 9) > 0, dedo: t > 3.4 });
+  R.actor(A.dependiente, Math.round(lerp(214, 232, s)), Math.round(lerp(140, 150, s)), t, { dir: -1, anda: s > 0 && s < 1, sonrisa: true, habla: t > 2.4 && t < SALE && Math.sin(t * 9) > 0, brazos: t > SALE && t < SALE + 0.8, dedo: t > SALE + 0.8 });
   const m = tramo(t, 0.7, P2 - 1.2), xm = Math.round(lerp(-50, 100, m)), xp = Math.round(lerp(-30, 122, m));
   const rm = R.actor(A.madre85, xm, 151, t, { dir: 1, anda: m > 0 && m < 1, sostiene: true, sonrisa: m >= 1 }); bolsa(rm.mano);
   R.actor(A.padre85, xp, 150, t, { dir: 1, anda: m > 0 && m < 1, habla: m >= 1 && Math.sin(t * 8) > 0 });
@@ -76,13 +86,26 @@ const p1 = (t) => {
   R.actor(A.nino85, xn, 149, t, { dir: 1, anda: k > 0 && k < 1, salto: sj, sorpresa: k >= 1 && t < pies + 0.4, sonrisa: t > pies + 0.4, dedo: t > pies + 0.4 });
   T.mundoDelante(R, t, NY);
 };
+// el carguero con las cajas de consolas (popa a la izquierda, x proa): casco, puente, chimenea con humo y espuma
+const barco = (x, y, t) => {
+  for (let k = 0; k < 5; k++) { const f = ((t * 0.8 + k * 0.2) % 1), hx = x - 6 - Math.round(f * 12), hy = y - 15 - Math.round(f * 7); R.disco(hx, hy, 1 + Math.round(f * 2), mez(hex('#5a5a66'), hex('#c8ccd8'), f)); }
+  R.poligono([[x - 13, y - 5], [x + 11, y - 5], [x + 8, y + 1], [x - 11, y + 1]], K); R.poligono([[x - 12, y - 4], [x + 9, y - 4], [x + 7, y], [x - 10, y]], hex('#3a4a6a'));
+  R.rect(x - 12, y - 4, x + 9, y - 4, hex('#c8303a')); R.rect(x - 10, y, x + 7, y, hex('#24304a'));
+  R.rect(x - 11, y - 10, x - 5, y - 5, K); R.rect(x - 10, y - 9, x - 6, y - 5, hex('#f2eee2')); R.pset(x - 9, y - 8, hex('#6a9ad8')); R.pset(x - 7, y - 8, hex('#6a9ad8'));
+  R.rect(x - 8, y - 14, x - 6, y - 10, K); R.rect(x - 8, y - 13, x - 6, y - 13, hex('#c8303a'));
+  for (const [cx, c] of [[-3, '#c8c8d2'], [1, '#9a9aa6'], [5, '#c8c8d2']]) { R.rect(x + cx, y - 9, x + cx + 3, y - 5, K); R.rect(x + cx, y - 8, x + cx + 2, y - 5, hex(c)); R.pset(x + cx + 1, y - 7, hex('#c8303a')); }
+  for (let i = 0; i < 4; i++) R.pset(x + 10 + i, y + (i + Math.floor(t * 6)) % 2, i % 2 ? hex('#e8f0f6') : BL);
+};
 // 2 · el mapa: del Pacífico a Nueva York
 const p2 = (t) => {
   const P = T.mapa(R, t, { zona: 'eeuu' });
   const [sx, sy] = P([-122.4, 37.8]).map(Math.round), [nx, ny] = P([-74.0, 40.7]).map(Math.round);
-  const b = tramo(t, P2, llega), bx = Math.round(lerp(4, sx - 10, b)), by = sy + 10 + Math.round(Math.sin(t * 4));
+  const b = tramo(t, P2, llega), bx = Math.round(lerp(20, Math.max(34, sx - 10), b)), by = sy + 10 + Math.round(Math.sin(t * 4));
   if (b < 1) for (let i = 1; i < 7; i++) { R.pset(bx - 4 - i * 3, by + 1 + (i % 2), hex('#e8f0f6')); R.pset(bx - 5 - i * 3, by + 2, hex('#c8d8e8')); }
-  if (t < llega + 0.5) { R.icono('barco', bx - 7, by - 13, hex('#f2eee2'), K, 2); R.rect(bx - 2, by - 9, bx + 3, by - 6, hex('#9a9aa6')); R.rect(bx - 2, by - 9, bx + 3, by - 9, hex('#c8c8d2')); }
+  if (t < llega + 0.5) barco(bx, by, t);
+  // dos gaviotas siguen al barco y luego se van tierra adentro
+  for (let k = 0; k < 2; k++) { const gx = Math.round(bx - 6 + k * 14 + (t - P2) * (b < 1 ? 2 : 14) + Math.sin(t * 2 + k) * 3), gy = by - 26 - k * 5 + Math.round(Math.sin(t * 3 + k * 2) * 2);
+    const al = Math.sin(t * 10 + k * 3) > 0 ? -1 : 0; R.pset(gx, gy, BL); R.pset(gx - 1, gy + al, BL); R.pset(gx + 1, gy + al, BL); R.pset(gx - 2, gy + al - (al ? 0 : -1), hex('#c8d0d8')); R.pset(gx + 2, gy + al - (al ? 0 : -1), hex('#c8d0d8')); }
   const fin = [nx - 22, ny - 6];
   const pts = [[sx + 2, sy + 4], [Math.round(lerp(sx, fin[0], 0.35)), Math.round(lerp(sy, fin[1], 0.35)) - 16], [Math.round(lerp(sx, fin[0], 0.7)), Math.round(lerp(sy, fin[1], 0.7)) - 12], fin];
   const v = tramo(t, llega + 0.1, estados - 0.1);
@@ -102,9 +125,11 @@ const p3 = (t) => {
   if (b > 0 && b < 1) { R.recorte([26, 34, 294, 146]); for (let k = 0; k < 12; k++) { const g = k / 12 * 6.283 + t * 0.7, r0 = 24 + b * 6, r1 = r0 + 5 + Math.sin(b * Math.PI) * 12;
     R.linea(Math.round(246 + Math.cos(g) * r0), Math.round(72 + Math.sin(g) * r0), Math.round(246 + Math.cos(g) * r1), Math.round(72 + Math.sin(g) * r1), k % 2 ? hex('#fff0a0') : hex('#e8b830')); } R.recorte(null); }
   destello(264, 52, tramo(t, sello, sello + 0.6)); destello(230, 92, tramo(t, sello + 0.3, sello + 0.9));
+  // por la acera pasa una señora con su bolsa de regalos (detrás de la familia) y mira el escaparate al pasar
+  { const u = tramo(t, P3 + 0.2, P3 + 5.6), xv = Math.round(lerp(-14, 334, u)); if (u > 0 && u < 1) { const rv = R.actor(A.espectadora, xv, 175, t, { dir: 1, anda: true, sostiene: true, sonrisa: xv > 200 && xv < 280 }); bolsa(rv.mano); } }
   const rm = R.actor(A.madre85, 94, 178, t, { dir: 1, sonrisa: t > sello, habla: t > resp && t < resp + 1.2 && Math.sin(t * 8) > 0, sostiene: true }); bolsa(rm.mano);
   const sj = t > sello && t < sello + 0.5 ? Math.round(Math.sin((t - sello) / 0.5 * Math.PI) * 6) : 0;
-  R.actor(A.nino85, 146, 177, t, { dir: 1, salto: sj, sorpresa: t > sello && t < sello + 1.4, brazos: t > sello && t < sello + 0.7, sonrisa: t > sello + 1.4, dedo: t > aprob && t < sello });
+  R.actor(A.nino85, 146, 177, t, { dir: 1, salto: sj, sorpresa: t > sello && t < sello + 1.4, brazos: (t > sello && t < sello + 0.7) || (t > sello + 0.9 && t < sello + 1.7 && Math.sin(t * 16) > 0), sonrisa: t > sello + 1.4, dedo: t > aprob && t < sello });
   const w = tramo(t, P3 + 0.3, P3 + 1.7), xp = Math.round(lerp(336, 204, w));
   R.actor(A.padre85, xp, 178, t, { dir: t > calidad ? 1 : -1, anda: w > 0 && w < 1, dedo: t > calidad && t < resp + 0.3, habla: t > resp + 0.3 && Math.sin(t * 7) > 0, sonrisa: t > calidad });
   T.mundoDelante(R, t, NYE);
@@ -134,12 +159,17 @@ const p4 = (t) => {
   CAOS.forEach(([x, col, ic], i) => { const cae = tramo(t, P4 + 0.1 + i * 0.12, P4 + 0.45 + i * 0.12), y = Math.round(lerp(40, i < 3 ? BASE : BASE - 12, cae ** 2)); if (cae > 0) PZ.cartucho(R, x + Math.round(Math.sin(t * 3 + i) * (cae < 1 ? 2 : 0)), y, { color: col, icono: ic }); });
   if (t < vuelven) { lx = 104 + Math.round(Math.sin(t * 5) * 12); ly = 104 + Math.round(Math.cos(t * 7) * 6); } else if (t > mayor + 0.55) { lx = X0 + 6 * DX; ly = BASE - 96 + Math.round(Math.sin(t * 6) * 2); }
   if (t > cruza) { destello(X0 + 6 * DX + 14, PICO - 4, tramo(t, cruza, cruza + 0.7)); if (t > cruza + 0.2) R.icono('!', X0 + 6 * DX + 16, PICO - 18, hex('#c8303a'), K, 2); }
+  // el presentador, a la derecha de la pantalla, lleva el puntero: lo apunta, sigue las barras y celebra el récord
+  const rp = R.actor(A.ejecutivoWarner, 292, 178, t, { dir: -1, sostiene: t < mayor + 0.6 ? [Math.round(281 + (lx - 150) / 40), Math.round(156 + (ly - 100) / 30)] : false,
+    brazos: t > mayor + 0.6 && t < mayor + 1.8, sonrisa: t > vuelven, sorpresa: t > P4 + 0.3 && t < P4 + 1.2, habla: t > vuelven && t < mayor && Math.sin(t * 8) > 0 });
+  if (rp.mano) { const [px, py] = rp.mano; R.linea(px, py, px - 4, py - 2, K); R.pset(px - 4, py - 2, hex('#ff2a2a')); R.pset(px - 1, py - 1, hex('#8a8a96')); }
   // el puntero láser
   for (let g = 0; g < 6.28; g += 0.4) R.pset(Math.round(lx + Math.cos(g + t * 4) * 5), Math.round(ly + Math.sin(g + t * 4) * 5), hex('#ff9a9a'));
   R.disco(lx, ly, 3, hex('#ff6a6a')); R.disco(lx, ly, 2, hex('#ff2a2a')); R.pset(lx - 1, ly - 1, BL);
 };
 const año = (t) => t < vuelven ? 1985 : Math.min(1989, 1985 + Math.floor(tramo(t, vuelven, mayor + 0.55) * 4.99));
-const efectos = [[1.55, 'campana'], [P2 + 0.25, 'ola'], [estados, 'pop'], [aprob, 'sello'], [sello, 'brillo'], [P4 + 0.5, 'golpecito'], [mayor + 0.3, 'brillo']];
+const efectos = [[1.55, 'campana'], [SALE, 'puerta'], [P2 + 0.25, 'ola'], [estados, 'pop'], [nint + 0.1, 'brillo'], [aprob, 'sello'], [sello, 'brillo'], [sello + 0.95, 'palmada'],
+  [P4 + 0.5, 'golpecito'], [vuelven + 0.1, 'pop'], [mayor + 0.3, 'brillo'], [mayor + 1.3, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1985', efectos, año });
 </script>
 </body>
