@@ -472,7 +472,7 @@ const p4 = (t) => {
   // el sello de devolución que pone el dependiente sobre la caja
   if ((t > DEJA1 + 0.15 && t < DEJA1 + 0.45) || (t > DEJA2 + 0.15 && t < DEJA2 + 0.45)) R.bocadillo(268, 116, { icono: 'X' });
 };
-const efectos = [[0.4, 'maquina'], [SEGURO, 'pop'], [MILL, 'campana'], [CARTS - 0.6, 'motor'],
+const efectos = [[SEGURO, 'pop'], [MILL, 'campana'],
   [VENTAS3[0] + 0.6, 'campana'], [VENTAS3[1] + 0.6, 'campana'], [VENTAS3[2] + 0.6, 'campana'], [MEDIO + 0.5, 'brillo'],
   [ABRE, 'papel'], [NAVIDAD, 'flash'], [ENCIENDE, 'interruptor'], [CONFUSO, 'pop'], [CAE + 0.1, 'boing'], [SALE + 0.1, 'bip'], [OTRA + 0.1, 'boing'], [OTRA + 0.4, 'guau'],
   [DEJA1, 'toc'], [DEJA1 + 0.2, 'sello'], [GUARDA1, 'toc'], [DEJA2, 'toc'], [GUARDA2, 'toc']];

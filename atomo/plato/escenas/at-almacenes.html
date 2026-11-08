@@ -278,9 +278,9 @@ const p3 = (t) => {
   T.tiendasDelante(R, t, o);
 };
 
-const efectos = [[1.0, 'motor'], [almacenes, 'carro'], [cartuchos + 0.35, 'golpecito'], [cartuchos + 0.45, 'chof'],
-  [P2 + 0.2, 'tecleo'], [nada, 'bip'], [guardar, 'tecleo'], [dinero + 0.2, 'maquina'],
-  [imposible, 'toc'], [alguien + 0.2, 'tic'], [decision, 'brillo'], [decision + 0.4, 'motor']];
+const efectos = [[1.0, 'motor'], [almacenes, 'carro'], [cartuchos + 0.35, 'golpecito'],
+  [P2 + 0.2, 'tic'], [nada, 'bip'], [guardar, 'tic'], [dinero + 0.2, 'tic'],
+  [imposible, 'toc'], [alguien + 0.2, 'tic'], [decision, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1983 });
 </script>
 </body>

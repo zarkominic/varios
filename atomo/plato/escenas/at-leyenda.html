@@ -452,7 +452,7 @@ const p4 = (t) => {
 };
 
 const efectos = [[0.3, 'publico'], [explic, 'aviso'], [explic + 0.85, 'puerta'], [filled, 'vapor'], [gap + 0.2, 'boing'],
-  [P2 + 0.65, 'papel'], [story + 0.05, 'vapor'], [growing + 0.05, 'vapor'], [millions + 0.05, 'boing'], [copies, 'pop'],
+  [P2 + 0.65, 'papel'], [millions + 0.05, 'boing'], [copies, 'pop'],
   [P3 + 0.1, 'tecleo'], [buried + 0.05, 'bip'], [shame + 0.05, 'vapor'], [sank + 0.05, 'bip'], [industry + 0.05, 'boing'],
   [nobody + 0.05, 'bip'], [forums + 0.05, 'bip'], [magazines + 0.05, 'bip'], [docs + 0.05, 'bip'], [docs + 0.5, 'vapor']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P2 ? 1983 : t < P3 ? 1994 : t < P4 ? 2004 : 2012) });

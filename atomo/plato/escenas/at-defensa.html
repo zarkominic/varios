@@ -413,10 +413,10 @@ const p4 = (t) => {
   // las cabezas del público de delante: aplauden en «a lot better» y celebran en «remembered»
   fila(180, 8, 24, 14, 80, t, { rie: t > MEJOR - 0.2, aplaude: t > MEJOR - 0.1, movil: t > RECUERDA - 0.4 });
 };
-const efectos = [[0.5, 'publico'], [HUMOR + 0.1, 'publico'], [RAPIDO, 'whoosh'], [HISTORIA, 'campana'], [HISTORIA + 0.2, 'palmada'],
-  [CINCO, 'pop'], [SEMANAS, 'publico'], [FANS - 0.3, 'golpecito'],
-  [RETOCA, 'tecleo'], [CODIGO, 'bip'], [DIFICIL + 0.3, 'pop'], [FOSOS, 'brillo'],
-  [CAMBIO, 'boing'], [JUEGO + 0.1, 'boing'], [MEJOR - 0.05, 'brillo'], [MEJOR + 0.1, 'palmada'], [RECUERDA, 'publico']];
+const efectos = [[0.5, 'palmada'], [RAPIDO, 'whoosh'], [HISTORIA, 'campana'], [HISTORIA + 0.2, 'palmada'],
+  [CINCO, 'pop'], [SEMANAS, 'pop'], [FANS - 0.3, 'golpecito'],
+  [RETOCA, 'tic'], [CODIGO, 'bip'], [DIFICIL + 0.3, 'pop'], [FOSOS, 'brillo'],
+  [CAMBIO, 'boing'], [MEJOR - 0.05, 'brillo'], [MEJOR + 0.1, 'palmada'], [RECUERDA, 'publico']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 </script>
 </body>

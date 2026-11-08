@@ -295,8 +295,8 @@ const p3 = (t) => {
   for (let k = 0; k < 10; k++) { const u = ((t * 0.15 + k / 10) % 1); R.pset(Math.round(70 + k * 9 + Math.sin(t + k) * 4), Math.round(96 + u * 40), H('#fff4c8')); }
 };
 
-const efectos = [[0.4, 'maquina'], [1.5, 'papel'], [ran + 0.1, 'papel'], [dumped + 0.05, 'aviso'],
-  [snuck + 0.1, 'golpecito'], [snuck + 0.25, 'miau'], [rescue + 0.1, 'brillo'], [concrete - 0.3, 'motor'], [concrete + 0.1, 'claxon'],
+const efectos = [[1.5, 'papel'], [ran + 0.1, 'papel'], [dumped + 0.05, 'aviso'],
+  [snuck + 0.1, 'golpecito'], [snuck + 0.25, 'miau'], [rescue + 0.1, 'brillo'], [concrete + 0.1, 'claxon'],
   [P3 + 0.1, 'puerta'], [kept + 0.2, 'golpecito'], [pasan + 0.1, 'tic'], [pasan + 1.6, 'papel']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P3 ? 1983 : anio(t)) });
 </script>
