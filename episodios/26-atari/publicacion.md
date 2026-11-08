@@ -1,6 +1,6 @@
 # Episodio 26 · Material para publicar
 
-**Duración:** 8:20 (voz).
+**Duración:** 8:20.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`, narrada como un cuento, voz «B») y pista de audio en español
   (`em_santa`, con los nombres propios escritos como se dicen en México).
 - Subtítulos en inglés y en español.
@@ -43,7 +43,13 @@ What we cover:
 
 What's the worst game you owned as a kid? Tell me in the comments.
 
-CAPÍTULOS: se sacan con capitulos.py después del montaje.
+0:00 Buried in the desert
+0:40 The five-week game
+2:09 The flop
+3:32 The crash
+4:49 The burial
+6:10 The dig
+7:49 The ending
 
 Sources: Wikipedia (Atari video game burial, E.T. the Extra-Terrestrial (video game), Video game crash of 1983, Pac-Man
 (Atari 2600), Howard Scott Warshaw) · The New York Times (September 28, 1983) · Alamogordo Daily News (1983) · Atari:
@@ -71,7 +77,13 @@ Lo que contamos:
 
 ¿Cuál es el peor juego que tuviste de niño? Cuéntamelo en los comentarios.
 
-CAPÍTULOS: se sacan con capitulos.py después del montaje.
+0:00 Enterrados en el desierto
+0:40 El juego de cinco semanas
+2:09 El fracaso
+3:32 La caída
+4:49 El entierro
+6:10 La excavación
+7:49 El cierre
 
 Fuentes: Wikipedia (entierro de videojuegos de Atari, E.T. el extraterrestre (videojuego), crisis del videojuego de 1983,
 Pac-Man (Atari 2600), Howard Scott Warshaw) · The New York Times (28/9/1983) · Alamogordo Daily News (1983) · Atari: Game
@@ -93,4 +105,27 @@ Over (Zak Penn, 2014) · Museo Nacional de Historia Estadounidense del Smithsoni
 
 ## Shorts
 
-SHORTS: tramos, títulos y descripciones después del montaje.
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y dos miniaturas verticales (noir e intermedia). La prueba A/B de YouTube no sirve para Shorts:
+sube los Shorts 1 y 3 con la intermedia y el 2 con la noir, y miramos sus vistas en Studio. En «Vídeo relacionado» se
+elige el episodio completo.
+
+### Short 1 · Atari enterró sus juegos en el desierto · tramo 0.25-19.6,289.6-310.0
+- **EN:** Atari Buried Truckloads of Games in the Desert #Shorts
+- **ES:** Atari enterró camiones de videojuegos en el desierto #Shorts
+- **EN:** In September 1983, Atari trucks dumped crushed cartridges into a landfill in Alamogordo, New Mexico, and covered them with concrete. For thirty years nobody could check. The full story is in the linked video. #Atari #RetroGaming #ASKAtom #Shorts
+- **ES:** En septiembre de 1983, los camiones de Atari tiraron cartuchos aplastados en un vertedero de Alamogordo, Nuevo México, y los taparon con cemento. Durante treinta años nadie pudo comprobarlo. La historia completa, en el vídeo enlazado. #Atari #VideojuegosRetro #ASKAtom #Shorts
+
+### Short 2 · El juego de E.T. se hizo en cinco semanas · tramo 88.2-129.0
+- **EN:** The E.T. Atari Game Was Made in Five Weeks #Shorts
+- **ES:** El juego de E.T. de Atari se hizo en cinco semanas #Shorts
+- **EN:** The deal closed in late July 1982, and the game had to be finished by September 1. A normal game took about six months; Howard Scott Warshaw got just over five weeks. The full story is in the linked video. #Atari #RetroGaming #ASKAtom #Shorts
+- **ES:** El acuerdo se cerró a finales de julio de 1982 y el juego tenía que estar listo el 1 de septiembre. Un juego normal tardaba unos seis meses; a Howard Scott Warshaw le dieron poco más de cinco semanas. La historia completa, en el vídeo enlazado. #Atari #VideojuegosRetro #ASKAtom #Shorts
+
+### Short 3 · Desenterraron los juegos de Atari en 2014 · tramo 370.8-412.9
+- **EN:** In 2014, They Dug Up Atari's Buried Games #Shorts
+- **ES:** En 2014 desenterraron los juegos de Atari #Shorts
+- **EN:** On April 26, 2014, hundreds of people watched excavators dig up the Alamogordo landfill. The first E.T. cartridge turned up still in its box, but so did many other games. The full story is in the linked video. #Atari #RetroGaming #ASKAtom #Shorts
+- **ES:** El 26 de abril de 2014, cientos de personas vieron cómo las excavadoras abrían el vertedero de Alamogordo. Salió el primer cartucho de E.T., todavía en su caja, pero también muchos otros juegos. La historia completa, en el vídeo enlazado. #Atari #VideojuegosRetro #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/at-short1-miniatura.html` … `at-short3-miniatura.html` y sus `-mix`.
