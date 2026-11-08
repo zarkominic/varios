@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep24 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep24: la Luna enorme por el ocular, con la mira roja y el
+// cohete de tiza que llega; arriba, el «1958» dorado.
+// Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/dc-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const fondo = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const contorno = (b, c = K) => { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
+const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
+// lo que pinta «pinta» en un búfer aparte, medido y copiado a escala s, centrado en cx y con la base en «base», con filo
+const grande = (pinta, cx, base, s, filo) => {
+  R.usar(pj); pj.fill(VACIO); pinta(); R.usar(null);
+  let x0 = 320, x1 = 0, y0 = 180, y1 = 0; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (pj[y * 320 + x] !== VACIO) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  R.usar(tmp); tmp.fill(VACIO); pon(pj, x0, x1, y0, y1, Math.round(cx - (x1 - x0 + 1) * s / 2), base - (y1 - y0 + 1) * s, s); contorno(tmp, filo); R.usar(null); vuelca(tmp);
+};
+// el fondo de un decorado, desplazado dx (para centrar lo importante en la columna) y oscurecido hacia «tono»
+const pinta_fondo = (f, dx, tono, k) => { R.usar(fondo); f(); R.usar(null); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const sx = Math.max(0, Math.min(319, x + dx)); R.buf[y * 320 + x] = mezcla(tono, fondo[y * 320 + sx], k); } };
+
+const dibujar = (t) => {
+  pinta_fondo(() => T.carrera(R, t, { encuadre: 'observatorio', camara: 'luna' }), 2, hex('#04050d'), 0.0);
+  for (let k = 0; k < 18; k++) { const u = k / 18, x = 132 + u * 22, y = 172 - u * 64; if (k % 2 === 0) elipse(x, y, 1.2, 1.2, hex('#f4f6ee')); }
+  trazo(152, 112, 160, 100, 2.6, K); trazo(152, 112, 160, 100, 1.7, hex('#f4f6ee'));
+  brillo(162, 96, 16, hex('#fff0a0'), 0.55);
+  brillo(160, 22, 40, hex('#fff0a0'), 0.4);
+  R.numero('1958', 160, 32, { tam: 16, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
