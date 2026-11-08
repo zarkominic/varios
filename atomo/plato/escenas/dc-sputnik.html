@@ -12,10 +12,11 @@
 // DC-SPUTNIK (frase 4), octubre de 1957, barra 1957. Cinco planos:
 // 1. el patio de noche: el padre baja del porche y enciende la radio de la mesa, la madre sale a la puerta, el niño llega
 //    corriendo y da un salto señalando el cielo, donde asoma un puntito; el gato espía, en la valla («October 1957»);
-// 2. el cielo: el Sputnik cruza las estrellas y el brazo del niño lo sigue con el dedo («The Soviet Union launched Sputnik»);
+// 2. el cielo: el Sputnik cruza las estrellas pitando (un anillo doble por bip, cada 0,95 s) y el brazo del niño lo sigue
+//    con el dedo («The Soviet Union launched Sputnik»);
 // 3. inserto local de la mesa de jardín: la mano del padre gira el dial y la radio de onda corta pita al paso del puntito,
 //    que destella en el cielo a cada bip («anyone with a shortwave radio could hear it beeping»);
-// 4. el despacho de la Fuerza Aérea: el general lee el periódico con el satélite y se entristece; entra otro general y
+// 4. el despacho de la Fuerza Aérea: el general lee el periódico con el satélite, lo baja en «losing» y se entristece; entra otro general y
 //    hace la pregunta, con su «?» («Americans felt they were losing… somebody in the Air Force asked a question»);
 // 5. la mesa del despacho de cerca: la maqueta de la Luna gira, sale un «?» que se vuelve «!», la Luna se ilumina y la
 //    mano del general sella la carpeta de la Luna («What if we did something on the moon that the whole Earth could see?»).
@@ -67,12 +68,13 @@ const p1 = (t) => {
   T.carreraDelante(R, t, { encuadre: 'patio57', pitido: t > ENCIENDE + 0.15 });
 };
 
-// 2 · el cielo: el Sputnik y el dedo del niño
+// 2 · el cielo: el Sputnik y el dedo del niño; el satélite pita (un anillo doble por bip)
+const bipsCielo = []; for (let b = P2 + 0.45; b < P3 - 0.3; b += 0.95) bipsCielo.push(b);
 const p2 = (t) => {
   const g = T.carrera(R, t, { encuadre: 'patio57', camara: 'cielo', sputnik: tramo(t, P2 + 0.1, P3 - 0.15) });
   const sp = g.sputnik ?? [12, 150];
   // el satélite se lee: un halo que late y las ondas de su bip que salen a cada paso
-  if (t > P2 + 0.1) { const [x, y] = sp; for (let k = 0; k < 3; k++) { const w = ((t - P2) * 1.6 + k / 3) % 1; R.anillo(x, y, Math.round(4 + w * 16), H(w < 0.5 ? '#c8d0f0' : '#5a6498'), 2); }
+  if (t > P2 + 0.1) { const [x, y] = sp; for (const b of bipsCielo) { const w = (t - b) / 0.85; if (w > 0 && w < 1) for (let k = 0; k < 2; k++) { const ww = w - k * 0.22; if (ww > 0) R.anillo(x, y, Math.round(4 + ww * 18), H(ww < 0.5 ? '#c8d0f0' : '#5a6498'), 2); } }
     for (const [ox, oy] of [[2, 0], [-2, 0], [0, 2], [0, -2]]) pset(x + ox, y + oy, H('#dfe6ff')); }
   const sube = tramo(t, P2 + 0.5, SPUTNIK - 0.1), hx = 26, hy = 214;
   const dx = sp[0] - hx, dy = sp[1] - hy, d = Math.hypot(dx, dy) || 1, L = lerp(10, 76, sube);
@@ -191,8 +193,8 @@ const p4 = (t) => {
   // el gato espía escucha en el alféizar, por fuera del cristal
   R.recorte([202, 22, 266, 108]); T.gatoEspia(R, 254, 108, t, { dir: -1, cara: t > PREG ? 'travieso' : 'normal' }); R.recorte(null);
   // el general de la mesa lee el periódico del satélite y se entristece
-  const lee = t < PREG - 0.3;
-  const g1 = R.actor(EL.generalAF, 140, 133, t, { dir: 1, sostiene: lee ? [158, 108] : false, triste: t > LOSING - 0.2 && t < AIRF, sorpresa: t > PREG + 0.1, habla: t > P4 + 0.3 && t < P4 + 1.1 && Math.sin(t * 14) > 0 });
+  const lee = t < PREG - 0.3, dobla = tramo(t, LOSING, LOSING + 0.4);
+  const g1 = R.actor(EL.generalAF, 140, 133, t, { dir: 1, sostiene: lee ? [158, Math.round(108 + dobla * 6)] : false, triste: t > LOSING - 0.2 && t < AIRF, sorpresa: t > PREG + 0.1, habla: t > P4 + 0.3 && t < P4 + 1.1 && Math.sin(t * 14) > 0 });
   if (lee) { const [hx, hy] = g1.mano; rect(hx - 1, hy - 9, hx + 13, hy + 2, T.C.k); rect(hx, hy - 8, hx + 12, hy + 1, H('#e8e2cc')); rect(hx + 1, hy - 7, hx + 11, hy - 6, H('#2a2832'));
     disco(hx + 8, hy - 2, 2, H('#3a3a4a')); pset(hx + 8, hy - 2, H('#ffffff')); for (let k = 0; k < 3; k++) linea(hx + 1, hy - 4 + k * 2, hx + 4, hy - 4 + k * 2, H('#8a8678')); disco(hx, hy, 1.5, H('#f0b888')); }
   // entra el otro general por la derecha, se para y hace la pregunta
@@ -223,7 +225,10 @@ const p5 = (t) => {
   if (t > SELLA) { const e = tramo(t, SELLA, SELLA + 0.25); if (e < 1) for (let k = 0; k < 8; k++) { const an = k / 8 * Math.PI * 2, r = 10 + e * 14; pset(188 + Math.cos(an) * r, 142 + Math.sin(an) * r * 0.6, H('#f08aa0')); } }
 };
 
-const efectos = [[ENCIENDE, 'interruptor'], [SPUTNIK, 'brillo'], [P3 + 0.7, 'tic'], ...beeps.map((b) => [b, 'bip']), [P4 + 0.3, 'papel'], [PREG, 'pop'], [TIERRA, 'brillo'], [SELLA - 0.05, 'sello']];
+// efectos (densidad 40–60 %): el viento que mece el columpio y las hojas, la mosquitera, la radio que se enciende y pita,
+// los bips del satélite en el cielo y en la radio, el periódico del general, la «?», la Luna que brilla y el sello
+const efectos = [[0.1, 'viento'], [0.3, 'puerta'], [ENCIENDE, 'interruptor'], [ENCIENDE + 0.55, 'bip'], [SPUTNIK, 'brillo'], ...bipsCielo.map((b) => [b, 'bip']),
+  [P3 + 0.7, 'tic'], ...beeps.map((b) => [b, 'bip']), [P4 + 0.3, 'papel'], [LOSING, 'papel'], [PREG, 'pop'], [LUNA - 0.2, 'pop'], [TIERRA, 'brillo'], [P5 + 0.7, 'whoosh'], [SELLA - 0.05, 'sello']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1957 });
 </script>
 </body>

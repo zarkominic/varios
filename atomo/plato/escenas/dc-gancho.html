@@ -82,30 +82,74 @@ const destello = (x, y, u, t, c1 = AMA, c2 = TIZA, L = 16) => {
   disco(x, y, Math.max(1, Math.round(3 * Math.min(1, u * 2))), c2); pset(x, y, AMA);
 };
 
-// 1 · la pizarra: la mano lanza el cohete de tiza; llega a la Luna en «moon» y sale el destello dibujado
+// 1 · la pizarra: la mano escribe la cuenta atrás y lanza el cohete de tiza, que deja su estela de polvo; el gato de la
+// repisa lo sigue con la vista; en «moon», el destello dibujado, el polvo de tiza que salta y las líneas de mira hasta la Tierra
+const bz1 = (v) => { const A = (1 - v) * (1 - v), Bq = 2 * (1 - v) * v, Cq = v * v; return [A * 52 + Bq * 140 + Cq * 215, A * 132 + Bq * 30 + Cq * 52]; };
+const T0 = 1.15, NPUF = 16;
+const enAtom = (x, y) => x >= 272 && y <= 48;
 const p1 = (t) => {
-  const vuelo = tramo(t, 1.1, LUNA - 0.05), nube = tramo(t, LUNA, LUNA + 0.9);
+  const vuelo = tramo(t, T0, LUNA - 0.05), nube = tramo(t, LUNA, LUNA + 0.9);
   T.carrera(R, t, { encuadre: 'laboratorio', camara: 'pizarra', cohete: 0, nube: Math.min(0.58, nube) });
-  // el cohete de tiza grande (el doble que el del decorado) con su estela, sobre la trayectoria punteada
-  const bz = (v) => { const A = (1 - v) * (1 - v), Bq = 2 * (1 - v) * v, Cq = v * v; return [A * 52 + Bq * 140 + Cq * 215, A * 132 + Bq * 30 + Cq * 52]; };
+  const TV = LUNA - 0.05 - T0;
+  // la estela de tiza que queda (gruesa y punteada) y las bocanadas de polvo que crecen, se deshacen y caen
+  if (vuelo > 0) {
+    for (let i = 0; i < 60 * vuelo; i++) { const [x, y] = bz1(i / 60); if (i % 2 === 0 && i < 60 * vuelo - 3) { pset(Math.round(x), Math.round(y), TIZA); pset(Math.round(x) + 1, Math.round(y), TIZAS); pset(Math.round(x), Math.round(y) + 1, TIZAS); } }
+    for (let i = 0; i < NPUF; i++) {
+      const v = i / NPUF; if (v > vuelo) break;
+      const tb = T0 + v * TV, ed = t - tb, [px, py] = bz1(v), r = 1.5 + Math.min(1, ed / 1.2) * 4.5, dens = Math.max(0, 0.75 - ed * 0.22);
+      if (dens <= 0) continue;
+      const cx = px + Math.sin(i * 2.1) * ed * 2, cy = py + ed * 2.2;
+      for (let yy = Math.floor(cy - r); yy <= cy + r; yy++) for (let xx = Math.floor(cx - r); xx <= cx + r; xx++) {
+        const d = Math.hypot(xx - cx, yy - cy) / r; if (d > 1 || enAtom(xx, yy)) continue;
+        if (bay(xx, yy) < dens * (1 - d * d)) pset(xx, yy, d < 0.5 ? TIZA : TIZAS);
+      }
+      // dos motas de tiza que caen de cada bocanada hasta la repisa
+      for (let q = 0; q < 2; q++) { const mx = Math.round(px + (q ? 3 : -2) + Math.sin(ed * 3 + i + q) * 2), my = Math.round(py + ed * (14 + q * 6)); if (my < 165 && !enAtom(mx, my)) pset(mx, my, q ? TIZAS : TIZA); }
+    }
+  }
+  // el cohete de tiza grande con su llama que parpadea
   if (vuelo > 0 && vuelo < 1) {
-    for (let i = 0; i < 50 * vuelo; i++) { const [x, y] = bz(i / 50); if (i % 2 === 0 && i < 50 * vuelo - 4) disco(Math.round(x), Math.round(y), 1, TIZAS); }
-    const [x, y] = bz(vuelo), [x2, y2] = bz(Math.min(1, vuelo + 0.02)), an = Math.atan2(y2 - y, x2 - x), ca = Math.cos(an), sa = Math.sin(an);
+    const [x, y] = bz1(vuelo), [x2, y2] = bz1(Math.min(1, vuelo + 0.02)), an = Math.atan2(y2 - y, x2 - x), ca = Math.cos(an), sa = Math.sin(an);
     const Q = (i, j) => [Math.round(x + ca * i - sa * j), Math.round(y + sa * i + ca * j)];
     for (let i = -12; i <= 9; i++) { const ww = i > 4 ? Math.max(0, (9 - i) * 0.9) : 4; for (let j = -ww; j <= ww; j += 0.5) { const [px, py] = Q(i, j); pset(px, py, Math.abs(Math.abs(j) - ww) < 0.6 || i === -12 ? TIZA : hex('#3a5a48')); } }
     for (const [i, j] of [[-12, -7], [-11, -6], [-10, -5], [-12, 7], [-11, 6], [-10, 5], [-9, 4], [-9, -4]]) { const [px, py] = Q(i, j); pset(px, py, TIZA); }
     const [wx0, wy0] = Q(1, 0); disco(wx0, wy0, 2, TIZA); pset(wx0, wy0, hex('#3a5a48'));
-    for (let k = 0; k < 5; k++) { const [px, py] = Q(-14 - k * 2 - (Math.floor(t * 10) % 2) * 2, (k % 2 ? 2 : -2) * Math.min(1, k / 2)); pset(px, py, AMA); pset(px - 1, py, AMAS); }
+    const fl = 5 + Math.floor(t * 12) % 3;
+    for (let i = 0; i < fl; i++) for (let j = -2; j <= 2; j++) { if (Math.abs(j) > 2 - i / fl * 2) continue; const [px, py] = Q(-13 - i, j); pset(px, py, i < 2 ? hex('#fff8d0') : (i + j + Math.floor(t * 20)) % 2 ? AMA : AMAS); }
   }
+  // en «moon»: el destello dibujado que crece y titila, el halo de polvo que brilla y la tiza que salta
   const dz = tramo(t, LUNA - 0.02, LUNA + 0.5);
-  destello(215, 54, dz, t, AMA, TIZA, 22);
-  // la mano con la tiza: dibuja la salida (0,5–1,2 s) y se retira
-  const sube = tramo(t, 0.3, 0.7), retira = tramo(t, 1.3, 2.0), traza = tramo(t, 0.6, 1.2);
+  if (dz > 0) {
+    const hr = 4 + tramo(t, LUNA, LUNA + 0.8) * 14;
+    for (let yy = Math.floor(54 - hr); yy <= 54 + hr; yy++) for (let xx = Math.floor(215 - hr); xx <= 215 + hr; xx++) { const d = Math.hypot(xx - 215, yy - 54) / hr; if (d <= 1 && bay(xx, yy) < 0.5 * (1 - d)) pset(xx, yy, d < 0.5 ? AMA : AMAS); }
+    destello(215, 54, dz, t, AMA, TIZA, 22 + 8 * tramo(t, LUNA + 0.3, LUNA + 0.7));
+    const e = t - LUNA;
+    if (e < 1.4) for (let k = 0; k < 22; k++) { const an = k / 22 * Math.PI * 2 + hh(k, 7) * 0.3, sp = 18 + hh(k, 8) * 22, x = Math.round(215 + Math.cos(an) * sp * e), y = Math.round(54 + Math.sin(an) * sp * e + 16 * e * e); if (!enAtom(x, y) && y < 165) pset(x, y, k % 3 ? TIZA : AMA); }
+  }
+  // las líneas de mira de tiza que bajan del destello a la Tierra: «que lo viera el mundo entero»
+  const mira = tramo(t, LUNA + 0.25, P2 - 0.1);
+  if (mira > 0) for (const [ex, ey] of [[46, 128], [52, 136], [44, 146]]) for (let k = 0; k < 40 * mira; k++) { if (k % 3 === 2) continue; const u = k / 40; pset(Math.round(lerp(208, ex, u)), Math.round(lerp(60, ey, u)), TIZAS); }
+  // la mano con la tiza: escribe 3, 2, 1 al lado de la Tierra, da el toque de salida y se retira soltando polvo
+  const sube = tramo(t, 0.05, 0.35), retira = tramo(t, 1.35, 1.95);
+  const dig = [['3', 0.3, 0.55], ['2', 0.6, 0.82], ['1', 0.86, 1.05]];
+  dig.forEach(([s, a0, a1], i) => { const v = tramo(t, a0, a1); if (v > 0) R.numero(s, 78 + i * 10, 158, { n: Math.ceil(v * 8), color: TIZA, sombra: false }); });
+  if (t > 1.05) { linea(76, 160, 106, 160, TIZAS); }
   if (sube > 0 && retira < 1) {
-    const wx = Math.round(lerp(30, 44, traza)), wy = Math.round(lerp(150, 140, traza) + (1 - sube) * 50 + retira * 60);
+    let wx, wy;
+    const act = dig.find(([, a0, a1]) => t >= a0 && t < a1);
+    if (act) { const i = dig.indexOf(act), v = tramo(t, act[1], act[2]); wx = 78 + i * 10 + Math.round(v * 4) - 12; wy = 154 + Math.round(Math.sin(v * Math.PI * 2) * 2); }
+    else if (t < 0.3) { wx = 66; wy = 156; }
+    else { const k = tramo(t, 1.05, 1.15); wx = Math.round(lerp(98, 62, k)); wy = Math.round(lerp(154, 140, k)); }
+    wy += Math.round((1 - sube) * 50 + retira * 60);
     rect(wx + 9, wy - 3, wx + 14, wy - 1, TIZA); pset(wx + 14, wy - 2, TIZAS);
     T.brazo(R, wx - 26, wy + 52, wx, wy, '#e8e8e0', 1, { codo: [wx - 20, wy + 22], sombra: false });
   }
+  for (let k = 0; k < 8; k++) { const tb = 0.32 + k * 0.1, ed = t - tb; if (ed < 0 || ed > 1.4) continue; const x = Math.round(84 + k * 3 + Math.sin(ed * 4 + k) * 2), y = Math.round(156 + ed * 7); if (y < 165) pset(x, y, k % 2 ? TIZA : TIZAS); }
+  // el gato espía llega por la repisa, se sienta a mirar el vuelo y en «moon» da un brinco y le pega a una mota
+  const g = tramo(t, 1.5, 3.6), gx = Math.round(lerp(336, 168, g));
+  const brinco = t > LUNA && t < LUNA + 0.45 ? Math.round(Math.sin(tramo(t, LUNA, LUNA + 0.45) * Math.PI) * 7) : 0;
+  if (g > 0) T.gatoEspia(R, gx, 166 - brinco, t, { anda: g < 1, dir: g < 1 ? -1 : 1, cara: t > LUNA ? 'travieso' : undefined });
+  if (g >= 1 && t > LUNA + 0.5) { const v = ((t - LUNA - 0.5) * 0.8) % 1; pset(Math.round(186 + Math.sin(v * 9) * 3), Math.round(140 + v * 16), TIZA); }
 };
 // 2 · por el telescopio: el ocular se abre, el trazo de tiza cruza y el destello brilla en «flash»; «?» en «conspiracy»
 const p2 = (t) => {
@@ -113,10 +157,16 @@ const p2 = (t) => {
   R.recorte([84, 18, 230, 166]);
   const tr = tramo(t, P2 + 0.3, FLASH - 0.05);
   for (let k = 0; k < 40 * tr; k++) { const u = k / 40, x = lerp(96, 192, u), y = lerp(160, 82, u) - Math.sin(u * Math.PI) * 26; if (k % 2 === 0) { disco(Math.round(x), Math.round(y), 1, TIZA); } }
+  // un murciélago cruza por delante de la Luna antes del destello
+  { const u = tramo(t, P2 + 0.7, P2 + 2.4); if (u > 0 && u < 1) { const x = Math.round(lerp(96, 236, u)), y = Math.round(140 - u * 70 + Math.sin(u * 14) * 4), f = Math.floor(t * 10) % 2; rect(x - 1, y - 1, x + 1, y, K); for (const s of [-1, 1]) { linea(x + s * 2, y - 1, x + s * 5, y - (f ? 4 : -1), K); linea(x + s * 5, y - (f ? 4 : -1), x + s * 7, y - (f ? 2 : 1), K); } } }
+  // en «flash»: el halo de polvo que crece y brilla en la línea del día y la noche, y un anillo que se abre
+  const hz = tramo(t, FLASH, FLASH + 1.6);
+  if (hz > 0) { const hr = 3 + hz * 13; for (let yy = Math.floor(82 - hr); yy <= 82 + hr; yy++) for (let xx = Math.floor(192 - hr); xx <= 192 + hr; xx++) { const d = Math.hypot(xx - 192, yy - 82) / hr; if (d <= 1 && bay(xx, yy) < 0.62 * (1 - d * 0.8)) pset(xx, yy, d < 0.45 ? hex('#fff4c8') : d < 0.75 ? AMA : AMAS); } }
+  { const e = t - FLASH; if (e > 0 && e < 0.9) { const r = Math.round(6 + e * 40); for (let q = 0; q < 48; q++) { const an = q / 48 * Math.PI * 2; if (q % 2) pset(Math.round(192 + Math.cos(an) * r), Math.round(82 + Math.sin(an) * r), e < 0.45 ? AMA : AMAS); } } }
   R.recorte(null);
   destello(192, 82, tramo(t, FLASH - 0.05, FLASH + 0.35), t, AMA, TIZA, 18);
   const q = tramo(t, CONSP, CONSP + 0.25);
-  if (q > 0) R.numero('?', 214, Math.round(lerp(64, 56, q)), { tam: 16, centro: true });
+  if (q > 0) R.numero('?', 214 + Math.round(Math.sin(t * 5) * 1.5), Math.round(lerp(64, 56, q) + Math.sin(t * 3) * 1.5), { tam: 16, centro: true });
   // el iris del ocular que se abre al principio
   const ab = tramo(t, P2, P2 + 0.6);
   if (ab < 1) { const r = 6 + ab * 80; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (Math.hypot(x - 156, y - 92) > r) pset(x, y, K); }
@@ -126,6 +176,9 @@ const p3 = (t) => {
   T.carrera(R, t, { encuadre: 'redaccion' });
   const u = tramo(t, P3 + 0.1, P3 + 1.5), rx = Math.round(lerp(326, 226, u));
   const habla = u >= 1 && Math.sin(t * 9) > -0.2;
+  // al fondo, una compañera cruza con las hojas recién impresas y otro vuelve con su café
+  { const u = tramo(t, P3 + 0.2, P4 - 0.2), x = Math.round(lerp(-12, 250, u)); if (u > 0 && u < 1) { const c = R.actor(EL.periodistaUK2, x, 146, t, { dir: 1, anda: true, sostiene: true }); const [hx, hy] = c.mano; rect(hx - 3, hy - 2, hx + 4, hy + 3, K); rect(hx - 2, hy - 1, hx + 3, hy + 2, hex('#f6f4ee')); pset(hx - 1, hy, hex('#8a8a90')); pset(hx + 1, hy + 1, hex('#8a8a90')); } }
+  { const u = tramo(t, P3 + 1.8, P3 + 3.0), x = Math.round(lerp(334, 302, u)); if (u > 0) { const c = R.actor(EL.periodistaUK, x, 148, t, { dir: -1, anda: u < 1, sostiene: true, sonrisa: u >= 1 }); const [hx, hy] = c.mano; rect(hx - 2, hy - 3, hx + 2, hy + 1, K); rect(hx - 1, hy - 2, hx + 1, hy, hex('#f0ece0')); if (Math.floor(t * 4) % 2) pset(hx, hy - 5, hex('#c8c8d0')); } }
   R.actor(EL.periodista2000, 100, 141, t, { dir: 1, habla: false, sorpresa: t > DOSMIL && t < DOSMIL + 1.2, sonrisa: t > DOSMIL + 1.2, dedo: t > CUENTA && t < DOSMIL && Math.sin(t * 6) > 0 });
   R.actor(EL.reiffelMayor, rx, 160, t, { dir: -1, anda: u > 0 && u < 1, habla, dedo: t > a(0.72) && t < a(0.8), sonrisa: t > DOSMIL });
   T.carreraDelante(R, t, { encuadre: 'redaccion' });
@@ -144,6 +197,8 @@ const p3 = (t) => {
 // 4 · hoy, en la mesa de Atom: la carpeta de la Luna abierta, las cuentas, la foto de Sagan; el gato se sienta encima
 const p4 = (t) => {
   const geo = T.hoy(R, t, { encuadre: 'archivo', camara: 'mesa', carpetas: [], sello: false });
+  // el vapor de la taza de Atom
+  for (let k = 0; k < 8; k++) { const v = ((t * 0.6 + k / 8) % 1), x = Math.round(260 + Math.sin(v * 6 + k) * 2 + v * 4), y = Math.round(138 - v * 22); if (bay(x, y) < 1 - v) pset(x, y, hex('#d8d4cc')); }
   const cierra = tramo(t, NOES, NOES + 0.4), cx = 150, base = 158;
   carpeta(cx, base, 4, 1 - cierra, 'luna', { sello: true });
   // las cuentas de Sagan en la hoja
@@ -209,13 +264,15 @@ const fondoNogal = () => capa('nogal', () => {
 const fondoLuz = () => capa('luz', () => {
   // la mesa de luz: marco de aluminio, cristal lechoso azulado con su retícula y la luz que sale de dentro
   const A = [hex('#2a3038'), hex('#4a525e'), hex('#7a8494'), hex('#a8b2c0')];
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, ramp(A, 0.4 + 0.25 * Math.sin(x * 0.9) * 0.2 + 0.1 * hh(x, y >> 2), x, y));
-  for (let x = 0; x < 320; x += 2) { pset(x, 10, A[3]); pset(x + 1, 170, A[0]); }
+  // (la esquina de Atom, x ≥ 266 e y ≤ 52, queda como marco de aluminio liso y tranquilo: el cristal la rodea)
+  const esq = (x, y) => x >= 266 && y <= 52;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) pset(x, y, esq(x, y) ? A[1] : ramp(A, 0.4 + 0.25 * Math.sin(x * 0.9) * 0.2 + 0.1 * hh(x, y >> 2), x, y));
+  for (let x = 0; x < 320; x += 2) { if (x < 264) pset(x, 10, A[3]); pset(x + 1, 170, A[0]); }
   const L = [hex('#9ab8d0'), hex('#b8d0e4'), hex('#d4e4f0'), hex('#eef6fc')];
-  rect(10, 18, 309, 168, K);
-  for (let y = 19; y < 168; y++) for (let x = 11; x < 309; x++) pset(x, y, ramp(L, 0.9 - Math.hypot((x - 160) / 240, (y - 92) / 140) * 0.8, x, y));
-  for (let x = 30; x < 300; x += 20) for (let y = 20; y < 167; y += 2) pset(x, y, L[0]);
-  for (let y = 38; y < 167; y += 20) for (let x = 12; x < 308; x += 2) pset(x, y, L[0]);
+  rect(10, 18, 309, 168, K); rect(266, 0, 319, 52, A[1]); rect(265, 18, 265, 53, K); rect(265, 53, 309, 53, K);
+  for (let y = 19; y < 168; y++) for (let x = 11; x < 309; x++) if (!(x >= 265 && y <= 53)) pset(x, y, ramp(L, 0.9 - Math.hypot((x - 160) / 240, (y - 92) / 140) * 0.8, x, y));
+  for (let x = 30; x < 300; x += 20) for (let y = 20; y < 167; y += 2) if (!(x >= 264 && y <= 54)) pset(x, y, L[0]);
+  for (let y = 38; y < 167; y += 20) for (let x = 12; x < 308; x += 2) if (!(x >= 264 && y <= 54)) pset(x, y, L[0]);
   // un negativo de foto, una lupa de cuentahílos, cinta adhesiva y un lápiz graso rojo
   rect(22, 26, 86, 40, K); for (let x = 24; x < 86; x += 12) { rect(x, 29, x + 9, 37, hex('#5a4a3a')); rect(x + 2, 31, x + 7, 35, hex('#8a6a4a')); } for (let x = 23; x < 86; x += 3) { pset(x, 27, L[3]); pset(x, 39, L[3]); }
   rect(232, 26, 252, 46, K); rect(233, 27, 251, 45, hex('#3a3a44')); disco(242, 36, 7, hex('#c8dcec')); disco(240, 34, 2, hex('#ffffff'));
@@ -240,9 +297,11 @@ const fondoAcero = () => capa('acero', () => {
     if (rombo) v += 0.2;
     const esc = Math.min(x, 319 - x, y, 179 - y);
     if (esc < 14 && hh(x, y, 5) > esc / 14) v = 0.95;
+    // la esquina de Atom (x ≥ 268, y ≤ 50): chapa lisa en sombra, sin rombos ni escarcha
+    if (x >= 268 && y <= 50) { pset(x, y, S[1]); continue; }
     pset(x, y, ramp(S, v, x, y));
   }
-  for (const x of [8, 312]) for (let y = 30; y < 170; y += 28) { disco(x, y, 2, S[0]); pset(x - 1, y - 1, S[4]); }
+  for (const x of [8, 312]) for (let y = 30; y < 170; y += 28) { if (x === 312 && y < 56) continue; disco(x, y, 2, S[0]); pset(x - 1, y - 1, S[4]); }
   // una bandeja de cubitos y un termómetro
   rect(20, 24, 84, 50, K); rect(21, 25, 83, 49, S[3]); for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) { rect(24 + i * 15, 28 + j * 11, 35 + i * 15, 36 + j * 11, hex('#c8e4f0')); pset(26 + i * 15, 30 + j * 11, hex('#ffffff')); }
   rect(212, 22, 258, 28, K); rect(213, 23, 257, 27, hex('#f0f0f0')); rect(214, 24, 226, 26, hex('#3a7ae8')); disco(212, 25, 4, K); disco(212, 25, 3, hex('#3a7ae8'));

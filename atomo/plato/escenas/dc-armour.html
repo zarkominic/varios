@@ -19,8 +19,9 @@
 //    día y la noche y la nube de polvo crece y brilla al Sol («to the line between the moon's day and night… and glow»);
 // 4. fondo local: la azotea al anochecer; Sagan sale con su regla de cálculo, hace cuentas y en su bocadillo la nube
 //    crece; luego se asoma al telescopio; el gato espía lo mira tras la chimenea («A young Carl Sagan, still a student…»);
-// 5. por el ocular: la Luna de verdad; en la línea del día y la noche, la marca de la nube que crece y su «?»
-//    («…would grow and whether we could see it from here»).
+// 5. por el ocular: la Luna de verdad; en la línea del día y la noche la nube de polvo crece de una mota a una mancha
+//    que brilla al Sol con sus rayos, la mira roja se cierra sobre ella, nubes finas y un ganso cruzan por delante de la
+//    Luna y en «whether» sale su «?» («…would grow and whether we could see it from here»).
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { coche1947 } from '/atomo/plato/escenas/ov-comun.js';
@@ -289,11 +290,30 @@ const p5 = (t) => {
   const g = T.carrera(R, t, { encuadre: 'observatorio', camara: 'luna' });
   const [cx, cy, rc] = g.circulo;
   R.recorte([cx - rc, cy - rc, cx + rc, cy + rc]);
-  const m = tramo(t, P5 + 0.2, CRECE + 0.3), mx = 178, my = 70, r = 2 + m * 9;
-  if (m > 0) { const rr = 1 + m * 6; for (let y = -rr; y <= rr; y++) for (let x = -rr; x <= rr; x++) { const d = Math.hypot(x, y), X = Math.round(mx + x), Y = Math.round(my + y); if (d <= rr && h2(X, Y) < 0.75 - d / rr * 0.5) pset(X, Y, H(d < rr * 0.4 ? '#fff4c8' : '#d8cc98')); }
-    R.anillo(mx, my, Math.round(rr + 6 + Math.sin(t * 5)), H('#ff6a5a'), 3); }
+  const dentro = (x, y) => (x - cx) * (x - cx) + (y - cy) * (y - cy) <= (rc - 1) * (rc - 1);
+  const mx = 178, my = 70;
+  // la nube de polvo que crece en la línea del día y la noche (lo que calculó Sagan): núcleo, cuerpo y borde, tramados
+  const m = tramo(t, P5 + 0.2, CRECE + 0.6);
+  if (m > 0) {
+    const rr = 1 + m * 15;
+    for (let y = -rr; y <= rr; y++) for (let x = -rr; x <= rr; x++) { const d = Math.hypot(x, y * 1.15), X = Math.round(mx + x), Y = Math.round(my + y); if (d <= rr && trama(X, Y) < 0.95 - d / rr * 0.7 + Math.sin(t * 6 + d) * 0.05) pset(X, Y, H(d < rr * 0.35 ? '#fff8dc' : d < rr * 0.7 ? '#f0e0a0' : '#c8b878')); }
+    // los rayos cortos del brillo al Sol, que giran despacio
+    for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4 + t * 0.4, r0 = rr + 2, r1 = rr + 4 + (k % 2) * 3 + Math.sin(t * 7 + k); for (let q = r0; q < r1; q++) pset(Math.round(mx + Math.cos(an) * q), Math.round(my + Math.sin(an) * q), H('#fff0a0')); }
+    // la marca roja de la mira que se cierra sobre la nube
+    const ap = tramo(t, P5 + 0.2, P5 + 1.0);
+    R.anillo(mx, my, Math.round(lerp(40, rr + 7, ap) + Math.sin(t * 5)), H('#ff6a5a'), 3);
+  }
+  // las nubes finas de la noche que cruzan por delante de la Luna (dos velocidades), tramadas
+  for (const [y0, vel, fase, alto, c] of [[118, 9, 0, 6, '#3a4058'], [52, 14, 120, 4, '#4a5068'], [150, 6, 200, 5, '#2e3448']]) {
+    const x0 = ((fase + (t - P5) * vel) % 260) - 60 + cx - 120;
+    for (let x = Math.floor(x0); x < x0 + 110; x++) { const u = (x - x0) / 110, h = alto * Math.sin(u * Math.PI) * (0.7 + 0.3 * Math.sin(x * 0.3));
+      for (let y = Math.round(y0 - h); y <= y0 + h * 0.6; y++) if (dentro(x, y) && trama(x, y) < 0.55 * Math.sin(u * Math.PI)) pset(x, y, H(c)); } }
+  // un ganso que vuela de lado a lado por el ocular, en silueta
+  { const u = tramo(t, P5 + 1.0, P5 + 3.4); if (u > 0 && u < 1) { const x = Math.round(lerp(cx - rc, cx + rc, u)), y = Math.round(lerp(150, 112, u) + Math.sin(u * 20) * 2), f = Math.floor(t * 8) % 2;
+    for (const [dx, dy] of [[0, 0], [1, 0], [2, 0], [3, -1], [4, -1], [-1, 0], [-2, 1]]) if (dentro(x + dx, y + dy)) pset(x + dx, y + dy, H('#14121a'));
+    for (let k = 1; k <= 4; k++) { const X = x + 1 - (k >> 1), Y = y - (f ? k : -Math.ceil(k / 2)); if (dentro(X, Y)) pset(X, Y, H('#14121a')); } } }
   R.recorte(null);
-  const q = tramo(t, SI, SI + 0.3); if (q > 0 && (t < AQUI || Math.floor(t * 4) % 2 === 0)) R.icono('?', mx + 16, Math.round(lerp(64, 52, q)), H('#fff0a0'), T.C.k, 2);
+  const q = tramo(t, SI, SI + 0.3); if (q > 0 && (t < AQUI || Math.floor(t * 4) % 2 === 0)) R.icono('?', mx + 24, Math.round(lerp(64, 50, q)), H('#fff0a0'), T.C.k, 2);
 };
 
 const efectos = [[0.9, 'coche'], [a(0.1), 'papel'], [P2 + 0.6, 'tecleo'], [MISIL, 'lapiz'], [NOCHE - 0.05, 'toc'], [BRILLA, 'brillo'], [P4 + 0.05, 'puerta'], [CALCULA, 'tic'], [CRECE, 'pop']];

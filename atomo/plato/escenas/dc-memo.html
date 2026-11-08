@@ -11,15 +11,19 @@
 <script type="module">
 // DC-MEMO (frase 9), 1967 → 2001. Cuatro planos:
 // 1. «The technology worked»: dentro de la furgoneta, los dos ingenieros con auriculares escuchan contentos (salen las
-//    ondas); en «cat» por las ventanitas una paloma alza el vuelo y el gato espía sale corriendo detrás; se corta la
-//    señal, los dos se sorprenden y uno señala la ventana con un «?» (gag 3, primera mitad);
+//    ondas; el sentado apunta en su libreta, el de pie gira el mando del receptor); en «cat» por las ventanitas una
+//    paloma alza el vuelo y el gato espía sale corriendo detrás; se corta la señal, los dos se sorprenden, el de pie da
+//    dos pasos hacia las puertas, golpea la ventanita y la señala con un «?» (gag 3, primera mitad);
 // 2. (corta en «It got hungry») el suelo del parque a ras de gato: entra el gato con su micrófono, olisquea el bocadillo
 //    caído («hungry»), aterriza una paloma («distracted», «!») y se va detrás de ella («wandered off»); otra paloma se
-//    queda con el bocadillo (gag 3, segunda mitad);
+//    queda con el bocadillo (gag 3, segunda mitad); al fondo, detrás del seto, un señor con gabardina vuelve a casa con
+//    su maletín;
 // 3. (corta en «A 1967») la oficina de 1967: el ingeniero entra con su informe y lo explica; el jefe de
 //    gabardina sella la carpeta del gato («concluded») y le cae una X roja («wasn't practical»); el ingeniero, triste;
+//    al fondo, una secretaria cruza detrás de las mesas con su carpeta y se vuelve al oír la X; el de la mesa A teclea;
 // 4. (corta en «and when it came out») 2001: la mesa de un despacho; una mano saca la hoja del sobre con el «2001»
-//    («came out in 2001»), y la lupa pasa por el título tachado en negro («title… blacked out»).
+//    («came out in 2001»), el móvil de la mesa vibra y se enciende, y la lupa pasa por el título tachado en negro
+//    («title… blacked out»).
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('dc-memo');
@@ -49,6 +53,7 @@ const GATO = m(0.077), OTRA = m(0.145), HAMBRE = m(0.217), DISTRAE = m(0.264), V
 const MEMO = m(0.519), CONCLUYE = m(0.620), NOPRAC = m(0.682), SALE = m(0.799), TITULO = m(0.889), TACHADO = m(0.942);
 
 // 1 · la furgoneta
+const b0x = (t) => 176;
 const p1 = (t) => {
   const g = T.animales(R, t, { encuadre: 'parque', camara: 'furgoneta' });
   // por las ventanitas: la paloma alza el vuelo y el gato sale corriendo detrás (recortados a su hueco)
@@ -56,10 +61,18 @@ const p1 = (t) => {
   if (u > 0 && u < 1) enHueco(() => P.paloma(R, Math.round(lerp(112, 214, u)), Math.round(60 - Math.sin(u * Math.PI) * 16), { t, vuela: true }), g.ventanas);
   if (c > 0 && c < 1) enHueco(() => P.gatoEspia(R, Math.round(lerp(100, 222, c)), 64, { t, anda: true, microfono: true }), g.ventanas);
   const corta = t > GATO + 0.5, mira = t > OTRA;
-  const a = R.actor(EL.ingenieroCIA, 66, g.detrasMesa, t, { dir: 1, sonrisa: !corta, sorpresa: corta, habla: t > 0.5 && t < 1.4 && Math.sin(t * 9) > 0 });
+  const apunta = !corta && Math.sin(t * 5) > -0.3;
+  const a = R.actor(EL.ingenieroCIA, 66, g.detrasMesa, t, { dir: 1, sonrisa: !corta, sorpresa: corta, habla: t > 0.5 && t < 1.4 && Math.sin(t * 9) > 0, sostiene: apunta ? [80 + Math.round(Math.sin(t * 7) * 2), g.detrasMesa - 12] : false });
+  // el lápiz con el que apunta lo que oye
+  if (apunta) { R.linea(a.mano[0] + 1, a.mano[1] - 1, a.mano[0] + 4, a.mano[1] - 5, hex('#e8b030')); R.pset(a.mano[0] + 4, a.mano[1] - 5, k); }
   cascos(a.cabeza);
   // el segundo, de pie en el pasillo: se vuelve hacia las puertas y señala la ventanita
-  const b = R.actor(EL.ingenieroCIA2, 176, 166, t, { dir: mira ? -1 : 1, sonrisa: !corta, sorpresa: corta && !mira, dedo: mira, salto: t > GATO + 0.5 && t < GATO + 0.75 ? 2 : 0 });
+  const paso = tramo(t, OTRA - 0.5, OTRA), gira = t < GATO && Math.sin(t * 2.2) > 0.2;
+  const b = R.actor(EL.ingenieroCIA2, Math.round(lerp(176, 162, paso)), 166, t, { dir: mira || (paso > 0 && paso < 1) ? -1 : 1, anda: paso > 0 && paso < 1, sonrisa: !corta, sorpresa: corta && !mira, dedo: mira, sostiene: gira ? [b0x(t) + 14, 146] : false, salto: t > GATO + 0.5 && t < GATO + 0.75 ? 2 : 0 });
+  // el mando del receptor que gira mientras lo sintoniza
+  if (gira) { const an = t * 3; R.disco(b.mano[0] + 2, b.mano[1], 2, k); R.pset(b.mano[0] + 2 + Math.round(Math.cos(an) * 2), b.mano[1] + Math.round(Math.sin(an) * 2), hex('#e8e0c8')); }
+  // el golpecito en la ventanita: tres rayitas junto al nudillo
+  if (t > OTRA + 0.15 && t < OTRA + 0.6 && Math.floor(t * 10) % 2) for (const [dx, dy] of [[-4, -3], [-5, 0], [-4, 3]]) R.pset(b.cabeza[0] - 12 + dx, b.cabeza[1] - 6 + dy, hex('#f8f4e0'));
   // el cable de sus auriculares hasta el receptor
   if (!mira) R.linea(b.cabeza[0] + 7, b.cabeza[1] + 9, 214, 138, k);
   // las ondas que llegan a los auriculares mientras hay señal
@@ -116,6 +129,10 @@ const p2 = (t) => {
   for (const [x0, y, v, w, c] of [[20, 12, 3, 46, '#f8fbfd'], [180, 22, 5, 38, '#eef4f8'], [100, 34, 8, 30, '#dfe8f0']]) { const x = ((x0 + t * v) % 380) - 40; for (let i = 0; i < w; i++) { const hgt = Math.round(Math.sin(i / w * Math.PI) * 6); R.linea(Math.round(x + i), y - hgt, Math.round(x + i), y, hex(c)); } R.linea(Math.round(x), y + 1, Math.round(x + w), y + 1, hex('#c8d8e4')); }
   // hojas de castaño que caen meciéndose
   for (let n = 0; n < 4; n++) { const u = ((t * 0.18 + n * 0.27) % 1), x = Math.round(30 + n * 60 + Math.sin(t * 2 + n) * 8), y = Math.round(40 + u * 120); rect(x, y, x + 2, y + 1, hex('#c87a2a')); }
+  // al fondo, detrás del seto, un señor con gabardina vuelve a casa con su maletín (el seto lo tapa de cintura abajo)
+  { const u = tramo(t, P2 + 0.1, P3 - 0.2), sx = Math.round(lerp(-12, 136, u));
+    if (u > 0 && u < 1) { const se = R.actor(EL.hombreBanco, sx, 104, t, { dir: 1, anda: true, sostiene: true }); R.rect(se.mano[0] - 3, se.mano[1] + 1, se.mano[0] + 3, se.mano[1] + 5, k);
+      const B = capas.get('suelo'), d = R.usar(B); R.usar(d); for (let y = 93; y < 107; y++) for (let x = Math.max(0, sx - 14); x <= Math.min(319, sx + 14); x++) d[y * 320 + x] = B[y * 320 + x]; } }
   // dos palomas al fondo, junto al banco, que picotean
   palomaPica(236, 150, t, Math.sin(t * 3) > 0.4); palomaPica(270, 148, t, Math.sin(t * 2.3 + 1) > 0.5, { dir: -1 });
   // el bocadillo caído (pan, jamón y lechuga); el gato le da un bocado
@@ -143,6 +160,10 @@ const p3 = (t) => {
   const entra = tramo(t, P3, MEMO - 0.6);
   const sube = tramo(t, CONCLUYE - 0.3, CONCLUYE), baja = tramo(t, CONCLUYE + 0.2, CONCLUYE + 0.35), alza = tramo(t, CONCLUYE + 0.6, CONCLUYE + 0.9);
   const sx = 204, sy = Math.round(lerp(lerp(141, 114, sube), 128, baja) - alza * 14);
+  // al fondo, la secretaria cruza detrás de las mesas con su carpeta y se vuelve al oír la X
+  { const u = tramo(t, P3 + 0.2, MEMO + 1.6), sx = Math.round(lerp(-12, 128, u));
+    R.actor(EL.oficinista2, sx, 146, t, { dir: t > NOPRAC ? 1 : u >= 1 ? -1 : 1, anda: u > 0 && u < 1, sostiene: true, sorpresa: t > NOPRAC + 0.1 && t < NOPRAC + 1.2 });
+    if (u > 0) { const mx = sx + (t > NOPRAC || u < 1 ? 6 : -6); R.rect(mx - 2, 132, mx + 3, 139, k); R.rect(mx - 1, 133, mx + 2, 138, hex('#d8b878')); } }
   // el compañero de la mesa A escribe a máquina y levanta la vista al oír la X
   R.actor(EL.ingenieroCIA2, 70, 150, t, { dir: 1, habla: t < NOPRAC && Math.sin(t * 6) > 0.5, sorpresa: t > NOPRAC && t < NOPRAC + 0.8 });
   const jefe = R.actor(EL.hombreBanco2, 176, 150, t, { dir: 1, sostiene: sube > 0 && alza < 1 ? [sx - 3, sy - 12] : false, enfado: t > NOPRAC, habla: t > MEMO + 0.6 && t < CONCLUYE - 0.4 && Math.sin(t * 8) > 0 });
@@ -176,6 +197,13 @@ const mesa2001 = () => {
 const p4 = (t) => {
   const { rect, pset, linea, disco } = R;
   fondo('mesa2001', mesa2001);
+  // el móvil de 2001 sobre la mesa: vibra y se enciende cuando sale la hoja
+  { const vib = t > SALE + 0.3 && t < SALE + 1.7, dx = vib ? (Math.floor(t * 30) % 2 ? 1 : -1) : 0, x = 296 + dx, y = 92;
+    rect(x, y, x + 13, y + 28, k); rect(x + 1, y + 1, x + 12, y + 27, hex('#3a4a6a')); rect(x + 1, y + 1, x + 12, y + 2, hex('#6a7a9a'));
+    rect(x + 3, y + 4, x + 10, y + 11, vib ? hex('#a8e070') : hex('#4a6a3a')); if (vib) rect(x + 4, y + 5, x + 9, y + 6, hex('#d8f8a8'));
+    for (let j = 0; j < 4; j++) for (let i = 0; i < 3; i++) R.pset(x + 3 + i * 3, y + 15 + j * 3, hex('#c8ccd8'));
+    rect(x + 14, y + 4, x + 15, y + 26, hex('#5a3418'));
+    if (vib) for (const s of [-1, 1]) for (let q = 0; q < 2; q++) { const xx = s < 0 ? x - 3 - q * 3 : x + 16 + q * 3; R.linea(xx, y + 8 + q, xx, y + 20 - q, hex('#f0e0b0')); } }
   // la taza de café que humea (vista desde arriba)
   disco(286, 160, 13, k); disco(286, 160, 12, hex('#e8e4dc')); disco(286, 160, 9, hex('#5a3418')); pset(282, 156, hex('#8a5a30')); rect(298, 156, 304, 162, k); rect(299, 157, 303, 161, hex('#e8e4dc'));
   for (let n = 0; n < 3; n++) { const u = (t * 0.5 + n / 3) % 1; for (let j = 0; j < 8; j++) pset(Math.round(284 + n * 3 + Math.sin(u * 8 + j * 0.6 + n) * 2), Math.round(146 - u * 30 - j), u < 0.7 ? hex('#f0ece4') : hex('#c8b8a0')); }
@@ -213,8 +241,10 @@ const p4 = (t) => {
     if (t > TACHADO && Math.floor(t * 6) % 2) for (const [a, b] of [[-26, -8], [26, -10], [0, -26]]) R.icono('!', lx + a - 2, ly + b - 3, hex('#d0202a'), k);
   }
 };
-const efectos = [[GATO + 0.1, 'miau'], [GATO + 0.6, 'bip'], [HAMBRE + 0.5, 'masca'], [DISTRAE - 0.3, 'whoosh'], [VAGA + 0.3, 'miau'],
-  [CONCLUYE + 0.2, 'sello'], [NOPRAC, 'lapiz'], [SALE - 0.7, 'papel'], [TITULO - 0.6, 'whoosh'], [TACHADO, 'brillo']];
+const efectos = [[0.3, 'bip'], [GATO + 0.1, 'miau'], [GATO + 0.6, 'bip'], [OTRA + 0.2, 'toc'],
+  [HAMBRE + 0.5, 'masca'], [DISTRAE - 0.3, 'whoosh'], [VAGA + 0.3, 'miau'], [P3 - 0.9, 'golpecito'],
+  [P3 + 0.3, 'tecleo', { dur: 1.4 }], [MEMO - 0.4, 'papel'], [CONCLUYE + 0.2, 'sello'], [NOPRAC, 'lapiz'],
+  [SALE - 0.7, 'papel'], [SALE + 0.3, 'zumbido'], [TITULO - 0.6, 'whoosh'], [TACHADO, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P4 ? 1967 : 2001) });
 </script>
 </body>

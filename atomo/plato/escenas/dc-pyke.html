@@ -141,7 +141,7 @@ const p2 = (t) => {
   // el oficial delante del mapa y el de la mesa
   const sorpresa = t > propone + 0.2;
   R.actor(EL.oficialAliado, 150, 164, t, { dir: -1, dedo: t > atlantico - 0.3 && t < aviones, triste: t > aviones && t < propone, sorpresa, habla: t > P2 + 0.2 && t < atlantico - 0.3 && Math.sin(t * 7) > 0 });
-  R.actor(EL.oficialNaval, 236, 150, t, { dir: -1, habla: t > atlantico && t < aviones && Math.sin(t * 6) > 0, triste: t > aviones && t < propone, sorpresa, sonrisa: t > propone + 0.7 });
+  R.actor(EL.oficialNaval, 236, 160, t, { dir: -1, habla: t > atlantico && t < aviones && Math.sin(t * 6) > 0, triste: t > aviones && t < propone, sorpresa, sonrisa: t > propone + 0.7 });
   R.actor(EL.pyke, xp, 166, t, { dir: 1, anda: up > 0 && up < 1, dedo: t > propone - 0.05, habla: t > pike && Math.sin(t * 7) > 0, sonrisa: t > propone + 0.3 });
   T.hieloDelante(R, t, LON);
 };

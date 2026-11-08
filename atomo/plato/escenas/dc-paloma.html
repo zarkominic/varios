@@ -11,15 +11,19 @@
 <script type="module">
 // DC-PALOMA (frase 10), 1943 → 1944. Cinco planos:
 // 1. «not the first animal recruit… World War Two»: un campo de 1943 al atardecer; un soldado suelta una paloma mensajera
-//    que se va hacia el sol; el otro abre la cesta y saca la siguiente;
+//    que se va hacia el sol; el otro abre la cesta y saca la siguiente; un tercero cruza al fondo y un jeep pasa por
+//    detrás levantando polvo;
 // 2. (corta en «Skinner») el laboratorio de Skinner: coge una paloma de las jaulas, la lleva a la punta de la bomba y la
-//    mete dentro («rode inside the nose»); el oficial de la Marina entra y mira con el ceño fruncido;
+//    mete dentro («rode inside the nose»); el oficial de la Marina entra y mira con el ceño fruncido; Reiffel apunta en
+//    su cuaderno;
 // 3. (corta en «in front of a little screen») dentro de la punta: el barco se va de lado, la paloma lo picotea
-//    («pecked… correct the course») y lo deja en el centro («dead center», brillo);
-// 4. (corta en «dead center») la sala de los mandos: Skinner les enseña la paloma; los cinco dicen que no con la cabeza
-//    («nobody in charge»), y al «trust a pigeon» la paloma aletea, «X» y Skinner se pone triste;
+//    («pecked… correct the course»); con cada acierto caen granos de la tolva al comedero y se los come; al final deja
+//    el barco en el centro («dead center», brillo);
+// 4. (corta en «dead center») la sala de los mandos: Skinner entra con la paloma y se la enseña; los cinco dicen que no
+//    con la cabeza («nobody in charge»), y al «trust a pigeon» la paloma aletea, «X» y Skinner se pone triste;
 // 5. (corta en «Project Pigeon») 1944: el oficial mete la carpeta de la paloma en el cajón, lo cierra («cancelled») y le
-//    echa el candado («1944»); una paloma entra por el ventanuco y se posa encima del archivador.
+//    echa el candado («1944»); una paloma entra por el ventanuco y se posa encima del archivador; motas de polvo en el
+//    haz de luz y un ratón que cruza el suelo.
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('dc-paloma');
@@ -56,6 +60,15 @@ const cesta = (x, y, t, abre) => { const { rect, pset } = R; rect(x - 13, y - 14
   const a = Math.round(abre * 12); R.poligono([[x - 13, y - 14], [x + 13, y - 14], [x + 13 - a, y - 18 - a], [x - 13, y - 18]], k); R.poligono([[x - 12, y - 15], [x + 12, y - 15], [x + 12 - a, y - 17 - a], [x - 12, y - 17]], hex('#b8904e')); };
 const p1 = (t) => {
   T.guerra(R, t, { encuadre: 'campo44', tanque: false, altavoz: 0 });
+  // el jeep que pasa al fondo, por detrás de los soldados, levantando polvo
+  { const u = tramo(t, 0.2, P2 - 0.1), jx = Math.round(lerp(345, 196, u)), jy = 134, { rect, pset, disco } = R;
+    if (u > 0 && u < 1) {
+      for (let n = 0; n < 5; n++) { const v = ((t * 1.6 + n * 0.2) % 1); disco(Math.round(jx + 16 + v * 18), Math.round(jy - 2 - v * 6), Math.round(1 + v * 3), v < 0.5 ? hex('#c8b088') : hex('#d8c8a8')); }
+      rect(jx - 15, jy - 9, jx + 15, jy - 2, k); rect(jx - 14, jy - 8, jx + 14, jy - 3, hex('#5a6a3a')); rect(jx - 14, jy - 8, jx + 14, jy - 7, hex('#7a8a52'));
+      rect(jx - 6, jy - 15, jx - 5, jy - 9, k); rect(jx - 6, jy - 15, jx + 1, jy - 14, k); rect(jx - 5, jy - 14, jx, jy - 10, hex('#9ab8c8'));
+      disco(jx + 3, jy - 12, 2, hex('#e0b090')); rect(jx + 1, jy - 15, jx + 5, jy - 13, hex('#4a5a2a'));
+      for (const [a, b] of [[-3, 0], [3, 0], [0, -3], [0, 3], [0, 0]]) pset(jx + 6 + a / 3 | 0, jy - 5 + b / 3 | 0, hex('#f2eee2'));
+      for (const wx of [jx - 9, jx + 10]) { disco(wx, jy - 1, 3, k); disco(wx, jy - 1, 1, hex('#6a6a6a')); const an = -t * 12; pset(wx + Math.round(Math.cos(an) * 2), jy - 1 + Math.round(Math.sin(an) * 2), hex('#8a8a8a')); } } }
   const suelta = RECLUTA + 0.35, u = tramo(t, suelta, P2 - 0.2);
   const a = R.actor(EL.soldadoGA, 112, 156, t, { dir: -1, sostiene: t < suelta ? [104, 128] : false, brazos: t >= suelta && t < suelta + 0.5, sonrisa: t > suelta, habla: t < RECLUTA && Math.sin(t * 8) > 0 });
   if (t < suelta) palomaPica(a.mano[0] - 1, a.mano[1] - 1, t, false, { dir: -1 });
@@ -79,7 +92,9 @@ const p2 = (t) => {
   else palomaPica(240, 120, t, Math.sin(t * 6) > 0.3);
   const o = tramo(t, P2 + 0.3, PALOMAS + 0.6);
   R.actor(EL.oficialNaval, Math.round(lerp(330, 280, o)), 170, t, { dir: -1, anda: o > 0 && o < 1, enfado: t > PUNTA, habla: t > BOMBA && t < PUNTA && Math.sin(t * 7) > 0.3 });
-  R.actor(EL.reiffel, 62, g.detrasMesa, t, { dir: 1, sostiene: [82, 140], habla: Math.sin(t * 3) > 0.6 });
+  const rf = R.actor(EL.reiffel, 62, g.detrasMesa, t, { dir: 1, sostiene: [82 + Math.round(Math.sin(t * 6) * 2), 140], habla: Math.sin(t * 3) > 0.6 });
+  // el lápiz con el que apunta los picotazos en el cuaderno
+  R.linea(rf.mano[0] + 1, rf.mano[1] - 1, rf.mano[0] + 4, rf.mano[1] - 5, hex('#e8b030')); R.pset(rf.mano[0] + 4, rf.mano[1] - 5, k);
   T.animalesDelante(R, t, { encuadre: 'labSkinner' });
   if (t > PUNTA + 0.2) R.bocadillo(292, 136, { icono: '?' });
 };
@@ -89,9 +104,14 @@ const rumboEn = (t) => { let n = PICA.filter((p) => t >= p).length; const base =
 const p3 = (t) => {
   const r = rumboEn(t), g = T.animales(R, t, { encuadre: 'labSkinner', camara: 'punta', rumbo: r });
   const [cx, cy] = g.pantalla, bx = Math.round(cx + r * 24);
-  const pica = PICA.some((p) => t >= p - 0.08 && t < p + 0.16);
+  const pica = PICA.some((p) => t >= p - 0.08 && t < p + 0.16) || (t > PICA[3] + 1.4 && t < BLANCO - 0.4 && Math.sin(t * 9) > 0.3);
   palomaPica(g.paloma[0], g.paloma[1], t, pica, { s: 3 });
   // el golpecito en la pantalla: un anillo sobre el barco
+  // la tolva de la recompensa: con cada acierto caen granos al comedero; la paloma se los come al acabar
+  { const { rect, pset } = R; rect(204, 112, 216, 124, k); rect(205, 113, 215, 123, hex('#8a7a5a')); rect(205, 113, 215, 114, hex('#b8a47a')); rect(208, 124, 212, 150, k); rect(209, 124, 211, 150, hex('#6a6a5a'));
+    for (const p of PICA) { const u = tramo(t, p + 0.15, p + 0.7); if (u > 0 && u < 1) for (let n = 0; n < 3; n++) pset(209 + n, Math.round(150 + u * 6 + n), hex('#e8b040')); }
+    const n = PICA.filter((p) => t > p + 0.7).length - (t > PICA[3] + 1.4 ? Math.floor(tramo(t, PICA[3] + 1.4, BLANCO - 0.4) * 6) : 0);
+    for (let i = 0; i < Math.max(0, n) * 2; i++) { rect(196 - i * 3, 155, 197 - i * 3, 156, hex('#f0c050')); pset(196 - i * 3, 155, hex('#fff0a0')); } }
   for (const p of PICA) { const u = tramo(t, p, p + 0.4); if (u > 0 && u < 1) { const rr = 3 + u * 8; for (let a = 0; a < 6.28; a += 0.2) R.pset(Math.round(bx + Math.cos(a) * rr), Math.round(cy - 4 + Math.sin(a) * rr * 0.6), hex('#e8fff0')); } }
   if (t > BLANCO && t < BLANCO + 0.9 && Math.floor(t * 8) % 2) for (const [dx, dy] of [[-10, -12], [12, -10], [0, 14]]) R.icono('X', cx + dx - 2, cy + dy - 3, hex('#f8f0a0'), k);
 };
@@ -103,7 +123,8 @@ const p4 = (t) => {
   const S = g.sillones, MANDOS = [EL.oficialAliado, EL.oficialNaval, EL.generalAF, EL.generalAF2, EL.oficialAliado2];
   MANDOS.forEach((d, n) => { const niega = t > NADIE + n * 0.15 && t < NADIE + 1.1 + n * 0.15; R.actor(d, S[n] - 7, g.detrasMesa, t, { dir: niega ? (Math.floor(t * 7) % 2 ? 1 : -1) : -1, enfado: t > NADIE + n * 0.15, habla: n === 1 && t > CONFIAR - 0.4 && t < CONFIAR + 0.5 && Math.sin(t * 9) > 0 }); });
   const aletea = t > PALOMA && t < PALOMA + 0.5;
-  const s = R.actor(EL.skinner, 70, 168, t, { dir: 1, sostiene: [94, 136], habla: t < NADIE && Math.sin(t * 8) > 0, sonrisa: t < NADIE, triste: t > PALOMA + 0.3 });
+  const ve = tramo(t, P4 + 0.05, P4 + 1.1), skx = Math.round(lerp(20, 70, ve));
+  const s = R.actor(EL.skinner, skx, 168, t, { dir: 1, anda: ve > 0 && ve < 1, sostiene: ve < 1 ? true : [94, 136], habla: t < NADIE && Math.sin(t * 8) > 0, sonrisa: t < NADIE, triste: t > PALOMA + 0.3 });
   if (aletea) P.paloma(R, s.mano[0] + 2, s.mano[1] - 4, { t, vuela: true }); else palomaPica(s.mano[0] + 2, s.mano[1] - 1, t, Math.sin(t * 5) > 0.7);
   T.hieloDelante(R, t, o);
   if (t > CONFIAR) R.bocadillo(S[1], g.detrasMesa - 34, { icono: 'X' });
@@ -123,11 +144,17 @@ const p5 = (t) => {
   const se = tramo(t, ANNO + 0.5, ANNO + 2.6);
   const of = R.actor(EL.oficialNaval, Math.round(lerp(196, 330, se)), 170, t, { dir: se > 0 ? 1 : -1, anda: se > 0 && se < 1, sostiene: t < P5 + 0.45 ? [190, 132] : t < CANCELA + 0.5 && t > CANCELA - 0.1 ? [190, yF + 12] : false, sonrisa: t > ANNO });
   if (t < P5 + 0.45 && abre <= 0) { P.carpeta(R, of.mano[0] - 6, of.mano[1] + 9, { dibujo: 'nada' }); P.paloma(R, of.mano[0] - 7, of.mano[1] + 5, {}); }
+  // las motas de polvo que flotan en el haz de luz del ventanuco
+  for (let n = 0; n < 10; n++) { const v = (t * 0.06 + n * 0.1) % 1, x = Math.round(36 + n * 4 + v * 40 + Math.sin(t + n) * 3), y = Math.round(40 + v * 90 + n * 3); R.pset(x, y, n % 3 ? hex('#c8ccb8') : hex('#f0f0dc')); }
+  // un ratón cruza el suelo hacia el agujero del zócalo cuando se va el oficial
+  { const u = tramo(t, ANNO + 1.0, ANNO + 2.4), rx = Math.round(lerp(318, 214, u)), ry = 176, { rect, pset } = R;
+    if (u > 0 && u < 1) { const pa = Math.floor(t * 14) % 2; rect(rx - 3, ry - 3, rx + 3, ry, k); rect(rx - 2, ry - 2, rx + 2, ry - 1, hex('#8a8a96')); pset(rx - 4, ry - 2, k); pset(rx - 3, ry - 4, hex('#d8a0a8')); pset(rx + 3, ry - 1, k); R.linea(rx + 4, ry - 1, rx + 8, ry - 2 - pa, hex('#d8a0a8')); pset(rx - 2 + pa, ry + 1, k); pset(rx + 1 - pa, ry + 1, k); } }
   const llega = tramo(t, ANNO + 0.6, ANNO + 1.8);
   if (llega > 0) { const x = Math.round(lerp(50, 166, llega)), y = Math.round(lerp(30, 64, llega) - Math.sin(llega * Math.PI) * 10); if (llega < 1) P.paloma(R, x, y, { t, vuela: true, s: 2 }); else palomaPica(166, 64, t, Math.sin(t * 2.5) > 0.6, { dir: -1, s: 2 }); }
 };
-const efectos = [[RECLUTA + 0.4, 'whoosh'], [GUERRA + 0.1, 'toc'], [PUNTA - 0.1, 'golpecito'], [PICA[0], 'golpecito'], [PICA[2], 'golpecito'], [PICA[3], 'golpecito'],
-  [BLANCO, 'brillo'], [PALOMA, 'whoosh'], [CONFIAR, 'boing'], [P5 + 0.15, 'papel'], [CANCELA + 0.45, 'toc'], [ANNO, 'cerrojo'], [ANNO + 0.7, 'whoosh']];
+const efectos = [[0.3, 'motor', { dur: 3.2 }], [RECLUTA + 0.4, 'whoosh'], [GUERRA + 0.1, 'toc'], [P2 + 0.4, 'lapiz'], [PUNTA - 0.1, 'golpecito'],
+  [P3 + 0.2, 'viento', { dur: 1.2 }], [PICA[0], 'golpecito'], [PICA[2], 'golpecito'], [PICA[3] + 1.5, 'masca'], [BLANCO, 'brillo'],
+  [NADIE + 0.1, 'publico', { dur: 1.4 }], [CONFIAR, 'boing'], [PALOMA + 0.5, 'whoosh'], [P5 + 0.35, 'carro', { largo: 0.5 }], [CANCELA + 0.1, 'papel'], [ANNO, 'cerrojo'], [ANNO + 0.9, 'whoosh'], [ANNO + 2.0, 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t < P5 ? 1943 : 1944) });
 </script>
 </body>
