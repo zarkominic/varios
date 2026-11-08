@@ -306,7 +306,7 @@ const calleFija = fijo(() => {
   cieloT(0, 0, 319, 70, ['#3e86d0', '#559ad8', '#70b0e2', '#96c6ec', '#c0dcf2']);
   // las colinas doradas con robles
   const hy = (x) => 60 + 7 * Math.sin(x * 0.021 + 0.5) + 4 * Math.sin(x * 0.057 + 2);
-  for (let x = 0; x < 320; x++) for (let y = Math.round(hy(x)); y < 110; y++) R.pset(x, y, R.tone4([hex('#a87a3a'), hex('#bc8c46'), hex('#d0a458'), hex('#e0b86e')], 3 - (y - hy(x)) / 10 + (H(x >> 1, y) - 0.5) * 0.8, x, y));
+  for (let x = 0; x < 320; x++) for (let y = Math.round(hy(x)); y < 141; y++) R.pset(x, y, R.tone4([hex('#a87a3a'), hex('#bc8c46'), hex('#d0a458'), hex('#e0b86e')], 3 - (y - hy(x)) / 10 + (H(x >> 1, y) - 0.5) * 0.8, x, y));
   for (let i = 0; i < 30; i++) { const x = H(i, 3) * 320, y = hy(x) + 4 + H(i, 5) * 14, r = 2 + H(i, 7) * 2.5; R.disco(x, y, r, hex('#3a5228')); R.disco(x - 0.8, y - 0.8, r * 0.6, hex('#56743a')); R.pset(Math.round(x), Math.round(y + r), hex('#2a3a1c')); }
   // el campus de cristal: torre A y bloque B
   for (let y = 46; y <= 140; y++) for (let x = 8; x <= 104; x++) {
@@ -458,19 +458,20 @@ const comentarios = (R2, tt, [x0, y0, x1, y1]) => {
   R.rect(x0, y0, x1, y0 + 5, hex('#1e2c4e')); R.disco(x0 + 4, y0 + 2.5, 2, hex('#e8403a')); R.rect(x0 + 9, y0 + 2, x0 + 30, y0 + 3, hex('#5a6a8a')); R.rect(x1 - 8, y0 + 1, x1 - 2, y0 + 4, hex('#3a4a6a'));
   const vis = TARJ.filter((k) => tt > k.t);
   vis.forEach((k, i) => {
-    const desde = vis.length - 1 - i, entra = tramo(tt, k.t, k.t + 0.25), yb = Math.round(y1 - 2 - desde * 16 + (1 - entra) * 16), ya = yb - 14;
+    const desde = vis.length - 1 - i, entra = tramo(tt, k.t, k.t + 0.25), yb = Math.round(y1 - 2 - desde * 22 + (1 - entra) * 22), ya = yb - 19;
     if (ya < y0 + 6) return;
-    R.rect(x0 + 2, ya, x1 - 2, yb, hex('#24345a')); R.rect(x0 + 2, ya, x1 - 2, ya, hex('#34487a'));
-    // el avatar
-    const ax = x0 + 8, ay = ya + 7, r = k.nino ? 3.5 : 4.5;
-    R.disco(ax, ay, 5.5, hex(k.av)); R.disco(ax, ay + 1, r - 1, hex('#f0c8a0')); R.rect(ax - 3, ay - 4, ax + 3, ay - 2, hex(k.pelo)); R.pset(ax - 1, ay, K); R.pset(ax + 1, ay, K);
-    if (k.nino) { R.rect(ax - 4, ay - 5, ax + 2, ay - 4, hex('#e8403a')); R.rect(ax + 2, ay - 4, ax + 5, ay - 4, hex('#e8403a')); }
+    R.rect(x0 + 2, ya, x1 - 2, yb, hex('#24345a')); R.rect(x0 + 2, ya, x1 - 2, ya, hex('#34487a')); R.rect(x0 + 2, yb, x1 - 2, yb, hex('#18223e'));
+    // el avatar (el del niño, con gorra)
+    const ax = x0 + 9, ay = ya + 9;
+    R.disco(ax, ay, 6.5, hex(k.av)); R.disco(ax, ay + 1, k.nino ? 3.5 : 4.5, hex('#f0c8a0')); R.rect(ax - 4, ay - 4, ax + 4, ay - 2, hex(k.pelo)); R.pset(ax - 2, ay, K); R.pset(ax + 2, ay, K); R.rect(ax - 1, ay + 3, ax + 1, ay + 3, hex('#a85a4a'));
+    if (k.nino) { R.rect(ax - 5, ay - 6, ax + 2, ay - 4, hex('#e8403a')); R.rect(ax + 2, ay - 4, ax + 6, ay - 4, hex('#e8403a')); }
     // las rayas del texto (sin letras), el cartucho de cada uno y los corazones
-    R.rect(x0 + 16, ya + 3, x0 + 26, ya + 4, hex('#8a9ac8')); R.rect(x0 + 16, ya + 7, x0 + 16 + 14 + (k.me % 9), ya + 8, hex('#c8d0e8')); R.rect(x0 + 16, ya + 10, x0 + 16 + 8 + (k.me % 7), ya + 11, hex('#c8d0e8'));
-    miniCart(x1 - 24, ya + 4, k.cart);
-    if (k.x && tt > peor + 0.25) R.icono('X', x1 - 26, ya + 3, hex('#ff3a3a'), K, 1);
-    const n = Math.round(k.me * tramo(tt, k.t + 0.2, k.t + 1.2)); R.pset(x1 - 15, ya + 9, hex('#ff5a7a')); R.pset(x1 - 13, ya + 9, hex('#ff5a7a')); R.rect(x1 - 15, ya + 10, x1 - 13, ya + 10, hex('#ff5a7a')); R.pset(x1 - 14, ya + 11, hex('#ff5a7a'));
-    R.numero(String(n), x1 - 11, ya + 12, { fina: true, color: hex('#e8ecf8'), sombra: false });
+    R.rect(x0 + 18, ya + 4, x0 + 28, ya + 5, hex('#8a9ac8')); R.rect(x0 + 18, ya + 9, x0 + 18 + 12 + (k.me % 9), ya + 10, hex('#c8d0e8')); R.rect(x0 + 18, ya + 13, x0 + 18 + 6 + (k.me % 7), ya + 14, hex('#c8d0e8'));
+    PZ.cartucho(R, x1 - 22, yb - 2, { color: k.cart, icono: k.x ? 'foso' : k.nino ? 'flor' : 'nave' });
+    if (k.x && tt > peor + 0.2) R.icono('X', x1 - 29, ya + 3, hex('#ff3a3a'), K, 2);
+    const n = Math.round(k.me * tramo(tt, k.t + 0.2, k.t + 1.2)), hx = x1 - 12, hy = ya + 6;
+    R.pset(hx, hy, hex('#ff5a7a')); R.pset(hx + 2, hy, hex('#ff5a7a')); R.rect(hx - 1, hy + 1, hx + 3, hy + 1, hex('#ff5a7a')); R.rect(hx, hy + 2, hx + 2, hy + 2, hex('#ff5a7a')); R.pset(hx + 1, hy + 3, hex('#ff5a7a'));
+    R.numero(String(n), x1 - 13, yb - 3, { fina: true, color: hex('#e8ecf8'), sombra: false });
   });
   // las líneas del tubo
   for (let y = y0; y <= y1; y += 2) for (let x = x0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), K, 0.18));
