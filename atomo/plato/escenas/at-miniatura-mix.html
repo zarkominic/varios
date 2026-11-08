@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura intermedia · ep26</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AT-MINIATURA-MIX · ep26, prueba de un punto intermedio entre el noir y el estilo de antes: la misma composición
+// adulta (silueta, sin chibis, una idea), pero al atardecer, con color saturado y cartuchos de colores.
+// Base: estilo noir (paso 10): el desierto de Nuevo México de noche, 1983. Un solo foco ámbar de obra
+// alumbra una fosa abierta llena de cartuchos que brillan; de espaldas, en el borde, un hombre con sombrero y una pala,
+// recortado contra la luz; al fondo, la silueta de una excavadora con los faros y las mesetas. Sin luna (nada de E.T.),
+// sin juegos reales ni logos. El año en blanco hueso: «1983».
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, get, hh, tinte, mez, poligono, elipse, halo, linea, SIL, poligono: P } = N;
+
+const dibujar = () => {
+  // 1 · el cielo del desierto: azul de noche profundo, muchas estrellas, y abajo el resplandor ámbar del foco
+  N.cielo({ cx: 200, cy: 112, r: 230, colores: ['#2a1848', '#8a3a68', '#f08a4a'], estrellas: 30, altoEstrellas: 34, estrella: ['#ffffff', '#c8a8e8'] });
+  for (let y = 70; y < 110; y++) for (let x = 0; x < W; x++) tinte(x, y, hex('#ffc070'), 0.5 * ((y - 70) / 40) ** 1.5);
+  N.halo(200, 104, 40, 10, hex('#fff0b0'), 0.8, 1.0);   // el sol ya hundido detrás de las mesetas
+  // 2 · las mesetas del horizonte, en dos términos, con el borde de arriba apenas tocado de luz
+  const MES1 = hex('#4a2a4a'), MES2 = hex('#2e1a32');
+  const perfil = (x, k, alto, base) => base - alto * (0.55 + 0.45 * Math.sin(x * 0.021 + k) * Math.sin(x * 0.007 + k * 2)) - (hh(x >> 3, k, 3) > 0.7 ? 2 : 0);
+  for (let x = 0; x < W; x++) {
+    const a = Math.round(perfil(x, 1.3, 16, 100)), b = Math.round(perfil(x, 4.1, 9, 104));
+    for (let y = a; y < 108; y++) set(x, y, MES1);
+    set(x, a, hex('#e89a6a'));
+    for (let y = b; y < 108; y++) set(x, y, MES2);
+  }
+  // 3 · el suelo del desierto: tierra oscura con matojos y piedras, en perspectiva
+  for (let y = 106; y < H; y++) for (let x = 0; x < W; x++) {
+    const n = hh(x >> 1, y >> 1, 7), d = (y - 106) / 74;
+    let c = mez(hex('#3a2230'), hex('#6a3e28'), d * 0.8);
+    if (n > 0.92) c = mez(c, hex('#8a5a3a'), 0.6);
+    set(x, y, c);
+  }
+  for (let i = 0; i < 26; i++) {   // matojos
+    const mx = Math.floor(hh(i, 1, 9) * W), my = 110 + Math.floor(hh(i, 2, 9) * 62), r = 1 + Math.floor(hh(i, 3, 9) * 3 * (my - 100) / 70);
+    for (let k = -r; k <= r; k++) { set(mx + k, my, hex('#3a3a1a')); set(mx + k * 0.6, my - 1, hex('#5a5a2a')); }
+    set(mx, my - r, hex('#5a5a2a'));
+  }
+  // 4 · el resplandor de la obra en el aire: polvo iluminado sobre la fosa, que recorta las siluetas
+  halo(214, 118, 150, 50, N.AMBAR, 0.30, 1.1);
+  halo(214, 108, 80, 22, N.AMBAR2, 0.18, 1.3);
+  // la excavadora sobre el horizonte, detrás de la fosa, en contraluz con su brazo levantado
+  const EX = 160, EY = 116, EXC = hex('#07080c');
+  P([[EX, EY], [EX + 34, EY], [EX + 34, EY - 9], [EX + 25, EY - 9], [EX + 23, EY - 18], [EX + 9, EY - 18], [EX + 7, EY - 9], [EX, EY - 9]], EXC);
+  for (let k = 0; k < 3; k++) { linea(EX + 32, EY - 7 - k, EX + 52, EY - 24 - k, EXC); linea(EX + 52, EY - 24 - k, EX + 62, EY - 8 - k, EXC); }
+  P([[EX + 58, EY - 9], [EX + 68, EY - 9], [EX + 66, EY - 2], [EX + 59, EY - 3]], EXC);
+  for (let x = EX - 3; x < EX + 37; x++) for (let y = EY; y < EY + 4; y++) set(x, y, (x + y) % 3 ? EXC : hex('#101218'));
+  for (let y = EY - 17; y < EY - 10; y++) for (let x = EX + 11; x < EX + 21; x++) set(x, y, hex('#3a2a14'));   // la cabina, con su luz
+  for (const fx of [EX + 1, EX + 4]) { set(fx, EY - 6, N.AMBAR2); halo(fx, EY - 6, 12, 5, N.AMBAR, 0.4); }
+  N.filoSup({ x0: EX, x1: EX + 70, y0: EY - 28, y1: EY, color: '#c08040', f: 0.55 });
+  // 5 · la fosa: un tajo en la tierra con taludes, llena de cartuchos
+  const F = [[112, 128], [310, 120], [320, 166], [96, 174]];
+  P(F, (x, y) => mez(hex('#1a0e10'), hex('#2a1810'), hh(x >> 2, y >> 2, 5) * 0.6));
+  P([[96, 174], [320, 166], [320, 180], [92, 180]], (x, y) => (hh(x >> 1, y, 8) > 0.6 ? hex('#3a2a1a') : hex('#2a1e14')));
+  P([[112, 128], [310, 120], [308, 116], [114, 124]], hex('#3a2c1c'));
+  // los cartuchos: rectángulos anchos con las estrías de agarre arriba y la etiqueta grande; unos de pie, otros
+  // tumbados, otros de lado; los de delante más grandes
+  const CART = [hex('#2a2a32'), hex('#b8322a'), hex('#2a5ab0'), hex('#d8a020')];
+  const cartucho = (cx, cy, w, h, col, modo) => {
+    if (modo === 2) {   // de canto: una tira estrecha y larga
+      for (let y = 0; y < 3; y++) for (let x = 0; x < w; x++) set(cx + x - (w >> 1), cy - y, y === 2 ? mez(col, hex('#7a7a88'), 0.5) : col);
+      return;
+    }
+    const ww = modo ? w : h, hhh = modo ? h : w;
+    for (let y = 0; y < hhh; y++) for (let x = 0; x < ww; x++) {
+      const px = cx + x - (ww >> 1), py = cy + y - hhh;
+      let c = col;
+      if (y === 0) c = mez(col, hex('#7a7a88'), 0.55);                                   // el canto
+      else if (y <= 2 && x % 2 === 0) c = mez(col, K, 0.45);                               // las estrías de agarre
+      else if (x > 0 && x < ww - 1 && y > 3 && y < hhh - 1) c = mez(col, hex('#f0e0c0'), 0.22);   // la etiqueta
+      if (x === 0 || x === ww - 1) c = mez(c, K, 0.4);
+      set(px, py, c);
+    }
+  };
+  let s = 0;
+  for (let fila = 0; fila < 8; fila++) for (let i = 0; i < 20; i++) {
+    s++;
+    const u = (i + hh(s, 1, 2) * 0.9) / 20, v = (fila + hh(s, 2, 2) * 0.8) / 8;
+    const xl = 112 + (96 - 112) * v, xr = 310 + (320 - 310) * v;
+    const cx = Math.round(xl + (xr - xl) * u), cy = Math.round(132 + 38 * v - hh(s, 3, 2) * 6);
+    const w = 9 + Math.round(v * 5), h = 7 + Math.round(v * 3);
+    const m = hh(s, 5, 2), modo = m < 0.15 ? 2 : m < 0.6 ? 1 : 0;
+    cartucho(cx, cy, w, h, CART[Math.floor(hh(s, 4, 2) * 4)], modo);
+  }
+  // 6 · el foco de obra a la derecha: poste, lámpara y el cono ámbar sobre la fosa
+  const PX = 298, PY = 44;
+  for (let y = PY; y < 122; y++) { set(PX, y, hex('#0a0b10')); set(PX + 1, y, hex('#12131a')); }
+  linea(PX - 14, 122, PX, 86, hex('#0a0b10')); linea(PX + 14, 122, PX + 1, 86, hex('#0a0b10'));
+  P([[PX - 12, PY - 4], [PX + 2, PY - 6], [PX + 3, PY + 4], [PX - 10, PY + 6]], hex('#14161c'));
+  for (let x = PX - 10; x <= PX + 1; x++) set(x, PY + 5, N.AMBAR2);
+  for (let y = PY + 6; y < H; y++) for (let x = 80; x < W; x++) {
+    const d = (y - PY) / (H - PY), centro = PX - 5 - d * 95, ancho = 6 + d * 120;
+    const k = 1 - Math.abs(x - centro) / ancho;
+    if (k > 0) tinte(x, y, N.AMBAR, 0.34 * k ** 1.3 * (0.6 + 0.4 * d));
+  }
+  halo(PX - 4, PY + 6, 34, 16, N.AMBAR, 0.55);
+  // brillos ámbar solo en los cantos de arriba donde da la luz
+  for (let y = 116; y < 176; y++) for (let x = 96; x < W; x++) {
+    const c = get(x, y), up = get(x, y - 1);
+    const lum = ((c >>> 16) & 255) + ((c >>> 8) & 255) + (c & 255), lumU = ((up >>> 16) & 255) + ((up >>> 8) & 255) + (up & 255);
+    if (lum > 260 && lumU < lum - 60 && hh(x, y, 13) > 0.55) set(x, y, mez(c, N.AMBAR2, 0.8));
+  }
+  // 7 · el hombre de espaldas en el borde de la fosa, sombrero y pala clavada, recortado contra el polvo ámbar
+  // dos cartuchos grandes caídos en el talud de delante, a la luz
+  cartucho(262, 178, 26, 18, hex('#b8322a'), 1);
+  cartucho(222, 179, 20, 15, hex('#2a5ab0'), 1);
+  for (let y = 158; y < 180; y++) for (let x = 205; x < 280; x++) tinte(x, y, N.AMBAR, 0.18);
+  // el polvo iluminado detrás del hombre, para que su silueta se lea entera
+  halo(118, 146, 70, 44, N.AMBAR, 0.30, 1.0);
+  halo(24, 150, 60, 50, hex('#6a3a80'), 0.35, 1.0);   // y el frío de la noche por la izquierda
+  N.hombre({ x: 74, base: 194, s: 0.95 });
+  const PL = 128;
+  for (let k = 0; k < 2; k++) linea(PL + k, 118, PL + 4 + k, 176, SIL);
+  P([[PL - 3, 112], [PL + 4, 112], [PL + 5, 120], [PL - 3, 121]], SIL);
+  P([[PL + 1, 168], [PL + 10, 167], [PL + 12, 180], [PL + 1, 180]], SIL);
+  N.filo({ x0: 26, x1: 140, y0: 40, y1: H, lado: 'der', yClaro: 130, color: '#c0803a', claro: '#ffc878' });
+  N.filoSup({ x0: 50, x1: 98, y0: 42, y1: 66, color: '#e0a050', f: 0.7 });
+  N.filo({ x0: 20, x1: 100, y0: 60, y1: H, lado: 'izq', yClaro: 100, color: '#4a5c96', claro: '#7a90d0', doble: false });
+  // 8 · el año, en blanco hueso, arriba a la izquierda
+  N.cifra('1983', 62, 26, { tam: 24 });
+  // 9 · grano y viñeta
+  N.granoVineta({ cx: 180, cy: 100, rx: 240, ry: 150, desde: 0.85, max: 0.4, grano: 0.04 });
+};
+N.listo(dibujar);
+</script>
+</body>
+</html>
