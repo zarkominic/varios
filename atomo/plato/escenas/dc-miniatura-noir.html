@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura noir · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-MINIATURA-NOIR · prueba de estilo «adulto» para las miniaturas (25–35 años): pixel art de cine negro, sin chibis ni
+// mascotas. Un despacho a oscuras en 1958: por la ventana, la Luna enorme y detallada con una mira roja encima; de
+// espaldas, la silueta de un oficial con gabardina y sombrero que la mira, recortada con el filo azul de la luz de luna;
+// las sombras de la persiana cruzan la escena; delante, bajo el flexo, el expediente abierto con las líneas tachadas en
+// negro y el sello rojo. Grano de película y viñeta. Sin palabras: solo «1958».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = await crearRoma(document.getElementById('lienzo'));
+const W = 320, H = 180, B = () => R.buf;
+const K = hex('#05060a');
+const mez = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const set = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H) B()[y * W + x] = c; };
+const get = (x, y) => B()[y * W + x];
+const tinte = (x, y, c, f) => { if (x >= 0 && x < W && y >= 0 && y < H) B()[y * W + x] = mez(B()[y * W + x], c, f); };
+// relleno de un polígono (lista de [x, y])
+const poligono = (P, c) => { let y0 = 1e9, y1 = -1e9; for (const [, y] of P) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  for (let y = Math.max(0, Math.floor(y0)); y <= Math.min(H - 1, Math.ceil(y1)); y++) { const xs = [];
+    for (let i = 0; i < P.length; i++) { const [ax, ay] = P[i], [bx, by] = P[(i + 1) % P.length]; if ((ay <= y + 0.5 && by > y + 0.5) || (by <= y + 0.5 && ay > y + 0.5)) xs.push(ax + (y + 0.5 - ay) / (by - ay) * (bx - ax)); }
+    xs.sort((a, b) => a - b); for (let i = 0; i + 1 < xs.length; i += 2) for (let x = Math.ceil(xs[i] - 0.5); x <= Math.floor(xs[i + 1] - 0.5); x++) set(x, y, typeof c === 'function' ? c(x, y) : c); } };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const trama = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+
+const dibujar = () => {
+  // 1 · el cielo de noche por la ventana: degradado tramado, estrellas
+  const c0 = hex('#0a1028'), c1 = hex('#1c2a52'), c2 = hex('#2c3c6a');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const u = Math.hypot(x - 214, y - 74) / 170; const v = 1 - Math.min(1, u);
+    set(x, y, v * 1.4 > trama(x, y) + 0.55 ? c2 : v * 1.4 > trama(x, y) * 0.8 ? c1 : c0); }
+  for (let k = 0; k < 90; k++) { const x = Math.floor(hh(k, 1) * W), y = Math.floor(hh(k, 2) * 120); set(x, y, hh(k, 3) > 0.8 ? hex('#ffffff') : hex('#8a9ad0')); }
+  // 2 · la Luna grande: disco con luz desde la izquierda, mares, cráteres y halo
+  const LX = 214, LY = 74, LR = 62;
+  for (let y = LY - LR - 18; y <= LY + LR + 18; y++) for (let x = LX - LR - 18; x <= LX + LR + 18; x++) { const d = Math.hypot(x - LX, y - LY);
+    if (d > LR && d < LR + 18) tinte(x, y, hex('#c8d4f0'), 0.35 * (1 - (d - LR) / 18) ** 2); }
+  for (let y = LY - LR; y <= LY + LR; y++) for (let x = LX - LR; x <= LX + LR; x++) { const dx = (x - LX) / LR, dy = (y - LY) / LR, r2 = dx * dx + dy * dy; if (r2 > 1) continue;
+    const z = Math.sqrt(1 - r2), luz = Math.max(0, -0.75 * dx - 0.35 * dy + 0.55 * z);
+    const mar = (Math.sin(dx * 5.1 + 1) + Math.sin(dy * 4.3 - 2) + Math.sin((dx + dy) * 6.7)) > 0.9 ? 0.22 : 0;
+    let l = 0.25 + 0.75 * luz - mar + (hh(x >> 1, y >> 1, 5) - 0.5) * 0.12;
+    const pal = [hex('#2a2c38'), hex('#5a5c68'), hex('#8a8c96'), hex('#b8bac2'), hex('#dcdcd8'), hex('#f4f2e8')];
+    set(x, y, pal[Math.max(0, Math.min(5, Math.floor(l * 6 + trama(x, y) - 0.5)))]); }
+  for (let k = 0; k < 30; k++) { const a = hh(k, 7) * 6.283, rr = Math.sqrt(hh(k, 8)) * (LR - 8), cx = LX + Math.cos(a) * rr, cy = LY + Math.sin(a) * rr, cr = 1.5 + hh(k, 9) * 4;
+    for (let y = Math.floor(cy - cr - 1); y <= cy + cr + 1; y++) for (let x = Math.floor(cx - cr - 1); x <= cx + cr + 1; x++) { const d = Math.hypot(x - cx, y - cy); if (Math.hypot(x - LX, y - LY) >= LR) continue;
+      if (d < cr - 0.5) tinte(x, y, K, 0.22); else if (d < cr + 0.8 && (x - cx) + (y - cy) > 0) tinte(x, y, hex('#ffffff'), 0.25); } }
+  // 3 · la mira roja sobre la Luna, fina y seria
+  const ROJO = hex('#e0282a'), ROJO2 = hex('#7a0c10');
+  for (let t = 0; t < 6.283; t += 0.01) { const x = Math.round(LX + 8 + Math.cos(t) * 30), y = Math.round(LY - 6 + Math.sin(t) * 30); if (Math.floor(t * 12) % 2 === 0) set(x, y, ROJO); }
+  for (let i = -82; i <= 82; i++) { if (Math.abs(i) < 8) continue; if ((i & 1) === 0) { set(LX + 8 + i, LY - 6, ROJO); set(LX + 8, LY - 6 + Math.round(i * 0.85), ROJO); } }
+  for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) set(LX + 8 + dx, LY - 6 + dy, ROJO2);
+  // 4 · el marco de la ventana y la pared en sombra (la ventana ocupa x 120–316, y 0–140)
+  const PARED = hex('#0c0e16'), PARED2 = hex('#141826'), MARCO = hex('#1a1c26');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const fuera = x < 122 || y > 138; if (fuera) set(x, y, (hh(x >> 2, y >> 1, 11) > 0.6 ? PARED2 : PARED)); }
+  for (let y = 0; y < 140; y++) { for (let x = 118; x < 124; x++) set(x, y, MARCO); for (let x = 216; x < 220; x++) set(x, y, MARCO); }
+  for (let x = 118; x < W; x++) for (let y = 136; y < 142; y++) set(x, y, MARCO);
+  for (let x = 124; x < W; x++) for (let y = 66; y < 69; y++) set(x, y, MARCO);
+  // 5 · las sombras de la persiana: bandas oscuras en diagonal sobre todo (la luz de luna entra por la ventana)
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const b = ((y + x * 0.28) % 14), dentro = x >= 122 && y <= 138; if (b < 4) tinte(x, y, K, dentro ? 0.18 : 0.5); else if (x < 122 || y > 138) tinte(x, y, hex('#3a4a7a'), 0.10); }
+  // 6 · la silueta del oficial de espaldas: sombrero de ala, gabardina con cinturón, recortada con el filo azul de la luna
+  const SIL = (x, y) => (hh(x >> 1, y >> 1, 4) > 0.85 ? hex('#0e1018') : hex('#07080c'));
+  const elip = (cx, cy, rx, ry) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) set(x, y, SIL(x, y)); };
+  // la gabardina: hombros anchos y el faldón que se abre hasta el borde de abajo
+  poligono([[66, 98], [80, 92], [96, 92], [110, 98], [118, 106], [122, 140], [128, 180], [48, 180], [54, 140], [58, 106]], SIL);
+  // el cuello subido y la nuca
+  poligono([[76, 84], [100, 84], [102, 96], [74, 96]], SIL);
+  elip(88, 78, 10, 11);
+  // el sombrero de ala, visto desde atrás: ala ancha y copa con la hendidura
+  elip(88, 68, 21, 3.6);
+  poligono([[76, 68], [77, 54], [82, 51], [88, 53], [94, 51], [99, 54], [100, 68]], SIL);
+  for (let x = 77; x < 100; x++) set(x, 64, hex('#14161e'));
+  // el filo de luna a la derecha de la silueta y en el ala del sombrero
+  const FILO = hex('#7a98d8'), FILO2 = hex('#c8d8ff');
+  for (let y = 36; y < H; y++) { let xr = -1; for (let x = 134; x > 40; x--) { if (get(x, y) === hex('#07080c') || get(x, y) === hex('#0e1018')) { xr = x; break; } } if (xr > 0) { set(xr, y, y < 70 ? FILO2 : FILO); if (y % 3) set(xr - 1, y, mez(get(xr - 1, y), FILO, 0.4)); } }
+  for (let x = 67; x < 110; x++) { let yt = -1; for (let y = 48; y < 72; y++) { const c = get(x, y); if (c === hex('#07080c') || c === hex('#0e1018')) { yt = y; break; } } if (yt > 0 && x > 88) set(x, yt, mez(FILO, get(x, yt), 0.25)); }
+  // el humo del cigarrillo que sube por delante de la ventana
+  for (let k = 0; k < 40; k++) { const u = k / 40, x = Math.round(108 + Math.sin(u * 9) * 5 + u * 18), y = Math.round(64 - u * 60); tinte(x, y, hex('#9aa8c8'), 0.45 * (1 - u)); tinte(x + 1, y, hex('#9aa8c8'), 0.25 * (1 - u)); }
+  // 7 · la mesa delante, con el flexo y el expediente: pool de luz ámbar
+  const MESA = hex('#1e1410'), MESA2 = hex('#2c1e16');
+  poligono([[140, 150], [320, 146], [320, 180], [128, 180]], (x, y) => (hh(x >> 3, y, 2) > 0.5 ? MESA2 : MESA));
+  for (let y = 140; y < H; y++) for (let x = 140; x < W; x++) { const d = Math.hypot((x - 250) / 70, (y - 162) / 22); if (d < 1) tinte(x, y, hex('#ffb85a'), 0.6 * (1 - d) ** 1.2); }
+  // el expediente abierto en perspectiva: dos hojas, renglones tachados en negro y el sello rojo
+  const PAPEL = hex('#e8dcc0'), PAPEL2 = hex('#c8b894');
+  poligono([[196, 150], [250, 148], [254, 176], [190, 178]], (x, y) => (y > 172 ? PAPEL2 : PAPEL));
+  poligono([[250, 148], [304, 150], [312, 178], [254, 176]], (x, y) => (y > 172 ? PAPEL2 : PAPEL));
+  for (let r = 0; r < 6; r++) { const y = 154 + r * 4; for (let x = 198 + r; x < 246 - (r % 2) * 10; x++) set(x, y, r === 1 || r === 4 ? K : hex('#8a7a60'));
+    for (let x = 258; x < 300 - (r % 3) * 7; x++) set(x, y + 1, r === 2 || r === 3 ? K : hex('#8a7a60')); if (r === 1 || r === 4) for (let x = 198 + r; x < 236; x++) set(x, y + 1, K); }
+  for (let t = 0; t < 6.283; t += 0.03) for (const rr of [8, 9]) { const x = Math.round(288 + Math.cos(t) * rr), y = Math.round(166 + Math.sin(t) * rr * 0.6); tinte(x, y, ROJO, 0.85); }
+  for (let x = 281; x < 296; x++) tinte(x, 166, ROJO, 0.85);
+  // el flexo: brazo y pantalla en contraluz, con la bombilla
+  for (let y = 100; y < 148; y++) set(312, y, hex('#1a1a20'));
+  poligono([[296, 96], [318, 92], [320, 104], [300, 108]], hex('#14161c'));
+  for (let x = 298; x < 318; x++) set(x, 107, hex('#ffd890'));
+  // 8 · el año, sobrio: blanco hueso, arriba a la izquierda, con sombra dura
+  R.numero('1958', 58, 26, { tam: 16, centro: true, rampa: [hex('#f4f0e4'), hex('#d8d2c2'), hex('#a8a090'), hex('#6a6458')] });
+  // 9 · grano de película y viñeta
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const v = Math.hypot((x - 170) / 200, (y - 90) / 120); if (v > 0.6) tinte(x, y, K, Math.min(0.75, (v - 0.6) * 1.6)); const g = hh(x, y, 13); if (g > 0.93) tinte(x, y, hex('#ffffff'), 0.06); else if (g < 0.07) tinte(x, y, K, 0.12); }
+};
+window.__frame = async () => { dibujar(); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
