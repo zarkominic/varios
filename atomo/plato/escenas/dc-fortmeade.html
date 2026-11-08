@@ -18,9 +18,10 @@
 // 3. (inserto local: la pared con el calendario) corta en «Counting»: el calendario arranca años de 1972 a 1994, fuera el
 //    árbol cambia de estación, la pila de carpetas y la planta crecen; en «20 years» se pega la escarapela del «20»;
 // 4. (el corcho de cerca) corta en «a handful»: el rotulador rojo rodea la base («bases»), el barco («ships») y el avión
-//    («missing planes»); GAG 5: en «quiet office» un boceto nuevo se dibuja solo… y es el gato espía; el gato de verdad
+//    («missing planes»), con la cámara 6 px más abajo para que la barra del año quede en corcho solo; GAG 5: en «quiet office» un boceto nuevo se dibuja solo… y es el gato espía; el gato de verdad
 //    asoma por abajo, lo ve y «!»;
-// 5. (inserto local: la mesa con fajos) corta en «In total»: caen fajos de billetes en cuatro pilas, la sumadora saca
+// 5. (inserto local: la mesa con fajos) corta en «In total»: los fajos aparecen con un destello bajo el contador y caen
+//    en cuatro pilas, la sumadora saca
 //    cinta y el contador sube hasta $20,000,000 en «$20 million»; el gato espía mira la montaña de billetes.
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -335,13 +336,19 @@ const circulo = (cx, cy, rx, ry, u) => { if (u <= 0) return; const n = Math.roun
 const GATO0 = AVIONES + 0.25, GATO1 = QUIETA + 0.2;
 const p4 = (t) => {
   T.psiquicos(R, t, { encuadre: 'fortmeade', camara: 'pared', gato: t > GATO0 });
+  // la cámara baja 6 px sobre el corcho: el corcho (y 0–163) se corre hacia abajo y el marco de abajo se queda; las
+  // filas de arriba se rellenan con el grano de justo debajo. Así la barra del año (y 0–14) queda en corcho solo: la
+  // fila de arriba de bocetos, sus chinchetas y los hilos empiezan en y ≥ 19 (un recorrido de pantalla)
+  const DY = 6;
+  for (let y = 169; y >= DY; y--) for (let x = 0; x < 320; x++) pset(x, y, R.pget(x, y - DY));
+  for (let y = 0; y < DY; y++) for (let x = 0; x < 320; x++) pset(x, y, R.pget(x, y + DY));
   // el rotulador rojo rodea lo que dibujaron: bases, barcos, aviones desaparecidos
-  circulo(53, 47, 38, 25, tramo(t, BOCETA, BASES));
-  circulo(140, 36, 34, 18, tramo(t, BARCOS - 0.4, BARCOS));
-  circulo(229, 85, 33, 30, tramo(t, AVIONES - 0.4, AVIONES));
+  circulo(53, 47 + DY, 38, 25, tramo(t, BOCETA, BASES));
+  circulo(140, 36 + DY, 34, 18, tramo(t, BARCOS - 0.4, BARCOS));
+  circulo(229, 85 + DY, 33, 30, tramo(t, AVIONES - 0.4, AVIONES));
   // el boceto nuevo se va dibujando de arriba abajo (lo que falta queda en blanco), con el polvo de grafito
   const g = tramo(t, GATO0, GATO1);
-  if (g > 0 && g < 1) { const pap = R.pget(137, 64), yb = Math.round(lerp(64, 118, g)); rect(136, yb, 184, 117, pap);
+  if (g > 0 && g < 1) { const pap = R.pget(137, 64 + DY), yb = Math.round(lerp(64 + DY, 118 + DY, g)); rect(136, yb, 184, 117 + DY, pap);
     const xs = Math.round(160 + Math.sin(t * 30) * 20); for (let i = 0; i < 4; i++) pset(xs + Math.round(h2(i, Math.floor(t * 15)) * 6) - 3, yb - Math.round(h2(i, 9) * 3), H('#4a4a58')); }
   // el gato espía de verdad asoma por abajo, se ve en el dibujo y se le pone el «!»
   const s = tramo(t, GATO1 - 0.3, GATO1 + 0.15), sal = tramo(t, P5 - 0.2, P5 + 0.1);
@@ -391,7 +398,10 @@ const p5 = (t) => {
   const XS = [118, 144, 170, 196];
   for (let i = 0; i < BILL; i++) {
     const tl = lerp(P5 + 0.25, MILLON - 0.05, suave(i / (BILL - 1))), x = XS[i % 4] + ((i >> 2) % 2 ? 1 : -1), yd = 150 - Math.floor(i / 4) * 4, u = (t - tl) / 0.3;
-    if (u <= 0) continue; const y = u >= 1 ? yd : Math.round(lerp(-6, yd, u * u)); fajo(x, y);
+    if (u <= 0) continue; const y = u >= 1 ? yd : Math.round(lerp(50, yd, u * u)); fajo(x, y);
+    // cada fajo aparece con un destello dorado por debajo del contador (nada cruza la barra del año) y cae con estela
+    if (u < 0.35) destello(x, 46, Math.round(4 - u * 8), H('#fff4c0'));
+    if (u < 1 && y > 58) for (let k = 1; k <= 2; k++) { pset(x - 6, y - 4 - k * 3, H('#8ab88a')); pset(x + 6, y - 5 - k * 3, H('#8ab88a')); }
   }
   // el flexo deja su halo encima de todo (las motas brillan) y la taza humea
   taza(48, 168, 12, H('#c8282a'), H('#8a1a1e')); vapor(54, 154, t, H('#e8e4dc'));

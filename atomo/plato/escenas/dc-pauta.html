@@ -10,9 +10,12 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // DC-PAUTA (frase 22), hoy. Cinco planos:
-// 1. el escritorio de Atom: caen las seis carpetas una al lado de otra («side by side»); con «a pattern appears» una
-//    mano pasa el sello por todas y en cada una queda la cara sonrojada; el gato espía se acerca al micrófono (corta en
-//    «Most»);
+// 1. el escritorio de Atom: antes que las carpetas bajan revoloteando tres hojas sueltas (la de la franja roja, la de
+//    renglones tachados y la de la foto con su clip) junto al montón de papeles y el lápiz del cartapacio; caen las seis carpetas una al lado de
+//    otra («side by side»); el sello, de pie en su sitio del cartapacio, tiembla y con «a pattern appears» salta solo
+//    (sin mano ni brazo) a la última carpeta y va sellándolas de carpeta en carpeta hacia la izquierda: en cada una queda
+//    la cara sonrojada (cae justo sobre el círculo de cada una); luego vuelve de un salto a su sitio y aterriza con su nubecilla de polvo; el
+//    gato espía se acerca al micrófono (corta en «Most»);
 // 2. el corcho de la conspiración (Fort Meade): con «weren't hiding a conspiracy» saltan las chinchetas y los hilos rojos
 //    caen; con «embarrassment» el sello grande deja la cara sonrojada en el centro (corta en «A bomb»);
 // 3. tres cuadros en la pared del archivo, que se encienden con su palabra: la Luna en el observatorio, con el cohete
@@ -44,28 +47,77 @@ const destello = (x, y, r, c = hex('#fff6d0')) => { for (let i = 1; i <= r; i++)
 
 // 1 · el escritorio: las seis carpetas, una al lado de otra, y el sello de la cara sonrojada
 const DIB = ['luna', 'gato', 'gallina', 'ojo', 'tanque', 'hielo'], XC = DIB.map((_, i) => 72 + i * 35);
+// una hoja de papel girada (ang en radianes) con su canto, renglones grises, tachones negros y, según el tipo, la franja
+// roja de «secreto» o la foto con su clip; con sombra true deja su sombra en el cartapacio
+const sombraHoja = (cx, cy, w, hgt, ang, a) => { const ca = Math.cos(ang), sa = Math.sin(ang), rx = Math.ceil(Math.abs(w / 2 * ca) + Math.abs(hgt / 2 * sa)) + 1, ry = Math.ceil(Math.abs(w / 2 * sa) + Math.abs(hgt / 2 * ca)) + 1;
+  for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) { const dx = x - cx, dy = y - cy, u = dx * ca + dy * sa + w / 2, v = -dx * sa + dy * ca + hgt / 2; if (u >= 0 && v >= 0 && u < w && v < hgt) R.pset(x, y, mez(R.pget(x, y), k, a)); } };
+const hoja = (cx, cy, w, hgt, ang, tipo, sem, sombra) => {
+  if (sombra) sombraHoja(cx + 2, cy + 2, w, hgt, ang, 0.35);
+  const ca = Math.cos(ang), sa = Math.sin(ang), rx = Math.ceil(Math.abs(w / 2 * ca) + Math.abs(hgt / 2 * sa)) + 1, ry = Math.ceil(Math.abs(w / 2 * sa) + Math.abs(hgt / 2 * ca)) + 1;
+  for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) {
+    const dx = x - cx, dy = y - cy, u = dx * ca + dy * sa + w / 2, v = -dx * sa + dy * ca + hgt / 2;
+    if (u < 0 || v < 0 || u >= w || v >= hgt) continue;
+    const iu = Math.floor(u), iv = Math.floor(v);
+    let c = iu === 0 || iv === 0 || iu === w - 1 || iv === hgt - 1 ? hex('#9a8e74') : iv === 1 || iu === 1 ? hex('#fbf6e6') : u > w - 4 ? hex('#ddd2b4') : hex('#ece2c6');
+    if (iu > 1 && iv > 1 && iu < w - 1 && iv < hgt - 1) {
+      const fila = iv - 3;
+      if (tipo === 'secreto' && iv >= 2 && iv <= 3 && iu >= 3 && iu < 13) c = hex('#c8282a');
+      else if (tipo === 'foto' && iu >= 3 && iu < 12 && iv >= 3 && iv < 12) c = iu === 3 || iv === 3 || iu === 11 || iv === 11 ? hex('#f6f2e4') : (iu - 7) ** 2 + (iv - 8) ** 2 < 6 ? hex('#5a5e6a') : hex('#8a96a4');
+      else if (tipo === 'foto' && iu === 6 && iv >= 1 && iv <= 5) c = hex('#c8ccd4');
+      else if (fila >= 2 && fila % 3 === 0 && iu >= (tipo === 'foto' ? 14 : 3) && iu < w - 3 - Math.floor(hh(fila, sem) * 8)) c = hh(fila + 50, sem) < 0.3 && iu > 6 && iu < 6 + 8 + Math.floor(hh(fila, sem + 3) * 8) ? hex('#1a1a20') : hex('#8a8478');
+    }
+    R.pset(x, y, c);
+  }
+};
+// un lápiz amarillo sobre el cartapacio, con su punta afilada y su goma
+const lapiz = (x0, y0, x1, y1) => { R.linea(x0 + 1, y0 + 2, x1 + 1, y1 + 2, mez(R.pget(x0 + 1, y0 + 2), k, 0.4)); R.linea(x0, y0 + 1, x1, y1 + 1, hex('#b8862a')); R.linea(x0, y0, x1, y1, hex('#e8b830')); R.linea(x0, y0 - 1, x1, y1 - 1, hex('#f8e070'));
+  R.disco(x0, y0, 1, hex('#e88a9a')); R.pset(x0 + 2, y0, hex('#c8ccd4')); R.pset(x1, y1, hex('#e8c8a0')); R.pset(x1 + 1, y1, hex('#2a2a30')); };
+// las tres hojas que caen: [x, y de apoyo, ángulo, t de llegada, ancho, alto, tipo, semilla]
+const HOJAS = [[112, 136, -0.25, 0.3, 30, 20, 'secreto', 3], [150, 113, 0.12, 0.5, 30, 18, 'renglones', 1], [196, 162, -0.18, 0.95, 28, 18, 'foto', 2]];
 const p1 = (t) => {
   T.hoy(R, t, { encuadre: 'archivo', camara: 'mesa', carpetas: [], sello: false });
+  // lo que ya hay en el cartapacio: el montón de papeles (el de encima con la franja roja), el lápiz y el cerco de la taza
+  for (let j = 0; j < 3; j++) hoja(78 + j * 2, 163 - j, 32, 16, 0.06 - j * 0.07, j === 2 ? 'secreto' : 'renglones', j + 7, true);
+  lapiz(110, 170, 134, 162);
+  for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI * 2, x = Math.round(118 + Math.cos(an) * 7), y = Math.round(113 + Math.sin(an) * 3); if (hh(a, 5) < 0.75) R.pset(x, y, mez(R.pget(x, y), hex('#4a3a1a'), 0.35)); }
+  // tres hojas sueltas bajan revoloteando antes que las carpetas, con su sombra que crece sobre el cartapacio
+  for (const [lx, ly, ang, tl, w, hgt, tipo, sem] of HOJAS) {
+    const u = Math.min(1, Math.max(0, (t - (tl - 0.9)) / 0.9)), vu = 1 - u;
+    const x = Math.round(lx + Math.sin(u * Math.PI * 2.5) * 16 * vu + (u >= 1 ? Math.min(2, (t - tl) * 14) : 0)), y = Math.round(lerp(-24, ly, suave(u)));
+    if (u > 0.4 && u < 1) sombraHoja(lx + 2, ly + 2, w, hgt, ang, 0.2 * (u - 0.4) / 0.6);
+    hoja(x, y, w, Math.max(3, Math.round(hgt * (u >= 1 ? 1 : 0.55 + 0.45 * Math.abs(Math.cos(u * Math.PI * 3))))), ang + Math.sin(u * Math.PI * 2.5 + 1) * 0.5 * vu, tipo, sem, u >= 1);
+  }
+  // motas de polvo que flotan en la luz de la izquierda
+  for (let i = 0; i < 6; i++) { const u = (t * 0.05 + hh(i, 9)) % 1, x = Math.round(50 + hh(i, 10) * 120 + Math.sin(t * 0.7 + i) * 4), y = Math.round(100 + u * 60); R.pset(x, y, mez(R.pget(x, y), hex('#fff6d0'), 0.55)); }
   // el gato espía se acerca al micrófono de Atom, con cara de travieso
   const ug = tramo(t, 0.6, 2.2);
   T.gatoEspia(R, Math.round(lerp(96, 54, ug)), 175, t, { anda: ug > 0 && ug < 1, dir: -1, cara: 'travieso' });
   // las carpetas caen una a una sobre el cartapacio
   for (let i = 0; i < 6; i++) {
     const t0 = files - 0.4 + i * ((lado2 - files + 0.3) / 5), u = tramo(t, t0 - 0.35, t0); if (u <= 0) continue;
-    const y = Math.round(lerp(-30, 150, u * u) - (t > t0 && t < t0 + 0.18 ? 3 : 0)), ts = patron - 0.15 + i * 0.17;
+    const y = Math.round(lerp(-30, 150, u * u) - (t > t0 && t < t0 + 0.18 ? 3 : 0)), ts = patron - 0.15 + (5 - i) * 0.17;   // la carpeta i se sella cuando el sello baja sobre ella (de la última a la primera)
     R.rect(XC[i] - 18, 150, XC[i] + 18, 151, mez(R.pget(XC[i], 151), k, 0.4));
     T.PIEZAS_DC.carpeta(R, XC[i], y, { dibujo: DIB[i], s: 2, sello: t > ts ? 'sonrojado' : undefined });
-    if (t > ts && t < ts + 0.22) destello(XC[i] + 2, 128, 4, hex('#f08aa0'));
+    if (t > ts && t < ts + 0.22) destello(XC[i] + 9, 130, 4, hex('#f08aa0'));
   }
-  // la mano con el sello recorre la fila de derecha a izquierda con «a pattern appears»
-  const ue = tramo(t, patron - 0.7, patron - 0.15), uf = tramo(t, patron + 0.9, patron + 1.4);
-  if (ue > 0 && uf < 1) {
+  // el sello va solo (el gag es del objeto, sin mano ni brazo): espera de pie en su sitio del cartapacio; antes de «a
+  // pattern appears» tiembla, salta a la última carpeta, va sellando de carpeta en carpeta hacia la izquierda y vuelve
+  // de un salto a su sitio, donde aterriza con su nubecilla de polvo
+  const HX = 160, HY = 176, uj = tramo(t, patron - 0.5, patron - 0.15), ur = tramo(t, patron + 0.72, patron + 1.1);
+  let sx = HX, sy = HY, gy = HY + 1;
+  if (t < patron - 0.5) { if (t > patron - 0.95) sx += Math.round(Math.sin(t * 70)); }
+  else if (uj < 1) { sx = Math.round(lerp(HX, XC[5] + 9, uj)); sy = Math.round(lerp(HY, 140, uj) - Math.sin(uj * Math.PI) * 56); gy = Math.round(lerp(HY + 1, 142, uj)); }
+  else if (t < patron + 0.72) {
     const f = Math.max(0, Math.min(5, (t - (patron - 0.15)) / 0.17)), i = Math.min(5, Math.floor(f)), fr = f - i;
-    let sx = ue < 1 ? Math.round(lerp(330, XC[5] + 2, suave(ue))) : Math.round(lerp(XC[5 - i] + 2, XC[Math.max(0, 4 - i)] + 2, Math.max(0, (fr - 0.5) * 2))), sy = ue < 1 ? Math.round(lerp(40, 108, ue)) : Math.round(122 - Math.abs(Math.sin(fr * Math.PI)) * 14);
-    if (t > patron + 0.85) { sx = Math.round(lerp(XC[0] + 2, -40, uf)); sy = Math.round(lerp(108, 40, uf)); }
-    // la fila se sella al revés: de la última a la primera
-    T.PIEZAS_DC.sello(R, sx, sy, { s: 2 }); T.brazo(R, sx + 40, sy - 60, sx + 12, sy - 24, '#5a4e6a', -1, { codo: [sx + 36, sy - 26] });
-  }
+    sx = Math.round(lerp(XC[5 - i] + 9, XC[Math.max(0, 4 - i)] + 9, Math.max(0, (fr - 0.5) * 2))); sy = Math.round(140 - Math.abs(Math.sin(fr * Math.PI)) * 20); gy = 142;
+  } else if (ur < 1) { sx = Math.round(lerp(XC[0] + 9, HX, ur)); sy = Math.round(lerp(140, HY, ur) - Math.sin(ur * Math.PI) * 30); gy = Math.round(lerp(142, HY + 1, ur)); }
+  // su sombra, más pequeña y clara cuanto más alto va
+  const alto = Math.max(0, gy - 1 - sy), sw = Math.max(3, 8 - Math.round(alto / 8)), sa = Math.max(0.12, 0.4 - alto / 160);
+  for (let dx = -sw; dx <= sw; dx++) { R.pset(sx + dx, gy, mez(R.pget(sx + dx, gy), k, sa)); if (Math.abs(dx) < sw - 2) R.pset(sx + dx, gy + 1, mez(R.pget(sx + dx, gy + 1), k, sa * 0.7)); }
+  T.PIEZAS_DC.sello(R, sx, sy, { s: 2 });
+  // nubecillas de polvo al despegar y al aterrizar en el cartapacio
+  for (const [t0, px] of [[patron - 0.5, HX], [patron + 1.1, HX]]) { const u = (t - t0) / 0.35; if (u <= 0 || u >= 1) continue;
+    for (let i = 0; i < 6; i++) { const d = Math.round(6 + u * 10 + i % 3), x = px + (i < 3 ? -d : d), y = HY - Math.round(u * 4) - (i % 3); R.pset(x, y, mez(R.pget(x, y), hex('#e8e0c8'), 0.7 * (1 - u))); } }
 };
 
 // 2 · el corcho de la conspiración: los hilos caen; el sello grande de la cara sonrojada

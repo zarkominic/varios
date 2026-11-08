@@ -15,13 +15,19 @@
 // 2. (corta en «a nuclear landmine») el taller frío: la mina enorme en su carro, colgada de la báscula de cadena; la aguja
 //    sube y sale un «7» («seven tons»); el otro técnico cuelga la chapa con la pluma del pavo real («Blue Peacock»);
 // 3. (corta en «in Germany») el campo alemán nevado: uno echa nieve con la pala sobre la mina («bury»); el otro mira el
-//    termómetro, que baja en «so cold», y tirita («!»);
+//    termómetro, que baja en «so cold», y tirita («!»). Encima del decorado: el cielo tramado con sol velado, nubes de tres
+//    tonos a tres velocidades, la bandada, el humo de la caseta y copos; en la nieve, manchas de sombra azul, ondas del
+//    viento, roderas hondas con barro, huellas, sombras de pinos y camión, ventisqueros, piedras y matas que se mecen
+//    (también en el primer término, delante de la valla);
 // 4. (corta en «electronics») por dentro de la mina: las válvulas brillan, la escarcha crece desde los bordes y todo se
-//    apaga en «stop working»; en «proposed solutions» asoma una gallina por la escotilla;
-// 5. (corta en «put live chickens») el plano azul: el lápiz dibuja las gallinas con su comedero y su bebedero, y salen
-//    las rayitas del calor («body heat»);
-// 6. (corta en «would keep it warm») gag 4: en la nieve, una gallina sube a la mina y se echa a empollar encima, tan
-//    tranquila; la escarcha se derrite a su alrededor y el técnico del fondo levanta el dedo.
+//    apaga en «stop working»; en «proposed solutions» asoma una gallina por la escotilla, recortada al disco del cristal
+//    (en la barra del año y en la zona de Atom la escarcha es un velo liso);
+// 5. (corta en «put live chickens») el plano azul: el lápiz, inclinado, repasa las gallinas por abajo con su comedero y
+//    su bebedero, y salen las rayitas del calor («body heat»); del brazo asoman ≤ 44 px;
+// 6. (corta en «would keep it warm») gag 4: en la nieve, una gallina llega dejando sus huellas, sube a la mina y se echa a
+//    empollar encima, tan tranquila; la escarcha se derrite a su alrededor y el técnico del fondo levanta el dedo. Cielo
+//    tramado con nubes de tres tonos y cuervos; al fondo medio el camión oliva y la caseta de troncos con humo; la mina con
+//    chapa manchada, juntas, remaches, dos tapas atornilladas, escarcha que destella y su sombra azul en la nieve.
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('dc-pavo');
@@ -32,6 +38,8 @@ const hh = (x, y, s = 0) => { const v = Math.sin(x * 127.1 + y * 311.7 + s * 74.
 const mez = (a, b, u) => { const A = hex(a), B = hex(b); const c = (s) => Math.round(((A >>> s) & 255) + (((B >>> s) & 255) - ((A >>> s) & 255)) * u); return (0xff000000 | (c(16) << 16) | (c(8) << 8) | c(0)) >>> 0; };
 // pinta algo en un búfer aparte y lo copia solo dentro del hueco [x0, y0, x1, y1] (ventanas, escotillas)
 const enHueco = (dibuja, huecos) => { const b = R.nuevo(), prev = R.usar(b); dibuja(); R.usar(prev); for (const [x0, y0, x1, y1] of huecos) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = b[y * 320 + x]; if (c) R.pset(x, y, c); } };
+// lo mismo con un hueco redondo de centro (cx, cy) y radio r (la escotilla): recorte de disco
+const enDisco = (dibuja, cx, cy, r) => { const b = R.nuevo(), prev = R.usar(b); dibuja(); R.usar(prev); for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= cx + r; x++) { if ((x - cx) ** 2 + (y - cy) ** 2 > r * r + r * 0.4) continue; const c = b[y * 320 + x]; if (c) R.pset(x, y, c); } };
 // un fondo fijo pintado una vez en su búfer y puesto en pantalla de un recorrido
 const capas = new Map();
 const fondo = (clave, dibuja) => { let b = capas.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); capas.set(clave, b); } const d = R.usar(b); R.usar(d); d.set(b); };
@@ -44,6 +52,34 @@ const cifras = (s, x, y, c, e = 1) => String(s).split('').forEach((d, n) => (CIF
 const palomaPica = (x, y, t, pica, o = {}) => P.paloma(R, x, y, { ...o, t: pica ? (0.05 - x) / 3 : 1.4 - x / 3, picotea: pica });
 // el vaho del aliento en el frío: nubecitas que salen de la boca y se deshacen
 const vaho = (x, y, t, dir, fase = 0) => { const u = ((t + fase) % 1.4) / 1.4; if (u > 0.7) return; const r = 1 + u * 3, cx = Math.round(x + dir * (2 + u * 9)), cy = Math.round(y - u * 5); R.disco(cx, cy, r, u < 0.35 ? hex('#f4f8fc') : hex('#d8e2ec')); };
+
+// el cielo de nieve tramado: cinco grises azulados con trama ordenada 4 × 4 y vetas suaves (de arriba, y = 0, a y1)
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], bay = (x, y) => BAYER[(y & 3) * 4 + (x & 3)] / 16;
+const CIELO_N = ['#7e889e', '#929cb0', '#a8b0c2', '#bec5d2', '#d4d9e2'].map((c) => hex(c));
+const cieloTram = (x, y, y1) => { const u = Math.min(0.999, Math.max(0, y / y1 + (hh(x >> 4, y >> 2, 50) - 0.5) * 0.08)) * (CIELO_N.length - 1), i = Math.floor(u); return CIELO_N[Math.min(CIELO_N.length - 1, u - i > bay(x, y) ? i + 1 : i)]; };
+// nubes de nieve de tres tonos (la luz arriba, el cuerpo y la panza en sombra) en capas a distintas velocidades;
+// ok(x, y) dice dónde hay cielo. Cada capa: [y de la base, alto, ancho, velocidad, cuántas, [luz, cuerpo, sombra], semilla]
+const nubes = (t, ok, capas) => { for (const [yb, al, an, v, n, tonos, s] of capas) { const [L, Cu, S] = tonos.map((c) => hex(c)), per = 320 + an * 2;
+  for (let c = 0; c < n; c++) { const w = Math.round(an * (0.7 + hh(c, 1, s) * 0.6)), hg = Math.round(al * (0.7 + hh(c, 2, s) * 0.5)), y0 = yb + Math.round((hh(c, 3, s) - 0.5) * al * 0.8);
+    const x0 = Math.round(((hh(c, 4, s) * 60 + c * per / n + t * v) % per) - an), nb = 4 + Math.floor(hh(c, 5, s) * 3), bl = [];
+    for (let b = 0; b < nb; b++) { const u = (b + 0.5) / nb, sn = Math.sin(u * Math.PI); bl.push([x0 + u * w, y0 - hg * (0.25 + 0.45 * sn) * (0.7 + hh(c, 6 + b, s) * 0.3), w / nb * 0.95 + 2, hg * (0.4 + 0.45 * sn)]); }
+    const den = (x, y) => { if (y > y0) return false; for (const [bx, by, rx, ry] of bl) if (((x - bx) / rx) ** 2 + ((y - by) / ry) ** 2 <= 1) return true; return false; };
+    for (let y = Math.max(0, y0 - hg - 3); y <= y0; y++) for (let x = Math.max(0, x0 - 6); x <= Math.min(319, x0 + w + 6); x++) { if (!den(x, y) || !ok(x, y)) continue;
+      R.pset(x, y, !den(x + 1, y - 2) ? L : y > y0 - 1 - hg * 0.3 + bay(x, y) * 2.5 ? S : Cu); } } } };
+// una bandada pequeña que cruza batiendo las alas (nunca en la zona de Atom ni en la barra del año)
+const pajaros = (t, ok, n, y0, v, s, col = '#24242c') => { const K = hex(col), pk = (x, y) => { if (x >= 0 && x < 320 && y > 16 && !(x > 274 && y < 48) && ok(x, y)) R.pset(x, y, K); };
+  for (let i = 0; i < n; i++) { const x = Math.round(((t * v + hh(s, 1, 51) * 300) % 420) - 60 - i * 7), y = y0 + Math.abs(i - (n >> 1)) * 3 + Math.round(Math.sin(t * 2 + i) * 1.2), a = Math.floor(t * 7 + i * 1.7) % 2;
+    pk(x, y); pk(x + 1, y); if (a) { pk(x - 1, y - 1); pk(x - 2, y - 2); pk(x + 2, y - 1); pk(x + 3, y - 2); } else { pk(x - 1, y); pk(x - 2, y + 1); pk(x + 2, y); pk(x + 3, y + 1); } } };
+// la nieve del suelo (para tocar solo la nieve y no la mina, el hoyo, las personas o los postes)
+const NIEVE = new Set(['#eef2f8', '#c4d0e2', '#ffffff', '#9eacc4'].map((c) => hex(c)));
+// un ventisquero: un montón de nieve con la cresta iluminada, la cara de sombra azul y su sombra en el suelo
+const monton = (cx, cy, rx, ry) => { const { pset } = R; for (let i = -rx; i <= Math.round(rx * 1.5); i++) { if (i > rx * 0.2) { pset(cx + i, cy + 1, i % 2 ? hex('#c4d0e2') : hex('#b4c2d8')); if (i < rx) pset(cx + i, cy + 2, hex('#c4d0e2')); } if (i > rx) continue;
+  const hg = Math.round(Math.sqrt(1 - (i / rx) ** 2) * ry); for (let j = 0; j <= hg; j++) pset(cx + i, cy - j, j === hg ? hex('#ffffff') : i > rx * 0.25 && j < hg * 0.8 + bay(cx + i, cy - j) ? (j < 1 ? hex('#b4c2d8') : hex('#c8d4e6')) : hex('#f2f6fa')); } };
+// una piedra que asoma de la nieve, con su gorro blanco y su sombra
+const piedra = (x, y, r) => { const { pset, disco } = R; for (let i = 0; i <= r + 2; i++) pset(x + i, y + 1, hex('#9eacc4')); disco(x, y, r, hex('#3e424a')); disco(x, y, r - 1, hex('#5e626c')); pset(x - 1, y - 1, hex('#8a8e98')); pset(x - 2, y, hex('#7a7e88')); for (let i = -r + 1; i < r; i++) pset(x + i, y - r + (Math.abs(i) > r - 2 ? 1 : 0), hex('#ffffff')); for (let i = -r; i <= r; i++) pset(x + i, y + 1, hex('#eef2f8')); };
+// una mata de hierba seca que asoma y se mece con el viento
+const mata = (x, y, t, n = 5) => { const { linea, pset } = R; for (let i = 0; i < n; i++) { const bx = x + i * 2 - n, al = 4 + Math.round(hh(x, i, 52) * 4), sw = Math.round(Math.sin(t * 2.3 + x * 0.3 + i) * 1.2) - 1;
+  linea(bx, y, bx + sw + (i - (n >> 1)), y - al, [hex('#8a7444'), hex('#a8905a'), hex('#6a5a34')][i % 3]); } for (let i = -n + 1; i < n - 1; i++) pset(x + i, y, hex('#ffffff')); pset(x - 1, y - 1, hex('#ffffff')); };
 
 const m = (f) => en('peacock', f);
 const P2 = m(0.1806), P3 = m(0.383), P4 = m(0.599), P5 = m(0.7686), P6 = m(0.9524);
@@ -97,9 +133,50 @@ const p2 = (t) => {
 };
 
 // 3 · el campo nevado: enterrarla en Alemania; el termómetro baja
+// el cielo del campo se repinta encima del decorado, solo por encima de la cresta de las colinas lejanas (la misma
+// curva que b_nieve): trama, sol velado, nubes de tres tonos a tres velocidades, la bandada, el humo y los copos
+const CIMA3 = Array.from({ length: 320 }, (_, x) => Math.round(62 - 10 * (0.5 + 0.3 * Math.sin(x * 0.021) + 0.2 * Math.sin(x * 0.067))));
+let CIELO3 = null;
+const cielo3 = (t) => {
+  const { pset } = R, ok = (x, y) => y < CIMA3[x];
+  if (!CIELO3) { CIELO3 = new Uint32Array(320 * 64); for (let y = 0; y < 64; y++) for (let x = 0; x < 320; x++) { let c = cieloTram(x, y, 62); const d = Math.hypot(x - 236, y - 24); if (d < 6) c = hex('#eef0f4'); else if (d < 14 && (14 - d) / 8 > bay(x, y)) c = d < 9 ? hex('#e0e4ea') : hex('#cfd4dd'); CIELO3[y * 320 + x] = c; } }
+  for (let x = 0; x < 320; x++) for (let y = 0; y < CIMA3[x]; y++) pset(x, y, CIELO3[y * 320 + x]);
+  nubes(t, ok, [[48, 7, 34, 1.2, 5, ['#eceef2', '#d4d8e0', '#b0b8c6'], 53], [36, 10, 48, 2.8, 4, ['#f2f4f6', '#c8ced8', '#9098aa'], 54], [22, 13, 66, 5, 3, ['#f6f7f9', '#bcc3cf', '#7e869a'], 55]]);
+  pajaros(t, ok, 5, 30, 13, 3);
+  // el humo de la chimenea de la caseta, que se lleva el viento hacia la izquierda
+  for (let n = 0; n < 7; n++) { const u = (t * 0.32 + n / 7) % 1, cx = 274 - u * 18 + Math.sin(u * 6 + n) * 2, cy = 70 - u * 34, r = 1.5 + u * 3.5, c = u < 0.4 ? hex('#a4aab4') : hex('#c8ccd4');
+    for (let y = Math.round(cy - r); y <= cy + r; y++) for (let x = Math.round(cx - r); x <= cx + r; x++) if (x >= 0 && x < 278 && (x - cx) ** 2 + (y - cy) ** 2 <= r * r && ok(x, y) && (u < 0.7 || bay(x, y) > (u - 0.7) * 3)) pset(x, y, c); }
+  // los copos sobre el cielo (el decorado pinta los suyos más abajo)
+  for (let n = 0; n < 36; n++) { const capa = n % 3, x = Math.round((hh(n, 1, 56) * 340 + Math.sin(t * 0.9 + n) * (2 + capa) - t * (2 + capa * 2) + 3400) % 340) - 10, y = Math.round((hh(n, 2, 56) * 64 + t * [7, 12, 20][capa]) % 64);
+    if (x < 0 || x > 319 || !ok(x, y) || (x > 274 && y < 48)) continue; pset(x, y, capa ? hex('#ffffff') : hex('#e4e8ee')); if (capa === 2 && ok(x + 1, y)) pset(x + 1, y, hex('#ffffff')); }
+};
+// la nieve del suelo: manchas de sombra azul tramadas, las roderas del camión hondas con barro, ondas del viento y
+// las sombras de los pinos y del camión (solo sobre píxeles de nieve: la mina, el hoyo y los postes quedan como están)
+let SUELO3 = null;
+const suelo3 = (desde, hasta) => {
+  if (!SUELO3) { SUELO3 = []; const add = (x, y, c) => { if (x >= 0 && x < 320 && y >= 86 && y < 180 && ((x - 165) / 74) ** 2 + ((y - 140) / 20) ** 2 > 1) SUELO3.push([x, y, hex(c)]); };
+    for (let y = 92; y < 180; y++) for (let x = 0; x < 320; x++) { const z = hh(x >> 4, y >> 2, 57) * 0.65 + hh(x >> 2, y >> 1, 58) * 0.35, rz = Math.sin(x * 0.12 + y * 0.85 + Math.sin(x * 0.03) * 3);
+      if (rz > 0.95 && hh(x, y, 59) < 0.8) add(x, y, '#ffffff'); else if (rz < -0.93 && hh(x, y, 60) < 0.6) add(x, y, '#d0dae8'); else if (z > 0.62 && (z - 0.62) * 5 > bay(x, y)) add(x, y, z > 0.78 ? '#c8d4e6' : '#dce4ee'); }
+    // las sombras de los pinos, del camión y de la caseta sobre la nieve
+    for (const [cx, cy, rx, ry] of [[24, 106, 18, 3], [48, 102, 14, 3], [70, 125, 40, 3], [300, 110, 20, 3], [262, 115, 30, 2], [212, 93, 10, 2]]) for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) if ((i / rx) ** 2 + (j / ry) ** 2 <= 1 && bay(cx + i, cy + j) < 0.7) add(cx + i, cy + j, '#b8c6da');
+    // las roderas del camión, hondas: el canto iluminado, el fondo en sombra y barro que asoma
+    for (let y = 124; y < 180; y++) { const xc = 60 + (y - 122) * 1.6 + Math.sin(y * 0.06) * 8, w = 1.5 + (y - 122) / 28; for (const dx of [-9, 9]) { const c = xc + dx * (1 + (y - 122) / 80);
+      for (let x = Math.round(c - w - 1); x <= Math.round(c + w + 1); x++) { const u = (x - (c - w)) / (2 * w); add(x, y, u < 0 ? '#ffffff' : u > 1 ? '#f6f9fc' : hh(x, y, 61) < 0.14 ? '#8a7c6c' : u < 0.45 ? '#a2b0c8' : '#c0cce0'); } } }
+    // las huellas del de la pala desde la cabina del camión, cada una con su sombra
+    for (let n = 0; n < 9; n++) { const x = Math.round(88 + n * 1.3 + (n % 2 ? 3 : 0)), y = 127 + n * 4; add(x, y, '#9eacc4'); add(x + 1, y, '#9eacc4'); add(x, y + 1, '#b4c2d8'); add(x + 1, y + 1, '#ffffff'); } }
+  const { pget, pset } = R; for (const [x, y, c] of SUELO3) if (y >= desde && y < hasta && NIEVE.has(pget(x, y))) pset(x, y, c);
+};
+// lo que asoma de la nieve: ventisqueros, piedras y matas que se mecen (detrás de los técnicos) y el primer término
+const cosas3 = (t) => {
+  monton(30, 140, 22, 4); monton(178, 166, 20, 4); monton(262, 130, 18, 4);
+  piedra(44, 136, 3); piedra(70, 141, 2); piedra(196, 165, 3); piedra(278, 141, 3);
+  mata(12, 129, t); mata(56, 147, t, 4); mata(248, 121, t); mata(302, 127, t, 4); mata(234, 165, t); mata(160, 166, t, 4);
+};
+const delante3 = (t) => { suelo3(168, 180); piedra(148, 175, 4); mata(126, 177, t, 6); mata(206, 176, t, 5); };
 const p3 = (t) => {
   const frio = 0.25 + tramo(t, INVIERNO, TANFRIO + 0.6) * 0.75;
   const g = T.animales(R, t, { encuadre: 'campoNieve', frio });
+  cielo3(t); suelo3(86, 168); cosas3(t);
   // el que echa nieve con la pala
   const ciclo = ((t - P3) % 1.2) / 1.2, carga = ciclo < 0.5, sx = 100;
   const a = R.actor(EL.tecnicoBritanico, sx, 164, t, { dir: 1, sostiene: carga ? [sx + 18, 150] : [sx + 22, 132] });
@@ -113,6 +190,7 @@ const p3 = (t) => {
   const b = R.actor(EL.tecnicoBritanico2, 212 + (tirita ? Math.round(Math.sin(t * 40)) : 0), 162, t, { dir: 1, sostiene: golpe ? [230, 122] : false, sorpresa: tirita, triste: !tirita && t > INVIERNO + 0.5 });
   vaho(b.cabeza[0] + 5, b.cabeza[1] + 9, t, 1, 0.5);
   T.animalesDelante(R, t, { encuadre: 'campoNieve', frio });
+  delante3(t);
   if (tirita) R.bocadillo(b.cabeza[0] + 2, b.cabeza[1] - 4, {});
 };
 
@@ -168,15 +246,17 @@ const p4 = (t) => {
   // la escarcha que crece desde los bordes y los carámbanos del bastidor
   const e = 0.12 + tramo(t, P4 + 0.1, SOLUCION) * 0.88;
   const F = capas.get('escarchaF'), BL = hex('#f6fafe'), AZ = hex('#cfe2ef'), AZ2 = hex('#a8c6dc');
-  if (F) for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.min(x, 319 - x, y * 1.5, (179 - y) * 1.7) / 80, v = F[y * 320 + x] - d / e; if (v > -0.05) pset(x, y, v > 0.12 ? AZ : v > 0.02 ? BL : AZ2); }
+  // (en la barra del año y en la zona de Atom la escarcha es un velo liso y tranquilo, sin vetas ni agujas)
+  const calma = (x, y) => (y < 16 && x > 16 && x < 174) || (x > 274 && y < 48), VELO = hex('#c6dae8');
+  if (F) for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.min(x, 319 - x, y * 1.5, (179 - y) * 1.7) / 80, v = F[y * 320 + x] - d / e; if (v > -0.05) pset(x, y, calma(x, y) ? VELO : v > 0.12 ? AZ : v > 0.02 ? BL : AZ2); }
   // las agujas de hielo que crecen desde los bordes (helechos de escarcha)
-  for (let n = 0; n < 14; n++) { const x0 = n < 7 ? 0 : 319, y0 = 12 + (n % 7) * 26, l = Math.round(e * (30 + hh(n, 9, 38) * 40)), dir = n < 7 ? 1 : -1; for (let i = 0; i < l; i++) { const x = x0 + dir * i, y = y0 + Math.round(Math.sin(i * 0.12 + n) * 4); pset(x, y, BL); if (i % 6 === 3) for (let j = 1; j < 5; j++) { pset(x + dir * j, y - j, BL); pset(x + dir * j, y + j, AZ); } } }
+  for (let n = 0; n < 14; n++) { const x0 = n < 7 ? 0 : 319, y0 = (n < 7 ? 24 : 54) + (n % 7) * (n < 7 ? 24 : 20), l = Math.round(e * (30 + hh(n, 9, 38) * 40)), dir = n < 7 ? 1 : -1; for (let i = 0; i < l; i++) { const x = x0 + dir * i, y = y0 + Math.round(Math.sin(i * 0.12 + n) * 4); pset(x, y, BL); if (i % 6 === 3) for (let j = 1; j < 5; j++) { pset(x + dir * j, y - j, BL); pset(x + dir * j, y + j, AZ); } } }
   // destellos de la escarcha
-  for (let n = 0; n < 8; n++) if (Math.sin(t * 5 + n * 1.7) > 0.85) { const x = Math.floor(hh(n, 1, 39) * 300) + 10, y = Math.floor(hh(n, 2, 39) * 160) + 10, d = Math.min(x, 319 - x, y * 1.5, (179 - y) * 1.7) / 80; if (F && F[y * 320 + x] - d / e > 0) { pset(x, y, hex('#ffffff')); pset(x - 1, y, AZ); pset(x + 1, y, AZ); pset(x, y - 1, AZ); pset(x, y + 1, AZ); } }
+  for (let n = 0; n < 8; n++) if (Math.sin(t * 5 + n * 1.7) > 0.85) { const x = Math.floor(hh(n, 1, 39) * 300) + 10, y = Math.floor(hh(n, 2, 39) * 160) + 10, d = Math.min(x, 319 - x, y * 1.5, (179 - y) * 1.7) / 80; if (F && F[y * 320 + x] - d / e > 0 && !calma(x, y)) { pset(x, y, hex('#ffffff')); pset(x - 1, y, AZ); pset(x + 1, y, AZ); pset(x, y - 1, AZ); pset(x, y + 1, AZ); } }
   for (let n = 0; n < 12; n++) { const x = 104 + n * 14, l = Math.round((2 + hh(n, 1, 34) * 6) * e * 1.3); linea(x, 152, x, 152 + l, hex('#d8ecf8')); pset(x, 152 + l, hex('#ffffff')); }
-  // asoma la gallina por la escotilla
+  // asoma la gallina por la escotilla: recortada al cristal redondo (radio 15), nada pisa el aro ni la escarcha
   const asoma = tramo(t, SOLUCION, SOLUCION + 0.6);
-  if (asoma > 0) enHueco(() => P.gallina(R, 54, Math.round(lerp(96, 72, asoma)), { t, s: 2, picotea: Math.sin(t * 4) > 0.8 }), [[37, 43, 67, 73]]);
+  if (asoma > 0) enDisco(() => P.gallina(R, 54, Math.round(lerp(96, 72, asoma)), { t, s: 2, picotea: Math.sin(t * 4) > 0.8 }), 52, 58, 15);
 };
 
 // 5 · el plano: el lápiz dibuja las gallinas y el calor
@@ -185,60 +265,119 @@ const p5 = (t) => {
   const g = T.animales(R, t, { encuadre: 'campoNieve', camara: 'plano', trazo });
   const G = g.gallinas || [[118, 104], [150, 106], [176, 104]];
   const i = Math.min(G.length - 1, Math.floor(trazo * G.length)), [gx, gy] = G[i], dibuja = trazo > 0 && trazo < 1;
-  const tx = dibuja ? gx + Math.round(Math.sin(t * 13) * 5) : 230, ty = dibuja ? gy - 4 + Math.round(Math.cos(t * 11) * 3) : 150;
+  // la punta repasa la gallina por abajo (patas y suelo) con el lápiz inclinado: así la muñeca queda a y ≥ 136 y del
+  // brazo solo asoman ≤ 44 px desde el borde
+  const tx = dibuja ? gx + Math.round(Math.sin(t * 13) * 6) : 234, ty = dibuja ? gy + 5 + Math.round(Math.cos(t * 11)) : 146;
   // el calor: rayitas naranjas que suben de las gallinas
   if (t > CALOR - 0.2) for (const [x, y] of G) for (let n = 0; n < 3; n++) { const u = (t * 1.2 + n / 3) % 1; for (let j = 0; j < 5; j++) R.pset(x - 4 + n * 4 + Math.round(Math.sin(u * 6 + j) * 1.5), Math.round(y - 14 - u * 12 - j), hex('#e8742a')); }
   // el lápiz en la mano
-  R.linea(tx, ty, tx + 18, ty + 18, k); R.linea(tx + 1, ty, tx + 19, ty + 18, hex('#e8c040')); R.linea(tx, ty + 1, tx + 18, ty + 19, hex('#c89a20')); R.pset(tx, ty, hex('#3a3a3a'));
-  T.brazo(R, tx + 70, 236, tx + 20, ty + 22, '#4a5a7a', -1, { codo: [tx + 36, 192] });
+  R.linea(tx - 1, ty + 1, tx + 9, ty + 25, k); R.linea(tx, ty + 1, tx + 10, ty + 25, hex('#e8c040')); R.linea(tx + 1, ty + 1, tx + 11, ty + 25, hex('#c89a20')); R.linea(tx + 2, ty + 2, tx + 12, ty + 25, k);
+  R.pset(tx, ty, hex('#3a3a3a')); R.pset(tx + 1, ty + 1, hex('#e8c8a0')); R.pset(tx, ty + 2, hex('#e8c8a0'));
+  T.brazo(R, tx + 34, 232, tx + 12, ty + 29, '#4a5a7a', -1, { codo: [tx + 22, 200] });
 };
 
 // 6 · gag 4: la gallina empolla encima de la mina en la nieve (inserto local, pintado entero)
 const nieveCerca = () => {
-  const { rect, pset, disco, poligono } = R;
-  for (let y = 0; y < 90; y++) for (let x = 0; x < 320; x++) pset(x, y, hh(x, y, 40) < y / 110 ? hex('#c8d0dc') : hex('#a8b2c0'));
+  const { rect, pset, disco, poligono, linea, pget } = R;
+  // el cielo tramado (las nubes, la bandada y el humo van encima, con t)
+  for (let y = 0; y < 92; y++) for (let x = 0; x < 320; x++) pset(x, y, cieloTram(x, y, 90));
   // el bosque de pinos nevados al fondo
   for (let n = 0; n < 26; n++) { const x = n * 13 + Math.floor(hh(n, 1, 41) * 8), h = 26 + Math.floor(hh(n, 2, 41) * 18), b = 92; if (x > 270 && b - h < 46) continue;
-    poligono([[x, b - h], [x - 9, b], [x + 9, b]], hex('#2a4a3a')); poligono([[x, b - h], [x - 4, b - h + 12], [x + 2, b - h + 10]], hex('#e8eef4')); for (let j = b - h + 14; j < b; j += 7) R.linea(x - Math.round((j - b + h) * 0.3), j, x, j - 1, hex('#e8eef4')); }
-  // la nieve con montones, sombras azules y huellas
-  for (let y = 84; y < 180; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.03 + y * 0.08) + (hh(x, y, 42) - 0.5) * 0.6; pset(x, y, v > 0.8 ? hex('#ffffff') : v < -0.7 ? hex('#c4d4e6') : hex('#e8eff6')); }
-  // las sombras azules de los ventisqueros
-  for (let n = 0; n < 7; n++) { const cx = 20 + n * 48, cy = 100 + (n % 3) * 22; for (let i = -36; i <= 36; i++) { const hgt = Math.round(Math.sqrt(Math.max(0, 1 - (i / 36) ** 2)) * 5); for (let j = 0; j < hgt; j++) pset(cx + i, cy + j, j === 0 ? hex('#ffffff') : hex('#cddbea')); } }
+    poligono([[x, b - h], [x - 9, b], [x + 9, b]], hex('#2a4a3a')); poligono([[x, b - h], [x + 1, b - h + 2], [x + 9, b], [x + 3, b]], hex('#1e3a2e')); poligono([[x, b - h], [x - 4, b - h + 12], [x + 2, b - h + 10]], hex('#e8eef4')); for (let j = b - h + 14; j < b; j += 7) linea(x - Math.round((j - b + h) * 0.3), j, x, j - 1, hex('#e8eef4')); }
+  // la nieve: más gris y azul hacia el fondo; ondas del viento con su canto de luz, manchas de sombra tramadas y destellos
+  for (let y = 84; y < 180; y++) for (let x = 0; x < 320; x++) { const z = hh(x >> 4, y >> 2, 57) * 0.65 + hh(x >> 2, y >> 1, 58) * 0.35, rz = Math.sin(x * 0.11 + y * 0.8 + Math.sin(x * 0.025) * 3), lej = (104 - y) / 20;
+    let c = hex('#e8eff6'); if (rz > 0.94 && hh(x, y, 42) < 0.8) c = hex('#ffffff'); else if (rz < -0.92 && hh(x, y, 43) < 0.6) c = hex('#ccd8e8'); else if (z > 0.6 && (z - 0.6) * 5 > bay(x, y)) c = z > 0.78 ? hex('#c4d4e6') : hex('#d8e2ee');
+    if (lej > bay(x, y)) c = lej > 0.6 + bay(x, y) ? hex('#c6d0de') : hex('#d4dce8'); if (hh(x, y, 44) > 0.996) c = hex('#ffffff'); pset(x, y, c); }
+  // el camión militar oliva al fondo a la izquierda, con la lona nevada (detrás de la valla)
+  { const x0 = 4, y1 = 104; rect(x0, y1 - 24, x0 + 44, y1 - 7, k); for (let y = y1 - 23; y < y1 - 7; y++) for (let x = x0 + 1; x < x0 + 44; x++) pset(x, y, (x - x0) % 7 === 0 ? hex('#4a5a30') : hh(x >> 1, y >> 1, 62) < 0.15 ? hex('#4e5e32') : hex('#5a6a3a'));
+    rect(x0 - 1, y1 - 26, x0 + 45, y1 - 23, hex('#f4f8fc')); for (let x = x0; x < x0 + 45; x += 3) pset(x, y1 - 22, hex('#f4f8fc')); linea(x0, y1 - 23, x0 + 44, y1 - 23, hex('#c4d4e6'));
+    rect(x0 + 46, y1 - 19, x0 + 64, y1 - 6, k); rect(x0 + 47, y1 - 18, x0 + 63, y1 - 7, hex('#5a6a3a')); rect(x0 + 51, y1 - 16, x0 + 61, y1 - 11, hex('#8ab0c0')); pset(x0 + 52, y1 - 15, hex('#e0f0f8')); rect(x0 + 46, y1 - 21, x0 + 64, y1 - 19, hex('#f4f8fc'));
+    rect(x0 + 62, y1 - 10, x0 + 68, y1 - 5, k); rect(x0 + 63, y1 - 9, x0 + 67, y1 - 6, hex('#3e4a28')); pset(x0 + 67, y1 - 11, hex('#f8f0c0'));
+    rect(x0, y1 - 7, x0 + 68, y1 - 4, k); rect(x0 + 1, y1 - 6, x0 + 67, y1 - 5, hex('#7a8a52')); rect(x0 + 8, y1 - 18, x0 + 14, y1 - 13, hex('#e8e4d0')); disco(x0 + 11, y1 - 15, 1, hex('#c8303a'));
+    for (const dx of [10, 24, 56]) { disco(x0 + dx, y1 - 2, 4, k); disco(x0 + dx, y1 - 2, 2, hex('#3a3a32')); pset(x0 + dx, y1 - 2, hex('#8a92a0')); }
+    for (let x = x0 - 2; x < x0 + 74; x++) { pset(x, y1 + 2, hex('#b4c2d8')); if (x % 2) pset(x, y1 + 3, hex('#c4d4e6')); } }
+  // la caseta de troncos en medio, con el tejado nevado, la ventana encendida, la puerta y la chimenea
+  { const x0 = 178, x1 = 212, y1 = 104; rect(x0, 82, x1, y1, k); for (let y = 83; y < y1; y++) for (let x = x0 + 1; x < x1; x++) pset(x, y, (y - 83) % 4 === 3 ? hex('#6a4a2a') : hh(x >> 2, y >> 2, 63) < 0.15 ? hex('#7a5632') : hex('#9a6e40'));
+    for (let y = 85; y < y1; y += 4) { pset(x0, y, hex('#b8865a')); pset(x1, y, hex('#b8865a')); }
+    poligono([[x0 - 4, 83], [(x0 + x1) / 2, 69], [x1 + 4, 83]], k); poligono([[x0 - 2, 82], [(x0 + x1) / 2, 71], [x1 + 2, 82]], hex('#f4f8fc')); linea((x0 + x1) / 2, 71, x1 + 2, 82, hex('#c4d4e6')); for (let x = x0 - 2; x < x1 + 3; x += 3) pset(x, 84, hex('#ffffff'));
+    rect(x0 + 4, 88, x0 + 13, 96, k); rect(x0 + 5, 89, x0 + 12, 95, hex('#f0c060')); linea(x0 + 8, 89, x0 + 8, 95, k); linea(x0 + 5, 92, x0 + 12, 92, k); rect(x0 + 4, 96, x0 + 13, 97, hex('#f4f8fc'));
+    rect(x0 + 20, 88, x0 + 29, y1, k); rect(x0 + 21, 89, x0 + 28, y1, hex('#6a4a2a')); pset(x0 + 26, 96, hex('#d8b040'));
+    rect(x1 - 8, 66, x1 - 4, 76, k); rect(x1 - 7, 67, x1 - 5, 76, hex('#6a6a70')); rect(x1 - 8, 65, x1 - 4, 66, hex('#f4f8fc'));
+    for (let x = x0 - 4; x < x1 + 12; x++) pset(x, y1 + 1, hex('#b8c6da')); }
+  // los ventisqueros: montones con la cresta iluminada y la cara de sombra azul
+  for (const [cx, cy, rx] of [[18, 128, 18], [96, 108, 22], [140, 104, 16], [244, 132, 20], [300, 108, 16]]) monton(cx, cy, rx, 4);
+  // las piedras y las matas que asoman
+  for (const [x, y, r] of [[112, 112, 3], [238, 120, 2], [296, 148, 3], [84, 140, 2]]) piedra(x, y, r);
   // el hoyo: la tierra oscura removida alrededor de la mina, con nieve sucia
   for (let i = -112; i <= 112; i++) for (let j = -8; j <= 8; j++) { const d = (i / 112) ** 2 + (j / 8) ** 2; if (d <= 1 && d > 0.55) pset(160 + i, 150 + j, hh(i, j, 45) < 0.4 ? hex('#4a3a2e') : hh(i, j, 46) < 0.7 ? hex('#6a5444') : hex('#c8c0b8')); }
+  // la sombra de la mina en la nieve, a la derecha (también sobre la tierra del hoyo)
+  { const DK = hex('#4a5a7a'), mz = (A, B, u) => { const c = (s) => Math.round(((A >>> s) & 255) + (((B >>> s) & 255) - ((A >>> s) & 255)) * u); return (0xff000000 | (c(16) << 16) | (c(8) << 8) | c(0)) >>> 0; };
+    for (let j = -7; j <= 7; j++) for (let i = -26; i <= 26; i++) { const x = 240 + i, y = 148 + j; if ((i / 26) ** 2 + (j / 7) ** 2 <= 1 && x > 222 && bay(x, y) < 0.75) pset(x, y, mz(pget(x, y), DK, 0.28)); } }
   // la valla de cuerda con estacas al fondo
-  for (const x of [10, 44, 78, 244, 278, 312]) { rect(x - 1, 104, x + 1, 126, k); rect(x, 104, x, 126, hex('#8a6a3a')); rect(x - 1, 103, x + 1, 104, hex('#ffffff')); }
+  for (const x of [10, 44, 78, 244, 278, 312]) { rect(x - 1, 104, x + 1, 126, k); rect(x, 104, x, 126, hex('#8a6a3a')); rect(x - 1, 103, x + 1, 104, hex('#ffffff')); pset(x + 2, 127, hex('#b8c6da')); pset(x + 3, 127, hex('#c4d4e6')); }
   for (const [a, b] of [[10, 78], [244, 312]]) for (let x = a; x <= b; x++) pset(x, 110 + Math.round(Math.sin((x - a) / (b - a) * Math.PI) * 4), hex('#c8303a'));
   // la pala clavada y la caja con el farol
-  rect(64, 112, 66, 156, k); rect(65, 112, 65, 156, hex('#a87a44')); rect(60, 108, 70, 112, k); rect(61, 109, 69, 111, hex('#a87a44')); rect(60, 150, 70, 160, k); rect(61, 151, 69, 159, hex('#8a92a0'));
-  rect(22, 146, 54, 168, k); rect(23, 147, 53, 167, hex('#9a6a3a')); for (let y = 152; y < 167; y += 5) R.linea(23, y, 53, y, hex('#7a4e28')); rect(23, 147, 53, 148, hex('#ffffff'));
-  rect(32, 132, 42, 146, k); rect(33, 135, 41, 145, hex('#f8d870')); rect(31, 131, 43, 133, k); R.linea(37, 126, 37, 131, k);
-  // las huellas de la gallina que llegan a la mina y las de las botas
-  for (let n = 0; n < 9; n++) { const x = 30 + n * 11, y = 164 - (n % 2) * 3; pset(x, y, hex('#9ab0c8')); pset(x + 1, y + 1, hex('#9ab0c8')); pset(x - 1, y + 1, hex('#9ab0c8')); }
-  for (let n = 0; n < 8; n++) { const x = 228 + n * 9, y = 124 + n * 4 + (n % 2) * 3; rect(x, y, x + 3, y + 2, hex('#b0c2d8')); }
+  rect(64, 112, 66, 156, k); rect(65, 112, 65, 156, hex('#a87a44')); rect(60, 108, 70, 112, k); rect(61, 109, 69, 111, hex('#a87a44')); rect(60, 150, 70, 160, k); rect(61, 151, 69, 159, hex('#8a92a0')); pset(62, 152, hex('#c8ccd6'));
+  rect(22, 146, 54, 168, k); rect(23, 147, 53, 167, hex('#9a6a3a')); for (let y = 152; y < 167; y += 5) linea(23, y, 53, y, hex('#7a4e28')); for (const x of [26, 50]) linea(x, 148, x, 166, hex('#7a4e28')); rect(23, 147, 53, 148, hex('#ffffff'));
+  for (let x = 20; x < 64; x++) pset(x, 169, hex('#b8c6da'));
+  rect(32, 132, 42, 146, k); rect(33, 135, 41, 145, hex('#f8d870')); rect(31, 131, 43, 133, k); linea(37, 126, 37, 131, k);
+  // las huellas de las botas que vienen del fondo
+  for (let n = 0; n < 8; n++) { const x = 228 + n * 9, y = 124 + n * 4 + (n % 2) * 3; rect(x, y, x + 3, y + 2, hex('#b0c2d8')); pset(x, y + 2, hex('#9eacc4')); pset(x + 3, y, hex('#ffffff')); }
   // el poste del termómetro
-  rect(256, 96, 260, 168, k); rect(257, 96, 259, 168, hex('#8a6a3a')); rect(262, 100, 270, 140, k); rect(263, 101, 269, 139, hex('#f0ece0')); for (let y = 104; y < 138; y += 4) R.linea(264, y, 266, y, k);
+  rect(256, 96, 260, 168, k); rect(257, 96, 259, 168, hex('#8a6a3a')); rect(262, 100, 270, 140, k); rect(263, 101, 269, 139, hex('#f0ece0')); for (let y = 104; y < 138; y += 4) linea(264, y, 266, y, k);
+  // dónde hay cielo (para las nubes, la bandada y el humo)
+  const cielo = new Uint8Array(320 * 92); for (let y = 0; y < 92; y++) for (let x = 0; x < 320; x++) cielo[y * 320 + x] = (pget(x, y) >>> 0) === (cieloTram(x, y, 90) >>> 0) ? 1 : 0; capas.set('cieloCerca', cielo);
+};
+// la chapa de la mina (P.minaPeacock a escala 3 en (160, 176): x 94–226, y 110–176): solo sobre sus colores
+const MINA = new Set(['#8a92a2', '#b8c0cc', '#6a7282', '#4e5464', '#c8ccd6'].map((c) => hex(c)));
+let CHAPA6 = null;
+const chapa6 = (t, w) => {
+  const { pget, pset, rect, linea, disco } = R;
+  if (!CHAPA6) { CHAPA6 = []; for (let y = 122; y < 160; y++) for (let x = 94; x <= 226; x++) { const v = hh(x >> 1, y >> 1, 64), st = hh(x >> 1, 0, 65);
+      if (y === 136) CHAPA6.push([x, y, hex('#5a6272')]); else if (y === 137) CHAPA6.push([x, y, hex('#a6aebb')]);
+      else if (y === 127 || y === 145) { if (x % 6 === 0) CHAPA6.push([x, y, hex('#d4d8e0')]); else if (x % 6 === 1) CHAPA6.push([x, y, hex('#5a6272')]); }
+      else if (st < 0.12 && y > 128 && y - 128 < st * 160) CHAPA6.push([x, y, hex('#7a8292')]);
+      else if (v < 0.16) CHAPA6.push([x, y, hex('#7e8696')]); else if (v > 0.9) CHAPA6.push([x, y, hex('#9aa2b0')]);
+      else if (y < 132 && hh(x >> 2, y >> 1, 66) > 0.55 && hh(x, y, 67) < 0.75) CHAPA6.push([x, y, -1]); } }
+  // la escarcha de la mitad de arriba (menos donde la gallina la derrite)
+  for (const [x, y, c] of CHAPA6) { if (c === -1 && Math.abs(x - 160) <= w) continue; if (MINA.has(pget(x, y))) pset(x, y, c === -1 ? (hh(x, y, 68) < 0.5 ? hex('#f6f8fc') : hex('#d8e4f0')) : c); }
+  // las dos tapas atornilladas con su asa
+  for (const x0 of [134, 194]) { rect(x0, 129, x0 + 18, 147, k); rect(x0 + 1, 130, x0 + 17, 146, hex('#949cac')); linea(x0 + 1, 130, x0 + 17, 130, hex('#c0c6d2')); linea(x0 + 1, 130, x0 + 1, 146, hex('#b0b8c6')); linea(x0 + 1, 146, x0 + 17, 146, hex('#6a7282'));
+    for (const [i, j] of [[3, 3], [15, 3], [3, 15], [15, 15]]) { pset(x0 + i, 129 + j, hex('#dce0e8')); pset(x0 + i, 130 + j, hex('#4e5464')); }
+    rect(x0 + 6, 137, x0 + 12, 139, k); linea(x0 + 7, 138, x0 + 11, 138, hex('#c8ccd6')); linea(x0 + 2, 131, x0 + 7, 131, hex('#f6f8fc')); }
+  // destellos de la escarcha que titilan
+  for (let n = 0; n < 7; n++) { if (Math.sin(t * 4 + n * 2.1) < 0.8) continue; const x = 100 + Math.floor(hh(n, 1, 69) * 120), y = 121 + Math.floor(hh(n, 2, 69) * 8); if (Math.abs(x - 160) <= w + 2) continue; pset(x, y, hex('#ffffff')); pset(x - 1, y, hex('#d8e4f0')); pset(x + 1, y, hex('#d8e4f0')); pset(x, y - 1, hex('#d8e4f0')); }
 };
 const p6 = (t) => {
-  const { rect, pset, disco } = R;
+  const { rect, pset } = R;
   fondo('nieveCerca', nieveCerca);
-  // nubes de nieve de tres tonos a tres velocidades y dos cuervos
-  for (const [x0, y, v, w, c] of [[30, 16, 2, 70, '#d4dae4'], [190, 30, 3.5, 56, '#bcc4d0'], [110, 48, 5, 48, '#9ca6b4']]) { const x = ((x0 + t * v) % 400) - 60; for (let i = 0; i < w; i++) { const hgt = Math.round(Math.sin(i / w * Math.PI) * 7 + Math.sin(i * 0.5) * 1.5); R.linea(Math.round(x + i), y - hgt, Math.round(x + i), y + 2, hex(c)); } }
-  for (let n = 0; n < 2; n++) { const x = Math.round(((t * 14 + n * 140) % 360) - 20), y = 58 + n * 10 + Math.round(Math.sin(t * 3 + n) * 2), a = Math.floor(t * 6 + n) % 2; R.linea(x - 3, y - a, x, y, k); R.linea(x, y, x + 3, y - a, k); }
+  const cielo = capas.get('cieloCerca'), ok = (x, y) => y < 92 && cielo[y * 320 + x] === 1;
+  // nubes de nieve de tres tonos a tres velocidades y una bandada de cuervos
+  nubes(t, ok, [[44, 7, 36, 1.3, 5, ['#eceef2', '#d4d8e0', '#b0b8c6'], 70], [32, 10, 50, 3, 4, ['#f2f4f6', '#c8ced8', '#9098aa'], 71], [20, 12, 70, 5.5, 3, ['#f6f7f9', '#bcc3cf', '#7e869a'], 72]]);
+  pajaros(t, ok, 4, 34, 15, 7);
+  // el humo de la chimenea de la caseta y la ventana encendida que tiembla
+  for (let n = 0; n < 7; n++) { const u = (t * 0.3 + n / 7) % 1, cx = 206 + u * 16 + Math.sin(u * 6 + n) * 2, cy = 64 - u * 26, r = 1.5 + u * 3, c = u < 0.4 ? hex('#a4aab4') : hex('#c8ccd4');
+    for (let y = Math.round(cy - r); y <= cy + r; y++) for (let x = Math.round(cx - r); x <= cx + r; x++) if ((x - cx) ** 2 + (y - cy) ** 2 <= r * r && (u < 0.7 || bay(x, y) > (u - 0.7) * 3)) pset(x, y, c); }
+  if (Math.sin(t * 7) > 0.5) for (let y = 89; y <= 95; y++) for (let x = 183; x <= 190; x++) if (x !== 186 && y !== 92) pset(x, y, hex('#f8d078'));
   // el técnico del fondo, pequeño, con su sombra, que mira y levanta el dedo
   for (let i = -8; i <= 8; i++) pset(229 + i, 112, hex('#c4d4e6'));
   R.actor(EL.tecnicoBritanico, 222, 112, t, { dir: -1, dedo: t > TEMPLADA - 0.2, sonrisa: t > TEMPLADA - 0.2 });
   vaho(229, 96, t, -1);
-  // la mina medio enterrada, escarchada (menos alrededor de la gallina)
+  // la mina medio enterrada, escarchada (menos alrededor de la gallina), con su chapa, juntas, remaches y tapas
   P.minaPeacock(R, 160, 176, { s: 3, escarcha: true });
-  const sube = tramo(t, P6 + 0.1, P6 + 0.9), echa = t > P6 + 1.1;
-  // la nieve de delante tapa la panza de la mina
-  for (let y = 150; y < 180; y++) for (let x = 60; x < 260; x++) { const top = 150 + Math.round(Math.sin(x * 0.06) * 4 + Math.abs(x - 160) * 0.12); if (y >= top) pset(x, y, y === top ? hex('#ffffff') : hh(x, y, 43) < 0.2 ? hex('#d0deec') : hex('#eef4fa')); }
+  const sube = tramo(t, P6 + 0.1, P6 + 0.9), echa = t > P6 + 1.1, derrite = tramo(t, P6 + 1.3, P6 + 3.2), w = Math.round(derrite * 20);
+  chapa6(t, derrite > 0 ? w + 4 : -99);
+  // la nieve de delante tapa la panza de la mina: canto de luz, ondas del viento, sombra al pie de la mina y destellos
+  for (let y = 150; y < 180; y++) for (let x = 60; x < 260; x++) { const top = 150 + Math.round(Math.sin(x * 0.06) * 4 + Math.abs(x - 160) * 0.12); if (y < top) continue; const rz = Math.sin(x * 0.13 + y * 0.9 + Math.sin(x * 0.04) * 2);
+    pset(x, y, y === top ? hex('#ffffff') : y < top + 3 && (y - top) / 3 < 1 - bay(x, y) ? hex('#d0deec') : rz > 0.93 ? hex('#ffffff') : rz < -0.9 ? hex('#d0deec') : hh(x, y, 43) < 0.12 ? hex('#dde7f2') : hex('#eef4fa')); }
+  for (let n = 0; n < 6; n++) if (Math.sin(t * 3 + n * 1.9) > 0.85) { const x = 70 + Math.floor(hh(n, 1, 73) * 180), y = 164 + Math.floor(hh(n, 2, 73) * 12); pset(x, y, hex('#ffffff')); pset(x - 1, y, hex('#cfe0f0')); pset(x + 1, y, hex('#cfe0f0')); }
   // la escarcha se derrite donde está la gallina: el acero mojado y una gota que cae
-  const derrite = tramo(t, P6 + 1.3, P6 + 3.2);
-  if (derrite > 0) { const w = Math.round(derrite * 20); for (let x = 160 - w; x <= 160 + w; x++) for (let y = 116; y <= 121; y++) pset(x, y, y < 118 ? hex('#c8d0dc') : hex('#9aa4b4')); const u = (t * 1.3) % 1; pset(160 + w, Math.round(122 + u * 20), hex('#a8d8f8')); }
+  if (derrite > 0) { for (let x = 160 - w; x <= 160 + w; x++) for (let y = 116; y <= 121; y++) pset(x, y, y < 118 ? hex('#c8d0dc') : hex('#9aa4b4')); for (let x = 160 - w; x <= 160 + w; x += 3) for (let y = 122; y < 122 + (x % 7) + 2; y++) pset(x, y, hex('#7a8494')); const u = (t * 1.3) % 1; pset(160 + w, Math.round(122 + u * 20), hex('#a8d8f8')); }
+  // las huellas de la gallina que van apareciendo detrás de ella por la nieve de delante
+  const gx = Math.round(lerp(30, 150, sube)), hasta = sube < 0.6 ? gx - 6 : 142;
+  for (let x = 76; x <= hasta; x += 8) { const y = 160 + ((x >> 3) % 2) * 2; pset(x, y, hex('#9ab0c8')); pset(x - 1, y - 1, hex('#9ab0c8')); pset(x + 1, y - 1, hex('#9ab0c8')); pset(x, y + 1, hex('#b8c8dc')); pset(x + 1, y + 1, hex('#ffffff')); }
   // la gallina: llega por la nieve, sube de un saltito y se echa a empollar
-  if (!echa) { const x = Math.round(lerp(30, 150, sube)), y = sube < 0.6 ? 158 : Math.round(lerp(158, 117, (sube - 0.6) / 0.4) - Math.sin((sube - 0.6) / 0.4 * Math.PI) * 10); P.gallina(R, x, y, { t, s: 2 }); }
+  if (!echa) { const y = sube < 0.6 ? 158 : Math.round(lerp(158, 117, (sube - 0.6) / 0.4) - Math.sin((sube - 0.6) / 0.4 * Math.PI) * 10); P.gallina(R, gx, y, { t, s: 2 }); }
   else { const b = Math.sin(t * 3) > 0.7 ? 1 : 0; P.gallina(R, 160, 117 + b, { t, s: 2, sentada: true });
     // el calor que sube de ella
     for (let n = 0; n < 3; n++) { const u = (t * 0.9 + n / 3) % 1; for (let j = 0; j < 6; j++) pset(152 + n * 8 + Math.round(Math.sin(u * 6 + j) * 1.5), Math.round(92 - u * 16 - j), hex('#f0a060')); } }
@@ -246,7 +385,7 @@ const p6 = (t) => {
   const sube2 = tramo(t, P6 + 1.2, TEMPLADA + 1.5); rect(265, Math.round(lerp(132, 108, sube2)), 267, 136, hex('#d0202a'));
   // la nieve que cae en tres capas (los copos que llegan encima de la gallina se derriten)
   for (let n = 0; n < 60; n++) { const capa = n % 3, v = [10, 18, 28][capa], x = Math.round((hh(n, 1, 44) * 340 + Math.sin(t + n) * 6 + t * 4) % 330) - 5, y = Math.round((hh(n, 2, 44) * 200 + t * v) % 200) - 10;
-    if (echa && x > 140 && x < 180 && y > 70) continue; if (capa === 2) rect(x, y, x + 1, y + 1, hex('#ffffff')); else pset(x, y, capa ? hex('#ffffff') : hex('#dde6f0')); }
+    if (echa && x > 140 && x < 180 && y > 70) continue; if (x > 274 && y < 48 && n % 3) continue; if (capa === 2) rect(x, y, x + 1, y + 1, hex('#ffffff')); else pset(x, y, capa ? hex('#ffffff') : hex('#dde6f0')); }
 };
 const efectos = [[0.3, 'viento'], [FRIO + 0.2, 'boing'], [P2 + 0.3, 'carro'], [SIETE, 'tic'], [SIETE + 0.05, 'pop'], [PAVO, 'brillo'],
   [P3 + 0.6, 'chof'], [P3 + 1.8, 'chof'], [INVIERNO + 0.1, 'golpecito'], [TANFRIO + 0.1, 'viento'], [PARA + 0.2, 'interruptor'], [SOLUCION + 0.2, 'pop'],

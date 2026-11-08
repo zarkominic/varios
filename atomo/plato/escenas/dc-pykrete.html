@@ -15,7 +15,8 @@
 //    canadiense trae el saco de serrín (corta en «frozen»);
 // 2. el banco de cerca (inserto): el martillo rebota en el bloque de pykrete («tougher»); con «took far longer to melt»
 //    se enciende la estufa y el hielo normal se derrite en un charco mientras el pykrete apenas suda; con «pykrete» una
-//    mano lo marca con el sello (corta en «The story»);
+//    mano lo marca con el sello (corta en «The story»); el rincón de arriba a la derecha va enlucido y en sombra suave,
+//    tranquilo detrás de Atom;
 // 3. 1943, el cuarto de baño: Mountbatten, de uniforme blanco, entra con el bloque, lo lanza a la bañera llena (sin
 //    nadie dentro) con «dropping a block» y el bloque flota; en el borde, un puro que humea (corta en «and that»);
 // 4. la sala de reuniones con los altos mandos: un oficial entra, apunta al bloque de la mesa (solo al bloque) y, con
@@ -81,6 +82,12 @@ const fijoBanco = () => {
     for (let y = 0; y < 100; y++) for (let x = 0; x < 320; x++) { const fila = Math.floor(y / 7), xo = (x + (fila & 1) * 9) % 18, jun = y % 7 === 6 || xo === 17, lad = Math.floor((x + (fila & 1) * 9) / 18) * 31 + fila * 17;
       let c; if (jun) c = hex('#7a7e86'); else { const pelado = hh(lad, 5) < 0.18; c = pelado ? ((x + y) % 7 === 0 ? hex('#8a4a3a') : hex('#a8624a')) : hh(lad, 6) < 0.3 ? hex('#c4c6ca') : hex('#d6d8dc'); if (y % 7 === 0 && !pelado) c = hex('#e8eaee'); if (xo === 16 && !pelado) c = hex('#aeb2b8'); }
       const esc = Math.max(0, 1 - y / 22); if (dith(x, y) < esc * 0.7) c = hex('#f4f9ff'); R.pset(x, y, c); }
+    // el rincón de arriba a la derecha, enlucido y en sombra suave (tranquilo detrás de Atom): la cal lisa, con un
+    // degradado de sombra muy suave hacia la esquina, que se funde con el ladrillo por los bordes
+    for (let y = 0; y < 60; y++) for (let x = 256; x < 320; x++) {
+      const w = Math.min(1, Math.max(0, (x - 258) / 16), Math.max(0, (58 - y) / 10)); if (w <= 0) continue;
+      const sombra = Math.min(1, (x - 270) / 50 + (50 - y) / 120), liso = mez(hex('#cfd1d5'), hex('#bcbec4'), Math.max(0, sombra) * (dith(x, y) < 0.5 ? 1 : 0.92));
+      R.pset(x, y, w >= 1 ? liso : mez(R.pget(x, y), liso, w * w)); }
     // el tablero de herramientas
     R.rect(12, 22, 92, 76, k); R.rect(13, 23, 91, 75, hex('#a8845a')); for (let y = 27; y < 74; y += 5) for (let x = 17; x < 90; x += 5) R.pset(x, y, hex('#6a4e30'));
     R.rect(20, 30, 22, 54, k); R.rect(16, 28, 26, 32, hex('#5a6270')); R.linea(34, 28, 34, 64, hex('#4a3a2a')); R.poligono([[36, 30], [54, 30], [54, 38], [36, 34]], hex('#9aa4b4')); for (let x = 38; x < 54; x += 2) R.pset(x, 38, hex('#5a6270'));

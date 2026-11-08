@@ -23,7 +23,7 @@
 //    al fondo, una secretaria cruza detrás de las mesas con su carpeta y se vuelve al oír la X; el de la mesa A teclea;
 // 4. (corta en «and when it came out») 2001: la mesa de un despacho; una mano saca la hoja del sobre con el «2001»
 //    («came out in 2001»), el móvil de la mesa vibra y se enciende, y la lupa pasa por el título tachado en negro
-//    («title… blacked out»).
+//    («title… blacked out»); la lupa es de mango largo y la mano la coge por abajo: del brazo solo asoman ~40 px.
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('dc-memo');
@@ -236,8 +236,12 @@ const p4 = (t) => {
     for (let j = -16; j <= 16; j++) for (let i = -16; i <= 16; i++) if (i * i + j * j <= 256) { const sx = Math.round(lx + i * 0.55), sy = Math.round(ly + j * 0.55); const enT = sy >= hy + 17 && sy <= hy + 23 && sx >= hx + 22 && sx <= hx + 96; R.pset(lx + i, ly + j, enT ? hex('#101014') : sy >= hy + 18 && sy <= hy + 22 && sx >= hx + 10 && sx <= hx + 18 ? hex('#5a5a64') : hex('#f2f6f8')); }
     R.recorte(null); disco(lx - 7, ly - 8, 2, hex('#ffffff'));
     for (let a = 0; a < 6.3; a += 0.04) { pset(Math.round(lx + Math.cos(a) * 18), Math.round(ly + Math.sin(a) * 18), hex('#c8a040')); pset(Math.round(lx + Math.cos(a) * 19), Math.round(ly + Math.sin(a) * 19), hex('#8a6a20')); }
-    rect(lx - 3, ly + 19, lx + 3, ly + 62, k); rect(lx - 2, ly + 20, lx + 2, ly + 61, hex('#3a2a1a')); rect(lx - 1, ly + 20, lx - 1, ly + 61, hex('#6a4a2a'));
-    T.brazo(R, lx + 30, ly + 150, lx + 4, ly + 54, '#3a4a6a', -1, { codo: [lx + 22, ly + 100] });
+    // el mango largo de lupa de lectura, con su virola de latón y el remate; la mano lo coge por abajo para que del brazo
+    // solo asome un tramo corto en diagonal desde el borde
+    rect(lx - 3, ly + 19, lx + 3, ly + 82, k); rect(lx - 2, ly + 20, lx + 2, ly + 81, hex('#3a2a1a')); rect(lx - 1, ly + 20, lx - 1, ly + 81, hex('#6a4a2a'));
+    rect(lx - 3, ly + 20, lx + 3, ly + 25, k); rect(lx - 2, ly + 21, lx + 2, ly + 24, hex('#c8a040')); rect(lx - 2, ly + 21, lx - 1, ly + 24, hex('#f0d878'));
+    for (let j = ly + 30; j < ly + 70; j += 6) linea(lx - 2, j, lx + 2, j, hex('#2a1a0e'));
+    T.brazo(R, lx + 26, ly + 132, lx + 4, ly + 74, '#3a4a6a', -1, { codo: [lx + 14, ly + 104] });
     if (t > TACHADO && Math.floor(t * 6) % 2) for (const [a, b] of [[-26, -8], [26, -10], [0, -26]]) R.icono('!', lx + a - 2, ly + b - 3, hex('#d0202a'), k);
   }
 };

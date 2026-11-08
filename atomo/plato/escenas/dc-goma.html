@@ -13,10 +13,11 @@
 // 1. el camión de los fardos de espaldas, con el farol dentro: un soldado da un fardo desde la compuerta, otro lo aprieta
 //    («rubber», boing), lo lanza y se desenrolla en el barro; el del fuelle empieza a pisar («inflated»);
 // 2. inserto junto al seto: el tanque de goma grande se infla y queda tieso («real», brillo); detrás se inflan un camión
-//    y un cañón («trucks and cannons»); pasa un avión alto («from the air»); dos soldados lo levantan («lift»);
+//    y un cañón («trucks and cannons»); pasa un avión alto («from the air»); llegan dos soldados y lo cogen por las puntas
+//    de la cadena («a couple»), lo levantan a pulso (la sombra se queda en el suelo) y se lo llevan unos pasos («lift»);
 // 3. el camión del altavoz de lado: el tocadiscos («played»), las trompas vibran, las ondas llevan el motor y el martillo
-//    («engines», «construction») hasta el pueblo y despiertan al búho («miles»); GAG 6: un soldado se apoya en un tanque
-//    de goma y lo desinfla un poco;
+//    («engines», «construction»: una rueda dentada y un martillo de uña) hasta el pueblo y despiertan al búho («miles»);
+//    GAG 6: un soldado se apoya en un tanque de goma y lo desinfla un poco;
 // 4. la tienda de radio: el oficial trae el papel («sent»), el operador teclea en Morse («fake messages») y el gato espía
 //    se cuela por la puerta a escuchar con su micrófono («overhear»).
 import * as T from '/atomo/plato/escenas/dc-comun.js';
@@ -288,7 +289,7 @@ function k_fardo(R, cx, cy, s = 0) {
 // una figurita de dibujo (5 × 9 px máx.) para los iconos de las ondas: g filas, '#' tinta
 function k_dibujo(R, g, x, y, c, s) { g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] === '#') { R.pset(x + i + 1, y + j + 1, s); } }); g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] === '#') R.pset(x + i, y + j, c); }); }
 const k_RUEDA = ['...#.#...', '..#####..', '.##...##.', '###.#.###', '.#.###.#.', '###.#.###', '.##...##.', '..#####..', '...#.#...'];
-const k_MARTILLO = ['.#####...', '#######..', '.#####...', '...##....', '...##....', '...##....', '...##....', '...##....', '...##....'];
+const k_MARTILLO = ['...###...', '...#.##..', '.....###.', '....##.##', '...##..##', '..##....#', '.##......', '###......', '##.......'];   // martillo de uña inclinado: la uña curva arriba a la izquierda, la boca gruesa abajo a la derecha, el mango en diagonal con su empuñadura
 // una burbuja de sonido con su dibujo dentro (la grabación que suena: motor o martillo)
 function k_burbuja(R, x, y, g, a = 1) {
   if (a <= 0) return; const r = 7.5, K = hex('#2a2c3a'), F = hex('#f0e6c4'), FS = hex('#c8bc98');
@@ -385,6 +386,8 @@ const g1 = (t) => {
   let tq = null;
   if (abre > 0) { R.recorte([0, 0, 196 + Math.round(abre * 104), 179]); tq = T.guerraTanque(R, 196, 170, t, { escala: 2.6, inflado: infl, noche: 0.7 }); R.recorte(null);
     if (abre < 1) { const rx = 196 + Math.round(abre * 100); k_fardo(R, rx, 165, 0.3); } }
+  // las cajas apiladas de la derecha van delante del tanque (que está más al fondo): se repintan encima
+  if (abre > 0) { k_caja(R, 296, 140, 319, 160, '4'); k_caja(R, 282, 156, 318, 178, '12'); }
   // GA3 en el fuelle, que pisa al ritmo
   const ped = bombea ? 0.5 + 0.5 * Math.sin((t - INFLATED) * 9) : 1;
   const sal = k_bomba(R, 146, 172, ped);
@@ -461,21 +464,30 @@ const g2 = (t) => {
   k_canon(R, 222, 148, fC); k_camionGoma(R, 250, 150, fT);
   d_guFigura(R, 212, 150, t, { tn: NT, dir: 1, anda: fC < 1 && Math.floor(t * 3) % 2 === 0 }); d_guFigura(R, 306, 151, t, { tn: NT, dir: -1, anda: fT < 1 && Math.floor(t * 3 + 1) % 2 === 0 });
   if (fC < 1) for (let k = 0; k < 2; k++) pset(214 + k * 2, 148 - Math.round(((t * 3 + k * 0.5) % 1) * 3), hex('#c8d0e0'));
-  // el tanque grande: se infla, se pone tieso («real»), dos soldados lo levantan como si nada («lift»)
-  const f = 0.3 + 0.7 * tramo(t, P2 + 0.1, REAL), alza = Math.round(12 * tramo(t, LIFT - 0.15, LIFT + 0.35)), dx = Math.round(10 * tramo(t, LIFT + 0.45, P3 + 0.2));
+  // el tanque grande: se infla, se pone tieso («real»); a «couple» los dos soldados ya lo tienen cogido por las puntas,
+  // lo levantan a pulso (la sombra se queda en el suelo) y se lo llevan andando unos pasos hacia la derecha («lift»)
+  const sube = tramo(t, LIFT - 0.75, LIFT - 0.05), camina = tramo(t, LIFT + 0.05, P3 + 0.3), andaJ = camina > 0 && camina < 1;
+  const dx = Math.round(16 * camina), bote = andaJ && Math.floor(t * 5) % 2 ? 1 : 0, alza = Math.round(9 * sube * (2 - sube)) - (sube >= 1 ? bote : 0);
+  const f = 0.3 + 0.7 * tramo(t, P2 + 0.1, REAL);
+  // la sombra que se queda en la hierba cuando el tanque sube (más marcada que la del decorado, para que se lea el hueco)
+  if (alza > 0) { const B = R.buf, cx = 74 + dx + 66, rx = 64 - alza, ry = 3; for (let y = 159; y <= 166; y++) for (let x = Math.round(cx - rx); x <= Math.round(cx + rx); x++) if (x >= 0 && x < 320 && ((x - cx) / rx) ** 2 + ((y - 162.5) / ry) ** 2 < 1) B[y * 320 + x] = d_guMez(B[y * 320 + x], hex('#0e140c'), 0.45); }
   const tq = T.guerraTanque(R, 74 + dx, 162, t, { escala: 3.5, inflado: f, noche: 0.65, alza });
   // el brillo que recorre la goma cuando queda tiesa
   { const u = tramo(t, REAL - 0.1, REAL + 0.6); if (u > 0 && u < 1) { const bx = Math.round(tq.x0 - 20 + u * (tq.x1 - tq.x0 + 40)); for (let y = tq.y0; y < 162 - alza; y++) for (let k = 0; k < 3; k++) { const x = bx + k - Math.round((y - tq.y0) * 0.5); const c = R.pget(x, y); if (c !== capa.b[y * 320 + x]) pset(x, y, k === 1 ? hex('#e8ecc8') : hex('#b8c098')); } } }
-  // el fuelle y GA3, que pisa hasta que queda tieso; luego suelta la manguera y se queda boquiabierto
+  // el fuelle y GA3, que pisa hasta que queda tieso; suelta la manguera antes de que lo cojan y se queda boquiabierto
   const bombea = t < REAL + 0.2, ped = bombea ? 0.5 + 0.5 * Math.sin((t - P2) * 9) : 1;
   const sal = k_bomba(R, 54, 168, ped);
-  if (t < LIFT - 0.3) k_manguera(R, sal, tq.valvula, 4); else k_manguera(R, sal, [sal[0] + 10, 170], 1);
-  R.actor(EL.soldadoGA3, 34, 168 - (bombea && ped < 0.4 ? 1 : 0), t, { dir: 1, sonrisa: t > REAL && t < LIFT, sorpresa: t > LIFT - 0.1, habla: t > REAL + 0.3 && t < COUPLE && Math.sin(t * 8) > 0 });
-  // los dos que lo levantan, uno por cada punta
-  const uA = tramo(t, COUPLE - 0.5, COUPLE + 0.5), uB = tramo(t, COUPLE - 0.3, COUPLE + 0.6), lleva = t > LIFT - 0.3, andaJ = t > LIFT + 0.45 && t < P3 + 0.2;
-  const xA = Math.round(lerp(-18, 58, uA)) + dx, xB = Math.round(lerp(330, 210, uB)) + dx;
-  R.actor(EL.soldadoGA, xA, 172, t, { dir: 1, anda: (uA > 0 && uA < 1) || andaJ, sostiene: lleva ? [tq.x0 + 2, 156 - alza] : undefined, sonrisa: lleva });
-  R.actor(EL.soldadoGA2, xB, 172, t, { dir: -1, anda: (uB > 0 && uB < 1) || andaJ, sostiene: lleva ? [tq.x1 - 2, 156 - alza] : undefined, sonrisa: lleva, habla: t > COUPLE + 0.6 && t < LIFT - 0.3 && Math.sin(t * 8) > 0 });
+  if (t < COUPLE - 0.5) k_manguera(R, sal, tq.valvula, 4); else k_manguera(R, sal, [sal[0] + 7, 171], 1);
+  R.actor(EL.soldadoGA3, 34, 168 - (bombea && ped < 0.4 ? 1 : 0), t, { dir: 1, sonrisa: t > REAL && t < COUPLE, sorpresa: t > LIFT - 0.6, habla: t > REAL + 0.3 && t < COUPLE - 0.6 && Math.sin(t * 8) > 0 });
+  // los dos que lo levantan: llegan cuando pasa el avión, se agachan y lo cogen por debajo de las puntas de la cadena
+  const uA = tramo(t, AIR - 0.6, COUPLE - 0.2), uB = tramo(t, AIR - 0.3, COUPLE - 0.1), coge = t > COUPLE - 0.15, yP = 162 - alza;
+  const xA = Math.round(lerp(-18, 64, uA)) + dx, xB = Math.round(lerp(330, 203, uB)) + dx, piso = 165;
+  // las huellas que dejan en la hierba mojada al llevárselo
+  if (camina > 0) for (let k = 0; k < 4; k++) { const fx = 70 + k * 4; if (fx < 70 + dx) { pset(fx, piso + 1, X('#2e3a1c')); pset(fx + 140, piso + 1, X('#2e3a1c')); } }
+  R.actor(EL.soldadoGA, xA, piso, t, { dir: 1, anda: (uA > 0 && uA < 1) || andaJ, sostiene: coge ? [tq.x0 + 10, yP] : undefined, sonrisa: sube >= 1, sorpresa: sube > 0 && sube < 1 });
+  R.actor(EL.soldadoGA2, xB, piso, t, { dir: -1, anda: (uB > 0 && uB < 1) || andaJ, sostiene: coge ? [tq.x1 - 10, yP] : undefined, sonrisa: sube >= 1, sorpresa: sube > 0 && sube < 1, habla: t > AIR + 0.3 && t < COUPLE - 0.4 && Math.sin(t * 8) > 0 });
+  // las gotas de esfuerzo mientras lo suben (de puro teatro: pesa como una almohada)
+  if (sube > 0.1 && sube < 1) for (const [ax, s] of [[xA + 2, 1], [xB + 13, -1]]) { const u = ((t - LIFT) * 3 + 9) % 1; pset(Math.round(ax - s * u * 3), Math.round(piso - 30 + u * 4), hex('#c8d8f0')); }
   // la hierba alta de delante
   for (let k = 0; k < 16; k++) { const x = Math.round(h(k, 1, 797) * 320), yb = Math.round(174 + h(k, 2, 797) * 6), sw = Math.sin(t * 2.1 + k * 0.9) * 1.6;
     for (let i = 0; i < 4; i++) { const al = 4 + ((i * 3 + k) % 4); linea(x + i - 1, yb, x + i - 1 + sw * (al / 7), yb - al, i % 2 ? X('#46682c') : X('#36561f')); } }
@@ -585,7 +597,7 @@ const g4 = (t) => {
 };
 
 const efectos = [[RUBBER + 0.02, 'boing'], [NIGHT + 0.32, 'golpecito'], [INFLATED + 0.08, 'vapor'],
-  [TRUCKS + 0.2, 'vapor'], [REAL + 0.05, 'brillo'], [LIFT, 'boing'],
+  [TRUCKS + 0.2, 'vapor'], [REAL + 0.05, 'brillo'], [LIFT - 0.7, 'boing'],
   [PLAYED, 'golpecito'], [ENGINES, 'motor'], [CONSTRUCTION + 0.05, 'vapor'],
   [SENT + 0.1, 'papel'], [SENT + 0.45, 'bip'], [OVERHEAR + 0.2, 'miau']];
 T.rodar(E, R, [[0, g1], [P2, g2], [P3, g3], [P4, g4]], { efectos, año: 1944 });

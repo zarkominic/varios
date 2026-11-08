@@ -10,9 +10,10 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // DC-FANTASMA (frase 15), 1944, cartela «1944». Cuatro planos, sin combate:
-// 1. (fondo local: el puerto de Nueva York) el transporte gris zarpa ante la estatua de la Libertad, con el remolcador;
-//    en cubierta un soldado pinta la estatua en su caballete y otro dice adiós («the United States»); la sirena suelta
-//    vapor en «1944»; gaviotas;
+// 1. (fondo local: el puerto de Nueva York) el transporte gris zarpa ante la estatua de la Libertad: se aleja ~20 px a
+//    la derecha con su estela en V, la espuma de la hélice y el bigote de proa, y deja atrás al remolcador; en cubierta
+//    (dentro del casco, tras la borda) un soldado pinta la estatua en su caballete y otro dice adiós («the United
+//    States»); la sirena suelta vapor en «1944»; gaviotas;
 // 2. (fondo local: un muelle de Europa) corta en «sent»: por la pasarela bajan soldados con caballetes, cajas de
 //    pintura, una bocina y un magnetofón; el oficial los cuenta y señala el pueblo («to Europe»); el contador sube hasta
 //    1100 en «About 1,100 men»;
@@ -154,6 +155,23 @@ const caballete = (x, y, u) => {   // x, y = la esquina de arriba del lienzo; u:
   if (u > 0) { for (let yy = y + 1; yy < y + 13; yy++) for (let xx = x + 1; xx < x + 14; xx++) if ((xx - x) < u * 16) pset(xx, yy, yy < y + 8 ? H('#9ac0e0') : H('#4a7aa0'));
     if (u > 0.5) { rect(x + 6, y + 4, x + 8, y + 10, H('#5a9a86')); pset(x + 8, y + 3, H('#c8a040')); } }
 };
+// la estela del transporte que zarpa: espuma revuelta bajo la popa, dos brazos de espuma que se abren hacia atrás y se
+// deshacen, y la espuma de la proa que corta el agua (va sobre el agua y antes del casco)
+const estela = (x, t, dx) => {
+  const ES = H('#e8f0f6'), ESS = H('#a8c0d4'), ESA = H('#6a8eb0');
+  // los dos brazos en V desde la popa: se abren y se apagan con la distancia; se deslizan con el agua
+  for (let i = 0; i < 70 + dx * 2; i++) {
+    const xx = x - 2 - i, f = i / (70 + dx * 2), ab = 2 + f * 12;
+    for (const s of [-1, 1]) { const yy = Math.round(150 + s * ab * 0.6 + 2 + Math.sin(i * 0.4 - t * 5 + s) * 1.2);
+      const k = h2(xx + Math.floor(t * 8), yy); if (k > f * 0.8) { pset(xx, yy, k > 0.45 + f * 0.4 ? ES : ESS); pset(xx, yy + 1, ESS); } else if (k > f * 0.5) pset(xx, yy, ESA); } }
+  // entre los brazos, el agua batida: rayas de espuma que se quedan atrás
+  for (let i = 0; i < 40; i++) { const xx = x - 4 - ((i * 7 + Math.floor(t * 10)) % (60 + dx)), yy = 149 + (i % 5) * 2 - 4; if (h2(i, Math.floor(t * 3)) > 0.35) linea(xx, yy, xx + 3, yy, i % 3 ? ESS : ES); }
+  // la espuma revuelta de la hélice, justo detrás de la popa
+  for (let kk = 0; kk < 12; kk++) { const u = ((t * 1.6 + kk / 12) % 1), px = Math.round(x - 2 - u * 18 - (kk % 3) * 2), py = Math.round(148 + (kk % 4) * 2 + Math.sin(u * 9 + kk) * 1.5);
+    disco(px, py, 2.2 * (1 - u) + 0.6, u < 0.5 ? ES : ESS); }
+  // la proa corta el agua: un bigote de espuma que se abre a los dos lados
+  for (let i = 0; i < 14; i++) { const w = Math.abs(Math.sin(t * 7 + i * 0.7)); pset(x + 198 - i, 151 - Math.round(w * 2) - (i >> 3), ES); pset(x + 200 - i * 2, 153 + (i >> 2), i % 2 ? ES : ESS); }
+};
 const p1 = (t) => {
   fondo1();
   // nubes de tres tonos a tres velocidades, por encima de la ciudad
@@ -162,17 +180,20 @@ const p1 = (t) => {
   R.recorte(null);
   aguaPuerto(t, 102, HS(['#2a4a6a', '#3a5e82', '#4e7498', '#6a8eb0']));
   for (let kk = 0; kk < 4; kk++) pajaro((t * 12 + kk * 37) % 360 - 20, 30 + kk * 6 + Math.sin(t * 2 + kk) * 3, t + kk, H('#f2f2f2'));
-  const dx = Math.round((t - 1.3) * 1.8), x = 108 + dx;
-  remolcador(70 + dx, t);
-  // los soldados en cubierta (pies en y 117): el pintor y su caballete en popa; dos en proa
-  const pi = R.actor(EL.pintorGA, x + 8, 118, t, { dir: -1, sostiene: [x + 4 + Math.round(Math.sin(t * 7) * 2), 104] });
+  // el transporte zarpa de verdad: se aleja hacia la derecha (unos 20 px en el plano) y el remolcador se queda atrás
+  const dx = Math.round(Math.max(0, t - 1.0) * 4.6), x = 94 + dx;
+  estela(x, t, dx);
+  remolcador(34 + Math.round(dx * 0.3), t);
+  // los soldados en cubierta (pies en la cubierta, y 118, detrás de la borda): el pintor de cara a la estatua, con su
+  // caballete en popa, dentro del casco; dos en proa
+  const pi = R.actor(EL.pintorGA, x + 37, 118, t, { dir: -1, sostiene: [x + 27 + Math.round(Math.sin(t * 7) * 2), 102] });
   const ad = t > EEUU - 0.3 && t < P2;
   R.actor(EL.soldadoGA, x + 150, 117, t, { dir: -1, dedo: ad && Math.sin(t * 10) > -0.2, brazos: ad && Math.sin(t * 10) <= -0.2, sonrisa: ad });
   R.actor(EL.soldadoGA3, x + 176, 117, t, { dir: 1, habla: t > FALLO && t < AÑO44 && Math.sin(t * 8) > 0 });
   transporte(x, t);
-  // vuelvo a pintar lo de cubierta que va delante del casco: la borda con sus candeleros
+  caballete(x + 9, 94, tramo(t, 1.4, P2 - 0.4));
+  // vuelvo a pintar lo de cubierta que va delante del casco: la borda con sus candeleros (tapa los pies y las patas)
   for (const [a, b] of [[x + 2, x + 54], [x + 136, x + 196]]) { linea(a, 112, b, 111, H('#d8d8d0')); linea(a, 115, b, 114, H('#a8a8a0')); for (let xx = a; xx < b; xx += 6) linea(xx, 112, xx, 118, H('#a8a8a0')); }
-  caballete(x - 14, 92, tramo(t, 1.4, P2 - 0.4));
   { const [mx, my] = pi.mano; linea(mx, my, mx - 4, my - 2, H('#8a5a30')); pset(mx - 5, my - 2, H('#c83030')); }
   // la sirena: un chorro de vapor junto a la chimenea en «1944»
   const v = tramo(t, AÑO44, AÑO44 + 1.2); if (v > 0 && v < 1) for (let kk = 0; kk < 6; kk++) disco(Math.round(x + 98 + kk * 2 - v * 6), Math.round(60 - kk * 3 - v * 8), 2 + kk * 0.6 * (1 - v), H('#f4f4f4'));

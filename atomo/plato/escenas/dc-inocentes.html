@@ -16,9 +16,12 @@
 // 2. (inserto local: la pared con el calendario) corta en «Britain's»: la carpeta sale de la caja en «released» y la mano
 //    arranca la hoja del 31 en «April»: queda el 1 y el mes 4 encendido;
 // 3. (parque) corta en «and it sounded»: dos lectores en el banco bajan el periódico de la gallina y se ríen; un paseante
-//    llega leyendo, saca un pollo de goma en «April Fool's», lo aprieta en «joke» y se espantan las palomas;
+//    llega leyendo un periódico doblado a la altura del pecho (la cara libre), saca un pollo de goma en «April Fool's»,
+//    lo levanta junto al hombro (al lado de la cara, no encima), lo aprieta en «joke» y se espantan las palomas;
 // 4. (sala de lectura) corta en «A spokesman»: rueda de prensa; el fotógrafo dispara (fogonazos en su cámara); el
-//    portavoz llega, explica, levanta la mano muy serio y sale el «!» en «certainly» (golpe); los periodistas pasan de la
+//    portavoz llega de pie tras la mesa (asoman cabeza, hombros y pecho por encima de los papeles; la mesa y un ramillete
+//    de micrófonos de prensa, pintados después, le tapan de cintura abajo), explica, levanta la mano muy serio y sale el
+//    «!» en «certainly» (golpe); los periodistas pasan de la
 //    risa a la sorpresa y luego apuntan en sus libretas; al fondo, una empleada sube por la escalera con una caja, la deja arriba y baja.
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -198,6 +201,13 @@ const polloGoma = (x, y, e = 0, dir = 1) => {
   const cx = x + dir * 4; rect(cx - 2, y - 9 + a, cx + 2, y - 4 + a, k); rect(cx - 1, y - 8 + a, cx + 1, y - 5 + a, hex('#f0d040'));
   pset(cx, y - 10 + a, ROJO); pset(cx - 1, y - 10 + a, ROJO); pset(cx + dir * 3, y - 6 + a, hex('#e87a20')); pset(cx + dir * 2, y - 6 + a, hex('#e87a20')); pset(cx + dir, y - 7 + a, k);
 };
+// el periódico doblado que se lee mientras se anda: a la altura del pecho, con la columna y la foto de la gallina
+const periodicoDoblado = (x, y) => {
+  const { rect, pset, linea } = R; rect(x - 5, y - 6, x + 6, y + 5, k); rect(x - 4, y - 5, x + 5, y + 4, hex('#ecebe2'));
+  rect(x - 4, y - 5, x + 5, y - 4, hex('#3a3a46')); linea(x + 5, y - 5, x + 5, y + 4, hex('#b8b6aa'));
+  rect(x + 1, y - 2, x + 4, y + 1, hex('#9ab0c8')); pset(x + 2, y, hex('#ffffff')); pset(x + 3, y - 1, ROJO);
+  for (let j = y - 2; j <= y + 3; j += 2) linea(x - 3, j, x, j, hex('#8a8a8a')); linea(x - 3, y + 3, x + 4, y + 3, hex('#8a8a8a'));
+};
 // el periódico abierto que se lee con las dos manos: rayas de columnas y la foto de la gallina
 const periodico = (x, y, dir = 1) => {
   const { rect, pset, linea } = R; rect(x - 10, y - 8, x + 10, y + 6, k); rect(x - 9, y - 7, x + 9, y + 5, hex('#ecebe2'));
@@ -216,11 +226,12 @@ const p3 = (t) => {
   const b2 = R.actor(EL.periodistaUK2, 236, 154, t, { dir: -1, sostiene: [232, Math.round(lerp(138, 147, baja))], sonrisa: ri, salto: salta(1.7) });
   // un paseante llega leyendo, se para, se ríe, saca el pollo de goma en «April Fool's» y lo aprieta en «joke»
   const u = tramo(t, P3 + 0.1, absurdo + 0.2), xp = Math.round(lerp(24, 112, u)), saca = t > inocente - 0.2;
-  const r3 = R.actor(EL.periodista2000, xp, 164, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [xp + 18, saca ? 138 : 146], sonrisa: ri, salto: u >= 1 && !saca ? salta(3.1) : 0 });
+  // lo que lleva va a la altura del pecho, por delante y a un lado: la cara siempre libre
+  const r3 = R.actor(EL.periodista2000, xp, 164, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [xp + 20, saca ? 150 : 156], sonrisa: ri, salto: u >= 1 && !saca ? salta(3.1) : 0 });
   T.animalesDelante(R, t, { encuadre: 'parque', furgoneta: false });
   periodico(b1.mano[0] - 1, b1.mano[1], 1); periodico(b2.mano[0] + 1, b2.mano[1], -1);
-  if (!saca) periodico(r3.mano[0] - 2, r3.mano[1] + 2, 1);
-  else { const e = Math.max(0, 1 - Math.abs(t - broma) * 4); polloGoma(r3.mano[0] + 1, r3.mano[1] + 2, e, 1); if (e > 0.3) burbuja(r3.mano[0] + 8, r3.mano[1] - 12, '!', ROJO); }
+  if (!saca) periodicoDoblado(r3.mano[0] + 1, r3.mano[1] - 3);
+  else { const e = Math.max(0, 1 - Math.abs(t - broma) * 4); polloGoma(r3.mano[0] + 2, r3.mano[1] + 2, e, 1); if (e > 0.3) burbuja(r3.mano[0] + 10, r3.mano[1] - 14, '!', ROJO); }
 };
 
 // ── 4 · la rueda de prensa del portavoz ─────────────────────────────────────────────────────────────────
@@ -235,7 +246,8 @@ const p4 = (t) => {
     if (baja <= 0) { R.rect(ar.mano[0] - 9, ar.mano[1] - 7, ar.mano[0] + 1, ar.mano[1] + 1, k); R.rect(ar.mano[0] - 8, ar.mano[1] - 6, ar.mano[0], ar.mano[1], hex('#8a8e96')); R.rect(ar.mano[0] - 6, ar.mano[1] - 4, ar.mano[0] - 2, ar.mano[1] - 3, hex('#e8e4d8')); } }
   const serio = t > pero;
   const vp = tramo(t, P4 + 0.1, P4 + 1.3);
-  R.actor(EL.portavoz, Math.round(lerp(128, 156, vp)), 151, t, { dir: 1, anda: vp > 0 && vp < 1, habla: vp >= 1 && t < pero + 0.9 && Math.sin(t * 8) > 0, dedo: serio, enfado: serio && t < cierto + 1.2 });
+  // de pie tras la mesa: los pies en 144, así asoman cabeza, hombros y pecho sobre los papeles (y la mesa le tapa el resto)
+  R.actor(EL.portavoz, Math.round(lerp(128, 156, vp)), 144, t, { dir: 1, anda: vp > 0 && vp < 1, habla: vp >= 1 && t < pero + 0.9 && Math.sin(t * 8) > 0, dedo: serio, enfado: serio && t < cierto + 1.2 });
   const ri = !serio, sp = t > cierto;
   for (const [def, x, s, d] of [[EL.periodistaUK, 26, 170, 1], [EL.periodista2000, 62, 168, 1], [EL.periodistaUK2, 252, 168, -1], [EL.archivista, 284, 170, -1]]) {
     const sx = x + (def === EL.periodistaUK ? Math.round(lerp(-30, 0, tramo(t, P4, P4 + 1.2))) : 0);
@@ -247,6 +259,13 @@ const p4 = (t) => {
     if (apunta) { const [mx, my] = pe.mano; R.linea(mx, my, mx + d * 3, my - 4, hex('#e8b030')); R.pset(mx + d * 3, my - 4, k); }
   }
   T.animalesDelante(R, t, { encuadre: 'archivos2004' });
+  // los micrófonos de prensa sobre la mesa, delante del portavoz (tapan el hueco entre los papeles): base de madera, tres
+  // pies finos con su espuma de color a la altura del pecho y el piloto rojo de uno que parpadea
+  R.rect(144, 140, 157, 145, k); R.rect(145, 141, 156, 144, hex('#5a3a22')); R.linea(145, 141, 156, 141, hex('#946a42'));
+  for (const [mx, my, c, cs] of [[147, 133, hex('#c8282a'), hex('#8a1a1e')], [151, 131, hex('#2a5a9a'), hex('#1c3a6a')], [155, 134, hex('#3a8a4a'), hex('#245a30')]]) {
+    R.linea(mx, my + 3, mx, 140, k); R.rect(mx - 2, my - 1, mx + 2, my + 3, k); R.rect(mx - 1, my, mx + 1, my + 2, c); R.pset(mx - 1, my + 2, cs); R.pset(mx - 1, my, hex('#e8e4d8'));
+  }
+  if (Math.sin(t * 5) > 0) R.pset(151, 138, hex('#ff4a3a'));
   // el «!» que salta encima del portavoz en «certainly»
   const e = tramo(t, cierto, cierto + 0.25);
   if (e > 0) burbuja(174, Math.round(lerp(128, 114, e)), '!', ROJO, 2);

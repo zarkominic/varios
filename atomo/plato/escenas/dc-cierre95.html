@@ -12,10 +12,13 @@
 // DC-CIERRE95 (frase 14), 1995 → 2017, cartela «1995». Cuatro planos:
 // 1. (la sala de reuniones de 1995) el retroproyector proyecta un boceto de los videntes; el hombre de la CIA lo explica
 //    («the CIA asked») y el experto entra por la puerta con su pila de carpetas («outside experts»), se sienta y la
-//    puerta se cierra; en «review» la diapositiva pasa al boceto del barco; la experta lo señala;
+//    puerta se cierra; en «review» la diapositiva pasa al boceto del barco; la experta lo señala. Los dos sentados tras
+//    la mesa (suelo 148 y 146, tablero en 141) asoman cabeza y hombros; la experta (x 98) queda a 8 px de la jarra;
 // 2. (inserto local: la mesa de la revisión) corta en «Their conclusion»: tres bocetos (base, barco, isla) reciben su X
-//    roja de sello en «remote viewers», «never» y «produced»; en «single piece» cae el sello del «0»; la bandeja de los
-//    analistas sigue vacía y una mosca le da vueltas («analysts could actually use»);
+//    roja de sello en «remote viewers», «never» y «produced»; en «single piece» cae el sello del «0»; la bandeja de
+//    papeles de los analistas (cajón de nogal con el fondo de fieltro claro vacío, la marca limpia de los papeles que no
+//    hay y la etiqueta con el pictograma del informe y la lupa) sigue vacía: una mosca de 4 px con alas que brillan le da
+//    vueltas dejando su estela («analysts could actually use») y en «use» se posa en el fondo vacío;
 // 3. (fondo local: el pasillo) corta en «The program»: la puerta de la placa de la estrella se abre, el experto sale con
 //    la caja de los expedientes, apaga la luz («shut») y cierra («down»); el gato espía se escabulle justo antes; la
 //    placa se tuerce («that same year»); en «declassified» sale el candado abierto verde sobre la caja;
@@ -108,14 +111,14 @@ const p1 = (t) => {
   if (t > REVISA && cam < 1) for (let y = 31; y < 86; y++) if ((y + Math.floor(cam * 8)) % 3 === 0) linea(104, y, 194, y, H('#fffef4'));
   // el hombre de la CIA explica y señala la pantalla; la experta toma notas y señala; el experto entra con las carpetas
   R.actor(EL.ingenieroCIA, 18, 168, t, { dir: 1, habla: t > CIA - 0.2 && t < EXPERTOS && Math.sin(t * 9) > 0, dedo: t > REVISA - 0.3 && t < P2 - 0.3 });
-  R.actor(EL.expertoAIR2, 106, 154, t, { dir: 1, habla: t > REVISA + 0.3 && t < TODO + 0.4 && Math.sin(t * 8) > 0, dedo: t > TODO - 0.3 });
-  const ent = suave(tramo(t, 1.6, EXPERTOS + 0.2)), ex = Math.round(lerp(244, 210, ent)), ey = Math.round(lerp(146, 154, tramo(t, EXPERTOS - 0.2, EXPERTOS + 0.4)));
+  R.actor(EL.expertoAIR2, 98, 148, t, { dir: 1, habla: t > REVISA + 0.3 && t < TODO + 0.4 && Math.sin(t * 8) > 0, dedo: t > TODO - 0.3 });
+  const ent = suave(tramo(t, 1.6, EXPERTOS + 0.2)), ex = Math.round(lerp(244, 210, ent)), ey = Math.round(lerp(143, 146, tramo(t, EXPERTOS - 0.2, EXPERTOS + 0.4)));
   const lleva = t < EXPERTOS + 0.3;
   const e1 = R.actor(EL.expertoAIR, ex, ey, t, { dir: -1, anda: ent > 0 && ent < 1, sostiene: lleva ? true : undefined, sonrisa: t > REVISA });
   T.psiquicosDelante(R, t, O);
   // la pila de carpetas: en la mano y luego en la mesa
   const pila = (x, y) => { for (let i = 0; i < 4; i++) { rect(x - 7, y - 2 - i * 2, x + 7, y - i * 2, K); rect(x - 6, y - 1 - i * 2, x + 6, y - 1 - i * 2, i % 2 ? H('#d8c08a') : H('#c8a870')); } rect(x + 2, y - 9, x + 5, y - 8, H('#c8282a')); };
-  if (lleva) pila(e1.mano[0], e1.mano[1] + 3); else pila(206, 140);
+  if (lleva) pila(e1.mano[0], e1.mano[1] + 3); else pila(196, 140);
 };
 
 // ── 2 · la mesa de la revisión (inserto local) ──────────────────────────────────────────────────────────────────────
@@ -146,10 +149,32 @@ const fondo2 = () => fondoFijo(CACHE, 'mesa95', () => {
   for (const gx of [204, 216]) R.anillo(gx, 134, 5, H('#2a2a30')); linea(209, 134, 211, 134, H('#2a2a30'));
   rect(120, 164, 150, 176, K); rect(121, 165, 149, 175, H('#3a3a44')); rect(123, 166, 147, 169, H('#a8b890')); for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) rect(123 + i * 7, 171 + j * 2, 127 + i * 7, 171 + j * 2, H('#d8d4c8'));
   rect(60, 168, 92, 174, K); rect(61, 169, 91, 172, H('#2a2a30')); rect(61, 169, 91, 169, H('#5a5a64'));
-  // la bandeja de los analistas (vacía), de rejilla
-  poligono([[232, 138], [304, 138], [312, 174], [226, 174]], K); poligono([[234, 140], [302, 140], [309, 172], [229, 172]], H('#5a5e66'));
-  for (let x = 238; x < 304; x += 6) linea(x, 141, x + Math.round((x - 266) * 0.12), 171, H('#3a3e46')); for (let y = 146; y < 172; y += 6) linea(232, y, 307, y, H('#3a3e46'));
-  rect(226, 168, 312, 174, H('#7a7e86')); rect(226, 168, 312, 168, H('#a8acb4'));
+  // la bandeja de papeles de los analistas: cajón de nogal visto desde arriba, con su sombra, el fondo de fieltro claro
+  // vacío (solo la marca limpia donde hubo papeles y polvo alrededor) y la etiqueta del frente con el pictograma
+  poligono([[232, 140], [316, 140], [318, 179], [234, 179]], (x, y) => h2(x, y) < 0.5 ? H('#8a6038') : H('#7a5430'));
+  const NOG = HS(['#4a2a16', '#5e3820', '#74482a', '#8a5a36']);
+  poligono([[226, 132], [306, 132], [313, 166], [221, 166]], K);
+  poligono([[227, 133], [305, 133], [312, 165], [222, 165]], (x, y) => rampa(NOG, 2.2 + Math.sin(x * 0.3 + y * 0.05) * 0.5 + (h2(x >> 1, y) - 0.5) * 0.6, x, y));
+  // las paredes de dentro: la del fondo en sombra, la izquierda con luz, la derecha oscura
+  poligono([[232, 137], [300, 137], [300, 141], [232, 141]], (x, y) => rampa(NOG, 0.6 + (y - 137) * 0.25 + (h2(x, y) - 0.5) * 0.5, x, y));
+  poligono([[232, 137], [236, 141], [233, 158], [228, 161]], (x, y) => rampa(NOG, 2.6 + (h2(x, y) - 0.5) * 0.6, x, y));
+  poligono([[300, 137], [296, 141], [300, 158], [306, 161]], (x, y) => rampa(NOG, 0.8 + (h2(x, y) - 0.5) * 0.6, x, y));
+  // el fondo de fieltro crema, vacío, con la sombra de la pared del fondo
+  const FI = HS(['#b8ae96', '#cec4aa', '#e2d8be', '#f0e8d0']);
+  poligono([[236, 141], [296, 141], [300, 158], [233, 158]], (x, y) => rampa(FI, 1.6 + (y - 141) * 0.08 - (y < 144 ? 1 : 0) + (h2(x >> 1, y >> 1) - 0.5) * 0.6, x, y));
+  // la marca limpia donde hubo papeles (un rectángulo más claro con su filo de polvo)
+  for (let x = 246; x <= 286; x++) { pset(x, 144, H('#a89e84')); pset(x, 155, H('#a89e84')); } for (let y = 144; y <= 155; y++) { pset(246, y, H('#a89e84')); pset(286, y, H('#a89e84')); }
+  for (let y = 145; y < 155; y++) for (let x = 247; x < 286; x++) if ((x + y) % 2 === 0 && h2(x, y) < 0.35) pset(x, y, H('#f8f2de'));
+  for (let k = 0; k < 18; k++) pset(238 + Math.round(h2(k, 7) * 58), 142 + Math.round(h2(k, 8) * 15), H('#9a9078'));
+  // la pared del frente: el canto con brillo, la cara con vetas y la etiqueta con el pictograma del informe y la lupa
+  poligono([[221, 161], [313, 161], [313, 166], [221, 166]], (x, y) => y === 161 ? H('#b88a5a') : rampa(NOG, 2.4 + Math.sin(x * 0.2) * 0.4, x, y));
+  rect(221, 166, 313, 175, K); for (let y = 167; y < 175; y++) for (let x = 222; x < 313; x++) pset(x, y, rampa(NOG, 1.6 - (y - 167) * 0.12 + Math.sin(x * 0.15 + y * 0.6) * 0.4 + (h2(x >> 2, y) - 0.5) * 0.4, x, y));
+  rect(222, 175, 313, 176, H('#3a2414')); rect(222, 177, 314, 178, H('#6a4428'));
+  rect(254, 165, 280, 175, H('#8a8478')); rect(255, 166, 279, 174, H('#d4ccb4')); rect(256, 167, 278, 173, H('#f4eedc')); rect(255, 166, 279, 166, H('#ece4cc'));
+  R.icono('factura', 258, 167, H('#3a4a6a'), H('#f4eedc'), 1); R.anillo(271, 169, 2, H('#3a4a6a')); linea(273, 171, 275, 173, H('#3a4a6a'));
+  for (const sx of [256, 278]) pset(sx, 170, H('#c8c0a8'));
+  // el brillo del canto de arriba
+  linea(227, 133, 305, 133, H('#b88a5a')); linea(228, 134, 240, 134, H('#d8aa78'));
 });
 const p2 = (t) => {
   fondo2();
@@ -159,9 +184,21 @@ const p2 = (t) => {
   const z = tramo(t, UNA - 0.1, UNA + 0.1);
   if (z > 0) { const rr = Math.round(15 + (1 - z) * 8); R.anillo(176, 150, rr, H('#d0282c')); R.anillo(176, 150, rr - 1, H('#d0282c')); R.anillo(176, 150, rr - 3, H('#a8202a'));
     R.numero('0', 176, 158, { tam: 16, centro: true, rampa: HS(['#e8484c', '#d0282c', '#a01c22']) }); }
-  // la mosca que da vueltas sobre la bandeja vacía
-  const g = t * 5, mx = Math.round(268 + Math.cos(g) * 22 + Math.sin(g * 2.3) * 4), my = Math.round(150 + Math.sin(g) * 10 - (t > ANALISTAS ? 6 : 0));
-  pset(mx, my, K); pset(mx + 1, my, K); if (Math.floor(t * 20) % 2) { pset(mx, my - 1, H('#c8d8e8')); pset(mx + 1, my - 1, H('#c8d8e8')); }
+  // la mosca que da vueltas sobre la bandeja vacía (con su estela de puntos) y, en «use», se posa en el fondo vacío
+  const posa = suave(tramo(t, USAR + 0.25, USAR + 0.75));
+  const mosca = (tt) => { const g = tt * 4, sube = tramo(tt, ANALISTAS - 0.2, ANALISTAS + 0.3) * 8;
+    return [268 + Math.cos(g) * 26 + Math.sin(g * 2.3) * 5, 128 + Math.sin(g) * 9 - sube]; };
+  const [fx, fy] = mosca(t), mx = Math.round(lerp(fx, 266, posa)), my = Math.round(lerp(fy, 151, posa));
+  if (posa < 1) for (let k = 3; k < 22; k += 2) { const [ax, ay] = mosca(t - k * 0.03); pset(Math.round(lerp(ax, 266, posa)), Math.round(lerp(ay, 151, posa)), k < 9 ? H('#f8f0dc') : k < 15 ? H('#e0d0b0') : H('#c8b088')); }
+  // el cuerpo de 4 px (cabeza roja, tórax y abdomen) con su sombra y las alas que brillan y baten; posada, se frota las patas
+  const bate = posa < 1 ? Math.floor(t * 24) % 2 : 0, ALA = bate ? H('#f4faff') : H('#b8d0e8'), ALS = H('#7890a8');
+  if (posa < 1) { pset(mx, my + 5, H('#6a4a2a')); pset(mx + 1, my + 5, H('#6a4a2a')); }
+  if (bate) { for (const s2 of [-1, 1]) { const ax = s2 < 0 ? mx - 2 : mx + 3; pset(ax, my - 2, ALA); pset(ax + s2, my - 2, ALA); pset(ax, my - 3, H('#ffffff')); pset(ax + s2, my - 3, ALS); } }
+  else { for (const s2 of [-1, 1]) { const ax = s2 < 0 ? mx - 1 : mx + 2; pset(ax, my - 1, ALA); pset(ax + s2, my - 1, ALA); pset(ax + s2, my, ALS); pset(ax, my - 2, H('#ffffff')); } }
+  rect(mx - 1, my, mx + 2, my + 1, K); pset(mx, my, H('#3a4a3a')); pset(mx + 1, my, H('#4a6a4a'));
+  pset(mx - 2, my, H('#c82020')); pset(mx - 2, my + 1, H('#801818'));
+  if (posa >= 1) { pset(mx - 3, my + 1 + (Math.floor(t * 8) % 2), K); pset(mx, my + 2, K); pset(mx + 2, my + 2, K); }
+  else { pset(mx, my + 2, K); pset(mx + 2, my + 2, K); }
   // la taza de café que humea y las rayas de luz que se mueven despacio
   taza(28, 172, 14, H('#f2eee2'), H('#c8c4b8')); vapor(35, 158, t, H('#f4f4f0'));
   // en «use», la bandeja vacía se queda con su «?»

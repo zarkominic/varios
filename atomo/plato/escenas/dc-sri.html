@@ -17,9 +17,10 @@
 // 3. (mapa de EE. UU.) corta en «So»: la ruta del dinero sale de Washington y cruza el país con la bolsa; la chincheta cae
 //    en Stanford, California;
 // 4. (laboratorio del SRI) corta en «where»: Ingo Swann, con los ojos cerrados en el cuarto aislado, dibuja; sueña con una
-//    isla lejana; los científicos toman notas y miran el osciloscopio; el gato espía escucha encima del magnetofón;
-// 5. (el dibujo) corta en «just»: el lápiz traza la isla con su torre, el «?» del mapa late y en «remote viewing» se
-//    enciende el ojo con ondas.
+//    isla lejana; un científico enchufa el cable del cuarto en la caja del rack y luego señala la onda del osciloscopio; el
+//    otro va con su tablilla del rack al cristal y apunta; el gato espía escucha encima del magnetofón;
+// 5. (el dibujo) corta en «just»: sobre la guía tenue y las coordenadas (49°, 70°), el trazo se pinta solo, sin mano, con
+//    un brillo violeta en la punta: la isla con su torre; el «?» del mapa late y en «remote viewing» se enciende el ojo.
 import * as T from '/atomo/plato/escenas/dc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('dc-sri');
@@ -99,11 +100,22 @@ const p4 = (t) => {
   R.recorte([58, 58, 158, 118]);
   const sw = R.actor(EL.swann, 104, 124, t, { dir: 1, parpadea: true, sostiene: [124 + Math.round(lapiz), 110 + Math.round(Math.cos(t * 7))] });
   R.recorte(null);
-  // los científicos: uno apunta en su tablilla, el otro mira el osciloscopio y señala en «faraway»
-  const cs = R.actor(EL.cientificoSRI, 198, 162, t, { dir: -1, sostiene: [194, 141], habla: t > lejos && t < nunca && Math.sin(t * 7) > 0 });
-  const ida = tramo(t, P4 + 0.2, P4 + 1.2), vuelta = tramo(t, ingo + 0.6, lejos - 0.2), x2 = Math.round(lerp(214, 236, ida) - lerp(0, 22, vuelta));
-  R.actor(EL.cientificoSRI2, x2, 162, t, { dir: ida > 0 && vuelta === 0 ? 1 : -1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), dedo: (t > ingo - 0.2 && t < ingo + 0.5) || (t > lejos - 0.2 && t < nunca + 0.4), sorpresa: t > nunca && t < nunca + 0.8 });
-  { const [mx, my] = cs.mano, ap = Math.floor(t * 3) % 3 === 0 ? 1 : 0; R.rect(mx - 8, my - 6, mx, my + 4, k); R.rect(mx - 7, my - 5, mx - 1, my + 3, hex('#f2ecd8')); R.rect(mx - 6, my - 7, mx - 2, my - 6, hex('#8a8a96')); for (let j = my - 3; j < my + 3; j += 2) R.linea(mx - 6, j, mx - 2 - ap, j, hex('#6a6a7a')); }
+  // los científicos, con su tarea: el de la tablilla deja el rack y va hasta el cristal (llega en «Ingo Swann»), levanta
+  // la vista y la tablilla para mirar dentro en «faraway» y apunta sin parar; el de la barba enchufa el cable del cuarto en la caja
+  // del rack al empezar (se enciende el piloto), se pone bajo el osciloscopio en «Ingo», señala la onda en «faraway» y se sorprende en «never seen»
+  const a2 = tramo(t, ingo - 0.3, ingo + 0.9), x2 = Math.round(lerp(236, 212, a2)), enchufa = t < P4 + 1.6, on = t > P4 + 1.2;
+  // la caja de conexiones al pie del rack, donde el de la barba enchufa el cable del cuarto (con su piloto)
+  R.rect(221, 136, 231, 145, k); R.rect(222, 137, 230, 144, hex('#8a8a7a')); R.rect(222, 137, 230, 137, hex('#b8b8a8')); R.disco(225, 141, 1, k);
+  R.pset(229, 139, on ? (Math.floor(t * 3) % 2 ? hex('#7aff6a') : hex('#3ac83a')) : hex('#2a4a2a'));
+  // el cable que lleva en la mano hasta la caja y que se queda enchufado (por detrás de él, por la moqueta hasta el rack)
+  { const hx = on ? 226 : 229, hy = 142; R.linea(hx, hy + 1, hx - 3, 152, k); R.linea(hx - 3, 152, hx - 8, 157, k); R.linea(hx - 8, 157, hx - 22, 158, k); R.pset(hx, hy, hex('#c8ccd6')); }
+  const a1 = tramo(t, P4 + 0.5, ingo - 0.1), x1 = Math.round(lerp(198, 164, a1)), mira = t > lejos - 0.1 && t < nunca + 0.6;
+  const ap1 = Math.floor(t * 3) % 3 === 0 ? 1 : 0;
+  const cs = R.actor(EL.cientificoSRI, x1, 162, t, { dir: -1, anda: a1 > 0 && a1 < 1, sostiene: a1 > 0 && a1 < 1 ? true : [x1 - 4, (mira ? 137 : 141) + ap1], habla: t > nunca && t < nunca + 0.7 && Math.sin(t * 7) > 0, sorpresa: t > lejos && t < lejos + 0.5 });
+  const s2 = R.actor(EL.cientificoSRI2, x2, 162, t, { dir: -1, anda: a2 > 0 && a2 < 1, sostiene: enchufa ? [225 + (on ? 0 : 2), 141] : undefined, dedo: !enchufa && a2 >= 1 && t > lejos - 0.2 && t < nunca + 0.2, sorpresa: t > nunca && t < nunca + 0.9 });
+  // la tablilla del primero: grande y con más apuntes cuando escribe, pequeña bajo el brazo cuando anda
+  { const [mx, my] = cs.mano; if (a1 <= 0 || a1 >= 1) { R.rect(mx - 8, my - 6, mx, my + 4, k); R.rect(mx - 7, my - 5, mx - 1, my + 3, hex('#f2ecd8')); R.rect(mx - 6, my - 7, mx - 2, my - 6, hex('#8a8a96')); const lin = Math.min(4, 2 + Math.floor(tramo(t, P4, P5) * 3)); for (let j = 0; j < lin; j++) R.linea(mx - 6, my - 4 + j * 2, mx - 2 - (j === lin - 1 ? ap1 * 2 : 0), my - 4 + j * 2, hex('#6a6a7a')); }
+    else { R.rect(mx - 3, my - 5, mx + 3, my + 4, k); R.rect(mx - 2, my - 4, mx + 2, my + 3, hex('#f2ecd8')); R.rect(mx - 1, my - 6, mx + 1, my - 5, hex('#8a8a96')); } }
   T.gatoEspia(R, 258, 92, t, { cara: t > lejos ? 'travieso' : 'normal' });
   T.psiquicosDelante(R, t, { encuadre: 'sri', sesion: true });
   // la nube del pensamiento: una isla lejana con su torre, dentro de la ventana
@@ -120,13 +132,36 @@ const p4 = (t) => {
 };
 
 // ── 5 · el dibujo que se hace solo ──────────────────────────────────────────────────────────────────────
+// el boceto tenue que ya está en el papel desde el principio (la guía de la sesión, a lápiz muy suave): los mismos trazos
+// que el dibujo de psiquicos (c_TRAZOS de dc-comun.js, en el mismo orden); se ve solo lo que el trazo bueno aún no ha repasado
+const GUIA = [
+  [[100, 124], [112, 123], [124, 125], [138, 123], [152, 124], [168, 123], [182, 125], [198, 124]],
+  [[110, 124], [118, 116], [126, 110], [134, 100], [142, 90], [148, 86], [154, 90], [160, 98], [170, 106], [182, 114], [194, 124]],
+  [[147, 87], [147, 66], [154, 66], [154, 88]], [[146, 66], [150, 60], [155, 66]], [[149, 72], [152, 72]], [[149, 78], [152, 78]],
+  [[128, 108], [134, 112]], [[132, 102], [139, 108]], [[136, 96], [143, 102]], [[140, 92], [146, 98]],
+  [[106, 134], [109, 131], [112, 134], [115, 131], [118, 134]], [[138, 140], [141, 137], [144, 140], [147, 137], [150, 140]], [[170, 133], [173, 130], [176, 133], [179, 130], [182, 133]],
+  [[112, 58], [114, 53], [119, 51], [123, 53], [127, 50], [133, 52], [135, 57], [130, 59], [112, 59]],
+  [[150, 46], [168, 52], [176, 70], [172, 92], [160, 104], [140, 104], [124, 96], [120, 76], [128, 56], [144, 47], [154, 47]],
+];
+let GUIA_TOT = 0; for (const sg of GUIA) for (let i = 1; i < sg.length; i++) GUIA_TOT += Math.hypot(sg[i][0] - sg[i - 1][0], sg[i][1] - sg[i - 1][1]);
 const p5 = (t) => {
-  const g = T.psiquicos(R, t, { encuadre: 'sri', camara: 'dibujo', trazo: tramo(t, P5 + 0.1, remoto), lapiz: false });
-  if (g && g.punta) {   // la mano de Swann con su lápiz amarillo: la punta en el trazo
-    const [px, py] = g.punta.map(Math.round);
-    T.mano(R, px + 13, py - 9, -1, '#c8742a', { sinManga: true });
-    R.linea(px, py, px + 9, py - 11, k); R.linea(px + 1, py, px + 10, py - 11, hex('#e8b030')); R.linea(px + 1, py - 1, px + 10, py - 12, hex('#f8d060')); R.pset(px, py, hex('#3a3a3a'));
-  }
+  // sin mano: el trazo se pinta solo (visión remota); empieza ya con la línea del mar a medias
+  const tr = 0.05 + 0.95 * tramo(t, P5 + 0.1, remoto);
+  const g = T.psiquicos(R, t, { encuadre: 'sri', camara: 'dibujo', trazo: tr, lapiz: false });
+  // la guía tenue, a trazos, solo por delante de lo ya dibujado
+  { let acum = 0; const hecho = GUIA_TOT * tr, gc = hex('#c8c0ae');
+    for (const sg of GUIA) for (let i = 1; i < sg.length; i++) { const [ax, ay] = sg[i - 1], [bx, by] = sg[i], L = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.round(L));
+      for (let u = 0; u <= n; u++) if (u % 4 < 2 && acum + L * u / n > hecho + 1) R.pset(Math.round(ax + (bx - ax) * u / n), Math.round(ay + (by - ay) * u / n), gc);
+      acum += L; } }
+  // las coordenadas apuntadas arriba a la izquierda (solo cifras, con su grado) y la marca de la sesión
+  for (const [txt, y] of [['49', 44], ['70', 54]]) { const w = R.numero(txt, 90, y, { fina: true, color: hex('#5a5a66'), sombra: false }); R.pset(90 + w - 1, y - 6, hex('#5a5a66')); R.pset(90 + w, y - 6, hex('#5a5a66')); R.pset(90 + w - 1, y - 5, hex('#5a5a66')); R.pset(90 + w, y - 5, hex('#5a5a66')); }
+  R.linea(88, 57, 106, 57, hex('#8a8a96'));
+  // la punta del trazo, viva: un brillo violeta que late donde se dibuja y las motas de grafito que suelta
+  if (g && g.punta && tr < 1) { const [px, py] = g.punta.map(Math.round), f = Math.floor(t * 12);
+    const rr = 3 + (f % 3);   // el anillo que late y se abre, de 3 a 5 px
+    for (let i = 0; i < 12; i++) if ((f + i) % 3) { const a = i * Math.PI / 6 + t * 3; R.pset(Math.round(px + Math.cos(a) * rr), Math.round(py + Math.sin(a) * rr), hex(i % 3 ? '#a87ad8' : '#e8dcff')); }
+    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.pset(px + dx, py + dy, hex('#c8a8f0')); R.pset(px, py, hex('#ffffff'));
+    for (let i = 0; i < 3; i++) { const u = (t * 2 + i / 3) % 1; R.pset(px + 2 + i * 2 - Math.round(u * 2), py + 2 + Math.round(u * 3), hex('#8a8a94')); } }
   const e = tramo(t, remoto - 0.1, remoto + 0.3);
   if (e > 0) { const cx = 204, cy = 50, r0 = Math.round(8 + e * 4); R.disco(cx, cy, r0 + 1, k); R.disco(cx, cy, r0, hex('#f8f4ea')); R.icono('ojo', cx - 7, cy - 7, hex('#7a4aa8'), k, 2);
     for (let r = r0 + 3; r < r0 + 3 + e * 9; r += 3) for (let an = 0; an < 6.28; an += 0.22) if ((Math.floor(an * 5) + Math.floor(t * 8)) % 2) R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r), hex('#9a6ac8')); }
