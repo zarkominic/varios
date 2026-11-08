@@ -8,40 +8,84 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// DC-SHORT3-MINIATURA · miniatura vertical del Short 3 del ep24: la mina Blue Peacock en la nieve con una gallina
-// echada encima, muy tranquila, y un «7» grande (las siete toneladas).
+// DC-SHORT3-MINIATURA · miniatura vertical del Short 3 del ep24, «La mina con gallinas», en el estilo noir aprobado
+// (ayudas en noir-mini.js). Un campo nevado de noche, azul frío: la mina de acero enorme, un cilindro remachado medio
+// enterrado en la nieve, con escarcha en el lomo y el piloto rojo encendido; encima, la silueta oscura de una gallina de
+// perfil recortada contra la Luna baja (silueta, sin cara); clavado en la nieve, un termómetro con el mercurio por debajo
+// de la marca del cero; arriba, un «7» en blanco hueso (las siete toneladas). Nieve que cae, grano y viñeta.
 // Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
-import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
-import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
-import { hex } from '/atomo/plato/kits/pixel-retro.js';
-import * as T from '/atomo/plato/escenas/dc-comun.js';
-const R = conChibi(await crearRoma(document.getElementById('lienzo')));
-const fondo = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
-const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
-const contorno = (b, c = K) => { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } };
-const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
-const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
-const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
-const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
-const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
-// lo que pinta «pinta» en un búfer aparte, medido y copiado a escala s, centrado en cx y con la base en «base», con filo
-const grande = (pinta, cx, base, s, filo) => {
-  R.usar(pj); pj.fill(VACIO); pinta(); R.usar(null);
-  let x0 = 320, x1 = 0, y0 = 180, y1 = 0; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (pj[y * 320 + x] !== VACIO) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
-  R.usar(tmp); tmp.fill(VACIO); pon(pj, x0, x1, y0, y1, Math.round(cx - (x1 - x0 + 1) * s / 2), base - (y1 - y0 + 1) * s, s); contorno(tmp, filo); R.usar(null); vuelca(tmp);
-};
-// el fondo de un decorado, desplazado dx (para centrar lo importante en la columna) y oscurecido hacia «tono»
-const pinta_fondo = (f, dx, tono, k) => { R.usar(fondo); f(); R.usar(null); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const sx = Math.max(0, Math.min(319, x + dx)); R.buf[y * 320 + x] = mezcla(tono, fondo[y * 320 + sx], k); } };
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, get, hh, tinte, mez, trama, poligono, elipse, halo, linea, SIL } = N;
 
-const dibujar = (t) => {
-  pinta_fondo(() => T.animales(R, t, { encuadre: 'campoNieve' }), 0, hex('#203048'), 0.2);
-  grande(() => T.PIEZAS_DC.minaPeacock(R, 60, 80, { escarcha: true }), 160, 168, 2, hex('#ffffff'));
-  grande(() => T.PIEZAS_DC.gallina(R, 60, 60, { sentada: true }), 158, 128, 3, hex('#fff4d8'));
-  brillo(160, 30, 40, hex('#fff0a0'), 0.4);
-  R.numero('7', 160, 44, { tam: 24, centro: true });
+// la gallina de perfil mirando a la izquierda; (x, y) son las patas, s la escala
+const gallina = (x, y, s) => {
+  const T = (pts) => pts.map(([a, b]) => [x + a * s, y + b * s]);
+  const E = (cx, cy, rx, ry) => { const [[a, b]] = T([[cx, cy]]); elipse(a, b, rx * s, ry * s, SIL); };
+  E(0, -11, 9, 6.5);                                                                      // el cuerpo
+  E(-4, -13, 5, 5.5);                                                                     // la pechuga
+  poligono(T([[4, -15], [9, -26], [12, -27], [14, -20], [12, -12], [7, -8]]), SIL);       // la cola, en abanico hacia arriba
+  poligono(T([[-5, -14], [-8, -20], [-8, -24], [-4, -25], [-2, -20], [-1, -14]]), SIL);   // el cuello
+  E(-6.5, -22.5, 3, 2.8);                                                                 // la cabeza
+  poligono(T([[-9, -25], [-8.5, -27.5], [-7, -26], [-6, -28], [-5, -26], [-3.5, -27], [-3.5, -24.5], [-9, -24]]), SIL);   // la cresta
+  poligono(T([[-9, -23.5], [-12.5, -22.2], [-9, -21.4]]), SIL);                          // el pico
+  poligono(T([[-8.6, -21], [-7, -21], [-7.4, -18.4], [-8.4, -18.6]]), SIL);               // la barbilla
+  for (const lx of [-2, 2]) { linea(...T([[lx, -5]])[0], ...T([[lx - 0.6, 0]])[0], SIL); linea(...T([[lx - 0.6, 0]])[0], ...T([[lx - 3, 0]])[0], SIL); }
 };
-window.__frame = async (t) => { dibujar(t); R.presentar(); };
-window.__listo = true;
+
+const dibujar = () => {
+  // 1 · el cielo frío y la Luna baja detrás de donde estará la gallina
+  N.cielo({ cx: 158, cy: 72, r: 170, colores: ['#060c1c', '#0e1c3a', '#1a2e56'], estrellas: 80, altoEstrellas: 100, semilla: 4 });
+  N.luna({ x: 156, y: 66, r: 24, halo: 26, haloF: 0.45, crateres: 14, pal: ['#3a4660', '#6a7894', '#9aa8c0', '#c4d0e0', '#e4ecf4', '#f8fbff'] });
+  // 2 · el campo nevado: lomas suaves con trama, más oscuro hacia abajo, y huellas de sombra
+  const NIEVE = ['#0c1426', '#16223e', '#22325a', '#34487a', '#5a72a4', '#8aa2cc'].map(hex);
+  for (let x = 0; x < W; x++) { const h = 124 + Math.round(Math.sin(x * 0.025 + 1) * 5 + Math.sin(x * 0.07) * 2);
+    for (let y = h; y < H; y++) { const v = 1 - (y - h) / 70 - Math.abs(x - 160) / 400; const l = Math.max(0, Math.min(0.999, v * 0.75 + 0.2 + (hh(x >> 2, y >> 1, 6) - 0.5) * 0.1)); set(x, y, NIEVE[Math.floor(l * 5 + trama(x, y))]); }
+    set(x, h, hex('#a8bce0')); }
+  // 3 · la mina: un cilindro de acero remachado con las tapas redondeadas, tumbado y medio enterrado; luz de luna desde
+  // arriba y un poco por la izquierda
+  const MX0 = 126, MX1 = 194, MY = 138, MR = 42, RT = 16;   // eje a la altura MY; asoma la mitad de arriba
+  const ACERO = ['#070a12', '#101626', '#1a2438', '#283650', '#3e5274', '#62789e', '#9ab0d0'].map(hex);
+  const enMina = (x, y) => { const dx = x < MX0 ? (x - MX0) / RT : x > MX1 ? (x - MX1) / RT : 0, dy = (y - MY) / MR; return dx * dx + dy * dy <= 1 ? [dx, dy] : null; };
+  for (let y = MY - MR; y <= MY; y++) for (let x = MX0 - RT; x <= MX1 + RT; x++) { const m = enMina(x, y); if (!m) continue; const [dx, dy] = m, z = Math.sqrt(Math.max(0, 1 - dx * dx - dy * dy));
+    const l = Math.max(0, -0.3 * dx - 0.75 * dy + 0.35 * z), esp = Math.max(0, 1 - Math.abs(dy + 0.62) * 7) * 0.35;
+    set(x, y, ACERO[Math.max(0, Math.min(6, Math.floor((l * 0.9 + esp) * 6.5 + trama(x, y) - 0.5)))]); }
+  // costuras soldadas (siguen la curva) y filas de remaches
+  for (const sx of [MX0, 148, 172, MX1]) for (let y = MY - MR; y <= MY; y++) { if (!enMina(sx, y)) continue; set(sx, y, ACERO[0]); if ((y & 3) === 1) set(sx + 1, y, ACERO[5]); }
+  for (let x = MX0 - 6; x < MX1 + 6; x += 4) for (const ry of [-0.35, -0.6, -0.85]) { const y = Math.round(MY + ry * MR); if (enMina(x, y)) { set(x, y, ACERO[0]); set(x, y - 1, ACERO[6]); } }
+  // la escarcha: motas blancas sobre el lomo, donde da la luna
+  for (let k = 0; k < 160; k++) { const x = MX0 - RT + Math.floor(hh(k, 1, 7) * (MX1 - MX0 + 2 * RT)), y = MY - MR + Math.floor(hh(k, 2, 7) ** 2.2 * 18); if (enMina(x, y)) set(x, y, hh(k, 3, 7) > 0.55 ? hex('#eef4ff') : hex('#b8c8e8')); }
+  for (let x = MX0 - RT; x <= MX1 + RT; x++) for (let y = MY - MR; y < MY; y++) if (enMina(x, y)) { set(x, y, hex('#c8d8f0')); break; }
+  // la nieve que la entierra: el montón por delante, con la misma trama
+  for (let x = 70; x < 250; x++) { const h = 128 + Math.round(Math.sin(x * 0.11) * 2 + hh(x >> 2, 3, 2) * 3); for (let y = h; y < 140; y++) set(x, y, NIEVE[Math.min(5, 3 + ((x + y) & 1))]); set(x, h, hex('#c8d8f0')); }
+  // el piloto rojo, en el lomo, a la derecha
+  { const px = 182, py = MY - Math.round(MR * Math.sqrt(1 - 0)) + 1;
+    poligono([[px - 3, py - 1], [px + 3, py - 1], [px + 3, py + 2], [px - 3, py + 2]], ACERO[0]);
+    halo(px, py - 3, 11, 9, N.ROJO, 0.6, 1.4);
+    set(px, py - 2, hex('#ff8070')); set(px + 1, py - 2, N.ROJO); set(px, py - 3, N.ROJO); set(px + 1, py - 3, N.ROJO2); }
+  // 4 · la gallina encima, recortada contra la Luna, con el filo frío alrededor
+  gallina(156, MY - MR, 1.25);
+  N.filoSup({ x0: 136, x1: 176, y0: 50, y1: MY - MR, color: '#c8d8ff', f: 0.7 });
+  N.filo({ x0: 136, x1: 176, y0: 60, y1: MY - MR, lado: 'izq', yClaro: 90, color: '#7a98d8', claro: '#c8d8ff', doble: false });
+  N.filo({ x0: 136, x1: 176, y0: 60, y1: MY - MR, lado: 'der', yClaro: 90, color: '#7a98d8', claro: '#c8d8ff', doble: false });
+  // 5 · el termómetro clavado en la nieve, con el mercurio bajo la marca del cero
+  const TX = 200, TY0 = 130, TY1 = 170;
+  poligono([[TX - 3, TY0], [TX + 3, TY0], [TX + 3, TY1], [TX - 3, TY1]], hex('#1a2234'));
+  poligono([[TX - 2, TY0 + 1], [TX + 2, TY0 + 1], [TX + 2, TY1 - 1], [TX - 2, TY1 - 1]], hex('#c8d4e8'));
+  for (let y = TY0 + 4; y < TY1 - 6; y += 3) set(TX + 1, y, hex('#5a6a88'));
+  for (let x = TX - 2; x <= TX + 2; x++) set(x, TY0 + 13, hex('#1a2234'));          // el cero
+  for (let y = TY0 + 22; y < TY1 - 4; y++) set(TX - 1, y, N.ROJO);                    // el mercurio, muy por debajo
+  elipse(TX - 0.5, TY1 - 4, 2.4, 2.4, N.ROJO);
+  halo(TX, TY1 - 4, 6, 6, N.ROJO, 0.25);
+  for (let y = TY1; y < TY1 + 4; y++) set(TX, y, hex('#1a2234'));
+  // 6 · la nieve que cae
+  for (let k = 0; k < 140; k++) { const x = Math.floor(hh(k, 5, 1) * W), y = Math.floor(hh(k, 6, 1) * H); tinte(x, y, hex('#e4ecff'), hh(k, 7, 1) > 0.7 ? 0.8 : 0.4); }
+  // 7 · el «7» de las siete toneladas
+  N.cifra('7', 160, 40, { tam: 32 });
+  // 8 · grano y viñeta, centrados en la columna
+  N.granoVineta({ cx: 160, cy: 96, rx: 150, ry: 120, desde: 0.5 });
+};
+N.listo(dibujar);
 </script>
 </body>
 </html>

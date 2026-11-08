@@ -8,39 +8,98 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// DC-SHORT2-MINIATURA · miniatura vertical del Short 2 del ep24: el gato espía enorme, travieso, con su antena y el
-// micrófono en el collar, sobre el parque de los sesenta oscurecido; unas ondas de radio salen de la antena.
-// Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
-import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
-import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
-import { hex } from '/atomo/plato/kits/pixel-retro.js';
-import * as T from '/atomo/plato/escenas/dc-comun.js';
-const R = conChibi(await crearRoma(document.getElementById('lienzo')));
-const fondo = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
-const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
-const contorno = (b, c = K) => { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } };
-const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
-const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
-const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
-const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
-const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
-// lo que pinta «pinta» en un búfer aparte, medido y copiado a escala s, centrado en cx y con la base en «base», con filo
-const grande = (pinta, cx, base, s, filo) => {
-  R.usar(pj); pj.fill(VACIO); pinta(); R.usar(null);
-  let x0 = 320, x1 = 0, y0 = 180, y1 = 0; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (pj[y * 320 + x] !== VACIO) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
-  R.usar(tmp); tmp.fill(VACIO); pon(pj, x0, x1, y0, y1, Math.round(cx - (x1 - x0 + 1) * s / 2), base - (y1 - y0 + 1) * s, s); contorno(tmp, filo); R.usar(null); vuelca(tmp);
-};
-// el fondo de un decorado, desplazado dx (para centrar lo importante en la columna) y oscurecido hacia «tono»
-const pinta_fondo = (f, dx, tono, k) => { R.usar(fondo); f(); R.usar(null); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const sx = Math.max(0, Math.min(319, x + dx)); R.buf[y * 320 + x] = mezcla(tono, fondo[y * 320 + sx], k); } };
+// DC-SHORT2-MINIATURA · miniatura vertical del Short 2 del ep24, «El gato espía de la CIA», en el estilo noir aprobado
+// (ayudas en noir-mini.js). Un parque de noche con niebla: una farola con su cono de luz fría, a la izquierda, cae sobre un banco donde
+// dos hombres con sombrero hablan inclinados el uno hacia el otro; en primer plano, la silueta negra de un gato de verdad,
+// sentado de perfil mirándolos (sin cara tierna: solo el brillo amarillo del ojo), con una antena finísima que brilla
+// sobre la nuca y el piloto rojo de grabación en el collar. Grano y viñeta. Sin cifras ni palabras.
+// Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16).
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, get, hh, tinte, mez, poligono, elipse, halo, linea, SIL } = N;
 
-const dibujar = (t) => {
-  pinta_fondo(() => T.animales(R, t, { encuadre: 'parque' }), 0, hex('#0a0c1a'), 0.45);
-  brillo(160, 110, 60, hex('#d8e0ff'), 0.35);
-  grande(() => T.gatoEspia(R, 60, 60, t, { cara: 'travieso' }), 160, 172, 5, hex('#ffffff'));
-  for (const r of [10, 18, 26]) for (let a = -0.9; a <= 0.9; a += 0.08) R.pset(Math.round(166 + Math.cos(a - 1.57) * r), Math.round(84 + Math.sin(a - 1.57) * r * 0.7), hex('#ffe08a'));
+// un hombre sentado de perfil, con sombrero, inclinado hacia delante; (x, y) es la cadera sobre el asiento; d = 1 mira a
+// la derecha, −1 a la izquierda
+const sentado = (x, y, d, s = 1) => {
+  const T = (pts) => pts.map(([a, b]) => [x + a * d * s, y + b * s]);
+  poligono(T([[-6, 1], [-7, -20], [-4, -26], [4, -26], [8, -19], [7, 1]]), SIL);       // el torso con el abrigo
+  poligono(T([[-1, -27], [4, -27], [4, -24], [-1, -24]]), SIL);                        // el cuello
+  const [hx, hy] = T([[3, -31]])[0]; elipse(hx, hy, 4.4 * s, 5 * s, SIL);               // la cabeza
+  poligono(T([[6, -33], [9, -30], [7, -29], [7, -27], [4, -26]]), SIL);               // la nariz y la barbilla
+  const [bx, by] = T([[3, -35]])[0]; elipse(bx, by, 8 * s, 1.5 * s, SIL);               // el ala del sombrero
+  poligono(T([[-2, -35], [-1, -41], [3, -42], [7, -41], [8, -35]]), SIL);              // la copa, con la hendidura
+  poligono(T([[-6, -1], [13, -3], [14, 4], [-6, 5]]), SIL);                            // el muslo
+  poligono(T([[9, 1], [14, 1], [15, 21], [10, 21]]), SIL);                             // la pierna
+  poligono(T([[9, 19], [18, 19], [18, 22], [9, 22]]), SIL);                            // el zapato
+  poligono(T([[1, -21], [6, -22], [13, -5], [9, -3]]), SIL);                           // el brazo, con el codo en la rodilla
 };
-window.__frame = async (t) => { dibujar(t); R.presentar(); };
-window.__listo = true;
+
+const dibujar = () => {
+  // 1 · el cielo de noche, la niebla y los árboles del parque en silueta
+  N.cielo({ cx: 200, cy: 40, r: 190, colores: ['#070a18', '#0e1630', '#18234a'], estrellas: 40, altoEstrellas: 60, semilla: 8 });
+  const ARB = hex('#0a0d18'), ARB2 = hex('#0e1222');
+  for (const [cx, cy, r, c] of [[40, 70, 44, ARB2], [100, 60, 38, ARB2], [270, 64, 46, ARB2], [320, 80, 40, ARB2], [10, 96, 40, ARB], [300, 104, 36, ARB]])
+    for (let y = cy - r; y < cy + r; y++) for (let x = cx - r; x < cx + r; x++) { const d = Math.hypot(x - cx, y - cy) + (hh(x >> 1, y >> 1, cx) - 0.5) * 14; if (d < r) set(x, y, c); }
+  for (const [x, y0] of [[40, 100], [100, 92], [270, 100]]) for (let y = y0; y < 150; y++) for (let k = -2; k < 2; k++) set(x + k, y, ARB2);
+  for (let y = 60; y < 150; y++) for (let x = 0; x < W; x++) tinte(x, y, hex('#4a5a84'), 0.16 * Math.max(0, 1 - Math.abs(y - 118) / 40));
+  // 2 · el suelo del paseo
+  poligono([[0, 130], [320, 130], [320, 180], [0, 180]], (x, y) => (hh(x >> 2, y >> 1, 3) > 0.7 ? hex('#141826') : hex('#0e111c')));
+  // 3 · la farola a la izquierda y su cono de luz fría, que cae sobre el banco
+  const FAR = hex('#0b0c13');
+  for (let y = 30; y < 134; y++) for (let x = 117; x < 120; x++) set(x, y, FAR);
+  poligono([[114, 134], [123, 134], [122, 128], [115, 128]], FAR);
+  poligono([[111, 20], [125, 20], [123, 30], [113, 30]], FAR);
+  poligono([[113, 18], [123, 18], [118, 12], ], FAR);
+  poligono([[114, 22], [122, 22], [121, 29], [115, 29]], hex('#e8f0ff'));
+  halo(118, 26, 30, 26, hex('#c8d8ff'), 0.45, 1.6);
+  poligono([[114, 30], [122, 30], [236, 136], [138, 140]], (x, y) => mez(get(x, y), hex('#a8b8e0'), 0.1 + 0.1 * (1 - (y - 30) / 110)));
+  for (let y = 124; y < 150; y++) for (let x = 100; x < 280; x++) { const d = Math.hypot((x - 184) / 60, (y - 134) / 9); if (d < 1) tinte(x, y, hex('#b8c8f0'), 0.35 * (1 - d)); }
+  // 4 · el banco: respaldo, asiento y patas de hierro
+  const BAN = hex('#0c0d14');
+  for (const y of [90, 96]) poligono([[150, y], [216, y], [216, y + 3], [150, y + 3]], BAN);
+  for (const x of [154, 210]) poligono([[x, 90], [x + 2, 90], [x + 2, 130], [x, 130]], BAN);
+  // 5 · los dos hombres hablando, inclinados el uno hacia el otro, con el filo de la farola
+  sentado(167, 109, 1, 0.82);
+  sentado(198, 109, -1, 0.82);
+  poligono([[148, 108], [218, 108], [218, 112], [148, 112]], BAN);
+  for (let x = 148; x < 218; x++) set(x, 108, hex('#3a4462'));
+  N.filoSup({ x0: 150, x1: 216, y0: 60, y1: 110, color: '#c8d8ff', f: 0.75 });
+  N.filo({ x0: 150, x1: 186, y0: 70, y1: 108, lado: 'izq', yClaro: 86, color: '#6a84c0', claro: '#b8ccf4' });
+  // 6 · el gato en primer plano: sentado de perfil, mirando al banco; negro de verdad (dibujado a 1:1 y llevado a su
+  // sitio con G: escala 1.45 desde (124, 180))
+  const GS = 1.45, G = (pts) => pts.map(([x, y]) => [124 + (x - 124) * GS, 180 + (y - 180) * GS]);
+  const GE = (cx, cy, rx, ry, c) => { const [[a, b]] = G([[cx, cy]]); elipse(a, b, rx * GS, ry * GS, c); };
+  const GATO = (x, y) => (hh(x >> 1, y >> 1, 9) > 0.9 ? hex('#0a0b10') : hex('#030305'));
+  const enGato = (c) => c === hex('#0a0b10') || c === hex('#030305');
+  GE(131, 166, 17, 15, GATO);                                                                     // el anca
+  poligono(G([[118, 180], [124, 156], [134, 146], [145, 140], [152, 146], [154, 160], [155, 180]]), GATO);  // el lomo y el pecho
+  GE(149, 134, 8.5, 7.5, GATO);                                                                   // la cabeza
+  poligono(G([[153, 129], [159, 133], [160, 137], [157, 140], [150, 141]]), GATO);                // el hocico
+  poligono(G([[142, 131], [143, 119], [149, 128]]), GATO);                                        // la oreja de este lado
+  poligono(G([[148, 128], [152, 120], [155, 130]]), GATO);                                        // la otra oreja
+  poligono(G([[112, 176], [128, 174], [150, 175], [160, 178], [160, 181], [112, 181]]), GATO);   // la cola enroscada por delante
+  // la antena: finísima, desde la nuca hacia arriba y atrás, que brilla, con la punta encendida
+  const [[ax0, ay0], [ax1, ay1]] = G([[143, 130], [134, 92]]).map(([x, y]) => [Math.round(x), Math.round(y)]);
+  linea(ax0, ay0, ax1, ay1, hex('#9ab0e0'));
+  halo(ax1, ay1, 4, 4, hex('#e0e8ff'), 0.55); set(ax1, ay1, hex('#ffffff'));
+  // el filo de la farola: por la izquierda y por arriba (lomo, orejas, cabeza)
+  N.filo({ x0: 96, x1: 180, y0: 92, y1: 178, lado: 'izq', yClaro: 130, color: '#5a74b0', claro: '#a8bce8', es: enGato });
+  N.filoSup({ x0: 96, x1: 180, y0: 90, y1: 170, color: '#9ab0e8', f: 0.75, es: enGato });
+  // los bigotes, dos hebras que pillan la luz
+  { const [[mx, my]] = G([[159, 137]]); linea(mx, my, mx + 13, my - 3, hex('#8aa0d8'), 0.6); linea(mx, my + 1, mx + 13, my + 4, hex('#8aa0d8'), 0.5); }
+  // el ojo: una rendija almendrada con el brillo amarillo
+  { const [[ex, ey]] = G([[154, 132]]).map(([x, y]) => [Math.round(x), Math.round(y)]);
+    set(ex - 1, ey, hex('#a88010')); set(ex, ey, hex('#f0d040')); set(ex + 1, ey, hex('#f8e070')); set(ex + 2, ey, hex('#a88010')); set(ex, ey - 1, hex('#604808')); set(ex + 1, ey - 1, hex('#806010'));
+    halo(ex + 0.5, ey, 4, 3, hex('#f0d040'), 0.22); }
+  // el collar con el micrófono y el piloto rojo de grabación
+  { const [[c0x, c0y], [c1x, c1y], [px, py]] = G([[143, 141], [153, 142], [150, 143]]).map(([x, y]) => [Math.round(x), Math.round(y)]);
+    linea(c0x, c0y, c1x, c1y, hex('#1c1e28')); linea(c0x, c0y + 1, c1x, c1y + 1, hex('#14161e'));
+    halo(px, py, 9, 9, N.ROJO, 0.5, 1.4);
+    set(px, py, hex('#ff7a6a')); set(px + 1, py, N.ROJO); set(px, py + 1, N.ROJO); set(px + 1, py + 1, N.ROJO2); }
+  // 7 · grano y viñeta, centrados en la columna
+  N.granoVineta({ cx: 160, cy: 100, rx: 150, ry: 120, desde: 0.5 });
+};
+N.listo(dibujar);
 </script>
 </body>
 </html>
