@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura ep25 · mix</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Miniatura del ep25 (mix, prueba A/B): la dibuja vm-mini.js.
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+import { pintarVM } from '/atomo/plato/escenas/vm-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+N.listo(() => pintarVM(N, { mix: true }));
+</script>
+</body>
+</html>
