@@ -399,3 +399,17 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 **Pendiente para el próximo:**
 - Resultado de la prueba A/B noir frente a intermedia en el 26 (y el 25): decide el estilo de las miniaturas.
 - Por qué at-cierre marca el 84 % de efectos sin tener casi efectos en su lista (¿efecto final del episodio?).
+
+## Episodio 25 · El manuscrito Voynich (8–9/11/2026)
+
+- **Hecho en paralelo con el 26:** decorados y escenas del 25 mientras el 26 pasaba su calidad y su render. Sin bajar el
+  nivel; solo hay que guardar a menudo (el aviso de cambios sin guardar salta por los agentes).
+- **Reinicio de la máquina a mitad de la calidad:** los cambios ya escritos seguían en disco; se guardaron y la pasada se
+  reanudó con `resumeFromRunId` (los 28 agentes acabados no se repitieron). Conviene hacer commit antes de reanudar.
+- **Tema abstracto (un libro):** funcionó como cacería de detectives; los insertos locales (páginas, fichas, pizarras)
+  cargaron mucho: la mitad de los planos no usa decorado.
+- **Signos inventados:** cuidado con que se lean como letras («D», «t», «C»); en las miniaturas se cambiaron por formas
+  sin letra (palo cruzado, espiral).
+- **QUIETO falso:** --comprobar compara solo el principio y el final del plano; un plano con acción que vuelve a su sitio
+  (los tarros que saltan) sale QUIETO. Mirarlo antes de mandarlo a una pasada.
+- **Disco:** se borraron los fotogramas del 26 (5,6 GB) antes del render del 25.

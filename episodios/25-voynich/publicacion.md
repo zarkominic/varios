@@ -1,6 +1,6 @@
 # Episodio 25 · Material para publicar
 
-**Duración:** 8:11 (voz).
+**Duración:** 8:12.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`, narrada como un cuento, voz «B») y pista de audio en español
   (`em_santa`, con los nombres propios escritos como se dicen en México).
 - Subtítulos en inglés y en español.
@@ -41,7 +41,13 @@ What we cover:
 
 Do you think it says something, or is it the greatest hoax in history? Tell me in the comments.
 
-CAPÍTULOS: se sacan con capitulos.py después del montaje.
+0:00 A book nobody can read
+0:36 The book
+1:36 The owners
+3:41 The codebreakers
+4:44 The science
+6:09 The theories
+7:40 The ending
 
 Sources: Wikipedia (Voynich manuscript, Johannes Marcus Marci, Georg Baresch, Wilfrid Voynich, William Romaine Newbold,
 William F. Friedman) · Beinecke Rare Book & Manuscript Library, Yale (MS 408, digitized online) · University of Arizona
@@ -68,7 +74,13 @@ Lo que contamos:
 
 ¿Crees que dice algo o es el mayor fraude de la historia? Cuéntamelo en los comentarios.
 
-CAPÍTULOS: se sacan con capitulos.py después del montaje.
+0:00 Un libro que nadie sabe leer
+0:36 El libro
+1:36 Los dueños
+3:41 Los descifradores
+4:44 La ciencia
+6:09 Las teorías
+7:40 El cierre
 
 Fuentes: Wikipedia (manuscrito Voynich, Johannes Marcus Marci, Georg Baresch, Wilfrid Voynich, William Romaine Newbold,
 William F. Friedman) · Biblioteca Beinecke de libros raros y manuscritos, Yale (MS 408, digitalizado en línea) ·
@@ -92,4 +104,27 @@ voynich.nu · Smithsonian Magazine · The Atlantic.
 
 ## Shorts
 
-SHORTS: tramos, títulos y descripciones después del montaje.
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y dos miniaturas verticales (noir e intermedia). La prueba A/B de YouTube no sirve para Shorts:
+sube los Shorts 1 y 3 con la noir y el 2 con la intermedia (al revés que en el 26), y miramos sus vistas en Studio. En
+«Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · Un libro de 600 años que nadie sabe leer · tramo 0.25-16.2,37.3-54.9
+- **EN:** A 600-Year-Old Book Nobody Can Read #Shorts
+- **ES:** Un libro de 600 años que nadie sabe leer #Shorts
+- **EN:** At Yale there's a book of about 240 vellum pages, written in an alphabet that appears nowhere else. Not a single word has been read for certain. The full story is in the linked video. #VoynichManuscript #Mystery #ASKAtom #Shorts
+- **ES:** En Yale hay un libro de unas 240 páginas de vitela, escrito con un alfabeto que no aparece en ninguna otra parte. Nadie ha podido leer con seguridad ni una sola palabra. La historia completa, en el vídeo enlazado. #ManuscritoVoynich #Misterios #ASKAtom #Shorts
+
+### Short 2 · El profesor que lo «leyó» con un microscopio · tramo 222.3-260.0
+- **EN:** He Claimed He Read the Voynich With a Microscope #Shorts
+- **ES:** Dijo que leyó el Voynich con un microscopio #Shorts
+- **EN:** In 1921, a Philadelphia professor said the secret was in tiny marks inside each letter. Ten years later, John Manly showed they were just cracks in the dried ink. The full story is in the linked video. #VoynichManuscript #History #ASKAtom #Shorts
+- **ES:** En 1921, un profesor de Filadelfia dijo que el secreto estaba en marcas diminutas dentro de cada letra. Diez años después, John Manly demostró que eran grietas en la tinta seca. La historia completa, en el vídeo enlazado. #ManuscritoVoynich #Historia #ASKAtom #Shorts
+
+### Short 3 · Ni la inteligencia artificial lo ha leído · tramo 416.1-460.0
+- **EN:** Even AI Couldn't Read the Voynich Manuscript #Shorts
+- **ES:** Ni la inteligencia artificial pudo leer el Voynich #Shorts
+- **EN:** In 2018, researchers used AI and said it might be Hebrew; in 2019, a British academic said it was a lost Romance language. Experts rejected both. The full story is in the linked video. #VoynichManuscript #AI #ASKAtom #Shorts
+- **ES:** En 2018, unos investigadores usaron inteligencia artificial y dijeron que podía ser hebreo; en 2019, un académico británico dijo que era una lengua romance perdida. Los expertos rechazaron las dos. La historia completa, en el vídeo enlazado. #ManuscritoVoynich #IA #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/vm-short1-miniatura.html` … `vm-short3-miniatura.html` y sus `-mix`.
