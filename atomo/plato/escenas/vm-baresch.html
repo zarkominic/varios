@@ -441,7 +441,7 @@ const p5 = (t) => {
   libro(ma.mano[0] - 1, ma.mano[1] + 8);
   if (mira) { const g = tramo(t, b(0.9581), b(0.9700)); if (Math.sin(t * 7) > 0) for (const [dx, dy] of [[-9, -8], [6, -12], [-4, -16]]) R.pset(ma.mano[0] + dx, ma.mano[1] + dy, hex('#fff0a0')); R.anillo(ma.mano[0] - 1, ma.mano[1], 9 + (1 - g) * 4, hex('#ffe08a')); }
 };
-const efectos = [[b(0.040), 'whoosh'], [b(0.104), 'puerta'], [b(0.1680), 'burbujas'], [b(0.2700), 'papel'], [b(0.3068), 'pop'], [b(0.3900), 'lapiz'], [b(0.4630), 'papel'], [b(0.4950), 'sello'], [b(0.5220), 'whoosh'], [b(0.5612), 'pop'], [b(0.6758), 'burbujas'], [b(0.7422), 'brillo'], [b(0.7789) + 0.15, 'pop'], [b(0.8882), 'campana'], [b(0.9581), 'brillo']];
+const efectos = [[b(0.040), 'whoosh'], [b(0.104), 'puerta'], [b(0.1680), 'burbujas'], [b(0.2700), 'papel'], [b(0.3068), 'pop'], [b(0.3900), 'lapiz'], [b(0.4630), 'papel'], [b(0.4950), 'sello'], [b(0.5220), 'whoosh'], [b(0.5612), 'pop'], [b(0.7422), 'brillo'], [b(0.8882), 'campana'], [b(0.9581), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => t < 0.4 ? 1665 : t < 2.4 ? Math.round(lerp(1665, 1639, tramo(t, 0.4, 2.4))) : 1639 });
 </script>
 </body>
