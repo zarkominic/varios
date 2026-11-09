@@ -38,6 +38,8 @@ export const C = {
   rojoCola: '#c8382e', rojoColaS: '#8a2018', azulCola: '#2e5aa8', azulColaS: '#1a3a78', jarabe: '#4a2414', espuma: '#f4ece0',
   marmol: '#e0d8cc', marmolS: '#b0a898', laton: '#c8a040', latonS: '#8a6a24', carton: '#c8a06a', cartonS: '#8a6a3a',
   beige: '#d8ccb0', beigeS: '#a89c80', bata: '#eef0f2',
+    // madera y piedra
+    madera: '#7a4a2a', maderaS: '#4a2a18', piedra: '#7a7680', piedraS: '#4a4652', yeso: '#e4d8bc',
   }),
 };
 
