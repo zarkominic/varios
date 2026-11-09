@@ -12,14 +12,16 @@
 // VM-KRAUS (frase 11): de la caja fuerte de la viuda a Yale. Cinco planos:
 // 1. fondo local, el estudio de Voynich en Nueva York de noche (1930): escribe en sus hojas llenas de tachones; con
 //    «without having deciphered it» se detiene, triste, con un «?»; se levanta y se va; la lámpara se apaga sola;
-// 2. inserto, la caja fuerte: la mano de Ethel (manga azul) deja el libro dentro y con «a safe» se cierra la puerta y
-//    gira la rueda; pasan los años (la barra corre a 1961, el polvo se posa); con «Ann Nill» la puerta se abre y la mano
-//    de Anne (manga verde) entra a por él;
+// 2. inserto, la caja fuerte: la mano de Ethel (manga azul) deja el libro en el compartimento de abajo y con «a safe»
+//    se cierra la puerta y gira la rueda; pasan los años (la barra corre a 1961, el polvo se posa); con «Ann Nill» la
+//    puerta se abre y la mano de Anne (manga verde) entra a por él (brazos en diagonal, codo junto al borde, ~40 px);
 // 3. la librería de Kraus en Nueva York: Anne entra con el libro y se lo da a Kraus por encima del mostrador; con «paid
 //    $24,500» suena la caja registradora y la cifra salta en oro;
 // 4. fondo local, la fachada de la librería: en el escaparate, el cartel del precio sube de 24500 a 160000 con «asked»;
-//    con «nobody wanted to buy it» una señora mira, se asombra y niega con la cabeza, un señor pasa de largo, la paloma
-//    picotea y un taxi pasa por delante;
+//    un lector lo mira subir, se asombra («!») y se va; con «nobody wanted to buy it» una señora mira, se asombra y niega
+//    con la cabeza; pasan un señor con maletín y un chico con un paquete de libros, un coche de 1961 y luego un taxi por
+//    delante; arriba, la ropa tendida al viento, un vecino riega los geranios en la escalera de incendios, una vecina
+//    sacude el trapo en su ventana y las palomas de la cornisa (una se va con el claxon) y la de la acera picotean;
 // 5. la sala de libros raros de Yale (1969): Kraus llega y presenta el libro en su atril, que brilla, a la bibliotecaria
 //    («donated it to Yale»); se despide y se va, la barra salta a hoy y con «Manuscript 408» aparece la cartela.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
@@ -222,12 +224,20 @@ const p2 = (t) => {
   const abre = 1 - ease(tramo(t, CIERRA - 0.45, CIERRA)) + ease(tramo(t, ANNE - 0.7, ANNE - 0.1));
   const mete = ease(tramo(t, P2, P2 + 1.4)), coge = ease(tramo(t, ANNE + 0.05, ANNE + 0.5));
   const dentro = mete >= 1 && coge <= 0;
-  T.pragua(R, t, { encuadre: 'nuevaYork', camara: 'cajaFuerte', abre: Math.min(1, abre), libro: dentro });
-  // el libro: la mano de Ethel lo mete desde abajo hasta la balda; luego la mano de Anne lo saca
-  const bx = Math.round(lerp(150, 140, mete) + coge * 6), by = Math.round(lerp(176, 80, mete) + coge * 70);
-  if (!dentro) libroPlano(bx, by, 40, 32, 5);
-  if (t < P2 + 2.1) { const ret = ease(tramo(t, P2 + 1.5, P2 + 2.1)), hx = bx + 44, hy = by + 26 + Math.round(ret * 90); T.brazo(R, hx + 22, 250, hx, hy, '#5a78b8', -1, { codo: [hx + 26, Math.max(hy + 40, 192)] }); }
-  if (t > ANNE - 0.1) { const ent = ease(tramo(t, ANNE - 0.1, ANNE + 0.05)), hx = bx - 4, hy = Math.round(lerp(200, by + 22, ent)); T.brazo(R, hx - 22, 250, hx, hy, '#4a7a52', 1, { codo: [hx - 26, Math.max(hy + 40, 192)] }); }
+  // el libro no va en la balda del decorado sino en el compartimento de abajo (y 118–150): así los brazos entran en
+  // diagonal desde abajo con el codo dentro del cuadro y solo se ven ~40 px de manga
+  T.pragua(R, t, { encuadre: 'nuevaYork', camara: 'cajaFuerte', abre: Math.min(1, abre), libro: false });
+  const ua = Math.max(0, Math.min(1, abre)), wf = Math.round(128 * Math.cos(ua * Math.PI * 0.62)), xd = wf > 2 ? 96 + wf : 95;
+  const bx = Math.round(lerp(150, 140, mete) + coge * 6), by = Math.round(lerp(176, 118, mete) + coge * 66);
+  if (dentro) { if (xd < 186) { R.recorte([xd + 1, 38, 215, 152]); libroPlano(140, 118, 40, 32, 5);
+      // su brillo dorado cuando la puerta está abierta
+      if (ua > 0.3) { const g = (ua - 0.3) / 0.7, b = 0.5 + 0.5 * Math.sin(t * 3); for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + t * 0.4, L = 6 + g * 8 * b; for (let r = 23; r < 23 + L; r += 2) tine(160 + Math.cos(a) * r, 134 + Math.sin(a) * r * 0.7, 0.35 * g, Q.amarL); } }
+      R.recorte(null); } }
+  else libroPlano(bx, by, 40, 32, 5);
+  // la mano de Ethel (manga azul) sujeta la esquina de abajo a la derecha; el brazo sube en diagonal, codo junto al borde
+  if (t < P2 + 2.1) { const ret = ease(tramo(t, P2 + 1.5, P2 + 2.1)), hx = bx + 42, hy = by + 24 + Math.round(ret * 70); T.brazo(R, hx + 34, hy + 58, hx, hy, '#5a78b8', -1, { codo: [hx + 20, hy + 34] }); }
+  // la de Anne (manga verde) entra por la izquierda, coge la esquina de abajo y se lo lleva
+  if (t > ANNE - 0.1) { const ent = ease(tramo(t, ANNE - 0.1, ANNE + 0.05)), hx = bx - 2, hy = Math.round(lerp(196, by + 24, ent)); T.brazo(R, hx - 34, hy + 58, hx, hy, '#4a7a52', 1, { codo: [hx - 20, hy + 34] }); }
   // los años: el polvo se posa sobre la caja cerrada y una telaraña crece en la esquina
   const anos = tramo(t, CIERRA + 0.2, ANNE - 0.7);
   if (anos > 0 && anos < 1) for (let i = 0; i < 16; i++) { const v = (anos * 2 + i / 16) % 1; tine(100 + (i * 37) % 120, 26 + v * 130, 0.6, Q.piedraL); }
@@ -293,6 +303,44 @@ const p4 = (t) => {
     rect(288, 60, 290, 164, Q.k); rect(289, 60, 289, 164, Q.grisS); rect(282, 50, 296, 60, Q.k); rect(283, 51, 295, 59, Q.amarL); rect(284, 162, 294, 166, Q.k);
     rect(246, 150, 258, 166, Q.k); for (let x = 247; x < 258; x += 2) linea(x, 151, x, 165, Q.grisS);
   });
+  // la vida de la fachada (se pinta encima de la capa): la ropa tendida, la vecina sacude el trapo en su ventana, el
+  // vecino riega los geranios en la escalera de incendios y las palomas de la cornisa
+  { const v = (x, i) => Math.round(Math.sin(t * 2.2 + i * 1.3 + x * 0.05) * 1.5);
+    // la cuerda va de la casa parda a la escalera de incendios, con su comba
+    const cy = (x) => Math.round(24 - (x - 44) / 66 * 7 + Math.sin((x - 44) / 66 * Math.PI) * 4);
+    for (let x = 44; x <= 110; x++) R.pset(x, cy(x), Q.grisS);
+    const ROPA = [[52, 'camisa', Q.c3, Q.c1], [64, 'calcetin', Q.rojo, Q.rojoS], [70, 'calcetin', Q.rojo, Q.rojoS], [78, 'toalla', Q.blanco, Q.blancoS], [92, 'camisa', Q.amar, Q.amarS], [103, 'trapo', Q.verdeL, Q.verde]];
+    ROPA.forEach(([x0, tipo, c, cS], i) => { const y0 = cy(x0) + 1, d = v(x0, i);
+      if (tipo === 'camisa') { R.poligono([[x0 - 1, y0], [x0 + 9, y0], [x0 + 10 + d, y0 + 4], [x0 + 8 + d, y0 + 5], [x0 + 8 + d, y0 + 11], [x0 + d, y0 + 11], [x0 + d, y0 + 5], [x0 - 2 + d, y0 + 4]], Q.k);
+        R.poligono([[x0, y0 + 1], [x0 + 8, y0 + 1], [x0 + 9 + d, y0 + 4], [x0 + 7 + d, y0 + 4], [x0 + 7 + d, y0 + 10], [x0 + 1 + d, y0 + 10], [x0 + 1 + d, y0 + 4], [x0 - 1 + d, y0 + 4]], c);
+        R.linea(x0 + 1 + d, y0 + 9, x0 + 7 + d, y0 + 9, cS); R.linea(x0 + 4, y0 + 1, x0 + 4 + d, y0 + 9, cS); }
+      else if (tipo === 'calcetin') { R.linea(x0, y0, x0 + d, y0 + 6, c); R.linea(x0 + 1, y0, x0 + 1 + d, y0 + 6, cS); R.pset(x0 + 2 + d, y0 + 6, c); }
+      else { const w = tipo === 'toalla' ? 10 : 6, hgt = tipo === 'toalla' ? 12 : 7; R.poligono([[x0, y0], [x0 + w, y0], [x0 + w + d, y0 + hgt], [x0 + d, y0 + hgt]], c); R.linea(x0 + d, y0 + hgt, x0 + w + d, y0 + hgt, cS); R.linea(x0 + 1 + d, y0 + hgt - 3, x0 + w - 1 + d, y0 + hgt - 3, tipo === 'toalla' ? Q.c2 : cS); }
+      R.pset(x0, y0 - 1, Q.roble); R.pset(x0 + (tipo === 'camisa' ? 8 : tipo === 'toalla' ? 10 : 1), y0 - 1, Q.roble); });
+    // la ventana de la derecha (x 225–245): la hoja de abajo subida, la vecina asomada sacude el trapo del polvo
+    R.recorte([225, 25, 245, 53]);
+    for (let y = 41; y <= 53; y++) R.linea(225, y, 245, y, y < 44 ? Q.negro : mez(Q.damascoS, Q.k, 0.4));
+    R.busto('mujer', { H: Q.nogS, V: Q.nogS, C: Q.lila, c: Q.lilaS, o: Q.blanco }, 229, 42, t, { saluda: true });
+    R.recorte(null);
+    R.linea(225, 40, 245, 40, Q.piedraL); R.linea(225, 41, 245, 41, Q.piedraS);
+    { const ay = 42 + 3 - Math.round(Math.abs(Math.sin(t * 10 + 229)) * 2); R.poligono([[236, ay - 4], [243, ay - 5], [244, ay - 1], [237, ay]], Q.amarL); R.linea(237, ay, 244, ay - 1, Q.amarS);
+      for (let i = 0; i < 6; i++) { const g = (t * 0.7 + i / 6) % 1; tine(244 + g * 10 + Math.sin(t * 3 + i) * 2, ay - 2 + g * 26, 0.6 * (1 - g), Q.piedraL); } }
+    // el vecino en la escalera de incendios: riega los geranios maceta a maceta con la regadera
+    const MAC = [118, 130, 142, 154]; const rx = Math.round(lerp(112, 146, ease(tramo(t, P4 + 0.3, P5 - 0.6)))), ri = Math.floor(t * 1.6) % 2;
+    const r = R.actor(EL.obrero, rx, 57, t, { dir: 1, anda: Math.sin(t * 1.6 * Math.PI) > 0.6 && t < P5 - 0.6, sostiene: [rx + 19, 44] });
+    { const [mx, my] = r.mano; R.poligono([[mx - 1, my - 1], [mx + 5, my - 1], [mx + 6, my + 4], [mx, my + 4]], Q.k); R.poligono([[mx, my], [mx + 4, my], [mx + 5, my + 3], [mx + 1, my + 3]], Q.grisL); R.linea(mx + 5, my + 1, mx + 9, my - 1, Q.grisS); R.pset(mx + 1, my, Q.blanco);
+      for (let i = 0; i < 4; i++) { const g = (t * 2.4 + i / 4) % 1; R.pset(mx + 9 + Math.round(g * 2), my + Math.round(g * 9), g < 0.5 ? Q.aguaL : Q.agua); } }
+    for (const [i, x] of MAC.entries()) { R.rect(x - 3, 53, x + 3, 57, Q.k); R.rect(x - 2, 54, x + 2, 57, Q.teja); R.pset(x - 2, 54, Q.tejaL);
+      const mv = Math.round(Math.sin(t * 2 + i) * 0.6); R.disco(x + mv, 50, 3, Q.setoS); R.disco(x + mv, 49, 2, Q.setoL); R.pset(x - 1 + mv, 47, Q.rojoL); R.pset(x + 2 + mv, 48, Q.rojo); R.pset(x + mv, 46, i % 2 ? Q.rosa : Q.rojo); }
+    // la barandilla de hierro se vuelve a pintar por delante del vecino y de las macetas
+    for (let x = 110; x <= 160; x += 3) R.linea(x, 58, x, 48, Q.k); R.rect(110, 47, 160, 48, Q.k); R.rect(110, 58, 160, 59, Q.k);
+    // las palomas de la cornisa (fuera de la barra del año): andan, picotean, y una se va cuando suena el claxon
+    const vuelaP = tramo(t, en('kraus', 0.7416), en('kraus', 0.7416) + 1.6);
+    [[186, 0], [200, 1], [250, 2]].forEach(([x0, i]) => { let x = x0 + Math.round(Math.sin(t * 0.8 + i * 2) * 3), y = 5; const pic = Math.sin(t * 3 + i * 1.7) > 0.7;
+      if (i === 1 && vuelaP > 0) { x = Math.round(x0 - vuelaP * 60); y = Math.round(5 - Math.sin(vuelaP * Math.PI) * 6 + vuelaP * 30); }
+      if (vuelaP >= 1 && i === 1) return;
+      R.rect(x - 2, y - 2, x + 2, y, Q.k); R.rect(x - 1, y - 2, x + 1, y - 1, Q.gris); R.pset(x + 2, y - 3 + (pic ? 2 : 0), Q.grisS); R.pset(x + 3, y - 3 + (pic ? 2 : 0), Q.amarS); R.pset(x - 3, y - 1, Q.grisS);
+      if (i === 1 && vuelaP > 0) { const al = parpadeo(t, 22); R.linea(x - 2, y - 2, x - 4, y - (al ? 5 : 0), Q.grisL); R.linea(x + 1, y - 2, x + 3, y - (al ? 5 : 0), Q.grisL); } }); }
   // dentro del escaparate: las baldas de libros, el atril de terciopelo con el libro y el cartel del precio
   R.recorte([70, 94, 194, 142]);
   for (let y = 94; y <= 142; y++) R.linea(70, y, 194, y, mez(Q.nogS, Q.k, 0.3));
@@ -316,13 +364,27 @@ const p4 = (t) => {
   { const px = vuela > 0 ? 262 + vuela * 70 : 262, py = vuela > 0 ? 160 - vuela * 70 : 160, pic = vuela <= 0 && parpadeo(t, 5);
     R.disco(Math.round(px), Math.round(py - 3), 3, Q.k); R.disco(Math.round(px), Math.round(py - 3), 2, Q.gris); R.disco(Math.round(px + 3), Math.round(py - 6 + (pic ? 3 : 0)), 1.5, Q.grisS); R.pset(Math.round(px + 5), Math.round(py - 6 + (pic ? 3 : 0)), Q.amarS);
     if (vuela > 0) { const a = parpadeo(t, 20); R.linea(Math.round(px - 5), Math.round(py - 4 - (a ? 4 : -2)), Math.round(px), Math.round(py - 4), Q.grisL); } else { R.pset(Math.round(px), Math.round(py), Q.rosaS); } }
-  // un señor con sombrero y maletín pasa de largo
-  { const u = tramo(t, P4, P4 + 4.6), x = Math.round(lerp(330, -24, u)); R.actor(EL.oficinista, x, 162, t, { dir: -1, anda: u > 0 && u < 1 }); }
-  // la señora: se para, se asombra con la cifra y niega con la cabeza; luego sigue
+  // la gente de la acera, de atrás adelante: el chico de los recados con su paquete de libros, la señora, el señor del
+  // maletín y el lector del escaparate, que mira cómo sube la cifra, se asombra y se va
+  { const u = tramo(t, P4 + 0.1, P5 - 0.2), x = Math.round(lerp(-22, 336, u)); const r = R.actor(EL.chico, x, 157, t, { dir: 1, anda: u > 0 && u < 1, sostiene: true });
+    const [mx, my] = r.mano; R.rect(mx - 4, my - 6, mx + 4, my + 1, Q.k); R.rect(mx - 3, my - 5, mx + 3, my - 3, Q.rojoS); R.rect(mx - 3, my - 2, mx + 3, my, Q.verdeS); R.linea(mx - 3, my - 3, mx + 3, my - 3, Q.pergL); R.linea(mx, my - 6, mx, my + 1, Q.pergD); }
   const llega = tramo(t, en('kraus', 0.6392), NADIE - 0.2), sigue = tramo(t, en('kraus', 0.7416), P5);
   const sx = Math.round(lerp(-20, 142, ease(llega)) + sigue * 200), niega = t > NADIE && t < en('kraus', 0.7395);
   R.actor(EL.clienta, sx, 160, t, { dir: niega ? (Math.floor(t * 7) % 2 ? 1 : -1) : 1, anda: (llega > 0 && llega < 1) || (sigue > 0 && sigue < 1), sorpresa: t > NADIE - 0.2 && t < NADIE + 0.2, triste: false, enfado: niega });
+  { const u = tramo(t, P4, P4 + 4.6), x = Math.round(lerp(330, -24, u)); R.actor(EL.oficinista, x, 162, t, { dir: -1, anda: u > 0 && u < 1 }); }
+  const FIN = en('kraus', 0.6719), vase = tramo(t, FIN + 0.5, FIN + 2.4), lx = Math.round(lerp(176, 344, vase));
+  R.actor(EL.periodista, lx, 165, t, { dir: vase > 0 ? 1 : -1, anda: vase > 0 && vase < 1, sorpresa: t > FIN - 0.1 && t < FIN + 0.5 });
+  if (t > FIN - 0.05 && t < FIN + 0.45) globo(lx + 12, 138, '!');
   if (niega) globo(sx + 10, 130, 'X');
+  // un coche de 1961, verde agua con el techo blanco y aletas, pasa por delante de la gente al principio
+  { const u = tramo(t, P4 + 0.2, P4 + 2.4); if (u > 0 && u < 1) { const x = Math.round(lerp(330, -80, u)), y = 178, CV = hex('#4ab8a8'), CVS = hex('#2e8a80'), CR = hex('#e8e8ea');
+    R.poligono([[x, y - 13], [x + 6, y - 15], [x + 62, y - 15], [x + 68, y - 19], [x + 68, y - 4], [x, y - 4]], Q.k); R.poligono([[x + 1, y - 12], [x + 6, y - 14], [x + 62, y - 14], [x + 67, y - 17], [x + 67, y - 5], [x + 1, y - 5]], CV);
+    R.rect(x + 1, y - 8, x + 67, y - 5, CVS); R.linea(x + 4, y - 10, x + 64, y - 10, CR);
+    R.poligono([[x + 16, y - 15], [x + 22, y - 23], [x + 46, y - 23], [x + 52, y - 15]], Q.k); R.poligono([[x + 18, y - 15], [x + 23, y - 22], [x + 45, y - 22], [x + 50, y - 15]], CR);
+    R.rect(x + 23, y - 20, x + 33, y - 16, Q.vidrioL); R.rect(x + 35, y - 20, x + 45, y - 16, Q.vidrioL); R.pset(x + 24, y - 19, Q.blanco); R.disco(x + 29, y - 17, 2, Q.negro); R.pset(x + 28, y - 19, Q.piel);
+    R.rect(x - 1, y - 6, x + 3, y - 4, CR); R.rect(x + 65, y - 6, x + 69, y - 4, CR); R.rect(x + 1, y - 12, x + 3, y - 10, Q.amarL); R.rect(x + 66, y - 14, x + 67, y - 11, Q.rojo);
+    for (const wx of [x + 14, x + 54]) { R.disco(wx, y - 3, 5, Q.k); R.disco(wx, y - 3, 3, Q.blanco); R.disco(wx, y - 3, 1.5, Q.grisS); }
+    for (let i = 0; i < 3; i++) tine(x + 72 + i * 3, y - 4 - (t * 8 + i) % 3, 0.4, Q.grisL); } }
   // el taxi amarillo pasa por delante de todo
   if (taxi > 0 && taxi < 1) { const x = Math.round(lerp(-70, 340, taxi)), y = 178;
     R.rect(x, y - 14, x + 56, y - 4, Q.k); R.rect(x + 1, y - 13, x + 55, y - 5, Q.taxi); R.rect(x + 1, y - 7, x + 55, y - 5, Q.taxiS); R.poligono([[x + 12, y - 14], [x + 18, y - 22], [x + 40, y - 22], [x + 46, y - 14]], Q.k); R.poligono([[x + 14, y - 14], [x + 19, y - 21], [x + 39, y - 21], [x + 44, y - 14]], Q.taxi);

@@ -13,13 +13,16 @@
 // 1. (fondo local) el estudio de Marci en Praga de noche: escribe la carta a la luz de la vela y en «letter» la levanta
 //    y la lee sonriendo; la luna y Praga por la ventana emplomada, el gato del alféizar, la lechuza del armario, el reloj;
 // 2. (fondo local, inserto) su mesa de cerca: firma («Marci»), dobla la carta, deja caer el lacre y la sella en «Prague»;
-//    en «send the book» la arrima al libro y la ata con el cordón rojo;
+//    en «send the book» la arrima al libro y la ata con el cordón rojo (los brazos, T.brazo con el codo bajo el
+//    borde: solo asoma el antebrazo, 30–45 px);
 // 3. (fondo local) el viaje: el correo galopa con el libro y la carta de los Alpes a la campiña de Roma; en «Rome»
 //    aparece la cúpula y suenan las campanas;
 // 4. pragua/colegio: Kircher toca los jeroglíficos del obelisco (brillan en «hieroglyphs»); entra el correo con el paquete;
 //    en «letter» Kircher coge la carta, rompe el lacre y la lee; el ayudante copia detrás del escritorio;
 // 5. pragua/colegio/carta: la carta se abre, el dedo recorre un renglón y sale el recuerdo: la corona (Rodolfo II), en
-//    «paid» el «600» que cuenta, la bolsa de monedas que llueven de oro sobre la mesa y en «book» el libro.
+//    «paid» el «600» que cuenta, la bolsa de monedas que llueven de oro sobre la mesa y en «book» el libro. La carta doblada
+//    lleva papel con fibras, luz, pliegues, esquina doblada, canto y sombra; el libro de jeroglíficos y las monedas del
+//    decorado se bajan por debajo de la barra del año (bajaLibro).
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-marci');
@@ -317,14 +320,15 @@ const p2 = (t) => {
   if (sella && lleva === 0) { caja(186, 152, 194, 160, C.latonS); caja(187, 151, 193, 158, C.laton); R.disco(190, 148, 3, hex('#5a3418')); }
   if (gota === 0) { R.poligono([[129, 166], [157, 159], [159, 164], [131, 171]], K); R.poligono([[130, 166], [156, 160], [158, 163], [132, 169]], C.lacre); R.linea(131, 166, 156, 161, C.lacreL); caja(155, 160, 158, 164, hex('#3a2a20')); }
   // las manos (el brazo canónico): firma con la pluma, dobla, el lacre (izquierda), el sello, y arrima la carta al libro
-  const MANGA = '#24202c', brD = (wx, wy) => T.brazo(R, wx + 46, 214, wx, wy, MANGA, -1, { codo: [wx + 34, wy + 28] });
+  // el codo queda justo bajo el borde: solo asoma el antebrazo en diagonal (30–45 px), con la mano canónica
+  const MANGA = '#24202c', brD = (wx, wy) => T.brazo(R, wx + 30, 214, wx, wy, MANGA, -1, { codo: [wx + 16, 187] });
   if (t < m(0.2420)) { const u = cl((t - m(0.2040)) / 0.9), wx = Math.round(118 + u * 20 + Math.sin(t * 14) * 1.5), wy = Math.round(146 + Math.sin(u * 9) * 1.5) + (t < m(0.2040) ? -6 : 0);
     brD(wx + 8, wy + 6); pluma(wx + 2, wy + 2); }
-  else if (t < m(0.2640)) { const u = dobla, wx = Math.round(lerp(130, 128, u)), wy = Math.round(lerp(160, 128, u)); brD(wx + 8, wy + 4); }
-  else if (t < m(0.2860)) { const u = tramo(t, m(0.2640), m(0.2720)), wx = Math.round(lerp(150, 116, u)), wy = Math.round(lerp(172, 128, u));
-    T.brazo(R, wx - 52, 214, wx - 8, wy + 4, MANGA, 1, { codo: [wx - 40, wy + 30] }); R.poligono([[wx + 2, wy - 2], [wx + 16, wy - 14], [wx + 19, wy - 11], [wx + 5, wy + 1]], C.lacre); R.linea(wx + 3, wy - 2, wx + 17, wy - 13, C.lacreL);
-    if (gota > 0 && gota < 1) R.disco(119, Math.round(lerp(122, 145, gota)), 1.6, C.lacre); }
-  else if (coge) { const baja = t < m(0.3000) ? tramo(t, m(0.2860), m(0.2990)) : 1 - tramo(t, m(0.3020), m(0.3150)), wx = Math.round(lerp(176, 119, Math.min(1, (t - m(0.2860)) / 0.3))), wy = Math.round(lerp(128, 138, baja));
+  else if (t < m(0.2640)) { const u = dobla, wx = Math.round(lerp(130, 128, u)), wy = Math.round(lerp(160, 134, u)); brD(wx + 8, wy + 4); }
+  else if (t < m(0.2860)) { const u = tramo(t, m(0.2640), m(0.2720)), wx = Math.round(lerp(150, 116, u)), wy = Math.round(lerp(172, 134, u));
+    T.brazo(R, wx - 30, 214, wx - 8, wy + 4, MANGA, 1, { codo: [wx - 22, 187] }); R.poligono([[wx + 2, wy - 2], [wx + 16, wy - 14], [wx + 19, wy - 11], [wx + 5, wy + 1]], C.lacre); R.linea(wx + 3, wy - 2, wx + 17, wy - 13, C.lacreL);
+    if (gota > 0 && gota < 1) R.disco(119, Math.round(lerp(133, 145, gota)), 1.6, C.lacre); }
+  else if (coge) { const baja = t < m(0.3000) ? tramo(t, m(0.2860), m(0.2990)) : 1 - tramo(t, m(0.3020), m(0.3150)), wx = Math.round(lerp(176, 119, Math.min(1, (t - m(0.2860)) / 0.3))), wy = Math.round(lerp(132, 138, baja));
     brD(wx + 9, wy + 6); caja(wx - 4, wy + 6, wx + 4, wy + 13, C.latonS); caja(wx - 3, wy + 5, wx + 3, wy + 12, C.laton); R.disco(wx, wy + 2, 3, hex('#5a3418')); }
   else if (t < m(0.3700)) { const u = tramo(t, m(0.3300), m(0.3363)) * (1 - tramo(t, m(0.3560), m(0.3680))), wx = lx + 24, wy = ly + 8;
     if (u > 0.05) brD(Math.round(wx + (1 - u) * 50), Math.round(wy + (1 - u) * 40)); }
@@ -405,9 +409,66 @@ const recuerdo = (cx, cy, rx, ry, e) => {
   for (let y = Math.floor(cy - ey - 2); y <= cy + ey + 2; y++) for (let x = Math.floor(cx - ex - 2); x <= cx + ex + 2; x++) { const d = Math.hypot((x - cx) / ex, (y - cy) / ey) + Math.sin(Math.atan2(y - cy, x - cx) * 7) * 0.05;
     if (d <= 1) R.pset(x, y, d > 0.9 ? (d > 0.96 ? K : C.oroS) : d > 0.8 ? (by(x, y) > 0.5 ? hex('#f0d890') : hex('#f8ecc4')) : hex(hh(x >> 1, y >> 1, 41) > 0.9 ? '#f4e6bc' : '#fbf3da')); }
 };
+// oscurece un color empaquetado (0xAABBGGRR) por el factor f
+const osc = (c, f) => (0xff000000 | ((((c >>> 16) & 255) * f | 0) << 16) | ((((c >>> 8) & 255) * f | 0) << 8) | ((c & 255) * f | 0)) >>> 0;
+// el libro de jeroglíficos y las dos monedas del decorado, bajados por debajo de la barra del año: se calcula una vez
+// (lo de debajo se rehace con la madera de la misma fila y el vade de su columna) y se pega en cada fotograma
+const LIB = [[3, 17], [67, 13], [71, 107], [7, 111]], LD = 8, MON = [[96, 26], [104, 30]], MD = [20, 4];
+const enPol = (P, x, y) => { let d = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [xi, yi] = P[i], [xj, yj] = P[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) d = !d; } return d; };
+let parcheLib = null;
+const bajaLibro = () => {
+  if (!parcheLib) { const g = R.pget, out = [];
+    const fondo = (x, y) => { if (x >= 58 && y >= 40) { if (y === 40) return g(x + 24, 40); if (x === 58) return g(58, 140); if (x === 63 && y >= 45) return g(63, 150); return x < 63 ? g(x, y + 50) : g(x + 25, y); }
+      return y < 46 ? g(72 + ((x * 7 + 3) % 17), y) : y < 110 ? g(266 + ((x * 5 + 1) % 17), y) : g(300 + ((x * 5 + 1) % 17), y); };
+    const sombra = (x, y) => enPol(LIB, x - 2, y - LD - 2) && !enPol(LIB, x, y - LD);
+    for (let y = 12; y <= 111 + LD + 2; y++) for (let x = 2; x <= 74; x++) { const viejo = enPol(LIB, x, y), nuevo = enPol(LIB, x, y - LD), sb = sombra(x, y);
+      if (!viejo && !nuevo && !sb) continue; let c = nuevo ? g(x, y - LD) : fondo(x, y); if (!nuevo && sb) c = osc(c, 0.62); out.push(x, y, c); }
+    // las monedas: fuera de su sitio pegado al año, a la derecha y más abajo, con su sombra
+    for (const [mx, my] of MON) for (let y = my - 5; y <= my + 5; y++) for (let x = mx - 5; x <= mx + 5; x++) if (Math.hypot(x - mx, y - my) <= 4.6) out.push(x, y, g(72 + ((x * 7 + 3) % 17), y));
+    for (const [mx, my] of MON) for (let y = my - 5; y <= my + 7; y++) for (let x = mx - 5; x <= mx + 7; x++) { const d = Math.hypot(x - mx, y - my), ds = Math.hypot(x - mx - 1.5, y - my - 1.5);
+      if (d <= 4.6) out.push(x + MD[0], y + MD[1], g(x, y)); else if (ds <= 4.4) out.push(x + MD[0], y + MD[1], osc(g(72 + (((x + MD[0]) * 7 + 3) % 17), y + MD[1]), 0.6)); }
+    parcheLib = out; }
+  const P = parcheLib; for (let i = 0; i < P.length; i += 3) R.pset(P[i], P[i + 1], P[i + 2]);
+};
+// la carta doblada, de papel de verdad: fibras y manchas, la luz de la vela por la izquierda, los pliegues marcados,
+// la esquina doblada, el canto de las hojas por abajo y a la derecha y su sombra sobre el vade; unos trazos de la dirección
+// (el lacre, con su brillo que gira, lo sigue pintando el decorado)
+const cartaPapel = (t, abre) => {
+  const x0 = 98, x1 = 222, y0 = 88, y1 = 122, ua = cl(abre * 2), ub = cl(abre * 2 - 1);
+  const hp = Math.round(34 * Math.abs(Math.cos(Math.PI * ua))), hb = Math.round(34 * Math.abs(Math.cos(Math.PI * ub)));
+  const sy = y0 + hp - 2, P0 = hex('#d8ccae'), PL = hex('#e8dec4'), PLL = hex('#f4ecd6'), PS2 = hex('#c6b896'), PD = hex('#a89a78'), tinta = hex('#4a3426');
+  // la sombra y el canto de las hojas (solo mientras sigue doblada)
+  if (abre < 0.5) { const vs = hex('#1a3424');
+    for (let y = y0 + 3; y <= y1 + 3; y++) { R.pset(x1 + 1, y, vs); R.pset(x1 + 2, y, vs); R.pset(x1 + 3, y, osc(vs, 1.25)); }
+    for (let x = x0 + 3; x <= x1 + 3; x++) { R.pset(x, y1 + 2, vs); R.pset(x, y1 + 3, osc(vs, 1.25)); }
+    for (let x = x0 + 1; x <= x1; x++) R.pset(x, y1 + 1, (x & 7) === 0 ? PD : PS2);
+    for (let y = y0 + 1; y <= y1; y++) R.pset(x1 + 1, y, (y & 3) === 0 ? PD : PS2);
+    R.pset(x1 + 1, y1 + 1, K); R.pset(x1 + 2, y1 + 2, K); }
+  // textura de una solapa entre ya y yb (filas de dentro); luz arriba a la izquierda, sombra hacia el pliegue
+  const solapa = (ya, yb, k) => { if (yb < ya) return; const alto = Math.max(1, yb - ya);
+    for (let y = ya; y <= yb; y++) for (let x = x0 + 1; x <= x1 - 1; x++) {
+      if (k === 0 && hp > 0 && (x - 160) * (x - 160) / 110 + (y - sy) * (y - sy) / 38 < 1) continue;   // el lacre y su brillo
+      const v = (y - ya) / alto, lz = (x1 - x) / (x1 - x0) * 0.5 + (1 - v) * 0.5, n = hh(x >> 1, y, 61 + k), f = hh(x, y, 67 + k);
+      let c = lz + (n - 0.5) * 0.35 > 0.72 ? PL : lz + (n - 0.5) * 0.35 > 0.32 ? P0 : PS2;
+      if (f > 0.965) c = PD; else if (f < 0.03) c = PLL;
+      if (v > 0.86 && by(x, y) < 0.5) c = PS2;
+      R.pset(x, y, c); }
+    // un pliegue en diagonal cerca de la esquina, que la dobla un poco, y una mancha de agua
+    for (let i = 0; i < 9; i++) { const x = x0 + 2 + i, y = ya + 8 - i; if (y >= ya && y <= yb) { R.pset(x, y, PD); R.pset(x + 1, y, PLL); } }
+    if (yb - ya > 10) { R.disco(x0 + 26 + k * 40, Math.round((ya + yb) / 2) + 2, 3.2, PS2); R.disco(x0 + 26 + k * 40, Math.round((ya + yb) / 2) + 2, 2.2, P0); }
+    // el pliegue vertical de la carta en tres y su brillo
+    for (const px of [140, 181]) for (let y = ya; y <= yb; y++) { R.pset(px, y, (y & 1) ? PS2 : PD); R.pset(px + 1, y, PLL); } };
+  if (ub < 0.5 && hb > 1) solapa(Math.max(y1 - hb + 1, ua < 0.5 ? y0 + hp : y0), y1 - 1, 1);
+  if (ua < 0.5 && hp > 2) { solapa(y0 + 1, y0 + hp - 2, 0);
+    // la dirección (unos trazos, sin letras) y la esquina doblada con su sombra
+    if (hp > 18) { for (let r = 0; r < 3; r++) { const yy = y0 + 7 + r * 5, xa = 176 + r * 4; for (let x = xa; x < xa + 34 - r * 8; x++) { const w = Math.round(Math.sin(x * 1.3 + r * 2) * 1.2); R.pset(x, yy + w, tinta); if ((x & 3) === 0) R.pset(x, yy + w - 1, tinta); } }
+      R.poligono([[x1 - 9, y0 + 1], [x1 - 1, y0 + 1], [x1 - 1, y0 + 9]], hex('#3a5a42')); R.poligono([[x1 - 9, y0 + 1], [x1 - 1, y0 + 9], [x1 - 9, y0 + 9]], PL); R.linea(x1 - 9, y0 + 1, x1 - 1, y0 + 9, PD); R.linea(x1 - 9, y0 + 2, x1 - 9, y0 + 9, PS2); }
+  }
+};
 const p5 = (t) => {
   const abre = tramo(t, P5 + 0.45, P5 + 0.95);
   T.pragua(R, t, { encuadre: 'colegio', camara: 'carta', abre });
+  bajaLibro(); cartaPapel(t, abre);
   // el dedo de Kircher recorre el renglón que lo dice
   const dedo = tramo(t, P5 + 0.9, P5 + 1.3) * (1 - tramo(t, m(0.8850), m(0.9000)));
   if (dedo > 0) { const lee = cl((t - P5 - 1.3) / 1.0), wx = Math.round(lerp(96, 152, lee)), wy = Math.round(lerp(196, 112, dedo)); T.brazo(R, 40, 214, wx, wy, '#1e1a24', 1, { codo: [52, 170] }); }

@@ -16,6 +16,8 @@
 //    recorre; en «plants» la mano señala la planta imposible; en «stars» la hoja pasa a la rueda de estrellas y salta un «?»;
 // 3. (corta en «and it has beaten») la máquina de descifrar de cerca: el descifrador la teclea, la tira cruza el suelo, el
 //    calendario salta de 1918 a 1944 en «both», y la tira acaba en un «?» en «wars»: los dos se miran, sin respuesta;
+//    alrededor, pared de yeso con manchas y grietas, friso de paneles con veta y brillo, mapa de frentes, teléfono,
+//    perchero con gabardina y sombrero, radiador con vapor y el cono de luz de la lámpara que se mece;
 // 4. (corta en «recently») un ordenador de 2018 de noche: las manos teclean, la barra lee la página y escupe bloques; en
 //    «intelligence» todo se deshace en un «?» rojo; la mano va al ratón, hace clic y el «?» vuelve a temblar;
 // 5. (corta en «emperor») el tablero de detective: una mano clava el hilo a la moneda de la corona en «fortune» (destella),
@@ -84,9 +86,157 @@ const p2 = (t) => {
 };
 
 // ── 3 · la máquina de descifrar: la tira acaba en «?» ───────────────────────────────────────────────
+// lo que la escena añade al decorado de la máquina: la pared de yeso con manchas de humedad, grietas y la marca de un
+// cuadro quitado; el friso de paneles de madera pintada con veta, moldura y brillo; el mapa de frentes con chinchetas,
+// el teléfono de pared, el perchero con la gabardina y el sombrero, el radiador de hierro que suelta vapor, y el cono
+// de luz de la lámpara que se mece (en la pared, el friso y un charco de luz en el suelo).
+const OF = { pared: hex('#a6b698'), paredS: hex('#96a888'), paredL: hex('#b6c4a6'), mancha: hex('#9a9c78'), manchaS: hex('#868a68'),
+  grieta: hex('#76866a'), zoc: hex('#6a7e64'), zocS: hex('#56684f'), zocL: hex('#7e9276'), zocD: hex('#48583f'), luz: hex('#fff2c8') };
+let OF_PARED = null, OF_FRISO = null;
+const ofTexturas = () => {
+  if (OF_PARED) return;
+  // valor suave (para las manchas grandes)
+  const suave = (x, y, e, k) => { const fx = x / e, fy = y / e, ix = Math.floor(fx), iy = Math.floor(fy), ax = fx - ix, ay = fy - iy;
+    const sx = ax * ax * (3 - 2 * ax), sy = ay * ay * (3 - 2 * ay), a = ruido(ix, iy, k), b = ruido(ix + 1, iy, k), c = ruido(ix, iy + 1, k), d = ruido(ix + 1, iy + 1, k);
+    return lerp(lerp(a, b, sx), lerp(c, d, sx), sy); };
+  OF_PARED = new Uint32Array(320 * 92);
+  // las grietas: unas polilíneas finas que bajan desde el techo y desde el marco de la puerta
+  const grietas = new Set(), luzG = new Set();
+  for (const [x0, y0, n, dx, k] of [[96, 6, 22, 0.6, 1], [208, 10, 30, -0.5, 2], [8, 54, 0, 0, 3], [112, 84, 7, 0.9, 4]]) {
+    let x = x0; for (let y = y0; y < y0 + n; y++) { x += dx * 0.4 + (ruido(y, k, 905) - 0.5) * 1.6; const xi = Math.round(x); grietas.add(y * 320 + xi); luzG.add((y + 1) * 320 + xi + 1);
+      if (ruido(y, k, 906) > 0.82) { for (let j = 1; j < 4; j++) grietas.add((y + j) * 320 + xi - j); } } }
+  for (let y = 5; y < 92; y++) for (let x = 0; x < 320; x++) {
+    const n = ruido(x, y >> 1, 682); let c = n < 0.1 ? OF.paredS : n > 0.93 ? OF.paredL : OF.pared;
+    // el yeso: grumos y llana (trazos cortos en diagonal)
+    const g = ruido(x, y, 901); if (g < 0.05) c = OF.paredS; else if (g > 0.965) c = OF.paredL;
+    if (((x + y * 2) % 23 === 0) && ruido(x >> 3, y >> 2, 902) > 0.6) c = mez(c, OF.paredL, 0.5);
+    // manchas de humedad: bajan del techo y suben del friso, con el borde más oscuro y tramado
+    const v = suave(x, y, 22, 903) * 0.7 + suave(x, y, 7, 904) * 0.3, arriba = Math.max(0, 1 - (y - 5) / 34), abajo = Math.max(0, (y - 66) / 26);
+    const m = v * (0.4 + arriba * 0.9 + abajo * 0.8) - (x > 20 && x < 170 && y < 16 ? 0.3 : 0);
+    if (m > 0.62) c = mez(c, OF.mancha, 0.55); else if (m > 0.58) c = (x + y) % 2 ? OF.manchaS : mez(c, OF.mancha, 0.4); else if (m > 0.55 && (x + y) % 2 === 0) c = mez(c, OF.mancha, 0.3);
+    // la marca más clara de un cuadro que ya no está (entre la puerta y la tabla, con su clavo)
+    if (x >= 86 && x <= 106 && y >= 56 && y <= 72) c = (x === 86 || x === 106 || y === 56 || y === 72) ? mez(c, OF.paredS, 0.4) : mez(c, OF.paredL, 0.45);
+    if (x === 96 && y === 53) c = hex('#3a3a3a');
+    if (grietas.has(y * 320 + x)) c = OF.grieta; else if (luzG.has(y * 320 + x)) c = mez(c, OF.paredL, 0.6);
+    // la luz cálida de siempre hacia la tabla
+    const k = Math.max(0, 1 - Math.abs(x - 120) / 110) * 0.12; if (k > 0) c = mez(c, hex('#fff8e0'), k);
+    OF_PARED[y * 320 + x] = c;
+  }
+  // el friso: paneles de madera pintada (40 px) con moldura en bisel, veta, nudos, brillo en diagonal y rozaduras abajo
+  OF_FRISO = new Uint32Array(320 * 41);
+  for (let y = 95; y < 136; y++) for (let x = 0; x < 320; x++) {
+    const x0 = Math.floor(x / 40) * 40, u = x - x0, w = y + Math.sin(x * 0.09 + x0) * 2.2 + Math.sin(x * 0.31) * 0.6;
+    let c = OF.zoc;
+    const enPanel = u >= 5 && u <= 35 && y >= 99 && y <= 130;
+    if (!enPanel) {   // largueros y peinazos: veta vertical en los montantes, horizontal en los travesaños
+      const vert = u < 5 || u > 35; const vv = vert ? Math.sin((x + Math.sin(y * 0.2 + x0) * 1.2) * 2.1) : Math.sin(w * 1.4);
+      if (vv > 0.88) c = OF.zocS; if (u === 0) c = OF.zocD; if (u === 1) c = OF.zocL;
+    } else {
+      const b = u === 5 || y === 99, d = u === 35 || y === 130, b2 = u === 6 || y === 100, d2 = u === 34 || y === 129;
+      if (b) c = OF.zocL; else if (d) c = OF.zocD; else if (b2) c = mez(OF.zoc, OF.zocL, 0.5); else if (d2) c = OF.zocS;
+      else {
+        const vv = Math.sin(w * 1.25 + x0); if (vv > 0.86) c = mez(OF.zoc, OF.zocS, 0.7); else if (vv < -0.93) c = mez(OF.zoc, OF.zocL, 0.4);
+        // un nudo en algunos paneles
+        const nx = x0 + 12 + Math.floor(ruido(x0, 1, 907) * 14), ny = 106 + Math.floor(ruido(x0, 2, 907) * 18), dn = Math.hypot((x - nx) * 0.7, y - ny);
+        if (ruido(x0, 3, 907) > 0.4 && dn < 3.2) c = dn < 1.4 ? OF.zocD : (Math.round(dn * 2) % 2 ? OF.zocS : c);
+        // el brillo del barniz en diagonal
+        const s = (u - 6) + (y - 100) * 0.55; if (s > 7 && s < 9) c = mez(c, OF.zocL, 0.7); else if (s > 10 && s < 11) c = mez(c, OF.zocL, 0.4);
+      }
+    }
+    // rozaduras de sillas y zapatos en lo bajo, y el polvo en la moldura
+    if (y > 131 && ruido(x, y, 908) < 0.12) c = mez(c, hex('#8a8a70'), 0.5);
+    if (y === 95 && ruido(x, 0, 909) < 0.3) c = OF.zocS;
+    OF_FRISO[(y - 95) * 320 + x] = c;
+  }
+};
+const p3Fondo = (t) => {
+  const { rect, pset, disco, linea, poligono, pget } = R;
+  ofTexturas();
+  // 1) la pared y el friso texturados, solo sobre los píxeles que siguen siendo pared (la tira, la máquina y los muebles
+  //    del decorado se quedan como están)
+  for (let y = 5; y < 92; y++) for (let x = 0; x < 270; x++) {
+    if (x >= 211 && x <= 267 && y >= 25) continue;
+    const p = pget(x, y), r = p & 255, g = (p >>> 8) & 255, b = (p >>> 16) & 255;
+    if (g > r && g > b && r >= 140 && g >= 165) pset(x, y, OF_PARED[y * 320 + x]);
+  }
+  for (let y = 95; y < 136; y++) for (let x = 0; x < 320; x++) {
+    const p = pget(x, y); if (p === OF.zoc || p === OF.zocS || p === OF.zocL) pset(x, y, OF_FRISO[(y - 95) * 320 + x]);
+  }
+  // 2) el mapa de frentes, clavado arriba a la izquierda: costa, frentes en rojo y azul, chinchetas y un hilo
+  rect(7, 17, 55, 47, hex('#4a3a28')); rect(8, 18, 54, 46, hex('#e8e0c4'));
+  for (let y = 19; y < 46; y++) for (let x = 9; x < 54; x++) {
+    const tierra = Math.sin(x * 0.22) * 4 + Math.sin(y * 0.3 + 1) * 3 + (x - 28) * 0.5 > (y - 30) * 0.7;
+    let c = tierra ? (ruido(x, y, 910) < 0.15 ? hex('#c8b88a') : hex('#dccc9c')) : (ruido(x, y, 911) < 0.2 ? hex('#7a9aae') : hex('#8aaabe'));
+    if ((x - 9) % 9 === 0 || (y - 19) % 7 === 0) c = mez(c, hex('#6a6a5a'), 0.35);
+    pset(x, y, c);
+  }
+  for (let x = 12; x < 52; x++) { const y = Math.round(31 + Math.sin(x * 0.35) * 3 + (x - 12) * 0.08); pset(x, y, hex('#c03a2a')); if (x % 5 === 0) pset(x, y - 1, hex('#c03a2a')); }
+  for (let x = 16; x < 50; x++) { const y = Math.round(39 + Math.sin(x * 0.28 + 2) * 2); pset(x, y, hex('#2a4a9a')); if (x % 5 === 2) pset(x, y + 1, hex('#2a4a9a')); }
+  const fl = Math.floor(t * 2) % 3;
+  for (const [x, y, c, k] of [[20, 30, '#d83a2a', 0], [33, 32, '#d83a2a', 1], [44, 34, '#e8c040', 2], [26, 40, '#3a6ad8', 1]]) { disco(x, y, 1.6, hex(c)); pset(x - 1, y - 1, k === fl ? hex('#ffffff') : hex('#f4f0e4')); }
+  linea(20, 30, 44, 34, hex('#3a3a3a'));
+  for (const [x, y] of [[8, 18], [54, 18], [8, 46], [54, 46]]) pset(x, y, hex('#c8a040'));
+  for (let x = 8; x < 56; x++) pset(x, 48, mez(pget(x, 48), K, 0.25));
+  // 3) el teléfono de pared bajo el calendario: caja de baquelita, horquilla, auricular y el cordón que se mece
+  rect(90, 76, 103, 91, hex('#121216')); rect(91, 77, 102, 90, hex('#26262c')); rect(91, 77, 91, 90, hex('#3e3e48'));
+  disco(96, 83, 3, hex('#3a3a44')); disco(96, 83, 1, hex('#d8d4c8')); for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; pset(Math.round(96 + Math.cos(a) * 2.6), Math.round(83 + Math.sin(a) * 2.6), hex('#8a8a90')); }
+  // el auricular colgado en su horquilla, al lado de la caja: auricular arriba, micrófono abajo
+  rect(103, 79, 104, 80, hex('#3a3a44')); rect(105, 78, 106, 89, hex('#121216')); rect(105, 79, 105, 88, hex('#3e3e48'));
+  rect(104, 77, 107, 79, hex('#121216')); rect(104, 87, 107, 90, hex('#121216')); pset(105, 77, hex('#5a5a66'));
+  // el cordón, de la caja al auricular, en una curva que se mece un pelo
+  { const sw = Math.sin(t * 1.6) * 0.6; for (let k = 0; k <= 6; k++) { const f = k / 6, xx = Math.round(102 + f * 4), yy = Math.round(90 + Math.sin(f * Math.PI) * (1.5 + sw)); pset(xx, yy, hex('#1a1a1e')); } }
+  // 4) el perchero de madera con el sombrero (gancho izquierdo) y la gabardina (gancho derecho), que se mece con la corriente
+  const px = 131, MD = hex('#5a4028'), ML = hex('#8a6a44'), MS = hex('#3a2818');
+  for (let y = 140; y < 142; y++) for (let x = 118; x < 150; x++) pset(x, y, mez(pget(x, y), K, 0.35));   // su sombra en el suelo
+  linea(px, 134, px - 9, 140, MS); linea(px, 134, px + 9, 140, MS); linea(px + 1, 134, px - 8, 140, MD); linea(px + 1, 134, px + 10, 140, MD);
+  rect(px - 1, 136, px + 2, 140, MD); rect(px - 10, 140, px - 8, 140, MS); rect(px + 9, 140, px + 11, 140, MS);
+  rect(px, 93, px + 1, 136, MD); rect(px, 93, px, 136, ML); for (const y of [104, 120]) rect(px - 1, y, px + 2, y + 1, MS);
+  disco(px + 0.5, 92, 1.8, ML); pset(px, 91, hex('#c8a878'));
+  linea(px, 97, px - 5, 94, MD); pset(px - 5, 93, MD); linea(px + 1, 97, px + 6, 94, MD); pset(px + 6, 93, MD);
+  // el sombrero: copa con cinta y ala
+  poligono([[px - 10, 98], [px - 9, 93], [px - 2, 93], [px - 1, 98]], hex('#5a5048')); rect(px - 9, 96, px - 2, 97, hex('#2a2420')); rect(px - 12, 98, px + 1, 99, hex('#4a4038')); rect(px - 12, 98, px + 1, 98, hex('#6a6058')); rect(px - 8, 93, px - 4, 93, hex('#6a6058'));
+  // la gabardina: cuello, hombros, cinturón, botones, pliegues; el bajo se mece un pelo
+  const ba = Math.sin(t * 1.3) * 1.3, GA = hex('#b89a64'), GS = hex('#8a7044'), GL = hex('#d4b884'), GD = hex('#5e4a2a');
+  for (let y = 95; y <= 129; y++) { const f = (y - 95) / 34, cx = px + 7 + ba * f * f, hw = y < 99 ? 2 + (y - 95) : 6 + f * 2.2;
+    const x0 = Math.round(cx - hw), x1 = Math.round(cx + hw);
+    for (let x = x0; x <= x1; x++) { let c = GA; if (x === x0) c = GD; else if (x === x1) c = GD; else if (x === x0 + 1) c = GL; else if (x > x1 - 3) c = GS;
+      if (((x - x0) === Math.round(hw * 0.7) || (x - x0) === Math.round(hw * 1.4)) && y > 113) c = GS;   // pliegues
+      pset(x, y, c); } }
+  rect(px + 2, 112, px + 12, 113, hex('#6e5632')); pset(px + 8, 112, hex('#c8a040'));   // el cinturón y su hebilla
+  for (const y of [103, 108, 117]) pset(px + 6, y, GD);
+  poligono([[px + 3, 95], [px + 7, 101], [px + 11, 95]], GS); linea(px + 7, 95, px + 7, 101, GD);   // el cuello
+  rect(px + 1, 130, px + 13, 130, GD);
+  // 5) el radiador de hierro colado entre la papelera y la puerta, con su llave, la tubería y el vapor del purgador
+  const RA = hex('#c8c0a8'), RL = hex('#e0d8c4'), RS = hex('#9a927e'), RD = hex('#5a5448');
+  for (let y = 139; y < 142; y++) for (let x = 192; x < 212; x++) pset(x, y, mez(pget(x, y), K, 0.3));
+  rect(193, 114, 209, 136, RD);
+  for (let k = 0; k < 5; k++) { const x = 194 + k * 3; rect(x, 114, x + 1, 136, RA); pset(x, 114, RL); rect(x, 115, x, 135, RL); pset(x + 1, 136, RS); for (const y of [118, 124, 130]) pset(x + 1, y, RS); }
+  rect(193, 119, 209, 119, RS); rect(193, 131, 209, 131, RS);
+  for (const x of [194, 207]) rect(x, 137, x + 1, 140, RD);
+  rect(191, 133, 193, 134, RD); rect(191, 135, 192, 140, RD); rect(191, 135, 191, 140, RS); rect(191, 130, 193, 131, hex('#a8382a')); pset(192, 130, hex('#e86a4a')); pset(192, 132, RD);   // la llave roja y la tubería
+  rect(209, 115, 210, 117, hex('#c8a040')); pset(210, 115, hex('#f0d080'));   // el purgador de latón
+};
+// el vapor del purgador: tres bocanadas que suben, se ensanchan y se deshacen (por detrás de la gente)
+const p3Vapor = (t) => {
+  for (let k = 0; k < 3; k++) { const u = (t * 0.45 + k / 3) % 1, x = 211 + u * 6 + Math.sin(u * 7 + k) * 2, y = 114 - u * 24, r = 1.5 + u * 4, a = 0.9 * (1 - u * 0.8);
+    for (let j = -Math.ceil(r); j <= r; j++) for (let i = -Math.ceil(r); i <= r; i++) { const d = Math.hypot(i, j); if (d > r) continue; const px = Math.round(x + i), py = Math.round(y + j);
+      if (px < 0 || px > 319 || py < 0 || py > 179 || px >= 278 || (d > r - 1 && (px + py) % 2)) continue; R.pset(px, py, mez(R.pget(px, py), hex('#f4f4f0'), a * (1 - d / (r + 1) * 0.5))); } }
+};
+// el cono de la lámpara que se mece (lámpara del decorado en x 186): tiñe pared, friso, tabla y suelo, con borde tramado
+const p3Luz = (t) => {
+  const sw = Math.round(Math.sin(t * 0.9) * 1.5), lx = 186 + sw, aa = 0.25 + Math.sin(t * 11) * 0.01;
+  for (let y = 15; y < 141; y++) { const f = (y - 15) / 126, hw = 9 + (y - 15) * 0.36, cx = lx + sw * f * 6, a = aa * (1 - f * 0.55);
+    const x0 = Math.max(0, Math.floor(cx - hw - 3)), x1 = Math.min(277, Math.ceil(cx + hw + 3));
+    for (let x = x0; x <= x1; x++) { const d = Math.abs(x - cx) - hw; if (d > 3) continue; if (d > 0 && (x + y) % 2) continue; const k = d > 0 ? a * 0.5 : a;
+      if (y > 136 && (x + y) % 2) continue; R.pset(x, y, mez(R.pget(x, y), OF.luz, k)); } }
+  // el charco de luz en el suelo, tramado en su borde
+  for (let y = 141; y < 176; y++) for (let x = 120; x < 260; x++) { const e = Math.hypot((x - lx - sw * 6) / 70, (y - 154) / 16); if (e > 1) continue; if (e > 0.75 && (x + y) % 2) continue;
+    R.pset(x, y, mez(R.pget(x, y), OF.luz, 0.16 * (1 - e * 0.6))); }
+};
 const p3 = (t) => {
   const tira = tramo(t, P3 + 0.25, L(0.755)), preg = t > L(0.77);
   T.descifradores(R, t, { encuadre: 'oficina44', camara: 'maquina', tira, pregunta: preg, año: t < L(0.725) ? 1918 : 1944 });
+  p3Fondo(t); p3Luz(t); p3Vapor(t);
   // el descifrador teclea junto a la máquina y luego sigue la tira con la vista y los pasos
   const v = tramo(t, L(0.69), L(0.76)), xd = Math.round(lerp(124, 214, v)), ve = preg;
   R.actor(EL.descifrador, xd, 164, t, { dir: v > 0 ? 1 : -1, anda: v > 0 && v < 1, dedo: v === 0 && Math.floor(t * 6) % 2 === 0, sorpresa: ve && t < L(0.8), triste: t > L(0.8), habla: v === 0 && Math.sin(t * 7) > 0.4 });

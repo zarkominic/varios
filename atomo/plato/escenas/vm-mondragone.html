@@ -13,13 +13,14 @@
 // 1. la sala de la villa Mondragone: un jesuita viejo barre el polvo mientras la barra corre de 1665 a 1912 y un ratón
 //    cruza; con «until in 1912» entra Voynich por la derecha, entre las cajas, y se queda de piedra («!»); el jesuita le
 //    señala las cajas del fondo;
-// 2. inserto, la caja de libros de los jesuitas desde arriba: las manos de Voynich apartan la paja, con «bought it» sacan
-//    el libro, y con «Jesuits were selling» la mano del jesuita recibe las monedas;
+// 2. inserto, la caja de libros de los jesuitas desde arriba (la palanqueta tumbada en el suelo, con su sombra): los
+//    brazos de Voynich, con el codo a la vista, apartan la paja, con «bought it» sacan el libro, y con «Jesuits were
+//    selling» la mano del jesuita recibe las monedas;
 // 3. fondo local, una sala de exposiciones (1915): Voynich en el estrado alza el libro a un lado y a otro («showed it
 //    everywhere»); con «treasure» el libro brilla en oro y salta el flash del fotógrafo; el público, de espaldas, se
 //    asombra (corta en el silencio después de «Rome»);
-// 4. inserto local, el escritorio de Voynich (corta en «that's why»): su mano entinta dos veces el sello y con «his
-//    name» lo estampa en la tapa del libro; queda su ex libris (la silueta del bigote y los quevedos, sin letras) y con «today» la barra salta a hoy y el ex libris
+// 4. inserto local, el escritorio de Voynich (corta en «that's why»): su brazo, con el codo a la vista, entinta dos
+//    veces el sello y con «his name» lo estampa en la parte baja de la tapa; queda su ex libris (la silueta del bigote y los quevedos, sin letras) y con «today» la barra salta a hoy y el ex libris
 //    brilla.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -185,24 +186,32 @@ const p2 = (t) => {
   if (sube > 0) for (let y = 116; y < 128; y++) for (let x = 132; x < 192; x++) if (((x - 162) / 30) ** 2 + ((y - 122) / 6) ** 2 < 1) tine(x, y, 0.45 * (1 - sube * 0.5), Q.k);
   libroPlano(x0, y0, Math.round(w), Math.round(hgt), 3);
   if (sube > 0.95 && t < COMPRA + 1.6) { const u = (t - COMPRA) * 6; for (let i = 0; i < 4; i++) destello(x0 + w / 2 + Math.cos(u + i * 1.57) * (w * 0.6), y0 + hgt / 2 + Math.sin(u + i * 1.57) * (hgt * 0.6), 2); }
+  // la palanqueta del decorado queda tumbada en el suelo junto a la caja: su sombra pegada, el grosor con brillo,
+  // la uña doblada abajo y un reflejo que corre por el hierro
+  for (let y = 60; y <= 172; y++) { const x = Math.round(290 + (y - 60) * 22 / 110); tine(x + 3, y + 1, 0.45, Q.k); tine(x + 4, y + 1, 0.3, Q.k); tine(x + 2, y + 2, 0.3, Q.k); }
+  R.linea(289, 60, 311, 170, Q.k); R.linea(290, 61, 312, 171, hex('#3a3a44')); R.linea(291, 60, 313, 170, hex('#6a6a78')); R.linea(292, 61, 313, 166, Q.k);
+  R.linea(290, 58, 297, 54, Q.k); R.linea(291, 59, 297, 55, hex('#6a6a78')); R.linea(297, 55, 298, 58, Q.k);
+  R.linea(311, 170, 307, 175, Q.k); R.linea(312, 170, 308, 175, hex('#5a5a66')); R.linea(313, 171, 309, 176, Q.k); tine(310, 177, 0.45, Q.k); tine(306, 176, 0.4, Q.k);
+  { const g = (t * 0.35) % 1; if (g < 0.5) { const y = Math.round(64 + g * 2 * 100), x = Math.round(290 + (y - 60) * 22 / 110) + 1; R.pset(x, y, Q.blanco); R.pset(x, y + 1, hex('#b8b8c8')); } }
   const MAN = '#34343e', busca = t < COMPRA - 0.35;
   if (busca) {
     // las manos escarban en la paja a los dos lados del libro y la paja salta
     const u = (t - P2) * 3, lx = 112 + Math.round(Math.sin(u) * 8), ly = 140 + Math.round(Math.cos(u * 1.3) * 5), rx = 212 - Math.round(Math.sin(u + 1) * 8), ry = 138 + Math.round(Math.cos(u) * 5);
     for (let i = 0; i < 8; i++) { const v = (t * 1.8 + i / 8) % 1, sg = i % 2 ? 1 : -1, x = (sg > 0 ? rx : lx) + sg * v * 22, y = (sg > 0 ? ry : ly) - Math.sin(v * Math.PI) * 16; R.linea(Math.round(x), Math.round(y), Math.round(x + 4), Math.round(y + 1), Q.amar); R.pset(Math.round(x + 2), Math.round(y), Q.amarL); }
-    T.brazo(R, lx - 22, 214, lx, ly, MAN, 1, { codo: [lx - 26, 186] });
-    T.brazo(R, rx + 22, 214, rx, ry, MAN, -1, { codo: [rx + 26, 186] });
+    // brazos con el codo a la vista, abiertos hacia fuera (el hombro queda bajo el borde)
+    T.brazo(R, lx - 4, 206, lx, ly, MAN, 1, { codo: [lx - 18, ly + 31] });
+    T.brazo(R, rx + 4, 206, rx, ry, MAN, -1, { codo: [rx + 18, ry + 33] });
   } else {
     // la izquierda sujeta el libro; la derecha lo suelta, deja cuatro monedas en el canto de la caja y vuelve
-    const yL = y0 + hgt * 0.62; T.brazo(R, x0 - 24, 214, Math.round(x0 - 1), Math.round(yL), MAN, 1, { codo: [Math.round(x0 - 30), 190] });
+    const yL = y0 + hgt * 0.62; T.brazo(R, Math.round(x0 - 6), 206, Math.round(x0 - 1), Math.round(yL), MAN, 1, { codo: [Math.round(x0 - 19), Math.round(yL + 30)] });
     const ida = ease(tramo(t, COMPRA + 0.9, COMPRA + 1.4)), vuelta = ease(tramo(t, COMPRA + 1.6, COMPRA + 2.1));
     const k = ida * (1 - vuelta), rx = lerp(x0 + w + 1, 244, k), ry = lerp(y0 + hgt * 0.62, 160, k);
-    T.brazo(R, Math.round(rx + 22), 214, Math.round(rx), Math.round(ry), MAN, -1, { codo: [Math.round(rx + 28), 192] });
+    T.brazo(R, Math.round(rx + 6), 206, Math.round(rx), Math.round(ry), MAN, -1, { codo: [Math.round(rx + 19), Math.round(Math.max(ry + 14, 170))] });
     // las monedas en el canto de abajo a la derecha; la mano del jesuita (manga negra) entra por la derecha y las recoge
     const coge = ease(tramo(t, VENDEN - 0.5, VENDEN)), lleva = ease(tramo(t, VENDEN + 0.35, VENDEN + 1.1));
     const jx = Math.round(lerp(340, 262, coge) + lleva * 80), jy = 152;
     if (t > COMPRA + 1.4 && lleva < 0.05) for (let i = 0; i < 4; i++) moneda(246 + (i % 2) * 7, 160 - Math.floor(i / 2) * 3, t, i);
-    if (coge > 0 && jx < 345) { T.brazo(R, jx + 40, 176, jx, jy, '#1e1a22', -1, { codo: [jx + 24, jy + 10] }); if (lleva > 0) for (let i = 0; i < 3; i++) moneda(jx - 6 + i * 4, jy + 6, t, i); }
+    if (coge > 0 && jx < 345) { T.brazo(R, jx + 34, 200, jx, jy, '#1e1a22', -1, { codo: [jx + 24, jy + 18] }); if (lleva > 0) for (let i = 0; i < 3; i++) moneda(jx - 6 + i * 4, jy + 6, t, i); }
   }
 };
 // 3 · Voynich lo enseña por todas partes: el estrado, el público de espaldas y el flash
@@ -297,19 +306,19 @@ const p4 = (t) => {
   // el humo de la pipa
   for (let i = 0; i < 6; i++) { const v = (t * 0.5 + i / 6) % 1; R.disco(Math.round(280 + Math.sin(v * 6 + i) * 3 + v * 6), Math.round(124 - v * 40), Math.round(1 + v * 2), mez(Q.grisL, Q.verde, v)); }
   // la mano con el sello: lo entinta, lo estampa con «today»… no: lo estampa y con «today» brilla
-  const [sx, sy] = camino([[P4, 238, 146], [P4 + 0.2, 238, 130], [P4 + 0.42, 238, 146], [P4 + 0.62, 238, 130], [ESTAMPA - 0.12, 166, 112], [ESTAMPA, 166, 134], [ESTAMPA + 0.3, 166, 110], [en('voynich', 1.0209), 236, 132], [en('voynich', 1.0356), 236, 140]], t);
+  const [sx, sy] = camino([[P4, 238, 146], [P4 + 0.2, 238, 135], [P4 + 0.42, 238, 146], [P4 + 0.62, 238, 135], [ESTAMPA - 0.12, 166, 136], [ESTAMPA, 166, 149], [ESTAMPA + 0.3, 166, 135], [en('voynich', 1.0209), 236, 137], [en('voynich', 1.0356), 236, 140]], t);
   const dejaSello = t > en('voynich', 1.0356);
   const marcado = t > ESTAMPA;
-  if (marcado) { const g = tramo(t, HOY, HOY + 0.8); R.disco(166, 141, 11, Q.k); for (let x = 156; x <= 176; x++) for (let y = 132; y <= 150; y++) if (((x - 166) / 10) ** 2 + ((y - 141) / 9) ** 2 < 1) R.pset(x, y, Q.papel);
+  if (marcado) { const g = tramo(t, HOY, HOY + 0.8); R.disco(166, 156, 11, Q.k); for (let x = 156; x <= 176; x++) for (let y = 147; y <= 165; y++) if (((x - 166) / 10) ** 2 + ((y - 156) / 9) ** 2 < 1) R.pset(x, y, Q.papel);
     // la silueta de Voynich: la cabeza, los quevedos y el gran bigote
-    R.disco(166, 139, 5, Q.tinta); R.rect(161, 146, 171, 150, Q.tinta); R.pset(164, 139, Q.papel); R.pset(168, 139, Q.papel); R.linea(160, 143, 172, 143, Q.tinta); R.pset(159, 144, Q.tinta); R.pset(173, 144, Q.tinta);
-    if (g > 0 && g < 1) for (let a = 0; a < 6.28; a += 0.4) tine(166 + Math.cos(a + g * 3) * 14, 141 + Math.sin(a + g * 3) * 12, 0.7, Q.oroL);
-    if (t > HOY) { destello(180, 130, 2 + (parpadeo(t, 6) ? 1 : 0)); } }
+    R.disco(166, 154, 5, Q.tinta); R.rect(161, 161, 171, 165, Q.tinta); R.pset(164, 154, Q.papel); R.pset(168, 154, Q.papel); R.linea(160, 158, 172, 158, Q.tinta); R.pset(159, 159, Q.tinta); R.pset(173, 159, Q.tinta);
+    if (g > 0 && g < 1) for (let a = 0; a < 6.28; a += 0.4) tine(166 + Math.cos(a + g * 3) * 14, 156 + Math.sin(a + g * 3) * 12, 0.7, Q.oroL);
+    if (t > HOY) { destello(180, 145, 2 + (parpadeo(t, 6) ? 1 : 0)); } }
   // el sello de madera y latón en la mano (la mano encima del mango)
   { const x = Math.round(sx), y = Math.round(sy);
     R.rect(x - 9, y + 6, x + 9, y + 10, Q.k); R.rect(x - 8, y + 6, x + 8, y + 9, Q.bronce); R.rect(x - 8, y + 6, x + 8, y + 6, Q.bronceL); R.rect(x - 7, y + 10, x + 7, y + 11, Q.negro);
     R.rect(x - 3, y - 4, x + 3, y + 6, Q.k); R.rect(x - 2, y - 4, x + 2, y + 5, Q.nog); R.disco(x, y - 6, 5, Q.k); R.disco(x, y - 6, 4, Q.nogL); R.pset(x - 2, y - 8, Q.robleL);
-    const fuera = ease(tramo(t, en('voynich', 1.0414), en('voynich', 1.0796))); if (fuera < 1) { const wx = x + 8 + Math.round(fuera * 30), wy = y - 4 + Math.round(fuera * 70); T.brazo(R, wx + 34, 240, wx, wy, '#34343e', -1, { codo: [wx + 30, Math.max(wy + 40, 196)] }); } }
+    const fuera = ease(tramo(t, en('voynich', 1.0414), en('voynich', 1.0796))); if (fuera < 1) { const wx = x + 8 + Math.round(fuera * 30), wy = y - 4 + Math.round(fuera * 70); T.brazo(R, wx + 30, wy + 66, wx, wy, '#34343e', -1, { codo: [wx + 24, wy + 21] }); } }
   // los años pasan hasta hoy: el polvo cae despacio sobre la mesa
   if (t > HOY + 0.4) for (let i = 0; i < 18; i++) { const v = ((t - HOY) * 0.35 + i / 18) % 1; tine(90 + (i * 53) % 220, 10 + v * 160, 0.55, Q.luz); }
 };

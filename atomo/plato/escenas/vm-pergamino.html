@@ -10,7 +10,7 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // VM-PERGAMINO (frase 4): lo que sabemos del libro. Cuatro planos:
-// 1. la mesa de estudio de la biblioteca: la bibliotecaria entra por detrás de la lámpara hasta el libro; por la derecha
+// 1. la mesa de estudio de la biblioteca: la bibliotecaria (pies en 121, tras el borde de la mesa en 120) entra por detrás de la lámpara hasta el libro; por la derecha
 //    llega una estudiante con una pila de libros y se para junto a la libreta; con «240» las hojas pasan solas y un
 //    contador sube hasta 240 con el icono del libro: el investigador da un respingo, la estudiante se vuelve a mirar y
 //    los dos sonríen; él lo señala;
@@ -135,9 +135,9 @@ const N240 = en('pergamino', 0.1330);
 const p1 = (t) => {
   T.biblioteca(R, t, { camara: 'mesa' });
   const u = tramo(t, 0.25, 1.75), x = Math.round(lerp(18, 112, ease(u)));
-  R.actor(EL.bibliotecaria, x, 118, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > N240 - 0.25 && t < P2 - 0.2, sonrisa: t > en('pergamino', 0.1857), habla: t > en('pergamino', 0.0000) && t < en('pergamino', 0.0617) + 0.2 && Math.sin(t * 9) > 0 });
+  R.actor(EL.bibliotecaria, x, 121, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > N240 - 0.25 && t < P2 - 0.2, sonrisa: t > en('pergamino', 0.1857), habla: t > en('pergamino', 0.0000) && t < en('pergamino', 0.0617) + 0.2 && Math.sin(t * 9) > 0 });
   const v = tramo(t, en('pergamino', 0.1857), en('pergamino', 0.2248));
-  R.actor(EL.investigadorIA, 206, 118, t, { dir: -1, salto: t > N240 + 0.15 && t < N240 + 0.4 ? 2 : 0, sorpresa: t > N240 + 0.2 && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857), dedo: v > 0 && v < 1, habla: t < N240 - 0.3 && t > 0.6 && Math.sin(t * 8) > 0.3 });
+  R.actor(EL.investigadorIA, 206, 121, t, { dir: -1, salto: t > N240 + 0.15 && t < N240 + 0.4 ? 2 : 0, sorpresa: t > N240 + 0.2 && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857), dedo: v > 0 && v < 1, habla: t < N240 - 0.3 && t > 0.6 && Math.sin(t * 8) > 0.3 });
   // la estudiante con su pila de libros: entra por la derecha, se para junto a la libreta y con «240» se vuelve a mirar
   { const w = tramo(t, 0.5, 2.3), ex = Math.round(lerp(338, 262, ease(w))), mira = t > N240 + 0.3;
     const es = R.actor(EL.alumna, ex, 117, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true, sorpresa: mira && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857) });

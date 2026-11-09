@@ -15,9 +15,11 @@
 //    una criada sacude una alfombra;
 // 2. pragua/alquimista: Baresch mira el libro con la lupa; en «years» arruga una hoja y la tira (el gato se despierta);
 //    en «read it» se queda con un «?»;
-// 3. pragua/alquimista/copia: copia unas páginas (los renglones se llenan); en «sent» la copia se dobla, se sella y sale
-//    hacia Roma; Baresch la señala;
-// 4. (fondo local) el claustro del Colegio Romano: el correo se va, Kircher lee la copia; la idea de Baresch (en
+// 3. pragua/alquimista/copia, de cerca y sin el actor: el brazo de Baresch (T.brazo, manga marrón) moja la pluma y
+//    copia renglón a renglón (la punta va donde sale cada signo); la deja en el tintero, dobla la copia en tres, en
+//    «sent» la sella con el sello de latón de la mesa, la señala con la mano y la copia sale volando hacia Roma;
+// 4. (fondo local) el claustro del Colegio Romano (la cúpula y el campanario de Roma a la derecha, fuera de la barra del
+//    año; a la izquierda, lejos, la loma del Gianicolo con pinos): el correo se va, Kircher lee la copia; la idea de Baresch (en
 //    «medical» un frasco que burbujea, en «east» un sol que sale con un camello); en «didn't know» Kircher se rasca la
 //    cabeza y le salen tres «?» (gag);
 // 5. (fondo local) el puente de Carlos al atardecer: en «died» doblan las campanas y vuelan las palomas; Marci cruza con
@@ -215,30 +217,91 @@ const p2 = (t) => {
   T.praguaDelante(R, t, o);
 };
 
-// ── 3 · la copia: los renglones se llenan, la copia se dobla, se sella y sale hacia Roma ──
+// ── 3 · la copia (de cerca, sin el actor): el brazo de Baresch moja la pluma, escribe renglón a renglón (la punta va
+// donde sale cada signo), deja la pluma en el tintero, dobla la copia en tres, la sella con el sello de latón, la
+// señala y la copia sale volando hacia Roma ──
+const MANGA_B = '#6a4a2e';
+// el brazo derecho de Baresch desde abajo a la derecha, con la muñeca en (wx, wy) y los dedos hacia la izquierda
+const brazoB = (wx, wy) => T.brazo(R, wx + 48, 214, wx, wy, MANGA_B, -1, { codo: [wx + 36, wy + 30] });
+// la punta de la pluma en (gx, gy): la pluma va por encima de la mano
+const conPluma = (gx, gy) => { brazoB(gx + 10, gy + 6); T.PIEZAS_VM.pluma(R, gx + 4, gy + 1); };
+// tapa un trozo de la mesa con su propia madera: cada fila toma los colores de las columnas limpias de al lado (las
+// tablas van en horizontal, así que vetas y juntas siguen de largo)
+const mesaLimpia = (x0, y0, x1, y1, cols) => { for (let y = y0; y <= y1; y++) { const fila = cols.map((c) => R.pget(c, y));
+  for (let x = x0; x <= x1; x++) R.pset(x, y, fila[Math.floor(hh(x >> 3, y >> 2, 81) * fila.length)]); } };
+const COL_I = [167, 168, 169, 170, 171, 172, 173], COL_D = [239, 240, 241, 242];
+// un renglón de signos en una tira de papel (para las solapas)
+const rayas = (x0, y, x1, c) => { for (let x = x0; x < x1; x += 4) if (hh(x, y, 82) > 0.25) { R.pset(x, y, c); R.pset(x + 1, y - (hh(x, y, 83) > 0.5 ? 1 : 0), c); } };
 const p3 = (t) => {
-  const sale = tramo(t, b(0.4869), b(0.5158)), nueva = t > b(0.5158);
-  const cp = nueva ? tramo(t, b(0.5200), b(0.5473)) * 0.25 : tramo(t, b(0.4000), b(0.4800));
+  const W0 = b(0.3850), W1 = b(0.4550), PL = b(0.4630), F1 = b(0.4720), F2 = b(0.4810), CG = b(0.4870), PR = b(0.4930), SU = b(0.4975), DJ = b(0.5030), SE = b(0.5220);
+  const cp = tramo(t, W0, W1);
   const o = { encuadre: 'alquimista', camara: 'copia', copia: cp }; T.pragua(R, t, o);
   // el ratón que corre por la balda del fondo
   { const v = ((t - P3) * 0.4) % 1, mx = Math.round(lerp(8, 116, v)); R.disco(mx, 76, 2, hex('#6a5a5a')); R.pset(mx + 2, 75, hex('#8a7a7a')); R.linea(mx - 2, 76, mx - 6, 75 + Math.round(Math.sin(t * 9)), hex('#4a3a3a')); R.pset(mx + 3, 76, K); }
-  const mira = cp > 0 && cp < 1 ? (Math.floor(t * 1.6) % 2 === 0 ? -1 : 1) : 1;
-  const ba = R.actor(EL.baresch, 150, 120, t, { dir: nueva ? 1 : mira, sostiene: nueva ? undefined : [168 + Math.round(Math.sin(t * 9) * 2), 113], dedo: nueva, sonrisa: nueva });
-  if (!nueva) T.PIEZAS_VM.pluma(R, ba.mano[0] + 3, ba.mano[1] + 2);
   T.praguaDelante(R, t, o);
-  // la copia doblada y sellada que se va
-  if (t > b(0.4800) && !nueva) { const k = tramo(t, b(0.4800), b(0.4869)), x = Math.round(lerp(190, 340, sale)), y = Math.round(140 - Math.sin(sale * Math.PI) * 16);
-    caja(x - 1, y - 1, x + 29, y + 17, K); caja(x, y, x + 28, y + 16, C.papel); R.linea(x, y, x + 14, y + 8, C.papelS); R.linea(x + 28, y, x + 14, y + 8, C.papelS);
-    if (k >= 1) { R.disco(x + 14, y + 9, 3.6, hex('#7a1418')); R.disco(x + 14, y + 9, 3, C.lacre); R.pset(x + 13, y + 8, C.lacreL); }
-    if (sale > 0) for (let i = 1; i < 4; i++) R.linea(x - i * 6, y + 4 + i * 3, x - i * 6 - 5, y + 4 + i * 3, hex('#e8dcc0')); }
+  // el doblado: la tercera de abajo sube, la de arriba baja; lo que queda libre vuelve a ser mesa
+  const f1 = tramo(t, PL, F1), f2 = tramo(t, F1, F2), sale = tramo(t, SE, b(0.5440));
+  const PA = C.papel, PS = C.papelS, PD = hex('#d8ccb0');
+  if (f1 > 0 && f2 === 0) {
+    mesaLimpia(174, 155, 238, 168, [...COL_I, ...COL_D]); mesaLimpia(174, 169, 238, 173, COL_D);
+    const e = Math.round(lerp(168, 142, f1));
+    if (e > 155) { caja(175, 155, 236, e, K); caja(176, 155, 235, e - 1, PA); rayas(180, 158, 230, C.tinta); if (e > 163) rayas(180, 162, 230, C.tinta); }
+    else { caja(175, e, 236, 155, K); caja(176, e + 1, 235, 155, PD); R.linea(176, 155, 235, 155, PS); }
+  }
+  if (f2 > 0) mesaLimpia(174, 126, 238, 168, [...COL_I, ...COL_D]), mesaLimpia(174, 169, 238, 173, COL_D);
+  if (f2 > 0 && sale === 0) {
+    const e = Math.round(lerp(128, 154, f2));
+    // la carta en el tablero: su sombra, la solapa de abajo ya doblada y la de arriba que baja
+    for (let x = 177; x <= 238; x++) R.pset(x, 156, hex('#4a2e1a'));
+    caja(175, 141, 236, 155, K); caja(176, 142, 235, 154, PD); R.linea(176, 154, 235, 154, PS);
+    if (f2 < 1) { if (e < 141) { caja(175, e, 236, 141, K); caja(176, e + 1, 235, 141, PA); rayas(180, 137, 230, C.tinta); } else { caja(175, 141, 236, e, K); caja(176, 142, 235, e - 1, PA); R.linea(176, e - 1, 235, e - 1, PS); } }
+    else { caja(176, 142, 235, 147, PA); R.linea(176, 148, 235, 148, PS); R.pset(176, 148, K); R.pset(235, 148, K); }
+  }
+  // el sello de latón: en la mesa hasta que lo coge; se aprieta sobre la carta y lo deja a la izquierda
+  const sello = (x, y) => { caja(x - 2, y - 9, x + 2, y - 1, K); caja(x - 1, y - 9, x + 1, y - 2, hex('#6a4220')); R.pset(x - 1, y - 8, hex('#a8743e')); R.disco(x, y, 3.4, K); R.disco(x, y, 2.6, hex('#c8a040')); R.pset(x - 1, y - 1, hex('#fff0a0')); };
+  if (t > CG) mesaLimpia(266, 163, 275, 177, [263, 264, 265]);
+  const selado = t > PR + 0.12;
+  if (selado && sale === 0) { R.disco(206, 149, 4.4, hex('#7a1418')); R.disco(206, 149, 3.6, C.lacre); R.pset(205, 147, C.lacreL); R.pset(206, 148, C.lacreL); R.pset(207, 151, hex('#7a1418')); }
+  if (t > DJ) sello(170, 160);
+  // la carta que sale volando hacia Roma
+  if (sale > 0 && sale < 1) { const x = Math.round(lerp(176, 330, sale * sale)), y = Math.round(141 - Math.sin(sale * Math.PI) * 30);
+    caja(x - 1, y - 1, x + 61, y + 14, K); caja(x, y, x + 60, y + 13, PA); R.linea(x, y + 7, x + 60, y + 7, PS); R.disco(x + 30, y + 8, 3.6, C.lacre); R.pset(x + 29, y + 7, C.lacreL);
+    for (let i = 1; i < 4; i++) R.linea(x - i * 8, y + 3 + i * 3, x - i * 8 - 6, y + 3 + i * 3, hex('#f6eedc')); }
+  // el brazo de Baresch
+  const tin = [252, 145];
+  if (t < W0) { // entra desde abajo a la derecha y moja la pluma
+    const v = tramo(t, P3, P3 + 0.5), moja = tramo(t, P3 + 0.5, W0 - 0.25), va = tramo(t, W0 - 0.25, W0);
+    let gx = lerp(320, tin[0], v), gy = lerp(200, tin[1] - 6, v); if (v >= 1) gy = tin[1] - 6 + Math.round((1 - Math.cos(moja * Math.PI * 4)) * 4);
+    if (va > 0) { gx = lerp(tin[0], 182, va); gy = lerp(tin[1] - 6, 137, va) - Math.sin(va * Math.PI) * 6; }
+    conPluma(Math.round(gx), Math.round(gy));
+  } else if (t < W1) { // escribe: la punta va donde aparece cada signo; al cambiar de renglón la levanta
+    const n = Math.min(6, Math.floor(cp * 7)), f = cp * 7 - n, gx = 182 + Math.round(f * 46) + 1, gy = (136 + n * 4.5 | 0) + 1;
+    const salto = f < 0.08 ? Math.round((1 - f / 0.08) * 4) : 0;
+    conPluma(gx, gy - salto - (Math.sin(t * 38) > 0.3 ? 1 : 0));
+  } else if (t < PL) { // deja la pluma en el tintero
+    const v = tramo(t, W1, PL); conPluma(Math.round(lerp(229, tin[0], v)), Math.round(lerp(164, tin[1], v) - Math.sin(v * Math.PI) * 8));
+  } else {
+    T.PIEZAS_VM.pluma(R, tin[0] + 4, tin[1] + 1);
+    if (t < F1) { const e = lerp(168, 142, f1); brazoB(Math.round(218 + f1 * 4), Math.round(Math.min(166, e + 4))); }
+    else if (t < F2) { const e = lerp(128, 154, f2); brazoB(Math.round(222 - f2 * 4), Math.round(Math.max(134, e - 2))); }
+    else if (t < CG) { const v = tramo(t, F2, CG); brazoB(Math.round(lerp(218, 278, v)), Math.round(lerp(150, 166, v))); }
+    else if (t < DJ) { // coge el sello, lo aprieta en el centro de la carta y lo deja a la izquierda
+      let sx, sy; const a = tramo(t, CG, PR), pr = tramo(t, PR, SU), d = tramo(t, SU, DJ);
+      if (pr === 0) { sx = lerp(270, 206, a); sy = lerp(173, 145, a) - Math.sin(a * Math.PI) * 12; }
+      else if (d === 0) { sx = 206; sy = 145 + Math.round(Math.sin(pr * Math.PI) * 4); }
+      else { sx = lerp(206, 170, d); sy = lerp(145, 160, d) - Math.sin(d * Math.PI) * 10; }
+      sx = Math.round(sx); sy = Math.round(sy); sello(sx, sy); brazoB(sx + 8, sy - 6);
+    } else { // la señala: dos toques con la mano y la sigue cuando se va
+      const v = tramo(t, DJ, DJ + 0.3), toc = t < SE ? Math.round(Math.abs(Math.sin((t - DJ) * 9)) * 3) : 0, va = tramo(t, SE, SE + 0.5);
+      const wx = Math.round(lerp(180, 252, v) + toc + va * 30), wy = Math.round(lerp(162, 150, v) - va * 18);
+      brazoB(wx, wy); }
+  }
 };
 
 // ── 4 · el claustro del Colegio Romano (fondo local): Kircher lee la copia y no sabe qué contestar ──
 const OC = H('#8a5a34', '#a8723e', '#c88e4e', '#dcaa64', '#ecc684');
 const claustroFondo = () => {
   degr(0, 0, 319, 64, H('#4a7ed0', '#689ade', '#8cb6e8', '#b8d2ee', '#e8e2c8'), 0.3);
-  roma(-6, 66, 0.9, { muro: hex('#d8b48a'), muro2: hex('#c49c74'), techo: hex('#a85a3a'), vent0: hex('#6a4a3a'), cupula: hex('#8a9aa6'), costilla: hex('#b4c4d0'), luzCupula: hex('#c8d4dc'), tronco: hex('#5a3a2a'), pino: hex('#2e5226'), pinoL: hex('#4a7236'), cipres: hex('#244020') });
-  R.rect(278, 0, 319, 46, 0); degr(278, 0, 319, 46, H('#4a7ed0', '#689ade', '#8cb6e8', '#b8d2ee'), 0.3);
   // el tejado del claustro y el muro de arriba
   for (let y = 56; y < 64; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (x + (y % 2) * 3) % 6 === 0 ? hex('#6a2a1e') : hex(y === 56 ? '#c86a4a' : y > 61 ? '#7a3424' : '#a8503a'));
   for (let y = 64; y < 78; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y === 64 || y === 77 ? hex('#7a4a2a') : OC[Math.max(0, Math.min(4, Math.floor(3 + (hh(x >> 2, y >> 2, 61) - 0.5) + by(x, y) - 0.5)))]);
@@ -261,9 +324,25 @@ const claustroFondo = () => {
   R.poligono([[136, 152], [142, 148], [178, 148], [184, 152], [178, 156], [142, 156]], hex('#4a86a8'));
   R.linea(132, 152, 188, 152, hex('#e8e0d0')); R.linea(132, 160, 188, 160, hex('#9a8e7a')); caja(156, 132, 164, 150, hex('#c8bca8')); caja(152, 130, 168, 133, hex('#e0d6c4'));
 };
+// la ciudad de fondo en su propio búfer (fondo 0 = transparente): se pinta por encima de las nubes, que pasan detrás
+const ciudadRoma = () => { let bf = capas.ciudad; if (!bf) { bf = R.nuevo(); bf.fill(0); const prev = R.usar(bf);
+  // a la izquierda, lejos y con bruma, la loma del Gianicolo con sus pinos, una iglesita y casas bajas (nada sube a la
+  // barra del año: todo empieza por debajo de y 30)
+  { const NB = H('#9ab0c8', '#a8bccf', '#b6c6d4'), PN = hex('#7a96a0'), CS = H('#c8c0b4', '#d6ccbc'), TJ = hex('#b88a7a');
+    const loma = (x) => 44 + 5 * Math.sin(x * 0.045) + 3 * Math.sin(x * 0.11 + 1);
+    for (let x = 0; x < 130; x++) for (let y = Math.round(loma(x)); y < 58; y++) R.pset(x, y, NB[Math.min(2, Math.floor((y - loma(x)) / 5 + by(x, y) - 0.5 + 0.5))]);
+    for (const [x, r] of [[8, 4], [26, 5], [58, 4], [74, 3.5], [96, 4.5], [118, 3.5]]) { const y = Math.round(loma(x)) - 3; R.linea(x, y, x, y + 4, PN); R.disco(x - 1, y - 1, r, PN); R.disco(x + 2, y - 2, r * 0.8, PN); R.linea(x - r - 1, y + 1, x + r + 1, y + 1, PN); }
+    caja(38, 34, 42, 50, CS[1]); R.poligono([[37, 34], [40, 30], [43, 34]], TJ); caja(39, 38, 40, 40, hex('#8a8a96'));
+    caja(43, 41, 56, 50, CS[0]); R.poligono([[42, 41], [49.5, 37], [57, 41]], TJ); R.disco(49, 45, 1.5, hex('#8a8a96'));
+    for (let i = 0; i < 10; i++) { const x = 4 + i * 12 + Math.round(hh(i, 1, 84) * 4), w = 5 + Math.round(hh(i, 2, 84) * 4), y = 50 + Math.round(hh(i, 3, 84) * 3); caja(x, y, x + w, 57, CS[i % 2]); R.linea(x, y, x + w, y, TJ); if (i % 3 === 0) R.pset(x + 2, y + 3, hex('#8a8a96')); } }
+  // la ciudad (cúpula, campanario y pinos) a la derecha, fuera de la barra del año y de la zona de Atom
+  roma(106, 66, 0.9, { muro: hex('#d8b48a'), muro2: hex('#c49c74'), techo: hex('#a85a3a'), vent0: hex('#6a4a3a'), cupula: hex('#8a9aa6'), costilla: hex('#b4c4d0'), luzCupula: hex('#c8d4dc'), tronco: hex('#5a3a2a'), pino: hex('#2e5226'), pinoL: hex('#4a7236'), cipres: hex('#244020') });
+  R.usar(prev); capas.ciudad = bf; }
+  for (let y = 0; y < 56; y++) for (let x = 0; x < 278; x++) { const c = bf[y * 320 + x]; if (c) R.pset(x, y, c); } };
 const p4 = (t) => {
   capa('claustro', claustroFondo);
   nubes(t, [[20, 22, 30, 1.5], [170, 34, 22, 2.4], [110, 14, 16, 3.6]], H('#a8bcd8', '#eef2f8', '#ffffff'));
+  ciudadRoma();
   pajaros(t, 4, 18, 22, hex('#2a2a3a'), 4);
   // el fraile que pasa por la galería, tapado por los pilares
   { const v = ((t - P4) / 9) % 1, mx = Math.round(lerp(-10, 330, v)); R.actor(EL.monje, mx, 124, t, { dir: 1, anda: true }); }
@@ -357,7 +436,7 @@ const p5 = (t) => {
   libro(ma.mano[0] - 1, ma.mano[1] + 8);
   if (mira) { const g = tramo(t, b(0.9581), b(0.9700)); if (Math.sin(t * 7) > 0) for (const [dx, dy] of [[-9, -8], [6, -12], [-4, -16]]) R.pset(ma.mano[0] + dx, ma.mano[1] + dy, hex('#fff0a0')); R.anillo(ma.mano[0] - 1, ma.mano[1], 9 + (1 - g) * 4, hex('#ffe08a')); }
 };
-const efectos = [[b(0.040), 'whoosh'], [b(0.104), 'puerta'], [b(0.1680), 'burbujas'], [b(0.2700), 'papel'], [b(0.3068), 'pop'], [b(0.4214), 'lapiz'], [b(0.4869), 'whoosh'], [b(0.5612), 'pop'], [b(0.6758), 'burbujas'], [b(0.7422), 'brillo'], [b(0.7789) + 0.15, 'pop'], [b(0.8882), 'campana'], [b(0.9581), 'brillo']];
+const efectos = [[b(0.040), 'whoosh'], [b(0.104), 'puerta'], [b(0.1680), 'burbujas'], [b(0.2700), 'papel'], [b(0.3068), 'pop'], [b(0.3900), 'lapiz'], [b(0.4630), 'papel'], [b(0.4950), 'sello'], [b(0.5220), 'whoosh'], [b(0.5612), 'pop'], [b(0.6758), 'burbujas'], [b(0.7422), 'brillo'], [b(0.7789) + 0.15, 'pop'], [b(0.8882), 'campana'], [b(0.9581), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => t < 0.4 ? 1665 : t < 2.4 ? Math.round(lerp(1665, 1639, tramo(t, 0.4, 2.4))) : 1639 });
 </script>
 </body>

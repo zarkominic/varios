@@ -17,9 +17,16 @@
 //    técnico de detrás de la mesa lo abre y en «Arizona» señala el acelerador; la colega del fondo se asombra;
 // 3. «tiny samples»: inserto local, el acelerador por dentro: una mano con pinzas mete el trocito de pergamino en el
 //    carrusel, el carrusel gira, en «carbon» se dispara el haz; el imán separa los átomos 12 (al vaso) de los 14 (al
-//    detector, que los cuenta);
-// 4. «the skin»: la mesa de muestras de cerca: las pinzas cortan el trocito y lo dejan en la placa; en «1404» la franja
-//    dorada se marca en la pantalla con «1404-1438».
+//    detector, que los cuenta). La nave tiene tres términos: al fondo, el hueco de la nave siguiente en sombra con otro
+//    tramo del tubo y su baliza; en la pared, la rejilla con el ventilador que gira, el rótulo de peligro con el trébol,
+//    los conductos con abrazaderas y volante, dos manómetros (las agujas suben al disparar) y la caja de pilotos; abajo,
+//    el armario de electrónica, la pasarela de rejilla con su tornillería, manchas de aceite y, delante, el carro con
+//    dos bombonas;
+// 4. «the skin»: la mesa de muestras de cerca (con mano false: la mano y las pinzas se pintan aquí): el brazo canónico
+//    con codo entra por la derecha, las pinzas cortan el trocito, lo dejan en la placa, se posan en la encimera y la
+//    mano sale sola; en «1404» la franja dorada se marca en la pantalla con «1404-1438». En la pared, desenfocadas: la
+//    canaleta con su enchufe, la bandeja de cables, la regleta con piloto, el botiquín y la luz del techo; detrás del
+//    banco de los frascos cruza la colega con una gradilla; suben burbujas en los viales y la pantalla barre la curva.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-carbono');
@@ -379,12 +386,51 @@ const corte = () => fijo('corte', () => {
   caja(112, 44, 200, 50, Q.aceroD); R.rect(113, 45, 199, 45, Q.aceroL);
   for (const mx of [122, 150, 178]) caja(mx, 32, mx + 16, 43, Q.k);
   for (let y = 23; y < 56; y++) for (let x = 111; x < 202; x++) if ((x - y) % 23 === 0 || (x - y) % 23 === 1) tine(x, y, 0.18, Q.blanco);
+  // la luz de las lámparas del techo baja por la pared: más clara arriba, sombra en las esquinas de abajo
+  for (let y = 0; y < 62; y++) for (let x = 0; x < 320; x++) { if (x > 106 && x < 206 && y > 18 && y < 60) continue; const k = y < 8 ? 0.1 : 0; if (k) tine(x, y, k, Q.aceroL); else if (y > 52 && hh(x, y, 66) < (y - 52) / 14) tine(x, y, 0.18, Q.k); }
+  // al fondo, a la derecha: el hueco de la nave siguiente, en sombra, con otro tramo del tubo del haz
+  { const X0 = 214, X1 = 270, Y0 = 18, Y1 = 52, som = (c, k = 0.55) => mez(c, Q.azulTD, k);
+    caja(X0 - 3, Y0 - 3, X1 + 3, Y1 + 1, Q.aceroD); R.rect(X0 - 2, Y0 - 2, X1 + 2, Y0 - 2, Q.aceroL); R.rect(X0 - 2, Y0 - 2, X0 - 2, Y1, Q.aceroL);
+    for (let y = Y0; y < Y1; y++) for (let x = X0; x < X1; x++) { const v = (y - Y0) / (Y1 - Y0), n = hh(x >> 1, y >> 1, 67); R.pset(x, y, som(n < 0.12 ? Q.aceroS : (x - X0) % 14 === 0 ? Q.aceroD : v > 0.82 ? Q.aceroS : Q.acero, 0.62 + v * 0.1)); }
+    for (let x = X0; x < X1; x++) { R.pset(x, 44, som(Q.aceroL, 0.6)); R.pset(x, 45, som(Q.aceroD, 0.5)); }   // el suelo lejano
+    for (let x = X0; x < X1; x++) { R.pset(x, 31, som(Q.k, 0.4)); R.pset(x, 32, som(Q.aceroL, 0.45)); R.pset(x, 33, som(Q.cristalD, 0.4)); R.pset(x, 34, som(Q.aceroS, 0.45)); R.pset(x, 35, som(Q.k, 0.4)); }
+    for (const fx of [222, 246, 262]) { R.rect(fx - 1, 29, fx + 1, 37, som(Q.aceroL, 0.5)); R.rect(fx, 36, fx, 44, som(Q.aceroS, 0.5)); }
+    for (let y = 22; y < 44; y++) for (let x = 230; x < 242; x++) R.pset(x, y, som(y < 25 ? Q.azulTL : x > 239 ? Q.azulTS : Q.azulT, 0.6));   // otro tanque, en sombra
+    for (let y = Y0; y < Y1; y++) for (let x = X0; x < X0 + 4; x++) tine(x, y, 0.35, Q.k); }
+  // la rejilla de ventilación (el ventilador gira detrás, en cada fotograma) y el rótulo de peligro con su trébol
+  caja(6, 20, 40, 42, Q.aceroD); R.rect(7, 21, 39, 21, Q.aceroL); R.rect(7, 21, 7, 41, Q.aceroL);
+  for (const [x, y] of [[8, 22], [38, 22], [8, 40], [38, 40]]) R.pset(x, y, Q.aceroL);
+  { const tx = 59, ty = 20; for (let j = 0; j <= 20; j++) { const w = Math.round(j * 0.62); R.rect(tx - w - 1, ty + j, tx + w + 1, ty + j, Q.k); if (j > 1 && j < 20) R.rect(tx - w + 1, ty + j, tx + w - 1, ty + j, j < 4 ? Q.amarL : Q.amar); }
+    R.disco(tx, ty + 13, 1, Q.k); for (const a of [-Math.PI / 2, Math.PI / 6, Math.PI * 5 / 6]) for (let r = 3; r <= 5; r++) for (let da = -0.45; da <= 0.45; da += 0.12) R.pset(Math.round(tx + Math.cos(a + da) * r), Math.round(ty + 13 + Math.sin(a + da) * r), Q.k);
+    for (const [x, y] of [[tx - 9, ty + 18], [tx + 9, ty + 18]]) R.pset(x, y, Q.aceroL); }
+  // los conductos: uno vertical con abrazaderas y su volante, otro horizontal con los dos manómetros
+  for (const vx of [90, 207]) { const ya = vx < 170 ? 17 : 0; if (ya) { caja(vx - 4, ya - 3, vx + 4, ya, Q.aceroD); R.rect(vx - 3, ya - 2, vx + 3, ya - 2, Q.aceroL); }
+    for (let y = ya; y < 62; y++) { R.pset(vx - 2, y, Q.k); R.pset(vx - 1, y, Q.aceroL); R.pset(vx, y, Q.acero); R.pset(vx + 1, y, Q.aceroS); R.pset(vx + 2, y, Q.k); }
+    for (let y = ya + 6; y < 62; y += 14) { caja(vx - 4, y, vx + 4, y + 2, Q.aceroD); R.pset(vx - 3, y + 1, Q.aceroL); R.pset(vx + 3, y + 1, Q.aceroL); } }
+  R.disco(90, 33, 6, Q.k); R.disco(90, 33, 5, Q.imanR); R.disco(90, 33, 3, Q.k); R.disco(90, 33, 2, Q.acero); R.pset(88, 30, Q.imanRL); R.pset(89, 29, Q.imanRL);
+  for (let x = 0; x < 88; x++) { R.pset(x, 46, Q.k); R.pset(x, 47, Q.aceroL); R.pset(x, 48, Q.acero); R.pset(x, 49, Q.aceroS); R.pset(x, 50, Q.k); }
+  for (let x = 4; x < 88; x += 18) { caja(x, 45, x + 3, 51, Q.aceroD); R.pset(x + 1, 46, Q.aceroL); }
+  for (const gx of [54, 72]) { R.rect(gx - 1, 50, gx + 1, 53, Q.aceroS); R.disco(gx, 57, 5, Q.k); R.disco(gx, 57, 4, Q.blanco); R.disco(gx, 57, 4, Q.blanco); for (let a = 0; a < 6; a++) R.pset(Math.round(gx + Math.cos(Math.PI * (0.8 + a * 0.28)) * 3), Math.round(57 + Math.sin(Math.PI * (0.8 + a * 0.28)) * 3), a > 3 ? Q.rojo : Q.k); R.pset(gx - 2, 54, Q.c5); }
+  // la caja de pilotos bajo el hueco
+  caja(220, 54, 264, 60, Q.aceroD); R.rect(221, 55, 263, 55, Q.aceroS);
   // la bandeja de cables
   R.rect(0, 64, 319, 67, Q.aceroD); R.rect(0, 64, 319, 64, Q.aceroL); for (let x = 0; x < 320; x += 12) R.rect(x, 64, x + 1, 67, Q.aceroS);
   for (const [c, dy] of [[Q.rojo, 0], [Q.amar, 1], [Q.verde, 2]]) for (let x = 0; x < 320; x++) R.pset(x, 62 + dy + Math.round(Math.abs(Math.sin(x * 0.05 + dy)) * 1), c);
   // el suelo de chapa estriada y la franja de peligro
   for (let y = 146; y < 180; y++) for (let x = 0; x < 320; x++) { const d = (x * 2 + y * 3) % 9, e = (x * 2 - y * 3 + 900) % 9; R.pset(x, y, d === 0 || e === 0 ? Q.aceroL : hh(x >> 2, y >> 1, 63) > 0.8 ? Q.aceroS : Q.acero); }
   for (let x = 0; x < 320; x++) for (let y = 142; y < 146; y++) R.pset(x, y, ((x + y) >> 2) % 2 ? Q.amar : Q.k);
+  // las manchas de aceite y las marcas de ruedas en la chapa
+  for (const [mx, my, rx, ry] of [[236, 149, 9, 2], [300, 177, 12, 2], [120, 176, 7, 2], [254, 172, 5, 1], [18, 176, 6, 1]]) for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) if ((i / rx) ** 2 + (j / ry) ** 2 <= 1) tine(mx + i, my + j, hh(i, j, 68) > 0.3 ? 0.35 : 0.2, Q.k);
+  for (let x = 232; x < 268; x++) { if (x % 3) tine(x, 165 + ((x >> 3) & 1), 0.25, Q.k); }
+  // la pasarela de rejilla, con sus largueros, la tornillería y la sombra
+  for (let y = 152; y < 171; y++) for (let x = 0; x < 226; x++) { let c; if (y === 152) c = Q.aceroL; else if (y === 153 || y === 169) c = Q.aceroS; else if (y === 170) c = Q.k; else c = x % 4 === 0 || (y - 154) % 3 === 0 ? ((x + y) % 7 ? Q.acero : Q.aceroL) : mez(Q.k, Q.aceroD, 0.4); if (x === 225) c = Q.k; R.pset(x, y, c); }
+  for (let x = 0; x < 226; x++) tine(x, 171, 0.45, Q.k);
+  for (let x = 6; x < 226; x += 22) for (const y of [152, 169]) { R.pset(x, y, Q.k); R.pset(x + 1, y, Q.blanco); }
+  for (const bx of [70, 160]) { caja(bx, 149, bx + 4, 152, Q.amarS); R.rect(bx + 1, 150, bx + 3, 150, Q.amarL); }
+  // el armario de electrónica bajo el tubo, con sus rejillas y el cable que sube a la bandeja
+  bisel(84, 112, 110, 141, Q.grisL, Q.blanco, Q.gris); for (let y = 126; y < 139; y += 2) R.rect(87, y, 107, y, Q.grisS);
+  caja(86, 114, 96, 122, Q.k); R.rect(87, 115, 95, 121, Q.pantalla); R.rect(88, 118, 94, 118, Q.cobreL);
+  for (let y = 68; y < 112; y++) { const x = 106 + Math.round(Math.sin(y * 0.15)); R.pset(x, y, Q.k); R.pset(x + 1, y, Q.negro); }
   // las patas que sostienen el tubo del haz
   for (const lx of [100, 196, 254]) { caja(lx - 2, 104, lx + 2, 142, Q.aceroS); R.rect(lx - 1, 105, lx - 1, 141, Q.aceroL); caja(lx - 6, 139, lx + 6, 142, Q.aceroD); }
   // el tubo del haz, de cristal y acero, con sus bridas
@@ -413,9 +459,44 @@ const corte = () => fijo('corte', () => {
   // el carrusel de muestras: la base
   caja(CX - 12, CY + 28, CX + 12, 142, Q.aceroS); R.rect(CX - 11, CY + 29, CX - 11, 141, Q.aceroL);
   caja(CX + CR - 2, 96, 82, 104, Q.aceroL);
+  // delante, a la derecha: el carro con dos bombonas de gas, atadas con su cadena
+  bisel(268, 164, 314, 169, Q.aceroL, Q.blanco, Q.aceroS); for (let x = 272; x < 312; x += 6) R.pset(x, 166, Q.aceroD);
+  for (const wx of [275, 307]) { R.disco(wx, 173, 4, Q.k); R.disco(wx, 173, 3, Q.aceroD); R.disco(wx, 173, 1, Q.aceroL); for (let i = -5; i <= 5; i++) tine(wx + i, 178, 0.4, Q.k); }
+  for (let y = 128; y < 165; y++) { R.pset(310, y, Q.k); R.pset(311, y, Q.aceroL); R.pset(312, y, Q.aceroS); R.pset(313, y, Q.k); }
+  caja(304, 126, 314, 129, Q.k); R.rect(305, 127, 313, 127, Q.negro);
+  for (const [bx, c, cL, cS, banda] of [[272, Q.verdeT, Q.verdeL, Q.verdeS, Q.blanco], [288, Q.azulT2, Q.azulTL, Q.azulTS, Q.amar]]) {
+    const x0 = bx, x1 = bx + 12;
+    R.disco(bx + 6, 138, 6, Q.k); R.disco(bx + 6, 138, 5, c); R.pset(bx + 3, 135, cL); R.pset(bx + 4, 134, cL);
+    R.rect(x0, 138, x1, 164, Q.k); for (let y = 138; y < 164; y++) for (let x = x0 + 1; x < x1; x++) R.pset(x, y, x < x0 + 3 ? cL : x > x1 - 3 ? cS : c);
+    for (let x = x0 + 1; x < x1; x++) { R.pset(x, 141, banda); R.pset(x, 142, banda); }
+    caja(bx + 4, 128, bx + 8, 133, Q.aceroS); R.rect(bx + 2, 127, bx + 10, 128, Q.k); R.rect(bx + 3, 127, bx + 9, 127, Q.aceroL);
+    for (let y = 150; y < 163; y += 4) R.pset(x0 + 2, y, mez(cL, Q.blanco, 0.4));
+  }
+  for (let x = 270; x < 311; x += 2) { R.pset(x, 150, Q.aceroD); R.pset(x + 1, 150, Q.aceroL); }
+  for (let x = 266; x < 316; x++) tine(x, 170, 0.5, Q.k);
 });
+// la vida de la nave: el ventilador tras la rejilla, las agujas de los manómetros, los pilotos y la baliza del fondo
+const naveViva = (t) => {
+  const a0 = t * 9, haz = t > FUEGO;
+  for (let y = 22; y < 41; y++) for (let x = 8; x < 39; x++) {
+    const dx = x - 23, dy = y - 31, d = Math.hypot(dx, dy), ang = Math.atan2(dy, dx) - a0, aspa = Math.cos(ang * 3) > 0.35 && d < 9 && d > 2;
+    let c = d < 2.5 ? Q.aceroL : aspa ? (Math.cos(ang * 3) > 0.8 ? Q.aceroL : Q.acero) : Q.k;
+    if ((y - 22) % 3 === 0) c = Q.aceroS; else if ((y - 22) % 3 === 1) c = mez(c, Q.aceroD, 0.25);
+    R.pset(x, y, c);
+  }
+  for (const [k, gx] of [[0, 54], [1, 72]]) {
+    const v = haz ? 0.75 + Math.sin(t * 13 + k) * 0.05 : 0.3 + Math.sin(t * 2.2 + k * 2) * 0.06, ang = Math.PI * (0.8 + v * 1.4);
+    R.linea(gx, 57, Math.round(gx + Math.cos(ang) * 3), Math.round(57 + Math.sin(ang) * 3), Q.k); R.pset(gx, 57, Q.rojo);
+  }
+  for (let i = 0; i < 5; i++) { const on = haz ? Math.sin(t * 12 + i * 1.3) > -0.2 : Math.sin(t * 3 + i * 2.1) > 0.3, c = [Q.verdeL, Q.verdeL, Q.amar, Q.verdeL, Q.rojoL][i];
+    R.rect(224 + i * 8, 57, 226 + i * 8, 58, on ? c : mez(c, Q.k, 0.6)); if (on) R.pset(224 + i * 8, 57, Q.blanco); }
+  for (let i = 0; i < 2; i++) R.pset(88 + i * 4, 124, Math.sin(t * (5 + i * 3) + i) > 0 ? Q.verdeL : Q.verdeS);
+  R.rect(88, 117 + Math.round(Math.sin(t * 4) * 2), 94, 117 + Math.round(Math.sin(t * 4) * 2), Q.verdeL);
+  { const b = Math.sin(t * 6), x = 266, y = 21; R.rect(x - 1, y, x + 1, y + 2, Q.k); R.pset(x, y + 1, b > 0 ? Q.rojoL : Q.rojoS);
+    if (b > 0.3) for (let i = 1; i <= 4; i++) tine(x - i, y + 1, 0.4 / i, Q.rojoL); }
+};
 const p3 = (t) => {
-  corte();
+  corte(); naveViva(t);
   // la sala de control: las pantallas y el operador
   for (const [k, mx] of [[0, 122], [1, 150], [2, 178]]) { for (let y = 33; y < 43; y++) for (let x = mx + 1; x < mx + 16; x++) R.pset(x, y, (x + y + Math.floor(t * 4) + k) % 7 ? Q.pantalla : Q.verdeL); R.rect(mx + 2, 38 + Math.round(Math.sin(t * 3 + k) * 2), mx + 14, 38 + Math.round(Math.sin(t * 3 + k) * 2), Q.cobreL); }
   { const ox = Math.round(160 + Math.sin(t * 0.9) * 10); R.disco(ox, 41, 3, Q.k); R.disco(ox, 41, 2, Q.nogS); R.rect(ox - 4, 44, ox + 4, 50, Q.k); R.rect(ox - 3, 45, ox + 3, 50, Q.bata); }
@@ -462,7 +543,69 @@ const p3 = (t) => {
 };
 
 // ── plano 4: la mesa de muestras de cerca, con la franja en la pantalla ──
-const p4 = (t) => { T.laboratorio(R, t, { camara: 'muestra', corta: tramo(t, P4 + 0.1, P4 + 3.2), franja: tramo(t, F1404, F1438 + 0.2) }); };
+const PA = hex('#dcd6c6'), fdp = (c, k = 0.3) => mez(c, PA, k);
+// la pared beige del fondo, desenfocada: la canaleta de cables con su enchufe a la izquierda, la bandeja de cables
+// bajo el techo, la regleta con enchufes y piloto junto al monitor, la luz del techo arriba a la derecha (pared tranquila
+// tras Atom) y el botiquín con su cruz; todo con el desenfoque del fondo
+const paredMuestra = (t) => {
+  for (let y = 0; y < 104; y++) { R.pset(1, y, fdp(Q.k)); for (let x = 2; x < 9; x++) R.pset(x, y, fdp(x === 2 ? Q.blanco : x > 7 ? Q.bataS : Q.bata, 0.2)); R.pset(9, y, fdp(Q.k)); if (y % 26 === 0) R.rect(2, y, 8, y, fdp(Q.bataS, 0.2)); }
+  caja(1, 64, 10, 82, fdp(Q.k)); R.rect(2, 65, 9, 81, fdp(Q.bata, 0.15)); for (const oy of [67, 75]) { R.rect(4, oy, 7, oy + 4, fdp(Q.bataS)); R.pset(5, oy + 1, fdp(Q.k)); R.pset(6, oy + 1, fdp(Q.k)); R.pset(5, oy + 3, fdp(Q.negro)); }
+  R.rect(5, 77, 6, 79, fdp(Q.negro)); for (let y = 79; y < 104; y++) R.pset(6 + Math.round(Math.sin(y * 0.2) * 2 + (y - 79) * 0.12), y, fdp(Q.negro));
+  for (let x = 10; x < 166; x++) { R.pset(x, 15, fdp(Q.aceroD)); R.pset(x, 16, fdp(Q.aceroL)); R.pset(x, 17, fdp(x % 9 < 5 ? Q.rojo : Q.azulT2, 0.35)); R.pset(x, 18, fdp(Q.aceroS)); }
+  for (let x = 24; x < 166; x += 34) { R.rect(x, 15, x + 1, 19, fdp(Q.aceroD)); R.pset(x + 2, 19, fdp(Q.aceroD)); }
+  caja(153, 32, 164, 64, fdp(Q.k)); R.rect(154, 33, 163, 63, fdp(Q.bata, 0.15)); R.rect(154, 33, 154, 63, fdp(Q.blanco, 0.1));
+  for (let k = 0; k < 3; k++) { const oy = 38 + k * 8; R.rect(156, oy, 161, oy + 5, fdp(Q.bataS)); R.pset(157, oy + 2, fdp(Q.k)); R.pset(160, oy + 2, fdp(Q.k)); }
+  R.rect(157, 40, 160, 43, fdp(Q.negro)); for (let y = 43; y < 101; y++) R.pset(158 + Math.round(Math.sin(y * 0.18) * 1.5), y, fdp(Q.negro));
+  R.rect(157, 56, 160, 59, fdp(Q.negro)); for (let y = 59; y < 101; y++) R.pset(155 + Math.round(Math.sin(y * 0.22 + 1)), y, fdp(Q.negro));
+  R.pset(162, 35, Math.sin(t * 3) > -0.4 ? Q.verdeL : fdp(Q.verdeS));
+  for (let x = 284; x < 318; x++) { R.pset(x, 0, fdp(Q.aceroS)); R.pset(x, 1, fdp(Q.blanco, 0.1)); R.pset(x, 2, fdp(Q.aceroS)); }
+  for (let y = 3; y < 30; y++) for (let x = 270; x < 320; x++) { const d = Math.hypot((x - 301) / 2.2, y - 2); if (d < 12 && hh(x, y, 71) < (12 - d) / 18) tine(x, y, 0.25, Q.blanco); }
+  caja(282, 47, 293, 58, fdp(Q.k)); R.rect(283, 48, 292, 57, fdp(Q.verde, 0.25)); R.rect(286, 49, 289, 56, fdp(Q.blanco, 0.15)); R.rect(284, 51, 291, 54, fdp(Q.blanco, 0.15));
+  // el frente del banco bajo la balda de los frascos (la colega pasa por detrás)
+  for (let y = 97; y < 104; y++) for (let x = 160; x <= 290; x++) R.pset(x, y, fdp(y === 97 ? Q.aceroL : (x - 160) % 26 === 0 ? Q.aceroD : y === 103 ? Q.aceroD : hh(x >> 1, y, 72) > 0.85 ? Q.aceroL : Q.acero, 0.35));
+  for (const [x0, x1] of [[280, 296], [307, 320]]) for (let x = x0; x < x1; x++) { R.pset(x, 78, fdp(Q.bataS)); R.pset(x, 79, fdp(Q.gris)); }
+};
+// la colega del fondo, desenfocada, cruza con una gradilla de muestras por detrás de la balda de los frascos
+const colegaFondo = (t) => {
+  const u = tramo(t, P4 + 0.3, P4 + 6.0), x = Math.round(lerp(258, 178, u)), X0 = 150, X1 = 292, Y0 = 60, Y1 = 104;
+  const antes = []; for (let y = Y0; y < Y1; y++) for (let xx = X0; xx < X1; xx++) antes.push(R.pget(xx, y));
+  const a = R.actor(EL.reiffel, x, 101, t, { dir: -1, anda: u > 0 && u < 1, sostiene: true });
+  { const [mx, my] = a.mano; caja(mx - 5, my - 3, mx + 3, my + 2, Q.aceroS); for (let i = 0; i < 4; i++) R.rect(mx - 4 + i * 2, my - 6, mx - 4 + i * 2, my - 2, [Q.rojo, Q.amar, Q.verdeL, Q.c3][i]); }
+  const balda = (xx, y) => (y >= 94 && y <= 103 && xx >= 160 && xx <= 290) || (y >= 84 && y <= 93 && xx >= 166 && xx < 166 + 7 * 17 && (xx - 166) % 17 <= 7);
+  let i = 0; for (let y = Y0; y < Y1; y++) for (let xx = X0; xx < X1; xx++, i++) { const c = R.pget(xx, y), b = antes[i]; if (c !== b) R.pset(xx, y, balda(xx, y) ? b : fdp(c, 0.3)); }
+};
+// la vida de la mesa: burbujas que suben en los viales y el barrido de la pantalla, que redibuja la curva
+const mesaViva = (t, fr) => {
+  for (let k = 0; k < 6; k++) for (let b = 0; b < 2; b++) { const x = 16 + k * 11 + 6, y = 131 - Math.floor(((t * (5 + k) + b * 9 + k * 4) % 19)); R.pset(x, y, Q.blanco); if (y < 131) R.pset(x, y + 1, Q.cristalL); }
+  const ax = 30, curva = (x) => 44 + (x - ax) * 0.34 + Math.sin(x * 0.31) * 3 + Math.sin(x * 0.11 + 1) * 4, sx = 31 + Math.floor((t * 34) % 112), tapa = fr > 0.6;
+  for (let y = 32; y < 86; y += 1) if (!(tapa && y >= 32 && y <= 50 && sx >= 47 && sx <= 133)) tine(sx, y, 0.22, Q.agua);
+  for (let i = 0; i < 14; i++) { const x = sx - i; if (x <= ax) break; const y = Math.round(curva(x)); if (tapa && y <= 50 && x >= 47 && x <= 133) continue; R.pset(x, y, i < 4 ? Q.blanco : mez(Q.blanco, hex('#38c8e0'), i / 14)); }
+  { const y = Math.round(curva(sx)); if (!(tapa && y <= 51 && sx >= 46 && sx <= 134)) { R.disco(sx, y, 1, Q.aguaL); R.pset(sx, y, Q.blanco); } }
+  R.rect(102, 26, 142, 27, hex('#1a2436')); R.rect(102, 26, 102 + Math.round(40 * Math.min(1, tramo(t, P4, P4 + 5.6))), 27, fr > 0.99 ? Q.oro : Q.verdeL);
+};
+const p4 = (t) => {
+  const u = tramo(t, P4 + 0.1, P4 + 3.2), fr = tramo(t, F1404, F1438 + 0.2);
+  const g = T.laboratorio(R, t, { camara: 'muestra', corta: u, franja: fr, mano: false });
+  paredMuestra(t); colegaFondo(t); mesaViva(t, fr);
+  // las pinzas en la mano canónica: entran desde el borde derecho, pellizcan la esquina, dejan el trocito en la placa,
+  // las posan en la encimera, debajo de la placa, y la mano sola sale del cuadro (las pinzas no se quedan en el aire)
+  const T0 = P4 + 0.1 + 0.85 * 3.1, posa = ease(tramo(t, T0, T0 + 0.6)), sale = ease(tramo(t, T0 + 0.75, T0 + 1.5));
+  const REP = [258, 174];   // la punta de las pinzas posadas
+  let tx, ty;
+  if (u < 0.3) { const k = ease(u / 0.3); tx = lerp(336, 246, k); ty = lerp(96, 112, k); }
+  else if (u < 0.85) [tx, ty] = g.pinzas;
+  else { tx = lerp(283, REP[0], posa); ty = lerp(145, REP[1], posa) - Math.sin(posa * Math.PI) * 4; }
+  tx = Math.round(tx); ty = Math.round(ty);
+  const ab = u > 0.32 && u < 0.78 ? 0 : 2;
+  { const hx = tx + 28, hy = ty - 12;
+    if (sale > 0) { R.linea(tx + 2, ty + 3, hx + 2, hy + 4, mez(Q.k, Q.negro, 0.3)); }   // su sombra en la resina
+    if (hx < 336) { R.linea(hx, hy - 1, tx - 1, ty - ab, Q.k); R.linea(hx, hy + 2, tx + 1, ty + ab, Q.k);
+      R.linea(hx, hy, tx, ty - ab, Q.aceroL); R.linea(hx, hy + 1, tx, ty + ab, Q.acero); R.pset(tx, ty - ab, Q.blanco); } }
+  {
+    const hx = Math.round(lerp(tx + 28, 372, sale)), hy = Math.round(lerp(ty - 12, ty - 30, sale));
+    if (hx < 336) T.brazo(R, hx + 54, hy + 8, hx + 6, hy + 2, '#eef0f2', -1, { codo: [hx + 26, hy + 16] });
+  }
+};
 
 const efectos = [[CIENCIA + 0.1, 'puerta'], [DUDA, 'pop'], [PONE + 0.4, 'golpecito'], [P3 + 1.0, 'golpecito'], [FUEGO, 'zumbido'], [FUEGO + 1.2, 'bip'], [P4 + 2.2, 'pop'], [F1404, 'brillo'], [F1438 + 0.3, 'bip']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '2009', efectos, año: 2009 });
