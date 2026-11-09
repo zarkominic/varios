@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep27</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TS-HOLA (frase 3), 2026. Un plano: el estudio de Atom de noche, junto a la estantería. Atom salta a saludar en «I'm
+// Atom»; en «explain the things» los libros van cayendo y encajan en la balda de arriba; en «wondered about» salen los
+// «?»; en «Let's find out» la balda llena brilla y Atom vuela hacia la ventana; el gato se despereza.
+import * as T from '/atomo/plato/escenas/ts-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('ts-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#05040a');
+const h1 = (f) => en('hola', f);
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila
+const atom = h1(0.035), explica = h1(0.218), pregunta = h1(0.541), vamos = h1(0.8), fin = h1(0.9);
+const p1 = (t) => {
+  const o = { encuadre: 'estudio', balda: 1, encajan: tramo(t, explica, pregunta) };
+  T.hoy(R, t, o);
+  if (t > pregunta - 0.1 && t < vamos) for (let i = 0; i < 3; i++) { if (t < pregunta - 0.1 + i * 0.3) continue; R.icono('?', 214 + i * 16, 40 - (i & 1) * 8 - Math.round(Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 2); }
+  const sal = t > atom && t < explica ? Math.round(Math.abs(Math.sin((t - atom) * Math.PI * 2.2)) * 14) : 0;
+  const v = tramo(t, vamos, E.duracion - 0.2);
+  const ax = Math.round(lerp(236, 60, v)), ay = Math.round(lerp(74, 52, v)) - sal + Math.round(Math.sin(t * 2.6) * 2);
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const g = 1 - Math.hypot(i, j) / 19; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  if (sal > 0 || (v > 0 && v < 1)) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 4, rr = 17 + Math.sin(t * 9) * 2; R.pset(Math.round(ax + Math.cos(an) * rr), Math.round(ay + Math.sin(an) * rr), hex('#c8f0ff')); }
+  R.atomo(ax, ay, t, { r: 13 + (sal > 0 ? 1.5 : 0), orbita: R.PAL.ATOM[7], energia: sal > 0 || (v > 0 && v < 1) ? 0.7 : 0.3 });
+  T.hoyDelante(R, t, o);
+};
+const efectos = [[atom + 0.05, 'pop'], [explica + 0.2, 'toc'], [pregunta + 0.1, 'boing'], [vamos, 'whoosh']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
