@@ -14,7 +14,8 @@
 //    barra corre de 2000 a 2023 en «40 years later»; pasa una camioneta; la vecina con el perro se para a mirar en
 //    «surprises» y el perro ladra. Corta en «In December».
 // 2. el salón: Gibson entra con los cascos, coge el mando del suelo en «13-year-old» y se pone a jugar; en «Willis
-//    Gibson» da un saltito. Corta en «played».
+//    Gibson» da un saltito. La tele (por derechos, sin bloques, pozo ni marcador) está en pausa con una aurora de color
+//    congelada; al jugar, la aurora se mueve y late con los botones. Corta en «played».
 // 3. la tele de cerca: sus dos manos aporrean el mando; en «froze» la imagen se para y entran las rayas; las manos se
 //    levantan. Corta en «No one».
 // 4. el rincón visto desde la tele: Gibson se lleva las manos a la cabeza y grita en «No one», salta en «beating
@@ -205,6 +206,36 @@ const p1 = (t) => {
 };
 
 // ── 2 · el salón
+// la pantalla de la tele del salón (hueco 56–108 × 70–111), pintada encima de la del decorado: por derechos, nada de
+// bloques, pozo ni marcador. Hasta que coge el mando, la imagen está congelada en pausa (una aurora de color apagada, el
+// símbolo de pausa que parpadea y la franja del tubo que baja); al jugar, la aurora se mueve y late con cada botonazo y
+// saltan chispas del centro.
+const pantallaSalon = (t, juega, tec) => {
+  const X0 = 56, Y0 = 70, X1 = 108, Y1 = 111, cx = (X0 + X1) / 2, cy = (Y0 + Y1) / 2, ph = juega ? t * 1.6 : 2.1;
+  const BASE = P('#10142e'), CI = P('#3ad8e8'), MG = P('#c84ad8'), AM = P('#ffb84a'), brillo = juega ? 0.75 + tec * 0.12 : 0.38;
+  const franja = Y0 + ((t * 9) % (Y1 - Y0 + 12)) - 6;
+  for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) {
+    const dx = (x - cx) / 26, dy = (y - cy) / 21, vi = Math.max(0, 1 - (dx * dx + dy * dy) * 0.55);
+    const a1 = 0.5 + 0.5 * Math.sin(x * 0.16 + Math.sin(y * 0.11 + ph) * 2.2 + ph), a2 = 0.5 + 0.5 * Math.sin(y * 0.21 - x * 0.07 + ph * 1.3);
+    let c = mez(BASE, a1 > a2 ? CI : MG, Math.max(a1, a2) ** 3 * brillo * vi);
+    if (a1 * a2 > 0.72) c = mez(c, AM, 0.5 * brillo * vi);
+    if ((y & 1) === 1) c = mez(c, K, 0.25);
+    if (Math.abs(y - franja) < 2) c = mez(c, BL, 0.08);
+    R.pset(x, y, c);
+  }
+  // el reflejo del cristal arriba a la izquierda
+  for (let k = 0; k < 14; k++) { tin(X0 + 3 + k, Y0 + 2 + (k >> 1), BL, 0.18); tin(X0 + 3 + k, Y0 + 3 + (k >> 1), BL, 0.1); }
+  if (!juega) {
+    // pausa: dos barras que parpadean, con su sombra
+    if (Math.sin(t * 4) > -0.4) for (const bx of [cx - 5, cx + 2]) { R.rect(Ri(bx) + 1, Ri(cy) - 6, Ri(bx) + 4, Ri(cy) + 7, K); R.rect(Ri(bx), Ri(cy) - 7, Ri(bx) + 3, Ri(cy) + 6, P('#e8ecff')); R.rect(Ri(bx), Ri(cy) - 7, Ri(bx) + 3, Ri(cy) - 7, BL); }
+  } else {
+    // chispas que salen del centro al ritmo de los botones
+    for (let n = 0; n < 10; n++) { const u = (t * 0.9 + n / 10) % 1, an = n * 2.39 + Math.floor(t * 0.9 + n / 10) * 1.3, r = u * 24;
+      const x = Ri(cx + Math.cos(an) * r * 1.2), y = Ri(cy + Math.sin(an) * r * 0.9); if (x > X0 && x < X1 && y > Y0 && y < Y1) { R.pset(x, y, mez(AM, BL, 1 - u)); if (u < 0.5) tin(x + 1, y, AM, 0.5); } }
+  }
+  for (const [ex, ey] of [[X0, Y0], [X1, Y0], [X0, Y1], [X1, Y1]]) R.pset(ex, ey, P('#1a1a1e'));
+};
+
 const p2 = (t) => {
   const e1 = tramo(t, P2 + 0.1, TRECE - 0.4), xg = Ri(lerp(300, 144, sale(e1)));
   const coge = tramo(t, TRECE - 0.3, TRECE + 0.2), juega = t > TRECE + 0.2;
@@ -212,6 +243,7 @@ const p2 = (t) => {
   const mano = coge <= 0 ? null : coge < 0.5 ? [Ri(lerp(150, 138, coge * 2)), Ri(lerp(146, 153, coge * 2))] : [Ri(lerp(138, 140, (coge - 0.5) * 2)), Ri(lerp(153, 143, (coge - 0.5) * 2)) - tec];
   const MANDO = mano ?? [138, 153];
   T.hoy(R, t, { encuadre: 'salon23', mando: [MANDO[0] - 4, MANDO[1]] });
+  pantallaSalon(t, juega, tec);
   const salto = t > WILLIS && t < WILLIS + 0.5 ? Ri(Math.sin((t - WILLIS) / 0.5 * Math.PI) * 4) : 0;
   const gi = R.actor(TS.gibson, xg, 156, t, { dir: -1, anda: e1 > 0 && e1 < 1, sostiene: mano ?? undefined, salto, sonrisa: t > OKLA, sorpresa: t > WILLIS + 0.6 && t < WILLIS + 0.9 });
   mandoJ(mano ? gi.mano[0] - 3 : MANDO[0], mano ? gi.mano[1] : MANDO[1], t);
