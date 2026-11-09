@@ -9,7 +9,8 @@ rival que la acorrala y un país entero que protesta por teléfono.
 
 **Formato:** el de siempre (YouTube 16:9, inglés principal y pista en español, pixel chibi, mezcla «B», voz contada como un
 cuento). **Derechos:** sin el logotipo de Coca-Cola ni el de Pepsi, sin su letra, sin la onda blanca, sin la botella de
-contorno (es marca registrada en 3D) y sin anuncios reales: botellas y latas genéricas de dos colores (rojo para una,
+contorno (es marca registrada en 3D), sin el disco rojo ni el globo tricolor, sin el Papá Noel ni los osos de
+sus anuncios, sin anuncios reales ni jingles (tampoco el sonido de marca), sin la serie de 2019: botellas y latas genéricas de dos colores (rojo para una,
 azul para la otra), sin letras. Las marcas solo se nombran en la voz.
 
 **Duración objetivo:** unas 8:45 [Probable]. Son 27 párrafos y unas 1.310 palabras en inglés.
@@ -116,8 +117,8 @@ anuncio luminoso de verano, con chispa.
 
 | ES | EN |
 |---|---|
-| El 11 de julio de 1985, setenta y nueve días después del anuncio, Coca-Cola dio marcha atrás. La receta de siempre volvía, con el nombre de Coca-Cola Classic. La noticia fue tan grande que una cadena de televisión interrumpió su telenovela de la tarde para darla, y un senador lo celebró en el Congreso como un momento importante de la historia del país. | On July 11, 1985, seventy-nine days after the announcement, Coca-Cola backed down. The original recipe was coming back, under the name Coca-Cola Classic. The news was so big that a TV network interrupted its afternoon soap opera to report it, and a senator celebrated it on the floor of Congress as a meaningful moment in the country's history. |
-| Las líneas de teléfono volvieron a llenarse, pero esta vez para dar las gracias. Las ventas de la vieja subieron más que antes del cambio, y pronto volvió a superar a Pepsi. La nueva siguió en las tiendas unos años más, cada vez más escondida, hasta que desapareció. | The phone lines filled up again, but this time to say thank you. Sales of the original rose higher than before the change, and it soon pulled ahead of Pepsi again. The new one stayed in stores for a few more years, more and more hidden away, until it disappeared. |
+| El 11 de julio de 1985, setenta y nueve días después del anuncio, Coca-Cola dio marcha atrás. La receta de siempre volvía, con el nombre de Coca-Cola Classic. La noticia corrió tan deprisa que, la víspera, una cadena de televisión interrumpió su telenovela de la tarde para darla, y un senador lo celebró en el Congreso como un momento importante de la historia del país. | On July 11, 1985, seventy-nine days after the announcement, Coca-Cola backed down. The original recipe was coming back, under the name Coca-Cola Classic. The news spread so fast that, the day before, a TV network interrupted its afternoon soap opera to report it, and a senator celebrated it on the floor of Congress as a meaningful moment in the country's history. |
+| Las líneas de teléfono volvieron a llenarse, pero esta vez para dar las gracias. Las ventas de la vieja subieron más que antes del cambio, y pronto volvió a superar a Pepsi. La nueva siguió en las tiendas muchos años más, cada vez más escondida y hasta con otro nombre, hasta que desapareció. Y en 2019 volvió unas semanas, como un guiño, para una serie ambientada en 1985. | The phone lines filled up again, but this time to say thank you. Sales of the original rose higher than before the change, and it soon pulled ahead of Pepsi again. The new one stayed in stores for years, more and more hidden away and even under a new name, until it disappeared. And in 2019 it came back for a few weeks, as a wink, for a TV series set in 1985. |
 | Hubo quien pensó que todo había sido una jugada maestra, un truco para que la gente echara de menos la de siempre. Uno de los directivos de la empresa respondió con humor: no eran tan tontos… ni tan listos. | Some people believed the whole thing had been a master plan, a trick to make people miss the original. One of the company's top executives answered with humor: they weren't that dumb… and they weren't that smart. |
 
 ## 6 · Lo que no medían

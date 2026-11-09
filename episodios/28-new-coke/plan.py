@@ -4,7 +4,8 @@ escenas.json). Una fila por escena: (id, cartela, frase_ini, frase_fin, [marca p
 - Cada «frase» es un PÁRRAFO de 2–4 oraciones narrado como un cuento: 3 o 4 planos de 4–7 s, cortados en la palabra.
 - Cinco decorados (guion.md): A Atlanta 1886, B la guerra de las colas, C el anuncio, D la rebelión, E hoy.
 - DERECHOS: sin logotipos de Coca-Cola ni de Pepsi, sin su letra, sin la onda, sin la botella de contorno, sin jingles ni
-  anuncios reales: botellas y latas genéricas de dos colores (rojo y azul) sin letras. Personas reales por sus atributos.
+  anuncios reales: botellas RECTAS y latas genéricas de dos colores planos (rojo y azul, algo distintos de los de las marcas) sin letras ni
+  ondas o círculos blancos; sin Papá Noel ni osos; sin la serie de 2019. Personas reales por sus atributos.
   Hilo de gags: la lata de Atom que suelta espuma.
 - Los golpes son NOMBRES DE MARCAS de la misma escena.
 - BANDA: Fa mayor, 116 por minuto, motivo alegre propio de los ochenta.
@@ -31,7 +32,7 @@ E = [
   ['A: dos abogados con sombrero entran en el despacho de Candler; él les da un contrato a cambio de una moneda de un dólar; una cadena de botellas genéricas sale de la ciudad en carros y trenes por un mapa.'],
   'aventura', []),
  ('nc-intocable', None, 7, 7, ['intocable'],
-  ['A y B: soldados que brindan con botellas genéricas, un anuncio navideño insinuado (sin letras), una familia en el porche en verano; un ejecutivo protege la caja fuerte con los brazos abiertos.'],
+  ['A y B: soldados que brindan con botellas genéricas, una mesa de Navidad con botellas (sin Papá Noel ni osos), una familia en el porche en verano; un ejecutivo protege la caja fuerte con los brazos abiertos.'],
   'misterio', []),
  ('nc-reto', '1975', 8, 8, ['reto'],
   ['B (un supermercado de 1975): una mesa con dos vasos sin marca, A y B; una señora prueba, se le iluminan los ojos y señala el vaso azul; una cámara de tele lo graba; los vasos se cambian de sitio como los trileros (gag 3).'],
