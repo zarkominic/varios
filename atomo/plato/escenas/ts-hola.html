@@ -209,7 +209,7 @@ function pantalla(t) {
   if (f < 0.35) {
     for (let c = 0; c < cols; c++) { const alto = Math.floor(hs(c, 3, 680) * 2.6); for (let r = 0; r < alto; r++) { if (r === 0 && borra >= 1) continue; const y = y1 - (r + 1) * (b + 1) + 1 + (r > 0 && borra >= 1 ? b + 1 : 0); cuadro(x0 + 1 + c * (b + 1), y, r === 0 && destello && Math.floor(t * 12) % 2 ? hex('#ffffff') : tin); } }
     for (let n = 0; n < 7; n++) { const c = Math.floor(hs(n, 1, 681) * cols), v = 5 + hs(n, 2, 681) * 6, y = y0 - b + ((t * v + hs(n, 3, 681) * H) % (H - 2 * b)); cuadro(x0 + 1 + c * (b + 1), Math.round(y), tin); if (n % 2 === 0) cuadro(x0 + 1 + (c + 1) % cols * (b + 1), Math.round(y), tin); }
-    R.numero(String(1200 + (borra >= 1 ? 400 : 0)), x0 + 3, y0 + 9, { color: tL, sombra: false });
+    // (sin marcador: derechos)
   }
   if (f > 0) {   // el fogonazo y el túnel: anillos de bloques que salen del centro, con Atom pequeñito dentro
     const cx = (x0 + x1) >> 1, cy = (y0 + y1) >> 1;
