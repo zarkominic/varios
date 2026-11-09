@@ -6738,3 +6738,429 @@ export const PIEZAS_VM = {
   bolsaMonedas: bolsaMonedasVM, tarjetasPerforadas: tarjetasPerforadasVM, maquinaDescifrar: maquinaDescifrarVM,
   pluma: plumaVM, tintero: tinteroVM,
 };
+
+// ── Episodio 27 (Tetris: sus derechos entre la URSS y Occidente, 1984–2023): el centro de cálculo de Moscú, Budapest,
+// Londres, Elorg, Las Vegas y Tokio, el juzgado de 1989, la juguetería, Harvard en 2000 y el salón de Oklahoma en 2023 ──
+// Las personas reales se reconocen solo por sus atributos (barba y gafas, bigote, camisa hawaiana, cejas pobladas…),
+// con respeto. Nada reproduce el juego (ni las siete piezas de colores, ni el pozo, ni la pieza siguiente) ni la Game
+// Boy; sin letras ni logos en nada. Nombres nuevos con TS.
+
+// tocados nuevos del 27
+Object.assign(TOCADOS, {
+  // la gorra de plato soviética del guardia: copa ancha (J), la banda roja (D) con la estrella de oro (O) y la visera
+  gorraPlatoTS: [[
+    '.kkkkkkkkkkkk..',
+    'kJJJJJJJJJJJJk.',
+    '.kDDDDDODDDDk..',
+    '.kkkkkkkkkkkkkk',
+    '..........kkkk.',
+  ], -2],
+  // el gorro de piel con orejeras (ushanka) de Moscú en febrero: la copa (J), la vuelta de piel (M/m) por delante y la
+  // orejera bajada sobre la oreja, por detrás; la cara queda entera
+  ushankaTS: [[
+    '...kkkkkkkk....',
+    '..kJJJJJJJJk...',
+    '.kJJjJJJJjJJk..',
+    'kMmMMmMMMmMMMk.',
+    'kMMMmMMMmMMMMk.',
+    'kMMMMkkkkkkkk..',
+    'kMmMMk.........',
+    'kMMmMk.........',
+    'kMMMMk.........',
+    'kmMMMk.........',
+    'kMMmk..........',
+    '.kkk...........',
+  ], -4],
+  // los cascos grandes de 2023: la diadema (M) por encima del pelo y el auricular (A, brillo a) sobre la oreja de
+  // atrás; lejos de los ojos
+  cascosTS: [[
+    '.....kkkkk.....',
+    '...kkMMMMMkk...',
+    '..kMMk...kkMMk.',
+    '..kMk......kk..',
+    '..kMk..........',
+    '.kkMkk.........',
+    'kAAAAk.........',
+    'kAaAAk.........',
+    'kAaAAk.........',
+    'kAAAAk.........',
+    '.kkkk..........',
+  ], -2],
+});
+
+// ── cabezas ──
+// barba corta con las sienes canosas (w): Pázhitnov en 1996
+const CAB_BARBA_SIENES_TS = parche(CAB_BARBA_CORTA_DC, [[2, 3, '.ww'], [2, 4, 'ww'], [2, 5, 'w'], [2, 6, 'w']]);
+
+// ── cuerpos ──
+// el magnate corpulento (17 de ancho, dxCuerpo −1): traje oscuro cruzado (C/c) sobre la camisa (W), la corbata (o) y
+// la barriga redonda que llena la chaqueta (botones O)
+const CUERPO_MAGNATE_TS = [
+  '....kkWWoWWkk....',
+  '..kkCCCWoWCCCkk..',
+  '.kCkCCCWoWCCCkCk.',
+  '.kCkCCCCoCCCCkCk.',
+  '.kCkCCCCoCCCCkCk.',
+  '.kSkCCCCOCCCCkSk.',
+  '..kCCCCCCCCCCCk..',
+  '..kCCCCCOCCCCCk..',
+  '..kcCCCCCCCCCck..',
+  '...kccccccccck...',
+  '...kFFFFkFFFFk...',
+  '...knnnnknnnnk...',
+  '..kkkkkk.kkkkkk..',
+];
+// el cuerpo de un chico (12 filas, una menos de pierna que el de adulto): Gerásimov a los 16, Gibson a los 13
+const sinFila = (filas, j0) => filas.filter((_, j) => j !== j0);
+// jersey de cuello de pico (C) con la camisa (W) del estudiante
+const CUERPO_JOVEN_TS = sinFila(CUERPO_PICO_DC, 9);
+// la sudadera con capucha (C, cordones X, bolsillo c) del chico de 2023
+const CUERPO_SUDADERA_TS = sinFila(CUERPO_SUDADERA_VM, 9);
+// la camisa hawaiana de manga corta (C) abierta al cuello (X) con las flores (P, el centro p) y el pantalón claro
+const CUERPO_HAWAIANA_TS = parche(CUERPO_CALLE, [[5, 0, 'CXSXC'], [4, 1, 'P'], [9, 1, 'p'], [2, 2, 'P'], [6, 2, 'Pp'], [10, 3, 'P'], [4, 4, 'p'], [8, 4, 'PP'], [5, 6, 'P'], [9, 5, 'p'], [12, 2, 'p']]);
+// el abrigo militar de invierno del guardia (C/c), las hombreras rojas (D), los botones (o) y el cinturón (G, hebilla O)
+const CUERPO_CAPOTE_TS = parche(CUERPO_ABRIGO_NV, [[3, 1, 'D'], [11, 1, 'D'], [4, 5, 'GGGOGGG']]);
+// el voluntario del laboratorio del sueño: camiseta (C) y el pantalón de pijama a rayas (F, raya f) con zapatillas (n)
+const CUERPO_PIJAMA_TS = parche(CUERPO_CALLE, [[5, 7, 'f'], [9, 7, 'f'], [5, 8, 'f'], [9, 8, 'f'], [5, 9, 'f'], [9, 9, 'f'], [5, 10, 'f'], [9, 10, 'f']]);
+
+// ── detalles (delante y detrás) ──
+// las cejas pobladas del magnate: dos filas de pelo (H) sobre los ojos (suben con la sorpresa)
+const cejasPobladasTS = (c) => { const y = (c.o.sorpresa ? 4 : 5); for (const i of [6, 7, 8, 9, 11, 12, 13]) c.cab.px(i, y, c.pal.H); c.cab.px(8, y - 1, c.pal.H); c.cab.px(12, y - 1, c.pal.H); };
+// la capucha de la sudadera, caída a la espalda
+const capuchaTS = (c) => c.cuerpo.rej(['.kkkk.', 'kCCCck', 'kcCCck'], 1, -2);
+const PAL_MANO_TS = { ...PAL_MANO, ...COLORES({ M: '#6a4422', m: '#4a2e16', O: '#f0c040', Z: '#a8acb8', z: '#6a6e7a', I: '#a8c8d0', A: '#3a6ad8', R: '#c8303a', X: '#f6f2e6', x: '#c8c0b0', K: '#2a2832', e: '#5a5866' }) };
+// el maletín colgando de la mano (Kevin Maxwell, Rogers en Moscú)
+const conMaletinTS = enMano(['..kkk..', '.kk.kk.', 'kkkkkkk', 'kMMOMMk', 'kMMMMMk', 'kmmmmmk', 'kkkkkkk'], 10, 5, PAL_MANO_TS);
+// la taza de café que se le queda fría en la mano (el científico)
+const conTazaTS = enMano(['kkkk..', 'kXXkkk', 'kXXk.k', 'kxXkkk', 'kkkk..'], 12, 2, PAL_MANO_TS);
+// la consola de bolsillo genérica en las manos (apaisada, pantalla en medio, botones redondos a los lados)
+const conConsolaTS = enMano(['.kkkkkkk.', 'kZkkkkkZk', 'kAkIIIkRk', 'kZkkkkkZk', '.kkkkkkk.'], 9, 2, PAL_MANO_TS);
+// la tablilla de notas de la investigadora: la madera (B), la pinza (K) y la hoja (X)
+const conNotasTS = enMano(['.kkk.', 'kBKBk', 'kXXXk', 'kxxXk', 'kXXXk', 'kxXxk', 'kBBBk', 'kkkkk'], 12, 1, { ...PAL_MANO_TS, ...COLORES({ B: '#a8743c' }) });
+
+// ── el reparto del 27 ──
+const B27 = B23, B27M = B23M, B27J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_TS = {
+  // ── Moscú, el centro de cálculo de la Academia de Ciencias (1984–1985) ──
+  // Pázhitnov en 1984: pelo y barba corta oscuros, gafas y el jersey de pico verde gris sobre la camisa
+  pazhitnov: { ...B27, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1414'), delante: gafasFinasDC,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', C: '#5e6e58', c: '#465442', W: '#e8e4d8', F: '#4a4a54', n: '#2a2430' }) },
+  // Gerásimov, el estudiante de 16: delgado, más bajo, el pelo de lado castaño claro y el jersey azul con la camisa
+  gerasimov: { ...B27J, cab: CAB_LADO_DC, cuerpo: CUERPO_JOVEN_TS, ceja: hex('#7a5a34'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a6a40', h: '#a88452', s: '#e8a080', C: '#3a5a8a', c: '#2a4468', W: '#f2eee2', F: '#4a4a5a', n: '#2a2430' }) },
+  // el científico del centro: entradas, gafas redondas, bigote, la bata blanca y la taza de café en la mano
+  cientifico: { ...B27, cab: CAB_ENTRADAS, cuerpo: CUERPO_BATA_DC, ceja: hex('#4a3020'), delante: varios(bigoteTR, gafasRedondasDC, conTazaTS),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#f2f2f6', c: '#c8ccd8', W: '#c8b890', o: '#5a4a3a', F: '#4a4a54', n: '#2a2430' }) },
+  // la científica: el pelo recogido en moño, la bata blanca sobre el jersey burdeos
+  cientifica: { ...B27, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_BATA_DC, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: monoBajoTR,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#f2f2f6', c: '#c8ccd8', W: '#8a3040', o: '#8a3040', F: '#3a3a44', n: '#2a2430' }) },
+  // el burócrata: calvo con entradas, traje gris de los ochenta soviético y la corbata granate
+  burocrata: { ...B27, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a4a54'), delante: arrugasDC,
+    pal: CLT({ H: '#5a5a64', h: '#7a7a86', C: '#6a6c72', c: '#52545a', W: '#e8e4d8', o: '#6a2a32', F: '#5a5c62' }) },
+  // el guardia: el capote militar verde gris con hombreras rojas, cinturón y la gorra de plato con la estrella
+  guardia: { ...B27, cuerpo: CUERPO_CAPOTE_TS, tocado: 'gorraPlatoTS', ceja: hex('#5a3a24'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#5a6448', C: '#5a6448', c: '#444c36', u: '#4e5640', o: '#c8a040', D: '#b02a34', O: '#f0c040', G: '#4a2e16', F: '#3e4434', n: '#1e1a20' }) },
+  // ── Elorg (1988–1989) ──
+  // Bélikov: serio, el pelo oscuro peinado hacia atrás, traje pardo soviético y la corbata oscura
+  belikov: { ...B27, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1414'),
+    pal: CLT({ H: '#2a201c', h: '#4a3a34', C: '#5a5046', c: '#443c34', W: '#e8e4d8', o: '#2a2a3a', F: '#4a443c' }) },
+  // Pázhitnov en 1996: la barba con las sienes canosas, gafas finas y la americana parda sobre la camisa azul
+  pazhitnovMayor: { ...B27, cab: CAB_BARBA_SIENES_TS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1e1a'), delante: gafasFinasDC,
+    pal: CLT({ H: '#3a2c26', h: '#5a4a42', w: '#b8b8c2', C: '#6a5a48', c: '#524436', W: '#a8c0d8', o: '#a8c0d8', F: '#3a3a44' }) },
+  // ── Las Vegas, Tokio y Moscú (1988–1989) ──
+  // Rogers: el pelo oscuro, el bigote, la camisa hawaiana roja de flores y el pantalón claro
+  rogers: { ...B27, cuerpo: CUERPO_HAWAIANA_TS, ceja: hex('#1c1414'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', C: '#c8403a', c: '#963028', X: '#f2eee2', P: '#f6e6a0', p: '#f0a030', F: '#d8c8a0', n: '#4a3020' }) },
+  // Rogers en Moscú: el mismo bigote con el abrigo de invierno pardo de cuello de piel y el gorro de piel con orejeras
+  rogersAbrigo: { ...B27, cuerpo: CUERPO_ABRIGO_NV, tocado: 'ushankaTS', ceja: hex('#1c1414'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', J: '#6a5442', j: '#7e6650', M: '#b0946e', m: '#86694a', C: '#4a3a30', c: '#382c24', u: '#b0946e', o: '#2a2018', F: '#3a3a44', n: '#1e1a20' }) },
+  // el ejecutivo japonés de Tokio: el pelo negro peinado, gafas finas y el traje azul marino
+  ejecutivoNintendo: { ...B27, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1424'), delante: gafasFinasDC,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#2a3450', c: '#1e263c', W: '#f2eee2', o: '#6a7a9a', F: '#2a3450' }) },
+  // ── Budapest y Londres (1986–1989) ──
+  // Stein: sienes canosas, el bigote doble y el traje gris marengo con la corbata azul
+  stein: { ...B27, cab: CAB_SIENES, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#3a2a20'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#4a3a2c', h: '#6a5444', w: '#c8c8d2', C: '#4a4c56', c: '#383a42', W: '#eef0f6', o: '#3a5a8a', F: '#4a4c56' }) },
+  // el magnate: grande y corpulento, el pelo negro peinado hacia atrás, las cejas pobladas y el traje oscuro
+  maxwell: { ...B27, cab: CAB_ENGOMINADO, cuerpo: CUERPO_MAGNATE_TS, dxCuerpo: -1, brazoCol: 13, ceja: hex('#14101a'), delante: cejasPobladasTS,
+    pal: CLT({ H: '#1a1418', h: '#3a3036', C: '#22242e', c: '#16181f', W: '#eef0f6', o: '#8a2a3a', O: '#c8c8d2', F: '#22242e', n: '#141218' }) },
+  // su hijo: joven, el pelo oscuro de lado, traje azul noche y el maletín
+  kevinMaxwell: { ...B27, cab: CAB_LADO_DC, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#2a1e1a'), delante: conMaletinTS,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', C: '#283048', c: '#1c2236', W: '#eef0f6', o: '#8a8a96', F: '#283048' }) },
+  // el ejecutivo de la editorial de software de Londres: pelo castaño, traje gris claro con el pañuelo en el bolsillo
+  ejecutivoMirror: { ...B27, cuerpo: CUERPO_TRAJE_PANUELO_DC, ceja: hex('#6a4426'),
+    pal: CLT({ H: '#7a5030', h: '#9a6a40', C: '#8a8c94', c: '#6e7078', W: '#eef0f6', o: '#a83a3a', X: '#e86a6a', F: '#6e7078' }) },
+  // ── EE. UU., 1989 ──
+  // la jueza: media melena gris, gafas finas y la toga negra con el cuello blanco
+  jueza: { ...B27M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_TOGA_JUEZ_TR, ceja: hex('#6a6a76'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: CLT({ H: '#9a9aa6', h: '#b8b8c4', s: '#e8a080', C: '#1e1e26', c: '#16161c', o: '#2a2a34', G: '#1e1e26', W: '#f2eee2', L: '#16161c' }) },
+  // el operario que retira las cajas: gorra, el mono gris azulado y las botas
+  operario: { ...B27, cuerpo: CUERPO_MONO_AT, tocado: 'beisbol', ceja: hex('#5a3a24'),
+    pal: MOT({ H: '#3a2a20', h: '#5a4434', J: '#5a6a7a', j: '#44505e', C: '#6a7a8a', c: '#52606e', o: '#c8ccd8', u: '#52606e', G: '#3a3a44', n: '#2a2018' }) },
+  // el tendero de la juguetería de 1989: entradas, bigote, chaleco verde con la plaquita sin letras y camisa blanca
+  tendero: { ...B27, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHALECO_ROJO_AT, ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#2e7a4a', c: '#22603a', W: '#f2eee2', o: '#f0c040', X: '#f6f6f6', F: '#4a4a54' }) },
+  // la gente que juega con la consola de bolsillo: el niño de jersey amarillo y el adulto de gabardina en el autobús
+  ninoJuega: { ...B23N, cab: CAB_TAZON_TR, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: conConsolaTS,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#e8b830', c: '#c09020', F: '#3a4a7a', n: '#2a2430' }) },
+  adultoJuega: { ...B27, cab: CAB_LADO_DC, cuerpo: CUERPO_GABARDINA_DC, ceja: hex('#1c1424'), delante: conConsolaTS,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#b8a272', c: '#8e7a50', W: '#e8eef6', o: '#3a4a6a', F: '#3a3a44' }) },
+  // ── Harvard, 2000 ──
+  // la investigadora del laboratorio del sueño: media melena, gafas, bata y la carpeta de notas
+  investigadora: { ...B27M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: varios(gafasFinasDC, conNotasTS),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#f2f2f6', c: '#c8ccd8', W: '#5a7aa8', o: '#5a7aa8', F: '#3a3a44', n: '#2a2430' }) },
+  // el voluntario: el pelo revuelto, la camiseta gris y el pantalón de pijama azul a rayas
+  voluntario: { ...B27, cab: CAB_LADO_DC, cuerpo: CUERPO_PIJAMA_TS, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#8a8c96', c: '#6e7078', F: '#5a7ab8', f: '#3a5490', n: '#4a5a8a' }) },
+  // ── Oklahoma, 2023 ──
+  // el chico de 13: el pelo corto castaño, los cascos grandes rojos y negros, la sudadera azul con capucha
+  gibson: { ...B27J, cuerpo: CUERPO_SUDADERA_TS, tocado: 'cascosTS', ceja: hex('#6a4426'), mejillas: [[6, 8], [12, 8]], detras: capuchaTS,
+    pal: CLT({ H: '#7a5030', h: '#9a6a40', s: '#e8a080', M: '#4a4856', A: '#c8303a', a: '#e86a6a', C: '#3a6aa8', c: '#2a5088', X: '#e8e8ee', F: '#3a3a44', n: '#2a2430' }) },
+  // ── el público genérico (la feria de Las Vegas, la cola, el autobús) ──
+  publico: { ...B27, cab: CAB_CORTO, cuerpo: CUERPO_POLO_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#3a7a8a', c: '#2a5e6a', W: '#f2eee2', o: '#f2eee2', F: '#4a4a5a', n: '#2a2430' }) },
+  publica: { ...B27, cab: CAB_RIZOS, cuerpo: CUERPO_HOMBRERAS_AT, ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#3a2418', h: '#5a3a24', s: '#c07a5a', C: '#7a4a9a', c: '#5a3478', W: '#f2eee2', I: '#2a2430', o: '#f0c040' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían: cientifico, guardia y operario ya eran de otros episodios)
+for (const [k, v] of Object.entries(ELENCO_TS)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 27 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_TS = { ...PAL_DC, ...COLORES({
+  K: '#24222c', u: '#4a4856', N: '#0a120c', G: '#56f07a', g: '#1e7a34', T: '#d0c8b0', t: '#a8a088', e: '#6a6456',
+  X: '#f6f2e6', x: '#c8c0b0', B: '#b8844a', b: '#7a5028', l: '#dcb07a', R: '#c8303a', r: '#8a1e26', O: '#f0c040',
+  o: '#ffe890', Z: '#b8bcc8', z: '#7c8090', A: '#3a6ad8', a: '#9ab8e0', V: '#3a8a4a', v: '#2a6a36', Y: '#f0d040',
+  M: '#8a5a2e', m: '#5e3a1c', D: '#3a2a1a', E: '#ffffff', P: '#e2cc98', p: '#b89c68', Q: '#7a3a5a', q: '#4e2a3e',
+  W: '#e8e4dc', w: '#b8b4ac', S: '#f6c290', I: '#a8c8d0', i: '#3e5a66', F: '#5a5466', f: '#3e3a48',
+}) };
+const pintaTS = (R, g, x, y, o = {}, pal = PAL_TS) => pintaJH(R, g, x, y, o, pal);
+const encimaTS = (R, w, hgt, x, y, o, pal = PAL_TS) => encimaNV(R, w, hgt, x, y, o, pal);
+
+// EL TERMINAL SOVIÉTICO de los ochenta: la caja beis (T, sombra t) con el marco oscuro (e), la pantalla negra (N) de
+// fósforo verde y el pie; o.texto: cuántas filas de corchetes «[ ]» verdes (G) hay, de abajo arriba (0–3, 3 por
+// omisión; el resto de la pantalla queda negra, sin pozo ni colores); o.completa: la fila de abajo llena, que
+// parpadea con o.t; o.t: el cursor parpadea; o.teclado (true por omisión): el teclado delante. 34 × 25 (con el
+// teclado, 34 × 29)
+const MONITOR_TS = forma(34, 25, ({ rect, put }) => {
+  rect(1, 0, 32, 20, 'T'); rect(1, 0, 32, 0, 'W'); rect(31, 1, 32, 20, 't'); rect(1, 19, 32, 20, 't');
+  rect(3, 2, 30, 17, 'e'); rect(4, 3, 29, 16, 'N');
+  put(5, 19, 'g'); rect(25, 19, 26, 19, 'e'); rect(28, 19, 29, 19, 'e');
+  rect(12, 21, 21, 22, 't'); rect(8, 23, 25, 24, 'T'); rect(8, 24, 25, 24, 't');
+});
+const TECLADO_TS = forma(34, 6, ({ rect, put }) => {
+  rect(1, 1, 32, 4, 'T'); rect(1, 4, 32, 4, 't');
+  for (let i = 3; i <= 29; i += 2) { put(i, 2, 'e'); put(i + 1, 3, 'e'); }
+  rect(12, 3, 21, 3, 'e');
+});
+const CORCHETES_TS = ['GG.GG', 'G...G', 'GG.GG'];
+const FILAS_TS = [[1, 1, 0, 1], [1, 0, 1, 1], [0, 1, 1, 0]];
+const terminalTS = (R, x, y, o = {}) => {
+  const tec = o.teclado !== false, s = o.s ?? 1, ym = tec ? y - 4 * s : y;
+  pintaTS(R, MONITOR_TS, x, ym, o);
+  const px = encimaTS(R, 34, 25, x, ym, o), t = o.t ?? 0, n = Math.max(0, Math.min(3, Math.round(o.texto ?? 3)));
+  for (let f = 0; f < n; f++) {
+    const llena = f === 0 && o.completa, celdas = llena ? [1, 1, 1, 1] : FILAS_TS[f];
+    const col = llena && Math.sin(t * 12) > 0 ? 'o' : 'G';
+    celdas.forEach((c, k) => { if (c) rejAT(px, CORCHETES_TS.map((r) => r.replace(/G/g, col)), 5 + k * 6, 13 - f * 4); });
+  }
+  if (Math.sin(t * 5) > -0.2) { px(5, 4, 'G'); px(6, 4, 'G'); px(5, 5, 'G'); px(6, 5, 'G'); }
+  if (tec) pintaTS(R, TECLADO_TS, x, y, o);
+};
+
+// EL DISQUETE de 5¼: la funda negra (K, brillo u) con la etiqueta blanca (X, renglones x, sin letras), el agujero del
+// centro con su aro (u), el agujero índice y la ventana de lectura; o.etiqueta: el color de la etiqueta. 14 × 14
+const DISQUETE_TS = forma(14, 14, ({ rect, put, disco }) => {
+  rect(0, 0, 13, 13, 'K'); rect(0, 0, 13, 0, 'u');
+  rect(2, 1, 11, 4, 'X'); rect(3, 2, 9, 2, 'x'); rect(3, 3, 7, 3, 'x');
+  disco(6.5, 7.5, 1.8, 'u'); rect(6, 7, 7, 8, 'N'); put(3, 8, 'N');
+  rect(6, 10, 7, 12, 'u'); put(13, 3, 'u');
+});
+const disqueteTS = (R, x, y, o = {}) => pintaTS(R, DISQUETE_TS, x, y, o, { ...PAL_TS, ...COLORES({ K: '#2e2c36', u: '#5a5866', N: '#0c0a12', X: o.etiqueta ?? '#f6f2e6' }) });
+
+// EL TÉLEX: la máquina de teletipo (T, sombra t) con la hoja en el rodillo (X), el teclado (e, teclas W), la lucecita
+// (R, parpadea con o.t) y la cinta de papel perforada que sale por la derecha, cae al suelo y corre por él; o.cinta 0–1
+// su largo (hasta 120 px más allá de la máquina). 30 × 22 (más la cinta)
+const TELEX_TS = forma(30, 22, ({ rect, put }) => {
+  rect(8, 0, 21, 3, 'X'); rect(10, 1, 19, 1, 'x'); rect(10, 2, 16, 2, 'x');
+  rect(5, 3, 24, 4, 'K'); rect(3, 5, 26, 7, 'T'); rect(3, 5, 26, 5, 'W');
+  rect(1, 8, 28, 20, 'T'); rect(27, 8, 28, 20, 't'); rect(1, 19, 28, 20, 't');
+  rect(4, 11, 25, 16, 'e'); for (const j of [12, 14]) for (let i = 5; i <= 23; i += 2) put(i + (j === 14 ? 1 : 0), j, 'W');
+  rect(9, 16, 20, 16, 'W'); put(25, 9, 'R'); rect(27, 9, 28, 10, 'e');
+  rect(2, 21, 4, 21, 'K'); rect(25, 21, 27, 21, 'K');
+});
+const telexTS = (R, x, y, o = {}) => {
+  pintaTS(R, TELEX_TS, x, y, o);
+  const px = encimaTS(R, 30, 22, x, y, o), t = o.t ?? 0;
+  if (o.t != null && Math.sin(t * 6) < 0) px(25, 9, 'r');
+  const camino = [];
+  for (let i = 29; i <= 32; i++) camino.push([i, 9]);
+  for (let j = 10; j <= 20; j++) camino.push([32 + (j > 15 ? 1 : 0), j]);
+  for (let i = 34; i < 34 + 120; i++) camino.push([i, 21]);
+  const n = Math.round(Math.max(0, Math.min(1, o.cinta ?? 0.4)) * camino.length), tira = new Map(), clave = (i, j) => i + ',' + j;
+  for (let k = 0; k < n; k++) { const [i, j] = camino[k], v = j > 9 && j < 21; for (const [a, b] of v ? [[0, 0], [1, 0]] : [[0, 0], [0, -1]]) tira.set(clave(i + a, j + b), k % 3 === 1 ? 'x' : 'X'); }
+  for (const c of tira.keys()) { const [i, j] = c.split(',').map(Number); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!tira.has(clave(i + a, j + b)) && j + b <= 21 && i + a > 28) px(i + a, j + b, 'k'); }
+  for (const [c, l] of tira) { const [i, j] = c.split(',').map(Number); px(i, j, l); }
+};
+
+// LA CAJA DEL JUEGO de cartón (P, canto p) con la Plaza Roja pintada: el cielo (A, estrellas o), las cúpulas de cebolla a rayas
+// (R/O, V/Y, Q/W) sobre sus torres (W), la muralla roja almenada (R) con su estrella y el empedrado (x). Sin letras
+// ni logo. 20 × 26
+const CAJA_TS = forma(20, 26, ({ rect, put, disco }) => {
+  rect(1, 0, 19, 1, 'X'); rect(17, 1, 19, 25, 'p'); rect(0, 2, 16, 25, 'P');
+  rect(2, 4, 14, 15, 'A'); put(4, 5, 'o'); put(12, 6, 'o'); put(8, 4, 'o');
+  const cebolla = (cx, cy, r, c1, c2) => { disco(cx, cy, r + 0.9, 'k'); disco(cx, cy, r, c1); for (let j = Math.floor(cy - r); j <= cy + r; j += 2) for (let i = cx - r; i <= cx + r; i++) if (Math.hypot(i - cx, j - cy) <= r) put(i, j, c2); put(cx, cy - r - 1, 'O'); put(cx, cy - r - 2, 'O'); };
+  rect(4, 13, 6, 18, 'W'); rect(7, 10, 10, 18, 'W'); rect(11, 13, 13, 18, 'W'); rect(10, 10, 10, 18, 'w'); rect(13, 13, 13, 18, 'w');
+  cebolla(5, 11, 1.6, 'R', 'O'); cebolla(8.5, 8, 2.2, 'V', 'Y'); cebolla(12, 11, 1.6, 'Q', 'W');
+  rect(2, 17, 14, 20, 'R'); for (let i = 2; i <= 14; i += 2) put(i, 16, 'R'); rect(2, 20, 14, 20, 'r');
+  put(3, 13, 'R'); rect(3, 14, 3, 16, 'r');
+  rect(2, 21, 14, 23, 'x'); for (let i = 3; i <= 13; i += 3) put(i, 22, 'w');
+});
+const cajaJuegoTS = (R, x, y, o = {}) => pintaTS(R, CAJA_TS, x, y, o);
+
+// EL CONTRATO: la hoja (X, sombra x) con renglones de tinta sin letras (e), tres casillas con su pictograma (un
+// ordenador, una consola de salón, una de bolsillo); o.casillas: cuáles van marcadas ([1, 0, 0] por omisión, o un
+// número: las n primeras); o.firma: la firma en tinta azul; o.sello: el sello rojo redondo. 22 × 28
+const CONTRATO_TS = forma(22, 28, ({ rect }) => { rect(0, 0, 20, 27, 'X'); rect(21, 1, 21, 27, 'x'); rect(1, 27, 21, 27, 'x'); });
+const ICONOS_TS = [
+  ['eeeee', 'eaaae', 'eeeee', '.eee.'],       // el ordenador: la pantalla y el pie
+  ['.....', 'eeeee', 'eZeZe', 'eeeee'],       // la consola de salón: la caja ancha con dos botones
+  ['eeeee', 'ZeaeZ', 'eeeee', '.....'],       // la de bolsillo: apaisada, la pantalla en medio
+];
+const contratoTS = (R, x, y, o = {}) => {
+  pintaTS(R, CONTRATO_TS, x, y, o);
+  const px = encimaTS(R, 22, 28, x, y, o);
+  for (const [j, a] of [[2, 17], [4, 15], [6, 12]]) for (let i = 2; i <= a; i++) if ((i * 5 + j) % 9) px(i, j, 'e');
+  const marca = Array.isArray(o.casillas) ? o.casillas : [0, 1, 2].map((k) => (k < (o.casillas ?? 1) ? 1 : 0));
+  for (let k = 0; k < 3; k++) {
+    const j0 = 9 + k * 5;
+    for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) px(2 + a, j0 + b, a === 0 || a === 3 || b === 0 || b === 3 ? 'e' : 'X');
+    if (marca[k]) { px(2, j0 + 1, 'A'); px(3, j0 + 2, 'A'); px(4, j0 + 1, 'A'); px(5, j0, 'A'); px(6, j0 - 1, 'A'); }
+    rejAT(px, ICONOS_TS[k], 8, j0);
+    for (let i = 14; i <= 18; i++) if (i % 4) px(i, j0 + 2, 'w');
+  }
+  for (let i = 9; i <= 18; i++) px(i, 25, 'w');
+  if (o.firma) for (let i = 10; i <= 17; i++) px(i, 24 - Math.round(Math.abs(Math.sin(i * 1.3)) * 2), 'A');
+  if (o.sello) for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) { const r = Math.hypot(a, b); if ((r <= 2.6 && r > 1.7) || r < 0.5) px(5 + a, 24 + b, 'R'); }
+};
+
+// EL CARTUCHO genérico (ni de la NES ni de nadie): la carcasa gris (Z, sombra z) alta y estrecha con el hueco de la
+// etiqueta (X, la franja de color de o.color, sin letras), las estrías de agarre abajo y los contactos de oro (O)
+// que asoman. 14 × 17
+const CARTUCHO_TS = forma(14, 17, ({ rect, put }) => {
+  rect(1, 0, 12, 13, 'Z'); rect(12, 0, 12, 13, 'z'); rect(1, 0, 12, 0, 'W');
+  rect(3, 2, 10, 8, 'X'); rect(3, 2, 10, 4, 'L'); rect(4, 6, 9, 6, 'x'); rect(4, 7, 7, 7, 'x');
+  for (const j of [10, 12]) rect(2, j, 11, j, 'z');
+  rect(3, 14, 10, 15, 'z'); for (let i = 3; i <= 10; i += 2) put(i, 15, 'O');
+});
+const cartuchoTS = (R, x, y, o = {}) => pintaTS(R, CARTUCHO_TS, x, y, o, { ...PAL_TS, ...COLORES({ L: o.color ?? '#3a8a9a' }) });
+
+// LA CONSOLA DE BOLSILLO genérica de 1989 (nada que ver con la Game Boy): apaisada, gris (Z, sombra z), la pantalla
+// ancha en medio (marco u, cristal I; con o.encendida se enciende y brilla), dos botones redondos azules a la
+// izquierda y dos rojos a la derecha, uno encima del otro, y dos botoncitos bajo la pantalla; o.pano: tapada con un
+// paño granate (Q/q) con sus pliegues. 28 × 14
+const CONSOLA_TS = forma(28, 14, ({ rect, put, disco }) => {
+  rect(1, 1, 26, 12, 'Z'); for (const [i, j] of [[1, 1], [26, 1], [1, 12], [26, 12]]) put(i, j, '.');
+  rect(2, 1, 25, 1, 'W'); rect(2, 12, 25, 12, 'z'); rect(26, 2, 26, 11, 'z');
+  rect(8, 2, 19, 10, 'u'); rect(9, 3, 18, 9, 'i');
+  disco(4.5, 4.5, 1.2, 'A'); disco(4.5, 8.5, 1.2, 'A'); disco(22.5, 4.5, 1.2, 'R'); disco(22.5, 8.5, 1.2, 'R');
+  rect(11, 11, 12, 11, 'z'); rect(15, 11, 16, 11, 'z');
+});
+const PANO_TS = forma(32, 16, ({ rect, put }) => {
+  rect(2, 0, 29, 15, 'Q'); for (const i of [7, 15, 23]) rect(i, 2, i, 15, 'q'); rect(1, 13, 30, 15, 'Q'); for (const i of [4, 11, 19, 27]) put(i, 15, 'q');
+  rect(3, 0, 28, 0, 'P');
+});
+const consolaBolsilloTS = (R, x, y, o = {}) => {
+  if (o.pano) { pintaTS(R, PANO_TS, x, y, o, { ...PAL_TS, ...COLORES({ P: '#9a4a6a' }) }); return; }
+  pintaTS(R, CONSOLA_TS, x, y, o);
+  if (o.encendida) {
+    const px = encimaTS(R, 28, 14, x, y, o);
+    for (let j = 3; j <= 9; j++) for (let i = 9; i <= 18; i++) px(i, j, 'I');
+    px(10, 4, 'E'); px(11, 4, 'E'); px(10, 5, 'E');
+    if (o.t != null && Math.sin(o.t * 5) > 0) px(7, 11, 'R');
+  }
+};
+
+// LA MALETA de cuero (M, sombra m) con las dos correas (D), los cierres y las esquinas de metal (O) y el asa (K);
+// o.abierta: la tapa levantada detrás con el forro (Q/q) y la ropa doblada en montones de tela que encajan justos.
+// Cerrada 24 × 16, abierta 24 × 28
+const MALETA_TS = forma(24, 16, ({ rect, put }) => {
+  rect(9, 0, 14, 0, 'K'); rect(9, 1, 9, 2, 'K'); rect(14, 1, 14, 2, 'K');
+  rect(0, 3, 23, 15, 'M'); rect(0, 3, 23, 3, 'l'); rect(0, 14, 23, 15, 'm'); rect(23, 4, 23, 15, 'm');
+  rect(6, 3, 7, 15, 'D'); rect(16, 3, 17, 15, 'D'); put(6, 6, 'O'); put(16, 6, 'O');
+  for (const [i, j] of [[0, 3], [23, 3], [0, 15], [23, 15]]) put(i, j, 'O');
+  rect(1, 8, 22, 8, 'm');
+});
+const MALETA_ABIERTA_TS = forma(24, 28, ({ rect, put }) => {
+  rect(0, 0, 23, 12, 'M'); rect(2, 2, 21, 11, 'Q'); rect(2, 2, 21, 2, 'q'); for (let i = 4; i <= 20; i += 4) put(i, 6, 'q');
+  rect(0, 13, 23, 27, 'M'); rect(0, 26, 23, 27, 'm'); rect(1, 14, 22, 25, 'q');
+  rect(2, 15, 8, 19, 'a'); rect(2, 17, 8, 17, 'A'); rect(9, 15, 15, 19, 'W'); rect(9, 17, 15, 17, 'w'); rect(16, 15, 21, 19, 'v'); rect(16, 17, 21, 17, 'V');
+  rect(2, 20, 11, 24, 'x'); rect(2, 22, 11, 22, 'X'); rect(12, 20, 21, 24, 'f'); rect(12, 22, 21, 22, 'F');
+  put(0, 13, 'O'); put(23, 13, 'O'); put(6, 13, 'O'); put(17, 13, 'O');
+});
+const maletaTS = (R, x, y, o = {}) => pintaTS(R, o.abierta ? MALETA_ABIERTA_TS : MALETA_TS, x, y, o);
+
+// EL MAZO del juez de madera (B, luz l, sombra b) con los aros (b): tumbado o, con o.arriba, levantado para el golpe;
+// o.base (true por omisión): el taco redondo donde golpea. Tumbado 16 × 11, levantado 16 × 18
+const MAZO_TS = forma(16, 7, ({ rect }) => { rect(1, 0, 7, 5, 'B'); rect(1, 0, 7, 0, 'l'); rect(1, 5, 7, 5, 'b'); rect(3, 0, 3, 5, 'b'); rect(5, 0, 5, 5, 'b'); rect(8, 2, 15, 3, 'B'); rect(8, 3, 15, 3, 'b'); });
+const MAZO_ALTO_TS = forma(16, 14, ({ rect, linea }) => {
+  rect(8, 0, 14, 5, 'B'); rect(8, 0, 14, 0, 'l'); rect(8, 5, 14, 5, 'b'); rect(10, 0, 10, 5, 'b'); rect(12, 0, 12, 5, 'b');
+  linea(9, 6, 2, 13, 'B'); linea(10, 6, 3, 13, 'b');
+});
+const TACO_TS = forma(16, 4, ({ rect }) => { rect(2, 0, 13, 1, 'B'); rect(2, 0, 13, 0, 'l'); rect(1, 2, 14, 3, 'b'); });
+const mazoTS = (R, x, y, o = {}) => {
+  const base = o.base !== false, s = o.s ?? 1;
+  if (base) pintaTS(R, TACO_TS, x, y, o);
+  pintaTS(R, o.arriba ? MAZO_ALTO_TS : MAZO_TS, x, y - (base ? 4 * s : 0) - (o.arriba ? 4 * s : 0), o);
+};
+
+// EL RUBLO: la moneda plateada (Z, sombra z, brillo E) con el «1» en relieve (z); o.giro 0–1 la hace girar sobre sí
+// misma (0 de frente, 0.5 de canto: una raya), para que ruede y dé vueltas antes de pararse. 8 × 8
+const RUBLO_CACHE_TS = new Map();
+const rubloTS = (R, x, y, o = {}) => {
+  const w = Math.max(1, Math.round(7 * Math.abs(Math.cos((o.giro ?? 0) * Math.PI))));
+  if (!RUBLO_CACHE_TS.has(w)) RUBLO_CACHE_TS.set(w, forma(9, 9, ({ put }) => {
+    for (let j = 1; j <= 7; j++) for (let i = 1; i <= 7; i++) { const dx = (i - 4) / Math.max(0.6, w / 2), dy = (j - 4) / 3.5; if (dx * dx + dy * dy <= 1) put(i, j, i - 4 >= w / 2 - 1 && w > 2 ? 'z' : 'Z'); }
+    if (w >= 5) { put(4, 2, 'z'); put(4, 3, 'z'); put(4, 4, 'z'); put(4, 5, 'z'); put(3, 3, 'z'); put(3, 5, 'z'); put(5, 5, 'z'); put(2, 3, 'E'); }
+  }));
+  pintaTS(R, RUBLO_CACHE_TS.get(w), x, y, o);
+};
+
+// LOS BLOQUES de madera: cubos de un solo color (B, luz l, sombra b, la veta T) que se tocan; o.n cuántos en fila (3 por
+// omisión), o.filas cuántas filas apiladas (1). Cada bloque 9 × 9
+const BLOQUE_TS = forma(9, 9, ({ rect, put }) => { rect(0, 0, 8, 8, 'B'); rect(0, 0, 8, 0, 'l'); rect(0, 0, 0, 8, 'l'); rect(8, 1, 8, 8, 'b'); rect(1, 8, 8, 8, 'b'); put(3, 3, 'T'); put(4, 3, 'T'); put(5, 5, 'T'); });
+const bloquesTS = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.round(o.n ?? 3)), filas = Math.max(1, Math.round(o.filas ?? 1)), s = o.s ?? 1, pal = { ...PAL_TS, ...COLORES({ T: '#9a6a38' }) };
+  for (let f = 0; f < filas; f++) for (let c = 0; c < n; c++) pintaTS(R, BLOQUE_TS, x + (c - (n - 1) / 2) * 10 * s, y - f * 10 * s, o, pal);
+};
+
+// EL MALETÍN de ejecutivo (M, sombra m; o.color lo cambia) con el asa (K) y los dos cierres de oro (O). 16 × 13
+const MALETIN_TS = forma(16, 13, ({ rect, put }) => {
+  rect(6, 0, 9, 0, 'K'); put(6, 1, 'K'); put(9, 1, 'K');
+  rect(0, 2, 15, 12, 'M'); rect(0, 2, 15, 2, 'l'); rect(0, 11, 15, 12, 'm'); rect(15, 3, 15, 12, 'm'); rect(1, 5, 14, 5, 'm');
+  put(3, 4, 'O'); put(12, 4, 'O');
+});
+const maletinTS = (R, x, y, o = {}) => pintaTS(R, MALETIN_TS, x, y, o, o.color ? { ...PAL_TS, ...COLORES({ M: o.color, m: oscuroTR(o.color), l: o.color }) } : PAL_TS);
+
+// EL TELÉFONO ROJO de despacho (R, sombra r, brillo o fino E) con el disco de marcar (W, agujeros w) y el auricular
+// sobre la horquilla; o.descolgado: el auricular levantado por encima y el cordón rizado que cuelga. 16 × 11 (descolgado,
+// 16 × 18)
+const TELEFONO_TS = forma(16, 11, ({ rect, put, disco }) => {
+  rect(1, 0, 14, 2, 'R'); rect(0, 1, 2, 3, 'R'); rect(13, 1, 15, 3, 'R'); rect(3, 0, 12, 0, 'E');
+  rect(2, 4, 13, 10, 'R'); rect(1, 9, 14, 10, 'r'); rect(13, 5, 13, 9, 'r');
+  disco(7.5, 6.5, 2.4, 'W'); put(7, 6, 'R'); put(8, 7, 'R'); for (const [i, j] of [[6, 5], [9, 5], [5, 7], [10, 7], [7, 9]]) put(i, j, 'w');
+});
+const TELEFONO_SOLO_TS = forma(16, 18, ({ rect, put, disco, linea }) => {
+  rect(1, 0, 14, 2, 'R'); rect(0, 1, 2, 3, 'R'); rect(13, 1, 15, 3, 'R'); rect(3, 0, 12, 0, 'E');
+  for (let k = 0; k < 5; k++) put(14 + (k % 2), 4 + k, 'r');
+  rect(3, 11, 12, 11, 'r'); put(3, 10, 'r'); put(12, 10, 'r');
+  rect(2, 12, 13, 17, 'R'); rect(1, 16, 14, 17, 'r'); rect(13, 12, 13, 16, 'r');
+  disco(7.5, 14, 2, 'W'); put(7, 14, 'R'); for (const [i, j] of [[6, 13], [9, 13], [5, 15], [10, 15]]) put(i, j, 'w');
+  linea(15, 9, 14, 12, 'r');
+});
+const telefonoRojoTS = (R, x, y, o = {}) => pintaTS(R, o.descolgado ? TELEFONO_SOLO_TS : TELEFONO_TS, x, y, o);
+
+export const PIEZAS_TS = {
+  terminal: terminalTS, disquete: disqueteTS, telex: telexTS, cajaJuego: cajaJuegoTS, contrato: contratoTS, cartucho: cartuchoTS,
+  consolaBolsillo: consolaBolsilloTS, maleta: maletaTS, mazo: mazoTS, rublo: rubloTS, bloques: bloquesTS, maletin: maletinTS,
+  telefonoRojo: telefonoRojoTS,
+};
