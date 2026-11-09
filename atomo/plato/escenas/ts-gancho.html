@@ -11,17 +11,19 @@
 <script type="module">
 // TS-GANCHO (frases 1–2), 1984 → 2026, sin cartela. Siete planos:
 // 1. «The most famous puzzle game… Soviet computer lab»: el terminal de 1984 de cerca; la mano de Pázhitnov teclea, los
-//    corchetes caen y una fila completa parpadea y desaparece en «lab»; la científica se asoma con su té y sonríe.
+//    corchetes caen y una fila completa parpadea y desaparece en «lab»; la científica se asoma con su té y sonríe; por la
+//    ventana nevada un vecino con ushanka cruza la calle con su bolsa.
 // 2. «for 12 years… a single ruble»: la mesa de cerca (fondo local); el calendario de taco pasa de 1984 a 1996 y un rublo
-//    rueda por la mesa hacia la mano abierta de Pázhitnov, da vueltas y se para a un dedo de ella en «ruble».
+//    rueda por la mesa hacia la mano abierta de Pázhitnov, da vueltas y se para a un dedo de ella en «ruble»; el ábaco
+//    cuenta los doce años (doce cuentas que pasan de una en una) a la vez que el calendario.
 // 3. «The money went to whoever won a race across the Iron Curtain»: el mapa de Europa partido por la alambrada; tres
 //    aviones salen hacia el montón de rublos de Moscú; la alambrada chispea en «Iron Curtain»; una mano clava Budapest.
 // 4. «a scientist with a computer that couldn't draw, a salesman…»: el télex de Budapest escupe cinta con corchetes; la
 //    mano del vendedor coge el contrato y lo firma en «sold rights»; «?» en «didn't have».
 // 5. «a newspaper tycoon»: el magnate en su torre de Londres descuelga el teléfono que suena; su ayudante entra con los
 //    periódicos; en «flew» un avión cruza el cielo de Londres hacia el este y el magnate lo señala.
-// 6. «without an invitation»: el diseñador, con abrigo, gorro y maleta, cruza la Plaza Roja nevada; el guardia le pita
-//    en «invitation»; él se encoge, deja la maleta y sonríe.
+// 6. «without an invitation»: el diseñador, con abrigo, gorro y maleta, llega andando por la Plaza Roja nevada; el guardia
+//    le pita en «invitation» y se le acerca a pedirle los papeles; él se encoge, deja la maleta y sonríe.
 // 7. «your brain still can't stop playing it»: la estantería de Atom de cerca: los libros caen y encajan, y la balda
 //    llena se deshace en chispas (gag 1).
 import * as T from '/atomo/plato/escenas/ts-comun.js';
@@ -42,14 +44,15 @@ const famoso = a(0.057), nace = a(0.202), sovietico = a(0.27), lab = a(0.339);
 const p1 = (t) => {
   const o = { encuadre: 'centro', camara: 'terminal', fila: tramo(t, nace, lab + 0.05) };
   T.centro(R, t, o);
+  // por la ventana nevada [200, 18, 268, 84], un vecino con ushanka cruza la calle con su bolsa de la compra
+  transeunte(Math.round(lerp(196, 272, tramo(t, 0.2, P2 - 0.2))), 77, t);
   // la científica entra por detrás de la mesa con su vaso de té, se asoma a la pantalla y sonríe
   const w = tramo(t, 0.3, 2.2), cx = Math.round(lerp(262, 190, w));
   const r = R.actor(TS.cientifica, cx, 125, t, { dir: -1, anda: w > 0 && w < 1, sostiene: w < 1 || t > lab + 0.6, dedo: t > sovietico - 0.2 && t < lab + 0.6 && w >= 1,
     sorpresa: t > lab - 0.1 && t < lab + 0.6, sonrisa: t > lab + 0.6 });
   if (w < 1 || t > lab + 0.6) { const [mx, my] = r.mano; R.rect(mx - 2, my - 5, mx + 2, my + 1, hex('#8a8a96')); R.rect(mx - 1, my - 5, mx + 1, my - 1, hex('#c8762a')); R.pset(mx - 1, my - 4, hex('#f6d29a')); }
   T.centroDelante(R, t, o);
-  // la pieza de corchetes que cae y encaja en «born» (tapa antes el contador de la esquina, que parecía un marcador)
-  R.rect(110, 42, 134, 52, hex('#0a120c')); for (let y = 43; y < 52; y += 2) R.rect(110, y, 134, y, hex('#101a12'));
+  // la pieza de corchetes que cae y encaja en «born»
   const cae = tramo(t, famoso, nace), py = Math.round(lerp(44, 79, cae * cae)) + (t > lab + 0.1 ? 5 : 0);
   for (const [i, j] of [[0, 0], [1, 0], [2, 0], [1, 1]]) celda(66 + i * 6, py + j * 6);
   // la mano de Pázhitnov teclea (brazo canónico desde abajo a la izquierda)
@@ -57,6 +60,18 @@ const p1 = (t) => {
   const kx = 92 + Math.round(Math.sin(t * 3.1) * 10), ky = 142 + (tec && Math.floor(t * 9) % 2 ? 1 : 0);
   T.brazo(R, 34, 196, kx, ky, '#5e6e58', 1, { codo: [56, 168] });
 };
+// un vecino pequeño visto por la ventana (abrigo, ushanka, bolsa), recortado al hueco de la ventana del decorado
+function transeunte(x, y, t) {
+  R.recorte([203, 21, 265, 80]); const pa = Math.floor(t * 6) % 2, ab = hex('#2a2834'), ush = hex('#5a4630');
+  const p = (px, py, c) => R.pset(px, py, c);
+  for (let j = 0; j < 6; j++) for (let i = -1; i <= 1; i++) p(x + i, y - 3 - j, j > 3 && i === 1 ? hex('#3a3846') : ab);
+  p(x - 2, y - 6, ab); p(x - 2, y - 5, ab); for (let i = -1; i <= 1; i++) { p(x + i, y - 11, ush); p(x + i, y - 12, ush); } p(x - 2, y - 11, ush); p(x + 2, y - 11, ush);
+  p(x, y - 10, hex('#c89a78')); p(x + 1, y - 10, hex('#c89a78')); p(x - 1, y - 10, ush);
+  p(x - 1, y - 2, K); p(x + 1, y - 2, K); p(x - 1 - pa, y - 1, K); p(x + 1 + pa, y - 1, K);
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 2; i++) p(x + 2 + i, y - 6 + j, j === 0 ? hex('#a87a4a') : hex('#c89a5a'));
+  for (let k = 1; k < 4; k++) p(x - 1 - k * 4, y - 1 + (k & 1), hex('#9aa4c4'));
+  R.recorte(null);
+}
 // una celda «[ ]» de fósforo verde, de 5 × 4, con su brillo
 function celda(x, y) { const G = hex('#5aff8a'), g = hex('#1e7a34'); R.rect(x, y, x + 1, y, G); R.rect(x, y, x, y + 3, G); R.rect(x, y + 3, x + 1, y + 3, G); R.rect(x + 3, y, x + 4, y, G); R.rect(x + 4, y, x + 4, y + 3, G); R.rect(x + 3, y + 3, x + 4, y + 3, G); R.pset(x + 2, y + 4, g); }
 
@@ -115,6 +130,13 @@ const p2 = (t) => {
   R.rect(132, 52, 150, 84, K); R.rect(133, 53, 149, 83, hex('#a8a8b4')); R.rect(134, 54, 148, 64, hex('#b8622a')); R.rect(133, 70, 149, 82, hex('#8a8a96'));
   for (let x = 135; x < 148; x += 3) R.rect(x, 71, x, 81, hex('#c8c8d4')); R.rect(149, 62, 154, 76, K); R.rect(150, 63, 153, 75, hex('#8a8a96'));
   for (let k = 0; k < 3; k++) { const s = (t * 0.6 + k / 3) % 1; R.pset(Math.round(138 + k * 4 + Math.sin(t * 3 + k) * 3), Math.round(50 - s * 30), hex('#d8d8e0')); R.pset(Math.round(139 + k * 4 + Math.sin(t * 3 + k + 1) * 3), Math.round(48 - s * 28), hex('#c8c8d4')); }
+  // el ábaco cuenta los doce años a la vez que el calendario: seis cuentas en cada una de las dos varillas de arriba
+  { const n = 12 * tramo(t, doce, doce + 2.2);
+    for (let f = 0; f < 2; f++) { const y = 57 + f * 5, m = Math.max(0, Math.min(6, n - f * 6));
+      R.rect(16, y - 1, 74, y + 1, hex('#3a2a1a')); R.linea(16, y, 74, y, hex('#c8c8d0'));
+      for (let k = 0; k < 6; k++) { const q = Math.max(0, Math.min(1, m - (5 - k))), e = q * q * (3 - 2 * q);
+        const x = Math.round(lerp(18 + k * 5, 46 + k * 5, e)), viva = q > 0 && q < 1;
+        R.rect(x, y - 1, x + 3, y + 1, viva ? hex('#f05a40') : hex('#c8302a')); R.pset(x, y - 1, hex('#f08070')); R.pset(x + 3, y + 1, hex('#8a1a14')); } } }
   // el rublo rueda desde la derecha, va frenando, gira sobre sí y se para a un dedo de la mano
   const u = tramo(t, P2 + 0.3, rublo), e = 1 - (1 - u) * (1 - u);
   const rx = Math.round(lerp(338, 214, e)), giro = u < 1 ? (e * 6.5) % 1 : 0;
@@ -228,17 +250,19 @@ const sinInv = c(0.675), y40 = c(0.8043);
 const p6 = (t) => {
   const o = { encuadre: 'plaza' };
   T.moscu(R, t, o);
-  const w = tramo(t, P6, sinInv - 0.05), rx = Math.round(lerp(14, 126, w)), deja = t > y40 - 0.4;
+  const w = tramo(t, P6 - 0.5, sinInv), rx = Math.round(lerp(62, 106, w)), deja = t > y40 - 0.4;
   // sus huellas recién hechas en la nieve, detrás de él
   for (let x = 20; x < rx; x += 7) { const y = 162 + ((x / 7) & 1 ? 1 : -1); R.rect(x, y, x + 2, y + 1, hex('#8a94b8')); R.pset(x + 1, y + 2, hex('#a8b0d0')); }
   // el guardia pita y levanta la mano en «invitation»; luego, más tranquilo, da palmadas de frío
   const pita = t > sinInv - 0.1 && t < sinInv + 1.1;
-  R.actor(TS.guardia, 176, 158, t, { dir: -1, dedo: pita, enfado: pita, habla: pita && Math.sin(t * 20) > 0, brazos: t > y40 && Math.floor(t * 3) % 2 === 0 });
+  // tras el pitido el guardia se le acerca para pedirle los papeles
+  const gv = tramo(t, sinInv + 0.5, sinInv + 1.7), gx = Math.round(lerp(184, 156, gv));
+  R.actor(TS.guardia, gx, 158, t, { dir: -1, anda: gv > 0 && gv < 1, dedo: pita, enfado: pita, habla: pita && Math.sin(t * 20) > 0, brazos: t > y40 && Math.floor(t * 3) % 2 === 0 });
   const rr = R.actor(TS.rogersAbrigo, rx, 162, t, { dir: 1, anda: w > 0 && w < 1, sostiene: !deja, sorpresa: t > sinInv && t < sinInv + 0.9, sonrisa: t > sinInv + 1.3, dedo: t > sinInv + 1.4 && t < y40 - 0.4 });
   if (!deja) { const [mx, my] = rr.mano; PZ.maleta(R, mx + 9, my + 15); } else PZ.maleta(R, rx + 26, 163);
   // el vaho de su respiración en el frío
   for (let k = 0; k < 3; k++) { const q = (t * 0.9 + k / 3) % 1; if (q < 0.6) R.pset(rx + 15 + Math.round(q * 8), 141 - Math.round(q * 6) + (k & 1), hex('#e8eef8')); }
-  if (pita) R.icono('!', 180, 120 - Math.round(tramo(t, sinInv - 0.1, sinInv + 0.2) * 4), hex('#ffe890'), K, 2);
+  if (pita) R.icono('!', gx + 4, 120 - Math.round(tramo(t, sinInv - 0.1, sinInv + 0.2) * 4), hex('#ffe890'), K, 2);
   if (t > sinInv + 0.2 && t < sinInv + 1.2) R.icono('?', rx + 4, 124, hex('#ffe890'), K, 2);
   T.moscuDelante(R, t, o);
 };
@@ -251,8 +275,9 @@ const p7 = (t) => {
 };
 
 const año = (t) => t < P2 ? 1984 : t < P3 ? Math.round(lerp(1984, 1996, tramo(t, doce, doce + 2.2))) : t < P4 ? 1988 : t < P5 ? 1986 : t < P6 ? 1988 : t < P7 ? 1989 : 2026;
-const efectos = [[0.4, 'tecleo'], [lab - 0.05, 'brillo'], [doce, 'papel'], [P2 + 0.4, 'carro'], [rublo, 'golpecito'], [P3 + 0.2, 'pop'], [quien - 2.6, 'jet'], [telon, 'zumbido'],
-  [c(0) + 0.5, 'golpecito'], [P4 + 0.1, 'maquina'], [firma, 'firma'], [P5 + 0.2, 'ring'], [vuela - 0.3, 'jet'], [P6 + 0.2, 'viento'], [sinInv, 'silbato'], [P7 + 0.3, 'toc'], [juega + 0.3, 'brillo']];
+// efectos (40–60 % del tiempo): solo los sincronizados con lo que se ve; los largos, recortados a su acción
+const efectos = [[0.4, 'tecleo', { dur: 1.2 }], [lab - 0.05, 'brillo'], [doce, 'tic'], [P2 + 0.9, 'carro', { largo: 1.0 }], [rublo, 'golpecito'], [P3 + 0.2, 'pop'], [quien - 2.6, 'jet', { dur: 1.8 }],
+  [c(0) + 0.5, 'golpecito'], [P4 + 0.3, 'maquina', { dur: 1.4 }], [firma, 'firma'], [P5 + 0.2, 'ring'], [vuela - 0.3, 'jet', { dur: 1.6 }], [sinInv, 'silbato'], [P7 + 0.3, 'toc'], [juega + 0.3, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>
 </body>

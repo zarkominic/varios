@@ -27,6 +27,7 @@
 // 4. «told him a secret: it was about to launch a handheld console»: la sala de reuniones de Tokio (fondo local): el
 //    ejecutivo baja la persiana y cierra la puerta al curioso en «secret»; en «launch» levanta el paño granate y aparece la
 //    consola de bolsillo gris en «handheld»; se enciende en «console»; Rogers se queda boquiabierto, salta y la señala.
+//    Al empezar, la secretaria se inclina con su bandeja y sale por la izquierda; el ejecutivo la despide con el dedo.
 import * as T from '/atomo/plato/escenas/ts-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -300,10 +301,15 @@ const p4 = (t) => {
   const cierra = tramo(t, secreto - 0.2, secreto + 0.3), hueco = Math.round(lerp(22, 0, cierra));
   if (hueco > 0) { R.recorte([242, 32, 242 + hueco, 122]); R.actor(TS.publico, 246, 122, t, { dir: -1, sorpresa: t > secreto - 0.3, pal: { C: hex('#2a3450'), c: hex('#1e263c') } }); R.recorte(null); }
   R.rect(242 + hueco, 32, 290, 122, hex('#ece6d6')); for (let x = 242 + hueco; x < 290; x += 12) R.rect(x, 32, x + 1, 122, hex('#3a2416')); for (let y = 32; y < 122; y += 15) R.rect(242 + hueco, y, 290, y + 1, hex('#3a2416'));
+  // la secretaria recoge la bandeja, se inclina y sale por la izquierda antes del secreto (el ejecutivo la despide con la mano)
+  const sv = tramo(t, P4 + 0.9, secreto - 0.3);
+  if (sv < 1) { const sx = Math.round(lerp(72, -20, sv)), inclina = t < P4 + 0.9 && t > P4 + 0.2 ? Math.round(Math.sin(tramo(t, P4 + 0.2, P4 + 0.9) * Math.PI) * 2) : 0;
+    const se = R.actor(TS.publica, sx, 147 + inclina, t, { dir: -1, anda: sv > 0, sonrisa: true, sostiene: true, pal: { C: hex('#5a3a5a'), c: hex('#3e2840') } });
+    if (se && se.mano) { const [mx, my] = se.mano; R.rect(mx - 6, my - 1, mx + 2, my, K); R.rect(mx - 5, my - 1, mx + 1, my - 1, hex('#8a5a2a')); R.rect(mx - 4, my - 4, mx - 2, my - 2, K); R.rect(mx - 4, my - 3, mx - 2, my - 2, hex('#e8e4dc')); } }
   // los dos, detrás de la mesa: el ejecutivo levanta el paño en «launch»; Rogers se asombra en «handheld» y salta
   const quita = tramo(t, lanzar - 0.1, bolsillo + 0.15), alcanza = tramo(t, lanzar - 0.8, lanzar - 0.1);
   const px = Math.round(lerp(160, 252, quita)), hx = alcanza < 1 ? Math.round(lerp(204, 190, alcanza)) : Math.min(212, px + 30), hy = alcanza < 1 ? Math.round(lerp(140, 156, alcanza)) : 156;
-  const re = R.actor(TS.ejecutivoNintendo, 200, 158, t, { dir: -1, habla: (t > P4 && t < secreto + 0.4) || t > consola + 0.6, dedo: t > secreto - 0.1 && t < lanzar - 0.9, sonrisa: t > consola, sostiene: t > lanzar - 0.8 && t < bolsillo + 0.3 ? [hx, hy] : false });
+  const re = R.actor(TS.ejecutivoNintendo, 200, 158, t, { dir: -1, habla: (t > P4 && t < secreto + 0.4) || t > consola + 0.6, dedo: (t > P4 + 0.8 && t < P4 + 1.6) || (t > secreto - 0.1 && t < lanzar - 0.9), sonrisa: t > consola, sostiene: t > lanzar - 0.8 && t < bolsillo + 0.3 ? [hx, hy] : false });
   const salta = t > consola + 0.5 && t < consola + 1.5 ? Math.round(Math.abs(Math.sin((t - consola - 0.5) * 9)) * 4) : 0;
   R.actor(TS.rogers, 110, 158, t, { dir: 1, sorpresa: t > bolsillo - 0.05 && t < consola + 0.5, sonrisa: t > consola + 0.5, habla: t > P4 && t < secreto - 0.2, salto: salta, dedo: t > consola + 1.5 });
   // la mesa de reuniones lacada, por delante: tablero, canto y los tés
@@ -324,7 +330,8 @@ const p4 = (t) => {
   if (t > bolsillo && t < consola + 0.8) R.icono('!', 120, 112 - Math.round(tramo(t, bolsillo, bolsillo + 0.2) * 5), hex('#ffe890'), K, 2);
 };
 
-const efectos = [[0.4, 'viento'], [holandes, 'pop'], [juego, 'pop'], [3.5, 'coche'], [P2 + 0.1, 'publico'], [tetris, 'bip'], [anio, 'brillo'], [noPodia, 'tecleo'],
+// densidad: sin viento y con los ambientes largos recortados (antes sonaban el 80 % del tiempo)
+const efectos = [[holandes, 'pop'], [juego, 'pop'], [3.5, 'coche', { dur: 1.6 }], [P2 + 0.1, 'publico', { dur: 1.6 }], [tetris, 'bip'], [anio, 'brillo'], [noPodia, 'tecleo', { dur: 1.2 }],
   [consiguio, 'bip'], [ventas, 'palmada'], [nintendo, 'ring'], [secreto, 'puerta'], [lanzar, 'whoosh'], [consola, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1988 });
 </script>

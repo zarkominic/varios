@@ -16,7 +16,8 @@
 // 2. corta en «So»: la pantalla de cerca (inserto): cinco «[ ]» forman la pieza en «brackets», uno salta en «cut them
 //    down to four» y la pieza cae en «made them fall»;
 // 3. corta en «and added»: la mesa de Pázhitnov (centro/terminal): la fila de abajo se llena, parpadea en «row was full»
-//    y desaparece en «disappeared»; la compañera de detrás se asombra;
+//    y desaparece en «disappeared»; la compañera llega por detrás con un listado, señala la pantalla en «changed
+//    everything» y se asombra; por la ventana una vecina cruza la calle nevada con su trineo;
 // 4. corta en «He called»: el cuaderno de cuadros (inserto): el lápiz dibuja cuatro cuadrados y un 4 en «Tetra», un
 //    templo griego en «Greek», la raqueta en «tennis» (pasa una pelota de verdad) y un corazón en «favorite sport».
 import * as T from '/atomo/plato/escenas/ts-comun.js';
@@ -228,13 +229,29 @@ const p2 = (t) => {
 };
 
 // ── 3 · la mesa de Pázhitnov: la fila que desaparece ──
+// una vecina pequeña vista por la ventana (abrigo, gorro, el trineo detrás), recortada al hueco de la ventana del decorado
+const transeunte = (x, y, t) => {
+  R.recorte([203, 21, 265, 80]); const pa = Math.floor(t * 6) % 2, ab = hex('#5a2a30'), go = hex('#d8d0c0'), p = (px, py, c) => R.pset(px, py, c);
+  for (let j = 0; j < 6; j++) for (let i = -1; i <= 1; i++) p(x + i, y - 3 - j, j > 3 && i === -1 ? hex('#6a3a40') : ab);
+  for (let i = -1; i <= 1; i++) { p(x + i, y - 11, go); p(x + i, y - 12, go); } p(x, y - 13, go);
+  p(x, y - 10, hex('#c89a78')); p(x - 1, y - 10, hex('#c89a78')); p(x + 1, y - 10, go);
+  p(x - 1, y - 2, Q.k); p(x + 1, y - 2, Q.k); p(x - 1 + pa, y - 1, Q.k); p(x + 1 - pa, y - 1, Q.k);
+  // el trineo con su cuerda
+  R.linea(x + 2, y - 5, x + 7, y - 2, hex('#8a7a6a')); for (let i = 7; i <= 12; i++) { p(x + i, y - 2, hex('#a8622a')); p(x + i, y - 1, hex('#5a3418')); } p(x + 6, y - 2, hex('#5a3418'));
+  for (let k = 1; k < 4; k++) p(x + 13 + k * 4, y - 1 + (k & 1), hex('#9aa4c4'));
+  R.recorte(null);
+};
 const p3 = (t) => {
   T.centro(R, t, { camara: 'terminal' });
+  // por la ventana nevada [200, 18, 268, 84], una vecina cruza la calle con su trineo de niño
+  transeunte(Math.round(lerp(274, 194, li(t, P3 + 0.2, P4 - 0.1))), 77, t);
   const fila = t < FILA ? 0 : t < DESAP ? 0.7 * li(t, FILA, DESAP) : 0.7 + 0.3 * li(t, DESAP, DESAP + 0.35);
-  R.actor(TS.cientifica, 190, 125, t, { dir: -1, dedo: t > CAMBIA && t < CAMBIA + 1.2, habla: t > CAMBIA && t < CAMBIA + 1.2 && Math.sin(t * 9) > 0, sorpresa: t > DESAP && t < DESAP + 0.8, sonrisa: t > DESAP + 0.8 });
+  // la compañera llega por detrás de la mesa con un listado de papel pijama, señala la pantalla en «changed everything»,
+  // se asombra cuando la fila desaparece y sonríe
+  const ve = li(t, P3 + 0.1, CAMBIA - 0.3), vx = Math.round(lerp(266, 190, ez(ve))), lleva = t < CAMBIA - 0.3 || t > DESAP + 0.9;
+  const rc = R.actor(TS.cientifica, vx, 125, t, { dir: -1, anda: ve > 0 && ve < 1, sostiene: lleva ? true : undefined, dedo: t > CAMBIA && t < CAMBIA + 1.2, habla: t > CAMBIA && t < CAMBIA + 1.2 && Math.sin(t * 9) > 0, sorpresa: t > DESAP && t < DESAP + 0.8, sonrisa: t > DESAP + 0.8 });
+  if (lleva && rc.mano) { const [mx, my] = rc.mano; R.rect(mx - 4, my - 7, mx + 2, my + 1, Q.k); R.rect(mx - 3, my - 6, mx + 1, my, Q.blanco); for (let y = my - 5; y < my; y += 2) R.rect(mx - 3, y, mx + 1, y, hex('#cfe8d0')); R.pset(mx - 3, my - 6, hex('#a8a8b4')); }
   const d = T.centroDelante(R, t, { camara: 'terminal', fila });
-  // el decorado escribe una cuenta de filas arriba a la derecha de la pantalla: se tapa (parece un marcador)
-  for (let y = 40; y <= 52; y++) { const c = R.pget(96, y); R.rect(108, y, 136, y, c); }
   // la fila que se va: un destello blanco a lo ancho de la pantalla y chispas que suben
   if (t > DESAP - 0.05 && t < DESAP + 0.45) { const v = li(t, DESAP - 0.05, DESAP + 0.45); for (let x = 40; x <= 136; x++) for (let y = 96; y <= 102; y++) if ((x + y + Math.floor(t * 20)) % 2 || v < 0.4) R.pset(x, y, mez(R.pget(x, y), Q.blanco, 0.85 * (1 - v))); for (let i = 0; i < 14; i++) R.pset(42 + i * 7, Math.round(98 - v * 22 - (i % 3) * 3), Q.fosL); }
   // el «!» de la compañera
@@ -294,7 +311,8 @@ const p4 = (t) => {
   R.linea(lx, ly, lx + 9, ly - 10, Q.k); R.linea(lx + 1, ly, lx + 10, ly - 10, hex('#e8c040')); R.linea(lx + 2, ly, lx + 11, ly - 10, hex('#b88a20')); R.pset(lx, ly, Q.lapiz);
   T.brazo(R, Math.min(360, lx + 90), 214, lx + 22, ly - 6, '#5e6e58', -1, { codo: [lx + 76, Math.min(200, ly + 40)] });
 };
-const efectos = [[1.0, 'tecleo'], [NO_DIBUJA, 'bip'], [SIMBOLOS, 'tecleo'], [IDEA, 'brillo'], [P2 + 0.3, 'tecleo'], [CORTA, 'golpecito'], [CAE + 0.75, 'toc'], [P3 + 0.2, 'tecleo'], [LLENA, 'bip'], [DESAP, 'brillo'], [TETRA - 0.4, 'lapiz'], [TENIS + 0.3, 'boing'], [DEPORTE - 0.1, 'lapiz']];
+// efectos (40–60 % del tiempo): el tecleo solo cuando se ven las manos teclear, y corto
+const efectos = [[0.6, 'tecleo', { dur: 1.4 }], [NO_DIBUJA, 'bip'], [SIMBOLOS, 'tecleo', { dur: 1.0 }], [IDEA, 'brillo'], [P2 + 0.3, 'tecleo', { dur: 1.0 }], [CORTA, 'golpecito'], [CAE + 0.75, 'toc'], [P3 + 0.2, 'tecleo', { dur: 1.2 }], [LLENA, 'bip'], [DESAP, 'brillo'], [TETRA - 0.4, 'lapiz'], [TENIS + 0.3, 'boing'], [DEPORTE - 0.1, 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { año: 1984, efectos });
 </script>
 </body>

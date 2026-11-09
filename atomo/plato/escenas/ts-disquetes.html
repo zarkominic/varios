@@ -371,7 +371,8 @@ const p5 = (t) => {
   for (const [k, ti] of PINES) { const b = li(t, ti, ti + 0.3); if (b <= 0) continue; const [x, y] = xy(k), alto = Math.round((1 - b) * 22); R.disco(x + 2, y + 1, 2, hex('#3a3a46')); disqueteG(x - 5, y - 14 - alto); if (b >= 1 && Math.sin(t * 6 + x) > 0.4) { R.pset(x + 7, y - 15, Q.blanco); R.pset(x + 8, y - 16, Q.blanco); } }
   R.recorte(null);
 };
-const efectos = [[0.35, 'puerta'], [ESPERA, 'publico'], [P2 + 0.3, 'tecleo'], [PROBAR + 0.8, 'brillo'], [a(0.355), 'boing'], [JUEGO, 'palmada'], [VADIM, 'whoosh'], [MUEVE + 0.4, 'zumbido'], [IBM, 'bip'], [P4 + 0.2, 'motor'], [DISQ + 0.1, 'whoosh'], [MOSCU + 0.15, 'whoosh'], [CRUZA - 0.25, 'silbato'], [ESTE + 0.1, 'pop'], [ESTE + 0.45, 'pop']];
+// efectos (40–60 % del tiempo): el murmullo, el tecleo y el tren, cortos y con su acción
+const efectos = [[0.35, 'puerta'], [ESPERA, 'publico', { dur: 1.4 }], [P2 + 0.3, 'tecleo', { dur: 1.2 }], [PROBAR + 0.8, 'brillo'], [a(0.355), 'boing'], [JUEGO, 'palmada'], [VADIM, 'whoosh'], [MUEVE + 0.4, 'zumbido'], [IBM, 'bip'], [P4 + 0.2, 'motor', { dur: 2.4 }], [DISQ + 0.1, 'whoosh'], [MOSCU + 0.15, 'whoosh'], [CRUZA - 0.25, 'silbato'], [ESTE + 0.1, 'pop'], [ESTE + 0.45, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { año: (t) => (t < P3 ? 1984 : t < P5 ? 1985 : 1986), efectos });
 </script>
 </body>

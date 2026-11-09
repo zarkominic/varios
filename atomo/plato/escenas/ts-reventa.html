@@ -13,7 +13,8 @@
 // 1. «Even so, the rights kept being resold from company to company, to Japan and to arcade machines»: el mapa del
 //    mundo de papel, centrado en el Pacífico (fondo local): de Londres sale un contrato que vuela por su arco hasta
 //    EE. UU. en «resold»; de allí, otro a Japón en «Japan» y otro a una máquina recreativa dibujada en el Pacífico en
-//    «arcade»; cada uno clava su chincheta al llegar y el arco queda punteado. Barcos y nubes sobre el mapa. Corta en «and every».
+//    «arcade»; cada uno clava su chincheta al llegar y el arco queda punteado. Barcos y nubes sobre el mapa; la esquina de
+//    arriba a la derecha (la de Atom), descolorida por el sol. Corta en «and every».
 // 2. «and every buyer believed they owned something they didn't fully own»: el vestíbulo de un centro de negocios
 //    (fondo local): tres puertas con su bandera (Reino Unido, EE. UU., Japón); cada comprador sale de la suya en «every
 //    buyer» y levanta su contrato, orgulloso, en «owned»; en «didn't fully own» a cada contrato se le cae un trozo y los
@@ -71,7 +72,10 @@ const curva = (v, q) => { const cx = (v.de[0] + v.a[0]) / 2, cy = Math.min(v.de[
 const recreativa = (x, y, t, on) => { caja(x - 7, y - 22, x + 7, y, hex('#3a2a6a'), hex('#5a4a9a'), hex('#2a1a4a')); R.poligono([[x - 7, y - 22], [x + 7, y - 22], [x + 9, y - 26], [x - 9, y - 26]], K); R.rect(x - 7, y - 25, x + 7, y - 23, on ? hex('#f0c040') : hex('#8a6a2a'));
   R.rect(x - 5, y - 19, x + 5, y - 11, K); R.rect(x - 4, y - 18, x + 4, y - 12, on && Math.floor(t * 4) % 2 ? hex('#5af07a') : hex('#1e3a2a')); R.rect(x - 6, y - 9, x + 6, y - 7, hex('#2a2a32')); R.rect(x - 3, y - 11, x - 3, y - 9, K); R.pset(x - 3, y - 12, hex('#c8302a')); R.pset(x + 2, y - 8, hex('#f0c040')); R.pset(x + 4, y - 8, hex('#3a8ae8')); };
 const p1 = (t) => {
-  capa('mapaMundo', () => { mapaPapel(R, 0, PM, { mundo: true, reticula: 15, mesa: 5, rosa: [262, 140] }); });
+  capa('mapaMundo', () => { mapaPapel(R, 0, PM, { mundo: true, reticula: 15, mesa: 5, rosa: [262, 140] });
+    // la esquina de Atom, tranquila: el papel ahí está descolorido por el sol (las costas del Ártico se borran poco a poco)
+    for (let y = 6; y < 58; y++) for (let x = 262; x < 314; x++) { const d = Math.hypot((x - 318) / 50, (y - 2) / 52), w = Math.max(0, Math.min(1, (1.05 - d) / 0.35));
+      if (w > 0) R.pset(x, y, mez(R.pget(x, y), h(x >> 1, y >> 1, 77) < 0.12 ? hex('#a6bccc') : hex('#b0c4d2'), w * 0.92)); } });
   // las sombras de las nubes que pasan sobre el papel y dos barcos que cruzan los océanos
   for (let k = 0; k < 3; k++) { const cx = ((k * 130 + t * (5 + k * 2)) % 420) - 50, cy = 40 + k * 44; for (let y = cy - 8; y < cy + 8; y++) for (let x = Math.round(cx - 22); x < cx + 22; x++) if (x > 5 && x < 315 && y > 5 && y < 175 && ((x + y) & 1) && ((x - cx) / 22) ** 2 + ((y - cy) / 8) ** 2 < 1) tinte(x, y, hex('#2a3a4a'), 0.22); }
   for (const [x0, y0, v, d] of [[200, 120, 3, 1], [80, 130, 2.4, -1]]) { const x = Math.round(x0 + ((t * v * d) % 40)); R.rect(x - 3, y0, x + 3, y0 + 1, K); R.rect(x - 2, y0 - 2, x + 1, y0 - 1, hex('#f2eee2')); R.pset(x + (d > 0 ? -5 : 5), y0 + 1, hex('#e8eef4')); R.pset(x + (d > 0 ? -7 : 7), y0 + 1, hex('#c8d8e4')); }
