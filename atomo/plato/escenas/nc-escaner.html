@@ -13,7 +13,8 @@
 // Cinco planos:
 // 1. La sala del escáner de Houston (hoy/escaner): el voluntario tumbado con la cabeza en el túnel; el investigador
 //    entra en «scientists», en «saw it» pulsa la bomba y el refresco corre por el tubito; en «brain scanner» la máquina
-//    zumba y vibra; la científica habla por el intercomunicador y sonríe.
+//    zumba y vibra; la científica habla por el intercomunicador y sonríe; el técnico, detrás del carrito, coloca los
+//    tapones para los oídos y en «brain scanner» se vuelve hacia la máquina.
 // 2. Corta en «With unmarked cups»: inserto de la mesa del laboratorio (fondo local): la balanza de platillos con un vaso
 //    sin marca; una mano enguantada deja el otro vaso en «cups»; la balanza oscila y en «split» queda nivelada («=»);
 //    detrás, la ventana a Houston, el microscopio, la gradilla, la centrífuga que gira y el monitor con el trazado.
@@ -182,6 +183,10 @@ const p1 = (t) => {
   if (t > en('escaner', 0.1309) && t < en('escaner', 0.1594)) R.icono('!', 56, 70, hex('#ffd36a'), K0);
   // la científica al intercomunicador, con su tablilla
   R.actor(NC.cientifica, 214, 164, t, { dir: -1, habla: t > en('escaner', 0.0740) && t < en('escaner', 0.1423) && Math.sin(t * 9) > 0, sorpresa: t > en('escaner', 0.1878) && t < en('escaner', 0.2106), sonrisa: t > en('escaner', 0.2106) });
+  // el técnico, detrás del carrito, coloca los tapones para los oídos; en «brain scanner» se vuelve hacia la máquina
+  { const mira = t > en('escaner', 0.1850), mx = 286 + Math.round(Math.sin(t * 2.2) * 4);
+    const tc = R.actor(NC.cientifico, 282, 146, t, { dir: mira ? -1 : 1, sostiene: mira ? undefined : [mx, 134], habla: mira && t < en('escaner', 0.2106) && Math.sin(t * 8) > 0 });
+    if (!mira) { R.rect(tc.mano[0] - 1, tc.mano[1] - 3, tc.mano[0] + 2, tc.mano[1] - 1, hex('#f0c040')); R.pset(tc.mano[0], tc.mano[1] - 3, hex('#fff2a0')); } }
   T.hoyDelante(R, t, o);
 };
 
@@ -412,10 +417,10 @@ const p5 = (t) => {
   const g = lin(t, en('escaner', 1.0472), en('escaner', 1.1439)); if (g > 0 && g < 1) { const x = lerp(318, 190, g), salto = Math.abs(Math.sin(g * Math.PI * 4)) * 14; grillo(x, Math.round(132 - salto), t); }
 };
 
-const efectos = [[en('escaner', 0.0626), 'puerta'], [en('escaner', 0.1337), 'bip'], [en('escaner', 0.1878), 'zumbido'],
+const efectos = [[en('escaner', 0.0626), 'puerta'], [en('escaner', 0.1337), 'bip'], [en('escaner', 0.1878), 'maquina', { dur: 1.2 }],
   [en('escaner', 0.2874), 'toc'], [en('escaner', 0.3585), 'tic'],
-  [en('escaner', 0.4951), 'pop'], [en('escaner', 0.5378), 'burbujas'], [en('escaner', 0.6033), 'lapiz'],
-  [en('escaner', 0.7256), 'brillo'], [en('escaner', 0.7512), 'campana'], [en('escaner', 0.9021), 'bip'],
+  [en('escaner', 0.4951), 'pop'], [en('escaner', 0.5378), 'burbujas', { dur: 0.8 }], [en('escaner', 0.6033), 'lapiz'],
+  [en('escaner', 0.7256), 'brillo'], [en('escaner', 0.9021), 'bip'],
   [en('escaner', 0.9476), 'golpecito'], [en('escaner', 0.9675), 'golpecito'], [en('escaner', 0.9988), 'interruptor'], [en('escaner', 1.0529), 'tic']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, cartela: '2004', año: 2004 });
 </script>

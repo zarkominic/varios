@@ -109,7 +109,7 @@ const p2 = (t) => {
 const formula = c(0.0709), boveda = c(0.1481);
 const p3 = (t) => {
   const abre = 0.25 * tramo(t, P3 + 0.2, formula - 0.4) + 0.75 * tramo(t, formula - 0.4, boveda - 0.2);
-  T.atlanta(R, t, { encuadre: 'banco', abre, papelito: true, guardia: true });
+  T.atlanta(R, t, { encuadre: 'banco', abre, papelito: true, guardia: true, vacia: true });
   // el empleado del banco gira el volante; al abrirse la puerta da un paso atrás, sorprendido por la luz
   const atras = tramo(t, formula, formula + 0.6);
   R.actor(NC.abogado2, Math.round(lerp(104, 82, atras)), 164, t, { dir: 1, sostiene: atras < 0.3 ? [128, 128] : false, anda: atras > 0 && atras < 1, sorpresa: atras > 0.5 && t < boveda + 0.3, sonrisa: t > boveda + 0.3 });
@@ -117,7 +117,7 @@ const p3 = (t) => {
   const w = tramo(t, P3 + 0.4, formula + 0.4), ax = Math.round(lerp(-22, 40, w));
   R.actor(NC.abogado1, ax, 168, t, { dir: 1, anda: w > 0 && w < 1, dedo: t > boveda - 0.2, sonrisa: t > boveda });
   if (t <= boveda - 0.2) { const mx = ax + 15, my = 156; R.rect(mx - 1, my, mx + 7, my + 6, K); R.rect(mx, my + 1, mx + 6, my + 5, hex('#6a3a1e')); R.pset(mx + 3, my + 1, T.C.laton); }
-  T.atlantaDelante(R, t, { encuadre: 'banco', abre });
+  T.atlantaDelante(R, t, { encuadre: 'banco', abre, vacia: true });
 };
 
 // ── 4 · la mesa de la cata a ciegas (inserto) ──

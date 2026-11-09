@@ -15,18 +15,23 @@
 //    nogal de la sede con la caja fuerte en su peana, bajo un foco, entre cortinas de terciopelo y una cuerda de latón; el
 //    tiempo pasa deprisa (por la ventana los días y las noches se suceden, el reloj gira, la placa cuenta los años); el
 //    conserje se acerca con el plumero y en «untouchable» el ejecutivo abre los brazos delante de la caja: el conserje se
-//    asusta y se va; el guardia le señala; el ascensor se abre con su campanilla.
+//    asusta y se va; el guardia le señala. Una turista entra por la derecha, hace una foto con flash a la caja (1,9 s) y
+//    se va al oír el grito; el ascensor se abre con su campanilla y sale el repartidor de rojo con su caja de botellas
+//    («more than a soft drink»), que baja a la sala.
 // 2. «it was what soldiers drank in the war, what you saw in Christmas ads and on summer afternoons» (6,5–12,2 s): tres
 //    cuadros en la pared de un salón, que se encienden uno a uno con la voz: los soldados que brindan con botellas rectas
 //    junto a sus tiendas («soldiers»), la cena de Navidad con el árbol, las velas y la nieve en la ventana («Christmas»;
-//    sin Papá Noel) y el porche de verano con los niños que beben, el columpio y el aspersor («summer»).
+//    sin Papá Noel) y el porche de verano con los niños que beben, el columpio y el aspersor («summer»). El cuadro de los
+//    soldados se enciende justo después del fundido. En el salón, la radio suena (notas), el gato del aparador mira el
+//    cuadro encendido y salta al girarse; un chico entra por la derecha y señala el porche de verano en «summer».
 // 3. «Nobody at the company would have dreamed of changing it… until it started losing» (12,2 s–fin): la sala de juntas;
 //    los directivos brindan con botellas, un científico entra con un matraz y un «?» en «dreamed», todos se enfadan y el
 //    presidente le dice que no con el dedo en «changing»; en «until» suena el teléfono y la gráfica empieza a dibujarse:
-//    la línea roja baja en «losing» y todos se vuelven a mirarla.
+//    la línea roja baja en «losing» y todos se vuelven a mirarla. Detrás, la secretaria entra con el informe, lo deja
+//    junto al aparador, coge el teléfono en «until», habla y en «losing» se vuelve sorprendida hacia la gráfica.
 import * as T from '/atomo/plato/escenas/nc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
-import { ELENCO_NC as NC } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_NC as NC, ELENCO_VM as VM } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nc-intocable');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
@@ -56,6 +61,14 @@ const botellita = (x, y, col = 'marron', inclina = 0) => { const [c, l] = BOT[co
 const vasito = (x, y, lleno = 0.7) => { R.rect(x - 3, y - 6, x + 3, y, K); R.rect(x - 2, y - 5, x + 2, y - 1, hex('#d6e6ee')); const h = Math.round(4 * lleno); if (h) R.rect(x - 2, y - h, x + 2, y - 1, hex('#4a2414')); R.pset(x - 2, y - 5, hex('#ffffff')); };
 // el globo grande de un símbolo (se lee a 640 px): «!», «?» o «X» a escala 2 sobre fondo claro, con su piquito abajo en (x, y)
 const globo = (x, y, ic, col = hex('#c8382e')) => { R.rect(x - 9, y - 18, x + 9, y - 1, K); R.rect(x - 8, y - 17, x + 8, y - 2, hex('#fbf6ea')); R.rect(x - 8, y - 3, x + 8, y - 2, hex('#d8d0c0')); R.rect(x - 2, y, x + 1, y, K); R.rect(x - 1, y + 1, x, y + 1, K); R.rect(x - 1, y - 1, x, y, hex('#fbf6ea')); R.icono(ic, x - 5, y - 15, col, K, 2); };
+// la cámara de fotos de la turista (5 × 4 con su objetivo), en la mano
+const camarita = (x, y) => { R.rect(x - 3, y - 3, x + 3, y + 1, K); R.rect(x - 2, y - 2, x + 2, y, hex('#3a3a44')); R.pset(x - 2, y - 2, hex('#8a8a96')); R.disco(x, y - 1, 1, hex('#a8c8e8')); R.pset(x + 2, y - 4, K); };
+// la caja de madera de botellas del repartidor, en la mano: tablas, asas y las chapas de las botellas asomando
+const cajaBotellas = (x, y) => { R.rect(x - 6, y - 4, x + 6, y + 2, K); R.rect(x - 5, y - 3, x + 5, y + 1, hex('#b8844a')); R.rect(x - 5, y - 1, x + 5, y - 1, hex('#8a5a2a')); R.pset(x - 4, y - 2, hex('#6a3a1a')); R.pset(x + 4, y - 2, hex('#6a3a1a')); for (const bx of [-3, 0, 3]) { R.rect(x + bx, y - 7, x + bx, y - 5, hex('#6a3a1e')); R.pset(x + bx, y - 8, hex('#c8c8d2')); } };
+// las hojas de latón del ascensor fuera del hueco abierto (para que quien está dentro quede detrás de ellas)
+const hojasAsc = (g) => { for (const [a, b] of [[215, 232 - g], [234 + g, 251]]) { if (b < a) continue; R.rect(a, 53, b, 123, hex('#a88a3a')); for (let x = 217; x < 250; x += 4) if (x !== 233 && x >= a && x <= b) R.rect(x, 56, x, 120, hex('#c8a84a')); } R.rect(232 - g, 53, 232 - g, 123, hex('#6a5420')); R.rect(234 + g, 53, 234 + g, 123, hex('#6a5420')); };
+// notas de música que suben de la radio
+const notas = (t, x, y) => { for (let k = 0; k < 3; k++) { const u = (t * 0.5 + k / 3) % 1, nx = Math.round(x + u * 14 + Math.sin(t * 3 + k) * 2), ny = Math.round(y - u * 20); if (u > 0.85) continue; const c = k % 2 ? hex('#5a3a24') : hex('#8a5632'); R.rect(nx, ny - 4, nx, ny, c); R.rect(nx - 2, ny, nx - 1, ny + 1, c); R.pset(nx + 1, ny - 4, c); R.pset(nx + 2, ny - 3, c); } };
 const destello = (x, y, u, c = hex('#fff6c0')) => { if (u <= 0 || u >= 1) return; const r = Math.round(2 + 4 * Math.sin(u * Math.PI)); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } R.pset(x - 1, y - 1, c); R.pset(x + 1, y + 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); };
 
 const P2 = en('intocable', .372), P3 = en('intocable', .722);
@@ -138,9 +151,21 @@ const p1 = (t) => {
   const anda = t < 2.3 || (va && cx > -24), alarga = t > 1.9 && t < INTOC + 0.2;
   const m = R.actor(EL.conserje, cx, 168, t, { dir: va ? -1 : 1, anda, sostiene: alarga ? [cx + 22, 146] : true, sorpresa: t > INTOC && t < INTOC + 1.4 });
   { const [mx, my] = m.mano, d = va ? -1 : 1; R.linea(mx, my, mx + 3 * d, my - 8, hex('#7a4a24')); for (let k = 0; k < 9; k++) R.pset(mx + 3 * d + Math.round(Math.cos(k) * 3) , my - 10 + Math.round(Math.sin(k * 1.7) * 2), k % 2 ? hex('#c8b090') : hex('#8a7058')); }
+  // el repartidor sale del ascensor con su caja de botellas («more than a soft drink») y baja hacia la sala
+  { const vis = t > 4.75 && t < 6.6, dentro = t < 5.45;
+    if (vis) { const rx = Math.round(lerp(236, 262, tramo(t, 5.45, 6.5))), rs = Math.round(lerp(125, 150, tramo(t, 5.3, 6.5)));
+      const r = R.actor(EL.cartero, rx, rs, t, { dir: 1, anda: t > 5.3, sostiene: true, sonrisa: t > 5.5, pal: { C: hex('#c8382e'), c: hex('#a02a24'), W: hex('#c8382e') } });
+      cajaBotellas(r.mano[0], r.mano[1] + 2);
+      if (dentro) hojasAsc(g); } }
   const guarda = t > INTOC - 0.2 && t < INTOC + 2.2;
   R.actor(NC.keough, 153, 152, t, { dir: guarda ? -1 : 1, brazos: guarda, enfado: guarda, sonrisa: !guarda && t > INTOC + 2.2 });
   if (guarda && t < INTOC + 1.2) globo(150, 122, '!');
+  // la turista entra por la derecha, hace la foto a la caja con flash y se va al oír el grito
+  { const sale = INTOC + 1.4, tx = t < 1.4 ? Math.round(lerp(336, 268, t / 1.4)) : t < sale ? 268 : Math.round(lerp(268, 340, (t - sale) / 1.6));
+    if (tx < 336) { const foto = t > 1.5 && t < INTOC - 0.1;
+      const tu = R.actor(EL.turista, tx, 170, t, { dir: t < sale ? -1 : 1, anda: t < 1.4 || t > sale, sostiene: foto ? [tx - 6, 150] : true, sorpresa: t > INTOC && t < sale + 0.4, sonrisa: t > 1.9 && t < INTOC });
+      camarita(tu.mano[0], tu.mano[1]);
+      if (foto) { const u = tramo(t, 1.9, 2.25); destello(tu.mano[0] - 1, tu.mano[1] - 2, u, hex('#ffffff')); if (u > 0 && u < 0.6) for (let y = 128; y < 150; y++) for (let x = 166; x < tx - 8; x++) if (tr(x, y, 0.2) && x > 166 + (150 - y) * 0.5) R.pset(x, y, hex('#fffbe8')); } } }
   R.actor(EL.guardia, 226, 160, t, { dir: -1, dedo: t > INTOC + 0.1 && t < INTOC + 1.8, habla: t > INTOC + 0.3 && t < INTOC + 1.6 && Math.sin(t * 9) > 0 });
   // los postes de latón con la cuerda de terciopelo, por delante del ejecutivo
   for (const px of [116, 204]) { R.rect(px - 1, 140, px + 1, 162, K); R.rect(px, 141, px, 161, hex('#c8a040')); R.rect(px - 3, 161, px + 3, 164, hex('#8a6a24')); R.disco(px, 139, 2, hex('#f0d070')); }
@@ -171,7 +196,7 @@ const p2 = (t) => {
     botellita(290, 159, 'marron'); vasito(298, 159, 0.5);
   });
   // los tres cuadros: cada uno se pinta recortado a su hueco y se enciende con la voz
-  const actA = tramo(t, SOLD - 0.25, SOLD + 0.15), actB = tramo(t, NAVI - 0.25, NAVI + 0.15), actC = tramo(t, VERANO - 0.25, VERANO + 0.15);
+  const actA = tramo(t, P2 + 0.4, SOLD + 0.3), actB = tramo(t, NAVI - 0.25, NAVI + 0.15), actC = tramo(t, VERANO - 0.25, VERANO + 0.15);
   // A · el campamento: cielo, colinas, tiendas, sacos terreros, la bandera y tres soldados que brindan
   { const [x0, x1] = PAN[0], cl = [x0 + 4, PY0 + 4, x1 - 4, PY1 - 4]; R.recorte(cl);
     grad(cl[0], cl[1], cl[2], 100, [hex('#7ab8e8'), hex('#a8d4f0'), hex('#d8ecf4')]);
@@ -240,6 +265,13 @@ const p2 = (t) => {
     cajaR(270, 104, 282, 112, hex('#c8382e')); R.linea(270, 104, 282, 104, hex('#e2675c')); cajaR(270, 106, 282, 107, hex('#f2eee2')); for (const bx of [272, 276, 280]) { R.pset(bx, 102, hex('#6a3a1e')); R.pset(bx, 103, hex('#6a3a1e')); R.pset(bx, 101, hex('#c8c8d2')); }
     { const u = (t * 0.4) % 1, bx = Math.round(240 + u * 60), by = Math.round(126 + Math.sin(t * 6) * 3); R.pset(bx, by, hex('#f0d070')); R.pset(bx - 1, by - (Math.sin(t * 20) > 0 ? 1 : 0), hex('#f8e8a0')); R.pset(bx + 1, by - (Math.sin(t * 20) > 0 ? 1 : 0), hex('#f8e8a0')); }
     R.recorte(null); if (actC < 1) sombrear(cl[0], cl[1], cl[2], cl[3], hex('#1a1424'), 0.75 * (1 - actC)); }
+  // la radio suena (las notas suben) y el gato del aparador mira el cuadro que se enciende
+  notas(t, 44, 144);
+  { const gd = t < NAVI - 0.3 ? -1 : 1, salto = Math.round(Math.max(0, Math.sin(tramo(t, NAVI - 0.4, NAVI) * Math.PI)) * 3 + Math.max(0, Math.sin(tramo(t, VERANO - 0.4, VERANO) * Math.PI)) * 2);
+    T.gato(R, 206, 159 - salto, t, { dir: gd }); }
+  // el chico entra por la derecha, se para bajo el porche de verano y lo señala en «summer»
+  { const kx = t < 9.2 ? 336 : Math.round(lerp(336, 262, tramo(t, 9.2, 10.6)));
+    if (kx < 334) R.actor(EL.chico, kx, 179, t, { dir: t < 10.6 ? -1 : (t < VERANO - 0.1 ? -1 : 1), anda: t > 9.2 && t < 10.6, dedo: t > VERANO - 0.1 && t < TARDES + 0.8, sonrisa: t > VERANO - 0.1, pal: { C: hex('#3e7aa8'), c: hex('#2e5a88'), W: hex('#3e7aa8') } }); }
   // los marcos dorados de los cuadros, con el brillo que pasa al encenderse
   for (const [k, [x0, x1]] of PAN.entries()) {
     R.rect(x0, PY0, x1, PY0 + 3, hex('#c8a040')); R.rect(x0, PY1 - 3, x1, PY1, hex('#8a6a24')); R.rect(x0, PY0, x0 + 3, PY1, hex('#b08a34')); R.rect(x1 - 3, PY0, x1, PY1, hex('#8a6a24'));
@@ -259,6 +291,11 @@ const p3 = (t) => {
   const d1 = R.actor(EL.ejecutivo, 108, 136, t, { dir: mira ? 1 : 1, sostiene: brinda > 0 ? [Math.round(lerp(122, 140, brinda)), Math.round(lerp(126, 112, brinda))] : true, sonrisa: t < CAMB - 0.1, enfado: enf, sorpresa: mira });
   const d2 = R.actor(EL.ejecutivo2, 182, 136, t, { dir: mira ? 1 : -1, sostiene: brinda > 0 ? [Math.round(lerp(182, 160, brinda)), Math.round(lerp(126, 112, brinda))] : true, sonrisa: t < CAMB - 0.1, enfado: enf, sorpresa: mira, habla: enf && Math.sin(t * 10) > 0 });
   for (const d of [d1, d2]) botellita(d.mano[0], d.mano[1] + 3, 'marron');
+  // la secretaria trae el informe, lo deja y en «until» coge el teléfono que suena; en «losing» mira la gráfica
+  { const sx2 = Math.round(lerp(336, 264, tramo(t, P3 + 0.1, P3 + 1.6))), tel = t > HASTA + 0.1, deja = t > P3 + 1.6;
+    const se = R.actor(VM.nill, sx2, 134, t, { dir: tel && t > PIERDE - 0.1 ? -1 : (sx2 > 264 ? -1 : 1), anda: !deja, sostiene: tel ? [sx2 + 8, 115] : !deja ? true : undefined, habla: tel && t < PIERDE - 0.1 && Math.sin(t * 9) > 0, sorpresa: t > PIERDE - 0.1 });
+    if (!deja) { R.rect(se.mano[0] - 4, se.mano[1] - 2, se.mano[0] + 4, se.mano[1] + 1, K); R.rect(se.mano[0] - 3, se.mano[1] - 1, se.mano[0] + 3, se.mano[1], hex('#e8d8a8')); }
+    if (tel) { const [hx, hy] = se.mano; R.rect(hx - 1, hy - 3, hx + 1, hy + 2, K); R.pset(hx, hy - 2, hex('#3a3a44')); R.pset(hx, hy + 1, hex('#3a3a44')); for (let k = 0; k <= 8; k++) { const u = k / 8; R.pset(Math.round(lerp(hx, 284, u)), Math.round(lerp(hy + 2, 104, u) + Math.sin(u * Math.PI) * 4), K); } } }
   destello(150, 106, tramo(t, COMP, COMP + 0.5));
   T.colasDelante(R, t, o);
   // el presidente, de pie delante: alza su botella, y en «changing» le dice que no con el dedo al científico
@@ -279,7 +316,7 @@ const p3 = (t) => {
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], {
   año: (t) => t < P2 ? Math.round(lerp(1886, 1960, tramo(t, 0.3, P2 - 0.6))) : t < P3 ? (t < NAVI - 0.2 ? 1943 : t < VERANO - 0.2 ? 1955 : 1962) : 1975,
-  efectos: [[0.7, 'tic'], [INTOC, 'whoosh'], [4.6, 'timbre'], [SOLD, 'pop'], [BEBEN + 0.05, 'toc'], [NAVI, 'campana'], [VERANO, 'pop'], [TARDES + 0.2, 'burbujas'], [COMP + 0.05, 'toc'], [HASTA, 'ring']],
+  efectos: [[0.7, 'tic'], [1.95, 'flash'], [INTOC, 'whoosh'], [4.6, 'timbre'], [SOLD, 'pop'], [BEBEN + 0.05, 'toc'], [NAVI, 'campana'], [VERANO, 'pop'], [TARDES + 0.2, 'burbujas'], [COMP + 0.05, 'toc'], [HASTA, 'ring']],
 });
 </script>
 </body>

@@ -20,8 +20,8 @@ export function pintarNCchibi(R, t, n) {
     PIEZAS_NC.pancarta(R, 150, 176, { dibujo: 'lata', s: 2 });
     cifra(R, '1985', 60, 26, 20);
   } else if (n === 1) {
-    atlanta(R, t, { encuadre: 'banco', abre: 1, papelito: true, guardia: false });
-    atlantaDelante(R, t, { encuadre: 'banco', abre: 1 });
+    atlanta(R, t, { encuadre: 'banco', abre: 1, papelito: true, guardia: false, vacia: true });
+    atlantaDelante(R, t, { encuadre: 'banco', abre: 1, vacia: true });
     grado(R, { cx: 160, tinte: '#2a1a08', f: 0.15, rx: 120, desde: 0.75, max: 0.5 });
     halo(R, 160, 100, 50, 50, '#ffe0a0', 0.3);
     figura(R, EL.candler, 140, 186, t, { dir: 1, sorpresa: true }, 2);

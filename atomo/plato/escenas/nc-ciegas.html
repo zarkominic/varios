@@ -13,14 +13,16 @@
 // cartela; barra en 1985. Tres planos:
 // 1. El plató de una tele de Seattle (fondo local): el decorado pintado del skyline al atardecer, la parrilla de focos y el
 //    piloto de «en el aire»; Mullins, con la gorra y una venda en los ojos, sentado tras la mesa de cuadros con dos vasos
-//    sin marca; el presentador llega con el segundo vaso y lo deja; en «blind» Mullins coge el primero y bebe; el
+//    sin marca; la maquilladora le retoca la venda con la borla y se va por la izquierda antes de «blind»; el presentador llega con el segundo vaso y lo deja; en «blind» Mullins coge el primero y bebe; el
 //    camarógrafo graba con el piloto encendido y la pértiga del micro se mece encima; en «Mullins» el presentador le señala.
 // 2. Corta en «couldn't»: inserto de la mesa (fondo local): los dos vasos grandes, la tarjeta de la cata con sus dos
-//    casillas y el lápiz; la mano de Mullins duda: va al vaso de la izquierda en «new» y al de la derecha en «old» (salta
-//    un «?» sobre cada uno); en «problem» cae sobre la tarjeta y deja un «?» en cada casilla; en «tongues» la venda cae
-//    sobre la mesa.
-// 3. Corta en «It was»: el despacho de la empresa en Atlanta, de noche (fondo local): Goizueta y Keough ven en la tele de
-//    ruedas a Mullins que se quita la venda y se queda de piedra; en «company» sube un «?» grande sobre los dos; Keough
+//    casillas y el lápiz; un técnico desenfocado cruza el plató al fondo; la mano de Mullins sube desde abajo y duda:
+//    tantea el vaso de la izquierda en «new» y el de la derecha en «old» (el vaso tiembla y salta un «?» sobre cada uno);
+//    en «problem» cae sobre la tarjeta, tamborilea y deja un «?» en cada casilla; en «tongues» la venda blanca cae sobre
+//    la mesa y la mano se va.
+// 3. Corta en «It was»: el despacho de la empresa en Atlanta, de noche (fondo local): Goizueta se acerca a la tele de
+//    ruedas, donde Mullins se quita la venda y se queda de piedra; la limpiadora entra con el cubo y friega junto a la
+//    librería (en «too late» levanta la vista); en «company» Goizueta señala la tele y sube un «?» grande; Keough
 //    se gira y en «realize» se asusta; en «too late» el reloj de péndulo da la hora; por la ventana, la ciudad de noche.
 
 import * as T from '/atomo/plato/escenas/nc-comun.js';
@@ -181,6 +183,12 @@ const p1 = (t) => {
   { const x = 228, s = 132, sw = Math.sin(t * 1.3) * 3; const a = R.actor(NC.camarografo, x, s, t, { dir: -1, sostiene: [x - 2, 104], pal: { C: '#5a6a4a', c: '#46523a' } });
     const mx = Math.round(154 + sw), my = 86; R.linea(a.mano[0] + 6, a.mano[1] + 3, mx, my, hex('#8a8a96')); R.linea(a.mano[0] + 6, a.mano[1] + 4, mx, my + 1, hex('#5a5a66'));
     R.linea(mx, my, mx, my + 6, hex('#5a5a66')); for (let j = 0; j < 9; j++) for (let i = -2; i <= 2; i++) if (Math.abs(i) < 2 || (j > 0 && j < 8)) R.pset(mx + i, my + 6 + j, (i + j) % 2 ? hex('#6a6a5a') : hex('#8a8a76')); }
+  // la maquilladora le retoca la venda con la borla y se va por la izquierda antes de «blind» (pasa por detrás de la mesa)
+  { const va = sm(lin(t, 0.95, 2.3)), x = Math.round(lerp(104, -24, va)), retoca = va === 0;
+    const mq = R.actor(NC.operadora, x, 147, t, { dir: retoca ? 1 : -1, anda: va > 0 && va < 1, sostiene: retoca ? [132 + Math.round(Math.sin(t * 9) * 2), 124] : [x + 2, 136], sonrisa: retoca, pal: { C: '#c8486a', c: '#a83a58' } });
+    R.disco(mq.mano[0] + 1, mq.mano[1] - 1, 2, hex('#f6d8c8')); R.pset(mq.mano[0], mq.mano[1] - 2, hex('#ffffff'));
+    if (!retoca) { caja(mq.mano[0] - 3, mq.mano[1], mq.mano[0] + 3, mq.mano[1] + 4, hex('#3a2a3a')); R.rect(mq.mano[0] - 2, mq.mano[1] + 1, mq.mano[0] + 2, mq.mano[1] + 1, hex('#c8a040')); }
+    if (retoca && Math.sin(t * 9) > 0.6) for (let k = 0; k < 3; k++) R.pset(134 + k * 2, 120 - k, hex('#f6e8e0')); }
   // Mullins sentado tras la mesa, con la venda blanca; en «blind» coge el vaso 1 y bebe
   const MX = 140, MS = 146, coge = en('ciegas', 0.1350), bebe = en('ciegas', 0.1766), deja = en('ciegas', 0.2499), cA = [162, 137], cB = [184, 137];
   const tieneA = t > coge && t < deja + 0.3;
@@ -242,10 +250,23 @@ const p2 = (t) => {
   // los dos vasos grandes, a medio beber, con burbujas que suben
   // la silueta borrosa del presentador que espera al fondo
   { const x = Math.round(250 + Math.sin(t * 0.7) * 4); for (let y = 30; y <= 70; y++) for (let i = -9; i <= 9; i++) { const w = y < 44 ? 6 : 10; if (Math.abs(i) <= w && !(y < 44 && Math.hypot(i, y - 37) > 7)) R.pset(x + i, y, mez(R.pget(x + i, y), hex('#0a0a14'), 0.55)); } }
-  for (const [x, k] of [[XA, 0], [XB, 1]]) { PZ.vaso(R, x, YB, { lleno: 0.55, s: 2.5 }); pegatina(x, YB - 20, k + 1, 2);
+  // un técnico desenfocado cruza el plató al fondo con un foco al hombro
+  { const x = Math.round(-30 + ((t - P2) * 22) % 380); for (let y = 36; y <= 70; y++) for (let i = -7; i <= 7; i++) { const w = y < 47 ? 4 : 7; if (Math.abs(i) <= w && !(y < 47 && Math.hypot(i, y - 41) > 5)) R.pset(x + i, y, mez(R.pget(x + i, y), hex('#0c0c16'), 0.5)); }
+    for (let j = -3; j <= 3; j++) for (let i = -5; i <= 5; i++) if (Math.hypot(i, j * 1.4) < 5) R.pset(x + 9 + i, 40 + j, mez(R.pget(x + 9 + i, 40 + j), hex('#0c0c16'), 0.45)); }
+  // la mano de Mullins: los puntos de su recorrido (t, muñeca x, muñeca y); tantea el vaso 1 en «new», el 2 en «old»,
+  // vuelve a dudar en medio, cae sobre la tarjeta en «problem» y se va en «tongues»
+  const nuevo = en('ciegas', 0.4015), viejo = en('ciegas', 0.4615), venda1 = en('ciegas', 0.6123), tap = en('ciegas', 0.5307);
+  const RUTA = [[P2 + 0.05, XA - 52, 200], [nuevo - 0.2, XA - 30, 150], [nuevo + 0.3, XA - 31, 148], [viejo - 0.18, XB - 30, 150], [viejo + 0.25, XB - 31, 148],
+    [tap - 0.3, 148, 136], [tap, 150, 150], [venda1 + 0.15, 150, 151], [venda1 + 0.7, 118, 206]];
+  let wx = RUTA[0][1], wy = RUTA[0][2];
+  for (let i = 0; i < RUTA.length - 1; i++) if (t >= RUTA[i][0]) { const u = sm(lin(t, RUTA[i][0], RUTA[i + 1][0])); wx = lerp(RUTA[i][1], RUTA[i + 1][1], u); wy = lerp(RUTA[i][2], RUTA[i + 1][2], u); }
+  if (t < tap - 0.3) { wx += Math.sin(t * 6) * 1.5; wy += Math.sin(t * 9) * 1.2; }   // la duda: la mano tiembla
+  if (t > tap && t < tap + 0.8) wy -= Math.abs(Math.sin((t - tap) * 9)) * 3;           // tamborilea en la tarjeta
+  wx = Math.round(wx); wy = Math.round(wy);
+  for (const [x, k] of [[XA, 0], [XB, 1]]) { const roza = Math.abs(wx + 13 - (x - 17)) < 4 && wy < 156, tb = roza ? Math.round(Math.sin(t * 24)) : 0;
+    PZ.vaso(R, x + tb, YB, { lleno: 0.55, s: 2.5 }); pegatina(x + tb, YB - 20, k + 1, 2);
     for (let b = 0; b < 4; b++) { const y = Math.round(YB - 4 - ((t * 9 + b * 5 + k * 3) % 18)), xx = Math.round(x - 9 + hh(b, k) * 18); R.pset(xx, y, hex('#c89a6a')); } }
   // la tarjeta de la cata con dos casillas (un vaso en cada una) y el lápiz
-  const tap = en('ciegas', 0.5307);
   caja(128, 134, 192, 164, hex('#f6f2e6')); R.rect(129, 162, 191, 163, hex('#c8c4b8'));
   for (const [x, k] of [[134, 0], [164, 1]]) { caja(x, 142, x + 22, 160, hex('#ffffff')); R.numero(String(k + 1), x + 12, 142, { color: hex('#5a5a66'), centro: true });
     if (t > tap + 0.15 + k * 0.35) R.icono('?', x + 7, 145, hex('#c83a3a'), hex('#f0c0b0'), 2); }
@@ -253,19 +274,14 @@ const p2 = (t) => {
   // el cronómetro de la cata, que corre
   R.disco(196, 98, 10, K0); R.disco(196, 98, 9, hex('#c8ccd8')); R.disco(196, 98, 7, hex('#f6f6f0')); R.rect(194, 86, 198, 88, hex('#8a8a96'));
   { const a = t * 1.2; R.linea(196, 98, Math.round(196 + Math.sin(a) * 6), Math.round(98 - Math.cos(a) * 6), hex('#c83030')); } for (let k = 0; k < 12; k++) { const a = k / 6 * Math.PI; R.pset(Math.round(196 + Math.sin(a) * 8), Math.round(98 - Math.cos(a) * 8), K0); }
-  // la mano de Mullins (la manga de la cazadora): sube, duda entre los dos vasos y cae sobre la tarjeta
-  const sube = sm(lin(t, P2 + 0.1, P2 + 0.6)), nuevo = en('ciegas', 0.4015), viejo = en('ciegas', 0.4615), venda1 = en('ciegas', 0.6123);
-  const pts = [[P2, XA - 30], [nuevo - 0.1, XA - 30], [viejo - 0.35, XB - 30], [viejo + 0.25, XB - 30], [viejo + 0.55, XA - 30], [tap - 0.3, XA - 30], [tap, 140]];
-  let wx = pts[0][1]; for (let i = 0; i < pts.length - 1; i++) if (t >= pts[i][0]) wx = lerp(pts[i][1], pts[i + 1][1], sm(lin(t, pts[i][0], pts[i + 1][0])));
-  let wy = lerp(200, 160, sube); if (t > tap - 0.3) wy = lerp(160, 150 - Math.abs(Math.sin((t - tap) * 9)) * 3 * (t < tap + 0.9 ? 1 : 0), sm(lin(t, tap - 0.3, tap)));
-  wy += Math.sin(t * 7) * 1.2 * (t < tap ? 1 : 0); wy = lerp(wy, 210, sm(lin(t, venda1 + 0.1, venda1 + 0.6)));
-  if (wy < 200) T.brazo(R, wx - 16, 196, wx, wy, '#7a5a3a', 1, { codo: [wx - 20, (196 + wy) / 2 + 3], puno: '#5e442a' });
+  // la mano de Mullins (la manga de la cazadora), del borde de abajo a la muñeca
+  if (wy < 200) T.brazo(R, wx - 24, 198, wx, wy, '#7a5a3a', 1, { codo: [wx - 26, Math.round((198 + wy) / 2) + 2], puno: '#5e442a' });
   // el «?» que salta sobre el vaso por el que pasa la mano
   for (const [x, t0] of [[XA, nuevo], [XB, viejo]]) { const u = t - t0; if (u > 0 && u < 0.9) { const y = Math.round(130 - Math.min(1, u * 5) * 12 + Math.max(0, u - 0.6) * 24); R.icono('?', x - 7, y - 21, hex('#f6d040'), K0, 3); } }
-  // la venda cae del cielo sobre la mesa en «tongues»
+  // la venda (blanca, la del plano 1) cae desde arriba sobre la mesa en «tongues»
   if (t > venda1) { const u = lin(t, venda1, venda1 + 0.5), y = Math.round(lerp(-6, 116, sm(u))), ol = u < 1 ? Math.sin(t * 20) * 3 : 0;
     for (let i = 0; i < 50; i++) { const yy = Math.round(y + Math.sin(i * 0.25 + t * (u < 1 ? 10 : 0)) * (u < 1 ? 3 : 1) + (i > 40 ? (i - 40) * 0.6 : 0) + ol * (i / 50)), xx = 136 + i;
-      R.pset(xx, yy - 1, K0); R.pset(xx, yy, hex('#3a3a58')); R.pset(xx, yy + 1, hex('#2a2a40')); R.pset(xx, yy + 2, hex('#2a2a40')); R.pset(xx, yy + 3, K0); } }
+      R.pset(xx, yy - 1, K0); R.pset(xx, yy, hex('#ffffff')); R.pset(xx, yy + 1, hex('#ece8dc')); R.pset(xx, yy + 2, hex('#c8c4b8')); R.pset(xx, yy + 3, K0); } }
 };
 
 // ── 3 · el despacho de la empresa de noche ──
@@ -320,6 +336,14 @@ const p3 = (t) => {
   const tarde = en('ciegas', 0.9405); reloj(167, 40, 8, 0.99 - (t < tarde ? 0.004 : 0), t < tarde ? 0.95 + (t - P3) * 0.004 : 1.0);
   { const a = Math.sin(t * 3.6) * 0.35, px = Math.round(167 + Math.sin(a) * 14), py = Math.round(54 + Math.cos(a) * 14); R.linea(167, 54, px, py, hex('#c8a040')); R.disco(px, py, 2, hex('#e8c060')); }
   if (t > tarde && t < tarde + 0.6) for (const s of [-1, 1]) { R.linea(167 + s * 11, 36, 167 + s * 15, 33, hex('#f6e6b0')); R.linea(167 + s * 11, 42, 167 + s * 16, 42, hex('#f6e6b0')); }
+  // la limpiadora de noche entra con el cubo, friega junto a la librería y en «too late» levanta la vista
+  const tarde0 = en('ciegas', 0.9405);
+  { const ll = sm(lin(t, P3 + 0.1, P3 + 1.6)), x = Math.round(lerp(334, 268, ll)), friega = ll >= 1, fx = Math.round(Math.sin(t * 4) * 6);
+    const cu = Math.round(x + 18); caja(cu - 5, 144, cu + 5, 152, hex('#5a7a9a')); R.rect(cu - 4, 145, cu + 4, 146, hex('#8ab0d0')); R.linea(cu - 5, 143, cu, 139, hex('#3a3a46')); R.linea(cu, 139, cu + 5, 143, hex('#3a3a46'));
+    const lp = R.actor(NC.operadora, x, 154, t, { dir: -1, anda: ll > 0 && ll < 1, sostiene: [x - 3 + (friega ? fx : 0), 136], sorpresa: t > tarde0 && t < tarde0 + 1.2, pal: { C: '#5a8a8a', c: '#467070', H: '#3a2a1e' } });
+    const px = lp.mano[0] - 6 + (friega ? fx : 0); R.linea(lp.mano[0], lp.mano[1], px, 152, hex('#c8a060')); R.linea(lp.mano[0] + 1, lp.mano[1], px + 1, 152, hex('#8a6a3a'));
+    for (let i = -4; i <= 4; i++) { R.pset(px + i, 153, hex('#e8e4d8')); R.pset(px + i, 154, (i & 1) ? hex('#c8c4b8') : hex('#f2f0e6')); }
+    if (friega) for (let i = -10; i <= 10; i += 2) R.pset(px + i, 155, mez(R.pget(px + i, 155), hex('#c8a8a8'), 0.4)); }
   // la tele de ruedas (x 186–252): la mesa del plató y Mullins que se quita la venda
   caja(186, 74, 252, 126, hex('#5a4030')); R.rect(188, 76, 250, 78, hex('#7a5a40')); R.rect(244, 82, 249, 120, hex('#3a2a1e')); for (let j = 84; j < 118; j += 4) R.rect(245, j, 248, j + 1, hex('#2a1e14'));
   R.disco(246, 112, 1, hex('#c8a040')); R.disco(246, 104, 1, hex('#c8a040')); R.linea(206, 74, 196, 62, hex('#8a8a96')); R.linea(226, 74, 238, 60, hex('#8a8a96'));
@@ -340,7 +364,9 @@ const p3 = (t) => {
   luz(214, 120, 70, hex('#6a8ad8'), 0.16 + 0.05 * Math.sin(t * 13));
   // Goizueta y Keough miran la tele; en «company» sube el «?» y Keough se gira; en «realize» se asusta
   const emp = en('ciegas', 0.7972), real = en('ciegas', 0.8905);
-  R.actor(NC.goizueta, 140, 162, t, { dir: 1, sorpresa: t > tarde, habla: t > emp + 0.3 && t < real && Math.sin(t * 8) > 0 });
+  // Goizueta se acerca a la tele al principio y en «company» la señala
+  { const ac = sm(lin(t, P3 + 0.2, P3 + 1.4)), gx = Math.round(lerp(116, 140, ac));
+    R.actor(NC.goizueta, gx, 162, t, { dir: 1, anda: ac > 0 && ac < 1, sorpresa: t > tarde, dedo: t > emp - 0.1 && t < emp + 0.8, habla: t > emp + 0.8 && t < real && Math.sin(t * 8) > 0 }); }
   R.actor(NC.keough, 164, 162, t, { dir: t > emp + 0.25 && t < tarde ? -1 : 1, sorpresa: t > real, dedo: t > real && t < real + 0.8 });
   if (t > emp) { const u = lin(t, emp, emp + 0.5), y = Math.round(lerp(140, 76, sm(u)) + Math.sin(t * 4) * 2), x = 158 + Math.round(Math.sin(t * 2.4) * 2);
     R.disco(x, y + 13, 17, K0); R.disco(x, y + 13, 16, hex('#f6f2e6')); R.icono('?', x - 10, y - 1, hex('#c83a3a'), hex('#7a1a1a'), 4); }
@@ -351,7 +377,7 @@ const p3 = (t) => {
   for (let k = 0; k < 7; k++) { const u = ((t * 0.6 + k / 7) % 1), y = Math.round(126 - u * 34), x = Math.round(46 + Math.sin(u * 8 + t) * 3 * u); R.pset(x, y, mez(hex('#3a3a3a'), hex('#c8c8d0'), 1 - u)); R.pset(x + 1, y, mez(hex('#3a3a3a'), hex('#a8a8b0'), 1 - u)); }
 };
 
-const efectos = [[1.25, 'golpecito'], [en('ciegas', 0.1766), 'burbujas'], [en('ciegas', 0.4015), 'pop'], [en('ciegas', 0.4615), 'pop'], [en('ciegas', 0.5373), 'lapiz'], [en('ciegas', 0.6206), 'whoosh'], [en('ciegas', 0.7972), 'pop'], [en('ciegas', 0.9405), 'campana']];
+const efectos = [[1.25, 'golpecito'], [en('ciegas', 0.1766), 'burbujas', { dur: 0.8 }], [en('ciegas', 0.4015), 'pop'], [en('ciegas', 0.4615), 'pop'], [en('ciegas', 0.5373), 'lapiz'], [en('ciegas', 0.6206), 'whoosh'], [en('ciegas', 0.7972), 'pop'], [en('ciegas', 0.9405), 'campana']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1985 });
 </script>
 </body>

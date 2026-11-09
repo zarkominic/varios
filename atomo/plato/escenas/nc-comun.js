@@ -97,7 +97,9 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     o.fuego (true): la llamita azul del hornillo de la mesa de Pemberton.
 //   'farmacia', cámara 'fuente': la fuente de soda de cerca: vidriera de colores arriba, el espejo grande con el reflejo
 //     de la sala (y de la gente que pasa), las urnas de jarabe, la registradora de latón que saca sus cifras, limones y
-//     vasos; en atlantaDelante el mostrador de mármol con la torre de latón de los grifos y el vaso que se llena con
+//     vasos, y debajo los armarios de caoba con vetas, la nevera de hielo de zinc con los sifones y un trapo; el frente
+//     del mostrador de mármol (paneles verdes, pilastras, barra de latón) lo pintan esta función y, por delante de quien
+//     esté detrás, atlantaDelante, que además pone la torre de latón de los grifos y el vaso que se llena con
 //     burbujas. o.llena (0–1; si no se da, se llena y se vacía solo en bucle de 6 s): cuánto lleva el vaso; mientras sube,
 //     la palanca está bajada y cae el chorro. o.vaso false: sin vaso (la escena pone el suyo).
 //   'banco', cámara 'general': la cámara acorazada de un banco hacia 1890: sillares de granito, techo de casetones, la
@@ -105,10 +107,15 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     0–1: hasta 0,25 gira el volante y el dial; de 0,25 a 1 la puerta gira sobre su bisagra de la derecha hacia nosotros y
 //     enseña su canto gordo con los cerrojos cromados; dentro, la cámara iluminada con baldas de cajas y un atril en el
 //     centro; la luz sale y se derrama por el suelo. o.papelito (true): el papelito doblado en el atril, con un brillo.
-//     A los lados, paredes de cajas de seguridad de latón numeradas; lámparas verdes colgadas con su cono de luz; el
+//     o.vacia (false): la cámara por dentro vacía (la pared de chapa con sus juntas, una telaraña, solo el atril con el
+//     papelito y la luz): para el gag de «solo hay un papelito». En la esquina de la placa, la cerradura de tiempo con su
+//     aguja que avanza y la placa del fabricante. A los lados, paredes de cajas de seguridad de latón numeradas (de dos
+//     cuelgan llaves con borla que se mece); lámparas verdes colgadas con su cono de luz y una polilla que da vueltas; el
+//     paragüero a la izquierda, la escupidera de latón a la derecha y el suelo de losas de mármol con juntas y vetas; el
 //     atril del guardia con el libro y su lámpara verde. o.guardia (true): un guardia (ELENCO_CHIBI.policia) que hace la
 //     ronda junto al atril. o.museo: la misma puerta hoy, en un museo: paredes oscuras con paneles de exposición, focos
-//     de carril, una vitrina con una botella recta y una pantalla que cambia; la puerta abierta por omisión, sin guardia;
+//     de carril, una vitrina con una botella recta, una pantalla que cambia, el cartel luminoso de salida (pictograma) y
+//     la cámara de seguridad que barre la sala con su piloto; la puerta abierta por omisión, sin guardia;
 //     las cuerdas de terciopelo van en atlantaDelante.
 //   'banco', cámara 'despacho': el despacho de Candler en los 1890: papel pintado granate, zócalo de caoba, parqué con
 //     alfombra persa, la ventana con cortinas de terciopelo a una calle de Atlanta con el tranvía de mulas, el mapa
@@ -128,7 +135,8 @@ export function atlanta(R, t, o = {}) {
 //   farmacia/general: la mesa de trabajo de Pemberton (tarros de hojas y de nueces, el hornillo de trípode con su llama,
 //     el mortero, la garrafa de mimbre debajo) y el mostrador de mármol de la fuente con la torre de grifos de latón, la
 //     barra de los pies y dos taburetes.
-//   farmacia/fuente: el mostrador de mármol de cerca, la torre de latón con sus dos caños y palancas y el vaso que se
+//   farmacia/fuente: el mostrador de mármol de cerca (el mismo que ya pinta atlanta, repintado por delante de los
+//     actores), la torre de latón con sus dos caños y palancas y el vaso que se
 //     llena (o.llena, o.vaso).
 //   banco/general: con o.museo, los postes de latón con la cuerda de terciopelo que se mece; sin museo, nada.
 //   banco/despacho: el escritorio de caoba con la lámpara verde, el tintero con la pluma, los papeles, el secante y el
@@ -153,7 +161,7 @@ export function atlantaDelante(R, t, o = {}) {
 //     Cámara 'mesa': el inserto de la mesa de la cata de cerca: el mantel de cuadros en perspectiva con una torre de vasos
 //     boca abajo, servilletas, la tablilla con el recuento a palotes (azul gana), el cubo de hielo con dos latas que
 //     sudan; detrás, las estanterías desenfocadas a doble tamaño, un cliente que pasa y el resplandor del foco. o.vasos
-//     (por omisión true): los dos vasos de cata A y B a escala 3 (con burbujas); o.llenoA, o.llenoB (0–1, por omisión
+//     (por omisión true): los dos vasos de cata a escala 3, sin letra, con un punto rojo y uno azul en la base (o.puntos false los quita; o.letras true, la «A» y la «B»), con burbujas; o.llenoA, o.llenoB (0–1, por omisión
 //     0.8); o.trile (0–1): los vasos se cambian de sitio en arco (0 en su sitio, 1 cambiados). Las manos las pone la
 //     escena (T.mano) encima. colasDelante no pinta nada en esta cámara.
 //   'sede': el despacho alto de la sede en Atlanta: un ventanal (x 6–166) con persiana a medio bajar y la ciudad de los
@@ -177,7 +185,7 @@ export function colas(R, t, o = {}) {
   return cam === 'mesa' ? b_mesaCata(R, t, o) : b_super(R, t, o);
 }
 // lo de delante de los personajes en cada encuadre de colas(); se llama después de los actores, con las mismas opciones:
-// 'super' la mesa de la cata con su mantel, los vasos A y B (o.vasos, o.llenoA, o.llenoB, o.trile) y la tablilla del
+// 'super' la mesa de la cata con su mantel, los dos vasos sin letra con su punto rojo y azul (o.vasos, o.llenoA, o.llenoB, o.trile, o.puntos, o.letras) y la tablilla del
 // recuento; 'sede' la mesa de juntas; 'laboratorio' la isla de trabajo. En la cámara 'mesa' no pinta nada.
 export function colasDelante(R, t, o = {}) {
   const enc = o.encuadre ?? 'super', cam = o.camara ?? 'general';
@@ -236,7 +244,8 @@ export function anuncio(R, t, o = {}) {
 // lo de delante de los personajes en cada encuadre de anuncio(); se llama después de los actores, con las mismas opciones:
 // 'prensa' general: el atril (x 238–262, tablero en y 110) con sus micrófonos, la primera fila del foso (cabezas de
 // espaldas en y 168–180, cámaras alzadas con flash) y las dos cámaras de tele en sus trípodes (x 2–34 y x 286–318), y el
-// destello general de los flashes; 'prensa' 'atril': el atril grande con el ramillete de micrófonos (x 186–246) y las
+// destello de los flashes (solo sobre el foso y la mesa, nunca la pantalla entera); 'prensa' 'atril': el atril grande
+// con el ramillete de micrófonos (x 186–246) y las
 // cámaras de los fotógrafos que asoman por abajo; 'rival': la mesa de delante (x 0–94, tablero en y 141), la jamba y la
 // pared lateral derecha (x ≥ 306) y el confeti de primer término; 'rival' 'tele': la mesita baja (x 120–178, tablero en
 // y 150) con la lata roja, las palomitas y el mando.
@@ -820,9 +829,20 @@ function a_fuenteFija(R) {
   rect(270, 104, 292, 110, AP.vidrioS); rect(272, 109, 290, 110, AP.vidrio); rect(279, 110, 283, 110, AP.vidrioS);
   for (const [x, y] of [[274, 102], [280, 101], [286, 102], [277, 97], [283, 97]]) { R.disco(x, y, 3, hex('#d8b020')); R.disco(x - 1, y - 1, 2, hex('#f8e050')); pset(x - 2, y - 2, hex('#fff8c0')); }
   // los armarios de debajo (los tapa casi del todo el mostrador)
-  rect(14, 117, 306, 145, AP.caoba); for (let x = 20; x < 300; x += 46) { rect(x, 120, x + 40, 145, AP.caobaS); rect(x + 1, 121, x + 40, 145, AP.caoba); rect(x + 3, 123, x + 38, 145, AP.caobaL); rect(x + 4, 124, x + 38, 145, AP.caoba); }
+  //   (caoba con vetas, puertas de cuarterón con su bisel de luz y sombra, tiradores de latón, y entre ellas la nevera de
+  //   hielo con su tapa de zinc, una fila de botellas de sifón y el trapo colgado)
+  for (let y = 117; y < 146; y++) for (let x = 14; x < 307; x++) { const v = Math.sin(y * 0.9 + Math.sin(x * 0.045 + y * 0.12) * 3); pset(x, y, Math.abs(v) < 0.12 ? AP.caobaS : v > 0.8 && h(x >> 2, y, 107) > 0.5 ? AP.caobaL : AP.caoba); }
+  rect(14, 117, 306, 117, AP.caobaD); rect(14, 118, 306, 118, AP.caobaL);
+  for (let x = 20; x < 300; x += 46) { if (x === 20) continue;
+    rect(x, 121, x + 40, 121, AP.caobaD); rect(x, 121, x, 145, AP.caobaD); rect(x + 1, 122, x + 40, 122, AP.caobaL); rect(x + 1, 122, x + 1, 145, AP.caobaL); rect(x + 40, 122, x + 40, 145, AP.caobaS);
+    for (const px of [x + 4, x + 22]) { rect(px, 125, px + 14, 125, AP.caobaS); rect(px, 125, px, 145, AP.caobaS); rect(px + 14, 126, px + 14, 145, AP.caobaL); rect(px + 1, 126, px + 13, 126, AP.caobaL);
+      for (let y = 128; y < 146; y += 3) pset(px + 3 + ((y * 7) % 9), y, AP.caobaL); }
+    disco(x + 20, 132, 1, C.laton); pset(x + 19, 131, AP.latonL); pset(x + 21, 133, AP.latonS); }
+  rect(20, 120, 66, 145, AP.aceroD); rect(21, 121, 65, 145, AP.acero); rect(21, 121, 65, 122, AP.aceroLL); rect(21, 123, 65, 123, AP.aceroS);
+  for (let x = 24; x < 64; x += 6) rect(x, 126, x, 145, AP.aceroL); rect(58, 131, 62, 133, AP.aceroK); rect(59, 131, 61, 132, AP.aceroLL);
+  for (let k = 0; k < 5; k++) { const x = 26 + k * 7; rect(x, 133, x + 4, 145, AP.vidrioS); rect(x + 1, 134, x + 3, 145, a_mezcla(AP.vidrio, AP.verdeFL, 0.3)); pset(x + 1, 135, AP.vidrioL); rect(x + 1, 129, x + 3, 132, AP.aceroL); rect(x + 3, 129, x + 4, 129, AP.aceroK); }
+  rect(254, 118, 262, 133, AP.etiqueta); rect(254, 118, 262, 118, AP.lozaS); for (let y = 121; y < 133; y += 3) rect(255, y, 261, y, AP.rojoFL); rect(262, 119, 262, 133, AP.lozaS); rect(255, 132, 261, 133, AP.rojoFS);
 }
-
 function a_fuente(R, t, o = {}) {
   a_capa(R, 'fuente', () => a_fuenteFija(R));
   // la luz que entra por la vidriera, que respira con las nubes
@@ -836,26 +856,14 @@ function a_fuente(R, t, o = {}) {
   { const c = Math.floor(t / 3), salta = (t % 3) < 1.6; R.rect(226, 70, 240, 78, hex('#f2ead2')); if (salta) { R.rect(228, 71, 238, 77, AP.etiqueta); a_cifra(R, c % 2 ? 10 : 5, c % 2 ? 229 : 231, 72, AP.rojoFS); } else R.rect(229, 76, 237, 77, AP.lozaS); }
   // un limón se mueve un poco, las burbujitas de las urnas
   for (let k = 0; k < 3; k++) { const x = 34 + k * 22 + Math.floor(h(k, Math.floor(t * 2), 85) * 8), y = 108 - Math.floor((t * 7 + k * 5) % 15); R.pset(x, y, a_mezcla(AP.vidrioL, [C.jarabe, AP.rojoF, AP.ambar][k], 0.3)); }
+  // el mostrador también aquí, para que el plano quede entero aunque no se llame a atlantaDelante
+  a_capaFranja(R, 'fuenteFrente', 146, 179, () => a_fuenteFrente(R));
   return { suelo: 180, sueloDetras: 152, mostrador: [0, 146], vaso: [146, 145], cano: [146, 121], registradora: [233, 66] };
 }
-
 function a_fuenteDelante(R, t, o = {}) {
   const { rect, pset, disco, linea } = R;
-  // el mostrador de mármol grueso: tablero con canto y vetas, el frente en paneles con pilastras y la barra de los pies
-  rect(0, 146, 319, 146, AP.marmolL); rect(0, 147, 319, 149, C.marmol); rect(0, 150, 319, 150, C.marmolS); rect(0, 151, 319, 152, AP.caobaD);
-  for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.13 + Math.sin(x * 0.031) * 4); if (Math.abs(v) < 0.12) pset(x, 147 + (x % 3), AP.marmolV); if (x % 7 === 0) pset(x, 146, hex('#ffffff')); }
-  rect(0, 153, 319, 154, C.laton); rect(0, 153, 319, 153, AP.latonL);
-  for (let y = 155; y < 180; y++) for (let x = 0; x < 320; x++) { const u = (x + 8) % 64; let c;
-    if (u < 6) c = u === 0 ? AP.caobaL : u === 5 ? AP.caobaS : (u === 2 ? AP.caobaS : AP.caoba);
-    else if (y === 155) c = C.marmolS;
-    else if (u >= 11 && u <= 58 && y >= 159 && y <= 169) { const bev = u === 11 || y === 159 ? AP.verdeFS : u === 58 || y === 169 ? AP.verdeFL : null;
-      const v = Math.sin(x * 0.09 + y * 0.5 + Math.sin(y * 0.3 + x * 0.07) * 2.4); c = bev ?? (Math.abs(v) < 0.1 ? AP.verdeFL : Math.abs(v) < 0.3 ? AP.verdeF : (h(x >> 1, y, 88) > 0.85 ? AP.verdeF : hex('#2e6a40'))); }
-    else if (u === 10 || u === 59 || y === 158 || y === 170) c = (u === 10 || y === 158) ? C.marmolS : AP.marmolL;
-    else if (u === 6) c = C.marmolS; else if (u === 63) c = AP.marmolL;
-    else { const v = Math.sin(x * 0.12 + y * 0.45 + Math.sin(y * 0.2 + x * 0.04) * 2.6); c = Math.abs(v) < 0.09 ? C.marmolS : Math.abs(v) < 0.22 ? AP.marmolV : (y > 172 ? a_mezcla(C.marmol, C.marmolS, 0.4) : C.marmol); }
-    pset(x, y, c); }
-  for (let x = 26; x < 320; x += 64) { disco(x, 164, 2, C.laton); pset(x - 1, 163, AP.latonL); pset(x + 1, 165, AP.latonS); }
-  rect(0, 172, 319, 173, C.laton); rect(0, 174, 319, 174, AP.latonS); for (let x = 30; x < 320; x += 64) { rect(x, 171, x + 2, 176, AP.latonS); pset(x, 171, AP.latonL); }
+  // el mostrador de mármol (tablero, frente de paneles y barra de los pies): la misma franja que pinta a_fuente, por delante
+  a_capaFranja(R, 'fuenteFrente', 146, 179, () => a_fuenteFrente(R));
   // la torre de los grifos: peana de mármol con su moldura de latón, columna con anillos, el remate en urna
   rect(160, 128, 184, 145, C.marmolS); rect(161, 129, 183, 145, C.marmol); rect(161, 129, 162, 145, AP.marmolL); rect(160, 127, 184, 128, C.laton); rect(160, 127, 184, 127, AP.latonL); rect(160, 144, 184, 145, AP.latonS);
   rect(166, 133, 178, 140, C.marmolS); rect(167, 134, 177, 139, AP.marmolL); disco(172, 136, 1, C.laton);
@@ -885,8 +893,7 @@ function a_fuenteDelante(R, t, o = {}) {
   rect(214, 145, 232, 146, AP.lozaS); rect(216, 144, 230, 144, AP.loza); linea(218, 143, 228, 141, AP.aceroL);
   return { suelo: 180 };
 }
-
-function a_bovedaFija(R, museo) {
+function a_bovedaFija(R, museo, vacia = false) {
   const { rect, pset, disco, linea } = R;
   // el techo de casetones
   for (let y = 0; y < 18; y++) for (let x = 0; x < 320; x++) { const u = x % 32, v = y; const viga = u < 3 || v > 15; let c = museo ? (viga ? AP.museoS : AP.museo) : viga ? AP.granitoD : (u < 5 || v < 2 ? AP.granitoS : (u > 29 || v > 13 ? AP.granitoD : AP.granitoS)); if (!museo && !viga && u >= 5 && u <= 29 && v >= 2 && v <= 13 && h(x, y, 91) > 0.92) c = AP.granito; pset(x, y, c); }
@@ -899,8 +906,18 @@ function a_bovedaFija(R, museo) {
   }
   if (museo) { rect(0, 128, 319, 139, AP.museoS); rect(0, 128, 319, 128, AP.museoL); rect(96, 22, 224, 139, AP.granitoS); for (let y = 23; y < 139; y++) for (let x = 97; x < 224; x++) if (h(x, y, 95) > 0.9) pset(x, y, AP.granitoD); }
   // el suelo: mármol en damero en perspectiva, pulido (o el suelo oscuro y brillante del museo)
-  for (let y = 140; y < 180; y++) { const e = (y - 40) / 100, z = 1000 / (y - 40); for (let x = 0; x < 320; x++) { const X = 160 + (x - 160) / e, tile = (Math.floor((X + 800) / 18) + Math.floor(z / 1.6)) % 2;
-    let c = museo ? (tile ? hex('#3a3a46') : hex('#2e2e38')) : (tile ? C.marmol : hex('#6e6874')); if (!museo && tile && h(x >> 1, y, 96) > 0.9) c = AP.marmolV; pset(x, y, c); } }
+  //   (con juntas finas entre losas, vetas que cruzan cada losa y alguna losa con una esquina desconchada)
+  for (let y = 140; y < 180; y++) { const e = (y - 40) / 100, z = 1000 / (y - 40); for (let x = 0; x < 320; x++) { const X = 160 + (x - 160) / e, fx = (X + 800) / 18, fz = z / 1.6, ix = Math.floor(fx), iz = Math.floor(fz), tile = (ix + iz) % 2;
+    const gx = fx - ix, gz = fz - iz, junta = gx < 0.05 * e + 0.02 || gz < 0.07;
+    const v = Math.sin(X * 0.21 + fz * 5.3 + Math.sin(fz * 2.1 + X * 0.05) * 2.2 + h(ix, iz, 104) * 6), vena = Math.abs(v) < 0.07, vena2 = Math.abs(v - 0.8) < 0.04;
+    let c = museo ? (tile ? hex('#3a3a46') : hex('#2e2e38')) : (tile ? C.marmol : hex('#6e6874'));
+    if (museo) { if (junta) c = hex('#24242c'); else if (vena && tile) c = hex('#44444f'); else if (h(x, y, 105) > 0.97) c = hex('#4a4a58'); }
+    else if (junta) c = tile ? AP.marmolV : hex('#56505c');
+    else if (vena) c = tile ? AP.marmolV : hex('#847e8a');
+    else if (vena2) c = tile ? AP.marmolL : hex('#625c68');
+    else if (tile && h(x >> 1, y, 96) > 0.93) c = AP.marmolV;
+    else if (gx > 0.86 && gz > 0.8 && h(ix, iz, 106) > 0.8) c = tile ? hex('#cfc6b8') : hex('#5c5662');
+    pset(x, y, c); } }
   for (let y = 140; y < 160; y++) for (let x = 102; x <= 218; x++) if (a_bayer(x, y) < 0.35 - (y - 140) * 0.016) pset(x, y, a_mezcla(R.pget(x, y), AP.aceroL, 0.35));   // el reflejo de la placa en el suelo pulido
   for (let x = 0; x < 320; x++) { pset(x, 140, AP.granitoD); if (x % 2) pset(x, 141, a_mezcla(R.pget(x, 141), AP.granitoD, 0.6)); }
   // los reflejos de las lámparas (o de los focos) en el suelo pulido, y las juntas finas del museo
@@ -912,13 +929,24 @@ function a_bovedaFija(R, museo) {
   for (let y = 40; y < 132; y += 9) for (const x of [107, 212]) { pset(x, y, AP.aceroLL); pset(x + 1, y + 1, AP.aceroK); pset(x + 1, y, AP.aceroL); }
   for (let j = -47; j <= 47; j++) for (let i = -47; i <= 47; i++) { const d = Math.hypot(i, j); if (d > 46.5 || d < 40) continue; const l = (-i - j) / d;
     pset(160 + i, 84 + j, d > 45.5 ? AP.aceroK : d < 41 ? AP.aceroK : l > 0.5 ? AP.aceroLL : l > -0.2 ? AP.aceroL : l > -0.7 ? AP.acero : AP.aceroS); }
+  // la cerradura de tiempo en la esquina de la placa (la esfera; la aguja la pone cada fotograma) y la placa del fabricante
+  disco(117, 41, 7, AP.latonS); disco(117, 41, 6, C.laton); disco(117, 41, 5, AP.etiqueta); pset(113, 38, AP.latonL); pset(114, 37, AP.latonL);
+  for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; pset(Math.round(117 + Math.cos(a) * 4), Math.round(41 + Math.sin(a) * 4), k % 3 ? AP.lozaS : AP.tinta); }
+  rect(111, 49, 123, 52, AP.aceroS); rect(112, 50, 122, 51, AP.aceroD); for (let x = 113; x < 122; x += 3) pset(x, 50, AP.rojoF);
+  rect(184, 33, 206, 41, AP.latonS); rect(185, 34, 205, 40, C.laton); rect(185, 34, 205, 34, AP.latonL); rect(188, 36, 202, 36, AP.latonS); rect(190, 38, 200, 38, AP.latonS); pset(186, 35, AP.latonS); pset(204, 35, AP.latonS); pset(186, 39, AP.latonS); pset(204, 39, AP.latonS);
   // las bisagras de la derecha
   for (const y of [58, 106]) { rect(203, y - 6, 211, y + 6, AP.aceroK); rect(204, y - 5, 210, y + 5, AP.acero); rect(204, y - 5, 205, y + 5, AP.aceroL); rect(209, y - 5, 210, y + 5, AP.aceroS); rect(203, y, 211, y, AP.aceroK); }
   // dentro: el túnel del grosor del muro y la cámara iluminada, con baldas de cajas y el atril del centro
   for (let j = -40; j <= 40; j++) for (let i = -40; i <= 40; i++) { const d = Math.hypot(i, j); if (d >= 40) continue; const di = Math.hypot(i, (j - 4) * 1.05);
     if (di > 31) { const l = (i + j) / Math.max(1, d); pset(160 + i, 84 + j, l > 0.5 ? AP.aceroL : l > -0.3 ? AP.aceroS : AP.aceroD); }
     else { const yy = 84 + j; let c = yy > 104 ? (h(i, yy, 98) > 0.85 ? AP.interiorS : a_mezcla(AP.interiorD, AP.interiorS, 0.4)) : (di > 28 ? AP.interiorS : AP.interior); pset(160 + i, yy, c); } }
-  for (const yb of [70, 84, 98]) for (let x = 132; x <= 188; x++) { if (Math.hypot(x - 160, (yb - 88) * 1.05) > 30) continue; pset(x, yb, AP.interiorD); pset(x, yb + 1, AP.interiorS);
+  if (vacia) {
+    // vacía: solo la pared del fondo, de chapa con sus juntas y remaches, una telaraña en el rincón y el atril
+    for (const sx of [138, 149, 171, 182]) for (let y = 54; y < 104; y++) if (Math.hypot(sx - 160, (y - 88) * 1.05) < 30) { pset(sx, y, AP.interiorS); if (Math.hypot(sx + 1 - 160, (y - 88) * 1.05) < 30) pset(sx + 1, y, a_mezcla(AP.interior, hex('#ffffff'), 0.25)); if (y % 7 === 3) { pset(sx - 2, y, AP.interiorS); pset(sx + 3, y, AP.interiorS); } }
+    for (let x = 131; x <= 189; x++) if (Math.hypot(x - 160, (104 - 88) * 1.05) < 31) { pset(x, 104, AP.interiorD); }
+    for (let k = 0; k < 4; k++) { linea(140, 64, 140 + 9 - k * 2, 64 + k * 3, a_mezcla(AP.interior, hex('#ffffff'), 0.45)); }
+    linea(142, 64, 142, 70, a_mezcla(AP.interior, hex('#ffffff'), 0.45)); linea(140, 66, 146, 66, a_mezcla(AP.interior, hex('#ffffff'), 0.45));
+  } else for (const yb of [70, 84, 98]) for (let x = 132; x <= 188; x++) { if (Math.hypot(x - 160, (yb - 88) * 1.05) > 30) continue; pset(x, yb, AP.interiorD); pset(x, yb + 1, AP.interiorS);
     if ((x - 132) % 6 < 4) for (let y = yb - 8; y < yb; y++) if (Math.hypot(x - 160, (y - 88) * 1.05) < 30 && Math.abs(x - 160) > 7) pset(x, y, (x - 132) % 6 === 0 ? AP.caobaS : [AP.caoba, AP.verdeLS, AP.nogal][Math.floor(h(x >> 2, yb, 99) * 3)]); }
   rect(154, 103, 166, 104, AP.caoba); rect(154, 103, 166, 103, AP.caobaL); rect(158, 105, 162, 114, AP.caobaS); rect(158, 105, 158, 114, AP.caoba); rect(155, 114, 165, 115, AP.caobaD);
   rect(156, 56, 164, 57, AP.interiorD); disco(160, 59, 2, hex('#fff8d8'));
@@ -936,6 +964,10 @@ function a_bovedaFija(R, museo) {
     linea(240, 152, 242, 132, AP.caobaS); linea(256, 152, 254, 132, AP.caobaS); rect(238, 152, 244, 153, AP.caobaD); rect(252, 152, 258, 153, AP.caobaD);
     for (let j = 0; j < 4; j++) rect(234 - j, 128 + j, 262 - j, 128 + j, j ? AP.caoba : AP.caobaL); rect(231, 132, 262, 133, AP.caobaS);
     rect(236, 126, 247, 129, AP.etiqueta); rect(248, 126, 258, 129, AP.etiqueta); rect(247, 126, 248, 129, AP.lozaS); for (let k = 0; k < 3; k++) { rect(238, 127 + k, 245 - k, 127 + k, AP.lozaS); rect(250, 127 + k, 256 - k * 2, 127 + k, AP.lozaS); }
+    for (let j = 0; j < 7; j++) { const w = [3, 4, 5, 5, 5, 4, 4][j]; rect(304 - w, 163 + j, 304 + w, 163 + j, j === 0 ? AP.latonS : j < 3 ? AP.latonL : j < 5 ? C.laton : AP.latonS); } rect(301, 162, 307, 162, AP.latonS); pset(301, 165, hex('#ffffff'));
+    for (let i = -6; i <= 6; i++) if (i % 2) pset(304 + i, 170, AP.granitoD);
+    rect(8, 148, 16, 162, AP.caobaD); rect(9, 149, 15, 161, AP.caoba); rect(9, 149, 9, 161, AP.caobaL); rect(8, 152, 16, 152, C.laton); rect(8, 158, 16, 158, C.laton);
+    linea(11, 148, 9, 136, AP.verdeLS); linea(13, 148, 15, 134, AP.tinta); rect(14, 133, 16, 134, AP.tinta); linea(10, 148, 12, 138, AP.terciopeloS); for (let i = -5; i <= 5; i++) if (i % 2) pset(12 + i, 163, AP.granitoD);
     rect(257, 119, 258, 126, AP.latonS); rect(253, 115, 262, 118, AP.verdeLS); rect(254, 115, 261, 116, AP.verdeL); rect(253, 119, 262, 119, AP.verdeLS); rect(256, 126, 259, 127, C.laton);
   } else {
     // el museo: paneles de exposición enmarcados (barras de texto, pictogramas), una vitrina con una botella recta
@@ -952,9 +984,12 @@ function a_bovedaFija(R, museo) {
     rect(14, 98, 24, 126, AP.museoL); rect(15, 99, 23, 125, AP.panel); for (let k = 0; k < 6; k++) rect(16, 102 + k * 4, 22 - (k % 3), 102 + k * 4, AP.panelS);
     rect(232, 116, 276, 126, AP.museoS); rect(233, 117, 275, 125, AP.panelS); for (let x = 236; x < 272; x += 9) rect(x, 119, x + 6, 123, AP.panel);
     rect(20, 4, 260, 5, AP.museoL);
+    // el cartel luminoso de salida (pictograma de la figura que corre y la flecha) y las juntas de los paneles de pared
+    rect(84, 18, 100, 25, AP.museoS); rect(85, 19, 99, 24, hex('#2e9a56')); pset(88, 20, hex('#e8fff0')); rect(88, 21, 88, 22, hex('#e8fff0')); pset(87, 23, hex('#e8fff0')); pset(89, 23, hex('#e8fff0')); pset(87, 21, hex('#e8fff0')); pset(89, 21, hex('#e8fff0'));
+    rect(92, 21, 97, 21, hex('#e8fff0')); pset(96, 20, hex('#e8fff0')); pset(96, 22, hex('#e8fff0'));
+    for (const sx of [8, 88, 228, 308]) for (let y = 30; y < 128; y++) { pset(sx, y, AP.museoS); if (y % 2) pset(sx + 1, y, AP.museoL); }
   }
 }
-
 // la gran puerta redonda: o.abre 0–0,25 gira el volante y el dial; de 0,25 a 1 se abre sobre la bisagra de la derecha
 function a_puertaBoveda(R, t, abre) {
   const R0 = 40, cy = 84, xh = 200, T = 22, gira = Math.min(1, abre / 0.25), u = Math.max(0, (abre - 0.25) / 0.75), th = u * 1.42, cs = Math.cos(th), sn = Math.sin(th);
@@ -993,8 +1028,13 @@ function a_puertaBoveda(R, t, abre) {
 }
 
 function a_boveda(R, t, o = {}) {
-  const museo = !!o.museo, abre = Math.max(0, Math.min(1, o.abre ?? (museo ? 1 : 0))), u = Math.max(0, (abre - 0.25) / 0.75);
-  a_capa(R, museo ? 'museo' : 'boveda', () => a_bovedaFija(R, museo));
+  const museo = !!o.museo, vacia = !!o.vacia && !museo, abre = Math.max(0, Math.min(1, o.abre ?? (museo ? 1 : 0))), u = Math.max(0, (abre - 0.25) / 0.75);
+  a_capa(R, museo ? 'museo' : vacia ? 'boveda-vacia' : 'boveda', () => a_bovedaFija(R, museo, vacia));
+  // la aguja de la cerradura de tiempo, que avanza a saltitos, y la lucecita que late
+  { const a = Math.floor(t * 2) * 0.12 - Math.PI / 2; R.linea(117, 41, 117 + Math.round(Math.cos(a) * 4), 41 + Math.round(Math.sin(a) * 4), AP.rojoFS); R.pset(117, 41, AP.tinta); R.pset(124, 36, (t % 1) < 0.5 ? AP.verdeLL : AP.verdeLS); }
+  // las llaves que cuelgan de dos cajas, con su borla que se mece
+  if (!museo) for (const [kx, ky, k] of [[47, 69, 0], [295, 76, 1]]) { const sw = Math.round(Math.sin(t * 1.6 + k * 2) * 1.4); R.pset(kx, ky, AP.aceroLL); R.pset(kx, ky + 1, AP.aceroL); R.pset(kx, ky + 2, AP.aceroL); R.pset(kx - 1, ky + 3, AP.aceroL); R.pset(kx + 1, ky + 3, AP.aceroL); R.pset(kx, ky + 4, AP.aceroS);
+    R.pset(kx + Math.round(sw / 2), ky + 5, AP.terciopelo); R.rect(kx - 1 + sw, ky + 6, kx + 1 + sw, ky + 8, AP.terciopelo); R.pset(kx - 1 + sw, ky + 6, AP.terciopeloL); R.pset(kx + sw, ky + 9, AP.terciopeloS); }
   // las lámparas verdes colgadas (o los focos del museo), que se mecen un poco, con su cono de luz
   if (!museo) for (const [x, k] of [[50, 0], [252, 1]]) {
     const sw = Math.round(Math.sin(t * 0.9 + k * 2) * 1.2);
@@ -1006,6 +1046,10 @@ function a_boveda(R, t, o = {}) {
     for (let y = 8; y < 140; y++) { const w = (y - 6) * 0.3; for (let xx = Math.round(x + (y - 6) * 0.12 - w); xx <= x + (y - 6) * 0.12 + w; xx++) if (a_bayer(xx, y) < 0.3 - (y - 8) * 0.0015) R.pset(xx, y, a_mezcla(R.pget(xx, y), AP.foco, 0.25)); }
     R.rect(x - 2, 5, x + 2, 9, AP.museoS); R.rect(x - 1, 10, x + 2, 10, AP.foco);
   }
+  // una polilla que da vueltas a la lámpara de la izquierda; en el museo, la cámara de seguridad que barre la sala
+  if (!museo) { const a = t * 3.1, x = Math.round(50 + Math.sin(t * 0.9) * 1.2 + Math.cos(a) * 9), y = Math.round(27 + Math.sin(a * 1.3) * 4), ala = Math.sin(t * 30) > 0; R.pset(x, y, AP.lozaS); R.pset(x - 1, y - (ala ? 1 : 0), AP.loza); R.pset(x + 1, y - (ala ? 1 : 0), AP.loza); }
+  else { const g = Math.sin(t * 0.5) * 0.5; R.rect(229, 14, 233, 16, AP.museoL); R.rect(231, 17, 231, 18, AP.aceroS);
+    const dx = Math.round(Math.cos(g) * 5), x0 = 231 - Math.round(dx / 2); R.rect(Math.min(x0, x0 + dx) - 1, 19, Math.max(x0, x0 + dx) + 1, 22, AP.aceroL); R.rect(Math.min(x0, x0 + dx) - 1, 22, Math.max(x0, x0 + dx) + 1, 22, AP.aceroS); R.pset(x0 + dx + (dx > 0 ? 1 : -1), 20, AP.aceroK); if ((t % 1.6) < 0.4) R.pset(x0, 20, AP.rojoFL); }
   // la luz de dentro se derrama por el suelo al abrirse la puerta
   if (u > 0) { a_halo(R, 160, 88, 30, AP.interior, u * 0.6, 32); for (let y = 128; y < 180; y++) { const k = (y - 124) / 55, x0 = Math.round(126 - k * 46), x1 = Math.round(194 + k * 30 - (1 - u) * 60); for (let x = x0; x <= x1; x++) if (a_bayer(x, y) < u * 0.42 * (1 - k * 0.5)) R.pset(x, y, a_mezcla(R.pget(x, y), AP.interior, 0.4)); } }
   // el papelito doblado en el atril, con un destello
@@ -1022,7 +1066,6 @@ function a_boveda(R, t, o = {}) {
     R.actor(ELENCO_CHIBI.policia, Math.round(272 + va * 26), 154, t, { dir: ciclo >= 7 && ciclo < 11 ? -1 : ciclo < 4 ? 1 : (ciclo < 7 ? -1 : 1), anda }); }
   return { suelo: 164, puerta: [160, 84, 40], atril: [160, 103], cuerda: museo ? 152 : null, guardia: !museo && o.guardia !== false ? [272, 298, 154] : null };
 }
-
 function a_bovedaDelante(R, t, o = {}) {
   if (!o.museo) return { suelo: 164 };
   // los postes de latón con la cuerda de terciopelo que se mece
@@ -1321,7 +1364,7 @@ function b_super(R, t, o) {
 }
 
 // la mesa de la cata del súper, por delante de los actores: mantel blanco con pliegues y bajo rojo y azul, el
-// pictograma de los dos vasos en el faldón, los vasos A y B (o.vasos, o.llenoA, o.llenoB, o.trile) y la tablilla del
+// pictograma de los dos vasos en el faldón, los dos vasos sin letra con su punto rojo y azul (o.vasos, o.llenoA, o.llenoB, o.trile, o.puntos, o.letras) y la tablilla del
 // recuento a palotes (el azul gana) en la esquina de la mesa
 function b_superDelante(R, t, o) {
   const { rect, pset, linea } = R;
@@ -1339,22 +1382,24 @@ function b_superDelante(R, t, o) {
   const vasos = b_vasos(R, t, o, 168, 200, 127, 1);
   return { suelo: 158, detras: 138, vasos, mesa: [140, 126, 228, 152], tablilla: [213, 106, 227, 125] };
 }
-
-// los dos vasos de la cata (PIEZAS_NC.vaso con su letra A y B) en x a, b sobre y; o.trile (0–1) los cambia de sitio en
-// arco; s la escala. Devuelve [[xA, y], [xB, y]] donde están ahora
+// los dos vasos de la cata (PIEZAS_NC.vaso, sin letra) en x a, b sobre y; para distinguirlos, un punto rojo (el primero)
+// y uno azul (el segundo) pegados abajo, en la base del vaso (o.puntos false los quita); o.letras true vuelve a poner la
+// pegatina con la «A» y la «B» (no se usa: son letras en pantalla); o.trile (0–1) los cambia de sitio en arco; s la
+// escala. Devuelve [[xA, y], [xB, y]] donde están ahora
 function b_vasos(R, t, o, a, b, y, s) {
   if (o.vasos === false) return [[a, y], [b, y]];
   const u = Math.max(0, Math.min(1, o.trile ?? 0)), e = u * u * (3 - 2 * u), alto = Math.round(Math.sin(e * Math.PI) * 8 * s);
   const xa = Math.round(lerp(a, b, e)), xb = Math.round(lerp(b, a, e));
   const V = PIEZAS_NC.vaso; if (!V) return [[xa, y], [xb, y]];
-  V(R, xa, y - alto, { letra: 'A', lleno: o.llenoA ?? 0.8, s }); V(R, xb, y + Math.round(alto * 0.4) - (u > 0 && u < 1 ? 2 * s : 0), { letra: 'B', lleno: o.llenoB ?? 0.8, s });
+  const ya = y - alto, yb = y + Math.round(alto * 0.4) - (u > 0 && u < 1 ? 2 * s : 0), conLetra = o.letras === true;
+  V(R, xa, ya, { letra: conLetra ? 'A' : undefined, lleno: o.llenoA ?? 0.8, s }); V(R, xb, yb, { letra: conLetra ? 'B' : undefined, lleno: o.llenoB ?? 0.8, s });
+  if (!conLetra && o.puntos !== false) b_puntoVaso(R, xa, ya, s, C.rojoCola, b_P.rojoL), b_puntoVaso(R, xb, yb, s, C.azulCola, b_P.azulL);
   if (s >= 2) for (const [vx, la] of [[xa, o.llenoA ?? 0.8], [xb, o.llenoB ?? 0.8]]) for (let k = 0; k < 5; k++) {   // las burbujas que suben
     const fondo = y - 3 * s, sube = Math.round(((t * 9 + k * 7.3) % (la * 11 * s))); R.pset(vx - 3 * s + Math.round(h(k, vx, 5) * 6 * s), fondo - sube, b_P.espumaB ?? C.espuma);
   }
   return [[xa, y], [xb, y]];
 }
-
-// la mesa de la cata de cerca (encuadre 'super', cámara 'mesa'): inserto sin personajes de cuerpo entero; los vasos A y B
+// la mesa de la cata de cerca (encuadre 'super', cámara 'mesa'): inserto sin personajes de cuerpo entero; los dos vasos (punto rojo y azul)
 // a escala 3 sobre y 152 (A en x 130, B en x 196), las manos de la escena encima
 function b_mesaCata(R, t, o) {
   const { rect, pset, linea, poligono, disco } = R, D = (c) => b_mez(c, hex('#b8ae98'), 0.4);
@@ -1400,7 +1445,6 @@ function b_mesaCata(R, t, o) {
   const vasos = b_vasos(R, t, o, 130, 196, 152, 3);
   return { suelo: 179, mesa: [0, 104, 319, 179], vasos, tablilla: [234, 124, 292, 172], cubo: [196, 99, 230, 140] };
 }
-
 // el despacho de la sede en Atlanta (encuadre 'sede', cámara general). Suelo: y 166 delante (x 10–60 y 248–318 libres);
 // detrás de la mesa de juntas, y 136 (x 76–236)
 const b_SENT = 0xff010203 >>> 0;
@@ -2194,7 +2238,7 @@ function c_teleFondo(R) {
 }
 
 // lo de delante en la rueda de prensa general: el atril con micrófonos, la primera fila del foso, las cámaras de tele y
-// el destello general de los flashes
+// el destello de los flashes sobre el foso y la mesa
 function c_prensaDelante(R, t, o) {
   const { rect, pset, linea, disco } = R, K = hex('#14101a'), dens = o.flashes ?? 0.6;
   // el atril: madera con su moldura, una placa dorada lisa y el ramillete de micrófonos a los lados de la cara
@@ -2217,11 +2261,11 @@ function c_prensaDelante(R, t, o) {
     if (k % 2 === 0 && (f > 0 || Math.sin(t * 0.7 + k * 1.9) > 0.2)) { const cy = y - 12; rect(x - 7, cy - 4, x + 7, cy + 4, K); rect(x - 6, cy - 3, x + 6, cy + 3, hex('#2e2e38')); rect(x - 6, cy - 3, x + 6, cy - 3, hex('#6a6a78')); disco(x, cy, 3, K); disco(x, cy, 2, hex('#3a5a8a')); pset(x - 1, cy - 1, hex('#c8e0ff'));
       rect(x + 3, cy - 10, x + 7, cy - 4, K); rect(x + 4, cy - 9, x + 6, cy - 6, f > 0 ? hex('#ffffff') : hex('#d8dce4')); if (f > 0) c_flash(R, x + 5, cy - 9, f); }
   }
-  // el destello general: cuando salta un flash grande, todo se aclara un instante
+  // el destello de un flash grande: solo aclara a los periodistas del foso y la mesa de la tarima (no tiñe la pantalla
+  // entera, para no romper el fundido de entrada de cada plano)
   const g = c_disparo(t, 99, dens * 1.4);
-  if (g > 0.55) for (let y = 0; y < 180; y++) for (let x = (y & 1); x < 320; x += 2) { const p = R.pget(x, y); R.pset(x, y, c_mez(p, hex('#ffffff'), 0.22 * g)); }
+  if (g > 0.55) c_destelloLocal(R, g, [[156, 104, 62, 9], [160, 168, 140, 14]]);
 }
-
 // lo de delante en la rueda de prensa de cerca: el atril grande con el ramillete de micrófonos y las cámaras de los
 // fotógrafos que asoman por abajo
 function c_atrilDelante(R, t, o) {
@@ -2243,10 +2287,10 @@ function c_atrilDelante(R, t, o) {
     rect(x - 13, 178, x + 13, 179, K); c_cabeza(R, x - 1, 180, k, PEL[k], hex('#e8c09a'), hex('#f8dca8'));
     rect(x - 12, y - 6, x + 12, y + 8, K); rect(x - 11, y - 5, x + 11, y + 8, hex('#2e2e38')); rect(x - 11, y - 5, x + 11, y - 5, hex('#6a6a78')); disco(x, y + 2, 5, K); disco(x, y + 2, 4, hex('#3a3a46')); disco(x, y + 2, 2, hex('#3a5a8a')); pset(x - 1, y + 1, hex('#c8e0ff'));
     rect(x + 5, y - 14, x + 11, y - 6, K); rect(x + 6, y - 13, x + 10, y - 9, f > 0 ? hex('#ffffff') : hex('#d8dce4')); if (f > 0) c_flash(R, x + 8, y - 12, f * 1.3); }
+  // el destello de un flash grande: solo aclara el atril, la peana y a los fotógrafos de abajo
   const g = c_disparo(t, 98, dens * 1.4);
-  if (g > 0.55) for (let y = 0; y < 180; y++) for (let x = (y & 1); x < 320; x += 2) { const p = R.pget(x, y); R.pset(x, y, c_mez(p, hex('#ffffff'), 0.22 * g)); }
+  if (g > 0.55) c_destelloLocal(R, g, [[216, 162, 40, 18], [84, 120, 44, 8], [160, 172, 150, 9]]);
 }
-
 // lo de delante en la oficina del rival: la mesa de delante con su ordenador, la jamba y la pared lateral, y el confeti
 // de primer término
 function c_rivalDelante(R, t, o) {
@@ -3404,4 +3448,48 @@ function e_dibujosPizarra(R, t, g, u, fijo) {
   // la X que tacha la lata: dos trazos blancos que se dibujan uno tras otro
   const fx = Math.max(0, Math.min(1, u.x ?? 1));
   if (fx > 0) { trazo(8, 24, 40, 62, P.tiza, Math.min(1, fx * 2)); if (fx > 0.5) trazo(40, 24, 8, 62, P.tiza, (fx - 0.5) * 2); }
+}
+
+// una franja fija (filas y0–y1) que se pinta una sola vez en su búfer y en cada fotograma se copia solo esa franja
+function a_capaFranja(R, clave, y0, y1, dibuja) {
+  let m = a_CAPAS.get(R); if (!m) a_CAPAS.set(R, (m = new Map()));
+  let b = m.get(clave);
+  if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); m.set(clave, b); }
+  R.buf.set(b.subarray(y0 * R.W, (y1 + 1) * R.W), y0 * R.W);
+}
+
+// el mostrador de mármol grueso de la fuente, de y 146 a 179 (lo pintan a_fuente y, por delante de los actores, a_fuenteDelante)
+function a_fuenteFrente(R) {
+  const { rect, pset, disco, linea } = R;
+  // el mostrador de mármol grueso: tablero con canto y vetas, el frente en paneles con pilastras y la barra de los pies
+  rect(0, 146, 319, 146, AP.marmolL); rect(0, 147, 319, 149, C.marmol); rect(0, 150, 319, 150, C.marmolS); rect(0, 151, 319, 152, AP.caobaD);
+  for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.13 + Math.sin(x * 0.031) * 4); if (Math.abs(v) < 0.12) pset(x, 147 + (x % 3), AP.marmolV); if (x % 7 === 0) pset(x, 146, hex('#ffffff')); }
+  rect(0, 153, 319, 154, C.laton); rect(0, 153, 319, 153, AP.latonL);
+  for (let y = 155; y < 180; y++) for (let x = 0; x < 320; x++) { const u = (x + 8) % 64; let c;
+    if (u < 6) c = u === 0 ? AP.caobaL : u === 5 ? AP.caobaS : (u === 2 ? AP.caobaS : AP.caoba);
+    else if (y === 155) c = C.marmolS;
+    else if (u >= 11 && u <= 58 && y >= 159 && y <= 169) { const bev = u === 11 || y === 159 ? AP.verdeFS : u === 58 || y === 169 ? AP.verdeFL : null;
+      const v = Math.sin(x * 0.09 + y * 0.5 + Math.sin(y * 0.3 + x * 0.07) * 2.4); c = bev ?? (Math.abs(v) < 0.1 ? AP.verdeFL : Math.abs(v) < 0.3 ? AP.verdeF : (h(x >> 1, y, 88) > 0.85 ? AP.verdeF : hex('#2e6a40'))); }
+    else if (u === 10 || u === 59 || y === 158 || y === 170) c = (u === 10 || y === 158) ? C.marmolS : AP.marmolL;
+    else if (u === 6) c = C.marmolS; else if (u === 63) c = AP.marmolL;
+    else { const v = Math.sin(x * 0.12 + y * 0.45 + Math.sin(y * 0.2 + x * 0.04) * 2.6); c = Math.abs(v) < 0.09 ? C.marmolS : Math.abs(v) < 0.22 ? AP.marmolV : (y > 172 ? a_mezcla(C.marmol, C.marmolS, 0.4) : C.marmol); }
+    pset(x, y, c); }
+  for (let x = 26; x < 320; x += 64) { disco(x, 164, 2, C.laton); pset(x - 1, 163, AP.latonL); pset(x + 1, 165, AP.latonS); }
+  rect(0, 172, 319, 173, C.laton); rect(0, 174, 319, 174, AP.latonS); for (let x = 30; x < 320; x += 64) { rect(x, 171, x + 2, 176, AP.latonS); pset(x, 171, AP.latonL); }
+}
+
+// el punto de color pegado en la base de un vaso de cata (x centro, y la base, s la escala): borde oscuro, color y brillo
+function b_puntoVaso(R, x, y, s, c, l) {
+  const cy = y - 3 * s - 1;
+  if (s >= 2) { R.disco(x, cy, s + 1, C.k); R.disco(x, cy, s, c); R.pset(x - 1, cy - 1, l); R.pset(x - 1, cy - 2 + (s > 2 ? 0 : 1), C.blanco); }
+  else { R.rect(x - 1, cy, x + 1, cy + 1, C.k); R.rect(x, cy, x, cy, c); R.pset(x + 1, cy, c); }
+}
+
+// el destello local de un flash: aclara en trama unas elipses [cx, cy, rx, ry] (más en el centro, nada fuera); g 0–1
+function c_destelloLocal(R, g, zonas) {
+  const BL = hex('#ffffff');
+  for (const [cx, cy, rx, ry] of zonas) for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) {
+    const e = (i / rx) ** 2 + (j / ry) ** 2, x = cx + i, y = cy + j; if (e >= 1 || x < 0 || x > 319 || y < 0 || y > 179 || ((x + y) & 1)) continue;
+    const p = R.pget(x, y); if (p) R.pset(x, y, c_mez(p, BL, 0.26 * g * (1 - e)));
+  }
 }
