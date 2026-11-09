@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep28</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NC-GANCHO (frases 1–2), sin cartela; la barra del año va con cada plano (1985, 1985, 1925, 1984, 1985, 2026). Seis planos:
+// 1. «In 1985, Coca-Cola changed the recipe… in the world»: la peana de la rueda de prensa de cerca, con la lata nueva
+//    tapada bajo el haz; en «changed» el ayudante tira un poco del paño y asoma el rojo con un destello; el portavoz habla
+//    tras el atril y señala la lata; los fotógrafos disparan cada vez más flashes.
+// 2. «and America rebelled. Seventy-nine days later… the old one back»: la calle con lluvia; la protesta entra con las
+//    pancartas (lata tachada y corazón roto) y en «rebelled» las alzan; el calendario de taco de la pared suelta 79 hojas
+//    en «Seventy-nine days»; en «old one back» la señora saca la lata de siempre y la alza contenta.
+// 3. «Along the way, a formula kept in a vault»: la cámara acorazada de 1925; el volante gira, la puerta se abre en
+//    «formula» y la luz se derrama; el empleado del banco retrocede sorprendido y el abogado señala el papelito en «vault».
+// 4. «a rival… with unmarked cups, hundreds of thousands of taste tests that said yes»: el inserto de la mesa de la cata;
+//    dos manos ponen los dos vasos sin marca en «rival»; brillan en «unmarked cups»; el contador de catas sube a 200000 en
+//    «hundreds of thousands» y un visto enorme salta en «yes».
+// 5. «and a country that picked up the phone to say no»: la centralita; los teléfonos suenan, el contador de llamadas se
+//    dispara, la operadora contesta con los cascos en «picked up» y en «no» salen bocadillos con la X; un cartero entra con
+//    otro saco y lo deja en el montón.
+// 6. «And you'll see what happens in your brain when you know what you're drinking»: el escritorio de Atom de cerca;
+//    Atom se acerca a la lata con un «?» en «brain», la toca con un electrón… y en «drinking» la lata hace «pssst» y la
+//    espuma le salta a la cara (gag 1).
+import * as T from '/atomo/plato/escenas/nc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_NC as NC } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nc-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_NC, K = hex('#0c0a12'), BL = hex('#fbf6ea'), BS = hex('#c8c0b0');
+const a = (f) => en('cambio', f), c = (f) => en('catas', f);
+const P2 = a(0.5288), P3 = a(1), P4 = c(0.1893), P5 = c(0.6), P6 = c(0.8374);
+const comp0 = R.companero;
+R.companero = (t, e) => { if (t < P6) comp0(t, e); };   // Atom de la esquina en los planos 1–5; en el 6 está dentro del plano
+
+const ondaAtom = (ax, ay, t, e = 0.3) => {
+  for (let j = -22; j <= 22; j++) for (let i = -22; i <= 22; i++) { const g = 1 - Math.hypot(i, j) / 21; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r: 15, orbita: R.PAL.ATOM[7], energia: e });
+};
+// un pegote de espuma con su contorno
+const pegote = (x, y, r) => { R.disco(x, y, r + 1, K); R.disco(x, y, r, BL); R.pset(x - 1, y - 1, hex('#ffffff')); if (r > 1) R.pset(x + 1, y + 1, BS); };
+// un bocadillo con un icono dentro
+const bocadillo = (x, y, icono, col) => {
+  R.rect(x - 1, y - 1, x + 19, y + 17, K); R.rect(x, y, x + 18, y + 16, BL); R.rect(x + 1, y + 15, x + 17, y + 16, BS);
+  R.rect(x + 3, y + 17, x + 6, y + 18, K); R.rect(x + 4, y + 17, x + 5, y + 17, BL); R.rect(x + 2, y + 19, x + 3, y + 19, K);
+  R.icono(icono, x + 3, y + 2, col, K, 2);
+};
+
+// ── 1 · la lata tapada bajo el haz (prensa, cámara del atril) ──
+const anyo85 = a(0.0087), cambia = a(0.1826), receta = a(0.2435), famosa = a(0.332);
+const p1 = (t) => {
+  const tira = tramo(t, cambia - 0.15, receta) * (1 - tramo(t, famosa + 0.3, P2 - 1.2));
+  const o = { encuadre: 'prensa', camara: 'atril', paño: 0.32 * tira, flashes: 0.35 + 0.6 * tramo(t, anyo85, famosa) };
+  T.anuncio(R, t, o);
+  // el ayudante de la peana: espera con la mano en el paño, tira en «changed» y lo vuelve a soltar
+  R.actor(NC.keough, 133, 160, t, { dir: -1, sostiene: [124 - Math.round(tira * 4), 120], sonrisa: tira > 0.5, sorpresa: t > receta && t < famosa });
+  // el portavoz tras el atril habla a la sala y señala la lata en «changed the recipe»
+  const habla = t > anyo85 && t < P2 - 0.2 && Math.sin(t * 8.3) > -0.1;
+  R.actor(NC.goizueta, 208, 160, t, { dir: -1, habla, dedo: t > cambia - 0.2 && t < famosa + 0.8, sonrisa: t > famosa + 0.8 });
+  T.anuncioDelante(R, t, o);
+  // el destello de lo que asoma (el rojo nuevo) en «changed»
+  const d = tramo(t, cambia, cambia + 0.5) * (1 - tramo(t, receta + 0.6, receta + 1.2));
+  if (d > 0) for (let k = 0; k < 4; k++) { const an = k * Math.PI / 2 + t * 3, r = 4 + d * 6; R.pset(Math.round(84 + Math.cos(an) * r), Math.round(110 + Math.sin(an) * r * 0.6), hex('#fff6c0')); }
+};
+
+// ── 2 · la protesta en la calle ──
+const rebela = a(0.5705), setenta = a(0.6723), despues = a(0.749), vuelta = a(0.9224);
+const CAL = [134, 50];   // el calendario de taco clavado en la pared de ladrillo
+const calendario = (t) => {
+  const [x, y] = CAL, n = Math.max(1, Math.min(79, Math.round(1 + 78 * tramo(t, setenta - 0.1, despues + 0.25) ** 0.8)));
+  R.rect(x - 1, y - 1, x + 26, y + 26, K); R.rect(x, y, x + 25, y + 25, BL); R.rect(x, y, x + 25, y + 6, T.C.rojoCola); R.rect(x, y + 6, x + 25, y + 6, T.C.rojoColaS);
+  R.pset(x + 7, y - 2, K); R.pset(x + 18, y - 2, K); R.rect(x + 1, y + 23, x + 24, y + 25, BS);
+  R.numero(String(n), x + 13, y + 19, { centro: true, color: K, sombra: false });
+  // las hojas arrancadas que vuelan con el viento
+  for (let k = 0; k < 7; k++) {
+    const t0 = setenta - 0.1 + k * 0.17, u = (t - t0) / 1.6; if (u < 0 || u > 1 || t > despues + 1.2) continue;
+    const hx = Math.round(x + 12 + u * (60 + k * 9)), hy = Math.round(y + 10 + u * 50 + Math.sin(u * 9 + k) * 5), w = Math.sin(u * 14 + k) > 0 ? 5 : 2;
+    R.rect(hx - w - 1, hy - 4, hx + w + 1, hy + 4, K); R.rect(hx - w, hy - 3, hx + w, hy + 3, BL); if (w > 2) R.rect(hx - w, hy - 3, hx + w, hy - 2, T.C.rojoCola);
+  }
+};
+const p2 = (t) => {
+  const o = { encuadre: 'calle', lluvia: 0.7, estanteRojo: 0.15 + 0.85 * tramo(t, vuelta, vuelta + 0.7) };
+  T.rebelion(R, t, o);
+  calendario(t);
+  // la marcha entra por la izquierda; en «rebelled» alzan las pancartas
+  const u = tramo(t, P2 + 0.1, rebela + 0.3), alza = t > rebela && t < setenta + 0.4 ? Math.round(Math.abs(Math.sin((t - rebela) * 7)) * 4) : 0;
+  const m1x = Math.round(lerp(-30, 52, u)), m2x = Math.round(lerp(-58, 18, u));
+  const r2 = R.actor(NC.manifestante2, m2x, 138, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [m2x + 17, 124], habla: alza > 0, enfado: true });
+  PZ.pancarta(R, r2.mano[0], r2.mano[1] + 10 - alza, { dibujo: 'corazon' });
+  const r1 = R.actor(NC.manifestante, m1x, 138, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [m1x + 17, 124], habla: alza > 0 || (t > despues && Math.sin(t * 6) > 0), enfado: true, salto: alza > 2 ? 1 : 0 });
+  PZ.pancarta(R, r1.mano[0], r1.mano[1] + 10 - alza, { dibujo: 'lata' });
+  // la señora: protesta con el puño y, en «the old one back», saca la lata de siempre y la alza
+  const saca = t > vuelta;
+  const rs = R.actor(NC.senora75, 150, 138, t, { dir: -1, enfado: !saca && t > rebela, habla: !saca && t > rebela && Math.sin(t * 7) > 0, dedo: !saca && t > rebela + 0.4 && t < despues, sostiene: saca ? [146, 112 - Math.round(tramo(t, vuelta, vuelta + 0.4) * 4)] : false, sonrisa: saca });
+  if (saca) PZ.lata(R, rs.mano[0], rs.mano[1] + 2, { color: 'rojo' });
+  if (saca && t > vuelta + 0.3) for (let k = 0; k < 3; k++) { const an = t * 4 + k * 2.1; R.pset(Math.round(rs.mano[0] + Math.cos(an) * 10), Math.round(rs.mano[1] - 8 + Math.sin(an) * 6), hex('#fff6c0')); }
+  // el cámara de la tele local graba la protesta
+  R.actor(NC.camarografo, 184, 138, t, { dir: -1, sorpresa: t > rebela && t < rebela + 0.8 });
+  T.rebelionDelante(R, t, o);
+};
+
+// ── 3 · la cámara acorazada (1925) ──
+const formula = c(0.0709), boveda = c(0.1481);
+const p3 = (t) => {
+  const abre = 0.25 * tramo(t, P3 + 0.2, formula - 0.4) + 0.75 * tramo(t, formula - 0.4, boveda - 0.2);
+  T.atlanta(R, t, { encuadre: 'banco', abre, papelito: true, guardia: true });
+  // el empleado del banco gira el volante; al abrirse la puerta da un paso atrás, sorprendido por la luz
+  const atras = tramo(t, formula, formula + 0.6);
+  R.actor(NC.abogado2, Math.round(lerp(104, 82, atras)), 164, t, { dir: 1, sostiene: atras < 0.3 ? [128, 128] : false, anda: atras > 0 && atras < 1, sorpresa: atras > 0.5 && t < boveda + 0.3, sonrisa: t > boveda + 0.3 });
+  // el abogado entra con su cartera y señala el papelito en «vault»
+  const w = tramo(t, P3 + 0.4, formula + 0.4), ax = Math.round(lerp(-22, 40, w));
+  R.actor(NC.abogado1, ax, 168, t, { dir: 1, anda: w > 0 && w < 1, dedo: t > boveda - 0.2, sonrisa: t > boveda });
+  if (t <= boveda - 0.2) { const mx = ax + 15, my = 156; R.rect(mx - 1, my, mx + 7, my + 6, K); R.rect(mx, my + 1, mx + 6, my + 5, hex('#6a3a1e')); R.pset(mx + 3, my + 1, T.C.laton); }
+  T.atlantaDelante(R, t, { encuadre: 'banco', abre });
+};
+
+// ── 4 · la mesa de la cata a ciegas (inserto) ──
+const gana = c(0.2441), sinMarca = c(0.3438), vasos = c(0.3849), cientos = c(0.4223), catas = c(0.4946), si = c(0.555);
+// el visto: un símbolo verde grande con contorno
+const visto = (x, y, s) => {
+  const P = [[0, 3], [1, 4], [2, 5], [3, 4], [4, 3], [5, 2], [6, 1], [7, 0]];
+  for (const borde of [1, 0]) for (const [i, j] of P) R.rect(x + i * s - borde, y + j * s - borde, x + i * s + s + borde, y + j * s + s + 1 + borde, borde ? K : hex('#3ac85a'));
+  for (const [i, j] of P) R.rect(x + i * s, y + j * s, x + i * s + s, y + j * s, hex('#9af0a0'));
+};
+const p4 = (t) => {
+  T.colas(R, t, { encuadre: 'super', camara: 'mesa', vasos: false });
+  const ua = tramo(t, P4 + 0.05, gana + 0.15), ub = tramo(t, P4 + 0.45, gana + 0.55);
+  const ax = Math.round(lerp(78, 130, ua)), bx = Math.round(lerp(250, 196, ub));
+  // las catas: cada vaso baja y se rellena, cada vez más deprisa
+  const ritmo = t > cientos ? Math.sin((t - cientos) * 9) : 0;
+  const nA = t > cientos ? 0.55 + 0.25 * ritmo : 0.8, nB = t > cientos ? 0.55 - 0.25 * ritmo : 0.8;
+  const brilla = t > sinMarca && t < vasos + 0.7;
+  for (const [x, n] of [[ax, nA], [bx, nB]]) {
+    PZ.vaso(R, x, 153, { s: 3, lleno: n });
+    if (brilla) for (let k = 0; k < 5; k++) { const an = t * 5 + k * 1.26; R.pset(Math.round(x + Math.cos(an) * 25), Math.round(128 + Math.sin(an) * 26), hex('#fff6c0')); }
+  }
+  // las manos que los colocan (y después se retiran)
+  const fuera = tramo(t, vasos, vasos + 0.8);
+  T.brazo(R, -12, 214, Math.round(ax - 34 - fuera * 40), Math.round(150 + fuera * 50), '#4a6a8a', 1, { codo: [Math.round(ax - 70 - fuera * 30), 190] });
+  T.brazo(R, 334, 214, Math.round(bx + 34 + fuera * 40), Math.round(150 + fuera * 50), '#8a4a3a', -1, { codo: [Math.round(bx + 70 + fuera * 30), 190] });
+  // el contador de catas, en su placa, y el visto en «yes»
+  if (t > cientos - 0.2) {
+    const n = Math.round(200000 * tramo(t, cientos, catas + 0.4) ** 0.6 / 1000) * 1000;
+    R.rect(110, 24, 216, 48, K); R.rect(111, 25, 215, 47, hex('#1a2a3a')); R.rect(112, 26, 214, 27, hex('#2e4a64'));
+    R.numero(String(n), 163, 42, { tam: 16, centro: true });
+  }
+  const v = tramo(t, si - 0.05, si + 0.25);
+  if (v > 0) { const s = Math.round(lerp(1, 4, v)); visto(Math.round(163 - 4 * s), Math.round(84 - 3 * s), s); }
+};
+
+// ── 5 · la centralita ──
+const pais = c(0.6267), coge = c(0.6641), no = c(0.7476);
+const p5 = (t) => {
+  const o = { encuadre: 'centralita', llamadas: Math.round(lerp(400, 1500, tramo(t, P5, P6 - 0.3))), sacos: t > no ? 7 : 6 };
+  T.rebelion(R, t, o);
+  // la operadora contesta con los cascos y oye un «no» tras otro
+  const contesta = t > coge;
+  const r = R.actor(NC.operadora, 124, 150, t, { dir: 1, habla: contesta && Math.sin(t * 8) > 0, sostiene: contesta ? [140, 121] : false, sorpresa: t > no && t < no + 0.9, triste: t > no + 0.9 });
+  const [hx, hy] = r.cabeza; R.linea(hx - 6, hy + 1, hx - 5, hy - 4, K); R.linea(hx - 5, hy - 4, hx + 5, hy - 4, K); R.rect(hx + 5, hy, hx + 7, hy + 3, K); R.pset(hx + 6, hy + 1, hex('#5a5a66'));
+  // un compañero detrás de la otra mesa, que anota en la libreta
+  R.actor(NC.investigador, 152, 150, t, { dir: -1, sostiene: [160, 138 + (Math.floor(t * 6) % 2)], sorpresa: t > no && t < no + 0.6 });
+  // el cartero entra con otro saco y lo deja en el montón
+  const w = tramo(t, P5 + 0.2, no - 0.1), cx = Math.round(lerp(330, 262, w));
+  const rc = R.actor(NC.voluntario, cx, 162, t, { dir: -1, anda: w > 0 && w < 1, sostiene: t < no ? [cx - 4, 146] : false, sonrisa: t > no + 0.5 });
+  if (t < no) PZ.sacoCartas(R, rc.mano[0] - 6, rc.mano[1] + 14, {});
+  T.rebelionDelante(R, t, o);
+  // los «no»: bocadillos con la X que salen de las mesas
+  for (const [k, x, y] of [[0, 110, 96], [1, 56, 84], [2, 184, 90], [3, 14, 98]]) { const t0 = no - 0.05 + k * 0.22; if (t > t0 && t < P6) bocadillo(x, y - Math.round(tramo(t, t0, t0 + 0.2) * 4), 'X', T.C.rojoCola); }
+};
+
+// ── 6 · el escritorio de Atom: la lata (gag 1) ──
+const cerebro = c(0.8811), bebe = c(0.9658);
+const p6 = (t) => {
+  const pss = tramo(t, bebe, bebe + 0.5), golpe = tramo(t, bebe + 0.2, bebe + 0.6);
+  const o = { encuadre: 'estudio', camara: 'mesa', espuma: pss, lataX: 168 };
+  T.hoy(R, t, o);
+  T.hoyDelante(R, t, o);
+  // Atom se acerca a la lata, la mira con un «?», le da con un electrón… y la espuma le da en la cara
+  const llega = tramo(t, P6 + 0.1, cerebro + 0.3), asoma = tramo(t, cerebro + 0.5, bebe - 0.3);
+  let ax = Math.round(lerp(lerp(92, 136, llega), 160, asoma) - golpe * 40), ay = Math.round(lerp(lerp(96, 92, llega), 84, asoma) - golpe * 22 + Math.sin(t * 2.6) * 2);
+  if (golpe > 0 && golpe < 1) ax += Math.round(Math.sin(t * 40) * 2);
+  ondaAtom(ax, ay, t, t > cerebro + 0.4 && t < bebe ? 0.9 : 0.35);
+  if (t > cerebro - 0.1 && t < bebe - 0.2) R.icono('?', ax - 3, ay - 30 - Math.round(Math.sin(t * 5) * 2), hex('#ffe890'), K, 2);
+  // el electrón que toca la anilla
+  const toca = tramo(t, bebe - 0.6, bebe - 0.05);
+  if (toca > 0 && toca < 1) { const ex = Math.round(lerp(ax + 8, 172, toca)), ey = Math.round(lerp(ay + 6, 104, toca)); R.disco(ex, ey, 2, K); R.disco(ex, ey, 1, hex('#7af0ff')); }
+  // la espuma pegada a Atom y las gotas que escurren
+  if (golpe > 0) {
+    for (const [dx, dy, r] of [[-6, -4, 3], [3, -7, 2], [7, 2, 3], [-2, 5, 2], [-9, 3, 1]]) pegote(ax + dx, ay + dy, golpe < 1 ? Math.max(1, Math.round(r * golpe)) : r);
+    for (let k = 0; k < 3; k++) { const u = ((t - bebe) * 0.8 + k * 0.33) % 1; pegote(ax - 6 + k * 6, Math.round(ay + 8 + u * 22), 1); }
+  }
+};
+
+const efectos = [[anyo85 + 0.1, 'flash'], [cambia, 'flash'], [famosa, 'brillo'], [P2 + 0.2, 'publico'], [setenta, 'papel'], [vuelta + 0.1, 'brillo'],
+  [P3 + 0.25, 'cerrojo'], [formula - 0.3, 'puerta'], [boveda, 'brillo'], [P4 + 0.6, 'toc'], [gana + 0.6, 'toc'], [cientos, 'tecleo'], [si, 'campana'],
+  [P5 + 0.1, 'ring'], [no, 'aviso'], [cerebro + 0.1, 'boing'], [bebe - 0.1, 'bip'], [bebe, 'vapor'], [bebe + 0.25, 'chof']];
+const año = (t) => t < P3 ? 1985 : t < P4 ? 1925 : t < P5 ? 1984 : t < P6 ? 1985 : 2026;
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
+</script>
+</body>
+</html>
