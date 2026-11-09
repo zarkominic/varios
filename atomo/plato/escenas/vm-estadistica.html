@@ -20,6 +20,8 @@
 //    lupa en la pantalla;
 // 4. «and concluded»: inserto local: la tira de pergamino con cinco manos de letra en cinco tintas, cada tintero con su
 //    pluma que escribe; la mano de Davis pasa la lupa por las cinco; en «five» se encienden los números 1 a 5.
+//    En la mesa, la taza de café con su vapor (a la izquierda) y la ficha de notas con su lápiz entre el 4 y el 5,
+//    para que ningún número la pise.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-estadistica');
@@ -345,8 +347,18 @@ const mesa5 = () => fijo('cinco', () => {
   // la mesa de nogal con la tira de pergamino de las cinco manos
   madera(0, 70, 319, 179, Q.nogL, Q.robleL, Q.nog, Q.nogS, 9, 114); R.rect(0, 70, 319, 72, Q.nogD);
   for (let y = 73; y < 100; y++) for (let x = 0; x < 320; x++) if ((x + y) & 1) R.pset(x, y, mez(R.pget(x, y), Q.nogD, 0.25 * (1 - (y - 73) / 27)));
-  caja(250, 78, 300, 96, Q.papel); R.rect(251, 79, 299, 80, Q.papelS); for (let j = 0; j < 3; j++) R.rect(254, 84 + j * 4, 290 - j * 8, 84 + j * 4, Q.grisS);
-  caja(20, 78, 34, 96, Q.blanco); R.rect(34, 82, 37, 90, Q.blanco); R.rect(21, 79, 33, 80, Q.nogS);
+  // la ficha de notas entre los números 4 y 5 (con su sombra y un lápiz encima) y la taza de café a la izquierda
+  for (let y = 78; y < 95; y++) for (let x = 234; x < 270; x++) tine(x, y, 0.35, Q.nogD);
+  caja(232, 76, 266, 92, Q.papel); R.rect(233, 77, 265, 78, Q.blanco); R.rect(233, 91, 265, 91, Q.papelS); R.rect(265, 78, 265, 90, Q.papelS);
+  R.rect(235, 80, 235, 90, Q.rojoL); for (let j = 0; j < 3; j++) { R.rect(238, 81 + j * 3, 262 - j * 7, 81 + j * 3, Q.blancoS); for (let x = 238; x < 262 - j * 7; x += 3 + (j & 1)) R.pset(x, 81 + j * 3, Q.grisS); }
+  raya(240, 93, 262, 86, Q.k, 1); raya(240, 93, 262, 86, Q.ocreL, 0); R.pset(241, 92, Q.amarL); raya(262, 86, 265, 85, Q.piedraD, 0); R.pset(240, 93, Q.k);
+  for (let y = 93; y < 99; y++) for (let x = 6 + (y - 93); x < 26; x++) tine(x, y, 0.4 * (1 - (y - 93) / 6), Q.nogD);
+  caja(16, 82, 23, 91, Q.k); R.rect(17, 83, 22, 90, Q.nog); caja(4, 78, 18, 96, Q.k);
+  for (let x = 5; x < 18; x++) { const c = x < 7 ? Q.blanco : x < 13 ? Q.piedraL : x < 16 ? Q.piedra : Q.piedraS; R.rect(x, 79, x, 95, c); }
+  R.rect(17, 84, 21, 84, Q.piedraS); R.rect(21, 84, 21, 89, Q.piedraS); R.rect(17, 89, 21, 89, Q.piedraS);
+  R.rect(5, 79, 17, 81, hex('#4a2c1c')); R.rect(6, 80, 9, 80, hex('#7a4c2c')); R.rect(5, 82, 17, 82, Q.piedraS);
+  for (let x = 5; x < 18; x++) if (x % 3 === 0) R.pset(x, 88, Q.azulTS); R.rect(5, 87, 17, 87, Q.azulTL); R.rect(5, 89, 17, 89, Q.azulTL);
+  R.rect(5, 95, 17, 95, Q.piedraD);
   pergamino(14, 102, 306, 160, 7);
   for (let k = 0; k < 4; k++) { const x = 14 + (k + 1) * 58; for (let y = 106; y < 158; y += 2) R.pset(x, y, Q.pergD); }
 });
@@ -354,6 +366,8 @@ const p4 = (t) => {
   mesa5();
   // la luz de la lámpara que entra por la izquierda
   for (let y = 0; y < 70; y++) for (let x = 200 + y; x < 260 + y; x++) if ((x + y) % 3 === 0) tine(x, y, 0.1, Q.luz);
+  // el vapor del café sube en dos hilos que se mecen
+  for (let i = 0; i < 14; i++) { const fy = ((t * 9 + i * 1.6) % 22), y = 78 - fy, a = 0.5 * (1 - fy / 22); for (const ox of [8, 13]) tine(ox + Math.sin(fy * 0.35 + ox + t * 2) * 2, y, a, Q.blanco); }
   // cada mano escribe su renglón con su tinta (cinco formas de letra: más inclinada, más gruesa, más ancha…)
   for (let k = 0; k < 5; k++) {
     const x0 = 22 + k * 58, w = 46, pts = [];

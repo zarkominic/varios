@@ -15,7 +15,8 @@
 //    una criada sacude una alfombra;
 // 2. pragua/alquimista: Baresch mira el libro con la lupa; en «years» arruga una hoja y la tira (el gato se despierta);
 //    en «read it» se queda con un «?»;
-// 3. pragua/alquimista/copia, de cerca y sin el actor: el brazo de Baresch (T.brazo, manga marrón) moja la pluma y
+// 3. pragua/alquimista/copia, de cerca y sin el actor: el brazo de Baresch (T.brazo, manga marrón; el codo siempre
+//    fuera del cuadro, se ven como mucho ~44 px de manga) moja la pluma y
 //    copia renglón a renglón (la punta va donde sale cada signo); la deja en el tintero, dobla la copia en tres, en
 //    «sent» la sella con el sello de latón de la mesa, la señala con la mano y la copia sale volando hacia Roma;
 // 4. (fondo local) el claustro del Colegio Romano (la cúpula y el campanario de Roma a la derecha, fuera de la barra del
@@ -221,8 +222,12 @@ const p2 = (t) => {
 // donde sale cada signo), deja la pluma en el tintero, dobla la copia en tres, la sella con el sello de latón, la
 // señala y la copia sale volando hacia Roma ──
 const MANGA_B = '#6a4a2e';
-// el brazo derecho de Baresch desde abajo a la derecha, con la muñeca en (wx, wy) y los dedos hacia la izquierda
-const brazoB = (wx, wy) => T.brazo(R, wx + 48, 214, wx, wy, MANGA_B, -1, { codo: [wx + 36, wy + 30] });
+// el brazo derecho de Baresch desde abajo a la derecha, con la muñeca en (wx, wy) y los dedos hacia la izquierda. El
+// codo y el hombro quedan siempre fuera del cuadro y el antebrazo se inclina según la altura de la muñeca (más
+// tumbado cuando está baja, casi vertical cuando sube), para que de la muñeca al borde se vean como mucho ~44 px
+const brazoB = (wx, wy) => { const sn = Math.min(1, Math.max(0.72, (182 - wy) / 44)), cs = Math.sqrt(1 - sn * sn);
+  const ex = Math.round(wx + cs * 46), ey = Math.round(wy + sn * 46);
+  T.brazo(R, ex + 14, ey + 28, wx, wy, MANGA_B, -1, { codo: [ex, ey] }); };
 // la punta de la pluma en (gx, gy): la pluma va por encima de la mano
 const conPluma = (gx, gy) => { brazoB(gx + 10, gy + 6); T.PIEZAS_VM.pluma(R, gx + 4, gy + 1); };
 // tapa un trozo de la mesa con su propia madera: cada fila toma los colores de las columnas limpias de al lado (las
@@ -287,13 +292,13 @@ const p3 = (t) => {
     else if (t < CG) { const v = tramo(t, F2, CG); brazoB(Math.round(lerp(218, 278, v)), Math.round(lerp(150, 166, v))); }
     else if (t < DJ) { // coge el sello, lo aprieta en el centro de la carta y lo deja a la izquierda
       let sx, sy; const a = tramo(t, CG, PR), pr = tramo(t, PR, SU), d = tramo(t, SU, DJ);
-      if (pr === 0) { sx = lerp(270, 206, a); sy = lerp(173, 145, a) - Math.sin(a * Math.PI) * 12; }
+      if (pr === 0) { sx = lerp(270, 206, a); sy = lerp(173, 145, a) - Math.sin(a * Math.PI) * 5; }
       else if (d === 0) { sx = 206; sy = 145 + Math.round(Math.sin(pr * Math.PI) * 4); }
-      else { sx = lerp(206, 170, d); sy = lerp(145, 160, d) - Math.sin(d * Math.PI) * 10; }
+      else { sx = lerp(206, 170, d); sy = lerp(145, 160, d) - Math.sin(d * Math.PI) * 5; }
       sx = Math.round(sx); sy = Math.round(sy); sello(sx, sy); brazoB(sx + 8, sy - 6);
     } else { // la señala: dos toques con la mano y la sigue cuando se va
       const v = tramo(t, DJ, DJ + 0.3), toc = t < SE ? Math.round(Math.abs(Math.sin((t - DJ) * 9)) * 3) : 0, va = tramo(t, SE, SE + 0.5);
-      const wx = Math.round(lerp(180, 252, v) + toc + va * 30), wy = Math.round(lerp(162, 150, v) - va * 18);
+      const wx = Math.round(lerp(180, 252, v) + toc + va * 30), wy = Math.round(lerp(162, 150, v) - va * 6);
       brazoB(wx, wy); }
   }
 };

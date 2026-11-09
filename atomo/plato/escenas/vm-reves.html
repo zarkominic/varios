@@ -11,10 +11,11 @@
 <script type="module">
 // VM-REVES (frase 23), sin cartela, 2026. Cuatro planos:
 // 1. «a mystery in reverse»: inserto local, la pizarra de cerca: a la izquierda, el sospechoso de tiza (sombrero y
-//    gabardina, huellas y lupa) con un «?» en la cara; la mano con la tiza dibuja el libro abierto a la derecha en
-//    «Voynich manuscript»; en «in reverse» el «?» salta de la cara al libro dando la vuelta por el arco de tiza y el
-//    sospechoso queda con una sonrisa y un visto. Vida: polvo de tiza en el rayo de luz, la hoja sujeta con un imán que
-//    aletea, una araña que baja del marco.
+//    gabardina, huellas y lupa) con un «?» en la cara; la mano con la tiza dibuja el libro abierto, grande y encima de la
+//    repisa (plantita y renglones de signos) en «Voynich manuscript»; en «in» se marca el arco punteado y el «?» salta
+//    de la cara, dando la vuelta y creciendo, hasta la hoja derecha (que se borra): «?» macizo de tiza amarilla con brillo;
+//    en «reverse» el sospechoso queda resuelto: sonrisa y visto en tiza verde gruesa. Vida: polvo de tiza en el rayo de
+//    luz, la hoja sujeta con un imán que aletea, una araña que baja del marco, el reloj de arena que da la vuelta.
 // 2. «We know almost everything»: inserto local, la mesa vista desde arriba: el libro cerrado en el centro con un «?»
 //    de oro que late; unas manos van dejando alrededor las fichas de lo que se sabe en la palabra que lo dice: la piel
 //    («skin»: la ternera), la fecha («when»: 1404–1438), las cinco manos («hands»: un 5 y cinco plumas de tintas
@@ -394,7 +395,7 @@ const pizarraFija = () => {
   for (let s = 0; s < 9; s++) { const cx = 30 + hh(s, 1, 23) * 260, cy = 34 + hh(s, 2, 23) * 100, rx = 14 + hh(s, 3, 23) * 26; for (let a = 0; a < 140; a++) { const an = a / 140 * Math.PI * 1.4 + s, x = Math.round(cx + Math.cos(an) * rx), y = Math.round(cy + Math.sin(an) * rx * 0.35); for (let w = 0; w < 4; w++) if (x >= BX0 && x <= BX1 && y + w >= BY0 && y + w <= BY1 && hh(x, y + w, s) > 0.4) tine(x, y + w, 0.1, Q.tiza); } }
   const vie = mez(Q.pizarra, Q.tiza, 0.22);
   R.numero('1912', 150, 140, { color: vie, sombra: false }); R.numero('408', 232, 34, { color: vie, sombra: false }); R.numero('600', 22, 140, { color: vie, sombra: false });
-  for (let i = 0; i < 4; i++) tz(184 + i * 14, 132, 192 + i * 14, 124, 1, vie, 40 + i);
+  for (let i = 0; i < 3; i++) tz(180 + i * 12, 132, 188 + i * 12, 124, 1, vie, 40 + i);
   // la tiza de la repisa (blanca, amarilla y rosa) y el borrador de fieltro
   for (const [x, c, l] of [[40, Q.tiza, 10], [56, Q.tizaA, 7], [64, Q.tizaR, 5], [250, Q.tiza, 6]]) { R.rect(x, 146, x + l, 148, Q.k); R.rect(x + 1, 146, x + l - 1, 147, c); R.pset(x + 1, 146, Q.blanco); }
   R.rect(270, 142, 298, 148, Q.k); R.rect(271, 143, 297, 145, Q.nogL); R.rect(271, 146, 297, 147, Q.grisS); for (let x = 272; x < 297; x += 2) R.pset(x, 147, Q.gris);
@@ -416,13 +417,27 @@ const pizarraFija = () => {
   for (let i = 0; i < 3; i++) R.rect(22, 44 + i * 2, 42 - i * 4, 44 + i * 2, Q.grisL);
   R.disco(32, 26, 3, Q.k); R.disco(32, 26, 2, Q.rojo); R.pset(31, 25, Q.rojoL);
 };
-// el libro de tiza de la derecha: dos hojas, lomo, signos y una plantita (u: cuánto lleva dibujado)
-const libroTiza = (u) => {
-  const pts = [[296, 118], [296, 143], [268, 144], [240, 143], [240, 118], [246, 114], [266, 115], [268, 118], [270, 115], [290, 114], [296, 118]];
+// el libro de tiza de la derecha, grande y encima de la repisa: dos hojas (80 × 46), lomo, una plantita en la hoja
+// izquierda y renglones de signos en la derecha (u: cuánto lleva dibujado); las hojas, con un velo de tiza frotada
+const LB = { x0: 222, x1: 302, xm: 262, y0: 96, y1: 140 };
+const libroTiza = (u, vacia) => {
+  const { x0, x1, xm, y0, y1 } = LB;
+  const pts = [[x1, y0 + 4], [x1, y1], [xm, y1 + 2], [x0, y1], [x0, y0 + 4], [x0 + 8, y0 - 1], [xm - 4, y0], [xm, y0 + 4], [xm + 4, y0], [x1 - 8, y0 - 1], [x1, y0 + 4]];
+  // el velo de las hojas aparece a la vez que el contorno (tiza frotada con el dedo: un tramado suave)
+  const vel = Math.max(0, Math.min(1, u * 1.6 - 0.4));
+  if (vel > 0) for (let y = y0 + 1; y < y1; y++) for (let x = x0 + 2; x < x1 - 1; x++) if (x !== xm && ((x + y) & 1) === 0 && hh(x >> 1, y >> 1, 57) < 0.75) tine(x, y, 0.13 * vel, Q.tiza);
   const fin = trazo(pts, Math.min(1, u * 1.6), Q.tiza, 50);
-  if (u > 0.62) trazo([[268, 118], [268, 144]], (u - 0.62) / 0.1, Q.tiza, 51);
-  if (u > 0.72) { const v = (u - 0.72) / 0.28; for (let r = 0; r < 5; r++) { const L = Math.max(0, Math.min(1, v * 5 - r)); if (L > 0) { for (let i = 0; i < Math.round(20 * L); i += 3) { R.pset(272 + i, 122 + r * 4, Q.tiza); R.pset(273 + i, 121 + r * 4, Q.tiza); if (i % 6 === 0) R.pset(272 + i, 120 + r * 4, Q.tiza); } } }
-    trazo([[254, 139], [254, 127]], v, Q.tizaV, 52); trazo(arco(254, 123, 6, 4, 0, Math.PI * 2, 18), v, Q.tizaV, 53); trazo([[246, 139], [262, 139]], v, Q.tizaA, 54); }
+  trazo(pts.map(([x, y]) => [x, y + 1]), Math.min(1, u * 1.6), Q.tizaS, 49);   // el trazo grueso: la segunda pasada
+  if (u > 0.62) { const v = (u - 0.62) / 0.1; trazo([[xm, y0 + 4], [xm, y1 + 2]], v, Q.tiza, 51); trazo([[xm + 1, y0 + 5], [xm + 1, y1 + 1]], v, Q.tizaS, 48); }
+  if (u > 0.72) { const v = (u - 0.72) / 0.28;
+    // la plantita de la hoja izquierda: maceta, tallo, dos hojas y una flor
+    trazo([[x0 + 10, y1 - 6], [xm - 10, y1 - 6]], v, Q.tizaA, 54); trazo([[x0 + 13, y1 - 6], [x0 + 16, y1 - 12], [xm - 16, y1 - 12], [xm - 13, y1 - 6]], v, Q.tizaA, 55);
+    trazo([[x0 + 20, y1 - 12], [x0 + 20, y0 + 16]], v, Q.tizaV, 52); trazo(arco(x0 + 20, y0 + 11, 7, 5, 0, Math.PI * 2, 22), v, Q.tizaV, 53);
+    trazo([[x0 + 20, y1 - 20], [x0 + 12, y1 - 26], [x0 + 20, y1 - 22]], v, Q.tizaV, 56); trazo([[x0 + 20, y1 - 24], [x0 + 29, y1 - 30], [x0 + 20, y1 - 26]], v, Q.tizaV, 58);
+    if (v > 0.8) { R.disco(x0 + 20, y0 + 11, 2, Q.tizaR); R.pset(x0 + 19, y0 + 10, Q.blanco); }
+    // los renglones de signos de la hoja derecha (se borran cuando aterriza el «?»)
+    if (!vacia) for (let r = 0; r < 6; r++) { const L = Math.max(0, Math.min(1, v * 6 - r)); if (L > 0) for (let i = 0; i < Math.round(30 * L); i += 3) { const x = xm + 5 + i, y = y0 + 9 + r * 6; R.pset(x, y, Q.tiza); R.pset(x + 1, y - 1, Q.tiza); if (hh(i, r, 59) > 0.55) R.pset(x, y - 2, Q.tiza); } }
+  }
   return fin;
 };
 const p1 = (t) => {
@@ -434,11 +449,17 @@ const p1 = (t) => {
   { const a = Math.sin(t * 5) * 2 + 3; R.poligono([[46, 46], [46 - a, 52], [40, 52]], Q.calS); R.linea(46, 46, Math.round(46 - a), 52, Q.calD); }
   // la araña que baja del marco por su hilo y vuelve a subir
   { const y = 22 + Math.round(Math.max(0, Math.sin(t * 0.55)) * 22); R.linea(176, 20, 176, y - 2, Q.tizaS); R.disco(176, y, 1, Q.k); for (const s of [-1, 1]) { R.pset(176 + s * 2, y - 1, Q.k); R.pset(176 + s * 2, y + 1, Q.k); R.pset(176 + s * 3, y + (Math.floor(t * 6) % 2 ? 2 : 0), Q.k); } }
-  // el sospechoso: el «?» de la cara hasta que salta; después, la sonrisa y el visto
-  const sal = tramo(t, REV - 0.12, REV + 0.55);
+  // el sospechoso: el «?» de la cara hasta que salta en «in»; ya resuelto, la sonrisa y el visto en tiza verde gruesa
+  const sal = tramo(t, IN - 0.05, REV + 0.18);
   if (sal <= 0) { const late = Math.sin(t * 6) > 0.6 && t > MYS ? 1 : 0; preg(80, 57, 2 + late, 0, Q.tizaA, null); }
-  if (sal >= 1) { trazo([[74, 58], [77, 61], [83, 61], [86, 58]], tramo(t, REV + 0.55, REV + 0.75), Q.tiza, 70); R.disco(76, 53, 1, Q.tiza); R.disco(84, 53, 1, Q.tiza);
-    trazo([[100, 112], [106, 120], [120, 100]], tramo(t, REV + 0.7, REV + 1.0), Q.tizaV, 71); }
+  if (sal > 0 && sal < 0.35) for (let i = 0; i < 8; i++) { const an = i * 0.8, d = 4 + sal * 30; R.pset(Math.round(80 + Math.cos(an) * d), Math.round(56 + Math.sin(an) * d * 0.7), Q.tiza); }   // la nubecilla al soltarse
+  if (sal >= 1) { const v = tramo(t, REV + 0.18, REV + 0.3);
+    for (const d of [0, 1]) trazo([[73, 58 + d], [76, 62 + d], [84, 62 + d], [87, 58 + d]], v, d ? Q.tizaS : Q.tizaV, 70 + d);
+    R.disco(76, 53, 1, Q.tizaV); R.disco(84, 53, 1, Q.tizaV);
+    const w = tramo(t, REV + 0.26, REV + 0.4);
+    for (const d of [0, 1]) trazo([[112 + d, 96], [119 + d, 106], [136 + d, 82]], w, Q.tizaV, 74 + d);
+    trazo([[113, 98], [120, 108], [137, 84]], w, Q.tizaS, 76);
+    if (w >= 1 && Math.sin(t * 7) > 0.5) { R.pset(138, 80, Q.blanco); R.pset(137, 79, Q.tizaV); R.pset(139, 81, Q.tizaV); } }
   // el reloj de arena de tiza del centro: en «reverse» da la vuelta (se aplasta y se abre al revés) y la arena cae
   { const f = tramo(t, REV - 0.1, REV + 0.4), sy = Math.cos(f * Math.PI), cx = 186, cy = 66, h = 18;
     const Y = (d) => Math.round(cy + d * sy);
@@ -449,18 +470,28 @@ const p1 = (t) => {
     if (Math.abs(sy) > 0.8) for (let k = 0; k < 4; k++) { const v = ((t * 3 + k / 4) % 1); R.pset(cx, Math.round(cy + (v * 12 + 1) * (sy > 0 ? 1 : 1)), Q.tizaA); } }
   // en «mystery»: un golpecito de tiza junto al «?» (el polvo que salta)
   if (t > MYS && t < MYS + 0.4) for (let i = 0; i < 6; i++) { const a = i * 1.05, d = (t - MYS) * 40; R.pset(Math.round(96 + Math.cos(a) * d), Math.round(58 + Math.sin(a) * d * 0.6), Q.tizaS); }
-  // el libro de tiza, que dibuja la mano en «Voynich manuscript»
-  const u = tramo(t, VOY - 0.4, MYS + 0.3), fin = libroTiza(u);
-  // el arco del salto (queda dibujado, punteado) y el «?» que da la vuelta en el aire
-  const A = (s) => [lerp(80, 282, s), lerp(57, 130, s) - Math.sin(s * Math.PI) * 84];
-  if (t > IN - 0.1) { for (let i = 0; i <= 40; i++) { const s = i / 40; if (s > Math.max(sal, tramo(t, IN - 0.1, REV)) || i % 3 === 2) continue; const [x, y] = A(s); R.pset(Math.round(x), Math.round(y), Q.tizaS); R.pset(Math.round(x), Math.round(y) - 1, Q.tiza); }
-    if (sal >= 1) { const [x, y] = A(1); tz(x - 6, y - 10, x, y - 4, 1, Q.tiza, 72); tz(x + 6, y - 10, x, y - 4, 1, Q.tiza, 73); } }
-  if (sal > 0 && sal < 1) { const s = ease(sal), [x, y] = A(s); preg(Math.round(x), Math.round(y), 3, s, Q.tizaA, Q.pizarraS); }
-  if (sal >= 1) { const b = t < REV + 0.8 ? Math.round(Math.sin((t - REV - 0.55) * 30) * 2) : 0, late = Math.sin(t * 5) > 0.7 ? 1 : 0; R.rect(270, 117, 294, 142, Q.pizarra); preg(282, 130 + b, 3 + late, 0, Q.tizaA, Q.pizarraS); }
+  // el libro de tiza, que dibuja la mano en «Voynich manuscript»; los signos de la hoja derecha se borran al llegar el «?»
+  const u = tramo(t, VOY - 0.4, MYS + 0.2), fin = libroTiza(u, sal > 0.85);
+  // el arco del salto: se marca punteado en «in» y el «?» lo recorre dando la vuelta y creciendo hasta la hoja derecha
+  const PX = LB.xm + 20, PY = 118;
+  const A = (s) => [lerp(80, PX, s), lerp(57, PY, s) - Math.sin(s * Math.PI) * 48];
+  if (t > IN - 0.35) { const hasta = Math.max(sal, tramo(t, IN - 0.35, IN)); for (let i = 0; i <= 50; i++) { const s = i / 50; if (s > hasta || i % 3 === 2) continue; const [x, y] = A(s); R.pset(Math.round(x), Math.round(y), Q.tizaS); R.pset(Math.round(x), Math.round(y) - 1, Q.tiza); } }
+  if (sal > 0 && sal < 1) { const s = ease(sal), [x, y] = A(s); preg(Math.round(x), Math.round(y), Math.round(2 + 2 * s), s, Q.tizaA, Q.pizarraS); }
+  if (sal >= 1) {
+    const b = t < REV + 0.45 ? Math.round(Math.abs(Math.sin((t - REV - 0.18) * 18)) * -3 * (1 - tramo(t, REV + 0.18, REV + 0.45))) : 0, late = Math.sin(t * 5) > 0.7 ? 1 : 0;
+    // el brillo: un halo tramado de tiza amarilla y ocho destellos que giran
+    for (let y = PY - 20; y <= PY + 20; y++) for (let x = PX - 18; x <= PX + 18; x++) { const d = Math.hypot(x - PX, (y - PY) * 0.9); if (d < 19 && ((x + y) & 1) === 0 && x > LB.xm + 1 && x < LB.x1) tine(x, y, 0.22 * (1 - d / 19), Q.amarL); }
+    for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4 + t * 0.8, r0 = 13 + late, x0 = PX + Math.cos(an) * r0, y0 = PY + Math.sin(an) * r0 * 1.1; if (x0 < LB.xm + 3 || x0 > LB.x1 - 2) continue; R.pset(Math.round(x0), Math.round(y0), Q.amarL); R.pset(Math.round(x0 + Math.cos(an) * 2), Math.round(y0 + Math.sin(an) * 2), Q.tizaA); }
+    // el «?» macizo, de tiza amarilla con su sombra y el canto de luz blanco
+    preg(PX, PY + b, 4, 0, Q.tizaA, Q.pizarraS);
+    for (let j = 0; j < 7; j++) for (let i = 0; i < 5; i++) if (PREG[j][i] === '#' && (j === 0 || PREG[j - 1][i] !== '#')) R.rect(PX - 10 + i * 4, PY + b - 14 + j * 4, PX - 10 + i * 4 + 2, PY + b - 14 + j * 4, Q.blanco);
+    // las dos rayitas que lo señalan al caer
+    const ar = tramo(t, REV + 0.18, REV + 0.3); tz(PX - 16, PY - 26, PX - 11, PY - 19, ar, Q.tiza, 72); tz(PX + 16, PY - 26, PX + 11, PY - 19, ar, Q.tiza, 73);
+  }
   // la mano con la tiza: entra por abajo a la derecha, dibuja el libro y se va
-  const sube = tramo(t, 0.4, VOY - 0.4), vete = tramo(t, MYS + 0.4, MYS + 1.1);
+  const sube = tramo(t, 0.4, VOY - 0.4), vete = tramo(t, MYS + 0.25, MYS + 0.75);
   let hx = fin[0] + 3, hy = fin[1] + 3;
-  if (u <= 0) { hx = lerp(350, 299, ease(sube)); hy = lerp(150, 121, ease(sube)); }
+  if (u <= 0) { hx = lerp(350, LB.x1 + 3, ease(sube)); hy = lerp(150, LB.y0 + 7, ease(sube)); }
   if (vete > 0) { hx = lerp(fin[0] + 3, 356, ease(vete)); hy = lerp(fin[1] + 3, 150, ease(vete)); }
   if (u > 0 && u < 1) { hx += Math.sin(t * 40) * 0.6; }
   if (hx < 334) { T.brazo(R, Math.round(hx) + 70, Math.round(hy) + 40, Math.round(hx), Math.round(hy), '#3a5a8a', -1, { codo: [Math.round(hx) + 40, Math.round(hy) + 26], sombra: false });

@@ -18,6 +18,9 @@
 //    libro abierto, tintero, libros, la ventana con la luna): Atom baja de su esquina hasta la planta; en «plant» un
 //    zarcillo le trae una flor rosa y se la pone en la cabeza (gag 7); en «growing» la planta vuelve a crecer de golpe
 //    con hojas nuevas y otra flor; Atom da una vuelta de contento y sube a su esquina con la flor puesta.
+//    La planta, la maceta y el libro del inserto van dibujados a 1 px en la escena (plantaCerca, libroCerca): barro con
+//    luz, brillo, faja, salitre y gota; tierra con grumos; bulbo con capas y raíces; tallo con nudos y hojas de tres verdes
+//    con nervio que se abren al crecer; una mariquita pasea por el aro.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-cierre');
@@ -384,6 +387,127 @@ const p1 = (t) => {
   PIEZAS_VM.plantaImposible(R, 246 + Math.round(est * 2), 138, { s: 2, crece, t: t + est * 3 });
   if (est > 0) { for (let i = 0; i < Math.round(est * 8); i++) R.pset(248 + i, 68 - i, Q.tallo); if (est > 0.5) globo(260, 60, '!'); }
 };
+// LA PLANTA DE CERCA, a 1 px (para el inserto: la pieza del kit a s:4 salía en bloques): maceta de barro con luz de la
+// lámpara a la izquierda, brillo, aro, desconchón y salitre; tierra con grumos y chinas; el bulbo con sus capas y las
+// raíces que se agarran al borde; el tallo con nudos y hojas de tres verdes con nervio que se abren al crecer.
+// cx, yb: centro y pie de la maceta; crece 0..1 como la pieza del kit; devuelve la punta del tallo [x, y]
+const QP = Object.fromEntries(Object.entries({
+  ter: '#c0643a', terL: '#e08a5a', terB: '#f6b88c', terS: '#8e4428', terD: '#5a2616', sal: '#e6d6c0',
+  tie: '#4a3020', tieL: '#70503a', tieS: '#2c1a10', tieD: '#1a0e08',
+  bul: '#d8b47a', bulL: '#f2dca4', bulS: '#a87c4a', bulD: '#6a4a26',
+  hoja: '#4e9a3e', hojaL: '#7cc45a', hojaS: '#2e6a2a', hojaD: '#173e18', hojaN: '#b4e08a',
+  talD: '#1c4418', mari: '#d83a2a', mariL: '#ff7a5a',
+}).map(([k, v]) => [k, hex(v)]));
+const plantaCerca = (cx, yb, crece, t, conFlor) => {
+  // la maceta: pie, cuerpo que se estrecha hacia abajo con la faja, y el aro de arriba
+  const rueda = (x, y, u, n) => { let c = u < 0.1 ? QP.terL : u > 0.78 ? QP.terS : QP.ter; if (u > 0.9) c = QP.terD; if (u > 0.17 && u < 0.23 && (y & 3) !== 1) c = QP.terB; else if (u > 0.13 && u < 0.27 && n > 0.5) c = QP.terL; if (n > 0.93) c = u > 0.5 ? QP.terD : QP.terS; else if (n < 0.04) c = QP.terL; return c; };
+  for (let y = yb - 3; y <= yb; y++) { const hw = 18; for (let x = cx - hw; x <= cx + hw; x++) { const u = (x - cx + hw) / (2 * hw); R.pset(x, y, x === cx - hw || x === cx + hw || y === yb ? QP.terD : rueda(x, y, u, hh(x, y, 91))); } }
+  for (let y = yb - 26; y < yb - 3; y++) {
+    const v = (y - (yb - 26)) / 23, hw = Math.round(21 - v * 5);
+    for (let x = cx - hw; x <= cx + hw; x++) {
+      const u = (x - cx + hw) / (2 * hw); let c = rueda(x, y, u, hh(x >> 1, y, 92));
+      if (y === yb - 15) c = QP.terD; else if (y === yb - 14) c = u < 0.6 ? QP.terL : QP.ter; else if (y === yb - 13) c = mez(c, QP.terD, 0.3);
+      if (v > 0.75 && ((x + y) & 1) && hh(x >> 1, y >> 1, 93) > 0.8) c = mez(c, QP.sal, 0.3);
+      if (x === cx - hw || x === cx + hw) c = QP.terD;
+      R.pset(x, y, c);
+    }
+    if (y <= yb - 24) for (let x = cx - hw; x <= cx + hw; x++) tine(x, y, 0.5, QP.terD);
+  }
+  for (let y = yb - 34; y < yb - 26; y++) for (let x = cx - 25; x <= cx + 25; x++) {
+    const u = (x - cx + 25) / 50; let c = rueda(x, y, u, hh(x >> 1, y, 94));
+    if (y === yb - 34) c = u < 0.75 ? QP.terB : QP.terL; else if (y === yb - 33) c = mez(c, QP.terL, 0.5); else if (y === yb - 27) c = QP.terS;
+    if (x === cx - 25 || x === cx + 25) c = QP.terD;
+    R.pset(x, y, c);
+  }
+  // un desconchón en el aro y una gota de agua que resbala del riego
+  R.pset(cx + 14, yb - 34, QP.terS); R.pset(cx + 15, yb - 34, QP.terD); R.pset(cx + 15, yb - 33, QP.terS); R.pset(cx + 16, yb - 34, QP.terS);
+  { const g = (t * 0.45) % 1, gy = yb - 32 + Math.round(g * 26); if (g < 0.9) { R.pset(cx - 9, gy, QP.terB); R.pset(cx - 9, gy - 1, mez(QP.ter, QP.terD, 0.4)); R.pset(cx - 9, gy - 2, mez(QP.ter, QP.terD, 0.25)); } }
+  // la boca: el labio de barro y la tierra con grumos y chinas
+  for (let y = yb - 39; y <= yb - 34; y++) for (let x = cx - 25; x <= cx + 25; x++) {
+    const ex = (x - cx) / 25, ey = (y - (yb - 36)) / 3.6, e = ex * ex + ey * ey; if (e > 1) continue;
+    const ei = ((x - cx) / 22) ** 2 + ((y - (yb - 36)) / 2.6) ** 2;
+    let c;
+    if (ei > 1) c = y < yb - 36 ? QP.terS : (x < cx ? QP.terB : QP.terL);
+    else { const n = hh(x >> 1, y, 95), m = hh(x, y, 96); c = n < 0.3 ? QP.tieS : n > 0.82 ? QP.tieL : QP.tie; if (y <= yb - 37) c = n > 0.7 ? QP.tie : QP.tieD; if (m > 0.95) c = Q.piedraL; else if (m > 0.92) c = Q.piedraS; }
+    R.pset(x, y, c);
+  }
+  // el bulbo (con sus capas) y las raíces que bajan hasta la tierra y se agarran al labio
+  const BX = cx, BY = yb - 50;
+  for (const [x0, y0, x1, y1, x2, y2] of [[-4, 4, -16, 2, -23, -34], [4, 4, 16, 2, 23, -34], [-2, 6, -8, 10, -11, -37], [2, 6, 8, 10, 10, -37], [0, 7, 0, 10, 1, -38]]) {
+    let px = BX + x0, py = BY + y0;
+    for (let i = 1; i <= 14; i++) { const s = i / 14, u = 1 - s, X = u * u * (BX + x0) + 2 * u * s * (BX + x1) + s * s * (cx + x2), Y = u * u * (BY + y0) + 2 * u * s * (BY + y1) + s * s * (yb + y2);
+      const w = s < 0.6 ? 1 : 0; for (let a = -w; a <= w; a++) { R.pset(Math.round(X) + a, Math.round(Y), a < 0 ? QP.bulL : a > 0 ? QP.bulD : QP.bulS); R.pset(Math.round(X) + a, Math.round(Y) + 1, QP.bulD); }
+      if (w === 0) R.pset(Math.round(X), Math.round(Y), QP.bul); px = X; py = Y; }
+    R.pset(Math.round(px) + (x2 > 0 ? 1 : x2 < 0 ? -1 : 0), Math.round(py) + 1, QP.bulD);
+  }
+  for (let y = BY - 9; y <= BY + 8; y++) for (let x = BX - 10; x <= BX + 10; x++) {
+    const dx = (x - BX) / 9.5, dy = (y - BY) / (y < BY ? 9 : 7.5), e = dx * dx + dy * dy; if (e > 1) continue;
+    let c = QP.bul; const l = dx * 0.7 + dy * 0.6;
+    if (l < -0.55) c = QP.bulL; else if (l > 0.45) c = QP.bulS;
+    if (e > 0.8) c = l > 0 ? QP.bulD : QP.bulS;
+    if (Math.abs(dx * 0.9 - Math.sin(dy * 2.2) * 0.25) < 0.06 || Math.abs(dx * 0.9 + 0.45 - Math.sin(dy * 2) * 0.2) < 0.05 || Math.abs(dx * 0.9 - 0.45 - Math.sin(dy * 2) * 0.2) < 0.05) c = l > 0.2 ? QP.bulD : QP.bulS;
+    if (Math.abs(dx + 0.35) < 0.07 && dy < -0.2 && dy > -0.65) c = QP.bulL;
+    R.pset(x, y, c);
+  }
+  // el tallo: se mece más arriba; nudos cada 16 px; las hojas, alternas, se abren a medida que pasa la punta
+  const baseY = BY - 8, largo = 4 * (2 + 14 * crece) + 2, tipY = baseY - largo;
+  const sx = (y) => { const h = (baseY - y) / 60; return cx + Math.sin(t * 1.7) * 3 * h * h + Math.sin(t * 2.9 + y * 0.08) * 0.6 * h; };
+  const hojas = [];
+  for (let y = Math.round(tipY); y <= baseY; y++) {
+    const x = Math.round(sx(y)), f = (baseY - y) / largo;
+    if (f < 0.45) { R.pset(x - 2, y, QP.talD); R.pset(x - 1, y, Q.talloL); R.pset(x, y, (y % 5) ? Q.tallo : Q.talloL); R.pset(x + 1, y, Q.tallo); R.pset(x + 2, y, Q.talloS); R.pset(x + 3, y, QP.talD); }
+    else if (f < 0.8) { R.pset(x - 2, y, QP.talD); R.pset(x - 1, y, Q.talloL); R.pset(x, y, Q.tallo); R.pset(x + 1, y, Q.talloS); R.pset(x + 2, y, QP.talD); }
+    else { R.pset(x - 1, y, QP.talD); R.pset(x, y, Q.talloL); R.pset(x + 1, y, Q.talloS); R.pset(x + 2, y, QP.talD); }
+  }
+  for (let k = 0, lado = 1; ; k++, lado = -lado) {
+    const ny = baseY - 6 - k * 11; if (ny < tipY + 5) break;
+    const nx = Math.round(sx(ny)), abre = Math.min(1, (ny - tipY - 5) / 12);
+    R.pset(nx - 2, ny, QP.talD); R.pset(nx + 3, ny, QP.talD); R.pset(nx - 3, ny, QP.talD); R.pset(nx - 2, ny - 1, Q.talloS); R.pset(nx + 2, ny + 1, Q.talloS); R.pset(nx - 1, ny, QP.hojaN); R.pset(nx + 1, ny + 1, QP.talD);
+    hojas.push([nx + lado * 2, ny, lado, k, abre]);
+  }
+  for (const [nx, ny, lado, k, abre] of hojas) {
+    const lw = Math.max(10, 23 - k * 1.8) * abre, hw = Math.max(3.5, 7 - k * 0.5) * abre; if (lw < 2) continue;
+    const a = 0.45 + abre * 0.1 + Math.sin(t * 2.1 + k * 1.3) * 0.08 + (1 - abre) * 0.6, dx = lado * Math.cos(a), dy = -Math.sin(a), droop = 3 * abre;
+    for (let y = Math.floor(ny - lw - 2); y <= ny + hw + 4; y++) for (let x = Math.floor(nx - lw - 2); x <= nx + lw + 2; x++) {
+      const rx = x - nx, ry = y - ny, u = rx * dx + ry * dy; if (u < 0 || u > lw) continue;
+      const v = -rx * dy + ry * dx - lado * droop * (u / lw) ** 2, w = hw * Math.sin(Math.PI * Math.min(1, u / lw * 0.92 + 0.05)) ** 0.7;
+      if (Math.abs(v) > w) continue;
+      const abajo = v * lado > 0; let c;
+      if (Math.abs(v) > w - 1) c = QP.hojaD;
+      else if (Math.abs(v) < 0.55) c = QP.hojaN;
+      else { c = abajo ? QP.hoja : QP.hojaL; if (((u - Math.abs(v) * 1.3) % 4 + 4) % 4 < 0.7) c = abajo ? QP.hojaS : QP.hoja; else if (abajo && Math.abs(v) > w - 2) c = QP.hojaS; }
+      R.pset(x, y, c);
+    }
+  }
+  // la punta: un capullo, o la flor abierta con sus sépalos
+  const tx = Math.round(sx(tipY)), ty = Math.round(tipY);
+  if (conFlor) { R.pset(tx - 2, ty - 1, QP.hojaS); R.pset(tx + 2, ty - 1, QP.hojaS); R.pset(tx - 3, ty - 2, QP.hoja); R.pset(tx + 3, ty - 2, QP.hoja); flor(tx, ty - 5, 4); }
+  else { R.rect(tx - 2, ty - 5, tx + 2, ty - 1, QP.hojaD); R.rect(tx - 1, ty - 5, tx + 1, ty - 1, QP.hoja); R.pset(tx - 1, ty - 4, QP.hojaL); R.pset(tx - 1, ty - 3, QP.hojaL); R.pset(tx + 1, ty - 1, QP.hojaS); R.rect(tx - 1, ty - 7, tx + 1, ty - 6, Q.florS); R.pset(tx, ty - 7, Q.flor); R.pset(tx, ty - 8, Q.florL); }
+  // una mariquita que pasea por el aro (vida)
+  { const g = (t * 0.12) % 1, mx = Math.round(cx - 20 + (g < 0.5 ? g * 2 : 2 - g * 2) * 38), my = yb - 31; R.pset(mx - 1, my, Q.k); R.pset(mx, my, QP.mari); R.pset(mx + 1, my, QP.mari); R.pset(mx + 2, my, QP.mari); R.pset(mx, my - 1, QP.mariL); R.pset(mx + 1, my - 1, Q.k); R.pset(mx + 2, my - 1, QP.mari); if (Math.sin(t * 20) > 0) { R.pset(mx, my + 1, Q.k); R.pset(mx + 2, my + 1, Q.k); } }
+  return [tx, ty - 4];
+};
+// el libro abierto de cerca, a 1 px: tapa de vitela, dos páginas abombadas con el lomo en sombra, la planta pintada a
+// la izquierda (raíces azules, hojas, flor) y renglones de signos a la derecha; el canto de las hojas abajo
+const libroCerca = () => {
+  R.rect(72, 150, 146, 176, QP.bulD); R.rect(73, 151, 145, 175, QP.bulS); R.rect(73, 151, 145, 151, QP.bul);
+  for (let y = 172; y <= 174; y++) for (let x = 75; x <= 143; x++) R.pset(x, y, (y + (x >> 2)) & 1 ? Q.pergS : Q.pergD);
+  pergamino(75, 150, 108, 172, 31); pergamino(110, 150, 143, 172, 37);
+  for (let x = 75; x <= 143; x++) { const g = Math.abs(x - 109); if (g < 7) for (let y = 150; y <= 172; y++) tine(x, y, (1 - g / 7) * 0.45, Q.pergD); const e = Math.min(x - 75, 143 - x); if (e < 4) for (let y = 150; y <= 172; y++) tine(x, y, (1 - e / 4) * 0.25, Q.pergD); }
+  R.rect(109, 150, 109, 172, Q.tinta);
+  // la planta de la lámina: raíces en azul, tallo, cuatro hojas y una flor
+  const px = 91;
+  for (const [a, b] of [[-6, 3], [-3, 4], [0, 4], [3, 4], [6, 3]]) R.linea(px, 166, px + a, 166 + b, Q.c0);
+  R.disco(px, 165, 2, Q.c1); R.pset(px - 1, 164, Q.c3);
+  R.linea(px, 163, px, 154, Q.verdeS);
+  for (const [y, s] of [[161, -1], [159, 1], [157, -1], [155, 1]]) { R.linea(px + s, y, px + s * 5, y - 2, Q.verde); R.linea(px + s, y + 1, px + s * 4, y, Q.verdeL); R.pset(px + s * 5, y - 2, Q.verdeS); }
+  R.disco(px, 152, 2, Q.rojo); R.pset(px, 152, Q.amar); R.pset(px - 1, 151, Q.rojoL);
+  for (let r = 0; r < 3; r++) renglon(98, 157 + r * 5, 106, 120 + r, Q.tinta);
+  for (let r = 0; r < 3; r++) renglon(113, 160 + r * 5, 141, 130 + r, Q.tinta);
+  // la capitular roja de la página derecha y la cinta de marcapáginas
+  R.disco(115, 154, 2, Q.rojoS); R.pset(115, 154, Q.rojoL); R.rect(124, 151, 141, 151, Q.tintaL);
+  R.rect(108, 172, 109, 178, Q.terc); R.pset(108, 178, Q.tercS); R.pset(109, 177, Q.tercL);
+};
 // el inserto: la maceta de cerca (la pared, la ventana de noche, la mesa y lo que hay encima)
 const insertoFijo = () => {
   // el papel adamascado, que se oscurece hacia la esquina de Atom
@@ -425,7 +549,7 @@ const insertoFijo = () => {
   PIEZAS_VM.tintero(R, 276, 148, { s: 2, pluma: true });
   // el libro abierto en la mesa (izquierda, delante de la lámpara)
   for (let y = 152; y < 174; y++) for (let x = 74; x < 144; x++) tine(x + 3, y + 3, 0.3, Q.k);
-  PIEZAS_VM.libroVoynich(R, 108, 174, { s: 2, abierto: true, pagina: 'planta' });
+  libroCerca();
 };
 const p2 = (t) => {
   fijo('inserto', insertoFijo);
@@ -451,10 +575,10 @@ const p2 = (t) => {
   const crece = 0.55 + 0.45 * ease(tramo(t, GROW + 0.05, GROW + 0.85)), salto = t > POT && t < POT + 0.5 ? Math.round(Math.sin((t - POT) * Math.PI / 0.5) * 4) : 0;
   // la sombra de la maceta en la mesa
   for (let x = 130; x < 220; x++) for (let y = 167; y < 175; y++) if (Math.hypot((x - 176) / 42, (y - 171) / 3.5) < 1) tine(x, y, 0.4, Q.k);
-  PIEZAS_VM.plantaImposible(R, 172, 172 - salto, { s: 4, crece, t, flor: t > GROW + 0.8 });
-  if (t > GROW + 0.05 && t < GROW + 1.0) for (let k = 0; k < 6; k++) { const u = (t - GROW) * 1.2, a = k * 1.05; destello(172 + Math.cos(a) * (16 + u * 22), 70 - (crece - 0.55) * 60 + Math.sin(a) * (10 + u * 14), 2, Q.verdeL); }
+  const punta = plantaCerca(172, 172 - salto, crece, t, t > GROW + 0.8);
+  if (t > GROW + 0.05 && t < GROW + 1.0) for (let k = 0; k < 6; k++) { const u = (t - GROW) * 1.2, a = k * 1.05; destello(punta[0] + Math.cos(a) * (16 + u * 22), punta[1] + 10 + Math.sin(a) * (10 + u * 14), 2, Q.verdeL); }
   // el zarcillo: sale de la punta (antes de crecer) y lleva la flor hasta la cabeza de Atom
-  const tip = [171, 172 - 144 + (19 - (2 + Math.round(14 * 0.55))) * 4 - 4];
+  const tip = punta;
   const va = tramo(t, PLANT - 0.4, PONE), vuelve = tramo(t, PONE + 0.1, PONE + 0.5), L = va * (1 - vuelve);
   if (L > 0) { const ax = AT[0] + Math.round(Math.sin(t * 2.6) * 0), ay = AT[1] - 16;
     const B = (s) => { const c1 = [tip[0] + 10, tip[1] - 40], u = 1 - s; return [u * u * tip[0] + 2 * u * s * c1[0] + s * s * ax, u * u * tip[1] + 2 * u * s * c1[1] + s * s * ay]; };

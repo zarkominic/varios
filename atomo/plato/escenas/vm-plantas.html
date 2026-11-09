@@ -21,8 +21,10 @@
 //    «Americas», con la chincheta del libro en México; en «But» sale 1404-1438, en «Europeans» la carabela de 1492 cruza
 //    el océano con el «<», y en «arrived» el mapa se apaga y la chincheta se tacha; la botánica señala, él objeta;
 // 4. «so for that to be true»: fondo local, un cuarto colonial hacia 1550 (volcán y campanario por la ventana, sarape,
-//    loro): el escribano abre el arcón en «someone» (polvo), saca una hoja vieja con su «1420» en «old sheets», la lleva
-//    a la mesa y en «afterward» se rasca la cabeza con un «?».
+//    loro): el escribano, que parte junto a la ventana, abre el arcón en «someone» (polvo), saca una hoja vieja con su
+//    «1420» prendido en «old sheets», la lleva a la mesa, deja la cartela de pie en el tablero apoyada en la hoja y en
+//    «afterward» se rasca la cabeza con un «?». El haz de luz y la percha del loro (a la derecha de la contraventana) se
+//    pintan antes que la mesa, que queda sólida delante.
 // Efectos: la carretilla, el libro, el oro, el herbario, la lupa, el «=», el mapa, las cifras, la carabela, el apagón, la
 // campana lejana del campanario (se mece en la ventana), la tapa del arcón, la hoja y el «?».
 import * as T from '/atomo/plato/escenas/vm-comun.js';
@@ -528,6 +530,12 @@ const cuarto = () => fijo('colonial', () => {
   for (const [x0, x1] of [[164, 178], [254, 268]]) { caja(x0, 44, x1, 98, Q.roble); for (let y = 48; y < 96; y += 8) { R.rect(x0 + 2, y, x1 - 2, y + 5, Q.robleS); R.rect(x0 + 3, y + 1, x1 - 3, y + 4, Q.robleL); } R.rect(x0 === 164 ? x1 - 1 : x0 + 1, 60, x0 === 164 ? x1 - 1 : x0 + 1, 64, Q.negro); }
   R.rect(180, 96, 252, 101, Q.calD); R.rect(180, 96, 252, 96, Q.calL);
   caja(236, 88, 246, 96, Q.ladr); R.rect(237, 89, 245, 89, Q.ladrL); for (const [dx, dy] of [[-3, -3], [2, -5], [5, -2]]) { R.disco(241 + dx, 86 + dy, 2, Q.hierba); } R.disco(240, 80, 2, Q.rojo); R.disco(243, 82, 1, Q.rojoL);
+  // el haz de luz de la ventana sobre el suelo
+  for (let y = 100; y < 180; y++) for (let x = 0; x < 320; x++) { const a = x - 186 + (y - 100) * 0.55, b = 246 + (y - 100) * 0.55 - x; if (a > 0 && b > 0 && y > 118 && ((x + y) & 1)) R.pset(x, y, mez(R.pget(x, y), Q.luz, 0.22)); }
+  // la percha del loro, detrás de la mesa y a la derecha de la contraventana: el palo asoma entre las patas y su pie
+  // queda en la sombra bajo el tablero
+  R.rect(286, 92, 287, 160, Q.nogS); R.rect(286, 92, 286, 160, Q.nog); R.rect(278, 92, 296, 93, Q.nog); R.rect(278, 92, 296, 92, Q.nogL);
+  R.rect(280, 158, 294, 161, Q.nogS); R.rect(280, 158, 294, 158, Q.nog); R.rect(293, 94, 295, 97, Q.ladr); R.pset(294, 94, Q.ladrL);
   // el arcón (la tapa se pinta en vivo)
   caja(22, 126, 92, 160, Q.nog); madera(23, 127, 91, 159, Q.nog, Q.nogL, Q.nogS, Q.nogD, 8, 305);
   for (const x of [30, 84]) { R.rect(x - 2, 126, x + 2, 160, Q.k); R.rect(x - 1, 127, x + 1, 159, Q.grisS); for (let y = 130; y < 158; y += 6) R.pset(x, y, Q.grisL); }
@@ -535,12 +543,10 @@ const cuarto = () => fijo('colonial', () => {
   // la mesa de escribir con el tintero, la pluma y el papel
   caja(212, 130, 314, 136, Q.nog); R.rect(213, 131, 313, 131, Q.nogL); caja(216, 136, 222, 172, Q.nogS); caja(304, 136, 310, 172, Q.nogS); caja(222, 136, 304, 146, Q.nog); R.rect(223, 137, 303, 137, Q.nogL);
   caja(256, 139, 270, 143, Q.oroS); R.rect(262, 140, 264, 141, Q.k);
-  caja(232, 124, 238, 130, Q.negro); R.pset(234, 125, Q.grisL); raya(236, 124, 244, 112, Q.blanco, 0); raya(237, 124, 245, 112, Q.blancoS, 0);
+  caja(260, 124, 266, 130, Q.negro); R.pset(262, 125, Q.grisL); raya(264, 124, 272, 112, Q.blanco, 0); raya(265, 124, 273, 112, Q.blancoS, 0);
   for (let k = 2; k >= 0; k--) caja(272 + k, 125 - k, 300 + k, 130 - k, k ? Q.pergS : Q.perg);
-  // el haz de luz de la ventana sobre el suelo
-  for (let y = 100; y < 180; y++) for (let x = 0; x < 320; x++) { const a = x - 186 + (y - 100) * 0.55, b = 246 + (y - 100) * 0.55 - x; if (a > 0 && b > 0 && y > 118 && ((x + y) & 1)) R.pset(x, y, mez(R.pget(x, y), Q.luz, 0.22)); }
-  // la percha del loro
-  R.rect(270, 92, 271, 160, Q.nogS); R.rect(262, 92, 280, 93, Q.nog); R.rect(264, 158, 278, 161, Q.nogS); R.rect(277, 94, 279, 97, Q.ladr);
+  // el sol de la ventana cae en el canto del tablero (luz lisa, sin trama: la mesa es sólida)
+  for (let y = 131; y <= 135; y++) for (let x = 213; x <= 262; x++) { const a = x - 186 + (y - 100) * 0.55, b = 246 + (y - 100) * 0.55 - x; if (a > 0 && b > 0) R.pset(x, y, mez(R.pget(x, y), Q.luz, y === 131 ? 0.3 : 0.14)); }
 });
 const p4 = (t) => {
   cuarto();
@@ -558,7 +564,7 @@ const p4 = (t) => {
   // el polvo en el haz de luz
   for (let i = 0; i < 14; i++) { const u = (t * 0.06 + hh(i, 1, 310)) % 1, x = Math.round(196 + u * 40 + hh(i, 2, 310) * 50), y = Math.round(104 + u * 60 + Math.sin(t + i) * 3); if (i % 2) R.pset(x, y, Q.calL); }
   // el loro en su percha, que cabecea y en «afterward» abre las alas
-  { const ab = t > AFTER + 0.3 && t < AFTER + 1.2, b = Math.sin(t * 4) > 0.5 ? 1 : 0, x = 270, y = 91;
+  { const ab = t > AFTER + 0.3 && t < AFTER + 1.2, b = Math.sin(t * 4) > 0.5 ? 1 : 0, x = 286, y = 91;
     R.rect(x - 2, y - 10 + b, x + 3, y, Q.k); R.rect(x - 1, y - 9 + b, x + 2, y - 1, Q.loroR); R.rect(x - 1, y - 13 + b, x + 2, y - 9 + b, Q.loroR); R.pset(x + 3, y - 11 + b, Q.amar); R.pset(x + 1, y - 12 + b, Q.k); R.rect(x - 3, y - 5, x - 2, y + 6, Q.loroA);
     if (ab) { R.poligono([[x - 1, y - 7], [x - 10, y - 14], [x - 6, y - 4]], Q.loroV); R.poligono([[x + 2, y - 7], [x + 11, y - 14], [x + 7, y - 4]], Q.loroV); } else R.rect(x - 1, y - 6, x, y - 2, Q.loroV); }
   // la vela de la mesa
@@ -571,13 +577,16 @@ const p4 = (t) => {
   for (const x of [30, 84]) R.linea(x, 126, x + Math.round((x < 57 ? 1 : -1) * ab * 2), 127 - h, Q.grisS);
   if (t > SOMEONE && t < SOMEONE + 2.2) polvo(57, 122, t - SOMEONE, 18, 3);
   // el escribano: viene al arcón, saca una hoja (su «1420» en «old sheets»), la lleva a la mesa y se rasca la cabeza
-  const v1 = tramo(t, P4 + 0.1, SOMEONE - 0.15), v2 = tramo(t, OLD + 0.3, AFTER + 0.5), x = Math.round(lerp(lerp(236, 96, ease(v1)), 196, ease(v2)));
+  const v1 = tramo(t, P4 + 0.1, SOMEONE - 0.15), v2 = tramo(t, OLD + 0.3, AFTER + 0.5), x = Math.round(lerp(lerp(198, 96, ease(v1)), 200, ease(v2)));
   const coge = t > WRITE - 0.2, deja = t > AFTER + 0.55;
   const es = R.actor(EL.escribano, x, 160, t, { dir: v2 > 0 ? 1 : -1, anda: (v1 > 0 && v1 < 1) || (v2 > 0 && v2 < 1), sostiene: (coge && !deja) ? true : (t > SOMEONE - 0.2 && t < WRITE - 0.2) ? [62, 124] : false, dedo: deja && t > AFTER + 0.8, sorpresa: t > SOMEONE && t < SOMEONE + 0.6 });
   const hoja = (hx, hy) => { pergamino(hx - 7, hy - 9, hx + 7, hy + 1, 9); R.rect(hx - 4, hy - 6, hx + 3, hy - 6, Q.pergD); R.rect(hx - 4, hy - 3, hx + 1, hy - 3, Q.pergD); };
   if (coge && !deja) hoja(es.mano[0], es.mano[1]);
-  if (deja) hoja(256, 129);
-  if (t > OLD - 0.1) { const s = ease(tramo(t, OLD - 0.1, OLD + 0.3)), lx = deja ? 256 : es.mano[0], ly = (deja ? 129 : es.mano[1]) - 14;
+  if (deja) { R.rect(244, 130, 258, 130, Q.nogD); hoja(250, 129); }
+  // la cartela del «1420» va prendida a la hoja: en la mano, sobre su borde; en la mesa, de pie en el tablero y apoyada en
+  // la hoja, que asoma detrás, con su sombra
+  if (t > OLD - 0.1) { const s = ease(tramo(t, OLD - 0.1, OLD + 0.3)), lx = deja ? 230 : es.mano[0], ly = deja ? 129 : es.mano[1] - 7;
+    if (deja) R.rect(lx - 16, 130, lx + 18, 130, Q.nogD);
     caja(lx - 17, ly - 9, lx + 17, ly + 1, Q.oroD); R.numero('1420', lx - 14, ly, { color: s >= 1 ? Q.oroL : Q.oro, sombra: false }); }
   if (t > AFTER + 0.8) globo(es.cabeza[0], es.cabeza[1] - 6, '?');
 };
