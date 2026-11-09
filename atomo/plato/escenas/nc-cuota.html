@@ -15,9 +15,12 @@
 //    (0–6,3 s): la sala de juntas de la sede; la gráfica se dibuja: el presidente la señala en «share», la línea roja
 //    baja en «slipping» (él se pone triste) y la azul sube en «climbing» (sorpresa); la secretaria entra y deja otra
 //    carpeta en la mesa en «years»; el directivo de detrás se lleva las manos a la cabeza.
-// 2. «In grocery stores, Pepsi was already selling more» (6,3–9,9 s): el estante de las latas de cerca; la mano del
-//    reponedor pasa por la balda del medio y las latas se vuelven azules a su paso, y arriba y abajo también; en «selling
-//    more» la mano de una clienta coge una lata azul y la mete en su cesta.
+// 2. «In grocery stores, Pepsi was already selling more» (6,3–9,9 s): la góndola de frente (botellas rectas, cartones
+//    de seis y latas, cantos metálicos con brillo, precios y cartones colgados) y, a la derecha, el pasillo que se va al
+//    fondo con la otra góndola de lado y las neveras; una clienta pequeña empuja el carrito, abre una nevera y coge una
+//    lata; delante, el canto de la balda más cercana. La mano del reponedor pasa por la balda de abajo y las latas se
+//    vuelven azules a su paso, y arriba y en medio también; en «selling more» la mano de otra clienta coge una lata azul
+//    y la mete en su cesta.
 // 3. «For a company that thought it was unbeatable, it was an alarm going off» (9,9 s–fin): la torre de la sede en
 //    Atlanta con su plaza; el directivo saca pecho junto al trofeo del número 1, que brilla en «unbeatable»; en «alarm»
 //    se enciende la baliza roja de la azotea, las ventanas parpadean en rojo, las palomas salen volando, la gente sale
@@ -85,38 +88,155 @@ const p1 = (t) => {
 };
 
 // ── 2 · el estante: las latas azules ganan sitio ──
+// La góndola de frente (x 0–225) y, a la derecha, el pasillo que se va al fondo (punto de fuga VP): techo de placas y
+// suelo de baldosas en perspectiva, la otra góndola de lado, las neveras del fondo con una clienta pequeña; delante, el
+// canto de la balda más cercana (abajo a la izquierda) y la cesta.
 const TIENDAS = c(.5022), PEPSI2 = c(.5605), VENDE = c(.6159);
-const BALDAS = [70, 108, 146], NL = 24;
-// el instante en que cada lata se vuelve azul: la balda del medio, al paso de la mano; las otras, en una ola
-const giro = (b, i) => { const x = 8 + i * 13; if (b === 2) return P2 + 0.4 + (310 - x) / 300 * 2.2; return P2 + 0.9 + (310 - x) / 300 * 2.0 + b * 0.15 + hh(i, b) * 0.4; };
+const BALDAS = [70, 108, 146], VP = [270, 86], GD = 225;
+// lo que hay en cada balda: [x, tipo] (tipo 'bot' botella recta, 'caja' cartón de seis, 'lata')
+const GENERO = [
+  [...[0, 1, 2, 3, 4, 5].map((i) => [7 + i * 11, 'bot']), ...Array.from({ length: 12 }, (_, i) => [76 + i * 13, 'lata'])],
+  [[17, 'caja'], [47, 'caja'], ...Array.from({ length: 12 }, (_, i) => [72 + i * 13, 'lata'])],
+  Array.from({ length: 17 }, (_, i) => [8 + i * 13, 'lata']),
+];
+const COGE = 15;   // la lata de la balda de abajo que coge la clienta (x 203)
+// el instante en que cada pieza se vuelve azul: la balda de abajo, al paso de la mano; las otras, en una ola
+const giro = (b, i) => { const x = GENERO[b][i][0]; if (b === 2) return P2 + 0.4 + (240 - x) / 230 * 2.2; return P2 + 0.9 + (GD - x) / 220 * 2.0 + b * 0.15 + hh(i, b) * 0.4; };
+// una figurita lejana (12 px) con su carrito de alambre, sin R.rect (respeta el recorte)
+const figurita = (x, ys, t, o = {}) => {
+  const ropa = hex('#4a8a5a'), ropaS = hex('#2e5e3c'), piel = hex('#f0c8a0'), pelo = hex('#6a3a22'), pc = hex('#3a3a5a');
+  const paso = o.anda ? Math.floor(t * 6) % 2 : 0, yc = ys - 7, yh = yc - 3;
+  R.linea(x - 1 - paso, ys - 3, x - 1 - paso, ys, pc); R.linea(x + 1 + paso, ys - 3, x + 1 + paso, ys, pc);
+  for (let y = yc; y < ys - 3; y++) { R.linea(x - 1, y, x, y, ropa); R.pset(x + 1, y, ropaS); }
+  R.pset(x - 2, yc + 1, ropa); R.pset(x + 2, yc + 1, ropaS);
+  for (let y = yh; y < yc; y++) R.linea(x - 1, y, x + 1, y, piel);
+  R.linea(x - 1, yh, x + 1, yh, pelo); R.pset(o.dir < 0 ? x + 1 : x - 1, yh + 1, pelo); R.pset(o.dir < 0 ? x - 1 : x + 1, yh + 1, K);
+  if (o.brazo) { R.linea(x + 2, yc, x + 4, yc - 4, ropa); R.pset(x + 4, yc - 5, piel); }
+};
+const carrito = (x, ys, d) => {
+  const X = (i) => x + d * i, pl = hex('#c8ccd6'), ps = hex('#8a8e9a');
+  for (let j = 0; j <= 6; j += 2) R.linea(X(0), ys - 9 + j, X(10 - (j >> 1)), ys - 9 + j, ps);
+  for (let i = 0; i <= 10; i += 2) R.linea(X(i), ys - 9, X(Math.min(i, 7)), ys - 3, ps);
+  R.linea(X(0), ys - 9, X(10), ys - 9, pl); R.linea(X(0), ys - 9, X(0), ys - 3, pl); R.linea(X(-2), ys - 11, X(0), ys - 9, pl); R.pset(X(-2), ys - 11, hex('#c8382e'));
+  R.linea(X(1), ys - 2, X(8), ys - 2, ps); R.pset(X(1), ys, K); R.pset(X(8), ys, K); R.pset(X(1), ys - 1, ps); R.pset(X(8), ys - 1, ps);
+  R.pset(X(4), ys - 8, hex('#c8382e')); R.pset(X(6), ys - 8, hex('#2e5aa8')); R.pset(X(5), ys - 7, hex('#f0c040'));
+};
 const p2 = (t) => {
   capa('estante', () => {
-    // el techo con los tubos, la cabecera naranja de la góndola, el panel perforado y las baldas
-    R.rect(0, 0, 319, 22, hex('#e8e0cc')); for (let x = 0; x < 320; x += 24) R.rect(x, 0, x, 22, hex('#d0c8b4')); caja(30, 6, 130, 9, hex('#fbfaf4'), hex('#a8a090')); caja(190, 6, 266, 9, hex('#fbfaf4'), hex('#a8a090'));
-    R.rect(0, 23, 319, 46, hex('#e8902a')); R.rect(0, 23, 319, 24, hex('#f0b050')); R.rect(0, 45, 319, 46, hex('#b86818')); R.rect(0, 30, 319, 31, hex('#d8b040')); R.rect(0, 38, 319, 39, hex('#8a5a2a'));
-    for (let x = 6; x < 260; x += 50) { caja(x, 26, x + 30, 43, hex('#fbf6ea')); R.icono('lata', x + 3, 30, hex('#2e5aa8'), K, 1); R.icono('lata', x + 12, 30, hex('#c8382e'), K, 1); R.rect(x + 22, 29, x + 28, 40, hex('#f0c040')); R.rect(x + 22, 36, x + 28, 40, hex('#e8902a')); }
-    caja(262, 24, 268, 45, hex('#c8c8d2')); R.rect(272, 23, 319, 46, hex('#e8e0cc'));
-    for (let y = 47; y < 150; y++) for (let x = 0; x < 320; x++) R.pset(x, y, x % 8 === 4 && y % 8 === 4 ? hex('#a89c80') : hex('#d8ccb0'));
-    for (const by of BALDAS) { R.rect(0, by + 1, 319, by + 7, hex('#b8bcc8')); R.rect(0, by + 1, 319, by + 1, hex('#e0e4ec')); R.rect(0, by + 7, 319, by + 7, hex('#7c8090')); R.rect(0, by + 8, 319, by + 10, hex('#a89c80'));
-      for (let x = 10; x < 320; x += 52) { caja(x, by + 2, x + 14, by + 6, hex('#fbf6ea')); } }
-    for (let x = 0; x < 320; x += 106) { R.rect(x, 47, x + 2, 156, hex('#8a8c98')); R.rect(x, 47, x, 156, hex('#c8c8d2')); }
-    // el suelo de linóleo y la cesta de alambre de la clienta
-    for (let y = 157; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (Math.floor(x / 16) + Math.floor((y - 157) / 8)) % 2 ? hex('#c8b890') : hex('#e8dcc0'));
-    R.rect(0, 156, 319, 156, K);
+    // la nave en perspectiva: techo de placas (con su punteado), la pared del fondo y el suelo de baldosas, en una pasada
+    const [vx, vy] = VP;
+    for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+      let col;
+      if (y < 62) {
+        const d = vy - y, wx = (x - vx) / d * 2, k = 900 / d, dx = Math.abs(wx - Math.round(wx)) * d / 2, dk = Math.abs(k - Math.round(k)) * d * d / 900;
+        col = dx < 0.5 || dk < 0.5 ? hex('#c4baa4') : tr(x, y, 1 - d / 90) ? hex('#d8d0bc') : hex('#e8e0cc');
+        if (hh(x, y) < 0.05) col = hex('#cfc6b0');
+      } else if (y <= 104) {
+        col = y < 66 ? hex('#c8d4c4') : tr(x, y, (y - 66) / 40) ? hex('#b8c8b8') : hex('#d0dcc8');
+      } else {
+        const d = y - vy, wx = (x - vx) / d * 2.5, k = 880 / d, cq = (Math.floor(wx) + Math.floor(k)) % 2 === 0;
+        col = cq ? hex('#e8dcc0') : hex('#c8b890');
+        const fx = Math.abs(wx - Math.round(wx)) * d / 2.5, fk = Math.abs(k - Math.round(k)) * d * d / 880;
+        if (fx < 0.45 || fk < 0.45) col = hex('#a8987a');
+        if (hh(x, y, 3) < 0.012) col = hex('#9a8a6a');
+      }
+      R.pset(x, y, col);
+    }
+    // las neveras del fondo: marco, cuatro puertas de cristal con su luz y las filas de género dentro
+    caja(236, 67, 291, 101, hex('#e8ecf0'), hex('#5a5e6a'));
+    R.rect(236, 67, 291, 69, hex('#3a6aa8')); for (let x = 240; x < 290; x += 8) R.rect(x, 68, x + 3, 68, hex('#8ab8e0'));
+    for (let p = 0; p < 4; p++) { const x0 = 238 + p * 13; R.rect(x0, 71, x0 + 11, 99, hex('#bcd8e8')); R.rect(x0, 71, x0, 99, hex('#8a9aa8')); R.rect(x0 + 11, 71, x0 + 11, 99, hex('#6a7a88'));
+      for (const y of [77, 84, 91, 98]) { R.rect(x0 + 1, y, x0 + 10, y, hex('#8a9aa8')); for (let i = x0 + 1; i < x0 + 11; i += 2) R.rect(i, y - 3, i, y - 1, [hex('#c8382e'), hex('#2e5aa8'), hex('#f0c040'), hex('#e8e4dc')][(i + y + p) % 4]); }
+      R.pset(x0 + 2, 73, hex('#ffffff')); R.pset(x0 + 3, 74, hex('#ffffff')); R.rect(x0 + 9, 82, x0 + 9, 88, hex('#c8c8d2')); }
+    R.rect(234, 101, 293, 104, hex('#7c8090')); R.rect(234, 101, 293, 101, hex('#b8bcc8'));
+    // la otra góndola del pasillo, de lado, que se va al fondo (x 292–319): cabecera, tres baldas y el género en tiras
+    for (let x = 292; x < 320; x++) {
+      const u = (x - vx) / 50, yT = Math.round(vy + (46 - vy) * u), yB = Math.round(vy + (176 - vy) * u), hgt = yB - yT, k = Math.floor(260 / (x - vx));
+      for (let y = yT; y <= yB; y++) { const v = (y - yT) / hgt; let col;
+        if (v < 0.13) col = v < 0.03 ? hex('#f0b050') : tr(x, y, v * 4) ? hex('#b86818') : hex('#e8902a');
+        else if (v > 0.93) col = hex('#5a5e6a');
+        else { const fr = [0.36, 0.62, 0.9].find((s) => v <= s) ?? 0.9, top = fr - 0.2; const labio = fr - v < 0.035;
+          col = labio ? (fr - v < 0.012 ? hex('#e0e4ec') : hex('#9a9eaa')) : v < top ? hex('#c8bca0') : [hex('#c8382e'), hex('#2e5aa8'), hex('#c8985a'), hex('#2e5aa8'), hex('#e8e4dc')][(k + Math.round(fr * 10)) % 5];
+          if (!labio && v >= top && (x + k) % 3 === 0) col = hex('#1c1222'); }
+        R.pset(x, y, col); }
+    }
+    R.linea(292, 68, 292, 126, K);
+    // los tubos fluorescentes del techo: dos delante y tres que se alejan por el pasillo
+    caja(178, 18, 220, 19, hex('#fbfaf4'), hex('#a8a090'));
+    caja(238, 34, 256, 35, hex('#fbfaf4'), hex('#a8a090')); caja(246, 47, 258, 47, hex('#fbfaf4'), hex('#a8a090')); caja(252, 55, 260, 55, hex('#fbfaf4'), hex('#a8a090'));
+    // la cabecera naranja de la góndola de frente, con sus paneles de pictogramas
+    R.rect(0, 23, GD, 46, hex('#e8902a')); R.rect(0, 23, GD, 24, hex('#f0b050')); R.rect(0, 45, GD, 46, hex('#b86818')); R.rect(0, 30, GD, 31, hex('#d8b040')); R.rect(0, 38, GD, 39, hex('#8a5a2a'));
+    for (let x = 8; x < 200; x += 54) { caja(x, 26, x + 30, 43, hex('#fbf6ea')); R.icono('lata', x + 3, 30, hex('#2e5aa8'), K, 1); R.icono('lata', x + 12, 30, hex('#c8382e'), K, 1); R.rect(x + 22, 29, x + 28, 40, hex('#f0c040')); R.rect(x + 22, 36, x + 28, 40, hex('#e8902a')); }
+    // el panel perforado del fondo de la góndola, en sombra bajo cada balda
+    for (let y = 47; y < 155; y++) for (let x = 0; x <= GD; x++) R.pset(x, y, x % 8 === 4 && y % 8 === 4 ? hex('#a89c80') : hex('#d8ccb0'));
+    for (const by of [46, ...BALDAS.slice(0, 2)]) sombrear(0, by + (by === 46 ? 1 : 9), GD, by + (by === 46 ? 6 : 15), hex('#a89c80'), 0.45);
+    for (const by of BALDAS) {
+      // el canto metálico de la balda: el borde de luz, el riel de precios y la sombra de abajo
+      if (by < VP[1]) { R.rect(0, by + 8, GD, by + 9, hex('#6a6e7a')); }
+      R.rect(0, by + 1, GD, by + 7, hex('#b8bcc8')); R.rect(0, by + 1, GD, by + 1, hex('#eef2f8')); R.rect(0, by + 2, GD, by + 2, hex('#d0d4dc'));
+      R.rect(0, by + 3, GD, by + 6, hex('#a4a8b4')); R.rect(0, by + 7, GD, by + 7, hex('#6a6e7a'));
+      for (let x = 10; x < GD - 12; x += 52) caja(x, by + 3, x + 14, by + 6, hex('#fbf6ea'));
+    }
+    // los postes de la góndola y la base
+    for (const x of [0, 75, 150]) { R.rect(x, 47, x + 2, 160, hex('#8a8c98')); R.rect(x, 47, x, 160, hex('#c8c8d2')); }
+    R.rect(0, 154, GD, 160, hex('#5a5e6a')); R.rect(0, 154, GD, 154, hex('#8a8e9a')); for (let x = 4; x < GD; x += 9) R.rect(x, 156, x + 4, 158, hex('#4a4e5a'));
+    // el costado de la góndola de frente, que se va hacia el fondo (x 225–232), en sombra y con su perforado
+    R.poligono([[GD + 1, 23], [232, 32], [232, 150], [GD + 1, 160]], hex('#8a8c98'));
+    for (let y = 36; y < 148; y += 4) R.pset(229, y, hex('#5a5e6a'));
+    R.linea(GD + 1, 23, 232, 32, hex('#c8c8d2')); R.linea(232, 32, 232, 150, K); R.linea(GD + 1, 160, 232, 150, K);
+    R.poligono([[GD + 1, 23], [232, 32], [232, 38], [GD + 1, 46]], hex('#b86818'));
+    // la sombra de la góndola en el suelo
+    sombrear(0, 161, GD + 4, 164, hex('#8a7a5a'), 0.5);
   });
+  // el tubo del pasillo que parpadea
+  if (Math.sin(t * 23) > 0.6 && Math.floor(t * 2) % 3 === 0) R.rect(246, 47, 258, 47, hex('#c8c0a8'));
+  // el cartel colgante del pasillo: la cadena y la placa con su lata y su «5», que se mece
+  { const s = Math.round(Math.sin(t * 1.8) * 1.4); R.linea(250, 28, 250 + s, 40, hex('#5a5e6a')); R.linea(262, 30, 262 + s, 40, hex('#5a5e6a'));
+    R.rect(246 + s, 40, 266 + s, 52, K); R.rect(247 + s, 41, 265 + s, 51, hex('#fbf6ea')); R.rect(247 + s, 41, 265 + s, 42, hex('#e8902a'));
+    R.icono('lata', 248 + s, 43, hex('#2e5aa8'), K, 1); R.numero('5', 261 + s, 51, { centro: true, color: hex('#c8382e'), sombra: false, fina: true }); }
+  // la clienta del fondo: empuja el carrito hasta las neveras, abre una puerta, coge una lata y sigue
+  { const llega = tramo(t, P2 + 0.2, P2 + 1.6), sale = tramo(t, P2 + 2.8, P2 + 3.6), fx = Math.round(lerp(252, 266, llega) + sale * 12);
+    const abre = t > P2 + 1.8 && t < P2 + 2.7;
+    if (abre) { R.rect(264, 71, 275, 99, hex('#e8f4fa')); R.linea(264, 71, 266, 99, hex('#8a9aa8')); }
+    carrito(fx - 14, 104, 1); figurita(fx, 104, t, { anda: (llega > 0 && llega < 1) || (sale > 0 && sale < 1), dir: 1, brazo: abre });
+    if (t > P2 + 2.4 && t < P2 + 2.8) { R.pset(fx + 4, 96, hex('#2e5aa8')); R.pset(fx + 4, 97, hex('#2e5aa8')); } }
   // los precios de las baldas
-  for (const by of BALDAS) for (let x = 10; x < 320; x += 52) R.numero(x % 104 === 10 ? '99' : '89', x + 8, by + 7, { centro: true, color: hex('#c8382e'), sombra: false, fina: true });
-  // las latas de las tres baldas, que se vuelven azules
-  for (const [b, by] of BALDAS.entries()) for (let i = 0; i < NL; i++) { const x = 8 + i * 13, ta = giro(b, i), azul = (i * 7 + b * 3) % 10 < 3 || t > ta; if (b === 2 && Math.abs(t - ta) < 0.12) continue; PZ.lata(R, x, by + 1, { color: azul ? 'azul' : 'rojo' }); if (t > ta && t < ta + 0.25) destello(x, by - 18, tramo(t, ta, ta + 0.25)); }
-  // la mano del reponedor recorre la balda del medio, de derecha a izquierda
-  { const u = tramo(t, P2 + 0.4, P2 + 2.6), hx = Math.round(lerp(330, 10, u)); if (u > 0 && u < 1) { PZ.lata(R, hx + 2, 147, { color: 'azul' }); T.brazo(R, hx + 34, 186, hx + 12, 140, '#5a6a88', -1); } }
-  // en «selling more», la mano de la clienta coge una lata azul de la balda de abajo y la mete en la cesta
-  const coge = tramo(t, VENDE - 0.5, VENDE), mete = tramo(t, VENDE + 0.1, VENDE + 0.7);
-  { const hx = Math.round(lerp(300, 262, coge) - mete * 40), hy = Math.round(lerp(190, 134, coge) + mete * 20);
-    if (coge > 0 && mete < 1) { if (coge >= 1) PZ.lata(R, hx, hy + 9, { color: 'azul' }); T.brazo(R, hx + 30, 190, hx + 10, hy, '#c8382e', -1); } }
-  // la cesta de alambre que se llena de latas azules
+  for (const by of BALDAS) for (let x = 10; x < GD - 12; x += 52) R.numero(x % 104 === 10 ? '99' : '89', x + 8, by + 7, { centro: true, color: hex('#c8382e'), sombra: false, fina: true });
+  // el brillo que corre por el canto metálico de cada balda
+  for (const [b, by] of BALDAS.entries()) { const gx = Math.round(((t * 55 + b * 140) % 420) - 60); for (let i = 0; i < 7; i++) { const x = gx + i; if (x >= 0 && x <= GD) { R.pset(x, by + 1, hex('#ffffff')); if (i > 1 && i < 5) R.pset(x - 1, by + 2, hex('#ffffff')); } } }
+  // el género de las tres baldas (con su sombra en la balda), que se vuelve azul
+  for (const [b, by] of BALDAS.entries()) GENERO[b].forEach(([x, tipo], i) => {
+    const ta = giro(b, i), azul = (i * 7 + b * 3) % 10 < 3 || t > ta, col = azul ? 'azul' : 'rojo';
+    if (b === 2 && (Math.abs(t - ta) < 0.12 || (i === COGE && t > VENDE - 0.05))) return;
+    const w = tipo === 'caja' ? 13 : tipo === 'bot' ? 4 : 5;
+    R.rect(x - w, by + 2, x + w, by + 2, hex('#7c8090'));
+    if (tipo === 'lata') PZ.lata(R, x, by + 1, { color: col });
+    else if (tipo === 'bot') PZ.botella(R, x, by + 1, { color: col });
+    else PZ.cajaLatas(R, x, by + 1, { color: col, abierta: i === 1 });
+    if (t > ta && t < ta + 0.25) destello(x, by - (tipo === 'bot' ? 24 : 18), tramo(t, ta, ta + 0.25));
+  });
+  // los cartones de precio colgados de los cantos, que se mecen
+  for (const [cx, by, n] of [[140, 70, '49'], [118, 108, '79']]) { const s = Math.round(Math.sin(t * 2.2 + cx) * 1.2);
+    R.linea(cx, by + 8, cx + s, by + 10, K); R.rect(cx - 8 + s, by + 10, cx + 8 + s, by + 20, K); R.rect(cx - 7 + s, by + 11, cx + 7 + s, by + 19, hex('#f0d040')); R.rect(cx - 7 + s, by + 11, cx + 7 + s, by + 12, hex('#fff090'));
+    R.numero(n, cx + s + 1, by + 19, { centro: true, color: hex('#c8382e'), sombra: false }); }
+  // la cesta de alambre que se llena de latas azules (en el suelo, por detrás de los brazos)
   { const n = 2 + (t > VENDE + 0.7 ? 1 : 0); R.rect(196, 158, 250, 178, K); R.rect(197, 159, 249, 177, hex('#c8c8d2')); for (let x = 199; x < 249; x += 4) R.rect(x, 159, x, 177, hex('#8a8c98')); for (let y = 162; y < 177; y += 4) R.rect(197, y, 249, y, hex('#8a8c98')); R.rect(196, 158, 250, 159, hex('#e83a3a'));
-    for (let k = 0; k < n; k++) PZ.lata(R, 208 + k * 13, 162, { color: 'azul' }); R.rect(196, 160, 250, 162, hex('#c8c8d2')); R.rect(196, 160, 250, 160, K); }
+    for (let k = 0; k < n; k++) PZ.lata(R, 208 + k * 13, 162, { color: 'azul' }); R.rect(196, 160, 250, 162, hex('#c8c8d2')); R.rect(196, 160, 250, 160, K);
+    sombrear(198, 179, 252, 179, hex('#8a7a5a'), 0.6); }
+  // la mano del reponedor recorre la balda de abajo, de derecha a izquierda, y deja latas azules
+  { const u = tramo(t, P2 + 0.4, P2 + 2.6), hx = Math.round(lerp(240, 10, u)); if (u > 0 && u < 1) { PZ.lata(R, hx + 2, 147, { color: 'azul' }); T.brazo(R, hx + 34, 186, hx + 12, 140, '#5a6a88', -1); } }
+  // en «selling more», la mano de la clienta coge la lata azul de la balda de abajo (x 203) y la mete en su cesta
+  const coge = tramo(t, VENDE - 0.5, VENDE), mete = tramo(t, VENDE + 0.1, VENDE + 0.7);
+  { const hx = Math.round(lerp(290, 203, coge) + mete * 18), hy = Math.round(lerp(190, 138, coge) + mete * 20);
+    if (coge > 0 && mete < 1) { if (coge >= 1) PZ.lata(R, hx, hy + 9, { color: 'azul' }); T.brazo(R, hx + 30, 190, hx + 10, hy, '#c8382e', -1); } }
+  // primer término: el canto de la balda más cercana, que entra en diagonal por abajo a la izquierda, con su brillo
+  { const yl = (x) => 156 + x * 0.218;
+    R.poligono([[0, 156], [110, 180], [0, 180]], hex('#3a3440'));
+    for (let k = 0; k < 6; k++) { const cx = 6 + k * 15, cy = Math.round(yl(cx) + 12); R.disco(cx, cy, 5, K); R.disco(cx, cy, 4, k % 3 === 1 ? hex('#1f3e78') : hex('#8e2620')); R.linea(cx - 3, cy - 3, cx + 2, cy - 3, hex('#7c8090')); }
+    R.poligono([[0, 156], [110, 180], [86, 180], [0, 165]], hex('#9a9eaa'));
+    R.linea(0, 156, 110, 180, hex('#e0e4ec')); R.linea(0, 157, 105, 180, hex('#c8ccd6')); R.linea(0, 165, 86, 180, hex('#4a4e5a'));
+    for (const lx of [14, 50]) R.poligono([[lx, yl(lx) + 2], [lx + 16, yl(lx + 16) + 2], [lx + 16, yl(lx + 16) + 6], [lx, yl(lx) + 6]], hex('#fbf6ea'));
+    const gx = (t * 40) % 150 - 20; for (let i = 0; i < 6; i++) { const x = Math.round(gx + i); if (x >= 0 && x <= 109) R.pset(x, Math.round(yl(x)), hex('#ffffff')); } }
 };
 
 // ── 3 · la torre de la sede: el trofeo y la alarma ──

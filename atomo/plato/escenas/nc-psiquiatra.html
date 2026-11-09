@@ -21,7 +21,8 @@
 //    deslizándose un sobre del revés, en «addressed» la mano lo sella, en «Chief Dodo» le da la vuelta (el dodo con
 //    corbata, grande) y lo mete en la casilla de la estrella del jefe.
 // 4. Corta en «he liked to say»: el despacho de Goizueta (fondo local, ventana a Atlanta al atardecer): la secretaria
-//    entra con el sobre y se lo da en «worst part»; él lo abre (el dodo, en grande sobre la ventana) y en «actually
+//    entra por la puerta (al abrirse se ve el pasillo en perspectiva, con apliques, cuadro, fluorescentes y un empleado
+//    que cruza al fondo) con el sobre y se lo da en «worst part»; él lo abre (el dodo, en grande sobre la ventana) y en «actually
 //    reached him» frunce el ceño; ella se encoge de hombros; al final él lo arruga y lo tira a la papelera.
 
 import * as T from '/atomo/plato/escenas/nc-comun.js';
@@ -375,6 +376,46 @@ const ventanaCiudad = (t) => { R.recorte([62, 20, 170, 98]);
   R.pset(116, 98 - 63, Math.floor(t * 2) % 2 ? hex('#ff3a3a') : hex('#5a1a1a'));
   { const ax = Math.round(((t * 9) % 140) + 50), ay = 28; if (ax > 62 && ax < 170) { R.pset(ax, ay, hex('#e8e8f0')); R.pset(ax + 1, ay, hex('#e8e8f0')); if (Math.floor(t * 3) % 2) R.pset(ax - 1, ay, hex('#ff4a4a')); } }
   R.recorte(null); R.rect(114, 20, 117, 98, hex('#2a180c')); R.rect(62, 58, 170, 60, hex('#2a180c')); };
+// el pasillo de la sede que se ve por la puerta abierta (hueco x 10–44, y 32–118), en perspectiva hacia un punto de
+// fuga; pared crema con zócalo de nogal, apliques encendidos, cuadro, otra puerta, techo con fluorescentes, moqueta con
+// camino central y, al fondo, una ventana y un empleado que cruza con una carpeta; la sombra de la jamba y del dintel
+const pasillo = (t) => { const VX = 29, VY = 72, L = -19, Rr = 15, Tp = -40, B = 46, k = 0.36, fl = 0.9 + Math.sin(t * 9) * 0.06 + (hh(Math.floor(t * 12), 3) > 0.92 ? -0.3 : 0);
+  const crema = rp('#8a7a5e', '#b0a07e', '#cfc09a', '#e6d8b4', '#f4ead0'), nogal = rp('#2a160a', '#3e2414', '#56341e', '#6e4628'), moq = rp('#2a2a3a', '#3a3a52', '#4e4e6a'), cam = rp('#4a1a1e', '#6a2a2a', '#8a3a34');
+  for (let y = 32; y <= 118; y++) for (let x = 10; x <= 44; x++) { const dx = x + 0.5 - VX, dy = y + 0.5 - VY;
+    const sl = dx < 0 ? dx / L : 0, sr = dx > 0 ? dx / Rr : 0, st = dy < 0 ? dy / Tp : 0, sb = dy > 0 ? dy / B : 0, s = Math.max(sl, sr, st, sb);
+    let c;
+    if (s < k) { // la pared del fondo: ventana con luz de tarde y zócalo
+      const u = dx / k, v = dy / k; const fondoOsc = 0.2;
+      if (Math.abs(u) < 7 && v > -26 && v < 6) c = R.tone(rp('#c88a5a', '#e8a868', '#f8d090'), 1.2 + (-v) / 20 + (hh(x, y, 9) - 0.5) * 0.3, x, y);
+      else if (v > 30) c = R.tone(nogal, 1.6 - fondoOsc, x, y); else c = R.tone(crema, 1.9 - fondoOsc + (hh(x, y, 4) - 0.5) * 0.3, x, y);
+      if (Math.abs(u) < 8 && Math.abs(u) > 6.6 && v > -27 && v < 7) c = nogal[1]; if (Math.abs(u) < 8 && v > 5 && v < 7) c = nogal[2];
+    } else { const d = 1 / s, osc = (d - 1) * 0.35; // d: profundidad (1 en la puerta, ~2,8 al fondo)
+      if (s === sl || s === sr) { // las paredes laterales
+        const v = dy / s, izq = s === sl, luz = izq ? 0.25 : -0.15;
+        if (v > 28) c = R.tone(nogal, 1.8 - osc + (Math.floor(d * 6) % 2 ? 0.25 : 0) + luz + (v < 30 ? 0.8 : 0) + (hh(x, y, 2) - 0.5) * 0.3, x, y);
+        else { c = R.tone(crema, 2.4 - osc + luz + (Math.floor(d * 14) % 3 === 0 ? -0.25 : 0) + (hh(x, y, 3) - 0.5) * 0.3, x, y);
+          if (v > 26) c = nogal[3]; if (v < -36) c = R.tone(crema, 1.4 - osc, x, y); }
+        if (izq) { // los apliques con su halo y un cuadro entre ellos
+          for (const da of [1.35, 2.15]) { const g = Math.hypot((d - da) * 22, (v + 10) * 0.5); if (g < 1.4) c = hex('#c8a040'); else if (g < 2.4) c = hex('#fff2c0'); else if (g < 9) c = mez(c, hex('#ffe8a0'), (1 - g / 9) * 0.45 * fl); }
+          if (d > 1.62 && d < 1.88 && v > -24 && v < -2) c = d < 1.66 || d > 1.84 || v < -22 || v > -4 ? hex('#c8a040') : R.tone(rp('#3a5a4a', '#5a7a5a', '#8aa07a'), 1 + (-v - 4) / 12, x, y);
+        } else { // otra puerta de despacho, con su pomo
+          if (d > 1.25 && d < 1.7 && v > -22) c = d < 1.29 || d > 1.66 || v < -20 ? nogal[0] : R.tone(nogal, 1.8 - osc + ((v > -12 && v < -10) || (v > 8 && v < 10) ? -0.6 : 0), x, y);
+          if (d > 1.58 && d < 1.63 && v > 4 && v < 8) c = hex('#e8c060'); }
+      } else if (s === st) { // el techo con los fluorescentes
+        const u = dx / s; c = R.tone(crema, 1.6 - osc * 0.8 + (hh(x, y, 6) - 0.5) * 0.25, x, y);
+        if (Math.abs(u) < 5 && ((d > 1.25 && d < 1.45) || (d > 2 && d < 2.15))) c = Math.abs(u) > 4 ? crema[1] : hex('#f8f8ff');
+      } else { // el suelo: moqueta con el camino granate y su cenefa
+        const u = dx / s; c = Math.abs(u) < 9 ? (Math.abs(u) > 7.6 ? hex('#c8a040') : R.tone(cam, 1.5 - osc * 0.6 + (Math.floor(d * 8) % 2 ? 0.3 : 0) + (hh(x, y, 7) - 0.5) * 0.4, x, y))
+          : R.tone(moq, 1.5 - osc * 0.6 + (hh(x, y, 8) - 0.5) * 0.5, x, y);
+        for (const da of [1.35, 2.15]) { const g = Math.hypot((d - da) * 10, (u + 14) * 0.15); if (g < 1) c = mez(c, hex('#ffe8a0'), (1 - g) * 0.3 * fl); } } }
+    // la sombra de la jamba derecha y la del dintel
+    if (x >= 41 || y <= 34) c = mez(c, K0, x >= 43 || y <= 33 ? 0.55 : 0.35);
+    R.pset(x, y, c); }
+  // al fondo, un empleado cruza con una carpeta bajo el brazo (recortado al hueco del fondo)
+  const q = ((t * 3.5) % 24) - 6, ex = Math.round(23 + q), ey = 88, ok = (x, y) => x >= 22 && x <= 35 && y >= 52 && y <= 92, f = Math.floor(t * 5) % 2;
+  for (const [x0, y0, x1, y1, c] of [[1, 0, 2, 1, hex('#3a2418')], [1, 1, 2, 2, hex('#e8b088')], [0, 3, 3, 6, hex('#3a4a6a')], [3, 4, 4, 5, hex('#c8a040')], [f, 7, f, 9, hex('#2a2a3a')], [3 - f, 7, 3 - f, 9, hex('#2a2a3a')]])
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (ok(ex + x, ey - 10 + y)) R.pset(ex + x, ey - 10 + y, c);
+};
 const p4 = (t) => {
   capa('ps-despacho', fondoDespacho);
   ventanaCiudad(t);
@@ -382,7 +423,11 @@ const p4 = (t) => {
   const entra = S4, da = PS(.8647), abre = PS(.8798), fea = PS(.9332), tira = PS(.9808) + 0.9;
   // la puerta se abre al entrar la secretaria
   const ab = sm(lin(t, entra - 0.2, entra + 0.3)) * (1 - sm(lin(t, entra + 1.6, entra + 2.2)));
-  if (ab > 0.05) { const w = Math.round(36 * (1 - ab)); R.rect(10, 32, 44, 118, hex('#e8d8b0')); R.rect(10, 32, 10 + w, 118, hex('#5a3420')); R.rect(10 + w, 32, 10 + w, 118, K0); }
+  if (ab > 0.05) { const w = Math.round(36 * (1 - ab)); pasillo(t);
+    // la hoja de la puerta, que gira sobre las bisagras de la izquierda (cuarterones y pomo mientras se ve de canto ancho)
+    if (w > 0) { R.rect(10, 32, 10 + w, 118, hex('#5a3420')); if (w > 8) { for (const [a, b] of [[38, 70], [80, 112]]) { R.rect(12, a, 8 + w, b, hex('#3a2010')); R.rect(13, a + 1, 7 + w, b - 1, hex('#6a4028')); R.rect(13, a + 1, 7 + w, a + 1, hex('#7e4e30')); } R.rect(6 + w, 74, 7 + w, 77, hex('#c8a040')); } R.rect(10 + w, 32, 10 + w, 118, K0); }
+    // la luz del pasillo que entra por la puerta y se tiende en la moqueta
+    for (let y = 121; y <= 142; y++) { const g = 1 - (y - 121) / 22; for (let x = 10 + w + Math.round((y - 121) * 0.5); x <= 44 + (y - 121) * 1.3; x++) R.pset(x, y, mez(R.pget(x, y), hex('#e8b070'), 0.3 * ab * g * (x > 40 + (y - 121) * 1.3 ? 0.5 : 1))); } }
   else R.rect(38, 74, 40, 78, hex('#c8a040'));
   // Goizueta tras la mesa: lee papeles; coge el sobre, lo abre y frunce el ceño
   const xg = 156, tiene = t > da + 0.2, lanza = t > tira;

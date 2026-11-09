@@ -160,7 +160,9 @@ export function atlantaDelante(R, t, o = {}) {
 //     vez más sitio»). La mesa de la cata (con sus vasos) va en colasDelante: llámala después de los actores.
 //     Cámara 'mesa': el inserto de la mesa de la cata de cerca: el mantel de cuadros en perspectiva con una torre de vasos
 //     boca abajo, servilletas, la tablilla con el recuento a palotes (azul gana), el cubo de hielo con dos latas que
-//     sudan; detrás, las estanterías desenfocadas a doble tamaño, un cliente que pasa y el resplandor del foco. o.vasos
+//     sudan; detrás, las estanterías desenfocadas a doble tamaño, la columna con el cartel amarillo del precio (dos latas
+//     lisas, roja y azul, y el «59»; sin disco), al pie el zócalo de la góndola y las baldosas que asoman a los lados del
+//     mantel, un cliente que pasa y el resplandor del foco. o.vasos
 //     (por omisión true): los dos vasos de cata a escala 3, sin letra, con un punto rojo y uno azul en la base (o.puntos false los quita; o.letras true, la «A» y la «B»), con burbujas; o.llenoA, o.llenoB (0–1, por omisión
 //     0.8); o.trile (0–1): los vasos se cambian de sitio en arco (0 en su sitio, 1 cambiados). Las manos las pone la
 //     escena (T.mano) encima. colasDelante no pinta nada en esta cámara.
@@ -223,7 +225,8 @@ export function colasDelante(R, t, o = {}) {
 //     gente pequeña que pasa con globos; la moqueta con confeti y serpentinas por el suelo; y confeti que cae.
 //     La mesa de delante (x 0–94, tablero en y 141; quien está detrás se planta en x 50) con su ordenador, la jamba derecha y el confeti de primer término van en anuncioDelante.
 //     Cámara 'tele': un salón de 1985: papel pintado de rayas y zócalo de madera, la ventana con visillos y cortinas
-//     naranjas a la calle (casas de enfrente, un árbol que se mece, un coche que pasa, nubes), un cuadro, la lámpara de
+//     naranjas a la calle (casas de enfrente, un árbol que se mece, un coche que pasa, nubes; todo recortado al cristal
+//     entre las cortinas, x 25–63, y con el parteluz por delante), un cuadro, la lámpara de
 //     pie, el sofá de pana con cojines y una manta de ganchillo, la alfombra, y el televisor de mueble (pantalla x 202–252,
 //     y 88–124) con su antena de cuernos: echa la telenovela (dos figuras en un salón rosa que discuten, con cambios de
 //     plano) y, con o.urgente, la interrumpe una franja roja que barre la pantalla y da paso al aviso de urgencia (un
@@ -1416,7 +1419,17 @@ function b_mesaCata(R, t, o) {
     for (let y = 0; y < 16; y++) for (let x = 0; x < 268; x++) if ((x + y) % 2 === 0) pset(x, y, D(b_P.gond));
     rect(268, 0, 319, 104, b_P.paredL); for (let k = 0; k < 90; k++) pset(268 + Math.floor(h(k, 1, 62) * 52), Math.floor(h(k, 2, 62) * 104), b_P.pared); rect(268, 0, 269, 104, b_P.paredS);
     rect(274, 54, 314, 96, C.k); rect(275, 55, 313, 95, b_P.etiq); rect(275, 55, 313, 57, b_P.naranja); rect(275, 93, 313, 95, b_P.mostazaS);
-    R.icono('lata', 279, 62, C.rojoCola, b_P.mostazaS, 2); R.numero('59', 302, 88, { color: C.rojo, centro: true, sombra: false });
+    // el pictograma del cartel: dos latas lisas de pie, roja y azul, con su tapa, su brillo y su sombra (sin disco ni logo)
+    for (const [x, az] of [[277, false], [287, true]]) { const c = az ? C.azulCola : C.rojoCola;
+      rect(x, 62, x + 9, 83, C.k); rect(x + 1, 64, x + 8, 82, c); rect(x + 1, 64, x + 2, 82, az ? b_P.azulL : b_P.rojoL); rect(x + 7, 64, x + 8, 82, az ? C.azulColaS : C.rojoColaS);
+      rect(x + 1, 62, x + 8, 63, b_P.plata); rect(x + 2, 62, x + 7, 62, C.blanco); rect(x + 1, 81, x + 8, 82, b_P.plataS); rect(x + 1, 84, x + 10, 85, b_P.mostazaS); }
+    R.numero('59', 307, 90, { color: C.rojo, centro: true, sombra: false });
+    // al pie de las estanterías y de la columna, el zócalo de la góndola y el suelo de baldosas del súper, que asoman a
+    // los lados del mantel (las dos esquinas de abajo del fondo, x 0–18 y 302–319, y 104–120)
+    rect(0, 104, 319, 107, D(b_P.gondS)); rect(0, 104, 319, 104, D(b_P.gondL)); for (let x = 3; x < 320; x += 11) rect(x, 105, x + 1, 106, D(b_P.aguj));
+    for (let y = 108; y < 121; y++) for (let x = 0; x < 320; x++) { const bx = Math.floor((x + (y - 108) * 0.6) / 9), by = Math.floor((y - 108) / 4), j = (x + Math.floor((y - 108) * 0.6)) % 9 === 0 || (y - 108) % 4 === 3;
+      pset(x, y, j ? D(b_P.gondS) : (bx + by) % 2 ? D(b_P.paredL) : D(b_P.gondL)); }
+    for (const [x0, d] of [[2, 1], [317, -1]]) for (let k = 0; k < 6; k++) pset(x0 + d * k, 109 + k, D(C.blanco));   // el brillo del fluorescente en la baldosa
     // la mesa: el mantel de cuadros celestes en perspectiva, del fondo (y 104) al borde de delante
     poligono([[18, 104], [302, 104], [319, 120], [319, 179], [0, 179], [0, 120]], (x, y) => {
       const u = (y - 104) / 75, e = 1 + u * 1.6, cx = Math.floor((x - 160) / (9 * e) + 100), cy = Math.floor(Math.pow(u, 0.8) * 9);
@@ -2133,11 +2146,16 @@ function c_tele(R, t, o) {
   const { rect, pset, linea, disco, poligono } = R, K = hex('#14101a');
   c_capa(R, 'nc_tele', () => c_teleFondo(R));
   // la calle por la ventana: nubes, el árbol que se mece y un coche que pasa
-  R.recorte([20, 30, 68, 86]);
+  // (se recorta al cristal que dejan ver las cortinas, x 25–63; el coche va con pset, porque R.rect no respeta el recorte)
+  R.recorte([25, 30, 63, 86]);
+  const rc = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) pset(x, y, c); };
   const NUBE = [hex('#ffffff'), hex('#e4eef8'), hex('#bccde2')];
   for (let k = 0; k < 3; k++) c_nube(R, ((h(k, 1, 310) * 80 + t * (1.5 + k)) % 80) + 4, 36 + k * 5, 10 + k * 3, NUBE);
   { const m = Math.round(Math.sin(t * 1.2) * 1.5); for (let a = 0; a < 8; a++) disco(56 + m + Math.round(Math.cos(a * 0.8) * 7), 52 + Math.round(Math.sin(a * 0.8) * 6), 5, hex('#2e6a3a')); for (let a = 0; a < 5; a++) disco(54 + m + Math.round(Math.cos(a * 1.2) * 4), 49 + Math.round(Math.sin(a * 1.2) * 3), 3, hex('#4a8a4a')); rect(55, 58, 57, 76, hex('#5a3a24')); pset(52 + m, 45, hex('#8ac07a')); }
-  { const x = ((t * 18) % 110) - 30; rect(Math.round(x), 74, Math.round(x + 15), 78, hex('#b8a060')); rect(Math.round(x + 3), 71, Math.round(x + 11), 74, hex('#9a8448')); rect(Math.round(x + 4), 72, Math.round(x + 10), 73, hex('#a8c8e8')); disco(Math.round(x + 3), 79, 1, K); disco(Math.round(x + 12), 79, 1, K); }
+  { const x = Math.round(((t * 18) % 80) + 6); rc(x, 74, x + 15, 78, hex('#b8a060')); rc(x, 77, x + 15, 78, hex('#8a7440')); rc(x + 3, 71, x + 11, 74, hex('#9a8448')); rc(x + 4, 72, x + 10, 73, hex('#a8c8e8')); pset(x + 15, 75, hex('#fff4c0')); disco(x + 3, 79, 1, K); disco(x + 12, 79, 1, K); }
+  // el parteluz y el travesaño de la ventana y el visillo de arriba, por delante de la calle
+  for (let y = 30; y < 46; y++) for (let x = 25; x <= 63; x++) if (((x + (y >> 1)) % 5) === 0) pset(x, y, hex('#f4f0e8'));
+  rc(43, 30, 45, 86, hex('#f0ece0')); rc(25, 57, 63, 58, hex('#f0ece0')); rc(45, 30, 45, 86, hex('#c8c0b0')); rc(25, 58, 63, 58, hex('#c8c0b0'));
   R.recorte(null);
   // la pantalla: telenovela o aviso de urgencia
   const S = [202, 88, 252, 124], u = Math.max(0, Math.min(1, o.urgente ?? 0));

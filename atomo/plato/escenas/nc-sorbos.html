@@ -13,7 +13,8 @@
 // para las dos explicaciones. Tres planos:
 // 1. El escritorio de Atom (hoy/estudio/mesa, 2.º uso): Atom entra flotando en «And now» y en «question» gira con sus
 //    «?»; cuelga del techo un marcador que en «200,000» cuenta hasta 200000 mientras Atom lanza vasitos de cata que
-//    forman una pirámide en la mesa; en «wrong?» el marcador tiembla y sale un «?» grande; en «First» Atom saca el «1».
+//    forman una pirámide en la mesa (el frente del escritorio, repintado aquí: cajones con vetas, bisel, tiradores de latón
+//    que brillan, una hoja que asoma del cajón entreabierto y la llave con su llavero que se mece); en «wrong?» el marcador tiembla y sale un «?» grande; en «First» Atom saca el «1».
 // 2. Corta en «they were sips»: la encimera de una cocina de 1984 (fondo local): un vasito de cata y su azucarillo que
 //    brilla a la izquierda, el medidor de dulzor en el centro y sitio para la lata a la derecha; al empezar salta la
 //    tostada de la tostadora y por la ventana una vecina pasea al perro tras la valla. En «single sip» una mano
@@ -21,7 +22,8 @@
 //    trae una lata entera; en «sweetness» la aguja sube al rojo mientras se apilan azucarillos y en «tiring» se pasa de
 //    rosca: da la vuelta, salta el muelle y el medidor tiembla.
 // 3. Corta en «And second»: dos cuadros en la pared (fondo local): a la izquierda, la cata a ciegas del súper, con la
-//    venda, que tantea los vasos en «blind»; a la derecha, la mesa de una casa al atardecer: en «nobody drinks» la señora
+//    venda (de pie tras la mesa: se le ven la cabeza y los hombros), que tantea con la mano los dos vasos, que están a su
+//    lado, en «blind»; a la derecha, la mesa de una casa al atardecer: en «nobody drinks» la señora
 //    coge su lata, bebe en «blind at home» y sale un corazón; el perro mueve la cola y ladra. Arriba sale el «2».
 
 import * as T from '/atomo/plato/escenas/nc-comun.js';
@@ -173,6 +175,42 @@ const comp0 = R.companero;
 R.companero = (t, e) => { if (t >= P2) comp0(t, e); };   // Atom está en el primer plano: la esquina queda tranquila
 
 // ── 1 · el escritorio de Atom: la pregunta de los 200.000 ──
+// el frente del escritorio repintado (y 149–179): madera con vetas y la luz del flexo desde la izquierda, dos cajones con
+// bisel de luz y sombra; el de la izquierda entreabierto con un papel que asoma; el de la derecha con su llave y el llavero
+// que se mece; tiradores de latón con su brillo que corre
+const MADERA = rp('#4a2a14', '#5e3820', '#744628', '#8a5634', '#a86e44', '#c08650');
+const frenteCajones = (t) => {
+  for (let y = 149; y <= 179; y++) for (let x = 0; x <= 319; x++) { const veta = Math.sin(y * 0.9 + Math.sin(x * 0.05 + y * 0.3) * 2.2) * 0.35, sol = Math.max(0, 1 - x / 200) * 0.6;
+    R.pset(x, y, R.tone(MADERA, 2.0 + veta + sol - (y < 152 ? 0.9 : 0) + (hh(x >> 3, y, 31) - 0.5) * 0.25, x, y)); }
+  R.rect(0, 149, 319, 149, hex('#3a2010'));
+  // las patas (paneles con moldura) a los lados
+  for (const [a, b] of [[0, 15], [304, 319]]) { R.rect(a, 150, b, 179, hex('#5e3820')); R.rect(a + 2, 152, b - 2, 179, hex('#744628')); R.rect(a + 2, 152, a + 2, 179, hex('#a86e44')); R.rect(b - 2, 152, b - 2, 179, hex('#4a2a14')); }
+  [[20, 0], [170, 1]].forEach(([x0, k]) => { const x1 = x0 + 130, y0 = k === 0 ? 154 : 153, y1 = 176;
+    // el hueco del cajón (la sombra de la holgura) y el frente con su bisel
+    R.rect(x0 - 2, 151, x1 + 2, 178, hex('#2a160a'));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const bis = x - x0 < 2 || y - y0 < 2 ? 1.2 : x1 - x < 2 || y1 - y < 2 ? -1.1 : 0, mold = (x - x0 === 5 || y - y0 === 4) && x > x0 + 4 && x < x1 - 4 && y < y1 - 3 ? -0.8 : (x1 - x === 5 || y1 - y === 4) && x > x0 + 4 && y > y0 + 3 ? 0.7 : 0;
+      const veta = Math.sin(x * 0.13 + Math.sin(x * 0.021 + y * 0.6 + k * 3) * 3 + y * 0.9) * 0.45, nudo = Math.hypot(x - x0 - 28 - k * 61, (y - 167) * 2) < 3.5 ? -0.8 : 0, sol = Math.max(0, 1 - x / 220) * 0.5;
+      R.pset(x, y, R.tone(MADERA, 2.4 + bis + mold + veta + nudo + sol + (hh(x, y, 32 + k) - 0.5) * 0.3, x, y)); }
+    // el tirador de latón: placas, asa con luz arriba y sombra abajo, y un brillo que corre por el asa
+    const hx = x0 + 55; R.rect(hx - 1, 160, hx + 3, 167, hex('#3a2010')); R.rect(hx + 17, 160, hx + 21, 167, hex('#3a2010'));
+    R.rect(hx, 161, hx + 2, 166, hex('#b88a2a')); R.rect(hx + 18, 161, hx + 20, 166, hex('#b88a2a')); R.pset(hx, 161, hex('#fff0a0')); R.pset(hx + 18, 161, hex('#fff0a0'));
+    R.rect(hx + 1, 162, hx + 19, 165, K0); R.rect(hx + 2, 163, hx + 18, 164, hex('#d8a83a')); R.rect(hx + 2, 163, hx + 18, 163, hex('#f6d86a')); R.rect(hx + 2, 166, hx + 19, 167, hex('#3a2010'));
+    const bx = hx + 2 + Math.floor(((t * 0.8 + k * 0.5) % 1.6) * 20); if (bx <= hx + 17) { R.pset(bx, 163, hex('#ffffff')); R.pset(bx + 1, 163, hex('#fff6c8')); R.pset(bx, 164, hex('#fff0a0')); }
+    // la cerradura bajo el tirador
+    R.disco(hx + 10, 169, 2, hex('#8a6a20')); R.pset(hx + 10, 168, K0); R.pset(hx + 10, 169, K0); R.pset(hx + 10, 170, K0); R.pset(hx + 9, 168, hex('#f6d86a')); });
+  // el cajón de la izquierda entreabierto: la ranura oscura arriba y una hoja que asoma y tiembla con el aire del flexo
+  R.rect(21, 152, 149, 153, hex('#140a04'));
+  { const ol = Math.round(Math.sin(t * 2.3) * 0.8); R.poligono([[101, 152], [121, 152], [119 + ol, 163], [104 + ol, 161]], K0); R.poligono([[102, 153], [120, 153], [118 + ol, 162], [105 + ol, 160]], hex('#f6f2e4'));
+    R.linea(104, 155, 117, 155, hex('#a8b8d0')); R.linea(105 + ol, 157, 116 + ol, 157, hex('#a8b8d0')); R.linea(105 + ol, 159, 113 + ol, 159, hex('#a8b8d0'));
+    R.linea(105 + ol, 163, 119 + ol, 164, hex('#3a2010')); R.pset(119 + ol, 161, hex('#d8d0b8')); }
+  // la llave en la cerradura de la derecha con su llavero que se mece
+  { const kx = 235, ky = 169, a = Math.sin(t * 2.1) * 0.5; R.rect(kx - 1, ky - 1, kx + 1, ky + 1, hex('#c89a2a')); R.pset(kx, ky, hex('#fff0a0'));
+    const ax = Math.round(kx + Math.sin(a) * 3), ay = Math.round(ky + Math.cos(a) * 3); R.linea(kx, ky + 1, ax, ay, hex('#8a8a96'));
+    R.disco(ax, ay + 1, 2, hex('#5a5a66')); R.pset(ax, ay + 1, hex('#2a160a')); R.pset(ax - 1, ay, hex('#d8dce4'));
+    const bx = Math.round(ax + Math.sin(a * 1.4) * 3), by = ay + 3; R.rect(bx - 1, by, bx + 1, by + 3, hex('#9aa0aa')); R.pset(bx - 1, by, hex('#eef0f6')); R.pset(bx, by + 4, hex('#9aa0aa')); }
+  // la sombra del tablero sobre el frente
+  for (let x = 0; x <= 319; x++) { R.pset(x, 150, mez(R.pget(x, 150), K0, 0.5)); R.pset(x, 151, mez(R.pget(x, 151), K0, 0.25)); }
+};
 const VASOS = [[72, 141], [87, 141], [102, 141], [79, 126], [94, 126], [86, 111]];
 const p1 = (t) => {
   const o = { encuadre: 'estudio', camara: 'mesa', latas: true, lataX: 168 };
@@ -192,6 +230,7 @@ const p1 = (t) => {
   ondaAtom(ax, ay, t, t > en('sorbos', 0.0421) && t < en('sorbos', 0.1264) ? 0.9 : lanza > 0 && lanza < 1 ? 0.8 : 0.4);
   if (t > en('sorbos', 0.0421) && t < en('sorbos', 0.1385)) for (let i = 0; i < 3; i++) { if (t < en('sorbos', 0.0421) + i * 0.25) continue; R.icono('?', ax - 26 + i * 18, ay - 34 - (i & 1) * 6 - Math.round(Math.sin(t * 4 + i) * 2), hex('#ffe890'), K0, 2); }
   T.hoyDelante(R, t, o);
+  frenteCajones(t);
   // los vasitos de cata que caen uno a uno en la pirámide (y el que vuela)
   VASOS.forEach(([x, y], k) => { const t0 = en('sorbos', 0.1776) + k * 0.17, u = lin(t, t0, t0 + 0.22); if (u <= 0) return;
     const vx = Math.round(lerp(ax, x, u)), vy = Math.round(lerp(ay, y, u) - Math.sin(u * Math.PI) * 14); PZ.vaso(R, vx, vy, { lleno: 0.7 }); });
@@ -336,16 +375,17 @@ const p3 = (t) => {
   // el fluorescente y la gente que pasa al fondo
   for (let k = 0; k < 2; k++) { const x = Math.round(((t * (12 + k * 5) + k * 70) % 180) - 14); mini(x, 112, hex(['#6a4a8a', '#3a6a5a'][k]), hex('#3a2a1a'), t, true, k); }
   // la catadora con la venda (detrás de la mesa), el empleado con la bandeja
-  const tantea = t > en('sorbos', 0.8488) && t < en('sorbos', 0.9933), hx = tantea ? Math.round(Math.sin((t - en('sorbos', 0.8488)) * 4) * 4) : 0;
-  const cat = R.actor(NC.estudiante, 66, 136, t, { dir: 1, sostiene: tantea ? [86 + hx, 127] : undefined, habla: t > en('sorbos', 0.9211) && t < en('sorbos', 0.9572) && Math.sin(t * 9) > 0 });
+  const tantea = t > en('sorbos', 0.8488) && t < en('sorbos', 0.9933), hx = tantea ? Math.round((Math.sin((t - en('sorbos', 0.8488)) * 5) * 0.5 + 0.5) * 6) : 0;
+  const cat = R.actor(NC.estudiante, 70, 131, t, { dir: 1, sostiene: tantea ? [80 + hx, 121 - Math.round(hx / 3)] : undefined, habla: t > en('sorbos', 0.9211) && t < en('sorbos', 0.9572) && Math.sin(t * 9) > 0 });
   venda(cat.cabeza, 1, t);
-  if (tantea) R.icono('?', 70, 98 - Math.round(Math.sin(t * 5) * 2), hex('#ffe890'), K0, 2);
+  if (tantea) R.icono('?', 58, 94 - Math.round(Math.sin(t * 5) * 2), hex('#ffe890'), K0, 2);
   R.actor(NC.empleadoPepsi, 118, 152, t, { dir: -1, sonrisa: true, dedo: t > en('sorbos', 0.8549) && t < en('sorbos', 0.8970) });
   // la mesa de la cata con su faldón blanco y los dos vasos
-  for (let y = 124; y <= 146; y++) for (let x = 36; x <= 112; x++) R.pset(x, y, y === 124 || x === 36 || x === 112 ? K0 : y < 128 ? hex('#ffffff') : ((x - 36) % 8 < 1 ? hex('#d8d8e0') : hex('#f2f2f6')));
-  const ga = tantea && Math.abs((86 + hx) - 82) < 4 ? Math.round(Math.sin(t * 30)) : 0, gb = tantea && Math.abs((86 + hx) - 96) < 5 ? Math.round(Math.sin(t * 30)) : 0;
-  PZ.vaso(R, 82 + ga, 126, { lleno: 0.7 }); PZ.vaso(R, 98 + gb, 126, { lleno: 0.7 });
-  rc(48, 112, 60, 124, hex('#f2f2f6')); R.icono('?', 51, 115, hex('#c83a32'), hex('#f2f2f6'));
+  for (let y = 126; y <= 146; y++) for (let x = 36; x <= 112; x++) R.pset(x, y, y === 126 || x === 36 || x === 112 ? K0 : y < 130 ? hex('#ffffff') : ((x - 36) % 8 < 1 ? hex('#d8d8e0') : hex('#f2f2f6')));
+  // la mano llega al primer vaso y lo hace temblar; el segundo tintinea con el golpecito
+  const ga = tantea && hx >= 5 ? Math.round(Math.sin(t * 30)) : 0, gb = tantea && hx >= 5 && Math.sin(t * 2) > 0 ? Math.round(Math.sin(t * 30 + 1)) : 0;
+  PZ.vaso(R, 92 + ga, 128, { lleno: 0.7 }); PZ.vaso(R, 105 + gb, 128, { lleno: 0.7 });
+  rc(40, 114, 52, 126, hex('#f2f2f6')); R.rect(45, 126, 47, 127, hex('#8a8e96')); R.icono('?', 43, 117, hex('#c83a32'), hex('#f2f2f6'));
   R.recorte(null);
   // ── la cocina de casa ──
   R.recorte([166, 48, 310, 154]);

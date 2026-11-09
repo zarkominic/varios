@@ -23,7 +23,8 @@
 //    «filmed» el piloto rojo de grabación; los niños la miran de pie y el niño la señala; el padre entra con las palomitas.
 // 4. «Most people picked theirs, the sweeter one» (14,5 s–fin): la frutería del súper con otra mesa de cata y una cola;
 //    la señora prueba, se le iluminan los ojos y en «picked» señala el vaso de la derecha; en «theirs» el empleado
-//    destapa detrás de ese vaso la lata azul; el tablero de palotes suma rayas azules; en «sweeter» la cola aplaude.
+//    sube de detrás del mantel la lata azul, de pie al lado de ese vaso (su cara siempre a la vista); al destaparla
+//    salta el gas con un destello y él se vuelve y la señala; el azucarero está a la izquierda; el tablero de palotes suma rayas azules; en «sweeter» la cola aplaude.
 import * as T from '/atomo/plato/escenas/nc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_NC as NC } from '/atomo/plato/kits/pixel-chibi.js';
@@ -178,14 +179,20 @@ const p4 = (t) => {
   { const n = 6 + Math.floor(tramo(t, P4, DULCE + 0.4) * 12); for (let k = 0; k < n; k++) { const g = Math.floor(k / 5), i = k % 5, x0 = 289 + (g % 2) * 0, y0 = 74 + g * 10; if (y0 > 120) break; if (i < 4) R.rect(x0 + i * 3, y0, x0 + i * 3, y0 + 7, hex('#2e5aa8')); else R.linea(x0 - 1, y0 + 6, x0 + 11, y0 + 1, hex('#2e5aa8')); } }
   // el empleado detrás de la mesa; en «theirs» destapa la lata azul detrás del vaso de la derecha
   const destapa = tramo(t, SUYO - 0.15, SUYO + 0.2);
-  const em = R.actor(NC.empleadoPepsi, 198, 128, t, { dir: -1, sostiene: destapa > 0 ? [Math.round(lerp(214, 222, destapa)), Math.round(lerp(126, 106, destapa))] : undefined, sonrisa: t > SUYO, habla: t < ELIGE && Math.sin(t * 7) > 0.3 });
+  // la lata sube de debajo de la mesa y queda de pie detrás del vaso de la derecha; la mano la sujeta por su costado
+  // derecho (x ≥ 226), así la lata nunca tapa la cara del empleado
+  // (sube por detrás del mantel, que la tapa hasta que asoma); al destaparla salta el gas y el empleado se vuelve y la señala
+  const lyb = Math.round(lerp(146, 125, destapa));
+  if (destapa > 0) PZ.lata(R, 235, lyb, { color: 'azul' });
+  R.actor(NC.empleadoPepsi, 198, 128, t, { dir: destapa > 0.5 ? 1 : -1, dedo: t > SUYO + 0.1, sonrisa: t > SUYO, habla: t < ELIGE && Math.sin(t * 7) > 0.3 });
+  { const g = tramo(t, SUYO, SUYO + 0.9); if (g > 0 && g < 1) for (let k = 0; k < 7; k++) { const u = (g * 1.6 + hh(k, 3)) % 1; R.pset(Math.round(235 + (hh(k, 5) - 0.5) * 8 * u), Math.round(lyb - 18 - u * 12), u > 0.7 ? hex('#a8c8f0') : hex('#e8f4ff')); } }
   // la mesa con su mantel de cuadros y los dos vasos
   for (let x = 176; x <= 244; x++) for (let y = 126; y <= 146; y++) R.pset(x, y, (Math.floor(x / 4) + Math.floor(y / 4)) % 2 ? hex('#c8382e') : hex('#fbf6ea'));
   R.rect(175, 125, 245, 125, K); R.rect(175, 125, 175, 146, K); R.rect(245, 125, 245, 146, K); R.rect(178, 147, 180, 156, K); R.rect(240, 147, 242, 156, K);
   PZ.vaso(R, 192, 126, { lleno: 0.8 }); PZ.vaso(R, 222, 126, { lleno: 0.35 });
-  if (destapa > 0) { const [mx, my] = em.mano; PZ.lata(R, mx, my + 6, { color: 'azul' }); destello(mx + 4, my - 12, tramo(t, SUYO, SUYO + 0.6)); }
+  if (destapa > 0) destello(238, lyb - 19, tramo(t, SUYO, SUYO + 0.6));
   // el azucarero que brilla en «sweeter»
-  R.rect(232, 118, 240, 125, K); R.rect(233, 119, 239, 124, hex('#fbf6ea')); R.rect(234, 116, 238, 118, hex('#c8c0b0')); destello(236, 114, tramo(t, DULCE, DULCE + 0.7));
+  R.rect(176, 118, 183, 125, K); R.rect(177, 119, 182, 124, hex('#fbf6ea')); R.rect(178, 116, 181, 118, hex('#c8c0b0')); destello(180, 114, tramo(t, DULCE, DULCE + 0.7));
   // la señora prueba, se le iluminan los ojos y señala el vaso de la derecha en «picked»
   const prueba = t < ELIGE - 0.1;
   const se = R.actor(NC.senora75, 152, 158, t, { dir: 1, sostiene: prueba ? [166, 140 - (Math.sin(t * 3) > 0 ? 4 : 0)] : undefined, dedo: !prueba, sorpresa: t > ELIGE - 0.1 && t < SUYO, sonrisa: t > SUYO });

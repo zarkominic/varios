@@ -15,10 +15,13 @@
 //    las persianas y los teléfonos saltan de la mesa; el cuarto teléfono sale volando y lo atrapa el jefe de turno de
 //    la derecha, que se lo queda sonando en las manos; el contador sube a 40000 entre «received» y «000» y la operadora
 //    de la derecha lo señala.
-// 2. Corta en «and letters»: la mesa de las cartas (rebelion 'centralita'/'cartas', 1.er uso): el cartero entra con el
-//    saco y lo vuelca en «letters» (las cartas vuelan al montón); en «had to put more people on the phones» entran dos
-//    operadoras nuevas con su teléfono y se ponen a contestar; en «Many of them weren't talking about the taste» la
-//    del centro lee una carta y le sale un bocadillo con la lengua tachada.
+// 2. Corta en «and letters»: la mesa de las cartas (rebelion 'centralita'/'cartas', 1.er uso): el pasillo y la mesa se
+//    separan con el casillero de clasificar el correo (madera con vetas, casillas con cartas que asoman y se mueven) que
+//    corre por el borde de atrás de la mesa: la gente va detrás de él y enseña cabeza, hombros y pecho. El cartero entra
+//    con el saco y lo vuelca en «letters» (las cartas vuelan por encima del casillero al montón); en «had to put more
+//    people on the phones» entran dos operadoras nuevas con su teléfono y se ponen a contestar; en «Many of them weren't
+//    talking about the taste» la del centro lee una carta y le sale un bocadillo con la lengua tachada (de y 24 abajo,
+//    sin tocar el año).
 // 3. Corta en «They were talking»: el recuerdo (fondo local: muelle de un lago en verano, a la hora dorada): el abuelo
 //    pesca; en «childhood» llega corriendo el niño; en «grandfather» el abuelo le da una botella de la nevera y brindan;
 //    en «something of theirs» el recuerdo se destiñe a gris y en «taken away» las botellas se desvanecen de las manos
@@ -177,31 +180,70 @@ const p1 = (t) => {
 };
 
 // ── 2 · la mesa de las cartas ──
+// el casillero de clasificar el correo: un listón bajo por todo el borde de atrás de la mesa (y 90–99) y dos muebles altos
+// de casillas en las esquinas (x 0–47 y 272–319, de y 62 abajo) que enmarcan el pasillo. Madera con vetas y luz arriba,
+// casillas con su hueco oscuro, cartas blancas y azules de alto distinto (de vez en cuando una sube y baja: alguien
+// clasifica al otro lado), chapitas de latón, la sombra sobre la mesa y un brillo de los fluorescentes que corre por el listón
+const MAD = rp('#3a2214', '#5a3620', '#7a4c2c', '#9a663a', '#bc8650');
+// casillas de ancho cw y alto ch (con 2 px de poste y de balda) en el hueco x0–x1, y0–y1; k = semilla
+const casillas = (t, x0, x1, y0, y1, cw, ch, k) => { const nf = Math.floor((y1 - y0 + 1) / ch), nc = Math.floor((x1 - x0 + 1) / cw);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = (x - x0) % cw, f = (y - y0) % ch, veta = Math.sin(x * 0.19 + y * 0.05 + Math.sin(y * 0.3 + x * 0.02)) * 0.35;
+    if (c < 2) R.pset(x, y, R.tone(MAD, (c === 0 ? 2.9 : 1.8) + veta, x, y));
+    else if (f < 2) R.pset(x, y, R.tone(MAD, (f === 0 ? 3.3 : 2.3) + veta, x, y));
+    else R.pset(x, y, f === 2 ? hex('#140c08') : mez(hex('#22140c'), hex('#4a3220'), (f - 2) / (ch - 2) * 0.6)); }
+  const mueve = Math.floor(t * 0.8 + k) % (nf * nc);
+  for (let fi = 0; fi < nf; fi++) for (let ci = 0; ci < nc; ci++) { const cx = x0 + ci * cw + 2, cy = y0 + fi * ch + 2, n = 1 + Math.floor(hh(ci, fi, k) * 3);
+    for (let j = 0; j < n; j++) { const w = 3 + Math.floor(hh(ci, fi * 7 + j, k + 1) * 2), lx = cx + 1 + j * 4; if (lx + w > cx + cw - 2) continue;
+      const sube = fi * nc + ci === mueve && j === 0 ? Math.round(Math.max(0, Math.sin((t * 0.8 % 1) * Math.PI)) * 3) : 0;
+      const top = cy + 1 + Math.floor(hh(ci, fi * 5 + j, k + 2) * (ch - 5)) - sube, azul = hh(ci, fi * 3 + j, k + 3) < 0.35;
+      const pap = azul ? hex('#c8d8ec') : hex('#f2ead6'), som = azul ? hex('#98a8c0') : hex('#c8bea4');
+      for (let y = Math.max(cy + 1, top); y <= cy + ch - 3; y++) for (let x = lx; x < lx + w; x++) R.pset(x, y, y === top ? (x === lx ? som : hex('#fffaf0')) : x === lx + w - 1 ? som : pap);
+      if (top < cy + ch - 5 && hh(ci, j, k + 4) < 0.4) R.pset(lx + 1, Math.max(cy + 1, top) + 1, hex('#c84a3a')); }
+    R.rect(cx + 4, cy + ch - 3, cx + 6, cy + ch - 3, hex('#d8b04a')); R.pset(cx + 4, cy + ch - 3, hex('#8a6a24')); } };
+const casillero = (t) => { const k = K0;
+  // el listón bajo: la tapa con luz y su canto
+  for (let x = 0; x < 320; x++) { const veta = Math.sin(x * 0.21 + Math.sin(x * 0.05) * 2) * 0.4;
+    R.pset(x, 90, k); R.pset(x, 91, R.tone(MAD, 3.6 + veta * 0.5, x, 91)); R.pset(x, 92, R.tone(MAD, 2.8 + veta, x, 92));
+    for (let y = 100; y <= 101; y++) R.pset(x, y, mez(R.pget(x, y), k, y === 100 ? 0.35 : 0.15)); }
+  casillas(t, 0, 319, 93, 99, 16, 7, 3);
+  // los dos muebles altos de las esquinas, con su tapa, su costado en sombra y la sombra que echan en el pasillo
+  for (const [x0, x1, lado] of [[0, 47, 1], [272, 319, -1]]) {
+    const xs = lado > 0 ? x1 + 1 : x0 - 1; for (let y = 64; y <= 89; y++) for (let d = 0; d < 4; d++) { const x = xs + lado * d; R.pset(x, y, mez(R.pget(x, y), k, 0.35 - d * 0.08)); }
+    for (let x = x0; x <= x1; x++) { R.pset(x, 60, k); R.pset(x, 61, R.tone(MAD, 3.8 + Math.sin(x * 0.4) * 0.2, x, 61)); R.pset(x, 62, R.tone(MAD, 3.0, x, 62)); }
+    casillas(t, x0, x1, 63, 89, 12, 9, x0 + 11);
+    const xb = lado > 0 ? x1 : x0; for (let y = 60; y <= 99; y++) { R.pset(xb, y, k); R.pset(xb - lado, y, R.tone(MAD, 1.2, xb, y)); } }
+  // brillo que corre por la tapa del listón (la luz de los fluorescentes)
+  { const bx = Math.round((t * 22) % 360) - 20; for (let x = Math.max(0, bx); x < Math.min(320, bx + 10); x++) R.pset(x, 91, mez(R.pget(x, 91), hex('#f0d0a0'), 0.5)); }
+};
 const p2 = (t) => {
   const o = { encuadre: 'centralita', camara: 'cartas' };
   T.rebelion(R, t, o);
   // el cartero entra por la derecha con el saco al hombro y lo vuelca en «letters»
   const vuelca = QJ(.3115), w = lin(t, Q2, vuelca - 0.1), xc = Math.round(lerp(330, 236, sm(w))), vete = lin(t, vuelca + 1.0, vuelca + 2.6), xc2 = Math.round(xc + vete * 110);
-  { const a = R.actor(EL.cartero ?? NC.voluntario, xc2, 100, t, { dir: vete > 0 ? 1 : -1, anda: (w > 0 && w < 1) || (vete > 0 && vete < 1), sostiene: t < vuelca + 0.6 ? [xc2 - 2, t > vuelca ? 76 : 84] : undefined, sonrisa: vete > 0 });
+  { const a = R.actor(EL.cartero ?? NC.voluntario, xc2, 96, t, { dir: vete > 0 ? 1 : -1, anda: (w > 0 && w < 1) || (vete > 0 && vete < 1), sostiene: t < vuelca + 0.6 ? [xc2 - 2, t > vuelca ? 76 : 84] : undefined, sonrisa: vete > 0 });
     if (t < vuelca + 0.6) PZ.sacoCartas(R, a.mano[0] - 4, a.mano[1] + (t > vuelca ? 6 : 14), { cartas: true }); }
   // las operadoras nuevas: entran por la izquierda en «had to put more people» y contestan
   const nuevas = [[NC.operadora, 70, { H: '#2a1c14', h: '#4a3424', C: '#c8a040', c: '#a08030' }, QJ(.3609)], [NC.operadora, 170, { H: '#a8643a', h: '#c8844a', C: '#6a7ac8', c: '#4a5aa8' }, QJ(.3812)]];
   for (const [def, xf, pal, t0] of nuevas) { const q = lin(t, t0, t0 + 1.1), x = Math.round(lerp(-20, xf, sm(q))), habla = q >= 1 && t > QJ(.4483);
-    const a = R.actor(def, x, 100, t, { dir: 1, anda: q > 0 && q < 1, pal, sostiene: habla ? [x + 12, 79] : undefined, habla: habla && Math.sin(t * 8 + x) > 0 });
-    if (habla) { auricular(a.mano[0], a.mano[1] - 2, hex('#d8ccb0'), true); cordon(a.mano[0], a.mano[1] + 1, x + 16, 96); } }
+    const a = R.actor(def, x, 96, t, { dir: 1, anda: q > 0 && q < 1, pal, sostiene: habla ? [x + 12, 79] : undefined, habla: habla && Math.sin(t * 8 + x) > 0 });
+    if (habla) { auricular(a.mano[0], a.mano[1] - 2, hex('#d8ccb0'), true); cordon(a.mano[0], a.mano[1] + 1, x + 16, 92); } }
   // la del centro abre cartas; en «weren't talking about the taste», la lengua tachada
   const lee = QJ(.5116), xl = 118;
+  let manoL;
   { const abre = Math.floor(t * 1.6) % 2 === 0;
-    const a = R.actor(NC.cientifica, xl, 100, t, { dir: 1, pal: { C: '#8a5a7a', c: '#6a4060' }, tocado: '', sostiene: t > lee ? [xl + 14, 80] : [xl + 14, abre ? 86 : 90], sorpresa: t > QJ(.5521) && t < QJ(.5521) + 0.7, triste: t > QJ(.6179) });
-    if (t > lee) { caja(a.mano[0] - 2, a.mano[1] - 10, a.mano[0] + 9, a.mano[1] + 3, hex('#f2ead6')); for (let i = 0; i < 4; i++) R.linea(a.mano[0], a.mano[1] - 7 + i * 3, a.mano[0] + 7, a.mano[1] - 7 + i * 3, hex('#8a8478')); }
-    else sobre(a.mano[0] - 2, a.mano[1] - 4, 11, 7, true); }
+    manoL = R.actor(NC.cientifica, xl, 96, t, { dir: 1, pal: { C: '#8a5a7a', c: '#6a4060' }, tocado: '', sostiene: t > lee ? [xl + 14, 80] : [xl + 14, abre ? 83 : 86], sorpresa: t > QJ(.5521) && t < QJ(.5521) + 0.7, triste: t > QJ(.6179) }).mano; }
   const r = T.rebelionDelante(R, t, o);
+  // el casillero de clasificar del borde de atrás de la mesa: tapa las piernas de quien va por el pasillo
+  casillero(t);
+  // la carta (o el sobre) que tiene en la mano la del centro, por delante del casillero
+  if (t > lee) { caja(manoL[0] - 2, manoL[1] - 10, manoL[0] + 9, manoL[1] + 3, hex('#f2ead6')); for (let i = 0; i < 4; i++) R.linea(manoL[0], manoL[1] - 7 + i * 3, manoL[0] + 7, manoL[1] - 7 + i * 3, hex('#8a8478')); }
+  else sobre(manoL[0] - 2, manoL[1] - 4, 11, 7, true);
   // las cartas que vuelan del saco al montón
   if (t > vuelca && t < vuelca + 1.0) { const [px, py] = r.pila ?? [133, 140]; for (let k = 0; k < 9; k++) { const q = lin(t, vuelca + k * 0.05, vuelca + 0.45 + k * 0.05); if (q <= 0 || q >= 1) continue;
     const x = lerp(232, px - 20 + k * 6, q), y = lerp(82, py - 6 + (k % 3) * 3, q) - Math.sin(q * Math.PI) * 26; sobre(x, y, 9, 6, k % 2 === 0); } }
   // el bocadillo: la lengua tachada (no hablaban del sabor)
   const b0 = QJ(.5521);
-  if (t > b0 && t < Q3) { const sube = Math.round(sm(lin(t, b0, b0 + 0.25)) * 4), gx = 134, gy = 20 - sube + 4;
+  if (t > b0 && t < Q3) { const sube = Math.round(sm(lin(t, b0, b0 + 0.25)) * 4), gx = 134, gy = 30 - sube;
     globo(gx - 6, gy - 2, 58, 40, xl + 10, 72);
     // la boca abierta con la lengua fuera (el sabor)
     for (let j = 0; j < 14; j++) for (let i = 0; i < 34; i++) { const X = (i - 16.5) / 17, Y = (j - 4) / 10; if (X * X + Y * Y > 1 || j < 0) continue; R.pset(gx + 5 + i, gy + 6 + j, (X * X + Y * Y > 0.8) ? hex('#7a1a2a') : j < 3 ? BL : hex('#3a0a14')); }

@@ -16,8 +16,9 @@
 //    la puerta con su globo azul; la secretaria coge el cañoncito de confeti y lo dispara hacia el ejecutivo («full-page
 //    ad»).
 // 2. Corta en «saying»: el teléfono suena (felicitaciones) y nadie lo coge; inserto del escritorio con el periódico abierto (página entera de rayas, sin letras, con dos latas
-//    pictograma: la roja con los ojos cerrados, la azul con los ojos abiertos); en «blinked» una mano con rotulador azul
-//    rodea la lata roja; en «the day off» arranca la hoja del calendario de mesa (debajo, un gorro de fiesta); en
+//    pictograma: la roja con los ojos cerrados, la azul con los ojos abiertos); en «blinked» una mano con un rotulador azul corto
+//    entra por abajo a la izquierda, sigue con la punta el círculo alrededor de la lata roja y sale por el borde (nunca pasa
+//    sobre la lata azul); otra mano, desde abajo a la derecha, en «the day off» arranca la hoja del calendario de mesa (debajo, un gorro de fiesta); en
 //    «celebrate» estalla el confeti, sale el matasuegras y sube un globo.
 // 3. Corta en «If»: el campus de la sede del rival al mediodía (fondo local): los empleados salen con globos y gorros por
 //    las puertas de cristal (que se abren al cortar) hacia el aparcamiento; en «changing» un coche sale y pita; en «Pepsi was winning» el ejecutivo,
@@ -226,17 +227,31 @@ const p2 = (t) => {
   // la hoja del calendario, en «the day off»
   const q = sm(lin(t, PA(.6), PA(.635)));
   calendario(t, q);
-  // la mano con el rotulador: entra por abajo, rodea la lata, va al calendario, arranca la hoja y se va
-  const kf = [[P2, 160, 205], [PA(.42), 132, 176], [c0, ...pt(0)], [c1, ...pt(1)], [PA(.55), 214, 170], [PA(.6), 250, 152], [PA(.635), 252, 122], [PA(.68), 300, 205]];
-  if (t > P2 && t < PA(.68)) {
-    let i = 0; while (i < kf.length - 2 && t > kf[i + 1][0]) i++;
-    const [ta, xa, ya] = kf[i], [tb, xb, yb] = kf[i + 1];
+  // la mano con el rotulador corto en el puño: entra por abajo a la izquierda (lejos de la lata azul), la punta sigue el
+  // trazo alrededor de la lata roja y, al cerrar el círculo, sale otra vez por el borde de abajo a la izquierda
+  if (t > PA(.38) && t < PA(.55)) {
     let px, py;
-    if (t >= c0 && t <= c1) [px, py] = pt(cu); else { const u = sm(lin(t, ta, tb)); px = lerp(xa, xb, u); py = lerp(ya, yb, u); }
-    const enCal = t > PA(.55);
-    if (!enCal) { // el rotulador: la punta en (px, py)
-      R.linea(Math.round(px), Math.round(py), Math.round(px + 8), Math.round(py + 7), K0); R.linea(Math.round(px + 1), Math.round(py), Math.round(px + 8), Math.round(py + 6), hex('#2a5ad8')); R.pset(Math.round(px), Math.round(py), hex('#1a2a6a')); }
-    T.brazo(R, Math.round(px + 44), 200, Math.round(px + 10), Math.round(py + 9), '#eef0f4', -1);
+    if (t < c0) { const u = sm(lin(t, PA(.38), c0)); px = lerp(70, pt(0)[0], u); py = lerp(214, pt(0)[1], u); }
+    else if (t <= c1) [px, py] = pt(cu);
+    else { const u = sm(lin(t, c1 + 0.1, PA(.55))); px = lerp(pt(1)[0], 64, u); py = lerp(pt(1)[1], 216, u); }
+    px = Math.round(px); py = Math.round(py);
+    // el apoyo: la mano baja 1 px al apretar mientras dibuja
+    const ap = t >= c0 && t <= c1 ? 1 : 0, wx = px - 12, wy = py - 7 + ap;
+    // el rotulador corto (≈15 px) cogido en el puño: el capuchón gris asoma por encima de la mano y la punta por debajo,
+    // en el trazo; se pinta antes que el brazo para que los dedos lo tapen por el medio
+    R.linea(px - 10, py - 14, px, py, K0); R.linea(px - 9, py - 14, px + 1, py, K0); R.linea(px - 11, py - 13, px - 1, py + 1, K0);
+    R.linea(px - 10, py - 13, px - 1, py, hex('#2a5ad8')); R.linea(px - 9, py - 13, px, py - 1, hex('#5a8ae8'));
+    R.linea(px - 10, py - 14, px - 8, py - 11, hex('#9a9aa4')); R.pset(px - 9, py - 14, hex('#d8d8e0'));
+    R.pset(px, py, hex('#1a2a6a')); R.pset(px - 1, py, hex('#1a2a6a'));
+    T.brazo(R, wx - 50, 222, wx, wy, '#eef0f4', 1, { codo: [wx - 14, wy + 30] });
+  }
+  // la otra mano, sin rotulador: entra por abajo a la derecha (por fuera de la lata azul), arranca la hoja del calendario
+  // en «the day off» y vuelve a salir por el borde
+  const kf = [[PA(.55), 306, 214], [PA(.6), 250, 152], [PA(.635), 252, 122], [PA(.68), 308, 214]];
+  if (t > kf[0][0] && t < kf[3][0]) {
+    let i = 0; while (i < kf.length - 2 && t > kf[i + 1][0]) i++;
+    const [ta, xa, ya] = kf[i], [tb, xb, yb] = kf[i + 1], u = sm(lin(t, ta, tb)), px = lerp(xa, xb, u), py = lerp(ya, yb, u);
+    T.brazo(R, Math.round(px + 40), 214, Math.round(px + 10), Math.round(py + 9), '#eef0f4', -1, { codo: [Math.round(px + 34), Math.round(py + 40)] });
   }
   // «celebrate»: el confeti, el matasuegras desde la izquierda y el globo que sube
   const ce = PA(.654);

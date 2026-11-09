@@ -14,12 +14,14 @@
 //    2.º uso): Mullins entra por la izquierda y en «founded» grapa una octavilla (la lata tachada) en la farola; una
 //    pareja mayor llega bajo el paraguas, la lee y en «association» alza sus latas de siempre.
 // 2. Corta en «old cola drinkers»: el garaje de Mullins (fondo local): pancartas apiladas, cajas de la de siempre, el
-//    portón entreabierto a la lluvia; en «phone line» los tres teléfonos del banco suenan y Mullins descuelga; una
+//    portón entreabierto a la lluvia; el suelo de losas con juntas, grietas, manchas de aceite, serrín, la lona de pintar
+//    salpicada y el charco que entra por el portón (ondas de gotas y el reflejo del coche); en «phone line» los tres teléfonos del banco suenan y Mullins descuelga; una
 //    voluntaria pinta una pancarta.
-// 3. Corta en «and even sued»: el juzgado (fondo local): Mullins alza la demanda; en «threw it out» el juez da con el
+// 3. Corta en «and even sued»: el juzgado (fondo local; la bandera y su remate, por debajo de la barra del año): Mullins alza la demanda; en «threw it out» el juez da con el
 //    mazo, la demanda sale volando a la papelera; en «preferred Pepsi» el juez saca una lata azul y bebe; Mullins, de
 //    piedra.
-// 4. Corta en «There were rallies»: la concentración en la plaza (fondo local): pancartas que suben y bajan; en
+// 4. Corta en «There were rallies»: la concentración en la plaza (fondo local; el frontón, tendido, empieza en y 17, bajo
+//    la barra del año, con una corona de laurel en el tímpano): pancartas que suben y bajan; en
 //    «protest songs» el de la guitarra canta y las palomas echan a volar; la multitud de delante se mece.
 // 5. Corta en «the new one»: delante de la embotelladora (fondo local): un hombre abre la lata nueva y la vacía por la
 //    alcantarilla ante la cámara de la tele, la reportera habla al micro, un fotógrafo dispara el flash y la gente
@@ -149,6 +151,8 @@ const lataPicto = (x, y, s, tacha = true) => { R.rect(x, y, x + 5 * s, y + 8 * s
   if (tacha) for (let i = -s; i <= 6 * s; i++) { R.rect(x + i, y + 8 * s - Math.round(i * 1.4), x + i + s - 1, y + 8 * s - Math.round(i * 1.4) + s - 1, hex('#1a1a20')); } };
 
 const MU = (f) => en('mullins', f);
+// el charco del garaje: entra por el portón (y 123–142) y se estrecha hacia dentro
+const enCharco = (x, y) => y >= 123 && y <= 142 && Math.abs(x - (54 + (y - 123) * 0.6)) < 41 - (y - 123) * 1.8 + Math.sin(y * 0.7 + x * 0.15) * 2;
 const M2 = MU(.2119), M3 = MU(.4140), M4 = MU(.6627), M5 = MU(.8670);
 const ABU = { ...NC.senador, delante: null }, abuPal = { C: '#5a6a8a', c: '#42506a', o: '#a83a2a', F: '#4a4a52' };
 // la octavilla: la lata tachada
@@ -198,10 +202,33 @@ const fondoGaraje = () => {
   // las cajas de latas de la de siempre, apiladas a la derecha (por debajo de la esquina de Atom)
   for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) PZ.cajaLatas(R, 282 + c * 22 - (r % 2) * 4, 150 - r * 15, { color: 'rojo' });
   // el suelo de cemento con la mancha de aceite, grietas y el sumidero
-  for (let y = 123; y <= 179; y++) for (let x = 0; x <= 319; x++) R.pset(x, y, R.tone(rp('#6a6a6e', '#7a7a7e', '#8a8a8c', '#9a9a9a'), 1.8 + (y - 123) / 60 + (hh(x, y, 6) - 0.5) * 0.6 + (x % 80 === 0 ? -1 : 0), x, y));
-  for (let y = 150; y <= 172; y++) for (let x = 170; x <= 230; x++) { const d = Math.hypot((x - 200) / 30, (y - 161) / 10); if (d < 1) R.pset(x, y, mez(R.pget(x, y), hex('#2a2a30'), 0.5 * (1 - d) + 0.2)); }
-  R.linea(30, 140, 70, 150, hex('#5a5a5e')); R.linea(70, 150, 84, 168, hex('#5a5a5e'));
+  // losas en perspectiva (fuga en 160,60) con juntas y canto claro, tono propio por losa, manchas de humedad y árido
+  { const FL = rp('#5a5a5e', '#6a6a6e', '#7a7a7e', '#8a8a8c', '#9a9a9a'), JH = [131, 147, 170], losa = (x, d) => Math.floor((x - 160) * 60 / d / 44);
+    for (let y = 123; y <= 179; y++) { const d = y - 60, fila = JH.filter((j) => y > j).length; for (let x = 0; x <= 319; x++) {
+      const k = losa(x, d), jv = k !== losa(x + 1, d), jh = JH.includes(y), r = hh(x, y, 6);
+      if (jv || jh) { R.pset(x, y, hex('#4a4a4e')); continue; }
+      const canto = JH.includes(y - 1) || losa(x - 1, d) !== k ? 0.7 : 0;
+      R.pset(x, y, R.tone(FL, 2.2 + (y - 123) / 70 + (hh(k, fila, 3) - 0.5) * 0.7 + (hh(Math.floor(x / 7), Math.floor(y / 3), 11) - 0.5) * 0.6 + canto + (r > 0.96 ? -0.9 : r < 0.04 ? 0.9 : 0), x, y)); } } }
+  // las manchas de aceite (con el borde tornasolado)
+  const mancha = (cx, cy, rx, ry, a) => { for (let y = cy - ry - 1; y <= cy + ry + 1; y++) for (let x = cx - rx - 1; x <= cx + rx + 1; x++) { const d = Math.hypot((x - cx) / rx, (y - cy) / ry) + (hh(x, y, 13) - 0.5) * 0.25; if (d < 1) R.pset(x, y, mez(R.pget(x, y), hex('#24242a'), a * (1 - d * 0.6))); else if (d < 1.08 && hh(x, y, 14) > 0.5) R.pset(x, y, hex(['#6a5a8a', '#5a7a6a', '#8a7a4a'][(x + y) % 3])); } };
+  mancha(200, 162, 28, 8, 0.6); mancha(238, 172, 9, 3, 0.5); mancha(146, 175, 7, 2, 0.45); mancha(186, 173, 4, 2, 0.4); mancha(296, 176, 12, 3, 0.4);
+  // las grietas, con su canto claro
+  for (const g of [[[30, 140], [48, 143], [70, 150], [77, 158], [84, 168]], [[150, 158], [160, 164], [158, 170], [168, 179]], [[262, 176], [276, 170], [300, 172], [318, 166]], [[104, 126], [96, 131], [100, 136]]])
+    for (let i = 1; i < g.length; i++) { R.linea(g[i - 1][0], g[i - 1][1], g[i][0], g[i][1], hex('#3e3e42')); R.linea(g[i - 1][0], g[i - 1][1] + 1, g[i][0], g[i][1] + 1, hex('#a4a4a6')); }
+  // el charco que entra por el portón (las ondas y los reflejos, en el plano) y el reguero mojado hasta el sumidero
+  for (let y = 123; y <= 179; y++) for (let x = 12; x <= 132; x++) { const w = Math.abs(x - (54 + (y - 140) * 2.2 + Math.sin(y * 0.5) * 2)); if (y > 138 && y < 171 && w < 4 + Math.sin(y * 0.9 + x) * 0.8) R.pset(x, y, mez(R.pget(x, y), hex('#3a3e46'), 0.35)); }
+  for (let y = 123; y <= 142; y++) for (let x = 12; x <= 96; x++) if (enCharco(x, y)) { const borde = !enCharco(x - 1, y) || !enCharco(x + 1, y) || !enCharco(x, y + 1);
+    R.pset(x, y, borde ? hex('#3e4248') : R.tone(rp('#4a5a6e', '#6a7e94', '#8a9cb0', '#b0c0d0'), 3.2 - (y - 123) / 7 + (hh(x, y, 15) - 0.5) * 0.5 + (Math.abs(x - 54 - (y - 123) * 0.6) < 2 ? 0.8 : 0), x, y)); }
+  for (let x = 12; x <= 96; x++) if (enCharco(x, 123)) R.pset(x, 123, hex('#2a3038'));
   R.rect(120, 168, 130, 172, hex('#3a3a3e')); for (let x = 121; x < 130; x += 2) R.rect(x, 169, x, 171, hex('#7a7a7e'));
+  // la lona de pintar bajo el caballete, con pliegues y salpicaduras; las gotas que se salen al cemento
+  R.poligono([[34, 160], [86, 158], [92, 177], [28, 178]], hex('#b8ae96')); R.poligono([[35, 161], [85, 159], [90, 176], [30, 177]], hex('#d8cfb6'));
+  for (const [x0, x1] of [[44, 50], [70, 78]]) R.linea(x0, 160, x1, 177, hex('#c0b69c'));
+  for (let i = 0; i < 46; i++) { const x = Math.round(32 + hh(i, 4, 16) * 56), y = Math.round(161 + hh(i, 5, 16) * 15), c = hex(['#c83030', '#c83030', '#3a6ad8', '#e8e4d8', '#e8c040'][i % 5]); R.pset(x, y, c); if (i % 3 === 0) R.pset(x + 1, y, c); if (i % 7 === 0) R.rect(x - 1, y, x + 2, y + 1, c); }
+  for (const [x, y, c] of [[95, 171, '#c83030'], [99, 168, '#c83030'], [102, 175, '#c83030'], [26, 174, '#3a6ad8'], [97, 176, '#e8e4d8'], [108, 170, '#c83030']]) { R.rect(x, y, x + 1, y, hex(c)); R.pset(x + 2, y + 1, hex(c)); }
+  // el serrín y las virutas junto a la pata del banco
+  for (let i = 0; i < 70; i++) { const a = hh(i, 7, 17) * 6.28, r = Math.sqrt(hh(i, 8, 17)), x = Math.round(112 + Math.cos(a) * r * 12), y = Math.round(161 + Math.sin(a) * r * 4); R.pset(x, y, hex(i % 3 ? '#d8b878' : '#b8945a')); }
+  for (const [x, y] of [[104, 165], [124, 158], [118, 166]]) { R.pset(x, y, hex('#e8cc90')); R.pset(x + 1, y - 1, hex('#e8cc90')); R.pset(x + 2, y, hex('#c8a46a')); }
   // en el suelo: el neumático viejo, el bidón de aceite y el cubo con la fregona
   R.disco(20, 162, 11, K0); R.disco(20, 162, 10, hex('#2a2a30')); R.disco(20, 162, 6, hex('#5a5a62')); R.disco(20, 162, 4, hex('#8a8a90')); for (let a = 0; a < 6.28; a += 0.7) R.pset(Math.round(20 + Math.cos(a) * 8), Math.round(162 + Math.sin(a) * 8), hex('#4a4a52'));
   caja(80, 150, 96, 174, hex('#2a6a9a')); R.rect(81, 151, 95, 153, hex('#4a8aba')); R.rect(81, 160, 95, 162, hex('#e8c040')); R.rect(90, 146, 93, 150, hex('#9aa0aa'));
@@ -219,6 +246,13 @@ const p2 = (t) => {
   rc(12, 74, 94, 90, hex('#3a4a3a')); for (let x = 14; x < 94; x += 7) R.disco(x, 76 + (x % 3), 4, hex('#2a3a2a'));
   { const cx = Math.round(((t * 40) % 220) - 60); for (let i = 0; i < 30; i++) for (let j = 0; j < 9; j++) R.pset(cx + i, 82 + j, j < 3 && (i < 6 || i > 24) ? hex('#4a5a6a') : j > 6 ? K0 : hex('#a83a2a')); }
   lluvia(t, 12, 66, 94, 122, 40, hex('#c8d8e8'), 160, 2); R.recorte(null);
+  // el charco del portón: el reflejo trémulo del coche que pasa, el brillo del cielo y las gotas que caen del portón
+  { const cx = Math.round(((t * 40) % 220) - 60);
+    for (let y = 125; y <= 130; y++) { const o = Math.round(Math.sin(t * 6 + y) * 1); for (let x = cx + o; x < cx + 30 + o; x++) if (enCharco(x, y) && (x + y) % 2 === 0) R.pset(x, y, hex(y < 128 ? '#8a3a32' : '#5a2a2a')); }
+    for (let x = 14; x <= 94; x++) if ((x + Math.floor(t * 3)) % 9 < 3 && enCharco(x, 124)) R.pset(x, 124, hex('#9aaabb'));
+    for (let i = 0; i < 6; i++) { const u = (t * 1.1 + i / 6) % 1, gx = Math.round(20 + hh(i, Math.floor(t * 1.1 + i / 6), 18) * 66), gy = Math.round(126 + hh(i, Math.floor(t * 1.1 + i / 6), 19) * 10), rx = 1 + u * 5, ry = rx * 0.35;
+      if (u < 0.85) for (let a = 0; a < 6.28; a += 0.4) { const x = Math.round(gx + Math.cos(a) * rx), y = Math.round(gy + Math.sin(a) * ry); if (enCharco(x, y)) R.pset(x, y, mez(R.pget(x, y), hex('#c8d8e8'), 0.9 - u)); } }
+    for (const dx of [20, 47, 80]) { const u = (t * 1.6 + dx * 0.07) % 1; R.pset(dx, Math.round(123 + u * 6), hex('#c8d8e8')); } }
   // la bombilla que se mece con su luz
   { const a = Math.sin(t * 1.4) * 0.25, bx = Math.round(170 + Math.sin(a) * 26), by = Math.round(4 + Math.cos(a) * 26); R.linea(170, 0, bx, by, K0); R.disco(bx, by + 2, 3, hex('#fff2b0')); R.pset(bx, by - 1, hex('#9aa0aa')); luz(bx, by + 2, 60, hex('#fff0c0'), 0.18); }
   const suena = MU(.3205), coge = MU(.3347) + 0.15, prot = MU(.3651);
@@ -252,8 +286,9 @@ const fondoJuzgado = () => {
   // el sello con la balanza (sin letras)
   R.disco(196, 34, 16, K0); R.disco(196, 34, 15, hex('#c8a040')); R.disco(196, 34, 12, hex('#2a3a6a')); R.icono('balanza', 189, 28, hex('#e8c060'), hex('#1a2a4a'), 2);
   // la bandera de barras y estrellas en su mástil
-  R.rect(140, 14, 141, 92, hex('#c8a040')); R.disco(140, 13, 2, hex('#e8c060'));
-  for (let j = 0; j < 26; j++) for (let i = 0; i < 26; i++) { const x = 142 + i, y = 18 + j + Math.round(Math.sin(i * 0.3) * 1.5); R.pset(x, y, i < 11 && j < 13 ? ((i + j) % 3 === 0 ? BL : hex('#2a3a7a')) : Math.floor(j / 2) % 2 === 0 ? hex('#c83030') : hex('#f2eee2')); }
+  // (el remate por debajo de la barra del año)
+  R.rect(140, 22, 141, 92, hex('#c8a040')); R.disco(140, 21, 2, hex('#e8c060')); R.pset(139, 20, hex('#fff2b0'));
+  for (let j = 0; j < 26; j++) for (let i = 0; i < 26; i++) { const x = 142 + i, y = 25 + j + Math.round(Math.sin(i * 0.3) * 1.5); R.pset(x, y, i < 11 && j < 13 ? ((i + j) % 3 === 0 ? BL : hex('#2a3a7a')) : Math.floor(j / 2) % 2 === 0 ? hex('#c83030') : hex('#f2eee2')); }
   // las ventanas altas de la izquierda (lo de dentro se pinta en el plano)
   for (const x of [8, 64]) { caja(x, 22, x + 44, 66, hex('#e8e0d0')); R.rect(x + 2, 24, x + 42, 64, hex('#8a9aaa')); }
   // el estrado del juez (lo de delante, en el plano), el reloj y la puerta de la derecha
@@ -309,9 +344,11 @@ const fondoPlaza = () => {
   // el cielo tramado (las nubes y las palomas, en el plano)
   llena(0, 0, 319, 70, rp('#6a8ab8', '#7a9ac4', '#9ab4d4', '#b8cce0'), (x, y) => y / 70 * 3 + (hh(x, y, 2) - 0.5) * 0.3);
   // el ayuntamiento de columnas con su frontón y la escalinata
-  for (let y = 26; y <= 104; y++) for (let x = 70; x <= 250; x++) R.pset(x, y, R.tone(rp('#a8a090', '#c0b8a8', '#d4ccbc', '#e4dccc'), 2 + (hh(x, y, 4) - 0.5) * 0.4 + ((y - 26) % 9 === 0 ? -0.8 : 0), x, y));
-  R.poligono([[64, 30], [160, 10], [256, 30]], K0); R.poligono([[68, 29], [160, 12], [252, 29]], hex('#d8d0c0')); R.poligono([[96, 27], [160, 16], [224, 27]], hex('#b8b0a0'));
-  R.disco(160, 22, 5, hex('#c8a040')); R.disco(160, 22, 3, hex('#e8c060'));
+  for (let y = 30; y <= 104; y++) for (let x = 70; x <= 250; x++) R.pset(x, y, R.tone(rp('#a8a090', '#c0b8a8', '#d4ccbc', '#e4dccc'), 2 + (hh(x, y, 4) - 0.5) * 0.4 + ((y - 26) % 9 === 0 ? -0.8 : 0), x, y));
+  // el frontón, más tendido: su vértice queda por debajo de la barra del año (y 17); en el tímpano, una corona de laurel
+  R.poligono([[64, 30], [160, 17], [256, 30]], K0); R.poligono([[68, 29], [160, 19], [252, 29]], hex('#d8d0c0')); R.poligono([[100, 28], [160, 22], [220, 28]], hex('#b8b0a0'));
+  for (let a = 0.3; a < 2.9; a += 0.35) for (const sx of [-1, 1]) R.pset(160 + Math.round(Math.cos(a) * 7 * sx), 26 - Math.round(Math.sin(a) * 2), hex('#8a8070'));
+  R.rect(159, 24, 161, 26, hex('#c8a040')); R.pset(160, 24, hex('#e8c060'));
   R.rect(62, 30, 258, 34, hex('#e4dccc')); R.rect(62, 34, 258, 35, hex('#8a8478'));
   for (let k = 0; k < 8; k++) { const x = 80 + k * 22; R.rect(x, 36, x + 8, 92, hex('#ece6d8')); R.rect(x + 6, 36, x + 8, 92, hex('#b8b0a0')); R.rect(x, 36, x + 1, 92, hex('#f6f2e8')); R.rect(x - 2, 34, x + 10, 37, hex('#d8d0c0')); R.rect(x - 2, 90, x + 10, 93, hex('#d8d0c0')); }
   for (let k = 0; k < 7; k++) { const x = 90 + k * 22; R.rect(x, 50, x + 10, 82, hex('#4a4a5a')); R.rect(x + 1, 51, x + 9, 81, hex('#6a7a8a')); R.rect(x + 5, 51, x + 5, 81, hex('#4a4a5a')); }
@@ -329,7 +366,7 @@ const fondoPlaza = () => {
 const p4 = (t) => {
   capa('mu-plaza', fondoPlaza);
   const NUB = rp('#a8b4c8', '#d0d8e4', '#f2f4f8');
-  const cielo = (x, y) => y < ((x < 62) ? 29 : (x > 258) ? 39 : 10 + Math.abs(x - 160) * 20 / 96);
+  const cielo = (x, y) => y < ((x < 62) ? 29 : (x > 258) ? 39 : 17 + Math.abs(x - 160) * 13 / 96);
   nube(((t * 4 + 30) % 380) - 30, 16, 36, NUB, cielo); nube(((t * 7 + 230) % 380) - 30, 26, 26, NUB, cielo); nube(((t * 2 + 140) % 380) - 30, 30, 46, rp('#98a4b8', '#c0c8d8', '#e0e4ec'), cielo);
   pajaros(t, 20, hex('#4a4a5a'), 2, 10, 60, 0);
   // las copas de los árboles que se mecen
