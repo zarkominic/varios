@@ -11,20 +11,22 @@
 <script type="module">
 // TS-ELORG (frase 10), 1988. Cuatro planos:
 // 1. «Meanwhile, the Soviets had put the country's software in the hands of a foreign trade agency, Elorg»: la sala de
-//    Elorg por la mañana (moscu/elorg): la científica entra por la puerta con la caja de los disquetes, cruza detrás de la
+//    Elorg por la mañana (moscu/elorg): la científica entra por la puerta con la caja de los disquetes (baja, a un lado, sin
+//    taparle la cara), cruza detrás de la
 //    mesa y se la da al funcionario en «hands»; él la deja en la mesa y le pone el sello de la estrella en «Elorg». La
 //    secretaria teclea en su máquina; alguien pasa por el pasillo. Corta en «Stein».
 // 2. «Stein finally signed a contract with them, but only for computers. And that detail was going to cost him dearly»:
-//    la mesa de cerca (moscu/elorg/mesa): la mano de Stein firma el contrato en «signed» y marca la casilla del ordenador
+//    la mesa de cerca (moscu/elorg/mesa): la mano de Stein (brazo corto, hombro fuera de cuadro) firma el contrato en «signed» y marca la casilla del ordenador
 //    en «computers»; se retira. Detrás, el funcionario asiente y la traductora señala las dos casillas vacías en
 //    «detail» («!»); el funcionario sonríe en «dearly». Corta en «The contract».
 // 3. «The contract never even mentioned game consoles. Soon after, a»: el contrato de cerca, visto desde arriba (inserto
-//    sobre el tapete): el dedo da golpecitos en la casilla vacía de la consola de salón en «never» y en la de bolsillo en
+//    sobre el tapete, el contrato más abajo para que el brazo entre corto; la carpeta de cartulina con cinta, gomas y sello
+//    a la izquierda): el dedo da golpecitos en la casilla vacía de la consola de salón en «never» y en la de bolsillo en
 //    «consoles»; salen dos «?» rojos. En «Soon after» una sombra cae sobre el contrato. Corta en «tougher».
 // 4. «tougher new director, Nikolai Belikov, ended up with all the paperwork on his desk»: el despacho de Bélikov al
 //    anochecer (fondo local): Bélikov entra por la puerta en «director», va a su mesa en «Belikov»; el oficinista le trae
-//    las pilas de carpetas (en «ended up», «all» y «paperwork»); en «desk» Bélikov tira de todo hacia él, serio, y
-//    pone su sello encima.
+//    las pilas de carpetas (en «ended up», «all» y «paperwork»); en «desk» Bélikov tira de todo hacia él (las pilas se
+//    deslizan por el tapete, apoyadas y sin cruzarse), serio, y pone su sello encima.
 import * as T from '/atomo/plato/escenas/ts-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -66,7 +68,7 @@ const p1 = (t) => {
   // la científica entra por la puerta del pasillo con la caja y va detrás de la mesa hasta el funcionario
   const w = tramo(t, 0.3, manos - 0.3), cx = Math.round(lerp(22, 104, w)), da = t > manos;
   const vuelve = tramo(t, manos + 0.9, P2 - 0.2), cx2 = Math.round(lerp(cx, 64, vuelve));
-  const rc = R.actor(TS.cientifica, cx2, 131, t, { dir: vuelve > 0 && vuelve < 1 ? -1 : 1, anda: (w > 0 && w < 1) || (vuelve > 0 && vuelve < 1), sostiene: da ? false : [cx2 + 15, 112], sonrisa: da, habla: t > manos - 0.4 && t < manos + 0.6 });
+  const rc = R.actor(TS.cientifica, cx2, 131, t, { dir: vuelve > 0 && vuelve < 1 ? -1 : 1, anda: (w > 0 && w < 1) || (vuelve > 0 && vuelve < 1), sostiene: da ? false : [cx2 + 30, 128], sonrisa: da, habla: t > manos - 0.4 && t < manos + 0.6 });
   // el funcionario de Elorg: recibe la caja en «hands», la deja en la mesa y le pone el sello en «Elorg»
   const deja = tramo(t, manos + 0.2, manos + 0.8), sella = t > elorg - 0.6 && t < elorg + 0.6;
   const golpe = sella ? Math.round(Math.abs(Math.sin((t - elorg + 0.6) * Math.PI / 1.2 * 2)) * -6) : 0;
@@ -78,7 +80,7 @@ const p1 = (t) => {
   R.actor(TS.burocrata, 292, 172, t, { dir: -1, pal: { C: hex('#4a5a4a'), c: hex('#3a483a'), H: hex('#3a2a20') }, sostiene: ab < 1 ? [Math.round(lerp(300, 290, ab)), Math.round(lerp(152, 140, ab))] : false, brazos: t > 3.0 && t < 3.8, habla: t > 5.4 && t < 6.2 });
   T.moscuDelante(R, t, o);
   // la caja: en las manos de la científica, luego en las del funcionario, y en la mesa con su sello
-  if (!da) cajaDisquetes(rc.mano[0], rc.mano[1] + 4);
+  if (!da) cajaDisquetes(rc.mano[0] + 5, rc.mano[1] + 6);
   else if (deja < 1) cajaDisquetes(rb.mano[0], rb.mano[1] + 4);
   else cajaDisquetes(116, 128, t > elorg ? 1 : 0);
   if (sella) { const [mx, my] = rb.mano; R.rect(mx - 2, my - 1, mx + 2, my + 3, hex('#5a3a22')); R.rect(mx - 3, my + 4, mx + 3, my + 5, hex('#2a2a32')); }
@@ -111,7 +113,7 @@ const p2 = (t) => {
   if (escribe > 0 && t < firma + 0.9) for (let i = 10; i <= 10 + Math.floor(escribe * 7); i++) R.pset(139 + i, 144 + 24 - Math.round(Math.abs(Math.sin(i * 1.3)) * 2), hex('#3a6ad8'));
   if (sale < 1) { const bx = Math.round(wx), by = Math.round(wy);
     R.linea(bx - 12, by + 1, bx - 18, by - 2, hex('#1a1a22')); R.pset(bx - 18, by - 2, hex('#d8c060'));   // la pluma
-    T.brazo(R, Math.round(lerp(300, 262, llega)), 220, bx, by, '#4a4c56', -1, { codo: [Math.round(bx + 46), Math.round(by + 26)], puno: '#eef0f6' }); }
+    T.brazo(R, bx + 40, by + 44, bx, by, '#4a4c56', -1, { codo: [bx + 24, by + 18], puno: '#eef0f6' }); }   // el hombro fuera de cuadro: se ven ≤ 40 px de brazo
   // el detalle: las dos casillas vacías parpadean en rojo y salta el «!»
   if (t > detalle - 0.1 && t < P3 - 0.2) { if (Math.floor(t * 5) % 2) for (const j0 of [14, 19]) { R.rect(140, 144 + j0 - 1, 146, 144 + j0 - 1, hex('#ff4a3a')); R.rect(140, 144 + j0 + 4, 146, 144 + j0 + 4, hex('#ff4a3a')); R.rect(140, 144 + j0 - 1, 140, 144 + j0 + 4, hex('#ff4a3a')); R.rect(146, 144 + j0 - 1, 146, 144 + j0 + 4, hex('#ff4a3a')); }
     R.icono('!', 145, 122 - Math.round(tramo(t, detalle - 0.1, detalle + 0.2) * 8), hex('#ffe890'), K, 3); }
@@ -123,7 +125,19 @@ const tapete = () => {
   // el canto de madera de la mesa arriba, con su moldura
   madera(0, 0, 319, 16, hex('#6a4024'), hex('#4a2a14'), hex('#8a5a34'), 3); R.rect(0, 17, 319, 18, hex('#2a1408')); R.rect(0, 16, 319, 16, hex('#a87444'));
   // la carpeta de cartón con su cinta, debajo a la izquierda
-  caja(10, 40, 80, 150, hex('#c8a870'), hex('#e0c088'), hex('#a88850')); R.rect(44, 41, 47, 149, hex('#e8e4d8')); for (let y = 50; y < 146; y += 6) R.rect(16, y, 38, y, hex('#b89860'));
+  R.poligono([[14, 44], [84, 44], [84, 154], [14, 154]], hex('#173a20'));   // su sombra sobre el tapete
+  caja(10, 40, 80, 150, hex('#c8a870'));
+  for (let y = 41; y < 150; y++) for (let x = 11; x < 80; x++) { const r = h(x, y, 71), f = Math.sin(y * 0.9 + Math.sin(x * 0.2) * 2); R.pset(x, y, r < 0.08 ? hex('#b8945c') : r > 0.95 ? hex('#dcc08c') : f > 0.93 ? hex('#bc9c64') : hex('#c8a870')); }   // la cartulina con su fibra
+  R.rect(11, 41, 79, 41, hex('#e0c088')); R.rect(11, 149, 79, 149, hex('#9a7a44')); R.rect(79, 42, 79, 149, hex('#a88850'));
+  for (const [x, y, dx, dy] of [[11, 41, 1, 1], [79, 41, -1, 1], [11, 149, 1, -1], [79, 149, -1, -1]]) for (let i = 0; i < 6; i++) for (let j = 0; j < 6 - i; j++) if (h(x + i * dx, y + j * dy, 72) < 0.6) R.pset(x + i * dx, y + j * dy, hex('#e8d8b0'));   // las esquinas gastadas
+  for (let y = 60; y < 130; y += 3) if (h(5, y, 73) < 0.5) R.pset(11, y, hex('#e8d8b0'));
+  // la etiqueta de la tapa (renglones sin letras) y el sello morado redondo con la estrella
+  caja(18, 50, 54, 70, hex('#f2eee2'), hex('#ffffff'), hex('#d8d2c0')); for (let k = 0; k < 3; k++) R.rect(22, 55 + k * 5, 50 - k * 6, 55 + k * 5, hex('#6a6a7a'));
+  R.disco(30, 112, 9, hex('#7a4a8a')); R.disco(30, 112, 7, hex('#c8a870')); R.disco(30, 112, 6, hex('#8a5a9a')); R.disco(30, 112, 5, hex('#c8a870')); R.icono('estrella', 27, 109, hex('#8a5a9a'), null, 1);
+  // la cinta de tela que la cierra, con su lazo, y las dos gomas de las esquinas
+  R.rect(44, 41, 47, 149, hex('#e8e4d8')); R.rect(47, 41, 47, 149, hex('#b8b4a8')); R.rect(44, 41, 44, 149, hex('#ffffff'));
+  R.disco(45, 92, 4, K); R.disco(45, 92, 3, hex('#e8e4d8')); R.linea(42, 95, 36, 104, hex('#d8d4c8')); R.linea(48, 95, 54, 106, hex('#d8d4c8')); R.pset(45, 91, hex('#ffffff'));
+  for (const [a, b, c, d] of [[11, 136, 24, 149], [66, 41, 79, 54]]) { R.linea(a, b, c, d, hex('#5a2a1a')); R.linea(a + 1, b, c + 1, d, hex('#8a3a24')); }
   // la hoja de debajo, torcida, con renglones
   R.poligono([[208, 34], [292, 28], [300, 150], [214, 156]], K); R.poligono([[209, 35], [291, 29], [299, 149], [215, 155]], hex('#ece6d6'));
   for (let k = 0; k < 14; k++) { const y = 44 + k * 7; R.linea(224, y, 286 - (k % 3) * 8, y - 3, hex('#9a9a9a')); }
@@ -136,10 +150,10 @@ const tapete = () => {
 const p3 = (t) => {
   capa('tapete', tapete);
   // las gafas de leer, plegadas, y el bolígrafo
-  for (const cx of [116, 132]) { R.disco(cx, 26, 6, K); R.disco(cx, 26, 5, hex('#a8c0c8')); R.pset(cx - 2, 24, hex('#ffffff')); } R.rect(122, 25, 126, 26, K); R.linea(110, 26, 98, 30, K);
+  for (const cx of [116, 132]) { R.disco(cx + 1, 50, 6, hex('#173a20')); R.disco(cx, 48, 6, K); R.disco(cx, 48, 5, hex('#a8c0c8')); R.pset(cx - 2, 46, hex('#ffffff')); } R.rect(122, 47, 126, 48, K); R.linea(110, 48, 98, 52, K);
   R.linea(196, 100, 206, 150, K); R.linea(197, 100, 207, 150, hex('#2a2a3a')); R.pset(206, 151, hex('#d8c060'));
   // el contrato grande, con la firma y la casilla del ordenador marcada
-  const cx = 160, cy = 170, s = 4, x0 = cx - 44, y0 = cy - 112;
+  const cx = 160, cy = 188, s = 4, x0 = cx - 44, y0 = cy - 112;
   R.rect(x0 + 4, y0 + 4, x0 + 92, y0 + 116, hex('#173a20'));
   PZ.contrato(R, cx, cy, { s, casillas: [1, 0, 0], firma: true });
   // el vaso de té visto desde arriba, con el soporte y el vapor
@@ -151,7 +165,7 @@ const p3 = (t) => {
   const toc = (t > nunca && t < menciona + 0.2) || (t > consolas && t < pronto - 0.4) ? Math.round(Math.abs(Math.sin(t * 9)) * -3) : 0;
   // los «?» rojos junto a las casillas vacías
   for (const [b, t0] of [[b1, nunca], [b2, consolas]]) if (t > t0) { const u = tramo(t, t0, t0 + 0.25); R.icono('?', b[0] - 26, b[1] - 8 - Math.round(u * 4), Math.floor(t * 3) % 2 ? hex('#ff5a4a') : hex('#ffb0a0'), K, 3); }
-  if (sale < 1) T.brazo(R, Math.round(wx + 40), 220, Math.round(wx), Math.round(wy) + toc, '#4a4c56', -1, { codo: [Math.round(wx + 60), Math.round(wy + 40)], puno: '#eef0f6' });
+  if (sale < 1) { const bx = Math.round(wx), by = Math.round(wy) + toc; T.brazo(R, bx + 22, by + 50, bx, by, '#4a4c56', -1, { codo: [bx + 16, by + 22], puno: '#eef0f6' }); }   // hombro fuera de cuadro: ≤ 45 px de brazo
   // la sombra del director nuevo que cae sobre la mesa en «Soon after»
   const so = tramo(t, pronto, P4); if (so > 0) for (let y = 0; y < 180; y++) { const xa = Math.round(lerp(-40, 120, so) + Math.sin(y * 0.05) * 6 - (y < 60 ? (60 - y) * 0.3 : 0)); for (let x = 0; x < Math.min(320, xa + 120); x++) if (((x + y) & 1) === 0 || x < xa) tinte(x, y, hex('#0a0a14'), 0.45); }
 };
@@ -214,7 +228,7 @@ const p4 = (t) => {
   const anda = tramo(t, P4 + 0.3, belikov + 0.2), bx = Math.round(lerp(24, 160, anda));
   const tira = t > mesa - 0.2 && t < mesa + 0.6, sella = t > mesa + 0.9 && t < mesa + 1.8;
   const golpe = sella ? Math.round(Math.abs(Math.sin((t - mesa - 0.9) * Math.PI * 2)) * -6) : 0;
-  const rb = R.actor(TS.belikov, bx, 137, t, { dir: 1 - (anda >= 1 && t < acabo ? 2 : 0), anda: anda > 0 && anda < 1, enfado: t > belikov, habla: t > director && t < belikov, brazos: tira, sostiene: sella ? [150, 124 + golpe] : t > belikov + 0.4 && t < acabo ? [176, 126] : false });
+  const rb = R.actor(TS.belikov, bx, 137, t, { dir: 1 - (anda >= 1 && t < acabo ? 2 : 0), anda: anda > 0 && anda < 1, enfado: t > belikov, habla: t > director && t < belikov, brazos: tira, sostiene: sella ? [156, 124 + golpe] : t > belikov + 0.4 && t < acabo ? [176, 126] : false });
   // las tres pilas que trae el oficinista (cada una llega en su palabra)
   const viajes = [acabo, todos, papeles];
   const pos = (k) => { const t0 = viajes[k] - 1.0; return tramo(t, t0, viajes[k]); };
@@ -226,13 +240,13 @@ const p4 = (t) => {
   // las pilas de papeles y carpetas en la mesa (crecen con cada viaje; en «desk» Bélikov las arrastra hacia él, a los lados)
   const junta = tramo(t, mesa - 0.2, mesa + 0.5);
   for (let k = 0; k < 4; k++) { const llego = k === 0 ? 1 : tramo(t, viajes[k - 1], viajes[k - 1] + 0.2); if (llego <= 0) continue;
-    const x = Math.round(lerp([112, 232, 214, 196][k], [126, 190, 208, 140][k], junta)), alto = [10, 12, 16, 14][k], base = k === 3 ? 131 - Math.round(junta * 20) : k === 2 ? 131 - Math.round(junta * 24) : 131;
+    const x = Math.round(lerp([120, 232, 214, 196][k], [124, 206, 186, 142][k], junta)), alto = [10, 12, 16, 14][k], base = 131;   // todas apoyadas en el tapete, sin cruzarse
     for (let j = 0; j < alto; j++) { const y = base - j * 2, dx = Math.round(Math.sin(j * 1.7 + k) * 1.5); R.rect(x - 9 + dx, y - 1, x + 9 + dx, y, j % 5 === 4 ? hex('#c8a870') : hex('#f2eee2')); R.pset(x - 9 + dx, y, hex('#a8a498')); R.pset(x + 9 + dx, y - 1, hex('#ffffff')); } }
   // lo que lleva el oficinista en brazos
   if (lleva >= 0) for (let j = 0; j < 8; j++) R.rect(ox - 12, 134 - j * 2, ox + 4, 135 - j * 2, j % 4 === 3 ? hex('#c8a870') : hex('#f2eee2'));
   // el sello de Bélikov sobre la pila en «desk», y el flexo de la mesa que se enciende
   if (sella) { const [mx, my] = rb.mano; R.rect(mx - 2, my - 1, mx + 2, my + 3, hex('#3a2a1a')); R.rect(mx - 3, my + 4, mx + 3, my + 5, hex('#c8302a')); }
-  if (t > mesa + 1.3) { R.disco(150, 130, 3, hex('#c8302a')); R.disco(150, 130, 1, hex('#f2eee2')); }
+  if (t > mesa + 1.3) { R.disco(156, 130, 3, hex('#c8302a')); R.disco(156, 130, 1, hex('#f2eee2')); }
   const luz = t > belikov ? 1 : 0; R.rect(102, 114, 104, 130, hex('#c89838')); R.poligono([[94, 114], [112, 114], [108, 106], [98, 106]], hex('#2a6a3a')); R.rect(98, 130, 108, 132, hex('#c89838'));
   if (luz) for (let y = 115; y < 130; y++) for (let x = 92 - (y - 115); x < 116 + (y - 115); x++) if (((x + y) & 1) === 0) tinte(x, y, hex('#fff0b0'), 0.25);
 };

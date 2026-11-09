@@ -239,8 +239,8 @@ export function occidenteDelante(R, t, o = {}) {
 //     Suelo de detrás de la mesa 120 (asoman cabeza y hombros).
 //     Cámara 'pasillo' (nueva): el pasillo largo de la agencia de frente: zócalo pintado de verde oscuro y pared encalada,
 //     tres puertas acolchadas con botones y su número de latón (1, 2, 3), alfombra roja con cenefa sobre el parqué,
-//     apliques de globo (uno parpadea), el reloj sobre la puerta del medio, el tubo de la calefacción y el
-//     cable con aisladores, un banco con un gato que duerme, un ficus, un extintor, un tablón y el cuadro de honor; o.puertas [a, b, c]
+//     apliques de globo (uno parpadea), el reloj sobre la puerta del medio, el tubo de la calefacción (sube a la moldura en
+//     x 264) y el cable con aisladores (baja a su caja de empalmes en x 240: la esquina de Atom queda de pared lisa de cal), un banco con un gato que duerme, un ficus, un extintor, un tablón y el cuadro de honor; o.puertas [a, b, c]
 //     (0–1): cuánto se abre cada puerta (se ve el despacho de dentro con su luz). Suelo 150.
 export function moscu(R, t, o = {}) {
   const enc = o.encuadre ?? 'plaza', cam = o.camara ?? 'general';
@@ -2754,8 +2754,15 @@ function c_pasilloFijo(R) {
   rect(0, 95, 319, 96, hex('#2a4a38'));
   // la moldura del techo, el tubo de la calefacción con sus abrazaderas, el cable de la luz con sus aisladores y la rejilla de ventilación
   rect(0, 0, 319, 4, hex('#e4e0d0')); rect(0, 5, 319, 5, hex('#a8a494')); rect(0, 6, 319, 6, hex('#bab6a6'));
-  rect(0, 22, 319, 24, hex('#8a8a80')); rect(0, 22, 319, 22, hex('#b8b8ac')); rect(0, 24, 319, 24, hex('#5a5a54')); for (let x = 12; x < 320; x += 40) { rect(x, 21, x + 2, 25, hex('#4a4a44')); rect(x + 1, 26, x + 1, 27, hex('#4a4a44')); }
-  for (let x = 0; x < 320; x++) pset(x, 32 + Math.round(Math.abs(Math.sin(x / 30 * Math.PI)) * 2), hex('#3a3a3a')); for (let x = 0; x < 320; x += 30) { rect(x - 1, 31, x + 1, 33, hex('#f0ece0')); pset(x, 34, hex('#a8a498')); }
+  // (el tubo y el cable acaban antes de x 272: la esquina de arriba a la derecha queda de pared tranquila para Atom)
+  rect(0, 22, 263, 24, hex('#8a8a80')); rect(0, 22, 263, 22, hex('#b8b8ac')); rect(0, 24, 263, 24, hex('#5a5a54')); for (let x = 12; x < 260; x += 40) { rect(x, 21, x + 2, 25, hex('#4a4a44')); rect(x + 1, 26, x + 1, 27, hex('#4a4a44')); }
+  // el codo del tubo, que sube y se mete en la moldura del techo con su collarín
+  rect(264, 7, 266, 24, hex('#8a8a80')); rect(264, 7, 264, 22, hex('#b8b8ac')); rect(266, 7, 266, 24, hex('#5a5a54')); pset(263, 22, hex('#b8b8ac')); pset(265, 24, hex('#5a5a54'));
+  rect(262, 7, 268, 8, hex('#4a4a44')); rect(262, 7, 268, 7, hex('#6a6a64')); rect(263, 14, 267, 15, hex('#4a4a44'));
+  // el cable de la luz con sus aisladores: termina en el último aislador, baja por la pared y entra en la caja de empalmes
+  for (let x = 0; x <= 240; x++) pset(x, 32 + Math.round(Math.abs(Math.sin(x / 30 * Math.PI)) * 2), hex('#3a3a3a')); for (let x = 0; x <= 240; x += 30) { rect(x - 1, 31, x + 1, 33, hex('#f0ece0')); pset(x, 34, hex('#a8a498')); }
+  for (let y = 33; y <= 42; y++) pset(241 + Math.round(Math.max(0, y - 40) * 0.5), y, hex('#3a3a3a'));
+  rect(239, 43, 248, 50, hex('#6a6a5e')); rect(240, 44, 247, 49, hex('#a8a48e')); rect(240, 44, 247, 44, hex('#c8c4ae')); rect(247, 45, 247, 49, hex('#7a766a')); pset(243, 46, hex('#4a4a44')); pset(244, 47, hex('#4a4a44')); rect(240, 51, 247, 51, hex('#bcb8a6'));
   rect(142, 44, 160, 52, hex('#8a8678')); for (let y = 45; y < 52; y += 2) rect(143, y, 159, y, hex('#4a4a44'));
   for (const [x, y, rx] of [[70, 40, 14], [250, 82, 10]]) for (let j = -6; j <= 6; j++) for (let i = -rx; i <= rx; i++) if ((i / rx) ** 2 + (j / 6) ** 2 < 1 && c_b4(x + i, y + j) < 0.35) pset(x + i, y + j, hex('#c0b898'));
   for (let y = 97; y <= 139; y++) for (let x = 0; x <= 319; x++) { let c = hex('#3a5a48'); if (Math.abs(((x + y * 0.3) % 37) - 18) < 1.2 && y < 128) c = hex('#4e7260'); else if (h(x >> 1, y >> 3, 372) < 0.1) c = hex('#30503e'); if (y === 97) c = hex('#5a7e6a'); pset(x, y, c); }
@@ -4114,7 +4121,7 @@ function e_consola(R, t, x, yb, g = 1) {
 function e_teleImagen(R, t, sc, congela, g = 1) {
   const [x0, y0, x1, y1] = sc, frio = congela > 0, tt = frio ? 37.3 : t;
   e_pantalla(R, tt, sc, { tinta: hex('#d8dce8'), fondo: hex('#10121c'), bloque: 3 * g + 1, k: 7, frio: frio ? tt : null });
-  const nivel = frio ? 157 : 150 + Math.floor(t / 1.6) % 7; e_cifras(R, nivel, x1 - 13 * g, y0 + 3 * g, hex('#f0f0f8'), g);
+  // sin contador de nivel ni marcador (derechos: nada que se lea como el marcador del juego)
   if (frio) { const n = Math.round(congela * (y1 - y0) * 0.5), COL = ['#ff3a6a', '#3aff9a', '#3a8aff', '#ffe84a', '#ff8a3a', '#c84aff'].map(hex);
     for (let k = 0; k < n; k++) { const y = y0 + Math.floor(h(k, 1, 795) * (y1 - y0 + 1)), xa = x0 + Math.floor(h(k, 2, 795) * (x1 - x0) * 0.5), xb = Math.min(x1, xa + 4 + Math.floor(h(k, 3, 795) * (x1 - x0))); for (let x = xa; x <= xb; x++) R.pset(x, y, COL[(Math.floor(x / (3 + k % 5)) + k) % 6]); } }
   for (const [cx, cy] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) R.pset(cx, cy, hex('#1a1a1e'));

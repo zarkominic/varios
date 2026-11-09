@@ -12,11 +12,12 @@
 // TS-PASILLOS (frase 16), febrero de 1989. Cuatro planos:
 // 1. «The strangest part is that Robert Stein and Kevin Maxwell»: la puerta de Elorg de noche (moscu/plaza/puerta, 2.º
 //    uso): Stein, con su carpeta, sube los escalones, el guardia le saluda, la puerta se abre en «Stein» y se lo traga; se
-//    cierra justo cuando Kevin Maxwell llega por la acera con su maletín en «Kevin»: el guardia le da el alto en «Maxwell».
+//    cierra justo cuando Kevin Maxwell llega por la acera desde la derecha con su maletín en «Kevin»: el guardia se vuelve
+//    y le da el alto en «Maxwell». Stein empieza pasado el coche aparcado (x≥78); nadie pasa por delante del coche.
 //    Corta en «the tycoon's».
 // 2. «the tycoon's son, were also in Moscow those same days»: el vestíbulo del hotel (fondo local): Kevin toca el timbre
-//    del mostrador en «son», firma el libro y la recepcionista le da la llave; por la escalera sube Stein con el periódico
-//    delante de la cara (no se ven); en «same days» los tres relojes giran y el calendario pasa del 20 al 23. Un botones
+//    del mostrador en «son», firma el libro y la recepcionista le da la llave; por la escalera sube Stein leyendo el periódico
+//    bajo, a la altura del pecho (no se ven); en «same» se le escapa una hoja que baja dando vueltas hasta un peldaño; en «same days» los tres relojes giran y el calendario pasa del 20 al 23. Un botones
 //    cruza con el carro de maletas; la puerta giratoria gira con la nieve detrás. Corta en «negotiating».
 // 3. «negotiating in other meetings without knowing the others were around»: el edificio de la agencia en corte (fondo
 //    local): tres despachos pared con pared; Stein, Kevin y Rogers negocian cada uno con su funcionario; en «without
@@ -24,9 +25,10 @@
 //    la limpiadora pasa la fregona, en el tejado nieva y humean las chimeneas, el gato cruza. Corta en «Rogers».
 // 4. «Rogers walked out with the handheld rights, and shortly after, Nintendo got the rights for its consoles too»: la
 //    orilla del Moscova de noche frente a las torres del Kremlin (fondo local): Rogers sale andando bajo la nieve y
-//    levanta el contrato con la casilla de bolsillo en «handheld rights» y salta; en «shortly after» llega un coche negro,
-//    del que baja el ejecutivo de Nintendo con su contrato (la casilla de salón) en «got the rights»; en «too» los dos
-//    levantan los contratos y saltan. El hielo baja por el río.
+//    levanta el contrato (en alto, a un lado de la cabeza: la cara libre) con la casilla de bolsillo en «handheld rights»
+//    y salta; en «shortly after» llega un coche negro, del que baja el ejecutivo de Nintendo con su contrato (la casilla
+//    de salón, también a un lado) en «got the rights»; en «too» los dos levantan los contratos y saltan. El hielo baja
+//    por el río.
 import * as T from '/atomo/plato/escenas/ts-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -96,23 +98,22 @@ const p1 = (t) => {
   T.moscu(R, t, o);
   // Stein: por la acera, sube los dos escalones y entra por la hoja que se abre
   const a1 = tramo(t, 0, robert - 0.3), a2 = tramo(t, robert - 0.3, stein - 0.1), a3 = tramo(t, stein + 0.05, stein + 0.65);
-  let sx = lerp(44, 110, a1); sx = lerp(sx, 156, a2); sx = lerp(sx, 175, a3); sx = Math.round(sx);
+  let sx = lerp(78, 110, a1); sx = lerp(sx, 156, a2); sx = lerp(sx, 175, a3); sx = Math.round(sx);
   const pie = sx + 7, ss = pie < 126 ? 164 : pie < 134 ? 152 : 146;
   if (cierra < 1) { const w = Math.round(21 * (1 - ab * 0.8));
     if (sx > 158) R.recorte([173, 0, 193 - w, 179]);
     const rs = R.actor(TS.stein, sx, ss, t, { dir: 1, anda: (a1 > 0 && a1 < 1) || (a2 > 0 && a2 < 1) || (a3 > 0 && a3 < 1), sostiene: [sx + 14, ss - 12], sonrisa: t > robert - 0.2 && t < stein + 0.3 });
     carpeta(rs.mano[0], rs.mano[1] + 2); R.recorte(null); }
-  // Kevin Maxwell: llega con su maletín cuando la puerta ya se ha cerrado
-  const k1 = tramo(t, kevin - 0.55, maxw + 0.55), kx = Math.round(lerp(-18, 98, k1));
-  if (t > kevin - 0.6) R.actor(TS.kevinMaxwell, kx, 164, t, { dir: 1, anda: k1 > 0 && k1 < 1, sorpresa: t > maxw + 0.15 && t < maxw + 0.75, habla: t > maxw + 0.8 });
-  // el guardia: saluda a Stein y le da el alto a Kevin
-  R.actor(TS.guardia, 212, 164, t, { dir: -1, dedo: (t > robert && t < stein + 0.2) || (t > maxw - 0.05 && t < maxw + 0.9), habla: t > maxw && t < maxw + 0.6, enfado: t > maxw - 0.05 });
-  // un vecino con el cubo de carbón al fondo, por la calle
-  { const vx = Math.round(lerp(96, 2, ((t * 0.09) % 1))); R.recorte([0, 120, 92, 160]); R.actor(TS.publico, vx, 150, t, { dir: -1, anda: true, pal: { C: hex('#3a3a46'), c: hex('#2a2a34') } }); R.recorte(null); }
+  // Kevin Maxwell: llega por la acera desde la derecha (lejos del coche aparcado) con su maletín cuando la puerta ya se
+  // ha cerrado, y se para delante del guardia
+  const k1 = tramo(t, kevin - 0.55, maxw + 0.45), kx = Math.round(lerp(334, 240, k1));
+  if (t > kevin - 0.6) R.actor(TS.kevinMaxwell, kx, 164, t, { dir: -1, anda: k1 > 0 && k1 < 1, sorpresa: t > maxw + 0.15 && t < maxw + 0.75, habla: t > maxw + 0.8 });
+  // el guardia: saluda a Stein y, con la puerta ya cerrada, se vuelve y le da el alto a Kevin
+  R.actor(TS.guardia, 212, 164, t, { dir: t > kevin - 0.3 ? 1 : -1, dedo: (t > robert && t < stein + 0.2) || (t > maxw - 0.05 && t < maxw + 0.9), habla: t > maxw && t < maxw + 0.6, enfado: t > maxw - 0.05 });
   T.moscuDelante(R, t, o);
   if (t > maxw - 0.05 && t < maxw + 0.9) R.bocadillo(219, 130, { icono: '!' });
   // las huellas que deja Stein en la nieve de la acera
-  for (let k = 0; k < 6; k++) { const hx = 52 + k * 11; if (hx < sx) { R.pset(hx, 166 + (k % 2) * 3, hex('#9aa8c0')); R.pset(hx + 1, 166 + (k % 2) * 3, hex('#9aa8c0')); } }
+  for (let k = 0; k < 4; k++) { const hx = 84 + k * 11; if (hx < sx) { R.pset(hx, 166 + (k % 2) * 3, hex('#9aa8c0')); R.pset(hx + 1, 166 + (k % 2) * 3, hex('#9aa8c0')); } }
 };
 
 // ── 2 · el vestíbulo del hotel: Kevin se registra; Stein sube por la escalera ──
@@ -199,13 +200,20 @@ const p2 = (t) => {
   // la recepcionista, detrás del mostrador
   const llave = t > son + 1.2 && t < son + 1.75, mira = t > mismos - 0.2 && t < dias + 0.6;
   const rr = R.actor(TS.publica, 186, 154, t, { dir: mira ? 1 : -1, habla: (t > son + 0.2 && t < son + 0.8) || t > dias + 0.9, sostiene: llave ? [Math.round(lerp(182, 172, tramo(t, son + 1.2, son + 1.6))), 140] : false, sonrisa: t > son && !mira, sorpresa: mira });
-  // Stein sube por la escalera con el periódico delante de la cara (no ve a nadie)
-  const su = tramo(t, moscow - 0.5, dias + 1.2), sx = Math.round(lerp(262, 318, su)), sy = Math.round(170 - Math.max(0, (sx + 7 - 252) / 8) * 7) + (sx + 7 < 252 ? 2 : 0);
-  if (t > moscow - 0.6 && su < 1) { const rs = R.actor(TS.stein, sx, sy, t, { dir: 1, anda: su > 0 && su < 1, sostiene: [sx + 13, sy - 20] });
-    const [nx, ny] = rs.mano; R.rect(nx - 6, ny - 6, nx + 5, ny + 4, K); R.rect(nx - 5, ny - 5, nx + 4, ny + 3, hex('#e8e4d6')); for (let j = ny - 4; j < ny + 3; j += 2) R.rect(nx - 4, j, nx + (j % 4 ? 3 : 0), j, hex('#7a7a86')); R.rect(nx - 4, ny - 4, nx - 1, ny - 2, hex('#3a3a46')); }
-  // la barandilla de la escalera (por delante de Stein)
-  for (let k = 0; k < 10; k++) { const x = 252 + k * 8, y = 170 - k * 7; R.rect(x + 1, y - 18, x + 2, y, hex('#c89838')); }
-  R.linea(250, 150, 330, 80, K); R.linea(250, 151, 330, 81, hex('#7a4a28')); R.linea(250, 149, 330, 79, hex('#a87444')); R.disco(251, 151, 3, hex('#c89838'));
+  // Stein sube por la escalera leyendo el periódico bajo, a la altura del pecho (la cara se le ve); en «same» se le
+  // escapa una hoja, que baja dando vueltas y se queda en un peldaño (el gag es del papel, no de él)
+  const posS = (tt) => { const su = tramo(tt, moscow - 0.5, dias + 1.2), sx = Math.round(lerp(262, 318, su)); return [su, sx, Math.round(170 - Math.max(0, (sx + 7 - 252) / 8) * 7) + (sx + 7 < 252 ? 2 : 0)]; };
+  const [su, sx, sy] = posS(t);
+  if (t > moscow - 0.6 && su < 1) { const rs = R.actor(TS.stein, sx, sy, t, { dir: 1, anda: su > 0 && su < 1, sostiene: [sx + 16, sy - 8] });
+    const [nx, ny] = rs.mano; R.rect(nx - 3, ny - 2, nx + 6, ny + 7, K); R.rect(nx - 2, ny - 1, nx + 5, ny + 6, hex('#e8e4d6')); R.rect(nx - 2, ny - 1, nx + 5, ny - 1, hex('#fbf8ee'));
+    for (let j = ny + 1; j < ny + 6; j += 2) R.rect(nx - 1, j, nx + (j % 4 ? 4 : 2), j, hex('#7a7a86')); R.rect(nx + 2, ny + 1, nx + 4, ny + 3, hex('#3a3a46')); R.rect(nx + 5, ny, nx + 5, ny + 6, hex('#b8b4a6')); }
+  if (t > mismos) { const [, hx0, hy0] = posS(mismos), x0 = hx0 + 18, y0 = hy0 - 6, u = tramo(t, mismos, mismos + 1.5);
+    const hx = x0 - u * 26 + Math.sin(u * 10) * 4 * (1 - u), suelo = 170 - Math.max(0, (hx - 252) / 8) * 7 - 1, hy = Math.round(lerp(y0, suelo, u * u * (3 - 2 * u))), X = Math.round(hx);
+    if (u < 1) { const g = Math.sin(t * 9) > 0; R.rect(X - (g ? 3 : 1), hy - (g ? 1 : 3), X + (g ? 3 : 1), hy + (g ? 1 : 3), K); R.rect(X - (g ? 2 : 0), hy - (g ? 0 : 2), X + (g ? 2 : 0), hy + (g ? 0 : 2), hex('#e8e4d6')); }
+    else { R.rect(X - 4, hy - 1, X + 4, hy, K); R.rect(X - 3, hy - 1, X + 3, hy - 1, hex('#e8e4d6')); R.pset(X - 1, hy - 1, hex('#7a7a86')); R.pset(X + 1, hy - 1, hex('#7a7a86')); } }
+  // la barandilla de la escalera (por delante de Stein), a la altura de la cintura: no le cruza la cara
+  for (let k = 0; k < 10; k++) { const x = 252 + k * 8, y = 170 - k * 7; R.rect(x + 1, y - 8, x + 2, y, hex('#c89838')); R.pset(x + 1, y - 8, hex('#f0d060')); }
+  R.linea(250, 162, 330, 92, K); R.linea(250, 163, 330, 93, hex('#7a4a28')); R.linea(250, 161, 330, 91, hex('#a87444')); R.disco(251, 163, 3, hex('#c89838')); R.pset(250, 161, hex('#f0d060'));
   mostrador(t, 20 + Math.min(3, Math.floor(tramo(t, mismos, dias + 0.6) * 3.99)));
   // la hoja del calendario que salta
   if (t > mismos && t < dias + 0.7) { const u = ((t - mismos) * 4) % 1; R.rect(223, 130 - Math.round(u * 8), 237, 134 - Math.round(u * 8), hex('#f6f2e6')); }
@@ -363,19 +371,20 @@ const p4 = (t) => {
   const r1 = tramo(t, P4 - 0.2, bolsillo - 0.25), rx = Math.round(lerp(-14, 84, r1)), alza = t > bolsillo - 0.2;
   const salta = t > derechos && t < derechos + 0.5 ? Math.round(Math.sin((t - derechos) / 0.5 * Math.PI) * 7) : t > tambien && t < tambien + 0.5 ? Math.round(Math.sin((t - tambien) / 0.5 * Math.PI) * 6) : 0;
   const mira = t > nintendo - 0.2;
-  const rr = R.actor(TS.rogersAbrigo, rx, 160, t, { dir: mira || r1 < 1 ? 1 : 1, anda: r1 > 0 && r1 < 1, salto: salta, sonrisa: alza, sostiene: alza ? [rx + 16, 128 - salta] : [rx + 14, 146] });
+  const rr = R.actor(TS.rogersAbrigo, rx, 160, t, { dir: mira || r1 < 1 ? 1 : 1, anda: r1 > 0 && r1 < 1, salto: salta, sonrisa: alza, sostiene: alza ? [rx + 30, 132 - salta] : [rx + 14, 146] });
   // el ejecutivo de Nintendo baja del coche y enseña su contrato
   const cl = tramo(t, pronto - 0.2, nintendo - 0.35), cxx = Math.round(lerp(330, 196, cl)), puerta = tramo(t, nintendo - 0.35, nintendo - 0.05) * (1 - tramo(t, consiguio + 0.3, consiguio + 0.7));
   let rn = null;
-  if (t > nintendo - 0.15) { const n1 = tramo(t, nintendo - 0.15, consiguio + 0.5), nx = Math.round(lerp(214, 126, n1)), alzaN = t > derechos2 - 0.15;
+  if (t > nintendo - 0.15) { const n1 = tramo(t, nintendo - 0.15, consiguio + 0.5), nx = Math.round(lerp(214, 150, n1)), alzaN = t > derechos2 - 0.15;
     const saltaN = t > tambien && t < tambien + 0.5 ? Math.round(Math.sin((t - tambien) / 0.5 * Math.PI) * 6) : 0;
-    rn = R.actor(TS.ejecutivoNintendo, nx, 160, t, { dir: -1, anda: n1 > 0 && n1 < 1, salto: saltaN, sonrisa: t > consolas, habla: t > consiguio && t < derechos2, sostiene: alzaN ? [nx - 2, 128 - saltaN] : [nx, 146], pal: { C: hex('#2a2a36'), c: hex('#1e1e28') } }); }
-  // los contratos: el de Rogers con la casilla de bolsillo; el de Nintendo con la de salón
+    rn = R.actor(TS.ejecutivoNintendo, nx, 160, t, { dir: -1, anda: n1 > 0 && n1 < 1, salto: saltaN, sonrisa: t > consolas, habla: t > consiguio && t < derechos2, sostiene: alzaN ? [nx - 16, 132 - saltaN] : [nx, 146], pal: { C: hex('#2a2a36'), c: hex('#1e1e28') } }); }
+  // los contratos: el de Rogers con la casilla de bolsillo; el de Nintendo con la de salón; en alto y a un lado de la
+  // cabeza (la mano coge la esquina de abajo), para que la cara quede libre
   const plegado = (x, y) => { R.rect(x - 4, y - 3, x + 4, y + 2, K); R.rect(x - 3, y - 2, x + 3, y + 1, hex('#f2eee2')); R.rect(x - 3, y - 2, x + 3, y - 2, hex('#ffffff')); R.pset(x + 2, y, hex('#c8283a')); };
-  { const [mx, my] = rr.mano; if (alza) PZ.contrato(R, mx, my + 4, { casillas: [0, 0, 1], firma: true, sello: t > derechos }); else plegado(mx, my); }
-  if (rn) { const [mx, my] = rn.mano; if (t > derechos2 - 0.15) PZ.contrato(R, mx, my + 4, { casillas: [0, 1, 0], firma: true, sello: t > derechos2 }); else plegado(mx, my); }
+  { const [mx, my] = rr.mano; if (alza) PZ.contrato(R, mx + 9, my + 3, { casillas: [0, 0, 1], firma: true, sello: t > derechos }); else plegado(mx, my); }
+  if (rn) { const [mx, my] = rn.mano; if (t > derechos2 - 0.15) PZ.contrato(R, mx - 9, my + 3, { casillas: [0, 1, 0], firma: true, sello: t > derechos2 }); else plegado(mx, my); }
   // los destellos en «rights» y en «too»
-  for (const [t0, x] of [[derechos, rx + 16], [tambien, 110]]) if (t > t0 && t < t0 + 0.7) { const u = (t - t0) / 0.7; for (let k = 0; k < 8; k++) { const a = k * 0.785 + u, r = 6 + u * 16; R.pset(Math.round(x + Math.cos(a) * r), Math.round(108 + Math.sin(a) * r * 0.7), k % 2 ? hex('#ffe890') : hex('#ffffff')); } }
+  for (const [t0, x] of [[derechos, rx + 25], [tambien, 124]]) if (t > t0 && t < t0 + 0.7) { const u = (t - t0) / 0.7; for (let k = 0; k < 8; k++) { const a = k * 0.785 + u, r = 6 + u * 16; R.pset(Math.round(x + Math.cos(a) * r), Math.round(108 + Math.sin(a) * r * 0.7), k % 2 ? hex('#ffe890') : hex('#ffffff')); } }
   // el coche negro, por delante de todos
   if (cl > 0) { coche(cxx, t * (cl < 1 ? 1 : 0), puerta); if (cl < 1) for (let k = 0; k < 3; k++) tinte(cxx + 84 + k * 4, 166 - k, hex('#c8d0e0'), 0.4); else for (let k = 0; k < 3; k++) { const u = (t * 0.8 + k / 3) % 1; R.disco(Math.round(cxx + 82 + u * 14), Math.round(168 - u * 8), 1 + Math.round(u * 2), mez(hex('#c8d0e0'), hex('#6a6a7c'), u)); } }
   // la nieve grande y cercana por delante

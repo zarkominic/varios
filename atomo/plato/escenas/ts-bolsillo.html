@@ -15,6 +15,9 @@
 //    Corta en «It».
 // 2. el autobús: un señor juega sin parar; en «anyone» el niño le pasa la consola a la señora de al lado, que no la
 //    entiende («?»); cuenta 1–5 en «five seconds» y ya juega («!»); el del periódico baja el periódico. Corta en «on».
+//    Los asientos van uno a uno (respaldo con cabecero de funda de ganchillo, ribete, capitoné, asa cromada, ranura y
+//    sombra en la pared), con la calefacción entre bancos, el pictograma de no fumar y la canceladora que parpadea; el
+//    viajero de pie va agarrado al aro de la correa que cuelga del brazo del poste y se balancea con el traqueteo.
 // 3. (inserto) la chaqueta vaquera colgada en la entrada de casa: la mano trae la consola encendida en «machine» y la
 //    mete en el bolsillo en «pocket»; le da dos palmaditas; el gato mira. Corta en «sold».
 // 4. la nave de envíos: la cinta lleva cajas, el mozo las apila, el contador del tablero sube hasta 35,000,000 en
@@ -128,8 +131,80 @@ const p1 = (t) => {
 
 // ── 2 · el autobús
 const G2 = { encuadre: 'jugueteria', camara: 'autobus' };
+// los asientos, uno a uno, encima del respaldo corrido del decorado: cada respaldo con su cabecero de funda de ganchillo,
+// el ribete de cordón, las costuras de capitoné, la sombra en la base y el asa cromada; la ranura oscura entre asiento y
+// asiento; la pared de debajo de la ventana con sus juntas, remaches y la sombra de los cabeceros; entre los bancos, la
+// rejilla de la calefacción (y su caja delante, sobre el borde del asiento), el pictograma de no fumar y, a la derecha,
+// la canceladora de billetes. Se calcula una vez en un búfer (0 = transparente) y se pinta cada fotograma.
+const ASI = [[-3, 25], [27, 54], [56, 83], [113, 140], [142, 169], [207, 234], [236, 263]];
+const HUE = [[84, 112], [170, 206], [264, 319]], RANURA = [26, 55, 141, 235];
+const TEL = P('#2e4a8a'), TELS = P('#22386a'), TELL = P('#4a6aa8'), NAR = P('#e07a2a'), TUR = P('#3ac8c0'), CRE = P('#ece4d0'), CRES = P('#c8bea8');
+const MET = P('#9aa4b4'), METS = P('#6c7688'), METL = P('#d0d8e2'), METD = P('#4a5262'), PAR = P('#cfc8b6'), LUZ = P('#fff4d2'), ROJ = P('#c8302a');
+const RES = (() => {
+  const L = R.nuevo(), prev = R.usar(L), ps = (x, y, c) => { if (x >= 0 && x < 320 && y >= 99 && y <= 165) L[y * 320 + x] = c; }, pg = (x, y) => L[y * 320 + x];
+  // la pared de debajo de la ventana: plástico crema con grano, juntas cada 40 px, remaches y más sombra hacia abajo
+  for (let y = 99; y <= 150; y++) for (let x = 0; x < 320; x++) {
+    let c = y < 101 ? P('#a8a292') : h(x, y, 61) > 0.93 ? osc(PAR, 0.08) : h(x, y, 62) > 0.95 ? cla(PAR, 0.15) : PAR;
+    if (y >= 101 && x % 40 === 0) c = osc(PAR, 0.3); else if (y >= 101 && x % 40 === 1) c = cla(PAR, 0.25);
+    if ((y === 103 || y === 147) && x % 13 === 6) c = METS; if ((y === 102 || y === 146) && x % 13 === 5) c = METL;
+    ps(x, y, osc(c, Math.max(0, (y - 101) / 49) * 0.2));
+  }
+  // la rejilla de la calefacción en los huecos entre bancos (con su marco) y su caja delante, sobre el borde del asiento
+  for (const [a, bb] of HUE) { const x0 = a + 3, x1 = Math.min(316, bb - 3);
+    for (let y = 128; y <= 149; y++) for (let x = x0; x <= x1; x++) ps(x, y, x === x0 || x === x1 || y === 128 || y === 149 ? K : (y - 128) % 3 === 0 ? METD : (y - 128) % 3 === 1 ? METS : cla(METS, 0.15));
+    for (let y = 151; y <= 164; y++) for (let x = a; x <= bb; x++) ps(x, y, y === 151 || y === 164 || x === a || x === bb ? K : y === 152 ? METL : (x - a) % 3 === 0 ? METD : y > 160 ? METS : MET); }
+  // el pictograma de no fumar (un círculo rojo tachado con su cigarrillo), sin letras
+  for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) { const d = Math.hypot(i, j); if (d <= 6.4) ps(199 + i, 113 + j, d > 5.4 ? ROJ : d > 4.6 ? K : BL); }
+  for (let i = -3; i <= 2; i++) ps(199 + i, 113, i === 2 ? NAR : METS); for (let k = -4; k <= 4; k++) { ps(199 + k, 113 + k, ROJ); ps(200 + k, 113 + k, ROJ); }
+  // la canceladora de billetes en el panel de la derecha: caja naranja con la ranura y la boca, en su soporte
+  for (let y = 104; y <= 130; y++) for (let x = 298; x <= 313; x++) { const borde = x === 298 || x === 313 || y === 104 || y === 130;
+    ps(x, y, borde ? K : y === 112 ? K : y > 126 ? METS : x < 301 ? cla(NAR, 0.2) : x > 310 ? P('#a8541a') : NAR); }
+  for (let x = 301; x <= 310; x++) ps(x, 117, P('#3a2a1a')); for (let x = 302; x <= 309; x++) ps(x, 118, METL); for (let y = 131; y <= 133; y++) for (let x = 300; x <= 311; x++) ps(x, y, osc(pg(x, y), 0.25));
+  // los respaldos, uno por asiento
+  const dentro = (x, y, x0, x1, y0, y1, r) => { if (x < x0 || x > x1 || y < y0 || y > y1) return false; const dx = Math.max(x0 + r - x, x - (x1 - r), 0), dy = Math.max(y0 + r - y, 0); return dx * dx + dy * dy <= r * r + 0.5; };
+  for (const [x0, x1] of ASI) {
+    // la sombra del respaldo y del cabecero en la pared (la luz entra por las ventanas, arriba a la izquierda)
+    for (let y = 113; y <= 150; y++) for (let x = x1 + 1; x <= x1 + 2; x++) if (y > 120 && pg(x, y)) ps(x, y, osc(pg(x, y), 0.3));
+    for (let y = 112; y <= 150; y++) for (let x = x0; x <= x1; x++) { if (!dentro(x, y, x0, x1, 120, 151, 3)) continue;
+      const borde = [[1, 0], [-1, 0], [0, -1]].some(([a, bb]) => !dentro(x + a, y + bb, x0, x1, 120, 151, 3)), cordon = !borde && [[2, 0], [-2, 0], [0, -2]].some(([a, bb]) => !dentro(x + a, y + bb, x0, x1, 120, 151, 3));
+      if (borde) { ps(x, y, K); continue; }
+      if (cordon) { ps(x, y, (x + y) % 2 ? TELL : cla(TELL, 0.25)); continue; }
+      const n = h(x, y, 46); let c = n > 0.965 ? NAR : n < 0.03 ? TUR : (x + y * 2) % 7 === 0 ? TELS : TEL;
+      if (x === x0 + 8 || x === x1 - 8) { if (y > 124 && y < 147) c = y % 2 ? TELS : osc(TEL, 0.3); }
+      if (y === 135) c = TELS; else if (y === 136) c = cla(c, 0.12);
+      const u = (x - x0) / (x1 - x0); let s = 0;
+      if (u < 0.12) s += 0.18; if (u > 0.82) s += (u - 0.82) / 0.18 * 0.32; if (y > 143) s += (y - 143) / 8 * 0.32;
+      c = s > 0 ? osc(c, s) : (y >= 123 && y <= 125 && u > 0.15 && u < 0.75 ? cla(c, 0.14) : c);
+      ps(x, y, c); }
+    // el cabecero: funda de ganchillo crema arriba, la tela más clara abajo; y su sombra sobre el respaldo
+    const hx0 = x0 + 8, hx1 = x1 - 8;
+    for (let y = 126; y <= 127; y++) for (let x = hx0; x <= hx1 + 1; x++) if (pg(x, y)) ps(x, y, osc(pg(x, y), 0.3));
+    for (let y = 112; y <= 125; y++) for (let x = hx0; x <= hx1; x++) { if (!dentro(x, y, hx0, hx1, 112, 125, 2)) continue;
+      const borde = [[1, 0], [-1, 0], [0, -1], [0, 1]].some(([a, bb]) => !dentro(x + a, y + bb, hx0, hx1, 112, 125, 2));
+      const u = (x - hx0) / (hx1 - hx0); let c;
+      if (borde) c = K; else if (y < 119) c = (x + y) % 4 === 0 ? CRES : u > 0.8 ? CRES : y === 113 && u < 0.6 ? BL : CRE;
+      else if (y === 119) c = x % 2 ? CRE : CRES; else c = u > 0.8 ? TEL : h(x, y, 47) > 0.95 ? NAR : TELL;
+      ps(x, y, c); }
+    // el asa cromada arriba del respaldo, del lado del pasillo
+    for (let y = 115; y <= 120; y++) for (let x = x1 - 6; x <= x1 - 1; x++) {
+      if (x === x1 - 6 || x === x1 - 1 || y === 115) ps(x, y, K); else if (y === 116) ps(x, y, METL); else if (x === x1 - 5) ps(x, y, METL); else if (x === x1 - 2) ps(x, y, METS); }
+  }
+  // la ranura entre asiento y asiento, en el respaldo y en el cojín
+  for (const x of RANURA) { for (let y = 121; y <= 150; y++) ps(x, y, P('#10162a')); for (let y = 152; y <= 163; y++) ps(x, y, K); }
+  R.usar(prev); return L;
+})();
+const pintaRes = (y0, y1) => { for (let y = y0; y <= y1; y++) { const o = y * 320; for (let x = 0; x < 320; x++) { const c = RES[o + x]; if (c) R.pset(x, y, c); } } };
+// el asidero del viajero de pie (x 284, a la derecha del poste): el poste (x 275, del techo al suelo) con su brazo horizontal y la correa que se balancea
+// con el traqueteo; la mano del viajero va donde está el aro. Su hombro se mide una vez (el brazo llega a 9 px)
+const VIA = { ...TS.publico, pal: { ...TS.publico.pal, C: hex('#8a4a6a'), c: hex('#6a3450') } }, XV = 284;
+const HOMBRO = (() => { const prev = R.usar(R.nuevo()), m = R.actor(VIA, XV, 177, 0, { dir: -1, sostiene: [XV + 3, 0] }).mano; R.usar(prev); return m; })();
+const AXV = HOMBRO[0] - 5, AYV = HOMBRO[1] + 4, RIEL = AYV - 18;   // el aro, delante de la cara (no detrás de la cabeza)
 const p2 = (t) => {
   T.guerra(R, t, G2);
+  // los respaldos uno a uno (encima del corrido del decorado) y la luz de las ventanas que los barre, cortada por los árboles
+  pintaRes(99, 150);
+  for (const [a, bb] of [[8, 92], [100, 184], [192, 270]]) if (Math.sin(t * 3.5 + a * 0.05) <= 0.4) for (let y = 110; y < 150; y += 2) for (let x = a + 4; x < bb - 4; x += 2) tin(x + ((y >> 1) % 2) - Ri((y - 108) * 0.3), y, LUZ, 0.15);
+  { const on = Math.floor(t * 1.5) % 3 === 0; R.pset(309, 108, on ? P('#6ae86a') : P('#2a6a3a')); R.pset(302, 108, P('#e8584a')); }
   // sentados: el señor que juega sin parar, la señora y el del periódico
   R.actor(TS.adultoJuega, 34, 156, t, { dir: 1, sonrisa: (t > PERFECTA - 0.1 && t < PERFECTA + 1.3) || t > SEG, salto: t > PERFECTA && t < PERFECTA + 0.3 ? 1 : 0 });
   R.actor({ ...TS.publica, pal: { ...TS.publica.pal, H: hex('#c8902a'), C: hex('#3a8a8a'), c: hex('#2a6a6a') } }, 62, 156, t, { dir: -1, sorpresa: t > PERFECTA - 0.1 && t < PERFECTA + 0.6, sonrisa: t > PERFECTA + 0.6, habla: t > PERFECTA + 0.6 && t < PERFECTA + 1.4 && Math.sin(t * 9) > 0 });
@@ -140,8 +215,16 @@ const p2 = (t) => {
   const lee = R.actor(TS.publico, 214, 156, t, { dir: -1, sostiene: [206, Ri(lerp(136, 148, baja))], sorpresa: baja > 0.5 && t < SEG + 0.2, sonrisa: t > SEG + 0.2 });
   { const [x, y] = lee.mano; R.rect(x - 7, y - 7, x + 2, y + 4, K); R.rect(x - 6, y - 6, x + 1, y + 3, P('#ece6d6')); for (let j = y - 5; j <= y + 2; j += 2) R.rect(x - 5, j, x, j, P('#9a968a')); R.rect(x - 5, y - 5, x - 3, y - 4, P('#5a5a66')); R.pset(x - 2, y + 3, P('#c8c0b0')); }
   T.guerraDelante(R, t, { ...G2, capa: 'asientos' });
-  // de pie: el niño (le pasa la consola en «anyone» y le explica con el dedo) y un viajero que se agarra a la barra
-  R.actor({ ...TS.publico, pal: { ...TS.publico.pal, C: hex('#8a4a6a'), c: hex('#6a3450') } }, 262, 177, t, { dir: -1, dedo: true, sonrisa: t > SEG });
+  pintaRes(151, 165);   // la caja de la calefacción entre bancos y la ranura entre cojines
+  // de pie: el niño (le pasa la consola en «anyone» y le explica con el dedo) y un viajero agarrado al asidero: el poste
+  // con su brazo horizontal, la correa que se balancea con el traqueteo y el aro, con la mano del viajero en él
+  { R.rect(273, 37, 277, 178, K); R.rect(274, 37, 276, 178, METL); R.rect(276, 37, 276, 178, METS); R.rect(272, 174, 278, 178, METD); R.rect(272, 174, 278, 174, K);
+    R.rect(276, RIEL - 2, 299, RIEL + 2, K); R.rect(277, RIEL - 1, 298, RIEL, METL); R.rect(277, RIEL + 1, 298, RIEL + 1, METS); R.rect(298, RIEL - 2, 300, RIEL + 2, K); R.rect(276, RIEL - 3, 280, RIEL + 3, K); R.rect(277, RIEL - 2, 279, RIEL + 2, MET); }
+  const tq = Math.sin(t * 9) > 0.92 ? 1 : 0, ang = Math.sin(t * 1.6 + 2.6) * 0.07 + tq * 0.05;
+  const ax = Ri(AXV + Math.sin(ang) * 18), ay = Ri(RIEL + Math.cos(ang) * 18);
+  R.linea(AXV - 1, RIEL + 2, ax - 1, ay - 4, K); R.linea(AXV + 1, RIEL + 2, ax + 1, ay - 4, K); R.linea(AXV, RIEL + 2, ax, ay - 4, P('#b8b4a8')); R.pset(AXV, RIEL + 3, METL);
+  R.disco(ax, ay, 4, K); R.disco(ax, ay, 3, P('#e8e0c8')); R.disco(ax, ay, 2, K); R.pset(ax - 2, ay - 2, BL);
+  R.actor(VIA, XV, 177, t, { dir: -1, sostiene: [ax, ay], sonrisa: t > SEG });
   const nin = R.actor(TS.ninoJuega, 150, 177, t, { dir: -1, sostiene: pasa < 1 ? [Ri(lerp(146, 141, pasa)), Ri(lerp(160, 139, pasa))] : undefined, dedo: tiene && t > ENTIENDE - 0.6 && t < SEG, habla: tiene && t < SEG && Math.sin(t * 9) > 0, sonrisa: true });
   if (pasa < 1) consolita(nin.mano[0], nin.mano[1], t, true); else consolita(sen.mano[0], sen.mano[1], t, juega);
   // la cuenta: de 1 a 5 en «five seconds», y el «!» de la señora

@@ -19,7 +19,10 @@
 //    time», el reloj corre y Pázhitnov escribe rompecabezas que se clavan en el corcho en «puzzles»; en «favorite» se vuelve
 //    a la caja de madera de la estantería;
 // 4. corta en «with»: el rompecabezas de madera de cerca (fondo local): la mano coloca una pieza, cuenta los cinco
-//    cuadrados de la última en «five squares» y la encaja en «fit inside a box»: la caja se completa.
+//    cuadrados de la última en «five squares» y la encaja en «fit inside a box»: la caja se completa; al fondo, el flexo
+//    verde entero (pie en la mesa, brazo articulado con muelle, pantalla) alumbra el tablero. Las manos que llevan la L y
+//    la X van solas (T.mano sinManga, con su sombra en la mesa: lejos del borde el brazo pasaba de 45 px); la que coge el
+//    vaso, junto al borde derecho, con el brazo canónico corto.
 import * as T from '/atomo/plato/escenas/ts-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -283,11 +286,23 @@ const fondo4 = () => {
   // el estante con libros y cajas de rompecabezas, y el flexo verde al fondo de la mesa
   R.rect(92, 36, 178, 38, Q.maderaS); R.rect(92, 36, 178, 36, Q.maderaL); let bx = 94; while (bx < 150) { const w = 3 + Math.floor(h(bx, 1, 56) * 3), hh = 12 + Math.floor(h(bx, 2, 56) * 6), c = [Q.rojoS, hex('#3a5a8a'), hex('#5a6a3a'), hex('#8a6a3a')][Math.floor(h(bx, 3, 56) * 4)]; R.rect(bx, 35 - hh, bx + w, 35, Q.k); R.rect(bx + 1, 36 - hh, bx + w - 1, 35, c); bx += w + 1; }
   caja(154, 28, 176, 35, Q.nogal, Q.nogalL, Q.nogalS); caja(156, 20, 174, 27, hex('#b07a4a'), hex('#d09a64'), hex('#7a4a2a'));
-  R.rect(18, 58, 50, 62, Q.k); R.rect(19, 59, 49, 61, hex('#2a6a3a')); R.rect(33, 44, 35, 58, Q.oroS); R.poligono([[14, 46], [54, 46], [48, 34], [20, 34]], Q.k); R.poligono([[16, 45], [52, 45], [47, 35], [21, 35]], hex('#2a7a4a')); R.rect(18, 46, 50, 47, Q.luzC); R.rect(22, 36, 46, 37, hex('#4a9a6a'));
-  R.linea(50, 60, 70, 56, Q.k);
   madera(0, 49, 319, 179, Q.madera, Q.maderaS, Q.maderaL, 11, 53);
   // la sombra que tira la caja y la luz del flexo en la mesa
   for (let y = 60; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - 60) * 0.8, y - 70); if (d < 150 && h(x, y, 54) < (1 - d / 150) * 0.25) R.pset(x, y, hex('#b07a48')); else if (d > 210 && h(x, y, 55) < 0.25) R.pset(x, y, Q.maderaS); }
+  // el flexo entero, apoyado al fondo de la mesa: pie con su sombra, brazo articulado de dos tramos con muelle, y la
+  // pantalla verde que cuelga de la rótula y alumbra la mesa (cono de luz tenue sobre la pared y el tablero)
+  for (let y = 45; y <= 66; y++) { const w = Math.round(13 + (y - 45) * 0.9); for (let x = 43 - w; x <= 43 + w; x++) { if (x < 0) continue; const a0 = 0.13 * (1 - Math.abs(x - 43) / (w + 1)); R.pset(x, y, mez(R.pget(x, y), Q.luzC, (x + y) % 2 ? a0 : a0 * 0.7)); } }
+  R.linea(44, 62, 62, 67, Q.k); R.linea(62, 67, 94, 65, Q.k); R.linea(62, 68, 94, 66, Q.maderaD);
+  R.rect(19, 63, 46, 64, Q.maderaD); R.rect(20, 57, 44, 62, Q.k); R.rect(21, 58, 43, 61, hex('#2a6a3a')); R.rect(21, 58, 43, 58, hex('#4a9a6a')); R.rect(22, 61, 42, 61, hex('#1a4a2a'));
+  R.rect(29, 54, 34, 57, Q.k); R.rect(30, 55, 33, 56, Q.oroS); R.pset(30, 55, Q.luzC);
+  R.linea(30, 55, 21, 39, Q.k); R.linea(31, 55, 22, 39, Q.oroS); R.linea(32, 55, 23, 39, Q.k);
+  for (let i = 0; i < 5; i++) { const y = 43 + i * 2, x = 23 + Math.round((y - 39) * 0.56); R.pset(x + 3, y, Q.metal); R.pset(x + 4, y + 1, Q.metalS); }
+  R.linea(22, 38, 40, 27, Q.k); R.linea(22, 37, 40, 26, Q.oroS); R.linea(22, 36, 40, 25, Q.k);
+  R.rect(19, 35, 24, 40, Q.k); R.rect(20, 36, 23, 39, Q.oroS); R.pset(21, 37, Q.luzC);
+  R.rect(39, 24, 44, 29, Q.k); R.rect(40, 25, 43, 28, Q.oroS); R.pset(41, 25, Q.luzC);
+  R.poligono([[35, 28], [51, 28], [59, 44], [27, 44]], Q.k); R.poligono([[36, 29], [50, 29], [57, 43], [29, 43]], hex('#2a7a4a'));
+  R.linea(37, 30, 31, 42, hex('#4a9a6a')); R.linea(38, 30, 33, 40, hex('#5ab47a')); R.linea(49, 30, 55, 42, hex('#1a5a32'));
+  R.rect(29, 43, 57, 44, Q.luzC); R.rect(37, 45, 49, 45, Q.luzV); R.rect(40, 46, 46, 46, mez(Q.luzV, Q.madera, 0.5));
   // el cuaderno con el dibujo de la caja y el lápiz
   caja(10, 120, 70, 172, Q.papel, Q.blanco, Q.papelS); for (let y = 124; y < 170; y += 4) R.rect(12, y, 68, y, hex('#c8d8e8')); R.rect(16, 120, 16, 172, Q.rojoL);
   for (let i = 0; i < 6; i++) for (let j = 0; j < 3; j++) { const x = 24 + i * 7, y = 134 + j * 7; R.rect(x, y, x + 7, y, Q.lapiz); R.rect(x, y, x, y + 7, Q.lapiz); } R.rect(24, 155, 66, 155, Q.lapiz); R.rect(66, 134, 66, 155, Q.lapiz);
@@ -318,17 +333,22 @@ const p4 = (t) => {
   // el brillo de la caja completa
   if (t > CAJA - 0.1 && t < CAJA + 1.2) { const v = li(t, CAJA - 0.1, CAJA + 1.2); for (let i = 0; i < 10; i++) { const q = i / 10 * 6.283, r = 20 + v * 60; const sx = Math.round(BX + 60 + Math.cos(q) * r * 1.3), sy = Math.round(BY + 36 + Math.sin(q) * r * 0.7); if (sy > 48 && sy < 176) { R.pset(sx, sy, Q.luzC); R.pset(sx + 1, sy, Q.luzV); R.pset(sx, sy + 1, Q.luzV); } } R.rect(BX - 6, BY - 7, BX + 10 * CEL + 5, BY - 7, Q.luzC); }
   // la mano: va por la L, la coloca, vuelve por la X, la sostiene y la encaja; luego se retira
+  // la sombra blanda de la mano sobre la mesa y el tablero
+  const sombraMano = (sx, sy) => { for (let dy = -3; dy <= 3; dy++) for (let dx = -7; dx <= 7; dx++) if ((dx / 7.5) ** 2 + (dy / 3.5) ** 2 < 1) { const x = sx + dx, y = sy + dy; R.pset(x, y, mez(R.pget(x, y), hex('#2a1810'), 0.28)); } };
   // la mano izquierda lleva la L (la coge por su cuadrado de abajo a la izquierda) y se retira
   { const v = t < P4 + 1.1 ? 0 : li(t, P4 + 1.1, P4 + 1.7), hx = Math.round(lerp(xL - 40, -40, v)), hy = Math.round(lerp(yL + 18, 200, v));
-    if (v < 1) T.brazo(R, Math.round(hx - 50), 214, hx, hy, '#5e6e58', 1, { codo: [hx - 34, Math.min(204, hy + 42)] }); }
+    if (v < 1) { sombraMano(hx + 8, hy + 7); T.mano(R, hx + 2, hy, 1, '#5e6e58', { sinManga: true }); } }
   // la mano derecha va por la X, la sostiene, la encaja y se retira
   let mx, my;
   if (t < P4 + 1.4) { const v = li(t, P4 + 0.6, P4 + 1.4); mx = Math.round(lerp(340, cxX + 22, v)); my = Math.round(lerp(200, cyX + 6, v)); }
   else if (t < ENCAJA + 0.25) { mx = cxX + 22; my = cyX + 6; }
-  else if (t < CAJA + 0.5) { const v = li(t, ENCAJA + 0.25, ENCAJA + 1.1); mx = Math.round(lerp(xx + 22, 340, v)); my = Math.round(lerp(xy + 6, 200, v)); }
+  else if (t < CAJA + 0.5) { const v = ez(li(t, ENCAJA + 0.25, ENCAJA + 0.75)); mx = Math.round(lerp(xx + 22, 340, v)); my = Math.round(lerp(xy + 6, 200, v)); }
   else if (toma < 1) { mx = Math.round(lerp(340, gxV + 10, toma)); my = Math.round(lerp(200, gyV - 7, toma)); }
   else { mx = gxV + 10; my = gyV - 7; }
-  if (mx < 330) T.brazo(R, Math.min(360, mx + 60), 214, mx + 14, my, '#5e6e58', -1, { codo: [mx + 44, Math.min(200, my + 46)] });
+  // mientras lleva la X, la mano sola (lejos del borde; el brazo entero se veía de 60 px); con el vaso, junto al borde
+  // derecho, el brazo canónico corto
+  if (mx < 330) { if (t < CAJA + 0.5) { sombraMano(mx + 6, my + 7); T.mano(R, mx + 11, my, -1, '#5e6e58', { sinManga: true }); }
+    else T.brazo(R, Math.min(360, mx + 60), 214, mx + 14, my, '#5e6e58', -1, { codo: [mx + 44, Math.min(200, my + 46)] }); }
 };
 const efectos = [[NOMBRE + 0.65, 'papel'], [P2 + 0.3, 'zumbido'], [INVESTIGA, 'interruptor'], [HABLA_FIN + 0.15, 'tecleo'], [LIBRE, 'interruptor'], [PUZLES + 0.45, 'papel'], [FAVORITO + 0.1, 'brillo'], [P4 + 1.1, 'toc'], [ENCAJA, 'toc'], [CAJA, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1984', año: 1984, efectos });

@@ -24,10 +24,13 @@
 //    (fondo local): el fax pita y saca una tira larga con la cadena de sellos (Reino Unido, EE. UU., Japón) en «Japanese
 //    rights» y «chain»; Rogers coge la tira y salta de alegría en «sales»; en «Nintendo» suena el teléfono y se vuelve.
 //    El tablero de go, la ventana con nubes y la torre de Tokio. Corta en «told».
-// 4. «told him a secret: it was about to launch a handheld console»: la sala de reuniones de Tokio (fondo local): el
+// 4. «told him a secret: it was about to launch a handheld console»: la sala de reuniones de Tokio (fondo local), los dos
+//    de pie tras la mesa con hombros y pecho a la vista: el
 //    ejecutivo baja la persiana y cierra la puerta al curioso en «secret»; en «launch» levanta el paño granate y aparece la
 //    consola de bolsillo gris en «handheld»; se enciende en «console»; Rogers se queda boquiabierto, salta y la señala.
 //    Al empezar, la secretaria se inclina con su bandeja y sale por la izquierda; el ejecutivo la despide con el dedo.
+//    La puerta corredera arranca en y 46 y el rollo de tinta cuelga con su varilla en y 22: la zona de Atom y la barra
+//    del año quedan limpias.
 import * as T from '/atomo/plato/escenas/ts-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -277,10 +280,12 @@ const sala = () => {
   for (let y = 128; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (y - 128) % 7 === 0 ? hex('#2a180e') : h(x >> 3, y, 122) < 0.15 ? hex('#4a2e1a') : hex('#5a3820'));
   // el ventanal del centro (el hueco lo pinta la escena) y el rollo de tinta de la izquierda (montañas y una grulla)
   R.rect(110, 16, 214, 96, hex('#2a180e')); R.rect(112, 18, 212, 94, 0);
-  R.rect(28, 14, 62, 16, hex('#3a2416')); R.rect(30, 16, 60, 100, hex('#e8dcc0')); R.rect(30, 16, 60, 18, hex('#8a6a3a')); R.rect(30, 98, 60, 100, hex('#8a6a3a')); R.rect(26, 100, 64, 102, hex('#3a2416'));
-  R.poligono([[32, 80], [42, 52], [50, 70], [54, 60], [58, 80]], hex('#8a8a8a')); R.poligono([[36, 80], [44, 62], [50, 80]], hex('#4a4a4a')); R.disco(52, 34, 4, hex('#c8283a')); R.linea(38, 40, 44, 36, K); R.linea(44, 36, 48, 40, K);
+  // (el rollo cuelga bajo la barra del año: la varilla en y 22, lejos de la cifra)
+  R.linea(45, 18, 45, 22, hex('#3a2416')); R.rect(28, 22, 62, 24, hex('#3a2416')); R.rect(30, 24, 60, 106, hex('#e8dcc0')); R.rect(30, 24, 60, 26, hex('#8a6a3a')); R.rect(30, 104, 60, 106, hex('#8a6a3a')); R.rect(26, 106, 64, 108, hex('#3a2416'));
+  R.poligono([[32, 88], [42, 60], [50, 78], [54, 68], [58, 88]], hex('#8a8a8a')); R.poligono([[36, 88], [44, 70], [50, 88]], hex('#4a4a4a')); R.disco(52, 42, 4, hex('#c8283a')); R.linea(38, 48, 44, 44, K); R.linea(44, 44, 48, 48, K);
   // la puerta corredera de la derecha (la hoja la pinta la escena), el bonsái en su peana y el reloj
-  R.rect(240, 30, 292, 122, hex('#2a180e')); R.rect(242, 32, 290, 122, hex('#4a3a2a'));
+  // (el dintel baja a y 46, por debajo de la zona de Atom)
+  R.rect(240, 46, 292, 122, hex('#2a180e')); R.rect(242, 48, 290, 122, hex('#4a3a2a'));
   caja(80, 92, 100, 122, hex('#5a3418'), hex('#7a4a28')); caja(82, 84, 98, 92, hex('#3a5a7a'), hex('#5a7a9a')); R.rect(89, 70, 91, 84, hex('#5a3a22')); R.linea(90, 76, 82, 72, hex('#5a3a22'));
   for (const [x, y, r] of [[84, 70, 6], [96, 66, 5], [90, 62, 6]]) { R.disco(x, y, r, hex('#2a5a32')); R.disco(x - 1, y - 1, r - 2, hex('#3a7a42')); }
   R.disco(226, 30, 7, K); R.disco(226, 30, 6, hex('#f6f2ec'));
@@ -299,19 +304,19 @@ const p4 = (t) => {
   R.linea(226, 30, 226 + Math.round(Math.sin(t * 0.4) * 4), 30 - Math.round(Math.cos(t * 0.4) * 4), K); R.linea(226, 30, 229, 31, K);
   // la puerta corredera: un curioso asoma y el ejecutivo se la cierra en «secret»
   const cierra = tramo(t, secreto - 0.2, secreto + 0.3), hueco = Math.round(lerp(22, 0, cierra));
-  if (hueco > 0) { R.recorte([242, 32, 242 + hueco, 122]); R.actor(TS.publico, 246, 122, t, { dir: -1, sorpresa: t > secreto - 0.3, pal: { C: hex('#2a3450'), c: hex('#1e263c') } }); R.recorte(null); }
-  R.rect(242 + hueco, 32, 290, 122, hex('#ece6d6')); for (let x = 242 + hueco; x < 290; x += 12) R.rect(x, 32, x + 1, 122, hex('#3a2416')); for (let y = 32; y < 122; y += 15) R.rect(242 + hueco, y, 290, y + 1, hex('#3a2416'));
+  if (hueco > 0) { R.recorte([242, 48, 242 + hueco, 122]); R.actor(TS.publico, 246, 122, t, { dir: -1, sorpresa: t > secreto - 0.3, pal: { C: hex('#2a3450'), c: hex('#1e263c') } }); R.recorte(null); }
+  R.rect(242 + hueco, 48, 290, 122, hex('#ece6d6')); for (let x = 242 + hueco; x < 290; x += 12) R.rect(x, 48, x + 1, 122, hex('#3a2416')); for (let y = 48; y < 122; y += 15) R.rect(242 + hueco, y, 290, y + 1, hex('#3a2416'));
   // la secretaria recoge la bandeja, se inclina y sale por la izquierda antes del secreto (el ejecutivo la despide con la mano)
   const sv = tramo(t, P4 + 0.9, secreto - 0.3);
   if (sv < 1) { const sx = Math.round(lerp(72, -20, sv)), inclina = t < P4 + 0.9 && t > P4 + 0.2 ? Math.round(Math.sin(tramo(t, P4 + 0.2, P4 + 0.9) * Math.PI) * 2) : 0;
     const se = R.actor(TS.publica, sx, 147 + inclina, t, { dir: -1, anda: sv > 0, sonrisa: true, sostiene: true, pal: { C: hex('#5a3a5a'), c: hex('#3e2840') } });
     if (se && se.mano) { const [mx, my] = se.mano; R.rect(mx - 6, my - 1, mx + 2, my, K); R.rect(mx - 5, my - 1, mx + 1, my - 1, hex('#8a5a2a')); R.rect(mx - 4, my - 4, mx - 2, my - 2, K); R.rect(mx - 4, my - 3, mx - 2, my - 2, hex('#e8e4dc')); } }
-  // los dos, detrás de la mesa: el ejecutivo levanta el paño en «launch»; Rogers se asombra en «handheld» y salta
+  // los dos, de pie detrás de la mesa (con hombros y pecho a la vista por encima del tablero): el ejecutivo levanta el paño en «launch»; Rogers se asombra en «handheld» y salta
   const quita = tramo(t, lanzar - 0.1, bolsillo + 0.15), alcanza = tramo(t, lanzar - 0.8, lanzar - 0.1);
-  const px = Math.round(lerp(160, 252, quita)), hx = alcanza < 1 ? Math.round(lerp(204, 190, alcanza)) : Math.min(212, px + 30), hy = alcanza < 1 ? Math.round(lerp(140, 156, alcanza)) : 156;
-  const re = R.actor(TS.ejecutivoNintendo, 200, 158, t, { dir: -1, habla: (t > P4 && t < secreto + 0.4) || t > consola + 0.6, dedo: (t > P4 + 0.8 && t < P4 + 1.6) || (t > secreto - 0.1 && t < lanzar - 0.9), sonrisa: t > consola, sostiene: t > lanzar - 0.8 && t < bolsillo + 0.3 ? [hx, hy] : false });
+  const px = Math.round(lerp(160, 252, quita)), hx = alcanza < 1 ? Math.round(lerp(204, 190, alcanza)) : Math.min(212, px + 30), hy = alcanza < 1 ? Math.round(lerp(136, 156, alcanza)) : 156;
+  const re = R.actor(TS.ejecutivoNintendo, 200, 153, t, { dir: -1, habla: (t > P4 && t < secreto + 0.4) || t > consola + 0.6, dedo: (t > P4 + 0.8 && t < P4 + 1.6) || (t > secreto - 0.1 && t < lanzar - 0.9), sonrisa: t > consola, sostiene: t > lanzar - 0.8 && t < bolsillo + 0.3 ? [hx, hy] : false });
   const salta = t > consola + 0.5 && t < consola + 1.5 ? Math.round(Math.abs(Math.sin((t - consola - 0.5) * 9)) * 4) : 0;
-  R.actor(TS.rogers, 110, 158, t, { dir: 1, sorpresa: t > bolsillo - 0.05 && t < consola + 0.5, sonrisa: t > consola + 0.5, habla: t > P4 && t < secreto - 0.2, salto: salta, dedo: t > consola + 1.5 });
+  R.actor(TS.rogers, 110, 153, t, { dir: 1, sorpresa: t > bolsillo - 0.05 && t < consola + 0.5, sonrisa: t > consola + 0.5, habla: t > P4 && t < secreto - 0.2, salto: salta, dedo: t > consola + 1.5 });
   // la mesa de reuniones lacada, por delante: tablero, canto y los tés
   R.poligono([[40, 150], [280, 150], [296, 172], [24, 172]], K); for (let y = 151; y < 172; y++) { const xa = Math.round(40 - (y - 150) * 0.7), xb = Math.round(280 + (y - 150) * 0.7); for (let x = xa; x <= xb; x++) R.pset(x, y, (x * 3 + y * 5) % 37 === 0 ? hex('#5a2a1a') : h(x >> 2, y, 126) < 0.1 ? hex('#3a160e') : hex('#4a1e12')); }
   R.rect(22, 172, 298, 175, hex('#6a2e1a')); R.rect(22, 172, 298, 172, hex('#8a4a2a')); R.rect(22, 176, 298, 179, hex('#2a0e08'));

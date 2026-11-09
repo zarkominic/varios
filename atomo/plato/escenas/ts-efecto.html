@@ -10,13 +10,15 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TS-EFECTO (frase 23), Harvard, 2000. Cuatro planos:
-// 1. el edificio de ladrillo del campus al anochecer: la investigadora abre la puerta y saluda; llegan dos voluntarios
-//    con la almohada y el saco; en «Tetris Effect» se encienden las ventanas una tras otra. Corta en «researchers».
+// 1. el edificio de ladrillo del campus al anochecer, con el resto del campus a los lados (residencia lejana, pabellones
+//    con ventanas, seto y farolas del paseo): la investigadora abre la puerta y saluda; llegan dos voluntarios con la
+//    almohada y el saco; en «Tetris Effect» se encienden las ventanas una tras otra. Corta en «researchers».
 // 2. el laboratorio del sueño: tres voluntarios juegan en sus taburetes; la investigadora cruza y los señala en
 //    «volunteers»; en «several days» el calendario de mesa pasa hojas, la ventana pasa del día a la noche y el
 //    reloj corre; uno se estira. Corta en «and many».
-// 3. la habitación de noche (gag 7): el voluntario duerme; en «pieces falling» caen los bloques sobre la almohada;
-//    la mano de la investigadora los dibuja en su carpeta, uno por uno. Corta en «It even».
+// 3. la habitación de noche (gag 7): el voluntario duerme; la investigadora entra por la puerta y se planta junto a
+//    ella; en «pieces falling» caen los bloques sobre la almohada y ella los anota en la carpeta, uno por uno (cada
+//    marca brilla). Corta en «It even».
 // 4. la sala de día del hospital: el paciente dormita en el sillón y en «happened» le sale la nube con bloques que
 //    caen; entra la investigadora, señala el ordenador en «didn't remember» y él se encoge con «?».
 import * as T from '/atomo/plato/escenas/ts-comun.js';
@@ -138,10 +140,41 @@ const PASO = e(.7675), AMNESIA = e(.8446), NO = e(.9034), RECUERDA = e(.9217), T
 
 // ── 1 · el edificio del campus al anochecer
 const VENTANAS = []; for (const y of [50, 90]) for (let i = 0; i < 6; i++) { const x = 50 + i * 34 + (i >= 3 ? 12 : 0); if (x > 236) continue; VENTANAS.push([x, y]); }
+// los lados del campus (x 0–39 y 259–319, y 84–151): detrás, la residencia lejana con su torre y chimeneas (tono 1);
+// en medio, los pabellones de ladrillo con sus ventanas (tono 2; las ventanas se pintan con VAP y se encienden en p1);
+// delante, el seto, la verja y las farolas del paseo (tono 3) y la acera con sus reflejos
+const VAP = P('#3c3458'), FAP = P('#56506a');
+const VLADO = [];   // [x, y, w, h] de cada ventana de los lados
+const campusLados = () => {
+  const T1 = [P('#4a3c64'), P('#56486e'), P('#3e3256')], T2 = [P('#30284a'), P('#3a3054'), P('#262040')], T3 = [P('#1c1828'), P('#262232'), P('#141020')];
+  const pinta = (x0, y0, x1, y1, cs, k) => { for (let y = Math.max(0, y0); y <= y1; y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const n = h(x, y, k), fil = (y - y0) % 4 === 3 && n < 0.5;
+    R.pset(x, y, fil ? cs[2] : n < 0.08 ? cs[2] : n > 0.93 ? cs[1] : cs[0]); } };
+  const ventana = (x, y, w = 3, hh = 4) => { R.rect(x - 1, y - 1, x + w, y + hh, P('#1a1626')); R.rect(x, y, x + w - 1, y + hh - 1, VAP); VLADO.push([x, y, w, hh]); };
+  // tono 1: la residencia lejana (tejado a dos aguas, torre del reloj, chimeneas) con ventanitas lejanas
+  pinta(0, 90, 39, 151, T1, 61); R.poligono([[0, 90], [20, 80], [40, 90]], T1[0]); R.rect(26, 72, 32, 90, T1[2]); R.poligono([[25, 72], [29, 64], [33, 72]], T1[2]); R.disco(29, 78, 1, P('#c8b890'));
+  pinta(259, 94, 319, 151, T1, 62); R.rect(259, 92, 319, 94, T1[1]); for (const cx of [270, 300, 314]) { R.rect(cx, 84, cx + 3, 93, T1[2]); R.rect(cx - 1, 84, cx + 4, 85, T1[1]); }
+  for (let i = 0; i < 9; i++) { const x = 262 + i * 6; if (h(i, 63) > 0.4) R.rect(x, 98, x + 1, 99, h(i, 64) > 0.5 ? P('#c8a060') : P('#6a5a7a')); }
+  for (let i = 0; i < 5; i++) { const x = 3 + i * 7; if (h(i, 65) > 0.3) R.rect(x, 94, x + 1, 95, h(i, 66) > 0.5 ? P('#c8a060') : P('#6a5a7a')); }
+  // tono 2: los pabellones de ladrillo, con cornisa clara, ventanas en rejilla y la puerta con su farolillo
+  pinta(0, 108, 30, 151, T2, 67); R.poligono([[-2, 108], [14, 99], [32, 108]], T2[2]); R.rect(0, 107, 31, 108, T2[1]); R.disco(14, 104, 2, P('#1a1626')); R.disco(14, 104, 1, P('#6a5a7a'));
+  for (const y of [113, 125]) for (const x of [3, 11, 19, 26]) ventana(x, y);
+  R.rect(10, 138, 17, 151, P('#1a1626')); R.rect(11, 139, 16, 151, P('#3a2a24')); R.rect(13, 139, 13, 151, P('#2a1e1a'));
+  pinta(262, 112, 319, 151, T2, 68); R.rect(262, 111, 319, 112, T2[1]); for (let x = 262; x <= 319; x += 6) R.pset(x, 113, T2[2]);
+  for (const y of [117, 129]) for (let x = 266; x <= 314; x += 8) ventana(x, y);
+  R.rect(276, 139, 283, 151, P('#1a1626')); R.rect(277, 140, 282, 151, P('#3a2a24'));
+  // tono 3: el seto con sus hojas, la verja y las farolas del paseo (las cabezas se encienden en p1)
+  for (const [a, b] of [[0, 39], [259, 319]]) {
+    for (let x = a; x <= b; x++) { const top = 140 + Ri(Math.sin(x * 0.7) * 1.5 + h(x, 69) * 2); for (let y = top; y <= 149; y++) { const n = h(x, y, 70); R.pset(x, y, n < 0.15 ? T3[2] : n > 0.85 ? P('#2e3a30') : T3[0]); } }
+    for (let x = a + 2; x <= b; x += 4) R.rect(x, 136, x, 141, T3[1]); R.rect(a, 137, b, 137, T3[1]);
+    R.rect(a, 150, b, 151, P('#2a2636')); for (let x = a; x <= b; x += 5) R.pset(x, 150, P('#3a3448')); }
+  for (const fx of [34, 266, 312]) { R.rect(fx, 120, fx, 150, T3[0]); R.rect(fx - 1, 149, fx + 1, 150, T3[0]); R.rect(fx - 1, 116, fx + 1, 119, T3[0]); R.pset(fx, 117, FAP); R.pset(fx, 118, FAP); R.pset(fx - 1, 115, T3[0]); R.pset(fx + 1, 115, T3[0]); }
+};
 const fondoCampus = () => {
   cieloT(0, 0, 319, 96, P('#2a2a6a'), P('#f0a070'));
   // los árboles lejanos y las casas del fondo
   for (let x = 0; x < 320; x++) { const hh = 84 + Ri(Math.sin(x * 0.13) * 3 + Math.sin(x * 0.41) * 2 + h(x, 1) * 2); R.rect(x, hh, x, 100, P('#5a3a5a')); }
+  // a los dos lados del edificio, el resto del campus al anochecer en tres términos (lejos, medio y cerca)
+  campusLados();
   // el edificio de ladrillo
   R.rect(36, 24, 262, 30, P('#3a3a48')); R.rect(36, 24, 262, 24, P('#6a6a7a'));
   ladrillo(40, 31, 258, 150, ['#a84a32', '#c8644a', '#7a3222', '#d8c0b0'], 3);
@@ -175,6 +208,16 @@ const p1 = (t) => {
     else R.linea(x + 2, y + 2, x + 5, y + 5, P('#5a5a7a')); });
   // las farolas se encienden con las ventanas
   for (const fx of [96, 202]) if (t > EFECTO + 0.3) { R.rect(fx - 1, 118, fx + 2, 119, P('#fff0b0')); cono(fx + 0.5, 120, 156, 2, 14, P('#fff0b0'), 0.12); }
+  // los lados del campus: las ventanas de los pabellones (algunas ya encendidas; las demás con «Tetris Effect», una
+  // con la tele que parpadea) y las farolas del paseo con su halo; solo se pinta donde se ve la ventana (no sobre las copas)
+  const pre = (x, y, c) => { if ((R.pget(x, y) >>> 0) === (VAP >>> 0)) R.pset(x, y, c); };
+  VLADO.forEach(([x, y, w, hh], i) => { const ya = h(i, 71) > 0.6, on = ya || t > EFECTO + 0.2 + h(i, 72) * 1.6, tele = i === 5 && Math.sin(t * 9) > 0.2;
+    if (!on) return; const c = tele ? P('#8ab0f0') : h(i, 73) > 0.5 ? P('#f8d878') : P('#f0a860');
+    for (let j = 0; j < hh; j++) for (let k = 0; k < w; k++) pre(x + k, y + j, j === 0 && k === 0 ? P('#fff0b0') : c); });
+  for (const fx of [34, 266, 312]) { const fl = 0.75 + 0.25 * Math.sin(t * 3 + fx);
+    for (const [dx, dy] of [[0, 0], [0, 1]]) if ((R.pget(fx + dx, 117 + dy) >>> 0) === (FAP >>> 0)) R.pset(fx + dx, 117 + dy, P('#fff0b0'));
+    for (let j = -5; j <= 5; j++) for (let i = -5; i <= 5; i++) { const d = Math.hypot(i, j); if (d < 5.5 && d > 1) tin(fx + i, 117 + j, P('#f8d090'), 0.22 * fl * (1 - d / 5.5)); }
+    for (let i = -4; i <= 4; i++) tin(fx + i, 150, P('#f8d090'), 0.3 * fl * (1 - Math.abs(i) / 5)); }
   // hojas que caen del árbol
   for (let k = 0; k < 7; k++) { const u = (t * 0.18 + h(k, 9)) % 1, x = Ri(8 + h(k, 3) * 40 + Math.sin(t * 2 + k) * 4 + u * 20), y = Ri(60 + u * 96); R.pset(x, y, k % 2 ? P('#e8963a') : P('#c85a2a')); R.pset(x + 1, y, P('#f8b040')); }
   // la ardilla cruza el césped a saltitos
@@ -227,19 +270,19 @@ const p3 = (t) => {
   T.hoy(R, t, { ...O3, suena });
   // las ondas del carro saltan cuando ve los bloques
   if (t > VIERON && t < CIERRAN + 0.8) for (let k = 0; k < 3; k++) { const x = 296 + ((Ri(t * 30) + k * 7) % 18); R.linea(x, 76, x, 84 - Ri(h(k, Ri(t * 10)) * 6), P('#ffe070')); }
-  // la carpeta de la investigadora por delante, abajo a la izquierda: su mano dibuja cada bloque que cae
-  const cx0 = 6, cy0 = 134; caja(cx0, cy0, cx0 + 50, cy0 + 48, P('#a8784a')); caja(cx0 + 3, cy0 + 4, cx0 + 47, cy0 + 47, P('#f6f4ee'));
-  R.rect(cx0 + 18, cy0 - 2, cx0 + 32, cy0 + 4, P('#8a8a96')); R.rect(cx0 + 19, cy0 - 1, cx0 + 31, cy0 + 1, P('#c8c8d0'));
-  for (let k = 0; k < 4; k++) R.rect(cx0 + 6, cy0 + 9 + k * 9, cx0 + 44, cy0 + 9 + k * 9, P('#a8c0e0'));
-  const marcas = [PIEZAS + 0.1, CAEN + 0.1, CIERRAN, NOCHE - 0.1], pos = [[14, 12], [24, 12], [19, 20], [34, 16]];
-  let pluma = [cx0 + 38 + Ri(Math.sin(t * 1.3) * 2), cy0 + 30];
-  marcas.forEach((tm, i) => { const u = tramo(t, tm, tm + 0.35); if (u <= 0) return; const [px, py] = pos[i], n = Ri(u * 5);
-    for (let a = 0; a < n; a++) R.rect(cx0 + px, cy0 + py + a, cx0 + px + 4, cy0 + py + a, a === 0 || a === 4 ? P('#3a4a8a') : P('#c8b8f0'));
-    R.rect(cx0 + px, cy0 + py, cx0 + px, cy0 + py + n - 1, P('#3a4a8a')); R.rect(cx0 + px + 4, cy0 + py, cx0 + px + 4, cy0 + py + n - 1, P('#3a4a8a'));
-    if (u < 1) pluma = [cx0 + px + 2 + Ri(Math.sin(t * 30) * 2), cy0 + py + n]; });
-  const mx = pluma[0] + 6, my = pluma[1] + 6;
-  T.brazo(R, mx + 46, 200, mx, my, '#f2f2f6', -1, { codo: [mx + 30, my + 30] });
-  R.linea(mx - 8, my - 4, mx - 13, my - 10, K); R.linea(mx - 7, my - 4, mx - 12, my - 10, P('#2a4ab0'));
+  // la investigadora entra por la puerta entornada, se planta junto a ella mirando la cama y anota en su carpeta cada
+  // bloque que cae: la carpeta en la mano (sostiene), la mano baja un poco al escribir y cada marca brilla al salir
+  const marcas = [PIEZAS + 0.1, CAEN + 0.1, CIERRAN, NOCHE - 0.1], pos = [[2, 3], [5, 3], [3, 6], [6, 7]];
+  const ent = tramo(t, P3, PIEZAS - 0.1), xi = Ri(lerp(-14, 16, suave(ent))), suelo3 = 166;
+  let escribe = 0; marcas.forEach((tm) => { const u = tramo(t, tm, tm + 0.35); if (u > 0 && u < 1) escribe = 1; });
+  const yC = suelo3 - 13, inv = R.actor(TS.investigadora, xi, suelo3, t, { dir: 1, anda: ent > 0 && ent < 1, sostiene: [xi + 17, yC + 8 + (escribe && Math.sin(t * 28) > 0 ? 1 : 0)],
+    sonrisa: t > NOCHE, sorpresa: t > VIERON && t < VIERON + 0.4 });
+  { const [mx, my] = inv.mano, x0 = mx + 2, y0 = my - 8;
+    caja(x0, y0, x0 + 10, y0 + 12, P('#a8743c')); R.rect(x0 + 2, y0 + 2, x0 + 8, y0 + 11, P('#f6f4ee')); R.rect(x0 + 2, y0 + 11, x0 + 8, y0 + 11, P('#c8c4b8'));
+    R.rect(x0 + 4, y0 - 1, x0 + 6, y0 + 1, P('#8a8a96')); R.pset(x0 + 5, y0 - 1, P('#c8c8d0'));
+    for (let k = 0; k < 3; k++) R.rect(x0 + 3, y0 + 4 + k * 3, x0 + 7, y0 + 4 + k * 3, P('#c8d4e8'));
+    marcas.forEach((tm, i) => { const u = tramo(t, tm, tm + 0.35); if (u <= 0) return; const [px, py] = pos[i];
+      R.rect(x0 + px, y0 + py, x0 + px + 1, y0 + py + (u > 0.5 ? 1 : 0), P('#6a4ad8')); destello(x0 + px + 1, y0 + py, u * 1.4 - 0.4, P('#c8b8ff')); }); }
 };
 
 // ── 4 · la sala de día del hospital

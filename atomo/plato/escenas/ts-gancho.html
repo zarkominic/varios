@@ -10,7 +10,8 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TS-GANCHO (frases 1–2), 1984 → 2026, sin cartela. Siete planos:
-// 1. «The most famous puzzle game… Soviet computer lab»: el terminal de 1984 de cerca; la mano de Pázhitnov teclea, los
+// 1. «The most famous puzzle game… Soviet computer lab»: el terminal de 1984 de cerca; la mano de Pázhitnov (brazo corto
+//    que asoma desde el borde de abajo, ~40 px de manga) teclea, los
 //    corchetes caen y una fila completa parpadea y desaparece en «lab»; la científica se asoma con su té y sonríe; por la
 //    ventana nevada un vecino con ushanka cruza la calle con su bolsa.
 // 2. «for 12 years… a single ruble»: la mesa de cerca (fondo local); el calendario de taco pasa de 1984 a 1996 y un rublo
@@ -55,10 +56,11 @@ const p1 = (t) => {
   // la pieza de corchetes que cae y encaja en «born»
   const cae = tramo(t, famoso, nace), py = Math.round(lerp(44, 79, cae * cae)) + (t > lab + 0.1 ? 5 : 0);
   for (const [i, j] of [[0, 0], [1, 0], [2, 0], [1, 1]]) celda(66 + i * 6, py + j * 6);
-  // la mano de Pázhitnov teclea (brazo canónico desde abajo a la izquierda)
+  // la mano de Pázhitnov teclea (brazo canónico corto desde el borde de abajo: el hombro fuera de cuadro y el codo justo
+  // encima del borde, para que solo asomen ~40 px de manga; hombro y codo siguen a la mano cuando se mueve por el teclado)
   const tec = t < nace + 0.3 || (t > lab + 0.7);
   const kx = 92 + Math.round(Math.sin(t * 3.1) * 10), ky = 142 + (tec && Math.floor(t * 9) % 2 ? 1 : 0);
-  T.brazo(R, 34, 196, kx, ky, '#5e6e58', 1, { codo: [56, 168] });
+  T.brazo(R, kx - 28, 200, kx, ky, '#5e6e58', 1, { codo: [kx - 15, 168] });
 };
 // un vecino pequeño visto por la ventana (abrigo, ushanka, bolsa), recortado al hueco de la ventana del decorado
 function transeunte(x, y, t) {
