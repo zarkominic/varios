@@ -10,8 +10,11 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // VM-FRAUDE (frase 22): la teoría del fraude tampoco cuadra. Cuatro planos:
-// 1. inserto local: la mesa de la teoría del fraude: la máscara de teatro, el ábaco y la pizarrita; en «hoax» la
-//    máscara deja de sonreír, en «add up» la mano corre las cuentas y en «up» la suma acaba en «?»;
+// 1. inserto local: la mesa de la teoría del fraude. Con «The strange thing» una mano sube la máscara de teatro en su
+//    palo; en «hoax» se contonea ufana, en «doesn't» se le cae la sonrisa (un «!») y se hunde; en «add up» la otra mano
+//    corre dos cuentas del ábaco, una tras otra; en «up» la suma de la pizarrita acaba en «?» y en «either» la mano
+//    sacude la máscara (no) y el «?» se tambalea. Fondo: el candil con su humo, una polilla que le da vueltas, motas en
+//    la luz y el reloj de arena que corre;
 // 2. «Making gibberish»: el taller de escribas del siglo XV con cinco pupitres: cinco escribas, cada uno con su tinta;
 //    en «five» se encienden los números 1 a 5 y la muestra de letra de cada uno; el viejo se rasca la cabeza;
 // 3. «so close»: inserto local, la balanza de latón sobre la mesa de roble: una mano pone el libro de verdad, la otra
@@ -303,28 +306,50 @@ const mesaA = () => fijo('mesaA', () => {
   // el candil de aceite de la izquierda
   caja(20, 132, 52, 140, Q.bronceS); R.poligono([[22, 132], [50, 132], [44, 120], [28, 120]], Q.bronce); R.rect(28, 120, 44, 121, Q.bronceL); R.rect(50, 126, 58, 128, Q.bronce);
 });
+// el reloj de arena de la mesa (la arena cae y baja el montón de arriba)
+const relojArena = (x, y, t) => {
+  caja(x - 9, y - 30, x + 9, y - 27, Q.robleS); caja(x - 9, y, x + 9, y + 3, Q.robleS);
+  for (const dx of [-8, 7]) { R.rect(x + dx, y - 27, x + dx + 1, y, Q.roble); R.pset(x + dx, y - 20, Q.robleD); }
+  R.poligono([[x - 6, y - 26], [x + 6, y - 26], [x + 1, y - 14], [x - 1, y - 14]], Q.vidrioL); R.poligono([[x - 6, y - 1], [x + 6, y - 1], [x + 1, y - 13], [x - 1, y - 13]], Q.vidrioL);
+  const v = (t / 9) % 1, ya = Math.round(y - 24 + v * 9), yb = Math.round(y - 2 - v * 7);
+  R.poligono([[x - 5 + Math.round(v * 4), ya], [x + 5 - Math.round(v * 4), ya], [x, y - 15]], Q.arena);
+  R.poligono([[x - 5, y - 1], [x + 5, y - 1], [x, yb]], Q.arena); R.linea(x - 5, y - 1, x + 5, y - 1, Q.arenaS);
+  for (let k = 0; k < 4; k++) if ((Math.floor(t * 20) + k) % 3) R.pset(x, y - 14 + k * 3 - (k ? Math.floor(t * 20) % 2 : 0), Q.arenaL);
+  R.pset(x - 4, y - 24, Q.blanco); R.pset(x - 4, y - 8, Q.blanco);
+};
 const p1 = (t) => {
   mesaA();
-  // la llama del candil
+  // la llama del candil, su humo que sube en espiral y la polilla que le da vueltas
   { const f = Math.sin(t * 13) > 0 ? 1 : 0; R.rect(57, 120 - f, 60, 125, Q.amar); R.pset(58, 118 - f, Q.amarL); R.pset(58, 123, Q.blanco); for (let y = 100; y < 130; y++) for (let x = 40; x < 80; x++) { const d = Math.hypot(x - 58, y - 120); if (d < 18 && ((x + y) & 1)) tine(x, y, 0.15 * (1 - d / 18), Q.amarL); } }
-  // la máscara de teatro: en «doesn't» se le cae la sonrisa
-  { const cx = 96, cy = 74, tri = t > DOESNT, bote = t > HOAX && t < HOAX + 0.35 ? -2 : 0;
-    R.disco(cx, cy + bote, 22, Q.k); R.disco(cx, cy + bote, 21, Q.blanco); R.disco(cx - 4, cy - 4 + bote, 14, hex('#f8f4ec')); for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI; R.pset(Math.round(cx + Math.cos(an) * 19), Math.round(cy + 6 + Math.sin(an) * 14) + bote, Q.blancoS); }
+  for (let k = 0; k < 7; k++) { const u = (t * 0.45 + k / 7) % 1, x = Math.round(58 + Math.sin(u * 9 + t) * (2 + u * 6)), y = Math.round(116 - u * 40); tine(x, y, 0.5 * (1 - u), Q.calL); tine(x + 1, y, 0.3 * (1 - u), Q.calS); }
+  { const a = t * 3.1, x = Math.round(58 + Math.cos(a) * 14 + Math.sin(t * 7) * 2), y = Math.round(104 + Math.sin(a * 1.3) * 7), al = Math.sin(t * 40) > 0;
+    R.pset(x, y, Q.k); R.pset(x + 1, y, Q.nogD); R.pset(x - 1, y - (al ? 1 : 0), Q.calS); R.pset(x + 2, y - (al ? 1 : 0), Q.calS); if (al) { R.pset(x - 2, y - 2, Q.calL); R.pset(x + 3, y - 2, Q.calL); } }
+  // las motas de polvo en la luz cálida de la mesa
+  for (let k = 0; k < 10; k++) { const u = (t * 0.06 + k * 0.1) % 1, x = Math.round(70 + k * 14 + Math.sin(t * 0.7 + k) * 6), y = Math.round(150 - u * 120); if (y > 16 && !(x > 274 && y < 46)) R.pset(x, y, u < 0.6 ? Q.calL : Q.calS); }
+  relojArena(300, 152, t);
+  // la máscara de teatro en su palo: la mano la sube al empezar, en «hoax» se contonea ufana, en «doesn't» se le cae la
+  // sonrisa y se hunde un poco, y en «either» la mano la sacude: no
+  { const sube = ease(tramo(t, 0.15, 1.25)), ufana = t > HOAX && t < HOAX + 0.6 ? Math.sin((t - HOAX) * 22) * 2 : 0, hunde = ease(tramo(t, DOESNT, DOESNT + 0.4)) * 5;
+    const no = Math.sin(Math.PI * tramo(t, UP + 0.2, P2 - 0.1)) * Math.sin(t * 24) * 3;
+    const cx = Math.round(96 + ufana + no), cy = Math.round(lerp(212, 74, sube) + hunde), tri = t > DOESNT, bote = t > HOAX && t < HOAX + 0.35 ? -2 : 0;
+    // el palo de la máscara, que acaba en la mano
+    R.rect(cx - 2, cy + 18, cx + 2, cy + 66, Q.k); R.rect(cx - 1, cy + 18, cx + 1, cy + 66, Q.robleS); R.rect(cx - 1, cy + 18, cx - 1, cy + 66, Q.roble);
+    R.disco(cx, cy, 22, Q.k); R.disco(cx, cy, 21, Q.blanco); R.disco(cx - 4, cy - 4, 14, hex('#f8f4ec')); for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI; R.pset(Math.round(cx + Math.cos(an) * 19), Math.round(cy + 6 + Math.sin(an) * 14), Q.blancoS); }
     for (const dx of [-8, 8]) { R.poligono([[cx + dx - 5, cy - 4 + bote], [cx + dx + 5, cy - 4 + bote], [cx + dx + (tri ? (dx < 0 ? 3 : -3) : 0), cy - 10 + bote]], Q.k); R.rect(cx + dx - 5, cy - 4 + bote, cx + dx + 5, cy - 2 + bote, Q.k); }
     for (let i = -9; i <= 9; i++) { const y = cy + 10 + bote + Math.round((tri ? 1 : -1) * (1 - (i * i) / 81) * 5) * -1; R.rect(cx + i, y, cx + i, y + 1, Q.k); if (!tri && Math.abs(i) < 7) R.pset(cx + i, y - 1, Q.rojo); }
-    R.disco(cx - 13, cy + 4 + bote, 3, Q.rosa); R.disco(cx + 13, cy + 4 + bote, 3, Q.rosa);
-    raya(cx - 21, cy + bote, cx - 34, cy + 22, Q.negro, 0); raya(cx + 21, cy + bote, cx + 32, cy + 24, Q.negro, 0);
-    if (t > DOESNT && t < DOESNT + 0.4) R.icono('!', cx + 18, cy - 28, Q.rojoL, Q.k); }
-  // el ábaco: marco de madera, cinco varillas con cuentas de colores; la mano corre las cuentas en «add up»
+    R.disco(cx - 13, cy + 4, 3, Q.rosa); R.disco(cx + 13, cy + 4, 3, Q.rosa);
+    raya(cx - 21, cy, cx - 30 + Math.round(no), cy + 18, Q.negro, 0); raya(cx + 21, cy, cx + 30 + Math.round(no), cy + 20, Q.negro, 0);
+    if (t > DOESNT && t < DOESNT + 0.5) R.icono('!', cx + 18, cy - 28, Q.rojoL, Q.k);
+    const hy = cy + 60; if (hy < 196) T.brazo(R, cx - 28, hy + 46, cx - 3, hy, '#3a5a7a', 1, { codo: [cx - 26, hy + 22] }); }
+  // el ábaco: marco de madera, cinco varillas con cuentas de colores; en «add up» la mano corre dos cuentas, una tras otra
   caja(116, 100, 276, 166, Q.robleS); caja(120, 104, 272, 162, Q.robleD); R.rect(121, 105, 271, 161, hex('#2a1c14'));
-  const corre = ease(tramo(t, ADD - 0.2, UP));
   for (let j = 0; j < 5; j++) { const y = 110 + j * 12; R.rect(121, y, 271, y, Q.metalL); R.rect(121, y + 1, 271, y + 1, Q.metalS);
-    for (let i = 0; i < 6; i++) { const mueve = j === 2 && i < 2, x = 134 + i * 9 + (mueve ? Math.round(corre * 70 * (1 - i * 0.2)) : (j === 4 && i < 1 ? 70 : 0)), c = [Q.rojo, Q.amar, Q.verdeT, Q.azulT, Q.tercL][j];
+    for (let i = 0; i < 6; i++) { const mueve = j === 2 && i < 2, corre = ease(tramo(t, ADD - 0.25 + (1 - i) * 0.2, UP - 0.05 + (1 - i) * 0.1)), x = 134 + i * 9 + (mueve ? Math.round(corre * 70 * (1 - i * 0.2)) : (j === 4 && i < 1 ? 70 : 0)), c = [Q.rojo, Q.amar, Q.verdeT, Q.azulT, Q.tercL][j];
       R.disco(x, y, 4, Q.k); R.disco(x, y, 3, c); R.pset(x - 1, y - 2, Q.blanco); } }
-  // la mano que corre las cuentas
-  { const [wx, wy] = camino([[0, 250, 214], [ADD - 0.5, 158, 137], [UP, 222, 137], [UP + 0.4, 250, 170], [P2, 260, 214]], t); if (wy < 196) T.brazo(R, Math.round(wx) + 40, 210, Math.round(wx), Math.round(wy), '#6a4a8a', -1, { codo: [Math.round(wx) + 30, Math.round(wy) + 30] }); }
-  // el resultado: en «up» un «?» rojo que salta en la pizarrita
-  if (t > UP) { const s = ease(tramo(t, UP, UP + 0.2)), y = Math.round(lerp(64, 32, s)); R.recorte([149, 27, 229, 57]); R.icono('?', 206, y, Q.rojoL, Q.k, 3); R.recorte(null); }
+  // la mano que corre las cuentas (entra por abajo, empuja y se retira)
+  { const [wx, wy] = camino([[0, 250, 214], [ADD - 0.55, 170, 137], [ADD - 0.25, 158, 137], [UP + 0.05, 222, 137], [UP + 0.45, 250, 176], [P2, 262, 214]], t); if (wy < 196) T.brazo(R, Math.round(wx) + 34, Math.round(wy) + 58, Math.round(wx), Math.round(wy), '#6a4a8a', -1, { codo: [Math.round(wx) + 30, Math.round(wy) + 28] }); }
+  // el resultado: en «up» un «?» rojo que salta en la pizarrita (y en «either» se tambalea)
+  if (t > UP) { const s = ease(tramo(t, UP, UP + 0.2)), y = Math.round(lerp(64, 32, s)), w = Math.round(Math.sin(Math.PI * tramo(t, UP + 0.2, P2 - 0.1)) * Math.sin(t * 18) * 2); R.recorte([149, 27, 229, 57]); R.icono('?', 206 + w, y, Q.rojoL, Q.k, 3); R.recorte(null); }
 };
 
 // ── plano 2: los cinco escribas ──
@@ -442,7 +467,7 @@ const p4 = (t) => {
   if (t > CASE + 0.3) globo(bx - 42, by - 30, '?');
 };
 
-const efectos = [[DOESNT, 'toc'], [ADD, 'tic'], [UP + 0.05, 'pop'], [GIB, 'lapiz'], [FIVE, 'pop'], [P3 + 0.75, 'golpecito'], [REAL + 0.05, 'golpecito'], [HARD - 0.1, 'brillo'], [SEIS, 'tic'], [CLOSE + 0.1, 'golpecito'], [CASE + 0.1, 'boing'], [CASE + 0.35, 'brillo']];
+const efectos = [[0.35, 'whoosh'], [DOESNT, 'toc'], [ADD, 'tic'], [UP + 0.05, 'pop'], [GIB, 'lapiz'], [FIVE, 'pop'], [P3 + 0.75, 'golpecito'], [REAL + 0.05, 'golpecito'], [HARD - 0.1, 'brillo'], [SEIS, 'tic'], [CLOSE + 0.1, 'golpecito'], [CASE + 0.1, 'boing'], [CASE + 0.35, 'brillo']];
 const año = (t) => t < P2 ? 2026 : t < P3 ? 1420 : t < P4 ? 2026 : Math.round(lerp(1420, 2026, ease(tramo(t, P4 + 0.1, LATER))));
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>

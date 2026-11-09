@@ -11,7 +11,8 @@
 <script type="module">
 // VM-PLANTAS (frase 20): las plantas de México. Cuatro planos:
 // 1. fondo local: el jardín botánico en 2013 (invernadero victoriano, nubes, girasoles, jardinero con carretilla,
-//    aspersor, mariposa, abejas): la botánica llega con el libro; en «botanist» él señala la cabeza del girasol gigante, en
+//    aspersor, mariposa, abejas): el jardinero empuja la carretilla hasta el bancal y deja una maceta en el césped;
+//    la botánica llega con el libro; en «botanist» él señala la cabeza del girasol gigante, en
 //    «colleague» ella abre el libro a su lado y en «proposed» un hilo dorado une el dibujo con la flor y salta el «!»;
 // 2. «plants from Mexico»: inserto local, la mesa de trabajo: en «Mexico» entra deslizándose el herbario azteca junto
 //    al libro; la mano con la lupa va del dibujo del libro («drawn») al del herbario y en «Aztec» se encienden los dos y
@@ -22,6 +23,8 @@
 // 4. «so for that to be true»: fondo local, un cuarto colonial hacia 1550 (volcán y campanario por la ventana, sarape,
 //    loro): el escribano abre el arcón en «someone» (polvo), saca una hoja vieja con su «1420» en «old sheets», la lleva
 //    a la mesa y en «afterward» se rasca la cabeza con un «?».
+// Efectos: la carretilla, el libro, el oro, el herbario, la lupa, el «=», el mapa, las cifras, la carabela, el apagón, la
+// campana lejana del campanario (se mece en la ventana), la tapa del arcón, la hoja y el «?».
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-plantas');
@@ -341,9 +344,14 @@ const p1 = (t) => {
   // los girasoles del bancal, que se mecen
   for (let i = 0; i < 7; i++) girasol(188 + i * 15, 118, 34 + (i * 7) % 13, t, i * 1.7, 3);
   // el jardinero de fondo con la carretilla de macetas, por el césped de detrás
-  { const u = tramo(t, 0, P2), x = Math.round(lerp(330, 186, u)); R.actor(EL.granjero, x, 124, t, { dir: -1, anda: u < 1 });
+  // empuja la carretilla hasta el bancal, se para, coge una maceta y la deja en el césped a su lado
+  { const u = tramo(t, 0.1, 2.5), x = Math.round(lerp(330, 236, ease(u))), COGE = 2.7, LLEVA = 3.1, DEJA = 3.65;
+    const coge = t > COGE && t < LLEVA, lleva = t >= LLEVA && t < DEJA, dejada = t >= DEJA;
+    const ja = R.actor(EL.granjero, x, 124, t, { dir: lleva || (dejada && t < DEJA + 1) ? 1 : -1, anda: u > 0 && u < 1, sostiene: coge ? [x - 12, 106] : lleva ? true : undefined, sonrisa: dejada });
     const cx = x - 16; caja(cx - 1, 112, cx + 13, 118, Q.metalS); R.rect(cx, 113, cx + 12, 113, Q.metalL); R.disco(cx + 2, 121, 3, Q.k); R.disco(cx + 2, 121, 2, Q.grisS); raya(cx + 12, 116, cx + 18, 112, Q.nogS, 0);
-    for (const dx of [2, 7]) { caja(cx + dx, 106, cx + dx + 4, 112, Q.ladr); R.disco(cx + dx + 2, 104, 3, Q.hierbaL); } }
+    const maceta = (px, py) => { caja(px, py, px + 4, py + 6, Q.ladr); R.disco(px + 2, py - 2, 3, Q.hierbaL); R.pset(px + 1, py - 3, Q.hierba); R.pset(px + 3, py - 4, Q.rojo ?? Q.ladr); };
+    maceta(cx + 7, 106);
+    if (t < COGE) maceta(cx + 2, 106); else if ((coge || lleva) && ja && ja.mano) maceta(ja.mano[0] - 2, ja.mano[1] - 4); else maceta(x + 9, 118); }
   // el aspersor del arriate que gira
   for (let k = 0; k < 14; k++) { const a = t * 2.2 + k * 0.45, u = (k % 7) / 7, X = Math.round(44 + Math.cos(a) * u * 34), Y = Math.round(138 - Math.sin(u * Math.PI) * 14 + Math.sin(a) * u * 6); R.pset(X, Y, k % 2 ? Q.aguaL : Q.agua); }
   R.rect(43, 136, 45, 140, Q.grisS); R.pset(44, 135, Q.grisL);
@@ -574,7 +582,15 @@ const p4 = (t) => {
   if (t > AFTER + 0.8) globo(es.cabeza[0], es.cabeza[1] - 6, '?');
 };
 
-const efectos = [[PROP + 0.1, 'brillo'], [MEX - 0.2, 'papel'], [AZTEC + 0.05, 'brillo'], [AMER, 'bip'], [EURO + 0.1, 'whoosh'], [ARR + 0.1, 'interruptor'], [SOMEONE + 0.05, 'cerrojo'], [WRITE, 'papel'], [AFTER + 0.8, 'pop']];
+// la carretilla del jardinero rueda por la grava, el libro se abre, el hilo de oro; el herbario que entra, la lupa que se
+// posa en el herbario, el «=»; el mapa que se enciende, las cifras que se escriben, la carabela que cruza el mar, el
+// mapa que se apaga; la campana del campanario, la tapa del arcón que cruje, la hoja vieja y el «?»
+const efectos = [
+  [0.3, 'carro', { largo: 1.6 }], [3.65, 'golpecito'], [COLE, 'papel'], [PROP + 0.15, 'brillo'],
+  [MEX - 0.2, 'papel'], [DRAWN + 0.85, 'tic'], [AZTEC + 0.05, 'brillo'],
+  [AMER, 'bip'], [BUT, 'tecleo', { dur: 0.8 }], [EURO + 0.05, 'ola'], [ARR + 0.15, 'interruptor'],
+  [P4 + 0.2, 'campana', { lejos: true, nota: 62 }], [SOMEONE, 'puerta'], [WRITE, 'papel'], [AFTER + 0.8, 'pop'],
+];
 const año = (t) => t < BUT ? 2013 : t < P4 ? Math.round(lerp(2013, 1420, ease(tramo(t, BUT, VELL + 0.6))) + lerp(0, 72, ease(tramo(t, EURO, ARR)))) : Math.round(lerp(1492, 1550, ease(tramo(t, P4, SOMEONE))));
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>

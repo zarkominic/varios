@@ -13,12 +13,17 @@
 // rastro del libro. Tres planos:
 // 1. fondo local, una galería de la biblioteca con tres cuadros apagados: la colega entra y, al decirlos la voz, se
 //    encienden la medicina (el mortero que muele), la astrología (la esfera armilar que gira) y la alquimia (el alambique
-//    que hierve); con «all three» tres haces de oro bajan al libro de la peana y ella se sorprende;
+//    que hierve); un turista entra por la derecha, se para bajo el cuadro de la alquimia y, cuando se enciende, le hace
+//    una foto con flash; con «all three» tres haces de oro bajan al libro de la peana: ella se sorprende y el turista se
+//    vuelve a mirarlo;
 // 2. la mesa de estudio (biblioteca/mesa, la página de las estrellas): la colega estudia el dibujo; con «riddle» un «?»;
-//    con «the only way forward» saca un mapa plegado y lo despliega sobre la mesa: Praga y Roma con su hilo;
+//    con «the only way forward» saca un mapa plegado y lo despliega sobre la mesa: Praga y Roma con su hilo; detrás, un
+//    estudiante llega, saca un libro de la librería baja y se lo lleva;
 // 3. el tablero de detective (biblioteca/pagina/tablero): los hilos rojos se tienden y una lupa sigue el camino del
 //    libro: el libro, Praga («owned it»), Roma («tried to read it») y Nueva York («left in writing»); la barra del año
-//    va de 2026 a 1610, 1665 y 1912.
+//    va de 2026 a 1610, 1665 y 1912; en la esquina, una taza de té humea y la cucharilla tintinea en «tried to read it».
+// Efectos: los cuadros que se encienden, el flash, el oro, el «?», el libro que sale del estante, el mapa, la chincheta,
+// los hilos y cada parada de la lupa.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-pista');
@@ -211,6 +216,11 @@ const p1 = (t) => {
   const x = Math.round(w2 > 0 ? lerp(98, 196, ease(w2)) : lerp(-16, 98, ease(w1)));
   const dir = (t > MED && t < AST + 0.35) ? -1 : 1;
   R.actor(EL.colega, x, 172, t, { dir: t > TRES ? -1 : dir, anda: (w1 > 0 && w1 < 1) || (w2 > 0 && w2 < 1), dedo: (t > MED && t < AST + 0.3) || (t > ALQ && t < TRES - 0.1), sorpresa: t > TRES && t < TRES + 0.9, sonrisa: t > TRES + 0.9 });
+  // el turista: entra por la derecha, se para bajo la alquimia y le hace una foto con flash; con «all three» mira el libro
+  { const w = tramo(t, 0.3, ALQ - 0.2), tx = Math.round(lerp(338, 258, ease(w))), foto = t > ALQ + 0.05 && t < ALQ + 1.2;
+    const tu = R.actor(EL.turista, tx, 172, t, { dir: t > TRES ? -1 : (w < 1 ? -1 : 1), anda: w > 0 && w < 1, sostiene: foto ? [tx + 9, 140] : undefined, sorpresa: t > TRES + 0.1 && t < TRES + 0.9, sonrisa: t > TRES + 0.9 || (t > ALQ + 0.6 && t < ALQ + 1.2) });
+    if (foto && tu && tu.mano) { const [cx, cy] = tu.mano; R.rect(cx - 3, cy - 5, cx + 4, cy, Q.k); R.rect(cx - 2, cy - 4, cx + 3, cy - 1, Q.grafito); R.disco(cx + 1, cy - 3, 1.5, Q.k); R.pset(cx + 1, cy - 3, Q.azulL); R.rect(cx - 2, cy - 6, cx, cy - 5, Q.k); R.pset(cx - 1, cy - 6, Q.papel);
+      const f = t - (ALQ + 0.5); if (f > 0 && f < 0.18) { R.disco(cx - 1, cy - 6, 4, Q.blanco); for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4; R.linea(cx - 1 + Math.round(Math.cos(an) * 6), cy - 6 + Math.round(Math.sin(an) * 6), cx - 1 + Math.round(Math.cos(an) * 11), cy - 6 + Math.round(Math.sin(an) * 11), Q.luz); } } } }
   // el libro en la peana: con «all three» brilla y los tres haces de oro bajan a él
   const tr = tramo(t, TRES, TRES + 0.5);
   T.PIEZAS_VM.libroVoynich(R, 144, 123, { abierto: true, pagina: 'tarros', brilla: tr > 0, t });
@@ -227,6 +237,11 @@ const p1 = (t) => {
 const p2 = (t) => {
   T.biblioteca(R, t, { camara: 'mesa', pagina: 'estrellas' });
   const coge = t > en('pista', 0.5496) + 0.1 && t < en('pista', 0.5968);
+  // detrás, un estudiante llega por la derecha, saca un libro de la librería baja y se lo lleva
+  { const LL = P2 + 0.2, SACA = P2 + 2.0, VA = P2 + 3.4, w1 = tramo(t, LL, LL + 1.4), w2 = tramo(t, VA, VA + 1.6), sx = Math.round(lerp(lerp(340, 262, ease(w1)), 340, ease(w2)));
+    const alza = t > SACA - 0.4 && t < SACA + 0.3, lleva = t >= SACA + 0.3 && w2 < 1;
+    const es = R.actor(EL.estudiante, sx, 116, t, { dir: w2 > 0 ? 1 : -1, anda: (w1 > 0 && w1 < 1) || (w2 > 0 && w2 < 1), sostiene: alza ? [sx - 6, 86] : lleva ? true : undefined, sonrisa: lleva });
+    if (es && es.mano && (lleva || (alza && t > SACA))) { const [mx, my] = es.mano; R.rect(mx - 2, my - 8, mx + 3, my + 1, Q.k); R.rect(mx - 1, my - 7, mx + 2, my, Q.azul); R.rect(mx - 1, my - 7, mx - 1, my, Q.azulL); R.pset(mx + 1, my - 5, Q.oroL); } }
   const yo = R.actor(EL.colega, 124, 118, t, { dir: t > en('pista', 0.5496) ? 1 : -1, dedo: t > en('pista', 0.3998) && t < en('pista', 0.4893), sorpresa: t > en('pista', 0.5025) && t < en('pista', 0.5431), sonrisa: t > en('pista', 0.6027), habla: t > en('pista', 0.3318) && t < en('pista', 0.3998) && Math.sin(t * 9) > 0, sostiene: coge ? [150, 104] : undefined });
   T.bibliotecaDelante(R, t, { camara: 'mesa', pagina: 'estrellas' });
   // «every drawing is a riddle»
@@ -257,8 +272,17 @@ const p2 = (t) => {
 const HIL = [[P3 + 0.2, 0], [en('pista', 0.6964), 0.33], [en('pista', 0.7489), 0.5], [en('pista', 0.8026), 0.667], [en('pista', 0.8504), 0.833], [en('pista', 0.9351), 1]];
 const hilos = (t) => { if (t <= HIL[0][0]) return 0; for (let i = 1; i < HIL.length; i++) if (t < HIL[i][0]) return lerp(HIL[i - 1][1], HIL[i][1], (t - HIL[i - 1][0]) / (HIL[i][0] - HIL[i - 1][0])); return 1; };
 const RUTA = [[P3, 330, 190], [en('pista', 0.7221), 172, 104], [en('pista', 0.7818), 172, 104], [en('pista', 0.8056), 80, 129], [en('pista', 0.8355), 80, 129], [en('pista', 0.8534), 75, 151], [en('pista', 0.9011), 75, 151], [en('pista', 0.9369), 22, 126], [99, 22, 126]];
+// la taza de té del investigador, con su platillo, el vapor y la cucharilla que tintinea al remover
+const taza = (t, x, y, remueve) => {
+  R.disco(x + 2, y + 3, 12, hex('#2a1a10')); R.disco(x, y, 12, Q.papelS); R.disco(x - 1, y - 1, 11, Q.papel); R.disco(x, y, 8, Q.k); R.disco(x, y, 7, Q.blanco); R.disco(x, y + 1, 5, hex('#8a4a1e')); R.disco(x - 1, y, 3, hex('#a8622a')); R.pset(x - 3, y - 2, Q.luz);
+  R.rect(x + 8, y - 2, x + 12, y + 2, Q.k); R.rect(x + 9, y - 1, x + 11, y + 1, Q.blanco);
+  const a = remueve ? t * 9 : 0.6, cx = Math.round(x + Math.cos(a) * 3), cy = Math.round(y + 1 + Math.sin(a) * 2);
+  R.linea(cx, cy, cx + 10, cy - 9, Q.latonS); R.linea(cx + 1, cy, cx + 11, cy - 9, Q.latonL); R.disco(cx + 11, cy - 10, 1.5, Q.laton);
+  for (let k = 0; k < 7; k++) { const u = (t * 0.45 + k / 7) % 1, X = Math.round(x - 2 + Math.sin(t * 1.6 + k * 1.9) * (1 + u * 5)), Y = Math.round(y - 4 - u * 22); if (u < 0.85 && Y > 15) tine(X, Y, 0.7 * (1 - u), Q.blanco); if (u < 0.5 && Y > 15) tine(X + 1, Y, 0.35, Q.blanco); }
+};
 const p3 = (t) => {
   T.biblioteca(R, t, { encuadre: 'pagina', camara: 'tablero', hilos: hilos(t) });
+  taza(t, 30, 44, t > en('pista', 0.8300) && t < en('pista', 0.8800));
   const [lx, ly] = camino(RUTA, t);
   lupa(lx, ly, 15, t, 2);
   const [ex, ey] = mango(Math.round(lx), Math.round(ly), 15, 14);
@@ -266,7 +290,11 @@ const p3 = (t) => {
 };
 const AÑOS = [[en('pista', 0.7818), 2026], [en('pista', 0.8056), 1610], [en('pista', 0.8355), 1610], [en('pista', 0.8534), 1665], [en('pista', 0.9011), 1665], [en('pista', 0.9369), 1912]];
 const año = (t) => { if (t <= AÑOS[0][0]) return 2026; for (let i = 1; i < AÑOS.length; i++) if (t < AÑOS[i][0]) return Math.round(lerp(AÑOS[i - 1][1], AÑOS[i][1], ease((t - AÑOS[i - 1][0]) / (AÑOS[i][0] - AÑOS[i - 1][0])))); return 1912; };
-const efectos = [[MED, 'interruptor'], [ALQ, 'interruptor'], [TRES, 'brillo'], [en('pista', 0.5025), 'pop'], [en('pista', 0.5968), 'papel'], [en('pista', 0.6982), 'whoosh'], [en('pista', 0.8056), 'toc'], [en('pista', 0.8534), 'toc'], [en('pista', 0.9369), 'toc']];
+const efectos = [
+  [MED, 'interruptor'], [AST, 'interruptor'], [ALQ + 0.5, 'flash'], [TRES, 'brillo'],
+  [P2 + 2.0, 'toc'], [en('pista', 0.5025), 'pop'], [en('pista', 0.5968), 'papel'], [en('pista', 0.6385), 'tic'],
+  [en('pista', 0.6982), 'whoosh'], [en('pista', 0.7489), 'tic'], [en('pista', 0.8056), 'toc'], [en('pista', 0.8534), 'toc'], [en('pista', 0.9369), 'toc'], [en('pista', 0.9800), 'brillo'],
+];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
 </script>
 </body>

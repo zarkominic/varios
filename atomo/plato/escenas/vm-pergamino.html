@@ -10,15 +10,20 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // VM-PERGAMINO (frase 4): lo que sabemos del libro. Cuatro planos:
-// 1. la mesa de estudio de la biblioteca: la bibliotecaria entra por detrás de la lámpara hasta el libro; con «240» las
-//    hojas pasan solas y un contador sube hasta 240 con el icono del libro; el investigador lo apunta;
+// 1. la mesa de estudio de la biblioteca: la bibliotecaria entra por detrás de la lámpara hasta el libro; por la derecha
+//    llega una estudiante con una pila de libros y se para junto a la libreta; con «240» las hojas pasan solas y un
+//    contador sube hasta 240 con el icono del libro: el investigador da un respingo, la estudiante se vuelve a mirar y
+//    los dos sonríen; él lo señala;
 // 2. inserto local, los signos de muy cerca sobre el pergamino (vitela, poros, cercos): un dedo recorre el renglón de
-//    abajo y los signos que toca se encienden; con «anywhere else» saltan tres «?» sobre los signos;
+//    abajo y los signos que toca se encienden; con «anywhere else» saltan tres «?» sobre los signos; por el margen de
+//    arriba corre un pececillo de plata que se esconde bajo la hoja de debajo;
 // 3. inserto local, el recuento: la libreta cuadriculada junto al libro; los signos se copian en casillas (20 con
 //    «20», 30 con «30») y la mano con el lápiz escribe la cifra en la etiqueta; con «over and over» se marcan palotes y
 //    en el libro parpadean en oro los que se repiten;
 // 4. inserto local, gag 2: la lupa baja sobre la página y los signos echan patitas y huyen del cristal; la lupa los
 //    persigue tres veces («single word», «anyone», «read») y se va; los signos vuelven a su renglón.
+// Efectos: las hojas que pasan, el «240», el dedo que roza, los «?», el lápiz (20, 30 y los palotes), la lupa que entra
+// y cada vez que cae sobre los signos, y el «pop» cuando vuelven a su sitio.
 import * as T from '/atomo/plato/escenas/vm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vm-pergamino');
@@ -132,7 +137,11 @@ const p1 = (t) => {
   const u = tramo(t, 0.25, 1.75), x = Math.round(lerp(18, 112, ease(u)));
   R.actor(EL.bibliotecaria, x, 118, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > N240 - 0.25 && t < P2 - 0.2, sonrisa: t > en('pergamino', 0.1857), habla: t > en('pergamino', 0.0000) && t < en('pergamino', 0.0617) + 0.2 && Math.sin(t * 9) > 0 });
   const v = tramo(t, en('pergamino', 0.1857), en('pergamino', 0.2248));
-  R.actor(EL.investigadorIA, 206, 118, t, { dir: -1, sorpresa: t > N240 + 0.2 && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857), dedo: v > 0 && v < 1 });
+  R.actor(EL.investigadorIA, 206, 118, t, { dir: -1, salto: t > N240 + 0.15 && t < N240 + 0.4 ? 2 : 0, sorpresa: t > N240 + 0.2 && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857), dedo: v > 0 && v < 1, habla: t < N240 - 0.3 && t > 0.6 && Math.sin(t * 8) > 0.3 });
+  // la estudiante con su pila de libros: entra por la derecha, se para junto a la libreta y con «240» se vuelve a mirar
+  { const w = tramo(t, 0.5, 2.3), ex = Math.round(lerp(338, 262, ease(w))), mira = t > N240 + 0.3;
+    const es = R.actor(EL.alumna, ex, 117, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true, sorpresa: mira && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857) });
+    if (es && es.mano) { const [mx, my] = es.mano; for (const [k, c, cS] of [[0, Q.rojo, Q.rojoS], [1, Q.azul, Q.azulS], [2, Q.verde, Q.verdeS]]) { const y = my - 2 - k * 3, dx = (k % 2) - 1; R.rect(mx - 5 + dx, y, mx + 4 + dx, y + 2, Q.k); R.rect(mx - 4 + dx, y, mx + 3 + dx, y + 1, c); R.rect(mx - 4 + dx, y + 1, mx + 3 + dx, y + 1, cS); R.pset(mx + 3 + dx, y, Q.papel); } } }
   T.bibliotecaDelante(R, t, { camara: 'mesa' });
   // las hojas de la derecha pasan solas mientras sube la cuenta
   const f = tramo(t, N240 - 0.1, en('pergamino', 0.1857) + 0.15);
@@ -176,6 +185,15 @@ const p2 = (t) => {
   const u = tramo(t, en('pergamino', 0.2525), en('pergamino', 0.4812)), fx = Math.round(lerp(30, 300, u));
   for (const g of L4) { const c = g.x + 6 < fx ? (fx - g.x < 22 ? Q.oroL : Q.oro) : Q.tinta; if (c !== Q.tinta) glifo(g.id, g.x, g.y, 3, c); }
   motas(t, 14, 24, 170, 5);
+  // un pececillo de plata corre por el margen de arriba, se para, mueve las antenas y se mete bajo la hoja de debajo
+  { const SF = [[P2 + 0.3, 334, 27], [P2 + 1.5, 214, 27], [P2 + 2.3, 214, 27], [P2 + 3.3, 122, 27], [P2 + 3.8, 114, 8]];
+    const [fx0, fy0] = camino(SF, t), sx = Math.round(fx0), sy = Math.round(fy0 + (fy0 > 20 ? Math.sin(fx0 * 0.15) : 0)), para = t > P2 + 1.5 && t < P2 + 2.3, pata = para ? 0 : Math.floor(t * 14) % 2, ant = para ? Math.floor(t * 6) % 2 : 0;
+    // a doble tamaño (16 px de largo) para que se lea: cuerpo plateado en escamas, antenas y tres colas
+    const q = (i, j, c) => { const X = sx + i * 2, Y = sy + j * 2; R.rect(X, Y, X + 1, Y + 1, c); };
+    if (t > P2 + 0.3 && sy > 11 && sx < 326) { for (let i = 0; i < 7; i++) { q(i, 0, i < 2 ? hex('#7a8494') : hex('#9aa4b4')); q(i, -1, i % 2 ? hex('#d4dce6') : hex('#b8c2d0')); } q(-1, 0, hex('#5a6474')); q(-1, -1, hex('#6a7484'));
+      q(-2, -2 - ant, Q.grafito); q(-3, -3 - ant, Q.grafito); q(-2, 1, Q.grafito); q(-3, 2 - ant, Q.grafito);
+      for (const k of [1, 3, 5]) { q(k, 1 + ((k + pata) & 1), Q.grafito); q(k, -2 - ((k + pata) & 1), Q.grafito); }
+      q(7, -1, Q.grafito); q(8, -2, Q.grafito); q(8, 0, Q.grafito); q(8, 1, Q.grafito); } }
   // los «?» que saltan sobre tres signos del primer renglón: «doesn't appear anywhere else»
   [[en('pergamino', 0.3938), 3], [en('pergamino', 0.4156), 9], [en('pergamino', 0.4285), 15]].forEach(([t0, i]) => { const g = L1[Math.min(i, L1.length - 1)]; if (!g || t < t0) return; const s = tramo(t, t0, t0 + 0.25), y = Math.round(20 - Math.sin(s * Math.PI) * 4); glifo(g.id, g.x, g.y, 3, Q.rojoS); R.icono('?', g.x, y, Q.rojo, Q.k, 3); });
   // el dedo con su brazo canónico, desde abajo a la izquierda
@@ -261,7 +279,12 @@ const p4 = (t) => {
     T.brazo(R, ex + 46, ey + 52, ex + 12, ey + 2, '#7a3a4a', -1);
   }
 };
-const efectos = [[N240, 'papel'], [en('pergamino', 0.4156), 'brillo'], [en('pergamino', 0.5146), 'pop'], [en('pergamino', 0.5596), 'pop'], [en('pergamino', 0.6360), 'lapiz'], [en('pergamino', 0.7998), 'boing'], [en('pergamino', 0.9315), 'whoosh'], [en('pergamino', 1.0664), 'pop']];
+const efectos = [
+  [N240, 'papel'], [en('pergamino', 0.1857), 'brillo'],
+  [en('pergamino', 0.2525), 'papel'], [en('pergamino', 0.3938), 'pop'], [en('pergamino', 0.4600), 'brillo'],
+  [P3 + 0.05, 'lapiz'], [en('pergamino', 0.5204), 'pop'], [en('pergamino', 0.5461), 'lapiz'], [en('pergamino', 0.6232), 'lapiz'],
+  [P4 + 0.05, 'whoosh'], [en('pergamino', 0.7998), 'boing'], [en('pergamino', 0.8673), 'tic'], [en('pergamino', 0.9315), 'whoosh'], [en('pergamino', 1.0664), 'pop'],
+];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 </script>
 </body>

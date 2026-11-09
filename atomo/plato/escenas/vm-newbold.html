@@ -17,9 +17,13 @@
 // 2. fondo local, la celda de Roger Bacon en Oxford como la imagina Newbold (siglo XIII, en sepia por los bordes):
 //    el fraile escribe el libro en su atril a la luz de la vela; con «written by the medieval scholar» deja la pluma y
 //    mira la página con su lente; con «Roger Bacon» se vuelve, sonríe y el libro se enciende en oro (corta en «and»);
-// 3. descifradores/filadelfia/ocular: por el microscopio, con «tiny marks» las grietas de la tinta se encienden en
-//    ámbar (las «letras» de Newbold); con «inside each letter» entra andando una mosca (gag 4), se para y se frota las
-//    patas como si fuera otra letra (un «!»), y con «microscope» se va volando;
+// 3. descifradores/filadelfia/ocular: por el microscopio. Con «and the secret» la imagen llega borrosa y se aclara
+//    mientras la mano de Newbold gira el mando de enfoque (abajo a la derecha); con «tiny marks» las grietas de la tinta
+//    se encienden en ámbar; con «inside», «each» y «letter» un anillo rodea, una a una, las tres grietas con forma de
+//    signo (con «inside» retoca el enfoque); con «each» entra andando una mosca (gag 4), con «could» se para y un cuarto
+//    anillo la rodea como si fuera otra letra (un «!»), y con «under a microscope» se va volando: la imagen tiembla, la
+//    mano se retira de golpe y el anillo queda vacío y rojo. Fondo: la lámpara que respira, bolas de luz que derivan,
+//    motas y el estudiante que pasa desenfocado por detrás (corta al acabar «microscope»);
 // 4. fondo local, la sala de la rotativa de un periódico de 1921: la máquina imprime; con «The newspapers» los
 //    periódicos salen disparados de la mesa y vuelan por toda la sala; con «went wild» el redactor levanta los brazos,
 //    una portada (el libro y un «!», sin letras) cae delante y el repartidor sale corriendo con su fajo.
@@ -221,7 +225,7 @@ const ficha = (x, y, w, hgt, sem, n) => {
   if (n != null) R.numero(String(n), x + w - 3, y + hgt - 2, { color: Q.grisS, sombra: false, fina: true, centro: true });
 };
 
-const P2 = en('newbold', 0.2917), P3 = en('newbold', 0.6169), P4 = en('newbold', 0.8931);
+const P2 = en('newbold', 0.2917), P3 = en('newbold', 0.6169), P4 = en('newbold', 0.9008);
 // 1 · el despacho de Newbold
 const ENTRA = en('newbold', -0.0026), ANIO = en('newbold', 0.0929), PROF = en('newbold', 0.1549), NOMBRE = en('newbold', 0.2452);
 const p1 = (t) => {
@@ -323,12 +327,77 @@ const p2 = (t) => {
   const ini = 1 - tramo(t, P2, P2 + 0.7);
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 90) / 90), k = Math.max(ini * 0.55, d > 0.74 ? (d - 0.74) * 1.6 : 0); if (k > 0.02) tine(x, y, Math.min(0.6, k), Q.sepD); }
 };
-// 3 · por el microscopio: las grietas de la tinta y la mosca
-const MARCAS_T = en('newbold', 0.6711), MOSCA = en('newbold', 0.7098), MICRO = en('newbold', 0.8802);
+// 3 · por el microscopio: Newbold enfoca, las grietas se encienden, las rodea una a una… y la «letra» nueva es una mosca
+const MARCAS_T = en('newbold', 0.6711), DENTRO = en('newbold', 0.7194), CADA = en('newbold', 0.7470), LETRA = en('newbold', 0.7645);
+const MOSCA = en('newbold', 0.7486), PUEDE = en('newbold', 0.7950), BAJO = en('newbold', 0.8490);
+const OCX = 160, OCY = 90, OCR = 72;
+const fueraOcular = (x, y) => (x - OCX) * (x - OCX) + (y - OCY) * (y - OCY) > (OCR + 9) * (OCR + 9);
+const dentroOcular = (x, y) => (x - OCX) * (x - OCX) + (y - OCY) * (y - OCY) < (OCR - 2) * (OCR - 2);
+// el desenfoque del ocular (b: 0–3 px): mezcla cada punto del círculo con sus vecinos a b px (un recorrido del círculo)
+const TMP_OC = new Uint32Array(145 * 145);
+const desenfoca = (b) => {
+  if (b < 0.3) return; const B = R.buf, x0 = OCX - OCR, y0 = OCY - OCR, w = 2 * OCR + 1, k = Math.max(1, Math.round(b)), rr = (OCR - 2) * (OCR - 2);
+  for (let y = 0; y < w; y++) for (let x = 0; x < w; x++) TMP_OC[y * w + x] = B[(y0 + y) * 320 + x0 + x];
+  const m = (x, y) => { const dx = x - OCR, dy = y - OCR; return dx * dx + dy * dy < rr; };
+  for (let y = 0; y < w; y++) for (let x = 0; x < w; x++) { if (!m(x, y)) continue; const c = TMP_OC[y * w + x];
+    const a1 = m(x - k, y) ? TMP_OC[y * w + x - k] : c, a2 = m(x + k, y) ? TMP_OC[y * w + x + k] : c, a3 = m(x, y - k) ? TMP_OC[(y - k) * w + x] : c, a4 = m(x, y + k) ? TMP_OC[(y + k) * w + x] : c;
+    B[(y0 + y) * 320 + x0 + x] = mez(c, mez(mez(a1, a2, 0.5), mez(a3, a4, 0.5), 0.5), Math.min(0.85, 0.3 + b * 0.2)); }
+};
+// el anillo ámbar que rodea un signo (u 0–1: entra grande y se cierra; luego late)
+const anilloSigno = (cx, cy, r, u, t, c = Q.oroL) => {
+  if (u <= 0) return; const s = r * (1 + (1 - ease(u)) * 1.2) + (u >= 1 ? Math.sin(t * 6) * 0.6 : 0);
+  for (let a = 0; a < 6.283; a += 0.06) { if (Math.floor(a * 6 + t * 3) % 3 === 0) continue; const x = Math.round(cx + Math.cos(a) * s), y = Math.round(cy + Math.sin(a) * s);
+    if (dentroOcular(x, y)) { R.pset(x, y, c); if (dentroOcular(x + 1, y + 1)) tine(x + 1, y + 1, 0.5, Q.k); } }
+};
+// el mando de enfoque del microscopio (de latón moleteado, sobre la columna lacada en negro), que gira rot radianes
+const mandoEnfoque = (cx, cy, rot) => {
+  // la columna negra con su brillo y la base
+  R.poligono([[262, 180], [270, 118], [296, 112], [304, 180]], Q.k); R.poligono([[264, 180], [271, 120], [294, 114], [302, 180]], hex('#24201c'));
+  R.linea(273, 122, 268, 179, hex('#5a5048')); R.linea(274, 124, 270, 179, hex('#3a342e')); R.linea(292, 118, 299, 179, hex('#14100c'));
+  R.rect(252, 172, 319, 179, Q.k); R.rect(253, 173, 319, 179, hex('#2a2420')); R.linea(253, 173, 319, 173, hex('#5a5048'));
+  // el collar de latón de la cremallera y sus tornillos
+  R.poligono([[269, 126], [295, 120], [296, 125], [269, 131]], Q.k); R.poligono([[270, 127], [294, 121], [295, 124], [270, 130]], Q.bronce); R.linea(270, 127, 294, 121, Q.bronceL);
+  for (const [x, y] of [[276, 166], [292, 164]]) { R.disco(x, y, 2, Q.k); R.pset(x, y, Q.bronceL); R.pset(x - 1, y, Q.bronceS); }
+  // la rueda: canto moleteado que gira, cara de latón con su anillo y el tornillo
+  for (let a = 0; a < 6.283; a += 0.05) { const mol = Math.floor((a + rot) * 9) % 2 === 0;
+    for (let d = 13; d <= 15; d++) R.pset(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), d === 15 ? Q.k : mol ? Q.bronceS : Q.bronceL); }
+  R.disco(cx, cy, 12, Q.bronce); R.disco(cx - 2, cy - 2, 8, mez(Q.bronce, Q.oroL, 0.35)); for (let a = 0; a < 6.283; a += 0.08) R.pset(Math.round(cx + Math.cos(a) * 9), Math.round(cy + Math.sin(a) * 9), Q.bronceS);
+  for (let k = 0; k < 3; k++) { const q = rot + k * 2.094; R.disco(Math.round(cx + Math.cos(q) * 6), Math.round(cy + Math.sin(q) * 6), 1, Q.bronceS); }
+  R.disco(cx, cy, 3, Q.k); R.disco(cx, cy, 2, Q.bronceS); R.linea(Math.round(cx - Math.cos(rot) * 2), Math.round(cy - Math.sin(rot) * 2), Math.round(cx + Math.cos(rot) * 2), Math.round(cy + Math.sin(rot) * 2), Q.k);
+  R.pset(cx - 7, cy - 7, Q.blanco); R.pset(cx - 6, cy - 8, Q.oroL);
+};
 const p3 = (t) => {
-  const g = ease(tramo(t, MARCAS_T, MARCAS_T + 0.8)), m = tramo(t, MOSCA, MICRO);
+  // la mosca entra con «each», se para como otra «letra» con «could» y se va volando con «under a microscope»
+  const g = ease(tramo(t, MARCAS_T, MARCAS_T + 0.8)), m = tramo(t, MOSCA, P4);
   T.descifradores(R, t, { encuadre: 'filadelfia', camara: 'ocular', grietas: g, mosca: m });
-  if (m > 0.36 && m < 0.66) R.bocadillo(236, 52 + (parpadeo(t, 6) ? 1 : 0), {});
+  // el despacho desenfocado alrededor: la lámpara que respira, bolas de luz que derivan y motas en el haz
+  { const lam = 0.10 + 0.05 * Math.sin(t * 2.3) + 0.03 * Math.sin(t * 7.1);
+    for (let y = 16; y < 64; y++) for (let x = 6; x < 76; x++) if (fueraOcular(x, y) && ((x + y) & 1)) { const d = Math.hypot(x - 40, y - 30); if (d < 34) tine(x, y, lam * (1 - d / 34), Q.luz); } }
+  for (const [bx0, by0, br, v, c] of [[30, 150, 9, 2.2, Q.oro], [70, 118, 6, -1.6, Q.bronceL], [250, 70, 7, 1.3, Q.luz], [300, 96, 5, -2.4, Q.oroL]]) {
+    const bx = Math.round(bx0 + Math.sin(t * 0.4 + bx0) * 6 + v * (t - P3)), by = Math.round(by0 + Math.cos(t * 0.3 + by0) * 4), al = 0.16 + 0.08 * Math.sin(t * 1.7 + bx0);
+    for (let y = by - br; y <= by + br; y++) for (let x = bx - br; x <= bx + br; x++) { const d = Math.hypot(x - bx, y - by); if (d <= br && fueraOcular(x, y) && !(x >= 276 && y <= 46)) tine(x, y, d > br - 1.2 ? al * 1.7 : al, c); } }
+  for (let k = 0; k < 9; k++) { const u = (t * 0.05 + k * 0.111) % 1, x = Math.round(10 + k * 7 + Math.sin(t * 0.8 + k) * 5), y = Math.round(70 - u * 50); if (y > 17 && fueraOcular(x, y)) R.pset(x, y, u < 0.5 ? Q.luz : Q.oroL); }
+  // el estudiante pasa por detrás, desenfocado (una sombra blanda que solo se ve fuera del ocular)
+  { const u = tramo(t, MARCAS_T + 0.2, PUEDE + 0.3); if (u > 0 && u < 1) { const sx = Math.round(lerp(-28, 104, u)), sb = Math.round(Math.abs(Math.sin(u * 22)) * 2);
+    for (let y = 46; y < 180; y++) for (let x = sx - 22; x <= sx + 22; x++) { if (x < 0 || !fueraOcular(x, y)) continue;
+      const vh = Math.hypot(x - sx, y - (64 - sb)) / 12, vb = Math.hypot((x - sx) / 19, (y - (128 - sb)) / 46), v = Math.min(vh, vb);
+      if (v < 1.25) tine(x, y, 0.5 * Math.min(1, (1.25 - v) / 0.45), hex('#0a0604')); } } }
+  // los anillos que rodean las tres grietas con forma de signo, con «inside», «each» y «letter»
+  anilloSigno(141, 51, 8, tramo(t, DENTRO, DENTRO + 0.3), t);
+  anilloSigno(121, 86, 8, tramo(t, CADA, CADA + 0.3), t);
+  anilloSigno(193, 116, 8, tramo(t, LETRA, LETRA + 0.3), t);
+  // … y el cuarto anillo, alrededor de la mosca cuando se para (con «could»); se queda vacío cuando se va
+  { const u = tramo(t, PUEDE, PUEDE + 0.3); anilloSigno(152, 98, 18, u, t, u > 0 && m > 0.65 ? Q.rojoL : Q.oroL); }
+  if (m > 0.4 && m < 0.66) R.bocadillo(172, 64 + (parpadeo(t, 6) ? 1 : 0), {});
+  // el enfoque: la imagen llega borrosa y se aclara mientras Newbold gira el mando; con la mosca que despega, tiembla
+  const enfoque = ease(tramo(t, P3 + 0.05, P3 + 0.95)), retoque = Math.sin(Math.PI * tramo(t, DENTRO - 0.35, DENTRO + 0.15)), sacude = Math.sin(Math.PI * tramo(t, BAJO, BAJO + 0.45));
+  desenfoca(3 * (1 - enfoque) + retoque * 1.0 + sacude * 1.4);
+  // el mando de enfoque y la mano de Newbold que lo gira (la retira de golpe cuando la mosca sale volando)
+  const rot = enfoque * 5.5 + ease(tramo(t, DENTRO - 0.35, DENTRO + 0.15)) * 1.2 - ease(tramo(t, BAJO, BAJO + 0.4)) * 0.8;
+  mandoEnfoque(282, 146, rot);
+  { const fuera = ease(tramo(t, BAJO + 0.1, BAJO + 0.6)), gira = (t < P3 + 0.95 || (t > DENTRO - 0.35 && t < DENTRO + 0.15)) ? Math.round(Math.sin(t * 14)) : 0;
+    const hx = Math.round(296 + fuera * 34), hy = Math.round(140 + gira + fuera * 30);
+    if (hx < 334) T.brazo(R, hx + 34, hy + 52, hx, hy, '#5a4632', -1, { codo: [hx + 26, hy + 24], sombra: false }); }
 };
 // 4 · la rotativa del periódico: los periódicos se vuelven locos
 const PAPELES = en('newbold', 0.9354), LOCOS = en('newbold', 0.9545), PORTADA = en('newbold', 0.9705);
@@ -417,7 +486,7 @@ const p4 = (t) => {
 const efectos = [
   [ENTRA, 'puerta'], [ANIO + 0.05, 'papel'], [PROF + 1.2, 'toc'], [NOMBRE + 0.1, 'brillo'], [NOMBRE + 0.4, 'pop'],
   [P2 + 0.3, 'lapiz'], [en('newbold', 0.3665), 'tic'], [LUPA, 'golpecito'], [BACON + 0.05, 'brillo'],
-  [MARCAS_T + 0.1, 'brillo'], [MOSCA + 0.2, 'zumbido'], [en('newbold', 0.8311), 'whoosh'],
+  [P3 + 0.2, 'tic'], [MARCAS_T + 0.1, 'brillo'], [DENTRO + 0.02, 'golpecito'], [MOSCA + 0.5, 'zumbido'], [BAJO + 0.05, 'whoosh'],
   [P4 + 0.05, 'maquina'], [PAPELES, 'whoosh'], [LOCOS + 0.1, 'papel'], [PORTADA + 0.6, 'chof'],
 ];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, cartela: '1921', año: 1921 });
