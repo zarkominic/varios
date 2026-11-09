@@ -1,6 +1,6 @@
 # Episodio 27 · Material para publicar
 
-**Duración:** 8:26 (voz).
+**Duración:** 8:26.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`, narrada como un cuento, voz «B») y pista de audio en español
   (`em_santa`, con los nombres propios escritos como se dicen en México).
 - Subtítulos en inglés y en español.
@@ -43,7 +43,14 @@ What we cover:
 
 What's your best score, or have you also dreamed of falling pieces? Tell me in the comments.
 
-CAPÍTULOS: se sacan con capitulos.py después del montaje.
+0:00 A game that escaped the USSR
+0:37 The game with no pictures
+2:02 Selling what you don't own
+3:26 The trip to Moscow
+5:12 The cartridge war
+6:11 The creator without a ruble
+6:49 Why we can't stop
+7:53 The ending
 
 Tetris® is a trademark of The Tetris Company. This video is not affiliated with or endorsed by The Tetris Company.
 
@@ -72,7 +79,14 @@ Lo que contamos:
 
 ¿Cuál es tu mejor puntuación, o tú también has soñado con piezas que caen? Cuéntamelo en los comentarios.
 
-CAPÍTULOS: se sacan con capitulos.py después del montaje.
+0:00 El juego que se escapó de la URSS
+0:37 El juego sin dibujos
+2:02 Vender lo que no tienes
+3:26 El viaje a Moscú
+5:12 La guerra de los cartuchos
+6:11 El creador sin un rublo
+6:49 Por qué no podemos parar
+7:53 El cierre
 
 Tetris® es marca de The Tetris Company. Este vídeo no está afiliado a The Tetris Company ni cuenta con su respaldo.
 
@@ -95,4 +109,25 @@ y otros, Science (2000) · Guinness World Records (2024) · AP (enero de 2024).
 
 ## Shorts
 
-SHORTS: tramos, títulos y descripciones después del montaje.
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · Tetris nació en un ordenador que no sabía dibujar · tramo 0.25-12.8,60.7-83.3
+- **EN:** Tetris Was Born on a Computer That Couldn't Draw #Shorts
+- **ES:** Tetris nació en un ordenador que no sabía dibujar #Shorts
+- **EN:** In 1984, in Moscow, Alexey Pajitnov built the pieces out of brackets, made them fall, and added one rule: when a row was full, it disappeared. The full story is in the linked video. #Tetris #RetroGaming #ASKAtom #Shorts
+- **ES:** En 1984, en Moscú, Alexéi Pázhitnov hizo las piezas con corchetes, las puso a caer y añadió una regla: cuando una fila quedaba completa, desaparecía. La historia completa, en el vídeo enlazado. #Tetris #VideojuegosRetro #ASKAtom #Shorts
+
+### Short 2 · Voló a Moscú sin invitación y ganó Tetris · tramo 229.9-274.3
+- **EN:** He Flew to Moscow Uninvited and Won Tetris #Shorts
+- **ES:** Voló a Moscú sin invitación y se llevó Tetris #Shorts
+- **EN:** In February 1989, Henk Rogers flew to Moscow on a tourist visa and walked into the Soviet agency that owned Tetris. Then he put a cartridge on the table. The full story is in the linked video. #Tetris #ColdWar #ASKAtom #Shorts
+- **ES:** En febrero de 1989, Henk Rogers voló a Moscú con un visado de turista y entró en la agencia soviética que tenía Tetris. Entonces puso un cartucho sobre la mesa. La historia completa, en el vídeo enlazado. #Tetris #GuerraFría #ASKAtom #Shorts
+
+### Short 3 · El chico que hizo que Tetris se colgara · tramo 430.3-473.5
+- **EN:** A 13-Year-Old Made Tetris Freeze for the First Time #Shorts
+- **ES:** Un chico de 13 años hizo que Tetris se colgara #Shorts
+- **EN:** Researchers found people see falling pieces when they close their eyes. And in December 2023, a thirteen-year-old from Oklahoma played so far that the old game froze. The full story is in the linked video. #Tetris #RetroGaming #ASKAtom #Shorts
+- **ES:** Los investigadores vieron que la gente ve piezas cayendo al cerrar los ojos. Y en diciembre de 2023, un chico de trece años de Oklahoma jugó tan lejos que el viejo juego se colgó. La historia completa, en el vídeo enlazado. #Tetris #VideojuegosRetro #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/ts-short1-miniatura.html` … `ts-short3-miniatura.html`.

@@ -417,3 +417,16 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   pero no uvitas con ojos, cositas muy de bebés». Se rehicieron las del 25 y el 26 (y sus Shorts) con el decorado real y
   personas chibi al doble (`mini-chibi.js`), luz de cine y nada de mascotas. Lo infantil eran las mascotas con cara, no
   los chibis.
+
+## Episodio 27 · Tetris: el juego que se escapó de la Unión Soviética (9/11/2026)
+
+- **Derechos del juego (Tetris Holding contra Xio, 2012):** el riesgo no vino de las piezas ni del pozo (se respetaron
+  desde el encargo) sino de los NÚMEROS: tres pantallas (el terminal de 1984, la tele de 2023 y el ordenador del estudio
+  de Atom) pintaban un contador que se leía como el marcador del juego. Dos los vieron los agentes; el tercero, la tira
+  de control. Para un juego con dueño: «sin marcador ni contador en ninguna pantalla» desde el primer encargo.
+- **Verificación:** 14 correcciones; la peor, «el primer juego del otro lado del Telón de Acero» (Hungría ya vendía
+  juegos en Occidente) y «el primero en ganarle a un juego infinito» (fue el primero en colgarlo).
+- **Música:** un golpe al principio de la escena de la cartela de 2023 hacía caer la música 7,7 dB; quitarlo bastó.
+- **Retoque tras el render:** una escena se arregla con `render-escenas.mjs <carpeta> --solo <id>` y
+  `producir.sh … --desde montar` (unos 6 min), sin volver a renderizar todo.
+- **Disco:** se borraron los fotogramas del 25 antes del render.
