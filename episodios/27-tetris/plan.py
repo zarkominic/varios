@@ -83,7 +83,7 @@ E = [
   'asombro', []),
  ('ts-gibson', '2023', 24, 24, ['gibson'],
   ['E (un salón de Oklahoma en 2023): un chico de trece años con cascos juega ante una tele vieja; la pantalla se congela; el chico se lleva las manos a la cabeza y grita de alegría.'],
-  'asombro', ['gibson']),
+  'asombro', []),
  ('ts-resumen', None, 25, 25, ['resumen'],
   ['E (el estudio de Atom): un repaso en una pizarra: el terminal de corchetes, el disquete, la oficina de Moscú; una fila de bloques se completa y desaparece.'],
   'cierre', []),
