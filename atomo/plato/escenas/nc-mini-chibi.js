@@ -5,6 +5,7 @@
 //   0 · Seattle, 1985: Mullins, al doble, con su pancarta de la lata tachada bajo la lluvia, y la protesta detrás. «1985».
 //   1 · la cámara acorazada se abre y Candler, al doble, mira el papelito con la fórmula. «1886».
 //   2 · la centralita: una operadora, al doble, con los teléfonos que saltan. «1985».
+//   4 · Mullins para el Short 2 (vertical): lo mismo que la 0, compuesto en la franja central. «1985».
 //   3 · el escáner: el investigador, al doble, señala el cerebro que se ilumina con la lata roja. «2004».
 import { atlanta, atlantaDelante, rebelion, rebelionDelante, hoy, hoyDelante, PIEZAS_NC } from '/atomo/plato/escenas/nc-comun.js';
 import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
@@ -19,6 +20,15 @@ export function pintarNCchibi(R, t, n) {
     figura(R, EL.mullins, 196, 180, t, { dir: -1, sorpresa: true, dedo: true }, 2);
     PIEZAS_NC.pancarta(R, 150, 176, { dibujo: 'lata', s: 2 });
     cifra(R, '1985', 60, 26, 20);
+  } else if (n === 4) {
+    rebelion(R, t, { encuadre: 'calle' });
+    rebelionDelante(R, t, { encuadre: 'calle' });
+    grado(R, { cx: 160, tinte: '#2a3a5a', f: 0.15, rx: 120, desde: 0.75, max: 0.5 });
+    halo(R, 172, 130, 46, 50, '#ffe0b0', 0.25);
+    figura(R, EL.manifestante2, 198, 156, t, { dir: -1, sorpresa: true }, 1);
+    figura(R, EL.mullins, 168, 176, t, { dir: -1, sorpresa: true, dedo: true }, 2);
+    PIEZAS_NC.pancarta(R, 130, 172, { dibujo: 'lata', s: 2 });
+    cifra(R, '1985', 160, 12, 14);
   } else if (n === 1) {
     atlanta(R, t, { encuadre: 'banco', abre: 1, papelito: true, guardia: false, vacia: true });
     atlantaDelante(R, t, { encuadre: 'banco', abre: 1, vacia: true });

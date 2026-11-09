@@ -430,3 +430,18 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 - **Retoque tras el render:** una escena se arregla con `render-escenas.mjs <carpeta> --solo <id>` y
   `producir.sh … --desde montar` (unos 6 min), sin volver a renderizar todo.
 - **Disco:** se borraron los fotogramas del 25 antes del render.
+
+## Episodio 28 · La New Coke: el día que Estados Unidos se rebeló por un refresco (9/11/2026)
+
+- **Derechos de dos marcas a la vez:** la regla en el `tema` del workflow de calidad («suspende el plano si aparece…»)
+  funcionó: los revisores encontraron un cartel con la botella de contorno y otro con la ola blanca sobre rojo en el
+  gancho, que el borrador había colado. Meter la lista de lo prohibido en el tema llega a todos los agentes sin tocar el
+  workflow.
+- **Calidad:** 46 de 95 planos suspendieron en la primera revisión y los 46 aprobaron en la segunda ronda.
+- **Verificación:** 18 correcciones; la peor, «400.000 llamadas» (eran más de cuarenta mil llamadas y cartas).
+- **Miniaturas de los Shorts:** recortar la principal (16:9) a la franja central dejó a Mullins cortado en el borde.
+  Cada Short necesita su variante compuesta para el vertical (aquí, la n = 4 de `nc-mini-chibi.js`), y conviene
+  repartirlas después de elegir los tramos, no antes.
+- **`fallos` en la pasada de calidad salta la primera revisión completa:** para una revisión de derechos de todo el
+  episodio no sirve; va en el tema.
+- **Disco:** se borraron los fotogramas del 27 (5,1 GB) antes del render.
