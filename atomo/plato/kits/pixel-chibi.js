@@ -7164,3 +7164,502 @@ export const PIEZAS_TS = {
   consolaBolsillo: consolaBolsilloTS, maleta: maletaTS, mazo: mazoTS, rublo: rubloTS, bloques: bloquesTS, maletin: maletinTS,
   telefonoRojo: telefonoRojoTS,
 };
+
+// ── Episodio 28 (la New Coke de 1985: la empresa cambia su fórmula y el país protesta): la farmacia de Atlanta en 1886,
+// el despacho de 1890–1899, los cuarenta, el supermercado de 1975, la sede y el laboratorio de 1985, la rueda de prensa
+// de Nueva York, la oficina del rival, el sótano, la centralita, la calle de protesta, el Congreso, el laboratorio de
+// Texas en 2004 y el aula de la escuela de negocios ──
+// DERECHOS: nada de logotipos de ninguna de las dos marcas, ni su letra cursiva, ni la onda blanca, ni el disco rojo, ni
+// el globo de tres colores, ni la botella de contorno (con cintura y estrías), ni latas reales: latas lisas de rojo y
+// azul planos (rojo #c8382e, azul #2e5aa8, distintos de los de las marcas) sin ninguna forma blanca encima (como mucho
+// una banda gris lisa); botellas rectas genéricas; nada de Papá Noel ni de osos polares. Sin letras en nada (solo
+// cifras o pictogramas; las «A» y «B» de los vasos de cata son pictogramas de la cata a ciegas). Las personas reales
+// se reconocen solo por sus atributos, con respeto. Nombres nuevos con NC.
+
+// tocados nuevos del 28
+Object.assign(TOCADOS, {
+  // el gorro de fiesta de cartulina (A con las rayas X y la borla de oro O): los empleados del rival celebrando
+  gorroFiestaNC: [[
+    '......kkk......',
+    '......kOk......',
+    '......kkk......',
+    '.....kAAAk.....',
+    '.....kXXXk.....',
+    '....kAAAAAk....',
+    '....kXXXXXk....',
+    '...kAAAAAAAk...',
+    '...kkkkkkkkk...',
+  ], -8],
+  // el gorro de cuartel de los cuarenta (V, sombra v): plegado y bajo, sin visera
+  gorroCuartelNC: [[
+    '...kkkkkkkk....',
+    '..kVVVVVVVVk...',
+    '.kVvVVVVVVVVk..',
+    '.kkkkkkkkkkkk..',
+  ], -2],
+  // los cascos de centralita de las operadoras: la diadema (M) por encima del pelo, el auricular (M, brillo m) sobre la
+  // oreja de atrás y el micrófono de varilla (M, la punta A) que baja por la mejilla hasta la barbilla, lejos de los
+  // ojos y de la boca
+  cascoCentralitaNC: [[
+    '.....kkkkk.....',
+    '...kkMMMMMkk...',
+    '..kMMk...kkMMk.',
+    '..kMk......kk..',
+    '..kMk..........',
+    '.kkMkk.........',
+    'kMMMMk.........',
+    'kMmMMk.........',
+    'kMmMMkk........',
+    '.kkkkMMk.......',
+    '......kMMk.....',
+    '.......kAAk....',
+    '........kk.....',
+  ], 0],
+});
+
+// ── detalles (delante) ──
+// la pajarita (dos alas del color col y el nudo más oscuro); dos: las alas de dos filas
+const pajaritaNC = (col, dos = true) => (c) => {
+  const a = hex(col), n = hex(oscuroTR(col, 0.6));
+  c.cuerpo.px(6, 1, a); c.cuerpo.px(7, 1, n); c.cuerpo.px(8, 1, a);
+  if (dos) { c.cuerpo.px(6, 2, a); c.cuerpo.px(8, 2, a); }
+};
+// la sonrisa de siempre del directivo canoso (si no habla ni pone otra cara)
+const sonrisaNC = (c) => {
+  if (c.o.habla || c.o.sorpresa || c.o.triste || c.o.enfado) return;
+  const y = c.o.bocaY ?? 9;
+  c.cab.px(10, y, c.pal.S); c.cab.px(11, y, c.pal.S);
+  c.cab.px(9, y, P.k); c.cab.px(10, y + 1, P.k); c.cab.px(11, y + 1, P.k); c.cab.px(12, y, P.k);
+};
+const PAL_MANO_NC = { ...PAL_MANO_TS, ...COLORES({
+  Z: '#b8bcc8', z: '#7c8090', G: '#6a3a1e', J: '#a8744a', P: '#c8985a', p: '#9a6a3a', L: '#c8382e', l: '#8e2620',
+  I: '#cfe2ea', D: '#4a2414', K: '#2a2832', e: '#5a5866', R: '#c8382e', r: '#8e2620', X: '#f2ead6', x: '#c8bc9a', B: '#a8743c', b: '#6a4422',
+}) };
+// la botella recta genérica de cristal pardo en la mano (los soldados que brindan): chapa (Z), cuello y cuerpo recto
+const BOTELLA_MANO_NC = ['.kkk.', '.kZk.', '.kGk.', 'kkGkk', 'kGGGk', 'kJGGk', 'kJGGk', 'kGGGk', '.kkk.'];
+const conBotellaNC = enMano(BOTELLA_MANO_NC, 12, -3, PAL_MANO_NC);
+// la probeta de cristal (I) con jarabe oscuro (D): el laboratorio de sabores
+const conProbetaNC = enMano(['kkkk', '.kIk', '.kIk', '.kDk', '.kDk', '..k.'], 12, 0, PAL_MANO_NC);
+// la cámara de tele de los ochenta sostenida delante, el objetivo (I) hacia delante y la lucecita roja (R)
+const conCamaraNC = enMano(['..kkkk...', '.kKKKKkkk', 'kKeKKKKIk', 'kKKRKKKIk', '.kKKKKkkk', '..kkkk...'], 10, 1, PAL_MANO_NC);
+// la caja de cartón (P, la cinta p) en brazos, sin letras: el vecino del sótano
+const conCajaNC = enMano(['kkkkkkkkk', 'kPPPpPPPk', 'kPPPpPPPk', 'kpppppppk', 'kPPPPPPPk', 'kPPPPPPpk', 'kkkkkkkkk'], 6, 1, PAL_MANO_NC);
+// los pictogramas de las pancartas (10 × 8): la lata lisa tachada con una X gruesa (K) y el corazón roto (R, la grieta X)
+const dibujoNC = (pinta) => { const g = Array.from({ length: 8 }, () => Array(10).fill('.')); pinta((i, j, c) => { if (i >= 0 && i < 10 && j >= 0 && j < 8) g[j][i] = c; }); return g.map((f) => f.join('')); };
+const DIBUJOS_NC = {
+  lata: dibujoNC((put) => {
+    for (let i = 3; i <= 6; i++) put(i, 0, 'Z');
+    for (let j = 1; j <= 7; j++) for (let i = 2; i <= 7; i++) put(i, j, i === 7 ? 'r' : 'R');
+    for (let i = 2; i <= 7; i++) put(i, 1, 'Z');
+    for (let j = 0; j < 8; j++) for (let i = 0; i < 10; i++) {
+      const d1 = Math.abs(j * 9 - i * 7) / Math.hypot(9, 7), d2 = Math.abs(j * 9 - (9 - i) * 7) / Math.hypot(9, 7);
+      if (d1 < 0.5 || d2 < 0.5) put(i, j, 'K');
+    }
+  }),
+  corazon: dibujoNC((put) => {
+    for (let j = 0; j < 8; j++) for (let i = 0; i < 10; i++) {
+      const lobulo = Math.hypot(i - 3, j - 2) <= 1.9 || Math.hypot(i - 6, j - 2) <= 1.9;
+      const pico = j >= 2 && j <= 7 && Math.abs(i - 4.5) <= 4.4 - (j - 2) * 0.9;
+      if (lobulo || pico) put(i, j, 'R');
+    }
+    for (const [i, j] of [[5, 1], [4, 2], [5, 3], [4, 4], [5, 5], [4, 6]]) put(i, j, 'X');
+  }),
+};
+const blitNC = (put, g, i0, j0, e = 1) => g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') for (let a = 0; a < e; a++) for (let b = 0; b < e; b++) put(i0 + i * e + a, j0 + j * e + b, f[i]); });
+// la pancarta de cartón (X) en alto, con el palo (B) que sale del puño, por encima y a la derecha de la cabeza (nunca
+// tapa la cara); o.dibujo 'lata' | 'corazon' cambia el pictograma
+const PANCARTA_MANO_NC = Object.fromEntries(Object.entries(DIBUJOS_NC).map(([k, d]) => [k, forma(15, 34, ({ rect }) => {
+  rect(1, 1, 12, 10, 'X'); rect(1, 10, 12, 10, 'x'); rect(8, 11, 8, 32, 'B'); rect(6, 30, 8, 31, 'S');
+}).map((f, j) => (j >= 2 && j <= 9 ? f.slice(0, 2) + d[j - 2] .replace(/\./g, 'X') + f.slice(12) : f))]));
+const conPancartaNC = (dib) => (c) => { if (manoLibre(c)) c.cuerpo.rej(PANCARTA_MANO_NC[c.o.dibujo ?? dib] ?? PANCARTA_MANO_NC.lata, 8, -27, { ...c.pal, ...PAL_MANO_NC }); };
+
+// ── el reparto del 28 ──
+const B28 = B23, B28M = B23M;
+export const ELENCO_NC = {
+  // ── Atlanta, la farmacia de 1886 ──
+  // Pemberton, el farmacéutico: patillas, bigote, el chaleco pardo con botones de latón y las mangas de camisa
+  pemberton: { ...B28, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#3a2a20'), delante: bigoteTR,
+    pal: CLT({ H: '#4a3628', h: '#6a5040', C: '#5a3e2e', c: '#422e22', W: '#f2eee2', o: '#d8b050', F: '#3a3a44' }) },
+  // el dependiente de la fuente de soda: el gorrito de papel blanco, la pajarita, la camisa clara y el delantal blanco
+  dependiente1886: { ...B28, cuerpo: CUERPO_DELANTAL_AT, tocado: 'gorroPapel', ceja: hex('#7a4a24'), delante: pajaritaNC('#2a2a3a', false),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', X: '#fbfaf4', x: '#c8c4bc', C: '#c8d4e4', c: '#a4b2c6', W: '#f2f2f6', V: '#fbfaf4', v: '#d0ccc4', F: '#3a3a44' }) },
+  // ── el despacho de 1890–1899 ──
+  // Candler, el empresario: calvo con bigote, traje oscuro con la pechera blanca y la pajarita negra
+  candler: { ...B28, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_EUROPEO, ceja: hex('#5a4a40'), delante: varios(bigoteTR, pajaritaNC('#24222c')),
+    pal: CLT({ H: '#6a5a4e', h: '#8a7a6e', C: '#2e2e3a', c: '#22222c', W: '#f2eee2', o: '#c8a040', F: '#2e2e3a' }) },
+  // los dos abogados de 1899: sombrero de bombín y traje; uno gris con bigote espeso, el otro pardo con patillas
+  abogado1: { ...B28, cuerpo: CUERPO_TRAJE_DC, tocado: 'bombin', ceja: hex('#3a2a20'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#3a2a20', h: '#5a4434', J: '#2a2430', j: '#4a4458', C: '#4a4a52', c: '#38383e', W: '#f2eee2', o: '#6a2a32', F: '#4a4a52' }) },
+  abogado2: { ...B28, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_TRAJE_DC, tocado: 'bombin', ceja: hex('#7a4a24'),
+    pal: CLT({ H: '#8a5a30', h: '#a8743e', J: '#4a3626', j: '#6a5240', C: '#6a5440', c: '#524030', W: '#f2eee2', o: '#2a3a5a', F: '#524030' }) },
+  // ── los cuarenta ──
+  // el soldado que brinda: uniforme verde oliva con cinturón y polainas, el gorro de cuartel y la botella recta en la mano
+  soldado: { ...B28, cuerpo: CUERPO_GI_DC, tocado: 'gorroCuartelNC', ceja: hex('#6a4426'), delante: conBotellaNC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', V: '#6a6a44', v: '#52522f', C: '#7a7048', c: '#5e5636', o: '#c8a040', G: '#5a4a2a', O: '#c8a040', F: '#6a6040', P: '#a8946a', p: '#86744e', n: '#3a2a1e' }) },
+  // ── el supermercado de 1975 ──
+  // la compradora: la media melena con volumen de los setenta, la blusa mostaza con lunares y los pantalones de campana
+  senora75: { ...B28M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CAMPANA_F_AT, ceja: hex('#6a4420'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a5a2a', h: '#a8743a', s: '#e8a080', C: '#d8902a', c: '#b07018', p: '#f2e0a0', F: '#6a4a2a' }) },
+  // el cámara de la tele: gorra, la cazadora y la cámara de hombro sostenida delante
+  camarografo: { ...B28, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#2a1e1a'), delante: conCamaraNC,
+    pal: MOT({ H: '#2a1e1a', h: '#4a3630', J: '#3a3a44', j: '#5a5a66', C: '#5a6a4a', c: '#46543a', W: '#d8d4c8', O: '#c8c8d2', F: '#3a4a6a', n: '#2a2018' }) },
+  // ── la sede de Atlanta y el laboratorio de sabores (1985) ──
+  // Goizueta, el presidente: elegante, el pelo oscuro peinado hacia atrás, gafas finas y el traje oscuro con la corbata granate
+  goizueta: { ...B28, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#14101a'), delante: gafasFinasDC,
+    pal: CLT({ H: '#1a1418', h: '#3a3036', C: '#22283a', c: '#181c2a', W: '#f2f2f6', o: '#7a2a3a', F: '#22283a' }) },
+  // el científico del laboratorio de sabores: sienes canosas, gafas, la bata blanca y la probeta de jarabe en la mano
+  cientifico: { ...B28, cab: CAB_SIENES, cuerpo: CUERPO_BATA_DC, ceja: hex('#4a3020'), delante: varios(gafasFinasDC, conProbetaNC),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d2', C: '#f2f2f6', c: '#c8ccd8', W: '#8ab0d0', o: '#3a4a6a', F: '#4a4a54', n: '#2a2430' }) },
+  // la científica: el pelo rizado, la bata blanca sobre la blusa verde y la probeta
+  cientifica: { ...B28, cab: CAB_RIZOS, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: conProbetaNC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', s: '#a8684a', C: '#f2f2f6', c: '#c8ccd8', W: '#4a8a6a', o: '#4a8a6a', F: '#3a3a44', n: '#2a2430' }) },
+  // ── la rueda de prensa de Nueva York (1985) ──
+  // el periodista: el pelo de lado, la americana beis de los ochenta con la corbata ancha y la libreta
+  periodista: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#6a4426'), delante: conLibretaDC,
+    pal: CLT({ H: '#8a6040', h: '#a87a50', C: '#b8a07a', c: '#94805c', o: '#8a3a2a', O: '#c8a040', F: '#5a5046', n: '#2a2430' }) },
+  // la periodista: el pelo rizado con volumen, la chaqueta de hombreras verde azulado y el micrófono de mano
+  periodista2: { ...B28M, cab: CAB_RIZOS, cuerpo: CUERPO_HOMBRERAS_AT, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]], delante: conMicro,
+    pal: MOT({ H: '#3a2418', h: '#5a3a24', s: '#c07a5a', C: '#2a6a6a', c: '#1e5050', W: '#f2eee2', I: '#2a2430', o: '#f0c040' }) },
+  // el presentador de la tele de 1985: el pelo castaño peinado, el traje gris azulado y la corbata roja oscura
+  presentador: { ...B28, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#4a5468', c: '#384050', W: '#eef0f6', o: '#8a2a3a', F: '#4a5468' }) },
+  // ── la oficina del rival ──
+  // el ejecutivo del rival: sienes canosas, el traje azul y la corbata gris
+  ejecutivoPepsi: { ...B28, cab: CAB_SIENES, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d2', C: '#2e4a8a', c: '#22386a', W: '#eef0f6', o: '#9a9caa', F: '#2e4a8a' }) },
+  // el empleado de fiesta: rubio, camisa blanca remangada con la corbata azul y el gorro de fiesta
+  empleadoPepsi: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_REMANGADA_AT, tocado: 'gorroFiestaNC', ceja: hex('#a8743a'),
+    pal: CLT({ H: '#c89a4a', h: '#e0b464', C: '#eef0f4', c: '#c4cad6', W: '#eef0f4', o: '#3a5aa8', A: '#3a6ad8', X: '#f6f2e6', O: '#f0c040', F: '#4a4a5a', n: '#2a2430' }) },
+  // ── el sótano, la centralita y el psiquiatra (1985) ──
+  // el vecino del sótano: el pelo de lado, bigote, la camisa de cuadros y la caja de cartón en brazos
+  vecinoSotano: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#4a3020'), delante: varios(bigoteTR, conCajaNC),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#a84a3a', c: '#86382c', p: '#5a2a24', W: '#e8e0d0', F: '#4a5a7a', n: '#3a2a20' }) },
+  // la operadora de la centralita: el pelo rizado, la rebeca rosa y los cascos con micrófono de varilla
+  operadora: { ...B28M, cab: CAB_RIZOS, cuerpo: CUERPO_REBECA_DC, tocado: 'cascoCentralitaNC', ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', s: '#e8a080', M: '#3a3a44', m: '#6a6a78', A: '#2a2832', C: '#c86a8a', c: '#a04e6a', W: '#f2eee2', J: '#f2eee2', o: '#f0c040', F: '#3a3a54', n: '#2a2430' }) },
+  // el psiquiatra que escucha las cintas: barba entrecana, gafas redondas y la chaqueta de pana parda
+  psiquiatra: { ...B28, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#5a4a40'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#7a6a5e', h: '#9a8a7e', C: '#7a5a3a', c: '#5e442a', W: '#e8e4d8', F: '#4a4038' }) },
+  // ── Seattle y la calle de protesta ──
+  // Mullins: barba, la gorra verde, la cazadora de ante parda sobre la camiseta y los vaqueros
+  mullins: { ...B28, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#2a4a3a', j: '#3e6a52', C: '#7a5a3a', c: '#5e442a', W: '#d8d0b8', O: '#c8a040', F: '#3a4a6a', n: '#2a2018' }) },
+  // los que protestan con la pancarta en alto (la lata tachada él; el corazón roto ella; o.dibujo las cambia)
+  manifestante: { ...B28, cuerpo: CUERPO_CALLE, ceja: hex('#3a2a20'), delante: conPancartaNC('lata'),
+    pal: CLT({ H: '#3a2a20', h: '#5a4434', C: '#4a7a5a', c: '#3a6048', F: '#4a5a7a', n: '#2a2430' }) },
+  manifestante2: { ...B28M, cuerpo: CUERPO_POLO_DC, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], delante: conPancartaNC('corazon'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#a8684a', C: '#e8b830', c: '#c09020', W: '#f2eee2', o: '#f2eee2', F: '#3a3a54', n: '#2a2430' }) },
+  // ── el Congreso y la segunda rueda de prensa ──
+  // el senador: el pelo canoso, las arrugas, el traje azul marino y la corbata burdeos
+  senador: { ...B28, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#a8a8b2'), delante: arrugasDC,
+    pal: CLT({ H: '#c8c8d0', h: '#e8e8ee', C: '#2a3048', c: '#1e2436', W: '#eef0f6', o: '#6a2a4a', F: '#2a3048' }) },
+  // Keough, el directivo: el pelo blanco con entradas, sonriente con humor, el traje gris y la corbata azul
+  keough: { ...B28, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#b8b8c2'), delante: varios(sonrisaNC, arrugasDC),
+    pal: CLT({ H: '#e0e0e6', h: '#f6f6f8', C: '#5a5c66', c: '#46484f', W: '#eef0f6', o: '#2a4a7a', F: '#5a5c66' }) },
+  // ── el laboratorio de neurociencia de Texas (2004) ──
+  // el voluntario: el pelo de lado, la camiseta azul claro y los vaqueros
+  voluntario: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_CALLE, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#8ab0c8', c: '#6a90a8', F: '#4a5a7a', n: '#3a3a44' }) },
+  // el investigador: el pelo corto negro, gafas de pasta, la bata blanca y la tablilla de notas
+  investigador: { ...B28, cuerpo: CUERPO_BATA_DC, ceja: hex('#1c1424'), delante: varios(gafasPastaDC, conNotasTS),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#f2f2f6', c: '#c8ccd8', W: '#5a6a8a', o: '#5a6a8a', F: '#3a3a44', n: '#2a2430' }) },
+  // ── el aula de la escuela de negocios ──
+  // el profesor: sienes canosas, gafas finas, la americana de tweed parda sobre la camisa celeste
+  profesor: { ...B28, cab: CAB_SIENES, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#4a3a30'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4a40', h: '#7a6a5e', w: '#c8c8d2', C: '#6a5a44', c: '#52442f', W: '#c8d8e8', F: '#4a4a54' }) },
+  // la estudiante (o el estudiante): el pelo corto, el jersey granate de cuello de camisa y la libreta
+  estudiante: { ...B28, cab: CAB_CORTA_VM, cuerpo: CUERPO_PICO_DC, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: conLibretaDC,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#8a3040', c: '#6a2432', W: '#f2eee2', F: '#3a4a6a', n: '#2a2430' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían: cientifico, cientifica, periodista, soldado, manifestante, voluntario,
+// profesor y estudiante ya eran de otros episodios)
+for (const [k, v] of Object.entries(ELENCO_NC)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 28 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Los colores de las latas y botellas: rojo y azul planos propios (no los de las marcas) y el pardo del cristal
+const COLOR_NC = {
+  rojo: { C: '#c8382e', c: '#8e2620', J: '#e2675c' },
+  azul: { C: '#2e5aa8', c: '#1f3e78', J: '#5a82c8' },
+  marron: { C: '#6a3a1e', c: '#4a2814', J: '#9a6a40' },
+};
+const PAL_NC = { ...PAL_TS, ...COLORES({
+  k: '#1c1222', ...COLOR_NC.rojo, Z: '#b8bcc8', z: '#7c8090', H: '#4e525e', E: '#ffffff', W: '#e8e4dc', w: '#b8b4ac',
+  D: '#3a1e14', d: '#7a4a2a', Y: '#f4ecd8', y: '#d4c4a0', R: '#c8382e', r: '#8e2620', I: '#d6e6ee', i: '#9ab8c4',
+  P: '#c8985a', p: '#9a6a3a', l: '#e0b47a', Q: '#e8a0b0', q: '#b87080', O: '#f0c040', o: '#ffe890', K: '#2a2832',
+  N: '#141018', f: '#2a2630', X: '#f6f2e6', x: '#c8c0b0', e: '#3a3640', G: '#56d07a', a: '#9ab8e0', A: '#3a6ad8',
+}) };
+const palNC = (color, extra = {}) => ({ ...PAL_NC, ...COLORES({ ...(COLOR_NC[color] ?? COLOR_NC.rojo), ...extra }) });
+const pintaNC = (R, g, x, y, o = {}, pal = PAL_NC) => pintaJH(R, g, x, y, o, pal);
+const encimaNC = (R, w, hgt, x, y, o, pal = PAL_NC) => encimaNV(R, w, hgt, x, y, o, pal);
+const cacheNC = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+// celdas sueltas (espuma, paño, pala): las pinta con su contorno alrededor; celdas: Map 'i,j' → letra
+const celdasNC = (px, celdas) => {
+  const hay = (i, j) => celdas.has(i + ',' + j);
+  for (const c of celdas.keys()) { const [i, j] = c.split(',').map(Number); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!hay(i + a, j + b)) px(i + a, j + b, 'k'); }
+  for (const [c, l] of celdas) { const [i, j] = c.split(',').map(Number); px(i, j, l); }
+};
+
+// LA LATA lisa: la tapa gris (Z, sombra z), el cuerpo de un solo color plano (C, sombra c a la derecha, un tono más
+// claro J a la izquierda) y el culo gris; sin nada blanco encima. o.color 'rojo' | 'azul'; o.abierta: la anilla (z) y
+// el agujero negro (N) en la tapa; o.franja: una banda gris lisa en medio; o.banda: la banda de honor dorada (O)
+// cruzada (sombra M); o.espuma 0–1: el chorro de espuma (Y, sombra y) que salta de la tapa hasta 24 px, con o.t ondula y suelta
+// gotas. 12 × 18
+const LATA_CACHE_NC = new Map();
+const LATA_NC = (ab, fr, ba) => cacheNC(LATA_CACHE_NC, `${ab}${fr}${ba}`, () => forma(12, 18, ({ rect, put, linea }) => {
+  rect(2, 1, 9, 1, 'Z'); rect(1, 2, 10, 2, 'z');
+  rect(1, 3, 10, 15, 'C'); rect(9, 3, 10, 15, 'c'); rect(2, 4, 2, 14, 'J');
+  rect(2, 16, 9, 16, 'z');
+  if (ab) { put(6, 1, 'N'); put(7, 1, 'N'); put(4, 1, 'z'); put(5, 1, 'z'); }
+  if (fr) { rect(1, 8, 10, 10, 'Z'); rect(9, 8, 10, 10, 'z'); }
+  if (ba) { linea(1, 13, 10, 5, 'O'); linea(1, 14, 10, 6, 'O'); linea(1, 15, 10, 7, 'M'); }
+}));
+const lataNC = (R, x, y, o = {}) => {
+  const pal = palNC(o.color, { M: '#a87a18' });
+  pintaNC(R, LATA_NC(!!(o.abierta || o.espuma), !!o.franja, !!o.banda), x, y, o, pal);
+  const e = Math.max(0, Math.min(1, o.espuma ?? 0));
+  if (e <= 0) return;
+  const px = encimaNC(R, 12, 18, x, y, o, pal), t = o.t ?? 0, h = Math.round(e * 24), celdas = new Map();
+  const pon = (i, j, l) => celdas.set(i + ',' + j, l);
+  let cx = 6.5;
+  for (let j = 0; j <= h; j++) {
+    cx = 6.5 + Math.sin(j * 0.55 + t * 13) * Math.min(1.2, j / 6);
+    const a = j < 3 ? 2.4 : 1.8;
+    for (let i = Math.round(cx - a); i <= Math.round(cx + a); i++) pon(i, 1 - j, i >= Math.round(cx + a) ? 'y' : 'Y');
+  }
+  const r = 2 + e * 2.2, cy = 1 - h;
+  for (let a = -4; a <= 4; a++) for (let b = -4; b <= 4; b++) { const d = Math.hypot(a, b * 1.15); if (d <= r) pon(Math.round(cx + a), cy + b, a + b > r * 0.6 ? 'y' : 'Y'); }
+  if (e > 0.3) for (let k = 0; k < 4; k++) { const f = (t * 3 + k * 0.27) % 1, lado = k % 2 ? 1 : -1; pon(Math.round(cx + lado * (4 + f * 6)), Math.round(cy + 2 + f * f * 10 - 3 * f), 'Y'); }
+  if (e > 0.5) for (let j = 2; j <= 2 + Math.round(e * 5); j++) pon(1, j, 'Y');
+  celdasNC(px, celdas);
+};
+
+// LA BOTELLA RECTA genérica (jamás la de contorno: sin cintura ni estrías): la chapa (Z), el cuello recto y el cuerpo
+// cilíndrico. o.color 'marron': cristal pardo entero (C, sombra c, brillo J); 'rojo' | 'azul': cristal claro (I/i)
+// con el refresco oscuro (D) dentro y una etiqueta lisa sin letras del color. 10 × 24
+const BOTELLA_CACHE_NC = new Map();
+const BOTELLA_NC = (pardo) => cacheNC(BOTELLA_CACHE_NC, pardo, () => forma(10, 24, ({ rect }) => {
+  rect(3, 1, 6, 2, 'Z'); rect(3, 2, 6, 2, 'z');
+  rect(4, 3, 5, 8, pardo ? 'C' : 'I'); rect(3, 9, 6, 9, pardo ? 'C' : 'I'); rect(2, 10, 7, 10, pardo ? 'C' : 'I');
+  if (pardo) { rect(1, 11, 8, 22, 'C'); rect(7, 11, 8, 22, 'c'); rect(5, 3, 5, 9, 'c'); rect(2, 12, 2, 20, 'J'); }
+  else {
+    rect(4, 6, 5, 8, 'D'); rect(3, 9, 6, 10, 'D'); rect(1, 11, 8, 22, 'D'); rect(1, 11, 1, 22, 'i'); rect(8, 11, 8, 22, 'i'); rect(2, 11, 2, 13, 'I');
+    rect(1, 14, 8, 18, 'C'); rect(7, 14, 8, 18, 'c');
+  }
+}));
+const botellaNC = (R, x, y, o = {}) => pintaNC(R, BOTELLA_NC((o.color ?? 'marron') === 'marron'), x, y, o, palNC(o.color ?? 'marron'));
+
+// EL VASO DE CATA sin marca: de plástico transparente (I, sombra i), más ancho arriba; o.lleno (true o 0–1): el refresco
+// oscuro (D) con la línea de espuma (y); o.letra 'A' | 'B': la pegatina blanca pequeña con la letra de la cata a ciegas
+// como pictograma (sin ella, nada); el refresco se ve a los lados y debajo. 14 × 16
+const VASO_CACHE_NC = new Map();
+const LETRAS_NC = { A: ['.e.', 'e.e', 'eee', 'e.e', 'e.e'], B: ['ee.', 'e.e', 'ee.', 'e.e', 'ee.'] };
+const vasoNC = (R, x, y, o = {}) => {
+  const n = o.lleno === true ? 0.8 : Math.max(0, Math.min(1, +o.lleno || 0)), letra = LETRAS_NC[o.letra] ? o.letra : '';
+  const g = cacheNC(VASO_CACHE_NC, `${Math.round(n * 10)}${letra}`, () => forma(14, 16, ({ rect, put }) => {
+    for (let j = 1; j <= 14; j++) { const m = Math.floor((j - 1) / 6); rect(1 + m, j, 12 - m, j, j === 1 ? 'Z' : 'I'); put(12 - m, j, j === 1 ? 'z' : 'i'); }
+    const top = 14 - Math.round(n * 12);
+    if (n > 0) for (let j = Math.max(2, top); j <= 14; j++) { const m = Math.floor((j - 1) / 6); rect(2 + m, j, 11 - m, j, j === Math.max(2, top) ? 'y' : 'D'); }
+    for (let j = 2; j <= 6; j++) if (j < top) put(2, j, 'E');
+    if (letra) { rect(5, 4, 9, 10, 'X'); blitNC(put, LETRAS_NC[letra], 6, 5); }
+  }));
+  pintaNC(R, g, x, y, o);
+};
+
+// LA CAJA DE CARTÓN de latas, sin letras: cerrada, con la cinta (T) y una lata pintada como pictograma del color
+// o.color; o.abierta: las solapas levantadas y las tapas de las latas (Z) asomando. 28 × 16 (abierta, 28 × 19)
+const CAJA_CACHE_NC = new Map();
+const cajaLatasNC = (R, x, y, o = {}) => {
+  const g = cacheNC(CAJA_CACHE_NC, !!o.abierta, () => o.abierta
+    ? forma(28, 19, ({ rect }) => {
+      rect(1, 0, 3, 5, 'p'); rect(24, 0, 26, 5, 'p');
+      rect(4, 3, 23, 4, 'b'); for (let k = 0; k < 4; k++) { rect(5 + k * 5, 3, 7 + k * 5, 3, 'Z'); rect(5 + k * 5, 4, 7 + k * 5, 4, 'C'); }
+      rect(1, 5, 26, 17, 'P'); rect(21, 5, 26, 17, 'p'); rect(1, 5, 26, 5, 'l');
+    })
+    : forma(28, 16, ({ rect }) => {
+      rect(1, 1, 26, 3, 'l'); rect(11, 1, 14, 3, 'T');
+      rect(1, 4, 26, 14, 'P'); rect(21, 4, 26, 14, 'p'); rect(11, 4, 14, 6, 'T');
+      rect(6, 7, 9, 7, 'Z'); rect(6, 8, 9, 12, 'C'); rect(9, 8, 9, 12, 'c');
+    }));
+  pintaNC(R, g, x, y, o, palNC(o.color, { b: '#5a3a1e', T: '#d8c8a0' }));
+};
+
+// LA CÁMARA ACORAZADA del banco: la placa de acero (z, remaches Z), el marco redondo grueso (H) y la puerta redonda (Z,
+// el canto z, los cerrojos w) con el volante de radios (H) en medio; o.abre 0–1 la gira sobre la bisagra de la izquierda
+// (se ve de canto al final) y deja ver el hueco oscuro (N) con su balda (f). 44 × 42
+const CAJAF_CACHE_NC = new Map();
+const cajaFuerteNC = (R, x, y, o = {}) => {
+  const paso = Math.round(Math.max(0, Math.min(1, o.abre ?? 0)) * 16);
+  const g = cacheNC(CAJAF_CACHE_NC, paso, () => forma(44, 42, ({ rect, put, disco }) => {
+    rect(1, 1, 42, 40, 'z'); rect(1, 1, 42, 1, 'Z'); for (const [i, j] of [[3, 3], [40, 3], [3, 38], [40, 38]]) put(i, j, 'Z');
+    disco(21.5, 20.5, 17.5, 'H'); disco(21.5, 20.5, 14.5, 'N'); rect(9, 27, 34, 27, 'f');
+    const u = paso / 16, rx = 15 * Math.cos(u * Math.PI / 2), cx = 6.5 + rx;
+    rect(4, 13, 6, 28, 'K');
+    if (rx < 0.6) { rect(6, 5, 7, 36, 'z'); return; }
+    for (let j = 4; j <= 37; j++) for (let i = 4; i <= 40; i++) {
+      const nx = (i - cx) / rx, ny = (j - 20.5) / 16, d = Math.hypot(nx, ny);
+      if (d <= 1) {
+        const ang = Math.atan2(ny, nx), radio = (n) => Math.abs(Math.sin(ang * 3)) < 0.18 && d > 0.12 && d < n;
+        let l = d > 0.86 ? 'z' : 'Z';
+        if (d > 0.7 && d < 0.8 && Math.abs(Math.sin(ang * 4)) < 0.25) l = 'w';
+        if (rx > 5 && (d < 0.12 || (d > 0.4 && d < 0.48) || radio(0.44))) l = 'H';
+        put(i, j, l);
+      } else if (u > 0 && nx > 0 && Math.hypot((i - cx - 2) / rx, ny) <= 1) put(i, j, 'z');
+    }
+  }));
+  pintaNC(R, g, x, y, o);
+};
+
+// EL PAPELITO doblado por la mitad (la hoja de abajo X y la mitad de arriba un poco levantada W, el pliegue x y la
+// sombra w), sin nada escrito; o.abierto: desdoblado, con tres
+// renglones de tinta sin letras (e). 12 × 8 (abierto, 12 × 12)
+const PAPEL_NC = forma(12, 8, ({ rect }) => { rect(1, 4, 10, 6, 'X'); rect(1, 6, 10, 6, 'w'); rect(6, 1, 9, 1, 'W'); rect(4, 2, 9, 2, 'W'); rect(3, 3, 10, 3, 'W'); rect(9, 1, 10, 3, 'w'); rect(2, 4, 10, 4, 'x'); });
+const PAPEL_ABIERTO_NC = forma(12, 12, ({ rect, put }) => {
+  rect(1, 1, 10, 10, 'X'); rect(6, 1, 6, 10, 'x'); rect(1, 10, 10, 10, 'w');
+  for (const [j, a] of [[3, 9], [5, 8], [7, 5]]) for (let i = 2; i <= a; i++) if (i !== 6 && (i + j) % 4) put(i, j, 'e');
+});
+const papelitoNC = (R, x, y, o = {}) => pintaNC(R, o.abierto ? PAPEL_ABIERTO_NC : PAPEL_NC, x, y, o);
+
+// EL TELÉFONO DE GÓNDOLA de los ochenta: la base baja redondeada (C, sombra c; o.color la cambia, beis por omisión) con
+// el teclado de botones (W) y el auricular atravesado encima; o.suena (con o.t): el teléfono da saltitos, el auricular
+// bota más alto y tiembla con unas rayitas a los lados. 22 × 14
+const TEL_BASE_NC = forma(22, 11, ({ rect, put }) => {
+  rect(3, 2, 18, 2, 'C'); rect(2, 3, 19, 9, 'C'); rect(2, 8, 19, 9, 'c'); rect(18, 3, 19, 9, 'c');
+  rect(3, 1, 5, 1, 'c'); rect(16, 1, 18, 1, 'c');
+  for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) put(8 + a * 2, 3 + b * 2, 'W');
+});
+const TEL_AURIC_NC = forma(22, 6, ({ rect }) => { rect(1, 1, 5, 4, 'C'); rect(16, 1, 20, 4, 'C'); rect(5, 1, 16, 2, 'C'); rect(1, 4, 5, 4, 'c'); rect(16, 4, 20, 4, 'c'); rect(19, 1, 20, 3, 'c'); });
+const telefonoNC = (R, x, y, o = {}) => {
+  const s = o.s ?? 1, t = o.t ?? 0, suena = !!o.suena, pal = palNC('rojo', { C: o.color ?? '#d8c8a0', c: oscuroTR(o.color ?? '#d8c8a0', 0.78), W: '#f6f2e6' });
+  const salto = suena ? Math.round(Math.abs(Math.sin(t * 22)) * 2) * s : 0, bota = suena ? Math.round(Math.abs(Math.sin(t * 22 + 0.9)) * 3) * s : 0;
+  pintaNC(R, TEL_BASE_NC, x, y - salto, o, pal);
+  pintaNC(R, TEL_AURIC_NC, x + (suena ? Math.round(Math.sin(t * 40)) * s : 0), y - salto - 8 * s - bota, o, pal);
+  if (suena && Math.sin(t * 11) > -0.3) {
+    const px = encimaNC(R, 22, 14, x, y - salto, o, pal);
+    for (const [i, j] of [[-2, 4], [-3, 5], [-3, 6], [-2, 7], [23, 4], [24, 5], [24, 6], [23, 7]]) px(i, j, 'k');
+  }
+};
+
+// EL SACO DE CORREOS de lona (P, sombra p) abierto, con los sobres (X, solapa x; uno azul claro a) que asoman y la
+// cuerda suelta (m); o.cartas false: cerrado, atado con la cuerda. 22 × 24
+const SACO_NC = (cartas) => forma(22, 24, ({ rect, put }) => {
+  rect(4, 5, 17, 7, 'P'); rect(2, 8, 19, 20, 'P'); rect(3, 21, 18, 21, 'P'); rect(5, 22, 16, 22, 'P');
+  rect(16, 8, 19, 21, 'p'); for (let j = 10; j <= 20; j += 2) put(10, j, 'p');
+  if (cartas) {
+    rect(5, 1, 10, 6, 'X'); put(6, 2, 'x'); put(7, 3, 'x'); put(8, 3, 'x'); put(9, 2, 'x');
+    rect(11, 0, 16, 5, 'a'); put(12, 1, 'x'); put(13, 2, 'x'); put(14, 2, 'x'); put(15, 1, 'x');
+    rect(8, 3, 12, 6, 'X'); put(9, 4, 'x'); put(10, 5, 'x'); put(11, 4, 'x');
+    put(18, 6, 'm'); put(19, 7, 'm'); put(20, 8, 'm');
+  } else { rect(7, 2, 14, 5, 'P'); rect(8, 0, 13, 1, 'P'); rect(6, 6, 15, 6, 'm'); }
+});
+const SACOS_NC = [SACO_NC(false), SACO_NC(true)];
+const sacoCartasNC = (R, x, y, o = {}) => pintaNC(R, SACOS_NC[o.cartas === false ? 0 : 1], x, y, o, palNC('rojo', { P: '#d8c08a', p: '#a88a58', m: '#6a4422' }));
+
+// LA PANCARTA de cartón (X, canto x) clavada en un palo (B, sombra b) con un pictograma a doble tamaño; o.dibujo
+// 'lata' (la lata lisa tachada) | 'corazon' (el corazón roto). 26 × 40
+const PANCARTA_NC = Object.fromEntries(Object.entries(DIBUJOS_NC).map(([k, d]) => [k, forma(26, 40, ({ rect, put }) => {
+  rect(1, 1, 24, 19, 'X'); rect(1, 19, 24, 19, 'x'); rect(12, 20, 13, 38, 'B'); rect(13, 20, 13, 38, 'b');
+  blitNC(put, d, 3, 2, 2);
+})]));
+const pancartaNC = (R, x, y, o = {}) => pintaNC(R, PANCARTA_NC[o.dibujo] ?? PANCARTA_NC.lata, x, y, o, { ...PAL_NC, ...COLORES({ B: '#a8743c', b: '#6a4422' }) });
+
+// EL MICRÓFONO de rueda de prensa con su pie: la cabeza (V; o.color la cambia, gris oscura por omisión) con la rejilla
+// (u), la pinza, la barra (Z/z), la rosca y la base redonda (K). 14 × 34
+const MICRO_NC = forma(14, 34, ({ rect, put, disco, linea }) => {
+  disco(9, 4, 2.6, 'V'); put(8, 3, 'u'); put(10, 3, 'u'); put(9, 4, 'u'); put(8, 5, 'u'); put(10, 5, 'u');
+  linea(8, 7, 7, 10, 'K'); rect(6, 10, 7, 11, 'z');
+  rect(6, 12, 7, 30, 'z'); rect(6, 12, 6, 30, 'Z'); rect(5, 21, 8, 22, 'K');
+  rect(3, 31, 10, 31, 'K'); rect(2, 32, 11, 32, 'K');
+});
+const microfonoNC = (R, x, y, o = {}) => pintaNC(R, MICRO_NC, x, y, o, { ...PAL_NC, ...COLORES({ V: o.color ?? '#3a3a46', u: '#6a6a78' }) });
+
+// EL PAÑO que tapa algo en el escenario (Q, pliegues q, brillo P; o.color lo cambia, morado por omisión): de pie es una
+// campana que lo cubre todo (o.w × o.h, 26 × 30 por omisión); o.tira 0–1: alguien tira de él hacia la derecha, se
+// levanta, se aplana y ondea hasta salir volando
+const panoNC = (R, x, y, o = {}) => {
+  const w = o.w ?? 26, h = o.h ?? 30, u = Math.max(0, Math.min(1, o.tira ?? 0)), col = o.color ?? '#6a3a7a';
+  const pal = { ...PAL_NC, ...COLORES({ Q: col, q: oscuroTR(col, 0.7), P: '#' + [1, 3, 5].map((i) => Math.min(255, Math.round(parseInt(col.slice(i, i + 2), 16) * 1.35 + 20)).toString(16).padStart(2, '0')).join('') }) };
+  const px = encimaNC(R, w, h, x, y, o, pal), celdas = new Map();
+  const hh = Math.max(4, Math.round(h * (1 - 0.55 * u))), dy = Math.round(-u * h * 0.45), dx = u * w * 1.4;
+  for (let j = 0; j < hh; j++) {
+    const fr = j / (hh - 1), mitad = (w / 2) * Math.sqrt(Math.min(1, (j + 1.5) / (hh * 0.3))) * (1 + u * 0.5) + (j >= hh - 2 ? 1 : 0);
+    const sx = dx + u * w * 0.5 * (1 - fr) + Math.sin(j * 0.45 + u * 9) * u * 2.5, c = w / 2 - 0.5 + sx;
+    for (let i = Math.round(c - mitad); i <= Math.round(c + mitad); i++) {
+      if (j === hh - 1 && (i + Math.round(u * 12)) % 5 === 0) continue;
+      const l = j < 2 && Math.abs(i - c) < mitad - 2 ? 'P' : fr > 0.25 && (i - Math.round(c - mitad)) % 6 === 3 ? 'q' : 'Q';
+      celdas.set(i + ',' + (h - hh + j + dy), l);
+    }
+  }
+  celdasNC(px, celdas);
+};
+
+// EL PEROL de cobre (B, sombra b, borde l) con el jarabe oscuro (D) que borbotea (burbujas d con o.t) y las dos asas;
+// o.pala: la pala de madera (M) metida en el jarabe, inclinada; o.vapor: hilillos de vapor (w) que suben. 26 × 19
+const JARABE_NC = forma(26, 19, ({ rect, put }) => {
+  for (let j = 1; j <= 7; j++) for (let i = 1; i <= 24; i++) { const a = ((i - 12.5) / 11.5) ** 2 + ((j - 4) / 2.6) ** 2, b = ((i - 12.5) / 9.8) ** 2 + ((j - 4) / 1.6) ** 2; if (b <= 1) put(i, j, 'D'); else if (a <= 1) put(i, j, 'l'); }
+  rect(2, 6, 23, 15, 'B'); rect(1, 4, 1, 5, 'l'); rect(24, 4, 24, 5, 'l'); rect(19, 6, 23, 15, 'b'); rect(3, 16, 22, 16, 'b'); rect(5, 17, 20, 17, 'b');
+  rect(4, 7, 4, 13, 'l'); rect(0, 8, 1, 10, 'b'); rect(24, 8, 25, 10, 'b'); put(0, 8, '.'); put(25, 8, '.');
+});
+const jarabeNC = (R, x, y, o = {}) => {
+  const pal = { ...PAL_NC, ...COLORES({ B: '#b8744a', b: '#7a4428', l: '#e0a070', M: '#a8743c' }) };
+  pintaNC(R, JARABE_NC, x, y, o, pal);
+  const px = encimaNC(R, 26, 19, x, y, o, pal), t = o.t ?? 0;
+  for (let k = 0; k < 5; k++) if (Math.sin(t * 5 + k * 2.3) > 0.4) px(6 + k * 3, 3 + (k % 2), 'd');
+  if (o.pala) { const celdas = new Map(); for (let k = 0; k <= 13; k++) { celdas.set((14 + Math.round(k * 0.6)) + ',' + (4 - k), 'M'); celdas.set((15 + Math.round(k * 0.6)) + ',' + (4 - k), 'M'); } celdasNC(px, celdas); }
+  if (o.vapor) for (let k = 0; k < 3; k++) { const f = (t * 0.7 + k / 3) % 1; for (let j = 0; j < 3; j++) px(7 + k * 6 + Math.round(Math.sin(f * 6 + j) * 1.5), -2 - Math.round(f * 10) - j, 'w'); }
+};
+
+// EL DÓLAR de 1899: la moneda de plata (Z, sombra z, brillo E) con el canto marcado y el «1» en relieve (z); o.giro 0–1
+// la hace girar sobre sí misma (0.5, de canto) como el rublo. 10 × 10
+const DOLAR_CACHE_NC = new Map();
+const dolarNC = (R, x, y, o = {}) => {
+  const w = Math.max(1, Math.round(8 * Math.abs(Math.cos((o.giro ?? 0) * Math.PI))));
+  const g = cacheNC(DOLAR_CACHE_NC, w, () => forma(10, 10, ({ put }) => {
+    for (let j = 1; j <= 8; j++) for (let i = 1; i <= 8; i++) { const dx = (i - 4.5) / Math.max(0.6, w / 2), dy = (j - 4.5) / 4; const d = dx * dx + dy * dy; if (d <= 1) put(i, j, d > 0.62 && w > 4 ? 'z' : i - 4.5 >= w / 2 - 1 && w > 2 ? 'z' : 'Z'); }
+    if (w >= 6) { for (let j = 3; j <= 6; j++) put(5, j, 'z'); put(4, 3, 'z'); put(4, 6, 'z'); put(6, 6, 'z'); put(3, 3, 'E'); }
+  }));
+  pintaNC(R, g, x, y, o);
+};
+
+// EL ESCÁNER de resonancia, de lado y sencillo: la carcasa blanca (W, sombra w) con la franja azul (A), la cara de
+// delante (X) con la boca del túnel (N), la camilla acolchada (a) sobre su pie (z) y la lucecita verde (G) que
+// parpadea con o.t. 66 × 38
+const ESCANER_NC = forma(66, 38, ({ rect, put }) => {
+  rect(34, 3, 63, 34, 'W'); for (const [i, j] of [[34, 3], [35, 3], [34, 4], [63, 3], [62, 3], [63, 4]]) put(i, j, '.');
+  rect(60, 4, 63, 34, 'w'); rect(34, 10, 63, 12, 'A'); rect(60, 10, 63, 12, 'a');
+  rect(28, 5, 33, 34, 'X'); rect(28, 10, 33, 12, 'a');
+  for (let j = 14; j <= 28; j++) for (let i = 28; i <= 33; i++) if (((i - 31.5) / 1.8) ** 2 + ((j - 21) / 5.5) ** 2 <= 1) put(i, j, 'N');
+  rect(2, 21, 32, 22, 'a'); rect(2, 23, 31, 24, 'Z'); rect(2, 24, 31, 24, 'z');
+  rect(12, 25, 20, 34, 'z'); rect(8, 35, 24, 36, 'K'); rect(28, 35, 63, 36, 'K');
+  rect(52, 5, 57, 7, 'w'); put(58, 6, 'G');
+});
+const escanerNC = (R, x, y, o = {}) => {
+  pintaNC(R, ESCANER_NC, x, y, o);
+  if (o.t != null && Math.sin(o.t * 4) < 0) encimaNC(R, 66, 38, x, y, o)(58, 6, 'g');
+};
+
+// EL CEREBRO de lado (Q rosa, surcos q, cerebelo y tronco más oscuros); o.zonas 0–1: se van encendiendo cinco zonas
+// (O con el centro o) como las luces de un árbol, que titilan con o.t. 26 × 20
+const CEREBRO_NC = forma(26, 20, ({ disco, linea, rect }) => {
+  disco(7.5, 9, 6, 'Q'); disco(13, 6.5, 6.5, 'Q'); disco(19, 9, 5, 'Q'); disco(12, 11, 5.5, 'Q');
+  disco(19.5, 14.5, 2.6, 'q'); rect(15, 15, 17, 18, 'q');
+  linea(4, 7, 8, 4, 'q'); linea(10, 3, 12, 8, 'q'); linea(15, 2, 17, 7, 'q'); linea(6, 12, 11, 10, 'q'); linea(18, 8, 22, 10, 'q'); linea(13, 11, 17, 12, 'q');
+});
+const ZONAS_NC = [[7, 8], [14, 5], [19, 9], [10, 12], [15, 9]];
+const cerebroNC = (R, x, y, o = {}) => {
+  pintaNC(R, CEREBRO_NC, x, y, o);
+  const z = Math.max(0, Math.min(1, o.zonas ?? 0)), t = o.t ?? 0;
+  if (z <= 0) return;
+  const px = encimaNC(R, 26, 20, x, y, o);
+  ZONAS_NC.forEach(([cx, cy], k) => {
+    const f = Math.max(0, Math.min(1, z * ZONAS_NC.length - k));
+    if (f <= 0) return;
+    const r = 0.8 + f * 1.6;
+    for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) { const d = Math.hypot(a, b); if (d <= r && 'Qq'.includes(CEREBRO_NC[cy + b]?.[cx + a] ?? '.')) px(cx + a, cy + b, d < 0.9 ? (Math.sin(t * 9 + k * 1.7) > 0.5 ? 'E' : 'o') : 'O'); }
+  });
+};
+
+export const PIEZAS_NC = {
+  lata: lataNC, botella: botellaNC, vaso: vasoNC, cajaLatas: cajaLatasNC, cajaFuerte: cajaFuerteNC, papelito: papelitoNC,
+  telefono: telefonoNC, sacoCartas: sacoCartasNC, pancarta: pancartaNC, microfono: microfonoNC, 'paño': panoNC, pano: panoNC,
+  jarabe: jarabeNC, dolar: dolarNC, escaner: escanerNC, cerebro: cerebroNC,
+};
