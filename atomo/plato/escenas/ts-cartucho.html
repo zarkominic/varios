@@ -11,16 +11,20 @@
 <script type="module">
 // TS-CARTUCHO (frase 14), febrero de 1989. Cinco planos:
 // 1. la sala de reuniones de Elorg: Rogers entra desde el pasillo y el guardia se queda en la puerta; Bélikov frunce
-//    el ceño en «suspicion»; Rogers explica y en «luck» saca del bolsillo el cartucho; los soviéticos se sorprenden.
-//    Corta en «He».
-// 2. la mesa de cerca: la mano de Rogers deja el cartucho genérico bajo la lámpara en «cartridge» (golpe) y luego la
-//    consola de bolsillo en «console»; Bélikov y el otro funcionario se miran sorprendidos. Corta en «Elorg».
+//    el ceño en «suspicion» y el funcionario de la derecha levanta un papel y lo lee con recelo; la taquígrafa toma
+//    notas mientras Rogers explica; en «luck» Rogers saca del bolsillo el cartucho y todos se sorprenden (ella deja de
+//    escribir). Corta en «He».
+// 2. la mesa de cerca: la mano de Bélikov tira de la cadenita y la lámpara se enciende; la mano de Rogers deja el
+//    cartucho genérico bajo la luz en «cartridge» (golpe) y luego la consola de bolsillo en «console», que se enciende;
+//    Bélikov y el otro funcionario se miran sorprendidos. Corta en «Elorg».
 // 3. (inserto) el archivo de Elorg: la mano de Bélikov saca el contrato del cajón; en «authorized» y en «version» las
 //    casillas de las consolas se tachan en rojo; la otra mano pone el cartucho al lado en «Instead». Corta en «the Soviets».
 // 4. (inserto) la pizarra: la tiza dibuja el cartucho, la flecha, las monedas («money») y el «?» («game»); en
-//    «permission» tacha la flecha con una X roja. Corta en «and».
-// 5. junto al ventanal nevado: Rogers habla con la mano en el pecho («the only one»); Bélikov se vuelve en «truth»,
-//    asiente y sonríe por primera vez.
+//    «permission» tacha la flecha con una X roja y da dos toques con la tiza en el «?»; el reloj de pared corre.
+//    Corta en «and».
+// 5. junto al ventanal nevado: una racha de viento arrastra la nieve y mece las cortinas; la paloma se posa en el
+//    alféizar; Rogers habla con la mano en el pecho («the only one»); Bélikov se vuelve en «truth», sonríe, se acerca y
+//    le da la mano (se la estrechan, asintiendo).
 import * as T from '/atomo/plato/escenas/ts-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
@@ -88,8 +92,8 @@ const vista = (x0, y0, x1, y1, t, hora = 0.2, o = {}) => {
     for (let y = 1; y <= 22; y++) for (let i = -4; i <= 4; i++) R.pset(cx + i, by + y, i === 4 ? mez(fachada[0], K, 0.3) : fachada[0]);
     R.pset(cx, by - 11, P('#e8c060')); R.pset(cx, by - 12, P('#e8c060')); R.pset(cx, by - 14, P('#e83a2a')); R.pset(cx - 1, by - 13, P('#e83a2a')); R.pset(cx + 1, by - 13, P('#e83a2a')); }
   // la nieve
-  for (let k = 0; k < (o.copos ?? 40); k++) { const w = x1 - x0 + 1, hh = y1 - y0 + 1, x = x0 + Math.floor((h(k, 1) * w + Math.sin(t * 0.9 + k) * 3 + t * 4) % w), y = y0 + Math.floor((h(k, 2) * hh + t * (9 + h(k, 3) * 10)) % hh);
-    R.pset(x, y, h(k, 5) > 0.5 ? P('#ffffff') : P('#dce4f0')); }
+  for (let k = 0; k < (o.copos ?? 40); k++) { const w = x1 - x0 + 1, hh = y1 - y0 + 1, x = x0 + Math.floor((h(k, 1) * w + Math.sin(t * 0.9 + k) * 3 + t * 4 + (o.deriva ?? 0) * (0.6 + h(k, 6))) % w), y = y0 + Math.floor((h(k, 2) * hh + t * (9 + h(k, 3) * 10)) % hh);
+    R.pset(x, y, h(k, 5) > 0.5 ? P('#ffffff') : P('#dce4f0')); if ((o.racha ?? 0) > 0.4) R.pset(x - 1, y, P('#dce4f0')); }
   R.recorte(null);
 };
 // el vaso de té en su soporte de metal (y = la base), con el vapor que sube
@@ -121,6 +125,7 @@ const NUNCA = c(.486), VERSION = c(.5197), ECHAR = c(.5797);
 const DINERO = c(.7512), JUEGO = c(.7867), PERMISO = c(.8142);
 const SOLO = c(.9129), VERDAD = c(.9741);
 const TRAJE_B = '#5a5046';                          // la manga de Bélikov
+const TAQ = { H: P('#3a2418'), h: P('#5a3a24'), C: P('#5a6a7a'), c: P('#465462') };   // la taquígrafa: pelo oscuro, chaqueta gris azulada
 const BURO2 = { H: P('#9a9aa6'), h: P('#b8b8c4'), C: P('#4a5a6a'), c: P('#3a4856'), o: P('#2a4a6a'), F: P('#4a5a6a') };   // el otro funcionario, canoso
 
 // ── 1 · la sala de reuniones
@@ -130,10 +135,23 @@ const p1 = (t) => {
   const saca = t > SUERTE - 0.15;
   R.actor(TS.burocrata, 85, 131, t, { dir: 1, pal: BURO2, sorpresa: saca && t < SUERTE + 0.9, habla: t > ROGERS && t < ERROR && Math.sin(t * 7) > 0.3 });
   R.actor(TS.belikov, 129, 131, t, { dir: -1, enfado: t > RECELO && !saca, sorpresa: saca });
-  R.actor(TS.burocrata, 199, 131, t, { dir: t > ERROR - 0.4 && t < SUERTE ? 1 : -1, sorpresa: saca && t < SUERTE + 0.7, sonrisa: t > SUERTE + 0.7 });
+  // el funcionario de la derecha levanta un papel en «suspicion», lo lee y lo baja cuando Rogers se equivoca
+  const lee = t > RECELO && t < ERROR + 0.2, dB = t > ERROR - 0.4 && t < SUERTE ? 1 : -1;
+  const b2 = R.actor(TS.burocrata, 199, 131, t, { dir: dB, sorpresa: saca && t < SUERTE + 0.7, sonrisa: t > SUERTE + 0.7, enfado: lee,
+    sostiene: lee ? [199 + (dB > 0 ? 17 : -3), 112 - Math.round(sube(tramo(t, RECELO, RECELO + 0.3)) * 4)] : false });
+  // la taquígrafa toma notas mientras Rogers habla; en «luck» levanta la vista y deja de escribir
+  const nota = t > ROGERS - 0.1 && t < SUERTE - 0.1;
+  const tq = R.actor(TS.publica, 168, 131, t, { dir: 1, pal: TAQ, sostiene: nota ? [184 + Math.round(Math.sin(t * 9) * 2), 123 + (Math.sin(t * 23) > 0 ? 1 : 0)] : false,
+    sorpresa: saca && t < SUERTE + 0.8, sonrisa: t > SUERTE + 0.8 });
   // el guardia se queda en la puerta, vigilando
   const g = tramo(t, 1.0, 1.8); if (g > 0) { R.recorte([14, 84, 46, 131]); R.actor(TS.guardia, Math.round(lerp(-6, 22, g)), 131, t, { dir: 1, anda: g < 1, enfado: g >= 1 }); R.recorte(null); }
   T.moscuDelante(R, t, o);
+  // la libreta de la taquígrafa (encima de la mesa) con sus renglones, que crecen mientras escribe; el lápiz en la mano
+  { const n = Math.min(4, Math.floor(tramo(t, ROGERS - 0.1, SUERTE - 0.1) * 5)); R.poligono([[182, 124], [192, 123], [194, 127], [184, 128]], P('#5a4a3a'));
+    R.poligono([[183, 124], [192, 123], [193, 126], [184, 127]], P('#f2efe4')); for (let k = 0; k < n; k++) R.linea(185, 124 + (k >> 1), 186 + (k & 1) * 4 + 2, 124 + (k >> 1), P('#3a3a5a'));
+    if (nota) { const [mx, my] = tq.mano; R.linea(mx, my, mx + 2, my - 3, P('#c8a040')); R.pset(mx + 2, my - 3, P('#2a2a30')); } }
+  // el papel que lee el funcionario
+  if (lee) { const [mx, my] = b2.mano; caja(mx - 3, my - 8, mx + 3, my, P('#f2efe4'), P('#8a8478')); for (let k = 0; k < 3; k++) R.linea(mx - 2, my - 6 + k * 2, mx + 2, my - 6 + k * 2, P('#8a8aa0')); }
   // Rogers entra desde el pasillo y se planta delante de la mesa
   const u = tramo(t, 0.05, 1.2), x = Math.round(lerp(20, 34, u)), s = Math.round(lerp(134, 172, u));
   const a = R.actor(TS.rogersAbrigo, x, s, t, { dir: 1, anda: u > 0 && u < 1, habla: t > ROGERS - 0.2 && t < ERROR && Math.sin(t * 8) > 0, dedo: t > ROGERS && t < ERROR - 0.1,
@@ -149,6 +167,15 @@ const p2 = (t) => {
   R.actor(TS.burocrata, 112, 120, t, { dir: 1, pal: BURO2, sorpresa: golpe && !mira, habla: mira && Math.sin(t * 7) > 0, sonrisa: false });
   R.actor(TS.belikov, 196, 120, t, { dir: mira ? -1 : 1, enfado: !golpe, sorpresa: golpe });
   T.moscuDelante(R, t, { ...o, cartucho: false, contrato: true, casillas: [1, 0, 0] });
+  // la mano de Bélikov tira de la cadenita de la lámpara y se enciende (antes, la mesa en penumbra)
+  const LUZ = P2 + 0.55, tira = tramo(t, P2 + 0.15, LUZ), suelta = tramo(t, LUZ + 0.1, LUZ + 0.55);
+  // la penumbra se funde hacia la izquierda (sin borde): más oscura junto a la lámpara apagada
+  if (t < LUZ) { for (let y = 122; y <= 179; y++) for (let x = 150; x <= 319; x++) { const d = Math.hypot(x - 270, (y - 150) * 1.6); tinte(x, y, K, 0.34 * Math.max(0, Math.min(1, 1.6 - d / 80))); }
+    for (let x = 270; x < 300; x++) R.pset(x, 132, P('#8a8060')); }
+  else { const f = tramo(t, LUZ, LUZ + 0.4); if (f < 1) zona(200, 132, 319, 179, P('#fff4c8'), 0.22 * (1 - f)); }
+  if (suelta < 1) { const cy = t < LUZ ? Math.round(lerp(141, 145, tira)) : 141, mx = Math.round(lerp(304, 334, sube(suelta))), my = Math.round(lerp(cy + 3, 200, sube(suelta)));
+    if (t < LUZ) { R.linea(296, 131, 296, cy, P('#c89838')); R.disco(296, cy + 1, 1, P('#f0c860')); }
+    T.brazo(R, 338, 214, mx, my, TRAJE_B, -1, { codo: [328, 180] }); }
   // el cartucho sube desde abajo en la mano y cae sobre el tapete en «cartridge»
   const u = tramo(t, CARTUCHO - 0.75, CARTUCHO), cy = Math.round(lerp(214, 164, sube(u))), sale = tramo(t, CARTUCHO + 0.3, CARTUCHO + 0.75);
   if (u > 0) {
@@ -240,6 +267,11 @@ const DIBUJO = [
 ];
 const p4 = (t) => {
   capa('pizarra', pizFondo);
+  // el reloj de pared: las agujas y el segundero que avanza a saltos
+  { const sg = Math.floor(t) / 60 * Math.PI * 2, mn = (14 + t / 60) / 60 * Math.PI * 2;
+    R.linea(196, 32, Math.round(196 + Math.sin(mn * 12 / 12 + 2.1) * 5), Math.round(32 - Math.cos(mn + 2.1) * 5), K);
+    R.linea(196, 32, Math.round(196 + Math.sin(mn * 6) * 8), Math.round(32 - Math.cos(mn * 6) * 8), K);
+    R.linea(196, 32, Math.round(196 + Math.sin(sg) * 8), Math.round(32 - Math.cos(sg) * 8), P('#c8302a')); R.pset(196, 32, P('#c8a040')); }
   const s = (a) => P4 + a;
   // cada trazo: [puntos, empieza, acaba, color] (en segundos desde el corte)
   const trazos = [...DIBUJO];
@@ -257,7 +289,11 @@ const p4 = (t) => {
   // la mano con la tiza sigue la punta; entre trazo y trazo, va al siguiente
   if (!punta) { let prox = null, ult = null; for (const [pts, a, b] of trazos) { if (s(b) <= t) ult = [pts[pts.length - 1], s(b)]; else if (!prox && s(a) > t) prox = [pts[0], s(a)]; }
     if (ult && prox) { const f = tramo(t, ult[1], prox[1]); punta = [lerp(ult[0][0], prox[0][0], sube(f)), lerp(ult[0][1], prox[0][1], sube(f)) - Math.sin(f * Math.PI) * 4]; }
-    else if (ult) { const f = tramo(t, ult[1] + 0.3, ult[1] + 0.9), g = Math.sin((t - ult[1]) * 14) > 0 && t < ult[1] + 0.3; punta = [lerp(ult[0][0], 330, f) + 0, lerp(ult[0][1], 210, f) + (g ? 1 : 0)]; }
+    else if (ult) { // tras la X, va al «?» y da dos toques con la tiza (con su polvillo); luego se va
+      const va = tramo(t, ult[1], ult[1] + 0.3), fu = tramo(t, ult[1] + 0.85, ult[1] + 1.4), q = [216, 124];
+      const toque = [0.35, 0.6].some((d) => t > ult[1] + d && t < ult[1] + d + 0.12);
+      punta = fu > 0 ? [lerp(q[0], 330, sube(fu)), lerp(q[1], 210, sube(fu))] : [lerp(ult[0][0], q[0], sube(va)), lerp(ult[0][1], q[1], sube(va)) - Math.sin(va * Math.PI) * 5 + (toque ? 0 : -2)];
+      for (const d of [0.35, 0.6]) { const u = tramo(t, ult[1] + d, ult[1] + d + 0.5); if (u > 0 && u < 1) for (let k = 0; k < 5; k++) tinte(Math.round(q[0] - 2 + Math.cos(k * 1.3) * u * 6), Math.round(q[1] + 1 + Math.sin(k * 1.3) * u * 3 + u * 4), TIZA, 0.7 * (1 - u)); } }
     else if (prox) { const f = tramo(t, P4, prox[1]); punta = [lerp(120, prox[0][0], sube(f)), lerp(210, prox[0][1], sube(f))]; } }
   if (punta) { const [px, py] = punta.map(Math.round), roja = t > s(t2) - 0.3; R.rect(px, py - 1, px + 4, py + 1, roja ? TIZA_R : TIZA); T.brazo(R, px + 34, 222, px + 12, py + 10, TRAJE_B, -1, {}); }
 };
@@ -281,26 +317,37 @@ const ventFondo = () => {
   caja(268, 56, 302, 84, P('#f2eee2'), P('#c8a040')); R.rect(272, 60, 298, 62, P('#c8302a')); for (let y = 66; y < 80; y += 3) R.linea(274, y, 296, y, P('#a8a090')); R.disco(292, 78, 3, P('#c8302a'));
   caja(276, 128, 300, 150, P('#8a4a2a')); for (let k = 0; k < 11; k++) { const a = -2.9 + k * 0.26; for (let s = 0; s < 30; s++) R.pset(Math.round(288 + Math.cos(a) * s), Math.round(128 + Math.sin(a) * s * 1.1 + s * s * 0.015), s % 4 ? P('#3a7a3a') : P('#6aaa5a')); }
 };
-const cortina = (x0, x1, t, lado) => { for (let y = 22; y <= 152; y++) { const sw = Math.sin(t * 1.3 + y * 0.03) * (y - 22) * 0.025 * lado; for (let x = x0; x <= x1; x++) { const X = Math.round(x + sw), pl = ((x - x0) % 6); R.pset(X, y, pl === 0 ? P('#5a1a1e') : pl < 3 ? P('#9a2a30') : P('#7a2026')); } } };
+const cortina = (x0, x1, t, lado, racha = 0) => { for (let y = 22; y <= 152; y++) { const sw = Math.sin(t * 1.3 + y * 0.03) * (y - 22) * (0.025 + racha * 0.06) * lado; for (let x = x0; x <= x1; x++) { const X = Math.round(x + sw), pl = ((x - x0) % 6); R.pset(X, y, pl === 0 ? P('#5a1a1e') : pl < 3 ? P('#9a2a30') : P('#7a2026')); } } };
 const p5 = (t) => {
   capa('ventanal', ventFondo);
-  vista(98, 30, 230, 121, t, 0.3, { cupula: 0.62, copos: 50 });
+  // la racha de viento: la nieve corre de lado y las cortinas se mecen más (en «Rogers was», con su silbido)
+  const ru = tramo(t, P5 + 0.1, P5 + 2.4), racha = Math.sin(ru * Math.PI), deriva = (1 - Math.cos(ru * Math.PI)) / 2 * 46;
+  vista(98, 30, 230, 121, t, 0.3, { cupula: 0.62, copos: 50, deriva, racha });
   R.rect(162, 30, 165, 121, P('#e8e4dc')); R.rect(98, 70, 230, 73, P('#e8e4dc')); R.rect(98, 50, 128, 52, P('#e8e4dc')); R.rect(126, 30, 128, 52, P('#e8e4dc')); R.pset(122, 44, P('#c8a040')); R.pset(122, 45, P('#c8a040'));
   for (let k = 0; k < 6; k++) tinte(104 + k * 2, 80 + k * 3, BL, 0.3);
   // la paloma que se posa en el alféizar de fuera
   const pv = tramo(t, P5 + 0.4, P5 + 1.2), px = Math.round(lerp(240, 196, pv)), py = Math.round(lerp(80, 116, sube(pv)));
   if (pv > 0) { R.recorte([98, 30, 230, 121]); R.disco(px, py, 3, P('#6a7080')); R.disco(px - 3, py - 3, 2, P('#7a8090')); R.pset(px - 5, py - 3, P('#e8a040')); R.pset(px - 3, py - 4, K); if (pv < 1 && Math.floor(t * 10) % 2) R.linea(px - 1, py - 2, px + 4, py - 6, P('#8a90a0')); R.recorte(null); }
   te(146, 122, t);
-  cortina(76, 96, t, 1); cortina(232, 252, t, -1);
+  cortina(76, 96, t, 1, racha); cortina(232, 252, t, -1, racha);
   R.rect(76, 22, 96, 23, P('#c8a040')); R.rect(232, 22, 252, 23, P('#c8a040'));
-  // Rogers habla con la mano en el pecho; Bélikov mira la nieve, se vuelve en «truth», asiente y sonríe
-  const vuelve = t > VERDAD - 0.2, asiente = (t > VERDAD + 0.45 && t < VERDAD + 0.6) || (t > VERDAD + 0.85 && t < VERDAD + 1.0);
-  R.actor(TS.belikov, 182, 168, t, { dir: vuelve ? -1 : 1, sonrisa: t > VERDAD + 0.25, salto: asiente ? 1 : 0 });
+  // Rogers habla con la mano en el pecho; Bélikov mira la nieve, se vuelve en «truth», sonríe, se acerca y le da la
+  // mano: se la estrechan (las manos suben y bajan) y Bélikov asiente
+  const vuelve = t > VERDAD - 0.2, va = tramo(t, VERDAD + 0.3, VERDAD + 0.85), da = t > VERDAD + 0.85;
+  const sacude = da ? Math.round(Math.sin((t - VERDAD - 0.85) * 14) * 1.5) : 0, asiente = da && Math.sin((t - VERDAD) * 7) > 0.4;
+  R.actor(TS.belikov, Math.round(lerp(182, 149, va)), 168, t, { dir: vuelve ? -1 : 1, sonrisa: t > VERDAD + 0.25, anda: va > 0 && va < 1, salto: asiente ? 1 : 0, sostiene: da ? [146, 155 + sacude] : false });
   const pecho = t > SOLO - 0.1 && t < VERDAD + 0.2;
-  R.actor(TS.rogersAbrigo, 128, 168, t, { dir: 1, habla: t > P5 + 0.2 && t < VERDAD && Math.sin(t * 8) > 0, dedo: t > P5 + 0.3 && t < SOLO - 0.4, sostiene: pecho ? [137, 152] : false, sonrisa: t > VERDAD + 0.5 });
+  R.actor(TS.rogersAbrigo, 128, 168, t, { dir: 1, habla: t > P5 + 0.2 && t < VERDAD && Math.sin(t * 8) > 0, dedo: t > P5 + 0.3 && t < SOLO - 0.4,
+    sostiene: pecho ? [137, 152] : da ? [145, 155 + sacude] : false, sonrisa: t > VERDAD + 0.5 });
 };
 
-const efectos = [[SUERTE, 'pop'], [CARTUCHO, 'golpecito'], [CONSOLA, 'toc'], [NUNCA, 'sello'], [ECHAR, 'golpecito'], [P4 + 0.25, 'lapiz'], [DINERO - 0.7, 'lapiz'], [PERMISO, 'lapiz']];
+// efectos: uno por acción que se ve, sin pasar de uno por segundo
+const PRIMER_X = PERMISO - 0.35 + 0.18 + 0.15;   // acaba la X: luego los dos toques en el «?»
+const efectos = [[RECELO + 0.05, 'papel'], [ROGERS, 'lapiz'], [ROGERS + 1.2, 'lapiz'], [SUERTE, 'pop'],
+  [P2 + 0.55, 'interruptor'], [CARTUCHO, 'golpecito'], [CONSOLA, 'toc'],
+  [P3 + 0.3, 'papel'], [NUNCA, 'sello'], [ECHAR, 'golpecito'],
+  [P4 + 0.25, 'lapiz'], [DINERO - 0.7, 'lapiz'], [JUEGO - 0.55, 'lapiz'], [PERMISO - 0.35, 'lapiz'], [PRIMER_X + 0.35, 'toc'],
+  [P5 + 0.1, 'viento'], [P5 + 1.2, 'whoosh'], [VERDAD + 0.9, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1989 });
 </script>
 </body>
