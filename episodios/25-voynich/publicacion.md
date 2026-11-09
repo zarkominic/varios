@@ -20,8 +20,8 @@
 - EN: A 600-Year-Old Book Nobody on Earth Can Read
 - EN: The Voynich Manuscript Beat Codebreakers and AI
 
-Las dos miniaturas (el manuscrito abierto bajo la lámpara, con la lupa y la planta imposible; de espaldas, un hombre con
-sombrero; «1404») sirven para los tres.
+La miniatura (la sala de Yale de noche: el libro brilla en oro en su atril y la bibliotecaria, al doble, lo señala;
+«1404») sirve para los tres.
 
 ## Descripción (EN)
 
@@ -96,8 +96,7 @@ voynich.nu · Smithsonian Magazine · The Atlantic.
 
 ## Antes de publicar
 
-- **Miniaturas (prueba A/B):** sube las dos en Studio → Probar y comparar: la noir (`vm-miniatura.html`) y la intermedia
-  (`vm-miniatura-mix.html`), capturadas en t = 1.
+- **Miniatura:** `atomo/plato/escenas/vm-miniatura.html`, capturada en t = 1 (con chibis; rehecha el 09/11/2026).
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
 - **Para escuchar antes de subir:** EN 10 («Voynich», que el reconocedor oye «voinus»), EN 18 (una pausa) y ES 11
   («Ézel Vóinich»).
@@ -105,9 +104,7 @@ voynich.nu · Smithsonian Magazine · The Atlantic.
 ## Shorts
 
 Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
-español, sus dos SRT y dos miniaturas verticales (noir e intermedia). La prueba A/B de YouTube no sirve para Shorts:
-sube los Shorts 1 y 3 con la noir y el 2 con la intermedia (al revés que en el 26), y miramos sus vistas en Studio. En
-«Vídeo relacionado» se elige el episodio completo.
+español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
 
 ### Short 1 · Un libro de 600 años que nadie sabe leer · tramo 0.25-16.2,37.3-54.9
 - **EN:** A 600-Year-Old Book Nobody Can Read #Shorts
@@ -127,4 +124,4 @@ sube los Shorts 1 y 3 con la noir y el 2 con la intermedia (al revés que en el 
 - **EN:** In 2018, researchers used AI and said it might be Hebrew; in 2019, a British academic said it was a lost Romance language. Experts rejected both. The full story is in the linked video. #VoynichManuscript #AI #ASKAtom #Shorts
 - **ES:** En 2018, unos investigadores usaron inteligencia artificial y dijeron que podía ser hebreo; en 2019, un académico británico dijo que era una lengua romance perdida. Los expertos rechazaron las dos. La historia completa, en el vídeo enlazado. #ManuscritoVoynich #IA #ASKAtom #Shorts
 
-Miniaturas: `atomo/plato/escenas/vm-short1-miniatura.html` … `vm-short3-miniatura.html` y sus `-mix`.
+Miniaturas: `atomo/plato/escenas/vm-short1-miniatura.html` … `vm-short3-miniatura.html`.

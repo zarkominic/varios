@@ -2,17 +2,19 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Short 1 ep25 · noir</title>
+<title>Short 1 · ep25</title>
 <style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
 </head>
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// Miniatura vertical del Short 1 del ep25 (noir): la dibuja vm-short-mini.js; se recorta al centro (x 110–211).
-import { preparar } from '/atomo/plato/escenas/noir-mini.js';
-import { pintarShortVM } from '/atomo/plato/escenas/vm-short-mini.js';
-const N = await preparar(document.getElementById('lienzo'));
-N.listo(() => pintarShortVM(N, { n: 1, mix: false }));
+// Short 1 · ep25, con chibis: la dibuja vm-mini-chibi.js (n = 1).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { pintarVMchibi } from '/atomo/plato/escenas/vm-mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+window.__frame = async (t) => { pintarVMchibi(R, t, 1); R.presentar(); };
+window.__listo = true;
 </script>
 </body>
 </html>

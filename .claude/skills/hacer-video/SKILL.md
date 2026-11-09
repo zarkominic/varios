@@ -438,26 +438,19 @@ ir más rápido, reparte los grupos en 3 llamadas a la vez, con grupos distintos
 
 ### 10. Miniatura
 
-`<pref>-miniatura.html`, en **estilo noir** (regla del usuario, 08/11/2026: las de chibis y mascotas «parecen para
-bebés» y el público es de 25–35 años). Parte de `dc-miniatura.html` y de las ayudas de `atomo/plato/escenas/noir-mini.js`.
-Es la imagen más trabajada del episodio:
-- **ningún chibi ni mascota con cara** (ni el hilo de gags del episodio): personas en silueta o de proporción adulta, y
-  objetos que transmitan riesgo o secreto (documentos tachados, sellos, miras, relojes, mapas);
-- paleta oscura con **un solo color de acento** y luz dramática: contraluz con filo, haces, sombras de persiana, humo,
-  grano de película y viñeta;
-- **una sola idea fuerte** que se lea a 320 × 180;
-- una cifra o un año en blanco hueso (nunca dorado brillante);
-- sin palabras; nada morboso;
-- lo que promete el título.
+`<pref>-miniatura.html`, **con chibis** (regla del usuario, 09/11/2026: «está bien que aparezcan los chibi en las
+miniaturas, es la esencia del canal, pero no uvitas con ojos, cositas muy de bebés»; antes, el 08/11, pidió que no
+parecieran «para bebés»: el público tiene 25–35 años). Plantillas: `at-miniatura.html` y `vm-mini-chibi.js`, con las
+ayudas de `atomo/plato/escenas/mini-chibi.js`. Es la imagen más trabajada del episodio:
+- **el decorado real del episodio** (sus funciones de `<pref>-comun.js`) y **personas chibi del reparto al doble**
+  (`figura(R, EL.x, x, ySuelo, t, op, 2)`), con lo que sostienen (`op.cosa`);
+- **nada de mascotas ni objetos con cara**: ni animalitos del hilo de gags, ni frutas, pollitos o gatitos con ojos;
+- **luz de cine**: `grado` (viñeta y tinte) y `halo` para recortar al personaje; **una sola idea fuerte** que se lea a
+  320 × 180; el año en blanco hueso (`cifra`); sin palabras; nada morboso; lo que promete el título.
 
-**Dos versiones para la prueba A/B de YouTube** (decisión del usuario, 08/11/2026, «Ok ambas»), hasta que la prueba
-diga cuál gana: la noir (`<pref>-miniatura.html`) y una **intermedia** (`<pref>-miniatura-mix.html`): la misma
-composición adulta (siluetas, sin chibis, una idea, el año en blanco hueso), pero con el color de antes: cielo de
-atardecer saturado, objetos de colores y viñeta suave. Plantilla: `at-miniatura-mix.html`. Las dos van a la ficha y al
-chat; el usuario sube ambas en Studio → Probar y comparar. Cuando haya ganadora, se deja solo ese estilo.
-
-El vídeo sigue en su estilo canónico (pixel chibi): esto es solo la miniatura. Se mide en el paso 15: si sube el
-porcentaje de clics y cae la retención de los primeros 30 s, se propone al usuario un gancho más sobrio.
+Las de los Shorts igual, con lo importante en el centro (x 110–211), porque se recortan a 1080 × 1920
+(`crop=606:1080:657:0,scale=1080:1920:flags=neighbor` sobre la captura a 1920 × 1080). La prueba A/B de Studio, si se
+usa, con dos versiones chibi (otro momento u otro personaje), no con otro estilo.
 
 El primer borrador ya se hizo con los decorados (paso 5); aquí se termina con los decorados finales. La captura y el
 escalado los hace `producir.sh`. **Mírala** a tamaño completo y a 320 × 180 antes de enviarla.
@@ -543,7 +536,7 @@ aquí, con los fotogramas del render todavía en disco.
 3. **La miniatura vertical** de cada Short va en `atomo/plato/escenas/<pref>-short<N>-miniatura.html`.
    - Partes de `dc-short1-miniatura.html` y dibujas en el lienzo de siempre, pero todo lo que cuenta va en la columna
      central (x 110–210), que es lo que queda en 9:16.
-   - Mismo estilo noir que la principal (paso 10): siluetas y objetos, nada de chibis ni mascotas con cara.
+   - Mismo estilo que la principal (paso 10): chibis del reparto al doble sobre el decorado, nada de mascotas ni objetos con cara.
    - No lleva texto.
    - Para capturarla y recortarla:
    ```

@@ -21,8 +21,8 @@
 - EN: Atari Buried 728,000 Games in the Desert. Here's Why
 - EN: The E.T. Game Legend Was True, Just Not How You Heard
 
-La miniatura (de noche en el desierto, 1983: un hombre de espaldas con una pala al borde de la fosa llena de cartuchos,
-bajo un foco ámbar, y una excavadora al fondo) sirve para los tres.
+La miniatura (el vertedero de noche, 1983: el volquete vacía cartuchos en la fosa y un chico del pueblo, al doble, se
+lleva uno) sirve para los tres.
 
 ## Descripción (EN)
 
@@ -98,17 +98,14 @@ Over (Zak Penn, 2014) · Museo Nacional de Historia Estadounidense del Smithsoni
 
 ## Antes de publicar
 
-- **Miniaturas (prueba A/B):** sube las dos en Studio → Probar y comparar: la noir (`at-miniatura.html`) y la
-  intermedia (`at-miniatura-mix.html`), capturadas en t = 1.
+- **Miniatura:** `atomo/plato/escenas/at-miniatura.html`, capturada en t = 1 (con chibis; rehecha el 09/11/2026).
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
 - **Para escuchar antes de subir:** ES 7 («Uórshou lo» que el reconocedor oye «por solo») y EN 25 («E.T.»).
 
 ## Shorts
 
 Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
-español, sus dos SRT y dos miniaturas verticales (noir e intermedia). La prueba A/B de YouTube no sirve para Shorts:
-sube los Shorts 1 y 3 con la intermedia y el 2 con la noir, y miramos sus vistas en Studio. En «Vídeo relacionado» se
-elige el episodio completo.
+español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
 
 ### Short 1 · Atari enterró sus juegos en el desierto · tramo 0.25-19.6,289.6-310.0
 - **EN:** Atari Buried Truckloads of Games in the Desert #Shorts
@@ -128,4 +125,4 @@ elige el episodio completo.
 - **EN:** On April 26, 2014, hundreds of people watched excavators dig up the Alamogordo landfill. The first E.T. cartridge turned up still in its box, but so did many other games. The full story is in the linked video. #Atari #RetroGaming #ASKAtom #Shorts
 - **ES:** El 26 de abril de 2014, cientos de personas vieron cómo las excavadoras abrían el vertedero de Alamogordo. Salió el primer cartucho de E.T., todavía en su caja, pero también muchos otros juegos. La historia completa, en el vídeo enlazado. #Atari #VideojuegosRetro #ASKAtom #Shorts
 
-Miniaturas: `atomo/plato/escenas/at-short1-miniatura.html` … `at-short3-miniatura.html` y sus `-mix`.
+Miniaturas: `atomo/plato/escenas/at-short1-miniatura.html` … `at-short3-miniatura.html`.

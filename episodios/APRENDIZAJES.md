@@ -413,3 +413,7 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 - **QUIETO falso:** --comprobar compara solo el principio y el final del plano; un plano con acción que vuelve a su sitio
   (los tarros que saltan) sale QUIETO. Mirarlo antes de mandarlo a una pasada.
 - **Disco:** se borraron los fotogramas del 26 (5,6 GB) antes del render del 25.
+- **Miniaturas, 09/11/2026:** el usuario corrigió el noir: «está bien que aparezcan los chibi, es la esencia del canal,
+  pero no uvitas con ojos, cositas muy de bebés». Se rehicieron las del 25 y el 26 (y sus Shorts) con el decorado real y
+  personas chibi al doble (`mini-chibi.js`), luz de cine y nada de mascotas. Lo infantil eran las mascotas con cara, no
+  los chibis.
