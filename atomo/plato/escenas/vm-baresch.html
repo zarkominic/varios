@@ -223,7 +223,7 @@ const p3 = (t) => {
   // el ratón que corre por la balda del fondo
   { const v = ((t - P3) * 0.4) % 1, mx = Math.round(lerp(8, 116, v)); R.disco(mx, 76, 2, hex('#6a5a5a')); R.pset(mx + 2, 75, hex('#8a7a7a')); R.linea(mx - 2, 76, mx - 6, 75 + Math.round(Math.sin(t * 9)), hex('#4a3a3a')); R.pset(mx + 3, 76, K); }
   const mira = cp > 0 && cp < 1 ? (Math.floor(t * 1.6) % 2 === 0 ? -1 : 1) : 1;
-  const ba = R.actor(EL.baresch, 150, 115, t, { dir: nueva ? 1 : mira, sostiene: nueva ? undefined : [168 + Math.round(Math.sin(t * 9) * 2), 108], dedo: nueva, sonrisa: nueva });
+  const ba = R.actor(EL.baresch, 150, 120, t, { dir: nueva ? 1 : mira, sostiene: nueva ? undefined : [168 + Math.round(Math.sin(t * 9) * 2), 113], dedo: nueva, sonrisa: nueva });
   if (!nueva) T.PIEZAS_VM.pluma(R, ba.mano[0] + 3, ba.mano[1] + 2);
   T.praguaDelante(R, t, o);
   // la copia doblada y sellada que se va
