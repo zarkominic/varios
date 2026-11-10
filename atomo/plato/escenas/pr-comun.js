@@ -133,8 +133,9 @@ export function estambulDelante(R, t, o = {}) {
 //     Opciones: o.hora 'dia' (por omisión) | 'atardecer' | 'noche' (estrellas que titilan y luna, para «el tío le enseña
 //     las estrellas»); o.vela 'abierta' (por omisión) | 'recogida'; o.balanceo (0 sin balanceo, 1 por omisión).
 //     marDelante: la regala de estribor abajo (y 163–179), con cabillas y un cabo colgado.
-//   Cámara 'bodega': la bodega en penumbra: forro curvo y cuadernas, baos, la escotilla con su enjaretado por donde entra
-//     un haz de luz con polvo que se mueve con el balanceo, la escala, barriles tumbados en pirámide y de pie, un cofre
+//   Cámara 'bodega': la bodega en penumbra: forro curvo y cuadernas, baos, la escotilla a la derecha (x 186–261, fuera
+//     de la barra del año y de la esquina de Atom) con su enjaretado por donde entra un haz de luz con polvo que se mueve
+//     con el balanceo, la escala que baja de ella, barriles tumbados en pirámide y de pie, un cofre
 //     con herrajes, sacos atados, remos de respeto, ánforas, una red con cebollas que se mece, una gota que cae del bao,
 //     una rata que cruza al fondo y se para a husmear, y la lámpara de aceite que se mece y alumbra a su alrededor.
 //     marDelante: el barril (x 160, tapa en y 141) sobre el que el prisionero pone el rollo de cartas.
@@ -144,10 +145,14 @@ export function estambulDelante(R, t, o = {}) {
 //     primer plano, a la izquierda, la proa de nuestra galera: cubierta, la regala de babor, el cañón de crujía (dispara
 //     cada 5,6 s), el trinquete con la vela recogida, la roda, el espolón dorado, la banda roja, los remos de estribor que
 //     bogan y salpican, la ola de proa y la bandera roja. o.hora 'dia' | 'atardecer'. marDelante: los rociones de proa.
-//   Cámara 'tormenta': de noche, el temporal de 1511: nubes de jirones en tres capas que corren, relámpagos (cada o.rayo
-//     s, 4,3 por omisión) que encienden las nubes y todo el plano, olas enormes por columnas con espuma en las crestas y
-//     regueros, la galera que sube, baja y escora con la ola (vela recogida, sin remos, el farol encendido), la ola de
-//     delante que le tapa la quilla, y la lluvia en diagonal. Sin hundimientos: solo el temporal. marDelante: lluvia
+//   Cámara 'tormenta': de noche, el temporal de 1511: nubarrones de tres tonos (base oscura, cuerpo y bordes que encienden
+//     los relámpagos) en tres capas a tres velocidades, cortinas de lluvia a lo lejos, relámpagos (cada o.rayo s, 4,3 por
+//     omisión) que encienden las nubes, el casco y todo el plano, olas enormes por columnas con espuma en las crestas y
+//     regueros que arrastra el viento, la galera (más grande) que sube, baja y escora con la ola: el farol encendido, los
+//     remos recogidos y trincados sobre la borda, los estays tensos que vibran, las entenas bajadas y en el trinquete un
+//     pico de vela arrizada que bate; la ola que rompe contra la borda y su espuma que pasa por encima y escurre por el
+//     costado; la ola de delante que le tapa la quilla, y la lluvia en diagonal. galera.cubierta(dx) da el punto de la
+//     cubierta a dx px del centro. Sin hundimientos: solo el temporal. marDelante: lluvia
 //     gorda y rociones.
 //   'brasil': la costa de Brasil en 1500: el monte redondo (Monte Pascoal), la selva en filas de copas, la playa con
 //     grano, ondulaciones, franja mojada, conchas, algas y un tronco; tres palmeras que se mecen; guacamayos que vuelan y
@@ -181,6 +186,12 @@ export function marDelante(R, t, o = {}) {
 // ── C · Galípoli y El Cairo, 1513–1517 ─────────────────────────────────────────────────────────────────────────────────
 // o.encuadre (y o.camara: 'general' por omisión o la segunda de cada uno); o.luz 'tarde' (taller y puerto): cielo de
 // atardecer, sol bajo y la luz de la lámpara más cálida; o.banderas: barcos de otras banderas (verde, blanca) en el agua.
+//   'taller' con o.luz 'tarde' es el CONTRAPLANO (otra composición, la misma mesa y el mismo suelo): la pared de la
+//     puerta vista desde la ventana, con la puerta de arco abierta al patio al atardecer (ciprés, higuera, la fuente que
+//     mana, un vecino que pasa, golondrinas), el perchero con el caftán, el kilim colgado, el casillero de rollos de
+//     cartas, la hornacina con la vela, el farol calado que se mece y salpica la pared de estrellitas, la luz dorada de la
+//     ventana en la pared con la sombra de la reja y de las hojas que tiembla, el brasero con sus brasas, la alfombra azul
+//     bajo la mesa y el gato que duerme en el arcón. Devuelve además puerta: [22, 30, 70, 131].
 //   'taller': el taller de Piri Reis en Galípoli: techo de tablas con cabezas de vigas, pared encalada con desconchones
 //     y grietas, zócalo de azulejos de İznik, suelo de tablas con un kilim; a la izquierda la ventana de arco apuntado
 //     (dovelas, celosías abiertas, reja) con el puerto vivo detrás (nubes, la orilla de enfrente, el agua que brilla, una
@@ -1554,7 +1565,7 @@ function b_galera(R, x, yw, s, t, o = {}) {
   lin(-59, -14, -61, -26, tn(B_P.cascoS));
   { const p = P(-61, -27), r = Math.max(1, 2 * s); R.disco(p[0], p[1], r + 0.5, tn(B_P.doradoS)); R.disco(p[0], p[1], r, o.farol ? B_P.luzL : tn(B_P.dorado)); if (o.farol) for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) { const d = Math.hypot(i, j) / (6 * s); if (d < 1 && d > 0.3 && b_umbral(Math.round(p[0] + i * s), Math.round(p[1] + j * s)) < (1 - d) * 0.8) R.pset(p[0] + i * s, p[1] + j * s, B_P.luzS); } }
   { const p = P(-60, -24); b_bandera(R, Math.round(p[0]), Math.round(p[1]), Math.round(10 * s), Math.max(2, Math.round(6 * s)), t + k + 2, -dir, tn(B_P.bandera), tn(B_P.banderaS), tn(B_P.banderaL)); }
-  return { x: P(0, -9)[0], y: P(0, -9)[1], cubierta: (dx) => P(dx, -9) };
+  return { x: P(0, -9)[0], y: P(0, -9)[1], cubierta: (dx) => P(dx, -9), P };
 }
 
 // una palmera que se mece con el viento (de ep12, d_palmera): tronco anillado con luz y sombra, cocos, hojas secas y
@@ -1714,8 +1725,11 @@ function b_bodega(R, t, o) {
     // los baos, la escotilla con su enjaretado (por donde entra la luz) y las curvas
     R.rect(0, 0, 319, 6, B_P.cascoD); for (let x = 0; x < 320; x++) R.pset(x, 6, B_P.cascoS);
     for (let y = 26; y < 34; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y === 26 ? B_P.cascoL : y > 31 ? B_P.cascoD : h(x >> 2, y, 771) > 0.8 ? B_P.cascoS : B_P.casco);
-    for (let y = 0; y < 22; y++) for (let x = 118; x < 200; x++) { const gx = (x - 118) % 9, gy = y % 7; R.pset(x, y, gx < 2 || gy < 2 ? (gx === 0 || gy === 0 ? B_P.cascoS : B_P.casco) : y < 12 ? B_P.luzL : B_P.luz); }
-    R.rect(114, 0, 117, 25, B_P.cascoS); R.rect(200, 0, 203, 25, B_P.cascoS); R.rect(114, 22, 203, 25, B_P.casco); R.rect(114, 22, 203, 22, B_P.cascoL);
+    // la escotilla, a la derecha (fuera de la barra del año y de la esquina de Atom): el enjaretado con la luz del día
+    for (let y = 0; y < 22; y++) for (let x = 186; x < 262; x++) { const gx = (x - 186) % 9, gy = y % 7; R.pset(x, y, gx < 2 || gy < 2 ? (gx === 0 || gy === 0 ? B_P.cascoS : B_P.casco) : y < 12 ? B_P.luzL : B_P.luz); }
+    R.rect(182, 0, 185, 25, B_P.cascoS); R.rect(262, 0, 265, 25, B_P.cascoS); R.rect(182, 22, 265, 25, B_P.casco); R.rect(182, 22, 265, 22, B_P.cascoL);
+    // el resto del techo, la tablazón de la cubierta vista por debajo, en penumbra (tranquila)
+    for (let x = 0; x < 320; x++) if (x < 182 || x > 265) for (let y = 7; y < 26; y++) if (x % 23 === 0 || y === 16) R.pset(x, y, b_mezcla(B_P.cascoD, B_P.fondoB, 0.3));
     for (const x of [20, 300]) for (let j = 0; j < 12; j++) R.rect(x - 6 + (x < 160 ? 0 : j), 34 + j, x + 6 - (x < 160 ? j : 0), 34 + j, j === 0 ? B_P.cascoL : B_P.cascoS);
     // el suelo de tablas
     b_tablas(R, 0, 146, 319, 179, [B_P.cascoL, B_P.casco, B_P.cascoS, B_P.cascoD], 3, 11, 0.16);
@@ -1726,9 +1740,9 @@ function b_bodega(R, t, o) {
     b_barril(R, 88, 116, 16, 28, (c) => c);
     for (let y = 134; y < 148; y++) for (let x = 96; x < 128; x++) R.pset(x, y, y === 134 ? B_P.cascoL : y < 137 ? B_P.cascoR : (x - 96) % 10 < 2 ? B_P.hierro : y > 145 ? B_P.cascoD : B_P.cascoRS); R.rect(110, 138, 113, 141, B_P.laton); R.pset(111, 139, B_P.latonL);
     // la escala que baja de la escotilla
-    for (let y = 24; y < 148; y++) { const u = (y - 24) / 124, x = Math.round(150 - u * 22); R.pset(x, y, B_P.cubiertaS); R.pset(x + 1, y, B_P.cubiertaD); R.pset(x + 16, y, B_P.cubiertaS); R.pset(x + 17, y, B_P.cubiertaD); if ((y - 24) % 11 === 0) { R.rect(x + 2, y, x + 15, y + 1, B_P.cubierta); R.rect(x + 2, y, x + 15, y, B_P.cubiertaL); } }
+    for (let y = 24; y < 148; y++) { const u = (y - 24) / 124, x = Math.round(214 - u * 20); R.pset(x, y, B_P.cubiertaS); R.pset(x + 1, y, B_P.cubiertaD); R.pset(x + 16, y, B_P.cubiertaS); R.pset(x + 17, y, B_P.cubiertaD); if ((y - 24) % 11 === 0) { R.rect(x + 2, y, x + 15, y + 1, B_P.cubierta); R.rect(x + 2, y, x + 15, y, B_P.cubiertaL); } }
     // a la derecha, sacos atados, remos de respeto apoyados, el ánfora en su soporte y una aduja
-    R.linea(206, 58, 214, 146, B_P.cuerdaS); R.linea(207, 58, 215, 146, B_P.cuerda); R.linea(212, 60, 222, 146, B_P.cuerdaS); R.linea(213, 60, 223, 146, B_P.cuerdaL); R.rect(205, 54, 209, 60, B_P.cuerda); R.rect(211, 56, 215, 62, B_P.cuerdaS);
+    R.linea(134, 58, 140, 146, B_P.cuerdaS); R.linea(135, 58, 141, 146, B_P.cuerda); R.linea(140, 60, 148, 146, B_P.cuerdaS); R.linea(141, 60, 149, 146, B_P.cuerdaL); R.rect(133, 54, 137, 60, B_P.cuerda); R.rect(139, 56, 143, 62, B_P.cuerdaS);
     const saco = (cx, cy, w, hh) => { for (let j = -hh; j <= hh; j++) for (let i = -w; i <= w; i++) { const e = (i / w) ** 2 + (j / hh) ** 2 + (h(i, j, 772) - 0.5) * 0.15; if (e > 1) continue; R.pset(cx + i, cy + j, e > 0.85 ? B_P.ocreS : i < -w * 0.3 && j < 0 ? hex('#d8b880') : (i + j * 2) % 7 === 0 ? B_P.ocreS : B_P.ocre); } R.rect(cx - 1, cy - hh - 2, cx + 1, cy - hh, B_P.cuerdaS); };
     saco(236, 138, 10, 9); saco(256, 140, 9, 8); saco(246, 124, 9, 8); saco(272, 141, 8, 7);
     for (let y = 92; y < 146; y++) { R.pset(286, y, B_P.cascoS); R.pset(312, y, B_P.cascoS); } R.rect(284, 104, 314, 105, B_P.casco); R.rect(284, 128, 314, 129, B_P.casco);
@@ -1741,9 +1755,9 @@ function b_bodega(R, t, o) {
   R.copiar(F.b);
   // el haz de luz polvorienta de la escotilla, que se mueve con el balanceo
   const sh = Math.sin(t * 0.7) * 6;
-  for (let y = 22; y < 160; y++) { const u = (y - 22) / 138, x0 = Math.round(120 - u * 30 + sh * u), x1 = Math.round(198 - u * 22 + sh * u), a = 0.22 * (1 - u * 0.6);
+  for (let y = 22; y < 160; y++) { const u = (y - 22) / 138, x0 = Math.round(188 - u * 30 + sh * u), x1 = Math.round(260 - u * 22 + sh * u), a = 0.22 * (1 - u * 0.6);
     for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const e = Math.min(x - x0, x1 - x) / 8; if (b_umbral(x, y) < a * Math.min(1, e) * 2.2) R.pset(x, y, b_mezcla(R.pget(x, y), B_P.luzL, 0.28)); } }
-  for (let k = 0; k < 26; k++) { const u = (h(k, 1, 774) + t * 0.02 * (1 + h(k, 2, 774))) % 1, y = 26 + u * 120, x = 124 - u * 28 + sh * u + h(k, 3, 774) * 66 + Math.sin(t * 0.8 + k) * 3; if ((t * 2 + k) % 3 > 0.6) R.pset(x, y, B_P.luzL); }
+  for (let k = 0; k < 26; k++) { const u = (h(k, 1, 774) + t * 0.02 * (1 + h(k, 2, 774))) % 1, y = 26 + u * 120, x = 192 - u * 28 + sh * u + h(k, 3, 774) * 62 + Math.sin(t * 0.8 + k) * 3; if ((t * 2 + k) % 3 > 0.6) R.pset(x, y, B_P.luzL); }
   // la red con cebollas que se mece colgada del bao
   const sw = Math.sin(t * 1.4) * 0.2;
   { const px = 60, py = 33, L = 18, ex = px + Math.sin(sw) * L, ey = py + Math.cos(sw) * L; R.linea(px, py, ex, ey, B_P.cuerdaS); for (let j = 0; j < 9; j++) for (let i = -4; i <= 4; i++) { if (i * i / 16 + (j - 4) ** 2 / 20 > 1) continue; R.pset(ex + i + Math.round(sw * j), ey + j, (i + j) % 2 ? B_P.cuerdaS : (i * 3 + j) % 5 === 0 ? hex('#c89a6a') : hex('#e0c08a')); } }
@@ -1758,7 +1772,7 @@ function b_bodega(R, t, o) {
   for (let j = -60; j <= 60; j++) for (let i = -64; i <= 64; i++) { const d = Math.hypot(i, j * 1.1) / 64; if (d >= 1) continue; const x = Math.round(Lx + i), y = Math.round(Ly + 6 + j); if (x < 0 || x > 319 || y < 0 || y > 179) continue; const al = (1 - d) ** 1.6 * 0.5 * fl; if (al > 0.04) R.pset(x, y, b_mezcla(R.pget(x, y), B_P.luzS, al)); }
   for (let i = 0; i <= 24; i += 2) R.pset(176 + Math.sin(a) * i, 33 + Math.cos(a) * i, B_P.hierroL);
   { const x = Math.round(Lx), y = Math.round(Ly); R.rect(x - 4, y, x + 4, y + 1, B_P.laton); R.rect(x - 3, y + 2, x + 3, y + 9, B_P.luz); R.rect(x - 1, y + 4, x + 1, y + 8, B_P.luzL); R.pset(x, y + 3 + Math.round(Math.sin(t * 17)), hex('#ffffff')); for (const i of [-4, 0, 4]) R.rect(x + i, y + 2, x + i, y + 9, B_P.latonL); R.rect(x - 4, y + 10, x + 4, y + 11, B_P.laton); R.pset(x, y + 12, B_P.latonL); }
-  return { suelo: 156, barril: { x: 160, y: 141, ancho: 22 }, lampara: [Math.round(Lx), Math.round(Ly) + 6], escala: [128, 24, 167, 148], cofre: [96, 134, 127, 147], escotilla: [118, 0, 199, 21], libre: [100, 280] };
+  return { suelo: 156, barril: { x: 160, y: 141, ancho: 22 }, lampara: [Math.round(Lx), Math.round(Ly) + 6], escala: [194, 24, 231, 148], cofre: [96, 134, 127, 147], escotilla: [186, 0, 261, 21], libre: [100, 280] };
 }
 
 // COSTA · frente a la costa de España, 1501: la galera da caza a las naos ---------------------------------------------
@@ -1842,16 +1856,28 @@ function b_costaEspana(R, t, o) {
 // COSTA · TORMENTA: el temporal de noche de 1511, la galera lucha contra el viento --------------------------------------
 function b_tormenta(R, t, o) {
   const hor = 98, tn = b_tinte('tormenta');
-  const F = b_capa(R, 'tormenta', () => { b_degradado(R, 0, 180, [[0, '#0a0d16'], [0.18, '#10151f'], [0.34, '#171e2a'], [0.48, '#1f2734'], [0.56, '#283140'], [0.7, '#1a2230']]); });
+  const F = b_capa(R, 'tormenta', () => { b_degradado(R, 0, 180, [[0, '#0a0d16'], [0.18, '#10151f'], [0.34, '#171e2a'], [0.48, '#1f2734'], [0.56, '#283140'], [0.7, '#1a2230']]);
+    // a lo lejos, sobre el horizonte, una claridad de luna tramada entre dos bancos de nubes
+    for (let y = 74; y < 96; y++) for (let x = 0; x < 320; x++) { const a = Math.exp(-(((x - 214) / 70) ** 2)) * Math.sin((y - 74) / 22 * Math.PI) * 0.55; if (b_umbral(x, y) < a) R.pset(x, y, hex('#3a4660')); } });
   R.copiar(F.b);
   const cada = o.rayo ?? 4.3, kr = Math.floor(t / cada), ur = t - kr * cada - 0.5, luz = ur >= 0 && ur < 0.36 ? (ur < 0.07 || (ur > 0.15 && ur < 0.21) ? 1 : 0.45) : 0, xr = 40 + h(kr, 1, 790) * 200;
-  // las nubes: jirones de tormenta en tres capas que corren con el viento (encendidas por dentro con el relámpago)
-  const capa = (n, y0, y1, rx, ry, vel, sem, cs) => { for (let k = 0; k < n; k++) { const cx = ((h(k, 1, sem) * 460 - t * vel) % 460 + 460) % 460 - 70, cy = y0 + h(k, 2, sem) * (y1 - y0), lit = luz > 0 ? Math.max(0, 1 - Math.abs(cx - xr) / 140) * luz : 0;
-      for (let y = Math.max(0, Math.floor(cy - ry)); y <= Math.ceil(cy + ry); y++) { const dy = (y - cy) / ry; for (let x = Math.max(0, Math.floor(cx - rx)); x <= Math.min(319, Math.ceil(cx + rx)); x++) { const e = ((x - cx) / rx) ** 2 + dy * dy + (h((x - cx) >> 2, y >> 1, sem + k) - 0.5) * 0.6; if (e >= 1) continue;
-        let c = e > 0.72 ? (dy < 0 ? cs[2] : cs[0]) : dy > 0.3 ? cs[0] : cs[1]; if (lit > 0.3 && dy < 0.2 && b_umbral(x, y) < lit) c = hex('#8a94b8'); if (x > 274 && y < 46) c = cs[0]; R.pset(x, y, c); } } } };
-  capa(6, 70, 92, 56, 9, 6, 791, [hex('#181d28'), hex('#20263a'), hex('#2e3648')]);
-  capa(5, 24, 60, 70, 16, 12, 792, [hex('#141822'), hex('#1c2230'), hex('#2a3142')]);
-  capa(5, 40, 84, 40, 7, 26, 793, [hex('#232a38'), hex('#2c3444'), hex('#3c4658')]);
+  // las cortinas de lluvia que cuelgan de los nubarrones lejanos (trazos verticales que se mueven con el viento)
+  for (let k = 0; k < 7; k++) { const cx = ((h(k, 1, 780) * 420 - t * 5) % 420 + 420) % 420 - 50, w = 14 + h(k, 2, 780) * 22;
+    for (let x = Math.max(0, Math.round(cx - w)); x <= Math.min(319, Math.round(cx + w)); x++) if (((x + Math.floor(t * 9)) % 3) === 0) for (let y = 66 + Math.round(h(x >> 2, k, 781) * 6); y < hor + 4; y += 2) if (b_umbral(x, y) < 0.55 * (1 - Math.abs(x - cx) / w)) R.pset(x - Math.round((y - 66) * 0.25), y, hex('#2a3242')); }
+  // los nubarrones: tres capas (lejos, pequeños y lentos; cerca, enormes y rápidos), cada uno en tres tonos (la base en
+  // sombra, el cuerpo y los bordes de arriba, que se encienden con el relámpago cuanto más cerca de él); la esquina de
+  // Atom queda en el tono de sombra, tranquila
+  const capa = (n, y0, y1, w0, vel, sem, cs) => { for (let k = 0; k < n; k++) { const W = 460 + w0 * 2, cx = ((h(k, 1, sem) * W - t * vel) % W + W) % W - w0, cy = y0 + h(k, 2, sem) * (y1 - y0), w = w0 * (0.75 + h(k, 3, sem) * 0.5);
+      const lit = luz > 0 ? Math.max(0, 1 - Math.abs(cx - xr) / 150) * luz : 0, atom = (x, y) => x > 274 && y < 46;
+      const tono = (i) => (x, y) => (atom(x, y) ? cs[0] : i === 2 && lit > 0.25 && b_umbral(x, y) < lit ? hex('#9aa4cc') : cs[i]);
+      const L = [[0, 0, 0.3], [-0.3, 0.06, 0.22], [0.3, 0.05, 0.24], [-0.1, -0.16, 0.24], [0.16, -0.12, 0.2], [0.47, 0.12, 0.14], [-0.47, 0.13, 0.13], [0.05, 0.14, 0.26]];
+      for (const [dx, dy, f] of L) R.disco(cx + dx * w, cy + dy * w + 2.5, f * w, tono(0));
+      for (const [dx, dy, f] of L) R.disco(cx + dx * w, cy + dy * w, f * w * 0.92, tono(1));
+      for (const [dx, dy, f] of L) if (dy < 0.08) R.disco(cx + dx * w - f * w * 0.3, cy + dy * w - f * w * 0.42, f * w * 0.5, tono(2));
+      for (const [dx, dy, f] of L) if (dy >= 0.1) R.disco(cx + dx * w + 1, cy + dy * w + f * w * 0.5, f * w * 0.55, tono(0)); } };
+  capa(9, 70, 86, 26, 4, 791, [hex('#161b26'), hex('#222a3a'), hex('#38425a')]);
+  capa(6, 38, 62, 46, 10, 792, [hex('#121620'), hex('#1e2534'), hex('#333d54')]);
+  capa(5, 20, 44, 62, 21, 793, [hex('#0e121a'), hex('#1a2030'), hex('#2e3850')]);
   // el rayo
   if (luz > 0) { let x = xr, y = 18; while (y < hor - 4) { const nx = x + (h(kr, y, 794) - 0.5) * 12, ny = y + 3 + h(kr, y, 795) * 5; R.linea(Math.round(x), Math.round(y), Math.round(nx), Math.round(ny), hex('#f4f0ff')); R.pset(Math.round(nx) + 1, Math.round(ny), hex('#a8b4f0')); if (h(kr, y, 796) < 0.2) { let bx = nx, by = ny; for (let i = 0; i < 4; i++) { const ax = bx + (h(kr, y + i, 797) - 0.3) * 8, ay = by + 3; R.linea(Math.round(bx), Math.round(by), Math.round(ax), Math.round(ay), hex('#a8b4f0')); bx = ax; by = ay; } } x = nx; y = ny; } }
   // el mar lejano: la superficie se hincha en olas enormes (por columnas): la cara que mira a la luz más clara, los senos
@@ -1861,16 +1887,34 @@ function b_tormenta(R, t, o) {
   const B = R.buf, ilum = luz * 0.35, des = Math.floor(t * 18);
   const ola = (x, ys, sl, y0, y1, cerca) => { for (let y = Math.max(0, y0); y < y1; y++) { const d = y - ys, cresta = sl < -0.12;
       let c = d < 1.5 ? (cresta ? P[6] : P[4]) : d < 5 ? (cresta ? (b_umbral(x, y) < 0.5 ? P[6] : P[4]) : sl > 0.25 ? P[2] : P[1]) : d < (cerca ? 12 : 18) ? (sl < 0 ? P[1] : b_umbral(x, y) < 0.5 ? P[1] : P[2]) : d < (cerca ? 26 : 40) ? P[2] : P[3];
-      const r = h((x + des) >> 2, y >> 1, cerca ? 788 : 787); if (d > 3 && r > 0.955) c = sl < 0 ? P[6] : P[4]; else if (d > 3 && r < 0.03) c = P[5];
+      // los regueros de espuma que arrastra el viento (trazos largos y desiguales, no puntos) y los senos más oscuros
+      const r = h((x + des + (y * 7 & 15)) >> 3, y, cerca ? 788 : 787), r2 = h((x + des) >> 1, y >> 2, cerca ? 786 : 785); if (d > 3 && r > 0.972 && r2 > 0.3) c = sl < 0 ? P[6] : P[4]; else if (d > 8 && r < 0.02) c = P[5];
       if (ilum > 0) c = b_mezcla(c, hex('#c8d0f0'), ilum * (d < 6 ? 1 : 0.5)); B[y * 320 + x] = c; } };
   for (let x = 0; x < 320; x++) { const ys = yS(x), sl = yS(x + 1) - ys; ola(x, ys, sl, Math.round(ys), 180, false);
     if (sl < -0.35 && h(x, Math.floor(t * 8), 798) > 0.45) { const y0 = Math.round(ys); R.pset(x - 2, y0 - 1, P[6]); R.pset(x - 4, y0 - 2, P[4]); if (h(x, 1, Math.floor(t * 8)) > 0.6) R.pset(x - 7, y0 - 4, P[4]); } }
   // la galera capea el temporal: sube y baja con la ola, escora, el farol de popa encendido, la vela recogida
   const sx = 160 + Math.sin(t * 0.3) * 6, ws = yS(sx), giro = Math.max(-0.16, Math.min(0.16, Math.atan2(yS(sx + 34) - yS(sx - 34), 68)));
-  const tnB = (c) => b_mezcla(c, hex('#5a6884'), 0.3);   // el barco, algo más claro que el mar para que se lea
-  const g = b_galera(R, sx, ws + 6, 1.3, t, { dir: 1, k: 1, tn: tnB, giro, vela: 'recogida', arriada: true, remos: false, farol: true });
+  // el barco, algo más claro que el mar para que se lea; el relámpago lo enciende de golpe
+  const tnB = (c) => b_mezcla(b_mezcla(c, hex('#5a6884'), 0.3), hex('#d8e0ff'), luz * 0.42), S = 1.6;
+  const g = b_galera(R, sx, ws + 7, S, t, { dir: 1, k: 1, tn: tnB, giro, vela: 'recogida', arriada: true, remos: false, farol: true }), Q = g.P;
+  const lQ = (a, b, c2, d, col) => { const p = Q(a, b), q = Q(c2, d); R.linea(Math.round(p[0]), Math.round(p[1]), Math.round(q[0]), Math.round(q[1]), col); };
+  // los estays y las burdas, tensos, que vibran con el viento (dos trazos que tiemblan)
+  const vib = Math.sin(t * 31) * 0.35;
+  for (const [a, b, c2, d] of [[36, -32, 70, -4], [6, -42, -57, -14], [6, -42, 66, -6], [36, -32, -10, -9], [6, -40, 22, -9]]) { lQ(a, b, c2, d, tnB(B_P.jarcia)); lQ(a + vib, b + 0.5, (a + c2) / 2 + vib, (b + d) / 2 + 0.5, tnB(B_P.cuerdaS)); }
+  // los remos recogidos: metidos y trincados en haz sobre la borda, con las palas asomando por la proa
+  for (let i = 0; i < 4; i++) { lQ(-46, -9.6 - i * 0.7, 52, -9.4 - i * 0.7, tnB(i % 2 ? B_P.cuerdaS : B_P.cuerdaL)); const p = Q(52 + i * 1.5, -9.4 - i * 0.7); R.rect(Math.round(p[0]), Math.round(p[1]) - 1, Math.round(p[0]) + 3, Math.round(p[1]), tnB(B_P.cuerdaL)); }
+  for (const dx of [-30, -6, 18, 40]) lQ(dx, -8, dx + 1, -12.5, tnB(B_P.cascoD));
+  // el pico de vela arrizada en el trinquete, que bate: el puño suelto da latigazos y la tela hace pliegues
+  { const ux = 56 + Math.sin(t * 9.3) * 2.2 + Math.sin(t * 23) * 0.8, uy = -13 + Math.cos(t * 11.1) * 2.4, A = [36, -30], B = [30, -12], pa = Q(...A), pb = Q(...B), pc = Q(ux, uy);
+    R.poligono([pa, pc, pb], (px, py) => { const f = Math.sin(((px - pa[0]) * 0.55 - (py - pa[1]) * 0.35) * 0.9 - t * 19) + Math.sin(t * 9.3) * 0.3; return tnB(f > 0.8 ? B_P.velaL : f < -0.75 ? B_P.velaD : f < -0.1 ? B_P.velaS : B_P.vela); });
+    lQ(A[0], A[1], ux, uy, tnB(B_P.velaD)); lQ(ux, uy, B[0], B[1], tnB(B_P.velaS)); lQ(ux, uy, ux + 6, uy + 4 + Math.sin(t * 13) * 2, tnB(B_P.cuerda));
+    for (let r = 0; r < 3; r++) { const f = 0.35 + r * 0.18; lQ(A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f, A[0] + (B[0] - A[0]) * f + 3, A[1] + (B[1] - A[1]) * f + 1, tnB(B_P.cuerdaS)); } }
+  // la ola que rompe contra la borda de barlovento: la espuma salta, pasa por encima y escurre por el costado
+  { const k = Math.floor((t + 0.6) / 1.9), u = (t + 0.6 - k * 1.9) / 1.1, x0 = -20 + h(k, 1, 783) * 40;
+    if (u < 1) for (let i = 0; i < 46; i++) { const a = h(i, k, 784), vx = (a - 0.5) * 30, alto = 8 + h(i, k + 3, 784) * 16, xx = x0 + vx + u * 10, yy = -6 - Math.sin(Math.min(1, u * 1.15) * Math.PI) * alto + u * 4; const p = Q(xx, yy); R.pset(Math.round(p[0]), Math.round(p[1]), u < 0.55 ? P[7] : b_umbral(Math.round(p[0]), Math.round(p[1])) < 1 - u ? P[6] : P[4]); if (i % 3 === 0) R.pset(Math.round(p[0]) - 1, Math.round(p[1]) + 1, P[4]); }
+    if (u > 0.4 && u < 1.6) for (let i = 0; i < 18; i++) { const xx = x0 - 18 + i * 2.2, f = Math.min(1, (u - 0.4) * 1.5), p = Q(xx, -8 + f * 6 * h(i, k, 782)); R.pset(Math.round(p[0]), Math.round(p[1]), h(i, 2, 782) > 0.4 ? P[6] : P[4]); } }
   // la espuma que rompe contra la proa y la popa
-  for (const dx of [62, -50]) { const [px, py] = g.cubierta(dx); for (let i = 0; i < 10; i++) { const u = ((t * 1.6 + i * 0.13) % 1); R.pset(px + (h(i, 1, 789) - 0.5) * 16, py + 8 - u * 10 * h(i, 2, 789), u < 0.6 ? P[6] : P[4]); } }
+  for (const dx of [70, -56]) { const [px, py] = g.cubierta(dx); for (let i = 0; i < 14; i++) { const u = ((t * 1.6 + i * 0.13) % 1); R.pset(px + (h(i, 1, 789) - 0.5) * 18, py + 9 - u * 12 * h(i, 2, 789), u < 0.6 ? P[6] : P[4]); } }
   // el mar de cerca: la ola grande de delante, que tapa la quilla, con su cresta de espuma que vuela
   for (let x = 0; x < 320; x++) { const yn = yN(x), sl = yN(x + 1) - yn; ola(x, yn, sl, Math.round(yn), 180, true);
     if (h(x, Math.floor(t * 9), 799) > 0.62) { const k = Math.floor(t * 9); R.pset(x - (k % 5), Math.round(yn) - 2 - (k % 3), P[6]); if (sl < -0.2) R.pset(x - 3 - (k % 4), Math.round(yn) - 5, P[4]); } }
@@ -1878,7 +1922,7 @@ function b_tormenta(R, t, o) {
   b_lluvia(R, t, 150, 1.1, hex('#7a889c'), hex('#4a5668'));
   if (luz > 0) { const c = hex('#c8d0f0'); for (let i = 0; i < 57600; i++) B[i] = b_mezcla(B[i], c, 0.22 * luz); }
   const [cx, cy] = g.cubierta(0);
-  return { suelo: Math.round(cy), horizonte: hor, galera: { x: Math.round(g.x), cubierta: (dx) => g.cubierta(dx / 1.3).map(Math.round), giro }, rayo: luz, libre: [110, 210] };
+  return { suelo: Math.round(cy), horizonte: hor, galera: { x: Math.round(g.x), cubierta: (dx) => g.cubierta(dx / S).map(Math.round), giro }, rayo: luz, libre: [110, 210] };
 }
 
 // la lluvia: trazos en diagonal que caen con el viento (de ep12, d_lluvia)
@@ -2156,11 +2200,13 @@ function c_galera(R, x, yw, s, dir, t, o = {}) {
   const pt = (u, v, c) => { const [a, b] = Pt(u, v); pset(Math.round(a), Math.round(b), c); };
   const g = s >= 1.1 ? 1 : 0, franja = o.franja ?? P.rojo;
   // el palo, la jarcia, la entena con la vela y las banderas (detrás del casco)
-  const mast = 64, alto = 72;
-  lin(mast, 8, 6, 14, P.cuerda); lin(mast, alto - 2, 118, 10, P.cuerda); lin(mast, alto - 6, 54, 8, P.cuerda); lin(mast, alto - 6, 74, 8, P.cuerda);
-  if (s > 1.4) for (let k = 1; k < 8; k++) { const v = 8 + k * 7; lin(54 + k * 1.2, v, 74 - k * 1.2, v, c_mez(P.cuerda, P.k, 0.2)); }
+  const mast = o.palo ?? 64, alto = o.altoPalo ?? 72;
+  lin(mast, 8, 6, 14, P.cuerda); lin(mast, alto - 2, 118, 10, P.cuerda); lin(mast, alto - 6, mast - 10, 8, P.cuerda); lin(mast, alto - 6, mast + 10, 8, P.cuerda);
+  if (s > 1.4) for (let k = 1; k < 8 && 8 + k * 7 < alto - 8; k++) { const v = 8 + k * 7; lin(mast - 10 + k * 1.2, v, mast + 10 - k * 1.2, v, c_mez(P.cuerda, P.k, 0.2)); }
   lin(mast, 6, mast, alto, P.madS, g); lin(mast, 6, mast, alto, P.mad); if (g) { const [a, b] = Pt(mast, alto); disco(a, b, 1.6 * s, P.madS); }
-  const yL = [110, 22], yH = [18, 88];
+  // la cofa (o.cofa): la canasta de tablas en lo alto del palo, con su borde claro
+  if (o.cofa) { poli([[mast - 4, alto - 7], [mast + 4, alto - 7], [mast + 3, alto - 11], [mast - 3, alto - 11]], (px, py) => ((Math.round(px) & 1) ? P.madS : P.mad)); lin(mast - 4, alto - 7, mast + 4, alto - 7, P.madL); lin(mast - 3, alto - 11, mast + 3, alto - 11, P.madD); }
+  const [yL, yH] = o.entena ?? [[110, 22], [18, 88]];
   if (o.vela === 'izada') {
     const b = Math.sin(t * 1.7 + sem) * 1.5;
     poli([yL, yH, [46 + b, 12]], (px, py) => { const q = (px * 3 + py * 5) % Math.max(3, Math.round(6 * s)); return q === 0 ? P.velaS : P.vela; });
@@ -2441,7 +2487,141 @@ function c_luzCalida(R, cx, cy, r, f, col = hex('#ffcf7a'), a = 0.3) {
   for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) { const d = Math.hypot(x - cx, (y - cy) * 1.15) / r; if (d >= 1) continue; const k = (1 - d) * (1 - d) * a * f; if (k > 0.015) c_tinte(R, x, y, col, k); }
 }
 
+// EL TALLER, CONTRAPLANO (luz de tarde): la pared de la puerta, vista desde el lado de la ventana (que queda a nuestra
+// espalda y echa su luz dorada en la pared). Mismo sitio de la mesa de Piri y del suelo que el plano general.
+const c_PUERTA = { xa: 22, xb: 70, ys: 60, sill: 131 };
+
+// el contraplano por dentro (fondo fijo): techo de tablas con las vigas, la pared encalada, la puerta de arco apuntado
+// con dovelas y sus dos hojas de tablas claveteadas abiertas, el patio al atardecer por el hueco (cielo, el alminar a
+// lo lejos, la tapia encalada encendida, el empedrado y la fuente), el perchero con el caftán y el zurrón, el kilim
+// colgado de su vara, el casillero de rollos de cartas, la hornacina con el aguamanil, el zócalo de azulejos de estrella,
+// el suelo de tablas con el felpudo de la puerta y la alfombra azul bajo la mesa, el brasero de latón y el arcón
+function c_tallerPuertaFijo(R) {
+  const { rect, pset, linea, poligono, disco } = R, P = c_P, K = P.k, D = c_PUERTA;
+  // el techo: tablas con vetas y las cabezas de las vigas
+  for (let y = 0; y <= 17; y++) for (let x = 0; x < 320; x++) { const n = h(x >> 1, y >> 2, 81); pset(x, y, x % 11 === 0 ? P.vigaS : n > 0.82 ? P.vigaL : n < 0.12 ? P.vigaS : P.viga); }
+  for (let bx = 30; bx < 320; bx += 48) { rect(bx - 6, 11, bx + 6, 18, P.vigaS); rect(bx - 5, 11, bx + 5, 16, P.vigaL); for (let k = 0; k < 3; k++) linea(bx - 3 + k * 3, 12, bx - 2 + k * 3, 15, P.viga); rect(bx - 5, 17, bx + 5, 18, K); }
+  rect(0, 18, 319, 18, K); rect(0, 19, 319, 20, P.vigaS);
+  // la pared encalada, más cálida (es la hora de la tarde), con su grano, sombra arriba y en las esquinas
+  for (let y = 21; y <= 110; y++) for (let x = 0; x < 320; x++) {
+    const n = h(x >> 1, y >> 1, 82) * 0.45 + h(x, y, 83) * 0.25 + h(x >> 3, y >> 3, 84) * 0.3, sombra = Math.max(0, 1 - (y - 21) / 26) * 0.42 + Math.max(0, (x - 290) / 30) * 0.25;
+    const v = n - sombra; pset(x, y, v > 0.74 ? P.yesoL : v > 0.4 ? P.yeso : v > 0.14 ? P.yesoM : P.yesoS); }
+  for (const [cx, cy, rx, ry] of [[160, 102, 9, 4], [96, 30, 5, 3]]) for (let y = cy - ry - 1; y <= cy + ry + 1; y++) for (let x = cx - rx - 1; x <= cx + rx + 1; x++) {
+    const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 + (h(x, y, 85) - 0.5) * 0.5; if (d > 1.25) continue; if (d > 0.95) pset(x, y, y < cy ? P.yesoD : P.yesoL); else pset(x, y, y % 3 === 0 ? P.yesoS : h(x >> 2, y, 86) > 0.5 ? P.ladr : P.ladrS); }
+  { let x = 204; for (let y = 22; y < 36; y++) { x += h(y, 4, 87) > 0.66 ? 1 : h(y, 4, 87) < 0.33 ? -1 : 0; pset(x, y, P.yesoD); } }
+  // el zócalo de azulejos de estrella de ocho puntas (turquesa y verde sobre blanco)
+  rect(0, 109, 319, 109, P.madL); rect(0, 110, 319, 110, P.mad); rect(0, 111, 319, 112, P.madD);
+  for (let y = 113; y <= 130; y++) for (let x = 0; x < 320; x++) { const i = x % 9, j = (y - 113) % 9, a = Math.abs(i - 4.5), b = Math.abs(j - 4.5);
+    let c = i === 0 || j === 0 ? P.junta : Math.max(a, b) < 1.6 || a + b < 2.6 ? P.tur : (a < 1 || b < 1) && a + b < 4.2 ? P.verde : a + b > 6.6 ? P.indigo : P.azB; if (c === P.azB && h(x >> 3, y >> 3, 88) > 0.8) c = P.azBS; if (i === 2 && j === 1) c = hex('#ffffff'); pset(x, y, c); }
+  rect(0, 131, 319, 131, P.madD);
+  // el suelo de tablas en perspectiva
+  for (let y = 132; y < 180; y++) { const d = y - 56; for (let x = 0; x < 320; x++) {
+    const u = (x - 150) / d * 7.5, b = Math.floor(u), f = u - b, jy = (y + Math.floor(h(b, 1, 89) * 30)) % 26;
+    let c = [P.mad, P.madL, P.mad, P.veta][Math.floor(h(b, 2, 89) * 4)]; if (f < 0.07 || jy === 0) c = P.madD; else if (h(Math.floor(u * 5), y >> 1, 90) > 0.86) c = P.veta; else if (f > 0.9) c = P.madS;
+    if (y < 136) c = c_mez(c, P.k, 0.35); pset(x, y, c); } }
+  // el felpudo de esparto delante de la puerta y la alfombra azul (campo índigo, cenefa roja, medallón) bajo la mesa
+  for (let y = 134; y <= 146; y++) { const l = Math.round(16 - (y - 134) * 0.6), r = Math.round(80 + (y - 134) * 0.6); for (let x = l; x <= r; x++) pset(x, y, (x + y) % 3 === 0 ? P.ocreS : (x - y + 300) % 4 === 0 ? hex('#e0c080') : P.ocre); pset(l - 1, y, P.ocreS); pset(r + 1, y, P.ocreS); }
+  for (let y = 150; y <= 179; y++) { const v = (y - 150) / 29, l = Math.round(118 - v * 16), r = Math.round(298 + v * 16);
+    for (let x = l; x <= r; x++) { const u = (x - l) / (r - l), bu = Math.min(u, 1 - u) * 196, bv = Math.min(v, 1) * 29;
+      let c = P.indigo; if (bu < 7 || bv < 3) c = (x + y * 2) % 5 === 0 ? P.ocre : P.rojo; else if (bu < 8.5 || bv < 4) c = P.marfil;
+      else { const dd = Math.abs(x - (l + r) / 2) * 0.5 + Math.abs(y - 166) * 1.6; if (dd < 6) c = P.rojo; else if (dd < 9) c = P.ocre; else if (dd < 11) c = P.marfil; else if ((x + y) % 7 === 0) c = P.indigoL; }
+      if (c === P.indigo && h(x, y, 91) > 0.92) c = P.indigoS; pset(x, y, c); } }
+  // la puerta: el marco de dovelas que alternan, la clave, las jambas y el umbral de piedra
+  for (let y = 22; y <= D.sill; y++) for (let x = D.xa - 7; x <= D.xb + 7; x++) {
+    if (c_enArco(x, y, D.xa, D.xb, D.ys)) continue;
+    if (!c_enArco(x, y, D.xa - 6, D.xb + 6, D.ys, 0.6)) { if (c_enArco(x, y, D.xa - 7, D.xb + 7, D.ys, 0.6)) pset(x, y, P.piedraD); continue; }
+    let c; if (y < D.ys) { const ang = Math.atan2(y - D.ys, x - (D.xa + D.xb) / 2), seg = Math.floor((ang + Math.PI) / 0.21); c = seg % 2 ? P.piedraL : hex('#c87a5a'); if (Math.abs(((ang + Math.PI) / 0.21) % 1) < 0.12) c = P.piedraS; }
+    else { const b = Math.floor((y - D.ys) / 7); c = b % 2 ? P.piedraL : P.piedra; if ((y - D.ys) % 7 === 0) c = P.piedraS; }
+    if (h(x, y, 92) > 0.86) c = P.piedraM; pset(x, y, c); }
+  rect(44, 26, 48, 33, P.piedraD); rect(45, 27, 47, 33, P.piedraL);
+  // el patio por el hueco, al atardecer: el cielo, el alminar y las cúpulas a lo lejos, la tapia encendida, el empedrado
+  for (let y = 22; y <= D.sill; y++) for (let x = D.xa; x <= D.xb; x++) { if (!c_enArco(x, y, D.xa, D.xb, D.ys)) continue;
+    let c; if (y < 92) { const u = (y - 30) / 62, cols = c_CIELO.tarde, q = Math.max(0, Math.min(3.999, u * 4)), i = Math.floor(q); c = q - i > c_tr(x, y) ? cols[Math.min(4, i + 1)] : cols[i]; }
+    else if (y < 112) { c = (y === 92 ? hex('#fff0d0') : (x + (Math.floor(y / 3) % 2) * 3) % 7 === 0 ? hex('#e8b080') : hex('#f8d0a0')); if (x > 58) c = c_mez(c, hex('#a87a8a'), 0.45); }
+    else { const bx = Math.floor((x + (Math.floor(y / 3) % 2) * 2) / 4); c = (y % 3 === 0 || (x + (Math.floor(y / 3) % 2) * 2) % 4 === 0) ? hex('#8a6a5a') : h(bx, y >> 1, 93) > 0.5 ? hex('#c89a7a') : hex('#b0826a'); }
+    pset(x, y, c); }
+  { const fx = 34; rect(fx - 1, 56, fx + 1, 92, hex('#9a7a9a')); rect(fx - 3, 70, fx + 3, 71, hex('#9a7a9a')); poligono([[fx - 2, 56], [fx + 2, 56], [fx, 48]], hex('#8a6a8a')); disco(54, 92, 9, hex('#a88aa0')); rect(44, 92, 64, 93, hex('#a88aa0')); pset(54, 82, hex('#b898a8')); }
+  // la fuente de piedra del patio con su pilón
+  rect(48, 116, 66, 124, K); rect(49, 117, 65, 123, P.piedraL); rect(49, 117, 65, 117, hex('#fff0d8')); rect(50, 119, 64, 120, hex('#6a8aa0')); rect(56, 106, 58, 116, P.piedra); rect(54, 104, 60, 106, P.piedraL);
+  // las dos hojas de la puerta, abiertas hacia dentro: tablas con clavos de hierro y la aldaba
+  for (const [x0, x1, lado] of [[2, 15, -1], [77, 92, 1]]) for (let y = 40; y <= 131; y++) { const persp = lado < 0 ? (x) => (x - x0) * 0.5 : (x) => (x1 - x) * 0.5;
+    for (let x = x0; x <= x1; x++) { const top = 44 - persp(x), bot = 131 + persp(x) * 0.3; if (y < top || y > bot) continue; const e = x === x0 || x === x1 || y < top + 1;
+      let c = e ? P.madD : (x - x0) % 4 === 0 ? P.madS : h(x, y >> 2, 94) > 0.8 ? P.madL : P.mad; if (!e && (y - 50) % 18 < 2) c = P.madS; if (!e && (y - 50) % 18 === 0 && (x - x0) % 4 === 2) c = hex('#4a4444'); pset(x, y, c); } }
+  R.anillo(84, 86, 2.5, P.latonS); pset(84, 83, P.laton);
+  // el perchero de madera con el caftán rojo colgado (con sus pliegues) y un zurrón de cuero
+  rect(96, 46, 124, 48, K); rect(97, 46, 123, 47, P.madL); for (const px of [102, 116]) { rect(px, 48, px + 1, 51, P.madD); }
+  poligono([[98, 50], [106, 50], [109, 92], [95, 92]], (x, y) => ((Math.round(x) % 4 === 0) ? P.rojoS : y < 56 ? P.rojoL : P.rojo)); linea(102, 52, 102, 90, P.rojoS); rect(95, 88, 109, 92, P.oroS); rect(96, 89, 108, 89, P.oro);
+  poligono([[112, 52], [122, 52], [124, 70], [110, 70]], (x, y) => (y < 56 ? P.madL : (Math.round(x) + Math.round(y)) % 5 === 0 ? P.madS : P.mad)); linea(116, 50, 112, 52, P.cuerda); linea(116, 50, 122, 52, P.cuerda); rect(110, 60, 124, 61, P.madD); pset(117, 61, P.laton);
+  // el kilim colgado de su vara: cenefa de zigzag, campo de rombos ganchudos, flecos abajo
+  rect(132, 30, 190, 32, K); rect(133, 31, 189, 31, P.madL); disco(131, 31, 2, P.madD); disco(191, 31, 2, P.madD);
+  for (let y = 33; y <= 98; y++) for (let x = 134; x <= 188; x++) { const bu = Math.min(x - 134, 188 - x), bv = Math.min(y - 33, 98 - y); let c;
+    if (bu < 4 || bv < 4) c = ((x + y * 2) % 6 < 3) ? P.marfil : P.verdeS; else if (bu < 5 || bv < 5) c = P.ocre;
+    else { const cy = (y - 38) % 20, dd = Math.abs(x - 161) * 0.8 + Math.abs(cy - 10) * 1.1; c = dd < 3 ? P.ocre : dd < 6 ? P.indigo : dd < 8 ? P.marfil : dd < 10 && (x + y) % 3 === 0 ? P.marfil : P.rojo; if (c === P.rojo && h(x, y, 95) > 0.92) c = P.rojoS; }
+    pset(x, y, c); }
+  for (let x = 134; x <= 188; x += 2) linea(x, 99, x, 102, P.marfilS); for (let y = 34; y < 98; y++) pset(189, y, c_mez(P.yesoS, P.k, 0.25));
+  // el casillero de los rollos de cartas: seis filas de casillas con los cabos de los rollos (y alguno con cinta roja)
+  rect(206, 44, 272, 108, K); rect(207, 45, 271, 107, P.madS); rect(204, 42, 274, 45, P.madD); rect(205, 42, 273, 42, P.madL);
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) { const x0 = 209 + c * 10.5, y0 = 47 + r * 10, xi = Math.round(x0), yi = Math.round(y0); rect(xi, yi, xi + 8, yi + 8, c_mez(P.madD, K, 0.5));
+    const n = 1 + Math.floor(h(r, c, 96) * 3); for (let k = 0; k < n; k++) { const cx = xi + 2 + k * 2.6 + (k % 2), cy = yi + 5 - (k % 2) * 2; disco(cx, cy, 2.1, K); disco(cx, cy, 1.6, h(r + k, c, 97) > 0.4 ? P.perg : P.pergS); pset(Math.round(cx), Math.round(cy), P.pergD); if (h(r, c + k, 98) > 0.8) pset(Math.round(cx) + 1, Math.round(cy) - 1, P.rojo); } }
+  for (let r = 0; r <= 6; r++) rect(207, 46 + r * 10, 271, 46 + r * 10, P.mad); for (let c = 0; c <= 6; c++) rect(208 + Math.round(c * 10.5), 45, 208 + Math.round(c * 10.5), 107, P.mad);
+  rect(206, 108, 272, 109, c_mez(P.madD, P.k, 0.3));
+  // la hornacina de arco en la pared de la derecha, con el aguamanil de latón y un cuenco (la vela va en vivo)
+  for (let y = 56; y <= 98; y++) for (let x = 282; x <= 312; x++) { const d = y >= 70 ? Math.abs(x - 297) : Math.hypot(x - 297, y - 70); if (d > 15) continue; pset(x, y, d > 13.5 ? P.yesoD : c_mez(P.yesoS, P.k, 0.15 + (98 - y) / 200)); }
+  rect(282, 98, 312, 100, P.piedraL); rect(282, 101, 312, 101, P.piedraS);
+  { const x = 290, y = 98; poligono([[x - 4, y], [x + 4, y], [x + 5, y - 5], [x + 2, y - 10], [x - 2, y - 10], [x - 5, y - 5]], P.latonS); poligono([[x - 3, y - 1], [x + 3, y - 1], [x + 4, y - 5], [x + 1, y - 9], [x - 2, y - 9], [x - 4, y - 5]], P.laton); linea(x + 4, y - 6, x + 8, y - 11, P.latonS); pset(x - 2, y - 6, P.latonL); }
+  rect(300, 94, 310, 98, K); rect(301, 94, 309, 97, P.tur); rect(301, 94, 309, 94, P.turL);
+  // el brasero de latón (mangal) en su bandeja, con las patas (las brasas, en vivo)
+  { const x = 108, y = 148; poligono([[x - 12, y - 2], [x + 12, y - 2], [x + 9, y + 4], [x - 9, y + 4]], K); poligono([[x - 11, y - 1], [x + 11, y - 1], [x + 8, y + 3], [x - 8, y + 3]], (px) => (px < x - 4 ? P.latonL : px > x + 5 ? P.latonS : P.laton)); for (const dx of [-7, 7]) rect(x + dx, y + 4, x + dx + 1, y + 8, P.latonS);
+    rect(x - 13, y - 3, x + 13, y - 2, P.latonS); rect(x - 12, y - 3, x + 12, y - 3, P.latonL); rect(x - 15, y + 8, x + 15, y + 9, c_mez(P.madD, P.k, 0.4)); }
+  // el arcón (sandık) con flejes de latón y dos libros (el gato duerme en la otra punta)
+  rect(268, 128, 316, 154, K); rect(269, 129, 315, 153, P.mad); rect(269, 129, 315, 131, P.madL); rect(269, 136, 315, 136, P.madD);
+  for (let y = 132; y < 153; y++) for (let x = 270; x < 315; x++) if (h(x >> 2, y, 99) > 0.84) pset(x, y, P.veta);
+  for (const x of [274, 309]) { rect(x, 129, x + 2, 153, P.latonS); rect(x, 129, x, 153, P.laton); } rect(289, 138, 294, 143, P.latonS); rect(290, 139, 293, 142, P.laton); pset(291, 141, K);
+  rect(272, 122, 290, 127, K); rect(273, 123, 289, 124, P.verdeS); rect(273, 125, 289, 126, P.rojoS); rect(274, 122, 288, 122, P.marfilS);
+  rect(266, 155, 318, 157, c_mez(P.madD, P.k, 0.35));
+  // la cadena del farol, que baja del techo
+  for (let y = 19; y < 34; y++) pset(198 + (y % 2), y, y % 3 ? P.latonS : P.laton);
+}
+
+// el contraplano en vivo: el patio por la puerta (la higuera y el ciprés que se mecen, la fuente que mana, las
+// golondrinas, un vecino que pasa), la luz dorada de la ventana que entra por detrás y pinta en la pared el arco con la
+// sombra de la reja y de las hojas, que tiembla, con motas de polvo; el farol calado que se mece y salpica la pared de
+// estrellitas de luz; la vela de la hornacina; las brasas del brasero que respiran con su calima; el gato en el arcón
+function c_tallerPuerta(R, t, o) {
+  const P = c_P, D = c_PUERTA; c_fijo(R, 'tallerP', () => c_tallerPuertaFijo(R));
+  R.recorte([D.xa, 30, D.xb, D.sill]);
+  { const fl = Math.sin(t * 1.2) * 1.2; for (let j = 0; j < 30; j++) { const w = Math.round(Math.sin(j / 30 * Math.PI) * 3 + 1), x = 30 + Math.round(fl * j / 30); R.linea(x - w, 112 - j, x + w, 112 - j, j % 3 ? P.cipres : P.cipresS); } }
+  for (let k = 0; k < 18; k++) { const a = h(k, 1, 100) * Math.PI * 2, r = 3 + h(k, 2, 100) * 7, sw = Math.sin(t * 1.6 + k) * 1.2; R.disco(64 + Math.cos(a) * r + sw, 86 + Math.sin(a) * r * 0.7, 2.2, k % 3 ? hex('#5a7a3a') : hex('#7a9a4a')); }
+  R.linea(66, 112, 64, 92, P.tronco);
+  for (let k = 0; k < 6; k++) { const f = (t * 1.4 + k / 6) % 1; R.pset(57 + Math.round((k - 2.5) * f * 1.6), Math.round(104 - Math.sin(f * Math.PI) * 4 + f * 12), hex('#d8eef8')); }
+  { const c = (t * 7 + 20) % 90, x = D.xb + 12 - c; c_figurita(R, x, 126, t, { anda: true, dir: -1, ropa: P.verde, tocado: 'turbante', k: 2 }); }
+  for (let k = 0; k < 2; k++) { const gx = D.xa - 8 + ((t * (14 + k * 5) + k * 30) % 70), gy = 44 + k * 8 + Math.sin(t * 2 + k) * 3; R.pset(Math.round(gx), Math.round(gy), P.k); R.pset(Math.round(gx) - 1, Math.round(gy) - (Math.sin(t * 12 + k) > 0 ? 1 : 0), P.k); R.pset(Math.round(gx) + 1, Math.round(gy) - (Math.sin(t * 12 + k) > 0 ? 1 : 0), P.k); }
+  R.recorte(null);
+  // la luz de la ventana de detrás: dos arcos dorados en la pared y el suelo, con la reja y las hojas que tiemblan
+  for (const [x0, x1, y0, y1] of [[194, 262, 26, 108], [102, 130, 40, 108]]) { const cx = (x0 + x1) / 2, r = (x1 - x0) / 2;
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const dentro = y > y0 + r ? true : Math.hypot((x - cx) / r, (y - (y0 + r)) / (r * 1.2)) < 1; if (!dentro) continue;
+      if (Math.abs(x - cx) < 1.2 || Math.abs(y - (y0 + y1) / 2) < 1) continue; const hoja = Math.sin(x * 0.4 + t * 2.1) * Math.sin(y * 0.33 - t * 1.7) > 0.55; if (hoja) continue;
+      const e = Math.min(x - x0, x1 - x, y1 - y) / 5; if (c_tr(x, y) < 0.42 + Math.min(0.35, e * 0.35)) c_tinte(R, x, y, hex('#ffc070'), 0.3); } }
+  for (let y = 134; y < 150; y++) for (let x = 150 + (y - 134); x < 196 + (y - 134) * 1.3; x++) if (c_tr(x, y) < 0.5) c_tinte(R, x, y, hex('#ffc070'), 0.22);
+  for (let k = 0; k < 16; k++) { const fy = (h(k, 3, 101) * 70 + t * (1.4 + h(k, 4, 101) * 2.2)) % 70, x = Math.round(198 + h(k, 5, 101) * 60 + Math.sin(t * 0.7 + k) * 2 - fy * 0.3), y = Math.round(34 + fy); if (Math.sin(t * 1.3 + k * 2) > -0.3) R.pset(x, y, hex('#fff2d0')); }
+  // el farol calado de latón, que se mece, y las estrellitas de luz que echa en la pared y el techo
+  const a = Math.sin(t * 1.1) * 0.12, lx = Math.round(198 + Math.sin(a) * 14), ly = Math.round(30 + Math.cos(a) * 14), f = 0.85 + 0.15 * Math.sin(t * 13) * Math.sin(t * 7.3 + 1);
+  c_luzCalida(R, lx, ly + 8, 60, f, hex('#ffcf7a'), 0.32);
+  for (let k = 0; k < 22; k++) { const an = k * 2.4 + a * 3, rr = 18 + (k % 5) * 9; const x = Math.round(lx + Math.cos(an) * rr * 1.3), y = Math.round(ly + 8 + Math.sin(an) * rr * 0.8); if (y > 20 && y < 108 && !(x > 274 && y < 46)) { c_tinte(R, x, y, hex('#fff0b0'), 0.55 * f); c_tinte(R, x + 1, y, hex('#ffd890'), 0.3 * f); } }
+  R.linea(198, 33, lx, ly, P.latonS);
+  R.poligono([[lx - 5, ly], [lx + 5, ly], [lx + 6, ly + 11], [lx, ly + 15], [lx - 6, ly + 11]], P.k); R.poligono([[lx - 4, ly + 1], [lx + 4, ly + 1], [lx + 5, ly + 10], [lx, ly + 13], [lx - 5, ly + 10]], (px, py) => ((Math.round(px) + Math.round(py) * 2) % 4 === 0 ? P.llamaL : px > lx + 2 ? P.latonS : P.laton));
+  R.poligono([[lx - 3, ly], [lx + 3, ly], [lx, ly - 4]], P.latonS); R.pset(lx, ly + 15, P.oro);
+  // la vela de la hornacina
+  { const x = 304, y = 93; R.rect(x - 1, y - 6, x + 1, y, P.marfil); R.pset(x, y - 7, P.k); for (let j = 1; j <= 3 + Math.round(f); j++) R.pset(x + (j > 2 ? Math.round(Math.sin(t * 11)) : 0), y - 7 - j, j < 2 ? P.llamaS : j < 3 ? P.llama : P.llamaL); c_luzCalida(R, x, y - 9, 16, f, hex('#ffcf7a'), 0.35); }
+  // las brasas del brasero que respiran y la calima que sube
+  for (let i = -9; i <= 9; i++) { const v = Math.sin(t * 2.3 + i * 1.3) * 0.5 + Math.sin(t * 5.1 + i * 0.7) * 0.5; R.pset(108 + i, 146, v > 0.4 ? P.llamaL : v > -0.2 ? P.llamaS : hex('#7a2a1a')); if (i % 2 === 0) R.pset(108 + i, 145, v > 0.6 ? P.llama : hex('#4a2a20')); }
+  for (let k = 0; k < 8; k++) { const fy = (t * 0.6 + k / 8) % 1, x = Math.round(104 + k + Math.sin(fy * 9 + t * 2) * 2), y = Math.round(143 - fy * 26); c_tinte(R, x, y, hex('#e8e0d8'), 0.35 - fy * 0.3); }
+  c_gato(R, 298, 128, t);
+  return { suelo: 168, sueloMesa: 145, ventana: [D.xa, 30, D.xb, D.sill], puerta: [D.xa, 30, D.xb, D.sill], mesa: [142, 138, 264, 172], lampara: [lx, ly], divan: [6, 120, 108, 137], alacena: [206, 42, 274, 109], arcon: [268, 128, 316, 154] };
+}
+
 function c_taller(R, t, o, tarde) {
+  if (tarde) return c_tallerPuerta(R, t, o);
   const fijo = c_fijo(R, 'taller' + (tarde ? 'T' : 'D'), () => c_tallerFijo(R, tarde));
   c_vistaVentana(R, t, tarde, fijo, o);
   c_gato(R, 80, c_VENT.sill, t);
@@ -2590,7 +2770,11 @@ function c_mesaFijo(R, o) {
   const AF = [[238, 18], [231, 28], [236, 40], [228, 52], [222, 62], [226, 76], [236, 90], [246, 104], [254, 120], [258, 140]];
   for (let y = 18; y < 150; y++) { let cx = 260; for (let i = 1; i < AF.length; i++) { const [ax, ay] = AF[i - 1], [bx, by] = AF[i]; if (y >= ay && y <= by) cx = ax + (y - ay) / (by - ay) * (bx - ax); } for (let x = Math.ceil(cx) + 1; x < 264; x++) if ((x + y) % 2 === 0) ps(x, y, c_mez(P.perg, P.ocre, 0.45)); }
   c_costa(R, AF, P.tinta, P.tRoja, -1, 4);
-  for (const [tx, ty] of [[244, 30], [240, 60], [248, 92]]) { for (let j = 0; j < 5; j++) { ps(tx, ty - j, P.tRoja); ps(tx + 2, ty - j, P.tRoja); } ps(tx + 1, ty - 2, P.tRoja); ps(tx + 1, ty - 5, P.oro); ps(tx - 1, ty - 4, P.tRoja); ps(tx + 3, ty - 4, P.tRoja); }
+  // torres de tinta roja (pictogramas, no letras): el cuerpo macizo con su aguada, tres almenas, la puerta oscura, el
+  // suelo y una banderita de oro en su asta
+  for (const [tx, ty] of [[244, 30], [240, 60], [248, 92]]) { for (let j = 0; j < 6; j++) for (let i = -2; i <= 2; i++) ps(tx + i, ty - j, i === 2 || j === 5 ? P.tRoja : (i + j) % 2 ? c_mez(P.tRoja, P.perg, 0.35) : c_mez(P.tRoja, P.perg, 0.55));
+    for (const i of [-2, 0, 2]) ps(tx + i, ty - 6, P.tRoja); ps(tx, ty, P.tinta); ps(tx, ty - 1, P.tinta); for (let i = -3; i <= 3; i++) ps(tx + i, ty + 1, P.tinta);
+    ps(tx, ty - 7, P.tinta); ps(tx, ty - 8, P.tinta); ps(tx + 1, ty - 8, P.oro); ps(tx + 2, ty - 8, P.oro); ps(tx + 1, ty - 7, P.oro); }
   for (const [tx, ty] of [[250, 76], [254, 110]]) for (let j = 0; j < 3; j++) for (let i = -j; i <= j; i++) ps(tx + i, ty + j, j === 2 ? P.tinta : P.tRoja);
   { const cx = 246, cy = 128; ps(cx, cy, P.madS); ps(cx + 1, cy - 1, P.madS); ps(cx + 2, cy, P.madS); ps(cx + 3, cy, P.madS); ps(cx + 4, cy - 1, P.madS); ps(cx + 1, cy + 1, P.madS); ps(cx + 3, cy + 1, P.madS); }
   // olitas de tinta azul en el mar abierto
@@ -2766,49 +2950,120 @@ function c_pasarela(R, x0, y0, x1, y1, t) {
   for (let i = 0; i <= n; i++) { const f = i / n, x = x0 + 6 + (x1 - x0) * f, y = y0 - 9 + (y1 - y0) * f + Math.sin(f * Math.PI) * 3; R.pset(Math.round(x), Math.round(y), P.cuerda); }
 }
 
-// el muelle de cerca (fondo fijo): cielo, la orilla de enfrente y el agua a lo lejos (a la derecha de la proa), el canto
-// del muelle, las losas, y fardos apilados, sacos, barriles, una bita, cabos, una caja de pescado y un ancla
+// el muelle del arsenal de cerca (fondo fijo; otro sitio del puerto, no el del plano general): cielo tramado, la loma
+// con la muralla vieja, su torre, casas y cipreses; las gradas cubiertas del arsenal (tersane) de frente, naves de piedra
+// con bóveda y tejado a dos aguas: en una asoma la popa dorada de una galera varada, en otra el esqueleto de un casco
+// con sus cuadernas, en otra remos y tablones; el andén de piedra del otro lado, el agua de la dársena con los reflejos
+// de los arcos; el canto del muelle, las losas, la pila de tablones, la caldera de brea en su trébede, sacos y una
+// ánfora, la bita y el ancla. La cabria, los fardos que iza y el fuego van en c_muelle (por delante de la galera)
 function c_muelleFijo(R, tarde) {
   const { rect, pset, poligono, disco, linea } = R, P = c_P, K = P.k;
   c_degradado(R, 0, 0, 319, 100, c_CIELO[tarde ? 'tarde' : 'dia']);
-  const sol = tarde ? [300, 86, 8] : [196, 30, 6]; R.halo(sol[0], sol[1], sol[2] * 3, tarde ? [hex('#f8c890'), hex('#fce0a8')] : [hex('#e8f2f0'), hex('#f8fae8')], 0.9); disco(sol[0], sol[1], sol[2], tarde ? hex('#ffe0a0') : hex('#ffffff'));
-  c_orilla(R, 0, 320, 100, 12, tarde); c_aguaFija(R, 0, 101, 319, 136);
+  const sol = tarde ? [246, 48, 7] : [226, 22, 6]; R.halo(sol[0], sol[1], sol[2] * 3, tarde ? [hex('#f8c890'), hex('#fce0a8')] : [hex('#e8f2f0'), hex('#f8fae8')], 0.9); disco(sol[0], sol[1], sol[2], tarde ? hex('#ffe0a0') : hex('#ffffff'));
+  // la loma de detrás, con hierba y matorral tramados, casas encaladas y cipreses
+  const cima = (x) => Math.round(48 + 7 * Math.sin(x * 0.018 + 0.6) + 3 * Math.sin(x * 0.061));
+  for (let x = 0; x < 320; x++) for (let y = cima(x); y <= 100; y++) { const n = h(x >> 1, y >> 1, 66); pset(x, y, y === cima(x) ? hex('#c8bc84') : n > 0.74 ? P.hojaL : n > 0.32 ? hex('#a89a62') : hex('#8a7e4e')); }
+  for (let k = 0; k < 24; k++) { const x = 4 + k * 13 + Math.round(h(k, 1, 67) * 6), base = cima(x) + 9 + Math.round(h(k, 2, 67) * 5), w = 7 + Math.round(h(k, 3, 67) * 3), al = 5 + Math.round(h(k, 4, 67) * 2);
+    if (h(k, 5, 67) < 0.3) { for (let j = 0; j < 11; j++) { const ww = Math.round(Math.sin(j / 11 * Math.PI) * 2); rect(x - ww, base - j, x + ww, base - j, j % 3 ? P.cipres : P.cipresS); } continue; }
+    const col = h(k, 6, 67) > 0.35 ? hex('#f4efe2') : hex('#ecd8b0'); rect(x, base - al, x + w, base, col); rect(x + w - 1, base - al, x + w, base, c_mez(col, K, 0.18));
+    poligono([[x - 1, base - al], [x + w + 1, base - al], [x + w - 2, base - al - 3], [x + 2, base - al - 3]], P.teja); linea(x - 1, base - al, x + w + 1, base - al, P.tejaS); pset(x + 2, base - 3, K); pset(x + 2, base - 4, K); }
+  // la muralla vieja por la cresta, con almenas, y su torre cuadrada
+  for (let x = 140; x < 320; x++) { const yt = cima(x) - 4; for (let y = yt; y < yt + 7; y++) pset(x, y, y === yt ? P.piedraL : (x + (y >> 2) * 3) % 8 === 0 || y % 3 === 0 ? P.piedraS : P.piedra); if (x % 6 < 3) { pset(x, yt - 1, P.piedra); pset(x, yt - 2, P.piedraL); } }
+  { const x0 = 226, x1 = 244, y0 = 26, yb = cima(235) + 2; rect(x0, y0, x1, yb, K); rect(x0 + 1, y0 + 1, x1 - 1, yb, P.piedra); rect(x1 - 4, y0 + 1, x1 - 1, yb, P.piedraM); for (let y = y0 + 4; y < yb; y += 4) for (let x = x0 + 1; x < x1; x++) if ((x + (y >> 2) * 4) % 7 === 0) pset(x, y, P.piedraS); else pset(x, y, c_mez(P.piedra, P.piedraS, 0.25));
+    for (let x = x0; x <= x1; x += 4) rect(x, y0 - 3, x + 1, y0, P.piedra); rect(234, 36, 235, 41, K); rect(234, 48, 235, 52, K); }
+  // las gradas del arsenal: naves de piedra con bóveda de cañón, de frente
+  for (let k = 0; k < 8; k++) { const x0 = -14 + k * 44, x1 = x0 + 40, cx = x0 + 20, r = 14, ay = 82;
+    for (let y = 70; y <= 99; y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { let c = (x + (Math.floor(y / 4) % 2) * 5) % 10 === 0 || y % 4 === 3 ? P.piedraS : h(x, y, 68) > 0.8 ? P.piedraL : P.piedra; if (x > x1 - 3) c = c_mez(c, P.piedraD, 0.35); if (h(x >> 2, y >> 2, 69) > 0.9) c = c_mez(c, P.verdeS, 0.25); pset(x, y, c); }
+    poligono([[x0 - 3, 71], [cx, 59], [x1 + 3, 71]], (px, py) => ((Math.round(px) + Math.round(py) * 2) % 5 === 0 ? P.tejaS : Math.round(py) % 3 === 0 ? P.tejaL : P.teja)); linea(x0 - 3, 71, cx, 59, P.tejaS); linea(cx, 59, x1 + 3, 71, P.tejaS); rect(x0 - 3, 71, x1 + 3, 71, c_mez(P.tejaS, K, 0.4));
+    for (let y = 68; y <= 99; y++) for (let x = cx - r - 2; x <= cx + r + 2; x++) { if (x < 0 || x > 319) continue; const d = y >= ay ? Math.abs(x - cx) : Math.hypot(x - cx, y - ay);
+      if (d <= r) { const f = Math.min(1, (y - 68) / 34); pset(x, y, c_tr(x, y) < 0.3 * (1 - f) ? hex('#3a2c22') : c_mez(hex('#2a201a'), K, f * 0.6)); }
+      else if (d <= r + 2 && y < ay) pset(x, y, Math.floor(Math.atan2(y - ay, x - cx) * 5) % 2 ? P.piedraL : P.piedraM); }
+    const tipo = k % 3;
+    if (tipo === 0) { // la popa de una galera varada, dorada y roja, con su farol
+      poligono([[cx - 9, 99], [cx + 9, 99], [cx + 7, 84], [cx + 2, 78], [cx - 6, 80]], (px, py) => (py < 84 ? P.oroS : Math.round(py) % 3 === 0 ? c_mez(P.rojoS, K, 0.3) : P.rojoS)); linea(cx - 6, 80, cx + 2, 78, P.oro); disco(cx + 1, 75, 1.5, P.oroS); pset(cx + 1, 75, P.llama); linea(cx + 1, 77, cx + 1, 78, P.oroS); }
+    else if (tipo === 1) { // el esqueleto de un casco en la grada: quilla y cuadernas
+      linea(cx - 13, 97, cx + 13, 95, P.madL); for (let i = 0; i < 6; i++) { const xx = cx - 11 + i * 4.5; for (let j = 0; j < 14; j++) { const yy = 96 - j, w = Math.round(Math.sqrt(j) * 1.6); pset(Math.round(xx) - w, yy, P.madL); pset(Math.round(xx) + w, yy, i % 2 ? P.mad : P.madL); } } linea(cx - 13, 83, cx + 13, 82, P.mad); }
+    else { // remos y tablones apoyados contra el fondo
+      for (let i = 0; i < 7; i++) linea(cx - 10 + i * 3, 99, cx - 6 + i * 3, 73, i % 2 ? P.madL : P.mad); rect(cx - 12, 92, cx + 12, 95, P.madS); rect(cx - 12, 92, cx + 12, 92, P.madL); }
+    if (x1 + 1 < 320 && x1 + 3 >= 0) { rect(Math.max(0, x1 + 1), 70, Math.min(319, x1 + 3), 99, P.piedraM); rect(Math.max(0, x1 + 1), 70, Math.min(319, x1 + 1), 99, P.piedraL); } }
+  // el andén de piedra de enfrente, con sus bitas
+  rect(0, 99, 319, 101, P.piedraL); rect(0, 101, 319, 101, P.piedraS); for (let x = 10; x < 320; x += 38) { rect(x, 96, x + 2, 99, P.piedraM); pset(x, 96, P.piedraL); }
+  // el agua de la dársena, con los reflejos oscuros de los arcos y los claros del tejado
+  c_aguaFija(R, 0, 102, 319, 136);
+  for (let k = 0; k < 8; k++) { const cx = 6 + k * 44; for (let y = 102; y < 118; y++) for (let x = cx - 12; x <= cx + 12; x++) if (x >= 0 && x < 320 && c_tr(x, y) < 0.5 - (y - 102) / 34 && (y & 1)) c_tinte(R, x, y, K, 0.3); }
+  // el canto del muelle y las losas
   c_canto(R, 137, 3); c_losas(R, 143, 179, 3);
-  // los fardos apilados a la izquierda y los sacos
-  c_fardo(R, 2, 162, 24, 14, hex('#c8b890'), hex('#a8986e')); c_fardo(R, 26, 162, 22, 13, hex('#a85a3a'), hex('#7a3e28')); c_fardo(R, 8, 148, 22, 12, hex('#6a8aa8'), hex('#4a6a88')); c_fardo(R, 30, 149, 18, 11, hex('#d8c070'), hex('#b0983e'));
-  for (const [x, y] of [[54, 160], [64, 162], [58, 152]]) { disco(x, y - 4, 5, K); disco(x, y - 4, 4.2, P.ocre); rect(x - 1, y - 10, x + 1, y - 8, P.ocreS); pset(x - 2, y - 6, hex('#e8c878')); for (let k = -3; k <= 3; k += 2) pset(x + k, y - 1, P.ocreS); }
-  // los barriles y una caja de pescado a la derecha
-  c_barril(R, 272, 158); c_barril(R, 288, 160); c_barril(R, 280, 145, 0.9); c_barril(R, 304, 156, 1.1);
-  rect(80, 146, 104, 156, K); rect(81, 147, 103, 155, P.mad); rect(81, 147, 103, 148, P.madL); for (let k = 0; k < 6; k++) { pset(84 + k * 3, 145, hex('#b8c8d4')); pset(85 + k * 3, 145, hex('#e8f0f4')); pset(84 + k * 3, 144, hex('#8a9aa8')); }
+  // la pila de tablones a la izquierda, con dos troncos cruzados encima
+  for (let i = 0; i < 5; i++) { const y = 162 - i * 4, x0 = 2 + (i % 2) * 3, x1 = 50 - (i % 2) * 3; rect(x0, y - 3, x1, y, K); rect(x0 + 1, y - 2, x1 - 1, y - 1, i % 2 ? P.madL : P.mad); for (let x = x0 + 4; x < x1; x += 7) pset(x, y - 2, P.veta); rect(x0 + 1, y - 2, x0 + 2, y - 1, P.madS); pset(x0 + 1, y - 2, P.madD); }
+  for (const [a, b] of [[[4, 140], [46, 132]], [[8, 134], [52, 141]]]) { linea(a[0], a[1], b[0], b[1], K); linea(a[0], a[1] - 1, b[0], b[1] - 1, P.madL); linea(a[0], a[1] - 2, b[0], b[1] - 2, P.mad); disco(a[0], a[1] - 1, 1.6, P.madS); }
+  // la caldera de brea en su trébede (el fuego y el humo, en c_muelle)
+  { const cx = 78, cy = 150; for (const [dx, by] of [[-9, 160], [9, 160], [0, 156]]) linea(cx + dx, by, cx, cy - 12, hex('#3a3434'));
+    disco(cx, cy - 2, 8, K); disco(cx, cy - 2, 7, hex('#2e2a2a')); disco(cx - 3, cy - 4, 2.5, hex('#4a4444')); rect(cx - 9, cy - 9, cx + 9, cy - 7, K); rect(cx - 8, cy - 8, cx + 8, cy - 8, hex('#5a5454')); rect(cx - 7, cy - 9, cx + 7, cy - 9, hex('#16100c'));
+    for (let i = 0; i < 5; i++) linea(cx - 6 + i * 3, 160, cx - 4 + i * 2, 156, i % 2 ? P.madS : P.mad); }
+  // sacos y una ánfora junto a la caldera
+  for (const [x, y] of [[100, 150], [110, 151], [104, 143]]) { disco(x, y - 4, 5, K); disco(x, y - 4, 4.2, P.ocre); rect(x - 1, y - 10, x + 1, y - 8, P.ocreS); pset(x - 2, y - 6, hex('#e8c878')); for (let k = -3; k <= 3; k += 2) pset(x + k, y - 1, P.ocreS); }
+  { const x = 122, y = 152; poligono([[x - 3, y - 12], [x + 3, y - 12], [x + 5, y - 6], [x + 2, y], [x - 2, y], [x - 5, y - 6]], P.teja); rect(x - 2, y - 14, x + 2, y - 12, P.tejaS); pset(x - 3, y - 9, P.tejaL); pset(x - 4, y - 7, P.tejaL); }
   c_bita(R, 252, 146); c_cabo(R, 236, 172, 6);
   // el ancla de hierro tumbada, con su argolla
   { const x = 124, y = 176; linea(x, y, x + 26, y - 6, K); linea(x, y - 1, x + 26, y - 7, hex('#5a5050')); linea(x - 2, y - 6, x + 3, y + 1, K); linea(x - 3, y - 6, x + 2, y + 1, hex('#5a5050')); R.anillo(x + 28, y - 7, 2.5, K); linea(x + 22, y - 10, x + 24, y - 1, K); }
 }
 
+// un fardo de los que iza la cabria (respeta R.recorte)
+function c_fardoR(R, x, y) { const P = c_P; c_r(R, x - 7, y - 9, x + 7, y, P.k); c_r(R, x - 6, y - 8, x + 6, y - 1, hex('#c8b890')); c_r(R, x - 6, y - 8, x + 6, y - 7, hex('#e0d4b0')); c_r(R, x + 4, y - 7, x + 6, y - 1, hex('#a8986e')); c_r(R, x - 1, y - 8, x, y - 1, P.cuerda); c_r(R, x - 6, y - 5, x + 6, y - 5, P.cuerda); }
+
 function c_muelle(R, t, o, tarde) {
   const P = c_P; c_fijo(R, 'muelle' + (tarde ? 'T' : 'D'), () => c_muelleFijo(R, tarde));
-  R.recorte([0, 0, 319, 99]); c_nubes(R, t, 0, 2, 319, 70, c_NUBE[tarde ? 'tarde' : 'dia'], 5, 71); R.recorte(null);
-  R.recorte([0, 101, 319, 136]); c_olas(R, t, 0, 102, 319, 135, 40, null, 9); c_barca(R, 300 - ((t * 3) % 60), 112, t, 1, -1); R.recorte(null);
+  R.recorte([0, 0, 319, 58]); c_nubes(R, t, 0, 4, 319, 44, c_NUBE[tarde ? 'tarde' : 'dia'], 5, 71); R.recorte(null);
+  // el humo de la fragua del arsenal, que sube de detrás de las naves
+  for (let k = 0; k < 10; k++) { const f = (t * 0.25 + k / 10) % 1, x = 128 + Math.sin(f * 6 + t) * 2 + f * 14, y = 66 - f * 26; c_tinte(R, Math.round(x), Math.round(y), hex('#e0dcd4'), 0.6 - f * 0.45); c_tinte(R, Math.round(x) + 1, Math.round(y), hex('#c8c4bc'), 0.45 - f * 0.35); c_tinte(R, Math.round(x), Math.round(y) - 1, hex('#e8e4dc'), 0.4 - f * 0.3); }
+  // los carpinteros de ribera en la grada del casco a medio hacer: dos que martillean (saltan las virutas) y un mozo
+  // que lleva un tablón por el andén
+  for (const [x, k] of [[60, 0], [72, 1]]) { const golpe = Math.sin(t * 7 + k * 2) > 0.6; c_figurita(R, x, 99, t, { ropa: k ? P.marfil : P.indigo, tocado: k ? 'gorro' : 'turbante', k }); R.pset(x + 2, 89 - (golpe ? 0 : 2), P.madS); R.pset(x + 3, 89 - (golpe ? 0 : 2), hex('#5a5a62')); if (golpe) R.pset(x + 4, 87, P.pergL); }
+  { const c = (t * 9) % 380, x = 340 - c; c_figurita(R, x, 100, t, { anda: true, dir: -1, ropa: P.ocre, tocado: 'turbante', k: 5 }); R.linea(Math.round(x) - 8, 89, Math.round(x) + 6, 88, P.madL); }
+  R.recorte([0, 102, 319, 136]); c_olas(R, t, 0, 103, 319, 135, 40, null, 9); c_barca(R, 330 - ((t * 4) % 380), 114, t, 1, -1); R.recorte(null);
   R.recorte([0, 0, 319, 128]);
-  const Pt = c_galera(R, 120, 128, 2.3, 1, t, { sem: 4, franja: P.rojo });
+  // la galera, de costado: el palo adelantado (x ≈ 180, fuera de la barra del año) con su cofa y la entena atravesada en
+  // horizontal con la vela aferrada; la grímpola ondea hacia la derecha
+  const Pt = c_galera(R, 120, 128, 2.3, 1, t, { sem: 4, franja: P.rojo, palo: 86, altoPalo: 52, cofa: true, entena: [[124, 30], [14, 30]], viento: 1 });
   // un marinero sube por los obenques y baja
-  { const f = (Math.sin(t * 0.6) + 1) / 2, [a, b] = Pt(56 + f * 6, 10 + f * 44); c_figurita(R, a - 1, b + 10, t, { ropa: P.marfil, tocado: 'gorro', k: 3 }); }
+  { const f = (Math.sin(t * 0.6) + 1) / 2, [a, b] = Pt(78 + f * 5, 10 + f * 26); c_figurita(R, a - 1, b + 10, t, { ropa: P.marfil, tocado: 'gorro', k: 3 }); }
   R.recorte(null);
   // el agua entre el casco y el muelle, oscura, con reflejos que tiemblan
   for (let y = 129; y <= 136; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.3 + t * 3 + y) + Math.sin(x * 0.11 - t * 2); R.pset(x, y, v > 1.3 ? P.mar1 : v < -1.2 ? P.mar4 : P.mar3); }
   // la amarra de la bita a la galera
   const [ax, ay] = Pt(100, 8); for (let k = 0; k <= 24; k++) { const f = k / 24, x = 252 + (ax - 252) * f, y = 139 + (ay - 139) * f + Math.sin(f * Math.PI) * (4 + Math.sin(t * 1.3)); R.pset(Math.round(x), Math.round(y), P.cuerda); R.pset(Math.round(x), Math.round(y) + 1, P.madS); }
-  for (let k = 0; k < 4; k++) { const gx = ((t * (11 + k * 4) + k * 90) % 380) - 30, gy = 14 + k * 11 + Math.sin(t * 1.4 + k) * 5; c_gaviota(R, gx, gy, t, k, k % 2 ? 2 : 1); }
-  { const s = Math.sin(t * 2.3) > 0.8 ? 1 : 0; c_gaviota(R, 92, 141 - s, 0.1, 0, 2); }
+  // el fuego de la caldera de brea y su humo negro, que se lo lleva el viento
+  for (let i = -5; i <= 5; i++) { const a = Math.max(0, 4 - Math.abs(i) * 0.6 + Math.sin(t * 13 + i * 1.7) * 1.4); for (let j = 0; j < a; j++) R.pset(78 + i, 157 - j, j > a - 1.5 ? P.llamaL : j > 1 ? P.llama : P.llamaS); }
+  for (let k = 0; k < 14; k++) { const f = (t * 0.45 + k / 14) % 1, x = 76 + f * 22 + Math.sin(f * 8 + t * 1.3) * 2, y = 140 - f * 34; const c = f < 0.5 ? hex('#3a3434') : hex('#6a6460'); c_tinte(R, Math.round(x), Math.round(y), c, 0.75 - f * 0.6); c_tinte(R, Math.round(x) + 1, Math.round(y), c, 0.6 - f * 0.5); if (f < 0.6) c_tinte(R, Math.round(x), Math.round(y) - 1, c, 0.5 - f * 0.4); }
+  // la cabria del muelle (por delante de la galera): dos pies de madera, el tirante de atrás, la polea y el fardo que
+  // se iza, se mete por encima de la proa y baja a la cubierta; el gancho vuelve a por el siguiente de la pila
+  const T = 10, cyc = Math.floor((t + 2) / T), u = ((t + 2) % T + T) % T, sv = (a, b) => { const q = Math.max(0, Math.min(1, (u - a) / (b - a))); return q * q * (3 - 2 * q); };
+  const lean = u < 4 ? 0 : u < 6 ? sv(4, 6) : u < 8 ? 1 : 1 - sv(8, 10), apx = Math.round(270 - lean * 18), apy = 58 + Math.round(lean * 3);
+  const quedan = 3 - (cyc % 3), pila = (n) => 150 - n * 9;
+  let by, lleva = true; if (u < 1) by = pila(quedan - 1); else if (u < 4) by = Math.round(pila(quedan - 1) + (92 - pila(quedan - 1)) * sv(1, 4)); else if (u < 6) by = 92; else if (u < 8) by = Math.round(92 + 22 * sv(6, 8)); else { lleva = false; by = Math.round(92 + (pila(quedan - 2) - 9 - 92) * sv(8, 10)); }
+  for (let n = 0; n < quedan - 1; n++) c_fardoR(R, 270, pila(n));
+  for (const [bx, b2] of [[284, 162], [306, 164]]) { R.linea(bx, b2, apx, apy, P.k); R.linea(bx + 1, b2, apx + 1, apy, P.madS); R.linea(bx + 2, b2, apx + 2, apy, P.mad); R.rect(bx - 2, b2, bx + 4, b2 + 1, P.madD); }
+  for (let k = 0; k <= 30; k++) { const f = k / 30; R.pset(Math.round(apx + (318 - apx) * f), Math.round(apy + (150 - apy) * f + Math.sin(f * Math.PI) * 3), P.cuerda); } R.rect(316, 148, 319, 152, P.piedraM);
+  const sw = Math.round(Math.sin(t * 2.1) * (u > 3.5 && u < 6.5 ? 1.5 : 0.4)), hx = apx + sw;
+  R.disco(apx, apy, 2.6, P.k); R.disco(apx, apy, 1.8, P.madL); R.pset(apx, apy, P.madD);
+  R.linea(apx, apy, hx, by - (lleva ? 10 : 0), P.cuerda); for (let k = 0; k <= 20; k++) { const f = k / 20; R.pset(Math.round(apx - 2 + (236 - apx) * f), Math.round(apy + (102 - apy) * f + f * f * 4), P.cuerda); }
+  R.pset(hx, by - (lleva ? 10 : -1), hex('#4a4040')); R.pset(hx + 1, by - (lleva ? 9 : 0), hex('#4a4040'));
+  if (lleva) { if (u >= 6 && u < 8) { R.recorte([0, 0, 319, 103]); c_fardoR(R, hx, by); R.recorte(null); } else c_fardoR(R, hx, by); }
+  for (let k = 0; k < 4; k++) { const gx = ((t * (11 + k * 4) + k * 90) % 380) - 30, gy = 14 + k * 9 + Math.sin(t * 1.4 + k) * 4; if (gx > 18 && gx < 172 && gy < 18) continue; c_gaviota(R, gx, gy, t, k, k % 2 ? 2 : 1); }
+  { const s = Math.sin(t * 2.3) > 0.8 ? 1 : 0; c_gaviota(R, 96, 141 - s, 0.1, 0, 2); }
   const top = Pt(88, 8.5);
   return { suelo: 162, pasarela: [[236, 160], [Math.round(top[0]), Math.round(top[1])]], borda: 109, horizonte: 100, muelle: [0, 143, 319, 179], libre: [100, 230] };
 }
 
-// lo de delante en el muelle: la pasarela de tablas a la borda (con su pasamanos), y un rollo de cabo en primer término
+// lo de delante en el muelle: la pasarela de tablas a la borda (con su pasamanos), un rollo de cabo en primer término a
+// la derecha y, en la esquina de abajo a la izquierda, una caja de pescado con una gaviota que picotea
 function c_muelleDelante(R, t, o) {
-  const s = 2.3, Pt = (u, v) => [120 + (u - 60) * s, 128 + Math.sin(t * 1.3 + 4) * 0.5 * 1.6 - v * s - (u - 60) * Math.sin(t * 0.9 + 4) * 0.006 * s];
+  const P = c_P, s = 2.3, Pt = (u, v) => [120 + (u - 60) * s, 128 + Math.sin(t * 1.3 + 4) * 0.5 * 1.6 - v * s - (u - 60) * Math.sin(t * 0.9 + 4) * 0.006 * s];
   const [tx, ty] = Pt(88, 8.5); c_pasarela(R, 236, 161, tx, ty, t);
   c_cabo(R, 306, 176, 9);
+  { const x = -2, y = 179; R.rect(x, y - 12, x + 24, y, P.k); R.rect(x + 1, y - 11, x + 23, y - 1, P.mad); R.rect(x + 1, y - 11, x + 23, y - 10, P.madL); for (let i = x + 4; i < x + 22; i += 4) R.rect(i, y - 9, i, y - 2, P.madS);
+    for (let k = 0; k < 5; k++) { R.pset(x + 4 + k * 4, y - 12, hex('#b8c8d4')); R.pset(x + 5 + k * 4, y - 12, hex('#e8f0f4')); R.pset(x + 6 + k * 4, y - 13, hex('#8a9aa8')); } }
+  { const pica = Math.sin(t * 5 + 1) > 0.3 ? 1 : 0; c_gaviota(R, 18, 164 + pica, 0.1, 0, 2); }
 }
 
 const c_PIEDRA_C = pal({ crema: '#ecdcc0', cremaS: '#cdb894', rosa: '#c47a5a', rosaS: '#9a5a40', negra: '#3a3440', marmol: '#eeeae2', marmolS: '#c8c2b8', marmolV: '#a8a098', porfido: '#8a3a3a', serp: '#3a6a5a', techo: '#1e2a4a', techoS: '#141c34' });
