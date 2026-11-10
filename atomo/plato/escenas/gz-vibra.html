@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vibra · ep30</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GZ-VIBRA (frase 9), 2025, sin cartela. El truco de Biondi: no es que el radar atraviese la roca, es que la pirámide
+// vibra. Cuatro planos:
+// 1. (0 → «It's») LOCAL plano azul (lo que dice Biondi): la cara de Kefrén de cerca, en corte, cruza el cuadro en
+//    diagonal; Biondi entra por la derecha de la tarima; el satélite manda pulsos que chocan con la cara y vuelven; en «isn't… goes through» una flecha punteada intenta entrar en la roca y le sale
+//    una X; en «rock» las aristas empiezan a temblar.
+// 2. («It's» → «His») A giza/meseta de día (o.vibra): en «vibrates» Kefrén tiembla un poco (rayitas a los lados); el
+//    turista hace una foto en «tiny bit»; en «wind» una racha le arranca el sombrero a la turista y lo lleva por la
+//    arena; en «tremors» tiembla el suelo, saltan piedrecitas y los tres dan un respingo; el camellero llega y se para.
+// 3. («His» → pausa tras «inside») LOCAL plano azul: Biondi con su portátil; Kefrén pequeña con anillos de vibración;
+//    las ondas viajan a un monitor de trazas; en «read those vibrations» se encienden los picos y en «what's inside»
+//    salen dentro las manchas magenta y una tomografía se rellena en el monitor.
+// 4. (pausa → fin) F hoy/estudio (gag 4, sin Atom de personaje): una mano canónica con un mazo de goma sube desde abajo
+//    y da golpecitos en la pared (macizo) y luego en la puerta empapelada; en «hollow» suena hueco, la puerta se abre
+//    y dentro está el armario con la ropa que se mece; la mano se retira y sale volando un calcetín.
+import * as T from '/atomo/plato/escenas/gz-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gz-vibra');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const tin = (x, y, c, a) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, a)); };
+const K = hex('#1a1420');
+const CAPAS = {};
+const capa = (k, dib) => { if (!CAPAS[k]) { const b = R.nuevo(), prev = R.usar(b); dib(); R.usar(prev); CAPAS[k] = b; } R.copiar(CAPAS[k]); };
+const sube = (u) => u * u * (3 - 2 * u);
+const PZ = Object.fromEntries(Object.entries({
+  f0: '#050c22', f1: '#08142e', f2: '#0c1a3a', f3: '#102248', f4: '#162d58', rj: '#132c56', rjM: '#1c3c70', rjC: '#2a568e',
+  hal: '#113a62', hal2: '#1a5a88', co: '#2a8ab6', ci: '#5ae0f0', br: '#c8fbff', mg: '#e67ad8', mgO: '#8a4096', mgH: '#3a1c58',
+  bl: '#f6f9ff', blO: '#a6b4d4', blH: '#34446c' }).map(([k, v]) => [k, hex(v)]));
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const b4 = (x, y) => (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const tono = (r, v, x, y) => { let l = Math.floor(v); if (v - l > b4(x, y)) l++; return r[l < 0 ? 0 : l >= r.length ? r.length - 1 : l]; };
+const ras = (x0, y0, x1, y1, fn) => {
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1, dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+  let e = dx + dy, i = 0;
+  for (;;) { fn(x0, y0, i++); if (x0 === x1 && y0 === y1) break; const e2 = 2 * e; if (e2 >= dy) { e += dy; x0 += sx; } if (e2 <= dx) { e += dx; y0 += sy; } }
+};
+// la pluma del plano (la del decorado C): halos primero y núcleos después, con el brillo que corre por las líneas.
+// Tipos: 'c' cian, 'b' brillo, 'e' cian sin halo, 'd' cian apagado, 'D' rejilla clara, 'm' magenta, 'w' blanco (lo real)
+const pluma = () => {
+  const L = [], N = [];
+  const P = {
+    l(x0, y0, x1, y1, k = 'c', pt = 0) { L.push([x0, y0, x1, y1, k, pt]); },
+    p(x, y, k = 'c') { L.push([x, y, x, y, k, 0]); },
+    caja(x0, y0, x1, y1, k = 'c', pt = 0) { P.l(x0, y0, x1, y0, k, pt); P.l(x1, y0, x1, y1, k, pt); P.l(x1, y1, x0, y1, k, pt); P.l(x0, y1, x0, y0, k, pt); },
+    poli(pts, k = 'c', pt = 0, n = pts.length) { for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; P.l(a[0], a[1], b[0], b[1], k, pt); } },
+    parte(x0, y0, x1, y1, u, k = 'c', pt = 0) { if (u <= 0) return; u = Math.min(1, u); P.l(x0, y0, x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, k, pt); if (u < 1) P.p(Math.round(x0 + (x1 - x0) * u), Math.round(y0 + (y1 - y0) * u), 'b'); },
+    flecha(x, y, dx, dy, k = 'c') { if (dy) { P.l(x - 2, y - 2 * dy, x, y, k); P.l(x + 2, y - 2 * dy, x, y, k); } else { P.l(x - 2 * dx, y - 2, x, y, k); P.l(x - 2 * dx, y + 2, x, y, k); } },
+    cotaH(x0, x1, y, k = 'c') { P.l(x0 + 1, y, x1 - 1, y, k); P.flecha(x0 + 1, y, -1, 0, k); P.flecha(x1 - 1, y, 1, 0, k); P.l(x0, y - 3, x0, y + 3, 'd'); P.l(x1, y - 3, x1, y + 3, 'd'); },
+    cotaV(x, y0, y1, k = 'c') { P.l(x, y0 + 1, x, y1 - 1, k); P.flecha(x, y0 + 1, 0, -1, k); P.flecha(x, y1 - 1, 0, 1, k); P.l(x - 3, y0, x + 3, y0, 'd'); P.l(x - 3, y1, x + 3, y1, 'd'); },
+    n(txt, x, y, col = PZ.ci) { N.push([String(txt), Math.round(x), Math.round(y), col]); },
+    pintar(t) {
+      const tenue = h(Math.floor(t * 9), 7) > 0.94;
+      const HALO = { c: PZ.hal, b: PZ.hal2, m: PZ.mgH, w: PZ.blH };
+      const NUC = { e: tenue ? PZ.co : PZ.ci, c: tenue ? PZ.co : PZ.ci, b: tenue ? PZ.ci : PZ.br, d: PZ.co, D: PZ.rjC, m: tenue ? PZ.mgO : PZ.mg, w: PZ.bl };
+      for (const [x0, y0, x1, y1, k, pt] of L) { const hc = HALO[k]; if (!hc) continue;
+        ras(x0, y0, x1, y1, (x, y, i) => { if (pt && i % pt >= pt / 2) return; R.pset(x + 1, y, hc); R.pset(x - 1, y, hc); R.pset(x, y + 1, hc); R.pset(x, y - 1, hc); }); }
+      const fase = Math.floor(t * 30); let s = 0;
+      for (const [x0, y0, x1, y1, k, pt] of L) { const c = NUC[k], corre = k === 'c' || k === 'm' || k === 'w';
+        ras(x0, y0, x1, y1, (x, y, i) => { if (pt && i % pt >= pt / 2) return; R.pset(x, y, corre && ((s + i + 4000 - fase) % 83) < 3 ? (k === 'm' ? PZ.bl : PZ.br) : c); });
+        s += 23; }
+      for (const [txt, x, y, col] of N) R.numero(txt, x, y, { fina: true, color: tenue ? PZ.co : col });
+    },
+  };
+  return P;
+};
+// el fondo del plano azul (como c_planoFondo): degradado tramado, motas, rejilla de 8/32 px con cruces, marco con
+// reglillas (sin la esquina de Atom), cajetín sin letras y, si tarima, la tarima del holograma (pies en y 172)
+const fondoAzul = (k, tarima, extra) => capa(k, () => {
+  const F = [PZ.f0, PZ.f1, PZ.f2, PZ.f3], yMax = tarima ? 160 : 180, yF = tarima ? 156 : 172;
+  for (let y = 0; y < yMax; y++) for (let x = 0; x < 320; x++) {
+    const d = Math.hypot((x - 160) / 190, (y - 86) / 120);
+    let c = tono(F, 0.5 + 1.0 * (1 - y / 200) + 1.3 * (1 - d) - (y % 3 === 0 ? 0.35 : 0), x, y);
+    if (h(x, y, 3) > 0.993) c = PZ.f4;
+    const gx = (x + 16) % 32 === 0, gy = (y + 16) % 32 === 0;
+    if (gx || gy) c = (gx && gy) ? PZ.rjC : PZ.rjM;
+    else if ((x % 8 === 0 || y % 8 === 0) && (x + y) % 2 === 0) c = PZ.rj;
+    if (((x + 16) % 32 === 0 && Math.abs((y + 16) % 32 - 16) === 14) || ((y + 16) % 32 === 0 && Math.abs((x + 16) % 32 - 16) === 14)) c = PZ.rjC;
+    if (y < 15 && x > 18 && x < 172 && (gx || gy)) c = PZ.rjM;
+    R.pset(x, y, c);
+  }
+  if (tarima) for (let y = 146; y < 160; y++) for (let x = 6; x < 314; x++) if ((y - 146) / 14 > b4(x, y) + 0.25 && y % 2 === 0) R.pset(x, y, (x + y) % 4 === 0 ? PZ.f4 : PZ.f3);
+  const M = PZ.rjC;
+  R.linea(4, 4, 270, 4, PZ.rjM); R.linea(4, 4, 4, yF, M); R.linea(4, yF, 315, yF, M); R.linea(315, 50, 315, yF, M);
+  for (let x = 12; x < 270; x += 8) R.pset(x, 5, x % 32 === 12 ? M : PZ.rjM);
+  for (let y = 12; y < yF; y += 8) { R.pset(5, y, M); if (y % 32 === 12) R.pset(6, y, M); }
+  for (let x = 8; x < 312; x += 8) { R.pset(x, yF - 1, M); if (x % 32 === 8) R.pset(x, yF - 2, M); }
+  for (const [x, y, dx, dy] of [[4, 4, 1, 1], [4, yF, 1, -1], [315, yF, -1, -1]]) { R.linea(x, y, x + 9 * dx, y, PZ.co); R.linea(x, y, x, y + 9 * dy, PZ.co); }
+  const c0 = yF - 24;
+  R.poligono([[262, c0], [313, c0], [313, yF - 1], [262, yF - 1]], (x, y) => ((x + y) % 2 ? PZ.f1 : PZ.f0));
+  R.linea(262, c0, 313, c0, M); R.linea(262, c0, 262, yF - 1, M); R.linea(262, c0 + 11, 313, c0 + 11, PZ.rjM); R.linea(288, c0, 288, yF - 1, PZ.rjM);
+  for (let k2 = 0; k2 < 3; k2++) R.linea(266, c0 + 3 + k2 * 3, 266 + [18, 12, 15][k2], c0 + 3 + k2 * 3, k2 ? PZ.rjC : PZ.co);
+  R.poligono([[272, c0 + 21], [277, c0 + 14], [282, c0 + 21]], PZ.hal2); R.linea(272, c0 + 21, 277, c0 + 14, PZ.co); R.linea(277, c0 + 14, 282, c0 + 21, PZ.co);
+  R.anillo(300, c0 + 6, 4, PZ.rjC); R.linea(300, c0 + 1, 300, c0 + 11, PZ.rjM); R.linea(295, c0 + 6, 305, c0 + 6, PZ.rjM); R.poligono([[298, c0 + 6], [300, c0 + 1], [302, c0 + 6]], PZ.co);
+  for (let k2 = 0; k2 < 4; k2++) R.linea(292, c0 + 15 + k2 * 2, 292 + [18, 10, 14, 6][k2], c0 + 15 + k2 * 2, PZ.rjC);
+  if (tarima) {
+    for (let y = 160; y < 180; y++) for (let x = 0; x < 320; x++) {
+      const u = (y - 160) / 20; let c = tono([PZ.f0, PZ.f1, PZ.f2], 1.6 - u * 1.2 + 0.4 * (1 - Math.abs(x - 160) / 160), x, y);
+      const z = (y - 70) / 90, rx = (x - 160) / z;
+      if (Math.abs(((rx % 24) + 24) % 24) < 1 / z * 0.9) c = PZ.rjM;
+      R.pset(x, y, c);
+    }
+    for (const y of [163, 167, 172]) R.linea(0, y, 319, y, PZ.rjM);
+    R.linea(0, 160, 319, 160, PZ.co); R.linea(0, 161, 319, 161, PZ.hal);
+  }
+  extra && extra();
+});
+// la roca en corte (rayado en diagonal con estratos punteados)
+const roca = (x0, y0, x1, y1, estratos = []) => {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const k = (x + y) % 7; if (k === 0 && h(x >> 2, y >> 2, 5) > 0.22) R.pset(x, y, PZ.rj); else if (k === 3 && h(x, y, 6) > 0.86) R.pset(x, y, PZ.f4);
+  }
+  for (const ey of estratos) for (let x = x0; x <= x1; x++) { const y = Math.round(ey + Math.sin(x * 0.07 + ey) * 1.5); if ((x >> 1) % 4 !== 3) R.pset(x, y, PZ.rjM); }
+};
+// la tira de señal que vibra (a la derecha, x 288–314, y 52–100) y los pilotos del cajetín
+const senal = (t, yF = 156) => {
+  R.linea(288, 52, 314, 52, PZ.rjC); R.linea(288, 100, 314, 100, PZ.rjC); R.linea(288, 52, 288, 100, PZ.rjM);
+  for (let k = 0; k < 3; k++) { const y0 = 60 + k * 15; let py = y0;
+    for (let x = 290; x < 313; x++) { const y = Math.round(y0 + Math.sin(x * (0.5 + k * 0.25) - t * (4 + k)) * (2 + k) * (0.6 + 0.4 * Math.sin(t * 0.7 + k))); R.linea(x - 1, py, x, y, k === 1 ? PZ.ci : PZ.co); py = y; } }
+  for (let k = 0; k < 3; k++) R.pset(306 + k * 3, yF - 4, (Math.floor(t * 2 + k * 0.7) % 3) === k ? PZ.ci : PZ.hal2);
+};
+// el barrido de holograma que sube (salta la esquina de Atom) y algún salto de fila
+const MAS = new Map();
+const holo = (t, yTope = 159, xa = 0, xb = 319, salto = true, yMin = 0) => {
+  if (!MAS.size) for (const [a, b] of [[PZ.f0, PZ.f1], [PZ.f1, PZ.f2], [PZ.f2, PZ.f3], [PZ.f3, PZ.f4], [PZ.f4, PZ.rjM], [PZ.rj, PZ.rjM], [PZ.rjM, PZ.rjC], [PZ.rjC, PZ.co], [PZ.hal, PZ.hal2], [PZ.hal2, PZ.co], [PZ.co, PZ.ci], [PZ.ci, PZ.br], [PZ.mgH, PZ.mgO], [PZ.mgO, PZ.mg]]) MAS.set(a, b);
+  const B = R.buf, ys = Math.round(yTope - ((t * 20) % (yTope + 30)));
+  for (let y = Math.max(yMin, ys); y <= Math.min(yTope, ys + 5); y++) {
+    const r = y * 320;
+    for (let x = xa; x <= xb; x++) { if (y < 46 && x > 274) continue; const c = B[r + x], m = MAS.get(c); if (m !== undefined) B[r + x] = (y === ys && (x & 1)) ? (MAS.get(m) ?? m) : m; }
+  }
+  const g = Math.floor(t * 8);
+  if (salto && h(g, 3) > 0.9) { const y0 = 20 + Math.floor(h(g, 4) * 130), n = 1 + Math.floor(h(g, 5) * 3), d = h(g, 6) > 0.5 ? 2 : 1;
+    for (let y = y0; y < Math.min(yTope, y0 + n); y++) B.copyWithin(y * 320 + d, y * 320, y * 320 + 320 - d); }
+};
+// una rampa en espiral alrededor de un pozo (la del decorado C): detras = solo las vueltas de atrás
+const espiral = (P, cx, ya, yb, r, p, t, detras, grueso = 1, ymax = 1e9, vel = 2.4) => {
+  let q = null;
+  for (let y = ya; y <= Math.min(yb, ymax); y += 0.35) {
+    const a = (y - ya) / p * 6.2832 - t * vel, s = Math.sin(a), x = Math.round(cx + r * Math.cos(a)), yy = Math.round(y);
+    if ((s > 0) === detras) { q = null; continue; }
+    if (q && (q[0] !== x || q[1] !== yy)) {
+      if (detras) P.l(q[0], q[1], x, yy, 'D');
+      else for (let g = 0; g < grueso; g++) P.l(q[0], q[1] + g, x, yy + g, g === 0 ? (Math.abs(Math.cos(a)) < 0.3 ? 'b' : 'e') : g === grueso - 1 ? 'd' : 'e');
+    }
+    if (!q || q[0] !== x || q[1] !== yy) q = [x, yy];
+  }
+};
+// un cubo en alambre dibujado arista a arista hasta la fracción u
+const cubo = (P, x0, y0, s, dx, dy, u, k = 'c') => {
+  const A = [[x0, y0], [x0 + s, y0], [x0 + s, y0 + s], [x0, y0 + s]], Bk = A.map(([x, y]) => [x + dx, y + dy]);
+  const ar = [[A[3], A[2], k], [A[2], A[1], k], [A[1], A[0], k], [A[0], A[3], k], [A[0], Bk[0], k], [A[1], Bk[1], k], [A[2], Bk[2], k],
+    [Bk[0], Bk[1], 'd'], [Bk[1], Bk[2], 'd'], [Bk[2], Bk[3], 'D'], [Bk[3], Bk[0], 'D'], [A[3], Bk[3], 'D']];
+  const n = u * ar.length;
+  for (let i = 0; i < ar.length && i < n; i++) { const [a, b, kk] = ar[i]; P.parte(a[0], a[1], b[0], b[1], n - i, kk); }
+};
+// la figurita de holograma (para la escala): 3 × 7 px, con las piernas que andan
+const figurita = (x, y, t, anda, c = PZ.br, c2 = PZ.ci) => {
+  x = Math.round(x); y = Math.round(y);
+  R.rect(x - 1, y - 7, x, y - 6, c); R.rect(x - 1, y - 5, x + 1, y - 3, c2); R.pset(x - 1, y - 4, c);
+  const f = anda ? Math.floor(t * 6) % 2 : 0;
+  R.pset(x - 1 + (f ? -1 : 0), y - 2, c2); R.pset(x - 1 + (f ? -1 : 0), y - 1, c2); R.pset(x + 1 + (f ? 1 : 0), y - 2, c2); R.pset(x + 1 + (f ? 1 : 0), y - 1, c2);
+};
+// el anillo que late alrededor de algo para que se lea (en código de plano)
+const marca = (x, y, r, t, c = PZ.br) => { const rr = r + Math.round(Math.sin(t * 6) * 1.2); R.anillo(Math.round(x), Math.round(y), rr, c, 2); R.anillo(Math.round(x), Math.round(y), rr + 2, PZ.hal2, 3); };
+// el portátil del ingeniero en la mano que devuelve R.actor
+const portatil = (a) => { if (a && a.mano) T.PIEZAS_GZ.portatil(R, a.mano[0] + 2, a.mano[1] + 5, { pantalla: 'azul' }); };
+
+const H = (s) => s.split(' ').map(hex);
+const W = hex('#ffffff');
+// la zona de Atom y la barra del año se quedan tranquilas: lo que se mueve no entra ahí
+const libre = (x, y) => !((x >= 274 && y <= 47) || (x >= 16 && x <= 174 && y <= 16));
+const ps = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (libre(x, y)) R.pset(x, y, c); };
+// un búfer fijo (se dibuja una vez) que se devuelve sin copiar
+const FIJO = {};
+const fijo = (k, f) => { if (!FIJO[k]) { const b = R.nuevo(), prev = R.usar(b); f(); R.usar(prev); FIJO[k] = b; } return FIJO[k]; };
+const ease = (u) => u * u * (3 - 2 * u);
+// ruido suave (bilineal) para manchas grandes sin cuadros
+const sn = (x, y, s, k = 0) => { const gx = x / s, gy = y / s, i = Math.floor(gx), j = Math.floor(gy), u = ease(gx - i), v = ease(gy - j); return lerp(lerp(h(i, j, k), h(i + 1, j, k), u), lerp(h(i, j + 1, k), h(i + 1, j + 1, k), u), v); };
+// rectángulo con borde oscuro y relleno (con función de color opcional)
+const caja = (x0, y0, x1, y1, c, borde = K) => { R.rect(x0, y0, x1, y1, borde); if (typeof c === 'function') { for (let y = y0 + 1; y < y1; y++) for (let x = x0 + 1; x < x1; x++) R.pset(x, y, c(x, y)); } else R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, c); };
+// una nube de tres bultos en tres tonos (P: sombra, medio, luz)
+const nube = (cx, cy, w, sem, P) => {
+  const a = Math.round(w * 0.34);
+  for (let j = -a; j <= Math.round(a * 0.45); j++) for (let i = -w; i <= w; i++) {
+    const d = Math.min(Math.hypot(i / (w * 0.55), (j + a * 0.25) / (a * 0.95)), Math.hypot((i + w * 0.45) / (w * 0.5), (j - a * 0.05) / (a * 0.62)), Math.hypot((i - w * 0.42) / (w * 0.52), (j - a * 0.1) / (a * 0.58)));
+    if (d > 1) continue;
+    const v = (j / a) * 1.1 + d * 0.45 - 0.25 + (h((i + sem * 13) >> 1, j >> 1, sem) - 0.5) * 0.45;
+    ps(cx + i, cy + j, v > 0.4 ? P[0] : v > -0.12 ? P[1] : P[2]);
+  }
+};
+
+const va = (f) => en('vibra', f);
+const P2 = va(0.245), P3 = va(0.5843), P4 = va(0.818);
+const BIONDI = va(0.056), NO = va(0.1106), ATRAVIESA = va(0.1596), ROCA = va(0.203);
+const VIBRA = va(0.2953), POCO = va(0.343), VIENTO = va(0.4595), TEMBLOR = va(0.538);
+const LEE = va(0.657), VIBRACIONES = va(0.688), DENTRO = va(0.769);
+const GOLPEA = va(0.8465), PARED = va(0.8887), HUECO = va(0.9457);
+const ROJO = hex('#ff5a6a');
+
+// ── 1 · plano azul: el radar no atraviesa la roca, rebota (la cara de Kefrén de cerca, en corte) ──
+// la ladera de la cara cruza el cuadro en diagonal: la roca abajo a la derecha con sus hiladas y sillares escalonados
+const LA = [24, 146], LB = [268, 50], yLad = (x) => LA[1] + (x - LA[0]) * (LB[1] - LA[1]) / (LB[0] - LA[0]);
+const sateliteAzul = (P, x, y) => {
+  P.caja(x - 6, y - 5, x + 6, y + 5, 'c'); P.l(x - 3, y - 2, x + 3, y - 2, 'd'); P.l(x - 3, y + 1, x + 3, y + 1, 'd');
+  for (const s of [-1, 1]) { const a = x + s * 8, b = x + s * 26; P.l(x + s * 6, y, a, y, 'd'); P.caja(Math.min(a, b), y - 4, Math.max(a, b), y + 4, 'c'); for (let k = 1; k < 4; k++) P.l(Math.min(a, b) + k * 4.5, y - 3, Math.min(a, b) + k * 4.5, y + 3, 'D'); }
+  P.l(x, y + 5, x, y + 9, 'c'); P.l(x - 4, y + 9, x + 4, y + 9, 'b');
+};
+const p1 = (t) => {
+  fondoAzul('vib1', true);
+  const P = pluma();
+  // la roca (tramada como en el decorado) bajo la ladera y hasta el corte vertical de la derecha
+  R.poligono([LA, LB, [LB[0], 146], [LA[0], 146]], (x, y) => ((x + y) % 4 === 0 ? PZ.hal : (x * 5 + y * 3) % 11 === 0 ? PZ.f4 : PZ.f3));
+  // hiladas horizontales y juntas de sillares a tresbolillo; los escalones del núcleo bajo el revestimiento
+  for (let y = 54; y < 146; y += 8) { const x0 = LA[0] + (y - LA[1]) * (LB[0] - LA[0]) / (LB[1] - LA[1]); P.l(x0 + 6, y, LB[0] - 2, y, 'D');
+    for (let x = Math.ceil(x0) + 8 + ((y / 8) % 2) * 9; x < LB[0] - 4; x += 18) P.l(x, y + 1, x, y + 7, 'D', 2);
+    P.l(x0 + 2, y, x0 + 6, y, 'd'); P.l(x0 + 6, y, x0 + 6, y + 8, 'd'); }
+  const tb = tramo(t, ROCA - 0.2, ROCA + 0.4), dx = tb > 0 ? Math.round(Math.sin(t * 38) * tb) : 0;
+  P.l(LA[0] + dx, LA[1], LB[0] + dx, LB[1], 'c'); P.l(LA[0] - 3 + dx, LA[1] - 2, LB[0] - 3 + dx, LB[1] - 2, 'd', 3);
+  P.l(LB[0], LB[1], LB[0], 146, 'd', 2); P.l(14, 146, 300, 146, 'c');
+  if (tb > 0) for (let k = 0; k < 9; k++) { const x = LA[0] + 20 + k * 26, y = yLad(x), s = Math.sin(t * 30 + k) > 0; P.p(x - 2, Math.round(y) - 4 - (s ? 1 : 0), 'b'); P.p(x + 2, Math.round(y) - 5 - (s ? 0 : 1), 'b'); }
+  // el satélite arriba a la izquierda y los pulsos que bajan, chocan con la cara y vuelven (eco)
+  const S = [68, 40], I = [150, Math.round(yLad(150))];
+  sateliteAzul(P, S[0], S[1]);
+  if (t > 0.6) {
+    const dxx = I[0] - S[0], dyy = I[1] - (S[1] + 10), L = Math.hypot(dxx, dyy), ux = dxx / L, uy = dyy / L;
+    for (let k = 0; k < 3; k++) {
+      const f = ((t - 0.6) * 0.75 + k / 3) % 1;
+      for (const [pos, kk] of [[f, 'c'], [1 - ((f + 0.5) % 1), 'b']]) { const cx = S[0] + dxx * pos, cy = S[1] + 10 + dyy * pos, r = 4 + pos * 7, sg = kk === 'c' ? 1 : -1;
+        for (let a = -1; a <= 1; a += 0.22) P.p(Math.round(cx - ux * r * sg * (1 - Math.cos(a)) - uy * r * Math.sin(a)), Math.round(cy - uy * r * sg * (1 - Math.cos(a)) + ux * r * Math.sin(a)), kk); }
+    }
+    const ch = (t * 3) % 1; for (let a = 0; a < 6.28; a += 0.7) P.p(Math.round(I[0] + Math.cos(a) * (2 + ch * 5)), Math.round(I[1] + Math.sin(a) * (2 + ch * 5)), ch < 0.5 ? 'b' : 'c');
+  }
+  // «isn't… goes through»: la flecha punteada que intenta entrar en la roca, y su X justo bajo la superficie
+  const fl = tramo(t, NO, ATRAVIESA + 0.3);
+  if (fl > 0) { P.parte(I[0] + 2, I[1] + 3, 176, 118, fl, 'm', 3); if (fl >= 1) P.flecha(176, 118, 1, 0, 'm'); }
+  P.pintar(t);
+  const xx = tramo(t, ATRAVIESA + 0.25, ATRAVIESA + 0.45);
+  if (xx > 0) { const s = 2 + (xx < 1 ? 1 : 0); R.icono('X', 168 - s * 2, 108 - s * 2, ROJO, PZ.f0, s); }
+  // Biondi entra por la derecha de la tarima y lo explica señalando la cara
+  const u = ease(tramo(t, 0, 1.3)), bx = Math.round(lerp(330, 238, u));
+  R.actor(EL.biondi, bx, 172, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > BIONDI + 0.3 && t < ROCA + 0.5, habla: t > 1.3 && Math.sin(t * 7) > 0, sonrisa: t > ROCA + 0.5 });
+  senal(t); holo(t, 171);
+};
+
+// ── 2 · la meseta de día: Kefrén vibra con el viento y los temblores ──
+const sombrero = (x, y, giro) => {
+  x = Math.round(x); y = Math.round(y); const w = Math.round(6 * Math.abs(Math.cos(giro))) + 1;
+  R.rect(x - w - 1, y, x + w + 1, y + 2, K); R.rect(x - w, y + 1, x + w, y + 1, hex('#e8c87a'));
+  R.rect(x - 3, y - 3, x + 3, y, K); R.rect(x - 2, y - 2, x + 2, y, hex('#f0d890')); R.rect(x - 2, y - 1, x + 2, y - 1, hex('#c83a3a'));
+};
+const p2 = (t) => {
+  const vb = Math.max(0, Math.min(1, 0.4 * tramo(t, VIBRA - 0.2, VIBRA + 0.3) + 0.6 * tramo(t, TEMBLOR - 0.25, TEMBLOR + 0.15) - 0.55 * tramo(t, TEMBLOR + 0.7, P3)));
+  const o = { encuadre: 'meseta', hora: 'dia', vibra: vb };
+  T.giza(R, t, o);
+  // las rayitas de vibración a los lados de Kefrén
+  if (vb > 0.12) { const fa = Math.floor(t * 12) % 2; for (const [x, y, s] of [[110, 58, -1], [102, 72, -1], [94, 86, -1], [192, 58, 1], [200, 72, 1], [208, 86, 1]]) for (let a = 0; a < 2; a++) { const xx = x + s * (a * 4 + fa); for (let j = -3; j <= 3; j++) { const px = xx + s * Math.round(Math.cos(j / 3 * 1.2) * 2); R.pset(px + s, y + j + 1, hex('#a88a5e')); R.pset(px, y + j, hex('#fffaf0')); } } }
+  // el viento en «wind»: rachas de arena
+  T.viento(R, t, { y0: 140, y1: 168, fuerza: 0.4 + 1.4 * tramo(t, VIENTO - 0.2, VIENTO + 0.3) * (1 - tramo(t, VIENTO + 1.4, VIENTO + 2.2)), color: hex('#f0dcac') });
+  // en «tremors», el suelo: salto y piedrecitas que botan
+  const sal = t > TEMBLOR && t < TEMBLOR + 0.7 ? Math.round(Math.abs(Math.sin((t - TEMBLOR) * 18)) * 2) : 0;
+  if (sal) for (let k = 0; k < 8; k++) { const x = 20 + k * 37, y = 164 - Math.round(Math.abs(Math.sin((t - TEMBLOR) * 14 + k)) * 4); R.pset(x, y, hex('#8a6a3e')); R.pset(x + 1, y, hex('#b8965e')); }
+  // el camellero llega por la izquierda y se para a mirar
+  const cu = tramo(t, P2, P2 + 2.4), cx = Math.round(lerp(-16, 50, cu));
+  R.actor(EL.camellero, cx, 162, t, { dir: 1, anda: cu > 0 && cu < 1, salto: sal, sorpresa: sal > 0 || (t > TEMBLOR && t < TEMBLOR + 1) });
+  // el turista hace la foto en «tiny bit»
+  const t1 = R.actor(EL.turista1, 212, 163, t, { dir: -1, sostiene: true, salto: sal, sorpresa: t > TEMBLOR && t < TEMBLOR + 1 });
+  { const [mx, my] = t1.mano; R.rect(mx - 6, my - 3, mx + 1, my + 2, K); R.rect(mx - 5, my - 2, mx, my + 1, hex('#3a3a46')); R.pset(mx - 6, my - 1, hex('#8ab8ff')); R.pset(mx - 2, my - 3, hex('#c8ccd8'));
+    if (t > POCO && t < POCO + 0.18) { for (const [a, b] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) for (let k = 1; k < 7; k++) R.pset(mx - 7 + a * k, my - 1 + b * k, W); R.disco(mx - 7, my - 1, 2, W); } }
+  // la turista: en «wind» se le vuela el sombrero, que rueda por la arena hacia la izquierda
+  const t2 = R.actor(EL.turista2, 246, 164, t, { dir: -1, salto: sal, sorpresa: (t > VIENTO && t < VIENTO + 1.2) || (t > TEMBLOR && t < TEMBLOR + 1), dedo: t > VIENTO + 1.2 && t < TEMBLOR - 0.2 });
+  const [hx, hy] = t2.cabeza, vu = t - VIENTO;
+  if (vu < 0) sombrero(hx, hy - 1, 0);
+  else if (vu < 4) sombrero(hx - vu * 64, Math.min(150, hy - 1 - Math.sin(Math.min(vu, 1) * Math.PI) * 18 + vu * 6) + (vu > 1 ? Math.abs(Math.sin(vu * 6)) * -3 : 0), vu * 9);
+  T.gizaDelante(R, t, o);
+  // el temblor sacude el cuadro un píxel
+  if (sal) { const B = R.buf, d = Math.floor(t * 30) % 2 ? 1 : -1; for (let y = 0; y < 180; y++) { const r = y * 320; if (d > 0) B.copyWithin(r + 1, r, r + 319); else B.copyWithin(r, r + 1, r + 320); } }
+};
+
+// ── 3 · plano azul: leer las vibraciones para ver lo de dentro ──
+const QS = { ax: 112, ay: 54, yb: 132, hw: 50 };
+const p3 = (t) => {
+  fondoAzul('vib3', true);
+  const P = pluma(), xl = (y, e = 1) => QS.ax - (y - QS.ay) / (QS.yb - QS.ay) * QS.hw * e, xr = (y, e = 1) => QS.ax + (y - QS.ay) / (QS.yb - QS.ay) * QS.hw * e;
+  R.poligono([[QS.ax, QS.ay], [xr(QS.yb), QS.yb], [xl(QS.yb), QS.yb]], (x, y) => ((x + y) % 4 === 0 ? PZ.hal : (x * 5 + y * 3) % 11 === 0 ? PZ.f4 : PZ.f3));
+  for (let y = QS.ay + 3; y < QS.yb; y++) for (let x = Math.ceil(xl(y)) + 1; x < xr(y); x++) if ((x + y) % 7 === 0 && h(x >> 2, y >> 2, 6) > 0.35) R.pset(x, y, PZ.rjM);
+  P.l(xl(QS.yb), QS.yb, QS.ax, QS.ay, 'c'); P.l(QS.ax, QS.ay, xr(QS.yb), QS.yb, 'c'); P.l(14, QS.yb, 176, QS.yb, 'c');
+  for (let y = QS.ay + 9; y < QS.yb; y += 9) P.l(xl(y) + 2, y, xr(y) - 2, y, 'D', 4);
+  // los anillos de vibración alrededor de la pirámide (el contorno que late hacia fuera)
+  for (let k = 0; k < 3; k++) { const f = (t * 0.9 + k / 3) % 1, e = 8 + f * 22, cy = QS.yb;
+    if (f > 0.85) continue;
+    P.l(xl(cy) - e, cy, QS.ax, QS.ay - e * 1.2, f < 0.5 ? 'd' : 'D', 3); P.l(QS.ax, QS.ay - e * 1.2, xr(cy) + e, cy, f < 0.5 ? 'd' : 'D', 3); }
+  // las tres ondas que viajan al monitor
+  for (let k = 0; k < 3; k++) { const y0 = 72 + k * 16; let py = y0;
+    for (let x = Math.round(xr(y0)) + 4; x < 184; x++) { const y = Math.round(y0 + Math.sin(x * 0.45 - t * 9 + k) * (1.5 + k * 0.5)); if (x % 2 === 0) P.l(x - 1, py, x, y, k === 1 ? 'b' : 'c'); py = y; } }
+  // el monitor de trazas, con sus filas que corren y los picos que se encienden en «read those vibrations»
+  P.caja(184, 32, 270, 126, 'c'); P.caja(186, 34, 268, 124, 'D');
+  const pico = tramo(t, VIBRACIONES - 0.2, VIBRACIONES + 0.4);
+  for (let r = 0; r < 5; r++) { const y0 = 42 + r * 11; let py = y0;
+    for (let x = 190; x < 266; x++) { const ph = x * 0.6 + t * 10 + r * 2, env = 0.6 + 2.4 * Math.max(0, Math.sin((x - 190) * 0.09 - t * 1.5 + r)) ** 3, y = Math.round(y0 + Math.sin(ph) * env * (0.5 + 0.5 * tramo(t, LEE - 0.3, LEE + 0.3)));
+      P.l(x - 1, py, x, y, pico > 0 && env > 2 ? 'b' : r % 2 ? 'd' : 'c'); py = y; } }
+  // en «what's inside»: la tomografía que se rellena abajo en el monitor y las manchas magenta dentro de la pirámide
+  const den = tramo(t, DENTRO - 0.3, DENTRO + 0.6);
+  P.l(188, 98, 266, 98, 'D');
+  for (let j = 0; j < 6; j++) for (let i = 0; i <= j * 2; i++) { const k = j * j + i, cx = 227 - j * 4 + i * 4, cy = 100 + j * 4; if (k / 36 > den) continue; const mg = (j === 3 && i === 3) || (j === 4 && i === 6) || (j === 5 && i === 2);
+    R.rect(cx, cy, cx + 2, cy + 2, mg ? PZ.mg : (i + j) % 2 ? PZ.co : PZ.hal2); }
+  if (den > 0) for (const [x0, y0, x1, y1] of [[100, 96, 112, 102], [118, 110, 128, 115], [96, 120, 104, 125]]) { const m = Math.min(1, den * 1.5); if (m <= 0) continue;
+    R.poligono([[x0, y0], [x1 + 1, y0], [x1 + 1, y1 + 1], [x0, y1 + 1]], (x, y) => ((x + y) % 2 ? PZ.mgH : PZ.f2)); P.caja(x0, y0, x1, y1, 'm');
+    if (den < 1) { const r = 3 + den * 10; for (let a = 0; a < 6.28; a += 0.35) P.p(Math.round((x0 + x1) / 2 + Math.cos(a) * r), Math.round((y0 + y1) / 2 + Math.sin(a) * r * 0.7), 'm'); } }
+  P.pintar(t);
+  // Biondi a la izquierda con su portátil: teclea, lo cuenta y sonríe al ver lo de dentro
+  const b = R.actor(EL.biondi, 22, 172, t, { dir: 1, sostiene: true, habla: t > LEE - 0.4 && t < DENTRO && Math.sin(t * 7) > 0, sonrisa: t > DENTRO });
+  portatil(b);
+  if (t > DENTRO + 0.2 && Math.floor(t * 4) % 2) R.icono('!', 34, 128, PZ.br, PZ.f0, 1);
+  senal(t); holo(t, 171);
+};
+
+// ── 4 · el estudio: los golpecitos en la pared y el armario (gag 4) ──
+const K1 = [104, 118], K2 = [124, 112], K3 = [132, 104];
+const golpes = [[GOLPEA, K1], [GOLPEA + 0.4, K1], [PARED + 0.25, K2], [HUECO, K3]];
+const mazo = (gx, gy, hx, hy) => {
+  // el mango de madera (de la mano G a la cabeza Hd), con su luz, y la cabeza de goma roja de lado
+  const dx = hx - gx, dy = hy - gy, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+  for (let s = -1.5; s <= 1.5; s += 0.5) R.linea(Math.round(gx - ux * 5 + nx * s), Math.round(gy - uy * 5 + ny * s), Math.round(hx + nx * s), Math.round(hy + ny * s), Math.abs(s) > 1 ? K : s < 0 ? hex('#e0b070') : hex('#9a6a32'));
+  const pts = [[-7, -4], [7, -4], [7, 4], [-7, 4]].map(([a, b]) => [hx + nx * a + ux * b, hy + ny * a + uy * b]);
+  R.poligono(pts.map(([x, y]) => [Math.round(x), Math.round(y)]), (x, y) => { const s = (x - hx) * ux + (y - hy) * uy; return s < -2 ? hex('#e86a5a') : s > 2 ? hex('#8a1e26') : hex('#c8303a'); });
+  for (let i = 0; i < 4; i++) R.linea(Math.round(pts[i][0]), Math.round(pts[i][1]), Math.round(pts[(i + 1) % 4][0]), Math.round(pts[(i + 1) % 4][1]), K);
+  for (const sg of [-1, 1]) R.linea(Math.round(hx + nx * 7 * sg - ux * 3), Math.round(hy + ny * 7 * sg - uy * 3), Math.round(hx + nx * 7 * sg + ux * 3), Math.round(hy + ny * 7 * sg + uy * 3), hex('#5a141a'));
+};
+const calcetin = (x, y, g) => { x = Math.round(x); y = Math.round(y); const d = g ? -1 : 1;
+  R.rect(x - 3, y - 10, x + 3, y + 1, K); R.rect(x - 2, y - 9, x + 2, y, W); for (const j of [-8, -5, -2]) R.rect(x - 2, y + j, x + 2, y + j, hex('#c83a3a')); R.rect(x - 2, y - 9, x + 2, y - 9, hex('#3a6ad8'));
+  const x2 = Math.min(x + d, x + d * 7), x3 = Math.max(x + d, x + d * 7); R.rect(x2, y - 3, x3, y + 2, K); R.rect(x2 + 1, y - 2, x3 - 1, y + 1, W); R.rect(x2 + (d > 0 ? 3 : 1), y - 2, x3 - (d > 0 ? 1 : 3), y + 1, hex('#c83a3a')); };
+const p4 = (t) => {
+  const abre = ease(tramo(t, HUECO + 0.12, HUECO + 0.6)), o = { encuadre: 'estudio', armario: abre };
+  T.hoy(R, t, o); T.hoyDelante(R, t, o);
+  // dónde golpea la cabeza del mazo y cuánto está echada hacia atrás
+  let W0 = K1; if (t > GOLPEA + 0.55) W0 = [lerp(K1[0], K2[0], ease(tramo(t, GOLPEA + 0.55, PARED))), lerp(K1[1], K2[1], ease(tramo(t, GOLPEA + 0.55, PARED)))];
+  if (t > PARED + 0.4) W0 = [lerp(K2[0], K3[0], ease(tramo(t, PARED + 0.4, HUECO - 0.35))), lerp(K2[1], K3[1], ease(tramo(t, PARED + 0.4, HUECO - 0.35)))];
+  let atras = 0.25; for (const [tk] of golpes) { const d = Math.abs(t - (tk - 0.14)); if (t < tk + 0.05 && t > tk - 0.3) atras = Math.max(0, Math.min(1, 1 - d / 0.14)); if (t >= tk && t < tk + 0.05) atras = 0; }
+  const sube = 1 - ease(tramo(t, P4, P4 + 0.4)), baja = ease(tramo(t, HUECO + 0.1, HUECO + 0.45)), dy = Math.round((sube + baja) * 80);
+  const hd = [W0[0] + 5 + atras * 7, W0[1] - 1 - atras * 2 + dy], g = [W0[0] + 22 + atras * 6, W0[1] + 26 + dy];
+  // los golpes: polvo en la pared maciza; en la puerta, en «hollow», los anillos de hueco
+  for (const [tk, k] of golpes) { const u = (t - tk) / 0.5; if (u > 0 && u < 1) { if (k === K3) { for (let q = 0; q < 3; q++) { const r = Math.round(3 + (u + q * 0.3) * 14); if ((u + q * 0.3) < 1) { R.anillo(k[0], k[1], r, hex('#5a3a1a')); R.anillo(k[0], k[1], r + 1, q % 2 ? hex('#ffe890') : W); } } } else for (let q = 0; q < 4; q++) R.pset(k[0] - 1 - q, Math.round(k[1] - 2 + q * 2 + u * 10), hex('#d8c8a0')); } }
+  if (dy < 70) { mazo(g[0], g[1], hd[0], hd[1]); T.brazo(R, g[0] + 34, g[1] + 62, g[0] + 6, g[1] + 2, '#3a5a8a', -1, { codo: [g[0] + 30, g[1] + 32] }); }
+  // el calcetín que sale volando del armario abierto y cae al suelo
+  const cu = tramo(t, HUECO + 0.45, HUECO + 1.2);
+  if (cu > 0) calcetin(lerp(140, 98, cu), cu < 1 ? 92 - Math.sin(cu * Math.PI) * 26 + cu * 66 : 158 - Math.abs(Math.sin((t - HUECO - 1.2) * 9)) * 3 * Math.max(0, 1 - (t - HUECO - 1.2) * 2), cu > 0.5);
+};
+
+const efectos = [[0.7, 'bip'], [ATRAVIESA + 0.25, 'aviso'], [POCO, 'flash'], [VIENTO, 'rafaga'], [TEMBLOR, 'boom'], [LEE, 'bip'], [DENTRO, 'brillo'],
+  [GOLPEA, 'toc'], [GOLPEA + 0.4, 'toc'], [PARED + 0.25, 'golpecito'], [HUECO, 'golpecito'], [HUECO + 0.15, 'puerta'], [HUECO + 1.2, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2025 });
+</script>
+</body>
+</html>
