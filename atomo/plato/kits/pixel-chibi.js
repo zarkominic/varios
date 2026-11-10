@@ -7663,3 +7663,453 @@ export const PIEZAS_NC = {
   telefono: telefonoNC, sacoCartas: sacoCartasNC, pancarta: pancartaNC, microfono: microfonoNC, 'paño': panoNC, pano: panoNC,
   jarabe: jarabeNC, dolar: dolarNC, escaner: escanerNC, cerebro: cerebroNC,
 };
+
+// ── Episodio 29 · Piri Reis ──
+// (el mapa de 1513): el Galípoli de 1475, las galeras de Kemal Reis y el prisionero de 1501, Colón y los pilotos
+// portugueses, el Cairo de Selim I en 1517, los monjes de san Brandán, el palacio de Topkapı en 1929, el college de
+// Hapgood (1956–1966), la Fuerza Aérea en 1960, Von Däniken en 1968 y el museo de hoy.
+// DERECHOS: el mapa es de 1513 y se dibuja a nuestra manera en pixel, sin letras (los textos son garabatos); nada de
+// logotipos ni de insignias reconocibles; nada de fez en 1929 (prohibido desde 1925). Las personas reales, por sus
+// atributos y con respeto; los otomanos sin caricatura: turbantes y caftanes de su época, como los de los retratos.
+// Nombres nuevos con PR.
+
+// tocados nuevos del 29
+Object.assign(TOCADOS, {
+  // el turbante otomano grande del siglo XVI: la tela blanca enrollada en vueltas (X, los pliegues x), más ancha que la
+  // cabeza, con la copa roja del gorro (kavuk, D/d) que asoma arriba; acaba encima de las cejas: la cara entera
+  turbantePR: [[
+    '.....kkkkk.....',
+    '....kDDdDDk....',
+    '..kkkDDDDdkkk..',
+    '.kXXxkkkkkkXXk.',
+    'kXXXXXxxXXXXXXk',
+    'kXxXXXXXXxxXXXk',
+    'kXXxxXXXXXXxXXk',
+    'kxXXXxxXXXXXxXk',
+    '.kkkkkkkkkkkkk.',
+  ], -5],
+  // el turbante alto del sultán (Selim I): un cilindro blanco alto (X, las vueltas x en diagonal) con el penacho de
+  // delante: la joya de oro (O/g) y la pluma blanca (W)
+  turbanteAltoPR: [[
+    '.........k.....',
+    '........kWk....',
+    '........kWk....',
+    '...kkkkkkWkk...',
+    '..kXXXXXXWXXk..',
+    '..kxxXXXOOXXk..',
+    '..kXXxxXOgXxk..',
+    '..kXXXXxxXXXk..',
+    '..kxXXXXXxxXk..',
+    '.kXXxxXXXXXXk..',
+    'kXXXXXxxXXXXXk.',
+    'kxXXXXXXxxXXXk.',
+    '.kkkkkkkkkkkk..',
+  ], -9],
+  // el sombrero de ala ancha y copa baja del capitán portugués (J/j) con la pluma blanca (W) que cae por detrás
+  sombreroPlumaPR: [[
+    'kk.............',
+    'kWkk...........',
+    '.kWWk.kkkkk....',
+    '..kkWkJJJJJk...',
+    '.kkkkJJjJJJJkk.',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+});
+
+// ── cuerpos ──
+// el caftán otomano largo hasta los tobillos (C/c), abierto por delante sobre la túnica de debajo (I), con el fajín
+// ancho (G) y las babuchas (n): Piri, Kemal, el visir
+const CUERPO_CAFTAN_PR = [
+  '...kkIIIIIkk...',
+  '..kCCCIIICCCk..',
+  '.kCkCCIIICCkCk.',
+  '.kCkCCIIICCkCk.',
+  '.kCkCCIIICCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCIIICCkk..',
+  '...kCCIIICCk...',
+  '...kCCIIICCk...',
+  '...kCcIIIcCk...',
+  '...kccIIIcck...',
+  '...kknnkknnkk..',
+  '....kkk.kkk....',
+];
+// el del sultán: el mismo caftán con las pieles (M/m) en el cuello y por el borde de delante, y sin fajín (I)
+const CUERPO_CAFTAN_PIEL_PR = parche(CUERPO_CAFTAN_PR, [[4, 0, 'MMMMMMM'], [3, 1, 'MMM...MMM'], [5, 2, 'M...M'], [5, 3, 'm...M'], [5, 4, 'M...m'], [4, 5, 'CMIIIMC'], [5, 6, 'M...M'], [5, 7, 'm...M'], [5, 8, 'M...m'], [5, 9, 'M...M'], [5, 10, 'm...M']]);
+// el niño de 1475: la camisa blanca (W) con el chaleco abierto (C), el fajín (G), los calzones anchos (F) y las babuchas (n)
+const CUERPO_NINO_PR = [
+  '...kkWWWWWkk...',
+  '..kCCWWWWWCCk..',
+  '.kWkCCWWWCCkWk.',
+  '.kSkCCWWWCCkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkFFFFFFFkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el marinero de galera: la camisa blanca (W) remangada y abierta al cuello, el fajín (G), los calzones anchos (F/f) y
+// descalzo
+const CUERPO_GALERA_PR = [
+  '...kkSSSSSkk...',
+  '..kWWWSSSWWWk..',
+  '.kWkWWWSWWWkWk.',
+  '.kWkWWWWWWWkWk.',
+  '.kSkWWWWWWWkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kFFFFFFFFFk..',
+  '..kFFFFkFFFFk..',
+  '..kFFFFkFFFFk..',
+  '..kfFFkkkFFfk..',
+  '...kkSk.kSkk...',
+  '....kSk.kSk....',
+  '...kkkk.kkkk...',
+];
+// la camisa de lino abierta al cuello (C) con las calzas (F): el prisionero español de 1501
+const CUERPO_LINO_PR = parche(CUERPO_EUROPEO, [[5, 0, 'SSSSS'], [6, 1, 'SSS'], [7, 2, 'S'], [7, 3, 'C'], [7, 4, 'C'], [7, 5, 'C'], [4, 5, 'GGGGGGG']]);
+// el jubón con la capa por detrás (capaPR) lo da CUERPO_JUBON_TR; el traje de tres piezas: el chaleco (V) asoma entre
+// las solapas, con la cadena del reloj (O)
+const CUERPO_TRES_PIEZAS_PR = parche(CUERPO_TRAJE_DC, [[6, 2, 'VoV'], [6, 3, 'VoV'], [6, 4, 'OoV'], [6, 5, 'VCV']]);
+// la americana de tweed (C, motas c) con las coderas de cuero (p) y la corbata (o): Hapgood
+const CUERPO_CODERAS_PR = parche(CUERPO_TWEED_VM, [[2, 3, 'p'], [2, 4, 'p'], [12, 3, 'p'], [12, 4, 'p']]);
+// la chaqueta universitaria de finales de los cincuenta: el cuerpo de paño (C) con las mangas de cuero claro (X) y el
+// canalé del bajo (x); sin letras
+const CUERPO_VARSITY_PR = parche(CUERPO_EUROPEO, [[3, 1, 'X'], [11, 1, 'X'], [2, 2, 'X'], [2, 3, 'X'], [2, 4, 'X'], [12, 2, 'X'], [12, 3, 'X'], [12, 4, 'X'], [4, 6, 'xxxxxxx'], [7, 3, 'X'], [7, 5, 'X']]);
+// el jersey (C) con la blusa (W) y la falda de vuelo (F, pliegues f) por debajo de la rodilla
+const CUERPO_VUELO_PR = parche(CUERPO_FALDA_VM, [[2, 8, 'kFFFFFFFFFk'], [2, 9, 'kFfFFFFFfFk'], [2, 10, 'kkkkkkkkkkk']]);
+// el traje oscuro del conservador con los guantes blancos de algodón (X)
+const CUERPO_GUANTES_PR = parche(CUERPO_TRAJE_DC, [[2, 5, 'X'], [12, 5, 'X']]);
+
+// ── cabezas ──
+// calvo con la barba blanca corta (Deissmann): el pelo solo detrás de la oreja
+const CAB_CALVA_BARBA_PR = parche(CAB_CALVA_ENTRADAS_DC, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+
+// ── detalles ──
+const PAL_MANO_PR = { ...PAL_MANO, ...COLORES({ X: '#efe2b8', x: '#c8b080', R: '#b84a32', A: '#3a6aa8', V: '#6a9a4a', O: '#e0b040', g: '#a87a18', B: '#8a5a2e', I: '#cfe2ea', K: '#2a2430', Z: '#b8bcc8' }) };
+// el alfanje al cinto (Kemal): el pomo y la guarda de oro (O) y la empuñadura (B) sobre el fajín, y la vaina negra (K)
+// curva que baja hacia atrás y asoma por debajo del caftán con la contera de oro
+const alfanjePR = (c) => {
+  const K = hex('#2a2430'), O = hex('#e0b040'), B = hex('#6a4422');
+  c.cuerpo.px(8, 2, O); c.cuerpo.px(7, 3, B); c.cuerpo.px(7, 4, B); c.cuerpo.px(5, 5, O); c.cuerpo.px(6, 5, O); c.cuerpo.px(7, 5, O);
+  for (const [i, j] of [[5, 6], [4, 7], [4, 8], [3, 9], [3, 10], [2, 11]]) { c.cuerpo.px(i, j, K); c.cuerpo.px(i + 1, j, K); }
+  c.cuerpo.px(1, 11, P.k); c.cuerpo.px(2, 12, P.k); c.cuerpo.px(1, 12, O);
+};
+// la capa por detrás (Q/q), larga hasta los tobillos: Colón y Cabral
+const capaPR = capaVM;
+// la capucha bajada del hábito, caída sobre la espalda
+const capuchaPR = capuchaTS;
+// la carta de navegación en la mano (el piloto portugués): el pergamino (X) con la costa (R/V) y un rumbo (A)
+const conCartaPR = enMano(['kkkkkkk', 'kXRVXAk', 'kXXRAXk', 'kXAXRXk', 'kkkkkkk'], 11, 2, PAL_MANO_PR);
+// el catalejo de latón (O, sombra g) con el cuero (B) y la lente (I): el capitán de 1820
+const conCatalejoPR = enMano(['kkkkkkkkk', 'kBBgOOOIk', 'kkkkkkkkk'], 10, 4, PAL_MANO_PR);
+
+// ── el reparto del 29 ──
+const B29 = B23, B29N = B23N;
+// la piel de los otomanos y los mediterráneos (un poco más morena que la clara)
+const OTO = (o) => CLARA({ S: '#e8b07e', s: '#bc7c4e', n: '#2a2430', ...o });
+export const ELENCO_PR = {
+  // ── Galípoli, 1475 y las galeras (1487–1511) ──
+  // Piri de niño: el turbante pequeño blanco, la camisa blanca con el chaleco azul, los calzones y las babuchas rojas
+  piriNino: { ...B29N, cuerpo: CUERPO_NINO_PR, tocado: 'turbante', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: OTO({ H: '#1c1424', h: '#3a3046', A: '#f4f0e4', a: '#cfc6b0', W: '#f4f0e4', C: '#2e5a9a', c: '#22447a', G: '#c8402e', F: '#d8ccb0', n: '#a83a2a' }) },
+  // Piri Reis en 1513: la barba negra cuidada, el turbante blanco grande, el caftán azul con el fajín rojo; capitán de mar
+  piri: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#1c1424'),
+    pal: OTO({ H: '#1c1424', h: '#3a3046', X: '#f6f2e8', x: '#cfc6b0', D: '#c8402e', d: '#922c22', C: '#2e5a9a', c: '#22447a', I: '#e8dcb8', G: '#c8402e' }) },
+  // Piri mayor (el cierre): la misma ropa, con la barba gris
+  piriMayor: { ...B29, cab: CAB_BARBA, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#9a9aa4'), delante: arrugasDC,
+    pal: OTO({ H: '#a8a8b2', h: '#c8c8d0', X: '#f6f2e8', x: '#cfc6b0', D: '#c8402e', d: '#922c22', C: '#2e5a9a', c: '#22447a', I: '#e8dcb8', G: '#c8402e' }) },
+  // Kemal Reis, el tío corsario: la barba negra espesa, el turbante con la copa verde, el caftán rojo, el fajín verde
+  // y el alfanje al cinto
+  kemal: { ...B29, cab: CAB_BARBA, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#14101a'), delante: alfanjePR,
+    pal: OTO({ H: '#14101a', h: '#2e2638', X: '#f6f2e8', x: '#cfc6b0', D: '#3a7a4a', d: '#285a34', C: '#a8302a', c: '#7a2420', I: '#e8dcb8', G: '#3a7a4a' }) },
+  // los marineros de las galeras: el gorro rojo ceñido (uno) y el turbante corto de tela cruda (el otro), la camisa
+  // blanca remangada, el fajín y los calzones anchos
+  marineroOtomano1: { ...B29, cuerpo: CUERPO_GALERA_PR, tocado: 'pileo', ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', J: '#c0382e', j: '#8a2620', W: '#f2eee2', G: '#3a6a8a', F: '#d8ccb0', f: '#b0a488' }) },
+  marineroOtomano2: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_GALERA_PR, tocado: 'turbante', ceja: hex('#4a2a18'),
+    pal: OTO({ S: '#d09a6a', s: '#a46e44', H: '#4a2a18', h: '#6a4428', A: '#d8c8a0', a: '#b0a078', W: '#ece6d4', G: '#a8302a', F: '#5a6a8a', f: '#46546e' }) },
+  // el prisionero español de 1501: la barba rubia corta, la camisa de lino abierta, las calzas y el gorro de lana rojo
+  prisionero: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_LINO_PR, tocado: 'gorroPuntoDC', ceja: hex('#a8743a'),
+    pal: CLT({ H: '#c89a4a', h: '#e0b464', J: '#a8402e', j: '#7a2e22', C: '#e8dcc0', c: '#c4b494', G: '#6a4422', F: '#6a5a46', W: '#e8dcc0', o: '#e8dcc0' }) },
+  // otro marinero español (la camisa de lino, el chaleco y el gorro de lana): el de La Dauphine (ep15) ya sirve
+  marineroEspanol: ELENCO_NY.marinero,
+  // ── Colón y los portugueses (1492–1500) ──
+  // Cristóbal Colón hacia 1500: el pelo canoso hasta los hombros (por detrás de la cara), sin barba, el gorro negro, el
+  // jubón granate y la capa oscura
+  colon: { ...B29, cab: CAB_LARGO, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#9a9aa4'), detras: capaPR,
+    pal: CLT({ H: '#d8d8de', h: '#f2f2f6', J: '#24222c', j: '#3e3a48', C: '#7a2a3a', c: '#5a1e2a', o: '#7a2a3a', G: '#3a2a20', F: '#3a3046', n: '#24202a', Q: '#2a2e3e', q: '#1c1f2c' }) },
+  // el piloto portugués: el gorro pardo, el jubón verde y la carta de navegación en la mano
+  pilotoPortugues: { ...B29, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#3a2418'), delante: varios(bigoteTR, conCartaPR),
+    pal: CLT({ S: '#eab486', s: '#c08050', H: '#3a2418', h: '#5a3a24', J: '#6a4a2a', j: '#8a6440', C: '#3a6a4a', c: '#2a5038', o: '#3a6a4a', G: '#5a3a20', F: '#5a4a3a', n: '#2a2430' }) },
+  // Cabral, el capitán portugués: la barba castaña, el sombrero de ala con la pluma, el jubón negro con oro y la capa granate
+  cabral: { ...B29, cab: CAB_BARBA, cuerpo: CUERPO_JUBON_TR, tocado: 'sombreroPlumaPR', ceja: hex('#4a2a18'), detras: capaPR,
+    pal: CLT({ S: '#eab486', s: '#c08050', H: '#5a3a20', h: '#7a5434', J: '#24222c', j: '#3e3a48', W: '#f6f6f6', C: '#2a2832', c: '#1c1a22', o: '#d8a838', G: '#d8a838', F: '#2a2832', n: '#1c1a22', Q: '#7a2a32', q: '#561c24' }) },
+  // ── El Cairo, 1517 ──
+  // el sultán Selim I: el turbante alto blanco con la joya y la pluma, el bigote largo sin barba, el caftán de oro con pieles
+  selim: { ...B29, cuerpo: CUERPO_CAFTAN_PIEL_PR, tocado: 'turbanteAltoPR', ceja: hex('#14101a'), delante: bigoteGrandeVM,
+    pal: OTO({ H: '#14101a', h: '#2e2638', X: '#f8f6ee', x: '#d2cab4', W: '#ffffff', O: '#e0b040', C: '#d8a838', c: '#a87a20', I: '#a8302a', M: '#8a5a34', m: '#6a4224' }) },
+  // el visir (el cortesano del sultán): el turbante blanco con la copa roja, el caftán verde y el fajín blanco
+  visir: { ...B29, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#5a5a66'), delante: bigoteTR,
+    pal: OTO({ H: '#6a6a74', h: '#8a8a94', X: '#f6f2e8', x: '#cfc6b0', D: '#a8302a', d: '#7a2420', C: '#3a7a4a', c: '#285a34', I: '#e8dcb8', G: '#f2eee2' }) },
+  // ── los monjes de san Brandán ──
+  // la tonsura, el hábito pardo con la capucha bajada y la cuerda; el joven y el mayor (canoso)
+  monje1: { ...B29, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), detras: capuchaPR,
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', C: '#7a5a3a', c: '#5a4028', o: '#7a5a3a', G: '#d8c8a0', L: '#3a2a1a' }) },
+  monje2: { ...B29, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a94'), detras: capuchaPR, delante: arrugasDC,
+    pal: CLT({ H: '#b8b8c0', h: '#d8d8de', C: '#6a4a30', c: '#4e3622', o: '#6a4a30', G: '#d8c8a0', L: '#3a2a1a' }) },
+  // ── Topkapı, 1929, y Berlín ──
+  // Halil Edhem: el pelo blanco, el bigote blanco, el traje oscuro y el sombrero de ala (nada de fez)
+  edhem: { ...B29, cuerpo: CUERPO_TRAJE_DC, tocado: 'fedora', ceja: hex('#b8b8c2'), delante: varios(bigoteCanoDC, arrugasDC),
+    pal: CLT({ H: '#d8d8de', h: '#f2f2f6', C: '#2a2e3a', c: '#1e212a', W: '#f2eee2', o: '#5a2a32', F: '#3a3e4a', G: '#1c1a22' }) },
+  // Deissmann, el estudioso alemán: calvo con la barba blanca corta, las gafas redondas y el traje gris de tres piezas
+  deissmann: { ...B29, cab: CAB_CALVA_BARBA_PR, cuerpo: CUERPO_TRES_PIEZAS_PR, ceja: hex('#b8b8c2'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#e8e8ee', h: '#f6f6f8', C: '#6a6c74', c: '#52545a', V: '#4a4c54', O: '#e0b040', W: '#f2eee2', o: '#3a3e4a', F: '#6a6c74' }) },
+  // Kahle, el experto en lenguas: la barba oscura, las gafas redondas y el traje pardo
+  kahle: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#2a1c14'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#6a5440', c: '#524030', W: '#f2eee2', o: '#2a3a5a', F: '#524030' }) },
+  // el operario de la imprenta (gorro de papel, camisa remangada y mandil de cuero manchado): el impresor del 22 ya sirve
+  impresor: ELENCO_NV.impresor,
+  // ── el college de Hapgood (1956–1966) ──
+  // Charles Hapgood: el pelo blanco, gafas, la americana de tweed con coderas y la corbata
+  hapgood: { ...B29, cab: CAB_ENTRADAS, cuerpo: CUERPO_CODERAS_PR, ceja: hex('#b8b8c2'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#f6f6f8', C: '#8a7a5a', c: '#6a5c42', p: '#5a3a22', W: '#f2eee2', o: '#7a2a32', F: '#5a5246' }) },
+  // los estudiantes de finales de los cincuenta: la chaqueta universitaria granate; ella, la coleta, el jersey y la
+  // falda de vuelo; el otro, la camisa clara de cuadros por fuera
+  alumno1: { ...B29, cab: CAB_LADO_DC, cuerpo: CUERPO_VARSITY_PR, ceja: hex('#6a4426'),
+    pal: CLT({ H: '#8a6040', h: '#a87a50', C: '#7a2a32', c: '#5a1e26', X: '#f0e6cc', x: '#5a1e26', W: '#f2eee2', o: '#7a2a32', F: '#3a4a6a' }) },
+  alumna1: { ...B29, cuerpo: CUERPO_VUELO_PR, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', s: '#e8a080', C: '#f0e0b0', c: '#d0bc88', W: '#f6f6f6', F: '#e88aa0', f: '#c06a80', L: '#2a2430', o: '#f0e0b0' }) },
+  alumno2: { ...B29, cab: CAB_CORTA_VM, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#4a7aa8', c: '#365c80', p: '#e8e4dc', W: '#e8e4dc', F: '#c8b890', n: '#4a3020' }) },
+  // ── la Fuerza Aérea de EE. UU., 1960 ──
+  // Ohlmeyer, teniente coronel: el uniforme azul y la gorra de plato, sin insignias reconocibles
+  ohlmeyer: { ...B29, cuerpo: CUERPO_AF_DC, tocado: 'general', ceja: hex('#5a4a40'),
+    pal: CLT({ H: '#6a5a4e', h: '#8a7a6e', C: '#3a4a72', c: '#2a3658', O: '#3a4a72', W: '#a8c0e0', J: '#1e2436', D: '#8a3a3a', A: '#3a5a9a', Y: '#c8b060', F: '#3a4a72' }) },
+  // ── 1966–1968 ──
+  // el librero de 1966: las entradas canosas, las gafas finas y la rebeca parda sobre la camisa
+  librero: { ...B29, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA_DC, ceja: hex('#7a7a84'), delante: gafasFinasDC,
+    pal: CLT({ H: '#9a9aa4', h: '#b8b8c2', C: '#7a5a3a', c: '#5e442a', W: '#f2eee2', J: '#3a4a3a', o: '#c8a040', F: '#4a4a54', n: '#2a2430' }) },
+  // Erich von Däniken en 1968: las gafas grandes, el pelo castaño peinado hacia atrás, el traje y la corbata de los sesenta
+  daniken: { ...B29, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#5a3a20'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#4a5468', c: '#384050', W: '#f2f2f6', o: '#2a2a3a', F: '#4a5468' }) },
+  // ── hoy ──
+  // McIntosh, el historiador: gafas, la barba gris corta y el chaleco de punto verde sobre la camisa
+  mcintosh: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#8a8a94'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', C: '#4a6a4a', c: '#36503a', W: '#dce6f0', o: '#36503a', F: '#5a5246' }) },
+  // el conservador del museo: el pelo corto, el traje oscuro y los guantes blancos de algodón
+  conservador: { ...B29, cab: CAB_SIENES, cuerpo: CUERPO_GUANTES_PR, ceja: hex('#3a2418'),
+    pal: MOT({ H: '#3a2418', h: '#5a3a24', w: '#c8c8d2', C: '#2a2e3a', c: '#1e212a', W: '#f2eee2', X: '#ffffff', o: '#3a5a8a', F: '#2a2e3a' }) },
+  // la guía del museo: la media melena, el jersey de pico azul petróleo
+  guia: { ...B29, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PICO_DC, ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', s: '#e8a080', C: '#2a6a7a', c: '#1e505c', W: '#f2eee2', F: '#3a3a4a', n: '#2a2430' }) },
+  // los visitantes de hoy: la sudadera mostaza; ella, el pelo largo y la camiseta coral
+  visitante1: { ...B29, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#1c1424'),
+    pal: MOT({ S: '#a8704a', s: '#80522e', H: '#1c1424', h: '#3a3046', C: '#d8a030', c: '#a87a20', X: '#f2eee2', F: '#3a4a6a', n: '#2a2430' }) },
+  visitante2: { ...B29, cab: CAB_LARGO, cuerpo: CUERPO_CALLE, ceja: hex('#a8743a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a4a', h: '#e0b464', s: '#e8a080', C: '#e0705a', c: '#b85844', F: '#4a5a7a', n: '#2a2430' }) },
+  // ── el velero de 1820 ──
+  // el capitán: las patillas, la casaca azul con botones de oro, el bicornio y el catalejo
+  capitan1820: { ...B29, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_NAVAL_DC, tocado: 'bicornio', ceja: hex('#4a2a18'), delante: conCatalejoPR,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', N: '#1e2436', D: '#c8402e', W: '#f2eee2', C: '#24345a', c: '#1a2644', J: '#f2eee2', o: '#e0b040', O: '#e0b040', F: '#e8e0cc' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_PR);
+
+// ── piezas del 29 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Nada de letras: los textos del mapa son garabatos (e) sueltos.
+const PAL_PR = { ...PAL_TS, ...COLORES({
+  k: '#1c1222', Y: '#ead6a4', y: '#c8ae78', u: '#d6bc86', R: '#b84a32', r: '#8a3424', P: '#d8a860', p: '#b08040',
+  V: '#a8c07a', v: '#6a8a48', A: '#3a6aa8', a: '#9ab8e0', O: '#e0b040', g: '#a87a18', o: '#fff0a0', e: '#5a3a22',
+  B: '#8a5a2e', b: '#5e3a1c', X: '#f6f0de', x: '#d0c4a4', Z: '#b8bcc8', z: '#7c8090', K: '#2a2430', I: '#d6eef6',
+  i: '#a8d0e4', E: '#ffffff', N: '#24161a', n: '#7a8aa0', W: '#f6f6f6', M: '#c8a070', m: '#9a7448',
+}) };
+const pintaPR = (R, g, x, y, o = {}, pal = PAL_PR) => pintaJH(R, g, x, y, o, pal);
+const cachePR = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+
+// EL MAPA (32 × 20, sin contorno): el pergamino (Y, el marco y), las líneas de rumbo (u) que salen de las dos rosas de
+// los vientos, la costa de Sudamérica a la izquierda (tierra V, costa A) que abajo gira hacia el este, la de África y la
+// península a la derecha (tierra P, costa R), las islas de arriba, dos barquitos y los garabatos (e) en vez de letras;
+// el borde derecho, roto (los barquitos: el casco y el mástil b con la vela roja R)
+const MAPA_PR = (() => {
+  const W = 32, H = 20, g = Array.from({ length: H }, () => Array(W).fill('Y'));
+  const put = (i, j, c) => { if (i >= 0 && i < W && j >= 0 && j < H) g[j][i] = c; };
+  for (const [cx, cy] of [[13, 7], [21, 14]]) for (let k = 0; k < 16; k++) {
+    const a = k * Math.PI / 8;
+    for (let r = 3; r < 30; r++) { const i = Math.round(cx + Math.cos(a) * r), j = Math.round(cy + Math.sin(a) * r); if (g[j]?.[i] === 'Y') put(i, j, 'u'); }
+  }
+  for (let j = 0; j < H; j++) {
+    const ca = Math.round(25 + 1.6 * Math.sin(j * 0.7) + (j < 6 ? -1 : 0) + (j > 13 ? 1 : 0));
+    for (let i = ca + 1; i < W; i++) put(i, j, 'P');
+    put(ca, j, 'R');
+    if (j >= 5) {
+      const cs = Math.round(5 + 2 * Math.sin(j * 0.55 + 1) - (j > 14 ? 1 : 0));
+      for (let i = 0; i < cs; i++) put(i, j, 'V');
+      put(cs, j, 'A');
+    }
+  }
+  for (let j = 17; j < H; j++) { const fin = 6 + (j - 16) * 4; for (let i = 0; i < fin; i++) put(i, j, 'V'); put(fin, j, 'A'); }
+  for (const [i, j, c] of [[4, 1, 'R'], [5, 1, 'R'], [7, 2, 'V'], [8, 2, 'V'], [8, 3, 'A'], [10, 1, 'R'], [16, 2, 'V'], [3, 3, 'V'], [4, 3, 'A']]) put(i, j, c);
+  for (const [i, j] of [[27, 3], [29, 6], [28, 11], [30, 15], [2, 8], [3, 12], [27, 17]]) put(i, j, 'v');
+  for (const [cx, cy] of [[13, 7], [21, 14]]) {
+    for (let r = 1; r <= 2; r++) { put(cx, cy - r, 'R'); put(cx, cy + r, 'A'); put(cx - r, cy, 'A'); put(cx + r, cy, 'R'); }
+    put(cx - 1, cy - 1, 'O'); put(cx + 1, cy - 1, 'O'); put(cx - 1, cy + 1, 'O'); put(cx + 1, cy + 1, 'O'); put(cx, cy, 'O');
+  }
+  for (const [i, j] of [[17, 11], [11, 16]]) { put(i, j - 3, 'b'); put(i, j - 2, 'b'); put(i + 1, j - 2, 'R'); put(i + 1, j - 1, 'R'); put(i + 2, j - 1, 'R'); put(i, j - 1, 'b'); for (let a = -1; a <= 2; a++) put(i + a, j, 'b'); }
+  for (const [i, j, n] of [[16, 4, 4], [5, 7, 3], [1, 10, 4], [27, 8, 3], [26, 13, 4], [11, 12, 3], [3, 15, 3], [28, 4, 2]]) for (let k = 0; k < n; k++) if (k % 3 !== 2) put(i + k, j, 'e');
+  for (let i = 0; i < W; i++) { if (g[0][i] === 'Y' || g[0][i] === 'u') g[0][i] = 'y'; if (g[H - 1][i] === 'Y' || g[H - 1][i] === 'u') g[H - 1][i] = 'y'; }
+  for (let j = 0; j < H; j++) if (g[j][0] === 'Y' || g[j][0] === 'u') g[j][0] = 'y';
+  for (let j = 0; j < H; j++) { const roto = (j * 7) % 3; for (let i = W - roto; i < W; i++) g[j][i] = '.'; }
+  return g.map((f) => f.join(''));
+})();
+const blitPR = (put, g, i0, j0, desde = 0) => g.forEach((f, j) => { if (j < desde) return; for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i0 + i, j0 + j, f[i]); });
+
+// EL PERGAMINO del mapa: o.abierto (true por omisión) lo despliega entero (34 × 22: el mapa); o.abierto false: doblado
+// en cuatro (16 × 13), con el pliegue (y) y un pico de costa pintada que asoma
+const PERG_ABIERTO_PR = forma(34, 22, ({ put }) => blitPR(put, MAPA_PR, 1, 1));
+const PERG_DOBLADO_PR = forma(16, 13, ({ rect, put }) => {
+  rect(1, 2, 13, 11, 'y'); rect(2, 1, 14, 10, 'Y'); rect(2, 10, 14, 10, 'y'); rect(8, 1, 8, 10, 'y');
+  for (let i = 9; i <= 14; i++) { put(i, 6 + ((i * 3) % 2), 'R'); for (let j = 7 + ((i * 3) % 2); j <= 9; j++) put(i, j, 'P'); }
+  for (let k = 0; k < 4; k++) put(3 + k * 2 - (k % 2), 3 + k, 'u');
+  put(4, 6, 'e'); put(5, 6, 'e'); put(3, 8, 'e'); put(5, 8, 'e'); put(6, 8, 'e');
+});
+const pergaminoPR = (R, x, y, o = {}) => pintaPR(R, o.abierto === false ? PERG_DOBLADO_PR : PERG_ABIERTO_PR, x, y, o);
+
+// EL ROLLO del mapa: o.abre 0–1 lo desenrolla; el rollo (Y con las vueltas y, los cantos M) se queda abajo y la hoja
+// del mapa sube por encima de él (a 0, solo el rollo tumbado). 36 × 27
+const ROLLO_CACHE_PR = new Map();
+const rolloPR = (R, x, y, o = {}) => {
+  const paso = Math.round(Math.max(0, Math.min(1, o.abre ?? 0)) * 20);
+  const g = cachePR(ROLLO_CACHE_PR, paso, () => forma(36, 27, ({ rect, put }) => {
+    if (paso > 0) blitPR(put, MAPA_PR, 2, 21 - 20, 20 - paso);
+    rect(1, 21, 34, 25, 'Y'); rect(1, 21, 34, 21, 'X'); rect(1, 24, 34, 25, 'y');
+    for (let i = 4; i <= 31; i += 5) put(i, 23, 'y');
+    rect(1, 21, 2, 25, 'M'); rect(33, 21, 34, 25, 'm'); put(1, 23, 'm'); put(34, 23, 'M');
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// LA CARTA DE NAVEGACIÓN (portulano): el pergamino (X, borde x) con la costa de arriba (tierra P, costa R), la rosa
+// pequeña de dieciséis rumbos (u, el centro O) y un barquito; sin letras. 24 × 16
+const CARTA_PR = forma(24, 16, ({ rect, put, linea }) => {
+  rect(1, 1, 22, 14, 'X'); rect(1, 14, 22, 14, 'x'); rect(22, 1, 22, 14, 'x');
+  for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8; for (let r = 2; r < 18; r++) { const i = Math.round(11 + Math.cos(a) * r), j = Math.round(9 + Math.sin(a) * r * 0.8); if (i >= 1 && i <= 21 && j >= 1 && j <= 13) put(i, j, 'u'); } }
+  for (let i = 1; i <= 21; i++) { const c = Math.round(3 + 1.5 * Math.sin(i * 0.6)); for (let j = 1; j < c; j++) put(i, j, 'P'); put(i, c, 'R'); }
+  linea(10, 9, 12, 9, 'O'); linea(11, 8, 11, 10, 'O'); put(11, 7, 'R'); put(11, 11, 'A');
+  put(17, 10, 'X'); put(17, 9, 'X'); put(16, 11, 'b'); put(17, 11, 'b'); put(18, 11, 'b');
+  for (const [i, j] of [[4, 11], [5, 11], [7, 11], [3, 6], [4, 6]]) put(i, j, 'e');
+});
+const cartaPR = (R, x, y, o = {}) => pintaPR(R, CARTA_PR, x, y, o);
+
+// LA LUPA: el aro de latón (O, sombra g), el cristal (I) con su brillo (E) y el mango de madera (B/b). 12 × 17
+const LUPA_PR = forma(12, 17, ({ disco, put, linea }) => {
+  disco(5.5, 5.5, 4.6, 'O'); disco(5.5, 5.5, 3.4, 'I'); put(4, 3, 'E'); put(3, 4, 'E'); put(8, 8, 'g'); put(9, 7, 'g');
+  linea(9, 9, 10, 10, 'g'); linea(10, 11, 10, 15, 'B'); linea(11, 11, 11, 15, 'b');
+});
+const lupaPR = (R, x, y, o = {}) => pintaPR(R, LUPA_PR, x, y, o);
+
+// EL COMPÁS DE PUNTAS: el eje de latón (O) arriba y las dos patas de hierro (Z, sombra z) abiertas con las puntas (K);
+// o.abre 0–1 las abre más. 13 × 18
+const COMPAS_CACHE_PR = new Map();
+const compasPR = (R, x, y, o = {}) => {
+  const a = Math.round(Math.max(0, Math.min(1, o.abre ?? 0.5)) * 4);
+  const g = cachePR(COMPAS_CACHE_PR, a, () => forma(13, 18, ({ put, linea, disco }) => {
+    const ab = 2 + a;
+    linea(6, 3, 6 - ab, 15, 'Z'); linea(7, 3, 7 - ab, 15, 'z'); linea(6, 3, 6 + ab, 15, 'Z'); linea(7, 3, 7 + ab, 15, 'z');
+    put(6 - ab, 16, 'K'); put(6 + ab, 16, 'K');
+    disco(6.5, 2.5, 1.6, 'O'); put(6, 0, 'O'); put(7, 0, 'O');
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// EL TINTERO de cristal oscuro (K, el brillo n) con la tinta y la pluma de ave (X, el cañón x) metida. 12 × 18
+const TINTERO_PR = forma(12, 18, ({ rect, put, linea }) => {
+  rect(2, 11, 9, 16, 'K'); rect(1, 12, 10, 15, 'K'); rect(4, 9, 7, 10, 'K'); put(3, 12, 'n'); put(3, 13, 'n'); rect(2, 16, 9, 16, 'N');
+  linea(6, 9, 9, 2, 'x'); linea(7, 8, 10, 1, 'X'); linea(8, 7, 11, 0, 'X'); linea(8, 5, 10, 3, 'X'); put(9, 5, 'X');
+});
+const tinteroPR = (R, x, y, o = {}) => pintaPR(R, TINTERO_PR, x, y, o);
+
+// EL CATALEJO de latón (O, sombra g) con el cuero del tubo grande (B), los aros (g) y la lente (I); o.abre 0–1 saca los
+// tubos (de 14 a 24 de largo). 26 × 7
+const CATALEJO_CACHE_PR = new Map();
+const catalejoPR = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.abre ?? 1)) * 10);
+  const g = cachePR(CATALEJO_CACHE_PR, n, () => forma(26, 7, ({ rect, put }) => {
+    rect(1, 1, 9, 5, 'B'); rect(1, 4, 9, 5, 'b'); rect(1, 1, 1, 5, 'g'); rect(9, 1, 9, 5, 'g');
+    const f1 = 10 + Math.round(n * 0.6), f2 = f1 + 3 + Math.round(n * 0.4);
+    rect(10, 2, f1, 4, 'O'); rect(10, 4, f1, 4, 'g'); rect(f1 + 1, 2, f2, 4, 'O'); rect(f1 + 1, 4, f2, 4, 'g'); put(f1, 2, 'g'); put(f1, 3, 'g');
+    rect(f2 + 1, 1, f2 + 2, 5, 'O'); rect(f2 + 2, 2, f2 + 2, 4, 'I'); put(f2 + 1, 5, 'g');
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// EL LIBRO sin letras: cerrado, de pie y de canto (la tapa de cuero B/b con el marco y el adorno dorados O, las hojas X); o.abierto:
+// abierto en dos páginas (X, el pliegue x) con renglones de garabatos (e) y una carta pequeña dibujada. 14 × 17
+// (abierto, 24 × 12)
+const LIBRO_PR = forma(14, 17, ({ rect, put }) => {
+  rect(1, 1, 10, 15, 'B'); rect(1, 1, 1, 15, 'b'); rect(11, 2, 12, 15, 'X'); rect(11, 15, 12, 15, 'x');
+  rect(3, 3, 8, 3, 'O'); rect(3, 13, 8, 13, 'O'); rect(3, 3, 3, 13, 'O'); rect(8, 3, 8, 13, 'O'); rect(5, 7, 6, 9, 'O'); put(10, 1, 'b');
+});
+const LIBRO_ABIERTO_PR = forma(24, 12, ({ rect, put }) => {
+  rect(1, 2, 11, 9, 'X'); rect(12, 2, 22, 9, 'X'); rect(1, 1, 10, 1, 'X'); rect(13, 1, 22, 1, 'X');
+  rect(11, 1, 12, 10, 'x'); rect(1, 10, 22, 10, 'B'); rect(0, 9, 0, 10, 'B'); rect(23, 9, 23, 10, 'B');
+  for (const j of [3, 5, 7]) for (let i = 2; i <= 9; i++) if ((i + j) % 4) put(i, j, 'e');
+  rect(14, 3, 20, 7, 'Y'); for (let j = 3; j <= 7; j++) put(17 + Math.round(Math.sin(j) * 1.5), j, 'R'); rect(14, 8, 20, 8, 'e'); put(16, 8, 'X'); put(19, 8, 'X');
+});
+const libroPR = (R, x, y, o = {}) => pintaPR(R, o.abierto ? LIBRO_ABIERTO_PR : LIBRO_PR, x, y, o);
+
+// EL ASTROLABIO de latón: la anilla de colgar (O), el disco (O, borde g) con la red calada (g), la alidada (K) en
+// diagonal y el pasador (o). 16 × 19
+const ASTRO_PR = forma(16, 19, ({ disco, put, linea }) => {
+  disco(7.5, 1.5, 1.4, 'O'); put(7, 1, '.'); put(8, 1, '.'); put(7, 2, '.'); put(8, 2, '.');
+  disco(7.5, 10.5, 6.8, 'g'); disco(7.5, 10.5, 5.8, 'O'); disco(7.5, 10.5, 4, 'g'); disco(7.5, 10.5, 3.2, 'O');
+  for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; put(7.5 + Math.cos(a) * 5, 10.5 + Math.sin(a) * 5, 'g'); }
+  linea(2, 6, 13, 15, 'K'); put(7, 10, 'o'); put(8, 11, 'o'); put(4, 7, 'o');
+});
+const astrolabioPR = (R, x, y, o = {}) => pintaPR(R, ASTRO_PR, x, y, o);
+
+// EL COFRE pequeño de madera (B, sombra b) con los flejes de hierro (Z/z) y la cerradura de oro (O); o.abre 0–1 levanta
+// la tapa (de dentro se ve su cara oscura b con los flejes) y deja ver el hueco (N) con un rollo de pergamino (Y) y unas monedas (O). 20 × 20
+const COFRE_CACHE_PR = new Map();
+const cofrePR = (R, x, y, o = {}) => {
+  const a = Math.round(Math.max(0, Math.min(1, o.abre ?? 0)) * 3);
+  const g = cachePR(COFRE_CACHE_PR, a, () => forma(20, 20, ({ rect, put }) => {
+    rect(1, 11, 18, 18, 'B'); rect(14, 11, 18, 18, 'b'); rect(4, 11, 5, 18, 'Z'); rect(14, 11, 15, 18, 'z'); rect(1, 18, 18, 18, 'b');
+    if (a === 0) {
+      rect(2, 6, 17, 6, 'B'); rect(1, 7, 18, 10, 'B'); rect(14, 7, 18, 10, 'b'); rect(4, 6, 5, 10, 'Z'); rect(14, 6, 15, 10, 'z');
+      rect(1, 10, 18, 10, 'b'); rect(9, 9, 10, 12, 'O'); put(9, 11, 'K');
+    } else {
+      rect(2, 9, 17, 11, 'N'); rect(6, 9, 13, 10, 'Y'); rect(6, 10, 13, 10, 'y'); put(3, 10, 'O'); put(4, 10, 'O'); put(15, 10, 'O'); put(16, 9, 'O'); put(9, 11, 'O');
+      const h = [0, 2, 4, 6][a], top = 9 - h;
+      rect(2, top, 17, 8, 'b'); rect(2, top, 17, top, 'B'); rect(4, top, 5, 8, 'z'); rect(14, top, 15, 8, 'z'); rect(2, 8, 17, 8, 'N');
+    }
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// LA ROSA DE LOS VIENTOS suelta: la estrella de dieciséis puntas (las cuatro grandes en rojo R y azul A, las de en medio
+// O y las pequeñas u) dentro del aro (y) y el centro de oro; el norte, una punta en flor (R). 17 × 17
+const ROSA_PR = forma(17, 17, ({ put, disco }) => {
+  disco(8, 8, 7.4, 'Y'); disco(8, 8, 6.4, 'y'); disco(8, 8, 5.6, 'Y');
+  for (let k = 0; k < 16; k++) {
+    const a = k * Math.PI / 8 - Math.PI / 2, largo = k % 4 === 0 ? 7.6 : k % 2 === 0 ? 5.5 : 3.6, l = k % 4 === 0 ? (k % 8 === 0 ? 'R' : 'A') : k % 2 === 0 ? 'O' : 'u';
+    for (let r = 0; r <= largo; r += 0.5) { const w = (1 - r / largo) * (k % 4 === 0 ? 1.4 : 0.8); for (let s = -w; s <= w; s += 0.5) put(8 + Math.cos(a) * r - Math.sin(a) * s, 8 + Math.sin(a) * r + Math.cos(a) * s, l); }
+  }
+  put(7, 0, 'R'); put(9, 0, 'R'); disco(8, 8, 1, 'O');
+});
+const rosaPR = (R, x, y, o = {}) => pintaPR(R, ROSA_PR, x, y, o);
+
+// EL TESTIGO DE HIELO tumbado: el cilindro de hielo (I, brillo E) con las capas de los años (i) y dos de ceniza (n),
+// y los extremos redondeados. 38 × 9
+const HIELO_PR = forma(38, 9, ({ rect, put }) => {
+  rect(2, 1, 35, 7, 'I'); rect(1, 2, 36, 6, 'I'); rect(2, 6, 35, 7, 'i');
+  for (let i = 3; i <= 34; i++) if ([4, 7, 9, 13, 16, 18, 21, 25, 27, 30, 33].includes(i)) rect(i, 1, i, 7, i === 13 || i === 27 ? 'n' : 'i');
+  rect(3, 2, 34, 2, 'E'); put(2, 2, 'E');
+});
+const testigoHieloPR = (R, x, y, o = {}) => pintaPR(R, HIELO_PR, x, y, o);
+
+export const PIEZAS_PR = {
+  rollo: rolloPR, pergamino: pergaminoPR, carta: cartaPR, lupa: lupaPR, compas: compasPR, 'compás': compasPR,
+  tintero: tinteroPR, catalejo: catalejoPR, libro: libroPR, astrolabio: astrolabioPR, cofre: cofrePR, rosa: rosaPR,
+  testigoHielo: testigoHieloPR,
+};
