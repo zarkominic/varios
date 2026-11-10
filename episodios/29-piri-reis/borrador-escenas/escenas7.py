@@ -113,19 +113,22 @@ const globo = (cx, cy, r, lon0, lat0, o = {}) => {
   const c0 = Math.cos(lat0 * D2R), s0 = Math.sin(lat0 * D2R), d = o.desliza ?? 0;
   const X0 = Math.max(0, Math.floor(cx - r - 1)), X1 = Math.min(319, Math.ceil(cx + r + 1)), Y0 = Math.max(0, Math.floor(cy - r - 1)), Y1 = Math.min(179, Math.ceil(cy + r + 1));
   const W = X1 - X0 + 1, Hh = Y1 - Y0 + 1; if (W <= 0 || Hh <= 0) return { P: () => null };
-  const tipo = new Int8Array(W * Hh).fill(-1), LA = new Float32Array(W * Hh), LO = new Float32Array(W * Hh), SH = new Float32Array(W * Hh);
+  const tipo = new Int8Array(W * Hh).fill(-1), LA = new Float32Array(W * Hh), LO = new Float32Array(W * Hh), SH = new Float32Array(W * Hh), LR = new Float32Array(W * Hh), OR = new Float32Array(W * Hh);
+  const cd = Math.cos(d * D2R), sd = Math.sin(d * D2R);
   for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) {
     const nx = (x + 0.5 - cx) / r, ny = (y + 0.5 - cy) / r, q = nx * nx + ny * ny; if (q > 1) continue;
-    const z = Math.sqrt(1 - q), Yv = -ny, lat = Math.asin(cl(Yv * c0 + z * s0, -1, 1)) / D2R, lon = lon0 + Math.atan2(nx, z * c0 - Yv * s0) / D2R, ls = lat - d;
-    let k; if (ls < -90) k = 4; else { k = sueloG(lon, ls); if (k === 2 && o.deshielo && lat > -24 - 36 * o.deshielo) k = 3; if (k === 1 && Math.abs(ls) > 14 && Math.abs(ls) < 32 && vn(lon * 0.1, ls * 0.1, 3) > 0.45) k = 5; }
-    const i = (y - Y0) * W + (x - X0); tipo[i] = k; LA[i] = ls; LO[i] = lon; SH[i] = -0.45 * nx + 0.5 * Yv + 0.74 * z;
+    const z = Math.sqrt(1 - q), Yv = -ny, Ys = Yv * cd - z * sd, zs = Yv * sd + z * cd;
+    const latR = Math.asin(cl(Yv * c0 + z * s0, -1, 1)) / D2R, lonR = lon0 + Math.atan2(nx, z * c0 - Yv * s0) / D2R;
+    const ls = Math.asin(cl(Ys * c0 + zs * s0, -1, 1)) / D2R, lon = lon0 + Math.atan2(nx, zs * c0 - Ys * s0) / D2R;
+    let k; if (d && zs < 0) k = zs > -0.035 - 0.035 * hh(x, y, 3) ? 6 : 4; else { k = sueloG(lon, ls); if (k === 2 && o.deshielo && latR > -24 - 36 * o.deshielo) k = 3; if (k === 1 && Math.abs(ls) > 14 && Math.abs(ls) < 32 && vn(lon * 0.1, ls * 0.1, 3) > 0.45) k = 5; }
+    const i = (y - Y0) * W + (x - X0); tipo[i] = k; LA[i] = ls; LO[i] = lon; LR[i] = latR; OR[i] = lonR; SH[i] = -0.45 * nx + 0.5 * Yv + 0.74 * z;
   }
   const ORO = hex('#ffd84a'), pulso = 0.5 + 0.5 * Math.sin((o.t ?? 0) * 6);
   for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) {
     const i = (y - Y0) * W + (x - X0), k = tipo[i]; if (k < 0) continue;
     const at = (dx, dy) => { const xx = x + dx - X0, yy = y + dy - Y0; if (xx < 0 || yy < 0 || xx >= W || yy >= Hh) return -1; return tipo[yy * W + xx]; };
     const s = SH[i], lat = LA[i], lon = LO[i]; let c;
-    const vecMar = k !== 0 && k !== 4 && (at(1, 0) === 0 || at(-1, 0) === 0 || at(0, 1) === 0 || at(0, -1) === 0);
+    const vecMar = k !== 0 && k < 4 && (at(1, 0) === 0 || at(-1, 0) === 0 || at(0, 1) === 0 || at(0, -1) === 0);
     const vecTie = k === 0 && (at(1, 0) > 0 || at(-1, 0) > 0 || at(0, 1) > 0 || at(0, -1) > 0);
     if (k === 0) { c = R.tone(G_OC, 0.6 + s * 4.2 + (hh(x, y, 2) - 0.5) * 0.4, x, y); if (vecTie) c = o.oro && lon > -90 && lon < -30 && lat < 12 && lat > -60 ? mez(c, ORO, o.oro * (0.55 + 0.35 * pulso)) : mez(c, hex('#bfe4f4'), 0.55);
       if (o.drake && lat < -54 && lat > -64 && lon > -72 && lon < -54) { const ola = Math.sin(lon * 1.3 + lat * 2 + (o.t ?? 0) * 5) > 0.6; c = mez(c, ola ? hex('#ffffff') : hex('#6ae0f0'), o.drake * (ola ? 0.7 : 0.35 + 0.25 * pulso)); } }
@@ -133,10 +136,10 @@ const globo = (cx, cy, r, lon0, lat0, o = {}) => {
     else if (k === 5) c = R.tone(G_AR, 0.6 + s * 3.6 + (vn(lon * 0.3, lat * 0.3, 6) - 0.5) * 1.0, x, y);
     else if (k === 2) c = R.tone(G_HI, 0.4 + s * 4.4 + (hh(x, y, 4) - 0.5) * 0.3, x, y);
     else if (k === 3) c = R.tone(vn(lon * 0.4, lat * 0.4, 8) > 0.5 ? G_VE : G_AR, 0.8 + s * 3.4, x, y);
-    else { const m = vn(lon * 0.12 + (o.t ?? 0) * 0.4, lat * 0.2, 9); c = R.tone(G_MA, 0.8 + m * 2.6 + s * 1.2, x, y); if (lat > -91.6) c = K0; }
+    else if (k === 4) { const m = vn(x * 0.12 + (o.t ?? 0) * 0.6, y * 0.2, 9); c = R.tone(G_MA, 0.8 + m * 2.6 + s * 1.2, x, y); } else c = K0;
     if (vecMar) c = o.oro && sueloG(lon, lat) === 1 && lon > -90 && lon < -30 && lat < 12 ? mez(K0, ORO, o.oro * (0.6 + 0.4 * pulso)) : mez(c, K0, 0.55);
-    if (o.reticula !== false && k !== 4) { const g = 2.2 * 57 / r, a = ((lat % 30) + 30) % 30, b = ((((lon - (o.giroRet ?? 0)) % 30) + 30) % 30); if (a < g * 0.5 || b < g * 0.5) c = mez(c, hex('#e8f0ff'), 0.22); }
-    if (o.nubes != null && k !== 4) { const n = vn(lon * 0.09 + o.nubes * 0.25, lat * 0.16, 11) * 0.7 + vn(lon * 0.3, lat * 0.4, 12) * 0.3; if (n > 0.62) c = mez(c, hex('#ffffff'), Math.min(0.85, (n - 0.62) * 4)); }
+    if (o.reticula !== false && k < 4) { const g = 2.2 * 57 / r, a = ((LR[i] % 30) + 30) % 30, b = ((((OR[i] - (o.giroRet ?? 0)) % 30) + 30) % 30); if (a < g * 0.5 || b < g * 0.5) c = mez(c, hex('#e8f0ff'), 0.22); }
+    if (o.nubes != null && k < 4) { const n = vn(lon * 0.09 + o.nubes * 0.25, lat * 0.16, 11) * 0.7 + vn(lon * 0.3, lat * 0.4, 12) * 0.3; if (n > 0.62) c = mez(c, hex('#ffffff'), Math.min(0.85, (n - 0.62) * 4)); }
     const q = Math.hypot(x + 0.5 - cx, y + 0.5 - cy) / r; if (q > 1 - 1.6 / r) c = mez(c, K0, 0.6); else if (q > 0.86) c = mez(c, hex('#0a0a20'), (q - 0.86) * 1.6);
     if (Math.hypot(x - (cx - r * 0.38), y - (cy - r * 0.42)) < r * 0.12) c = mez(c, hex('#ffffff'), 0.28);
     R.pset(x, y, c);
@@ -503,6 +506,9 @@ const fondoHapgood = () => {
   R.rect(226, 104, 252, 118, K0); R.rect(227, 105, 251, 117, hex('#3a3e46')); for (let x = 229; x < 250; x += 3) R.pset(x, 114, hex('#c8c8d0')); R.rect(232, 96, 246, 106, hex('#f6f2ea')); R.rect(232, 96, 246, 96, K0); for (let y = 99; y < 105; y += 2) R.rect(234, y, 244, y, hex('#9a9aaa'));
   R.rect(286, 116, 296, 118, K0); R.rect(290, 100, 292, 116, hex('#c8962a')); R.poligono([[280, 98], [302, 98], [298, 92], [284, 92]], hex('#2a6a3a')); R.rect(280, 98, 302, 98, K0);
   R.rect(260, 112, 278, 117, K0); R.rect(261, 113, 277, 116, hex('#f6f2ea')); R.rect(262, 108, 276, 112, K0); R.rect(263, 109, 275, 111, hex('#ece6d6'));
+  // los cuadros de la pared: un velero entre hielos y un diploma
+  marco(258, 52, 300, 86); llena(261, 55, 297, 83, rp('#7a9ab8', '#a8c4dc', '#d8e6f2'), (x, y) => 2.4 - (y - 55) * 0.05); R.poligono([[264, 83], [272, 72], [282, 76], [292, 70], [297, 83]], hex('#f2f6fa')); R.rect(276, 66, 277, 78, hex('#3a2a1a')); R.poligono([[277, 66], [277, 76], [284, 76]], hex('#f6f2ea')); R.rect(273, 78, 284, 80, hex('#5a3418'));
+  marco(212, 54, 240, 76); llena(215, 57, 237, 73, rp('#d8ccb0', '#f2ead8'), (x, y) => 1); R.disco(226, 62, 3, hex('#a83224')); for (let y = 66; y < 72; y += 2) R.rect(218, y, 234, y, hex('#9a9080'));
   // el reloj de pared con péndulo y el suelo de parqué con alfombra
   R.rect(234, 30, 250, 76, K0); llena(235, 31, 249, 75, MAD, (x, y) => 2.4); R.disco(242, 40, 6, K0); R.disco(242, 40, 5, hex('#f6f2ea')); R.linea(242, 40, 242, 36, K0); R.linea(242, 40, 245, 41, K0); R.rect(237, 50, 247, 72, hex('#2a1a10'));
   for (let y = 151; y <= 179; y++) for (let x = 0; x <= 319; x++) { const bx = Math.floor((x + (Math.floor((y - 151) / 6) % 2) * 10) / 20), j = (y - 151) % 6 === 5 || (x + (Math.floor((y - 151) / 6) % 2) * 10) % 20 === 0; R.pset(x, y, j ? MAD[0] : R.tone(MAD, 2 + (hh(bx, Math.floor((y - 151) / 6)) - 0.5) * 1.2 + Math.sin(x * 0.4) * 0.15, x, y)); }
@@ -550,8 +556,8 @@ const p2 = (t) => {
   for (let x = cx - 40; x <= cx + 40; x++) for (let y = 141; y <= 150; y++) if (((x - cx - 6) / 40) ** 2 + ((y - 145) / 5) ** 2 <= 1) R.pset(x, y, mez(R.pget(x, y), K0, 0.45));
   R.rect(cx - 18, 140, cx + 18, 146, K0); llena(cx - 17, 141, cx + 17, 145, MAD, (x, y) => 2.6 - (y - 141) * 0.4); R.rect(cx - 3, 134, cx + 3, 140, K0); R.rect(cx - 2, 134, cx + 2, 139, hex('#c8962a'));
   aroGlobo(cx, cy, r);
-  globo(cx, cy, r, -60, -42, { desliza: 24 * DES, deshielo: DEH, t });
-  if (DES > 0) luz(cx, cy + r - 8, 30, hex('#ff8a2a'), 0.25 * DES);
+  globo(cx, cy, r, -60, -42, { desliza: 34 * DES, deshielo: DEH, t });
+  if (DES > 0) luz(cx, cy + r - 6, 34, hex('#ff8a2a'), 0.22 * DES);
   // la mano de Hapgood empuja el globo hacia arriba y luego se retira
   const sal = tramo(t, @9.7@, @10.15@), wy = Math.round(lerp(128, 112, DES) + sal * 50), wx = Math.round(276 + sal * 20);
   if (sal < 1) T.brazo(R, wx + 46, wy + 30, wx, wy, '#7a6a4a', -1);
@@ -566,29 +572,35 @@ const fondoLab = () => {
   llena(0, 143, 319, 179, rp('#4a5462', '#5e6a7a', '#748294', '#8a98aa'), (x, y) => 2 + (hh(x >> 3, y >> 2) - 0.5) * 0.5 + ((x + (y - 143) * 2) % 24 === 0 ? -1 : 0));
   // la puerta de la cámara congeladora con escarcha
   R.rect(8, 40, 58, 142, K0); llena(9, 41, 57, 141, rp('#7a8698', '#9aa6b6', '#b8c2d0', '#d0d8e2'), (x, y) => 2.2 + (x - 9) * 0.01 + (hh(x, y, 2) > 0.9 ? 1 : 0)); R.rect(50, 84, 54, 100, K0); R.rect(51, 85, 53, 99, hex('#e8eef4'));
-  for (let i = 0; i < 60; i++) { const x = 9 + Math.floor(hh(i, 1) * 48), y = Math.random ? 41 + Math.floor(hh(i, 2) * 8) : 0; R.pset(x, y, hex('#ffffff')); R.pset(9 + Math.floor(hh(i, 3) * 48), 133 + Math.floor(hh(i, 4) * 8), hex('#ffffff')); }
+  for (let i = 0; i < 60; i++) { const x = 9 + Math.floor(hh(i, 1) * 48), y = 41 + Math.floor(hh(i, 2) * 8); R.pset(x, y, hex('#ffffff')); R.pset(9 + Math.floor(hh(i, 3) * 48), 133 + Math.floor(hh(i, 4) * 8), hex('#ffffff')); }
   // las estanterías de acero con los tubos de los testigos
   R.rect(232, 52, 316, 140, K0); for (let y = 60; y < 140; y += 20) { R.rect(233, y, 315, y + 2, hex('#a8b0bc')); R.rect(233, y, 315, y, hex('#e0e6ee')); for (let k = 0; k < 4; k++) { const ty = y - 6 - (k % 2) * 7; R.rect(236, ty, 312, ty + 5, K0); R.rect(237, ty + 1, 311, ty + 4, hex('#c8d0dc')); R.rect(237, ty + 1, 311, ty + 1, hex('#f0f4f8')); R.rect(237, ty + 1, 240, ty + 4, [hex('#e83a3a'), hex('#3a8ae8'), hex('#e8c040'), hex('#3aa86a')][(k + y) % 4]); if (k > 1) break; } }
   for (const x of [233, 314]) R.rect(x, 52, x + 1, 140, hex('#8a94a4'));
+  // las tuberías del frío con escarcha, la gráfica de las capas y el aviso del copo
+  for (const y of [24, 30]) { R.rect(0, y, 230, y + 3, K0); R.rect(0, y + 1, 230, y + 2, hex('#c8d0dc')); R.rect(0, y + 1, 230, y + 1, hex('#f0f4f8')); for (let x = 20; x < 230; x += 40) { R.rect(x, y - 1, x + 3, y + 4, K0); R.rect(x + 1, y, x + 2, y + 3, hex('#8a94a4')); } for (let x = 0; x < 230; x += 3) if (hh(x, y) > 0.6) R.pset(x, y + 4, hex('#ffffff')); }
+  R.rect(72, 40, 152, 84, K0); R.rect(73, 41, 151, 83, hex('#f6f8fa')); for (let x = 76; x < 150; x += 8) R.rect(x, 43, x, 81, hex('#dce4ec')); for (let y = 46; y < 82; y += 8) R.rect(75, y, 149, y, hex('#dce4ec'));
+  for (let x = 76; x < 149; x++) { const y = Math.round(61 + Math.sin(x * 0.35) * 6 + Math.sin(x * 0.11) * 7 - (x - 76) * 0.05); R.pset(x, y, hex('#3a6ac8')); R.pset(x, y + 1, hex('#3a6ac8')); }
+  for (let x = 76; x < 149; x++) { const y = Math.round(75 + Math.sin(x * 0.2 + 1) * 3); R.pset(x, y, hex('#e83a3a')); }
+  R.rect(22, 50, 44, 72, K0); R.rect(23, 51, 43, 71, hex('#2a6ac8')); R.icono('copo', 26, 54, hex('#ffffff'), hex('#1a3a8a'), 2);
   // el termómetro del cuarto (bajo cero) y el tubo fluorescente
   R.rect(180, 30, 216, 44, K0); R.rect(181, 31, 215, 43, hex('#0e1a14')); R.numero('-25', 184, 41, { color: hex('#6af0a0'), sombra: false });
-  R.rect(80, 6, 160, 9, K0); R.rect(81, 7, 159, 8, hex('#f6fbff'));
+  R.rect(176, 8, 256, 11, K0); R.rect(177, 9, 255, 10, hex('#f6fbff'));
   // la mesa de luz
   R.rect(56, 118, 220, 126, K0); R.rect(57, 119, 219, 121, hex('#f0f8ff')); R.rect(57, 122, 219, 125, hex('#a8b0bc')); for (const x of [60, 212]) R.rect(x, 126, x + 4, 160, K0);
   R.rect(66, 136, 210, 152, K0); llena(67, 137, 209, 151, rp('#6a7484', '#8a94a4', '#a8b2c0'), (x, y) => 1.4 + (x % 36 === 0 ? -1 : 0)); for (let x = 70; x < 206; x += 36) { R.rect(x + 2, 140, x + 30, 148, K0); R.rect(x + 3, 141, x + 29, 147, hex('#e8eef4')); }
 };
 const testigo = (x0, y0, x1, t, scan, cuenta) => {   // el testigo de hielo tumbado, con sus capas, iluminado desde abajo
-  for (let x = x0; x <= x1; x++) for (let y = y0; y <= y0 + 11; y++) { const e = Math.abs(y - y0 - 5.5) / 5.5, cap = Math.sin(x * 0.9 + Math.sin(x * 0.13) * 2) > 0.55 || (x % 37 === 0), ceniza = x % 53 === 7 || x % 53 === 8;
+  for (let x = x0; x <= x1; x++) for (let y = y0; y <= y0 + 15; y++) { const e = Math.abs(y - y0 - 7.5) / 7.5, cap = Math.sin(x * 0.9 + Math.sin(x * 0.13) * 2) > 0.55 || (x % 37 === 0), ceniza = x % 53 === 7 || x % 53 === 8;
     let c = ceniza ? hex('#6a7484') : cap ? hex('#a8d0e8') : hex('#dceef8'); if (e > 0.85) c = hex('#2a3a4e'); else if (y - y0 < 3) c = mez(c, hex('#ffffff'), 0.5);
     if (Math.abs(x - scan) < 3) c = mez(c, hex('#ffffff'), 0.6); R.pset(x, y, c); }
-  R.disco(x0, y0 + 5.5, 5.5, (x, y, d) => d > 0.85 ? hex('#2a3a4e') : hex('#c8e4f4')); R.disco(x1, y0 + 5.5, 5.5, (x, y, d) => d > 0.85 ? hex('#2a3a4e') : x > x1 ? hex('#e8f6ff') : hex('#c8e4f4'));
+  R.disco(x0, y0 + 7.5, 7.5, (x, y, d) => d > 0.85 ? hex('#2a3a4e') : hex('#c8e4f4')); R.disco(x1, y0 + 7.5, 7.5, (x, y, d) => d > 0.85 ? hex('#2a3a4e') : x > x1 ? hex('#e8f6ff') : hex('#c8e4f4'));
   for (let k = 0; k < cuenta; k++) { const px = x0 + 6 + k * 14; R.linea(px, y0 - 2, px, y0 - 5, hex('#e83a3a')); R.numero(String(k + 1), px - 2, y0 - 7, { color: hex('#e83a3a') }); }
 };
 const p3 = (t) => {
   capa('h3', fondoLab);
   const CAPA = @12.89@, scan = Math.round(lerp(64, 212, tramo(t, P3 + 0.4, P4 - 0.2))), cuenta = Math.min(10, Math.floor(Math.max(0, scan - 64) / 14));
   luz(138, 116, 70, hex('#e0f4ff'), 0.22);
-  testigo(66, 106, 210, t, scan, cuenta);
+  testigo(68, 102, 208, t, scan, cuenta);
   // la científica con la lupa sobre el testigo; el compañero entra de la cámara con otro testigo al hombro
   const ci = R.actor(EL.cientifica, 222, 160, t, { dir: -1, sostiene: [214, 112], sonrisa: t > CAPA, habla: t > CAPA + 0.4 && Math.sin(t * 8) > 0 });
   if (ci.mano) T.PIEZAS_PR.lupa(R, ci.mano[0] - 2, ci.mano[1] + 4, { dir: -1 });
@@ -679,7 +691,7 @@ const fondoMesaLuz = () => {
   // la caja de luz de aluminio y el mapa polar encima
   R.rect(52, 14, 254, 166, K0); llena(53, 15, 253, 165, rp('#6a7280', '#8a94a4', '#aab4c2', '#c8d0dc'), (x, y) => 2 + (x === 53 || y === 15 ? 1 : 0) - (x === 253 || y === 165 ? 1.4 : 0));
   R.rect(58, 20, 248, 160, hex('#f4faff'));
-  R.rect(68, 26, 238, 154, hex('#9aa4b4')); polar(69, 27, 237, 153, 154, 96, 2, 28, {});
+  R.rect(68, 26, 238, 154, hex('#9aa4b4')); polar(69, 27, 237, 153, 162, 104, 1.8, 28, {});
   for (const [px, py] of [[70, 28], [236, 28], [70, 152], [236, 152]]) { R.rect(px - 2, py - 2, px + 2, py + 2, hex('#e8e0c8')); }
   // los lápices, la goma, las gafas, la taza y la libreta
   R.rect(14, 30, 40, 66, K0); R.rect(15, 31, 39, 65, hex('#f2ece0')); for (let y = 36; y < 64; y += 4) R.rect(18, y, 36, y, hex('#9aa4c8')); R.rect(15, 31, 39, 33, hex('#c83a3a'));
@@ -691,12 +703,12 @@ const fondoMesaLuz = () => {
 };
 const p1 = (t) => {
   capa('k1', fondoMesaLuz);
-  luz(154, 90, 120, hex('#ffffff'), 0.08);
+  luz(162, 100, 120, hex('#ffffff'), 0.08);
   const NO = @2.4@, SA = @3.7@, ANT = @4.88@;
   // el vapor de la taza
   for (let k = 0; k < 4; k++) { const u = (t * 0.6 + k / 4) % 1; R.pset(Math.round(284 + Math.sin(t * 2 + k) * 3), Math.round(112 - u * 16), mez(R.pget(284, 112), hex('#ffffff'), 0.7 * (1 - u))); }
   // el calco con la costa de 1513 entra, no encaja, y sale
-  const entra = tramo(t, 0.5, 1.8), sale = tramo(t, NO + 0.6, SA - 0.1), sx = Math.round(lerp(330, 110, entra) + lerp(0, 150, sale)), sy = 62, w = 92, h = 80;
+  const entra = tramo(t, 0.5, 1.8), sale = tramo(t, NO + 0.6, SA - 0.1), sx = Math.round(lerp(330, 110, entra) + lerp(0, 260, sale)), sy = 62, w = 92, h = 80;
   if (sx < 320) { for (let y = sy; y <= sy + h; y++) for (let x = sx; x <= sx + w; x++) { if (x > 319) continue; const e = Math.min(x - sx, sx + w - x, y - sy, sy + h - y); R.pset(x, y, e < 1 ? hex('#b8a888') : mez(R.pget(x, y), hex('#f6ecd0'), 0.5)); }
     for (let i = 0; i + 1 < COSTA_PIRI.length; i++) { const [a, b] = COSTA_PIRI[i], [c, d] = COSTA_PIRI[i + 1]; for (const dd of [0, 1]) R.linea(sx + a * w + dd, sy + b * h, sx + c * w + dd, sy + d * h, hex('#7a3a1a')); }
     for (let k = 0; k < 5; k++) R.pset(sx + 10 + k * 3, sy + 16 + (k % 2) * 3, hex('#7a3a1a'));
@@ -705,7 +717,7 @@ const p1 = (t) => {
   if (t > NO && t < NO + 1.4) { const k = tramo(t, NO, NO + 0.15); R.icono('X', 136, 82, hex('#ff2a2a'), K0, Math.round(2 + k * 3)); }
   // la punta de Sudamérica y la península brillan; la línea a trazos del paso
   const pul = 0.5 + 0.5 * Math.sin(t * 7), a = tramo(t, SA, SA + 0.3), b = tramo(t, ANT, ANT + 0.3);
-  const pSA = [154 + 70 * Math.sin(-40 * D2R), 96 - 70 * Math.cos(-40 * D2R)], pAN = [154 + 54 * Math.sin(-32 * D2R), 96 - 54 * Math.cos(-32 * D2R)];
+  const pSA = [162 + 63 * Math.sin(-40 * D2R), 104 - 63 * Math.cos(-40 * D2R)], pAN = [162 + 48.6 * Math.sin(-32 * D2R), 104 - 48.6 * Math.cos(-32 * D2R)];
   if (a > 0) R.anillo(pSA[0], pSA[1], 6 + pul, hex('#ffb020'));
   if (b > 0) R.anillo(pAN[0], pAN[1], 6 + pul, hex('#ffb020'));
   const L = tramo(t, ANT + 0.2, P2 - 0.2); if (L > 0) { const n = 14; for (let k = 0; k < n * L; k++) if (k % 2 === 0) { const u = k / n, v = (k + 1) / n; R.linea(pSA[0] + (pAN[0] - pSA[0]) * u, pSA[1] + (pAN[1] - pSA[1]) * u, pSA[0] + (pAN[0] - pSA[0]) * v, pSA[1] + (pAN[1] - pSA[1]) * v, hex('#e83a3a')); } }
@@ -719,12 +731,13 @@ const p2 = (t) => {
   // la lluvia sesgada
   for (let i = 0; i < 70; i++) { const x = Math.round((hh(i, 1) * 360 + t * 120) % 360) - 20, y = Math.round((hh(i, 2) * 180 + t * 200) % 180); if (x > 266 && y < 50) continue; R.linea(x, y, x - 2, y + 4, mez(R.pget(x, y), hex('#c8d0dc'), 0.5)); }
   // el hielo a lo lejos y el cabo de Hornos
-  R.poligono([[236, 98], [246, 92], [270, 93], [294, 90], [319, 92], [319, 100], [236, 100]], hex('#e8f0f8')); R.rect(236, 97, 319, 100, hex('#a8c4d8'));
-  for (let y = 98; y <= 179; y++) for (let x = 0; x <= 319; x++) { const ola = Math.sin(x * 0.08 + y * 0.35 - t * 2.4 + Math.sin(x * 0.03 + t) * 2) + Math.sin(x * 0.21 - t * 3.1 + y * 0.1) * 0.5;
-    let c = R.tone(rp('#0e2234', '#163448', '#20485e', '#2e5e76', '#4a7e96'), 1.2 + (y - 98) * 0.02 + ola * 0.7, x, y); if (ola > 1.25) c = hex('#e8f4f8'); else if (ola > 1.05) c = hex('#a8c8d8'); R.pset(x, y, c); }
-  R.poligono([[0, 56], [18, 48], [34, 50], [52, 64], [62, 86], [70, 104], [72, 120], [0, 120]], K0);
-  llena(0, 49, 70, 120, rp('#2a2630', '#3e3844', '#544c58', '#6a6070'), (x, y) => 1.4 + (hh(x >> 1, y >> 1) - 0.5) * 1.2 + Math.sin(y * 0.5 + x * 0.1) * 0.4);
-  R.poligono([[0, 120], [72, 120], [70, 104], [62, 86], [52, 64], [34, 50], [18, 48], [0, 56], [-1, 56], [-1, 121]], (x, y) => { const c = R.pget(x, y); return c; });
+  R.poligono([[214, 99], [224, 88], [240, 84], [262, 86], [276, 80], [300, 83], [319, 79], [319, 100], [214, 100]], (x, y) => y > 94 ? hex('#a8c4d8') : hh(x, y, 4) > 0.8 ? hex('#c8dcec') : hex('#eef4fa')); for (let x = 216; x < 319; x += 6) R.linea(x, 92, x + 1, 99, hex('#8aaac4'));
+  for (const [bx, bw] of [[196, 8], [250, 5]]) R.poligono([[bx, 100], [bx + 2, 95], [bx + bw, 96], [bx + bw + 2, 100]], hex('#f2f8fc'));
+  for (let y = 99; y <= 179; y++) { const p = (y - 98) / 82, sc = 0.25 + p * 1.2; for (let x = 0; x <= 319; x++) { const sw = Math.sin(x * 0.06 / sc + y * 0.5 / sc - t * 2.2 + vn(x * 0.03, y * 0.08, 3) * 5), n = vn(x * 0.09 / sc + t * 0.8, y * 0.25 / sc, 5), ola = sw * 0.8 + n * 0.9;
+    let c = R.tone(rp('#0e2234', '#163448', '#20485e', '#2e5e76', '#4a7e96'), 1.0 + p * 0.8 + ola * 0.9, x, y); if (ola > 1.45 && n > 0.62) c = hh(x, y, 1) > 0.3 ? hex('#e8f4f8') : hex('#a8c8d8'); R.pset(x, y, c); } }
+  R.poligono([[0, 55], [18, 47], [34, 49], [52, 63], [62, 85], [70, 103], [73, 121], [0, 121]], K0);
+  R.poligono([[0, 56], [18, 48], [34, 50], [52, 64], [61, 86], [69, 104], [71, 120], [0, 120]], (x, y) => R.tone(rp('#2a2630', '#3e3844', '#544c58', '#6a6070'), 1.4 + (hh(x >> 1, y >> 1) - 0.5) * 1.2 + Math.sin(y * 0.5 + x * 0.1) * 0.4 - (x > 50 ? 0.6 : 0), x, y));
+  for (let k = 0; k < 9; k++) { const y0 = 58 + k * 7; R.linea(4 + k * 3, y0, 30 + k * 4, y0 + 3, hex('#241e28')); }
   for (let x = 0; x < 52; x++) { const y = Math.round(50 + Math.abs(x - 22) * 0.25); R.pset(x, y, hex('#4a6a3a')); R.pset(x, y + 1, hex('#3a5a2a')); }
   R.rect(24, 38, 28, 50, K0); R.rect(25, 39, 27, 49, hex('#f6f2ea')); R.rect(24, 36, 28, 38, hex('#c83a3a')); if (Math.sin(t * 4) > 0.3) luz(26, 37, 14, hex('#fff4c8'), 0.5);
   for (let k = 0; k < 6; k++) { const u = (t * 1.6 + k / 6) % 1; R.disco(Math.round(70 + k * 2 + u * 10), Math.round(118 - Math.sin(u * Math.PI) * 14), 2 + u * 2, (x, y) => mez(R.pget(x, y), hex('#ffffff'), 0.7 * (1 - u))); }
