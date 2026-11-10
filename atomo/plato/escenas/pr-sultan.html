@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El sultán · ep29</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PR-SULTAN (frase 10), 1517 → 1929. Cuatro planos:
+// 1. el salón del sultán en El Cairo (galipoli/cairo): Piri entra por la alfombra con el mapa enrollado entre dos
+//    guardias con lanza; el visir lo anuncia; a «sultan» se para ante el estrado, inclina la cabeza y le ofrece el rollo;
+//    a «Selim» el sultán sonríe y le hace un gesto para que se acerque; el visir baja a recogerlo (corta en «Cairo»);
+// 2. el estrado de cerca (galipoli/cairo/trono): Selim mira el mapa abierto y sonríe a «conquered»; lo enrolla, el cofre
+//    se abre y lo echa dentro de un tirón; la tapa se cierra con el cerrojo a «forgotten»; Piri, abajo, se queda triste;
+// 3. la biblioteca del palacio (estambul/biblioteca): pasan los siglos (la barra corre de 1517 a 1929): días y noches
+//    cada vez más deprisa, criados que cruzan como rayos, el polvo que se posa, telarañas que crecen y una araña que baja;
+//    a «Only» (1929) Halil Edhem entra por la puerta de detrás y se para, sorprendido, junto al cofre a «survived»;
+// 4. el mapa del mundo de 1513 sobre la mesa (pergamino/entero con borrado): a «western» los dos tercios del este se
+//    queman y se deshacen (pavesas); queda el oeste; una lupa en la mano recorre el Atlántico, la costa de Europa y África
+//    (a «Europe») y las tierras nuevas, que brillan a «new lands».
+import * as T from '/atomo/plato/escenas/pr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('pr-sultan');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C, K = hex('#1a1418');
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const suave = (u) => u * u * (3 - 2 * u);
+const parp = (t, v = 7) => Math.sin(t * v) > 0;
+// un fondo fijo que se pinta una vez en su búfer y luego se copia en cada fotograma
+const fijo = (pinta) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); } R.copiar(b); }; };
+// madera vista desde arriba: tablas horizontales de alto a, con vetas, juntas escalonadas y clavos (c: base, veta oscura, veta clara, junta)
+const madera = (x0, y0, x1, y1, a, c, calma = null) => { const [c0, c1, c2, cj] = c.map(hex);
+  for (let y = y0; y <= y1; y++) { const k = Math.floor((y - y0) / a), yy = (y - y0) % a, off = Math.floor(h(k, 3, 1) * 300);
+    for (let x = x0; x <= x1; x++) {
+      const xx = x + off, q = calma && calma(x, y);
+      if (yy === 0 || xx % 97 === 0) { R.pset(x, y, q ? mez(cj, c0, 0.5) : cj); continue; }
+      if (!q && (xx % 97 === 3 || xx % 97 === 94) && (yy === 2 || yy === a - 2)) { R.pset(x, y, K); continue; }
+      const v = Math.sin(xx * 0.09 + Math.sin(yy * 0.9 + k) * 1.6 + h(k, 1, 2) * 6) + (h(x, y, 9) - 0.5) * 0.6;
+      R.pset(x, y, q ? (v > 0.9 ? mez(c0, c2, 0.4) : c0) : v > 0.75 ? c2 : v < -0.7 ? c1 : c0);
+    } } };
+// el rollo pequeño de pergamino que lleva un personaje en la mano (cerrado, con su cinta roja)
+const rolloMano = (x, y) => { x = Math.round(x); y = Math.round(y);
+  R.rect(x - 7, y - 3, x + 7, y + 2, K); R.rect(x - 6, y - 2, x + 6, y + 1, hex('#e8d4a4')); R.rect(x - 6, y - 2, x + 6, y - 2, hex('#f8ecd0')); R.rect(x - 6, y + 1, x + 6, y + 1, hex('#b89a64'));
+  R.rect(x - 6, y - 2, x - 6, y + 1, hex('#c8a870')); R.pset(x - 5, y, hex('#9a7a48')); R.rect(x - 1, y - 3, x, y + 2, hex('#a8302a')); R.pset(x - 1, y - 2, hex('#e05a4a')); };
+// el mapa abierto en la mano: la hoja con la costa, islas, rumbos y sus dos rollos arriba y abajo
+const mapaMano = (x, y, w = 20, hh = 13) => { x = Math.round(x - w / 2); y = Math.round(y - hh / 2);
+  R.rect(x - 1, y - 1, x + w, y + hh, K); R.rect(x, y, x + w - 1, y + hh - 1, hex('#ecd8a8'));
+  for (let i = 0; i < w; i++) for (let j = 0; j < hh; j++) if (h(i, j, 5) > 0.84) R.pset(x + i, y + j, hex('#d4bc88'));
+  for (let j = 1; j < hh - 1; j++) { const cx = x + 4 + Math.round(Math.sin(j * 0.7) * 1.5 + j * 0.2); R.pset(cx, y + j, hex('#3a2a18')); R.pset(cx - 1, y + j, hex('#9aa458')); R.pset(cx - 2, y + j, hex('#b8a058')); }
+  R.linea(x + 6, y + hh - 3, x + w - 3, y + 2, hex('#c87a6a'), 2); R.disco(x + w - 6, y + 4, 1.5, hex('#a83224')); R.pset(x + 9, y + 4, hex('#9aa458')); R.pset(x + 10, y + 4, hex('#9aa458'));
+  for (const yy of [y - 2, y + hh]) { R.rect(x - 2, yy - 1, x + w + 1, yy + 2, K); R.rect(x - 1, yy, x + w, yy + 1, hex('#c8a870')); R.rect(x - 1, yy, x + w, yy, hex('#e8d4a4')); } };
+// la lanza de un guardia, cogida por la mano (x, y)
+const lanza = (x, y) => { x = Math.round(x); y = Math.round(y);
+  R.rect(x - 1, y - 24, x + 1, y + 12, K); R.rect(x, y - 24, x, y + 12, hex('#8a5a30')); R.pset(x, y - 12, hex('#b07a44')); R.pset(x, y + 4, hex('#6a4020'));
+  R.poligono([[x - 3, y - 25], [x, y - 33], [x + 3, y - 25]], K); R.poligono([[x - 2, y - 25], [x, y - 31], [x + 2, y - 25]], hex('#c8ccd8')); R.pset(x - 1, y - 27, hex('#ffffff'));
+  R.rect(x - 2, y - 25, x + 2, y - 24, hex('#d8a838')); R.rect(x - 2, y - 22, x + 2, y - 21, hex('#c0302a')); };
+// la pluma de escribir en la mano
+const pluma = (x, y) => { x = Math.round(x); y = Math.round(y); R.linea(x, y, x + 5, y - 8, K); R.linea(x + 1, y - 1, x + 6, y - 9, hex('#f6f2e8')); R.linea(x + 2, y - 2, x + 7, y - 8, hex('#d8d4c8')); R.pset(x, y + 1, hex('#2a2018')); };
+// un destello de cuatro puntas (lo que brilla)
+const destello = (x, y, r, c = hex('#fff4c8')) => { x = Math.round(x); y = Math.round(y); for (let i = 1; i <= r; i++) { const cc = i > r - 2 ? mez(c, hex('#d8a838'), 0.5) : c; R.pset(x + i, y, cc); R.pset(x - i, y, cc); R.pset(x, y + i, cc); R.pset(x, y - i, cc); } R.pset(x, y, hex('#ffffff')); };
+// el marco de un rectángulo, que late en oro
+const marcoOro = (x0, y0, x1, y1, a) => { const c = mez(hex('#d8a838'), hex('#fff4c8'), a); R.linea(x0, y0, x1, y0, c); R.linea(x0, y1, x1, y1, c); R.linea(x0, y0, x0, y1, c); R.linea(x1, y0, x1, y1, c); };
+
+const P2 = en('sultan', 0.2375), P3 = en('sultan', 0.4540), P4 = en('sultan', 0.7278);
+
+// ── 1 · Piri ofrece el mapa al sultán ───────────────────────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  T.galipoli(R, t, { encuadre: 'cairo' });
+  const ofrece = en('sultan', 0.1286), selim = en('sultan', 0.1704), baja = lin(t, en('sultan', 0.1924), en('sultan', 0.2336));
+  // los dos guardias con su lanza: el de la izquierda sigue a Piri con la mirada al entrar
+  const g1 = R.actor(EL.marineroOtomano1, 36, 168, t, { dir: t > 0.5 && t < 1.3 ? -1 : 1, sostiene: true }); lanza(g1.mano[0], g1.mano[1]);
+  const g2 = R.actor(EL.marineroOtomano2, 266, 168, t, { dir: -1, sostiene: true, sonrisa: t > selim }); lanza(g2.mano[0], g2.mano[1]);
+  // el sultán en su estrado: mira, sonríe a «Selim» y le llama con la mano
+  R.actor(EL.selim, 153, 120, t, { dir: -1, sonrisa: t > selim - 0.2, habla: t > selim && t < selim + 0.6 && parp(t, 8), dedo: t > selim + 0.5 });
+  // Piri entra por la alfombra con el rollo, se para, inclina la cabeza y lo ofrece
+  const u = suave(lin(t, 0.2, ofrece - 0.15)), px = Math.round(lerp(-16, 112, u)), sube = lin(t, ofrece, ofrece + 0.35);
+  const p = R.actor(EL.piri, px, 162, t, { dir: 1, anda: u > 0 && u < 1, sostiene: sube > 0 ? [px + 20, 162 - 14 - Math.round(sube * 6)] : true, triste: t > ofrece + 0.1 && t < selim - 0.1, sonrisa: t > selim });
+  rolloMano(p.mano[0] + 3, p.mano[1] - 1);
+  // el visir lo anuncia con la mano y después baja del lado del estrado a recoger el rollo
+  const vx = Math.round(lerp(214, 150, suave(baja)));
+  R.actor(EL.visir, vx, 160, t, { dir: -1, anda: baja > 0 && baja < 1, habla: t > 0.7 && t < 1.9 && parp(t, 7), dedo: (t > 0.9 && t < 1.8) || baja >= 1 });
+  T.galipoliDelante(R, t, { encuadre: 'cairo' });
+};
+
+// ── 2 · el sultán lo mira y lo echa al cofre ─────────────────────────────────────────────────────────────────────
+const enrolla = en('sultan', 0.3573), tira = en('sultan', 0.3820), cae = en('sultan', 0.4040), cierra = en('sultan', 0.4331);
+const p2 = (t) => {
+  const abre = lin(t, enrolla, tira) - lin(t, cae + 0.05, cierra - 0.02);
+  T.galipoli(R, t, { encuadre: 'cairo', camara: 'trono', cofre: abre });
+  // Piri, abajo a la izquierda, mira contento… hasta que el mapa acaba en el cofre
+  R.actor(EL.piri, 58, 168, t, { dir: 1, sonrisa: t < cae, sorpresa: t > tira && t < cierra - 0.1, triste: t > cierra - 0.1 });
+  // el visir, abajo a la derecha, señala el cofre cuando se abre
+  R.actor(EL.visir, 252, 168, t, { dir: -1, habla: t > P2 + 0.4 && t < P2 + 1.4 && parp(t, 7), dedo: t > enrolla - 0.1 && t < cae + 0.2 });
+  // Selim con el mapa: lo mira, sonríe a «conquered», lo enrolla y lo lanza al cofre
+  const conMapa = t < tira, s = R.actor(EL.selim, 154, 122, t, { dir: 1, sostiene: conMapa ? [178, 100] : false, sonrisa: t > en('sultan', 0.3243) && t < cae, habla: t > P2 + 0.5 && t < en('sultan', 0.3188) && parp(t, 6), dedo: t > tira && t < cierra });
+  if (conMapa) { if (t < enrolla) mapaMano(s.mano[0] + 9, s.mano[1] - 4, 20, Math.round(13 - 2 * Math.abs(Math.sin(t * 1.3)))); else rolloMano(s.mano[0] + 5, s.mano[1]); }
+  const v = lin(t, tira, cae);
+  if (v > 0 && v < 1) rolloMano(lerp(184, 222, v), lerp(100, 116, v) - Math.sin(Math.PI * v) * 16);
+  T.galipoliDelante(R, t, { encuadre: 'cairo', camara: 'trono' });
+};
+
+// ── 3 · los siglos pasan en la biblioteca ─────────────────────────────────────────────────────────────────────────
+const siglos0 = en('sultan', 0.4672), siglos1 = en('sultan', 0.6112);
+const telarana = (cx, cy, r, a0, a1, g) => {   // radios y arcos de una telaraña en una esquina, que crece con g
+  if (g <= 0) return; const rr = r * g, c = hex('#e8e8f0');
+  for (let k = 0; k <= 4; k++) { const a = a0 + (a1 - a0) * k / 4; R.linea(cx, cy, Math.round(cx + Math.cos(a) * rr), Math.round(cy + Math.sin(a) * rr), mez(c, hex('#a8a8b4'), 0.3)); }
+  for (let q = 1; q <= 3; q++) { const d = rr * q / 3.4; for (let k = 0; k < 4; k++) { const a = a0 + (a1 - a0) * k / 4, b = a0 + (a1 - a0) * (k + 1) / 4; R.linea(Math.round(cx + Math.cos(a) * d), Math.round(cy + Math.sin(a) * d), Math.round(cx + Math.cos((a + b) / 2) * d * 0.9), Math.round(cy + Math.sin((a + b) / 2) * d * 0.9), c); R.linea(Math.round(cx + Math.cos((a + b) / 2) * d * 0.9), Math.round(cy + Math.sin((a + b) / 2) * d * 0.9), Math.round(cx + Math.cos(b) * d), Math.round(cy + Math.sin(b) * d), c); } }
+};
+const p3 = (t) => {
+  T.estambul(R, t, { encuadre: 'biblioteca' });
+  const u = lin(t, siglos0, siglos1), polvo = lin(t, siglos0, siglos1 + 0.6);
+  // criados del palacio que cruzan como rayos (el tiempo corre)
+  const pasos = [[EL.visir, 0.0, 1], [EL.marineroOtomano1, 0.18, -1], [EL.marineroOtomano2, 0.36, 1], [EL.visir, 0.55, -1], [EL.marineroOtomano1, 0.74, 1]];
+  for (const [d, a, dir] of pasos) { const v = lin(u, a, a + 0.16); if (v > 0 && v < 1) { const x = Math.round(dir > 0 ? lerp(70, 196, v) : lerp(196, 70, v)); R.actor(d, x, 150, t * 3, { dir, anda: true }); } }
+  // Halil Edhem entra por la puerta del fondo en 1929, se acerca y se para junto al cofre, sorprendido
+  const e = suave(lin(t, siglos1 + 0.1, en('sultan', 0.6651)));
+  if (t > siglos1) R.actor(EL.edhem, Math.round(lerp(292, 220, e)), 142, t, { dir: -1 + 2 * (e >= 1 ? 1 : 0), anda: e > 0 && e < 1, sorpresa: t > en('sultan', 0.6706) && t < en('sultan', 0.7091), dedo: t > en('sultan', 0.6981) });
+  T.estambulDelante(R, t, { encuadre: 'biblioteca' });
+  // el polvo que se posa en las estanterías, el cofre y los papeles
+  if (polvo > 0) { const gris = hex('#cfc8bc');
+    for (const [x0, y0, x1, y1] of [[84, 28, 230, 120], [238, 112, 276, 134], [6, 120, 72, 138]]) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const g = h(x >> 1, y >> 1, 7); if (g < polvo * 0.26) R.pset(x, y, mez(R.pget(x, y), gris, g < polvo * 0.1 ? 0.6 : 0.35)); } }
+  // las telarañas de las esquinas y la araña que baja de su hilo
+  telarana(84, 28, 22, 0, Math.PI / 2, polvo); telarana(230, 28, 20, Math.PI / 2, Math.PI, lin(polvo, 0.2, 1)); telarana(276, 112, 14, Math.PI / 2, Math.PI, lin(polvo, 0.4, 1)); telarana(32, 34, 12, 0, Math.PI / 2, lin(polvo, 0.3, 1));
+  const ar = Math.sin(Math.PI * lin(t, en('sultan', 0.5222), en('sultan', 0.6431))), ay = Math.round(30 + ar * 46);
+  if (ar > 0) { R.linea(206, 29, 206, ay - 2, hex('#e8e8f0')); R.disco(206, ay, 1.6, K); R.pset(204, ay - 1, K); R.pset(208, ay - 1, K); R.pset(204, ay + 1, K); R.pset(208, ay + 1, K); }
+  // días y noches que pasan cada vez más deprisa
+  const n = u > 0 && u < 1 ? (0.5 - 0.5 * Math.cos(2 * Math.PI * (u * u * 7))) * 0.5 : 0;
+  if (n > 0.02) T.tinte(R, 16, 179, [18, 22, 52], n);
+};
+
+// ── 4 · se borran dos tercios: queda el oeste ────────────────────────────────────────────────────────────────────
+const quema0 = en('sultan', 0.7343), quema1 = en('sultan', 0.8135), atl = en('sultan', 0.7981), europa = en('sultan', 0.8795), nuevas = en('sultan', 0.9564);
+const p4 = (t) => {
+  const b = suave(lin(t, quema0, quema1));
+  // la lupa: sube de abajo, mira el Atlántico, la costa de Europa y África y luego las tierras nuevas
+  const sube = suave(lin(t, P4 + 0.3, atl - 0.2)), aE = suave(lin(t, europa - 0.5, europa)), aN = suave(lin(t, nuevas - 0.5, nuevas));
+  const lx = Math.round(lerp(lerp(62, 96, aE), 34, aN)), ly = Math.round(lerp(220, lerp(lerp(104, 92, aE), 112, aN), sube));
+  const r = T.pergamino(R, t, { vista: 'entero', borrado: b, vivo: 0.6, ilumina: t > nuevas ? 'costa' : undefined, lupa: { x: lx, y: ly, r: 20 } });
+  // las pavesas que suben del borde quemado
+  const fx = 313 - 200 * b;
+  for (let k = 0; k < 26; k++) { const vida = (t * 0.9 + h(k, 1, 31)) % 1, x0 = fx + (h(k, 2, 31) - 0.3) * 30, y0 = 64 + h(k, 3, 31) * 78; const vis = lin(t, quema0, quema0 + 0.2) * (1 - lin(t, quema1, quema1 + 1.8)); if (vis <= 0 || h(k, 4, 31) > vis) continue;
+    const x = Math.round(x0 + Math.sin(t * 3 + k) * 3 + vida * 8), y = Math.round(y0 - vida * 46); if (y < 18 || (x > 274 && y < 48)) continue; R.pset(x, y, vida < 0.4 ? hex('#ffb040') : vida < 0.7 ? hex('#c85a2a') : hex('#8a8288')); }
+  // la mano de Edhem con la lupa (el brazo sube de abajo)
+  if (r.lupa && r.lupa.mango) { const [mx, my] = r.lupa.mango; T.brazo(R, mx + 30, 206, mx + 2, my + 4, '#2a2e3a', -1, { codo: [mx + 22, my + 30] }); }
+  // las tierras nuevas que brillan
+  if (t > nuevas) { const a = 0.5 + 0.5 * Math.sin((t - nuevas) * 9); destello(22, 104, 3 + Math.round(a * 2)); destello(44, 140, 2 + Math.round(a)); }
+};
+
+const año = (t) => t < P3 + 0.2 ? 1517 : t < P4 ? Math.round(lerp(1517, 1929, suave(lin(t, siglos0, siglos1)))) : 1929;
+const efectos = [[en('sultan', 0.1319), 'papel'], [en('sultan', 0.3820), 'whoosh'], [en('sultan', 0.4320), 'cerrojo'], [siglos0, 'whoosh'], [en('sultan', 0.6733), 'golpecito'], [quema0 + 0.05, 'rafaga'], [nuevas, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>
