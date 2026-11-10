@@ -13,7 +13,7 @@ import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
 import { pintarPRchibi } from '/atomo/plato/escenas/pr-mini-chibi.js';
 const R = conChibi(await crearRoma(document.getElementById('lienzo')));
-window.__frame = async (t) => { pintarPRchibi(R, t, 3); R.presentar(); };
+window.__frame = async (t) => { pintarPRchibi(R, t, 2); R.presentar(); };
 window.__listo = true;
 </script>
 </body>
