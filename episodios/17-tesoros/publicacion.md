@@ -98,3 +98,30 @@ Fuentes: Wikipedia (historia de los templarios, el sello del gran maestre, los C
 - **Miniatura:** se genera con `atomo/plato/escenas/te-miniatura.html`, capturada en t = 1.
 - **Pista en español:** si el canal aún no puede subir pistas de audio extra, el español se sube como vídeo aparte.
 - **Para escuchar antes de subir:** ES 15 (un hueco corto tras «septiembre»); ES 21 (puede faltar la «a» de «hasta a América»); ES 54 («decía»). El resto de avisos son nombres franceses e ingleses escritos como se pronuncian, que el reconocedor no entiende; lo más probable es que suenen bien, pero no los he oído.
+
+## Shorts (10/11/2026)
+
+Tres Shorts verticales (1080×1920) sacados del vídeo ya montado (el 17 ya no conserva pistas ni fotogramas: se cortan
+de ep17.mp4 y ep17-es.mp3 con la misma composición que short.py). Cada uno con la voz inglesa como pista principal, la
+pista en español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
+Motivo: una búsqueda de «Forrest Fenn» trae gente al canal; el Short 1 la recoge.
+
+### Short 1 · El tesoro de Forrest Fenn · tramo 473.75-512.7
+- **EN:** Forrest Fenn Hid a Treasure. 10 Years Later, It Was Found #Shorts
+- **ES:** El tesoro de Forrest Fenn apareció diez años después #Shorts
+- **EN:** In 2010, Forrest Fenn hid a chest of gold and jewels in the Rocky Mountains and published a poem full of clues. Hundreds of thousands searched for ten years. The full story of four treasures is in the linked video. #ForrestFenn #TreasureHunt #ASKAtom #Shorts
+- **ES:** En 2010, Forrest Fenn escondió un cofre de oro y joyas en las Montañas Rocosas y publicó un poema lleno de pistas. Cientos de miles lo buscaron durante diez años. La historia completa de cuatro tesoros, en el vídeo enlazado. #ForrestFenn #BúsquedaDelTesoro #ASKAtom #Shorts
+
+### Short 2 · Viernes 13 de 1307 · tramo 1.25-48.8
+- **EN:** October 13, 1307: Why the Templars' Treasure Vanished #Shorts
+- **ES:** 13 de octubre de 1307: el tesoro perdido de los templarios #Shorts
+- **EN:** At dawn on Friday, October 13, 1307, the king of France arrested the Knights Templar. He was after their treasure. So which treasures were real? The full story is in the linked video. #Templars #History #ASKAtom #Shorts
+- **ES:** Al amanecer del viernes 13 de octubre de 1307, el rey de Francia detuvo a los templarios. Buscaba su tesoro. ¿Qué tesoros existieron de verdad? La historia completa, en el vídeo enlazado. #Templarios #Historia #ASKAtom #Shorts
+
+### Short 3 · El rollo de cobre · tramos 402.0-415.5,433.45-472.4
+- **EN:** A Copper Scroll Lists 64 Hidden Treasures. None Found #Shorts
+- **ES:** Un rollo de cobre con 64 tesoros que nadie ha encontrado #Shorts
+- **EN:** In 1952, archaeologists near the Dead Sea found a copper scroll. Inside: sixty-four hiding places of gold and silver. None has ever been found. The full story is in the linked video. #CopperScroll #DeadSeaScrolls #ASKAtom #Shorts
+- **ES:** En 1952, unos arqueólogos encontraron junto al mar Muerto un rollo de cobre. Dentro, sesenta y cuatro escondites de oro y plata. Ninguno ha aparecido. La historia completa, en el vídeo enlazado. #RolloDeCobre #MarMuerto #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/te-short1-miniatura.html` … `te-short3-miniatura.html` (te-mini-chibi.js).
