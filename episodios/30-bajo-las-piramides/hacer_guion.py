@@ -92,7 +92,7 @@ PREVIO = {
 # Regla del usuario (05/11/2026): en español, TODOS los nombres propios extranjeros se escriben como se dicen en español
 # de México; la r fuerte se escribe doble y las siglas que se deletrean van en una sola palabra («achebeó»).
 PRONUNCIA = {
-    'en': [('Edgar Cayce', 'Edgar Casey'), ('Flinders Petrie', 'Flinders Peetree'), ("Petrie's", "Peetree's"),
+    'en': [('Khafre', 'Kafray'), ('Lawrence Conyers', 'Lawrence Konyers'), ('Edgar Cayce', 'Edgar Casey'), ('Flinders Petrie', 'Flinders Peetree'), ("Petrie's", "Peetree's"),
            ('Amenemhat', 'Ahmen-em-hot'), ('Parcak', 'Parchak'), ('ScanPyramids', 'Scan Pyramids')],
     'es': [('Corrado Malanga', 'Corrádo Malánga'), ('Filippo Biondi', 'Filípo Bióndi'), ('Biondi', 'Bióndi'),
            ('Armando Mei', 'Armándo Méi'), ('Edgar Cayce', 'Édgar Quéisi'), ('ScanPyramids', 'Escán Píramids'),
