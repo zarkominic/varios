@@ -75,6 +75,8 @@ const gato = (x, y, t, dir = 1, col = hex('#4a4048'), luz = hex('#6a6070'), mira
 
 # piezas propias de este grupo (se pegan después de COMUN)
 COMUN2 = r'''
+// calma una zona (la esquina de Atom): mezcla hacia un tono liso
+const calmar = (x0, y0, x1, y1, c, a) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), c, a)); };
 const suave = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
 // Atom en el plano, con su halo
 const atomEn = (x, y, t, e = 0.4, r = 13) => {
@@ -199,6 +201,7 @@ const p1 = (t) => {
     // un cabo adujado en el suelo, a la derecha
     for (let r = 9; r > 2; r -= 2) R.anillo(292, 166, r, r % 4 === 1 ? hex('#c8a870') : hex('#a08050'));
     R.disco(292, 166, 2, hex('#6e5030'));
+    calmar(274, 15, 319, 50, MAD[1], 0.7);
   });
   ventanaNoche(17, 29, 83, 97, t, [38, 44]); ventanaNoche(219, 29, 269, 97, t + 0.3, null);
   // el reloj de arena que corre sobre la mesa
@@ -260,6 +263,7 @@ const p2 = (t) => {
     caja(276, 162, 300, 170, hex('#7a2a20')); R.rect(277, 162, 299, 162, hex('#b84a3a'));
     // la luz de la tarde en franjas inclinadas (la sombra del parteluz de la ventana)
     for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const s = ((x + y * 0.7) % 96 + 96) % 96; if (s < 54) { if (tr(x, y, 0.5)) R.pset(x, y, mez(R.pget(x, y), hex('#ffc070'), 0.14)); } else if (s > 60 && tr(x, y, 0.5)) R.pset(x, y, mez(R.pget(x, y), hex('#1a0c04'), 0.16)); }
+    calmar(272, 0, 319, 50, NOG[1], 0.7);
   });
   // las olas que se mueven y la carabela que navega por el Atlántico
   R.recorte([MP[0] + 3, MP[1] + 3, MP[2] - 3, MP[3] - 3]);
@@ -527,7 +531,7 @@ const p3 = (t) => {
   for (let y = 82; y < 104; y += 2) for (let x = (y * 7 + Math.floor(t * 8)) % 9; x < 320; x += 9) if (Math.sin(x * 0.3 + y - t * 2) > 0.6) { R.pset(x, y, hex('#8ac0e8')); R.pset(x + 1, y, hex('#8ac0e8')); }
   // la bandera de popa y un marinero que tira de un cabo junto a la borda
   { R.rect(304, 52, 305, 104, hex('#5a3420')); for (let i = 1; i <= 12; i++) { const off = Math.round(Math.sin(i * 0.7 - t * 9) * (i / 12) * 1.5); for (let j = 0; j < 8; j++) R.pset(305 - i, 52 + j + off, i === 5 && j > 2 && j < 6 ? hex('#f4f0e4') : hex('#c8302a')); } }
-  { const tira = Math.sin(t * 3); R.actor(EL.marineroOtomano2, 236, 132, t, { dir: 1, sostiene: [254, 118 + Math.round(tira * 3)] }); R.linea(254, 118 + Math.round(tira * 3), 270, 98, hex('#c8a870')); }
+  { const tira = Math.sin(t * 3); R.actor(EL.marineroOtomano2, 236, 142, t, { dir: 1, sostiene: [254, 128 + Math.round(tira * 3)] }); R.linea(254, 128 + Math.round(tira * 3), 272, 100, hex('#c8a870')); }
   // el toldo de rayas que se mece (sin tocar la esquina de Atom), sus postes y los flecos
   for (const x of [14, 262]) { R.rect(x, 30, x + 2, 126, hex('#5a3420')); R.rect(x, 30, x, 126, hex('#8a5a32')); }
   for (let x = 0; x < 268; x++) { const caida = 30 + Math.round(Math.sin(x * 0.05 + t * 2) * 1.2); for (let y = 18; y <= caida; y++) R.pset(x, y, ((x >> 3) % 2 ? hex('#c8302a') : hex('#f4ecd8'))); R.pset(x, caida + 1, K); if (x % 4 === 0) { R.pset(x, caida + 2, hex('#e8c050')); R.pset(x, caida + 3 + (Math.sin(t * 5 + x) > 0 ? 1 : 0), hex('#e8c050')); } }
