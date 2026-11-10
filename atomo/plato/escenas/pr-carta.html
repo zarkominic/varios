@@ -18,6 +18,9 @@
 //    con la costa de la Antártida del mapa polar, que se rodea en rojo.
 // 3. (corte en «Antarctica») el corte del hielo: el avión del radar dibuja la roca de debajo; en «Queen Maud Land» un
 //    explorador clava su banderita; en «under the ice» la costa del mapa (línea sepia) baja y encaja con la roca.
+//    El cielo lleva cirros, el halo con sus parhelios, nubes de tres tonos a tres velocidades por detrás de todo,
+//    petreles que planean y dos skúas que rondan las cajas; el hielo, bloques del neviza con juntas, grietas, capas de
+//    polvo volcánico, burbujas que brillan, luz que baja de la nieve y sombra junto a la roca.
 // 4. (corte en «Hapgood was thrilled») LOCAL el despacho de Hapgood de noche: lee la carta, da dos saltos de alegría (el
 //    gato salta de la ventana), la lanza al aire y la atrapa, y en «mapped Antarctica» la deja en la mesa entre la copia
 //    del mapa y el perfil bajo el hielo, que brillan; luciérnagas por la ventana.
@@ -138,9 +141,74 @@ const p2 = (t) => {
     if (u >= 1) { const r = 6 + Math.sin(t * 6) * 0.6; for (let k = 0; k < 40; k++) { const a2 = k / 40 * Math.PI * 2; R.pset(Math.round(b[0] + Math.cos(a2) * r), Math.round(b[1] + Math.sin(a2) * r * 0.8), H_('#d83a2a')); } } }
 };
 // ── 3 · el corte del hielo (el radar) ──
+// encima del decorado, sin pisar nada: el cielo y el hielo se repintan solo donde el píxel es del cielo o del hielo
+// (el avión, la torre, la tienda, el monitor, los pulsos y el perfil del radar quedan delante)
+const CIELO3 = new Set(['#3e78bc', '#5e98d0', '#8cbce0', '#c4dcee', '#f0dcd4'].map((c) => H_(c) >>> 0));
+const HIELO3 = new Set(['#ffffff', '#e4f2fa', '#bcdcee', '#8cbcdc', '#5a92c0', '#3a6a9a'].map((c) => H_(c) >>> 0));
+const esCielo = (x, y) => CIELO3.has(R.pget(x, y) >>> 0), esHielo = (x, y) => HIELO3.has(R.pget(x, y) >>> 0);
+const BLANCO3 = H_('#f6f8fa'), HALO3 = H_('#fff2ec'), HG = ['#ffffff', '#e4f2fa', '#bcdcee', '#8cbcdc', '#5a92c0', '#3a6a9a', '#28507a', '#1a3a5e'].map(H_);
+// nube de tres tonos por detrás de lo que hay (un solo recorrido de su caja: sombra abajo, cuerpo, luz arriba a la izquierda)
+const nubeTras = (cx, cy, w, c3, t, k) => { const B = [[0, 0, 0.3], [-0.32, 0.08, 0.22], [0.3, 0.06, 0.24], [-0.1, -0.14, 0.25], [0.14, -0.1, 0.2]].map(([dx, dy, r], i) => [cx + dx * w, cy + dy * w, r * w * (1 + 0.12 * Math.sin(t * 0.5 + i * 1.7 + k))]);
+  const x0 = Math.max(0, Math.floor(cx - w * 0.62)), x1 = Math.min(319, Math.ceil(cx + w * 0.62)), y0 = Math.max(0, Math.floor(cy - w * 0.42)), y1 = Math.min(179, Math.ceil(cy + w * 0.36));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { let dn = false, dc = false, dl = false;
+    for (const [bx, by, r] of B) { if ((x - bx) ** 2 + (y - by - 1) ** 2 <= r * r) dn = true; if ((x - bx) ** 2 + (y - by) ** 2 <= r * r) dc = true; if ((x - bx + 1) ** 2 + (y - by + 1.5) ** 2 <= (r * 0.62) ** 2) dl = true; }
+    if (!dn || !esCielo(x, y)) continue; R.pset(x, y, dl ? c3[2] : dc ? (y > cy + w * 0.12 && umb(x, y) < 0.5 ? c3[0] : c3[1]) : c3[0]); } };
+// un petrel de las nieves (blanco, el pico y el ojo oscuros) que planea y bate las alas de vez en cuando
+const petrel = (x, y, t, k) => { const b = Math.sin(t * 9 + k * 2.3), a = Math.sin(t * 0.9 + k) > 0.2 ? (b > 0 ? -1 : 1) : 0, x0 = Math.round(x), y0 = Math.round(y);
+  R.pset(x0 - 3, y0 + a, H_('#8a9aa8')); R.pset(x0 - 2, y0 + (a > 0 ? 1 : a), BLANCO3); R.pset(x0 - 1, y0, BLANCO3); R.pset(x0, y0, BLANCO3); R.pset(x0 + 1, y0, BLANCO3); R.pset(x0 + 2, y0, K);
+  R.pset(x0 + 1, y0 + (a > 0 ? 1 : a), BLANCO3); R.pset(x0 + 2, y0 + a - (a < 0 ? 1 : 0), BLANCO3); R.pset(x0 + 3, y0 + a - (a < 0 ? 1 : 0), H_('#8a9aa8')); R.pset(x0 - 1, y0 + 1, H_('#c4d0dc')); };
+// un skúa pardo que da vueltas sobre las cajas de víveres (los ladrones del campamento)
+const skua = (x, y, t, k, dir) => { const b = Math.sin(t * 7 + k), x0 = Math.round(x), y0 = Math.round(y), S = H_('#5a4232'), SL = H_('#8a6a4e');
+  R.rect(x0 - 1, y0, x0 + 1, y0 + 1, S); R.pset(x0 + 2 * dir, y0, K); R.pset(x0 - 2 * dir, y0 + 1, S);
+  const wy = b > 0.3 ? -2 : b < -0.3 ? 1 : -1; R.linea(x0 - 1, y0, x0 - 4, y0 + wy, S); R.linea(x0 + 1, y0, x0 + 4, y0 + wy, S); R.pset(x0 - 4, y0 + wy, SL); R.pset(x0 + 4, y0 + wy, SL); R.pset(x0, y0, SL); };
+const cielo3 = (t) => {
+  // cirros altos: hilachas finas que se deslizan muy despacio
+  for (const [cx0, cy, len, v, k] of [[30, 20, 70, 0.6, 1], [150, 23, 58, 0.45, 2], [196, 40, 50, 0.7, 3], [40, 66, 64, 0.5, 4]]) { const cx = ((cx0 + t * v) % 360) - 20;
+    for (let i = 0; i < len; i++) { const x = Math.round(cx + i), y = Math.round(cy + Math.sin(i * 0.11 + k) * 1.6 + (i > len * 0.6 ? (i - len * 0.6) * 0.08 : 0)), e = Math.min(i, len - i) / (len * 0.3);
+      if (x < 0 || x > 319 || !esCielo(x, y)) continue; const a = 0.38 * Math.min(1, e); if (a > umb(x, y) * 0.5) R.pset(x, y, mez(R.pget(x, y), BLANCO3, a)); if (i % 5 < 3 && esCielo(x + 2, y + 1) && umb(x, y) < a) R.pset(x + 2, y + 1, mez(R.pget(x + 2, y + 1), BLANCO3, a * 0.6)); } }
+  // el halo de 22° alrededor del sol bajo y los dos parhelios que brillan a sus lados
+  for (const [rr, al] of [[21, 0.36], [20, 0.18], [22, 0.14]]) for (let i = 0; i < 180; i++) { const an = i / 180 * Math.PI * 2, x = Math.round(236 + Math.cos(an) * rr), y = Math.round(30 + Math.sin(an) * rr * 0.9); if (y > 15 && esCielo(x, y)) R.pset(x, y, mez(R.pget(x, y), HALO3, al + 0.06 * Math.sin(t * 2 + i * 0.3))); }
+  for (const sx of [214, 258]) { const br = 0.55 + 0.25 * Math.sin(t * 1.6 + sx); for (let j = -3; j <= 3; j++) { const y = 30 + j; for (const [dx, c] of [[sx < 236 ? 1 : -1, H_('#f6c0a8')], [0, HALO3], [sx < 236 ? -1 : 1, H_('#cfe2f6')]]) if (esCielo(sx + dx, y)) R.pset(sx + dx, y, mez(R.pget(sx + dx, y), c, br * (1 - Math.abs(j) / 4))); } }
+  // nubes de tres tonos a tres velocidades: lejanas grandes y lentas junto al horizonte, medias y cercanas
+  const NL = ['#a8c4dc', '#cfe0ee', '#eef4fa'].map(H_), NM = ['#9ab4d0', '#dce8f2', '#ffffff'].map(H_), NC = ['#86a4c4', '#d4e2ee', '#ffffff'].map(H_);
+  for (const [x0, y, w, v, c, k] of [[20, 74, 34, 1.2, NL, 1], [190, 76, 30, 1.2, NL, 2], [110, 70, 24, 1.4, NL, 3], [70, 34, 20, 3.0, NM, 4], [250, 32, 16, 3.4, NM, 5], [160, 26, 13, 5.5, NC, 6]]) nubeTras(((x0 + t * v) % 380) - 30, y, w, c, t, k);
+  // una bandada de petreles que planea y dos skúas que rondan las cajas del campamento
+  for (let i = 0; i < 5; i++) { const x = 40 + t * 7 + [0, -9, -16, -24, -31][i], y = 30 + [0, 3, -2, 5, 1][i] + Math.sin(t * 1.3 + i) * 1.2; if (x > -4 && x < 270) petrel(x, y, t, i); }
+  for (let i = 0; i < 2; i++) { const an = t * 1.1 + i * Math.PI, x = 266 + Math.cos(an) * (14 + i * 4), y = 71 + Math.sin(an) * 4 - i * 2; skua(x, y, t, i * 2, Math.sin(an) > 0 ? -1 : 1); }
+};
+// el hielo por dentro: bloques del neviza arriba, grietas, capas con polvo volcánico, burbujas y sombra junto a la roca
+const GRIETAS3 = [[[28, 108], [33, 114], [31, 119], [37, 126]], [[124, 106], [120, 111], [126, 116], [123, 122], [128, 128]], [[176, 110], [182, 115], [179, 121]], [[262, 106], [258, 112], [264, 117], [261, 124], [266, 131]], [[300, 112], [304, 118], [301, 124]]];
+const BURB3 = Array.from({ length: 90 }, (_, i) => [14 + Math.floor(hh(i, 1, 81) * 300), 104 + Math.floor(hh(i, 2, 81) * 52), hh(i, 3, 81) > 0.82 ? 2 : 1, hh(i, 4, 81)]);
+const hielo3 = (t, rocaY) => {
+  for (let x = 12; x < 320; x++) { if (x >= 213 && x <= 219) continue; const ry = Math.round(rocaY(x)), bx = Math.floor((x + 6) / 27), fx = 21 + bx * 27 + Math.floor(hh(bx, 1, 82) * 8) - 6, fondo = 106 + Math.floor(hh(bx, 2, 82) * 7);
+    for (let y = 101; y < ry; y++) { if (!esHielo(x, y)) continue; let c = R.pget(x, y), a = 0, col = HG[0]; const d = ry - y, prof = (y - 101) / Math.max(1, ry - 101);
+      // luz que baja desde la nieve y sombra que sube desde la roca; un vaivén lento de luz en las capas de arriba
+      if (y < 104) { a = 0.35 * (1 - (y - 101) / 3); col = HG[0]; }
+      if (d < 7) { a = 0.42 * (1 - d / 7); col = HG[7]; }
+      const ola = Math.sin(x * 0.06 + y * 0.18 - t * 1.4) * Math.sin(x * 0.021 + t * 0.6); if (prof < 0.4 && ola > 0.72) { a = 0.18; col = HG[0]; }
+      // sombreado por bloques de la luz de la izquierda: más claro arriba a la izquierda de cada masa
+      const lado = Math.sin((x - y * 0.8) * 0.018 + 1.3); if (a === 0 && lado < -0.55 && umb(x, y) < 0.35) { a = 0.16; col = HG[6]; } else if (a === 0 && lado > 0.7 && umb(x, y) < 0.35) { a = 0.2; col = HG[0]; }
+      if (a > 0) c = mez(c, col, a);
+      // los bloques del neviza: juntas verticales con su filo de luz y su sombra
+      const xf = fx + Math.round((y - 101) * 0.25 * (hh(bx, 3, 82) > 0.5 ? 1 : -1));
+      if (y <= fondo) { if (x === xf) c = HG[5]; else if (x === xf + 1) c = HG[1]; else if (x === xf - 1 && y > 102) c = mez(c, HG[6], 0.35); }
+      if (y === fondo && x > xf - 12 && x < xf && hh(bx, 4, 82) > 0.4) c = HG[4];
+      if (y === fondo + 1 && x > xf - 12 && x < xf && hh(bx, 4, 82) > 0.4) c = HG[1];
+      R.pset(x, y, c); }
+    // capas de polvo volcánico (gris pardo) que siguen el pliegue de las capas, con granos
+    for (const [cap, cc] of [[0.47, H_('#6a7486')], [0.76, H_('#4a5a72')]]) { const y = Math.round(101 + (ry - 101) * cap + 1.6 * Math.sin(x * 0.03 + cap * 3) + 1); if (y < ry - 2 && esHielo(x, y)) { R.pset(x, y, hh(x, 5, 83) > 0.8 ? H_('#3a3a44') : cc); if (hh(x, 6, 83) > 0.7 && esHielo(x, y + 1)) R.pset(x, y + 1, mez(R.pget(x, y + 1), cc, 0.5)); } } }
+  // las grietas: zigzag oscuro con su filo de luz
+  for (const g of GRIETAS3) for (let i = 0; i < g.length - 1; i++) { const [x0, y0] = g[i], [x1, y1] = g[i + 1], n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let j = 0; j <= n; j++) { const x = Math.round(lerp(x0, x1, j / n)), y = Math.round(lerp(y0, y1, j / n)); if (y >= rocaY(x) - 2) continue; if (esHielo(x, y)) R.pset(x, y, HG[6]); if (esHielo(x + 1, y)) R.pset(x + 1, y, HG[0]); if (i === 0 && j < 2 && esHielo(x - 1, y)) R.pset(x - 1, y, HG[5]); } }
+  // las burbujas de aire atrapadas: anillo oscuro abajo, centro claro; algunas brillan
+  for (const [bx, by, r, k] of BURB3) { if (by > rocaY(bx) - 4 || (bx >= 212 && bx <= 220) || !esHielo(bx, by)) continue; const br = Math.sin(t * 3 + k * 20) > 0.85;
+    if (r === 1) { R.pset(bx, by, br ? HG[0] : HG[1]); if (esHielo(bx + 1, by + 1)) R.pset(bx + 1, by + 1, HG[4]); }
+    else { R.rect(bx, by, bx + 1, by + 1, HG[1]); R.pset(bx, by, HG[0]); R.pset(bx + 1, by + 2, HG[4]); R.pset(bx + 2, by + 1, HG[4]); R.pset(bx + 2, by + 2, HG[5]); if (br) { R.pset(bx - 1, by, HG[0]); R.pset(bx, by - 1, HG[0]); } } }
+};
 const p3 = (t) => {
   const pr = lerp(0.15, 1, tramo(t, P3, en('carta', 0.6887)));
   const g = T.hoy(R, t, { encuadre: 'antartida', camara: 'radar', perfil: pr, avionX: Math.round(lerp(10, 300, pr)) });
+  cielo3(t); hielo3(t, g.rocaY);
   // el explorador clava su banderita en «Queen Maud Land»
   const ue = tramo(t, P3 + 0.1, en('carta', 0.5635)), xe = Math.round(lerp(26, 92, ue)), clava = t > en('carta', 0.5805);
   const ex = R.actor(EL.chico, xe, 98, t, { dir: 1, anda: ue > 0 && ue < 1, sostiene: !clava, brazos: t > en('carta', 0.5976) && t < en('carta', 0.6431), sonrisa: clava, pal: { C: H_('#e8642a'), c: H_('#b84a1a') } });

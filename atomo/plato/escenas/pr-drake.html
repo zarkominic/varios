@@ -12,14 +12,15 @@
 // PR-DRAKE (frase 20), hoy (2026). Cuatro planos:
 // 1. «And the map doesn't look much like Antarctica either. Between South America and Antarctica»: la mesa de luz,
 //    desde arriba, con un mapa polar de hoy; una mano desliza el calco de la costa de 1513 encima y no encaja (X roja en
-//    «either»); la mano lo aparta a la izquierda, sobre los lápices (donde se queda), y se retira; en «South America»
-//    brilla la punta y en «Antarctica» la península, y una línea a trazos las une; de fondo, el móvil del vade vibra con
+//    «either»); la mano lo aparta abajo a la izquierda, al borde de la mesa de luz (entero, opaco, con borde, sombra
+//    y la esquina doblada; los lápices y la goma encima) y se retira; en «South America» brilla la punta y en «Antarctica» la península, y una línea a trazos las une; de fondo, el móvil del vade vibra con
 //    un aviso y se enciende, y la taza humea;
 // 2. corte en «there's a sea about 500 miles wide»: el paso de Drake con temporal: el cabo de Hornos a la izquierda, el
 //    hielo a lo lejos, un buque de investigación que cabecea, el albatros; «500» sobre la cota en «500 miles»; en
 //    «Drake Passage» una ola rompe por la proa;
 // 3. corte en «and on the map it doesn't exist»: en la mesa, el globo (con el mar de Drake que brilla) y la copia del mapa
-//    en su atril; en «doesn't exist», un «?» rojo donde debería estar el mar; en «carries on», el dedo sigue la costa hacia el este;
+//    en su atril; en «doesn't exist», un «?» rojo donde debería estar el mar; en «carries on», el dedo sigue la costa hacia el este
+//    (brazo en diagonal desde abajo a la derecha, con codo);
 // 4. corte en «The experts who have studied it carefully»: el despacho del historiador; McIntosh entra con la lupa,
 //    estudia el globo, en «McIntosh» se vuelve y en «see something simpler» sonríe y levanta el dedo (visto bueno); su
 //    ayudante sube a la escalera de la librería a por un libro.
@@ -198,6 +199,11 @@ const polar = (x0, y0, x1, y1, cx, cy, k, giro, o = {}) => {
 
 const P2 = en('drake', 0.2730), P3 = en('drake', 0.4845), P4 = en('drake', 0.6965);
 // ── 1 · la mesa de luz con el mapa polar y el calco de 1513 ──
+// los tres lápices y la goma: van en el decorado y se repintan encima del calco cuando este se aparta
+const lapices = () => {
+  for (const [x, c] of [[18, '#e8c040'], [24, '#3a8a4a'], [30, '#2a4fa8']]) { R.linea(x, 80, x + 6, 120, K0); R.linea(x + 1, 80, x + 7, 120, hex(c)); R.pset(x + 7, 121, K0); }
+  R.rect(14, 136, 26, 142, K0); R.rect(15, 137, 25, 141, hex('#e87a9a')); R.rect(15, 137, 18, 141, hex('#2a4fa8'));
+};
 const fondoMesaLuz = () => {
   tablas(0, 0, 319, 179, rp('#2a1a10', '#4a2e1a', '#6a4426', '#865a34', '#a07246'), 9, 4);
   // el vade de fieltro (arriba a la derecha queda tranquilo)
@@ -209,8 +215,7 @@ const fondoMesaLuz = () => {
   for (const [px, py] of [[70, 28], [236, 28], [70, 152], [236, 152]]) { R.rect(px - 2, py - 2, px + 2, py + 2, hex('#e8e0c8')); }
   // los lápices, la goma, las gafas, la taza y la libreta
   R.rect(14, 30, 40, 66, K0); R.rect(15, 31, 39, 65, hex('#f2ece0')); for (let y = 36; y < 64; y += 4) R.rect(18, y, 36, y, hex('#9aa4c8')); R.rect(15, 31, 39, 33, hex('#c83a3a'));
-  for (const [x, c] of [[18, '#e8c040'], [24, '#3a8a4a'], [30, '#2a4fa8']]) { R.linea(x, 80, x + 6, 120, K0); R.linea(x + 1, 80, x + 7, 120, hex(c)); R.pset(x + 7, 121, K0); }
-  R.rect(14, 136, 26, 142, K0); R.rect(15, 137, 25, 141, hex('#e87a9a')); R.rect(15, 137, 18, 141, hex('#2a4fa8'));
+  lapices();
   R.disco(284, 120, 11, K0); R.disco(284, 120, 10, hex('#f6f2ea')); R.disco(284, 120, 7, hex('#5a3418')); R.disco(282, 118, 3, hex('#7a4a24')); R.rect(294, 117, 299, 123, K0); R.rect(295, 118, 298, 122, hex('#f6f2ea'));
   R.anillo(274, 160, 6, K0); R.anillo(290, 160, 6, K0); R.linea(280, 160, 284, 160, K0); R.linea(268, 158, 262, 152, K0); R.linea(296, 158, 302, 152, K0);
   R.rect(270, 82, 314, 96, K0); R.rect(271, 83, 313, 95, hex('#e8d8b0')); for (let x = 274; x < 312; x += 4) R.rect(x, 83, x, 87, hex('#5a3418'));
@@ -228,15 +233,21 @@ const p1 = (t) => {
     if (enc) { R.rect(px + 3, py + 5, px + 9, py + 8, hex('#e8f0f8')); R.rect(px + 4, py + 6, px + 5, py + 7, hex('#e8a030')); R.rect(px + 6, py + 6, px + 8, py + 6, hex('#8a94a4')); R.rect(px + 6, py + 7, px + 7, py + 7, hex('#8a94a4'));
       for (let k = 0; k < 3; k++) R.rect(px + 3, py + 11 + k * 2, px + 3 + 3 + ((k * 3) % 4), py + 11 + k * 2, hex('#a8c8ec')); }
     if (zz) { R.pset(px - 2, py + 6, hex('#8ab89a')); R.pset(px - 2, py + 14, hex('#8ab89a')); R.pset(px + 15, py + 8, hex('#8ab89a')); R.pset(px + 15, py + 16, hex('#8ab89a')); } }
-  // el calco con la costa de 1513 entra, no encaja y la mano lo aparta a la izquierda, sobre los lápices, para dejar ver
-  // la punta de Sudamérica; luego la mano se retira
+  // el calco con la costa de 1513 entra, no encaja y la mano lo aparta abajo a la izquierda, al borde de la mesa de luz
+  // (entero dentro del cuadro), para dejar ver la punta de Sudamérica; ahí fuera de la luz se ve opaco, con su borde y
+  // su sombra, y los lápices y la goma quedan encima; luego la mano se retira
   const entra = tramo(t, 0.5, 1.8), sale = suave(tramo(t, NO + 0.6, SA - 0.1)), retira = tramo(t, SA - 0.1, SA + 0.6);
-  const sx = Math.round(lerp(330, 110, entra) - 146 * sale), sy = Math.round(62 + 40 * sale), w = 92, h = 80;
-  if (sx < 320) { for (let y = sy; y <= Math.min(179, sy + h); y++) for (let x = Math.max(0, sx); x <= Math.min(319, sx + w); x++) { const e = Math.min(x - sx, sx + w - x, y - sy, sy + h - y); R.pset(x, y, e < 1 ? hex('#b8a888') : mez(R.pget(x, y), hex('#f6ecd0'), 0.5)); }
+  const sx = Math.round(lerp(330, 110, entra) - 104 * sale), sy = Math.round(62 + 34 * sale), w = 92, h = 80, op = 0.5 + 0.44 * sale;
+  if (sx < 320) {
+    // la sombra del calco, que crece al posarse sobre la madera
+    if (sale > 0.3) { const d = sale > 0.9 ? 2 : 1; for (let y = sy + d; y <= Math.min(179, sy + h + d); y++) for (let x = Math.max(0, sx + d); x <= Math.min(319, sx + w + d); x++) if (x > sx + w || y > sy + h) R.pset(x, y, mez(R.pget(x, y), K0, 0.45)); }
+    for (let y = sy; y <= Math.min(179, sy + h); y++) for (let x = Math.max(0, sx); x <= Math.min(319, sx + w); x++) { const e = Math.min(x - sx, sx + w - x, y - sy, sy + h - y);
+      R.pset(x, y, e < 1 ? hex('#a8946c') : mez(R.pget(x, y), mez(hex('#f6ecd0'), hex('#e6d6b0'), hh(x >> 1, y >> 1) * 0.5), e < 2 ? Math.min(1, op + 0.1) : op)); }
+    // la esquina superior derecha un poco doblada cuando ya está apartado
+    if (sale > 0.9) { R.poligono([[sx + w - 6, sy], [sx + w, sy], [sx + w, sy + 6]], mez(R.pget(sx + w + 3, sy + 3), K0, 0.2)); R.poligono([[sx + w - 6, sy], [sx + w, sy + 6], [sx + w - 6, sy + 6]], hex('#d8c498')); R.linea(sx + w - 6, sy, sx + w, sy + 6, hex('#a8946c')); }
     for (let i = 0; i + 1 < COSTA_PIRI.length; i++) { const [a, b] = COSTA_PIRI[i], [c, d] = COSTA_PIRI[i + 1]; for (const dd of [0, 1]) R.linea(sx + a * w + dd, sy + b * h, sx + c * w + dd, sy + d * h, hex('#7a3a1a')); }
     for (let k = 0; k < 5; k++) R.pset(sx + 10 + k * 3, sy + 16 + (k % 2) * 3, hex('#7a3a1a'));
-    // la sombra del calco cuando ya descansa en la mesa
-    if (sale > 0.95) for (let y = sy + 2; y <= Math.min(179, sy + h + 1); y++) { const x = sx + w + 1; if (x >= 0 && x < 320) R.pset(x, y, mez(R.pget(x, y), K0, 0.45)); }
+    if (sale > 0) lapices();
     const wx = sx + w + 2, wy = Math.round(sy + h + 4 + retira * 60), bx = Math.max(wx + 18, 70); if (wy < 196) T.brazo(R, bx, 200, wx, wy, '#4a6a4a', -1); }
   // la X roja: no se parece
   if (t > NO && t < NO + 1.4) { const k = tramo(t, NO, NO + 0.15); R.icono('X', 136, 82, hex('#ff2a2a'), K0, Math.round(2 + k * 3)); }
@@ -312,7 +323,8 @@ const p3 = (t) => {
   const u = tramo(t, SIGUE - 0.2, en('drake', 0.6532) + 0.3), sal = tramo(t, P4 - 0.6, P4 - 0.1);
   const pts = COSTA_PIRI.slice(6).map(([a, b]) => [174 + a * 126, 66 + b * 84]); const f = u * (pts.length - 1), i = Math.min(pts.length - 2, Math.floor(f)), fr = f - i;
   const px = Math.round(pts[i][0] + (pts[i + 1][0] - pts[i][0]) * fr), py = Math.round(pts[i][1] + (pts[i + 1][1] - pts[i][1]) * fr);
-  if (t > SIGUE - 0.6 && sal < 1) { const wy = py + 6 + Math.round(sal * 40), wx = px - 14; T.brazo(R, wx + 10, 200, wx, wy, '#4a6a4a', 1); }
+  // el brazo entra en diagonal desde abajo a la derecha, con el codo doblado, y la mano apunta con el índice a la costa
+  if (t > SIGUE - 0.6 && sal < 1) { const wx = px + 13 + Math.round(sal * 30), wy = py + 5 + Math.round(sal * 40); T.brazo(R, wx + 42, wy + 72, wx, wy, '#4a6a4a', -1, { codo: [wx + 32, wy + 16] }); }
 };
 // ── 4 · el despacho del historiador ──
 const p4 = (t) => {

@@ -10,15 +10,16 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // PR-GANCHO (frases 1–2), sin cartela. Siete planos:
-// 1. (1513) el pergamino de cerca, la costa del sur con su borde y la mesa: una mano lleva la lupa por la costa que se
-//    tuerce; en «Antarctica» la costa se enciende en oro (golpe);  2. (hoy) el globo grande con la Antártida blanca: otro
-//    visitante entra por la izquierda y en «proof» empuja el globo, que da media vuelta; el de la derecha señala el mapa,
+// 1. (1513) el pergamino de cerca (vista del sur algo más abierta, sin barcos bajo la barra del año ni en la esquina de
+//    Atom), la costa del sur con su borde y la mesa: una mano lleva la lupa por la costa que se
+//    tuerce; en «Antarctica» la costa se enciende en oro (golpe);  2. (hoy) el globo grande con la Antártida blanca: otra
+//    visitante sube a una escalerilla de biblioteca y en «proof» pasa la mano por la esfera, que da media vuelta; el de la derecha señala el mapa,
 //    le salen «?» en «lost civilization» y la guía explica; en «aliens» baja un platillo de juguete colgado de un hilo (el
 //    visitante y la guía saltan del susto);  3. (1513) el Caribe del pergamino: en «hidden» el trazo de Colón brilla y la carabela de tinta
 //    navega; una mano señala La Española en «lost map»;  4. (1501) la galera: el tío corsario enseña el catalejo al niño
 //    Piri y se ríe en «pirate uncle»; en «sailor captured» un marinero saca por la puerta de popa al prisionero con su
 //    rollo de cartas;  5. (1929) la mesa de la biblioteca de palacio: el pergamino doblado lleno de polvo; un mozo cruza
-//    por detrás con una pila de libros; Edhem sopla el polvo en «forgotten» y lo coge en «palace»;  6. (1966) la librería: el profesor levanta su copia del mapa en
+//    por detrás con una pila de libros; Edhem sopla el polvo en «forgotten», da un paso y en «palace» lo levanta por el canto 13 px a la luz;  6. (1966) la librería: el profesor levanta su copia del mapa en
 //    «believed», una estudiante que entra se queda boquiabierta en «vanished civilization» y la clienta que hojea un libro
 //    junto al mostrador se vuelve a mirar;  7. (hoy) el estudio de
 //    Atom: en «brain sees things» las nubes de la ventana se vuelven un barco y un pez; Atom va a la mesa, desenrolla el
@@ -45,6 +46,8 @@ const atomEn = (x, y, t, e = 0.4) => {
   R.atomo(x, y, t, { r: 13, orbita: R.PAL.ATOM[7], energia: e });
 };
 
+const V0 = { cx: 380, cy: 690, s: 0.75 }, V1 = { cx: 310, cy: 663, s: 0.6 };
+const aV1 = (x, y) => [Math.round(160 + (V0.cx + (x - 160) / V0.s - V1.cx) * V1.s), Math.round(90 + (V0.cy + (y - 90) / V0.s - V1.cy) * V1.s)];
 // 1 · la lupa recorre la costa del sur; en «Antarctica» se enciende
 const p1 = (t) => {
   // la lupa llega a la curva de la costa justo en «Antarctica», se queda temblando y luego sigue la costa hacia el este
@@ -52,12 +55,32 @@ const p1 = (t) => {
   const parada = t > antartida - 0.1 && t < antartida + 1.0;
   const lx = Math.round(u2 > 0 ? (u2 < 0.4 ? lerp(92, 140, u2 / 0.4) : lerp(140, 240, (u2 - 0.4) / 0.6)) : lerp(52, 92, u1));
   const ly = Math.round(u2 > 0 ? (u2 < 0.4 ? lerp(92, 100, u2 / 0.4) : lerp(100, 96, (u2 - 0.4) / 0.6)) : lerp(98, 92, u1)) + (parada ? Math.round(Math.sin(t * 9)) : 0);
-  const r = T.pergamino(R, t, { vista: 'sur', borde: true, ilumina: t > antartida ? 'sur' : undefined, lupa: { x: lx, y: ly, r: 22 }, vivo: 0.5 });
-  const m = r.lupa && r.lupa.mango ? r.lupa.mango : [lx + 18, ly + 18];
+  // la vista del sur algo más abierta y corrida (V1): ningún barco del mapa queda bajo la barra del año, en la esquina de
+  // Atom ni cortado por el borde; el recorrido de la lupa (pensado en la vista de siempre, V0) se pasa a la nueva
+  const [qx, qy] = aV1(lx, ly);
+  const r = T.pergamino(R, t, { vista: 'sur', borde: true, zoom: V1.s, centro: [V1.cx, V1.cy], ilumina: t > antartida ? 'sur' : undefined, lupa: { x: qx, y: qy, r: 22 }, vivo: 0.5 });
+  const m = r.lupa && r.lupa.mango ? r.lupa.mango : [qx + 18, qy + 18];
   T.brazo(R, m[0] + 28, 200, m[0], m[1], '#3a4a6a', -1);
   // el golpe: un destello de oro que se abre desde la curva
   const g = tramo(t, antartida, antartida + 0.6);
-  if (g > 0 && g < 1) for (let q = 0; q < 16; q++) { const an = q * Math.PI / 8, rr = 26 + g * 22; const x = Math.round(lx + Math.cos(an) * rr), y = Math.round(ly + Math.sin(an) * rr * 0.7); R.rect(x, y + 1, x + 1, y + 2, hex('#6a4a1a')); R.rect(x, y, x + 1, y + 1, q & 1 ? hex('#ffd040') : hex('#fff8d0')); }
+  if (g > 0 && g < 1) for (let q = 0; q < 16; q++) { const an = q * Math.PI / 8, rr = 26 + g * 22; const x = Math.round(qx + Math.cos(an) * rr), y = Math.round(qy + Math.sin(an) * rr * 0.7); R.rect(x, y + 1, x + 1, y + 2, hex('#6a4a1a')); R.rect(x, y, x + 1, y + 1, q & 1 ? hex('#ffd040') : hex('#fff8d0')); }
+};
+
+// la escalerilla de biblioteca del plano 2: el tablero de arriba (y 155) y el peldaño de abajo (y 166), sobre la moqueta
+const escalerilla = (t) => {
+  const N = hex('#5a3a22'), NL = hex('#8a5a32'), NB = hex('#b07a46'), NS = hex('#3a2414');
+  // la sombra en la moqueta
+  for (let y = 173; y <= 177; y++) for (let x = 58 + (y - 173); x <= 98 - (y - 173); x++) if ((x + y) & 1) R.pset(x, y, hex('#1a2234'));
+  // las patas (de atrás, más oscuras; de delante, con su luz)
+  R.rect(66, 157, 69, 175, K); R.rect(67, 158, 68, 175, NS); R.rect(91, 157, 94, 175, K); R.rect(92, 158, 93, 175, NS);
+  R.rect(60, 167, 63, 176, K); R.rect(61, 168, 62, 176, NL); R.rect(87, 158, 90, 176, K); R.rect(88, 159, 89, 176, NL); R.pset(88, 160, NB);
+  // el travesaño y la cruz de refuerzo
+  R.rect(63, 172, 90, 173, K); R.rect(64, 172, 89, 172, N); R.linea(69, 161, 87, 171, K); R.linea(69, 162, 87, 172, NS);
+  // el peldaño de abajo y el tablero de arriba, con su veta, el canto claro y los clavos de latón
+  R.rect(58, 165, 76, 168, K); R.rect(59, 166, 75, 167, NL); R.rect(59, 166, 75, 166, NB); R.pset(63, 167, N); R.pset(70, 167, N); R.pset(60, 166, hex('#e8c060'));
+  R.rect(64, 154, 96, 158, K); R.rect(65, 155, 95, 157, NL); R.rect(65, 155, 95, 155, NB); for (let x = 67; x < 95; x += 5) R.pset(x, 156 + ((x >> 2) & 1), N); R.pset(66, 155, hex('#e8c060')); R.pset(94, 155, hex('#e8c060'));
+  // un brillo que corre por el canto con la luz del aplique
+  const b = 65 + Math.round(((t * 9) % 60)); if (b <= 95) R.pset(b, 155, hex('#e8b880'));
 };
 
 // 2 · el globo con la Antártida blanca, los «?» y el platillo de juguete
@@ -69,9 +92,15 @@ const p2 = (t) => {
   const sal = susto ? Math.round(Math.abs(Math.sin((t - aliens) * Math.PI * 1.6)) * 6) : 0;
   // la guía del museo, a la derecha, explica el mapa enmarcado y en «aliens» se lleva un buen susto
   R.actor(EL.guia, 296, 174, t, { dir: -1, habla: t > P2 + 0.2 && t < civ - 0.2 && Math.sin(t * 7) > 0, dedo: t > civ - 0.3 && t < aliens - 0.1, sorpresa: t > aliens + 0.05, salto: susto ? Math.round(sal * 0.6) : 0 });
-  // otro visitante entra por la izquierda, se para al pie del globo, lo hace girar con el dedo y mira arriba en «aliens»
-  const v2 = tramo(t, P2 - 0.4, prueba - 0.15), v2x = Math.round(lerp(-14, 52, v2));
-  R.actor(EL.visitante2, v2x, 176, t, { dir: 1, anda: v2 > 0 && v2 < 1, dedo: v2 >= 1 && t < prueba + 0.6, sorpresa: t > aliens + 0.1, sonrisa: v2 >= 1 && t < aliens });
+  // la escalerilla de biblioteca junto al globo (nogal, dos peldaños, con su sombra en la moqueta)
+  escalerilla(t);
+  // otra visitante llega por la izquierda al pie de la escalerilla, sube los dos peldaños y en «proof» pasa la mano por la esfera de abajo
+  // arriba: el globo da media vuelta bajo su mano; luego se queda arriba, sonriendo, y mira el platillo en «aliens»
+  const v2 = tramo(t, P2 - 0.9, P2 + 0.05), s1 = tramo(t, P2 + 0.1, P2 + 0.35), s2 = tramo(t, P2 + 0.35, prueba - 0.2);
+  const v2x = Math.round(v2 < 1 ? lerp(20, 50, v2) : s2 > 0 ? lerp(62, 80, s2) : lerp(50, 62, s1));
+  const v2y = Math.round(s2 > 0 ? lerp(166, 155, s2) : lerp(176, 166, s1)) - (s1 > 0 && s1 < 1 ? Math.round(Math.sin(s1 * Math.PI) * 2) : 0) - (s2 > 0 && s2 < 1 ? Math.round(Math.sin(s2 * Math.PI) * 2) : 0);
+  const pu = tramo(t, prueba - 0.15, prueba + 0.55), toca = t > prueba - 0.15 && t < prueba + 0.9;
+  R.actor(EL.visitante2, v2x, v2y, t, { dir: 1, anda: (v2 > 0 && v2 < 1) || (s1 > 0 && s1 < 1) || (s2 > 0 && s2 < 1), sostiene: toca ? [Math.round(lerp(95, 104, pu)), Math.round(lerp(138, 143, pu))] : undefined, sorpresa: t > aliens + 0.1, sonrisa: v2 >= 1 && t < aliens });
   R.actor(EL.visitante1, 236, 170, t, { dir: -1, dedo: señala, sorpresa: t > aliens, habla: t > P2 + 0.3 && t < prueba - 0.3 && Math.sin(t * 8) > 0, salto: sal });
   // los «?» que salen de uno en uno en «lost civilization»
   for (let i = 0; i < 3; i++) { const t0 = civ - 0.1 + i * 0.22; if (t < t0) continue; const s = Math.min(1, (t - t0) / 0.15); R.icono('?', 222 + i * 16, Math.round(126 - i * 9 - s * 4 + Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 3); }
@@ -132,7 +161,7 @@ const p4 = (t) => {
 const p5 = (t) => {
   const o = { encuadre: 'biblioteca', camara: 'mesa', abre: 0 };
   T.estambul(R, t, o);
-  const sopla = t > olvidado - 0.2 && t < olvidado + 0.6, coge = t > palacio;
+  const sopla = t > olvidado - 0.2 && t < olvidado + 0.6;
   const LZ = hex('#fff0c0'), haz = (y0, y1) => { for (let y = y0; y < y1; y++) { const xc = 100 + (y - 40) * 0.55; for (let x = Math.round(xc - 12); x <= xc + 12; x++) if ((x * 7 + y * 13) % 6 === 0 && !(x > 274 && y < 48)) R.pset(x, y, LZ); } };
   haz(40, 112);
   // un mozo del museo cruza por detrás con una pila de libros polvorientos y la deja en la balda del fondo
@@ -140,14 +169,23 @@ const p5 = (t) => {
   const mo = R.actor(EL.obrero, mzx, 112, t, { dir: -1, anda: mz > 0 && mz < 1, sostiene: mz < 1 ? [mzx - 12, 92] : undefined, sorpresa: t > palacio + 0.2 });
   if (mz < 1 && mo && mo.mano) for (let k = 0; k < 4; k++) { const bx = mo.mano[0] - 7 + (k & 1), by = mo.mano[1] - 3 - k * 3; R.rect(bx - 1, by - 1, bx + 10, by + 2, K); R.rect(bx, by, bx + 9, by + 1, [hex('#8a2a2a'), hex('#2a4a7a'), hex('#3a6a3a'), hex('#7a5a2a')][k]); R.rect(bx + 1, by, bx + 8, by, hex('#efe2c0')); }
   R.actor(EL.deissmann, 214, 112, t, { dir: -1, habla: t < olvidado - 0.3 && Math.sin(t * 6) > 0, sorpresa: t > palacio + 0.2, dedo: t > palacio + 0.3 });
-  R.actor(EL.edhem, 132, 112, t, { dir: 1, habla: sopla, sostiene: coge ? [150, 118] : undefined, sorpresa: coge, salto: t > palacio && t < palacio + 0.3 ? 2 : 0 });
+  // Edhem sopla el polvo desde su sitio, rodea un paso hasta el pergamino y en «palace» lo coge por el canto de arriba
+  // y lo levanta 13 px a la luz (la mano canónica del chibi en el canto; el pergamino cuelga de ella)
+  const ac = tramo(t, olvidado + 0.55, palacio - 0.05), ex = Math.round(lerp(132, 146, ac));
+  const sube = Math.round(tramo(t, palacio, palacio + 0.5) * 13);
+  const ed = R.actor(EL.edhem, ex, 112, t, { dir: 1, anda: ac > 0 && ac < 1, habla: sopla, sostiene: ac >= 1 ? [161, 116 - sube] : undefined, sorpresa: t > palacio + 0.5, sonrisa: t > palacio + 0.5 });
   T.estambulDelante(R, t, o);
+  // la mesa trae su propio pergamino doblado debajo del de la escena: cuando Edhem levanta el de la escena, ese hueco
+  // se rellena con la madera del mismo tablero (las mismas filas, 36 px a la izquierda, con su veta y su luz)
+  if (ed && ed.mano && ac >= 1 && ed.mano[1] + 27 < 142) for (let y = 114; y <= 147; y++) for (let x = 146; x <= 180; x++) R.pset(x, y, R.pget(x - 36, y));
   // el haz de luz polvoriento que cae en diagonal sobre el pergamino
   haz(116, 150);
   for (let q = 0; q < 16; q++) { const u = (t * 0.06 + q * 0.13) % 1, y = Math.round(40 + u * 100), x = Math.round(100 + (y - 40) * 0.55 + Math.sin(t * 0.8 + q) * 8); R.pset(x, y, hex('#fffbe8')); }
   // el pergamino doblado, grande, con su capa de polvo 
-  const sube = coge ? Math.round(tramo(t, palacio, palacio + 0.4) * 3) : 0;
-  T.PIEZAS_PR.pergamino(R, 162, 142 - sube, { abierto: false, s: 2 });
+  // el pergamino: posado (base en y 142) hasta que la mano de Edhem lo alza; entonces su canto de arriba va en la mano
+  let gy = 142; if (ed && ed.mano && ac >= 1) gy = Math.min(142, ed.mano[1] + 27);
+  if (gy < 142) for (let x = 150; x <= 176; x++) if (x & 1) R.pset(x, 142, hex('#3a2414'));   // su sombra en la mesa
+  T.PIEZAS_PR.pergamino(R, 162, gy, { abierto: false, s: 2 });
   const ida = tramo(t, olvidado - 0.1, olvidado + 0.7);
   if (ida < 1) {
     for (let q = 0; q < 70; q++) { const x = 148 + (q * 7) % 29, y = 118 + (q * 11) % 22; if (((q * 37) % 100) / 100 > ida) R.pset(x, y, (q & 1) ? hex('#a89c88') : hex('#c8bca8')); }

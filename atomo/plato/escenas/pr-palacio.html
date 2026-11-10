@@ -17,10 +17,12 @@
 // 3. («and» → «library») la biblioteca: en «director» entra Edhem (traje, bigote blanco, sombrero de ala) con Deissmann
 //    detrás; en «Halil Edhem» se vuelve y sonríe; en «library» señala las estanterías; el archivero saca libros en la
 //    escalera y en «Halil Edhem» se le cae uno a la pila (polvo).
-// 4. («library» → «Among») LOCAL el depósito abovedado: Edhem alumbra con su linterna y Deissmann (gafas, barba blanca,
-//    tres piezas) levanta la tapa del cofre en «German scholar»: polvo y un ratón que huye; en «Deissmann» saca un legajo.
+// 4. («library» → «Among») LOCAL el depósito abovedado: Edhem alumbra con su farol de latón (halo que titila) y
+//    Deissmann (gafas, barba blanca, tres piezas), pegado al canto derecho del cofre, agarra el canto de la tapa y la
+//    levanta en «German scholar»: polvo y un ratón que huye; en «Deissmann» mete la mano y saca un legajo.
 // 5. («Among» → fin) LOCAL la sala de los papeles olvidados: Edhem rebusca entre pilas de libros, vuelan hojas; en
-//    «found» saca el pergamino doblado y en «parchment» lo levanta en el haz de luz; Deissmann «!»; cae un libro y el gato de
+//    «found» saca el pergamino doblado (el canto de abajo en su mano) y en «parchment» lo levanta en el haz de luz;
+//    Deissmann lo alumbra con su farol y «!»; cae un libro y el gato de
 //    la pila salta, eriza el lomo y maúlla.
 import * as T from '/atomo/plato/escenas/pr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -245,7 +247,22 @@ const p3 = (t) => {
   T.estambulDelante(R, t, o);
 };
 
-// 4 · LOCAL el depósito abovedado: la linterna, el cofre y el ratón
+// el farol de mano de latón (colgado de la mano por el asa): cristal encendido que titila y un halo cálido alrededor
+const farol = (mx, my, t) => {
+  const cx = mx, cy = my + 8, fl = 0.85 + Math.sin(t * 11) * 0.08 + Math.sin(t * 4.3) * 0.07;
+  for (let y = cy - 24; y <= cy + 24; y++) for (let x = cx - 24; x <= cx + 24; x++) { const r = Math.hypot(x - cx, y - cy) / 24; if (r < 1) tin(x, y, hex('#ffd890'), (1 - r) * (1 - r) * 0.42 * fl); }
+  const LA = hex('#c8a040'), LC = hex('#f0d878'), LS = hex('#7a5a1a');
+  // el asa: un aro que sale de la mano
+  for (const [i, j] of [[-2, 1], [-2, 2], [2, 1], [2, 2], [-1, 0], [1, 0]]) R.pset(mx + i, my + j, K);
+  // el sombrerete, el cuerpo con sus varillas y el cristal, y la base
+  R.rect(mx - 3, my + 3, mx + 3, my + 13, K);
+  R.rect(mx - 2, my + 3, mx + 2, my + 4, LA); R.pset(mx - 1, my + 3, LC); R.pset(mx, my + 2, K);
+  R.rect(mx - 2, my + 5, mx + 2, my + 10, mez(hex('#ffe9a0'), hex('#fffbe0'), fl - 0.7));
+  R.pset(mx, my + 7, hex('#ff9a30')); R.pset(mx, my + 8, hex('#ffd040'));
+  R.rect(mx - 2, my + 5, mx - 2, my + 10, LS); R.rect(mx + 2, my + 5, mx + 2, my + 10, LA); R.pset(mx - 1, my + 5, hex('#ffffff'));
+  R.rect(mx - 3, my + 11, mx + 3, my + 12, LA); R.rect(mx - 2, my + 12, mx + 2, my + 12, LS); R.pset(mx + 2, my + 11, LC);
+};
+// 4 · LOCAL el depósito abovedado: el farol, el cofre y el ratón
 const fondoDeposito = () => {
   // la bóveda de ladrillo en penumbra, tranquila arriba a la derecha
   for (let y = 0; y < 140; y++) for (let x = 0; x < 320; x++) {
@@ -283,16 +300,18 @@ const p4 = (t) => {
   R.poligono([[111, 40], [135, 40], [176, 140], [140, 140]], (x, y) => mez(R.pget(x, y), hex('#e8e0c0'), 0.18));
   const abre = tramo(t, aleman - 0.25, aleman + 0.15);
   // el cofre grande del centro (la tapa se abre hacia atrás)
-  const X0 = 128, X1 = 190, Y0 = 128, Y1 = 158;
+  // a la altura de la cadera de Deissmann, para que la mano llegue al canto de la tapa
+  const X0 = 132, X1 = 190, Y0 = 150, Y1 = 163;
   R.rect(X0 - 1, Y0 - 1, X1 + 1, Y1 + 1, K); madera(X0, Y0, X1, Y1, MAD, 6, false, 5);
   for (const bx of [X0 + 6, X1 - 8]) R.rect(bx, Y0, bx + 2, Y1, hex('#4a4a54'));
   R.rect(X0, Y0, X1, Y0 + 1, hex('#5a5a64')); R.rect(X0, Y1 - 2, X1, Y1, hex('#3a3a44'));
-  R.rect(158, Y0 + 3, 162, Y0 + 9, hex('#c8a040')); R.pset(160, Y0 + 6, K);
+  R.rect(159, Y0 + 2, 163, Y0 + 7, hex('#c8a040')); R.pset(161, Y0 + 4, K); R.pset(160, Y0 + 2, hex('#f0d878'));
   if (abre > 0) {
     // el hueco con los legajos dentro
     R.rect(X0 + 2, Y0 - 1, X1 - 2, Y0 + 2, hex('#2a160c'));
-    for (let k = 0; k < 6; k++) { const lx = X0 + 6 + k * 9; R.rect(lx, Y0 - 3, lx + 7, Y0 + 1, PL.pa); R.rect(lx + 3, Y0 - 3, lx + 3, Y0 + 1, PL.cin); }
-    const al = Math.round(26 * abre);
+    for (let k = 0; k < 6; k++) { const lx = X0 + 4 + k * 9; R.rect(lx, Y0 - 3, lx + 7, Y0 + 1, PL.pa); R.rect(lx + 3, Y0 - 3, lx + 3, Y0 + 1, PL.cin); }
+    // la tapa gira hacia atrás: se ve su cara de dentro, cada vez más alta
+    const al = 9 + Math.round(9 * abre);
     R.rect(X0 - 1, Y0 - al - 1, X1 + 1, Y0 - 1, K); madera(X0, Y0 - al, X1, Y0 - 2, MAD, 4, false, 6); R.rect(X0, Y0 - al, X1, Y0 - al + 1, hex('#5a5a64'));
   } else {
     R.rect(X0 - 1, Y0 - 9, X1 + 1, Y0, K); madera(X0, Y0 - 8, X1, Y0 - 1, MAD, 4, false, 6); R.rect(X0, Y0 - 8, X1, Y0 - 7, hex('#5a5a64'));
@@ -300,22 +319,23 @@ const p4 = (t) => {
   }
   // el polvo que sale al abrir
   const pv = tramo(t, aleman - 0.1, aleman + 1.4);
-  if (pv > 0 && pv < 1) for (let k = 0; k < 40; k++) { const a = -Math.PI * (0.1 + h(k, 1) * 0.8), r = pv * (14 + h(k, 2) * 30); R.pset(Math.round(160 + Math.cos(a) * r * 1.4), Math.round(Y0 - 8 + Math.sin(a) * r), (k & 1) ? hex('#c8bca8') : hex('#a89c88')); }
+  if (pv > 0 && pv < 1) for (let k = 0; k < 40; k++) { const a = -Math.PI * (0.1 + h(k, 1) * 0.8), r = pv * (14 + h(k, 2) * 30); R.pset(Math.round(161 + Math.cos(a) * r * 1.4), Math.round(Y0 - 8 + Math.sin(a) * r), (k & 1) ? hex('#c8bca8') : hex('#a89c88')); }
   // el ratón que salta del cofre y huye a la derecha
   const rt = tramo(t, aleman + 0.1, aleman + 1.6);
   if (rt > 0 && rt < 1) { const rx = Math.round(lerp(176, 330, rt)), ry = Math.round(rt < 0.2 ? Y0 - 4 - Math.sin(rt / 0.2 * Math.PI) * 10 : 170); R.rect(rx, ry, rx + 5, ry + 2, hex('#7a7480')); R.pset(rx + 6, ry, hex('#7a7480')); R.pset(rx + 1, ry - 1, hex('#e8a0a8')); R.pset(rx + 5, ry + 1, K); R.linea(rx - 4, ry + 2 - (Math.floor(t * 12) % 2), rx - 1, ry + 1, hex('#c88a90')); }
   // Deissmann abre la tapa y en «Deissmann» saca un legajo
   const saca = t > deiss - 0.2;
-  const d = R.actor(EL.deissmann, 196, 164, t, { dir: -1, sostiene: abre < 1 ? [X1 - 4, Y0 - 6 - Math.round(abre * 18)] : saca ? [188, 120] : undefined, sorpresa: t > aleman && t < aleman + 1, sonrisa: saca, habla: t > aleman + 1.1 && t < deiss - 0.3 && Math.sin(t * 8) > 0 });
+  // pegado al canto derecho del cofre: la mano agarra el canto de la tapa mientras sube y luego baja al hueco
+  const d = R.actor(EL.deissmann, X1, 164, t, { dir: -1, sostiene: abre < 1 ? [X1 - 7, Y0 - 5 - Math.round(abre * 5)] : saca ? [X1 - 10, Y0 - 4] : undefined, sorpresa: t > aleman && t < aleman + 1, sonrisa: saca, habla: t > aleman + 1.1 && t < deiss - 0.3 && Math.sin(t * 8) > 0 });
   if (saca && d && d.mano) { const [mx, my] = d.mano; R.rect(mx - 9, my - 5, mx + 1, my + 2, K); for (let k = 0; k < 6; k++) R.rect(mx - 8, my - 4 + k, mx, my - 4 + k, k % 2 ? PL.pa : PL.pa2); R.rect(mx - 4, my - 4, mx - 4, my + 1, PL.cin); if (t < deiss + 0.8) for (let k = 0; k < 6; k++) R.pset(mx - 10 - k * 2, my - 6 - (k % 2), hex('#c8bca8')); }
-  // Edhem alumbra con la linterna eléctrica
+  // Edhem alumbra con el farol de latón (halo y un haz suave hacia el cofre)
   const ex = 92, ap = [ex + 22, 136 + Math.round(Math.sin(t * 1.3) * 2)];
   const e = R.actor(EL.edhem, ex, 164, t, { dir: 1, sostiene: ap, sonrisa: t > deiss });
   if (e && e.mano) {
-    const [mx, my] = e.mano, tx = 160 + Math.round(Math.sin(t * 0.9) * 10), ty = abre > 0.5 ? Y0 - 2 : Y0 + 6;
-    R.poligono([[mx + 4, my - 2], [tx - 18, ty - 10], [tx + 18, ty + 10], [mx + 4, my + 2]], (x, y) => mez(R.pget(x, y), hex('#fff6c8'), 0.35));
+    const [mx, my] = e.mano, tx = 161 + Math.round(Math.sin(t * 0.9) * 8), ty = abre > 0.5 ? Y0 - 4 : Y0 + 4;
+    R.poligono([[mx + 2, my + 4], [tx - 16, ty - 8], [tx + 16, ty + 10], [mx + 2, my + 10]], (x, y) => mez(R.pget(x, y), hex('#fff0b8'), 0.18));
+    farol(mx, my, t);
   }
-  if (e && e.mano) { const [mx, my] = e.mano; R.rect(mx - 1, my - 2, mx + 5, my + 1, K); R.rect(mx, my - 1, mx + 4, my, hex('#4a4a52')); R.rect(mx + 5, my - 2, mx + 6, my + 1, hex('#fff8c0')); }
   // telaraña que se mece arriba
   for (let k = 0; k < 5; k++) R.linea(250, 0, 250 + k * 5, 10 + Math.round(Math.sin(t * 2) * 1) + (5 - k) * 2, hex('#7a6a5a'));
 };
@@ -364,11 +384,11 @@ const p5 = (t) => {
   pm(166, 166, 6);
   if (busca) for (let k = 0; k < 7; k++) { const s = ((t - pilas) * 0.9 + k / 7) % 1; if (t < pilas - 0.2 || s < 0) continue; const x = 178 + s * (k % 2 ? 50 : -60) * (0.6 + h(k, 5) * 0.6), y = 150 - Math.sin(s * Math.PI) * (30 + h(k, 6) * 26) + s * 16; hoja(x, y, t * 10 + k, PL.pa, PL.pa2); }
   // el pergamino doblado en la mano, con su brillo en el haz
-  if (e && e.mano && !busca) { const [mx, my] = e.mano; T.PIEZAS_PR.pergamino(R, mx - 2, my - 10, { abierto: false });
-    const g = tramo(t, hallo, hallo + 2.2); if (g < 1) for (let k = 0; k < 12; k++) { const a = k * 0.524 + g * 2, r = 12 + g * 12; const x = Math.round(mx + 6 + Math.cos(a) * r), y = Math.round(my - 4 + Math.sin(a) * r); R.rect(x, y - 1, x, y + 1, hex('#fff0a0')); R.rect(x - 1, y, x + 1, y, k & 1 ? hex('#ffd040') : hex('#fff8d0')); } }
-  // Deissmann alumbra con la linterna y grita «!» en «parchment»
+  if (e && e.mano && !busca) { const [mx, my] = e.mano; T.PIEZAS_PR.pergamino(R, mx + 5, my + 1, { abierto: false });   // el canto de abajo descansa en la mano, delante y sin tapar la cara
+    const g = tramo(t, hallo, hallo + 2.2); if (g < 1) for (let k = 0; k < 12; k++) { const a = k * 0.524 + g * 2, r = 12 + g * 12; const x = Math.round(mx + 5 + Math.cos(a) * r), y = Math.round(my - 6 + Math.sin(a) * r); R.rect(x, y - 1, x, y + 1, hex('#fff0a0')); R.rect(x - 1, y, x + 1, y, k & 1 ? hex('#ffd040') : hex('#fff8d0')); } }
+  // Deissmann alumbra con su farol y grita «!» en «parchment»
   const dx = 212, d = R.actor(EL.deissmann, dx, 168, t, { dir: -1, sostiene: [dx - 8, 146], sorpresa: t > perg, brazos: false });
-  if (d && d.mano) { const [mx, my] = d.mano; R.poligono([[mx - 4, my - 2], [mx - 34, my + 4], [mx - 30, my + 18], [mx - 4, my + 2]], (x, y) => mez(R.pget(x, y), hex('#fff6c8'), 0.3)); R.rect(mx - 5, my - 2, mx + 1, my + 1, K); R.rect(mx - 4, my - 1, mx, my, hex('#4a4a52')); R.rect(mx - 6, my - 2, mx - 5, my + 1, hex('#fff8c0')); }
+  if (d && d.mano) { const [mx, my] = d.mano; R.poligono([[mx - 2, my + 4], [mx - 34, my - 2], [mx - 30, my + 16], [mx - 2, my + 10]], (x, y) => mez(R.pget(x, y), hex('#fff6c8'), 0.2)); farol(mx, my, t); }
   if (t > perg) R.bocadillo(dx + 6, 136 - Math.round(Math.min(1, (t - perg) * 6) * 3), { icono: '!' });
   // el libro de lo alto de la pila de la derecha que se tambalea y cae
   const cae = tramo(t, perg + 0.6, perg + 1.2);

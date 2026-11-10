@@ -15,9 +15,10 @@
 //    fotógrafo; detrás, el caballete con la portada (una nave sobre un mapa), lámparas de bola y una dependienta en la escalera;
 // 2. corte en «claimed»: su idea, contada como la portada: en el espacio, una nave saca una foto de la Tierra (flash en
 //    «photo») y de ella sale una foto que es el mapa; la costa de la foto y la de Sudamérica brillan a la vez («from space»);
-// 3. corte en «and that this pointed…»: un salón de 1973; la tele se enciende con el documental: el mapa y luces en el
-//    cielo; en «planets» el niño da un salto y las palomitas saltan del bol;
-// 4. corte en «websites»: hoy, de noche, un chico en su cuarto; en el monitor, vídeos con flechas y círculos rojos que
+// 3. corte en «and that this pointed…»: un salón de 1973; la familia sentada en el sofá (torso y brazos por encima del
+//    asiento, el frente les tapa las rodillas); la tele se enciende con el documental: el mapa y luces en el cielo; en
+//    «planets» el niño da un salto y las palomitas saltan del bol;
+// 4. corte en «websites»: hoy, de noche, un chico sentado en su silla de escritorio frente al monitor; en el monitor, vídeos con flechas y círculos rojos que
 //    suben; en «the impossible map» hace clic: el mapa a pantalla completa con el círculo rojo, y el contador que sube.
 import * as T from '/atomo/plato/escenas/pr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -364,14 +365,19 @@ const p3 = (t) => {
   const fl = 0.16 + 0.06 * Math.sin(t * 13) * (t > P3 + 0.4 ? 1 : 0); if (t > P3 + 0.3) luz(225, 124, 120, hex('#8ab0ff'), fl);
   // el sofá de pana, la familia y la mesita con el bol de palomitas
   R.rect(14, 108, 146, 140, K0); llena(15, 109, 145, 139, rp('#5a2a10', '#8a4418', '#a85a22', '#c8763a'), (x, y) => 2 + Math.sin(x * 0.9) * 0.5 - (y - 109) * 0.02);
-  for (const x of [56, 100]) R.rect(x, 110, x, 136, hex('#5a2a10'));
+  for (const x of [56, 100]) R.rect(x, 110, x, 134, hex('#5a2a10'));
+  // el cojín del asiento (la cara de arriba), antes que la familia: se sientan en él y el frente les tapa solo las rodillas
+  R.rect(15, 135, 145, 140, hex('#3a1a08')); llena(15, 136, 145, 140, rp('#6a3412', '#9a5020', '#b8682c', '#d8884a'), (x, y) => 2.4 + Math.sin(x * 0.9) * 0.5 - (y - 136) * 0.35);
+  for (const x of [58, 102]) R.rect(x, 136, x, 140, hex('#5a2a10'));
   const salta = tramo(t, PL, PL + 0.25) - tramo(t, PL + 0.35, PL + 0.6);
-  R.actor(EL.padre77, 34, 144, t, { dir: 1, dedo: t > en('daniken', 0.6258) && t < en('daniken', 0.6991), habla: t > en('daniken', 0.6258) && t < en('daniken', 0.6822) && Math.sin(t * 8) > 0 });
-  R.actor(EL.madre77, 66, 144, t, { dir: 1, sonrisa: t > PL + 0.5, sorpresa: t > PL && t < PL + 0.5 });
-  R.actor(EL.nino77, 104, 144, t, { dir: 1, salto: Math.round(salta * 10), sorpresa: t > PL - 0.05 && t < PL + 1.4, brazos: t > PL && t < PL + 0.7 });
+  R.actor(EL.padre77, 34, 145, t, { dir: 1, dedo: t > en('daniken', 0.6258) && t < en('daniken', 0.6991), habla: t > en('daniken', 0.6258) && t < en('daniken', 0.6822) && Math.sin(t * 8) > 0 });
+  R.actor(EL.madre77, 66, 145, t, { dir: 1, sonrisa: t > PL + 0.5, sorpresa: t > PL && t < PL + 0.5 });
+  R.actor(EL.nino77, 104, 145, t, { dir: 1, salto: Math.round(salta * 10), sorpresa: t > PL - 0.05 && t < PL + 1.4, brazos: t > PL && t < PL + 0.7 });
   if (t > PL && t < PL + 1.4) R.icono('!', 114, 102 - Math.round(salta * 10), hex('#ffd84a'), K0, 2);
-  R.rect(10, 136, 150, 152, K0); llena(11, 137, 149, 151, rp('#5a2a10', '#8a4418', '#a85a22', '#c8763a'), (x, y) => 2.2 + Math.sin(x * 0.9) * 0.5 - (y - 137) * 0.06);
-  for (const x of [10, 146]) { R.rect(x - 2, 112, x + 6, 152, K0); llena(x - 1, 113, x + 5, 151, rp('#5a2a10', '#8a4418', '#a85a22'), (xx, y) => 1.6 + (y < 116 ? 0.8 : 0)); }
+  // el frente del asiento, a la altura de las rodillas, con su ribete de luz y los pespuntes de la pana
+  R.rect(10, 141, 150, 155, K0); llena(11, 142, 149, 154, rp('#5a2a10', '#8a4418', '#a85a22', '#c8763a'), (x, y) => 2.2 + Math.sin(x * 0.9) * 0.5 - (y - 142) * 0.08);
+  R.rect(11, 142, 149, 142, hex('#e09858')); for (let x = 14; x < 148; x += 4) R.pset(x, 145, hex('#6a3412'));
+  for (const x of [10, 146]) { R.rect(x - 2, 112, x + 6, 155, K0); llena(x - 1, 113, x + 5, 154, rp('#5a2a10', '#8a4418', '#a85a22'), (xx, y) => 1.6 + (y < 116 ? 0.8 : 0)); }
   R.rect(104, 156, 186, 160, K0); R.rect(105, 157, 185, 159, hex('#a8743c')); R.rect(105, 157, 185, 157, hex('#c8945a')); R.rect(108, 160, 110, 172, K0); R.rect(180, 160, 182, 172, K0);
   R.rect(126, 150, 142, 156, K0); R.rect(127, 151, 141, 155, hex('#e83a3a')); R.rect(127, 151, 141, 151, hex('#ffffff')); for (let i = 0; i < 6; i++) R.pset(128 + i * 2, 150 - (i % 2), hex('#fff4c8'));
   R.rect(150, 150, 154, 156, K0); R.rect(151, 151, 153, 155, hex('#c8c8d0')); R.rect(158, 150, 162, 156, K0); R.rect(159, 151, 161, 155, hex('#3a8a4a'));
@@ -434,16 +440,32 @@ const pantallaVideos = (t, x0, y0, x1, y1) => {
   if (t > MIL) { const n = Math.round(1000 * Math.pow(1000, tramo(t, MIL, E.duracion - 0.5))), s = String(n); R.rect(x1 - 6 - s.length * 8 - 12, y0 - 13, x1, y0 - 3, K0); R.numero(s, x1 - 2 - s.length * 8, y0 - 4, { color: hex('#ff6a5a') }); R.icono('reloj', x1 - 14 - s.length * 8, y0 - 12, hex('#ff6a5a'), K0); }
 };
 const p4 = (t) => {
-  capa('d4', fondoCuarto);
+  // la cajonera se estrecha a la derecha (x 238-256) para dejar sitio a la silla del chico bajo la mesa
+  capa('d4', () => { fondoCuarto();
+    llena(206, 126, 237, 139, rp('#141832', '#1c2240', '#252c50', '#2e3660'), (x, y) => 1.6 + vn(x * 0.05, y * 0.05, 3) * 0.6 + (x % 32 === 0 ? -0.6 : 0));
+    R.rect(206, 140, 237, 142, hex('#0e1024'));
+    llena(206, 143, 237, 160, rp('#1a1420', '#2a2030', '#3a2c40', '#4a3a50'), (x, y) => 1.6 + Math.sin(x * 0.3) * 0.2 + (y % 6 === 0 ? -0.8 : 0));
+    for (let x = 206; x <= 237; x++) for (let y = 126; y <= 129; y++) R.pset(x, y, mez(R.pget(x, y), hex('#000000'), 0.35 * (1 - (y - 126) / 4)));
+    R.rect(238, 126, 256, 160, K0); llena(239, 127, 255, 159, rp('#2a2a36', '#3a3a46', '#4a4a58'), (x, y) => 1.2 + (y === 142 ? -1 : 0) + (x === 239 ? 0.6 : 0));
+    R.rect(244, 134, 250, 135, hex('#8a8a9a')); R.rect(244, 150, 250, 151, hex('#8a8a9a')); R.rect(238, 161, 256, 162, mez(hex('#2a2030'), hex('#000000'), 0.4)); });
   // las lucecitas de la guirnalda
   for (let i = 0; i < 26; i++) { const x = 60 + i * 8, y = Math.round(20 + Math.sin(i * 0.5) * 2); R.pset(x, y - 1, hex('#3a3e58')); const on = Math.sin(t * 3 + i * 1.7) > -0.2; const c = [hex('#ffd84a'), hex('#ff6a8a'), hex('#6af0e0'), hex('#a8ff6a')][i % 4]; R.pset(x, y, on ? c : mez(c, K0, 0.6)); if (on) R.pset(x, y + 1, mez(c, K0, 0.5)); }
   // el monitor grande con los vídeos
   R.rect(100, 50, 210, 112, K0); R.rect(101, 51, 209, 111, hex('#2a2a36')); pantallaVideos(t, 104, 54, 206, 108);
   luz(155, 82, 90, hex('#6a8aff'), 0.16 + 0.04 * Math.sin(t * 7));
-  // el chico, de pie junto a la mesa, mira los vídeos, hace clic y se asombra
-  const CLIC = en('daniken', 0.9314);
-  const ch = R.actor(EL.chicoHoy, 214, 140, t, { dir: -1, sostiene: t < CLIC + 0.2 ? [204, 116] : false, sorpresa: t > CLIC + 0.5 && t < CLIC + 1.6, dedo: t > CLIC + 1.6, habla: t > CLIC + 2.2 && Math.sin(t * 8) > 0 });
+  // el chico, sentado en su silla de escritorio frente al monitor: mira los vídeos, hace clic con el ratón y se asombra
+  const CLIC = en('daniken', 0.9314), gir = Math.round(Math.sin(t * 0.9) * 0.6);
+  // la silla gamer: sombra en el suelo y respaldo alto (a su espalda, antes que él)
+  for (let x = 200; x <= 236; x++) for (let y = 151; y <= 155; y++) if (((x - 218) / 18) ** 2 + ((y - 153) / 2.5) ** 2 <= 1) R.pset(x, y, mez(R.pget(x, y), hex('#000000'), 0.45));
+  R.rect(225 + gir, 103, 231 + gir, 133, K0); R.rect(226 + gir, 104, 230 + gir, 132, hex('#2a2a36')); R.rect(228 + gir, 105, 228 + gir, 131, hex('#c83a3a')); R.rect(226 + gir, 104, 230 + gir, 104, hex('#4a4a58')); R.rect(226 + gir, 108, 230 + gir, 111, hex('#3a3a46'));
+  const ch = R.actor(EL.chicoHoy, 211, 134, t, { dir: -1, sostiene: t < CLIC + 0.2 ? [204, 116] : false, sorpresa: t > CLIC + 0.5 && t < CLIC + 1.6, dedo: t > CLIC + 1.6, habla: t > CLIC + 2.2 && Math.sin(t * 8) > 0 });
   if (t < CLIC + 0.2 && ch.mano) { const [mx, my] = ch.mano; R.rect(mx - 3, my - 1, mx + 1, my + 2, K0); R.rect(mx - 2, my, mx, my + 1, hex('#8a8a9a')); if (t > CLIC - 0.1 && t < CLIC + 0.15) R.pset(mx - 1, my - 1, hex('#ffffff')); }
+  // el asiento (le tapa la cadera y las piernas), el reposabrazos, la columna de gas y la base de cinco radios con ruedas
+  R.rect(206, 131, 230, 136, K0); R.rect(207, 132, 229, 135, hex('#2a2a36')); R.rect(207, 132, 229, 132, hex('#5a5a6a')); R.rect(210, 134, 228, 134, hex('#c83a3a'));
+  R.rect(212, 127, 226, 129, K0); R.rect(213, 128, 225, 128, hex('#4a4a58')); R.rect(222, 129, 224, 131, K0);
+  R.rect(217, 137, 220, 147, K0); R.rect(218, 137, 219, 146, hex('#8a8a9a'));
+  R.linea(206, 149, 231, 149, K0); R.linea(207, 148, 230, 148, hex('#3a3a46')); R.linea(212, 150, 225, 150, K0);
+  for (const wx of [206, 218, 231]) { R.disco(wx, 151, 2, K0); R.pset(wx, 150, hex('#5a5a6a')); }
   // la hermana pequeña en la cama, con el mismo vídeo en el móvil
   const he = R.actor(EL.chicaHoy, 290, 132, t, { dir: -1, sostiene: true, sonrisa: Math.sin(t * 0.8) > 0.3 });
   if (he.mano) { const [mx, my] = he.mano; R.rect(mx - 5, my - 7, mx, my, K0); R.rect(mx - 4, my - 6, mx - 1, my - 1, hex('#3a4a8a')); R.pset(mx - 3, my - 4, hex('#ff2a2a')); R.pset(mx - 2, my - 3, hex('#d8bc84')); luz(mx - 2, my - 4, 8, hex('#8ab0ff'), 0.3); }

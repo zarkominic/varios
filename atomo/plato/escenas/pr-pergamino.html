@@ -21,7 +21,8 @@
 //    mueve la cola, en la ventana la luna, las estrellas y el farol de una galera.
 // 3. «and mapmakers sometimes turned a coastline to make it fit» (9,00–12,65 s): LOCAL un taller de cartógrafos con tres
 //    mapas clavados en la pared; el cartógrafo los señala uno a uno y en cada uno la costa que se tuerce en el borde se
-//    enciende con su flecha curva («turned», «coastline», «fit»); el aprendiz muele pigmento al fondo.
+//    enciende con su flecha curva («turned», «coastline», «fit»); a la derecha, detrás de su mesita, el aprendiz muele
+//    pigmento rojo en un mortero de piedra (asoman cabeza, hombros y la mano con la mano del mortero, que da vueltas).
 // 4. «And since the ancient Greeks, people had believed in a great southern land no one had seen» (12,65–16,41 s):
 //    LOCAL un pórtico griego junto al mar: el sabio señala el mundo pintado en una tabla y en «great southern land» pinta
 //    con el pincel una tierra enorme en la mitad de abajo; en «no one» le sale un «?».
@@ -319,12 +320,22 @@ const p3 = (t) => {
   const llega = tramo(t, P3, encs[0] - 0.2), x0 = Math.round(lerp(150, xs[0], llega)), cx = t < encs[0] - 0.2 ? x0 : cxp;
   const andando = (t < encs[0] - 0.2 && llega > 0 && llega < 1) || (k > 0 && t > encs[k] - 0.5 && t < encs[k] - 0.1);
   R.actor(EL.pilotoPortugues, cx - 8, 162, t, { dir: t < encs[0] - 0.2 ? -1 : 1, anda: andando, dedo: !andando && t > encs[0] - 0.2, habla: !andando && Math.sin(t * 7) > 0.3 });
-  // el aprendiz muele pigmento detrás de su mesita (asoman cabeza y hombros)
-  const ap = R.actor(EL.escribano, 296, 142, t, { dir: -1, sostiene: [288, 118 + Math.round(Math.abs(Math.sin(t * 5)) * 3)] });
-  caja(276, 128, 318, 132, hex('#6e4229')); R.rect(277, 128, 317, 128, hex('#9a6a40')); madera(277, 133, 317, 152, NOG, 6, 20); for (const x of [278, 314]) caja(x, 153, x + 3, 168, hex('#432414'));
-  caja(278, 120, 290, 127, hex('#e8e0d0')); R.rect(280, 120, 288, 121, hex('#3a6ac0')); R.rect(279, 126, 289, 127, hex('#c8c0b0'));
-  R.linea(ap.mano[0], ap.mano[1], ap.mano[0] - 2, ap.mano[1] + 6, K); R.linea(ap.mano[0] + 1, ap.mano[1], ap.mano[0] - 1, ap.mano[1] + 6, hex('#a87a4a'));
-  for (const [x, c] of [[300, '#c83a2a'], [312, '#d8a838']]) { R.disco(x, 126, 3.5, K); R.rect(x - 3, 126, x + 3, 127, K); R.disco(x, 125, 2.5, hex('#e8e0d0')); R.rect(x - 1, 124, x + 1, 125, hex(c)); }
+  // el aprendiz muele pigmento detrás de su mesita, más baja y separada del borde: asoman cabeza, hombros y pecho;
+  // la mano (o.sostiene) da vueltas a la mano del mortero dentro del cuenco de piedra que hay en la mesa
+  const giro = t * 6, mx = 277, my = 141, ap = R.actor(EL.escribano, 282, 147, t, { dir: -1, sostiene: [mx + Math.round(Math.cos(giro) * 2), my - 6 + Math.round(Math.sin(giro))] });
+  // la mesita (tapa a la altura de la cintura del aprendiz), con sus vetas, el canto iluminado y las patas
+  caja(258, 145, 314, 149, hex('#6e4229')); R.rect(259, 145, 313, 145, hex('#9a6a40')); madera(259, 150, 313, 162, NOG, 6, 20);
+  R.rect(259, 150, 313, 150, hex('#3a2416')); for (const x of [261, 309]) caja(x, 163, x + 3, 174, hex('#432414'));
+  R.rect(262, 175, 312, 176, mez(hex('#a85a3a'), K, 0.35));
+  // el cuenco de piedra con el pigmento rojo y la mano del mortero (de la mano del aprendiz al fondo del cuenco)
+  R.linea(ap.mano[0], ap.mano[1] + 1, mx, my + 1, K); R.linea(ap.mano[0] + 1, ap.mano[1] + 1, mx + 1, my + 1, hex('#a8a090'));
+  R.disco(mx, my + 1, 5, K); R.rect(mx - 5, my + 1, mx + 5, my + 4, K); R.disco(mx, my + 1, 4, hex('#9a968c')); R.rect(mx - 4, my + 1, mx + 4, my + 3, hex('#8a867c'));
+  R.rect(mx - 3, my - 1, mx + 3, my, hex('#c83a2a')); R.pset(mx - 2, my - 1, hex('#e86a4a')); R.rect(mx - 4, my + 3, mx + 4, my + 3, hex('#b8b4a8'));
+  // el polvo que salta del cuenco al moler
+  for (let k = 0; k < 3; k++) { const u = (t * 1.6 + k / 3) % 1; R.pset(mx - 3 + k * 3 + Math.round(Math.sin(t * 3 + k) * 1), my - 2 - Math.round(u * 4), u < 0.6 ? hex('#e86a4a') : hex('#c8a090')); }
+  // en la mesa: la caja de pigmento azul abierta y los botes de rojo y ocre
+  caja(300, 139, 311, 144, hex('#e8e0d0')); R.rect(302, 139, 309, 140, hex('#3a6ac0')); R.rect(301, 143, 310, 144, hex('#c8c0b0'));
+  for (const [x, c] of [[263, '#c83a2a'], [268, '#d8a838']]) { R.disco(x, 142, 3, K); R.rect(x - 3, 142, x + 3, 144, K); R.disco(x, 141, 2, hex('#e8e0d0')); R.rect(x - 1, 140, x + 1, 141, hex(c)); }
   // el perro que duerme y mueve la cola
   const dx = 66, dy = 172; R.disco(dx, dy - 3, 6, K); R.disco(dx, dy - 3, 5, hex('#c8a070')); R.disco(dx - 7, dy - 2, 3.5, K); R.disco(dx - 7, dy - 2, 2.6, hex('#c8a070')); R.pset(dx - 9, dy - 2, K); R.rect(dx - 6, dy - 5, dx - 5, dy - 4, hex('#8a6040')); R.linea(dx + 5, dy - 1, dx + 9, dy - 3 - Math.round(Math.abs(Math.sin(t * 4)) * 2), hex('#8a6040'));
 };
