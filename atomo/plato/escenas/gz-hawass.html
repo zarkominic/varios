@@ -12,14 +12,18 @@
 // GZ-HAWASS (frase 20), 2025. Cuatro planos:
 // 1. (LOCAL, estilo real) la esquina de Kefrén de cerca: las hiladas de sillares, la arena, la cuerda; Hawass (sombrero de ala
 //    ancha, camisa vaquera) llega andando, se para y en «no scientific basis» niega con el dedo (bocadillo con la X); un
-//    camellero pasa con su camello por la base, turistas hacen fotos, un guarda;  corta en «that nobody»;
-// 2. (LOCAL) su mesa: el libro de permisos con los sellos verdes de otros equipos y la casilla vacía de Kefrén, que el dedo
-//    golpea en «permission»; a la derecha, la maqueta de la pirámide sobre su bloque de roca con estratos: los nudillos
-//    llaman en «solid bedrock» (toc, toc: maciza);  corta en el silencio antes de «And the announcement»;
+//    camellero pasa con su camello por la base, un turista hace fotos (flash con sonido), otro señala la cima, un guarda
+//    pasea;  corta en «that nobody»;
+// 2. (LOCAL) su mesa: el flexo se enciende (clic); el índice entra en diagonal y golpea la casilla vacía de Kefrén del
+//    libro de permisos en «permission» (dos veces) y en «Khafre» (la pirámide del libro da un brinco); a la derecha, la
+//    maqueta de la pirámide sobre su bloque de roca con estratos: una mosca se ha posado en la punta y sale disparada
+//    cuando los nudillos llaman a la roca en «solid bedrock» (toc, toc, toc: maciza; cae arena, sale polvo, tiembla el
+//    té);  corta en el silencio antes de «And the announcement»;
 // 3. (LOCAL) un expositor de revistas: la bibliotecaria empuja su carrito, busca y en «never published» encuentra el hueco
-//    vacío (sale un «?»); en «journal» se encoge de hombros;  corta en «it was presented»;
-// 4. (B italia/prensa, 2.ª vez) la rueda de prensa con el plano azul en la pantalla: hablan, flashes en «press conference»
-//    y una periodista lo graba con el móvil en «videos».
+//    vacío (sale un «?»); en «journal» se encoge de hombros; un estudiante entra leyendo una revista, pasa la página,
+//    levanta la vista al «?» y se va;  corta en «it was presented»;
+// 4. (B italia/prensa, 2.ª vez) la rueda de prensa con el plano azul en la pantalla: hablan (murmullo de la sala), flashes
+//    en «press conference» y una periodista lo graba con el móvil en «videos».
 import * as T from '/atomo/plato/escenas/gz-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gz-hawass');
@@ -189,21 +193,40 @@ const mesaH = capa(() => {
   for (let y = 70; y < 106; y += 4) { const xl = 254 - (y - 62) * 28 / 46, xr = 254 + (y - 62) * 16 / 42; R.linea(Math.round(xl), y, Math.round(Math.min(xr, 270)), y, hex('#c39a66')); }
   R.linea(226, 108, 254, 62, K); R.linea(254, 62, 282, 100, K); R.linea(226, 108, 270, 104, K); R.linea(270, 104, 282, 100, K);
 });
+// una mosca (el gag del plano): ronda el vaso de té, se posa en la punta de la maqueta y sale volando con el primer golpe
+const mosca = (x, y, t, vuela) => { x = Math.round(x); y = Math.round(y); R.rect(x - 1, y, x + 2, y + 1, hex('#1a1a20')); R.pset(x - 2, y, hex('#3a2a2a')); R.pset(x + 1, y, hex('#4a4a5a')); const ab = vuela ? Math.sin(t * 60) > 0 : Math.sin(t * 3) > 0.9; R.rect(x, y - 2 + (ab ? 0 : 1), x + 2, y - 1 + (ab ? 0 : 1), hex('#d8e4f0')); R.pset(x + 1, y - 2 + (ab ? 0 : 1), hex('#ffffff')); };
+const PAGINA = P3 + 1.6, LUZ2 = P2 + 0.55, KNOCK = [SOLID, BED, BED + 0.3];
 const p2 = (t) => {
   mesaH();
-  // el vapor del té
+  // el flexo se enciende al empezar (clic); antes, la mesa en penumbra
+  if (t < LUZ2) T.tinte(R, 0, 179, [24, 14, 8], 0.34);
+  else if (t < LUZ2 + 0.25 && Math.floor(t * 30) % 3 === 0) T.tinte(R, 64, 179, [24, 14, 8], 0.15);
+  if (t >= LUZ2) { R.linea(193, 74, 207, 70, hex('#fff6c8')); R.linea(194, 75, 207, 72, hex('#fff0a0')); }
+  // el vapor del té y el té que tiembla con los golpes
   for (let k = 0; k < 3; k++) { const ph = (t * 0.8 + k * 0.33) % 1, x = Math.round(179 + Math.sin(t * 3 + k * 2) * 2), y = Math.round(96 - ph * 22); if (ph < 0.8) R.pset(x, y, hex('#f4f0e8')); }
+  const golpe = Math.max(...KNOCK.map((k0) => (t > k0 && t < k0 + 0.4 ? 1 - (t - k0) / 0.4 : 0)));
+  if (golpe > 0) { const o = Math.round(Math.sin(t * 50) * golpe * 2); R.linea(174 + o, 102, 184 + o, 102, hex('#f0c8a0')); R.linea(176 - o, 105, 182 - o, 105, hex('#e8a87a')); R.pset(186, 98 - Math.round(golpe * 3), hex('#f0c8a0')); }
   // la casilla vacía de Kefrén: parpadea en rojo desde «permission»
   const on = t > PERM - 0.2 && Math.floor(t * 4) % 2 === 0, cc = on ? hex('#e8303a') : hex('#8a8a96');
   for (let i = -6; i <= 6; i += 2) for (const d of [0, 1]) { R.pset(98 + i, 158 + d, cc); R.pset(98 + i, 172 - d, cc); R.pset(91 + d, 165 + i, cc); R.pset(105 - d, 165 + i, cc); } if (on) R.disco(98, 165, 3, hex('#f8c0c0'));
-  // el dedo que golpea la casilla (dos veces)
+  // la pirámide de Kefrén del libro da un brinco en «Khafre»
+  if (t > KAF && t < KAF + 0.35) { const s = Math.round(Math.sin((t - KAF) / 0.35 * Math.PI) * 3); R.rect(110, 156, 126, 171, hex('#f6efdc')); R.poligono([[110, 171 - s], [118, 157 - s], [126, 171 - s]], K); R.poligono([[112, 170 - s], [118, 159 - s], [124, 170 - s]], hex('#c89a5a')); R.poligono([[118, 159 - s], [124, 170 - s], [120, 170 - s]], hex('#9a7040')); R.linea(112, 172, 124, 172, hex('#d8cca8')); }
+  // el índice entra en diagonal desde abajo a la izquierda y golpea la casilla en «permission» (dos veces) y en «Khafre»
   const toque = (t0) => Math.max(0, 1 - Math.abs(t - t0) / 0.12);
-  const dy = Math.round(-6 + (toque(PERM) + toque(PERM + 0.35) + toque(KAF)) * 5), en1 = tramo(t, P2 + 0.3, PERM - 0.3);
-  if (en1 > 0) T.brazo(R, 70, 204, 82, Math.round(lerp(198, 174 + dy, en1)), '#5a7aa8', 1);
-  // los nudillos que llaman a la roca: maciza
-  const k1 = Math.max(0, 1 - Math.abs(t - SOLID) / 0.1), k2 = Math.max(0, 1 - Math.abs(t - BED) / 0.1), k3 = Math.max(0, 1 - Math.abs(t - BED - 0.3) / 0.1), en2 = tramo(t, SOLID - 1.2, SOLID - 0.4);
-  if (en2 > 0) T.brazo(R, 338, 182, Math.round(lerp(340, 306 - (k1 + k2 + k3) * 4, en2)), Math.round(lerp(170, 140, en2)), '#5a7aa8', -1, { codo: [326, 162] });
-  for (const [k0, t0] of [[k1, SOLID], [k2, BED], [k3, BED + 0.3]]) if (t > t0 && t < t0 + 0.45) { const r = Math.round((t - t0) * 30); for (let i = -3; i <= 3; i++) { R.pset(301 - r, 132 + i * 3, hex('#fff0b0')); } R.pset(298 - r, 124, T.C.blanco); R.pset(298 - r, 140, T.C.blanco); }
+  const en1 = tramo(t, P2 + 0.5, PERM - 0.15), va1 = tramo(t, KAF + 0.35, KAF + 0.85);
+  if (en1 > 0 && va1 < 1) { const u = en1 * (1 - va1), dy = Math.round((toque(PERM) + toque(PERM + 0.35) + toque(KAF)) * 4 - 4);
+    T.brazo(R, -14, 206, Math.round(lerp(10, 86, u)), Math.round(lerp(200, 165 + dy, u)), '#5a7aa8', 1, { codo: [Math.round(lerp(-4, 40, u)), Math.round(lerp(204, 184, u))] }); }
+  // los nudillos que llaman a la roca: maciza; cada golpe suelta arena de arriba y una nubecilla de polvo
+  const k1 = Math.max(0, 1 - Math.abs(t - SOLID) / 0.1), k2 = Math.max(0, 1 - Math.abs(t - BED) / 0.1), k3 = Math.max(0, 1 - Math.abs(t - BED - 0.3) / 0.1), en2 = tramo(t, SOLID - 1.0, SOLID - 0.3), va2 = tramo(t, BED + 0.8, BED + 1.3);
+  if (en2 > 0 && va2 < 1) { const u = en2 * (1 - va2); T.brazo(R, 338, 182, Math.round(lerp(340, 306 - (k1 + k2 + k3) * 4, u)), Math.round(lerp(176, 140, u)), '#5a7aa8', -1, { codo: [326, 162] }); }
+  for (const t0 of KNOCK) if (t > t0 && t < t0 + 0.7) { const e = (t - t0) / 0.7;
+    for (let k = 0; k < 6; k++) { const gx = 230 + k * 11 + Math.round(hh(k, t0) * 6), gy = Math.round(112 + e * e * 44 + k % 3); if (gy < 156) R.pset(gx, gy, hex('#e6c486')); }
+    for (let k = 0; k < 6; k++) { const a2 = k * 1.05, r = 2 + e * 8; R.pset(Math.round(296 + Math.cos(a2) * r), Math.round(140 + Math.sin(a2) * r * 0.6 - e * 4), e < 0.5 ? hex('#e8dcc0') : hex('#b8a888')); } }
+  // la mosca: ronda el té, se posa en la punta de Kefrén y sale disparada con el primer golpe
+  const posa = tramo(t, P2 + 1.4, P2 + 2.6), huye = tramo(t, SOLID, SOLID + 0.8);
+  let fx = lerp(180 + Math.cos(t * 4) * 12, 254, posa), fy = lerp(90 + Math.sin(t * 7) * 6, 60, posa);
+  if (huye > 0) { fx = lerp(254, 150, huye) + Math.sin(t * 25) * 3; fy = lerp(60, 30, huye) + Math.cos(t * 21) * 3; }
+  if (huye < 1) mosca(fx, fy, t, posa < 1 || huye > 0);
 };
 
 // ── 3 · el expositor de revistas con un hueco ──
@@ -239,7 +262,11 @@ const p3 = (t) => {
   R.linea(cx0 + 28, 148, cx0 + 33, 142, K);
   // el «?» sobre el hueco
   if (t > NEVER) { const e = tramo(t, NEVER, NEVER + 0.3); R.icono('?', 170, Math.round(76 - e * 6), T.C.blanco, K, 3); }
-  // un lector que pasa una página al fondo a la derecha (sentado en la columna)
+  // un estudiante entra por la derecha leyendo una revista, pasa la página, en «journal» levanta la vista al «?» y se va
+  const lv = tramo(t, P3 + 0.05, P3 + 1.1), ls = tramo(t, JOUR + 0.5, P4 - 0.05), lx = Math.round(lerp(lerp(338, 240, lv), 338, ls));
+  const le = R.actor(EL.estudiante, lx, 170, t, { dir: ls > 0 ? 1 : -1, anda: (lv > 0 && lv < 1) || (ls > 0 && ls < 1), sostiene: true, sorpresa: t > JOUR && t < JOUR + 0.5 });
+  if (le && le.mano) { const [mx, my] = le.mano, pasa = t > PAGINA && t < PAGINA + 0.25; R.rect(mx - 7, my - 9, mx + 3, my, K); R.rect(mx - 6, my - 8, mx - 2, my - 1, hex('#f4f0e6')); R.rect(mx - 1, my - 8, mx + 2, my - 1, hex('#e8e2d4')); R.rect(mx - 6, my - 8, mx - 2, my - 7, COLS[2]);
+    if (pasa) { const w2 = Math.round(Math.cos((t - PAGINA) / 0.25 * Math.PI) * 4); R.rect(Math.min(mx - 2, mx - 2 + w2), my - 9, Math.max(mx - 2, mx - 2 + w2), my - 1, hex('#ffffff')); } }
 };
 
 // ── 4 · la rueda de prensa (2.ª vez): pantalla con el plano azul, flashes y vídeo ──
@@ -256,7 +283,10 @@ const p4 = (t) => {
   // los pilotos de las cámaras graban
   if (t > VID - 0.3 && Math.floor(t * 4) % 2) { R.disco(44, 132, 1.5, hex('#ff3040')); R.disco(286, 132, 1.5, hex('#ff3040')); }
 };
-const efectos = [[NO + 0.1, 'pop'], [PERM, 'toc'], [PERM + 0.35, 'toc'], [SOLID, 'toc'], [BED, 'toc'], [NEVER, 'pop'], [CONF, 'flash'], [VID, 'bip']];
+// los flashes de la cámara del turista caen donde sin(1,7 t) llega a su cresta: t = (π/2 + 2πk) / 1,7
+const FOTO = [0, 1].map((k) => (Math.PI / 2 + 2 * Math.PI * k) / 1.7);
+const efectos = [[0.3, 'viento'], [FOTO[0], 'flash'], [FOTO[1], 'flash'], [NO + 0.1, 'pop'], [LUZ2, 'interruptor'], [PERM, 'toc'], [PERM + 0.35, 'toc'], [KAF, 'golpecito'], [SOLID, 'toc'], [BED, 'toc'], [BED + 0.3, 'toc'],
+  [P3 + 0.15, 'carro'], [PAGINA, 'papel'], [NEVER, 'pop'], [P4 + 0.1, 'publico'], [CONF, 'flash'], [CONF + 0.5, 'flash'], [VID, 'bip']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2025 });
 </script>
 </body>

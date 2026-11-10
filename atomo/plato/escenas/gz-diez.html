@@ -16,8 +16,10 @@
 // 2. F hoy/suelo: el corte del suelo; la onda del radar entra en la arena y se para (o.radar) en «barely gets into the
 //    ground»; el técnico se encoge de hombros; en «European Space Agency» baja la señal de un satélite y se enciende la
 //    cota con un «10» grande. Corta en «puts».
-// 3. B italia/video: Biondi graba en su estudio; en «10» su monitor enseña el satélite y el «10» y él lo señala; en
-//    «admits» levanta las manos, tranquilo. El gato cruza y se sienta. Corta tras «admits it».
+// 3. B italia/video: Biondi está en el escritorio de su estudio; en «10» el monitor enseña el satélite y el «10» y él lo
+//    señala hablando; vuelve andando a su marca por delante del trípode (el piloto de la cámara se enciende al llegar) y
+//    en «admits» abre las manos hacia la cámara, tranquilo, y sonríe. El gato cruza el suelo y se sienta a mirarlo.
+//    Corta tras «admits it».
 // 4. F hoy/orbita/rebote (gag 6): en «going straight through» la onda baja como una pelota, choca con la roca en
 //    «rock», salta el polvo y vuelve al satélite, que recula; en «impossible», una «X» roja sobre la roca. Corta en
 //    «depends».
@@ -108,19 +110,28 @@ const p2 = (t) => {
 
 // ── 3 · B italia/video: Biondi lo admite ──
 const p3 = (t) => {
-  const o = { encuadre: 'video' }; T.italia(R, t, o);
+  const o = { encuadre: 'video' }, geo = T.italia(R, t, o), [kx, ky] = geo.camara ?? [196, 158];
   // el monitor del escritorio: la gráfica que tiembla y, en «10», el satélite con su «10»
   R.recorte([272, 88, 308, 108]);
   for (let y = 88; y <= 108; y++) R.linea(272, y, 308, y, hex('#10182a'));
   if (t < diez) { for (let x = 272; x < 308; x++) R.pset(x, Math.round(98 + Math.sin(x * 0.6 + t * 8) * 3 * Math.sin(x * 0.13)), hex('#5ae08a')); }
   else { R.icono('satelite', 274, 92, hex('#e8e8f2'), K); for (let y = 99; y < 107; y += 2) R.pset(277, y, hex('#9ae8f8')); R.numero('10', 286, 104, { color: Math.floor(t * 3) % 2 ? hex('#ffe070') : hex('#fff6c0') }); }
   R.recorte(null);
-  // Biondi habla a la cámara; en «10» señala el monitor; en «admits» levanta las manos, tranquilo
-  R.actor(EL.biondi, 128, 152, t, { dir: 1, habla: (t < admite - 0.1 || t > admite + 0.7) && Math.sin(t * 9) > -0.3, dedo: t > diez - 0.1 && t < diez + 1.4, brazos: t > admite - 0.1 && t < admite + 1.0 });
-  // el gato cruza despacio por delante, de la estantería al trípode
-  { const u = lin(t, P3 + 0.2, P4), x = Math.round(lerp(20, 186, u)), pa = Math.floor(t * 6) % 2, G = hex('#3a3a46');
-    R.rect(x, 152, x + 8, 156, G); R.rect(x + 7, 149, x + 11, 153, G); R.pset(x + 8, 148, G); R.pset(x + 11, 148, G); R.pset(x + 10, 151, hex('#e8d040'));
-    R.linea(x, 153, x - 4, 149 + pa, G); for (const i of [1, 7]) R.rect(x + i + pa, 157, x + i + pa, 159, G); }
+  // Biondi empieza en el escritorio, de cara al monitor; en «10» lo señala y habla; luego vuelve a su marca delante de la
+  // cámara (por delante del trípode, que está en y 158) y en «admits» abre las manos hacia la cámara, tranquilo
+  const vu = tramo(t, diez + 0.9, admite - 0.25), vx = Math.round(lerp(246, 146, vu)), vy = Math.round(154 + Math.sin(vu * Math.PI) * 9 - vu * 2);
+  const enMarca = vu >= 1;
+  R.actor(EL.biondi, vx, vy, t, { dir: vu > 0 && !enMarca ? -1 : enMarca ? 1 : 1, anda: vu > 0 && vu < 1,
+    dedo: t > diez - 0.15 && t < diez + 0.9, habla: ((t > diez - 0.15 && t < diez + 0.9) || t > admite + 1.0) && Math.sin(t * 9) > -0.3,
+    brazos: t > admite - 0.1 && t < admite + 1.0, sonrisa: t > admite + 0.4 });
+  // el piloto rojo de la cámara: graba solo cuando Biondi está en su marca
+  if (enMarca && Math.floor(t * 3) % 2 === 0) { R.disco(kx + 11, ky - 38, 1.5, hex('#ff3040')); R.pset(kx + 11, ky - 39, hex('#ffb0b8')); }
+  // el gato cruza despacio por el suelo, de la estantería hacia la puerta, y se sienta a mirar a Biondi
+  { const u = lin(t, P3 + 0.2, admite - 0.4), x = Math.round(lerp(20, 104, u)), anda = u > 0 && u < 1, pa = anda ? Math.floor(t * 6) % 2 : 0, G = hex('#3a3a46'), GL = hex('#5a5a68');
+    if (anda) { R.rect(x, 172, x + 8, 176, G); R.rect(x + 1, 172, x + 7, 172, GL); R.rect(x + 7, 169, x + 11, 173, G); R.pset(x + 8, 168, G); R.pset(x + 11, 168, G); R.pset(x + 10, 171, hex('#e8d040'));
+      R.linea(x, 173, x - 4, 169 + pa, G); for (const i of [1, 7]) R.rect(x + i + pa, 177, x + i + pa, 179, G); }
+    else { const c = Math.sin(t * 4) > 0 ? 1 : 0; R.rect(x + 2, 168, x + 8, 177, G); R.rect(x + 3, 168, x + 4, 176, GL); R.rect(x + 3, 163, x + 9, 168, G); R.pset(x + 4, 162, G); R.pset(x + 8, 162, G);
+      R.pset(x + 7, 165, hex('#e8d040')); R.linea(x + 2, 177, x - 3, 175 - c, G); R.linea(x - 3, 175 - c, x - 4, 172 - c, G); } }
   T.italiaDelante(R, t, o);
 };
 

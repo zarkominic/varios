@@ -11,15 +11,19 @@
 <script type="module">
 // GZ-PERMISO (frase 22), 2026. Cuatro planos:
 // 1. (LOCAL) una balanza de latón ante la ventana: en «proven» cae una lupa en un platillo; en «doesn't mean» una cruz roja
-//    en el otro; en «lie» sale el «≠» entre los dos (no son lo mismo); en «no proof yet» sube un «?» sobre la lupa y el
-//    reloj de arena se da la vuelta;  corta en «According»;
-// 2. (F hoy/redaccion/despacho) un despacho de El Cairo: el mensajero desliza la carpeta de solicitud en «asked Egypt»;
-//    de la carpeta salen el carrito del radar en «measurements» y una pala en «dig»; el funcionario la deja en la bandeja;
-//    corta en «So far»;
-// 3. (LOCAL) la carpeta espera en su bandeja: pasan los días por la ventana (sol, luna, sol), el reloj corre, una araña
-//    baja por su hilo; el sello sigue en su tampón, sin usar;  corta en «goes»;
-// 4. (A giza/osiris/fondo, 2.ª vez) una linterna con una cámara baja por el pozo de verdad en «goes down», alumbra la
-//    escalera y en «we'll know for sure» su luz llega al sarcófago.
+//    en el otro; en «lie» sale el «≠» entre los dos (no son lo mismo); en «no proof yet» sube un «?» sobre la lupa y en
+//    «yet» una mano entra por la derecha y da la vuelta al reloj de arena, que empieza a correr. Una polilla ronda la
+//    vela; nubes, pájaros y motas en la ventana. Corta en «According»;
+// 2. (F hoy/redaccion/despacho) un despacho de El Cairo: el mensajero entra y deja la carpeta en el borde de la mesa en
+//    «asked Egypt» y se va; la carpeta se desliza hasta el funcionario, que levanta el dedo en «permission» y la lee; salen
+//    los bocadillos del carrito del radar en «measurements» y de la pala en «dig», y él la empuja a la bandeja de entrada.
+//    Al fondo, una funcionaria entra con un montón de carpetas, mete una en el casillero y se va. Corta en «So far»;
+// 3. (LOCAL) la carpeta espera en su bandeja: pasan los días por la ventana (sol, luna, sol), el reloj corre, el polvo
+//    se posa en la carpeta; una araña baja de la balda y en «granted» teje su tela entre la carpeta, el sello sin usar y
+//    la balda. Corta en «goes»;
+// 4. (A giza/osiris/fondo, 2.ª vez) en «goes down» un espeleólogo baja por la escalera de hierro del pozo, peldaño a
+//    peldaño, con la linterna y la cámara colgadas del cinturón (la luz hacia abajo); pisa la pasarela en «corridor»,
+//    anda hasta el borde y en «we'll know for sure» levanta la linterna: la luz llega al sarcófago y sonríe.
 import * as T from '/atomo/plato/escenas/gz-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gz-permiso');
@@ -125,30 +129,61 @@ const p1 = (t) => {
   if (t > LIE) { const e = tramo(t, LIE, LIE + 0.3), cy = 112, c = Math.floor(t * 3) % 2 ? Oro[3] : Oro[2]; if (e > 0.2) { const yy = 74; R.rect(140, yy - 13, 180, yy + 13, K); R.rect(141, yy - 12, 179, yy + 12, hex('#2a2a3a')); R.rect(146, yy - 6, 174, yy - 3, c); R.rect(146, yy + 3, 174, yy + 6, c); for (let i = -10; i <= 10; i++) { R.rect(160 - Math.round(i * 0.5) - 1, yy + i, 160 - Math.round(i * 0.5) + 1, yy + i, c); } R.rect(141, yy - 12, 179, yy - 12, hex('#4a4a5a')); } }
   // el «?» sobre la lupa y el reloj de arena que se da la vuelta
   if (t > NOPROOF) { const e = tramo(t, NOPROOF, NOPROOF + 0.4); const qy = Math.round(pl[1] - 30 - e * 6); R.rect(pl[0] - 44, qy - 4, pl[0] - 22, qy + 24, K); R.rect(pl[0] - 43, qy - 3, pl[0] - 23, qy + 23, hex('#2a2a3a')); R.rect(pl[0] - 43, qy - 3, pl[0] - 23, qy - 3, hex('#4a4a5a')); R.icono('?', pl[0] - 40, qy, T.C.blanco, K, 3); }
-  const gira = tramo(t, YET - 0.1, YET + 0.3), hx = 240, hy = 116;
-  const arriba = gira < 0.5; R.rect(hx - 8, hy - 14, hx + 8, hy - 12, K); R.rect(hx - 8, hy + 10, hx + 8, hy + 12, K); R.rect(hx - 7, hy - 13, hx + 7, hy - 13, hex('#8a5a30')); R.rect(hx - 7, hy + 11, hx + 7, hy + 11, hex('#8a5a30'));
-  R.poligono([[hx - 6, hy - 11], [hx + 6, hy - 11], [hx, hy - 1], [hx + 6, hy + 9], [hx - 6, hy + 9], [hx, hy - 1]], hex('#d8ecf4'));
-  const fl2 = t > YET + 0.3 ? tramo(t, YET + 0.3, P2 + 3) : 0; const ar = hex('#e8c060');
-  if (gira > 0 && gira < 1) { R.linea(hx - 8, hy - 12, hx + 8, hy + 10, K); }
-  else { for (let y = Math.round(hy - 10 + fl2 * 8); y < hy - 2; y++) R.rect(hx - Math.round((hy - 1 - y) * 0.55), y, hx + Math.round((hy - 1 - y) * 0.55), y, ar); for (let y = Math.round(hy + 8 - fl2 * 6); y <= hy + 8; y++) R.rect(hx - 5, y, hx + 5, y, ar); if (t > YET + 0.3) R.linea(hx, hy - 1, hx, hy + 7, ar); }
+  // el reloj de arena, en el borde derecho de la mesa: en «yet» entra una mano y le da la vuelta (gira entero en 0,4 s)
+  const gira = tramo(t, YET - 0.2, YET + 0.15), hx = 282, hy = 116, ar = hex('#e8c060');
+  const angR = gira * Math.PI, ca = Math.cos(angR), sa = Math.sin(angR), rot = (dx, dy) => [Math.round(hx + dx * ca - dy * sa), Math.round(hy + dx * sa + dy * ca)];
+  const fl2 = t > YET + 0.15 ? tramo(t, YET + 0.15, P2 + 3) : 0;
+  // los dos travesaños de madera y los cuatro palillos, girados
+  for (const s0 of [-1, 1]) { const ex = [[-8, s0 * 13.5], [8, s0 * 13.5], [8, s0 * 11], [-8, s0 * 11]].map(([x, y]) => rot(x, y)); R.poligono(ex, K); R.linea(...rot(-7, s0 * 12.5), ...rot(7, s0 * 12.5), hex('#8a5a30')); }
+  for (const dx of [-7, 7]) R.linea(...rot(dx, -11), ...rot(dx, 11), hex('#5a3a20'));
+  // el cristal y la arena (arriba se vacía, abajo se llena; mientras gira, la arena se queda en su sitio)
+  R.poligono([rot(-6, -10), rot(6, -10), rot(0, -1), rot(6, 10), rot(-6, 10), rot(0, -1)], hex('#d8ecf4'));
+  if (gira <= 0 || gira >= 1) { const vacia = gira >= 1 ? fl2 : 0.95;
+    for (let y = Math.round(hy - 10 + vacia * 8); y < hy - 2; y++) R.rect(hx - Math.round((hy - 1 - y) * 0.55), y, hx + Math.round((hy - 1 - y) * 0.55), y, ar);
+    for (let y = Math.round(hy + 8 - (gira >= 1 ? fl2 : 1) * 6); y <= hy + 8; y++) R.rect(hx - 5, y, hx + 5, y, ar);
+    if (gira >= 1 && fl2 < 1) R.linea(hx, hy - 1, hx, hy + 7, ar); }
+  else { const [cx, cy] = rot(0, 6); R.disco(cx, cy, 3, ar); }
+  for (const [dx, dy] of [[-4, -8], [-3, 6]]) R.pset(...rot(dx, dy), T.C.blanco);
+  // la mano canónica entra desde la derecha (el codo fuera del cuadro), coge el reloj, lo gira y se va
+  const va = tramo(t, YET - 0.65, YET - 0.22), vuelve = tramo(t, YET + 0.2, YET + 0.6), m = va * (1 - vuelve);
+  if (m > 0) { const wx = Math.round(lerp(352, hx + 13, m)), wy = Math.round(lerp(140, hy + 1, m) + (gira > 0 && gira < 1 ? Math.sin(angR) * 4 : 0));
+    T.brazo(R, 360, 168, wx, wy, '#5a6a8a', -1, { codo: [wx + 26, wy + 26] }); }
+  // una polilla da vueltas a la llama de la vela
+  { const a2 = t * 3.1, mx = Math.round(87 + Math.cos(a2) * 9 + Math.sin(t * 7) * 2), my = Math.round(102 + Math.sin(a2 * 1.3) * 6), w = Math.sin(t * 30) > 0 ? 1 : 0;
+    R.pset(mx, my, hex('#8a7a6a')); R.pset(mx - 1, my - w, hex('#c8b8a0')); R.pset(mx + 1, my - w, hex('#c8b8a0')); }
   // motas de polvo en la luz de la ventana
   for (let k = 0; k < 10; k++) { const x = 110 + ((k * 23 + t * 3) % 100), y = 30 + ((k * 17 + t * 2) % 80); if ((x < 140 || x > 180)) R.pset(Math.round(x), Math.round(y), hex('#f4f0d8')); }
 };
 
 // ── 2 · el despacho de El Cairo: llega la carpeta ──
+// geometría del decorado (f_despacho): funcionario y = 164 detrás de la mesa (x 50–252, tablero y 160); de pie delante,
+// y = 177 con x < 46; la bandeja en (211, 152); el casillero x 140–230, y 26–110; la carpeta de o.carpeta va de x 40 a 211
+const xCarpeta = (u) => Math.round(lerp(40, 211, 1 - (1 - u) ** 3));
 const p2 = (t) => {
-  const o = { encuadre: 'redaccion', camara: 'despacho', carpeta: t < ASKED - 0.3 ? false : tramo(t, ASKED - 0.3, PERMI + 0.2) };
+  // la carpeta: el mensajero la deja en el borde en «asked»; se desliza hasta el funcionario, que la lee; después de
+  // «measurements» la empuja a la bandeja de entrada, adonde llega en «dig» (y allí se queda)
+  const u = t < ASKED ? -1 : t < MEAS + 0.6 ? 0.22 * tramo(t, ASKED, ASKED + 0.5) : 0.22 + 0.78 * tramo(t, MEAS + 0.6, DIG + 0.1);
+  const o = { encuadre: 'redaccion', camara: 'despacho', carpeta: u < 0 ? false : u };
   T.hoy(R, t, o);
-  R.actor(EL.tecnico, 150, 164, t, { dir: -1, habla: t > EGYPT && t < MEAS && Math.sin(t * 8) > 0, dedo: t > PERMI && t < PERMI + 0.8, sonrisa: t > DIG + 0.2 });
-  const sale = tramo(t, DIG + 0.1, P3), cx = Math.round(lerp(18, -30, sale));
-  const en1 = tramo(t, P2 + 0.1, ASKED - 0.4), cx2 = Math.round(lerp(-20, 18, en1));
-  const lleva = t < ASKED - 0.3, ca = R.actor(EL.cartero, sale > 0 ? cx : cx2, 177, t, { dir: sale > 0 ? -1 : 1, anda: (en1 > 0 && en1 < 1) || (sale > 0 && sale < 1), sostiene: lleva ? true : t < PERMI ? [40 + Math.round(tramo(t, ASKED - 0.3, PERMI) * 8), 160] : false });
-  if (lleva && T.PIEZAS_GZ.carpeta) T.PIEZAS_GZ.carpeta(R, ca.mano[0] + 4, ca.mano[1] + 6, {});
+  // una funcionaria al fondo, con un montón de carpetas, entra por la derecha, mete una en el casillero y se va
+  const fe = tramo(t, P2 + 0.2, ASKED - 0.1), fs = tramo(t, MEAS + 0.3, P3 + 0.4), fx = Math.round(fs > 0 ? lerp(240, 336, fs) : lerp(336, 240, fe));
+  const mete = t > ASKED + 0.2 && t < MEAS + 0.2, mm = tramo(t, ASKED + 0.2, ASKED + 0.7) - tramo(t, MEAS - 0.3, MEAS + 0.1);
+  const F = R.actor(EL.egipcia2024, fx, 146, t, { dir: fs > 0 ? 1 : -1, anda: (fe > 0 && fe < 1) || (fs > 0 && fs < 1), sostiene: mete ? [Math.round(lerp(232, 226, mm)), Math.round(lerp(134, 107, mm))] : true });
+  { const [mx, my] = F.mano, n = t > MEAS ? 2 : 3; for (let i = 0; i < n; i++) { const y = my - 2 - i * 2; R.rect(mx - 5, y - 1, mx + 5, y, K); R.rect(mx - 4, y - 1, mx + 4, y - 1, [hex('#c8a868'), hex('#3a6ab0'), hex('#c84a3a')][i]); } }
+  // el funcionario: escucha, en «permission» levanta el dedo, lee la carpeta, y en «dig» la empuja a la bandeja
+  const recibe = t > ASKED + 0.3 && t < PERMI, empuja = t > MEAS + 0.5 && t < DIG + 0.2;
+  R.actor(EL.tecnico, 150, 164, t, { dir: -1, habla: t > PERMI + 0.6 && t < DIG && Math.sin(t * 8) > 0, dedo: t > PERMI && t < PERMI + 0.6,
+    sostiene: recibe ? [xCarpeta(u) + 4, 154] : empuja ? [Math.min(196, xCarpeta(u) - 4), 154] : undefined, sorpresa: t > MEAS && t < MEAS + 0.5, sonrisa: t > DIG + 0.25 });
+  // el mensajero entra con la carpeta, la deja en el borde de la mesa en «asked» y se va
+  const en1 = tramo(t, P2 + 0.05, ASKED - 0.45), sale = tramo(t, ASKED + 0.35, MEAS + 0.2);
+  const lleva = t < ASKED, cx = Math.round(sale > 0 ? lerp(30, -24, sale) : lerp(-24, 30, en1));
+  const ca = R.actor(EL.cartero, cx, 177, t, { dir: sale > 0 ? -1 : 1, anda: (en1 > 0 && en1 < 1) || (sale > 0 && sale < 1), sostiene: lleva ? (t > ASKED - 0.45 ? [42, 158] : true) : false, sonrisa: t > ASKED && sale < 0.3 });
+  if (lleva && T.PIEZAS_GZ.carpeta) T.PIEZAS_GZ.carpeta(R, ca.mano[0] + 2, ca.mano[1] + 4, {});
   T.hoyDelante(R, t, o);
-  // de la carpeta salen lo que piden: medir (el carrito del radar) y excavar (una pala)
-  const bub = (t0, x, y, dib) => { if (t < t0) return; const e = tramo(t, t0, t0 + 0.3); const yy = Math.round(y + (1 - e) * 10); R.rect(x - 20, yy - 18, x + 20, yy + 12, K); R.rect(x - 19, yy - 17, x + 19, yy + 11, hex('#f6f2e8')); R.pset(x - 2, yy + 13, K); R.pset(x - 1, yy + 14, K); dib(x, yy); };
-  bub(MEAS, 188, 112, (x, y) => { if (T.PIEZAS_GZ.carritoRadar) T.PIEZAS_GZ.carritoRadar(R, x + 1, y + 10, { t }); });
-  bub(DIG, 236, 112, (x, y) => { R.linea(x - 8, y - 10, x + 4, y + 2, K); R.linea(x - 7, y - 10, x + 5, y + 2, hex('#8a5a30')); R.poligono([[x + 2, y + 1], [x + 8, y - 3], [x + 12, y + 6], [x + 6, y + 10]], K); R.poligono([[x + 3, y + 1], [x + 8, y - 2], [x + 11, y + 6], [x + 6, y + 9]], hex('#a8a8b4')); R.rect(x - 10, y - 12, x - 6, y - 10, K); });
+  // los bocadillos de lo que piden, por encima de las cabezas: medir (el carrito del radar) y excavar (una pala)
+  const bub = (t0, x, y, dib) => { if (t < t0) return; const e = tramo(t, t0, t0 + 0.3); const yy = Math.round(y + (1 - e) * 10); R.rect(x - 20, yy - 18, x + 20, yy + 12, K); R.rect(x - 19, yy - 17, x + 19, yy + 11, hex('#f6f2e8')); R.rect(x - 19, yy + 9, x + 19, yy + 11, hex('#e0d8c4')); R.pset(x - 14, yy + 13, K); R.pset(x - 15, yy + 14, K); R.pset(x - 16, yy + 15, K); dib(x, yy); };
+  bub(MEAS, 176, 92, (x, y) => { if (T.PIEZAS_GZ.carritoRadar) T.PIEZAS_GZ.carritoRadar(R, x + 1, y + 10, { t }); });
+  bub(DIG, 222, 92, (x, y) => { const k = Math.round(Math.sin(t * 9) * 1); R.linea(x - 8, y - 10 + k, x + 4, y + 2, K); R.linea(x - 7, y - 10 + k, x + 5, y + 2, hex('#8a5a30')); R.poligono([[x + 2, y + 1], [x + 8, y - 3], [x + 12, y + 6], [x + 6, y + 10]], K); R.poligono([[x + 3, y + 1], [x + 8, y - 2], [x + 11, y + 6], [x + 6, y + 9]], hex('#a8a8b4')); R.rect(x - 10, y - 12 + k, x - 6, y - 10 + k, K); R.pset(x + 4, y + 9, hex('#c8a868')); R.pset(x + 7, y + 10, hex('#c8a868')); });
 };
 
 // ── 3 · la carpeta que espera ──
@@ -191,31 +226,51 @@ const p3 = (t) => {
   R.disco(208, 98, 3, K); R.rect(206, 98, 210, 104, K); R.rect(207, 99, 209, 103, hex('#a8743c')); R.disco(208, 97, 2, hex('#a8743c'));
   // el reloj que corre
   const ah = t * 3, am = t * 36; R.linea(262, 66, Math.round(262 + Math.sin(ah) * 6), Math.round(66 - Math.cos(ah) * 6), K); R.linea(262, 66, Math.round(262 + Math.sin(am) * 10), Math.round(66 - Math.cos(am) * 10), hex('#c83a3a')); R.disco(262, 66, 1.5, K);
-  // la araña que baja por su hilo hasta la carpeta, y vuelve a subir
-  const ar = tramo(t, P3 + 0.6, GRANT) - tramo(t, GRANT + 0.6, P4 - 0.1) * 0.6, ay = Math.round(lerp(46, 84, ar));
-  R.linea(150, 45, 150, ay, hex('#c8c8d0')); R.disco(150, ay + 2, 2.5, K); for (const s of [-1, 1]) for (let j = 0; j < 3; j++) { const w = Math.sin(t * 9 + j) > 0 ? 1 : 0; R.pset(150 + s * 3, ay + 1 + j, K); R.pset(150 + s * 4, ay + j + w, K); }
+  // el polvo se posa en la carpeta día a día
+  const polvo = Math.floor(tramo(t, P3 + 0.3, P4) * 40);
+  for (let k = 0; k < polvo; k++) R.pset(135 + Math.floor(hh(k, 1, 7) * 35), 70 + Math.floor(hh(k, 2, 7) * 26), hh(k, 3, 7) < 0.5 ? hex('#bfb6a4') : hex('#d8d0c0'));
+  // la araña baja por su hilo desde la balda; en «granted» teje su tela entre la carpeta, el sello y la balda: nadie
+  // la ha tocado en días
+  const baja = tramo(t, P3 + 0.3, GRANT - 0.5), ay0 = Math.round(lerp(46, 64, baja));
+  const HIL = [[150, 45, 135, 68], [150, 45, 170, 68], [170, 68, 208, 94], [150, 45, 208, 94], [186, 45, 208, 94], [135, 68, 208, 94]];
+  const teje = tramo(t, GRANT - 0.5, P4 - 0.3) * HIL.length, cw = hex('#e8e8f0'), cw2 = hex('#a8a8b8');
+  let [ax, ayA] = [150, ay0];
+  if (baja < 1) R.linea(150, 45, 150, ay0, cw);
+  for (let i = 0; i < HIL.length; i++) { const f = cl(teje - i, 0, 1); if (f <= 0) break; const [x0, y0, x1, y1] = HIL[i], xe = Math.round(lerp(x0, x1, f)), ye = Math.round(lerp(y0, y1, f));
+    R.linea(x0, y0, xe, ye, (i + Math.floor(t * 4)) % 5 ? cw2 : cw); if (f < 1) [ax, ayA] = [xe, ye]; else if (i === HIL.length - 1) [ax, ayA] = [x1, y1]; }
+  // los hilos de vuelta (la espiral), cuando ya están los radios
+  if (teje > 3) for (let r = 1; r <= Math.min(4, Math.floor((teje - 3) * 1.5)); r++) { const q = r / 6; R.linea(Math.round(lerp(150, 135, q)), Math.round(lerp(45, 68, q)), Math.round(lerp(150, 208, q)), Math.round(lerp(45, 94, q)), cw2);
+    R.linea(Math.round(lerp(150, 208, q)), Math.round(lerp(45, 94, q)), Math.round(lerp(150, 170, q)), Math.round(lerp(45, 68, q)), cw2); }
+  R.disco(ax, ayA + 2, 2.5, K); R.pset(ax - 1, ayA + 1, hex('#5a5a6a')); for (const sg of [-1, 1]) for (let j = 0; j < 3; j++) { const w = Math.sin(t * 9 + j) > 0 ? 1 : 0; R.pset(ax + sg * 3, ayA + 1 + j, K); R.pset(ax + sg * 4, ayA + j + w, K); }
   // las hojas de la planta
   for (let k = 0; k < 7; k++) { const a2 = -1.2 + k * 0.4 + Math.sin(t * 1.2 + k) * 0.07, L = 20 + (k % 3) * 6; R.linea(295, 150, Math.round(295 + Math.cos(a2 - 1.57) * L), Math.round(150 + Math.sin(a2 - 1.57) * L), hex('#3a7a3a')); R.linea(296, 150, Math.round(296 + Math.cos(a2 - 1.57) * L), Math.round(150 + Math.sin(a2 - 1.57) * L), hex('#5aa85a')); }
 };
 
-// ── 4 · la linterna baja por el pozo de verdad ──
+// ── 4 · alguien baja por el pozo con la cámara ──
+// geometría del decorado (a_osirisFondo): la escalera de hierro x 44–57 (de y 0 a 160), la pasarela de rejilla x 0–118
+// con suelo 160 (su barandilla, en gizaDelante, tapa las piernas), el sarcófago x 128–202, y 106–141
 const p4 = (t) => {
   const o = { encuadre: 'osiris', camara: 'fondo' };
   T.giza(R, t, o);
-  const b = tramo(t, P4 + 0.1, CORR + 0.3), lx = 50, ly = Math.round(lerp(22, 128, b));
-  const vaiven = Math.round(Math.sin(t * 2.2) * 2 * (1 - b * 0.5)), gira = tramo(t, KNOW - 0.4, KNOW + 0.2);
-  R.linea(lx, 16, lx + vaiven, ly - 8, hex('#c8b8a0')); R.linea(lx + 1, 16, lx + 1 + vaiven, ly - 8, hex('#7a6a5a'));
-  const x = lx + vaiven;
-  // el haz: hacia abajo mientras baja; en «know for sure» gira hacia el sarcófago
-  const tx = Math.round(lerp(x, 164, gira)), ty = Math.round(lerp(ly + 50, 124, gira));
-  for (let k = 0; k < 220; k++) { const u = hh(k, Math.floor(t * 6)) , v = hh(Math.floor(t * 6), k) - 0.5, px = Math.round(lerp(x, tx, u) + v * u * 26 * (1 - gira * 0.4)), py = Math.round(lerp(ly + 6, ty, u) + v * u * 10 * gira); R.pset(px, py, u < 0.5 ? hex('#fff0b0') : hex('#f0d080')); }
-  if (gira > 0.6) for (let k = 0; k < 6; k++) { const s = Math.sin(t * 6 + k) > 0.3; if (s) R.pset(132 + k * 12, 108 + (k % 2) * 6, T.C.blanco); }
-  if (T.PIEZAS_GZ.linterna) T.PIEZAS_GZ.linterna(R, x + (gira > 0.5 ? 6 : 0), ly + (gira > 0.5 ? 2 : 6), { encendida: true, abajo: gira <= 0.5, haz: false });
-  // la cámara que cuelga debajo, con su piloto rojo
-  R.rect(x - 3, ly + 8, x + 3, ly + 13, K); R.rect(x - 2, ly + 9, x + 2, ly + 12, hex('#3a3a46')); R.pset(x, ly + 11, hex('#5ab8e8')); if (Math.floor(t * 3) % 2) R.pset(x + 2, ly + 9, hex('#ff3040'));
+  // baja peldaño a peldaño (4 px cada uno, con su pausa) hasta la pasarela; anda hasta el borde; en «know for sure»
+  // levanta la linterna con la cámara y la luz llega al sarcófago
+  const b = tramo(t, P4 + 0.1, CORR - 0.15), pel = b * 30, sy = Math.round(46 + (Math.floor(pel) + Math.min(1, (pel % 1) * 2.5)) * 3.8);
+  const an = tramo(t, CORR - 0.05, KNOW - 0.45), x = Math.round(lerp(50, 92, an)), sube = tramo(t, KNOW - 0.4, KNOW + 0.1);
+  const enEscalera = b < 1;
+  const A = R.actor(EL.espeleologo, x, sy, t, { dir: 1, brazos: enEscalera, anda: an > 0 && an < 1, sostiene: enEscalera ? undefined : [x + 9, Math.round(lerp(sy - 9, sy - 15, sube))], sonrisa: t > KNOW + 0.2 });
+  // la linterna: colgada del cinturón mientras baja (luz hacia abajo); en la mano después, apuntando al sarcófago
+  const [lx, ly] = enEscalera ? [x + 6, sy - 6] : A.mano, gira = sube;
+  const tx = Math.round(lerp(lx, 166, gira)), ty = Math.round(lerp(ly + 50, 122, gira));
+  for (let k = 0; k < 200; k++) { const u = hh(k, Math.floor(t * 6)), v = hh(Math.floor(t * 6), k) - 0.5, px = Math.round(lerp(lx, tx, u) + v * u * 24 * (1 - gira * 0.4)), py = Math.round(lerp(ly + 4, ty, u) + v * u * 12 * gira); R.pset(px, py, u < 0.5 ? hex('#fff0b0') : hex('#f0d080')); }
+  if (gira > 0.6) for (let k = 0; k < 6; k++) { if (Math.sin(t * 6 + k) > 0.3) R.pset(134 + k * 12, 110 + (k % 2) * 6, T.C.blanco); }
+  // la caja: la linterna con la cámara pegada debajo y su piloto rojo que parpadea mientras graba
+  R.rect(lx - 3, ly - 3, lx + 4, ly + 2, K); R.rect(lx - 2, ly - 2, lx + 3, ly + 1, hex('#e8c040')); R.rect(lx - 2, ly - 2, lx + 3, ly - 2, hex('#fff0a0'));
+  R.rect(lx - 2, ly + 2, lx + 3, ly + 5, K); R.rect(lx - 1, ly + 3, lx + 2, ly + 4, hex('#3a3a46')); R.pset(lx + 2, ly + 3, hex('#5ab8e8')); if (Math.floor(t * 3) % 2) R.pset(lx - 1, ly + 3, hex('#ff3040'));
   T.gizaDelante(R, t, o);
 };
-const efectos = [[PROVEN, 'toc'], [DOESNT + 0.05, 'toc'], [LIE, 'brillo'], [YET, 'tic'], [ASKED, 'papel'], [MEAS, 'pop'], [DIG, 'pop'], [P3 + 0.4, 'tic'], [P4 + 0.15, 'interruptor'], [KNOW, 'brillo']];
+const efectos = [[PROVEN, 'toc'], [DOESNT + 0.05, 'toc'], [LIE, 'brillo'], [NOPROOF, 'pop'], [YET + 0.15, 'golpecito'],
+  [ASKED, 'papel'], [ASKED + 0.7, 'toc'], [PERMI + 0.1, 'golpecito'], [MEAS, 'pop'], [DIG, 'pop'], [DIG + 0.1, 'papel'],
+  [P3 + 0.4, 'tic'], [GRANT, 'tic'], [P4 + 0.15, 'interruptor'], [CORR - 0.05, 'golpecito'], [KNOW, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 </script>
 </body>

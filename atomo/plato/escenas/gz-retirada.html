@@ -10,15 +10,19 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // GZ-RETIRADA (frase 21), agosto de 2026, cartela «2026» y golpe «retirada» (cae el sello). Cuatro planos:
-// 1. (LOCAL) la revista de 2022 de cerca sobre la mesa del editor (la portada con el plano azul, «2022»): el sello rojo cae
-//    con el golpe (1,6 s) y deja su marca; saltan los papeles y tiembla el café («another blow»);  corta en «journal»;
+// 1. (LOCAL) la revista de 2022 de cerca sobre la mesa del editor (la portada con el plano azul, «2022»): la mano del
+//    editor (brazo canónico en diagonal desde arriba, a la derecha de la barra del año) baja el sello cogido por el pomo
+//    con el golpe (1,6 s), estampa y se lo lleva; saltan los papeles y las gafas y tiembla el café;  corta en «journal»;
 // 2. (F hoy/redaccion) la redacción: el editor enseña la revista sellada a la editora y en «retracted» la mete en la
-//    bandeja roja de los retirados; al fondo, la redacción trabaja;  corta en «saying»;
-// 3. (LOCAL) la pantalla de la sala de reuniones con las figuras del artículo (en plano azul): el puntero rojo de la
-//    editora rodea los fallos en «flaws», el método en «methods», las barras tiemblan en «statistics» y en «not reliable»
-//    la torre de datos se cae;  corta en «The authors»;
-// 4. (LOCAL) los autores en su estudio de Italia al anochecer: niegan con la cabeza en «disagree» y en «still stand by
-//    their work» vuelven a lo suyo (escribe, teclea, repasa una lámina).
+//    bandeja roja de los retirados (la portada enmarcada recibe la banda roja); un técnico cruza con papeles; al fondo,
+//    la redacción teclea;  corta en «saying»;
+// 3. (LOCAL) la pantalla de la sala de reuniones con las figuras del artículo (en plano azul): la editora enciende el
+//    puntero (clic) y rodea los fallos en «flaws», el método en «methods» (el editor de la mesa lo señala), las barras
+//    tiemblan en «statistics» (respingo) y en «not reliable» la torre de datos se cae y su compañero se sorprende;
+//    corta en «The authors»;
+// 4. (LOCAL) los autores en su estudio de Italia al anochecer: dobla la campana del campanario; niegan con la cabeza en
+//    «disagree» y en «still stand by their work» vuelven a lo suyo (Malanga repasa sus papeles, Biondi teclea, Mei
+//    clava una lámina en el corcho).
 import * as T from '/atomo/plato/escenas/gz-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gz-retirada');
@@ -103,7 +107,9 @@ const p1 = (t) => {
   if (t > GOLPE) { R.recorte([105, 21, 215, 169]); const mx = 160, my = 96; for (let a2 = 0; a2 < 6.3; a2 += 0.02) for (let r = 22; r <= 26; r++) { const x = Math.round(mx + Math.cos(a2) * r), y = Math.round(my + Math.sin(a2) * r * 0.9); if (hh(x, y, 3) > 0.12) R.pset(x, y, hex('#d8283a')); }
     for (let x = mx - 22; x <= mx + 22; x++) for (let y = my - 3; y <= my + 3; y++) { const yy = Math.round(y - (x - mx) * 0.12); if (hh(x, yy, 4) > 0.15) R.pset(x, yy, hex('#d8283a')); } R.recorte(null); }
   if (sy > -60) { R.rect(136, sy - 4, 184, sy + 2, K); R.rect(137, sy - 3, 183, sy + 1, hex('#c8303a')); R.rect(134, sy - 14, 186, sy - 4, K); R.rect(135, sy - 13, 185, sy - 5, hex('#a8743c')); R.rect(135, sy - 13, 185, sy - 12, hex('#d8a060'));
-    R.rect(154, sy - 34, 166, sy - 14, K); R.rect(155, sy - 33, 165, sy - 15, hex('#6a4422')); R.disco(160, sy - 40, 11, K); R.disco(160, sy - 40, 10, hex('#a8743c')); R.disco(157, sy - 43, 4, hex('#d8a060')); }
+    R.rect(154, sy - 34, 166, sy - 14, K); R.rect(155, sy - 33, 165, sy - 15, hex('#6a4422')); R.disco(160, sy - 40, 11, K); R.disco(160, sy - 40, 10, hex('#a8743c')); R.disco(157, sy - 43, 4, hex('#d8a060'));
+    // la mano del editor lo baja cogido por el pomo (el brazo entra en diagonal por arriba, fuera de la barra del año)
+    if (sy - 48 > -8) T.brazo(R, 236, -14, 172, sy - 46, '#3a3a4a', -1, { puno: '#f4f0e6' }); }
   // el golpe: rayitas, papeles que saltan y el café que tiembla
   if (t > GOLPE && t < GOLPE + 0.35) for (const [dx, dy] of [[-40, -6], [40, -6], [-44, 4], [44, 4], [-36, 14], [36, 14]]) R.linea(160 + dx, 100 + dy, 160 + dx * 1.2, 100 + dy * 1.4, T.C.blanco);
   const sal = Math.max(0, Math.sin(Math.min(1, (t - GOLPE) / 0.5) * Math.PI)) * (t > GOLPE ? 1 : 0);
@@ -180,8 +186,9 @@ const p3 = (t) => {
   const pt = [obj[0] + Math.round(Math.sin(t * 5) * 3), obj[1] + Math.round(Math.cos(t * 4) * 2)];
   R.linea(ed.mano[0], ed.mano[1], ed.mano[0] + 4, ed.mano[1] - 2, hex('#2a2a36'));
   if (t > P3 + 0.4) { R.disco(pt[0], pt[1], 1.6, hex('#ff3040')); R.pset(pt[0], pt[1], hex('#ffd0d0')); }
-  R.actor(EL.editor1, 252, 160, t, { dir: -1, salto: t > STATS && t < STATS + 0.2 ? 1 : 0 });
-  R.actor(EL.conserje, 224, 160, t, { dir: -1, sorpresa: t > NOTREL && t < NOTREL + 1 });
+  // en la mesa: el editor señala el método en «methods», da un respingo en «statistics» y comenta; el otro se sorprende
+  R.actor(EL.editor1, 252, 160, t, { dir: -1, salto: t > STATS && t < STATS + 0.2 ? 1 : 0, dedo: t > METH - 0.1 && t < STATS - 0.1, habla: t > NOTREL + 0.5 && Math.sin(t * 8) > 0 });
+  R.actor(EL.conserje, 224, 160, t, { dir: t > FLAWS && t < NOTREL ? -1 : 1, sorpresa: t > NOTREL && t < NOTREL + 1, habla: t < FLAWS - 0.2 && Math.sin(t * 7) > 0.3 });
   R.rect(200, 150, 319, 154, K); R.rect(201, 151, 319, 153, hex('#6a4024')); R.rect(201, 151, 319, 151, hex('#94603a')); R.rect(206, 154, 210, 179, hex('#4a2c18')); R.rect(300, 154, 304, 179, hex('#4a2c18'));
   R.rect(236, 142, 250, 150, K); R.rect(237, 143, 249, 149, hex('#8a8a96')); R.rect(214, 144, 220, 150, K); R.rect(215, 145, 219, 149, hex('#f4f0e6'));
   // la aguja del reloj
@@ -215,7 +222,7 @@ const p4 = (t) => {
   grad(113, 19, 205, 84, H('#2e2e6a', '#5a3c80', '#9a4c84', '#d8687a', '#f09060'));
   nube(((t * 3) % 140) + 100, 34, 20, H('#7a4a7a', '#a86a8a', '#d89a9a')); nube(((t * 5 + 70) % 140) + 100, 52, 14, H('#a85a6a', '#d88a7a', '#f0b090'));
   for (let k = 0; k < 3; k++) pajaro(Math.round(120 + ((t * (14 + k * 4) + k * 30) % 90)), 40 + k * 7 + Math.round(Math.sin(t * 2 + k) * 2), t, k, hex('#2a1a2a'));
-  R.rect(178, 42, 188, 82, hex('#8a5a4a')); R.rect(178, 42, 179, 82, hex('#a87a5a')); R.poligono([[176, 42], [183, 30], [190, 42]], hex('#6a3a3a')); R.rect(181, 48, 185, 54, hex('#2a1a2a')); R.rect(181, 60, 185, 64, hex('#f0c060'));
+  R.rect(178, 42, 188, 82, hex('#8a5a4a')); R.rect(178, 42, 179, 82, hex('#a87a5a')); R.poligono([[176, 42], [183, 30], [190, 42]], hex('#6a3a3a')); R.rect(181, 48, 185, 54, hex('#2a1a2a')); { const sw = t > P4 + 0.4 && t < P4 + 2.6 ? Math.round(Math.sin((t - P4) * 9) * 1.4 * (1 - (t - P4 - 0.4) / 2.2)) : 0; R.rect(182 + sw, 50, 184 + sw, 53, hex('#c8a040')); R.pset(183 + sw, 49, hex('#8a6a2a')); R.pset(182 + sw, 50, hex('#f0d070')); }   // la campana del campanario, que dobla R.rect(181, 60, 185, 64, hex('#f0c060'));
   R.disco(134, 80, 8, hex('#8a7a8a')); R.disco(132, 77, 3, hex('#a89aa8')); R.rect(125, 80, 143, 90, hex('#b89a7a')); for (let x = 127; x < 143; x += 4) R.rect(x, 83, x + 1, 87, hex('#6a5a5a')); R.rect(133, 68, 135, 72, hex('#6a5a6a'));
   for (let x = 113; x <= 205; x++) { const h2 = 84 + ((Math.floor(x / 18) % 3) * 4); R.rect(x, h2, x, 103, ((x + Math.floor(x / 18)) % 4 === 0) ? hex('#8a4030') : hex('#b8583a')); if (((x - h2) % 6) === 0) R.pset(x, h2 + 3, hex('#e8a07a')); if ((x % 13) === 0) R.rect(x, h2 + 7, x + 2, h2 + 10, Math.sin(t + x) > -0.5 ? hex('#f0c060') : hex('#5a3a3a')); }
   R.recorte(null);
@@ -237,7 +244,8 @@ const p4 = (t) => {
   R.rect(200, 136, 208, 148, K); R.rect(201, 137, 207, 147, hex('#a8a8b4')); R.rect(201, 137, 207, 139, hex('#d8d8e0')); R.rect(198, 134, 210, 137, K); R.rect(208, 140, 211, 143, K);
   for (let k = 0; k < 2; k++) { const ph = (t * 0.6 + k * 0.5) % 1; R.pset(Math.round(204 + Math.sin(t * 2 + k) * 2), Math.round(132 - ph * 14), hex('#f4f0e8')); }
 };
-const efectos = [[GOLPE, 'sello'], [GOLPE + 0.15, 'papel'], [RETR + 0.3, 'papel'], [FLAWS, 'bip'], [METH, 'bip'], [STATS, 'bip'], [NOTREL, 'avalancha'], [STILL + 0.1, 'tecleo']];
+const efectos = [[GOLPE, 'sello'], [GOLPE + 0.15, 'papel'], [P2 + 0.3, 'tecleo'], [RETR + 0.3, 'papel'], [P3 + 0.4, 'interruptor'], [FLAWS, 'bip'], [METH, 'bip'], [STATS, 'bip'], [NOTREL, 'avalancha'],
+  [P4 + 0.4, 'campana'], [STILL + 0.1, 'tecleo'], [STILL + 0.7, 'papel']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '2026', efectos, año: 2026 });
 </script>
 </body>

@@ -10,19 +10,23 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // GZ-GANCHO (frases 1–2), sin cartela. Siete planos:
-// 1. (2025) la meseta de Giza al atardecer: un camellero cruza con su vara, dos turistas llegan; uno señala Kefrén en
-//    «second pyramid» y la otra le hace una foto (flash en «pyramid»); en «Giza» una línea de barrido sube y lo
-//    convierte todo en plano azul;  2. (según ellos) los pozos de cerca en el plano azul: en «eight» salta el 8 (golpe),
-//    en «sink» la cámara baja seiscientos metros por las roscas hasta los cubos; en «Nobody… prove it» salen tres «?»;
-//    3. (2023) la cara norte de Keops: en el andamio el técnico mete el endoscopio por la rendija en «real secrets» y la
-//    científica, ante la pantallita, se sorprende en «found» y lo celebra en «recently»;  4. (según ellos) el plano azul
-//    impreso sobre una mesa: una mano lleva la lupa por él; en «full detail» la lupa enseña las salas en grande y en
-//    «what they say lies down there» baja por un pozo, con su rosca girando, hasta los cubos y un «?»;  5. (2023) lo que
-//    ve el endoscopio: el pasillo oculto; en «thinner than a pencil» entra al lado la comparación: el lápiz y el cable;
-//    6. (hacia el 450 a. C.) el laberinto: Heródoto entra solo entre las columnas, mira a un lado y a otro, se queda
-//    boquiabierto en «greater than the pyramids» y señala el fondo, que no se acaba;  7. (hoy) la mesa de Atom: Atom baja de su
-//    esquina, levanta la punta de la pirámide de pisapapeles en «the reason», se asoma en «gone down to look»… dentro,
-//    nada: una nubecilla de polvo; la deja caer en «yet» y vuelve a su sitio (gag 1).
+// 1. (2025) la meseta de Giza al atardecer: el camellero cruza llevando a su camello del ronzal, dos turistas llegan;
+//    él señala Kefrén en «second pyramid» y ella le hace una foto (flash en «pyramid»); en «Giza» una línea de barrido
+//    sube y lo convierte todo en plano azul;  2. (según ellos) los pozos de cerca en el plano azul: en «eight» salta el 8
+//    (golpe), en «sink» la cámara baja seiscientos metros por las roscas hasta los cubos; en «Nobody… prove it» salen
+//    tres «?»;  3. (2023) la cara norte de Keops: en el andamio el técnico mete el endoscopio por la rendija en «real
+//    secrets»; abajo llegan dos turistas por la cuerda; en «found» la científica se sorprende y sale un bocadillo con lo
+//    que ve en la pantallita (el pasillo con su tejado), la turista señala arriba; en «recently» lo celebran;
+//    4. (según ellos) el plano azul impreso sobre una mesa: una mano lleva la lupa de mango largo (el brazo entra por
+//    abajo); en «full detail» la lupa enseña las salas en grande y en «what they say lies down there» baja por un pozo,
+//    con su rosca girando, hasta los cubos y un «?»;  5. (2023) lo que ve el endoscopio: la lucecita de la cámara se
+//    enciende poco a poco; en «hidden corridor» la mira ámbar se cierra sobre el pasillo y el foco barre las paredes; en
+//    «thinner than a pencil» entra al lado la comparación: el lápiz y el cable;  6. (hacia el 450 a. C.) el laberinto:
+//    Heródoto entra entre las columnas; el guía egipcio lo espera con su candil y le hace señas; Heródoto mira a un lado y
+//    a otro, se queda boquiabierto en «greater than the pyramids» (el guía alza el candil y salen tres murciélagos del
+//    fondo) y señala el fondo, que no se acaba;  7. (hoy) la mesa de Atom: Atom baja de su esquina, levanta la punta de
+//    la pirámide de pisapapeles en «the reason», se asoma en «gone down to look»… dentro, nada: una nubecilla de polvo;
+//    la deja caer en «yet» y vuelve a su sitio (gag 1).
 import * as T from '/atomo/plato/escenas/gz-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gz-gancho');
@@ -41,6 +45,7 @@ const PZ = Object.fromEntries(Object.entries({ f0: '#050c22', f1: '#08142e', f2:
   hal: '#113a62', hal2: '#1a5a88', co: '#2a8ab6', ci: '#5ae0f0', br: '#c8fbff' }).map(([k, v]) => [k, hex(v)]));
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
 const tono = (r, v, x, y) => { let l = Math.floor(v); if (v - l > b4(x, y)) l++; return r[Math.max(0, Math.min(r.length - 1, l))]; };
+const mezcla = (a, b, u) => { u = Math.max(0, Math.min(1, u)); const f = (s) => Math.round(((a >>> s) & 255) + (((b >>> s) & 255) - ((a >>> s) & 255)) * u); return (0xff000000 | (f(16) << 16) | (f(8) << 8) | f(0)) >>> 0; };
 const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
 // la pluma del plano azul: halo y luego núcleo; 'c' cian, 'd' cian apagado, 'b' brillo
 const pluma = (L) => {
@@ -48,6 +53,42 @@ const pluma = (L) => {
   for (const [x0, y0, x1, y1, k] of L) R.linea(Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1), k === 'd' ? PZ.co : k === 'b' ? PZ.br : PZ.ci);
 };
 const caja = (L, x0, y0, x1, y1, k = 'c') => L.push([x0, y0, x1, y0, k], [x1, y0, x1, y1, k], [x1, y1, x0, y1, k], [x0, y1, x0, y0, k]);
+// un camello que anda (22 px de alto): joroba con su manta, cuello curvo, cabeza que cabecea, patas que se cruzan y
+// la cola que se mueve; x = el centro del cuerpo, dir = hacia dónde mira. Devuelve dónde va el ronzal (la cabeza).
+const CAM = { k: hex('#2a1a10'), a: hex('#c8995a'), s: hex('#9a7040'), l: hex('#e4c088'), m1: hex('#b83a2a'), m2: hex('#2a5a9a'), m3: hex('#e8c040') };
+const elipse = (cx, cy, rx, ry, c) => { for (let j = -ry; j <= ry; j++) { const w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (j / (ry + 0.5)) ** 2))); R.rect(cx - w, cy + j, cx + w, cy + j, c); } };
+const camello = (x, suelo, t, dir = 1, anda = false, k = 0) => {
+  x = Math.round(x); const X = (i) => x + i * dir, ph = t * 5 + k, p = anda ? Math.sin(ph) : 0, cab = anda ? Math.round(Math.sin(ph * 2) * 1) : Math.round(Math.sin(t * 1.3 + k) * 0.8);
+  // las patas de atrás (lejanas, en sombra) y las de delante, que se cruzan al andar
+  for (const [i0, f, c] of [[-6, -p, CAM.s], [5, p, CAM.s], [-4, p, CAM.a], [7, -p, CAM.a]]) { const pie = Math.round(f * 2); R.linea(X(i0), suelo - 10, X(i0 + pie), suelo - 1, CAM.k); R.linea(X(i0) + dir, suelo - 10, X(i0 + pie) + dir, suelo - 1, c); R.rect(Math.min(X(i0 + pie), X(i0 + pie + 1)), suelo - 1, Math.max(X(i0 + pie), X(i0 + pie + 1)) + 1, suelo, CAM.k); }
+  // el cuerpo y la joroba, con su contorno, su luz arriba y su sombra abajo
+  elipse(x, suelo - 13, 10, 4, CAM.k); elipse(X(-1), suelo - 17, 6, 4, CAM.k);
+  elipse(x, suelo - 13, 9, 3, CAM.a); elipse(X(-1), suelo - 17, 5, 3, CAM.a);
+  R.rect(x - 7, suelo - 11, x + 7, suelo - 11, CAM.s); R.rect(X(-3) - 1, suelo - 20, X(-3) + 2, suelo - 20, CAM.l);
+  // la manta de colores sobre la joroba, con flecos
+  for (let i = -4; i <= 3; i++) { R.pset(X(i - 1), suelo - 16, [CAM.m1, CAM.m3, CAM.m2][(i + 8) % 3]); R.pset(X(i - 1), suelo - 15, CAM.m1); if (i % 2 === 0) R.pset(X(i - 1), suelo - 14, CAM.m3); }
+  // el cuello curvo y la cabeza, que cabecea al andar
+  for (let j = 0; j < 9; j++) { const nx = X(9 + Math.round(j * 0.5)), ny = suelo - 13 - j + (j > 5 ? cab : 0); R.rect(Math.min(nx, nx + dir * 2), ny, Math.max(nx, nx + dir * 2), ny, j < 2 ? CAM.s : CAM.a); R.pset(nx - dir, ny, CAM.k); }
+  const hy = suelo - 23 + cab, hx = X(13);
+  R.rect(Math.min(hx - dir, X(18)), hy - 1, Math.max(hx - dir, X(18)), hy + 2, CAM.k); R.rect(Math.min(hx, X(17)), hy, Math.max(hx, X(17)), hy + 1, CAM.a); R.pset(X(15), hy, CAM.k); R.pset(X(17), hy + 1, CAM.s); R.pset(X(13), hy - 2, CAM.s);
+  // la cola, que se mueve
+  const cl = Math.round(Math.sin(t * 3 + k) * 1.5); R.linea(X(-10), suelo - 14, X(-11) + cl * dir, suelo - 8, CAM.k); R.pset(X(-11) + cl * dir, suelo - 7, CAM.s);
+  return [X(16), hy + 2];
+};
+// la ficha del bocadillo: lo que acaba de ver la científica en su pantallita (un pasillo con el techo en tejado)
+const bocadillo = (x0, y0, w, h, cola, t) => {
+  R.rect(x0 - 1, y0, x0 + w + 1, y0 + h, K); R.rect(x0, y0 - 1, x0 + w, y0 + h + 1, K);
+  R.rect(x0, y0, x0 + w, y0 + h, hex('#f4ecd8')); R.rect(x0 + 1, y0 + h - 1, x0 + w - 1, y0 + h, hex('#c8bc9e'));
+  R.poligono([[cola[0] - 3, y0 + h], [cola[0] + 3, y0 + h], cola], K); R.poligono([[cola[0] - 2, y0 + h], [cola[0] + 2, y0 + h], [cola[0], cola[1] - 2]], hex('#f4ecd8'));
+  // la pantallita: el pasillo en perspectiva con su tejado de losas y la luz que tiembla al fondo
+  const a0 = x0 + 4, b0 = y0 + 4, a1 = x0 + w - 4, b1 = y0 + h - 4, cx = (a0 + a1) >> 1, cy = ((b0 + b1) >> 1) + 2;
+  R.rect(a0, b0, a1, b1, hex('#1a120a'));
+  for (let y = b0; y <= b1; y++) for (let x = a0; x <= a1; x++) { const d = Math.max(Math.abs(x - cx) / (a1 - a0), Math.abs(y - cy) / (b1 - b0)); if (d > 0.12) R.pset(x, y, tono([hex('#2a1c10'), hex('#5a4024'), hex('#8a6a40'), hex('#b8925a')], 3.2 - d * 5 + (hh(x >> 1, y >> 1) - 0.5) * 0.8, x, y)); }
+  R.linea(a0, b0, cx - 3, cy - 4, K); R.linea(a1, b0, cx + 3, cy - 4, K); R.linea(a0, b1, cx - 3, cy + 3, K); R.linea(a1, b1, cx + 3, cy + 3, K);
+  R.linea(a0, b0 + 4, cx, b0 - 1 + 2, hex('#e8c890')); R.linea(a1, b0 + 4, cx, b0 - 1 + 2, hex('#e8c890'));
+  R.rect(cx - 3, cy - 4, cx + 3, cy + 3, hex('#0a0604')); if (Math.sin(t * 9) > -0.3) R.pset(cx, cy, hex('#ffe0a0'));
+};
+
 // Atom en el plano (plano 7), con su halo; la esquina se queda tranquila mientras está en la mesa
 const comp0 = R.companero; R.companero = (t, e) => { if (t < P7) comp0(t, e); };
 const atomEn = (x, y, t, e = 0.4, r = 13) => {
@@ -62,7 +103,10 @@ const p1 = (t) => {
   T.giza(R, t, O1);
   // el camellero cruza por la izquierda con su vara
   const u = tramo(t, 0.2, P2 - 0.3);
-  R.actor(EL.camellero, Math.round(lerp(8, 80, u)), 166, t, { dir: 1, anda: u > 0 && u < 1 });
+  const xc = Math.round(lerp(18, 96, u)), anda = u > 0 && u < 1;
+  const ron = camello(xc - 24, 166, t, 1, anda);
+  const ca = R.actor(EL.camellero, xc, 166, t, { dir: 1, anda, sostiene: [xc - 7, 152], sonrisa: !anda });
+  if (ca && ca.mano) { const [mx, my] = ca.mano; for (let k = 0; k <= 8; k++) { const f = k / 8; R.pset(Math.round(lerp(ron[0], mx, f)), Math.round(lerp(ron[1], my, f) + Math.sin(f * Math.PI) * 2), hex('#3a2a1a')); } }
   // los dos turistas llegan por la derecha; él señala Kefrén, ella le hace la foto
   const v = tramo(t, 0.4, 3.4), xa = Math.round(lerp(300, 250, v)), xb = Math.round(lerp(282, 214, tramo(t, 0.6, 3.9)));
   R.actor(EL.turista2, xa, 166, t, { dir: -1, anda: v > 0 && v < 1, dedo: t > segunda - 0.15 && t < giza + 0.3, sorpresa: t > giza, habla: t > 3.5 && t < segunda - 0.2 && Math.sin(t * 9) > 0 });
@@ -111,9 +155,17 @@ const p3 = (t) => {
   const sorp = t > hallados && t < reciente, fiesta = t > reciente;
   R.actor(EL.cientificaFrancesa, 46, 104, t, { dir: 1, sorpresa: sorp, brazos: fiesta && t < reciente + 1.1, salto: fiesta && t < reciente + 1.1 ? Math.round(Math.abs(Math.sin((t - reciente) * 6)) * 3) : 0, sonrisa: t > reciente, habla: t > P3 + 0.4 && t < reales - 0.2 && Math.sin(t * 8) > 0 });
   const empuja = t > reales - 0.1 && t < reciente + 0.4 ? Math.round(Math.sin(t * 7) * 2) : 0;
-  if (sorp || (fiesta && t < reciente + 1.2)) R.icono('!', 51, Math.round(66 - tramo(t, hallados, hallados + 0.2) * 4), hex('#ffe890'), K, 2);
-  R.actor(EL.tecnicoEgipcio, 82, 104, t, { dir: 1, sostiene: [100 + empuja, 84], sonrisa: t > reciente });
+  if (sorp || (fiesta && t < reciente + 1.2)) R.icono('!', 78, Math.round(70 - tramo(t, hallados, hallados + 0.2) * 4), hex('#ffe890'), K, 2);
+  R.actor(EL.tecnicoEgipcio, 82, 104, t, { dir: 1, sostiene: [100 + empuja, 84], sonrisa: t > reciente, habla: t > reciente + 0.6 && Math.sin(t * 8) > 0 });
+  // abajo, junto a la cuerda, dos turistas llegan, miran arriba en «found» y ella aplaude en «recently»
+  const v = tramo(t, P3 + 0.2, hallados - 0.4), ando = v > 0 && v < 1;
+  const xt1 = Math.round(lerp(336, 208, v)), xt2 = Math.round(lerp(352, 228, v));
+  R.actor(EL.turista2, xt2, 170, t, { dir: -1, anda: ando, dedo: t > hallados - 0.1 && t < reciente + 0.3, sorpresa: t > hallados && t < reciente });
+  R.actor(EL.turista1, xt1, 171, t, { dir: -1, anda: ando, brazos: t > reciente && t < reciente + 1.4, salto: t > reciente && t < reciente + 1.4 ? Math.round(Math.abs(Math.sin((t - reciente) * 7)) * 2) : 0, sonrisa: t > reciente, habla: t > reciente + 1.4 && Math.sin(t * 7) > 0 });
   T.keopsDelante(R, t, o);
+  // lo que ve en la pantallita, en un bocadillo que sale en «found» y se queda
+  const bo = tramo(t, hallados - 0.05, hallados + 0.1);
+  if (bo > 0) { const hb = Math.round(28 * bo); bocadillo(28, 74 - hb - 4, 46, Math.max(6, hb), [48, 76], t); }
 };
 
 // 4 · el plano azul impreso sobre la mesa: la mano lleva la lupa por él
@@ -200,12 +252,14 @@ const p4 = (t) => {
   for (let y = ly - r - 2; y <= ly + r + 2; y++) for (let x = lx - r - 2; x <= lx + r + 2; x++) { const d = Math.hypot(x - lx, y - ly); if (d <= r + 2 && d >= r - 1) { const an = Math.atan2(y - ly, x - lx); R.pset(x, y, d >= r + 1 ? (an < -1.2 && an > -2.8 ? hex('#ffe890') : hex('#f0c040')) : hex('#a87a18')); } }
   for (let y = ly - r; y <= ly + r; y++) for (let x = lx - r; x <= lx + r; x++) if (Math.hypot(x - lx, y - ly) < r - 1 && x >= 0 && x < 320 && y >= 0 && y < 180) R.pset(x, y, lenteB[y * 320 + x]);
   for (let k = 0; k < 7; k++) { R.pset(lx - 16 + k, ly - 18 + Math.round(k * 0.5), hex('#e8fbff')); R.pset(lx - 17 + k, ly - 15 + Math.round(k * 0.5), hex('#9ad6ff')); }
-  // el mango de madera y la mano canónica que lo lleva
-  const hx = lx + Math.round(r * 0.72), hy = ly + Math.round(r * 0.72);
-  for (let k = 0; k < 18; k++) { const x = hx + k, y = hy + k; R.rect(x - 2, y - 2, x + 2, y + 2, K); }
-  for (let k = 0; k < 18; k++) { const x = hx + k, y = hy + k; R.rect(x - 1, y - 1, x + 1, y + 1, hex('#8a5428')); R.pset(x - 1, y, hex('#b8844a')); }
-  R.rect(hx - 2, hy - 2, hx + 2, hy + 2, hex('#a87a18'));
-  T.brazo(R, hx + 66, hy + 70, hx + 22, hy + 18, '#3a4a6a', -1, { codo: [hx + 50, hy + 36] });
+  // el mango largo de madera, casi vertical (lupa de mesa grande), y la mano canónica que lo lleva: el brazo entra por
+  // el borde de abajo y se ve como mucho ~45 px
+  const dx = 0.34, dy = 0.94, LM = 40, hx = lx + Math.round(dx * (r + 2)), hy = ly + Math.round(dy * (r + 2));
+  for (let k = 0; k < LM; k++) { const x = Math.round(hx + dx * k), y = Math.round(hy + dy * k); R.rect(x - 2, y - 1, x + 2, y + 1, K); }
+  for (let k = 0; k < LM; k++) { const x = Math.round(hx + dx * k), y = Math.round(hy + dy * k); R.rect(x - 1, y, x + 1, y, k % 9 === 4 ? hex('#6a3e1c') : hex('#8a5428')); R.pset(x - 1, y, hex('#b8844a')); }
+  R.rect(hx - 2, hy - 1, hx + 2, hy + 3, hex('#a87a18')); R.rect(hx - 2, hy - 1, hx - 1, hy + 3, hex('#ffe890'));
+  const ex = Math.round(hx + dx * LM), ey = Math.round(hy + dy * LM);
+  T.brazo(R, ex + 22, ey + 62, ex + 5, ey + 1, '#3a4a6a', -1, { codo: [ex + 18, ey + 30] });
   // al llegar abajo, el «?» de lo que nadie ha visto
   const q = tramo(t, alli + 0.75, alli + 0.95); if (q > 0) R.icono('?', lx - 44, Math.round(ly - 8 - q * 4 + Math.sin(t * 4) * 2), hex('#ffe890'), K, 3);
 };
@@ -213,7 +267,18 @@ const p4 = (t) => {
 // 5 · lo que ve el endoscopio: el pasillo oculto; al lado, el lápiz y el cable
 const p5 = (t) => {
   const o = { encuadre: 'norte', camara: 'pasillo', entra: 0.25 + 0.75 * tramo(t, P5, P6) };
-  T.keops(R, t, o);
+  const g = T.keops(R, t, o), [cx, cy, rc] = g.circulo || [160, 96, 74];
+  // la lucecita de la cámara se enciende poco a poco (hasta «hidden corridor») y luego su foco barre las paredes
+  const enc = tramo(t, P5 + 0.05, oculto + 0.3), FOC = hex('#ffe4a8');
+  for (let y = cy - rc; y <= cy + rc; y++) for (let x = cx - rc; x <= cx + rc; x++) {
+    const d2 = (x - cx) ** 2 + (y - cy) ** 2; if (d2 > (rc - 1) ** 2) continue;
+    if (enc < 1) { R.pset(x, y, mezcla(R.pget(x, y), K, 0.8 * (1 - enc))); continue; }
+    const fx = cx + Math.sin((t - oculto) * 1.6) * 34, fy = cy + 8 + Math.cos((t - oculto) * 1.1) * 10, df = Math.hypot(x - fx, (y - fy) * 1.3);
+    if (df < 24) R.pset(x, y, mezcla(R.pget(x, y), FOC, 0.42 * (1 - df / 24) ** 1.5));
+  }
+  // la mira que marca el pasillo escondido: cuatro esquinas ámbar que se cierran sobre el fondo y laten
+  const mi = tramo(t, oculto - 0.1, oculto + 0.4); if (mi > 0) { const e = Math.round(lerp(40, 16, mi) + Math.sin(t * 6) * 1.5), c1 = Math.sin(t * 6) > 0 ? hex('#ffd060') : hex('#e8a030');
+    for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const x = cx + sx * e, y = cy + sy * e; R.linea(x, y, x - sx * 5, y, c1); R.linea(x, y, x, y - sy * 5, c1); R.linea(x + 1, y + 1, x - sx * 5 + 1, y + 1, K); } }
   // la comparación: una ficha clara a la derecha con el lápiz y el cable del endoscopio, mucho más fino
   const s = tramo(t, camara - 0.1, camara + 0.25), l = tramo(t, fino, lapizW);
   if (s > 0) {
@@ -232,7 +297,7 @@ const p5 = (t) => {
 // 6 · el laberinto: el guía con su candil y Heródoto, que se queda boquiabierto
 const candil = (x, y, t) => { R.rect(x - 4, y, x + 4, y + 3, K); R.rect(x - 3, y + 1, x + 3, y + 2, hex('#a8603a')); R.pset(x + 4, y, hex('#a8603a')); const f = Math.sin(t * 13) > 0 ? 1 : 0; R.halo(x + 4, y - 3, 9, [hex('#5a4020'), hex('#a8783a'), hex('#e8b060')], 0.7); R.rect(x + 3, y - 3 - f, x + 5, y - 1, hex('#f0a030')); R.pset(x + 4, y - 4 - f, hex('#fff0a0')); R.pset(x + 4, y - 2, hex('#fff0a0')); };
 const p6 = (t) => {
-  T.hawara(R, t, { encuadre: 'escalera', camara: 'pasillos' });
+  const gh = T.hawara(R, t, { encuadre: 'escalera', camara: 'pasillos' }), [fgx, fgy] = gh?.fuga ?? [160, 88];
   // Heródoto entra solo, se para a mirar a un lado y a otro; en «greater than the pyramids» abre los brazos boquiabierto
   // y luego señala el fondo del pasillo, que no se acaba
   const hm = tramo(t, P6 + 0.1, griego + 0.1), xh = Math.round(lerp(-20, 150, hm * (2 - hm)));
@@ -242,6 +307,15 @@ const p6 = (t) => {
   // las motas de polvo que levanta al andar, a la luz de los pasillos
   if (hm > 0 && hm < 1) for (let q = 0; q < 4; q++) { const u = (t * 2 + q / 4) % 1; R.pset(Math.round(xh + 4 - u * 8 + q), Math.round(171 - u * 6), u < 0.5 ? hex('#e8dcc0') : hex('#c8b898')); }
   if (t > mayor && t < mayor + 1.0) R.icono('!', xh + 4, Math.round(132 - tramo(t, mayor, mayor + 0.2) * 4), hex('#ffe890'), K, 2);
+  // el guía egipcio espera con su candil: le hace señas para que pase y, en «greater», levanta la luz hacia el fondo
+  const alto = tramo(t, mayor - 0.2, mayor + 0.3), xg = 206;
+  const gu = R.actor(EL.guiaEgipcio450, xg, 172, t, { dir: -1, sostiene: [xg - 9, Math.round(150 - alto * 12)], dedo: t > griego - 0.2 && t < mayor - 0.3 && Math.sin(t * 6) > -0.3, habla: t > griego - 0.3 && t < mayor - 0.3 && Math.sin(t * 9) > 0, sonrisa: t > mayor });
+  if (gu && gu.mano) { const [mx, my] = gu.mano; R.linea(mx, my, mx, my + 3, K); candil(mx, my + 3, t); }
+  // tres murciélagos que salen volando del fondo del pasillo, cada vez más grandes
+  for (let k = 0; k < 3; k++) { const u = tramo(t, mayor + 0.05 + k * 0.18, mayor + 1.15 + k * 0.18); if (u <= 0 || u >= 1) continue;
+    const [fx, fy] = [[fgx, fgy - 2], [fgx + 4, fgy + 2], [fgx - 4, fgy]][k], [tx, ty] = [[22, 46], [312, 96], [262, 150]][k], x = Math.round(lerp(fx, tx, u * u)), y = Math.round(lerp(fy, ty, u * u) + Math.sin(u * 14 + k) * 3);
+    const s = 1 + Math.round(u * 3), ala = Math.sin(t * 30 + k * 2) > 0 ? -1 : 1;
+    R.rect(x - Math.max(1, s >> 1), y - 1, x + Math.max(1, s >> 1), y + 1, hex('#1a1210')); R.linea(x - 1, y, x - 1 - s * 2, y + ala * s, hex('#2a1e18')); R.linea(x + 1, y, x + 1 + s * 2, y + ala * s, hex('#2a1e18')); R.pset(x - 1, y - 1, hex('#e8c040')); }
 };
 
 // 7 · la mesa de Atom: levanta la punta de la pirámide, se asoma… dentro, nada (gag 1)
@@ -262,8 +336,13 @@ const p7 = (t) => {
 };
 
 const año = (t) => t < P3 ? 2025 : t < P4 ? 2023 : t < P5 ? 2025 : t < P6 ? 2023 : t < P7 ? -450 : 2026;
-const efectos = [[piramide, 'flash'], [giza + 0.15, 'whoosh'], [ocho, 'boom'], [nadie + 0.1, 'pop'], [reales, 'zumbido'], [reciente, 'palmada'],
-  [alli + 0.75, 'pop'], [lapizW - 0.3, 'lapiz'], [P7 + 0.1, 'whoosh'], [razon + 0.5, 'pop'], [aun + 0.4, 'toc']];
+const efectos = [[0.3, 'viento', { dur: 3 }], [piramide, 'flash'], [giza + 0.15, 'whoosh'],
+  [ocho, 'boom'], [hunde, 'whoosh'], [tierra - 0.1, 'golpecito'], [nadie + 0.1, 'pop'],
+  [P3 + 0.2, 'viento', { dur: 1.8 }], [reales, 'zumbido'], [reciente, 'palmada'],
+  [detalle, 'brillo'], [dicen + 0.2, 'papel'], [alli + 0.75, 'pop'],
+  [P5 + 0.1, 'interruptor'], [camara - 0.1, 'whoosh'], [lapizW - 0.3, 'lapiz'],
+  [P6 + 0.1, 'viento', { dur: 2.2 }], [mayor + 0.1, 'rafaga'],
+  [P7 + 0.1, 'whoosh'], [razon + 0.5, 'pop'], [aun + 0.4, 'toc']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>
 </body>

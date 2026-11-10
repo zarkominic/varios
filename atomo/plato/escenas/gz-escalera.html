@@ -10,14 +10,15 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // GZ-ESCALERA (frase 25), hacia el 450 a. C. (barra -450). Cuatro planos:
-// 1. hawara/escalera/pasillos: el guía con su candil y Heródoto avanzan por el laberinto de columnas; en «12» y en
-//    «3,000» salen las cifras; Heródoto se para y mira a un lado y a otro. Corta en «1,500».
+// 1. hawara/escalera/pasillos: el guía con su candil y Heródoto avanzan por el laberinto de columnas; la luz espanta a
+//    tres murciélagos que salen del fondo y pasan bajo el techo; en «12» y en «3,000» salen las cifras; Heródoto se para
+//    y mira a un lado y a otro. Corta en «1,500».
 // 2. (LOCAL) el laberinto en corte: arriba, la planta de las salas con sus lámparas; bajo el suelo, dos filas de salas a
 //    oscuras y la escalera con su guardián; «1,500» arriba en «above» (las salas se encienden) y «1,500» abajo en «below»;
 //    en «walked» Heródoto y el guía cruzan las salas de arriba de puerta en puerta. Corta en «But».
-// 3. hawara/escalera (gag 8): Heródoto va hacia la escalera, el guardián le dice que no con el dedo y cierra la puerta en
-//    «lower ones»; el portazo levanta polvo y le vuela el sombrero, que cae lejos; Heródoto vuelve y lo recoge; el guía se
-//    encoge de hombros. Corta en «tombs».
+// 3. hawara/escalera (gag 8): Heródoto va hacia la escalera, el guardián le dice que no con el dedo (con un pisotón) y
+//    cierra la puerta en «lower ones»; tras el portazo se oye el cerrojo; el golpe levanta polvo y le vuela el sombrero,
+//    que cae lejos; Heródoto vuelve, lo recoge y lo sacude; el guía se encoge de hombros. Corta en «tombs».
 // 4. (LOCAL) la pintura del muro de cerca, a la luz del candil: el rey en su trono (en «kings») y el cocodrilo sagrado
 //    con el disco solar (en «crocodiles», le brilla el ojo); el guardián lo cuenta y lo señala.
 import * as T from '/atomo/plato/escenas/gz-comun.js';
@@ -58,6 +59,7 @@ const globo = (cx, cy, w, hh, hx, hy, u) => { if (u <= 0) return; const s = Math
 const P2 = en('escalera', .233), P3 = en('escalera', .514), P4 = en('escalera', .783);
 const doce = en('escalera', .063), tres = en('escalera', .149), arriba = en('escalera', .267), abajo = en('escalera', .358), anda = en('escalera', .41);
 const nolet = en('escalera', .576), cierra = en('escalera', .60), golpe = en('escalera', .645), they = en('escalera', .686);
+const MURC = 0.9;
 const reyes = en('escalera', .818), cocod = en('escalera', .945), sacred = en('escalera', .926);
 // ── plano 1: los pasillos ──
 const p1 = (t) => {
@@ -67,6 +69,10 @@ const p1 = (t) => {
   candil(G.mano[0], G.mano[1], t);
   const mira = u >= 1 ? (Math.floor((t - 3.5) * 1.3) % 2 ? -1 : 1) : 1;
   R.actor(EL.herodoto, hx, 168, t, { dir: mira, anda: u > 0 && u < 1, sorpresa: t > tres && t < tres + 1.2 });
+  // tres murciélagos que el candil espanta salen del fondo del pasillo y pasan por encima, bajo el techo
+  for (let k = 0; k < 3; k++) { const q = tramo(t, MURC + k * 0.18, MURC + 1.3 + k * 0.18); if (q <= 0 || q >= 1) continue;
+    const bx = Math.round(lerp(160, -14 - k * 10, q) + Math.sin(q * 9 + k) * 4), by = Math.round(lerp(74, 28 + k * 9, q) + Math.sin(t * 14 + k) * 2), sz = 1 + Math.round(q * 2), al = Math.sin(t * 22 + k * 2) > 0 ? -1 : 1;
+    R.rect(bx - 1, by - 1, bx + 1, by, K); for (let i = 1; i <= sz + 2; i++) { R.pset(bx - 1 - i, by + (i > sz ? al : 0) * (i % 2 ? 1 : 0) - (al > 0 ? 0 : Math.min(i, 2)), K); R.pset(bx + 1 + i, by - (al > 0 ? 0 : Math.min(i, 2)), K); } R.pset(bx, by - 2, hex('#3a2a3a')); }
   const a = tramo(t, doce, doce + 0.3), b = tramo(t, tres, tres + 0.4);
   if (a > 0) R.numero('12', 104, Math.round(lerp(78, 66, a)), { tam: 16, centro: true });
   if (b > 0) R.numero('3,000', 216, Math.round(lerp(78, 66, b)), { tam: 16, centro: true });
@@ -133,7 +139,7 @@ const p2 = (t) => {
 const p3 = (t) => {
   const o = { encuadre: 'escalera', puerta: tramo(t, cierra, golpe), portazo: tramo(t, golpe, golpe + 0.8) };
   const r = T.hawara(R, t, o), [gdx, gdy] = r.guardian ?? [206, 150];
-  R.actor(EL.guardian450, gdx - 7, gdy, t, { dir: -1, enfado: t > nolet - 0.4, dedo: t > nolet - 0.3 && t < cierra + 0.1, habla: t > nolet - 0.3 && t < cierra && Math.sin(t * 9) > 0 });
+  R.actor(EL.guardian450, gdx - 7, gdy, t, { dir: -1, salto: t > nolet - 0.3 && t < nolet - 0.12 ? 2 : 0, enfado: t > nolet - 0.4, dedo: t > nolet - 0.3 && t < cierra + 0.1, habla: t > nolet - 0.3 && t < cierra && Math.sin(t * 9) > 0 });
   // Heródoto llega; el portazo le vuela el sombrero; vuelve a por él
   const ida = tramo(t, P3 + 0.1, nolet - 0.2), vuelta = tramo(t, they - 0.1, they + 1.0), hat = tramo(t, golpe + 0.05, golpe + 0.95);
   const hx = Math.round(lerp(40, 160, ida) - (160 - 92) * vuelta), sinSombrero = t > golpe + 0.05 && t < they + 1.2;
@@ -141,6 +147,10 @@ const p3 = (t) => {
   if (t < golpe + 0.3 || t > golpe + 1.2) candil(G.mano[0], G.mano[1], t);
   R.actor(EL.herodoto, hx, 166, t, { dir: vuelta > 0 && vuelta < 1 ? -1 : 1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), tocado: sinSombrero ? '' : undefined,
     sorpresa: t > golpe && t < they + 0.3, salto: t > golpe && t < golpe + 0.25 ? 2 : 0, sonrisa: t > they + 1.3 });
+  // el polvo del pisotón del guardián, a sus pies
+  { const q = tramo(t, nolet - 0.12, nolet + 0.4); if (q > 0 && q < 1) for (let i = 0; i < 6; i++) { const d = (i - 2.5) * (3 + q * 5); R.pset(Math.round(gdx - 7 + d), Math.round(gdy - 1 - Math.sin(q * Math.PI) * (2 + (i % 3))), i % 2 ? hex('#e8dcc0') : hex('#c8b898')); } }
+  // Heródoto sacude el sombrero que ha recogido: una nubecilla de polvo junto a la mano
+  { const q = tramo(t, they + 1.2, they + 1.7); if (q > 0 && q < 1) for (let i = 0; i < 7; i++) { const ax = hx + 10 + Math.round(Math.cos(i * 0.9) * (3 + q * 7)), ay = 148 - Math.round(Math.sin(i * 0.9) * (2 + q * 5) + q * 4); R.pset(ax, ay, i % 2 ? hex('#e8dcc0') : hex('#d0c4a4')); } }
   T.hawaraDelante(R, t, o);
   // el sombrero vuela girando y cae al suelo
   if (t > golpe + 0.05 && t < they + 1.2) { const x0 = 160, y0 = 138, xf = 92, yf = 166;
@@ -223,7 +233,10 @@ const p4 = (t) => {
   const H = R.actor(EL.herodoto, hx, 172, t, { dir: 1, anda: u > 0 && u < 1, sostiene: true, sorpresa: t > reyes && t < reyes + 0.9 || t > cocod });
   candil(H.mano[0], H.mano[1], t, 1);
 };
-const efectos = [[doce, 'pop'], [arriba, 'brillo'], [abajo, 'pop'], [cierra + 0.1, 'puerta'], [golpe, 'boom'], [golpe + 0.95, 'toc'], [cocod, 'brillo']];
+const efectos = [[MURC + 0.1, 'whoosh'], [doce, 'pop'], [tres, 'pop'],
+  [P2 + 0.3, 'viento'], [arriba, 'brillo'], [abajo, 'pop'],
+  [nolet - 0.15, 'toc'], [cierra + 0.1, 'puerta'], [golpe, 'boom'], [golpe + 0.4, 'cerrojo'], [golpe + 0.95, 'toc'], [they + 1.3, 'palmada'],
+  [reyes, 'brillo'], [sacred - 0.1, 'golpecito'], [cocod, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: -450 });
 </script>
 </body>
