@@ -11,16 +11,17 @@
 <script type="module">
 // PR-PALACIO (frase 4), 1929, cartela «1929». Cinco planos:
 // 1. (0 → «where») el patio de Topkapı en otoño: en «autumn» una ráfaga arranca hojas al plátano; dos mozos cruzan el
-//    paseo con un cajón de museo y lo posan en «Topkapı»; en «Istanbul» una bandada de palomas levanta el vuelo.
+//    paseo con un cajón de museo y lo posan en «Topkapı» y se sacuden las manos; en «Istanbul» una bandada de palomas levanta el vuelo.
 // 2. («where» → «and») LOCAL el salón del trono: en «centuries» un mozo tira de la sábana y aparece el trono de oro; en
 //    «museum» engancha el cordón entre dos postes y cuelga la chapa «1»; la mujer de la limpieza quita el polvo.
 // 3. («and» → «library») la biblioteca: en «director» entra Edhem (traje, bigote blanco, sombrero de ala) con Deissmann
-//    detrás; en «Halil Edhem» se vuelve y sonríe; en «library» señala las estanterías; el archivero baja libros de la
-//    escalera.
+//    detrás; en «Halil Edhem» se vuelve y sonríe; en «library» señala las estanterías; el archivero saca libros en la
+//    escalera y en «Halil Edhem» se le cae uno a la pila (polvo).
 // 4. («library» → «Among») LOCAL el depósito abovedado: Edhem alumbra con su linterna y Deissmann (gafas, barba blanca,
 //    tres piezas) levanta la tapa del cofre en «German scholar»: polvo y un ratón que huye; en «Deissmann» saca un legajo.
 // 5. («Among» → fin) LOCAL la sala de los papeles olvidados: Edhem rebusca entre pilas de libros, vuelan hojas; en
-//    «found» saca el pergamino doblado y en «parchment» lo levanta en el haz de luz; Deissmann «!»; cae un libro.
+//    «found» saca el pergamino doblado y en «parchment» lo levanta en el haz de luz; Deissmann «!»; cae un libro y el gato de
+//    la pila salta, eriza el lomo y maúlla.
 import * as T from '/atomo/plato/escenas/pr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('pr-palacio');
@@ -120,7 +121,7 @@ const p1 = (t) => {
   if (posado) for (let i = 0; i < 6; i++) { const d = tramo(t, topkapi - 0.1, topkapi + 0.6); if (d < 1) R.pset(cx0 - 2 - i * 2 * d, 159 - (i & 1), hex('#d8ccb0')), R.pset(cx1 + 2 + i * 2 * d, 159 - (i & 1), hex('#d8ccb0')); }
   const anda = u > 0 && u < 1;
   R.actor(EL.obrero, x1, 160, t, { dir: -1, anda, sostiene: posado ? undefined : [cx0 + 1, cy + 3], sonrisa: posado, dedo: posado && t > topkapi + 0.5 && t < topkapi + 1.2 });
-  R.actor(EL.estibador, x2, 160, t, { dir: -1, anda, sostiene: posado ? undefined : [cx1 - 1, cy + 3], brazos: posado && t > topkapi + 0.3 && t < topkapi + 0.9 });
+  R.actor(EL.estibador, x2, 160, t, { dir: -1, anda, sostiene: posado ? undefined : [cx1 - 1, cy + 3], brazos: posado && t > topkapi + 0.8 && t < topkapi + 1.4 });
   // el jardinero con el rastrillo a la izquierda, que amontona hojas
   const jx = 66 + Math.round(Math.sin(t * 0.6) * 6), jr = R.actor(EL.obreroEscoces ?? EL.obrero, jx, 162, t, { dir: 1, sostiene: [jx + 22, 160] });
   if (jr && jr.mano) { R.linea(jr.mano[0], jr.mano[1], jr.mano[0] + 9 + Math.round(Math.sin(t * 3) * 3), 161, MAD[1]); R.rect(jr.mano[0] + 6 + Math.round(Math.sin(t * 3) * 3), 160, jr.mano[0] + 14 + Math.round(Math.sin(t * 3) * 3), 161, hex('#5a5a5a')); }
@@ -226,9 +227,14 @@ const p3 = (t) => {
   const o = { encuadre: 'biblioteca' };
   T.estambul(R, t, o);
   // el archivero en la escalera, que saca un libro y lo deja en la pila de abajo
-  const lev = Math.sin(t * 2.2) > 0;
-  const ar = R.actor(EL.archivista ?? EL.bibliotecaria, 170, 108, t, { dir: -1, sostiene: lev ? [158, 86] : [160, 98] });
-  if (ar && ar.mano) { R.rect(ar.mano[0] - 3, ar.mano[1] - 5, ar.mano[0] + 1, ar.mano[1] + 1, K); R.rect(ar.mano[0] - 2, ar.mano[1] - 4, ar.mano[0], ar.mano[1], hex('#2a4a7a')); }
+  // saca un libro de la balda alta, lo sopla y en «Halil Edhem» lo deja caer en la pila de abajo (golpe y polvo)
+  const suelta = halil + 0.4, lev = t < suelta - 0.6 ? Math.sin((t - P3) * 2.6) > -0.3 : t > suelta + 0.9;
+  const ar = R.actor(EL.archivista ?? EL.bibliotecaria, 170, 108, t, { dir: -1, sostiene: lev ? [158, 86] : [160, 98], sorpresa: t > suelta && t < suelta + 0.6 });
+  if (ar && ar.mano && !(t > suelta - 0.1 && t < suelta + 0.9)) { R.rect(ar.mano[0] - 3, ar.mano[1] - 5, ar.mano[0] + 1, ar.mano[1] + 1, K); R.rect(ar.mano[0] - 2, ar.mano[1] - 4, ar.mano[0], ar.mano[1], hex('#2a4a7a')); }
+  const lc = tramo(t, suelta - 0.1, suelta + 0.25);
+  if (lc > 0 && lc < 1) { const ly = Math.round(lerp(98, 132, lc * lc)), lx = 156 - Math.round(lc * 4); R.rect(lx - 3, ly - 5, lx + 1, ly + 1, K); R.rect(lx - 2, ly - 4, lx, ly, hex('#2a4a7a')); }
+  const pv = tramo(t, suelta + 0.25, suelta + 1.2);
+  if (pv > 0 && pv < 1) for (let k = 0; k < 10; k++) { const a = -Math.PI * (0.1 + k * 0.09), r = 3 + pv * 12; R.pset(Math.round(152 + Math.cos(a) * r * 1.3), Math.round(132 + Math.sin(a) * r * 0.6), k & 1 ? hex('#d8cdb8') : hex('#b8ad98')); }
   // Edhem entra en «director» y Deissmann detrás
   const u = tramo(t, director - 0.2, halil - 0.3), u2 = tramo(t, director + 0.3, halil + 0.2);
   const ex = Math.round(lerp(-16, 128, u)), dx = Math.round(lerp(-30, 96, u2));
@@ -370,11 +376,24 @@ const p5 = (t) => {
   R.rect(lx - 1 + tb, ly - 4, lx + 15 + tb, ly, K); R.rect(lx + tb, ly - 3, lx + 14 + tb, ly - 1, hex('#8a2a2a')); R.rect(lx + 1 + tb, ly - 3, lx + 12 + tb, ly - 3, PL.pa);
   if (cae >= 1 && t < perg + 1.6) for (let k = 0; k < 8; k++) R.pset(lx - 4 + k * 3, 166 - (k % 2) - Math.round((t - perg - 1.2) * 8), hex('#c8bca8'));
   // un gato asoma por encima de la pila de la izquierda
-  const gx = 20, gy = 90 + Math.round(Math.max(0, Math.sin(t * 0.8)) * 3);
-  R.rect(gx, gy, gx + 8, gy + 5, K); R.rect(gx + 1, gy + 1, gx + 7, gy + 5, hex('#5a5a62')); R.pset(gx + 1, gy - 1, K); R.pset(gx + 7, gy - 1, K); R.pset(gx + 3, gy + 2, hex('#e8d040')); R.pset(gx + 5, gy + 2, hex('#e8d040'));
+  // (mira las hojas que vuelan moviendo la cola; con el golpe del libro da un salto, eriza el lomo y maúlla)
+  const sb = tramo(t, perg + 1.2, perg + 1.7), gx = 20, gy = 90 + Math.round(Math.max(0, Math.sin(t * 0.8)) * 2) - Math.round(Math.sin(sb * Math.PI) * 9), eriza = t > perg + 1.2;
+  const cola = Math.round(Math.sin(t * (eriza ? 9 : 3)) * 2);
+  R.linea(gx + 8, gy + 4, gx + 12, gy + (eriza ? -3 : 1) + cola, K); R.linea(gx + 8, gy + 3, gx + 11, gy + (eriza ? -3 : 1) + cola, hex('#5a5a62'));
+  R.rect(gx, gy - (eriza ? 1 : 0), gx + 8, gy + 5, K); R.rect(gx + 1, gy + 1 - (eriza ? 1 : 0), gx + 7, gy + 5, hex('#5a5a62')); R.rect(gx + 2, gy + 4, gx + 6, gy + 4, hex('#7a7a84'));
+  R.pset(gx + 1, gy - 1 - (eriza ? 1 : 0), K); R.pset(gx + 7, gy - 1 - (eriza ? 1 : 0), K);
+  const parpG = Math.sin(t * 1.3) > 0.97; R.pset(gx + 3, gy + 2, parpG ? K : hex('#e8d040')); R.pset(gx + 5, gy + 2, parpG ? K : hex('#e8d040'));
+  if (eriza && t < perg + 2.4) R.pset(gx + 4, gy + 4, hex('#e8a0a8'));
 };
 
-const efectos = [[otono, 'viento'], [topkapi - 0.05, 'toc'], [siglos, 'whoosh'], [museo, 'golpecito'], [director, 'puerta'], [aleman - 0.15, 'cerrojo'], [aleman + 0.3, 'pop'], [pilas, 'papel'], [hallo, 'brillo'], [perg + 1.2, 'toc']];
+// efectos (≤ 1 por segundo): el viento del otoño, las palomas, el cajón y las palmadas de los mozos; el plumero, la
+// sábana, los pasos y el cordón; la puerta y el libro que cae; el cerrojo, el ratón y el legajo; las hojas, el hallazgo,
+// el libro que cae y el gato que salta y maúlla
+const efectos = [[otono, 'viento', { dur: 2.6 }], [estambulW + 0.1, 'whoosh'], [topkapi - 0.05, 'toc'], [topkapi + 0.85, 'palmada'],
+  [P2 + 0.7, 'papel'], [siglos, 'whoosh'], [museo - 0.75, 'tic'], [museo, 'golpecito'],
+  [director, 'puerta'], [halil + 0.65, 'toc'],
+  [aleman - 0.15, 'cerrojo'], [aleman + 0.85, 'pop'], [deiss - 0.1, 'papel'],
+  [pilas, 'papel'], [papeles, 'papel'], [hallo, 'brillo'], [perg + 1.25, 'miau']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, cartela: '1929', año: 1929 });
 </script>
 </body>

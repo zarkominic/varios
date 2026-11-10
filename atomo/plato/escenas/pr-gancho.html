@@ -11,14 +11,16 @@
 <script type="module">
 // PR-GANCHO (frases 1–2), sin cartela. Siete planos:
 // 1. (1513) el pergamino de cerca, la costa del sur con su borde y la mesa: una mano lleva la lupa por la costa que se
-//    tuerce; en «Antarctica» la costa se enciende en oro (golpe);  2. (hoy) el globo grande con la Antártida blanca: un
-//    visitante señala, le salen «?» en «lost civilization» y en «aliens» baja un platillo de juguete colgado de un hilo
-//    (salta del susto);  3. (1513) el Caribe del pergamino: en «hidden» el trazo de Colón brilla y la carabela de tinta
+//    tuerce; en «Antarctica» la costa se enciende en oro (golpe);  2. (hoy) el globo grande con la Antártida blanca: otro
+//    visitante entra por la izquierda y en «proof» empuja el globo, que da media vuelta; el de la derecha señala el mapa,
+//    le salen «?» en «lost civilization» y la guía explica; en «aliens» baja un platillo de juguete colgado de un hilo (el
+//    visitante y la guía saltan del susto);  3. (1513) el Caribe del pergamino: en «hidden» el trazo de Colón brilla y la carabela de tinta
 //    navega; una mano señala La Española en «lost map»;  4. (1501) la galera: el tío corsario enseña el catalejo al niño
 //    Piri y se ríe en «pirate uncle»; en «sailor captured» un marinero saca por la puerta de popa al prisionero con su
-//    rollo de cartas;  5. (1929) la mesa de la biblioteca de palacio: el pergamino doblado lleno de polvo; Edhem sopla
-//    el polvo en «forgotten» y lo coge en «palace»;  6. (1966) la librería: el profesor levanta su copia del mapa en
-//    «believed», y una estudiante que entra se queda boquiabierta en «vanished civilization»;  7. (hoy) el estudio de
+//    rollo de cartas;  5. (1929) la mesa de la biblioteca de palacio: el pergamino doblado lleno de polvo; un mozo cruza
+//    por detrás con una pila de libros; Edhem sopla el polvo en «forgotten» y lo coge en «palace»;  6. (1966) la librería: el profesor levanta su copia del mapa en
+//    «believed», una estudiante que entra se queda boquiabierta en «vanished civilization» y la clienta que hojea un libro
+//    junto al mostrador se vuelve a mirar;  7. (hoy) el estudio de
 //    Atom: en «brain sees things» las nubes de la ventana se vuelven un barco y un pez; Atom va a la mesa, desenrolla el
 //    mapa… y se le enrolla solo de golpe (gag 1).
 import * as T from '/atomo/plato/escenas/pr-comun.js';
@@ -60,9 +62,16 @@ const p1 = (t) => {
 
 // 2 · el globo con la Antártida blanca, los «?» y el platillo de juguete
 const p2 = (t) => {
-  T.hoy(R, t, { encuadre: 'despacho', camara: 'globo', gira: 2 });
+  // el globo gira despacio; el visitante le da un empujón con el dedo al llegar (prueba) y da media vuelta más deprisa
+  const emp = tramo(t, prueba, prueba + 1.6), extra = 40 * (1 - (1 - emp) * (1 - emp));
+  T.hoy(R, t, { encuadre: 'despacho', camara: 'globo', gira: 2 + extra / Math.max(1, t) });
   const señala = t > prueba - 0.2 && t < aliens - 0.1, susto = t > aliens + 0.05 && t < aliens + 0.7;
   const sal = susto ? Math.round(Math.abs(Math.sin((t - aliens) * Math.PI * 1.6)) * 6) : 0;
+  // la guía del museo, a la derecha, explica el mapa enmarcado y en «aliens» se lleva un buen susto
+  R.actor(EL.guia, 296, 174, t, { dir: -1, habla: t > P2 + 0.2 && t < civ - 0.2 && Math.sin(t * 7) > 0, dedo: t > civ - 0.3 && t < aliens - 0.1, sorpresa: t > aliens + 0.05, salto: susto ? Math.round(sal * 0.6) : 0 });
+  // otro visitante entra por la izquierda, se para al pie del globo, lo hace girar con el dedo y mira arriba en «aliens»
+  const v2 = tramo(t, P2 - 0.4, prueba - 0.15), v2x = Math.round(lerp(-14, 52, v2));
+  R.actor(EL.visitante2, v2x, 176, t, { dir: 1, anda: v2 > 0 && v2 < 1, dedo: v2 >= 1 && t < prueba + 0.6, sorpresa: t > aliens + 0.1, sonrisa: v2 >= 1 && t < aliens });
   R.actor(EL.visitante1, 236, 170, t, { dir: -1, dedo: señala, sorpresa: t > aliens, habla: t > P2 + 0.3 && t < prueba - 0.3 && Math.sin(t * 8) > 0, salto: sal });
   // los «?» que salen de uno en uno en «lost civilization»
   for (let i = 0; i < 3; i++) { const t0 = civ - 0.1 + i * 0.22; if (t < t0) continue; const s = Math.min(1, (t - t0) / 0.15); R.icono('?', 222 + i * 16, Math.round(126 - i * 9 - s * 4 + Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 3); }
@@ -126,6 +135,10 @@ const p5 = (t) => {
   const sopla = t > olvidado - 0.2 && t < olvidado + 0.6, coge = t > palacio;
   const LZ = hex('#fff0c0'), haz = (y0, y1) => { for (let y = y0; y < y1; y++) { const xc = 100 + (y - 40) * 0.55; for (let x = Math.round(xc - 12); x <= xc + 12; x++) if ((x * 7 + y * 13) % 6 === 0 && !(x > 274 && y < 48)) R.pset(x, y, LZ); } };
   haz(40, 112);
+  // un mozo del museo cruza por detrás con una pila de libros polvorientos y la deja en la balda del fondo
+  const mz = tramo(t, P5 + 0.1, palacio - 0.2), mzx = Math.round(lerp(330, 252, mz));
+  const mo = R.actor(EL.obrero, mzx, 112, t, { dir: -1, anda: mz > 0 && mz < 1, sostiene: mz < 1 ? [mzx - 12, 92] : undefined, sorpresa: t > palacio + 0.2 });
+  if (mz < 1 && mo && mo.mano) for (let k = 0; k < 4; k++) { const bx = mo.mano[0] - 7 + (k & 1), by = mo.mano[1] - 3 - k * 3; R.rect(bx - 1, by - 1, bx + 10, by + 2, K); R.rect(bx, by, bx + 9, by + 1, [hex('#8a2a2a'), hex('#2a4a7a'), hex('#3a6a3a'), hex('#7a5a2a')][k]); R.rect(bx + 1, by, bx + 8, by, hex('#efe2c0')); }
   R.actor(EL.deissmann, 214, 112, t, { dir: -1, habla: t < olvidado - 0.3 && Math.sin(t * 6) > 0, sorpresa: t > palacio + 0.2, dedo: t > palacio + 0.3 });
   R.actor(EL.edhem, 132, 112, t, { dir: 1, habla: sopla, sostiene: coge ? [150, 118] : undefined, sorpresa: coge, salto: t > palacio && t < palacio + 0.3 ? 2 : 0 });
   T.estambulDelante(R, t, o);
@@ -154,6 +167,9 @@ const p6 = (t) => {
   // la estudiante entra por la puerta, se acerca y se queda boquiabierta
   const v = tramo(t, P6 + 0.2, desaparecida - 0.3);
   R.actor(EL.alumna1, Math.round(lerp(2, 72, v)), 176, t, { dir: 1, anda: v > 0 && v < 1, sorpresa: t > desaparecida, salto: t > desaparecida && t < desaparecida + 0.4 ? 3 : 0 });
+  // una clienta hojea un libro delante de la vitrina; se vuelve a mirar el mapa en «vanished civilization»
+  const cl = R.actor(EL.visitante2, 216, 176, t, { dir: t > desaparecida - 0.1 ? -1 : 1, sostiene: t < desaparecida - 0.1 ? [229, 165 + Math.round(Math.sin(t * 1.7))] : undefined, sorpresa: t > desaparecida + 0.1 });
+  if (cl && cl.mano && t < desaparecida - 0.1) { const [bx, by] = cl.mano, pg = Math.floor(t * 1.4) % 2; R.rect(bx - 4, by - 6, bx + 5, by, K); R.rect(bx - 3, by - 5, bx, by - 1, hex('#f4ecd8')); R.rect(bx + 1, by - 5, bx + 4, by - 1, pg ? hex('#e8dcc0') : hex('#f4ecd8')); R.rect(bx - 2, by - 4, bx - 1, by - 4, hex('#8a8478')); R.rect(bx + 2, by - 3, bx + 3, by - 3, hex('#8a8478')); }
   if (t > desaparecida) R.icono('!', 78, Math.round(136 - Math.min(1, (t - desaparecida) * 6) * 4), hex('#ffe890'), K, 2);
 };
 
@@ -174,8 +190,15 @@ const p7 = (t) => {
 };
 
 const año = (t) => (t < P2 ? 1513 : t < P3 ? 2026 : t < P4 ? 1513 : t < P5 ? 1501 : t < P6 ? 1929 : t < P7 ? 1966 : 2026);
-const efectos = [[antartida, 'brillo'], [civ, 'pop'], [aliens - 0.1, 'boing'], [oculto, 'brillo'], [tio + 0.05, 'palmada'], [marinero, 'puerta'],
-  [olvidado, 'whoosh'], [cree, 'papel'], [P6 + 0.25, 'campana'], [cosas, 'brillo'], [abre0, 'papel'], [cierra0, 'boing']];
+// efectos (≤ 1 por segundo): el papel y la lupa, el globo que gira, los «?», el platillo que baja, el mar de tinta,
+// el puntero, las olas y el catalejo de la galera, el polvo, la campanilla de la librería, el reloj del estudio
+const efectos = [[0.3, 'papel'], [antartida, 'brillo'], [antartida + 1.2, 'whoosh'],
+  [prueba, 'whoosh'], [civ + 0.35, 'pop'], [aliens - 0.1, 'boing'],
+  [P3 + 0.3, 'ola'], [oculto, 'brillo'], [mapaC + 0.25, 'toc'], [colon, 'brillo'],
+  [P4 + 0.1, 'ola'], [almirante, 'tic'], [tio + 0.05, 'palmada'], [marinero, 'puerta'], [P5 - 1.1, 'ola'],
+  [P5 + 0.3, 'papel'], [olvidado, 'whoosh'], [palacio + 0.1, 'papel'],
+  [P6 + 0.25, 'campana', { lejos: true }], [cree, 'papel'], [desaparecida, 'pop'],
+  [P7 + 0.2, 'tic'], [cosas, 'brillo'], [noEstan - 0.3, 'whoosh'], [abre0, 'papel'], [cierra0, 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>
 </body>

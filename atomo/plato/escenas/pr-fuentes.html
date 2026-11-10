@@ -79,8 +79,16 @@ const p1 = (t) => {
   const llega = suave(lin(t, 0.4, deja - 0.25)), mx = Math.round(lerp(-18, 92, llega));
   // el fardo de cartas que el mozo deja junto al diván
   if (t >= deja) { fardo(112, 165); fardo(122, 162); }
-  const m = R.actor(EL.marineroOtomano2, mx, 168, t, { dir: 1, anda: llega > 0 && llega < 1, sostiene: t < deja ? true : false, dedo: t > deja + 0.4 && t < como, sonrisa: t > como });
+  // el mozo deja el fardo, señala a Piri y, a «how», saca una carta del fardo y se la enseña abierta
+  const enseña = t > como + 0.15;
+  const m = R.actor(EL.marineroOtomano2, mx, 168, t, { dir: 1, anda: llega > 0 && llega < 1, sostiene: t < deja ? true : enseña ? [mx + 17, 146 - Math.round(suave(lin(t, como + 0.15, como + 0.5)) * 6)] : false, dedo: t > deja + 0.4 && t < como, sonrisa: t > como });
   if (t < deja) fardo(m.mano[0] + 4, m.mano[1] + 1);
+  if (enseña) mapaMano(m.mano[0] + 4, m.mano[1] - 3);
+  // otro mozo entra por la derecha con un segundo fardo (llegan más cartas), lo deja junto al arcón y se seca la frente
+  const ll2 = suave(lin(t, deja + 0.3, como + 0.4)), m2x = Math.round(lerp(334, 262, ll2)), deja2 = t > como + 0.45;
+  if (t > deja + 0.3) { if (deja2) fardo(252, 172);
+    const m2 = R.actor(EL.marineroOtomano1, m2x, 177, t, { dir: -1, anda: ll2 > 0 && ll2 < 1, sostiene: !deja2, brazos: deja2 && t < como + 0.9, sonrisa: deja2 });
+    if (!deja2) fardo(m2.mano[0] - 4, m2.mano[1] + 1); }
   // Piri escribe con la pluma; a «explains» levanta la vista y lo cuenta, con el dedo a «how»
   const escribe = t < explica - 0.2, p = R.actor(EL.piri, 198, 145, t, { dir: escribe ? 1 : -1, sostiene: escribe ? [216 + Math.round(Math.sin(t * 9) * 2), 132] : false, habla: t > explica && t < en('fuentes', 0.1768) && parp(t, 8), dedo: t > como - 0.1 && t < en('fuentes', 0.1811), sonrisa: t > en('fuentes', 0.1726) });
   if (escribe) pluma(p.mano[0], p.mano[1]);
@@ -126,8 +134,12 @@ const p2 = (t) => {
     const viejo = c.e === 'ptolomeo' && t > antiguas, lev = viejo ? lin(t, antiguas, antiguas + 0.4) : 0.12 * Math.max(0, Math.sin(t * 1.7 + k));
     if (v < 1) R.poligono([[x - 13, y + 14], [x + 17, y + 14], [x + 17, y + 18], [x - 13, y + 18]], mez(hex('#7a2420'), K, 0.4));
     T.c_carta(R, x, y, c.e, { levanta: lev });
+    // al posarse, un soplo de polvo sale por los dos lados de la carta
+    const po = lin(t, cae, cae + 0.3); if (po > 0 && po < 1) for (let q = 0; q < 4; q++) { const d = Math.round(4 + po * 9 + q * 2), yy = c.y + 12 - Math.round(po * 3) - (q % 2); if (Math.sin(q * 7 + po * 9) > -0.4) { R.pset(c.x - 15 - d + 8, yy, hex('#f6e8c8')); R.pset(c.x + 15 + d - 8, yy, hex('#f6e8c8')); } }
     if (viejo) marcoOro(c.x - 17, c.y - 13, c.x + 17, c.y + 13, 0.5 + 0.5 * Math.sin(t * 8 + k));
   });
+  // las motas de polvo que flotan en el rayo de sol
+  for (let k = 0; k < 22; k++) { const u = (t * 0.06 + h(k, 7, 2)) % 1, y = Math.round(160 - u * 140), x = sx + Math.round((168 - y) * 0.35) + Math.round(6 + h(k, 8, 2) * 34 + Math.sin(t * 1.3 + k) * 3); if (x > 32 && x < 268 && Math.sin(t * 2.2 + k * 1.7) > -0.2) R.pset(x, y, hex('#fff8e0')); }
   // la cuenta, grande, abajo
   if (n > 0) R.numero(String(n), 160, 178, { tam: 16, centro: true });
   // la mano de Piri entra por abajo a la derecha y toca la carta vieja del rincón
@@ -240,6 +252,10 @@ const p3 = (t) => {
   // el cordón del rollo, del que tira Piri
   const tira = lin(t, arabe - 0.3, arabe + 0.7) * (1 - lin(t, arabe + 0.9, arabe + 1.2)); R.linea(180, 27 + alto, 178, 138 + Math.round(tira * 4), hex('#c8402e')); R.disco(178, 139 + Math.round(tira * 4), 1.5, hex('#d8a838'));
   // Piri: señala el mapa redondo, tira del cordón, sonríe a «India» y lanza las cuatro cartas a «four Portuguese»
+  // el mozo ordena los libros de la mesita (los coge de la pila y los alinea) y se vuelve, asombrado, al vuelo de las cartas
+  const mira = t > cuatro - 0.1, va = (Math.sin((t - P3) * 2.4) + 1) / 2, lib = [Math.round(lerp(78, 96, va)), Math.round(lerp(128, 134, va))];
+  const mz = R.actor(EL.marineroOtomano1, 104, 172, t, { dir: mira ? 1 : -1, sostiene: mira ? false : lib, sorpresa: mira && t < cuatro + 0.9, sonrisa: t > cuatro + 0.9 });
+  if (!mira) { R.rect(mz.mano[0] - 5, mz.mano[1] - 3, mz.mano[0] + 1, mz.mano[1] + 1, K); R.rect(mz.mano[0] - 4, mz.mano[1] - 2, mz.mano[0], mz.mano[1], hex('#7a2a3a')); R.pset(mz.mano[0] - 4, mz.mano[1] - 2, hex('#d8a838')); }
   const lanzaK = (k) => cuatro + k * 0.22;
   const lanzando = t > cuatro - 0.15 && t < lanzaK(3) + 0.15;
   const p = R.actor(EL.piri, 156, 174, t, { dir: t > arabe - 0.5 && t < arabe + 1.0 ? 1 : -1, dedo: (t > P3 + 0.3 && t < arabe - 0.5) || lanzando, sostiene: t > arabe - 0.5 && t < arabe + 1.0 ? [178, 142] : false, sonrisa: t > india - 0.1, habla: t > P3 + 0.4 && t < alejandro + 0.8 && parp(t, 7) });
@@ -266,6 +282,10 @@ const p4 = (t) => {
   const hilo = lin(t, colonT, colonT + 0.6), a = 0.5 + 0.5 * Math.sin(t * 8);
   if (hilo > 0) { for (let k = 0; k < 90 * hilo; k++) { if (k % 3 === 2) continue; const q = k / 90 * Math.PI * 2 - Math.PI / 2; const px = Math.round(170 + Math.cos(q) * 54), py = Math.round(92 + Math.sin(q) * 80); R.disco(px, py, 2.2, K); R.disco(px, py, 1.6, mez(hex('#f0c040'), hex('#fff4c8'), a)); } marcoOro(cx - 31, cy - 23, cx + 31, cy + 23, a); }
   if (t > colonT && t < colonT + 0.6) destello(cx + 28, cy - 22, 5);
+  // a «In other words» la mano de Piri entra por abajo a la derecha y da dos golpecitos en la carta de Colón
+  const otras = en('fuentes', 0.7366), mm = Math.sin(Math.PI * lin(t, otras - 0.15, otras + 0.95));
+  if (mm > 0) { const golpe = Math.max(0, Math.sin((t - otras - 0.2) * 22)) * (t > otras + 0.2 && t < otras + 0.65 ? 3 : 0), wx = Math.round(lerp(330, 282, mm)), wy = Math.round(lerp(200, 126, mm) + golpe);
+    T.brazo(R, wx + 30, 214, wx, wy, '#2e5a9a', -1, { codo: [wx + 24, wy + 34] }); }
   // a «puzzle» llegan otras tres cartas y encajan a su lado, como piezas
   [['arabe', 252, 150, 380, 200], ['portugues', 314, 104, 380, 30], ['ptolomeo', 314, 150, 380, 140]].forEach(([e, x, y, x0, y0], k) => { const u = suave(lin(t, puzzle - 0.7 + k * 0.2, puzzle - 0.25 + k * 0.2)); if (u <= 0) return;
     cartaGrande(lerp(x0, x, u), lerp(y0, y, u), e); if (u >= 1 && t < puzzle + 0.5 + k * 0.2) destello(x - 30, y - 22, 3); });
@@ -306,11 +326,18 @@ const p5 = (t) => {
   const brillo = lin(t, año1513, año1513 + 0.9);
   if (brillo > 0 && brillo < 1) { const bx = Math.round(PX0 - 20 + brillo * 250); for (let y = PY0; y < PY0 + PH * 4; y++) for (let x = Math.max(PX0, bx - 6 + Math.round((y - PY0) * 0.3)); x < Math.min(PX0 + PW * 5, bx + 6 + Math.round((y - PY0) * 0.3)); x++) R.pset(x, y, mez(R.pget(x, y), hex('#fff4c8'), 0.45)); }
   if (t > año1513) { const a = lin(t, año1513, año1513 + 0.3); R.numero('1513', 153, Math.round(lerp(120, 106, a)), { tam: 16, centro: true }); }
+  // una polilla que ronda la llama de la vela
+  { const a = t * 5.3, mx = Math.round(20 + Math.cos(a) * 7 + Math.sin(a * 2.3) * 2), my = Math.round(140 + Math.sin(a * 1.4) * 5), al = parp(t, 30); R.pset(mx, my, hex('#c8b898')); R.pset(mx - 1, my - (al ? 1 : 0), hex('#e8dcc0')); R.pset(mx + 1, my - (al ? 1 : 0), hex('#e8dcc0')); }
   // la llama de la vela
   const fl = Math.round(Math.sin(t * 11) + Math.sin(t * 17)) ; R.disco(20, 146 + fl * 0, 3, hex('#f0a838')); R.disco(20, 145, 2, hex('#ffd860')); R.pset(20 + (fl > 0 ? 1 : 0), 142, hex('#fff4c8'));
 };
 
-const efectos = [[en('fuentes', 0.0884), 'papel'], [en('fuentes', 0.2126), 'papel'], [veinte, 'pop'], [antiguas, 'brillo'], [alejandro, 'brillo'], [arabe, 'papel'], [cuatro + 0.3, 'whoosh'], [colonT, 'toc'], [puzzle, 'papel'], [P5 + 0.6, 'whoosh'], [año1513, 'brillo']];
+// los efectos (como mucho uno por segundo), cada uno con su acción: la pluma de Piri, los fardos, las cartas que caen,
+// la mano que toca, los libros del mozo, el rollo, el vuelo de las cartas, las chinchetas, los golpecitos y las piezas
+const efectos = [[1.0, 'lapiz'], [en('fuentes', 0.0884), 'papel'], [en('fuentes', 0.1440) + 0.2, 'papel'], [en('fuentes', 0.2126), 'papel'], [P2 + 1.3, 'papel'], [veinte, 'pop'], [antiguas, 'brillo'], [antiguas + 1.1, 'golpecito'],
+  [P3 + 0.3, 'toc'], [alejandro, 'brillo'], [arabe, 'papel'], [india, 'viento'], [cuatro + 0.3, 'whoosh'], [asia, 'brillo'],
+  [P4, 'whoosh'], [colonT, 'toc'], [colonT + 0.7, 'brillo'], [en('fuentes', 0.7366) + 0.25, 'golpecito'], [puzzle, 'papel'],
+  [P5 + 0.6, 'whoosh'], [P5 + 1.5, 'toc'], [P5 + 2.3, 'papel'], [año1513, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1513 });
 </script>
 </body>

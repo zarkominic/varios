@@ -106,6 +106,12 @@ const borda = () => {
   R.rect(56, 162, 66, 174, K); R.rect(57, 163, 65, 173, hex('#8a6a4a')); R.rect(57, 165, 65, 165, hex('#4a4a54')); R.rect(57, 163, 65, 163, hex('#3a6a8a'));
   R.rect(212, 146, 230, 174, K); R.rect(213, 147, 229, 173, hex('#8a5a30')); R.rect(213, 147, 214, 173, hex('#a87a4a')); for (const y of [152, 167]) R.rect(213, y, 229, y + 1, hex('#4a4a54'));
 };
+// la gaviota de cerca (posada, con el pico y la pata; o volando, con las alas que baten)
+const gaviotaP = (x, y, t, posada, dir) => { const B = hex('#f6f2ec'), G = hex('#a8a8b8'), P = hex('#e8a838');
+  R.rect(x - 3, y - 4, x + 3, y - 1, K); R.rect(x - 2, y - 3, x + 2, y - 2, B); R.disco(x + 3 * dir, y - 5, 1.5, K); R.pset(x + 3 * dir, y - 5, B); R.pset(x + 5 * dir, y - 5, P); R.pset(x + 3 * dir, y - 6, K);
+  if (posada) { R.rect(x - 2 * dir - 1, y - 3, x - 2 * dir + 1, y - 3, G); R.pset(x - 4 * dir, y - 2, K); R.pset(x, y, P); R.pset(x + 1, y, P); }
+  else { const a = Math.sin(t * 22) > 0; R.linea(x - 1, y - 3, x - 6, y - (a ? 8 : 1), G); R.linea(x + 1, y - 3, x + 6, y - (a ? 8 : 1), G); R.pset(x - 6, y - (a ? 8 : 1), K); R.pset(x + 6, y - (a ? 8 : 1), K); } };
+const ola = en('caribe', 0.1176);
 const p1 = (t) => {
   cielo1();
   // las nubes de tres tonos a tres velocidades y las gaviotas
@@ -115,9 +121,13 @@ const p1 = (t) => {
   for (let y = HOR; y < 180; y++) for (let x = 0; x < 320; x++) { const o = Math.sin(x * 0.18 * (1 - (y - HOR) / 200) + y * 0.9 - t * 2.4) + Math.sin(x * 0.05 - t * 0.8), sol = Math.abs(x - 58) < 6 + (y - HOR) * 0.9 && o > 0.6; R.pset(x, y, sol ? hex('#ffe08a') : o > 1.35 ? (y > 140 ? hex('#e8d8e0') : hex('#c87a8a')) : y < 104 ? hex('#7a4a7a') : y < 118 ? hex('#5a3a6a') : y < 140 ? hex('#3a2a5a') : hex('#2e2250')); }
   nao(t);
   // la ola que rompe contra la proa (con su espuma)
-  const ola = en('caribe', 0.1176), sp = Math.sin(Math.PI * lin(t, ola, ola + 0.9));
+  const sp = Math.sin(Math.PI * lin(t, ola, ola + 0.9));
   if (sp > 0) for (let k = 0; k < 22; k++) { const a = -0.3 - h(k, 1, 8) * 2.4, d = sp * (6 + h(k, 2, 8) * 16); R.pset(Math.round(256 + Math.cos(a) * d), Math.round(132 + Math.sin(a) * d), k % 3 ? hex('#f2eee2') : hex('#c8d8e8')); }
   borda();
+  // una gaviota baja a posarse en el barril y, cuando rompe la ola, sale volando asustada
+  { const baja = suave(lin(t, 0.5, 1.5)), sube = lin(t, ola + 0.1, ola + 1.4), posada = baja >= 1 && sube <= 0;
+    const gx = Math.round(sube > 0 ? lerp(221, 330, sube) : lerp(330, 221, baja)), gy = Math.round(sube > 0 ? 144 - sube * 70 - Math.sin(sube * 3) * 6 : lerp(70, 144, baja) - Math.sin(baja * Math.PI) * 10);
+    if (t > 0.5 && gx < 324) gaviotaP(gx, gy, t, posada, sube > 0 ? 1 : -1); }
   // Colón llega a la borda, saca el catalejo a «Columbus», lo baja a «tell» y señala las islas, convencido
   const colon = en('caribe', 0.0795), baja = en('caribe', 0.1434), llega = suave(lin(t, 0.1, colon - 0.9)), cx = Math.round(lerp(126, 176, llega));
   const mira = t > colon - 0.6 && t < baja, c = R.actor(EL.colon, cx, 154, t, { dir: 1, anda: llega > 0 && llega < 1, sostiene: mira ? [cx + 18, 128] : false, dedo: t > baja + 0.2, sonrisa: t > baja + 0.5, habla: t > en('caribe', 0.1848) && t < en('caribe', 0.2296) && parp(t, 7) });
@@ -182,6 +192,10 @@ const p3 = (t) => {
   const fx = (x) => Math.round(x * 0.85);
   for (let k = 0; k < CIPANGO.length; k++) { const [ax, ay] = CIPANGO[k], [bx, by] = CIPANGO[(k + 1) % CIPANGO.length]; R.linea(sx + fx(ax), sy + ay, sx + fx(bx), sy + by, hex('#c8302a'), 3); R.linea(sx + fx(ax) + 1, sy + ay, sx + fx(bx) + 1, sy + by, hex('#e05a4a'), 3); }
   if (v > 0 && v < 1) for (let y = -40; y < 40; y += 2) for (let x = -10; x < 10; x += 2) R.pset(sx + x, sy + y, mez(R.pget(sx + x, sy + y), hex('#d8a858'), 0.5));
+  // la mano (la nuestra, de lector) empuja la silueta desde la derecha hasta Cipango y se retira cuando encaja
+  const ret = lin(t, mapas - 0.15, mapas + 0.45);
+  if (t > P3 + 0.1 && ret < 1) { const hx = sx + 14 + Math.round(suave(ret) * 80), hy = sy + 4 + Math.round(Math.sin(t * 9) * (v < 1 ? 1 : 0));
+    T.brazo(R, hx + 38, 196, hx, hy, '#5a4a6a', -1, { codo: [hx + 30, hy + 30] }); }
   // encajan: el «=» que late junto a las dos islas
   if (t > mapas - 0.2) { const a = 0.5 + 0.5 * Math.sin((t - mapas) * 8), c = mez(hex('#d8a838'), hex('#fff4c8'), a); R.rect(186, 84, 198, 86, K); R.rect(187, 85, 197, 85, c); R.rect(186, 90, 198, 92, K); R.rect(187, 91, 197, 91, c); }
   // una carabela cruza el mar hacia el oeste (la idea de Colón), con su estela de puntos
@@ -252,27 +266,39 @@ const p4 = (t) => {
   R.recorte([22, 28, 78, 100]); for (let y = 28; y <= 100; y++) for (let x = 22; x <= 78; x++) R.pset(x, y, y < 60 ? hex('#e8a070') : (x + y) % 2 ? hex('#f0c080') : hex('#f6d8a0'));
   R.disco(Math.round(30 + ((t * 2) % 60)), 50, 5, hex('#f6e0d0')); R.disco(Math.round(36 + ((t * 2) % 60)), 49, 4, hex('#f0d0c0'));
   for (let y = 84; y <= 100; y++) for (let x = 22; x <= 78; x++) if (y > 92 - Math.round(Math.sin(x * 0.2) * 4)) R.pset(x, y, hex('#8a6a5a'));
+  // un jinete que cruza despacio por el camino del cerro, lejos
+  { const jx = Math.round(84 - (t - P4) * 7), jy = 90 + Math.round(Math.sin(jx * 0.2) * -1), pa = parp(t, 14) ? 1 : 0, S = hex('#5a3a34');
+    R.rect(jx, jy - 3, jx + 4, jy - 2, S); R.pset(jx - 1, jy - 4, S); R.pset(jx - 1, jy - 3, S); R.pset(jx + pa, jy - 1, S); R.pset(jx + 3 - pa, jy - 1, S); R.pset(jx + 2, jy - 4, S); R.pset(jx + 2, jy - 5, hex('#7a2a2a')); }
   { const vx = Math.round(22 + ((t * 18) % 60)), vy = 40 + Math.round(Math.sin(t * 3) * 3), al = parp(t, 11); R.pset(vx, vy, K); R.pset(vx - 1, vy - (al ? 1 : 0), K); R.pset(vx + 1, vy - (al ? 1 : 0), K); }
   R.recorte(null); for (let x = 30; x < 78; x += 10) R.rect(x, 27, x + 1, 101, K); R.rect(21, 62, 79, 63, K);
   // el gato del alféizar que menea la cola
   T.gato(R, 64, 104, t, { dir: -1 });
   // el globo de pie: gira hacia el oeste, de España a Cipango y a la costa de Asia
-  const gira = suave(lin(t, P4 + 0.4, japonT - 0.6)), lon0 = lerp(-6, -66, gira) + (t < P4 + 0.4 ? 0 : Math.sin(lin(t, japonT - 0.6, japonT + 0.4) * Math.PI) * 2);
+  const llega4 = suave(lin(t, P4 + 0.3, P4 + 1.1)), empT = P4 + 1.15;
+  const gira = suave(lin(t, empT + 0.15, japonT - 0.6)), lon0 = lerp(-6, -66, gira) + (t < empT + 0.15 ? 0 : Math.sin(lin(t, japonT - 0.6, japonT + 0.4) * Math.PI) * 2);
   R.linea(GX - 18, GY + 36, GX - 28, 172, K); R.linea(GX + 18, GY + 36, GX + 28, 172, K); R.linea(GX, GY + 36, GX, 168, K); R.linea(GX - 17, GY + 36, GX - 27, 172, hex('#6a4024')); R.linea(GX + 17, GY + 36, GX + 27, 172, hex('#6a4024')); R.linea(GX - 22, 160, GX + 22, 160, hex('#5a3a22')); R.rect(GX - 20, GY + 34, GX + 20, GY + 37, hex('#5a3a22'));
   const P = globo(lon0, t, t > asia ? 0.5 + 0.5 * Math.sin((t - asia) * 7) : 0, t > japonT - 0.2 ? 0.5 + 0.5 * Math.sin((t - japonT) * 9) : 0);
   R.anillo(GX, GY, GR + 3, hex('#d8a838')); R.anillo(GX, GY, GR + 4, hex('#a87a24')); R.disco(GX, GY - GR - 4, 2, hex('#d8a838')); R.disco(GX, GY + GR + 4, 2, hex('#d8a838'));
   // la ruta de Colón en el globo, que se dibuja hacia el oeste
-  const v = lin(t, P4 + 0.6, puerta);
+  const v = lin(t, empT + 0.2, puerta + 0.4);
   for (let k = 0; k <= 40 * v; k++) { if (k % 3 === 2) continue; const u = k / 40, n = RUTA.length - 1, i = Math.min(n - 1, Math.floor(u * n)), f = u * n - i, p = P(lerp(RUTA[i][0], RUTA[i + 1][0], f), lerp(RUTA[i][1], RUTA[i + 1][1], f)); if (p) { R.disco(Math.round(p[0]), Math.round(p[1]), 1.2, K); R.pset(Math.round(p[0]), Math.round(p[1]), hex('#fff4c8')); } }
-  // Colón, viejo y canoso, empuja el globo, lo mira girar y señala Cipango a «Japan», convencido
-  const empuja = t > P4 + 0.2 && t < P4 + 0.9, c = R.actor(EL.colon, 146, 170, t, { dir: 1, sostiene: empuja ? [172, 118 + Math.round(lin(t, P4 + 0.2, P4 + 0.9) * 6)] : false, dedo: t > japonT - 0.4, sonrisa: t > asia, habla: t > puerta && t < asia + 0.8 && parp(t, 7) });
+  // Colón, viejo y canoso, mira por la ventana, se vuelve y va al globo; lo empuja, lo mira girar, lo cuenta
+  // («Asia»: se acaricia la barba, sonriendo) y señala Cipango a «Japan», convencido
+  const empuja = t > empT && t < empT + 0.7, cxC = Math.round(lerp(58, 146, llega4)), cree = en('caribe', 0.9120);
+  const c = R.actor(EL.colon, cxC, 170, t, { dir: t < P4 + 0.3 ? -1 : 1, anda: llega4 > 0 && llega4 < 1, sostiene: empuja ? [172, 118 + Math.round(lin(t, empT, empT + 0.7) * 6)] : t > asia + 0.2 && t < cree ? [cxC + 10, 152 + Math.round(Math.sin(t * 6))] : false, dedo: t > japonT - 0.4, sonrisa: t > asia, habla: t > puerta && t < cree + 0.4 && parp(t, 7) });
   const cp = P(-60, 22); if (cp && t > japonT - 0.2) { R.anillo(Math.round(cp[0]), Math.round(cp[1]), 7 + Math.round(Math.sin(t * 7)), hex('#fff0a0'), 3); destello(cp[0] + 8, cp[1] - 8, 3); }
   // la vela de la repisa
   R.rect(118, 47, 121, 52, hex('#f2eee2')); R.pset(119 + (parp(t, 12) ? 1 : 0), 45, hex('#ffd860')); R.pset(119, 44, hex('#fff4c8'));
 };
 
 const año = (t) => t < P2 ? 1502 : t < P3 ? 1513 : t < P4 ? 1502 : 1506;
-const efectos = [[en('caribe', 0.0504), 'golpecito'], [en('caribe', 0.1176), 'ola'], [espanola, 'pop'], [norte, 'lapiz'], [mapas - 0.2, 'brillo'], [P4 + 0.3, 'whoosh'], [japonT, 'brillo']];
+// los efectos (como mucho uno por segundo): el viento en la vela, el catalejo, la ola, el aro y la isla que
+// gira, la flecha, la silueta que se arrastra y encaja, la carabela, la campana de Valladolid por la ventana,
+// el globo que gira, el gato que maúlla y los brillos
+const efectos = [[0.2, 'rafaga'], [en('caribe', 0.0795) - 0.1, 'tic'], [ola, 'ola'], [en('caribe', 0.2296), 'viento'],
+  [espanola, 'lapiz'], [dePie + 0.3, 'whoosh'], [norte, 'lapiz'], [sur + 0.3, 'toc'],
+  [P3 + 0.3, 'papel'], [mapas - 0.2, 'toc'], [cruza, 'ola'],
+  [P4 + 0.25, 'campana'], [empT, 'whoosh'], [asia, 'brillo'], [cree, 'miau'], [japonT, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

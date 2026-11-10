@@ -96,6 +96,11 @@ const gatoD = (x, y, t, u = 0) => { const N = H_('#d88a3a'), NS = H_('#a8622a'),
   if (u > 0 && u < 1) { R.pset(x + 4, cy - 4, K); R.pset(x + 6, cy - 4, K); } else R.linea(x + 4, cy - 4, x + 6, cy - 4, NS);
   const c = Math.sin(t * 2) * 2; R.linea(x - 4, cy - 1, x - 8, cy - 2 + c, K); R.linea(x - 4, cy - 2, x - 8, cy - 3 + c, N); };
 
+// el carrito de la biblioteca (x = izquierda, y = el suelo): dos baldas con libros y sus ruedas, que giran si se mueve
+const carrito = (x, y, t) => { R.rect(x, y - 16, x + 20, y - 3, K); R.rect(x + 1, y - 15, x + 19, y - 4, NOGAL[1]); R.rect(x + 1, y - 10, x + 19, y - 9, NOGAL[2]); R.rect(x + 1, y - 4, x + 19, y - 4, NOGAL[0]);
+  for (let k = 0; k < 6; k++) { const c = LOMOS[(k * 3) % LOMOS.length]; R.rect(x + 2 + k * 3, y - 15 + (k % 2), x + 3 + k * 3, y - 11, c); R.rect(x + 2 + k * 3, y - 8, x + 3 + k * 3, y - 5, LOMOS[(k * 7 + 2) % LOMOS.length]); }
+  R.rect(x + 19, y - 22, x + 20, y - 16, K); R.rect(x + 17, y - 23, x + 22, y - 22, K);
+  for (const wx of [x + 4, x + 16]) { R.disco(wx, y - 1, 2, K); R.pset(wx + (Math.floor(t * 8) % 2 ? 1 : 0), y - 1, H_('#8a8a96')); } };
 const P2 = en('hapgood', 0.2383), P3 = en('hapgood', 0.5353), P4 = en('hapgood', 0.7387);
 // ── 1 · la sala de lectura (LOCAL) ──
 const sala = fijo(() => {
@@ -180,6 +185,11 @@ const p1 = (t) => {
   const br = tramo(t, en('hapgood', 0.0666), en('hapgood', 0.0845)) - tramo(t, en('hapgood', 0.1215), en('hapgood', 0.1585));
   if (br > 0) for (let k = 0; k < 7; k++) { const a = t * 1.5 + k * 0.9, x = Math.round(150 + Math.cos(a) * 30 * (0.5 + hh(k, 3) * 0.6)), y = Math.round(118 + Math.sin(a * 1.3) * 18), on = Math.sin(t * 8 + k * 2) > 0;
     if (on) { R.pset(x, y, H_('#ffffff')); R.pset(x - 1, y, ORO[2]); R.pset(x + 1, y, ORO[2]); R.pset(x, y - 1, ORO[2]); R.pset(x, y + 1, ORO[2]); } }
+  // al fondo, el bibliotecario empuja su carrito de libros hasta la librería y va colocando tomos en la balda de abajo
+  const uc = suave(tramo(t, 0.25, 2.2)), bxc = Math.round(lerp(336, 234, uc)), coloca = t > 2.3 && t < en('hapgood', 0.1797), vb = (Math.sin((t - 2.3) * 3) + 1) / 2;
+  const bib = R.actor(EL.conservador, bxc, 150, t, { dir: -1, anda: uc > 0 && uc < 1, sostiene: uc < 1 ? [bxc - 3, 138] : coloca ? [Math.round(lerp(220, 210, vb)), Math.round(lerp(132, 124, vb))] : false, sonrisa: t > en('hapgood', 0.1797) });
+  carrito(bxc - 24, 150, uc > 0 && uc < 1 ? t : 0);
+  if (coloca) { R.rect(bib.mano[0] - 2, bib.mano[1] - 8, bib.mano[0] + 1, bib.mano[1] + 1, K); R.rect(bib.mano[0] - 1, bib.mano[1] - 7, bib.mano[0], bib.mano[1], LOMOS[Math.floor(t * 0.8) % LOMOS.length]); }
   // los historiadores: el de la barba negra con la lupa, el de la barba blanca con su cuaderno
   const lx = 116 + Math.round(Math.sin(t * 1.3) * 2), ly = 142 + Math.round(Math.cos(t * 1.1) * 2);
   const k1 = R.actor(EL.kahle, 96, 162, t, { dir: 1, sostiene: [lx, ly], sonrisa: t > en('hapgood', 0.0666) });
@@ -255,7 +265,13 @@ const p4 = (t) => {
       if (on) { R.pset(x, y, H_('#ffffff')); R.pset(x - 1, y, H_('#bfe4f6')); R.pset(x + 1, y, H_('#bfe4f6')); R.pset(x, y - 1, H_('#bfe4f6')); R.pset(x, y + 1, H_('#bfe4f6')); } }
     if (t > en('hapgood', 0.9565)) R.bocadillo(200, 120 - Math.round(tramo(t, en('hapgood', 0.9565), en('hapgood', 0.9670)) * 3), { icono: '?' }); }
 };
-const efectos = [[en('hapgood', 0.0402), 'interruptor'], [en('hapgood', 0.0687), 'brillo'], [en('hapgood', 0.1110), 'papel'], [en('hapgood', 0.3858), 'papel'], [en('hapgood', 0.4967), 'pop'], [en('hapgood', 0.6077), 'papel'], [en('hapgood', 0.6341), 'lapiz'], [en('hapgood', 0.6632), 'pop'], [en('hapgood', 0.7979), 'lapiz'], [en('hapgood', 0.9380), 'brillo']];
+// los efectos (como mucho uno por segundo): el carrito, la lámpara, las hojas del calendario, el tomo en la balda, el reloj,
+// el montón de copias, las copias en los pupitres, el golpe en la pizarra, la brisa, el calco, el lápiz, la tapa
+// de la tetera, el trazo de la costa que tuerce y la escarcha
+const efectos = [[0.3, 'carro'], [en('hapgood', 0.0402), 'interruptor'], [en('hapgood', 0.0687), 'brillo'], [2.9, 'golpecito'], [en('hapgood', 0.1110) + 0.6, 'papel'], [en('hapgood', 0.1797), 'tic'],
+  [P2 + 0.3, 'papel'], [en('hapgood', 0.3858), 'papel'], [salidas[1] + 0.45, 'golpecito'], [en('hapgood', 0.4597) + 0.2, 'toc'], [en('hapgood', 0.4967), 'pop'],
+  [P3 + 0.15, 'viento'], [en('hapgood', 0.6077), 'papel'], [en('hapgood', 0.6341), 'lapiz'], [en('hapgood', 0.6632), 'boing'], [en('hapgood', 0.6632) + 0.7, 'vapor'],
+  [P4 + 0.3, 'whoosh'], [en('hapgood', 0.7979), 'lapiz'], [en('hapgood', 0.8746), 'tic'], [en('hapgood', 0.9380), 'brillo'], [en('hapgood', 0.9380) + 0.7, 'viento']];
 const año = (t) => t < P2 ? Math.round(lerp(1931, 1955, tramo(t, 0.35, en('hapgood', 0.1876)))) : 1956;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
