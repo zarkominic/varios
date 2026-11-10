@@ -20,6 +20,12 @@ Con gancho comercial y siempre cierto dentro del vídeo. Los tesoros van delante
 - EN: Friday the 13th, 1307: The Day the Templar Treasure Vanished
 - EN: A 2,000-Year-Old Treasure Map No One Can Solve
 
+**Prueba A/B nueva (10/11/2026, aprobada por el usuario), para la búsqueda de «Forrest Fenn» que trae gente al canal:**
+- EN: 4 Lost Treasures, From the Templars to Forrest Fenn
+- ES: 4 tesoros perdidos, de los templarios a Forrest Fenn
+Y en Studio: «Forrest Fenn» en la primera línea de la descripción y el capítulo «7:54 Forrest Fenn's treasure» /
+«7:54 El tesoro de Forrest Fenn».
+
 La miniatura (la torre del Temple de 1307 con los cofres casi vacíos y un templario sorprendido, y hoy un buscador con su detector, partidos por la diagonal, con el Grial brillando sobre un cofre, «1307» y un «?») sirve para los tres.
 
 ## Descripción (EN)
