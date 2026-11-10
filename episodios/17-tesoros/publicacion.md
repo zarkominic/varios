@@ -21,8 +21,8 @@ Con gancho comercial y siempre cierto dentro del vídeo. Los tesoros van delante
 - EN: A 2,000-Year-Old Treasure Map No One Can Solve
 
 **Prueba A/B nueva (10/11/2026, aprobada por el usuario), para la búsqueda de «Forrest Fenn» que trae gente al canal:**
-- EN: 4 Lost Treasures, From the Templars to Forrest Fenn
-- ES: 4 tesoros perdidos, de los templarios a Forrest Fenn
+- EN: Forrest Fenn and 3 Other Lost Treasures
+- ES: Forrest Fenn y otros 3 tesoros perdidos
 Y en Studio: «Forrest Fenn» en la primera línea de la descripción y el capítulo «7:54 Forrest Fenn's treasure» /
 «7:54 El tesoro de Forrest Fenn».
 
