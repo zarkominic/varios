@@ -4,7 +4,13 @@ Actualizado el 9/11/2026. El usuario descartó el resto de la lista anterior (D.
 barco de Howard Hughes, el Goya robado, el pirata de la tele de Chicago): las próximas propuestas tienen que ser
 otras, del estilo de las que pide.
 
-- **EPISODIO 30 (aprobado el 10/11/2026: «ok con el 30, cuando termines»): Forrest Fenn.** Una búsqueda de «Forrest
+- **EPISODIO 30 (elegido por el usuario el 10/11/2026, sustituye a Fenn): lo que hay bajo las pirámides.** Viene de
+  un vídeo que mandó («They Found Something BIGGER Than the Pyramids Under Egypt», Origins Explained). Contenido: el
+  anuncio de Biondi, Malanga y Mei (marzo de 2025, radar de satélite bajo Kefrén) contado con justicia y su veredicto
+  (afirmación extraordinaria sin demostrar, no «bulo»: el usuario no lo ve como bulo); el pasillo de 2023 y el gran hueco
+  de 2017 (ScanPyramids, con MUONES, otra técnica y otro equipo); el Laberinto de Hawara (Heródoto: superaba a las
+  pirámides; radar de 2008). Verificar todo con 3 agentes.
+- **EPISODIO 31 (antes el 30): Forrest Fenn.** Una búsqueda de «Forrest
   Fenn» trae gente al canal (cae en el ep17, donde Fenn ocupa tres frases). Al terminar el 29: primero 3 Shorts del tramo
   de Fenn del ep17 (re-render solo de te-fenn y vecinas, título con «Forrest Fenn» delante) y luego el episodio entero:
   el cofre de 2010, el poema de nueve pistas, diez años de búsqueda, Jack Stuef (junio de 2020), Wyoming revelado en 2022.
