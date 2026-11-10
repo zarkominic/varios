@@ -445,3 +445,23 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 - **`fallos` en la pasada de calidad salta la primera revisión completa:** para una revisión de derechos de todo el
   episodio no sirve; va en el tema.
 - **Disco:** se borraron los fotogramas del 27 (5,1 GB) antes del render.
+
+## Episodio 29 · El mapa de Piri Reis (10/11/2026)
+
+- **El esqueleto de los decorados perdió el import de `escena`:** se copió la fontanería desde la línea 19 de un
+  esqueleto viejo y la línea del import quedaba justo antes. Dos agentes lo avisaron y no rompió nada. Al copiar la
+  fontanería, comprobar con `grep -c "^import { escena }"` que está.
+- **Un mensaje del usuario a mitad de producción confunde a los agentes:** el usuario mandó «o no espera, revisa este
+  video» (era para el ep30), y el agente de escenas del grupo 2 lo leyó como orden de parar el 29 y no hizo nada. Se
+  relanzó con una ACLARACIÓN en las indicaciones. Cuando el usuario cambie de tema a mitad de un episodio, añadir esa
+  aclaración a todo lo que se lance después.
+- **Calidad:** 47 de 106 planos suspendieron en la primera revisión; en la segunda ronda quedaron 2, que se pulieron.
+- **Verificación:** 17 correcciones. Las peores: Edhem no dirigía Topkapı (dirigía los museos de Turquía); en 1513 Piri
+  Reis era capitán, no almirante; los cuatro mapas portugueses eran de Asia, no de Brasil; Hapgood no hablaba de
+  navegantes de hace millones de años (hablaba de un desplazamiento de la corteza hace unos miles).
+- **Voz:** «Piri Reis» en inglés sonaba «Peary rise»; con «Peeree Race» el control oye «Piri».
+- **Herramienta:** `R.recorte` no afecta a `R.rect` (lo avisó un pulidor): un recorte hecho con `R.rect` puede salirse.
+- **Shorts de un episodio viejo sin pistas:** cuando ya no quedan fotogramas ni pistas (el ep17), se cortan del vídeo
+  montado con la misma composición (scratchpad/short_desde_mp4.py). En el ep17 Fenn ocupaba solo 39 s: un Short, no tres.
+- **Miniaturas verticales:** una carta en la mano (`cosa`) tapa la cara del chibi al doble; mejor la pieza al lado.
+- **Disco:** se borraron los fotogramas del 28 (5,8 GB) al empezar.
