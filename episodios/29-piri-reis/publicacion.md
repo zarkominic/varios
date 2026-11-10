@@ -115,8 +115,8 @@ español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacion
 - **ES:** El mapa de Piri Reis parece dibujar la Antártida tres siglos antes de que nadie la viera. La respuesta más probable es más sencilla: se acababa el pergamino. La historia completa, en el vídeo enlazado. #PiriReis #MisteriosDeLaHistoria #ASKAtom #Shorts
 
 ### Short 2 · El tío corsario y el mapa de Colón · tramo 131.22-148.8,149.38-171.9
-- **EN:** A Pirate Uncle Captured Columbus's Lost Map #Shorts
-- **ES:** Un tío corsario capturó el mapa perdido de Colón #Shorts
+- **EN:** A Pirate Uncle and the Lost Map of Columbus #Shorts
+- **ES:** Un tío corsario y el mapa perdido de Colón #Shorts
 - **EN:** In 1501, the Ottoman corsair Kemal Reis captured seven Spanish ships. One prisoner had sailed with Columbus three times, and it seems he carried charts of the new lands. The full story is in the linked video. #PiriReis #Columbus #ASKAtom #Shorts
 - **ES:** En 1501, el corsario otomano Kemal Reis capturó siete barcos españoles. Un prisionero había navegado tres veces con Colón y, por lo que parece, llevaba cartas de las tierras nuevas. La historia completa, en el vídeo enlazado. #PiriReis #Colón #ASKAtom #Shorts
 
