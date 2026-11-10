@@ -1,0 +1,535 @@
+{
+ "serie": "ASK Atom",
+ "numero": 29,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Piri Reis Map Doesn't Show Antarctica. It Hides Columbus",
+  "es": "El mapa de Piri Reis no dibuja la Antártida: esconde a Colón"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.92
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.95
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "pr-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "antartida"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "antartida",
+     "es": "Un mapa de 1513 parece dibujar la Antártida, trescientos años antes de que nadie la viera. Se ha dicho que es la prueba de una civilización perdida, y hasta de extraterrestres. Pero la verdad es más rara: dentro de él se esconde un mapa perdido de Cristóbal Colón.",
+     "en": "A map from 1513 seems to show Antarctica, three hundred years before anyone saw it. People have called it proof of a lost civilization, and even of aliens. But the truth is stranger: hidden inside it is a lost map by Christopher Columbus.",
+     "visual": "E y C: el pergamino de 1513 sobre una mesa a la luz de una lámpara; abajo, la costa se tuerce y una lupa la recorre; corte a un globo con la Antártida blanca; signos de interrogación; un platillo volante de juguete colgado de un hilo en una estantería; dentro del pergamino se ilumina el trazo del Caribe, y una carabela de tinta navega por él.",
+     "es_voz": "Un mapa de mil quinientos trece parece dibujar la Antártida, trescientos años antes de que nadie la viera. Se ha dicho que es la prueba de una civilización perdida, y hasta de extraterrestres. Pero la verdad es más rara: dentro de él se esconde un mapa perdido de Cristóbal Colón.",
+     "en_voz": "A map from fifteen thirteen seems to show Antarctica, three hundred years before anyone saw it. People have called it proof of a lost civilization, and even of aliens. But the truth is stranger: hidden inside it is a lost map by Christopher Columbus."
+    },
+    {
+     "n": 2,
+     "marca": "camino",
+     "es": "Por el camino vas a conocer a un almirante otomano que aprendió el mar con un tío corsario, a un marinero capturado frente a las costas de España, un pergamino de piel de gacela olvidado en un palacio y un profesor estadounidense que creyó haber encontrado el mapa de una civilización desaparecida. Y vas a ver por qué tu cerebro ve en un mapa cosas que no están.",
+     "en": "Along the way, you'll meet an Ottoman admiral who learned the sea from a pirate uncle, a sailor captured off the coast of Spain, a gazelle-skin parchment forgotten in a palace, and an American teacher who believed he had found the map of a vanished civilization. And you'll see why your brain sees things on a map that aren't there.",
+     "visual": "B, A y D: una galera otomana en el mar, un marinero prisionero con un rollo de cartas, el pergamino doblado en una biblioteca de palacio, un profesor con gafas ante un mapa; en el estudio de Atom, Atom desenrolla un mapa y se le vuelve a enrollar solo (gag 1)."
+    }
+   ]
+  },
+  {
+   "id": "pr-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "E: Atom saluda en su estudio, con el mapa enrollado bajo el brazo y un globo terráqueo en la mesa."
+    }
+   ]
+  },
+  {
+   "id": "pr-palacio",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "cartela 1929",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "palacio",
+     "es": "Todo empezó en el otoño de 1929, en Estambul. El viejo palacio de Topkapı, donde habían vivido los sultanes durante siglos, se estaba convirtiendo en museo, y el director de los museos de Turquía, Halil Edhem, recorría su biblioteca con un estudioso alemán, Gustav Adolf Deissmann. Entre montones de libros y papeles olvidados, Edhem encontró un pergamino doblado.",
+     "en": "It all began in the autumn of 1929, in Istanbul. The old Topkapı Palace, where the sultans had lived for centuries, was being turned into a museum, and the director of Turkey's museums, Halil Edhem, was going through its library with a German scholar, Gustav Adolf Deissmann. Among piles of forgotten books and papers, Edhem found a folded parchment.",
+     "visual": "A (Estambul, otoño de 1929): el palacio de Topkapı con sus cúpulas y chimeneas sobre el Bósforo; dentro, la biblioteca con estanterías, cofres y celosías; el director de los museos (traje, bigote blanco, sombrero de ala: en 1929 el fez ya estaba prohibido) y el estudioso alemán (gafas, traje de tres piezas) apartan libros polvorientos y encuentran un pergamino doblado.",
+     "acto": true,
+     "es_voz": "Todo empezó en el otoño de mil novecientos veintinueve, en Estambul. El viejo palacio de Topkapí, donde habían vivido los sultanes durante siglos, se estaba convirtiendo en museo, y el director de los museos de Turquía, Jalíl Édem, recorría su biblioteca con un estudioso alemán, Gústav Ádolf Dáisman. Entre montones de libros y papeles olvidados, Édem encontró un pergamino doblado.",
+     "en_voz": "It all began in the autumn of nineteen twenty-nine, in Istanbul. The old Topkapi Palace, where the sultans had lived for centuries, was being turned into a museum, and the director of Turkey's museums, Halil Edhem, was going through its library with a German scholar, Gustav Adolf Deissmann. Among piles of forgotten books and papers, Edhem found a folded parchment."
+    }
+   ],
+   "cartela": "1929"
+  },
+  {
+   "id": "pr-firma",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "firma",
+     "es": "Al desplegarlo vieron costas, islas, barcos y notas en turco otomano, escritas y pintadas en varios colores. Un experto en lenguas orientales, Paul Kahle, lo estudió: lo había dibujado Piri Reis, un capitán de la flota otomana que años después sería almirante, en el año 919 del calendario islámico. Es decir, en 1513.",
+     "en": "When they unfolded it, they saw coasts, islands, ships, and notes in Ottoman Turkish, written and painted in many colors. An expert in Eastern languages, Paul Kahle, studied it: it had been drawn by Piri Reis, an Ottoman sea captain who would later become an admiral, in the year 919 of the Islamic calendar. In other words, in 1513.",
+     "visual": "A: despliegan el pergamino sobre una mesa larga y se sigue desplegando hasta el suelo (gag 2); costas, islas y barquitos pintados en varios colores; un experto con lupa (barba, gafas redondas) estudia la firma y la fecha.",
+     "es_voz": "Al desplegarlo vieron costas, islas, barcos y notas en turco otomano, escritas y pintadas en varios colores. Un experto en lenguas orientales, Pául Kále, lo estudió: lo había dibujado Píri Réis, un capitán de la flota otomana que años después sería almirante, en el año novecientos diecinueve del calendario islámico. Es decir, en mil quinientos trece.",
+     "en_voz": "When they unfolded it, they saw coasts, islands, ships, and notes in Ottoman Turkish, written and painted in many colors. An expert in Eastern languages, Paul Kahle, studied it: it had been drawn by Piri Reis, an Ottoman sea captain who would later become an admiral, in the year nine hundred nineteen of the Islamic calendar. In other words, in fifteen thirteen."
+    }
+   ]
+  },
+  {
+   "id": "pr-colon",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "colon",
+     "es": "Y una de las notas lo dejó de piedra. Decía que las costas y las islas del oeste estaban copiadas de un mapa de un genovés llamado Colón. De los mapas que Colón dibujó de las tierras nuevas no quedaba ninguno. Pronto, la noticia dio la vuelta al mundo.",
+     "en": "And one of the notes stopped him cold. It said that the coasts and islands of the west had been copied from a map by a Genoese named Columbus. Columbus's own charts of the new lands had all been lost. Soon, the news went around the world.",
+     "visual": "A: la lupa se para sobre una nota y el experto se queda de piedra; una carabela de tinta y un rótulo sin letras con un barquito; corte a periódicos de 1929 que salen de la imprenta y pasan de mano en mano en varias ciudades."
+    }
+   ]
+  },
+  {
+   "id": "pr-galipoli",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "galipoli",
+     "es": "Piri Reis nació hacia 1465 en Galípoli, un puerto junto al estrecho de los Dardanelos. De niño se fue al mar con su tío, Kemal Reis, un corsario famoso que acabó siendo almirante del sultán. Con él pasó años recorriendo todo el Mediterráneo, de batalla en batalla, aprendiéndose de memoria las costas, los vientos y los puertos.",
+     "en": "Piri Reis was born around 1465 in Gallipoli, a port on the Dardanelles. As a boy, he went to sea with his uncle, Kemal Reis, a famous corsair who ended up as one of the sultan's admirals. With him, he spent years sailing across the whole Mediterranean, from battle to battle, learning coasts, winds and harbors by heart.",
+     "visual": "C y B: el puerto de Galípoli junto al estrecho, con galeras y gaviotas; un niño (Piri) sube a bordo detrás de su tío Kemal Reis (barba negra, turbante, caftán rojo); en el mar, el tío le enseña las estrellas y una costa en el horizonte.",
+     "acto": true,
+     "es_voz": "Píri Réis nació hacia mil cuatrocientos sesenta y cinco en Galípoli, un puerto junto al estrecho de los Dardanelos. De niño se fue al mar con su tío, Kemál Réis, un corsario famoso que acabó siendo almirante del sultán. Con él pasó años recorriendo todo el Mediterráneo, de batalla en batalla, aprendiéndose de memoria las costas, los vientos y los puertos.",
+     "en_voz": "Piri Reis was born around fourteen sixty-five in Gallipoli, a port on the Dardanelles. As a boy, he went to sea with his uncle, Kemal Reis, a famous corsair who ended up as one of the sultan's admirals. With him, he spent years sailing across the whole Mediterranean, from battle to battle, learning coasts, winds and harbors by heart."
+    }
+   ]
+  },
+  {
+   "id": "pr-captura",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1501",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "captura",
+     "es": "En 1501, frente a las costas de España, Kemal Reis capturó siete barcos españoles. Entre los prisioneros había un marinero que decía haber cruzado el océano tres veces con Colón. Y, por lo que parece, llevaba algo que valía más que el oro: cartas de navegación de las tierras nuevas.",
+     "en": "In 1501, off the coast of Spain, Kemal Reis captured seven Spanish ships. Among the prisoners was a sailor who said he had crossed the ocean three times with Columbus. And it seems he carried something worth more than gold: sailing charts of the new lands.",
+     "visual": "B (frente a la costa de España, 1501): la galera otomana alcanza unas naves españolas; en cubierta, un marinero prisionero (camisa de lino, barba rubia) enseña un rollo de cartas de navegación; una ráfaga se las lleva y Kemal Reis atrapa una al vuelo (gag 3).",
+     "es_voz": "En mil quinientos uno, frente a las costas de España, Kemál Réis capturó siete barcos españoles. Entre los prisioneros había un marinero que decía haber cruzado el océano tres veces con Colón. Y, por lo que parece, llevaba algo que valía más que el oro: cartas de navegación de las tierras nuevas.",
+     "en_voz": "In fifteen oh-one, off the coast of Spain, Kemal Reis captured seven Spanish ships. Among the prisoners was a sailor who said he had crossed the ocean three times with Columbus. And it seems he carried something worth more than gold: sailing charts of the new lands."
+    }
+   ],
+   "cartela": "1501"
+  },
+  {
+   "id": "pr-taller",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "taller",
+     "es": "Kemal Reis murió en el mar en 1511, y es probable que aquellas cartas pasaran a su sobrino. Dos años después, en Galípoli, Piri Reis se sentó a hacer algo que nadie había hecho: reunir en un solo mapa todo lo que se sabía del mundo. Lo dibujó en piel de gacela, con rosas de los vientos, barcos y pequeños dibujos, y apuntó de dónde salía cada pieza.",
+     "en": "Kemal Reis died at sea in 1511, and those charts most likely passed to his nephew. Two years later, in Gallipoli, Piri Reis sat down to do something no one had done: to gather in a single map everything that was known about the world. He drew it on gazelle skin, with compass roses, ships and little drawings, and he wrote down where each piece came from.",
+     "visual": "C (el taller de Piri Reis en Galípoli, 1513): Piri, ya adulto (barba, turbante blanco, caftán azul), (ya capitán) rodeado de cartas desplegadas, tinteros, compases y una ventana al puerto; dibuja sobre la piel de gacela rosas de los vientos y barquitos.",
+     "es_voz": "Kemál Réis murió en el mar en mil quinientos once, y es probable que aquellas cartas pasaran a su sobrino. Dos años después, en Galípoli, Píri Réis se sentó a hacer algo que nadie había hecho: reunir en un solo mapa todo lo que se sabía del mundo. Lo dibujó en piel de gacela, con rosas de los vientos, barcos y pequeños dibujos, y apuntó de dónde salía cada pieza.",
+     "en_voz": "Kemal Reis died at sea in fifteen eleven, and those charts most likely passed to his nephew. Two years later, in Gallipoli, Piri Reis sat down to do something no one had done: to gather in a single map everything that was known about the world. He drew it on gazelle skin, with compass roses, ships and little drawings, and he wrote down where each piece came from."
+    }
+   ]
+  },
+  {
+   "id": "pr-sultan",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "sultan",
+     "es": "En 1517 se lo regaló al sultán Selim el Primero en El Cairo, que acababa de conquistar. Después, el mapa quedó olvidado en la biblioteca del palacio durante cuatro siglos. Solo se salvó más o menos un tercio: la parte del oeste, con el Atlántico, las costas de Europa y de África y las tierras nuevas.",
+     "en": "In 1517, he presented it to the sultan, Selim the First, in Cairo, which the sultan had just conquered. Then the map lay forgotten in the palace library for four centuries. Only about a third of it survived: the western part, with the Atlantic, the coasts of Europe and Africa, and the new lands.",
+     "visual": "C (el salón del sultán en Egipto, 1517): Piri hace una reverencia y entrega el mapa enrollado; el sultán (turbante alto, barba, caftán dorado) lo mira; luego el rollo entra en un cofre de la biblioteca, que se cubre de polvo y telarañas con el paso de los siglos; dos tercios del pergamino se borran y queda el oeste.",
+     "es_voz": "En mil quinientos diecisiete se lo regaló al sultán Selím el Primero en El Cairo, que acababa de conquistar. Después, el mapa quedó olvidado en la biblioteca del palacio durante cuatro siglos. Solo se salvó más o menos un tercio: la parte del oeste, con el Atlántico, las costas de Europa y de África y las tierras nuevas.",
+     "en_voz": "In fifteen seventeen, he presented it to the sultan, Selim the First, in Cairo, which the sultan had just conquered. Then the map lay forgotten in the palace library for four centuries. Only about a third of it survived: the western part, with the Atlantic, the coasts of Europe and Africa, and the new lands."
+    }
+   ]
+  },
+  {
+   "id": "pr-fuentes",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "fuentes",
+     "es": "Y aquí viene lo mejor, porque el propio Piri Reis explica cómo lo hizo. En sus notas cuenta que usó unas veinte cartas: mapas antiguos que creía de los tiempos de Alejandro Magno, un mapa árabe de la India, cuatro mapas portugueses de Asia y el de Colón. Es decir, su mapa es un rompecabezas con todo lo que sabían Europa y el mundo islámico en 1513.",
+     "en": "And here comes the best part, because Piri Reis himself explains how he did it. In his notes, he says he used about twenty charts: ancient maps he believed dated from the days of Alexander the Great, an Arab map of India, four Portuguese maps of Asia, and the one by Columbus. In other words, his map is a puzzle made of everything Europe and the Islamic world knew in 1513.",
+     "visual": "C: sobre la mesa de Piri, unas veinte cartas forman un rompecabezas: unas viejas y amarillas con un mundo redondo, una árabe con el océano Índico, cuatro con las costas de África y una con islas del Caribe; las piezas vuelan y encajan en el gran pergamino.",
+     "acto": true,
+     "es_voz": "Y aquí viene lo mejor, porque el propio Píri Réis explica cómo lo hizo. En sus notas cuenta que usó unas veinte cartas: mapas antiguos que creía de los tiempos de Alejandro Magno, un mapa árabe de la India, cuatro mapas portugueses de Asia y el de Colón. Es decir, su mapa es un rompecabezas con todo lo que sabían Europa y el mundo islámico en mil quinientos trece.",
+     "en_voz": "And here comes the best part, because Piri Reis himself explains how he did it. In his notes, he says he used about twenty charts: ancient maps he believed dated from the days of Alexander the Great, an Arab map of India, four Portuguese maps of Asia, and the one by Columbus. In other words, his map is a puzzle made of everything Europe and the Islamic world knew in fifteen thirteen."
+    }
+   ]
+  },
+  {
+   "id": "pr-caribe",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "caribe",
+     "es": "La parte del Caribe sale de Colón, y se nota, porque tiene sus errores. La isla de La Española está dibujada de pie, de norte a sur, como se dibujaba entonces Japón en los mapas. Colón murió convencido de que había llegado a las puertas de Asia, y aquella isla, pensaba, podía ser Japón.",
+     "en": "The Caribbean part comes from Columbus, and you can tell, because it has his mistakes. The island of Hispaniola is drawn standing up, from north to south, the way Japan was drawn on maps back then. Columbus died convinced he had reached the doorstep of Asia, and that island, he believed, could be Japan.",
+     "visual": "C y E: en el mapa, la isla de La Española de pie, de norte a sur; a su lado, la silueta de Japón en un mapa antiguo que se superpone; Colón (pelo canoso, capa) en la cubierta mira el horizonte convencido; un globo que gira hacia Asia."
+    }
+   ]
+  },
+  {
+   "id": "pr-brasil",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "brasil",
+     "es": "La costa de Brasil, en cambio, no sale de Colón. En 1500, el navegante portugués Pedro Álvares Cabral llegó a ella casi por casualidad, de camino a la India, y en los años siguientes otros barcos portugueses la recorrieron hacia el sur, con Américo Vespucio a bordo. Noticias de aquellos viajes también llegaron a manos de Piri Reis.",
+     "en": "The coast of Brazil, on the other hand, doesn't come from Columbus. In 1500, the Portuguese navigator Pedro Álvares Cabral reached it almost by chance, on his way to India, and in the following years other Portuguese ships sailed south along it, with Amerigo Vespucci on board. News of those voyages reached Piri Reis too.",
+     "visual": "B y C: una flota portuguesa con cruces rojas en las velas se desvía y ve una costa verde con palmeras; los barcos bajan por la costa hacia el sur; un piloto dibuja la costa en una carta, que llega a la mesa de Piri.",
+     "es_voz": "La costa de Brasil, en cambio, no sale de Colón. En mil quinientos, el navegante portugués Pedro Álvares Cabral llegó a ella casi por casualidad, de camino a la India, y en los años siguientes otros barcos portugueses la recorrieron hacia el sur, con Américo Vespucio a bordo. Noticias de aquellos viajes también llegaron a manos de Píri Réis.",
+     "en_voz": "The coast of Brazil, on the other hand, doesn't come from Columbus. In fifteen hundred, the Portuguese navigator Pedro Álvares Cabral reached it almost by chance, on his way to India, and in the following years other Portuguese ships sailed south along it, with Amerigo Vespucci on board. News of those voyages reached Piri Reis too."
+    }
+   ]
+  },
+  {
+   "id": "pr-brandan",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "brandan",
+     "es": "Y el mapa está lleno de historias. Hay loros, barcos con las velas desplegadas y un pez gigante con dos hombres encendiendo un fuego sobre su lomo. Piri Reis escribió que era la leyenda de un monje, san Brandán, que desembarcó en un pez creyendo que era una isla. No todo en el mapa era geografía: también había leyenda.",
+     "en": "And the map is full of stories. There are parrots, ships under full sail, and a giant fish with two men lighting a fire on its back. Piri Reis wrote that it was the legend of a monk, Saint Brendan, who landed on a fish thinking it was an island. Not everything on the map was geography: some of it was legend.",
+     "visual": "C: los dibujos del mapa cobran vida: loros que vuelan, barquitos con las velas desplegadas; dos monjes encienden un fuego sobre el lomo de un pez gigante, que se despierta y se sumerge (gag 4).",
+     "es_voz": "Y el mapa está lleno de historias. Hay loros, barcos con las velas desplegadas y un pez gigante con dos hombres encendiendo un fuego sobre su lomo. Píri Réis escribió que era la leyenda de un monje, san Brandán, que desembarcó en un pez creyendo que era una isla. No todo en el mapa era geografía: también había leyenda."
+    }
+   ]
+  },
+  {
+   "id": "pr-hapgood",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "hapgood",
+     "es": "Durante décadas, el mapa fue un tesoro para los historiadores. Hasta que, en los años cincuenta, un profesor estadounidense de historia, Charles Hapgood, se lo dio a sus alumnos de un college de New Hampshire como un rompecabezas: comparar sus costas con los mapas modernos. Y abajo, donde la costa de Sudamérica se tuerce de golpe hacia el este, vieron otra cosa.",
+     "en": "For decades, the map was a treasure for historians. Until, in the 1950s, an American history professor, Charles Hapgood, gave it to his students at a college in New Hampshire as a puzzle: compare its coasts with modern maps. And at the bottom, where the coast of South America suddenly turns east, they saw something else.",
+     "visual": "D (un aula de un college de New Hampshire en los años cincuenta): Hapgood (gafas, pelo blanco, chaqueta de tweed) reparte copias del mapa; los alumnos comparan con mapas modernos y papel de calco; el calco se desliza y la costa «encaja» con cualquier cosa (gag 5); abajo, la costa que se tuerce.",
+     "acto": true,
+     "es_voz": "Durante décadas, el mapa fue un tesoro para los historiadores. Hasta que, en los años cincuenta, un profesor estadounidense de historia, Chárls Jápgud, se lo dio a sus alumnos de un cólech de Niu Jámshir como un rompecabezas: comparar sus costas con los mapas modernos. Y abajo, donde la costa de Sudamérica se tuerce de golpe hacia el este, vieron otra cosa.",
+     "en_voz": "For decades, the map was a treasure for historians. Until, in the nineteen-fifties, an American history professor, Charles Hapgood, gave it to his students at a college in New Hampshire as a puzzle: compare its coasts with modern maps. And at the bottom, where the coast of South America suddenly turns east, they saw something else."
+    }
+   ]
+  },
+  {
+   "id": "pr-carta",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1960",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "carta",
+     "es": "En 1960, Hapgood recibió una carta de un oficial de la Fuerza Aérea de Estados Unidos, Harold Ohlmeyer. Decía que aquella costa de abajo se parecía a una parte de la Antártida, la Tierra de la Reina Maud, tal como sería debajo del hielo. Hapgood estaba entusiasmado: eso quería decir que alguien había dibujado la Antártida antes de que el hielo la cubriera.",
+     "en": "In 1960, Hapgood received a letter from an officer in the U.S. Air Force, Harold Ohlmeyer. It said that the coast at the bottom looked like part of Antarctica, Queen Maud Land, as it would be under the ice. Hapgood was thrilled: it meant someone had mapped Antarctica before the ice covered it.",
+     "visual": "D: una base aérea con aviones de reconocimiento; un oficial (uniforme, gorra) escribe a máquina una carta; la carta llega al buzón del profesor; Hapgood la lee entusiasmado y la pone junto al mapa y a un perfil de la Antártida bajo el hielo.",
+     "es_voz": "En mil novecientos sesenta, Jápgud recibió una carta de un oficial de la Fuerza Aérea de Estados Unidos, Járold Ólmaier. Decía que aquella costa de abajo se parecía a una parte de la Antártida, la Tierra de la Reina Mod, tal como sería debajo del hielo. Jápgud estaba entusiasmado: eso quería decir que alguien había dibujado la Antártida antes de que el hielo la cubriera.",
+     "en_voz": "In nineteen sixty, Hapgood received a letter from an officer in the U.S. Air Force, Harold Ohlmeyer. It said that the coast at the bottom looked like part of Antarctica, Queen Maud Land, as it would be under the ice. Hapgood was thrilled: it meant someone had mapped Antarctica before the ice covered it."
+    }
+   ],
+   "cartela": "1960"
+  },
+  {
+   "id": "pr-libro",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "libro",
+     "es": "En 1966 lo publicó en un libro, Los mapas de los antiguos reyes del mar. Su idea era que una civilización olvidada había navegado por todo el planeta hacía miles de años, y que sus mapas se habían copiado una y otra vez hasta llegar a Piri Reis. Años antes, el mismísimo Albert Einstein había escrito el prólogo de otro de sus libros, y ese nombre le abría muchas puertas.",
+     "en": "In 1966, he published it in a book, Maps of the Ancient Sea Kings. His idea was that a forgotten civilization had sailed the whole planet thousands of years ago, and that its maps had been copied again and again until they reached Piri Reis. Years earlier, none other than Albert Einstein had written the foreword to another of his books, and that name opened a lot of doors.",
+     "visual": "D: una imprenta saca un libro con unas carabelas y un mapa en la portada (sin letras); en una librería, la gente lo hojea; una vitrina con un libro más antiguo y un retrato de un científico de pelo blanco despeinado (de espaldas, sin rasgos).",
+     "es_voz": "En mil novecientos sesenta y seis lo publicó en un libro, Los mapas de los antiguos reyes del mar. Su idea era que una civilización olvidada había navegado por todo el planeta hacía miles de años, y que sus mapas se habían copiado una y otra vez hasta llegar a Píri Réis. Años antes, el mismísimo Álbert Áinstain había escrito el prólogo de otro de sus libros, y ese nombre le abría muchas puertas.",
+     "en_voz": "In nineteen sixty-six, he published it in a book, Maps of the Ancient Sea Kings. His idea was that a forgotten civilization had sailed the whole planet thousands of years ago, and that its maps had been copied again and again until they reached Piri Reis. Years earlier, none other than Albert Einstein had written the foreword to another of his books, and that name opened a lot of doors."
+    }
+   ]
+  },
+  {
+   "id": "pr-daniken",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "daniken",
+     "es": "A partir de ahí, la leyenda creció. En 1968, un escritor suizo, Erich von Däniken, dijo que el mapa parecía una foto tomada desde muy alto, desde el espacio, y que eso apuntaba a visitantes de otros planetas. Libros, documentales y páginas web lo repitieron durante décadas: el mapa imposible.",
+     "en": "From there, the legend grew. In 1968, a Swiss writer, Erich von Däniken, claimed the map looked like a photo taken from very high up, from space, and that this pointed to visitors from other planets. Books, documentaries and websites repeated it for decades: the impossible map.",
+     "visual": "D y E: un escritor con gafas firma libros en una librería de 1968; una nave dibujada en la portada; en una tele de los setenta, un documental con el mapa y luces en el cielo; en una pantalla de hoy, vídeos con flechas rojas y círculos.",
+     "es_voz": "A partir de ahí, la leyenda creció. En mil novecientos sesenta y ocho, un escritor suizo, Érij fon Déniken, dijo que el mapa parecía una foto tomada desde muy alto, desde el espacio, y que eso apuntaba a visitantes de otros planetas. Libros, documentales y páginas web lo repitieron durante décadas: el mapa imposible.",
+     "en_voz": "From there, the legend grew. In nineteen sixty-eight, a Swiss writer, Erich von Däniken, claimed the map looked like a photo taken from very high up, from space, and that this pointed to visitors from other planets. Books, documentaries and websites repeated it for decades: the impossible map."
+    }
+   ]
+  },
+  {
+   "id": "pr-hielo",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1820",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "hielo",
+     "es": "Pero mirémoslo con calma. Hapgood creía que hace unos miles de años la corteza de la Tierra se había movido y parte de la Antártida estaba sin hielo. Pero el hielo de la Antártida guarda su propia historia, capa a capa, y dice que esa costa lleva millones de años cubierta. Nadie la vio hasta 1820, y su forma bajo el hielo no se conoció hasta el siglo veinte, con radares y sondeos.",
+     "en": "But let's look at it calmly. Hapgood believed that a few thousand years ago the Earth's crust had shifted, leaving part of Antarctica free of ice. But Antarctica's ice keeps its own record, layer by layer, and it says that coast has been buried for millions of years. Nobody saw it until 1820, and its shape beneath the ice wasn't known until the twentieth century, with radar and soundings.",
+     "visual": "E: Hapgood junto a un globo cuya corteza resbala como la piel de una naranja; la Antártida bajo kilómetros de hielo y un cilindro de hielo sacado de un sondeo con sus capas como anillos; un barco de vela de 1820 entre témpanos avista la costa blanca; un avión con radar sobrevuela el hielo y en la pantalla aparece el perfil de la roca de debajo.",
+     "acto": true,
+     "es_voz": "Pero mirémoslo con calma. Jápgud creía que hace unos miles de años la corteza de la Tierra se había movido y parte de la Antártida estaba sin hielo. Pero el hielo de la Antártida guarda su propia historia, capa a capa, y dice que esa costa lleva millones de años cubierta. Nadie la vio hasta mil ochocientos veinte, y su forma bajo el hielo no se conoció hasta el siglo veinte, con radares y sondeos.",
+     "en_voz": "But let's look at it calmly. Hapgood believed that a few thousand years ago the Earth's crust had shifted, leaving part of Antarctica free of ice. But Antarctica's ice keeps its own record, layer by layer, and it says that coast has been buried for millions of years. Nobody saw it until eighteen twenty, and its shape beneath the ice wasn't known until the twentieth century, with radar and soundings."
+    }
+   ],
+   "cartela": "1820"
+  },
+  {
+   "id": "pr-drake",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "drake",
+     "es": "Y el mapa tampoco se parece mucho a la Antártida. Entre Sudamérica y la Antártida hay un mar de unos ochocientos kilómetros, el paso de Drake, y en el mapa no existe: la costa sigue sin más. Los expertos que lo han estudiado con cuidado, como el historiador Gregory McIntosh, ven algo más sencillo.",
+     "en": "And the map doesn't look much like Antarctica, either. Between South America and Antarctica there's a sea about five hundred miles wide, the Drake Passage, and on the map it doesn't exist: the coast simply carries on. The experts who have studied it carefully, like the historian Gregory McIntosh, see something simpler.",
+     "visual": "E: un globo con Sudamérica y la Antártida separados por un mar ancho y bravo (el paso de Drake); al lado, el mapa de 1513 donde la costa sigue sin mar en medio; un historiador (gafas, chaleco) compara los dos con una regla.",
+     "es_voz": "Y el mapa tampoco se parece mucho a la Antártida. Entre Sudamérica y la Antártida hay un mar de unos ochocientos kilómetros, el paso de Dréik, y en el mapa no existe: la costa sigue sin más. Los expertos que lo han estudiado con cuidado, como el historiador Grégori Mákintosh, ven algo más sencillo."
+    }
+   ]
+  },
+  {
+   "id": "pr-pergamino",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [
+    "pergamino"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "pergamino",
+     "es": "Lo más probable es que la costa se tuerza hacia el este porque se acababa el pergamino: Piri Reis tenía que meter el sur de Sudamérica en el espacio que le quedaba, y los cartógrafos a veces giraban una costa para que cupiera. Y desde los antiguos griegos se creía en una gran tierra del sur que nadie había visto, porque tenía que existir para equilibrar el mundo.",
+     "en": "Most likely, the coast turns east because the parchment was running out: Piri Reis had to fit the south of South America into the space he had left, and mapmakers sometimes turned a coastline to make it fit. And since the ancient Greeks, people had believed in a great southern land no one had seen, because it had to exist to balance the world.",
+     "visual": "C: Piri Reis traza la costa de Sudamérica hacia el sur, llega al borde del pergamino y la tuerce hacia un lado (gag 6); en otro mapa de la época, una gran tierra austral imaginaria al sur del mundo.",
+     "es_voz": "Lo más probable es que la costa se tuerza hacia el este porque se acababa el pergamino: Píri Réis tenía que meter el sur de Sudamérica en el espacio que le quedaba, y los cartógrafos a veces giraban una costa para que cupiera. Y desde los antiguos griegos se creía en una gran tierra del sur que nadie había visto, porque tenía que existir para equilibrar el mundo."
+    }
+   ]
+  },
+  {
+   "id": "pr-cerebro",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "cerebro",
+     "es": "Y ahora, la pregunta que siempre te has hecho: ¿por qué tanta gente vio ahí la Antártida? Porque nuestro cerebro es una máquina de buscar formas. Es lo mismo que te hace ver caras en las nubes o en un enchufe. Si miras una costa torcida con ganas de encontrar la Antártida, tu cerebro te ayuda a encontrarla.",
+     "en": "And now, the question you've always wondered about: why did so many people see Antarctica there? Because your brain is a pattern-finding machine. It's the same thing that makes you see faces in clouds, or in an electrical outlet. If you look at a twisted coastline hoping to find Antarctica, your brain will help you find it.",
+     "visual": "E (el estudio de Atom): Atom mira por la ventana nubes que parecen formas (un barco, un pez); un enchufe en la pared; la costa torcida del mapa y, encima, la silueta de la Antártida que el cerebro «completa» con una línea de puntos.",
+     "acto": true
+    }
+   ]
+  },
+  {
+   "id": "pr-pareidolia",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "pareidolia",
+     "es": "Los científicos lo llaman pareidolia, y cuando se mezcla con un buen misterio, se vuelve muy poderosa. Una civilización perdida es mejor historia que un cartógrafo al que se le acaba el pergamino. Pero la historia real tiene algo que el mito no tiene: es verdad, y sigue siendo asombrosa.",
+     "en": "Scientists call it pareidolia, and when it mixes with a good mystery, it becomes very powerful. A lost civilization makes a better story than a mapmaker running out of parchment. But the real story has something the myth doesn't: it's true, and it's still amazing.",
+     "visual": "E: Atom ve un continente en una mancha de café sobre su mapa (gag 7); en una pizarra, una civilización perdida dibujada con castillos y barcos frente a un cartógrafo con el pergamino corto; Atom borra la civilización."
+    }
+   ]
+  },
+  {
+   "id": "pr-foto",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "foto",
+     "es": "Porque el mapa de Piri Reis es la única copia que conocemos, aunque sea a trozos, de un mapa perdido de Colón. Y es una foto de un momento: un capitán otomano, con mapas árabes, griegos, portugueses y españoles, dibujando en 1513 un mundo que cambiaba de tamaño delante de sus ojos.",
+     "en": "Because the Piri Reis map is the only known copy, even if only in pieces, of a lost map by Columbus. And it's a snapshot of a single moment: an Ottoman captain, with Arab, Greek, Portuguese and Spanish maps, drawing in 1513 a world that was changing size before his eyes.",
+     "visual": "C: Piri Reis en su taller con mapas de cuatro estilos distintos sobre la mesa (árabe, griego, portugués y español); por la ventana, barcos de varias banderas en el puerto; el mapa terminado a la luz de la tarde.",
+     "es_voz": "Porque el mapa de Píri Réis es la única copia que conocemos, aunque sea a trozos, de un mapa perdido de Colón. Y es una foto de un momento: un capitán otomano, con mapas árabes, griegos, portugueses y españoles, dibujando en mil quinientos trece un mundo que cambiaba de tamaño delante de sus ojos.",
+     "en_voz": "Because the Piri Reis map is the only known copy, even if only in pieces, of a lost map by Columbus. And it's a snapshot of a single moment: an Ottoman captain, with Arab, Greek, Portuguese and Spanish maps, drawing in fifteen thirteen a world that was changing size before his eyes."
+    }
+   ]
+  },
+  {
+   "id": "pr-leccion",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "leccion",
+     "es": "Así que, si lo piensas, el mapa de Piri Reis no dibuja la Antártida. Dibuja algo mejor: cómo viajaba el conocimiento en 1513, de barco en barco, de prisionero a almirante, de un idioma a otro. Hoy descansa en el palacio de Topkapı, y casi nunca se saca, porque es muy frágil.",
+     "en": "So if you think about it, the Piri Reis map doesn't show Antarctica. It shows something better: how knowledge traveled in 1513, from ship to ship, from prisoner to admiral, from one language to another. Today it rests in the Topkapı Palace, and it's almost never brought out, because it's very fragile.",
+     "visual": "E (la sala del museo de Topkapı, hoy): una vitrina en penumbra con el pergamino; un conservador con guantes blancos lo coloca con cuidado; visitantes que miran; un repaso: un barco pasa a otro barco, un prisionero entrega un rollo a un almirante.",
+     "acto": true,
+     "es_voz": "Así que, si lo piensas, el mapa de Píri Réis no dibuja la Antártida. Dibuja algo mejor: cómo viajaba el conocimiento en mil quinientos trece, de barco en barco, de prisionero a almirante, de un idioma a otro. Hoy descansa en el palacio de Topkapí, y casi nunca se saca, porque es muy frágil.",
+     "en_voz": "So if you think about it, the Piri Reis map doesn't show Antarctica. It shows something better: how knowledge traveled in fifteen thirteen, from ship to ship, from prisoner to admiral, from one language to another. Today it rests in the Topkapi Palace, and it's almost never brought out, because it's very fragile."
+    }
+   ]
+  },
+  {
+   "id": "pr-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "cierre",
+     "es": "Ahora cuéntame tú en los comentarios: ¿qué otro objeto imposible quieres que comprobemos? Yo, mientras tanto, voy a intentar desenrollar este mapa… sin que se me vuelva a enrollar.",
+     "en": "Now tell me in the comments: what other impossible object would you like me to check? Meanwhile, I'm going to try to unroll this map… without it rolling up on me again.",
+     "visual": "E (el estudio de Atom): Atom desenrolla el mapa con muchísimo cuidado… y se enrolla otra vez, con él agarrado (gag 8)."
+    }
+   ]
+  }
+ ]
+}
