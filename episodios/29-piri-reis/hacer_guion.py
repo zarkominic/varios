@@ -92,7 +92,7 @@ PREVIO = {
 # Regla del usuario (05/11/2026): en español, TODOS los nombres propios extranjeros se escriben como se dicen en español
 # de México; la r fuerte se escribe doble y las siglas que se deletrean van en una sola palabra («achebeó»).
 PRONUNCIA = {
-    'en': [('Topkapı', 'Topkapi')],
+    'en': [('Topkapı', 'Topkapi'), ('Piri Reis', 'Peeree Race'), ('Kemal Reis', 'Kemal Race'), ('Erich von Däniken', 'Erich von Dennicken')],
     'es': [('Kemal Reis', 'Kemál Réis'), ('Piri Reis', 'Píri Réis'), ('Topkapı', 'Topkapí'), ('Halil Edhem', 'Jalíl Édem'),
            ('Edhem', 'Édem'), ('Gustav Adolf Deissmann', 'Gústav Ádolf Dáisman'), ('Paul Kahle', 'Pául Kále'),
            ('Selim', 'Selím'), ('Charles Hapgood', 'Chárls Jápgud'), ('Hapgood', 'Jápgud'),
