@@ -13,7 +13,8 @@
 // 1. («For decades… treasure for historians. Until in the 1950s») LOCAL la sala de lectura de un museo: la copia del
 //    mapa de 1513 enmarcada con su lámpara de cuadro, que se enciende en «map»; dos historiadores la estudian (uno con
 //    la lupa, otro toma notas) y en «treasure» brilla; el calendario de pared deja caer hojas de año en año, 1931…1955,
-//    y un tercero entra con un libro y la señala; por la ventana, nubes, gaviotas y cúpulas; el péndulo del reloj.
+//    y un tercero entra con un libro y la señala; al fondo, el bibliotecario empuja su carrito hasta la librería y va
+//    colocando tomos en la balda; por la ventana, nubes, gaviotas y cúpulas; el péndulo del reloj.
 // 2. (corte en «an American history professor») el aula del college: Hapgood entra con un montón de copias, en «gave
 //    it to his students» reparte una a cada pupitre (vuelan y caen en cada uno), señala la costa de la pizarra y en
 //    «New Hampshire / puzzle» la alumna levanta un «?».
@@ -265,13 +266,13 @@ const p4 = (t) => {
       if (on) { R.pset(x, y, H_('#ffffff')); R.pset(x - 1, y, H_('#bfe4f6')); R.pset(x + 1, y, H_('#bfe4f6')); R.pset(x, y - 1, H_('#bfe4f6')); R.pset(x, y + 1, H_('#bfe4f6')); } }
     if (t > en('hapgood', 0.9565)) R.bocadillo(200, 120 - Math.round(tramo(t, en('hapgood', 0.9565), en('hapgood', 0.9670)) * 3), { icono: '?' }); }
 };
-// los efectos (como mucho uno por segundo): el carrito, la lámpara, las hojas del calendario, el tomo en la balda, el reloj,
+// los efectos (como mucho uno por segundo): el carrito, la lámpara, las hojas del calendario, el tomo en la balda,
 // el montón de copias, las copias en los pupitres, el golpe en la pizarra, la brisa, el calco, el lápiz, la tapa
-// de la tetera, el trazo de la costa que tuerce y la escarcha
-const efectos = [[0.3, 'carro'], [en('hapgood', 0.0402), 'interruptor'], [en('hapgood', 0.0687), 'brillo'], [2.9, 'golpecito'], [en('hapgood', 0.1110) + 0.6, 'papel'], [en('hapgood', 0.1797), 'tic'],
+// de la tetera, el trazo de la costa que tuerce y el brillo
+const efectos = [[0.3, 'carro'], [en('hapgood', 0.0402), 'interruptor'], [en('hapgood', 0.0687), 'brillo'], [2.9, 'golpecito'], [en('hapgood', 0.1110) + 0.6, 'papel'],
   [P2 + 0.3, 'papel'], [en('hapgood', 0.3858), 'papel'], [salidas[1] + 0.45, 'golpecito'], [en('hapgood', 0.4597) + 0.2, 'toc'], [en('hapgood', 0.4967), 'pop'],
-  [P3 + 0.15, 'viento'], [en('hapgood', 0.6077), 'papel'], [en('hapgood', 0.6341), 'lapiz'], [en('hapgood', 0.6632), 'boing'], [en('hapgood', 0.6632) + 0.7, 'vapor'],
-  [P4 + 0.3, 'whoosh'], [en('hapgood', 0.7979), 'lapiz'], [en('hapgood', 0.8746), 'tic'], [en('hapgood', 0.9380), 'brillo'], [en('hapgood', 0.9380) + 0.7, 'viento']];
+  [P3 + 0.15, 'viento'], [en('hapgood', 0.6077), 'papel'], [en('hapgood', 0.6341), 'lapiz'], [en('hapgood', 0.6632), 'toc'], [en('hapgood', 0.6632) + 0.7, 'vapor'],
+  [en('hapgood', 0.7979), 'lapiz'], [en('hapgood', 0.8746), 'tic'], [en('hapgood', 0.9380), 'brillo']];
 const año = (t) => t < P2 ? Math.round(lerp(1931, 1955, tramo(t, 0.35, en('hapgood', 0.1876)))) : 1956;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>

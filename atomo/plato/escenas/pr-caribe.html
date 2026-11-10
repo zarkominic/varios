@@ -12,15 +12,18 @@
 // PR-CARIBE (frase 12), 1502–1513. Cuatro planos:
 // 1. LOCAL: la proa de la nao de Colón al atardecer: el sol bajo, nubes de tres tonos, gaviotas, el mar que brilla y las
 //    islas en el horizonte; Colón llega a la borda, saca el catalejo a «Columbus», mira, lo baja a «tell» y señala las
-//    islas, convencido; un marinero se asombra; la ola rompe contra la proa (corta en «The island»);
+//    islas, convencido; un marinero se asombra; una gaviota se posa en el barril y sale volando cuando la ola rompe
+//    contra la proa (corta en «The island»);
 // 2. el mapa de cerca (pergamino/caribe, 2.ª vez y vivo): a «Hispaniola» un aro rojo rodea La Española; a «standing up»
 //    aparece en punteado la isla de verdad, tumbada; a «north to south» una flecha la recorre de arriba abajo;
 // 3. LOCAL: un mapa de 1490 sobre la mesa (la costa de Asia a la izquierda, el mar con islas y Cipango de pie): la
-//    silueta de La Española entra desde la derecha y se posa sobre Cipango; encajan («=») a «maps»; una carabela cruza el
-//    mar hacia el oeste dejando su estela (corta en «convinced»);
-// 4. LOCAL: la sala de Colón en 1506 (Valladolid): Colón, viejo, empuja su globo de entonces (sin América) y lo mira
-//    girar hacia el oeste; la ruta punteada llega a «doorstep» a Cipango; a «Asia» brilla la costa de Asia al otro lado
-//    y a «Japan» señala Cipango, convencido, y la isla brilla; el gato del alféizar menea la cola.
+//    silueta de La Española entra desde la derecha, empujada por una mano que se retira, y se desliza hasta posarse sobre
+//    Cipango; encajan («=») a «maps»; una carabela cruza el mar hacia el oeste dejando su estela (corta en «convinced»);
+// 4. LOCAL: la sala de Colón en 1506 (Valladolid), con su escudo de armas en la pared: Colón, viejo, mira por la
+//    ventana, se vuelve y va a su globo de entonces (sin América), lo empuja y lo mira girar hacia el oeste; la ruta
+//    punteada llega a «doorstep» a Cipango; a «Asia» brilla la costa de Asia al otro lado y él se acaricia la barba,
+//    contándolo; a «Japan» señala Cipango, convencido, y la isla brilla; el gato del alféizar menea la cola y por la
+//    reja pasa un jinete lejos.
 import * as T from '/atomo/plato/escenas/pr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('pr-caribe');
@@ -192,10 +195,11 @@ const p3 = (t) => {
   const fx = (x) => Math.round(x * 0.85);
   for (let k = 0; k < CIPANGO.length; k++) { const [ax, ay] = CIPANGO[k], [bx, by] = CIPANGO[(k + 1) % CIPANGO.length]; R.linea(sx + fx(ax), sy + ay, sx + fx(bx), sy + by, hex('#c8302a'), 3); R.linea(sx + fx(ax) + 1, sy + ay, sx + fx(bx) + 1, sy + by, hex('#e05a4a'), 3); }
   if (v > 0 && v < 1) for (let y = -40; y < 40; y += 2) for (let x = -10; x < 10; x += 2) R.pset(sx + x, sy + y, mez(R.pget(sx + x, sy + y), hex('#d8a858'), 0.5));
-  // la mano (la nuestra, de lector) empuja la silueta desde la derecha hasta Cipango y se retira cuando encaja
-  const ret = lin(t, mapas - 0.15, mapas + 0.45);
-  if (t > P3 + 0.1 && ret < 1) { const hx = sx + 14 + Math.round(suave(ret) * 80), hy = sy + 4 + Math.round(Math.sin(t * 9) * (v < 1 ? 1 : 0));
-    T.brazo(R, hx + 38, 196, hx, hy, '#5a4a6a', -1, { codo: [hx + 30, hy + 30] }); }
+  // la mano (la nuestra, de lector) entra por la derecha, da el empujón a la silueta y se retira; la silueta sigue
+  // deslizándose sola sobre el mapa hasta posarse en Cipango
+  const tSuelta = P3 + 0.3 + 0.27 * (mapas - 0.5 - P3), ret = suave(lin(t, tSuelta, tSuelta + 0.45));
+  if (t > P3 + 0.05 && ret < 1) { const hx = Math.max(290, sx + 14) + Math.round(ret * 40), hy = sy + 4;
+    T.brazo(R, hx + 34, hy + 34, hx, hy, '#5a4a6a', -1, { codo: [hx + 22, hy + 22] }); }
   // encajan: el «=» que late junto a las dos islas
   if (t > mapas - 0.2) { const a = 0.5 + 0.5 * Math.sin((t - mapas) * 8), c = mez(hex('#d8a838'), hex('#fff4c8'), a); R.rect(186, 84, 198, 86, K); R.rect(187, 85, 197, 85, c); R.rect(186, 90, 198, 92, K); R.rect(187, 91, 197, 91, c); }
   // una carabela cruza el mar hacia el oeste (la idea de Colón), con su estela de puntos
@@ -207,7 +211,7 @@ const p3 = (t) => {
 };
 
 // ── 4 · Colón y su globo de entonces: Asia al otro lado de un mar estrecho ─────────────────────────────────────────
-const asia = en('caribe', 0.8166), japonT = en('caribe', 0.9622), puerta = en('caribe', 0.7785);
+const asia = en('caribe', 0.8166), japonT = en('caribe', 0.9622), puerta = en('caribe', 0.7785), cree = en('caribe', 0.9120), empT = P4 + 1.15;
 // las tierras del globo de 1492 (sin América): Europa y África, Asia que llega muy al este, Cipango de pie e islitas
 const EUAF = [[-10, 62], [30, 72], [45, 45], [36, 31], [52, 12], [42, -35], [20, -36], [9, 4], [-17, 14], [-10, 36], [-9, 44]];
 const ASIA = [[45, 70], [180, 72], [232, 42], [236, 12], [214, -6], [176, 14], [140, -4], [104, 8], [70, 22], [50, 30]];
@@ -254,6 +258,17 @@ const sala4 = fijo(() => {
   R.linea(120, 7, 120, 60, hex('#3a3a46')); R.poligono([[112, 60], [128, 60], [124, 66], [116, 66]], K); R.rect(114, 61, 126, 64, hex('#4a4a54')); for (const x of [115, 120, 125]) { R.rect(x - 1, 56, x + 1, 60, hex('#f2eee2')); R.pset(x, 55, hex('#ffd860')); }
   R.rect(96, 128, 100, 170, K); R.rect(97, 128, 99, 169, hex('#6a4024')); R.rect(96, 146, 122, 150, K); R.rect(97, 147, 121, 149, hex('#7a3a2a')); R.rect(118, 150, 121, 170, K); R.rect(100, 132, 100, 145, hex('#9a4a32'));
   R.rect(236, 54, 296, 57, K); R.rect(237, 55, 295, 56, hex('#7a4a2a')); R.poligono([[246, 48], [286, 48], [282, 54], [250, 54]], K); R.poligono([[247, 49], [285, 49], [281, 53], [251, 53]], hex('#8a5a30')); R.rect(265, 30, 266, 48, K); R.rect(256, 34, 275, 44, K); R.rect(257, 35, 274, 43, hex('#efe6d0')); R.rect(264, 36, 267, 42, hex('#b83a2e')); R.rect(259, 38, 272, 39, hex('#b83a2e'));
+  // el escudo de armas del Almirante colgado en su tabla: castillo, león, islas en el mar y anclas (solo dibujos)
+  R.rect(128, 68, 168, 116, K); R.rect(129, 69, 167, 115, hex('#5a3a22')); R.rect(129, 69, 167, 70, hex('#8a5a34')); R.rect(129, 114, 167, 115, hex('#3a2416'));
+  R.poligono([[133, 74], [163, 74], [163, 98], [148, 111], [133, 98]], K);
+  const cuartel = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (y < 98 || Math.abs(x - 148) < 15 - (y - 98) * 1.15) R.pset(x, y, c); };
+  cuartel(134, 75, 147, 86, hex('#b83a2e')); cuartel(149, 75, 162, 86, hex('#f2eee2')); cuartel(134, 88, 147, 108, hex('#2e5a9a')); cuartel(149, 88, 162, 108, hex('#d8a838'));
+  R.rect(137, 79, 144, 84, hex('#e8c040')); R.rect(138, 77, 139, 78, hex('#e8c040')); R.rect(142, 77, 143, 78, hex('#e8c040')); R.pset(140, 83, K); R.pset(141, 83, K);   // el castillo
+  R.rect(152, 79, 158, 83, hex('#7a3a8a')); R.rect(157, 77, 159, 79, hex('#7a3a8a')); R.pset(151, 78, hex('#7a3a8a')); R.pset(153, 84, hex('#7a3a8a')); R.pset(157, 84, hex('#7a3a8a')); R.pset(158, 78, K);   // el león
+  for (const [x, y] of [[138, 92], [143, 96], [137, 100], [142, 103]]) { R.disco(x, y, 1.5, hex('#e8c040')); R.pset(x + 1, y - 1, hex('#f6e8a0')); }   // las islas
+  for (let k = 0; k < 4; k++) { const x = 152 + (k % 2) * 6, y = 91 + Math.floor(k / 2) * 7; R.linea(x, y, x, y + 4, hex('#2e5a9a')); R.linea(x - 1, y + 4, x + 1, y + 4, hex('#2e5a9a')); R.pset(x - 1, y + 1, hex('#2e5a9a')); R.pset(x + 1, y + 1, hex('#2e5a9a')); }   // las anclas
+  R.linea(133, 74, 163, 74, hex('#e8c040')); R.linea(133, 74, 133, 98, hex('#e8c040')); R.linea(163, 74, 163, 98, hex('#a87a24')); R.linea(133, 98, 148, 111, hex('#a87a24')); R.linea(163, 98, 148, 111, hex('#a87a24'));
+  R.linea(148, 60, 130, 68, hex('#4a3a2a')); R.linea(148, 60, 166, 68, hex('#4a3a2a')); R.disco(148, 60, 1.5, hex('#8a8a96'));
   // la carta de navegar clavada en la pared, a la derecha
   R.rect(244, 60, 300, 100, K); R.rect(245, 61, 299, 99, hex('#e8d4a4')); R.linea(250, 70, 262, 92, hex('#3a2a18')); R.linea(262, 92, 280, 96, hex('#3a2a18')); for (let k = 0; k < 6; k++) R.linea(272, 78, 272 + Math.round(Math.cos(k) * 24), 78 + Math.round(Math.sin(k) * 18), hex('#c87a6a')); R.disco(272, 78, 2, hex('#a83224'));
   for (const [x, y] of [[246, 62], [298, 62], [246, 98], [298, 98]]) R.pset(x, y, hex('#c8ccd8'));
@@ -274,7 +289,7 @@ const p4 = (t) => {
   // el gato del alféizar que menea la cola
   T.gato(R, 64, 104, t, { dir: -1 });
   // el globo de pie: gira hacia el oeste, de España a Cipango y a la costa de Asia
-  const llega4 = suave(lin(t, P4 + 0.3, P4 + 1.1)), empT = P4 + 1.15;
+  const llega4 = suave(lin(t, P4 + 0.3, P4 + 1.1));
   const gira = suave(lin(t, empT + 0.15, japonT - 0.6)), lon0 = lerp(-6, -66, gira) + (t < empT + 0.15 ? 0 : Math.sin(lin(t, japonT - 0.6, japonT + 0.4) * Math.PI) * 2);
   R.linea(GX - 18, GY + 36, GX - 28, 172, K); R.linea(GX + 18, GY + 36, GX + 28, 172, K); R.linea(GX, GY + 36, GX, 168, K); R.linea(GX - 17, GY + 36, GX - 27, 172, hex('#6a4024')); R.linea(GX + 17, GY + 36, GX + 27, 172, hex('#6a4024')); R.linea(GX - 22, 160, GX + 22, 160, hex('#5a3a22')); R.rect(GX - 20, GY + 34, GX + 20, GY + 37, hex('#5a3a22'));
   const P = globo(lon0, t, t > asia ? 0.5 + 0.5 * Math.sin((t - asia) * 7) : 0, t > japonT - 0.2 ? 0.5 + 0.5 * Math.sin((t - japonT) * 9) : 0);
@@ -284,7 +299,7 @@ const p4 = (t) => {
   for (let k = 0; k <= 40 * v; k++) { if (k % 3 === 2) continue; const u = k / 40, n = RUTA.length - 1, i = Math.min(n - 1, Math.floor(u * n)), f = u * n - i, p = P(lerp(RUTA[i][0], RUTA[i + 1][0], f), lerp(RUTA[i][1], RUTA[i + 1][1], f)); if (p) { R.disco(Math.round(p[0]), Math.round(p[1]), 1.2, K); R.pset(Math.round(p[0]), Math.round(p[1]), hex('#fff4c8')); } }
   // Colón, viejo y canoso, mira por la ventana, se vuelve y va al globo; lo empuja, lo mira girar, lo cuenta
   // («Asia»: se acaricia la barba, sonriendo) y señala Cipango a «Japan», convencido
-  const empuja = t > empT && t < empT + 0.7, cxC = Math.round(lerp(58, 146, llega4)), cree = en('caribe', 0.9120);
+  const empuja = t > empT && t < empT + 0.7, cxC = Math.round(lerp(58, 146, llega4));
   const c = R.actor(EL.colon, cxC, 170, t, { dir: t < P4 + 0.3 ? -1 : 1, anda: llega4 > 0 && llega4 < 1, sostiene: empuja ? [172, 118 + Math.round(lin(t, empT, empT + 0.7) * 6)] : t > asia + 0.2 && t < cree ? [cxC + 10, 152 + Math.round(Math.sin(t * 6))] : false, dedo: t > japonT - 0.4, sonrisa: t > asia, habla: t > puerta && t < cree + 0.4 && parp(t, 7) });
   const cp = P(-60, 22); if (cp && t > japonT - 0.2) { R.anillo(Math.round(cp[0]), Math.round(cp[1]), 7 + Math.round(Math.sin(t * 7)), hex('#fff0a0'), 3); destello(cp[0] + 8, cp[1] - 8, 3); }
   // la vela de la repisa
@@ -292,13 +307,13 @@ const p4 = (t) => {
 };
 
 const año = (t) => t < P2 ? 1502 : t < P3 ? 1513 : t < P4 ? 1502 : 1506;
-// los efectos (como mucho uno por segundo): el viento en la vela, el catalejo, la ola, el aro y la isla que
-// gira, la flecha, la silueta que se arrastra y encaja, la carabela, la campana de Valladolid por la ventana,
+// los efectos (como mucho uno por segundo): el viento en la vela, el catalejo, la ola, el aro,
+// la flecha, la silueta que se arrastra y encaja, la carabela,
 // el globo que gira, el gato que maúlla y los brillos
-const efectos = [[0.2, 'rafaga'], [en('caribe', 0.0795) - 0.1, 'tic'], [ola, 'ola'], [en('caribe', 0.2296), 'viento'],
-  [espanola, 'lapiz'], [dePie + 0.3, 'whoosh'], [norte, 'lapiz'], [sur + 0.3, 'toc'],
+const efectos = [[0.2, 'rafaga'], [en('caribe', 0.0795) - 0.1, 'tic'], [ola, 'ola'],
+  [espanola, 'lapiz'], [norte, 'lapiz'], [sur + 0.3, 'toc'],
   [P3 + 0.3, 'papel'], [mapas - 0.2, 'toc'], [cruza, 'ola'],
-  [P4 + 0.25, 'campana'], [empT, 'whoosh'], [asia, 'brillo'], [cree, 'miau'], [japonT, 'brillo']];
+  [empT, 'whoosh'], [asia, 'brillo'], [cree, 'miau'], [japonT, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

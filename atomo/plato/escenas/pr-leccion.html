@@ -13,7 +13,9 @@
 // 1. «So if you think about it, the Piri Reis map doesn't show Antarctica.» (0–4,75 s): LOCAL una mesa de trabajo de
 //    hoy con la copia impresa del mapa (la costa del sur que se tuerce) sobre una plancha de corte verde, la caja de un
 //    puzle con un pingüino, la taza que humea y el lápiz: una mano trae una pieza blanca con forma de Antártida, la
-//    prueba contra la costa y no encaja; en «doesn't» sale una «X» roja y en «Antarctica» la mano la lanza fuera del plano.
+//    prueba contra la costa y no encaja; en «doesn't» sale una «X» roja y en «Antarctica» la mano la lanza en arco de
+//    vuelta a la caja del puzle, donde cae, rebota y se queda; de fondo, en la tableta gira un globo con la Antártida
+//    abajo, que brilla en «Antarctica».
 // 2. «It shows something better how knowledge traveled in 1513 from ship to ship,» (4,75–9,95 s): LOCAL dos barcos
 //    juntos en alta mar (la galera otomana a la izquierda, la nao portuguesa a la derecha, un tercero en el horizonte):
 //    en «knowledge traveled» el marinero otomano lanza un rollo de cartas que deja un rastro de oro; el piloto portugués
@@ -184,19 +186,37 @@ const p1 = (t) => {
     for (const [x, y, c] of [[104, 140, '#6aa8d8'], [118, 150, '#4a88c0'], [100, 158, '#8ac0e8'], [126, 138, '#6aa8d8']]) { R.rect(x - 4, y - 3, x + 4, y + 3, K); R.rect(x - 3, y - 2, x + 3, y + 2, hex(c)); R.disco(x + 4, y, 2, hex(c)); }
     R.linea(150, 160, 196, 140, hex('#e8c030')); R.linea(150, 161, 196, 141, hex('#c8a020')); R.linea(196, 140, 200, 139, hex('#f0c8a0')); R.pset(201, 139, K); R.rect(146, 160, 150, 162, hex('#e88aa0'));
   });
+  // la tableta (vida de fondo): un globo que gira con la Antártida abajo; en «Antarctica» se ilumina el casquete blanco
+  { const tx = 256, ty = 47; R.rect(tx + 2, ty + 2, tx + 38, ty + 50, mez(hex('#2e6a4a'), K, 0.55)); caja(tx, ty, tx + 36, ty + 48, hex('#2a2e36'));
+    R.rect(tx + 3, ty + 3, tx + 33, ty + 42, hex('#0e1a30')); for (let k = 0; k < 9; k++) R.pset(tx + 4 + ((k * 13) % 29), ty + 5 + ((k * 7) % 35), hex('#5a6a8a'));
+    const gx = tx + 18, gy = ty + 22, r = 12, brilla = t > antT && t < antT + 1.4 && Math.floor(t * 6) % 2;
+    R.disco(gx, gy, r, hex('#2a5a9a'));
+    R.recorte([gx - r, gy - r, gx + r, gy + r]);
+    for (const [lo, la, rr] of [[0, 6, 5], [70, -4, 4], [150, 8, 6], [230, 0, 4], [300, -6, 3]]) { const a = (lo + t * 40) * Math.PI / 180, c = Math.cos(a); if (c < -0.1) continue; R.disco(Math.round(gx + Math.sin(a) * (r - 2)), gy - la, Math.max(1, Math.round(rr * (0.4 + 0.6 * c))), hex('#5a9a4a')); }
+    for (let i = -r; i <= r; i++) for (let j = 7; j <= r; j++) if (i * i + j * j <= r * r) R.pset(gx + i, gy + j, brilla ? hex('#ffffff') : hex('#dce8f4'));
+    R.recorte(null);
+    for (let j = -r; j <= r; j++) { const i = Math.round(Math.sqrt(Math.max(0, r * r - j * j))); R.pset(gx + i, gy + j, hex('#123466')); R.pset(gx - i, gy + j, hex('#4a7ac0')); }
+    R.pset(gx - 5, gy - 6, hex('#a8d0f4')); R.pset(gx - 4, gy - 7, hex('#a8d0f4'));
+    if (brilla) { R.anillo(gx, gy + 10, 5, hex('#ffd84a')); }
+    R.rect(tx + 15, ty + 45, tx + 21, ty + 45, hex('#5a5e66')); R.pset(tx + 3, ty + 3, hex('#3a4a6a')); }
   // la taza que humea (fuera de la esquina de Atom)
   caja(270, 120, 290, 142, hex('#e8e4dc')); R.rect(271, 121, 289, 123, hex('#5a3418')); R.rect(291, 126, 294, 136, K); R.rect(292, 127, 293, 135, hex('#e8e4dc')); R.rect(271, 136, 289, 141, hex('#c8c4bc'));
-  for (let k = 0; k < 3; k++) { const u = ((t * 0.6 + k / 3) % 1); const y = Math.round(116 - u * 40); if (y < 52) continue; const x = 276 + k * 5 + Math.round(Math.sin(t * 3 + k + u * 5) * 3); R.pset(x, y, hex('#f4f4f4')); R.pset(x, y - 1, hex('#e0e0e0')); R.pset(x + 1, y - 2, hex('#f4f4f4')); }
+  for (let k = 0; k < 3; k++) { const u = ((t * 0.6 + k / 3) % 1); const y = Math.round(116 - u * 22); if (y < 98) continue; const x = 276 + k * 5 + Math.round(Math.sin(t * 3 + k + u * 5) * 3); R.pset(x, y, hex('#f4f4f4')); R.pset(x, y - 1, hex('#e0e0e0')); R.pset(x + 1, y - 2, hex('#f4f4f4')); }
   // la mano trae la pieza, la prueba en la costa, «X» y la lanza fuera
-  const llega = suave(tramo(t, 0.4, noT - 0.35)), prueba = t > noT - 0.35 && t < antT, lanza = tramo(t, antT, antT + 0.7), sale = tramo(t, antT + 0.25, antT + 0.9);
+  const llega = suave(tramo(t, 0.4, noT - 0.35)), prueba = t > noT - 0.35 && t < antT, lanza = tramo(t, antT, antT + 0.55), sale = tramo(t, antT + 0.2, antT + 0.8);
   let wx = lerp(268, 238, llega), wy = lerp(196, 136, llega);
   if (prueba) { wx += Math.round(Math.sin(t * 22) * 2); wy += Math.round(Math.cos(t * 17) * 1); }
   wy += sale * 80; wx += sale * 20;
   let cx = wx - 26, cy = wy - 2;
-  if (lanza > 0) { cx = lerp(212, 360, lanza); cy = 134 - Math.sin(lanza * Math.PI) * 60 - lanza * 20; }
-  if (lanza < 1) pieza(cx, cy, lanza > 0 ? Math.floor(t * 10) % 2 : 0);
+  // la lanza en arco de vuelta a su caja del puzle (abajo a la izquierda): cae sobre la tapa, rebota y se queda
+  if (lanza > 0) { cx = lerp(212, 64, lanza); cy = lerp(134, 158, lanza) - Math.sin(lanza * Math.PI) * 58; }
+  const cae = tramo(t, antT + 0.55, antT + 0.9);
+  if (cae > 0) cy -= Math.round(Math.abs(Math.sin(cae * Math.PI * 2)) * 6 * (1 - cae));
+  pieza(cx, cy, lanza > 0 && lanza < 1 ? Math.floor(t * 10) % 2 : 0);
+  // al caer, las piezas sueltas de la tapa dan un saltito
+  if (cae > 0 && cae < 1) for (const [x, y] of [[40, 148], [84, 146]]) { const s = Math.round(Math.sin(cae * Math.PI) * 3); R.pset(x, y - s, hex('#f4f8ff')); R.pset(x + 1, y - s - 1, hex('#f4f8ff')); }
   if (wy < 200) T.brazo(R, wx + 22, wy + 50, wx, wy, '#5a6a8a', -1, { codo: [wx + 18, wy + 24] });
-  if (t > noT && t < antT + 0.6) { const s = t < noT + 0.15 ? 4 : 3; R.icono('X', 206 - s * 2, 118 - s * 2, hex('#e83a2a'), K, s); }
+  if (t > noT && t < antT + 0.45) { const s = t < noT + 0.15 ? 4 : 3; R.icono('X', 206 - s * 2, 118 - s * 2, hex('#e83a2a'), K, s); }
   if (prueba && Math.floor(t * 8) % 2) for (const [x, y] of [[198, 116], [226, 118]]) { R.pset(x, y, hex('#e83a2a')); R.pset(x + 1, y + 1, hex('#e83a2a')); }
 };
 
@@ -318,7 +338,7 @@ const p4 = (t) => {
 };
 
 const año = (t) => (t < P2 ? 2026 : t < P3 ? 1513 : t < P4 ? 1501 : 2026);
-const efectos = [[noT - 0.3, 'golpecito'], [noT, 'boing'], [antT + 0.05, 'whoosh'], [saber, 'whoosh'], [saber + 0.7, 'palmada'], [barco + 0.5, 'chof'],
+const efectos = [[noT - 0.3, 'golpecito'], [noT, 'boing'], [antT + 0.05, 'whoosh'], [antT + 0.57, 'toc'], [saber, 'whoosh'], [saber + 0.7, 'palmada'], [barco + 0.5, 'chof'],
   [almi, 'papel'], [lengua + 0.3, 'brillo'], [descansa + 0.3, 'cerrojo'], [casiNunca + 1.1, 'golpecito'], [fragil, 'aviso']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>

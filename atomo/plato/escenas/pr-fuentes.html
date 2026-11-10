@@ -12,17 +12,20 @@
 // PR-FUENTES (frase 11), 1513. Cinco planos:
 // 1. el taller de Piri en Galípoli a la luz de la tarde (galipoli/taller, 2.ª vez y con otra luz): Piri escribe sus
 //    notas tras la mesa; entra un mozo con un fardo de cartas, lo deja en el suelo y señala a Piri, que a «explains»
-//    levanta la vista, habla y alza el dedo a «how» (corta en «In»);
-// 2. LOCAL: el suelo del taller con la alfombra, desde arriba: veinte cartas caen una tras otra y la cuenta sube hasta
-//    «20» justo a «20»; a «ancient maps» las cuatro viejas cartas del mundo redondo se levantan y brillan, y la mano de
-//    Piri toca una (corta en «from»);
+//    levanta la vista, habla y alza el dedo a «how»; a «how» el mozo saca una carta del fardo y se la enseña abierta, y
+//    un segundo mozo entra por la derecha con otro fardo, lo deja junto al arcón y se estira (corta en «In»);
+// 2. LOCAL: el suelo del taller con la alfombra, desde arriba: veinte cartas caen una tras otra (cada una levanta un
+//    soplo de polvo) y la cuenta sube hasta «20» justo a «20»; motas en el rayo de sol; a «ancient maps» las cuatro viejas
+//    cartas del mundo redondo se levantan y brillan, y la mano de Piri toca una (corta en «from»);
 // 3. LOCAL: la pared del taller: el mapa redondo «de Alejandro» colgado de un clavo, con su medalla que brilla a
 //    «Alexander»; Piri lo señala; a «Arab» tira del cordón y se desenrolla el mapa árabe del Índico; a «four Portuguese»
-//    lanza cuatro cartas portuguesas que se quedan prendidas en la pared (corta en «and the one»);
+//    lanza cuatro cartas portuguesas que se quedan prendidas en la pared; el mozo ordena los libros de la mesita y se
+//    vuelve, asombrado, al vuelo de las cartas (corta en «and the one»);
 // 4. el pergamino de cerca (pergamino/detalle, 2.ª vez): la carta de Colón vuela y se posa junto a La Española a
-//    «Columbus», con un hilo de oro que las une; a «puzzle» llegan otras tres cartas y encajan (corta en «everything»);
+//    «Columbus», con un hilo de oro que las une; a «In other words» la mano de Piri le da dos golpecitos; a «puzzle»
+//    llegan otras tres cartas y encajan (corta en «everything»);
 // 5. LOCAL: la mesa de nogal con el gran pergamino en blanco y dos montones de cartas: las veinte piezas vuelan y
-//    encajan una a una, y a «1513» el mapa entero brilla.
+//    encajan una a una, una polilla ronda la vela, y a «1513» el mapa entero brilla.
 import * as T from '/atomo/plato/escenas/pr-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('pr-fuentes');
@@ -335,7 +338,7 @@ const p5 = (t) => {
 // los efectos (como mucho uno por segundo), cada uno con su acción: la pluma de Piri, los fardos, las cartas que caen,
 // la mano que toca, los libros del mozo, el rollo, el vuelo de las cartas, las chinchetas, los golpecitos y las piezas
 const efectos = [[1.0, 'lapiz'], [en('fuentes', 0.0884), 'papel'], [en('fuentes', 0.1440) + 0.2, 'papel'], [en('fuentes', 0.2126), 'papel'], [P2 + 1.3, 'papel'], [veinte, 'pop'], [antiguas, 'brillo'], [antiguas + 1.1, 'golpecito'],
-  [P3 + 0.3, 'toc'], [alejandro, 'brillo'], [arabe, 'papel'], [india, 'viento'], [cuatro + 0.3, 'whoosh'], [asia, 'brillo'],
+  [P3 + 0.3, 'toc'], [alejandro, 'brillo'], [arabe, 'papel'], [cuatro + 0.3, 'whoosh'], [asia, 'brillo'],
   [P4, 'whoosh'], [colonT, 'toc'], [colonT + 0.7, 'brillo'], [en('fuentes', 0.7366) + 0.25, 'golpecito'], [puzzle, 'papel'],
   [P5 + 0.6, 'whoosh'], [P5 + 1.5, 'toc'], [P5 + 2.3, 'papel'], [año1513, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1513 });
