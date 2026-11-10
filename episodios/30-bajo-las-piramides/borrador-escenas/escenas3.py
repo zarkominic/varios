@@ -260,7 +260,7 @@ const p1 = (t) => {
   { const cx = 80 + Math.sin(t * 0.5) * 30, cy = 122 - Math.cos(t * 0.5) * 8; for (let y = 98; y < 156; y++) for (let x = 30; x < 140; x++) { const d = Math.hypot((x - cx) / 32, (y - cy) / 18); if (d < 1 && (x + y) % 2 === 0 && y > lerp(PA[1], PL[1], (PA[0] - x) / (PA[0] - PL[0])) && x < lerp(PA[0], PC[0], (y - PA[1]) / (PC[1] - PA[1]))) R.pset(x, y, mez(R.pget(x, y), hex('#b06ae8'), (1 - d) * 0.55)); } }
   // el satélite: una estrella que se mueve por el cielo de la derecha; en «radar» lanza el barrido sobre la piedra
   const su = tramo(t, 2.4, 6.5), sx = Math.round(lerp(204, 316, su)), sy = Math.round(lerp(58, 84, su));
-  if (su > 0 && su < 1) { ps(sx, sy, W); ps(sx - 1, sy, hex('#9ab8ff')); ps(sx + 1, sy, hex('#9ab8ff')); if (t > SAT && Math.floor(t * 6) % 2) { ps(sx, sy - 1, hex('#5ae0f0')); ps(sx, sy + 1, hex('#5ae0f0')); ps(sx - 2, sy, hex('#5ae0f0')); ps(sx + 2, sy, hex('#5ae0f0')); } }
+  if (su > 0 && su < 1) { R.icono('satelite', sx - 3, sy - 3, hex('#e8ecff'), K); ps(sx, sy, hex('#ffe890')); if (t > SAT && Math.floor(t * 6) % 2) { ps(sx, sy - 1, hex('#5ae0f0')); ps(sx, sy + 1, hex('#5ae0f0')); ps(sx - 2, sy, hex('#5ae0f0')); ps(sx + 2, sy, hex('#5ae0f0')); } }
   const bar = tramo(t, RADAR - 0.1, RADAR + 1.1);
   if (bar > 0 && bar < 1) {
     for (let k = 0; k < 3; k++) { const f = (t * 1.4 + k / 3) % 1, cx = lerp(sx, 200, f), cy = lerp(sy, 70, f), rr = 3 + f * 9; for (let a = -0.9; a <= 0.9; a += 0.1) ps(cx - Math.sin(a + 0.6) * rr, cy + Math.cos(a + 0.6) * rr * 0.5, hex('#5ae0f0')); }
@@ -413,8 +413,8 @@ T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2025 });
 
 E['gz-vibra'] = ('Vibra', '''// GZ-VIBRA (frase 9), 2025, sin cartela. El truco de Biondi: no es que el radar atraviese la roca, es que la pirámide
 // vibra. Cuatro planos:
-// 1. (0 → «It's») LOCAL plano azul (lo que dice Biondi): Biondi entra por la tarima; el satélite manda pulsos que chocan
-//    con la cara de Kefrén y vuelven; en «isn't… goes through» una flecha punteada intenta entrar en la roca y le sale
+// 1. (0 → «It's») LOCAL plano azul (lo que dice Biondi): la cara de Kefrén de cerca, en corte, cruza el cuadro en
+//    diagonal; Biondi entra por la derecha de la tarima; el satélite manda pulsos que chocan con la cara y vuelven; en «isn't… goes through» una flecha punteada intenta entrar en la roca y le sale
 //    una X; en «rock» las aristas empiezan a temblar.
 // 2. («It's» → «His») A giza/meseta de día (o.vibra): en «vibrates» Kefrén tiembla un poco (rayitas a los lados); el
 //    turista hace una foto en «tiny bit»; en «wind» una racha le arranca el sombrero a la turista y lo lleva por la
@@ -433,9 +433,9 @@ const LEE = va(0.657), VIBRACIONES = va(0.688), DENTRO = va(0.769);
 const GOLPEA = va(0.8465), PARED = va(0.8887), HUECO = va(0.9457);
 const ROJO = hex('#ff5a6a');
 
-// ── 1 · plano azul: el radar no atraviesa la roca, rebota ──
-const PK = { ax: 190, ay: 44, yb: 140, hw: 76 };
-const xLk = (y) => PK.ax - (y - PK.ay) / (PK.yb - PK.ay) * PK.hw, xRk = (y) => PK.ax + (y - PK.ay) / (PK.yb - PK.ay) * PK.hw;
+// ── 1 · plano azul: el radar no atraviesa la roca, rebota (la cara de Kefrén de cerca, en corte) ──
+// la ladera de la cara cruza el cuadro en diagonal: la roca abajo a la derecha con sus hiladas y sillares escalonados
+const LA = [24, 146], LB = [268, 50], yLad = (x) => LA[1] + (x - LA[0]) * (LB[1] - LA[1]) / (LB[0] - LA[0]);
 const sateliteAzul = (P, x, y) => {
   P.caja(x - 6, y - 5, x + 6, y + 5, 'c'); P.l(x - 3, y - 2, x + 3, y - 2, 'd'); P.l(x - 3, y + 1, x + 3, y + 1, 'd');
   for (const s of [-1, 1]) { const a = x + s * 8, b = x + s * 26; P.l(x + s * 6, y, a, y, 'd'); P.caja(Math.min(a, b), y - 4, Math.max(a, b), y + 4, 'c'); for (let k = 1; k < 4; k++) P.l(Math.min(a, b) + k * 4.5, y - 3, Math.min(a, b) + k * 4.5, y + 3, 'D'); }
@@ -444,38 +444,37 @@ const sateliteAzul = (P, x, y) => {
 const p1 = (t) => {
   fondoAzul('vib1', true);
   const P = pluma();
-  // la roca de Kefrén en corte: rayado y estratos dentro del triángulo
-  R.poligono([[PK.ax, PK.ay], [xRk(PK.yb), PK.yb], [xLk(PK.yb), PK.yb]], (x, y) => ((x + y) % 4 === 0 ? PZ.hal : (x * 5 + y * 3) % 11 === 0 ? PZ.f4 : PZ.f3));
-  for (let y = PK.ay + 3; y < PK.yb; y++) for (let x = Math.ceil(xLk(y)) + 1; x < xRk(y); x++) { if ((x + y) % 7 === 0 && h(x >> 2, y >> 2, 5) > 0.35) R.pset(x, y, PZ.rjM); }
-  P.cotaV(100, PK.ay, PK.yb, 'd'); P.l(100, PK.ay, PK.ax - 4, PK.ay, 'D', 2); P.n('136', 78, 96);
-  for (let y = PK.ay + 10; y < PK.yb; y += 9) P.l(xLk(y) + 2, y, xRk(y) - 2, y, 'D', 4);
+  // la roca (tramada como en el decorado) bajo la ladera y hasta el corte vertical de la derecha
+  R.poligono([LA, LB, [LB[0], 146], [LA[0], 146]], (x, y) => ((x + y) % 4 === 0 ? PZ.hal : (x * 5 + y * 3) % 11 === 0 ? PZ.f4 : PZ.f3));
+  // hiladas horizontales y juntas de sillares a tresbolillo; los escalones del núcleo bajo el revestimiento
+  for (let y = 54; y < 146; y += 8) { const x0 = LA[0] + (y - LA[1]) * (LB[0] - LA[0]) / (LB[1] - LA[1]); P.l(x0 + 6, y, LB[0] - 2, y, 'D');
+    for (let x = Math.ceil(x0) + 8 + ((y / 8) % 2) * 9; x < LB[0] - 4; x += 18) P.l(x, y + 1, x, y + 7, 'D', 2);
+    P.l(x0 + 2, y, x0 + 6, y, 'd'); P.l(x0 + 6, y, x0 + 6, y + 8, 'd'); }
   const tb = tramo(t, ROCA - 0.2, ROCA + 0.4), dx = tb > 0 ? Math.round(Math.sin(t * 38) * tb) : 0;
-  P.l(xLk(PK.yb) + dx, PK.yb, PK.ax + dx, PK.ay, 'c'); P.l(PK.ax + dx, PK.ay, xRk(PK.yb) + dx, PK.yb, 'c');
-  P.l(xLk(PK.ay + 18), PK.ay + 18, xRk(PK.ay + 18), PK.ay + 18, 'd');
-  P.l(14, PK.yb, 300, PK.yb, 'c'); for (let x = 20; x < 300; x += 10) P.l(x, PK.yb + 1, x - 3, PK.yb + 4, 'D');
-  if (tb > 0) for (let k = 0; k < 8; k++) { const y = PK.ay + 12 + k * 11, s = Math.sin(t * 30 + k) > 0; P.p(Math.round(xLk(y)) - 3 - (s ? 1 : 0), y, 'b'); P.p(Math.round(xRk(y)) + 3 + (s ? 1 : 0), y, 'b'); }
+  P.l(LA[0] + dx, LA[1], LB[0] + dx, LB[1], 'c'); P.l(LA[0] - 3 + dx, LA[1] - 2, LB[0] - 3 + dx, LB[1] - 2, 'd', 3);
+  P.l(LB[0], LB[1], LB[0], 146, 'd', 2); P.l(14, 146, 300, 146, 'c');
+  if (tb > 0) for (let k = 0; k < 9; k++) { const x = LA[0] + 20 + k * 26, y = yLad(x), s = Math.sin(t * 30 + k) > 0; P.p(x - 2, Math.round(y) - 4 - (s ? 1 : 0), 'b'); P.p(x + 2, Math.round(y) - 5 - (s ? 0 : 1), 'b'); }
   // el satélite arriba a la izquierda y los pulsos que bajan, chocan con la cara y vuelven (eco)
-  const S = [70, 46], I = [Math.round(xLk(92)), 92];
+  const S = [68, 40], I = [150, Math.round(yLad(150))];
   sateliteAzul(P, S[0], S[1]);
   if (t > 0.6) {
     const dxx = I[0] - S[0], dyy = I[1] - (S[1] + 10), L = Math.hypot(dxx, dyy), ux = dxx / L, uy = dyy / L;
     for (let k = 0; k < 3; k++) {
       const f = ((t - 0.6) * 0.75 + k / 3) % 1;
-      for (const [pos, kk] of [[f, 'c'], [1 - ((f + 0.5) % 1), 'b']]) { const cx = S[0] + dxx * pos, cy = S[1] + 10 + dyy * pos, r = 4 + pos * 6, sg = kk === 'c' ? 1 : -1;
-        for (let a = -1; a <= 1; a += 0.25) P.p(Math.round(cx - ux * r * sg * (1 - Math.cos(a)) - uy * r * Math.sin(a)), Math.round(cy - uy * r * sg * (1 - Math.cos(a)) + ux * r * Math.sin(a)), kk); }
+      for (const [pos, kk] of [[f, 'c'], [1 - ((f + 0.5) % 1), 'b']]) { const cx = S[0] + dxx * pos, cy = S[1] + 10 + dyy * pos, r = 4 + pos * 7, sg = kk === 'c' ? 1 : -1;
+        for (let a = -1; a <= 1; a += 0.22) P.p(Math.round(cx - ux * r * sg * (1 - Math.cos(a)) - uy * r * Math.sin(a)), Math.round(cy - uy * r * sg * (1 - Math.cos(a)) + ux * r * Math.sin(a)), kk); }
     }
-    // el choque: chispas en la cara
-    const ch = (t * 3) % 1; for (let a = 0; a < 6.28; a += 0.8) P.p(Math.round(I[0] + Math.cos(a) * (2 + ch * 4)), Math.round(I[1] + Math.sin(a) * (2 + ch * 4)), ch < 0.5 ? 'b' : 'c');
+    const ch = (t * 3) % 1; for (let a = 0; a < 6.28; a += 0.7) P.p(Math.round(I[0] + Math.cos(a) * (2 + ch * 5)), Math.round(I[1] + Math.sin(a) * (2 + ch * 5)), ch < 0.5 ? 'b' : 'c');
   }
-  // «isn't… goes through»: la flecha punteada que intenta entrar en la roca, y su X
+  // «isn't… goes through»: la flecha punteada que intenta entrar en la roca, y su X justo bajo la superficie
   const fl = tramo(t, NO, ATRAVIESA + 0.3);
-  if (fl > 0) { P.parte(I[0] + 3, I[1] + 2, 200, 114, fl, 'm', 3); if (fl >= 1) P.flecha(200, 114, 1, 0, 'm'); }
+  if (fl > 0) { P.parte(I[0] + 2, I[1] + 3, 176, 118, fl, 'm', 3); if (fl >= 1) P.flecha(176, 118, 1, 0, 'm'); }
   P.pintar(t);
   const xx = tramo(t, ATRAVIESA + 0.25, ATRAVIESA + 0.45);
-  if (xx > 0) { const s = 2 + (xx < 1 ? 1 : 0); R.icono('X', 194 - s * 2, 104 - s * 2, ROJO, PZ.f0, s); }
-  // Biondi entra por la tarima y lo explica
-  const u = ease(tramo(t, 0, 1.3)), bx = Math.round(lerp(-16, 34, u));
-  R.actor(EL.biondi, bx, 172, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > BIONDI + 0.3 && t < ROCA + 0.5, habla: t > 1.3 && Math.sin(t * 7) > 0, sonrisa: t > ROCA + 0.5 });
+  if (xx > 0) { const s = 2 + (xx < 1 ? 1 : 0); R.icono('X', 168 - s * 2, 108 - s * 2, ROJO, PZ.f0, s); }
+  // Biondi entra por la derecha de la tarima y lo explica señalando la cara
+  const u = ease(tramo(t, 0, 1.3)), bx = Math.round(lerp(330, 238, u));
+  R.actor(EL.biondi, bx, 172, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > BIONDI + 0.3 && t < ROCA + 0.5, habla: t > 1.3 && Math.sin(t * 7) > 0, sonrisa: t > ROCA + 0.5 });
   senal(t); holo(t, 171);
 };
 
@@ -693,12 +692,17 @@ const p1 = (t) => {
   // el calendario: en «2022» la hoja de 2021 sube y deja ver la de 2022
   const fl = tramo(t, ANO - 0.1, ANO + 0.3);
   R.numero('2022', 89, 47, { fina: true, color: hex('#1a1420'), sombra: false });
-  if (fl < 1) { const y1 = Math.round(lerp(64, 38, fl)); R.rect(87, 38, 109, y1, PAPEL); R.rect(87, y1, 109, y1, hex('#a8a8b0')); if (y1 > 48) R.numero('2021', 89, 47, { fina: true, color: hex('#5a5a66'), sombra: false }); }
+  if (fl < 1) { const y1 = Math.round(lerp(64, 38, fl)); R.rect(87, 38, 109, y1, PAPEL); R.rect(87, y1, 109, y1, hex('#a8a8b0')); if (y1 > 52) for (let j = 0; j < 3; j++) for (let i = 0; i < 6; i++) R.rect(89 + i * 3, 40 + j * 3, 90 + i * 3, 41 + j * 3, hex('#c8c8d0')); }
   // la puerta se abre para Malanga y se cierra
   const pa = ease(tramo(t, 0.25, 0.8)) - ease(tramo(t, 2.0, 2.6)), dw = Math.round(40 * (1 - pa * 0.8));
   R.rect(270, 50, 310, 134, hex('#e8e4d8')); R.rect(270, 50, 310, 52, hex('#c8c4b8'));
   caja(270, 50, 270 + dw, 134, (x, y) => tono(H('#7a5a3a #8e6a44 #a27c52'), 1.2 + ((x - 270) % 6 === 0 ? -0.8 : 0) + (h(x, y >> 2, 3) - 0.5) * 0.5, x, y));
   if (dw > 12) { caja(274, 58, 270 + dw - 4, 82, hex('#a8c8d8')); R.rect(270 + dw - 6, 92, 270 + dw - 3, 94, hex('#e0b438')); }
+  // Malanga aparece en el hueco de la puerta abierta (detrás de la consola) y baja hacia delante
+  const mu = ease(tramo(t, 0.75, 3.6)), arriba = t > MALANGA - 0.1;
+  const mx = Math.round(mu < 0.25 ? lerp(290, 274, mu / 0.25) : lerp(274, 202, (mu - 0.25) / 0.75)), ms = Math.round(mu < 0.25 ? lerp(134, 150, mu / 0.25) : lerp(150, 176, (mu - 0.25) / 0.75));
+  const malanga = () => { if (t < 0.6) return; const m = R.actor(EL.malanga, mx, ms, t, { dir: -1, anda: mu > 0 && mu < 1, sostiene: arriba ? [mx - 4, ms - 32] : true, habla: arriba && Math.sin(t * 7) > 0, sonrisa: arriba }); papeles(m.mano[0], m.mano[1] + 2); };
+  if (ms < 152) malanga();
   // Biondi detrás de la consola: teclea, y en «Biondi» levanta la vista y sonríe
   R.actor(EL.biondi, 150, 139, t, { dir: t > BIONDI ? 1 : -1, sonrisa: t > MALANGA, habla: t > BIONDI && t < MALANGA && Math.sin(t * 7) > 0 });
   // la consola delante (tablero claro, teclados, taza que humea, lámpara) y su frente con rejillas
@@ -709,9 +713,7 @@ const p1 = (t) => {
   { R.rect(278, 124, 286, 132, K); R.rect(279, 125, 285, 131, W); R.rect(286, 126, 288, 129, K); for (let k = 0; k < 3; k++) { const f = (t * 0.7 + k / 3) % 1; ps(282 + Math.sin(f * 9 + k) * 2, 122 - f * 14, f < 0.5 ? hex('#ffffff') : hex('#c8ccd0')); } }
   R.linea(104, 132, 104, 112, K); R.linea(104, 112, 110, 106, K); R.poligono([[107, 104], [115, 104], [113, 109], [109, 109]], hex('#c8303a'));
   // Malanga entra con los papeles y los levanta en «Malanga»
-  const mu = ease(tramo(t, 0.7, 3.6)), mx = Math.round(lerp(300, 202, mu)), arriba = t > MALANGA - 0.1;
-  const m = R.actor(EL.malanga, mx, 176, t, { dir: -1, anda: mu > 0 && mu < 1, sostiene: arriba ? [mx - 4, 144] : true, habla: arriba && Math.sin(t * 7) > 0, sonrisa: arriba });
-  papeles(m.mano[0], m.mano[1] + 2);
+  if (ms >= 152) malanga();
 };
 
 // ── 2 · la revista en su atril, en la mesa del laboratorio ──
@@ -802,12 +804,12 @@ const claustro = () => fijo('claustro', () => {
   for (let i = 0; i < 5; i++) { const x = 4 + i * 50; caja(x - 3, 54, x + 9, 132, (xx, yy) => tono(H('#c8b490 #dccaa4 #ecdcba #f6ecd2'), xx < x + 1 ? 3 : xx > x + 5 ? 0.8 : 2, xx, yy), hex('#8a6038')); caja(x - 6, 50, x + 12, 55, hex('#ecdcba'), hex('#8a6038')); caja(x - 6, 128, x + 12, 133, hex('#dccaa4'), hex('#8a6038')); }
   R.rect(0, 0, 319, 2, hex('#8a6038'));
   // la cornisa sobre los arcos, con su moldura y unas manchas del revoque
-  R.rect(0, 26, 319, 29, hex('#f0d8a8')); R.rect(0, 30, 319, 31, hex('#8a6038')); for (let x = 2; x < 320; x += 6) R.rect(x, 32, x + 2, 33, hex('#a8784a'));
+  R.rect(0, 26, 272, 29, hex('#f0d8a8')); R.rect(0, 30, 272, 31, hex('#8a6038')); for (let x = 2; x < 270; x += 6) R.rect(x, 32, x + 2, 33, hex('#a8784a'));
   for (let k = 0; k < 9; k++) { const x = Math.round(190 + h(k, 1, 9) * 120), y = Math.round(36 + h(k, 2, 9) * 80); if (libre(x, y) && !(x > 214 && x < 278 && y > 46 && y < 110)) { R.rect(x, y, x + 3 + (k % 3), y + 1, hex('#cca068')); R.pset(x + 1, y + 2, hex('#a8784a')); } }
   // el tablón de corcho con hojas clavadas (sin letras) y el aplique
-  caja(218, 50, 274, 106, (x, y) => tono(H('#a8743c #b88448 #c89858'), 1.2 + (h(x, y, 4) - 0.5) * 1.4, x, y), hex('#6a4422'));
-  for (const [x, y, w, hh, c] of [[222, 54, 14, 18, '#f4f0e6'], [256, 56, 14, 14, '#fff8d0'], [224, 80, 16, 20, '#e8f0f8'], [256, 82, 14, 18, '#f4f0e6']]) { caja(x, y, x + w, y + hh, hex(c), hex('#8a8a96')); for (let j = 4; j < hh - 2; j += 3) R.rect(x + 2, y + j, x + w - 3, y + j, hex('#a8a8b0')); R.disco(x + (w >> 1), y + 1, 1, hex('#3a6ad8')); }
-  R.rect(290, 64, 296, 72, hex('#3a3a46')); R.poligono([[286, 72], [300, 72], [297, 78], [289, 78]], hex('#f0d890'));
+  caja(218, 80, 274, 130, (x, y) => tono(H('#a8743c #b88448 #c89858'), 1.2 + (h(x, y, 4) - 0.5) * 1.4, x, y), hex('#6a4422'));
+  for (const [x, y, w, hh, c] of [[222, 84, 12, 16, '#f4f0e6'], [258, 85, 12, 13, '#fff8d0'], [222, 106, 13, 19, '#e8f0f8'], [258, 104, 12, 18, '#f4f0e6']]) { caja(x, y, x + w, y + hh, hex(c), hex('#8a8a96')); for (let j = 4; j < hh - 2; j += 3) R.rect(x + 2, y + j, x + w - 3, y + j, hex('#a8a8b0')); R.disco(x + (w >> 1), y + 1, 1, hex('#3a6ad8')); }
+  R.rect(290, 66, 296, 74, hex('#3a3a46')); R.poligono([[286, 74], [300, 74], [297, 80], [289, 80]], hex('#f0d890'));
   // el banco de madera, y el suelo de barro cocido en perspectiva con las manchas de sol de los arcos
   for (let y = 132; y < 180; y++) for (let x = 0; x < 320; x++) { const z = (y - 110) / 70, rx = (x - 160) / z, lin = Math.abs(((rx % 22) + 22) % 22) < 0.9 / z || (y - 132) % Math.max(3, Math.round(3 + (y - 132) * 0.28)) === 0;
     let v = 2 + (h(x >> 2, y >> 1, 7) - 0.5) * 0.6; const sx = x - (y - 132) * 0.9; if (sx < 206 && sx > 0 && ((sx - 4) % 50 + 50) % 50 > 9) v += 1.2;
@@ -824,12 +826,16 @@ const p4 = (t) => {
   for (let k = 0; k < 8; k++) { const f = (t * 1.3 + k / 8) % 1, x = 128 + Math.sin(k * 2.3) * f * 9, y = 98 - Math.sin(f * Math.PI) * 10 + f * 14; ps(x, y, f < 0.6 ? W : hex('#9ac8f0')); }
   // la portada: Malanga la trae, en «proof» la clava en el tablón, y se queda allí con su chincheta roja
   const mu = ease(tramo(t, P4 - 0.1, PRUEBA - 0.4)), mx = Math.round(lerp(176, 226, mu)), clava = t > PRUEBA - 0.05;
-  const m = R.actor(EL.malanga, mx, 160, t, { dir: 1, anda: mu > 0 && mu < 1, sostiene: !clava ? (t > PRUEBA - 0.6 ? [mx + 14, 92] : true) : t < PRUEBA + 0.4 ? [mx + 16, 84] : false, sonrisa: t > FUNCIONA, habla: t > PRUEBA + 0.4 && t < FUNCIONA + 0.6 && Math.sin(t * 7) > 0 });
-  if (clava) { portada(236, 62, 24, 31, t, 0); R.disco(248, 63, 1, hex('#c8303a')); R.pset(248, 62, hex('#ff8a8a')); if (t < PRUEBA + 0.3) for (const [a, b] of [[-6, -2], [6, -2], [-5, 4], [5, 4]]) R.pset(248 + a, 66 + b, W); }
-  else portada(m.mano[0] - 2, m.mano[1] - 20, 16, 21, t, 0);
+  // al final, Malanga va hacia Biondi, se dan la mano y se van juntos por la derecha
+  const SAL = FUNCIONA + 1.5, MANO = SAL + 0.7, VAN = MANO + 0.9, va2 = tramo(t, VAN, E.duracion + 0.6);
+  const ida = ease(tramo(t, SAL, MANO)), mx2 = Math.round(lerp(mx, 252, ida) + va2 * 120), estrecha = t > MANO && t < VAN;
+  const sube = ease(tramo(t, PRUEBA - 0.5, PRUEBA - 0.05));
+  const m = R.actor(EL.malanga, mx2, 160, t, { dir: 1, anda: (mu > 0 && mu < 1) || (ida > 0 && ida < 1) || va2 > 0, sostiene: estrecha ? [266, 146] : !clava ? [mx + 12, Math.round(lerp(150, 140, sube))] : t < PRUEBA + 0.4 ? [mx + 12, 140] : false, sonrisa: t > FUNCIONA, habla: t > PRUEBA + 0.4 && t < FUNCIONA + 0.6 && Math.sin(t * 7) > 0 });
+  if (clava) { const pu = ease(tramo(t, PRUEBA - 0.05, PRUEBA + 0.15)); portada(lerp(m.mano[0] - 2, 238, pu), lerp(m.mano[1] - 22, 102, pu), 18, 23, t, 0); if (pu >= 1) { R.disco(247, 103, 1, hex('#c8303a')); R.pset(247, 102, hex('#ff8a8a')); if (t < PRUEBA + 0.4) for (const [a, b] of [[-6, -2], [6, -2], [-5, 4], [5, 4]]) R.pset(247 + a, 106 + b, W); } }
+  else portada(m.mano[0] - 2, m.mano[1] - 22, 18, 23, t, 0);
   // Biondi: en «method worked» salta con los brazos arriba
   const sb = t > FUNCIONA && t < FUNCIONA + 0.9 ? Math.round(Math.abs(Math.sin((t - FUNCIONA) * 7)) * 5) : 0;
-  R.actor(EL.biondi, 276, 162, t, { dir: -1, brazos: t > FUNCIONA && t < FUNCIONA + 1.4, salto: sb, sonrisa: t > PRUEBA, habla: t < PRUEBA && Math.sin(t * 6) > 0.3 });
+  R.actor(EL.biondi, Math.round(276 + va2 * 120), 162, t, { dir: va2 > 0 ? 1 : -1, anda: va2 > 0, brazos: t > FUNCIONA && t < FUNCIONA + 1.4, sostiene: estrecha ? [268, 146] : false, salto: sb, sonrisa: t > PRUEBA, habla: t < PRUEBA && Math.sin(t * 6) > 0.3 });
   // la estudiante que se para y aplaude, el estudiante que pasa con sus libros por el pórtico
   const eu = tramo(t, P4, P4 + 2.6), ev = tramo(t, FUNCIONA + 1.4, E.duracion), ex = Math.round(lerp(-18, 120, ease(eu)) + ev * 220), para = eu >= 1 && ev <= 0;
   R.actor(EL.chica, ex, 150, t, { dir: 1, anda: !para, brazos: para && t > FUNCIONA && Math.floor(t * 6) % 2 === 0, sonrisa: para });
@@ -841,6 +847,6 @@ const p4 = (t) => {
   paloma(lerp(150, 330, vu), 170 - vu * 120 - (vu > 0 ? 0 : Math.abs(Math.sin(t * 3)) * 1), t, vu > 0);
 };
 
-const efectos = [[0.3, 'puerta'], [ANO, 'papel'], [MALANGA, 'papel'], [P2 + 0.5, 'chof'], [PARES, 'papel'], [METODO, 'bip'], [GRAN, 'brillo'], [CONOCIDAS, 'tic'], [OTRAS + 0.2, 'pop'], [PRUEBA, 'tic'], [FUNCIONA, 'palmada'], [FUNCIONA + 0.2, 'whoosh'], [FUNCIONA + 1.6, 'palmada']];
+const efectos = [[0.3, 'puerta'], [ANO, 'papel'], [P2 + 0.5, 'papel'], [PARES, 'whoosh'], [METODO, 'bip'], [GRAN, 'brillo'], [CONOCIDAS, 'tic'], [OTRAS + 0.2, 'pop'], [PRUEBA, 'tic'], [FUNCIONA, 'palmada'], [FUNCIONA + 0.2, 'whoosh'], [FUNCIONA + 1.6, 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2022 });
 ''')
