@@ -10,6 +10,9 @@ otras, del estilo de las que pide.
   (afirmación extraordinaria sin demostrar, no «bulo»: el usuario no lo ve como bulo); el pasillo de 2023 y el gran hueco
   de 2017 (ScanPyramids, con MUONES, otra técnica y otro equipo); el Laberinto de Hawara (Heródoto: superaba a las
   pirámides; radar de 2008). Verificar todo con 3 agentes.
+  Petición del usuario (10/11/2026): explicar y MOSTRAR lo que ellos dicen que hay (los pozos, las espirales, las salas
+  a cientos de metros), con detalle, y terminar con que no se ha comprobado. Se dibuja como «según ellos»: en trazo de
+  plano azul o holograma, con su propio código visual, nunca como el decorado real.
 - **EPISODIO 31 (antes el 30): Forrest Fenn.** Una búsqueda de «Forrest
   Fenn» trae gente al canal (cae en el ep17, donde Fenn ocupa tres frases). Al terminar el 29: primero 3 Shorts del tramo
   de Fenn del ep17 (re-render solo de te-fenn y vecinas, título con «Forrest Fenn» delante) y luego el episodio entero:
