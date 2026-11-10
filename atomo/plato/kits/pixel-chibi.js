@@ -8113,3 +8113,371 @@ export const PIEZAS_PR = {
   tintero: tinteroPR, catalejo: catalejoPR, libro: libroPR, astrolabio: astrolabioPR, cofre: cofrePR, rosa: rosaPR,
   testigoHielo: testigoHieloPR,
 };
+
+// ── Episodio 30 · Bajo las pirámides ──
+// (los pozos de Kefrén): la rueda de prensa italiana de 2025, el vidente de los años treinta, los muones de ScanPyramids
+// (2017), el pasillo de 2023 con el ministro, el pozo de Osiris, el radar de suelo de 2024, los expertos, la revista de
+// 2026, Heródoto en el laberinto de Hawara (hacia el 450 a. C.), Petrie en 1888, el escaneo de 2008 y la Giza de hoy.
+// DERECHOS: nada de letras en ninguna pieza (la revista, el sello, las pantallas: dibujos y rayas); nada de logotipos ni
+// de insignias. Las personas reales, por sus atributos (la ropa, el pelo, el sombrero, las gafas) y con respeto, sin
+// caricatura. Los egipcios antiguos son los de ELENCO_EG. Nombres nuevos con GZ.
+
+// tocados nuevos del 30
+Object.assign(TOCADOS, {
+  // el pétaso griego de viaje (Heródoto): la copa baja y redonda (J, brillo j) y el ala ancha y plana; acaba en la
+  // fila 2 de la cabeza: la frente y la cara, enteras
+  petasoGZ: [[
+    '.....kkkkk.....',
+    '....kJJJjJk....',
+    '...kJjJJJJJk...',
+    'kkkkkkkkkkkkkkk',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+  // la cinta de la linterna frontal (J, la goma) con la lámpara (z, el cristal E) encima de la frente, lejos de las
+  // cejas; la goma sale por detrás de la oreja (los de ScanPyramids, 2017)
+  frontalGZ: [[
+    '..........kkkk.',
+    '.........kzzzEk',
+    'kJJJJJJJJkzzzEk',
+    'kJjJJJJJJJkkkk.',
+    'kJk............',
+  ], 1],
+  // el casco de obra (J/j) con la linterna frontal (z, el cristal E) en la frente del casco
+  cascoFrontalGZ: [[
+    '....kkkkkk.....',
+    '...kJJJJJJkkkk.',
+    '..kJJjJJJkzzEk.',
+    '..kJJJJJJkzzEk.',
+    '.kkkkkkkkkkkkkk',
+  ], -3],
+  // el salacot de explorador con otras letras (X/x), para no llevarse el color de la camisa (W): Petrie en 1888
+  salacotGZ: [tapa(TOCADOS.salacot[0], { W: 'X', w: 'x' }), TOCADOS.salacot[1]],
+});
+
+// ── cuerpos ──
+// el quitón (T, pliegues t) hasta los tobillos y el himatión (M/m) que cae del hombro de atrás y cruza en diagonal,
+// las sandalias (L): Heródoto. El brazo de delante, de piel, con la manga del quitón (T)
+const CUERPO_HIMATION_GZ = [
+  '...kkMMTTTkk...',
+  '..kMMMMMTTTTk..',
+  '.kMkMMMMMTTkTk.',
+  '.kMkmMMMMMTkSk.',
+  '.kMkMMmMMMMkSk.',
+  '.kmkMMMMmMMkSk.',
+  '..kkMMMMMMmkk..',
+  '...kMMMMMMMk...',
+  '...kmMMMMMmk...',
+  '...kTTtTTtTk...',
+  '...kTTTTTTTk...',
+  '....kSk.kSk....',
+  '...kLLk.kLLk...',
+];
+// la camisa de campo (C/c) de manga larga, abierta al cuello, con la tapeta de botones (o), los dos bolsillos (u) y el
+// cinturón (G): Conyers, Hawass (vaquera) y Parcak
+const CUERPO_CAMPO_GZ = parche(CUERPO_MANGA, [[5, 0, 'CCSCC'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [5, 2, 'u'], [9, 2, 'u'], [4, 6, 'GGGGGGG']]);
+// la ropa de campaña de 1888: la chaqueta clara (C) sobre la camisa (W) y las botas altas (n) hasta la rodilla: Petrie
+const CUERPO_CAMPANA_GZ = parche(CUERPO_EUROPEO, [[4, 9, 'nnn'], [8, 9, 'nnn'], [4, 10, 'nnn'], [8, 10, 'nnn'], [4, 11, 'nnn'], [8, 11, 'nnn']]);
+// la galabiya (C, la tapeta y el bajo c) hasta los pies, sin cinturón: los trabajadores de 1888 y el camellero
+const CUERPO_GALABIYA_GZ = tapa(CUERPO_TUNICA_LARGA, { o: 'c', G: 'C' });
+
+// ── detalles ──
+const PAL_MANO_GZ = { ...PAL_MANO, ...COLORES({ X: '#efe2b8', x: '#c8b080', Z: '#c8ccd8', z: '#7c8090', K: '#2a2832', A: '#3a6ad8', a: '#9ab8e0', E: '#ffffff', G: '#56f07a', B: '#8a5a2e', b: '#5e3a1c', O: '#c89a3a' }) };
+// el rollo de papiro bajo el brazo (Heródoto): asoma por delante, por debajo del brazo; se quita si levanta la mano
+const conRolloGZ = (c) => { if (manoLibre(c)) c.cuerpo.rej(['.kkkkkkk.', 'kxXXXXXxk', 'kxXXXXXxk', 'kxxxxxxxk', '.kkkkkkk.'], 9, 3, { ...c.pal, ...PAL_MANO_GZ }); };
+// la lanza del guardián, de pie a su lado: la punta de bronce (O), el asta de madera (B) y la mano que la agarra
+const LANZA_GZ = ['.k.', 'kOk', 'kOk', 'kOk', 'kkk', ...Array(20).fill('kBk'), '.k.'];
+const lanzaGZ = (c) => { if (!manoLibre(c)) return; c.cuerpo.rej(LANZA_GZ, 12, -14, { ...c.pal, ...PAL_MANO_GZ }); c.cuerpo.px(13, 5, c.pal.S); c.cuerpo.px(13, 6, c.pal.s); };
+// el aparato de medir en la mano (2008): la caja gris (Z) con la pantallita azul (A) y la luz verde (G)
+const conAparatoGZ = enMano(['kkkkkk', 'kZZZZk', 'kZAAZk', 'kZZZGk', 'kkkkkk'], 11, 2, PAL_MANO_GZ);
+// la tableta en la mano (2008): el marco oscuro (K) con la pantalla (A, el brillo E)
+const conTabletaGZ = enMano(['kkkkkkk', 'kKAAAKk', 'kKAEAKk', 'kKAAAKk', 'kkkkkkk'], 10, 2, PAL_MANO_GZ);
+// las gafas redondas finas sin el brillo del cristal (Cayce): los ojos se ven enteros, y cerrados se nota
+const gafasRedondasGZ = gafasHP(GAFAS_REDONDAS, 5, '#5a5a66');
+// los ojos cerrados (el vidente en trance): de cada ojo queda la raya de abajo (lo mismo que o.parpadea: true)
+const ojosCerradosGZ = (c) => { if (c.o.sorpresa) return; for (const ex of [8, 12]) { c.cab.px(ex, 6, c.pal.S); c.cab.px(ex, 7, P.k); } };
+
+// ── el reparto del 30 ──
+const B30 = B23;
+export const ELENCO_GZ = {
+  // ── la rueda de prensa de Italia, 15 de marzo de 2025 ──
+  // Malanga, el químico jubilado: mayor, el pelo blanco con entradas, las gafas finas y la chaqueta beis sobre la
+  // camisa clara
+  malanga: { ...B30, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#b8b8c2'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: OTO({ H: '#e8e8ee', h: '#f6f6f8', C: '#a8946a', c: '#86744e', W: '#eef2f6', F: '#5a5246' }) },
+  // Biondi, el ingeniero: la barba corta oscura, la americana gris azulada y la camisa celeste (el portátil, aparte:
+  // PIEZAS_GZ.portatil con o.sostiene)
+  biondi: { ...B30, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'),
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', C: '#4a5a7a', c: '#384660', W: '#bcd4ec', F: '#3a3e4a' }) },
+  // Mei, el investigador: el pelo oscuro corto, sin barba, la chaqueta oscura casi negra y la camiseta blanca
+  mei: { ...B30, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#1c1424'),
+    pal: OTO({ H: '#1c1424', h: '#3a3046', C: '#2a2a34', c: '#1c1c24', W: '#f2f2f6', F: '#4a4a56' }) },
+  // los periodistas de 2025: él, la americana azul marino y la libreta (el periodista de 2000 del 24 ya sirve); ella,
+  // la media melena, la americana granate y el micrófono de mano
+  periodista1: ELENCO_DC.periodista2000,
+  periodista2025: { ...B30, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: conMicro,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', s: '#b07450', C: '#8a3040', c: '#6a2432', W: '#f2eee2', F: '#2a2a34' }) },
+  // ── los años treinta ──
+  // Cayce, el vidente: el pelo corto peinado hacia atrás, las gafas redondas finas, el traje marrón con la corbata
+  // granate; los ojos cerrados del trance, con o.parpadea: true (o la clave cayceTrance)
+  cayce: { ...B30, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#5a4a3a'), delante: gafasRedondasGZ,
+    pal: CLT({ H: '#7a6450', h: '#9a8470', C: '#6a5a48', c: '#4e4234', W: '#f2eee2', o: '#7a2a32', F: '#5a4c3c' }) },
+  // ── ScanPyramids, 2017 ──
+  // el científico japonés: el casco blanco con la linterna frontal y el mono de trabajo azul grisáceo
+  cientificoJapones: { ...B30, cuerpo: CUERPO_MONO_AT, tocado: 'cascoFrontalGZ', ceja: hex('#1c1424'), delante: gafasFinasDC,
+    pal: CLT({ S: '#f0c49a', s: '#c8946a', H: '#1c1424', h: '#3a3046', J: '#f2f2f6', j: '#c8ccd8', C: '#4a6a8a', c: '#36506a', o: '#c8ccd8', u: '#36506a', G: '#2a2a34', n: '#2a2430' }) },
+  // la científica francesa: la cinta de la linterna frontal, la coleta castaña y el chaleco de bolsillos verde oliva
+  // sobre la camisa clara
+  cientificaFrancesa: { ...B30, cuerpo: CUERPO_BUSCADOR, tocado: 'frontalGZ', ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', J: '#2a2a34', j: '#4a4a56', C: '#e8e0cc', V: '#6a7040', o: '#4e5430', G: '#3a2a1a', F: '#8a7a5a', f: '#6a5c42', L: '#3a2a1a' }) },
+  // ── el andamio de 2023 ──
+  // el técnico egipcio: el casco de obra blanco, el chaleco reflectante naranja con las franjas plateadas y el bigote
+  tecnicoEgipcio: { ...B30, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'cascoObra', ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#f2f2f6', j: '#c8ccd8', V: '#f07a2a', Y: '#d8dce4', C: '#5a6a8a', c: '#46546e', F: '#3a3a44' }) },
+  // el ministro de Antigüedades (Ahmed Issa): el pelo canoso corto con entradas, las gafas finas, el traje oscuro y la
+  // corbata azul
+  ministro2023: { ...B30, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a94'), delante: gafasFinasDC,
+    pal: MOT({ H: '#a8a8b2', h: '#c8c8d0', C: '#2a2e3a', c: '#1e212a', W: '#f2eee2', o: '#2a4a8a', F: '#2a2e3a' }) },
+  // ── los expertos ──
+  // Conyers, el del georradar: mayor, la barba gris corta, el sombrero de ala pardo y la camisa de campo caqui
+  conyers: { ...B30, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAMPO_GZ, tocado: 'vaquero', ceja: hex('#8a8a94'), delante: arrugasDC,
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', V: '#8a6a44', v: '#6a4e2e', C: '#a8a070', c: '#86804e', o: '#e8e4dc', u: '#86804e', G: '#5a3a20', F: '#3a4a6a' }) },
+  // Parcak, la arqueóloga: el pelo castaño largo recogido en la coleta (por detrás: la cara entera) y la camisa
+  // verde azulado
+  parcak: { ...B30, cuerpo: CUERPO_CAMPO_GZ, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', s: '#e8a080', C: '#3a8a8a', c: '#2a6a6a', o: '#e8e4dc', u: '#2a6a6a', G: '#3a2a1a', F: '#c8b890' }) },
+  // Hawass, el antiguo ministro: mayor, el pelo blanco, el sombrero de ala ancha de explorador, la camisa vaquera y el
+  // pantalón caqui
+  hawass: { ...B30, cuerpo: CUERPO_CAMPO_GZ, tocado: 'alaAT', ceja: hex('#b8b8c2'), delante: arrugasDC,
+    pal: MOT({ H: '#e8e8ee', h: '#f6f6f8', J: '#b08a5a', j: '#8a6a40', D: '#5a3a20', C: '#5a7aa8', c: '#425e88', o: '#e8e4dc', u: '#425e88', G: '#5a3a20', F: '#c8b48a' }) },
+  // ── la redacción de la revista, 2026 ──
+  // el editor: las sienes canosas, las gafas de pasta y el jersey de pico verde sobre la camisa; la editora: la media
+  // melena, las gafas finas y el jersey mostaza
+  editor1: { ...B30, cab: CAB_SIENES, cuerpo: CUERPO_PICO_DC, ceja: hex('#3a2a20'), delante: gafasPastaDC,
+    pal: CLT({ H: '#4a3a30', h: '#6a5a4e', w: '#c8c8d2', C: '#4a6a4a', c: '#36503a', W: '#f2eee2', F: '#4a4a54' }) },
+  editora2: { ...B30, cab: CAB_MEDIA_TR, cuerpo: CUERPO_MANGA, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#b07450', C: '#c89a3a', c: '#a07a24', F: '#3a3a4a' }) },
+  // ── Hawara, hacia el 450 a. C. ──
+  // Heródoto: la barba castaña, el pétaso de viaje, el quitón claro, el himatión azul y las sandalias; el rollo de
+  // papiro bajo el brazo
+  herodoto: { ...B30, cab: CAB_BARBA, cuerpo: CUERPO_HIMATION_GZ, tocado: 'petasoGZ', ceja: hex('#4a2a18'), detras: conRolloGZ,
+    pal: OTO({ H: '#5a3a20', h: '#7a5434', J: '#c8a46a', j: '#e0c08a', T: '#f0e8d4', t: '#c8bc9a', M: '#3a5a8a', m: '#2a446a', L: '#6a4020' }) },
+  // el guía egipcio: la cabeza rapada, el faldellín de lino y el ojo pintado (el calvo de ELENCO_EG); el guardián:
+  // el pelo corto, el faldellín y la lanza
+  guiaEgipcio450: ELENCO_EG.calvo,
+  guardian450: { ...ELENCO_EG.campesino, delante: lanzaGZ },
+  // ── Hawara, 1888 ──
+  // Petrie: la barba castaña, el salacot claro, la chaqueta de campaña clara y las botas altas
+  petrie: { ...B30, cab: CAB_BARBA, cuerpo: CUERPO_CAMPANA_GZ, tocado: 'salacotGZ', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', X: '#ece4cc', x: '#c8bc9a', C: '#d8ccaa', c: '#b8aa84', W: '#f6f2e6', o: '#b8aa84', F: '#a8987a', n: '#4a3020' }) },
+  // los trabajadores: la galabiya, el turbante y la cesta; uno con la galabiya azul y el turbante blanco, el otro con
+  // la galabiya parda, el turbante crudo y la barba corta
+  trabajadorEgipcio1888: { ...B30, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#1c1424'), delante: varios(bigoteTR, conCestaTR),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', A: '#f2eee2', a: '#c8c0b0', C: '#4a6a9a', c: '#36507a', L: '#6a4a2a' }) },
+  trabajadorEgipcio1888b: { ...B30, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#2a1c14'), delante: conCestaTR,
+    pal: MOT({ S: '#b88058', s: '#8a5a38', H: '#2a1c14', h: '#4a3424', A: '#d8c8a0', a: '#b0a078', C: '#8a6a4a', c: '#6a4e34', L: '#4a3020' }) },
+  // ── Hawara, 2008 ──
+  // el investigador belga: el pelo castaño de lado, la camisa de campo azul y la tableta; el geofísico egipcio: el
+  // chaleco de bolsillos gris, el bigote y el aparato de medir
+  belga2008: { ...B30, cab: CAB_LADO_DC, cuerpo: CUERPO_CAMPO_GZ, ceja: hex('#6a4426'), delante: conTabletaGZ,
+    pal: CLT({ H: '#8a6040', h: '#a87a50', C: '#5a7ab0', c: '#46609a', o: '#e8e4dc', u: '#46609a', G: '#3a2a1a', F: '#c8b890' }) },
+  geofisico2008: { ...B30, cuerpo: CUERPO_BUSCADOR, ceja: hex('#1c1424'), delante: varios(bigoteTR, conAparatoGZ),
+    pal: MOT({ H: '#2a2028', h: '#4a3a46', C: '#e8e4dc', V: '#7a7a72', o: '#5a5a54', G: '#2a2430', F: '#4a4a56', f: '#36363e', L: '#2a2430' }) },
+  // ── el cementerio de mastabas, 2024 ──
+  // el investigador japonés: la gorra azul y el chaleco de bolsillos beis; la investigadora egipcia (NRIAG): el pañuelo
+  // liso verde azulado (nunca tapa la cara) y la camisa larga; los dos empujan PIEZAS_GZ.carritoRadar (o.sostiene)
+  japones2024: { ...B30, cuerpo: CUERPO_BUSCADOR, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: CLT({ S: '#f0c49a', s: '#c8946a', H: '#1c1424', h: '#3a3046', J: '#2a4a7a', j: '#3a5a8a', C: '#f2f2f6', V: '#c8b07a', o: '#a8905a', G: '#3a2a1a', F: '#5a5a66', f: '#46464e', L: '#2a2430' }) },
+  egipcia2024: { ...B30, cuerpo: CUERPO_CAMPO_GZ, tocado: 'panuelo', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#b07450', J: '#2a7a7a', y: '#2a7a7a', C: '#e8dcc8', c: '#c8bca4', o: '#c8bca4', u: '#c8bca4', G: '#6a4a2a', F: '#3a3e5a' }) },
+  // ── Giza, hoy ──
+  // los turistas: la de la gorra y la camiseta rosa (la del 16) y la del pelo largo y la camiseta coral (la del 29)
+  turista1: ELENCO_TE.turista,
+  turista2: ELENCO_PR.visitante2,
+  // el camellero: la galabiya azul oscura, el turbante blanco, el bigote y la vara
+  camellero: { ...B30, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#1c1424'), delante: varios(bigoteTR, conPaloNV),
+    pal: MOT({ S: '#b88058', s: '#8a5a38', H: '#1c1424', h: '#3a3046', A: '#f6f6f6', a: '#c8ccd8', C: '#2a3a5a', c: '#1e2a44', L: '#4a3020' }) },
+};
+// Cayce en trance: los ojos cerrados siempre
+ELENCO_GZ.cayceTrance = { ...ELENCO_GZ.cayce, delante: varios(ojosCerradosGZ, gafasRedondasGZ) };
+Object.assign(ELENCO_CHIBI, ELENCO_GZ);
+
+// ── piezas del 30 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Nada de letras: la revista lleva una banda de color y rayas; las pantallas, dibujos.
+const PAL_GZ = COLORES({
+  k: '#1c1222', P: '#ecd096', p: '#c8a062', q: '#a87a40', O: '#f0c040', g: '#a87a18', o: '#ffe890',
+  W: '#f6f6f6', E: '#ffffff', Z: '#c8ccd8', z: '#7c8090', K: '#2a2832', u: '#4a4856', N: '#14204a', n: '#5ad8f0',
+  A: '#3a6ad8', a: '#9ab8e0', Y: '#fff4b0', y: '#f0d040', R: '#c8303a', r: '#8a1e26', G: '#56f07a', L: '#f0a030',
+  B: '#b8844a', b: '#7a5028', X: '#f6f2e6', x: '#c8c0b0', T: '#e8cc8a', t: '#c0a062', C: '#e8783a', c: '#b85a1a',
+  M: '#5a5466', m: '#3e3a48', I: '#a8c8d0', i: '#3e5a66', e: '#e88a9a', D: '#2a1a14', V: '#6a7a8a', v: '#4a5866',
+});
+const pintaGZ = (R, g, x, y, o = {}, pal = PAL_GZ) => pintaJH(R, g, x, y, o, pal);
+const cacheGZ = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+const pasoGZ = (v, n, def = 0) => Math.round(Math.max(0, Math.min(1, v ?? def)) * n);
+
+// LA PIRÁMIDE DE PISAPAPELES del escritorio de Atom: la cara de la luz (P) y la de sombra (p), con las hiladas (q/p) y
+// la punta de oro (O, sombra g) que se levanta con o.abre 0–1 (hasta 6 px); abierta, se ve el hueco oscuro (D) por
+// dentro, vacío (para el gag del lápiz, PIEZAS_GZ.lapiz encima del hueco). 22 × 22 (la base no se mueve)
+const PIRAMIDE_CACHE_GZ = new Map();
+const piramidePisapapelesGZ = (R, x, y, o = {}) => {
+  const d = pasoGZ(o.abre, 6);
+  const g = cacheGZ(PIRAMIDE_CACHE_GZ, d, () => forma(22, 22, ({ put }) => {
+    const ancho = (j) => (j - 7) * 0.72 + 0.4;
+    for (let j = 12; j <= 21; j++) {
+      const w = ancho(j);
+      for (let i = 0; i < 22; i++) { const dx = i + 0.5 - 11; if (Math.abs(dx) <= w) put(i, j, dx < 0 ? ((j - 12) % 3 === 2 ? 'p' : 'P') : ((j - 12) % 3 === 2 ? 'q' : 'p')); }
+    }
+    if (d > 0) { const w = ancho(12); for (let i = 0; i < 22; i++) { const dx = i + 0.5 - 11; if (Math.abs(dx) <= w - 1.2) put(i, 12, 'D'); } }
+    for (let j = 7; j <= 11; j++) {
+      const w = ancho(j);
+      for (let i = 0; i < 22; i++) { const dx = i + 0.5 - 11; if (Math.abs(dx) <= w) put(i, j - d, dx < 0 ? 'O' : 'g'); }
+    }
+    put(10, 8 - d, 'o');
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// LA LINTERNA de mano: el cuerpo negro (K) con las estrías (u), la cabeza de metal (Z/z) y el cristal (I; o.encendida,
+// amarillo Y y el haz delante, en dos tonos y sin tramas; o.haz false: sin haz). o.abajo: de pie, con la luz hacia
+// abajo (bajar por un pozo). Horizontal 14 × 6 (el haz, 18 × 9 delante); de pie, 6 × 14 (el haz, 9 × 18 por debajo de y)
+const LINTERNA_GZ = (luz) => forma(14, 6, ({ rect, put }) => {
+  rect(1, 2, 8, 3, 'K'); rect(1, 3, 8, 3, 'u'); for (const i of [3, 5, 7]) put(i, 2, 'u');
+  rect(9, 1, 11, 4, 'Z'); rect(9, 4, 11, 4, 'z'); rect(12, 0, 12, 5, 'Z'); put(12, 5, 'z'); rect(12, 1, 12, 4, luz ? 'Y' : 'I');
+});
+const HAZ_GZ = forma(18, 9, ({ put }) => { for (let i = 0; i < 18; i++) { const w = 1.5 + i * 0.2; for (let j = 0; j < 9; j++) { const d = Math.abs(j - 4); if (d <= w) put(i, j, d <= w * 0.45 ? 'Y' : 'y'); } } });
+const girarGZ = (g) => g[0].split('').map((_, i) => g.map((f) => f[i]).join(''));
+const LINTERNAS_GZ = [LINTERNA_GZ(false), LINTERNA_GZ(true)], LINTERNAS_ABAJO_GZ = LINTERNAS_GZ.map(girarGZ), HAZ_ABAJO_GZ = girarGZ(HAZ_GZ.map((f) => f));
+const linternaGZ = (R, x, y, o = {}) => {
+  const s = o.s ?? 1, dir = o.dir ?? 1, on = !!o.encendida, haz = on && o.haz !== false;
+  if (o.abajo) {
+    if (haz) pintaGZ(R, HAZ_ABAJO_GZ, x, y + 18 * s, { s });
+    return pintaGZ(R, LINTERNAS_ABAJO_GZ[on ? 1 : 0], x, y, { s });
+  }
+  if (haz) pintaGZ(R, HAZ_GZ, x + (7 + 9) * s * dir, y + 1.5 * s, { s, dir });
+  pintaGZ(R, LINTERNAS_GZ[on ? 1 : 0], x, y, o);
+};
+
+// EL LÁPIZ amarillo (O, la arista g) con la goma rosa (e), la virola (Z/z), la madera (T) y la mina (K). 17 × 4
+const LAPIZ_GZ = forma(17, 4, ({ rect, put }) => {
+  rect(1, 1, 2, 2, 'e'); rect(3, 1, 4, 2, 'Z'); put(4, 2, 'z'); rect(5, 1, 12, 1, 'O'); rect(5, 2, 12, 2, 'g');
+  put(13, 1, 'T'); put(13, 2, 'T'); put(14, 1, 'T'); put(14, 2, 't'); put(15, 1, 'K'); put(15, 2, 'K');
+});
+const lapizGZ = (R, x, y, o = {}) => pintaGZ(R, LAPIZ_GZ, x, y, o);
+
+// EL PORTÁTIL abierto: la pantalla (N, el marco K) con el plano azul de la pirámide (líneas n) o.pantalla 'piramide'
+// (por omisión) o 'azul' (lisa, con el brillo a), y la base gris (Z/z) con el teclado (rayas z); o.abierto false:
+// cerrado, una tapa fina. 18 × 14 (cerrado, 18 × 4)
+const PORTATIL_GZ = (pir) => forma(18, 14, ({ rect, put, linea }) => {
+  rect(2, 0, 15, 9, 'K'); rect(3, 1, 14, 8, 'N');
+  if (pir) { linea(4, 7, 8.5, 2, 'n'); linea(13, 7, 8.5, 2, 'n'); rect(4, 7, 13, 7, 'n'); linea(7, 5, 10, 5, 'a'); put(8, 6, 'n'); put(10, 6, 'n'); }
+  else { put(4, 2, 'a'); put(5, 2, 'a'); put(4, 3, 'a'); }
+  rect(0, 10, 17, 12, 'Z'); rect(0, 12, 17, 12, 'z'); for (let i = 2; i <= 15; i += 2) put(i, 11, 'z'); rect(7, 12, 10, 12, 'u');
+});
+const PORTATILES_GZ = { piramide: PORTATIL_GZ(true), azul: PORTATIL_GZ(false), cerrado: forma(18, 4, ({ rect }) => { rect(0, 1, 17, 1, 'u'); rect(0, 2, 17, 2, 'z'); rect(1, 1, 3, 1, 'K'); }) };
+const portatilGZ = (R, x, y, o = {}) => pintaGZ(R, o.abierto === false ? PORTATILES_GZ.cerrado : PORTATILES_GZ[o.pantalla] ?? PORTATILES_GZ.piramide, x, y, o);
+
+// EL DETECTOR DE MUONES: la caja gris (Z, sombra z) con las asas (K) y el panel negro (K) con las lucecitas verdes (G),
+// ámbar (L) y rojas (R) que se encienden y se apagan con o.t; los cables que salen por detrás (u). 26 × 15
+const DETECTOR_CACHE_GZ = new Map();
+const detectorMuonesGZ = (R, x, y, o = {}) => {
+  const f = Math.floor((o.t ?? 0) * 4) % 8;
+  const g = cacheGZ(DETECTOR_CACHE_GZ, f, () => forma(26, 15, ({ rect, put, linea }) => {
+    linea(0, 13, 2, 9, 'u'); linea(1, 13, 3, 9, 'u');
+    rect(3, 3, 24, 13, 'Z'); rect(3, 12, 24, 13, 'z'); rect(23, 3, 24, 13, 'z'); rect(8, 1, 10, 1, 'K'); rect(17, 1, 19, 1, 'K'); put(8, 2, 'K'); put(10, 2, 'K'); put(17, 2, 'K'); put(19, 2, 'K');
+    rect(5, 5, 21, 10, 'K');
+    for (let k = 0; k < 6; k++) { const on = ((f + k * 3) % 8) < 4; put(7 + k * 2.6, 7, on ? ['G', 'G', 'L', 'G', 'R', 'G'][k] : 'u'); }
+    rect(7, 9, 19, 9, 'u'); rect(7, 9, 7 + (f % 4) * 3 + 2, 9, 'G');
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// LA PLACA DE EMULSIÓN: la película (M, oscura) en su marco fino de metal (Z/z); o.luz 0–1 enciende en el centro una
+// mancha alargada clara (y, el centro Y), como una radiografía donde hay vacío; o.tumbada: de canto, en el suelo.
+// De pie 22 × 15 (tumbada 22 × 3)
+const PLACA_CACHE_GZ = new Map();
+const placaEmulsionGZ = (R, x, y, o = {}) => {
+  if (o.tumbada) return pintaGZ(R, cacheGZ(PLACA_CACHE_GZ, 't', () => forma(22, 3, ({ rect }) => { rect(1, 1, 20, 1, 'z'); rect(2, 1, 19, 1, 'M'); })), x, y, o);
+  const l = pasoGZ(o.luz, 4);
+  const g = cacheGZ(PLACA_CACHE_GZ, l, () => forma(22, 15, ({ rect, put }) => {
+    rect(1, 1, 20, 13, 'Z'); rect(1, 13, 20, 13, 'z'); rect(20, 1, 20, 13, 'z'); rect(2, 2, 19, 12, 'M'); rect(2, 2, 19, 3, 'm');
+    if (l > 0) for (let j = 2; j <= 12; j++) for (let i = 2; i <= 19; i++) {
+      const d = Math.hypot((i - 10.5) / (2.2 + l * 1.6), (j - 6.5) / (0.8 + l * 0.5));
+      if (d <= 1) put(i, j, d <= 0.5 && l > 1 ? 'Y' : 'y');
+    }
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// EL ENDOSCOPIO: el cable fino (z) que entra por la izquierda con una ondita y la cabeza de la cámara (Z, el cristal I
+// y la lucecita Y); o.largo 0–1 (1 por omisión) cuánto cable ha entrado: la cabeza va de 8 a 40 px desde el borde de la
+// izquierda (x − 21). 42 × 7 fijos
+const ENDO_CACHE_GZ = new Map();
+const endoscopioGZ = (R, x, y, o = {}) => {
+  const n = pasoGZ(o.largo, 16, 1);
+  const g = cacheGZ(ENDO_CACHE_GZ, n, () => forma(42, 7, ({ rect, put }) => {
+    const fin = 8 + n * 2;
+    for (let i = 0; i < fin; i++) put(i, 3 + Math.round(Math.sin(i * 0.35) * 1.2), 'z');
+    rect(fin, 2, fin + 1, 4, 'Z'); put(fin + 1, 4, 'z'); put(fin + 2, 3, 'I'); put(fin + 2, 2, 'Y');
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// EL CARRITO DEL GEORRADAR: la caja de la antena naranja (C, sombra c) baja entre las dos ruedas (K, el buje Z, los
+// radios u que giran con o.t), el asa (z) que sube hacia atrás con el agarre (K) y la pantallita (N) con las líneas del
+// radargrama (la superficie n y el arco a de lo enterrado); mira a la derecha (o.dir −1, a la izquierda). El agarre, a unos (−15, −21) de (x, y). 34 × 23
+const CARRITO_CACHE_GZ = new Map();
+const carritoRadarGZ = (R, x, y, o = {}) => {
+  const f = Math.floor((o.t ?? 0) * 8) % 2;
+  const g = cacheGZ(CARRITO_CACHE_GZ, f, () => forma(34, 23, ({ rect, put, linea, disco }) => {
+    linea(4, 1, 13, 15, 'z'); linea(5, 1, 14, 15, 'z'); rect(2, 0, 5, 1, 'K');
+    rect(7, 4, 14, 9, 'K'); rect(8, 5, 13, 8, 'N'); rect(8, 5, 13, 5, 'n'); put(10, 6, 'a'); put(11, 6, 'a'); put(9, 7, 'a'); put(12, 7, 'a'); put(8, 8, 'a'); put(13, 8, 'a');
+    rect(12, 13, 29, 18, 'C'); rect(12, 17, 29, 18, 'c'); rect(13, 14, 28, 14, 'L');
+    for (const cx of [13.5, 28.5]) {
+      disco(cx, 19, 3.2, 'K'); disco(cx, 19, 1, 'Z');
+      if (f) { put(cx - 2, 19, 'u'); put(cx + 2, 19, 'u'); } else { put(cx, 17, 'u'); put(cx, 21, 'u'); }
+    }
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// LA REVISTA científica, la portada sin letras: el papel (X), la banda de cabecera de color (A, sin letras), la imagen
+// grande del plano azul (N) con la pirámide en líneas (n) y su rejilla (u), y unas rayas grises (x) abajo; o.sello: la
+// marca roja del sello (PIEZAS_GZ.selloRojo) estampada encima. 18 × 23
+const REVISTA_GZ = forma(18, 23, ({ rect, put, linea }) => {
+  rect(1, 1, 16, 21, 'X'); rect(16, 2, 16, 21, 'x'); rect(1, 21, 16, 21, 'x');
+  rect(2, 2, 15, 4, 'A'); rect(2, 4, 15, 4, 'a');
+  rect(3, 6, 14, 16, 'N'); for (const i of [5, 8, 11]) rect(i, 6, i, 16, 'u'); for (const j of [9, 13]) rect(3, j, 14, j, 'u');
+  linea(4, 15, 8.5, 8, 'n'); linea(13, 15, 8.5, 8, 'n'); rect(4, 15, 13, 15, 'n'); linea(8.5, 8, 9.5, 15, 'a');
+  rect(3, 18, 12, 18, 'x'); rect(3, 20, 9, 20, 'x');
+});
+const revistaGZ = (R, x, y, o = {}) => {
+  pintaGZ(R, REVISTA_GZ, x, y, o);
+  if (o.sello) { const s = o.s ?? 1; pintaGZ(R, SELLO_MARCA_DC, x + 2 * s * (o.dir ?? 1), y - 5 * s, { s, dir: o.dir }, { ...PAL_GZ, ...COLORES({ R: '#d0303a' }) }); }
+};
+
+// LA CESTA DE ARENA: la cesta de palma trenzada (B, el trenzado b) con las dos asas y el montón de arena (T, sombra t)
+// por encima del borde. 18 × 14
+const CESTA_GZ = forma(18, 14, ({ rect, put, disco }) => {
+  disco(8.5, 7, 6.2, 'T'); rect(1, 0, 17, 5, '.'); disco(8.5, 7.5, 5.6, 'T'); for (let i = 3; i <= 14; i++) put(i, 6, 'T');
+  put(6, 4, 't'); put(10, 5, 't'); put(12, 6, 't'); put(5, 6, 't');
+  rect(2, 7, 15, 12, 'B'); rect(3, 13, 14, 13, 'B'); for (const j of [8, 10, 12]) rect(2, j, 15, j, 'b'); for (let i = 4; i <= 13; i += 3) { put(i, 9, 'b'); put(i + 1, 11, 'b'); }
+  rect(0, 8, 1, 9, 'b'); rect(16, 8, 17, 9, 'b');
+});
+const cestaArenaGZ = (R, x, y, o = {}) => pintaGZ(R, CESTA_GZ, x, y, o);
+
+// LA TROMPETILLA DE OÍDO enorme (el gag del satélite): el pabellón de latón (O, sombra g, la boca oscura D) que se abre
+// a la derecha y el tubo que se estrecha y se curva hasta la boquilla (g) a la izquierda. 30 × 17
+const TROMPETILLA_GZ = forma(30, 17, ({ put, disco }) => {
+  for (let i = 6; i <= 27; i++) { const r = 1 + Math.pow((i - 6) / 21, 2.2) * 6.5; for (let j = 0; j < 17; j++) { const d = Math.abs(j - 8); if (d <= r) put(i, j, j > 8 + r * 0.45 ? 'g' : 'O'); } }
+  for (let j = 2; j <= 14; j++) if (Math.abs(j - 8) <= 6.2) { put(28, j, 'g'); if (Math.abs(j - 8) <= 5) put(27, j, 'D'); }
+  for (let a = 0; a <= 12; a++) { const t = a / 12 * Math.PI; put(6 - Math.sin(t) * 4, 11 - Math.cos(t) * 3, 'O'); put(6 - Math.sin(t) * 4, 12 - Math.cos(t) * 3, 'g'); }
+  disco(6, 14.5, 1.2, 'g'); put(9, 7, 'o'); put(13, 6, 'o'); put(18, 4, 'o');
+});
+const trompetillaGZ = (R, x, y, o = {}) => pintaGZ(R, TROMPETILLA_GZ, x, y, o);
+
+export const PIEZAS_GZ = {
+  piramidePisapapeles: piramidePisapapelesGZ, linterna: linternaGZ, lapiz: lapizGZ, portatil: portatilGZ,
+  microfono: PIEZAS_NC.microfono, detectorMuones: detectorMuonesGZ, placaEmulsion: placaEmulsionGZ, endoscopio: endoscopioGZ,
+  carritoRadar: carritoRadarGZ, revista: revistaGZ, selloRojo: selloDC, carpeta: (R, x, y, o = {}) => carpetaDC(R, x, y, { sello: false, ...o }),
+  cestaArena: cestaArenaGZ, trompetilla: trompetillaGZ, lupa: PIEZAS_PR.lupa,
+};
