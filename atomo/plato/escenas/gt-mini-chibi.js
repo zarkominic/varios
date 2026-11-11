@@ -2,7 +2,10 @@
 // mascotas ni objetos con cara; luz de cine). n = 0: la principal (16:9); 1–3: los Shorts (recorte al centro, x 110–211).
 //   0 · arriba, Dundee bajo la lluvia (el Tay, el puente y la colina); abajo, la ciudad de juguete vista
 //       desde arriba con la persecución loca. Penn, al doble, la mira boquiabierto. «1995».
-import { dundee, dundeeDelante, ciudad } from '/atomo/plato/escenas/gt-comun.js';
+//   1 · la oficina de DMA (cámara 'boton') con la ciudad en el monitor; Penn, al doble, boquiabierto. «1995».
+//   2 · la Cámara de los Lores; el lord que pregunta, al doble, en el centro. «1997».
+//   3 · la sala de récords con la montaña de cajas; Sam Houser, al doble, en el centro. «2013».
+import { dundee, dundeeDelante, ciudad, ciudadDelante, londres, londresDelante, hoy, hoyDelante } from '/atomo/plato/escenas/gt-comun.js';
 import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
 import { ELENCO_CHIBI as EL, PIEZAS_GT as P } from '/atomo/plato/kits/pixel-chibi.js';
 let arriba = null;
@@ -30,5 +33,30 @@ export function pintarGTchibi(R, t, n) {
     P.cochePolicia(R, 98, 130, { t: 0.3 });
     figura(R, EL.pennGT, 262, 178, t, { dir: -1, sorpresa: true }, 2);
     cifra(R, '1995', 58, 150, 20);
+  }
+  else if (n === 1) {
+    const o = { encuadre: 'arriba', camara: 'boton', pantalla: 'ciudad', pulsado: true };
+    ciudad(R, t, o); ciudadDelante(R, t, o);
+    grado(R, { cx: 160, tinte: '#0a1020', f: 0.12, rx: 120, desde: 0.75, max: 0.5 });
+    halo(R, 160, 140, 46, 50, '#ff4060', 0.22); halo(R, 160, 120, 40, 30, '#3070ff', 0.18);
+    figura(R, EL.pennGT, 160, 176, t, { dir: -1, sorpresa: true }, 2);
+    R.rect(130, 0, 190, 13, 0x3a4058); R.rect(131, 0, 189, 12, 0x141826);   // placa oscura para que la cifra se lea
+    cifra(R, '1995', 160, 12, 14);
+  } else if (n === 2) {
+    const o = { encuadre: 'lores' };
+    londres(R, t, o); londresDelante(R, t, o);
+    grado(R, { cx: 160, tinte: '#2a0a08', f: 0.12, rx: 120, desde: 0.75, max: 0.5 });
+    halo(R, 160, 140, 46, 50, '#ffe0b0', 0.25);
+    figura(R, EL.lordCampbell, 160, 176, t, { dir: 1, sorpresa: true }, 2);
+    R.rect(130, 0, 190, 13, 0x3a4058); R.rect(131, 0, 189, 12, 0x141826);   // placa oscura para que la cifra se lea
+    cifra(R, '1997', 160, 12, 14);
+  } else if (n === 3) {
+    const o = { encuadre: 'records', montana: 1, cifras: 9, contador: 235000000 };
+    hoy(R, t, o); hoyDelante(R, t, o);
+    grado(R, { cx: 160, tinte: '#0a1020', f: 0.12, rx: 120, desde: 0.75, max: 0.5 });
+    halo(R, 160, 140, 46, 50, '#ffd060', 0.25);
+    figura(R, EL.samHouser, 160, 176, t, { dir: 1, sorpresa: true }, 2);
+    R.rect(130, 0, 190, 13, 0x3a4058); R.rect(131, 0, 189, 12, 0x141826);   // placa oscura para que la cifra se lea
+    cifra(R, '2013', 160, 12, 14);
   }
 }
