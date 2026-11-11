@@ -8481,3 +8481,347 @@ export const PIEZAS_GZ = {
   carritoRadar: carritoRadarGZ, revista: revistaGZ, selloRojo: selloDC, carpeta: (R, x, y, o = {}) => carpetaDC(R, x, y, { sello: false, ...o }),
   cestaArena: cestaArenaGZ, trompetilla: trompetillaGZ, lupa: PIEZAS_PR.lupa,
 };
+
+// ── Episodio 31 · GTA: el juego de Escocia que casi se cancela ──
+// (Dundee y Edimburgo, 1987–2013): el estudio de los ochenta, la prueba de los coches de policía, el editor de BMG y el
+// publicista de 1997, los lores de 1997–1998, el tabloide, los hermanos de Nueva York, el abogado y la jueza, el mod de
+// 2005, las tiendas de 2008 y 2013.
+// DERECHOS: nada de Grand Theft Auto real (ni logo, ni portadas, ni personajes del juego, ni su estilo); nada de letras en
+// ninguna pieza (el «18» de la caja va en cifras sueltas sobre una etiqueta lisa, sin el círculo de ninguna calificadora).
+// Los bichitos son una criatura nuestra (redonda, con el mechón verde de punta y el mono naranja), nunca los de Lemmings.
+// Las personas reales, por sus atributos (la ropa, el pelo, las gafas) y con respeto, sin caricatura. Nombres nuevos con
+// GT (o el sufijo del año) para no pisar las claves de otros episodios.
+
+// ── cuerpos ──
+// el jersey de cuello redondo de finales de los ochenta (C) con la franja ancha del pecho (D, su sombra d): Jones
+const CUERPO_JERSEY_GT = parche(CUERPO_MANGA, [[4, 2, 'DDDDDDD'], [4, 3, 'ddddddd']]);
+// la cazadora de cuero (C, los pliegues c) abierta sobre la camiseta (W), sin el broche: los hermanos de Nueva York
+const CUERPO_CUERO_GT = parche(CUERPO_CAZADORA, [[9, 2, 'C']]);
+// la toga roja de los lores (C, los pliegues c) con el cuello y la barra de armiño del pecho (X con las motas negras J),
+// la camisa blanca (W) que asoma y el bajo de armiño; los brazos, los de siempre
+const CUERPO_TOGA_LORD_GT = parche(CUERPO_TUNICA_LARGA, [
+  [3, 0, 'kkWWWWWkk'], [3, 1, 'XXJXWXJXX'], [4, 2, 'CCXWXCC'], [4, 3, 'XJXWCCC'], [4, 4, 'CCCWCCC'], [4, 5, 'CCCCCCC'],
+  [4, 6, 'CcCCCcC'], [4, 7, 'CCCcCCC'], [4, 8, 'CcCcCcC'], [4, 9, 'CCCcCCC'], [4, 10, 'cccccccc'], [4, 11, 'XXJXXXJX'],
+]);
+// el polo de la tienda (C) con el cuello (W), los botones (o) y la plaquita del nombre (X, sin letras)
+const CUERPO_POLO_TIENDA_GT = parche(CUERPO_POLO_DC, [[9, 2, 'X']]);
+
+// ── el reparto del 31 ──
+const B31 = B23, B31J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_GT = {
+  // ── Dundee, finales de los ochenta ──
+  // David Jones joven: el pelo corto castaño de lado y el jersey azul marino con la franja mostaza
+  jonesGT: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_JERSEY_GT, ceja: hex('#4a2a14'),
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', C: '#2a3a6a', c: '#1e2a50', D: '#d8a840', d: '#b08428', F: '#4a4a54', n: '#2a2430' }) },
+  // Mike Dailly joven: el pelo oscuro corto, las gafas grandes de los ochenta y la camiseta verde con los vaqueros
+  daillyGT: { ...B31, cuerpo: CUERPO_CALLE, ceja: hex('#2a1c14'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#3a8a6a', c: '#2a6a50', F: '#3e5a8a', n: '#2a2430' }) },
+  // ── los noventa ──
+  // Gary Penn: la barba corta, la gorra verde oscura y la camisa de cuadros azul abierta sobre la camiseta
+  pennGT: { ...B31, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUADROS_AT, tocado: 'beisbol', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#2e5a46', j: '#3e7058', C: '#4a6a9a', c: '#36507a', p: '#24345a', W: '#f2eee2', F: '#3a3a44', n: '#2a2430' }) },
+  // el ejecutivo de la discográfica (BMG): el pelo oscuro peinado hacia atrás, el traje gris marengo y la corbata granate
+  ejecutivoBMG: { ...B31, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#4a4e5a', c: '#383b45', W: '#eef0f6', o: '#8a2a4a', F: '#4a4e5a' }) },
+  // Max Clifford, el publicista: el pelo canoso peinado hacia atrás, el traje oscuro y la camisa blanca abierta, sin corbata
+  clifford: { ...B31, cab: CAB_ENGOMINADO, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#9a9aa4'),
+    pal: CLT({ H: '#d0d0d8', h: '#ececf0', C: '#24242e', c: '#18181f', W: '#f6f6f8', F: '#24242e' }) },
+  // ── la Cámara de los Lores, 1997–1998 ──
+  // lord Campbell: mayor, el pelo blanco con entradas, las arrugas y la toga roja con el armiño
+  lordCampbell: { ...B31, cab: CAB_ENTRADAS, cuerpo: CUERPO_TOGA_LORD_GT, ceja: hex('#b8b8c2'), delante: arrugasDC,
+    pal: CLT({ H: '#e8e8ee', h: '#f6f6f8', C: '#b8283a', c: '#8a1e2c', X: '#f6f4ee', J: '#1c1c24', W: '#f6f4ee', L: '#1c1c24' }) },
+  // lord Avebury: mayor, el pelo blanco, las gafas finas, las arrugas y la misma toga
+  lordAvebury: { ...B31, cuerpo: CUERPO_TOGA_LORD_GT, ceja: hex('#b8b8c2'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLT({ H: '#e0e0e8', h: '#f2f2f6', C: '#b8283a', c: '#8a1e2c', X: '#f6f4ee', J: '#1c1c24', W: '#f6f4ee', L: '#1c1c24' }) },
+  // el ministro que contesta en los Lores (pelo canoso, arrugas, traje azul marino y corbata burdeos): el senador del 28 ya sirve
+  ministroLores: ELENCO_NC.senador,
+  // el hijo del lord, 12 años en 1998: el pelo rubio oscuro de lado, la sudadera granate con capucha y los vaqueros
+  hijoLord: { ...B31J, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_TS, ceja: hex('#8a5a2a'), mejillas: [[6, 8], [12, 8]], detras: capuchaTS,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', s: '#e8a080', C: '#8a2a3a', c: '#6a1e2c', X: '#e8e8ee', F: '#3a4a6a', n: '#2a2430' }) },
+  // ── la prensa ──
+  // el periodista del tabloide: las sienes canosas, la gabardina parda con cinturón, la corbata y la libreta
+  periodistaTabloide: { ...B31, cab: CAB_SIENES, cuerpo: CUERPO_GABARDINA_DC, ceja: hex('#3a2a20'), delante: conLibretaDC,
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', w: '#c8c8d2', C: '#8a7a5a', c: '#6a5c42', W: '#f2eee2', o: '#2a3a6a', I: '#6a5c42', F: '#3a3a44', G: '#3a2a1a', n: '#2a2430' }) },
+  // los periodistas británicos con su libreta (los del 24 ya sirven)
+  periodista1GT: ELENCO_DC.periodistaUK,
+  periodista2GT: ELENCO_DC.periodistaUK2,
+  // ── Nueva York, finales de los noventa ──
+  // Sam Houser: la barba corta oscura, las gafas de sol, la cazadora de cuero negra sobre la camiseta gris
+  samHouser: { ...B31, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUERO_GT, tocado: 'sol', ceja: hex('#1c1424'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', J: '#14121a', C: '#2a2630', c: '#3e3a46', W: '#6a6e7a', F: '#2a3448', n: '#1c1a20' }) },
+  // Dan Houser: sin barba, el pelo oscuro, las gafas de sol y la cazadora de cuero marrón sobre la camiseta blanca
+  danHouser: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_CUERO_GT, tocado: 'sol', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', J: '#14121a', C: '#5a3a24', c: '#74502e', W: '#f2eee2', F: '#3a4a6a', n: '#2a2018' }) },
+  // ── Edimburgo ──
+  // el programador de DMA en Edimburgo: el pelo castaño rojizo, la sudadera verde con capucha y los vaqueros
+  programadorNorth: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#7a3a1a'), detras: capuchaTS,
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', C: '#3a6a44', c: '#2a5034', X: '#e8e8ee', F: '#3a4a6a', n: '#2a2430' }) },
+  // ── los juicios ──
+  // Jack Thompson, el abogado: el pelo canoso peinado, las gafas finas, el traje azul marino y la corbata roja
+  abogadoThompson: { ...B31, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#7a7a86'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', C: '#2a3048', c: '#1e2436', W: '#f2eee2', o: '#b8303a', F: '#2a3048' }) },
+  // la jueza (media melena gris, gafas finas y toga negra con el cuello blanco): la del 27 ya sirve
+  juezaGT: ELENCO_TS.jueza,
+  // ── 2005 ──
+  // el aficionado: la gorra roja, la camiseta azul y los vaqueros
+  aficionado2005: { ...B31, cuerpo: CUERPO_CALLE, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#c8303a', j: '#962428', C: '#2a6aa8', c: '#1e5080', F: '#3a4a6a', n: '#2a2430' }) },
+  // el hacker del mod (2005): joven, el pelo rubio de lado, la cara amable, la sudadera gris con la capucha bajada a la
+  // espalda (nunca puesta) y los vaqueros
+  hackerGT: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], detras: capuchaTS,
+    pal: CLT({ H: '#c8984a', h: '#e0b464', s: '#e8a080', C: '#6a6e7a', c: '#52565f', X: '#e8e8ee', F: '#3e5a8a', n: '#2a2430' }) },
+  // ── las tiendas, 2008 y 2013 ──
+  // el dependiente: el pelo corto, el polo azul de la tienda con la plaquita sin letras y el pantalón caqui
+  dependienteGT: { ...B31, cab: CAB_CORTA_VM, cuerpo: CUERPO_POLO_TIENDA_GT, ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#2a5aa8', c: '#1e4488', W: '#f2eee2', o: '#f2eee2', X: '#f6f6f6', F: '#a89870', n: '#2a2430' }) },
+  // los compradores: él con el abrigo gris y la bufanda roja (2008); ella con la media melena, el abrigo camel y la
+  // bufanda verde azulada (2013)
+  comprador1GT: { ...B31, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#5a5e68', c: '#464a54', u: '#b8303a', o: '#2a2430', F: '#2a2a34', n: '#1c1a20' }) },
+  comprador2GT: { ...B31, cab: CAB_MEDIA_TR, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#b07450', C: '#b08a5a', c: '#8e6e44', u: '#2a7a7a', o: '#5a4028', F: '#2a2a34', n: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_GT);
+
+// ── piezas del 31 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Nada de letras ni logotipos: el periódico, rayas; la caja del juego, dibujos y el «18» en cifras sueltas.
+const PAL_GT = COLORES({
+  k: '#1c1222', W: '#f6f6f6', w: '#c8ccd8', E: '#ffffff', K: '#2a2832', u: '#4a4856', Z: '#d8dce6', z: '#8c90a4',
+  L: '#ff4a4a', l: '#7a2a34', B: '#4a9aff', b: '#26305a', R: '#d8303a', r: '#8a1e26', e: '#f49a9a',
+  O: '#f0c040', g: '#a87a18', o: '#ffe890', G: '#5ac83a', v: '#2e8a24', N: '#f08a2a', n: '#b8561a', F: '#f6d0a8',
+  T: '#e8dcc0', t: '#c0b490', d: '#6a6252', Q: '#10121c', M: '#6a6478', m: '#48445a', x: '#9a9aa6',
+  Y: '#f2ecd8', y: '#c8c0a8', I: '#a8d8f0', i: '#6a9ab8', A: '#3a6ad8', a: '#24449a', V: '#5a9a4a', P: '#c8a062',
+  p: '#8a6a3a', s: '#1e2a50', X: '#ececf2', j: '#a8a8b8', H: '#8ae08a', h: '#f0a0c8', q: '#8ae0f0', f: '#f6e890',
+  C: '#3a6ad8', c: '#24449a',
+});
+const pintaGT = (R, g, x, y, o = {}, pal = PAL_GT) => pintaJH(R, g, x, y, o, pal);
+const cacheGT = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+const pasoGT = (v, n, def = 0) => Math.round(Math.max(0, Math.min(1, v ?? def)) * n);
+const palColorGT = (color, def) => ({ ...PAL_GT, ...COLORES({ C: color ?? def, c: oscuroTR(color ?? def, 0.7) }) });
+// el humo que sube de una pieza (o.humo 0–1): hasta cuatro bocanadas (X, la sombra j) cada vez más grandes y más altas,
+// que se mecen con el fotograma f; se pinta en las filas de arriba de la rejilla (sobre la pieza: no mueve su base)
+const humoGT = (put, disco, cx, base, n, f) => {
+  for (let k = 0; k < n; k++) {
+    const r = 1.2 + k * 0.45, cy = base - 2 - k * 3.6, x = cx + Math.round(Math.sin(f * 1.6 + k * 1.9)) + (k % 2 ? 2 : -2);
+    disco(x + 0.5, cy + 0.5, r, 'j'); disco(x, cy, r, 'X');
+  }
+};
+
+// EL COCHE DE JUGUETE de perfil (mira a la derecha; o.dir −1, a la izquierda): la carrocería redondeada, las ventanillas
+// (I), las ruedas gordas (K, el tapacubos Z) y los faros (o, el de atrás R). 32 × 16
+const COCHE_GT = (policia, luz) => forma(32, 16, ({ rect, put, disco }) => {
+  const cuerpo = policia ? 'W' : 'C', sombra = policia ? 'w' : 'c';
+  rect(3, 8, 28, 11, cuerpo); rect(3, 11, 28, 11, sombra);
+  if (policia) { rect(3, 8, 9, 11, 'K'); rect(22, 8, 28, 11, 'K'); rect(3, 11, 9, 11, 'u'); rect(22, 11, 28, 11, 'u'); }
+  else rect(4, 9, 27, 9, 'W');
+  put(3, 8, '.'); put(28, 8, '.');
+  for (let j = 4; j <= 7; j++) {
+    const ini = Math.round(10 - (j - 4) * 0.8), fin = 20 + (j - 4);
+    rect(ini, j, fin, j, cuerpo);
+    if (j >= 5) { rect(ini + 1, j, 14, j, 'I'); rect(16, j, fin - 1, j, 'I'); }
+  }
+  put(17, 5, 'i'); put(12, 6, 'i');
+  rect(15, 8, 15, 10, policia ? 'w' : sombra); put(13, 9, 'u'); put(18, 9, 'u');
+  put(28, 9, 'o'); put(3, 9, 'R'); rect(29, 10, 29, 11, 'Z'); rect(2, 10, 2, 11, 'Z');
+  if (policia) { rect(12, 3, 19, 3, 'K'); rect(13, 1, 15, 2, luz !== 1 ? 'L' : 'l'); rect(16, 1, 18, 2, luz !== 0 ? 'B' : 'b'); put(13, 1, luz !== 1 ? 'e' : 'l'); }
+  for (const cx of [8.5, 23.5]) { disco(cx, 12, 2.3, 'K'); put(cx - 0.5, 12, 'Z'); put(cx + 0.5, 12, 'z'); }
+});
+// el coche de policía de JUGUETE, genérico: blanco con el morro y la cola negros, sin letras ni escudos; las luces del
+// techo (roja L y azul B) se encienden por turnos con o.t (sin o.t, las dos encendidas)
+const COCHE_POLICIA_GT = [COCHE_GT(true, 0), COCHE_GT(true, 1), COCHE_GT(true, 2)];
+const cochePoliciaGT = (R, x, y, o = {}) => pintaGT(R, COCHE_POLICIA_GT[o.t == null ? 2 : Math.floor(o.t * 6) % 2], x, y, o);
+// el coche de juguete de otro color (o.color, azul por omisión) con la franja blanca
+const COCHE_JUGUETE_GT = COCHE_GT(false, 2);
+const cocheJugueteGT = (R, x, y, o = {}) => pintaGT(R, COCHE_JUGUETE_GT, x, y, o, palColorGT(o.color, '#3a6ad8'));
+
+// EL BICHITO, la criatura del juego de Dundee (nuestra): redonda, con el mono naranja (N, sombra n) y el botón de oro,
+// la carita (F) con los ojos grandes (E con la pupila K) y la mata de pelo verde con tres puntas (G, sombra v); o.anda (con o.t)
+// mueve los pies por turnos; o.paraguas: lo lleva abierto encima (rojo R y blanco W), flotando. 11 × 16 (con el
+// paraguas, 18 × 24)
+const BICHITO_CACHE_GT = new Map();
+const bichitoGT = (R, x, y, o = {}) => {
+  const f = o.anda ? Math.floor((o.t ?? 0) * 6) % 2 : 0, par = !!o.paraguas;
+  const g = cacheGT(BICHITO_CACHE_GT, f + '|' + par, () => forma(par ? 18 : 11, par ? 24 : 16, ({ rect, put, disco }) => {
+    const dx = par ? 1 : 0, dy = par ? 8 : 0, P2 = (i, j, c) => put(i + dx, j + dy, c);
+    if (par) {
+      for (let i = 4; i <= 16; i++) { const top = Math.round(4 - Math.sqrt(Math.max(0, 36 - (i - 10) ** 2)) * 0.55); for (let j = top; j <= 4; j++) put(i, j, Math.floor((i - 4) / 3) % 2 ? 'W' : 'R'); }
+      for (let i = 4; i <= 16; i += 3) put(i, 5, 'R'); put(10, 0, 'K'); rect(10, 5, 10, 15, 'K');
+    }
+    for (let j = 6; j <= 13; j++) for (let i = 0; i < 11; i++) if (Math.hypot(i - 5, (j - 9.3) * 1.05) <= 4.3) P2(i, j, j >= 12 ? 'n' : 'N');
+    for (let j = 4; j <= 8; j++) for (let i = 0; i < 11; i++) if (Math.hypot(i - 5, (j - 7) * 1.3) <= 3.2) P2(i, j, 'F');
+    for (const [i, j] of [[5, 0], [3, 1], [5, 1], [7, 1], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [2, 4], [3, 4], [7, 4], [8, 4]]) P2(i, j, 'G');
+    P2(4, 3, 'v'); P2(6, 3, 'v'); P2(2, 4, 'v'); P2(8, 4, 'v');
+    P2(4, 6, 'E'); P2(4, 7, 'K'); P2(6, 6, 'E'); P2(6, 7, 'K'); P2(5, 9, 'n'); P2(5, 11, 'O');
+    if (par) P2(9, 8, 'F');
+    const pies = f ? [[2, 13], [3, 13], [7, 14], [8, 14]] : [[2, 14], [3, 14], [7, 14], [8, 14]];
+    for (const [i, j] of pies) P2(i, j, 'K');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL BOTÓN ROJO GIGANTE en su peana: la seta roja (R, sombra r, brillo e) sobre el aro negro (K) y la columna de metal
+// (Z, sombra z) con la placa del suelo; o.pulsado 0–1 hunde la seta (hasta 3 px). 22 × 24
+const BOTON_CACHE_GT = new Map();
+const botonRojoGT = (R, x, y, o = {}) => {
+  const p = pasoGT(o.pulsado, 3);
+  const g = cacheGT(BOTON_CACHE_GT, p, () => forma(22, 24, ({ rect, put }) => {
+    rect(2, 21, 19, 22, 'K'); rect(2, 21, 19, 21, 'u');
+    rect(5, 12, 16, 20, 'Z'); rect(14, 12, 16, 20, 'z'); rect(5, 12, 16, 12, 'z');
+    rect(3, 10, 18, 11, 'K'); rect(3, 10, 18, 10, 'u');
+    rect(5, 6 + p, 16, 9, 'R'); rect(6, 4 + p, 15, 5 + p, 'R'); rect(8, 3 + p, 13, 3 + p, 'R');
+    rect(14, 5 + p, 16, 9, 'r'); rect(5, 9, 16, 9, 'r');
+    put(8, 4 + p, 'e'); put(9, 4 + p, 'e'); put(7, 5 + p, 'e');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// LA CAJA DEL VIDEOJUEGO de cartón (C, el canto c; o.color la cambia), genérica: la ilustración de la noche (s) con los
+// edificios (M/m, ventanas o), la calle (u) y un coche rojo, y abajo la etiqueta lisa (W) con el «18» en cifras sueltas
+// (K); unas rayas (c) en vez de letras. 21 × 28
+const CAJA_JUEGO_GT = forma(21, 28, ({ rect: r0, put: p0 }) => {
+  const rect = (a, b, c, d, ch) => r0(a + 1, b + 1, c + 1, d + 1, ch), put = (i, j, ch) => p0(i + 1, j + 1, ch);
+  rect(1, 0, 19, 1, 'Y'); rect(17, 1, 19, 26, 'c'); rect(0, 2, 16, 26, 'C');
+  rect(2, 4, 14, 17, 's'); put(4, 5, 'o'); put(11, 6, 'o');
+  rect(3, 9, 5, 14, 'M'); rect(6, 7, 9, 14, 'm'); rect(10, 10, 13, 14, 'M'); put(7, 9, 'o'); put(8, 11, 'o'); put(4, 11, 'o'); put(12, 12, 'o');
+  rect(2, 15, 14, 17, 'u'); rect(3, 16, 4, 16, 'o'); rect(12, 16, 13, 16, 'o');
+  rect(6, 14, 11, 15, 'R'); rect(7, 13, 10, 13, 'R'); put(8, 13, 'I'); put(9, 13, 'I'); put(7, 16, 'K'); put(10, 16, 'K'); put(11, 14, 'o');
+  rect(2, 19, 10, 25, 'W'); rect(4, 20, 4, 24, 'K'); put(3, 21, 'K'); rect(6, 20, 8, 24, 'K'); put(7, 21, 'W'); put(7, 23, 'W');
+  rect(12, 20, 15, 20, 'c'); rect(12, 22, 14, 22, 'c'); rect(12, 24, 15, 24, 'c');
+});
+const cajaJuegoGT = (R, x, y, o = {}) => pintaGT(R, CAJA_JUEGO_GT, x, y, o, palColorGT(o.color, '#e0a030'));
+
+// LA CAJA REGISTRADORA: el visor en su mástil (K, las cifras verdes H), el teclado inclinado (Z con las teclas W y la
+// roja R), el cajón (z, el tirador K) y la base; o.humo 0–1 (con o.t, se mece): humea de tanto vender. 24 × 21 (más el
+// humo: 24 × 36)
+const CAJA_REG_CACHE_GT = new Map();
+const cajaRegistradoraGT = (R, x, y, o = {}) => {
+  const n = pasoGT(o.humo, 4), f = o.t == null ? 0 : Math.floor(o.t * 3) % 4;
+  const g = cacheGT(CAJA_REG_CACHE_GT, n + '|' + (n ? f : 0), () => forma(24, 36, ({ rect, put, disco }) => {
+    const b = 15;
+    rect(15, b + 1, 21, b + 5, 'K'); rect(16, b + 2, 20, b + 3, 'H'); put(17, b + 2, 'K'); put(19, b + 3, 'K'); rect(17, b + 6, 18, b + 7, 'z');
+    rect(2, b + 8, 21, b + 12, 'Z'); rect(2, b + 8, 21, b + 8, 'W');
+    for (let j = b + 9; j <= b + 11; j++) for (let i = 4; i <= 16; i += 2) put(i + ((j - b) % 2), j, 'W');
+    rect(18, b + 10, 20, b + 11, 'R');
+    rect(1, b + 13, 22, b + 18, 'z'); rect(1, b + 13, 22, b + 13, 'u'); rect(9, b + 16, 14, b + 16, 'K'); rect(1, b + 19, 22, b + 19, 'u');
+    humoGT(put, disco, 12, b + 1, n, f);
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL PERIÓDICO sensacionalista: la primera plana (Y, sombra y) con la cabecera roja lisa (R), el titular en dos rayas
+// gruesas (K), el icono de un coche (K, las ventanillas Y) y las columnas de rayas (u), sin letras; o.humo 0–1 (con o.t,
+// se mece): la noticia echa humo. 20 × 24 (más el humo: 20 × 39)
+const PERIODICO_CACHE_GT = new Map();
+const periodicoGT = (R, x, y, o = {}) => {
+  const n = pasoGT(o.humo, 4), f = o.t == null ? 0 : Math.floor(o.t * 3) % 4;
+  const g = cacheGT(PERIODICO_CACHE_GT, n + '|' + (n ? f : 0), () => forma(20, 39, ({ rect, put, disco }) => {
+    const b = 15;
+    rect(1, b + 1, 18, b + 22, 'Y'); rect(18, b + 2, 18, b + 22, 'y'); rect(1, b + 22, 18, b + 22, 'y');
+    rect(2, b + 2, 17, b + 4, 'R'); rect(3, b + 3, 6, b + 3, 'r');
+    rect(2, b + 6, 17, b + 8, 'K'); rect(2, b + 10, 13, b + 12, 'K');
+    rect(2, b + 17, 9, b + 18, 'K'); rect(4, b + 15, 7, b + 16, 'K'); put(5, b + 16, 'Y'); put(6, b + 16, 'Y'); put(3, b + 19, 'K'); put(8, b + 19, 'K'); put(9, b + 17, 'R');
+    for (let j = b + 14; j <= b + 20; j += 2) rect(11, j, 17, j, 'u');
+    humoGT(put, disco, 10, b + 1, n, f);
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL DISCO COMPACTO: el plástico plateado (Z) con los reflejos de arco iris (h rosa, f amarillo, q cian), el aro de
+// dentro (w) y el agujero; o.t hace girar el brillo. 16 × 16
+const DISCO_CACHE_GT = new Map();
+const discoGT = (R, x, y, o = {}) => {
+  const f = o.t == null ? 0 : Math.floor(o.t * 8) % 8;
+  const g = cacheGT(DISCO_CACHE_GT, f, () => forma(16, 16, ({ put }) => {
+    for (let j = 0; j < 16; j++) for (let i = 0; i < 16; i++) {
+      const r = Math.hypot(i - 7.5, j - 7.5); if (r > 6.9 || r < 1.3) continue;
+      if (r < 2.5) { put(i, j, 'w'); continue; }
+      const a = ((Math.atan2(j - 7.5, i - 7.5) - f * Math.PI / 4) % Math.PI + Math.PI) % Math.PI;
+      put(i, j, a < 0.35 ? 'h' : a < 0.7 ? 'f' : a < 1.05 ? 'q' : r > 6 ? 'w' : 'Z');
+    }
+    put(4, 3, 'E'); put(3, 4, 'E');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL TROFEO, sin letras: la copa de oro (O, sombra g, brillo o) con las dos asas, el pie y la peana negra (K) con la
+// placa de oro lisa. 18 × 23
+const TROFEO_GT = forma(18, 23, ({ rect, put }) => {
+  for (let j = 1; j <= 9; j++) { const w = 5.6 - Math.max(0, j - 4) * 0.75; for (let i = 0; i < 18; i++) { const d = i + 0.5 - 9; if (Math.abs(d) <= w) put(i, j, d > w - 2 ? 'g' : 'O'); } }
+  rect(4, 1, 13, 1, 'o'); put(6, 3, 'o'); put(6, 4, 'o'); put(7, 6, 'o');
+  for (const [i, j] of [[2, 2], [1, 3], [1, 4], [1, 5], [2, 6], [3, 7]]) { put(i, j, 'O'); put(17 - i, j, 'g'); }
+  rect(8, 10, 9, 13, 'O'); put(9, 12, 'g'); put(9, 13, 'g'); rect(6, 14, 11, 15, 'O'); rect(10, 14, 11, 15, 'g');
+  rect(4, 16, 13, 21, 'K'); rect(4, 16, 13, 16, 'u'); rect(6, 18, 11, 19, 'O'); rect(11, 18, 11, 19, 'g');
+});
+const trofeoGT = (R, x, y, o = {}) => pintaGT(R, TROFEO_GT, x, y, o);
+
+// LA MAQUETA de la ciudad de juguete en bloques: el tablero verde (V, el canto v) con la calle (x, las rayas o) que lo
+// cruza, los bloques de colores (gris M/m, rojo R/r, azul A/a, amarillo O/g, con sus ventanas I), dos arbolitos (G) y un
+// cochecito. 40 × 27
+const MAQUETA_GT = forma(40, 27, ({ rect, put, disco }) => {
+  rect(1, 16, 38, 22, 'V'); rect(1, 23, 38, 24, 'v'); rect(1, 24, 38, 24, 'p');
+  rect(1, 19, 38, 20, 'x'); for (let i = 3; i <= 36; i += 4) put(i, 19, 'o'); rect(18, 16, 20, 22, 'x');
+  const bloque = (x0, x1, top, base, c1, c2) => { rect(x0, top, x1, base, c1); rect(x1 - 1, top, x1, base, c2); for (let j = top + 2; j < base - 1; j += 2) for (let i = x0 + 1; i < x1 - 1; i += 2) put(i, j, 'I'); };
+  bloque(2, 8, 5, 17, 'M', 'm'); bloque(10, 15, 9, 17, 'R', 'r'); bloque(22, 28, 2, 17, 'A', 'a'); bloque(30, 35, 8, 17, 'O', 'g'); bloque(36, 38, 12, 17, 'M', 'm');
+  bloque(4, 9, 21, 22, 'O', 'g'); bloque(29, 33, 21, 22, 'R', 'r');
+  disco(14, 22, 1.4, 'G'); put(14, 22, 'v'); disco(35, 22, 1.4, 'G'); put(35, 22, 'v');
+  rect(23, 19, 26, 20, 'R'); put(24, 19, 'I'); put(23, 21, 'K'); put(26, 21, 'K');
+});
+const maqueta3DGT = (R, x, y, o = {}) => pintaGT(R, MAQUETA_GT, x, y, o);
+
+// EL TELÉFONO DE MESA de los noventa: la base gris (z, la cara de arriba Z) con el teclado de botones (W sobre K), la
+// pantallita verde (H) y la lucecita (L), el auricular negro (K, brillo u) tumbado en la horquilla y el cable rizado; o.suena (con o.t):
+// el auricular bota, la lucecita parpadea y salen unas rayitas a los lados. 28 × 17
+const TELEFONO_CACHE_GT = new Map();
+const telefonoNoventaGT = (R, x, y, o = {}) => {
+  const f = o.suena ? Math.floor((o.t ?? 0) * 12) % 3 : 0;
+  const g = cacheGT(TELEFONO_CACHE_GT, (o.suena ? 's' : '') + f, () => forma(28, 17, ({ rect, put }) => {
+    rect(3, 8, 25, 14, 'z'); rect(4, 7, 24, 8, 'Z'); rect(3, 14, 25, 14, 'u'); rect(24, 8, 25, 13, 'u');
+    rect(15, 8, 21, 13, 'K'); for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) put(16 + a * 2, 9 + b * 2, 'W');
+    rect(14, 4, 23, 6, 'K'); rect(15, 5, 22, 5, 'H'); put(23, 10, o.suena && f !== 1 ? 'L' : 'l');
+    const h = [0, -2, -1][f];
+    rect(3, 4 + h, 12, 5 + h, 'K'); rect(3, 3 + h, 5, 6 + h, 'K'); rect(10, 3 + h, 12, 6 + h, 'K'); rect(4, 4 + h, 11, 4 + h, 'u');
+    for (let j = 7; j <= 13; j++) put(1 + (j % 2), j, 'K');
+    if (o.suena && f !== 2) for (const [i, j] of [[0, 2], [1, 1], [26, 2], [27, 1], [0, 5], [27, 5]]) put(i, j, 'K');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL MONITOR DE TUBO beis de los noventa (T, sombra t, el marco d) con su pie; o.pantalla: 'ciudad' (las calles vistas
+// desde arriba, x, los tejados M/m, un parque V y tres coches que circulan con o.t), 'bichitos' (un nivel con el fondo
+// azul noche s, las plataformas de tierra P/p y nuestros bichitos, el mechón verde y el mono naranja, que andan con o.t)
+// o apagada (por omisión: negra, con el reflejo). La lucecita verde (H) encendida si hay imagen. 32 × 27
+const MONITOR_CACHE_GT = new Map();
+const monitorTuboGT = (R, x, y, o = {}) => {
+  const pan = o.pantalla === 'ciudad' || o.pantalla === 'bichitos' ? o.pantalla : 'apagada', f = o.t == null ? 0 : Math.floor(o.t * 6) % 24;
+  const g = cacheGT(MONITOR_CACHE_GT, pan + '|' + (pan === 'apagada' ? 0 : f), () => forma(32, 27, ({ rect, put }) => {
+    rect(1, 1, 30, 21, 'T'); rect(1, 1, 30, 1, 'W'); rect(29, 2, 30, 21, 't'); rect(1, 20, 30, 21, 't');
+    rect(3, 3, 28, 18, 'd'); rect(4, 4, 27, 17, 'Q');
+    put(26, 19, pan === 'apagada' ? 't' : 'H'); rect(5, 19, 6, 19, 't'); rect(8, 19, 9, 19, 't');
+    rect(11, 22, 20, 23, 't'); rect(7, 24, 24, 25, 'T'); rect(7, 25, 24, 25, 't');
+    if (pan === 'apagada') { put(6, 6, 'u'); put(7, 5, 'u'); put(6, 7, 'u'); put(8, 5, 'u'); return; }
+    if (pan === 'ciudad') {
+      rect(4, 4, 27, 17, 'm');
+      for (const [x0, y0, x1, y1] of [[5, 5, 9, 7], [12, 5, 16, 7], [19, 5, 22, 7], [5, 10, 9, 12], [12, 10, 16, 12], [25, 10, 27, 12], [5, 15, 9, 17], [19, 15, 22, 17]]) rect(x0, y0, x1, y1, 'M');
+      rect(19, 10, 22, 12, 'V'); put(20, 11, 'v');
+      rect(4, 8, 27, 9, 'x'); rect(4, 13, 27, 14, 'x'); rect(10, 4, 11, 17, 'x'); rect(17, 4, 18, 17, 'x'); rect(23, 4, 24, 17, 'x');
+      put(4 + (f + 3) % 24, 8, 'R'); put(4 + (f + 4) % 24, 8, 'R');
+      put(18, 4 + (f + 5) % 14, 'A'); put(18, 4 + (f + 6) % 14, 'A');
+      put(27 - (f + 9) % 24, 14, 'O'); put(27 - (f + 10) % 24, 14, 'O');
+      return;
+    }
+    rect(4, 4, 27, 17, 's'); put(7, 5, 'w'); put(21, 6, 'w'); put(14, 5, 'w');
+    rect(4, 15, 27, 17, 'P'); for (let i = 5; i <= 26; i += 3) put(i, 16, 'p');
+    rect(5, 11, 13, 12, 'P'); rect(5, 12, 13, 12, 'p'); rect(18, 9, 27, 10, 'P'); rect(18, 10, 27, 10, 'p');
+    const bicho = (i, j) => { put(i, j, 'G'); put(i, j + 1, 'N'); };
+    for (const k of [0, 1, 2]) bicho(5 + (f + k * 8) % 22, 13);
+    bicho(18 + (f + 3) % 10, 7); bicho(5 + (f + 5) % 9, 9);
+    put(13, 5, 'R'); put(12, 5, 'W'); put(14, 5, 'W'); bicho(13, 6);
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+export const PIEZAS_GT = {
+  cochePolicia: cochePoliciaGT, cocheJuguete: cocheJugueteGT, bichito: bichitoGT, botonRojo: botonRojoGT,
+  cajaJuego: cajaJuegoGT, cajaRegistradora: cajaRegistradoraGT, periodico: periodicoGT, disco: discoGT,
+  mazo: PIEZAS_TS.mazo, trofeo: trofeoGT, maqueta3D: maqueta3DGT, telefonoNoventa: telefonoNoventaGT, monitorTubo: monitorTuboGT,
+};
