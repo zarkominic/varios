@@ -14,11 +14,14 @@
 //    corriendo a la cola; en «Grand Theft Auto IV» se abre la puerta, sale el dependiente con los brazos arriba y la cola
 //    salta. Corta en «had sold».
 // 2. (LOCAL) la doble puerta de cristal por dentro: el primero de la cola entra, el dependiente le da la caja desde la
-//    mesa del mantel rojo, la levanta y salta; el letrero de leds de encima cuenta hasta 3,500,000 en «three and a half
+//    mesa del mantel rojo (él detrás, la mesa tapa sus piernas); el cliente la sostiene en alto a un lado de la cabeza (fuera
+//    del perfil, nunca delante de la cara) y en «three» salta con ella; en la pared de la
+//    izquierda, un foco colgado del friso cuyo haz en abanico y su mancha de luz barren carteles y repisa, una guirnalda de bombillas, un segundo cartel (un mando) y una repisa con cajas; el letrero de leds de encima cuenta hasta 3,500,000 en «three and a half
 //    million copies»; un flash; entran los siguientes y él sale hacia delante con su caja.
 //    Corta en «and Guinness».
 // 3. (LOCAL) un escenario con telón rojo: el juez del récord trae el trofeo y se lo da a Sam Houser en «record», que lo
-//    levanta; Dan aplaude, flashes del público; en «24 hours» se enciende la esfera con el 24. Corta en «And five».
+//    levanta por la peana a un lado de la cabeza, por encima de la coronilla y sin taparse la cara (el juez se aparta);
+//    Dan aplaude, flashes del público; en «24 hours» se enciende la esfera con el 24. Corta en «And five».
 // 4. (LOCAL) una balda con las cajas 1, 2, 3 y 4; el calendario de la pared (bajado 9 px, libre de la barra del año) pasa hojas de 2008 a 2013; en «the fifth» una
 //    mano coloca la caja 5, que brilla; el reloj de pared bate el péndulo y sus agujas corren con los años.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
@@ -113,15 +116,40 @@ const fondo2 = fijo(() => {
   // el suelo de tablones cálidos y el felpudo con nieve delante de la puerta
   madera(0, 134, 319, 179, RA('#5a3a1e', '#6e4826', '#845830', '#9a6a3a', '#b07e48'), 9, 3);
   R.rect(108, 134, 212, 150, K); relleno(109, 135, 211, 149, RA('#3a3a42', '#4a4a52', '#5a5a62'), 1.2, 0.9, 6); for (let k = 0; k < 14; k++) R.pset(112 + Math.floor(h(k, 1, 4) * 96), 137 + Math.floor(h(k, 2, 4) * 11), hex('#e8eef6'));
-  // la mesa plegable con el mantel rojo de pliegues y la pila de cajas
-  R.rect(4, 126, 102, 132, K); R.rect(5, 127, 101, 131, hex('#c8303a')); R.rect(5, 127, 101, 127, hex('#f06a6a'));
-  for (let y = 132; y < 164; y++) for (let x = 6; x < 101; x++) R.pset(x, y, tono(RA('#6a1018', '#8a1e26', '#a8282e', '#c8303a'), 2 + Math.sin(x * 0.5) * 1.1 - (y - 132) / 30, x, y));
-  R.rect(5, 164, 101, 165, hex('#4a0c12'));
+  // el segundo cartel de la izquierda: un mando sobre un degradado (sin letras), y el aplique de luz de encima
+  R.rect(58, 50, 96, 90, K); R.rect(59, 51, 95, 89, hex('#f2ecd8'));
+  for (let y = 53; y < 88; y++) R.linea(61, y, 93, y, tono(RA('#0e2a3a', '#1a4a5a', '#2a7a7a', '#5ab09a'), (y - 53) / 9, 61, y));
+  R.rect(66, 64, 88, 76, K); R.rect(67, 65, 87, 75, hex('#4a4856')); R.rect(67, 65, 87, 65, hex('#7a788a')); R.disco(67, 76, 4, K); R.disco(87, 76, 4, K); R.disco(67, 76, 3, hex('#4a4856')); R.disco(87, 76, 3, hex('#4a4856'));
+  R.rect(70, 69, 74, 71, hex('#d8d8e0')); R.rect(71, 68, 73, 72, hex('#d8d8e0')); R.disco(82, 68, 1, hex('#e8463a')); R.disco(85, 71, 1, hex('#3ac85a')); R.disco(79, 71, 1, hex('#3a8ae8')); R.disco(82, 73, 1, hex('#f0c040'));
+  R.rect(72, 92, 82, 94, K); R.rect(73, 92, 81, 93, hex('#8a92a0'));
+  // la repisa de la pared con dos cajas expuestas y una planta, sobre el zócalo
+  R.rect(2, 90, 50, 93, K); R.rect(3, 90, 49, 91, hex('#a87444')); R.rect(3, 92, 49, 92, hex('#5a3a20')); R.rect(8, 94, 10, 100, K); R.rect(42, 94, 44, 100, K);
+  T.PIEZAS_GT.cajaJuego(R, 14, 90, { color: '#8a4ad8' }); T.PIEZAS_GT.cajaJuego(R, 26, 90, { color: '#3a6ad8' });
+  R.rect(36, 82, 44, 89, K); R.rect(37, 83, 43, 89, hex('#b8683a')); R.rect(37, 83, 43, 83, hex('#d88a52'));
+  for (const [dx, dy] of [[-3, -4], [0, -7], [3, -5], [-1, -3], [2, -2]]) { R.linea(40, 82, 40 + dx, 82 + dy, hex('#2e6a24')); R.pset(40 + dx, 82 + dy, hex('#4a9a3a')); }
+  // la sombra de la pared detrás de la mesa
+  baña(0, 100, 106, 132, K, 0.25, (x, y) => (y - 100) / 32);
   // el recortable de cartón de un coche junto a la pared (sin letras)
   R.rect(236, 116, 300, 152, K); R.poligono([[240, 148], [242, 132], [256, 126], [282, 126], [294, 136], [296, 148]], hex('#c8303a')); R.rect(258, 128, 280, 136, hex('#8ac8e8')); R.disco(252, 149, 6, K); R.disco(252, 149, 3, hex('#8a8a96')); R.disco(284, 149, 6, K); R.disco(284, 149, 3, hex('#8a8a96')); R.rect(266, 152, 270, 170, hex('#a8885a'));
 });
+// la mesa plegable con el mantel rojo de pliegues (se pinta después del dependiente, que queda detrás)
+const mesa2 = () => {
+  R.rect(4, 126, 102, 132, K); R.rect(5, 127, 101, 131, hex('#c8303a')); R.rect(5, 127, 101, 127, hex('#f06a6a'));
+  for (let y = 132; y < 164; y++) for (let x = 6; x < 101; x++) R.pset(x, y, tono(RA('#6a1018', '#8a1e26', '#a8282e', '#c8303a'), 2 + Math.sin(x * 0.5) * 1.1 - (y - 132) / 30, x, y));
+  R.rect(5, 164, 101, 165, hex('#4a0c12'));
+};
 const p2 = (t) => {
   fondo2();
+  // la luz del foco que barre despacio la pared de la izquierda y la guirnalda de bombillas que parpadea
+  // (el foco cuelga del friso en x 52; su haz baja en abanico y deja una mancha ovalada que recorre carteles y repisa)
+  { const cxl = 52 + Math.sin(t * 0.7) * 40, py = 74 + Math.cos(t * 0.7) * 10;
+    baña(0, 17, 106, 110, hex('#fff0c0'), 0.3, (x, y) => { const u = (y - 19) / (py - 19); if (u < 0 || u > 1.25) return 0; const mx = lerp(52, cxl, u); return cl(1 - Math.abs(x - mx) / (2 + u * 13)) * (0.5 + u * 0.5); });
+    baña(cxl - 22, py - 12, cxl + 22, py + 12, hex('#fff6d8'), 0.22, (x, y) => cl(1 - Math.hypot((x - cxl) / 20, (y - py) / 11)));
+    const ang = Math.atan2(py - 19, cxl - 52); R.rect(48, 16, 56, 17, K); R.disco(52, 20, 4, K); R.disco(52, 20, 3, hex('#4a4856'));
+    R.pset(52 + Math.round(Math.cos(ang) * 3), 20 + Math.round(Math.sin(ang) * 3), hex('#fff6d0')); R.pset(52 + Math.round(Math.cos(ang) * 2), 20 + Math.round(Math.sin(ang) * 2), hex('#ffffff')); }
+  for (let x = 2; x <= 80; x++) { const y = 19 + Math.round(Math.sin((x - 2) / 78 * Math.PI) * 6); R.pset(x, y, hex('#1a1420')); }
+  for (let k = 0; k < 13; k++) { const x = 5 + k * 6, y = 20 + Math.round(Math.sin((x - 2) / 78 * Math.PI) * 6), on = Math.sin(t * 4 + k * 1.7) > -0.2;
+    const c = ['#ff5a4a', '#f0c040', '#3ac85a', '#3a8ae8'][k % 4]; R.rect(x, y, x + 1, y + 2, on ? hex(c) : mez(hex(c), K, 0.6)); if (on) R.pset(x, y, hex('#ffffff')); }
   // por los cristales: la calle nevada de noche, la fachada de enfrente y la cola que sigue fuera
   R.recorte([112, 46, 208, 132]);
   for (let y = 46; y < 133; y++) R.linea(112, y, 208, y, tono(RA('#0e1430', '#1a2244', '#262e58', '#323a66'), (y - 46) / 16, 112, y));
@@ -139,16 +167,18 @@ const p2 = (t) => {
   for (let y = 25; y < 42; y += 2) for (let x = 87; x < 234; x += 2) R.pset(x, y, hex('#2a1018'));
   const n = Math.round(3500000 * (1 - (1 - tramo(t, tres - 0.1, copias)) ** 2.4)); R.numero(n.toLocaleString('en-US'), 160, 41, { tam: 16, centro: true, rampa: RA('#ff8a6a', '#ff5a3a', '#e8302a', '#a81818') });
   // el dependiente detrás de la mesa con las cajas; le da una al que entra
-  const dep = R.actor(EL.dependienteGT, 64, 142, t, { dir: 1, sostiene: t > P2 + 0.2 && t < P2 + 1.25 ? [Math.round(lerp(70, 96, tramo(t, P2 + 0.4, P2 + 1.1))), 120] : false, sonrisa: true, brazos: t > copias && t < copias + 0.8, habla: t > P2 + 1.3 && t < tres && Math.sin(t * 9) > 0 });
-  if (t > P2 + 0.2 && t < P2 + 1.25) cajaMini(dep.mano[0], dep.mano[1] + 5, '#c8303a');
+  // (los pies en el suelo de detrás de la mesa: la mesa se pinta después y asoman cabeza, hombros y la caja)
+  const dep = R.actor(EL.dependienteGT, 64, 134, t, { dir: 1, sostiene: t > P2 + 0.2 && t < P2 + 1.25 ? [Math.round(lerp(88, 96, tramo(t, P2 + 0.4, P2 + 1.1))), Math.round(lerp(125, 117, tramo(t, P2 + 0.4, P2 + 1.1)))] : false, sonrisa: true, brazos: t > copias && t < copias + 0.8, habla: t > P2 + 1.3 && t < tres && Math.sin(t * 9) > 0 });
+  mesa2();
+  if (t > P2 + 0.2 && t < P2 + 1.25) cajaMini(dep.mano[0], Math.min(dep.mano[1] + 5, 125), '#c8303a');
   for (let k = 0; k < 3; k++) T.PIEZAS_GT.cajaJuego(R, 16 + k * 12, 127 - (k % 2) * 3, { color: ['#3a6ad8', '#f0c040', '#3ac85a', '#8a4ad8'][k] });
   // el primero de la cola entra por la puerta, coge la caja, la levanta, salta y se va hacia delante
   const entra = tramo(t, P2 - 0.2, P2 + 0.9), coge = t > P2 + 1.2, vete = tramo(t, copias + 0.5, dia + 0.5);
   const cx = Math.round(vete > 0 ? lerp(104, 330, vete) : lerp(170, 104, entra)), cy = Math.round(vete > 0 ? lerp(156, 178, vete) : lerp(146, 156, entra));
   const sal = t > tres && t < copias + 0.4 ? Math.max(0, Math.round(Math.sin((t - tres) * 8) * 4)) : 0;
   // los siguientes entran detrás
-  [[EL.chico, 0], [EL.sudadera, 1]].forEach(([d, k]) => { const u = tramo(t, copias + 0.2 + k * 0.6, dia + 0.4 + k * 0.5); const x = Math.round(lerp(182 + k * 10, 130 - k * 26, u)), y = Math.round(lerp(144, 152 + k * 4, u)); R.actor(d, x, y, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: true }); });
-  const cp = R.actor(EL.comprador1GT, cx, cy, t, { dir: vete > 0 ? 1 : -1, anda: (entra > 0 && entra < 1) || (vete > 0 && vete < 1), salto: sal, sostiene: coge ? (vete > 0 ? true : [cx + 16, 132 - sal]) : false, sonrisa: coge });
+  [[EL.chico, 0], [EL.sudadera, 1]].forEach(([d, k]) => { const u = tramo(t, copias + 0.2 + k * 0.6, dia + 0.4 + k * 0.5); const x = Math.round(lerp(178 + k * 24, 136 - k * 34, u)), y = Math.round(lerp(144, 152 + k * 4, u)); R.actor(d, x, y, t, { dir: -1, anda: u > 0 && u < 1, sonrisa: true }); });
+  const cp = R.actor(EL.comprador1GT, cx, cy, t, { dir: vete > 0 ? 1 : -1, anda: (entra > 0 && entra < 1) || (vete > 0 && vete < 1), salto: sal, sostiene: coge ? (vete > 0 ? true : [cx - 15, cy - 18 - sal]) : false, sonrisa: coge });
   if (coge) cajaMini(cp.mano[0], cp.mano[1] + 5, '#c8303a');
   // la fotógrafa con su flash
   const fl = t - (copias + 0.4), fo = R.actor(EL.senora30, 286, 172, t, { dir: -1, sostiene: true, sonrisa: fl > 0 });
@@ -184,12 +214,13 @@ const p3 = (t) => {
   for (let x = 10; x < 320; x += 22) { R.rect(x, 151, x + 6, 153, hex('#f6e08a')); R.halo(x + 3, 150, 6, RA('#5a3a1e', '#a8883a', '#f6e08a'), 0.5); }
   // el juez del récord trae el trofeo y se lo da a Sam en «record»
   const u = tramo(t, P3 + 0.05, record - 0.15), da = t > record;
-  const jx = Math.round(lerp(-18, 136, u)) - Math.round(tramo(t, record + 0.6, record + 1.6) * 30);
+  const jx = Math.round(lerp(-18, 136, u)) - Math.round(tramo(t, record + 0.1, record + 0.9) * 40);
   const sube = tramo(t, record + 0.1, record + 0.6), sam = 168;
   R.actor(EL.danHouser, 202, 142, t, { dir: -1, brazos: da && Math.sin(t * 12) > 0, sonrisa: true });
-  const sm = R.actor(EL.samHouser, sam, 142, t, { dir: -1, sostiene: da ? [sam + 2, Math.round(lerp(124, 98, sube))] : false, sonrisa: da, habla: !da && t > P3 + 1 && Math.sin(t * 8) > 0.3 });
-  const ju = R.actor(EL.oficinista, jx, 142, t, { dir: u < 1 || !da ? 1 : -1, anda: (u > 0 && u < 1) || (t > record + 0.6 && t < record + 1.6), sostiene: !da, sonrisa: true });
-  const [tx, ty] = da ? sm.mano : ju.mano; T.PIEZAS_GT.trofeo(R, tx, ty + (da ? 4 : 10), {});
+  // Sam coge el trofeo por la peana y lo alza a un lado, por encima de la coronilla y a la izquierda de la cara
+  const sm = R.actor(EL.samHouser, sam, 142, t, { dir: -1, sostiene: da ? [Math.round(lerp(sam - 8, sam - 20, sube)), Math.round(lerp(138, 120, sube))] : false, sonrisa: da, habla: !da && t > P3 + 1 && Math.sin(t * 8) > 0.3 });
+  const ju = R.actor(EL.oficinista, jx, 142, t, { dir: u < 1 || !da ? 1 : -1, anda: (u > 0 && u < 1) || (t > record + 0.1 && t < record + 0.9), sostiene: !da, sonrisa: true });
+  const [tx, ty] = da ? [sm.mano[0] - 8, sm.mano[1] - 6] : ju.mano; T.PIEZAS_GT.trofeo(R, tx, da ? sm.mano[1] + 3 : ty + 10, {});
   if (da) for (let k = 0; k < 4; k++) { const a = t * 4 + k * 1.57; R.pset(tx + Math.round(Math.cos(a) * 12), ty - 4 + Math.round(Math.sin(a) * 9), hex('#fff6c0')); }
   // el público y los fotógrafos con sus flashes
   for (let k = 0; k < 22; k++) { const x = 8 + k * 14 + (k % 2) * 4, y = 162 + (k % 3); cabecita(x, y, mez(ROPA[k % 8], K, 0.55), mez(PIELES[k % 5], K, 0.5), t * (da ? 2 : 0.5), k); }

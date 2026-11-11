@@ -24,7 +24,7 @@
 //    guitarra; en «label» Sam levanta un disco con la estrella; en «Rockstar Games» la estrella de la puerta brilla y todos
 //    saltan.
 // 5. LOCAL el rincón del local de ensayo (corta en «They wanted»): la puerta con la estrella, el amplificador y la
-//    batería; en «games» Sam enseña la caja; en «band» Dan rasga la guitarra y la onda sale del amplificador; en «toy
+//    batería; en «games» Sam enseña la caja a su lado, a la altura del pecho (sin taparse la cara); en «band» Dan rasga la guitarra y la onda sale del amplificador; en «toy
 //    company» llega a la balda de juguetes: el osito cae y salta la caja sorpresa.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -454,8 +454,8 @@ const p5 = (t) => {
   { const w = t > JUGUETE ? Math.round(Math.sin(t * 16) * 1.5) : 0; R.disco(292 + w, 109, 3, hex('#f0d030')); R.disco(295 + w, 105, 2, hex('#f0d030')); R.pset(297 + w, 105, hex('#e87a20')); R.pset(296 + w, 104, K); }
   // Sam con la caja del juego; Dan con la guitarra eléctrica
   const banda = t > BANDA - 0.05;
-  const s = R.actor(EL.samHouser, 90, 160, t, { dir: 1, sostiene: t > JUEGOS - 0.4 && !banda ? [104, 138] : undefined, brazos: banda && t < JUGUETE, salto: banda && t < JUGUETE ? Math.max(0, Math.round(Math.sin((t - BANDA) * 10) * 3)) : 0, habla: t < JUEGOS - 0.4 && Math.sin(t * 8) > 0, sonrisa: t > JUEGOS, sorpresa: t > JUGUETE + 0.2 && t < JUGUETE + 0.9 });
-  if (s.mano && t > JUEGOS - 0.4 && !banda) PZ.cajaJuego(R, s.mano[0] + 2, s.mano[1] + 4, { color: '#e0a030' });
+  const s = R.actor(EL.samHouser, 90, 160, t, { dir: 1, sostiene: t > JUEGOS - 0.4 && !banda ? [103, 148] : undefined, brazos: banda && t < JUGUETE, salto: banda && t < JUGUETE ? Math.max(0, Math.round(Math.sin((t - BANDA) * 10) * 3)) : 0, habla: t < JUEGOS - 0.4 && Math.sin(t * 8) > 0, sonrisa: t > JUEGOS, sorpresa: t > JUGUETE + 0.2 && t < JUGUETE + 0.9 });
+  if (s.mano && t > JUEGOS - 0.4 && !banda) PZ.cajaJuego(R, s.mano[0] + 12, s.mano[1] + 7, { color: '#e0a030' }); // al lado de la cabeza, a la altura del pecho: la cara se ve
   const rasga = banda && t < JUGUETE + 1 ? Math.round(Math.sin(t * 26) * 2) : 0;
   const d = R.actor(EL.danHouser, 140, 160, t, { dir: 1, sostiene: [156, 145 + rasga], sonrisa: banda, habla: !banda && t > JUEGOS && Math.sin(t * 7) > 0.3, salto: banda && t < JUGUETE ? 1 : 0 });
   guitarra(d.mano ? d.mano[0] - 2 : 154, 147);

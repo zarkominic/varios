@@ -12,10 +12,15 @@
 // GT-CINCO (frases 27–28), cartela «2013»; 2013 → 2026. Cinco planos:
 // 1. nuevayork/tienda (o.año 2013): medianoche en la tienda, la clientela espera con los móviles y la cola de fuera
 //    echa vaho; en «5» el dependiente levanta el dedo, en «came out» salta la fiesta (guirnaldas y confeti), las cajas
-//    vuelan de la pirámide a las manos y la clientela salta. Corta en «According».
+//    vuelan de la pirámide a las manos y la clientela salta. El escaparate se pinta sin el taxi del decorado (pasaba a
+//    la altura de las cabezas de la cola de fuera): los cristales salen de un segundo pintado del decorado en un instante
+//    sin taxi, y los faros de un coche barren el cristal. La cola de dentro deja libre el cartel de suelo mojado
+//    (x 76–88): el último, a la izquierda, espera junto a la pirámide. Corta en «According».
 // 2. (LOCAL, gag 7) la caja registradora de cerca, sobre un mostrador de madera ante una pared de ladrillo: la mano del
 //    dependiente teclea sin parar, las cajas vendidas pasan por detrás, la cifra cuenta hasta 11,000,000 en «11 million copies» y la caja echa cada vez más humo; en «first
-//    day» se le abre el cajón de golpe y suelta una bocanada. Corta en «and in just three days».
+//    day» se le abre el cajón de golpe y suelta una bocanada. El humo sale por detrás de la caja y se abre hacia la
+//    derecha: nunca sube de y 18, no entra en la zona de Atom ni toca la cifra (x < 203 por encima de y 102).
+//    Corta en «and in just three days».
 // 3. (LOCAL) un estadio de noche: una carrera de cochecitos con una bobina de cine, un libro, otro mando y nuestra caja;
 //    la cifra no va en el cielo (así era el gancho) sino en el videomarcador del estadio, montado sobre la grada a la
 //    izquierda con sus patas y su torre de focos: arriba la cifra que sube y debajo las cuatro calles de la carrera en
@@ -26,7 +31,10 @@
 //    «235 million copies»; dos aficionados miran hacia arriba boquiabiertos, el del récord señala el contador y saltan
 //    al final; la barra pasa de 2013 a 2026 en «10 years later». Corta en «Few things».
 // 5. (LOCAL) una sala de museo con la gráfica de cerca: las barras del cine, el libro, el disco y el móvil suben un poco;
-//    la de la caja sube hasta arriba en «that many», con su estrella; unos visitantes la señalan y se asombran.
+//    la de la caja sube hasta arriba en «that many», con su estrella; unos visitantes la señalan y se asombran; un niño
+//    entra por el fondo (pies en y 153, en el suelo de atrás, detrás del cordón, que se repinta encima y le cruza las
+//    espinillas con su cuerda gruesa), se para bajo la barra de la caja
+//    (x 232, lejos del guardia de x 286) y se asombra en «that many».
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gt-cinco');
@@ -87,12 +95,33 @@ const tres = en('cinco', .657), dias = en('cinco', .678), billon = en('cinco', .
 const paro = en('copias', .047), diez = en('copias', .135), tarde = en('copias', .222), n235 = en('copias', .368), millon = en('copias', .54);
 const pocos = en('copias', .657), tantos = en('copias', .929);
 // ── 1: la tienda a medianoche ──
+// el escaparate sin el taxi del decorado (que pasaría a la altura de las cabezas de la cola): los cristales se copian
+// de un segundo pintado del decorado en un instante en que el taxi está fuera del escaparate. Ese tiempo corre algo más
+// lento (×0,72) y sin saltos, así que la cola sigue meciéndose y echando vaho, las ventanas de enfrente cambian y la nieve
+// cae; en su lugar, los faros de los coches de la calle barren el cristal de vez en cuando
+const CRISTALES = [[204, 42, 257, 122], [262, 42, 267, 122], [272, 42, 299, 87], [272, 91, 299, 122], [304, 42, 318, 122]];
+let bVit = null;
+const vitrinaSinTaxi = (t, o) => {
+  const tt = 5.4 + 0.72 * (Math.min(6.85, Math.max(0.95, t)) - 1);  // el taxi del decorado queda fuera (x < 182 o > 340)
+  if (!bVit) bVit = R.nuevo();
+  const prev = R.usar(bVit); T.nuevayork(R, tt, { ...o, t: tt });
+  const px = []; for (const [x0, y0, x1, y1] of CRISTALES) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) px.push(R.pget(x, y));
+  R.usar(prev);
+  let i = 0; for (const [x0, y0, x1, y1] of CRISTALES) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, px[i++]);
+};
+// el barrido de los faros de un coche que pasa por la calle: una banda de luz cálida inclinada que cruza el cristal
+const barridoFaros = (t) => {
+  const c = 170 + (((t + 0.6) % 4.6) / 4.6) * 190, LUZ = hex('#fff2c4');
+  for (const [x0, y0, x1, y1] of CRISTALES) for (let y = y0; y <= y1; y++) { const cy = c - (y - 42) * 0.4;
+    for (let x = Math.max(x0, Math.floor(cy - 14)); x <= Math.min(x1, Math.ceil(cy + 14)); x++) { const d = Math.abs(x - cy), a = d < 2 ? 0.3 : 0.16 * (1 - d / 14); if (a > 0) R.pset(x, y, mez(R.pget(x, y), LUZ, a)); } }
+};
 const p1 = (t) => {
   const o = { encuadre: 'tienda', año: 2013, fiesta: tramo(t, sale, sale + 0.6), humo: tramo(t, sale + 0.3, P2), t };
   T.nuevayork(R, t, o);
+  vitrinaSinTaxi(t, o); barridoFaros(t);
   const salta = (k) => t > sale + 0.15 + k * 0.1 ? Math.max(0, Math.round(Math.sin((t - sale - k * 0.1) * 9) * 3)) : 0;
   // la clientela de dentro, con los móviles; al salir el juego, las cajas les vuelan a las manos
-  const cl_ = [[EL.comprador2GT, 146, '#c8303a'], [EL.chica, 126, '#3a6ad8'], [EL.chico, 106, '#f0c040'], [EL.sudadera, 86, '#3ac85a'], [EL.senor30, 66, '#8a4ad8']];
+  const cl_ = [[EL.comprador2GT, 148, '#c8303a'], [EL.chica, 129, '#3a6ad8'], [EL.chico, 110, '#f0c040'], [EL.sudadera, 90, '#3ac85a'], [EL.senor30, 54, '#8a4ad8']];
   cl_.forEach(([d, x, c], k) => { const tiene = t > sale + 0.5 + k * 0.18;
     const a = R.actor(d, x, 168, t, { dir: 1, salto: salta(k), sostiene: tiene || (t < sale && k % 2 === 0), sonrisa: t > sale, habla: t < sale && Math.sin(t * 4 + k) > 0.7, sorpresa: t > sale && !tiene });
     if (tiene) cajaMini(a.mano[0], a.mano[1] + 5, c, k);
@@ -134,10 +163,13 @@ const p2 = (t) => {
   // la caja registradora (abajo, sobre la alfombrilla): tiembla y echa más humo cuanto más vende
   const hu = tramo(t, P2 + 0.3, dia), sac = t > dia ? Math.round(Math.sin(t * 50) * 1) : hu > 0.5 ? Math.round(Math.sin(t * 40) * (hu > 0.8 ? 1 : 0.6)) : 0;
   const cx = 204 + sac, cy = 178;
-  // el humo grande que sube en bocanadas y se va hacia la izquierda (detrás de la caja)
+  // el humo grande que sale en bocanadas por detrás de la caja y se abre hacia la derecha: nunca por encima de y 18,
+  // fuera de la zona de Atom (x > 277 solo por debajo de y 46) y lejos de la cifra (x ≥ 203 por encima de y 102)
   for (let k = 0; k < 9; k++) { const f = ((t * 0.55 + k / 9) % 1), r = (3 + f * 13) * (0.4 + hu * 0.9) * (t > dia ? 1.5 : 1); if (hu <= 0.05 || f * 9 > 3 + hu * 6) continue;
-    const x = cx + 8 + Math.round(Math.sin(f * 5 + k) * 6 - f * 40), y = Math.max(30, cy - 64 - Math.round(f * 80 * (0.6 + hu * 0.5)));
-    nube3(x, y, Math.round(r * 2), RA('#6a6a78', '#9a9aa8', '#c8c8d2')); }
+    const w = Math.min(46, Math.round(r * 2)), hw = Math.ceil(w * 0.58) + 1, up = Math.ceil(w * 0.4) + 3;
+    let x = cx + 10 + Math.round(Math.sin(f * 5 + k) * 4 + f * f * 95), y = cy - 58 - Math.round(f * 62 * (0.6 + hu * 0.5));
+    y = Math.max(y, 18 + up); if (x + hw > 277 && y - up < 46) y = 46 + up; if (y - up < 102) x = Math.max(x, 203 + hw);
+    nube3(x, y, w, RA('#6a6a78', '#9a9aa8', '#c8c8d2')); }
   T.PIEZAS_GT.cajaRegistradora(R, cx, cy, { s: 3, t });
   // la cifra que cuenta, por delante del humo
   const n = Math.round(11000000 * (1 - (1 - tramo(t, once - 0.6, copias)) ** 2)); R.numero(n.toLocaleString('en-US'), 120, 98, { tam: 16, centro: true });
@@ -265,6 +297,12 @@ const p4 = (t) => {
   T.hoyDelante(R, t, o);
 };
 // ── 5: la gráfica del museo (LOCAL) ──
+// las cordoneras de terciopelo (en el fondo fijo y otra vez por delante de quien pasa por detrás)
+const cordon = () => {
+  for (const x of [20, 160, 300]) { R.rect(x - 1, 140, x + 1, 168, hex('#d8b048')); R.rect(x - 3, 168, x + 3, 170, hex('#a8883a')); R.disco(x, 139, 2, hex('#f6e08a')); }
+  // la cuerda gruesa de terciopelo: brillo arriba, color y sombra abajo (se lee bien cuando cruza a alguien por delante)
+  for (const [a, b] of [[20, 160], [160, 300]]) for (let x = a + 2; x < b - 1; x++) { const y = 142 + Math.round(Math.sin((x - a) / (b - a) * Math.PI) * 8); R.pset(x, y - 1, hex('#d8404a')); R.pset(x, y, hex('#a8202a')); R.pset(x, y + 1, hex('#6a1018')); }
+};
 const fondo5 = fijo(() => {
   // la pared verde oscuro con damasco y el zócalo de madera
   for (let y = 0; y < 132; y++) for (let x = 0; x < 320; x++) { const dm = Math.abs(((x + (Math.floor(y / 14) % 2) * 8) % 16) - 8) + Math.abs((y % 14) - 7) < 3;
@@ -282,9 +320,7 @@ const fondo5 = fijo(() => {
   for (const [v, y] of [[50, 90], [100, 70], [150, 50], [200, 30]]) { R.rect(67, y, 70, y, hex('#3a3046')); R.numero(String(v), 56, y + 4, { tam: 8, centro: true, color: hex('#5a5068'), sombra: false }); }
   // las chinchetas de las esquinas del papel
   for (const [x, y] of [[44, 28], [256, 28]]) { R.disco(x, y, 2, K); R.disco(x, y, 1, hex('#c8303a')); }
-  // las cordoneras de terciopelo
-  for (const x of [20, 160, 300]) { R.rect(x - 1, 140, x + 1, 168, hex('#d8b048')); R.rect(x - 3, 168, x + 3, 170, hex('#a8883a')); R.disco(x, 139, 2, hex('#f6e08a')); }
-  for (const [a, b] of [[20, 160], [160, 300]]) for (let x = a + 2; x < b - 1; x++) { const y = 142 + Math.round(Math.sin((x - a) / (b - a) * Math.PI) * 8); R.pset(x, y, hex('#a8202a')); R.pset(x, y + 1, hex('#6a1018')); }
+  cordon();
 });
 const p5 = (t) => {
   fondo5();
@@ -301,8 +337,10 @@ const p5 = (t) => {
   cajaMini(x + 11, 123, '#f0c040', 2);
   if (t > tantos) { const b = tramo(t, tantos, tantos + 0.8), sy = 110 - hh - 8; R.poligono([[x + 11, sy - 6], [x + 13, sy - 2], [x + 17, sy - 2], [x + 14, sy + 1], [x + 15, sy + 5], [x + 11, sy + 3], [x + 7, sy + 5], [x + 8, sy + 1], [x + 5, sy - 2], [x + 9, sy - 2]], hex('#f0c040')); R.halo(x + 11, sy, 14, RA('#e8dcc0', '#f6e08a', '#fff6c0'), 0.7 * (1 - b * 0.5));
     R.numero('235,000,000', 150, 36, { tam: 8, centro: true, color: hex('#3a3046') }); }
-  // los visitantes delante del cordón: señalan y se asombran; un niño cruza al fondo
-  const u = tramo(t, P5 + 0.2, P5 + 3.8); R.actor(EL.chico, Math.round(lerp(-16, 330, u)), 160, t, { dir: 1, anda: u > 0 && u < 1 });
+  // un niño entra por el fondo, detrás del cordón, y se para bajo la barra de la caja (lejos del guardia); se asombra
+  const u = tramo(t, P5 + 0.2, P5 + 2.8); R.actor(EL.chico, Math.round(lerp(-16, 232, u)), 153, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > tantos, sonrisa: u >= 1 && t <= tantos });
+  cordon();
+  // los visitantes delante del cordón: señalan y se asombran
   R.actor(EL.senor30, 120, 176, t, { dir: 1, dedo: t > pocos + 0.4 && t < tantos - 0.2, habla: t > pocos && t < pocos + 1.4 && Math.sin(t * 8) > 0, sorpresa: t > tantos });
   R.actor(EL.senora30, 150, 177, t, { dir: 1, sorpresa: t > tantos - 0.1, sonrisa: t < tantos - 0.1 });
   R.actor(EL.guardia, 286, 176, t, { dir: -1 });

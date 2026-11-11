@@ -14,10 +14,12 @@
 //    los secretarios en «House of Lords»; el ministro, a la derecha, levanta la vista de sus papeles;
 // 2. las gradas de cerca (londres 'lores', cámara 'banco'): el lord se levanta en «A lord» y pregunta; en «stealing cars»
 //    sale el bocadillo con el coche y la interrogación; su vecino de grada se vuelve, sorprendido;
-// 3. LOCAL la mesa del despacho, de cerca: el ministro se levanta tras la caja de despachos y contesta («The government
-//    replied»); en «concern» da un toque en la caja y los lores de detrás asienten («violent games»);
-// 4. LOCAL la mesa del censor: la caja del juego sobre el cartapacio; en «censors» baja el sello y en «refused» estampa la
-//    X roja; en «selling it» llegan las monedas y en «illegal» la cadena con el candado cierra la caja;
+// 3. LOCAL la mesa del despacho, de cerca: el ministro, sentado (solo asoma la cabeza), se levanta junto a la caja de
+//    despachos y contesta con gestos («The government replied»); en «concern» da una palmada en la tapa (destello y
+//    polvo); los lores, sentados con el cuerpo entero en el banco de detrás, asienten en «violent games»;
+// 4. LOCAL la mesa del censor: la caja del juego sobre el cartapacio; la mano del censor (brazo canónico desde arriba a la
+//    derecha) trae el sello de mango corto, en «refused» estampa la X roja y lo deja en la almohadilla; en «selling it» otra
+//    mano empuja las monedas desde la izquierda y en «illegal» la cadena con el candado cierra la caja;
 // 5. LOCAL la rotativa de noche: los periódicos se apilan («piled on»); en «headline» la primera plana vuela hacia
 //    la cámara (sin letras: el coche y el rayo) y tiembla en «thugs»;
 // 6. el quiosco con lluvia (londres 'redaccion', cámara 'quiosco'; gag 5): los periódicos humean en «noise»; dos
@@ -171,19 +173,43 @@ const p3 = (t) => {
   for (const x of [58, 254]) for (const dx of [-5, 0, 5]) { const f = Math.sin(t * 13 + dx + x) > 0.2; R.pset(x + dx, 50, hex('#ffd860')); R.pset(x + dx, 49, f ? hex('#fff6c0') : hex('#ffb040')); if (f) R.pset(x + dx + (Math.sin(t * 7 + dx) > 0 ? 1 : -1), 48, hex('#ffe890')); }
   // los micrófonos que se mecen
   for (const [x, k] of [[104, 0], [214, 2]]) { const dx = Math.round(Math.sin(t * 1.3 + k) * 1.5); R.linea(x, 40, x + dx, 64, hex('#1c1222')); R.rect(x + dx - 2, 64, x + dx + 2, 70, K); R.rect(x + dx - 1, 65, x + dx + 1, 69, hex('#4a4856')); R.pset(x + dx - 1, 65, hex('#8a8aa0')); }
-  // los lores del banco de detrás: asienten en «violent games»
-  const asiente = t > L(0.7273) && t < L(0.7273) + 1.6;
-  [[20, 'peluca'], [46, 'calvo'], [72, 'peluca'], [210, 'calvo'], [236, 'peluca'], [262, 'calvo'], [288, 'peluca']].forEach(([x, tipo], i) => {
-    const bob = asiente && i % 2 === 0 ? Math.round(Math.abs(Math.sin(t * 8 + i))) : Math.round(Math.max(0, Math.sin(t * 0.7 + i * 2) - 0.9) * 10);
-    R.busto(tipo, T.tela(i % 3 ? '#b8283a' : '#2a2a3a', i % 3 ? '#8a1e2c' : '#1c1c26', { H: '#f2f0ea', h: '#cfcac0', W: '#e8e8ee', S: '#f0c49a', s: '#d8a070' }), x, 104 + bob, t, { rie: asiente && i === 4, saluda: asiente && i === 5 });
-    if (asiente && i === 5) { const ay = 104 + 3 - Math.round(Math.abs(Math.sin(t * 10 + x)) * 2); R.rect(x + 8, ay - 7, x + 15, ay, K); R.rect(x + 9, ay - 6, x + 14, ay - 1, BL); R.rect(x + 10, ay - 4, x + 13, ay - 4, hex('#9a9aa6')); }
+  // los lores del banco de detrás, sentados con el cuerpo entero sobre el asiento: asienten en «violent games»
+  const asiente = t > L(0.7273) && t < L(0.7273) + 1.8;
+  [[20, 'peluca', '#2a2a3a'], [46, 'calvo', '#b8283a'], [72, 'peluca', '#3a3a52'], [210, 'calvo', '#4a3a2e'], [236, 'peluca', '#2a2a3a'], [262, 'calvo', '#b8283a'], [288, 'peluca', '#3a3a52']].forEach(([x, tipo, ropa], i) => {
+    const toga = ropa === '#b8283a', C1 = hex(ropa), C2 = mez(C1, K, 0.35), y = 110;
+    const bob = asiente ? Math.round(Math.max(0, Math.sin(t * 9 + i * 1.1)) * 1.4) : Math.round(Math.max(0, Math.sin(t * 0.7 + i * 2) - 0.9) * 10);
+    // la sombra que cada uno echa en el respaldo capitoné
+    tinta(x + 2, y + 2, x + 11, 125, K, 0.28);
+    // sentado: el tronco (con el armiño de la toga o la camisa del traje), las manos en el regazo, las rodillas que
+    // asoman hacia delante sobre el asiento y las piernas que bajan
+    R.rect(x, y + 11, x + 8, 128, K); R.rect(x + 1, y + 11, x + 7, 127, C1); R.rect(x + 6, y + 12, x + 7, 127, C2); R.rect(x + 1, y + 11, x + 1, 127, mez(C1, BL, 0.25));
+    if (toga) { R.rect(x + 1, y + 11, x + 2, 124, hex('#f2f0ea')); R.rect(x + 6, y + 11, x + 7, 124, hex('#f2f0ea')); for (let yy = y + 13; yy < 124; yy += 3) { R.pset(x + 1, yy, K); R.pset(x + 7, yy + 1, K); } }
+    else { R.rect(x + 4, y + 11, x + 4, y + 14, hex('#f2f0ea')); R.pset(x + 4, y + 12, hex('#8a1e2c')); }
+    R.rect(x - 1, 127, x + 9, 131, K); R.rect(x, 128, x + 8, 130, C2); R.rect(x, 128, x + 8, 128, mez(C1, BL, 0.2)); R.pset(x + 4, 129, K);
+    R.rect(x + 2, 125, x + 6, 126, hex('#f0c49a')); R.pset(x + 4, 125, hex('#d8a070')); R.pset(x + 2, 126, hex('#d8a070'));
+    R.rect(x, 132, x + 3, 139, K); R.rect(x + 5, 132, x + 8, 139, K); R.rect(x + 1, 132, x + 2, 138, C2); R.rect(x + 6, 132, x + 7, 138, C2); R.rect(x, 138, x + 3, 139, hex('#141018')); R.rect(x + 5, 138, x + 8, 139, hex('#141018'));
+    R.busto(tipo, T.tela(ropa, { '#2a2a3a': '#1c1c26', '#b8283a': '#8a1e2c', '#3a3a52': '#262638', '#4a3a2e': '#30261c' }[ropa], { H: '#f2f0ea', h: '#cfcac0', W: '#e8e8ee', S: '#f0c49a', s: '#d8a070', Y: toga ? '#f2f0ea' : '#e8e8ee', O: toga ? '#2a2a3a' : '#8a1e2c' }), x, y + bob, t, { rie: asiente && i === 4, saluda: asiente && i === 5 });
+    if (asiente && i === 5) { const ay = y + 3 - Math.round(Math.abs(Math.sin(t * 10 + x)) * 2); R.rect(x + 8, ay - 7, x + 15, ay, K); R.rect(x + 9, ay - 6, x + 14, ay - 1, BL); R.rect(x + 10, ay - 4, x + 13, ay - 4, hex('#9a9aa6')); }
   });
-  // un papel que un lord agita en «violent games»
-  // el ministro se levanta tras la mesa y contesta; en «concern» toca la caja
-  const s = Math.round(lerp(158, 135, suave(tramo(t, P3 + 0.1, P3 + 0.6)))), TOCA = L(0.6867);
-  R.actor(EL.ministroLores, 150, s, t, { dir: -1, habla: t > L(0.5904) - 0.1 && Math.sin(t * 8.5) > -0.3 && !(t > TOCA && t < TOCA + 0.4), dedo: t > TOCA - 0.15 && t < TOCA + 1.3, enfado: t > TOCA && t < TOCA + 1.3 });
+  // el ministro: sentado tras la mesa, se levanta en «The government replied», contesta con las manos y en «concern»
+  // da un golpe con la palma en la tapa de la caja de despachos
+  const TOCA = L(0.6867), MX = 146;
+  const s = Math.round(lerp(155, 143, suave(tramo(t, P3 + 0.45, P3 + 1.05))));
+  const habla = t > P3 + 0.4 && Math.sin(t * 8.5) > -0.3 && !(t > TOCA - 0.05 && t < TOCA + 0.45);
+  // los gestos al hablar: el índice, la palma abierta hacia los lores y el brazo bajo, por turnos
+  const k = Math.floor((t - P3 - 1.05) / 0.75), gesto = t < P3 + 1.05 ? -1 : ((k % 3) + 3) % 3;
+  const yC = s - 14;
+  let obj;
+  if (t > TOCA - 0.45 && t < TOCA + 0.7) { const alza = 1 - tramo(t, TOCA - 0.12, TOCA); obj = [139, Math.round(lerp(125, 115, t < TOCA ? Math.min(1, tramo(t, TOCA - 0.45, TOCA - 0.2)) * alza : 0))]; }
+  const o = { dir: -1, habla, enfado: t > TOCA && t < TOCA + 0.9 };
+  if (obj) o.sostiene = obj; else if (gesto === 0) o.dedo = true; else if (gesto === 1) o.sostiene = [MX - 7, yC + 1];
+  R.actor(EL.ministroLores, MX, s, t, o);
   ponDelante('despachoMesa', mesa3, 108, 171, 8);
-  if (t > TOCA && t < TOCA + 0.3) for (const [dx, dy] of [[-4, -3], [0, -5], [4, -3]]) R.linea(136 + dx, 121 + dy, 136 + dx * 2, 121 + dy * 2, hex('#fff0a0'));
+  // el golpe en la tapa: el latón destella y salta el polvo
+  if (t > TOCA && t < TOCA + 0.35) { const u = tramo(t, TOCA, TOCA + 0.35);
+    for (const [dx, dy] of [[-6, -3], [-1, -6], [4, -3]]) R.linea(138 + dx, 122 + dy, 138 + Math.round(dx * (1.6 + u)), 122 + Math.round(dy * (1.6 + u)), hex('#fff0a0'));
+    for (let i = 0; i < 6; i++) R.pset(Math.round(112 + i * 5 + Math.sin(i * 3) * 2), Math.round(123 - u * 5 - (i % 2)), hex('#e8d8b0')); }
+  if (t > TOCA && t < TOCA + 0.12) R.rect(105, 124, 141, 124, hex('#fff0a0'));
 };
 
 // ── 4 · LOCAL la mesa del censor: el sello y el candado ──
@@ -253,17 +279,24 @@ const p4 = (t) => {
   if (t > SELLO) { const cx = 180, cy = 128;
     for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const r = Math.hypot(i, j); if (r > 17 && r < 20 && h(i + 40, j + 40, 21) > 0.18) R.pset(cx + i, cy + j, hex('#c8202a')); }
     for (let k = -12; k <= 12; k++) for (let d = -2; d <= 2; d++) { if (h(k + 50, d + 9, 22) > 0.12) R.pset(cx + k + d, cy + k, hex('#d8282e')); if (h(k + 70, d + 9, 23) > 0.12) R.pset(cx + k + d, cy - k, hex('#d8282e')); } }
-  // el sello baja desde arriba (la mano queda fuera de cuadro), estampa y se va
-  const baja = suave(tramo(t, BAJA - 0.35, BAJA + 0.1)), golpe = tramo(t, SELLO - 0.12, SELLO), sube = suave(tramo(t, SELLO + 0.25, SELLO + 0.8));
-  const fondoY = Math.round(lerp(-20, 78, baja) + golpe * 54 - sube * 180);
-  if (fondoY > -10) { const sx = 180;
-    R.rect(sx - 4, -2, sx + 4, fondoY - 12, K); R.rect(sx - 3, -2, sx + 3, fondoY - 12, hex('#8a5a2a')); R.rect(sx - 3, -2, sx - 2, fondoY - 12, hex('#b47a44'));
-    R.disco(sx, fondoY - 13, 6, K); R.disco(sx, fondoY - 13, 5, hex('#9a6234')); R.pset(sx - 2, fondoY - 15, hex('#c89058'));
-    R.rect(sx - 17, fondoY - 8, sx + 17, fondoY, K); R.rect(sx - 16, fondoY - 7, sx + 16, fondoY - 3, hex('#7a4a24')); R.rect(sx - 16, fondoY - 7, sx + 16, fondoY - 7, hex('#b47a44')); R.rect(sx - 16, fondoY - 2, sx + 16, fondoY - 1, hex('#b8283a')); }
+  // el sello de mango corto, en la mano del censor (brazo canónico que entra en diagonal desde arriba a la derecha):
+  // llega mojado de la almohadilla, se alza sobre la caja en «censors», estampa en «refused» y vuelve a la almohadilla
+  const llega = suave(tramo(t, P4 + 0.05, BAJA + 0.1)), golpe = tramo(t, SELLO - 0.12, SELLO), sube = suave(tramo(t, SELLO + 0.25, SELLO + 0.75)), deja = suave(tramo(t, SELLO + 0.75, SELLO + 1.25));
+  let sx = lerp(344, 180, llega), sy = lerp(72, 78, llega) + golpe * 54 - sube * 54;
+  sx = lerp(sx, 280, deja); sy = lerp(sy, 118, deja);
+  const SX = Math.round(sx), SY = Math.round(sy), fuera = suave(tramo(t, SELLO + 1.25, SELLO + 1.8));
+  const selloEn = (X, Y) => { R.rect(X - 15, Y - 8, X + 15, Y, K); R.rect(X - 14, Y - 7, X + 14, Y - 3, hex('#7a4a24')); R.rect(X - 14, Y - 7, X + 14, Y - 7, hex('#b47a44')); R.rect(X - 14, Y - 2, X + 14, Y - 1, hex('#b8283a'));
+    R.rect(X - 3, Y - 16, X + 3, Y - 8, K); R.rect(X - 2, Y - 15, X + 2, Y - 8, hex('#8a5a2a')); R.rect(X - 2, Y - 15, X - 1, Y - 8, hex('#b47a44'));
+    R.disco(X, Y - 19, 5, K); R.disco(X, Y - 19, 4, hex('#9a6234')); R.pset(X - 2, Y - 21, hex('#c89058')); };
+  selloEn(SX, SY);
+  if (fuera < 1) { const hx = Math.round(SX + 6 + fuera * 70), hy = Math.round(SY - 20 - fuera * 50);
+    T.brazo(R, 352, 66, hx, hy, '#4a4e5a', -1, { codo: [Math.round(lerp(hx + 52, 300, fuera)), Math.round(Math.max(hy + 18, 70))] }); }
   if (t > SELLO && t < SELLO + 0.3) for (const [dx, dy] of [[-26, -6], [26, -6], [-30, 4], [30, 4]]) R.linea(180 + dx, 128 + dy, 180 + dx * 1.2, 128 + dy * 1.4, hex('#fff0a0'));
-  // en «selling it» llegan las monedas por la izquierda
-  const mv = suave(tramo(t, VENDE - 0.1, VENDE + 0.45));
+  // en «selling it» una mano empuja las monedas desde la izquierda hasta la caja, y se retira
+  const mv = suave(tramo(t, VENDE - 0.35, VENDE + 0.3)), vuelve = suave(tramo(t, VENDE + 0.35, VENDE + 0.8));
   if (mv > 0) for (let i = 0; i < 3; i++) { const x = Math.round(lerp(-20, 108, mv)) - i * 3, y = 156 - i * 3; R.disco(x, y, 6, K); R.disco(x, y, 5, hex('#e0b048')); R.disco(x, y, 3, hex('#c8963c')); R.pset(x - 2, y - 2, hex('#fff0a0')); }
+  if (mv > 0 && vuelve < 1) { const hx = Math.round(lerp(-30, 94, mv) - vuelve * 130), hy = 152;
+    T.brazo(R, -40, 186, hx, hy, '#5a4a3a', 1, { codo: [hx - 34, 176] }); }
   // en «illegal» la cadena cae en diagonal y el candado la cierra; sobre las monedas, la señal de prohibido
   const cae = suave(tramo(t, ILEGAL - 0.35, ILEGAL));
   if (cae > 0) { const off = Math.round((1 - cae) * -60);

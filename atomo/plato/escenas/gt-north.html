@@ -15,11 +15,11 @@
 //    una ballena sopla (gag pequeño), un carguero en el horizonte y un pesquero que cabecea con sus gaviotas alrededor.
 // 2. LOCAL Edimburgo (corta en «an industrial estate»): el castillo en su roca, los jardines y una terraza georgiana;
 //    en «industrial estate in Dundee» llega la furgoneta de la mudanza desde la izquierda y aparca a ese lado (un compañero
-//    espera detrás con los disquetes); el programador baja un monitor y lo lleva por la acera a la puerta; en «Rockstar North» se enciende la estrella sobre la puerta; en «Edinburgh» el cañón del
+//    espera detrás con los disquetes); el programador baja un monitor y lo lleva a la altura del pecho (cara libre) por la acera a la puerta; en «Rockstar North» se enciende la estrella sobre la puerta; en «Edinburgh» el cañón del
 //    castillo echa su bocanada de humo; las palomas de la acera echan a volar cuando pasa el programador.
 // 3. LOCAL la oficina nueva (corta en la pausa antes de «And there»): los planos azules de una ciudad enorme en la
 //    pared y filas de monitores; en «started working» los monitores se encienden en ola; en «something huge» el
-//    programador suelta el rollo y el plano se desenrolla por el suelo hasta salirse del cuadro; una compañera cruza
+//    programador suelta el rollo y el plano (papel con su sombra y el rollo al final) se desenrolla por el suelo hasta x≈246; una compañera cruza
 //    con su taza de té, se para a mirar los planos y se sorprende con el rollo.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -261,8 +261,9 @@ const p2 = (t) => {
   // el programador baja el monitor de la furgoneta y lo lleva a la puerta
   const fx = t < PARADA ? lerp(-90, 40, 1 - (1 - tramo(t, LLEGA - 0.2, PARADA)) ** 2) : 40;
   if (t > PARADA + 0.2) { const q = ruta(t, [[PARADA + 0.2, 112, 152, 1], [CANON - 0.5, 226, 152, 1], [CANON - 0.1, 236, 147, 1]]);
-    if (t < CANON) { const a = R.actor(EL.programadorNorth, q.x, q.s, t, { dir: 1, anda: q.mv, sostiene: [q.x + 12, q.s - 13], sonrisa: t > NORTE });
-      if (a.mano) { const [mx, my] = a.mano; R.rect(mx - 5, my - 10, mx + 5, my, K); R.rect(mx - 4, my - 9, mx + 4, my - 1, hex('#d8ccb0')); R.rect(mx - 3, my - 8, mx + 2, my - 3, hex('#2a3a4a')); R.pset(mx - 2, my - 7, hex('#6a8aa8')); R.rect(mx - 2, my, mx + 2, my + 1, hex('#a89c80')); } } }
+    if (t < CANON) { const a = R.actor(EL.programadorNorth, q.x, q.s, t, { dir: 1, anda: q.mv, sostiene: [q.x + 13, q.s - 7], sonrisa: t > NORTE });
+      // el monitor va a la altura del pecho, por delante del cuerpo: la cara se ve entera
+      if (a.mano) { const [mx, my] = a.mano; R.rect(mx - 5, my - 6, mx + 5, my + 3, K); R.rect(mx - 4, my - 5, mx + 4, my + 2, hex('#d8ccb0')); R.rect(mx - 3, my - 4, mx + 2, my, hex('#2a3a4a')); R.pset(mx - 2, my - 3, hex('#6a8aa8')); R.pset(mx + 4, my - 5, BL); R.rect(mx - 2, my + 3, mx + 2, my + 4, hex('#a89c80')); } } }
   // la puerta se abre cuando entra
   if (t > CANON - 0.15) { R.rect(233, 119, 249, 146, hex('#e8c878')); R.rect(233, 119, 236, 146, hex('#1a1c24')); halo(241, 140, 10, 0.25, hex('#ffe8a0')); }
   // un compañero con una caja de disquetes espera junto a la furgoneta y saluda al llegar
@@ -358,12 +359,21 @@ const p3 = (t) => {
     const a = R.actor(EL.chica, q.x, q.s, t, { dir: -1, anda: q.mv, sostiene: true, sonrisa: t > ENCIENDE && t < ROLLO, sorpresa: t > ROLLO + 0.3 });
     if (a.mano) { const [mx, my] = a.mano; R.rect(mx - 2, my - 4, mx + 2, my, K); R.rect(mx - 1, my - 3, mx + 1, my, BL); R.pset(mx - 1, my - 3, hex('#8a5a2a')); R.pset(mx + 3, my - 2, K);
       for (let k = 0; k < 2; k++) { const f = (t * 0.9 + k * 0.5) % 1; P(mx + Math.round(Math.sin(t * 3 + k) * 1), my - 6 - Math.round(f * 5), mez(BL, hex('#d8d0c0'), f)); } } }
-  // el rollo de planos: se desenrolla por el suelo en «something huge»
-  const u = tramo(t, ROLLO, ROLLO + 1.3), rx = Math.round(lerp(116, 340, u * u * (3 - 2 * u)));
-  if (t > ROLLO) { for (let x = 116; x < Math.min(320, rx); x++) for (let y = 162; y < 176; y++) R.pset(x, y, (x - 116) % 8 === 0 || (y - 162) % 5 === 0 ? hex('#e8f0fa') : hex('#2654a2')); R.rect(116, 176, Math.min(319, rx), 176, hex('#1a3a7a')); }
+  // el rollo de planos: se desenrolla por el suelo en «something huge»: papel con su sombra, el dibujo de la ciudad y el rollo al final
+  const u = tramo(t, ROLLO, ROLLO + 1.3), rx = Math.round(lerp(118, 246, u * u * (3 - 2 * u)));
+  if (t > ROLLO) { const X0 = 118, Y0 = 161, Y1 = 171;
+    tinta(X0 + 1, Y1 + 1, rx + 3, Y1 + 3, K, 0.35); tinta(X0 + 2, Y0 - 1, rx, Y0 - 1, K, 0.12);
+    for (let x = X0; x < rx; x++) for (let y = Y0; y <= Y1; y++) { const gx = x - X0, gy = y - Y0;
+      const rio = Math.abs(gx - 52 - Math.round(Math.sin(gy * 0.5) * 4)) < 3, calle = gx % 9 === 0 || gy === 5, bq = Math.floor(gx / 9) * 2 + (gy > 5 ? 1 : 0);
+      const casa = !calle && h(bq, 3) > 0.35 && gx % 9 > 1 && gx % 9 < 8 - (bq % 3) && gy !== 4 && gy !== 6 && gy > 1 && gy < 9;
+      P(x, y, y === Y0 ? hex('#7aa0e0') : y === Y1 ? hex('#1a3a7a') : rio ? (gy % 3 === Math.floor(t * 2 + gx) % 3 ? hex('#7aa8e8') : hex('#5a8ad0')) : calle ? hex('#a8c0e8') : casa ? (gx % 9 === 2 ? hex('#e8f0fa') : hex('#4a7ac4')) : tono(rampa('#1e4a96', '#2654a2', '#2e5eae'), 1 + gx * 0.004 + (h(x, y) - 0.5) * 0.6, x, y)); }
+    // la arista del papel junto al programador (el borde cortado) y una leve onda donde el papel no asienta
+    R.rect(X0, Y0, X0, Y1, hex('#e8f0fa')); tinta(X0 + 60, Y0 + 1, X0 + 66, Y1 - 1, BL, 0.12); }
   const pn = R.actor(EL.programadorNorth, 96, 170, t, { dir: 1, sostiene: t < ROLLO ? [114, 160] : undefined, sorpresa: t > ROLLO + 0.3, brazos: t > ROLLO + 0.9, sonrisa: t < ROLLO, habla: t > P3 + 0.2 && t < ENCIENDE + 0.4 && Math.sin(t * 9) > 0 });
   if (t < ROLLO) { const [mx, my] = pn.mano ?? [114, 160]; R.rect(mx - 2, my - 3, mx + 12, my + 3, K); R.rect(mx - 1, my - 2, mx + 11, my + 2, hex('#3a6ab4')); R.rect(mx - 1, my - 2, mx + 11, my - 2, hex('#7aa0e0')); R.disco(mx + 12, my, 3, hex('#e8f0fa')); R.disco(mx + 12, my, 1, hex('#2654a2')); }
-  else if (rx < 335) { R.disco(rx, 168, 7, K); R.disco(rx, 168, 6, hex('#3a6ab4')); R.disco(rx, 168, 3, hex('#e8f0fa')); R.pset(rx + Math.round(Math.cos(t * 12) * 2), 168 + Math.round(Math.sin(t * 12) * 2), hex('#2654a2')); }
+  else { const gira = u < 1 ? t * 12 : ROLLO * 12 + 15.6, ry = 166, rr = Math.round(lerp(6, 4, u)); // el rollo, que adelgaza al soltar papel
+    ovalo(rx + 2, 172, rr + 2, 1.5, 0.4); R.disco(rx, ry, rr + 1, K); R.disco(rx, ry, rr, hex('#3a6ab4')); R.disco(rx - 1, ry - 1, rr - 2, hex('#4a7ac4'));
+    R.disco(rx, ry, 2, hex('#e8f0fa')); R.pset(rx, ry, hex('#1a3a7a')); R.pset(rx + Math.round(Math.cos(gira) * (rr - 1)), ry + Math.round(Math.sin(gira) * (rr - 1)), hex('#c8d8f0')); R.pset(rx - 2, ry - rr + 1, BL); }
 };
 
 const efectos = [[0.3, 'jet', { dur: 1.5 }], [BALLENA + 0.7, 'chof'], [LLEGA - 0.2, 'motor', { dur: 1.8 }], [NORTE, 'brillo'], [CANON, 'boom'], [ENCIENDE, 'interruptor'], [ROLLO, 'papel']];

@@ -13,15 +13,19 @@
 // 1. (2013) una tienda de juegos de noche: la caja registradora escupe billetes y el marcador de bombillas sube hasta
 //    1,000,000,000 justo en «billion» (golpe); el dependiente teclea y levanta los brazos; los compradores se asombran;
 // 2. (1990) una calle de Dundee bajo la lluvia: un joven con paraguas llega al portal verde y entra en «studio»; en
-//    «tiny creatures» un bichito de juguete se asoma a la ventana de la oficina de arriba;
+//    «tiny creatures» un bichito de juguete se asoma desde dentro a la ventana de la oficina de arriba: sube tras el
+//    alféizar interior, apoya las patitas y mira a un lado y a otro (recortado al cristal, tras el velo y los reflejos);
 // 3. (1996) el escritorio de cerca: en «almost cancelled» un sello rojo tacha el boceto, que se arruga y cae a la
 //    papelera; en «It's called» una mano lo rescata y lo devuelve a la mesa, alisado y con un visto verde;
-// 4. (1995) el polígono de Dundee al anochecer: tras la ventana, los chavales programan ante sus monitores (uno lo
+// 4. (1995) el polígono de Dundee al anochecer, bajo un cielo tramado con nubes de tres tonos a tres velocidades, estrellas
+//    y una bandada; al fondo, naves de dientes de sierra, el gasómetro y dos grúas con el gancho que se mece; delante,
+//    bloques con ventanas que se encienden y apagan, chimeneas que humean y luces rojas que parpadean; tras la ventana, los chavales programan ante sus monitores (uno lo
 //    celebra en «programmers»); la persiana metálica sube y entra uno con paraguas;
 // 5. (1997–1998) un díptico: el relaciones públicas coge el teléfono, con su puro, y en «scandal» imagina un periódico
 //    que echa chispas; en «two English brothers» salen dos hermanos de una tienda de discos de Nueva York;
 // 6. (hoy) gag 1: la mesa del estudio; Atom baja, toca el coche de policía de juguete en «police chase», el coche se
-//    enciende y lo persigue por la pista; en «went crazy» se vuelve loco y Atom vuelve volando a su esquina.
+//    enciende y lo persigue por la pista; en «went crazy» se vuelve loco, el mando de la esquina vibra con los botones
+//    encendidos y Atom vuelve volando a su esquina; abajo a la derecha, la consola sin marca con su piloto y su cable.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gt-gancho');
@@ -176,13 +180,38 @@ const p1 = (t) => {
 // ── 2 · Dundee, 1990: la calle con lluvia ──────────────────────────────────────────────────────────────────
 const o2 = { encuadre: 'ciudad', camara: 'calle', año: 1990, lluvia: 0.6 };
 const estudio = g(0.515), bicho = g(0.636);
+// el cristal de la ventana de la oficina (x 103–135, y 64–90; el marco y el alféizar de piedra quedan fuera)
+const VX0 = 103, VY0 = 64, VX1 = 135, VY1 = 90, BUF2 = R.nuevo();
+const C2 = pal({ mad: '#8a5a34', madL: '#c08a52', madS: '#5a3a20', bicho: '#f08a30', bichoS: '#b85a18', vidrio: '#dff0ff', taza: '#e8e4dc', tazaS: '#b0a89a' });
+// el bichito de juguete se asoma desde dentro: sube detrás del alféizar interior (y 85–90), apoya las patitas, mira a un
+// lado y a otro y da saltitos; todo recortado al cristal (el sprite se pinta con rect, así que va por un búfer y pset)
+const asoma = (t) => {
+  const u = tramo(t, bicho, bicho + 0.3), e = 1 - (1 - u) ** 3, rebote = Math.round(Math.sin(tramo(t, bicho + 0.25, bicho + 0.5) * Math.PI) * 2);
+  const salto = t > bicho + 0.5 ? Math.round(Math.abs(Math.sin((t - bicho) * 9)) * 2) : 0;
+  const by = Math.round(lerp(126, 99, e)) - rebote - salto, mira = t > bicho + 0.45 ? (Math.floor((t - bicho) * 3.2) % 2 ? -1 : 1) : 1;
+  BUF2.fill(0); const prev = R.usar(BUF2); PZ.bichito(R, 119, by, { s: 2, dir: mira, t }); R.usar(prev);
+  for (let y = VY0; y <= VY1; y++) for (let x = VX0; x <= VX1; x++) { const cc = BUF2[y * 320 + x]; if (cc) R.pset(x, y, cc); }
+  // el alféizar interior de madera, con vetas, y una taza de lápices
+  for (let y = 85; y <= VY1; y++) for (let x = VX0; x <= VX1; x++) R.pset(x, y, y === 85 ? C2.madL : y === VY1 ? C2.madS : (hh(x >> 2, y, 6) > 0.8 ? C2.madS : C2.mad));
+  for (let y = 80; y <= 84; y++) for (let x = 130; x <= 134; x++) R.pset(x, y, x === 134 ? C2.tazaS : C2.taza);
+  R.pset(131, 78, hex('#e04a3a')); R.pset(131, 79, hex('#e04a3a')); R.pset(133, 77, hex('#3a7ae0')); R.pset(133, 78, hex('#3a7ae0')); R.pset(133, 79, hex('#3a7ae0'));
+  // las dos patitas sobre el alféizar (del color del bichito, sin dedos), cuando ya ha subido
+  if (u > 0.7) for (const px of [110 - (salto ? 1 : 0), 126 + (salto ? 1 : 0)]) { const py = 84 - (salto ? 1 : 0);
+    for (let i = 0; i < 4; i++) { R.pset(px + i, py - 1, K); R.pset(px + i, py + 1, C2.bichoS); R.pset(px + i, py, i === 0 || i === 3 ? K : C2.bicho); } }
+  // el destello de la aparición, dentro del cristal
+  R.recorte([VX0, VY0, VX1, VY1]);
+  if (u < 1 || t < bicho + 0.4) { const v = tramo(t, bicho, bicho + 0.4); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + v, r = 4 + v * 9; R.pset(Math.round(119 + Math.cos(a) * r), Math.round(76 + Math.sin(a) * r * 0.8), hex('#fff6c0')); } }
+  // el cristal: un velo frío tramado, dos reflejos en diagonal y las gotas que resbalan
+  luz(VX0, VY0, VX1, VY1, C2.vidrio, (x, y) => b4(x, y) < 0.12 ? 0.25 : 0);
+  for (const [o, w] of [[6, 2], [20, 1]]) for (let k = 0; k < 40; k++) for (let j = 0; j < w; j++) { const x = VX0 + o + k + j - 14, y = VY1 - k; R.pset(x, y, mez(R.pget(x, y), BL, 0.4)); }
+  for (let k = 0; k < 4; k++) { const x = VX0 + 3 + Math.round(hh(k, 5, 7) * 28), y = VY0 + Math.round((hh(k, 6, 7) * 26 + t * (5 + k * 2)) % 27); R.pset(x, y, hex('#c8dcf0')); R.pset(x, y - 1, hex('#eef6ff')); }
+  R.recorte(null);
+};
 const p2 = (t) => {
   T.dundee(R, t, o2);
   // la oficina de arriba: en «studio» se enciende la luz y en «tiny creatures» se asoma el bichito de juguete
-  if (t > estudio + 0.3) luz(103, 60, 135, 94, hex('#fff2b0'), (x, y) => b4(x, y) < 0.35 ? 0.3 : 0);
-  if (t > bicho) { const u = tramo(t, bicho, bicho + 0.45), sal = Math.round(Math.sin(u * Math.PI) * 5) + (t > bicho + 0.8 ? Math.round(Math.abs(Math.sin(t * 5)) * 2) : 0);
-    PZ.bichito(R, 119, 95 - sal, { s: 2, anda: t > bicho + 0.8, t });
-    if (u < 1) for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3, r = 6 + u * 10; R.pset(Math.round(119 + Math.cos(a) * r), Math.round(80 + Math.sin(a) * r), hex('#fff6c0')); } }
+  if (t > estudio + 0.3) luz(VX0, VY0, VX1, VY1, hex('#fff2b0'), (x, y) => b4(x, y) < 0.35 ? 0.3 : 0);
+  if (t > bicho) asoma(t);
   // el portal verde: se abre en «studio», el joven entra y se cierra
   const abre = tramo(t, estudio - 0.1, estudio + 0.25) - tramo(t, bicho - 0.1, bicho + 0.25);
   const dx0 = 172, dx1 = 191, dy0 = 116, dy1 = 155;
@@ -308,17 +337,71 @@ const p3 = (t) => {
 
 // ── 4 · el polígono de Dundee al anochecer, 1995 ─────────────────────────────────────────────────────────────
 const progr = c(0.119), indus = c(0.194), dundee = c(0.2845);
-const C4 = pal({ c0: '#4a4a6a', c1: '#6a6080', c2: '#9a7a8a', c3: '#c89a86', n0: '#d8c8d0', n1: '#a898ac', n2: '#7a7090', lej: '#5a5a70', lejS: '#4a4a5e', lejL: '#6e6e84',
+const C4 = pal({ c0: '#4a4a6a', c1: '#6a6080', c2: '#9a7a8a', c3: '#c89a86', n0: '#d8c8d0', n1: '#a898ac', n2: '#7a7090', panza: '#e8a898', brasa: '#e8a070', lej: '#5a5a70',
+  f0: '#6e6882', f1: '#8c7e94', f2: '#5e5872', n0b: '#3a384e', n1b: '#5a5068', n2b: '#2c2a3e', gru: '#4a4660', gruL: '#9a8494', gruS: '#34324a',
+  ventL: '#ffd47a', ventS: '#d89a48', ventO: '#24222f', rojo: '#ff3a3a', rojoL: '#ffb0a0', pajaro: '#2a2438', lejS: '#4a4a5e', lejL: '#6e6e84',
   chapa: '#7a8a96', chapaL: '#98a8b4', chapaS: '#5a6874', chapaD: '#46525c', alero: '#3a424c', lad: '#8a4a3a', ladS: '#6a3426', ladJ: '#b0a49a',
   pers: '#9aa2aa', persS: '#6a727a', persL: '#c0c8d0', dentro: '#2a2630', alu: '#c8ccd4', aluS: '#8a8e98', intP: '#d8d2bc', intS: '#bab49e', techoI: '#ece8dc',
   asf: '#3e4048', asfS: '#30323a', asfL: '#555862', raya: '#d8d4c4', sodio: '#ffb050', sodioL: '#ffe0a0', mesa: '#d0a872', mesaS: '#a6804e', furg: '#e8e8ee', furgS: '#b8bcc8' });
+// la silueta del polígono en dos términos: al fondo, naves de dientes de sierra, el gasómetro y dos grúas torre, en la
+// bruma; delante, los bloques oscuros con ventanas encendidas, dos chimeneas de ladrillo, la torre eléctrica y los silos
+const CIELO4 = new Uint32Array(320 * 64), MASC4 = new Uint8Array(320 * 64), VENT4 = [];
+const grua4 = (mx, top, j0, j1, cw) => {
+  const c = C4.gru, cL = C4.gruL;
+  for (let y = top; y <= 62; y++) { R.pset(mx, y, c); R.pset(mx + 3, y, c); if ((y - top) % 4 === 0) R.linea(mx, y, mx + 3, y, c); if ((y - top) % 4 === 2) { R.pset(mx + 1, y, c); R.pset(mx + 2, y, c); } R.pset(mx + 3, y, (y & 1) ? cL : c); }
+  R.linea(j0, top, j1, top, c); R.linea(j0, top + 3, j1, top + 3, c);
+  for (let x = j0; x < j1; x += 4) { R.linea(x, top + 3, x + 2, top, c); R.linea(x + 2, top, x + 4, top + 3, c); }
+  R.linea(j0, top, j1, top, cL);
+  R.linea(mx + 1, top - 5, j0 + 2, top, c); R.linea(mx + 2, top - 5, j1 - 4, top, c); R.rect(mx + 1, top - 5, mx + 2, top - 1, c);
+  R.rect(cw, top + 2, cw + 7, top + 7, C4.gruS); R.rect(cw, top + 2, cw + 7, top + 2, cL);
+  R.rect(mx + 4, top + 4, mx + 8, top + 8, C4.gruS); R.rect(mx + 5, top + 5, mx + 7, top + 6, C4.ventL);
+};
+const industria4 = () => {
+  const F = C4.f0, FL = C4.f1, FS = C4.f2;
+  // al fondo: las naves de dientes de sierra con sus lucernarios que cogen el último sol
+  for (const [x0, x1, b] of [[0, 128, 52], [168, 276, 50]]) for (let x = x0; x <= x1; x++) { const k = (x - x0) % 10, top = b - Math.round(k * 0.5);
+    for (let y = top; y <= 63; y++) R.pset(x, y, k === 0 && y < b + 2 ? FL : y > b + 6 && (x + y) % 9 === 0 ? FS : F); if (k === 0) for (let y = top; y < b; y++) R.pset(x + 1, y, mez(FL, C4.c3, 0.4)); }
+  // el gasómetro: el depósito con su armazón, con volumen (lado del sol más claro)
+  for (let y = 36; y <= 63; y++) for (let x = 136; x <= 166; x++) { const u = (x - 136) / 30, top = 36 + Math.round((1 - Math.sin(u * Math.PI)) * 2); if (y < top) continue;
+    R.pset(x, y, (x - 136) % 6 === 0 ? FS : y === 44 || y === 53 ? FL : u > 0.75 ? FL : u < 0.2 ? FS : F); }
+  for (let x = 136; x <= 166; x += 6) R.linea(x, 34, x, 36, FS);
+  R.linea(136, 34, 166, 34, FS);
+  // las dos grúas torre (la flecha bajo la barra del año y lejos de la esquina de Atom)
+  grua4(92, 22, 70, 150, 72); grua4(222, 24, 198, 268, 200);
+  // delante: los bloques oscuros con sus ventanas (las encendidas se guardan para parpadear) y su arista de luz
+  const N = C4.n0b, NL = C4.n1b, NS = C4.n2b;
+  for (const [x0, x1, y0] of [[0, 54, 46], [100, 132, 42], [170, 214, 50], [228, 282, 48]]) {
+    for (let y = y0; y <= 63; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, y === y0 ? NL : x === x1 ? NL : x - x0 < 2 ? NS : hh(x >> 1, y, 12) > 0.93 ? NS : N);
+    for (let y = y0 + 3; y <= 58; y += 5) for (let x = x0 + 3; x <= x1 - 4; x += 5) { const on = hh(x, y, 13) > 0.45; R.rect(x, y, x + 2, y + 1, on ? C4.ventL : C4.ventO); if (on) { R.pset(x, y + 1, C4.ventS); VENT4.push([x, y]); } }
+  }
+  R.rect(100, 38, 112, 41, NS); R.rect(100, 38, 112, 38, NL); R.rect(104, 33, 107, 37, NS);
+  // las dos chimeneas de ladrillo con sus anillos (el humo y las luces rojas van en cada fotograma)
+  for (const [x0, x1, y0] of [[244, 249, 26], [60, 63, 30]]) { for (let y = y0; y <= 63; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, x === x1 ? NL : x === x0 ? NS : (y - y0) % 7 === 3 ? NL : (y + (x & 1)) % 3 === 0 ? NS : N); R.rect(x0 - 1, y0, x1 + 1, y0 + 1, NL); }
+  // la torre eléctrica con sus cables
+  for (let y = 20; y <= 46; y++) { const w = Math.round((y - 20) * 0.26); R.pset(30 - w, y, NS); R.pset(30 + w, y, NS); if (y % 5 === 0) R.linea(30 - w, y, 30 + w, y, NS); if (y % 5 === 2) R.linea(30 - w, y, 30 + w, y + 3, NS); }
+  R.rect(22, 24, 38, 24, NS); R.rect(25, 29, 35, 29, NS);
+  for (let x = 0; x <= 22; x++) R.pset(x, 27 + Math.round(((x - 11) / 11) ** 2 * -3 + 3), NS);
+  for (let x = 38; x <= 98; x++) R.pset(x, 24 + Math.round(Math.sin((x - 38) / 60 * Math.PI) * 6), NS);
+  // los silos junto al bloque de la derecha (por debajo de la esquina de Atom)
+  for (const cx of [288, 300]) for (let y = 46; y <= 63; y++) for (let x = cx - 5; x <= cx + 5; x++) { const top = 46 + Math.round(Math.abs(x - cx) * 0.6); if (y < top) continue; R.pset(x, y, x > cx + 2 ? NL : x < cx - 2 ? NS : (y % 6 === 0 ? NS : N)); }
+};
+// una nube de lomos (tres tonos: la tapa fría, el cuerpo y la panza que coge el sol del anochecer), solo sobre el cielo
+const nube4 = (cx, by, w, sd) => {
+  const n = Math.max(3, Math.round(w / 10)), L = [];
+  for (let k = 0; k < n; k++) { const m = 1 - Math.abs(k - (n - 1) / 2) / n; L.push([cx - w / 2 + (k + 0.5) * w / n + (hh(k, sd, 1) - 0.5) * 4, (w / n) * (0.55 + m * 0.6 + hh(k, sd, 2) * 0.25)]); }
+  const H = Math.max(...L.map(l => l[1])) * 1.3;
+  for (let y = Math.floor(by - H); y <= by; y++) { if (y < 0 || y > 63) continue; for (let x = Math.floor(cx - w / 2 - 6); x <= cx + w / 2 + 6; x++) {
+    if (x < 0 || x > 319 || !MASC4[y * 320 + x]) continue; let best = 9, ly = 0;
+    for (const [lx, r] of L) { const d = Math.hypot((x - lx) / r, (y - (by - r * 0.7)) / r); if (d < best) { best = d; ly = r; } }
+    if (best > 1 && !(best < 1.12 && b4(x, y) < 0.4)) continue;
+    const v = (y - (by - H)) / H; R.pset(x, y, v > 0.82 ? (b4(x, y) < (v - 0.82) * 6 ? C4.panza : C4.n1) : v < 0.4 && best > 0.55 ? C4.n2 : best > 1 ? C4.n2 : C4.n1); } }
+};
 const fondo4 = () => {
-  grad(0, 0, 319, 62, [C4.c0, C4.c1, C4.c2, C4.c3]);
-  // naves lejanas, una torre eléctrica y una chimenea
-  for (const [x0, x1, y0] of [[0, 60, 50], [56, 130, 46], [126, 200, 52], [196, 268, 47], [264, 320, 54]]) { R.rect(x0, y0, x1, 64, C4.lej); R.rect(x0, y0, x1, y0, C4.lejL); for (let x = x0 + 4; x < x1 - 2; x += 9) if (hh(x, y0, 4) > 0.5) R.rect(x, y0 + 5, x + 2, y0 + 6, hex('#e8c070')); }
-  R.rect(244, 30, 249, 47, C4.lejS); R.rect(243, 30, 250, 31, C4.lej);
-  for (let y = 22; y <= 46; y++) { const w = Math.round((y - 22) * 0.25); R.pset(30 - w, y, C4.lejS); R.pset(30 + w, y, C4.lejS); if (y % 5 === 0) R.linea(30 - w, y, 30 + w, y, C4.lejS); }
-  R.rect(24, 26, 36, 26, C4.lejS); R.linea(24, 26, 0, 34, C4.lejS); R.linea(36, 26, 96, 30, C4.lejS);
+  // el cielo del anochecer, tramado: violeta arriba y el resplandor anaranjado detrás de las naves (hacia x 200)
+  grad(0, 0, 319, 63, [C4.c0, C4.c1, C4.c2, C4.c3, C4.brasa], (x, y) => Math.max(0, Math.min(1, (y / 63) ** 1.3 * 0.82 + Math.max(0, 1 - Math.hypot((x - 200) / 150, (y - 64) / 40)) * 0.32 + (hh(x >> 2, y >> 1, 3) - 0.5) * 0.06)));
+  CIELO4.set(R.buf.subarray(0, 320 * 64));
+  industria4();
+  const B = R.buf; for (let i = 0; i < 320 * 64; i++) MASC4[i] = B[i] === CIELO4[i] ? 1 : 0;
   // la nave: alero, chapa ondulada y zócalo de ladrillo
   R.rect(0, 60, 319, 66, C4.alero); R.rect(0, 60, 319, 60, hex('#5a626c')); R.rect(0, 66, 319, 67, K);
   for (let y = 68; y <= 139; y++) for (let x = 0; x < 320; x++) { const r = x % 6; R.pset(x, y, r === 0 ? C4.chapaS : r === 1 ? C4.chapaL : r === 5 ? C4.chapaD : (hh(x >> 1, y >> 3, 5) > 0.92 ? hex('#8a6a5a') : C4.chapa)); }
@@ -351,10 +434,20 @@ const fondo4 = () => {
 const p4 = (t) => {
   fijo('p4', fondo4);
   // las nubes de tres tonos a tres velocidades, y el humo de la chimenea
-  R.recorte([0, 0, 319, 45]);
-  for (const [x0, y, w, v] of [[30, 20, 50, 2.5], [180, 30, 64, 4], [260, 16, 36, 6]]) nube(((x0 + t * v) % 400) - 40, y, w, [C4.n0, C4.n1, C4.n2]);
-  R.recorte(null);
-  for (let k = 0; k < 5; k++) { const u = (t * 0.25 + k / 5) % 1; R.disco(Math.round(246 - u * 26), Math.round(28 - u * 14), 2 + u * 3, mez(C4.lej, C4.n1, 0.5 + u * 0.3)); }
+  // las primeras estrellas, que titilan (fuera de la barra del año y de la esquina de Atom)
+  for (let k = 0; k < 9; k++) { const x = 172 + Math.round(hh(k, 1, 40) * 100), y = 3 + Math.round(hh(k, 2, 40) * 14); if (MASC4[y * 320 + x] && Math.sin(t * (2 + k) + k) > -0.3) R.pset(x, y, hex('#e8e0f0')); }
+  // las nubes a tres velocidades: las lejanas, finas y lentas; las de en medio; y las grandes de delante, más rápidas
+  for (const [x0, y, w, v, sd] of [[40, 22, 34, 1.2, 1], [210, 18, 28, 1.2, 2], [120, 34, 52, 3, 3], [300, 30, 44, 3, 4], [10, 44, 70, 5.5, 5], [190, 46, 60, 5.5, 6]])
+    nube4(((x0 + t * v) % 440) - 60, y, w, sd);
+  // la bandada que cruza hacia la izquierda, aleteando
+  for (let k = 0; k < 6; k++) { const x = Math.round(236 - (t - P4) * 16 - [0, 6, 6, 12, 12, 18][k]), y = Math.round(30 + [0, -3, 3, -6, 6, -1][k] + Math.sin(t * 2 + k) * 1.2), ar = Math.floor(t * 7 + k * 1.7) % 2;
+    if (x < 2 || x > 270) continue; R.pset(x, y, C4.pajaro); R.pset(x - 1, y - ar, C4.pajaro); R.pset(x + 1, y - ar, C4.pajaro); R.pset(x - 2, y - 2 * ar + (ar ? 0 : 1), C4.pajaro); R.pset(x + 2, y - 2 * ar + (ar ? 0 : 1), C4.pajaro); }
+  // el humo de las dos chimeneas, las luces rojas de chimeneas y grúas, el gancho que se mece y las ventanas que cambian
+  for (const [cx, cy, ph] of [[246, 24, 0], [61, 28, 0.5]]) for (let k = 0; k < 5; k++) { const u = (t * 0.25 + k / 5 + ph) % 1; R.disco(Math.round(cx - u * 24), Math.round(cy - u * 10), 2 + u * 3, mez(k % 2 ? C4.n2 : C4.lej, C4.n1, 0.4 + u * 0.4)); }
+  const rojo = Math.floor(t * 1.6) % 2 === 0;
+  for (const [x, y, d] of [[246, 24, 0], [61, 28, 1], [93, 16, 0], [223, 18, 1]]) if (rojo !== !!d) { R.pset(x, y, C4.rojo); R.pset(x + 1, y, C4.rojo); R.pset(x, y - 1, C4.rojoL); }
+  for (const [tx, top, ph] of [[134, 22, 0], [256, 24, 1.3]]) { const sw = Math.sin(t * 1.4 + ph) * 2, hy = top + 18; R.linea(tx, top + 4, Math.round(tx + sw), hy, C4.gru); R.rect(Math.round(tx + sw) - 1, hy, Math.round(tx + sw) + 1, hy + 1, C4.gruS); R.rect(tx - 2, top + 3, tx + 2, top + 4, C4.gruS); }
+  VENT4.forEach(([x, y], i) => { if (hh(i, Math.floor(t * 0.7 + hh(i, 3, 2) * 5), 14) > 0.88) R.rect(x, y, x + 2, y + 1, C4.ventO); else if (i % 7 === 0) R.pset(x + 1, y, Math.sin(t * 9 + i) > 0 ? hex('#a8d0ff') : C4.ventL); });
   // la persiana que sube en «industrial estate»
   const sube = tramo(t, indus, indus + 1.1), hp = Math.round(lerp(40, 4, sube));
   for (let y = 82; y < 82 + hp; y++) R.rect(30, y, 92, y, (y - 82) % 4 === 3 ? C4.persS : (y - 82) % 4 === 0 ? C4.persL : C4.pers);
@@ -382,6 +475,7 @@ const p4 = (t) => {
     if (en2 > 0) R.recorte([30, 82 + hp, 92, 150]);
     const a = R.actor(EL.programadorNorth, x, suelo, t, { dir: 1, anda: (w > 0 && w < 1) || (en2 > 0 && en2 < 1), sostiene: en2 === 0 ? [x + 15, suelo - 22] : false }); R.recorte(null);
     if (en2 === 0) paraguas(a.mano[0], a.mano[1], [hex('#3a8a4a'), hex('#e8e0c8')], t); }
+  lluvia(0, 0, 319, 59, t, 26, hex('#8c88a4'), 170);
   lluvia(0, 68, 319, 179, t, 70, hex('#9ab0c8'), 170);
   for (let k = 0; k < 6; k++) { const u = (t * 1.7 + k / 6) % 1, x = 140 + Math.round(hh(k, 9, 2) * 90), y = 163 + Math.round(hh(k, 8, 2) * 6); if (u < 0.5) { const r = Math.round(u * 6); R.pset(x - r, y, hex('#c8d4e4')); R.pset(x + r, y, hex('#c8d4e4')); } }
 };
@@ -501,13 +595,49 @@ const toca = c(0.716), arr = c(0.735), loco = c(0.8987), vuelve = E.duracion - 1
 const ANG = (tt) => { let a = 2.045, w = 0; for (let s = arr; s < tt; s += 1 / 30) { w = s < arr + 0.6 ? 1.5 * (s - arr) / 0.6 : s < loco ? 1.5 : Math.min(4.6, 1.5 + (s - loco) * 6); a += w / 30; } return a; };
 const pista = (a) => [160 + Math.cos(a) * 105, 146 + Math.sin(a) * 23];
 const atomPeq = (x, y, t, e, r = 11) => { x = Math.round(x); y = Math.round(y); for (let j = -18; j <= 18; j++) for (let i = -18; i <= 18; i++) { const gg = 1 - Math.hypot(i, j) / 17.5; if (gg > 0.3 && ((i + j) & 1 || gg > 0.6)) R.pset(x + i, y + j, gg > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); } R.atomo(x, y, t, { r, orbita: R.PAL.ATOM[7], energia: e }); };
+const SNAP6 = new Uint32Array(57 * 18);
+const C6 = pal({ gris: '#c8c8d4', grisL: '#ececf4', grisS: '#8a8a9c', grisD: '#5a5a6c', negro: '#26262f', cable: '#2e2e38', cableL: '#5a5a6a', ledV: '#4ae06a', ledR: '#ff5a4a', mando: '#4a4a5c', mandoL: '#6a6a80', mandoS: '#30303c' });
+// la consola sin marca de la esquina (tapa el teléfono liso del decorado, x 286–312, y 156–170): la tapa con su ranura,
+// el piloto verde que parpadea cuando el coche corre, dos tomas de mando y el cable que se va por la derecha
+const consola = (t) => {
+  for (let y = 172; y <= 174; y++) for (let x = 286; x <= 314; x++) if (b4(x, y) < 0.5) R.pset(x, y, mez(R.pget(x, y), K, 0.35));
+  R.rect(284, 154, 314, 172, K);
+  R.rect(285, 155, 313, 160, C6.grisL); R.rect(285, 161, 313, 171, C6.gris); R.rect(285, 170, 313, 171, C6.grisS); R.rect(313, 155, 313, 171, C6.grisS);
+  for (let x = 287; x <= 311; x += 3) R.pset(x, 157, C6.grisS);
+  R.rect(289, 158, 305, 158, C6.negro); R.rect(289, 159, 305, 159, C6.grisD);
+  R.rect(288, 164, 291, 167, C6.negro); R.rect(294, 164, 297, 167, C6.negro); R.pset(289, 165, C6.grisD); R.pset(295, 165, C6.grisD);
+  R.rect(301, 163, 310, 168, C6.grisS); R.rect(302, 164, 309, 167, C6.gris); R.rect(302, 164, 309, 164, C6.grisL);
+  const on = t < arr ? true : Math.floor(t * (t > loco ? 14 : 6)) % 2 === 0;
+  R.rect(309, 157, 310, 158, on ? C6.ledV : hex('#1e5a2a')); if (on) { R.pset(308, 157, hex('#c8ffd0')); R.pset(311, 158, hex('#2a8a3a')); }
+  R.pset(306, 166, t > toca ? C6.ledR : C6.grisD);
+  for (let x = 314; x <= 319; x++) { const y = 166 + Math.round(Math.sin(x * 0.9) * 1.5); R.pset(x, y, C6.cable); R.pset(x, y - 1, C6.cableL); }
+};
+// el mando sin marca, más arriba y entero: tumbado sobre la tabla con su cable rizado; en «went crazy» vibra y se le
+// encienden los botones
+const mando = (t) => {
+  const vib = t > loco && t < vuelve ? (Math.floor(t * 30) % 2 ? 1 : -1) : 0, x0 = 18 + vib, y0 = 150;
+  for (let k = 0; k < 18; k++) { const x = x0 + 2 - k, y = y0 + 9 + Math.round(Math.sin(k * 1.3 + (vib ? t * 20 : 0)) * 1.5); R.pset(x, y, C6.cable); R.pset(x, y + 1, C6.cableL); }
+  for (let y = 0; y <= 14; y++) for (let x = 0; x <= 34; x++) { const v = (y - 8) / 7, d = Math.min(Math.hypot((x - 8) / 8, v), Math.hypot((x - 26) / 8, v), Math.abs(x - 17) < 11 && y >= 2 && y <= 12 ? 0 : 9);
+    if (d > 1) continue; R.pset(x0 + x, y0 + y, d > 0.86 ? K : y < 5 ? C6.mandoL : y > 11 ? C6.mandoS : C6.mando); }
+  for (let x = 1; x <= 33; x++) if (b4(x, 0) < 0.6) R.pset(x0 + x, y0 + 16, mez(R.pget(x0 + x, y0 + 16), K, 0.3));
+  R.rect(x0 + 5, y0 + 7, x0 + 11, y0 + 8, C6.negro); R.rect(x0 + 7, y0 + 5, x0 + 9, y0 + 10, C6.negro); R.pset(x0 + 8, y0 + 6, C6.mandoL);
+  R.rect(x0 + 14, y0 + 5, x0 + 16, y0 + 5, C6.grisS); R.rect(x0 + 19, y0 + 5, x0 + 21, y0 + 5, C6.grisS);
+  const btn = [['#e04a4a', 26, 5], ['#4a8ae0', 30, 8], ['#4ae06a', 26, 11], ['#f0c040', 22, 8]];
+  btn.forEach(([cc, bx, by], i) => { const lit = vib && Math.floor(t * 12 + i) % 4 === 0; R.disco(x0 + bx, y0 + by, 2, K); R.pset(x0 + bx, y0 + by, lit ? BL : hex(cc)); R.pset(x0 + bx - 1, y0 + by - 1, hex(cc)); R.pset(x0 + bx, y0 + by - 1, lit ? hex('#fff6c0') : hex(cc)); });
+  if (vib) for (const s of [-1, 1]) for (let k = 0; k < 3; k++) R.pset(x0 + 17 + s * (20 + k), y0 + 4 + k * 3, hex('#fff6c0'));
+};
 const p6 = (t) => {
   const A = ANG(t), marcha = t > arr;
   const o = { encuadre: 'estudio', camara: 'mesa', coche: marcha ? 'persigue' : 'para', vueltas: marcha ? A / t : 1 };
   const geo = T.hoy(R, t, o);
+  consola(t);
   // el humo de las ruedas cuando se vuelve loco
   if (t > loco) for (let k = 1; k <= 5; k++) { const [x, y] = pista(ANG(t - k * 0.07)); R.disco(Math.round(x), Math.round(y - 2), 1 + k * 0.5, mez(hex('#d8d8e0'), hex('#8a8a96'), k / 6)); }
+  // el mando caído del decorado (x 20–76, y 162–179) queda cortado por el borde: se guarda lo de debajo y se repone
+  for (let y = 162; y <= 179; y++) for (let x = 20; x <= 76; x++) SNAP6[(y - 162) * 57 + x - 20] = R.pget(x, y);
   T.hoyDelante(R, t, o);
+  for (let y = 162; y <= 179; y++) for (let x = 20; x <= 76; x++) R.pset(x, y, SNAP6[(y - 162) * 57 + x - 20]);
+  mando(t);
   // Atom: baja de su esquina, toca el coche, huye por delante y, en «went crazy», se vuelve volando a su esquina
   const [cx0, cy0] = [112, 140];
   let ax, ay;

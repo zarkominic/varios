@@ -11,7 +11,7 @@
 <script type="module">
 // GT-CIERRE (frase 31), 2026, sin cartela. Dos planos:
 // 1. hoy/estudio (2.ª vez): Atom flota en el estudio; en «comments» suben tres bocadillos de comentario (un coche, un
-//    bichito, una interrogación); en «video game story» brillan los juegos de la estantería; en «tell?» sale una «?»
+//    bichito nuestro, naranja con la mata verde, que anda en el sitio; una interrogación); en «video game story» brillan los juegos de la estantería; en «tell?» sale una «?»
 //    grande y Atom gira; al final se lanza hacia la mesa. Corta en «Meanwhile».
 // 2. hoy/estudio/mesa (gag 8, 2.ª vez): Atom cae en su coche de juguete y persigue al coche de policía; lo adelanta
 //    por dentro y, en «escape», el de policía se pone a perseguirle a él, pegado a su parachoques («won't leave me
@@ -99,8 +99,13 @@ const COM = at(1.38), JUEGOS = at(2.28), TELL = at(4.52), VA = at(4.75);
 const bocadillo = (x, y, ic, e) => { x = Math.round(x); y = Math.round(y); const w = Math.round(12 * e), hh = Math.round(9 * e); if (w < 3) return;
   R.rect(x - w - 1, y - hh - 1, x + w + 1, y + hh + 1, K); R.rect(x - w, y - hh, x + w, y + hh, hex('#f8f8fc')); R.rect(x - w, y + hh - 1, x + w, y + hh, hex('#d0d4e0')); R.rect(x - w, y - hh, x + w, y - hh, hex('#ffffff'));
   R.poligono([[x + w - 6, y + hh], [x + w - 1, y + hh], [x + w + 3, y + hh + 5]], K); R.poligono([[x + w - 5, y + hh], [x + w - 2, y + hh], [x + w + 1, y + hh + 3]], hex('#f8f8fc'));
-  if (e > 0.9) R.icono(ic, x - 7, y - 6, ic === '?' ? hex('#3a6ad8') : ic === 'coche' ? hex('#d83a3a') : hex('#e88a2a'), hex('#c8ccd8'), 2); };
+  if (e <= 0.9) return;
+  // el bichito es el nuestro (PIEZAS_GT.bichito: naranja con la mata verde), en pequeño y andando en el sitio
+  if (ic === 'bichito') { R.rect(x - 5, y + 7, x + 5, y + 7, hex('#d0d4e0')); T.PIEZAS_GT.bichito(R, x, y + 8, { anda: true, t: tB }); return; }
+  R.icono(ic, x - 7, y - 6, ic === '?' ? hex('#3a6ad8') : hex('#d83a3a'), hex('#c8ccd8'), 2); };
+let tB = 0;
 const p1 = (t) => {
+  tB = t;
   const o = { encuadre: 'estudio', coche: 'para' };
   const g = T.hoy(R, t, o);
   // los juegos de la estantería brillan uno a uno en «video game story»
