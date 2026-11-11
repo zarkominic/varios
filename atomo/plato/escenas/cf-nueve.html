@@ -131,7 +131,7 @@ const p2 = (t) => {
   { const bx = Math.round(236 + ((t - P2) * 3.2) % 60), by = 96 + Math.round(Math.sin(t * 1.3) * 1); R.linea(bx - 3, by, bx + 3, by, K); R.poligono([[bx, by - 1], [bx, by - 7], [bx + 4, by - 1]], BL); R.poligono([[bx - 1, by - 1], [bx - 1, by - 5], [bx - 3, by - 1]], hex('#e8e0c8')); for (let i = 1; i <= 3; i++) R.pset(bx - 4 - i * 2, by + 1 + (Math.floor(t * 3 + i) % 2), BL);
     for (let k = 0; k < 2; k++) { const gx = Math.round(222 + k * 26 + Math.sin(t * 0.5 + k * 2) * 12), gy = Math.round(118 + k * 22 + Math.cos(t * 0.7 + k) * 5), a = Math.floor(t * 5 + k) % 2; R.pset(gx, gy, K); R.pset(gx - 1, gy - 1 + a, K); R.pset(gx + 1, gy - 1 + a, K); R.pset(gx - 2, gy - a, K); R.pset(gx + 2, gy - a, K); } }
   // por dónde va la lupa: llega del mar a Nueva York y salta de una a otra, justo antes de que caiga cada chincheta
-  const C2 = NOMBRADAS.map(([k]) => en2(k)), foco = (i) => [C2[i][0], C2[i][1] - 6], S0 = [foco(0)[0] + 62, foco(0)[1] + 58];
+  const C2 = NOMBRADAS.map(([k]) => en2(k)), foco = (i) => [C2[i][0], Math.max(45, C2[i][1] - 6)], S0 = [foco(0)[0] + 62, foco(0)[1] + 58];
   const ida = (i) => (i === 0 ? sua(tramo(t, P2 - 0.25, NY - 0.12)) : sua(tramo(t, NOMBRADAS[i][1] - 0.52, NOMBRADAS[i][1] - 0.14)));
   const tramoL = (i, u) => { const A = i === 0 ? S0 : foco(i - 1), B = foco(i), cv = Math.sin(u * Math.PI) * (i % 2 ? -9 : 9), L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1; return [lerp(A[0], B[0], u) - (B[1] - A[1]) / L * cv, lerp(A[1], B[1], u) + (B[0] - A[0]) / L * cv]; };
   let lx = S0[0], ly = S0[1], iL = 0; for (let i = 0; i < 6; i++) { const u = ida(i); if (u > 0) { [lx, ly] = tramoL(i, u); iL = i; } }

@@ -338,7 +338,7 @@ const polvo7 = (x, y, r, k) => { x = Math.round(x); y = Math.round(y); if (r < 1
 // la estrella del «clonk»: 8 puntas, radio r
 const estrella7 = (x, y, r, c, giro = 0) => { const P = []; for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2 + giro, d = k % 2 ? r * 0.45 : r; P.push([Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d * 0.9)]); } R.poligono(P, c); };
 // el círculo ampliado de la pared (centro zx, zy; radio r): la tierra se desmorona (v 0–1) y deja ver la caja con el cofre
-const LUPA7 = [150, 55, 30];
+const LUPA7 = [150, 58, 30];
 const pared7 = (t, v, luce) => {
   const [zx, zy, r] = LUPA7, TI = hex('#7a5434'), TS = hex('#523622'), TL = hex('#9a7044'), TD = hex('#3e2a1a');
   R.disco(zx, zy, r + 2, C.k); R.disco(zx, zy, r + 1, hex('#f4ecd2')); R.disco(zx, zy, r - 1, TD);
@@ -407,15 +407,15 @@ const p7 = (t) => {
     for (let i = 0; i <= 9 * ab; i++) if ((i + Math.floor(t * 4)) % 2) R.disco(Math.round(lerp(g.pared - 4, zx + 25, i / 9)), Math.round(lerp(PY - 9, zy + 27, i / 9)), 1, i % 2 ? C.k : BLANCO);
     if (ab < 1) { const r0 = Math.round(4 + ab * (zr + 2) + Math.sin(ab * Math.PI) * 4); R.disco(zx, zy, r0 + 2, C.k); R.disco(zx, zy, r0 + 1, hex('#f4ecd2')); R.disco(zx, zy, Math.max(1, r0 - 1), hex('#7a5434')); }
     else { pared7(t, v, sale ? 1 : 0);
-      if (sale) { const pu = tramo(t, SALE, SALE + 0.5); if (pu < 1) { R.anillo(zx, zy, Math.round(zr + 3 + pu * 12), OROL, pu > 0.5 ? 2 : 0); R.anillo(zx, zy, Math.round(zr + 2 + pu * 12), ORO, pu > 0.5 ? 2 : 0); }
-        for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2 + t * 0.7, l0 = zr + 5, l1 = zr + 9 + (Math.floor(t * 5 + k) % 3) * 2; if (k % 2 === Math.floor(t * 3) % 2) R.linea(Math.round(zx + Math.cos(a) * l0), Math.round(zy + Math.sin(a) * l0), Math.round(zx + Math.cos(a) * l1), Math.round(zy + Math.sin(a) * l1), ORO); }
+      if (sale) { const pu = tramo(t, SALE, SALE + 0.5); if (pu < 1) { R.anillo(zx, zy, Math.round(zr + 3 + pu * 8), OROL, pu > 0.5 ? 2 : 0); R.anillo(zx, zy, Math.round(zr + 2 + pu * 8), ORO, pu > 0.5 ? 2 : 0); }
+        for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2 + t * 0.7, l0 = zr + 4, l1 = zr + 7 + (Math.floor(t * 5 + k) % 3); if (k % 2 === Math.floor(t * 3) % 2) R.linea(Math.round(zx + Math.cos(a) * l0), Math.round(zy + Math.sin(a) * l0), Math.round(zx + Math.cos(a) * l1), Math.round(zy + Math.sin(a) * l1), ORO); }
         destello(zx - 20, zy - 22, 2 + (Math.floor(t * 4) % 2), BLANCO); destello(zx + 23, zy + 12, 1 + (Math.floor(t * 5) % 2), OROL); destello(zx + 14, zy - 26, Math.floor(t * 3) % 3, BLANCO); } } }
 };
 const sua7 = (u) => u * u * (3 - 2 * u);
 
 const efectos = [[ta(1.86), 'brillo'], [ta(3.0), 'toc'], [ta(8.58), 'pop'], [ta(10.0), 'brillo'], [P3 + 0.5, 'coche'], [ta(12.36), 'tic'], [ta(14.0), 'golpecito'],
   [ta(16.04), 'brillo'], [ta(16.5), 'campana'], [ta(19.64), 'pop'], [P5 + 0.1, 'whoosh'], [HOYO_T[0], 'golpecito'], [HOYO_T[2], 'golpecito'], [HOYO_T[4], 'golpecito'], [tb(25.1), 'boing'], [tb(26.5), 'whoosh'],
-  [P6 + 0.9, 'papel'], [tb(29.6), 'papel'], [tb(31.25), 'whoosh'], [tb(31.7), 'boing'], [tb(32.75), 'golpecito'], [tb(34.2), 'whoosh'], [tb(35.1), 'toc'], [tb(35.65), 'golpecito'], [tb(36.66), 'brillo'], [tb(37.9), 'palmada']];
+  [P6 + 0.9, 'papel'], [tb(29.6), 'papel'], [tb(31.25), 'whoosh'], [tb(31.7), 'boing'], [tb(32.63), 'golpecito'], [tb(34.2), 'whoosh'], [tb(35.1), 'toc'], [tb(35.65), 'golpecito'], [tb(36.66), 'brillo'], [tb(37.9), 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5, 'corte'], [P6, p6], [P7, p7]], { cartela: '1983', efectos, año: 1983 });
 </script>
 </body>
