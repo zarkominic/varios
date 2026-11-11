@@ -465,3 +465,20 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
   montado con la misma composición (scratchpad/short_desde_mp4.py). En el ep17 Fenn ocupaba solo 39 s: un Short, no tres.
 - **Miniaturas verticales:** una carta en la mano (`cosa`) tapa la cara del chibi al doble; mejor la pieza al lado.
 - **Disco:** se borraron los fotogramas del 28 (5,8 GB) al empezar.
+
+## Episodio 30 · Bajo las pirámides (11/11/2026)
+
+- **Un tema que el usuario no ve como bulo:** lo que dicen los italianos se dibujó en un decorado propio, en plano azul
+  («según ellos»), y lo comprobado en el estilo de siempre. Meter la regla en el `tema` de la calidad («suspende el
+  plano si…») bastó para que revisores y pulidores la vigilaran en todo el episodio.
+- **Verificación:** 11 correcciones (3 agentes). Lo que más pesó, del investigador previo: el artículo de 2022 era sobre
+  Keops, no Kefrén, y se retiró el 10/08/2026; Nicole Ciccolo es del equipo, no una crítica.
+- **Títulos:** el aprobado con el guion pasaba de 60 caracteres; se acortó en la ficha. Pasar `titulos.py` ya con el
+  título del guion, antes de presentarlo.
+- **Shorts con un tramo final de otra escena:** la voz española no cae en los mismos segundos que la inglesa dentro de
+  una escena, así que un tramo corto del final (la frase del veredicto) dejaba el español a medias. Usar tramos que
+  empiecen y acaben en un corte de escena o en un silencio de los dos idiomas (mirar `linea.json` → `palabras.es`).
+- **Calidad:** 45 de 117 planos suspendieron en la primera revisión; en la segunda ronda quedó 1 y se pulió.
+- **Disco:** el render pedía 9,9 GB; se borraron mis capturas viejas del scratchpad (ep25–ep28). Y un reinicio del
+  contenedor cortó el primer render: todo estaba subido y bastó con relanzar `producir.sh`.
+- **Voz:** «Khafre» sonaba «coffer» en inglés; con «Kafray», bien.

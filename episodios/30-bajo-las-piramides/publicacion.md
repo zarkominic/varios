@@ -1,6 +1,6 @@
 # Episodio 30 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 9:52.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`, narrada como un cuento, voz «B») y pista de audio en español
   (`em_santa`, con los nombres propios escritos como se dicen en México).
 - Subtítulos en inglés y en español.
@@ -42,7 +42,14 @@ What we cover:
 
 Do you think there's something down there? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 Eight shafts under a pyramid?
+0:41 The announcement
+2:01 How they say they saw it
+2:57 What was really found
+5:26 The doubts
+7:19 The Labyrinth
+8:42 Claiming vs. proving
+9:28 The ending
 
 Sources: National Geographic, "Is there a secret city under the pyramids?" (2025) · Retraction Watch (31 August 2026) ·
 Morishima et al., Nature 552 (2017) · Procureur et al., Nature Communications 14 (2023) · Sato et al., Archaeological
@@ -69,7 +76,14 @@ Lo que contamos:
 
 ¿Crees que hay algo ahí abajo? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 ¿Ocho pozos bajo una pirámide?
+0:41 El anuncio
+2:01 Cómo dicen que lo vieron
+2:57 Lo que sí se encontró
+5:26 Las dudas
+7:19 El laberinto
+8:42 Decir y comprobar
+9:28 El cierre
 
 Fuentes: National Geographic, «Is there a secret city under the pyramids?» (2025) · Retraction Watch (31 de agosto de
 2026) · Morishima et al., Nature 552 (2017) · Procureur et al., Nature Communications 14 (2023) · Sato et al.,
@@ -86,18 +100,19 @@ Archaeological Prospection (2024) · Heródoto, Historias 2.148 · W. M. Flinder
 
 - **Miniatura:** `atomo/plato/escenas/gz-miniatura.html`, capturada en t = 1 (con chibis).
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
-- **Para escuchar antes de subir:** {AVISOS}
+- **Para escuchar antes de subir:** EN 4 («Khafre», escrito «Kafray»), EN 25 («Amenemhat the Third»), ES 13 («Escán Píramids», «Néichur»), ES 20
+  («Sáji Jauás») y ES 25 («Amenemját el Tercero»).
 
 ## Shorts
 
 Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
 español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
 
-### Short 1 · Los ocho pozos, según ellos · tramo 65.6-101.6,565.2-566.9
+### Short 1 · Los ocho pozos, según ellos · tramo 0.3-13.5,66.0-103.0
 - **EN:** Eight Giant Shafts Under a Pyramid? What They Claim #Shorts
 - **ES:** ¿Ocho pozos gigantes bajo una pirámide? Lo que dicen #Shorts
-- **EN:** In 2025, three Italian researchers said that under Khafre's pyramid there are five chambers, eight spiral shafts and two giant cubes. Here's exactly what they claim, and why it hasn't been proven. The full story is in the linked video. #Pyramids #Giza #ASKAtom #Shorts
-- **ES:** En 2025, tres investigadores italianos dijeron que bajo la pirámide de Kefrén hay cinco salas, ocho pozos en espiral y dos cubos gigantes. Esto es lo que dicen, y por qué no se ha comprobado. La historia completa, en el vídeo enlazado. #Pirámides #Giza #ASKAtom #Shorts
+- **EN:** In 2025, three Italian researchers said that under Khafre's pyramid there are five chambers, eight spiral shafts and two giant cubes. Nobody has proven it yet, but here's exactly what they claim. The full story is in the linked video. #Pyramids #Giza #ASKAtom #Shorts
+- **ES:** En 2025, tres investigadores italianos dijeron que bajo la pirámide de Kefrén hay cinco salas, ocho pozos en espiral y dos cubos gigantes. Nadie lo ha comprobado todavía, pero esto es exactamente lo que dicen. La historia completa, en el vídeo enlazado. #Pirámides #Giza #ASKAtom #Shorts
 
 ### Short 2 · El pasillo escondido de 2023 · tramo 246.7-283.0
 - **EN:** A Hidden Corridor Inside the Great Pyramid, Seen in 2023 #Shorts
