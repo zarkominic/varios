@@ -8825,3 +8825,450 @@ export const PIEZAS_GT = {
   cajaJuego: cajaJuegoGT, cajaRegistradora: cajaRegistradoraGT, periodico: periodicoGT, disco: discoGT,
   mazo: PIEZAS_TS.mazo, trofeo: trofeoGT, maqueta3D: maqueta3DGT, telefonoNoventa: telefonoNoventaGT, monitorTubo: monitorTuboGT,
 };
+
+// ── Episodio 32 («The Secret»: los doce cofres de 1982) ──────────────────────────────────────────────────────────────
+// ── cuerpos ──
+// la camiseta y los vaqueros de un chaval (12 filas, una menos de pierna): los adolescentes de Chicago
+const CUERPO_CHAVAL_CF = sinFila(CUERPO_CALLE, 9);
+// la misma con dos rayas (W) en el pecho
+const CUERPO_CHAVAL_RAYAS_CF = parche(CUERPO_CHAVAL_CF, [[4, 2, 'WWWWWWW'], [4, 4, 'WWWWWWW']]);
+// la sudadera de la chica de 12 años (12 filas), sin capucha
+const CUERPO_CHAVALA_CF = sinFila(CUERPO_MANGA, 9);
+// la camisa de campo remangada (C, el doblez c en el codo), abierta al cuello, con la tapeta (o): Zinn cavando
+const CUERPO_REMANGADA_CF = parche(CUERPO_CALLE, [[5, 0, 'CCSCC'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [2, 2, 'c'], [12, 2, 'c']]);
+// el chaleco del banco (C) sobre la camisa (W) con la corbata (J) y la plaquita (X, sin letras)
+const CUERPO_BANCO_CF = parche(CUERPO_CHALECO_NV, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'J'], [7, 4, 'J'], [9, 2, 'X']]);
+// la chaqueta de explorador de muchos bolsillos (la del buscador del 16) con el pañuelo anudado al cuello (u)
+const CUERPO_EXPLORADOR_CF = parche(CUERPO_BUSCADOR, [[5, 0, 'uuuuu'], [6, 1, 'uuu'], [7, 2, 'u']]);
+// la camisa del uniforme de guarda (C) con los dos bolsillos (u), la placa (O), el cinturón (G) y la corbata corta (J)
+const CUERPO_GUARDA_CF = parche(CUERPO_CAMPO_GZ, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'C'], [7, 4, 'C'], [9, 2, 'O']]);
+// el jersey de punto (C) con el cuello redondo (c) de las veinteañeras
+const CUERPO_JERSEY_CF = parche(CUERPO_MANGA, [[5, 0, 'ccScc'], [4, 6, 'ccccccc']]);
+
+// ── detalles (delante) ──
+const PAL_MANO_CF = { ...PAL_MANO, ...COLORES({ M: '#a8743c', R: '#d8303a', A: '#3a6ad8', Y: '#f0c840', W: '#f6f2e6', w: '#c8c0b0', V: '#5a9a4a', T: '#d8c08a' }) };
+// las manchas de pintura del delantal del pintor (roja, azul, amarilla y verde) y el pincel en la mano
+const manchasCF = (c) => { for (const [i, j, col] of [[5, 4, '#d8303a'], [9, 5, '#3a6ad8'], [7, 7, '#f0c840'], [6, 8, '#5a9a4a'], [10, 8, '#d8303a'], [8, 3, '#3a6ad8']]) c.cuerpo.px(i, j, hex(col)); };
+const conPincelCF = enMano(['...kk', '..kRk', '.kMk.', 'kMk..', 'kk...'], 12, 0, PAL_MANO_CF);
+// la barba de pocos días: la mandíbula un tono más oscura, sin tapar la boca
+const barbaDiasCF = (c) => { const v = hex('#c9a088'); for (const [i, j] of [[3, 9], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [6, 11], [7, 11], [8, 11], [9, 11]]) c.cab.px(i, j, v); };
+// la carpeta de obra (azul, con la hoja blanca) del jefe
+const conCarpetaCF = enMano(['kkkkkk', 'kAWWAk', 'kAwwAk', 'kAWWAk', 'kkkkkk'], 12, 2, PAL_MANO_CF);
+
+// ── el reparto del 32 ──
+const B32 = B23, B32J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_CF = {
+  // ── Nueva York, 1981–2005: la editorial ──
+  // Byron Preiss a los 28: el pelo oscuro rizado, las gafas grandes, la barba corta y la chaqueta de pana marrón sobre
+  // la camisa clara
+  preiss: { ...B32, cab: CAB_RIZOS_BARBA_AT, cuerpo: CUERPO_PANA_DC, ceja: hex('#2a1c14'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#2e1e16', h: '#4e3626', C: '#9a6a3c', c: '#74481f', W: '#f0e8d0', o: '#f0e8d0', F: '#4a4e5e' }) },
+  // Preiss en 2004: lo mismo con canas (el pelo y la barba grises) y la pana más oscura
+  preissMayor: { ...B32, cab: CAB_RIZOS_BARBA_AT, cuerpo: CUERPO_PANA_DC, ceja: hex('#7a7a86'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#9a9aa6', h: '#c4c4cc', C: '#6e5a48', c: '#524232', W: '#e8eef6', o: '#e8eef6', F: '#3a3e4a' }) },
+  // el primer escritor (años ochenta): el pelo castaño de lado, el bigote y el jersey mostaza de pico sobre la camisa
+  escritor1CF: { ...B32, cab: CAB_LADO_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#5a3418'), bigote: true,
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#d8a838', c: '#b08424', W: '#f2eee2', F: '#5a4a3a', n: '#3a2a20' }) },
+  // el segundo escritor: las entradas, el pelo rubio ceniza, las gafas redondas y la rebeca granate sobre la camisa y la
+  // corbata mostaza
+  escritor2CF: { ...B32, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA_DC, ceja: hex('#8a6a3a'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#b89858', h: '#d4b874', C: '#8a2e3c', c: '#6a1e2c', W: '#f2eee2', o: '#e8d8a0', J: '#d8a838', F: '#5a5648', n: '#2a2430' }) },
+  // el pintor joven: el pelo rubio oscuro de lado, la camisa remangada, el delantal crudo manchado de pintura y el pincel
+  pintorCF: { ...B32, cab: CAB_LADO_DC, cuerpo: CUERPO_DELANTAL_AT, ceja: hex('#7a5a2a'), delante: varios(manchasCF, conPincelCF),
+    pal: CLT({ H: '#a87a3c', h: '#c8984e', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', o: '#f2eee2', V: '#e8dcc0', v: '#c0b490', F: '#3e5a8a' }) },
+  // ── Chicago, 1983: los adolescentes (más bajos que los adultos) ──
+  // el de los rizos castaños y la camiseta roja
+  chico1CF: { ...B32J, cab: CAB_RIZOS, cuerpo: CUERPO_CHAVAL_CF, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#d8403a', c: '#a82c28', F: '#3e5a8a', n: '#f2f2f2' }) },
+  // el de la gorra azul y la camiseta amarilla, rubio
+  chico2CF: { ...B32J, cuerpo: CUERPO_CHAVAL_CF, tocado: 'beisbol', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#d0a04a', h: '#e8bc64', s: '#e8a080', J: '#2a5aa8', j: '#4a7ac8', C: '#f0c838', c: '#c8a020', F: '#3e5a8a', n: '#f2f2f2' }) },
+  // el moreno del pelo negro corto y la camiseta verde de rayas
+  chico3CF: { ...B32J, cuerpo: CUERPO_CHAVAL_RAYAS_CF, ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#3a9a5a', c: '#2a7444', W: '#f2f2f2', F: '#2e4a7a', n: '#c83a3a' }) },
+  // ── Cleveland, 2004 ──
+  // Brian Zinn, el abogado: el pelo castaño corto, las gafas finas, el traje gris azulado y la corbata granate
+  zinn: { ...B32, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#5a3418'), delante: gafasFinasDC,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#56627a', c: '#404a5e', W: '#f2f2f6', o: '#a8303a', F: '#56627a' }) },
+  // Zinn cavando: las mismas gafas, la camisa azul clara remangada y el pantalón caqui con las botas
+  zinnCampo: { ...B32, cuerpo: CUERPO_REMANGADA_CF, ceja: hex('#5a3418'), delante: gafasFinasDC,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#9ac0e0', c: '#7098b8', o: '#f2f2f6', F: '#a89868', n: '#5a3a1e' }) },
+  // Andy Abrams, su amigo: la gorra roja, el pelo negro, el polo verde y el pantalón claro
+  abrams: { ...B32, cuerpo: CUERPO_POLO_DC, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: CLT({ H: '#241a20', h: '#42343c', J: '#c8303a', j: '#e05058', C: '#3a8a5a', c: '#2a6a44', W: '#f2f2f2', o: '#f2f2f2', F: '#c8b890', n: '#f2f2f2' }) },
+  // el jardinero del jardín griego: mayor, el bigote y el pelo grises, el sombrero de paja y el mono verde
+  jardineroCF: { ...B32, cuerpo: CUERPO_MONO_AT, tocado: 'sombreroPaja', ceja: hex('#9a9aa4'), bigote: true,
+    pal: CLT({ H: '#b8b8c2', h: '#d8d8e0', C: '#4a8a4a', c: '#346a36', o: '#d8d8a0', u: '#346a36', G: '#5a3a1e', T: '#e8cc7a', t: '#c8a850', D: '#7a4a24', n: '#4a3420' }) },
+  // ── la familia Preiss (2005–2019) ──
+  // la viuda, de unos 55: la media melena rubia ceniza, el traje sastre ciruela y el collar de perlas
+  viudaCF: { ...B32, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SASTRE, ceja: hex('#8a6a4a'),
+    pal: CLT({ H: '#c8a878', h: '#e0c494', C: '#5a3458', c: '#44263f', W: '#f6f2ea', o: '#f6f6fa', I: '#44263f', L: '#2a2430' }) },
+  // la hija mayor: la melena larga castaña oscura, el jersey verde azulado y el pantalón negro
+  hija1CF: { ...B32, cab: CAB_LARGO, cuerpo: CUERPO_JERSEY_CF, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', s: '#e8a080', C: '#2a8a8a', c: '#1e6a6a', F: '#2a2a34', n: '#1c1a20' }) },
+  // la hija pequeña: la media melena negra, la rebeca crema sobre la blusa y la falda granate
+  hija2CF: { ...B32, cab: CAB_MEDIA_TR, cuerpo: CUERPO_FALDA_VM, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#241a20', h: '#42343c', s: '#e8a080', C: '#e8d8b0', c: '#c8b88a', W: '#f6f6f6', F: '#8a2a3a', L: '#2a2430' }) },
+  // ── Boston, 2019: los Krupat ──
+  // Jason Krupat: el pelo castaño corto, las gafas de pasta, la barba de pocos días, la sudadera gris con la capucha a
+  // la espalda (nunca puesta) y los vaqueros
+  krupat: { ...B32, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#4a2a18'), delante: varios(barbaDiasCF, gafasPastaDC), detras: capuchaTS,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#8a8e9a', c: '#6c707c', X: '#f0f0f4', F: '#3e5a8a', n: '#2a2430' }) },
+  // su mujer: el pelo corto pelirrojo, el jersey coral y los vaqueros
+  mujerKrupat: { ...B32, cab: CAB_CORTA_VM, cuerpo: CUERPO_JERSEY_CF, ceja: hex('#8a3a1a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#f08a70', c: '#d06a54', F: '#3e5a8a', n: '#6a4a2a' }) },
+  // la hija, 12 años: la melena castaña, la sudadera lila y los vaqueros (más baja que los adultos)
+  hijaKrupat: { ...B32J, cab: CAB_LARGO, cuerpo: CUERPO_CHAVALA_CF, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#a88ad8', c: '#8468b8', F: '#3e5a8a', n: '#f2f2f2' }) },
+  // el hijo, 10 años: el pelo castaño corto, la camiseta naranja y el pantalón corto (el más bajo)
+  hijoKrupat: { ...B23N, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#f08a2a', c: '#c86a1a', F: '#3a4a6a', n: '#f2f2f2' }) },
+  // el operario de la excavadora: el casco amarillo, el chaleco naranja con las franjas claras y la camisa azul
+  operarioCF: { ...B32, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'cascoObra', ceja: hex('#3a2418'),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', J: '#f0c830', j: '#c8a020', V: '#f07a2a', Y: '#f6f0a8', C: '#3a5a8a', c: '#2a4468', F: '#3a3e4e', n: '#4a3420' }) },
+  // el jefe de obra: el casco blanco, el bigote, la camisa clara con la corbata y la carpeta azul
+  jefeObraCF: { ...B32, cuerpo: CUERPO_CAMISA_DC, tocado: 'cascoObra', ceja: hex('#4a2a18'), bigote: true, delante: conCarpetaCF,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#f4f4f6', j: '#c8ccd8', C: '#e8ecf2', c: '#c4cad6', o: '#2a4a8a', F: '#5a5040', n: '#4a3420' }) },
+  // ── la tele, 2018 ──
+  // el presentador del programa de aventuras (GENÉRICO, no se parece a nadie): el pelo rubio arena de lado, la chaqueta
+  // caqui de explorador y el pañuelo rojo al cuello
+  presentadorCF: { ...B32, cab: CAB_LADO_DC, cuerpo: CUERPO_EXPLORADOR_CF, ceja: hex('#8a6a3a'),
+    pal: CLT({ H: '#c09a58', h: '#dcb874', C: '#e8dcc0', c: '#c8bc9a', V: '#b09a62', o: '#8a7444', u: '#d8303a', G: '#5a3a1a', F: '#6a6248', f: '#524a34', L: '#4a3420' }) },
+  // ── hoy ──
+  // el buscador de Charleston: la gorra verde, la barba corta castaña, la camisa de cuadros rojos y los vaqueros
+  buscadorCF: { ...B32, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUADROS_AT, tocado: 'beisbol', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', J: '#4a6a3a', j: '#628450', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
+  // el guarda de parques: el sombrero de ala pardo, la camisa gris con la placa y el pantalón verde
+  guardaCF: { ...B32, cuerpo: CUERPO_GUARDA_CF, tocado: 'alaAT', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#a8905a', j: '#c0a870', D: '#4a3420', C: '#9aa0a8', c: '#7a808a', u: '#7a808a', o: '#7a808a', O: '#f0c040', G: '#3a2a1a', F: '#3e6a44', n: '#3a2a1a' }) },
+  // el empleado del banco: el pelo oscuro peinado hacia atrás, el chaleco azul marino, la camisa blanca y la corbata verde
+  empleadoBancoCF: { ...B32, cab: CAB_ENGOMINADO, cuerpo: CUERPO_BANCO_CF, ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#2a3458', c: '#1e2644', W: '#f6f6f8', o: '#c8a040', J: '#2a8a5a', X: '#f0c040', F: '#2a3458' }) },
+  // el cartero (el uniforme azul grisáceo, la gorra y el bigote del 16) con un sobre en la mano
+  carteroCF: { ...ELENCO_SI.cartero, delante: conCartaVM },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_CF);
+
+// ── piezas del 32 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Todo NUESTRO: ni la portada ni las pinturas del libro real; nada de letras (rayas en vez de versos).
+const PAL_CF = COLORES({
+  k: '#1c1222', W: '#f6f6f6', w: '#c8ccd8', E: '#ffffff', K: '#2a2832', u: '#4a4856', Z: '#d0d4de', z: '#8c90a4',
+  T: '#f0e6cc', t: '#cdbd96', d: '#8a7a5a', A: '#3a6ab0', a: '#24447a', I: '#d2ecf6', i: '#9ccae0',
+  M: '#a8743c', m: '#7a4e24', R: '#d8303a', r: '#8a1e26', O: '#f0c040', g: '#a87a18', o: '#ffe890',
+  G: '#5ac83a', v: '#2e8a24', V: '#3a7a4a', B: '#c4e4b4', b: '#7ab87a', P: '#8a5a34', p: '#5e3a20', q: '#b07a4a',
+  Y: '#f0c030', y: '#c89a18', N: '#f08a2a', n: '#c8643a', c: '#96442a', X: '#ececf2', j: '#a8a8b8',
+  C: '#2eb872', D: '#1c7448', e: '#96dcb8', S: '#8ac8f0', s: '#28346a', H: '#f6eed8', h: '#cdbf9e',
+  L: '#f0a0c8', l: '#9a6ad0', F: '#f6d0a8', f: '#f6e890', U: '#4a3a7a', Q: '#10121c', x: '#9a9aa6', J: '#e2dccc',
+});
+const pintaCF = (R, g, x, y, o = {}, pal = PAL_CF) => pintaJH(R, g, x, y, o, pal);
+const cacheCF = cacheGT, pasoCF = pasoGT;
+// pinta encima de una pieza en su rejilla (con su escala y su volteo), sin contorno: destellos
+const encimaCF = (R, w, h, x, y, o) => { const s = o.s ?? 1, dir = o.dir ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - h * s); return (i, j, c) => { const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, PAL_CF[c]); }; };
+const claroCF = (c, f = 0.55) => '#' + [1, 3, 5].map((i) => { const v = parseInt(c.slice(i, i + 2), 16); return Math.round(v + (255 - v) * f).toString(16).padStart(2, '0'); }).join('');
+
+// EL COFRE (el «casque», a nuestra manera): un cofrecito de cerámica crema (T, sombra t) con la tapa abombada, el pomo y
+// la cenefa azul (A), dentro de una caja de plástico transparente (I, los cantos i, el brillo E). o.sinCaja: solo el
+// cofrecito; o.abierto: la tapa levantada en cuña y la llave asomando; o.roto: la caja partida, el cofre rajado y
+// los trozos por el suelo. 26 × 22 (la caja, 18 × 18; el cofrecito, 10 × 11)
+const COFRE_CACHE_CF = new Map();
+const cofreCF = (R, x, y, o = {}) => {
+  const ab = !!o.abierto, ro = !!o.roto, sc = !!o.sinCaja;
+  const g = cacheCF(COFRE_CACHE_CF, [ab, ro, sc].join(), () => forma(26, 22, ({ rect, put, linea }) => {
+    const dy = sc ? 1 : 0;
+    if (!sc) {
+      rect(4, 3, 21, 20, 'I'); rect(20, 4, 21, 20, 'i'); rect(4, 20, 21, 20, 'i'); rect(4, 3, 21, 3, 'E'); rect(4, 3, 4, 20, 'E');
+      linea(6, 9, 9, 6, 'E'); linea(6, 11, 7, 10, 'E'); put(18, 17, 'E'); put(19, 16, 'E');
+      if (ab) rect(5, 3, 20, 3, 'I');
+      if (ro) {
+        for (let j = 3; j <= 12; j++) for (let i = 13 + Math.floor((j - 3) * 0.9) + (j % 2); i <= 21; i++) put(i, j, '.');
+        linea(9, 3, 11, 7, 'i'); linea(11, 7, 9, 10, 'i'); linea(4, 14, 7, 15, 'i');
+      }
+    }
+    // el cofrecito
+    rect(8, 13 + dy, 17, 19 + dy, 'T'); rect(16, 13 + dy, 17, 19 + dy, 't'); rect(8, 19 + dy, 17, 19 + dy, 't');
+    rect(8, 16 + dy, 17, 16 + dy, 'A'); put(16, 16 + dy, 'a'); put(17, 16 + dy, 'a'); put(10, 16 + dy, 'T'); put(13, 16 + dy, 'T');
+    put(12, 14 + dy, 'A'); put(13, 14 + dy, 'A'); put(9, 18 + dy, 'E');
+    if (ab) {
+      // la tapa levantada en cuña (abisagrada a la derecha), la boca oscura y, en el hueco, la llave asomando (a/W)
+      rect(9, 11 + dy, 16, 11 + dy, 't'); rect(8, 12 + dy, 17, 12 + dy, 'T'); rect(9, 12 + dy, 16, 12 + dy, 'Q');
+      for (let i = 8; i <= 17; i++) { const top = 4 + Math.round((i - 8) * 0.45) + dy; rect(i, top, i, top + 1, 'T'); put(i, top + 2, 't'); }
+      put(8, 4 + dy, 'E'); put(9, 4 + dy, 'E'); put(12, 5 + dy, 'A'); put(13, 5 + dy, 'A');
+      put(10, 8 + dy, 'a'); put(9, 9 + dy, 'a'); put(11, 9 + dy, 'a'); put(10, 10 + dy, 'a'); put(10, 9 + dy, 'W'); rect(10, 11 + dy, 10, 12 + dy, 'a');
+    } else {
+      rect(8, 10 + dy, 17, 12 + dy, 'T'); rect(9, 9 + dy, 16, 9 + dy, 'T'); rect(16, 10 + dy, 17, 12 + dy, 't');
+      rect(8, 12 + dy, 17, 12 + dy, 'd'); put(10, 10 + dy, 'E'); put(11, 10 + dy, 'E'); rect(12, 8 + dy, 13, 8 + dy, 'A');
+    }
+    if (ro) {
+      for (let j = 8; j <= 12; j++) for (let i = 14 + (j % 2); i <= 17; i++) put(i, j + dy, '.');
+      linea(12, 9 + dy, 13, 13 + dy, 'k'); linea(13, 13 + dy, 11, 16 + dy, 'k'); linea(11, 16 + dy, 13, 19 + dy, 'k'); put(14, 14 + dy, 'k'); put(15, 15 + dy, 'k');
+      put(22, 20, 'T'); put(23, 20, 't'); put(24, 19, 'T'); put(1, 20, 'T'); put(2, 20, 'A');
+      if (!sc) { put(23, 18, 'I'); put(24, 17, 'I'); put(0, 19, 'I'); put(2, 18, 'i'); }
+    }
+  }));
+  pintaCF(R, g, x, y, o);
+};
+
+// LA LLAVE de cerámica, pequeña y tumbada: el ojo redondo (T, el hueco d), la tija con el anillo azul (A) y los dos
+// dientes hacia abajo. 15 × 9
+const LLAVE_CF = forma(15, 9, ({ rect, put, disco }) => {
+  disco(4, 4, 2.4, 'T'); rect(3, 3, 5, 5, 'd'); put(4, 4, 'Q'); put(3, 2, 'E');
+  rect(7, 3, 13, 4, 'T'); rect(7, 4, 13, 4, 't'); rect(8, 3, 8, 4, 'A');
+  rect(10, 5, 10, 6, 'T'); rect(12, 5, 13, 6, 'T'); put(13, 6, 't');
+});
+const llaveCF = (R, x, y, o = {}) => pintaCF(R, LLAVE_CF, x, y, o);
+
+// LA PALA de pie, con la hoja abajo: el puño en D y el mango de madera (M), el cubo y la hoja de acero (Z, sombra z)
+// con el nervio. 9 × 22; o.larga: la de casi dos metros de Preiss, más alta que un personaje (9 × 46)
+const PALA_CF = (h) => forma(9, h, ({ rect, put }) => {
+  rect(2, 1, 6, 1, 'M'); rect(2, 2, 2, 3, 'M'); rect(6, 2, 6, 3, 'm'); rect(2, 4, 6, 4, 'm');
+  rect(4, 5, 4, h - 12, 'M'); for (let j = 8; j < h - 12; j += 5) put(4, j, 'm');
+  rect(4, h - 11, 4, h - 10, 'z'); rect(3, h - 11, 5, h - 11, 'z');
+  rect(2, h - 9, 6, h - 4, 'Z'); rect(6, h - 9, 6, h - 4, 'z'); rect(4, h - 9, 4, h - 6, 'w'); put(2, h - 9, 'E');
+  rect(3, h - 3, 5, h - 3, 'Z'); put(5, h - 3, 'z'); put(4, h - 2, 'z');
+});
+const PALAS_CF = [PALA_CF(22), PALA_CF(46)];
+const palaCF = (R, x, y, o = {}) => pintaCF(R, PALAS_CF[o.larga ? 1 : 0], x, y, o);
+// LA PALA DE JUGUETE de Atom: de plástico, la hoja roja (R) y el mango amarillo (Y) con el puño en D. 9 × 15
+const PALA_JUGUETE_CF = forma(9, 15, ({ rect, put }) => {
+  rect(2, 1, 6, 2, 'Y'); put(4, 2, '.'); put(3, 2, '.'); put(5, 2, '.'); rect(2, 3, 6, 3, 'Y'); rect(6, 1, 6, 3, 'y'); rect(4, 4, 4, 7, 'Y');
+  rect(3, 8, 5, 8, 'r'); rect(1, 9, 7, 11, 'R'); rect(7, 9, 7, 11, 'r'); rect(2, 12, 6, 12, 'R'); put(6, 12, 'r'); rect(3, 13, 5, 13, 'R'); put(5, 13, 'r');
+  rect(4, 9, 4, 11, 'r'); put(2, 9, 'E'); put(2, 10, 'E');
+});
+const palaJugueteCF = (R, x, y, o = {}) => pintaCF(R, PALA_JUGUETE_CF, x, y, o);
+
+// LA PIEDRA preciosa tallada: la tabla, la corona clara (e), el filetín y la culata en punta (C, la sombra D). o.color:
+// 'esmeralda' (por omisión), 'aguamarina', 'peridoto' o cualquier hex; con o.t, un destello blanco que salta de faceta
+// (se pinta encima, sin contorno). 13 × 12
+const PIEDRA_CF = forma(13, 12, ({ put }) => {
+  const filas = [[4, 8], [3, 9], [2, 10], [1, 11], [2, 10], [3, 9], [4, 8], [5, 7], [6, 6]];
+  filas.forEach(([a, b], n) => { for (let i = a; i <= b; i++) put(i, n + 1, n < 3 ? (i <= 5 ? 'e' : i >= 9 ? 'D' : 'C') : n === 3 ? 'e' : i >= 7 ? 'D' : 'C'); });
+  put(4, 2, 'E'); put(5, 2, 'E'); put(3, 3, 'E'); put(10, 4, 'C'); put(11, 4, 'C'); put(4, 6, 'e'); put(5, 7, 'e');
+});
+const COLORES_PIEDRA_CF = { esmeralda: '#2eb872', aguamarina: '#62cce8', peridoto: '#a8d430' };
+const PAL_PIEDRA_CF = new Map();
+const piedraCF = (R, x, y, o = {}) => {
+  const col = COLORES_PIEDRA_CF[o.color] ?? (/^#[0-9a-f]{6}$/i.test(o.color ?? '') ? o.color : COLORES_PIEDRA_CF.esmeralda);
+  pintaCF(R, PIEDRA_CF, x, y, o, cacheCF(PAL_PIEDRA_CF, col, () => ({ ...PAL_CF, ...COLORES({ C: col, D: oscuroTR(col, 0.6), e: claroCF(col) }) })));
+  if (o.t == null) return;
+  const f = Math.floor(o.t * 5) % 5, P = encimaCF(R, 13, 12, x, y, o);
+  const cruz = (i, j, r) => { P(i, j, 'E'); for (let k = 1; k <= r; k++) { P(i - k, j, 'E'); P(i + k, j, 'E'); P(i, j - k, 'E'); P(i, j + k, 'E'); } };
+  if (f === 0) cruz(4, 2, 1); else if (f === 1) cruz(4, 2, 2); else if (f === 2) cruz(4, 2, 1); else if (f === 3) cruz(9, 5, 1);
+};
+
+// EL LIBRO de bolsillo grande, de frente, con NUESTRA portada: la noche azul (s) con una estrella de oro (O) sobre una
+// gema verde (C) y unas colinas (V); el lomo (U) a la izquierda y el corte de las hojas (H) a la derecha. 18 × 24.
+// o.abierto: abierto por la mitad, un cuadrito (una torre al atardecer) en la página izquierda y un poema en la
+// derecha (rayas cortas, sin letras). 36 × 17
+const LIBRO_CF = forma(18, 24, ({ rect, put }) => {
+  rect(2, 1, 15, 22, 's'); rect(1, 1, 2, 22, 'U'); rect(16, 2, 16, 21, 'H'); for (let j = 3; j <= 21; j += 3) put(16, j, 'h');
+  rect(4, 3, 14, 3, 'O'); rect(4, 20, 14, 20, 'O'); put(4, 4, 'O'); put(14, 4, 'O'); put(4, 19, 'O'); put(14, 19, 'O');
+  put(9, 5, 'O'); rect(8, 6, 10, 6, 'O'); rect(7, 7, 11, 7, 'O'); rect(8, 8, 10, 8, 'O'); put(9, 9, 'O'); put(9, 7, 'o'); put(7, 5, 'o'); put(11, 5, 'o'); put(7, 9, 'o'); put(11, 9, 'o');
+  rect(8, 11, 10, 11, 'e'); rect(7, 12, 11, 12, 'C'); rect(7, 12, 8, 12, 'e'); rect(8, 13, 10, 13, 'C'); put(10, 13, 'D'); put(9, 14, 'D'); put(11, 12, 'D');
+  rect(4, 17, 14, 18, 'V'); put(5, 16, 'V'); put(6, 16, 'V'); rect(10, 16, 13, 16, 'V'); put(11, 15, 'V'); put(12, 15, 'V');
+  put(5, 11, 'W'); put(13, 10, 'W'); put(12, 13, 'W'); put(6, 14, 'W');
+});
+const LIBRO_ABIERTO_CF = forma(36, 17, ({ rect, put, linea }) => {
+  rect(1, 14, 34, 15, 's'); rect(17, 13, 18, 15, 'U');
+  rect(2, 2, 17, 13, 'H'); rect(18, 2, 33, 13, 'H'); rect(2, 13, 33, 13, 'h'); rect(17, 2, 18, 12, 'h'); put(2, 2, '.'); put(33, 2, '.');
+  rect(4, 4, 15, 11, 'L'); rect(4, 4, 15, 6, 'S'); rect(4, 10, 15, 11, 'V'); rect(8, 5, 10, 10, 'J'); put(10, 6, 'x'); put(10, 8, 'x'); put(9, 4, 'R'); put(9, 7, 'Q'); put(13, 5, 'f');
+  linea(5, 7, 7, 5, 'W'); linea(11, 7, 13, 9, 'W');
+  for (const [a, b, j] of [[22, 29, 4], [21, 30, 6], [22, 28, 8], [21, 29, 10]]) rect(a, j, b, j, 'd');
+  put(25, 12, 'O'); put(26, 12, 'O');
+});
+const libroCF = (R, x, y, o = {}) => pintaCF(R, o.abierto ? LIBRO_ABIERTO_CF : LIBRO_CF, x, y, o);
+
+// EL CUADRO de fantasía en su marco dorado (O, sombra g), NUESTRO y visto de lejos; o.n elige el lienzo (22 × 18):
+// 0, una torre con molinos al atardecer; 1, un jardín con columnas; 2, un farol y una campana de noche; 3, el barco de
+// las hadas en el mar. 28 × 24
+const CUADRO_CF = (n) => forma(28, 24, ({ rect, put, disco, linea }) => {
+  rect(1, 1, 26, 22, 'O'); rect(1, 22, 26, 22, 'g'); rect(26, 1, 26, 22, 'g'); rect(2, 2, 25, 2, 'o'); rect(2, 2, 2, 21, 'o');
+  for (const [i, j] of [[1, 1], [26, 1], [1, 22], [26, 22]]) put(i, j, 'g');
+  const r = (a, b, c, d, ch) => rect(a + 3, b + 3, c + 3, d + 3, ch), p = (i, j, ch) => put(i + 3, j + 3, ch), l = (a, b, c, d, ch) => linea(a + 3, b + 3, c + 3, d + 3, ch);
+  if (n === 0) {
+    r(0, 0, 21, 6, 'l'); r(0, 7, 21, 10, 'L'); r(0, 11, 21, 12, 'f'); r(0, 13, 21, 17, 'V'); for (let i = 1; i < 21; i += 4) p(i, 15, 'v');
+    disco(20, 6, 1.4, 'f'); p(2, 2, 'W'); p(6, 1, 'W'); p(15, 2, 'W');
+    r(9, 4, 12, 15, 'J'); r(12, 4, 12, 15, 'x'); r(8, 3, 13, 3, 'x'); p(10, 1, 'R'); p(11, 1, 'R'); r(9, 2, 12, 2, 'R'); p(10, 0, 'r');
+    p(10, 6, 'Q'); p(10, 10, 'Q'); r(10, 13, 11, 15, 'm');
+    l(3, 5, 7, 9, 'W'); l(7, 5, 3, 9, 'W'); p(5, 7, 'K'); l(5, 8, 5, 14, 'm');
+    l(15, 7, 19, 11, 'W'); l(19, 7, 15, 11, 'W'); p(17, 9, 'K'); l(17, 10, 17, 14, 'm');
+  } else if (n === 1) {
+    r(0, 0, 21, 8, 'S'); r(0, 9, 21, 11, 'G'); r(0, 11, 21, 11, 'v'); r(0, 12, 21, 17, 'J'); for (let i = 2; i < 21; i += 5) p(i, 15, 'x');
+    p(3, 2, 'W'); p(4, 2, 'W'); p(5, 1, 'W'); p(16, 3, 'W'); p(17, 3, 'W'); disco(8, 8.5, 1.6, 'v'); disco(14, 8.5, 1.6, 'v');
+    r(1, 2, 20, 3, 'W'); r(1, 3, 20, 3, 'w');
+    for (const i of [2, 10, 18]) { r(i, 4, i + 1, 14, 'W'); r(i + 1, 5, i + 1, 13, 'w'); r(i - 1, 4, i + 2, 4, 'W'); r(i - 1, 14, i + 2, 14, 'w'); }
+    p(6, 13, 'R'); p(7, 14, 'L'); p(14, 13, 'L'); p(15, 14, 'R'); p(6, 16, 'G'); p(15, 16, 'G');
+  } else if (n === 2) {
+    r(0, 0, 21, 17, 's'); r(0, 15, 21, 17, 'U'); for (const [i, j] of [[1, 2], [10, 1], [19, 3], [11, 9], [20, 10], [1, 11]]) p(i, j, 'W');
+    disco(5, 8, 4.2, 'U'); p(5, 2, 'K'); r(4, 3, 6, 3, 'K'); r(3, 4, 7, 4, 'K'); r(3, 5, 7, 11, 'O'); r(4, 6, 6, 10, 'o'); p(5, 8, 'E'); r(3, 5, 3, 11, 'K'); r(7, 5, 7, 11, 'K'); r(3, 12, 7, 12, 'K'); r(4, 13, 6, 13, 'K');
+    r(12, 2, 18, 3, 'M'); r(12, 3, 18, 3, 'm'); r(14, 4, 16, 5, 'O'); r(13, 6, 17, 10, 'O'); r(12, 11, 18, 12, 'O'); r(17, 6, 17, 10, 'g'); r(12, 12, 18, 12, 'g'); p(14, 6, 'o'); p(14, 7, 'o'); p(15, 13, 'g'); p(15, 14, 'K');
+  } else {
+    r(0, 0, 21, 4, 's'); r(0, 5, 21, 8, 'l'); r(0, 9, 21, 11, 'L'); r(0, 12, 21, 17, 'A'); r(0, 12, 21, 12, 'i');
+    for (const [i, j] of [[1, 14], [2, 14], [7, 16], [8, 16], [15, 15], [16, 15], [19, 13], [20, 13], [11, 14]]) p(i, j, 'i');
+    disco(3, 3, 1.5, 'f'); for (const [i, j] of [[8, 1], [18, 2], [14, 0], [20, 6]]) p(i, j, 'W');
+    r(5, 11, 16, 12, 'M'); r(6, 13, 15, 13, 'm'); p(4, 10, 'M'); p(17, 10, 'M'); p(18, 9, 'M'); p(17, 11, 'M'); r(5, 12, 16, 12, 'm'); p(8, 11, 'O'); p(11, 11, 'O'); p(14, 11, 'O');
+    r(10, 2, 10, 10, 'm'); for (let j = 3; j <= 9; j++) r(11, j, 11 + Math.min(5, j - 2), j, j === 9 ? 'h' : 'H'); for (let j = 5; j <= 9; j++) r(9 - Math.min(3, j - 4), j, 9, j, 'f');
+    p(10, 1, 'R'); p(11, 1, 'R'); for (const [i, j] of [[3, 8], [19, 5], [6, 5], [16, 2]]) p(i, j, 'o');
+  }
+});
+const CUADROS_CF = [0, 1, 2, 3].map(CUADRO_CF);
+const cuadroCF = (R, x, y, o = {}) => pintaCF(R, CUADROS_CF[Math.max(0, Math.min(3, Math.round(o.n ?? 0)))], x, y, o);
+
+// EL SOBRE de carta de frente: blanco (W) con la solapa en pico (w) y el sello rojo (R). 16 × 11
+const SOBRE_CF = forma(16, 11, ({ rect, put, linea }) => {
+  rect(1, 1, 14, 9, 'W'); rect(1, 9, 14, 9, 'w'); linea(1, 1, 7, 5, 'w'); linea(14, 1, 8, 5, 'w'); rect(11, 6, 12, 7, 'R'); rect(3, 7, 6, 7, 'w');
+});
+const sobreCF = (R, x, y, o = {}) => pintaCF(R, SOBRE_CF, x, y, o);
+
+// LAS CARTAS: un montón de sobres apilados y descolocados (blancos W y crema H, el canto w, algún sello R), con uno de
+// frente encima; o.alto 0–1: de 4 sobres a 16 (por omisión, a media altura). 24 × hasta 40
+const CARTAS_CACHE_CF = new Map();
+const cartasCF = (R, x, y, o = {}) => {
+  const p = pasoCF(o.alto, 6, 0.5);
+  const g = cacheCF(CARTAS_CACHE_CF, p, () => {
+    const n = 4 + p * 2, h = n * 2 + 9;
+    return forma(24, h, ({ rect, put, linea }) => {
+      for (let k = 0; k < n; k++) {
+        const yb = h - 2 - k * 2, dx = [0, 2, -2, 1, -1, 3, -3, 0, 2, -1][k % 10], c = k % 3 === 1 ? 'H' : 'W';
+        rect(4 + dx, yb - 1, 19 + dx, yb - 1, c); rect(4 + dx, yb, 19 + dx, yb, k % 3 === 1 ? 'h' : 'w'); if (k % 4 === 2) put(17 + dx, yb - 1, 'R'); if (k % 5 === 0) put(6 + dx, yb - 1, 'A');
+      }
+      const t = h - 2 - n * 2 - 5;
+      rect(5, t, 18, t + 6, 'W'); rect(5, t + 6, 18, t + 6, 'w'); linea(5, t, 11, t + 3, 'w'); linea(18, t, 12, t + 3, 'w'); rect(15, t + 4, 16, t + 5, 'R');
+    });
+  });
+  pintaCF(R, g, x, y, o);
+};
+
+// EL BONO de ahorro: un papel verde claro (B) apaisado con la orla (V y b), el sello redondo en el centro y unas rayas
+// a los lados en vez de letras. 24 × 14
+const BONO_CF = forma(24, 14, ({ rect, put, disco }) => {
+  rect(1, 1, 22, 12, 'B');
+  for (let i = 2; i <= 21; i++) { put(i, 2, i % 2 ? 'V' : 'b'); put(i, 11, i % 2 ? 'b' : 'V'); }
+  for (let j = 3; j <= 10; j++) { put(2, j, j % 2 ? 'b' : 'V'); put(21, j, j % 2 ? 'V' : 'b'); }
+  disco(11.5, 6.5, 2.3, 'V'); rect(11, 6, 12, 7, 'B'); put(11, 6, 'O'); put(12, 7, 'O');
+  for (const j of [5, 7, 9]) { rect(4, j, 7, j, 'b'); rect(16, j, 19, j, 'b'); }
+  put(4, 4, 'V'); put(19, 4, 'V'); put(1, 1, 'E');
+});
+const bonoCF = (R, x, y, o = {}) => pintaCF(R, BONO_CF, x, y, o);
+
+// LA FOTO DE TIERRA: una polaroid (W, el canto w) con el margen ancho abajo y, en la imagen, solo tierra marrón recién
+// apisonada (P con los terrones p y q y una piedrecita x). 16 × 18
+const FOTO_TIERRA_CF = forma(16, 18, ({ rect, put }) => {
+  rect(1, 1, 14, 16, 'W'); rect(14, 2, 14, 16, 'w'); rect(1, 16, 14, 16, 'w');
+  rect(3, 3, 12, 11, 'P');
+  for (const [i, j] of [[4, 4], [8, 3], [11, 5], [5, 7], [9, 8], [3, 10], [7, 11], [12, 10], [6, 5]]) put(i, j, 'p');
+  for (const [i, j] of [[6, 4], [10, 4], [4, 6], [8, 6], [11, 8], [5, 9], [9, 10], [7, 8]]) put(i, j, 'q');
+  put(10, 7, 'x'); put(4, 9, 'x');
+});
+const fotoTierraCF = (R, x, y, o = {}) => pintaCF(R, FOTO_TIERRA_CF, x, y, o);
+
+// LA VARILLA DE SONDEO: una barra fina de acero (Z, las marcas z) con el puño en T (K, las empuñaduras rojas R) y la
+// punta abajo. 9 × 32
+const VARILLA_CF = forma(9, 32, ({ rect, put }) => {
+  rect(1, 1, 7, 2, 'K'); rect(1, 1, 2, 2, 'R'); rect(6, 1, 7, 2, 'R'); rect(4, 3, 4, 28, 'Z'); for (let j = 7; j <= 27; j += 5) put(4, j, 'z'); put(4, 29, 'z'); put(4, 30, 'z');
+});
+const varillaCF = (R, x, y, o = {}) => pintaCF(R, VARILLA_CF, x, y, o);
+
+// LA EXCAVADORA de perfil (mira a la derecha), amarilla (Y, sombra y): las orugas (K, las ruedas z), la carrocería con
+// la rejilla y el contrapeso, la cabina con su ventana (I), el tubo de escape y el brazo de dos tramos con la cuchara
+// de dientes (Z). o.cuchara 0–1: la altura del brazo (0, la cuchara en el suelo; 1, arriba del todo); con o.t, el
+// humo del escape. Devuelve { cuchara: [x, y] }: el punto de debajo de la cuchara en la pantalla (para colgarle algo).
+// 62 × 46
+const EXCAVADORA_CACHE_CF = new Map();
+const excavadoraCF = (R, x, y, o = {}) => {
+  const c8 = pasoCF(o.cuchara, 8), c = c8 / 8, f = o.t == null ? -1 : Math.floor(o.t * 4) % 4;
+  const bx = Math.round(53 + c), by = Math.round(38 - 28 * c);
+  const g = cacheCF(EXCAVADORA_CACHE_CF, c8 + '|' + f, () => forma(62, 46, ({ rect, put, disco, linea }) => {
+    const ex = Math.round(44 - 2 * c), ey = Math.round(13 - 7 * c);
+    if (f >= 0) humoGT(put, disco, 9, 21, 4, f);
+    // el brazo (por detrás de la cabina)
+    for (const d of [-1, 0, 1]) linea(31, 29 + d, ex, ey + d, d === 1 ? 'y' : 'Y');
+    linea(33, 26, Math.round((31 + ex) / 2) + 1, Math.round((29 + ey) / 2) - 2, 'Z');
+    for (const d of [-1, 0, 1]) { linea(ex + d, ey, bx + d, by, d === 1 ? 'y' : 'Y'); linea(ex, ey + d, bx, by + d, d === 1 ? 'y' : 'Y'); }
+    linea(ex + 3, ey + 2, Math.round((ex + bx) / 2) + 3, Math.round((ey + by) / 2), 'Z');
+    disco(ex, ey, 1.2, 'K');
+    rect(bx - 2, by, bx + 2, by, 'K'); rect(bx - 4, by + 1, bx + 3, by + 4, 'Y'); rect(bx + 2, by + 1, bx + 3, by + 4, 'y'); rect(bx - 4, by + 4, bx + 3, by + 4, 'y');
+    for (let i = bx - 4; i <= bx + 3; i += 2) put(i, by + 5, 'Z');
+    // las orugas
+    rect(4, 39, 32, 44, 'K'); rect(3, 40, 33, 43, 'K'); rect(5, 39, 31, 39, 'u');
+    for (let i = 6; i <= 30; i += 6) { disco(i, 41.5, 1.3, 'z'); put(i, 41, 'Z'); }
+    rect(12, 36, 26, 38, 'u');
+    // la carrocería y el contrapeso
+    rect(5, 27, 31, 35, 'Y'); rect(5, 34, 31, 35, 'y'); rect(3, 29, 5, 35, 'y'); rect(5, 27, 19, 27, 'o');
+    for (let j = 29; j <= 32; j++) rect(7, j, 12, j, j % 2 ? 'K' : 'y'); rect(14, 31, 18, 31, 'K'); rect(14, 33, 18, 33, 'K');
+    rect(9, 22, 10, 26, 'u'); rect(8, 21, 11, 21, 'K');
+    // la cabina
+    rect(20, 17, 31, 30, 'Y'); rect(19, 16, 32, 16, 'K'); rect(22, 19, 29, 26, 'I'); rect(22, 19, 22, 26, 'K'); rect(29, 19, 29, 26, 'K'); rect(22, 19, 29, 19, 'K'); rect(22, 26, 29, 26, 'K');
+    linea(24, 24, 27, 21, 'E'); put(25, 24, 'i'); rect(20, 29, 31, 30, 'y'); put(30, 28, 'K');
+  }));
+  pintaCF(R, g, x, y, o);
+  const s = o.s ?? 1, dir = o.dir ?? 1;
+  return { cuchara: [Math.round(x + dir * (bx - 30.5) * s), Math.round(y - (46 - (by + 6)) * s)] };
+};
+
+// LA MACETA de barro (n, sombra c, el borde N) con su tierra (P) y una plantita de dos hojas (v y G). o.hoyo: un hoyo
+// oscuro en la tierra, el montoncito al lado y unos terrones caídos en el borde. 20 × 23
+const MACETA_CF = (hoyo) => forma(20, 23, ({ rect, put, linea }) => {
+  for (let j = 15; j <= 21; j++) { const m = Math.floor((j - 15) / 3); rect(4 + m, j, 15 - m, j, 'n'); rect(14 - m, j, 15 - m, j, 'c'); put(5 + m, j, 'N'); }
+  rect(3, 13, 16, 14, 'n'); rect(3, 13, 14, 13, 'N'); rect(15, 13, 16, 14, 'c'); rect(4, 12, 15, 12, 'P'); put(5, 12, 'q'); put(9, 12, 'p'); put(14, 12, 'q');
+  linea(7, 11, 7, 6, 'v'); put(8, 5, 'v');
+  for (const [i, j] of [[6, 8], [5, 7], [4, 7], [5, 8], [4, 6], [8, 9], [9, 8], [10, 8], [9, 9], [10, 7], [8, 4], [9, 4], [9, 3], [8, 3]]) put(i, j, 'G');
+  put(4, 6, 'f'); put(10, 7, 'f'); put(9, 3, 'f');
+  if (hoyo) { rect(10, 12, 13, 12, 'Q'); rect(10, 13, 13, 13, 'Q'); put(10, 13, 'p'); put(13, 13, 'p'); rect(13, 11, 16, 11, 'P'); put(14, 10, 'P'); put(15, 10, 'q'); put(17, 12, 'P'); put(16, 12, 'p'); put(2, 12, 'P'); }
+});
+const MACETAS_CF = [MACETA_CF(false), MACETA_CF(true)];
+const macetaCF = (R, x, y, o = {}) => pintaCF(R, MACETAS_CF[o.hoyo ? 1 : 0], x, y, o);
+
+// EL HADA del cuento (nuestra): pequeña, el pelo rubio (O), el vestido rosa (L, el bajo l) y las alas transparentes
+// (I, el brillo E) que baten con o.t. 15 × 14
+const HADA_CF = [0, 1].map((f) => forma(15, 14, ({ rect, put, disco }) => {
+  const alas = f ? [[4, 7], [3, 7], [2, 7], [3, 8], [2, 8], [1, 8], [2, 9], [1, 9]] : [[4, 6], [3, 5], [2, 5], [3, 6], [2, 4], [1, 4], [1, 3], [2, 6], [3, 4]];
+  for (const [i, j] of alas) { put(i, j, 'I'); put(14 - i, j, 'I'); }
+  put(alas[2][0], alas[2][1], 'E'); put(14 - alas[2][0], alas[2][1], 'E');
+  disco(7, 3, 1.7, 'F'); rect(6, 1, 8, 1, 'O'); put(5, 2, 'O'); put(9, 2, 'O'); put(5, 3, 'O'); put(6, 2, 'O'); put(8, 3, 'K'); put(6, 3, 'K'); put(7, 0, 'f');
+  rect(6, 6, 8, 7, 'L'); rect(5, 8, 9, 9, 'L'); rect(4, 10, 10, 10, 'l'); put(5, 7, 'F'); put(9, 7, 'F'); put(7, 6, 'W');
+  put(6, 11, 'F'); put(8, 11, 'F'); put(6, 12, 'R'); put(8, 12, 'R');
+}));
+const hadaCF = (R, x, y, o = {}) => pintaCF(R, HADA_CF[o.t == null ? 0 : Math.floor(o.t * 8) % 2], x, y, o);
+
+// EL DUENDE del cuento (nuestro): el gorro verde de pico (G, el ala v), las orejas de punta, la carita (F), el jubón
+// pardo (M) con el cinturón y la hebilla de oro, y las botas; con o.t, la punta del gorro se mece. 13 × 15
+const DUENDE_CF = [0, 1].map((f) => forma(13, 15, ({ rect, put }) => {
+  put(f ? 5 : 8, 0, 'G'); put(f ? 6 : 7, 1, 'G'); rect(6, 1, 6 + (f ? 0 : 1), 1, 'G'); rect(5, 2, 7, 2, 'G'); rect(4, 3, 8, 3, 'G'); rect(3, 4, 9, 4, 'v'); put(f ? 5 : 8, 0, 'O');
+  rect(4, 5, 8, 7, 'F'); put(3, 6, 'F'); put(2, 5, 'F'); put(9, 6, 'F'); put(10, 5, 'F'); put(5, 6, 'K'); put(7, 6, 'K'); put(6, 7, 'N');
+  rect(4, 8, 8, 11, 'M'); rect(4, 10, 8, 10, 'K'); put(6, 10, 'O'); put(3, 8, 'M'); put(9, 8, 'M'); put(3, 9, 'F'); put(9, 9, 'F'); rect(4, 11, 8, 11, 'm');
+  rect(4, 12, 5, 12, 'v'); rect(7, 12, 8, 12, 'v'); rect(3, 13, 5, 13, 'K'); rect(7, 13, 9, 13, 'K');
+}));
+const duendeCF = (R, x, y, o = {}) => pintaCF(R, DUENDE_CF[o.t == null ? 0 : Math.floor(o.t * 3) % 2], x, y, o);
+
+// EL DRAGÓN del cuento (nuestro): pequeño y simpático, de perfil (mira a la derecha): verde (G, sombra v), la barriga
+// amarilla (f), los cuernecitos de oro, el ojo grande y las alas moradas (l, el borde L) que baten con o.t. 19 × 16
+const DRAGON_CF = [0, 1].map((f) => forma(19, 16, ({ rect, put, disco, linea }) => {
+  const ala = f ? [[4, 8], [5, 8], [6, 8], [3, 9], [4, 9], [5, 9], [2, 10], [3, 10], [4, 10]] : [[7, 6], [6, 5], [7, 5], [5, 4], [6, 4], [7, 4], [4, 3], [5, 3], [6, 3], [3, 2], [4, 2], [5, 2], [3, 1]];
+  linea(5, 11, 2, 13, 'G'); put(1, 12, 'G'); put(0, 11, 'N'); put(1, 11, 'N');
+  if (!f) for (const [i, j] of ala) put(i, j, 'l');
+  disco(8, 10, 3.1, 'G'); rect(10, 6, 12, 9, 'G'); disco(13, 5, 2.3, 'G'); rect(14, 5, 17, 7, 'G'); put(17, 5, '.'); put(17, 6, 'v'); put(16, 7, 'v'); put(15, 7, 'v');
+  rect(7, 12, 10, 13, 'f'); put(11, 9, 'f'); put(11, 10, 'f'); put(10, 11, 'f'); put(6, 8, 'v'); put(5, 10, 'v'); put(8, 7, 'v'); put(10, 5, 'v');
+  put(13, 4, 'E'); put(14, 4, 'K'); put(13, 5, 'E'); put(11, 2, 'O'); put(13, 2, 'O'); put(12, 3, 'G');
+  rect(6, 13, 7, 14, 'v'); rect(10, 13, 11, 14, 'v'); put(8, 14, 'W'); put(12, 14, 'W');
+  if (f) for (const [i, j] of ala) put(i, j, 'l');
+  put(ala[ala.length - 1][0], ala[ala.length - 1][1], 'L'); put(ala[ala.length - 2][0], ala[ala.length - 2][1], 'L');
+}));
+const dragonCF = (R, x, y, o = {}) => pintaCF(R, DRAGON_CF[o.t == null ? 0 : Math.floor(o.t * 6) % 2], x, y, o);
+
+// EL RELOJ DE SOL: un trozo de cerámica roto (T, la sombra t, el canto d) con el dibujo de un reloj de sol en azul: el
+// aro (a), las marcas de las horas (A), el gnomon y su sombra. 21 × 18
+const RELOJ_SOL_CF = forma(21, 18, ({ put, linea, rect }) => {
+  const filas = [[6, 12], [4, 15], [2, 17], [2, 18], [1, 18], [1, 19], [1, 19], [2, 19], [2, 18], [3, 18], [3, 17], [5, 16], [7, 14], [9, 12]];
+  filas.forEach(([a, b], n) => { for (let i = a; i <= b; i++) put(i, n + 2, n >= 12 || i >= b - 1 ? 't' : 'T'); });
+  for (let j = 3; j <= 14; j++) for (let i = 3; i <= 17; i++) { const d = Math.hypot(i - 10, j - 8.5); if (d >= 4.3 && d <= 5.3) put(i, j, 'a'); }
+  for (const [i, j] of [[10, 5], [13, 6], [14, 9], [13, 11], [10, 12], [7, 11], [6, 9], [7, 6]]) put(i, j, 'A');
+  linea(10, 9, 12, 6, 'a'); linea(10, 8, 11, 7, 'a'); rect(9, 9, 11, 9, 'a'); linea(9, 10, 7, 10, 'd'); put(8, 9, 'd');
+  put(3, 5, 'E'); put(4, 4, 'E'); put(16, 13, 'd'); put(15, 14, 'd');
+});
+const relojSolCF = (R, x, y, o = {}) => pintaCF(R, RELOJ_SOL_CF, x, y, o);
+
+export const PIEZAS_CF = {
+  cofre: cofreCF, llave: llaveCF, pala: palaCF, palaJuguete: palaJugueteCF, piedra: piedraCF, libro: libroCF, cuadro: cuadroCF,
+  sobre: sobreCF, cartas: cartasCF, bono: bonoCF, fotoTierra: fotoTierraCF, varilla: varillaCF, excavadora: excavadoraCF,
+  maceta: macetaCF, hada: hadaCF, duende: duendeCF, dragon: dragonCF, relojSol: relojSolCF,
+};
