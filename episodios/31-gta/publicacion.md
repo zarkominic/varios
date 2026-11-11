@@ -45,7 +45,15 @@ What we cover:
 
 Did you play any of them? Which one was your first? Tell me in the comments.
 
-CAPITULOS_EN
+0:00 Born in Scotland, almost canceled
+0:35 Dundee and the little creatures
+1:43 Cops and robbers
+3:07 The scandal
+4:22 Rockstar
+5:03 The jump to 3D
+5:54 The controversies
+6:49 The records
+7:56 The wait
 
 Sources: Game Developer, "Playing Catch-Up: Dave Jones" · Engadget (22 March 2011), Race'n'Chase design document ·
 Time Extension, "The Making of Grand Theft Auto" · Gamasutra (31 January 2011), Gary Penn · Hansard, House of Lords (20 May
@@ -75,7 +83,15 @@ Lo que contamos:
 
 ¿Jugaste a alguno? ¿Cuál fue el primero? Cuéntamelo en los comentarios.
 
-CAPITULOS_ES
+0:00 Nació en Escocia y casi se cancela
+0:35 Dundee y los bichitos
+1:43 Policías y ladrones
+3:07 El escándalo
+4:22 Rockstar
+5:03 El salto a 3D
+5:54 Las polémicas
+6:49 Los récords
+7:56 La espera
 
 Fuentes: Game Developer, «Playing Catch-Up: Dave Jones» · Engadget (22 de marzo de 2011), documento de diseño de
 Race'n'Chase · Time Extension, «The Making of Grand Theft Auto» · Gamasutra (31 de enero de 2011), Gary Penn · Hansard,

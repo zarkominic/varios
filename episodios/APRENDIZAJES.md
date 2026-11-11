@@ -482,3 +482,23 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 - **Disco:** el render pedía 9,9 GB; se borraron mis capturas viejas del scratchpad (ep25–ep28). Y un reinicio del
   contenedor cortó el primer render: todo estaba subido y bastó con relanzar `producir.sh`.
 - **Voz:** «Khafre» sonaba «coffer» en inglés; con «Kafray», bien.
+
+## Episodio 31 · La historia de GTA (11/11/2026)
+
+- **Un juego con dueño, sin una sola imagen suya:** la ciudad es de juguete e inventada, sin interfaz, mapa ni marcador;
+  los bichitos son los nuestros (naranjas, con fregona verde). Aun así, la calidad cazó un icono de la barra del año que
+  parecía un marciano de recreativa: con un juego con dueño, también los iconos de 7×7 se miran.
+- **Música en una cartela, 7,6 dB:** `banda.cjs` redondea el instante de la cartela y `medir-sonido.py` lo trunca, así
+  que su relleno se quedaba justo en 7,5 y el control medía 7,6. Se arregló sin tocar el canon: la escena de antes pasó
+  de «intriga» a «aventura» (2,9 dB). Pendiente de permiso: alinear las dos medidas en `banda.cjs`.
+- **Golpe musical:** un golpe solo puede caer en el principio de una frase (las marcas son frases). Si el momento fuerte
+  va a mitad de frase (aquí, la cifra de mil millones), o se parte la frase antes de locutar o el golpe va al principio.
+- **Calidad:** 47 de 96 planos suspendieron en la revisión completa; 47 → 4 → 1, y el último (dos clientes apilados) lo
+  arreglé yo. El fallo encargado de antemano (la cifra de «cinco» parecida al gancho) acabó en un plano nuevo y mejor.
+- **Decorados:** la mesa de la oficina se borraba porque la moqueta se pintaba después; la pasada de decorados lo vio por
+  la causa, no por el síntoma, y hubo que quitar el parche que había puesto la escena.
+- **Shorts:** tramos en cortes de escena o en silencios de los dos idiomas (mirados en `palabras.es`), a la primera.
+- **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 5,4 dB; 135/138 subtítulos, 0 fuera de norma).
+
+Pendiente para el próximo: pasar `titulos.py` con el guion; si hay que poner un golpe a mitad de frase, partir la frase
+antes de locutar.
