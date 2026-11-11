@@ -17,7 +17,7 @@
 // 3. («Further» → «they say») LOCAL los ocho pozos en perspectiva: en «eight» salen las ocho bocas (1–8), en «round»
 //    brillan, en «hollow» se vacían por dentro y bajan rectos hasta «down»; Mei, en la tarima, los señala y los cuenta.
 // 4. («they say» → fin) LOCAL un solo pozo enorme: desde «spiral» la rampa se enrosca hacia abajo girando, una
-//    figurita baja por ella y en «thread» se dibuja al lado un tornillo gigante con la misma rosca, que gira en «screw».
+//    figurita de 5 × 10 con halo y farolillo baja por ella (anillo que la enseña al entrar, estela de huellas) y en «thread» se dibuja al lado un tornillo gigante con la misma rosca, que gira en «screw».
 import * as T from '/atomo/plato/escenas/gz-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gz-salas');
@@ -161,12 +161,25 @@ const cubo = (P, x0, y0, s, dx, dy, u, k = 'c') => {
   const n = u * ar.length;
   for (let i = 0; i < ar.length && i < n; i++) { const [a, b, kk] = ar[i]; P.parte(a[0], a[1], b[0], b[1], n - i, kk); }
 };
-// la figurita de holograma (para la escala): 3 × 7 px, con las piernas que andan
+// la figurita de holograma que baja por la rampa: 5 × 10 px con contorno oscuro, filo claro, halo y un farolillo
+// que alumbra el escalón de delante (mira a la izquierda, hacia el centro del pozo); las piernas y los brazos andan
 const figurita = (x, y, t, anda, c = PZ.br, c2 = PZ.ci) => {
   x = Math.round(x); y = Math.round(y);
-  R.rect(x - 1, y - 7, x, y - 6, c); R.rect(x - 1, y - 5, x + 1, y - 3, c2); R.pset(x - 1, y - 4, c);
-  const f = anda ? Math.floor(t * 6) % 2 : 0;
-  R.pset(x - 1 + (f ? -1 : 0), y - 2, c2); R.pset(x - 1 + (f ? -1 : 0), y - 1, c2); R.pset(x + 1 + (f ? 1 : 0), y - 2, c2); R.pset(x + 1 + (f ? 1 : 0), y - 1, c2);
+  const f = anda ? Math.floor(t * 6) % 2 : 0, lat = 0.55 + 0.15 * Math.sin(t * 5);
+  // halo suave alrededor (para que se lea sobre las líneas) y el cono de luz del farolillo hacia abajo a la izquierda
+  for (let dy = -12; dy <= 2; dy++) for (let dx = -7; dx <= 7; dx++) { const d = Math.hypot(dx, (dy + 5) * 0.8); if (d < 8) tin(x + dx, y + dy, PZ.co, (1 - d / 8) * lat * 0.75); }
+  for (let k = 1; k < 9; k++) for (let j = -Math.floor(k / 3); j <= Math.floor(k / 3); j++) tin(x - 4 - k, y - 4 + k + j, PZ.br, 0.45 * (1 - k / 9));
+  // contorno oscuro (se recorta contra la rampa y el pozo)
+  R.rect(x - 2, y - 10, x + 2, y - 7, PZ.f0); R.rect(x - 3, y - 7, x + 3, y - 2, PZ.f0); R.rect(x - 3 - f, y - 3, x + 3 + f, y + 1, PZ.f0);
+  // la cabeza (3 × 3) con el filo claro arriba
+  R.rect(x - 1, y - 9, x + 1, y - 7, c2); R.linea(x - 1, y - 9, x + 1, y - 9, c); R.pset(x - 1, y - 8, c);
+  // el cuerpo (3 × 4) con la luz por la izquierda y la mochila a la derecha
+  R.rect(x - 1, y - 6, x + 1, y - 3, c2); R.linea(x - 1, y - 6, x - 1, y - 3, c); R.rect(x + 2, y - 6, x + 2, y - 4, PZ.co);
+  // el brazo que lleva el farolillo, adelantado, y la luz que parpadea un poco
+  const bx = x - 2 - (f ? 0 : 1); R.pset(bx, y - 5, c2); R.pset(bx - 1, y - 4, c); R.pset(bx - 1, y - 3, Math.floor(t * 9) % 4 ? c : PZ.ci);
+  // las piernas que andan (2 px cada una) y los pies
+  R.pset(x - 1 - f, y - 2, c2); R.pset(x - 1 - f, y - 1, c2); R.pset(x - 2 - f, y, c);
+  R.pset(x + 1 + f, y - 2, c2); R.pset(x + 1 + f, y - 1, c2); R.pset(x + 1 + f, y, c);
 };
 // el anillo que late alrededor de algo para que se lea (en código de plano)
 const marca = (x, y, r, t, c = PZ.br) => { const rr = r + Math.round(Math.sin(t * 6) * 1.2); R.anillo(Math.round(x), Math.round(y), rr, c, 2); R.anillo(Math.round(x), Math.round(y), rr + 2, PZ.hal2, 3); };
@@ -339,9 +352,12 @@ const p4 = (t) => {
   const s = tramo(t, RAMPA, sa(1) + 0.9);
   if (s > 0) {
     // va siempre por la vuelta de delante: baja con la rosca mientras gira (como quien baja una escalera de caracol)
-    const fi = Math.PI / 2 - 0.45, yv = (tt) => PYA + 4 + 24 * (fi + tt * 2.4) / 6.2832, n = Math.floor((yv(RAMPA) - (PYA + 14)) / 24), y = yv(t) - 24 * n, x = PCX + 34 * Math.cos(fi);
+    const fi = 0.8, yv = (tt) => PYA + 4 + 24 * (fi + tt * 2.4) / 6.2832, n = Math.floor((yv(RAMPA) - (PYA + 14)) / 24), y = yv(t) - 24 * n, x = PCX + 34 * Math.cos(fi);
+    // la estela de huellas que deja por la rampa de arriba (de donde viene), que se apaga
+    for (let i = 1; i <= 6; i++) { const d = i * 0.16, yy = y - 24 * d / 6.2832; if (yy < PYA + 6 || yy >= ymax) continue;
+      const hx = Math.round(PCX + 34 * Math.cos(fi - d)), hy = Math.round(yy) - 2; tin(hx, hy, PZ.br, 0.9 * (1 - i / 7)); tin(hx + 1, hy, PZ.ci, 0.6 * (1 - i / 7)); }
     if (y < ymax) figurita(x, y - 1, t, true);
-    if (t < RAMPA + 1.4) marca(x, y - 4, 7, t); }
+    if (t < BAJA + 0.6) marca(x, y - 6, 9, t); }
   holo(t, 171);
 };
 

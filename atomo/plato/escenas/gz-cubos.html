@@ -16,8 +16,10 @@
 //    contadas 1–4 hasta la cota 650 que Mei va contando con el dedo; en «At the bottom» laten los cubos del fondo.
 // 3. («two» → «And») LOCAL los dos cubos enormes que se dibujan arista a arista desde «cube»; una figurita diminuta
 //    llega andando a la esquina y una lupa la enseña (escala); cotas 80 y 90 en «80» y en «90».
-// 4. («And» → fin) LOCAL lo que se pierde hacia abajo: una sonda de holograma baja entre galerías y salas que se van
-//    apagando; la regla cuenta hasta 2000 en «two kilometers» y abajo queda una «?».
+// 4. («And» → fin) LOCAL lo que se pierde hacia abajo: la sonda baja de verdad por el hueco de la escalera entre los
+//    dos pozos con rampa; cada nivel (pasillo tramado, salas con pilares o cubo y lámpara) se enciende al pasar y queda
+//    su piloto; solo el último tercio se apaga; la regla y las cotas cuentan hasta 2000 en «two kilometers»; abajo, «?».
+// (3 y 4: nada sube de y 22–24, para dejar libre el «2025».)
 import * as T from '/atomo/plato/escenas/gz-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gz-cubos');
@@ -215,7 +217,7 @@ const p2 = (t) => {
 
 // 3 · LOCAL los dos cubos enormes, la figurita y su lupa
 const fondoCubos = () => fondoAzul('cubos', false, () => {
-  roca(6, 18, 314, 170, [52, 160]);
+  roca(6, 24, 314, 170, [52, 160]);
   // la galería que une los pozos (arriba) y la boca de cada pozo
   R.poligono([[20, 40], [262, 40], [262, 46], [20, 46]], (x, y) => ((x + y) % 2 ? PZ.f1 : PZ.f0));
 });
@@ -223,7 +225,7 @@ const p3 = (t) => {
   fondoCubos(); senal(t, 172);
   const P = pluma();
   P.l(20, 40, 262, 40, 'c'); P.l(20, 46, 262, 46, 'c');
-  for (let k = 0; k < 8; k++) { const x = 36 + k * 30; P.l(x - 4, 16, x - 4, 40, 'd'); P.l(x + 4, 16, x + 4, 40, 'd'); }
+  for (let k = 0; k < 8; k++) { const x = 36 + k * 30; P.l(x - 4, 24, x - 4, 40, 'd'); P.l(x + 4, 24, x + 4, 40, 'd'); }
   // los cubos, arista a arista desde «cube» (80 px de lado: 1 m por píxel)
   const ua = tramo(t, CUBO - 0.35, CUBO + 1.2), ub = tramo(t, CUBO - 0.05, CUBO + 1.5);
   if (t > P3 + 0.2) { P.l(80, 46, 80, 64, 'd', 4); P.l(208, 46, 208, 64, 'd', 4); }
@@ -253,48 +255,96 @@ const p3 = (t) => {
   holo(t, 171);
 };
 
-// 4 · LOCAL lo que se pierde hacia abajo: la sonda baja y la regla llega a 2000
-const CAM = 300;
+// 4 · LOCAL lo que se pierde hacia abajo: la sonda baja por el hueco de la escalera, cada nivel se enciende cuando
+// pasa y la regla llega a 2000. Mundo en y «de mundo» (wy); en pantalla, Y(wy) = wy - cam + 20; nada sube de y 30 (el cable, de y 24).
+const GAL = [120, 200, 280, 360, 440, 520];
+const PY0 = 30, PY1 = 470, POZO = [84, 212];
+const hondura = (wy) => 650 + (wy - PY0) / (PY1 - PY0) * 1350;
+const SALAS = [[50, 74], [94, 132], [170, 204], [222, 254]];
 const p4 = (t) => {
-  fondoAzul('hondo', false, () => roca(40, 16, 260, 170, []));
-  const u = tramo(t, P4 + 0.1, KM), cam = sube(u) * 0.4 * CAM + u * 0.6 * CAM, Y = (y) => Math.round(y - cam + 20);
-  R.recorte([0, 16, 319, 171]);
+  fondoAzul('hondo', false, () => roca(40, 22, 260, 170, []));
+  // hasta «kilometers» baja a los 2000; después sigue hundiéndose despacio en lo oscuro, hacia la «?»
+  const u = tramo(t, P4 + 0.1, KM), e = 0.4 * sube(u) + 0.6 * u, u2 = sube(tramo(t, KM + 0.1, KM + 2.6));
+  const pyM = PY0 + (PY1 - PY0) * e + 40 * u2, ps = Math.round(42 + 54 * e + 22 * u2), cam = pyM - ps + 20, Y = (y) => Math.round(y - cam + 20);
+  // brillo por altura en pantalla: claro arriba, apagado solo en el último tercio
+  const tipo = (sy) => (sy < 112 ? 'c' : sy < 140 ? 'd' : 'D'), pt = (sy) => (sy < 112 ? 0 : sy < 140 ? 4 : 6);
+  R.recorte([38, 30, 262, 171]);
   const P = pluma();
-  const tipo = (y) => (y < 250 ? 'c' : y < 380 ? 'd' : 'D'), pt = (y) => (y < 300 ? 0 : y < 400 ? 6 : 10);
-  // los fondos de los dos cubos
-  for (const x0 of [44, 172]) { if (Y(60) < -20) break; P.l(x0, Y(-40), x0, Y(60), 'c'); P.l(x0 + 80, Y(-40), x0 + 80, Y(60), 'c'); P.l(x0, Y(60), x0 + 80, Y(60), 'c'); P.l(x0 + 80, Y(60), x0 + 100, Y(46), 'd'); P.l(x0 + 100, Y(-40), x0 + 100, Y(46), 'd'); }
-  // los pozos que siguen bajando y las galerías con salas a cada nivel
-  for (const x of [70, 104, 198, 232]) for (let y = 60; y < 500; y += 20) { const sy = Y(y); if (sy < -24 || sy > 190) continue; P.l(x, sy, x, sy + 19, tipo(y), pt(y) || 4); }
-  [[120, 0], [190, 1], [260, 2], [330, 3], [400, 4], [470, 5]].forEach(([y, n]) => {
-    const sy = Y(y); if (sy < -30 || sy > 200) return;
-    P.l(50, sy, 252, sy, tipo(y), pt(y)); P.l(50, sy + 5, 252, sy + 5, tipo(y), pt(y));
-    for (let k = 0; k < 3; k++) { const x0 = 58 + k * 66 + (n % 2) * 18, w = 24 + ((k + n) % 3) * 8, hh = 12 + ((k * 2 + n) % 3) * 5; P.caja(x0, sy + 8, x0 + w, sy + 8 + hh, tipo(y + 10), pt(y + 10)); if (n < 2) P.l(x0 + 4, sy + 8 + hh - 4, x0 + w - 4, sy + 8 + hh - 4, 'D'); }
-    // la escalera en zigzag que baja al nivel siguiente
-    for (let s = 0; s < 6; s++) { const a = sy + 6 + s * 12; P.l(150 + (s % 2 ? 12 : -12), a, 150 + (s % 2 ? -12 : 12), a + 12, tipo(y + 20), pt(y + 20) || 0); }
+  // los fondos de los dos cubos (arriba, al empezar)
+  for (const x0 of [44, 172]) { if (Y(60) < 10) break; P.l(x0, Y(-40), x0, Y(60), 'c'); P.l(x0 + 80, Y(-40), x0 + 80, Y(60), 'c'); P.l(x0, Y(60), x0 + 80, Y(60), 'c'); P.l(x0 + 80, Y(60), x0 + 100, Y(46), 'd'); P.l(x0 + 100, Y(-40), x0 + 100, Y(46), 'd'); }
+  // los dos pozos que siguen bajando bajo los cubos: paredes por tramos, relleno tramado y la rampa en espiral
+  for (const cx of POZO) {
+    const ya = Math.max(22, Y(60)), yb = Math.min(171, Y(560));
+    if (yb > ya) R.poligono([[cx - 5, ya], [cx + 5, ya], [cx + 5, yb], [cx - 5, yb]], (x, y) => ((x + y + Math.floor(t * 6)) % 4 === 0 ? PZ.hal : (x + y) % 2 ? PZ.f1 : PZ.f0));
+    for (let y = 60; y < 560; y += 10) { const sy = Y(y); if (sy < 12 || sy > 175) continue; P.l(cx - 6, sy, cx - 6, sy + 9, tipo(sy), pt(sy)); P.l(cx + 6, sy, cx + 6, sy + 9, tipo(sy), pt(sy)); }
+    espiral(P, cx, Y(60), 150, 5, 12, t, true, 1, 150, 2);
+    espiral(P, cx, Y(60), 150, 5, 12, t, false, 1, 150, 2);
+    // lucecitas que suben por el pozo
+    for (let k = 0; k < 4; k++) { const y = 171 - ((t * 22 + k * 37 + cx) % 150); if (y > Math.max(24, Y(60))) R.pset(cx + ((k * 3) % 5) - 2, Math.round(y), y < 112 ? PZ.br : PZ.co); }
+  }
+  // galerías, salas y escaleras de cada nivel; la sala se enciende cuando pasa la sonda y luego queda su piloto
+  GAL.forEach((gy, n) => {
+    const sy = Y(gy); if (sy < -90 || sy > 180) return;
+    const tg = tipo(sy), pg = pt(sy), cerca = Math.abs(sy + 18 - ps) < 22, pasada = ps > sy + 20;
+    // el pasillo: suelo tramado en diagonal, dos líneas y pilares
+    R.poligono([[46, sy], [258, sy], [258, sy + 6], [46, sy + 6]], (x, y) => ((x - y) % 4 === 0 ? (cerca ? PZ.hal2 : PZ.hal) : (x + y) % 2 ? PZ.f2 : PZ.f1));
+    P.l(46, sy, 258, sy, cerca ? 'b' : tg, pg); P.l(46, sy + 6, 258, sy + 6, tg, pg);
+    for (let x = 52; x < 256; x += 14) P.l(x, sy + 1, x, sy + 5, 'D');
+    // la cota de cada nivel, a la derecha
+    if (sy > 26 && sy < 150 && hondura(gy) <= 2000) P.n(Math.round(hondura(gy) / 10) * 10, 230, sy - 7, cerca ? PZ.br : sy < 112 ? PZ.ci : PZ.co);
+    SALAS.forEach(([xa, xb], k) => {
+      const enc = (n * 7 + k * 3) % 5, x0 = xa + (enc % 3), x1 = xb - ((enc + 1) % 3) * 2, hh = 16 + ((k + n) % 3) * 5, y0 = sy + 11, y1 = y0 + hh;
+      if (y0 > 171 || y1 < 22) return;
+      const luz = cerca ? 1 : 0;
+      R.poligono([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], (x, y) => ((x + y) % 3 === 0 ? (luz ? PZ.hal2 : PZ.hal) : (y - y0) < 3 && luz ? PZ.f4 : (x + y) % 2 ? PZ.f2 : PZ.f1));
+      const ts = tipo(y0), ks = luz ? 'b' : ts;
+      P.caja(x0, y0, x1, y1, ks, pt(y0));
+      // la puerta que sube al pasillo
+      const dx = x0 + 4; P.l(dx, sy + 6, dx, y0, ts); P.l(dx + 4, sy + 6, dx + 4, y0, ts);
+      // dentro: pilares, una caja en alambre y la lámpara del techo
+      const mx = Math.round((x0 + x1) / 2);
+      if ((k + n) % 2) { for (let x = x0 + 8; x < x1 - 3; x += 7) P.l(x, y0 + 3, x, y1 - 1, 'D'); }
+      else cubo(P, mx - 5, y1 - 9, 8, 3, -2, 1, luz ? 'c' : 'e');
+      R.pset(mx, y0 + 1, luz && Math.floor(t * 8) % 2 ? PZ.br : PZ.co);
+      if (luz) for (let y = y0 + 2; y < Math.min(y1, y0 + 9); y++) for (let x = mx - (y - y0); x <= mx + (y - y0); x++) if ((x + y) % 2 === 0) tin(x, y, PZ.ci, 0.3);
+      if (pasada) R.pset(x1 - 2, y0 + 2, Math.floor(t * 3 + k) % 3 ? PZ.ci : PZ.hal2);
+    });
+    // la escalera en zigzag que baja al nivel siguiente (por el hueco de la sonda), con sus peldaños
+    for (let s = 0; s < 4; s++) {
+      const a = sy + 8 + s * 18, xa = 151 + (s % 2 ? 12 : -12), xb = 151 + (s % 2 ? -12 : 12), ks = tipo(a);
+      if (a > 171 || a < 34) continue;
+      P.l(xa, a, xb, a + 18, ks, pt(a));
+      for (let q = 3; q < 18; q += 3) { const x = Math.round(xa + (xb - xa) * q / 18); P.l(x, a + q, x + (xb > xa ? 3 : -3), a + q, 'D'); }
+    }
   });
   P.pintar(t);
   R.recorte(null);
-  // lo que se pierde en la oscuridad: cada vez más tapado hacia abajo
-  for (let y = 104; y < 172; y++) { const a = (y - 104) / 68 * (0.45 + u * 0.4); for (let x = 7; x < 314; x++) if (b4(x, y) < a) { const c = R.pget(x, y); if (c !== PZ.f0) R.pset(x, y, (x + y) % 5 ? PZ.f0 : PZ.f1); } }
-  // la sonda de holograma que baja colgada de su cable, con su cono de luz
-  const sx = 152, sy = 50 + Math.round(Math.sin(t * 2) * 1.5);
-  R.linea(sx, 16, sx, sy - 6, PZ.co);
-  for (let y = sy + 8; y < sy + 90; y++) { const w = (y - sy - 8) * 0.5; for (let x = Math.round(sx - w); x <= sx + w; x++) if ((x + y + Math.floor(t * 10)) % 3 === 0) tin(x, y, PZ.ci, 0.35 * (1 - (y - sy) / 90)); }
+  // lo que se pierde en la oscuridad: solo el último tercio, cada vez más tapado
+  for (let y = 124; y < 172; y++) { const a = (y - 124) / 48 * (0.4 + u * 0.45); for (let x = 38; x < 262; x++) if (b4(x, y) < a) { const c = R.pget(x, y); if (c !== PZ.f0) R.pset(x, y, (x + y) % 5 ? PZ.f0 : PZ.f1); } }
+  // la sonda que baja de verdad colgada de su cable (desde y 24), con su cono de luz y el pulso de escaneo
+  const sx = 151 + Math.round(Math.sin(t * 1.7) * 1), sy = ps;
+  R.linea(151, 24, sx, sy - 12, PZ.co); R.pset(151, 24, PZ.ci);
+  for (let y = 26; y < sy - 12; y += 6) R.pset(151 + (y > sy - 30 ? sx - 151 : 0), y + (Math.floor(t * 12) % 6), PZ.br);
+  R.recorte([38, 30, 262, 171]);
+  for (let y = sy + 8; y < sy + 70; y++) { const w = (y - sy - 8) * 0.5; for (let x = Math.round(sx - w); x <= sx + w; x++) if ((x + y + Math.floor(t * 10)) % 3 === 0) tin(x, y, PZ.ci, 0.38 * (1 - (y - sy) / 70)); }
+  const pr = ((t - P4) * 30) % 44; if (pr > 4) R.anillo(sx, sy + 2, Math.round(pr), pr < 30 ? PZ.hal2 : PZ.hal);
+  R.recorte(null);
   R.poligono([[sx - 7, sy - 8], [sx + 7, sy - 8], [sx + 7, sy + 5], [sx - 7, sy + 5]], PZ.f1); R.anillo(sx, sy - 1, 9, PZ.hal2, 2);
   for (const [a, b, c2, d] of [[sx - 7, sy - 8, sx + 7, sy - 8], [sx - 7, sy + 5, sx + 7, sy + 5], [sx - 7, sy - 8, sx - 7, sy + 5], [sx + 7, sy - 8, sx + 7, sy + 5]]) R.linea(a, b, c2, d, PZ.ci);
   R.linea(sx - 4, sy - 11, sx + 4, sy - 11, PZ.co); R.linea(sx - 4, sy - 11, sx - 7, sy - 8, PZ.co); R.linea(sx + 4, sy - 11, sx + 7, sy - 8, PZ.co);
   for (let k = -4; k <= 4; k += 4) R.linea(sx + k, sy - 6, sx + k, sy + 3, PZ.hal2);
   R.disco(sx, sy + 7, 2, Math.floor(t * 6) % 2 ? PZ.br : PZ.ci); R.pset(sx - 5, sy - 6, Math.floor(t * 3) % 2 ? PZ.mg : PZ.mgO);
-  // la regla de la izquierda: marcas que suben y la cifra de profundidad
-  R.linea(30, 16, 30, 170, PZ.rjC);
-  for (let y = 0; y < 420; y += 20) { const s = Y(y); if (s > 16 && s < 170) { R.linea(26, s, 34, s, PZ.co); } }
-  const prof = u >= 0.995 ? 2000 : Math.round(lerp(650, 2000, u) / 10) * 10;
+  // la regla de la izquierda: marcas que suben y la cifra de profundidad (la de la sonda)
+  R.linea(30, 22, 30, 170, PZ.rjC);
+  for (let y = 0; y < 600; y += 20) { const s = Y(y); if (s > 22 && s < 170) { R.linea(26, s, 34, s, PZ.co); if (y % 100 === 0) R.linea(24, s, 36, s, PZ.ci); } }
+  R.linea(34, sy, 38, sy, PZ.br);
+  const prof = u >= 0.995 ? 2000 : Math.round(hondura(pyM) / 10) * 10;
   R.poligono([[4, 92], [44, 92], [44, 106], [4, 106]], PZ.f0); R.linea(4, 92, 44, 92, PZ.co); R.linea(4, 106, 44, 106, PZ.co); R.linea(4, 92, 4, 106, PZ.co); R.linea(44, 92, 44, 106, PZ.co);
   R.numero(String(prof), 24, 103, { centro: true, fina: true, color: t > DOSK ? PZ.br : PZ.ci });
   if (t > DOSK) marca(24, 99, 14, t);
-  // abajo, la «?» que queda en la oscuridad
+  // abajo, la «?» que queda en la oscuridad, debajo de la sonda
   const q = tramo(t, KM + 0.2, KM + 0.8);
-  if (q > 0) R.icono('?', 145, 128 + Math.round(Math.sin(t * 3) * 2), q < 1 || Math.floor(t * 3) % 2 ? PZ.ci : PZ.co, PZ.f0, 3);
+  if (q > 0) R.icono('?', 145, 150 + Math.round(Math.sin(t * 3) * 2), q < 1 || Math.floor(t * 3) % 2 ? PZ.ci : PZ.co, PZ.f0, 3);
   senal(t, 172);
   holo(t, 171);
 };

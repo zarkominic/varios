@@ -10,9 +10,12 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // GZ-ESCALERA (frase 25), hacia el 450 a. C. (barra -450). Cuatro planos:
-// 1. hawara/escalera/pasillos: el guía con su candil y Heródoto avanzan por el laberinto de columnas; la luz espanta a
-//    tres murciélagos que salen del fondo y pasan bajo el techo; en «12» y en «3,000» salen las cifras; Heródoto se para
-//    y mira a un lado y a otro. Corta en «1,500».
+// 1. hawara/escalera/pasillos: el guía con su candil y Heródoto recorren el pasillo de punta a punta (x 10–200) con el
+//    charco de luz del candil que va con el guía y la sombra larga de Heródoto en el suelo; encima del decorado, los muros
+//    con sillares gastados, friso de jeques, un registro de porteadores de ofrendas, la banda del agua y el zócalo con
+//    grietas y salitre, y el techo de cielo azul con estrellas, vigas pintadas y rosetas; la luz espanta a cuatro
+//    murciélagos que salen del fondo, crecen al acercarse y escapan bajo el techo; en «12» y en «3,000» salen las cifras;
+//    al llegar, el guía se vuelve y le cuenta, y Heródoto gira la cabeza a la izquierda y a la derecha. Corta en «1,500».
 // 2. (LOCAL) el laberinto en corte: arriba, la planta de las salas con sus lámparas; bajo el suelo, dos filas de salas a
 //    oscuras y la escalera con su guardián; «1,500» arriba en «above» (las salas se encienden) y «1,500» abajo en «below»;
 //    en «walked» Heródoto y el guía cruzan las salas de arriba de puerta en puerta. Corta en «But».
@@ -62,17 +65,125 @@ const nolet = en('escalera', .576), cierra = en('escalera', .60), golpe = en('es
 const MURC = 0.9;
 const reyes = en('escalera', .818), cocod = en('escalera', .945), sacred = en('escalera', .926);
 // ── plano 1: los pasillos ──
+// la cámara de hawara 'pasillos' (la misma que e_PAS en gz-comun.js): con ella se pinta encima, una sola vez, lo que va en
+// los muros y el techo del decorado, y se guarda como lista de píxeles que se copia en cada fotograma
+const PAS = { vx: 160, vy: 96, f: 84, X: 1.5, piso: 1, techo: -1.7, lado: 2.7, fondo: 9.2 };
+const mez = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+const umb = (x, y) => (BY[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const PC = { luz: hex('#ffd88a'), osc: hex('#241c18'), pL: hex('#fbf5e4'), p: hex('#ebe1c6'), pJ: hex('#c0ae8c'), pS: hex('#d0c2a0'), pSS: hex('#a89678'), pO: hex('#7a6a56'),
+  rojo: hex('#c04a32'), rojoS: hex('#8a3426'), azul: hex('#3462b0'), azulS: hex('#244482'), azulL: hex('#7aa4dc'), verde: hex('#3e9060'), verdeS: hex('#2a6644'), ocre: hex('#e0b04a'), ocreS: hex('#b08432'),
+  piel: hex('#b0583a'), pielS: hex('#8a3e28'), pelo: hex('#2a1e1a'), lino: hex('#f4f0e0'), linoS: hex('#d4ccb2'), sal: hex('#fbf8f0'),
+  cielo: hex('#28346e'), cieloS: hex('#1e2858'), cieloL: hex('#34448a'), estrella: hex('#f2ca52') };
+// el porteador de ofrendas de los relieves (12 × 16 celdas; mira hacia el fondo del pasillo): o/O la ofrenda, s/S piel, k pelo, W/w lino, l loto
+const PORTEADOR = ['...kkkkkk...', '..koOoOoOk..', '...kkkkkk...', '...ks..kk...', '..kskkkkkk..', '..kskksssk..', '...kkkssssk.', '....kssk....',
+  '...kssssskk.', '..kssSsssssl', '...kWWWWkllv', '...kWwWWk...', '...kWWWk....', '...ks.ks....', '..ks...ks...', '.kkk...kkk..'];
+const OFRENDA = [[PC.ocre, PC.rojo], [PC.azul, PC.azulL], [PC.verde, PC.ocre]];
+const tonoP = (r, v, x, y) => r[Math.max(0, Math.min(r.length - 1, Math.floor(v + umb(x, y))))];
+const PIEDRA1 = [PC.pL, PC.p, PC.pS, PC.pSS], CIELO1 = [PC.cieloL, PC.cielo, PC.cieloS];
+// la esquina de Atom y la barra del año: ahí solo piedra o cielo, sin figuras ni estrellas
+const calma1 = (x, y) => (x >= 270 && y <= 50) || (x >= 14 && x <= 176 && y <= 17);
+const pintaTecho = (x, y, wx, zh) => {
+  const { X } = PAS, aw = Math.abs(wx), junta = Math.abs(zh - Math.round(zh)) < 0.02 * zh + 0.015, m = h(Math.floor(wx * 14), Math.floor(zh * 14), 490), cal = calma1(x, y);
+  let c;
+  if (aw < X - 0.25) {   // el cielo pintado: azul noche con estrellas de cinco puntas y una banda en el eje
+    c = tonoP(CIELO1, 0.6 + m * 1.2, x, y);
+    if (aw < 0.1) c = cal ? PC.cieloS : aw > 0.075 ? PC.pelo : Math.floor(zh / 0.3) % 2 ? PC.ocre : PC.rojo;
+    else if (!cal) { const su = wx / 0.3, sv = zh / 0.3 + (Math.floor(su) & 1) * 0.5, du = (su - Math.floor(su) - 0.5) * 0.3, dv = (sv - Math.floor(sv) - 0.5) * 0.3;
+      if (Math.hypot(du, dv) < 0.018 || (Math.abs(du) < 0.007 && Math.abs(dv) < 0.05) || (Math.abs(dv) < 0.007 && Math.abs(du) < 0.05)) c = PC.estrella; }
+    return junta ? mez(c, PC.osc, 0.6) : c;
+  }
+  const bv = Math.abs(aw - (X - 0.05));
+  if (bv < 0.12 && zh < 8) return junta ? PC.pO : bv > 0.095 ? PC.pO : Math.floor(zh / 0.25) % 2 ? PC.rojoS : PC.ocreS;   // la viga pintada
+  // las franjas de los lados: yeso con rosetas y filetes azules
+  c = tonoP(PIEDRA1, 0.4 + m * 1.6, x, y);
+  if (Math.abs(aw - 1.68) < 0.03 || Math.abs(aw - 2.55) < 0.035) c = cal ? PC.pS : PC.azul;
+  if (!cal) { const d = Math.hypot(aw - 2.1, (zh / 0.5 - Math.floor(zh / 0.5) - 0.5) * 0.5);
+    if (d < 0.12) { const an = Math.atan2(zh / 0.5 - Math.floor(zh / 0.5) - 0.5, aw - 2.1); c = d > 0.1 ? PC.rojoS : d < 0.03 ? PC.rojo : Math.cos(an * 8) > 0 ? PC.ocre : PC.pL; } }
+  return junta ? mez(c, PC.pO, 0.6) : c;
+};
+const pintaMuro = (x, y, wy, zh) => {
+  const { techo } = PAS, fr = (wy - techo) / 0.45, fila = Math.floor(fr), fy = fr - fila, v = zh / 0.9 + (fila & 1) * 0.5, iv = Math.floor(v), bu = v - iv;
+  const junta = Math.abs(fy - 0.5) > 0.44 || Math.abs(v - Math.round(v)) < 0.03 * zh, m = h(Math.floor(zh * 22), Math.floor(wy * 26), 492), tb = h(iv, fila, 491), cal = calma1(x, y);
+  const g = h(Math.floor(zh * 70), Math.floor(wy * 60), 494), piedra = () => tonoP(PIEDRA1, 0.35 + tb * 1.0 + (g > 0.93 ? 0.9 : g < 0.05 ? -0.6 : 0) + (fila >= 4 ? 0.7 : 0), x, y);
+  let c = piedra();
+  if (!cal) {
+    if (fila === 0) {   // el friso de jeques (manojos de junco) arriba
+      const k = zh / 0.15, kf = k - Math.floor(k), ki = Math.floor(k), w = 0.28 - (fy < 0.35 ? (0.35 - fy) * 0.7 : 0);
+      c = fy > 0.82 ? PC.ocreS : Math.abs(kf - 0.5) < w ? (kf > 0.62 ? [PC.rojoS, PC.azulS, PC.verdeS] : [PC.rojo, PC.azul, PC.verde])[ki % 3] : PC.p;
+    } else if (fila === 1 || fila === 2) {   // el registro de porteadores de ofrendas
+      const ry = (wy - techo - 0.45) / 0.9;
+      if (ry < 0.04) c = PC.azul; else if (ry > 0.955) c = PC.pelo;
+      else { c = tonoP([PC.pL, PC.p, PC.pJ], 0.1 + m * 0.8, x, y); const q = zh / 0.42, n = Math.floor(q), col = Math.floor((q - n) * 15) - 2, row = Math.floor((ry - 0.04) / 0.915 * 16);
+        const ch = col >= 0 && col < 12 ? PORTEADOR[Math.min(15, row)][col] : '.', of = OFRENDA[((n % 3) + 3) % 3];
+        const cc = { o: of[0], O: of[1], s: PC.piel, S: PC.pielS, k: PC.pelo, W: PC.lino, w: PC.linoS, l: PC.azul, v: PC.verde }[ch]; if (cc != null) c = cc; }
+    } else if (fila === 3) {   // la banda del agua en zigzag
+      const s = zh / 0.18 - Math.floor(zh / 0.18), yy = 0.25 + Math.abs(s - 0.5);
+      c = fy < 0.12 || fy > 0.88 ? PC.rojo : Math.abs(fy - yy) < 0.08 ? PC.azulL : PC.azul;
+    } else if (fila === 4 && fy < 0.3) c = fy < 0.12 ? PC.pelo : fy < 0.22 ? PC.ocre : PC.rojoS;   // los filetes del zócalo
+    if (fila <= 3 && g < 0.04) c = mez(c, PC.pS, 0.6);   // la pintura saltada
+  }
+  if (fila >= 4 && !(fila === 4 && fy < 0.3)) {   // el zócalo gastado: grietas, desconchones y salitre junto al suelo
+    if (tb < 0.35 && Math.abs(fy - (0.15 + bu * 0.7 + Math.sin(bu * 23 + iv * 3) * 0.04)) < 0.022) c = PC.pO;   // una grieta en algunos sillares
+    else if (wy > 0.78 && g > 0.9) c = PC.sal; else if (g < 0.06) c = PC.pSS;
+  }
+  return junta ? mez(c, PC.pO, 0.65) : c;
+};
+const pinturaP1 = (() => { let I = null, Cl = null;
+  const crea = () => { const { vx, vy, f, X, piso, techo, lado, fondo } = PAS, cw = 0.17, A = [], B = [];
+    const lamp = []; for (let z = 2; z <= 7; z++) for (const s of [-1, 1]) lamp.push([s * (X - 0.2), -0.35, z]);
+    const luzEn = (px, py, pz) => { let l = 0; for (const [a, b, c] of lamp) l += Math.max(0, 1 - Math.hypot(px - a, py - b, pz - c) / 2.4) * 0.7; return Math.min(1, l); };
+    const abiertoL = (z) => z > 2.2 && z < 3.2, abiertoR = (z) => z > 2.15 && z < 2.95, cruce = (z) => z > 7.6;
+    for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+      const dx = (x - vx) / f, dy = (y - vy) / f; let zh = 1e9, tipo = 0;
+      if (dy > 0.001) { const z = piso / dy; if (z < zh) { zh = z; tipo = 1; } } else if (dy < -0.001) { const z = techo / dy; if (z < zh) { zh = z; tipo = 2; } }
+      if (Math.abs(dx) > 0.0005) { const z = lado / Math.abs(dx), s = Math.sign(dx), abierto = cruce(z) || (s < 0 ? abiertoL(z) : abiertoR(z)); if (z < zh && !abierto) { zh = z; tipo = 3; } else if (z < zh && abierto && !cruce(z)) { const z2 = 6 / Math.abs(dx); if (z2 < zh) { zh = z2; tipo = 6; } } }
+      if (fondo < zh) { zh = fondo; tipo = 4; }
+      for (let z = 2; z <= 7; z++) for (const s of [-1, 1]) { const xx = dx * z, yy = dy * z; if (Math.abs(xx - s * X) < cw && yy > techo && yy < piso && z < zh) { zh = z; tipo = 5; } }
+      if (tipo !== 2 && tipo !== 3) continue;
+      const wx = dx * zh, wy = dy * zh, oscuro = Math.max(0, Math.min(1, (zh - 1.5) / 8.5));
+      let c = tipo === 2 ? pintaTecho(x, y, wx, zh) : pintaMuro(x, y, wy, zh);
+      const l = luzEn(wx, wy, zh); if (l > 0.05) c = mez(c, PC.luz, l * 0.35);
+      c = umb(x, y) < oscuro ? mez(c, PC.osc, 0.55 + oscuro * 0.3) : mez(c, PC.osc, oscuro * 0.5);
+      A.push(y * 320 + x); B.push(c);
+    }
+    I = Int32Array.from(A); Cl = Uint32Array.from(B); };
+  return () => { if (!I) crea(); for (let k = 0; k < I.length; k++) R.pset(I[k] % 320, (I[k] / 320) | 0, Cl[k]); };
+})();
+// el charco de luz del candil del guía (sobre el suelo, los muros y los dos), con su temblor
+const luzCandil = (cx, cy, t) => { const rx = 72 + Math.sin(t * 13) * 2 + Math.sin(t * 7.3) * 1.5, ry = 52 + Math.sin(t * 11) * 1.5;
+  for (let y = Math.max(0, Math.floor(cy - ry)); y < Math.min(180, cy + ry); y++) for (let x = Math.max(0, Math.floor(cx - rx)); x < Math.min(320, cx + rx); x++) {
+    const d = Math.hypot((x - cx) / rx, (y - cy) / ry); if (d >= 1) continue; const q = Math.floor((1 - d) * (1.6 - d) * 3.4 + umb(x, y)) / 4; if (q > 0) R.pset(x, y, mez(R.pget(x, y), PC.luz, Math.min(0.62, q * 0.36))); } };
+// la sombra larga de quien va detrás del candil, tendida en el suelo hacia el lado contrario
+const sombraLarga = (x, lx, suelo) => { const L = Math.max(6, Math.min(30, 40 - Math.abs(lx - x) * 0.25)), s = x < lx ? -1 : 1;
+  for (let i = 0; i <= L; i++) { const w = 2.5 * (1 - i / (L + 4)); for (let y = Math.round(suelo - w); y <= Math.round(suelo + w * 0.6); y++) { const xx = Math.round(x + s * i); if (xx >= 0 && xx < 320 && y < 180) R.pset(xx, y, mez(R.pget(xx, y), PC.osc, 0.42 - i / L * 0.2)); } } };
+// el murciélago de cerca (15 px) en tres fases del aleteo y el de lejos (7 px)
+const MURC_G = [
+  ['k.............k', 'kk...........kk', 'kmk..k...k..kmk', '.kmk.kkkkk.kmk.', '..kmkkekekkmk..', '...kkkkkkkkk...', '......kkk......'],
+  ['.....k...k.....', '.....kkkkk.....', 'kkkkkkekekkkkkk', 'kmmmmkkkkkmmmmk', '.kmk.mkkkm.kmk.', '..k...kkk...k..'],
+  ['.....k...k.....', '.....kkkkk.....', '....kkekekk....', '...kmkkkkkmk...', '..kmmk.k.kmmk..', '.kmmk.....kmmk.', 'kmk.........kmk', 'k.............k']];
+const MURC_P = [['k.....k', 'kk.k.kk', '.kkkkk.', '...k...'], ['..k.k..', 'kkkkkkk', '.k.k.k.'], ['..k.k..', '.kkkkk.', 'kk...kk', 'k.....k']];
+const MPAL = { k: hex('#1a1218'), m: hex('#7a5260'), e: hex('#ffcf6a') };
+const murcielago = (filas, x, y, s) => filas.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const c = MPAL[f[i]]; if (c != null) R.rect(x + i * s, y + j * s, x + i * s + s - 1, y + j * s + s - 1, c); } });
 const p1 = (t) => {
   T.hawara(R, t, { encuadre: 'escalera', camara: 'pasillos' });
-  const u = tramo(t, 0.2, 3.5), gx = Math.round(lerp(78, 170, u)), hx = Math.round(lerp(40, 132, u));
-  const G = R.actor(EL.guiaEgipcio450, gx, 168, t, { dir: u < 1 ? 1 : -1, anda: u > 0 && u < 1, sostiene: true, habla: u >= 1 && Math.sin(t * 8) > 0 });
+  pinturaP1();
+  // recorren el pasillo de punta a punta: el guía delante con el candil, Heródoto detrás; al llegar, el guía se vuelve y
+  // le cuenta, y Heródoto se para y gira la cabeza a un lado (el pasillo de la izquierda) y al otro (el de la derecha)
+  const u = tramo(t, 0.15, 3.25), gx = Math.round(lerp(52, 200, u)), hx = Math.round(lerp(10, 150, u));
+  const dG = u < 1 ? 1 : -1, lx = gx + dG * 8;
+  sombraLarga(hx, lx, 168);
+  const mira = t < 3.35 ? 1 : t < 3.9 ? -1 : t < 4.35 ? 1 : -1;
+  R.actor(EL.herodoto, hx, 168, t, { dir: mira, anda: u > 0 && u < 1, sorpresa: t > tres && t < tres + 0.5 || t > 4.35 });
+  const G = R.actor(EL.guiaEgipcio450, gx, 168, t, { dir: dG, anda: u > 0 && u < 1, sostiene: true, habla: u >= 1 && Math.sin(t * 8) > 0 });
+  luzCandil(G.mano[0] + 4, G.mano[1] - 3, t);
   candil(G.mano[0], G.mano[1], t);
-  const mira = u >= 1 ? (Math.floor((t - 3.5) * 1.3) % 2 ? -1 : 1) : 1;
-  R.actor(EL.herodoto, hx, 168, t, { dir: mira, anda: u > 0 && u < 1, sorpresa: t > tres && t < tres + 1.2 });
-  // tres murciélagos que el candil espanta salen del fondo del pasillo y pasan por encima, bajo el techo
-  for (let k = 0; k < 3; k++) { const q = tramo(t, MURC + k * 0.18, MURC + 1.3 + k * 0.18); if (q <= 0 || q >= 1) continue;
-    const bx = Math.round(lerp(160, -14 - k * 10, q) + Math.sin(q * 9 + k) * 4), by = Math.round(lerp(74, 28 + k * 9, q) + Math.sin(t * 14 + k) * 2), sz = 1 + Math.round(q * 2), al = Math.sin(t * 22 + k * 2) > 0 ? -1 : 1;
-    R.rect(bx - 1, by - 1, bx + 1, by, K); for (let i = 1; i <= sz + 2; i++) { R.pset(bx - 1 - i, by + (i > sz ? al : 0) * (i % 2 ? 1 : 0) - (al > 0 ? 0 : Math.min(i, 2)), K); R.pset(bx + 1 + i, by - (al > 0 ? 0 : Math.min(i, 2)), K); } R.pset(bx, by - 2, hex('#3a2a3a')); }
+  // cuatro murciélagos que el candil espanta salen del fondo del pasillo y vienen bajo el techo, creciendo al acercarse;
+  // dos escapan por la izquierda y dos por la derecha (por debajo de la esquina de Atom)
+  for (let k = 0; k < 4; k++) { const q = tramo(t, MURC + k * 0.22, MURC + 1.7 + k * 0.22); if (q <= 0 || q >= 1) continue;
+    const izq = k % 2 === 0, ex = izq ? -24 : 344, ey = izq ? 24 + k * 5 : 56 + k * 3, e = 1 - (1 - q) * (1 - q);
+    const bx = Math.round(lerp(150 + k * 7, ex, e) + Math.sin(q * 11 + k) * 6), by = Math.round(lerp(84 - k * 2, ey, e) + Math.sin(t * 9 + k * 2) * 3);
+    const fa = [0, 1, 2, 1][Math.floor(t * 16 + k * 3) % 4];
+    if (q < 0.22) murcielago(MURC_P[fa], bx - 3, by - 2, 1); else if (q < 0.5) murcielago(MURC_G[fa], bx - 7, by - 3, 1); else murcielago(MURC_G[fa], bx - 15, by - 7, 2); }
   const a = tramo(t, doce, doce + 0.3), b = tramo(t, tres, tres + 0.4);
   if (a > 0) R.numero('12', 104, Math.round(lerp(78, 66, a)), { tam: 16, centro: true });
   if (b > 0) R.numero('3,000', 216, Math.round(lerp(78, 66, b)), { tam: 16, centro: true });

@@ -2208,16 +2208,19 @@ function c_pozosCerca(R, t, o, P) {
   const s0 = sy(0);
   if (s0 > -100) {
     P.l(44, s0, 262, s0, 'c');
-    R.poligono([[92, s0], [228, s0], [195, s0 - 44], [125, s0 - 44]], (x, y) => ((x + y) % 3 === 0 ? PZ.hal : (x * 7 + y) % 5 === 0 ? PZ.f4 : PZ.f3));
-    P.l(92, s0, 125, s0 - 44, 'c'); P.l(228, s0, 195, s0 - 44, 'c');
-    for (let y = s0 - 4; y > s0 - 44; y -= 4) { const w = 68 - (s0 - y) * 0.75; P.l(160 - w, y, 160 + w, y, 'D', 2); }
+    // la base de Kefrén mide 38 px de alto: con la cámara arriba (s0 62) su techo queda en y 24, lejos del año
+    R.recorte([0, 24, 319, 179]); R.poligono([[92, s0], [228, s0], [195, s0 - 38], [125, s0 - 38]], (x, y) => ((x + y) % 3 === 0 ? PZ.hal : (x * 7 + y) % 5 === 0 ? PZ.f4 : PZ.f3)); R.recorte(null);
+    P.l(92, s0, 125, s0 - 38, 'c'); P.l(228, s0, 195, s0 - 38, 'c'); P.l(125, s0 - 38, 195, s0 - 38, 'c');
+    for (let y = s0 - 4; y > s0 - 38; y -= 4) { const w = 68 - (s0 - y) * 0.86; P.l(160 - w, y, 160 + w, y, 'D', 2); }
     for (let k = 0; k < 5; k++) { const x = 100 + k * 30; P.caja(x - 10, s0 + 4, x + 10, s0 + 14, 'c'); P.l(x - 10, s0 + 9, x + 10, s0 + 9, 'd', 2); if (k < 4) { P.l(x + 11, s0 + 7, x + 19, s0 + 7, 'c'); P.l(x + 11, s0 + 11, x + 19, s0 + 11, 'c'); } }
   }
   // tres pozos con la rosca (las vueltas de atrás, el tubo hueco con sus anillos y las de delante)
-  const XS = [76, 160, 244], W0 = 20, W1 = 433, vis0 = cam - 70, vis1 = cam + 100;
+  // Y_CORTE: el borde de arriba de la vista; nada del plano (pozos, roscas, Kefrén) sube de ahí, para que la barra del
+  // año quede tranquila. Cuando la cámara ha bajado, una línea de corte discontinua con sus dos flechas lo marca.
+  const XS = [76, 160, 244], W0 = 20, W1 = 433, vis0 = cam - 70, vis1 = cam + 100, Y_CORTE = 24;
   for (const x of XS) c_espiral(P, x, sy(W0), sy(W1) - 2 + 0 * esp, 20, 26, t * 0.75, true, 1, 0.5, -10, 170);
   for (const x of XS) {
-    const ya = Math.max(16, sy(W0)), yb = Math.min(157, sy(W1));
+    const ya = Math.max(Y_CORTE, sy(W0)), yb = Math.min(157, sy(W1));
     if (yb > ya) {
       R.poligono([[x - 6, ya], [x + 7, ya], [x + 7, yb], [x - 6, yb]], (px, py) => (px < x - 2 ? PZ.f2 : px > x + 3 ? PZ.f0 : (px + py + off) % 3 === 0 ? PZ.f1 : PZ.f0));
       for (let wy = Math.ceil(vis0 / 13) * 13; wy < vis1; wy += 13) { const y = sy(wy); if (y > ya && y < yb) P.l(x - 6, y, x + 6, y, 'D', 2); }
@@ -2233,7 +2236,10 @@ function c_pozosCerca(R, t, o, P) {
       for (let k = 1; k < 4; k++) P.l(x0 + k * 13, y0 + 1, x0 + k * 13, y0 + 51, 'D', 2); }
     for (const x of [110, 209]) { P.l(x, sy(494), x, sy(530), 'D', 2); P.flecha(x, Math.min(156, sy(530)), 0, 1, 'd'); }
   }
-  R.recorte([0, 16, 319, 157]); P.pintar(t, h(Math.floor(t * 9), 7) > 0.94); R.recorte(null); P = P0;
+  for (const x of XS) if (sy(W0) < Y_CORTE) { P.l(x - 7, Y_CORTE, x + 7, Y_CORTE, 'c'); for (let k = -5; k <= 5; k += 2) P.p(x + k, Y_CORTE + 1, 'd'); }
+  if (sy(-38) < Y_CORTE + 2) { P.l(44, Y_CORTE, 262, Y_CORTE, 'D', 2); for (const ax of [40, 266]) P.l(ax, Y_CORTE, ax, Y_CORTE + 5, 'c'); }
+  R.recorte([0, Y_CORTE, 319, 157]); P.pintar(t, h(Math.floor(t * 9), 7) > 0.94); R.recorte(null); P = P0;
+  if (sy(-38) < Y_CORTE + 2) for (const [ax, d] of [[40, 1], [266, -1]]) R.poligono([[ax, Y_CORTE + 6], [ax + 4 * d, Y_CORTE + 3], [ax + 4 * d, Y_CORTE + 9]], PZ.ci);
   // la regla de profundidad con la cifra que cambia
   R.linea(30, 16, 30, 157, PZ.rjC);
   for (let wm = 0; wm <= 700; wm += 25) { const y = sy(wm / 1.5); if (y < 17 || y > 156) continue; R.linea(wm % 100 === 0 ? 24 : 27, y, 30, y, wm % 100 === 0 ? PZ.ci : PZ.co);
@@ -3892,7 +3898,8 @@ const a_osc = (c) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((
 
 // el estudio de Atom, plano general (ver la cabecera de hoy). Geometría: el suelo de los personajes y = 158 (entre 150 y
 // 170); la pared acaba en y 137; la mesa (tablero y 108–113, x 170–268); la puerta del armario x 112–162, y 22–137
-// (bisagra a la izquierda); la ventana x 10–94, y 14–96
+// (bisagra a la izquierda); la ventana x 10–94, y 24–96, con la barra de la cortina en y 20–22 (por debajo de la barra
+// del año, que queda tranquila)
 function f_estudio(R, t, o) {
   const { rect, pset, disco, linea, poligono } = R, P = f_P, AX0 = 112, AX1 = 162, AY0 = 22, AY1 = 137;
   // el papel pintado con sus rayas y las pirámides diminutas al tresbolillo; arriba a la derecha, liso (Atom)
@@ -3915,7 +3922,7 @@ function f_estudio(R, t, o) {
       pset(x, y, bd ? P.kilimS : (y === 152 || y === 171) ? P.kilimL : u + v * 1.4 < 5 ? P.kilimC : u + v * 1.4 < 8 ? P.kilimA : (u + v * 1.4 < 10 && (x + y) % 2) ? P.kilimL : P.kilim); } }
     for (let x = 64; x < 270; x += 2) { pset(x, 174, P.kilimC); pset(x + 1, 175, P.kilimL); }
     // la ventana: marco blanco, alféizar y el radiador con sus aletas y la llave
-    rect(10, 14, 94, 95, P.k); rect(11, 15, 93, 94, P.marco); rect(11, 92, 93, 94, P.marcoS);
+    rect(10, 24, 94, 95, P.k); rect(11, 25, 93, 94, P.marco); rect(11, 92, 93, 94, P.marcoS);
     rect(6, 94, 98, 98, P.k); rect(7, 95, 97, 97, P.marco); rect(7, 97, 97, 97, P.marcoS);
     rect(20, 106, 84, 128, P.k); rect(21, 107, 83, 127, P.marco); for (let x = 23; x < 82; x += 4) { rect(x, 108, x + 1, 126, P.marcoS); pset(x, 108, P.blanco); }
     rect(21, 107, 83, 108, P.blanco); rect(84, 120, 88, 122, P.grisD); disco(89, 121, 2, P.rojoS); rect(22, 129, 24, 133, P.grisD); rect(80, 129, 82, 133, P.grisD);
@@ -3969,13 +3976,14 @@ function f_estudio(R, t, o) {
     for (let i = 0; i < 3; i++) { rect(250 - i, 102 - i * 3, 264 - i, 104 - i * 3 + 1, P.k); rect(251 - i, 102 - i * 3, 263 - i, 104 - i * 3, P.libro[i * 2 + 1]); }
   });
   // la ventana: el cielo y la ciudad; el parteluz y el travesaño con reflejos
-  f_vistaCiudad(R, 14, 18, 90, 90, t, 1);
-  rect(51, 15, 53, 93, P.marco); rect(11, 52, 93, 54, P.marco); rect(11, 54, 93, 54, P.marcoS);
-  for (const d of [20, 60]) for (let i = 0; i < 10; i++) pset(d + i, 46 - i, P.cielo2);
+  f_vistaCiudad(R, 14, 28, 90, 90, t, 1);
+  rect(51, 25, 53, 93, P.marco); rect(11, 57, 93, 59, P.marco); rect(11, 59, 93, 59, P.marcoS);
+  for (const d of [20, 60]) for (let i = 0; i < 10; i++) pset(d + i, 52 - i, P.cielo2);
   // las cortinas que ondean un poco con la corriente, y la barra
-  for (const [x0, dir] of [[2, 1], [88, -1]]) for (let y = 12; y < 104; y++) { const w = 10 + Math.round(Math.sin(y * 0.09 + t * 1.3 + x0) * 1.2) + (y > 84 ? Math.round((y - 84) * 0.15) : 0);
+  for (const [x0, dir] of [[2, 1], [88, -1]]) for (let y = 22; y < 104; y++) { const w = 10 + Math.round(Math.sin(y * 0.09 + t * 1.3 + x0) * 1.2) + (y > 84 ? Math.round((y - 84) * 0.15) : 0);
     for (let i = 0; i < w; i++) { const x = dir > 0 ? x0 + i : x0 + 11 - i; pset(x, y, i % 4 === 1 ? P.cortinaS : i % 4 === 3 ? P.cortinaL : P.cortina); } }
-  rect(0, 10, 104, 12, P.k); rect(1, 11, 103, 11, P.latonS); disco(1, 11, 2, P.laton); disco(103, 11, 2, P.laton);
+  rect(0, 20, 104, 22, P.k); rect(1, 21, 103, 21, P.latonS); disco(1, 21, 2, P.laton); disco(103, 21, 2, P.laton);
+  for (let x = 6; x < 100; x += 12) { pset(x, 22, P.laton); pset(x, 23, P.latonS); }   // las anillas
   gato(R, 28, 94, t, { dir: 1 });
   // la puerta del armario que se abre hacia nosotros (bisagra a la izquierda); por detrás, el armario por dentro
   const ab = Math.max(0, Math.min(1, o.armario ?? 0));
@@ -4013,7 +4021,7 @@ function f_estudio(R, t, o) {
   for (let k = 0; k < 3; k++) { const f = (t * 0.6 + k / 3) % 1; pset(Math.round(243 + Math.sin(f * 7 + k) * 1.5), Math.round(99 - f * 10), f < 0.6 ? P.blanco : P.paredL); }
   motas(R, t, 18, 110, 100, 150, 12, P.luz);
   return { suelo: 158, sueloMin: 150, sueloMax: 170, mesa: { x0: 170, x1: 268, y: 108 }, piramide: [pir.x, pir.y], punta: [pir.x, pir.y - 15], hueco: [pir.x, pir.y - 10], lupa: [226, 101],
-    armario: { x0: AX0, x1: AX1, y0: AY0, y1: AY1, golpe: [138, 66] }, ventana: [10, 14, 94, 96], estanteria: [220, 44, 274, 137], reloj: [192, 76] };
+    armario: { x0: AX0, x1: AX1, y0: AY0, y1: AY1, golpe: [138, 66] }, ventana: [10, 24, 94, 96], estanteria: [220, 44, 274, 137], reloj: [192, 76] };
 }
 
 // lo de delante del estudio general: el sillón de lectura de cuero en la esquina izquierda y la papelera de mimbre con

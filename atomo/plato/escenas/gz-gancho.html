@@ -21,9 +21,11 @@
 //    abajo); en «full detail» la lupa enseña las salas en grande y en «what they say lies down there» baja por un pozo,
 //    con su rosca girando, hasta los cubos y un «?»;  5. (2023) lo que ve el endoscopio: la lucecita de la cámara se
 //    enciende poco a poco; en «hidden corridor» la mira ámbar se cierra sobre el pasillo y el foco barre las paredes; en
-//    «thinner than a pencil» entra al lado la comparación: el lápiz y el cable;  6. (hacia el 450 a. C.) el laberinto:
+//    «thinner than a pencil» entra al lado la comparación: el lápiz y el cable (la pantalla redonda va más pequeña y más
+//    abajo que en el decorado, para dejar libre la barra del año);  6. (hacia el 450 a. C.) el laberinto:
 //    Heródoto entra entre las columnas; el guía egipcio lo espera con su candil y le hace señas; Heródoto mira a un lado y
-//    a otro, se queda boquiabierto en «greater than the pyramids» (el guía alza el candil y salen tres murciélagos del
+//    a otro, se queda boquiabierto en «greater than the pyramids» (el guía alza el candil —colgado de la mano por delante
+//    del pecho, con la llama lejos de la cara— y su luz crece; salen tres murciélagos del
 //    fondo) y señala el fondo, que no se acaba;  7. (hoy) la mesa de Atom: Atom baja de su esquina, levanta la punta de
 //    la pirámide de pisapapeles en «the reason», se asoma en «gone down to look»… dentro, nada: una nubecilla de polvo;
 //    la deja caer en «yet» y vuelve a su sitio (gag 1).
@@ -265,13 +267,41 @@ const p4 = (t) => {
 };
 
 // 5 · lo que ve el endoscopio: el pasillo oculto; al lado, el lápiz y el cable
+const MET = ['#16181e', '#2c313c', '#4a5260', '#717b8c', '#a4adbc', '#d4dae4'].map(hex), LUZ = hex('#fff2c8');
+const PB = [160, 101, 66];   // la pantalla redonda nueva: centro y radio (bisel hasta y≈30, marcas hasta y≈23)
+const plastico = (x, y) => tono(MET, 1.1 + (hh(x >> 1, y >> 1, 780) - 0.5) * 0.35 + (y < 3 ? 0.8 : 0) - (y > 176 ? 0.6 : 0), x, y);
+let SB = null;
+const pantallaBaja = (t, ox, oy, orc) => {
+  const B = R.buf; if (!SB || SB.length !== B.length) SB = new Uint32Array(B.length); SB.set(B);
+  const [cx, cy, rc] = PB, s = rc / orc, rAro = 88.2 * s, rViejo = 91;
+  T.keopsPasilloVista(R, t, cx - rc, cy - rc, 2 * rc + 1, 2 * rc + 1);
+  for (let y = Math.max(0, oy - rViejo); y <= 179; y++) for (let x = ox - rViejo; x <= ox + rViejo; x++) {
+    const dn = Math.hypot(x - cx, y - cy); if (dn < rc) continue;
+    let c;
+    if (dn <= rAro) { const sx = Math.round(ox + (x - cx) / s), sy = Math.round(oy + (y - cy) / s);
+      c = sy > 179 || (sx >= 108 && sx <= 124 && sy >= 172) ? plastico(x, y) : SB[sy * 320 + sx]; }
+    else if (Math.hypot(x - ox, y - oy) <= rViejo || (Math.abs(x - cx) <= rc && Math.abs(y - cy) <= rc)) c = plastico(x, y); else continue;   // también las esquinas del cuadro de la vista
+    B[y * 320 + x] = c;
+  }
+  // la salida del cable abajo, otra vez en su sitio, y la cruz fina del centro
+  for (let x = 108; x <= 124; x++) R.rect(x, 172, x, 179, (x - 108) % 4 === 0 ? MET[0] : tono(MET, 2.6 - Math.abs(x - 116) * 0.12, x, 172));
+  R.rect(112, 176, 120, 179, T.C.k);
+  for (const [dx, dy] of [[-6, 0], [-5, 0], [5, 0], [6, 0], [0, -6], [0, -5], [0, 5], [0, 6]]) R.pset(cx + dx, cy + dy, LUZ);
+  R.numero(String(Math.floor(t * 10) % 60).padStart(2, '0'), 92, 168, { fina: true });   // los segundos del contador, que el relleno pisaba
+};
 const p5 = (t) => {
   const o = { encuadre: 'norte', camara: 'pasillo', entra: 0.25 + 0.75 * tramo(t, P5, P6) };
-  const g = T.keops(R, t, o), [cx, cy, rc] = g.circulo || [160, 96, 74];
+  const g = T.keops(R, t, o), [ox, oy, orc] = g.circulo || [160, 96, 74];
+  // la pantalla redonda del monitor, más pequeña y más abajo que en el decorado (su bisel y sus marcas subían hasta la barra
+  // del año): el aro con sus marcas se reescala desde el decorado, el plástico que queda libre se rellena con su misma
+  // trama y la vista del pasillo se vuelve a pintar a su tamaño
+  pantallaBaja(t, ox, oy, orc);
+  const [cx, cy, rc] = PB;
   // la lucecita de la cámara se enciende poco a poco (hasta «hidden corridor») y luego su foco barre las paredes
   const enc = tramo(t, P5 + 0.05, oculto + 0.3), FOC = hex('#ffe4a8');
   for (let y = cy - rc; y <= cy + rc; y++) for (let x = cx - rc; x <= cx + rc; x++) {
     const d2 = (x - cx) ** 2 + (y - cy) ** 2; if (d2 > (rc - 1) ** 2) continue;
+    const rr = Math.sqrt(d2) / rc; if (rr > 0.7) R.pset(x, y, mezcla(R.pget(x, y), MET[0], Math.min(0.85, rr ** 6 * 0.9)));   // la viñeta redonda del objetivo
     if (enc < 1) { R.pset(x, y, mezcla(R.pget(x, y), K, 0.8 * (1 - enc))); continue; }
     const fx = cx + Math.sin((t - oculto) * 1.6) * 34, fy = cy + 8 + Math.cos((t - oculto) * 1.1) * 10, df = Math.hypot(x - fx, (y - fy) * 1.3);
     if (df < 24) R.pset(x, y, mezcla(R.pget(x, y), FOC, 0.42 * (1 - df / 24) ** 1.5));
@@ -295,7 +325,8 @@ const p5 = (t) => {
 };
 
 // 6 · el laberinto: el guía con su candil y Heródoto, que se queda boquiabierto
-const candil = (x, y, t) => { R.rect(x - 4, y, x + 4, y + 3, K); R.rect(x - 3, y + 1, x + 3, y + 2, hex('#a8603a')); R.pset(x + 4, y, hex('#a8603a')); const f = Math.sin(t * 13) > 0 ? 1 : 0; R.halo(x + 4, y - 3, 9, [hex('#5a4020'), hex('#a8783a'), hex('#e8b060')], 0.7); R.rect(x + 3, y - 3 - f, x + 5, y - 1, hex('#f0a030')); R.pset(x + 4, y - 4 - f, hex('#fff0a0')); R.pset(x + 4, y - 2, hex('#fff0a0')); };
+// el candil de barro: cuelga de la mano por su asa; la boca con la llama va hacia d (−1: a la izquierda, lejos de la cara)
+const candil = (x, y, t, d = -1, luz = 0) => { const bx = x + 4 * d; R.linea(x, y - 3, x, y - 1, K); R.rect(x - 4, y, x + 4, y + 3, K); R.rect(x - 3, y + 1, x + 3, y + 2, hex('#a8603a')); R.pset(x - d * 2, y + 1, hex('#d08a50')); R.pset(bx, y, hex('#a8603a')); const f = Math.sin(t * 13) > 0 ? 1 : 0; R.halo(bx, y - 3, Math.round(9 + luz * 5), [hex('#5a4020'), hex('#a8783a'), hex('#e8b060')], 0.7); R.rect(bx - 1, y - 3 - f, bx + 1, y - 1, hex('#f0a030')); R.pset(bx, y - 4 - f, hex('#fff0a0')); R.pset(bx, y - 2, hex('#fff0a0')); };
 const p6 = (t) => {
   const gh = T.hawara(R, t, { encuadre: 'escalera', camara: 'pasillos' }), [fgx, fgy] = gh?.fuga ?? [160, 88];
   // Heródoto entra solo, se para a mirar a un lado y a otro; en «greater than the pyramids» abre los brazos boquiabierto
@@ -308,9 +339,11 @@ const p6 = (t) => {
   if (hm > 0 && hm < 1) for (let q = 0; q < 4; q++) { const u = (t * 2 + q / 4) % 1; R.pset(Math.round(xh + 4 - u * 8 + q), Math.round(171 - u * 6), u < 0.5 ? hex('#e8dcc0') : hex('#c8b898')); }
   if (t > mayor && t < mayor + 1.0) R.icono('!', xh + 4, Math.round(132 - tramo(t, mayor, mayor + 0.2) * 4), hex('#ffe890'), K, 2);
   // el guía egipcio espera con su candil: le hace señas para que pase y, en «greater», levanta la luz hacia el fondo
-  const alto = tramo(t, mayor - 0.2, mayor + 0.3), xg = 206;
-  const gu = R.actor(EL.guiaEgipcio450, xg, 172, t, { dir: -1, sostiene: [xg - 9, Math.round(150 - alto * 12)], dedo: t > griego - 0.2 && t < mayor - 0.3 && Math.sin(t * 6) > -0.3, habla: t > griego - 0.3 && t < mayor - 0.3 && Math.sin(t * 9) > 0, sonrisa: t > mayor });
-  if (gu && gu.mano) { const [mx, my] = gu.mano; R.linea(mx, my, mx, my + 3, K); candil(mx, my + 3, t); }
+  // el candil va por delante del cuerpo, a la altura del pecho, y al alzarlo sube hacia delante hasta debajo de la barbilla
+  // (el brazo no cruza la cara) y su luz crece; cuelga de la mano por fuera de la silueta, con la llama lejos de la cara
+  const alto = tramo(t, mayor - 0.2, mayor + 0.3), xg = 206, yCg = 172 - (EL.guiaEgipcio450.altoCuerpo ?? 10);
+  const gu = R.actor(EL.guiaEgipcio450, xg, 172, t, { dir: -1, sostiene: [Math.round(xg - 16 - alto * 8), Math.round(yCg + 6 - alto * 11)], dedo: t > griego - 0.2 && t < mayor - 0.3 && Math.sin(t * 6) > -0.3, habla: t > griego - 0.3 && t < mayor - 0.3 && Math.sin(t * 9) > 0, sonrisa: t > mayor });
+  if (gu && gu.mano) { const [mx, my] = gu.mano, caraX = gu.cabeza ? gu.cabeza[0] - 7 : xg; candil(Math.min(mx - 2, caraX - 6), my + 5, t, -1, alto); }
   // tres murciélagos que salen volando del fondo del pasillo, cada vez más grandes
   for (let k = 0; k < 3; k++) { const u = tramo(t, mayor + 0.05 + k * 0.18, mayor + 1.15 + k * 0.18); if (u <= 0 || u >= 1) continue;
     const [fx, fy] = [[fgx, fgy - 2], [fgx + 4, fgy + 2], [fgx - 4, fgy]][k], [tx, ty] = [[22, 46], [312, 96], [262, 150]][k], x = Math.round(lerp(fx, tx, u * u)), y = Math.round(lerp(fy, ty, u * u) + Math.sin(u * 14 + k) * 3);
