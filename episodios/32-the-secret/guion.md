@@ -76,7 +76,7 @@ Después del Do menor de las pirámides y el Mi mixolidio de GTA, este suena a c
 | ES | EN |
 | --- | --- |
 | En 1982 salió un libro con las pistas de doce cofres enterrados en doce ciudades de Norteamérica. Más de cuarenta años después solo han aparecido tres, y el único que sabía dónde están los demás se llevó el secreto. | In 1982, a book came out with the clues to twelve treasure boxes buried in twelve cities across North America. More than forty years later, only three have been found, and the one man who knew where the rest are took the secret with him. |
-| Por el camino vas a conocer a un editor con una pala, a unos chavales en un parque de Chicago, a un abogado que cavó en un jardín griego y a una familia cuyo tesoro encontró, por casualidad, una excavadora. | Along the way, you'll meet a publisher with a shovel, a group of teenagers in a Chicago park, a lawyer who dug in a Greek garden, and a family whose treasure was found, by accident, by an excavator. |
+| Por el camino vas a conocer a un editor con una pala, a unos muchachos en un parque de Chicago, a un abogado que cavó en un jardín griego y a una familia cuyo tesoro encontró, por casualidad, una excavadora. | Along the way, you'll meet a publisher with a shovel, a group of teenagers in a Chicago park, a lawyer who dug in a Greek garden, and a family whose treasure was found, by accident, by an excavator. |
 | Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo. | I'm Atom, and I explain the things you've always wondered about. Let's find out. |
 
 ## 1 · El libro
@@ -144,7 +144,7 @@ Después del Do menor de las pirámides y el Mi mixolidio de GTA, este suena a c
 | ES | EN |
 | --- | --- |
 | Entonces, ¿por qué dura ya más de cuarenta años? Porque The Secret no va solo de piedras de mil dólares. Va de leer un cuadro, un poema y una ciudad a la vez, y de la idea de que, bajo un parque por el que has paseado, puede haber una cajita con una llave dentro. | So why has it lasted more than forty years? Because The Secret isn't just about stones worth a thousand dollars. It's about reading a painting, a poem and a city all at once, and about the idea that somewhere under a park you've walked through, there might be a little box with a key inside. |
-| Byron Preiss no quería que sus acertijos se resolvieran demasiado rápido. Lo consiguió: nueve cofres siguen esperando. Y el próximo puede encontrarlo alguien con un carné de biblioteca, buen ojo… o una excavadora. | Byron Preiss didn't want his puzzles solved too quickly. He got his wish: nine boxes are still waiting. And the next one might be found by someone with a library card, a sharp eye… or an excavator. |
+| Byron Preiss no quería que sus acertijos se resolvieran demasiado rápido. Lo consiguió: nueve cofres siguen esperando. Y el próximo puede encontrarlo alguien con una credencial de la biblioteca, buen ojo… o una excavadora. | Byron Preiss didn't want his puzzles solved too quickly. He got his wish: nine boxes are still waiting. And the next one might be found by someone with a library card, a sharp eye… or an excavator. |
 
 ## Presupuesto de horas
 
