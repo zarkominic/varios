@@ -29,7 +29,7 @@ persiguiendo a uno rojo; Gary Penn, al doble, boquiabierto; «1995») sirve para
 ## Descripción (EN)
 
 The video game that, so far, has made a billion dollars faster than any other was born in Scotland, at the studio behind a
-game about tiny creatures, and it was almost canceled. This is the story of Grand Theft Auto, a week before GTA VI.
+game about tiny creatures, and it was almost canceled. This is the story of Grand Theft Auto, just before GTA VI.
 
 What we cover:
 - Dundee, DMA Design and the little creatures that became a worldwide hit in 1991;
@@ -67,7 +67,7 @@ little creatures are our own drawings.
 ## Descripción (ES)
 
 El videojuego que, hasta hoy, más rápido ha ganado mil millones de dólares nació en Escocia, en el estudio de un juego de bichitos, y
-estuvo a punto de cancelarse. Esta es la historia de Grand Theft Auto, a una semana de GTA VI.
+estuvo a punto de cancelarse. Esta es la historia de Grand Theft Auto, a pocos días de GTA VI.
 
 Lo que contamos:
 - Dundee, DMA Design y los bichitos que triunfaron en todo el mundo en 1991;
