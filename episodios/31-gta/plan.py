@@ -51,7 +51,7 @@ E = [
   'intriga', []),
  ('gt-ventas', None, 16, 16, ['ventas'],
   ['B y D (finales de 1997): una tienda con cajas del juego (sin portada real: una caja con un coche) y un 18; un lord mira por encima del hombro de su hijo de doce años que juega a la demo (gag 6); colas de Navidad.'],
-  'intriga', []),
+  'aventura', []),
  ('gt-houser', '1998', 17, 18, ['takeTwo', 'rockstar'],
   ['C (Nueva York, 1998): rascacielos; un apretón de manos en un despacho; dos hermanos ingleses (Sam y Dan Houser: chaqueta de cuero, gafas de sol) con discos y carteles de cine.',
    'C: un loft con ladrillo visto, guitarras en la pared y una estrella en la puerta (sin letras); el equipo celebra.'],
