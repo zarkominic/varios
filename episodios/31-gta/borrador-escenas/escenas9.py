@@ -115,6 +115,8 @@ const p1 = (t) => {
       baña(lx - 70, ly - 18, lx - 5, ly + 20, hex('#fff2c0'), 0.35, (xx, yy) => { const d = lx - 5 - xx; return d > 0 && Math.abs(yy - ly) < 2 + d * 0.22 && b4(xx, yy) < 0.6 ? 1 : 0; }); }
   }
   T.hoyDelante(R, t, o);
+  // la carpeta que se escapa, más grande que la del decorado para que se lea (va encima, en su misma trayectoria)
+  if (g.carpeta && g.carpeta.f > 0.02 && g.carpeta.f < 0.98) carpetaV(g.carpeta.x, g.carpeta.y, t, 1.1);
 };
 // ── 2: la carpeta sobre la ciudad de noche (LOCAL) ──
 const CIE = RA('#0a0820', '#110f2e', '#191640', '#231e52', '#302660', '#43306e', '#5a3a78');
@@ -166,7 +168,7 @@ const fondo2 = fijo(() => {
   for (const [px, c] of [[210, '#a84a2a'], [222, '#8a5a3a']]) { R.rect(px - 4, 154, px + 4, 162, K); R.rect(px - 3, 155, px + 3, 161, hex(c)); R.disco(px, 150, 5, hex('#2a5a3a')); R.disco(px - 1, 149, 3, hex('#3a7a4a')); }
   for (let k = 0; k < 3; k++) { R.rect(30, 166 + k * 4, 72, 167 + k * 4, hex('#8a6a4a')); R.rect(30, 166 + k * 4, 72, 166 + k * 4, hex('#a8885a')); } for (const x of [32, 50, 68]) R.rect(x, 166, x + 3, 178, hex('#6a4a2a'));
 });
-const P2_PATH = (tt) => { const u = tramo(tt, P2 - 0.6, P3 + 0.3); return [lerp(318, 20, u), 70 + Math.sin(u * 6.5) * 12 - u * 8]; };
+const P2_PATH = (tt) => { const u = tramo(tt, P2 - 0.6, P3 + 0.3); return [lerp(304, 22, u), 62 - u * 20 + Math.sin(u * 6.5) * 6]; };
 const p2 = (t) => {
   fondo2();
   // estrellas que titilan (fuera de la esquina de Atom y de la barra)
@@ -182,7 +184,7 @@ const p2 = (t) => {
     if (pasa && h(k, 4, 41) > 0.5) { R.rect(x + 1, y + 2, x + 2, y + 4, hex('#2a2030')); R.pset(x + 1, y + 1, hex('#2a2030')); } }
   // el panel de leds: el mes (11 → 12) y el año (2022 → 2023)
   { const dic = t > at(7.73), a23 = t > at(8.01), c = hex('#ffa040'); for (let yy = 66; yy < 89; yy++) for (let xx = 94; xx < 151; xx++) R.pset(xx, yy, b4(xx, yy) < 0.25 ? hex('#2a1810') : hex('#140c08'));
-    R.numero(dic ? '12' : '11', 122, 75, { centro: true, color: dic && t < at(7.73) + 0.4 && Math.floor(t * 10) % 2 ? hex('#fff0c0') : c, sombra: false });
+    if (dic) R.numero('12', 122, 75, { centro: true, color: dic && t < at(7.73) + 0.4 && Math.floor(t * 10) % 2 ? hex('#fff0c0') : c, sombra: false });
     R.numero(a23 ? '2023' : '2022', 122, 86, { centro: true, color: a23 && t < at(8.01) + 0.4 && Math.floor(t * 10) % 2 ? hex('#fff0c0') : c, sombra: false });
     R.halo(122, 77, 30, [hex('#2a1c28'), hex('#3a2228')], 0.25); }
   // la luz roja de las antenas lejanas
@@ -263,7 +265,7 @@ const p3 = (t) => {
       R.rect(sx0 + 2, sy0 + 3, sx1 - 2, sy0 + 4, hex('#ffffff')); }
     else { for (let y = sy0; y <= sy1; y++) R.linea(sx0, y, sx1, y, tono(RA('#0e1630', '#16224a', '#1e2e62'), (y - sy0) / 7, sx0, y));
       const e = tramo(t, SUELTA + i * 0.07 + j * 0.05, SUELTA + i * 0.07 + j * 0.05 + 0.25); triangulo(x0 + 7, y0 + 12, e < 1 ? Math.round(1 + e * 2) : 3);
-      const pr = Math.min(1, Math.max(0, (t - SUELTA - i * 0.07) * 0.18)); R.linea(sx0 + 1, sy1 - 2, sx1 - 1, sy1 - 2, hex('#4a5070')); R.linea(sx0 + 1, sy1 - 2, sx0 + 1 + Math.round(pr * 8), sy1 - 2, hex('#ff5a6a'));
+      const pr = Math.min(1, Math.max(0, (t - SUELTA - i * 0.07) * 0.18)); R.linea(sx0 + 1, sy1 - 2, sx1 - 1, sy1 - 2, hex('#4a5070')); R.linea(sx0 + 1, sy1 - 2, sx0 + 1 + Math.round(pr * 8), sy1 - 2, hex('#8ad0ff'));
       if (e < 1) baña(x0 - 3, y0 - 3, x0 + 17, y0 + 29, hex('#c8e4ff'), 0.4 * (1 - e), (x, y) => b4(x, y) < 0.5 ? 1 : 0); }
     R.pset(x0 + 2, y0 + 2, hex('#8a8ca0'));
     if (t > VIBRA && (k % 3 === 0)) { R.disco(x0 + 13, y0 + 1, 3, K); R.disco(x0 + 13, y0 + 1, 2, hex('#e83a4a')); R.pset(x0 + 13, y0 + 1, hex('#ffffff')); }
@@ -440,19 +442,20 @@ const p2 = (t) => {
   T.PIEZAS_GT.cajaJuego(R, 150, 95, { s: 2, color: '#e0a030' });
   { const u = ((t - P2) * 0.4) % 1.6; if (u < 1) for (let y = 40; y < 95; y++) { const x = Math.round(130 + u * 50 + (95 - y) * 0.3); for (const dx of [0, 1, 3]) if (x + dx > 129 && x + dx < 171) R.pset(x + dx, y, mez(R.pget(x + dx, y), hex('#ffffff'), 0.35)); } }
   // el periódico, que echa humo de indignación cuando el coche se vuelve loco
-  T.PIEZAS_GT.periodico(R, 222, 95, { s: 2, humo: tramo(t, LOCO + 0.3, LOCO + 1.5), t });
+  T.PIEZAS_GT.periodico(R, 222, 95, { s: 2, humo: 0.5 * tramo(t, LOCO + 0.3, LOCO + 1.5), t });
   // el bichito: espera junto al botón, salta encima en «boring» y en «tiny creatures» abre el paraguas y baja flotando
   { let x, y, par = false, anda = false;
     const salto = tramo(t, BOR - 0.45, BOR - 0.05);
     if (t < BOR - 0.45) { x = 114; y = 95; anda = Math.sin(t * 2) > 0.5; }
     else if (t < BICHO) { x = Math.round(lerp(114, 80, ease(salto))); y = Math.round(lerp(95, 68, salto) - Math.sin(salto * Math.PI) * 14 + (t > BOR ? pulsa * 6 : 0)); }
-    else { const c = tramo(t, BICHO + 0.15, CAE); par = true; x = Math.round(lerp(80, 206 - 8, ease(c)) + Math.sin(t * 3) * 2 * (1 - c)); y = Math.round(lerp(60, 150, c)); anda = c >= 1 && t < CAE + 1; if (c >= 1) x = Math.round(198 + Math.min(14, (t - CAE) * 10)); }
-    if (t > BICHO - 0.1 && t < BICHO + 0.3) R.halo(x, y - 20, 14, [hex('#f8e0a0'), hex('#fff6d0')], 0.5);
+    else if (t < BICHO + 0.3) { const b = tramo(t, BICHO - 0.15, BICHO + 0.15); x = Math.round(lerp(80, 110, b)); y = Math.round(lerp(74, 95, b) - Math.sin(b * Math.PI) * 10); }
+    else { const c = tramo(t, BICHO + 0.35, CAE); par = true; x = Math.round(lerp(110, 198, ease(c)) + Math.sin(t * 3) * 2 * (1 - c)); y = Math.round(lerp(95, 150, c)); anda = c >= 1 && t < CAE + 1; if (c >= 1) x = Math.round(198 + Math.min(14, (t - CAE) * 10)); }
+    if (t > BICHO + 0.25 && t < BICHO + 0.6) R.halo(x, y - 30, 14, [hex('#f8e0a0'), hex('#fff6d0')], 0.5);
     T.PIEZAS_GT.bichito(R, x, y, { s: 2, anda, paraguas: par && t < CAE + 0.2, t }); }
   // el coche de policía: se enciende en «chase» y en «crazy» se vuelve loco por la balda de abajo, con humo
   { const loco = tramo(t, LOCO, LOCO + 0.2) * (1 - tramo(t, BICHO - 0.5, BICHO + 0.2)), s = (t - LOCO);
-    const x = Math.round(100 + (loco > 0 ? Math.sin(s * 4.5) * 46 * loco : 0)), dir = loco > 0 && Math.cos(s * 4.5) < 0 ? -1 : 1, bote = loco > 0 ? Math.round(Math.abs(Math.sin(s * 14)) * 2 * loco) : 0;
-    if (loco > 0) for (let k = 1; k <= 4; k++) { const xs = Math.round(100 + Math.sin((s - k * 0.06) * 4.5) * 46 * loco) - dir * 30; R.disco(xs, 147 - k, 1 + k * 0.6, mez(hex('#d8d8e0'), hex('#6a6a7a'), k / 5)); }
+    const x = Math.round(104 + (loco > 0 ? Math.sin(s * 4.5) * 32 * loco : 0)), dir = loco > 0 && Math.cos(s * 4.5) < 0 ? -1 : 1, bote = loco > 0 ? Math.round(Math.abs(Math.sin(s * 14)) * 2 * loco) : 0;
+    if (loco > 0) for (let k = 1; k <= 4; k++) { const xs = Math.round(104 + Math.sin((s - k * 0.06) * 4.5) * 32 * loco) - dir * 30; R.disco(xs, 147 - k, 1 + k * 0.6, mez(hex('#d8d8e0'), hex('#6a6a7a'), k / 5)); }
     T.PIEZAS_GT.cochePolicia(R, x, 151 - bote, { s: 2, dir, t: t > CHASE ? t : null });
     if (t > CHASE) { const c = Math.floor(t * 6) % 2 ? hex('#ff4a4a') : hex('#4a7aff'); baña(x - 40, 110, x + 40, 150, c, 0.25, (xx, yy) => { const d = Math.hypot((xx - x) / 40, (yy - 124) / 22); return d < 1 && b4(xx, yy) < 1 - d ? 1 : 0; }); }
     if (loco > 0.5 && t < BICHO - 0.5) R.icono('!', x - 2, 104 - bote, hex('#ffe890'), K, 2); }
@@ -464,11 +467,11 @@ const p2 = (t) => {
 };
 // ── 3: la tienda que espera (hoy/espera) ──
 const DOS = at(13.72), RETRASOS = at(13.94), SALE = at(15.3), NOV = at(16.63), DIEZ9 = at(16.91), AÑO = at(17.87);
-const calGrande = (x, y, t) => { x = Math.round(x) - 16; y = Math.round(y) - 36; R.rect(x, y, x + 32, y + 38, K); R.rect(x + 1, y + 1, x + 31, y + 37, hex('#fbf8f0')); R.rect(x + 1, y + 1, x + 31, y + 8, hex('#d8303a')); R.rect(x + 1, y + 8, x + 31, y + 8, hex('#a01e28'));
-  for (const rx of [x + 8, x + 24]) { R.rect(rx, y - 2, rx + 1, y + 3, hex('#8a8a96')); }
-  R.numero('19', x + 17, y + 25, { tam: 16, centro: true, color: hex('#1c1c2a'), sombra: false });
-  const lat = t > DIEZ9 ? 1 + 0.5 * Math.sin(t * 8) : 0; if (t > DIEZ9 - 0.1) for (let a = 0; a < 6.28; a += 0.07) { const px = Math.round(x + 16 + Math.cos(a) * (14 + lat)), py = Math.round(y + 19 + Math.sin(a) * (11 + lat * 0.6)); if (py > y + 29) continue; R.pset(px, py, hex('#e83a3a')); R.pset(px, py + 1, hex('#b02a2a')); }
-  for (let j = 0; j < 2; j++) for (let i = 0; i < 7; i++) R.pset(x + 4 + i * 4, y + 31 + j * 3, hex('#8a8a96')); };
+const calGrande = (x, y, t) => { x = Math.round(x) - 22; y = Math.round(y) - 40; R.rect(x, y, x + 44, y + 40, K); R.rect(x + 1, y + 1, x + 43, y + 39, hex('#fbf8f0')); R.rect(x + 1, y + 1, x + 43, y + 8, hex('#d8303a')); R.rect(x + 1, y + 8, x + 43, y + 8, hex('#a01e28'));
+  for (const rx of [x + 10, x + 33]) { R.rect(rx, y - 2, rx + 1, y + 3, hex('#8a8a96')); }
+  R.numero('19', x + 23, y + 28, { tam: 16, centro: true, color: hex('#1c1c2a'), sombra: false });
+  const lat = t > DIEZ9 ? 1 + 0.5 * Math.sin(t * 8) : 0; if (t > DIEZ9 - 0.1) for (let a = 0; a < 6.28; a += 0.06) { const px = Math.round(x + 22 + Math.cos(a) * (20 + lat)), py = Math.round(y + 21 + Math.sin(a) * (10 + lat * 0.6)); R.pset(px, py, hex('#e83a3a')); R.pset(px, py + 1, hex('#b02a2a')); }
+  for (let j = 0; j < 2; j++) for (let i = 0; i < 7; i++) R.pset(x + 7 + i * 5, y + 34 + j * 3, hex('#8a8a96')); };
 const p3 = (t) => {
   const baja = (a, b, v0, v1) => { const u = tramo(t, a, a + 0.18); return u > 0 ? lerp(v0, v1, u) + (u >= 1 ? Math.max(0, 1 - (t - a - 0.18) * 6) * Math.sin((t - a) * 40) * 0.01 : 0) : v0; };
   const ps = t < RETRASOS ? baja(DOS, 0, 0.30, 0.39) : baja(RETRASOS, 0, 0.39, 0.47);
@@ -482,11 +485,11 @@ const p3 = (t) => {
   // el dependiente sale por la puerta con el calendario grande y lo levanta en «November 19»
   if (t > SALE) { const u = tramo(t, SALE, NOV - 0.2), x = Math.round(lerp(152, 180, ease(u))), alto = Math.round(lerp(128, 112, ease(tramo(t, NOV - 0.2, NOV + 0.2))));
     const a = R.actor(EL.dependienteGT, x, 158, t, { dir: -1, anda: u > 0 && u < 1, sostiene: [x - 8, alto], sonrisa: t > DIEZ9 });
-    if (a && a.mano) calGrande(a.mano[0] - 4, a.mano[1] + 3, t); }
+    if (a && a.mano) calGrande(a.mano[0] - 6, a.mano[1] + 1, t); }
   T.hoyDelante(R, t, o);
 };
 const efectos = [[FOTO, 'flash'], [SEÑALA, 'boing'],
-  [BOR, 'toc'], [LOCO, 'claxon'], [LOCO + 0.6, 'vapor'], [BICHO + 0.2, 'pop'],
+  [BOR, 'toc'], [LOCO, 'claxon'], [LOCO + 0.6, 'vapor'], [BICHO + 0.35, 'pop'],
   [DOS, 'cerrojo'], [RETRASOS, 'cerrojo'], [SALE, 'puerta'], [DIEZ9, 'campana'], [AÑO + 0.1, 'publico']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
 ''')
@@ -522,13 +525,13 @@ const p1 = (t) => {
   // Atom: flota, se acerca a la estantería en «video game story», gira con la «?» en «tell?» y se lanza a la mesa
   const bob = Math.round(Math.sin(t * 2.6) * 2);
   let ax = lerp(168, 182, ease(tramo(t, JUEGOS - 0.3, JUEGOS + 0.8))), ay = 96 + bob;
-  if (t > VA) { const u = tramo(t, VA, E.duracion), e = u * u; ax = lerp(ax, 150, e); ay = lerp(ay, 150, e); }
+  if (t > VA) { const u = tramo(t, VA, P2), e = u * u; ax = lerp(ax, 150, e); ay = lerp(ay, 150, e); }
   const gira = t > TELL - 0.3 && t < VA + 0.2;
   if (t > TELL - 0.4 && t < VA + 0.3) R.icono('?', Math.round(ax) - 7, Math.round(ay) - 46 + Math.round(Math.sin(t * 8) * 2), hex('#ffe890'), K, 3);
   for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const gg = 1 - Math.hypot(i, j) / 19; if (gg > 0.3 && ((i + j) & 1 || gg > 0.6)) R.pset(Math.round(ax) + i, Math.round(ay) + j, gg > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
   if (gira) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 5, rr = 19 + Math.sin(t * 9) * 2; R.pset(Math.round(ax + Math.cos(an) * rr), Math.round(ay + Math.sin(an) * rr), hex('#c8f0ff')); }
   R.atomo(Math.round(ax), Math.round(ay), t, { r: 12, orbita: R.PAL.ATOM[7], energia: gira ? 0.8 : 0.4, vel: gira ? 3 : 1 });
-  if (t > VA) for (let k = 1; k <= 5; k++) { const u = Math.max(0, tramo(t - k * 0.04, VA, E.duracion)); R.pset(Math.round(lerp(182, 150, u * u)), Math.round(lerp(96, 150, u * u)) - 2, hex('#c8f0ff')); }
+  if (t > VA) for (let k = 1; k <= 5; k++) { const u = Math.max(0, tramo(t - k * 0.04, VA, P2)); R.pset(Math.round(lerp(182, 150, u * u)), Math.round(lerp(96, 150, u * u)) - 2, hex('#c8f0ff')); }
 };
 // ── 2: la mesa de cerca: la persecución al revés (gag 8) ──
 const ISLA = [[100, 134, 'casa', 0], [124, 132, 'arbol', 0], [146, 133, 'casa', 1], [172, 131, 'farola', 0], [228, 134, 'arbol', 1], [116, 147, 'arbol', 2], [138, 150, 'casa', 2], [168, 149, 'cono', 0], [222, 148, 'casa', 3], [244, 144, 'cono', 1], [192, 152, 'farola', 1]];
@@ -547,7 +550,7 @@ const AP0 = 2.3, AA0 = 1.62;
 // la persecución, integrada paso a paso: el de policía va despacio hasta que Atom le adelanta y entonces acelera tras él
 const sim = (tt) => { let ap = AP0, aa = AA0, pas = false, tp = 0; const dt = 1 / 60;
   for (let s = P2; s < tt; s += dt) { const wp = s < P2 + 0.15 ? 0 : pas ? Math.min(2.7, 0.9 + (s - tp) * 5) : 0.9;
-    const wa = s < GO ? 0 : !pas ? Math.min(3.9, (s - GO) * 9) : s < SALTA ? 2.55 + Math.sin(s * 3.1) * 0.3 : Math.max(1.6, 2.55 - (s - SALTA) * 0.8);
+    const wa = s < GO ? 0 : !pas ? Math.min(3.9, (s - GO) * 9) : s < SALTA ? 2.55 + Math.sin(s * 3.1) * 0.3 : 2.8;
     ap += wp * dt; aa += wa * dt; if (!pas && aa > ap + 0.5) { pas = true; tp = s; } }
   return { ap, aa, pas }; };
 const pista = (a, rx, ry) => [160 + Math.cos(a) * rx, 146 + Math.sin(a) * ry];
@@ -578,7 +581,7 @@ const p2 = (t) => {
     const ax = lerp(sx, 297, e), ay = lerp(sy - 16, 24, e) - Math.sin(u * Math.PI) * 30; atomPeq(ax, ay, t, u < 1 ? 0.9 : 0.4, Math.round(lerp(6, 10, e)));
     if (u > 0 && u < 1) for (let k = 1; k <= 5; k++) { const uu = Math.max(0, u - k * 0.04), ee = ease(uu); R.pset(Math.round(lerp(sx, 297, ee)), Math.round(lerp(sy - 16, 24, ee) - Math.sin(uu * Math.PI) * 30), hex('#c8f0ff')); } }
 };
-const efectos = [[COM, 'pop'], [COM + 0.5, 'pop'], [JUEGOS, 'brillo'], [TELL, 'boing'], [VA + 0.1, 'whoosh'],
-  [LLEGA, 'golpecito'], [GO, 'arranque'], [at(6.6), 'whoosh'], [at(7.6), 'silbato'], [SALTA, 'boing'], [SALTA + 0.3, 'whoosh']];
+const efectos = [[COM, 'pop'], [JUEGOS, 'brillo'], [TELL, 'boing'], [VA + 0.1, 'whoosh'],
+  [LLEGA, 'golpecito'], [GO, 'arranque'], [at(6.6), 'whoosh'], [at(7.6), 'silbato'], [SALTA, 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
 ''')
