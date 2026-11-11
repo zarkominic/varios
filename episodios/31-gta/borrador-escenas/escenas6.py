@@ -243,14 +243,13 @@ const p2 = (t) => {
   // la pila de cajas de juego que se desliza sobre la mesa
   // la pila de cajas de juego, tumbadas: la división de juegos de BMG
   for (let k = 0; k < 4; k++) { const c = hex(['#3a6ad8', '#d8303a', '#3a8a4a', '#e0a030'][k]), y = 147 - k * 4, x = bx + (k % 2); R.rect(x - 1, y - 4, x + 19, y, K); R.rect(x, y - 3, x + 18, y - 1, c); R.rect(x, y - 3, x + 18, y - 3, mez(c, BL, 0.45)); R.rect(x + 14, y - 3, x + 17, y - 1, BL); R.pset(x + 15, y - 2, K); }
-  R.icono('coche', bx + 5, 128, BL, K);
   if (aprieta && t < MANO + 0.5) for (const [dx, dy] of [[-7, -5], [8, -5], [0, -9], [-9, 2], [10, 2]]) { const u = tramo(t, MANO - 0.1, MANO + 0.5); R.linea(158 + dx * (0.5 + u * 0.4), 130 + dy * (0.5 + u * 0.4), 158 + dx * (1 + u * 0.4), 130 + dy * (1 + u * 0.4), hex('#fff0a0')); }
   R.actor(EL.samHouser, sm.x, sm.s, t, { dir: sm.mv ? -1 : -1, anda: sm.mv, sonrisa: t > PRESENTA, dedo: t > PRESENTA + 0.3 && t < PRESENTA + 0.9 });
   R.actor(EL.danHouser, dn.x, dn.s, t, { dir: -1, anda: dn.mv, sonrisa: t > PRESENTA + 0.2, habla: t > PRESENTA + 0.5 && Math.sin(t * 8) > 0 });
 };
 
 // ── 3 · LOCAL el rincón de los hermanos: discos, carteles de cine, la tele y el tocadiscos ──
-const MOVIES = TT(0.9063), MUSIC = TT(0.9579), SAM = TT(0.7302), DAN = TT(0.7636);
+const MOVIES = TT(0.9063), MUSIC = TT(0.9579), SAM = TT(0.7302) + 0.3, DAN = TT(0.7636) + 0.35;
 const PARED3 = rampa('#1e3a3a', '#264646', '#2e5252', '#386060');
 const fondo3 = () => {
   const { rect, pset, linea, disco, poligono } = R;
@@ -273,7 +272,7 @@ const fondo3 = () => {
   funda(12, 32, '#e8a040', (cx, cy) => { disco(cx, cy, 5, K); disco(cx, cy, 2, hex('#d8303a')); pset(cx, cy, K); });
   funda(46, 54, '#2a4a8a', (cx, cy) => { poligono([[cx, cy - 6], [cx + 2, cy - 1], [cx + 6, cy - 1], [cx + 3, cy + 2], [cx + 4, cy + 6], [cx, cy + 3], [cx - 4, cy + 6], [cx - 3, cy + 2], [cx - 6, cy - 1], [cx - 2, cy - 1]], hex('#f0d040')); });
   // la lámpara de lava sobre la estantería
-  rect(56, 22, 64, 25, hex('#4a4a52')); poligono([[57, 22], [58, 10 + 7], [62, 10 + 7], [63, 22]], hex('#d84a8a')); rect(58, 16, 62, 17, hex('#4a4a52'));
+  rect(6, 22, 14, 25, hex('#4a4a52')); poligono([[7, 22], [8, 10 + 7], [12, 10 + 7], [13, 22]], hex('#d84a8a')); rect(8, 16, 12, 17, hex('#4a4a52'));
   // los tres carteles de cine (sin letras), con su marco de bombillas
   const cartel = (x, y, dib) => { rect(x - 3, y - 3, x + 40, y + 58, hex('#2a2018')); rect(x - 2, y - 2, x + 39, y + 57, hex('#c8a050')); rect(x - 1, y - 1, x + 38, y + 56, hex('#6a4a24')); rect(x, y, x + 37, y + 55, K); dib(x + 1, y + 1, 36, 54); ovalo(x + 19, y + 60, 18, 2, 0.3, K); };
   cartel(86, 24, (x, y, w, hh) => { for (let j = 0; j < hh; j++) for (let i = 0; i < w; i++) pset(x + i, y + j, tono(rampa('#0e1430', '#18204a', '#24306a', '#3a4a8a'), j / hh * 3, x + i, y + j));
@@ -307,7 +306,7 @@ const fondo3 = () => {
 const p3 = (t) => {
   pon('h3fondo', fondo3);
   // la lámpara de lava
-  for (let k = 0; k < 3; k++) { const y = 21 - ((t * 1.6 + k * 1.7) % 4.5); R.disco(59 + (k % 2) * 2, Math.round(y), 1, hex('#ffd04a')); }
+  for (let k = 0; k < 3; k++) { const y = 21 - ((t * 1.6 + k * 1.7) % 4.5); R.disco(9 + (k % 2) * 2, Math.round(y), 1, hex('#ffd04a')); }
   // las bombillas de los carteles: se encienden en «movies» y corren
   const luces = t > MOVIES;
   for (const x0 of [86, 134, 182]) for (let i = 0; i < 22; i++) { const per = i < 6 ? [x0 - 3 + i * 8, 21] : i < 11 ? [x0 + 40 + 2, 21 + (i - 6) * 12] : i < 17 ? [x0 + 40 - (i - 11) * 8, 82] : [x0 - 3 - 2, 82 - (i - 17) * 12];
@@ -315,11 +314,13 @@ const p3 = (t) => {
   // la tele: apagada con su reflejo; en «movies», una persecución en blanco y negro
   if (t < MOVIES) { R.rect(236, 66, 266, 86, hex('#1a1e22')); R.linea(240, 68, 248, 68, hex('#4a5058')); R.linea(238, 70, 242, 70, hex('#4a5058')); }
   else { const u = t - MOVIES; for (let y = 66; y <= 86; y++) for (let x = 236; x <= 266; x++) R.pset(x, y, y > 80 ? hex('#4a4a4a') : y > 77 ? hex('#7a7a7a') : (x + Math.floor(u * 30)) % 9 < 2 && y > 70 ? hex('#5a5a5a') : hex('#9a9a9a'));
-    for (let y = 66; y <= 86; y += 3) R.rect(236, y, 266, y, hex('#3a3a3a')); const cx = 236 + ((u * 22) % 36) - 6; R.rect(cx, 76, cx + 6, 79, K); R.rect(cx + 1, 74, cx + 4, 75, K); const px = cx - 9 + Math.sin(u * 7); R.rect(px, 76, px + 5, 79, hex('#d8d8d8')); R.pset(px + 2, 74, Math.floor(u * 6) % 2 ? hex('#ffffff') : K);
+    for (let y = 66; y <= 86; y += 3) R.rect(236, y, 266, y, hex('#3a3a3a'));
+    const scr = (x0, y0, x1, y1, c) => { x0 = Math.max(236, Math.round(x0)); x1 = Math.min(266, Math.round(x1)); if (x1 >= x0) R.rect(x0, y0, x1, y1, c); };
+    const cx = 236 + ((u * 22) % 44) - 4; scr(cx, 76, cx + 6, 79, K); scr(cx + 1, 74, cx + 4, 75, K); const px = cx - 10 + Math.sin(u * 7); scr(px, 76, px + 5, 79, hex('#d8d8d8')); if (px + 2 >= 236 && px + 2 <= 266) R.pset(Math.round(px + 2), 74, Math.floor(u * 6) % 2 ? hex('#ffffff') : K);
     halo(251, 76, 22, 0.12, hex('#c8d8f0')); }
   // Dan junto a los carteles; Sam junto al tocadiscos con el disco en la mano
   const pone = tr(t, MUSIC - 0.1, MUSIC + 0.35), puesto = t > MUSIC + 0.3;
-  R.actor(EL.danHouser, 112, 152, t, { dir: t > DAN - 0.1 && t < DAN + 0.7 ? -1 : 1, dedo: (t > DAN && t < DAN + 0.6) || (t > MOVIES - 0.1 && t < MOVIES + 1.2), sonrisa: t > DAN, salto: t > DAN && t < DAN + 0.3 ? 2 : 0, habla: t > P3 + 0.1 && t < SAM && Math.sin(t * 8) > 0 });
+  R.actor(EL.danHouser, 112, 152, t, { dir: t > DAN - 0.1 && t < DAN + 0.7 ? -1 : 1, dedo: (t > DAN && t < DAN + 0.6) || (t > MOVIES - 0.1 && t < MOVIES + 1.2), sonrisa: t > DAN, salto: t > DAN && t < DAN + 0.3 ? 2 : 0, habla: t > DAN + 0.6 && t < MOVIES - 0.2 && Math.sin(t * 8) > 0 });
   const s = R.actor(EL.samHouser, 156, 152, t, { dir: t > SAM - 0.05 && t < SAM + 0.6 ? -1 : 1, sonrisa: t > SAM, salto: t > SAM + 0.05 && t < SAM + 0.35 ? 2 : 0, dedo: t > SAM && t < SAM + 0.55,
     sostiene: t > SAM + 0.55 && !puesto ? [Math.round(lerp(176, 192, pone)), Math.round(lerp(132, 125, pone))] : undefined });
   if (s.mano && !puesto) { const [mx, my] = s.mano; R.disco(mx + 2, my - 3, 6, K); R.disco(mx + 2, my - 3, 5, hex('#2a2a30')); R.disco(mx + 2, my - 3, 2, hex('#e8b830')); R.pset(mx + 2, my - 3, K); R.pset(mx - 1, my - 6, hex('#6a6a72')); }
@@ -368,7 +369,7 @@ const fondo5 = () => {
   for (let y = 0; y <= 140; y++) for (let x = 268; x < 320; x++) pset(x, y, tono(rampa('#3a3e4a', '#444856', '#4e5262', '#5a5e6e'), 1.8 - (x - 268) / 70 + (y > 60 ? (h(x >> 2, y >> 2, 52) - 0.5) * 0.6 : 0), x, y));
   rect(268, 0, 268, 140, hex('#2a2a34')); rect(269, 0, 269, 140, hex('#6a6e7e')); for (const y of [70, 120]) { rect(268, y, 319, y, hex('#363a46')); rect(268, y + 1, 319, y + 1, hex('#5e6272')); }
   // la tubería del techo
-  rect(0, 22, 267, 25, hex('#4a4e5a')); rect(0, 22, 267, 22, hex('#7a7e8a')); rect(0, 25, 267, 25, hex('#2a2a34')); for (let x = 20; x < 267; x += 46) { rect(x, 20, x + 3, 27, hex('#5a5e6a')); rect(x, 20, x + 3, 20, hex('#8a8e9a')); }
+  rect(0, 22, 267, 25, hex('#4a4e5a')); rect(0, 22, 267, 22, hex('#7a7e8a')); rect(0, 25, 267, 25, hex('#2a2a34')); for (const x of [4, 184, 236]) { rect(x, 20, x + 3, 27, hex('#5a5e6a')); rect(x, 20, x + 3, 20, hex('#8a8e9a')); }
   // la puerta metálica con la estrella dorada
   rect(184, 40, 238, 140, K); rect(185, 41, 237, 140, hex('#2a2e38'));
   for (let y = 44; y < 140; y++) for (let x = 188; x < 235; x++) pset(x, y, tono(rampa('#4a5462', '#5a6474', '#6a7486', '#7e889a'), 2.2 - (x - 188) / 40 + (y - 44) / 200, x, y));
@@ -454,7 +455,7 @@ const p5 = (t) => {
   { const w = banda ? Math.round(Math.sin(t * 30) * 1) : 0; R.rect(116, 93 + w, 128, 94 + w, hex('#e8b830')); R.rect(118, 92 + w, 126, 92 + w, hex('#ffe08a')); R.rect(70, 97, 82, 98, hex('#e8b830')); }
 };
 
-const efectos = [[TT(0.06), 'claxon'], [ENTRA, 'flash'], [ENTRA + 0.25, 'puerta'], [PARA - 0.2, 'motor'], [MANO, 'palmada'], [VIENEN + 0.3, 'puerta'], [MOVIES, 'interruptor'], [MUSIC + 0.3, 'pop'],
+const efectos = [[TT(0.0759), 'claxon'], [ENTRA, 'flash'], [ENTRA + 0.25, 'puerta'], [PARA - 0.2, 'motor'], [MANO, 'palmada'], [VIENEN + 0.3, 'puerta'], [MOVIES, 'interruptor'], [MUSIC + 0.3, 'pop'],
   [COLEGAS + 0.2, 'puerta'], [NOMBRE, 'brillo'], [NOMBRE + 0.5, 'palmada'], [BANDA, 'boom'], [JUGUETE, 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '1998', efectos, año: 1998 });
 ''')
@@ -534,8 +535,6 @@ const p1 = (t) => {
   // el avión cruza de Nueva York a Escocia y empieza a bajar
   const u = tramo(t, 0, P2), x = lerp(-80, 196, u), y = 74 + 12 * tr(t, BAJA, P2) + Math.sin(t * 2.2) * 1.2;
   avion(x, y, t);
-  // una nube cercana pasa por delante
-  nubes(t, [[-60, 132, 18, 30]], NUBN);
 };
 
 // ── 2 · LOCAL Edimburgo: el castillo, los jardines y la oficina nueva ──
@@ -616,7 +615,8 @@ const p2 = (t) => {
   // el cañón de la una: bocanada de humo en «Edinburgh»
   if (t > CANON) { const u = t - CANON; if (u < 0.18) { halo(146, 61, 7, 0.9, hex('#fff2b0')); R.disco(146, 61, 2, BL); } for (let k = 0; k < 6; k++) ovalo(144 - u * 18 - k * 4, 58 - u * 10 - k * 1.5, 4 + u * 8 + k * 1.5, 3 + u * 5 + k, Math.max(0, 0.85 - u * 0.4), k % 2 ? hex('#f2f2f6') : hex('#d8dce4')); }
   // una vecina con paraguas pasea por detrás de la verja
-  { const x = Math.round(lerp(-16, 150, tramo(t, P2, P3))); R.actor(EL.vecina, x, 147, t, { dir: 1, anda: true }); R.poligono([[x - 4, 120], [x + 7, 113], [x + 18, 120]], hex('#c8302a')); R.linea(x + 7, 113, x + 7, 127, K); }
+  { const x = Math.round(lerp(-16, 150, tramo(t, P2, P3))); const a = R.actor(EL.vecina, x, 147, t, { dir: 1, anda: true, sostiene: [x + 13, 132] }); const [mx, my] = a.mano ?? [x + 13, 132];
+    R.linea(mx, my, mx, my - 13, K); R.poligono([[mx - 11, my - 12], [mx, my - 19], [mx + 11, my - 12]], hex('#c8302a')); R.linea(mx - 11, my - 12, mx + 11, my - 12, hex('#8a1a1a')); R.linea(mx - 5, my - 15, mx, my - 18, hex('#e86a5a')); }
   // el programador baja el monitor de la furgoneta y lo lleva a la puerta
   const fx = t < PARADA ? lerp(-70, 140, 1 - (1 - tramo(t, LLEGA - 0.2, PARADA)) ** 2) : 140;
   if (t > PARADA + 0.2) { const q = ruta(t, [[PARADA + 0.2, 128, 152, 1], [CANON - 0.5, 226, 152, 1], [CANON - 0.1, 236, 147, 1]]);
@@ -625,7 +625,7 @@ const p2 = (t) => {
   // la puerta se abre cuando entra
   if (t > CANON - 0.15) { R.rect(233, 119, 249, 146, hex('#e8c878')); R.rect(233, 119, 236, 146, hex('#1a1c24')); halo(241, 140, 10, 0.25, hex('#ffe8a0')); }
   // un compañero con una caja de disquetes espera junto a la furgoneta y saluda al llegar
-  if (t > PARADA + 0.4) { const a = R.actor(EL.jonesGT, 116, 152, t, { dir: 1, sostiene: true, sonrisa: t > NORTE, habla: t > NORTE + 0.4 && t < CANON && Math.sin(t * 8) > 0 }); if (a.mano) { const [mx, my] = a.mano; caja3(mx - 6, my - 7, mx + 5, my + 1, hex('#c89a5a'), hex('#e0b878'), hex('#9a7038')); for (let i = 0; i < 3; i++) R.rect(mx - 4 + i * 3, my - 9, mx - 3 + i * 3, my - 7, [hex('#2a2a30'), hex('#3a6ad8'), hex('#c8302a')][i]); } }
+  if (t > PARADA + 0.4) { const a = R.actor(EL.chico, 116, 152, t, { dir: 1, sostiene: true, sonrisa: t > NORTE, habla: t > NORTE + 0.4 && t < CANON && Math.sin(t * 8) > 0 }); if (a.mano) { const [mx, my] = a.mano; caja3(mx - 6, my - 7, mx + 5, my + 1, hex('#c89a5a'), hex('#e0b878'), hex('#9a7038')); for (let i = 0; i < 3; i++) R.rect(mx - 4 + i * 3, my - 9, mx - 3 + i * 3, my - 7, [hex('#2a2a30'), hex('#3a6ad8'), hex('#c8302a')][i]); } }
   furgo(fx, 174, t, t > PARADA);
 };
 
@@ -667,8 +667,8 @@ const fondo3 = () => {
   // dos filas de mesas largas (el tablero; los monitores van en cada fotograma)
   for (const [y, x0, x1] of [[110, 44, 280], [134, 20, 300]]) { rect(x0, y, x1, y + 3, K); rect(x0 + 1, y + 1, x1 - 1, y + 2, hex('#c8b898')); rect(x0 + 1, y + 1, x1 - 1, y + 1, hex('#e0d4b8')); }
   // las sillas de oficina de la fila de delante, una papelera con bolas de papel y una pila de cajas de disquetes
-  for (const x of [52, 124, 196, 268]) { rect(x - 7, 148, x + 7, 160, K); rect(x - 6, 149, x + 6, 159, hex('#2a3a5a')); rect(x - 6, 149, x + 6, 149, hex('#4a5a7a')); rect(x - 1, 160, x + 1, 166, hex('#3a3a42')); linea(x - 7, 168, x + 7, 168, hex('#3a3a42')); for (const dx of [-7, 0, 7]) disco(x + dx, 169, 1, K); }
-  rect(232, 162, 244, 176, K); rect(233, 163, 243, 175, hex('#7a7e88')); for (let x = 234; x < 243; x += 2) rect(x, 164, x, 174, hex('#5a5e68')); for (const [x, y] of [[236, 160], [240, 161], [246, 174], [226, 172]]) { disco(x, y, 2, BL); pset(x - 1, y, hex('#c8c8d0')); }
+  for (const x of [52, 124, 196, 268]) { rect(x - 7, 145, x + 7, 154, K); rect(x - 6, 146, x + 6, 153, hex('#2a3a5a')); rect(x - 6, 146, x + 6, 146, hex('#4a5a7a')); rect(x - 1, 154, x + 1, 157, hex('#3a3a42')); linea(x - 7, 159, x + 7, 159, hex('#3a3a42')); for (const dx of [-7, 0, 7]) pset(x + dx, 160, K); }
+  rect(60, 162, 72, 176, K); rect(61, 163, 71, 175, hex('#7a7e88')); for (let x = 62; x < 71; x += 2) rect(x, 164, x, 174, hex('#5a5e68')); for (const [x, y] of [[64, 160], [68, 161], [76, 174], [54, 172]]) { disco(x, y, 2, BL); pset(x - 1, y, hex('#c8c8d0')); }
   for (let k = 0; k < 4; k++) caja3(14, 168 - k * 5, 34, 172 - k * 5, [hex('#3a6ad8'), hex('#c8302a'), hex('#e8c830'), hex('#2a2a30')][k], BL, K);
   // la caja de pizza y las tazas
   rect(250, 104, 268, 109, hex('#e8dcc0')); rect(250, 104, 268, 104, BL); disco(259, 106, 1, hex('#c8302a'));
@@ -694,10 +694,10 @@ const p3 = (t) => {
   // la fila de atrás: cabezas tras los monitores; la de delante: los monitores de cara
   const on = (i) => t > ENCIENDE + i * 0.08;
   const XS1 = [60, 92, 124, 156, 188, 220, 252], XS2 = [36, 72, 108, 144, 180, 216, 252, 284];
-  XS1.forEach((x, i) => { if (i % 2 === 0) R.actor([EL.programadorNorth, EL.daillyGT, EL.chica, EL.sudadera][i % 4 === 0 ? (i >> 2) % 4 : 2], x + 6, 114, t, { dir: i % 3 ? -1 : 1, habla: on(i) && Math.sin(t * 9 + i) > 0.5 }); });
+  XS1.forEach((x, i) => { if (i % 2 === 0) R.actor([EL.oficinista, EL.chica, EL.sudadera, EL.chico][(i >> 1) % 4], x + 6, 114, t, { dir: i % 3 ? -1 : 1, habla: on(i) && Math.sin(t * 9 + i) > 0.5 }); });
   R.rect(44, 113, 280, 120, hex('#a89878')); R.rect(44, 113, 280, 113, hex('#8a7a5e'));
   XS1.forEach((x, i) => monitor(x, 110, t, on(i), i % 3, i));
-  XS2.forEach((x, i) => { if (i % 3 !== 1) R.actor([EL.oficinista2, EL.jonesGT, EL.chico, EL.vecina][i % 4], x + 8, 140, t, { dir: i % 2 ? -1 : 1, sorpresa: t > ROLLO + 0.1 && t < ROLLO + 1, brazos: i === 5 && t > ROLLO + 0.2 && t < ROLLO + 1.2, habla: on(i) && Math.sin(t * 8 + i * 2) > 0.6 }); });
+  XS2.forEach((x, i) => { if (i % 3 !== 1) R.actor([EL.oficinista2, EL.sudadera, EL.chico, EL.chica][i % 4], x + 8, 140, t, { dir: i % 2 ? -1 : 1, sorpresa: t > ROLLO + 0.1 && t < ROLLO + 1, brazos: i === 5 && t > ROLLO + 0.2 && t < ROLLO + 1.2, habla: on(i) && Math.sin(t * 8 + i * 2) > 0.6 }); });
   R.rect(20, 137, 300, 146, hex('#a89878')); R.rect(20, 137, 300, 137, hex('#8a7a5e')); for (let x = 30; x < 300; x += 36) R.rect(x, 146, x + 1, 152, K);
   XS2.forEach((x, i) => monitor(x, 134, t, on(i + 2), (i + 1) % 3, i + 9));
   // las teclas: tecleo cuando trabajan
@@ -729,9 +729,9 @@ const D = (f) => en('tresde', f);
 const P2 = D(0.4273), P3 = D(0.7164);
 
 // ── 1 · la ciudad se levanta ──
-const SUBE = D(0.2645), ENTERA = D(0.3684);
+const SUBE = D(0.2196), ENTERA = D(0.3684);
 const p1 = (t) => {
-  const lev = suave(tramo(t, SUBE, SUBE + 1.9));
+  const lev = suave(tramo(t, SUBE, SUBE + 1.6));
   const G1 = { encuadre: 'tresde', estilo: 'nueva', levanta: lev };
   T.ciudad(R, t, G1);
   // los pájaros salen volando cuando se levanta
@@ -745,7 +745,7 @@ const p1 = (t) => {
     const px = q.x - 12, sal = t > SUBE && t < SUBE + 0.4 ? 3 : 0; R.rect(px, 163 - sal, px + 8, 166 - sal, hex('#a8683a')); R.rect(px - 2, 160 - sal, px + 1, 164 - sal, hex('#a8683a')); R.pset(px - 2, 161 - sal, K); R.rect(px + 1, 167 - sal, px + 1, 169 - sal, hex('#7a4a28')); R.rect(px + 7, 167 - sal, px + 7, 169 - sal, hex('#7a4a28')); R.pset(px + 9, 162 - sal + (Math.floor(t * 8) % 2), hex('#a8683a')); R.linea(px + 2, 161, q.x + 3, 152, hex('#c8302a')); }
   T.ciudadDelante(R, t, G1);
   // el destello al terminar de levantarse
-  if (t > SUBE + 1.8 && t < SUBE + 2.3) { const a = 1 - tramo(t, SUBE + 1.8, SUBE + 2.3); tinta(0, 60, 319, 179, BL, 0.12 * a); }
+  if (t > SUBE + 1.5 && t < SUBE + 2.0) { const a = 1 - tramo(t, SUBE + 1.5, SUBE + 2.0); tinta(0, 60, 319, 179, BL, 0.12 * a); }
 };
 
 // ── 2 · el puente de noche ──
@@ -839,6 +839,6 @@ const p3 = (t) => {
   { const x = lerp(-60, 330, tramo(t, P3 + 1.2, P3 + 3.6)); cocheLado(x, 179, 1, '#f0c020', t, { taxi: true }); }
 };
 
-const efectos = [[SUBE, 'avalancha'], [SUBE + 1.8, 'brillo'], [PUENTES, 'brillo'], [RADIOS, 'pop'], [P3 + 1.4, 'motor'], [TRES, 'brillo']];
+const efectos = [[SUBE, 'avalancha'], [SUBE + 1.5, 'brillo'], [PUENTES, 'brillo'], [RADIOS, 'pop'], [P3 + 1.4, 'motor'], [TRES, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2001 });
 ''')
