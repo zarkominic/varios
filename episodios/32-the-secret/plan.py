@@ -55,7 +55,7 @@ E = [
   ['A: la cámara de cajas de seguridad; Preiss abre la suya y salen volando bonos de ahorro olvidados (gag 5).'],
   'curiosidad', []),
  ('cf-adios', None, 18, 19, ['adios', 'familia'],
-  ['A (2005): la editorial vacía al atardecer; la libreta en blanco en la mesa; un mapa con nueve puntos que se apagan (con respeto: sin el accidente).',
+  ['A (2005): la editorial vacía al atardecer (Long Island se nombra, no se enseña); la libreta en blanco en la mesa; un mapa con nueve puntos que se apagan (con respeto: sin el accidente).',
    'A: cajas de mudanza; la familia (la viuda y dos hijas) guarda la caja de las piedras y la cierra con cuidado.'],
   'ternura', []),
  ('cf-tele', None, 20, 20, ['tele'],

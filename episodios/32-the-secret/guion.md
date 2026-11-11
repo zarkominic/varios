@@ -18,8 +18,8 @@ anima a excavar sin permiso. La muerte de Preiss, solo el hecho. Los hijos de Kr
 
 ## Cómo se cuenta
 
-- **El gancho, la promesa en 10 s:** «En 1982, un hombre enterró doce cofres en doce ciudades de Norteamérica y escondió
-  las pistas en un libro. Más de cuarenta años después solo han aparecido tres».
+- **El gancho, la promesa en 10 s:** «En 1982 salió un libro con las pistas de doce cofres enterrados en doce ciudades de
+  Norteamérica. Más de cuarenta años después solo han aparecido tres».
 - **El hilo:** el libro y su cuento de hadas, el editor que enterró los cofres él mismo, los tres hallazgos (Chicago
   1983, Cleveland 2004, Boston 2019, cada uno más raro que el anterior), el secreto que se perdió en 2005 y los nueve que
   faltan. El final: por qué dura tanto.
@@ -75,7 +75,7 @@ Después del Do menor de las pirámides y el Mi mixolidio de GTA, este suena a c
 
 | ES | EN |
 | --- | --- |
-| En 1982, un hombre enterró doce cofres en doce ciudades de Norteamérica y escondió las pistas en un libro. Más de cuarenta años después solo han aparecido tres, y el único que sabía dónde están los demás se llevó el secreto. | In 1982, a man buried twelve treasure boxes in twelve cities across North America, and hid the clues inside a book. More than forty years later, only three have been found, and the one man who knew where the rest are took the secret with him. |
+| En 1982 salió un libro con las pistas de doce cofres enterrados en doce ciudades de Norteamérica. Más de cuarenta años después solo han aparecido tres, y el único que sabía dónde están los demás se llevó el secreto. | In 1982, a book came out with the clues to twelve treasure boxes buried in twelve cities across North America. More than forty years later, only three have been found, and the one man who knew where the rest are took the secret with him. |
 | Por el camino vas a conocer a un editor con una pala, a unos chavales en un parque de Chicago, a un abogado que cavó en un jardín griego y a una familia cuyo tesoro encontró, por casualidad, una excavadora. | Along the way, you'll meet a publisher with a shovel, a group of teenagers in a Chicago park, a lawyer who dug in a Greek garden, and a family whose treasure was found, by accident, by an excavator. |
 | Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo. | I'm Atom, and I explain the things you've always wondered about. Let's find out. |
 
@@ -102,7 +102,7 @@ Después del Do menor de las pirámides y el Mi mixolidio de GTA, este suena a c
 | --- | --- |
 | El primer cofre apareció en Chicago en el verano de 1983, y lo encontró un grupo de adolescentes. En su cuadro vieron una torre que se parecía a la vieja torre del agua de la ciudad, si no le hacías caso a los molinos, y unas letras que llevaban a dos compositores en la fachada de una sala de conciertos y a una estatua de Lincoln. | The first box appeared in Chicago in the summer of 1983, and it was found by a group of teenagers. In their painting, they spotted a tower that looked like the city's old Water Tower, if you ignored the windmills, and letters that led to two composers on the front of a concert hall, and to a statue of Lincoln. |
 | Eso los llevó a Grant Park. Cavaron unos seis hoyos y no encontraron nada, así que le escribieron a Preiss, que, según contó uno de ellos, les mandó una foto de tierra recién apisonada. En el hoyo más grande, uno lanzó la pala contra la pared, de pura rabia… y ahí estaba la caja. | That led them to Grant Park. They dug about six holes and found nothing, so they wrote to Preiss, who, as one of them later told it, sent back a photo of freshly packed dirt. In the biggest hole, one of them threw his shovel at the wall in frustration… and there was the box. |
-| El premio fue una esmeralda. Les había costado casi un año, y la búsqueda acababa de empezar. Pero el siguiente cofre tardó veintiún años en aparecer. | The prize was an emerald. It had taken them almost a year, and the hunt had only just begun. But the next box would take twenty-one years to appear. |
+| El premio fue una esmeralda. Les había costado meses de búsqueda, y la búsqueda acababa de empezar. Pero el siguiente cofre tardó veintiún años en aparecer. | The prize was an emerald. It had taken them months of searching, and the hunt had only just begun. But the next box would take twenty-one years to appear. |
 
 ## 4 · Cleveland
 
@@ -117,8 +117,8 @@ Después del Do menor de las pirámides y el Mi mixolidio de GTA, este suena a c
 
 | ES | EN |
 | --- | --- |
-| Un año después, en 2005, Byron Preiss murió en un accidente de tráfico en Nueva York, a los cincuenta y dos años. Y los sitios de los nueve cofres que faltaban, que nunca había apuntado, se fueron con él. | A year later, in 2005, Byron Preiss died in a car accident in New York, at fifty-two. And the locations of the nine remaining boxes, which he had never written down, were gone with him. |
-| Su empresa quebró al año siguiente, y muchos pensaron que las piedras preciosas se habían perdido también. Pero su familia las guardó y decidió respetar las reglas: quien encuentre un cofre recibirá su piedra. | His company went bankrupt the following year, and many people thought the gemstones had been lost too. But his family kept them, and decided to honor the rules: whoever finds a box will get their stone. |
+| Al año siguiente, en 2005, Byron Preiss murió en un accidente de tráfico en Long Island, a los cincuenta y dos años. Y los sitios de los nueve cofres que faltaban, que nunca había apuntado, se fueron con él. | The next year, in 2005, Byron Preiss died in a car accident on Long Island, at fifty-two. And the locations of the nine remaining boxes, which he had never written down, were gone with him. |
+| Su empresa quebró pocos meses después, y muchos pensaron que las piedras preciosas se habían perdido también. Pero su familia las guardó y decidió respetar las reglas: quien encuentre un cofre recibirá su piedra. | His company went bankrupt a few months later, and many people thought the gemstones had been lost too. But his family kept them, and decided to honor the rules: whoever finds a box will get their stone. |
 | Durante años fue una afición de unos pocos. Hasta que, en 2018, el programa de televisión Expedition Unknown le dedicó un episodio, y los ejemplares usados del viejo libro llegaron a venderse por más de mil dólares. De repente, mucha más gente estaba cavando. | For years, it was a hobby for a few. Then, in 2018, the TV show Expedition Unknown dedicated an episode to it, and used copies of the old book started selling for more than a thousand dollars. Suddenly, a lot more people were digging. |
 
 ## 6 · Boston
@@ -136,8 +136,8 @@ Después del Do menor de las pirámides y el Mi mixolidio de GTA, este suena a c
 | ES | EN |
 | --- | --- |
 | Quedan nueve. La mayoría de los buscadores coincide en varias ciudades: Nueva York, Houston, Milwaukee, San Agustín, Nueva Orleans, Montreal y la isla de Roanoke, en Carolina del Norte. Charleston también, aunque el sitio exacto se discute, y San Francisco sigue siendo un misterio. | That leaves nine. Most hunters agree on several of the cities: New York, Houston, Milwaukee, St. Augustine, New Orleans, Montreal, and Roanoke Island, in North Carolina. Charleston too, although the exact spot is disputed, and San Francisco is still a mystery. |
-| Pero hoy, acertar con el sitio no es el único problema. En muchos de esos parques hace falta un permiso para cavar, y no siempre lo dan. En 2018, el Servicio de Parques Nacionales avisó de que buscar en un terreno federal va contra varias leyes. | But today, finding the right spot isn't the only problem. Many of those parks require a permit to dig, and they don't always grant one. In 2018, the National Park Service warned that searching on federal land breaks several laws. |
-| En diciembre de 2025, un buscador de Charleston dijo estar seguro de que el cofre estaba en Patriots Point y ofreció pagar lo que hiciera falta por cavar. Nunca le contestaron. Y puede que algunos cofres ya no aparezcan nunca: los parques cambian, se construye encima, y en Nueva Orleans, el huracán de 2005 cambió muchas cosas. | In December 2025, a hunter in Charleston said he was sure the box was at Patriots Point, and offered to pay whatever it took to dig. He never got an answer. And some boxes may never be found at all: parks change, things get built on top, and in New Orleans, the hurricane of 2005 changed a lot. |
+| Pero hoy, acertar con el sitio no es el único problema. En muchos de esos parques hace falta un permiso para cavar, y no siempre lo dan. En 2018, el Servicio de Parques Nacionales dejó claro que buscar uno en terreno federal va contra varias leyes. | But today, finding the right spot isn't the only problem. Many of those parks require a permit to dig, and they don't always grant one. In 2018, the National Park Service made it clear that searching for one on federal land breaks several laws. |
+| En diciembre de 2025, un buscador de la zona de Charleston dijo estar seguro de que el cofre estaba en Patriots Point, y hasta ofreció un cheque en blanco por cavar. No le sirvió de nada. Y puede que algunos cofres ya no aparezcan nunca: los parques cambian, se construye encima, y en Nueva Orleans, el huracán de 2005 cambió muchas cosas. | In December 2025, a hunter near Charleston said he was sure the box was at Patriots Point, and even offered a blank check to dig. It got him nowhere. And some boxes may never be found at all: parks change, things get built on top, and in New Orleans, the hurricane of 2005 changed a lot. |
 
 ## 8 · El cierre
 
