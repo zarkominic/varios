@@ -17,8 +17,11 @@
 //    dependiente teclea sin parar, las cajas vendidas pasan por detrás, la cifra cuenta hasta 11,000,000 en «11 million copies» y la caja echa cada vez más humo; en «first
 //    day» se le abre el cajón de golpe y suelta una bocanada. Corta en «and in just three days».
 // 3. (LOCAL) un estadio de noche: una carrera de cochecitos con una bobina de cine, un libro, otro mando y nuestra caja;
-//    el marcador del día pasa 1, 2, 3 y la cifra sube; en «billion» nuestra caja cruza la meta (destello, confeti, la
-//    grada salta); la película, el libro y el otro juego llegan en «movie», «book» y «game». Corta en «And it didn't stop».
+//    la cifra no va en el cielo (así era el gancho) sino en el videomarcador del estadio, montado sobre la grada a la
+//    izquierda con sus patas y su torre de focos: arriba la cifra que sube y debajo las cuatro calles de la carrera en
+//    barras de luz; el marcador del día pasa 1, 2, 3; en «billion» nuestra caja cruza la meta y su barra llega al tope con
+//    su estrella (destello, confeti, la grada salta); la película, el libro y el otro juego llegan en «movie», «book» y
+//    «game». Corta en «And it didn't stop».
 // 4. hoy/records: la montaña de cajas crece hasta el techo de cristal mientras el contador rueda hasta 235,000,000 en
 //    «235 million copies»; dos aficionados miran hacia arriba boquiabiertos, el del récord señala el contador y saltan
 //    al final; la barra pasa de 2013 a 2026 en «10 years later». Corta en «Few things».
@@ -175,24 +178,61 @@ const libroI = (x, y, s = 1) => { R.rect(x - 6 * s, y - 5 * s, x + 6 * s, y + 4 
   for (let j = -2; j <= 2; j++) { R.rect(x - 4 * s, y + j * 2 * s - 1, x - 2, y + j * 2 * s - 1, hex('#a8a4b0')); R.rect(x + 2, y + j * 2 * s - 1, x + 4 * s, y + j * 2 * s - 1, hex('#a8a4b0')); } R.rect(x - 6 * s, y + 4 * s, x + 6 * s, y + 4 * s + 1, hex('#3a6ad8')); };
 const mandoI = (x, y, s = 1) => { R.rect(x - 7 * s, y - 3 * s, x + 7 * s, y + 3 * s, K); R.rect(x - 6 * s, y - 2 * s, x + 6 * s, y + 2 * s, hex('#6a6478')); R.rect(x - 6 * s, y - 2 * s, x + 6 * s, y - 2 * s, hex('#8a84a0')); R.rect(x - 8 * s, y, x - 5 * s, y + 5 * s, K); R.rect(x + 5 * s, y, x + 8 * s, y + 5 * s, K); R.rect(x - 7 * s, y + 1, x - 6 * s, y + 4 * s, hex('#6a6478')); R.rect(x + 6 * s, y + 1, x + 7 * s, y + 4 * s, hex('#6a6478'));
   const p = (i, j, c) => R.rect(x + i * s, y + j * s, x + i * s + s - 1, y + j * s + s - 1, hex(c)); p(-4, -1, '#f0f0f0'); p(-4, 1, '#f0f0f0'); p(-5, 0, '#f0f0f0'); p(-3, 0, '#f0f0f0'); p(3, -1, '#ff3a3a'); p(5, 0, '#3ac85a'); p(4, 1, '#3a6ad8'); };
+// la cifra del videomarcador: la letra de 8 px pintada aparte, leída y vuelta a pintar al doble de alto con su rampa
+let bufLED = null;
+const cifraLED = (txt, cx, y0, blanco) => { if (!bufLED) bufLED = R.nuevo(); const prev = R.usar(bufLED); R.rect(0, 0, 127, 11, K);
+  R.numero(txt, 64, 9, { centro: true, color: hex('#ffffff'), sombra: false }); const L = []; for (let j = 0; j < 12; j++) for (let i = 0; i < 128; i++) if (R.pget(i, j) !== K) L.push(i, j); R.usar(prev);
+  const RL = RA('#f4feff', '#d6f6ff', '#a8e8ff', '#6ad0f6', '#3a9ae0');
+  for (let q = 0; q < L.length; q += 2) { const x = cx - 64 + L[q], j = L[q + 1]; for (let d = 0; d < 2; d++) R.pset(x, y0 + j * 2 + d, blanco ? hex('#ffffff') : RL[Math.min(4, Math.max(0, j - 1) >> 1)]); } };
 const p3 = (t) => {
   fondo3();
-  // nubes oscuras que pasan, la luna y el dirigible
-  R.disco(40, 26, 6, hex('#f6f0d0')); R.disco(42, 24, 5, hex('#fffbe8'));
+  // la luna y nubes oscuras que pasan por la derecha del cielo (la izquierda la tapa el videomarcador)
+  R.disco(236, 24, 6, hex('#f6f0d0')); R.disco(238, 22, 5, hex('#fffbe8')); R.pset(234, 25, hex('#d8d0b0')); R.pset(237, 27, hex('#d8d0b0'));
   for (const [x0, y, w, v] of [[0, 34, 30, 3], [150, 40, 22, 6], [90, 22, 16, 9]]) { const nx = ((x0 + t * v) % 300) - 30; if (nx < 250) nube3(nx, y, w, RA('#1a2244', '#2a3458', '#3a466a')); }
-  for (const [bx, k] of [[70, 0], [200, 1.7]]) { const a = -Math.PI / 2 + Math.sin(t * 0.8 + k) * 0.5; baña(0, 0, 319, 50, hex('#c8d8ff'), 0.2, (x, y) => { const dx = x - bx, dy = y - 50, d = Math.hypot(dx, dy); if (d < 2) return 1; const ang = Math.atan2(dy, dx); return Math.abs(ang - a) < 0.05 + 2 / d ? 1 - d / 70 : 0; }); }
-  for (let k = 0; k < 18; k++) if (Math.sin(t * 3 + k * 2.3) > 0.2) R.pset(Math.floor(h(k, 1, 7) * 268), Math.floor(h(k, 2, 7) * 22), hex('#f0f0ff'));
+  // dos cañones de luz que barren el cielo (sin pasar por la esquina de Atom)
+  for (const [bx, k] of [[212, 0], [258, 1.7]]) { const a = -Math.PI / 2 + Math.sin(t * 0.8 + k) * 0.45; baña(186, 0, 270, 50, hex('#c8d8ff'), 0.2, (x, y) => { const dx = x - bx, dy = y - 50, d = Math.hypot(dx, dy); if (d < 2) return 1; const ang = Math.atan2(dy, dx); return Math.abs(ang - a) < 0.05 + 2 / d ? 1 - d / 70 : 0; }); }
+  for (let k = 0; k < 18; k++) if (Math.sin(t * 3 + k * 2.3) > 0.2) R.pset(190 + Math.floor(h(k, 1, 7) * 78), Math.floor(h(k, 2, 7) * 22) + 16, hex('#f0f0ff'));
+  // la torre de focos: celosía de acero y su batería de focos que parpadean un poco
+  for (let y = 22; y < 104; y++) { R.pset(193, y, hex('#4a4a5a')); R.pset(199, y, hex('#6a6a7e')); if ((y & 7) === 0) R.linea(193, y, 199, y + 7, hex('#3a3a4a')); }
+  R.rect(184, 14, 208, 23, K); R.rect(185, 15, 207, 22, hex('#3a3a4a'));
+  for (let j = 0; j < 2; j++) for (let i = 0; i < 5; i++) { const fx = 187 + i * 4, fy = 16 + j * 3, on = Math.sin(t * 9 + i * 1.7 + j * 3) > -0.9; R.rect(fx, fy, fx + 2, fy + 1, on ? hex('#fffbe0') : hex('#c8c0a0')); }
+  baña(178, 23, 214, 40, hex('#fff6d0'), 0.18, (x, y) => Math.abs(x - 196) < (y - 23) * 0.9 + 10 ? 1 - (y - 23) / 18 : 0);
+  // las patas del videomarcador (por detrás del público)
+  for (const lx of [36, 112]) { R.rect(lx, 74, lx + 4, 103, K); R.rect(lx + 1, 74, lx + 2, 103, hex('#5a5a6a')); R.rect(lx + 3, 74, lx + 3, 103, hex('#3a3a48')); for (let y = 78; y < 102; y += 8) R.linea(lx + 4, y, lx + 10, y + 6, hex('#3a3a48')); }
   // el público de la grada (salta en «billion»)
   const fiesta = t > billon;
   for (let r = 0; r < 5; r++) for (let k = 0; k < 26; k++) { const x = 6 + k * 12 + (r % 2) * 6, y = 55 + r * 9 - (fiesta && Math.sin(t * 12 + k + r) > 0 ? 2 : 0); cabecita(x, y, ROPA[(k + r * 3) % 8], PIELES[(k * 7 + r) % 5], t, k + r * 30); }
+  // el resplandor de la pantalla sobre las primeras filas de debajo
+  baña(8, 75, 146, 88, hex('#7ad8ff'), 0.16, (x, y) => 1 - (y - 75) / 14);
   // el marcador del día: 1, 2, 3
   R.rect(284, 56, 316, 96, K); R.rect(285, 57, 315, 95, hex('#1a1a22')); R.rect(285, 57, 315, 64, hex('#c8303a')); R.icono('reloj', 297, 58, hex('#ffffff'), hex('#c8303a')); R.rect(298, 96, 301, 101, K);
   const d = t < tres ? 1 : t < dias ? 2 : 3; R.numero(String(d), 300, 90, { tam: 16, centro: true, rampa: RA('#ffe890', '#f0c040', '#d8a020', '#a87a18') });
-  // la cifra que sube hasta mil millones
+  // el videomarcador del estadio: marco de acero con remaches y la pantalla de luz
+  R.rect(6, 22, 148, 74, K); R.rect(7, 23, 147, 73, hex('#4a4a5c')); R.rect(7, 23, 147, 23, hex('#7a7a90')); R.rect(7, 73, 147, 73, hex('#2a2a36'));
+  for (let x = 11; x < 146; x += 10) { R.pset(x, 24, hex('#9a9ab0')); R.pset(x, 72, hex('#7a7a90')); }
+  R.rect(10, 26, 144, 70, hex('#05070e'));
+  for (let y = 27; y < 70; y++) for (let x = 11; x < 144; x++) if (h(x, y, 21) > 0.93) R.pset(x, y, hex('#0c1020'));
+  // arriba, la cifra que sube hasta mil millones, en dígitos de luz altos (la letra pequeña estirada al doble de alto)
   const u = tramo(t, P3 + 0.1, billon), n = Math.round(1e9 * u ** 1.6);
-  R.numero('$' + n.toLocaleString('en-US'), 156, 40, { tam: 16, centro: true });
-  // los cochecitos: la película, el libro, el otro juego y nuestra caja (delante)
+  cifraLED('$' + n.toLocaleString('en-US'), 77, 28, t > billon && Math.sin(t * 10) > 0.6);
+  R.rect(14, 47, 140, 47, hex('#1a2a44'));
+  // debajo, las cuatro calles de la carrera en barras de luz (su icono, la barra y la meta a cuadros)
   const pos = (lleg, meta, tope) => { const v = tramo(t, P3 + 0.1, lleg); return v < 1 ? lerp(-8, meta, 1 - (1 - v) ** 1.4) : Math.min(tope, meta + (t - lleg) * 30); };
+  const avance = (lleg) => { const v = tramo(t, P3 + 0.1, lleg); return 1 - (1 - v) ** 1.4; };
+  const CALLES = [[peli, '#a8a8b8'], [libro, '#5ae07a'], [juego, '#b07af0'], [billon, '#ffcf48']];
+  for (let k = 0; k < 4; k++) { const [lleg, c] = CALLES[k], y = 50 + k * 5, C = hex(c);
+    // el icono de la calle: bobina, libro, mando y nuestra caja
+    if (k === 0) { R.disco(17, y + 1, 2, C); R.pset(17, y + 1, K); } else if (k === 1) { R.rect(14, y, 20, y + 3, C); R.rect(17, y, 17, y + 3, hex('#24449a')); }
+    else if (k === 2) { R.rect(14, y + 1, 20, y + 3, C); R.pset(15, y + 2, hex('#ffffff')); R.pset(19, y + 2, hex('#ff3a3a')); } else { R.rect(15, y - 1, 19, y + 3, hex('#c8303a')); R.rect(16, y, 18, y + 1, C); }
+    for (let x = 24; x <= 130; x += 2) R.pset(x, y + 1, hex('#14203a'));
+    const w = Math.round(106 * avance(lleg)), parpa = k === 3 && t > billon && Math.sin(t * 16) > 0;
+    if (w > 0) { R.rect(24, y, 24 + w, y + 2, parpa ? hex('#ffffff') : C); R.rect(24, y, 24 + w, y, mez(C, hex('#ffffff'), 0.5)); R.rect(24 + w, y - 1, 24 + w, y + 3, hex('#ffffff')); } }
+  for (let y = 49; y < 69; y++) for (let x = 132; x < 136; x++) R.pset(x, y, ((x >> 1) + (y >> 1)) % 2 ? hex('#1a2030') : hex('#d8e0f0'));
+  if (t > billon) { const b = Math.round(Math.abs(Math.sin(t * 8))); estrella(139, 66, 3 + b, hex('#ffe890')); estrella(139, 66, 2, hex('#fffbe0')); }
+  // la trama de luz de la pantalla: líneas de puntos y un reflejo que pasa en diagonal
+  baña(10, 26, 144, 70, K, 0.35, (x, y) => (y & 1) ? 1 : (x % 3 === 2 ? 0.6 : 0));
+  const rf = ((t * 40) % 300) - 60; baña(10, 26, 144, 70, hex('#ffffff'), 0.08, (x, y) => Math.abs(x - rf - (70 - y) * 0.6) < 8 ? 1 : 0);
+  // los cochecitos: la película, el libro, el otro juego y nuestra caja (delante)
   const carros = [[pos(peli, 196, 204), 126, '#8a8a96', (x, y) => bobina(x, y - 4, 2)], [pos(libro, 172, 180), 144, '#3ac85a', (x, y) => libroI(x, y - 3, 2)], [pos(juego, 148, 156), 162, '#8a4ad8', (x, y) => mandoI(x, y, 2)], [pos(billon, 238, 262), 178, '#c8303a', null]];
   for (const [x, yb, c, icono] of carros) { const xi = Math.round(x), bote = Math.round(Math.abs(Math.sin(t * 14 + yb)) * 1);
     T.PIEZAS_GT.cocheJuguete(R, xi + 16, yb - bote, { color: c });

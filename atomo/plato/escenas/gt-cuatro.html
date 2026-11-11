@@ -19,7 +19,7 @@
 //    Corta en «and Guinness».
 // 3. (LOCAL) un escenario con telón rojo: el juez del récord trae el trofeo y se lo da a Sam Houser en «record», que lo
 //    levanta; Dan aplaude, flashes del público; en «24 hours» se enciende la esfera con el 24. Corta en «And five».
-// 4. (LOCAL) una balda con las cajas 1, 2, 3 y 4; el calendario de la pared pasa hojas de 2008 a 2013; en «the fifth» una
+// 4. (LOCAL) una balda con las cajas 1, 2, 3 y 4; el calendario de la pared (bajado 9 px, libre de la barra del año) pasa hojas de 2008 a 2013; en «the fifth» una
 //    mano coloca la caja 5, que brilla; el reloj de pared bate el péndulo y sus agujas corren con los años.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -218,13 +218,15 @@ const p4 = (t) => {
   fondo4();
   // el calendario de la pared pasa hojas de 2008 a 2013
   const pa = tramo(t, P4 + 0.3, cinco + 0.5), año = 2008 + Math.min(5, Math.floor(pa * 5.999));
-  R.rect(34, 20, 88, 84, K); R.rect(35, 21, 87, 83, hex('#f6f2e6')); R.rect(35, 21, 87, 34, hex('#c8303a')); R.rect(35, 34, 87, 34, hex('#8a1e26'));
-  for (const x of [44, 60, 76]) { R.rect(x, 17, x + 2, 23, K); R.pset(x + 1, 18, hex('#c8c8d2')); }
-  R.numero(String(año), 61, 31, { tam: 8, centro: true, color: hex('#ffffff') });
-  for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) R.rect(38 + i * 7, 38 + j * 9, 42 + i * 7, 43 + j * 9, (j * 7 + i) === 18 ? hex('#c8303a') : hex('#d8d0c0'));
+  // (bajado CY px para que sus anillas y su año no toquen la barra del año de arriba)
+  const CY = 9;
+  R.rect(34, 20 + CY, 88, 84 + CY, K); R.rect(35, 21 + CY, 87, 83 + CY, hex('#f6f2e6')); R.rect(35, 21 + CY, 87, 34 + CY, hex('#c8303a')); R.rect(35, 34 + CY, 87, 34 + CY, hex('#8a1e26'));
+  for (const x of [44, 60, 76]) { R.rect(x, 17 + CY, x + 2, 23 + CY, K); R.pset(x + 1, 18 + CY, hex('#c8c8d2')); }
+  R.numero(String(año), 61, 31 + CY, { tam: 8, centro: true, color: hex('#ffffff') });
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) R.rect(38 + i * 7, 38 + CY + j * 9, 42 + i * 7, 43 + CY + j * 9, (j * 7 + i) === 18 ? hex('#c8303a') : hex('#d8d0c0'));
   // las hojas que salen volando
   for (let k = 0; k < 5; k++) { const v = tramo(t, P4 + 0.3 + k * (cinco + 0.2 - P4) / 5, P4 + 1.3 + k * (cinco + 0.2 - P4) / 5); if (v <= 0 || v >= 1) continue;
-    const x = 40 + Math.round(v * 70 + Math.sin(v * 9 + k) * 6), y = 24 + Math.round(v * v * 120), w = Math.round(16 * Math.abs(Math.cos(v * 7 + k)));
+    const x = 40 + Math.round(v * 70 + Math.sin(v * 9 + k) * 6), y = 24 + CY + Math.round(v * v * 120), w = Math.round(16 * Math.abs(Math.cos(v * 7 + k)));
     R.rect(x - w, y, x + w, y + 12, K); if (w > 1) R.rect(x - w + 1, y + 1, x + w - 1, y + 11, hex('#f6f2e6')); if (w > 2) R.rect(x - w + 1, y + 1, x + w - 1, y + 3, hex('#c8303a')); }
   // la planta de la esquina que se mece y la lámpara de pie
   R.rect(14, 150, 40, 176, K); R.rect(15, 151, 39, 175, hex('#c86a3a')); R.rect(15, 151, 39, 154, hex('#e88a5a'));
