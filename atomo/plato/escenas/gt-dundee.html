@@ -10,17 +10,22 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // GT-DUNDEE (frases 4–5), finales de los ochenta → 1991. Siete planos (encuadres-ep31.md):
-// 1. Dundee junto al Tay bajo la lluvia (decorado A ciudad): el joven Jones cruza el paseo con una caja de piezas bajo el
-//    brazo; una señora con paraguas pasa al otro lado; el tren cruza el puente; corta en «Tay».
-// 2. LOCAL su cuarto de finales de los ochenta: Jones monta un ordenador en el escritorio; la pantalla se enciende en
-//    «studio» y él sonríe; lluvia en la ventana, el gato en la cama.
-// 3. LOCAL de cerca: las manos con el soldador sobre la placa, chispitas y humo; en «D.M.A. Design» la mano pone junto a
-//    la placa un cartelito con tres formas (cuadrado, triángulo, círculo: sin letras).
-// 4. A oficina (1991, pantalla 'bichitos'): Jones se encoge de hombros con una «?» en «anything»; la barra salta a 1991 en
-//    «And in 1991» y el equipo celebra en «gold»; llega la primera caja del juego en «released».
-// 5. LOCAL la pantalla de tubo de cerca sobre la mesa: los bichitos andan hacia el precipicio y uno abre el paraguas en «save».
-// 6. LOCAL contraplano: el equipo se ríe ante la pantalla; en «world» se encienden chinchetas en el mapa de la pared.
-// 7. LOCAL la esquina de la mesa de cerca (gag 2): el bichito de juguete se tira del borde con el paraguas; risas en «laugh».
+// 1. Dundee junto al Tay bajo la lluvia (decorado A ciudad): el joven Jones cruza el paseo con una caja de piezas, se para,
+//    mira atrás a la ciudad, deja la caja en el suelo y señala el río y el puente sonriendo en «Tay»; la señora del
+//    paraguas pasa al otro lado; coches por la calzada y el tren por el puente.
+// 2. LOCAL su cuarto de finales de los ochenta: Jones trae el monitor, lo deja en el escritorio y lo enchufa; el flexo y la
+//    pantalla se encienden en «studio» y él da un salto; con el pitido, el gato salta de la cama, va a ver y Jones le habla.
+// 3. LOCAL de cerca: las manos con el soldador sobre la placa, chispitas y humo, vapor de la taza; en «D.M.A. Design» la
+//    mano pone junto a la placa un cartelito con tres formas (cuadrado, triángulo, círculo: sin letras).
+// 4. A oficina (1991, pantalla 'bichitos'): un compañero vuelve con su té por el fondo y bebe escuchando; Jones se encoge
+//    de hombros con una «?» en «anything»; la barra salta a 1991 y todos saltan en «gold»; llega la primera caja del
+//    juego en «released».
+// 5. LOCAL la pantalla de tubo de cerca: los bichitos andan hacia el precipicio, «!» en «danger», la mano lleva el ratón y
+//    el cursor hace clic en «save»: uno abre el paraguas y aterriza en la plataforma baja.
+// 6. LOCAL contraplano: el equipo mira la pantalla; en «world» se encienden chinchetas en el mapa; cuando Jones habla se
+//    vuelven hacia él y se ríen, Dailly con los brazos arriba.
+// 7. LOCAL la esquina de la mesa de cerca (gag 2): el bichito de juguete se tira del borde con el paraguas; el compañero
+//    del fondo se sorprende, se ríe en «laugh» y celebra cuando aterriza en la moqueta.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gt-dundee');
@@ -89,10 +94,12 @@ const p1 = (t) => {
   const s = R.actor(EL.comprador2GT, xs, 154, t, { dir: -1, anda: v < 1, sostiene: [xs + 4, 136] });
   paraguas(s.mano[0], s.mano[1], Q.rojo, Q.bl, t);
   // Jones entra por la izquierda con la caja, se para junto a la barandilla en «Tay» y mira al río
-  const u = tramo(t, 0.3, TAY - 0.6), xj = Math.round(lerp(-20, 150, sube(u)));
-  const para = t > TAY - 0.6;
-  const j = R.actor(EL.jonesGT, xj, 157, t, { dir: para && t > TAY ? -1 : 1, anda: u > 0 && u < 1, sostiene: true, sonrisa: t > TAY + 0.1 });
-  carton(j.mano[0], j.mano[1] + 5, 13, 10, { icono: true });
+  const LLEGA = TAY - 2.2, u = tramo(t, 0.3, LLEGA), xj = Math.round(lerp(-20, 150, sube(u)));
+  // llega, se para y mira atrás a la ciudad; deja la caja en el suelo y señala el río y el puente (en «Tay»), sonriendo
+  const mira = t > TAY - 1.6, deja = t > TAY - 0.9;
+  const j = R.actor(EL.jonesGT, xj, 157, t, { dir: mira && t < TAY - 0.9 ? -1 : 1, anda: u > 0 && u < 1, sostiene: deja ? undefined : true, dedo: deja, sonrisa: t > TAY - 0.9 });
+  if (deja) carton(xj - 9, 158, 13, 10, { icono: true });
+  if (!deja) carton(j.mano[0], j.mano[1] + 5, 13, 10, { icono: true });
   T.dundeeDelante(R, t, { lluvia: 0.6, año: 1990 });
 };
 // ── plano 2: el cuarto de Jones, finales de los ochenta ──
@@ -158,16 +165,23 @@ const p2 = (t) => {
   R.recorte(null);
   caja(51, 34, 53, 100, Q.bl); R.rect(18, 66, 86, 67, Q.bl);   // el parteluz y el travesaño
   R.rect(40, 96, 48, 100, Q.rojoS); R.disco(44, 94, 3, Q.verde); R.pset(43, 92, Q.verdeL);   // la maceta del alféizar
-  // el gato en la cama: la cola se mueve y parpadea
-  const gx = 290; R.disco(gx, 124, 6, Q.k); R.disco(gx, 124, 5, Q.grisS); R.disco(gx + 6, 120, 4, Q.k); R.disco(gx + 6, 120, 3, Q.grisS);
-  R.pset(gx + 4, 116, Q.k); R.pset(gx + 8, 116, Q.k); if ((t % 3.1) > 0.15) { R.pset(gx + 5, 120, Q.verdeL); R.pset(gx + 8, 120, Q.verdeL); }
-  const cola = Math.sin(t * 2.4) * 4; R.linea(gx - 5, 126, gx - 10, Math.round(122 + cola), Q.grisS); R.pset(gx - 10, Math.round(122 + cola), Q.k);
+  // el gato en la cama: la cola se mueve y parpadea; con el pitido del ordenador (en «studio») salta de la cama y va a ver
+  const sg = tramo(t, STUDIO + 0.35, STUDIO + 0.8), ag = tramo(t, STUDIO + 0.8, STUDIO + 1.6);
+  const gx = Math.round(sg < 1 ? lerp(290, 262, sg) : lerp(262, 226, ag)), gy = Math.round(sg < 1 ? lerp(124, 158, sg) - Math.sin(sg * Math.PI) * 12 : 158);
+  const gd = sg > 0 ? -1 : 1, an = (ag > 0 && ag < 1) ? Math.floor(t * 10) % 2 : 0;
+  if (sg >= 1) for (const [dx, k] of [[-4, an], [3, 1 - an]]) { R.rect(gx + dx, gy + 4, gx + dx + 1, gy + 7 - k, Q.k); }
+  R.disco(gx, gy, 6, Q.k); R.disco(gx, gy, 5, Q.grisS); R.rect(gx - 3, gy - 4, gx + 2, gy - 3, Q.gris);
+  const cx2 = gx + 6 * gd, cy2 = gy - 4 - (sg > 0 && sg < 1 ? 2 : 0); R.disco(cx2, cy2, 4, Q.k); R.disco(cx2, cy2, 3, Q.grisS);
+  R.pset(cx2 - 2, cy2 - 4, Q.k); R.pset(cx2 + 2, cy2 - 4, Q.k); R.pset(cx2 - 2, cy2 - 3, Q.grisS); R.pset(cx2 + 2, cy2 - 3, Q.grisS);
+  const ojos = sg > 0 && t < STUDIO + 0.6 ? Q.oroL : Q.verdeL; if ((t % 3.1) > 0.15 || sg > 0) { R.pset(cx2 - 1, cy2, ojos); R.pset(cx2 + 2 * gd, cy2, ojos); }
+  const cola = Math.sin(t * (sg > 0 ? 6 : 2.4)) * 4; R.linea(gx - 5 * gd, gy + 2, gx - 10 * gd, Math.round(gy - 2 + cola), Q.grisS); R.pset(gx - 10 * gd, Math.round(gy - 2 + cola), Q.k);
+  if (t > STUDIO + 0.35 && t < STUDIO + 0.9) R.icono('!', cx2 - 3, cy2 - 16, Q.oroL, Q.k);
   // el flexo que se enciende cuando arranca el ordenador
   R.linea(250, 126, 256, 104, Q.k); R.linea(256, 104, 244, 96, Q.k); R.poligono([[238, 94], [248, 92], [246, 100]], Q.rojo);
   if (t > STUDIO - 0.3) for (let y = 100; y < 126; y++) for (let x = 226 - (y - 100); x < 250; x++) if ((x + y) % 3 === 0) tin(x, y, Q.oroL, 0.25);
   // Jones trae el monitor, lo pone en la mesa, enchufa y se enciende en «studio»
   const u = tramo(t, P2 + 0.2, P2 + 2.3), xj = Math.round(lerp(28, 140, sube(u))), deja = tramo(t, P2 + 2.4, P2 + 3.0);
-  const j = R.actor(EL.jonesGT, xj, 160, t, { dir: 1, anda: u > 0 && u < 1, sostiene: deja < 1 ? true : undefined, dedo: deja >= 1 && t < STUDIO, sonrisa: t > STUDIO, salto: t > STUDIO + 0.2 && t < STUDIO + 0.6 ? 2 : 0 });
+  const j = R.actor(EL.jonesGT, xj, 160, t, { dir: 1, anda: u > 0 && u < 1, sostiene: deja < 1 ? true : undefined, dedo: deja >= 1 && t < STUDIO, sonrisa: t > STUDIO && !(t > STUDIO + 1.0 && Math.floor(t * 6) % 2 === 0), habla: t > STUDIO + 1.0 && Math.floor(t * 6) % 2 === 0, salto: t > STUDIO + 0.2 && t < STUDIO + 0.6 ? 2 : 0 });
   const mx = deja < 1 ? Math.round(lerp(j.mano[0] + 4, 178, deja)) : 178, my = deja < 1 ? Math.round(lerp(j.mano[1] + 6, 122, deja)) : 122;
   caja(mx - 12, my - 20, mx + 12, my, Q.beige); R.rect(mx - 11, my - 19, mx + 11, my - 18, Q.beigeL); R.rect(mx - 9, my - 17, mx + 7, my - 4, Q.k);
   const enc = t > STUDIO;
@@ -210,7 +224,7 @@ const SOLD = [[252, 126], [262, 128], [272, 126], [282, 124], [288, 138], [276, 
 const p3 = (t) => {
   fondoMesa();
   // el vapor de la taza
-  for (let k = 0; k < 3; k++) { const v = (t * 0.8 + k / 3) % 1; tin(260 + Math.round(Math.sin(v * 6 + k) * 3), 72 - v * 22, Q.bl, 0.5 * (1 - v)); tin(261 + Math.round(Math.sin(v * 6 + k) * 3), 71 - v * 22, Q.bl, 0.35 * (1 - v)); }
+  for (let k = 0; k < 3; k++) { const v = (t * 0.8 + k / 3) % 1; tin(121 + Math.round(Math.sin(v * 6 + k) * 3), 68 - v * 22, Q.bl, 0.5 * (1 - v)); tin(122 + Math.round(Math.sin(v * 6 + k) * 3), 67 - v * 22, Q.bl, 0.35 * (1 - v)); }
   // las soldaduras que ya brillan y la que se está haciendo
   const u = tramo(t, P3 + 0.1, P4 - 0.3) * (SOLD.length - 0.01), k = Math.floor(u), f = u - k;
   for (let i = 0; i < SOLD.length; i++) { const [x, y] = SOLD[i]; R.disco(x, y, 2, Q.k); R.disco(x, y, 1, i < k ? Q.grisL : Q.oroS); if (i < k) R.pset(x - 1, y - 1, Q.bl); }
@@ -240,6 +254,12 @@ const p4 = (t) => {
   // el bichito de juguete ya está en la esquina de la mesa
   T.PIEZAS_GT.bichito(R, 184, 131, { t });
   const salto = (k) => t > GOLD && t < GOLD + 1.2 ? Math.round(Math.abs(Math.sin((t - GOLD) * 7 + k)) * 4) : 0;
+  // al fondo, un compañero vuelve con su taza de té, se para a escuchar, bebe y en «gold» salta con los demás
+  const wc = tramo(t, P4 + 0.2, P4 + 1.7), xc2 = Math.round(lerp(334, 262, sube(wc)));
+  const bebe = wc >= 1 && t > ANY + 0.4 && t < GOLD - 0.3;
+  const tc = R.actor(EL.comprador1GT, xc2, 132, t, { dir: -1, anda: wc > 0 && wc < 1, sostiene: bebe ? [xc2 - 6, 112] : true, sonrisa: t > ANY + 0.3, salto: salto(2) });
+  { const [mx, my] = tc.mano; R.rect(mx - 2, my - 4, mx + 2, my, Q.k); R.rect(mx - 1, my - 3, mx + 1, my - 1, Q.bl); R.pset(mx + 3, my - 2, Q.k);
+    if (!bebe) for (let k = 0; k < 2; k++) { const v = (t * 0.9 + k / 2) % 1; tin(mx + Math.round(Math.sin(v * 6 + k) * 1.5), my - 6 - v * 8, Q.bl, 0.5 * (1 - v)); } }
   const d = R.actor(EL.daillyGT, 66, 150, t, { dir: 1, sonrisa: t > ANY - 0.2, habla: t < ANY - 0.4 && Math.floor(t * 6) % 2 === 0, brazos: t > GOLD && t < GOLD + 1.2, salto: salto(1) });
   const shrug = t > ANY - 0.15 && t < ANY + 0.9;
   R.actor(EL.jonesGT, 112, 150, t, { dir: -1, habla: t < ANY - 0.2 && Math.floor(t * 7) % 2 === 0, brazos: shrug || (t > GOLD && t < GOLD + 1.2), sonrisa: t > ANY + 0.3, salto: salto(0) });
@@ -298,7 +318,7 @@ const nivel = (t) => {
   const t0 = P5 + 0.2;
   for (let k = 0; k < 7; k++) {
     let x = 82 - k * 22 + (t - t0) * 26, y = 96, par = false;
-    if (k === 0) { if (t > SAVE) { const w = tramo(t, SAVE, SAVE + 1.6); par = true; x = 190 + w * 40; y = 96 + Math.round(sube(w) * 12); } else x = Math.min(x, 190); }
+    if (k === 0) { if (t > SAVE) { const w = tramo(t, SAVE, SAVE + 0.8); par = w < 1; x = 190 + w * 40 + (w >= 1 ? (t - SAVE - 0.8) * 26 : 0); y = 96 + Math.round(sube(w) * 12); } else x = Math.min(x, 190); }
     else x = Math.min(x, 176 - (k - 1) * 14);
     if (x > 66) bicho(x, y, Math.floor(t * 6 + k) % 2, par);
   }
@@ -316,9 +336,10 @@ const p5 = (t) => {
   fondoTubo(); nivel(t);
   R.pset(244, 136, Math.floor(t * 2) % 2 ? Q.fos : Q.fosS);
   // la mano en el ratón: clic en «save»
-  const cl = t > SAVE - 0.1 && t < SAVE + 0.15 ? 1 : 0;
-  caja(256, 160 + cl, 272, 176, Q.beigeL); R.linea(264, 160 + cl, 264, 166 + cl, Q.beigeD);
-  T.brazo(R, 340, 196, 276, 172 + cl, '#2a3a6a', -1, { sombra: false });
+  // el ratón se desliza por la alfombrilla al ritmo del cursor
+  const cl = t > SAVE - 0.1 && t < SAVE + 0.15 ? 1 : 0, cu = tramo(t, SAVE - 1.2, SAVE - 0.1), rx = Math.round(lerp(-6, 6, cu)), ry = Math.round(lerp(-3, 3, cu));
+  caja(256 + rx, 160 + cl + ry, 272 + rx, 176 + ry, Q.beigeL); R.linea(264 + rx, 160 + cl + ry, 264 + rx, 166 + cl + ry, Q.beigeD);
+  T.brazo(R, 340, 196, 276 + rx, 172 + cl + ry, '#2a3a6a', -1, { sombra: false });
 };
 // ── plano 6: el contraplano, el equipo se ríe ante la pantalla ──
 const WORLD = b(0.701), JSAID = b(0.751);
@@ -363,11 +384,11 @@ const p6 = (t) => {
   pins.forEach(([x, y], k) => { const on = t > WORLD - 0.8 + k * 0.18; if (on) { R.disco(x, y, 2, Q.k); R.disco(x, y, 1, Q.rojoL); if (t < WORLD + 0.2 + k * 0.18) R.anillo(x, y, 4, Q.oroL); } });
   // el equipo detrás de la mesa, mirando a la pantalla: se ríen (asoman cabeza y hombros)
   const ri = (k) => (Math.sin(t * 9 + k * 2) > 0 ? 1 : 0);
-  R.actor(EL.daillyGT, 118, 162, t, { dir: 1, sonrisa: true, salto: t > WORLD ? ri(1) : 0, brazos: t > JSAID + 2.2 });
-  R.actor(EL.programadorNorth, 146, 164, t, { dir: 1, sonrisa: true, salto: t > JSAID + 1.2 ? ri(2) : 0 });
-  R.actor(EL.jonesGT, 178, 162, t, { dir: -1, habla: t > JSAID && Math.floor(t * 7) % 2 === 0, dedo: t > JSAID + 0.3 && t < JSAID + 1.6, sonrisa: t < JSAID || t > JSAID + 1.7 });
-  R.actor(EL.comprador1GT, 206, 164, t, { dir: -1, sorpresa: t < WORLD, sonrisa: t > WORLD, salto: t > JSAID + 1.0 ? ri(3) : 0 });
-  if (t > JSAID + 1.4) for (let k = 0; k < 3; k++) { const v = ((t - JSAID - 1.4) * 1.2 + k / 3) % 1; R.icono('!', 126 + k * 32, Math.round(126 - v * 10), Q.oroL, Q.k); }
+  R.actor(EL.daillyGT, 118, 162, t, { dir: t > JSAID + 0.2 ? 1 : -1, sonrisa: true, salto: t > WORLD ? ri(1) : 0, brazos: t > JSAID + 0.9 });
+  R.actor(EL.programadorNorth, 146, 164, t, { dir: t > JSAID + 0.3 ? 1 : -1, sonrisa: true, salto: t > JSAID + 0.5 ? ri(2) : 0 });
+  R.actor(EL.jonesGT, 178, 162, t, { dir: -1, habla: t > JSAID && Math.floor(t * 7) % 2 === 0, dedo: t > JSAID + 0.2 && t < JSAID + 1.0, sonrisa: t < JSAID || t > JSAID + 1.0 });
+  R.actor(EL.comprador1GT, 206, 164, t, { dir: -1, sorpresa: t < WORLD, sonrisa: t > WORLD, salto: t > JSAID + 0.4 ? ri(3) : 0 });
+  if (t > JSAID + 0.6) for (let k = 0; k < 3; k++) { const v = ((t - JSAID - 0.6) * 1.2 + k / 3) % 1; R.icono('!', 126 + k * 32, Math.round(126 - v * 10), Q.oroL, Q.k); }
   // el monitor de tubo de espaldas (a la izquierda) y su luz azul en las caras
   for (let y = 128; y < 166; y++) for (let x = 110; x < 236; x++) if ((x + y) % 2 === 0) tin(x, y, hex('#6ac8ff'), 0.08 + 0.04 * Math.sin(t * 7));
   mesaContra(); for (let k = 0; k < 60; k++) tin(86 + (k * 7) % 30, 88 + (k * 13) % 44, hex('#8ad8ff'), 0.25 + 0.1 * Math.sin(t * 8));
@@ -403,15 +424,19 @@ const p7 = (t) => {
   fondoEsquina();
   for (let k = 0; k < 3; k++) { const v = (t * 0.8 + k / 3) % 1; tin(125 + Math.round(Math.sin(v * 6 + k) * 2), 50 - v * 16, Q.bl, 0.5 * (1 - v)); }
   // al fondo, un compañero pequeño que se ríe al verlo (en «laugh»)
-  R.actor(EL.daillyGT, 226, 116, t, { dir: -1, sorpresa: t > P7 + 0.75 && t < LAUGH - 0.1, sonrisa: t > LAUGH - 0.1, salto: t > LAUGH && Math.sin(t * 10) > 0 ? 1 : 0 });
+  R.actor(EL.daillyGT, 226, 116, t, { dir: -1, sorpresa: t > P7 + 0.75 && t < LAUGH - 0.1, sonrisa: t > LAUGH - 0.1, salto: t > LAUGH && Math.sin(t * 10) > 0 ? 1 : 0, brazos: t > P7 + 2.65 });
   // el bichito anda hasta el borde, abre el paraguas y salta: baja flotando hasta la moqueta
   const anda = tramo(t, P7 + 0.1, P7 + 0.7), xb = Math.round(lerp(120, 176, anda)), abre = P7 + 1.0, cae = tramo(t, abre + 0.25, abre + 1.6);
   if (t < abre) { T.PIEZAS_GT.bichito(R, xb, 71, { t, anda: anda > 0 && anda < 1, s: 2 }); if (t > P7 + 0.75) globo(xb, 34, '!', Q.rojo); }
   else { const x = Math.round(176 + cae * 44 + Math.sin(cae * 7) * 4), y = Math.round(71 + sube(cae) * 102 - (cae < 0.1 ? 4 : 0)); T.PIEZAS_GT.bichito(R, x, Math.min(173, y), { t, paraguas: true, s: 2 }); }
   if (cae >= 1 && t < abre + 2.1) for (let k = 0; k < 4; k++) R.pset(212 + k * 5, 172 - k % 2, Q.bl);
 };
-const efectos = [[0.4, 'lluvia'], [3.3, 'coche'], [P2 + 3.0, 'golpecito'], [STUDIO, 'bip'], [P3 + 0.9, 'vapor'], [a(0.82), 'papel'],
-  [ANY, 'boing'], [GOLD, 'brillo'], [SAVE, 'pop'], [WORLD - 0.3, 'pop'], [JSAID + 1.4, 'publico'], [P7 + 1.0, 'whoosh'], [P7 + 2.6, 'golpecito']];
+const efectos = [[0.4, 'lluvia'], [3.3, 'coche'], [TAY - 0.8, 'golpecito'],
+  [P2 + 0.2, 'lluvia'], [P2 + 3.0, 'golpecito'], [STUDIO - 0.3, 'interruptor'], [STUDIO, 'bip'], [STUDIO + 0.45, 'miau'],
+  [P3 + 0.4, 'tic'], [P3 + 0.9, 'vapor'], [P3 + 2.6, 'tic'], [a(0.82), 'papel'],
+  [P4 + 0.2, 'lluvia'], [ANY, 'boing'], [GOLD, 'brillo'], [GOLD + 0.3, 'palmada'],
+  [DANGER - 0.1, 'aviso'], [SAVE, 'pop'], [SAVE + 0.8, 'golpecito'],
+  [WORLD - 0.3, 'pop'], [JSAID + 0.6, 'publico', { dur: 2 }], [P7 + 0.75, 'aviso'], [P7 + 1.0, 'whoosh'], [P7 + 2.6, 'golpecito'], [P7 + 2.95, 'palmada']];
 const año = (t) => (t < b(0) ? 1988 : 1991);
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>

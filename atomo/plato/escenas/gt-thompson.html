@@ -11,15 +11,18 @@
 <script type="module">
 // GT-THOMPSON (frase 25), 2005 → 2008. Cuatro planos:
 // 1. nuevayork/tribunal/tele (2005): el plató de noticias; la presentadora le da paso y Jack Thompson, tras la mesa, habla
-//    a cámara; en «campaigning against these games» levanta una caja de juego genérica y la señala, enfadado; el piloto
-//    rojo de la cámara late, un técnico cruza por delante con el cable. Corta en «and in the courts».
-// 2. nuevayork/tribunal (o.florida, 2008): Thompson entra en la sala de Florida (palmeras por la ventana) y se planta
-//    ante el estrado; en «2008» la barra salta a 2008; en «Florida Supreme Court» la jueza habla y le señala; él se queda
-//    boquiabierto. Corta en «permanently».
+//    a cámara; en «campaigning against these games» levanta una caja de juego genérica, la planta de pie sobre la mesa
+//    y la señala, enfadado, hasta el corte. El piloto rojo de las cámaras late y un técnico cruza por delante
+//    con el carrete de cable. Corta en «and in the courts».
+// 2. nuevayork/tribunal (o.florida, 2008): Thompson entra en la sala de Florida (palmeras por la ventana) y habla ante el
+//    estrado; en «2008» la barra salta a 2008; la jueza le señala en «Florida» y él se queda boquiabierto («!»); el
+//    guardia da unos pasos hacia él. Corta en «permanently».
 // 3. (LOCAL) el estrado de cerca: la licencia enmarcada sobre el cartapacio verde; en «took away» la mano de la toga se
-//    la lleva; en «law» el mazo baja y en el hueco queda una X roja. Lámpara de banquero, reloj de péndulo, libros.
+//    la lleva hacia abajo; en «law» el mazo baja y en el hueco queda una X roja. Lámpara de banquero, reloj de péndulo,
+//    libros; el agua de la jarra tiembla con el golpe.
 // 4. (LOCAL) una fábrica de cajas: la prensa escupe cajas a la cinta, en la tele de la pared el mazo da paso a una caja;
-//    en «the games kept coming» la cinta acelera y las cajas se amontonan en la carretilla; el operario se encoge.
+//    un mozo trae una caja y la deja en el suelo; en «the games kept coming» la cinta acelera, las cajas se amontonan en
+//    el palé y al operario se le cae la tablilla, boquiabierto.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gt-thompson');
@@ -87,8 +90,9 @@ const p1 = (t) => {
   R.actor(EL.presentador, 176, 151, t, { dir: -1, habla: t < jack - 0.3 && Math.sin(t * 8) > 0, dedo: t > 1.2 && t < jack, sonrisa: t >= jack });
   const th = R.actor(EL.abogadoThompson, 118, 151, t, { dir: 1, habla: t > jack + 0.2 && Math.sin(t * 9) > -0.2, enfado: t > campa, sostiene: caja ? [140, Math.round(lerp(134, 122, tramo(t, campa - 0.2, campa + 0.2)))] : false, dedo: señala });
   if (caja) T.PIEZAS_GT.cajaJuego(R, th.mano[0] + 2, th.mano[1] + 5, { color: '#c8303a' });
-  if (señala) { R.icono('!', 146, 120 + (Math.sin(t * 10) > 0 ? -1 : 0), hex('#ff4a4a'), K, 2); }
   T.nuevayorkDelante(R, t, o);
+  // la caja queda de pie sobre la mesa y él la señala hasta el corte
+  if (!caja && t > campa) { T.PIEZAS_GT.cajaJuego(R, 151, 146, { color: '#c8303a' }); R.icono('!', 158, 110 + (Math.sin(t * 10) > 0 ? -1 : 0), hex('#f0c040'), K); }
   // el piloto rojo de las dos cámaras late: estamos en el aire
   const on = Math.sin(t * 6) > -0.3; for (const x of [40, 280]) { R.disco(x, 118, 2, K); R.pset(x, 118, on ? hex('#ff3a3a') : hex('#7a1e26')); if (on) R.halo(x, 118, 5, RA('#5a1a1a', '#a8302e', '#ff6a5a'), 0.6); }
   // el técnico de plató cruza por delante con el cable
@@ -99,12 +103,13 @@ const p2 = (t) => {
   const o = { encuadre: 'tribunal', florida: true };
   T.nuevayork(R, t, o);
   const u = tramo(t, P2 + 0.1, P2 + 1.9), x = Math.round(lerp(-16, 118, u));
-  R.actor(EL.juezaGT, 146, 100, t, { dir: -1, habla: t > corte - 0.2 && t < supremo + 0.4 && Math.sin(t * 9) > 0, dedo: t > supremo, enfado: t > supremo });
-  R.actor(EL.guardia, 236, 158, t, { dir: -1 });
+  R.actor(EL.juezaGT, 146, 100, t, { dir: -1, habla: t > corte - 0.6 && t < supremo + 0.2 && Math.sin(t * 9) > 0, dedo: t > corte + 0.1, enfado: t > corte + 0.1 });
+  const gu = tramo(t, corte + 0.3, corte + 1.0);
+  R.actor(EL.guardia, Math.round(lerp(236, 214, gu)), 158, t, { dir: -1, anda: gu > 0 && gu < 1, dedo: t > año08 - 0.2 && t < año08 + 0.6 });
   R.actor(EL.oficinista, 276, 160, t, { dir: -1, habla: t < año08 && Math.sin(t * 5) > 0.5 });
-  R.actor(EL.abogadoThompson, x, 158, t, { dir: 1, anda: u > 0 && u < 1, habla: u >= 1 && t < corte - 0.4 && Math.sin(t * 8) > 0, dedo: u >= 1 && t < corte - 0.6, sorpresa: t > supremo + 0.3 });
+  R.actor(EL.abogadoThompson, x, 158, t, { dir: 1, anda: u > 0 && u < 1, habla: u >= 1 && t < corte - 0.4 && Math.sin(t * 8) > 0, dedo: u >= 1 && t < corte - 0.6, sorpresa: t > corte + 0.4 });
   T.nuevayorkDelante(R, t, o);
-  if (t > supremo + 0.3) R.icono('!', 125, 118, hex('#ff4a4a'), K, 2);
+  if (t > corte + 0.4) R.icono('!', 125, 118 - (t < corte + 0.6 ? 2 : 0), hex('#ff4a4a'), K, 2);
 };
 // ── 3: el estrado de cerca (LOCAL) ──
 const NOGAL = RA('#2a160c', '#3e2214', '#56301c', '#6e4024', '#8a5630');
@@ -239,13 +244,18 @@ const p4 = (t) => {
   for (let k = 0; k < pila; k++) T.PIEZAS_GT.cajaJuego(R, 274 + (k % 3) * 18, 150 - Math.floor(k / 3) * 26, { color: cols[k % 5] });
   // el operario, delante de la cinta, apunta en su tablilla; en «kept coming» se queda boquiabierto
   const op = R.actor(EL.operario, 150, 162, t, { dir: 1, sostiene: t < siguen + 0.2, sorpresa: t > siguen + 0.3, brazos: t > llegan + 0.1 });
+  // la tablilla se le cae al suelo cuando la cinta se dispara
+  const ct = tramo(t, siguen + 0.2, siguen + 0.55); if (ct > 0) { const x = 160 + Math.round(ct * 6), y = Math.round(lerp(140, 160, ct * ct)); R.rect(x - 4, y - 2, x + 6, y + 1, K); R.rect(x - 3, y - 1, x + 5, y, hex('#f2ecd8')); R.rect(x - 3, y - 1, x - 2, y, hex('#8a6a3a')); }
   if (t < siguen + 0.2) { const [mx, my] = op.mano; R.rect(mx - 3, my - 7, mx + 5, my + 4, K); R.rect(mx - 2, my - 6, mx + 4, my + 3, hex('#f2ecd8')); R.rect(mx - 2, my - 6, mx + 4, my - 5, hex('#8a6a3a')); for (let j = 0; j < 3; j++) R.rect(mx - 1, my - 3 + j * 2, mx + 3 - (j === 2 && Math.sin(t * 4) > 0 ? 2 : 0), my - 3 + j * 2, hex('#6a6478')); }
   // el mozo de delante se lleva cajas en brazos
-  const w = tramo(t, P4 + 0.4, P4 + 2.6), ob = R.actor(EL.obrero, Math.round(lerp(330, 222, w)), 178, t, { dir: -1, anda: w > 0 && w < 1, sostiene: w > 0 && w < 1, sorpresa: t > siguen + 0.2, brazos: t > llegan });
-  if (w > 0 && w < 1) cajaMini(ob.mano[0] - 1, ob.mano[1] + 5, '#3ac85a');
+  const w = tramo(t, P4 + 0.4, P4 + 2.2), ob = R.actor(EL.obrero, Math.round(lerp(330, 222, w)), 178, t, { dir: -1, anda: w > 0 && w < 1, sostiene: w > 0 && w < 1, sorpresa: t > siguen + 0.2, brazos: t > llegan });
+  if (w > 0 && w < 1) cajaMini(ob.mano[0] - 1, ob.mano[1] + 5, '#3ac85a'); else if (w >= 1) cajaMini(212, 179, '#3ac85a');
 };
 const año = (t) => t < año08 ? 2005 : 2008;
-const efectos = [[juegos, 'golpecito'], [P2 + 0.2, 'puerta'], [quita + 0.1, 'papel'], [ley, 'toc'], [P4 + 0.3, 'maquina'], [siguen + 0.2, 'pop'], [llegan + 0.3, 'pop']];
+const efectos = [[2.5, 'carro', { largo: 1.8 }], [juegos + 0.25, 'golpecito'],
+  [P2 + 0.2, 'puerta'], [corte + 0.4, 'aviso'], [corte + 0.7, 'publico', { dur: 1.6 }],
+  [P3 + 0.3, 'tic'], [quita + 0.1, 'papel'], [ley, 'toc'], [ley + 0.45, 'sello'],
+  [P4 + 0.3, 'maquina', { dur: 3.0 }], [siguen + 0.05, 'arranque'], [siguen + 0.5, 'golpecito'], [llegan + 0.3, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

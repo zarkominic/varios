@@ -20,7 +20,7 @@
 // 3. (LOCAL) un escenario con telón rojo: el juez del récord trae el trofeo y se lo da a Sam Houser en «record», que lo
 //    levanta; Dan aplaude, flashes del público; en «24 hours» se enciende la esfera con el 24. Corta en «And five».
 // 4. (LOCAL) una balda con las cajas 1, 2, 3 y 4; el calendario de la pared pasa hojas de 2008 a 2013; en «the fifth» una
-//    mano coloca la caja 5, que brilla.
+//    mano coloca la caja 5, que brilla; el reloj de pared bate el péndulo y sus agujas corren con los años.
 import * as T from '/atomo/plato/escenas/gt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gt-cuatro');
@@ -210,7 +210,9 @@ const fondo4 = fijo(() => {
   for (const x0 of [114, 214]) { R.rect(x0, 128, x0 + 94, 170, K); R.rect(x0 + 1, 129, x0 + 93, 169, hex('#7a4a22')); R.rect(x0 + 4, 132, x0 + 90, 166, hex('#8a5a2a')); R.rect(x0 + 4, 132, x0 + 90, 132, hex('#b07a40')); R.disco(x0 + (x0 < 200 ? 88 : 6), 150, 2, hex('#d8b048')); }
   R.rect(112, 176, 120, 179, K); R.rect(302, 176, 310, 179, K);
   // el suelo de tarima
-  madera(0, 176, 319, 179, RA('#5a3a20', '#7a5230', '#9a6a3e'), 4, 6); R.rect(0, 126, 107, 175, hex('#d8c0a0')); madera(0, 128, 107, 179, RA('#5a3a20', '#7a5230', '#9a6a3e', '#b07e4a'), 8, 7); R.rect(0, 126, 107, 127, hex('#8a6a4a'));
+  madera(0, 176, 319, 179, RA('#5a3a20', '#7a5230', '#9a6a3e'), 4, 6);
+  // la tarima sigue a la derecha del aparador (si no, quedaba una tira sin pintar)
+  R.rect(315, 126, 319, 127, hex('#8a6a4a')); madera(315, 128, 319, 175, RA('#5a3a20', '#7a5230', '#9a6a3e', '#b07e4a'), 8, 7); R.rect(316, 122, 316, 175, K); R.rect(0, 126, 107, 175, hex('#d8c0a0')); madera(0, 128, 107, 179, RA('#5a3a20', '#7a5230', '#9a6a3e', '#b07e4a'), 8, 7); R.rect(0, 126, 107, 127, hex('#8a6a4a'));
 });
 const p4 = (t) => {
   fondo4();
@@ -228,6 +230,13 @@ const p4 = (t) => {
   R.rect(14, 150, 40, 176, K); R.rect(15, 151, 39, 175, hex('#c86a3a')); R.rect(15, 151, 39, 154, hex('#e88a5a'));
   for (let k = 0; k < 7; k++) { const a = -1.9 + k * 0.45 + Math.sin(t * 1.3 + k) * 0.06; const L = 22 + (k % 3) * 6; R.linea(27, 151, 27 + Math.round(Math.cos(a) * L), 151 + Math.round(Math.sin(a) * L), hex('#2a6a3a')); R.disco(27 + Math.round(Math.cos(a) * L), 151 + Math.round(Math.sin(a) * L), 3, hex('#3a8a4a')); R.pset(27 + Math.round(Math.cos(a) * L) - 1, 150 + Math.round(Math.sin(a) * L), hex('#6ac87a')); }
   R.rect(84, 60, 86, 176, K); R.rect(78, 174, 92, 176, K); R.poligono([[74, 62], [96, 62], [90, 48], [80, 48]], hex('#f0d8a0')); R.halo(85, 64, 26, RA('#e8d4b0', '#f6e4c0', '#fff4d8'), 0.5);
+  // el reloj de pared: el péndulo va y viene y las agujas corren con los años que pasan
+  { const cx = 210, cy = 34; R.rect(cx - 9, cy - 10, cx + 9, cy + 26, K); R.rect(cx - 8, cy - 9, cx + 8, cy + 25, hex('#7a4a22')); R.rect(cx - 8, cy - 9, cx + 8, cy - 9, hex('#b07a40'));
+    R.disco(cx, cy, 7, K); R.disco(cx, cy, 6, hex('#f6f2e6')); for (let k = 0; k < 12; k += 3) R.pset(cx + Math.round(Math.cos(k * Math.PI / 6) * 5), cy + Math.round(Math.sin(k * Math.PI / 6) * 5), K);
+    const vel = 1 + tramo(t, P4 + 0.3, cinco + 0.5) * 30, am = t * 0.5 * vel, ah = t * 0.05 * vel;
+    R.linea(cx, cy, cx + Math.round(Math.sin(am) * 5), cy - Math.round(Math.cos(am) * 5), K); R.linea(cx, cy, cx + Math.round(Math.sin(ah) * 3), cy - Math.round(Math.cos(ah) * 3), hex('#c8303a'));
+    R.rect(cx - 5, cy + 9, cx + 5, cy + 23, hex('#3a2412')); const pa = Math.sin(t * 3.6) * 0.35, px = cx + Math.round(Math.sin(pa) * 11), py = cy + 8 + Math.round(Math.cos(pa) * 11);
+    R.linea(cx, cy + 9, px, py, hex('#d8b048')); R.disco(px, py, 2, hex('#d8b048')); R.pset(px - 1, py - 1, hex('#fff0a0')); }
   // el gato del aparador
   T.gato(R, 126, 115, t, { dir: 1 });
   // las cajas 1–4 y la 5 que llega en la mano
@@ -240,7 +249,9 @@ const p4 = (t) => {
     R.halo(281, 100, 22, RA('#e8d4b0', '#f6e08a', '#fff6c0'), 0.6 * (1 - b)); }
 };
 const año = (t) => t < P4 + 0.3 ? 2008 : 2008 + Math.min(5, Math.floor(tramo(t, P4 + 0.3, cinco + 0.5) * 5.999));
-const efectos = [[0.6, 'viento'], [gta4, 'puerta'], [gta4 + 0.4, 'publico'], [P2 + 1.0, 'campana'], [copias + 0.4, 'flash'], [record, 'publico'], [record + 1.2, 'flash'], [veinte, 'brillo'], [P4 + 0.5, 'papel'], [quinto, 'brillo']];
+// solo lo que marca algo en pantalla: la puerta, la cola que salta, el flash de la fotógrafa, el aplauso del récord,
+// la esfera del 24, las hojas del calendario y la caja 5 que se apoya en la balda
+const efectos = [[gta4, 'puerta'], [gta4 + 0.4, 'publico', { dur: 1.6 }], [copias + 0.4, 'flash'], [record, 'publico', { dur: 1.8 }], [record + 1.2, 'flash'], [veinte, 'brillo'], [P4 + 0.5, 'papel'], [quinto - 0.05, 'toc'], [quinto + 0.15, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
 </script>
 </body>

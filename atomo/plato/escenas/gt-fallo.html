@@ -16,7 +16,8 @@
 // 2. la mesa de pruebas de DMA: Penn, de cuerpo entero, juega con la palanca; al fondo Dailly entra con papeles; en «bug»
 //    la pantalla falla (rayas, «?») y en «went crazy» se llena de luces rojas y azules que tiñen la pared: Penn da un bote
 //    boquiabierto («!») y a Dailly se le vuelan los papeles; en «chasing» Penn mueve la palanca como loco;
-// 3. gag 4, de cerca y en marcha: el camión de los helados huye por una calle de la ciudad de juguete (la cámara lo sigue)
+// 3. gag 4, de cerca y en marcha: el camión de los helados huye por una calle de la ciudad de juguete (entra con la cámara
+//    quieta y, pasado el corte, la cámara arranca y lo sigue)
 //    y el coche de policía le pisa los talones con cejas de furia («fury»); entra otro («nobody had programmed»); la gente
 //    de la acera salta; en «escaping» el camión coge una rampa y vuela, la bola de helado bota y aterriza en «thrilling»;
 //    los policías derrapan y se quedan mareados en el centro (la cámara frena con ellos) mientras el camión se va;
@@ -139,6 +140,9 @@ const p2 = (t) => {
 // ── 3 · gag 4: el camión de los helados perseguido (fondo local en marcha) ───────────────────────────────────────
 const V = 150, T1 = emocion + 0.05;
 const camX = (t) => { const u = t - P3, u1 = T1 - P3, D = 0.7; if (u < u1) return V * u; const d = Math.min(u - u1, D); return V * u1 + V * (d - d * d / (2 * D)); };
+// el travelling empieza tras el corte: los primeros 0,4 s la cámara está quieta y el camión entra rodando desde la
+// izquierda; luego la cámara arranca suave y lo alcanza (sh = lo que el camión va por detrás de su sitio en cuadro)
+const sh = (u) => { const S0 = 0.4, DD = 0.5; if (u < S0) return -V * (S0 + DD / 2) + V * Math.max(0, u); const w = Math.min(u - S0, DD); return -V * DD / 2 + V * (w - w * w / (2 * DD)); };
 const frena = (t, t0, D) => { const d = Math.max(0, Math.min(t - t0, D)); return V * (d - d * d / (2 * D)); };
 const CIELO3 = [hex('#5ab0f0'), hex('#78c4f6'), hex('#9ad4f8'), hex('#c4e6fa')];
 const NUBE3 = [hex('#ffffff'), hex('#e4ecf6'), hex('#b8c8de')];
@@ -172,7 +176,7 @@ const policia = (x, y, t, furia, mareo) => {   // el coche de policía de juguet
   if (mareo) for (let k = 0; k < 3; k++) { const a = t * 5 + k * 2.1; R.icono('X', Math.round(x0 + 30 + Math.cos(a) * 12), Math.round(y0 - 6 + Math.sin(a) * 3), hex('#f0c040'), C.k, 1); }
 };
 const p3 = (t) => {
-  const cam = camX(t), u = t - P3;
+  const u = t - P3, cam = camX(t) - sh(u);
   capa('cielo3', () => { degradado(0, 0, 319, 92, CIELO3, 1); trama(0, 93, 319, 117, [hex('#7a86a0'), hex('#6e7a94'), hex('#7a86a0')], 2); });
   // nubes de tres tonos a tres velocidades y pájaros
   for (const [k, cy, w, hh, v] of [[0, 22, 26, 8, 0.03], [1, 36, 18, 6, 0.06], [2, 18, 14, 5, 0.1], [3, 40, 30, 9, 0.03]]) { const x = ((k * 97 - cam * v - t * (2 + k)) % 420 + 420) % 420 - 50; nube(x, cy, w, hh, NUBE3); }
@@ -211,10 +215,10 @@ const p3 = (t) => {
   const tx = 176 + V * u - cam, ty = 166 - Math.round(vuelo * 26) + (aterriza ? 1 : 0) + (u < T1 - P3 ? Math.round(Math.sin(t * 18)) : 0);
   const bola = t > rampa ? Math.max(0, Math.sin(Math.min(1, (t - rampa - 0.12) / 0.95) * Math.PI) * 14) : 0;
   const tb = emocion + 0.05;
-  const w1 = (t < tb ? V * u : V * (tb - P3) + frena(t, tb, 0.7)) + lerp(-80, 100, tramo(t, P3, furia + 0.3)) - cam;
+  const w1 = (t < tb ? V * u : V * (tb - P3) + frena(t, tb, 0.7)) + Math.min(lerp(-40, 100, tramo(t, P3, furia + 0.3)), 106 + sh(u)) - sh(u) - cam;   // nunca más cerca de 70 px del camión
   const w2 = (t < tb + 0.2 ? V * u : V * (tb + 0.2 - P3) + frena(t, tb + 0.2, 0.6)) + lerp(-150, 12, tramo(t, programado - 0.4, programado + 0.8)) - cam;
   const parado = t > tb + 0.7;
-  if (!parado) for (let k = 0; k < 6; k++) { const yy = 136 + k * 6, l = 14 + (k * 7) % 12, xx = Math.round(((k * 53 - t * 400) % 320 + 320) % 320); R.rect(xx, yy, xx + l, yy, mez(hex('#4a4c54'), hex('#ffffff'), 0.45)); }
+  if (!parado && u > 0.75) for (let k = 0; k < 6; k++) { const yy = 136 + k * 6, l = 14 + (k * 7) % 12, xx = Math.round(((k * 53 - t * 400) % 320 + 320) % 320); R.rect(xx, yy, xx + l, yy, mez(hex('#4a4c54'), hex('#ffffff'), 0.45)); }
   const rastro = (x, y) => { for (let k = 0; k < 3; k++) { const a = ((t * 3 + k * 0.33) % 1); R.disco(Math.round(x - 6 - a * 22), Math.round(y - 3 - a * 6), Math.round(2 + a * 3), mez(hex('#d8d0c0'), hex('#4a4c54'), a)); } };
   if (w2 > -40) { rastro(w2 - 30, 166); policia(w2, 166 + (parado ? 0 : Math.round(Math.sin(t * 25 + 1))), t, t > programado ? 1 : 0, parado); }
   rastro(w1 - 30, 166); policia(w1, 166 + (t > furia && !parado ? Math.round(Math.sin(t * 30) * 2) : 0), t, t > furia ? 2 : t > P3 + 0.2 ? 1 : 0, parado);
