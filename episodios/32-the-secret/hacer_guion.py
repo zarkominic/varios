@@ -1,6 +1,6 @@
 """Genera guion.json (el que leen locutar_frases.py y el plató) a partir de guion.md y escenas.json.
 
-Uso: python3 episodios/31-gta/hacer_guion.py
+Uso: python3 episodios/32-the-secret/hacer_guion.py
 
 - guion.md manda en el texto: las frases son las filas | ES | EN | de sus tablas, en orden.
 - escenas.json manda en el reparto: qué frases van en cada escena, su estilo, su cartela, el nombre de
@@ -86,28 +86,22 @@ def hablado(texto, l):
     return t
 
 PREVIO = {
-    'en': [('May 20, 1997', 'May twentieth, 1997'), ('September 17, 2013', 'September seventeenth, 2013'),
-           ('November 19, 2026', 'November nineteenth, 2026'), ('September 11th', 'September eleventh')],
-    'es': [('20 de mayo', 'veinte de mayo'), ('17 de septiembre', 'diecisiete de septiembre'),
-           ('19 de noviembre', 'diecinueve de noviembre'), ('11 de septiembre', 'once de septiembre')],
+    'en': [],
+    'es': [],
 }
 # Regla del usuario (05/11/2026): en español, TODOS los nombres propios extranjeros se escriben como se dicen en español
 # de México; la r fuerte se escribe doble y las siglas que se deletrean van en una sola palabra («achebeó»).
 PRONUNCIA = {
-    'en': [('Grand Theft Auto III', 'Grand Theft Auto Three'), ('Grand Theft Auto IV', 'Grand Theft Auto Four'),
-           ('Grand Theft Auto V', 'Grand Theft Auto Five'), ('GTA VI', 'G.T.A. Six'), ('GTA', 'G.T.A.'),
-           ("Race'n'Chase", 'Race and Chase'), ('Mike Dailly', 'Mike Daily'), ('Houser', 'Howzer'),
-           ('DMA Design', 'D.M.A. Design'), ('BMG', 'B.M.G.')],
-    'es': [('Grand Theft Auto III', 'Gránd Zeft Ótou tres'), ('Grand Theft Auto IV', 'Gránd Zeft Ótou cuatro'),
-           ('Grand Theft Auto V', 'Gránd Zeft Ótou cinco'), ('«grand theft auto»', '«gránd zeft ótou»'),
-           ('Grand Theft Auto', 'Gránd Zeft Ótou'), ('GTA VI', 'yitiéi seis'), ('GTA', 'yitiéi'),
-           ('David Jones', 'Déivid Yóuns'), ('Jones', 'Yóuns'), ('DMA Design', 'dieméi Disáin'),
-           ('Lemmings', 'Lémings'), ('Mike Dailly', 'Máik Déili'), ("Race'n'Chase", 'Réis an Chéis'),
-           ('Gary Penn', 'Gári Pen'), ('Penn', 'Pen'), ('BMG', 'biemyí'), ('Max Clifford', 'Max Clífford'),
-           ('Clifford', 'Clífford'), ('Sam y Dan Houser', 'Sam y Dan Jáuser'), ('Take-Two', 'Téik Tu'),
-           ('Rockstar Games', 'Rókstar Guéims'), ('Rockstar North', 'Rókstar Norz'), ('Rockstar', 'Rókstar'),
-           ('Vice City', 'Váis Síti'), ('Hot Coffee', 'Jot Cófi'), ('Jack Thompson', 'yak Tómpson'),
-           ('Guinness', 'Guínes'), ('YouTube', 'Yutúb'), ('Dundee', 'Dandí'), ('Tay', 'Téi')],
+    'en': [('Preiss', 'Price'), ('St. Augustine', 'Saint Augustine'), ('Apelles', 'Apellees')],
+    'es': [('The Secret: A Treasure Hunt', 'De Síkret: a Tréshur Jant'), ('The Secret', 'De Síkret'),
+           ('Byron Preiss', 'Báiron Práis'), ('Preiss', 'Práis'), ('Masquerade', 'Mascaréid'),
+           ('John Jude Palencar', 'Yon Yud Palencár'), ('Bantam', 'Bántam'), ('Stanford', 'Stánford'),
+           ('Grant Park', 'Grant Park'), ('Chicago', 'Chicágo'), ('Lincoln', 'Línkon'),
+           ('Brian Zinn', 'Bráian Zin'), ('Zinn', 'Zin'), ('Andy Abrams', 'Andi Éibrams'), ('Cleveland', 'Clívland'),
+           ('Long Island', 'Long Áiland'), ('Expedition Unknown', 'Expedíshon Annóun'),
+           ('Jason Krupat', 'Yéison Crúpat'), ('Krupat', 'Crúpat'), ('Langone', 'Langóne'), ('North End', 'Norz End'),
+           ('Paul Revere', 'Pol Revír'), ('Brooklyn', 'Brúclin'), ('Houston', 'Jiúston'), ('Milwaukee', 'Miluóqui'),
+           ('Roanoke', 'Róanok'), ('Charleston', 'Chárleston'), ('Patriots Point', 'Péitriots Póint')],
 }
 
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
@@ -143,9 +137,9 @@ for e in plan['escenas']:
 assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
-    'serie': 'ASK Atom', 'numero': 31, 'estado': 'v1', 'formato': '16:9', 'rotulos': False,
-    'titulo': {'en': 'GTA Was Almost Canceled. Its Story Began in Scotland',
-               'es': 'GTA casi se cancela: su historia empezó en Escocia'},
+    'serie': 'ASK Atom', 'numero': 32, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
+    'titulo': {'en': 'The Secret: 9 Treasure Boxes Still Buried Since 1982',
+               'es': 'The Secret: 9 cofres siguen enterrados desde 1982'},
     'principal': 'en',
     # desde el episodio 10, el inglés con am_puck (elegida el 25/10/2026 frente a fenrir, michael y heart: «muy plano» era la queja)
     'narracion': 'cuento',   # la voz «B» (desde el 21): por oraciones enteras, sin cortar en las comas
