@@ -74,10 +74,6 @@ const hojas = (x, y) => { caja(x - 9, y - 7, x + 9, y, Q.papel); for (let k = 0;
 const p1 = (t) => {
   const o = { encuadre: 'oficina', vista: 'calle', noche: true, pantalla: 'codigo', lluvia: 0.6 };
   T.dundee(R, t, o);
-  // la mesa principal de haya en penumbra (de noche no se distinguía), con el brillo del monitor encima
-  { const HN = mez(Q.haya, Q.noche1, 0.5), HS = mez(Q.hayaS, Q.noche0, 0.55); R.rect(178, 132, 270, 136, Q.k); R.rect(179, 133, 269, 134, HN); R.rect(179, 135, 269, 135, HS); R.rect(182, 137, 266, 140, Q.k); R.rect(183, 137, 265, 139, HS);
-    for (const lx of [184, 262]) { R.rect(lx - 1, 140, lx + 2, 150, Q.k); R.rect(lx, 140, lx + 1, 149, HS); }
-    for (let x = 194; x < 236; x++) tin(x, 133, Q.fos, 0.25 * (1 - Math.abs(x - 214) / 22)); }
   // Jones, ante la pizarra: explica con el dedo y, cuando llega el documento, se vuelve y sonríe
   const vuelve = t > deja - 0.2;
   R.actor(EL.jonesGT, 112, 150, t, { dir: vuelve ? 1 : -1, dedo: !vuelve || (t > juego && t < juego + 1.2), habla: t > 1.5 && t < deja && sin(t, 7), sonrisa: t > juego, salto: t > juego && t < juego + 0.3 ? 2 : 0 });
