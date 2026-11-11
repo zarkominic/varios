@@ -8840,8 +8840,8 @@ const CUERPO_REMANGADA_CF = parche(CUERPO_CALLE, [[5, 0, 'CCSCC'], [7, 1, 'o'], 
 const CUERPO_BANCO_CF = parche(CUERPO_CHALECO_NV, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'J'], [7, 4, 'J'], [9, 2, 'X']]);
 // la chaqueta de explorador de muchos bolsillos (la del buscador del 16) con el pañuelo anudado al cuello (u)
 const CUERPO_EXPLORADOR_CF = parche(CUERPO_BUSCADOR, [[5, 0, 'uuuuu'], [6, 1, 'uuu'], [7, 2, 'u']]);
-// la camisa del uniforme de guarda (C) con los dos bolsillos (u), la placa (O), el cinturón (G) y la corbata corta (J)
-const CUERPO_GUARDA_CF = parche(CUERPO_CAMPO_GZ, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'C'], [7, 4, 'C'], [9, 2, 'O']]);
+// la camisa del uniforme de guarda (C) con los dos bolsillos (u), la placa (O), el cinturón (G) y la corbata corta (o)
+const CUERPO_GUARDA_CF = parche(CUERPO_CAMPO_GZ, [[7, 3, 'C'], [7, 4, 'C'], [9, 2, 'O']]);
 // el jersey de punto (C) con el cuello redondo (c) de las veinteañeras
 const CUERPO_JERSEY_CF = parche(CUERPO_MANGA, [[5, 0, 'ccScc'], [4, 6, 'ccccccc']]);
 
@@ -8851,7 +8851,11 @@ const PAL_MANO_CF = { ...PAL_MANO, ...COLORES({ M: '#a8743c', R: '#d8303a', A: '
 const manchasCF = (c) => { for (const [i, j, col] of [[5, 4, '#d8303a'], [9, 5, '#3a6ad8'], [7, 7, '#f0c840'], [6, 8, '#5a9a4a'], [10, 8, '#d8303a'], [8, 3, '#3a6ad8']]) c.cuerpo.px(i, j, hex(col)); };
 const conPincelCF = enMano(['...kk', '..kRk', '.kMk.', 'kMk..', 'kk...'], 12, 0, PAL_MANO_CF);
 // la barba de pocos días: la mandíbula un tono más oscura, sin tapar la boca
-const barbaDiasCF = (c) => { const v = hex('#c9a088'); for (const [i, j] of [[3, 9], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [6, 11], [7, 11], [8, 11], [9, 11]]) c.cab.px(i, j, v); };
+const barbaDiasCF = (c) => { const v = hex('#b88e78'); for (const [i, j] of [[3, 9], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [6, 11], [7, 11], [8, 11], [9, 11]]) c.cab.px(i, j, v); };
+// las gafas de Krupat: las de pasta oscura; con sorpresa (los ojos muy abiertos las convertirían en un antifaz), la
+// montura fina y gris con el cristal claro, para que los ojos se vean siempre
+const gafasSustoCF = varios(gafasHP(GAFAS_CUADRADAS, 6, '#5a5560'), cristalHP);
+const gafasKrupatCF = (c) => (c.o.sorpresa ? gafasSustoCF : gafasPastaDC)(c);
 // la carpeta de obra (azul, con la hoja blanca) del jefe
 const conCarpetaCF = enMano(['kkkkkk', 'kAWWAk', 'kAwwAk', 'kAWWAk', 'kkkkkk'], 12, 2, PAL_MANO_CF);
 
@@ -8873,9 +8877,9 @@ export const ELENCO_CF = {
   // corbata mostaza
   escritor2CF: { ...B32, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA_DC, ceja: hex('#8a6a3a'), delante: gafasRedondasDC,
     pal: CLT({ H: '#b89858', h: '#d4b874', C: '#8a2e3c', c: '#6a1e2c', W: '#f2eee2', o: '#e8d8a0', J: '#d8a838', F: '#5a5648', n: '#2a2430' }) },
-  // el pintor joven: el pelo rubio oscuro de lado, la camisa remangada, el delantal crudo manchado de pintura y el pincel
-  pintorCF: { ...B32, cab: CAB_LADO_DC, cuerpo: CUERPO_DELANTAL_AT, ceja: hex('#7a5a2a'), delante: varios(manchasCF, conPincelCF),
-    pal: CLT({ H: '#a87a3c', h: '#c8984e', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', o: '#f2eee2', V: '#e8dcc0', v: '#c0b490', F: '#3e5a8a' }) },
+  // el pintor joven: las greñas negras hasta el cuello (la cara despejada), la camisa azul, el delantal crudo manchado de pintura y el pincel
+  pintorCF: { ...B32, cab: CAB_GRENAS, cuerpo: CUERPO_DELANTAL_AT, ceja: hex('#1c1424'), delante: varios(manchasCF, conPincelCF),
+    pal: CLT({ H: '#241a20', h: '#42343c', u: '#dcae90', r: '#e8a080', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', o: '#f2eee2', V: '#e8dcc0', v: '#c0b490', F: '#3e5a8a' }) },
   // ── Chicago, 1983: los adolescentes (más bajos que los adultos) ──
   // el de los rizos castaños y la camiseta roja
   chico1CF: { ...B32J, cab: CAB_RIZOS, cuerpo: CUERPO_CHAVAL_CF, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
@@ -8912,7 +8916,7 @@ export const ELENCO_CF = {
   // ── Boston, 2019: los Krupat ──
   // Jason Krupat: el pelo castaño corto, las gafas de pasta, la barba de pocos días, la sudadera gris con la capucha a
   // la espalda (nunca puesta) y los vaqueros
-  krupat: { ...B32, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#4a2a18'), delante: varios(barbaDiasCF, gafasPastaDC), detras: capuchaTS,
+  krupat: { ...B32, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#4a2a18'), delante: varios(barbaDiasCF, gafasKrupatCF), detras: capuchaTS,
     pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#8a8e9a', c: '#6c707c', X: '#f0f0f4', F: '#3e5a8a', n: '#2a2430' }) },
   // su mujer: el pelo corto pelirrojo, el jersey coral y los vaqueros
   mujerKrupat: { ...B32, cab: CAB_CORTA_VM, cuerpo: CUERPO_JERSEY_CF, ceja: hex('#8a3a1a'), mejillas: [[6, 8], [12, 8]],
@@ -8940,7 +8944,7 @@ export const ELENCO_CF = {
     pal: CLT({ H: '#6a4020', h: '#8a5a30', J: '#4a6a3a', j: '#628450', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
   // el guarda de parques: el sombrero de ala pardo, la camisa gris con la placa y el pantalón verde
   guardaCF: { ...B32, cuerpo: CUERPO_GUARDA_CF, tocado: 'alaAT', ceja: hex('#1c1424'),
-    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#a8905a', j: '#c0a870', D: '#4a3420', C: '#9aa0a8', c: '#7a808a', u: '#7a808a', o: '#7a808a', O: '#f0c040', G: '#3a2a1a', F: '#3e6a44', n: '#3a2a1a' }) },
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#a8905a', j: '#c0a870', D: '#4a3420', C: '#9aa0a8', c: '#7a808a', u: '#7a808a', o: '#2a4a34', O: '#f0c040', G: '#3a2a1a', F: '#3e6a44', n: '#3a2a1a' }) },
   // el empleado del banco: el pelo oscuro peinado hacia atrás, el chaleco azul marino, la camisa blanca y la corbata verde
   empleadoBancoCF: { ...B32, cab: CAB_ENGOMINADO, cuerpo: CUERPO_BANCO_CF, ceja: hex('#2a1c14'),
     pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#2a3458', c: '#1e2644', W: '#f6f6f8', o: '#c8a040', J: '#2a8a5a', X: '#f0c040', F: '#2a3458' }) },
