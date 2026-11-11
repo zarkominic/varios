@@ -136,8 +136,8 @@ assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
     'serie': 'ASK Atom', 'numero': 30, 'estado': 'v1', 'formato': '16:9', 'rotulos': False,
-    'titulo': {'en': "Eight Giant Shafts Under the Pyramids? What They Claim and What's Real",
-               'es': '¿Ocho pozos gigantes bajo las pirámides? Lo que dicen y lo que es real'},
+    'titulo': {'en': "Eight Giant Shafts Under the Pyramids? What's Real",
+               'es': '¿Ocho pozos gigantes bajo las pirámides? Lo que es real'},
     'principal': 'en',
     # desde el episodio 10, el inglés con am_puck (elegida el 25/10/2026 frente a fenrir, michael y heart: «muy plano» era la queja)
     'narracion': 'cuento',   # la voz «B» (desde el 21): por oraciones enteras, sin cortar en las comas
