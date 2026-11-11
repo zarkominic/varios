@@ -10,13 +10,18 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // CF-CHICAGO (frases 11–12), 1983, cartela «1983». Siete planos:
-// 1. LOCAL: el mapa se acerca a los Grandes Lagos; aparece el primer cofre (un «1») y la chincheta cae en Chicago;
+// 1. LOCAL: el mapa se acerca a los Grandes Lagos (vista libre, con la esquina de Atom en tierra tranquila); aparece el
+//    primer cofre (un «1»), la chincheta cae en Chicago y sale el sol del verano;
 // 2. LOCAL: el cuarto de un chaval de 1983; llegan los otros dos y, sobre el libro, se fijan en la torre del cuadro;
 // 3. C ciudad: los tres comparan el cuadro con la torre del agua; en el bocadillo se tachan los molinos;
 // 4. C ciudad/sala: los versos los llevan a los dos medallones, que se iluminan, y corren hasta la estatua;
 // 5. [hoyo, golpe] C parque: entran corriendo y espantan a las palomas; seis hoyos, nada; mandan una carta;
 // 6. LOCAL: sobre la manta, una mano sacude el sobre y sale la foto… de tierra; la otra la gira del revés (gag 3);
-// 7. C parque/hoyo: a medio metro, uno lanza la pala contra la pared, «clonk» (gag 4), la tierra cae y asoma la caja.
+// 7. C parque/hoyo (gag 4): el del hoyo da dos paladas, se harta y levanta la pala por encima de la cabeza (los de
+//    arriba miran la foto y le señalan); en «threw» la lanza en un globo alto, girando y con estela; «clonk» en «wall»:
+//    estrella, chispas, polvo que sube, terrones del borde, los tres dan un respingo, la foto se cae al césped y la pala
+//    rebota y queda tumbada en el fondo. Se abre el círculo ampliado de la pared: grieta, la tierra se desmorona y en
+//    «there was the box» la caja está entera, con su aro y sus rayos; los tres acuden y saltan.
 import * as T from '/atomo/plato/escenas/cf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('cf-chicago');
@@ -67,9 +72,10 @@ const K1 = EL.chico1CF, K2 = EL.chico2CF, K3 = EL.chico3CF;
 
 // ── 1. el mapa: el primer cofre aparece en Chicago ──
 const CHI = [-87.63, 41.88];
+const VISTA1 = [-88, 40.5];
 const p1 = (t) => {
   const u = tramo(t, 1.3, ta(2.7));
-  const P = T.mapa(R, t, { zona: 'medioeste', desde: 'eeuu', u });
+  const P = T.mapa(R, t, { zoom: 2.4, centro: VISTA1, desde: 'eeuu', u, rosa: u < 0.5 ? [282, 100] : false });
   const [cx, cy] = P(CHI).map(Math.round);
   // veleros en el lago Míchigan y un carguero en el Superior
   for (let k = 0; k < 3; k++) { const [bx, by] = P([-87.0 + 0.25 * Math.sin(t * 0.4 + k * 2), 42.6 + k * 0.9 + 0.1 * Math.sin(t * 0.3 + k)]).map(Math.round); R.linea(bx - 2, by, bx + 2, by, C.k); R.poligono([[bx, by - 1], [bx, by - 6], [bx + 3, by - 1]], BLANCO); R.pset(bx - 3 - (Math.floor(t * 3 + k) % 2), by + 1, BLANCO); }
@@ -326,39 +332,90 @@ const p6 = (t) => {
 };
 
 // ── 7. la pala contra la pared: «clonk» (gag 4) ──
+// la pala entera (11 × 24, el mango arriba) para lanzarla girando, y el polvo del golpe
+const palaP = () => pieza('pala', 11, 24, () => G.pala(R, 5, 23, {}));
+const polvo7 = (x, y, r, k) => { x = Math.round(x); y = Math.round(y); if (r < 1) { R.pset(x, y, hex('#c8a878')); return; } R.disco(x, y, r, k % 2 ? hex('#b89468') : hex('#d4b88a')); R.disco(x - 1, y - 1, Math.max(0, r - 2), hex('#ecd8ae')); };
+// la estrella del «clonk»: 8 puntas, radio r
+const estrella7 = (x, y, r, c, giro = 0) => { const P = []; for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2 + giro, d = k % 2 ? r * 0.45 : r; P.push([Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d * 0.9)]); } R.poligono(P, c); };
+// el círculo ampliado de la pared (centro zx, zy; radio r): la tierra se desmorona (v 0–1) y deja ver la caja con el cofre
+const LUPA7 = [150, 55, 30];
+const pared7 = (t, v, luce) => {
+  const [zx, zy, r] = LUPA7, TI = hex('#7a5434'), TS = hex('#523622'), TL = hex('#9a7044'), TD = hex('#3e2a1a');
+  R.disco(zx, zy, r + 2, C.k); R.disco(zx, zy, r + 1, hex('#f4ecd2')); R.disco(zx, zy, r - 1, TD);
+  G.cofre(R, zx, zy + 20, { s: 2 });
+  // la tierra que aún la tapa: se abre desde donde dio la pala (a la izquierda) y cae a trozos
+  const rr = v * 62 - 4;
+  for (let j = -r + 1; j < r; j++) for (let i = -r + 1; i < r; i++) { if (i * i + j * j >= (r - 1) * (r - 1)) continue; const x = zx + i, y = zy + j, d = Math.hypot(i + 22, (j + 2) * 1.15) + (h(x >> 1, y >> 1, 61) - 0.5) * 16;
+    if (d > rr) R.pset(x, y, h(x, y, 62) < 0.16 ? TL : h(x >> 1, y >> 1, 63) < 0.28 ? TS : ((y >> 2) + (x >> 4)) % 5 === 0 ? TD : TI); else if (d > rr - 2.5 && h(x, y, 64) < 0.6) R.pset(x, y, TS); }
+  // piedras y una raíz en la tierra que queda (se van con ella)
+  if (v < 0.75) { R.disco(zx + 16, zy - 14, 3, C.k); R.disco(zx + 16, zy - 14, 2, hex('#8a8a8a')); R.pset(zx + 15, zy - 15, hex('#c0c0c0')); } if (v < 0.9) { R.disco(zx + 14, zy + 18, 2, hex('#8a8a8a')); R.linea(zx + 4, zy - 28, zx + 12, zy - 20, hex('#c8a878')); }
+  // la grieta del golpe, antes de que caiga nada
+  if (v < 0.22) { const G7 = [[-24, -2], [-17, -8], [-12, -3], [-5, -9], [1, -4]], G8 = [[-24, -2], [-18, 5], [-11, 3], [-6, 11]]; for (const L of [G7, G8]) for (let k = 0; k + 1 < L.length; k++) { R.linea(zx + L[k][0], zy + L[k][1], zx + L[k + 1][0], zy + L[k + 1][1], C.k); R.linea(zx + L[k][0], zy + L[k][1] + 1, zx + L[k + 1][0], zy + L[k + 1][1] + 1, TD); } }
+  // los terrones que caen por delante
+  if (v > 0.05 && v < 1) for (let k = 0; k < 14; k++) { const u = (v * 3.2 + k / 14) % 1, x = zx - 24 + Math.floor(h(k, 1, 65) * (10 + v * 40)), y = zy - 16 + Math.round(u * u * 44) + (k % 5); if ((x - zx) ** 2 + (y - zy) ** 2 < (r - 3) ** 2) { R.rect(x, y, x + 1 + (k % 2), y + 1, k % 3 ? TL : TS); R.pset(x, y, hex('#b48a58')); } }
+  // el cristal de la caja: un brillo que la recorre cuando ya se ve
+  if (luce > 0) { const bx = zx - 18 + Math.round(((t * 0.9) % 1) * 44); for (let j = -16; j <= 16; j++) { const x = bx - Math.round(j / 3); if ((x - zx) ** 2 + j * j < (r - 4) ** 2 && Math.abs(x - zx) < 19) R.pset(x, zy + 2 + j, mez(R.pget(x, zy + 2 + j), BLANCO, 0.55)); } }
+  R.anillo(zx, zy, r, C.k); R.anillo(zx, zy, r + 2, C.k);
+};
 const p7 = (t) => {
-  const TIRA = tb(34.05), CLONK = tb(35.1), caja1 = tramo(t, CLONK + 0.05, tb(36.6)), o = { encuadre: 'parque', camara: 'hoyo', caja: caja1 };
+  const HARTO = tb(33.3), TIRA = tb(34.2), CLONK = tb(35.1), SALE = tb(36.66), caja1 = tramo(t, CLONK + 0.05, tb(36.6)), o = { encuadre: 'parque', camara: 'hoyo', caja: caja1 };
   const g = T.chicago(R, t, o);
-  const pala = pieza('pala', 11, 24, () => G.pala(R, 5, 23, {}));
-  const cava = t < tb(33.75), harto = t >= tb(33.75) && t < TIRA, vuelo = tramo(t, TIRA, CLONK), ve = t > CLONK, sale = t > tb(36.66);
-  // el de arriba a la izquierda, con la foto: la mira del derecho y del revés
-  { const corre = tramo(t, tb(36.3), tb(37.2)), x = lerp(22, 44, corre); const r = act(K3, x, 100, t, { dir: 1, anda: corre > 0 && corre < 1, sostiene: !ve ? [x + 12, 82] : undefined, sorpresa: ve && !sale, brazos: sale, salto: sale ? Math.round(Math.abs(Math.sin(t * 9)) * 5) : 0, sonrisa: sale });
-    if (!ve) { G.fotoTierra(R, r.mano[0] + 2, r.mano[1] + 6, { dir: Math.floor(t * 1.4) % 2 ? 1 : -1 }); if (Math.floor(t * 1.4) % 2) R.bocadillo(Math.round(x) + 12, 64, { icono: '?' }); } }
-  // el de arriba a la derecha mira al hoyo
-  { const baja = tramo(t, tb(36.0), tb(36.6)); act(K1, lerp(232, 226, baja), 100, t, { dir: -1, habla: cava && Math.sin(t * 7) > 0.3, dedo: ve && !sale, sorpresa: ve && !sale, brazos: sale, salto: sale ? Math.round(Math.abs(Math.sin(t * 9 + 1.5)) * 5) : 0, sonrisa: sale }); }
-  // el del hoyo: cava, se harta, lanza la pala y va hacia la caja
-  const va = tramo(t, tb(35.6), tb(36.5)), kx = lerp(134, 176, va), golpe = cava ? Math.round(Math.abs(Math.sin(t * 9)) * 6) : 0;
-  const r = act(K2, kx, 122, t, { dir: 1, anda: va > 0 && va < 1, sostiene: cava ? [kx + 10, 108 + golpe] : undefined, enfado: harto || (vuelo > 0 && !ve), brazos: harto || (sale && va >= 1), sorpresa: ve && !sale, sonrisa: sale, salto: sale ? Math.round(Math.abs(Math.sin(t * 9 + 3)) * 4) : 0 });
+  const PX = g.pared - 3, PY = g.caja[1] - 3, F = g.fondo;   // dónde da la pala en la pared y el fondo del hoyo
+  const pala = palaP();
+  const cava = t < HARTO, harto = t >= HARTO && t < TIRA, vuelo = tramo(t, TIRA, CLONK), ve = t >= CLONK, sale = t > SALE;
+  const brinco = (k) => { const u = (t - CLONK) / 0.34; return u > 0 && u < 1 ? Math.round(Math.sin(u * Math.PI) * (5 + k)) : 0; };   // el respingo del «clonk»
+  // el de arriba a la izquierda, con la foto: la mira del derecho y del revés; con el golpe la baja y corre al borde
+  { const corre = tramo(t, tb(35.75), tb(36.6)), x = lerp(22, 46, corre);
+    if (ve) { const c = tramo(t, CLONK, CLONK + 0.5); G.fotoTierra(R, Math.round(36 + c * 3), Math.round(lerp(88, g.suelo - 1, c * c)), { dir: 1 }); }   // la foto se le cae al césped y ahí se queda
+    const r = act(K3, x, g.suelo, t, { dir: 1, anda: corre > 0 && corre < 1, sostiene: !ve ? [x + 12, 82] : undefined, sorpresa: ve && !sale, dedo: ve && corre >= 1 && !sale, brazos: sale, salto: sale ? Math.round(Math.abs(Math.sin(t * 9)) * 5) : brinco(1), sonrisa: sale });
+    if (!ve) { G.fotoTierra(R, r.mano[0] + 2, r.mano[1] + 6, { dir: Math.floor(t * 1.4) % 2 ? 1 : -1 }); if (Math.floor(t * 1.4) % 2 && t < TIRA) R.bocadillo(Math.round(x) + 12, 64, { icono: '?' }); } }
+  // el de arriba a la derecha: anima, se tapa con el lanzamiento y luego baja al borde a mirar
+  { const baja = tramo(t, tb(35.9), tb(36.6)); act(K1, lerp(234, 226, baja), g.suelo, t, { dir: -1, habla: cava && Math.sin(t * 7) > 0.3, dedo: (harto && Math.sin(t * 9) > 0) || (ve && baja >= 1 && !sale), sorpresa: (vuelo > 0.3 && !sale), anda: baja > 0 && baja < 1, brazos: sale, salto: sale ? Math.round(Math.abs(Math.sin(t * 9 + 1.5)) * 5) : brinco(0), sonrisa: sale }); }
+  // el del hoyo: cava, se harta (levanta la pala por encima de la cabeza), la lanza y va hacia la caja
+  const va = tramo(t, tb(35.7), tb(36.5)), kx = lerp(134, 172, va), golpe = cava ? Math.round(Math.abs(Math.sin((t - P7) * 7.5)) * 6) : 0;
+  const sube = tramo(t, HARTO, HARTO + 0.45), atras = harto ? Math.round(Math.sin(tramo(t, TIRA - 0.3, TIRA) * Math.PI) * 2) : 0, sigue = vuelo > 0 && vuelo < 0.45;
+  const mx = cava ? kx + 10 : kx + lerp(10, -3, sube) - atras, my = cava ? F - 14 + golpe : lerp(F - 14, F - 34, sube) + (sube >= 1 ? Math.round(Math.sin(t * 34)) : 0);
+  const r = act(K2, kx - (harto ? atras : 0), F, t, { dir: 1, anda: va > 0 && va < 1, sostiene: cava || harto ? [mx, my] : undefined, dedo: sigue || (ve && va >= 1 && !sale), enfado: harto || (vuelo > 0 && !ve), brazos: sale && va >= 1, sorpresa: ve && !sale, sonrisa: sale, salto: sale ? Math.round(Math.abs(Math.sin(t * 9 + 3)) * 4) : brinco(-1) });
+  let palaXY = null;
   if (cava) { G.pala(R, r.mano[0] + 1, r.mano[1] + 11, {});
     // la tierra que saca, hacia el montón
-    for (let k = 0; k < 5; k++) { const u = ((t * 1.45 + k * 0.07) % 1); if (u < 0.75) { const w = u / 0.75; R.rect(Math.round(lerp(140, 82, w)), Math.round(lerp(112, 84, w) - Math.sin(w * Math.PI) * 26) + k, Math.round(lerp(140, 82, w)) + 1, Math.round(lerp(112, 84, w) - Math.sin(w * Math.PI) * 26) + k + 1, k % 2 ? C.tierra : C.tierraS); } } }
-  else if (harto) { girado(pala, kx, 90 + Math.round(Math.sin(t * 30)), Math.PI / 2 + Math.sin(t * 30) * 0.08); for (const d of [-1, 1]) R.linea(Math.round(kx) + d * 14, 86, Math.round(kx) + d * 17, 83, C.k); }
-  else if (vuelo < 1) { const px = lerp(kx + 6, 197, vuelo), py = lerp(90, 111, vuelo) - Math.sin(vuelo * Math.PI) * 5; girado(pala, px, py, Math.PI / 2 + vuelo * Math.PI * 4); for (let k = 1; k <= 4; k++) R.rect(Math.round(px - 8 - k * 6), Math.round(py - k) - 2 + (k % 2) * 4, Math.round(px - 5 - k * 6), Math.round(py - k) - 2 + (k % 2) * 4, BLANCO); }
-  else { const cae = tramo(t, CLONK, CLONK + 0.4); girado(pala, lerp(197, 190, cae), lerp(110, 119, cae * cae), Math.PI / 2 + lerp(0.5, 0, cae)); }
-  // «clonk»: el golpe en la pared, con sus estrellas y su «!»
-  { const u = (t - CLONK) / 0.6; if (u >= 0 && u < 1) { for (let k = 0; k < 7; k++) { const a = Math.PI * (0.55 + 0.9 * k / 6), d = 5 + u * 16; destello(204 + Math.cos(a) * d, 111 + Math.sin(a) * d * 0.8, u < 0.5 ? 2 : 1, k % 2 ? ORO : BLANCO); } R.disco(204, 111, Math.round(4 * (1 - u)) + 1, BLANCO); } }
-  if (ve && t < tb(36.4)) { R.bocadillo(Math.round(kx) + 8, 86, { icono: '!' }); R.bocadillo(232, 66, { icono: '!' }); }
+    for (let k = 0; k < 5; k++) { const u = (((t - P7) * 1.2 + k * 0.07) % 1); if (u < 0.75) { const w = u / 0.75; R.rect(Math.round(lerp(140, 82, w)), Math.round(lerp(112, 84, w) - Math.sin(w * Math.PI) * 26) + k, Math.round(lerp(140, 82, w)) + 1, Math.round(lerp(112, 84, w) - Math.sin(w * Math.PI) * 26) + k + 1, k % 2 ? C.tierra : C.tierraS); } } }
+  else if (harto) {   // la anticipación: la pala sube girando hasta quedar en alto, hacia atrás, y tiembla de rabia
+    const ang = lerp(0, -2.5, sube) + (sube >= 1 ? Math.sin(t * 34) * 0.07 : 0); palaXY = [r.mano[0] - Math.sin(ang) * 8, r.mano[1] + Math.cos(ang) * 8 - 1, ang];
+    if (sube >= 1) { for (const d of [-1, 1]) { R.linea(Math.round(kx) + d * 12 - 3, F - 44, Math.round(kx) + d * 16 - 3, F - 48, C.k); R.linea(Math.round(kx) + d * 13 - 3, F - 39, Math.round(kx) + d * 18 - 3, F - 40, C.k); } R.bocadillo(Math.round(kx) + 10, F - 44, { icono: '!' }); } }
+  else if (vuelo < 1) {   // el vuelo: un globo alto por encima del césped, girando, con su estela
+    const pos = (v) => [lerp(kx - 2, PX, v), lerp(F - 38, PY, v) - Math.sin(v * Math.PI) * 30];
+    for (let k = 6; k >= 1; k--) { const v = vuelo - k * 0.045; if (v <= 0) continue; const [ex, ey] = pos(v); R.disco(Math.round(ex), Math.round(ey), k < 4 ? 1 : 0.6, k % 2 ? BLANCO : hex('#d8e4f0')); if (k % 2) R.linea(Math.round(ex) - 3, Math.round(ey) + 4, Math.round(ex) - 6, Math.round(ey) + 5, BLANCO); }
+    const [px, py] = pos(vuelo); palaXY = [px, py, -2.5 + vuelo * Math.PI * 5]; }
+  else {   // el rebote: sale hacia atrás dando una vuelta, bota en el fondo y se queda tumbada
+    const re = tramo(t, CLONK, CLONK + 0.55), bo = tramo(t, CLONK + 0.55, CLONK + 0.8);
+    palaXY = [lerp(PX - 2, 158, re), lerp(PY, F - 4, re) - Math.sin(re * Math.PI) * 15 - Math.sin(bo * Math.PI) * 4, lerp(-2.5 + Math.PI * 5, Math.PI * 4.5, sua7(re))]; }
+  if (palaXY) girado(pala, palaXY[0], palaXY[1], palaXY[2]);
+  // «clonk»: la estrella del golpe en la pared, las chispas que saltan por encima del césped y el polvo que sube
+  { const u = (t - CLONK) / 0.7; if (u >= 0 && u < 1) {
+      if (u < 0.4) { estrella7(PX + 1, PY, Math.round(9 + u * 22), C.k, 0.2); estrella7(PX + 1, PY, Math.round(7 + u * 22), u < 0.14 ? BLANCO : ORO, 0.2); estrella7(PX + 1, PY, Math.round(3 + u * 12), BLANCO, 0.5); }
+      for (let k = 0; k < 9; k++) { const a = Math.PI * (0.62 + 0.95 * k / 8), d = 8 + u * (22 + (k % 3) * 6); destello(PX + Math.cos(a) * d, PY + Math.sin(a) * d * 0.9 + u * u * 8, u < 0.5 ? 2 : 1, k % 2 ? ORO : BLANCO); } }
+    const w = (t - CLONK) / 1.5; if (w >= 0 && w < 1) { for (let k = 0; k < 8; k++) { const q = Math.min(1, w * (1.1 + (k % 3) * 0.25)); polvo7(PX - 2 - (k % 4) * 5 - q * (6 + k * 2) + Math.sin(t * 3 + k) * 2, PY + 6 - (k % 3) * 5 - q * (16 + k * 3), Math.round((1 - q) * (3 + (k % 3))), k); }
+      // la sacudida: terrones que caen del borde del hoyo
+      if (w < 0.5) for (let k = 0; k < 9; k++) { const x = g.hoyo.x0 + 6 + Math.floor(h(k, 3, 66) * (g.hoyo.x1 - g.hoyo.x0 - 12)), y = g.suelo + 2 + Math.round((w * 2) ** 2 * 18) + (k % 4); if (y < F) R.pset(x, y, k % 2 ? C.tierra : C.tierraS); } } }
+  if (ve && t < tb(36.3)) { R.bocadillo(Math.round(kx) + 8, F - 36, { icono: '!' }); R.bocadillo(232, 66, { icono: '!' }); }
   // la caja, a la vista: rayos de luz
-  if (sale) { for (let k = 0; k < 10; k++) { const a = Math.PI * (0.5 + k / 9), l = 13 + (Math.floor(t * 6 + k) % 3) * 3; if ((k + Math.floor(t * 4)) % 2) R.linea(Math.round(206 + Math.cos(a) * 9), Math.round(112 + Math.sin(a) * 12), Math.round(206 + Math.cos(a) * l), Math.round(112 + Math.sin(a) * (l + 3)), OROL); } destello(199, 104 + Math.round(Math.sin(t * 5) * 2), 2, BLANCO); }
+  if (sale) { for (let k = 0; k < 10; k++) { const a = Math.PI * (0.5 + k / 9), l = 13 + (Math.floor(t * 6 + k) % 3) * 3; if ((k + Math.floor(t * 4)) % 2) R.linea(Math.round(g.pared + Math.cos(a) * 9), Math.round(PY + 2 + Math.sin(a) * 12), Math.round(g.pared + Math.cos(a) * l), Math.round(PY + 2 + Math.sin(a) * (l + 3)), OROL); } destello(g.pared - 7, PY - 6 + Math.round(Math.sin(t * 5) * 2), 2, BLANCO); }
   T.chicagoDelante(R, t, o);
-  // la caja, en grande, para que se vea lo que han encontrado
-  if (sale) { const z = tramo(t, tb(36.66), tb(36.95)), zx = 150, zy = 54, r = Math.round(8 + 19 * z); for (let i = 0; i <= 9; i++) if ((i + Math.floor(t * 4)) % 2) R.disco(Math.round(lerp(204, zx + 18, i / 9)), Math.round(lerp(104, zy + 20, i / 9)), 0.6, C.k);
-    R.disco(zx, zy, r + 1, C.k); R.disco(zx, zy, r, hex('#f4ecd2')); R.disco(zx, zy, r - 2, hex('#7a5434')); if (z >= 1) { for (let k = 0; k < 16; k++) R.pset(zx - 20 + Math.floor(h(k, 1, 51) * 40), zy - 20 + Math.floor(h(k, 2, 51) * 40), k % 2 ? hex('#523622') : hex('#9a7044')); G.cofre(R, zx, zy + 20, { s: 2 }); destello(zx - 14, zy - 16, 2 + (Math.floor(t * 4) % 2), BLANCO); destello(zx + 15, zy + 6, 1 + (Math.floor(t * 5) % 2), OROL); } }
+  // la pared, en grande: se abre con el golpe, la tierra se desmorona y en «there was the box» la caja está entera
+  if (ve) { const [zx, zy, zr] = LUPA7, ab = tramo(t, CLONK + 0.12, CLONK + 0.4), v = tramo(t, CLONK + 0.45, SALE - 0.05);
+    for (let i = 0; i <= 9 * ab; i++) if ((i + Math.floor(t * 4)) % 2) R.disco(Math.round(lerp(g.pared - 4, zx + 25, i / 9)), Math.round(lerp(PY - 9, zy + 27, i / 9)), 1, i % 2 ? C.k : BLANCO);
+    if (ab < 1) { const r0 = Math.round(4 + ab * (zr + 2) + Math.sin(ab * Math.PI) * 4); R.disco(zx, zy, r0 + 2, C.k); R.disco(zx, zy, r0 + 1, hex('#f4ecd2')); R.disco(zx, zy, Math.max(1, r0 - 1), hex('#7a5434')); }
+    else { pared7(t, v, sale ? 1 : 0);
+      if (sale) { const pu = tramo(t, SALE, SALE + 0.5); if (pu < 1) { R.anillo(zx, zy, Math.round(zr + 3 + pu * 12), OROL, pu > 0.5 ? 2 : 0); R.anillo(zx, zy, Math.round(zr + 2 + pu * 12), ORO, pu > 0.5 ? 2 : 0); }
+        for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2 + t * 0.7, l0 = zr + 5, l1 = zr + 9 + (Math.floor(t * 5 + k) % 3) * 2; if (k % 2 === Math.floor(t * 3) % 2) R.linea(Math.round(zx + Math.cos(a) * l0), Math.round(zy + Math.sin(a) * l0), Math.round(zx + Math.cos(a) * l1), Math.round(zy + Math.sin(a) * l1), ORO); }
+        destello(zx - 20, zy - 22, 2 + (Math.floor(t * 4) % 2), BLANCO); destello(zx + 23, zy + 12, 1 + (Math.floor(t * 5) % 2), OROL); destello(zx + 14, zy - 26, Math.floor(t * 3) % 3, BLANCO); } } }
 };
+const sua7 = (u) => u * u * (3 - 2 * u);
 
 const efectos = [[ta(1.86), 'brillo'], [ta(3.0), 'toc'], [ta(8.58), 'pop'], [ta(10.0), 'brillo'], [P3 + 0.5, 'coche'], [ta(12.36), 'tic'], [ta(14.0), 'golpecito'],
   [ta(16.04), 'brillo'], [ta(16.5), 'campana'], [ta(19.64), 'pop'], [P5 + 0.1, 'whoosh'], [HOYO_T[0], 'golpecito'], [HOYO_T[2], 'golpecito'], [HOYO_T[4], 'golpecito'], [tb(25.1), 'boing'], [tb(26.5), 'whoosh'],
-  [P6 + 0.9, 'papel'], [tb(29.6), 'papel'], [tb(31.25), 'whoosh'], [tb(31.7), 'boing'], [tb(32.9), 'golpecito'], [tb(33.6), 'golpecito'], [tb(34.05), 'whoosh'], [tb(35.1), 'toc'], [tb(36.7), 'brillo'], [tb(37.9), 'palmada']];
+  [P6 + 0.9, 'papel'], [tb(29.6), 'papel'], [tb(31.25), 'whoosh'], [tb(31.7), 'boing'], [tb(32.75), 'golpecito'], [tb(34.2), 'whoosh'], [tb(35.1), 'toc'], [tb(35.65), 'golpecito'], [tb(36.66), 'brillo'], [tb(37.9), 'palmada']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5, 'corte'], [P6, p6], [P7, p7]], { cartela: '1983', efectos, año: 1983 });
 </script>
 </body>

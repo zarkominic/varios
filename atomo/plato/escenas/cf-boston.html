@@ -261,7 +261,7 @@ const p3 = (t) => {
 // se encienden una tras otra («Thucydides», «Xenophon»); pasa el cartero y un ciclista
 const TUC = b(0.228), JEN = b(0.296);
 const p4 = (t) => {
-  T.boston(R, t, { ...BI, luz: 0.55 * tramo(t, TUC - 0.15, TUC + 0.3) + 0.45 * tramo(t, JEN - 0.15, JEN + 0.3), farol: 0 });
+  T.boston(R, t, { ...BI, luz1: tramo(t, TUC - 0.15, TUC + 0.3), luz2: tramo(t, JEN - 0.15, JEN + 0.3), farol: 0 });
   for (const [cx, t0] of [[112, TUC], [144, JEN]]) { const d = tramo(t, t0, t0 + 0.7); if (d > 0 && d < 1) { T.b_destello(R, cx + 9, 71, 1 - d, hex('#fff4b0')); R.anillo(cx, 75, Math.round(6 + d * 10), hex('#ffe890'), 4); } }
   // un ciclista por la calle del fondo
   { const cx = Math.round(330 - (t - P4) * 26), cy = 143; if (cx > 222) { R.anillo(cx - 4, cy, 2, K); R.anillo(cx + 4, cy, 2, K); R.linea(cx - 4, cy, cx, cy - 3, K); R.linea(cx, cy - 3, cx + 4, cy, K); R.rect(cx - 1, cy - 8, cx + 1, cy - 4, hex('#3a9a5a')); R.rect(cx - 1, cy - 11, cx + 1, cy - 9, hex('#f0c090')); R.rect(cx - 1, cy - 12, cx + 1, cy - 12, hex('#c8303a')); } }

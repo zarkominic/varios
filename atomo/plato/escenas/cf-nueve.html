@@ -10,11 +10,13 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // CF-NUEVE (frase 26), hoy. Cuatro planos:
-// 1. hoy/mapa (o.encontrados 3; 2.ª vez): en «nine» el puntero toca el mapa y los nueve interrogantes saltan como
-//    palomitas (gag 7, o.dudas); en «agree on several» el puntero rodea con una línea de puntos las del este. Corta en
-//    «New York».
-// 2. (LOCAL) T.mapa de cerca, la mitad este: las chinchetas caen una a una al nombrarlas (Nueva York, Houston, Milwaukee,
-//    San Agustín, Nueva Orleans, Montreal) y la lupa va de una a otra; las tres verdes ya están. Corta en «Roanoke».
+// 1. hoy/mapa (o.encontrados 3; 2.ª vez): una mano (T.brazo) entra por la esquina de abajo y, en «nine», da un toque en la
+//    nota del «9 ?»: los nueve interrogantes saltan como palomitas (gag 7, o.dudas); otro toque, marca el compás y se va;
+//    en «agree on several» una línea roja de puntos se traza sola alrededor de las del este. Corta en «New York».
+// 2. (LOCAL) T.mapa, la mitad este (zoom 1,15): una lupa de latón que amplía al doble llega del mar y salta de ciudad en
+//    ciudad dejando un rastro de puntos; bajo ella cae cada chincheta, grande y con rebote, al nombrarla (Nueva York,
+//    Houston, Milwaukee, San Agustín, Nueva Orleans, Montreal) y de cada una salta su «?» grande; las tres verdes ya
+//    están; un velero y dos gaviotas en el Atlántico. Corta en «Roanoke».
 // 3. (LOCAL) dos postales sujetas con chincheta: la isla de dunas de Roanoke (la chincheta cae en «Roanoke») y la fila de
 //    casas de colores de Charleston (en «Charleston»); en «the exact spot is disputed» la X salta de un sitio a otro
 //    con un «?». Corta en «and San Francisco».
@@ -72,45 +74,80 @@ const ROA = n(.522), CAR = n(.592), CHA = n(.672), aunque = n(.730), disputa = n
 // un «?» que salta como una palomita en (x, y) desde t0
 const palomita = (t, x, y, t0, k = 0) => { const v = tramo(t, t0, t0 + 0.35); if (v <= 0) return; const bot = v < 1 ? Math.sin(v * Math.PI) * 9 : Math.abs(Math.sin(t * 3.4 + k * 1.3)) * 2, py = Math.round(y - 12 * v - bot);
   R.disco(x, py + 1, 6, K); R.disco(x - 3, py - 2, 3, K); R.disco(x + 3, py - 1, 3, K); R.disco(x - 3, py - 2, 2, hex('#fff6d8')); R.disco(x + 3, py - 1, 2, hex('#f4dc9a')); R.disco(x, py + 1, 5, hex('#fff0c0')); R.icono('?', x - 2, py - 2, hex('#a82c28'), hex('#f4dc9a')); };
-// el puntero de madera con su contera de latón, de la mano (abajo) a la punta
-const puntero = (hx, hy, px, py) => { for (const [dx, dy, c] of [[0, -1, K], [0, 2, K], [0, 0, hex('#b07e44')], [0, 1, hex('#7a5028')]]) R.linea(hx + dx, hy + dy, px + dx, py + dy, c);
-  const ux = (hx - px) / Math.hypot(hx - px, hy - py), uy = (hy - py) / Math.hypot(hx - px, hy - py); for (let i = 0; i < 7; i++) { R.pset(Math.round(px + ux * i), Math.round(py + uy * i), i < 2 ? OROL : ORO); R.pset(Math.round(px + ux * i), Math.round(py + uy * i) + 1, OROS); }
-  T.mano(R, hx - 4, hy + 1, 1, '#3a6ab0', { sinManga: true }); };
-
 // ── 1: los nueve interrogantes (gag 7) ──
+const MANGA1 = '#3a6ab0';
 const p1 = (t) => {
   const g = T.hoy(R, t, { encuadre: 'mapa', encontrados: 3, dudas: tramo(t, nueve, nueve + 2.3) * 0.85 });
-  const L = g.lista, orden = [11, 5, 3, 8, 9, 6, 4, 7, 10];
-  // la línea de puntos que rodea las del este en «agree on several»
-  const ro = tramo(t, acuerdo, varias + 0.5); if (ro > 0) for (let k = 0; k < 200 * ro; k++) { const a = -Math.PI / 2 + k / 200 * Math.PI * 2; if ((k + Math.floor(t * 8)) % 6 < 2) continue; const x = Math.round(214 + Math.cos(a) * 62), y = Math.round(88 + Math.sin(a) * 66); R.rect(x, y, x + 1, y + 1, ROJO); R.pset(x + 1, y + 2, hex('#7a1e26')); }
-  // el puntero: toca San Francisco en «nine», barre hacia el este mientras saltan y luego rodea la costa
-  let tip;
-  if (t < nueve) { const u = sua(tramo(t, 0.25, nueve - 0.08)); tip = [lerp(96, L[11][0] + 2, u), lerp(190, L[11][1] + 2, u) - Math.sin(u * Math.PI) * 10]; }
-  else if (t < acuerdo) { const s = Math.min(8, (t - nueve) / 0.2), i = Math.floor(s), f = sua(s - i), A = L[orden[Math.min(8, i)]], B = L[orden[Math.min(8, i + 1)]]; tip = [lerp(A[0], B[0], f) + 2, lerp(A[1], B[1], f) + 2 - Math.sin(f * Math.PI) * 6]; }
-  else { const a = -Math.PI / 2 + ro * Math.PI * 2, u = sua(tramo(t, acuerdo - 0.3, acuerdo)); tip = [lerp(L[10][0], 214 + Math.cos(a) * 62, u), lerp(L[10][1], 88 + Math.sin(a) * 66, u)]; }
-  const hx = Math.round(cl(tip[0] * 0.55 + 40, 30, 250)), hy = 172;
-  puntero(hx, hy, Math.round(tip[0]), Math.round(tip[1]));
-  if (t > nueve - 0.05 && t < nueve + 0.4) pulso(t, L[11][0], L[11][1] - 2, nueve - 0.05, OROL, 4, 16, 0.45);
+  const [nx, ny] = g.nota;
+  // la línea de puntos roja que se traza sola alrededor de las del este en «agree on several», con su punta que chispea
+  const ro = tramo(t, acuerdo, varias + 0.5), RX = 214, RY = 88, RA1 = 62, RB1 = 66;
+  if (ro > 0) { for (let k = 0; k < 200 * ro; k++) { const a = -Math.PI / 2 + k / 200 * Math.PI * 2; if ((k + Math.floor(t * 8)) % 6 < 2) continue; const x = Math.round(RX + Math.cos(a) * RA1), y = Math.round(RY + Math.sin(a) * RB1); R.rect(x, y, x + 1, y + 1, ROJO); R.pset(x + 1, y + 2, hex('#7a1e26')); }
+    if (ro < 1) { const a = -Math.PI / 2 + ro * Math.PI * 2, x = Math.round(RX + Math.cos(a) * RA1), y = Math.round(RY + Math.sin(a) * RB1); R.disco(x, y, 3, K); R.disco(x, y, 2, ROJOL); T.b_destello(R, x, y, 0.5 + 0.5 * Math.sin(t * 22), BL); } }
+  // la mano entra por la esquina de abajo y da dos toques en la nota del «9 ?»: con el primero («nine») empiezan a saltar
+  // los interrogantes; se queda marcando el compás y se va cuando la línea empieza a trazarse
+  const entra = sua(tramo(t, 0.15, nueve - 0.06)), sale = sua(tramo(t, acuerdo + 0.1, acuerdo + 0.6));
+  const toque = (t0) => { const v = (t - t0) / 0.3; return v > 0 && v < 1 ? Math.sin(v * Math.PI) : 0; };
+  const sube = Math.max(toque(nueve + 0.02), toque(nueve + 0.62), toque(nueve + 1.25) * 0.6) * 5 + (t > nueve + 1.6 && sale <= 0 ? Math.max(0, Math.sin(t * 5)) * 1.5 : 0);
+  const mx = lerp(lerp(336, nx + 28, entra), 338, sale), my = lerp(lerp(186, ny + 11, entra), 192, sale) - sube;
+  if (t > nueve - 0.03 && t < nueve + 0.45) pulso(t, nx, ny, nueve - 0.03, OROL, 12, 26, 0.45);
+  if (t > nueve + 0.6 && t < nueve + 1.0) pulso(t, nx, ny, nueve + 0.6, OROL, 12, 22, 0.4);
+  // las rayitas del toque, junto al dedo
+  for (const t0 of [nueve, nueve + 0.6]) { const v = (t - t0) / 0.25; if (v > 0 && v < 1) for (const [dx, dy] of [[-5, -5], [-7, 0], [-3, -8]]) R.linea(Math.round(mx - 12 + dx), Math.round(my + dy), Math.round(mx - 12 + dx * (1 + v)), Math.round(my + dy * (1 + v)), K); }
+  if (sale < 1) T.brazo(R, Math.round(mx + 16), Math.round(my + 24), Math.round(mx), Math.round(my), MANGA1, -1, { codo: [Math.round(mx + 12), Math.round(my + 9)] });
 };
 
 // ── 2: la mitad este, de cerca (LOCAL: T.mapa) ──
-const NOMBRADAS = [['nuevaYork', NY], ['houston', HOU], ['milwaukee', MIL], ['sanAgustin', AGU], ['nuevaOrleans', ORL], ['montreal', MON]];
+const NOMBRADAS = [['nuevaYork', NY, 16, -3], ['houston', HOU, -15, -15], ['milwaukee', MIL, 14, -18], ['sanAgustin', AGU, 17, -9], ['nuevaOrleans', ORL, 14, -17], ['montreal', MON, 18, -10]];
 const LL = Object.fromEntries(T.F_CIUDADES.map(([k, lon, lat]) => [k, [lon, lat]]));
+// una chincheta grande (cabeza de 4 px de radio) que cae desde arriba, rebota y se queda; v < 0: aún no ha salido
+const pin2 = (x, y, t, t0) => { const v = (t - (t0 - 0.3)) / 0.3; if (v <= 0) return; const r1 = (t - t0) / 0.26, r2 = (t - t0 - 0.26) / 0.16;
+  const alto = v < 1 ? Math.round((1 - v * v) * Math.min(46, y - 30)) : r1 < 1 ? Math.round(Math.sin(r1 * Math.PI) * 7) : r2 > 0 && r2 < 1 ? Math.round(Math.sin(r2 * Math.PI) * 2) : 0, hy = y - 9 - alto;
+  R.disco(x + 2 + Math.round(alto / 4), y + 1, alto > 20 ? 1 : 2, hex('#4a4038'));   // la sombra, que se junta al caer
+  R.linea(x, y - alto, x, hy + 2, K); R.linea(x + 1, y - 1 - alto, x + 1, hy + 2, hex('#b8bcc8'));
+  R.disco(x, hy, 5, K); R.disco(x, hy, 4, ROJO); R.disco(x - 1, hy - 1, 2, ROJOL); R.pset(x - 2, hy - 2, BL); R.pset(x + 2, hy + 2, hex('#8a1e26'));
+  if (r1 > 0 && r1 < 1) for (let k = 0; k < 6; k++) { const a = Math.PI + k / 5 * Math.PI, d = 4 + r1 * 8; R.pset(Math.round(x + Math.cos(a) * d), Math.round(y + 1 + Math.sin(a) * d * 0.5), k % 2 ? K : hex('#8a7a5a')); } };
+// el «?» grande de cada una: salta de la chincheta a su sitio y se queda latiendo
+const duda2 = (t, x, y, dx, dy, t0, k) => { const v = tramo(t, t0, t0 + 0.4); if (v <= 0) return; const bot = v < 1 ? Math.sin(v * Math.PI) * 10 : Math.abs(Math.sin(t * 3.4 + k * 1.3)) * 1.5, px = Math.round(x + dx * sua(v)), py = Math.round(y - 9 + (dy + 9) * v - bot), r = v < 0.5 ? 6 : 8;
+  R.linea(x + Math.sign(dx) * 4, y - 9, px - Math.sign(dx) * (r - 1), py + 3, K);
+  R.disco(px, py + 1, r + 1, K); R.disco(px - 4, py - 3, 4, K); R.disco(px + 4, py - 2, 4, K); R.disco(px - 4, py - 3, 3, hex('#fff6d8')); R.disco(px + 4, py - 2, 3, hex('#f4dc9a')); R.disco(px, py + 1, r, hex('#fff0c0')); R.disco(px + 2, py + 3, r - 3, hex('#fbe6ae'));
+  if (v >= 0.5) R.icono('?', px - 4, py - 5, hex('#a82c28'), hex('#f4dc9a'), 2); else R.icono('?', px - 2, py - 2, hex('#a82c28'), hex('#f4dc9a')); };
+// la lupa (radio r): amplía al doble lo que tiene debajo, con su cristal, su aro de latón, su mango (áng. am) y su sombra
+const lupa2 = (lx, ly, r, am) => {
+  const m = Math.ceil(r / 2) + 1, w = 2 * m + 1, src = new Uint32Array(w * w);
+  for (let j = -m; j <= m; j++) for (let i = -m; i <= m; i++) src[(j + m) * w + i + m] = R.pget(cl(lx + i, 0, 319), cl(ly + j, 0, 179));
+  baña(lx - r - 2, ly - r - 1, lx + r + 8, ly + r + 9, K, 0.3, (x, y) => { const d = Math.hypot(x - lx - 4, y - ly - 5); return d < r + 3 && Math.hypot(x - lx, y - ly) > r ? 1 : 0; });
+  const ca = Math.cos(am), sa = Math.sin(am);
+  for (const [d, c] of [[-3, K], [-2, hex('#7a5028')], [-1, hex('#b07e44')], [0, hex('#c89858')], [1, hex('#b07e44')], [2, hex('#7a5028')], [3, K]]) R.linea(Math.round(lx + ca * (r + 2) - sa * d), Math.round(ly + sa * (r + 2) + ca * d), Math.round(lx + ca * (r + 24) - sa * d), Math.round(ly + sa * (r + 24) + ca * d), c);
+  for (const d of [-3, -2, -1, 0, 1, 2, 3]) { R.pset(Math.round(lx + ca * (r + 24) - sa * d), Math.round(ly + sa * (r + 24) + ca * d), K); R.pset(Math.round(lx + ca * (r + 5) - sa * d), Math.round(ly + sa * (r + 5) + ca * d), Math.abs(d) === 3 ? K : ORO); R.pset(Math.round(lx + ca * (r + 6) - sa * d), Math.round(ly + sa * (r + 6) + ca * d), Math.abs(d) === 3 ? K : OROS); }
+  for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r + 0.5) continue;
+    if (d > r - 1) R.pset(lx + i, ly + j, K); else if (d > r - 2.2) R.pset(lx + i, ly + j, i + j < 0 ? OROL : ORO); else if (d > r - 3.4) R.pset(lx + i, ly + j, i + j < 0 ? ORO : OROS); else if (d > r - 4.2) R.pset(lx + i, ly + j, K);
+    else { let c = src[(Math.floor(j / 2) + m) * w + Math.floor(i / 2) + m]; if (d > r - 7) c = mez(c, hex('#bfe0f0'), 0.22); if (Math.abs(i + j + r * 0.9) < 2 && d < r - 6) c = mez(c, BL, 0.45); if (Math.abs(i + j + r * 0.9 - 5) < 1 && d < r - 8) c = mez(c, BL, 0.3); R.pset(lx + i, ly + j, c); } }
+};
+const VISTA2 = { zoom: 1.15, centro: [-80.5, 39.3], rosa: [270, 142] };
 const p2 = (t) => {
-  const P = T.mapa(R, t, { zoom: 1.4, centro: [-82.5, 38.6], rosa: [262, 140] });
+  const P = T.mapa(R, t, VISTA2);
   const en2 = (k) => P(LL[k]).map(Math.round);
+  // un velero que cruza el Atlántico y dos gaviotas
+  { const bx = Math.round(236 + ((t - P2) * 3.2) % 60), by = 96 + Math.round(Math.sin(t * 1.3) * 1); R.linea(bx - 3, by, bx + 3, by, K); R.poligono([[bx, by - 1], [bx, by - 7], [bx + 4, by - 1]], BL); R.poligono([[bx - 1, by - 1], [bx - 1, by - 5], [bx - 3, by - 1]], hex('#e8e0c8')); for (let i = 1; i <= 3; i++) R.pset(bx - 4 - i * 2, by + 1 + (Math.floor(t * 3 + i) % 2), BL);
+    for (let k = 0; k < 2; k++) { const gx = Math.round(222 + k * 26 + Math.sin(t * 0.5 + k * 2) * 12), gy = Math.round(118 + k * 22 + Math.cos(t * 0.7 + k) * 5), a = Math.floor(t * 5 + k) % 2; R.pset(gx, gy, K); R.pset(gx - 1, gy - 1 + a, K); R.pset(gx + 1, gy - 1 + a, K); R.pset(gx - 2, gy - a, K); R.pset(gx + 2, gy - a, K); } }
+  // por dónde va la lupa: llega del mar a Nueva York y salta de una a otra, justo antes de que caiga cada chincheta
+  const C2 = NOMBRADAS.map(([k]) => en2(k)), foco = (i) => [C2[i][0], C2[i][1] - 6], S0 = [foco(0)[0] + 62, foco(0)[1] + 58];
+  const ida = (i) => (i === 0 ? sua(tramo(t, P2 - 0.25, NY - 0.12)) : sua(tramo(t, NOMBRADAS[i][1] - 0.52, NOMBRADAS[i][1] - 0.14)));
+  const tramoL = (i, u) => { const A = i === 0 ? S0 : foco(i - 1), B = foco(i), cv = Math.sin(u * Math.PI) * (i % 2 ? -9 : 9), L = Math.hypot(B[0] - A[0], B[1] - A[1]) || 1; return [lerp(A[0], B[0], u) - (B[1] - A[1]) / L * cv, lerp(A[1], B[1], u) + (B[0] - A[0]) / L * cv]; };
+  let lx = S0[0], ly = S0[1], iL = 0; for (let i = 0; i < 6; i++) { const u = ida(i); if (u > 0) { [lx, ly] = tramoL(i, u); iL = i; } }
+  // el rastro de puntos que deja de una a otra
+  for (let i = 1; i <= iL; i++) { const u = ida(i); for (let q = 0.1; q < Math.min(u, 0.92); q += 0.07) { const [x, y] = tramoL(i, q).map(Math.round); R.rect(x, y + 6, x + 1, y + 7, hex('#a8443a')); R.pset(x + 1, y + 8, hex('#6a5a40')); } }
   // las tres encontradas, en verde y con su marca; Roanoke y Charleston esperan en gris
-  for (const k of ['chicago', 'cleveland', 'boston']) { const [x, y] = en2(k); T.chincheta(R, x, y, t, VERDE); T.visto(R, x - 5, y - 20, 1); }
+  for (const [k, vx, vy] of [['chicago', -17, -4], ['cleveland', -5, -20], ['boston', 3, -19]]) { const [x, y] = en2(k); T.chincheta(R, x, y, t, VERDE); T.visto(R, x + vx, y + vy, 1); }
   for (const k of ['roanoke', 'charleston']) { const [x, y] = en2(k); T.chincheta(R, x, y, t, hex('#9a9aa0')); }
-  // las que se nombran caen una a una, con su «?»
-  const orden = NOMBRADAS.map(([k, t0]) => [en2(k), t0]).sort((a, b) => a[0][1] - b[0][1]);
-  for (const [[x, y], t0] of orden) { const b = tramo(t, t0 - 0.28, t0); if (b <= 0) continue; T.chincheta(R, x, y, t, ROJO, { baja: b, pulso: t > t0 && t < t0 + 0.9 }); }
-  NOMBRADAS.forEach(([k, t0], i) => { const [x, y] = en2(k); palomita(t, x + (k === 'nuevaYork' || k === 'sanAgustin' ? 10 : -9), y - 6, t0 + 0.12, i); });
-  // la lupa va de una a otra
-  let lx, ly; { let i = 0; while (i < 5 && t > NOMBRADAS[i + 1][1] - 0.45) i++; const A = en2(NOMBRADAS[i][0]), B = i > 0 ? en2(NOMBRADAS[i - 1][0]) : [A[0] + 60, A[1] + 80], u = sua(tramo(t, (i > 0 ? NOMBRADAS[i][1] : P2 + 0.55) - 0.45, (i > 0 ? NOMBRADAS[i][1] : P2 + 0.55) - 0.05)); lx = Math.round(lerp(B[0], A[0], u)); ly = Math.round(lerp(B[1], A[1], u) - 4); }
-  baña(lx - 13, ly - 13, lx + 13, ly + 13, BL, 0.16, (x, y) => (Math.hypot(x - lx, y - ly) < 12.5 ? 1 : 0));
-  for (const [rr, c] of [[15, K], [14, ORO], [13, OROL], [12, K]]) R.anillo(lx, ly, rr, c); R.linea(lx - 7, ly - 6, lx - 3, ly - 9, BL);
-  for (const [d, c] of [[-1, K], [0, hex('#7a5028')], [1, hex('#b07e44')], [2, hex('#7a5028')], [3, K]]) R.linea(lx + 10 + d, ly + 11 - d, lx + 26 + d, ly + 27 - d, c);
+  // las que se nombran caen una a una, grandes y con rebote (de arriba abajo, para que se tapen bien)
+  NOMBRADAS.map(([, t0], i) => [C2[i], t0]).sort((a, b) => a[0][1] - b[0][1]).forEach(([[x, y], t0]) => pin2(x, y, t, t0));
+  NOMBRADAS.forEach(([, t0], i) => { if (t > t0 && t < t0 + 0.5) pulso(t, C2[i][0], C2[i][1], t0, ROJOL, 5, 17, 0.5); });
+  // la lupa, que amplía la chincheta que cae
+  lx = Math.round(lx + Math.sin(t * 2.3) * 0.8); ly = Math.round(ly + Math.cos(t * 1.9) * 0.8);
+  lupa2(lx, ly, 22, 0.85 - 1.5 * cl((ly - 80) / 60));
+  // los interrogantes, por encima de todo
+  NOMBRADAS.forEach(([, t0, dx, dy], i) => duda2(t, C2[i][0], C2[i][1], dx, dy, t0 + 0.14, i));
 };
 
 // ── 3: Roanoke y Charleston, dos postales (LOCAL) ──
