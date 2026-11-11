@@ -13,13 +13,12 @@ otras, del estilo de las que pide.
   Petición del usuario (10/11/2026): explicar y MOSTRAR lo que ellos dicen que hay (los pozos, las espirales, las salas
   a cientos de metros), con detalle, y terminar con que no se ha comprobado. Se dibuja como «según ellos»: en trazo de
   plano azul o holograma, con su propio código visual, nunca como el decorado real.
-- **EPISODIO 31 (antes el 30): Forrest Fenn.** Una búsqueda de «Forrest
-  Fenn» trae gente al canal (cae en el ep17, donde Fenn ocupa tres frases). Al terminar el 29: primero 3 Shorts del tramo
-  de Fenn del ep17 (re-render solo de te-fenn y vecinas, título con «Forrest Fenn» delante) y luego el episodio entero:
-  el cofre de 2010, el poema de nueve pistas, diez años de búsqueda, Jack Stuef (junio de 2020), Wyoming revelado en 2022.
-  Cuidado: las muertes de buscadores (una frase, con respeto), el registro del FBI de 2009 (sin acusación) y el poema
-  (con derechos: solo versos sueltos). Guardado para el 31: «The Secret» (Byron Preiss, 1982: doce cofres, tres
-  encontrados, el de Boston en 2019 con una excavadora).
+- **EPISODIO 31 (elegido por el usuario el 11/11/2026): la historia de GTA.** Sustituye a Fenn («ya no quiero forrest
+  fenn»). DMA Design en Dundee, el fallo de los coches de policía, la polémica de 1997, Rockstar, GTA III tras el 11-S,
+  Hot Coffee, el récord de GTA V y GTA VI. Derechos: nada de logo, personajes ni arte reconocible (como Tetris: sin
+  marcador ni interfaz del juego); la violencia, sin enseñarla.
+- **Forrest Fenn: descartado por el usuario (11/11/2026).** Guardado sin número: «The Secret» (Byron Preiss, 1982: doce
+  cofres, tres encontrados, el de Boston en 2019 con una excavadora).
 - **La PlayStation de Nintendo (1988–1991):** guardada por el usuario. Nintendo y Sony hacen juntas una consola; Nintendo
   rompe el pacto en directo; el prototipo aparece en un desván en 2015 y se subasta en 2020. Riesgo: otro de
   videojuegos (sin logos ni mandos reconocibles).
