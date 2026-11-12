@@ -502,3 +502,26 @@ Se leen con `python3 atomo/herramientas/estadisticas.py <carpeta>`. Sin la curva
 
 Pendiente para el próximo: pasar `titulos.py` con el guion; si hay que poner un golpe a mitad de frase, partir la frase
 antes de locutar.
+
+## Episodio 32 · The Secret: los doce cofres de 1982 (11–12/11/2026)
+
+- **Un libro con dueño, sin una sola pintura suya:** los cuadros son nuestros y se ven de lejos o en trozos; sin letras
+  (solo números, rayas y símbolos). Las dos hojas de calendario de Boston («17» y «18») se dejaron y se le dijo al usuario.
+- **Calidad:** 24 de 94 planos suspendieron en la revisión completa (el 31: 47 de 96); 24 → 2 → 0 en tres rondas, sin
+  nada pendiente. 35 fallos: 9 «algo no se lee», 7 de orden de dibujo, 6 de la zona de Atom o la barra del año (las cifras
+  del año bajan hasta y ≈ 20, no hasta 14: lo que haya en y 15–20 bajo x 20–45 las toca) y 6 de brazo. Los 7 fallos
+  encargados de antemano (parches de decorado, brazos largos, dos composiciones repetidas) se arreglaron en la ronda 0.
+- **Parches de decorado:** dos escenas tapaban con píxeles el auricular del teléfono; la pasada de decorados añadió
+  `o.descolgado` y la calidad quitó los parches. Si una escena necesita quitar algo del decorado, se pide la opción.
+- **Planos de más:** seis escenas salieron con un plano más de lo planeado (94 frente a 88) porque una oración pasaba
+  de 7 s; no hubo que tocar nada, pero el plan de encuadres debe contar por oraciones, no por párrafos.
+- **Sonido:** dos escenas cortas (la presentación y la excavadora) siguen marcadas «mucho» (83 % y 85 % de efectos) tras
+  recortarlas; el total, 53 %. La cartela de 2004 cae 7,5 dB, justo en el límite.
+- **Disco:** al empezar el render había 9,3 GB (hacían falta 8,3): se borraron las capturas temporales del 31 y las
+  muestras de banda de `/tmp`. Tras el render quedan 3 GB.
+- **Shorts:** tramos en cortes de escena, mirados en los dos idiomas, a la primera.
+- **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 7,5 dB; 133 y 145 subtítulos, 0 fuera de norma).
+- **Cifras:** unas 7 h desde el guion v1 (presupuesto: 9–11 h); calidad, 5,3 M de tokens y 2 h 27 min.
+
+Pendiente para el próximo: borrar los fotogramas del 32 al empezar; nada en y 15–20 bajo las cifras del año; el plan de
+encuadres, contado por oraciones; sigue pendiente de permiso alinear la medida de la cartela en `banda.cjs`.
