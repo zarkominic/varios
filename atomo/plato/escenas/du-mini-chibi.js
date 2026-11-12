@@ -20,6 +20,7 @@ export function pintarDUchibi(R, t, n) {
     planetaDelante(R, t, o);
     P.manuscrito(R, 152, 150, { s: 2 });
     figura(R, EL.herbert, 114, 150, t, { dir: 1, triste: true }, 2);
+    halo(R, 244, 114, 86, 44, '#1c0a22', 0.9, 0.6);
     cifra(R, '20', 222, 132, 36);
     equis(R, 272, 112, 13, 2);
   }
