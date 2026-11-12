@@ -50,9 +50,11 @@ for l in ('en', 'es'):
 # 3. la imagen vertical: cada plano, recortado en cuadrado (1080×1080, el 56 % de la pantalla; elegido por el usuario el
 #    12/11/2026 con una muestra del 33, frente al 32 % del cuadro entero y a la columna 9:16, que perdía media acción)
 #    donde más movimiento hay, sobre el mismo plano ampliado, difuminado y oscurecido
-from PIL import Image
-def gris(f):
-    return np.asarray(Image.open(f'{D}/fotos/{f:05d}.jpg').convert('L').resize((320, 180), Image.BILINEAR), dtype=np.float32)
+def carga(a, n):
+    """n fotogramas seguidos desde el a, en gris y a 320×180 (con ffmpeg: el entorno de la voz no tiene Pillow)."""
+    r = subprocess.run(['ffmpeg', '-loglevel', 'error', '-framerate', str(FPS), '-start_number', str(a), '-i', f'{D}/fotos/%05d.jpg', '-frames:v', str(n),
+                        '-vf', 'scale=320:180,format=gray', '-f', 'rawvideo', '-'], capture_output=True, check=True).stdout
+    return np.frombuffer(r, np.uint8).reshape(-1, 180, 320).astype(np.float32)
 def cortes_del_episodio():
     """Los fotogramas donde cambia el plano, de medir-planos.mjs (las duraciones de cada escena) y linea.json."""
     import json
@@ -69,11 +71,9 @@ def cortes_del_episodio():
     return sorted(round(x * FPS) for x in out)
 def ventana(a, b, w=180):
     """La x (en el lienzo de 320) del recorte de ancho w con más movimiento entre los fotogramas a y b."""
-    fs = list(range(a + min(10, (b - a) // 4), max(a + 2, b - min(10, (b - a) // 4)), 3))
-    if len(fs) < 2: return (320 - w) // 2
-    prev, m = gris(fs[0]), np.zeros((180, 320), np.float32)
-    for f in fs[1:]:
-        c = gris(f); m += (np.abs(c - prev) > 12); prev = c
+    q = min(10, (b - a) // 4); F = carga(a + q, max(2, b - a - 2 * q))[::3]
+    if len(F) < 2: return (320 - w) // 2
+    m = (np.abs(np.diff(F, axis=0)) > 12).sum(0).astype(np.float32)
     m[:22, :] = 0                                        # la barra del año y el icono de Atom no cuentan
     col = m.sum(0)
     if col.sum() < 1: return (320 - w) // 2
@@ -81,19 +81,20 @@ def ventana(a, b, w=180):
     cx = x + (sub * np.arange(w)).sum() / (sub.sum() + 1e-6)
     return int(round(min(max(cx - w / 2, max(0, x - w * 0.15)), min(320 - w, x + w * 0.15))))
 CORTES = cortes_del_episodio()
+Y_CUADRO = 250   # el cuadrado va arriba (y 250–1330): debajo quedan libres los subtítulos de YouTube y sus botones
 partes, k = [], 0
 for t0, t1 in tramos:
     f0 = round(t0 * FPS); f1 = f0 + round((t1 - t0) * FPS); lim = [f0]
     for fc in CORTES:
         if f0 + 20 < fc < f1 - 20:                       # el corte de verdad: el mayor salto de imagen cerca del previsto
-            lim.append(max(range(fc - 18, fc + 18), key=lambda f: np.abs(gris(f) - gris(f - 1)).mean()))
+            lim.append(fc - 18 + int(np.abs(np.diff(carga(fc - 19, 37), axis=0)).mean((1, 2)).argmax()))
     lim.append(f1)
     for a, b in zip(lim, lim[1:]):
         if b <= a: continue
         x = ventana(a, b)
         corre('ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-start_number', str(a), '-i', f'{D}/fotos/%05d.jpg', '-frames:v', str(b - a),
               '-filter_complex', '[0:v]split[a][b];[a]scale=-2:1920:flags=neighbor,crop=1080:1920,boxblur=24:2,eq=brightness=-0.28:saturation=0.8[fondo];'
-              f'[b]scale=1920:1080:flags=neighbor,crop=1080:1080:{x * 6}:0[fr];[fondo][fr]overlay=0:420,format=yuv420p[v]', '-map', '[v]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18',
+              f'[b]scale=1920:1080:flags=neighbor,crop=1080:1080:{x * 6}:0[fr];[fondo][fr]overlay=0:{Y_CUADRO},format=yuv420p[v]', '-map', '[v]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18',
               '-r', str(FPS), f'{tmp}/p{k}.mp4')
         partes.append(f"file '{tmp}/p{k}.mp4'"); k += 1
 open(f'{tmp}/lista.txt', 'w').write('\n'.join(partes))
