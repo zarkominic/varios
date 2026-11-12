@@ -1,6 +1,6 @@
 # Episodio 33 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:29.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`, narrada como un cuento, voz «B») y pista de audio en español
   (`em_santa`, con los nombres propios escritos como se dicen en México; «Dune» se dice «Dun»).
 - Subtítulos en inglés y en español.
@@ -10,7 +10,7 @@
 - **Tono:** la muerte de Herbert, solo el hecho; Dalí, Welles, Jagger, Lynch y los demás, solo con hechos.
 
 **Publicar:** antes del 18 de diciembre de 2026 (estreno anunciado de «Dune: Part Three»), mejor entre el 1 y el 12 de
-diciembre. **Antes de subir, vuelve a mirar esa fecha:** el vídeo la dice en el minuto {MIN_ESTRENO}; si el estreno se
+diciembre. **Antes de subir, vuelve a mirar esa fecha:** el vídeo la dice en el minuto 7:29; si el estreno se
 moviera, hay que rehacer esa frase.
 
 ## Títulos
@@ -44,7 +44,15 @@ What we cover:
 
 Have you read the book, or only seen the films? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 Twenty publishers said no
+0:36 The sand that moves
+1:30 Six years
+2:42 Twenty times no
+3:45 The slow success
+4:33 The impossible movie
+5:58 1984
+6:46 At last
+7:41 The dunes today
 
 Sources: Brian Herbert, The Road to Dune · Tim O'Reilly, Frank Herbert · OPB (23 October 2021) · HistoryLink ·
 Encyclopaedia Britannica · Los Angeles Review of Books (2017) · Box Office Mojo · AFI Catalog · Variety · Hyperallergic ·
@@ -75,7 +83,15 @@ Lo que contamos:
 
 ¿Leíste el libro o solo viste las películas? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Veinte editoriales dijeron que no
+0:36 La arena que avanza
+1:30 Seis años
+2:42 Veinte veces no
+3:45 El éxito lento
+4:33 La película imposible
+5:58 1984
+6:46 Por fin
+7:41 Las dunas, hoy
 
 Fuentes: Brian Herbert, The Road to Dune · Tim O'Reilly, Frank Herbert · OPB (23 de octubre de 2021) · HistoryLink ·
 Encyclopaedia Britannica · Los Angeles Review of Books (2017) · Box Office Mojo · AFI Catalog · Variety · Hyperallergic ·

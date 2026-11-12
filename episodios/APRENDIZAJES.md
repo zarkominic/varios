@@ -533,3 +533,30 @@ antes de locutar.
 
 Pendiente para el próximo: borrar los fotogramas del 32 al empezar; vigilar que las cinco correcciones de arriba se
 cumplen (planos planeados = planos generados; ningún destello de cartela en los Shorts).
+
+## Episodio 33 · Dune: el libro que nadie quería publicar (12/11/2026)
+
+- **Un libro y tres películas con dueño, sin una imagen suya:** el planeta, las dos lunas y la loma bajo la arena son
+  nuestros; los cines solo enseñan marquesinas, taquilla y butacas. La estatuilla es genérica (llama sobre esfera), pero
+  de lejos recuerda a la de verdad: se le dijo al usuario.
+- **Las cinco correcciones del 32, vigiladas:** el título pasó `titulos.py` con el guion; los Shorts saltan 1,42 s de
+  cartela y cortan en silencios de los dos idiomas; la lista «para escuchar» sale de `informe.json`. Los planos: 101.
+- **Calidad:** 32 de 101 planos suspendieron en la revisión completa (el 32: 24 de 94); 32 → 0 en la segunda ronda. 48
+  fallos: 11 de brazo o mano, 10 de orden de dibujo, 9 «algo no se lee», 5 composiciones repetidas, 4 de la zona de Atom.
+  Los brazos siguen siendo el fallo número uno: el borrador de escenas debe medir cada brazo (≤ 45 px) antes de entregar.
+- **Un encargo mal descrito:** pedí arreglar «el inserto del contador» de la taquilla y la medida era del plano de los
+  premios; el agente lo vio y arregló el plano correcto. El encargo debe copiar el plano y el instante de `--comprobar`.
+- **Sonido:** tras el borrador, cuatro escenas pasaban de 70 % de efectos y dos no llegaban a 40 %; la pasada de
+  movimiento las llevó a rango. Total final, 54 %.
+- **Disco:** el render pedía 8,7 GB y había 8,4: `producir.sh` se paró (bien) y hubo que borrar capturas temporales de
+  las pasadas. El render real ocupó 6,6 GB. Borrar las capturas de decorados y movimiento ANTES de lanzar la producción.
+- **Subtítulos:** «H. R. Giger» se partió en «…artist H.» / «R. Giger…»; corregido a mano en el SRT. `subtitulos.py`
+  no debería cortar tras una inicial con punto.
+- **Miniatura:** la cifra en hueso pierde contraste sobre arena clara; un halo oscuro detrás ayuda poco. Con fondos
+  claros, colocar la cifra sobre cielo oscuro desde el primer borrador.
+- **Control final a la primera:** sí (−14,0 y −14,0 LUFS; peor cartela 5,7 dB; 131 y 132 subtítulos, 0 fuera de norma).
+- **Cifras:** tokens: decorados 2,28 M; escenas 2,93 M; movimiento 0,37 M; pasada de decorados 1,92 M; calidad 5,02 M
+  (2 h 24 min).
+
+Pendiente para el próximo: borrar los fotogramas del 33 y las capturas de las pasadas antes del render; medir los brazos
+en el borrador; proponer al usuario el arreglo de `subtitulos.py` para las iniciales («H. R.»).
