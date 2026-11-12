@@ -184,7 +184,7 @@ const p4 = (t) => {
   T.salasDelante(R, t, O4);
 };
 
-const efectos = [[1.4, 'carro'], [clac, 'toc'], [t40 + 0.35, 'golpecito'], [t31 + 0.35, 'golpecito'], [P2 + 1.6 + 142 / 52, 'puerta'], [(Math.ceil(P3 * 0.9 - 0.55) + 0.55) / 0.9 + 0.05, 'masca'], [tapa + 0.05, 'palmada'], [P4 + 0.15, 'puerta'], [gusta, 'brillo']];
+const efectos = [[1.4, 'carro'], [clac, 'toc'], [2.7, 'pop'], [3.5, 'pop'], [t40 + 0.35, 'golpecito'], [t40 + 1.2, 'publico', { dur: 2.2 }], [t31 + 0.35, 'golpecito'], [P2 + 1.6 + 142 / 52, 'puerta'], [(Math.ceil(P3 * 0.9 - 0.55) + 0.55) / 0.9 + 0.05, 'masca'], [tapa + 0.05, 'palmada'], [P4 + 0.15, 'puerta'], [gusta, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, cartela: '1984', año: (t) => (t < P2 ? 1983 : 1984) });
 </script>
 </body>

@@ -188,8 +188,10 @@ const p4 = (t) => {
 };
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { año: 1957,
-  efectos: [[c(0.95), 'vapor'], [c(1.5), 'puerta'], [P2 + 0.1, 'lapiz'], [c(4.89), 'viento'], [c(5.65), 'pop'], [c(6.35), 'burbujas'], [c(7.55), 'claxon'],
-    [P3 + 0.1, 'papel'], [c(10.08), 'toc'], [c(11.3), 'papel'], [P4 + 0.2, 'tecleo'], [c(14.6), 'papel'], [c(16.3), 'brillo']] });
+  // un efecto por acción visible (sin rellenos): el chorro de arena, la puerta, la pluma, la duna que arranca, el claxon
+  // del cochecito que huye, el reportaje que baja al cajón, el cajón que se cierra, el tecleo y la hoja que vuela a la pila
+  efectos: [[c(0.95), 'vapor'], [c(1.5), 'puerta'], [P2 + 0.1, 'lapiz'], [c(4.89), 'viento', { dur: 1.6 }], [c(7.55), 'claxon'],
+    [c(9.05), 'papel'], [c(10.08), 'toc'], [P4 + 0.2, 'tecleo', { dur: 1.5 }], [c(14.6), 'papel']] });
 </script>
 </body>
 </html>

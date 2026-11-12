@@ -20,7 +20,8 @@
 //    Lanier planta el libro en su mesa y apila monedas al lado (la apuesta), el agente salta;
 // 5. (1975 | 1984) pantalla partida: a la derecha, el salón de París: Jodorowsky señala a Dalí en el trono y en «emperor»
 //    le cae una corona; a la izquierda, a oscuras hasta «and another», la sala vista desde la pantalla: Lynch se tapa la cara;
-// 6. (2026) la mesa de Atom de cerca, gag 1: Atom baja, le da la vuelta al reloj de arena, el reloj se raja y la arena se sale.
+// 6. (2026) la mesa de Atom de cerca, gag 1 (2,3 s: entra dentro de «failure»): Atom baja, le da la vuelta al reloj de
+//    arena, el reloj se raja y la arena se sale (queda 1,1 s de arena saliendo).
 import * as T from '/atomo/plato/escenas/du-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('du-gancho');
@@ -42,7 +43,7 @@ const atomAbajo = (ax, ay, t, o = {}) => {
 const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
 
 const w1 = (s) => en('rechazos', (s - 0.5) / 15.483), w2 = (s) => en('camino', (s - 16.862) / 12.486);
-const P2 = w1(7.19), P3 = w1(11.76), P4 = w2(16.86), P5 = w2(23.64), P6 = w2(29.2);
+const P2 = w1(7.19), P3 = w1(11.76), P4 = w2(16.86), P5 = w2(23.64), P6 = w2(28.8);   // el corte al 6 cae dentro de «failure» (antes 29,2: el gag del reloj no se leía en 1,9 s)
 const comp0 = R.companero; R.companero = (t, e) => { if (t < P6) comp0(t, e); };   // en el plano 6 Atom baja a la mesa
 
 // ── 1 · el pasillo: veinte puertas que dicen que no ─────────────────────────────────────────────────────────────────
@@ -160,7 +161,7 @@ const p4 = (t) => {
 };
 
 // ── 5 · pantalla partida: Dalí en el trono | el director que se tapa la cara ────────────────────────────────────────
-const DALI = w2(24.66), EMPE = w2(26.18), OTRO = w2(26.96), CALLED = w2(27.54), FAIL = w2(28.5);
+const DALI = w2(24.66), EMPE = w2(26.18), OTRO = w2(26.96), CALLED = w2(27.54), FAIL = w2(28.3);   // se tapa la cara en «a failure», antes del corte
 const corona = (x, y) => { R.rect(x - 5, y - 6, x + 5, y, K); R.rect(x - 4, y - 3, x + 4, y - 1, ORO); for (const i of [-4, 0, 4]) { R.rect(x + i, y - 5, x + i, y - 3, ORO); R.pset(x + i, y - 6, OROL); } R.pset(x - 2, y - 4, K); R.pset(x + 2, y - 4, K); R.pset(x - 2, y - 5, K); R.pset(x + 2, y - 5, K); R.pset(x - 2, y - 6, 0); R.rect(x - 4, y - 1, x + 4, y - 1, OROS); R.pset(x, y - 2, ROJO); R.pset(x - 3, y - 3, OROL); };
 const p5 = (t) => {
   // izquierda: la sala desde la pantalla; a oscuras hasta «and another»
@@ -187,7 +188,7 @@ const p5 = (t) => {
 };
 
 // ── 6 · gag 1: Atom le da la vuelta al reloj de arena… y la arena se sale ───────────────────────────────────────────
-const RB = R.nuevo(), GIRA0 = P6 + 0.3, GIRA1 = P6 + 0.85, RAJA = P6 + 1.0;
+const RB = R.nuevo(), GIRA0 = P6 + 0.45, GIRA1 = P6 + 1.0, RAJA = P6 + 1.15;
 const p6 = (t) => {
   const rota = t >= RAJA, a = tramo(t, RAJA, E.duracion - 0.1), o = { encuadre: 'estudio', camara: 'mesa', reloj: false, arena: a * 0.34 };
   T.hoy(R, t, o);
@@ -209,7 +210,10 @@ const p6 = (t) => {
   if (g > 0 && g < 1) chispas(ax, ay, t, 20, 8, hex('#c8f0ff'));
   if (rota && t < RAJA + 0.9) R.icono('!', Math.round(ax) - 2, Math.round(ay) - 30, ROJO, K, 2);
 };
-const efectos = [[1.2, 'brillo'], [BOT[0], 'puerta'], [BOT[2], 'toc'], [BOT[4], 'puerta'], [CAE, 'golpecito'], [METE, 'toc'], [MANU + 0.2, 'brillo'], [ARTI, 'papel'], [SAND, 'viento'], [NEVER, 'rafaga'], [P4 + 0.2, 'motor'], [EDIT, 'whoosh'], [BET + 0.4, 'golpecito'], [EMPE, 'brillo'], [OTRO + 0.1, 'publico'], [FAIL, 'palmada'], [GIRA0, 'whoosh'], [RAJA, 'avalancha']];
+// un efecto por acción visible (sin rellenos; el viento, el motor y el público, cortos): el libro lanzado, los rebotes en las puertas, el
+// libro que cae, el libro que entra en el estante, el destello de las llaves, la hoja, la racha que se la lleva, la avioneta, el libro en la mesa
+// de Lanier, la corona, el murmullo de la sala, las manos a la cara y el reloj que se raja
+const efectos = [[TIRA, 'whoosh'], [BOT[0], 'puerta'], [BOT[2], 'toc'], [BOT[4], 'puerta'], [CAE, 'golpecito'], [METE, 'toc'], [MANU + 0.2, 'brillo'], [ARTI, 'papel'], [SAND, 'viento', { dur: 1.4 }], [NEVER, 'rafaga'], [P4 + 0.2, 'motor', { dur: 2.6 }], [BET + 0.4, 'golpecito'], [EMPE, 'brillo'], [OTRO + 0.1, 'publico', { dur: 1.4 }], [FAIL, 'palmada'], [RAJA, 'avalancha']];
 const año = (t) => t < P2 ? 1964 : t < P3 ? 1965 : t < EDIT ? 1957 : t < P5 ? 1965 : t < OTRO ? 1975 : t < P6 ? 1984 : 2026;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
 </script>

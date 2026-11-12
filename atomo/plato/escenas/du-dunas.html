@@ -337,11 +337,14 @@ const p7 = (t) => {
   T.planetaDelante(R, t, O7);
 };
 
-const efectos = [[0.2, 'motor'], [VER0 + 0.3, 'viento'], [RARO, 'pop'], [h2(4.15), 'aviso'],
-  [nudo0(1), 'pop'], [nudo0(3), 'pop'], [nudo0(5), 'pop'], [INV, 'golpecito'],
-  [ENC, 'papel'], [EXC, 'arranque'], [Q4 + 0.2, 'motor'], [PALAS + 0.2, 'toc'], [PALAS + 0.9, 'toc'], [h2(15.7), 'viento'], [FIESTA + 0.1, 'palmada'],
+// un efecto por acción visible (sin rellenos; los motores y el viento, cortos): la avioneta que se va, la ola verde, el «!»,
+// dos matas que brotan, las fotos del tablón, la señal clavada, la excavadora que arranca y empuja, las palas, la racha, la palmada, las dos
+// fichas, los marcos, la X, la hierba arrancada, el aviso de que todo cambia y el libro que se cierra
+const efectos = [[0.2, 'motor', { dur: 2.2 }], [VER0 + 0.3, 'viento', { dur: 1.5 }], [h2(4.15), 'aviso'],
+  [nudo0(1), 'pop'], [nudo0(4), 'pop'], [INV, 'golpecito'],
+  [ENC, 'papel'], [EXC, 'arranque'], [Q4 + 0.2, 'motor', { dur: 2.2 }], [PALAS + 0.2, 'toc'], [PALAS + 0.9, 'toc'], [h2(15.7), 'viento', { dur: 1.6 }], [FIESTA + 0.1, 'palmada'],
   [DEJA[0], 'golpecito'], [DEJA[1], 'golpecito'], [MARCOS, 'lapiz'], [TACHA, 'sello'],
-  [SIST, 'brillo'], [QUITA, 'pop'], [TODO, 'aviso'], [Q7 + 0.3, 'viento'], [HID1, 'toc'], [AVEN + 0.1, 'brillo']];
+  [QUITA, 'pop'], [TODO, 'aviso'], [HID1, 'toc'], [AVEN + 0.1, 'brillo']];
 function nudo0(k) { return RIZ0 + (RIZ1 - RIZ0) * (k * 30 / 156); }
 const año = (t) => (t < VER0 ? 1957 : t < VER1 ? Math.round(lerp(1957, 2026, lin(t, VER0, VER1))) : t < Q5 ? 2026 : t < Q7 ? 1957 : 1965);
 T.rodar(E, R, [[0, p1], [Q2, p2], [Q3, p3], [Q4, p4], [Q5, p5], [Q6, p6], [Q7, p7]], { efectos, año });

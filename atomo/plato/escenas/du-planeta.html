@@ -207,10 +207,12 @@ const p4 = (t) => {
       if (tir && Math.floor((t - PEL) * 3.5) % 2 === 0) { R.icono('!', sx - 30, sy - 40, ROJO, K, 2); R.icono('!', sx + 26, sy - 40, ROJO, K, 2); } } }
 };
 
-const efectos = [[A0 + 0.1, 'papel'], [A0 + (A6 - A0) / 2, 'papel'], [A6 - 0.1, 'papel'], [TAMB + 0.1, 'boing'],
-  [P2 + 0.4, 'tecleo'], [SAC[0], 'campana'], [SAC[0] + 0.55, 'tic'], [ws(7.4), 'tecleo'], [SAC[1], 'papel'], [SAC[1] + 0.55, 'tic'],
-  [P3 + 0.1, 'viento'], [P3 + 1.0, 'papel'],
-  [P4 + 0.2, 'avalancha'], [SPI, 'brillo'], [PEL + 0.1, 'whoosh']];
+// un efecto por acción visible (sin rellenos): la primera y la última hoja de la torre, el tambaleo, el tecleo, el
+// timbre del carro, las dos monedas, el viento del planeta, la loma que avanza y los destellos de la especia
+const efectos = [[A0 + 0.1, 'papel'], [A6 - 0.1, 'papel'], [TAMB + 0.1, 'boing'],
+  [P2 + 0.4, 'tecleo', { dur: 1.5 }], [SAC[0], 'campana'], [SAC[0] + 0.55, 'tic'], [SAC[1], 'papel'], [SAC[1] + 0.55, 'tic'],
+  [P3 + 0.1, 'viento', { dur: 1.8 }],
+  [P4 + 0.2, 'avalancha'], [SPI, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t >= P2 ? 1963 : 1960 + Math.min(3, Math.floor(tramo(t, A0, A6) * 3.99))) });
 </script>
 </body>
