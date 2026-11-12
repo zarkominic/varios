@@ -15,7 +15,8 @@
 //    sale en la pantalla el contador (bolsa y 400 000 000) y saltan palomitas. Corta en «around the world».
 // 2. (LOCAL) el escenario de los premios: el telón granate se abre («around the world») y en «won six» caen una a una
 //    seis estatuillas sobre seis pilas de nuestro libro, cada una con su número; Villeneuve y el operador saltan, los
-//    fotógrafos disparan. Corta en «The second».
+//    fotógrafos disparan. El paño derecho del telón cae en calma detrás de Atom (pliegues suaves arriba a la
+//    derecha). Corta en «The second».
 // 3. (LOCAL) la taquilla de cerca (2024): el contador grande marca 400 y en «passed 700» corre hasta 700; la cola
 //    avanza, cada uno recoge su entrada en la ventanilla y sale con ella (desde «The impossible book», alguno con el
 //    libro bajo el brazo). Corta en «And the third».
@@ -132,7 +133,9 @@ const fondoPrem = fijo(() => {
 });
 const telon = (u) => { const xl = Math.round(lerp(160, 9, u)), xr = Math.round(lerp(160, 311, u));
   for (let y = 0; y <= 153; y++) { for (let x = 0; x < xl; x++) R.pset(x, y, y > 150 ? ((x >> 1) & 1 ? ORO : OROS) : tono(ROJ, 2 + Math.sin(x * 80 / xl + Math.sin(y * 0.03) * 1.2) * 1.5 - (x > xl - 3 ? 1.5 : 0) - (y < 14 ? 0.8 : 0), x, y));
-    for (let x = xr + 1; x < 320; x++) R.pset(x, y, y > 150 ? ((x >> 1) & 1 ? ORO : OROS) : tono(ROJ, 2 + Math.sin((319 - x) * 80 / (319 - xr) + Math.sin(y * 0.03) * 1.2) * 1.5 - (x < xr + 3 ? 1.5 : 0) - (y < 14 ? 0.8 : 0), x, y)); } };
+    for (let x = xr + 1; x < 320; x++) { // detrás de Atom (arriba a la derecha) el paño cae en calma: pliegues suaves y sin el filo oscuro del borde
+      const cal = x >= 272 ? 1 - lin(y, 46, 60) : 0;
+      R.pset(x, y, y > 150 ? ((x >> 1) & 1 ? ORO : OROS) : tono(ROJ, 2 + Math.sin((319 - x) * 80 / (319 - xr) + Math.sin(y * 0.03) * 1.2) * lerp(1.5, 0.35, cal) - (x < xr + 3 ? lerp(1.5, 0.5, cal) : 0) - (y < 14 ? lerp(0.8, 0, cal) : 0), x, y)); } } };
 const SEIS = a(6.18), CAE = 0.2, FLASH = [a(6.5), a(6.95), a(7.35), a(7.7), a(8.05)];
 const p2 = (t) => {
   fondoPrem();

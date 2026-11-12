@@ -11,7 +11,8 @@
 <script type="module">
 // DU-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom, con el reloj de arena rajado del gag y el montón de arena
 // que sigue creciendo en la mesa. Atom, que ha bajado junto al reloj, bota en «I'm Atom»; en «explain the things» gira
-// con chispas; en «wondered about» tres «?» salen del montón de arena; en «Let's find out» el montón da un soplido y
+// con chispas; en «wondered about» tres «?» grandes con filo oscuro suben por el cielo de la ventana (sin pisar el
+// flexo ni la cortina); en «Let's find out» el montón da un soplido y
 // Atom vuelve de un salto a su esquina, dejando una estela.
 import * as T from '/atomo/plato/escenas/du-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -33,6 +34,13 @@ const atomAbajo = (ax, ay, t, o = {}) => {
 };
 const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
 
+// una «?» grande con filo oscuro todo alrededor (símbolo, no letra): 5 × 7 celdas a escala e
+const INT = ['.###.', '#...#', '....#', '...#.', '..#..', '.....', '..#..'], INT_X = [183, 199, 215];
+const interrogacion = (x, y, e) => { if (e < 2) { x += 3; y += 4; }
+  for (let p = 0; p < 2; p++) for (let j = 0; j < 7; j++) for (let i = 0; i < 5; i++) { if (INT[j][i] !== '#') continue;
+    if (!p) R.rect(x + i * e - 1, y + j * e - 1, x + i * e + e, y + j * e + e, K);
+    else { R.rect(x + i * e, y + j * e, x + i * e + e - 1, y + j * e + e - 1, ORO); R.pset(x + i * e, y + j * e, OROL); if (e > 1) R.pset(x + i * e + 1, y + j * e + 1, OROS); } } };
+
 R.companero = () => {};   // Atom está en el plano: baja a la mesa y al final vuelve a su esquina
 const wh = (s) => en('hola', (s - 0.5) / 4.588);
 const atom = wh(0.66), explica = wh(1.5), pregunta = wh(2.98), vamos = wh(4.17);
@@ -42,8 +50,14 @@ const p1 = (t) => {
   T.hoyDelante(R, t, o);
   // los granos que siguen saltando del reloj rajado
   for (let k = 0; k < 10; k++) { const q = (t * 1.3 + hh(k, 1, 4)) % 1, s = k % 2 ? 1 : -1; R.pset(152 + s * (9 + q * (10 + hh(k, 2, 4) * 14)), 128 - Math.sin(q * Math.PI) * (4 + hh(k, 3, 4) * 6) + q * 2, k % 3 ? hex('#f0c070') : hex('#f8dc98')); }
-  // los «?» de «wondered about», que salen del montón de arena
-  if (t > pregunta - 0.05 && t < vamos + 0.35) for (let i = 0; i < 3; i++) { const q = tramo(t, pregunta - 0.05 + i * 0.2, pregunta + 0.4 + i * 0.2); if (q <= 0) continue; R.icono('?', 164 + i * 17, Math.round(118 - q * (20 + (i & 1) * 9) - Math.sin(t * 4 + i) * 2), ORO, K, 2); }
+  // los «?» de «wondered about»: tres interrogaciones grandes, con filo oscuro, que suben por el cielo de la ventana
+  // (zona tranquila: no pisan el flexo, la cortina ni el alféizar)
+  if (t > pregunta - 0.05 && t < vamos + 0.45) for (let i = 0; i < 3; i++) {
+    const t0 = pregunta - 0.05 + i * 0.2, q = tramo(t, t0, t0 + 0.5); if (q <= 0) continue;
+    const fuera = tramo(t, vamos + 0.2 + i * 0.06, vamos + 0.4 + i * 0.06); if (fuera >= 1) continue;
+    const qx = INT_X[i], qy = Math.round(58 - ease(q) * (15 + (i & 1) * 6) - Math.sin(t * 3.2 + i * 1.7) * 1.5 - fuera * 5);
+    interrogacion(qx, qy, 2);
+  }
   // el soplido del montón en «Let's find out»
   if (t >= vamos && t < vamos + 0.5) { const d = (t - vamos) / 0.5; for (let k = 0; k < 14; k++) { const an = Math.PI * (1.1 + 0.8 * k / 13); R.pset(152 + Math.cos(an) * (8 + d * 26), 126 + Math.sin(an) * (4 + d * 18) + d * d * 10, k % 2 ? hex('#f0c070') : hex('#f8dc98')); } }
   // Atom: bota en «I'm Atom», gira en «explain» y en «Let's find out» vuelve a su esquina

@@ -9673,16 +9673,22 @@ const revistaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('revista', () => forma(1
   rect(1, 18, 14, 19, 'R'); rect(3, 18, 8, 18, 'X'); put(1, 7, 'Z'); put(1, 14, 'Z');
 })), x, y, o);
 
-// EL TROFEO «NEBULA» (a nuestra manera): un bloque transparente (I, los cantos i, el brillo E) con una espiral morada
-// y blanca dentro, sobre su peana negra. 12 × 20. Con o.t, un destello
+// EL TROFEO «NEBULA» (a nuestra manera): un bloque transparente (I, los cantos i, el brillo E) con una nube ladeada de
+// tres tonos (morado, malva y rosa, núcleo claro y estrellas sueltas) dentro, sobre su peana negra. 12 × 20. Con o.t,
+// un destello
 const trofeoNebulaDU = (R, x, y, o = {}) => {
   const f = o.t != null ? Math.floor(o.t * 4) % 4 : -1;
   pintaDU(R, unaDU('nebula' + f, () => forma(12, 20, ({ rect, put }) => {
     rect(1, 16, 10, 18, 'K'); rect(1, 16, 10, 16, 'u'); rect(2, 1, 9, 15, 'I'); rect(9, 2, 9, 15, 'i'); rect(2, 15, 9, 15, 'i'); rect(2, 1, 2, 14, 'E'); rect(2, 1, 8, 1, 'E');
-    for (const [i, j] of [[7, 6], [7, 5], [6, 4], [5, 4], [4, 5], [4, 9], [4, 10], [5, 11], [6, 11], [7, 10]]) put(i, j, 'l');
-    for (const [i, j] of [[5, 7], [6, 7], [5, 8], [6, 8], [4, 6], [7, 9]]) put(i, j, 'W'); put(5, 7, 'L'); put(6, 8, 'L');
-    put(7, 13, 'W'); put(4, 13, 'l'); put(8, 3, 'W');
-    if (f === 0 || f === 2) { put(4, 3, 'E'); } else if (f === 1) { for (const [i, j] of [[4, 3], [3, 3], [5, 3], [4, 2], [4, 4]]) put(i, j, 'E'); }
+    // la nube: una mancha ladeada de tres tonos (morado l, malva e, rosa L) con el núcleo claro y jirones sueltos; es
+    // una mancha rellena, sin trazo continuo (que no se lea como una cifra o una letra)
+    for (const [i, j] of [[5, 5], [6, 5], [4, 6], [5, 6], [7, 6], [4, 7], [8, 7], [3, 8], [4, 9], [7, 9], [5, 10], [7, 10], [6, 11], [8, 5], [3, 10]]) put(i, j, 'l');
+    for (const [i, j] of [[6, 6], [5, 7], [4, 8], [6, 9], [6, 10]]) put(i, j, 'e');
+    for (const [i, j] of [[6, 7], [7, 7], [5, 8], [7, 8], [5, 9]]) put(i, j, 'L'); put(6, 8, 'W');
+    // estrellas sueltas y el brillo del cristal en diagonal
+    for (const [i, j] of [[8, 3], [4, 12], [7, 13], [3, 4], [8, 12]]) put(i, j, 'W');
+    put(3, 2, 'E'); put(4, 2, 'E'); put(3, 3, 'E'); put(8, 14, 'E');
+    if (f === 0 || f === 2) { put(5, 3, 'E'); } else if (f === 1) { for (const [i, j] of [[5, 3], [4, 3], [6, 3], [5, 2], [5, 4]]) put(i, j, 'E'); }
   })), x, y, o);
 };
 

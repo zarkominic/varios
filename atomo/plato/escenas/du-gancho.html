@@ -19,9 +19,13 @@
 // 4. (1957 | 1965) la avioneta cruza las dunas desde el aire; en «an editor» entra por la izquierda la mitad de Chilton:
 //    Lanier planta el libro en su mesa y apila monedas al lado (la apuesta), el agente salta;
 // 5. (1975 | 1984) pantalla partida: a la derecha, el salón de París: Jodorowsky señala a Dalí en el trono y en «emperor»
-//    le cae una corona; a la izquierda, a oscuras hasta «and another», la sala vista desde la pantalla: Lynch se tapa la cara;
-// 6. (2026) la mesa de Atom de cerca, gag 1 (2,3 s: entra dentro de «failure»): Atom baja, le da la vuelta al reloj de
-//    arena, el reloj se raja y la arena se sale (queda 1,1 s de arena saliendo).
+//    le cae una corona; a la izquierda, a oscuras hasta «and another», la sala vista desde la pantalla: se enciende la
+//    lucecita del cartel de su película, en «called» le cae al cartel la etiqueta con la X y en «a failure» el proyector
+//    flojea, la lucecita se apaga y Lynch se hunde en la butaca con la mirada baja (nada le tapa la cara);
+// 6. (2026) la mesa de Atom de cerca, gag 1 (2,3 s: entra dentro de «failure»): Atom baja y le da la vuelta al reloj de
+//    arena (pintado en la escena a 1 px: tapas con vetas, columnas torneadas, bulbos de cristal con brillo); el bulbo de
+//    abajo se raja (zigzag claro, boquete, esquirlas) y la arena se sale, rebosa por la tapa y se amontona al pie
+//    (queda 1,4 s de arena saliendo).
 import * as T from '/atomo/plato/escenas/du-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('du-gancho');
@@ -160,20 +164,26 @@ const p4 = (t) => {
     liston(ancho, t); }
 };
 
-// ── 5 · pantalla partida: Dalí en el trono | el director que se tapa la cara ────────────────────────────────────────
-const DALI = w2(24.66), EMPE = w2(26.18), OTRO = w2(26.96), CALLED = w2(27.54), FAIL = w2(28.3);   // se tapa la cara en «a failure», antes del corte
+// ── 5 · pantalla partida: Dalí en el trono | el cartel que recibe la X y el director hundido en su butaca ──────────
+const DALI = w2(24.66), EMPE = w2(26.18), OTRO = w2(26.96), CALLED = w2(27.54), FAIL = w2(28.3);   // la X cae en el cartel en «called»; en «a failure» el proyector flojea, antes del corte
 const corona = (x, y) => { R.rect(x - 5, y - 6, x + 5, y, K); R.rect(x - 4, y - 3, x + 4, y - 1, ORO); for (const i of [-4, 0, 4]) { R.rect(x + i, y - 5, x + i, y - 3, ORO); R.pset(x + i, y - 6, OROL); } R.pset(x - 2, y - 4, K); R.pset(x + 2, y - 4, K); R.pset(x - 2, y - 5, K); R.pset(x + 2, y - 5, K); R.pset(x - 2, y - 6, 0); R.rect(x - 4, y - 1, x + 4, y - 1, OROS); R.pset(x, y - 2, ROJO); R.pset(x - 3, y - 3, OROL); };
 const p5 = (t) => {
   // izquierda: la sala desde la pantalla; a oscuras hasta «and another»
   const enc = ease(tramo(t, OTRO - 0.15, OTRO + 0.35));
-  mitad('5i', 80, 0, 0.36 * (1 - enc), () => { const os = { encuadre: 'sala', camara: 'butacas', frente: true, lleno: 0.75, reservados: [6], luz: lerp(0.4, 1, enc) }, g = T.salas(R, t, os), [lx, ly] = g.asientos[6];
-    const tapa = t >= FAIL, hunde = tapa ? Math.round(tramo(t, FAIL, FAIL + 0.4) * 2) : 0;
-    R.actor(EL.lynch, lx, ly + hunde, t, { dir: 1, triste: t >= CALLED, sorpresa: t >= OTRO && t < CALLED });
-    if (tapa) { const sube = tramo(t, FAIL, FAIL + 0.25), cx = lx + 8, cy = Math.round(ly + hunde - lerp(8, 16, sube)); for (const s of [-1, 1]) { const a = Math.min(cx + s * 5, cx + s * 8), b = Math.max(cx + s * 5, cx + s * 8); R.rect(a - 1, cy + 2, b + 1, ly + hunde - 6, K); R.rect(a, cy + 3, b, ly + hunde - 6, hex('#3a3e5a')); R.rect(s > 0 ? b : a, cy + 3, s > 0 ? b : a, ly + hunde - 6, hex('#262a40'));
-        const h0 = Math.min(cx + s, cx + s * 6), h1 = Math.max(cx + s, cx + s * 6); R.rect(h0 - 1, cy - 4, h1 + 1, cy + 3, K); R.rect(h0, cy - 3, h1, cy + 2, hex('#f6c290')); R.rect(h0, cy + 2, h1, cy + 2, hex('#d48a5a')); R.rect(cx + s * 3, cy - 3, cx + s * 3, cy, hex('#d48a5a')); R.rect(cx + s * 5, cy - 3, cx + s * 5, cy, hex('#d48a5a')); }
-      R.rect(cx, cy - 3, cx, cy + 2, hex('#d48a5a')); }
+  mitad('5i', 80, 0, 0.36 * (1 - enc), () => { const os = { encuadre: 'sala', camara: 'butacas', frente: true, lleno: 0.75, reservados: [6], luz: lerp(0.4, 1, enc) * (t < FAIL ? 1 : lerp(1, 0.55, tramo(t, FAIL, FAIL + 0.3)) * (t < FAIL + 0.36 && Math.floor((t - FAIL) * 16) % 3 === 0 ? 0.6 : 1)) }, g = T.salas(R, t, os), [lx, ly] = g.asientos[6];
+    // el cartel de SU película (x 122–142, y 44–72 del decorado): su lucecita lo saca de la penumbra en «and another»; en
+    // «called» le cae encima la etiqueta con la X (el gag va con el cartel, no con la persona) y en «a failure» el proyector
+    // flojea, la lucecita se apaga y él se hunde en la butaca con la mirada baja (nada le tapa la cara)
+    const apag = tramo(t, FAIL, FAIL + 0.3);
+    if (enc > 0) { const f = 0.34 * enc * (1 - 0.8 * apag); for (let y = 44; y <= 72; y++) for (let x = 122; x <= 142; x++) R.pset(x, y, mez(R.pget(x, y), hex('#ffe0a0'), f)); }
+    if (apag > 0) { R.rect(128, 39, 136, 40, hex('#4a3a20')); R.pset(132, 41, hex('#3a2a1a')); }
+    if (t >= CALLED) { const q = tramo(t, CALLED, CALLED + 0.2), bx = 132, by = 50 - Math.round((1 - q * q) * 14), e = q < 1 ? 1 : 0;
+      R.rect(bx - 9 - e, by - 1 - e, bx + 9 + e, by + 15 + e, K); R.rect(bx - 8 - e, by - e, bx + 8 + e, by + 14 + e, BL); R.rect(bx - 8 - e, by + 14 + e, bx + 8 + e, by + 14 + e, hex('#c8c0b4'));
+      R.rect(bx - 7, by - e, bx - 5, by + 1 - e, hex('#e8d890')); R.rect(bx + 5, by - e, bx + 7, by + 1 - e, hex('#e8d890')); R.icono('X', bx - 5, by + 2, ROJO, hex('#e8b0a0'), 2);
+      if (q >= 1 && t < CALLED + 0.42) for (const s of [-1, 1]) for (const v of [-1, 1]) R.linea(bx + s * 12, by + 7 + v * 11, bx + s * 15, by + 7 + v * 14, OROL); }
+    const hunde = Math.round(ease(tramo(t, FAIL, FAIL + 0.4)) * 3);
+    R.actor(EL.lynch, lx, ly + hunde, t, { dir: 1, triste: t >= CALLED, sorpresa: t >= OTRO && t < CALLED, parpadea: t >= FAIL + 0.1 ? true : undefined });
     T.salasDelante(R, t, os);
-    if (t >= CALLED && t < FAIL + 0.6) { const q = tramo(t, CALLED, CALLED + 0.3); const bx = lx + 8, byy = Math.round(ly - 40 - q * 5); R.rect(bx - 9, byy - 3, bx + 9, byy + 13, K); R.rect(bx - 8, byy - 2, bx + 8, byy + 12, BL); R.rect(bx - 1, byy + 14, bx + 1, byy + 15, K); R.pset(bx, byy + 14, BL); R.pset(bx, byy + 13, BL); R.icono('X', bx - 5, byy, ROJO, hex('#e8b0a0'), 2); }
   });
   // derecha: el salón de París; Jodorowsky presenta a su emperador
   mitad('5d', 150, 162, 0, () => { const oc = { encuadre: 'paris', camara: 'salon' }; T.cine(R, t, oc);
@@ -188,20 +198,75 @@ const p5 = (t) => {
 };
 
 // ── 6 · gag 1: Atom le da la vuelta al reloj de arena… y la arena se sale ───────────────────────────────────────────
-const RB = R.nuevo(), GIRA0 = P6 + 0.45, GIRA1 = P6 + 1.0, RAJA = P6 + 1.15;
+// El reloj va pintado aquí a 1 px (el del kit, a escala 4, se leía como otra resolución): se dibuja de pie en el búfer RB
+// (centro en 160, 90,5; tapas en y 49–56 y 125–132) y se copia a la mesa, girado si hace falta; el cristal son tres marcas
+// (VID, VIDL, VIDS) que al copiar se funden con lo que haya detrás.
+const RB = R.nuevo(), GIRA0 = P6 + 0.3, GIRA1 = P6 + 0.8, RAJA = P6 + 0.9;
+const VID = 0xff010101, VIDL = 0xff020202, VIDS = 0xff030303, FILO = hex('#5f8ea6'), MAD = hex('#9a5a2c'), MADL = hex('#c88448'), MADS = hex('#6a3818'), MADD = hex('#44220e');
+const AR = hex('#e8cc90'), ARS = hex('#c8a468'), ARL = hex('#f6e8c0'), ARD = hex('#a88450');
+// medio ancho del bulbo a d px del cuello (0–30): cuello de 2, panza de 18 y hombro redondo contra la tapa
+const hwB = (d) => { const u = d / 30; return d <= 1 ? 2 : u <= 0.75 ? Math.round(2 + 16 * Math.pow(Math.sin(Math.PI * u / 1.5), 1.2)) : Math.round(18 * Math.sqrt(1 - Math.pow((u - 0.75) / 0.27, 2))); };
+const dentroB = (i, d) => d < 0 ? Math.abs(i) <= 2 : d <= 30 && Math.abs(i) <= hwB(d);
+// o.nivel 0–1: la arena de arriba; o.bajo 0–1: la de abajo; o.cae: el hilo; o.raja 0–1: la raja del bulbo de abajo (con 1, el boquete)
+const relojFino = (o) => {
+  RB.fill(0); const put = (x, y, c) => { RB[y * 320 + x] = c; }, f = Math.floor((o.t ?? 0) * 12);
+  const lin = (x0, y0, x1, y1, c) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1); for (let k = 0; k <= n; k++) put(Math.round(x0 + (x1 - x0) * k / n), Math.round(y0 + (y1 - y0) * k / n), c); };
+  // las tapas de madera: canto claro arriba, sombra abajo y vetas a lo largo
+  for (const y0 of [49, 125]) for (let y = y0; y <= y0 + 7; y++) for (let x = 132; x <= 188; x++) { const bx = x === 132 || x === 188, by = y === y0 || y === y0 + 7; if (bx && by) continue; const v = hh(Math.floor(x / 6 + y * 0.4), y, 11);
+    put(x, y, bx || by ? K : y === y0 + 1 ? MADL : y === y0 + 6 ? MADD : x === 133 ? MADL : x === 187 ? MADS : v < 0.22 ? MADL : v > 0.74 ? MADS : MAD); }
+  // las molduras que abrazan el cristal
+  for (const [y0, s] of [[57, 1], [122, -1]]) for (let j = 0; j < 3; j++) { const e = s > 0 ? j : 2 - j, xa = 136 + e * 3, xb = 184 - e * 3; for (let x = xa; x <= xb; x++) put(x, y0 + j, x === xa || x === xb ? K : e === 0 ? MADS : e === 1 ? MAD : (x & 1 ? MADD : MADS)); }
+  // las dos columnas torneadas, con sus anillas de latón
+  for (const x0 of [135, 182]) for (let y = 60; y <= 121; y++) { const v = y - 60, m = v % 20, an = (m >= 9 && m <= 11) || v < 2 || v > 59 ? 1 : 0;
+    put(x0 - 1 - an, y, K); put(x0 + 4 + an, y, K); for (let i = -an; i <= 3 + an; i++) put(x0 + i, y, m === 10 ? (i < 1 ? OROL : i > 2 ? OROS : ORO) : m === 9 || m === 11 ? MADD : i <= 0 ? MADL : i >= 3 ? MADS : hh(x0 + i, y >> 2, 12) < 0.3 ? MADS : MAD); }
+  // los bulbos: el filo, el cristal, la arena tramada y los brillos
+  const hU = Math.round((o.nivel ?? 0.6) * 24), hL = (o.bajo ?? 0.4) * 22, cae = !!o.cae && hU > 0;
+  const sU = (i, d) => hU > 0 && d <= hU - (cae ? Math.round(3 * Math.max(0, 1 - Math.abs(i) / 7)) : 0), sL = (i, d) => d >= 30 - hL * (1 - 0.5 * Math.abs(i) / 18);
+  for (let b = 0; b < 2; b++) for (let d = 0; d <= 30; d++) { const y = b ? 91 + d : 90 - d, w = hwB(d);
+    for (let i = -w; i <= w; i++) {
+      if (!dentroB(i - 1, d) || !dentroB(i + 1, d) || !dentroB(i, d + 1) || !dentroB(i, d - 1)) { put(160 + i, y, FILO); continue; }
+      let c = i >= w - 2 ? VIDS : VID;
+      if (b ? sL(i, d) : sU(i, d)) { const cima = b ? !sL(i, d - 1) : !sU(i, d + 1), v = hh(i, d, 13 + b); c = cima ? ARL : v < 0.14 ? ARL : v > 0.93 ? ARD : v > 0.7 || (i > w * 0.4 && (i + d) % 2 === 0) ? ARS : AR; }
+      if (w > 6 && d >= 7 && d <= 25 && (i === -w + 3 || (i === -w + 4 && d >= 10 && d <= 20))) c = c === VID ? VIDL : ARL;
+      if (w > 6 && d >= 15 && d <= 20 && i === w - 4 && (c === VID || c === VIDS)) c = VIDL;
+      put(160 + i, y, c); } }
+  // el hilo de arena
+  if (cae) { put(160, 90, AR); for (let y = 91; y <= 121 && !sL(0, y - 91); y++) put(160, y, (y + f) % 3 === 0 ? ARL : (y + f) % 3 === 1 ? AR : ARS); }
+  // la raja: un zigzag claro con su filo oscuro, una rama y, al final, el boquete por donde se sale la arena
+  if (o.raja > 0) { const Z = [[161, 99], [166, 102], [162, 106], [170, 108], [166, 112], [174, 113]], n = Math.max(1, Math.round(o.raja * 5)), OSC = hex('#24384a');
+    for (let k = 0; k < n; k++) { lin(Z[k][0] + 1, Z[k][1] + 1, Z[k + 1][0] + 1, Z[k + 1][1] + 1, OSC); lin(Z[k][0], Z[k][1] + 1, Z[k + 1][0], Z[k + 1][1] + 1, OSC); }
+    for (let k = 0; k < n; k++) lin(Z[k][0], Z[k][1], Z[k + 1][0], Z[k + 1][1], BL);
+    if (n >= 2) { lin(166, 103, 171, 101, OSC); lin(166, 102, 171, 100, BL); } if (n >= 4) { lin(170, 109, 166, 117, OSC); lin(169, 109, 165, 116, BL); }
+    if (o.raja >= 1) for (let y = 112; y <= 118; y++) { const e = 160 + hwB(y - 91); for (let x = e - 4; x <= e; x++) put(x, y, x === e - 4 || y === 112 ? BL : (x + y + f) % 3 === 0 ? AR : hex('#1c2a36')); } }
+};
+// copia el reloj de RB a la mesa con su centro en (cx, cy), girado an radianes
+const pegaReloj = (cx, cy, an) => { const c = Math.cos(an), s = Math.sin(an), d = R.buf, G1 = hex('#bfe6f4'), G3 = hex('#7fa8c0');
+  for (let j = -52; j <= 52; j++) for (let i = -52; i <= 52; i++) { const xs = Math.round(160 + i * c + j * s), ys = Math.round(90.5 - i * s + j * c), xd = cx + i, yd = cy + j; if (xs < 0 || xs > 319 || ys < 0 || ys > 179 || xd < 0 || xd > 319 || yd < 0 || yd > 179) continue;
+    const col = RB[ys * 320 + xs], q = yd * 320 + xd; if (col) d[q] = col === VID ? mez(d[q], G1, 0.5) : col === VIDL ? mez(d[q], BL, 0.88) : col === VIDS ? mez(d[q], G3, 0.5) : col; } };
+// un montón de arena tramada, sin contorno (como el del decorado), con su sombra en la mesa
+const montonFino = (cx, y, w, al) => { if (al < 1 || w < 2) return;
+  for (let i = -w; i <= w + 3; i++) if ((cx + i + y) & 1) R.pset(cx + i + 2, y + 1, mez(R.pget(cx + i + 2, y + 1), K, 0.4));
+  for (let i = -w; i <= w; i++) { const u = i / w, m = Math.round(al * Math.pow(Math.cos(u * Math.PI / 2), 1.5) + (Math.abs(u) < 0.9 ? hh(cx + i, 5, 21) * 1.2 : 0));
+    for (let j = 0; j < m; j++) { const dd = m - 1 - j, v = hh(cx + i, y - j, 22); R.pset(cx + i, y - j, dd === 0 ? ARL : u > 0.18 && dd < m * (0.3 + u * 0.6) && (i + j) % 2 === 0 ? ARS : v < 0.15 ? ARL : v > 0.88 ? ARD : v > 0.7 ? ARS : AR); } } };
+const esquirla = (x, y, k) => { x = Math.round(x); y = Math.round(y); R.pset(x + 1, y + 1, mez(R.pget(x + 1, y + 1), K, 0.45)); R.pset(x, y, hex('#e4f6fc')); R.pset(x + 1, y, hex('#9cc8dc')); R.pset(x, y - 1, BL); if (k & 1) { R.pset(x + 2, y, hex('#9cc8dc')); R.pset(x + 1, y - 1, hex('#e4f6fc')); } };
 const p6 = (t) => {
   const rota = t >= RAJA, a = tramo(t, RAJA, E.duracion - 0.1), o = { encuadre: 'estudio', camara: 'mesa', reloj: false, arena: a * 0.34 };
   T.hoy(R, t, o);
-  for (let x = 124; x <= 190; x++) for (let y = 149; y <= 153; y++) if ((x + y) % 2 === 0 && Math.hypot((x - 157) / 33, (y - 151) / 3) < 1) R.pset(x, y, mez(R.pget(x, y), K, 0.45));
-  const g = ease(tramo(t, GIRA0, GIRA1));
-  if (g > 0 && g < 1) {   // el reloj gira: se pinta en un búfer y se copia rotado alrededor de su centro
-    RB.fill(0); const prev = R.usar(RB); PZ.relojArena(R, 160, 132, { s: 4, nivel: 0.1 }); R.usar(prev);
-    const an = g * Math.PI, c = Math.cos(an), s = Math.sin(an), d = R.buf, cy = 109 - Math.round(Math.sin(g * Math.PI) * 10);
-    for (let j = -52; j <= 52; j++) for (let i = -52; i <= 52; i++) { const xs = Math.round(160 + i * c + j * s), ys = Math.round(90 - i * s + j * c); if (xs < 0 || xs > 319 || ys < 0 || ys > 179) continue; const col = RB[ys * 320 + xs], xd = 150 + i, yd = cy + j; if (col && xd >= 0 && xd < 320 && yd >= 0 && yd < 180) d[yd * 320 + xd] = col; }
-  } else PZ.relojArena(R, 150, 151 + (rota && t < RAJA + 0.12 ? 1 : 0), { s: 4, t, nivel: g < 1 ? 0.1 : Math.max(0.45, 1 - a * 0.6), roto: rota });
-  // la arena que salta del bulbo rajado hacia el montón
-  if (rota) { for (let k = 0; k < 34; k++) { const q = ((t - RAJA) * 1.6 + hh(k, 1, 9)) % 1, s = k % 3 === 0 ? -1 : 1, x = 150 + s * (16 + q * (s > 0 ? 62 : 30) * (0.5 + hh(k, 2, 9) * 0.5)), y = 140 - Math.sin(q * Math.PI) * (10 + hh(k, 3, 9) * 16) + q * 14; if (q < a + 0.2) { R.pset(x, y, k % 2 ? hex('#f0c070') : hex('#d89a48')); if (k % 4 === 0) R.pset(x + 1, y, hex('#f8dc98')); } }
-    if (t < RAJA + 0.2) for (let a2 = 0; a2 < 8; a2++) { const an = a2 * Math.PI / 4, r = 8 + (t - RAJA) * 60; R.linea(152 + Math.cos(an) * (r - 4), 132 + Math.sin(an) * (r - 4), 152 + Math.cos(an) * r, 132 + Math.sin(an) * r, BL); } }
+  for (let x = 119; x <= 185; x++) for (let y = 149; y <= 153; y++) if ((x + y) % 2 === 0 && Math.hypot((x - 152) / 33, (y - 151) / 3) < 1) R.pset(x, y, mez(R.pget(x, y), K, 0.45));
+  const g = ease(tramo(t, GIRA0, GIRA1)), gira = g > 0 && g < 1;
+  // antes de girar, casi toda la arena está abajo; al darle la vuelta queda arriba y empieza a caer… hasta que el bulbo se raja
+  relojFino(g < 1 ? { nivel: 0.1, bajo: 0.9, t } : { nivel: Math.max(0.6, 0.92 - a * 0.3), bajo: rota ? 0.16 : 0.1 + tramo(t, GIRA1, RAJA) * 0.1, cae: true, t, raja: rota ? tramo(t, RAJA, RAJA + 0.12) : 0 });
+  pegaReloj(150, 110 - (gira ? Math.round(Math.sin(g * Math.PI) * 10) : 0) + (rota && t < RAJA + 0.12 ? 1 : 0), gira ? g * Math.PI : 0);
+  // la arena se sale por el boquete (166, 134): cae a la tapa, rebosa por su canto y se amontona al pie; un chorro salta hacia el montón del decorado
+  if (rota) { const dt = t - RAJA, ff = Math.floor(t * 14);
+    for (let y = 135; y <= 143; y++) if (dt > (y - 135) * 0.012) for (let i = 0; i < 3; i++) R.pset(166 + i + (y > 139 ? 1 : 0), y, (y + i + ff) % 3 === 0 ? ARL : (y + i + ff) % 3 === 1 ? AR : ARS);
+    if (dt > 0.12) { montonFino(171, 143, Math.round(3 + Math.min(1, a * 3) * 5), Math.round(1 + Math.min(1, a * 3) * 3)); }
+    if (dt > 0.22) for (let y = 144; y <= 156; y++) for (let i = 0; i < 2; i++) R.pset(179 + i, y, (y + i + ff) % 3 === 0 ? ARL : (y + i + ff) % 3 === 1 ? AR : ARS);
+    if (dt > 0.3) montonFino(185, 157, Math.round(4 + a * 15), Math.round(1 + a * 9));
+    for (let k = 0; k < 30; k++) { const q = (dt * 1.5 + hh(k, 1, 9)) % 1, lx = 196 + hh(k, 2, 9) * 30, x = 168 + (lx - 168) * q, y = 134 - Math.sin(q * Math.PI) * (8 + hh(k, 3, 9) * 10) + q * 20; if (dt > q * 0.5) { R.pset(x, y, k % 3 === 0 ? ARL : k % 3 === 1 ? AR : ARS); if (q < 0.35) R.pset(x, y + 1, AR); } }
+    // las esquirlas: saltan del boquete y se quedan en la mesa, con un destello
+    [[192, 161], [204, 166], [180, 164], [199, 153], [213, 160]].forEach(([ex, ey], k) => { const q = tramo(t, RAJA, RAJA + 0.3 + k * 0.04); esquirla(lerp(167, ex, q), lerp(134, ey, q * q) - Math.sin(q * Math.PI) * (10 + k * 3), k); if (q >= 1 && Math.sin(t * 7 + k * 2) > 0.8) destello(ex, ey - 1, 1, BL); });
+    if (t < RAJA + 0.2) for (let a2 = 0; a2 < 8; a2++) { const an = a2 * Math.PI / 4, r = 7 + dt * 60; R.linea(166 + Math.cos(an) * (r - 4), 130 + Math.sin(an) * (r - 4), 166 + Math.cos(an) * r, 130 + Math.sin(an) * r, BL); } }
   T.hoyDelante(R, t, o);
   // Atom: baja, empuja el reloj (lo hace girar) y se aparta de un salto cuando se raja
   const emp = tramo(t, P6 + 0.05, GIRA0) - tramo(t, GIRA0, GIRA0 + 0.25), sus = tramo(t, RAJA, RAJA + 0.25);
@@ -212,8 +277,8 @@ const p6 = (t) => {
 };
 // un efecto por acción visible (sin rellenos; el viento, el motor y el público, cortos): el libro lanzado, los rebotes en las puertas, el
 // libro que cae, el libro que entra en el estante, el destello de las llaves, la hoja, la racha que se la lleva, la avioneta, el libro en la mesa
-// de Lanier, la corona, el murmullo de la sala, las manos a la cara y el reloj que se raja
-const efectos = [[TIRA, 'whoosh'], [BOT[0], 'puerta'], [BOT[2], 'toc'], [BOT[4], 'puerta'], [CAE, 'golpecito'], [METE, 'toc'], [MANU + 0.2, 'brillo'], [ARTI, 'papel'], [SAND, 'viento', { dur: 1.4 }], [NEVER, 'rafaga'], [P4 + 0.2, 'motor', { dur: 2.6 }], [BET + 0.4, 'golpecito'], [EMPE, 'brillo'], [OTRO + 0.1, 'publico', { dur: 1.4 }], [FAIL, 'palmada'], [RAJA, 'avalancha']];
+// de Lanier, la corona, el murmullo de la sala, la etiqueta que cae en el cartel (el proyector flojea sin sonido) y el reloj que se raja
+const efectos = [[TIRA, 'whoosh'], [BOT[0], 'puerta'], [BOT[2], 'toc'], [BOT[4], 'puerta'], [CAE, 'golpecito'], [METE, 'toc'], [MANU + 0.2, 'brillo'], [ARTI, 'papel'], [SAND, 'viento', { dur: 1.4 }], [NEVER, 'rafaga'], [P4 + 0.2, 'motor', { dur: 2.6 }], [BET + 0.4, 'golpecito'], [EMPE, 'brillo'], [OTRO + 0.1, 'publico', { dur: 1.4 }], [CALLED + 0.2, 'sello'], [RAJA, 'avalancha']];
 const año = (t) => t < P2 ? 1964 : t < P3 ? 1965 : t < EDIT ? 1957 : t < P5 ? 1965 : t < OTRO ? 1975 : t < P6 ? 1984 : 2026;
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
 </script>

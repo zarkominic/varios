@@ -12,8 +12,9 @@
 // DU-LECTORES (frases 16–17), 1968 → 1972 → hoy, sin cartela. Siete planos:
 // 1. el campus: el vendedor de la mesa de libros ofrece el nuestro y nadie viene... hasta que llegan estudiantes por los
 //    dos lados; se lleva una sorpresa («!») y lanza un ejemplar a la primera, que salta con él;
-// 2. inserto del catálogo sobre la manta: una mano con un lápiz rodea NUESTRO libro en su casilla; llegan dos manos más
-//    (de otra manga cada una) a señalar las herramientas: la guía de toda una generación;
+// 2. inserto del catálogo sobre la manta: una mano sola (puño rojo, sin brazo: tiene que recorrer el círculo) rodea
+//    con un lápiz NUESTRO libro en su casilla; llegan dos brazos cortos por abajo (≤ 40 px a la vista, de otra manga y
+//    otra inclinación cada uno) a señalar dos casillas de la fila de abajo: la guía de toda una generación;
 // 3. inserto (fondo local): cinco estudiantes ante el muro de ladrillo del pabellón se pasan el libro de mano en mano;
 //    cuando nace el movimiento ecologista se desenrolla una pancarta con un planeta al que le brota una hoja;
 // 4. la lámina de la duna en corte: una estudiante levanta el libro y las seis piezas (viento, arena, hierba, agua,
@@ -96,22 +97,22 @@ const p2 = (t) => {
   if (ud >= 1 && t < rec + 2.2 && Math.sin(t * 18) > 0) { destello(c9[2] + 4, c9[1] - 4, 2, OROL); destello(c9[0] - 3, c9[3] + 2, 1, OROL); }
   // el otro ejemplar, con la Tierra en la tapa, brilla cuando la voz lo nombra
   if (t > earth && t < earth + 1.2) { const tr = g.tierra ?? [35, 121]; aro(tr[0], tr[1], 15 + Math.round(lin(t, earth, earth + 1.2) * 4), Math.sin(t * 14) > 0 ? OROL : BL); destello(tr[0] + 11, tr[1] - 12, 2, BL); }
-  // las manos de los demás: una por la izquierda, otra por arriba
-  const c4 = g.casillas[4], c7 = g.casillas[6];
-  { const u = sale(lin(t, gen + 0.05, gen + 0.5)); if (u > 0) { const tap = u >= 1 ? Math.round(Math.abs(Math.sin((t - gen) * 5)) * 2) : 0, wx = Math.round(lerp(c4[0] - 30, c4[0] + 4, u)) + tap, wy = Math.round(lerp(c4[3] + 50, c4[3] - 8, u)) - tap;
+  // las manos de los demás: las dos por abajo, a la fila inferior (el único borde del que un brazo llega con ≤ 45 px)
+  const c4 = g.casillas[4], c7 = g.casillas[10];
+  { const u = sale(lin(t, gen + 0.05, gen + 0.5)); if (u > 0) { const tap = u >= 1 ? Math.round(Math.abs(Math.sin((t - gen) * 5)) * 2) : 0, wx = Math.round(lerp(c4[0] - 30, c4[0] + 4, u)) + tap, wy = Math.round(lerp(c4[3] + 44, c4[3] - 5, u)) - tap;
       if (u >= 1) marco(c4, Math.sin(t * 8) > 0 ? ORO : OROL);
-      T.brazo(R, wx - 38, wy + 46, wx, wy, '#7a4ab0', 1, { codo: [wx - 30, wy + 20] }); } }
-  { const u = sale(lin(t, whole, whole + 0.45)); if (u > 0) { const tap = u >= 1 ? Math.round(Math.abs(Math.sin((t - whole) * 5 + 1)) * 2) : 0, wx = Math.round((c7[0] + c7[2]) / 2) + 14 - tap, wy = Math.round(lerp(-30, c7[1] + 14, u)) + tap;
+      T.brazo(R, wx - 20, wy + 44, wx, wy, '#7a4ab0', 1, { codo: [wx - 13, wy + 17] }); } }
+  { const u = sale(lin(t, whole, whole + 0.45)); if (u > 0) { const tap = u >= 1 ? Math.round(Math.abs(Math.sin((t - whole) * 5 + 1)) * 2) : 0, wx = c7[2] - 3 - tap, wy = Math.round(lerp(c7[3] + 42, c7[3] - 8, u)) - tap;
       if (u >= 1) marco(c7, Math.sin(t * 8 + 2) > 0 ? ORO : OROL);
-      T.brazo(R, wx + 12, Math.min(wy - 62, -8), wx, wy, '#2e8a6a', -1, { codo: [wx + 18, wy - 28] }); } }
-  // la mano del lápiz, por la derecha
+      T.brazo(R, wx + 6, wy + 46, wx, wy, '#2e8a6a', -1, { codo: [wx + 10, wy + 21] }); } }
+  // la mano del lápiz, por la derecha: sola (T.mano sin manga), porque un brazo hasta el círculo pasaría de 45 px
   { const ue = sale(lin(t, P2 + 0.05, rec + 0.35)), uo = sale(lin(t, rec + 1.4, rec + 1.9)), p0 = pt(0), pn = pt(Math.min(n, N));
     let tx = ud <= 0 ? lerp(330, p0[0], ue) : pn[0], ty = ud <= 0 ? lerp(150, p0[1], ue) : pn[1];
     if (ud >= 1) { tx = lerp(pn[0], c9[2] + 12, uo); ty = lerp(pn[1], c9[3] + 8, uo) - (uo >= 1 ? Math.round(Math.abs(Math.sin((t - rec) * 4)) * 2) : 0); }
     tx = Math.round(tx); ty = Math.round(ty);
     for (let d = 0; d <= 13; d++) { const x = tx + d, y = ty + Math.round(d * 0.45); R.rect(x, y - 1, x + 1, y + 2, K); }
     for (let d = 0; d <= 13; d++) { const x = tx + d, y = ty + Math.round(d * 0.45); R.rect(x, y, x + 1, y + 1, d < 2 ? ROJO : d < 4 ? hex('#e8c8a0') : d > 11 ? hex('#f4a8b4') : hex('#f0c040')); }
-    T.brazo(R, Math.max(tx + 66, 332), ty + 58, tx + 20, ty + 6, '#c8404a', -1, { codo: [tx + 50, ty + 22] }); }
+    T.mano(R, tx + 17, ty + 6, -1, '#c8404a', { sinManga: true }); }
   T.hoyDelante(R, t, OK2);
 };
 

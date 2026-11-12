@@ -10,12 +10,15 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // DU-CARTA (frase 6), 1957. Cuatro planos:
-// 1. la entrada de casa: Herbert, en el porche, vuelca un zapato y sale un chorro de arena que no se acaba (gag 2); el
-//    montón crece junto a los escalones y Beverly se asoma a la puerta (corta en «sand dunes»);
+// 1. la entrada de casa: Herbert, en el porche, coge un zapato por el talón, lo vuelca (suela arriba, boca abajo) y lo
+//    sacude: de la boca sale una columna de arena que no se acaba (gag 2); el montón crece junto a los escalones y
+//    Beverly se asoma a la puerta (corta en «sand dunes»). El zapato y el chorro se dibujan aquí (zapato, chorro);
 // 2. inserto (fondo local): la mano escribe la carta al agente y, en el globo de idea que llena la pantalla, una duna
 //    avanza y se traga una ciudad de juguete, un lago, un río y una carretera, cada uno en su palabra (corta en «The article»);
-// 3. inserto en alzado (fondo local): la mano mete el reportaje en el cajón de la mesa y lo cierra en «published»; sale un
-//    hilo de arena por la esquina del cajón mientras las hojas de notas caen sobre el tablero (corta en «and far too much»);
+// 3. inserto en alzado (fondo local, con el calendario y la balda de libros en la pared izquierda): la mano entra desde
+//    abajo a la derecha (por debajo de la zona de Atom), mete el reportaje en el cajón de la mesa y lo cierra en
+//    «published»; sale un hilo de arena por la esquina del cajón mientras las hojas de notas llegan revoloteando desde
+//    la derecha y se posan en un montón desordenado sobre el tablero (corta en «and far too much»);
 // 4. el cuarto de 1957: Herbert teclea, las hojas vuelan a las pilas (bajas: la torre es el gag 3, de du-planeta) y el suelo se llena de papeles;
 //    se vuelve hacia la pila, se asombra y sonríe.
 import * as T from '/atomo/plato/escenas/du-comun.js';
@@ -44,15 +47,31 @@ const MANGA = '#b9a988';
 const porTramos = (t, pts) => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) return lerp(pts[i - 1][1], pts[i][1], (t - pts[i - 1][0]) / (pts[i][0] - pts[i - 1][0])); return pts[pts.length - 1][1]; };
 
 // ── 1 · el zapato (gag 2) ──
+// el zapato de cuero de perfil (16 × 10), tacón a la izquierda y puntera a la derecha: o boca (dentro), r el ribete,
+// P cuero, L luz, S sombra, w cordones, t el canto claro de la suela, h tacón. v: 1 de pie … −1 volcado (suela arriba,
+// boca abajo); cae: cuánto baja la puntera
+const ZAP = ['.rrrrrr.........', '.PoooooP........', '.PPooPPPw.......', '.LPPPPPwPw......', '.LPPPPPPwPwPP...', '.PPPPPPPPwPPLLP.', '.SSPPPPPPPPPLLLP', 'tttttttttttttttt', 'hhhhhsssssssssss', 'hhhhh...........'];
+const ZAPC = { o: hex('#2a1408'), r: hex('#c88a4c'), P: hex('#8a4a26'), L: hex('#b87040'), S: hex('#6a3418'), w: hex('#f6f2e6'), t: hex('#e0b878'), s: hex('#4a2c18'), h: hex('#3a2014') };
+const zapato = (x0, y0, v, cae = 0) => { const pts = [];
+  for (let j = 0; j < 10; j++) for (let i = 0; i < 16; i++) { const ch = ZAP[j][i]; if (ch !== '.') pts.push([x0 + i, y0 + Math.round((j - 4.5) * v + i * cae), ZAPC[ch]]); }
+  for (const [x, y] of pts) { pset(x - 1, y, K); pset(x + 1, y, K); pset(x, y - 1, K); pset(x, y + 1, K); }
+  for (const [x, y, col] of (v < 0 ? pts.reverse() : pts)) pset(x, y, col); };
+// la arena que cae de (x, y0) a y1: una columna de 2–3 px tramada cuyos granos bajan con t, y granos sueltos al lado
+const chorro = (x, y0, y1, t) => { const n = Math.floor(t * 42);
+  for (let y = y0; y <= y1; y++) for (let i = -1; i <= 1; i++) { const r = hh(i, y - n, 31); if (i === -1 && y > y0 + 2 && hh(1, (y - n) >> 2, 32) < 0.45) continue; pset(x + i, y, i === 1 ? (r < 0.75 ? ARS : AR) : r < 0.3 ? ARL : r < 0.42 ? ARS : AR); }
+  for (let k = 0; k < 6; k++) { const ph = (t * 1.7 + hh(k, 3, 33)) % 1, y = Math.round(lerp(y0 + 2, y1, ph * ph)); pset(x + (k % 2 ? 3 : -3) + (k % 3 === 0 ? (k % 2 ? 1 : -1) : 0), y, k % 2 ? ARL : AR); } };
 const p1 = (t) => {
   const o = { encuadre: 'entrada', puerta: 0.9 * ease(tramo(t, c(1.5), c(2.0))) }; T.casa(R, t, o);
   if (t > c(1.85)) R.actor(EL.beverly, 109, 123, t, { dir: 1, sorpresa: t > c(2.3) });
   const vuelca = tramo(t, c(0.55), c(0.95)), cae = tramo(t, c(0.95), c(1.25)), mont = 0.85 * tramo(t, c(1.1), P2 + 0.3), sy = 152;
-  const a = R.actor(EL.herbert57, 125, 123, t, { dir: 1, sostiene: [148, 109 - Math.round(2 * vuelca)], sorpresa: t > c(2.2) }), [mx, my] = a.mano;
-  if (cae > 0.5) PD.montonArena(R, mx + 3, sy + 1, { alto: 0.02 + mont });
-  if (vuelca < 1) PD.zapato(R, mx + 4, my + 5, {});
-  else { const L = Math.max(4, Math.round(lerp(4, sy - 3 - 16 * mont - my - 10, cae))); PD.zapato(R, mx + 7, my + 10 + L, { arena: L, t });
-    for (let k = 0; k < 8; k++) { const ph = (t * 2.2 + k / 8) % 1, dir = k % 2 ? 1 : -1; pset(mx + 3 + dir * Math.round(ph * (6 + 14 * mont)), Math.round(sy - 16 * mont - 3 * Math.sin(ph * 3.1) + ph * 16 * mont), T.C.arenaL); } }
+  const sacude = vuelca >= 1 ? (Math.floor(t * 7) % 2) : 0;
+  const a = R.actor(EL.herbert57, 125, 123, t, { dir: 1, sostiene: [148, 108 - Math.round(2 * vuelca) + sacude], sorpresa: t > c(2.2) }), [mx, my] = a.mano;
+  const zx = mx + 1, zy = my + 1, bx = zx + 4, cima = sy - 2 - Math.round(17 * mont);
+  if (cae >= 1) PD.montonArena(R, bx, sy + 1, { alto: 0.02 + mont });
+  if (vuelca >= 1) { chorro(bx, zy + 6, Math.round(lerp(zy + 9, cima, cae)), t);
+    // los granos que saltan al llegar al montón
+    if (cae >= 1) for (let k = 0; k < 8; k++) { const ph = (t * 2.2 + k / 8) % 1, dir = k % 2 ? 1 : -1; pset(bx + dir * Math.round(1 + ph * (5 + 13 * mont)), Math.round(cima + 1 - 3 * Math.sin(ph * 3.1) + ph * 15 * mont), ARL); } }
+  zapato(zx, zy, Math.cos(Math.PI * ease(vuelca)), 0.22 * Math.sin(Math.PI * vuelca) + (vuelca >= 1 ? 0.13 : 0));
   T.casaDelante(R, t, o);
 };
 
@@ -125,6 +144,19 @@ const fondoCajon = () => {
   rect(150, 22, 196, 60, K); madera(151, 23, 195, 59, MAD, MADS, 3); rect(154, 26, 192, 56, K); rect(155, 27, 191, 55, hex('#ddd5ba')); for (let y = 27; y <= 55; y++) { const xc = Math.round(168 + 3 * Math.sin(y * 0.3)); rect(155, y, xc, y, (y + xc) % 4 ? hex('#62869c') : hex('#88a6b6')); rect(xc + 1, y, xc + 3, y, hex('#fbf7e6')); rect(xc + 9, y, 191, y, (y * 3 + xc) % 5 ? hex('#547e44') : hex('#3a5f3e')); } disco(172, 42, 1, ROJO);
   for (let x = 204; x <= 262; x++) pset(x, 24 + Math.round(4 * Math.sin((x - 204) / 58 * 3.14)), K);
   for (const [x, k] of [[206, 0], [226, 1], [246, 2]]) { const y = 28 + (k === 1 ? 2 : 0); rect(x - 1, y - 1, x + 16, y + 14, K); rect(x, y, x + 15, y + 13, PAPEL); rect(x + 1, y + 1, x + 14, y + 10, hex('#a4c2d6')); poligono([[x + 1, y + 10], [x + 5 + k * 3, y + 4], [x + 10 + k * 2, y + 7], [x + 14, y + 5], [x + 14, y + 10]], hex('#ddd5ba')); poligono([[x + 5 + k * 3, y + 4], [x + 10 + k * 2, y + 7], [x + 8 + k * 2, y + 10], [x + 4 + k * 3, y + 10]], hex('#9aa0ac')); rect(x + 7, y - 3, x + 8, y, hex('#c8a060')); }
+  // la pared izquierda: el calendario de taco (el día en cifras, los demás en puntos) y una balda con libros
+  { const DG = { 1: '010110010010111', 7: '111001010010010' }, dig = (d, x, y, col) => { for (let j = 0; j < 5; j++) for (let i = 0; i < 3; i++) if (DG[d][j * 3 + i] === '1') rect(x + i * 2, y + j * 2, x + i * 2 + 1, y + j * 2 + 1, col); };
+    rect(6, 26, 27, 50, W3); rect(4, 24, 25, 48, K); rect(5, 25, 24, 47, PAPEL); rect(5, 25, 24, 29, ROJO); rect(5, 29, 24, 29, hex('#8a1f28')); for (let x = 7; x <= 22; x += 3) { pset(x, 24, hex('#c8ccd8')); pset(x, 25, K); }
+    pset(14, 26, K); pset(15, 26, K); dig(1, 8, 32, hex('#2a3a5a')); dig(7, 15, 32, hex('#2a3a5a'));
+    for (let j = 0; j < 2; j++) for (let i = 0; i < 6; i++) pset(7 + i * 3, 44 + j * 2, i === 4 && j === 0 ? ROJO : GRIS); rect(24, 26, 24, 47, PAPELS); pset(23, 47, PAPELS); pset(24, 46, K);
+    // la balda, sus escuadras y su sombra en la pared
+    for (let y = 45; y <= 47; y++) for (let x = 34; x <= 84; x++) if (B4[y & 3][x & 3] < (48 - y) * 4) pset(x, y, W3);
+    rect(32, 41, 83, 44, K); rect(33, 42, 82, 42, MADL); rect(33, 43, 82, 43, MADS); for (const x of [38, 76]) { rect(x, 45, x + 1, 49, K); pset(x + 2, 45, K); pset(x + 2, 46, K); pset(x + 3, 45, K); }
+    let x = 35; for (const [w, a, col, cl, banda] of [[4, 13, '#8a3a34', '#b85a4c', 1], [3, 11, '#3a5a8a', '#5a7ab8', 0], [5, 14, '#5a7a54', '#86a87c', 1], [3, 10, '#c8a060', '#e8c88a', 0], [4, 12, '#6a4a7a', '#8e6aa0', 1], [3, 13, '#2e5a78', '#5a9ac8', 0]]) {
+      rect(x, 40 - a, x + w + 1, 41, K); rect(x + 1, 41 - a, x + w, 40, hex(col)); rect(x + 1, 41 - a, x + 1, 40, hex(cl)); if (banda) { rect(x + 1, 44 - a, x + w, 44 - a, LATON); rect(x + 1, 37, x + w, 37, LATON); } else rect(x + 2, 43 - a, x + w - 1, 45 - a, PAPEL); x += w + 1; }
+    // un libro tumbado con otro encima, y el reloj de arena de sobremesa
+    rect(62, 36, 76, 41, K); rect(63, 37, 75, 40, hex('#a8543a')); rect(63, 37, 75, 37, hex('#d87a5a')); rect(74, 38, 75, 39, PAPEL); rect(64, 32, 75, 36, K); rect(65, 33, 74, 35, hex('#3a6a44')); rect(65, 33, 74, 33, hex('#5a8a54')); rect(65, 34, 66, 35, PAPEL);
+    rect(78, 29, 83, 30, K); rect(78, 40, 83, 41, K); linea(78, 31, 80, 35, K); linea(83, 31, 81, 35, K); linea(80, 35, 78, 39, K); linea(81, 35, 83, 39, K); rect(79, 31, 82, 31, hex('#cfe0e6')); rect(80, 32, 81, 33, AR); rect(79, 38, 82, 39, AR); rect(80, 37, 81, 37, ARL); }
   // el tablero y el frente de la mesa
   rect(0, 66, 319, 66, K); madera(0, 67, 319, 78, MADL, MAD, 5); rect(0, 67, 319, 67, hex('#c89858')); rect(0, 79, 319, 83, MADS); rect(0, 79, 319, 79, K); rect(0, 84, 319, 84, K);
   madera(0, 85, 319, 173, MAD, MADS, 7); rect(0, 174, 319, 179, hex('#5a2a30')); for (let x = 0; x < 320; x += 6) { pset(x, 176, hex('#7a3a3c')); pset(x + 3, 178, hex('#7a3a3c')); } rect(0, 174, 319, 174, K);
@@ -152,7 +184,7 @@ const p3 = (t) => {
   if (abre > 0.03) { poligono([[196, 91], [302, 91], [306 + ex, yf], [192 - ex, yf]], hex('#3a2416')); for (let k = 0; k < 4; k++) { const y = 93 + Math.round(k * (yf - 93) / 4.4); if (y < yf - 2) { rect(200 - k, y, 298 + k, y + 1, k % 2 ? hex('#c8a060') : hex('#d8c08a')); rect(210 + k * 20, y - 2, 224 + k * 20, y, k % 2 ? hex('#c8a060') : hex('#d8c08a')); } } }
   // el reportaje baja en la mano y entra en el cajón
   const ua = ease(tramo(t, P3 - 0.3, c(9.05))), ub = ease(tramo(t, c(9.05), c(9.5))), dentro = ub >= 1;
-  const sx = Math.round(lerp(330, 236, ua)), sy = Math.round(lerp(40, 50, ua) + ub * 66);
+  const sx = Math.round(lerp(330, 246, ua)), sy = Math.round(lerp(55, 50, ua) + ub * 66);   // entra por debajo de la zona de Atom
   if (!dentro) informe(sx, sy);
   // el frente del cajón (tapa lo que ya ha entrado)
   { const x0 = 190 - ex, x1 = 308 + ex, y1 = yf + 38 + ex; rect(x0, yf, x1, y1, K); madera(x0 + 1, yf + 1, x1 - 1, y1 - 1, MADL, MAD, 13); rect(x0 + 1, yf + 1, x1 - 1, yf + 2, hex('#d8a868')); rect(x0 + 1, y1 - 2, x1 - 1, y1 - 1, MADS); rect(x0 + 6, yf + 6, x1 - 6, y1 - 6, MADS); madera(x0 + 7, yf + 7, x1 - 7, y1 - 7, MAD, MADS, 23);
@@ -162,12 +194,26 @@ const p3 = (t) => {
   { const uc = tramo(t, c(9.5), c(9.62)), ud = ease(tramo(t, c(10.15), c(10.9)));
     let wx = sx + 40, wy = sy + 8; if (ub > 0.6) { const k = ease(tramo(ub, 0.6, 1)); wy = Math.round(lerp(sy + 8, 118, k)); wx = Math.round(lerp(sx + 40, 292, k)); }
     if (dentro) { wx = 292 + Math.round(ud * 50); wy = yf + 8 + Math.round(ud * 10); }
-    if (ud < 1) T.brazo(R, wx + 44, wy - 22, wx, wy, MANGA, -1, { codo: [wx + 24, wy - 4], sombra: false }); }
+    // el brazo sube desde abajo a la derecha: hombro y codo por debajo de la muñeca, lejos de la zona de Atom
+    if (ud < 1) T.brazo(R, wx + 42, wy + 25, wx, wy, MANGA, -1, { codo: [wx + 23, wy + 9], sombra: false }); }
   // un hilo de arena se escapa por la esquina del cajón cerrado
   { const d = t - c(10.3); if (d > 0) { const m = Math.min(1, d / 2.6); for (let y = 131; y < 173 - Math.round(m * 5); y++) if ((y + Math.floor(t * 30)) % 3) pset(197 + ((y * 7 + Math.floor(t * 12)) % 5 === 0 ? 1 : 0), y, (y + Math.floor(t * 30)) % 2 ? T.C.arenaL : T.C.arena); PD.montonArena(R, 198, 174, { alto: 0.02 + 0.3 * m }); } }
-  // las hojas de notas caen una tras otra sobre el tablero
-  for (let k = 0; k < 7; k++) { const t0 = c(10.55) + k * 0.36, d = t - t0; if (d < 0) continue; const x = 206 + (k * 37) % 62, yd = 75 - k * 3, u = Math.min(1, d / 0.45), y = Math.round(lerp(-12, yd, u * u)), gira = u < 1 && Math.floor(d * 14) % 2;
-    if (gira) { rect(x + 3, y - 12, x + 25, y + 1, K); rect(x + 4, y - 11, x + 24, y, PAPEL); for (let j = -9; j < 0; j += 3) rect(x + 7, y + j, x + 20 - (j + 9), y + j, GRIS); } else { rect(x - 1, y - 3, x + 31, y + 1, K); rect(x, y - 2, x + 30, y, k % 3 === 2 ? PAPELS : PAPEL); rect(x + 4, y - 1, x + 22, y - 1, GRIS); } }
+  // el vapor de la taza
+  for (let k = 0; k < 3; k++) { const ph = (t * 0.45 + k / 3) % 1; pset(Math.round(179 + Math.sin(ph * 6 + k) * 2), Math.round(66 - ph * 12), hex('#dfe6da')); }
+  // las hojas de notas llegan revoloteando desde la derecha (lanzadas desde fuera, por debajo de la zona de Atom) y se
+  // posan una tras otra en un montón desordenado sobre el tablero; cada una, a su sitio y con su ángulo
+  const POSA = [[214, 77, 3, 1], [252, 77, -4, -1], [282, 76, 4, 0], [232, 75, -3, 1], [268, 74, 2, -1], [202, 74, 5, 0], [246, 72, -2, 1]];
+  const cuad = (P, col) => { poligono(P, col); for (let i = 0; i < 4; i++) linea(Math.round(P[i][0]), Math.round(P[i][1]), Math.round(P[(i + 1) % 4][0]), Math.round(P[(i + 1) % 4][1]), K); };
+  const posada = (k) => { const [x, y, s, dy] = POSA[k], w = 24; cuad([[x, y], [x + w, y + dy], [x + w + s, y + dy - 4], [x + s, y - 4]], k % 3 === 2 ? PAPELS : PAPEL); linea(x + 4 + (s >> 1), y - 2, x + w - 6 + (s >> 1) - (k * 3) % 5, y - 2 + dy, GRIS); };
+  const T0 = c(10.4), DUR = 0.8, CADA = 0.26;   // la última se posa hacia t = 12,8, antes del corte
+  for (let k = 0; k < 7; k++) if (t - T0 - k * CADA >= DUR) posada(k);
+  for (let k = 0; k < 7; k++) { const d = t - T0 - k * CADA; if (d < 0 || d >= DUR) continue; const u = d / DUR, [xd, yd, sd, dyd] = POSA[k];
+    // el vuelo: entra rápida y se frena; baja en vaivén (como una hoja), girando y volteándose cada vez menos
+    const ux = 1 - (1 - u) ** 2.2, vai = Math.sin(u * 9.5 + k * 1.7) * (1 - u), cx = lerp(332, xd + 12 + sd / 2, ux) + 7 * vai, cy = lerp(60 + (k % 3) * 2, yd - 2, u * u) - 7 * Math.sin(u * 3.14) + 3 * Math.abs(vai);
+    const ang = lerp(0.55 * Math.cos(u * 9.5 + k * 1.7) + (k % 2 ? 0.3 : -0.3), dyd / 24, u * u), alto = lerp(6.5 * (0.45 + 0.55 * Math.abs(Math.cos(u * 7 + k))), 2, u * u * u), ca = Math.cos(ang), sa = Math.sin(ang), incl = lerp(0, sd, u * u);
+    const pt = (i, j) => [cx + i * ca - j * sa * 0.6 + (j < 0 ? incl / 2 : -incl / 2), cy + i * sa + j * ca];
+    cuad([pt(-12, alto), pt(12, alto), pt(12, -alto), pt(-12, -alto)], k % 3 === 2 ? PAPELS : PAPEL);
+    for (const j of alto > 4 ? [-alto / 2, 0, alto / 2] : [0]) { const [ax, ay] = pt(-8, j), [bx, by] = pt(7 - (k + Math.round(j)) % 4, j); linea(Math.round(ax), Math.round(ay), Math.round(bx), Math.round(by), GRIS); } }
 };
 
 // ── 4 · el cuarto: las notas desbordan ──

@@ -10,12 +10,16 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // DU-SCOTT (frase 23), 1976–1981. Tres planos:
-// 1. la oficina de Hollywood: el productor francés trae el contrato, que cruza el escritorio hasta Dino De Laurentiis
-//    (lo sella encantado); entra Ridley Scott con su claqueta, trabaja unos meses (hablan, da la claqueta) y se da la vuelta;
+// 1. el despacho de De Laurentiis (oficina 'magnate': pared azul, ventanal de tres hojas al caer la tarde, mármol en
+//    damero y escritorio de ébano; no es la oficina de du-dibujos ni la de du-jodo): el productor francés trae el
+//    contrato, que cruza el escritorio hasta Dino De Laurentiis (lo sella encantado); entra Ridley Scott con su
+//    claqueta, trabaja unos meses (hablan, da la claqueta) y se da la vuelta;
 // 2. inserto (fondo local): una habitación de noche ante un ventanal con lluvia y neones de símbolos; la mano de Scott
 //    mete la gorra en la maleta, la tapa se cierra y la maleta se va; en la cama se quedan el contrato y la claqueta;
 // 3. inserto (fondo local): un escritorio visto desde arriba, 1981: una mano empuja el contrato, que cruza la mesa hasta
 //    la mano de un director joven (manga blanca), que lo firma; luego le llega la claqueta y da la claqueta.
+// La claqueta de Scott (plano 1) lleva la pizarra con una sola raya de tiza; las grandes (planos 2 y 3) llevan la pizarra tapada con un recuadro y una cifra (1 y 2), como en du-jodo:
+// los trazos de la pieza se leían como escritura.
 import * as T from '/atomo/plato/escenas/du-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('du-scott');
@@ -44,7 +48,7 @@ const hoja = (x, y, osc) => { R.rect(x - 6, y - 14, x + 6, y, K); R.rect(x - 5, 
 
 const s = (f) => en('scott', f);
 const P2 = s(0.435), P3 = s(0.73);
-const O = { encuadre: 'plato', camara: 'oficina', lugar: 'hollywood' };
+const O = { encuadre: 'plato', camara: 'oficina', lugar: 'hollywood', variante: 'magnate' };
 const p1 = (t) => {
   T.cine(R, t, O);
   const llega = tramo(t, 0.15, s(0.03)), pasa = tramo(t, s(0.03), s(0.1)), sella = s(0.19), vuelve = tramo(t, s(0.14), s(0.33));
@@ -62,7 +66,10 @@ const p1 = (t) => {
   // Scott entra por la derecha con la claqueta, da la claqueta y se vuelve para irse
   if (sc > 0) { const x = Math.round(seva > 0 ? lerp(232, 300, seva) : lerp(324, 232, sale(sc)));
     const a = R.actor(EL.scottDU, x, 158, t, { dir: seva > 0 ? 1 : -1, anda: (sc < 1) || seva > 0, sostiene: true, habla: sc >= 1 && seva === 0 && Math.sin(t * 9) < -0.2 });
-    PZ.claqueta(R, a.mano[0] + (seva > 0 ? 6 : -6), a.mano[1] + 8, { abierta: sc >= 1 && t < clac, dir: seva > 0 ? 1 : -1 });
+    const kx = a.mano[0] + (seva > 0 ? 6 : -6), ky = a.mano[1] + 8;
+    PZ.claqueta(R, kx, ky, { abierta: sc >= 1 && t < clac, dir: seva > 0 ? 1 : -1 });
+    // la pizarra, sin trazos que parezcan escritura: se tapa con su propio gris y se deja una sola raya de tiza
+    { const g = R.pget(kx - 9, ky - 9); R.rect(kx - 9, ky - 8, kx + 9, ky - 2, g); R.rect(kx - 6, ky - 5, kx + 6, ky - 5, hex('#8a8e9c')); }
     if (t >= clac && t < clac + 0.35) destello(a.mano[0] - 6, a.mano[1] - 14, 4, hex('#fff4c8')); }
 };
 
@@ -146,7 +153,7 @@ const p2 = (t) => {
   NEON.forEach(([x, , , c], i) => { if (Math.floor(t * (1.1 + i * 0.37) + i) % (3 + i) !== 0) for (let j = 0; j < 14; j++) velo(x + 3 + j, 121, hex(c), 0.55 - Math.abs(j - 7) * 0.05); });
   if (Math.sin(t * 23) > 0.86) { pset(261, 66, hex('#ffffff')); pset(262, 67, hex('#ffffff')); }
   // lo que se queda en la cama: el contrato y la claqueta del encargo
-  PZ.contrato(R, 84, 150, { s: 2 }); PZ.claqueta(R, 132, 152, { s: 2 });
+  PZ.contrato(R, 84, 150, { s: 2 }); PZ.claqueta(R, 132, 152, { s: 2 }); R.rect(123, 132, 141, 146, K); R.numero('1', 132, 144, { centro: true });
   const mete = tramo(t, P2 + 0.1, s(0.475)), cierra = tramo(t, s(0.49), s(0.545)), coge = tramo(t, s(0.56), s(0.6)), va = ease(tramo(t, s(0.61), P3 - 0.15));
   const x0 = 180 + Math.round(va * 170), yb = 150 - Math.round(Math.sin(Math.min(1, va * 4) * Math.PI / 2) * 3);
   maleta(x0, yb, 1 - ease(cierra), t, cierra >= 1 && t < s(0.545) + 0.3);
@@ -209,7 +216,7 @@ const p3 = (t) => {
   if (firma > 0) { const n = Math.round(firma * 22); for (let i = 0; i < n; i++) { const x = cxC - 16 + i, y = cyC - 9 + Math.round(Math.sin(i * 1.1) * 2.4 - i * 0.08); pset(x, y, hex('#1c2450')); pset(x, y + 1, hex('#1c2450')); } }
   // la claqueta: la empuja la mano izquierda, cruza y se queda bajo el contrato; al final, la mano de Lynch la cierra
   const cxK = Math.round(cl2 > 0 ? lerp(104, 246, sale(cl2)) : lerp(-40, 104, sale(cl1))), cyK = 172;
-  if (cl1 > 0) { for (let y = cyK - 50; y <= cyK + 3; y++) for (let x = cxK - 30; x <= cxK + 37; x++) if ((x + y) % 2 === 0) velo(x, y, K, 0.3); PZ.claqueta(R, cxK, cyK, { s: 3, abierta: t < clac }); }
+  if (cl1 > 0) { for (let y = cyK - 50; y <= cyK + 3; y++) for (let x = cxK - 30; x <= cxK + 37; x++) if ((x + y) % 2 === 0) velo(x, y, K, 0.3); PZ.claqueta(R, cxK, cyK, { s: 3, abierta: t < clac }); R.rect(cxK - 14, cyK - 30, cxK + 14, cyK - 9, K); R.numero('2', cxK, cyK - 12, { centro: true, tam: 16 }); }
   if (t >= clac && t < clac + 0.5) for (const [dx, dy, r] of [[-30, -66, 5], [8, -72, 4], [40, -62, 5], [-8, -78, 3]]) destello(cxK + dx, cyK + dy - Math.round((t - clac) * 14), r, hex('#fff4c8'));
   // la mano izquierda (traje azul gris de De Laurentiis): empuja el contrato y se retira; vuelve con la claqueta
   { let wx, y = 112;

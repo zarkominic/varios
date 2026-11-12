@@ -14,9 +14,11 @@
 //    y se aparta; la hierba brota y se va quedando con el tablero («too big»): Atom da un respingo con su «!»; en
 //    «Too big for an article» la hoja de notas se lleva su X. Corta en «too strange».
 // 2. hoy 'estudio'/general: la hierba se queda con toda la mesa, cuelga por los cajones y sale por el suelo; en «20
-//    publishers» Atom saca el globo del 20 con su X; en «exactly the size of a planet» nuestro libro asoma por la
-//    ventana, enorme, como un planeta, con sus dos lunas en órbita; Atom vuelve de un salto a su esquina y se despide
-//    girando con chispas.
+//    publishers» Atom saca el globo del 20 con su X; en «exactly the size of a planet» nuestro libro sale como un
+//    astro por detrás de los tejados y los árboles del jardín (a s:3, más ancho que un batiente, cruza el parteluz;
+//    bruma de lejanía, halo fino y filo claro) y sigue subiendo despacio, con sus dos lunas girando en órbita (pasan
+//    por detrás y por delante); la cometa y los pájaros cruzan por delante y el brillo del cristal se apaga mientras
+//    tanto; Atom vuelve de un salto a su esquina y se despide girando con chispas.
 import * as T from '/atomo/plato/escenas/du-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('du-cierre');
@@ -102,16 +104,52 @@ const p1 = (t) => {
 };
 
 // ── 2. la hierba se queda con la mesa; el libro, del tamaño de un planeta, en la ventana ──────────────────
-const libroPlaneta = (t, V) => { const u = ease(lin(t, PLAN, PLAN + 1.1)); if (u <= 0) return; const cx = Math.round((V[0] + V[2]) / 2) - 16, by = Math.round(lerp(V[3] + 52, V[3] - 7, u)), cy = by - 24;
-  for (let j = -34; j <= 34; j++) for (let i = -34; i <= 34; i++) { const d = Math.hypot(i, j); if (d < 34 && (d < 26 ? (i + j) & 1 : ((i + j) & 3) === 0)) R.pset(cx + i, cy + j, hex('#fff0b8')); }
-  const lunas = [[t * 1.3, 30, 9, 3, '#f8eec8'], [t * 0.9 + 2.6, 36, 12, 2, '#e8c8a0']].map(([an, rx, ry, r, col]) => [Math.round(cx + Math.cos(an) * rx), Math.round(cy + Math.sin(an) * ry), r, col, Math.sin(an) < 0]);
-  lunas.forEach(([x, y, r, col, atras]) => { if (atras) { R.disco(x, y, r + 1, K); R.disco(x, y, r, hex(col)); } });
-  recortada(V[0], V[1], V[2], V[3], () => PZ.libro?.(R, cx, by, { s: 2 }));
-  lunas.forEach(([x, y, r, col, atras]) => { if (!atras) { R.disco(x, y, r + 1, K); R.disco(x, y, r, hex(col)); R.pset(x - 1, y - 1, BL); } }); };
+// El libro es un ASTRO que sale por detrás del jardín (gancho enVentana del decorado: ya viene recortado a V). Se guarda
+// la vista del parque, se pinta el astro (órbitas, lunas de detrás, halo, libro a s:3 con bruma hacia el horizonte, filo
+// claro, lunas de delante) y se devuelve el primer término columna a columna (tejados, seto, copas, césped), además de
+// la cometa y los pájaros, que pasan por delante y dan la escala. VISTA guarda la ventana ya compuesta: con ella p2
+// apaga después el brillo diagonal del cristal mientras el libro está fuera.
+const PARQUE = new Uint32Array(320 * 180), VISTA = new Uint32Array(320 * 180);
+const TEJA = hex('#a86a5a'), SETO1 = hex('#86b89a'), SETO2 = hex('#5a9a7a'), PAJARO = hex('#3a4a6a'), BRILLO = hex('#eef6fa'), FILO = hex('#fff0b8'), BRUMA = hex('#cfe6f4');
+const verde = (p) => { const r = p & 255, g = (p >>> 8) & 255, b = (p >>> 16) & 255; return g > b + 8 && g >= r; };
+const calido = (p) => { const r = p & 255, g = (p >>> 8) & 255, b = (p >>> 16) & 255; return r > b + 70 && (r > g + 40 || (g > b + 60 && r > 200 && b < 120)); };
+let ASTRO = 0;
+const libroPlaneta = (t, V) => { const u = ease(lin(t, PLAN, PLAN + 1.1)); ASTRO = u; if (u <= 0) return;
+  const [vx0, vy0, vx1, vy1] = V, S = 3, AN = 18 * S, AL = 24 * S, cx = Math.round((vx0 + vx1) / 2);
+  // sale en 1,1 s y luego sigue subiendo despacio hasta el final del plano
+  const y0 = Math.round(lerp(vy0 + 44, vy0 + 5, u) - lin(t, PLAN + 1.1, PLAN + 4.2) * 4), by = y0 + AL, x0 = cx - AN / 2, x1 = x0 + AN - 1, oy = y0 + 10;
+  for (let y = vy0; y <= vy1; y++) for (let x = vx0; x <= vx1; x++) PARQUE[y * 320 + x] = R.pget(x, y);
+  // las dos lunas, cada una en su órbita (elipse inclinada): [ángulo, rx, ry, inclinación, radio, color, sombra]
+  const lunas = [[t * 2.3 + 0.4, 34, 6, 0.08, 4, '#f8eec8', '#c8b88a'], [t * 1.7 + 3.3, 31, 8, -0.14, 3, '#f0b888', '#b87a50']].map(([an, rx, ry, inc, r, col, som]) => ({ an, rx, ry, inc, r, col: hex(col), som: hex(som),
+    en: (a) => [Math.round(cx + Math.cos(a) * rx), Math.round(oy + Math.sin(a) * ry + Math.cos(a) * rx * inc)] }));
+  const luna = (l) => { const [x, y] = l.en(l.an); R.disco(x, y, l.r + 1, K); R.disco(x, y, l.r, l.col); R.disco(x + 1, y + 1, l.r - 2, l.som); R.pset(x - 1, y - 1, BL); R.pset(x - 2, y - 1, BL); R.pset(x - 1, y - 2, BL);
+    for (let k = 1; k <= 5; k++) { const [qx, qy] = l.en(l.an - k * 0.13 - l.r * 0.04); if (k % 2) R.pset(qx, qy, BL); else R.pset(qx, qy, l.col); } };
+  const orbita = (l, delante) => { for (let k = 0; k < 40; k++) { const a = k * Math.PI / 20 + t * 0.3; if ((Math.sin(a) > 0) !== delante) continue; const [x, y] = l.en(a); R.pset(x, y, delante ? FILO : hex('#eaf4fa')); } };
+  lunas.forEach((l) => { orbita(l, false); if (Math.sin(l.an) <= 0) luna(l); });
+  // el halo: un resplandor tramado de pocos píxeles pegado al contorno (nada de trama sobre media ventana)
+  for (let y = y0 - 4; y <= Math.min(vy1, by); y++) for (let x = x0 - 4; x <= x1 + 4; x++) { const d = Math.max(x0 + 1 - x, x - x1 + 1, y0 + S - y); if (d > 0 && d <= 4 && (d <= 1 || (d === 2 ? (x + y) & 1 : ((x + y * 2) & 3) === 0))) R.pset(x, y, d <= 1 ? BL : FILO); }
+  // el libro, con bruma de lejanía (más hacia el horizonte) como un astro
+  recortada(vx0, vy0, vx1, vy1, () => { PZ.libro?.(R, cx, by, { s: S });
+    // las dos lunas de la tapa, redondeadas a píxel fino (a s:3 la pieza las deja en bloques)
+    const lx = x0 + 22, ly = y0 + 19; R.rect(lx - 7, ly - 7, lx + 8, ly + 8, hex('#1e2a5e')); R.disco(lx, ly, 7, hex('#f6e4b0')); for (let j = -7; j <= 7; j++) for (let i = -7; i <= 7; i++) if (Math.hypot(i, j) <= 7.3 && Math.hypot(i + 3, j + 3) > 8.2) R.pset(lx + i, ly + j, hex('#e8c880')); R.pset(lx - 3, ly - 2, hex('#e8c880')); R.pset(lx - 2, ly - 2, hex('#e8c880')); R.pset(lx + 1, ly + 2, hex('#e8c880')); R.pset(lx - 4, ly + 2, hex('#e8c880'));
+    R.rect(x0 + 35, y0 + 11, x0 + 40, y0 + 16, hex('#1e2a5e')); R.disco(x0 + 38, y0 + 14, 3, hex('#f6c468')); R.pset(x0 + 37, y0 + 13, hex('#ffe890')); }, (p, x, y) => mez(p, BRUMA, 0.08 + 0.3 * cl((y - (vy0 + 14)) / 22)));
+  // el filo claro de la luz, arriba y a la izquierda
+  for (let x = x0 + S; x <= x1 - S; x++) R.pset(x, y0 + S, FILO); for (let y = y0 + S; y <= Math.min(vy1, by); y++) R.pset(x0 + S, y, (y & 7) === 7 ? BL : FILO);
+  lunas.forEach((l) => { orbita(l, true); if (Math.sin(l.an) > 0) luna(l); });
+  // el jardín vuelve a quedar por delante: en cada columna, desde el primer remate de tejado, seto o copa hacia abajo
+  for (let x = vx0; x <= vx1; x++) { let y = vy0 + 14; for (; y <= vy1; y++) { const p = PARQUE[y * 320 + x]; if (p === TEJA || p === SETO1 || p === SETO2 || verde(p)) break; } for (; y <= vy1; y++) R.pset(x, y, PARQUE[y * 320 + x]); }
+  // la cometa y los pájaros cruzan por delante del astro
+  for (let y = vy0; y <= vy0 + 34; y++) for (let x = vx0; x <= vx1; x++) { const p = PARQUE[y * 320 + x]; if (p === PAJARO || calido(p)) R.pset(x, y, p); }
+  { const kx = vx0 + 50 + Math.round(Math.sin(t * 0.7) * 6), ky = vy0 + 26 + Math.round(Math.cos(t * 0.9) * 3); for (let i = 0; i <= 40; i++) { const x = Math.round(lerp(kx, vx0 + 40, i / 40)), y = Math.round(lerp(ky, vy0 + 49, i / 40)); if (y >= vy0 && y <= vy1) R.pset(x, y, PARQUE[y * 320 + x]); } }   // y el hilo de la cometa
+  for (let y = vy0; y <= vy1; y++) for (let x = vx0; x <= vx1; x++) VISTA[y * 320 + x] = R.pget(x, y); };
 const p2 = (t) => {
   const hi = lerp(0.5, 1, ease(lin(t, Z2, c(9.2))));
   const o = { encuadre: 'estudio', arena: 0.15, roto: true, nivel: 0.3, hierba: hi, enVentana: (R2, tt, V) => libroPlaneta(t, V) };
+  ASTRO = 0;
   T.hoy(R, t, o);
+  // mientras el libro está fuera, se apaga el brillo diagonal del cristal (lo pinta el decorado encima de la vista):
+  // sus píxeles vuelven a la vista ya compuesta; por debajo de y 84 se deja, que ahí cae sobre el cactus y los libritos
+  if (ASTRO > 0) for (let y = 32; y <= 84; y++) for (let x = 178; x <= 250; x++) if (R.pget(x, y) === BRILLO && (x < 213 || x > 215) && (y < 60 || y > 62)) R.pset(x, y, VISTA[y * 320 + x]);
   T.hoyDelante(R, t, o);
   // «too strange for 20 publishers»: el globo del 20 con su X
   if (t > VEINTE - 0.05 && t < PLAN + 0.1) { const e = lin(t, VEINTE - 0.05, VEINTE + 0.15), y = 66 - Math.round(Math.sin(e * Math.PI) * 4); globo(104, y, 64, 26, 8); R.numero('20', 92, y + 8, { tam: 16, centro: true, color: hex('#1c2450'), sombra: false }); R.icono('X', 115, y - 7, ROJO, hex('#f0c8c8'), 2); }

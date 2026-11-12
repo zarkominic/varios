@@ -10,9 +10,12 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // DU-ADIOS (frase 25), 1986. Solo el hecho y con ternura. Tres planos:
-// 1. casa 'cuarto'/general (1986): el cuarto al atardecer, la silla vacía y la máquina con su funda. El flexo, que seguía
-//    encendido, se apaga despacio en «died»; un pájaro cruza la ventana hacia el sol; en la mesa, al reloj de arena se le
-//    acaba la arena y en «65» queda la cifra. Corta en «And for decades».
+// 1. casa 'cuarto'/general (1986): el cuarto, la silla vacía y la máquina con su funda, y el atardecer que AVANZA durante
+//    el plano (la ventana se repinta entera aquí, recortada a su cristal): el sol baja tras los abetos, el cielo pasa de
+//    naranja a malva y salen las primeras estrellas, tres pájaros vuelven hacia el sol; el rayo del suelo se alarga por
+//    la alfombra y se apaga (los rayos fijos del decorado se deshacen y se pintan vivos) y la luz del cuarto se enfría.
+//    El flexo, la única luz cálida (cono sobre la mesa y filo en la funda), se apaga despacio en «died»; al reloj de
+//    arena se le acaba la arena y en «65» queda la cifra, grande. Corta en «And for decades».
 // 2. (LOCAL) la balda de honor de cerca, con los seis libros numerados, los sujetalibros, el trofeo y la hierba de playa
 //    en un jarrón; debajo, la cómoda con la tele pequeña. Pasan los años (la barra corre de 1986 a 2016): la luz de la
 //    ventana cruza la pared tres veces, se hace de noche y de día, el polvo se posa y una telaraña crece; en «TV
@@ -21,7 +24,7 @@
 //    telaraña y una araña baja por su hilo; el brazo del archivero (el canónico) entra por abajo con un lápiz graso rojo
 //    y en «could», «not» y «right» tacha tres latas, trazo a trazo, y se retira; en la cola, a la bobina suelta se le
 //    va la película, que se desenrolla balda abajo. De fondo: las motas en el rayo de luz, la polilla y la tira de
-//    película que se mece.
+//    película que se mece. Del cajón de madera asoma la paja en manojos desiguales (sin picos en fila: parecían letras).
 import * as T from '/atomo/plato/escenas/du-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('du-adios');
@@ -72,23 +75,95 @@ const b = (f) => en('adios', f);
 const P2 = b(0.394) - 0.1, P3 = b(0.842);
 const muere = b(0.042), t65 = b(0.290), tele0 = b(0.517), tele1 = b(0.66), x1 = b(0.900), x2 = b(0.923), x3 = b(0.961);
 
-// ── 1. el cuarto de 1986 ────────────────────────────────────────────────────────────────────────
+// ── 1. el cuarto de 1986: el atardecer avanza de verdad durante el plano ───────────────────────
 const O1 = { encuadre: 'cuarto', camara: 'general', epoca: 1986 };
-const p1 = (t) => {
-  T.casa(R, t, O1);
-  // un pájaro cruza la ventana hacia el sol (recortado a su hueco)
-  R.recorte([107, 37, 167, 89]);
-  { const u = lin(t, 0.9, 4.6), x = Math.round(lerp(104, 172, u)), y = Math.round(lerp(74, 44, u) + Math.sin(u * 9) * 2), al = Math.sin(t * 11) > 0 ? -1 : 1;
-    if (u > 0 && u < 1) { R.pset(x, y, K); R.pset(x + 1, y, K); R.pset(x - 1, y + al, K); R.pset(x - 2, y + al * 2, K); R.pset(x + 2, y + al, K); R.pset(x + 3, y + al * 2, K); } }
+const VENT = [106, 36, 168, 90], mz3 = (A, B, u) => A.map((c, i) => mez(c, B[i], u));
+const CIELO_A = RA('#4e3a7c', '#a04e78', '#e8744e', '#f8b450'), CIELO_B = RA('#161a44', '#2c2860', '#523672', '#94506e');
+const NUBE_A = RA('#7a3a6a', '#c05a6a', '#f8a060'), NUBE_B = RA('#221e48', '#3c2e66', '#6a4478');
+const PINO_A = RA('#2a1a2c', '#4a2630', '#c0603a', '#20121c'), PINO_B = RA('#0e0c1e', '#18142c', '#2c2444', '#0c0a14');
+const RAYO_A = hex('#ffc060'), RAYO_B = hex('#f06848'), CALIDA = hex('#fff0b0');
+// una nube y un abeto como los del decorado (con disco, poligono y linea: los recorta R.recorte)
+const nube1 = (cx, cy, w, P) => { const N = [[0, 0, 0.3], [-0.3, 0.07, 0.21], [0.3, 0.06, 0.23], [-0.08, -0.13, 0.24], [0.14, -0.08, 0.2]], r = (f) => Math.max(1, Math.round(f * w));
+  for (const [dx, dy, f] of N) R.disco(Math.round(cx + dx * w), Math.round(cy + dy * w + 1), r(f), P[0]);
+  for (const [dx, dy, f] of N) R.disco(Math.round(cx + dx * w), Math.round(cy + dy * w), r(f), P[1]);
+  for (const [dx, dy, f] of N) R.disco(Math.round(cx + dx * w - 1), Math.round(cy + dy * w - 1), r(f * 0.7), P[2]);
+  R.linea(Math.round(cx - w * 0.5), Math.round(cy + w * 0.24), Math.round(cx + w * 0.5), Math.round(cy + w * 0.24), P[0]); };
+const abeto1 = (x, yb, alto, t, P, k = 0) => { const n = Math.max(3, Math.round(alto / 6)), an = alto * 0.24;
+  R.linea(x, yb, x, yb - Math.round(alto * 0.3), P[3]); R.linea(x + 1, yb, x + 1, yb - Math.round(alto * 0.3), P[3]);
+  for (let j = n - 1; j >= 0; j--) { const u = j / n, y1 = yb - Math.round(alto * 0.12) - Math.round(u * alto * 0.88 * 0.86), y0 = y1 - Math.round(alto / n * 1.9), w = Math.max(2, Math.round(an * (1 - u * 0.86))), m = Math.round(Math.sin(t * 1.3 + k * 1.7 + j * 0.5) * 1.6 * u);
+    R.poligono([[x + m, y0], [x - w + (m >> 1), y1], [x + w + 1 + (m >> 1), y1]], P[0]);
+    R.poligono([[x + m, y0 + 1], [x - w + 2 + (m >> 1), y1 - 1], [x + (m >> 1), y1 - 1]], P[1]);
+    R.linea(x + m, y0 + 1, x - w + 2 + (m >> 1), y1 - 1, P[2]); } };
+// el decorado deja pintados en su búfer los rayos de sol de 1986 (trama de damero, mezcla fija): se deshace esa mezcla
+// para poder pintarlos vivos (el del suelo se alarga y los dos se apagan)
+const quitaRayo = (x0, y0, x1, y1, incl, a, xmin = 0) => { const q = 1 / (1 - a), f = (v, c) => cl(Math.round((v - c * a) * q), 0, 255);
+  for (let y = y0; y <= y1; y++) { const d = Math.round((y - y0) * incl); for (let x = Math.max(xmin, x0 + d); x <= Math.min(319, x1 + d); x++) if (((x + y) & 1) === 0) { const c = R.pget(x, y);
+    R.pset(x, y, (0xff000000 | (f((c >>> 16) & 255, 96) << 16) | (f((c >>> 8) & 255, 192) << 8) | f(c & 255, 255)) >>> 0); } } };
+const rayo1 = (x0, y0, x1, y1, incl, col, a, f = null) => { if (a <= 0.01) return; for (let y = y0; y <= y1; y++) { const d = Math.round((y - y0) * incl); for (let x = Math.max(0, x0 + d); x <= Math.min(319, x1 + d); x++) if (((x + y) & 1) === 0 && (!f || f(x, y, x - x0 - d))) R.pset(x, y, mez(R.pget(x, y), col, a)); } };
+// la luz del cuarto se enfría: del ámbar al malva del anochecer (un recorrido de la pantalla, sobre el búfer)
+const enfria = (e) => { if (e <= 0.01) return; const B = R.buf, kr = 1 - 0.46 * e, kg = 1 - 0.3 * e, kb = 1 + 0.1 * e, ka = 0.24 * e;
+  for (let i = 0; i < 57600; i++) { const c = B[i], r = c & 255; const r2 = Math.round(r * kr), g2 = Math.round(((c >>> 8) & 255) * kg);   // el azul, con tope: los blancos quedan gris lavanda, no cian
+    B[i] = (0xff000000 | (Math.min(Math.max(r2, g2) + 30, Math.round(((c >>> 16) & 255) * kb + r * ka)) << 16) | (g2 << 8) | r2) >>> 0; } };
+// lo que se ve por la ventana, entero y recortado a su cristal: el cielo pasa de naranja a malva, el sol baja tras los
+// abetos, salen las primeras estrellas, las nubes y los pájaros cruzan. u 0–1: cuánto ha avanzado el atardecer
+const ventana1 = (t, u) => { const [x0, y0, x1, y1] = VENT, w = x1 - x0, a = y1 - y0;
+  // el parteluz, el pestillo y los cantos de las cortinas que pisan el cristal se guardan y se devuelven
+  const m = R.pget(137, 40), mS = R.pget(138, 40), pest = R.pget(137, 65), Kc = R.pget(95, 50), bordes = [];
+  for (let y = y0; y <= y1; y++) bordes.push(R.pget(x0, y), R.pget(x1, y));
+  R.recorte(VENT);
+  const S = mz3(CIELO_A, CIELO_B, u);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, S[cl(Math.floor((y - y0) / (a * 0.8) * 3.4 + (BY[(y & 3) * 4 + (x & 3)] / 16 - 0.5) * 0.9 + Math.sin(x * 0.11 + y * 0.05) * 0.18), 0, 3)]);
+  // las primeras estrellas, arriba
+  for (let k = 0; k < 11; k++) { const ap = 0.42 + h(k, 3, 71) * 0.45; if (u > ap) { const sx = x0 + 3 + Math.round(h(k, 1, 71) * (w - 6)), sy = y0 + 2 + Math.round(h(k, 2, 71) * 20), tw = Math.sin(t * (2 + h(k, 4, 71) * 3) + k * 2); if (tw > -0.5) R.pset(sx, sy, tw > 0.5 && u > ap + 0.1 ? BL : hex('#b8b0e0')); } }
+  // el resplandor del horizonte y el sol, que baja y enrojece
+  const sx = x0 + 20, sy = Math.round(lerp(y0 + 15, y1 + 8, u)), cs = mez(hex('#f8c860'), hex('#f0603a'), u);
+  elipse(sx + 4, y1 - 20, 40, 22, mez(hex('#ffd070'), hex('#e8607a'), u), 0.5 * (1 - u * 0.75));
+  R.disco(sx, sy, 12, mez(S[3], cs, 0.45)); R.disco(sx, sy, 10, cs); R.disco(sx, sy, 7, mez(hex('#fff0b8'), hex('#f8a060'), u));
+  for (let k = 0; k < 3; k++) R.linea(sx - 9 + k * 2, sy + 2 + k * 3, sx + 9 - k * 2, sy + 2 + k * 3, mez(hex('#e8744e'), hex('#c84a4a'), u));
+  const N = mz3(NUBE_A, NUBE_B, u);
+  for (const [cx, cy, cw, v] of [[10, 9, 20, 2.2], [44, 17, 16, 3.4], [28, 26, 12, 4.8]]) nube1(x0 + ((cx + t * v) % (w + 30)) - 12, y0 + cy, cw, N);
+  // los pájaros que vuelven hacia el sol (antes de que se haga de noche)
+  for (const [t0, ya, yb] of [[0.5, 74, 46], [1.3, 70, 52], [1.75, 77, 55]]) { const q = lin(t, t0, t0 + 3.2), x = Math.round(lerp(172, 102, q)), y = Math.round(lerp(ya, yb, q) + Math.sin(q * 9 + t0) * 2), al = Math.sin(t * 11 + t0 * 3) > 0 ? -1 : 1;
+    if (q > 0 && q < 1) { R.pset(x, y, K); R.pset(x + 1, y, K); R.pset(x - 1, y + al, K); R.pset(x - 2, y + al * 2, K); R.pset(x + 2, y + al, K); R.pset(x + 3, y + al * 2, K); } }
+  // las colinas lejanas, erizadas, y las dos filas de abetos, que se van quedando en silueta
+  const lejos = mez(hex('#7a3a4e'), hex('#221a3a'), u), P = mz3(PINO_A, PINO_B, u);
+  for (let x = x0; x <= x1; x++) { const yr = y1 - 20 - Math.round(5 * Math.sin(x * 0.07 + 1) + 3 * Math.sin(x * 0.19)) - ((x * 7) % 3); R.linea(x, yr, x, y1, lejos); if (u < 0.8 && Math.abs(x - sx) < 22 && (x & 1)) R.pset(x, yr, mez(lejos, hex('#f8a060'), 0.6 * (1 - u))); }
+  for (let k = 0; k < 9; k++) abeto1(x0 + 2 + k * 8 + ((k * 5) % 3), y1 - 2 + (k % 2) * 2, 20 + ((k * 7) % 9), t * 0.7, [P[0], P[0], P[1], P[3]], k);
+  abeto1(x0 + 13, y1 + 6, 50, t, P, 3); abeto1(x1 - 9, y1 + 8, 40, t, P, 7);
+  for (let i = 0; i < 9; i++) if (i % 2) R.pset(x0 + 5 + i, y0 + 12 - i, mez(BL, hex('#7a78b0'), u));   // el reflejo del cristal
   R.recorte(null);
+  R.rect(136, 36, 138, 90, m); R.rect(138, 36, 138, 90, mS); R.rect(106, 61, 168, 62, m); R.rect(106, 63, 168, 63, mS); R.rect(135, 64, 139, 66, pest);
+  for (let y = y0, i = 0; y <= y1; y++, i += 2) { if (bordes[i] === Kc) R.pset(x0, y, Kc); if (bordes[i + 1] === Kc) R.pset(x1, y, Kc); }
+};
+const p1 = (t) => {
+  const u = lin(t, 0.2, P2 - 0.2), e = u * u * (3 - 2 * u), apaga = lin(u, 0.35, 0.96);
+  T.casa(R, t, O1);
+  // los rayos del sol que entra: el del suelo se alarga por la alfombra (con la sombra del parteluz) y se apaga
+  quitaRayo(176, 128, 236, 176, 1.5, 0.36); quitaRayo(178, 60, 230, 121, 0.5, 0.2, 180);
+  const cr = mez(hex('#ffd878'), RAYO_B, u * u * 0.7), enMesa = (x, y) => (y < 137 ? x < 207 : y < 173 && x < 221);
+  // motas de polvo en el rayo, mientras dura
+  if (apaga < 0.9) for (let k = 0; k < 14; k++) { const ph = (t * 0.07 + h(k, 1, 72)) % 1, y = Math.round(96 + ph * 76), x = Math.round(186 + (y - 96) * (0.9 + 0.5 * e) * 0.6 + h(k, 2, 72) * 50 + Math.sin(t * 0.9 + k) * 3); if (Math.sin(t * 2.1 + k * 1.9) > -0.3 && x < 258) R.pset(x, y, mez(hex('#fff0c0'), cr, 0.3)); }
   T.casaDelante(R, t, O1);
-  // el flexo, todavía encendido, se apaga despacio
-  const luz = 1 - tramo(t, muere, muere + 1.1);
-  if (luz > 0.02) { elipse(128, 140, 26, 6, hex('#fff0b0'), 0.55 * luz); baña(108, 122, 150, 141, hex('#fff0b0'), 0.22 * luz, (x, y) => (Math.abs(x - (114 + (y - 124) * 0.8)) < 4 + (y - 122) * 0.9 ? 1 : 0)); R.disco(115, 127, 1, mez(hex('#8a7a50'), hex('#fff8d0'), luz)); }
   // el reloj de arena: los últimos granos
   const niv = Math.max(0, 0.34 * (1 - lin(t, 0.2, t65)));
   PZ.relojArena?.(R, 142, 143, { nivel: niv, t });
-  if (t > t65) R.numero('65', 142, 119, { centro: true, n: Math.round(lin(t, t65, t65 + 0.4) * 16) });
+  enfria(e);
+  // (después de enfriar, para que el rayo destaque cuando el cuarto ya está en penumbra; la mesa y lo que hay en ella lo tapan)
+  rayo1(176, 128, 236, 176, 1.5 + 0.9 * e, cr, 0.46 * Math.sqrt(1 - apaga), (x, y, q) => !enMesa(x, y) && !(y < 149 && x >= 258) && Math.abs(q - 30) > 1 && y !== 151);
+  rayo1(178, 60, 230, 121, 0.5, cr, 0.24 * Math.sqrt(1 - apaga), (x) => x >= 180);
+  ventana1(t, u);
+  // el último sol en el alféizar y en el cojín del arcón
+  if (apaga < 0.95) baña(108, 91, 166, 93, cr, 0.5 * (1 - apaga), (x, y) => ((x + y) & 1 ? 1 : 0.5));
+  // el flexo, la única luz cálida: el cono sobre la mesa y la funda de la máquina; se apaga despacio en «died»
+  const luz = 1 - tramo(t, muere, muere + 1.1);
+  R.rect(114, 120, 119, 121, mez(mez(hex('#8a7a50'), hex('#4a4460'), e), hex('#fff8d0'), luz));
+  if (luz > 0.02) { elipse(126, 131, 44, 24, hex('#ffd070'), 0.26 * luz);
+    baña(100, 122, 152, 137, CALIDA, 0.6 * luz, (x, y) => { const d = Math.abs(x - (117 + (y - 122) * 0.5)) / (3.5 + (y - 122) * 1.35); return d < 1 ? (1 - d * 0.6) * (BY[(y & 3) * 4 + (x & 3)] < 13 ? 1 : 0.55) : 0; });
+    elipse(127, 139, 30, 3, CALIDA, 0.7 * luz); elipse(117, 123, 7, 5, hex('#fff8d0'), 0.6 * luz);
+    for (let y = 124; y <= 136; y++) for (const x of [168, 169]) R.pset(x, y, mez(R.pget(x, y), hex('#ffe8a0'), (x === 168 ? 0.75 : 0.4) * luz));
+    for (let i = 0; i <= 4; i++) R.pset(169 + i, 123 - i, mez(R.pget(169 + i, 123 - i), hex('#ffe8a0'), 0.7 * luz)); }
+  // el 65, grande y con su filo, entre la ventana y la silla vacía
+  if (t > t65) { const q = lin(t, t65, t65 + 0.4); elipse(142, 102, 26, 13, CALIDA, 0.22 * q); R.numero('65', 142, 110, { centro: true, tam: 16, n: Math.round(q * 44) }); }
 };
 
 // ── 2. la balda de honor, y los años que pasan ───────────────────────────────────────────────
@@ -192,7 +267,17 @@ const fondoLatas = fijo(() => {
   // la balda de abajo: las tres latas grandes (las que reciben la X), el cajón de madera y otra pila
   X3.forEach(([cx, cy], k) => lataCara(cx, cy, 16, k * 0.7 + 0.2));
   { const x0 = 150, y0 = 138; R.rect(x0, y0, x0 + 66, 173, K); madera(x0 + 1, y0 + 1, x0 + 65, 172, RA('#6a4a26', '#84602f', '#a07a3e', '#b8934e'), 9, 31); for (const x of [x0 + 1, x0 + 60]) R.rect(x, y0 + 1, x + 5, 172, hex('#84602f')); R.rect(x0 + 6, y0 + 1, x0 + 6, 172, K); R.rect(x0 + 59, y0 + 1, x0 + 59, 172, K);
-    R.icono('camara', x0 + 26, y0 + 12, hex('#3a2a1a'), hex('#b8934e'), 2); for (let k = 0; k < 14; k++) R.linea(x0 + 8 + k * 4, y0 - 1, x0 + 6 + k * 4 + (k % 3) * 2, y0 - 5 - (k % 4), hex('#d8c070')); }
+    R.icono('camara', x0 + 26, y0 + 12, hex('#3a2a1a'), hex('#b8934e'), 2); }
+  // la paja que asoma del cajón: tres manojos desiguales, con huecos, de briznas tumbadas (nada de picos en fila); dos
+  // tonos, un par de briznas que cuelgan por delante y una caída en la balda
+  { const PS = hex('#a08440'), PM = hex('#c4a858'), PL = hex('#e4cf84'), y0 = 138;
+    for (const [xa, xb, H, kk] of [[156, 171, 4, 1], [179, 199, 6, 2], [205, 212, 3, 3]]) for (let x = xa; x <= xb; x++) { const hh = Math.round(H * Math.sin(Math.PI * (x - xa + 0.5) / (xb - xa + 1)) ** 0.6 * (0.45 + 0.55 * h(x, kk, 81)));
+      for (let j = 0; j < hh; j++) R.pset(x, y0 - 1 - j, j === hh - 1 && h(x, 7, 82) < 0.45 ? PL : h(x >> 1, j, 83) < 0.4 ? PM : PS); if (hh > 0) R.pset(x, y0, mez(K, PS, 0.35)); }
+    const brizna = (pts, c) => { for (let i = 1; i < pts.length; i++) R.linea(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], c); };
+    brizna([[159, 136], [156, 134], [153, 134]], PL); brizna([[166, 135], [170, 133], [174, 134]], PM); brizna([[183, 133], [181, 131], [177, 131]], PL);
+    brizna([[190, 132], [195, 130], [200, 130]], PL); brizna([[187, 134], [193, 135]], PS); brizna([[208, 136], [211, 134]], PM);
+    brizna([[162, 138], [161, 142], [162, 146]], PL); brizna([[200, 137], [202, 140], [202, 143]], PM);
+    brizna([[219, 173], [224, 172], [229, 173]], PL); R.pset(222, 173, PS); }
   for (let k = 0; k < 6; k++) lataCanto(232 + (k % 2) * 2, 173 - k * 6, 60 - (k % 3) * 4, k + 9);
   // la telaraña grande de la esquina de arriba a la izquierda de la balda de en medio
   for (let k = 0; k < 6; k++) { const an = k * 0.3, l = 26; R.linea(15, 57, Math.round(15 + Math.cos(an) * l), Math.round(57 + Math.sin(an) * l), hex('#8a92a8'), 2); }

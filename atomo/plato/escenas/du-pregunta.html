@@ -16,8 +16,10 @@
 //    bocadillo); en «question» el bocadillo se vuelve un «?» y en «whole planet… desert» el globo se hace todo de arena;
 // 3. (1959) el planeta desde el espacio: en «most valuable thing» se le encienden destellos naranjas; los otros mundos,
 //    apagados, reciben su X y en «only there» lo rodean los anillos;
-// 4. inserto, la balda de historia: una mano se lleva un libro («borrowed»); en «Lawrence» la foto antigua del jinete
-//    cobra vida (el camello echa a andar, el cristal brilla); el gato de la balda mueve la cola;
+// 4. inserto, la balda de historia: una mano se lleva un libro («borrowed»); la foto antigua del jinete (un dromedario
+//    a 1 px, con joroba, cuello curvo y patas con rodilla, y su jinete de túnica y pañuelo) posa quieta y en «fascinated…
+//    Lawrence» cobra vida: el camello echa a andar (ambladura, ~19 px de avance, huellas, polvo y viento) y el cristal
+//    brilla; el gato de la balda mueve la cola;
 // 5. el planeta, al ocaso: el oficial de blanco sube la duna y en «joined» se da la vuelta y se pone al frente de la
 //    columna; en «revolt» suben los banderines; en «readers discovered» entra la lupa y los repasa;
 // 6. (1960) inserto, el libro de las montañas en la mesa de una biblioteca: la lupa pasa por los renglones y en «words»
@@ -232,21 +234,82 @@ const fondoBalda = () => {
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - 186) * 0.8, y - 104), a = Math.max(0, Math.min(0.5, (d - 60) / 190)); let c = R.pget(x, y); if (d < 90) c = mez(c, hex('#ffd890'), (1 - d / 90) * 0.13); R.pset(x, y, mez(c, hex('#141030'), a)); }
 };
 const SEP = ['#3a2a1c', '#6a4c30', '#9a7448', '#c8a070', '#e8cfa0', '#f6ead0'], CAL = ['#3c2436', '#8a3c26', '#c8642c', '#e89444', '#f8cc84', '#fff4d0'];
+// el jinete de la foto, a 1 px (el camello() de la columna del plano 5 no se toca): dromedario con joroba, cuello curvo,
+// patas con rodilla y un jinete con cabeza, pañuelo y rienda; (x, y) = el suelo bajo el centro; ph = fase del paso
+// (null = posa quieto para la foto); c = la paleta de la foto, de oscuro a claro
+const camelloFoto = (x, y, c, ph, t) => {
+  x = Math.round(x); const W = 44, H = 40, I0 = -18, g = new Uint32Array(W * H), anda = ph !== null; let off = 0;
+  const px = (i, j, col) => { const a = i - I0 + off; if (a >= 0 && a < W && j >= 0 && j < H) g[j * W + a] = col; };
+  const fila = (j, i0, i1, col) => { for (let i = i0; i <= i1; i++) px(i, j, col); };
+  const col = (i, j0, j1, cc) => { for (let j = j0; j <= j1; j++) px(i, j, cc); };
+  const seg = (i0, j0, i1, j1, cc) => { const n = Math.max(Math.abs(i1 - i0), Math.abs(j1 - j0), 1); for (let k = 0; k <= n; k++) { const i = Math.round(i0 + (i1 - i0) * k / n), j = Math.round(j0 + (j1 - j0) * k / n); px(i, j, cc); px(i + 1, j, cc); } };
+  const pelo = c[1], som = mez(c[1], c[0], 0.55), luz = mez(c[1], c[2], 0.6);
+  // una pata: cadera → rodilla → pezuña; en el apoyo va hacia atrás por el suelo y en el vuelo se levanta y dobla la rodilla
+  const pata = (hi, f, cc, del, quieta) => {
+    const fx = hi + (anda ? Math.round(Math.cos(f) * 3) : quieta), fy = anda ? Math.max(0, Math.round(-Math.sin(f) * 3)) : 0;
+    const kx = Math.round((hi + fx) / 2) + (del ? (fy > 0 ? 2 : 0) : (fy > 0 ? -2 : -1)), ky = 6 + (fy > 1 ? 1 : 0);
+    seg(hi, 11, kx, ky, cc); seg(kx, ky, fx, fy + 1, cc); px(kx + (del ? 1 : 0), ky, cc === pelo ? luz : cc); fila(fy, fx, fx + 2, cc === pelo ? som : cc);
+  };
+  // las patas del otro lado (más oscuras), a contrapaso: el camello anda en ambladura (las dos de un lado a la vez)
+  pata(-6, anda ? ph + Math.PI : 0, c[0], false, 3); pata(8, anda ? ph + Math.PI + 0.5 : 0, c[0], true, 2);
+  // el cuerpo: panza, lomo y la joroba
+  fila(11, -7, 6, som); fila(12, -8, 7, som); for (let j = 13; j <= 17; j++) fila(j, -9, 7, pelo); fila(18, -9, 7, pelo); fila(19, -8, 3, pelo); fila(20, -8, 1, pelo); fila(21, -7, -1, pelo); fila(22, -6, -2, pelo); fila(23, -5, -3, luz); px(-7, 21, luz); px(-8, 20, luz); px(-6, 22, luz);
+  fila(18, 4, 7, luz); px(-9, 17, som); col(-9, 13, 14, som);
+  // la cola, con su mechón
+  col(-10, 15, 17, pelo); col(-11, 11, 15, pelo); px(anda && Math.sin(ph * 2) > 0 ? -12 : -11, 10, c[0]);
+  // el cuello en U y la cabeza (cabecea al andar)
+  const nod = anda && Math.sin(ph * 2 + 1.2) > 0 ? 1 : 0;
+  col(8, 12, 17, pelo); col(9, 12, 17, pelo); col(10, 13, 18, pelo); col(11, 14, 20, pelo); col(12, 16, 23, pelo);
+  px(8, 12, som); px(9, 12, som); px(10, 13, som); px(11, 14, som); px(12, 16, som);
+  col(13, 19 + nod, 26 + nod, pelo); col(14, 22 + nod, 27 + nod, pelo); px(13, 19 + nod, som);
+  for (let i = 15; i <= 18; i++) col(i, 24 + nod, 27 + nod, pelo); col(19, 23 + nod, 25 + nod, pelo); px(18, 23 + nod, pelo); fila(27 + nod, 15, 18, luz);
+  px(14, 28 + nod, pelo); px(16, 26 + nod, c[0]); px(19, 23 + nod, som); px(18, 23 + nod, som); fila(24 + nod, 15, 17, som);
+  // las patas de este lado
+  pata(-8, anda ? ph : 0, pelo, false, -1); pata(5, anda ? ph + 0.5 : 0, pelo, true, 0);
+  // la manta de la silla, con su greca y sus flecos (el jinete va por delante de la joroba, que asoma detrás)
+  off = 2;
+  for (let j = 17; j <= 21; j++) fila(j, -5 + (j > 19 ? j - 19 : 0), 3 - (j > 19 ? j - 19 : 0), c[4]); fila(22, -3, 1, c[4]);
+  fila(18, -5, 3, c[0]); for (let i = -5; i <= 3; i += 2) { px(i, 16, c[4]); px(i, 20, c[2]); }
+  // el jinete: la túnica clara, la pierna por delante de la joroba, el brazo con la rienda
+  for (let j = 23; j <= 29; j++) { fila(j, -2, 2, c[5]); px(-2, j, c[4]); } px(3, 23, c[5]); px(3, 24, c[5]);
+  for (let j = 19; j <= 23; j++) { fila(j, 2, 4, c[5]); px(2, j, c[4]); } fila(18, 3, 5, c[0]);
+  px(3, 27, c[5]); px(4, 26, c[5]); px(5, 26, c[5]); px(3, 26, c[4]); px(4, 25, c[4]); px(6, 26, c[3]);
+  // la cabeza: el pañuelo con su cordón, la cara (sin rasgos) y la caída del pañuelo por la espalda
+  fila(29, -1, 2, c[3]); px(3, 28, c[5]);   // la sombra del cuello separa la cabeza de los hombros
+  fila(33, -1, 1, c[5]); fila(32, -2, 2, c[0]); for (let j = 30; j <= 31; j++) { fila(j, -2, -1, c[5]); fila(j, 0, 2, c[2]); }
+  const vu = anda ? Math.round(Math.sin(t * 9)) : 0; col(-3, 26, 31, c[5]); col(-4, 26 + vu, 28 + vu, c[4]); if (anda) px(-5, 27 + vu, c[4]);
+  off = 0;
+  // se pinta: el filo oscuro alrededor de todo y luego el color; al andar, el cuerpo sube y baja 1 px sobre las rodillas
+  const bob = anda && Math.sin(ph * 2) > 0 ? 1 : 0, sy = (j) => y - j - (j >= 7 ? bob : 0);
+  for (let pas = 0; pas < 2; pas++) for (let j = 0; j < H; j++) for (let a = 0; a < W; a++) { const v = g[j * W + a]; if (!v) continue;
+    const X = x + a + I0;
+    if (pas === 0) { for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const aa = a + di, jj = j + dj; if (aa < 0 || aa >= W || jj < 0 || jj >= H || !g[jj * W + aa]) R.pset(X + di, sy(j) - dj, c[0]); } if (j === 7 && bob) { R.pset(X - 1, y - 7, c[0]); R.pset(X + 2, y - 7, c[0]); } }
+    else { R.pset(X, sy(j), v); if (j === 7 && bob) R.pset(X, y - 7, v); } }
+  // la rienda, de la mano al morro
+  R.linea(x + 9, sy(25), x + 15, sy(23 + nod), c[0]);
+};
+const T0 = VIVA + 0.29;   // el instante en que la foto «arranca»
 const fotoJinete = (t, viva) => {
   const [x0, y0, x1, y1] = [160, 80, 222, 134], c = SEP.map((s, k) => mez(hex(s), hex(CAL[k]), viva * 0.75));
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const v = (y - y0) / 34; R.pset(x, y, v < 0.35 ? (((x + y) & 1) && v > 0.2 ? c[3] : c[2]) : v < 0.7 ? c[3] : ((x + y) & 1 ? c[4] : c[3])); }
   R.recorte([x0, y0, x1, y1]);
-  R.disco(171.5, 93.5, 5.2, c[5]); R.anillo(171.5, 93.5, 7.5, c[4], 4);
+  R.disco(207.5, 90.5, 4.6, c[5]); R.anillo(207.5, 90.5, 6.8, c[4], 4);
   R.poligono([[x0, 116], [172, 108], [186, 113], [200, 106], [x1, 112], [x1, y1], [x0, y1]], c[2]); R.poligono([[200, 106], [x1, 112], [x1, 118], [206, 116]], c[1]);
   R.poligono([[x0, 124], [176, 119], [196, 126], [x1, 121], [x1, y1], [x0, y1]], c[4]); R.poligono([[176, 119], [196, 126], [190, y1], [168, y1]], c[3]);
   for (let k = 0; k < 6; k++) R.linea(162 + k * 10, 129 + (k % 2) * 3, 167 + k * 10, 128 + (k % 2) * 3, c[2]);
-  const anda = viva > 0.3, dx = anda ? Math.round(Math.min(8, (t - VIVA) * 2.2)) : 0;
-  for (let i = -16; i <= 16; i++) if ((i + 40) % 3) R.pset(186 + dx + i, 132 + (Math.abs(i) > 11 ? 0 : 1), c[2]);
-  camello(184 + dx, 131, 1, t, { b: c[1], s: c[0], l: c[2], r: c[5], rs: c[4], t: c[5], p: c[3] }, { s: 2, quieto: !anda });
-  if (anda) for (let k = 0; k < 7; k++) { const x = x1 - ((t * (30 + k * 7) + k * 23) % 70), y = 100 + k * 5; R.linea(x, y, x + 5, y, c[5]); if (k % 2) R.pset(184 + dx - 20 - ((t * 20 + k * 5) % 9), 130 - (k % 3), c[4]); }
+  // el paso: la fase manda en el avance (3 px de zancada a cada lado: los pies apoyados no patinan)
+  const anda = t >= T0, ph = anda ? (t - T0) * 4.6 : null, dx = anda ? Math.min(19, ph * 6 / Math.PI) : 0, cx = 180 + Math.round(dx);
+  // el viento, por detrás del jinete
+  if (anda) for (let k = 0; k < 7; k++) { const x = x1 - ((t * (30 + k * 7) + k * 23) % 70), y = 99 + k * 5; R.linea(x, y, x + 5, y, k % 2 ? c[4] : c[5]); }
+  // las huellas que va dejando y la sombra, que viaja con él
+  for (let hx = 174; hx < cx - 9; hx += 4) { R.pset(hx, 131 + ((hx >> 2) & 1), c[2]); R.pset(hx + 1, 131 + ((hx >> 2) & 1), c[1]); }
+  for (let i = -13; i <= 15; i++) { if ((i + 40) % 3) R.pset(cx + i, 132 + (Math.abs(i) > 10 ? 0 : 1), c[2]); if (Math.abs(i - 1) < 9 && (i & 1)) R.pset(cx + i, 132, c[2]); }
+  camelloFoto(cx, 131, c, ph, t);
+  // el polvo que levantan las pezuñas
+  if (anda) for (let k = 0; k < 5; k++) { const u = (t * 2.2 + k * 0.37) % 1; R.pset(cx - 10 - Math.round(u * 7) - (k % 2) * 3, 131 - Math.round(u * 4) - (k % 3), u < 0.5 ? c[5] : c[4]); }
   // la foto es vieja: esquinas quemadas y un par de arañazos
   for (const [cx, cy] of [[x0, y0], [x1, y0], [x0, y1], [x1, y1]]) for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) if (Math.hypot(i, j) < 6 && ((i + j) & 1 || Math.hypot(i, j) < 3)) R.pset(cx + i, cy + j, c[2]);
-  R.linea(216, 84, 218, 95, c[4]); R.linea(214, 120, 218, 131, c[3]);
+  R.linea(216, 98, 218, 107, c[4]); R.linea(163, 96, 166, 106, c[3]);
   // el brillo del cristal
   const gl = (t - LAW) / 0.7; if (gl >= 0 && gl < 1) { const gx = x0 - 30 + Math.round(gl * 110); for (let j = 0; j <= 54; j++) for (let w = 0; w < 9; w++) { const x = gx + w + Math.round((54 - j) * 0.5), y = y0 + j; if (w < 6 || (j & 1)) R.pset(x, y, mez(R.pget(x, y), BL, 0.45)); } }
   else { R.linea(x0 + 3, y0 + 16, x0 + 14, y0 + 3, mez(c[5], BL, 0.5)); R.linea(x0 + 3, y0 + 20, x0 + 18, y0 + 3, mez(c[5], BL, 0.5)); }
