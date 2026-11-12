@@ -1,10 +1,10 @@
 # Episodio 34 · El Arca de Noé: el relato, las religiones que lo cuentan y la roca con forma de barco
 
-**Estado:** v1, 12 de noviembre de 2026, escrita como cuento (voz «B»). Pendiente de la verificación de 3 agentes y de la
-aprobación del usuario.
+**Estado:** v2, 12 de noviembre de 2026, escrita como cuento (voz «B») y verificada por 3 agentes (79 datos comprobados,
+21 correcciones). Pendiente de la aprobación del usuario.
 
-**Por qué este tema:** elegido por el usuario el 12/11/2026 («arca»), tras la noticia del 10 de noviembre (madera
-carbonizada bajo la formación de Durupınar, en Turquía). Petición: contar la historia, las diferentes religiones que la
+**Por qué este tema:** elegido por el usuario el 12/11/2026 («arca»), tras las noticias de octubre y noviembre (madera
+carbonizada bajo la formación de Durupınar, en Turquía: anunciada a finales de octubre, con fotos el 10 de noviembre). Petición: contar la historia, las diferentes religiones que la
 mencionan y lo que se sabe del descubrimiento, diciendo, igual que en el de las pirámides, «no confirmado». Sin CSV de
 Trends.
 
@@ -15,10 +15,11 @@ ninguna tradición: se ven los barcos, los animales, las tablillas, las montaña
 Durupınar se dibuja como «según ellos», en trazo de plano azul, nunca como el decorado real. «No confirmado» no es
 «mentira». Las personas reales, solo con hechos.
 
-**Duración objetivo:** unas 9:00 [Probable]. Son 30 párrafos y unas 1.380 palabras en inglés.
+**Duración objetivo:** unas 9:30 [Probable]. Son 30 párrafos y unas 1.460 palabras en inglés.
 
-**Publicar:** cuando quieras; la noticia es del 10 de noviembre de 2026 y el equipo anuncia excavación para 2027. Antes de
-subir, mirar si ha salido algún resultado de laboratorio.
+**Publicar:** cuando quieras, mejor pronto: las fotos son del 10 de noviembre de 2026. El equipo espera volver en 2027,
+pendiente de permiso, y promete su informe para la primavera o el verano de 2027. Antes de subir, mirar si ha salido
+algún resultado de laboratorio (la madera está enviada a datar).
 
 ## Cómo se cuenta
 
@@ -79,7 +80,7 @@ del Fa lidio de The Secret y el Re dórico de Dune, este suena antiguo y sereno,
 
 | ES | EN |
 | --- | --- |
-| En una ladera del este de Turquía hay una roca con forma de barco, más o menos tan larga como el arca que describe el Génesis. Hay quien asegura que es el Arca de Noé. Los geólogos dicen que es solo una roca. Y este mes ha vuelto a las noticias. | On a hillside in eastern Turkey there is a rock shaped like a ship, about as long as the ark described in Genesis. Some people insist it is Noah's Ark. Geologists say it is just a rock. And this month it is back in the news. |
+| En una ladera del este de Turquía hay una roca con forma de barco, más o menos tan larga como el arca que describe el Génesis. Hay quien asegura que es el Arca de Noé. Los geólogos dicen que es solo una roca. Y en 2026 ha vuelto a las noticias. | On a hillside in eastern Turkey there is a rock shaped like a ship, about as long as the ark described in Genesis. Some people insist it is Noah's Ark. Geologists say it is just a rock. And in 2026 it is back in the news. |
 | Nadie lo ha confirmado, y te voy a contar por qué. Pero por el camino verás que el relato del diluvio guarda una sorpresa que sí está comprobada: es más antiguo que la Biblia, y lo cuentan pueblos muy alejados entre sí. | Nobody has confirmed it, and I'll tell you why. But along the way you'll see that the flood story holds a surprise that has been confirmed: it is older than the Bible, and it is told by peoples who lived far apart. |
 | Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo. | I'm Atom, and I explain the things you've always wondered about. Let's find out. |
 
@@ -131,11 +132,11 @@ del Fa lidio de The Secret y el Re dórico de Dune, este suena antiguo y sereno,
 
 | ES | EN |
 | --- | --- |
-| Desde hace unos años, un grupo llamado Noah's Ark Scans, con investigadores estadounidenses y turcos, ha vuelto a la ladera con herramientas nuevas. La primera es el radar de suelo, que manda ondas hacia abajo y dibuja lo que rebota, sin cavar. | For some years now, a group called Noah's Ark Scans, with American and Turkish researchers, has gone back to the hillside with new tools. The first is ground-penetrating radar, which sends waves downward and draws what bounces back, without digging. |
-| Según ellos, el radar muestra bajo tierra líneas rectas y ángulos, como pasillos y compartimentos. También han recogido cientos de muestras de suelo, y dicen que la tierra de dentro de la forma tiene más materia orgánica que la de fuera, como si allí se hubiera descompuesto madera. | According to them, the radar shows straight lines and angles underground, like corridors and compartments. They have also collected hundreds of soil samples, and they say the earth inside the shape holds more organic matter than the earth outside, as if wood had rotted there. |
-| En 2026 perforaron por primera vez, y el 10 de noviembre anunciaron que habían sacado, de unos nueve metros de profundidad, trozos de lo que parece madera carbonizada. El propio jefe del equipo reconoció que podría tener otra explicación: por ejemplo, la hoguera de un pastor de hace siglos. | In 2026 they drilled for the first time, and on November 10 they announced that, from about nine meters down, they had brought up pieces of what appears to be charred wood. The team's own leader admitted it could have another explanation: for example, a shepherd's fire from centuries ago. |
-| Y aquí hay que decirlo claro: nada de esto está confirmado. Los resultados se han dado en notas de prensa, no en una revista científica donde otros expertos los revisen. Nadie ha fechado esa madera en un laboratorio independiente. Y el radar puede dibujar líneas rectas también en capas naturales de roca. | And here it has to be said plainly: none of this is confirmed. The results have come out in press releases, not in a scientific journal where other experts review them. Nobody has dated that wood in an independent laboratory. And radar can draw straight lines in natural layers of rock too. |
-| ¿Qué haría falta para confirmarlo? Una excavación abierta, con arqueólogos de fuera del equipo. Madera trabajada, con marcas de herramientas, fechada por varios laboratorios. Y todo publicado para que cualquiera pueda revisarlo. El equipo dice que quiere excavar en 2027. Entonces se verá. | What would it take to confirm it? An open excavation, with archaeologists from outside the team. Worked wood, with tool marks, dated by several laboratories. And all of it published so that anyone can check it. The team says it wants to excavate in 2027. Then we will see. |
+| Desde hace unos años, un grupo estadounidense llamado Noah's Ark Scans, que ahora trabaja con arqueólogos de una universidad turca, ha vuelto a la ladera con herramientas nuevas. La primera es el radar de suelo, que manda ondas hacia abajo y dibuja lo que rebota, sin cavar. | For some years now, an American group called Noah's Ark Scans, now working with archaeologists from a Turkish university, has gone back to the hillside with new tools. The first is ground-penetrating radar, which sends waves downward and draws what bounces back, without digging. |
+| Según ellos, el radar muestra bajo tierra líneas rectas y ángulos, como pasillos y compartimentos. También han analizado muestras de suelo, y dicen que la tierra de dentro de la forma tiene más materia orgánica que la de fuera, como si allí se hubiera descompuesto madera. En 2026 recogieron cientos más, que siguen en el laboratorio. | According to them, the radar shows straight lines and angles underground, like corridors and compartments. They have also tested soil samples, and they say the earth inside the shape holds more organic matter than the earth outside, as if wood had rotted there. In 2026 they collected hundreds more, which are still in the lab. |
+| En 2026, ya con permiso oficial, perforaron hasta unos veinte metros. En octubre anunciaron que habían sacado, de unos nueve metros de profundidad, trozos de lo que parece madera carbonizada, y el 10 de noviembre enseñaron las primeras fotos. El propio fundador del grupo reconoció que podría tener otra explicación: por ejemplo, la hoguera de un pastor de hace siglos. | In 2026, now with an official permit, they drilled down about twenty meters. In October they announced that, from about nine meters down, they had brought up pieces of what appears to be charred wood, and on November 10 they showed the first photos. The group's own founder admitted it could have another explanation: for example, a shepherd's fire from centuries ago. |
+| Y aquí hay que decirlo claro: nada de esto está confirmado. Los resultados se han dado en notas de prensa, no en una revista científica donde otros expertos los revisen. Nadie ha fechado esa madera todavía: el equipo dice que la ha enviado a varios laboratorios, y los resultados no han llegado. Y el radar puede dibujar líneas rectas también en capas naturales de roca. | And here it has to be said plainly: none of this is confirmed. The results have come out in press releases, not in a scientific journal where other experts review them. Nobody has dated that wood yet: the team says it has sent it to several laboratories, and the results have not come in. And radar can draw straight lines in natural layers of rock too. |
+| ¿Qué haría falta para confirmarlo? Una excavación abierta, con arqueólogos de fuera del equipo. Madera trabajada y fechada por varios laboratorios: el equipo ya dice que la suya tiene marcas de corte, pero nadie de fuera la ha examinado. Y todo publicado para que cualquiera pueda revisarlo. El equipo espera volver en 2027 y, si le dan permiso, excavar. Entonces se verá. | What would it take to confirm it? An open excavation, with archaeologists from outside the team. Worked wood, dated by several laboratories: the team already says its pieces show cut marks, but nobody outside has examined them. And all of it published so that anyone can check it. The team hopes to return in 2027 and, if it gets a permit, to excavate. Then we will see. |
 
 ## 7 · Lo que sabemos
 
@@ -178,5 +179,19 @@ Investigación del 12/11/2026 (WebSearch; se comprueba con 3 agentes escépticos
 - Ron Wyatt (enfermero anestesista), desde 1977; centro de visitantes (1987); David Fasold, The Ark of Noah (1988);
   Collins y Fasold, «Bogus "Noah's Ark" from Turkey Exposed as a Common Geologic Structure», Journal of Geoscience
   Education (1996); Andrew Snelling (geólogo creacionista) también la considera natural.
-- Noah's Ark Scans (Andrew Jones): radar de suelo, muestras de suelo, perforación de 2026, anuncio de madera carbonizada
-  del 10/11/2026 a unos 9 m; «podría ser la hoguera de un pastor»; sin publicación revisada; excavación prevista en 2027.
+- Noah's Ark Scans: grupo cristiano estadounidense, privado; Andrew Jones es su FUNDADOR (no el director). El proyecto
+  con permiso (mayo/junio de 2026) es de la Universidad Sivas Cumhuriyet y lo dirige el arqueólogo Cenker Atila. Campaña
+  de junio al 11/9/2026: radar, más de 300 muestras de suelo (en laboratorio), 12 sondeos dentro y 4 fuera, hasta
+  18–20 m. Estudio de suelo de 2024 (88 muestras, sin publicar): más materia orgánica dentro.
+- La madera: Atila habló de «madera quemada» el 15/10/2026; nota de prensa del 27/10 (tras el 8.º simposio de Ağrı), a
+  unos 9 m; Jones: «podría ser la hoguera de un pastor»; fotos y «marcas de corte» el 10/11 (Fox, nota del 10/11);
+  enviada a datar, sin resultados; nada publicado con revisión por pares; Newsweek no pudo verificar nada.
+- Ya se perforó en 1988 (Baumgardner y Bayraktutan, cuatro testigos hasta unos 10 m: roca). Por eso NO se dice «por
+  primera vez».
+- 2027: esperan volver; excavar depende del permiso; informe final, primavera–verano de 2027.
+- Collins y Fasold (1996): sinclinal de doble inmersión con limonita y magnetita, erosión y deslizamiento alrededor;
+  «anclas» de andesita, en el pueblo de Kazan (Arzap), no en la roca. La explicación «barro alrededor de un bloque» es
+  de Snelling y Baumgardner (1992).
+- Expedición de 1960: Vandeman llegó a Ankara el 22/5/1960; nueve cartuchos de dinamita; «a freak of nature»; Life, 5/9/1960.
+- Fuentes de la verificación: csun.edu/~vcgeo005/bogus.html; biblegateway (Gn 6–8); Smithsonian (George Smith);
+  livius.org; Fox News; Newsweek; Jerusalem Post; The Debrief; Daily Sabah; Arkeonews; Ancient Origins; Religion Unplugged.
