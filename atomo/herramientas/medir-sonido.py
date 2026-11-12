@@ -90,7 +90,7 @@ for e in linea['escenas']:
     t = e['inicio']
     if t < 1 or not cartela.get(e['id']):
         continue
-    i = int(t * 10)
+    i = round(t * 10)   # como banda.cjs (Math.round): antes truncaba y las dos medidas se separaban una ventana
     antes, minimo, despues = md[i - 15:i - 5].mean(), md[max(0, i - 25):i + 25].min(), md[i + 5:i + 15].mean()
     caida = antes - minimo
     peor = max(peor, caida)

@@ -523,5 +523,13 @@ antes de locutar.
 - **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 7,5 dB; 133 y 145 subtítulos, 0 fuera de norma).
 - **Cifras:** unas 7 h desde el guion v1 (presupuesto: 9–11 h); calidad, 5,3 M de tokens y 2 h 27 min.
 
-Pendiente para el próximo: borrar los fotogramas del 32 al empezar; nada en y 15–20 bajo las cifras del año; el plan de
-encuadres, contado por oraciones; sigue pendiente de permiso alinear la medida de la cartela en `banda.cjs`.
+**Arreglado el 12/11/2026, a petición del usuario («corrige lo que haya que corregir para el próximo vídeo»):**
+- `medir-sonido.py` redondea el instante de la cartela como `banda.cjs` (antes truncaba). No cambia el sonido: solo la
+  medida. Comprobado en el 30 (idéntico), el 31 (peor cartela 5,4 → 5,8 dB) y el 32 (7,5 → 5,2 dB: el 7,5 era la ventana
+  desplazada, no una caída real).
+- En la skill: los Shorts saltan 1,42 s de las escenas con cartela y se mira el primer fotograma y cada empalme; el
+  título se comprueba contra el guion antes de aprobarlo; la lista «para escuchar» se copia de `informe.json`; los
+  encuadres se reparten por oraciones. En `NIVEL-RESUMEN.md`: nada en y 15–20 bajo las cifras del año.
+
+Pendiente para el próximo: borrar los fotogramas del 32 al empezar; vigilar que las cinco correcciones de arriba se
+cumplen (planos planeados = planos generados; ningún destello de cartela en los Shorts).

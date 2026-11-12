@@ -318,7 +318,8 @@ un intento anterior y siguen desde ahí, con una copia vieja (en el 15 hubo que 
 
 **0. Antes de lanzar, reparte tú los encuadres.** Con las notas de geometría de los decorados (`<SC>/geo<N>/`), escribe
 `<SC>/encuadres-<ep>.md` con una línea por escena: qué decorado y qué encuadre (y qué luz o época) usa cada uno de sus
-planos. Reglas: el mismo decorado y encuadre como mucho dos veces en el episodio, nunca en escenas vecinas, y si un
+planos. Los planos se cuentan por ORACIONES de la voz ya locutada, no por párrafos: una oración de más de 7 s pide su
+plano (en el 32 se planearon 88 y salieron 94, con seis encuadres sin repartir). Reglas: el mismo decorado y encuadre como mucho dos veces en el episodio, nunca en escenas vecinas, y si un
 decorado central tiene que volver (el pozo del 14), cada vez con otra luz, otra época u otro estado. **Dentro de una
 escena, un encuadre no se repite nunca** (aprobado el 29/10/2026): si la historia vuelve al mismo sitio, va con la otra
 cámara del decorado (más cerca u otro ángulo), no solo con otra luz o estado. En el 15 el revisor contó como
@@ -468,8 +469,12 @@ Copia `episodios/11-theranos/publicacion.md` y rellénala con la misma estructur
   ultimate, todo, increíble…): una cifra, un nombre o una fecha en su lugar. Compruébalo con
   `python3 atomo/herramientas/titulos.py episodios/<carpeta>/publicacion.md` (mira también los de los Shorts) y no
   entregues la ficha hasta que salga «Todos los títulos cumplen».
+- **El título no contradice al vídeo:** cada año, cifra y verbo del título (y de las alternativas A/B) se comprueba contra
+  el guion ANTES de presentarlo para aprobar. En el 32, «Buried Since 1982» se aprobó con el guion y el vídeo dice que
+  los cofres se enterraron en 1981 (1982 es el libro): hubo que avisar en la entrega.
 - **Lo demás:** las descripciones completas en los dos idiomas con las fuentes, las etiquetas, los pasos para subirlo y lo
-  que hay que revisar antes de publicar (las frases dudosas de `informe.json`).
+  que hay que revisar antes de publicar: las frases dudosas se copian de `informe.json` (campo `problemas`), con el
+  minuto de cada una; no se escriben de memoria.
 
 ### 12. Producción y control
 
@@ -517,7 +522,8 @@ aquí, con los fotogramas del render todavía en disco.
    - **Duración:** cada uno entre 35 y 58 s. Puede tener uno o dos tramos pegados.
    - **Dónde cortar:** al principio y al final de una frase, nunca a mitad. Empieza unos 0,25 s antes de la voz y acaba
      unos 0,4 s después.
-   - **Lo que se salta:** el primer segundo de una escena con cartela del año (la cartela tapa el plano) y la frase de
+   - **Lo que se salta:** los primeros 1,42 s de una escena con cartela del año (la cartela tapa el plano hasta 1,4 s:
+     con 1,25 s, en el 32 se colaba una décima de cartela al empezar cada tramo; la voz empieza en 1,5 s) y la frase de
      presentación de Atom.
    - **Que se entienda sin el resto:** si una frase se refiere a algo que queda fuera del corte («all of them», «that
      rule»), mete también la frase anterior o elige otro tramo. Esto ya falló en el primer Short del ep16.
@@ -546,7 +552,8 @@ aquí, con los fotogramas del render todavía en disco.
 4. **Control de cada Short:**
    - **Sonido:** mide con `ffmpeg -i <f> -af ebur128=peak=true -f null -`. El objetivo es −14 ±0,5 LUFS y un pico de −2 dB o
      menos, en el mp4 y en el m4a.
-   - **Imagen:** saca 4 fotogramas en una sola hoja y mira que no haya ninguna cartela ni ningún plano a medias.
+   - **Imagen:** saca 4 fotogramas en una sola hoja y mira que no haya ninguna cartela ni ningún plano a medias. Mira
+     además el PRIMER fotograma del Short y el de justo después de cada empalme: la hoja de 4 no los enseña.
    - **Subtítulos:** la última frase de cada SRT tiene que estar entera.
 5. **La ficha de cada Short** va en `publicacion.md`, en la sección «Shorts»:
    - el título EN/ES, con gancho y `#Shorts`, y que pase `titulos.py` (la regla de los 60 caracteres del paso 11);

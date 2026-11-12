@@ -62,7 +62,7 @@ llevaba 595 en 532 s y sonaban el 75 % del tiempo.
 
 - **Sin letras en pantalla:** solo números y símbolos (`R.numero`, `R.icono`).
 - **Personajes pequeños:** el chibi de ~25 px, sin primeros planos. Una mano es siempre la canónica de 14 px (`T.mano`, o al final de `T.brazo`). El plano medio se hace con un vehículo o con el decorado. El pelo nunca tapa la cara.
-- **Zonas tranquilas:** la de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14).
+- **Zonas tranquilas:** la de Atom (x 278–318, y 4–44) y la barra del año (x 20–170, y 0–14; las cifras del año bajan hasta y ≈ 20: nada en y 15–20 bajo x 20–45).
 - **Orden de dibujo:**
   - lo que pasa por detrás de un mueble queda tapado por él;
   - lo que se ve por una ventana se recorta a su hueco, con `R.recorte`;
