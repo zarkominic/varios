@@ -1,6 +1,6 @@
 # Búsquedas en tendencia en EE. UU.
 
-Registro diario del RSS de Google Trends (3 días: 2026-10-26 → 2026-11-11; 30 búsquedas distintas).
+Registro diario del RSS de Google Trends (4 días: 2026-10-26 → 2026-11-12; 40 búsquedas distintas).
 Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 
 | Días | Tráfico máx. | Búsqueda | Noticia que la explica |
@@ -13,12 +13,14 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 2.000 | s&p 500 | [Stock market today: Nasdaq wavers. S&P 500 and Dow climb as Fed votes to hold rates steady in 10-2 decision](https://finance.yahoo.com/markets/live/stock-market-today-dow-sp-500-nasdaq-rise-as-fed-holds-rates-steady-in-split-vote-185837696.html) (Yahoo Finance) |
 | 1 | 2.000 | will scharf | [White House Threatens Congress. Saying Aggressive Investigations Could Be Crime](https://www.nytimes.com/2026/11/11/us/politics/trump-democrats-congress-oversight-committee.html) (The New York Times) |
 | 1 | 2.000 | vanguard | [Why You Should Think Twice About Keeping Cash Savings at Vanguard. Schwab. or Fidelity](https://www.investopedia.com/why-you-should-think-twice-about-keeping-cash-savings-at-vanguard-schwab-or-fidelity-12248197) (Investopedia) |
+| 1 | 2.000 | gta 6 online release date | [Pre-Load Grand Theft Auto VI Now](https://www.rockstargames.com/newswire/article/89834o94713o21/pre-load-grand-theft-auto-vi-now) (Rockstar Games) |
 | 1 | 1.000 | anthony rivers iii | [15-year-old arrested in connection to weekend mass shooting on Perry Street](https://www.wctv.tv/2026/10/26/tallahassee-police-provide-update-weekend-mass-shooting-perry-street/) (WCTV) |
 | 1 | 1.000 | the walking dead | [The Walking Dead franchise is on the verge of making its biggest mistake](https://undeadwalking.com/the-walking-dead-franchise-verge-making-biggest-twd-mistake) (Undead Walking) |
 | 1 | 1.000 | new dwarf planet | [‘It’s big’: Astronomers make startling discovery of a possible dwarf planet beyond Pluto](https://www.cnn.com/2026/10/28/science/ed138-dwarf-planet-candidate-beyond-pluto) (CNN) |
 | 1 | 1.000 | casper ruud | [5 things to watch in Stockholm: Fritz. Ruud. Musetti & more](https://www.atptour.com/en/news/stockholm-2026-scouting-report) (ATP Tour) |
 | 1 | 1.000 | baseball | [Perfect 2026-27 MLB free agency moves for teams to watch](https://www.espn.com/mlb/story/_/id/50433101/offseason-2026-27-free-agency-passan-biggest-trades-signings) (ESPN) |
 | 1 | 1.000 | russian ambassador to us | [Russian ambassador to US dies. foreign ministry says](https://www.cnn.com/2026/11/11/europe/russian-ambassador-to-us-dies-intl) (CNN) |
+| 1 | 1.000 | 黄仁勋 | [黄仁勋事件中的“女主角”黄乐是谁？](https://cn.nytimes.com/business/20261111/alice-huang-megaspeed-nvidia-jensen-huang/) (纽约时报中文网) |
 | 1 | 500 | matthew perry | [“The One About Matthew Perry” Docuseries Comes to Netflix](https://www.nytimes.com/2026/10/26/arts/television/matthew-perry-netflix-documentary.html) (The New York Times) |
 | 1 | 500 | santos vs palmeiras | [Santos x Palmeiras: onde assistir ao vivo. horário e escalações](https://ge.globo.com/sp/santos-e-regiao/futebol/brasileirao-serie-a/noticia/2026/10/28/santos-x-palmeiras-onde-assistir-ao-vivo-horario-e-escalacoes.ghtml) (ge) |
 | 1 | 500 | jaydon blue | [Eagles sign RB Jaydon Blue to the active roster. add three to the practice squad](https://www.philadelphiaeagles.com/news/eagles-sign-rb-jaydon-blue-to-the-active-roster-add-three-to-the-practice-squad-dameon-pierce) (Philadelphia Eagles) |
@@ -28,6 +30,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 500 | applebees menu | [How Applebee’s menu innovation pipeline is boosting traffic and spend](https://finance.yahoo.com/small-business/articles/applebee-menu-innovation-pipeline-boosting-152618923.html) (Yahoo Finance) |
 | 1 | 500 | chipotle tattoo deal | [CHIPOTLE BRINGS BACK RECORD-BREAKING "TATTED LIKE A CHIPOTLE BAG" BOGO ON FRIDAY. NOVEMBER 13](https://newsroom.chipotle.com/2026-11-09-CHIPOTLE-BRINGS-BACK-RECORD-BREAKING-TATTED-LIKE-A-CHIPOTLE-BAG-BOGO-ON-FRIDAY.-NOVEMBER-13) (Chipotle) |
 | 1 | 500 | east texas a&m basketball | [Fairleigh Dickinson vs. East Texas A&M prediction. odds: 2026 college basketball picks by proven model](https://www.cbssports.com/betting/news/fairleigh-dickinson-east-texas-a-m-prediction-odds-time-2026-college-basketball-picks-november-11/) (CBS Sports) |
+| 1 | 500 | when will fortnite servers be back up | [Is Fortnite down? When will One Piece Pirate Token season be back?](https://www.northjersey.com/story/tech/gaming/2026/11/12/fortnite-offline-for-update-will-pirate-coin-odds-increase/92736560007/) (Bergen Record) |
 | 1 | 200 | world | [Russia to stage World Weightlifting Championships. first major hosting since full-scale Ukraine invasion](https://www.nytimes.com/athletic/7726237/2026/10/26/russia-world-championship-olympic-moscow/) (The New York Times) |
 | 1 | 200 | racing sausages world series milwaukee | [Column: Sausage race controversy erupts as Fox Sports ignores Milwaukee’s finest tradition during World Series](https://www.chicagotribune.com/2026/10/26/world-series-milwaukee-brewers-sausage-race/) (Chicago Tribune) |
 | 1 | 200 | vegemite | [Murderer’s bid to eat Vegemite in Australian prison rejected by judge](https://www.cnn.com/2026/10/26/australia/prisoner-vegemite-rejected-judge-scli-intl) (CNN) |
@@ -35,3 +38,10 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 200 | michael olise | ['I don't see why not' - Bayern Munich CEO Jan-Christian Dreesen tips Michael Olise for future Ballon d'Or glory as Bayern plot long-term extension](https://www.goal.com/en/news/bayern-munich-ceo-jan-christian-dreesen-michael-olise-ballon-dor-contract-extension/blt6bc3d2ff07473875) (Goal.com) |
 | 1 | 200 | lumentum | [Marvell Is Said to Near Deal for Lumentum In AI-Related Megadeal](https://www.bloomberg.com/news/articles/2026-10-28/marvell-is-said-to-near-deal-for-lumentum-in-ai-related-megadeal) (Bloomberg.com) |
 | 1 | 200 | landfill | [Bill Gates' Landfill Investments Clash With His Climate Crusade](https://www.newser.com/story/399741/bill-gates-landfill-investments-clash-with-his-climate-crusade.html) (Newser) |
+| 1 | 200 | noah's ark discovery | [Noah’s Ark Scans Releases FIRST Look at Charred Wood Recovered From Noah’s Ark Durupinar Site](https://www.globenewswire.com/news-release/2026/11/11/3400406/0/en/noah-s-ark-scans-releases-first-look-at-charred-wood-recovered-from-noah-s-ark-durupinar-site.html) (GlobeNewswire) |
+| 1 | 200 | amber alert | [AMBER ALERT: Teen abducted in Pocatello. police say](https://www.eastidahonews.com/2026/11/amber-alert-teen-abducted-in-pocatello-police-say/) (East Idaho News) |
+| 1 | 200 | fugitive | [Fugitive gang member helped Olympian run drug cartel and evade arrest. feds allege](https://www.latimes.com/california/story/2026-11-10/fugitive-helped-olympian-run-drug-cartel-evade-arrest-feds-allege) (Los Angeles Times) |
+| 1 | 200 | ohio state buckeyes football | [Buckeyes plummet to lowest ranking ever in playoff era](https://www.nbc4i.com/sports/buckeyes/buckeyes-plummet-to-lowest-ranking-ever-in-playoff-era/) (NBC4 WCMH-TV) |
+| 1 | 200 | aaron reitz letter richard blumenthal | [U.S. attorney demands Sen. Richard Blumenthal preserve documents from his inquiry into White House ballroom](https://www.nbcnews.com/politics/trump-administration/us-attorney-demands-sen-richard-blumenthal-preserve-documents-inquiry-rcna608899) (NBC News) |
+| 1 | 100 | rockstar | [New GTA VI Footage Looks So Stunning Fans Can’t Believe It](https://rockstarintel.com/new-gta-vi-footage-looks-so-stunning-fans-cant-believe-it/) (RockstarINTEL) |
+| 1 | 100 | jennifer aniston | [Jennifer Aniston Says ‘The Rachel’ Was Anything But Effortless](https://www.elle.com/beauty/hair/a74347544/jennifer-aniston-hair-routine-lolavie-hairspray/) (ELLE) |
