@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Los premios · ep33</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DU-PREMIOS (frase 15), 1966. Tres planos:
+// 1. la sala de premios: el foco busca a Herbert, que sube por la escalerilla y cruza el escenario; el presentador
+//    habla, coge de la mesa el bloque de la nebulosa y se lo da; el público aplaude;
+// 2. inserto: sobre el mantel, ante el telón, las manos de Herbert sostienen el bloque de la nebulosa y el cohete
+//    plateado; otra mano, de otro traje, trae un cohete igual (el premio compartido);
+// 3. la esquina del quiosco: el libro expuesto con sus dos sellos dorados; llega el autobús, baja una lectora con el
+//    suyo, y los tres lectores levantan el libro que ya tenían en las manos.
+import * as T from '/atomo/plato/escenas/du-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('du-premios');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_DU, k = T.C.k, TWEED = '#9a8a5e', PANA = '#a8743c';
+const hh = (x, y, s = 0) => { const v = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453; return v - Math.floor(v); };
+const CAPAS = {}; const capa = (id, dib) => { if (!CAPAS[id]) { const bb = R.nuevo(), prev = R.usar(bb); dib(); R.usar(prev); CAPAS[id] = bb; } R.copiar(CAPAS[id]); };
+// posición entre claves [t, x, y…], con arranque y frenada suaves
+const kf = (t, K) => { if (t <= K[0][0]) return K[0].slice(1); for (let i = 1; i < K.length; i++) if (t <= K[i][0]) { const u = (t - K[i - 1][0]) / (K[i][0] - K[i - 1][0]), e = u * u * (3 - 2 * u); return K[i].slice(1).map((v, j) => K[i - 1][j + 1] + (v - K[i - 1][j + 1]) * e); } return K[K.length - 1].slice(1); };
+const lin = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));   // tramo() frena al arrancar y al llegar; esto no
+const caja = (x0, y0, x1, y1, c) => { R.rect(x0, y0, x1, y1, k); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, c); };
+const chispa = (x, y, r, c = hex('#fff8d0')) => { R.pset(x, y, c); for (let i = 1; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+// el libro en pequeño, para las manos de los chibis y las pilas (9 × 10)
+const librito = (x, y) => { caja(x - 5, y - 13, x + 5, y, hex('#1e2a5e')); R.rect(x - 4, y - 5, x + 4, y - 1, hex('#f08a2a')); R.rect(x - 2, y - 6, x + 1, y - 6, hex('#f08a2a')); R.rect(x + 1, y - 4, x + 4, y - 1, hex('#c8643a')); R.rect(x - 3, y - 11, x - 2, y - 10, hex('#f6e4b0')); R.pset(x + 2, y - 9, hex('#f6c468')); R.rect(x - 5, y - 13, x - 5, y, hex('#141c44')); };
+
+const c = (f) => en('premios', f);
+const P2 = c(0.371), P3 = c(0.724);
+
+// ── 1 · la sala de premios ──
+const y66 = c(0.139), won = c(0.286);
+const p1 = (t) => {
+  const us = tramo(t, 0.5, 1.5), uw = tramo(t, 1.5, won - 0.35);
+  const hx = Math.round(us < 1 ? lerp(8, 62, us) : lerp(62, 160, uw)), hy = us < 1 ? Math.round(lerp(132, 116, tramo(us, 0.3, 1))) : 116;
+  const ap = tramo(t, won, won + 0.4), O = { encuadre: 'premios', foco: hx + 7, aplauso: 0.12 + 0.88 * ap };
+  T.libros(R, t, O);
+  const ut = tramo(t, won - 0.3, won), ug = tramo(t, won + 0.3, won + 0.7);
+  PZ.trofeoHugo(R, 234, 98, { t });
+  const px = 184, vuelto = t > won - 0.6 && ug <= 0;
+  const Pr = R.actor(EL.presentadorDU, px, 116, t, { dir: vuelto ? 1 : -1, habla: t > 0.9 && t < won - 0.6 && Math.sin(t * 8) > 0, dedo: t > y66 && t < y66 + 1.0, sostiene: ut > 0 && ug < 1 ? (vuelto ? [px + 18, 96] : [px - 3, 96]) : false, sonrisa: ug > 0, brazos: ug >= 1 && Math.sin(t * 12) > 0 });
+  const sj = ug >= 1 ? Math.round(Math.abs(Math.sin((t - won - 0.7) * 8)) * 3) : 0;
+  const H = R.actor(EL.herbert, hx, hy, t, { dir: 1, anda: (us > 0 && us < 1) || (uw > 0 && uw < 1), sostiene: ug > 0.5 ? [hx + 17, 90 - sj] : false, sonrisa: uw >= 1, salto: sj });
+  // el bloque de la nebulosa: de la mesa a la mano del presentador y de ahí a la de Herbert
+  const m0 = [212, 98], m1 = [Pr.mano[0] + (vuelto ? 3 : -3), Pr.mano[1] + 3], m2 = [H.mano[0] + 4, H.mano[1] + 3];
+  const nx = ug > 0 ? lerp(m1[0], m2[0], ug) : lerp(m0[0], m1[0], ut), ny = ug > 0 ? lerp(m1[1], m2[1], ug) - Math.sin(ug * Math.PI) * 4 : lerp(m0[1], m1[1], ut);
+  PZ.trofeoNebula(R, Math.round(nx), Math.round(ny), { t });
+  if (ug >= 1 && Math.sin(t * 10) > 0) chispa(Math.round(nx) + 9, Math.round(ny) - 22, 2);
+  T.librosDelante(R, t, O);
+};
+
+// ── 2 · inserto: los dos trofeos de cerca ──
+const telon2 = () => {
+  const TE = ['#2a3672', '#212b5e', '#1a224c', '#131a3a'].map(hex), LU = ['#3d4c94', '#2f3c7c'].map(hex);
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 320; x++) { const f = Math.sin(x * 0.23) + 0.6 * Math.sin(x * 0.11 + 1.3) + (hh(x, y, 21) - 0.5) * 0.5, luz = Math.abs(x - 160) < 34 + y * 0.62 && x < 268;
+    const n = f > 1.0 ? 0 : f > 0.2 ? 1 : f > -0.7 ? 2 : 3; R.pset(x, y, luz && n < 2 && (x + y) % 2 === 0 ? LU[n] : luz && n === 2 && x % 2 === 0 && y % 2 === 0 ? LU[1] : TE[n]); }
+  for (let i = 0; i < 46; i++) { const x = Math.floor(hh(i, 5, 2) * 320), y = 18 + Math.floor(hh(i, 6, 2) * 104); if (x > 272 && y < 50) continue; R.pset(x, y, hex(hh(i, 7, 2) > 0.6 ? '#f6e4b0' : '#8c9ad0')); }
+  // el mantel: tablero y caída con puntilla
+  const MT = ['#f2eee2', '#e2dccb', '#cfc8b4', '#fbf9f2'].map(hex);
+  for (let y = 128; y < 180; y++) for (let x = 0; x < 320; x++) { const f = Math.sin(x * 0.19 + 0.6) + 0.5 * Math.sin(x * 0.07), q = hh(x, y, 23);
+    R.pset(x, y, y < 152 ? (q > 0.95 ? MT[1] : Math.abs(x - 160) < 90 - (152 - y) && (x + y) % 2 === 0 ? MT[3] : MT[0]) : f > 0.9 ? MT[3] : f > -0.1 ? MT[0] : f > -0.9 ? MT[1] : MT[2]); }
+  R.rect(0, 128, 319, 128, k); R.rect(0, 129, 319, 129, MT[3]); R.rect(0, 152, 319, 152, MT[2]); R.rect(0, 153, 319, 153, MT[1]);
+  for (let x = 4; x < 320; x += 10) { R.disco(x, 174, 4, MT[2]); R.disco(x, 173, 3, MT[3]); R.pset(x, 173, MT[2]); } R.rect(0, 177, 319, 179, hex('#3a1e2a')); for (let x = 9; x < 320; x += 10) R.rect(x - 1, 172, x, 179, hex('#3a1e2a'));
+  // el centro de flores, las copas, la tarjeta con su estrella y serpentinas
+  R.rect(284, 148, 312, 150, MT[2]); R.poligono([[288, 148], [286, 134], [308, 134], [306, 148]], k); R.poligono([[289, 147], [287, 135], [307, 135], [305, 147]], hex('#3a6ab0')); R.rect(289, 137, 291, 145, hex('#6a9ae0'));
+  for (const [x, y, co] of [[288, 126, '#d8303a'], [297, 120, '#f4a8c4'], [306, 127, '#d8303a'], [293, 130, '#f6e4b0'], [302, 131, '#f4a8c4']]) { R.linea(x, y, 297, 135, hex('#2e8a24')); R.disco(x, y, 4, k); R.disco(x, y, 3, hex(co)); R.pset(x, y, hex('#f0c040')); }
+  for (const [x, y] of [[281, 131], [313, 132], [290, 118]]) { R.rect(x, y, x + 3, y + 1, hex('#2e8a24')); R.pset(x + 1, y - 1, hex('#6ac84a')); }
+  for (const x of [14, 258]) { R.rect(x - 3, 149, x + 5, 150, MT[2]); R.rect(x - 2, 147, x + 4, 148, k); R.rect(x, 138, x + 1, 146, k); R.poligono([[x - 4, 124], [x + 6, 124], [x + 3, 138], [x - 1, 138]], k); R.poligono([[x - 3, 125], [x + 5, 125], [x + 2, 137], [x, 137]], hex('#f6eed8')); R.rect(x - 2, 129, x + 4, 133, hex('#f0c040')); R.pset(x - 1, 127, hex('#fbf9f2')); }
+  R.rect(44, 150, 70, 151, MT[2]); R.poligono([[46, 149], [50, 132], [68, 132], [66, 149]], k); R.poligono([[47, 148], [51, 133], [67, 133], [65, 148]], hex('#fbf9f2')); R.rect(52, 144, 62, 144, hex('#a8a8b8')); R.rect(53, 146, 60, 146, hex('#a8a8b8')); for (const [dx, dy] of [[0, -3], [0, 3], [-3, 0], [3, 0], [0, 0], [-1, -1], [1, 1], [1, -1], [-1, 1], [0, -2], [0, 2], [-2, 0], [2, 0]]) R.pset(58 + dx, 138 + dy, hex('#e8b840'));
+  for (let i = 0; i < 26; i++) { const x = 80 + Math.floor(hh(i, 9, 4) * 190), y = 131 + Math.floor(hh(i, 10, 4) * 19); R.rect(x, y, x + 1, y, hex(['#d8303a', '#f0c040', '#3a6ab0', '#6ac84a'][i % 4])); }
+};
+const nebula = P2 + 0.7, hugo = c(0.614), comparte = c(0.682);
+const p2 = (t) => {
+  capa('telon2', telon2);
+  for (let i = 0; i < 9; i++) { const x = Math.floor(hh(i, 31, 6) * 262), y = 20 + Math.floor(hh(i, 32, 6) * 96); if (Math.sin(t * (2 + i * 0.4) + i) > 0.55) chispa(x, y, 1, hex('#f6e4b0')); }
+  for (const x of [14, 258]) { const f = Math.sin(t * 13 + x) > 0 ? 1 : 0; R.poligono([[x - 1, 123], [x + 1, 117 - f], [x + 2, 123]], hex('#f0c040')); R.pset(x + 1, 121, hex('#fff8d0')); }
+  // los recortables colgados: el planeta con su anillo y la luna, que se mecen
+  { const sw = Math.round(Math.sin(t * 1.1) * 3), x = 52 + sw, y = 62; R.linea(52, 15, x, y - 12, hex('#8c9ad0')); R.disco(x, y, 12, k); R.disco(x, y, 11, hex('#f08a2a')); R.disco(x - 3, y - 3, 5, hex('#f6c468')); R.rect(x - 8, y + 4, x + 6, y + 5, hex('#c8643a'));
+    R.linea(x - 17, y + 4, x + 17, y - 4, k); R.linea(x - 17, y + 3, x + 17, y - 5, hex('#f6e4b0')); R.linea(x - 17, y + 2, x + 17, y - 6, k);
+    const sw2 = Math.round(Math.sin(t * 0.9 + 2) * 3), x2 = 258 + sw2, y2 = 70; R.linea(258, 0, x2, y2 - 10, hex('#8c9ad0')); R.disco(x2, y2, 10, k); R.disco(x2, y2, 9, hex('#f6e4b0')); R.disco(x2 + 5, y2 - 3, 8, hex('#1a224c')); R.pset(x2 - 5, y2 + 2, hex('#cdbf9e')); R.pset(x2 - 6, y2 - 2, hex('#cdbf9e')); }
+  const sube = (t0, d = 0.6) => { const u = tramo(t, t0 - d, t0); return [u, Math.round((1 - u) ** 2 * 96)]; };
+  const resp = (s) => Math.round(Math.sin(t * 2.2 + s));
+  // el bloque de la nebulosa, en la mano izquierda de Herbert
+  { const [u, d] = sube(nebula), x = 110, y = 140 + d - (u >= 1 ? 2 + resp(0) : 0); if (u > 0) { if (u >= 1) R.rect(x - 16, 143, x + 20, 144, hex('#cfc8b4')); PZ.trofeoNebula(R, x, y, { s: 3, t }); if (u >= 1 && t < nebula + 0.8 && Math.sin(t * 22) > 0) { chispa(x - 24, y - 52, 3); chispa(x + 25, y - 30, 2); }
+      T.brazo(R, x - 58, y + 62, x - 26, y - 6, PANA, 1, { codo: [x - 52, y + 22], sombra: false }); } }
+  // el cohete plateado, en la derecha
+  { const [u, d] = sube(hugo), x = 170, y = 142 + d - (u >= 1 ? 2 + resp(1.5) : 0); if (u > 0) { if (u >= 1) R.rect(x - 14, 143, x + 18, 144, hex('#cfc8b4')); PZ.trofeoHugo(R, x, y, { s: 3, t }); if (u >= 1 && t < hugo + 0.7 && Math.sin(t * 22) > 0) chispa(x + 22, y - 62, 3);
+      T.brazo(R, x + 56, y + 62, x + 25, y - 6, PANA, -1, { codo: [x + 50, y + 22], sombra: false }); } }
+  // y otro igual, de otra mano: el premio compartido
+  { const [u, d] = sube(comparte, 0.5), x = 226, y = 142 + d - (u >= 1 ? 2 + resp(3) : 0); if (u > 0) { if (u >= 1) R.rect(x - 14, 143, x + 18, 144, hex('#cfc8b4')); PZ.trofeoHugo(R, x, y, { s: 3, t: t + 0.5 }); if (u >= 1 && Math.sin(t * 22) > 0 && t < comparte + 0.6) chispa(x - 22, y - 58, 3);
+      T.brazo(R, x + 56, y + 62, x + 25, y - 6, '#3e4a6a', -1, { codo: [x + 50, y + 22], sombra: false }); } }
+};
+
+// ── 3 · el quiosco: ya lo tenían en las manos ──
+const knew = c(0.858), hands = c(0.951);
+const p3 = (t) => {
+  const ub = tramo(t, P3 - 0.2, P3 + 1.9), uf = tramo(t, hands + 0.9, E.duracion + 0.6);
+  const O = { encuadre: 'premios', camara: 'quiosco', bus: 0.5 * (1 - (1 - ub) ** 2) + 0.5 * uf * uf }, g = T.libros(R, t, O);
+  const arriba = t > hands, sj = (s) => arriba ? Math.round(Math.abs(Math.sin((t - hands) * 7 + s)) * 4 * (1 - tramo(t, hands, hands + 1.6))) : 0;
+  // la lectora que baja del autobús con el libro
+  const baja = P3 + 2.1, u3 = tramo(t, baja, baja + 1.3), x3 = Math.round(lerp(264, 226, u3));
+  if (t > baja) { const A = R.actor(EL.lector3DU, x3, 150, t, { dir: -1, anda: u3 > 0 && u3 < 1, sostiene: arriba ? [x3 - 3, 120 - sj(1)] : true, sonrisa: true, salto: sj(1) }); librito(A.mano[0] - 2, A.mano[1] + 5); if (arriba && Math.sin(t * 16) > 0.2) chispa(A.mano[0] - 2, A.mano[1] - 9, 2); }
+  // el expositor: el libro grande sobre una caja, con sus dos sellos dorados
+  R.rect(172, 152, 210, 153, hex('#3a3a46')); caja(172, 140, 208, 152, hex('#a8743c')); for (const y of [144, 148]) R.rect(173, y, 207, y, hex('#7a4e24')); for (const x of [184, 196]) R.rect(x, 141, x, 151, hex('#7a4e24'));
+  PZ.libro(R, 190, 140, { s: 2 });
+  for (const [sx, sy, f] of [[200, 99, 0], [200, 111, 1.6]]) { R.linea(sx - 2, sy + 3, sx - 3, sy + 8, hex('#d8303a')); R.linea(sx + 2, sy + 3, sx + 3, sy + 8, hex('#d8303a')); R.disco(sx, sy, 5, k); R.disco(sx, sy, 4, hex('#e8b840')); R.disco(sx, sy, 2, hex('#ffe890')); R.pset(sx, sy, hex('#a87820')); if (Math.sin(t * 5 + f) > 0.6) chispa(sx + 3, sy - 3, 2); }
+  // el lector que llega del quiosco y el que ya leía junto al banco
+  const u2 = tramo(t, P3 + 0.1, P3 + 1.4), x2 = Math.round(lerp(98, 150, u2));
+  const B2 = R.actor(EL.lector2DU, x2, 154, t, { dir: 1, anda: u2 > 0 && u2 < 1, sostiene: arriba ? [x2 + 18, 124 - sj(0)] : true, dedo: false, sonrisa: t > knew, salto: sj(0) }); librito(B2.mano[0] + 3, B2.mano[1] + 5); if (arriba && Math.sin(t * 16 + 1) > 0.2) chispa(B2.mano[0] + 3, B2.mano[1] - 9, 2);
+  const B1 = R.actor(EL.lector1DU, 284, 154, t, { dir: -1, sostiene: arriba ? [281, 124 - sj(2)] : true, sonrisa: t > knew, salto: sj(2) }); librito(B1.mano[0] - 2, B1.mano[1] + 5 + (arriba ? 0 : Math.round(Math.sin(t * 2)))); if (arriba && Math.sin(t * 16 + 2) > 0.2) chispa(B1.mano[0] - 2, B1.mano[1] - 9, 2);
+  T.librosDelante(R, t, O);
+};
+
+const efectos = [[0.6, 'interruptor'], [won + 0.05, 'publico'], [won + 0.75, 'brillo'], [nebula, 'brillo'], [hugo, 'golpecito'], [comparte, 'brillo'], [P3 + 0.3, 'motor'], [P3 + 2.0, 'puerta'], [hands, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1966 });
+</script>
+</body>
+</html>

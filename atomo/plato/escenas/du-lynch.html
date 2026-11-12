@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La película de Lynch · ep33</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DU-LYNCH (frase 24), cartela 1984. Cuatro planos (las cuatro vistas de salas(), una vez cada una):
+// 1. salas 'subasta'/rodaje (1983): el rodaje de Lynch en el desierto, con decorados de cartón piedra: un operario empuja
+//    un bastidor pintado hasta su marca, el de la claqueta la cierra («His Dune») y se aparta, dos extras entran al
+//    decorado y Lynch les marca la acción; a la derecha De Laurentiis sacude la hucha y las monedas vuelan hacia el
+//    decorado (lo que costó). Corta en «about».
+// 2. salas 'sala'/butacas (1984, lleno 0.3): la sala medio vacía; en la pantalla (nunca una imagen de la película) una
+//    balanza: en «$40» cae la saca del coste y el brazo se vence; en «$31» caen las entradas al otro platillo y no
+//    alcanza. Dos espectadores se levantan y se van por la salida. Corta en «Lynch».
+// 3. salas 'sala'/butacas con frente: true: las caras. Lynch se va hundiendo en la butaca y en «total failure» se lleva
+//    las manos a la cabeza (el gesto del kit; no hay opción de taparse la cara); De Laurentiis le mira; a su lado Herbert come palomitas tan contento. Corta en «Herbert».
+// 4. salas 'sala'/general (fachada de 1984, cola 0.3): Herbert sale del cine, un lector le enseña su libro y en «liked»
+//    le sale el visto bueno; por detrás Lynch sale con la cabeza gacha y se va deprisa calle abajo.
+import * as T from '/atomo/plato/escenas/du-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('du-lynch');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k, C = T.C, PZ = T.PIEZAS_DU;
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const RA = (...c) => c.map(hex);
+const tono = (r, v, x, y) => r[Math.max(0, Math.min(r.length - 1, Math.floor(v + BY[(y & 3) * 4 + (x & 3)] / 16)))];
+const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lin = (t, a0, a1) => cl((t - a0) / (a1 - a0));
+// lo fijo de un plano se pinta una vez en su búfer y se copia en cada fotograma
+const fijo = (pinta) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); } R.copiar(b); }; };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const baña = (x0, y0, x1, y1, col, a, f = null) => { for (let y = Math.max(0, y0 | 0); y <= Math.min(179, y1 | 0); y++) for (let x = Math.max(0, x0 | 0); x <= Math.min(319, x1 | 0); x++) { const k = f ? f(x, y) : 1; if (k > 0) R.pset(x, y, mez(R.pget(x, y), col, a * k)); } };
+const elipse = (cx, cy, rx, ry, col, a) => baña(cx - rx, cy - ry, cx + rx, cy + ry, col, a, (x, y) => { const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; return d < 1 ? 1 - d * d : 0; });
+const ovalo = (cx, cy, rx, ry, col) => { for (let y = Math.ceil(cy - ry); y <= cy + ry; y++) { const w = rx * Math.sqrt(Math.max(0, 1 - ((y - cy) / ry) ** 2)); R.rect(Math.round(cx - w), y, Math.round(cx + w), y, col); } };
+const relleno = (x0, y0, x1, y1, r, v0, amp = 0.6, k = 0) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, tono(r, v0 + (h(x >> 1, y >> 1, k) - 0.5) * amp, x, y)); };
+// madera con vetas (tablas horizontales de alto ht)
+const madera = (x0, y0, x1, y1, r, ht = 12, k = 0) => { for (let y = y0; y <= y1; y++) { const tb = Math.floor((y - y0) / ht), fy = (y - y0) % ht;
+  for (let x = x0; x <= x1; x++) { const v = 1.6 + Math.sin(x * 0.045 + tb * 1.7 + Math.sin(y * 0.55 + tb) * 1.4) * 0.8 + (h(x >> 2, y, k + tb) - 0.5) * 0.5 - (fy === 0 ? 1.6 : 0) + (fy === 1 ? 0.6 : 0);
+    R.pset(x, y, tono(r, v, x, y)); }
+  if (fy === 0) for (let x = x0 + ((tb * 53) % 70); x <= x1; x += 70 + (tb % 3) * 9) R.pset(x, y + 4, r[0]); } };
+const BL = hex('#f6f6f6'), ORO = hex('#f0c040'), OROL = hex('#f6e08a'), OROS = hex('#9a7420'), ROJO = hex('#d8303a');
+// un globo de cómic blanco con su pico hacia abajo (para un símbolo)
+const globo = (cx, cy, w, hh, px = 0) => { const x0 = Math.round(cx - w / 2), x1 = Math.round(cx + w / 2), y0 = Math.round(cy - hh / 2), y1 = Math.round(cy + hh / 2);
+  R.rect(x0 - 1, y0, x1 + 1, y1, K); R.rect(x0, y0 - 1, x1, y1 + 1, K); R.rect(x0, y0, x1, y1, BL); R.rect(x0, y1, x1, y1, hex('#d0d4e0'));
+  R.poligono([[cx + px - 3, y1 + 1], [cx + px + 3, y1 + 1], [cx + px, y1 + 6]], K); R.poligono([[cx + px - 2, y1], [cx + px + 2, y1], [cx + px, y1 + 4]], BL); };
+// el decorado de cartón piedra: un bastidor pintado (una muralla con su arco y sus almenas, pintura plana) sobre un
+// carrito, con el canto de contrachapado y el tornapuntas de madera detrás; (x, y) = la esquina de abajo a la izquierda
+const bastidor = (x, y, k = 0) => { x = Math.round(x);
+  const w = 40, hh = 52, F = hex(k ? '#c8a47a' : '#d8b070'), FS = hex(k ? '#a8845a' : '#b88a4c'), FL = hex('#ecd098'), J = hex('#8e6434'), MAD = hex('#c89858'), MADS = hex('#8a6234'), OSC = hex('#4a3424');
+  R.linea(x + w + 15, y - 1, x + w - 2, y - hh + 9, K); R.linea(x + w + 14, y - 1, x + w - 3, y - hh + 9, MAD); R.linea(x + w + 13, y - 1, x + w - 4, y - hh + 9, K);
+  R.linea(x + w, y - 15, x + w + 9, y - 15, K); R.linea(x + w, y - 14, x + w + 9, y - 14, MADS);
+  R.rect(x - 3, y - 5, x + w + 17, y - 2, K); R.rect(x - 2, y - 4, x + w + 16, y - 3, MAD); R.rect(x - 2, y - 3, x + w + 16, y - 3, MADS);
+  for (const rx of [x + 3, x + w + 11]) { R.disco(rx, y - 1, 2, K); R.pset(rx, y - 1, hex('#9aa0b0')); }
+  for (let i = 0; i < 4; i++) { R.rect(x + i * 11 - 1, y - hh - 7, x + i * 11 + 7, y - hh, K); R.rect(x + i * 11, y - hh - 6, x + i * 11 + 6, y - hh, F); R.rect(x + i * 11, y - hh - 6, x + i * 11 + 1, y - hh, FL); }
+  R.rect(x - 1, y - hh - 1, x + w + 3, y - 5, K); R.rect(x, y - hh, x + w, y - 6, F);
+  for (let j = y - hh; j <= y - 6; j++) for (let i = x; i <= x + w; i++) { const fj = j - (y - hh), b = fj % 8 === 7 || (i - x + (fj >> 3) * 5) % 10 === 0; if (b) R.pset(i, j, J); else if (h(i - x, fj, 31 + k) < 0.14) R.pset(i, j, FS); }
+  R.rect(x, y - hh, x + 1, y - 6, FL); R.rect(x + w + 1, y - hh, x + w + 2, y - 6, MAD); R.rect(x + w + 2, y - hh, x + w + 2, y - 6, MADS);
+  R.disco(x + 20, y - 27, 9, K); R.rect(x + 11, y - 27, x + 29, y - 6, K); R.disco(x + 20, y - 27, 7, OSC); R.rect(x + 13, y - 27, x + 27, y - 6, OSC);
+  for (let j = y - 30; j <= y - 6; j += 3) R.pset(x + 14 + ((j * 7) % 12), j, hex('#6a4c34'));
+};
+
+const a = (f) => en('lynch', f);
+const P2 = a(0.237), P3 = a(0.569) - 0.1, P4 = a(0.827) - 0.1;
+const clac = a(0.008), t40 = a(0.257), t31 = a(0.491), hunde = a(0.656), tapa = a(0.736), gusta = a(0.913);
+
+// ── 1. el rodaje, con cartón piedra ─────────────────────────────────────────────────────────────
+const O1 = { encuadre: 'subasta', camara: 'rodaje' };
+const p1 = (t) => {
+  T.salas(R, t, O1);
+  const S = 150;
+  // el bastidor que ya está en su sitio y el que llega empujado
+  bastidor(188, 147, 1);
+  const fx = lerp(64, 102, tramo(t, 1.3, 3.4));
+  bastidor(fx, 148, 0);
+  R.actor(EL.operarioDU, fx - 15, S, t, { dir: 1, anda: t < 3.4, sostiene: t < 3.4 ? [fx - 1, S - 14] : false, sonrisa: t > 3.5 });
+  // los dos extras entran al decorado y se colocan ante el arco
+  const e1 = lerp(250, 150, tramo(t, 1.6, 3.9)), e2 = lerp(274, 168, tramo(t, 2.0, 4.3));
+  R.actor(EL.estudiante2DU, e1, S - 1, t, { dir: -1, anda: t > 1.6 && t < 3.9, brazos: t > 4.3 });
+  R.actor(EL.voluntario2DU, e2, S, t, { dir: -1, anda: t > 2.0 && t < 4.3, sorpresa: t > 4.4 });
+  // Lynch dirige: habla y marca con el dedo
+  R.actor(EL.lynch, 120, S + 2, t, { dir: 1, habla: Math.sin(t * 9) > -0.2, dedo: t > clac + 0.5 && (t < 3.2 || t > 4.2) });
+  // el de la claqueta: la cierra y se aparta
+  const cx = lerp(140, 210, tramo(t, clac + 0.5, clac + 2.4));
+  const op = R.actor(EL.operadorDU, cx, S + 3, t, { dir: t < clac + 0.5 ? -1 : 1, anda: t > clac + 0.5 && t < clac + 2.4, sostiene: true });
+  PZ.claqueta?.(R, op.mano[0] + (t < clac + 0.5 ? -4 : 4), op.mano[1] + 10, { abierta: t < clac });
+  if (t >= clac && t < clac + 0.25) for (let k = 0; k < 4; k++) R.linea(op.mano[0] - 12 - k, op.mano[1] - 12 + k * 3, op.mano[0] - 16 - k, op.mano[1] - 14 + k * 3, BL);
+  // De Laurentiis y la hucha: las monedas salen volando hacia el decorado
+  const dl = R.actor(EL.deLaurentiis, 224, S + 2, t, { dir: -1, sostiene: [224, S - 12 + Math.round(Math.sin(t * 14) * 1.5)], triste: t > 3.2 });
+  PZ.hucha?.(R, dl.mano[0] - 9, dl.mano[1] + 8, { dir: -1 });
+  for (let k = 0; k < 7; k++) { const u = ((t - 1.5) * 0.9 - k * 0.19) % 1.4; if (u < 0 || u > 1 || t < 1.5) continue;
+    const mx = Math.round(lerp(dl.mano[0] - 12, 120 + k * 9, u)), my = Math.round(lerp(dl.mano[1], 118, u) - Math.sin(u * Math.PI) * 26);
+    R.disco(mx, my, 2, K); R.disco(mx, my, 1, Math.floor(t * 10 + k) % 2 ? ORO : OROL); }
+  T.salasDelante(R, t, O1);
+};
+
+// ── 2. la sala medio vacía y la balanza en la pantalla ───────────────────────────────────────
+const O2 = { encuadre: 'sala', camara: 'butacas', pantalla: false, lleno: 0.3, luz: 0.55, epoca: 1984 };
+const NOCHE = RA('#141a3a', '#1c2450', '#263066', '#32407c');
+const saca = (x, y) => { x = Math.round(x); y = Math.round(y);   // la saca del dinero: tela verde, el nudo y una moneda
+  R.disco(x, y - 9, 10, K); R.rect(x - 4, y - 23, x + 4, y - 16, K); R.disco(x, y - 9, 9, hex('#4a9a5a')); R.rect(x - 3, y - 22, x + 3, y - 17, hex('#4a9a5a')); R.rect(x - 5, y - 18, x + 5, y - 17, hex('#2e6a3c'));
+  R.disco(x - 3, y - 12, 4, hex('#6ab87a')); R.disco(x + 1, y - 8, 4, K); R.disco(x + 1, y - 8, 3, ORO); R.rect(x + 1, y - 10, x + 1, y - 6, OROS); R.rect(x - 9, y - 1, x + 9, y, K); };
+const entradas = (x, y) => { x = Math.round(x); y = Math.round(y);   // un montoncito de entradas rosas con su muesca
+  for (const [dx, dy, c] of [[-7, 0, '#e88aa8'], [3, 0, '#f0a8c0'], [-2, -6, '#e88aa8']]) { R.rect(x + dx - 7, y + dy - 6, x + dx + 7, y + dy, K); R.rect(x + dx - 6, y + dy - 5, x + dx + 6, y + dy - 1, hex(c)); R.rect(x + dx - 2, y + dy - 5, x + dx - 2, y + dy - 1, BL); R.pset(x + dx + 2, y + dy - 3, K); R.pset(x + dx + 4, y + dy - 3, K); } };
+const balanza = (t) => {
+  const [x0, y0, x1, y1] = [34, 24, 268, 108];
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, tono(NOCHE, 0.4 + (y - y0) / 34 + Math.sin(x * 0.05 + t * 0.6) * 0.25, x, y));
+  for (let k = 0; k < 14; k++) { const sx = x0 + 6 + Math.round(h(k, 1, 7) * 220), sy = y0 + 4 + Math.round(h(k, 2, 7) * 30); if (Math.sin(t * 2 + k) > 0) R.pset(sx, sy, hex('#8a9ad8')); }
+  const cx = 151, py = 38, u40 = lin(t, t40, t40 + 0.35), u31 = lin(t, t31, t31 + 0.35);
+  // el ángulo: se vence hacia el 40 y, al caer el 31, se queda a medias, con su vaivén
+  const obj = u40 >= 1 ? (u31 >= 1 ? 0.11 : 0.22) : 0, desde = u31 >= 1 ? t31 + 0.35 : t40 + 0.35;
+  const th = u40 < 1 ? Math.sin(t * 3) * 0.015 : obj + (u31 >= 1 ? 0.11 : -0.22) * Math.exp(-(t - desde) * 3.2) * Math.cos((t - desde) * 9);
+  const L = 62, ax = Math.round(cx - Math.cos(th) * L), ay = Math.round(py + Math.sin(th) * L), bx = Math.round(cx + Math.cos(th) * L), by = Math.round(py - Math.sin(th) * L);
+  // el pie y el fuste
+  R.rect(cx - 3, py, cx + 3, y1 - 6, K); R.rect(cx - 2, py, cx + 1, y1 - 6, ORO); R.rect(cx - 2, py, cx - 2, y1 - 6, OROL); R.rect(cx + 1, py, cx + 2, y1 - 6, OROS);
+  R.poligono([[cx - 22, y1 - 1], [cx + 22, y1 - 1], [cx + 14, y1 - 8], [cx - 14, y1 - 8]], K); R.poligono([[cx - 20, y1 - 2], [cx + 20, y1 - 2], [cx + 13, y1 - 7], [cx - 13, y1 - 7]], ORO); R.linea(cx - 12, y1 - 7, cx + 12, y1 - 7, OROL);
+  // el brazo
+  for (const d of [-2, 2]) R.linea(ax, ay + d, bx, by + d, K); for (const d of [-1, 0, 1]) R.linea(ax, ay + d, bx, by + d, d < 0 ? OROL : d ? OROS : ORO);
+  R.disco(cx, py, 5, K); R.disco(cx, py, 4, ORO); R.disco(cx - 1, py - 1, 1, OROL);
+  // los platillos con sus cadenas y su carga
+  for (const [ex, ey, u, lado] of [[ax, ay, u40, 0], [bx, by, u31, 1]]) {
+    const pyl = ey + 26;
+    R.linea(ex, ey, ex - 20, pyl, hex('#c8c8d8'), 2); R.linea(ex, ey, ex + 20, pyl, hex('#c8c8d8'), 2); R.disco(ex, ey, 2, K); R.pset(ex, ey, OROL);
+    R.poligono([[ex - 24, pyl], [ex + 24, pyl], [ex + 16, pyl + 6], [ex - 16, pyl + 6]], K); R.poligono([[ex - 22, pyl + 1], [ex + 22, pyl + 1], [ex + 15, pyl + 5], [ex - 15, pyl + 5]], ORO); R.linea(ex - 21, pyl + 1, ex + 21, pyl + 1, OROL);
+    if (u > 0) { const cae = -Math.min(pyl - 44, Math.round((1 - u * u) * 44)); if (lado === 0) saca(ex - 10, pyl + cae); else entradas(ex - 10, pyl + cae);
+      if (u >= 1) R.numero(lado === 0 ? '40' : '31', ex + 2, pyl - 2, { tam: 16 }); }
+  }
+};
+const p2 = (t) => {
+  const g = T.salas(R, t, O2);
+  balanza(t);
+  // dos espectadores se levantan y se van hacia la salida
+  for (const [quien, x0, sale] of [[EL.lector2DU, 150, P2 + 1.6], [EL.estudiante3DU, 96, P2 + 2.7]]) {
+    if (t < sale) continue; const x = x0 + (t - sale) * 52; if (x > 292) continue;
+    R.actor(quien, x, 124, t, { dir: 1, anda: true, triste: true }); }
+  T.salasDelante(R, t, O2);
+};
+
+// ── 3. las caras: Lynch se tapa la suya, Herbert come palomitas ───────────────────────────────
+const O3 = { encuadre: 'sala', camara: 'butacas', frente: true, lleno: 0.3, reservados: [4, 5, 6, 7], luz: 0.6, epoca: 1984 };
+const p3 = (t) => {
+  const g = T.salas(R, t, O3), A = g?.asientos ?? [...Array(13)].map((_, k) => [15 + 23 * k, 159]);
+  const baja = Math.round(5 * tramo(t, hunde, tapa)), tapado = t > tapa;
+  const [dx, dy] = A[4], [lx, ly] = A[5], [hx, hy] = A[7];
+  R.actor(EL.deLaurentiis, dx, dy, t, { dir: 1, triste: t > hunde, sorpresa: t > tapa && t < tapa + 0.5 });
+  R.actor(EL.lynch, lx, ly + baja, t, { dir: 1, triste: true, brazos: tapado });
+  if (!tapado && t > hunde) { R.pset(lx + 14, ly + baja - 24 + Math.round(((t * 3) % 1) * 4), hex('#8ac8f0')); R.pset(lx + 14, ly + baja - 25 + Math.round(((t * 3) % 1) * 4), hex('#8ac8f0')); }   // la gota de apuro
+  // Herbert: el cubo de palomitas en el regazo y la mano que va y viene
+  const come = (t * 0.9) % 1, boca = come > 0.55 && come < 0.85;
+  const hb = R.actor(EL.herbertMayor, hx, hy, t, { dir: t > tapa + 0.3 && t < tapa + 1.1 ? -1 : 1, sonrisa: !boca, habla: boca, sostiene: boca ? [hx + 9, hy - 15] : [hx + 15, hy - 9] });
+  { const bx = hx + 13, by = hy - 7; R.rect(bx - 1, by - 1, bx + 9, by + 2, K); for (let i = 0; i < 9; i++) R.rect(bx + i, by, bx + i, by + 2, i % 3 === 0 ? ROJO : BL);
+    for (const [i, j] of [[1, -2], [3, -3], [5, -2], [7, -3], [4, -4]]) { R.pset(bx + i, by + j, hex('#f8eec0')); R.pset(bx + i + 1, by + j, hex('#f0d890')); } }
+  if (boca) R.pset(hb.mano[0], hb.mano[1] - 3, hex('#f8eec0'));
+  // la nubecilla negra de Lynch (crece mientras se hunde y llueve cuando se tapa la cara) y las chispas de Herbert
+  { const u = tramo(t, hunde - 0.9, tapa), nx = lx + 7 + Math.round(Math.sin(t * 2) * 1.5), ny = ly - 38 + baja;
+    if (u > 0) { const r = Math.round(2 + u * 3); for (const [dx, dy, rr] of [[-5, 1, r - 1], [0, -1, r], [5, 1, r - 1]]) R.disco(nx + dx, ny + dy, rr + 1, K); for (const [dx, dy, rr] of [[-5, 1, r - 1], [0, -1, r], [5, 1, r - 1]]) R.disco(nx + dx, ny + dy, rr, hex('#5a6072')); R.disco(nx - 1, ny - 2, Math.max(1, r - 2), hex('#7a8296'));
+      if (tapado) { for (let k = 0; k < 4; k++) { const f = (t * 2.2 + k * 0.27) % 1; R.pset(nx - 6 + k * 4, ny + 6 + Math.round(f * 5), hex('#8ac8f0')); } } }
+    for (let k = 0; k < 4; k++) { const an = t * 1.3 + k * 1.57, sx = Math.round(hx + 8 + Math.cos(an) * 13), sy = Math.round(hy - 30 + Math.sin(an) * 5); if (Math.sin(t * 6 + k * 2) > -0.2) { R.pset(sx, sy, OROL); R.pset(sx - 1, sy, ORO); R.pset(sx + 1, sy, ORO); R.pset(sx, sy - 1, ORO); R.pset(sx, sy + 1, ORO); } } }
+  T.salasDelante(R, t, O3);
+};
+
+// ── 4. la fachada: Herbert sale contento ──────────────────────────────────────────────────────
+const O4 = { encuadre: 'sala', camara: 'general', epoca: 1984, cola: 0.3 };
+const p4 = (t) => {
+  T.salas(R, t, O4);
+  const S = 147;
+  // el lector que espera con su libro
+  const ve = t > P4 + 0.8;
+  const lec = R.actor(EL.lector1DU, 52, S, t, { dir: 1, sostiene: ve ? [70, S - 20] : true, sonrisa: ve, salto: ve && t < P4 + 1.2 ? Math.round(Math.sin((t - P4 - 0.8) / 0.4 * Math.PI) * 3) : 0 });
+  PZ.libro?.(R, lec.mano[0] + 3, lec.mano[1] + 6, {});
+  // Lynch sale después y se va calle abajo
+  const sl = P4 + 1.7; if (t > sl) { const x = 156 + (t - sl) * 52; if (x < 322) R.actor(EL.lynch, x, S - 1, t, { dir: 1, anda: true, triste: true }); }
+  // Herbert sale por la puerta, va hacia el lector y da su visto bueno
+  const hx = lerp(150, 86, tramo(t, P4 + 0.1, gusta - 0.2)), llega = t > gusta - 0.2;
+  const hb = R.actor(EL.herbertMayor, hx, S + 1, t, { dir: -1, anda: !llega, sonrisa: true, dedo: t > gusta && t < gusta + 1.6, habla: llega && t < gusta });
+  if (t > gusta) { const u = lin(t, gusta, gusta + 0.2), gy = Math.round(S - 44 - u * 4); globo(hx + 9, gy, 22, 16, -2); T.visto(R, hx + 3, gy - 2, 1); }
+  T.salasDelante(R, t, O4);
+};
+
+const efectos = [[1.4, 'carro'], [clac, 'toc'], [t40 + 0.35, 'golpecito'], [t31 + 0.35, 'golpecito'], [P2 + 1.6 + 142 / 52, 'puerta'], [(Math.ceil(P3 * 0.9 - 0.55) + 0.55) / 0.9 + 0.05, 'masca'], [tapa + 0.05, 'palmada'], [P4 + 0.15, 'puerta'], [gusta, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, cartela: '1984', año: (t) => (t < P2 ? 1983 : 1984) });
+</script>
+</body>
+</html>

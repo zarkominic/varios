@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cierre · ep33</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DU-CIERRE (frase 32), sin cartela. Dos planos, en el estudio de Atom (el reloj sigue rajado y la arena, en la mesa):
+// 1. hoy 'estudio'/mesa, gag 8: Atom baja de su esquina con una brizna, la planta en el montón de arena en «idea»
+//    y se aparta; la hierba brota y se va quedando con el tablero («too big»): Atom da un respingo con su «!»; en
+//    «Too big for an article» la hoja de notas se lleva su X. Corta en «too strange».
+// 2. hoy 'estudio'/general: la hierba se queda con toda la mesa, cuelga por los cajones y sale por el suelo; en «20
+//    publishers» Atom saca el globo del 20 con su X; en «exactly the size of a planet» nuestro libro asoma por la
+//    ventana, enorme, como un planeta, con sus dos lunas en órbita; Atom vuelve de un salto a su esquina y se despide
+//    girando con chispas.
+import * as T from '/atomo/plato/escenas/du-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('du-cierre');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k, C = T.C, PZ = T.PIEZAS_DU;
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const RA = (...c) => c.map(hex);
+const tono = (r, v, x, y) => r[Math.max(0, Math.min(r.length - 1, Math.floor(v + BY[(y & 3) * 4 + (x & 3)] / 16)))];
+const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lin = (t, a0, a1) => cl((t - a0) / (a1 - a0));
+// lo fijo de un plano se pinta una vez en su búfer y se copia en cada fotograma
+const fijo = (pinta) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); } R.copiar(b); }; };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const baña = (x0, y0, x1, y1, col, a, f = null) => { for (let y = Math.max(0, y0 | 0); y <= Math.min(179, y1 | 0); y++) for (let x = Math.max(0, x0 | 0); x <= Math.min(319, x1 | 0); x++) { const k = f ? f(x, y) : 1; if (k > 0) R.pset(x, y, mez(R.pget(x, y), col, a * k)); } };
+const elipse = (cx, cy, rx, ry, col, a) => baña(cx - rx, cy - ry, cx + rx, cy + ry, col, a, (x, y) => { const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; return d < 1 ? 1 - d * d : 0; });
+const ovalo = (cx, cy, rx, ry, col) => { for (let y = Math.ceil(cy - ry); y <= cy + ry; y++) { const w = rx * Math.sqrt(Math.max(0, 1 - ((y - cy) / ry) ** 2)); R.rect(Math.round(cx - w), y, Math.round(cx + w), y, col); } };
+const relleno = (x0, y0, x1, y1, r, v0, amp = 0.6, k = 0) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, tono(r, v0 + (h(x >> 1, y >> 1, k) - 0.5) * amp, x, y)); };
+// madera con vetas (tablas horizontales de alto ht)
+const madera = (x0, y0, x1, y1, r, ht = 12, k = 0) => { for (let y = y0; y <= y1; y++) { const tb = Math.floor((y - y0) / ht), fy = (y - y0) % ht;
+  for (let x = x0; x <= x1; x++) { const v = 1.6 + Math.sin(x * 0.045 + tb * 1.7 + Math.sin(y * 0.55 + tb) * 1.4) * 0.8 + (h(x >> 2, y, k + tb) - 0.5) * 0.5 - (fy === 0 ? 1.6 : 0) + (fy === 1 ? 0.6 : 0);
+    R.pset(x, y, tono(r, v, x, y)); }
+  if (fy === 0) for (let x = x0 + ((tb * 53) % 70); x <= x1; x += 70 + (tb % 3) * 9) R.pset(x, y + 4, r[0]); } };
+const BL = hex('#f6f6f6'), ORO = hex('#f0c040'), OROL = hex('#f6e08a'), OROS = hex('#9a7420'), ROJO = hex('#d8303a');
+// un globo de cómic blanco con su pico hacia abajo (para un símbolo)
+const globo = (cx, cy, w, hh, px = 0) => { const x0 = Math.round(cx - w / 2), x1 = Math.round(cx + w / 2), y0 = Math.round(cy - hh / 2), y1 = Math.round(cy + hh / 2);
+  R.rect(x0 - 1, y0, x1 + 1, y1, K); R.rect(x0, y0 - 1, x1, y1 + 1, K); R.rect(x0, y0, x1, y1, BL); R.rect(x0, y1, x1, y1, hex('#d0d4e0'));
+  R.poligono([[cx + px - 3, y1 + 1], [cx + px + 3, y1 + 1], [cx + px, y1 + 6]], K); R.poligono([[cx + px - 2, y1], [cx + px + 2, y1], [cx + px, y1 + 4]], BL); };
+
+const ease = (u) => u * u * (3 - 2 * u);
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// una pieza (que pinta con rect) recortada a un hueco: se pinta en un búfer aparte y se copia con pset dentro de [x0, y0, x1, y1]
+let TMP = null;
+const recortada = (x0, y0, x1, y1, pinta, tinte = null) => { if (!TMP) TMP = R.nuevo(); TMP.fill(0); const prev = R.usar(TMP); pinta(); R.usar(prev);
+  for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const p = TMP[y * 320 + x]; if (p) R.pset(x, y, tinte ? tinte(p, x, y) : p); } };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+// nube de tres tonos
+const nube3 = (cx, cy, w, c) => { cx = Math.round(cx); ovalo(cx, cy + 1, w * 0.5, 3, c[0]); ovalo(cx + w * 0.3, cy + 3, w * 0.3, 2, c[0]); ovalo(cx - w * 0.08, cy - 1, w * 0.4, 2, c[1]); ovalo(cx + w * 0.2, cy, w * 0.26, 2, c[1]); ovalo(cx - w * 0.12, cy - 2, w * 0.24, 1, c[2]); ovalo(cx + w * 0.22, cy - 1, w * 0.12, 1, c[2]); };
+// la mata de hierba de playa (briznas largas y curvas que se mecen); e = tamaño (1 = 24–40 px de alto)
+const VERDES = RA('#24401e', '#3e6a30', '#5a8a3c', '#7aa850', '#b8d078');
+const mata = (x, y, t, k = 0, e = 1, n = 13) => { if (e <= 0.05) return; x = Math.round(x); y = Math.round(y);
+  for (const pasada of [0, 1]) for (let b = 0; b < n; b++) { const q = b - (n - 1) / 2, a0 = q * (2.2 / n) + (h(b, k, 50) - 0.5) * 0.12, L = (24 + h(b, k, 51) * 16) * e, vi = 0.3 + 0.22 * Math.sin(t * 2.6 + b * 0.7 + k), atras = b % 3 === 1;
+    for (let i = 0; i <= L; i++) { const u = i / L, px = Math.round(x + q * 1.4 * Math.min(1, e + 0.3) + Math.sin(a0) * i + vi * u * u * 18 * e), py = Math.round(y - Math.cos(a0) * i * (1 - 0.3 * u * vi));
+      if (pasada === 0) { R.pset(px - 1, py, VERDES[0]); R.pset(px + 1, py, VERDES[0]); R.pset(px, py - 1, VERDES[0]); } else { R.pset(px, py, u > 0.86 ? VERDES[4] : atras ? VERDES[1] : u > 0.5 ? VERDES[3] : VERDES[2]); if (!atras && u < 0.45) R.pset(px + 1, py, VERDES[1]); } } } };
+// un fondo fijo que además sabe volver a pintar un trozo suyo por delante de un personaje (.tapa)
+const fijo2 = (pinta) => { let b = null; const haz = () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); } return b; };
+  return { copia: () => R.copiar(haz()), tapa: (x0, y0, x1, y1) => { const d = haz(); for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, d[y * 320 + x]); } }; };
+
+const c = (s) => en('cierre', (s - 0.5) / 8.869);
+const Z2 = c(5.35) - 0.05, PLANTA = c(1.34), GRANDE = c(2.28), ARTI = c(4.67), VEINTE = c(6.27), PLAN = c(7.49), ADIOS = c(9.45);
+R.companero = () => {};   // Atom está en el plano: baja a la mesa y al final vuelve a su esquina
+const chispas = (x, y, t, r, n, col) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), col); } };
+
+// la brizna que planta Atom: tres píxeles de ancho, curva, con su hojita y la punta clara; (x, y) = el pie; cuelga o crece según dir
+const brizna = (x, y, n, dir, vi) => { for (let i = 0; i < n; i++) { const xx = Math.round(x + Math.sin(i * 0.22) * 2 + vi * i * i * 0.012), yy = y + dir * i; R.pset(xx - 1, yy, VERDES[0]); R.pset(xx + 2, yy, VERDES[0]); R.pset(xx, yy, i > n - 4 ? VERDES[4] : VERDES[3]); R.pset(xx + 1, yy, i > n - 4 ? VERDES[3] : VERDES[2]);
+    if (i === Math.floor(n * 0.45)) for (let q = 1; q <= 4; q++) { R.pset(xx + 1 + q, yy - dir * q, VERDES[3]); R.pset(xx + 1 + q, yy - dir * q + 1, VERDES[1]); } } };
+// ── 1. gag 8: Atom planta una brizna en su montón de arena ──────────────────────────────────────────
+const p1 = (t) => {
+  const hi = 0.55 * ease(lin(t, PLANTA + 0.25, Z2 + 0.2));
+  const o = { encuadre: 'estudio', camara: 'mesa', arena: 0.34, roto: true, nivel: 0.45, hierba: hi };
+  const g = T.hoy(R, t, o), [mx, my] = g?.cimaMonton ?? [226, 142];
+  T.hoyDelante(R, t, o);
+  // la X de la hoja de notas: «too big for an article»
+  if (t > ARTI) { const e = lin(t, ARTI, ARTI + 0.15); R.icono('X', 96 - Math.round((1 - e) * 3), 150 - Math.round((1 - e) * 3), ROJO, hex('#5a1418'), 3); }
+  // Atom: baja con la brizna, la clava en la cima del montón, se aparta y da un respingo cuando la hierba se dispara
+  const baja = ease(lin(t, 0.15, PLANTA - 0.22)), clava = lin(t, PLANTA - 0.22, PLANTA) - lin(t, PLANTA, PLANTA + 0.2), huye = ease(lin(t, PLANTA + 0.35, PLANTA + 0.9)), resp = t > GRANDE && t < GRANDE + 0.5 ? Math.sin((t - GRANDE) / 0.5 * Math.PI) : 0;
+  const tx = mx - 20, ty = my - 30;
+  const ax = lerp(lerp(297, tx, baja), 176, huye) + clava * 8, ay = lerp(lerp(24, ty, baja), 74, huye) - Math.sin(baja * Math.PI) * 10 + clava * 12 + Math.sin(t * 2.6) * 2 - resp * 9;
+  if (t < PLANTA) brizna(Math.round(ax + 6), Math.round(ay + 27), 15, -1, Math.sin(t * 6) * 0.6);
+  else if (hi < 0.2) brizna(mx - 1, my + 2, 15, -1, Math.sin(t * 5) * 0.5);
+  if (t >= PLANTA && t < PLANTA + 0.3) for (let k = 0; k < 8; k++) { const q = (t - PLANTA) / 0.3, s = k % 2 ? 1 : -1; R.pset(Math.round(mx + s * (3 + q * (5 + k * 2))), Math.round(my - Math.sin(q * Math.PI) * (5 + k)), hex('#f8dc98')); }
+  atomAbajo(ax, ay, t, { r: 12, e: clava > 0 || resp > 0 ? 0.9 : 0.5, vel: clava > 0 ? 2.5 : 1 });
+  if (clava > 0.3) chispas(ax, ay, t, 20, 8, hex('#c8f0ff'));
+  if (t > GRANDE && t < GRANDE + 1.2) R.icono('!', Math.round(ax) - 2, Math.round(ay) - 32, ROJO, K, 2);
+};
+
+// ── 2. la hierba se queda con la mesa; el libro, del tamaño de un planeta, en la ventana ──────────────────
+const libroPlaneta = (t, V) => { const u = ease(lin(t, PLAN, PLAN + 1.1)); if (u <= 0) return; const cx = Math.round((V[0] + V[2]) / 2) - 16, by = Math.round(lerp(V[3] + 52, V[3] - 7, u)), cy = by - 24;
+  for (let j = -34; j <= 34; j++) for (let i = -34; i <= 34; i++) { const d = Math.hypot(i, j); if (d < 34 && (d < 26 ? (i + j) & 1 : ((i + j) & 3) === 0)) R.pset(cx + i, cy + j, hex('#fff0b8')); }
+  const lunas = [[t * 1.3, 30, 9, 3, '#f8eec8'], [t * 0.9 + 2.6, 36, 12, 2, '#e8c8a0']].map(([an, rx, ry, r, col]) => [Math.round(cx + Math.cos(an) * rx), Math.round(cy + Math.sin(an) * ry), r, col, Math.sin(an) < 0]);
+  lunas.forEach(([x, y, r, col, atras]) => { if (atras) { R.disco(x, y, r + 1, K); R.disco(x, y, r, hex(col)); } });
+  recortada(V[0], V[1], V[2], V[3], () => PZ.libro?.(R, cx, by, { s: 2 }));
+  lunas.forEach(([x, y, r, col, atras]) => { if (!atras) { R.disco(x, y, r + 1, K); R.disco(x, y, r, hex(col)); R.pset(x - 1, y - 1, BL); } }); };
+const p2 = (t) => {
+  const hi = lerp(0.5, 1, ease(lin(t, Z2, c(9.2))));
+  const o = { encuadre: 'estudio', arena: 0.15, roto: true, nivel: 0.3, hierba: hi, enVentana: (R2, tt, V) => libroPlaneta(t, V) };
+  T.hoy(R, t, o);
+  T.hoyDelante(R, t, o);
+  // «too strange for 20 publishers»: el globo del 20 con su X
+  if (t > VEINTE - 0.05 && t < PLAN + 0.1) { const e = lin(t, VEINTE - 0.05, VEINTE + 0.15), y = 66 - Math.round(Math.sin(e * Math.PI) * 4); globo(104, y, 64, 26, 8); R.numero('20', 92, y + 8, { tam: 16, centro: true, color: hex('#1c2450'), sombra: false }); R.icono('X', 115, y - 7, ROJO, hex('#f0c8c8'), 2); }
+  // Atom: junto a la mesa; en «planet» va a mirar por la ventana; en la despedida vuelve a su esquina y gira
+  const hx = 118, hy = 104, mira = ease(lin(t, PLAN - 0.1, PLAN + 0.5)), v = lin(t, ADIOS, ADIOS + 0.75), e = ease(v);
+  const pos = (vv) => { const ee = ease(vv); return [lerp(lerp(hx, 160, mira), 297, ee), lerp(lerp(hy, 84, mira), 24, ee) - Math.sin(vv * Math.PI) * 18]; };
+  const [px, py] = pos(v), bote = t > VEINTE - 0.05 && t < VEINTE + 0.5 ? Math.abs(Math.sin((t - VEINTE) * 9)) * 5 : v >= 1 ? Math.abs(Math.sin((t - ADIOS - 0.75) * 5.5)) * 5 * Math.max(0, 1 - (t - ADIOS - 0.75) * 0.9) : 0;
+  const gira = v >= 1 && t < ADIOS + 2.0, ax = px, ay = py - bote + (v < 1 ? Math.sin(t * 2.6) * 2 : Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6)));
+  if (v > 0 && v < 1) for (let k = 1; k <= 7; k++) { const [qx, qy] = pos(Math.max(0, v - k * 0.04)); R.pset(Math.round(qx), Math.round(qy), hex('#c8f0ff')); if (k % 2) R.pset(Math.round(qx) + 1, Math.round(qy) + 1, BL); }
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(13, 10, e)), e: bote > 1 || (v > 0 && v < 1) || gira ? 0.85 : 0.45, vel: gira ? 3 : 1 });
+  if (gira || (t > PLAN + 0.4 && t < PLAN + 1.3)) chispas(ax, ay, t, 21, 10, hex('#c8f0ff'));
+};
+const efectos = [[PLANTA, 'golpecito'], [PLANTA + 0.5, 'pop'], [GRANDE, 'aviso'], [ARTI, 'sello'], [VEINTE, 'pop'], [PLAN + 0.3, 'brillo'], [ADIOS + 0.1, 'whoosh'], [ADIOS + 0.9, 'boing']];
+T.rodar(E, R, [[0, p1], [Z2, p2]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep33</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DU-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom, con el reloj de arena rajado del gag y el montón de arena
+// que sigue creciendo en la mesa. Atom, que ha bajado junto al reloj, bota en «I'm Atom»; en «explain the things» gira
+// con chispas; en «wondered about» tres «?» salen del montón de arena; en «Let's find out» el montón da un soplido y
+// Atom vuelve de un salto a su esquina, dejando una estela.
+import * as T from '/atomo/plato/escenas/du-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('du-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ORO = hex('#ffd860'), OROL = hex('#fff4b8'), OROS = hex('#b8862a'), ROJO = hex('#d8402c'), PZ = T.PIEZAS_DU;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
+
+R.companero = () => {};   // Atom está en el plano: baja a la mesa y al final vuelve a su esquina
+const wh = (s) => en('hola', (s - 0.5) / 4.588);
+const atom = wh(0.66), explica = wh(1.5), pregunta = wh(2.98), vamos = wh(4.17);
+const p1 = (t) => {
+  const o = { encuadre: 'estudio', arena: lerp(0.1, 0.15, tramo(t, 0, E.duracion)), roto: true, nivel: Math.max(0.3, 0.7 - t * 0.06) };
+  const g = T.hoy(R, t, o);
+  T.hoyDelante(R, t, o);
+  // los granos que siguen saltando del reloj rajado
+  for (let k = 0; k < 10; k++) { const q = (t * 1.3 + hh(k, 1, 4)) % 1, s = k % 2 ? 1 : -1; R.pset(152 + s * (9 + q * (10 + hh(k, 2, 4) * 14)), 128 - Math.sin(q * Math.PI) * (4 + hh(k, 3, 4) * 6) + q * 2, k % 3 ? hex('#f0c070') : hex('#f8dc98')); }
+  // los «?» de «wondered about», que salen del montón de arena
+  if (t > pregunta - 0.05 && t < vamos + 0.35) for (let i = 0; i < 3; i++) { const q = tramo(t, pregunta - 0.05 + i * 0.2, pregunta + 0.4 + i * 0.2); if (q <= 0) continue; R.icono('?', 164 + i * 17, Math.round(118 - q * (20 + (i & 1) * 9) - Math.sin(t * 4 + i) * 2), ORO, K, 2); }
+  // el soplido del montón en «Let's find out»
+  if (t >= vamos && t < vamos + 0.5) { const d = (t - vamos) / 0.5; for (let k = 0; k < 14; k++) { const an = Math.PI * (1.1 + 0.8 * k / 13); R.pset(152 + Math.cos(an) * (8 + d * 26), 126 + Math.sin(an) * (4 + d * 18) + d * d * 10, k % 2 ? hex('#f0c070') : hex('#f8dc98')); } }
+  // Atom: bota en «I'm Atom», gira en «explain» y en «Let's find out» vuelve a su esquina
+  const hx = 118, hy = 100, sal = t > atom - 0.1 && t < explica ? Math.round(Math.abs(Math.sin((t - atom + 0.1) * Math.PI * 2.4)) * 11 * Math.max(0.3, 1 - (t - atom))) : 0;
+  const gira = t > explica && t < explica + 0.9, v = tramo(t, vamos + 0.15, E.duracion - 0.35), e = ease(v);
+  const pos = (vv) => { const ee = ease(vv); return [lerp(hx, 297, ee), lerp(hy, 24, ee) - Math.sin(vv * Math.PI) * 22]; };
+  const [px, py] = pos(v), ax = px, ay = py - sal + (v < 1 ? Math.sin(t * 2.6) * 2 : Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6)));
+  if (v > 0 && v < 1) for (let k = 1; k <= 7; k++) { const [qx, qy] = pos(Math.max(0, v - k * 0.04)); R.pset(Math.round(qx), Math.round(qy), hex('#c8f0ff')); if (k % 2) R.pset(Math.round(qx) + 1, Math.round(qy) + 1, BL); }
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(13, 10, e)) + (sal > 3 ? 1 : 0), e: sal > 0 || (v > 0 && v < 1) || gira ? 0.8 : 0.4, vel: gira ? 3 : 1 });
+  if (sal > 2 || gira) chispas(ax, ay, t, 21, 10, hex('#c8f0ff'));
+};
+const efectos = [[atom, 'pop'], [pregunta, 'burbujas'], [vamos, 'boing']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
