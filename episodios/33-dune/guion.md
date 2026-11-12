@@ -12,7 +12,7 @@ diseño de sus gusanos) ni de las portadas del libro: el planeta desierto que se
 gusano solo como silueta lejana). Las películas se cuentan con marquesinas, taquillas y butacas. Personas reales, solo
 con hechos; lo que es relato de alguien se le atribuye. La muerte de Herbert, solo el hecho.
 
-**Duración objetivo:** unas 8:45 [Probable]. Son 29 párrafos y unas 1.300 palabras en inglés.
+**Duración objetivo:** unas 8:45 [Probable]. Son 32 párrafos y unas 1.300 palabras en inglés.
 
 **Publicar:** antes del 18 de diciembre de 2026 (el estreno de *Dune: Part Three*). Lo ideal, entre el 1 y el 12 de
 diciembre. Antes de subirlo se vuelve a comprobar que la fecha del estreno no se ha movido.
@@ -93,6 +93,7 @@ sin ser triste. Después del Mi mixolidio de GTA y el Fa lidio de The Secret, es
 | ES | EN |
 | --- | --- |
 | Así que siguió leyendo: sobre desiertos, sobre ecología, sobre religiones y sobre los pueblos que viven donde casi no hay agua. Y se hizo una pregunta. ¿Y si un planeta entero fuera un desierto? ¿Y si lo más valioso del universo solo existiera allí? | So he kept reading: about deserts, about ecology, about religions, and about the peoples who live where there is almost no water. And he asked himself a question. What if a whole planet were a desert? And what if the most valuable thing in the universe existed only there? |
+| También tomó prestado de la historia. Le fascinaba Lawrence de Arabia, el oficial inglés que se unió a una revuelta en el desierto. Y, como demostraron después los estudiosos, sacó palabras y hasta refranes de un libro de 1960 sobre las guerras del Cáucaso, que en su novela pasaron de las montañas a la arena. | He borrowed from history too. He was fascinated by Lawrence of Arabia, the English officer who joined a revolt in the desert. And, as scholars later showed, he took words and even proverbs from a 1960 book about the wars of the Caucasus, which in his novel moved from the mountains to the sand. |
 | Tardó unos seis años en contestarla. Mientras él investigaba y escribía, su mujer, Beverly, sostenía a la familia escribiendo anuncios. Y de todo aquello salió un planeta llamado Arrakis, un muchacho llamado Paul, gusanos de arena del tamaño de un tren y una especia por la que todos peleaban. | It took him about six years to answer it. While he researched and wrote, his wife, Beverly, supported the family by writing advertising copy. And out of all that came a planet called Arrakis, a boy named Paul, sandworms the size of a train, and a spice that everyone was fighting over. |
 | En diciembre de 1963, la revista Analog empezó a publicarla por entregas, y en 1965 llegó la segunda parte. A los lectores de la revista les encantó. Convertirla en un libro fue otra historia. | In December 1963, the magazine Analog began publishing it in installments, and the second part followed in 1965. The magazine's readers loved it. Turning it into a book was another story. |
 
@@ -121,6 +122,7 @@ sin ser triste. Después del Mi mixolidio de GTA y el Fa lidio de The Secret, es
 | Y su plan no se parecía a nada. Quería a Salvador Dalí de emperador, y, según cuenta el propio Jodorowsky, Dalí pidió cien mil dólares por hora. Quería también a Orson Welles y a Mick Jagger, y música de Pink Floyd. | And his plan was like nothing else. He wanted Salvador Dalí as the emperor, and, by Jodorowsky's own account, Dalí asked for a hundred thousand dollars an hour. He also wanted Orson Welles and Mick Jagger, and music by Pink Floyd. |
 | Reunió a un equipo de dibujantes, entre ellos el francés Moebius, que hizo unos tres mil dibujos, y el suizo H. R. Giger. La película, decía Jodorowsky, podía durar más de diez horas. Herbert contó que el guion tenía el tamaño de una guía de teléfonos. | He gathered a team of artists, among them the Frenchman Moebius, who made about three thousand drawings, and the Swiss artist H. R. Giger. The film, Jodorowsky said, might run more than ten hours. Herbert said the script was the size of a phone book. |
 | El dinero se acabó, ningún estudio quiso poner el resto, y no se rodó ni un plano. Pero quedó un libro enorme con todos aquellos dibujos, y en 2021 uno de los pocos ejemplares se vendió en una subasta de París por más de dos millones y medio de euros. | The money ran out, no studio would put up the rest, and not a single shot was filmed. But a huge book with all those drawings survived, and in 2021 one of the few copies sold at an auction in Paris for more than two and a half million euros. |
+| Y aquel equipo no se perdió. Pocos años después, varios de sus artistas, entre ellos Giger, Moebius y el guionista Dan O'Bannon, volvieron a juntarse en otra película del espacio: Alien. La Dune que nunca existió acabó dejando su huella en el cine que vino después. | And that team did not go to waste. A few years later, several of its artists, among them Giger, Moebius and the screenwriter Dan O'Bannon, came together again on another space movie: Alien. The Dune that never existed ended up leaving its mark on the movies that came after. |
 
 ## 6 · 1984
 
@@ -135,6 +137,7 @@ sin ser triste. Después del Mi mixolidio de GTA y el Fa lidio de The Secret, es
 | ES | EN |
 | --- | --- |
 | Hasta que llegó Denis Villeneuve, un director canadiense que había leído la novela de adolescente. Su idea fue sencilla: no meterlo todo en una sola película. Partió el primer libro en dos. | Until Denis Villeneuve came along, a Canadian director who had read the novel as a teenager. His idea was simple: don't squeeze it all into one movie. He split the first book in two. |
+| Y en vez de construir el desierto en un estudio, se fue a buscarlo: rodó entre las rocas de Wadi Rum, en Jordania, y en las dunas de Abu Dabi. La arena que Herbert vio desde una avioneta volvía a ser arena de verdad. | And instead of building the desert in a studio, he went looking for it: he filmed among the rocks of Wadi Rum, in Jordan, and in the dunes of Abu Dhabi. The sand Herbert saw from a small plane was real sand once again. |
 | La primera parte se estrenó en 2021, recaudó más de cuatrocientos millones de dólares en todo el mundo y ganó seis premios Óscar. La segunda, en 2024, pasó de los setecientos millones. El libro imposible llenaba los cines. | The first part opened in 2021, made more than four hundred million dollars around the world, and won six Academy Awards. The second, in 2024, passed seven hundred million. The impossible book was filling theaters. |
 | Y la tercera parte, basada en la segunda novela, El mesías de Dune, tiene previsto su estreno para el 18 de diciembre de 2026. Casi setenta años después de aquel vuelo en avioneta. | And the third part, based on the second novel, Dune Messiah, is scheduled to open on December 18, 2026. Almost seventy years after that flight in a small plane. |
 
@@ -196,4 +199,5 @@ Investigación del 12/11/2026 (un agente con WebSearch y WebFetch; se comprueba 
   Oregon Dunes Restoration Collaborative. National Geographic.
 - [comprobar antes de locutar]: que Beverly Herbert sostuvo a la familia como redactora de publicidad; que Villeneuve
   leyó la novela de adolescente; que Herbert escribió cinco continuaciones; que hay voluntarios que arrancan la hierba a
-  mano; «gusanos del tamaño de un tren» (es una comparación nuestra, no un dato).
+  mano; Lawrence de Arabia y el libro de 1960 (The Sabres of Paradise, de Lesley Blanch; LARB 2017); que Giger, Moebius
+  y O'Bannon coincidieron en Alien (1979); que Villeneuve rodó en Wadi Rum y Abu Dabi; «gusanos del tamaño de un tren» (es una comparación nuestra, no un dato).
