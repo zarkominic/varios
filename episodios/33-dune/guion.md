@@ -1,7 +1,7 @@
 # Episodio 33 · Dune: el libro que nadie quería publicar
 
 **Estado:** v2, 12 de noviembre de 2026, escrita como cuento (voz «B») y verificada por 3 agentes (14 correcciones).
-Pendiente de la aprobación del usuario.
+Aprobado por el usuario el 12/11/2026 («ok»); «Dune» se queda como está escrito (pronunciado «Dun»).
 
 **Por qué este tema:** elegido por el usuario el 12/11/2026 («dale con Dune»), entre cuatro candidatos. Sin CSV de
 Trends. Es el único con fecha que empuja las búsquedas: *Dune: Part Three* figura para el 18 de diciembre de 2026.
