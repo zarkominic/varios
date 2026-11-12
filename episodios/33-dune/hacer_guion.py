@@ -1,6 +1,6 @@
 """Genera guion.json (el que leen locutar_frases.py y el plató) a partir de guion.md y escenas.json.
 
-Uso: python3 episodios/32-the-secret/hacer_guion.py
+Uso: python3 episodios/33-dune/hacer_guion.py
 
 - guion.md manda en el texto: las frases son las filas | ES | EN | de sus tablas, en orden.
 - escenas.json manda en el reparto: qué frases van en cada escena, su estilo, su cartela, el nombre de
@@ -92,16 +92,19 @@ PREVIO = {
 # Regla del usuario (05/11/2026): en español, TODOS los nombres propios extranjeros se escriben como se dicen en español
 # de México; la r fuerte se escribe doble y las siglas que se deletrean van en una sola palabra («achebeó»).
 PRONUNCIA = {
-    'en': [('Preiss', 'Price'), ('St. Augustine', 'Saint Augustine'), ('Apelles', 'Apellees')],
-    'es': [('The Secret: A Treasure Hunt', 'De Síkret: a Tréshur Jant'), ('The Secret', 'De Síkret'),
-           ('Byron Preiss', 'Báiron Práis'), ('Preiss', 'Práis'), ('Masquerade', 'Mascaréid'),
-           ('John Jude Palencar', 'Yon Yud Palencár'), ('Bantam', 'Bántam'), ('Stanford', 'Stánford'),
-           ('Grant Park', 'Grant Park'), ('Chicago', 'Chicágo'), ('Lincoln', 'Línkon'),
-           ('Brian Zinn', 'Bráian Zin'), ('Zinn', 'Zin'), ('Andy Abrams', 'Andi Éibrams'), ('Cleveland', 'Clívland'),
-           ('Long Island', 'Long Áiland'), ('Expedition Unknown', 'Expedíshon Annóun'),
-           ('Jason Krupat', 'Yéison Crúpat'), ('Krupat', 'Crúpat'), ('Langone', 'Langóne'), ('North End', 'Norz End'),
-           ('Paul Revere', 'Pol Revír'), ('Brooklyn', 'Brúclin'), ('Houston', 'Jiúston'), ('Milwaukee', 'Miluóqui'),
-           ('Roanoke', 'Róanok'), ('Charleston', 'Chárleston'), ('Patriots Point', 'Péitriots Póint')],
+    'en': [('Arrakis', 'Uh-rackiss'), ('Jodorowsky', 'Hodorovsky'), ('Villeneuve', 'Vill-nuhv'), ('Moebius', 'Mobius'),
+           ('Giger', 'Geeger'), ('De Laurentiis', 'De Lawrentis'), ('Wadi Rum', 'Wahdee Room')],
+    'es': [('Whole Earth Catalog', 'Jol Erz Cátalog'), ('Frank Herbert', 'Frank Jérbert'), ('Herbert', 'Jérbert'),
+           ('Florence', 'Flórens'), ('Beverly', 'Béverli'), ('Arrakis', 'Arrákis'), ('Paul', 'Pol'),
+           ('Lawrence', 'Lórens'), ('Analog', 'Ánalog'), ('Brian', 'Bráian'), ('Sterling Lanier', 'Stérlin Laníer'),
+           ('Lanier', 'Laníer'), ('Chilton', 'Chílton'), ('Nebula', 'Nébula'),
+           ('Hollywood', 'Jólibud'), ('Alejandro Jodorowsky', 'Alejandro Jodoróvski'), ('Jodorowsky', 'Jodoróvski'),
+           ('Orson Welles', 'Órson Güels'), ('Mick Jagger', 'Mik Yáguer'), ('Pink Floyd', 'Pink Floid'),
+           ('Moebius', 'Mebiús'), ('H. R. Giger', 'Jans Rudi Guíguer'), ('Giger', 'Guíguer'),
+           ("Dan O'Bannon", 'Dan Obánon'), ('Alien', 'Éilien'), ('Dino De Laurentiis', 'Dino De Lauréntis'),
+           ('Ridley Scott', 'Rídli Scot'), ('Blade Runner', 'Bléid Rráner'), ('David Lynch', 'Déivid Linch'),
+           ('Lynch', 'Linch'), ('Denis Villeneuve', 'Dení Vilnóv'), ('Villeneuve', 'Vilnóv'), ('Wadi Rum', 'Uadi Rrum'),
+           ('Dune', 'Dun')],
 }
 
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
@@ -137,9 +140,9 @@ for e in plan['escenas']:
 assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
-    'serie': 'ASK Atom', 'numero': 32, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
-    'titulo': {'en': 'The Secret: 9 Treasure Boxes Still Buried Since 1982',
-               'es': 'The Secret: 9 cofres siguen enterrados desde 1982'},
+    'serie': 'ASK Atom', 'numero': 33, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
+    'titulo': {'en': 'Dune: 20 Rejections, Then a Car Manual Publisher Said Yes',
+               'es': 'Dune: 20 rechazos y la editorial de los manuales de autos'},
     'principal': 'en',
     # desde el episodio 10, el inglés con am_puck (elegida el 25/10/2026 frente a fenrir, michael y heart: «muy plano» era la queja)
     'narracion': 'cuento',   # la voz «B» (desde el 21): por oraciones enteras, sin cortar en las comas
