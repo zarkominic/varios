@@ -14,7 +14,7 @@
 //    rebota; se compara con el libro de bolsillo fino de encima (✓ y X) y, al segundo empujón, el buzón se vence y lo
 //    devuelve de un muelle;  [corta en «and it was full of made-up words»]
 // 2. D pasillo (gag 4, el bumerán): el agente lanza el manuscrito a una ranura y vuelve, una y otra vez, cada vez más
-//    deprisa; de la primera puerta sale un bocadillo con signos inventados y «?»; el marcador colgado sube a 20 cuando
+//    deprisa; de la primera puerta sale un bocadillo con un garabato (onda, asterisco, rayas y puntos) y «?»; el marcador colgado sube a 20 cuando
 //    la voz lo dice y las cinco puertas se quedan con su X;  [corta en «One editor»]
 // 3. D despacho: el editor lee y va tirando hojas por encima del hombro, el contador de páginas llega a 100, se llena de
 //    «?» (confused) y estalla con «!» (irritated): le devuelve el manuscrito al agente, que esperaba;  [corta en la pausa]
@@ -56,9 +56,14 @@ const equis = (x, y, r, c) => { for (let i = -r; i <= r; i++) for (const d of [0
 const corazon = (x, y, c = ROJO, s = 1) => { const F = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...']; x = Math.round(x) - 3 * s; y = Math.round(y);
   F.forEach((f, j) => { for (let i = 0; i < 7; i++) if (f[i] === '#') { R.rect(x + i * s - 1, y + j * s - 1, x + i * s + s, y + j * s + s, K); } });
   F.forEach((f, j) => { for (let i = 0; i < 7; i++) if (f[i] === '#') R.rect(x + i * s, y + j * s, x + i * s + s - 1, y + j * s + s - 1, c); }); R.rect(x + s, y + s, x + 2 * s - 1, y + 2 * s - 1, hex('#ffc0c0')); };
-// signos inventados (no son letras de ningún alfabeto): las «palabras inventadas» del manuscrito
-const GLIFOS = [['.....', '.#...', '#.#.#', '...#.', '.#...', '#.#.#', '...#.'], ['..#..', '..#..', '.#.#.', '.#.#.', '#...#', '#####', '.....'], ['..#..', '.#.#.', '#...#', '#.#.#', '#...#', '.#.#.', '..#..'], ['...##', '..##.', '.##..', '#####', '..##.', '.##..', '##...'], ['####.', '....#', '.##.#', '#.#.#', '#...#', '.###.', '.....'], ['#...#', '.....', '..#..', '.....', '#...#', '.....', '..#..']];
-const glifo = (k, x, y, c) => R.dibujo(GLIFOS[k % GLIFOS.length], x, y, 1, { '#': c });
+// las «palabras inventadas» del manuscrito, sin nada que se lea como letra de ningún alfabeto: una onda, un asterisco
+// que gira, y dos renglones de rayas y puntos gordos; f (0/1) alterna las dos posturas del garabato
+const garabato = (x, y, f, c) => {
+  for (let i = 0; i < 17; i++) R.pset(x + i, y + 3 + Math.round(Math.sin((i + f * 3) * 1.05) * 1.3), c);
+  const ax = x + 25, ay = y + 3; R.pset(ax, ay, c); for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [1, -1]]) { const l = (dx && dy ? 1 : 0) === f ? 2 : 1; for (let i = 1; i <= l; i++) { R.pset(ax + dx * i, ay + dy * i, c); R.pset(ax - dx * i, ay - dy * i, c); } }
+  const filas = f ? [[[0, 1], [4, 9], [13, 1], [17, 6], [26, 1]], [[2, 5], [10, 1], [14, 1], [18, 8]]] : [[[0, 7], [10, 1], [14, 5], [22, 1], [26, 1]], [[1, 1], [5, 1], [9, 9], [21, 4]]];
+  filas.forEach((fila, j) => { for (const [dx, w] of fila) { const yy = y + 9 + j * 4; if (w === 1) R.rect(x + dx, yy - 1, x + dx + 1, yy, c); else R.rect(x + dx, yy, x + dx + w - 1, yy, c); } });
+};
 // un renglón de «palabras» (rayas con huecos), de x0 a x0 + w; hasta: solo lo escrito hasta esa x
 const renglon = (x0, y, w, k, c, hasta = 1e9) => { let x = x0, i = 0; while (x < x0 + w) { const l = 5 + Math.floor(h(i, k, 71) * 11), x1 = Math.min(x + l, x0 + w, hasta); if (x1 > x) R.rect(x, y, x1, y, c); if (x + l >= hasta) break; x += l + 3; i++; } };
 
@@ -187,8 +192,8 @@ const p2 = (t) => {
     caja(x0, y0, x0 + 70, y0 + 26, hex('#2a2832')); R.rect(x0 + 2, y0 + 2, x0 + 68, y0 + 24, hex('#14121c')); R.rect(x0 + 1, y0 + 1, x0 + 69, y0 + 1, hex('#5a5868'));
     R.icono('X', x0 + 6, y0 + 8, fin && Math.floor(t * 5) % 2 ? hex('#ff8080') : ROJO, hex('#14121c'), 2); R.rect(x0 + 21, y0 + 5, x0 + 21, y0 + 21, hex('#3a3848'));
     R.numero(String(cnt), x0 + 46, y0 + 22 - bota, { tam: 16, centro: true }); }
-  // el bocadillo de la primera puerta: signos inventados y un «?»
-  { const b = tramo(t, n(6.05), n(6.25)) - tramo(t, n(7.5), n(7.7)); if (b > 0.5) bocadillo(82, 48, 138, 72, 100, 92, () => { for (let k = 0; k < 4; k++) glifo(k + Math.floor(t * 2) % 2 * 2, 87 + k * 8, 56 + (k % 2), TINTA); R.icono('?', 123, 53, ROJO, BL, 2); }); }
+  // el bocadillo de la primera puerta: un garabato (onda, asterisco, rayas y puntos: nada que parezca letra) y un «?»
+  { const b = tramo(t, n(6.05), n(6.25)) - tramo(t, n(7.5), n(7.7)); if (b > 0.5) bocadillo(82, 48, 138, 72, 100, 92, () => { garabato(87, 52, Math.floor(t * 2) % 2, TINTA); R.icono('?', 123, 53, ROJO, BL, 2); }); }
   // la secretaria que cruza con su pila de papeles y se para a mirar
   const sw = tramo(t, P2, n(7.4)) * 0.5 + tramo(t, n(9.4), P3 + 0.4) * 0.5, sx = lerp(334, 168, sw), para = sw === 0.5;
   // el agente: lanza, recoge, y al final se queda con el manuscrito y la cara larga
