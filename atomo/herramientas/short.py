@@ -17,6 +17,9 @@ import os, re, shutil, subprocess, sys, tempfile
 import numpy as np, soundfile as sf
 
 D, tramos_txt, salida = sys.argv[1:4]
+# --x k=x,k=x: fija a mano la x (0–140, en el lienzo de 320) del recorte del plano k del Short (0 = el primero, -1 = el
+# último), cuando el recorte automático deja fuera algo que cuenta (una cifra, el objeto del gag)
+FIJAS = dict((int(a_), int(b_)) for a_, b_ in (p_.split('=') for p_ in sys.argv[5].split(','))) if len(sys.argv) > 5 and sys.argv[4] == '--x' else {}
 tramos = [tuple(map(float, t.split('-'))) for t in tramos_txt.split(',')]
 FPS, FUNDE = 30, 0.12
 raiz = os.path.dirname(os.path.abspath(__file__))
@@ -82,21 +85,25 @@ def ventana(a, b, w=180):
     return int(round(min(max(cx - w / 2, max(0, x - w * 0.15)), min(320 - w, x + w * 0.15))))
 CORTES = cortes_del_episodio()
 Y_CUADRO = 250   # el cuadrado va arriba (y 250–1330): debajo quedan libres los subtítulos de YouTube y sus botones
-partes, k = [], 0
+segs = []
 for t0, t1 in tramos:
     f0 = round(t0 * FPS); f1 = f0 + round((t1 - t0) * FPS); lim = [f0]
     for fc in CORTES:
         if f0 + 20 < fc < f1 - 20:                       # el corte de verdad: el mayor salto de imagen cerca del previsto
             lim.append(fc - 18 + int(np.abs(np.diff(carga(fc - 19, 37), axis=0)).mean((1, 2)).argmax()))
     lim.append(f1)
-    for a, b in zip(lim, lim[1:]):
-        if b <= a: continue
-        x = ventana(a, b)
+    segs += [(a, b) for a, b in zip(lim, lim[1:]) if b > a]
+partes = []
+for k, (a, b) in enumerate(segs):
+    if True:
+        x = FIJAS.get(k, FIJAS.get(k - len(segs), None))
+        x = ventana(a, b) if x is None else x
+        print(f'  plano {k}: fotogramas {a}–{b}, recorte en x {x}')
         corre('ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-start_number', str(a), '-i', f'{D}/fotos/%05d.jpg', '-frames:v', str(b - a),
               '-filter_complex', '[0:v]split[a][b];[a]scale=-2:1920:flags=neighbor,crop=1080:1920,boxblur=24:2,eq=brightness=-0.28:saturation=0.8[fondo];'
               f'[b]scale=1920:1080:flags=neighbor,crop=1080:1080:{x * 6}:0[fr];[fondo][fr]overlay=0:{Y_CUADRO},format=yuv420p[v]', '-map', '[v]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18',
               '-r', str(FPS), f'{tmp}/p{k}.mp4')
-        partes.append(f"file '{tmp}/p{k}.mp4'"); k += 1
+        partes.append(f"file '{tmp}/p{k}.mp4'")
 open(f'{tmp}/lista.txt', 'w').write('\n'.join(partes))
 corre('ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', f'{tmp}/lista.txt', '-i', f'{tmp}/short-en.wav', '-map', '0:v', '-map', '1:a',
       '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-metadata:s:a:0', 'language=eng', '-shortest', '-movflags', '+faststart', f'{salida}.mp4')
