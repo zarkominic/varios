@@ -1,12 +1,15 @@
 # Búsquedas en tendencia en EE. UU.
 
-Registro diario del RSS de Google Trends (4 días: 2026-10-26 → 2026-11-12; 40 búsquedas distintas).
+Registro diario del RSS de Google Trends (4 días: 2026-10-26 → 2026-11-12; 50 búsquedas distintas).
 Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 
 | Días | Tráfico máx. | Búsqueda | Noticia que la explica |
 |---:|---:|---|---|
 | 1 | 50.000 | jj mccarthy new york giants debut | [The Third-String Castoff Quarterback Sparking a Giant Turnaround](https://www.wsj.com/sports/football/jj-mccarthy-giants-0c041275) (WSJ) |
+| 1 | 20.000 | czechia vs spain | [Czech Republic vs Spain: UEFA Nations League stats & head-to-head](https://www.bbc.com/sport/football/live/cwg5jrzyqzdnt) (BBC) |
 | 1 | 10.000 | rex ryan | [ESPN analyst Rex Ryan arrested after allegedly striking 2 pedestrians with his truck. running over their feet](https://sports.yahoo.com/nfl/article/espn-analyst-rex-ryan-arrested-after-allegedly-striking-2-pedestrians-with-his-truck-running-over-their-feet-170156903.html) (Yahoo Sports) |
+| 1 | 10.000 | chequia - españa | [¿A qué hora es el partido República Checa vs España y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-republica-checa-vs-espana-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
+| 1 | 10.000 | italia - francia | [¿A qué hora es el partido Italia vs Francia y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-italia-vs-francia-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
 | 1 | 2.000 | pga tour | [Seamus Power. Austin Smotherman head to Monday playoff as Butterfield Bermuda Championship shortened to 54 holes](https://www.pgatour.com/article/news/latest/2026/10/25/seamus-power-austin-smotherman-head-to-monday-playoff-after-weather-delay-tournament-shortened-to-54-holes-butterfield-bermuda-championship) (PGA Tour) |
 | 1 | 2.000 | sophia bush | [Sophia Bush Speaks Out About Rumors She and Wife Ashlyn Harris Started Off as an ‘Affair’](https://ca.news.yahoo.com/sophia-bush-speaks-rumors-she-160640814.html) (Yahoo News Canada) |
 | 1 | 2.000 | dameon pierce | [Eagles place Dameon Pierce on injured reserve](https://www.nbcsports.com/fantasy/football/player-news/2026-10-28/eagles-place-dameon-pierce-on-injured-reserve) (NBC Sports) |
@@ -21,6 +24,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 1.000 | baseball | [Perfect 2026-27 MLB free agency moves for teams to watch](https://www.espn.com/mlb/story/_/id/50433101/offseason-2026-27-free-agency-passan-biggest-trades-signings) (ESPN) |
 | 1 | 1.000 | russian ambassador to us | [Russian ambassador to US dies. foreign ministry says](https://www.cnn.com/2026/11/11/europe/russian-ambassador-to-us-dies-intl) (CNN) |
 | 1 | 1.000 | 黄仁勋 | [黄仁勋事件中的“女主角”黄乐是谁？](https://cn.nytimes.com/business/20261111/alice-huang-megaspeed-nvidia-jensen-huang/) (纽约时报中文网) |
+| 1 | 1.000 | inglaterra - croacia | [¿A qué hora es el partido Inglaterra vs Croacia y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-inglaterra-vs-croacia-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
 | 1 | 500 | matthew perry | [“The One About Matthew Perry” Docuseries Comes to Netflix](https://www.nytimes.com/2026/10/26/arts/television/matthew-perry-netflix-documentary.html) (The New York Times) |
 | 1 | 500 | santos vs palmeiras | [Santos x Palmeiras: onde assistir ao vivo. horário e escalações](https://ge.globo.com/sp/santos-e-regiao/futebol/brasileirao-serie-a/noticia/2026/10/28/santos-x-palmeiras-onde-assistir-ao-vivo-horario-e-escalacoes.ghtml) (ge) |
 | 1 | 500 | jaydon blue | [Eagles sign RB Jaydon Blue to the active roster. add three to the practice squad](https://www.philadelphiaeagles.com/news/eagles-sign-rb-jaydon-blue-to-the-active-roster-add-three-to-the-practice-squad-dameon-pierce) (Philadelphia Eagles) |
@@ -31,6 +35,12 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 500 | chipotle tattoo deal | [CHIPOTLE BRINGS BACK RECORD-BREAKING "TATTED LIKE A CHIPOTLE BAG" BOGO ON FRIDAY. NOVEMBER 13](https://newsroom.chipotle.com/2026-11-09-CHIPOTLE-BRINGS-BACK-RECORD-BREAKING-TATTED-LIKE-A-CHIPOTLE-BAG-BOGO-ON-FRIDAY.-NOVEMBER-13) (Chipotle) |
 | 1 | 500 | east texas a&m basketball | [Fairleigh Dickinson vs. East Texas A&M prediction. odds: 2026 college basketball picks by proven model](https://www.cbssports.com/betting/news/fairleigh-dickinson-east-texas-a-m-prediction-odds-time-2026-college-basketball-picks-november-11/) (CBS Sports) |
 | 1 | 500 | when will fortnite servers be back up | [Is Fortnite down? When will One Piece Pirate Token season be back?](https://www.northjersey.com/story/tech/gaming/2026/11/12/fortnite-offline-for-update-will-pirate-coin-odds-increase/92736560007/) (Bergen Record) |
+| 1 | 500 | spain | [Millions of Spaniards stage first general strike in 14 years as anger rages over housing](https://www.cnn.com/2026/11/11/europe/spain-strike-housing-latam-intl) (CNN) |
+| 1 | 500 | microsoft cyber attack | [Hackers abuse SQL Server’s weak passwords to drop cryptominers and Gh0st RAT](https://www.csoonline.com/article/4247845/hackers-abuse-sql-servers-weak-passwords-to-drop-cryptominers-and-gh0st-rat.html) (CSO Online) |
+| 1 | 500 | cyber attacks today | [Citrix Patches 12 NetScaler and Secure Access Client Flaws. Including Authentication Bypass](https://thehackernews.com/2026/11/citrix-patches-12-netscaler-and-secure.html) (The Hacker News) |
+| 1 | 500 | microsoft layoffs | [Tech layoffs tracker 2026: All the job losses across Canva. Squarespace. Amazon. Microsoft. Apple. Meta and others](https://tech.yahoo.com/general/breaking-news/article/tech-layoffs-tracker-2026-all-the-job-losses-across-canva-squarespace-amazon-microsoft-apple-meta-and-others-141507340.html) (Yahoo Tech) |
+| 1 | 500 | spain national football team | [Spain's De la Fuente slams 'lying' over Lamine Yamal's 'special privileges'](https://www.espn.com/soccer/story/_/id/50455459/spain-lamine-yamal-injury-luis-de-la-fuente-nations-league) (ESPN) |
+| 1 | 500 | albania vs finland | [Albania vs Finland: UEFA Nations League stats & head-to-head](https://www.bbc.com/sport/football/live/ck86z8g3j1yzt) (BBC) |
 | 1 | 200 | world | [Russia to stage World Weightlifting Championships. first major hosting since full-scale Ukraine invasion](https://www.nytimes.com/athletic/7726237/2026/10/26/russia-world-championship-olympic-moscow/) (The New York Times) |
 | 1 | 200 | racing sausages world series milwaukee | [Column: Sausage race controversy erupts as Fox Sports ignores Milwaukee’s finest tradition during World Series](https://www.chicagotribune.com/2026/10/26/world-series-milwaukee-brewers-sausage-race/) (Chicago Tribune) |
 | 1 | 200 | vegemite | [Murderer’s bid to eat Vegemite in Australian prison rejected by judge](https://www.cnn.com/2026/10/26/australia/prisoner-vegemite-rejected-judge-scli-intl) (CNN) |
