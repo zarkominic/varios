@@ -21,8 +21,8 @@ moviera, hay que rehacer esa frase.
 **Alternativa para la prueba A/B de YouTube:**
 - EN: Dune Began With an Unpublished Article About Sand in Oregon
 
-La miniatura (nuestro planeta al ocaso con sus dos lunas: Frank Herbert, al doble, junto al manuscrito atado; «20» y una
-X roja) sirve para los dos.
+La miniatura (nuestro planeta al ocaso con sus dos lunas: Frank Herbert, al doble, junto al manuscrito atado; arriba a
+la izquierda, sobre el cielo, «20» y una X roja) sirve para los dos.
 
 ## Descripción (EN)
 
@@ -141,7 +141,7 @@ español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacion
 - **EN:** The publisher that finally said yes to Dune was known for its car repair manuals. It sold so slowly that, as the story goes, it cost the editor his job. Then came the awards. The full story is in the linked video. #Dune #FrankHerbert #Books #ASKAtom #Shorts
 - **ES:** La editorial que por fin dijo que sí a Dune era conocida por sus manuales para reparar autos. Se vendió tan despacio que, según se cuenta, al editor le costó el puesto. Y entonces llegaron los premios. La historia completa, en el vídeo enlazado. #Dune #FrankHerbert #Libros #ASKAtom #Shorts
 
-### Short 3 · El Dune que nunca se filmó · tramo 293.02-340.05
+### Short 3 · El Dune que nunca se filmó · tramo 284.42-340.05
 - **EN:** Jodorowsky's Dune: Dalí Wanted $100,000 an Hour #Shorts
 - **ES:** El Dune de Jodorowsky: Dalí pidió 100 000 dólares la hora #Shorts
 - **EN:** In the 1970s, Alejandro Jodorowsky planned a Dune with Salvador Dalí, Orson Welles, Mick Jagger and music by Pink Floyd. Not a single shot was filmed, but its book of drawings sold for millions. The full story is in the linked video. #Dune #Jodorowsky #Movies #ASKAtom #Shorts

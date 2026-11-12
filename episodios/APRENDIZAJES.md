@@ -552,8 +552,10 @@ cumplen (planos planeados = planos generados; ningún destello de cartela en los
   las pasadas. El render real ocupó 6,6 GB. Borrar las capturas de decorados y movimiento ANTES de lanzar la producción.
 - **Subtítulos:** «H. R. Giger» se partió en «…artist H.» / «R. Giger…»; corregido a mano en el SRT. `subtitulos.py`
   no debería cortar tras una inicial con punto.
-- **Miniatura:** la cifra en hueso pierde contraste sobre arena clara; un halo oscuro detrás ayuda poco. Con fondos
-  claros, colocar la cifra sobre cielo oscuro desde el primer borrador.
+- **Miniatura:** la cifra en hueso pierde contraste sobre arena clara y un halo oscuro detrás parece una mancha: se
+  subió al cielo oscuro. Con fondos claros, colocar la cifra sobre lo oscuro desde el primer borrador.
+- **Shorts:** el Short 3 empezaba en «Y su plan…» sin decir de quién; se rehízo desde la frase anterior. Mirar la
+  primera frase de cada Short como si no se hubiera visto el vídeo.
 - **Control final a la primera:** sí (−14,0 y −14,0 LUFS; peor cartela 5,7 dB; 131 y 132 subtítulos, 0 fuera de norma).
 - **Cifras:** tokens: decorados 2,28 M; escenas 2,93 M; movimiento 0,37 M; pasada de decorados 1,92 M; calidad 5,02 M
   (2 h 24 min).
