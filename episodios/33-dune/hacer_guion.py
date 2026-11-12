@@ -93,7 +93,7 @@ PREVIO = {
 # de México; la r fuerte se escribe doble y las siglas que se deletrean van en una sola palabra («achebeó»).
 PRONUNCIA = {
     'en': [('Arrakis', 'Uh-rackiss'), ('Jodorowsky', 'Hodorovsky'), ('Villeneuve', 'Vill-nuhv'), ('Moebius', 'Mobius'),
-           ('Giger', 'Geeger'), ('De Laurentiis', 'De Lawrentis'), ('Wadi Rum', 'Wahdee Room')],
+           ('Giger', 'Gheeger'), ('Lanier', 'Luh-neer'), ('De Laurentiis', 'De Lawrentis'), ('Wadi Rum', 'Wahdee Room')],
     'es': [('Whole Earth Catalog', 'Jol Erz Cátalog'), ('Frank Herbert', 'Frank Jérbert'), ('Herbert', 'Jérbert'),
            ('Florence', 'Flórens'), ('Beverly', 'Béverli'), ('Arrakis', 'Arrákis'), ('Paul', 'Pol'),
            ('Lawrence', 'Lórens'), ('Analog', 'Ánalog'), ('Brian', 'Bráian'), ('Sterling Lanier', 'Stérlin Laníer'),
@@ -102,8 +102,8 @@ PRONUNCIA = {
            ('Orson Welles', 'Órson Güels'), ('Mick Jagger', 'Mik Yáguer'), ('Pink Floyd', 'Pink Floid'),
            ('Moebius', 'Mebiús'), ('H. R. Giger', 'Jans Rudi Guíguer'), ('Giger', 'Guíguer'),
            ("Dan O'Bannon", 'Dan Obánon'), ('Alien', 'Éilien'), ('Dino De Laurentiis', 'Dino De Lauréntis'),
-           ('Ridley Scott', 'Rídli Scot'), ('Blade Runner', 'Bléid Rráner'), ('David Lynch', 'Déivid Linch'),
-           ('Lynch', 'Linch'), ('Denis Villeneuve', 'Dení Vilnóv'), ('Villeneuve', 'Vilnóv'), ('Wadi Rum', 'Uadi Rrum'),
+           ('Ridley Scott', 'Rídli Scot'), ('Blade Runner', 'Bléid Ráner'), ('David Lynch', 'Déivid Linch'),
+           ('Lynch', 'Linch'), ('Denis Villeneuve', 'Dení Vilnóv'), ('Villeneuve', 'Vilnóv'), ('Wadi Rum', 'Uadi Rum'),
            ('Dune', 'Dun')],
 }
 

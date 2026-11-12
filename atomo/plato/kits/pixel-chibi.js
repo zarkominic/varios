@@ -8953,6 +8953,163 @@ export const ELENCO_CF = {
 };
 Object.assign(ELENCO_CHIBI, ELENCO_CF);
 
+// ══ Episodio 33 (Dune: el libro que nadie quería publicar): Florence (Oregón) en 1957, las editoriales de 1963–1965,
+// Chilton, los premios de 1966, el campus de 1970, el París de Jodorowsky (1974), Hollywood (1976–1984), el rodaje de
+// 2021 y las dunas de hoy. Personas reales: con respeto, sin caricatura ──────────────────────────────────────────────
+// ── cabezas ──
+// la barba poblada con las entradas hondas (Herbert de mayor): la boca a la vista
+const CAB_BARBA_ENTRADAS_DU = parche(CAB_BARBA, [[6, 3, 'SSSSSS'], [5, 4, 'S']]);
+// ── cuerpos ──
+// la camisa marinera de rayas (C con las rayas W) del dibujante
+const CUERPO_RAYAS_DU = parche(CUERPO_MANGA, [[3, 1, 'WWWWWWWWW'], [4, 3, 'WWWWWWW'], [4, 5, 'WWWWWWW'], [2, 3, 'W'], [12, 3, 'W']]);
+// la camisa (C) abotonada hasta el cuello, sin corbata: el cuello cerrado (c) y los botones (o)
+const CUERPO_ABOTONADA_DU = parche(CUERPO_MANGA, [[5, 0, 'CcCcC'], [7, 1, 'o'], [7, 3, 'o'], [7, 5, 'o']]);
+// el jersey de cuello alto (C, el cuello vuelto y el bajo c)
+const CUERPO_CUELLO_ALTO_DU = parche(CUERPO_MANGA, [[5, 0, 'ccccc'], [4, 6, 'ccccccc']]);
+// el traje con corbata de un hombre bajito (12 filas, una menos de pierna)
+const CUERPO_BAJITO_DU = sinFila(CUERPO_TRAJE_DC, 9);
+// el pijama de rayas de un chaval de 1980 (12 filas): la chaqueta (C, las rayas p) con el cuello (W) y el pantalón (F, la raya f)
+const CUERPO_PIJAMA_DU = parche(sinFila(CUERPO_MANGA, 9), [[6, 0, 'WWW'], [5, 1, 'p'], [9, 1, 'p'], [5, 2, 'p'], [9, 2, 'p'], [5, 3, 'p'], [9, 3, 'p'], [5, 4, 'p'], [9, 4, 'p'], [5, 5, 'p'], [9, 5, 'p'],
+  [7, 2, 'o'], [7, 4, 'o'], [5, 7, 'f'], [9, 7, 'f'], [5, 8, 'f'], [9, 8, 'f'], [5, 9, 'f'], [9, 9, 'f']]);
+// la camiseta lisa con los vaqueros de campana de 1970
+const CUERPO_CAMPANA_LISA_DU = parche(CUERPO_CALLE, BAJOS_CAMPANA_AT);
+// la ropa de campo de los voluntarios con los guantes de trabajo (X): la camisa de campo y la de cuadros
+const CUERPO_VOLUNTARIO_DU = parche(CUERPO_CAMPO_GZ, [[2, 5, 'X'], [12, 5, 'X']]);
+const CUERPO_VOLUNTARIA_DU = parche(CUERPO_CUADROS_AT, [[2, 5, 'X'], [12, 5, 'X']]);
+
+// ── detalles ──
+// los bigotes largos y finos de Dalí, con las puntas hacia arriba (por delante y por detrás de la cara, sin tapar ojos ni boca)
+const bigotesDaliDU = (c) => { const v = hex('#1c1424'); for (const [i, j] of [[8, 8], [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 7], [15, 6], [7, 8], [6, 7], [5, 6]]) c.cab.px(i, j, v); };
+// la capa negra y ancha de Welles, por detrás: asoma a los dos lados del cuerpo y llega al suelo (Q, los pliegues q)
+const CAPA_WELLES_DU = Array.from({ length: 13 }, (_, j) => { const a = Math.round((11 - Math.min(11, j)) * 0.28), n = 19 - 2 * a; return '.'.repeat(a) + 'k' + (j === 12 ? 'k'.repeat(n) : 'QQq' + 'Q'.repeat(n - 6) + 'qQQ') + 'k' + '.'.repeat(a); });
+const capaWellesDU = (c) => c.cuerpo.rej(CAPA_WELLES_DU, -3, 0);
+
+// ── el reparto del 33 ──
+const B33 = B23, B33J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_DU = {
+  // ── Florence (Oregón), 1957 ──
+  // Frank Herbert a los 36: el pelo castaño corto, SIN barba, la camisa clara y el chaleco de punto verde
+  herbert57: { ...B33, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#5a3418'),
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#5a7a52', c: '#42603c', W: '#f2eee2', o: '#3a4a34', F: '#6a5a48' }) },
+  // Herbert de 1963 en adelante: la barba castaña poblada y la chaqueta de pana parda sobre la camisa crema
+  herbert: { ...B33, cab: CAB_BARBA, cuerpo: CUERPO_PANA_DC, ceja: hex('#5a3418'),
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#a8743c', c: '#7e5226', W: '#f0e8d0', o: '#f0e8d0', F: '#4a4a5a' }) },
+  // Herbert en 1984–1986: la barba y el pelo canosos, las entradas y la pana verde grisácea
+  herbertMayor: { ...B33, cab: CAB_BARBA_ENTRADAS_DU, cuerpo: CUERPO_PANA_DC, ceja: hex('#8a8a94'),
+    pal: CLT({ H: '#a8a8b2', h: '#cfcfd6', C: '#6a6e58', c: '#50543f', W: '#e8eef6', o: '#e8eef6', F: '#3e3e4a' }) },
+  // Beverly, su mujer: el pelo oscuro recogido en un moño y el vestido verde azulado de los 50 con el cuello blanco y el lazo
+  beverly: { ...B33, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_PLIEGUES, ceja: hex('#2a1c14'), delante: monoHP, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#2e1e16', h: '#4e3626', s: '#e8a080', C: '#2a8a8a', c: '#1e6a6a', W: '#f6f2ea', I: '#f0e0b0', L: '#2a2430' }) },
+  // el piloto de la avioneta: la gorra verde, el bigote, la cazadora de cuero marrón y el pantalón caqui
+  piloto: { ...B33, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#4a2a18'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#3a5a44', j: '#527a5c', C: '#7a4a24', c: '#5a3418', W: '#e8dcc0', O: '#7a4a24', F: '#8a8262', n: '#3a2a1a' }) },
+  // ── Nueva York y Filadelfia, 1963–1965 ──
+  // el agente literario: canoso con entradas, las gafas redondas, el traje gris y la corbata azul
+  agenteDU: { ...B33, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#7a7a86'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#8a8a94', h: '#b0b0ba', C: '#8a8e9a', c: '#6c707c', W: '#f2f2f6', o: '#2a4a8a', F: '#8a8e9a' }) },
+  // el primer editor (el confundido): calvo con entradas, el bigote, el chaleco burdeos sobre la camisa y la pajarita roja
+  editor1DU: { ...B33, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#5a3418'), delante: varios(bigoteTR, pajaritaNC('#d8303a')),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#7a3a4a', c: '#5a2a38', W: '#f2eee2', o: '#e8d8a0', F: '#4a4a5a' }) },
+  // el segundo editor (el prudente): canoso, el traje azul oscuro y la corbata granate
+  editor2DU: { ...B33, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a94'),
+    pal: CLT({ H: '#b0b0ba', h: '#d4d4dc', C: '#34426a', c: '#252f52', W: '#f2f2f6', o: '#a8303a', F: '#34426a' }) },
+  // Sterling Lanier: el pelo corto castaño, las gafas de pasta, la chaqueta de tweed y la corbata verde
+  lanier: { ...B33, cuerpo: CUERPO_TWEED_VM, ceja: hex('#5a3418'), delante: gafasKrupatCF,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#9a8a5e', c: '#74663e', W: '#f2eee2', o: '#3a6a4a', F: '#5a4e3a' }) },
+  // el impresor de 1965: la gorra plana gris, el bigote y el mono azul de trabajo
+  impresor: { ...B33, cuerpo: CUERPO_MONO_AT, tocado: 'gorraPlana', ceja: hex('#3a2418'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2a1e', h: '#5a4434', J: '#5a5e6e', j: '#7a7e8e', C: '#3a5a8a', c: '#2a4468', o: '#c8ccd8', u: '#2a4468', G: '#3a2a1a', n: '#2a2430' }) },
+  // el presentador de la gala de 1966: el pelo oscuro engominado y el esmoquin con la pajarita negra
+  presentadorDU: { ...B33, cab: CAB_ENGOMINADO, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), delante: pajaritaNC('#24202c'),
+    pal: CLT({ H: '#2a1c14', h: '#5a4434', C: '#3a3644', c: '#2a2632', W: '#f6f6f8', F: '#3a3644' }) },
+  // ── los lectores de 1963 (gente corriente) ──
+  // el de la rebeca azul con la camisa y la corbata
+  lector1DU: { ...B33, cuerpo: CUERPO_REBECA_DC, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', o: '#e8d8a0', J: '#a8303a', F: '#5a5648', n: '#2a2430' }) },
+  // la pelirroja de la media melena: el jersey amarillo, la blusa y la falda de vuelo verde
+  lector2DU: { ...B33, cab: CAB_MEDIA_TR, cuerpo: CUERPO_VUELO_PR, ceja: hex('#8a3a1a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#e8d070', c: '#c8b050', W: '#f6f6f6', F: '#3a7a6a', f: '#2a5e50', L: '#2a2430' }) },
+  // el chico moreno de las gafas: el jersey rojo de pico sobre la camisa
+  lector3DU: { ...B33, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1424'), delante: gafasFinasDC,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#c8483a', c: '#a03428', W: '#f2f2f2', F: '#3a3e4e', n: '#2a2430' }) },
+  // ── el campus, 1968–1970 ──
+  // la rubia de la melena larga: la cinta roja en la frente, la blusa naranja de flores y los vaqueros de campana
+  estudiante1DU: { ...B33, cab: CAB_LARGO, cuerpo: CUERPO_CAMPANA_F_AT, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], delante: cintaAT,
+    pal: CLT({ H: '#d0a04a', h: '#e8bc64', s: '#e8a080', u: '#d8403a', C: '#f08a2a', c: '#c86a1a', p: '#f6e890', F: '#4a6aa8', n: '#4a3020' }) },
+  // el de la melena castaña hasta los hombros: la cinta verde, la camisa morada de cuello ancho y la campana
+  estudiante2DU: { ...B33, cab: CAB_MELENA_H, cuerpo: CUERPO_CAMPANA_AT, ceja: hex('#4a2a18'), delante: cintaAT,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', u: '#3a9a5a', C: '#8a5ab8', c: '#6a429a', X: '#f2e2c0', p: '#f0d070', F: '#3e5e9a', n: '#4a3020' }) },
+  // el de los rizos negros largos: la cinta amarilla, la camiseta verde y la campana
+  estudiante3DU: { ...B33, cab: CAB_ALONGA_TR, cuerpo: CUERPO_CAMPANA_LISA_DU, ceja: hex('#1c1424'), delante: cintaAT,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', u: '#f0c838', C: '#3a9a6a', c: '#2a7450', F: '#4a6aa8', n: '#4a3020' }) },
+  // ── Hollywood y París, 1972–1974 ──
+  // el productor de Hollywood: el pelo rubio oscuro engominado, las gafas de sol, el traje crema y la corbata naranja
+  productorHollywood: { ...B33, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_PANUELO_DC, tocado: 'sol', ceja: hex('#6a4a2a'),
+    pal: CLT({ H: '#8a6a3a', h: '#b08a52', J: '#24202c', C: '#e8dcc0', c: '#c8bc9a', W: '#f6f6f8', o: '#d8703a', X: '#d8703a', F: '#e8dcc0' }) },
+  // el productor francés: joven, el pelo castaño de lado y el jersey burdeos de cuello alto
+  productorFrances: { ...B33, cab: CAB_LADO_DC, cuerpo: CUERPO_CUELLO_ALTO_DU, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', s: '#e8a080', C: '#8a2e3c', c: '#6a1e2c', F: '#4a4a5a', n: '#2a2430' }) },
+  // Alejandro Jodorowsky en 1974: el pelo OSCURO alborotado, la chaqueta blanca sobre la camisa oscura y el pantalón claro
+  jodorowsky: { ...B33, cab: CAB_RIZOS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#241a20', h: '#42343c', C: '#f4f2ec', c: '#cfcabd', W: '#3a3644', F: '#e4e0d6' }) },
+  // Salvador Dalí: el pelo negro hacia atrás, los bigotes largos con las puntas hacia arriba, el traje oscuro con la
+  // corbata dorada y el bastón de pomo de latón
+  dali: { ...B33, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_PANUELO_DC, ceja: hex('#4a4058'), delante: varios(bigotesDaliDU, bastonNV('alguacil')),
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#3e3850', c: '#2c2640', W: '#f6f6f8', o: '#d8a838', X: '#d8303a', F: '#3e3850' }) },
+  // Orson Welles: grande y corpulento, la barba oscura entrecana, el traje negro y la capa negra hasta el suelo
+  welles: { ...B33, cab: CAB_BARBA, cuerpo: CUERPO_MAGNATE_TS, dxCuerpo: -1, brazoCol: 13, ceja: hex('#2a2428'), detras: capaWellesDU,
+    pal: CLT({ H: '#4a4044', h: '#6e6468', C: '#3e3a4a', c: '#2c2836', W: '#f2f2f6', o: '#24202c', O: '#6a6676', F: '#3e3a4a', n: '#1c1a20', Q: '#2a2634', q: '#4a4460' }) },
+  // el cantante de rock: la melena castaña, la camisa magenta de cuello ancho abierta y estampada y el pantalón negro
+  jagger: { ...B33, cab: CAB_GRENAS, cuerpo: CUERPO_CUELLO_ANCHO_DC, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', u: '#f6c290', r: '#f6c290', C: '#d83a8a', c: '#a82a6a', X: '#f6e890', p: '#3ac8d8', F: '#34303e', n: '#1c1a20' }) },
+  // Moebius, el dibujante: la barba corta castaña, las gafas redondas y la camisa marinera de rayas
+  moebius: { ...B33, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_RAYAS_DU, ceja: hex('#4a2a18'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#2a4a8a', c: '#1e3868', W: '#f2f2f2', F: '#5a5648', n: '#2a2430' }) },
+  // H. R. Giger: todo de negro, el pelo negro de lado
+  giger: { ...B33, cab: CAB_LADO_DC, cuerpo: CUERPO_MANGA, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#3e3a4a', c: '#2c2836', F: '#34303e', n: '#1c1a20' }) },
+  // Dan O'Bannon: el pelo castaño claro, las gafas finas, la camisa de cuadros verdes y los vaqueros
+  obannon: { ...B33, cab: CAB_CORTA_VM, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#8a5a24'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', C: '#4a8a5a', c: '#346a44', p: '#2a5a38', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
+  // ── Hollywood, 1976–1984 ──
+  // Dino De Laurentiis: bajito, canoso con entradas, las gafas de pasta, el traje azul gris y la corbata granate
+  deLaurentiis: { ...B33J, cab: CAB_ENTRADAS, cuerpo: CUERPO_BAJITO_DU, ceja: hex('#7a7a86'), delante: gafasKrupatCF,
+    pal: CLT({ H: '#8a8a94', h: '#b0b0ba', C: '#46526a', c: '#343e54', W: '#f2f2f6', o: '#a8303a', F: '#46526a' }) },
+  // Ridley Scott: la gorra azul, la barba corta rojiza y la cazadora verde oliva sobre la camiseta
+  scottDU: { ...B33, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUERO_GT, tocado: 'beisbol', ceja: hex('#8a3a1a'),
+    pal: CLT({ H: '#a8562a', h: '#c8743c', J: '#2a3458', j: '#3e4a74', C: '#6a6e52', c: '#50543c', W: '#e8e4d8', O: '#6a6e52', F: '#3e5a8a', n: '#4a3420' }) },
+  // David Lynch joven: el pelo castaño alto con tupé y la camisa blanca abotonada hasta el cuello, sin corbata
+  lynch: { ...B33, cuerpo: CUERPO_ABOTONADA_DU, tocado: 'tupe', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#f6f6f8', c: '#c4cad6', o: '#9a9aa6', F: '#34303e', n: '#1c1a20' }) },
+  // ── Quebec, 1980, y el rodaje de 2021 ──
+  // Denis Villeneuve de adolescente: el pelo castaño oscuro de lado y el pijama azul de rayas (más bajo que los adultos)
+  villeneuveJoven: { ...B33J, cab: CAB_LADO_DC, cuerpo: CUERPO_PIJAMA_DU, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', s: '#e8a080', C: '#8ab8e0', c: '#6a98c0', p: '#f6f6f8', W: '#f6f6f8', o: '#f6f6f8', F: '#8ab8e0', f: '#f6f6f8', n: '#d8d0c0' }) },
+  // Villeneuve de adulto: el pelo gris, la barba corta gris y la chaqueta oscura sobre la camisa gris
+  villeneuve: { ...B33, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#7a7a86'),
+    pal: CLT({ H: '#9a9aa6', h: '#c4c4cc', C: '#343848', c: '#262a38', W: '#b8bcc8', F: '#343848' }) },
+  // el operador de cámara: la gorra negra, la camisa azul y el chaleco caqui de bolsillos
+  operadorDU: { ...B33, cuerpo: CUERPO_BUSCADOR, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#3a3644', j: '#56526a', C: '#5a7a9a', c: '#44607c', V: '#b09a62', o: '#8a7444', G: '#5a3a1a', F: '#4a4a5a', f: '#3a3a48', L: '#4a3420' }) },
+  // el subastador de 2021: rubio ceniza con entradas, el traje gris azulado y la pajarita roja
+  subastadorDU: { ...B33, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#8a6a3a'), delante: pajaritaNC('#d8303a'),
+    pal: CLT({ H: '#b89858', h: '#d4b874', C: '#56627a', c: '#404a5e', W: '#f2f2f6', F: '#56627a' }) },
+  // ── las dunas, hoy ──
+  // el voluntario: el gorro de lana naranja, la camisa de campo verde, los guantes de trabajo amarillos y las botas
+  voluntario1DU: { ...B33, cuerpo: CUERPO_VOLUNTARIO_DU, tocado: 'gorroLana', ceja: hex('#5a3418'), delante: barbaDiasCF,
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', J: '#e0703a', j: '#b85428', Y: '#f2eee2', C: '#6a8a5a', c: '#4e6a42', o: '#4e6a42', u: '#4e6a42', G: '#5a3a1e', X: '#f0c838', F: '#7a7252', n: '#4a3420' }) },
+  // la voluntaria: la melena oscura, el gorro de lana verde azulado, la camisa de cuadros rojos, los guantes y los vaqueros
+  voluntario2DU: { ...B33, cab: CAB_LARGO, cuerpo: CUERPO_VOLUNTARIA_DU, tocado: 'gorroLana', ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#2e1e16', h: '#4e3626', s: '#e8a080', J: '#3a9a9a', j: '#2a7474', Y: '#f2eee2', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', X: '#f0c838', F: '#3e5a8a', n: '#4a3420' }) },
+  // el operario de la excavadora: el casco blanco, el bigote, el chaleco reflectante lima con las franjas plateadas y la camisa naranja
+  operarioDU: { ...B33, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'cascoObra', ceja: hex('#4a2a18'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#f4f4f6', j: '#c8ccd8', V: '#c8e030', Y: '#e4e8f0', C: '#e07a2a', c: '#b85c1a', F: '#3a3e4e', n: '#4a3420' }) },
+};
+// «impresor» ya existía (el de 1823 del episodio 22, que también usa el 29): en ELENCO_CHIBI no se pisa; el de 1965 es
+// ELENCO_DU.impresor y, en ELENCO_CHIBI, impresorDU
+ELENCO_DU.impresorDU = ELENCO_DU.impresor;
+Object.assign(ELENCO_CHIBI, { ...ELENCO_DU, impresor: ELENCO_CHIBI.impresor });
+
 // ── piezas del 32 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
 // Todo NUESTRO: ni la portada ni las pinturas del libro real; nada de letras (rayas en vez de versos).
 const PAL_CF = COLORES({
@@ -9275,4 +9432,460 @@ export const PIEZAS_CF = {
   cofre: cofreCF, llave: llaveCF, pala: palaCF, palaJuguete: palaJugueteCF, piedra: piedraCF, libro: libroCF, cuadro: cuadroCF,
   sobre: sobreCF, cartas: cartasCF, bono: bonoCF, fotoTierra: fotoTierraCF, varilla: varillaCF, excavadora: excavadoraCF,
   maceta: macetaCF, hada: hadaCF, duende: duendeCF, dragon: dragonCF, relojSol: relojSolCF,
+};
+
+// ── piezas del 33 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
+// o.dir −1 voltea ── Todo NUESTRO (ni la portada del libro real ni los trofeos de verdad) y SIN LETRAS: rayas, cifras
+// e iconos.
+const PAL_DU = COLORES({
+  k: '#1c1222', W: '#f6f6f6', w: '#c8ccd8', E: '#ffffff', X: '#ececf2', j: '#a8a8b8', H: '#f6eed8', h: '#cdbf9e', d: '#8a7a5a',
+  K: '#2a2832', u: '#4a4856', x: '#9a9aa6', Z: '#d0d4de', z: '#8c90a4', Q: '#10121c',
+  s: '#1e2a5e', S: '#34448a', U: '#141c44', N: '#f08a2a', n: '#c8643a', f: '#f6c468',
+  A: '#e8c880', a: '#c8a058', T: '#f6e4b0', O: '#f0c040', g: '#a87a18', o: '#ffe890',
+  R: '#d8303a', r: '#8a1e26', G: '#6ac84a', v: '#2e8a24', M: '#a8743c', m: '#7a4e24', P: '#8a5a34', p: '#5e3a20',
+  Y: '#f0c030', y: '#c89a18', B: '#3a6ab0', b: '#24447a', I: '#d2ecf6', i: '#9ccae0', L: '#f4a8c4', e: '#d07a9c', l: '#9a6ad0',
+  C: '#c8473a', c: '#96302a', q: '#5a8a80', t: '#3e6a62', J: '#d8ecd2', V: '#8cbc8a', D: '#62cce8',
+});
+const pintaDU = (R, g, x, y, o = {}, pal = PAL_DU) => pintaJH(R, g, x, y, o, pal);
+const pasoDU = pasoGT;
+const CACHE_DU = new Map();
+const unaDU = (clave, hacer) => cacheGT(CACHE_DU, clave, hacer);
+// pinta encima de una pieza en su rejilla (con su escala; sin volteo: para las cifras, que no se pueden leer al revés)
+const encimaDU = (R, w, h, x, y, o) => { const s = o.s ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - h * s); return (i, j, c) => R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, PAL_DU[c]); };
+const sinDirDU = (o) => (o.dir === -1 ? { ...o, dir: 1 } : o);
+
+// EL LIBRO de Dune, el NUESTRO, de frente: la tapa azul noche (s) con las estrellas, DOS LUNAS (T y f) y una duna
+// naranja (N, la cara de sombra n, la cresta f); el lomo (U) a la izquierda y el corte de las hojas (H) a la derecha.
+// 18 × 24. o.abierto: abierto por la mitad, con la duna dibujada en una página y rayas en la otra (36 × 17).
+// o.lomo: solo el lomo, de pie, para las estanterías (6 × 24)
+const libroDU = (R, x, y, o = {}) => pintaDU(R, unaDU('libro' + (o.abierto ? 'A' : o.lomo ? 'L' : ''), () => (o.abierto ? forma(36, 17, ({ rect, put }) => {
+  rect(1, 14, 34, 15, 's'); rect(17, 13, 18, 15, 'U');
+  rect(2, 2, 17, 13, 'H'); rect(18, 2, 33, 13, 'H'); rect(2, 13, 33, 13, 'h'); rect(17, 2, 18, 12, 'h'); put(2, 2, '.'); put(33, 2, '.');
+  rect(4, 4, 15, 11, 's'); put(6, 5, 'T'); put(7, 5, 'T'); put(6, 6, 'T'); put(7, 6, 'T'); put(11, 5, 'f'); put(13, 7, 'W'); put(5, 8, 'W');
+  for (let i = 4; i <= 15; i++) { const top = i <= 11 ? Math.round(11 - 3 * Math.sin((i - 4) / 7 * Math.PI / 2)) : 8 + (i - 11); for (let j = top; j <= 11; j++) put(i, j, i > 11 - (j - 8) * 0.5 ? 'n' : j === top ? 'f' : 'N'); }
+  for (const [a, b, j] of [[21, 30, 4], [21, 28, 6], [21, 30, 8], [21, 26, 10]]) rect(a, j, b, j, 'd');
+}) : o.lomo ? forma(6, 24, ({ rect, put }) => {
+  rect(1, 1, 4, 22, 's'); rect(4, 1, 4, 22, 'U'); rect(1, 3, 4, 3, 'O'); put(2, 6, 'T'); put(3, 8, 'f');
+  rect(1, 16, 4, 20, 'N'); put(1, 15, 'N'); put(2, 15, 'N'); put(2, 14, 'f'); put(1, 14, 'N'); rect(3, 17, 4, 20, 'n'); put(3, 16, 'n');
+}) : forma(18, 24, ({ rect, put, disco }) => {
+  rect(2, 1, 15, 22, 's'); rect(1, 1, 2, 22, 'U'); rect(16, 2, 16, 21, 'H'); for (let j = 3; j <= 21; j += 3) put(16, j, 'h');
+  for (const [i, j] of [[4, 3], [14, 9], [9, 2], [4, 11], [13, 2], [10, 8]]) put(i, j, 'W');
+  disco(7, 6, 2, 'T'); put(8, 7, 'A'); put(8, 6, 'A'); put(7, 8, 'A'); disco(12.5, 4.5, 0.8, 'f');
+  // otra duna más baja, detrás
+  for (let i = 3; i <= 9; i++) { const top = Math.round(15.5 + Math.abs(i - 5) * 0.9); for (let j = top; j <= 21; j++) put(i, j, j === top ? 'N' : 'n'); }
+  // la duna: la ladera suave a la izquierda, la cara de sombra a la derecha y la arista sinuosa que las separa
+  for (let i = 3; i <= 15; i++) {
+    const top = i <= 11 ? Math.round(20 - 6 * Math.sin((i - 3) / 8 * Math.PI / 2)) : [15, 17, 18, 19][i - 12];
+    for (let j = top; j <= 21; j++) { const ar = 11 - (j - 14) * 0.45 + Math.sin(j * 1.3) * 0.6; put(i, j, i > ar + 0.5 ? 'n' : i > ar - 0.5 || (j === top && i < 11) ? 'f' : 'N'); }
+  }
+}))), x, y, o);
+
+// EL MANUSCRITO: un taco de folios gordísimo (H, los cantos h) atado en cruz con un cordel rojo (R) y su lazo; arriba,
+// la primera hoja con rayas en vez de letras. 24 × 19. o.vuela: inclinado, por el aire (24 × 26)
+const manuscritoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('manuscrito' + (o.vuela ? 'V' : ''), () => {
+  const p = o.vuela ? 0.34 : 0;
+  return forma(24, o.vuela ? 27 : 19, (f) => {
+    const put = (i, j, ch) => f.put(i, j + Math.round((22 - i) * p), ch), rect = (a, b, c, d, ch) => { for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) put(i, j, ch); };
+    rect(2, 4, 21, 6, 'H'); rect(3, 3, 20, 3, 'H'); for (const [a, b, j] of [[5, 9, 4], [13, 18, 4], [5, 8, 5], [13, 17, 5]]) rect(a, j, b, j, 'd');
+    for (let j = 7; j <= 17; j++) rect(2, j, 21, j, j % 2 ? 'H' : 'h');
+    rect(20, 7, 21, 17, 'h'); for (let j = 8; j <= 17; j += 3) put(21, j, 'd');
+    rect(11, 3, 12, 17, 'R'); rect(2, 11, 21, 11, 'R'); rect(2, 12, 21, 12, 'r');
+    put(10, 2, 'R'); put(9, 1, 'R'); put(8, 2, 'R'); put(13, 2, 'R'); put(14, 1, 'R'); put(15, 2, 'R'); put(11, 2, 'r'); put(12, 2, 'r');
+  });
+}), x, y, o);
+
+// LA CARTA: un sobre crema de frente (H) con la solapa en pico (h), las rayas de las señas (d) y el sello azul (B). 16 × 11
+const cartaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('carta', () => forma(16, 11, ({ rect, linea }) => {
+  rect(1, 1, 14, 9, 'H'); rect(1, 9, 14, 9, 'h'); linea(1, 1, 7, 5, 'h'); linea(14, 1, 8, 5, 'h'); rect(11, 6, 12, 7, 'B'); rect(3, 7, 7, 7, 'd');
+})), x, y, o);
+
+// EL CHEQUE: un papel verde claro (J, la orla V) apaisado con la cifra «7500» (o.cifra para otra, hasta 5 cifras), las
+// rayas del texto (d) y la firma (B). 28 × 14. No se voltea (la cifra)
+const chequeDU = (R, x, y, o = {}) => {
+  const n = String(o.cifra ?? 7500).slice(0, 5);
+  pintaDU(R, unaDU('cheque' + n, () => forma(28, 14, ({ rect, put }) => {
+    rect(1, 1, 26, 12, 'J'); rect(1, 1, 26, 1, 'V'); rect(1, 12, 26, 12, 'V'); rect(1, 1, 1, 12, 'V'); rect(26, 1, 26, 12, 'V');
+    numeroNV(put, n, 25 - anchoNumeroNV(n), 3, 'K');
+    rect(3, 4, 6, 4, 'd'); rect(3, 6, 5, 6, 'd'); rect(3, 9, 9, 9, 'd');
+    for (const [i, j] of [[16, 10], [17, 9], [18, 10], [19, 9], [20, 10], [21, 9], [22, 10], [23, 10]]) put(i, j, 'B');
+  })), x, y, sinDirDU(o));
+};
+
+// LA AVIONETA: un monomotor de ala alta de los 50, de perfil (mira a la derecha): el fuselaje blanco (W) con la franja
+// roja (R), el ala encima de la cabina (con su montante), las ventanillas (I), la cola, el tren fijo y la hélice.
+// o.helice (con o.t): la hélice gira. 48 × 22
+const avionetaDU = (R, x, y, o = {}) => {
+  const f = o.helice ? 1 + Math.floor((o.t ?? 0) * 12) % 3 : 0;
+  pintaDU(R, unaDU('avioneta' + f, () => forma(48, 22, ({ rect, put, disco, linea }) => {
+    // la cola
+    for (let j = 2; j <= 8; j++) rect(2 + Math.max(0, 4 - j), j, 6, j, j <= 3 ? 'R' : 'W'); rect(1, 9, 7, 9, 'Z');
+    // el fuselaje
+    for (let i = 3; i <= 41; i++) {
+      const top = i < 17 ? 9 : i <= 35 ? 6 : i <= 39 ? 7 : 8, bot = i < 17 ? Math.round(10 + (i - 3) * 0.3) : i >= 40 ? 13 : 14;
+      for (let j = top; j <= bot; j++) put(i, j, j === bot ? 'w' : 'W');
+    }
+    rect(5, 11, 41, 11, 'R'); rect(17, 12, 41, 12, 'R'); put(42, 10, 'K'); put(42, 11, 'K'); put(43, 10, 'Z');
+    // las ventanillas y el parabrisas
+    rect(19, 7, 24, 10, 'I'); rect(26, 7, 31, 10, 'I'); for (let j = 7; j <= 10; j++) rect(33, j, 33 + Math.min(3, j - 6), j, 'i'); put(20, 8, 'E'); put(27, 8, 'E');
+    // el ala alta y el montante
+    rect(15, 3, 36, 4, 'W'); rect(15, 5, 36, 5, 'w'); rect(15, 3, 36, 3, 'E'); put(15, 3, 'R'); put(15, 4, 'R');
+    linea(26, 6, 31, 13, 'z');
+    // el tren
+    linea(31, 15, 33, 18, 'z'); disco(33.5, 18.5, 1.6, 'K'); put(33, 18, 'Z'); linea(8, 12, 6, 15, 'z'); put(6, 16, 'K'); put(5, 16, 'K');
+    // la hélice
+    if (f === 0) rect(44, 4, 44, 16, 'K');
+    else if (f === 1) { rect(44, 3, 44, 17, 'j'); rect(45, 6, 45, 14, 'X'); }
+    else if (f === 2) { rect(44, 7, 44, 13, 'K'); rect(45, 3, 45, 17, 'X'); }
+    else { rect(44, 5, 45, 15, 'j'); rect(44, 9, 44, 11, 'K'); }
+  })), x, y, o);
+};
+
+// EL ZAPATO de cuero marrón (P, la suela p) de perfil, con sus cordones. 18 × 10. o.arena: boca abajo, con un chorro
+// de arena (A) que cae hasta (x, y) y hace un montoncito; o.arena puede ser el largo del chorro en px (por omisión,
+// 16) y con o.t los granos bajan. 18 × (17 + largo): el chorro cae 4 px a la izquierda de x
+const zapatoDU = (R, x, y, o = {}) => {
+  const L = o.arena ? Math.max(4, Math.min(70, Math.round(o.arena === true ? 16 : o.arena))) : 0, f = o.arena && o.t != null ? Math.floor(o.t * 10) % 3 : 0;
+  pintaDU(R, unaDU('zapato' + L + '|' + f, () => forma(18, L ? 17 + L : 10, (F) => {
+    const put = (i, j, ch) => F.put(i, L ? 14 - j - Math.round(Math.max(0, i - 5) * 0.35) : j, ch), rect = (a, b, c, d, ch) => { for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) put(i, j, ch); };
+    rect(2, 2, 8, 7, 'P'); rect(8, 4, 15, 7, 'P'); put(16, 6, 'P'); put(16, 7, 'P'); rect(9, 3, 10, 3, 'P');
+    rect(3, 2, 7, 2, 'Q'); rect(1, 8, 16, 8, 'p'); rect(2, 7, 4, 7, 'p'); put(2, 3, 'p'); put(2, 4, 'p');
+    put(9, 4, 'W'); put(11, 5, 'W'); put(10, 4, 'p'); put(13, 5, 'M'); put(14, 5, 'M');
+    if (!L) return;
+    for (let j = 13; j <= 15 + L; j++) { F.put(5, j, (j + f) % 3 === 0 ? 'T' : 'A'); if (j < 16 || (j + f) % 3 !== 1) F.put(4, j, 'A'); if ((j + f) % 4 === 1) F.put(6, j, 'a'); }
+    F.rect(1, 15 + L, 8, 15 + L, 'A'); F.rect(2, 14 + L, 7, 14 + L, 'A'); F.rect(3, 13 + L, 6, 13 + L, 'T'); F.put(7, 15 + L, 'a'); F.put(8, 15 + L, 'a');
+  })), x, y, o);
+};
+
+// LA PILA DE NOTAS: hojas sueltas apiladas y descolocadas (H, los cantos h, alguna crema A), con la de arriba escrita
+// (rayas). o.alto 0–1: de tres hojas a una torre de 42 px, más alta que un personaje (por omisión, 0.3); o.tambalea
+// (con o.t): la torre se mece, más cuanto más alta. 30 × (6 + 3 × pasos), de 6 a 42
+const pilaNotasDU = (R, x, y, o = {}) => {
+  const p = pasoDU(o.alto, 12, 0.3), f = o.tambalea ? Math.floor((o.t ?? 0) * 7) % 8 : -1;
+  pintaDU(R, unaDU('pila' + p + '|' + f, () => {
+    const n = 3 + p * 3, h = n + 3, amp = f < 0 ? 0 : (0.6 + 3.4 * p / 12) * Math.sin(f / 8 * Math.PI * 2);
+    return forma(30, h, ({ rect, put }) => {
+      for (let k = 0; k < n; k++) {
+        const j = h - 2 - k, dx = [0, 1, -1, 0, 2, -1, 1, 0, -2, 1][k % 10] + Math.round(amp * Math.pow(k / Math.max(1, n - 1), 1.6));
+        rect(8 + dx, j, 21 + dx, j, k % 2 ? 'h' : k % 7 === 3 ? 'A' : 'H'); if (k % 5 === 2) put(22 + dx, j, 'H'); if (k % 6 === 4) put(7 + dx, j, 'H');
+      }
+      const dx = Math.round(amp); rect(8 + dx, 1, 21 + dx, 1, 'H'); rect(10 + dx, 1, 14 + dx, 1, 'd'); rect(16 + dx, 1, 19 + dx, 1, 'd');
+    });
+  }), x, y, o);
+};
+
+// LA MÁQUINA DE ESCRIBIR de los 50, de frente: verde azulada (q, la sombra t), el carro negro con el rodillo y sus
+// pomos (Z), la palanca, las dos filas de teclas (X) y la hoja (W) con unas rayas escritas. 26 × 21
+const maquinaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('maquina', () => forma(26, 21, ({ rect, put, linea }) => {
+  rect(8, 1, 17, 8, 'W'); rect(17, 2, 17, 8, 'w'); rect(10, 3, 15, 3, 'd'); rect(10, 5, 13, 5, 'd');
+  rect(2, 8, 23, 10, 'K'); rect(4, 8, 21, 8, 'u'); rect(1, 8, 1, 10, 'Z'); rect(24, 8, 24, 10, 'Z'); linea(4, 7, 2, 4, 'Z');
+  rect(3, 11, 22, 18, 'q'); rect(22, 11, 22, 18, 't'); rect(3, 18, 22, 18, 't'); rect(3, 11, 22, 11, 'D'); rect(8, 11, 17, 12, 'K'); rect(10, 12, 15, 12, 'u');
+  for (let i = 5; i <= 20; i += 2) put(i, 14, 'X'); for (let i = 6; i <= 19; i += 2) put(i, 16, 'X'); rect(8, 17, 17, 17, 'X'); put(4, 12, 'O');
+})), x, y, o);
+
+// EL RELOJ DE ARENA: los dos bulbos de cristal (I, el brillo E) entre las tapas y las columnas de madera (M/m), con la
+// arena (A). o.nivel 0–1: la arena que queda ARRIBA (1, toda arriba; por omisión, 0.6); mientras queda, cae el hilo
+// (con o.t, parpadea). o.roto: el bulbo de abajo rajado y la arena que se sale y se amontona al pie, a los lados.
+// 15 × 21 (roto, 27 × 21)
+const relojArenaDU = (R, x, y, o = {}) => {
+  const p = pasoDU(o.nivel, 6, 0.6), ro = !!o.roto, f = o.t != null ? Math.floor(o.t * 8) % 2 : 0;
+  pintaDU(R, unaDU('reloj' + p + '|' + ro + '|' + f, () => forma(ro ? 27 : 15, 21, (F) => {
+    const dx = ro ? 6 : 0, put = (i, j, ch) => F.put(i + dx, j, ch), rect = (a, b, c, d, ch) => F.rect(a + dx, b, c + dx, d, ch);
+    const hw = [4, 4, 4, 3, 2, 1, 0];
+    rect(2, 1, 12, 2, 'M'); rect(2, 2, 12, 2, 'm'); rect(2, 18, 12, 19, 'M'); rect(2, 19, 12, 19, 'm'); rect(2, 3, 2, 17, 'm'); rect(12, 3, 12, 17, 'm');
+    for (let k = 0; k < 7; k++) { rect(7 - hw[k], 3 + k, 7 + hw[k], 3 + k, 'I'); rect(7 - hw[k], 17 - k, 7 + hw[k], 17 - k, 'I'); }
+    put(7, 10, 'I'); put(4, 4, 'E'); put(4, 5, 'E'); put(4, 15, 'E');
+    for (let k = 0; k < p; k++) rect(7 - hw[6 - k], 9 - k, 7 + hw[6 - k], 9 - k, k === p - 1 ? 'T' : 'A');
+    const q = ro ? 1 : 6 - p;
+    for (let k = 0; k < q; k++) rect(7 - hw[Math.min(6, k)], 17 - k, 7 + hw[Math.min(6, k)], 17 - k, k === q - 1 ? 'T' : 'A');
+    if (p > 0) for (let j = 10; j <= 17 - q; j++) if ((j + f) % 2 === 0 || j === 10) put(7, j, 'a');
+    if (ro) {
+      F.linea(9 + dx, 12, 11 + dx, 14, 'k'); F.linea(11 + dx, 14, 10 + dx, 17, 'k'); put(8, 14, 'k');
+      for (let i = 1; i <= 25; i++) { const hh = Math.round(4.2 * Math.pow(Math.max(0, 1 - Math.abs(i - 14) / 13), 0.8)); for (let j = 19 - hh + 1; j <= 19; j++) F.put(i, j, j === 19 - hh + 1 ? 'T' : i > 17 && j > 17 ? 'a' : 'A'); }
+      F.put(18, 16, 'A'); F.put(19, 15, 'a'); F.put(17, 15, 'A');
+    }
+  })), x, y, o);
+};
+
+// EL MONTÓN DE ARENA (A, la luz T, la sombra a): o.alto 0–1, de un montoncito de 12 × 4 a una duna de mesa de 44 × 18
+// (por omisión, 0.3)
+const montonArenaDU = (R, x, y, o = {}) => {
+  const p = pasoDU(o.alto, 8, 0.3);
+  pintaDU(R, unaDU('monton' + p, () => {
+    const w = 12 + p * 4, H = 3 + Math.round(p * 1.75), c = (w - 1) / 2 - w * 0.06;
+    return forma(w + 2, H + 2, ({ put }) => {
+      for (let i = 0; i < w; i++) {
+        const u = (i - c) / (i < c ? c + 0.5 : w - 0.5 - c), hh = Math.max(1, Math.round(H * Math.pow(Math.cos(u * Math.PI / 2), 1.3)));
+        for (let k = 0; k < hh; k++) put(i + 1, H - k, k === hh - 1 && i <= c + 1 ? 'T' : i > c + 1 && k < hh - 1 - (i - c) * 0.15 && (i - c) > hh - k ? 'a' : 'A');
+      }
+      for (let n = 0; n < p + 1; n++) put(3 + ((n * 7) % Math.max(1, w - 6)), H - (n % 2), 'a');
+    });
+  }), x, y, o);
+};
+
+// LA HIERBA de playa: una mata de briznas largas y curvadas por el viento (G, las de atrás v, las puntas claras T).
+// o.n: cuántas matas en fila (1–12, cada 7 px); con o.t se mecen. 11 × 13 (+7 de ancho por mata)
+const hierbaDU = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(12, Math.round(o.n ?? 1))), f = o.t != null ? Math.floor(o.t * 3) % 2 : 0;
+  pintaDU(R, unaDU('hierba' + n + '|' + f, () => forma(11 + (n - 1) * 7, 13, ({ put, linea }) => {
+    for (let m = 0; m < n; m++) {
+      const b = 5 + m * 7, a = m % 2, g = (m + f) % 2;
+      linea(b - 1, 11, b - 3, 5 + a, 'v'); put(b - 4 + g, 4 + a, 'v');
+      linea(b + 1, 11, b + 3, 6 - a, 'v'); put(b + 4, 5 - a + g, 'v');
+      linea(b, 11, b - 1, 3 + a, 'G'); put(b - 1 + g, 2 + a, 'T'); put(b + g, 1 + a, 'T');
+      linea(b, 11, b + 2, 4, 'G'); put(b + 3, 3 - g + 1, 'G'); put(b + 4, 4 + (1 - g), 'T');
+      put(b - 1, 11, 'v'); put(b + 1, 11, 'v');
+    }
+  })), x, y, o);
+};
+
+// EL MANUAL DE TALLER: un libro de tapa lisa (C; o.color para otro color, hex) con la franja blanca y la LLAVE INGLESA
+// arriba y, debajo, un coche. 18 × 24. o.alas: en vez del coche, una máquina con alas (el gag). o.lomo: solo el lomo
+// de pie, con la llave inglesa, para llenar estanterías (6 × 24)
+const PAL_MANUAL_DU = new Map();
+const manualDU = (R, x, y, o = {}) => {
+  const col = /^#[0-9a-f]{6}$/i.test(o.color ?? '') ? o.color : null;
+  const pal = col ? cacheGT(PAL_MANUAL_DU, col, () => ({ ...PAL_DU, ...COLORES({ C: col, c: oscuroTR(col, 0.7) }) })) : PAL_DU;
+  pintaDU(R, unaDU('manual' + (o.lomo ? 'L' : o.alas ? 'A' : ''), () => (o.lomo ? forma(6, 24, ({ rect, put }) => {
+    rect(1, 1, 4, 22, 'C'); rect(4, 1, 4, 22, 'c'); rect(1, 3, 4, 11, 'X');
+    put(1, 4, 'K'); put(4, 4, 'K'); rect(1, 5, 4, 5, 'K'); rect(2, 6, 3, 9, 'K'); put(2, 10, 'K'); put(3, 10, 'K'); rect(1, 19, 4, 19, 'X');
+  }) : forma(18, 24, ({ rect, put, disco, linea }) => {
+    rect(2, 1, 15, 22, 'C'); rect(1, 1, 2, 22, 'c'); rect(16, 2, 16, 21, 'H'); for (let j = 3; j <= 21; j += 3) put(16, j, 'h');
+    rect(4, 3, 14, 9, 'X');
+    // la llave inglesa, en diagonal: la boca abierta arriba a la derecha y el ojo abajo a la izquierda
+    linea(7, 7, 11, 5, 'K'); linea(7, 6, 11, 4, 'K'); rect(11, 3, 13, 5, 'K'); put(13, 4, 'X'); put(12, 4, 'X'); rect(5, 6, 7, 8, 'K'); put(6, 7, 'X');
+    if (o.alas) {
+      linea(7, 15, 3, 11, 'X'); linea(7, 16, 3, 13, 'X'); linea(4, 12, 6, 15, 'X'); linea(11, 15, 15, 11, 'X'); linea(11, 16, 15, 13, 'X'); linea(14, 12, 12, 15, 'X');
+      rect(7, 15, 11, 17, 'K'); rect(8, 14, 10, 14, 'K'); put(9, 15, 'D'); put(10, 15, 'D'); put(7, 18, 'K'); put(11, 18, 'K'); put(6, 19, 'K'); put(12, 19, 'K');
+    } else {
+      rect(4, 15, 14, 17, 'X'); rect(6, 13, 11, 14, 'X'); put(7, 14, 'D'); put(8, 14, 'D'); put(10, 14, 'D'); disco(6, 18, 1.2, 'K'); disco(12, 18, 1.2, 'K'); put(14, 16, 'Y');
+    }
+    rect(4, 21, 14, 21, 'X');
+  }))), x, y, o, pal);
+};
+
+// LA REVISTA de ciencia ficción (nuestra): la portada del espacio (Q) con un planeta naranja con su anillo, las
+// estrellas, la cabecera amarilla con dos barras (sin letras) y la franja roja de abajo. 16 × 21
+const revistaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('revista', () => forma(16, 21, ({ rect, put, disco, linea }) => {
+  rect(1, 1, 14, 19, 'Q'); rect(1, 1, 14, 4, 'Y'); rect(3, 2, 9, 3, 'R'); rect(11, 2, 12, 3, 'K');
+  for (const [i, j] of [[3, 6], [12, 7], [2, 14], [13, 15], [11, 5], [4, 16]]) put(i, j, 'W');
+  linea(2, 13, 13, 9, 'T'); disco(7.5, 11, 3.2, 'N'); for (let j = 9; j <= 14; j++) for (let i = 8; i <= 11; i++) if (Math.hypot(i - 7.5, j - 11) <= 3.5 && i - 7.5 + (j - 11) > 2.2) put(i, j, 'n');
+  linea(4, 12, 11, 10, 'T'); put(6, 9, 'f'); put(5, 10, 'f');
+  rect(1, 18, 14, 19, 'R'); rect(3, 18, 8, 18, 'X'); put(1, 7, 'Z'); put(1, 14, 'Z');
+})), x, y, o);
+
+// EL TROFEO «NEBULA» (a nuestra manera): un bloque transparente (I, los cantos i, el brillo E) con una espiral morada
+// y blanca dentro, sobre su peana negra. 12 × 20. Con o.t, un destello
+const trofeoNebulaDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 4) % 4 : -1;
+  pintaDU(R, unaDU('nebula' + f, () => forma(12, 20, ({ rect, put }) => {
+    rect(1, 16, 10, 18, 'K'); rect(1, 16, 10, 16, 'u'); rect(2, 1, 9, 15, 'I'); rect(9, 2, 9, 15, 'i'); rect(2, 15, 9, 15, 'i'); rect(2, 1, 2, 14, 'E'); rect(2, 1, 8, 1, 'E');
+    for (const [i, j] of [[7, 6], [7, 5], [6, 4], [5, 4], [4, 5], [4, 9], [4, 10], [5, 11], [6, 11], [7, 10]]) put(i, j, 'l');
+    for (const [i, j] of [[5, 7], [6, 7], [5, 8], [6, 8], [4, 6], [7, 9]]) put(i, j, 'W'); put(5, 7, 'L'); put(6, 8, 'L');
+    put(7, 13, 'W'); put(4, 13, 'l'); put(8, 3, 'W');
+    if (f === 0 || f === 2) { put(4, 3, 'E'); } else if (f === 1) { for (const [i, j] of [[4, 3], [3, 3], [5, 3], [4, 2], [4, 4]]) put(i, j, 'E'); }
+  })), x, y, o);
+};
+
+// EL TROFEO «HUGO» (a nuestra manera): un cohete plateado (Z, la sombra z, el brillo E) de aletas, de pie en su peana
+// de madera. 11 × 24. Con o.t, un destello que sube
+const trofeoHugoDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 5) % 5 : -1;
+  pintaDU(R, unaDU('hugo' + f, () => forma(11, 24, ({ rect, put }) => {
+    rect(2, 19, 8, 22, 'M'); rect(2, 22, 8, 22, 'm'); rect(8, 19, 8, 22, 'm'); rect(3, 18, 7, 18, 'P'); put(4, 20, 'O'); put(5, 20, 'O'); put(6, 20, 'O');
+    put(5, 1, 'Z'); put(5, 2, 'Z'); rect(4, 3, 6, 4, 'Z'); rect(4, 5, 6, 17, 'Z'); rect(6, 4, 6, 17, 'z'); rect(4, 5, 4, 14, 'E');
+    rect(3, 13, 3, 17, 'Z'); rect(2, 15, 2, 17, 'Z'); rect(7, 13, 7, 17, 'z'); rect(8, 15, 8, 17, 'z'); put(5, 7, 'i'); put(5, 8, 'B');
+    if (f >= 0 && f < 4) { const j = 12 - f * 3; put(5, j, 'E'); put(4, j, 'E'); put(3, j, 'E'); put(4, j - 1, 'E'); put(4, j + 1, 'E'); }
+  })), x, y, o);
+};
+
+// EL CATÁLOGO grande (nuestro): la tapa crema (H) con la franja negra de la cabecera y dos barras (sin letras) y, debajo,
+// herramientas dibujadas: un martillo, un serrucho, una llave inglesa y un destornillador. 22 × 28
+const catalogoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('catalogo', () => forma(22, 28, ({ rect, put, linea }) => {
+  rect(1, 1, 20, 26, 'H'); rect(1, 1, 2, 26, 'h'); rect(20, 2, 20, 25, 'h'); rect(3, 2, 19, 5, 'K'); rect(5, 3, 13, 3, 'X'); rect(5, 4, 10, 4, 'j'); rect(16, 3, 17, 4, 'N');
+  // el martillo
+  linea(5, 16, 8, 10, 'M'); linea(6, 16, 9, 10, 'M'); rect(6, 8, 11, 9, 'u'); put(6, 10, 'u'); put(11, 8, 'K');
+  // el serrucho
+  for (let i = 12; i <= 18; i++) { rect(i, 8, i, 8 + Math.round((i - 12) * 0.45), 'Z'); put(i, 9 + Math.round((i - 12) * 0.45), i % 2 ? 'z' : 'Z'); } rect(17, 7, 19, 12, 'M'); put(18, 9, 'H'); put(18, 10, 'H');
+  // la llave inglesa
+  put(11, 15, 'z'); put(14, 15, 'z'); rect(11, 16, 14, 16, 'z'); rect(12, 17, 13, 23, 'z'); rect(11, 24, 14, 24, 'z'); put(12, 24, 'H');
+  // el destornillador
+  rect(17, 14, 17, 19, 'Z'); rect(16, 20, 18, 24, 'R'); put(18, 21, 'r'); put(18, 23, 'r');
+  // la sierra de arco pequeña (un arco y su hoja)
+  rect(4, 19, 9, 19, 'B'); put(4, 20, 'B'); put(9, 20, 'B'); rect(4, 21, 9, 21, 'z'); rect(3, 20, 3, 22, 'M');
+})), x, y, o);
+
+// EL TAXÍMETRO: un reloj redondo (W, el aro Z) encima de la caja negra del taxímetro, con la bandera roja levantada
+// y la pantalla con la cifra en rojo. o.cifra: el número (hasta 5 cifras; por omisión, 0); con o.t, el minutero gira.
+// 27 × 28. No se voltea (la cifra)
+const taximetroDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 6) % 8 : 0;
+  o = sinDirDU(o);
+  pintaDU(R, unaDU('taxi' + f, () => forma(27, 28, ({ rect, put, disco, linea }) => {
+    disco(13, 7, 6, 'Z'); disco(13, 7, 4.7, 'W'); for (const [i, j] of [[13, 3], [13, 11], [9, 7], [17, 7]]) put(i, j, 'K');
+    const a = f / 8 * Math.PI * 2; linea(13, 7, 13 + Math.round(Math.sin(a) * 3.6), 7 - Math.round(Math.cos(a) * 3.6), 'K'); linea(13, 7, 15, 8, 'R'); put(13, 7, 'K');
+    rect(11, 13, 15, 13, 'z');
+    rect(2, 14, 24, 25, 'u'); rect(2, 14, 24, 14, 'x'); rect(24, 15, 24, 25, 'K'); rect(2, 25, 24, 25, 'K'); rect(3, 16, 23, 22, 'Q');
+    put(5, 24, 'Z'); put(8, 24, 'Z'); put(11, 24, 'O'); rect(4, 26, 6, 26, 'K'); rect(20, 26, 22, 26, 'K');
+    rect(22, 8, 22, 13, 'z'); rect(19, 8, 24, 11, 'R'); rect(19, 11, 24, 11, 'r');
+  })), x, y, o);
+  const n = String(Math.max(0, Math.floor(o.cifra ?? 0))).slice(-5);
+  numeroNV(encimaDU(R, 27, 28, x, y, o), n, 23 - anchoNumeroNV(n), 17, 'R');
+};
+
+// EL TRONO dorado y recargado (O, la sombra g, el brillo o), de frente: el respaldo alto de terciopelo rojo capitoné
+// con el copete, la gema y los remates, los brazos de voluta, el cojín y las patas. Un personaje se sienta con los
+// pies a unos 8 px del suelo (el cojín, a y − 11). 28 × 38
+const tronoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('trono', () => forma(28, 38, ({ rect, put, disco }) => {
+  rect(6, 6, 21, 25, 'O'); rect(21, 6, 21, 25, 'g'); rect(8, 8, 19, 24, 'R'); rect(19, 8, 19, 24, 'r');
+  for (let j = 10; j <= 22; j += 3) for (let i = 9 + (j % 2 ? 0 : 2); i <= 18; i += 4) put(i, j, 'r');
+  rect(8, 4, 19, 5, 'O'); rect(10, 2, 17, 3, 'O'); disco(13.5, 1.5, 1, 'o'); put(13, 4, 'B'); put(14, 4, 'B'); put(13, 3, 'D'); put(14, 3, 'B');
+  rect(5, 3, 6, 6, 'O'); put(5, 2, 'o'); put(6, 2, 'o'); rect(21, 3, 22, 6, 'O'); put(21, 2, 'o'); put(22, 2, 'o'); put(22, 4, 'g'); put(22, 5, 'g');
+  for (let i = 9; i <= 18; i += 3) put(i, 5, 'g'); for (let j = 8; j <= 23; j += 3) { put(7, j, 'o'); put(20, j, 'g'); }
+  disco(4, 20.5, 2.2, 'O'); put(4, 20, 'g'); disco(23, 20.5, 2.2, 'O'); put(23, 20, 'g'); put(24, 22, 'g'); rect(3, 23, 5, 28, 'O'); rect(22, 23, 24, 28, 'O'); rect(24, 23, 24, 28, 'g');
+  rect(5, 25, 22, 27, 'R'); rect(5, 27, 22, 27, 'r'); rect(6, 25, 21, 25, 'C');
+  rect(3, 28, 24, 31, 'O'); rect(3, 31, 24, 31, 'g'); for (let i = 5; i <= 22; i += 3) put(i, 29, 'o'); put(13, 30, 'R'); put(14, 30, 'R');
+  rect(4, 32, 6, 36, 'O'); rect(21, 32, 23, 36, 'O'); rect(6, 32, 6, 36, 'g'); rect(23, 32, 23, 36, 'g'); rect(3, 36, 7, 36, 'g'); rect(20, 36, 24, 36, 'g'); put(5, 33, 'o'); put(22, 33, 'o');
+})), x, y, o);
+
+// EL LISTÍN: un guion gordo como una guía de teléfonos, tumbado: la tapa amarilla (Y) con sus tres encuadernadores
+// (Z) y una barra blanca (sin letras), y el canto de cientos de hojas (H/h). 26 × 14
+const listinDU = (R, x, y, o = {}) => pintaDU(R, unaDU('listin', () => forma(26, 14, ({ rect, put }) => {
+  rect(3, 1, 23, 3, 'Y'); rect(2, 2, 24, 3, 'Y'); rect(9, 2, 17, 2, 'X'); put(4, 2, 'Z'); put(6, 2, 'Z'); put(21, 2, 'y');
+  rect(2, 4, 24, 11, 'H'); for (let j = 5; j <= 11; j += 2) rect(3, j, 24, j, 'h'); rect(1, 3, 2, 12, 'y'); rect(2, 12, 24, 12, 'y'); put(24, 6, 'd'); put(24, 9, 'd');
+})), x, y, o);
+
+// EL LIBRO DE DIBUJOS: un libro enorme y apaisado (la tapa negra K con las cantoneras de oro y una nave de colores
+// pegada en el centro) del que asoman láminas de colores por arriba y por el lado. 37 × 24. o.abierto: abierto, con
+// una nave y un castillo raro de colores en las páginas (nuestros). 46 × 21
+const libroDibujosDU = (R, x, y, o = {}) => pintaDU(R, unaDU('dibujos' + (o.abierto ? 'A' : ''), () => (o.abierto ? forma(46, 21, ({ rect, put, linea, disco }) => {
+  rect(1, 17, 44, 19, 'K'); rect(22, 16, 23, 19, 'u');
+  rect(2, 2, 22, 17, 'H'); rect(23, 2, 43, 17, 'H'); rect(2, 17, 43, 17, 'h'); rect(22, 2, 23, 16, 'h'); put(2, 2, '.'); put(43, 2, '.');
+  // la nave: un pez de colores con su estela
+  rect(4, 4, 20, 14, 'U'); disco(11, 9, 3.2, 'L'); rect(11, 7, 17, 11, 'N'); rect(17, 8, 18, 10, 'Y'); put(19, 9, 'Y'); rect(9, 8, 11, 9, 'D'); linea(5, 6, 8, 8, 'l'); linea(5, 12, 8, 10, 'l'); put(6, 9, 'G'); put(5, 9, 'G');
+  put(15, 5, 'W'); put(18, 13, 'W'); put(6, 4, 'W'); rect(13, 9, 15, 9, 'R');
+  // el castillo raro
+  rect(25, 4, 41, 14, 'f'); rect(25, 12, 41, 14, 'n'); rect(28, 7, 30, 12, 'l'); rect(32, 5, 35, 12, 'D'); rect(37, 8, 39, 12, 'L'); put(29, 6, 'l'); put(29, 5, 'R'); put(33, 4, 'B'); put(34, 4, 'B'); put(38, 7, 'L'); put(38, 6, 'G');
+  put(33, 8, 'K'); put(34, 10, 'K'); put(29, 9, 'K'); put(38, 10, 'K'); disco(27, 5.5, 1, 'R');
+}) : forma(37, 24, ({ rect, put, disco, linea }) => {
+  rect(7, 2, 10, 4, 'L'); rect(13, 1, 18, 4, 'Y'); rect(21, 2, 25, 4, 'D'); rect(27, 1, 30, 4, 'G'); put(14, 2, 'N'); put(16, 2, 'N'); put(22, 3, 'B'); put(28, 2, 'v'); put(8, 3, 'R');
+  rect(33, 8, 35, 11, 'N'); rect(33, 14, 34, 18, 'l'); put(34, 9, 'R');
+  rect(2, 5, 32, 21, 'K'); rect(2, 5, 3, 21, 'u'); rect(2, 21, 32, 21, 'Q');
+  for (const [i, j, a, b] of [[4, 6, 1, 1], [31, 6, -1, 1], [4, 20, 1, -1], [31, 20, -1, -1]]) { put(i, j, 'O'); put(i + a, j, 'O'); put(i, j + b, 'O'); }
+  rect(10, 8, 25, 18, 'U'); disco(15, 13, 2.6, 'L'); rect(15, 11, 21, 15, 'N'); rect(21, 12, 22, 14, 'Y'); put(23, 13, 'Y'); rect(13, 12, 15, 13, 'D'); linea(11, 10, 13, 12, 'l'); linea(11, 16, 13, 14, 'l');
+  put(20, 9, 'W'); put(23, 17, 'W'); put(11, 13, 'G'); rect(17, 13, 19, 13, 'R');
+}))), x, y, o);
+
+// LA CLAQUETA: la pizarra negra con sus casillas (rayas, sin letras) y el listón de franjas blancas y negras.
+// 22 × 19. o.abierta: el listón levantado (22 × 27); o.telarana: una telaraña en la esquina de abajo
+const claquetaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('claqueta' + (o.abierta ? 'A' : '') + (o.telarana ? 'T' : ''), () => forma(22, o.abierta ? 27 : 19, (F) => {
+  const dy = o.abierta ? 8 : 0, put = (i, j, ch) => F.put(i, j + dy, ch), rect = (a, b, c, d, ch) => F.rect(a, b + dy, c, d + dy, ch), linea = (a, b, c, d, ch) => F.linea(a, b + dy, c, d + dy, ch);
+  rect(1, 6, 20, 17, 'K'); for (let i = 1; i <= 20; i++) put(i, 6, (i + 1) % 6 < 3 ? 'W' : 'K'); rect(1, 7, 20, 7, 'u');
+  const fin = o.telarana ? 9 : 18;
+  rect(3, 10, fin, 10, 'x'); rect(3, 13, fin, 13, 'x'); for (let j = 11; j <= 16; j++) { put(8, j, 'x'); if (j > 13 && !o.telarana) put(14, j, 'x'); } rect(4, 9, 6, 9, 'W'); if (!o.telarana) rect(10, 12, 12, 12, 'W');
+  for (let i = 1; i <= 20; i++) { const up = o.abierta ? Math.round((i - 1) * 0.42) : 0; for (let j = 3; j <= 5; j++) put(i, j - up, (i + j) % 6 < 3 ? 'W' : 'K'); }
+  put(1, 5, 'Z'); put(1, 6, 'Z');
+  if (o.telarana) {
+    linea(19, 16, 19, 8, 'W'); linea(19, 16, 12, 9, 'W'); linea(19, 16, 10, 16, 'W'); linea(19, 12, 16, 13, 'W'); linea(16, 13, 15, 16, 'W'); linea(19, 9, 13, 10, 'W'); linea(13, 10, 11, 16, 'W');
+  }
+})), x, y, o);
+
+// LA CÁMARA DE CINE en su trípode de madera, de perfil (mira a la derecha): el cuerpo oscuro con las dos bobinas
+// arriba, el visor detrás, el objetivo con su parasol y el cristal (I), la manivela y las tres patas. 34 × 43
+const camaraCineDU = (R, x, y, o = {}) => pintaDU(R, unaDU('camara', () => forma(34, 43, ({ rect, put, disco, linea }) => {
+  for (const d of [0, 1]) { linea(15 + d, 26, 5 + d, 41, d ? 'm' : 'M'); linea(17 + d, 26, 27 + d, 41, d ? 'm' : 'M'); } rect(16, 26, 17, 41, 'M'); rect(17, 27, 17, 41, 'm'); rect(11, 33, 22, 33, 'm');
+  rect(4, 41, 7, 41, 'K'); rect(15, 41, 18, 41, 'K'); rect(26, 41, 29, 41, 'K');
+  rect(13, 23, 20, 25, 'z'); rect(13, 25, 20, 25, 'u'); linea(13, 24, 6, 29, 'z'); put(5, 30, 'K'); put(6, 30, 'K');
+  disco(11, 6, 5, 'K'); disco(11, 6, 3.2, 'u'); disco(22, 6, 5, 'K'); disco(22, 6, 3.2, 'u'); put(11, 6, 'Z'); put(22, 6, 'Z'); put(9, 4, 'x'); put(20, 4, 'x'); put(13, 8, 'K'); put(24, 8, 'K');
+  rect(7, 11, 25, 22, 'u'); rect(7, 11, 25, 11, 'x'); rect(7, 22, 25, 22, 'K'); rect(25, 12, 25, 22, 'K'); rect(9, 14, 16, 20, 'K'); put(10, 15, 'R'); rect(19, 14, 22, 15, 'Z'); put(20, 19, 'O');
+  rect(3, 13, 6, 17, 'K'); put(2, 14, 'u'); put(2, 15, 'u'); put(2, 16, 'u');
+  rect(26, 14, 28, 19, 'K'); rect(29, 12, 31, 21, 'u'); rect(29, 12, 31, 12, 'x'); rect(31, 14, 31, 19, 'I'); put(31, 15, 'E'); put(31, 19, 'i');
+})), x, y, o);
+
+// LA ESTATUILLA dorada (GENÉRICA: una llama abstracta sobre una esfera, no el premio de verdad), en su peana negra.
+// 11 × 24. Con o.t, un destello
+const estatuillaDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 4) % 4 : -1;
+  pintaDU(R, unaDU('estatuilla' + f, () => forma(11, 24, ({ rect, put, disco }) => {
+    rect(2, 20, 8, 22, 'K'); rect(2, 20, 8, 20, 'u'); rect(3, 18, 7, 19, 'u'); rect(3, 19, 7, 19, 'K'); put(5, 21, 'O');
+    disco(5, 15.5, 1.7, 'O'); put(6, 16, 'g'); put(6, 17, 'g'); put(4, 15, 'o');
+    const hw = [0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 1, 0];
+    hw.forEach((w, k) => { rect(5 - w, 2 + k, 5 + w, 2 + k, 'O'); if (w) put(5 + w, 2 + k, 'g'); });
+    put(5, 1, 'o'); put(4, 6, 'o'); put(4, 7, 'o'); put(4, 8, 'o'); put(5, 5, 'o');
+    if (f === 1) { for (const [i, j] of [[4, 5], [3, 5], [5, 5], [4, 4], [4, 6]]) put(i, j, 'E'); } else if (f === 0 || f === 2) put(4, 5, 'E');
+  })), x, y, o);
+};
+
+// LA HUCHA: un cerdito rosa (L, la sombra e) de perfil (mira a la derecha) con la ranura en el lomo y una moneda de
+// oro entrando. 24 × 19. o.vacia: patas arriba en el suelo, sin moneda, con el tapón quitado (el agujero negro en la
+// barriga y el corcho al lado)
+const huchaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('hucha' + (o.vacia ? 'V' : ''), () => forma(24, 19, (F) => {
+  const v = !!o.vacia, put = (i, j, ch) => F.put(i, v ? 18 - j : j, ch), rect = (a, b, c, d, ch) => { for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) put(i, j, ch); };
+  for (let j = 5; j <= 15; j++) for (let i = 2; i <= 18; i++) { const u = (i - 10) / 8.2, w = (j - 10) / 5.4; if (u * u + w * w <= 1) put(i, j, w > 0.45 || (u > 0.5 && w > 0.1) ? 'e' : 'L'); }
+  rect(18, 8, 20, 11, 'L'); rect(20, 8, 20, 11, 'e'); put(20, 9, 'K'); put(20, 10, 'L');
+  put(14, 4, 'e'); put(15, 4, 'e'); put(15, 3, 'e'); put(14, 5, 'e'); put(16, 8, 'K'); put(16, 7, 'K'); put(17, 12, 'e'); put(15, 11, 'R');
+  rect(5, 15, 6, 17, 'e'); rect(13, 15, 14, 17, 'e'); put(1, 9, 'e'); put(1, 8, 'L'); put(2, 7, 'e');
+  put(6, 7, 'E'); put(7, 6, 'E'); put(5, 8, 'E');
+  if (v) { rect(8, 4, 11, 4, 'K'); rect(9, 15, 10, 15, 'Q'); put(8, 15, 'K'); put(11, 15, 'K'); F.rect(21, 15, 22, 16, 'M'); F.put(22, 16, 'm'); F.put(21, 14, 'P'); }
+  else { rect(8, 4, 11, 4, 'K'); rect(9, 1, 10, 3, 'O'); put(10, 2, 'g'); put(10, 3, 'g'); put(9, 1, 'o'); put(8, 2, 'O'); put(11, 2, 'g'); }
+})), x, y, o);
+
+// EL MAZO de subasta: el mazo de madera (M/m, los aros de oro) apoyado en su taco redondo, con el mango hacia la
+// derecha. 24 × 14. o.golpe: tumbado, golpeando el taco, con las rayitas del golpe
+const mazoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('mazo' + (o.golpe ? 'G' : ''), () => forma(24, 14, ({ rect, put, linea }) => {
+  rect(2, 10, 13, 12, 'P'); rect(2, 12, 13, 12, 'p'); rect(3, 10, 12, 10, 'M');
+  if (o.golpe) {
+    rect(4, 3, 10, 8, 'M'); rect(4, 8, 10, 8, 'm'); rect(4, 3, 4, 8, 'O'); rect(10, 3, 10, 8, 'O'); rect(6, 3, 6, 8, 'm'); rect(11, 5, 21, 6, 'P'); rect(11, 6, 21, 6, 'p'); put(22, 5, 'O'); put(22, 6, 'g');
+    put(1, 8, 'Y'); put(1, 6, 'Y'); put(15, 9, 'Y'); put(16, 8, 'Y'); put(14, 8, 'Y');
+  } else {
+    for (let i = 3; i <= 9; i++) { const d = Math.round((i - 3) * 0.35); rect(i, 3 + d, i, 7 + d, i === 3 || i === 9 ? 'O' : i === 6 ? 'm' : 'M'); put(i, 8 + d, i === 3 || i === 9 ? 'g' : 'm'); }
+    linea(10, 6, 21, 2, 'P'); linea(10, 7, 21, 3, 'p'); put(22, 2, 'O'); put(22, 1, 'O');
+  }
+})), x, y, o);
+
+// EL CONTRATO: una hoja blanca (W) con la cabecera, las rayas del texto (d), la firma azul (B) y el sello de lacre
+// rojo con sus cintas. 15 × 20
+const contratoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('contrato', () => forma(15, 20, ({ rect, put, disco }) => {
+  rect(1, 1, 13, 18, 'W'); rect(13, 2, 13, 18, 'w'); rect(1, 18, 13, 18, 'w'); rect(4, 3, 10, 3, 'K');
+  for (const [a, b, j] of [[3, 11, 5], [3, 10, 7], [3, 11, 9], [3, 8, 11]]) rect(a, j, b, j, 'd');
+  for (const [i, j] of [[3, 15], [4, 14], [5, 15], [6, 14], [7, 15]]) put(i, j, 'B');
+  disco(10, 14.5, 1.8, 'R'); put(10, 14, 'r'); put(10, 15, 'r'); put(9, 17, 'R'); put(11, 17, 'R'); put(9, 13, 'C');
+})), x, y, o);
+
+// LA EXCAVADORA pequeña (una bulldozer amarilla, Y/y) de perfil (mira a la derecha): las orugas, el motor con su
+// rejilla y el escape, la cabina con la ventana (I) y la pala de acero delante. o.pala 0–1: la altura de la pala
+// (0, en el suelo); con o.t, el humo del escape. Devuelve { pala: [x, y] }: el pie de la pala en la pantalla.
+// 38 × 26 (más 10 px de aire arriba para el humo)
+const excavadoraDU = (R, x, y, o = {}) => {
+  const p4 = pasoDU(o.pala, 4), f = o.t == null ? -1 : Math.floor(o.t * 4) % 4, by = 16 - Math.round(p4 * 1.75);
+  pintaDU(R, unaDU('bulldozer' + p4 + '|' + f, () => forma(38, 36, (F) => {
+    const put = (i, j, ch) => F.put(i, j + 10, ch), rect = (a, b, c, d, ch) => F.rect(a, b + 10, c, d + 10, ch), disco = (a, b, r, ch) => F.disco(a, b + 10, r, ch), linea = (a, b, c, d, ch) => F.linea(a, b + 10, c, d + 10, ch);
+    if (f >= 0) humoGT(F.put, F.disco, 22, 13, 3, f);
+    rect(4, 19, 27, 24, 'K'); rect(5, 18, 26, 18, 'u'); for (let i = 7; i <= 25; i += 6) { disco(i, 21.5, 1.3, 'z'); put(i, 21, 'Z'); }
+    rect(6, 11, 26, 17, 'Y'); rect(6, 17, 26, 17, 'y'); rect(17, 9, 26, 10, 'Y'); rect(17, 9, 26, 9, 'o'); rect(4, 13, 5, 17, 'y');
+    for (let j = 11; j <= 15; j += 2) rect(20, j, 24, j, 'K'); rect(26, 10, 26, 17, 'y');
+    rect(22, 5, 22, 8, 'u'); rect(21, 4, 23, 4, 'K');
+    rect(8, 3, 16, 12, 'Y'); rect(7, 2, 17, 2, 'K'); rect(10, 5, 15, 9, 'I'); rect(10, 5, 10, 9, 'K'); rect(15, 5, 15, 9, 'K'); rect(10, 5, 15, 5, 'K'); rect(10, 9, 15, 9, 'K'); linea(11, 8, 13, 6, 'E'); rect(8, 11, 16, 12, 'y');
+    linea(26, 15, 31, by + 4, 'u'); linea(26, 16, 31, by + 5, 'u');
+    rect(32, by, 34, by + 8, 'Z'); rect(32, by + 1, 32, by + 7, 'z'); put(35, by, 'Z'); put(35, by + 8, 'Z'); put(36, by + 8, 'z'); put(34, by + 1, 'E'); put(34, by + 2, 'E'); put(34, by + 3, 'E');
+  })), x, y, o);
+  const s = o.s ?? 1, dir = o.dir ?? 1;
+  return { pala: [Math.round(x + dir * (36 - 18.5) * s), Math.round(y - (36 - (by + 19)) * s)] };
+};
+
+// LA SEÑAL DE LA HIERBA: una señal redonda de prohibido (el aro rojo R, el fondo blanco) con una mata de hierba
+// tachada, en su poste de acero. 17 × 34. o.sinPoste: solo el disco (17 × 17)
+const senalHierbaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('senal' + (o.sinPoste ? 'S' : ''), () => forma(17, o.sinPoste ? 17 : 34, ({ rect, put, disco, linea }) => {
+  if (!o.sinPoste) { rect(8, 15, 9, 32, 'Z'); rect(9, 15, 9, 32, 'z'); }
+  disco(8, 8, 7, 'R'); disco(8, 8, 5.1, 'W');
+  linea(8, 12, 8, 5, 'v'); linea(7, 12, 5, 7, 'G'); put(5, 6, 'G'); linea(9, 12, 11, 7, 'G'); put(11, 6, 'G'); put(8, 4, 'G'); put(7, 12, 'v'); put(9, 12, 'v');
+  linea(3, 12, 12, 3, 'R'); linea(4, 13, 13, 4, 'R');
+})), x, y, o);
+
+export const PIEZAS_DU = {
+  libro: libroDU, manuscrito: manuscritoDU, carta: cartaDU, cheque: chequeDU, avioneta: avionetaDU, zapato: zapatoDU,
+  pilaNotas: pilaNotasDU, maquina: maquinaDU, relojArena: relojArenaDU, montonArena: montonArenaDU, hierba: hierbaDU,
+  manual: manualDU, revista: revistaDU, trofeoNebula: trofeoNebulaDU, trofeoHugo: trofeoHugoDU, catalogo: catalogoDU,
+  taximetro: taximetroDU, trono: tronoDU, listin: listinDU, libroDibujos: libroDibujosDU, claqueta: claquetaDU,
+  camaraCine: camaraCineDU, estatuilla: estatuillaDU, hucha: huchaDU, mazo: mazoDU, contrato: contratoDU,
+  excavadoraDU, senalHierba: senalHierbaDU,
 };
