@@ -1,5 +1,8 @@
 // DU-MINI-CHIBI · las miniaturas del ep33 con chibis (personas chibi del reparto al doble, nada de mascotas ni objetos
 // con cara; luz de cine). n = 0: la principal (16:9); 1–3: los Shorts (recorte al centro, x 110–211).
+//   1 · Short 1: el pasillo de las editoriales, Herbert al doble y triste, con su manuscrito atado.
+//   2 · Short 2: la oficina de Chilton, Lanier al doble y sonriente, con nuestro libro.
+//   3 · Short 3: la oficina de París, Jodorowsky al doble, con el guion del tamaño de un listín.
 //   0 · Nuestro planeta al ocaso, con sus dos lunas: Herbert, al doble, con el manuscrito rechazado; «20» y una X roja.
 import { planeta, planetaDelante, oregon, oregonDelante, editoriales, editorialesDelante, cine, cineDelante, salas, salasDelante } from '/atomo/plato/escenas/du-comun.js';
 import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
@@ -23,5 +26,33 @@ export function pintarDUchibi(R, t, n) {
     halo(R, 244, 114, 86, 44, '#1c0a22', 0.9, 0.6);
     cifra(R, '20', 222, 132, 36);
     equis(R, 272, 112, 13, 2);
+  }
+  if (n === 1) {
+    const o = { encuadre: 'pasillo' };
+    editoriales(R, t, o);
+    grado(R, { tinte: '#141020', f: 0.14, desde: 0.6, max: 0.6 });
+    halo(R, 160, 116, 60, 64, '#ffe8b0', 0.34);
+    editorialesDelante(R, t, o);
+    P.manuscrito(R, 186, 152, { s: 2 });
+    figura(R, EL.herbert, 148, 152, t, { dir: 1, triste: true }, 2);
+  }
+  if (n === 2) {
+    const o = { encuadre: 'chilton' };
+    editoriales(R, t, o);
+    grado(R, { tinte: '#141020', f: 0.12, desde: 0.6, max: 0.6 });
+    halo(R, 160, 112, 60, 64, '#ffe8b0', 0.34);
+    editorialesDelante(R, t, o);
+    halo(R, 138, 118, 26, 26, '#ffd870', 0.5);
+    P.libro(R, 138, 139, { s: 2 });
+    figura(R, EL.lanier, 184, 160, t, { dir: -1, sonrisa: true }, 2);
+  }
+  if (n === 3) {
+    const o = { encuadre: 'plato', camara: 'oficina', lugar: 'paris' };
+    cine(R, t, o);
+    grado(R, { tinte: '#141020', f: 0.12, desde: 0.6, max: 0.6 });
+    halo(R, 160, 112, 60, 64, '#ffe8b0', 0.34);
+    cineDelante(R, t, o);
+    P.listin(R, 188, 152, { s: 2 });
+    figura(R, EL.jodorowsky, 146, 152, t, { dir: 1, sonrisa: true }, 2);
   }
 }
