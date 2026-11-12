@@ -84,8 +84,6 @@ const O1 = { encuadre: 'imprenta', camara: 'libreria', cartel: false };
 const p1 = (t) => {
   T.libros(R, t, O1);
   const S = 154;
-  // la lámpara de globo de x 82 cae justo bajo la cifra de 1980: se tapa con la pared de al lado
-  for (let y = 0; y <= 26; y++) for (let xx = 73; xx <= 91; xx++) R.pset(xx, y, R.pget(xx + 40, y));
   // la pila de la mesa central: tres tumbados y uno de pie (el que se lleva)
   for (let k = 0; k < 3; k++) { const y = 134 - k * 3; R.rect(144 + (k % 2), y - 3, 166 + (k % 2), y, K); R.rect(145 + (k % 2), y - 2, 165 + (k % 2), y - 1, hex(k === 1 ? '#e09848' : '#1c2450')); R.rect(162 + (k % 2), y - 2, 165 + (k % 2), y - 1, hex('#efe6d0')); }
   if (t < coge) PZ.libro?.(R, 155, 125, {});
