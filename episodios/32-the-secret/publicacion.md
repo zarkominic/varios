@@ -21,6 +21,13 @@
 - EN: 12 Treasure Boxes Buried in 1982. Only 3 Found
 - EN: The Secret: The 1982 Treasure Hunt Nobody Can Finish
 
+**Ojo con el año (decide el usuario):** los cofres se enterraron en 1981 y el libro salió en 1982; el vídeo lo dice así
+en el minuto 1:48. «Buried Since 1982» y «Buried in 1982» son los títulos aprobados con el guion, pero no son exactos.
+Los mismos títulos, exactos:
+- EN: The Secret: 9 Treasure Boxes From 1982 Are Still Buried
+- ES: The Secret: 9 cofres de 1982 siguen enterrados
+- EN: A 1982 Book Hid 12 Treasure Boxes. Only 3 Found
+
 La miniatura (Grant Park al atardecer visto en corte: Byron Preiss, al doble, en el hoyo con su pala; debajo, enterrado,
 el cofrecito que brilla; «1982») sirve para los tres.
 
@@ -114,8 +121,10 @@ sin él.
 
 - **Miniatura:** `atomo/plato/escenas/cf-miniatura.html`, capturada en t = 1 (con chibis).
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
-- **Para escuchar antes de subir:** ES 15 y ES 16 (el apellido «Zinn», que el control no reconoce con claridad); EN 28
-  («It got him nowhere», dicho rápido).
+- **Para escuchar antes de subir** (lo que marcó el control automático de la voz): ES 16 («Zin cavó» le suena
+  «cincabo»: las dos palabras pegadas, hacia el minuto 4:00); ES 13 («les había costado» le suena «se», 3:11); ES 30
+  (le falta la «y» de «Y el próximo», hacia 7:55); EN 28 («It got him nowhere» le suena «he», 7:08). Los demás avisos son
+  nombres propios escritos a la mexicana, que el control lee a la inglesa: normal.
 - **Un detalle que puedes pedir quitar:** en la escena de Boston, las dos hojas de calendario llevan «17» y «18» (la
   cabalgada de Paul Revere fue la noche del 18 de abril de 1775). Son números, no letras, y no son una pista nueva (el
   guion ya habla de «una hora y un día»).
@@ -127,19 +136,19 @@ sin él.
 Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
 español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
 
-### Short 1 · Enterró doce cofres y no apuntó dónde · tramo 0.25-15.2,109.81-140.16
+### Short 1 · Enterró doce cofres y no apuntó dónde · tramo 0.25-15.2,109.98-140.16
 - **EN:** He Buried 12 Treasure Boxes and Wrote Nothing Down #Shorts
 - **ES:** Enterró 12 cofres y no apuntó dónde: The Secret #Shorts
 - **EN:** In 1981, publisher Byron Preiss crisscrossed the country and buried twelve treasure boxes himself, with a six-foot shovel. He never wrote the spots down. Only three have been found. The full story is in the linked video. #TheSecret #TreasureHunt #ASKAtom #Shorts
 - **ES:** En 1981, el editor Byron Preiss recorrió el país y enterró él mismo doce cofres, con una pala de casi dos metros. Nunca apuntó los sitios. Solo han aparecido tres. La historia completa, en el vídeo enlazado. #TheSecret #Tesoro #ASKAtom #Shorts
 
-### Short 2 · El primer cofre, en Chicago · tramo 152.53-200.75
+### Short 2 · El primer cofre, en Chicago · tramo 152.70-200.75
 - **EN:** The Secret: Teens Found the First Box in Chicago #Shorts
 - **ES:** The Secret: el primer cofre apareció en Chicago #Shorts
 - **EN:** In the summer of 1983, a group of teenagers dug six holes in Grant Park and found nothing. Then one of them threw his shovel at the wall in frustration. The full story is in the linked video. #TheSecret #Chicago #TreasureHunt #ASKAtom #Shorts
 - **ES:** En el verano de 1983, unos adolescentes cavaron seis hoyos en Grant Park y no encontraron nada. Entonces uno lanzó la pala contra la pared, de pura rabia. La historia completa, en el vídeo enlazado. #TheSecret #Chicago #Tesoro #ASKAtom #Shorts
 
-### Short 3 · El cofre que encontró una excavadora · tramo 313.0-329.25,348.94-379.1
+### Short 3 · El cofre que encontró una excavadora · tramo 313.17-329.25,348.94-379.1
 - **EN:** The Secret: An Excavator Found the Boston Treasure #Shorts
 - **ES:** The Secret: una excavadora halló el cofre de Boston #Shorts
 - **EN:** A game designer was sure a treasure box was under home plate in a Boston park. In 2019 the park was being rebuilt, so he asked the builders to call him if they dug up anything strange. They did. The full story is in the linked video. #TheSecret #Boston #TreasureHunt #ASKAtom #Shorts
