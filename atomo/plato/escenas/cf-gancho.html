@@ -18,7 +18,9 @@
 // 3. (2005) el libro abierto sobre el escritorio (un cuadro nuestro y un poema de rayas): un dedo recorre los últimos
 //    versos; en «took the secret with him» la mano cierra el libro y la lámpara se atenúa;
 // 4. (1981 | 1983) pantalla partida: a la izquierda, de noche, el editor llega con una pala más alta que él y la clava; a
-//    la derecha, en «a group of teenagers», tres chavales llegan corriendo a un parque de Chicago y abren dos hoyos;
+//    la derecha, en «a group of teenagers», tres chavales llegan corriendo a un parque de Chicago y abren dos hoyos
+//    (chico1 espera fuera de cuadro en x = -48, para que su pala no asome junto al listón antes de entrar;
+//    el listón dorado de las pantallas partidas nace en y = 27 con un remate de rombo (y 24–31): la barra y la cifra del año, sueltas);
 // 5. (2004 | 2019) pantalla partida: el abogado cava entre las columnas del jardín griego; en «a family» se enciende la
 //    obra: la excavadora levanta la cuchara con trozos de cerámica ante la familia, que se asombra;
 // 6. (hoy) gag 1: la maceta de Atom en corte; Atom baja y hace cavar a la pala de juguete, que da tres paladas… y sube
@@ -278,7 +280,17 @@ const MED = {}, SOMBRA = hex('#141a30');
 // (dy: la ventana baja dy filas y arriba se repite el cielo liso de las cuatro primeras, para dejar libre la esquina de Atom)
 const mitad = (k, sx, dx, osc, pinta, dy = 0) => { const b = MED[k] ?? (MED[k] = R.nuevo()); const prev = R.usar(b); R.recorte(null); pinta(); R.recorte(null); R.usar(prev); const d = R.buf;
   for (let y = 0; y < 180; y++) { let i = (y < dy ? (y & 3) : y - dy) * 320 + sx, j = y * 320 + dx; for (let x = 0; x < 158; x++, i++, j++) d[j] = osc > 0 ? mez(b[i], SOMBRA, osc * (b4(x, y) < 0.5 ? 1 : 0.8)) : b[i]; } };
-const liston = (t, enc) => { R.rect(158, 0, 161, 179, K); R.rect(159, 0, 160, 179, hex('#8a6a2a')); for (let y = 2; y < 180; y += 6) R.pset(159, y, ORO); if (enc > 0 && enc < 1) { const y = Math.round(enc * 190) - 5; R.rect(159, y - 8, 160, y + 8, OROL); } };
+// el listón dorado que separa las mitades empieza en y = 27 (su remate, en y 24–31), por debajo de la barra y de la cifra del año (que llega hasta
+// x = 157 y hasta y ≈ 20): arriba, las cuatro columnas del hueco se rellenan con el cielo de las dos mitades (cada una en
+// espejo desde su borde, mezcladas con trama), y el listón acaba en un remate de rombo para que el año quede suelto
+const LIS0 = 25;
+const liston = (t, enc) => { const d = R.buf;
+  for (let y = 0; y < LIS0 + 2; y++) for (let x = 158; x <= 161; x++) d[y * 320 + x] = b4(x, y) < (x - 157.5) / 4 ? d[y * 320 + 323 - x] : d[y * 320 + 315 - x];
+  R.rect(158, LIS0 + 2, 161, 179, K); R.rect(159, LIS0 + 2, 160, 179, hex('#8a6a2a')); for (let y = LIS0 + 4; y < 180; y += 6) R.pset(159, y, ORO);
+  if (enc > 0 && enc < 1) { const y = Math.round(enc * 190) - 5; if (y + 8 > LIS0 + 5) R.rect(159, Math.max(LIS0 + 5, y - 8), 160, y + 8, OROL); }
+  // el remate: un rombo de oro con su filo y un brillo
+  R.poligono([[159, LIS0 - 1], [160, LIS0 - 1], [163, LIS0 + 2], [163, LIS0 + 3], [160, LIS0 + 6], [159, LIS0 + 6], [156, LIS0 + 3], [156, LIS0 + 2]], K);
+  R.rect(159, LIS0, 160, LIS0 + 5, ORO); R.rect(158, LIS0 + 1, 161, LIS0 + 4, ORO); R.rect(157, LIS0 + 2, 162, LIS0 + 3, ORO); R.rect(160, LIS0 + 3, 161, LIS0 + 4, hex('#8a6a2a')); R.pset(159, LIS0 + 1, OROL); R.pset(158, LIS0 + 2, OROL); };
 const publisher = w2(16.43), shovel = w2(17.19), teens = w2(17.79), park = w2(19.07);
 const p4 = (t) => {
   const enc = tramo(t, teens - 0.25, teens + 0.1);
@@ -294,7 +306,8 @@ const p4 = (t) => {
   mitad('4d', 0, 162, 0.5 * (1 - enc), () => { const h1 = park + 0.25, h2 = w2(19.7), o = { encuadre: 'parque', hoyos: (t > h1 ? 1 : 0) + (t > h2 ? 1 : 0) }; T.chicago(R, t, o);
     const u = tramo(t, teens - 0.1, teens + 1.0), v = tramo(t, teens + 0.1, teens + 1.2), w = tramo(t, teens + 0.25, teens + 1.35), cava = t > teens + 1.1;
     const pal1 = cava ? Math.round(Math.abs(Math.sin((t - teens) * 5)) * 4) : 0;
-    const c1 = R.actor(EL.chico1CF, Math.round(lerp(-20, 86, u)), 128, t, { dir: cava ? -1 : 1, anda: u < 1, sostiene: cava ? [Math.round(lerp(-20, 86, u)) - 3, 114 + pal1] : true });
+    // chico1 espera aparcado en x = -48: su pala, que sobresale por delante, no asoma junto al listón antes de entrar
+    const x1 = Math.round(lerp(-48, 86, u)), c1 = R.actor(EL.chico1CF, x1, 128, t, { dir: cava ? -1 : 1, anda: u < 1, sostiene: cava ? [x1 - 3, 114 + pal1] : true });
     PZ.pala(R, c1.mano[0], cava ? 123 + pal1 : c1.mano[1] + 9, { dir: cava ? -1 : 1 });
     if (cava) for (let k = 0; k < 2; k++) terron(74, 124, 52 - k * 8, 124, ((t - teens) * 5 / Math.PI + k * 0.3) % 1, 9, hex('#7a5434'), hex('#523622'));
     R.actor(EL.chico2CF, Math.round(lerp(-44, 112, v)), 134, t, { dir: v < 1 ? 1 : -1, anda: v < 1, dedo: v >= 1 && Math.sin(t * 6) > -0.4, habla: v >= 1 && Math.sin(t * 9) > 0 });

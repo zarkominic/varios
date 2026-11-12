@@ -117,7 +117,8 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     el suelo de mármol en damero con reflejos, una escalerilla (x 34), un carrito con cajetines (x 200) y dos postes con
 //     cordón ante la puerta. Los personajes, con los pies en y 138–156. La mesa de consulta (x 94–226, tablero en
 //     y 158–163), en editorialDelante.
-//     Cámara 'caja': la pared de cajones grandes numerados (301–336, uno vacío en x 30–64, y 57–75) y, sobre la mesa de
+//     Cámara 'caja': la pared de cajones grandes numerados (301–336, uno vacío en x 30–64, y 57–75; los de la fila de
+//     arriba llevan la placa abajo, en y 26–33, y cerraduras de acero: bajo el año de la barra no hay nada dorado) y, sobre la mesa de
 //     consulta (x 79–241, tablero en y 119–150), la caja 317 abierta: tapa acolchada, interior de terciopelo con doce
 //     huecos (dos filas de seis: x 123 + 15·k; y 122 la de atrás y 131 la de delante) y las piedras (o.piedras 0–12, con
 //     decimales: cada una cae en su hueco y luego destellan por turnos), la llave con su etiqueta que se balancea y una
@@ -167,8 +168,11 @@ export function editorialDelante(R, t, o = {}) {
 //     de tres tonos, gaviotas; el mar turquesa con el camino de oro, el barco fondeado a contraluz (velas recogidas) y un
 //     bote de nuez con dos duendes que reman; la playa en diagonal con el agua que sube y baja, conchas, estrellas de mar,
 //     un tronco varado, rocas, huellas y un cangrejo; dunas con barrón que se mece y el bosque de otoño (un ciervo entre
-//     los troncos, hojas que vuelan). o.cofres 0–12: los cofrecitos se esconden uno a uno en doce sitios (cada uno brilla,
-//     se hunde y se apaga; queda un montoncito con un destello de tarde en tarde). Criaturas: tres duendes con un
+//     los troncos, hojas que vuelan). o.cofres 0–12: los cofres se esconden en doce sitios repartidos por la
+//     arena de delante (x 94–302, y 134–170; libres el rincón de abajo a la izquierda, el tronco y las rocas): cada
+//     cofre (13 × 11, con filo claro) cae con un resplandor del color de su gema, se hunde con una nubecilla de arena
+//     y deja un montoncito con una piedrecita de color que late; el cofre k acaba de hundirse en o.cofres = k + 1 y
+//     empieza hasta 4 unidades antes (con una subida rápida se ven varios a la vez). Criaturas: tres duendes con un
 //     cofrecito en brazos, el hada y el dragón con el suyo; o.llegada 0–1 las lleva playa arriba.
 //     Cámara 'doce': el mapa de pergamino de Norteamérica (sin letras) como lámina iluminada: mar de jade con rizos, tierra
 //     de oro viejo, cenefa de noche con zarcillos, rosa de ocho puntas, islitas, la sierpe del Pacífico, una ballena, el
@@ -277,7 +281,7 @@ export function chicagoDelante(R, t, o = {}) {
 //   'biblioteca' (suelo 152): una biblioteca pública de los noventa: estanterías altas con lomos de colores,
 //     la escalera de mano, el ventanal a la calle (nubes, edificios de ladrillo, árboles, coches y un autobús,
 //     recortados al hueco), un lector pequeño que pasa páginas en la mesa del fondo, el fichero de cajoncitos con un
-//     globo terráqueo que gira, lámparas colgantes verdes, el reloj, un mapa enmarcado, el parqué con la luz de la
+//     globo terráqueo que gira, pared de yeso tranquila arriba a la izquierda (la barra del año: sin lámparas colgantes), el reloj, un mapa enmarcado, el parqué con la luz de la
 //     ventana, la alfombra y el ordenador beige de 1997 (la pantalla carga una imagen línea a línea, el módem parpadea).
 //     o.sinPantalla: la pantalla del ordenador en gris, para que la escena pinte la suya (en
 //     .pantalla). La mesa de lectura de delante (lámpara verde, mapas desplegados, libros, lupa) en clevelandDelante.
@@ -1097,9 +1101,12 @@ function a_cajaFijo(R) {
     if (vacio) { rect(bx, by, bx + w - 1, by + a - 1, K); rect(bx + 1, by + 1, bx + w - 2, by + a - 2, B.hueco); rect(bx + 1, by + a - 4, bx + w - 2, by + a - 2, hex('#22283a')); rect(bx - 5, by - 1, bx - 1, by + a, K); rect(bx - 4, by, bx - 2, by + a - 1, B.aceroB); rect(bx - 2, by, bx - 2, by + a - 1, B.aceroS); continue; }
     rect(bx, by, bx + w - 1, by + a - 1, B.aceroD); rect(bx, by, bx + w - 2, by + a - 2, B.acero); rect(bx, by, bx + w - 2, by, B.aceroL); rect(bx, by, bx, by + a - 2, B.aceroL); rect(bx + 1, by + a - 2, bx + w - 2, by + a - 2, B.aceroS);
     for (let i = 0; i < 4; i++) { const sx = bx + 3 + Math.floor(h(c, f * 5 + i, 587) * (w - 12)), sy = by + 2 + Math.floor(h(c, f * 5 + i, 588) * (a - 5)); rect(sx, sy, sx + 5, sy, i % 2 ? B.aceroL : B.aceroS); }
-    rect(bx + 9, by + 2, bx + 24, by + 9, B.latonS); rect(bx + 10, by + 3, bx + 24, by + 9, B.laton); rect(bx + 10, by + 3, bx + 24, by + 3, B.latonL); a_num(R, num, bx + 12, by + 4, hex('#3a2a10'));
-    for (const kx of [bx + 5, bx + 28]) { disco(kx + 0.5, by + 13.5, 2, B.latonS); pset(kx, by + 13, B.hueco); pset(kx, by + 14, B.hueco); pset(kx - 1, by + 12, B.latonL); }
-    rect(bx + 12, by + 13, bx + 21, by + 15, B.aceroD); rect(bx + 12, by + 13, bx + 21, by + 13, B.aceroB); }
+    // la fila de arriba va al revés (tirador y cerraduras arriba, la placa abajo, en y 26–33): así bajo el año de la barra
+    // solo queda acero, sin otro número dorado pegado
+    const yp = f === 0 ? by + 9 : by + 2, yc = f === 0 ? by + 5 : by + 13, yt = f === 0 ? by + 4 : by + 13;
+    rect(bx + 9, yp, bx + 24, yp + 7, B.latonS); rect(bx + 10, yp + 1, bx + 24, yp + 7, B.laton); rect(bx + 10, yp + 1, bx + 24, yp + 1, B.latonL); a_num(R, num, bx + 12, yp + 2, hex('#3a2a10'));
+    for (const kx of [bx + 5, bx + 28]) { disco(kx + 0.5, yc + 0.5, 2, f === 0 ? B.aceroD : B.latonS); pset(kx, yc, B.hueco); pset(kx, yc + 1, B.hueco); pset(kx - 1, yc - 1, f === 0 ? B.aceroB : B.latonL); }
+    rect(bx + 12, yt, bx + 21, yt + 2, B.aceroD); rect(bx + 12, yt, bx + 21, yt, B.aceroB); }
   // la sombra del fondo (queda desenfocado) y la pilastra de la derecha con su aplique
   for (let y = 16; y <= 116; y++) for (let x = 0; x <= 251; x++) a_velo(R, x, y, hex('#1c2238'), 0.2 + (y > 96 ? (y - 96) * 0.008 : 0));
   rect(252, 14, 257, 116, B.aceroS); rect(252, 14, 252, 116, K); rect(257, 14, 257, 116, B.aceroL);
@@ -1179,7 +1186,7 @@ function a_bancoCaja(R, t, o) {
   // la luz del aplique, que tiembla, y el brillo que recorre los cajones
   { const f = 0.2 + Math.sin(t * 7) * 0.03 + (Math.floor(t * 3) % 7 === 0 ? -0.05 : 0); for (let j = 0; j < 36; j++) for (let i = -14 - (j >> 1); i <= 14 + (j >> 1); i++) if (((i + j) & 1) === 0 && a_BAYER[(j & 3) * 4 + (i & 3)] > j / 40) a_velo(R, 288 + i, 64 + j, C.oroL, f); rect(283, 62, 293, 62, C.oroL); }
   { const sx = ((t * 30) % 460) - 70; for (let y = 17; y <= 112; y++) { const x = Math.round(sx + (112 - y) * 0.6); for (let i = 0; i < 6; i++) if (x + i >= 0 && x + i <= 250) a_velo(R, x + i, y, C.blanco, i === 2 || i === 3 ? 0.34 : 0.16); } }
-  { const k = Math.floor(t * 1.2), x = 2 + Math.floor(h(k, 1, 592) * 7) * 36 - 8 + 5, y = 17 + Math.floor(h(k, 2, 592) * 5) * 20 + 13; if ((t * 1.2) % 1 < 0.45 && x > 2) { pset(x, y, C.blanco); pset(x - 1, y, B.latonL); pset(x + 1, y, B.latonL); pset(x, y - 1, B.latonL); pset(x, y + 1, B.latonL); } }
+  { const k = Math.floor(t * 1.2), x = 2 + Math.floor(h(k, 1, 592) * 7) * 36 - 8 + 5, f = Math.floor(h(k, 2, 592) * 5), y = 17 + f * 20 + 13; if ((t * 1.2) % 1 < 0.45 && x > 2 && f > 0) { pset(x, y, C.blanco); pset(x - 1, y, B.latonL); pset(x + 1, y, B.latonL); pset(x, y - 1, B.latonL); pset(x, y + 1, B.latonL); } }
   // la luz del pulsador de la alarma y las llaves del tablero, que se mecen (un gancho está vacío: su llave está en la caja)
   pset(265, 61, Math.floor(t * 1.1) % 2 ? C.rojo : hex('#5e1420')); pset(266, 61, Math.floor(t * 1.1) % 2 ? hex('#ff9a8a') : hex('#5e1420'));
   for (let k = 0; k < 6; k++) { if (k === 2) continue; const x = 269 + k * 8, sw = Math.round(Math.sin(t * 1.5 + k * 1.7) * (k === 4 ? 1 : 0.6)), col = [C.rojo, hex('#3a6ac8'), 0, hex('#3a8a4a'), hex('#e8b830'), C.blanco][k];
@@ -1693,7 +1700,7 @@ const b_orillaX = (y) => 178 - 0.92 * Math.max(0, y - 92) ** 1.24 + Math.sin(y *
 const b_duna = (x) => 119 - 9 * Math.sin((x - 96) * 0.026) ** 2 - 3.5 * Math.sin(x * 0.071 + 1) + Math.max(0, 150 - x) * 0.16;
 
 // los doce escondites (centro de abajo de cada cofrecito): dunas, linde del bosque, rocas y playa
-const b_ESCONDITES = [[136, 126], [160, 118], [192, 119], [228, 127], [262, 117], [304, 122], [114, 144], [146, 135], [212, 134], [254, 138], [296, 140], [182, 163]];
+const b_ESCONDITES = [[150, 136], [262, 151], [122, 149], [244, 138], [150, 166], [172, 148], [292, 135], [94, 161], [198, 134], [302, 149], [214, 145], [240, 170]];
 
 // el cielo del amanecer (fijo): del azul que se va al oro del horizonte, con las últimas estrellas y el resplandor del sol
 function b_orillaCielo(R) {
@@ -1761,6 +1768,34 @@ export function b_cofrecito(R, x, y) {
   const T = hex('#f0e6cc'), S = hex('#cdbd96'), K = hex('#5a4a3a'), O = hex('#f0c040');
   R.rect(x - 4, y - 4, x + 4, y + 1, K); R.rect(x - 3, y - 6, x + 3, y - 5, K); R.pset(x, y - 7, K);
   R.rect(x - 3, y - 3, x + 3, y, T); R.rect(x - 2, y - 5, x + 2, y - 4, T); R.rect(x - 3, y - 4, x - 3, y - 4, S); R.rect(x + 3, y - 4, x + 3, y, S); R.rect(x - 3, y, x + 3, y, S); R.rect(x - 3, y - 3, x + 3, y - 3, K); R.pset(x, y - 3, O); R.pset(x, y - 2, O); R.pset(x - 2, y - 5, hex('#ffffff')); R.pset(x, y - 6, O);
+}
+
+// el cofrecito que se esconde en la orilla, más grande (13 × 11) para que se lea de lejos: cerámica clara con filo de luz,
+// flejes y cerradura de oro; (x, y) = centro de abajo; no pinta nada por debajo de yc (la arena en la que se hunde)
+function b_cofreGrande(R, x, y, yc) {
+  const T = hex('#fffaf0'), S = hex('#d8c8a0'), K = hex('#3a2a30'), O = hex('#f0c040'), OS = hex('#b8861c'), BL = hex('#ffffff');
+  const rc = (x0, y0, x1, y1, c) => { if (y0 <= yc) R.rect(x0, y0, x1, Math.min(y1, yc), c); };
+  rc(x - 4, y - 10, x + 4, y - 10, K); rc(x - 5, y - 9, x + 5, y - 7, K); rc(x - 6, y - 7, x + 6, y, K);
+  rc(x - 4, y - 9, x + 4, y - 8, T); rc(x - 4, y - 9, x + 2, y - 9, BL); rc(x + 3, y - 8, x + 4, y - 8, S);
+  rc(x - 5, y - 6, x + 5, y - 1, T); rc(x - 5, y - 6, x - 5, y - 2, BL); rc(x + 4, y - 6, x + 5, y - 1, S); rc(x - 5, y - 1, x + 5, y - 1, S);
+  for (const fx of [x - 3, x + 3]) { rc(fx, y - 9, fx, y - 1, O); rc(fx, y - 1, fx, y - 1, OS); rc(fx, y - 7, fx, y - 7, OS); }
+  rc(x - 1, y - 7, x + 1, y - 4, O); rc(x, y - 6, x, y - 5, K); rc(x - 1, y - 4, x + 1, y - 4, OS);
+}
+
+// el montoncito que queda donde se ha escondido un cofre (15 × 5): arena removida con luz por la izquierda, su sombra y,
+// encima, una piedrecita del color de su gema (5 × 4, con filo oscuro) con un halo que late: la marca que se ve de lejos
+function b_monton(R, x, y, col, t, k) {
+  const A = b_ARENA, SO = hex('#9a7478');
+  for (let i = -5; i <= 8; i++) R.pset(x + i, y + 1, SO); R.pset(x + 7, y, SO); R.pset(x + 8, y, SO);
+  for (let i = -7; i <= 7; i++) R.pset(x + i, y, i > 2 ? A[0] : A[1]);
+  for (let i = -5; i <= 5; i++) R.pset(x + i, y - 1, i < -1 ? A[5] : i > 2 ? A[1] : A[3]);
+  for (let i = -4; i <= 4; i++) R.pset(x + i, y - 2, i < 0 ? A[5] : i > 2 ? A[2] : A[4]);
+  for (let i = -2; i <= 2; i++) R.pset(x + i, y - 3, i < 1 ? A[5] : A[3]);
+  R.pset(x - 7, y, A[1]); R.pset(x - 4, y + 2, A[4]); R.pset(x + 6, y - 2, A[0]); R.pset(x + 5, y - 3, A[0]); R.pset(x - 8, y + 1, A[4]); R.pset(x + 10, y, A[4]);
+  const late = 0.5 + 0.5 * Math.sin(t * 3.2 + k * 1.9);
+  b_luz(R, x, y - 5, 7 + late * 4, col, 0.45 + late * 0.35);
+  const OS = b_mz(col, hex('#2a1a30'), 0.45); R.rect(x - 2, y - 6, x + 2, y - 4, hex('#2a1a30')); R.rect(x - 1, y - 7, x + 1, y - 7, hex('#2a1a30')); R.rect(x - 1, y - 6, x + 1, y - 4, col); R.pset(x, y - 7, col); R.pset(x - 1, y - 6, hex('#ffffff')); R.pset(x + 1, y - 4, OS); R.pset(x + 1, y - 5, OS);
+  const f = (t * 0.55 + k * 0.31) % 1; if (f < 0.22) b_destello(R, x, y - 6, Math.sin(f / 0.22 * Math.PI), hex('#ffffff'));
 }
 
 // el barco fondeado, pequeño y a contraluz: las velas de hoja recogidas en sus vergas, tres farolillos y el ancla
@@ -1831,14 +1866,21 @@ function b_orilla(R, t, o) {
   for (let k = 0; k < 8; k++) { const u = (t * (0.09 + k * 0.012) + h(k, 82)) % 1, x = Math.round(310 - u * 150 + Math.sin(u * 8 + k) * 6), y = Math.round(70 + u * 50 + Math.sin(u * 13 + k) * 5), c = hex(['#ff9a3c', '#e8482c', '#ffd070'][k % 3]); if (x > 262 && y < 50) continue; R.pset(x, y, c); R.pset(x + (Math.floor(u * 40) % 2 ? 1 : -1), y + 1, c); }
   { const x = 205, y = 107, c = hex('#a8643c'), oreja = Math.floor(t * 0.8) % 4 === 0 ? 1 : 0; R.rect(x, y - 4, x + 6, y - 2, c); R.rect(x + 6, y - 8, x + 7, y - 4, c); R.rect(x + 7, y - 9, x + 9, y - 8, c); R.pset(x + 9, y - 8, hex('#2a1a20')); R.pset(x + 7, y - 10 - oreja, c); R.pset(x + 6, y - 11, hex('#e8d4b0')); R.pset(x + 8, y - 11, hex('#e8d4b0')); R.pset(x + 1, y - 1, c); R.pset(x + 5, y - 1, c); R.pset(x + 1, y, c); R.pset(x + 5, y, c); R.pset(x, y - 4, hex('#fff4e0')); R.pset(x + 2, y - 3, hex('#e8c098')); }
   { const u = Math.sin(t * 0.5) * 14, y = 168, x = Math.round(b_orillaX(y) + 24 + u), p = Math.floor(t * 8) % 2, c = hex('#e8482c'); R.rect(x - 2, y - 2, x + 2, y - 1, c); R.pset(x - 1, y - 3, hex('#fff4e0')); R.pset(x + 1, y - 3, hex('#fff4e0')); R.pset(x - 3, y - (p ? 3 : 2), c); R.pset(x + 3, y - (p ? 2 : 3), c); R.pset(x - 3 + p, y, c); R.pset(x + 2 + p, y, c); R.pset(x - 1, y, hex('#a0282c')); }
-  // los doce cofrecitos que se esconden (o.cofres 0–12): cada uno aparece con un resplandor, se hunde en la arena y se
-  // apaga; del que ya está escondido queda un montoncito y, de tarde en tarde, un destello
+  // los doce cofres que se esconden (o.cofres 0–12): cada uno (13 × 11, b_cofreGrande) cae en su sitio con un resplandor
+  // del color de su gema y chispas, se hunde levantando una nubecilla de arena y queda su montoncito con la piedrecita
+  // que late (b_monton). El cofre k empieza hasta 4 unidades antes y termina de hundirse en o.cofres = k + 1 (así cuadra
+  // con una cuenta de floor(o.cofres)): con una subida rápida de 0 a 12 se ven tres o cuatro a la vez, en cascada
   const n = Math.max(0, Math.min(12, o.cofres ?? 0));
-  b_ESCONDITES.forEach(([x, y], k) => { const a = Math.max(0, Math.min(1, n - k)); if (a <= 0) return; const col = hex(b_GEMAS[k]);
-    if (a < 1) { const hundido = Math.round(Math.max(0, a - 0.45) / 0.55 * 6), luz = a < 0.45 ? a / 0.45 : 1 - (a - 0.45) / 0.55;
-      b_luz(R, x, y - 4, 7 + luz * 8, col, 0.65 * luz); b_cofrecito(R, x, y); if (hundido > 0) { const F = R.tone4; for (let j = 0; j < hundido; j++) for (let i = -4; i <= 4; i++) R.pset(x + i, y - j, F(b_ARENA, 3.2 + (h(x + i, y - j, 22) - 0.5), x + i, y - j)); }
-      for (let q = 0; q < 6; q++) { const an = q * 1.05 + t * 2, r = 5 + luz * 6 + (q % 2) * 2; if (luz > 0.2) b_destello(R, Math.round(x + Math.cos(an) * r), Math.round(y - 4 + Math.sin(an) * r * 0.7), luz * 0.9, q % 2 ? hex('#ffffff') : col); } }
-    else { for (let i = -3; i <= 3; i++) { R.pset(x + i, y, b_ARENA[2]); if (Math.abs(i) < 3) R.pset(x + i, y - 1, b_ARENA[i < 0 ? 5 : 3]); if (Math.abs(i) < 2) R.pset(x + i, y - 2, b_ARENA[i < 0 ? 5 : 4]); } for (let i = -3; i <= 4; i++) R.pset(x + i, y + 1, hex('#a8847a')); R.pset(x + 4, y, hex('#a8847a')); const f = (t * 0.45 + k * 0.31) % 1; if (f < 0.12) b_destello(R, x, y - 3, f / 0.12, col); } });
+  if (n > 0) b_ESCONDITES.forEach(([x, y], k) => { const ini = Math.max(0, k - 3), u = (n - ini) / (k + 1 - ini), col = hex(b_GEMAS[k]); if (u <= 0) return;
+    if (u >= 1) { b_monton(R, x, y, col, t, k); const d = (n - k - 1) / 0.8; if (d < 1) { for (let q = 0; q < 6; q++) { const an = -0.3 - q * 0.52, r = 6 + d * 7; R.pset(Math.round(x + Math.cos(an) * r), Math.round(y - 3 + Math.sin(an) * r * 0.7 + d * d * 3), q % 2 ? b_ARENA[5] : b_ARENA[3]); } } return; }
+    const cae = u < 0.2 ? 1 - u / 0.2 : 0, e = u < 0.55 ? 0 : (u - 0.55) / 0.45, luz = u < 0.2 ? u / 0.2 : 1 - e * 0.75, hund = Math.round(e * 11);
+    for (let i = -6; i <= 8; i++) if (cae < 0.5) R.pset(x + i, y + 1, hex('#9a7478'));
+    b_luz(R, x, y - 5, 10 + luz * 7, col, 0.75 * luz); b_luz(R, x, y - 5, 6 + luz * 3, hex('#fff8d0'), 0.45 * luz);
+    b_cofreGrande(R, x, y - Math.round(cae * 6) + hund, y);
+    for (let q = 0; q < 6; q++) { const an = q * 1.05 + t * 3 + k, r = 9 + luz * 4 + (q % 2) * 2; if (luz > 0.25) b_destello(R, Math.round(x + Math.cos(an) * r), Math.round(y - 5 + Math.sin(an) * r * 0.7), luz * 0.9, q % 2 ? hex('#ffffff') : col); }
+    // la arena que se abre y la nubecilla que levanta al hundirse
+    if (e > 0) { for (let i = -7; i <= 7; i++) { const al = Math.round(Math.min(3, e * 4) * (1 - Math.abs(Math.abs(i) - 6) / 3)); for (let j = 0; j <= al; j++) if (Math.abs(i) > 3 || j === 0) R.pset(x + i, y - j, b_ARENA[i < 0 ? 5 : j === 0 ? 2 : 3]); }
+      for (let q = 0; q < 10; q++) { const lado = q % 2 ? 1 : -1, r = 5 + e * (7 + (q % 3) * 3), px = Math.round(x + lado * (4 + r * 0.8) + Math.sin(q * 2.1) * 2), py = Math.round(y - 2 - Math.sin(Math.min(1, e * 1.2) * Math.PI) * (4 + (q % 4) * 2) - (q >> 1)); R.pset(px, py, b_ARENA[q % 3 ? 5 : 4]); if (q % 3 === 0) { R.pset(px + lado, py, b_ARENA[4]); R.pset(px, py - 1, b_ARENA[5]); } } } });
   // las criaturas que desembarcan (o.criaturas false las quita; o.llegada 0–1 las lleva playa arriba)
   let pos = null; if (o.criaturas !== false) pos = b_criaturasOrilla(R, t, o.llegada != null ? o.llegada * 120 : t * 4);
   b_orla(R, t, '#ffc030');
@@ -3187,7 +3229,7 @@ function d_lector(R, x, y, t, pelo, ropa) {
 const d_BIB = { suelo: 152, pantalla: [252, 95, 276, 107], ventana: [119, 22, 201, 97], fichero: [8, 60], mesaPC: [226, 308], mesa: [96, 206, 146] };
 
 // lo fijo de la biblioteca (se pinta una vez): pared, parqué, alfombra, estanterías, escalera, marco del ventanal,
-// lámparas, la mesa del fondo, el fichero y la mesa del ordenador
+// la mesa del fondo, el fichero y la mesa del ordenador
 function d_biblioFija(R) {
   const { rect, pset, disco, linea } = R, P = d_P;
   // la pared de yeso, con la moldura del techo y el zócalo
@@ -3202,8 +3244,8 @@ function d_biblioFija(R) {
   d_tex(R, 44, 137, 276, 169, (x, y) => { const bx = Math.min(x - 44, 276 - x), by = Math.min(y - 137, 169 - y), b = Math.min(bx, by);
     if (bx < 2) return (y & 1) ? P.alO : 0; if (b < 2 + (bx < 4 ? 2 : 0)) return P.al1; if (b === 4 || b === 6) return P.alO; if (b === 5) return P.alA;
     const u = Math.abs(((x - 160) % 24 + 24) % 24 - 12), v = Math.abs((y - 153)); if (Math.abs(u + v * 1.5 - 9) < 1) return P.alO; if (u + v * 1.5 < 5) return P.alA; return h(x, y, 118) < 0.12 ? P.al1 : (x + y) % 7 === 0 ? P.al2 : P.al0; });
-  // la estantería grande de la izquierda (con el halo de las lámparas en la pared) y la escalera de mano
-  for (const lx of [30, 64]) d_luz(R, lx, 22, 24, 14, 0.3);
+  // la estantería grande de la izquierda y la escalera de mano (encima, pared de yeso tranquila: es la barra del año;
+  // ahí no cuelgan lámparas ni hay halos)
   d_estante(R, 2, 25, 106, 111, 5, 1); rect(54, 25, 55, 111, P.w0); rect(54, 25, 54, 111, P.wL);
   for (const dx of [0, 7]) { linea(82 + dx, 113, 92 + dx, 28, P.wS); linea(83 + dx, 113, 93 + dx, 28, P.wL); }
   for (let k = 0; k < 9; k++) { const y = 106 - k * 9, x = Math.round(83 + (113 - y) * 10 / 85); rect(x, y, x + 7, y, P.wL); rect(x, y + 1, x + 7, y + 1, P.wS); }
@@ -3213,8 +3255,6 @@ function d_biblioFija(R) {
   // la estantería de la derecha, el reloj y el mapa enmarcado
   d_estante(R, 212, 53, 318, 111, 3, 2);
   rect(244, 19, 272, 43, P.wD); rect(245, 20, 271, 42, P.w0); rect(247, 22, 269, 40, P.mapaA); for (const [x, y, r] of [[253, 29, 4], [256, 34, 3], [263, 28, 4], [266, 33, 3], [262, 36, 2]]) disco(x, y, r, P.mapaV); for (let x = 248; x < 269; x += 5) for (let y = 23; y < 40; y += 2) pset(x, y, d_mez(P.mapaA, P.bl, 0.4)); rect(247, 22, 269, 22, d_mez(P.mapaA, P.k, 0.3));
-  // las lámparas colgantes de cristal verde y su halo en la pared
-  for (const lx of [30, 64]) { rect(lx, 6, lx, 14, P.wS); rect(lx - 5, 17, lx + 5, 19, P.lam); rect(lx - 4, 16, lx + 4, 16, P.lam); rect(lx - 2, 15, lx + 2, 15, P.laton); rect(lx - 4, 16, lx, 17, P.lamL); rect(lx - 5, 19, lx + 5, 19, P.lamS); rect(lx - 3, 20, lx + 3, 20, P.luz); }
   // la mesa del fondo, bajo la ventana, con sus sillas, un flexo y libros
   for (const sx of [150, 180]) { rect(sx - 8, 104, sx + 8, 124, P.wS); rect(sx - 7, 105, sx + 7, 123, P.wDD); for (const dx of [-5, -1, 3]) { rect(sx + dx, 105, sx + dx + 2, 123, P.w0); rect(sx + dx, 105, sx + dx, 123, P.wL); } rect(sx - 8, 104, sx + 8, 105, P.wL); }
   rect(121, 124, 199, 126, P.wLL); rect(121, 124, 199, 124, hex('#e0b47e')); rect(121, 127, 199, 128, P.wS); rect(123, 129, 197, 131, P.wD); rect(123, 129, 126, 141, P.w0); rect(194, 129, 197, 141, P.w0); rect(126, 129, 126, 141, P.wD); rect(194, 129, 194, 141, P.wD);

@@ -20,8 +20,11 @@
 //    se hunden uno a uno en la arena (o.cofres 0→12) con la cuenta hasta 12;
 // 4. LOCAL el taller de cerámica («In real life»): un brazo da la última pincelada azul al cofrecito sobre la torneta;
 //    en «sealed inside a clear plastic case» lo empuja dentro de la caja transparente y cierra la tapa;
-// 5. LOCAL el alféizar de una ventana de Nueva York («and inside it was a key»): el cofrecito abierto y la mano que
-//    saca la llave, grande; en «ceramic» la llave tintinea;
+// 5. LOCAL el alféizar de una ventana de Nueva York («and inside it was a key»): otro encuadre (la ventana a la derecha,
+//    con la barra de la cortina por debajo de la barra del año; en la pared izquierda, una maceta colgada que se mece):
+//    el cofrecito abierto en el centro-derecha del paño (su base, en y 175) y el brazo, corto (≤ 45 px a la vista: la
+//    muñeca no sube de y 144), que entra por abajo a la izquierda y saca la llave, grande, a ras del paño hacia el
+//    centro; en «ceramic» la llave tintinea;
 // 6. LOCAL una casa de las afueras («If you found it»): el buscador sale con la llave, la mete en un sobre y lo deja en
 //    su buzón (bandera arriba); el cartero se lo lleva y le trae un paquetito: la piedra y «$1000»;
 // 7. A editorial/banco/caja («which he kept in a safe deposit box»): el empleado abre y Preiss va dejando las doce
@@ -241,56 +244,84 @@ const p4 = (t) => {
 const C5 = pal({ lad: '#a85a44', ladS: '#88402e', ladL: '#c07258', jun: '#5e2c20', marco: '#e8e0cc', marcoS: '#b8ac90', marcoD: '#6a6050', c0: '#6ab4e8', c1: '#9ad0f0', c2: '#c8e8f8', c3: '#f0f4e8', nubeL: '#ffffff', nube: '#e8f2f8', nubeS: '#b4cce0',
   e0: '#8a9ab8', e1: '#7486a8', e2: '#5e7094', e3: '#a8b4c8', vent: '#d8e4f0', ventO: '#f8d880', dep: '#6a4a3a', depS: '#4a3228', alf: '#c8a070', alfS: '#a07c4c', alfL: '#e0bc8c', alfD: '#5a3c20', cort: '#d8b04a', cortS: '#b08a2e', cortL: '#f0d070',
   barro: '#c8784a', barroS: '#9a5632', barroL: '#e09a6a', verde: '#4a9a5a', verdeS: '#2e6e40', verdeL: '#7ac070', papel: '#f6f0e0', papelS: '#d8ccb0', azul: '#3a6ac8', rojo: '#d84a3a', tela: '#7a3048', telaS: '#5a2034', telaL: '#9a4a60' });
-const VEN = [40, 18, 236, 120];
+const VEN = [92, 28, 252, 120], COL = [52, 60];
 const alfeizar = () => {
   ladrillo(0, 0, 319, 130, C5.lad, C5.ladS, C5.ladL, C5.jun, 21);
   // esquina tranquila para Atom: un paño de yeso liso arriba a la derecha
   for (let y = 0; y < 52; y++) for (let x = 262; x < 320; x++) R.pset(x, y, hh(x >> 2, y >> 2, 22) < 0.1 ? hex('#d8c8a8') : hex('#e0d2b4')); R.rect(261, 0, 261, 52, C5.jun); R.rect(261, 52, 319, 53, C5.jun);
   for (let y = 0; y < 15; y++) for (let x = 0; x < 262; x++) R.pset(x, y, hh(x >> 2, y >> 2, 22) < 0.1 ? hex('#d8c8a8') : hex('#e0d2b4')); R.rect(0, 15, 261, 16, C5.jun);
-  // el marco y el cielo de Manhattan
+  // el marco (desplazado a la derecha) y el cielo de Manhattan
   const [x0, y0, x1, y1] = VEN; caja(x0 - 5, y0 - 5, x1 + 5, y1 + 2, C5.marco, C5.marcoD); R.rect(x0 - 5, y0 - 5, x1 + 5, y0 - 4, BL); R.rect(x1 + 3, y0 - 5, x1 + 5, y1 + 2, C5.marcoS);
   grad(x0, y0, x1, y1, [C5.c0, C5.c0, C5.c1, C5.c2, C5.c3]);
   // los edificios de enfrente, con sus depósitos de agua
-  for (let k = 0; k < 13; k++) { const bx = x0 + k * 16 - 4 + Math.floor(hh(k, 1, 23) * 6), w = 12 + Math.floor(hh(k, 2, 23) * 9), top = 58 + Math.floor(hh(k, 3, 23) * 34), c = [C5.e0, C5.e1, C5.e2][k % 3];
+  for (let k = 0; k < 11; k++) { const bx = x0 + k * 16 - 4 + Math.floor(hh(k, 1, 23) * 6), w = 12 + Math.floor(hh(k, 2, 23) * 9), top = 64 + Math.floor(hh(k, 3, 23) * 32), c = [C5.e0, C5.e1, C5.e2][k % 3];
     for (let y = top; y <= y1; y++) for (let x = Math.max(x0, bx); x <= Math.min(x1, bx + w); x++) R.pset(x, y, x === bx ? C5.e3 : (y - top) % 6 > 2 && (x - bx) % 4 > 1 ? (hh(x >> 1, y >> 1, 24) < 0.18 ? C5.ventO : C5.vent) : c);
     if (hh(k, 4, 23) > 0.45 && bx > x0 + 4 && bx + 10 < x1) { R.rect(bx + 3, top - 9, bx + 9, top - 3, C5.dep); R.rect(bx + 3, top - 9, bx + 4, top - 3, C5.depS); R.poligono([[bx + 2, top - 9], [bx + 6, top - 13], [bx + 10, top - 9]], C5.depS); R.rect(bx + 3, top - 2, bx + 3, top, C5.depS); R.rect(bx + 9, top - 2, bx + 9, top, C5.depS); } }
   // los travesaños
-  R.rect(x0, 66, x1, 68, C5.marco); R.rect(x0, 69, x1, 69, C5.marcoS); R.rect(137, y0, 139, y1, C5.marco); R.rect(140, y0, 140, y1, C5.marcoS);
-  // las cortinas recogidas
+  R.rect(x0, 72, x1, 74, C5.marco); R.rect(x0, 75, x1, 75, C5.marcoS); R.rect(171, y0, 173, y1, C5.marco); R.rect(174, y0, 174, y1, C5.marcoS);
+  // las cortinas recogidas y su barra (por debajo de la barra del año)
   for (const [a, b, d] of [[x0 - 4, x0 + 16, 1], [x1 - 16, x1 + 4, -1]]) for (let y = y0 - 3; y <= y1; y++) { const w = Math.round(20 - 9 * Math.sin((y - y0) / (y1 - y0) * Math.PI * 0.9)); for (let i = 0; i < w; i++) { const x = d > 0 ? a + i : b - i; R.pset(x, y, i === w - 1 ? K : (i + (y >> 3)) % 5 === 0 ? C5.cortS : (i + (y >> 3)) % 5 === 2 ? C5.cortL : C5.cort); } }
-  caja(x0 - 8, y0 - 9, x1 + 8, y0 - 7, C5.alfD);
+  caja(x0 - 8, y0 - 9, x1 + 6, y0 - 7, C5.alfD); R.disco(x0 - 9, y0 - 8, 2, K); R.disco(x1 + 7, y0 - 8, 2, K); R.pset(x0 - 10, y0 - 9, C5.alfL); R.pset(x1 + 6, y0 - 9, C5.alfL);
+  // la luz de la ventana cae sobre la pared de la izquierda
+  luz(0, 17, x0 - 7, 128, hex('#fff0c8'), (x, y) => { const d = (x - 20) / 66 - Math.abs(y - 84) / 120; return d > 0 ? d * 0.22 : 0; });
+  // el cuadro de la derecha, bajo el paño de yeso
   Z.cuadro(R, 290, 100, { n: 1 }); R.rect(289, 73, 291, 75, K); R.linea(290, 73, 284, 76, K); R.linea(290, 73, 296, 76, K);
+  // la escarpia del colgador de la pared izquierda (la maceta que cuelga se mece: va en cada fotograma)
+  R.rect(COL[0] - 2, 19, COL[0] + 2, 20, K); R.rect(COL[0] - 1, 21, COL[0] + 1, 22, C5.marcoD); R.pset(COL[0] - 1, 19, C5.marcoS);
   // el alféizar ancho de madera
   madera(0, 131, 319, 179, C5.alf, C5.alfS, C5.alfL, 25, 16); R.rect(0, 129, 319, 130, C5.alfD); R.rect(0, 131, 319, 132, C5.alfL);
-  // el paño de terciopelo donde se abre el cofre
-  R.poligono([[52, 146], [246, 142], [262, 176], [40, 178]], K); R.poligono([[54, 147], [245, 143], [259, 175], [42, 177]], C5.tela); for (let y = 144; y < 178; y++) for (let x = 42; x < 260; x++) if (R.pget(x, y) === C5.tela) R.pset(x, y, hh(x >> 1, y, 26) < 0.14 ? C5.telaS : hh(x, y >> 1, 27) < 0.08 ? C5.telaL : C5.tela);
-  // la maceta con su geranio, los libros y la lupa
-  caja(276, 140, 300, 162, C5.barro); R.rect(276, 140, 300, 143, C5.barroL); R.rect(296, 144, 300, 162, C5.barroS); caja(273, 137, 303, 140, C5.barroL);
-  for (const [i, j, c] of [[-8, -10, C5.verde], [0, -16, C5.verdeL], [8, -11, C5.verde], [-4, -20, C5.verdeS], [5, -22, C5.verde], [-10, -18, C5.verdeL]]) { R.disco(288 + i, 138 + j, 4, K); R.disco(288 + i, 138 + j, 3, c); }
-  for (const [i, j] of [[-6, -26], [3, -29], [10, -20]]) { R.disco(288 + i, 138 + j, 3, K); R.disco(288 + i, 138 + j, 2, C5.rojo); R.pset(288 + i - 1, 137 + j, hex('#ff8a7a')); }
+  // el paño de terciopelo donde se abre el cofre (centro y derecha)
+  R.poligono([[96, 145], [262, 142], [274, 176], [82, 178]], K); R.poligono([[98, 146], [261, 143], [271, 175], [84, 177]], C5.tela); for (let y = 142; y < 179; y++) for (let x = 82; x < 275; x++) if (R.pget(x, y) === C5.tela) R.pset(x, y, hh(x >> 1, y, 26) < 0.14 ? C5.telaS : hh(x, y >> 1, 27) < 0.08 ? C5.telaL : C5.tela);
+  for (let x = 86; x < 270; x += 4) { R.pset(x, 178, C5.cortL); R.pset(x + 1, 179, C5.cortS); }
+  // la maceta con su geranio (a la derecha), los libros y la lupa (a la izquierda), el lápiz y la libreta de rayas
+  caja(282, 140, 306, 162, C5.barro); R.rect(282, 140, 306, 143, C5.barroL); R.rect(302, 144, 306, 162, C5.barroS); caja(279, 137, 309, 140, C5.barroL); for (let x = 278; x <= 312; x++) if ((x + 1) % 2) R.pset(x, 164, C5.alfD);
+  for (const [i, j, c] of [[-8, -10, C5.verde], [0, -16, C5.verdeL], [8, -11, C5.verde], [-4, -20, C5.verdeS], [5, -22, C5.verde], [-10, -18, C5.verdeL]]) { R.disco(294 + i, 138 + j, 4, K); R.disco(294 + i, 138 + j, 3, c); }
+  for (const [i, j] of [[-6, -26], [3, -29], [10, -20]]) { R.disco(294 + i, 138 + j, 3, K); R.disco(294 + i, 138 + j, 2, C5.rojo); R.pset(294 + i - 1, 137 + j, hex('#ff8a7a')); }
   [[C5.azul, 8], [C5.rojo, 5], [C5.verde, 7]].forEach(([c, hgt], k) => { const y = 170 - k * 9; caja(4 + k * 2, y - hgt, 34 - k, y, c); R.rect(4 + k * 2, y - 1, 34 - k, y, C5.papel); R.rect(8 + k * 2, y - hgt + 2, 12 + k * 2, y - 3, C5.cortL); });
+  for (let x = 3; x <= 38; x++) if (x % 2) R.pset(x, 172, C5.alfD);
   R.disco(20, 136, 8, K); R.disco(20, 136, 6, hex('#c8e8f8')); R.disco(18, 134, 2, BL); R.linea(26, 141, 36, 147, K); R.linea(26, 142, 36, 148, C5.alfD);
+  R.poligono([[44, 150], [70, 146], [74, 164], [48, 168]], K); R.poligono([[45, 151], [69, 147], [73, 163], [49, 167]], C5.papel); for (let k = 0; k < 4; k++) R.linea(49 + k, 154 + k * 3, 66 + k, 151 + k * 3, k === 1 ? C5.rojo : C5.papelS); R.linea(46, 151, 50, 167, C5.papelS);
+  R.linea(52, 172, 72, 169, K); R.linea(52, 171, 71, 168, hex('#f0c040')); R.pset(73, 168, K); R.pset(51, 172, C5.rojo);
 };
+// el cofrecito abierto (centro-derecha), su caja vacía al fondo a la derecha y la llave, que acaba hacia el centro
+const CX5 = 190, CY5 = 175, KX5 = 128, KY5 = 157;
 const p5 = (t) => {
   fondo('alfeizar', alfeizar);
   const [x0, y0, x1, y1] = VEN;
-  // vida: nubes de tres tonos a tres velocidades, palomas, humo de una chimenea, la cortina que se mece
-  R.recorte([x0 + 17, y0, 136, 65]); nube(((t * 5 + 30) % 150) + 30, 40, 34, [C5.nubeL, C5.nube, C5.nubeS]); nube(((t * 3 + 90) % 150) + 30, 54, 22, [C5.nubeL, C5.nube, C5.nubeS]);
-  R.recorte([141, y0, x1 - 17, 65]); nube(((t * 5 + 30) % 150) + 30, 40, 34, [C5.nubeL, C5.nube, C5.nubeS]); nube(((t * 7 + 60) % 150) + 110, 30, 26, [C5.nubeL, C5.nube, C5.nubeS]);
-  for (let k = 0; k < 4; k++) pajaro(150 + ((t * 14 + k * 9) % 80), 36 + k * 4 + Math.sin(t * 2 + k) * 3, t, k, C5.marcoD);
-  R.recorte([x0 + 17, 70, 136, y1]); vapor(96, 76, t, C5.nubeL, 5, 16); R.recorte(null);
-  { const px = 170 + Math.round(Math.sin(t * 0.8) * 8), cab = Math.floor(t * 3) % 2; R.rect(px - 4, 116, px + 3, 120, hex('#7a7e8c')); R.rect(px + 3, 114 - cab, px + 5, 116 - cab, hex('#5a5e6c')); R.pset(px + 6, 115 - cab, hex('#e8a030')); R.rect(px - 6, 117, px - 5, 118, hex('#5a5e6c')); R.pset(px + 4, 114 - cab, K); }
-  // el cofrecito abierto sobre el paño y, al lado, su caja transparente
-  vitrina(58, 132, 92, 166, t);
-  const CX = 126, CY = 168; Z.cofre(R, CX, CY, { sinCaja: true, abierto: true, s: 3 });
-  // la mano saca la llave («inside it was a key»)
-  const saca = ease(tramo(t, ll(20.5), ll(21.6))), ent = ease(tramo(t, P5 - 0.1, ll(20.5))), kx = Math.round(lerp(CX + 6, 186, saca)), ky = Math.round(lerp(CY - 30, 150, saca) - Math.sin(saca * Math.PI) * 14);
-  const son = t > ll(22.8) ? Math.sin(Math.min(1, (t - ll(22.8)) * 3) * Math.PI) : 0, wx = kx + 20, wy = Math.round(ky - 9 + (1 - ent) * 60 - son * 3);
-  if (saca > 0.05) { halo(kx, ky - 12, 30, OROL, 0.5 + 0.1 * Math.sin(t * 4)); Z.llave(R, kx, ky - Math.round(son * 3), { s: 3 });
-    const br = ((t - ll(21.6)) * 0.9) % 1; if (saca >= 1) { destello(kx - 16 + Math.round(br * 32), ky - 22 + Math.round(br * 6), br < 0.5 ? 2 : 1, BL); }
-    // «also made of ceramic»: tintinea
-    if (t > ll(22.8)) for (let k = 0; k < 3; k++) { const u = ((t - ll(22.8)) * 1.8 + k * 0.33) % 1, r = 20 + u * 12; for (let a = -1.0; a <= -0.3; a += 0.12) R.pset(Math.round(kx - 4 + Math.cos(a - 1.2) * r), Math.round(ky - 14 + Math.sin(a - 1.2) * r), u < 0.7 ? OROL : ORO); } }
-  T.brazo(R, wx + 24, 186, wx, wy, '#5e6a44', -1, { codo: [wx + 26, wy + 24] });
+  // vida: nubes de tres tonos a tres velocidades, palomas, humo de una chimenea, la paloma del poyete
+  R.recorte([x0 + 17, y0, 170, 71]); nube(((t * 5 + 30) % 190) + 70, 42, 34, [C5.nubeL, C5.nube, C5.nubeS]); nube(((t * 3 + 60) % 190) + 70, 58, 22, [C5.nubeL, C5.nube, C5.nubeS]);
+  R.recorte([175, y0, x1 - 17, 71]); nube(((t * 5 + 30) % 190) + 70, 42, 34, [C5.nubeL, C5.nube, C5.nubeS]); nube(((t * 7 + 120) % 190) + 70, 36, 26, [C5.nubeL, C5.nube, C5.nubeS]);
+  for (let k = 0; k < 4; k++) pajaro(178 + ((t * 12 + k * 9) % 54), 44 + k * 4 + Math.sin(t * 2 + k) * 3, t, k, C5.marcoD);
+  R.recorte([x0 + 17, y0, 170, 71]); for (let k = 0; k < 2; k++) pajaro(114 + ((t * 8 + k * 14) % 50), 50 - k * 5 + Math.sin(t * 1.6 + k) * 2, t, k + 5, C5.marcoD);
+  // el humo sale de la azotea de un edificio de verdad (el mismo cálculo que en el fondo)
+  { const k = 3, bx = x0 + k * 16 - 4 + Math.floor(hh(k, 1, 23) * 6), top = 64 + Math.floor(hh(k, 3, 23) * 32); R.recorte([x0 + 17, 40, 170, 71]); vapor(bx + 6, Math.min(71, top) - 1, t, C5.nubeL, 5, 16); R.recorte([x0 + 17, 76, 170, y1]); vapor(bx + 6, top - 1, t, C5.nubeL, 5, 16); R.rect(bx + 5, top - 3, bx + 7, top - 1, C5.depS); }
+  R.recorte([175, 76, x1 - 17, y1]); { const px = 214 + Math.round(Math.sin(t * 0.8) * 9), cab = Math.floor(t * 3) % 2, c1 = hex('#7a7e8c'), c2 = hex('#5a5e6c'); for (let y = 116; y <= 120; y++) R.linea(px - 4, y, px + 3, y, c1); for (let y = 114 - cab; y <= 116 - cab; y++) R.linea(px + 3, y, px + 5, y, c2); R.pset(px + 6, 115 - cab, hex('#e8a030')); R.linea(px - 6, 117, px - 5, 118, c2); R.pset(px + 4, 114 - cab, K); }
+  R.recorte(null);
+  // la maceta colgada de la pared izquierda se mece con la corriente
+  { const sw = Math.sin(t * 1.3) * 2.2, mx = Math.round(COL[0] + sw), my = COL[1];
+    R.linea(COL[0], 22, mx - 9, my, C5.marcoD); R.linea(COL[0], 22, mx + 9, my, C5.marcoD); R.linea(COL[0], 22, mx, my - 2, C5.marcoS);
+    R.poligono([[mx - 11, my - 1], [mx + 11, my - 1], [mx + 7, my + 12], [mx - 7, my + 12]], K); R.poligono([[mx - 10, my], [mx + 10, my], [mx + 6, my + 11], [mx - 6, my + 11]], C5.barro); R.linea(mx - 10, my, mx + 10, my, C5.barroL); R.linea(mx - 9, my + 1, mx + 9, my + 1, C5.barroL); R.linea(mx + 5, my + 3, mx + 3, my + 11, C5.barroS); R.linea(mx + 6, my + 3, mx + 4, my + 11, C5.barroS);
+    for (const [i, j, c] of [[-7, -4, C5.verde], [0, -6, C5.verdeL], [7, -4, C5.verde], [-3, -8, C5.verdeS], [4, -9, C5.verde]]) { R.disco(mx + i, my + j, 4, K); R.disco(mx + i, my + j, 3, c); }
+    // los tallos que cuelgan, con sus hojas, se mueven con retraso
+    for (const [i, L, f] of [[-11, 30, 0], [-5, 18, 1.1], [9, 36, 2.0], [13, 22, 3.1]]) { let ax = mx + i, ay = my + 1; for (let q = 1; q <= L; q++) { const u = q / L, bx = Math.round(mx + i + Math.sin(t * 1.3 - u * 1.4 - f * 0.2) * 3.2 * u + Math.sin(q * 0.5 + f) * 1.5), by = my + 1 + q; R.linea(ax, ay, bx, by, C5.verdeS); if (q % 5 === 2) { const s = (q / 5 | 0) % 2 ? 1 : -1; R.pset(bx + s, by, C5.verde); R.pset(bx + 2 * s, by, C5.verdeL); R.pset(bx + s, by + 1, C5.verde); R.pset(bx + 2 * s, by - 1, K); R.pset(bx + 3 * s, by, K); } ax = bx; ay = by; } } }
+  // motas de polvo en la luz de la ventana
+  for (let k = 0; k < 9; k++) { const u = (t * 0.08 + hh(k, 1, 28)) % 1, x = Math.round(70 + hh(k, 2, 28) * 150 - u * 26), y = Math.round(124 + u * 40); if (Math.sin(t * 2 + k * 1.7) > 0.3) R.pset(x, y, C5.alfL); }
+  // la caja transparente, vacía, al fondo a la derecha, y el cofrecito abierto sobre el paño
+  vitrina(236, 126, 266, 156, t);
+  const CX = CX5, CY = CY5; for (let x = CX - 17; x <= CX + 19; x++) for (let y = CY - 4; y <= CY - 2; y++) if ((x + y) % 2) R.pset(x, y, C5.telaS);
+  Z.cofre(R, CX, CY, { sinCaja: true, abierto: true, s: 3 });
+  // la mano entra por la izquierda, baja, y saca la llave de la boca del cofre, casi a ras del paño, hacia el centro
+  // («inside it was a key»); la llave, con el ojo por delante
+  const saca = ease(tramo(t, ll(20.5), ll(21.6))), ent = ease(tramo(t, P5 - 0.1, ll(20.5))), kx = Math.round(lerp(CX - 8, KX5, saca)), ky = Math.round(lerp(CY - 21, KY5, saca));
+  const son = t > ll(22.8) ? Math.sin(Math.min(1, (t - ll(22.8)) * 3) * Math.PI) : 0, wx = kx - 20 - Math.round((1 - ent) * 34), wy = Math.round(ky - 8 + (1 - ent) * 46 - son * 2);
+  if (saca > 0.05) { halo(kx, ky - 12, 30, OROL, 0.5 + 0.1 * Math.sin(t * 4)); Z.llave(R, kx, ky - Math.round(son * 2), { s: 3, dir: -1 });
+    const br = ((t - ll(21.6)) * 0.9) % 1; if (saca >= 1) { destello(kx + 16 - Math.round(br * 32), ky - 22 + Math.round(br * 6), br < 0.5 ? 2 : 1, BL); }
+    // «also made of ceramic»: tintinea (las ondas salen hacia la derecha, lejos de la mano)
+    if (t > ll(22.8)) for (let k = 0; k < 3; k++) { const u = ((t - ll(22.8)) * 1.8 + k * 0.33) % 1, r = 20 + u * 12; for (let a = -1.0; a <= -0.3; a += 0.12) R.pset(Math.round(kx + 4 - Math.cos(a - 1.2) * r), Math.round(ky - 14 + Math.sin(a - 1.2) * r), u < 0.7 ? OROL : ORO); } }
+  else if (ent > 0.3 && Math.floor(t * 6) % 2) destello(CX - 9, CY - 38, 1, OROL);
+  // el gesto va bajo (muñeca en y ≥ 144 todo el plano): del brazo se ven el antebrazo (~26 px) y, hasta el borde de abajo,
+  // unos 17–19 px más, 45 px como mucho; el codo, a (wx-20, wy+16)
+  T.brazo(R, wx - 26, 190, wx, wy, '#5e6a44', 1, { codo: [wx - 20, wy + 16] });
 };
 
 // ── 6 · el buzón de casa: la llave va por correo y vuelve una piedra ───────────────────────────────────────

@@ -14,9 +14,13 @@
 //    la mano) entran en la cámara; el empleado señala la caja de Preiss, que parpadea; corta en «Preiss opened»;
 // 2. LOCAL el reservado del banco (papel verde, friso de nogal, cortina, mesa con lámpara): Preiss gira la llave de su
 //    caja de acero («opened his safe deposit box»), levanta la tapa y, en «found something», salen volando los bonos
-//    (gag 5): Preiss da un respingo, Zinn asoma por la cortina y el empleado caza uno al vuelo; corta en «twenty-five»;
-// 3. LOCAL la mesa de cerca (inserto): la mano de Preiss (T.brazo) con un bono grande, la cifra «$25,000» que sube y el
-//    montón que crece mientras siguen cayendo; en «a lost treasure of his own» la mano de Zinn acerca la aguamarina.
+//    (gag 5): Preiss da un respingo, Zinn asoma por la cortina y el empleado caza uno al vuelo; corta en «twenty-five».
+//    Los dos bonos cazados se cogen por la esquina de abajo, en alto y hacia fuera (Preiss a la derecha de su cara, el
+//    empleado a la izquierda de la suya): no tapan cara ni pelo;
+// 3. LOCAL la mesa de cerca (inserto): la mano de Preiss (T.brazo corto, ~38 px, que entra por la izquierda por encima
+//    de la caja y coge el bono grande por el canto; la placa 204 queda a la vista) sube el bono mientras corre la cifra
+//    «$25,000», lo planta al llegar y lo aparta un poco al final; el montón crece mientras siguen cayendo; en «a lost
+//    treasure of his own» la mano de Zinn (T.brazo de ~44 px, desde el borde de abajo) acerca la aguamarina.
 import * as T from '/atomo/plato/escenas/cf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('cf-bonos');
@@ -165,12 +169,13 @@ const p2 = (t) => {
   cajaAcero(140, 120, 66, 17, abre, 204);
   if (llave) { const g = Math.floor(t * 6) % 2; R.rect(141, 128 + g, 146, 128 + g, Q.latonL); R.rect(139, 127, 141, 130, Q.laton); }
   // Preiss gira la llave, levanta la tapa y da un respingo
-  const dt = t - B0, sal = sale ? Math.max(0, Math.round(5 * Math.abs(Math.sin(dt * 8)) * Math.max(0, 1 - dt * 1.1))) : 0, px = sale ? Math.round(lerp(116, 104, lin(dt, 0, 0.35))) : 116, caza = t > B0 + 1.5;
-  const p = R.actor(EL.preissMayor, px, 160, t, { dir: 1, sostiene: caza ? [px + 16, 130] : sale ? undefined : [138, abre > 0 ? Math.round(lerp(130, 122, abre)) : 130], sorpresa: sale && !caza, sonrisa: caza, brazos: sale && dt > 0.45 && !caza, salto: sal });
+  const dt = t - B0, sal = sale ? Math.max(0, Math.round(5 * Math.abs(Math.sin(dt * 8)) * Math.max(0, 1 - dt * 1.1))) : 0, px = sale ? Math.round(lerp(116, 101, lin(dt, 0, 0.35))) : 116, caza = t > B0 + 1.5;
+  const p = R.actor(EL.preissMayor, px, 160, t, { dir: 1, sostiene: caza ? [px + 24, 128] : sale ? undefined : [138, abre > 0 ? Math.round(lerp(130, 122, abre)) : 130], sorpresa: sale && !caza, sonrisa: caza, brazos: sale && dt > 0.45 && !caza, salto: sal });
   // el empleado, que esperaba, caza uno al vuelo
-  const ec = t > B0 + 1.15; const e = R.actor(EL.empleadoBancoCF, 262, 161, t, { dir: -1, sostiene: ec ? [260, 132] : undefined, sorpresa: sale && !ec, sonrisa: ec, salto: sale && !ec ? Math.round(2 * Math.abs(Math.sin(dt * 10))) : 0 });
+  const ec = t > B0 + 1.15; const e = R.actor(EL.empleadoBancoCF, 266, 161, t, { dir: -1, sostiene: ec ? [256, 128] : undefined, sorpresa: sale && !ec, sonrisa: ec, salto: sale && !ec ? Math.round(2 * Math.abs(Math.sin(dt * 10))) : 0 });
   // los bonos al vuelo
-  for (let k = 0; k < NB; k++) { const tk = t - B0 - k * 0.1; if (tk < 0.25) continue; if (k === 3 && ec) { PZ.bono(R, e.mano[0] - 6, e.mano[1] + 2, {}); continue; } if (k === 6 && caza) { PZ.bono(R, p.mano[0] + 6, p.mano[1] + 2, {}); continue; }
+  for (let k = 0; k < NB; k++) { const tk = t - B0 - k * 0.1; if (tk < 0.25) continue; // los dos cazados se cogen por la esquina de abajo, arriba y por fuera: nunca tapan la cara ni el pelo
+    if (k === 3 && ec) { PZ.bono(R, e.mano[0] - 11, e.mano[1] + 2 + Math.round(Math.sin(t * 5) * 0.6), {}); R.rect(e.mano[0] - 1, e.mano[1] - 1, e.mano[0], e.mano[1], X('#f6c290')); continue; } if (k === 6 && caza) { PZ.bono(R, p.mano[0] + 11, p.mano[1] + 2 + Math.round(Math.sin(t * 5 + 1) * 0.6), {}); R.rect(p.mano[0], p.mano[1] - 1, p.mano[0] + 1, p.mano[1], X('#f6c290')); continue; }
     const [x, y, enSuelo] = vuelo(k, tk); if (enSuelo) sombra(Math.round(x), Math.round(y), 10, 0.2); PZ.bono(R, Math.round(x), Math.round(y - (enSuelo ? 0 : Math.abs(Math.sin(tk * 6 + k)) * 2)), { dir: enSuelo || Math.sin(tk * 5 + k * 2) > 0 ? 1 : -1 }); }
   if (sale && dt < 0.5) for (let k = 0; k < 6; k++) { const a = -Math.PI * (0.2 + 0.12 * k), r = 8 + dt * 60; chispa(Math.round(172 + Math.cos(a) * r), Math.round(116 + Math.sin(a) * r), 1 - dt * 2, Q.oroL); }
   if (sale && dt > 0.15 && dt < 1.3) R.icono('!', px + 5, 118 - sal, Q.oro, Q.k, 2);
@@ -198,7 +203,8 @@ const fondoMesa = () => capa('mesa', () => {
   // la caja de acero abierta, a la izquierda, con su forro
   R.poligono([[0, 104], [50, 104], [56, 60], [0, 60]], Q.k); R.poligono([[0, 102], [48, 102], [53, 63], [0, 63]], (x, y) => ((x + y * 2) % 10 === 0 ? Q.vinoL : (x - y * 2 + 400) % 10 === 0 ? Q.vinoD : Q.vino)); R.linea(0, 62, 54, 62, Q.aceroL);
   R.rect(0, 103, 52, 132, Q.k); R.rect(0, 104, 51, 131, Q.acero); R.rect(0, 104, 51, 106, Q.aceroL); R.rect(0, 127, 51, 131, Q.aceroS); for (let i = 0; i < 14; i++) { const x = Math.floor(h(i, 1, 43) * 44), y = 109 + Math.floor(h(i, 2, 43) * 16); R.rect(x, y, x + 4, y, i % 2 ? Q.aceroL : Q.aceroS); }
-  R.rect(8, 110, 38, 124, Q.k); R.rect(9, 111, 37, 123, Q.laton); R.rect(9, 111, 37, 111, Q.latonL); R.numero('204', 13, 121, { color: X('#3a2a10'), sombra: false });
+  // la placa, abajo a la derecha del frente: la manga de Preiss pasa por encima de la caja sin taparla
+  R.rect(14, 113, 44, 127, Q.k); R.rect(15, 114, 43, 126, Q.laton); R.rect(15, 114, 43, 114, Q.latonL); R.numero('204', 19, 124, { color: X('#3a2a10'), sombra: false });
   // la lámpara de banquero, el tintero y la pluma
   R.rect(262, 118, 300, 124, Q.k); R.rect(263, 119, 299, 121, Q.latonL); R.rect(263, 122, 299, 123, Q.laton); R.rect(279, 90, 283, 118, Q.k); R.rect(280, 90, 281, 118, Q.latonL); R.rect(282, 90, 282, 118, Q.latonS);
   R.poligono([[250, 92], [312, 92], [304, 72], [258, 72]], Q.k); R.poligono([[252, 90], [310, 90], [303, 74], [259, 74]], Q.verde); R.rect(260, 75, 302, 77, Q.verdeL); R.rect(254, 88, 308, 90, Q.verdeS); R.rect(296, 93, 297, 100, Q.laton); R.disco(296, 101, 1, Q.latonL);
@@ -216,19 +222,22 @@ const p3 = (t) => {
   sombra(182, 162, 20, 0.3);
   for (let k = 0; k < 3 + pila; k++) bonito(182 + ((k * 5) % 7) - 3, 160 - k * 3, k);
   // otros dos, sueltos sobre el vade
-  bonito(120, 146, 1); bonito(262, 150, 2);
+  bonito(120, 146, 1); bonito(270, 139, 2);
   for (let k = 0; k < N; k++) { const u = (t - cae(k)) / 0.9; if (u < 0 || u >= 1) continue; const x = 182 + (h(k, 1, 17) - 0.5) * 60 * (1 - u) + Math.sin(u * 7 + k) * 10 * (1 - u), y = lerp(40, 160 - (3 + k) * 3, u * u * 0.4 + u * 0.6); bonito(Math.round(x), Math.round(y), k); }
   // el bono en la mano de Preiss
-  const bob = Math.round(Math.sin(t * 2.2) * 2), tiem = t < te(9.9) ? Math.round(Math.sin(t * 30) * 1) : 0, bx = 34 + tiem, by = 42 + bob;
+  // el gesto: lo sube mientras corre la cifra, lo planta al llegar a 25.000 y lo aparta un poco cuando llega la piedra
+  const alza = sube(lin(t, te(8.62), te(9.85))), planta = t >= te(9.85) ? Math.max(0, 1 - (t - te(9.85)) * 2.2) : 0, mira = sube(lin(t, te(11.75), te(12.7)));
+  const bob = Math.round(Math.sin(t * 2.2) * 1.5), tiem = t < te(9.9) ? Math.round(Math.sin(t * 30) * 1) : 0, bx = 34 + tiem - Math.round(mira * 4), by = Math.round(50 - alza * 9 - Math.abs(Math.sin(planta * 9)) * planta * 3 + mira * 3) + bob;
   bonoGrande(bx, by);
-  T.brazo(R, 0, 132, bx + 5, by + 63, MANGA_P, 1, { codo: [16, 122] });
+  // el brazo canónico, corto (unos 38 px): entra en diagonal por la izquierda, por encima de la caja, y coge el bono por el canto
+  { const my = by + 44, hy0 = Math.min(104, my + 15); T.brazo(R, -2, hy0, bx - 3, my, MANGA_P, 1, { codo: [13, Math.round(lerp(hy0, my, 0.28)) - 1] }); }
   // la cifra, que sube hasta 25.000
   const n = Math.round(25000 * lin(t, te(8.62), te(9.85)) / 500) * 500, hecho = n >= 25000, txt = '$' + n.toLocaleString('en-US');
   R.numero(txt, 216, 66 - (hecho && t < te(10.3) ? Math.round(Math.abs(Math.sin((t - te(9.85)) * 12)) * 3) : 0), { tam: 16, centro: true });
   if (hecho) for (let k = 0; k < 3; k++) { const u = (t * 1.4 + k * 0.33) % 1; chispa(166 + k * 46, 46 + (k % 2) * 24, u < 0.5 ? u * 2 : 2 - u * 2, Q.oroL); }
   // «un tesoro perdido propio»: la mano de Zinn acerca la aguamarina
-  const uz = sube(lin(t, te(11.75), te(12.7))); if (uz > 0) { const hx = Math.round(lerp(336, 236, uz)), hy = Math.round(140 + Math.sin(t * 2.6) * 1.5), toca = t > te(13.1);
-    T.brazo(R, hx + 44, hy + 38, hx + 14, hy, MANGA_Z, -1, { codo: [hx + 36, hy + 14] });
+  const uz = sube(lin(t, te(11.75), te(12.7))); if (uz > 0) { const hx = Math.round(lerp(336, 236, uz)), hy = Math.round(146 + Math.sin(t * 2.6) * 1.5), toca = t > te(13.1);
+    T.brazo(R, hx + 34, hy + 35, hx + 14, hy, MANGA_Z, -1, { codo: [hx + 31, hy + 14] });   // unos 43 px, con el hombro fuera por abajo
     PZ.piedra(R, hx + 2, hy - 2, { color: 'aguamarina', s: 2, t: (t * 1.2) % 1 });
     if (toca) for (let k = 0; k < 4; k++) { const u = ((t - te(13.1)) * 1.6 + k * 0.25) % 1; chispa(Math.round(hx + 2 + Math.cos(k * 1.7 + 0.4) * (10 + u * 10)), Math.round(hy - 14 + Math.sin(k * 1.7 + 0.4) * (8 + u * 8)), 1 - u, k % 2 ? Q.bl : Q.cian); } }
 };

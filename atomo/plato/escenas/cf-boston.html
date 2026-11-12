@@ -12,8 +12,10 @@
 // CF-BOSTON (frases 21–22), 2019, cartela «2019». Siete planos:
 // 1. E boston/obras: Krupat llega por la acera con el libro y señala la base; la cuchara cae a su lado y da un respingo;
 // 2. LOCAL la base del bateador de cerca (el campo antes de las obras) y el corte de la tierra: bajo la base, un «?»;
+//    Krupat lleva el libro abierto por delante y bajo la barbilla (libroAbierto: cara y base libres);
 // 3. LOCAL en casa: la familia ante la pizarra con el plano del parque; Krupat pega la foto de las obras y la cinta;
 // 4. E boston/biblioteca: Krupat lee el libro y las dos lápidas se encienden («Thucydides», «Xenophon»);
+//    el libro abierto, igual que en el 2; el paso de cebra se repinta aquí con franjas enteras (sin huecos);
 // 5. LOCAL las dos lápidas de cerca (rayas): el brillo recorre los renglones; la mano con el libro; dos vistos buenos;
 // 6. LOCAL el campanario de noche: dos faroles, el reloj da las doce, la hoja del calendario cae (18) y pasa el jinete;
 // 7. LOCAL el plano de Boston sobre la mesa: la ruta cruza la ciudad hasta el North End y cae la chincheta.
@@ -158,10 +160,11 @@ const p2 = (t) => {
     for (let y = cy - s + 1; y < cy + s; y++) for (let x = 161 - s; x < 160 + s; x++) luz(x, y, hex('#ffe890'), 0.22);
     if (q >= 1) R.icono('?', 150, cy - 10 - (late ? 1 : 0), hex('#fff4b0'), K, 3);
   }
-  // Krupat, con el libro abierto, se acerca a la base y señala
-  const u = tramo(t, P2 + 0.2, P2 + 1.5), x = Math.round(lerp(40, 96, u)), sen = t > SEN && t < a(0.74);
+  // Krupat se acerca a la base, abre el libro por delante del cuerpo (bajo la barbilla: la cara queda libre y el libro
+  // no llega a la base) y señala
+  const u = tramo(t, P2 + 0.2, P2 + 1.5), x = Math.round(lerp(40, 74, u)), sen = t > SEN && t < a(0.74);
   const k = R.actor(EL.krupat, x, 107, t, { dir: 1, anda: u > 0 && u < 1, sostiene: !sen, dedo: sen, sonrisa: t > QU, sorpresa: bu > 0.7 && bu < 1 });
-  if (!sen) PZ.libro(R, k.mano[0] + 3, k.mano[1] + 4, { abierto: u >= 1 });
+  if (!sen) { if (u >= 1) libroAbierto(k, 1, 107); else PZ.libro(R, k.mano[0] + 3, k.mano[1] + 4, {}); }
   // una ardilla cruza el campo
   { const ax = Math.round(330 - (t - P2) * 22), ay = 84, f = Math.floor(t * 8) % 2; R.rect(ax, ay - 3, ax + 5, ay, K); R.rect(ax + 1, ay - 2, ax + 4, ay - 1, hex('#a86a3c')); R.rect(ax - 2, ay - 5 - f, ax, ay - 2, K); R.pset(ax - 1, ay - 4 - f, hex('#c88a56')); R.rect(ax + 5, ay - 6, ax + 8, ay - 2, K); R.rect(ax + 6, ay - 5, ax + 7, ay - 3, hex('#c88a56')); }
 };
@@ -259,15 +262,21 @@ const p3 = (t) => {
 };
 // 4. E boston/biblioteca: Krupat llega con el libro abierto, lee («the poem named») y, al alzar la vista, las dos lápidas
 // se encienden una tras otra («Thucydides», «Xenophon»); pasa el cartero y un ciclista
-const TUC = b(0.228), JEN = b(0.296);
+const TUC = b(0.228), JEN = b(0.296), ASF = H('#4a4460 #3c3652 #b8a8b8'), CEBRA = H('#c4b6c2 #dccfd6 #a898ac');
+// el libro abierto que sostiene un chibi: por delante del cuerpo y por debajo de la barbilla (antes le tapaba la cara);
+// el borde de cerca queda en la mano y el pie del libro, a la altura de los pies
+const libroAbierto = (k, dir, suelo) => PZ.libro(R, k.mano[0] + dir * 18, suelo + 3, { abierto: true, dir });
 const p4 = (t) => {
   T.boston(R, t, { ...BI, luz1: tramo(t, TUC - 0.15, TUC + 0.3), luz2: tramo(t, JEN - 0.15, JEN + 0.3), farol: 0 });
   for (const [cx, t0] of [[112, TUC], [144, JEN]]) { const d = tramo(t, t0, t0 + 0.7); if (d > 0 && d < 1) { T.b_destello(R, cx + 9, 71, 1 - d, hex('#fff4b0')); R.anillo(cx, 75, Math.round(6 + d * 10), hex('#ffe890'), 4); } }
+  // el paso de cebra, repintado encima del decorado: franjas enteras en perspectiva (las del decorado, con huecos, se
+  // leían como cifras); solo se pisa la calzada, así que las farolas, el árbol y el banco siguen delante
+  for (let y = 131; y <= 143; y++) for (let x = 222; x < 320; x++) { const c = R.pget(x, y); if (c !== ASF[0] && c !== ASF[1] && c !== ASF[2]) continue; const v = x + Math.round((y - 133) * 0.5) - 228, i = ((v % 10) + 10) % 10, raya = y >= 133 && y <= 142 && i < 6 && v >= 0; if (raya) R.pset(x, y, y === 133 ? CEBRA[1] : y === 142 ? CEBRA[2] : CEBRA[0]); else if (c === ASF[2]) R.pset(x, y, hh(x >> 1, y, 71) < 0.18 ? ASF[1] : ASF[0]); }
   // un ciclista por la calle del fondo
   { const cx = Math.round(330 - (t - P4) * 26), cy = 143; if (cx > 222) { R.anillo(cx - 4, cy, 2, K); R.anillo(cx + 4, cy, 2, K); R.linea(cx - 4, cy, cx, cy - 3, K); R.linea(cx, cy - 3, cx + 4, cy, K); R.rect(cx - 1, cy - 8, cx + 1, cy - 4, hex('#3a9a5a')); R.rect(cx - 1, cy - 11, cx + 1, cy - 9, hex('#f0c090')); R.rect(cx - 1, cy - 12, cx + 1, cy - 12, hex('#c8303a')); } }
   const u = tramo(t, P4 + 0.1, P4 + 1.9), x = Math.round(lerp(300, 150, sua(u))), mira = t > b(0.15), dos = tramo(t, b(0.04), b(0.04) + 0.3);
   const k = R.actor(EL.krupat, x, 162, t, { dir: -1, anda: u > 0 && u < 1, sostiene: !mira, dedo: mira, sorpresa: t > TUC && t < TUC + 0.5, sonrisa: t > JEN });
-  if (!mira) PZ.libro(R, k.mano[0] - 3, k.mano[1] + 4, { abierto: u >= 1, dir: -1 });
+  if (!mira) { if (u >= 1) libroAbierto(k, -1, 162); else PZ.libro(R, k.mano[0] - 3, k.mano[1] + 4, { dir: -1 }); }
   if (dos > 0 && t < b(0.1)) R.numero('2', x + 7, Math.round(lerp(140, 130, dos)), { centro: true });
   const c = tramo(t, P4 + 1.2, P5 + 0.5), cx = Math.round(lerp(-20, 120, c)); R.actor(EL.carteroCF, cx, 172, t, { dir: 1, anda: c > 0 && c < 1 });
   T.bostonDelante(R, t, BI);

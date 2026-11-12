@@ -14,9 +14,11 @@
 //    than 40 years»), el reloj de arena y la esmeralda en su cojín con la etiqueta de $1000. En «Because» entra una
 //    mano, levanta la piedra («isn't just about stones»: la etiqueta se balancea y destella en «a thousand dollars») y
 //    la deja: la luz de la lámpara pasa de la piedra al libro. Corta en la pausa antes de «It's about».
+//    El brazo (T.brazo) entra corto por la derecha y con el codo doblado: unos 37 px a la vista.
 // 2. (LOCAL) una mesa de luz con tres hojas: un cuadro nuestro, un poema (rayas) y el plano de una ciudad (una
 //    cuadrícula inventada). La lupa lee cada una cuando se nombra («a painting», «a poem», «a city») y en «all at
 //    once» las tres se deslizan y se superponen en una sola, que late (sin marcar ningún punto). Corta en «and about».
+//    La lupa tiene el mango largo y la mano la coge abajo: el brazo asoma ~40 px desde el borde, con codo.
 // 3. (LOCAL) un parque cualquiera en corte, con la línea del suelo alta: arriba pasea la gente, un perro olfatea y
 //    sigue su camino, un niño con un globo, la abuela echa migas a las palomas; abajo, raíces, piedras, lombrices, hormigas y un topo. En «under a park»
 //    una luz baja por la tierra hasta la cajita («a little box») y en «a key inside» una burbuja enseña la llave.
@@ -138,7 +140,8 @@ const p1 = (t) => {
   elipse(gx, 119, 16 - Math.round(sube * 6), 3, K, 0.35);
   PZ.piedra(R, gx, gy, { s: 3, color: 'esmeralda', t });
   if (llega > 0 && fuera < 1) { const wx = Math.round(lerp(330, gx + 27, llega) + fuera * 80), wy = Math.round(lerp(150, gy - 15, llega) + fuera * 30);
-    T.brazo(R, 328 + Math.round(fuera * 40), wy + 34, wx, wy, '#3a6ab0', -1, { codo: [Math.round(wx + 24), Math.round(wy + 22)], sombra: false }); }
+    // brazo corto y doblado: antebrazo de ~23 px hasta el codo, que cae, y ~14 px más hasta el borde (≈37 px a la vista)
+    T.brazo(R, 326 + Math.round(fuera * 40), wy + 9, wx, wy, '#3a6ab0', -1, { codo: [wx + 17, wy + 15], sombra: false }); }
   // motas de polvo en la luz
   for (let k = 0; k < 16; k++) { const x = Math.round(100 + h(k, 1, 9) * 170 + Math.sin(t * 0.7 + k) * 5), y = Math.round(50 + ((h(k, 2, 9) * 70 + t * (3 + k % 4)) % 70)); if (Math.sin(t * 2 + k * 1.3) > 0) R.pset(x, y, hex('#f6ecc0')); }
 };
@@ -200,13 +203,14 @@ const p2 = (t) => {
   if (junta >= 1) { const v = tramo(t, aLaVez + 0.5, aLaVez + 1.1); for (const r of [50, 58]) R.anillo(160, 102, r + Math.round(v * 16), v < 0.5 ? ORO : OROL, 2);
     [[112, 62], [208, 62], [112, 142], [208, 142], [160, 56]].forEach(([x, y], k) => chispa(x, y, t, k, k % 2 ? OROL : BL)); }
   // la lupa, que lee cada hoja cuando se nombra y se aparta al juntarse
-  const PASOS = [[P2, 20, 126], [cuadro - 0.35, 64, 104], [poema - 0.3, 164, 100], [ciudad - 0.3, 258, 104], [aLaVez + 0.05, 236, 128], [aLaVez + 0.6, 250, 146]];
+  const PASOS = [[P2, 20, 126], [cuadro - 0.35, 64, 104], [poema - 0.3, 164, 100], [ciudad - 0.3, 258, 104], [aLaVez + 0.05, 236, 128], [aLaVez + 0.6, 250, 138]];
   let i = 0; while (i < PASOS.length - 2 && t > PASOS[i + 1][0]) i++; const A = PASOS[i], B = PASOS[i + 1], u = sua(tramo(t, A[0], Math.min(B[0], A[0] + 0.45))), osc = Math.sin(t * 3) * 3;
   const lx = Math.round(lerp(A[1], B[1], u) + (u >= 1 ? osc : 0)), ly = Math.round(lerp(A[2], B[2], u) - Math.sin(u * Math.PI) * 6);
   baña(lx - 15, ly - 15, lx + 15, ly + 15, BL, 0.22, (x, y) => (Math.hypot(x - lx, y - ly) < 14.5 ? 1 : 0));
   for (const [rr, c] of [[17, K], [16, ORO], [15, OROL], [14, K]]) R.anillo(lx, ly, rr, c); R.linea(lx - 9, ly - 7, lx - 4, ly - 11, BL); R.linea(lx - 10, ly - 4, lx - 9, ly - 6, BL);
-  for (const [d, c] of [[-1, K], [0, hex('#7a5028')], [1, hex('#b07e44')], [2, hex('#7a5028')], [3, K]]) R.linea(lx + 12 + d, ly + 12 - d, lx + 24 + d, ly + 24 - d, c);
-  T.brazo(R, lx + 62, 186, lx + 38, ly + 30, '#3a6ab0', -1, { codo: [lx + 56, ly + 52] });
+  for (const [d, c] of [[-1, K], [0, hex('#7a5028')], [1, hex('#b07e44')], [2, hex('#7a5028')], [3, K]]) R.linea(lx + 12 + d, ly + 12 - d, lx + 32 + d, ly + 32 - d, c);
+  // mango más largo para que la mano baje: el brazo asoma ~40 px desde abajo, con el codo marcado
+  T.brazo(R, lx + 53, 186, lx + 46, ly + 38, '#3a6ab0', -1, { codo: [Math.min(lx + 59, 311), ly + 57] });
 };
 
 // ── 3: el parque en corte (LOCAL) ──

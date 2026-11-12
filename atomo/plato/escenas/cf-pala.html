@@ -22,7 +22,7 @@
 //    lo tira al bote; «only he knew them» (mapa con candado, dedo en la sien); su miedo no es que nadie los
 //    encuentre (cofre con «?», tachado)… y mira el reloj de arena;
 // 6. LOCAL el reloj de arena de cerca («solved too quickly»): caen piezas de puzle en vez de arena, el reloj de pared
-//    corre, y el puzle de doce piezas de al lado se completa a toda prisa; la mano de Preiss llega tarde a tumbarlo.
+//    corre, y el puzle de doce piezas de al lado se completa a toda prisa; el brazo de Preiss (T.brazo, por abajo a la\n//    izquierda) se estira hacia el pie del reloj para tumbarlo y se queda a 4 px cuando sale el visto.
 import * as T from '/atomo/plato/escenas/cf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('cf-pala');
@@ -471,11 +471,15 @@ const p6 = (t) => {
   R.rect(tx - 1, ty2 - 1, tx + 84, ty2 - 1, K); R.rect(tx - 1, ty2 + 72, tx + 84, ty2 + 72, K); R.rect(tx - 1, ty2 - 1, tx - 1, ty2 + 72, K); R.rect(tx + 84, ty2 - 1, tx + 84, ty2 + 72, K);
   const hecho = t > na(29.25);
   if (hecho) { const u = (t - na(29.25)) / 0.5; if (u < 1) halo(tx + 42, ty2 + 36, 70, BL, 0.5 * (1 - u)); R.disco(tx + 84, ty2, 11, K); R.disco(tx + 84, ty2, 10, hex('#1e5a34')); T.visto(R, tx + 78, ty2 - 6, 1); for (let k = 0; k < 4; k++) if ((Math.floor(t * 6) + k) % 3 === 0) destello(tx + 8 + k * 24, ty2 + 6 + (k % 2) * 56, 2, BL); }
-  // la mano de Preiss tamborilea en la mesa… y da un respingo
-  const ent = ease(tramo(t, P6 + 0.2, P6 + 0.8)), sus = hecho ? Math.sin(Math.min(1, (t - na(29.25)) * 3) * Math.PI) * 9 : 0, tam = hecho && t > na(29.25) + 0.4 ? 0 : Math.abs(Math.sin(t * 11)) * 2;
-  const wx = 286, wy = Math.round(172 + (1 - ent) * 30 - tam - sus);
-  T.brazo(R, wx + 22, 190, wx, wy, '#6a4a3a', -1, { codo: [wx + 24, wy + 14] });
-  if (hecho) R.icono('!', 262, 138 - (Math.floor(t * 6) % 2), ROJO, K, 2);
+  // el brazo de Preiss entra por abajo a la izquierda, tamborilea en la mesa y se estira hacia la base del reloj de arena
+  // para tumbarlo… pero el puzle se acaba antes: se queda a 4 px del pie, da un respingo y se encoge un poco
+  const ent = ease(tramo(t, P6 + 0.2, P6 + 0.8)), va = ease(tramo(t, na(27.9), na(29.2))), tH = na(29.25);
+  const sus = hecho ? Math.sin(Math.min(1, (t - tH) * 3) * Math.PI) * 7 : 0, atras = hecho ? ease(tramo(t, tH + 0.35, tH + 1.1)) * 2 : 0;
+  const tam = va > 0 ? 0 : Math.abs(Math.sin(t * 11)) * 2, tiembla = hecho && t > tH + 0.4 ? Math.round(Math.sin(t * 22) * 0.6) : 0;
+  const wx = Math.round(lerp(26, 44, va) - (1 - ent) * 26 - atras), wy = Math.round(lerp(171, 164, va) + (1 - ent) * 26 - tam - sus) + tiembla;
+  T.brazo(R, wx - 38, wy + 30, wx, wy, '#6a4a3a', 1, { codo: [wx - 23, wy + 12] });
+  if (va > 0.2 && !hecho) for (let k = 0; k < 3; k++) { const u = (t * 3 + k / 3) % 1; R.pset(wx - 6 - k * 5 - Math.round(u * 5), wy - 7 + k * 5, C6.wL); }   // las rayas de la prisa
+  if (hecho) R.icono('!', 46, 140 - (Math.floor(t * 6) % 2), ROJO, K, 2);
 };
 const efectos = [[pa(2.55), 'toc'], [pa(2.95), 'boing'], [pa(4.5), 'puerta'], [pa(5.25), 'arranque'],
   [pa(6.3), 'coche'], [pa(8.2), 'golpecito'], [pa(9.55), 'pop'],

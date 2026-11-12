@@ -16,7 +16,10 @@
 // 2. D cleveland/biblioteca/despacho («In 1997»): Zinn, de traje, deja de mirar el mapa de corcho, se sienta tras el
 //    escritorio, duda («?»), descuelga («even called») y pregunta por las respuestas (bocadillo: llave y «?»);
 // 3. A editorial/estudio/mesa (1997, «Preiss told him»): suena el teléfono, Preiss mayor contesta, niega con una sonrisa
-//    (bocadillo: llave tachada y luego pala y cofre: la búsqueda sigue), cuelga y el cartero trae otra carta.
+//    (bocadillo: la llave tachada desde «told», ~0,6 s sola; en «hunt» el bocadillo crece y se suman la pala y el cofre,
+//    con la llave tachada todavía al lado: respuestas no, la búsqueda sigue), cuelga y el cartero trae otra carta.
+// En 2 y 3, mientras se habla, el teléfono del decorado va con o.descolgado (la base con las horquillas vacías) y el
+// auricular lo pinta la escena en la oreja, con su cable hasta la base: sin parches de píxeles sobre el decorado.
 import * as T from '/atomo/plato/escenas/cf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('cf-zinn');
@@ -27,7 +30,6 @@ const K = { k: X('#1c1222'), papel: X('#f4ecd8'), papelS: X('#d0c4a4'), rojo: X(
   oro: X('#f0c040'), oroS: X('#a87818'), mar: X('#7ab0d8'), tierra: X('#e4d4a0'), verde: X('#3a8a5a'), gris: X('#5a5a6a'), noche: X('#1a2a5a') };
 const P2 = z(0.412), P3 = z(0.868);
 const maps = z(0.211), libs = z(0.253), later = z(0.314), internet = z(0.358), lawyer = z(0.562), zinnT = z(0.648), called = z(0.704), ask = z(0.769), answers = z(0.809), told = z(0.877), hunt = z(0.928), on = z(1);
-const guarda = (x0, y0, x1, y1) => { const a = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) a.push(R.pget(x, y)); return () => { let i = 0; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, a[i++]); }; };
 // un bocadillo blanco con el pico hacia (px, py)
 const globo = (x0, y0, x1, y1, px, py) => {
   const mx = Math.max(x0 + 6, Math.min(x1 - 6, px));
@@ -73,14 +75,15 @@ const p1 = (t) => {
 
 // 2 · el despacho de Zinn, 1997: descuelga y pregunta
 const p2 = (t) => {
-  const o = { encuadre: 'biblioteca', camara: 'despacho' }; T.cleveland(R, t, o);
+  const coge = called - 0.2, alTel = t > coge;
+  // al descolgar, el decorado deja la base con las horquillas vacías (o.descolgado) y el auricular lo lleva Zinn
+  const o = { encuadre: 'biblioteca', camara: 'despacho', descolgado: alTel }; T.cleveland(R, t, o);
   const uz = tramo(t, P2 + 0.7, lawyer - 0.1), sent = uz >= 1, zx = Math.round(lerp(254, 173, uz)), zs = sent ? 147 : Math.round(lerp(157, 147, Math.min(1, uz * 2.6)));
-  const coge = called - 0.2, alTel = t > coge, duda = sent && t > zinnT - 0.5 && !alTel;
+  const duda = sent && t > zinnT - 0.5 && !alTel;
   const zn = R.actor(EL.zinn, zx, zs, t, { dir: sent ? 1 : -1, anda: uz > 0 && uz < 1, sostiene: alTel ? [zx + 18, 132] : !sent, habla: alTel && t > ask - 0.25 && Math.sin(t * 8) > 0, sorpresa: duda && t < zinnT });
   if (!sent) librito(zn.mano[0] - 2, zn.mano[1] - 4, uz === 0);
-  const rest = alTel ? guarda(200, 135, 224, 140) : null;
   T.clevelandDelante(R, t, o);
-  if (rest) { rest(); R.rect(204, 139, 206, 140, K.k); R.rect(218, 139, 220, 140, K.k); auricular(zn.cabeza, 1, 204, 141, K.beige, K.beigeS); }
+  if (alTel) { auricular(zn.cabeza, 1, 204, 141, K.beige, K.beigeS); }
   if (duda) { const y0 = 96 - Math.round(2 * Math.abs(Math.sin(t * 5))); globo(171, y0, 190, y0 + 18, 181, 120); R.icono('?', 176, y0 + 2, K.rojo, K.papelS, 2); }
   // marca: los tonos salen del teléfono
   if (alTel && t < ask - 0.3) for (let k = 0; k < 3; k++) { const u = ((t - coge) * 2.2 + k * 0.33) % 1; R.rect(214 + k * 5, Math.round(132 - u * 12), 215 + k * 5, Math.round(133 - u * 12), u < 0.8 ? K.oro : K.oroS); }
@@ -90,23 +93,22 @@ const p2 = (t) => {
 
 // 3 · Preiss contesta: la búsqueda sigue
 const p3 = (t) => {
-  const coge = P3 + 0.5, cuelga = on + 0.3, alTel = t > coge && t < cuelga;
-  const o = { encuadre: 'estudio', camara: 'mesa', epoca: 1997, suena: t < coge }, g = T.editorial(R, t, o);
-  const niega = t > hunt - 0.35 && t < on - 0.05 ? Math.round(Math.sin(t * 14)) : 0, fin = t > cuelga + 0.3;
-  const pm = R.actor(EL.preissMayor, 153 + niega, g.detras ?? 138, t, { dir: 1, sostiene: alTel ? [172, 121] : undefined, habla: alTel && t > told - 0.15 && t < on && Math.sin(t * 9) > 0, sonrisa: t > hunt - 0.4, sorpresa: t < coge - 0.15, dedo: fin && t > cuelga + 0.9 });
+  const coge = P3 + 0.2, cuelga = on + 0.3, alTel = t > coge && t < cuelga;   // descuelga enseguida: «Preiss told him» llega a los 0,13 s del corte
+  const o = { encuadre: 'estudio', camara: 'mesa', epoca: 1997, suena: t < coge, descolgado: alTel }, g = T.editorial(R, t, o);
+  const niega = t > told + 0.2 && t < hunt + 0.1 ? Math.round(Math.sin(t * 14)) : 0, fin = t > cuelga + 0.3;
+  const pm = R.actor(EL.preissMayor, 153 + niega, g.detras ?? 138, t, { dir: 1, sostiene: alTel ? [172, 121] : undefined, habla: alTel && t > told - 0.15 && t < on && Math.sin(t * 9) > 0, sonrisa: t > hunt - 0.4, sorpresa: t < coge, dedo: fin && t > cuelga + 0.9 });
   T.editorialDelante(R, t, o);
-  if (alTel) {   // el auricular ya no está en la base: se tapa con el friso de al lado y se pinta en la oreja
-    for (let y = 128; y <= 134; y++) for (let x = 208; x <= 236; x++) R.pset(x, y, R.pget(x + 30, y));
-    R.rect(213, 133, 215, 134, K.k); R.rect(228, 133, 230, 134, K.k);
-    auricular(pm.cabeza, 1, 213, 139, K.beige, K.beigeS);
-  }
+  if (alTel) auricular(pm.cabeza, 1, 213, 139, K.beige, K.beigeS);   // el auricular, en la oreja: la base queda con las horquillas vacías (o.descolgado)
   // el cartero trae otra carta más
   const uc = tramo(t, cuelga - 0.1, cuelga + 1.2), kx = Math.round(lerp(326, 280, uc));
   if (uc > 0) { const ca = R.actor(EL.carteroCF, kx, 164, t, { dir: -1, anda: uc < 1, sostiene: true, sonrisa: uc >= 1 }); Z.sobre(R, ca.mano[0] - 3, ca.mano[1] + 4, {}); }
-  // lo que dice: respuestas no (la llave tachada); a seguir buscando (la pala y el cofre)
-  if (alTel && t > told + 0.15) { const dos = t > hunt - 0.1, s = Math.min(1, (t - told - 0.15) / 0.2), y0 = Math.round(lerp(104, 91, s)); globo(178, y0, 224, y0 + 19, 172, 118);
-    if (!dos) { R.icono('llave', 184, y0 + 3, K.oroS, K.papelS, 2); R.linea(181, y0 + 2, 199, y0 + 17, K.rojo); R.linea(182, y0 + 2, 200, y0 + 17, K.rojo); R.linea(199, y0 + 2, 181, y0 + 17, K.rojo); R.linea(200, y0 + 2, 182, y0 + 17, K.rojo); R.icono('X', 207, y0 + 5, K.rojo, K.papelS, 2); }
-    else { R.icono('pala', 183, y0 + 3 - (Math.floor(t * 6) % 2), K.gris, K.papelS, 2); R.icono('cofre', 204, y0 + 3, K.oroS, K.papelS, 2); } }
+  // lo que dice: respuestas no (la llave tachada, sola ~0,6 s y luego se queda a la izquierda); a seguir buscando (el
+  // bocadillo crece hacia la derecha en «hunt» con la pala, que cava, y el cofre). Dura hasta que cuelga.
+  if (alTel && t > told + 0.12) { const s = Math.min(1, (t - told - 0.12) / 0.15), y0 = Math.round(lerp(104, 91, s)), dos = t > hunt + 0.05, w = tramo(t, hunt + 0.05, hunt + 0.2), x1 = Math.round(lerp(224, 248, w));
+    globo(178, y0, x1, y0 + 19, 172, 118);
+    R.icono('llave', 184, y0 + 3, K.oroS, K.papelS, 2); R.linea(181, y0 + 2, 199, y0 + 17, K.rojo); R.linea(182, y0 + 2, 200, y0 + 17, K.rojo); R.linea(199, y0 + 2, 181, y0 + 17, K.rojo); R.linea(200, y0 + 2, 182, y0 + 17, K.rojo);
+    if (!dos) R.icono('X', 207, y0 + 5, K.rojo, K.papelS, 2);
+    else if (w >= 1) { R.rect(203, y0 + 3, 203, y0 + 16, K.papelS); R.icono('pala', 207, y0 + 3 - (Math.floor(t * 6) % 2), K.gris, K.papelS, 2); R.icono('cofre', 228, y0 + 3, K.oroS, K.papelS, 2); } }
 };
 const efectos = [[maps - 0.2, 'papel'], [later, 'bip'], [internet, 'tecleo'], [zinnT - 0.5, 'pop'], [called - 0.15, 'bip'], [P3 + 0.05, 'ring'], [on + 0.3, 'cuelga']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P2 ? Math.round(lerp(1984, 1996, tramo(t, 0.4, P2 - 0.4))) : 1997) });

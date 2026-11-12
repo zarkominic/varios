@@ -20,6 +20,8 @@
 //    (o.precio) y pasa de 1.000 en «a thousand dollars» (la cifra, grande, en el bocadillo); la familia da un bote;
 // 4. LOCAL un parque cualquiera de día («Suddenly, a lot more people»): entra gente de los dos lados con mapas y palas,
 //    un detector de metales y un perro que escarba; al fondo llega el guarda con su silbato (lo que viene después).
+//    El cielo (pulido de calidad): degradado de seis tonos, sol con halo a la izquierda de Atom, estratos quietos tras
+//    la ciudad, seis cúmulos de tres tonos a tres velocidades (cumulo), una cometa que colea y dos bandadas.
 import * as T from '/atomo/plato/escenas/cf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('cf-tele');
@@ -231,9 +233,20 @@ const p3 = (t) => {
 };
 
 // 4 · de repente, un parque lleno de gente con mapas y palas
-const CIE = [Q.ci0, Q.ci1, Q.ci2, Q.ci3];
+const CIE = ['#5688cc', '#6e9cd6', '#88b0de', '#a2c4e6', '#bcd6ee', '#d6e6f2'].map(X), SOL = [252, 24];
+// un cúmulo de tres tonos: lóbulos redondos arriba, base plana en sombra y la luz del sol por la derecha
+const cumulo = (cx, cy, w, k, col) => { const n = w > 24 ? 5 : w > 14 ? 4 : 3, lob = [], H = w * 0.46;
+  for (let i = 0; i < n; i++) { const u = (i + 0.5) / n; lob.push([cx - w + u * 2 * w + (h(i, k, 121) - 0.5) * w * 0.25, w * (0.2 + 0.24 * Math.sin(u * Math.PI) + h(i, k, 122) * 0.1)]); }
+  for (let x = Math.round(cx - w - 3); x <= cx + w + 3; x++) { let top = 0; for (const [lx, r] of lob) { const d = x - lx; if (Math.abs(d) < r) top = Math.max(top, Math.sqrt(r * r - d * d)); }
+    top = Math.round(top * Math.min(1, (w + 3 - Math.abs(x - cx)) / 6)); if (top < 1) continue;
+    for (let j = top < 3 ? 1 : 0; j <= top; j++) { const y = Math.round(cy) - j; R.pset(x, y, j === 0 ? col[0] : tono(col, 0.15 + (j / H) * 2.1 + ((x - cx) / w) * 0.45 + (j > top - 2 ? 0.7 : 0) + (h(x >> 1, y, k) - 0.5) * 0.5, x, y)); }
+    if (top > 3 && ((x + k) & 1)) tin(x, Math.round(cy) + 1, col[0], 0.6); } };
 const fondoParque = () => capa('parque', () => {
-  for (let y = 0; y < 96; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(CIE, 0.1 + y / 96 * 3 + (h(x >> 2, y >> 1, 101) - 0.5) * 0.3, x, y));
+  for (let y = 0; y < 96; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(CIE, 0.1 + (y / 96) ** 0.85 * 5.2 + (h(x >> 2, y >> 1, 101) - 0.5) * 0.35, x, y));
+  // el sol (a la izquierda de la zona de Atom) con su halo tramado
+  for (let j = -19; j <= 19; j++) for (let i = -19; i <= 19; i++) { const d = Math.hypot(i, j), x = SOL[0] + i, y = SOL[1] + j; if (d < 6.6) R.pset(x, y, d < 4.2 ? X('#fffbe6') : X('#ffeea0')); else if (d < 19 && y > 14 && x < 274) tin(x, y, X('#fff6d0'), (d < 9 ? 0.6 : 0.34 * (1 - (d - 9) / 10)) * (((x + y) & 1) || d < 9 ? 1 : 0.45)); }
+  // estratos lejanos y quietos, pegados al horizonte, por detrás de la ciudad
+  for (const [x0, y0, w, a] of [[8, 61, 70, 0.75], [92, 66, 54, 0.6], [150, 59, 40, 0.5], [188, 64, 84, 0.75], [262, 70, 60, 0.6], [40, 71, 90, 0.5], [214, 74, 50, 0.45]]) for (let j = 0; j < 4; j++) { const e = [10, 3, 0, 7][j] + Math.floor(h(x0, j, 117) * 6); for (let x = x0 + e; x < x0 + w - e - (j * 3 % 5); x++) if (j === 1 || j === 2 || h(x >> 1, y0 + j, 119) < 0.7) tin(x, y0 + j, j < 2 ? X('#f6f8f6') : X('#c6d4e4'), a); }
   // la ciudad lejana (ninguna en concreto) y la arboleda
   for (let k = 0; k < 26; k++) { const x = k * 13 - 4 + Math.floor(h(k, 1, 103) * 5), w = 7 + Math.floor(h(k, 2, 103) * 7), top = 60 + Math.floor(h(k, 3, 103) * 22), c = [X('#8aa2c0'), X('#9cb2cc'), X('#7e96b6')][k % 3]; if (x + w > 262 && top < 56) continue; R.rect(x, top, x + w, 96, c); R.rect(x, top, x, 96, X('#b4c6da')); for (let y = top + 3; y < 94; y += 4) for (let i = x + 2; i < x + w; i += 3) R.pset(i, y, X('#d8e4f0')); if (k % 4 === 0) R.rect(x + (w >> 1), top - 5, x + (w >> 1), top, c); }
   for (let x = 0; x < 320; x++) { const y0 = 86 - Math.round(Math.sin(x * 0.09) * 3 + Math.sin(x * 0.31) * 2 + h(x >> 1, 4, 103) * 3); for (let y = y0; y < 100; y++) R.pset(x, y, h(x, y, 105) < 0.25 ? Q.pr1 : y < y0 + 2 ? Q.pr2 : Q.pr0); }
@@ -258,8 +271,17 @@ const GENTE = [
 ];
 const p4 = (t) => {
   fondoParque();
-  for (const [v, y, w, k] of [[6, 24, 20, 0], [10, 50, 14, 1], [3.5, 66, 24, 2], [8, 38, 10, 3]]) { const x = ((t * v + k * 110) % 420) - 50; if (y < 50 && x + w > 262) continue; nube(x, y, w, [Q.nubeL, Q.nubeM, Q.nubeS]); }
-  T.bandada(R, t, { y: 34, n: 5 });
+  // el cielo: el sol parpadea, cúmulos de tres tonos a tres velocidades (lejos lentos y pálidos, cerca grandes y
+  // rápidos), una cometa que colea y los pájaros. Las nubes no llegan a la zona de Atom ni tapan el año ni el sol
+  { const dt = t - P4, NL = [X('#b4c6dc'), X('#dfe7ee'), X('#fbfcf8'), X('#ffffff')], NM = [X('#b6c8de'), X('#d6e0ea'), X('#eef2f2'), X('#f8faf6')], NF = [X('#bccee2'), X('#d2deea'), X('#e4ecf0'), X('#eef2f2')];
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + t * 0.5, r = 9 + ((Math.floor(t * 4) + k) % 3); for (let i = 0; i < 3; i++) tin(SOL[0] + Math.cos(a) * (r + i), SOL[1] + Math.sin(a) * (r + i), X('#fffbe6'), 0.8 - i * 0.2); }
+    for (const [x, y, w, v, k, c] of [[22, 58, 15, 2.5, 5, NF], [288, 58, 15, 2.5, 6, NF], [108, 55, 24, 5, 3, NM], [226, 53, 19, 5, 4, NM], [60, 35, 33, 9, 1, NL], [180, 41, 27, 8, 2, NL]]) cumulo(Math.round(x + dt * v), y, w, k, c);
+    // la cometa: el hilo baja hasta detrás de la arboleda
+    const kx = Math.round(122 + Math.sin(t * 0.9) * 6), ky = Math.round(33 + Math.cos(t * 1.3) * 3);
+    for (let i = 0; i <= 60; i++) { const u = i / 60; R.pset(Math.round(lerp(kx, 110, u) - Math.sin(u * Math.PI) * 5), Math.round(lerp(ky + 6, 85, u * u * 0.4 + u * 0.6)), X('#46587a')); }
+    R.poligono([[kx, ky - 7], [kx + 6, ky - 1], [kx, ky + 7], [kx - 6, ky - 1]], Q.k); R.poligono([[kx, ky - 6], [kx + 5, ky - 1], [kx, ky + 6]], Q.rojo); R.poligono([[kx, ky - 6], [kx - 5, ky - 1], [kx, ky + 6]], Q.oro); R.poligono([[kx, ky - 1], [kx + 5, ky - 1], [kx, ky + 6]], Q.rojoS); R.poligono([[kx, ky - 1], [kx - 5, ky - 1], [kx, ky + 6]], Q.naranja); R.rect(kx, ky - 6, kx, ky + 6, Q.k); R.rect(kx - 5, ky - 1, kx + 5, ky - 1, Q.k);
+    for (let i = 1; i <= 9; i++) { const x = kx - i * 2 + Math.round(Math.sin(t * 5 - i * 0.8) * (1 + i * 0.25)), y = ky + 7 + Math.round(i * 1.1 + Math.cos(t * 5 - i * 0.8)); R.pset(x, y, Q.k); if (i % 3 === 0) { R.rect(x - 1, y - 1, x + 1, y + 1, i % 2 ? Q.rojo : Q.azul); R.pset(x, y, Q.bl); } } }
+  T.bandada(R, t, { y: 52, n: 5 }); T.bandada(R, t * 0.7 + 9, { y: 64, n: 3 }); // por debajo de la zona de Atom
   // los patos, y el agua que brilla
   for (let k = 0; k < 2; k++) { const x = Math.round(24 + k * 16 + Math.sin(t * 0.5 + k * 2) * 6), y = 119 + k * 3; R.rect(x, y, x + 4, y + 1, Q.bl); R.rect(x + 4, y - 2, x + 5, y - 1, k ? Q.verdeS : Q.bl); R.pset(x + 6, y - 1, Q.naranja); if (Math.floor(t * 3 + k) % 2) R.rect(x - 3, y + 2, x + 1, y + 2, X('#b8e0f0')); }
   // los árboles (el tronco aquí, la copa encima de la gente del fondo)

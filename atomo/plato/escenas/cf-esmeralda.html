@@ -10,8 +10,9 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // CF-ESMERALDA (frase 13), 1983. Dos planos:
-// 1. LOCAL: al atardecer, junto al lago, una mano levanta la esmeralda; los tres lo celebran detrás de la mesa, con el
-//    cofre abierto y la llave; arriba, doce cofres: uno encontrado y once por encontrar;
+// 1. LOCAL: al atardecer, junto al lago, una mano levanta la esmeralda (sujeta entre los dedos, que pisan su punta);
+//    los tres lo celebran detrás de la mesa, con el cofre abierto y la llave; arriba, doce cofres: uno encontrado y
+//    once por encontrar;
 // 2. LOCAL: un calendario de pared pasa hojas de 1983 a 2004 (el 21); por la ventana corren las estaciones, la planta
 //    crece y, al final, aparece otro cofre en la balda.
 import * as T from '/atomo/plato/escenas/cf-comun.js';
@@ -108,8 +109,10 @@ const p1 = (t) => {
   const sube = tramo(t, 0.15, te(1.1)), e2 = sube * (2 - sube), gx = 272, gy = lerp(236, 138, e2) + (meses ? Math.sin((t - te(2.1)) * 4) * 2 : 0);
   if (brilla) { const r0 = 22 + Math.sin(t * 3) * 2; for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2 + t * 0.5, l = r0 + 6 + (k % 2) * 7; R.linea(Math.round(gx + Math.cos(a) * r0), Math.round(gy - 18 + Math.sin(a) * r0), Math.round(gx + Math.cos(a) * l), Math.round(gy - 18 + Math.sin(a) * l), k % 2 ? hex('#b8ffd0') : BLANCO); } }
   for (let j = -22; j <= 22; j++) for (let i = -24; i <= 24; i++) if (Math.hypot(i, j) < 23 && (i + j) % 2 === 0) { const x = gx + i, y = Math.round(gy - 18 + j); R.pset(x, y, mez(R.pget(x, y), hex('#1a2a4a'), 0.5)); }
-  G.piedra(R, gx, Math.round(gy), { s: 3, color: 'esmeralda', t });
-  T.brazo(R, gx + 60, gy + 56, gx + 13, gy + 4, '#c83a3a', -1, { codo: [gx + 40, gy + 26] });
+  const gyr = Math.round(gy);   // gema y mano, al mismo píxel entero: no se separan al subir ni al balancearse
+  G.piedra(R, gx, gyr, { s: 3, color: 'esmeralda', t });
+  // la mano va DESPUÉS de la gema y justo debajo: los dedos tapan la punta, con el mismo balanceo (gy)
+  T.brazo(R, gx + 60, gyr + 56, gx + 9, gyr - 2, '#c83a3a', -1, { codo: [gx + 37, gyr + 22] });
   if (brilla) for (let k = 0; k < 4; k++) { const a = t * 1.7 + k * 1.57; destello(gx + Math.cos(a) * 26, gy - 18 + Math.sin(a) * 22, 1 + (Math.floor(t * 5 + k) % 2), BLANCO); }
   // doce cofres: uno encontrado y once que esperan
   const fila = tramo(t, te(4.0), te(5.5));
