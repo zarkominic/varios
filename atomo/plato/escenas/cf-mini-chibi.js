@@ -9,8 +9,8 @@ export function pintarCFchibi(R, t, n) {
     const o = { encuadre: 'parque', camara: 'hoyo', caja: 0, hora: 'tarde' };
     chicago(R, t, o);
     grado(R, { tinte: '#0a1020', f: 0.14, desde: 0.72, max: 0.55 });
-    halo(R, 156, 160, 80, 30, '#ffd060', 0.5);
-    halo(R, 156, 160, 34, 18, '#fff4c0', 0.45);
+    halo(R, 156, 164, 92, 34, '#ffd060', 0.72);
+    halo(R, 156, 166, 40, 22, '#fff4c0', 0.6);
     P.cofre(R, 156, 176, { s: 2 });
     for (const [x, y] of [[118, 150], [196, 146], [128, 168], [190, 170]]) for (const [i, j, c] of [[0, 0, 0xffc0f4ff], [-1, 0, 0xff60d0ff], [1, 0, 0xff60d0ff], [0, -1, 0xff60d0ff], [0, 1, 0xff60d0ff]]) R.pset(x + i, y + j, c);
     halo(R, 156, 90, 46, 40, '#ffe0b0', 0.18);

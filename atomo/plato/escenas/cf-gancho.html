@@ -296,7 +296,7 @@ const p4 = (t) => {
   const enc = tramo(t, teens - 0.25, teens + 0.1);
   // izquierda (1981): el parque del fuerte de noche; el editor llega con su pala de casi dos metros, la clava y se asoma
   mitad('4i', 160, 0, 0, () => { const o = { encuadre: 'parque', noche: true }; T.hoy(R, t, o);
-    const u = tramo(t, P4 + 0.1, shovel - 0.1), x = Math.round(lerp(322, 226, u)), clava = t >= shovel, mira = t > shovel + 0.5, cav = t > teens + 0.2 ? Math.round(Math.abs(Math.sin((t - teens) * 3.2)) * 3) : 0;
+    const u = tramo(t, P4 + 0.1, shovel - 0.1), x = Math.round(lerp(336, 226, u)), clava = t >= shovel, mira = t > shovel + 0.5, cav = t > teens + 0.2 ? Math.round(Math.abs(Math.sin((t - teens) * 3.2)) * 3) : 0;
     const a = R.actor(EL.preiss, x, 160, t, { dir: -1, anda: u > 0 && u < 1, sostiene: [x - 3, clava ? 147 + cav : 144], sonrisa: mira, salto: clava && t < shovel + 0.2 ? 2 : 0 });
     PZ.pala(R, a.mano[0], clava ? 161 + cav : 157 + (u < 1 ? Math.round(Math.sin(t * 9)) : 0), { larga: true });
     if (clava && t < shovel + 0.45) for (let k = 0; k < 4; k++) terron(a.mano[0], 160, a.mano[0] + (k - 1.5) * 9, 162, (t - shovel) / 0.45, 7 + k, hex('#7a5434'), hex('#523622'));
