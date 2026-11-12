@@ -560,5 +560,8 @@ cumplen (planos planeados = planos generados; ningún destello de cartela en los
 - **Cifras:** tokens: decorados 2,28 M; escenas 2,93 M; movimiento 0,37 M; pasada de decorados 1,92 M; calidad 5,02 M
   (2 h 24 min).
 
+- **Shorts en cuadrado (decisión del usuario, 12/11/2026):** preguntó por qué solo se usaba el 30 % de la pantalla;
+  con dos muestras eligió el recorte cuadrado por plano (56 %). `short.py` lo hace solo desde ahora.
+
 Pendiente para el próximo: borrar los fotogramas del 33 y las capturas de las pasadas antes del render; medir los brazos
 en el borrador; proponer al usuario el arreglo de `subtitulos.py` para las iniciales («H. R.»).

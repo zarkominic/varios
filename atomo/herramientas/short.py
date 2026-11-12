@@ -9,8 +9,8 @@ efectos.wav. Escribe:
 - <salida>.mp4: el Short con la voz inglesa (pista principal), −14 LUFS;
 - <salida>-es.m4a: la pista en español, de la misma duración, para subirla como pista de audio extra;
 - <salida>-en.srt y <salida>-es.srt: los subtítulos de cada idioma con los tiempos del Short.
-La imagen: el vídeo a todo lo ancho en el centro (1080×608) sobre el mismo plano ampliado, difuminado y oscurecido; sin
-letras (el canon del canal). El sonido: la mezcla «B» de montar-largo.sh (se lee de allí), con fundidos cortos en cada
+La imagen: cada plano recortado en cuadrado (1080×1080) donde hay más movimiento, en el centro, sobre el mismo plano
+ampliado, difuminado y oscurecido; sin letras (el canon del canal). El sonido: la mezcla «B» de montar-largo.sh (se lee de allí), con fundidos cortos en cada
 unión.
 """
 import os, re, shutil, subprocess, sys, tempfile
@@ -47,15 +47,55 @@ for l in ('en', 'es'):
         x[:n] *= np.linspace(0, 1, n)[:, None]; x[-n:] *= np.linspace(1, 0, n)[:, None]; trozos.append(x)
     sf.write(f'{tmp}/corte-{l}.wav', np.concatenate(trozos), sr)
     corre('ffmpeg', '-y', '-loglevel', 'error', '-i', f'{tmp}/corte-{l}.wav', '-af', 'loudnorm=I=-14:TP=-2:LRA=11', '-ar', '48000', f'{tmp}/short-{l}.wav')
-# 3. la imagen vertical, tramo a tramo, y la unión
-partes = []
-for k, (t0, t1) in enumerate(tramos):
-    f0, n = round(t0 * FPS), round((t1 - t0) * FPS)
-    corre('ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-start_number', str(f0), '-i', f'{D}/fotos/%05d.jpg', '-frames:v', str(n),
-          '-filter_complex', '[0:v]split[a][b];[a]scale=-2:1920:flags=neighbor,crop=1080:1920,boxblur=24:2,eq=brightness=-0.28:saturation=0.8[fondo];'
-          '[b]scale=1080:608:flags=neighbor[fr];[fondo][fr]overlay=0:656,format=yuv420p[v]', '-map', '[v]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18',
-          '-r', str(FPS), f'{tmp}/p{k}.mp4')
-    partes.append(f"file '{tmp}/p{k}.mp4'")
+# 3. la imagen vertical: cada plano, recortado en cuadrado (1080×1080, el 56 % de la pantalla; elegido por el usuario el
+#    12/11/2026 con una muestra del 33, frente al 32 % del cuadro entero y a la columna 9:16, que perdía media acción)
+#    donde más movimiento hay, sobre el mismo plano ampliado, difuminado y oscurecido
+from PIL import Image
+def gris(f):
+    return np.asarray(Image.open(f'{D}/fotos/{f:05d}.jpg').convert('L').resize((320, 180), Image.BILINEAR), dtype=np.float32)
+def cortes_del_episodio():
+    """Los fotogramas donde cambia el plano, de medir-planos.mjs (las duraciones de cada escena) y linea.json."""
+    import json
+    ini = {e['id']: e['inicio'] for e in json.load(open(f'{D}/linea.json'))['escenas']}
+    ep = os.path.basename(os.path.normpath(D))
+    txt = subprocess.run(['node', os.path.join(raiz, 'medir-planos.mjs'), ep], capture_output=True, text=True, cwd=os.path.dirname(os.path.dirname(raiz))).stdout
+    out = []
+    for ln in txt.splitlines():
+        c = ln.split()
+        if len(c) < 3 or c[0] not in ini: continue
+        t = ini[c[0]]; out.append(t)
+        for d in c[2:]:
+            t += float(d.rstrip('<!')); out.append(t)
+    return sorted(round(x * FPS) for x in out)
+def ventana(a, b, w=180):
+    """La x (en el lienzo de 320) del recorte de ancho w con más movimiento entre los fotogramas a y b."""
+    fs = list(range(a + min(10, (b - a) // 4), max(a + 2, b - min(10, (b - a) // 4)), 3))
+    if len(fs) < 2: return (320 - w) // 2
+    prev, m = gris(fs[0]), np.zeros((180, 320), np.float32)
+    for f in fs[1:]:
+        c = gris(f); m += (np.abs(c - prev) > 12); prev = c
+    m[:22, :] = 0                                        # la barra del año y el icono de Atom no cuentan
+    col = m.sum(0)
+    if col.sum() < 1: return (320 - w) // 2
+    x = int(np.convolve(col, np.ones(w), 'valid').argmax()); sub = col[x:x + w]
+    cx = x + (sub * np.arange(w)).sum() / (sub.sum() + 1e-6)
+    return int(round(min(max(cx - w / 2, max(0, x - w * 0.15)), min(320 - w, x + w * 0.15))))
+CORTES = cortes_del_episodio()
+partes, k = [], 0
+for t0, t1 in tramos:
+    f0 = round(t0 * FPS); f1 = f0 + round((t1 - t0) * FPS); lim = [f0]
+    for fc in CORTES:
+        if f0 + 20 < fc < f1 - 20:                       # el corte de verdad: el mayor salto de imagen cerca del previsto
+            lim.append(max(range(fc - 18, fc + 18), key=lambda f: np.abs(gris(f) - gris(f - 1)).mean()))
+    lim.append(f1)
+    for a, b in zip(lim, lim[1:]):
+        if b <= a: continue
+        x = ventana(a, b)
+        corre('ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-start_number', str(a), '-i', f'{D}/fotos/%05d.jpg', '-frames:v', str(b - a),
+              '-filter_complex', '[0:v]split[a][b];[a]scale=-2:1920:flags=neighbor,crop=1080:1920,boxblur=24:2,eq=brightness=-0.28:saturation=0.8[fondo];'
+              f'[b]scale=1920:1080:flags=neighbor,crop=1080:1080:{x * 6}:0[fr];[fondo][fr]overlay=0:420,format=yuv420p[v]', '-map', '[v]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '18',
+              '-r', str(FPS), f'{tmp}/p{k}.mp4')
+        partes.append(f"file '{tmp}/p{k}.mp4'"); k += 1
 open(f'{tmp}/lista.txt', 'w').write('\n'.join(partes))
 corre('ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', f'{tmp}/lista.txt', '-i', f'{tmp}/short-en.wav', '-map', '0:v', '-map', '1:a',
       '-c:v', 'copy', '-c:a', 'aac', '-b:a', '192k', '-metadata:s:a:0', 'language=eng', '-shortest', '-movflags', '+faststart', f'{salida}.mp4')

@@ -534,6 +534,10 @@ aquí, con los fotogramas del render todavía en disco.
    ```
    Tarda unos 3 minutos y deja:
    - `.mp4`: 1080×1920, con la voz inglesa como pista principal y −14 LUFS;
+     - **la imagen va en cuadrado** (elegido por el usuario el 12/11/2026 con una muestra del 33: «el de 56 %»): cada
+       plano se recorta a 1080×1080 donde hay más movimiento (lo decide `short.py` solo) y ocupa el 56 % de la
+       pantalla, no el 32 % del cuadro entero. Mira en la hoja de control que ningún plano deje fuera lo que cuenta
+       (un contador, el objeto del gag); la columna 9:16 entera se descartó porque perdía media acción;
    - `-es.m4a`: la pista en español, con la misma duración;
    - `-en.srt` y `-es.srt`: los subtítulos con los tiempos del Short.
 
