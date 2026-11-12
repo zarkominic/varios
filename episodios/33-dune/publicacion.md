@@ -96,10 +96,40 @@ portadas del libro: todos los dibujos son nuestros.
 - **Miniatura:** `atomo/plato/escenas/du-miniatura.html`, capturada en t = 1 (con chibis).
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  EN 14 («cost Lanier his job» le suena «costs linear», hacia 3:42); EN 24 y EN 28 (no oye «dollars» tras «forty
+  million» y «four hundred million», hacia 6:18 y 7:18); ES 23 (un hueco de 0,22 s dentro de «joven», hacia 6:10); ES 24
+  («Su Dun» le suena «nudun», 6:15); ES 29 (le falta la «y» de «Y la tercera parte», 7:29). Los demás avisos son nombres
+  propios escritos como se dicen (Arrakis, Lanier, Villeneuve, De Laurentiis, Hollywood, Jodorowsky, Whole Earth), que el
+  control lee a su manera: normal.
+- **Tres detalles que puedes pedir cambiar:** la estatuilla de los seis premios es genérica a propósito (una llama sobre
+  una esfera, no la de verdad), pero de lejos se parece; en la subasta de París se ve la cifra «2 660 000» mientras la
+  voz dice «más de dos millones y medio»; y en la despedida de Herbert (1986) aparece un «65», su edad, con el reloj de
+  arena que se acaba y la luz que baja: sin nada morboso.
 - **Derechos:** solo dibujos propios. Si YouTube marcara algo, el título y la descripción dejan claro que es una
   historia independiente.
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz inglesa como pista principal, la pista en
+español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo relacionado» se elige el episodio completo.
+
+### Short 1 · Veinte editoriales dijeron que no · tramo 0.25-16.65,163.16-189.03
+- **EN:** Dune Was Rejected by About 20 Publishers #Shorts
+- **ES:** Dune: unas 20 editoriales le dijeron que no #Shorts
+- **EN:** Dune was turned down by about twenty publishers. One editor said nobody could get through the first hundred pages. Another suspected they were making the mistake of the decade. The full story is in the linked video. #Dune #FrankHerbert #Books #ASKAtom #Shorts
+- **ES:** A Dune la rechazaron unas veinte editoriales. Un editor dijo que nadie pasaría de las primeras cien páginas. Otro sospechó que estaban cometiendo el error de la década. La historia completa, en el vídeo enlazado. #Dune #FrankHerbert #Libros #ASKAtom #Shorts
+
+### Short 2 · La editorial de los manuales de autos · tramo 190.82-240.3
+- **EN:** Dune Was Published by a Car Repair Manual Company #Shorts
+- **ES:** Dune: la publicó una editorial de manuales de autos #Shorts
+- **EN:** The publisher that finally said yes to Dune was known for its car repair manuals. It sold so slowly that, as the story goes, it cost the editor his job. Then came the awards. The full story is in the linked video. #Dune #FrankHerbert #Books #ASKAtom #Shorts
+- **ES:** La editorial que por fin dijo que sí a Dune era conocida por sus manuales para reparar autos. Se vendió tan despacio que, según se cuenta, al editor le costó el puesto. Y entonces llegaron los premios. La historia completa, en el vídeo enlazado. #Dune #FrankHerbert #Libros #ASKAtom #Shorts
+
+### Short 3 · El Dune que nunca se filmó · tramo 293.02-340.05
+- **EN:** Jodorowsky's Dune: Dalí Wanted $100,000 an Hour #Shorts
+- **ES:** El Dune de Jodorowsky: Dalí pidió 100 000 dólares la hora #Shorts
+- **EN:** In the 1970s, Alejandro Jodorowsky planned a Dune with Salvador Dalí, Orson Welles, Mick Jagger and music by Pink Floyd. Not a single shot was filmed, but its book of drawings sold for millions. The full story is in the linked video. #Dune #Jodorowsky #Movies #ASKAtom #Shorts
+- **ES:** En los años 70, Alejandro Jodorowsky planeó un Dune con Salvador Dalí, Orson Welles, Mick Jagger y música de Pink Floyd. No se filmó ni un plano, pero su libro de dibujos se vendió por millones. La historia completa, en el vídeo enlazado. #Dune #Jodorowsky #Cine #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/du-short1-miniatura.html`, `du-short2-miniatura.html` y `du-short3-miniatura.html`, de
+`du-mini-chibi.js`.
