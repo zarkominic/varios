@@ -5918,3 +5918,104 @@ function g_casillasDelante(R, t, o = {}) {
   if (o.barquito !== false) { for (let i = -14; i <= 16; i++) for (let j = 0; j < 3; j++) if ((i + j) % 2 === 0 || j === 0) R.pset(bx + i, by + 1 + j, K.nogalD); g_barquito(R, bx, by, 13, t, { quieto: true, ondas: false }); }
   return {};
 }
+
+// ── H · Insertos de mesa de época (1872–1996) ──────────────────────────────────────────────────────────────────────────
+// mesas(R, t, o): INSERTOS vistos desde arriba o en tres cuartos, a pantalla completa, para los planos de detalle (las
+// manos y los objetos los pone la escena). Cada o.encuadre es una composición propia, al nivel de la cámara 'foto' de
+// papeles() o de la 'casillas' de hoy(): nada liso, materiales con veta y desgaste, luz con dirección, algo que se mueve
+// (una llama, polvo en un rayo de luz, vapor, una hoja que tiembla). Sin letras (números, rayas e iconos). Devuelve la
+// geometría (dónde caben las manos y los objetos de la escena). Respeta las zonas tranquilas (Atom x 274–318, y < 48;
+// año x 14–188, y < 23).
+//   'fragmentos': la mesa de trabajo de George Smith en el Museo Británico, 1872: bandejas y cajones de madera con trozos
+//     de tablilla numerados (etiquetas con cifras), un pincel, una lupa de latón, un tintero, luz de ventana con niebla.
+//     o.orden 0–1: los trozos sueltos se van agrupando en el fieltro verde del centro (deja el centro para la escena).
+//   'cuaderno': de noche, un pupitre con un cuaderno abierto lleno de trazos en cuña copiados a tinta (NO un alfabeto
+//     real), una vela que tiembla, plumas, un vaso de té, libros apilados con marcapáginas. o.paginas 0–1: pasa hojas.
+//   'cajas': 1960, sobre la tierra de la ladera: tres cajas de expedición abiertas vistas desde arriba, con paja y
+//     NADA dentro salvo tierra y piedras corrientes; palas, una criba, cuerda, un cuaderno de campo. o.abiertas 0–1.
+//   'manta': 1977, una manta de cuadros sobre la hierba y la tierra: los «hallazgos» de Wyatt ordenados (trozos de
+//     piedra, nódulos rojizos), con etiquetas numeradas, una cámara de fotos, una mochila en la esquina, hormigas.
+//   'firma': 1996, un escritorio de despacho desde arriba: el artículo científico (hojas con rayas y un diagrama de
+//     capas en cuenco), dos plumas, un vaso, piedras de muestra, una regla. o.firmas 0–2: aparecen las dos firmas
+//     (garabatos) al pie.
+//   'muestras': una bandeja de laboratorio de geología: a la izquierda el «remache» (un nódulo rojizo de mineral de
+//     hierro) y a la derecha el «ancla» (piedra volcánica gris con agujero, pequeña), cada uno con su ficha de icono
+//     (o.fichas 0–1: aparece el icono de hierro y el de volcán), una lupa de pie, pinzas, un imán.
+//   'fasold': el escritorio de David Fasold, marino: su libro (tapa con un barco), su gorra de marino, una brújula, una
+//     foto de la roca, cartas náuticas; o.duda 0–1: sobre la foto, un «?» a lápiz que se va marcando.
+//   'balanza': una balanza de dos platillos de latón sobre una mesa de madera: en un platillo un libro pequeño cerrado
+//     (sin símbolo), en el otro una lupa; o.equilibrio 0–1: oscila y se queda nivelada. Fondo cálido de biblioteca en
+//     tramas.
+export function mesas(R, t, o = {}) {
+  // ESQUELETO: lo sustituye la primera versión de los decorados
+  provisional(R, t, C.cielo, C.madera);
+  return { suelo: 150 };
+}
+// lo de delante de los personajes en cada encuadre de mesas(); se llama después de los actores, con las mismas opciones
+export function mesasDelante(R, t, o = {}) {
+  return {};
+}
+
+// ── I · Insertos de hoy (2026) y del relato ───────────────────────────────────────────────────────────────────────────────
+// insertos(R, t, o): como mesas(), INSERTOS a pantalla completa para planos de detalle; cada o.encuadre es una
+// composición propia al mismo nivel (nada liso, luz con dirección, algo que se mueve). Sin letras. Devuelve la geometría.
+//   'bolsitas': 2026, una mesa de campaña: una bandeja con bolsitas de muestras de suelo numeradas (o.cuantas 0–1: se
+//     llena), una paleta, etiquetas, un GPS, guantes; tierra de la ladera alrededor.
+//   'permiso': el capó de la furgoneta o una mesa de campaña con un PERMISO oficial (un papel con rayas, una media luna
+//     y estrella pequeñas en el membrete y un hueco de sello): o.sello 0–1: el sello de caucho baja y estampa; casco,
+//     plano enrollado de la forma, un termo.
+//   'fotos': una mesa con las primeras fotos de los trozos negros (carbonizados) junto a una regleta de escala; o.cuantas
+//     0–3: las fotos van cayendo; una cámara, una tablet apagada, micrófonos de prensa en el borde.
+//   'sobres': tres sobres acolchados numerados en camino (una cinta de paquetería o una saca de correo), cada uno hacia
+//     su matraz (icono de laboratorio) todavía vacío; un reloj de arena. o.viaje 0–1: avanzan sin llegar.
+//   'revista': una revista científica sobre una mesa: o.abierta 0 cerrada (tapa sobria con un átomo y rayas), 1 abierta
+//     con columnas de rayas, una gráfica y sellos de «revisado» (tres marcas de visto de distintos colores); al lado, un
+//     montón de notas de prensa (papeles con megáfono).
+//   'calendario': un calendario de pared de 2027 (R.numero) con sus meses en cuadrícula y, al lado, el permiso de
+//     excavación con el hueco del sello vacío y el sello de caucho esperando; pala y paletín apoyados.
+//   'libro': un libro antiguo y grande, SIN símbolo, sobre un atril de madera, con velas y un paño; o.abierto 0–1: se abre
+//     y de sus páginas sale una luz cálida (páginas con rayas y una viñeta de olas).
+//   'medida': un tablero con el barco del relato en silueta de perfil (madera, sin nadie) y su regla de 300 codos
+//     (o.regla 0–1: la regla se tiende y aparece el 300); debajo, a la misma escala, objetos de hoy para compararlo (un
+//     autobús, un campo de fútbol, una ballena azul), y el 140.
+//   'martillo': sobre una roca con líquenes de la ladera, un martillo de geólogo y un libro cerrado sin símbolo, lado a
+//     lado; hierba que se mece, una lagartija.
+export function insertos(R, t, o = {}) {
+  // ESQUELETO: lo sustituye la primera versión de los decorados
+  provisional(R, t, C.cielo, C.madera);
+  return { suelo: 150 };
+}
+// lo de delante de los personajes en cada encuadre de insertos(); se llama después de los actores, con las mismas opciones
+export function insertosDelante(R, t, o = {}) {
+  return {};
+}
+
+// ── J · Vistas sueltas ──────────────────────────────────────────────────────────────────────────────────────────────────
+// vistas(R, t, o): seis vistas de un solo plano, al nivel del resto de decorados. Devuelve la geometría (suelo, zonas
+// libres). Lo que va por delante de los personajes, en vistasDelante.
+//   'fachada': Londres, 1872: la fachada del Museo Británico (columnas, frontón) entre la niebla, farolas de gas
+//     encendidas, adoquines mojados, un carruaje que pasa, palomas, gente diminuta con paraguas. Suelo para un actor.
+//   'primerafila': la primera fila de la conferencia de 1872 (mismas butacas, cortinas rojas y lámparas de gas que
+//     museo() 'conferencia'), vista de frente desde el estrado: butacas tapizadas con sitio para tres personajes sentados
+//     (los pone la escena; devuelve sus asientos), público en penumbra detrás (siluetas con sombreros).
+//   'pueblo': 1977, un pueblo kurdo de casas de piedra y adobe de techo plano a unos kilómetros de la ladera: en primer
+//     término, junto a una tapia, UNA GRAN PIEDRA ERGUIDA CON UN AGUJERO arriba (más alta que una persona), con cruces
+//     grabadas muy gastadas; gallinas, un burro, ropa tendida; el Ararat pequeño y lejano. Suelo para un actor.
+//   'cielo': el cielo después de la lluvia: nubes que se abren, el sol, el mar en calma abajo con el barco de madera
+//     DIMINUTO y sin nadie; o.arco 0–1: el arcoíris se traza. Deja el centro libre para la paloma de la escena.
+//   'librocerca': uno de los tres libros sagrados de relato() 'libros', de cerca, sobre su paño, con la MISMA luz y el
+//     mismo tamaño sea cual sea (o.cual: 'estrella' | 'cruz' | 'luna'); al fondo, desenfocados en tramas, los otros dos,
+//     iguales. Cerrado siempre.
+//   'azul': la rejilla de PLANO AZUL (la de ladera() con o.plano y diluvios() 'marnegro') como fondo de hipótesis: cotas,
+//     marcas de registro y un cajetín sin letras; o.duda 0–1: un gran «?» a tiza que se traza a la izquierda; o.barras
+//     0–1: dos barras de distinta altura que crecen (dentro: alta; fuera: baja), cada una con su bolsita de suelo y su
+//     icono (dentro / fuera de la silueta del barco). Suelo para dos actores a la derecha (devuelve dónde).
+export function vistas(R, t, o = {}) {
+  // ESQUELETO: lo sustituye la primera versión de los decorados
+  provisional(R, t, C.cielo, C.madera);
+  return { suelo: 150 };
+}
+// lo de delante de los personajes en cada encuadre de vistas(); se llama después de los actores, con las mismas opciones
+export function vistasDelante(R, t, o = {}) {
+  return {};
+}
