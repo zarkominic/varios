@@ -121,6 +121,11 @@ textos, lo que se ha encontrado y lo que se ha comprobado y lo que no.
   (Durupınar, Quran, Nuh, George Smith, Deucalion, Wyatt, Noah's Ark Scans), que el control lee a su manera: normal.
 - **Resultados de laboratorio:** comprobado el 13 de noviembre de 2026: no hay ninguno publicado; la madera sigue en el
   laboratorio. Vuelve a mirarlo el día que lo subas.
+- **Cuatro detalles que puedes pedir cambiar:** en el plano del martillo y el libro (1996, hacia 6:03) entran dos brazos
+  largos desde las esquinas (unos 70 y 58 px; la norma es 45) porque los objetos quedan lejos del borde; lo mismo, más
+  leve, en la manta de Wyatt (se resolvió con una pinza de mango) y en la tablilla de Smith (una mano sola); el golpe
+  musical de «madera» cae al empezar la frase (6:58), no sobre la palabra; y el Short 3 empieza en «ha vuelto a la
+  ladera» sin nombrar la roca (el título sí la nombra).
 - **Derechos:** solo dibujos propios.
 
 ## Shorts
