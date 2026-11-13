@@ -1,6 +1,6 @@
 # Episodio 34 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:53.
 - Un solo vídeo: audio principal en inglés (voz `am_puck`, narrada como un cuento, voz «B») y pista de audio en español
   (`em_santa`, con los nombres propios escritos como se dicen en México).
 - Subtítulos en inglés y en español.
@@ -11,7 +11,7 @@
   reales, solo con hechos; «no confirmado» no es «mentira».
 
 **Publicar:** pronto: las fotos de la madera son del 10 de noviembre de 2026. **Antes de subir, mira si ha salido algún
-resultado de laboratorio** (la madera está enviada a datar): el vídeo dice en el minuto {MIN_MADERA} que «los resultados
+resultado de laboratorio** (la madera está enviada a datar): el vídeo dice en el minuto 7:37 que «los resultados
 no han llegado»; si llegan, hay que rehacer esa frase.
 
 ## Títulos
@@ -22,7 +22,9 @@ no han llegado»; si llegan, hay que rehacer esa frase.
 **Alternativa para la prueba A/B de YouTube:**
 - EN: The Flood Story Older Than the Bible, on a Clay Tablet
 
-{MINIATURA}
+La miniatura (la roca con forma de barco al atardecer, con el Ararat nevado al fondo: el capitán Durupınar, al doble,
+que la mira con asombro; arriba a la izquierda, un «?» grande sobre el cielo oscuro) no lleva palabras: el texto lo
+pone el título.
 
 ## Descripción (EN)
 
@@ -44,7 +46,14 @@ What we cover:
 
 What would convince you? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 A rock shaped like a ship
+0:35 The 1959 photo
+1:29 What the story says
+2:32 Older than the Bible
+3:46 Other floods
+4:57 The ark hunters
+6:18 Radar, drill and wood
+8:09 What we actually know
 
 Sources: Genesis 6–9 · Quran 11:44 · Collins & Fasold, Journal of Geoscience Education (1996) · Irving Finkel, The Ark
 Before Noah (2014) · Smithsonian Magazine (George Smith) · Livius.org (The Great Flood) · NCSE · Fox News (10 November
@@ -76,7 +85,14 @@ Lo que contamos:
 
 ¿Qué te convencería a ti? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Una roca con forma de barco
+0:35 La foto de 1959
+1:29 Qué dice el relato
+2:32 Más antiguo que la Biblia
+3:46 Otros diluvios
+4:57 Los buscadores del arca
+6:18 Radar, sondeo y madera
+8:09 Lo que se sabe de verdad
 
 Fuentes: Génesis 6–9 · Corán 11:44 · Collins y Fasold, Journal of Geoscience Education (1996) · Irving Finkel, The Ark
 Before Noah (2014) · Smithsonian Magazine (George Smith) · Livius.org (The Great Flood) · NCSE · Fox News (10 de noviembre
@@ -98,7 +114,13 @@ textos, lo que se ha encontrado y lo que se ha comprobado y lo que no.
 - **Miniatura:** `atomo/plato/escenas/nx-miniatura.html`, capturada en t = 1 (con chibis).
 - **Pista en español:** si el canal aún no puede subir pistas extra, el español va como vídeo aparte.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  ES 8 y ES 9 («Noé» le suena «no es», hacia 1:45 y 2:01: es lo primero que hay que oír, porque es el nombre del
+  protagonista); EN 9 y EN 10 («Judi» le suena «Judea», hacia 2:14 y 2:17); EN 2 («it» le suena «ire», 0:16); EN 15
+  (no oye un «and», hacia 3:50); EN 29 («in» le suena «and», 8:24); ES 5 (un hueco de 0,16 s tras «Turquía», 0:58);
+  ES 15 («Deucalión» le suena «de Eucalión», 3:59). Los demás avisos son nombres propios escritos como se dicen
+  (Durupınar, Quran, Nuh, George Smith, Deucalion, Wyatt, Noah's Ark Scans), que el control lee a su manera: normal.
+- **Resultados de laboratorio:** comprobado el 13 de noviembre de 2026: no hay ninguno publicado; la madera sigue en el
+  laboratorio. Vuelve a mirarlo el día que lo subas.
 - **Derechos:** solo dibujos propios.
 
 ## Shorts
