@@ -9895,3 +9895,573 @@ export const PIEZAS_DU = {
   camaraCine: camaraCineDU, estatuilla: estatuillaDU, hucha: huchaDU, mazo: mazoDU, contrato: contratoDU,
   excavadoraDU, senalHierba: senalHierbaDU,
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// EPISODIO 34 · «El Arca de Noé: el relato, las religiones y la roca con forma de barco»
+// A Noé (Nuh), a Manu y a las figuras religiosas NO se les dibuja (decisión aprobada): aquí solo hay gente de 1872 a
+// 2026 (el museo, las expediciones, los geólogos, el equipo del radar), un pastor de la zona y los turistas.
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ── tocados ──
+Object.assign(TOCADOS, {
+  // la gorra de marino de paño azul (J/j), con la cinta negra (D), el botón de oro (O) y la visera corta: Fasold
+  gorraMarinoNX: [[
+    '..kkkkkkkkk....',
+    '.kJJJJJJJJJk...',
+    '.kJjJJJJJJJk...',
+    '.kDDDDDODDDk...',
+    '.kkkkkkkkkkkkk.',
+    '..........kkkk.',
+  ], -3],
+  // el gorro de fieltro del pastor, redondo y sin visera (J, el punto j y la vuelta j)
+  gorroPastorNX: [[
+    '...kkkkkkkk....',
+    '..kJJjJJjJJk...',
+    '.kJjJJjJJjJJk..',
+    '.kjjjjjjjjjjk..',
+    '.kkkkkkkkkkkk..',
+  ], -1],
+});
+
+// ── cabezas ──
+// George Smith: el pelo oscuro con la raya a un lado y la barba corta (la boca a la vista)
+const CAB_SMITH_NX = parche(CAB_LADO_DC, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+// el señor mayor de 1872: el pelo ralo (la coronilla despejada) y las grandes patillas hasta la mandíbula; la cara,
+// entera (los ojos van en las columnas 8 y 12)
+const CAB_PATILLONES_NX = parche(CAB_CALVA_ENTRADAS_DC, [[3, 5, 'H'], [3, 6, 'HH'], [3, 7, 'HHH'], [2, 8, 'HHHH'], [2, 9, 'kHHH'], [3, 10, 'kHH'], [4, 11, 'k']]);
+
+// ── cuerpos ──
+// el uniforme caqui del capitán (C/c): la camisa y la corbata (u), el correaje en diagonal y el cinturón (G) con su
+// hebilla (O), los botones (o) y las botas altas (L)
+const CUERPO_CAPITAN_NX = parche(CUERPO_EUROPEO, [[7, 1, 'u'], [7, 2, 'u'], [10, 1, 'G'], [9, 2, 'G'], [8, 3, 'G'], [4, 5, 'GGGOGGG'], [4, 10, 'LLL'], [8, 10, 'LLL'], [4, 11, 'LLL'], [8, 11, 'LLL']]);
+// la levita victoriana (C/c), larga hasta la rodilla, abierta sobre el chaleco (V, los botones o) y el cuello blanco (W)
+const CUERPO_LEVITA_NX = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCVVVCCkCk.',
+  '.kCkCCVoVCCkCk.',
+  '.kCkCCVVVCCkCk.',
+  '.kSkCCVoVCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kCCCkCCCk...',
+  '...kcCCkCCck...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// el mismo caballero SIN la levita: las mangas de la camisa (W) y el chaleco (V) abotonado (o)
+const CUERPO_SIN_LEVITA_NX = [
+  '...kkWWWWWkk...',
+  '..kWWVWWWVWWk..',
+  '.kWkVVVVVVVkWk.',
+  '.kWkVVVoVVVkWk.',
+  '.kWkVVVVVVVkWk.',
+  '.kSkVVVoVVVkSk.',
+  '..kkVVVVVVVkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// la levita negra del señor mayor: el cuello alto y blanco hasta la mandíbula y el corbatín negro (u)
+const CUERPO_LEVITA_ALTA_NX = parche(CUERPO_LEVITA_NX, [[3, 0, 'kWWWWWWWk'], [6, 1, 'uuu'], [7, 2, 'u']]);
+// la capa de fieltro del pastor (C, la costura c): ancha y recta de hombros, cerrada hasta las rodillas; asoma la mano
+// que lleva el cayado, y las botas (L)
+const CUERPO_KEPENEK_NX = [
+  '..kkkCCCCCkkk..',
+  '.kCCCCCCCCCCCk.',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCkSSk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kcCCCCCcCCCCCck',
+  'kkkkkkkkkkkkkkk',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
+// el vestido de verano de tirantes (C, los lunares p, el cinturón I): los brazos y las piernas al aire y las sandalias (L)
+const CUERPO_VERANO_NX = [
+  '....kkSSSkk....',
+  '..kkSCSSSCSkk..',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCpCCCpkSk.',
+  '.kSkIIIIIIIkSk.',
+  '.kSkCCCpCCCkSk.',
+  '..kkCpCCCpCkk..',
+  '..kCCCCpCCCCk..',
+  '..kCpCCCCCpCk..',
+  '..kkkkkkkkkkk..',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '...kkLk.kLkk...',
+];
+
+// ── detalles ──
+// la mochila de Wyatt, por detrás: el saco verde (B/b) con la esterilla enrollada (Y) arriba; y las correas, por delante
+const MOCHILA_NX = ['.kkkk.', 'kYYYYk', 'kkkkkk', 'kBBBBk', 'kBbBBk', 'kBBBBk', 'kBbbBk', '.kkkk.'];
+const PAL_MOCHILA_NX = COLORES({ B: '#6a8a52', b: '#4a6a3a', Y: '#e8c860' });
+const mochilaNX = (c) => c.cuerpo.rej(MOCHILA_NX, -3, -1, { ...c.pal, ...PAL_MOCHILA_NX });
+const correasNX = (c) => { for (const [i, j] of [[4, 1], [4, 2], [10, 1], [10, 2]]) c.cuerpo.px(i, j, PAL_MOCHILA_NX.b); };
+// la barba blanca, larga y poblada, de Finkel: cae sobre el pecho (por encima de la chaqueta) y el pelo blanco le
+// llega a la nuca; la boca y los ojos, a la vista
+const barbaFinkelNX = (c) => { c.cab.rej([...PELO_LARGO.slice(0, 6), '.kkk.'], -1, 4); c.cuerpo.rej(BARBA_MEDIA_NV, 3, -1); };
+// la cámara de fotos colgada del cuello del turista (la correa, la caja negra y el objetivo)
+const camaraCuelloNX = (c) => {
+  const pal = { ...c.pal, ...COLORES({ K: '#2a2832', Z: '#c8ccd8', I: '#8ad0f0', u: '#5a4a3a' }) };
+  c.cuerpo.px(5, 1, pal.u); c.cuerpo.px(9, 1, pal.u); c.cuerpo.px(5, 2, pal.u); c.cuerpo.px(9, 2, pal.u);
+  c.cuerpo.rej(['kkkkk', 'kKZIk', 'kKKKk', 'kkkkk'], 5, 3, pal);
+};
+// el cayado del pastor: una vara de madera (b) con la vuelta arriba, en la mano de delante
+const cayadoNX = (c) => {
+  if (c.o.sostiene || c.o.dedo || c.o.brazos || c.o.sinObjeto) return;
+  const pal = { ...c.pal, ...COLORES({ b: '#8a5a34' }) }, alto = c.suelo - c.yC - 1;
+  c.cuerpo.rej(['.kkk.', 'kbbbk', 'kbkbk'], 12, -8, pal); c.cuerpo.px(12, -5, P.k); c.cuerpo.px(13, -5, pal.b); c.cuerpo.px(13, -4, P.k);
+  for (let j = -5; j <= alto; j++) { c.cuerpo.px(14, j, P.k); c.cuerpo.px(15, j, pal.b); c.cuerpo.px(16, j, P.k); }
+  c.cuerpo.px(15, alto + 1, P.k);
+  c.cuerpo.rej(['.kkk.', 'kSSSk', 'kSSsk', '.kkk.'], 12, 3);   // el puño que lo agarra
+};
+
+// ── el reparto del 34 ──
+const B34 = B23;
+export const ELENCO_NX = {
+  // ── Turquía, 1959–1960 ──
+  // el capitán Durupınar: la gorra de plato caqui, el bigote negro, el uniforme caqui con el correaje y las botas
+  durupinar: { ...B34, cuerpo: CUERPO_CAPITAN_NX, tocado: 'gorraPlatoTS', ceja: hex('#1c1424'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', J: '#a89660', j: '#c0ae78', D: '#5e5230', O: '#f0c840', C: '#a89660', c: '#857444', W: '#d8cc9a', u: '#5a5030', o: '#f0c840', G: '#6a4424', F: '#a89660', L: '#3a2a1e' }) },
+  // el expedicionario del salacot blanco: la barba CLARA (rubia) corta, la camisa de campo caqui, el cinturón y las botas
+  expedicionario1NX: { ...B34, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAMPO_GZ, tocado: 'salacotGZ', ceja: hex('#a8743c'),
+    pal: CLT({ H: '#d8b060', h: '#f0cc80', X: '#f4f0e4', x: '#c8c0a8', C: '#c8b480', c: '#a08e5c', o: '#8a7444', u: '#a08e5c', G: '#5a3a1e', F: '#7a6a48', n: '#4a3420' }) },
+  // el del sombrero de ala gris: afeitado, la camisa azul remangada con los tirantes, el pantalón pardo y las botas
+  expedicionario2NX: { ...B34, cuerpo: CUERPO_TIRANTES, tocado: 'alaAT', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#8a8a80', j: '#a8a89c', D: '#3a3a36', C: '#7a9ab8', c: '#5c7a98', W: '#7a9ab8', G: '#8a3a2a', F: '#6a5238', n: '#3a2a1e' }) },
+  // ── Londres, 1872 ──
+  // George Smith a los 32: el pelo oscuro con raya, la barba oscura corta, la levita azul noche sobre el chaleco
+  // tostado y la corbata de lazo granate
+  smith: { ...B34, cab: CAB_SMITH_NX, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#2a1c14'), delante: pajaritaNC('#8a2a3a'),
+    pal: CLT({ H: '#3a2618', h: '#5a4028', C: '#2e3a56', c: '#1e2840', V: '#c8a868', o: '#7a5a2a', W: '#f6f2ea', F: '#6a6a72' }) },
+  // Smith en mangas de camisa: sin la levita (solo la levita), con el chaleco y la corbata de lazo
+  smithSinChaqueta: { ...B34, cab: CAB_SMITH_NX, cuerpo: CUERPO_SIN_LEVITA_NX, ceja: hex('#2a1c14'), delante: pajaritaNC('#8a2a3a'),
+    pal: CLT({ H: '#3a2618', h: '#5a4028', V: '#c8a868', o: '#7a5a2a', W: '#f6f2ea', F: '#6a6a72' }) },
+  // el colega canoso: las patillas, las gafas redondas, la levita parda y el chaleco granate
+  colega1NX: { ...B34, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#7a7a86'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', C: '#6a4a32', c: '#4e3422', V: '#8a2e3c', o: '#e8c860', W: '#f6f2ea', F: '#8a8672' }) },
+  // el colega calvo: el bigote grande castaño, la levita verde botella, el chaleco mostaza y el pantalón gris
+  colega2NX: { ...B34, cab: CAB_CALVO, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#6a3a1a'), delante: bigoteGrandeVM,
+    pal: CLT({ H: '#8a4a22', h: '#a8643a', C: '#2e5a4a', c: '#1e4236', V: '#d8b048', o: '#7a5a1a', W: '#f6f2ea', F: '#5a5a66' }) },
+  // el señor mayor de la primera fila (el primer ministro): el pelo blanco ralo, las grandes patillas blancas, la
+  // levita negra y el cuello alto con el corbatín negro. Solo atributos, sin caricatura
+  gladstone: { ...B34, cab: CAB_PATILLONES_NX, cuerpo: CUERPO_LEVITA_ALTA_NX, ceja: hex('#b0b0ba'),
+    pal: CLT({ H: '#f0f0f4', h: '#c8ccd8', C: '#2a2832', c: '#1c1a22', V: '#3a3844', o: '#6a6876', u: '#1c1a22', W: '#ffffff', F: '#3a3844' }) },
+  // ── Londres, 2014 ──
+  // Irving Finkel: el pelo blanco, la barba blanca larga y poblada, las gafas redondas y la chaqueta de tweed
+  finkel: { ...B34, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_TWEED_VM, ceja: hex('#b0b0ba'), delante: varios(barbaFinkelNX, gafasRedondasDC),
+    pal: CLT({ H: '#f2f2f6', h: '#d0d4de', w: '#c8ccd8', C: '#8a7a50', c: '#64562e', W: '#f2f2f6', o: '#7a3040', F: '#5a5648' }) },
+  // ── la ladera, 1977–1990 ──
+  // Ron Wyatt en 1977: el pelo y la barba oscuros, la camisa de cuadros rojos, los vaqueros y la mochila
+  wyatt: { ...B34, cab: CAB_BARBA, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#1c1424'), detras: mochilaNX, delante: correasNX,
+    pal: CLT({ H: '#2e2018', h: '#4a3626', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
+  // David Fasold, marino mercante: la gorra de marino azul, el bigote entrecano, el jersey azul marino de cuello vuelto
+  // y el pantalón crema
+  fasold: { ...B34, cuerpo: CUERPO_CUELLO_ALTO_DU, tocado: 'gorraMarinoNX', ceja: hex('#6a6a76'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#8a8a94', h: '#b0b0ba', J: '#2a3a6a', j: '#40528a', D: '#1c1a20', O: '#f0c840', C: '#263460', c: '#182446', F: '#d8ccaa', n: '#4a3420' }) },
+  // Lorence Collins, geólogo, en los 90: canoso, las gafas de pasta y el chaleco de campo caqui de bolsillos sobre la
+  // camisa celeste
+  collins: { ...B34, cab: CAB_ENTRADAS, cuerpo: CUERPO_BUSCADOR, ceja: hex('#8a8a94'), delante: gafasKrupatCF,
+    pal: CLT({ H: '#b0b0ba', h: '#d4d4dc', C: '#a8c8e0', c: '#88a8c0', V: '#b09a62', o: '#8a7444', G: '#5a3a1a', F: '#6a6252', f: '#564e40', L: '#4a3420' }) },
+  // el geólogo joven: el casco amarillo y la camisa de campo verde
+  geologo2NX: { ...B34, cuerpo: CUERPO_CAMPO_GZ, tocado: 'cascoObra', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#f0c838', j: '#c89a18', C: '#5a9a6a', c: '#42784e', o: '#2e5a3a', u: '#42784e', G: '#3a2a1a', F: '#8a8262', n: '#4a3420' }) },
+  // la geóloga: pelirroja con coleta, el chaleco de campo azul verdoso sobre la camisa crema
+  geologa3NX: { ...B34, cuerpo: CUERPO_BUSCADOR, ceja: hex('#8a3a1a'), detras: coleta, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#f0e8d0', c: '#d0c8b0', V: '#3a8a8a', o: '#2a6a6a', G: '#5a3a1a', F: '#5a5a66', f: '#484854', L: '#4a3420' }) },
+  // ── la ladera, 2026 ──
+  // el fundador del grupo (persona real, sin caricatura): joven, el pelo corto castaño y la camisa de campo azul remangada
+  fundadorNX: { ...B34, cuerpo: CUERPO_REMANGADA_AT, ceja: hex('#5a3418'),
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#3a6ab8', c: '#2a4e90', W: '#5a8ad0', o: '#e8eef6', A: '#2a4e90', F: '#b0a680', n: '#4a3420' }) },
+  // el arqueólogo turco: el pelo oscuro, la barba corta, el sombrero de ala pardo, el chaleco de campo verde oliva y
+  // el pañuelo rojo al cuello
+  arqueologoNX: { ...B34, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_EXPLORADOR_CF, tocado: 'alaAT', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#241a20', h: '#42343c', J: '#9a7a4a', j: '#b8985e', D: '#4a3020', C: '#ece4cc', c: '#ccc4ac', V: '#6e7e4a', o: '#4e5c30', u: '#c8483a', G: '#5a3a1a', F: '#7a6a48', f: '#62542e', L: '#3a2a1e' }) },
+  // el técnico del radar: la gorra azul, el chaleco reflectante naranja con las franjas plateadas y la camisa oscura
+  tecnicoNX: { ...B34, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'beisbol', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', J: '#2a5aa8', j: '#4a7ac8', V: '#f08a2a', Y: '#e4e8f0', C: '#3a3e4e', c: '#2a2e3c', F: '#4a4a5a', n: '#2a2430' }) },
+  // ── la zona, hace siglos ──
+  // un pastor de la zona: el gorro de fieltro claro, el bigote oscuro, la capa parda de fieltro y el cayado
+  pastorNX: { ...B34, cuerpo: CUERPO_KEPENEK_NX, brazoCol: 12, tocado: 'gorroPastorNX', ceja: hex('#2a1c14'), delante: varios(bigoteGrandeVM, cayadoNX),
+    pal: MOT({ H: '#2e2018', h: '#4a3626', J: '#d8ccb0', j: '#b0a484', C: '#8a6844', c: '#6a4c2e', L: '#3a2a1e' }) },
+  // ── los turistas, 1977–1990 ──
+  // el turista: el sombrero de paja, la camisa de flores turquesa, la cámara al cuello y el pantalón claro
+  turista1NX: { ...B34, cuerpo: CUERPO_HAWAIANA_TS, tocado: 'sombreroPaja', ceja: hex('#8a5a24'), delante: camaraCuelloNX,
+    pal: CLT({ H: '#c8944e', h: '#e0b068', T: '#f0d890', t: '#d0b060', D: '#a8303a', C: '#2aa8a8', c: '#1e8484', X: '#f6f6f6', P: '#f6e060', p: '#f08a8a', F: '#e8dcc0', n: '#8a5a34' }) },
+  // la turista: la media melena castaña con la cinta blanca y el vestido de verano amarillo de lunares
+  turista2NX: { ...B34, cab: CAB_MEDIA_TR, cuerpo: CUERPO_VERANO_NX, ceja: hex('#4a2a18'), mejillas: [[6, 8], [12, 8]], delante: cintaAT,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', s: '#e8a080', u: '#f6f6f6', C: '#f0c838', c: '#c89a18', p: '#f6f6f6', I: '#d8503a', L: '#a8643a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_NX);
+
+// ── piezas del 34 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
+// o.dir −1 voltea ── Todo NUESTRO y SIN LETRAS: rayas, cifras y símbolos. Colores: los del 33 más la arcilla (F, la
+// sombra 1, la luz 2, las cuñas 3), el agua (4/5), el cuero (6/7), el óxido (8/9) y la piedra (0, la sombra $).
+const PAL_NX = { ...PAL_DU, ...COLORES({ F: '#c89a6a', 1: '#9a6e44', 2: '#e4c090', 3: '#5e3e22', 4: '#4a9ad8', 5: '#8ad0f0', 6: '#7a4a2a', 7: '#4e2c18', 8: '#b85a3a', 9: '#8a3a24', 0: '#a8a294', $: '#7a7468' }) };
+const CACHE_NX = new Map();
+const unaNX = (clave, hacer) => cacheGT(CACHE_NX, clave, hacer);
+const pintaNX = (R, g, x, y, o = {}, pal = PAL_NX) => pintaJH(R, g, x, y, o, pal);
+const cuadroNX = (t, n, v) => (t == null ? -1 : Math.floor(t * v) % n);
+const giraNX = (g) => g[0].split('').map((_, i) => g.map((f) => f[i]).reverse().join(''));
+
+// LA TABLILLA de arcilla: MEDIA tablilla rota (el borde de arriba, partido y más claro) con sus filas de cuñas.
+// 19 × 16. o.entera: la tablilla completa (19 × 25). Con o.t, un destello en la esquina
+const tablillaNX = (R, x, y, o = {}) => {
+  const f = cuadroNX(o.t, 4, 4), en = !!o.entera, h = en ? 25 : 16;
+  pintaNX(R, unaNX('tablilla' + en + f, () => forma(19, h, ({ put }) => {
+    const top = (i) => (en ? 1 : [5, 4, 3, 4, 2, 1, 2, 3, 3, 4, 5, 6, 5, 4, 3, 2, 3][i - 1]);
+    for (let i = 1; i <= 17; i++) for (let j = top(i); j <= h - 2; j++) put(i, j, i >= 16 || j >= h - 3 ? '1' : i === 1 || j === top(i) ? '2' : 'F');
+    put(1, h - 2, '.'); put(17, h - 2, '.'); if (en) { put(1, 1, '.'); put(17, 1, '.'); }
+    for (let j = en ? 4 : 8, n = 0; j <= h - 5; j += 3, n++) for (let i = 3 + (n % 2); i <= 14; i += 3) {
+      if (j <= top(i) + 1) continue;
+      put(i, j, '3'); if ((i + n) % 2) { put(i + 1, j, '3'); put(i, j + 1, '3'); } else put(i, j + 1, '3');
+    }
+    if (f === 1) for (const [a, b] of [[4, top(4) + 2], [3, top(4) + 2], [5, top(4) + 2], [4, top(4) + 1], [4, top(4) + 3]]) put(a, b, 'E'); else if (f === 0 || f === 2) put(4, top(4) + 2, 'E');
+  })), x, y, o);
+};
+
+// LA TABLILLA PEQUEÑA, del tamaño de un móvil: de pie, con un CÍRCULO grabado (el plano del barco redondo) y dos filas
+// de cuñas. 11 × 16
+const tablillaPequenaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('tablillaP', () => forma(11, 16, ({ put, rect }) => {
+  rect(1, 1, 9, 14, 'F'); rect(9, 2, 9, 14, '1'); rect(1, 14, 9, 14, '1'); rect(1, 1, 1, 13, '2'); rect(1, 1, 8, 1, '2');
+  put(1, 1, '.'); put(9, 1, '.'); put(1, 14, '.'); put(9, 14, '.');
+  for (let j = 2; j <= 8; j++) for (let i = 2; i <= 8; i++) { const d = Math.hypot(i - 5, j - 5); if (d >= 2.1 && d <= 3.1) put(i, j, '3'); }
+  for (const [i, j] of [[3, 10], [4, 10], [6, 10], [7, 11], [7, 10], [3, 12], [5, 12], [6, 12], [3, 13]]) put(i, j, '3');
+})), x, y, o);
+
+// UN FRAGMENTO suelto de tablilla, con dos o tres cuñas. o.n 0–2: tres trozos distintos. ~11 × 8
+const FRAGMENTOS_NX = [
+  ['..2222...', '.2FFFFF2.', '2FF3FFFF1', 'FF3FF3FF1', '.FFFF3F11', '..F1111..'],
+  ['.222.....', '2FFF22...', '2F3FFFF2.', '.FF3F3FF1', '..FFFFF11', '...1111..'],
+  ['...2222..', '.22FFFF2.', '2FF3FFF1.', '2F3FF3F1.', '.FFF3F11.', '..111....'],
+];
+const fragmentoNX = (R, x, y, o = {}) => {
+  const n = Math.max(0, Math.min(2, Math.round(o.n ?? 0)));
+  pintaNX(R, unaNX('fragmento' + n, () => forma(11, 8, ({ put }) => FRAGMENTOS_NX[n].forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i + 1, j + 1, f[i]); }))), x, y, o);
+};
+
+// EL PEZ NARANJA de la pecera de Atom (N, la aleta y la cola n), mirando a la derecha: 9 × 6. mira: mira hacia
+// arriba con desconfianza (la pupila arriba y la ceja recta)
+const PEZ_NX = ['...NNNN..', 'n.NNNNNN.', 'nnNNNWKN.', 'nnNNNNNNf', 'n.NNNNNN.', '...NnN...'];
+const PEZ_MIRA_NX = ['...NKKKK.', 'n.NNNWKN.', 'nnNNNWWN.', 'nnNNNNNNf', 'n.NNNNNN.', '...NnN...'];
+const pezNX = (put, i0, j0, mira) => (mira ? PEZ_MIRA_NX : PEZ_NX).forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i0 + i, j0 + j, f[i]); });
+
+// EL BARQUITO DE PAPEL blanco (W, los pliegues w), de perfil: el casco con las dos puntas y el pico del centro.
+// 19 × 12. o.pez: el pez naranja va subido dentro, asomado por la borda (19 × 12)
+const barquitoNX = (R, x, y, o = {}) => pintaNX(R, unaNX('barquito' + !!o.pez, () => forma(19, 12, ({ put, rect }) => {
+  const hw = [0, 1, 2, 2, 3, 4];
+  hw.forEach((w, k) => { for (let i = 9 - w; i <= 9 + w; i++) put(i, 1 + k, i > 9 ? 'w' : 'W'); });
+  if (o.pez) pezNX(put, 9, 2, false);
+  rect(1, 6, 2, 6, 'W'); rect(16, 6, 17, 6, 'W'); rect(1, 7, 17, 7, 'W'); rect(2, 8, 16, 8, 'W'); rect(4, 9, 14, 9, 'W'); rect(5, 10, 13, 10, 'w');
+  for (const [i, j] of [[9, 7], [8, 8], [10, 8], [7, 9], [11, 9], [15, 8], [14, 9]]) put(i, j, 'w');
+})), x, y, o);
+
+// LA PECERA redonda: el cristal (I), el agua (4, la superficie 5), la grava (A/a), dos plantas (G/v), las burbujas
+// (animadas con o.t) y, salvo o.pez: false, el pez naranja. o.mira: el pez mira hacia arriba con desconfianza.
+// 27 × 22. No se voltea con o.dir (el pez mira siempre a la derecha); o.pezDir −1: el pez mira a la izquierda
+const peceraNX = (R, x, y, o = {}) => {
+  const f = cuadroNX(o.t, 3, 3), pez = o.pez !== false, pd = o.pezDir === -1;
+  pintaNX(R, unaNX('pecera' + pez + !!o.mira + pd + f, () => forma(27, 22, ({ put, rect, linea }) => {
+    for (let j = 3; j <= 20; j++) for (let i = 1; i <= 25; i++) {
+      const d = Math.hypot(i - 13, j - 11.5); if (d > 11.4) continue;
+      put(i, j, d > 10.3 || j <= 4 ? 'I' : j >= 19 ? ((i + j) % 3 ? 'A' : 'a') : j === 6 ? '5' : j < 6 ? 'E' : '4');
+    }
+    rect(6, 2, 20, 2, 'I'); rect(7, 2, 19, 2, 'E'); put(6, 2, 'i'); put(20, 2, 'i');
+    linea(7, 18, 6, 11, 'G'); linea(8, 18, 9, 13, 'v'); put(5, 10, 'G'); linea(19, 18, 20, 10, 'G'); linea(18, 18, 17, 14, 'v'); put(21, 9, 'G'); put(20, 13, 'v');
+    for (const [i, j] of [[4, 9], [3, 10], [3, 11], [4, 8]]) put(i, j, 'E'); put(22, 15, '5'); put(21, 16, '5');
+    if (pez) { const g = []; pezNX((i, j, ch) => g.push([i, j, ch]), 0, 0, !!o.mira); for (const [i, j, ch] of g) put(pd ? 17 - i : 9 + i, 11 + j, ch); }
+    const bx = pez && !pd ? 19 : 8;
+    for (const [dx, dy] of [[[0, 9], [1, 13]], [[1, 8], [0, 12], [0, 16]], [[0, 7], [1, 11], [1, 15]]][Math.max(0, f)]) put(bx + dx, dy, 'E');
+  })), x, y, { ...o, dir: 1 });
+};
+
+// LA FOTO AÉREA en blanco y negro: el marco blanco y, entre los pliegues del terreno, la SILUETA alargada (la punta a un
+// lado y el otro extremo, romo). o.giro: cuartos de vuelta (0, tumbada con la punta a la derecha; 1, de pie con la
+// punta abajo; 2; 3, de pie con la punta ARRIBA). 24 × 18 tumbada, 18 × 24 de pie
+const FOTO_NX = () => forma(24, 18, ({ put, rect, linea }) => {
+  rect(1, 1, 22, 16, 'W'); rect(22, 2, 22, 16, 'w'); rect(1, 16, 22, 16, 'w'); rect(3, 3, 20, 14, 'x');
+  for (const [a, b, c, d] of [[3, 5, 8, 3], [3, 11, 6, 14], [14, 14, 20, 11], [16, 3, 20, 5]]) linea(a, b, c, d, 'j');
+  linea(3, 13, 9, 14, 'u'); linea(13, 3, 20, 8, 'u'); put(5, 4, 'u'); put(18, 13, 'j'); put(7, 12, 'j');
+  for (let i = 5; i <= 18; i++) {
+    const u = (i - 11.5) / 7, hw = 2.6 * (1 - Math.pow(Math.abs(u), u < 0 ? 5 : 1.3));
+    for (let j = 4; j <= 13; j++) { const d = Math.abs(j - 8.5); if (d <= hw + 0.5) put(i, j, d > hw - 0.6 || i === 5 ? 'K' : j < 8.5 ? 'Z' : 'X'); }
+  }
+  put(19, 8, 'K'); put(19, 9, 'K');
+});
+const fotoAereaNX = (R, x, y, o = {}) => {
+  const q = ((Math.round(o.giro ?? 0) % 4) + 4) % 4;
+  pintaNX(R, unaNX('foto' + q, () => { let g = FOTO_NX(); for (let n = 0; n < q; n++) g = giraNX(g); return g; }), x, y, { ...o, dir: 1 });
+};
+
+// LA REVISTA abierta: las dos páginas (W) con la foto de la silueta a DOBLE PÁGINA y, debajo, las rayas del texto; las
+// tapas rojas asoman por abajo. 38 × 20
+const revistaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('revista', () => forma(38, 20, ({ put, rect, linea }) => {
+  rect(1, 16, 36, 18, 'C'); rect(18, 15, 19, 18, 'c');
+  rect(2, 2, 18, 16, 'W'); rect(19, 2, 35, 16, 'W'); rect(2, 16, 35, 16, 'w'); put(2, 2, '.'); put(35, 2, '.');
+  rect(4, 4, 33, 11, 'x'); linea(4, 6, 10, 4, 'j'); linea(26, 11, 33, 8, 'j'); linea(4, 10, 9, 11, 'u'); linea(27, 4, 33, 6, 'u');
+  for (let i = 9; i <= 28; i++) {
+    const u = (i - 18.5) / 10, hw = 2.4 * (1 - Math.pow(Math.abs(u), u < 0 ? 5 : 1.3));
+    for (let j = 4; j <= 11; j++) { const d = Math.abs(j - 7.5); if (d <= hw + 0.5) put(i, j, d > hw - 0.6 || i === 9 ? 'K' : j < 7.5 ? 'Z' : 'X'); }
+  }
+  rect(18, 2, 19, 15, 'w'); rect(18, 4, 19, 11, 'j');
+  for (const [a, b, j] of [[4, 15, 13], [4, 12, 14], [22, 33, 13], [22, 29, 14]]) rect(a, j, b, j, 'd');
+})), x, y, o);
+
+// LA LUPA: el aro de acero (Z), el cristal (I, el brillo E) y el mango de madera hacia abajo a la derecha. 15 × 18
+const lupaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('lupa', () => forma(15, 18, ({ put, disco, linea }) => {
+  disco(6, 6, 5, 'Z'); disco(6, 6, 3.7, 'I'); put(4, 4, 'E'); put(5, 4, 'E'); put(4, 5, 'E'); put(8, 8, 'i'); put(9, 9, 'z'); put(10, 9, 'z'); put(9, 10, 'z');
+  linea(10, 11, 12, 16, 'M'); linea(11, 11, 13, 16, 'm'); linea(10, 10, 11, 12, 'M');
+})), x, y, o);
+
+// LA CINTA MÉTRICA amarilla: la caja redonda (Y) y la cinta que sale por abajo hacia la derecha, con sus rayas.
+// o.largo: los píxeles de cinta desenrollados (0–150). OJO: (x, y) es el centro de abajo de la CAJA (11 × 11), para
+// que la caja no se mueva al tirar de la cinta. Devuelve { punta: [x, y] }: el extremo de la cinta en la pantalla
+const cintaNX = (R, x, y, o = {}) => {
+  const L = Math.max(0, Math.min(150, Math.round(o.largo ?? 0))), w = 11 + L, s = o.s ?? 1, dir = o.dir ?? 1;
+  pintaNX(R, unaNX('cinta' + L, () => forma(w, 11, ({ put, rect, disco }) => {
+    disco(5, 5, 4, 'Y'); for (let j = 1; j <= 9; j++) for (let i = 1; i <= 9; i++) { const d = Math.hypot(i - 5, j - 5); if (d <= 4.35 && (i - 5) + (j - 5) > 3) put(i, j, 'y'); }
+    disco(5, 5, 1.2, 'K'); put(5, 5, 'Z'); put(3, 3, 'o'); put(4, 2, 'o');
+    if (L > 0) { rect(8, 8, 9 + L - 1, 9, 'Y'); for (let i = 10; i < 9 + L - 1; i += 3) put(i, 8, 'K'); for (let i = 16; i < 9 + L - 1; i += 9) put(i, 9, 'K'); put(9 + L - 1, 8, 'Z'); put(9 + L - 1, 9, 'Z'); }
+    else { put(9, 8, 'Z'); put(9, 9, 'Z'); }
+  })), x + dir * Math.round((w / 2 - 5.5) * s), y, o);
+  return { punta: [Math.round(x + dir * (L + 4) * s), Math.round(y - 2 * s)] };
+};
+
+// LA MULA de carga, de perfil (mira a la derecha; o.dir −1): parda (P/p), el hocico claro, las orejas largas, la crin
+// y la cola negras, la manta roja y DOS CAJAS de madera atadas al lomo. Con o.t, anda. 32 × 26
+const mulaNX = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroNX(o.t, 2, 5));
+  pintaNX(R, unaNX('mula' + f, () => forma(32, 26, ({ put, rect, disco, linea }) => {
+    linea(5, 12, 3, 18, 'K'); linea(4, 12, 3, 16, 'K');
+    const patas = f ? [[7, 0], [11, -1], [18, -1], [21, 0]] : [[8, -1], [10, 0], [19, 0], [20, -1]];
+    patas.forEach(([i, d], n) => { rect(i, 16, i + 1, 23 + d, n % 2 ? 'p' : 'P'); rect(i, 23 + d, i + 1, 23 + d, 'K'); });
+    for (let j = 9; j <= 18; j++) for (let i = 4; i <= 23; i++) { const u = (i - 13.5) / 9.6, v = (j - 13.5) / 4.6; if (u * u + v * v <= 1) put(i, j, v > 0.45 ? 'p' : 'P'); }
+    for (let k = 0; k <= 6; k++) { disco(21 + k * 0.75, 11 - k * 0.8, 2.3, 'P'); }
+    for (let k = 0; k <= 5; k++) put(20 + k * 0.8, 8 - k * 0.85, 'K');
+    disco(27, 6.5, 2.2, 'P'); rect(28, 6, 30, 8, 'P'); rect(29, 7, 30, 8, 'H'); put(30, 8, 'K'); put(27, 6, 'K'); put(27, 5, 'E');
+    linea(25, 4, 24, 1, 'P'); linea(26, 4, 27, 1, 'P'); put(24, 2, 'p'); put(27, 2, 'p');
+    rect(8, 9, 19, 10, 'R'); rect(8, 11, 19, 11, 'r');
+    rect(7, 3, 12, 8, 'M'); rect(14, 2, 20, 8, 'M'); rect(7, 8, 12, 8, 'm'); rect(14, 8, 20, 8, 'm'); rect(12, 3, 12, 8, 'm'); rect(20, 2, 20, 8, 'm');
+    rect(7, 5, 12, 5, 'm'); rect(14, 5, 20, 5, 'm'); put(9, 4, 'A'); put(17, 3, 'A'); put(17, 4, 'A');
+    rect(10, 9, 10, 15, 'A'); rect(17, 9, 17, 15, 'A');
+  })), x, y, o);
+};
+
+// LA EXPLOSIÓN pequeña: una nube de polvo (T/A/a) que nace con un fogonazo, crece, sube y se deshace. o.f 0–1 (0, nada)
+// 36 × 26
+const explosionNX = (R, x, y, o = {}) => {
+  const p = pasoGT(o.f, 7);
+  if (p === 0) return;
+  pintaNX(R, unaNX('explosion' + p, () => forma(36, 26, ({ put, disco }) => {
+    const k = [0, 0.4, 0.65, 0.85, 1, 0.9, 0.62, 0.36][p], sep = 0.45 + p * 0.1, sube = p * 0.9;
+    const bolas = [[-7, 0, 4], [0, -1, 5.2], [7, 0, 4], [-4, -5, 3.6], [4, -6, 3.2], [0, -9, 2.4]];
+    for (const [dx, dy, r] of bolas) disco(18 + dx * sep + 0.6, 19 + dy * sep - sube + 0.8, r * k, 'a');
+    for (const [dx, dy, r] of bolas) disco(18 + dx * sep, 19 + dy * sep - sube, r * k, 'A');
+    for (const [dx, dy, r] of bolas) if (r * k > 1.6) disco(18 + dx * sep - 0.8, 19 + dy * sep - sube - 0.9, r * k * 0.5, 'T');
+    if (p <= 2) { disco(18, 21, p === 1 ? 2.6 : 1.6, 'O'); disco(18, 21, p === 1 ? 1.4 : 0.6, 'o'); }
+    if (p >= 2 && p <= 5) for (const [dx, dy] of [[-12, -4], [11, -6], [-9, -11], [8, -12], [14, -1], [-14, 0]]) put(18 + dx * (0.5 + p * 0.1), 20 + dy * (0.4 + p * 0.12), 'd');
+  })), x, y, o);
+};
+
+// EL REMACHE: pequeño y rojizo, de óxido (8/9): la cabeza redonda y el vástago corto. 9 × 8
+const remacheNX = (R, x, y, o = {}) => pintaNX(R, unaNX('remache', () => forma(9, 8, ({ put, rect }) => {
+  rect(2, 1, 6, 1, '8'); rect(1, 2, 7, 3, '8'); rect(1, 3, 7, 3, '9'); rect(3, 4, 5, 6, '9'); put(3, 4, '8'); put(3, 5, '8'); put(2, 2, 'N'); put(3, 1, 'N'); put(6, 2, '9');
+})), x, y, o);
+
+// LA PIEDRA DEL AGUJERO: una gran losa de piedra en pie (0, la sombra $), más ancha por abajo, con un AGUJERO arriba
+// (se ve lo que hay detrás) y manchas de liquen. 18 × 32
+const piedraAgujeroNX = (R, x, y, o = {}) => pintaNX(R, unaNX('piedra', () => forma(18, 32, ({ put }) => {
+  for (let j = 1; j <= 30; j++) {
+    const hw = j < 5 ? [2.5, 4, 5, 5.5][j - 1] : 5.6 + (j - 5) * 0.07 + (j > 26 ? 0.6 : 0), a = Math.round(8.5 - hw + Math.sin(j * 0.9) * 0.4), b = Math.round(8.5 + hw + Math.sin(j * 0.6 + 1) * 0.5);
+    for (let i = a; i <= b; i++) put(i, j, i >= b - 2 || j >= 29 ? '$' : i === a || (j === 1) ? 'X' : '0');
+  }
+  for (let j = 4; j <= 8; j++) for (let i = 6; i <= 11; i++) { const d = Math.hypot(i - 8.5, j - 6); if (d <= 1.6) put(i, j, '.'); else if (d <= 2.6 && i + j > 15) put(i, j, '$'); }
+  for (const [i, j] of [[6, 13], [7, 14], [10, 19], [5, 22], [6, 22], [11, 25], [8, 17]]) put(i, j, 'q');
+  for (const [i, j] of [[9, 11], [9, 12], [10, 13], [6, 18], [6, 19], [7, 20], [9, 24], [8, 25]]) put(i, j, '$');
+})), x, y, o);
+
+// EL MARTILLO de geólogo, de pie: la cabeza de acero con la cara plana a un lado y el PICO al otro, y el mango con la
+// empuñadura azul. 17 × 18
+const martilloNX = (R, x, y, o = {}) => pintaNX(R, unaNX('martillo', () => forma(17, 18, ({ put, rect }) => {
+  rect(7, 5, 8, 9, 'Z'); rect(8, 5, 8, 9, 'z'); rect(7, 10, 8, 16, 'B'); rect(8, 10, 8, 16, 'b'); put(7, 12, 'b'); put(7, 14, 'b');
+  rect(2, 1, 4, 5, 'Z'); rect(2, 5, 4, 5, 'z'); rect(5, 2, 9, 4, 'Z'); rect(5, 4, 9, 4, 'z'); put(2, 1, 'E'); put(3, 1, 'E');
+  for (let i = 10; i <= 15; i++) { const b = 4 - Math.round((i - 10) * 0.5); for (let j = 2; j <= Math.max(2, b); j++) put(i, j, j === Math.max(2, b) && b > 2 ? 'z' : 'Z'); }
+})), x, y, o);
+
+// EL RADAR DE SUELO: un carrito de TRES RUEDAS con la caja naranja de la antena (N), el manillar y, arriba, la
+// PANTALLA con su traza verde. o.pita: la luz roja encendida, la traza en rojo y las ondas del pitido (parpadean con
+// o.t). 31 × 28
+const radarNX = (R, x, y, o = {}) => {
+  const pita = !!o.pita, f = pita ? Math.max(0, cuadroNX(o.t, 2, 6)) : 0;
+  pintaNX(R, unaNX('radar' + pita + f, () => forma(31, 28, ({ put, rect, disco, linea }) => {
+    disco(16, 23.5, 2.2, 'u'); put(16, 23, 'x');
+    linea(8, 14, 5, 6, 'z'); linea(9, 14, 6, 6, 'Z'); rect(2, 4, 5, 5, 'K');
+    rect(6, 13, 25, 20, 'N'); rect(6, 13, 25, 13, 'f'); rect(6, 20, 25, 20, 'n'); rect(25, 14, 25, 20, 'n');
+    rect(8, 15, 14, 18, 'K'); put(9, 16, 'Z'); put(11, 16, 'Z'); put(13, 16, 'Z'); rect(9, 18, 13, 18, 'u'); rect(17, 15, 19, 15, 'W'); rect(17, 17, 21, 17, 'W');
+    put(23, 15, pita ? (f ? 'R' : 'o') : 'r'); if (pita) { put(22, 15, 'R'); put(24, 15, 'R'); put(23, 14, 'R'); put(23, 16, 'R'); }
+    rect(10, 21, 21, 21, 'K');
+    disco(8, 22.5, 3.3, 'K'); disco(8, 22.5, 1.2, 'Z'); disco(23, 22.5, 3.3, 'K'); disco(23, 22.5, 1.2, 'Z');
+    rect(6, 3, 15, 10, 'K'); rect(7, 4, 14, 9, 'U'); rect(6, 3, 15, 3, 'u');
+    for (const [i, j] of pita ? [[7, 8], [8, 7], [9, 8], [10, 5], [11, 8], [12, 6], [13, 8], [14, 7]] : [[7, 7], [8, 6], [9, 7], [10, 8], [11, 7], [12, 6], [13, 7], [14, 7]]) put(i, j, pita ? 'R' : 'G');
+    if (pita) {
+      for (const [i, j] of [[18, 4], [19, 5], [19, 6], [19, 7], [18, 8]]) put(i, j, 'R');
+      if (f) for (const [i, j] of [[21, 2], [22, 3], [23, 4], [23, 5], [23, 6], [23, 7], [23, 8], [22, 9], [21, 10]]) put(i, j, 'R');
+    }
+  })), x, y, o);
+};
+
+// LA HEBILLA de cinturón, vieja: el marco de latón (O, lo gastado g), el pasador de acero y el hueco. 11 × 10
+const hebillaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('hebilla', () => forma(11, 10, ({ put, rect }) => {
+  rect(1, 1, 9, 8, 'O'); rect(3, 3, 7, 6, '.'); rect(1, 8, 9, 8, 'g'); rect(9, 2, 9, 8, 'g'); rect(1, 1, 2, 8, 'g'); put(3, 1, 'o'); put(4, 1, 'o');
+  rect(2, 4, 8, 4, 'Z'); put(8, 4, 'z'); put(8, 5, 'z'); put(6, 8, '9'); put(2, 2, '9');
+})), x, y, o);
+
+// LA BOLSITA DE MUESTRA: transparente (I), con el cierre arriba, la tierra en el fondo y la etiqueta blanca con su
+// NÚMERO (o.n, 0–99; por omisión, 1). 15 × 18. No se voltea (la cifra)
+const bolsaNX = (R, x, y, o = {}) => {
+  o = sinDirDU(o);
+  pintaNX(R, unaNX('bolsa', () => forma(15, 18, ({ put, rect }) => {
+    rect(2, 3, 12, 16, 'I'); rect(12, 4, 12, 16, 'i'); rect(1, 1, 13, 2, 'Z'); rect(1, 2, 13, 2, 'z'); put(11, 1, 'R'); put(11, 2, 'R');
+    rect(2, 13, 12, 16, 'P'); for (const [i, j] of [[3, 12], [4, 12], [5, 12], [8, 12], [9, 12], [10, 12], [11, 12]]) put(i, j, 'P'); for (const [i, j] of [[4, 14], [7, 15], [10, 14], [5, 16], [9, 16], [11, 13]]) put(i, j, 'p'); put(6, 14, 'M'); put(9, 13, 'M');
+    rect(3, 4, 11, 10, 'W'); rect(3, 10, 11, 10, 'w'); put(2, 5, 'E'); put(2, 6, 'E');
+  })), x, y, o);
+  const n = String(Math.max(0, Math.min(99, Math.floor(o.n ?? 1))));
+  numeroNV(encimaDU(R, 15, 18, x, y, o), n, 3 + Math.floor((9 - anchoNumeroNV(n)) / 2), 5, 'K');
+};
+
+// LA PERFORADORA: una torre pequeña de sondeo (la celosía de acero z/Z), con la polea arriba, la varilla que baja por
+// el centro hasta el suelo, el cabezal naranja y, al pie, el MOTOR azul con su correa y su escape. o.gira: la varilla
+// gira (las marcas bajan con o.t) y el escape echa humo. 30 × 44. La varilla entra en el suelo en (x − 1·s, y)
+const perforadoraNX = (R, x, y, o = {}) => {
+  const f = o.gira ? Math.max(0, cuadroNX(o.t, 3, 9)) : 3;
+  pintaNX(R, unaNX('perforadora' + f, () => forma(30, 44, ({ put, rect, disco, linea }) => {
+    if (f < 3) humoGT(put, disco, 26, 29, 2, f);
+    linea(8, 41, 12, 5, 'z'); linea(9, 41, 13, 5, 'Z'); linea(20, 41, 16, 5, 'z'); linea(19, 41, 15, 5, 'Z');
+    for (let j = 9, n = 0; j < 38; j += 6, n++) { const a = 13 - (j - 5) / 9, b = 15 + (j - 5) / 9, a2 = 13 - (j + 1) / 9, b2 = 15 + (j + 1) / 9; linea(n % 2 ? a : b, j, n % 2 ? b2 : a2, j + 6, 'z'); }
+    rect(11, 3, 17, 4, 'K'); disco(14, 2, 1.2, 'Z'); put(14, 2, 'K');
+    rect(14, 5, 14, 41, 'Z'); for (let j = 6 + (f % 3); j <= 40; j += 3) put(14, j, 'K');
+    rect(12, 20, 16, 24, 'N'); rect(12, 24, 16, 24, 'n'); rect(16, 21, 16, 24, 'n'); put(13, 21, 'f');
+    rect(3, 41, 26, 42, 'K'); rect(3, 41, 26, 41, 'u');
+    rect(21, 33, 27, 40, 'B'); rect(21, 40, 27, 40, 'b'); rect(27, 34, 27, 40, 'b'); rect(21, 33, 27, 33, 'D'); rect(26, 30, 26, 32, 'u'); put(25, 30, 'u');
+    disco(23.5, 36.5, 1.6, 'Z'); put(23, 36, 'K'); linea(16, 23, 22, 35, 'K'); put(25, 38, 'Y'); put(25, 36, 'R');
+    for (const [i, j] of [[12, 40], [13, 40], [15, 40], [16, 40], [13, 39], [15, 39], [11, 40]]) put(i, j, 'P');
+  })), x, y, o);
+};
+
+// EL TESTIGO: el cilindro de tierra que sale del sondeo, tumbado en su media caña de acero, con sus tramos de colores
+// y, en el tramo oscuro, UNOS TROCITOS NEGROS. o.brillo: los trocitos destellan (con o.t, parpadean). 38 × 10
+const testigoNX = (R, x, y, o = {}) => {
+  const b = !!o.brillo, f = b ? Math.max(0, cuadroNX(o.t, 2, 5)) : 0;
+  pintaNX(R, unaNX('testigo' + b + f, () => forma(38, 10, ({ put, rect }) => {
+    rect(1, 6, 36, 8, 'z'); rect(1, 6, 36, 6, 'Z'); rect(1, 4, 1, 8, 'Z'); rect(36, 4, 36, 8, 'Z'); rect(2, 8, 35, 8, 'u');
+    const tramo = (i) => (i <= 8 ? 'A' : i <= 15 ? 'P' : i <= 25 ? 'm' : i <= 30 ? 'P' : 'a');
+    for (let i = 3; i <= 34; i++) { const c = tramo(i); put(i, 3, c === 'A' ? 'T' : c === 'P' ? 'M' : c === 'm' ? 'P' : 'A'); put(i, 4, c); put(i, 5, c); put(i, 6, c === 'm' ? 'p' : c === 'P' ? 'm' : c === 'A' ? 'a' : 'd'); }
+    for (const i of [11, 27]) for (let j = 3; j <= 6; j++) put(i, j, 'k');
+    for (const [i, j] of [[18, 4], [19, 4], [19, 5], [22, 5], [23, 4], [23, 5], [17, 5], [21, 3]]) put(i, j, 'Q');
+    if (b) for (const [i, j] of f ? [[20, 1], [19, 2], [21, 2], [20, 2], [20, 3], [24, 2]] : [[20, 2], [24, 1], [23, 2], [25, 2], [24, 2], [24, 3]]) put(i, j, 'E');
+  })), x, y, o);
+};
+
+// EL SOBRE ACOLCHADO: de papel de estraza (A, la sombra a), gordo, con la solapa, la etiqueta blanca con rayas y dos
+// sellos. 24 × 16
+const sobreNX = (R, x, y, o = {}) => pintaNX(R, unaNX('sobre', () => forma(24, 16, ({ put, rect, linea }) => {
+  rect(1, 2, 22, 13, 'A'); rect(2, 1, 21, 1, 'A'); rect(2, 14, 21, 14, 'a'); rect(1, 13, 22, 13, 'a'); rect(22, 3, 22, 13, 'a'); rect(2, 2, 21, 2, 'T');
+  linea(1, 2, 11, 7, 'a'); linea(22, 2, 12, 7, 'a');
+  for (let i = 3; i <= 20; i += 3) put(i, 12, 'T');
+  rect(7, 8, 16, 11, 'W'); rect(8, 9, 14, 9, 'd'); rect(8, 10, 12, 10, 'd');
+  rect(18, 3, 20, 6, 'R'); put(19, 4, 'X'); put(19, 5, 'X'); rect(14, 3, 16, 5, 'B'); put(15, 4, 'X');
+})), x, y, o);
+
+// LA NOTA DE PRENSA: una hoja blanca con la cabecera, las rayas del texto y un SELLO rojo redondo con un «?» dentro.
+// 17 × 22. No se voltea (el signo)
+const notaPrensaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('nota', () => forma(17, 22, ({ put, rect }) => {
+  rect(1, 1, 14, 20, 'W'); rect(14, 2, 14, 20, 'w'); rect(1, 20, 14, 20, 'w'); rect(3, 3, 9, 3, 'K'); rect(11, 3, 12, 3, 'B');
+  for (const [a, b, j] of [[3, 12, 5], [3, 11, 7], [3, 12, 9], [3, 5, 11], [3, 4, 13], [3, 5, 15]]) rect(a, j, b, j, 'd');
+  for (let j = 9; j <= 19; j++) for (let i = 5; i <= 14; i++) { const d = Math.hypot(i - 9.5, j - 14); if (d <= 4.6) put(i, j, d >= 3.5 ? 'R' : 'W'); }
+  for (const [i, j] of [[9, 12], [10, 12], [11, 13], [10, 14], [10, 16]]) put(i, j, 'R'); put(8, 13, 'R');
+})), x, y, sinDirDU(o));
+
+// LA REVISTA CIENTÍFICA, cerrada: la tapa azul (B) con la cabecera blanca y sus dos barras (sin letras) y un ÁTOMO
+// en el centro: el núcleo naranja y tres órbitas blancas con sus electrones. 18 × 23
+const revistaCienciaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('revistaC', () => forma(18, 23, ({ put, rect, disco }) => {
+  rect(1, 1, 16, 21, 'B'); rect(1, 1, 1, 21, 'b'); rect(1, 21, 16, 21, 'b'); rect(1, 1, 16, 4, 'X'); rect(3, 2, 10, 3, 'R'); rect(12, 2, 14, 3, 'K');
+  for (const th of [0, Math.PI / 3, -Math.PI / 3]) for (let a = 0; a < 6.3; a += 0.08) {
+    const u = Math.cos(a) * 6, v = Math.sin(a) * 2.1; put(8.5 + u * Math.cos(th) - v * Math.sin(th), 12.5 + u * Math.sin(th) + v * Math.cos(th), 'X');
+  }
+  disco(8.5, 12.5, 1.1, 'N'); put(14, 12, 'Y'); put(6, 8, 'Y'); put(6, 17, 'Y'); rect(3, 20, 9, 20, 'D');
+})), x, y, o);
+
+// EL ARTÍCULO: dos hojas grapadas (la de atrás asoma), con la cabecera, las rayas del texto y, abajo, una FIRMA DOBLE
+// (una azul y una roja, cada una sobre su raya). 19 × 23
+const articuloNX = (R, x, y, o = {}) => pintaNX(R, unaNX('articulo', () => forma(19, 23, ({ put, rect }) => {
+  rect(4, 1, 17, 19, 'w'); rect(17, 2, 17, 19, 'j'); rect(1, 3, 14, 21, 'W'); rect(14, 4, 14, 21, 'w'); rect(1, 21, 14, 21, 'w');
+  put(2, 4, 'u'); put(3, 5, 'u'); rect(4, 6, 11, 6, 'K');
+  for (const [a, b, j] of [[3, 12, 8], [3, 11, 10], [3, 12, 12], [3, 9, 14]]) rect(a, j, b, j, 'd');
+  for (const [i, j] of [[2, 17], [3, 16], [4, 17], [5, 16], [6, 17]]) put(i, j, 'B'); for (const [i, j] of [[8, 16], [9, 17], [10, 16], [11, 17], [12, 16]]) put(i, j, 'R');
+  rect(2, 19, 6, 19, 'd'); rect(8, 19, 12, 19, 'd');
+})), x, y, o);
+
+// EL LIBRO SAGRADO: un libro antiguo, cerrado y de pie: la tapa de cuero (6, el lomo 7 con sus nervios), las cantoneras
+// y el broche de oro, el canto de las hojas y, en el centro, el SÍMBOLO de oro. o.simbolo: 'estrella' (de seis puntas),
+// 'cruz' o 'luna' (la media luna): los tres en el mismo libro, con el mismo oro y en la misma caja de 9 × 9.
+// 20 × 26. No se voltea. Sin o.simbolo, la tapa lisa
+const SIMBOLOS_NX = {
+  estrella: ['....O....', '....O....', 'OOOOOOOOO', '.O.O.O.O.', '..O...O..', '.O.O.O.O.', 'OOOOOOOOO', '....O....', '....O....'],
+  cruz: ['....O....', '....O....', '..OOOOO..', '....O....', '....O....', '....O....', '....O....', '....O....', '....O....'],
+  luna: ['...OOO...', '.OOO.....', '.OO......', 'OOO......', 'OOO......', 'OOO......', '.OO......', '.OOO...O.', '...OOOO..'],
+};
+const libroSagradoNX = (R, x, y, o = {}) => {
+  const sm = SIMBOLOS_NX[o.simbolo] ? o.simbolo : '';
+  pintaNX(R, unaNX('sagrado' + sm, () => forma(20, 26, ({ put, rect }) => {
+    rect(2, 1, 17, 24, '6'); rect(1, 1, 2, 24, '7'); rect(18, 2, 18, 23, 'H'); for (let j = 3; j <= 22; j += 2) put(18, j, 'h'); rect(3, 24, 17, 24, '7');
+    for (const j of [5, 12, 19]) rect(1, j, 2, j, 'g');
+    for (const [i, j, a, b] of [[4, 2, 1, 1], [17, 2, -1, 1], [4, 23, 1, -1], [17, 23, -1, -1]]) { put(i, j, 'O'); put(i + a, j, 'O'); put(i, j + b, 'O'); }
+    rect(5, 4, 15, 4, 'g'); rect(5, 21, 15, 21, 'g'); rect(4, 5, 4, 20, 'g'); rect(16, 5, 16, 20, 'g');
+    rect(17, 12, 18, 13, 'O'); put(18, 13, 'g');
+    if (sm) SIMBOLOS_NX[sm].forEach((f, j) => { for (let i = 0; i < 9; i++) if (f[i] !== '.') put(6 + i, 8 + j, 'O'); });
+  })), x, y, sinDirDU(o));
+};
+
+// LA PALOMA blanca, volando (mira a la derecha; o.dir −1): el cuerpo, la cola en abanico, el pico y las alas, que
+// baten con o.t. o.hoja: lleva en el pico UNA HOJA de olivo (una sola hoja, no una rama). 22 × 16
+const palomaNX = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroNX(o.t, 2, 6));
+  pintaNX(R, unaNX('paloma' + f + !!o.hoja, () => forma(22, 16, ({ put, rect, disco }) => {
+    for (let j = 5; j <= 11; j++) for (let i = 4; i <= 15; i++) { const u = (i - 9.5) / 5.4, v = (j - 8) / 2.7; if (u * u + v * v <= 1) put(i, j, v > 0.5 ? 'w' : 'W'); }
+    rect(2, 7, 4, 8, 'W'); put(1, 6, 'W'); put(1, 7, 'W'); put(1, 9, 'w'); put(2, 9, 'w'); put(3, 9, 'w');
+    disco(15.5, 6, 1.9, 'W'); put(16, 5, 'K'); put(18, 6, 'N'); put(19, 6, 'N'); put(18, 7, 'n');
+    const ala = f ? [[6, 11, 9], [6, 10, 10], [5, 9, 11], [5, 8, 12], [4, 6, 13], [4, 5, 14]] : [[6, 11, 6], [6, 10, 5], [5, 10, 4], [5, 9, 3], [4, 7, 2], [4, 5, 1]];
+    for (const [a, b, j] of ala) { rect(a, j, b, j, 'W'); put(a, j, 'w'); }
+    if (f) { put(9, 9, 'w'); put(10, 9, 'w'); } else { put(8, 6, 'w'); put(9, 6, 'w'); put(10, 6, 'w'); }
+    if (o.hoja) { put(19, 7, 'v'); put(19, 8, 'G'); put(20, 8, 'G'); put(19, 9, 'v'); put(20, 9, 'G'); put(20, 10, 'v'); }
+  })), x, y, o);
+};
+
+// EL CARACOL, de perfil (mira a la derecha; o.dir −1): la concha en espiral (N/n), el cuerpo claro y los dos cuernos
+// con sus ojos. Con o.t, se estira y se encoge al andar. 15 × 10
+const caracolNX = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroNX(o.t, 2, 2));
+  pintaNX(R, unaNX('caracol' + f, () => forma(15, 10, ({ put, rect, disco }) => {
+    rect(2 + f, 7, 11 + f, 8, 'T'); put(1 + f, 8, 'T'); rect(3 + f, 8, 10, 8, 'A'); rect(10 + f, 5, 12 + f, 7, 'T'); put(12 + f, 6, 'K');
+    put(10 + f, 4, 'T'); put(12 + f, 4, 'T'); put(10 + f, 3, 'T'); put(12 + f, 3, 'T'); put(10 + f, 2, 'K'); put(13 + f, 2, 'K');
+    disco(5.5, 4.5, 3.3, 'N'); for (const [i, j] of [[5, 2], [6, 2], [7, 3], [8, 4], [8, 5], [7, 6], [5, 6], [4, 5], [4, 4], [5, 4], [6, 4]]) put(i, j, 'n'); put(3, 3, 'f'); put(4, 2, 'f');
+  })), x, y, o);
+};
+
+export const PIEZAS_NX = {
+  tablilla: tablillaNX, tablillaPequena: tablillaPequenaNX, fragmento: fragmentoNX, barquito: barquitoNX, pecera: peceraNX,
+  fotoAerea: fotoAereaNX, revista: revistaNX, lupa: lupaNX, cinta: cintaNX, mula: mulaNX, explosion: explosionNX,
+  remache: remacheNX, piedraAgujero: piedraAgujeroNX, martillo: martilloNX, radar: radarNX, hebilla: hebillaNX, bolsa: bolsaNX,
+  perforadora: perforadoraNX, testigo: testigoNX, sobre: sobreNX, notaPrensa: notaPrensaNX, revistaCiencia: revistaCienciaNX,
+  articulo: articuloNX, libroSagrado: libroSagradoNX, paloma: palomaNX, caracol: caracolNX,
+};
