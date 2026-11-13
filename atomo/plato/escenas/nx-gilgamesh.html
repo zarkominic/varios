@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Poema de Gilgamesh · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-GILGAMESH (frase «gilgamesh»), 1872. Tres planos:
+// 1. la línea del tiempo sobre el rollo: con «That tablet» se enciende la tablilla grande; una mano la señala y, con
+//    «centuries older», un arco de puntos salta hacia atrás desde el libro (apagado, a tinta) hasta la tablilla;
+// 2. diciembre de 1872, la sala llena: el presentador le da paso, Smith sale al atril y lee («Smith read it in public»);
+// 3. la primera fila desde el estrado: Gladstone, de patillas, escucha en el centro; un colega le cuchichea, él pide
+//    silencio con el dedo y al final los tres aplauden.
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-gilgamesh');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const g = (w) => en('gilgamesh', (w - 0.5) / 13.808);   // el segundo de cada palabra inglesa
+const P2 = g(7.1), P3 = g(11.4);
+const TABLET = g(0.68), OLDER = g(4.8), GENESIS = g(6.5), READ = g(9.04), PM = g(11.82);
+const sua = (u) => u * u * (3 - 2 * u);
+const K = hex('#14121c'), MANGA = '#2e3a56';
+const mez = (c1, c2, a) => { const r = (c) => c & 255, g = (c) => (c >>> 8) & 255, b = (c) => (c >>> 16) & 255; return (0xff000000 | (Math.round(b(c1) + (b(c2) - b(c1)) * a) << 16) | (Math.round(g(c1) + (g(c2) - g(c1)) * a) << 8) | Math.round(r(c1) + (r(c2) - r(c1)) * a)) >>> 0; };
+
+// 1. la línea del tiempo
+const p1 = (t) => {
+  const o = { encuadre: 'marnegro', camara: 'linea', marcas: tramo(t, 0.1, 0.5) + tramo(t, TABLET, TABLET + 0.7) };
+  const G = T.diluvios(R, t, o), [xa, yi, yn] = G.marcas[1], [xb] = G.marcas[2];
+  // el arco de «siglos antes»: sale del libro y cae sobre la tablilla, con su punta de flecha
+  const arco = sua(tramo(t, OLDER, GENESIS - 0.2)), N = 26, pt = (u) => [Math.round(lerp(xb, xa, u)), Math.round(yi - 34 - Math.sin(u * Math.PI) * 6)];
+  for (let i = 0; i <= N; i++) { const u = i / N; if (u > arco) break; const [x, y] = pt(u); if (i % 2 === 0) { R.rect(x, y, x + 1, y + 1, hex('#a8302a')); R.pset(x + 1, y + 2, hex('#d8c498')); } }
+  if (arco >= 1) { const [x, y] = pt(1), lat = Math.floor(t * 4) % 2; R.poligono([[x - 3, y - lat], [x + 4, y - lat], [x, y + 4 - lat]], hex('#a8302a')); }
+  // la mano: señala la tablilla, y luego el libro
+  const va = sua(tramo(t, GENESIS - 0.5, GENESIS + 0.2)), entra = sua(tramo(t, TABLET - 0.4, TABLET + 0.2));
+  const toque = Math.round(Math.abs(Math.sin(t * 5)) * 2 * (t > TABLET + 0.2 && t < OLDER ? 1 : t > GENESIS + 0.2 ? 1 : 0));
+  const hx = Math.round(lerp(lerp(86, xa + 7, entra), xb + 7, va)), hy = Math.round(lerp(190, yn + 12, entra)) - toque;
+  T.brazo(R, hx + 26, hy + 40, hx + 12, hy + 6, MANGA, -1, { codo: [hx + 24, hy + 24] });
+  T.diluviosDelante(R, t, o);
+};
+
+// 2. la conferencia: el presentador da paso a Smith, que sale al atril y lee
+const p2 = (t) => {
+  const o = { encuadre: 'conferencia' };
+  const G = T.museo(R, t, o), [ox, oy] = G.orador, [hx, hy] = G.hueco;
+  const sale = sua(tramo(t, P2 + 0.2, READ - 0.25)), lee = t > READ - 0.2;
+  const pv = tramo(t, P2 + 1.1, READ + 0.3);
+  R.actor(EL.colega2NX, Math.round(lerp(114, 104, pv)), oy, t, { dir: pv > 0 && pv < 1 ? -1 : 1, anda: pv > 0 && pv < 1, dedo: pv === 0, habla: pv === 0 && Math.sin(t * 8) > 0, sonrisa: true });
+  const sx = Math.round(lerp(208, ox, sale));
+  const s = R.actor(EL.smith, sx, oy, t, { dir: -1, anda: sale > 0 && sale < 1, habla: lee && Math.sin(t * 7.5) > -0.1, sostiene: lee ? [sx - 4, oy - 12 + Math.round(Math.sin(t * 2.2))] : [sx - 2, oy - 9] });
+  { const [mx, my] = s.mano; R.rect(mx - 4, my - 5, mx + 2, my + 2, K); R.rect(mx - 3, my - 4, mx + 1, my + 1, hex('#f4ecd8')); R.rect(mx - 2, my - 3, mx, my - 3, hex('#8a7a66')); R.rect(mx - 2, my - 1, mx, my - 1, hex('#8a7a66')); }
+  R.actor(EL.gladstone, hx, hy, t, { dir: 1, salto: lee && Math.floor(t * 1.4) % 3 === 0 ? 1 : 0 });
+  T.museoDelante(R, t, o);
+};
+
+// 3. la primera fila, desde el estrado
+const p3 = (t) => {
+  const o = { encuadre: 'primerafila' };
+  const G = T.vistas(R, t, o), [a1, a2, a3] = G.asientos;
+  const cuchi = t > P3 + 0.5 && t < PM + 0.5, chis = t > PM + 0.5 && t < PM + 1.7, aplauso = t > E.duracion - 1.5, pal = Math.floor(t * 7) % 2;
+  // con «Prime Minister» la sala se apaga un poco y una luz cálida cae sobre su butaca
+  { const f = tramo(t, PM - 0.3, PM + 0.5); if (f > 0) { T.tinte(R, 15, 138, [10, 6, 20], 0.34 * f); const cx = a2[0] + 7, cy = a2[1] - 16;
+    for (let j = -30; j <= 24; j++) for (let i = -24; i <= 24; i++) { const d = Math.hypot(i / 24, j / 30); if (d >= 1) continue; const x = cx + i, y = cy + j; if (y > 138) continue; const a = (1 - d) * 0.75 * f; if (((x + y) & 1) === 0 || d < 0.6) R.pset(x, y, mez(R.pget(x, y), hex('#ffe8b0'), a * 0.6)); } } }
+  R.actor(EL.colega1NX, a1[0] + (cuchi ? 4 : 0), a1[1], t, { dir: 1, habla: cuchi && Math.sin(t * 9) > 0, sorpresa: chis, sonrisa: aplauso, brazos: aplauso && pal === 0 });
+  R.actor(EL.gladstone, a2[0], a2[1], t, { dir: chis ? -1 : 1, dedo: chis, enfado: chis, sonrisa: aplauso, brazos: aplauso && pal === 1, salto: !chis && !aplauso && Math.floor(t * 1.2) % 3 === 0 ? 1 : 0 });
+  R.actor(EL.colega2NX, a3[0], a3[1], t, { dir: -1, sonrisa: t > PM, brazos: aplauso && pal === 0, salto: t > PM && !aplauso && Math.floor(t * 1.5 + 1) % 4 === 0 ? 1 : 0 });
+  T.vistasDelante(R, t, o);
+};
+const efectos = [[TABLET, 'brillo'], [OLDER + 0.2, 'lapiz'], [GENESIS, 'toc'], [P2 + 0.3, 'publico'], [READ - 0.3, 'golpecito'], [P3 + 0.6, 'publico'], [E.duracion - 1.4, 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1872 });
+</script>
+</body>
+</html>

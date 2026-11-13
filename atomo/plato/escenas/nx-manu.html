@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Manu y Deucalión · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-MANU (frase 15), los diluvios de la India y de Grecia. Cuatro planos (el «india fase 0→1» del reparto son dos
+// composiciones distintas del decorado y va en dos entradas):
+// 1. la orilla (diluvios · india, fase 0): en el río, un pececillo dorado huye de un lucio; a «In India» el lucio se
+//    lanza, el pececillo salta fuera del agua y cae en el cuenco de cobre (salpicón), donde nada en círculos y crece;
+// 2. el estanque (fase 1): el pez, ya en el estanque del templo, crece a golpes (a «saved», «tiny fish» y «the fish»)
+//    con sus ondas, hasta que no cabe y el agua salta por los bordes; la figurita diminuta de la grada da un respingo;
+// 3. el río crecido (fase 2): el pez enorme remolca la barca; a «warned» un «!» sobre el pez, a «flood» el rayo y el
+//    aguacero, y a «towed… to a mountain» una línea de puntos marca el rumbo hasta la cumbre; una garza aguanta en el
+//    peñasco;
+// 4. Grecia (india/grecia): el cofre deriva bajo la tormenta; a «floated for nine days» se encienden uno a uno nueve
+//    soles con su luna y la cifra sube hasta 9; a «chest» brillan los herrajes.
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-manu');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1c1222'), BL = hex('#f6f6ee'), AM = hex('#f8d040'), PZ = T.PIEZAS_NX;
+const lin = (t, a, b) => Math.min(1, Math.max(0, (t - a) / (b - a)));   // tramo() frena al arrancar y al llegar; esto no
+const suave = (u) => u * u * (3 - 2 * u);
+// posición entre claves [t, x, y…], con arranque y frenada suaves
+const kf = (t, Kf) => { if (t <= Kf[0][0]) return Kf[0].slice(1); for (let i = 1; i < Kf.length; i++) if (t <= Kf[i][0]) { const u = (t - Kf[i - 1][0]) / (Kf[i][0] - Kf[i - 1][0]), e = u * u * (3 - 2 * u); return Kf[i].slice(1).map((v, j) => Kf[i - 1][j + 1] + (v - Kf[i - 1][j + 1]) * e); } return Kf[Kf.length - 1].slice(1); };
+const chispa = (x, y, r, c = hex('#fff8d0')) => { x = Math.round(x); y = Math.round(y); R.pset(x, y, c); for (let i = 1; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+// una estrella con filo oscuro (los mareos, los destellos que tienen que leerse sobre cualquier fondo)
+const estrella = (x, y, c = AM) => { x = Math.round(x); y = Math.round(y); for (const [i, j] of [[0, -3], [0, 3], [-3, 0], [3, 0], [-1, -2], [1, -2], [-1, 2], [1, 2], [-2, -1], [2, -1], [-2, 1], [2, 1]]) R.pset(x + i, y + j, K); chispa(x, y, 2, c); R.pset(x, y, BL); };
+// línea de 3 px con filo oscuro (flechas y trazos que se leen sobre el decorado)
+const trazo = (x0, y0, x1, y1, c) => { for (const [i, j] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.linea(Math.round(x0) + i, Math.round(y0) + j, Math.round(x1) + i, Math.round(y1) + j, K); R.linea(Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1), c); };
+// una garza grande (22 px): las patas, el cuerpo, el ala gris, el cuello hasta la cabeza (hx, hy) y el pico
+const garzaG = (x, y, hx, hy, dir = 1, o = {}) => {
+  x = Math.round(x); y = Math.round(y); hx = Math.round(hx); hy = Math.round(hy);
+  R.linea(x - 1, y - 10, x - 1, y, K); R.linea(x + 2, y - 10, x + 2 + (o.pata ? dir : 0), y, K);
+  for (let j = -5; j <= 5; j++) for (let i = -7; i <= 7; i++) { const d = (i / 6.4) ** 2 + (j / 4.4) ** 2; if (d <= 1.25) R.pset(x + i, y - 14 + j, d > 0.82 ? K : j > 1 ? hex('#c8ccd8') : BL); }
+  R.linea(x - dir * 2, y - 14, x - dir * 6, y - 12, hex('#9aa0b4')); R.linea(x - dir * 1, y - 12, x - dir * 6, y - 11, hex('#9aa0b4')); R.pset(x - dir * 8, y - 12, K); R.pset(x - dir * 9, y - 11, K);
+  const nx0 = x + dir * 4, ny0 = y - 17;
+  for (const [i, j] of [[-1, 0], [1, 0], [0, -1], [0, 1], [2, 0], [-2, 0]]) R.linea(nx0 + i, ny0 + j, hx + i, hy + j, K);
+  R.linea(nx0, ny0, hx, hy, BL); R.linea(nx0 + 1, ny0, hx + 1, hy, BL); R.linea(nx0 - 1, ny0, hx - 1, hy, hex('#c8ccd8'));
+  R.disco(hx, hy, 3, K); R.disco(hx, hy, 2, BL); trazo(hx + dir * 3, hy, hx + dir * 9, hy + 1 + (o.pico ?? 0), hex('#f0a030'));
+  if (o.mareo) { R.pset(hx + dir, hy - 1, K); R.pset(hx + dir, hy + 1, K); R.pset(hx, hy, K); R.pset(hx + dir * 2, hy, K); } else R.pset(hx + dir, hy - 1, K);
+  R.pset(hx - dir, hy - 3, K); R.pset(hx - dir * 2, hy - 4, K);
+};
+
+const m = (f) => en('manu', f);
+const P2 = m(0.28), P3 = m(0.5015), P4 = m(0.766), FIN = M('manu_fin', 17.15) + 0.7;
+
+// ── 1 · la orilla: el pececillo se salva en el cuenco ──
+const O1 = { encuadre: 'india', fase: 0, pez: false };
+const india = m(0.1237), cuenta = m(0.216);
+const salto0 = india + 0.2, salto1 = salto0 + 0.8;
+// el lucio: bajo el agua solo se le ve el lomo y la aleta; al lanzarse (mm 0–1) saca la cabeza con la boca abierta
+const lucio = (x, y, mm, t) => {
+  x = Math.round(x); y = Math.round(y); const L1 = hex('#3e5a52'), L2 = hex('#6a8a78'), L3 = hex('#c8d8c0');
+  // el lomo que asoma (con su filo oscuro), la sombra del cuerpo bajo el agua, la aleta y la cola
+  for (let i = -24; i <= 12; i++) { const u = (i + 6) / 18, hgt = Math.round(Math.sqrt(Math.max(0, 1 - u * u)) * 3.4); for (let j = 0; j <= hgt; j++) R.pset(x + i, y - j, j === hgt ? K : (i * 3 + j) % 5 === 0 ? L2 : L1); for (let j = 1; j <= 3; j++) if ((i + j) & 1) R.pset(x + i, y + j, L1); }
+  R.poligono([[x - 12, y - 2], [x - 6, y - 9 - Math.round(Math.sin(t * 6))], [x - 1, y - 2]], K); R.poligono([[x - 10, y - 2], [x - 6, y - 7 - Math.round(Math.sin(t * 6))], [x - 3, y - 2]], L2);
+  { const c = Math.round(Math.sin(t * 7) * 2); R.poligono([[x - 26, y], [x - 33, y - 5 + c], [x - 31, y], [x - 33, y + 4 + c]], K); }
+  if (mm <= 0.02) { R.pset(x + 9, y - 1, AM); R.pset(x + 10, y - 1, K); }
+  for (let k = 0; k < 4; k++) { const q = (t * 1.3 + k / 4) % 1; R.pset(x - 22 - Math.round(q * 12), y + 2 + (k % 2), hex('#d8ecf4')); }
+  if (mm > 0.02) { const up = Math.round(mm * 10), ab = Math.round(mm * 5);
+    R.poligono([[x + 2, y + 2], [x + 8, y - 2 - up], [x + 22, y - 5 - up - ab], [x + 23, y - 3 - up - ab], [x + 12, y - up], [x + 10, y + 2]], K);
+    R.poligono([[x + 4, y + 2], [x + 9, y - 1 - up], [x + 21, y - 4 - up - ab], [x + 11, y - up + 1], [x + 9, y + 2]], L1);
+    R.poligono([[x + 8, y + 3], [x + 12, y + 1 - up + ab], [x + 23, y - up + ab], [x + 22, y + 2 - up + ab], [x + 13, y + 4]], K);
+    R.linea(x + 12, y + 2 - up + ab, x + 21, y + 1 - up + ab, L3);
+    for (let i = 0; i < 4; i++) { R.pset(x + 13 + i * 2, y - 1 - up - Math.round(ab * (i / 3)), BL); }
+    R.pset(x + 11, y - 2 - up, AM); R.pset(x + 12, y - 2 - up, K);
+    for (let k = 0; k < 9; k++) { const an = k * 0.7 + 0.3, r = 6 + mm * 9 + (k % 3) * 2; R.pset(Math.round(x + 6 + Math.cos(an) * r * 1.3), Math.round(y + 1 - Math.abs(Math.sin(an)) * r * 0.8), BL); } }
+};
+const p1 = (t) => {
+  const G = T.diluvios(R, t, O1), [bx, by] = G.cuenco ?? [184, 132];
+  const us = lin(t, salto0, salto1), ry = 118;
+  const rx = lerp(96, 150, suave(lin(t, 0.15, salto0))) + (us <= 0 ? Math.sin(t * 5) * 2 : 0);
+  const lx = lerp(30, 120, suave(lin(t, 0.3, salto0 + 0.2)));
+  const mm = suave(lin(t, salto0 - 0.12, salto0 + 0.2)) - suave(lin(t, salto0 + 0.45, salto0 + 0.9));
+  if (t < salto1 + 1.2) lucio(lx - lin(t, salto0 + 0.9, salto1 + 1.2) * 60, 117, mm, t);
+  if (us <= 0) {   // en el río, huyendo: su estela y un destello para que se le vea
+    for (let k = 1; k < 5; k++) R.pset(Math.round(rx - 6 - k * 3), ry + (k % 2 ? -1 : 1), hex('#d8ecf4'));
+    T.f_pez(R, rx, ry, 15, t, { dir: 1, agua: ry + 2, wag: 2.6, gordo: 0.24 });
+    if (Math.sin(t * 7) > 0.2) estrella(rx + 1, ry - 9, AM);
+    if (t > india - 0.7) R.bocadillo(Math.round(rx) + 6, ry - 15, {});
+  } else if (us < 1) {   // el salto, con sus gotas
+    const x = lerp(150, bx, us), y = lerp(ry, by, us) - Math.sin(us * Math.PI) * 34;
+    for (let k = 1; k <= 5; k++) { const v = Math.max(0, us - k * 0.07), xx = lerp(150, bx, v), yy = lerp(ry, by, v) - Math.sin(v * Math.PI) * 34 + k; R.pset(Math.round(xx), Math.round(yy), BL); R.pset(Math.round(xx) + 1, Math.round(yy) + 1, hex('#a8d0e8')); }
+    T.f_pez(R, x, y, 15, t, { dir: 1, wag: 3.4, gordo: 0.24 }); estrella(x, y - 9, AM);
+  } else {   // en el cuenco: nada en círculos y crece
+    const L = lerp(14, 19, suave(lin(t, cuenta + 0.2, P2 - 0.15))), an = (t - salto1) * 1.7 + 3.3, rxo = 12 - (L - 14) * 0.8;
+    const fx = bx + Math.cos(an) * rxo, fy = by + 1 + Math.sin(an) * 1.8, dir = -Math.sin(an) > 0 ? 1 : -1;
+    const sp = lin(t, salto1, salto1 + 0.55);
+    if (sp < 1) for (let k = 0; k < 10; k++) { const a2 = Math.PI + k * Math.PI / 9, r = 6 + sp * 16; R.pset(Math.round(bx + Math.cos(a2) * r * 1.3), Math.round(by - 2 + Math.sin(a2) * r * 0.9 + sp * sp * 8), BL); }
+    T.f_pez(R, fx, fy, L, t, { dir, wag: 2.2, gordo: 0.2 });
+    if (Math.sin(t * 6) > 0.3) chispa(fx, fy - 5 - L * 0.12, 1, AM);
+  }
+  T.diluviosDelante(R, t, O1);
+};
+
+// ── 2 · el estanque: crece y ya no cabe ──
+const O2 = { encuadre: 'india', fase: 1, pez: false };
+const salvo = m(0.333), tiny = m(0.366), elpez = m(0.455);
+const crece = [P2 + 0.7, tiny + 0.4, elpez + 0.1];
+const bote = (t, t0) => { const u = lin(t, t0, t0 + 0.4); return u <= 0 ? 0 : suave(u) + 0.3 * Math.sin(u * Math.PI); };
+const p2 = (t) => {
+  const G = T.diluvios(R, t, O2), [ex, ey] = G.estanque ?? [160, 126];
+  const L = 13 + 8 * bote(t, crece[0]) + 11 * bote(t, crece[1]) + 16 * bote(t, crece[2]);
+  const an = t * 0.9 + 1.2, fx = ex + Math.cos(an) * (42 - (L - 13) * 0.75), fy = ey + Math.sin(an) * (9 - (L - 13) * 0.16), dir = -Math.sin(an) > 0 ? 1 : -1;
+  // las ondas de cada estirón
+  crece.forEach((t0, k) => { const u = lin(t, t0, t0 + 0.7); if (u <= 0 || u >= 1) return; const rx = 8 + u * (26 + k * 10), ry = 3 + u * (6 + k * 2);
+    for (let q = 0; q < 40; q++) { const a2 = q / 40 * Math.PI * 2, x = Math.round(fx + Math.cos(a2) * rx), y = Math.round(fy + Math.sin(a2) * ry); if (q % 2 === 0 && x > 74 && x < 246 && y > 110 && y < 142) R.pset(x, y, BL); } });
+  T.f_pez(R, fx, fy, L, t, { dir, wag: 1.6, gordo: 0.19, cuerno: false });
+  // ya no cabe: el agua salta por los bordes
+  const d3 = t - crece[2];
+  if (d3 > 0.1) for (let k = 0; k < 16; k++) { const q = (d3 * 1.6 + k * 0.19) % 1, bxx = 78 + (k * 53) % 164, arriba = k % 2 === 0, y0 = arriba ? 109 : 143; R.pset(bxx + Math.round((q - 0.5) * 6), Math.round(y0 - Math.sin(q * Math.PI) * (5 + (k % 3) * 2)), BL); R.pset(bxx + Math.round((q - 0.5) * 6) + 1, Math.round(y0 - Math.sin(q * Math.PI) * (4 + (k % 3) * 2)) + 1, hex('#a8d0e8')); }
+  // la figurita de la grada (la pinta el decorado) da un respingo
+  for (const t0 of crece.slice(1)) if (t > t0 + 0.1 && t < t0 + 0.75) R.bocadillo(84, 95 - Math.round(Math.abs(Math.sin((t - t0) * 8)) * 2), {});
+  T.diluviosDelante(R, t, O2);
+};
+
+// ── 3 · el río crecido: el pez avisa y remolca la barca hasta la montaña ──
+const aviso = m(0.569), flood = m(0.6135), remolca = m(0.6505), monte = m(0.713);
+const p3 = (t) => {
+  const o = { encuadre: 'india', fase: 2, avance: lerp(0.05, 0.98, lin(t, P3, P4)), lluvia: lerp(0.2, 1, suave(lin(t, flood - 0.25, flood + 0.5))) };
+  const G = T.diluvios(R, t, o), [px, py] = G.pez ?? [206, 116], cima = G.montaña ?? G.montana ?? [236, 27];
+  // el rayo, a «flood»
+  const tr = t - flood;
+  if ((tr > 0 && tr < 0.14) || (tr > 0.22 && tr < 0.3)) { let x = 132, y = 16; for (let i = 0; i < 9; i++) { const nx = x + (i % 2 ? -5 : 7) - 3, ny = y + 5; R.linea(x, y, nx, ny, BL); R.linea(x + 1, y, nx + 1, ny, AM); x = nx; y = ny; } }
+  // el rumbo: una línea de puntos del pez a la cumbre, y la cumbre que se enciende
+  const ur = lin(t, remolca, monte);
+  if (ur > 0) { const x0 = px + 44, y0 = py - 8, x1 = cima[0] - 4, y1 = cima[1] + 30, n = 14; for (let i = 0; i <= Math.round(n * ur); i++) { const q = i / n, x = lerp(x0, x1, q), y = lerp(y0, y1, q) - Math.sin(q * Math.PI) * 10; if ((i + Math.floor(t * 6)) % 2 === 0) { R.rect(Math.round(x) - 1, Math.round(y) - 1, Math.round(x) + 1, Math.round(y) + 1, K); R.pset(Math.round(x), Math.round(y), AM); } }
+    if (ur >= 1) { const b = Math.sin(t * 9) > 0 ? 1 : 0; for (let q = 0; q < 16; q++) { const a2 = q / 16 * Math.PI * 2; R.pset(Math.round(x1 + Math.cos(a2) * (6 + b)), Math.round(y1 + Math.sin(a2) * (6 + b)), AM); } estrella(x1, y1, AM); } }
+  // el aviso del pez
+  if (t > aviso - 0.1 && t < flood + 0.5) { const b = Math.round(Math.abs(Math.sin((t - aviso) * 8)) * 2); R.bocadillo(Math.round(px) + 34, Math.round(py) - 20 - b, {}); for (let k = 0; k < 3; k++) { const q = ((t - aviso) * 1.5 + k / 3) % 1; R.disco(Math.round(px + 44 + q * 8), Math.round(py - 4 - q * 10), 1, BL); } }
+  // la garza que aguanta el aguacero en el peñasco
+  const enc = lin(t, flood, flood + 0.4);
+  garzaG(40, 166, 46 + Math.round(Math.sin(t * 1.6) * (1 - enc)), 136 + Math.round(enc * 7), 1, { pico: enc > 0.5 ? 2 : 0 });
+  T.diluviosDelante(R, t, o);
+};
+
+// ── 4 · Grecia: el cofre flota nueve días ──
+const flota = m(0.879), nueve = m(0.915), cofreT = m(0.968);
+const c0 = P4 + 0.5, c1 = nueve + 0.3, dia = (k) => c0 + (c1 - c0) * k / 9;   // cuándo se enciende el día k (1–9)
+const p4 = (t) => {
+  const o = { encuadre: 'india', camara: 'grecia', rayos: false, deriva: lerp(-36, 40, lin(t, P4, FIN)), lluvia: 0.7 };
+  const G = T.diluvios(R, t, o), cof = G.cofre ?? [118, 120];
+  // la cuenta: nueve soles, cada uno con su luna, y la cifra
+  const n = Math.max(0, Math.min(9, Math.floor((t - c0) / (c1 - c0) * 9 + 1e-6)));
+  for (let k = 0; k < 9; k++) { const x = 13 + k * 11, y = 66, on = k < n, nuevo = on && t - dia(k + 1) < 0.22;
+    R.disco(x, y, 4, K); R.disco(x, y, 3, on ? hex('#ffd24a') : hex('#4a5068')); if (on) { R.pset(x - 1, y - 1, hex('#fff6c0')); if (nuevo) for (let q = 0; q < 8; q++) { const a2 = q * Math.PI / 4; R.pset(Math.round(x + Math.cos(a2) * 6), Math.round(y + Math.sin(a2) * 6), AM); } }
+    R.disco(x, y + 10, 3, K); R.disco(x, y + 10, 2, on ? hex('#e8ecf8') : hex('#4a5068')); if (on) R.disco(x + 1, y + 9, 1, hex('#5a6488')); }
+  if (n > 0) { const b = t - dia(n) < 0.2 ? 2 : 0; R.numero(String(n), 12, 54 - b, { tam: 16 }); }
+  // el cofre: los herrajes brillan a «chest»
+  if (t > cofreT - 0.1) { const b = Math.sin((t - cofreT) * 9); if (b > -0.2) { estrella(cof[0] - 16, cof[1] + 10, AM); if (b > 0.4) chispa(cof[0] + 18, cof[1] + 2, 3); } }
+  T.diluviosDelante(R, t, o);
+};
+
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], {
+  año: (t) => (t < P4 ? -700 : -500),
+  efectos: [[salto0, 'chof'], [salto1, 'burbujas'], [crece[0], 'pop'], [crece[1], 'burbujas'], [crece[2], 'chof'],
+    [P3 + 0.15, 'lluvia'], [flood, 'trueno'], [remolca, 'ola'], [P4 + 0.15, 'ola'], [dia(1), 'tic'], [dia(5), 'tic'], [dia(9), 'tic'], [cofreT, 'brillo']],
+});
+</script>
+</body>
+</html>

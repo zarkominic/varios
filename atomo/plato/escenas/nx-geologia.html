@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lo que dice la geología · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-GEOLOGIA (frase 18), hoy. Cuatro planos:
+// 1. el despacho del geólogo, sin la mesa: Collins llega junto a la vitrina fría y señala el cilindro de hielo; una
+//    marca baja por el testigo capa a capa; al fondo, otro geólogo lleva una muestra a la cajonera;
+// 2. (corta en «rocks») la ladera en corte: una lupa baja capa a capa por las rocas mientras la geóloga, en la orilla,
+//    mira; en su globo, un planeta que el agua cubre entero… y un aspa («no trace»);
+// 3. (corta en «That takes») los tres libros, intactos y con la misma luz: una mano deja la lupa en el paño, lejos de
+//    ellos, y se retira; un mismo brillo recorre las tres tapas a la vez; llegan oyentes («those who believe»);
+// 4. (corta en «It only means») la balanza: una mano posa la lupa en su platillo («science»), el astil oscila y se
+//    queda nivelado; sobre cada platillo, un «?» de distinto color («different questions»).
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-geologia');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1622'), BL = hex('#ffffff'), NUBE = hex('#f4f0e4'), ROJO = hex('#d8323a'), ROJOS = hex('#8a1c24'), AMA = hex('#f4c020'), AMAS = hex('#c88a10');
+const sua = (u) => u * u * (3 - 2 * u);
+const globo = (cx, cy, w, h, px, py) => {
+  const x0 = Math.round(cx - w / 2), y0 = Math.round(cy - h / 2), x1 = x0 + w, y1 = y0 + h;
+  R.rect(x0 + 1, y0 - 1, x1 - 1, y1 + 1, K); R.rect(x0 - 1, y0 + 1, x1 + 1, y1 - 1, K);
+  if (px != null) { const bx = Math.max(x0 + 4, Math.min(x1 - 4, px)); R.poligono([[bx - 4, y1], [bx + 4, y1], [px, py]], K); R.poligono([[bx - 2, y1], [bx + 2, y1], [px, py - 2]], NUBE); }
+  R.rect(x0 + 1, y0, x1 - 1, y1, NUBE); R.rect(x0, y0 + 1, x1, y1 - 1, NUBE); R.rect(x0 + 2, y1, x1 - 2, y1, hex('#d4ccb8'));
+};
+const aspa = (cx, cy, r, u = 1) => { const n = Math.round(r * 2 * Math.min(1, u * 2)), m = Math.round(r * 2 * Math.max(0, u * 2 - 1));
+  for (const d of [-1, 0, 1, 2]) { const c = d === 2 || d === -1 ? ROJOS : ROJO; for (let i = 0; i <= n; i++) R.pset(cx - r + i + d, cy - r + i, c); for (let i = 0; i <= m; i++) R.pset(cx + r - i + d, cy - r + i, c); } };
+const destello = (x, y, r, c = BL) => { R.rect(x - r, y, x + r, y, c); R.rect(x, y - r, x, y + r, c); if (r > 2) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+const aro = (cx, cy, r, c, t, n = 40) => { for (let k = 0; k < n; k++) if ((k + Math.floor(t * 10)) % 4 < 3) { const an = k / n * 6.283, x = Math.round(cx + Math.cos(an) * r), y = Math.round(cy + Math.sin(an) * r); R.rect(x, y, x + 1, y + 1, K); R.pset(x, y, c); } };
+
+const G0 = 0.5, G1 = 16.34, a = (s) => en('geologia', (s - G0) / (G1 - G0));   // el segundo s de la voz inglesa, como fracción de la frase
+const P2 = a(3.62), P3 = a(9.2), P4 = a(12.98);
+const AZ = hex('#3a8ae8'), AZS = hex('#1e4a9a');
+const roca = (x, y) => { R.rect(x - 4, y - 5, x + 3, y, K); R.rect(x - 3, y - 6, x + 2, y - 6, K); R.rect(x - 3, y - 5, x + 2, y - 1, hex('#8a7a6a')); R.rect(x - 2, y - 5, x, y - 4, hex('#b8a890')); R.pset(x + 1, y - 2, hex('#5a4a40')); R.pset(x - 2, y - 2, hex('#c85a3a')); };
+
+// ── 1 · el despacho: el testigo de hielo ──
+const p1 = (t) => {
+  const o = { encuadre: 'geologo', sinMesa: true }; T.hoy(R, t, o);
+  // la marca que baja por el cilindro de hielo, capa a capa (x 174–186, y 56–134)
+  const ub = tramo(t, a(1.5), a(3.3)), yb = Math.round(lerp(60, 130, ub));
+  if (ub > 0) { for (let y = 62; y <= yb; y += 8) { R.rect(188, y, 191, y, BL); R.pset(192, y, K); }
+    const c = Math.sin(t * 12) > 0 ? AMA : BL; R.poligono([[166, yb - 3], [166, yb + 3], [171, yb]], K); R.poligono([[167, yb - 2], [167, yb + 2], [170, yb]], c); R.poligono([[194, yb - 3], [194, yb + 3], [189, yb]], K); R.poligono([[193, yb - 2], [193, yb + 2], [190, yb]], c);
+    if (Math.floor(t * 6) % 3 === 0) destello(180, yb, 2); }
+  // al fondo, el otro geólogo lleva una muestra de la estantería a la cajonera
+  const ug = tramo(t, 0.3, 2.4), gx = Math.round(lerp(34, 100, ug)), deja = tramo(t, 2.5, 2.9);
+  const q = R.actor(EL.geologo2NX, gx, 168, t, { dir: 1, anda: ug > 0 && ug < 1, sostiene: deja < 1 ? true : undefined, sonrisa: deja >= 1, habla: deja >= 1 && t > a(2.9) && Math.sin(t * 8) > 0.2 });
+  if (deja < 1) roca(q.mano[0] + 1, q.mano[1] + 3);
+  // Collins llega junto a la vitrina y señala el hielo
+  const uc = tramo(t, 0.1, a(1.4)), cx = Math.round(lerp(290, 208, uc));
+  R.actor(EL.collins, cx, 168, t, { dir: -1, anda: uc > 0 && uc < 1, dedo: uc >= 1, habla: uc >= 1 && Math.sin(t * 9) > 0 });
+  T.hoyDelante(R, t, o);
+};
+
+// ── 2 · el corte: capa a capa, ni rastro ──
+const p2 = (t) => {
+  const o = { encuadre: 'corte', fase: 0 }; T.ladera(R, t, o);
+  // la lupa baja por las capas del cuenco
+  const ul = tramo(t, P2 + 0.2, a(5.9)), lx = Math.round(172 + Math.sin(ul * 9.4) * 46), ly = Math.round(lerp(92, 140, ul));
+  for (let k = 0; k < 5; k++) if (ul > (k + 0.5) / 5.5) { const mx = Math.round(172 + Math.sin((k + 0.5) / 5.5 * 9.4) * 46), my = Math.round(lerp(92, 140, (k + 0.5) / 5.5)) - 14; const nu = Math.min(1, (ul - (k + 0.5) / 5.5) * 14), sb = Math.round(Math.sin(nu * Math.PI) * 3); R.rect(mx - 6, my - 6 - sb, mx + 6, my + 6 - sb, K); R.rect(mx - 5, my - 5 - sb, mx + 5, my + 5 - sb, NUBE); R.rect(mx - 5, my + 5 - sb, mx + 5, my + 5 - sb, hex('#d4ccb8'));
+    for (let q = 0; q < 16; q++) { const an = q / 16 * 6.283; R.pset(Math.round(mx + Math.cos(an) * 3), Math.round(my - sb + Math.sin(an) * 3), hex('#5a5a66')); } for (let q = -4; q <= 4; q++) R.pset(mx + q, my - sb - q, ROJO); }
+  T.PIEZAS_NX.lupa(R, lx + 6, ly + 6 + (ul >= 1 ? Math.round(Math.sin(t * 3)) : 0), { s: 2 });
+  // la geóloga, en la orilla: mira, y cuenta lo que NO hay
+  const g = R.actor(EL.geologa3NX, 6, 74, t, { dir: 1, habla: t > a(5.0) && t < a(8.6) && Math.sin(t * 9) > 0, dedo: t > a(4.2) && t < a(5.2) });
+  const ug = tramo(t, a(5.15), a(5.4));
+  if (ug > 0.5) { const gx = 50, gy = 37; globo(gx, gy, 32, 24, g.cabeza[0] + 4, g.cabeza[1] - 1);
+    // el planeta: mares y tierras… y el agua que lo cubre entero
+    const cu = sua(tramo(t, a(6.3), a(7.9))), r = 9, ya = Math.round(gy + r - cu * 2 * r);
+    for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = i * i + j * j; if (d > r * r + 2) continue; const x = gx + i, y = gy + j;
+      const tierra = Math.sin(i * 0.7 + 1) + Math.cos(j * 0.9 + i * 0.3) > 0.5, agua = y >= ya + Math.round(Math.sin(i * 0.9 + t * 5));
+      R.pset(x, y, d > r * r - 14 ? K : agua ? ((i + j + Math.floor(t * 4)) % 5 === 0 ? hex('#9ad0ff') : AZ) : tierra ? hex('#6aa84a') : hex('#bfe0f4')); }
+    const ux = tramo(t, a(8.25), a(8.6)); if (ux > 0) aspa(gx, gy, 10, ux); }
+  T.laderaDelante(R, t, o);
+};
+
+// ── 3 · los tres libros, intactos ──
+const p3 = (t) => {
+  const o = { encuadre: 'diluvio', camara: 'libros', cuantos: 3, gente: 0.75 * sua(tramo(t, a(11.1), a(12.5))) }; T.relato(R, t, o);
+  // el mismo brillo, a la vez, en las tres tapas (x ± 22, y 81–138)
+  for (const [t0, t1] of [[a(9.9), a(10.7)], [a(11.9), a(12.7)]]) { const ub = tramo(t, t0, t1); if (ub > 0 && ub < 1) for (const cx of [92, 160, 228]) { const d = Math.round(lerp(-70, 50, ub));
+    for (let y = 83; y <= 136; y++) for (let w = 0; w < 16; w++) { const x = cx + d + (136 - y) / 4 + w | 0, borde = w < 4 || w > 11; if (x > cx - 21 && x < cx + 21 && (borde ? (x + y * 2) % 4 === 0 : (x + y) % 2 === 0)) R.pset(x, y, hex('#ffe9a8')); }
+    if (ub > 0.35 && ub < 0.8) destello(cx + 17, 86, Math.floor(t * 10) % 2 ? 3 : 2, hex('#fff6c8')); } }
+  // una mano deja la lupa en el paño, lejos de los libros, y se retira: no les quita nada
+  const e = sua(tramo(t, P3 + 0.1, a(10.0))), s = sua(tramo(t, a(10.3), a(11.0))), LX = 274, LY = 151;
+  const hx = Math.round(lerp(330, LX + 12, e) + s * 60), hy = Math.round(lerp(140, LY - 8, e) - (e < 1 ? Math.sin(e * Math.PI) * 6 : 0));
+  if (e >= 1) T.PIEZAS_NX.lupa(R, LX, LY, {});
+  if (s < 1) { if (e < 1) T.PIEZAS_NX.lupa(R, hx - 12, hy + 8, {}); T.brazo(R, hx + 44, hy + 30, hx + 6, hy + 2, '#5a7a8a', -1, { codo: [hx + 30, hy + 12] }); }
+  T.relatoDelante(R, t, o);
+};
+
+// ── 4 · la balanza: preguntas distintas ──
+const p4 = (t) => {
+  const pone = tramo(t, P4 + 0.15, a(13.95)), puesta = pone >= 1, eq = sua(tramo(t, a(14.0), a(15.3)));
+  const o = { encuadre: 'balanza', lupa: puesta, equilibrio: puesta ? eq : 1, inclina: puesta ? (1 - eq) * 0.5 * Math.cos((t - a(13.95)) * 5) : 0.75 };
+  const g = T.mesas(R, t, o), [dx, dy] = g.platillos[1], [ix, iy] = g.platillos[0];
+  // la mano que trae la lupa al platillo derecho y se va
+  const sale = sua(tramo(t, a(14.0), a(14.6)));
+  if (sale < 1) { const u = sua(pone), hx = Math.round(lerp(330, dx + 12, u) + sale * 70), hy = Math.round(lerp(70, dy - 8, u) - sale * 20);
+    if (!puesta) T.PIEZAS_NX.lupa(R, hx - 11, hy + 8, {});
+    T.mano(R, hx, hy, -1, '#5a7a8a', { sinManga: true }); }
+  // «different questions»: un «?» sobre cada platillo, cada uno de su color
+  const q1 = tramo(t, a(15.26), a(15.45)), q2 = tramo(t, a(15.62), a(15.8));
+  if (q1 > 0) R.icono('?', ix - 6, Math.round(iy - 78 - q1 * 4 + Math.sin(t * 3) * 1.5), AMA, K, 2);
+  if (q2 > 0) R.icono('?', dx - 6, Math.round(dy - 78 - q2 * 4 + Math.sin(t * 3 + 2) * 1.5), hex('#6ac0ff'), K, 2);
+  T.mesasDelante(R, t, o);
+};
+
+const efectos = [[a(1.5), 'tic'], [2.5, 'toc'], [a(4.3), 'tic'], [a(5.2), 'pop'], [a(6.4), 'ola'], [a(8.3), 'golpecito'], [a(10.0), 'toc'], [a(11.2), 'publico'], [a(13.95), 'golpecito'], [a(15.26), 'pop'], [a(15.62), 'tic']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

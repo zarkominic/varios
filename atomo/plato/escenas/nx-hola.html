@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom, con la pecera en el escritorio (gag 1). Atom ha bajado con
+// un barquito de papel; bota en «I'm Atom»; en «explain» lo lleva sobre la pecera y lo suelta: chapuzón, el pez huye al
+// fondo; en «wondered about» el pez sube, se para debajo y lo mira con desconfianza (un «?» sobre la pecera) y se aparta;
+// en «Let's find out» Atom vuelve de un salto a su esquina, con su estela.
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ORO = hex('#ffd860'), OROL = hex('#fff4b8'), OROS = hex('#b8862a'), ROJO = hex('#d8402c'), PZ = T.PIEZAS_NX;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
+// un globo de cómic (sin letras: dentro va un dibujo), centrado en (cx, cy), con el rabito hacia abajo en tx
+const globo = (cx, cy, w, h, tx) => {
+  R.rect(cx - w, cy - h + 2, cx + w, cy + h - 2, K); R.rect(cx - w + 2, cy - h, cx + w - 2, cy + h, K); R.rect(cx - w + 1, cy - h + 1, cx + w - 1, cy + h - 1, K);
+  R.rect(cx - w + 1, cy - h + 2, cx + w - 1, cy + h - 2, BL); R.rect(cx - w + 2, cy - h + 1, cx + w - 2, cy + h - 1, BL);
+  R.rect(cx - w + 2, cy + h - 1, cx + w - 2, cy + h - 1, hex('#d8d2c4'));
+  for (let k = 0; k < 5; k++) { R.rect(tx - 4 + k, cy + h + k, tx + 4 - k, cy + h + k, K); if (k < 4) R.rect(tx - 3 + k, cy + h + k - 1, tx + 3 - k, cy + h + k, BL); }
+};
+
+R.companero = () => {};   // Atom está en el plano: baja a la mesa y al final vuelve a su esquina
+const wh = (s) => en('hola', (s - 0.5) / 4.588);
+const ATOM = wh(0.66), EXPLICA = wh(1.36), SUELTA = wh(1.86), DUDA = wh(2.98), VAMOS = wh(4.17), CHOF = SUELTA + 0.28;
+const p1 = (t) => {
+  const o = { encuadre: 'estudio', pez: false };
+  T.hoy(R, t, o);
+  const d = T.hoyDelante(R, t, o), [wx, wy] = d.agua;
+  // el pez: nada a sus cosas; con el chapuzón huye al fondo; luego sube despacio, se para debajo del barquito y lo mira
+  let fx, fy, fdir, mira = false;
+  if (t < CHOF) { fx = wx + Math.sin(t * 1.5) * 8; fy = wy + 11 + Math.sin(t * 2.3) * 1.5; fdir = Math.cos(t * 1.5) >= 0 ? 1 : -1; }
+  else if (t < DUDA - 0.5) { const u = ease(tramo(t, CHOF, CHOF + 0.3)); fx = lerp(wx + Math.sin(CHOF * 1.5) * 8, wx - 8, u); fy = lerp(wy + 11, wy + 19, u) + Math.sin(t * 14) * 0.6; fdir = -1; }
+  else if (t < VAMOS - 0.3) { const u = ease(tramo(t, DUDA - 0.5, DUDA)); fx = lerp(wx - 8, wx - 3, u); fy = lerp(wy + 19, wy + 8, u); fdir = 1; mira = true; }
+  else { const u = ease(tramo(t, VAMOS - 0.3, VAMOS + 0.3)); fx = lerp(wx - 3, wx - 9, u); fy = lerp(wy + 8, wy + 13, u) + Math.sin(t * 2.3); fdir = 1; mira = true; }
+  T.g_pez(R, Math.round(fx), Math.round(fy), 4, t, { dir: fdir, mira });
+  if (t >= CHOF && t < DUDA - 0.5) for (let k = 0; k < 4; k++) { const f = (t - CHOF) * 1.6 - k * 0.12; if (f > 0 && f < 1) R.pset(Math.round(fx + 5 + k), Math.round(fy - f * 9), hex('#d8f4ff')); }
+  // Atom: bota en «I'm Atom», lleva el barquito sobre la pecera, lo suelta y en «Let's find out» vuelve a su esquina
+  const hx = 112, hy = 84, sal = t > ATOM - 0.1 && t < EXPLICA ? Math.round(Math.abs(Math.sin((t - ATOM + 0.1) * Math.PI * 2.4)) * 9 * Math.max(0.3, 1 - (t - ATOM))) : 0;
+  const lleva = ease(tramo(t, EXPLICA, SUELTA - 0.1)), cx0 = lerp(hx, wx - 2, lleva), cy0 = lerp(hy, 72, lleva);
+  const v = tramo(t, VAMOS + 0.15, E.duracion - 0.35), e = ease(v);
+  const pos = (vv) => { const ee = ease(vv); return [lerp(118, 297, ee), lerp(76, 24, ee) - Math.sin(vv * Math.PI) * 16]; };
+  const aparta = ease(tramo(t, SUELTA + 0.1, SUELTA + 0.6)), AX = 118, AY = 76;
+  const [px, py] = v > 0 ? pos(v) : [lerp(cx0, AX, aparta), lerp(cy0, AY, aparta)], ax = px, ay = py - sal + (v < 1 ? Math.sin(t * 2.6) * 2 : Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6)));
+  // el barquito: colgado del resplandor de Atom, cae y queda flotando en la pecera
+  const cae = tramo(t, SUELTA, CHOF);
+  if (cae <= 0) { const bx = Math.round(ax + 2), by = Math.round(ay + 26); for (let k = 0; k < 4; k++) R.pset(bx - 5 + k * 3, by - 12 + ((k + Math.floor(t * 8)) & 1), hex('#c8f0ff')); T.g_barquito(R, bx, by, 10, t, { quieto: true, ondas: false }); }
+  else if (cae < 1) T.g_barquito(R, wx, Math.round(lerp(98, wy, cae * cae)), 10, t, { quieto: true, ondas: false });
+  else { T.g_barquito(R, wx, wy, 10, t, {});
+    if (t < CHOF + 0.45) { const s = (t - CHOF) / 0.45; for (let k = 0; k < 10; k++) { const an = Math.PI * (1.08 + 0.84 * k / 9), r = 5 + s * 14; R.pset(Math.round(wx + Math.cos(an) * r), Math.round(wy + Math.sin(an) * r * 1.1 + s * s * 12), k & 1 ? hex('#d8f4ff') : hex('#8ad0f0')); } } }
+  // el «?» del pez, en su globo de pensar, sobre la pecera
+  if (t >= DUDA - 0.05 && t < VAMOS + 0.6) { const q = tramo(t, DUDA - 0.05, DUDA + 0.15), gx = wx + 17, gy = Math.round(80 - q * 5 - Math.sin(t * 5) * 1), r = Math.round(4 + q * 7);
+    R.disco(wx + 8, 93, 2, K); R.disco(wx + 8, 93, 1, BL); R.disco(wx + 11, 89, 3, K); R.disco(wx + 11, 89, 2, BL);
+    R.disco(gx, gy, r + 1, K); R.disco(gx, gy, r, BL); if (q >= 1) R.icono('?', gx - 4, gy - 7, ROJO, null, 2); }
+  if (v > 0 && v < 1) for (let k = 1; k <= 7; k++) { const [qx, qy] = pos(Math.max(0, v - k * 0.04)); R.pset(Math.round(qx), Math.round(qy), hex('#c8f0ff')); if (k % 2) R.pset(Math.round(qx) + 1, Math.round(qy) + 1, BL); }
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(12, 10, e)) + (sal > 3 ? 1 : 0), e: sal > 0 || (v > 0 && v < 1) ? 0.8 : 0.4, vel: 1 });
+  if (sal > 2) chispas(ax, ay, t, 20, 10, hex('#c8f0ff'));
+};
+const efectos = [[ATOM, 'pop'], [CHOF, 'chof'], [DUDA, 'burbujas'], [VAMOS + 0.15, 'boing']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El artículo de 1996 · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-ARTICULO (frase 21), 1996. Cinco planos:
+// 1. el despacho del geólogo: Fasold entra con el artículo en la mano y lo deja en la mesa de Collins, que le saluda;
+//    al fondo, la geóloga coge una muestra de la estantería;  2. (corta en «he signed») el artículo desde arriba: una
+//    mano firma, luego la otra, y el título queda subrayado («no doubt»);  3. (corta en «It said») la ladera en corte:
+//    Collins señala las capas plegadas, una línea recorre el pliegue («folded layers») y la lluvia y el viento se llevan
+//    lo blando («carved by erosion»);  4. (corta antes de «and later ringed») la ladera de lejos, sin nadie: el barro
+//    del deslizamiento baja y rodea la forma por los dos lados, y el contorno del «barco» queda dibujado;
+// 5. (corta en «The metal») la bandeja de muestras: un aro marca el «remache» y una mano señala su ficha (mineral de
+//    hierro); después el «ancla» y la suya (piedra volcánica).
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-articulo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1622'), BL = hex('#ffffff'), NUBE = hex('#f4f0e4'), ROJO = hex('#d8323a'), ROJOS = hex('#8a1c24');
+const globo = (cx, cy, w, h, px, py) => {
+  const x0 = Math.round(cx - w / 2), y0 = Math.round(cy - h / 2), x1 = x0 + w, y1 = y0 + h;
+  R.rect(x0 + 1, y0 - 1, x1 - 1, y1 + 1, K); R.rect(x0 - 1, y0 + 1, x1 + 1, y1 - 1, K);
+  if (px != null) { const bx = Math.max(x0 + 4, Math.min(x1 - 4, px)); R.poligono([[bx - 4, y1], [bx + 4, y1], [px, py]], K); R.poligono([[bx - 2, y1], [bx + 2, y1], [px, py - 2]], NUBE); }
+  R.rect(x0 + 1, y0, x1 - 1, y1, NUBE); R.rect(x0, y0 + 1, x1, y1 - 1, NUBE); R.rect(x0 + 2, y1, x1 - 2, y1, hex('#d4ccb8'));
+};
+const aspa = (cx, cy, r, u = 1) => { const n = Math.round(r * 2 * Math.min(1, u * 2)), m = Math.round(r * 2 * Math.max(0, u * 2 - 1));
+  for (const d of [-1, 0, 1, 2]) { const c = d === 2 || d === -1 ? ROJOS : ROJO; for (let i = 0; i <= n; i++) R.pset(cx - r + i + d, cy - r + i, c); for (let i = 0; i <= m; i++) R.pset(cx + r - i + d, cy - r + i, c); } };
+
+const A0 = 0.5, A1 = 20.818, a = (s) => en('articulo', (s - A0) / (A1 - A0));   // el segundo s de la voz inglesa, como fracción de la frase
+const P2 = a(4.5), P3 = a(8.5), P4 = a(13.45), P5 = a(17.0);
+const papelMesa = (x, y) => { R.rect(x - 9, y - 4, x + 9, y, K); R.rect(x - 8, y - 3, x + 8, y - 1, BL); R.rect(x - 6, y - 3, x + 2, y - 3, hex('#3a3a4a')); for (let i = -6; i < 7; i += 2) R.pset(x + i, y - 2, hex('#9a9aa8')); R.rect(x - 8, y - 1, x + 8, y - 1, hex('#d8d4c8')); };
+const p1 = (t) => {
+  const o = { encuadre: 'geologo' }; T.hoy(R, t, o);
+  // al fondo, la geóloga va a la estantería y coge una muestra
+  const ug = tramo(t, 0.2, 2.2); R.actor(EL.geologa3NX, Math.round(lerp(-16, 44, ug)), 168, t, { dir: ug < 1 ? 1 : -1, anda: ug > 0 && ug < 1, dedo: ug >= 1 && t < a(3.9), sonrisa: t > a(3.9) });
+  // Collins, detrás de su mesa: saluda, se presenta y mira el papel
+  R.actor(EL.collins, 152, 149, t, { dir: 1, habla: t > a(0.7) && t < a(2.2) && Math.sin(t * 9) > 0, dedo: t > a(2.5) && t < a(3.6), sonrisa: t > a(2.2) });
+  // Fasold entra por la derecha con el artículo y lo deja en la mesa
+  const uf = tramo(t, a(0.55), a(3.2)), fx = Math.round(lerp(324, 244, uf)), deja = tramo(t, a(3.4), a(3.95));
+  const f = R.actor(EL.fasold, fx, 168, t, { dir: -1, anda: uf > 0 && uf < 1, sostiene: deja < 1 ? [fx - 6, lerp(152, 146, deja)] : undefined, sonrisa: deja >= 1, habla: uf >= 1 && deja === 0 && Math.sin(t * 9) > 0 });
+  T.hoyDelante(R, t, o);
+  if (deja < 1) T.PIEZAS_NX.articulo(R, Math.round(lerp(f.mano[0] - 2, 214, deja)), Math.round(lerp(f.mano[1] + 8, 150, deja)));
+  else papelMesa(210, 148);
+};
+const p2 = (t) => {
+  const s1 = tramo(t, a(4.85), a(5.8)), s2 = tramo(t, a(6.05), a(7.0)), o = { encuadre: 'firma', firmas: s1 + s2 };
+  const g = T.mesas(R, t, o);
+  // «with a title that left no doubt»: el título, enmarcado, y tres rayitas que lo señalan
+  const br = tramo(t, a(7.05), a(7.3));
+  if (br > 0) { const c = Math.sin(t * 9) > -0.3 ? hex('#f4c020') : hex('#c88a10'), x0 = 119, x1 = Math.round(lerp(119, 172, br)), y0 = 39, y1 = 50;
+    R.rect(x0, y0, x1, y0, c); R.rect(x0, y1, x1, y1, c); R.rect(x0, y0, x0, y1, c); if (br >= 1) { R.rect(x1, y0, x1, y1, c); for (const [dx, dy] of [[5, -4], [7, 0], [5, 4]]) R.linea(x1 + 3, 44 + dy, x1 + 3 + dx, 44 + dy + Math.sign(dy) * 2, c); } }
+  const firma = (k, s, entra, sale, manga, pluma) => {
+    const e = tramo(t, entra, entra + 0.3) - tramo(t, sale, sale + 0.35); if (e <= 0) return;
+    const p = g.puntas[k], px = p[0] + Math.round((1 - e) * 22), py = p[1] + Math.round((1 - e) * 36);
+    T.h_estilografica(R, px, py, 19, -22, pluma);
+    T.brazo(R, px + 42, py + 54, px + 15, py - 8, manga, -1, { codo: [px + 34, py + 18] });
+  };
+  firma(0, s1, P2 - 0.2, a(5.85), '#22304e', '#1e3a6a');
+  firma(1, s2, a(5.8), a(7.05), '#8ab4dc', '#6a2a2a');
+  T.mesasDelante(R, t, o);
+};
+// la cara de arriba de la capa dura del corte (la misma curva que el decorado)
+const yDura = (x) => 78 + 56 * Math.cos(Math.max(-2, Math.min(2, (x - 172) / 84)) * Math.PI / 2);
+const p3 = (t) => {
+  const o = { encuadre: 'corte', fase: tramo(t, a(12.35), P4 - 0.1) }; T.ladera(R, t, o);
+  // «folded layers of rock»: una línea clara recorre el pliegue de la capa dura
+  const ut = tramo(t, a(11.2), a(12.3));
+  if (ut > 0) { const xf = Math.round(lerp(92, 252, ut)); for (let x = 92; x <= xf; x++) if ((x + Math.floor(t * 12)) % 5 < 3) { const y = Math.round(yDura(x)); R.pset(x, y - 2, K); R.pset(x, y - 1, BL); R.pset(x, y, BL); }
+    if (ut < 1) { const y = Math.round(yDura(xf)); R.rect(xf - 1, y - 3, xf + 1, y + 1, hex('#fff2a0')); R.rect(xf - 3, y - 1, xf + 3, y - 1, hex('#fff2a0')); } }
+  // en la orilla, Fasold escucha y Collins explica: «la forma de barco la hizo la naturaleza»
+  R.actor(EL.fasold, 5, 74, t, { dir: 1, sorpresa: t > a(12.5), sonrisa: t > a(10.6) && t < a(12.5) });
+  const c = R.actor(EL.collins, 25, 74, t, { dir: 1, dedo: t > a(9.0), habla: t < a(11.2) && Math.sin(t * 9) > 0 });
+  const ub = tramo(t, a(8.95), a(9.2)) - tramo(t, a(11.0), a(11.2));
+  if (ub > 0.5) { globo(40, 33, 20, 15, c.cabeza[0] + 3, c.cabeza[1] - 2); R.icono('barco', 33, 26, hex('#8a4a2a'), hex('#d8c8a8'), 2); }
+  T.laderaDelante(R, t, o);
+};
+const p4 = (t) => {
+  const o = { epoca: 1959 }; T.ladera(R, t, o);
+  // el barro del deslizamiento baja del monte (arriba a la derecha) y rodea la forma por los dos lados, de popa a proa
+  const u = tramo(t, P4 + 0.5, a(16.2)), M0 = hex('#3a2212'), M1 = hex('#7a4a26'), M2 = hex('#d8a868'), M3 = hex('#a8703a'), N = 220;
+  for (const lado of [-1, 1]) {
+    const pts = []; for (let i = 0; i < 24; i++) pts.push([Math.round(lerp(308, 281, i / 24)), Math.round(lerp(72, 95, i / 24) + Math.sin(i * 0.5) * 1.5)]);
+    for (let i = 0; i <= N; i++) { const s = 1 - 0.99 * i / N; pts.push(T.a_puntoForma(s, lado * (1.6 + 0.1 * Math.sin(i * 0.21)))); }
+    const n = Math.floor(u * (pts.length - 1));
+    for (const paso of [0, 1]) for (let i = 0; i <= n; i++) { const [x, y] = pts[i]; if (paso === 0) { R.rect(x - 1, y - 3, x + 1, y + 3, M0); R.rect(x - 3, y - 1, x + 3, y + 1, M0); R.rect(x - 2, y - 2, x + 2, y + 2, M0); } else { R.rect(x - 1, y - 2, x + 1, y + 2, M1); R.rect(x - 2, y - 1, x + 2, y + 1, M1); R.rect(x - 1, y - 2, x + 1, y - 1, M3); const q = (i - Math.floor(t * 30) + 6000) % 26; if (q < 7) R.rect(x - 1, y - 1, x + (q < 3 ? 1 : 0), y, M2); } }
+    if (u > 0 && u < 1 && n > 1) { const [x, y] = pts[n], [xa, ya] = pts[Math.max(0, n - 6)], dx = x - xa, dy = y - ya, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
+      R.poligono([[x + ux * 10, y + uy * 10], [x - uy * 7 - ux, y + ux * 7 - uy], [x + uy * 7 - ux, y - ux * 7 - uy]], M0); R.poligono([[x + ux * 7, y + uy * 7], [x - uy * 4, y + ux * 4], [x + uy * 4, y - ux * 4]], M2); }
+  }
+  // «…y dibuja el barco»: el contorno de la forma, a puntos claros que corren
+  const ub = tramo(t, a(15.9), a(16.6));
+  if (ub > 0) for (const lado of [-1, 1]) for (let i = 0; i <= 120 * ub; i++) { const [x, y] = T.a_puntoForma(1 - i / 120, lado * 1.06); if ((i + Math.floor(t * 10)) % 4 < 2) { R.pset(x, y, BL); R.pset(x, y - 1, BL); } }
+  T.laderaDelante(R, t, o);
+};
+const p5 = (t) => {
+  const f1 = tramo(t, a(17.6), a(18.05)), f2 = tramo(t, a(19.6), a(20.1)), o = { encuadre: 'muestras', fichas: 0.5 * f1 + 0.5 * f2 };
+  const g = T.mesas(R, t, o);
+  // el aro que marca cada piedra cuando la voz la nombra («the metal», «the anchors»)
+  const aro = (cx, cy, e) => { if (e <= 0) return; const r = 21 + Math.round((1 - e) * 8); for (let k = 0; k < 40; k++) { const an = k / 40 * 6.283 + t * 1.6; if (k % 4 < 2) { const x = Math.round(cx + Math.cos(an) * r), y = Math.round(cy + Math.sin(an) * r * 0.86); R.rect(x, y, x + 1, y + 1, hex('#e83a30')); } } };
+  aro(g.remache[0], g.remache[1], tramo(t, a(17.05), a(17.3)) - tramo(t, a(18.4), a(18.6)));
+  aro(g.ancla[0], g.ancla[1], tramo(t, a(18.6), a(18.85)) - tramo(t, E.duracion - 0.9, E.duracion - 0.6));
+  T.mesasDelante(R, t, o);
+  // la mano de Collins señala la ficha de cada una cuando aparece su dibujo
+  const en1 = tramo(t, P5 + 0.1, a(17.5)), v = tramo(t, a(18.7), a(19.4)), sale = tramo(t, E.duracion - 1.1, E.duracion - 0.5);
+  const toque = (t > a(17.6) && t < a(17.8)) || (t > a(19.6) && t < a(19.8)) ? -2 : 0;
+  const wx = Math.round(lerp(146, 242, v * v * (3 - 2 * v))), wy = 154 + Math.round((1 - en1) * 30 + sale * 30) + toque - Math.round(Math.sin(v * Math.PI) * 5);
+  T.brazo(R, wx + 22, wy + 44, wx, wy, '#8ab4dc', -1, { codo: [wx + 20, wy + 18] });
+};
+const efectos = [[a(3.9), 'papel'], [a(4.9), 'firma'], [a(6.1), 'firma'], [a(7.2), 'brillo'], [a(11.3), 'lapiz'], [a(12.5), 'lluvia'], [P4 + 0.6, 'avalancha'], [a(17.6), 'golpecito'], [a(19.6), 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1996 });
+</script>
+</body>
+</html>
