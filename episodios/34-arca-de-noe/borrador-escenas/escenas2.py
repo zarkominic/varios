@@ -101,7 +101,7 @@ const p3 = (t) => {
 
 // ── 4 · el mapa: el alfiler y la regla del 30 ──
 const p4 = (t) => {
-  const rg = sua(tramo(t, b(20.69), b(21.35)));
+  const rg = sua(tramo(t, b(20.3), b(20.9)));
   const g = T.papeles(R, t, { encuadre: 'mapa', regla: rg, judi: 0 }), [lx, ly] = g.ladera;
   // la pasada del avión, a trazos, llega hasta la ladera
   const v = tramo(t, P4 - 0.2, b(18.75)), X0 = 34, Y0 = 150, N = 60;
@@ -112,11 +112,15 @@ const p4 = (t) => {
     for (let i = -3; i <= 3; i++) for (let j = -6; j <= 6; j++) if ((i / 3) ** 2 + (j / 6) ** 2 <= 1 && (i + j) % 2 === 0) osc(x + 5 + i * ca - j * sa, y + 7 + i * sa + j * ca, 0.25); }
   // el alfiler rojo cae en la ladera
   const baja = tramo(t, b(18.6), b(18.96));
-  T.chincheta(R, lx, ly, t, T.C.rojo, { baja, pulso: t < b(20.6) });
+  T.chincheta(R, lx, ly, t, T.C.rojo, { baja, pulso: t < b(20.25) });
   // «un sitio con un nombre famoso»: un aro a trazos que gira alrededor del monte de al lado
   const fam = tramo(t, b(19.45), b(19.8));
   if (fam > 0 && rg < 0.2) { const [mx, my] = g.ararat, cy = my - 12, r = Math.round(lerp(34, 23, sua(fam)));
     for (let k = 0; k < 64; k++) if ((k + Math.floor(t * 10)) % 8 < 5) { const an = k / 64 * 6.283, x = Math.round(mx + Math.cos(an) * r), y = Math.round(cy + Math.sin(an) * r * 0.8); R.disco(x, y, 1.3, ROJO); R.pset(x, y + 1, hex('#7a2e2e')); } }
+  // el «30» de la regla, en grande, para que se lea sin buscarlo
+  { const q = tramo(t, b(20.82), b(21.07)); if (q > 0) { const s = Math.round(Math.sin(Math.min(1, q) * Math.PI) * 2), x0 = 134, y0 = 70 - s;
+    R.rect(x0 - 1, y0 - 1, x0 + 35, y0 + 18, K); R.rect(x0, y0, x0 + 34, y0 + 17, hex('#f4ecd0')); R.rect(x0, y0 + 16, x0 + 34, y0 + 17, hex('#c8bc98'));
+    R.numero('30', x0 + 17, y0 + 14, { centro: true, tam: 14, sombra: false, color: hex('#7a2e2e') }); } }
 };
 
 // ── 5 · el Ararat, el pico más alto ──
@@ -174,7 +178,7 @@ const p7 = (t) => {
 };
 const efectos = [[a(2.0), 'papel'], [a(3.35), 'golpecito'], [a(4.5), 'papel'], [P2 + 0.15, 'motor'], [a(7.2), 'flash'], [a(8.75), 'flash'],
   [a(11.5), 'pop'], [a(12.4), 'papel'], [a(13.35), 'papel'], [a(14.1), 'boing'], [a(14.95), 'brillo'], [a(15.4), 'lapiz'],
-  [b(18.96), 'toc'], [b(20.75), 'whoosh'], [P5 + 0.2, 'viento'], [b(23.85), 'pop'], [P6 + 0.2, 'ola'], [b(27.45), 'toc'],
+  [b(18.96), 'toc'], [b(20.35), 'whoosh'], [P5 + 0.2, 'viento'], [b(23.85), 'pop'], [P6 + 0.2, 'ola'], [b(27.45), 'toc'],
   [P7 + 0.3, 'papel'], [b(33.0), 'golpecito'], [b(36.2), 'papel']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { cartela: '1959', efectos, año: (t) => (t < P7 ? 1959 : 1960) });
 ''')

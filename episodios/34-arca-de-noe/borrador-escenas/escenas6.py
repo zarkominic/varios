@@ -43,7 +43,7 @@ const p1 = (t) => {
     if (Math.floor(t * 6) % 3 === 0) destello(180, yb, 2); }
   // al fondo, el otro geólogo lleva una muestra de la estantería a la cajonera
   const ug = tramo(t, 0.3, 2.4), gx = Math.round(lerp(34, 100, ug)), deja = tramo(t, 2.5, 2.9);
-  const q = R.actor(EL.geologo2NX, gx, 168, t, { dir: 1, anda: ug > 0 && ug < 1, sostiene: deja < 1 ? true : undefined, sonrisa: deja >= 1 });
+  const q = R.actor(EL.geologo2NX, gx, 168, t, { dir: 1, anda: ug > 0 && ug < 1, sostiene: deja < 1 ? true : undefined, sonrisa: deja >= 1, habla: deja >= 1 && t > a(2.9) && Math.sin(t * 8) > 0.2 });
   if (deja < 1) roca(q.mano[0] + 1, q.mano[1] + 3);
   // Collins llega junto a la vitrina y señala el hielo
   const uc = tramo(t, 0.1, a(1.4)), cx = Math.round(lerp(290, 208, uc));
@@ -56,7 +56,8 @@ const p2 = (t) => {
   const o = { encuadre: 'corte', fase: 0 }; T.ladera(R, t, o);
   // la lupa baja por las capas del cuenco
   const ul = tramo(t, P2 + 0.2, a(5.9)), lx = Math.round(172 + Math.sin(ul * 9.4) * 46), ly = Math.round(lerp(92, 140, ul));
-  for (let k = 0; k < 5; k++) if (ul > (k + 0.5) / 5.5) { const mx = Math.round(172 + Math.sin((k + 0.5) / 5.5 * 9.4) * 46), my = Math.round(lerp(92, 140, (k + 0.5) / 5.5)) - 14; R.rect(mx - 3, my - 3, mx + 3, my + 3, K); R.rect(mx - 2, my - 2, mx + 2, my + 2, NUBE); R.rect(mx - 1, my, mx + 1, my, hex('#8a8a94')); }
+  for (let k = 0; k < 5; k++) if (ul > (k + 0.5) / 5.5) { const mx = Math.round(172 + Math.sin((k + 0.5) / 5.5 * 9.4) * 46), my = Math.round(lerp(92, 140, (k + 0.5) / 5.5)) - 14; const nu = Math.min(1, (ul - (k + 0.5) / 5.5) * 14), sb = Math.round(Math.sin(nu * Math.PI) * 3); R.rect(mx - 6, my - 6 - sb, mx + 6, my + 6 - sb, K); R.rect(mx - 5, my - 5 - sb, mx + 5, my + 5 - sb, NUBE); R.rect(mx - 5, my + 5 - sb, mx + 5, my + 5 - sb, hex('#d4ccb8'));
+    for (let q = 0; q < 16; q++) { const an = q / 16 * 6.283; R.pset(Math.round(mx + Math.cos(an) * 3), Math.round(my - sb + Math.sin(an) * 3), hex('#5a5a66')); } for (let q = -4; q <= 4; q++) R.pset(mx + q, my - sb - q, ROJO); }
   T.PIEZAS_NX.lupa(R, lx + 6, ly + 6 + (ul >= 1 ? Math.round(Math.sin(t * 3)) : 0), { s: 2 });
   // la geóloga, en la orilla: mira, y cuenta lo que NO hay
   const g = R.actor(EL.geologa3NX, 6, 74, t, { dir: 1, habla: t > a(5.0) && t < a(8.6) && Math.sin(t * 9) > 0, dedo: t > a(4.2) && t < a(5.2) });
@@ -76,7 +77,8 @@ const p3 = (t) => {
   const o = { encuadre: 'diluvio', camara: 'libros', cuantos: 3, gente: 0.75 * sua(tramo(t, a(11.1), a(12.5))) }; T.relato(R, t, o);
   // el mismo brillo, a la vez, en las tres tapas (x ± 22, y 81–138)
   for (const [t0, t1] of [[a(9.9), a(10.7)], [a(11.9), a(12.7)]]) { const ub = tramo(t, t0, t1); if (ub > 0 && ub < 1) for (const cx of [92, 160, 228]) { const d = Math.round(lerp(-70, 50, ub));
-    for (let y = 83; y <= 136; y++) for (let w = 0; w < 5; w++) { const x = cx + d + (136 - y) / 2 + w | 0; if (x > cx - 21 && x < cx + 21 && (x + y) % 2 === 0) R.pset(x, y, w === 2 ? BL : hex('#ffe9a8')); } } }
+    for (let y = 83; y <= 136; y++) for (let w = 0; w < 16; w++) { const x = cx + d + (136 - y) / 4 + w | 0, borde = w < 4 || w > 11; if (x > cx - 21 && x < cx + 21 && (borde ? (x + y * 2) % 4 === 0 : (x + y) % 2 === 0)) R.pset(x, y, hex('#ffe9a8')); }
+    if (ub > 0.35 && ub < 0.8) destello(cx + 17, 86, Math.floor(t * 10) % 2 ? 3 : 2, hex('#fff6c8')); } }
   // una mano deja la lupa en el paño, lejos de los libros, y se retira: no les quita nada
   const e = sua(tramo(t, P3 + 0.1, a(10.0))), s = sua(tramo(t, a(10.3), a(11.0))), LX = 274, LY = 151;
   const hx = Math.round(lerp(330, LX + 12, e) + s * 60), hy = Math.round(lerp(140, LY - 8, e) - (e < 1 ? Math.sin(e * Math.PI) * 6 : 0));
@@ -97,12 +99,12 @@ const p4 = (t) => {
     T.mano(R, hx, hy, -1, '#5a7a8a', { sinManga: true }); }
   // «different questions»: un «?» sobre cada platillo, cada uno de su color
   const q1 = tramo(t, a(15.26), a(15.45)), q2 = tramo(t, a(15.62), a(15.8));
-  if (q1 > 0) R.icono('?', ix - 6, Math.round(iy - 46 - q1 * 4 + Math.sin(t * 3) * 1.5), AMA, K, 2);
-  if (q2 > 0) R.icono('?', dx - 6, Math.round(dy - 46 - q2 * 4 + Math.sin(t * 3 + 2) * 1.5), hex('#6ac0ff'), K, 2);
+  if (q1 > 0) R.icono('?', ix - 6, Math.round(iy - 78 - q1 * 4 + Math.sin(t * 3) * 1.5), AMA, K, 2);
+  if (q2 > 0) R.icono('?', dx - 6, Math.round(dy - 78 - q2 * 4 + Math.sin(t * 3 + 2) * 1.5), hex('#6ac0ff'), K, 2);
   T.mesasDelante(R, t, o);
 };
 
-const efectos = [[a(1.5), 'brillo'], [2.5, 'toc'], [a(4.3), 'tic'], [a(5.2), 'pop'], [a(6.4), 'ola'], [a(8.3), 'golpecito'], [a(10.0), 'toc'], [a(11.2), 'publico'], [a(13.95), 'golpecito'], [a(15.26), 'pop'], [a(15.62), 'pop']];
+const efectos = [[a(1.5), 'tic'], [2.5, 'toc'], [a(4.3), 'tic'], [a(5.2), 'pop'], [a(6.4), 'ola'], [a(8.3), 'golpecito'], [a(10.0), 'toc'], [a(11.2), 'publico'], [a(13.95), 'golpecito'], [a(15.26), 'pop'], [a(15.62), 'tic']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
 ''')
 
@@ -129,13 +131,13 @@ const p1 = (t) => {
   const g = T.papeles(R, t, { encuadre: 'mapa', judi: 0 }), [lx, ly] = g.ladera;
   // la línea de puntos llega desde el oeste
   const v = sua(tramo(t, w(1.5), w(3.3))), N = 64, pt = (s) => [lerp(18, lx, s), lerp(132, ly, s) - Math.sin(s * Math.PI) * 34];
-  for (let i = 0; i < N * v; i++) if (i % 4 < 2) { const [x, y] = pt(i / N); R.rect(Math.round(x), Math.round(y), Math.round(x) + 1, Math.round(y) + 1, hex('#7a2e2e')); }
+  for (let i = 0; i < N * v; i++) if (i % 4 === 0) { const [x, y] = pt(i / N).map(Math.round); R.rect(x - 1, y - 2, x + 2, y + 3, K); R.rect(x - 2, y - 1, x + 3, y + 2, K); R.rect(x - 1, y - 1, x + 2, y + 2, AMA); R.rect(x - 1, y + 2, x + 2, y + 2, AMAS); }
   if (v > 0 && v < 1) { const [x, y] = pt(v), [x2, y2] = pt(Math.min(1, v + 0.03)), an = Math.atan2(y2 - y, x2 - x), q = (i, j) => [Math.round(x + i * Math.cos(an) - j * Math.sin(an)), Math.round(y + i * Math.sin(an) + j * Math.cos(an))];
     R.poligono([q(8, 0), q(-3, -6), q(-3, 6)], K); R.poligono([q(5, 0), q(-2, -4), q(-2, 4)], ROJO); }
   T.chincheta(R, lx, ly, t, T.C.rojo, { pulso: v >= 1 });
   if (v >= 1) { const r = 9 + Math.round(4 * tramo(t, w(3.3), w(3.7))); aro(lx, ly - 2, r, AMA, t, 36); }
   // Wyatt, por delante del mapa: entra, se para y señala el alfiler
-  const u = tramo(t, w(3.5), w(5.5)), wx = Math.round(lerp(-18, 138, u));
+  const u = tramo(t, w(3.0), w(5.2)), wx = Math.round(lerp(-18, 138, u));
   R.actor(EL.wyatt, wx, 179, t, { dir: 1, anda: u > 0 && u < 1, dedo: u >= 1, habla: u >= 1 && Math.sin(t * 9) > 0 });
 };
 
@@ -288,12 +290,16 @@ const p8 = (t) => {
     if (t > f(38.9)) { R.rect(gx - 3, gy - 2, gx + 3, gy - 1, TIN); R.rect(gx - 3, gy + 2, gx + 3, gy + 3, TIN); }
     if (t > f(39.14)) { const sal = Math.round(Math.max(0, 1 - (t - f(39.14)) * 4) * 3); R.icono('barco', gx + 9, gy - 8 - sal, hex('#8a4a2a'), null, 2); }
     else for (let i = 0; i < 3; i++) R.rect(gx + 8 + i * 6, gy - (Math.floor(t * 5) % 3 === i ? 2 : 1), gx + 10 + i * 6, gy + 1 - (Math.floor(t * 5) % 3 === i ? 1 : 0), hex('#6a6a76')); }
+  // «believed it again»: otro amigo, otro globo más pequeño, dice lo mismo; y los dos asienten hasta el final
+  const u2 = sua(tramo(t, f(39.6), f(40.1)));
+  if (u2 > 0) { const gx = Math.round(lerp(350, 286, u2)), gy = 82 + Math.round(Math.sin(t * 2.6 + 1) * 2), sal = Math.round(Math.max(0, 1 - (t - f(40.1)) * 4) * 3);
+    globo(gx, gy, 34, 22, 319, gy + 22); R.icono('barco', gx - 6, gy - 7 - sal, hex('#8a4a2a'), null, 2); }
   T.mesasDelante(R, t, o);
 };
 
-const efectos = [[w(1.6), 'lapiz'], [w(3.3), 'toc'], [P2 + 0.2, 'golpecito'], [w(7.6), 'cerrojo'], [w(9.0), 'toc'], [w(9.55), 'toc'], [w(10.45), 'whoosh'], [w(12.0), 'golpecito'], [w(13.4), 'pop'], [w(14.1), 'toc'], [w(15.45), 'tic'],
-  [P4 + 0.3, 'aldea', { k: 0 }], [w(17.75), 'brillo'], [w(19.5), 'pop'], [P5 + 0.2, 'viento'], [f(23.15), 'flash'], [f(24.5), 'campana'], [f(27.5), 'toc'], [f(29.9), 'lapiz'], [f(31.7), 'brillo'],
-  [P7 + 0.1, 'puerta'], [f(34.1), 'papel'], [f(35.5), 'pop'], [P8 + 0.3, 'lapiz'], [f(37.6), 'whoosh'], [f(39.14), 'pop']];
+const efectos = [[w(1.6), 'lapiz'], [w(3.3), 'toc'], [P2 + 0.2, 'golpecito'], [w(7.6), 'cerrojo'], [w(9.0), 'toc'], [w(9.55), 'toc'], [w(10.45), 'whoosh'], [w(12.0), 'golpecito'], [w(14.1), 'toc'], [w(15.45), 'tic'],
+  [P4 + 0.3, 'aldea', { k: 0 }], [w(19.5), 'pop'], [P5 + 0.2, 'viento'], [f(23.15), 'flash'], [f(24.5), 'campana'], [f(27.5), 'toc'], [f(29.9), 'lapiz'], [f(31.7), 'brillo'],
+  [P7 + 0.1, 'puerta'], [f(34.1), 'papel'], [f(35.5), 'pop'], [P8 + 0.3, 'lapiz'], [f(37.6), 'whoosh'], [f(39.14), 'pop'], [f(40.0), 'tic']];
 const año = (t) => (t < P5 ? 1977 : t < P6 ? 1987 : t < P7 ? 1988 : t < P8 ? Math.round(lerp(1988, 1993, tramo(t, P7 + 0.5, P8 - 0.3))) : Math.round(lerp(1993, 1996, tramo(t, P8 + 1, f(40.0)))));
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, cartela: '1977', año });
 ''')

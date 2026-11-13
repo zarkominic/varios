@@ -88,14 +88,14 @@ const p3 = (t) => {
 // ── 4 · gag 3: la fila espera al caracol ──
 const p4 = (t) => {
   const PARA = b(18.35), fl = lerp(0.22, 0.43, tramo(t, P4, PARA)), esp = t >= PARA;
-  const o = { encuadre: 'astillero', camara: 'fila', fila: fl, espera: esp, caracol: esp ? tramo(t, PARA, P5) * 0.25 : 0, lluvia: lerp(0, 0.5, tramo(t, b(17.4), P5)) };
+  const o = { encuadre: 'astillero', camara: 'fila', fila: fl, espera: esp, caracol: esp ? tramo(t, PARA, P5) * 0.25 : 0, lluvia: lerp(0, 0.5, tramo(t, b(19.1), P5)) };
   const g = T.relato(R, t, o);
   T.relatoDelante(R, t, o);
   // sobre el caracol: sus puntos suspensivos, uno a uno; y, cuando todos le miran, la gota de apuro
-  if (g.caracol) { const [cx, cy] = g.caracol, x = Math.max(16, Math.round(cx) + 4), y = Math.round(cy) - 26;
+  if (g.caracol) { const [cx, cy] = g.caracol, x = Math.max(20, Math.round(cx) + 6), y = Math.round(cy) - 28;
     if (esp) { const d = t - PARA, n = 1 + Math.floor(d / 0.32) % 4;
-      R.rect(x - 11, y - 6, x + 11, y + 5, K); R.rect(x - 10, y - 5, x + 10, y + 4, BL); R.poligono([[x - 4, y + 5], [x - 1, y + 11], [x + 2, y + 5]], K); R.poligono([[x - 3, y + 5], [x - 1, y + 9], [x + 1, y + 5]], BL);
-      for (let i = 0; i < Math.min(3, n); i++) R.rect(x - 7 + i * 6, y - 1, x - 5 + i * 6, y + 1, K);
+      R.rect(x - 15, y - 9, x + 15, y + 5, K); R.rect(x - 16, y - 8, x + 16, y + 4, K); R.rect(x - 15, y - 8, x + 15, y + 4, BL); R.rect(x - 15, y + 3, x + 15, y + 4, hex('#d8d2c0')); R.poligono([[x - 5, y + 5], [x - 2, y + 12], [x + 3, y + 5]], K); R.poligono([[x - 4, y + 4], [x - 2, y + 10], [x + 2, y + 4]], BL);
+      for (let i = 0; i < Math.min(3, n); i++) R.rect(x - 10 + i * 8, y - 4, x - 7 + i * 8, y - 1, K);
       const gx = Math.round(cx) + 12, gy = Math.round(cy) - 12 + Math.round(((d * 1.6) % 1) * 6); R.pset(gx, gy - 1, hex('#bfe6ff')); R.rect(gx - 1, gy, gx + 1, gy + 1, hex('#8ecbf0')); R.pset(gx, gy + 2, hex('#8ecbf0')); }
   }
   // los que esperan: un «!» sobre la pareja de cabeza cuando se vuelven
@@ -143,7 +143,7 @@ const p6 = (t) => {
 const efectos = [[a(2.6), 'papel'], [a(3.3), 'pop'],
   [a(4.55), 'toc'], [a(5.9), 'toc'], [a(7.25), 'toc'], [a(9.02), 'trueno'],
   [a(10.5), 'whoosh'], [a(12.05), 'golpecito'], [a(13.87), 'pop'],
-  [b(17.5), 'lluvia'], [b(18.4), 'boing'],
+  [b(18.4), 'boing'], [b(19.2), 'lluvia'],
   [P5 + 0.35, 'trueno'], [b(21.55), 'toc'], [b(22.2), 'ola'], [b(23.4), 'whoosh'],
   [b(25.8), 'brillo'], [b(27.35), 'campana']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
@@ -157,12 +157,15 @@ E['nx-montes'] = ('Los montes', '''// NX-MONTES (frases 9–10), sin fecha (barr
 //    prophets» se encienden una a una seis lamparillas iguales sobre el paño;
 // 3. el Ararat al atardecer, desde dentro de la forma: el barquito-icono llega volando hacia la cumbre (un aro la marca),
 //    en «does not» el aro se vuelve «X» y el barquito se da la vuelta y se va por abajo, al sur, dejando sus puntos;
-// 4. el mapa: el barquito sigue al sur mientras el mapa se abre; cae el alfiler en el Judi y un aro a trazos abraza el
-//    monte y el nudo de fronteras;
-// 5. la mesa de Atom: dos montes de papel a los lados de la pecera; el barquito va de uno a otro sin decidirse («?»); el
-//    pez y el gato lo siguen con los ojos;
-// 6. la ladera al atardecer: un aro en UN solo pico («Mount Ararat») que se tacha; después una línea de puntos rodea toda
-//    la cordillera y asoman banderines en varios picos: una región entera.''', r'''
+// 4. el mapa: el barquito entra por arriba, pasa de largo junto al Ararat y sigue al sur mientras el mapa se abre (su
+//    estela de puntos va pegada al mapa); al llegar al Judi cae el alfiler («south») y un aro a trazos late en el nudo
+//    de fronteras, que se recorren una a una cuando la voz las nombra («Syria», «Iraq»);
+// 5. la mesa de Atom: dos montes de papel doblado a los lados de la pecera (uno alto y nevado a lápiz, otro bajo, de
+//    estraza); el barquito va hacia uno (flecha), luego hacia el otro, y se queda en medio con su «?»; el pez y el gato
+//    lo siguen con los ojos; en «And Genesis» el libro abierto de la mesa destella y el gato se vuelve a mirarlo;
+// 6. la ladera al atardecer: un aro (y un «1») en UN solo pico («Mount Ararat») que se apaga en «but»; de la cumbre sale
+//    una línea de puntos que rodea toda la cordillera, cae un banderín igual en cada pico y, en «a whole region», el
+//    interior del lazo se raya con un rayado que camina.''', r'''
 const a = (s) => en('coran', (s - 0.5) / 15.477), b = (s) => en('judi', (s - 16.853) / 13.334);   // s: el segundo de la voz inglesa
 const K = T.C.k, PZ = T.PIEZAS_NX, BL = hex('#f6f2e6'), ROJO = hex('#d23a2e'), ORO = hex('#ffd86a'), GRANATE = hex('#7a2e2e');
 const P2 = a(4.8), P3 = a(9.71), P4 = a(15.19), P5 = b(22.01), P6 = b(26.42);
@@ -173,9 +176,10 @@ const bote = (d) => -Math.round(Math.max(0, 5 * Math.sin(d * 11) * Math.exp(-d *
 // un globo ovalado con el barco dentro, meciéndose sobre dos olas; picos = [[x, y], …] hacia donde apunta
 const globoBarco = (x, y, t0, t, picos, s = 1) => { if (t < t0) return; const d = t - t0; y += bote(d); const rx = 15 * s, ry = 11 * s;
   const elip = (ex, ey, c) => { for (let j = -ey; j <= ey; j++) { const w = Math.round(ex * Math.sqrt(1 - (j * j) / (ey * ey))); R.rect(x - w, y + j, x + w, y + j, c); } };
-  for (const [px, py] of picos) R.poligono([[x - 5, y + ry - 3], [px, py], [x + 5, y + ry - 3]], K);
+  const pb = (px) => x + Math.round(Math.max(-rx * 0.55, Math.min(rx * 0.55, (px - x) * 0.7)));
+  for (const [px, py] of picos) { const q = pb(px); R.poligono([[q - 4 * s - 1, y + ry - 4], [px, py], [q + 4 * s + 1, y + ry - 4]], K); }
   elip(rx + 1, ry + 1, K); elip(rx, ry, BL);
-  for (const [px, py] of picos) { const ux = px - x, uy = py - y, n = Math.hypot(ux, uy); R.poligono([[x - 3, y + ry - 4], [Math.round(px - ux / n * 3), Math.round(py - uy / n * 3)], [x + 3, y + ry - 4]], BL); }
+  for (const [px, py] of picos) { const q = pb(px), ux = px - q, uy = py - (y + ry), n = Math.hypot(ux, uy); R.poligono([[q - 4 * s + 1, y + ry - 5], [Math.round(px - ux / n * 3), Math.round(py - uy / n * 3)], [q + 4 * s - 1, y + ry - 5]], BL); }
   const by = y + 5 * s + Math.round(Math.sin(t * 3) * 0.8);
   PZ.barquito(R, x, by, { s });
   for (let i = -rx + 4; i <= rx - 4; i++) { const w = Math.round(Math.sin(i * 0.9 / s + t * 4)); R.pset(x + i, by + 1 + w, hex('#4a8ac8')); if (Math.abs(i) < rx - 7) R.pset(x + i, by + 3 * s - w, hex('#8ecbf0')); } };
@@ -192,8 +196,8 @@ const p1 = (t) => {
   const g = T.relato(R, t, o);
   halo(92, 81, 138, 22, t - a(0.5)); halo(160, 81, 138, 22, t - a(0.86)); halo(228, 81, 138, 22, t - a(3.62));
   // «share that story»: un solo barco para los dos
-  if (t < LLEGA + 0.2) globoBarco(126, 56, a(1.2), t, [[98, 78], [154, 78]]);
-  else { const u = sua(tramo(t, LLEGA + 0.2, LLEGA + 0.6)); if (u < 1) globoBarco(126, 56 - Math.round(u * 80), -9, t, []); }
+  if (t < LLEGA + 0.2) globoBarco(126, 44, a(1.2), t, [[102, 79], [150, 79]], 2);
+  else { const u = sua(tramo(t, LLEGA + 0.2, LLEGA + 0.6)); if (u < 1) globoBarco(126, 44 - Math.round(u * 80), -9, t, [], 2); }
   T.relatoDelante(R, t, o);
 };
 
@@ -216,7 +220,6 @@ const p2 = (t) => {
 // ── 3 · no en el Ararat ──
 const barcoIcono = (x, y, t, s = 2) => { x = Math.round(x); y = Math.round(y) + Math.round(Math.sin(t * 3.2) * 1.5); const w = Math.round(9.5 * s);
   for (let i = -w + 2; i <= w - 2; i++) if ((i + 100) % 2 === 0) mez(x + i, y + 3, K, 0.25);
-  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { /* filo oscuro para que se lea sobre la nieve */ }
   PZ.barquito(R, x, y, { s }); };
 const p3 = (t) => {
   const o = { encuadre: 'ladera', camara: 'cerca', epoca: 1959, hora: 'tarde' };
@@ -224,7 +227,7 @@ const p3 = (t) => {
   const NO = a(12.19), VA = a(13.5), CX = 204, CY = 16;
   // la ruta: llega desde la izquierda hacia la cumbre, se queda a su lado, y luego baja y sale por abajo (el sur)
   const ida = sua(tramo(t, P3 + 0.1, a(11.7))), vu = sua(tramo(t, VA, P4 + 0.3));
-  const ruta1 = (u) => [lerp(-24, 172, u), lerp(74, 44, u) - Math.sin(u * Math.PI) * 18], ruta2 = (u) => [lerp(172, 118, u) + Math.sin(u * Math.PI) * 30, lerp(44, 214, u * u)];
+  const ruta1 = (u) => [lerp(-24, 146, u), lerp(74, 42, u) - Math.sin(u * Math.PI) * 16], ruta2 = (u) => [lerp(146, 114, u) + Math.sin(u * Math.PI) * 26, lerp(42, 200, u * u)];
   const [bx, by] = vu > 0 ? ruta2(vu) : ruta1(ida);
   // la estela de puntos
   for (let i = 0; i < 40; i++) { const u = i / 40; if (u < ida - 0.06 && vu === 0 && i % 2 === 0) { const [x, y] = ruta1(u); R.rect(Math.round(x), Math.round(y) - 8, Math.round(x) + 1, Math.round(y) - 7, BL); } }
@@ -239,26 +242,112 @@ const p3 = (t) => {
 };
 
 // ── 4 · el Judi, mucho más al sur ──
+const KM = ([lo, la]) => [(lo - 44.3) * 86, (39.7 - la) * 111];   // la misma cuenta del mapa: km desde el Ararat
+const TRI = KM([42.36, 37.11]), SIRIA = [[42.36, 37.11], [42.2, 37.3], [41.5, 37.1], [40.8, 37.1], [40.0, 36.8]].map(KM), IRAK = [[42.36, 37.11], [42.6, 37.25], [43.0, 37.35], [43.6, 37.25], [44.2, 37.15], [44.8, 37.17]].map(KM), SUR = [[42.36, 37.11], [42.2, 36.6], [41.4, 36.5], [41.2, 35.6]].map(KM);
+const VIAJE = [[-72, -4], [-36, 26], [-36, 92], [-74, 172], [-159, 247]];
+const cr = (pts, u) => { const n = pts.length - 1, x = Math.max(0, Math.min(0.9999, u)) * n, k = Math.floor(x), f = x - k, p = (i) => pts[Math.max(0, Math.min(n, i))];
+  const c = (d) => { const q0 = p(k - 1)[d], q1 = p(k)[d], q2 = p(k + 1)[d], q3 = p(k + 2)[d]; return 0.5 * (2 * q1 + (q2 - q0) * f + (2 * q0 - 5 * q1 + 4 * q2 - q3) * f * f + (3 * q1 - q0 - 3 * q2 + q3) * f * f * f); };
+  return [c(0), c(1)]; };
 const p4 = (t) => {
-  const jd = sua(tramo(t, b(16.9), b(19.1)));
-  const g = T.papeles(R, t, { encuadre: 'mapa', regla: 0, judi: jd });
-  const R4 = R.recorte;
-  T.papelesDelante(R, t, { encuadre: 'mapa' });
+  const jd = sua(tramo(t, b(16.9), b(19.0))), ENTRA = P4 + 0.15, PIN = b(18.79);
+  const o = { encuadre: 'mapa', regla: 0, judi: jd };
+  const g = T.papeles(R, t, o), P = (q) => { const [x, y] = g.P(q[0], q[1]); return [Math.round(x), Math.round(y)]; };
+  R.recorte(g.marco);
+  // el barquito llega por arriba (venía del plano anterior), pasa de largo junto al Ararat y sigue al sur con el mapa
+  const u = t < b(16.9) ? 0.3 * sua(tramo(t, ENTRA + 0.1, b(16.8))) : 0.3 + 0.7 * tramo(jd, 0, 0.64), llega = jd >= 0.64;
+  for (let i = 0; i <= 66; i += 3) { const v = i / 66; if (v > u - 0.03) break; const [x, y] = P(cr(VIAJE, v)); R.disco(x, y, 1, K); R.pset(x, y, ROJO); R.pset(x - 1, y, ROJO); }
+  if (t >= ENTRA && !llega) { const [x, y] = P(cr(VIAJE, u)); barcoIcono(x, y + bote(t - ENTRA), t); }
+  const [jx, jy] = P([-159, 259]);
+  // llega al Judi: un destello sobre su barquito y cae el alfiler
+  if (llega) { const d = t - b(18.1); if (d >= 0 && d < 0.5) destello(jx, jy - 12, d < 0.15 ? 6 : d < 0.3 ? 4 : 2); }
+  if (t > PIN - 0.3) T.chincheta(R, jx + 11, jy + 2, t, ROJO, { baja: tramo(t, PIN - 0.3, PIN) });
+  // las fronteras: un aro a trazos que late en el nudo, y cada frontera que se recorre cuando la voz la nombra
+  const [tx, ty] = P(TRI), dn = t - b(20.07);
+  const marcha = (pts, t0, largo) => { const d = t - t0; if (d < 0) return; const f = Math.min(1, d / 0.45) * largo, S = pts.map(P); let L = 0;
+    for (let i = 1; i < S.length; i++) { const [x0, y0] = S[i - 1], [x1, y1] = S[i], l = Math.max(1, Math.hypot(x1 - x0, y1 - y0));
+      for (let k = 0; k < l; k++) { const q = L + k; if (q > f) return; const x = Math.round(x0 + (x1 - x0) * k / l), y = Math.round(y0 + (y1 - y0) * k / l), on = Math.floor(q - t * 14 + 4000) % 6 < 3;
+        if (d < 0.5) { R.pset(x, y - 1, BL); R.pset(x, y + 1, BL); }
+        R.pset(x, y, on ? hex('#1e2a5a') : ORO); if (on) R.pset(x, y + 1, hex('#1e2a5a')); }
+      L += l; } };
+  marcha(SIRIA, b(20.57), 64); marcha(IRAK, b(21.17), 64); marcha(SUR, b(21.17) + 0.15, 40);
+  if (dn >= 0) { const r = Math.round(sua(Math.min(1, dn / 0.3)) * 9) + (dn < 1 ? Math.round(Math.sin(dn * 12) * 1.2 * (1 - dn)) : 0);
+    for (let k = 0; k < 32; k++) if ((k + Math.floor(t * 9)) % 4 < 2) { const an = k / 32 * 6.283, x = Math.round(tx + Math.cos(an) * r), y = Math.round(ty + Math.sin(an) * r); R.pset(x, y, K); R.pset(x + 1, y, K); R.pset(x, y + 1, K); R.pset(x + 1, y + 1, ROJO); }
+    if (dn < 0.3) destello(tx, ty, 4, BL); }
+  R.recorte(null);
+  T.papelesDelante(R, t, o);
 };
 
 // ── 5 · ni los libros señalan el mismo monte ──
+const PA = hex('#fbf8ee'), PS = hex('#d9d4c2'), PD = hex('#a9a390'), LAP = hex('#5a7ab8');
+// un monte de papel doblado sobre la mesa: 'alto' (un pico grande nevado a lápiz y su hermano) o 'ancho' (bajo y de dos lomas)
+const montePapel = (cx, base, forma) => {
+  for (let j = 0; j < 4; j++) for (let i = -30 + j * 3; i <= 34 - j * 2; i++) if ((i + j) % 2 === 0) mez(cx + i, base + 1 + j, K, 0.4);
+  const cara = (pts, c) => R.poligono(pts.map(([x, y]) => [cx + x, base + y]), c);
+  const filo = (pts) => { for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(pts.map(([x, y]) => [cx + x + dx, base + y + dy]), K); };
+  if (forma === 'alto') {
+    filo([[4, 0], [17, -19], [28, 0]]); cara([[4, 0], [17, -19], [19, 0]], PA); cara([[19, 0], [17, -19], [28, 0]], PS);
+    filo([[-25, 0], [-4, -39], [17, 0]]); cara([[-25, 0], [-4, -39], [-1, 0]], PA); cara([[-1, 0], [-4, -39], [17, 0]], PS); R.linea(cx - 4, base - 38, cx - 1, base - 1, PD);
+    const z = [[-11, -25], [-8, -28], [-6, -24], [-3, -28], [-1, -24], [2, -27]]; for (let i = 1; i < z.length; i++) R.linea(cx + z[i - 1][0], base + z[i - 1][1], cx + z[i][0], base + z[i][1], LAP);
+    R.linea(cx - 16, base - 8, cx - 12, base - 8, PS); R.linea(cx - 12, base - 14, cx - 9, base - 14, PS); R.pset(cx - 4, base - 38, hex('#ffffff'));
+  } else {
+    const s = [[-29, 0], [-13, -21], [-3, -16], [9, -25], [29, 0]];
+    const A2 = hex('#f4dc98'), S2 = hex('#d2b266'), D2 = hex('#9a7c3a');   // papel de estraza: se separa de las hojas blancas de detrás
+    filo(s); cara(s, A2); cara([[9, -25], [29, 0], [12, 0]], S2); cara([[-13, -21], [-3, -16], [-8, 0]], S2); R.linea(cx + 9, base - 24, cx + 12, base - 1, D2); R.linea(cx - 13, base - 20, cx - 8, base - 1, D2); R.linea(cx - 28, base, cx + 28, base, D2);
+    for (const [x, y] of [[-20, -5], [-16, -10], [0, -7], [4, -13], [-2, -3]]) { R.pset(cx + x, base + y, D2); R.pset(cx + x + 1, base + y - 1, D2); R.pset(cx + x + 2, base + y, D2); }
+  } };
+const flecha = (x, y) => { R.poligono([[x - 6, y], [x + 6, y], [x, y + 8]], K); R.rect(x - 3, y - 7, x + 3, y, K); R.poligono([[x - 4, y + 1], [x + 4, y + 1], [x, y + 6]], ROJO); R.rect(x - 2, y - 6, x + 2, y + 1, ROJO); R.rect(x - 2, y - 6, x - 2, y, hex('#ff7a6a')); };
 const p5 = (t) => {
-  const o = { encuadre: 'estudio', camara: 'mesa', pez: true };
-  const g = T.hoy(R, t, o);
+  const A1 = b(22.65), A2 = b(23.5), A3 = b(24.4), Q = b(24.45), GEN = b(25.1);
+  const off = t < A2 ? -15 * sua(tramo(t, A1, A1 + 0.6)) : t < A3 ? lerp(-15, 15, sua(tramo(t, A2 + 0.1, A2 + 0.75))) : lerp(15, 0, sua(tramo(t, A3 + 0.2, A3 + 1.0))) + Math.sin((t - A3) * 2.4) * 4 * tramo(t, A3 + 1.0, A3 + 1.4);
+  const yendo = t < A1 ? 0 : t < A2 + 0.1 ? -1 : t < A3 + 0.2 ? 1 : 0;
+  const o = { encuadre: 'estudio', camara: 'mesa', pez: true, pezDir: yendo || (off >= 0 ? -1 : 1), mira: t >= Q && t < GEN + 0.6, gatoMira: t >= GEN ? lerp(off / 16, -1, sua(tramo(t, GEN, GEN + 0.35))) : Math.max(-1, Math.min(1, off / 14)) };
+  const g = T.hoy(R, t, o), ag = g.agua ?? [160, 109];
+  const bq = T.g_barquito(R, ag[0] + Math.round(off), ag[1], 22, t, {});
+  montePapel(94, 171, 'alto'); montePapel(226, 170, 'ancho');
+  if (yendo) { const dy = Math.round(Math.abs(Math.sin(t * 7)) * 3); if (yendo < 0) flecha(90, 112 + dy); else flecha(230, 124 + dy); }
   T.hoyDelante(R, t, o);
+  // «…the same mountain»: no sabe en cuál posarse
+  if (t >= Q) { const d = t - Q, x = 196, y = 56 + bote(d), cx = ag[0] + Math.round(off) + 6;
+    R.disco(x, y, 13, K); R.poligono([[x - 10, y + 7], [cx, 82], [x - 1, y + 12]], K); R.disco(x, y, 12, BL); R.poligono([[x - 8, y + 7], [cx + 1, 80], [x - 2, y + 10]], BL);
+    for (let i = -8; i <= 8; i++) R.pset(x + i, y + 11 - Math.round(Math.abs(i) * 0.4), hex('#d8d2c0'));
+    R.icono('?', x - 4, y - 8, GRANATE, hex('#d8d2c0'), 2); }
+  // «And Genesis…»: el libro abierto de la mesa pide la palabra (dos destellos) y el gato se vuelve hacia él
+  if (t >= GEN) { const d = t - GEN; if (d < 1.2) { destello(40, 120, d < 0.15 ? 5 : 2 + Math.floor(t * 10) % 2, ORO); destello(74, 127, 1 + Math.floor(t * 8) % 3, hex('#ffffff')); } }
 };
 
 // ── 6 · los montes de Ararat ──
+const LAZO = [[208, 7], [224, 11], [240, 24], [256, 35], [268, 40], [280, 47], [298, 50], [313, 57], [314, 64], [300, 67], [240, 68], [160, 71], [80, 73], [22, 71], [6, 64], [9, 53], [40, 48], [100, 46], [150, 44], [180, 30], [194, 14]];
+const LZ = []; for (let i = 0; i < LAZO.length; i++) { const [x0, y0] = LAZO[i], [x1, y1] = LAZO[(i + 1) % LAZO.length], l = Math.round(Math.hypot(x1 - x0, y1 - y0)); for (let k = 0; k < l; k++) LZ.push([Math.round(x0 + (x1 - x0) * k / l), Math.round(y0 + (y1 - y0) * k / l)]); }
+const PICOS = [[208, 17, 1], [271, 48, -1], [150, 52, 1], [96, 56, 1], [40, 57, 1], [236, 52, 1]];
 const p6 = (t) => {
   const o = { encuadre: 'ladera', epoca: 1959, hora: 'tarde' };
   const g = T.ladera(R, t, o);
+  const ABRE = b(27.62), REG = b(29.24);
+  // «a whole region»: el rayado que camina dentro del lazo
+  if (t >= REG) { const f = Math.min(1, (t - REG) / 0.4) * (0.3 + 0.08 * Math.sin((t - REG) * 5)), ph = Math.floor(t * 9);
+    for (let y = 8; y <= 72; y++) { const xs = []; for (let i = 0; i < LAZO.length; i++) { const [x0, y0] = LAZO[i], [x1, y1] = LAZO[(i + 1) % LAZO.length]; if ((y0 <= y && y1 > y) || (y1 <= y && y0 > y)) xs.push(x0 + (x1 - x0) * (y - y0) / (y1 - y0)); }
+      xs.sort((p, q) => p - q); for (let k = 0; k + 1 < xs.length; k += 2) for (let x = Math.ceil(xs[k]) + 2; x <= xs[k + 1] - 2; x++) if (((x + y - ph) % 7 + 7) % 7 < 3) mez(x, y, hex('#fff2b0'), f); } }
+  // «Mount Ararat»: un aro en UN solo pico… que se apaga cuando la voz dice «but»
+  const tr = tramo(t, P6 + 0.1, P6 + 0.55);
+  if (tr > 0 && (t < ABRE || (t < ABRE + 0.4 && Math.floor(t * 14) % 2))) { for (let k = 0; k <= Math.round(tr * 48); k++) { const an = -1.571 + k / 48 * 6.283, x = Math.round(208 + Math.cos(an) * 13), y = Math.round(20 + Math.sin(an) * 11); R.disco(x, y, 1, K); }
+    for (let k = 0; k <= Math.round(tr * 48); k++) { const an = -1.571 + k / 48 * 6.283, x = Math.round(208 + Math.cos(an) * 13), y = Math.round(20 + Math.sin(an) * 11); R.pset(x, y, ROJO); R.pset(x + 1, y, ROJO); }
+    if (tr >= 1 && t < ABRE) R.numero('1', 232, 22, { centro: true, sombra: true, color: BL }); }
+  // «the mountains of Ararat»: la línea de puntos sale de la cumbre y rodea toda la cordillera
+  const lz = sua(tramo(t, b(27.72), b(29.1))), n = Math.round(lz * LZ.length), ph = Math.floor(t * 10);
+  for (let i = 0; i < n; i++) if (((i - ph) % 6 + 6) % 6 === 0) { const [x, y] = LZ[i]; R.rect(x - 1, y - 1, x + 2, y + 2, K); R.rect(x, y, x + 1, y + 1, BL); }
+  if (lz > 0 && lz < 1) { const [x, y] = LZ[Math.min(LZ.length - 1, n)]; destello(x, y, 2 + Math.floor(t * 12) % 2, ORO); }
+  // un banderín igual en cada pico, uno tras otro
+  PICOS.forEach(([x, y, dir], k) => { const d = t - b(28.0 + k * 0.32); if (d < 0) return; const c = Math.min(1, d / 0.16), yy = Math.round(y - (1 - c) * 20) + (c >= 1 ? Math.round(bote(d - 0.16) / 2) : 0), w = Math.floor(t * 6 + k) % 2;
+    R.rect(x - 1, yy - 11, x + 1, yy, K); R.rect(x, yy - 10, x, yy, BL);
+    R.poligono([[x + dir, yy - 12], [x + dir * 9, yy - 8 + w], [x + dir, yy - 4]], K); R.poligono([[x + dir, yy - 10], [x + dir * 6, yy - 8 + w], [x + dir, yy - 6]], ROJO);
+    if (d < 0.3 && c >= 1) destello(x, yy - 12, 2, BL); });
   T.laderaDelante(R, t, o);
 };
-const efectos = [];
+const efectos = [[a(0.5), 'brillo'], [a(1.2), 'pop'], [a(3.45), 'golpecito'],
+  [P2 + 0.25, 'pop'], [a(7.5), 'brillo'],
+  [P3 + 0.2, 'viento'], [a(12.19), 'golpecito'], [a(13.5), 'whoosh'],
+  [P4 + 0.15, 'papel'], [b(18.79), 'toc'], [b(20.57), 'lapiz'], [b(21.17), 'lapiz'],
+  [b(22.7), 'burbujas'], [b(24.45), 'pop'], [b(25.1), 'miau'],
+  [P6 + 0.1, 'lapiz'], [b(27.72), 'lapiz'], [b(28.0), 'toc'], [b(28.64), 'toc'], [b(29.24), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
 ''')
