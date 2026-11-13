@@ -12,10 +12,14 @@
 // NX-ARTICULO (frase 21), 1996. Cinco planos:
 // 1. el despacho del geólogo: Fasold entra con el artículo en la mano y lo deja en la mesa de Collins, que le saluda;
 //    al fondo, la geóloga coge una muestra de la estantería;  2. (corta en «he signed») el artículo desde arriba: una
-//    mano firma, luego la otra, y el título queda subrayado («no doubt»);  3. (corta en «It said») la ladera en corte:
-//    Collins señala las capas plegadas, una línea recorre el pliegue («folded layers») y la lluvia y el viento se llevan
-//    lo blando («carved by erosion»);  4. (corta antes de «and later ringed») la ladera de lejos, sin nadie: el barro
-//    del deslizamiento baja y rodea la forma por los dos lados, y el contorno del «barco» queda dibujado;
+//    mano firma, luego la otra (las firmas se trazan aquí: una onda en zigzag con su rúbrica, sin lazos ni formas de
+//    letra; al decorado se le pide firmas 0), y el título queda enmarcado («no doubt»);  3. (corta en «It said») la
+//    ladera en corte: Collins señala las capas plegadas, una línea recorre el pliegue («folded layers») y la lluvia y
+//    el viento se llevan lo blando («carved by erosion»);  4. (corta antes de «and later ringed») la ladera VISTA DESDE
+//    ARRIBA, sin nadie (fondo propio, cenital, en sus colores: fondo4): la forma son aros de capas de roca con la capa
+//    dura rojiza por borda; el barro del deslizamiento entra por la derecha, choca con la popa, se abre y la rodea por
+//    los dos lados (frente lobulado, vetas que corren, piedras arrastradas, polvo), y el contorno queda dibujado a
+//    trazos claros; las ovejas se meten en el corral, cruzan sombras de nubes y un halcón da vueltas con su sombra;
 // 5. (corta en «The metal») la bandeja de muestras: un aro marca el «remache» y una mano señala su ficha (mineral de
 //    hierro); después el «ancla» y la suya (piedra volcánica).
 import * as T from '/atomo/plato/escenas/nx-comun.js';
@@ -50,15 +54,23 @@ const p1 = (t) => {
   else papelMesa(210, 148);
 };
 const p2 = (t) => {
-  const s1 = tramo(t, a(4.85), a(5.8)), s2 = tramo(t, a(6.05), a(7.0)), o = { encuadre: 'firma', firmas: s1 + s2 };
+  const s1 = tramo(t, a(4.85), a(5.8)), s2 = tramo(t, a(6.05), a(7.0)), o = { encuadre: 'firma', firmas: 0 };   // el decorado no traza sus garabatos de lazos (se leían como iniciales)
   const g = T.mesas(R, t, o);
+  // las dos firmas, aquí: una onda en zigzag abierta (dientes de sierra que crecen y se aplastan, sin lazos ni formas de
+  // letra) y la rúbrica, una raya que vuelve por debajo del renglón; el mismo punto da la tinta y el plumín
+  const TINTA = hex('#1e2a7a'), punto = (k, u) => { const [x0, y0, x1, y1] = g.firmas[k], L = x1 - x0, pend = (y1 - y0) / L, N = k ? 6 : 5;
+    const zig = (v) => { const w = v * N, tri = Math.abs(2 * (w - Math.floor(w)) - 1), env = Math.min(1, 0.3 + v * 3.5) * (1 - 0.62 * v) * (k ? 0.78 + 0.22 * Math.cos(v * 9) : 1), x = 3 + v * (L - 10); return [x0 + x, y0 + pend * x - 2 - (k ? 5 : 5.8) * env * (1 - tri)]; };
+    if (u < 0.7) return zig(u / 0.7);
+    const [xe, ye] = zig(1), w = (u - 0.7) / 0.3, yr = y0 + 2 + (k ? 0 : 1);
+    if (w < 0.2) return [xe + w * 10, lerp(ye, yr, w / 0.2)]; if (w < 0.85) return [lerp(xe + 2, x0 + (k ? 7 : 4), (w - 0.2) / 0.65), yr]; return [x0 + (k ? 7 : 4) + (w - 0.85) * 20, yr + (w - 0.85) * 14]; };
+  [s1, s2].forEach((f, k) => { if (f <= 0) return; let [xa, ya] = punto(k, 0); for (let u = 0.004; u <= f + 1e-6; u += 0.004) { const [x, y] = punto(k, u); R.linea(Math.round(xa), Math.round(ya), Math.round(x), Math.round(y), TINTA); xa = x; ya = y; } });
   // «with a title that left no doubt»: el título, enmarcado, y tres rayitas que lo señalan
   const br = tramo(t, a(7.05), a(7.3));
   if (br > 0) { const c = Math.sin(t * 9) > -0.3 ? hex('#f4c020') : hex('#c88a10'), x0 = 119, x1 = Math.round(lerp(119, 172, br)), y0 = 39, y1 = 50;
     R.rect(x0, y0, x1, y0, c); R.rect(x0, y1, x1, y1, c); R.rect(x0, y0, x0, y1, c); if (br >= 1) { R.rect(x1, y0, x1, y1, c); for (const [dx, dy] of [[5, -4], [7, 0], [5, 4]]) R.linea(x1 + 3, 44 + dy, x1 + 3 + dx, 44 + dy + Math.sign(dy) * 2, c); } }
   const firma = (k, s, entra, sale, manga, pluma) => {
     const e = tramo(t, entra, entra + 0.3) - tramo(t, sale, sale + 0.35); if (e <= 0) return;
-    const p = g.puntas[k], px = p[0] + Math.round((1 - e) * 22), py = p[1] + Math.round((1 - e) * 36);
+    const p = punto(k, s).map(Math.round), px = p[0] + Math.round((1 - e) * 22), py = p[1] + Math.round((1 - e) * 36);
     T.h_estilografica(R, px, py, 19, -22, pluma);
     T.brazo(R, px + 42, py + 54, px + 15, py - 8, manga, -1, { codo: [px + 34, py + 18] });
   };
@@ -81,22 +93,116 @@ const p3 = (t) => {
   if (ub > 0.5) { globo(40, 33, 20, 15, c.cabeza[0] + 3, c.cabeza[1] - 2); R.icono('barco', 33, 26, hex('#8a4a2a'), hex('#d8c8a8'), 2); }
   T.laderaDelante(R, t, o);
 };
-const p4 = (t) => {
-  const o = { epoca: 1959, gente: false }; T.ladera(R, t, o);   // la ladera sin nadie
-  // el barro del deslizamiento baja del monte (arriba a la derecha) y rodea la forma por los dos lados, de popa a proa
-  const u = tramo(t, P4 + 0.5, a(16.2)), M0 = hex('#3a2212'), M1 = hex('#7a4a26'), M2 = hex('#d8a868'), M3 = hex('#a8703a'), N = 220;
-  for (const lado of [-1, 1]) {
-    const pts = []; for (let i = 0; i < 24; i++) pts.push([Math.round(lerp(308, 281, i / 24)), Math.round(lerp(72, 95, i / 24) + Math.sin(i * 0.5) * 1.5)]);
-    for (let i = 0; i <= N; i++) { const s = 1 - 0.99 * i / N; pts.push(T.a_puntoForma(s, lado * (1.6 + 0.1 * Math.sin(i * 0.21)))); }
-    const n = Math.floor(u * (pts.length - 1));
-    for (const paso of [0, 1]) for (let i = 0; i <= n; i++) { const [x, y] = pts[i]; if (paso === 0) { R.rect(x - 1, y - 3, x + 1, y + 3, M0); R.rect(x - 3, y - 1, x + 3, y + 1, M0); R.rect(x - 2, y - 2, x + 2, y + 2, M0); } else { R.rect(x - 1, y - 2, x + 1, y + 2, M1); R.rect(x - 2, y - 1, x + 2, y + 1, M1); R.rect(x - 1, y - 2, x + 1, y - 1, M3); const q = (i - Math.floor(t * 30) + 6000) % 26; if (q < 7) R.rect(x - 1, y - 1, x + (q < 3 ? 1 : 0), y, M2); } }
-    if (u > 0 && u < 1 && n > 1) { const [x, y] = pts[n], [xa, ya] = pts[Math.max(0, n - 6)], dx = x - xa, dy = y - ya, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
-      R.poligono([[x + ux * 10, y + uy * 10], [x - uy * 7 - ux, y + ux * 7 - uy], [x + uy * 7 - ux, y - ux * 7 - uy]], M0); R.poligono([[x + ux * 7, y + uy * 7], [x - uy * 4, y + ux * 4], [x + uy * 4, y - ux * 4]], M2); }
+// ── PLANO 4: LA LADERA VISTA DESDE ARRIBA (cenital, en sus colores: es lo que dicen los geólogos, no un plano azul).
+// El terreno es fijo y va en su búfer; encima corren el barro, las sombras de las nubes, las ovejas y el halcón.
+// La forma: proa arriba a la izquierda (FA), popa abajo a la derecha (FB); el barro entra por el borde derecho (y ≈ 140).
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const vn = (x, y, k = 0) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy); return lerp(lerp(hh(xi, yi, k), hh(xi + 1, yi, k), sx), lerp(hh(xi, yi + 1, k), hh(xi + 1, yi + 1, k), sx), sy); };
+const U4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], um = (x, y) => (U4[(y & 3) * 4 + (x & 3)] + 0.5) / 16, lim = (v) => Math.max(0, Math.min(1, v));
+const rampa = (cols, f, x, y) => { const n = cols.length - 1, v = lim(f) * n, i = Math.floor(v); return cols[Math.min(n, i + (v - i > um(x, y) ? 1 : 0))]; };
+const mz = (c1, c2, a) => { const f = (s) => Math.round(((c1 >>> s) & 255) * (1 - a) + ((c2 >>> s) & 255) * a); return (0xff000000 | (f(16) << 16) | (f(8) << 8) | f(0)) >>> 0; };
+const pal = (l) => l.map(hex);
+const FA = [62, 62], FB = [246, 118], FL = Math.hypot(FB[0] - FA[0], FB[1] - FA[1]), FU = [(FB[0] - FA[0]) / FL, (FB[1] - FA[1]) / FL], FW = 35, SMAX = 1.46;
+const manga4 = (s) => (s <= 0 || s >= 1 ? 0 : FW * (1 - Math.pow(Math.abs(2 * s - 1), s < 0.5 ? 1.5 : 2.6)));
+// el punto de pantalla en coordenadas de la forma: [s a lo largo, q de través (positiva hacia abajo), d al borde (negativa dentro)]
+const aForma4 = (x, y) => { const dx = x - FA[0], dy = y - FA[1], s = (dx * FU[0] + dy * FU[1]) / FL, q = -dx * FU[1] + dy * FU[0];
+  if (s <= 0) return [s, q, Math.hypot(s * FL, q)]; if (s >= 1) return [s, q, Math.hypot((s - 1) * FL, q)];
+  const wp = (manga4(s + 0.01) - manga4(s - 0.01)) / (0.02 * FL); return [s, q, (Math.abs(q) - manga4(s)) / Math.sqrt(1 + wp * wp)]; };
+const dePlanta = (s, q) => [Math.round(FA[0] + s * FL * FU[0] - q * FU[1]), Math.round(FA[1] + s * FL * FU[1] + q * FU[0])];
+const qc4 = (s) => 9 * Math.sin((s - 1) * 7);                                    // el eje de la lengua de barro que baja (s > 1)
+const quieto4 = (x, y) => (x > 264 && y < 52) || (x > 8 && x < 194 && y < 26);   // la esquina de Atom y la barra del año
+// lo mismo, con el borde deshecho en trama (8 px) para que las zonas tranquilas no se lean como un recuadro
+const quieto4s = (x, y) => { const d = Math.max(x > 264 && y < 52 ? Math.min(x - 264, 52 - y) : 0, x > 8 && x < 194 && y < 26 ? Math.min(x - 8, 194 - x, 26 - y) : 0); return d >= 8 || um(x, y) < d / 8; };
+const BARRO = pal(['#3a2212', '#5a3418', '#7a4a26', '#a8703a', '#d8a868']), SOM4 = hex('#141c3c');
+const CORRAL = [20, 140, 70, 170], OVEJAS = [[96, 146], [108, 143], [121, 149], [101, 156], [115, 159], [128, 162], [93, 166], [110, 169], [124, 171]];
+let F4 = null;
+const fondo4 = () => {
+  if (F4) return F4;
+  const b = R.nuevo(), TAU = new Float32Array(57600).fill(9), LAT = new Float32Array(57600), NO = new Float32Array(57600), BOR = new Uint8Array(57600), QZ = new Uint8Array(57600), prev = R.usar(b), { pset, pget, rect } = R;
+  const HI = pal(['#3e5a2a', '#4e6e32', '#62863c', '#7c9c48', '#98b05a']), TI = pal(['#5a4028', '#7a5a38', '#96744a', '#b08e5e', '#c8a876']);
+  // las capas de roca, en los colores del corte y del diagrama del artículo: [sombra, base, luz]; la última, la dura rojiza
+  const BANDAS = [['#8a6c44', '#c8a870', '#e0c890'], ['#9a8458', '#d8c08a', '#f0dcae'], ['#5e6c7c', '#8a9aaa', '#b4c0cc'], ['#7e6844', '#b89a66', '#d4b884'], ['#6e3020', '#a85038', '#cc7450']].map(pal);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const [s, q, d] = aForma4(x, y), al = x * FU[0] + y * FU[1], tr = -x * FU[1] + y * FU[0], n2 = vn(x / 9, y / 7, 5), hv = hh(x, y, 7), qz = quieto4s(x, y), i = y * 320 + x; let c;
+    if (d < 0) {   // ── la forma: capas plegadas en cuenco, comidas por la erosión (aros alargados, cada uno con su escalón)
+      const pr = -d, w = (pr - 3 + 2.5 * vn(al / 10, tr / 10, 6)) / 4.6, k = Math.floor(w), f = w - k, luz = q < 0;
+      if (pr < 3) c = pr < 1 ? hex(luz ? '#f0a078' : '#4a1c14') : rampa(BANDAS[4], (luz ? 0.78 : 0.28) + (n2 - 0.5) * 0.5, x, y);   // la capa dura, que hace de borda
+      else if (pr > 25) { c = vn(al / 14, tr / 5, 8) > 0.55 ? rampa(TI, 0.4 + n2 * 0.5, x, y) : rampa(HI, 0.3 + n2 * 0.55, x, y); if (Math.abs(q + 1.5 * Math.sin(s * 30)) < 1 && s > 0.3 && s < 0.68) c = hex('#e8d8b0'); else if (Math.abs(q - 1.6 + 1.5 * Math.sin(s * 30)) < 0.8 && s > 0.3 && s < 0.68) c = TI[0]; }
+      else { const B = BANDAS[((k % 4) + 4) % 4]; c = rampa(B, 0.2 + (luz ? f : 1 - f) * 0.55 + (n2 - 0.5) * 0.45, x, y); if (f < 0.16) c = luz ? mz(B[0], K, 0.35) : B[2];
+        if (pr > 5 && vn(x / 7, y / 6, 9) > 0.7) c = rampa(HI, 0.25 + n2 * 0.5, x, y); else if (hv > 0.95) c = mz(c, K, 0.4); else if (hv < 0.03) c = B[2]; }
+      if (pr >= 3 && pr < 6.5 && luz && um(x, y) < 1 - (pr - 3) / 3.5) c = mz(c, SOM4, 0.4);   // la sombra de la borda de arriba, hacia dentro
+    } else {   // ── la ladera: hierba a manchas, vetas de tierra ladera abajo, cárcavas y el sendero
+      const veta = vn(al / 34, tr / 3.2, 3), g = vn(x / 40, y / 28, 1) * 0.55 + vn(x / 12, y / 10, 2) * 0.45, tierra = !qz && veta > 0.6 && g < 0.62;
+      c = tierra ? rampa(TI, 0.25 + n2 * 0.5 + (veta - 0.6) * 0.9, x, y) : rampa(HI, (qz ? 0.3 + g * 0.35 : 0.12 + g * 0.72) + (n2 - 0.5) * 0.25, x, y);
+      if (tierra) { if (hv > 0.95) c = TI[0]; else if (hv < 0.04) c = TI[4]; }
+      else if (hv > 0.992 && !qz) c = hex(hv > 0.997 ? '#e8d040' : '#f0f0e8'); else if (hv < 0.035) c = HI[0]; else if (hv > 0.95 && hv < 0.968) c = HI[4];
+      const ca = vn(al / 70, tr / 16, 5) - 0.5; if (!qz) { if (Math.abs(ca) < 0.01) c = TI[0]; else if (ca >= 0.01 && ca < 0.022) c = TI[3]; }
+      if (x > 184) { const e = Math.abs(y - ((x - 180) * 0.66 + 3 * Math.sin(x / 17))); if (e < 2.4) c = e > 1.5 ? (hv > 0.5 ? TI[1] : TI[2]) : hv > 0.8 ? TI[3] : TI[4]; }
+      if (s > 1 && Math.abs(q - qc4(s)) < 3.5) c = hv > 0.85 ? hex('#8c8676') : rampa(TI, 0.1 + n2 * 0.4, x, y);   // la cárcava seca por la que bajará el barro
+      if (d < 3.2 && q > 0 && um(x, y) < 1 - d / 3.2) c = mz(c, SOM4, 0.42);                                         // la sombra que echa la borda de abajo
+    }
+    b[i] = c; NO[i] = vn(x / 9, y / 9, 21); QZ[i] = qz ? 1 : 0;
+    // ── por dónde irá el barro: TAU es cuándo llega (0 el borde derecho, 0,3 la popa, 0,92 la proa) y LAT, el través
+    const W = 7 + 8 * lim(s) + (vn(x / 7, y / 7, 11) - 0.5) * 6;
+    if (s <= 1) { if (d > 0.4 && d < W) { TAU[i] = 0.3 + 0.62 * (1 - s); LAT[i] = d; } }
+    else { const l = q - qc4(s), hw = 11 + (vn(x / 8, y / 8, 12) - 0.5) * 6 + Math.max(0, 1.1 - s) * 30; if (Math.abs(l) < hw || d < W) { TAU[i] = 0.3 * (SMAX - s) / (SMAX - 1); LAT[i] = l; } }
   }
-  // «…y dibuja el barco»: el contorno de la forma, a puntos claros que corren
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x; if (TAU[i] < 9 && ((x > 0 && TAU[i - 1] === 9) || (x < 319 && TAU[i + 1] === 9) || (y > 0 && TAU[i - 320] === 9) || (y < 179 && TAU[i + 320] === 9))) BOR[i] = 1; }
+  for (let y = 1; y < 179; y++) for (let x = 1; x < 319; x++) { const i = y * 320 + x; if (TAU[i] < 9 && !BOR[i] && (BOR[i - 1] === 1 || BOR[i + 1] === 1 || BOR[i - 320] === 1 || BOR[i + 320] === 1)) BOR[i] = 2; }
+  // lo que hay en la ladera: el corral de piedra con su chozo, matas, peñas (cada cosa con su sombra, hacia abajo a la derecha)
+  const [cx0, cy0, cx1, cy1] = CORRAL, enCorral = (x, y, m = 0) => x >= cx0 - m && x <= cx1 + m && y >= cy0 - m && y <= cy1 + m;
+  const libre = (x, y, m) => { if (quieto4(x, y) || enCorral(x, y, m + 2) || x < m || x > 319 - m || y < m || y > 179 - m) return false; const [s, q, d] = aForma4(x, y); if (d < 20 + m) return false; if (s > 0.9 && Math.abs(q - qc4(Math.max(1, s))) < 20 + m) return false; if (x > 180 && Math.abs(y - (x - 180) * 0.66) < 6 + m) return false; return true; };
+  const sombra = (x, y) => { if (x >= 0 && x < 320 && y >= 0 && y < 180) pset(x, y, mz(pget(x, y), SOM4, 0.42)); };
+  for (let y = cy0 + 1; y < cy1; y++) for (let x = cx0 + 1; x < cx1; x++) pset(x, y, hh(x, y, 80) > 0.9 ? hex('#d8c070') : rampa(TI, 0.35 + vn(x / 5, y / 4, 81) * 0.5, x, y));
+  for (let k = 0; k < 2 * (cx1 - cx0 + cy1 - cy0); k += 3) { const P = cx1 - cx0, Q = cy1 - cy0, [x, y] = k < P ? [cx0 + k, cy0] : k < P + Q ? [cx1, cy0 + k - P] : k < 2 * P + Q ? [cx1 - (k - P - Q), cy1] : [cx0, cy1 - (k - 2 * P - Q)];
+    if (x === cx1 && y > 150 && y < 160) continue;                                               // la puerta del corral
+    sombra(x + 2, y + 2); sombra(x + 1, y + 2); sombra(x + 2, y + 1); rect(x - 1, y - 1, x + 1, y + 1, K); rect(x - 1, y - 1, x, y, hex(k % 2 ? '#a8a290' : '#8c8676')); pset(x - 1, y - 1, hex('#d6d0ba')); }
+  { const x = cx0 + 4, y = cy0 + 4; for (let j = 0; j < 12; j++) for (let i2 = 0; i2 < 16; i2++) sombra(x + i2 + 3, y + j + 3); rect(x - 1, y - 1, x + 15, y + 11, K); rect(x, y, x + 14, y + 5, hex('#b08a5a')); rect(x, y + 5, x + 14, y + 10, hex('#7e5e3a')); rect(x, y + 5, x + 14, y + 5, hex('#e0c088'));
+    for (let i2 = 1; i2 < 14; i2 += 3) { rect(x + i2, y, x + i2, y + 4, hex('#c8a06c')); rect(x + i2, y + 6, x + i2, y + 10, hex('#5e4428')); } }
+  for (let k = 0; k < 150; k++) { const x = Math.round(hh(k, 1, 31) * 320), y = Math.round(hh(k, 2, 31) * 180), r = 2 + Math.floor(hh(k, 3, 31) * 2.6), pena = k % 3 === 0; if (!libre(x, y, r + 2)) continue;
+    for (let j = -r; j <= r; j++) for (let i2 = -r - 1; i2 <= r + 1; i2++) if (i2 * i2 / ((r + 1) * (r + 1)) + j * j / (r * r) <= 1) sombra(x + i2 + 2, y + j + 2);
+    for (let j = -r; j <= r; j++) for (let i2 = -r - 1; i2 <= r + 1; i2++) { const e = i2 * i2 / ((r + 1) * (r + 1)) + j * j / (r * r); if (e > 1) continue;
+      pset(x + i2, y + j, e > 0.62 ? (pena ? hex('#3a3830') : hex('#22341a')) : pena ? (i2 + j < -1 ? hex('#ccc6ae') : i2 + j > 1 ? hex('#6a665a') : hh(x + i2, y + j, 33) > 0.8 ? hex('#b8b44e') : hex('#8c8676')) : (i2 + j < -1 ? hex('#6a9a40') : i2 + j > 1 ? hex('#2e5226') : hh(x + i2, y + j, 34) > 0.6 ? hex('#4e7e34') : hex('#3e6a2e'))); } }
+  // las matas que se mecen (solo donde no llegará el barro)
+  const matas = []; for (let k = 0; k < 400 && matas.length < 46; k++) { const x = Math.round(hh(k, 4, 37) * 316) + 2, y = Math.round(hh(k, 5, 37) * 174) + 4, [, , d] = aForma4(x, y); if (!quieto4(x, y) && !enCorral(x, y, 3) && TAU[y * 320 + x] === 9 && TAU[y * 320 + x - 322] === 9 && (d > 3 || d < -6)) matas.push([x, y, k]); }
+  R.usar(prev);
+  const bs = new Uint32Array(57600); for (let i = 0; i < 57600; i++) bs[i] = mz(b[i], SOM4, 0.27);
+  return (F4 = { b, bs, TAU, LAT, NO, BOR, QZ, matas, BS: BARRO.map((c) => mz(c, SOM4, 0.27)) });
+};
+const p4 = (t) => {
+  const F = fondo4(), { b, bs, TAU, LAT, NO, BOR, QZ } = F, buf = R.buf, { pset, pget, rect } = R;
+  // el barro del deslizamiento baja por la cárcava (por la derecha), choca con la popa, se abre y rodea la forma por los dos lados
+  const u = tramo(t, P4 + 0.5, a(16.2)), tf = a(16.2), fl = Math.min(t, tf) * 11 + Math.max(0, t - tf) * 1.2, nx = t * 10, ny = t * 4;
+  for (let y = 0, i = 0; y < 180; y++) for (let x = 0; x < 320; x++, i++) {
+    const sh = !QZ[i] && vn((x + nx) / 48, (y + ny) / 30, 77) > 0.63 + (um(x, y) - 0.5) * 0.07, tau = TAU[i]; let c = sh ? bs[i] : b[i];   // las sombras de las nubes, que cruzan (no entran en las zonas tranquilas)
+    if (tau < 9 && u > 0) { const e = (u >= 1 ? 2 : u * 1.06 - 0.07 * NO[i]) - tau;
+      if (e > 0) { let k; if (BOR[i] === 1 || e < 0.008) k = 0; else if (e < 0.03) k = um(x, y) < 0.6 ? 4 : 3; else if (BOR[i] === 2) k = 1; else { const v = vn(tau * 60 - fl, LAT[i] * 0.45, 3); k = v < 0.3 ? 1 : v < 0.6 ? 2 : v < 0.82 ? 3 : 4; } c = (sh ? F.BS : BARRO)[k]; } }
+    buf[i] = c;
+  }
+  // las matas, que se mecen con el viento
+  for (const [x, y, k] of F.matas) { const d = Math.sin(t * 2.2 + k * 1.7 + x * 0.05) > 0.2 ? 1 : 0; pset(x, y, hex('#2e5226')); pset(x + 1, y, hex('#3e6a2e')); pset(x + d, y - 1, hex('#8ab850')); pset(x + 1 + d, y - 2, hex('#a8cc68')); }
+  // lo que arrastra: piedras que van con la corriente y el polvo del frente
+  const lugar = (tau, lado, off) => { if (tau < 0.3) { const s = SMAX - tau / 0.3 * (SMAX - 1); return dePlanta(s, qc4(s) + lado * off * 0.8); } const s = 1 - (tau - 0.3) / 0.62; return dePlanta(s, lado * (manga4(s) + Math.min(off, 2 + 5 * lim(s)))); };
+  if (u > 0.04) for (let k = 0; k < 14; k++) { const [x, y0] = lugar(u * (0.2 + 0.72 * hh(k, 1, 51)), k % 2 ? 1 : -1, 2.5 + hh(k, 2, 51) * 6), y = y0 + (u < 1 && Math.sin(t * 9 + k * 2) > 0.3 ? -1 : 0);
+    rect(x - 1, y - 1, x + 2, y + 1, K); rect(x, y - 1, x + 1, y, hex(k % 3 ? '#8c8676' : '#a8a290')); pset(x, y - 1, hex('#e0dcc8')); }
+  if (u > 0 && u < 1) for (const lado of [-1, 1]) for (let k = 0; k < 7; k++) { const [x, y] = lugar(u * 1.02, lado, 1 + k * 1.6), j = Math.floor(t * 12 + k * 3) % 5; pset(x - 2 - j, y - (k % 2 ? 1 : 0) + lado * (j >> 1), hex(j < 2 ? '#f0e4c8' : '#d8c8a0')); if (j < 3) pset(x - 3 - j, y + lado * j, hex('#f0e4c8')); }
+  // «…y dibuja el barco»: el contorno de la forma, a trazos claros que corren, de la popa a la proa
   const ub = tramo(t, a(15.9), a(16.6));
-  if (ub > 0) for (const lado of [-1, 1]) for (let i = 0; i <= 120 * ub; i++) { const [x, y] = T.a_puntoForma(1 - i / 120, lado * 1.06); if ((i + Math.floor(t * 10)) % 4 < 2) { R.pset(x, y, BL); R.pset(x, y - 1, BL); } }
-  T.laderaDelante(R, t, o);
+  if (ub > 0) for (const lado of [-1, 1]) for (let i = 0; i <= 150 * ub; i++) { const s = 1 - i / 150, [x, y] = dePlanta(s, lado * (manga4(s) + 2)); if ((i + Math.floor(t * 10)) % 6 < 3) { pset(x, y + 1, K); pset(x + 1, y + 1, K); pset(x, y, BL); pset(x, y - 1, BL); pset(x + 1, y, BL); pset(x + 1, y - 1, BL); } }
+  // el rebaño: pace junto al corral y, cuando baja el barro, se mete dentro por la puerta
+  const hu = tramo(t, P4 + 0.9, a(15.9));
+  OVEJAS.forEach(([ox, oy], k) => { const w = lim(hu * 1.5 - k * 0.055), e = w * w * (3 - 2 * w), tx = 30 + (k % 4) * 9 + (k > 3 ? 4 : 0), ty = 158 + Math.floor(k / 4) * 5 - (k % 2) * 3;
+    const x = Math.round(e < 0.6 ? lerp(ox, 72, e / 0.6) : lerp(72, tx, (e - 0.6) / 0.4)), y = Math.round(e < 0.6 ? lerp(oy, 155, e / 0.6) : lerp(155, ty, (e - 0.6) / 0.4)) + (w > 0 && w < 1 && Math.sin(t * 14 + k) > 0 ? -1 : 0), pace = w === 0 && Math.sin(t * 1.3 + k * 2.1) > 0.4;
+    pset(x + 1, y + 2, mz(pget(x + 1, y + 2), SOM4, 0.45)); pset(x + 2, y + 2, mz(pget(x + 2, y + 2), SOM4, 0.45)); pset(x + 3, y + 2, mz(pget(x + 3, y + 2), SOM4, 0.45));
+    rect(x - 1, y - 1, x + 2, y + 1, hex('#8a8474')); rect(x - 1, y - 1, x + 2, y, hex('#f4f0e4')); pset(x + 2, y - 1, hex('#d4ccb8')); pset(x - 2, y + (pace ? 1 : 0), K); pset(x - 2, y - 1 + (pace ? 1 : 0), hex('#3a3430')); });
+  // el halcón, visto desde arriba, da vueltas con su sombra en la ladera
+  { const an = t * 0.9, hx = 226 + Math.cos(an) * 15, hy = 46 + Math.sin(an) * 11, m = Math.hypot(Math.sin(an), Math.cos(an) * 0.73), vx = -Math.sin(an) / m, vy = Math.cos(an) * 0.73 / m, env = 7 + Math.sin(t * 5) * 0.7;
+    // la silueta, en ejes del ave (i de ala a ala, j hacia el pico): alas en flecha, cuerpo y cola en abanico
+    const dentro = (i, j) => { const ai = Math.abs(i); return (ai <= env && j <= 2 - ai * 0.5 && j >= -1.2 - ai * 0.2) || (ai <= 1 && j <= 4.5 && j >= -4) || (j < -4 && j >= -6.5 && ai <= 1 + (-4 - j) * 0.6); };
+    const ave = (x, y, som) => { for (let j = -8; j <= 6; j += 0.5) for (let i = -9; i <= 9; i += 0.5) { const d0 = dentro(i, j); if (!d0 && !(!som && (dentro(i - 1, j) || dentro(i + 1, j) || dentro(i, j - 1) || dentro(i, j + 1)))) continue;
+        const px = Math.round(x - vy * i + vx * j), py = Math.round(y + vx * i + vy * j); if (px < 0 || px > 319 || py < 0 || py > 179) continue;
+        if (som) { if ((px + py) & 1) pset(px, py, mz(pget(px, py), SOM4, 0.45)); } else pset(px, py, !d0 ? K : Math.abs(i) > env - 2 || j > 3.4 ? hex('#3a2416') : Math.abs(i) <= 1 ? hex('#8a5a30') : j < -4 ? hex('#c89a60') : (Math.round(Math.abs(i)) % 3 === 0 ? hex('#c89a60') : hex('#e8cc98'))); } };
+    ave(hx + 7, hy + 9, true); ave(hx, hy, false); }
 };
 const p5 = (t) => {
   const f1 = tramo(t, a(17.6), a(18.05)), f2 = tramo(t, a(19.6), a(20.1)), o = { encuadre: 'muestras', fichas: 0.5 * f1 + 0.5 * f2 };

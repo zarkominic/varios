@@ -13,8 +13,11 @@
 // diminuto que trae el decorado de la ladera, de fondo, en el plano 6); nadie toca los libros. Los tres libros, cerrados y con el mismo trato (mismo halo, mismo barquito). Seis planos:
 // 1. los libros sobre el paño: dos comparten el relato (el mismo halo para cada uno y un globo con el barco entre los
 //    dos); en «the Quran» llega el tercero, igual de grande, y recibe el mismo halo;
-// 2. el tercero, de cerca, con la misma luz: de él sale su propio globo con el barco («tells its own») y en «great
-//    prophets» se encienden una a una seis lamparillas iguales sobre el paño;
+// 2. inserto en picado del paño, sin sala: los tres libros cerrados en arco, el MISMO sello (mismo tamaño, nitidez, luz de
+//    ventana, sombra, brillo y halo, a la vez) con dos lamparillas delante de cada uno; los dos primeros siguen con su
+//    barco a medias y, en «tells its own», del tercero nace un globo igual con el suyo; en «Noah is called Nuh» los dos
+//    barcos dan el mismo salto con el mismo destello; por arriba cruza la sombra de un pájaro (sin pisar los libros) y en
+//    «great prophets» se encienden una a una las seis lamparillas (y acude una polilla);
 // 3. el Ararat al atardecer, desde dentro de la forma: el barquito-icono llega volando hacia la cumbre (un aro la marca),
 //    en «does not» el aro se vuelve «X» y el barquito se da la vuelta y se va por abajo, al sur, dejando sus puntos;
 // 4. el mapa: el barquito entra por arriba, pasa de largo junto al Ararat y sigue al sur mientras el mapa se abre (su
@@ -66,20 +69,82 @@ const p1 = (t) => {
   T.relatoDelante(R, t, o);
 };
 
-// ── 2 · el tercero, de cerca ──
-const VELAS = [66, 84, 102, 222, 240, 258];
+// ── 2 · los tres sobre el paño, desde arriba ──
+// Inserto en picado, sin sala ni ventanas: el paño bordado llena el cuadro y los tres libros descansan cerrados en un
+// arco suave. Los tres son EL MISMO sello (el libro del decorado, copiado píxel a píxel a su tamaño: ni escalado ni
+// tramado), cada uno en su mancha de luz de ventana, con la misma sombra y dos lamparillas delante.
+const XS2 = [78, 160, 242], YS2 = [72, 78, 72];   // centro y borde de arriba de cada libro (46 × 60)
+const LAMPS = XS2.flatMap((x, k) => [[x - 21, YS2[k] + 80], [x + 21, YS2[k] + 80]]);   // dos por libro: la luz final, simétrica
+const BY4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], um = (x, y) => (BY4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const hh = (x, y, k = 0) => { const q = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return q - Math.floor(q); };
+const OROS = hex('#a87a1c'), OROM = hex('#f0c048'), OROL = hex('#fff0a0'), CREMA = hex('#efe6d0');
+let SELLO = null, FONDO2 = null;
+const fondo2 = () => {
+  if (FONDO2) return FONDO2;
+  // los libros del decorado, pintados una vez fuera de cuadro para copiarlos (t = 2: sin el brillo que los cruza)
+  SELLO = R.nuevo(); { const prev = R.usar(SELLO); T.relato(R, 2, { encuadre: 'diluvio', camara: 'libros', cuantos: 3 }); R.usar(prev); }
+  FONDO2 = R.nuevo(); const prev = R.usar(FONDO2);
+  const TON = ['#173246', '#1e3f58', '#264c66', '#2e5a78', '#3a6a88', '#487a98', '#5c8eaa'].map(hex);
+  const enLuz = (x, y) => { if (y < 28 || y > 157) return false; for (const cx of XS2) { const sx = x - cx - (y - 104) * 0.2; if (Math.abs(sx) > 30) continue; if (Math.abs(sx) < 1.2 || Math.abs(y - 100) < 1) return false; return y >= 58 || (sx / 30) ** 2 + ((y - 58) / 30) ** 2 <= 1; } return false; };
+  // el paño: pliegues anchos, trama de hilos y las tres manchas de luz (ventanas en arco, con su cruceta), todas iguales;
+  // arriba (la barra del año y la esquina de Atom), el paño más tranquilo
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const calma = (x > 262 && y < 52) || y < 24 ? 0.35 : 1;
+    const pl = Math.sin(x * 0.023 + y * 0.011 + 1) * 0.6 + Math.sin(x * 0.051 - y * 0.034) * 0.4;
+    let n = 2.5 + pl * 0.95 * calma + (um(x, y) - 0.5) * 1.1 + (enLuz(x, y) ? 1.4 : 0), k = Math.max(0, Math.min(6, Math.round(n)));
+    if ((x + y * 3) % 7 === 0 && hh(x, y, 3) < 0.5 * calma) k = Math.max(0, k - 1); else if ((x * 3 - y) % 11 === 0 && hh(x, y, 4) < 0.3 * calma) k = Math.min(6, k + 1);
+    R.pset(x, y, TON[k]); }
+  // el bordado: una red de florecillas de hilo de oro (ninguna tras Atom ni bajo el año)
+  for (let f = 0, gy = 32; gy < 156; gy += 21, f++) for (let gx = (f & 1 ? 27 : 7); gx < 320; gx += 40) { if (gx > 262 && gy < 56) continue;
+    R.pset(gx, gy, OROM); for (const [i, j] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) R.pset(gx + i, gy + j, OROS); for (const [i, j] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) R.pset(gx + i, gy + j, hex('#7a6a3a')); R.pset(gx, gy - 3, OROS); R.pset(gx, gy + 3, OROS); }
+  // la cenefa del borde, los flecos y el canto de la mesa
+  R.rect(0, 162, 319, 172, TON[0]); R.rect(0, 162, 319, 162, OROM); R.rect(0, 163, 319, 163, OROS); R.rect(0, 171, 319, 171, OROS); R.rect(0, 172, 319, 172, K);
+  for (let cx = 8; cx < 320; cx += 16) { for (let r = 0; r <= 3; r++) { for (const sg of [-1, 1]) { R.pset(cx - 3 + r, 167 + sg * r, OROM); R.pset(cx + 3 - r, 167 + sg * r, OROM); } } R.pset(cx, 167, CREMA); R.pset(cx + 8, 167, hex('#5c8eaa')); R.pset(cx + 8, 165, OROS); R.pset(cx + 8, 169, OROS); }
+  for (let y = 173; y < 180; y++) for (let x = 0; x < 320; x++) { const v = hh(x >> 3, y, 7); R.pset(x, y, y === 173 ? hex('#4a2c1c') : y === 176 ? hex('#d09a5c') : v < 0.3 ? hex('#6e4424') : hex(y > 176 ? '#8a5a30' : '#7a4e2a')); }
+  for (let x = 0; x < 320; x++) if (x % 3 !== 2) { const l = 2 + Math.floor(hh(x, 0, 8) * 3), c = Math.floor(x / 3) % 2 ? OROM : CREMA; for (let j = 0; j < l; j++) R.pset(x, 173 + j, j === l - 1 ? OROS : c); }
+  // en los márgenes, cosas de la mesa: un rollo atado con su cinta, y un plato de latón con dátiles y una rama de olivo
+  { const x0 = 13, y0 = 88, y1 = 126; for (let j = 0; j < 4; j++) for (let y = y0 + 4; y <= y1 + 3; y++) if (um(x0 + 12 + j, y) < 0.7 - j * 0.15) R.pset(x0 + 12 + j, y, TON[0]);
+    R.rect(x0 - 1, y0 - 1, x0 + 11, y1 + 1, K); for (let y = y0; y <= y1; y++) for (let i = 0; i <= 10; i++) R.pset(x0 + i, y, i < 2 ? hex('#fbf4dc') : i < 6 ? CREMA : i < 9 ? hex('#cfc4a8') : hex('#a89c80'));
+    for (let y = y0 + 3; y < y1; y += 5) R.pset(x0 + 9, y + (hh(y, 1, 9) < 0.5 ? 1 : 0), hex('#8a7c60'));
+    R.rect(x0 + 3, y0 - 4, x0 + 7, y0 - 1, K); R.rect(x0 + 4, y0 - 3, x0 + 6, y0 - 1, hex('#8a5a30')); R.rect(x0 + 3, y1 + 1, x0 + 7, y1 + 4, K); R.rect(x0 + 4, y1 + 1, x0 + 6, y1 + 3, hex('#8a5a30')); R.pset(x0 + 4, y0 - 3, hex('#d09a5c')); R.pset(x0 + 4, y1 + 1, hex('#d09a5c'));
+    R.rect(x0 - 1, 105, x0 + 11, 108, K); R.rect(x0, 106, x0 + 10, 107, GRANATE); R.rect(x0, 106, x0 + 2, 106, hex('#b04a44')); R.linea(x0 + 11, 108, x0 + 16, 114, GRANATE); R.linea(x0 + 11, 107, x0 + 18, 109, GRANATE); R.pset(x0 + 16, 115, K); R.pset(x0 + 19, 109, K); }
+  { const cx = 297, cy = 108, el = (rx, ry, c, dy = 0) => { for (let j = -ry; j <= ry; j++) { const w = Math.round(rx * Math.sqrt(1 - (j * j) / (ry * ry))); R.rect(cx - w, cy + dy + j, cx + w, cy + dy + j, c); } };
+    for (let j = -10; j <= 12; j++) for (let i = -12; i <= 17; i++) if ((i - 3) ** 2 / 196 + (j - 3) ** 2 / 90 <= 1 && um(cx + i, cy + j) < 0.7) R.pset(cx + i, cy + j, TON[0]);
+    el(15, 10, K); el(14, 9, hex('#c89a3a')); el(11, 7, hex('#8a6424')); el(11, 6, hex('#b88a3c'), 1); for (let i = -11; i <= 4; i++) R.pset(cx + i, cy - Math.round(9 * Math.sqrt(1 - i * i / 196)), OROL);
+    for (const [i, j] of [[-6, -1], [0, -3], [6, 0], [-2, 3], [4, 4]]) { R.rect(cx + i - 2, cy + j - 1, cx + i + 2, cy + j + 1, K); R.rect(cx + i - 2, cy + j - 1, cx + i + 1, cy + j, hex('#7a3e1c')); R.pset(cx + i - 1, cy + j - 1, hex('#c8763a')); }
+    R.linea(cx - 12, cy + 26, cx + 8, cy + 18, hex('#5a6a3a')); for (let k = 0; k < 5; k++) { const lx = cx - 10 + k * 4, ly = cy + 25 - k * 2 + (k & 1 ? -3 : 2); R.rect(lx, ly, lx + 3, ly + 1, k & 1 ? hex('#7a9a52') : hex('#4e7238')); R.pset(lx, ly, hex('#a8c070')); } R.disco(cx + 9, cy + 20, 1, hex('#3a4a2a')); }
+  // LOS TRES LIBROS: la misma sombra y el mismo sello
+  XS2.forEach((cx, k) => { const ox = cx - 23, oy = YS2[k];
+    for (let j = 4; j < 66; j++) for (let i = 4; i < 52; i++) if (um(ox + i, oy + j) < (i > 47 || j > 61 ? 0.5 : 0.85)) R.pset(ox + i, oy + j, TON[0]);
+    const sx = [92, 160, 228][k] - 23; for (let j = 0; j < 60; j++) for (let i = 0; i < 46; i++) R.pset(ox + i, oy + j, SELLO[(80 + j) * 320 + sx + i]); });
+  // las seis lamparillas, apagadas: el platillo de latón, la vela y su sombra
+  for (const [x, y] of LAMPS) { for (let j = 0; j < 4; j++) for (let i = -3 + j; i <= 9 + j; i++) if (um(x + i, y + 1 + j) < 0.7 - j * 0.12) R.pset(x + i, y + 1 + j, TON[0]);
+    R.rect(x - 6, y - 1, x + 6, y + 2, K); R.rect(x - 4, y + 3, x + 4, y + 3, K); R.rect(x - 5, y, x + 5, y + 1, hex('#c89a3a')); R.rect(x - 4, y + 2, x + 4, y + 2, hex('#8a6424')); R.rect(x - 5, y, x + 1, y, OROL);
+    R.rect(x - 3, y - 8, x + 3, y - 1, K); R.rect(x - 2, y - 7, x + 2, y - 1, hex('#f2ead2')); R.rect(x + 1, y - 7, x + 2, y - 1, hex('#d0c4a4')); R.pset(x - 2, y - 7, hex('#ffffff')); R.pset(x - 1, y - 5, hex('#d0c4a4')); R.pset(x - 1, y - 4, hex('#d0c4a4')); R.rect(x, y - 10, x, y - 8, K); }
+  R.usar(prev); return FONDO2; };
 const p2 = (t) => {
-  const o = { encuadre: 'librocerca', cual: 'luna' };
-  const g = T.vistas(R, t, o);
+  R.copiar(fondo2());
+  // al entrar, el mismo brillo cruza las tres tapas a la vez y el mismo halo las rodea
+  { const u = (t - P2 - 0.1) / 0.8; if (u >= 0 && u < 1) { const q = Math.round(-8 + u * 100); XS2.forEach((cx, k) => { for (let j = 0; j < 57; j++) for (let i = 0; i < 5; i++) { const xx = cx - 17 + q - j + i; if (xx >= cx - 17 && xx <= cx + 19) mez(xx, YS2[k] + 1 + j, hex('#fff6d0'), i === 2 ? 0.5 : 0.25); } }); }
+    XS2.forEach((cx, k) => halo(cx, YS2[k], YS2[k] + 59, 22, t - P2 - 0.15)); }
+  // la sombra de un pájaro que pasa por la ventana cruza el paño por arriba, sin pisar ningún libro
+  { const u = tramo(t, a(5.6), a(7.5)); if (u > 0 && u < 1) { const x = Math.round(lerp(-12, 332, u)), y = Math.round(lerp(28, 58, u) + Math.sin(u * 9) * 3), al = Math.floor(t * 7) % 2;
+      for (let i = -8; i <= 8; i++) { const j = al ? -Math.round(Math.abs(i) * 0.6) : Math.round(Math.abs(i) * 0.35) - 1; for (let e = 0; e < 3; e++) mez(x + i, y + j + e, K, e === 1 ? 0.42 : 0.24); } for (let i = -1; i <= 4; i++) mez(x - i, y + 1 + (i > 2 ? 1 : 0), K, 0.35); } }
   // las lamparillas, todas iguales: se encienden una a una en «one of the great prophets»
-  VELAS.forEach((x, k) => { const y = 166, on = t - a(7.5 + k * 0.24);
-    R.rect(x - 5, y, x + 5, y + 2, K); R.rect(x - 4, y, x + 4, y + 1, hex('#c89a3a')); R.rect(x - 3, y, x + 2, y, ORO); R.rect(x - 3, y - 7, x + 3, y - 1, K); R.rect(x - 2, y - 6, x + 2, y - 1, hex('#f2ead2')); R.rect(x + 1, y - 6, x + 2, y - 1, hex('#d0c4a4')); R.rect(x, y - 9, x, y - 7, K);
-    if (on >= 0) { const f = Math.floor(t * 9 + k * 1.7) % 3, h = on < 0.15 ? 2 : 4 + (f === 0 ? 1 : 0), dx = f === 2 ? 1 : 0;
-      for (let j = -9; j <= 9; j++) for (let i = -9; i <= 9; i++) if (i * i + j * j <= 81 && (i + j) % 2 === 0) mez(x + i, y - 11 + j, ORO, 0.22 * (1 - Math.hypot(i, j) / 9.5));
-      R.rect(x - 1, y - 9 - h, x + 1, y - 9, hex('#ff9a2a')); R.pset(x + dx, y - 10 - h, hex('#ff9a2a')); R.rect(x, y - 8 - h + 1, x, y - 9, hex('#fff2a0')); if (on < 0.2) destello(x, y - 12, 3); } });
-  T.vistasDelante(R, t, o);
-  // «tells its own»: su propio barco, en un globo que sale del libro
-  globoBarco(242, 72, P2 + 0.25, t, [[212, 100]], 2);
+  LAMPS.forEach(([x, y], k) => { const on = t - a(7.95 + k * 0.2); if (on < 0) return;
+    const f = Math.floor(t * 9 + k * 1.7) % 3, h = on < 0.15 ? 2 : 4 + (f === 0 ? 1 : 0), dx = f === 2 ? 1 : 0, r = (on < 0.3 ? 12 : 19) + (f === 1 ? 1 : 0);
+    for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d <= r && um(x + i, y - 8 + j) < 1.25 - d / r) mez(x + i, y - 8 + j, hex('#ffc860'), 0.5 * (1 - d / (r + 3))); }
+    R.rect(x - 1, y - 10 - h, x + 1, y - 10, hex('#ff9a2a')); R.pset(x + dx, y - 11 - h, hex('#ff9a2a')); R.pset(x - 2, y - 10, hex('#f07a28')); R.pset(x + 2, y - 10, hex('#f07a28')); R.rect(x, y - 9 - h + 1, x, y - 10, hex('#fff2a0')); R.pset(x, y - 10, hex('#ffffff'));
+    R.rect(x - 2, y - 7, x + 2, y - 7, hex('#fff6c8')); if (on < 0.2) destello(x, y - 13, 3); });
+  // el polvo en la luz, y una polilla que acude a las llamas
+  for (let k = 0; k < 20; k++) { const cx = XS2[k % 3], x = cx - 26 + ((hh(k, 1, 21) * 52 + t * (1.5 + hh(k, 2, 21) * 2)) % 52), y = 34 + ((hh(k, 3, 21) * 118 + t * (2 + hh(k, 4, 21) * 2.4) + Math.sin(t + k) * 2) % 118); if (Math.sin(t * 1.7 + k * 2.3) > -0.2) R.pset(Math.round(x), Math.round(y), hex(k % 3 ? '#cfe0e8' : '#fffbe8')); }
+  { const d = t - a(8.8); if (d > 0) { const e = Math.min(1, d / 0.8), mx = Math.round(lerp(330, 200, sua(e)) + Math.cos(t * 2.6) * 9), my = Math.round(lerp(120, 138, e) + Math.sin(t * 3.4) * 5); R.pset(mx, my, hex('#e8dcc0')); R.pset(mx + (Math.floor(t * 12) & 1 ? 1 : -1), my - 1, hex('#fffbe8')); R.pset(mx + (Math.floor(t * 12) & 1 ? -1 : 1), my - 1, hex('#c8b898')); } }
+  // «share that story»: los dos primeros siguen con su barco a medias…
+  // (en «Noah is called Nuh» los dos barcos dan el mismo salto y el mismo destello: el mismo protagonista, el barco)
+  const NUH = a(7.1), sal = bote(t - NUH) * (t >= NUH ? 1 : 0), chispa = (x) => { const d = t - NUH; if (d >= 0 && d < 0.45) destello(x + 9, 32 + sal, d < 0.15 ? 5 : 2 + Math.floor(t * 12) % 2, ORO); };
+  globoBarco(119, 40 + sal, -9, t, [[94, 71], [146, 77]], 2); chispa(119);
+  // …y en «tells its own» del tercero nace el suyo, igual de grande: un destello en la tapa, un globo pequeño y crece
+  { const N = P2 + 0.45, d = t - N; if (d >= -0.12 && d < 0.3) destello(242, 71, d < 0 ? 3 : d < 0.12 ? 6 : 3 + Math.floor(t * 12) % 2, ORO);
+    if (d >= 0 && d < 0.12) globoBarco(242, 55, -9, t, [[242, 71]], 1); else if (d >= 0.12) { globoBarco(242, 40 + sal, N + 0.12, t, [[242, 71]], 2); chispa(242); } }
 };
 
 // ── 3 · no en el Ararat ──
@@ -213,7 +278,7 @@ const p6 = (t) => {
   T.laderaDelante(R, t, o);
 };
 const efectos = [[a(0.5), 'brillo'], [a(1.2), 'pop'], [a(3.45), 'golpecito'],
-  [P2 + 0.25, 'pop'], [a(7.5), 'brillo'],
+  [P2 + 0.45, 'pop'], [a(7.95), 'brillo'],
   [P3 + 0.2, 'viento'], [a(12.19), 'golpecito'], [a(13.5), 'whoosh'],
   [P4 + 0.15, 'papel'], [b(18.79), 'toc'], [b(20.57), 'lapiz'], [b(21.17), 'lapiz'],
   [b(22.7), 'burbujas'], [b(24.45), 'pop'], [b(25.1), 'miau'],

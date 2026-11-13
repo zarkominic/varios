@@ -11,10 +11,12 @@
 <script type="module">
 // NX-SABEMOS (frases 28–29, marcas «sabemos» y «roca2»), 2026, sin cartela. El recuento, en calma. Cinco planos (reparto
 // de encuadres-ep34.md). A Noé / Nuh no se le dibuja; los tres libros, cerrados y con la misma luz en todo momento:
-// 1. la tablilla pequeña sobre la mesa del museo: una mano pasa la lupa por las cuñas (agranda de verdad); en «the flood
-//    story» corren por la arcilla tres olas de luz con un barquito; en «almost 4,000 years old» la cifra sube hasta
-//    «4000» debajo de la tablilla (con su tic); antes, otra mano entra por arriba con un pincel y le quita el polvo a
-//    la esquina de la tablilla en tres pasadas;
+// 1. la tablilla pequeña sobre la mesa del museo: una mano entra por arriba con un pincel y le quita el polvo a la
+//    esquina de la tablilla en dos pasadas; cuando se va, otra mano entra también por arriba (brazo corto, en diagonal,
+//    sin cruzar la regla, el calibre ni la escala) y pasa la lupa por las cuñas (agranda de verdad; el mango sube hacia
+//    la mano); en «the flood story» corren por la arcilla tres olas de luz con un barquito; en «almost 4,000 years old»
+//    la cifra sube hasta «4000» debajo de la tablilla (con su tic). La etiqueta de la caja de archivo se repinta con un
+//    pictograma macizo (la del decorado se leía como letras);
 // 2. los tres libros y la tablilla: en «the Bible, the Quran» se traza A LA VEZ el mismo cerco de luz en los tres libros
 //    (idéntico: ninguno se ilumina más ni antes); en «clay tablets» en la tablilla, y en «far older» un reloj de arena
 //    sobre ella; en «millions of people» llegan cuatro oyentes de hoy (gente corriente: dos turistas, un pastor y un
@@ -25,10 +27,13 @@
 // 4. el corte de geología: la geóloga da un golpecito de martillo en la orilla, lo explica y Collins asiente; en «explain it» un trazo de luz
 //    recorre la capa dura plegada, de borde a borde; en «without needing any ship» la marca de visto cae en el centro del
 //    cuenco, sobre los estratos ya explicados (el corte va sin el recuadro: recuadro false);
-// 5. el plano azul, «según ellos»: el fundador y el arqueólogo llegan a la orilla; el fundador lo cuenta (su globo con
-//    las rectas ámbar) y los pasillos se trazan en «found something underneath»; en «not yet proved» cae encima un «?»
-//    grande, que se queda latiendo; el arqueólogo se encoge y al globo le sale su «?» pequeño. Las barras siguen a
-//    cero: nada probado.
+// 5. el papel azul, «según ellos» (T.vistas 'azul' sin su silueta), con LA FORMA EN PLANTA grande dibujada desde la
+//    escena (otro dibujo que el corte de nx-confirmar y que el azul con barras de nx-radar): el barrido del radar la
+//    recorre; el fundador y el arqueólogo llegan por la derecha a su línea de suelo y el fundador lo cuenta señalando
+//    (su globo con las rectas ámbar); en «found something underneath» los pasillos se trazan dentro del casco y, en el
+//    detalle del sondeo de abajo a la izquierda (el carrito del radar que va y viene, sus ecos), aparece a trazos lo
+//    que dicen que hay debajo; en «not yet proved» cae sobre la planta un «?» grande, que se queda latiendo; el
+//    arqueólogo se encoge y al globo le sale su «?» pequeño. Nada probado: todo en línea y ámbar.
 import * as T from '/atomo/plato/escenas/nx-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nx-sabemos');
@@ -58,10 +63,14 @@ const globo = (cx, cy, w, h, tx) => {
 };
 // LA LUPA de mano: aro dorado de radio r, cristal que AGRANDA ×2 lo que tiene debajo y mango de nogal hacia abajo (dir 1:
 // a la derecha; −1: a la izquierda). pinta(lx, ly, ri): algo que se dibuja dentro del cristal. Devuelve la punta del mango
-const lupa = (lx, ly, r, dir = 1, pinta = null) => {
-  lx = Math.round(lx); ly = Math.round(ly); const ri = r - 3, m0 = Math.round(r * 0.7), L = 19;
+const lupa = (lx, ly, r, dir = 1, pinta = null, arriba = false) => {
+  lx = Math.round(lx); ly = Math.round(ly); const ri = r - 3, m0 = Math.round(r * 0.7), L = arriba ? 31 : 19;
+  // arriba: el mango sube casi vertical (un poco inclinado hacia dir) para la mano que entra por el borde de arriba
+  if (arriba) { for (let k = 0; k < L; k++) { const x = lx + dir * (5 + Math.round(k * 0.3)), y = ly - 12 - k; R.rect(x - 2, y - 2, x + 2, y + 1, K); }
+    for (let k = 0; k < L - 1; k++) { const x = lx + dir * (5 + Math.round(k * 0.3)), y = ly - 12 - k; R.rect(x - 1, y - 1, x + 1, y, k > 5 ? hex('#8a5a30') : hex('#a8acb8')); R.pset(x - 1, y, k > 5 ? hex('#c08a50') : BL); R.pset(x + 1, y, k > 5 ? hex('#5a3a20') : hex('#6a6e7a')); } }
+  else {
   for (let k = 0; k < L; k++) { const x = lx + dir * (m0 + k), y = ly + m0 + k; R.rect(x - 2, y - 1, x + 2, y + 3, K); }
-  for (let k = 0; k < L - 1; k++) { const x = lx + dir * (m0 + k), y = ly + m0 + k; R.rect(x - 1, y, x + 1, y + 2, k > 4 ? hex('#8a5a30') : hex('#a8acb8')); R.pset(x - dir, y, k > 4 ? hex('#c08a50') : BL); R.pset(x + dir, y + 2, k > 4 ? hex('#5a3a20') : hex('#6a6e7a')); }
+  for (let k = 0; k < L - 1; k++) { const x = lx + dir * (m0 + k), y = ly + m0 + k; R.rect(x - 1, y, x + 1, y + 2, k > 4 ? hex('#8a5a30') : hex('#a8acb8')); R.pset(x - dir, y, k > 4 ? hex('#c08a50') : BL); R.pset(x + dir, y + 2, k > 4 ? hex('#5a3a20') : hex('#6a6e7a')); } }
   const buf = [];
   for (let j = -ri; j <= ri; j++) for (let i = -ri; i <= ri; i++) if (i * i + j * j <= ri * ri) buf.push([i, j, R.pget(lx + Math.round(i / 2), ly + Math.round(j / 2))]);
   for (const [i, j, c] of buf) R.pset(lx + i, ly + j, mez(c, hex('#d8f0f8'), 0.12));
@@ -69,10 +78,11 @@ const lupa = (lx, ly, r, dir = 1, pinta = null) => {
   for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r + 0.4 || d <= ri + 0.2) continue; R.pset(lx + i, ly + j, d > r - 0.7 || d < ri + 1.1 ? K : i + j < -2 ? OROL : i + j > r ? OROS : ORO); }
   for (let a = 3.5; a < 4.5; a += 0.07) R.pset(Math.round(lx + Math.cos(a) * (ri - 3)), Math.round(ly + Math.sin(a) * (ri - 3)), BL);
   R.pset(lx + Math.round(ri * 0.45), ly + Math.round(ri * 0.45), hex('#e8f8ff'));
-  return [lx + dir * (m0 + L - 3), ly + m0 + L - 3];
+  return arriba ? [lx + dir * (5 + Math.round((L - 4) * 0.3)), ly - 12 - (L - 4)] : [lx + dir * (m0 + L - 3), ly + m0 + L - 3];
 };
-// la mano que sujeta algo por la punta (hx, hy) y entra por abajo (dir 1: el brazo viene por la derecha)
-const manoAbajo = (hx, hy, dir = 1) => T.brazo(R, hx + dir * 30, 188, hx + dir * 8, hy + 2, MANGA, -dir, { codo: [hx + dir * 26, Math.round((hy + 190) / 2)] });
+// la mano que sujeta el mango de la lupa por la punta (hx, hy) y entra por ARRIBA, en diagonal corta desde la derecha
+// del año (el borde más cercano a la tablilla: por abajo cruzaría la regla y el calibre); la manga visible, 30–45 px
+const manoArriba = (hx, hy) => { const wx = hx + 8, wy = hy + 2; T.brazo(R, wx + 24, -9, wx, wy, MANGA, -1, wy > 8 ? { codo: [wx + 13, Math.round(wy * 0.5)] } : {}); };
 
 const w1 = (s) => en('sabemos', (s - 0.9) / 12.585), w2 = (s) => en('roca2', (s - 14.513) / 11.762);
 const P2 = w1(6.85), P3 = w1(13.75), P4 = w2(17.72), P5 = w2(21.62);
@@ -96,26 +106,30 @@ const p1 = (t) => {
     R.linea(160, ty1 + 2, 160, 131 - late, K); R.linea(161, ty1 + 2, 161, 131 - late, BL);
     R.numero(String(v), 171, 149 - late, { tam: 16, centro: true });
     if (late) for (let a = 0; a < 12; a++) { const an = a * Math.PI / 6; R.pset(Math.round(171 + Math.cos(an) * 40), Math.round(140 + Math.sin(an) * 14), a & 1 ? ORO : BL); } }
-  // el pincel: otra mano entra por arriba y le quita el polvo a la esquina de la tablilla, en tres pasadas
-  { const pe = ease(tramo(t, 0.1, 0.45)), ps = ease(tramo(t, 1.55, 1.95));
-    if (pe > 0 && ps < 1) { const u = Math.min(1, Math.max(0, (t - 0.45) / 1.1)), pas = (u * 3) % 1, barre = u > 0 && u < 1, bx = tx1 - 5 - Math.round((barre ? ease(pas) : u >= 1 ? 1 : 0) * 15), by = ty0 + 5 + (barre ? Math.round(Math.sin(pas * Math.PI) * -2) : 0) - Math.round((1 - pe) * 44 + ps * 48);
+  // el pincel: otra mano entra por arriba y le quita el polvo a la esquina de la tablilla, en dos pasadas
+  { const pe = ease(tramo(t, 0.1, 0.4)), ps = ease(tramo(t, 1.1, 1.4));
+    if (pe > 0 && ps < 1) { const u = Math.min(1, Math.max(0, (t - 0.4) / 0.7)), pas = (u * 2) % 1, barre = u > 0 && u < 1, bx = tx1 - 5 - Math.round((barre ? ease(pas) : u >= 1 ? 1 : 0) * 15), by = ty0 + 5 + (barre ? Math.round(Math.sin(pas * Math.PI) * -2) : 0) - Math.round((1 - pe) * 44 + ps * 48);
       const gx2 = bx + 12, gy2 = by - 13;   // donde lo agarra la mano
       for (const [i, j] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.linea(bx + 2 + i, by - 3 + j, gx2 + 3 + i, gy2 - 4 + j, K);
       R.linea(bx + 2, by - 3, gx2 + 3, gy2 - 4, hex('#c0392b')); R.linea(bx + 3, by - 3, gx2 + 4, gy2 - 4, hex('#e8695a'));
       R.rect(bx - 1, by - 5, bx + 4, by - 1, K); R.rect(bx, by - 4, bx + 3, by - 3, hex('#b8bcc8')); R.poligono([[bx - 2, by - 1], [bx + 4, by - 1], [bx + 2, by + 4], [bx - 3, by + 4]], K); R.rect(bx - 1, by, bx + 2, by + 3, hex('#e8d8a8')); R.rect(bx - 1, by + 2, bx + 1, by + 3, hex('#b89a5a'));
       if (barre) for (let k = 0; k < 5; k++) { const e = (pas + k * 0.17) % 1; R.pset(bx - 4 - Math.round(e * 12), by + 3 - Math.round(e * 7 + Math.sin(k * 2.3) * 2), k & 1 ? hex('#d8b890') : BL); }
       T.brazo(R, gx2 + 24, -8, gx2 + 4, gy2 - 6, MANGA, -1, { codo: [gx2 + 23, Math.round((gy2 - 6) / 2)] }); } }
-  // la mano con la lupa: entra por abajo a la izquierda, recorre las filas de cuñas y se queda sobre la espiral
-  const ent = ease(tramo(t, 1.0, 1.9)), lee = tramo(t, 1.9, FLOOD - 0.1), cen = ease(tramo(t, FLOOD - 0.1, FLOOD + 0.7)), fila = Math.min(2, Math.floor(lee * 3)), uf = (lee * 3) % 1;
-  let lx = lerp(tx0 + 12, tx1 - 12, fila === 1 ? 1 - uf : uf), ly = ty0 + 12 + fila * 9;
-  if (lee >= 1) { lx = tx1 - 12; ly = ty0 + 30; }
-  lx = lerp(lx, 160 + Math.sin(t * 1.3) * 5, cen); ly = lerp(ly, 84 + Math.cos(t * 1.7) * 4, cen);
-  lx = lerp(96, lx, ent); ly = lerp(214, ly, ent);
-  const [hx, hy] = lupa(lx, ly, 14, -1);
-  manoAbajo(hx, hy, -1);
+  // la mano con la lupa: entra por arriba (cuando el pincel ya se ha ido), baja despacio por las cuñas con un vaivén y
+  // se queda sobre la espiral; el mango sube hacia la mano y el brazo es corto. La lupa se mueve solo por donde el
+  // brazo no pisa el año (a su izquierda) ni la escala (a su derecha), y no cruza la regla ni el calibre
+  const lee = tramo(t, 2.0, FLOOD - 0.1), cen = ease(tramo(t, FLOOD - 0.1, FLOOD + 0.7));
+  let lx = lerp(167, 161, lee) + Math.sin(lee * Math.PI * 3) * 3, ly = lerp(ty0 + 18, ty0 + 27, lee);
+  lx = lerp(lx, 161 + Math.sin(t * 1.3) * 2, cen); ly = lerp(ly, 72 + Math.cos(t * 1.7), cen);
+  // la entrada: primero baja (a la derecha del año) y luego se va a la izquierda, hacia la tablilla
+  lx = lerp(200, lx, ease(tramo(t, 1.55, 2.0))); ly = lerp(-34, ly, ease(tramo(t, 1.35, 1.85)));
+  if (t >= 1.35) { const [hx, hy] = lupa(lx, ly, 14, 1, null, true); manoArriba(hx, hy); }
   // el polvo que flota a la luz del flexo
   for (let k = 0; k < 16; k++) { const x = 20 + ((hh(k, 1, 3) * 280 + t * (2 + hh(k, 2, 3) * 3)) % 280), y = 24 + ((hh(k, 3, 3) * 130 + t * (1 + hh(k, 4, 3) * 2) + Math.sin(t + k) * 2) % 130); if (Math.sin(t * 1.9 + k * 2.1) > 0.1) R.pset(Math.round(x), Math.round(y), k % 3 ? hex('#fffbe8') : BL); }
   T.museoDelante(R, t, o);
+  // PARCHE DECORADO: la etiqueta de la caja de archivo (dos rayitas y un punto) se leía como letras; encima, una
+  // etiqueta con un solo pictograma macizo: la tablilla de arcilla
+  R.rect(285, 140, 299, 144, hex('#f4f0e4')); R.rect(289, 141, 295, 143, hex('#b87a48')); R.rect(289, 141, 295, 141, hex('#d8a070'));
 };
 
 // ── 2 · la Biblia, el Corán y las tablillas: quien lo tiene por sagrado ──────────────────────────────────────────────
@@ -213,30 +227,81 @@ const p4 = (t) => {
 // ── 5 · «según ellos»: algo debajo, sin probar ───────────────────────────────────────────────────────────────────────
 const DICE = w2(22.66), ALGO = w2(23.56), DEBAJO = w2(23.94), NOYET = w2(25.12), PROBADO = w2(25.56);
 const AMBAR = hex('#ffb030'), DUDA = NOYET + 1.5;
+// el papel azul «según ellos» y, encima, LA FORMA EN PLANTA, grande (x 26–264, centro y 65, media manga 29): es otro
+// dibujo que el corte de nx-confirmar y que el azul con barras de nx-radar. Todo en línea clara y ámbar, nada real
+const LZ = hex('#cfe6ff'), LN = hex('#7ab0e8'), LD = hex('#3e6aa8'), AZF = hex('#1c3c70'), AMBS = hex('#c88a30');
+const HX0 = 26, HX1 = 264, HCY = 65, HW = 29, QX = 140;
+// la media manga del casco en x: popa redonda (izquierda), proa en punta (derecha)
+const manga5 = (x) => { const s = (x - HX0) / (HX1 - HX0); if (s <= 0 || s >= 1) return 0; return HW * (s < 0.45 ? Math.pow(Math.sin(Math.PI * s), 0.5) : Math.pow(Math.sin(Math.PI * (0.5 + (s - 0.45) / 0.55 * 0.5)), 1.3)); };
+// los «pasillos» que dice el equipo, en el orden en que se trazan: el eje, los dos largos y los travesaños
+const PAS = [[58, 65, 232, 65], [84, 65, 84, 51], [84, 51, 200, 51], [200, 51, 200, 65], [84, 65, 84, 79], [84, 79, 200, 79], [200, 79, 200, 65], [114, 51, 114, 79], [144, 51, 144, 79], [174, 51, 174, 79]];
+const PASL = PAS.reduce((a, [x0, y0, x1, y1]) => a + Math.abs(x1 - x0) + Math.abs(y1 - y0), 0);
+const dentro5 = (x, y, m = 2) => Math.abs(y - HCY) < manga5(x) - m;
 const p5 = (t) => {
-  const o = { encuadre: 'corte', plano: true, barras: 0, pasillos: lerp(0.25, 1, tramo(t, ALGO - 0.2, DEBAJO + 0.7)) };
-  T.ladera(R, t, o);
-  // el fundador lo cuenta desde la orilla: su globo con las rectas ámbar («a team says»)
+  const o = { encuadre: 'azul', silueta: false };
+  T.vistas(R, t, o);
   const dice = t >= DICE - 0.15 && t < NOYET - 0.1, cae = tramo(t, NOYET, NOYET + 0.24), puesto = cae >= 1;
+  // el casco en planta: relleno tramado, doble contorno, forro interior a trazos, eje, cuadernas punteadas y sus marcas
+  { let wa = 0;
+    for (let x = HX0; x <= HX1; x++) { const w = Math.round(manga5(x));
+      for (let yy = -w + 1; yy <= w - 1; yy++) if (((x + yy) & 1) === 0) R.pset(x, HCY + yy, AZF);
+      for (let yy = Math.min(w, wa); yy <= Math.max(w, wa); yy++) { R.pset(x, HCY - yy, LZ); R.pset(x, HCY + yy, LZ); }
+      if (w > 3) { R.pset(x, HCY - w + 1, LN); R.pset(x, HCY + w - 1, LN); }
+      if (w > 9 && x % 2) { R.pset(x, HCY - w + 5, LD); R.pset(x, HCY + w - 5, LD); }
+      if (x % 6 < 3 && w > 1) R.pset(x, HCY, LD);
+      if ((x - HX0) % 17 === 8 && w > 5) { for (let yy = -w + 3; yy <= w - 3; yy += 2) R.pset(x, HCY + yy, LD); R.rect(x, HCY + w + 3, x, HCY + w + 5, LN); R.rect(x, HCY - w - 5, x, HCY - w - 3, LD); }
+      wa = w; }
+    // la cota de manga (izquierda) y la marca de proa (derecha)
+    R.rect(17, HCY - HW, 17, HCY + HW, LD); R.rect(15, HCY - HW, 19, HCY - HW, LN); R.rect(15, HCY + HW, 19, HCY + HW, LN); for (let y = HCY - HW + 4; y < HCY + HW; y += 6) R.pset(19, y, LD);
+    R.rect(HX1 + 3, HCY, HX1 + 9, HCY, LN); R.rect(HX1 + 6, HCY - 3, HX1 + 6, HCY + 3, LN); }
+  // el barrido del radar recorre el casco de popa a proa y deja ecos que se apagan
+  { const u = (t * 0.22 + 0.15) % 1, xs = Math.round(HX0 + u * (HX1 - HX0));
+    for (let k = 0; k < 4; k++) { const x = xs - k * 3, w = Math.round(manga5(x)); if (w < 3) continue; for (let yy = -w + 2; yy <= w - 2; yy++) if (k === 0 || (yy + x) % (k + 1) === 0) R.pset(x, HCY + yy, k === 0 ? LZ : k === 1 ? LN : LD); } }
+  // «found something underneath»: los pasillos se trazan dentro del casco (dos paredes ámbar a trazos y sus nudos)
+  const pas = lerp(0.22, 1, tramo(t, ALGO - 0.2, DEBAJO + 0.7)), hasta = pas * PASL, amb = dice && Math.floor(t * 4) % 2 ? hex('#ffd070') : AMBAR;
+  { let rec = 0, punta = null;
+    for (const [x0, y0, x1, y1] of PAS) { const n = Math.abs(x1 - x0) + Math.abs(y1 - y0), dx = Math.sign(x1 - x0), dy = Math.sign(y1 - y0);
+      if (rec >= hasta) break;
+      const m = Math.min(n, Math.floor(hasta - rec));
+      for (let i = 0; i <= m; i++) { const x = x0 + dx * i, y = y0 + dy * i; if (!dentro5(x, y, 4)) continue;
+        if ((i + Math.floor(t * 6)) % 5 < 3) { if (dx) { R.pset(x, y - 2, amb); R.pset(x, y + 2, AMBS); } else { R.pset(x - 2, y, amb); R.pset(x + 2, y, AMBS); } } }
+      for (const [nx, ny, ok] of [[x0, y0, true], [x1, y1, m >= n]]) if (ok) { R.rect(nx - 2, ny - 2, nx + 2, ny + 2, amb); R.rect(nx - 1, ny - 1, nx + 1, ny + 1, hex('#14284e')); R.pset(nx, ny, AMBS); }
+      if (m < n) punta = [x0 + dx * m, y0 + dy * m];
+      rec += n; }
+    if (punta && pas > 0.22 && pas < 1) { destello(punta[0], punta[1], 3, BL); chispas(punta[0], punta[1], t, 5, 4, amb); } }
+  // abajo a la izquierda, el detalle del sondeo: el carrito del radar va y viene por el suelo, sus ecos bajan y, en
+  // «underneath», aparece a trazos lo que dicen que hay debajo (con su cota de profundidad)
+  { const cx = 36 + Math.round((0.5 + 0.5 * Math.sin(t * 0.9)) * 52), f = tramo(t, ALGO - 0.2, DEBAJO + 0.4);
+    for (const [x, y, sx, sy] of [[22, 98, 1, 1], [102, 98, -1, 1], [22, 150, 1, -1], [102, 150, -1, -1]]) { R.rect(Math.min(x, x + sx * 4), y, Math.max(x, x + sx * 4), y, LD); R.rect(x, Math.min(y, y + sy * 4), x, Math.max(y, y + sy * 4), LD); }
+    R.rect(24, 113, 100, 113, LZ); R.rect(24, 114, 100, 114, LD); for (let x = 26; x < 100; x += 6) for (let j = 1; j < 5; j++) R.pset(x - j + 3, 114 + j, LD);
+    for (let k = 0; k < 3; k++) { const r = ((t * 14 + k * 7) % 21) + 3; for (let a = 0.22; a <= 0.78; a += 0.04) { const x = Math.round(cx + Math.cos(a * Math.PI) * r), y = Math.round(115 + Math.sin(a * Math.PI) * r); if (x > 23 && x < 101 && y < 147) R.pset(x, y, r < 10 ? LZ : r < 17 ? LN : LD); } }
+    R.rect(cx - 5, 105, cx + 5, 110, LZ); R.rect(cx - 4, 106, cx + 4, 109, hex('#14284e')); R.rect(cx - 2, 107, cx + 2, 108, LN); R.pset(cx - 3, 111, LZ); R.pset(cx - 3, 112, LZ); R.pset(cx + 3, 111, LZ); R.pset(cx + 3, 112, LZ); R.pset(cx - 4, 112, LN); R.pset(cx + 4, 112, LN);
+    R.linea(cx + 5, 106, cx + 10, 100, LN); R.rect(cx + 9, 99, cx + 12, 99, LZ); if (Math.floor(t * 3) % 2) R.pset(cx, 104, AMBAR);
+    R.rect(96, 115, 96, 142, LD); for (let y = 118; y <= 142; y += 4) R.rect(94, y, 96, y, y % 12 === 10 ? LN : LD);
+    if (f > 0) { const per = 2 * (38 + 12), n = Math.round(f * per);
+      for (let i = 0; i < n; i++) { const [x, y] = i < 38 ? [44 + i, 130] : i < 50 ? [82, 130 + i - 38] : i < 88 ? [82 - (i - 50), 142] : [44, 142 - (i - 88)]; if ((i + Math.floor(t * 6)) % 4 < 2) R.pset(x, y, Math.abs(cx - 63) < 16 ? amb : AMBS); }
+      if (f >= 1) { for (let x = 48; x < 80; x += 3) R.pset(x, 136, AMBS); R.rect(62, 133, 62, 139, AMBS); } } }
+  // el fundador y el arqueólogo llegan por la derecha a su línea de suelo; el fundador lo cuenta señalando la planta
   const va = tramo(t, P5 + 0.05, P5 + 0.9), anda = va > 0 && va < 1;
-  R.actor(EL.arqueologoNX, Math.round(lerp(-30, 3, va)), 74, t, { dir: 1, anda, sorpresa: puesto && t < NOYET + 0.9, triste: t >= NOYET + 0.9 });
-  R.actor(EL.fundadorNX, Math.round(lerp(-10, 23, va)), 74, t, { dir: 1, anda, dedo: dice, habla: dice && Math.sin(t * 10) > -0.2, sorpresa: puesto && t < NOYET + 0.7 });
-  if (t >= DICE - 0.15) { const q = ease(tramo(t, DICE - 0.15, DICE + 0.1)), cy = Math.round(41 - q * 4), cx = 46;
-    globo(cx, cy, 17, 11, 34); R.rect(cx - 13, cy - 7, cx + 13, cy + 7, hex('#163a66'));
+  R.actor(EL.arqueologoNX, Math.round(lerp(338, 268, va)), 150, t, { dir: -1, anda, sorpresa: puesto && t < NOYET + 0.9, triste: t >= NOYET + 0.9 });
+  R.actor(EL.fundadorNX, Math.round(lerp(322, 232, va)), 150, t, { dir: -1, anda, dedo: dice, habla: dice && Math.sin(t * 10) > -0.2, sorpresa: puesto && t < NOYET + 0.7 });
+  // su globo con las rectas ámbar («a team says»)
+  if (t >= DICE - 0.15) { const q = ease(tramo(t, DICE - 0.15, DICE + 0.1)), cy = Math.round(108 - q * 4), cx = 228;
+    globo(cx, cy, 17, 11, 236); R.rect(cx - 13, cy - 7, cx + 13, cy + 7, hex('#163a66'));
     for (let i = -12; i <= 12; i += 4) for (let j = -6; j <= 6; j += 4) R.pset(cx + i, cy + j, hex('#2a5a8e'));
-    const a = dice ? (Math.floor(t * 4) % 2 ? AMBAR : hex('#ffd070')) : hex('#c88a30');
+    const a = dice ? (Math.floor(t * 4) % 2 ? AMBAR : hex('#ffd070')) : AMBS;
     R.rect(cx - 10, cy - 4, cx + 9, cy - 4, a); R.rect(cx - 10, cy + 4, cx + 9, cy + 4, a); R.rect(cx - 10, cy - 4, cx - 10, cy + 4, a); R.rect(cx + 9, cy - 4, cx + 9, cy + 4, a); R.rect(cx - 3, cy - 4, cx - 3, cy + 4, a); R.rect(cx + 3, cy - 4, cx + 3, cy, a); R.rect(cx - 10, cy, cx - 3, cy, a);
     // sin probar: al globo le sale su «?» pequeño
     if (t >= DUDA) { const q = tramo(t, DUDA, DUDA + 0.15), bx = cx + 18, by = cy - 11 - Math.round(Math.sin(q * Math.PI) * 3); R.disco(bx, by, 6, K); R.disco(bx, by, 5, BL); R.icono('?', bx - 2, by - 3, ROJO, BL, 1); } }
-  T.laderaDelante(R, t, o);
-  // «has not yet proved it»: el «?» grande cae sobre el casco y se queda latiendo dentro de su aro a trazos
-  if (cae > 0) { const QX = 172, QY = Math.round(lerp(-30, 106, cae * cae)), bota = puesto && t < NOYET + 0.5 ? Math.round(Math.abs(Math.sin((t - NOYET - 0.24) * 12)) * 5 * (1 - (t - NOYET - 0.24) / 0.26)) : 0, y0 = QY - 21 - bota, x0 = QX - 15;
+  T.vistasDelante(R, t, o);
+  // «has not yet proved it»: el «?» grande cae sobre la planta y se queda latiendo dentro de su aro a trazos
+  if (cae > 0) { const QY = Math.round(lerp(-30, HCY, cae * cae)), bota = puesto && t < NOYET + 0.5 ? Math.round(Math.abs(Math.sin((t - NOYET - 0.24) * 12)) * 5 * (1 - (t - NOYET - 0.24) / 0.26)) : 0, y0 = QY - 21 - bota, x0 = QX - 15;
     const late = puesto && Math.sin((t - NOYET) * 4.2) > 0;
-    if (puesto) { const rr = 31 + (late ? 1 : 0); for (let a = 0; a < 48; a++) { const an = a * Math.PI / 24 + t * 0.5; if (a % 4 < 2) continue; const x = Math.round(QX + Math.cos(an) * rr), y = Math.round(106 + Math.sin(an) * rr); R.pset(x, y, BL); R.pset(x + 1, y, BL); R.pset(x, y + 1, hex('#0c2040')); } }
+    if (puesto) { const rr = 30 + (late ? 1 : 0); for (let a = 0; a < 48; a++) { const an = a * Math.PI / 24 + t * 0.5; if (a % 4 < 2) continue; const x = Math.round(QX + Math.cos(an) * rr), y = Math.round(HCY + Math.sin(an) * rr); R.pset(x, y, BL); R.pset(x + 1, y, BL); R.pset(x, y + 1, hex('#0c2040')); } }
     for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, 1], [-1, 1], [1, -1], [2, 2]]) R.icono('?', x0 + dx, y0 + dy, K, K, 6);
     for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.icono('?', x0 + dx, y0 + dy, BL, BL, 6);
     R.icono('?', x0, y0, late ? ROJOL : ROJO, hex('#8a2418'), 6);
-    if (puesto && t < NOYET + 0.6) { const d = (t - NOYET - 0.24) / 0.36; for (let a = 0; a < 14; a++) { const an = a * Math.PI / 7; R.pset(Math.round(QX + Math.cos(an) * (22 + d * 26)), Math.round(106 + Math.sin(an) * (22 + d * 20)), a & 1 ? BL : AMBAR); } } }
+    if (puesto && t < NOYET + 0.6) { const d = (t - NOYET - 0.24) / 0.36; for (let a = 0; a < 14; a++) { const an = a * Math.PI / 7; R.pset(Math.round(QX + Math.cos(an) * (22 + d * 26)), Math.round(HCY + Math.sin(an) * (22 + d * 20)), a & 1 ? BL : AMBAR); } } }
 };
 
 // tono sereno: efectos suaves y cada uno con algo que se ve (el pincel, la ola, la cifra que sube, los cercos, el reloj

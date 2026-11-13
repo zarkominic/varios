@@ -12,10 +12,12 @@
 // NX-EXPEDICION (frase 6), 1960. Tres planos:
 // 1. dentro de la forma: uno mide con la mira y otro cava en la zanja (vuelan terrones); al otro lado de la loma, el
 //    barreno: fogonazo, polvo y piedras; los dos se sobresaltan y la mula de las cajas da un respingo;
-// 2. las tres cajas de la expedición desde arriba: una mano retira las tapas una a una («ni madera», «ni clavos»,
-//    «nada»: cada pictograma con su X roja); dos manos sacan solo una piedra y un puñado de tierra, los sueltan y se
-//    retiran; una mano deja sobre la tapa del medio la hoja del cuaderno con el veredicto: el contorno de la forma
-//    «=» una piedra (una formación natural);
+// 2. las tres cajas de la expedición desde arriba: una mano (sola: la tapa cerrada queda a ~65 px de cualquier borde y
+//    un brazo no cabe) retira las tapas una a una («ni madera», «ni clavos», «nada»: cada pictograma con su X roja);
+//    dos brazos cortos (~36 px, manga azul de faena, codo suave) entran por el borde izquierdo y el derecho, que son
+//    los más cercanos a las cajas 1 y 3, sacan solo una piedra y un puñado de tierra (la piedra sube por la izquierda
+//    de la etiqueta, sin pisarla), los sueltan y se retiran; un brazo corto deja desde abajo, sobre la tapa del medio,
+//    la hoja del cuaderno con el veredicto: el contorno de la forma «=» una piedra (una formación natural);
 // 3. la ladera sola: los últimos salen por la derecha con la mula; pasan las estaciones (nieve, verano, nieve…) y la
 //    barra del año corre de 1960 a 1977; solo un pastor cruza sin mirar.
 import * as T from '/atomo/plato/escenas/nx-comun.js';
@@ -58,7 +60,7 @@ const p1 = (t) => {
 };
 
 // ── 2 · las cajas: ni madera, ni clavos, nada ──
-const CAQUI = '#8a7a4a';
+const CAQUI = '#5c7a98';   // la manga: el azul de faena del expedicionario 2, frío contra la tierra (el caqui se perdía)
 const picto = (n, cx, cy, d) => {
   if (d < 0) return; const s = d < 0.15 ? Math.round((1 - d / 0.15) * 3) : 0, x0 = cx - 13, y0 = cy - 9 - s, x1 = cx + 13, y1 = cy + 9 - s;
   R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 2, K); R.rect(x0, y0, x1, y1, BL); R.rect(x0, y1, x1, y1 + 1, hex('#c8c0b0'));
@@ -86,8 +88,8 @@ const p2 = (t) => {
   // los pictogramas con su X: ni madera, ni clavos, nada hecho por nadie
   [[72, 53], [160, 59], [248, 55]].forEach(([cx, cy], n) => picto(n, cx, cy, t - L[n] - 0.3));
   // «parece una formación natural»: una mano deja sobre la tapa del medio la hoja con el veredicto
-  { const u = sua(tramo(t, e(7.85), e(8.45))), sale = sua(tramo(t, e(9.15), e(9.6))); if (u > 0) { const nx = 160, ny = Math.round(lerp(206, 124, u)), toque = t > e(8.45) && t < e(8.6) ? 1 : 0;
-      nota(nx, ny, t < e(8.7) ? 0 : t < e(8.95) ? 0.5 : 1); if (sale < 1) { const wx = nx + 31 + Math.round(sale * 30), wy = ny + 9 + toque + Math.round(sale * 70); T.brazo(R, wx + 22, 192, wx, wy, CAQUI, -1, { codo: [wx + 24, Math.min(186, wy + 28)] }); } } }
+  { const u = sua(tramo(t, e(7.85), e(8.45))), sale = sua(tramo(t, e(9.15), e(9.6))); if (u > 0) { const nx = 160, ny = Math.round(lerp(212, 130, u)), toque = t > e(8.45) && t < e(8.6) ? 1 : 0;
+      nota(nx, ny, t < e(8.7) ? 0 : t < e(8.95) ? 0.5 : 1); if (sale < 1) { const wx = nx + 31 + Math.round(sale * 24), wy = ny + 15 + toque + Math.round(sale * 60); T.brazo(R, wx + 16, wy + 44, wx, wy, CAQUI, -1, { codo: [wx + 10, wy + 22] }); } } }
   // la mano que retira las tapas, una tras otra
   { const fin = e(5.95), sale = sua(tramo(t, fin, fin + 0.4)); let gx = 76, gy = 200;
     const agarre = (n) => [g.tapas[n][0] + 4, g.tapas[n][1] + 27];
@@ -95,17 +97,19 @@ const p2 = (t) => {
     else { let n = 0; for (let k = 1; k < 3; k++) if (t >= L[k] - 0.3) n = k; const [x, y] = agarre(n); gx = x; gy = y;
       if (n > 0 && t < L[n]) { const [x0, y0] = agarre(n - 1), u = sua(tramo(t, L[n] - 0.3, L[n])); gx = lerp(x0, x, u); gy = lerp(y0, y, u) + Math.sin(u * Math.PI) * 10; } }
     gy += sale * 60; gx = Math.round(gx); gy = Math.round(gy);
-    if (sale < 1) T.brazo(R, gx + 30, 190, gx + 9, gy, CAQUI, -1, { codo: [gx + 31, Math.min(184, gy + 26)] }); }
+    if (sale < 1) T.mano(R, gx + 6, gy, -1, CAQUI, { sinManga: true }); }
   // dos manos sacan lo único que hay: una piedra y un puñado de tierra; los sueltan y se van
-  { const en0 = e(6.0), su = e(6.45), cae = e(7.25), ent = sua(tramo(t, en0, su)), sal = sua(tramo(t, cae + 0.15, cae + 0.6)), alza = sua(tramo(t, su, su + 0.45)) * (1 - sua(tramo(t, cae - 0.25, cae)));
+  { const en0 = e(6.0), su = e(6.45), cae = e(7.25), ent = sua(tramo(t, en0, su)), sal = sua(tramo(t, cae + 0.15, cae + 0.6)), alza = sua(tramo(t, su, su + 0.45)) * (1 - sua(tramo(t, cae + 0.1, cae + 0.4)));   // siguen en alto al soltar: la piedra cae de la mano
+    // la piedra soltada cae de la mano y se queda en la caja
+    if (t >= cae) { const d = t - cae; piedra(Math.round(47 + Math.min(1, d / 0.26) * 2), Math.round(Math.min(81, 63 + d * d * 260))); }
     if (ent > 0 && sal < 1) {
-      const lx = Math.round(lerp(-20, 50, ent) - sal * 80), ly = Math.round(80 - alza * 16 + Math.sin(t * 5) * alza * 1.5);
-      if (t < cae) piedra(lx + 13, ly - 3); else { const d = t - cae, y = Math.min(82, 62 + d * d * 260); if (d < 0.5) piedra(Math.round(lerp(-20, 50, ent)) + 13, Math.round(y)); }
-      T.brazo(R, lx - 46, ly + 26, lx, ly, CAQUI, 1, { codo: [lx - 24, ly + 8] });
-      const rx = Math.round(lerp(340, 270, ent) + sal * 80), ry = Math.round(84 - alza * 14 + Math.sin(t * 5 + 2) * alza * 1.5);
-      if (t < cae + 0.4) { for (let i = -5; i <= 4; i++) for (let j = -4; j <= 0; j++) if (Math.abs(i) + Math.abs(j * 1.4) < 6) R.pset(rx - 7 + i, ry - 4 + j, hex((i + j) % 3 === 0 ? '#5a4028' : j < -2 ? '#a8845a' : '#8a6c44'));
+      const lx = Math.round(lerp(-20, 34, ent) - sal * 70), ly = Math.round(80 - alza * 14 + Math.sin(t * 5) * alza * 1.5);
+      if (t >= su && t < cae) piedra(lx + 13, ly - 3);   // la coge dentro de la caja: no llega con ella
+      T.brazo(R, lx - 44, ly + 15, lx, ly, CAQUI, 1, { codo: [lx - 21, ly + 10] });
+      const rx = Math.round(lerp(340, 284, ent) + sal * 70), ry = Math.round(84 - alza * 14 + Math.sin(t * 5 + 2) * alza * 1.5);
+      if (t >= su && t < cae + 0.4) { for (let i = -5; i <= 4; i++) for (let j = -4; j <= 0; j++) if (Math.abs(i) + Math.abs(j * 1.4) < 6) R.pset(rx - 7 + i, ry - 4 + j, hex((i + j) % 3 === 0 ? '#5a4028' : j < -2 ? '#a8845a' : '#8a6c44'));
         if (alza > 0.2) for (let k = 0; k < 9; k++) { const u = (t * 1.6 + k * 0.11) % 1; R.pset(rx - 9 + (k * 5) % 8, Math.round(ry + 4 + u * (alza * 16 + 4)), hex(k % 2 ? '#8a6c44' : '#5a4028')); } }
-      T.brazo(R, rx + 46, ry + 26, rx, ry, CAQUI, -1, { codo: [rx + 24, ry + 8] }); } }
+      T.brazo(R, rx + 44, ry + 15, rx, ry, CAQUI, -1, { codo: [rx + 21, ry + 10] }); } }
   T.mesasDelante(R, t, o);
 };
 

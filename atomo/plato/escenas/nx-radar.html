@@ -21,8 +21,9 @@
 //    rectas y ángulos, como pasillos;  5. (corta en «They have also tested») la mesa de campaña desde arriba: la
 //    bandeja ya tiene quince bolsitas de suelo y una mano trae y encaja, una a una, las tres últimas de la fila de abajo
 //    (316, 317 y, la última, la 318): ninguna cae sola;  6. (corta en «holds more») SEGÚN ELLOS, en
-//    plano azul: las dos barras (fuera, dentro) crecen; el fundador dice «como si ahí se hubiera podrido madera» (un
-//    tablón que se deshace en su globo) y el arqueólogo escucha;  7. (corta en «In 2026») el laboratorio: el técnico
+//    plano azul: las dos barras (fuera, dentro) crecen; el fundador dice «como si ahí se hubiera podrido madera» (en
+//    su globo, grande: un tablón con vetas y nudo que la podredumbre se come por un lado, y las migas caen a un
+//    montón) y el arqueólogo escucha;  7. (corta en «In 2026») el laboratorio: el técnico
 //    trae otra caja de bolsitas a la pila; la geóloga mira el monitor, que sigue con su «?».
 import * as T from '/atomo/plato/escenas/nx-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -148,10 +149,34 @@ const p6 = (t) => {
   R.actor(EL.arqueologoNX, 258, 150, t, { dir: -1, sonrisa: t > a(31.5) && t < dice });
   // «as if wood had rotted there»: en su globo, un tablón que se deshace
   const ub = tramo(t, dice - 0.2, dice + 0.05);
-  if (ub > 0.5) { const cx = 226, cy = 100; globo(cx, cy, 50, 26, f.cabeza[0], f.cabeza[1] - 3);
-    const pud = tramo(t, dice + 0.5, fin + 0.4);
-    for (let j = -5; j <= 4; j++) for (let i = -20; i <= 20; i++) { const z = (Math.sin((i >> 1) * 12.9898 + (j >> 1) * 78.233) * 43758.5453) % 1, zz = z < 0 ? z + 1 : z; if (zz < pud * 0.42) { if ((i + j) % 4 === 0) R.pset(cx + i, Math.min(cy + 10, cy + j + Math.round((pud - zz) * 14)), hex('#5a3a22')); if (Math.abs(j) < 4 && zz > pud * 0.3) R.pset(cx + i, cy + j - 2, hex('#3a2416')); continue; }
-      R.pset(cx + i, cy + j, j === 4 || j === -5 || Math.abs(i) === 20 ? hex('#4e2c18') : (j === -1 || j === 2) && (i + j * 3) % 9 < 6 ? hex('#7a4a2a') : j < -1 ? hex('#c08a50') : hex('#a8703a')); } }
+  if (ub > 0.5) { const cx = 228, cy = 96; globo(cx, cy, 64, 36, f.cabeza[0], f.cabeza[1] - 3);
+    // pictograma grande y sin trazos que parezcan renglones: un tablón con filo oscuro, vetas largas y un nudo; la
+    // podredumbre se lo come desde la derecha (borde mellado, madera negra y musgo), queda el fantasma del trozo que
+    // falta, y las migas caen a un montón que crece debajo
+    const pud = tramo(t, dice - 0.1, fin + 0.3), xa = cx - 26, xb = cx + 24, ya = cy - 12, yb = cy - 1;
+    const MEL = [0, 2, -1, 3, 1, -2, 2, 0, 4, 1, -1, 2], corte = Math.round(lerp(xb - 9, cx - 5, pud));
+    const SANO = hex('#b87c40'), LUZ = hex('#e0aa64'), SOMB = hex('#8a5428'), VETA = hex('#6e421e'), POD = hex('#5a3820'), NEGRO = hex('#2e1c12'), MUSGO = hex('#6a8a3a'), FANT = hex('#d4ccb8');
+    // el fantasma del trozo que falta (línea clara continua)
+    R.linea(corte, ya, xb, ya, FANT); R.linea(corte, yb, xb, yb, FANT); R.linea(xb, ya, xb, yb, FANT);
+    for (let y = ya; y <= yb; y++) { const fx = corte + MEL[y - ya];
+      for (let x = xa; x <= fx; x++) { const d = fx - x, z = Math.abs(Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1;
+        let c = y === ya + 1 || y === ya + 2 ? LUZ : y === yb - 1 ? SOMB : SANO;
+        if ((y === ya + 4 + (Math.sin(x * 0.35) > 0.5 ? 1 : 0) || y === ya + 8 - (Math.sin(x * 0.28 + 2) > 0.6 ? 1 : 0)) && x > xa + 3) c = VETA;
+        const nx = x - (xa + 10), ny = y - (ya + 6), nr = nx * nx + ny * ny; if (nr <= 5) c = nr === 0 ? VETA : nr >= 4 ? VETA : nr <= 1 ? SOMB : LUZ;   // el nudo
+        if (x <= xa + 2) c = y % 3 === 0 ? SOMB : LUZ;                                                                            // la testa
+        if (d < 9) c = z < 0.5 - d * 0.04 ? NEGRO : d < 5 ? POD : z < 0.3 ? POD : c;                                              // la madera podrida
+        if (d < 7 && d > 1 && z > 0.9) c = MUSGO;
+        if (y === ya || y === yb || x === xa || d === 0) c = K;
+        R.pset(x, y, c); } }
+    // el montón de migas, macizo y con filo, bajo el trozo que falta
+    const mx = cx + 12, my = cy + 15, mw = 5 + Math.round(pud * 11), mh = 2 + Math.round(pud * 6);
+    R.poligono([[mx - mw - 1, my + 1], [mx - Math.round(mw * 0.4), my - mh], [mx + Math.round(mw * 0.3), my - mh - 1], [mx + mw + 1, my + 1]], K);
+    R.poligono([[mx - mw + 1, my], [mx - Math.round(mw * 0.4), my - mh + 1], [mx + Math.round(mw * 0.3), my - mh], [mx + mw - 1, my]], POD);
+    R.poligono([[mx - Math.round(mw * 0.5), my - 1], [mx - Math.round(mw * 0.3), my - mh + 2], [mx, my - mh + 2], [mx - 1, my - 1]], SOMB);
+    R.pset(mx + 3, my - 2, NEGRO); R.pset(mx - 4, my - 1, MUSGO); R.pset(mx + Math.round(mw * 0.5), my - 1, NEGRO);
+    // las migas que caen del borde mellado (trozos de 2 px, cada uno a su ritmo)
+    for (let k = 0; k < 5; k++) { const ph = (t * 1.5 + k * 0.23) % 1, x = corte + 3 + ((k * 7) % 13), y = Math.round(lerp(yb - 3 + (k % 3), my - mh - 1, ph * ph));
+      if (x < xb + 2) { R.rect(x, y, x + 1, y + 1, k % 2 ? POD : SOMB); R.pset(x, y, k % 2 ? NEGRO : SANO); } } }
   T.vistasDelante(R, t, o);
 };
 // una caja de bolsitas: la bandeja azul con las etiquetas blancas asomando

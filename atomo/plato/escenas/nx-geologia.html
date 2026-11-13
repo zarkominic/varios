@@ -10,11 +10,13 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // NX-GEOLOGIA (frase 18), hoy. Cuatro planos:
-// 1. el despacho del geólogo, sin la mesa: Collins llega junto a la vitrina fría y señala el cilindro de hielo; una
-//    marca baja por el testigo capa a capa; al fondo, otro geólogo lleva una muestra a la cajonera;
+// 1. el despacho del geólogo, sin la mesa: la geóloga (anónima, del reparto: la voz habla de «la geología», no de nadie
+//    con nombre) llega junto a la vitrina fría y señala el cilindro de hielo; una marca baja por el testigo capa a capa;
+//    al fondo, otro geólogo lleva una muestra a la cajonera;
 // 2. (corta en «rocks») la ladera en corte: una lupa baja capa a capa por las rocas mientras la geóloga, en la orilla,
 //    mira; en su globo, un planeta que el agua cubre entero… y un aspa («no trace»);
-// 3. (corta en «That takes») los tres libros, intactos y con la misma luz: una mano deja la lupa en el paño, lejos de
+// 3. (corta en «That takes») los tres libros, intactos y con la misma luz (el tercero, media luna con estrella, para
+//    que no se lea como una letra): una mano deja la lupa en el paño, lejos de
 //    ellos, y se retira; un mismo brillo recorre las tres tapas a la vez; llegan oyentes («those who believe»);
 // 4. (corta en «It only means») la balanza: una mano posa la lupa en su platillo («science»), el astil oscila y se
 //    queda nivelado; sobre cada platillo, un «?» de distinto color («different questions»).
@@ -53,9 +55,9 @@ const p1 = (t) => {
   const ug = tramo(t, 0.3, 2.4), gx = Math.round(lerp(34, 100, ug)), deja = tramo(t, 2.5, 2.9);
   const q = R.actor(EL.geologo2NX, gx, 168, t, { dir: 1, anda: ug > 0 && ug < 1, sostiene: deja < 1 ? true : undefined, sonrisa: deja >= 1, habla: deja >= 1 && t > a(2.9) && Math.sin(t * 8) > 0.2 });
   if (deja < 1) roca(q.mano[0] + 1, q.mano[1] + 3);
-  // Collins llega junto a la vitrina y señala el hielo
+  // la geóloga anónima llega junto a la vitrina y señala el hielo
   const uc = tramo(t, 0.1, a(1.4)), cx = Math.round(lerp(290, 208, uc));
-  R.actor(EL.collins, cx, 168, t, { dir: -1, anda: uc > 0 && uc < 1, dedo: uc >= 1, habla: uc >= 1 && Math.sin(t * 9) > 0 });
+  R.actor(EL.geologa3NX, cx, 168, t, { dir: -1, anda: uc > 0 && uc < 1, dedo: uc >= 1, habla: uc >= 1 && Math.sin(t * 9) > 0 });
   T.hoyDelante(R, t, o);
 };
 
@@ -81,8 +83,26 @@ const p2 = (t) => {
 };
 
 // ── 3 · los tres libros, intactos ──
+// la media luna con estrella de la tercera tapa, redibujada encima a 1 px en la misma caja de 18 × 18 de los otros dos
+// símbolos (x 219–236, y 100–117), con su mismo oro, su luz arriba y su sombra: un creciente de panza gruesa y cuernos
+// que se afilan, abrazando una estrella de cinco puntas, para que no se lea como una letra. Debajo se repone el cuero
+// de la tapa con su mismo grano, y encima el brillo del decorado (cada 5 s), para que las tres tapas brillen igual
+const LUNA = ['.........OOOO.....', '......OOOOOO......', '....OOOOOO........', '...OOOOOO.........', '..OOOOOO..........', '..OOOOO......O....', '.OOOOOO......O....', '.OOOOO....OOOOOOO.', '.OOOOO.....OOOOO..',
+  '.OOOOO......OOO...', '.OOOOO.....OO.OO..', '.OOOOOO....O...O..', '..OOOOO...........', '..OOOOOO..........', '...OOOOOO.........', '....OOOOOO........', '......OOOOOO......', '.........OOOO.....'];
+const CUERO = hex('#7a2e2a'), CUEROS = hex('#5a1e1e'), CUEROL = hex('#93403a'), ORO = hex('#f0c048'), OROL = hex('#fff0a0'), OROS = hex('#a87a1c'), SOMBRA = hex('#3e1214'), LUZ = hex('#fff6d0');
+const mez = (c1, c2, u) => { let c = 0xff000000; for (const d of [0, 8, 16]) { const v = (c1 >>> d) & 255; c |= Math.round(v + (((c2 >>> d) & 255) - v) * u) << d; } return c >>> 0; };
+const grano = (x, y) => { const q = Math.sin(x * 127.1 + y * 311.7 + 111 * 74.7) * 43758.5453; return q - Math.floor(q); };
+const hay = (i, j) => i >= 0 && j >= 0 && i < 18 && j < 18 && LUNA[j][i] === 'O';
+const lunaFina = (t) => {
+  const X = 228, YB = 139, sx = X - 9, sy = YB - 39, u = (t % 5) / 0.9, q = Math.round(-8 + u * 112);
+  for (let j = 0; j <= 18; j++) for (let i = 0; i <= 18; i++) { const x = sx + i, y = sy + j, n = grano(x - X, y - YB);
+    let c = hay(i, j) ? (!hay(i, j - 1) ? OROL : !hay(i, j + 1) ? OROS : ORO) : hay(i - 1, j - 1) ? SOMBRA : n < 0.16 ? CUEROS : n > 0.9 ? CUEROL : CUERO;
+    if (u < 1) { const k = x - (X - 17 + q - (y - (YB - 58))); if (k >= 0 && k < 5) c = mez(c, LUZ, k === 2 ? 0.5 : 0.25); }
+    R.pset(x, y, c); }
+};
 const p3 = (t) => {
-  const o = { encuadre: 'diluvio', camara: 'libros', cuantos: 3, gente: 0.75 * sua(tramo(t, a(11.1), a(12.5))) }; T.relato(R, t, o);
+  const o = { encuadre: 'diluvio', camara: 'libros', cuantos: 3, lunaEstrella: true, gente: 0.75 * sua(tramo(t, a(11.1), a(12.5))) }; T.relato(R, t, o);
+  lunaFina(t);
   // el mismo brillo, a la vez, en las tres tapas (x ± 22, y 81–138)
   for (const [t0, t1] of [[a(9.9), a(10.7)], [a(11.9), a(12.7)]]) { const ub = tramo(t, t0, t1); if (ub > 0 && ub < 1) for (const cx of [92, 160, 228]) { const d = Math.round(lerp(-70, 50, ub));
     for (let y = 83; y <= 136; y++) for (let w = 0; w < 16; w++) { const x = cx + d + (136 - y) / 4 + w | 0, borde = w < 4 || w > 11; if (x > cx - 21 && x < cx + 21 && (borde ? (x + y * 2) % 4 === 0 : (x + y) % 2 === 0)) R.pset(x, y, hex('#ffe9a8')); }

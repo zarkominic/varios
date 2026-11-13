@@ -12,14 +12,20 @@
 // NX-SMITH (frases «smith» y «tablilla»), Londres, 1872, cartela «1872». Golpe en «tablilla». Siete planos:
 // 1. fachada: el Museo Británico entre la niebla; pasa el coche de caballos y Smith, con su cartera, saluda a un colega,
 //    cruza la cancela, sube la escalinata y entra («in London»);
-// 2. mesa de fragmentos: dos manos ordenan y juntan los trozos de una tablilla («sorting and piecing together»);
+// 2. mesa de fragmentos: sobre el paño, abajo, las dos manos (cada una con su brazo, que entra por el borde de abajo)
+//    juntan los trozos de una tablilla apaisada: la izquierda arrima uno y la sujeta; la derecha trae tres, uno a uno
+//    («sorting and piecing together»); arriba quedan los trocitos sin clasificar;
 // 3. la ciudad de adobe entre los ríos, de donde venían: una tablilla sale de la ciudad por una línea de puntos («Iraq»);
-// 4. el cuaderno, de noche: la mano copia cuñas con la pluma y pasa la hoja («taught himself»);
-// 5. la tablilla, de cerca (golpe: destello): la luz de la lectura recorre las filas; con «flood» las cuñas dejan paso a
-//    la lluvia y al barco («He builds a boat»);
-// 6. desde un tejado, agua hasta el horizonte: amaina, un barco diminuto y sin nadie a lo lejos, y cruza la paloma («dove»);
+// 4. el cuaderno, de noche (el pupitre, 22 px más abajo que en el decorado para que la mano llegue desde el borde): el
+//    brazo entra por abajo, copia cuñas en los últimos renglones, pasa la hoja por la esquina de abajo y sigue («taught himself»);
+// 5. la tablilla, de cerca, bajo el círculo de luz del quinqué (golpe: destello): el dedo de Smith, apoyado en el canto
+//    izquierdo de la arcilla, baja renglón a renglón con la luz de la lectura; con «flood» da un respingo y las cuñas
+//    dejan paso a la lluvia y al barco («He builds a boat»);
+// 6. desde un tejado, agua hasta el horizonte: amaina, un barco diminuto y sin nadie a lo lejos, y cruza la paloma («dove»),
+//    blanca, a píxel nativo (palomaCerca, la de nx-relato sin ramita: ~42 px, alas en 4 poses), de izquierda a derecha;
 // 7. gag 4, la sala: Smith salta («jumped up»), corre por el pasillo («ran») y empieza a quitarse la chaqueta («began»:
-//    solo la chaqueta); sus dos colegas le miran y vuelan unos papeles.
+//    solo la chaqueta): acaba en mangas de camisa, agitando la levita cogida por el cuello con una mano; sus dos colegas
+//    le miran y vuelan unos papeles.
 import * as T from '/atomo/plato/escenas/nx-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nx-smith');
@@ -30,7 +36,7 @@ const P2 = sa(6.2), P3 = sa(9.95), P4 = sa(13.55), P5 = en('tablilla', 0), P6 = 
 const FLOOD = sb(23.0), BOAT = sb(24.0), BAJA = sb(27.94), DOVE = sb(30.06), JUMP = sb(31.81), RAN = sb(32.53), BEGAN = sb(34.71), FUERA = sb(35.45);
 const sua = (u) => u * u * (3 - 2 * u), lim = (u) => Math.max(0, Math.min(1, u));
 const mez = (c1, c2, a) => { const r = (c) => c & 255, g = (c) => (c >>> 8) & 255, b = (c) => (c >>> 16) & 255; return (0xff000000 | (Math.round(b(c1) + (b(c2) - b(c1)) * a) << 16) | (Math.round(g(c1) + (g(c2) - g(c1)) * a) << 8) | Math.round(r(c1) + (r(c2) - r(c1)) * a)) >>> 0; };
-const K = hex('#14121c');
+const K = hex('#14121c'), PENUMBRA = hex('#0a1418');
 const chispa = (x, y, r, c) => { R.pset(x, y, c); for (let q = 1; q <= r; q++) { R.pset(x + q, y, c); R.pset(x - q, y, c); R.pset(x, y + q, c); R.pset(x, y - q, c); } if (r > 2) { R.pset(x + 1, y + 1, c); R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); } };
 // la cartera de cuero de Smith, colgada de la mano
 const cartera = (x, y) => { R.rect(x - 4, y + 1, x + 4, y + 8, K); R.rect(x - 3, y + 2, x + 3, y + 7, hex('#7a4a2a')); R.rect(x - 3, y + 2, x + 3, y + 2, hex('#a06a3c')); R.rect(x - 3, y + 7, x + 3, y + 7, hex('#4e2c18')); R.pset(x, y + 4, hex('#e8c060')); R.rect(x - 1, y, x + 1, y, K); };
@@ -52,25 +58,60 @@ const p1 = (t) => {
   T.vistasDelante(R, t, o);
 };
 
-// 2. la mesa: dos manos ordenan y juntan los trozos
+// el brazo canónico que entra por el borde de abajo hasta la muñeca (wx, wy), con el codo hacia fuera; entra entre lo y
+// hi (para no pisar lo que hay en la mesa) y nunca se ven más de ~45 px
+const brazoAbajo = (wx, wy, dir, lo = 0, hi = 319) => {
+  const sx = Math.max(lo, Math.min(hi, wx - dir * 9)), cx = Math.max(lo - 2, Math.min(hi + 2, wx - dir * 15)), cy = Math.round(wy + (184 - wy) * 0.5);
+  T.brazo(R, sx, 184, wx, wy, MANGA, dir, { codo: [cx, cy] });
+};
+// LA TABLILLA DE LA MESA (48 × 36, apaisada), partida en seis trozos de borde irregular (el sexto, la esquina de abajo a
+// la derecha, falta): cada trozo es la lista de sus píxeles, con el canto claro arriba a la izquierda y oscuro abajo
+const ARC = ['#e2c08e', '#cca672', '#ae8654', '#86623c', '#5e4228'].map((c) => hex(c));
+const az = (x, y, s) => { const v = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453; return v - Math.floor(v); };
+const TAB = (() => {
+  const W = 48, H = 36, S = [[8, 9], [24, 8], [40, 9], [8, 27], [24, 28], [40, 27]], id = new Int8Array(W * H).fill(-1), col = new Uint32Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { if (Math.pow(Math.abs(x - 23.5) / 24, 3.4) + Math.pow(Math.abs(y - 17.5) / 18, 3.2) >= 1) continue;
+    let m = 1e9, mk = 0; S.forEach(([px, py], k) => { const d = Math.hypot(x - px, y - py) + Math.sin(x * 0.8 + k * 2.1) * 1.5 + Math.sin(y * 0.9 + k * 1.3) * 1.5 + (az(x >> 1, y >> 1, k) - 0.5) * 2; if (d < m) { m = d; mk = k; } }); id[y * W + x] = mk;
+    const l = (23 - x) / W + (17 - y) / H + (az(x >> 2, y >> 2, 9) - 0.5) * 0.5; col[y * W + x] = az(x, y, 7) < 0.05 ? ARC[2] : l > 0.3 ? ARC[0] : l > -0.25 ? ARC[1] : ARC[2]; }
+  const pon = (x, y, c) => { if (x >= 0 && x < W && y >= 0 && y < H && id[y * W + x] >= 0) col[y * W + x] = c; };
+  // los renglones de cuñas: cabeza triangular y cola corta, de tres clases
+  for (let y = 4; y < H - 4; y += 6) for (let x = 3; x < W - 4;) { const tp = Math.floor(az(x, y, 3) * 3);
+    if (tp === 0) { pon(x, y, ARC[4]); pon(x + 1, y, ARC[4]); pon(x + 2, y, ARC[4]); pon(x + 1, y + 1, ARC[4]); pon(x + 1, y + 2, ARC[3]); }
+    else if (tp === 1) { pon(x, y, ARC[4]); pon(x, y + 1, ARC[4]); pon(x, y + 2, ARC[4]); pon(x + 1, y + 1, ARC[4]); pon(x + 2, y + 1, ARC[3]); }
+    else { pon(x, y + 1, ARC[4]); pon(x + 1, y + 1, ARC[4]); pon(x, y + 2, ARC[4]); pon(x + 2, y + 1, ARC[3]); }
+    x += 4 + Math.floor(az(x, y, 5) * 3); }
+  const e = (x, y) => (x < 0 || x >= W || y < 0 || y >= H ? -1 : id[y * W + x]), piezas = S.map(() => []), caja = S.map(() => [99, 99, 0, 0]);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const k = id[y * W + x]; if (k < 0) continue; let c = col[y * W + x];
+    if (e(x + 1, y) !== k || e(x, y + 1) !== k) c = ARC[3]; else if (e(x - 1, y) !== k || e(x, y - 1) !== k) c = ARC[0];
+    piezas[k].push([x, y, c]); const b = caja[k]; b[0] = Math.min(b[0], x); b[1] = Math.min(b[1], y); b[2] = Math.max(b[2], x); b[3] = Math.max(b[3], y); }
+  return { W, H, piezas, caja };
+})();
+// dónde se junta la tablilla y de dónde sale cada trozo (el 0 ya está en su sitio): [trozo, mano, dx, dy, empieza, acaba]
+const TX = 120, TY = 128, MOV = [[3, 0, -25, 2, 0.08, 0.26], [1, 1, 42, -3, 0.24, 0.42], [4, 1, 75, -1, 0.52, 0.70], [2, 1, 59, -3, 0.78, 0.94]];
+const P2A = P2 + 0.25, P2B = P3 - 0.15, p2en = (w) => P2A + (P2B - P2A) * w;
+// los trocitos sin clasificar, arriba, en el paño: [x, y, clase]
+const SUELTOS = [[112, 92, 0], [137, 104, 2], [158, 90, 1], [183, 101, 0], [204, 88, 2], [209, 110, 1], [121, 111, 1], [166, 111, 2]];
+
+// 2. la mesa: las dos manos, con su brazo desde el borde, juntan los trozos abajo, en el paño
 const MANGA = '#2e3a56';
 const p2 = (t) => {
-  const ord = sua(tramo(t, P2 + 0.35, P3 - 0.45)), o = { encuadre: 'fragmentos', orden: ord };
-  const G = T.mesas(R, t, o), tz = G.trozos, n = tz.length;
-  const q = (ord * 1.45 - 0.225) / 0.14;
-  for (const m of [0, 1]) {
-    const reposo = m ? [236, 150] : [150, 172];
-    let pos = reposo;
-    if (ord > 0.01 && ord < 0.995 && n) {
-      const f = (q - m) / 2, i = Math.floor(f), fr = f - i, k0 = m + 2 * i, k1 = k0 + 2;
-      const a = k0 < 0 ? reposo : k0 >= n ? reposo : [tz[k0][0] + 6, tz[k0][1] + 6], b = k1 < 0 ? reposo : k1 >= n ? reposo : [tz[k1][0] + 6, tz[k1][1] + 6];
-      const u = sua(lim((fr - 0.55) / 0.45)); pos = [lerp(a[0], b[0], u), lerp(a[1], b[1], u)];
-    }
-    const tiembla = Math.round(Math.sin(t * 9 + m * 2) * 0.6);
-    if (m) T.mano(R, Math.round(pos[0]) + 12, Math.round(pos[1]) + 3 + tiembla, -1, MANGA, { sinManga: true });
-    else T.mano(R, Math.round(pos[0]) - 12, Math.round(pos[1]) + 3 + tiembla, 1, MANGA, { sinManga: true });
-  }
-  if (ord >= 0.995) { const u = (t - (P3 - 0.45)) * 3; if (u < 1) chispa(G.tablilla[0] + 14, G.tablilla[1] - 22, 1 + Math.round(u * 3), hex('#fff6d0')); }
+  const o = { encuadre: 'fragmentos', orden: 0, trozos: false };
+  const G = T.mesas(R, t, o), w = tramo(t, P2A, P2B), som = (x, y) => R.pset(x, y, mez(R.pget(x, y), K, 0.4));
+  // los trocitos por clasificar, con su sombra
+  for (const [x, y, n] of SUELTOS) { for (let i = 0; i < 9; i++) { som(x + i - 3, y + 4); if (i > 0 && i < 8) som(x + i - 3, y + 5); } T.PIEZAS_NX.fragmento(R, x, y, { n }); }
+  // cada trozo: quieto donde espera, en el aire (con la mano) o ya en su sitio; y la muñeca de cada mano
+  const pos = TAB.piezas.map(() => [0, 0, 0]), agarre = (k, dx, dy, m) => { const b = TAB.caja[k]; return m ? [TX + b[2] + dx + 9, TY + ((b[1] + b[3]) >> 1) + dy + 3] : [TX + b[0] + dx - 8, TY + ((b[1] + b[3]) >> 1) + dy + 3]; };
+  const reposo = [[80, 172], [238, 171]], mu = [reposo[0], reposo[1]], hasta = [0, 0];
+  for (const [k, m, dx, dy, a, b] of MOV) { const u = sua(tramo(w, a, b)), al = Math.sin(u * Math.PI); pos[k] = [Math.round(dx * (1 - u)), Math.round(dy * (1 - u) - al * 3), al];
+    const va = sua(tramo(w, a - 0.1, a - 0.01)), g0 = agarre(k, dx, dy, m), g1 = agarre(k, pos[k][0], pos[k][1], m);
+    if (w >= a - 0.1 && w < a) mu[m] = [lerp(mu[m][0], g0[0], va), lerp(mu[m][1], g0[1], va)]; else if (w >= a) mu[m] = g1; }
+  // al acabar, la izquierda sujeta la tablilla por su canto y la derecha se retira al borde
+  { const u = sua(tramo(w, 0.95, 1)); mu[1] = [lerp(mu[1][0], reposo[1][0], u), lerp(mu[1][1], reposo[1][1], u)]; }
+  for (let k = 0; k < 5; k++) { const [dx, dy, al] = pos[k], h = 1 + Math.round(al * 2); for (const [x, y] of TAB.piezas[k]) som(TX + x + dx + h, TY + y + dy + h + 1); }
+  for (let k = 0; k < 5; k++) { const [dx, dy] = pos[k]; for (const [x, y, c] of TAB.piezas[k]) R.pset(TX + x + dx, TY + y + dy, c); }
+  // los brazos: el izquierdo entra entre la lupa y el pincel; el derecho, antes del tintero
+  for (const m of [0, 1]) { const tiembla = w > 0.02 && w < 0.98 ? Math.round(Math.sin(t * 9 + m * 2) * 0.6) : 0; brazoAbajo(Math.round(mu[m][0]), Math.round(mu[m][1]) + tiembla, m ? -1 : 1, m ? 150 : 76, m ? 244 : 84); }
+  if (w > 0.94) { const u = (t - p2en(0.94)) * 3; if (u < 1) chispa(TX + 30, TY - 6, 1 + Math.round(u * 3), hex('#fff6d0')); }
   T.mesasDelante(R, t, o);
 };
 
@@ -90,23 +131,23 @@ const p3 = (t) => {
   T.PIEZAS_NX.tablilla(R, Math.round(tx), Math.round(ty) + 8 + bamb, { t, s: 2 });
 };
 
-// 4. el cuaderno, de noche: copia cuñas y pasa la hoja
+// 4. el cuaderno, de noche: copia cuñas en los últimos renglones, pasa la hoja y sigue
+const D4 = 22;   // cuánto baja el pupitre respecto al decorado: así el brazo llega a los renglones desde el borde de abajo
 const p4 = (t) => {
-  const D = P5 - P4, v = (t - P4) / D;
-  // dos tandas de copia y, entre ellas, la hoja que pasa
-  const pasa1 = tramo(v, 0.4, 0.52);
-  const esc = v < 0.4 ? lerp(0.2, 1, tramo(v, 0.02, 0.38)) : lerp(0, 0.92, tramo(v, 0.54, 1));
-  const o = { encuadre: 'cuaderno', paginas: pasa1 / 4, escribe: esc };
-  const G = T.mesas(R, t, o), [ux, uy] = G.punta, f = G.pasando;
-  if (f > 0 && f < 1) {
-    // la mano acompaña la hoja por la esquina de arriba y la suelta
-    const sq = Math.abs(Math.cos(f * Math.PI)), dir = f < 0.5 ? 1 : -1, x = 160 + dir * Math.round(84 * sq), y = 52 - Math.round(Math.sin(f * Math.PI) * 9);
-    T.h_pluma(R, x + 16, y + 20, 1, t); T.mano(R, x + 13, y + 10, -1, MANGA, { sinManga: true });
-  } else {
-    const r = Math.round(Math.sin(t * 13) * 1.2), s = Math.round(Math.cos(t * 9) * 0.8);
-    T.h_pluma(R, ux + r, uy + s, 1, t); T.mano(R, ux + r + 22, uy + s - 9, -1, MANGA, { sinManga: true });
-  }
-  T.mesasDelante(R, t, o);
+  const v = (t - P4) / (P5 - P4), pasa = tramo(v, 0.5, 0.68);
+  const esc = v < 0.5 ? lerp(0.727, 1, tramo(v, 0.04, 0.45)) : lerp(0.727, 0.9, tramo(v, 0.74, 1));
+  const o = { encuadre: 'cuaderno', paginas: pasa / 4, escribe: esc };
+  const G = T.mesas(R, t, o), f = G.pasando;
+  // todo el pupitre baja D4 px; arriba queda el tablero (sus primeras filas, en espejo, para que la luz siga)
+  for (let y = 179; y >= D4; y--) for (let x = 0; x < 320; x++) R.pset(x, y, R.pget(x, y - D4));
+  for (let y = 0; y < D4; y++) for (let x = 0; x < 320; x++) R.pset(x, y, R.pget(x, 2 * D4 - 1 - y));
+  // la muñeca: al copiar, junto a la punta de la pluma, que avanza por el renglón; al pasar la hoja, en su esquina de abajo
+  const punta = (e) => { const k = Math.max(0, e * 77 - 0.5), r = Math.min(10, Math.floor(k / 7)), s = k - r * 7, fr = Math.max(0, s - 6); return [fr > 0 ? lerp(242, 176, sua(fr)) : 176 + s * 11, 56 + D4 + (r + (fr > 0 ? sua(fr) : 0)) * 8]; };
+  const [ux, uy] = punta(esc), escribe = [ux + 17, uy - 5], sq = Math.abs(Math.cos(Math.min(f, 0.5) * Math.PI)), esquina = [160 + Math.round(84 * sq) + 9, 149 + D4 - Math.round(Math.sin(Math.min(f, 0.5) * Math.PI) * 9) - 3];
+  let mu = escribe, copia = true;
+  if (v >= 0.45 && v < 0.74) { copia = false; const coge = sua(tramo(v, 0.45, 0.5)), suelta = sua(tramo(v, 0.59, 0.74)); mu = [lerp(lerp(escribe[0], esquina[0], coge), escribe[0], suelta), lerp(lerp(escribe[1], esquina[1], coge), escribe[1], suelta)]; }
+  const r = copia && esc > 0.728 && v < 0.99 ? Math.round(Math.sin(t * 13) * 1.2) : 0, q = copia ? Math.round(Math.cos(t * 9) * 0.8) : 0, wx = Math.round(mu[0]) + r, wy = Math.round(mu[1]) + q;
+  T.h_pluma(R, wx - 17, wy + 5, 1, t); brazoAbajo(wx, wy, -1, 150, 250);
 };
 
 // 5. la tablilla, de cerca: el golpe, la lectura fila a fila y, con «flood», la lluvia y el barco
@@ -118,14 +159,61 @@ const p5 = (t) => {
   if (t < FLOOD + 0.2) { const u = tramo(t, P5 + 0.5, FLOOD), fila = Math.min(6, Math.floor(u * 7)), fr = u * 7 - fila, cx = Math.round(lerp(x0 + 18, x1 - 20, fr)), cy = y0 + 16 + fila * 13;
     for (let j = -6; j <= 6; j++) for (let i = -13; i <= 13; i++) { const d = Math.hypot(i / 13, j / 6); if (d >= 1) continue; const x = cx + i, y = cy + j; if (x > x1 - 4 || y > y1 - 4) continue; const c = R.pget(x, y), l = (c & 255) + ((c >>> 8) & 255); if (l > 250) R.pset(x, y, mez(c, hex('#fff6d0'), 0.25 + (1 - d) * 0.35)); else if (l > 90) R.pset(x, y, d < 0.8 ? hex('#fffbe0') : hex('#ffd870')); }
     for (let i = -14; i <= 14; i++) { if (cx + i < x1 - 4) { R.pset(cx + i, cy + 8, hex('#ffd870')); } } }
-  // el brazo de Smith, que sigue la lectura con el dedo en el borde y da un respingo con «flood»
-  { const u = tramo(t, P5 + 0.5, FLOOD), resp = t > FLOOD ? Math.sin(Math.min(1, (t - FLOOD) * 2.5) * Math.PI) * 6 : 0, hx = Math.round(80 + ((u * 7) % 1) * 7 - resp), hy = Math.round(147 + Math.floor(Math.min(6, u * 7)) * 0.8 + resp * 0.4 + (t > BOAT ? Math.sin(t * 14) * 1 : 0));
-    T.brazo(R, 30, 179, hx, hy, MANGA, 1); }
+  // el círculo de luz del quinqué: fuera de él la mesa queda en penumbra (y el plano no repite la luz de día del 2)
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - 160) / 150, (y - 84) / 96) - 0.62; if (d > 0) R.pset(x, y, mez(R.pget(x, y), PENUMBRA, Math.min(0.72, d * 2.1 + (((x + y) & 1) ? 0.03 : 0)))); }
+  // la mano de Smith, apoyada en el canto izquierdo de la arcilla: el dedo baja renglón a renglón con la luz de la
+  // lectura, da un respingo con «flood» y vuelve, temblando, a señalar el dibujo
+  { const u = tramo(t, P5 + 0.5, FLOOD), f7 = Math.min(6.999, u * 7), fila = Math.floor(f7), fr = f7 - fila, baja = fila === 0 ? 0 : fila - 1 + sua(lim(fr / 0.3));
+    const llega = sua(tramo(t, P5 + 0.05, P5 + 0.5)), resp = t > FLOOD ? Math.sin(lim((t - FLOOD) * 2.2) * Math.PI) : 0, vuelve = sua(tramo(t, FLOOD + 0.45, BOAT + 0.5));
+    const toca = fr > 0.3 && fr < 0.5 && u > 0 && u < 1 ? 1 : 0, hx = Math.round(lerp(x0 - 22, x0 - 5, llega) + toca - resp * 9), hy = Math.round(lerp(lerp(y0 + 30, y0 + 19, llega) + baja * 13, y0 + 57, vuelve) - resp * 3 + (t > BOAT + 0.5 ? Math.sin(t * 14) * 0.8 : 0));
+    for (let j = 0; j < 7; j++) for (let i = 0; i < 13; i++) { if ((i === 0 || i === 12) && (j === 0 || j === 6)) continue; const x = hx - 1 + i, y = hy + j; R.pset(x, y, mez(R.pget(x, y), K, 0.32)); }
+    T.mano(R, hx, hy, 1, MANGA, { sinManga: true }); }
   // el golpe: el destello sobre la arcilla
   { const u = (t - P5) / 0.8; if (u >= 0 && u < 1) { const r = Math.round(2 + u * 6); chispa(x0 + 30, y0 + 22, r, hex('#fffbe8')); chispa(x1 - 22, y1 - 30, Math.max(1, r - 3), hex('#fff0b0')); for (let a = 0; a < 28; a++) { const an = a / 28 * 6.283, rr = 20 + u * 70; R.pset(Math.round(160 + Math.cos(an) * rr), Math.round(84 + Math.sin(an) * rr * 0.8), hex('#fff0b0')); } } }
   if (dib > 0.55 && Math.floor(t * 6) % 2) chispa(206, 62, 3, hex('#fffbe8'));
   T.museoDelante(R, t, o);
 };
+
+// LA PALOMA de cerca, a píxel nativo (la misma de nx-relato, aquí sin la ramita: hoja = false): se dibuja en una rejilla
+// propia por pose (0 alas arriba … 3 alas abajo), ~42 px de envergadura, con el ala de detrás en sombra, el cuerpo y la
+// cola en blanco con dos tonos de sombra, el ala de delante encima, pico y ojo; el contorno, de un píxel, sale solo.
+// Mira a la derecha; dir −1 la vuelve
+const PAL = { W: hex('#ffffff'), w: hex('#dde5f2'), s: hex('#b0bdd4'), k: hex('#34405a'), N: hex('#f2a436'), n: hex('#c07a22'), G: hex('#96d444'), g: hex('#4c9c30'), d: hex('#1c5424'), o: hex('#161a28') };
+const ALAS = [[[4, -3], [2, -14], [-5, -24], [-10, -19], [-7, -3]], [[4, -3], [-1, -10], [-13, -17], [-18, -13], [-7, -2]], [[5, -2], [-3, -5], [-17, -3], [-18, 2], [-6, 2]], [[4, 0], [1, 10], [-6, 20], [-10, 15], [-7, 1]]];
+const PALOMAS = new Map();
+const palomaForma = (pose, f, hoja) => { const cl = pose + '/' + f + '/' + hoja; if (PALOMAS.has(cl)) return PALOMAS.get(cl);
+  const GW = 80, GH = 60, OX = 40, OY = 30, col = new Uint32Array(GW * GH), cap = new Uint8Array(GW * GH), q = (v) => Math.round(v * f);
+  const set = (u, v, c, L) => { const x = OX + u, y = OY + v; if (x < 1 || y < 1 || x > GW - 2 || y > GH - 2) return; col[y * GW + x] = PAL[c]; cap[y * GW + x] = L; };
+  const poli = (pts, c, L) => { const P = pts.map(([u, v]) => [u * f, v * f]); let u0 = 99, u1 = -99, v0 = 99, v1 = -99; for (const [u, v] of P) { u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); }
+    for (let v = Math.floor(v0); v <= Math.ceil(v1); v++) for (let u = Math.floor(u0); u <= Math.ceil(u1); u++) { let d = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [ui, vi] = P[i], [uj, vj] = P[j]; if ((vi > v) !== (vj > v) && u < (uj - ui) * (v - vi) / (vj - vi) + ui) d = !d; } if (d) set(u, v, c, L); } };
+  const raya = (u0, v0, u1, v1, c, L, solo) => { u0 *= f; v0 *= f; u1 *= f; v1 *= f; const n = Math.max(1, Math.ceil(Math.max(Math.abs(u1 - u0), Math.abs(v1 - v0)))); for (let i = 0; i <= n; i++) { const u = Math.round(u0 + (u1 - u0) * i / n), v = Math.round(v0 + (v1 - v0) * i / n); if (!solo || cap[(OY + v) * GW + OX + u] === solo) set(u, v, c, L); } };
+  const elip = (cu, cv, ru, rv, L, tono) => { cu *= f; cv *= f; ru *= f; rv *= f; for (let v = Math.floor(cv - rv); v <= Math.ceil(cv + rv); v++) for (let u = Math.floor(cu - ru); u <= Math.ceil(cu + ru); u++) { const a = (u - cu) / ru, b = (v - cv) / rv; if (a * a + b * b <= 1) set(u, v, tono(a, b), L); } };
+  const ala = (pts, L, c, cr) => { poli(pts, c, L); const [A, E, D, C, B] = pts, m = (p, r, k) => [p[0] + (r[0] - p[0]) * k, p[1] + (r[1] - p[1]) * k];
+    raya(B[0], B[1], C[0], C[1], cr, L, L); raya(C[0], C[1], D[0], D[1], cr, L, L);   // el borde de salida y la punta, en sombra
+    if (f === 1) for (let k = 1; k <= 3; k++) { const a = m(B, C, k / 4 + 0.1), b = m(E, D, k / 4), c2 = m(a, b, 0.62); raya(a[0], a[1], c2[0], c2[1], cr, L, L); }   // las plumas largas
+    if (f === 1) { const a = m(A, B, 0.55), b = m(E, m(D, C, 0.5), 0.5), c2 = m(a, b, 0.85); raya(m(a, b, 0.3)[0], m(a, b, 0.3)[1], c2[0], c2[1], cr, L, L); } };   // las cobertoras
+  const dx = pose === 2 ? 3 : 4, dy = pose === 2 ? -2 : pose === 3 ? 0 : -1;
+  ala(ALAS[pose].map(([u, v]) => [u + dx, v + dy]), 1, 'w', 's');   // el ala de detrás
+  // la cola en abanico, el cuerpo, el pecho y la cabeza
+  poli([[-8, -3], [-21, -5], [-23, -1], [-22, 3], [-8, 3]], 'W', 2); raya(-10, -1, -22, -3, 'w', 2, 2); raya(-10, 1, -22, 0, 'w', 2, 2); raya(-9, 3, -22, 3, 's', 2, 2); raya(-22, -4, -23, 2, 'w', 2, 2);
+  elip(1, 0, 12, 5.6, 2, (a, b) => b > 0.72 ? 's' : b > 0.3 ? 'w' : 'W'); elip(7, 0.4, 6.6, 5.8, 2, (a, b) => b > 0.78 ? 's' : b > 0.42 ? 'w' : 'W');
+  elip(13, -4, 4, 4, 2, (a, b) => b > 0.5 && a < 0.3 ? 'w' : 'W');
+  set(q(-1), q(6), 'n', 2); set(q(-2), q(6), 'N', 2);   // las patas, recogidas
+  ala(ALAS[pose], 3, 'W', 'w');   // el ala de delante
+  // el pico, el ojo y la ramita de olivo: el tallo y dos hojas, una hacia arriba y otra hacia abajo
+  const bx = q(13) + Math.round(4 * f) + 1, by = q(-4); set(bx, by, 'N', 4); set(bx + 1, by, 'N', 4); set(bx, by + 1, 'n', 4); set(q(14), q(-5), 'o', 2);
+  if (hoja) { const h = (pts, c, L) => { const sv = poli; return sv(pts.map(([u, v]) => [(bx + 1 + u * f) / f, (by + v * f) / f]), c, L); };
+    h([[1, 0], [4, -5], [10, -6], [8, -1], [4, 1]], 'G', 5); h([[1, 1], [4, 2], [9, 6], [5, 7], [2, 4]], 'g', 5);
+    if (f === 1) { for (let i = 0; i < 6; i++) set(bx + 4 + i, by - 1 - Math.round(i * 0.7), 'g', 5); for (let i = 0; i < 5; i++) set(bx + 4 + i, by + 3 + Math.round(i * 0.6), 'G', 5); }
+    set(bx + 2, by, 'd', 5); set(bx + 2, by + 1, 'd', 5); }
+  // las costuras (donde un ala pisa el cuerpo) y el contorno fino de fuera
+  const V = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  for (let y = 1; y < GH - 1; y++) for (let x = 1; x < GW - 1; x++) { const i = y * GW + x, L = cap[i]; if (L === 2 || L === 1) for (const [a, b] of V) { const L2 = cap[i + b * GW + a]; if ((L === 2 && L2 === 3) || (L === 1 && L2 === 2)) { col[i] = PAL.s; break; } } }
+  for (let y = 1; y < GH - 1; y++) for (let x = 1; x < GW - 1; x++) { const i = y * GW + x; if (cap[i]) continue; let v = 0; for (const [a, b] of V) v = Math.max(v, cap[i + b * GW + a] & 127); if (v) { col[i] = v === 5 ? PAL.d : PAL.k; cap[i] |= 128; } }
+  const r = { GW, GH, OX, OY, col, rama: [bx + Math.round(6 * f), by] }; PALOMAS.set(cl, r); return r; };
+const palomaCerca = (x, y, t, dir, f = 1, hoja = false) => { const c = Math.floor(t * 11) % 6, pose = c < 4 ? c : 6 - c, F = palomaForma(pose, f, hoja); y += pose === 0 ? 1 : pose === 3 ? -1 : 0;
+  for (let j = 0; j < F.GH; j++) for (let i = 0; i < F.GW; i++) { const cc = F.col[j * F.GW + i]; if (!cc) continue; const X = x + dir * (i - F.OX), Y = y + j - F.OY; if (X >= 0 && X < 320 && Y >= 0 && Y < 180) R.pset(X, Y, cc); }
+  return [x + dir * F.rama[0], y + F.rama[1]]; };
 
 // 6. desde el tejado: agua hasta el horizonte; amaina, el barco lejano (sin nadie) y la paloma
 const p6 = (t) => {
@@ -135,8 +223,8 @@ const p6 = (t) => {
   { const bx = Math.round(196 + (t - P6) * 8), by = hz + 5 + Math.round(Math.sin(t * 1.7) * 0.6); R.rect(bx - 8, by - 2, bx + 8, by, hex('#3a2a20')); R.rect(bx - 7, by + 1, bx + 7, by + 1, hex('#241a16')); R.rect(bx - 9, by - 3, bx - 8, by - 2, hex('#3a2a20')); R.rect(bx + 8, by - 3, bx + 9, by - 2, hex('#3a2a20')); R.rect(bx - 4, by - 6, bx + 4, by - 3, hex('#5a4030')); R.rect(bx - 5, by - 7, bx + 5, by - 7, hex('#7a5a40')); R.rect(bx - 8, by - 2, bx + 8, by - 2, hex('#6a4c36'));
     for (let i = 0; i < 9; i++) if ((i + Math.floor(t * 4)) % 3) R.pset(bx - 11 - i * 2, by + 2 + (i & 1), hex('#d8ecf0')); }
   T.mesopotamiaDelante(R, t, o);
-  // la paloma (sin hoja) cruza el cielo y el agua de izquierda a derecha
-  { const u = tramo(t, DOVE - 1.0, P7 + 0.3); if (u > 0) { const x = Math.round(lerp(-26, 252, u)), y = Math.round(104 - Math.sin(u * Math.PI * 0.8) * 46 + Math.sin(t * 6) * 2); T.PIEZAS_NX.paloma(R, x, y, { t, s: 2 }); } }
+  // la paloma (sin hoja, a píxel nativo, sin escalar) cruza el cielo y el agua de izquierda a derecha
+  { const u = tramo(t, DOVE - 1.0, P7 + 0.3); if (u > 0) { const x = Math.round(lerp(-26, 210, u)), y = Math.round(104 - Math.sin(u * Math.PI * 0.8) * 46 + Math.sin(t * 6) * 2); /* acaba antes del barco, sin taparlo */ palomaCerca(x, y, t, 1); } }
 };
 
 // 7. gag 4: salta, corre por la sala y empieza a quitarse la chaqueta; los colegas le miran
@@ -144,7 +232,7 @@ const p7 = (t) => {
   const o = { encuadre: 'sala' };
   const G = T.museo(R, t, o), [mx, my] = G.mesa, [c1, c2] = G.colegas, pas = 152;
   // el recorrido: detrás de la mesa → el pasillo → ida y vuelta → se para en el centro
-  const ruta = [[mx, 0], [130, 0.24], [216, 0.56], [140, 0.84], [196, 1]], u = tramo(t, RAN, BEGAN - 0.1);
+  const ruta = [[mx, 0], [130, 0.24], [216, 0.56], [140, 0.84], [184, 1]], u = tramo(t, RAN, BEGAN - 0.1);
   let sx = mx, dir = 1; for (let i = 1; i < ruta.length; i++) if (u >= ruta[i - 1][1]) { sx = lerp(ruta[i - 1][0], ruta[i][0], lim((u - ruta[i - 1][1]) / (ruta[i][1] - ruta[i - 1][1]))); dir = ruta[i][0] > ruta[i - 1][0] ? 1 : -1; }
   sx = Math.round(sx); const sy = sx < 127 ? my : pas, corre = u > 0 && u < 1;
   const brinco = t > JUMP && t < RAN ? Math.round(Math.abs(Math.sin((t - JUMP) * Math.PI / 0.36)) * 9) : corre ? Math.floor(t * 8) % 2 : 0;
@@ -159,22 +247,28 @@ const p7 = (t) => {
     const quita = t > BEGAN, tir = quita ? Math.round(Math.sin((t - BEGAN) * 22) * 1) : 0;
     R.actor(EL.smith, sx + tir, sy, t, { dir, anda: corre, salto: brinco + (quita ? Math.floor(t * 6) % 2 : 0), brazos: (t > JUMP && t < RAN) || quita, sorpresa: t < JUMP + 0.3, sonrisa: t > JUMP + 0.3 });
   } else {
-    // en mangas de camisa, agita la levita en alto
-    // en mangas de camisa, con la levita en alto, cogida con las dos manos, que ondea
-    const w = (t - FUERA), c = Math.round(Math.sin(w * 10) * 2), br = Math.floor(t * 5) % 2;
-    R.actor(EL.smithSinChaqueta, sx, sy, t, { dir: 1, sonrisa: true, salto: br, brazos: true });
-    const jx = sx + 7, jy = sy - 33 - br - Math.round(tramo(w, 0, 0.35) * 5), AZ = hex('#2e3a56'), AS = hex('#1e2840'), AL = hex('#5a6a8c');
-    R.poligono([[jx - 12, jy - 1], [jx + 12, jy - 1], [jx + 13, jy + 8 + c], [jx, jy + 6], [jx - 13, jy + 8 - c]], K);
-    for (const d of [-1, 1]) { const q = d * c; R.rect(jx + d * 12 - 2, jy + 1, jx + d * 12 + 2, jy + 12 + q, K); R.rect(jx + d * 12 - 1, jy + 1, jx + d * 12 + 1, jy + 11 + q, d < 0 ? AZ : AS); R.pset(jx + d * 12, jy + 11 + q, hex('#f6f2ea')); }
-    R.poligono([[jx - 11, jy], [jx + 11, jy], [jx + 12, jy + 7 + c], [jx, jy + 5], [jx - 12, jy + 7 - c]], AZ);
-    R.linea(jx - 10, jy, jx + 10, jy, AL); R.linea(jx, jy + 1, jx - 4, jy + 5, AL); R.linea(jx, jy + 1, jx + 4, jy + 5, AL); R.linea(jx + 6, jy + 2, jx + 10, jy + 6 + c, AS);
-    R.pset(jx - 6, jy + 3, hex('#e8c060')); R.pset(jx - 8, jy + 5, hex('#e8c060'));
+    // en mangas de camisa: agita la levita, cogida por el cuello con la mano de delante (la que devuelve R.actor), a
+    // un lado, sin tapar la cara; la prenda cuelga de la mano y ondea
+    const w = t - FUERA, br = Math.floor(t * 5) % 2, bal = Math.sin(w * 9), an = 1.0 + bal * 0.32 * tramo(w, 0, 0.3);
+    const s = R.actor(EL.smithSinChaqueta, sx, sy, t, { dir: 1, sonrisa: true, salto: br, sostiene: [sx + 22, sy - 21 - br + Math.round(bal * 2)] });
+    const [hx, hy] = s.mano, ux = Math.sin(an), uy = Math.cos(an), AZ = hex('#34446a'), AS = hex('#1e2840'), AL = hex('#6a7ca4');
+    const pt = (l, a) => [Math.round(hx + 2 + ux * l + uy * a), Math.round(hy + 1 + uy * l - ux * a)], ond = Math.round(Math.cos(w * 9) * 1.5);
+    const pol = (ps, c, dx = 0, dy = 0) => R.poligono(ps.map(([x, y]) => [x + dx, y + dy]), c), filo = (ps) => { for (const [i, j] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) pol(ps, K, i, j); };
+    // la levita, del cuello (en la mano) a los dos faldones: los hombros, el talle y la raja de atrás
+    const torso = [pt(0, -2), pt(0, 2), pt(3, 7), pt(10, 5), pt(10, -5), pt(3, -7)], fal1 = [pt(10, -5), pt(10, -1), pt(18, -2 + ond), pt(18, -8 + ond)], fal2 = [pt(10, 1), pt(10, 5), pt(18, 8 + ond), pt(18, 2 + ond)];
+    // las mangas, que cuelgan de los hombros hacia fuera, con su puño blanco
+    const mangas = [-1, 1].map((d) => [pt(3, d * 6), pt(3, d * 8), pt(12, d * 12 - ond), pt(13, d * 10 - ond)]);
+    for (const m of mangas) filo(m); filo(torso); filo(fal1); filo(fal2);
+    mangas.forEach((m, i) => { pol(m, i ? AS : AZ); const [cx, cy] = m[2], [ex, ey] = m[3]; R.linea(cx, cy, ex, ey, hex('#f6f2ea')); });
+    pol(torso, AZ); pol(fal1, AZ); pol(fal2, AS); pol([pt(4, 2), pt(4, 6), pt(10, 5), pt(10, 2)], AS);
+    { const [ax, ay] = pt(1, 0), [bx, by] = pt(6, -3), [cx, cy] = pt(6, 3), [dx, dy] = pt(10, 0); R.linea(ax, ay, bx, by, AL); R.linea(ax, ay, cx, cy, AL); R.linea(ax, ay, dx, dy, AS); const [fx, fy] = pt(3, -6), [gx, gy] = pt(10, -5), [jx, jy] = pt(17, -7 + ond); R.linea(fx, fy, gx, gy, AL); R.linea(gx, gy, jx, jy, AL); }
+    for (const l of [7, 9]) { const [bx, by] = pt(l, -2); R.pset(bx, by, hex('#e8c060')); }
   }
   T.museoDelante(R, t, o);
   // los papeles que saltan de la mesa con el brinco
   { const w = t - JUMP; if (w > 0 && w < 1.6) for (let k = 0; k < 5; k++) { const vx = -26 + k * 15, x = Math.round(mx + 24 + vx * w + Math.sin(w * 7 + k) * 3), y = Math.round(138 - (46 + k * 5) * w + 46 * w * w); if (y < 150) { const g = Math.floor(w * 9 + k) % 2; R.rect(x - 1, y - 1, x + 5 + g, y + 4 - g, K); R.rect(x, y, x + 4 + g, y + 3 - g, hex('#f4ecd8')); R.rect(x + 1, y + 1, x + 3, y + 1, hex('#8a7a66')); } } }
 };
-const efectos = [[0.4, 'carro'], [P2 - 0.5, 'puerta'], [P2 + 0.9, 'golpecito'], [P3 - 0.5, 'toc'], [P3 + 0.6, 'whoosh'], [P4 + 0.3, 'lapiz'], [P4 + (P5 - P4) * 0.42, 'papel'], [P4 + (P5 - P4) * 0.56, 'lapiz'],
+const efectos = [[0.4, 'carro'], [P2 - 0.5, 'puerta'], [p2en(0.26), 'golpecito'], [p2en(0.94), 'toc'], [P3 + 0.6, 'whoosh'], [P4 + 0.3, 'lapiz'], [P4 + (P5 - P4) * 0.52, 'papel'], [P4 + (P5 - P4) * 0.76, 'lapiz'],
   [P5 + 0.1, 'brillo'], [FLOOD, 'lluvia'], [P6 + 0.2, 'lluvia'], [BAJA, 'ola'], [DOVE - 0.5, 'rafaga'], [JUMP, 'boing'], [JUMP + 0.25, 'papel'], [BEGAN + 0.1, 'pop'], [FUERA, 'whoosh']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { cartela: '1872', efectos, año: 1872 });
 </script>

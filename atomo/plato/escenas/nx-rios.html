@@ -18,7 +18,8 @@
 //    pared, se asombra («have found») y señala la capa gruesa de lodo, que se enciende («thick layers of mud»); su
 //    compañero, en el fondo del pozo, levanta los brazos;
 // 4. la línea del tiempo (diluvios · marnegro/linea): una mano con pluma dibuja una marca nueva muy a la izquierda, con
-//    su capa de lodo; aparecen «5», «5-6» y «5-6000»; después una gota salta de marca en marca hacia la derecha;
+//    su capa de lodo; aparecen «5», «5-6» y «5-6000»; después una gota salta de marca en marca hacia la derecha,
+//    hasta la quinta; las cinco marcas están encendidas todo el plano (los tres libros, con la misma luz);
 // 5. desde un tejado (mesopotamia · ciudad/tejado): una cabra sube a mirar; el agua acaba de subir y unas flechas se
 //    abren por todo el horizonte («the whole world they knew»); pasan flotando un cesto y una puerta; a «Another
 //    hypothesis» a la cabra le sale un «?»;
@@ -126,10 +127,16 @@ const p3 = (t) => {
 
 // ── 4 · la línea del tiempo: hace entre cinco y seis mil años ──
 const entre = r(0.8565), cinco = r(0.87), seis = r(0.912), mil = r(0.933), hace = r(0.9716);
-const MX = 30, LY = 106, MARCAS_X = [48, 104, 160, 216];
+const MX = 30, LY = 106, MARCAS_X = [48, 104, 160, 216, 272], GFIN = 272;
+const LUNA = ['...O.....', '.OO......', '.OO......', 'OOO......', 'OOO......', 'OOOO.....', '.OOOO...O', '.OOOOOOO.', '...OOOO..'];
 const p4 = (t) => {
-  const o = { encuadre: 'marnegro', camara: 'linea', marcas: 4 };
+  // las cinco marcas encendidas desde el principio: los tres libros, iguales en tamaño y luz todo el plano
+  const o = { encuadre: 'marnegro', camara: 'linea', marcas: 5 };
   T.diluvios(R, t, o);
+  // la media luna del tercer libro, repintada en su misma caja de 9 × 9 y con el mismo oro que los otros dos símbolos:
+  // un creciente ladeado, con la panza abajo a la izquierda y los cuernos afilados, para que no se lea como una letra
+  { const bx = 268, by = 78, oro = R.pget(bx + 3, by), tapa = R.pget(bx, by);
+    LUNA.forEach((f, j) => { for (let i = 0; i < 9; i++) R.pset(bx + i, by + j, f[i] === 'O' ? oro : tapa); }); }
   const d0 = P4 + 0.7, d1 = entre + 0.2, dib = lin(t, d0, d1);
   // la marca nueva: el punto en la línea, la rayita y la capa de lodo entre dos de ladrillo
   if (dib > 0) { R.linea(MX, LY - 3, MX, LY - 3 - Math.round(6 * lin(dib, 0.3, 0.7)), hex('#3a2a22')); R.disco(MX, LY, 3, K); R.disco(MX, LY, 2, hex('#c8703a')); R.pset(MX - 1, LY - 1, hex('#f0b080')); }
@@ -141,10 +148,10 @@ const p4 = (t) => {
   const txt = t >= mil ? '5-6000' : t >= seis ? '5-6' : t >= cinco ? '5' : '';
   if (txt) { const nuevo = Math.min(t - cinco, t >= seis ? t - seis : 9, t >= mil ? t - mil : 9) < 0.18; R.numero(txt, 18, 128 - (nuevo ? 2 : 0), { tam: 16 }); }
   // la gota que salta de marca en marca hacia hoy: el recuerdo de la crecida llega a los relatos
-  const h0 = hace + 0.1, uG = lin(t, h0, h0 + 2.1), gx = Math.round(lerp(MX, 216, uG));
+  const h0 = hace + 0.1, uG = lin(t, h0, h0 + 2.1), gx = Math.round(lerp(MX, GFIN, uG));
   if (uG > 0) { for (let x = MX + 4; x < gx - 3; x++) if ((x + Math.floor(t * 10)) % 4 < 2) R.pset(x, LY + 2, hex('#2a6ab8'));
-    for (const xm of MARCAS_X) if (gx >= xm) { const dt = (xm - MX) / (216 - MX) * 2.1 + h0; if (t - dt < 0.45) { for (let q = 0; q < 12; q++) { const a2 = q * Math.PI / 6, rr = 5 + (t - dt) * 14; R.pset(Math.round(xm + Math.cos(a2) * rr), Math.round(LY + Math.sin(a2) * rr * 0.7), hex('#2a6ab8')); } } R.disco(xm, LY, 3, K); R.disco(xm, LY, 2, hex('#4a9ae8')); R.pset(xm - 1, LY - 1, BL); }
-    if (uG < 1) { const yb = LY - 1 - Math.round(Math.abs(Math.sin(uG * Math.PI * 8)) * 3); R.poligono([[gx, yb - 7], [gx + 4, yb - 1], [gx, yb + 3], [gx - 4, yb - 1]], K); R.poligono([[gx, yb - 5], [gx + 2, yb - 1], [gx, yb + 1], [gx - 2, yb - 1]], hex('#4a9ae8')); R.pset(gx - 1, yb - 2, BL); } }
+    for (const xm of MARCAS_X) if (gx >= xm) { const dt = (xm - MX) / (GFIN - MX) * 2.1 + h0; if (t - dt < 0.45) { for (let q = 0; q < 12; q++) { const a2 = q * Math.PI / 6, rr = 5 + (t - dt) * 14; R.pset(Math.round(xm + Math.cos(a2) * rr), Math.round(LY + Math.sin(a2) * rr * 0.7), hex('#2a6ab8')); } } R.disco(xm, LY, 3, K); R.disco(xm, LY, 2, hex('#4a9ae8')); R.pset(xm - 1, LY - 1, BL); }
+    if (uG < 1) { const yb = LY - 1 - Math.round(Math.abs(Math.sin(uG * Math.PI * 10)) * 3); R.poligono([[gx, yb - 7], [gx + 4, yb - 1], [gx, yb + 3], [gx - 4, yb - 1]], K); R.poligono([[gx, yb - 5], [gx + 2, yb - 1], [gx, yb + 1], [gx - 2, yb - 1]], hex('#4a9ae8')); R.pset(gx - 1, yb - 2, BL); } }
   // la mano con la pluma
   const tiembla = dib > 0 && dib < 1 ? [Math.sin(t * 19) * 2, Math.cos(t * 23) * 1.5] : [0, 0];
   const [tx, ty] = kf(t, [[P4 + 0.05, 60, 196], [d0, MX, LY], [d1, MX + 2, LY - 12], [d1 + 0.45, 70, 150], [d1 + 0.95, 110, 215]]);
