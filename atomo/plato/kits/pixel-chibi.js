@@ -10016,11 +10016,11 @@ const camaraCuelloNX = (c) => {
   c.cuerpo.px(5, 1, pal.u); c.cuerpo.px(9, 1, pal.u); c.cuerpo.px(5, 2, pal.u); c.cuerpo.px(9, 2, pal.u);
   c.cuerpo.rej(['kkkkk', 'kKZIk', 'kKKKk', 'kkkkk'], 5, 3, pal);
 };
-// el cayado del pastor: una vara de madera (b) con la vuelta arriba, en la mano de delante
+// el cayado del pastor: una vara de madera (b) con la vuelta arriba, hacia delante, en la mano de delante
 const cayadoNX = (c) => {
   if (c.o.sostiene || c.o.dedo || c.o.brazos || c.o.sinObjeto) return;
   const pal = { ...c.pal, ...COLORES({ b: '#8a5a34' }) }, alto = c.suelo - c.yC - 1;
-  c.cuerpo.rej(['.kkk.', 'kbbbk', 'kbkbk'], 12, -8, pal); c.cuerpo.px(12, -5, P.k); c.cuerpo.px(13, -5, pal.b); c.cuerpo.px(13, -4, P.k);
+  c.cuerpo.rej(['..kkk.', '.kbbbk', 'kbkkbk', 'kbk.kk'], 14, -9, pal);
   for (let j = -5; j <= alto; j++) { c.cuerpo.px(14, j, P.k); c.cuerpo.px(15, j, pal.b); c.cuerpo.px(16, j, P.k); }
   c.cuerpo.px(15, alto + 1, P.k);
   c.cuerpo.rej(['.kkk.', 'kSSSk', 'kSSsk', '.kkk.'], 12, 3);   // el puño que lo agarra
@@ -10073,9 +10073,9 @@ export const ELENCO_NX = {
   // camisa celeste
   collins: { ...B34, cab: CAB_ENTRADAS, cuerpo: CUERPO_BUSCADOR, ceja: hex('#8a8a94'), delante: gafasKrupatCF,
     pal: CLT({ H: '#b0b0ba', h: '#d4d4dc', C: '#a8c8e0', c: '#88a8c0', V: '#b09a62', o: '#8a7444', G: '#5a3a1a', F: '#6a6252', f: '#564e40', L: '#4a3420' }) },
-  // el geólogo joven: el casco amarillo y la camisa de campo verde
-  geologo2NX: { ...B34, cuerpo: CUERPO_CAMPO_GZ, tocado: 'cascoObra', ceja: hex('#1c1424'),
-    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#f0c838', j: '#c89a18', C: '#5a9a6a', c: '#42784e', o: '#2e5a3a', u: '#42784e', G: '#3a2a1a', F: '#8a8262', n: '#4a3420' }) },
+  // el geólogo joven: el casco amarillo, el pelo castaño y la camisa de campo verde
+  geologo2NX: { ...B34, cuerpo: CUERPO_CAMPO_GZ, tocado: 'cascoObra', ceja: hex('#4a2a18'),
+    pal: MOT({ H: '#6a4424', h: '#8a5e34', J: '#f0c838', j: '#c89a18', C: '#5a9a6a', c: '#42784e', o: '#2e5a3a', u: '#42784e', G: '#3a2a1a', F: '#8a8262', n: '#4a3420' }) },
   // la geóloga: pelirroja con coleta, el chaleco de campo azul verdoso sobre la camisa crema
   geologa3NX: { ...B34, cuerpo: CUERPO_BUSCADOR, ceja: hex('#8a3a1a'), detras: coleta, mejillas: [[6, 8], [12, 8]],
     pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#f0e8d0', c: '#d0c8b0', V: '#3a8a8a', o: '#2a6a6a', G: '#5a3a1a', F: '#5a5a66', f: '#484854', L: '#4a3420' }) },
@@ -10114,19 +10114,19 @@ const pintaNX = (R, g, x, y, o = {}, pal = PAL_NX) => pintaJH(R, g, x, y, o, pal
 const cuadroNX = (t, n, v) => (t == null ? -1 : Math.floor(t * v) % n);
 const giraNX = (g) => g[0].split('').map((_, i) => g.map((f) => f[i]).reverse().join(''));
 
-// LA TABLILLA de arcilla: MEDIA tablilla rota (el borde de arriba, partido y más claro) con sus filas de cuñas.
-// 19 × 16. o.entera: la tablilla completa (19 × 25). Con o.t, un destello en la esquina
+// LA TABLILLA de arcilla: MEDIA tablilla rota (le falta el trozo de arriba a la derecha: el borde partido, en diagonal
+// y más claro) con sus filas de cuñas. 19 × 20. o.entera: la tablilla completa (19 × 25). Con o.t, un destello en la esquina
 const tablillaNX = (R, x, y, o = {}) => {
-  const f = cuadroNX(o.t, 4, 4), en = !!o.entera, h = en ? 25 : 16;
+  const f = cuadroNX(o.t, 4, 4), en = !!o.entera, h = en ? 25 : 20;
   pintaNX(R, unaNX('tablilla' + en + f, () => forma(19, h, ({ put }) => {
-    const top = (i) => (en ? 1 : [5, 4, 3, 4, 2, 1, 2, 3, 3, 4, 5, 6, 5, 4, 3, 2, 3][i - 1]);
+    const top = (i) => (en ? 1 : [2, 1, 1, 2, 3, 3, 4, 6, 7, 6, 7, 9, 8, 9, 10, 10, 11][i - 1]);
     for (let i = 1; i <= 17; i++) for (let j = top(i); j <= h - 2; j++) put(i, j, i >= 16 || j >= h - 3 ? '1' : i === 1 || j === top(i) ? '2' : 'F');
     put(1, h - 2, '.'); put(17, h - 2, '.'); if (en) { put(1, 1, '.'); put(17, 1, '.'); }
-    for (let j = en ? 4 : 8, n = 0; j <= h - 5; j += 3, n++) for (let i = 3 + (n % 2); i <= 14; i += 3) {
+    for (let j = 4, n = 0; j <= h - 5; j += 3, n++) for (let i = 3 + (n % 2); i <= 14; i += 3) {
       if (j <= top(i) + 1) continue;
       put(i, j, '3'); if ((i + n) % 2) { put(i + 1, j, '3'); put(i, j + 1, '3'); } else put(i, j + 1, '3');
     }
-    if (f === 1) for (const [a, b] of [[4, top(4) + 2], [3, top(4) + 2], [5, top(4) + 2], [4, top(4) + 1], [4, top(4) + 3]]) put(a, b, 'E'); else if (f === 0 || f === 2) put(4, top(4) + 2, 'E');
+    if (f === 1) for (const [a, b] of [[3, 4], [2, 4], [4, 4], [3, 3], [3, 5]]) put(a, b, 'E'); else if (f === 0 || f === 2) put(3, 4, 'E');
   })), x, y, o);
 };
 
@@ -10135,7 +10135,7 @@ const tablillaNX = (R, x, y, o = {}) => {
 const tablillaPequenaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('tablillaP', () => forma(11, 16, ({ put, rect }) => {
   rect(1, 1, 9, 14, 'F'); rect(9, 2, 9, 14, '1'); rect(1, 14, 9, 14, '1'); rect(1, 1, 1, 13, '2'); rect(1, 1, 8, 1, '2');
   put(1, 1, '.'); put(9, 1, '.'); put(1, 14, '.'); put(9, 14, '.');
-  for (let j = 2; j <= 8; j++) for (let i = 2; i <= 8; i++) { const d = Math.hypot(i - 5, j - 5); if (d >= 2.1 && d <= 3.1) put(i, j, '3'); }
+  ['..333..', '.3...3.', '3.....3', '3.....3', '3.....3', '.3...3.', '..333..'].forEach((f, j) => { for (let i = 0; i < 7; i++) if (f[i] === '3') put(2 + i, 2 + j, '3'); });
   for (const [i, j] of [[3, 10], [4, 10], [6, 10], [7, 11], [7, 10], [3, 12], [5, 12], [6, 12], [3, 13]]) put(i, j, '3');
 })), x, y, o);
 
@@ -10157,11 +10157,11 @@ const PEZ_MIRA_NX = ['...NKKKK.', 'n.NNNWKN.', 'nnNNNWWN.', 'nnNNNNNNf', 'n.NNNN
 const pezNX = (put, i0, j0, mira) => (mira ? PEZ_MIRA_NX : PEZ_NX).forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i0 + i, j0 + j, f[i]); });
 
 // EL BARQUITO DE PAPEL blanco (W, los pliegues w), de perfil: el casco con las dos puntas y el pico del centro.
-// 19 × 12. o.pez: el pez naranja va subido dentro, asomado por la borda (19 × 12)
+// 19 × 12. o.pez: el pez naranja va subido dentro, asomado por detrás del pico
 const barquitoNX = (R, x, y, o = {}) => pintaNX(R, unaNX('barquito' + !!o.pez, () => forma(19, 12, ({ put, rect }) => {
   const hw = [0, 1, 2, 2, 3, 4];
-  hw.forEach((w, k) => { for (let i = 9 - w; i <= 9 + w; i++) put(i, 1 + k, i > 9 ? 'w' : 'W'); });
   if (o.pez) pezNX(put, 9, 2, false);
+  hw.forEach((w, k) => { for (let i = 9 - w; i <= 9 + w; i++) put(i, 1 + k, i > 9 ? 'w' : 'W'); });
   rect(1, 6, 2, 6, 'W'); rect(16, 6, 17, 6, 'W'); rect(1, 7, 17, 7, 'W'); rect(2, 8, 16, 8, 'W'); rect(4, 9, 14, 9, 'W'); rect(5, 10, 13, 10, 'w');
   for (const [i, j] of [[9, 7], [8, 8], [10, 8], [7, 9], [11, 9], [15, 8], [14, 9]]) put(i, j, 'w');
 })), x, y, o);
@@ -10273,9 +10273,12 @@ const explosionNX = (R, x, y, o = {}) => {
   })), x, y, o);
 };
 
-// EL REMACHE: pequeño y rojizo, de óxido (8/9): la cabeza redonda y el vástago corto. 9 × 8
-const remacheNX = (R, x, y, o = {}) => pintaNX(R, unaNX('remache', () => forma(9, 8, ({ put, rect }) => {
-  rect(2, 1, 6, 1, '8'); rect(1, 2, 7, 3, '8'); rect(1, 3, 7, 3, '9'); rect(3, 4, 5, 6, '9'); put(3, 4, '8'); put(3, 5, '8'); put(2, 2, 'N'); put(3, 1, 'N'); put(6, 2, '9');
+// EL REMACHE: pequeño y rojizo, de óxido (8/9), tumbado: la cabeza redonda a la izquierda, el vástago y la punta
+// remachada (más ancha) a la derecha. 12 × 9
+const remacheNX = (R, x, y, o = {}) => pintaNX(R, unaNX('remache', () => forma(12, 9, ({ put, rect }) => {
+  rect(1, 2, 1, 6, '8'); rect(2, 1, 3, 7, '8'); rect(4, 3, 8, 5, '8'); rect(9, 2, 10, 6, '8');
+  rect(4, 5, 8, 5, '9'); rect(9, 6, 10, 6, '9'); put(2, 7, '9'); put(3, 7, '9'); put(1, 6, '9'); put(3, 6, '9'); put(10, 5, '9');
+  put(2, 1, 'N'); put(1, 2, 'N'); put(2, 2, 'N'); put(5, 3, 'N'); put(6, 3, 'N'); put(9, 2, 'N'); put(7, 4, '9');
 })), x, y, o);
 
 // LA PIEDRA DEL AGUJERO: una gran losa de piedra en pie (0, la sombra $), más ancha por abajo, con un AGUJERO arriba
@@ -10283,9 +10286,9 @@ const remacheNX = (R, x, y, o = {}) => pintaNX(R, unaNX('remache', () => forma(9
 const piedraAgujeroNX = (R, x, y, o = {}) => pintaNX(R, unaNX('piedra', () => forma(18, 32, ({ put }) => {
   for (let j = 1; j <= 30; j++) {
     const hw = j < 5 ? [2.5, 4, 5, 5.5][j - 1] : 5.6 + (j - 5) * 0.07 + (j > 26 ? 0.6 : 0), a = Math.round(8.5 - hw + Math.sin(j * 0.9) * 0.4), b = Math.round(8.5 + hw + Math.sin(j * 0.6 + 1) * 0.5);
-    for (let i = a; i <= b; i++) put(i, j, i >= b - 2 || j >= 29 ? '$' : i === a || (j === 1) ? 'X' : '0');
+    for (let i = a; i <= b; i++) put(i, j, i >= b - 2 || j >= 29 ? '$' : j === 1 || (i === a && j < 12) ? 'H' : '0');
   }
-  for (let j = 4; j <= 8; j++) for (let i = 6; i <= 11; i++) { const d = Math.hypot(i - 8.5, j - 6); if (d <= 1.6) put(i, j, '.'); else if (d <= 2.6 && i + j > 15) put(i, j, '$'); }
+  for (let j = 3; j <= 10; j++) for (let i = 5; i <= 12; i++) { const d = Math.hypot(i - 8.5, j - 6.5); if (d <= 2.2) put(i, j, '.'); }
   for (const [i, j] of [[6, 13], [7, 14], [10, 19], [5, 22], [6, 22], [11, 25], [8, 17]]) put(i, j, 'q');
   for (const [i, j] of [[9, 11], [9, 12], [10, 13], [6, 18], [6, 19], [7, 20], [9, 24], [8, 25]]) put(i, j, '$');
 })), x, y, o);
@@ -10320,11 +10323,18 @@ const radarNX = (R, x, y, o = {}) => {
   })), x, y, o);
 };
 
-// LA HEBILLA de cinturón, vieja: el marco de latón (O, lo gastado g), el pasador de acero y el hueco. 11 × 10
-const hebillaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('hebilla', () => forma(11, 10, ({ put, rect }) => {
-  rect(1, 1, 9, 8, 'O'); rect(3, 3, 7, 6, '.'); rect(1, 8, 9, 8, 'g'); rect(9, 2, 9, 8, 'g'); rect(1, 1, 2, 8, 'g'); put(3, 1, 'o'); put(4, 1, 'o');
-  rect(2, 4, 8, 4, 'Z'); put(8, 4, 'z'); put(8, 5, 'z'); put(6, 8, '9'); put(2, 2, '9');
-})), x, y, o);
+// LA HEBILLA de cinturón, vieja: el marco de latón (O, lo gastado g) con el HUECO (se ve lo que hay detrás), el
+// pasador de acero cruzado y un trozo de cuero a la izquierda. 16 × 11
+const hebillaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('hebilla', () => {
+  const g = forma(16, 11, ({ put, rect }) => {
+    rect(1, 3, 4, 7, '6'); rect(1, 7, 4, 7, '7'); put(2, 5, '7');
+    rect(5, 1, 14, 9, 'O'); rect(5, 9, 14, 9, 'g'); rect(14, 2, 14, 9, 'g'); rect(5, 1, 6, 9, 'g'); rect(8, 1, 11, 1, 'o'); put(5, 1, '.'); put(14, 1, '.'); put(5, 9, '.'); put(14, 9, '.');
+    put(12, 8, '9'); put(13, 3, '9');
+  }).map((f) => f.split(''));
+  for (let j = 3; j <= 7; j++) for (let i = 8; i <= 12; i++) g[j][i] = '.';
+  for (let i = 6; i <= 13; i++) g[5][i] = i === 13 ? 'z' : 'Z';
+  return g.map((f) => f.join(''));
+}), x, y, o);
 
 // LA BOLSITA DE MUESTRA: transparente (I), con el cierre arriba, la tierra en el fondo y la etiqueta blanca con su
 // NÚMERO (o.n, 0–99; por omisión, 1). 15 × 18. No se voltea (la cifra)
@@ -10359,15 +10369,15 @@ const perforadoraNX = (R, x, y, o = {}) => {
 };
 
 // EL TESTIGO: el cilindro de tierra que sale del sondeo, tumbado en su media caña de acero, con sus tramos de colores
-// y, en el tramo oscuro, UNOS TROCITOS NEGROS. o.brillo: los trocitos destellan (con o.t, parpadean). 38 × 10
+// y, en el tramo claro del centro, UNOS TROCITOS NEGROS. o.brillo: los trocitos destellan (con o.t, parpadean). 38 × 10
 const testigoNX = (R, x, y, o = {}) => {
   const b = !!o.brillo, f = b ? Math.max(0, cuadroNX(o.t, 2, 5)) : 0;
   pintaNX(R, unaNX('testigo' + b + f, () => forma(38, 10, ({ put, rect }) => {
     rect(1, 6, 36, 8, 'z'); rect(1, 6, 36, 6, 'Z'); rect(1, 4, 1, 8, 'Z'); rect(36, 4, 36, 8, 'Z'); rect(2, 8, 35, 8, 'u');
-    const tramo = (i) => (i <= 8 ? 'A' : i <= 15 ? 'P' : i <= 25 ? 'm' : i <= 30 ? 'P' : 'a');
-    for (let i = 3; i <= 34; i++) { const c = tramo(i); put(i, 3, c === 'A' ? 'T' : c === 'P' ? 'M' : c === 'm' ? 'P' : 'A'); put(i, 4, c); put(i, 5, c); put(i, 6, c === 'm' ? 'p' : c === 'P' ? 'm' : c === 'A' ? 'a' : 'd'); }
-    for (const i of [11, 27]) for (let j = 3; j <= 6; j++) put(i, j, 'k');
-    for (const [i, j] of [[18, 4], [19, 4], [19, 5], [22, 5], [23, 4], [23, 5], [17, 5], [21, 3]]) put(i, j, 'Q');
+    const tramo = (i) => (i <= 8 ? 'A' : i <= 14 ? 'P' : i <= 26 ? 'h' : i <= 30 ? 'P' : 'a');
+    for (let i = 3; i <= 34; i++) { const c = tramo(i); put(i, 3, c === 'A' ? 'T' : c === 'P' ? 'M' : c === 'h' ? 'H' : 'A'); put(i, 4, c); put(i, 5, c); put(i, 6, c === 'h' ? 'd' : c === 'P' ? 'm' : c === 'A' ? 'a' : 'd'); }
+    for (const i of [11, 28]) for (let j = 3; j <= 6; j++) put(i, j, 'k');
+    for (const [i, j] of [[17, 4], [18, 4], [18, 5], [17, 5], [21, 5], [22, 5], [22, 4], [24, 3], [24, 4], [20, 3]]) put(i, j, 'Q');
     if (b) for (const [i, j] of f ? [[20, 1], [19, 2], [21, 2], [20, 2], [20, 3], [24, 2]] : [[20, 2], [24, 1], [23, 2], [25, 2], [24, 2], [24, 3]]) put(i, j, 'E');
   })), x, y, o);
 };
@@ -10416,9 +10426,9 @@ const articuloNX = (R, x, y, o = {}) => pintaNX(R, unaNX('articulo', () => forma
 // 'cruz' o 'luna' (la media luna): los tres en el mismo libro, con el mismo oro y en la misma caja de 9 × 9.
 // 20 × 26. No se voltea. Sin o.simbolo, la tapa lisa
 const SIMBOLOS_NX = {
-  estrella: ['....O....', '....O....', 'OOOOOOOOO', '.O.O.O.O.', '..O...O..', '.O.O.O.O.', 'OOOOOOOOO', '....O....', '....O....'],
-  cruz: ['....O....', '....O....', '..OOOOO..', '....O....', '....O....', '....O....', '....O....', '....O....', '....O....'],
-  luna: ['...OOO...', '.OOO.....', '.OO......', 'OOO......', 'OOO......', 'OOO......', '.OO......', '.OOO...O.', '...OOOO..'],
+  estrella: ['....O....', '...O.O...', 'OOOOOOOOO', '.OO...OO.', '.O.....O.', '.OO...OO.', 'OOOOOOOOO', '...O.O...', '....O....'],
+  cruz: ['...OOO...', '...OOO...', '.OOOOOOO.', '.OOOOOOO.', '...OOO...', '...OOO...', '...OOO...', '...OOO...', '...OOO...'],
+  luna: ['...OOOO..', '.OOO...O.', '.OO......', 'OOO......', 'OOO......', 'OOO......', '.OO......', '.OOO...O.', '...OOOO..'],
 };
 const libroSagradoNX = (R, x, y, o = {}) => {
   const sm = SIMBOLOS_NX[o.simbolo] ? o.simbolo : '';
