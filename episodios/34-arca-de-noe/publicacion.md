@@ -107,4 +107,23 @@ Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrad
 inglesa como pista principal, la pista en español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo
 relacionado» se elige el episodio completo.
 
-{SHORTS}
+### Short 1 · La roca con forma de barco · tramo 0.25-29.55,517.98-533.06
+- **EN:** Noah's Ark in Turkey? Who Has Checked It? #Shorts
+- **ES:** ¿El Arca de Noé en Turquía? ¿Quién lo ha revisado? #Shorts
+- **EN:** In eastern Turkey there is a rock shaped like a ship, about as long as the ark in Genesis. Some insist it is Noah's Ark; geologists say it is a rock. In 2026 it is back in the news, and nobody has confirmed it. The full story is in the linked video. #NoahsArk #Ararat #Archaeology #ASKAtom #Shorts
+- **ES:** En el este de Turquía hay una roca con forma de barco, casi tan larga como el arca del Génesis. Unos insisten en que es el Arca de Noé; los geólogos dicen que es una roca. En 2026 ha vuelto a las noticias, y nadie lo ha confirmado. La historia completa, en el vídeo enlazado. #ArcaDeNoé #Ararat #Arqueología #ASKAtom #Shorts
+
+### Short 2 · La tablilla de George Smith · tramo 153.99-205.53
+- **EN:** The Flood Story on a Clay Tablet Older Than Genesis #Shorts
+- **ES:** El diluvio en una tablilla más antigua que el Génesis #Shorts
+- **EN:** In 1872, at the British Museum, George Smith read a flood story on a clay tablet: a warning from a god, a boat, the animals, a dove. It was part of the Epic of Gilgamesh, centuries older than the text of Genesis. The full story is in the linked video. #NoahsArk #Gilgamesh #BritishMuseum #ASKAtom #Shorts
+- **ES:** En 1872, en el Museo Británico, George Smith leyó en una tablilla de barro la historia de un diluvio: el aviso de un dios, un barco, los animales, una paloma. Era parte de la Epopeya de Gilgamesh, siglos más antigua que el texto del Génesis. La historia completa, en el vídeo enlazado. #ArcaDeNoé #Gilgamesh #MuseoBritánico #ASKAtom #Shorts
+
+### Short 3 · La madera a nueve metros · tramo 379.46-396.94,418.55-442.1
+- **EN:** Noah's Ark Site: Charred Wood From 9 Meters Down? #Shorts
+- **ES:** Arca de Noé: ¿madera carbonizada a 9 metros de fondo? #Shorts
+- **EN:** In 2026 a team drilled into the ship-shaped rock in Turkey and says it brought up pieces of what appears to be charred wood. Its own founder admits there could be another explanation. Nothing has been dated or confirmed yet. The full story is in the linked video. #NoahsArk #Durupinar #Archaeology #ASKAtom #Shorts
+- **ES:** En 2026 un equipo perforó la roca con forma de barco de Turquía y dice que sacó trozos de lo que parece madera carbonizada. Su propio fundador admite que puede tener otra explicación. Nada está fechado ni confirmado todavía. La historia completa, en el vídeo enlazado. #ArcaDeNoé #Durupinar #Arqueología #ASKAtom #Shorts
+
+Miniaturas: `atomo/plato/escenas/nx-short1-miniatura.html`, `nx-short2-miniatura.html` y `nx-short3-miniatura.html`, de
+`nx-mini-chibi.js`.
