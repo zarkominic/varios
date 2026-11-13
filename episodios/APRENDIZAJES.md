@@ -565,3 +565,30 @@ cumplen (planos planeados = planos generados; ningún destello de cartela en los
 
 Pendiente para el próximo: borrar los fotogramas del 33 y las capturas de las pasadas antes del render; medir los brazos
 en el borrador; proponer al usuario el arreglo de `subtitulos.py` para las iniciales («H. R.»).
+
+## Episodio 34 · El Arca de Noé: lo que se sabe y lo que no (12–13/11/2026)
+
+- **Un relato sagrado y una noticia sin confirmar:** a Noé no se le dibuja; los tres libros, cerrados e iguales; lo que
+  dice el equipo, en plano azul «según ellos»; la hoguera del pastor, dentro de un globo de idea; las casillas de la
+  lista se quedan vacías. Antes de entregar se buscó si había resultados de laboratorio (13/11: ninguno).
+- **El reparto de encuadres repetía dentro de la escena:** la primera versión repetía encuadre en 12 de 20 escenas y se
+  frenó antes de lanzar. Hubo que encargar 23 vistas nuevas de un solo plano (mesas, insertos, vistas) y rehacer el
+  reparto. El reparto se comprueba con un script (ningún encuadre dos veces en una escena) ANTES de lanzar las escenas.
+- **Un reinicio del contenedor a mitad de las escenas:** paró los tres workflows; con los módulos parciales subidos y
+  `resumeFromRunId` no se perdió nada. Commit de lo parcial en cuanto un workflow largo lleva rato.
+- **Calidad:** 44 de 102 planos suspendieron en la revisión completa (el 33: 32 de 101); 44 → 6 → 0. Otra vez los
+  brazos: varios no caben en 45 px por la geometría del decorado (objetos lejos del borde); las salidas buenas fueron
+  una pinza con mango (wyatt) y la mano pegada al canto del objeto (smith).
+- **Símbolos pequeños que se leen como letras:** la media luna de 9 × 9 se leía «C» y la etiqueta de una caja, como
+  texto; se taparon en las escenas. Los símbolos de un kit se miran a 640 px antes de usarlos.
+- **Sonido:** antes de la pasada de movimiento, gancho 29 % y hola 75 %; después, todas entre 40 y 65 %. Total 50 %.
+- **Disco:** había 5,5 GB y el render pedía ~8,7. Se liberó con los `musica.wav` y `efectos.wav` de los episodios 25–33
+  (intermedios que se regeneran, 3,3 GB) y capturas temporales. El render dejó 2,0 GB libres.
+- **Shorts:** el 3 salió a −14,6 LUFS (fuera de ±0,5) y se subió 0,55 dB sin tocar el vídeo. `short.py` debería
+  nivelar en dos pasadas. Los cortes, solo en límites de párrafo: dentro de un párrafo el inglés y el español no
+  coinciden.
+- **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 4,9 dB; 148 y 150 subtítulos, 0 fuera de norma).
+- **Cifras:** calidad 6,05 M de tokens (3 h 33 min, 34 agentes).
+
+Pendiente para el próximo: comprobar el reparto de encuadres con script antes de lanzar; borrar los fotogramas del 34;
+nivelar los Shorts en dos pasadas; mirar los símbolos de los kits a 640 px.
