@@ -12,7 +12,7 @@
 // NX-WYATT (frases 19 y 20), 1977 → años noventa. Ocho planos:
 // 1. el mapa: una línea de puntos llega desde el oeste hasta el alfiler de la ladera; Wyatt, con su mochila, entra por
 //    delante del mapa y lo señala;  2. (corta en «arrived») gag 6: dentro de la forma, Wyatt clava una estaca y tira de
-//    la cinta métrica… que se acaba a la mitad; el resto queda a puntos, con su «?», y la cinta se recoge sola;
+//    la cinta métrica… que se acaba a la mitad; el resto queda a puntos, con su «?» en una tarjeta, y la cinta se recoge sola;
 // 3. (corta en «He came back») la manta de los hallazgos: una mano los va dejando; en un globo (lo dice él), la madera
 //    y el remache;  4. (corta en «stones») el pueblo, a unos kilómetros: Wyatt llega a la gran piedra con agujero y la
 //    señala; en su globo, un ancla («according to him»);  5. (corta al empezar la frase 20) la ladera de lejos, 1987:
@@ -74,7 +74,8 @@ const p2 = (t) => {
   // lo que falta hasta la otra borda, a puntos, con su «?»
   const falta = tramo(t, w(9.5), w(10.2));
   if (falta > 0) { const xf = Math.round(lerp(hx + 8, X1, falta)); for (let x = hx + 8; x <= xf; x += 5) { R.rect(x, SU - 9, x + 2, SU - 8, K); R.rect(x, SU - 10, x + 1, SU - 9, BL); }
-    if (falta >= 1) { R.rect(X1 - 1, SU - 15, X1 + 1, SU - 3, K); R.rect(X1, SU - 14, X1, SU - 4, BL); R.icono('?', Math.round((hx + X1) / 2) - 2, SU - 30 + Math.round(Math.sin(t * 4) * 1.5), AMA, K, 2); } }
+    if (falta >= 1) { R.rect(X1 - 1, SU - 15, X1 + 1, SU - 3, K); R.rect(X1, SU - 14, X1, SU - 4, BL); const qx = Math.round((hx + X1) / 2) + 4, qy = SU - 31 + Math.round(Math.sin(t * 4) * 1.5);   // en una tarjeta (sobre el sendero claro el «?» amarillo no se leía), a la derecha del último poste de la valla (x 203)
+      R.rect(qx - 4, qy - 3, qx + 13, qy + 16, K); R.rect(qx - 3, qy - 2, qx + 12, qy + 15, BL); R.rect(qx - 3, qy + 14, qx + 12, qy + 15, hex('#d4ccb8')); R.icono('?', qx, qy, ROJO, ROJOS, 2); } }
   const mx = q.mano[0], my = q.mano[1], L = Math.max(0, Math.round((mx - X0 - 5) * (1 - rec)));
   T.PIEZAS_NX.cinta(R, mx, my + 6, { largo: L, dir: -1 });
   if (tiron > 1.5) R.icono('!', mx - 2, my - 26, ROJO, K, 1);

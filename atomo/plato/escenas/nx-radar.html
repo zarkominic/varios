@@ -13,12 +13,14 @@
 // 1. la ladera con la cuadrícula: el fundador llega y señala la forma; el técnico trae el radar de suelo sobre ruedas;
 //    por la izquierda llega el arqueólogo y se saludan;  2. (corta en «archaeologists») GAG 7, dentro de la forma: el
 //    técnico empuja el radar, que pita; los otros dos llegan corriendo, el técnico escarba… y saca una hebilla vieja;
-// 3. (corta en «The first is») la ladera en corte: el radar baja al cuenco, las ondas bajan («sends waves downward»),
-//    rebotan en la capa dura y la pantalla dibuja lo que vuelve («draws what bounces back»); en la orilla, el
-//    arqueólogo clava la pala, que no hace falta («without digging»: aspa);
+// 3. (corta en «The first is») la ladera en corte, sin el recuadro: el técnico baja con el radar hasta el centro del
+//    cuenco, las ondas bajan («sends waves downward») hasta la capa dura, rebotan y vuelven a la antena, y la pantalla
+//    dibuja lo que vuelve («draws what bounces back»); en la orilla, el arqueólogo clava la pala, que no hace falta
+//    («without digging»: aspa);
 // 4. (corta en «According to them») SEGÚN ELLOS, en plano azul: el fundador lo cuenta y bajo la forma se trazan
 //    rectas y ángulos, como pasillos;  5. (corta en «They have also tested») la mesa de campaña desde arriba: la
-//    bandeja se llena de bolsitas de suelo y una mano encaja la última (la 318);  6. (corta en «holds more») SEGÚN ELLOS, en
+//    bandeja ya tiene quince bolsitas de suelo y una mano trae y encaja, una a una, las tres últimas de la fila de abajo
+//    (316, 317 y, la última, la 318): ninguna cae sola;  6. (corta en «holds more») SEGÚN ELLOS, en
 //    plano azul: las dos barras (fuera, dentro) crecen; el fundador dice «como si ahí se hubiera podrido madera» (un
 //    tablón que se deshace en su globo) y el arqueólogo escucha;  7. (corta en «In 2026») el laboratorio: el técnico
 //    trae otra caja de bolsitas a la pila; la geóloga mira el monitor, que sigue con su «?».
@@ -81,14 +83,14 @@ const p2 = (t) => {
 const yDura = (x) => 78 + 56 * Math.cos(Math.max(-2, Math.min(2, (x - 172) / 84)) * Math.PI / 2);
 const ySuelo = (x) => Math.round(Math.min(96, yDura(x)));
 const p3 = (t) => {
-  const o = { encuadre: 'corte', fase: 3 }; T.ladera(R, t, o);
+  const o = { encuadre: 'corte', fase: 3, recuadro: false }; T.ladera(R, t, o);
   const baja = a(14.47), rebota = a(15.5), dibuja = a(16.0), sin = a(17.5);
-  const um = tramo(t, P3 + 0.2, a(14.2)), tx = Math.round(lerp(250, 226, um)), cx = tx - 14, sy = ySuelo(cx);
+  const um = tramo(t, P3 + 0.2, a(14.2)), tx = Math.round(lerp(250, 186, um)), cx = tx - 14, sy = ySuelo(cx);   // acaba en el centro del cuenco (cx 172)
   // las ondas que bajan desde la antena y las que vuelven de la capa dura (recortadas al subsuelo)
-  if (t > baja) { const yc = Math.round(yDura(cx));
-    for (let k = 0; k < 4; k++) { const r = ((t - baja) * 22 + k * 13) % 52; if ((t - baja) * 22 < r) continue; const c = r < yc - sy ? hex('#eaffff') : hex('#7ad0e8'), n = Math.ceil(r * 3.2);
+  if (t > baja) { const yc = Math.round(yDura(cx)), vb = (yc - sy) / (rebota - baja), vr = 30;   // el primer frente toca la capa dura justo en «bounces»
+    for (let k = 0; k < 4; k++) { const r = ((t - baja) * vb + k * 13) % 52; if ((t - baja) * vb < r) continue; const c = r < yc - sy ? hex('#eaffff') : hex('#7ad0e8'), n = Math.ceil(r * 3.2);
       for (let i = 0; i <= n; i++) { const an = 0.25 + (i / n) * 2.64, x = Math.round(cx + Math.cos(an) * r), y = Math.round(sy + 1 + Math.sin(an) * r); if (y > ySuelo(x) + 1 && y < 176 && (i + k) % 6 < 5) { R.pset(x, y + 1, hex('#12364e')); R.pset(x, y, c); R.pset(x, y - 1, c); } } }
-    if (t > rebota) for (let k = 0; k < 3; k++) { const r = ((t - rebota) * 20 + k * 9) % 27, n = Math.ceil(r * 3) + 1; if ((t - rebota) * 20 < r) continue;
+    if (t > rebota) for (let k = 0; k < 3; k++) { const r = ((t - rebota) * vr + k * 13) % (yc - sy + 1), n = Math.ceil(r * 3) + 1; if ((t - rebota) * vr < r) continue;
       for (let i = 0; i <= n; i++) { const an = 3.4 + (i / n) * 2.6, x = Math.round(cx + Math.cos(an) * r), y = Math.round(yc + Math.sin(an) * r); if (y > ySuelo(x) + 1 && y < yDura(x) - 1) { R.pset(x, y + 1, hex('#7a3a10')); R.pset(x, y, hex('#ffb030')); R.pset(x, y - 1, hex('#fff0a0')); } } }
     // el punto donde rebotan
     if (t > rebota - 0.4 && Math.sin(t * 12) > 0) { R.rect(cx - 2, yc - 1, cx + 2, yc - 1, hex('#fff0a0')); R.rect(cx, yc - 3, cx, yc + 1, hex('#fff0a0')); } }
@@ -97,7 +99,7 @@ const p3 = (t) => {
   R.actor(EL.tecnicoNX, tx, ySuelo(tx + 7) + 1, t, { dir: -1, anda: um > 0 && um < 1, sostiene: [tx - 2, sy - 20], sonrisa: t > dibuja });
   // «draws what bounces back»: la pantalla, de cerca, traza las capas columna a columna
   const ug = tramo(t, dibuja - 0.35, dibuja - 0.1);
-  if (ug > 0) { const gx = 236, gy = 42 - Math.round((1 - ug) * 5); globo(gx, gy, 62, 34, cx + 2, sy - 29);
+  if (ug > 0) { const gx = 222, gy = 42 - Math.round((1 - ug) * 5); globo(gx, gy, 62, 34, cx + 2, sy - 29);
     R.rect(gx - 28, gy - 14, gx + 28, gy + 14, K); R.rect(gx - 27, gy - 13, gx + 27, gy + 13, hex('#0c2418'));
     const ud = tramo(t, dibuja, a(17.4)), xn = Math.round(ud * 52);
     for (let i = 0; i <= 52; i += 13) for (let j = -12; j <= 12; j += 2) R.pset(gx - 26 + i, gy + j, hex('#1c4a30'));
@@ -123,25 +125,20 @@ const p4 = (t) => {
   if (ub > 0.5) { globo(42, 34, 20, 15, f.cabeza[0] + 3, f.cabeza[1] - 2); R.rect(37, 28, 46, 32, hex('#e8782a')); R.rect(37, 28, 46, 28, hex('#ffb060')); R.rect(38, 33, 39, 34, K); R.rect(44, 33, 45, 34, K); R.linea(46, 28, 49, 25, K); for (const r of [3, 6]) for (let i = 0; i <= 8; i++) { const an = 0.5 + i / 8 * 2.14; if (Math.floor(t * 6 + r) % 3) R.pset(Math.round(42 + Math.cos(an) * r * 1.3), Math.round(35 + Math.sin(an) * r * 0.8), hex('#2a6ab8')); } }
   T.laderaDelante(R, t, o);
 };
-// una bolsita como las de la bandeja (22 × 27): el cierre, la etiqueta con su número y la tierra al fondo
-const CIF = { 3: ['###', '..#', '.##', '..#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 8: ['###', '#.#', '###', '#.#', '###'] };
-const bolsita = (x, y, num) => {
-  R.rect(x + 1, y, x + 20, y + 26, K); R.rect(x, y + 1, x + 21, y + 25, K); R.rect(x + 1, y + 1, x + 20, y + 25, hex('#dfeaf0')); R.rect(x + 20, y + 4, x + 20, y + 25, hex('#b4c8d4'));
-  R.rect(x + 1, y + 1, x + 20, y + 3, hex('#8ab4e8')); R.rect(x + 1, y + 2, x + 20, y + 2, BL); R.rect(x + 16, y + 1, x + 19, y + 3, ROJO);
-  for (let i = 1; i <= 20; i++) { const top = y + 17 + ((i * 7) % 3) - (i > 6 && i < 15 ? 1 : 0); R.rect(x + i, top, x + i, y + 25, i > 16 ? hex('#6a4e2c') : hex('#8a6c44')); R.pset(x + i, top, hex('#b89868')); if (i % 3 === 0) R.pset(x + i, top + 3, hex('#6a4e2c')); }
-  R.rect(x + 3, y + 5, x + 18, y + 13, BL); R.rect(x + 3, y + 13, x + 18, y + 13, hex('#cfc4a8'));
-  String(num).split('').forEach((d, k) => CIF[d].forEach((f, j) => { for (let i = 0; i < 3; i++) if (f[i] === '#') R.pset(x + 5 + k * 4 + i, y + 6 + j, hex('#2a2a3a')); }));
-};
 const p5 = (t) => {
-  const puesta = a(28.3), o = { encuadre: 'bolsitas', cuantas: t >= puesta ? 1 : 17 * tramo(t, P5 + 0.15, a(27.3)) / 18 };
+  // la bandeja ya tiene quince bolsitas (huecos 0–14); las tres últimas de la fila de abajo (15, 16 y 17: la 316, la
+  // 317 y la 318) las trae una mano, una a una: ninguna cae sola
+  const puesta = a(28.3), POSA = [[15, puesta - 2.3], [16, puesta - 1.15], [17, puesta]];
+  const puestas = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; for (const [k, tp] of POSA) if (t >= tp) puestas.push(k);
+  const o = { encuadre: 'bolsitas', caen: false, puestas };
   const g = T.insertos(R, t, o);
   T.insertosDelante(R, t, o);
-  // una mano trae desde abajo la última bolsita (la 318) y la encaja en su hueco
-  const e = tramo(t, a(26.5), puesta), ee = e * e * (3 - 2 * e), sale = tramo(t, puesta + 0.15, a(29.2)), [hx, hy] = g.celda(17);
-  const bx = hx + 1, by = hy + 1 + Math.round((1 - ee) * 58);
-  if (t < puesta) bolsita(bx, by, 318);
-  const wx = bx + 31 + Math.round(sale * 6), wy = by + 24 + Math.round(sale * 46) - (t >= puesta && t < puesta + 0.15 ? 1 : 0);
-  if (e > 0 && sale < 1) T.brazo(R, wx + 18, wy + 52, wx, wy, '#2a3a5e', -1, { codo: [wx + 16, wy + 22] });
+  // el viaje en curso: la mano entra por el pasillo de abajo con la bolsita, la encaja en su hueco y se retira vacía
+  for (const [k, tp] of POSA) { const e = tramo(t, tp - 0.62, tp), sale = tramo(t, tp + 0.14, tp + (k === 17 ? 0.75 : 0.5)); if (e <= 0 || sale >= 1) continue;
+    const ee = e * e * (3 - 2 * e), [hx, hy] = g.celda(k), bx = hx + 1 + Math.round((1 - ee) * 12), by = hy + 1 + Math.round((1 - ee) * 60);
+    if (t < tp) T.i_bolsa(R, bx, by, 301 + k, k, 2 + Math.round((1 - ee) * 2));
+    const wx = bx + 31 + Math.round(sale * 8), wy = by + 24 + Math.round(sale * 48) - (t >= tp && t < tp + 0.14 ? 1 : 0);
+    T.brazo(R, wx + 18, wy + 52, wx, wy, '#2a3a5e', -1, { codo: [wx + 16, wy + 22] }); }
 };
 const p6 = (t) => {
   const o = { encuadre: 'azul', barras: tramo(t, P6 + 0.25, a(31.3)) }; const g = T.vistas(R, t, o);
@@ -175,7 +172,7 @@ const p7 = (t) => {
 };
 const efectos = [[1.3, 'carro'], [P2 + 0.1, 'carro'], [P2 + 1.45, 'bip'], [P2 + 1.8, 'bip'], [P2 + 2.15, 'bip'], [P2 + 2.8, 'golpecito'], [P2 + 3.6, 'boing'],
   [P3 + 0.3, 'carro'], [a(14.5), 'zumbido'], [a(16.0), 'tecleo'], [a(17.4), 'toc'], [P4 + 0.2, 'pop'], [a(20.7), 'lapiz'], [a(23.3), 'lapiz'],
-  [a(28.3), 'papel'], [a(37.1), 'toc']];
+  [a(28.3) - 2.3, 'papel'], [a(28.3) - 1.15, 'papel'], [a(28.3), 'papel'], [a(37.1), 'toc']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, cartela: '2026', año: 2026 });
 </script>
 </body>

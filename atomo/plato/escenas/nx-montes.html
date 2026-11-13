@@ -189,7 +189,7 @@ const LAZO = [[208, 7], [224, 11], [240, 24], [256, 35], [268, 40], [280, 47], [
 const LZ = []; for (let i = 0; i < LAZO.length; i++) { const [x0, y0] = LAZO[i], [x1, y1] = LAZO[(i + 1) % LAZO.length], l = Math.round(Math.hypot(x1 - x0, y1 - y0)); for (let k = 0; k < l; k++) LZ.push([Math.round(x0 + (x1 - x0) * k / l), Math.round(y0 + (y1 - y0) * k / l)]); }
 const PICOS = [[208, 17, 1], [271, 49, -1], [114, 58, 1], [22, 61, 1]];   // cumbres de verdad del decorado: Ararat, su hermano y las dos sierras del horizonte
 const p6 = (t) => {
-  const o = { encuadre: 'ladera', epoca: 1959, hora: 'tarde' };
+  const o = { encuadre: 'ladera', epoca: 1959, hora: 'tarde', gente: false };   // la ladera sin nadie
   const g = T.ladera(R, t, o);
   const ABRE = b(27.62), REG = b(29.24);
   // «a whole region»: el rayado que camina dentro del lazo

@@ -82,7 +82,7 @@ const p3 = (t) => {
   T.laderaDelante(R, t, o);
 };
 const p4 = (t) => {
-  const o = { epoca: 1959 }; T.ladera(R, t, o);
+  const o = { epoca: 1959, gente: false }; T.ladera(R, t, o);   // la ladera sin nadie
   // el barro del deslizamiento baja del monte (arriba a la derecha) y rodea la forma por los dos lados, de popa a proa
   const u = tramo(t, P4 + 0.5, a(16.2)), M0 = hex('#3a2212'), M1 = hex('#7a4a26'), M2 = hex('#d8a868'), M3 = hex('#a8703a'), N = 220;
   for (const lado of [-1, 1]) {

@@ -10,7 +10,8 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // NX-GILGAMESH (frase «gilgamesh»), 1872. Tres planos:
-// 1. la línea del tiempo sobre el rollo: con «That tablet» se enciende la tablilla grande; una mano la señala y, con
+// 1. la línea del tiempo sobre el rollo, todo en boceto a tinta: con «That tablet» se enciende solo la tablilla grande
+//    (o.marcas como lista: la pequeña, que es de la escena siguiente, no se enciende); una mano la señala y, con
 //    «centuries older», un arco de puntos salta hacia atrás desde el libro (apagado, a tinta) hasta la tablilla;
 // 2. diciembre de 1872, la sala llena: el presentador le da paso, Smith sale al atril y lee («Smith read it in public»);
 // 3. la primera fila desde el estrado: Gladstone, de patillas, escucha en el centro; un colega le cuchichea, él pide
@@ -29,7 +30,7 @@ const mez = (c1, c2, a) => { const r = (c) => c & 255, g = (c) => (c >>> 8) & 25
 
 // 1. la línea del tiempo
 const p1 = (t) => {
-  const o = { encuadre: 'marnegro', camara: 'linea', marcas: tramo(t, 0.1, 0.5) + tramo(t, TABLET, TABLET + 0.7) };
+  const o = { encuadre: 'marnegro', camara: 'linea', marcas: [[1, tramo(t, TABLET, TABLET + 0.7)]] };   // solo la grande; la pequeña (la de Finkel) sigue en boceto
   const G = T.diluvios(R, t, o), [xa, yi, yn] = G.marcas[1], [xb] = G.marcas[2];
   // el arco de «siglos antes»: sale del libro y cae sobre la tablilla, con su punta de flecha
   const arco = sua(tramo(t, OLDER, GENESIS - 0.2)), N = 26, pt = (u) => [Math.round(lerp(xb, xa, u)), Math.round(yi - 34 - Math.sin(u * Math.PI) * 6)];

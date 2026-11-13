@@ -19,8 +19,8 @@
 // 3. el río crecido (fase 2): el pez enorme remolca la barca; a «warned» un «!» sobre el pez, a «flood» el rayo y el
 //    aguacero, y a «towed… to a mountain» una línea de puntos marca el rumbo hasta la cumbre; una garza aguanta en el
 //    peñasco;
-// 4. Grecia (india/grecia): el cofre deriva bajo la tormenta; a «floated for nine days» se encienden uno a uno nueve
-//    soles con su luna y la cifra sube hasta 9; a «chest» brillan los herrajes.
+// 4. Grecia (india/grecia): el cofre deriva bajo la tormenta; a «floated for nine days» el decorado (o.dias) enciende uno a
+//    uno nueve soles, cada uno con su luna a media jornada, y la cifra sube hasta 9; a «chest» brillan los herrajes.
 // Efectos: 10 en 17,9 s, sin rellenos (el salto, el chapuzón, un estirón, el desborde, lluvia, trueno, dos olas, el noveno
 // día y el brillo): suenan el ~50 % del tiempo.
 import * as T from '/atomo/plato/escenas/nx-comun.js';
@@ -151,14 +151,9 @@ const p3 = (t) => {
 const flota = m(0.879), nueve = m(0.915), cofreT = m(0.968);
 const c0 = P4 + 0.5, c1 = nueve + 0.3, dia = (k) => c0 + (c1 - c0) * k / 9;   // cuándo se enciende el día k (1–9)
 const p4 = (t) => {
-  const o = { encuadre: 'india', camara: 'grecia', rayos: false, deriva: lerp(-36, 40, lin(t, P4, FIN)), lluvia: 0.7 };
+  const o = { encuadre: 'india', camara: 'grecia', rayos: false, deriva: lerp(-36, 40, lin(t, P4, FIN)), lluvia: 0.7, dias: lin(t, c0, c1) * 9 };
   const G = T.diluvios(R, t, o), cof = G.cofre ?? [118, 120];
-  // la cuenta: nueve soles, cada uno con su luna, y la cifra
-  const n = Math.max(0, Math.min(9, Math.floor((t - c0) / (c1 - c0) * 9 + 1e-6)));
-  for (let k = 0; k < 9; k++) { const x = 13 + k * 11, y = 66, on = k < n, nuevo = on && t - dia(k + 1) < 0.22;
-    R.disco(x, y, 4, K); R.disco(x, y, 3, on ? hex('#ffd24a') : hex('#4a5068')); if (on) { R.pset(x - 1, y - 1, hex('#fff6c0')); if (nuevo) for (let q = 0; q < 8; q++) { const a2 = q * Math.PI / 4; R.pset(Math.round(x + Math.cos(a2) * 6), Math.round(y + Math.sin(a2) * 6), AM); } }
-    R.disco(x, y + 10, 3, K); R.disco(x, y + 10, 2, on ? hex('#e8ecf8') : hex('#4a5068')); if (on) R.disco(x + 1, y + 9, 1, hex('#5a6488')); }
-  if (n > 0) { const b = t - dia(n) < 0.2 ? 2 : 0; R.numero(String(n), 12, 54 - b, { tam: 16 }); }
+  // la cuenta (nueve soles, cada uno con su luna a media jornada, y la cifra) la pinta el decorado con o.dias
   // el cofre: los herrajes brillan a «chest»
   if (t > cofreT - 0.1) { const b = Math.sin((t - cofreT) * 9); if (b > -0.2) { estrella(cof[0] - 16, cof[1] + 10, AM); if (b > 0.4) chispa(cof[0] + 18, cof[1] + 2, 3); } }
   T.diluviosDelante(R, t, o);

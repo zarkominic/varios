@@ -19,8 +19,10 @@
 // 4. ladera/corte en plano azul («según ellos»): el radar dibuja las rectas; un barrido las explica con capas y grietas
 //    naturales de roca, que dan las mismas rectas; el martillo de geólogo da tres golpes;
 // 5. hoy/lista: la geóloga de fuera entra, se pregunta «?», va hasta debajo de la primera ficha (la excavación abierta) y
-//    la señala: casilla vacía; llama a dos colegas de fuera del equipo, que entran con su pala y su maletín («from
-//    outside the team»): Collins planta la pala, el geólogo deja el maletín y los tres miran la ficha;
+//    la señala: casilla vacía; llama a dos colegas de fuera del equipo, que entran con su pala en la mano, en alto, y su maletín en
+//    la mano («from outside the team») y se paran a mirar la ficha: NADA ha empezado (ni plantan la pala ni dejan el
+//    maletín); al geólogo le sale un «?», Collins mira la casilla sin soltar la pala, la geóloga calla y sigue señalando, y
+//    la casilla sigue sin marcar, con su «?» dentro, que late: esperan;
 // 6. hoy/geologo/laboratorio vacío: la madera en su carro, sin datar (tres aros vacíos); lo de las marcas de corte, en una
 //    ficha azul («según ellos»); un robot de limpieza pasa traqueteando;
 // 7. hoy/geologo: Collins pasa la lupa por la bandeja vacía, la deja, levanta la bandeja para mirar debajo (nada) y la
@@ -152,21 +154,23 @@ const p5 = (t) => {
   T.hoy(R, t, o);
   const luz = t > abierta, SU = 172;
   if (luz) { marco(19, 27, 71, 89, AMBAR, t, 2); if (Math.floor(t * 4) % 2) marco(25, 66, 41, 82, ROJO, t, 1); }
-  // los dos colegas de fuera del equipo: entran por la derecha con la pala y el maletín y se plantan a mirar la ficha
+  // los dos colegas de fuera del equipo: entran por la derecha, Collins con la pala en la mano, en alto, y el geólogo con el maletín
+  // en la mano, y se paran a mirar la ficha. La excavación NO ha ocurrido: ni plantan la pala ni dejan el maletín; esperan
   const w = Math.min(1, Math.max(0, (t - abierta - 0.35) / (fuera - 0.1 - abierta - 0.35))), llegan = w >= 1;
-  const cx = Math.round(lerp(338, 150, w)), mx2 = Math.round(lerp(366, 182, w)), deja = tramo(t, fuera + 0.2, fuera + 0.4), asiente = llegan && t > fuera + 0.6 ? Math.max(0, Math.round(Math.sin((t - fuera - 0.6) * 9))) : 0;
-  const ge2 = R.actor(EL.geologo2NX, mx2, SU, t, { dir: -1, anda: w > 0 && !llegan, ...(deja < 1 ? { sostiene: [mx2 - 7, Math.round(lerp(162, 168, deja))] } : { dedo: t > fuera + 0.9 }), salto: asiente });
-  if (deja < 1) { const [hx, hy] = ge2.mano ?? [mx2 - 7, 162]; maletin(hx, hy + 9); } else maletin(mx2 - 12, SU);
-  const co = R.actor(EL.collins, cx, SU, t, { dir: -1, anda: w > 0 && !llegan, sostiene: [cx - 8, 157], sonrisa: llegan });
-  { const [hx] = co.mano ?? [cx - 8, 157], planta = llegan ? 1 : 0; pala(hx, SU - 3 + planta * 3 - (w > 0 && !llegan ? Math.floor(t * 5) % 2 : 0));
-    if (llegan && t < fuera + 0.2) for (let q = 0; q < 4; q++) R.pset(hx - 4 + q * 3, SU - Math.round((t - fuera + 0.1) * 12) - (q & 1), hex('#e8d8b8')); }
+  const cx = Math.round(lerp(338, 150, w)), mx2 = Math.round(lerp(366, 182, w)), duda = llegan && t > fuera + 0.3;
+  const ge2 = R.actor(EL.geologo2NX, mx2, SU, t, { dir: -1, anda: w > 0 && !llegan, sostiene: [mx2 - 7, 162], sorpresa: duda && t < fuera + 0.8 });
+  { const [hx, hy] = ge2.mano ?? [mx2 - 7, 162]; maletin(hx, hy + 9); }
+  if (duda) R.bocadillo(ge2.cabeza[0], ge2.cabeza[1] - 5, { icono: '?' });
+  const co = R.actor(EL.collins, cx, SU, t, { dir: -1, sostiene: [cx - 8, 153], anda: w > 0 && !llegan, sorpresa: duda && t < fuera + 0.7 });
+  { const [hx, hy] = co.mano ?? [cx - 8, 153]; pala(hx, hy + 9 - (w > 0 && !llegan ? Math.floor(t * 5) % 2 : 0)); }   // en alto, la hoja lejos del suelo
   // la geóloga: entra, se pregunta, va hasta debajo de la ficha y la señala; llama a los colegas y vuelve a señalarla
-  const v = tramo(t, P5 + 0.1, abierta - 0.2), gx = Math.round(lerp(232, 77, v)), llama = t > arq - 0.1 && t < fuera - 0.15;
-  const ge = R.actor(EL.geologa3NX, gx, SU, t, { dir: llama ? 1 : -1, anda: v > 0 && v < 1, dedo: luz && !llama, brazos: llama && Math.sin(t * 9) > -0.4, habla: luz && Math.sin(t * 8) > 0, sonrisa: llegan });
+  const v = tramo(t, P5 + 0.1, abierta - 0.2), gx = Math.round(lerp(232, 77, v)), llama = t > arq - 0.1 && t < fuera - 0.15, calla = t > fuera + 0.75;   // al final calla y sigue señalando la casilla: nadie lo ha hecho aún
+  const ge = R.actor(EL.geologa3NX, gx, SU, t, { dir: llama ? 1 : -1, anda: v > 0 && v < 1, dedo: luz && !llama, brazos: llama && Math.sin(t * 9) > -0.4, habla: luz && !calla && Math.sin(t * 8) > 0, triste: calla });
   if (t > que - 0.3 && t < abierta) R.bocadillo(ge.cabeza[0], ge.cabeza[1] - 5, { icono: '?' });
   if (luz && t > fuera - 1.2) for (let k = 0; k < 3; k++) { const e = (t * 1.2 + k / 3) % 1; R.pset(46 + Math.round(Math.cos(k * 2.1) * (6 + e * 22)), 58 + Math.round(Math.sin(k * 2.1) * (6 + e * 22)), AMBAR); }
-  // la casilla, vacía: lo señalan los tres y sigue sin marcar
-  if (t > fuera + 0.5) { aro(33, 74, 12, ROJO, t, 2); if (Math.floor(t * 3) % 2) R.icono('?', 44, 62, ROJO, hex('#f6d8d0'), 1); }
+  // la casilla, sin marcar, con su «?» dentro desde que se enciende la ficha: la miran los tres y sigue pendiente
+  if (luz) R.icono('?', 28, 67, Math.sin(t * 6) > 0 ? ROJO : ROJOS, hex('#f6d8d0'), 2);   // el «?» no se apaga nunca: solo late de color
+  if (t > fuera + 0.5) aro(33, 74, 12, ROJO, t, 2);
   T.hoyDelante(R, t, o);
 };
 
@@ -239,7 +243,7 @@ const p8 = (t) => {
 // 9 · la ladera, esperando
 const LADRA = P9 + 1.7, FAROL = E.duracion - 1.15;
 const p9 = (t) => {
-  const o = { epoca: 2026, hora: 'tarde' };
+  const o = { epoca: 2026, hora: 'tarde', gente: false };   // la ladera sin nadie: solo el pastor de la escena
   T.ladera(R, t, o);
   // el rebaño vuelve a casa por la terraza, con su perro
   const u = (t - P9) / (E.duracion - P9), fx = Math.round(lerp(44, 168, u)), para = t > FAROL - 0.5, lad = t > LADRA && t < LADRA + 0.45 ? Math.round(Math.abs(Math.sin((t - LADRA) * 14)) * 3) : 0;
@@ -259,12 +263,12 @@ const p9 = (t) => {
 };
 
 // cada efecto va con algo que se ve: el megáfono que pregona, el sello, las notas que caen, los toques a la revista, los
-// huecos vacíos, la cinta, el radar que traza, los golpes del martillo, la pala y el maletín, el robot, la lupa y la
+// huecos vacíos, la cinta, el radar que traza, los golpes del martillo, el «?» del colega de fuera, el robot, la lupa y la
 // bandeja, el reloj, los meses, el sello que espera, el ladrido y el farol (la esquila de la oveja guía no suena:
 // la receta «campana» es una campana de bronce)
 const efectos = [[0.55, 'aviso'], [confirmado, 'sello'], [notas + 0.3, 'papel'], [notas + 1.34, 'papel'], [revista, 'toc'], [revista + 0.5, 'toc'], [expertos + 0.1, 'tic'], [expertos + 0.8, 'tic'], [otraNota, 'papel'],
   [mete + 0.2, 'papel'], [enviado, 'maquina'], [noLlegan + 0.2, 'tic'], [P4 + 0.3, 'bip'], [P4 + 0.8, 'lapiz'], [capas - 0.3, 'whoosh'], [capas + GOLPE, 'toc'], [capas + GOLPE * 2, 'toc'], [capas + GOLPE * 3, 'toc'],
-  [que, 'pop'], [abierta, 'interruptor'], [fuera - 0.1, 'toc'], [fuera + 0.4, 'toc'], [P6 + 0.3, 'maquina'], [dice + 0.1, 'papel'], [cortes, 'lapiz'],
+  [que, 'pop'], [abierta, 'interruptor'], [fuera + 0.3, 'pop'], [P6 + 0.3, 'maquina'], [dice + 0.1, 'papel'], [cortes, 'lapiz'],
   [nadie, 'pop'], [nadie + 1.2, 'toc'], [nadie + 2.7, 'golpecito'], [publicado, 'pop'], [publicado + 0.95, 'tic'], [publicado + 1.5, 'tic'], [v2027, 'tic'], [siPermiso + 0.1, 'golpecito'],
   [P9 + 0.4, 'viento'], [LADRA, 'guau'], [FAROL, 'interruptor']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9]], { efectos, año: 2026 });

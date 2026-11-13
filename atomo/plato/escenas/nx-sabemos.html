@@ -23,8 +23,8 @@
 // 3. dentro de la forma (2026, de día): a un lado la geóloga golpea con el martillo una roca que asoma, al otro el técnico empuja
 //    el radar; en «shaped like a ship» una línea de luz recorre las dos bordas hasta la proa y los dos se vuelven a mirar;
 // 4. el corte de geología: la geóloga da un golpecito de martillo en la orilla, lo explica y Collins asiente; en «explain it» un trazo de luz
-//    recorre la capa dura plegada, de borde a borde; en «without needing any ship» el recuadro «visto desde arriba» se
-//    enmarca y recibe su marca de visto;
+//    recorre la capa dura plegada, de borde a borde; en «without needing any ship» la marca de visto cae en el centro del
+//    cuenco, sobre los estratos ya explicados (el corte va sin el recuadro: recuadro false);
 // 5. el plano azul, «según ellos»: el fundador y el arqueólogo llegan a la orilla; el fundador lo cuenta (su globo con
 //    las rectas ámbar) y los pasillos se trazan en «found something underneath»; en «not yet proved» cae encima un «?»
 //    grande, que se queda latiendo; el arqueólogo se encoge y al globo le sale su «?» pequeño. Las barras siguen a
@@ -189,19 +189,18 @@ const p3 = (t) => {
 const GEOS = w2(18.11), EXPL = w2(18.91), SIN = w2(19.71), NINGUN = w2(20.45);
 const yDura = (x) => 78 + 56 * Math.cos(Math.max(-2, Math.min(2, (x - 172) / 84)) * Math.PI / 2);
 const p4 = (t) => {
-  const o = { encuadre: 'corte', fase: 3 };
+  const o = { encuadre: 'corte', fase: 3, recuadro: false };
   T.ladera(R, t, o);
   // el trazo de luz que recorre la capa dura, de borde a borde
   const u = tramo(t, EXPL - 0.15, SIN + 0.25);
   if (u > 0) { const xf = lerp(81, 263, u);
     for (let x = 81; x <= xf; x++) { const y = Math.round(yDura(x)) + 2, cab = u < 1 && x > xf - 7; if (cab || (x + Math.floor(t * 12)) % 5 < 3) { R.pset(x, y, cab ? BL : OROL); R.pset(x, y + 1, cab ? OROL : ORO); R.pset(x, y + 2, hex('#6a2a14')); } }
     if (u < 1) destello(xf, yDura(xf) + 2, 4, BL); }
-  // el recuadro «visto desde arriba» se enmarca y recibe su marca de visto: explicado, sin barco
-  if (t >= NINGUN - 0.1) { const d = t - NINGUN + 0.1, late = d < 0.5 || Math.sin(t * 5) > 0.3, c = late ? OROL : ORO;
-    R.rect(66, 22, 196, 22, c); R.rect(66, 76, 196, 76, c); R.rect(66, 22, 66, 76, c); R.rect(196, 22, 196, 76, c); R.rect(65, 21, 197, 21, K); R.rect(65, 77, 197, 77, K); R.rect(65, 21, 65, 77, K); R.rect(197, 21, 197, 77, K);
-    const q = tramo(t, NINGUN - 0.1, NINGUN + 0.12), r = Math.round(6 + q * 8), cx = 214, cy = 50 - Math.round(Math.sin(q * Math.PI) * 4);
-    R.disco(cx, cy + 1, r + 2, hex('#2a4a6a')); R.disco(cx, cy, r + 1, K); R.disco(cx, cy, r, BL); if (q >= 1) { T.visto(R, cx - 11, cy - 8, 2); }
-    if (d < 0.45) for (let a = 0; a < 12; a++) { const an = a * Math.PI / 6; R.pset(Math.round(cx + Math.cos(an) * (16 + d * 22)), Math.round(cy + Math.sin(an) * (16 + d * 22)), a & 1 ? ORO : hex('#6ad86a')); } }
+  // «without needing any ship»: la marca de visto cae en el centro del cuenco, sobre los estratos: explicado, sin barco
+  if (t >= NINGUN - 0.1) { const d = t - NINGUN + 0.1;
+    const q = tramo(t, NINGUN - 0.1, NINGUN + 0.12), r = Math.round(6 + q * 8), cx = 172, cy = 113 - Math.round(Math.sin(q * Math.PI) * 5) - Math.round((1 - q) * 14), late = q >= 1 && Math.sin(t * 5) > 0.3 ? 1 : 0;
+    R.disco(cx + 1, cy + 2, r + 2, hex('#5a3a22')); R.disco(cx, cy, r + 2 + late, late ? OROL : ORO); R.disco(cx, cy, r + 1, K); R.disco(cx, cy, r, BL); if (q >= 1) { T.visto(R, cx - 11, cy - 8, 2); }
+    if (d < 0.45) for (let a = 0; a < 12; a++) { const an = a * Math.PI / 6; R.pset(Math.round(cx + Math.cos(an) * (17 + d * 22)), Math.round(cy + Math.sin(an) * (17 + d * 14)), a & 1 ? ORO : hex('#6ad86a')); } }
   // la geóloga lo explica desde la orilla, martillo en mano; Collins asiente
   const TAP = P4 + 0.4, gol = Math.max(0, 1 - Math.abs(t - TAP) / 0.1), habla = t >= GEOS - 0.2 && t < NINGUN, asi = t >= NINGUN ? Math.max(0, Math.round(Math.sin((t - NINGUN) * 9) * 1.6)) : 0;
   R.actor(EL.collins, 3, 74, t, { dir: 1, sonrisa: t >= NINGUN, salto: asi });

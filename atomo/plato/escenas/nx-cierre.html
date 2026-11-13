@@ -13,7 +13,7 @@
 // 1. la hoja de las tres casillas: en «Believing», «claiming» y «checking» se enciende cada una (el corazón, el
 //    bocadillo, la lupa) y recibe su número; en «all three fit in this story» una mano con el lápiz las une por debajo
 //    con una sola llave;
-// 2. el escritorio de cerca: una mano deja el titular (un papel con un barco y un «!») en «read»; el «!» bota en «has
+// 2. el escritorio de cerca (el lápiz del borde es el de T.hoyDelante con lupa: false): una mano deja el titular (un papel con un barco y un «!») en «read»; el «!» bota en «has
 //    been found»; otra mano coge la lupa del borde, la pasa por delante de la pecera (agranda al pez, que mira el
 //    barquito) y la pone sobre el titular: en «who has checked it» en el cristal se lee un «?»;
 // 3. el estudio (gag 8), con la pecera pintada aquí algo mayor (radio 31) para que se lea: el pez salta por encima del
@@ -113,8 +113,9 @@ const p2 = (t) => {
   const o = { encuadre: 'estudio', camara: 'mesa', mira: true, gatoMira: 1 };
   T.hoy(R, t, o);
   T.g_barquito(R, 160 + Math.round(Math.sin(t * 0.7) * 6), 109, 21, t, {});
-  // el lápiz del borde
-  R.linea(190, 177, 236, 172, hex('#3a2416')); R.linea(188, 175, 234, 170, hex('#f0c030')); R.linea(188, 174, 234, 169, hex('#fff0a0')); R.linea(188, 176, 234, 171, hex('#b8862a')); R.rect(234, 169, 238, 171, hex('#e88aa0')); R.linea(184, 175, 187, 175, hex('#e8c89a')); R.pset(183, 175, K);
+  // el lápiz del borde lo pinta el decorado (sin su lupa: la de la escena es la que se coge y se mueve); va aquí, antes del
+  // titular y de las manos, para que pasen por encima
+  T.hoyDelante(R, t, { ...o, lupa: false });
   // el titular: una mano lo deja a la derecha en «read»
   const TX = 240, TY = 113, ent = ease(tramo(t, P2 + 0.2, LEES - 0.05)), dx = Math.round((1 - ent) * 92), sal = ease(tramo(t, LEES + 0.1, LEES + 0.7));
   titular(TX + dx, TY, t);
