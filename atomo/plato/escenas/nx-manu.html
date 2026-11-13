@@ -11,7 +11,8 @@
 <script type="module">
 // NX-MANU (frase 15), los diluvios de la India y de Grecia. Cuatro planos (el «india fase 0→1» del reparto son dos
 // composiciones distintas del decorado y va en dos entradas):
-// 1. la orilla (diluvios · india, fase 0): en el río, un pececillo dorado huye de un lucio; a «In India» el lucio se
+// 1. la orilla (diluvios · india, fase 0): en el río, un pececillo dorado huye de un lucio (verde oliva, con su espuma
+//    y la uve que abre en el agua, para que se lea sobre el azul); a «In India» el lucio se
 //    lanza, el pececillo salta fuera del agua y cae en el cuenco de cobre (salpicón), donde nada en círculos y crece;
 // 2. el estanque (fase 1): el pez, ya en el estanque del templo, crece a golpes (a «saved», «tiny fish» y «the fish»)
 //    con sus ondas, hasta que no cabe y el agua salta por los bordes; la figurita diminuta de la grada da un respingo;
@@ -20,6 +21,8 @@
 //    peñasco;
 // 4. Grecia (india/grecia): el cofre deriva bajo la tormenta; a «floated for nine days» se encienden uno a uno nueve
 //    soles con su luna y la cifra sube hasta 9; a «chest» brillan los herrajes.
+// Efectos: 10 en 17,9 s, sin rellenos (el salto, el chapuzón, un estirón, el desborde, lluvia, trueno, dos olas, el noveno
+// día y el brillo): suenan el ~50 % del tiempo.
 import * as T from '/atomo/plato/escenas/nx-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nx-manu');
@@ -58,9 +61,11 @@ const india = m(0.1237), cuenta = m(0.216);
 const salto0 = india + 0.2, salto1 = salto0 + 0.8;
 // el lucio: bajo el agua solo se le ve el lomo y la aleta; al lanzarse (mm 0–1) saca la cabeza con la boca abierta
 const lucio = (x, y, mm, t) => {
-  x = Math.round(x); y = Math.round(y); const L1 = hex('#3e5a52'), L2 = hex('#6a8a78'), L3 = hex('#c8d8c0');
+  x = Math.round(x); y = Math.round(y); const L1 = hex('#5c7a34'), L2 = hex('#a8c060'), L3 = hex('#e0e8b8');   // verde oliva con motas claras: se lee sobre el agua azul
   // el lomo que asoma (con su filo oscuro), la sombra del cuerpo bajo el agua, la aleta y la cola
   for (let i = -24; i <= 12; i++) { const u = (i + 6) / 18, hgt = Math.round(Math.sqrt(Math.max(0, 1 - u * u)) * 3.4); for (let j = 0; j <= hgt; j++) R.pset(x + i, y - j, j === hgt ? K : (i * 3 + j) % 5 === 0 ? L2 : L1); for (let j = 1; j <= 3; j++) if ((i + j) & 1) R.pset(x + i, y + j, L1); }
+  for (let i = -22; i <= 16; i++) if ((i + Math.floor(t * 9)) % 3 === 0) R.pset(x + i, y + 1, hex('#e8f4f8'));   // la espuma de la línea de agua
+  for (let k = 1; k <= 3; k++) { R.pset(x + 13 + k * 2, y - k, BL); R.pset(x + 13 + k * 2, y + 1 + k, hex('#d8ecf4')); }   // la uve que abre al avanzar
   R.poligono([[x - 12, y - 2], [x - 6, y - 9 - Math.round(Math.sin(t * 6))], [x - 1, y - 2]], K); R.poligono([[x - 10, y - 2], [x - 6, y - 7 - Math.round(Math.sin(t * 6))], [x - 3, y - 2]], L2);
   { const c = Math.round(Math.sin(t * 7) * 2); R.poligono([[x - 26, y], [x - 33, y - 5 + c], [x - 31, y], [x - 33, y + 4 + c]], K); }
   if (mm <= 0.02) { R.pset(x + 9, y - 1, AM); R.pset(x + 10, y - 1, K); }
@@ -161,8 +166,10 @@ const p4 = (t) => {
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], {
   año: (t) => (t < P4 ? -700 : -500),
-  efectos: [[salto0, 'chof'], [salto1, 'burbujas'], [crece[0], 'pop'], [crece[1], 'burbujas'], [crece[2], 'chof'],
-    [P3 + 0.15, 'lluvia'], [flood, 'trueno'], [remolca, 'ola'], [P4 + 0.15, 'ola'], [dia(1), 'tic'], [dia(5), 'tic'], [dia(9), 'tic'], [cofreT, 'brillo']],
+  // el salto fuera del río y el chapuzón en el cuenco; el estirón de «tiny fish» y el agua que se sale; la lluvia, el trueno y el
+  // tirón del remolque; la ola que mece el cofre, el noveno día y el brillo de los herrajes
+  efectos: [[salto0, 'chof'], [salto1, 'chof'], [crece[1], 'pop'], [crece[2], 'chof'],
+    [P3 + 0.15, 'lluvia'], [flood, 'trueno'], [remolca, 'ola'], [P4 + 0.15, 'ola'], [dia(9), 'tic'], [cofreT, 'brillo']],
 });
 </script>
 </body>

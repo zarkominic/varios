@@ -229,9 +229,10 @@ const muchos = w(0.895), noAcep = w(0.93), aceptan = w(0.955);
 const PL = hex('#8ac0f0'), PF = hex('#14284e'), PM = hex('#1e3a6a');
 const LAGO = [[138, 52], [148, 42], [166, 38], [182, 44], [196, 48], [212, 40], [230, 42], [243, 52], [237, 63], [220, 69], [200, 65], [184, 67], [166, 71], [148, 65]];
 const p7 = (t) => {
-  const o = { encuadre: 'azul', duda: lin(t, P7 + 0.25, muchos + 0.1) };
+  const o = { encuadre: 'azul', duda: lin(t, P7 + 0.25, muchos + 0.1), silueta: false };
   const G = T.vistas(R, t, o);
-  // la ficha del mar Negro, clavada sobre la silueta: de lo que se duda aquí es de esto
+  // PARCHE DECORADO: vistas (azul) dibuja la silueta de la roca y aquí se habla del mar Negro; hasta que el decorado
+  // atienda o.silueta false, la ficha del mar Negro la tapa (después la ficha se queda: es el objeto del plano)
   R.rect(96, 27, 260, 82, PL); R.rect(97, 28, 259, 81, PF);
   for (let y = 28; y <= 81; y++) for (let x = 97; x <= 259; x++) if ((x % 16 === 0 || y % 16 === 0) && (x + y) % 2 === 0) R.pset(x, y, PM);
   R.poligono(LAGO, PM);

@@ -14,15 +14,18 @@
 //    luz recorre el contorno de la roca y él le hace una foto; en «as long as the ark» se dibuja encima, de proa a popa,
 //    la silueta de un barco de madera (vacío: una comparación), igual de larga; la regla se tiende y marca «300» (codos);
 // 2. (2026) dentro de la forma: el fundador del grupo entra y señala («insist»: su globo con un barco); la geóloga da dos
-//    golpes de martillo a una roca («Geologists»), se vuelve, niega con la cabeza y su globo dice: una piedra;
+//    golpes de martillo a una roca («Geologists»), deja el martillo apoyado en ella, se vuelve y NIEGA: seis giros de
+//    cabeza con sus rayitas y un globo con el barco tachado en rojo, que en «just a rock» cambia a una piedra;
 // 3. (2026) el corte del sondeo: en «2026» el técnico da la orden y el tubo empieza a bajar (no llega a nada); en «back
 //    in the news» el arqueólogo levanta la nota de prensa (con su «?») y saltan dos destellos de cámara;
 // 4. (2026) el tablero de corcho del estudio: Atom baja de su esquina y recorre las cuatro fichas: en cada casilla vacía
 //    se enciende un «?» («Nobody has confirmed it»); en «why» Atom gira en el centro y vuelve a su sitio;
-// 5. (1872) la tablilla sobre el fieltro: una mano la limpia con el pincel; en «surprise» un brillo la recorre y las
-//    cuñas destellan; en «confirmed» cae una etiqueta con la marca de visto;
+// 5. (1872) la tablilla sobre el fieltro: una mano la limpia con el pincel, en dos pasadas largas que levantan polvo (se
+//    oyen); en «surprise» un brillo la recorre y las cuñas destellan; en «confirmed» cae una etiqueta con la marca de visto;
 // 6. (2026) los tres libros cerrados, iguales, y la tablilla: en «older» la tablilla (solo ella) gana un halo y suelta
-//    polvo; en «told by peoples» van llegando los oyentes de espaldas, de muchos lugares.
+//    polvo; en «told by peoples» llegan los oyentes de espaldas, de muchos lugares (murmullo), y en «far apart» tres de
+//    ellos, en tres puntos alejados de la fila, se cuentan lo mismo: tres globos con el mismo barco.
+// Efectos: 22 en 29,8 s, cada uno con algo que se ve (suenan el ~46 % del tiempo).
 import * as T from '/atomo/plato/escenas/nx-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nx-gancho');
@@ -111,7 +114,7 @@ const p1 = (t) => {
 };
 
 // ── 2 · dentro de la forma: uno señala, la otra niega ────────────────────────────────────────────────────────────────
-const INSIST = w1(8.13), NOE = w1(8.83), GEO = w1(10.2), GEO2 = w1(10.62), SOLO = w1(11.16);
+const INSIST = w1(8.13), NOE = w1(8.83), GEO = w1(10.2), GEO2 = w1(10.62), SOLO = w1(11.16), DEJA = GEO2 + 0.16, NIEGA = SOLO - 0.26, ROCA_T = SOLO + 0.22;
 const ROCA = ['.....kkkkkk.......', '...kkLLLLRRkkk....', '..kLLLRRRRRRRRkk..', '.kLLRRRRRkRRRRRRk.', '.kLRRRRRRRkRRRrrk.', 'kLRRRkRRRRRRRrrrrk', 'kRRRRRkRRRRRrrrrrk', 'kRRRRRRRRRRrrrrrrk', 'kRRrRRRRRrrrrrrrrk', 'kkrrrrrrrrrrrrrkkk', '..kkkkkkkkkkkkk...'];
 const PIEDRA = ['...kkkkk....', '.kkLLLLRkk..', 'kLLLRRRRRRk.', 'kLRRRRRRrrrk', 'kRRRRRRrrrrk', 'kRRRrrrrrrrk', '.kkrrrrrrkk.', '...kkkkkk...'];
 const PALR = { k: K, L: hex('#d89a78'), R: hex('#b06a4c'), r: hex('#7e4634') };
@@ -122,18 +125,27 @@ const p2 = (t) => {
   for (let i = 0; i < 22; i++) if (i & 1) R.pset(231 + i, 161, hex('#5a4030'));
   R.dibujo(ROCA, 232, 150, 1, PALR);
   // el fundador llega y señala: «insist it is Noah's Ark»
-  const lle = tramo(t, P2 + 0.4, P2 + 1.1), cerca = tramo(t, GEO - 0.2, GEO + 0.45), fx = Math.round(lerp(34, 96, ease(lle)) + 16 * cerca), ins = (t >= INSIST - 0.1 && t < GEO - 0.3) || t >= SOLO + 0.95;
+  const lle = tramo(t, P2 + 0.4, P2 + 1.1), cerca = tramo(t, GEO - 0.2, GEO + 0.45), fx = Math.round(lerp(34, 96, ease(lle)) + 16 * cerca), ins = (t >= INSIST - 0.1 && t < GEO - 0.3) || t >= NIEGA + 1.08;
   R.actor(EL.fundadorNX, fx, 160, t, { dir: 1, anda: (lle > 0 && lle < 1) || (cerca > 0 && cerca < 1), dedo: ins, habla: ins, sonrisa: ins, salto: t >= NOE && t < NOE + 0.4 ? Math.round(Math.sin((t - NOE) / 0.4 * Math.PI) * 4) : 0 });
   if (t >= NOE - 0.05) { const q = tramo(t, NOE - 0.05, NOE + 0.15), by = Math.round(118 - q * 6); globo(fx + 9, by, 13, 10, fx + 8); R.icono('barco', fx + 3, by - 6, hex('#8a5a2c'), hex('#d8c8a8'), 2); }
   // la geóloga: dos golpes de martillo a la roca, se vuelve y niega con la cabeza
-  const gx = 206, alza = tramo(t, GEO - 0.5, GEO - 0.15), gol = Math.max(0, 1 - Math.abs(t - GEO) / 0.1, 1 - Math.abs(t - GEO2) / 0.1), vuelta = t >= SOLO - 0.2;
-  const niega = t >= SOLO && t < SOLO + 0.95 ? Math.round(Math.sin((t - SOLO) * Math.PI * 2 * 3.2) * 2) : 0;
-  const mano = vuelta ? [gx - 6, 153] : [gx + 21, Math.round(lerp(147, 139, alza) + gol * 9)];
-  const ge = R.actor(EL.geologa3NX, gx + niega, 160, t, { dir: vuelta ? -1 : 1, sostiene: mano, habla: t >= SOLO && t < SOLO + 0.95 });
-  if (ge && ge.mano) { const [mx, my] = ge.mano; PZ.martillo(R, mx + (vuelta ? -4 : 3), my + (vuelta ? 4 : 7), { dir: vuelta ? -1 : 1 }); }
+  // (la negación es el giro de cabeza de th-dedo: seis medias vueltas de 0,17 s, con el cuerpo en su sitio; el martillo
+  // se queda apoyado en la roca para que no salte de lado en cada giro)
+  const gx = 206, alza = tramo(t, GEO - 0.5, GEO - 0.15), gol = Math.max(0, 1 - Math.abs(t - GEO) / 0.1, 1 - Math.abs(t - GEO2) / 0.1), vuelta = t >= DEJA;
+  const niega = t >= NIEGA && t < NIEGA + 1.08, lado = Math.floor((t - NIEGA) / 0.18) % 2;
+  const posa = tramo(t, DEJA - 0.16, DEJA), mano = [gx + 21 + Math.round(posa * 3), Math.round(lerp(147, 139, alza) + gol * 9 + posa * 6)];
+  // el martillo, ya tumbado sobre la roca: el mango azul y la cabeza de acero, con su sombra
+  if (vuelta) { R.rect(231, 148, 244, 151, K); R.rect(232, 149, 243, 150, hex('#3a5aa8')); R.rect(232, 149, 243, 149, hex('#6a8ad8')); R.rect(243, 145, 248, 153, K); R.rect(244, 146, 247, 152, hex('#aab4c8')); R.rect(244, 146, 245, 152, hex('#e4eaf4')); R.rect(249, 148, 251, 150, K); R.rect(248, 149, 250, 149, hex('#aab4c8')); }
+  const ge = R.actor(EL.geologa3NX, gx + (niega ? (lado ? 1 : -1) : 0), 160, t, { dir: !vuelta ? 1 : niega && lado ? 1 : -1, sostiene: vuelta ? false : mano, sinObjeto: true, habla: niega });
+  if (!vuelta && ge && ge.mano) { const [mx, my] = ge.mano; PZ.martillo(R, mx + 3, my + 7, { dir: 1 }); }
+  // las rayitas del giro, a los lados de la cabeza
+  if (niega) for (const d of [-1, 1]) { const px = gx + 6 + d * (13 + (lado ? 1 : 0)); R.rect(px, 139, px, 141, K); R.rect(px + d * 2, 137, px + d * 2, 143, K); }
   for (const g0 of [GEO, GEO2]) if (t >= g0 && t < g0 + 0.4) { const d = (t - g0) / 0.4; destello(236, 149, d < 0.3 ? 3 : 1, BL);
     for (let k = 0; k < 6; k++) { const an = -0.4 - k * 0.45; R.pset(Math.round(236 + Math.cos(an) * d * (10 + k * 2)), Math.round(149 + Math.sin(an) * d * 12 + d * d * 14), k & 1 ? PALR.L : PALR.r); } }
-  if (t >= SOLO - 0.05) { const q = tramo(t, SOLO - 0.05, SOLO + 0.15), by = Math.round(118 - q * 6); globo(gx + 6, by, 13, 10, gx + 8); R.dibujo(PIEDRA, gx, by - 4, 1, PALR); }
+  // su globo: primero el barco tachado («no»), y en «just a rock» la piedra
+  if (t >= NIEGA - 0.1) { const q = tramo(t, NIEGA - 0.1, NIEGA + 0.1), by = Math.round(118 - q * 6), cam = t >= ROCA_T ? Math.round(Math.sin(tramo(t, ROCA_T, ROCA_T + 0.2) * Math.PI) * 2) : 0; globo(gx + 6, by - cam, 13, 10, gx + 8);
+    if (t < ROCA_T) { R.icono('barco', gx, by - 6, hex('#8a5a2c'), hex('#d8c8a8'), 2); const xx = gx - 3, yy = by - 7; for (let i = 0; i <= 14; i++) for (const d of [0, 1, 2]) { R.pset(xx + 2 + i + d, yy + i, d === 1 ? ROJO : K); R.pset(xx + 18 - i - d, yy + i, d === 1 ? ROJO : K); } }
+    else R.dibujo(PIEDRA, gx, by - 4 - cam, 1, PALR); }
   T.laderaDelante(R, t, o);
 };
 
@@ -200,22 +212,23 @@ const p5 = (t) => {
     if (t >= SI) { T.visto(R, x0 + 16, y0 + 9, 2); if (t < SI + 0.35) { const d = (t - SI) / 0.35; for (let a = 0; a < 10; a++) { const an = a * Math.PI / 5; R.pset(Math.round(x0 + 26 + Math.cos(an) * (14 + d * 12)), Math.round(y0 + 12 + Math.sin(an) * (9 + d * 8)), a & 1 ? ORO : hex('#6ad86a')); } } } }
   // la mano que la limpia con el pincel: barre el borde, se para en «surprise» y se aparta
   const barre = t < SORP - 0.25, fuera = ease(tramo(t, SORP - 0.25, SORP + 0.25)), vai = barre ? Math.sin((t - P5) * 5.2) : 0;
-  const wx = Math.round(lerp(80 + vai * 7, 62, fuera)), wy = Math.round(lerp(148 - vai * 3, 157, fuera));
+  const wx = Math.round(lerp(84 + vai * 12, 62, fuera)), wy = Math.round(lerp(146 - vai * 5, 157, fuera));
   // el pincel: el mango, la virola y las cerdas, que salen del puño hacia la tablilla
   const px1 = wx + 27, py1 = wy - 15;
   for (let i = 0; i <= 20; i++) { const x = Math.round(lerp(wx + 3, px1 - 6, i / 20)), y = Math.round(lerp(wy - 1, py1 + 3, i / 20)); R.rect(x - 1, y - 2, x + 2, y + 2, K); }
   for (let i = 0; i <= 20; i++) { const x = Math.round(lerp(wx + 3, px1 - 6, i / 20)), y = Math.round(lerp(wy - 1, py1 + 3, i / 20)); R.rect(x, y - 1, x + 1, y + 1, i > 15 ? hex('#c8c8d0') : hex('#a8642a')); R.pset(x, y - 1, i > 15 ? BL : hex('#d8943a')); }
   for (let i = 0; i < 7; i++) { const x = px1 - 5 + i, y = py1 + 3 - Math.round(i * 0.55); R.rect(x - 1, y - 3, x + 1, y + 2, K); }
   for (let i = 0; i < 7; i++) { const x = px1 - 5 + i, y = py1 + 3 - Math.round(i * 0.55); R.rect(x, y - 2, x, y + 1, i > 4 ? hex('#f4e4b8') : hex('#d8b878')); }
-  T.brazo(R, 26, 181, wx, wy, '#3e4e74', 1, { codo: [44, 170] });
+  T.brazo(R, wx - 30, 183, wx, wy, '#3e4e74', 1, { codo: [wx - 19, 171] });   // el hombro va con la muñeca: se ven unos 45 px de manga
   if (barre) for (let k = 0; k < 7; k++) { const f = (t * 1.6 + hh(k, 4, 9)) % 1; R.pset(Math.round(px1 + 2 + f * (8 + hh(k, 5, 9) * 14)), Math.round(py1 - f * (6 + hh(k, 6, 9) * 10) + f * f * 8), k & 1 ? hex('#e4c090') : hex('#c89a6a')); }
   T.museoDelante(R, t, o);
 };
 
 // ── 6 · tres libros y una tablilla más vieja ─────────────────────────────────────────────────────────────────────────
-const VIEJA = w2(24.5), PUEBLOS = w2(26.45), LEJOS = w2(28.4);
+const VIEJA = w2(24.5), PUEBLOS = w2(26.45), LEJOS = w2(28.4), GENTE1 = PUEBLOS + 1.0;
+const CUENTAN = [[57, GENTE1 + 0.05], [173, GENTE1 + 0.5], [263, LEJOS]];   // los oyentes 2, 7 y 11 de la fila del decorado
 const p6 = (t) => {
-  const o = { encuadre: 'diluvio', camara: 'libros', cuantos: 3, tablilla: true, gente: ease(tramo(t, PUEBLOS - 0.3, LEJOS)) };
+  const o = { encuadre: 'diluvio', camara: 'libros', cuantos: 3, tablilla: true, gente: ease(tramo(t, PUEBLOS - 0.3, GENTE1)) };
   T.relato(R, t, o);
   // el halo de la tablilla (solo ella: los tres libros quedan con la misma luz) y el polvo que suelta
   const a = tramo(t, VIEJA - 0.1, VIEJA + 0.5), X0 = 268, X1 = 302, Y0 = 95, Y1 = 138;
@@ -225,9 +238,17 @@ const p6 = (t) => {
     for (let k = 0; k < 5; k++) { const f = (t * 0.9 + hh(k, 1, 6) * 2) % 1.2; if (f < 0.45) destello(X0 + 4 + hh(k, 2, 6) * 26, Y0 + 5 + hh(k, 3, 6) * 34, f < 0.1 || f > 0.35 ? 1 : 2, k & 1 ? BL : OROL); }
     for (let k = 0; k < 8; k++) { const f = (t * 0.5 + hh(k, 4, 6)) % 1; R.pset(Math.round(X0 + 2 + hh(k, 5, 6) * 30 + Math.sin(t * 2 + k) * 2), Math.round(Y1 + 1 + f * 9), f < 0.6 ? hex('#e4c090') : hex('#b89a70')); } }
   T.relatoDelante(R, t, o);
+  // los oyentes se lo cuentan: tres bocadillos con el mismo barco, en tres puntos alejados de la fila («far apart»)
+  CUENTAN.forEach(([x, t0], k) => { if (t < t0) return; const q = tramo(t, t0, t0 + 0.18), cy = Math.round(155 - q * 3) - (Math.sin(t * 5 + k * 2) > 0.5 ? 1 : 0);
+    globo(x, cy, 12, 9, x - 2); R.icono('barco', x - 6, cy - 6, hex('#8a5a2c'), hex('#d8c8a8'), 2); });
 };
 
-const efectos = [[TRAZA, 'brillo'], [BARCO + 0.13, 'flash'], [POSA, 'golpecito'], [NOE, 'pop'], [GEO, 'toc'], [GEO2, 'toc'], [Y26 + 0.35, 'arranque'], [NOTI, 'flash'], [NADIE + 0.05, 'bip'], [WHY - 0.1, 'pop'], [SORP - 0.1, 'brillo'], [SI, 'sello']];
+// cada efecto va con algo que se ve: el trazo, la foto, el barco que se posa, la cifra de la regla; el globo, los dos
+// martillazos; la perforadora, la nota que se levanta, los dos fogonazos; dos de los «?», el giro de Atom y su vuelta;
+// las dos pasadas del pincel, el brillo, la etiqueta; el halo de la tablilla, el murmullo de los oyentes y su último globo
+const efectos = [[TRAZA, 'brillo'], [BARCO + 0.13, 'flash'], [POSA, 'golpecito'], [GEN, 'tic'], [NOE, 'pop'], [GEO, 'toc'], [GEO2, 'toc'],
+  [Y26 + 0.35, 'arranque'], [VUELVE - 0.1, 'papel'], [NOTI, 'flash'], [FL2, 'flash'], [NADIE + 0.05, 'bip'], [TQ[2], 'bip'], [WHY - 0.1, 'pop'], [WHY + 0.75, 'whoosh'],
+  [P5 + 0.3, 'papel'], [P5 + 1.0, 'papel'], [SORP - 0.1, 'brillo'], [SI, 'sello'], [VIEJA, 'aviso'], [PUEBLOS - 0.3, 'publico', { dur: 2.2 }], [LEJOS, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t >= P5 && t < P6 ? 1872 : 2026) });
 </script>
 </body>

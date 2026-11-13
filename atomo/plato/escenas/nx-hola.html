@@ -11,8 +11,9 @@
 <script type="module">
 // NX-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom, con la pecera en el escritorio (gag 1). Atom ha bajado con
 // un barquito de papel; bota en «I'm Atom»; en «explain» lo lleva sobre la pecera y lo suelta: chapuzón, el pez huye al
-// fondo; en «wondered about» el pez sube, se para debajo y lo mira con desconfianza (un «?» sobre la pecera) y se aparta;
-// en «Let's find out» Atom vuelve de un salto a su esquina, con su estela.
+// fondo; en «wondered about» el pez sube, se para debajo y lo mira con desconfianza (un «?» sobre la pecera), le da un
+// toque con el morro (el barquito da un saltito) y se aparta; en «Let's find out» Atom vuelve de un salto a su esquina,
+// con su estela. Efectos: solo los dos del gag (el chapuzón y las burbujas del pez).
 import * as T from '/atomo/plato/escenas/nx-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('nx-hola');
@@ -48,10 +49,12 @@ const p1 = (t) => {
   T.hoy(R, t, o);
   const d = T.hoyDelante(R, t, o), [wx, wy] = d.agua;
   // el pez: nada a sus cosas; con el chapuzón huye al fondo; luego sube despacio, se para debajo del barquito y lo mira
+  // (a media duda le da un toque con el morro: el barquito da un saltito y el pez recula)
+  const toca = Math.sin(tramo(t, DUDA + 0.4, DUDA + 0.8) * Math.PI), bote = Math.round(Math.sin(tramo(t, DUDA + 0.55, DUDA + 0.9) * Math.PI) * 3);
   let fx, fy, fdir, mira = false;
   if (t < CHOF) { fx = wx + Math.sin(t * 1.5) * 8; fy = wy + 11 + Math.sin(t * 2.3) * 1.5; fdir = Math.cos(t * 1.5) >= 0 ? 1 : -1; }
   else if (t < DUDA - 0.5) { const u = ease(tramo(t, CHOF, CHOF + 0.3)); fx = lerp(wx + Math.sin(CHOF * 1.5) * 8, wx - 8, u); fy = lerp(wy + 11, wy + 19, u) + Math.sin(t * 14) * 0.6; fdir = -1; }
-  else if (t < VAMOS - 0.3) { const u = ease(tramo(t, DUDA - 0.5, DUDA)); fx = lerp(wx - 8, wx - 3, u); fy = lerp(wy + 19, wy + 8, u); fdir = 1; mira = true; }
+  else if (t < VAMOS - 0.3) { const u = ease(tramo(t, DUDA - 0.5, DUDA)); fx = lerp(wx - 8, wx - 3, u); fy = lerp(wy + 19, wy + 8, u) - toca * 3; fdir = 1; mira = true; }
   else { const u = ease(tramo(t, VAMOS - 0.3, VAMOS + 0.3)); fx = lerp(wx - 3, wx - 9, u); fy = lerp(wy + 8, wy + 13, u) + Math.sin(t * 2.3); fdir = 1; mira = true; }
   T.g_pez(R, Math.round(fx), Math.round(fy), 4, t, { dir: fdir, mira });
   if (t >= CHOF && t < DUDA - 0.5) for (let k = 0; k < 4; k++) { const f = (t - CHOF) * 1.6 - k * 0.12; if (f > 0 && f < 1) R.pset(Math.round(fx + 5 + k), Math.round(fy - f * 9), hex('#d8f4ff')); }
@@ -66,7 +69,7 @@ const p1 = (t) => {
   const cae = tramo(t, SUELTA, CHOF);
   if (cae <= 0) { const bx = Math.round(ax + 2), by = Math.round(ay + 26); for (let k = 0; k < 4; k++) R.pset(bx - 5 + k * 3, by - 12 + ((k + Math.floor(t * 8)) & 1), hex('#c8f0ff')); T.g_barquito(R, bx, by, 10, t, { quieto: true, ondas: false }); }
   else if (cae < 1) T.g_barquito(R, wx, Math.round(lerp(98, wy, cae * cae)), 10, t, { quieto: true, ondas: false });
-  else { T.g_barquito(R, wx, wy, 10, t, {});
+  else { T.g_barquito(R, wx, wy - bote, 10, t, {});
     if (t < CHOF + 0.45) { const s = (t - CHOF) / 0.45; for (let k = 0; k < 10; k++) { const an = Math.PI * (1.08 + 0.84 * k / 9), r = 5 + s * 14; R.pset(Math.round(wx + Math.cos(an) * r), Math.round(wy + Math.sin(an) * r * 1.1 + s * s * 12), k & 1 ? hex('#d8f4ff') : hex('#8ad0f0')); } } }
   // el «?» del pez, en su globo de pensar, sobre la pecera
   if (t >= DUDA - 0.05 && t < VAMOS + 0.6) { const q = tramo(t, DUDA - 0.05, DUDA + 0.15), gx = wx + 17, gy = Math.round(80 - q * 5 - Math.sin(t * 5) * 1), r = Math.round(4 + q * 7);
@@ -76,7 +79,8 @@ const p1 = (t) => {
   atomAbajo(ax, ay, t, { r: Math.round(lerp(12, 10, e)) + (sal > 3 ? 1 : 0), e: sal > 0 || (v > 0 && v < 1) ? 0.8 : 0.4, vel: 1 });
   if (sal > 2) chispas(ax, ay, t, 20, 10, hex('#c8f0ff'));
 };
-const efectos = [[ATOM, 'pop'], [CHOF, 'chof'], [DUDA, 'burbujas'], [VAMOS + 0.15, 'boing']];
+// solo los dos del gag: el chapuzón del barquito y las burbujas del pez que duda
+const efectos = [[CHOF, 'chof'], [DUDA - 0.3, 'burbujas', { dur: 1.8 }]];
 T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
 </script>
 </body>
