@@ -28,14 +28,14 @@ const p1 = (t) => {
   const sol = tramo(t, 0.8, P2), sx = Math.round(lerp(96, 150, sol));
   for (let y = 128; y <= 141; y++) for (let x = sx + (y - 128) * 2; x <= sx + 46 + (y - 128) * 3; x++) if (x >= 0 && x < 320 && ((x - sx) % 24 < 21) && (x + y) % 2 === 0) R.pset(x, y, mez(R.pget(x, y), hex('#fff6c8'), 0.55));
   // llega con ganas, se sienta, mira el reloj, tamborilea, mueve la ficha y bosteza
-  const e1 = tramo(t, 1.25, 1.85), e2 = tramo(t, 1.85, sienta), llega = e2 >= 1, x = Math.round(e1 < 1 ? lerp(266, 236, e1) : lerp(236, 158, e2)), y = Math.round(lerp(162, 148, e1));
+  const e1 = tramo(t, 1.25, 1.85), e2 = tramo(t, 1.85, sienta), llega = e2 >= 1, inc = Math.sin(tramo(t, mueve - 0.4, mueve + 0.75) * Math.PI), x = Math.round(e1 < 1 ? lerp(266, 236, e1) : lerp(236, 180, e2) - inc * 16), y = Math.round(lerp(162, 148, e1));
   const coge = t > mueve - 0.4 && t < mueve + 0.75, bz = t >= bost && t < bost + 0.95, reloj = llega && t < mueve - 0.5 && Math.floor((t - sienta) / 0.75) % 2 === 1;
   const est = bz ? Math.round(Math.sin(tramo(t, bost, bost + 0.95) * Math.PI) * 2) : 0;
-  R.actor(EL.nino50JM, x, y - est, t, { dir: !llega || coge ? -1 : reloj ? 1 : -1, anda: !llega, sonrisa: !llega || t < sienta + 0.5, sostiene: !llega ? undefined : coge ? [Math.round(152 + mv * 6), 140] : bz ? undefined : [reloj ? 177 : 154, 141 - (Math.floor(t * 7) % 3 === 0 ? 1 : 0)],
+  R.actor(EL.nino50JM, x, y - est, t, { dir: !llega || coge ? -1 : reloj ? 1 : -1, anda: !llega, sonrisa: !llega || t < sienta + 0.5, sostiene: !llega ? undefined : coge ? [x - 4, 140] : bz ? undefined : [reloj ? 199 : 176, 141 - (Math.floor(t * 7) % 3 === 0 ? 1 : 0)],
     brazos: bz, parpadea: bz || undefined, habla: bz, triste: llega && !bz && (t > bost || (t > sienta + 0.5 && !coge && !reloj)) });
-  if (reloj) icono('reloj', 176, 112 - Math.round(Math.abs(Math.sin(t * 5)) * 2), hex('#fff4d8'), 1);
+  if (reloj) icono('reloj', 198, 112 - Math.round(Math.abs(Math.sin(t * 5)) * 2), hex('#fff4d8'), 1);
   T.casaJuegoDelante(R, t, o);
-  if (bz) { const u = tramo(t, bost + 0.35, bost + 0.95); for (let k = 0; k < 3; k++) { const bx = 175 + k * 4 + Math.round(u * 6), by = 128 - k * 3 - Math.round(u * 7); R.disco(bx, by, 1.6 + k * 0.5, mez(R.pget(bx, by), hex('#ffffff'), 0.75 * (1 - u))); } }
+  if (bz) { const u = tramo(t, bost + 0.35, bost + 0.95); for (let k = 0; k < 3; k++) { const bx = 197 + k * 4 + Math.round(u * 6), by = 128 - k * 3 - Math.round(u * 7); R.disco(bx, by, 1.6 + k * 0.5, mez(R.pget(bx, by), hex('#ffffff'), 0.75 * (1 - u))); } }
 };
 
 // 2 · el billete de juguete (gag 3): la ficha también bosteza
@@ -132,7 +132,7 @@ const p5 = (t) => {
 
 // 6 · la palabra, con su J
 const JD = T.taller(R, 0, { encuadre: 'palabras', intentos: 0 }).jDesde ?? 0.8;
-const jota = no(34.9), finJ = no(35.75), escribe = no(36.0), fin = no(37.5), FJ = 0.2;
+const jota = no(34.7), finJ = no(35.45), escribe = no(36.0), fin = no(37.5), FJ = 0.2;
 const p6 = (t) => {
   const it = t < jota ? lerp(JD * 0.7, JD, tramo(t, P6 + 0.1, no(33.9))) : t < escribe ? lerp(JD, JD + (1 - JD) * FJ, tramo(t, jota, finJ)) : lerp(JD + (1 - JD) * FJ, 1, tramo(t, escribe, fin));
   const g = T.taller(R, t, { encuadre: 'palabras', intentos: it }), [px, py] = g.punta ?? [140, 120];
