@@ -12,7 +12,8 @@
 // JM-CIERRE (frase «instrucciones»), hoy (2026), sin cartela. Tres planos (cortes en So now · you can take):
 //  1 · la esquina de la lámina de hoy: el lápiz negro termina al perro blanco que asoma tras la hoja («the white dog is
 //      still hiding»); la mano se retira; una mariquita cruza el papel.
-//  2 · (extra) el parque, hoy y en color: un chaval llega por la hierba, ve la caja al pie del árbol («box»: «!») y la levanta.
+//  2 · (extra) el parque, hoy y en color: un chaval llega por la hierba, ve la caja al pie del árbol («box»: «!»), la
+//      levanta y se la lleva; caen hojas del árbol.
 //  3 · el estudio de Atom tomado por las lianas (gag 8): la caja ya está en casa; Atom baja con el folleto, lo deja en el
 //      canto de la mesa en «read» y el rollo se desenrolla por el frente y por el suelo sin acabarse; Atom lo sigue y da un respingo («!»).
 import * as T from '/atomo/plato/escenas/jm-comun.js';
@@ -66,6 +67,8 @@ const p2 = (t) => {
   if (t >= COGE - 0.3) { const [mx, my] = a.mano || [x + 10, 140], d = vuelve ? -1 : 1; const bx = Math.round(lerp(190, mx + d * 9, sub)), by = Math.round(lerp(153, my - 3, sub)); for (let j = -2; j <= 2; j++) for (let i = -15; i <= 15; i++) if (((i + j) & 1) && (i / 15) ** 2 + (j / 2.4) ** 2 < 1) R.pset(bx + i, 155 + j, hex('#3a6a34')); PZ.cajaJuego(R, bx, by); }
   if (t > BOX - 0.05 && t < COGE - 0.35) { const b = Math.round(Math.sin(t * 6)); bocadillo(x - 8, 107 + b, x + 8, 124 + b, x + 2, 128 + b); R.icono('!', x - 2, 109 + b, ROJO, null, 2); }
   if (t > BOX && t < BOX + 0.8 && Math.floor(t * 8) % 2) { destello(176, 136, 3, hex('#fff4b8')); destello(204, 131, 2, BL); }
+  // las hojas del árbol, que caen meciéndose y se posan en la hierba
+  for (let k = 0; k < 6; k++) { const u = (t * 0.27 + k * 0.173) % 1, x = Math.round(178 + k * 15 + Math.sin(t * 2.2 + k * 1.9) * 6 - u * 12), y = Math.round(70 + Math.min(1, u * 1.25) * 84), gi = Math.floor(t * 5 + k) % 2; R.rect(x - 1, y - 1, x + 2, y + 1, hex('#7a3a14')); R.rect(x, y, x + 1, y, hex(k % 2 ? '#f0a030' : '#ffc850')); R.pset(x + gi, y - 1 + 2 * gi, hex('#e8922c')); }
   T.casaJuegoDelante(R, t, o);
 };
 // 3 · el estudio, tomado por las lianas: las instrucciones, un rollo que no se acaba
@@ -88,7 +91,7 @@ const p3 = (t) => {
   else if (t >= DEJA) { PZ.instrucciones(R, 146, 135, { rollo: 0 }); if (t > READ && t < READ + 0.4) for (let q = 0; q < 6; q++) chispa(146 + Math.cos(q * 1.05) * (10 + (t - READ) * 26), 128 + Math.sin(q * 1.05) * (8 + (t - READ) * 18), q); }
   if (t > PASMO && t < FIN - 0.2) { const gx = Math.round(ax + 20), gy = Math.round(ay - 16); bocadillo(gx - 8, gy - 9, gx + 8, gy + 8, gx - 9, gy + 13); R.icono('!', gx - 2, gy - 7, ROJO, null, 2); }
 };
-const efectos = [[0.5, 'lapiz'], [WHITE, 'lapiz'], [HIDING + 0.35, 'brillo'], [P2 + 0.3, 'viento'], [BOX, 'pop'], [COGE, 'golpecito'], [P3 + 0.2, 'whoosh'], [HOME, 'brillo'], [READ, 'papel'], [INSTR + 0.5, 'papel'], [PASMO, 'boing']];
+const efectos = [[0.5, 'lapiz'], [WHITE, 'lapiz'], [HIDING + 0.35, 'brillo'], [BOX, 'pop'], [COGE, 'golpecito'], [P3 + 0.2, 'whoosh'], [READ, 'papel'], [INSTR + 0.5, 'papel'], [PASMO, 'boing']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
 </script>
 </body>

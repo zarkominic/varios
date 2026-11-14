@@ -17,7 +17,8 @@
 //      puerta, que aparece en «never»; las latas caen.
 //  3 · la lámina de «cómo miramos»: los ojos van al salón («living room»), al rinoceronte («rhinoceros») y de uno a otro;
 //      «never together»: un aspa entre los dos recuadros. El ilustrador señala y se encoge de hombros.
-//  4 · el pasillo a ras de suelo, a lápiz: el ratón avisa («!») y pasan las patas de los rinocerontes.
+//  4 · el pasillo a ras de suelo, a lápiz: el ratón asoma y avisa («!»), se mete; tiembla el pasillo (polvo del friso,
+//      la zapatilla, la pelota) y entran pisando las patas del primer rinoceronte (sin llegar a la esquina de Atom).
 //  5 · el dibujo único, de cerca: la mirada (unos ojos y su marco rojo) salta del sillón al rinoceronte; en «look away»
 //      intenta irse por la derecha y por la izquierda, y una goma la devuelve; al final abarca a los dos.
 //  6 · la cartulina de reglas: la ficha da tres pasos; una mano con una cera roja tacha la puerta («quit»), el dado
@@ -104,8 +105,19 @@ const p3 = (t) => {
 // 4 · el pasillo, a ras de suelo: pasan las patas
 const SHOW = tc(13.68);
 const p4 = (t) => {
-  const o = { encuadre: 'pasillo', camara: 'baja', estampida: t < P4 + 0.7 ? lerp(0.14, 0.22, tramo(t, P4, P4 + 0.7)) : lerp(0.22, 0.78, tramo(t, P4 + 0.7, P5)) }; T.casaJuego(R, t, o);
-  if (t < P4 + 0.78 && t > P4 + 0.15) { const b = Math.round(Math.sin(t * 22)); bocadillo(120 + b, 22, 136 + b, 39, 128, 43); R.icono('!', 126 + b, 24, ROJO, null, 2); }
+  // PARCHE DECORADO: c_pasilloBaja/c_panzaRino pinta la panza desde y 0 (de xb − 124 a xb + 150) y tapaba la esquina de
+  // Atom: la estampida se queda en e ≤ 0,30 (xb ≤ 123, la panza no pasa de x 273) y solo entra el primer rinoceronte.
+  // Primero el pasillo en calma (e ≤ 0,02: el ratón), luego el temblor y las patas.
+  const e = t < P4 + 0.47 ? 0.02 * tramo(t, P4 + 0.4, P4 + 0.47) : t < P4 + 0.6 ? lerp(0.02, 0.09, tramo(t, P4 + 0.47, P4 + 0.6)) : 0.09 + 0.21 * (1 - (1 - tramo(t, P4 + 0.6, P5 + 0.2)) ** 1.6);   // entra al trote y va frenando
+  const o = { encuadre: 'pasillo', camara: 'baja', estampida: e }; T.casaJuego(R, t, o);
+  // PARCHE DECORADO: c_pasilloBaja el ratón del agujero (x 120–136, y 36–50) parpadea a su aire y no sale con el «!»:
+  // aquí asoma, se asusta y se mete
+  { const baja = Math.round(tramo(t, P4 + 0.45, P4 + 0.6) * 8), G = hex('#a4a4ac'), GS = hex('#6e6e78'); if (baja < 8) { R.recorte([120, 36, 136, 50]); for (let y = 43; y <= 49; y++) for (let x = 125; x <= 131; x++) if (y > 43 || (x > 125 && x < 131)) R.pset(x, y + baja, y === 49 ? GS : G);
+    R.pset(124, 43 + baja, GS); R.pset(132, 43 + baja, GS); R.pset(126, 45 + baja, K); R.pset(130, 45 + baja, K); R.pset(128, 47 + baja + (Math.sin(t * 9) > 0 ? 0 : 1), hex('#d8a0a0')); R.recorte(null); } }
+  if (t < P4 + 0.5 && t > P4 + 0.1) { const b = Math.round(Math.sin(t * 22)); bocadillo(120 + b, 20, 136 + b, 37, 128, 42); R.icono('!', 126 + b, 22, ROJO, null, 2); }
+  // el temblor: cae polvo del friso (lejos de la barra del año y de la esquina de Atom) y las botas dan rayitas
+  if (e > 0.02) { for (let k = 0; k < 12; k++) { const x = 176 + (k * 37) % 92, u = (t * 1.3 + k * 0.29) % 1, y = Math.round(18 + u * 34); R.pset(x, y, hex(k % 2 ? '#e4e4e8' : '#b4b4bc')); if (k % 3 === 0) R.pset(x, y - 1, hex('#8a8a94')); }
+    if (Math.floor(t * 12) % 2) for (const [x, y] of [[48, 30], [86, 34], [100, 46]]) { R.linea(x, y, x + 3, y - 3, K); R.linea(x + 2, y + 2, x + 6, y, K); } }
   T.casaJuegoDelante(R, t, o);
 };
 
@@ -178,7 +190,7 @@ const p8 = (t) => {
   // la estela de Atom sobre el camino y la llegada
   if (t > META && t < META + 1.0) { const s = (t - META) / 1.0, [mx, my] = g.meta || g.gema; for (let q = 0; q < 10; q++) chispa(mx + Math.cos(q * 0.628 + s * 2) * (14 + s * 20), my + Math.sin(q * 0.628 + s * 2) * (12 + s * 16), q); }
 };
-const efectos = [[0.35, 'lapiz'], [WHY, 'pop'], [EXPL + 0.15, 'pop'], [P2 + 0.8, 'lapiz'], [NEVER, 'brillo'], [SAME + 0.25, 'golpecito'], [LIVING, 'pop'], [RHINO, 'pop'], [TOG, 'toc'], [P4 + 0.2, 'aviso'], [P4 + 0.75, 'avalancha'], [SHOW + 1.5, 'boom'],
+const efectos = [[0.35, 'lapiz'], [WHY, 'pop'], [EXPL + 0.15, 'pop'], [P2 + 0.8, 'lapiz'], [NEVER, 'brillo'], [SAME + 0.25, 'golpecito'], [LIVING, 'pop'], [RHINO, 'pop'], [TOG, 'toc'], [P4 + 0.15, 'aviso'], [P4 + 0.6, 'avalancha'], [SHOW + 1.5, 'boom'],
   [P5 + 0.1, 'tic'], [AWAY + 0.55, 'boing'], [AWAY + 1.6, 'boing'], [P6 + 0.6, 'golpecito'], [SECOND, 'whoosh'], [QUIT, 'lapiz'], [CHEAT, 'lapiz'], [CALL - 0.65, 'ring'], [CALL, 'lapiz'], [P7 + 0.5, 'golpecito'], [LLEGA, 'campana'], [LLEGA + 0.4, 'brillo'],
   [P8 + 0.2, 'whoosh'], [DRESSED + 0.3, 'golpecito'], [STAMP, 'carro'], [META, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: 2026 });

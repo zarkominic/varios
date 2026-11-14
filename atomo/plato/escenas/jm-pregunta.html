@@ -10,15 +10,18 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // JM-PREGUNTA (frases 7–8), cartela «1981». Seis planos (cortes en You moved · So · He picked · And he needed · Maybe):
-// 1. el recuerdo (1957, en color): el niño ante un juego corriente: mira el reloj que no avanza, tamborilea, mueve la
-// ficha sin ganas y bosteza estirándose;  2. el billete de juguete desde arriba (gag 3): la ficha azul salta una casilla,
-// la mano coge el billete («won»), lo suelta, cae una «X» encima («none of it was real») y la ficha se estira, se
-// desinfla y suelta una nubecilla;  3. la pregunta (1981): NUESTRA meta a lápiz: un «?», la mano tira los dados, el disco
-// se empaña y de él sale una hoja de VERDAD, en color; la mano se aparta y vuela una mariposa;  4. la mesa desde arriba:
-// la mano con la barrita dibuja el salón tranquilo y, en «wild animals», el rinoceronte; luego moja el dedo en el polvo
-// y sombrea;  5. busca el nombre: tres bolas de papel a la papelera («name», «far away», «English») y, en «jungle», la
-// idea («!») y corre a la mesa;  6. la libreta: tacha el último intento, duda, y en «with a J» escribe la J, las rayas y
-// el círculo.
+// 1. el recuerdo (1957, en color): el niño ante un juego corriente: se sienta (golpe de silla), mira el reloj que no avanza,
+// tamborilea, mueve la ficha sin ganas y bosteza estirándose;  2. el billete de juguete desde arriba (gag 3): la ficha
+// azul salta una casilla, la mano coge el billete («won»), lo suelta, cae una «X» encima («none of it was real») y la
+// ficha se estira, se desinfla y suelta una nubecilla;  3. la pregunta (1981): NUESTRA meta a lápiz: un «?», la mano tira
+// los dados (ruedan y se paran), el disco se empaña y de él sale una hoja de VERDAD, en color; la mano se aparta, la hoja
+// se mece entre destellos y vuela una mariposa;  4. la mesa desde arriba: la mano con la barrita dibuja el salón tranquilo
+// y, en «wild animals», el rinoceronte; con el último trazo la barrita se parte (el trozo salta y rueda por la hoja), y
+// él moja el dedo en el polvo y sombrea;  5. busca el nombre: tres bolas de papel a la papelera («name», «far away»,
+// «English»); de fondo, un ratón sale de la ratonera, se lleva rodando una de las bolas hasta su agujero, no le cabe y
+// se mete sin ella; en «jungle», la idea («!») y él corre a la mesa;  6. la libreta: tacha el último intento, duda dando
+// golpecitos, y en «with a J» escribe la J, las rayas y el círculo; de fondo, una mariquita baja por el nervio de la
+// hoja suelta, se para mientras él duda y echa a volar cuando la palabra queda rodeada.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-pregunta');
@@ -102,6 +105,7 @@ const p3 = (t) => {
 
 // 4 · la mesa: el salón tranquilo… y el rinoceronte
 const RD = T.taller(R, 0, { encuadre: 'casa', camara: 'mesa', dibujo: 0, tema: 'rino' }).rinoDesde ?? 0.7;
+const PF = T.taller(R, 0, { encuadre: 'casa', camara: 'mesa', dibujo: 1, tema: 'rino' }).punta ?? [170, 122];   // donde acaba el último trazo
 const rino = no(21.19), finRino = no(23.2), moja = no(23.9), frota = no(24.45);
 const p4 = (t) => {
   const d = t < rino ? lerp(0.04, RD, tramo(t, P4 + 0.1, rino - 0.12)) : lerp(RD, 1, tramo(t, rino, finRino));
@@ -112,12 +116,23 @@ const p4 = (t) => {
   wx = lerp(wx, 284, a1); wy = lerp(wy, 84, a1); wx = lerp(wx, 190 + rasca * 9, a2); wy = lerp(wy, 124 + rasca * 1.5, a2); wx = Math.round(wx); wy = Math.round(wy);
   if (t > frota) { const n = Math.min(26, Math.floor((t - frota) * 30)); for (let k = 0; k < n; k++) { const x = 122 + ((k * 7) % 58), y = 131 + ((k * 3) % 4); if ((x + y) % 2) R.pset(x, y, hex('#8a8a92')); } }
   if (a1 > 0.6 && a2 < 0.3) for (let k = 0; k < 6; k++) { const u = (t * 2 + k * 0.17) % 1; R.pset(Math.round(262 + Math.cos(k * 1.1) * (4 + u * 8)), Math.round(92 + Math.sin(k * 1.1) * (4 + u * 6) - u * 4), hex('#3a3a42')); }
+  // con el último trazo la barrita se parte: el trozo salta, rueda por la hoja y se queda quieto
+  const rt = tramo(t, finRino, finRino + 0.95);
+  if (rt > 0) { const q = 1 - (1 - rt) * (1 - rt), bx = Math.round(lerp(PF[0] - 4, 111, q)), by = Math.round(lerp(PF[1] + 3, 129, q) - Math.abs(Math.sin(rt * Math.PI * 2.5)) * 9 * (1 - rt));   // se para en el suelo claro del salón dibujado
+    sombra(bx + 1, by + 3, 3, 1, 0.3);
+    if (rt < 1 && Math.floor(t * 12) % 2) { R.rect(bx - 2, by - 4, bx + 1, by + 3, K); R.rect(bx - 1, by - 3, bx, by + 2, hex('#3a3a42')); R.pset(bx - 1, by - 3, hex('#9a9aa2')); }
+    else { R.rect(bx - 4, by - 2, bx + 4, by + 1, K); R.rect(bx - 3, by - 1, bx + 3, by, hex('#3a3a42')); R.rect(bx - 3, by - 1, bx + 1, by - 1, hex('#6a6a72')); R.pset(bx - 3, by - 1, hex('#c8c8d0')); R.pset(bx + 4, by - 2, hex('#f6f2e6')); }
+    if (rt < 0.3) for (const [ax, ay] of [[-5, -5], [1, -7], [6, -4]]) R.linea(PF[0] + ax, PF[1] + ay, PF[0] + Math.round(ax * 1.7), PF[1] + Math.round(ay * 1.7), ORO); }
+  wy -= Math.round(Math.sin(tramo(t, finRino, finRino + 0.25) * Math.PI) * 5);   // el respingo de la mano
   if (a1 < 0.5) P.lapizConte(R, wx - 15, wy + 12, { s: 2 });
   T.brazo(R, wx + 58, wy + 42, wx, wy, VERDE, -1, { codo: [wx + 32, wy + 14] });
 };
 
 // 5 · busca un nombre: bolas de papel
 const TIROS = [no(26.11), no(28.42), no(30.24)], idea = no(31.78), VUELO = 0.85;
+const mA = TIROS[1] + VUELO + 0.45, mB = mA + 0.6, mC = mB + 0.15, mD = mC + 1.0, RAT = [162, 122];   // el ratón: sale, llega a la bola, la empuja y choca con su agujero
+const raton = (x, y, d, t, corre) => { const c = hex('#9a94a6'), o = hex('#4a4658'), ro = hex('#e8a0a8'); R.rect(x - 3, y - 2, x + 3, y, o); R.rect(x - 2, y - 3, x + 2, y - 3, o); R.rect(x - 2, y - 2, x + 2, y - 1, c); R.pset(x - 1, y - 2, hex('#c8c2d0')); R.pset(x + 4 * d, y - 1, c); R.pset(x + 4 * d, y, ro); R.pset(x + 2 * d, y - 4, ro); R.pset(x + 3 * d, y - 2, K);
+  for (let k = 1; k <= 5; k++) R.pset(x - (3 + k) * d, y - (corre ? Math.floor(t * 10 + k) % 2 : k > 3 ? 1 : 0), ro); const pz = corre && Math.floor(t * 14) % 2; R.pset(x - 2, y + 1, pz ? o : c); R.pset(x + 2, y + 1, pz ? c : o); };
 const bolita = (x, y) => { R.disco(x, y, 3.4, K); R.disco(x, y, 2.4, hex('#f4f0e4')); R.pset(x - 1, y - 1, hex('#ffffff')); R.pset(x + 1, y + 1, hex('#b8b4a8')); R.pset(x, y, hex('#c8c4b8')); };
 const p5 = (t) => {
   let k = -1; for (let i = 0; i < 3; i++) if (t >= TIROS[i]) k = i;
@@ -127,7 +142,12 @@ const p5 = (t) => {
   // la idea: la luz del flexo llena el cuarto
   const luz = suave(tramo(t, idea, idea + 0.5)); if (luz > 0) for (let y = 62; y <= 179; y++) { const x1 = Math.min(319, Math.round(120 + (y - 62) * 1.5)); for (let x = 0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), hex('#ffd890'), 0.2 * luz * (1 - x / (x1 + 40)))); }
   // cada bola que cae echa otra del montón, que rueda por el suelo
-  [[236, 159], [172, 162], [226, 168]].forEach(([bx, by], i) => { const r = tramo(t, TIROS[i] + VUELO, TIROS[i] + VUELO + 0.7); if (r > 0) { const q = 1 - (1 - r) * (1 - r); bolita(Math.round(lerp(205, bx, q)), Math.round(lerp(118, by, q * q) - Math.abs(Math.sin(r * Math.PI * 2)) * 7 * (1 - r))); } });
+  // de fondo: el ratón sale de la ratonera, empuja la segunda bola hasta su agujero, no le cabe y se mete sin ella
+  const em = suave(tramo(t, mC, mD)), choque = Math.sin(tramo(t, mD, mD + 0.3) * Math.PI), bola2 = [Math.round(lerp(172, RAT[0] + 1, em) + choque * 2), Math.round(lerp(162, RAT[1] + 1, em) + choque * 3)];
+  [[236, 159], [172, 162], [226, 168]].forEach(([bx, by], i) => { const r = tramo(t, TIROS[i] + VUELO, TIROS[i] + VUELO + 0.7); if (r > 0) { const q = 1 - (1 - r) * (1 - r); if (i === 1 && t > mC) bolita(bola2[0], bola2[1]); else bolita(Math.round(lerp(205, bx, q)), Math.round(lerp(118, by, q * q) - Math.abs(Math.sin(r * Math.PI * 2)) * 7 * (1 - r))); } });
+  if (t > mA && t < mD + 0.55) { const s1 = suave(tramo(t, mA, mB)), s3 = suave(tramo(t, mD + 0.1, mD + 0.55));
+    const rx = t < mC ? lerp(RAT[0] - 3, 178, s1) : s3 > 0 ? lerp(bola2[0] + 6, RAT[0] - 4, s3) : bola2[0] + 6, ry = t < mC ? lerp(RAT[1] - 2, 166, s1) : s3 > 0 ? lerp(bola2[1] + 5, RAT[1] - 3, s3) : bola2[1] + 5;
+    raton(Math.round(rx), Math.round(ry), t < mB ? 1 : -1, t, t < mB || (t > mC && t < mD) || s3 > 0); }
   // entre tiro y tiro va a la mesa por otra hoja y vuelve arrugándola
   const ida = k >= 0 && k < 2 ? tramo(t, tk + VUELO + 0.15, tk + VUELO + 0.5) - tramo(t, sig - 0.75, sig - 0.4) : 0;
   const eureka = t >= idea, corre = eureka ? tramo(t, idea + 0.45, P6 + 0.3) : 0;
@@ -154,11 +174,21 @@ const p6 = (t) => {
   for (let d = -1; d <= 2; d++) R.linea(lx + 2 + d, ly - 2, lx + 21 + d, ly - 17, d === -1 || d === 2 ? K : d === 0 ? hex('#ffd84a') : hex('#d8a020'));
   R.linea(lx, ly, lx + 3, ly - 3, hex('#e8c8a0')); R.linea(lx + 1, ly, lx + 4, ly - 3, hex('#e8c8a0')); R.pset(lx, ly, K); R.pset(lx + 1, ly - 1, K);
   T.brazo(R, lx + 74, ly + 30, lx + 22, ly - 12, VERDE, -1, { codo: [lx + 52, ly + 6] });
+  // de fondo: una mariquita baja por el nervio de la hoja suelta, se para mientras él duda y, con la palabra rodeada, echa a volar
+  { const [hx0, hy0, hx1, hy1] = g.hojaSelva ?? [235, 55, 309, 153], w = 0.45 * tramo(t, P6 + 0.35, no(33.9)) + 0.55 * tramo(t, jota + 0.1, escribe + 0.9), v = tramo(t, fin + 0.05, fin + 0.75), anda = w > 0 && w < 1 && !duda && (t < no(33.9) || t > jota + 0.1);
+    const mx = Math.round(lerp(lerp(hx1 - 13, hx0 + 17, w), hx1 + 16, v * v) + (anda ? Math.sin(t * 9) : 0)), my = Math.round(lerp(lerp(hy0 + 15, hy1 - 20, w), hy0 + 22, v) - Math.sin(v * Math.PI) * 14);
+    if (v < 1) { const al = v > 0 ? Math.floor(t * 16) % 2 : 0; if (v === 0) sombra(mx + 1, my + 3, 3, 1, 0.3);
+      R.disco(mx + 0.5, my + 0.5, 3.3, K); R.disco(mx + 0.5, my + 0.5, 2.3, ROJO); R.pset(mx - 1, my - 1, hex('#ff9a9a')); R.pset(mx + 1, my, K); R.pset(mx - 1, my + 1, K); R.pset(mx + 1, my - 2, K); R.rect(mx - 3, my + 2, mx - 2, my + 3, K);
+      if (anda) { const pz = Math.floor(t * 12) % 2; R.pset(mx + 3 + pz, my + 3, K); R.pset(mx - 3 - pz, my - 2, K); R.pset(mx + 4 - pz, my - 1, K); }
+      if (v > 0) for (const d of [-1, 1]) { R.linea(mx + d * 2, my - 2, mx + d * 5, my - 4 - al * 2, hex('#ffffff')); R.pset(mx + d * 4, my - 2 - al, hex('#d8e0f0')); } } }
   if (t > fin) for (const [k, x, y] of [[0, 84, 126], [1, 124, 124], [2, 204, 150]]) if (Math.floor(t * 6 + k) % 3 === 0) destello(x, y, 2, ORO);
 };
 
-const efectos = [[ra(2.3), 'tic'], [mueve + 0.4, 'toc'], [salta + 0.42, 'toc'], [gana, 'brillo'], [real + 0.3, 'pop'], [tira + 0.3, 'golpecito'], [sale, 'pop'], [P4 + 0.4, 'lapiz'], [rino + 0.1, 'lapiz'],
-  [TIROS[0], 'papel'], [TIROS[1], 'papel'], [TIROS[2], 'papel'], [idea, 'palmada'], [jota, 'lapiz'], [escribe + 0.1, 'lapiz'], [fin + 0.1, 'brillo']];
+const efectos = [[ra(2.3), 'tic'], [sienta, 'toc'], [sienta + 1.1, 'golpecito'], [mueve + 0.4, 'toc'], [salta + 0.42, 'toc'], [gana, 'brillo'], [nada + 0.15, 'papel'], [real + 0.3, 'pop'],
+  [tira + 0.3, 'golpecito'], [tira + 0.85, 'toc'], [sale, 'pop'], [sale + 0.95, 'viento', { dur: 1.7 }],
+  [P4 + 0.4, 'lapiz'], [P4 + 1.7, 'lapiz'], [rino + 0.1, 'lapiz'], [rino + 1.1, 'lapiz'], [finRino, 'tic'], [frota + 0.1, 'papel'],
+  [TIROS[0], 'papel'], [TIROS[0] + VUELO, 'golpecito'], [TIROS[1], 'papel'], [TIROS[1] + VUELO, 'golpecito'], [TIROS[2], 'papel'], [TIROS[2] + VUELO, 'golpecito'], [idea, 'palmada'],
+  [P6 + 0.25, 'lapiz'], [no(33.9) + 0.2, 'golpecito'], [jota, 'lapiz'], [escribe + 0.1, 'lapiz'], [fin + 0.1, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '1981', efectos, año: (t) => (t < P3 ? 1957 : 1981) });
 </script>
 </body>

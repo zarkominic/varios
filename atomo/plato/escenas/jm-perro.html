@@ -10,12 +10,14 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // JM-PERRO (frase 6), 1979. Cinco planos:
-// 1. el despacho del editor en Boston: Lisa le pasa un dibujo por encima de la mesa y él lo mira con asombro; el autor
-// espera;  2. la mesa desde arriba: los dibujos salen de la carpeta, el editor tiende la pluma y la mano del autor la
-// coge y se pone a escribir (rayas);  3. NUESTRA lámina del libro de 1979: el perro blanco echa a correr por el jardín de
-// setos y un niño lo persigue;  4. la verja: el perro se sienta, se cuela entre los barrotes y el niño llega tarde;
-// 5. gag 2: el lápiz rojo cerca al perrito escondido en la esquina de cada lámina; para los dos de abajo, más
-// escondidos, sube una lupa por el borde.
+// 1. el despacho del editor en Boston: el autor entra y se queda esperando, inquieto; Lisa le pasa un dibujo al editor
+// por encima de la mesa y saca otro de la carpeta; él lo levanta a la luz, se asombra y el autor da un paso, ya sonriendo;
+// 2. la mesa desde arriba: los dibujos salen de la carpeta, el editor tiende la pluma y da dos golpecitos con ella en la
+// hoja en blanco; la mano del autor la coge y se pone a escribir (rayas);  3. NUESTRA lámina del libro de 1979: el viento
+// barre unas hojas por el césped, el perro blanco entra, se sienta y echa a correr; el niño lo persigue, el perro frena
+// en seco (polvo), se vuelve y escapa;  4. la verja: el perro se sienta, se cuela entre los barrotes y el niño llega
+// tarde y sacude la verja;  5. gag 2: nieva en la lámina del tren; el lápiz rojo cerca al perrito escondido en la
+// esquina de cada lámina (rayitas de ladrido al cerrarse cada cerco); para los dos de abajo sube una lupa por el borde.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-perro');
@@ -24,17 +26,21 @@ const en = (k, f) => T.momento(M, k, f);
 const e = (f) => en('editor', f), P = T.PIEZAS_JM;
 const P2 = e(0.166), P3 = e(0.397), P4 = e(0.642), P5 = e(0.8265);
 const K = hex('#1a1420'), suave = (u) => u * u * (3 - 2 * u);
+const hh = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
 
 // 1 · el despacho: el editor mira un dibujo
-const pasa = 0.9, ve = e(0.113), asombro = e(0.137);
+const pasa = 0.9, sacaOtro = 2.15, ve = e(0.113), asombro = e(0.137);
 const p1 = (t) => {
   const o = { encuadre: 'despacho' }; T.editorial(R, t, o);
-  const u = suave(tramo(t, pasa, pasa + 0.9)), enMano = u >= 1;
-  R.actor(EL.vanallsburg, 84, 158, t, { dir: 1, sonrisa: t > asombro + 0.3, triste: t < ve });
+  const u = suave(tramo(t, pasa, pasa + 0.9)), enMano = u >= 1, otro = suave(tramo(t, sacaOtro, sacaOtro + 0.5));   // otro: el segundo dibujo que Lisa saca de la carpeta
+  // el autor entra, espera cambiando el peso de pie y, con el asombro del editor, da un paso adelante
+  const ent = suave(tramo(t, 0.05, 0.85)), paso = suave(tramo(t, asombro + 0.25, asombro + 0.7)), espera = ent >= 1 && t < ve;
+  R.actor(EL.vanallsburg, Math.round(lerp(60, 84, ent) + paso * 9) + (espera && Math.sin(t * 4.5) > 0.6 ? 1 : 0), 158, t, { dir: 1, anda: (ent > 0 && ent < 1) || (paso > 0 && paso < 1), sonrisa: t > asombro + 0.3, triste: espera, sorpresa: t > asombro && t < asombro + 0.3 });
   const lor = R.actor(EL.lorraine, 206, 144, t, { dir: -1, sostiene: enMano ? [199, Math.round(lerp(126, 120, tramo(t, ve - 0.3, ve)))] : u > 0.5 ? [198, 128] : undefined, sorpresa: t > asombro && t < asombro + 0.5, sonrisa: t > asombro + 0.5, habla: t < pasa && Math.sin(t * 8) > 0 });
   P.carpeta(R, 142, 158, {});
-  const lisa = R.actor(EL.lisa, 122, 158, t, { dir: 1, sostiene: u < 1 ? [Math.round(lerp(140, 152, u)), Math.round(lerp(140, 128, u))] : undefined, sonrisa: true, habla: t > pasa + 1 && t < ve && Math.sin(t * 7) > 0 });
+  const lisa = R.actor(EL.lisa, 122, 158, t, { dir: 1, sostiene: u < 1 ? [Math.round(lerp(140, 152, u)), Math.round(lerp(140, 128, u))] : otro > 0 ? [141, Math.round(lerp(152, 145, otro))] : undefined, sonrisa: true, habla: t > pasa + 1 && t < ve && Math.sin(t * 7) > 0 });
   if (!enMano) P.dibujo(R, lisa.mano[0] + Math.round(u * 26), lisa.mano[1] + 6 - Math.round(Math.sin(u * Math.PI) * 6), { tema: 'salon' });
+  else if (otro > 0) P.dibujo(R, lisa.mano[0] + 16, lisa.mano[1] + 12, { tema: 'seto' });
   T.editorialDelante(R, t, o);
   if (enMano) { P.dibujo(R, lor.mano[0] - 12, lor.mano[1] + 9, { tema: 'salon' }); if (t > asombro && t < asombro + 0.9) R.icono('!', 214, 104 - Math.round(Math.abs(Math.sin(t * 7)) * 2), hex('#ffe08a')); }
 };
@@ -50,6 +56,7 @@ const p2 = (t) => {
   R.rect(167, 145, 229, 175, K); R.rect(168, 146, 228, 174, hex('#f6f2e6')); R.rect(168, 173, 228, 174, hex('#d8d2c0')); R.rect(227, 146, 228, 174, hex('#d8d2c0')); R.poligono([[222, 146], [228, 146], [228, 152]], hex('#c8c0aa')); R.linea(222, 146, 228, 152, K); R.rect(172, 150, 196, 150, hex('#c8c0aa')); R.rect(170, 146, 171, 152, hex('#9a9aa6'));
   for (let k = 0; k <= lin && es > 0; k++) { const w = k < lin || es >= 1 ? 40 : fl * 40; for (let i = 0; i < w; i++) { const y = 155 + k * 6 + Math.round(Math.sin(i * 0.9 + k) * 1.3); R.pset(178 + i, y, hex('#22306a')); if (i % 9 === 8) R.pset(178 + i, y, hex('#f6f2e6')); } }
   const pl = (x, y) => { R.linea(x + 3, y + 1, x + 25, y - 17, hex('#2a1a10')); for (let w = -1; w <= 1; w++) R.linea(x + 4 + w, y - 4 + w, x + 22 + w, y - 22 + w, w < 0 ? hex('#5a6ab0') : w ? hex('#141a3a') : hex('#2e3e84')); R.linea(x + 14, y - 15, x + 16, y - 13, hex('#e8c860')); R.linea(x + 18, y - 21, x + 24, y - 23, hex('#e8c860')); R.linea(x, y, x + 4, y - 4, hex('#e8c860')); R.linea(x + 1, y, x + 4, y - 3, hex('#c8a040')); R.pset(x, y, K); };
+  if (es <= 0 && t > ofrece && t < ofrece + 0.5) tip[1] -= Math.round(Math.abs(Math.sin((t - ofrece - 0.1) * Math.PI * 5)) * 4);   // dos golpecitos: «escríbelo tú»
   pl(tip[0], tip[1]);
   if (of > 0.3 && t < toma) { const c2 = hex('#fff8c0'), sx = tip[0] + 25, sy = tip[1] - 25, r = Math.floor(t * 6) % 2 ? 3 : 2; for (let d = -r; d <= r; d++) { R.pset(sx + d, sy, c2); R.pset(sx, sy + d, c2); } }
   const ed = suave(tramo(t, coge - 0.8, coge)) - suave(tramo(t, toma + 0.15, toma + 0.8));   // la mano del editor entra, ofrece y se va
@@ -65,6 +72,12 @@ const p3 = (t) => {
   const dx = Math.round(perroX(t)), va = t < P3 + 1.2 || (t > corre && t < para) || t > mira, bote = va ? Math.round(Math.abs(Math.sin(t * 15)) * 2) : 0;
   const o = { encuadre: 'libro1979', perro: [dx, 140 - bote], perroDir: t >= para && t < mira ? -1 : 1, perroSentado: t > P3 + 1.3 && t < corre - 0.15 };
   T.editorial(R, t, o);
+  // una racha de viento barre unas hojas por el césped de la lámina (en grises, como el grabado)
+  { const w = tramo(t, P3 + 0.1, P3 + 2.1); if (w > 0 && w < 1) for (let k = 0; k < 6; k++) { const z = w * 1.4 - k * 0.075; if (z <= 0 || z >= 1) continue; const x = Math.round(lerp(14, 302, z) + Math.sin(z * 9 + k) * 5), y = Math.round(145 + (k * 7) % 5 - Math.abs(Math.sin(z * 10 + k * 2)) * 4), g = Math.floor(t * 9 + k) % 2, c1 = hex('#1e1e26'), c2 = hex('#4a4a52');
+    if (g) { R.rect(x, y, x + 4, y + 1, c1); R.rect(x + 1, y - 1, x + 3, y + 2, c1); R.rect(x + 1, y, x + 3, y, c2); R.pset(x + 5, y + 1, c1); } else { R.rect(x + 1, y - 1, x + 2, y + 3, c1); R.rect(x, y, x + 3, y + 2, c1); R.rect(x + 1, y, x + 2, y + 1, c2); R.pset(x + 2, y + 4, c1); }
+    R.pset(x + 1, y - 2, hex('#fafaf6')); R.pset(x - 2, y + 1, hex('#8a8a92')); R.pset(x - 4, y + 1, hex('#b8b8c0')); } }
+  // la frenada del perro: una nube de polvo por delante
+  { const f = tramo(t, para - 0.05, para + 0.45); if (f > 0 && f < 1) for (let k = 0; k < 5; k++) { const x = dx + 10 + Math.round(f * (4 + k * 3)), y = 139 - Math.round(f * (1 + k * 1.6)) - (k % 2), r = 1 + f * 1.6 * (1 - k / 7); R.disco(x, y, r + 1, hex('#8a8a92')); R.disco(x, y, r, f < 0.7 ? hex('#fafaf6') : hex('#d8d8d4')); } }
   if (va) for (let k = 1; k <= 3; k++) { const px = dx - 10 - k * 5, py = 139 - ((Math.floor(t * 9) + k) % 3); R.pset(px, py, hex('#e8e8e4')); R.pset(px + 1, py, hex('#b8b8c0')); }
   const u = tramo(t, corre - 0.5, P4), bx = Math.min(dx - 34, Math.round(lerp(-18, 214, u ** 0.9)));
   R.actor(EL.nino77 ?? EL.chico, bx, 141, t, { dir: 1, anda: u > 0, dedo: t > para && t < mira, sorpresa: t > para && t < mira });
@@ -77,7 +90,7 @@ const p4 = (t) => {
   const v = tramo(t, P4, sienta), c = suave(tramo(t, cuela, dentro + 0.5)), tras = t >= dentro;
   const dx = Math.round(t < cuela ? lerp(-12, 148, suave(v)) : lerp(148, 152, c)), dy = Math.round(t < cuela ? 158 : lerp(158, 143, c));
   const bote = (v > 0 && v < 1) || (t > cuela && c < 1) ? Math.round(Math.abs(Math.sin(t * 15)) * 2) : 0;
-  const o = { encuadre: 'libro1979', camara: 'verja', abre: 0.25 + 0.6 * suave(tramo(t, cuela - 0.25, cuela + 0.3)), perro: tras ? [dx, dy - bote] : undefined, perroDir: 1 };
+  const o = { encuadre: 'libro1979', camara: 'verja', abre: 0.25 + 0.6 * suave(tramo(t, cuela - 0.25, cuela + 0.3)) + (t > llegaN && t < llegaN + 0.5 ? Math.sin((t - llegaN) * 26) * 0.07 * (1 - tramo(t, llegaN, llegaN + 0.5)) : 0), perro: tras ? [dx, dy - bote] : undefined, perroDir: 1 };
   T.editorial(R, t, o);
   if (!tras) P.perro(R, dx, dy - bote, { t, dir: 1, sentado: t >= sienta && t < cuela - 0.1 });
   // los destellos del jardín del mago
@@ -94,8 +107,16 @@ const p5 = (t) => {
   const paradas = [[P5, [240, 212]], [P5 + 0.8, [212, 170]], [C[0], [226, 166]], [C[1] + 0.1, [204, 168]], [C[2] - 0.12, Q[2]], [C[2] + 0.22, Q[2]], [C[3] - 0.12, Q[3]], [E.duracion, [Q[3][0] + 1, Q[3][1] - 1]]];
   let lupa = paradas[0][1]; for (let k = 0; k < paradas.length - 1; k++) if (t >= paradas[k][0]) { const z = suave(tramo(t, paradas[k][0], paradas[k + 1][0])); lupa = [Math.round(lerp(paradas[k][1][0], paradas[k + 1][1][0], z)), Math.round(lerp(paradas[k][1][1], paradas[k + 1][1][1], z))]; }
   T.editorial(R, t, { encuadre: 'esquinas', cuantos: C.reduce((s, c) => s + tramo(t, c, c + 0.25), 0), lupa, radio: 15 });
+  // nieva en la lámina del tren y la locomotora echa vapor (fuera del cristal de la lupa)
+  const fuera = (x, y) => Math.hypot(x - lupa[0], y - lupa[1]) > 19;
+  for (let k = 0; k < 16; k++) { const x = 29 + Math.round(hh(k, 2) * 49 + Math.sin(t * 1.5 + k) * 2), y = 33 + Math.round((t * (9 + hh(k, 4) * 8) + hh(k, 6) * 54) % 54); if (x >= 29 && x <= 78 && fuera(x, y)) R.pset(x, y, hex('#ffffff')); }
+  for (let k = 0; k < 4; k++) { const u = (t * 0.7 + k / 4) % 1, x = Math.round(52 - u * 12 + Math.sin(u * 5 + k) * 2), y = Math.round(56 - u * 14); if (y > 33 && x > 29 && fuera(x, y)) { R.pset(x, y, hex('#e8ecf4')); if (u > 0.3) R.pset(x + 1, y, hex('#c8d0e0')); if (u > 0.6) R.pset(x, y - 1, hex('#c8d0e0')); } }
+  // al cerrarse cada cerco, tres rayitas de ladrido junto al perrito
+  C.forEach((c, k) => { const f = tramo(t, c + 0.25, c + 0.7); if (f <= 0 || f >= 1) return; const [qx, qy] = Q[k], d = k === 3 ? 1 : -1, r = 9 + Math.round(f * 4); for (const an of [-0.7, -0.15, 0.4]) { const ca = Math.cos(an) * d, sa = Math.sin(an); if (fuera(qx + ca * r, qy - 6 + sa * r)) R.linea(Math.round(qx + ca * r), Math.round(qy - 3 + sa * r), Math.round(qx + ca * (r + 3)), Math.round(qy - 3 + sa * (r + 3)), hex('#e83a34')); } });
 };
-const efectos = [[pasa + 0.3, 'papel'], [asombro, 'pop'], [P2 + 0.3, 'papel'], [escribe, 'firma'], [corre, 'guau'], [mira, 'guau'], [sienta + 0.2, 'guau'], [cuela, 'cerrojo'], [dentro + 0.2, 'brillo'], [C[0], 'lapiz'], [C[2], 'pop'], [C[3] + 0.2, 'guau']];
+const efectos = [[0.3, 'toc'], [pasa + 0.3, 'papel'], [sacaOtro + 0.15, 'papel'], [asombro, 'pop'], [P2 + 0.3, 'papel'], [e(0.2115) + 0.35, 'papel'], [ofrece + 0.12, 'golpecito'], [escribe, 'firma'],
+  [P3 + 0.15, 'viento', { dur: 1.8 }], [corre, 'guau'], [para, 'golpecito'], [mira, 'guau'], [sienta + 0.2, 'guau'], [cuela, 'cerrojo'], [dentro + 0.2, 'brillo'], [llegaN + 0.05, 'golpecito'],
+  [P5 + 0.6, 'tic'], [C[0], 'lapiz'], [C[2], 'pop'], [C[3] + 0.2, 'guau']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t < P5 ? 1979 : Math.round(lerp(1979, 2026, tramo(t, P5 + 0.5, E.duracion - 0.8)))) });
 </script>
 </body>

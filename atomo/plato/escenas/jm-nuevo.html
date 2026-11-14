@@ -11,7 +11,8 @@
 <script type="module">
 // JM-NUEVO (frases 20–21), cartela «2017». Siete planos (cortes en Robin · The writers · what kid · Nobody · And · Now):
 // 1. cine/anuncio (2015): la noticia en la pantalla y los pulgares hacia abajo que se amontonan;
-// 2. cine/anuncio/vela (2014): la foto en gris con las velas; sobrio: solo el cursor se aparta de la foto;
+// 2. cine/anuncio/vela (2014): la foto en gris con las velas; sobrio: en la foto cae la noche y la luz de las velas
+//    crece, una vela más prende («had died»), cae un pétalo y el cursor se aparta de la foto (campana lejana);
 // 3. keene/guionistas 2016: los guionistas ante la caja del juego llena de polvo: uno sopla, el otro tose y se
 //    encoge («?»); por delante pasa el chaval de 2017 con el móvil;
 // 4. cine/salon 2017: el chaval cruza el salón mirando el móvil; el tablero del estante le suelta polvo, él mira un
@@ -32,10 +33,30 @@ const K = T.C.k, PZ = T.PIEZAS_JM, B = T.C.blanco;
 const movil = (m, t) => { R.rect(m[0] - 2, m[1] - 5, m[0] + 2, m[1] + 1, K); R.rect(m[0] - 1, m[1] - 4, m[0] + 1, m[1], hex(Math.sin(t * 9) > 0.6 ? '#e8f6ff' : '#a8e0ff')); };
 const polvo = (x, y, u, n = 7, k0 = 0) => { if (u <= 0 || u >= 1) return; for (let k = 0; k < n; k++) { const q = k0 + k * 2.4, px = Math.round(x + Math.cos(q) * (3 + u * (8 + (k % 3) * 4))), py = Math.round(y - u * (6 + (k % 4) * 3) + Math.sin(q) * 2), r = u < 0.6 ? 1 : 0; R.rect(px - r - 1, py - r - 1, px + r + 1, py + 1, hex('#8a8272')); R.rect(px - r, py - r, px + r, py, hex(k % 2 ? '#e8e2d4' : '#c8c0b0')); } };
 const cursor = (x, y) => { R.poligono([[x, y], [x, y + 10], [x + 3, y + 8], [x + 5, y + 12], [x + 7, y + 11], [x + 5, y + 7], [x + 8, y + 7]], K); R.poligono([[x + 1, y + 2], [x + 1, y + 8], [x + 3, y + 6], [x + 5, y + 6]], B); };
-const p1 = (t) => { T.cine(R, t, { encuadre: 'anuncio', enfado: tramo(t, a(3.3), a(5.0)) }); };
+const p1 = (t) => { T.cine(R, t, { encuadre: 'anuncio', enfado: 0.22 * tramo(t, a(2.3), a(3.3)) + 0.78 * tramo(t, a(3.3), a(5.0)) }); };
+// 2 · el recuerdo (sobrio): en la foto cae la noche poco a poco y las velas alumbran más; alguien ha dejado una vela más,
+// que prende; cae un pétalo; el cursor se aparta de la foto. Todo en gris menos las llamas y su luz.
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => B4[(x & 3) + (y & 3) * 4] / 16, ease = (u) => u * u * (3 - 2 * u);
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const PRENDE = a(6.55), PETALO = a(8.0);
 const p2 = (t) => {
-  T.cine(R, t, { encuadre: 'anuncio', camara: 'vela' });
-  const u = tramo(t, a(7.2), a(9.2)), e = u * u * (3 - 2 * u); cursor(Math.round(lerp(176, 262, e)), Math.round(lerp(96, 150, e)));
+  const g = T.cine(R, t, { encuadre: 'anuncio', camara: 'vela' }), F = g.foto ?? [20, 40, 204, 152], V = g.velas ?? [[60, 138], [84, 140], [112, 138], [140, 140], [166, 138]];
+  const noche = ease(tramo(t, P2 + 0.2, P3 - 0.3)), NV = [117, 151], luz6 = tramo(t, PRENDE, PRENDE + 0.5), OSC = hex('#2c2c36'), CAL = hex('#ffd890');
+  // la luz de cada vela (tiembla a su aire) y la de la nueva
+  const focos = V.map(([x, y], k) => [x, y - 11, 1 + 0.1 * Math.sin(t * (2.1 + k * 0.37) + k * 2)]); if (luz6 > 0) focos.push([NV[0], NV[1] - 10, luz6 * (1 + 0.1 * Math.sin(t * 2.9))]);
+  const rr = 12 + 15 * noche;
+  for (let y = F[1]; y <= F[3]; y++) for (let x = F[0]; x <= F[2]; x++) { let gl = 0; for (const [fx, fy, w] of focos) { const d = Math.hypot(x - fx, (y - fy) * 1.25); if (d < rr) gl = Math.max(gl, w * (1 - d / rr)); } gl = Math.min(1, gl);
+    let c = R.pget(x, y); const osc = 0.36 * noche * (1 - gl); if (osc > 0.01) c = mez(c, OSC, osc); if (gl > 0.05 && gl * 1.1 > b4(x, y)) c = mez(c, CAL, 0.2 * noche * gl); if (osc > 0.01 || gl > 0.05) R.pset(x, y, c); }
+  // la vela nueva, delante de las flores: apagada al principio; una chispa y prende
+  { const [x, y] = NV, hh = 8, som = (c) => mez(hex(c), OSC, 0.36 * noche * (1 - luz6)); R.rect(x - 3, y - hh, x + 3, y, som('#5a5a62')); R.rect(x - 2, y - hh + 1, x + 2, y - 1, som('#e8e8ee')); R.rect(x + 1, y - hh + 1, x + 2, y - 1, som('#c0c0c8')); R.rect(x - 4, y, x + 4, y + 1, som('#6a6a74')); R.pset(x, y - hh, K);
+    if (t > PRENDE - 0.12 && t < PRENDE + 0.1) { for (const [i, j] of [[0, -2], [-2, 0], [2, 0], [0, 2], [0, 0]]) R.pset(x + i, y - hh - 3 + j, hex('#fff6d8')); }
+    if (luz6 > 0) { const fy = y - hh - 1, alto = (luz6 < 0.4 ? 6 : 4) + (Math.sin(t * 3.7) > 0.2 ? 1 : 0), dx = Math.sin(t * 2.6) > 0.6 ? 1 : Math.sin(t * 2.6) < -0.7 ? -1 : 0; R.rect(x - 1, fy - alto + 2, x + 1, fy, hex('#ffb040')); R.pset(x + dx, fy - alto + 1, hex('#ffb040')); R.pset(x + dx, fy - alto, hex('#ffd890')); R.rect(x, fy - 1, x, fy, hex('#fff6d8')); } }
+  // un pétalo se suelta de un ramo y se posa en la acera (y otro, antes, a la derecha)
+  R.recorte([F[0], F[1], F[2], F[3]]);
+  for (const [t0, x0, y0, x1, y1] of [[P2 + 0.7, 186, 138, 176, 151], [PETALO, 132, 137, 141, 150]]) { const u = tramo(t, t0, t0 + 1.5); if (u <= 0) continue; const x = Math.round(lerp(x0, x1, u) + Math.sin(u * 9) * 3 * (1 - u)), y = Math.round(lerp(y0, y1, u * u * 0.4 + u * 0.6)); R.pset(x, y, hex('#e8e8ee')); R.pset(x + (u < 1 && Math.sin(u * 14) > 0 ? -1 : 1), y, hex('#c8c8d0')); R.pset(x, y + 1, hex('#5a5a62')); }
+  R.recorte(null);
+  const u = tramo(t, a(7.2), a(9.2)), e = ease(u); cursor(Math.round(lerp(176, 248, e)), Math.round(lerp(96, 154, e)));
 };
 const p3 = (t) => {
   const o = { encuadre: 'guionistas', epoca: 2016 }; T.keene(R, t, o);
@@ -113,7 +134,7 @@ const p7 = (t) => {
   T.selvaDelante(R, t, o);
   for (let k = 0; k < 3; k++) { const e = tramo(t, c(36.74) + k * 0.22, c(36.74) + k * 0.22 + 0.15); if (e > 0) PZ.corazonVida(R, 62 + k * 26, 66 - Math.round(Math.sin(e * Math.PI) * 4), { s: 2, t: t + k * 0.3 }); }
 };
-const efectos = [[a(3.02), 'bip'], [a(3.9), 'pop'], [a(12.0), 'rafaga'], [a(12.7), 'golpecito'], [a(15.2), 'bip'], [a(18.4), 'golpecito'],
+const efectos = [[a(3.02), 'bip'], [a(3.5), 'tecleo', { dur: 1.4 }], [P2 + 0.45, 'campana', { lejos: true }], [PRENDE, 'tic'], [a(12.0), 'rafaga'], [a(12.7), 'golpecito'], [a(15.2), 'bip'], [a(18.4), 'golpecito'],
   [c(23.0), 'golpecito'], [c(24.3), 'golpecito'], [c(26.6), 'brillo'], [c(27.9), 'interruptor'], [c(30.05), 'whoosh'], [c(31.3), 'rafaga'], [c(33.2), 'puerta'], [c(33.55), 'cerrojo'],
   [P7 + 0.2, 'viento'], [c(35.96), 'brillo'], [c(36.74), 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { cartela: '2017', efectos, año: (t) => (t < P2 ? 2015 : t < P3 ? 2014 : t < P4 ? 2016 : 2017) });
