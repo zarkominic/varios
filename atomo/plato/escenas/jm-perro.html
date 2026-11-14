@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El perro blanco · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-PERRO (frase 6), 1979. Cinco planos:
+// 1. el despacho del editor en Boston: Lisa le pasa un dibujo por encima de la mesa y él lo mira con asombro; el autor
+// espera;  2. la mesa desde arriba: los dibujos salen de la carpeta, el editor tiende la pluma y la mano del autor la
+// coge y se pone a escribir (rayas);  3. NUESTRA lámina del libro de 1979: el perro blanco echa a correr por el jardín de
+// setos y un niño lo persigue;  4. la verja: el perro se sienta, se cuela entre los barrotes y el niño llega tarde;
+// 5. gag 2: el lápiz rojo cerca al perrito escondido en la esquina de cada lámina; para los dos de abajo, más
+// escondidos, sube una lupa por el borde.
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-perro');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const e = (f) => en('editor', f), P = T.PIEZAS_JM;
+const P2 = e(0.166), P3 = e(0.397), P4 = e(0.642), P5 = e(0.8265);
+const K = hex('#1a1420'), suave = (u) => u * u * (3 - 2 * u);
+
+// 1 · el despacho: el editor mira un dibujo
+const pasa = 0.9, ve = e(0.113), asombro = e(0.137);
+const p1 = (t) => {
+  const o = { encuadre: 'despacho' }; T.editorial(R, t, o);
+  const u = suave(tramo(t, pasa, pasa + 0.9)), enMano = u >= 1;
+  R.actor(EL.vanallsburg, 84, 158, t, { dir: 1, sonrisa: t > asombro + 0.3, triste: t < ve });
+  const lor = R.actor(EL.lorraine, 206, 144, t, { dir: -1, sostiene: enMano ? [199, Math.round(lerp(126, 120, tramo(t, ve - 0.3, ve)))] : u > 0.5 ? [198, 128] : undefined, sorpresa: t > asombro && t < asombro + 0.5, sonrisa: t > asombro + 0.5, habla: t < pasa && Math.sin(t * 8) > 0 });
+  P.carpeta(R, 142, 158, {});
+  const lisa = R.actor(EL.lisa, 122, 158, t, { dir: 1, sostiene: u < 1 ? [Math.round(lerp(140, 152, u)), Math.round(lerp(140, 128, u))] : undefined, sonrisa: true, habla: t > pasa + 1 && t < ve && Math.sin(t * 7) > 0 });
+  if (!enMano) P.dibujo(R, lisa.mano[0] + Math.round(u * 26), lisa.mano[1] + 6 - Math.round(Math.sin(u * Math.PI) * 6), { tema: 'salon' });
+  T.editorialDelante(R, t, o);
+  if (enMano) { P.dibujo(R, lor.mano[0] - 12, lor.mano[1] + 9, { tema: 'salon' }); if (t > asombro && t < asombro + 0.9) R.icono('!', 214, 104 - Math.round(Math.abs(Math.sin(t * 7)) * 2), hex('#ffe08a')); }
+};
+
+// 2 · la mesa: la pluma cambia de mano
+const coge = e(0.2115) + 0.5, ofrece = e(0.282), toma = e(0.31) + 0.3, escribe = e(0.352);
+const p2 = (t) => {
+  const of = suave(tramo(t, coge, ofrece)), es = tramo(t, escribe, P3 - 0.05), lin = Math.min(2, Math.floor(es * 3)), fl = es * 3 - lin;
+  const tip = es > 0 ? [Math.round(178 + (es >= 1 ? 1 : fl) * 40), Math.round(155 + lin * 6 + Math.sin(t * 22) * 1.2)] : [Math.round(lerp(lerp(262, 204, of), 178, suave(tramo(t, toma + 0.15, escribe)))), Math.round(lerp(lerp(150, 160, of), 155, suave(tramo(t, toma + 0.15, escribe))))];
+  T.editorial(R, t, { encuadre: 'despacho', camara: 'mesa', dibujos: 2 + 3 * tramo(t, P2 + 0.1, e(0.2115) + 0.3), pluma: [400, 150] });
+  // la hoja en blanco que le pone delante, y las rayas que escribe (onduladas: nada de letras)
+  for (let j = 0; j < 30; j++) for (let i = 0; i < 62; i++) if ((i + j) % 2) R.pset(172 + i, 149 + j, hex('#141a14'));
+  R.rect(167, 145, 229, 175, K); R.rect(168, 146, 228, 174, hex('#f6f2e6')); R.rect(168, 173, 228, 174, hex('#d8d2c0')); R.rect(227, 146, 228, 174, hex('#d8d2c0')); R.poligono([[222, 146], [228, 146], [228, 152]], hex('#c8c0aa')); R.linea(222, 146, 228, 152, K); R.rect(172, 150, 196, 150, hex('#c8c0aa')); R.rect(170, 146, 171, 152, hex('#9a9aa6'));
+  for (let k = 0; k <= lin && es > 0; k++) { const w = k < lin || es >= 1 ? 40 : fl * 40; for (let i = 0; i < w; i++) { const y = 155 + k * 6 + Math.round(Math.sin(i * 0.9 + k) * 1.3); R.pset(178 + i, y, hex('#22306a')); if (i % 9 === 8) R.pset(178 + i, y, hex('#f6f2e6')); } }
+  const pl = (x, y) => { R.linea(x + 3, y + 1, x + 25, y - 17, hex('#2a1a10')); for (let w = -1; w <= 1; w++) R.linea(x + 4 + w, y - 4 + w, x + 22 + w, y - 22 + w, w < 0 ? hex('#5a6ab0') : w ? hex('#141a3a') : hex('#2e3e84')); R.linea(x + 14, y - 15, x + 16, y - 13, hex('#e8c860')); R.linea(x + 18, y - 21, x + 24, y - 23, hex('#e8c860')); R.linea(x, y, x + 4, y - 4, hex('#e8c860')); R.linea(x + 1, y, x + 4, y - 3, hex('#c8a040')); R.pset(x, y, K); };
+  pl(tip[0], tip[1]);
+  if (of > 0.3 && t < toma) { const c2 = hex('#fff8c0'), sx = tip[0] + 25, sy = tip[1] - 25, r = Math.floor(t * 6) % 2 ? 3 : 2; for (let d = -r; d <= r; d++) { R.pset(sx + d, sy, c2); R.pset(sx, sy + d, c2); } }
+  const ed = suave(tramo(t, coge - 0.8, coge)) - suave(tramo(t, toma + 0.15, toma + 0.8));   // la mano del editor entra, ofrece y se va
+  if (ed > 0) { const wx = tip[0] + 25 + Math.round((1 - ed) * 80), wy = tip[1] - 13 - Math.round((1 - ed) * 12); T.brazo(R, wx + 50, wy + 26, wx, wy, '#8a6a48', -1, { codo: [wx + 26, wy + 4] }); }
+  const au = suave(tramo(t, toma - 0.6, toma + 0.1));   // la mano del autor
+  if (au > 0) { const wx = tip[0] - 12 - Math.round((1 - au) * 26), wy = tip[1] - 9 + Math.round((1 - au) * 36); T.brazo(R, wx - 30, wy + 42, wx, wy, '#2e5a3e', 1, { codo: [wx - 22, wy + 14] }); }
+};
+
+// 3 · la lámina de 1979: el niño persigue al perro
+const corre = e(0.502), para = e(0.575), mira = e(0.612);
+const perroX = (t) => t < corre ? lerp(-14, 92, suave(tramo(t, P3, P3 + 1.2))) : t < mira ? lerp(92, 204, suave(tramo(t, corre, para))) : lerp(204, 330, tramo(t, mira, P4) ** 1.4);
+const p3 = (t) => {
+  const dx = Math.round(perroX(t)), va = t < P3 + 1.2 || (t > corre && t < para) || t > mira, bote = va ? Math.round(Math.abs(Math.sin(t * 15)) * 2) : 0;
+  const o = { encuadre: 'libro1979', perro: [dx, 140 - bote], perroDir: t >= para && t < mira ? -1 : 1, perroSentado: t > P3 + 1.3 && t < corre - 0.15 };
+  T.editorial(R, t, o);
+  if (va) for (let k = 1; k <= 3; k++) { const px = dx - 10 - k * 5, py = 139 - ((Math.floor(t * 9) + k) % 3); R.pset(px, py, hex('#e8e8e4')); R.pset(px + 1, py, hex('#b8b8c0')); }
+  const u = tramo(t, corre - 0.5, P4), bx = Math.min(dx - 34, Math.round(lerp(-18, 214, u ** 0.9)));
+  R.actor(EL.nino77 ?? EL.chico, bx, 141, t, { dir: 1, anda: u > 0, dedo: t > para && t < mira, sorpresa: t > para && t < mira });
+  T.editorialDelante(R, t, o);
+};
+
+// 4 · la verja: el perro se cuela
+const sienta = e(0.70), cuela = e(0.744), dentro = e(0.765), llegaN = e(0.80);
+const p4 = (t) => {
+  const v = tramo(t, P4, sienta), c = suave(tramo(t, cuela, dentro + 0.5)), tras = t >= dentro;
+  const dx = Math.round(t < cuela ? lerp(-12, 148, suave(v)) : lerp(148, 152, c)), dy = Math.round(t < cuela ? 158 : lerp(158, 143, c));
+  const bote = (v > 0 && v < 1) || (t > cuela && c < 1) ? Math.round(Math.abs(Math.sin(t * 15)) * 2) : 0;
+  const o = { encuadre: 'libro1979', camara: 'verja', abre: 0.25 + 0.6 * suave(tramo(t, cuela - 0.25, cuela + 0.3)), perro: tras ? [dx, dy - bote] : undefined, perroDir: 1 };
+  T.editorial(R, t, o);
+  if (!tras) P.perro(R, dx, dy - bote, { t, dir: 1, sentado: t >= sienta && t < cuela - 0.1 });
+  // los destellos del jardín del mago
+  if (t > dentro) for (let k = 0; k < 6; k++) { const ph = (t * 1.3 + k * 0.37) % 1, sx = 126 + ((k * 37) % 68), sy = Math.round(120 - k * 9 - ph * 14); if (ph < 0.7) { const c2 = k % 2 ? hex('#fff8c0') : hex('#ffe08a'); R.pset(sx, sy, c2); if (ph > 0.15 && ph < 0.5) { R.pset(sx - 1, sy, c2); R.pset(sx + 1, sy, c2); R.pset(sx, sy - 1, c2); R.pset(sx, sy + 1, c2); } } }
+  const u = tramo(t, cuela, llegaN), bx = Math.round(lerp(-18, 118, u));
+  if (u > 0) R.actor(EL.nino77 ?? EL.chico, bx, 160, t, { dir: 1, anda: u < 1, sorpresa: u >= 1 && t < llegaN + 0.8, dedo: u >= 1 && t > llegaN + 0.3 });
+  if (u >= 1 && t < llegaN + 1) R.icono('?', bx + 4, 122 - Math.round(Math.abs(Math.sin(t * 6)) * 2), hex('#ffe08a'));
+  T.editorialDelante(R, t, o);
+};
+
+// 5 · gag 2: el perro escondido en todos los libros
+const C = [e(0.902), e(0.922), e(0.955), e(0.985)], Q = [[73, 83], [223, 83], [130, 161], [166, 162]];
+const p5 = (t) => {
+  const paradas = [[P5, [240, 212]], [P5 + 0.8, [212, 170]], [C[0], [226, 166]], [C[1] + 0.1, [204, 168]], [C[2] - 0.12, Q[2]], [C[2] + 0.22, Q[2]], [C[3] - 0.12, Q[3]], [E.duracion, [Q[3][0] + 1, Q[3][1] - 1]]];
+  let lupa = paradas[0][1]; for (let k = 0; k < paradas.length - 1; k++) if (t >= paradas[k][0]) { const z = suave(tramo(t, paradas[k][0], paradas[k + 1][0])); lupa = [Math.round(lerp(paradas[k][1][0], paradas[k + 1][1][0], z)), Math.round(lerp(paradas[k][1][1], paradas[k + 1][1][1], z))]; }
+  T.editorial(R, t, { encuadre: 'esquinas', cuantos: C.reduce((s, c) => s + tramo(t, c, c + 0.25), 0), lupa, radio: 15 });
+};
+const efectos = [[pasa + 0.3, 'papel'], [asombro, 'pop'], [P2 + 0.3, 'papel'], [escribe, 'firma'], [corre, 'guau'], [mira, 'guau'], [sienta + 0.2, 'guau'], [cuela, 'cerrojo'], [dentro + 0.2, 'brillo'], [C[0], 'lapiz'], [C[2], 'pop'], [C[3] + 0.2, 'guau']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t < P5 ? 1979 : Math.round(lerp(1979, 2026, tramo(t, P5 + 0.5, E.duracion - 0.8)))) });
+</script>
+</body>
+</html>

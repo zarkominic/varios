@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El pelo · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-PELO (frase 15), 1995. Cuatro planos (el golpe de la banda cae en la marca «pelo», al arrancar la frase):
+// 1. la sala de efectos: con el golpe se enciende la pantalla grande con el león de alambre, pelado; da error; un técnico
+//    llega con un león de peluche («¿y esto?») y el otro dice que no («X»);  2. (corta en «almost nobody») ante la cámara
+//    de cine: la claqueta se cierra y una mano mete el peluche en plano, lo menea como si rugiera… y se le dobla la cabeza;
+//    3. (corta en «The effects crew») la pantalla de tubo: se escribe el programa (rayas), la melena crece mechón a mechón,
+//    el último se queda de punta (gag 5: el cursor lo aplasta y vuelve a saltar) y llegan los monos de alambre;
+//    4. (corta en «in Jumanji») el cine: el león, ya con su melena, entra en la pantalla y ruge; los monos se columpian;
+//    una madre y su hijo, que llegan tarde, se quedan pasmados en el pasillo.
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-pelo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#16161c'), CREMA = hex('#fbf7ea'), ease = (u) => u * u * (3 - 2 * u);
+// un bocadillo (caja crema con filo) con el rabito hacia (px, py)
+const globo = (x0, y0, x1, y1, px, py) => {
+  R.rect(x0 + 1, y0, x1 - 1, y1, K); R.rect(x0, y0 + 1, x1, y1 - 1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, CREMA); R.rect(x0 + 2, y1 - 1, x1 - 2, y1 - 1, hex('#d8d0b8'));
+  const bx = Math.max(x0 + 3, Math.min(x1 - 8, px - 2)); R.poligono([[bx, y1], [bx + 6, y1], [px, py]], K); R.poligono([[bx + 1, y1 - 1], [bx + 5, y1 - 1], [px, py - 2]], CREMA);
+};
+
+const a = (f) => en('pelo', f);
+const P2 = a(0.1795), P3 = a(0.4055), P4 = a(0.775);
+const problema = a(0.047), en1995 = a(0.105), creible = a(0.263), compu = a(0.351), programas = a(0.468), crece = a(0.54), fur = a(0.56), porque = a(0.661), monosW = a(0.735), digital = a(0.914);
+// el león de peluche (13 × 13 celdas a escala s; sh: cuánto se le dobla la cabeza)
+const PEL = ['..MM.....MM..', '.MMMMMMMMMMM.', 'MMMMYYYYYMMMM', 'MMMYYYYYYYMMM', 'MMYYKYYYKYYMM', 'MMYYYYNYYYYMM', 'MMMYYWWWYYMMM', '.MMMYYYYYMMM.', '..MYYYYYYYM..', '.YYYYYCYYYYY.', '.YYYYYCYYYYY.', '.YY.YYYYY.YY.', '.YY.YY.YY.YY.'];
+const PCOL = { M: hex('#8a4a1c'), Y: hex('#e8b848'), K, N: hex('#5a2a14'), W: hex('#f6e2b0'), C: hex('#c89030') };
+const peluche = (x, y, s, sh = 0) => {
+  for (let pasa = 0; pasa < 2; pasa++) for (let j = 0; j < 13; j++) { const dx = Math.round(sh * Math.max(0, 8 - j) / 8), dy = Math.round(Math.abs(sh) * Math.max(0, 6 - j) / 14);
+    for (let i = 0; i < 13; i++) { const ch = PEL[j][i]; if (ch === '.') continue; const X = x + i * s + dx, Y = y + j * s + dy;
+      if (!pasa) R.rect(X - 1, Y - 1, X + s, Y + s, K); else { R.rect(X, Y, X + s - 1, Y + s - 1, PCOL[ch]); if (s >= 3) { if (ch === 'M') { R.pset(X + (i + j) % 3, Y + 1, hex('#a8622a')); R.pset(X + (i * 2 + j) % 3, Y + 2, hex('#6a3410')); } else if (ch === 'Y') R.pset(X + (i * 2 + j) % 3, Y + 2, hex('#d09a30')); else if (ch === 'K') R.pset(X, Y, hex('#ffffff')); } } } }
+};
+const p1 = (t) => {
+  const o = { encuadre: 'efectos', pelo: 0 }; const g = T.keene(R, t, o), [sx0, sy0, sx1, sy1] = g.pantallaGrande;
+  // con el golpe se enciende la pantalla grande; luego, el aviso de error (marco rojo y «X»)
+  if (t < 0.5) { R.rect(sx0, sy0, sx1, sy1, hex('#0a0e18')); R.pset(sx1 - 3, sy1 - 2, hex('#5a1a1a')); }
+  else if (t < 0.62) R.rect(sx0, sy0, sx1, sy1, hex('#d8f4e8'));
+  else if (t < 0.8) for (let y = sy0; y <= sy1; y += 2) R.rect(sx0, y, sx1, y, hex('#0a0e18'));
+  const mal = t > problema && t < P2 && Math.sin(t * 11) > -0.2;
+  if (mal) { const r = hex('#e8483a'); R.rect(sx0, sy0, sx1, sy0, r); R.rect(sx0, sy1, sx1, sy1, r); R.rect(sx0, sy0, sx0, sy1, r); R.rect(sx1, sy0, sx1, sy1, r); R.icono('X', sx1 - 10, sy0 + 3, r, K, 1); }
+  // el técnico que teclea se vuelve hacia la pantalla; el otro llega con el peluche y se lo enseña
+  const mira = t > 0.5;
+  const t1 = R.actor(EL.tecnicoFX1JM, 104, 145, t, { dir: mira ? 1 : -1, sorpresa: t > problema && t < problema + 0.8, triste: t > en1995 + 0.5, dedo: t > 0.8 && t < problema + 0.6 });
+  const u = ease(tramo(t, 0.3, problema + 0.5)), x2 = Math.round(lerp(300, 208, u)), alto = t > en1995;
+  const t2 = R.actor(EL.tecnicoFX2JM, x2, 145, t, { dir: -1, anda: u < 1, sostiene: [x2 - 3, alto ? 121 : 129], sonrisa: alto, habla: alto && t < en1995 + 0.6 && Math.sin(t * 9) > 0 });
+  peluche(t2.mano[0] - 9, t2.mano[1] - 12 + (alto && Math.sin(t * 10) > 0 ? -1 : 0), 1);
+  T.keeneDelante(R, t, o);
+  if (t > en1995 + 0.55) { const e = Math.min(1, (t - en1995 - 0.55) / 0.15), y0 = Math.round(lerp(104, 92, e)); globo(98, y0, 118, y0 + 19, 112, y0 + 26); R.icono('X', 103, y0 + 4, hex('#c8362e'), hex('#f0c8b8'), 2); }
+};
+const p2 = (t) => {
+  const o = { encuadre: 'plato', camara: 'camara', clac: tramo(t, P2 + 0.45, P2 + 0.58), escena: 35, plano: 2, toma: 7 }; T.keene(R, t, o);
+  // la mano mete el peluche delante del objetivo, lo menea como si rugiera… y se le dobla la cabeza
+  const u = ease(tramo(t, P2 + 0.8, P2 + 1.5)), menea = t > creible && t < compu, cae = tramo(t, compu, compu + 0.35), rebote = cae >= 1 ? Math.sin(Math.min(1, (t - compu - 0.35) / 0.5) * Math.PI * 3) * (1 - Math.min(1, (t - compu - 0.35) / 0.5)) * 2 : 0;
+  const px = Math.round(lerp(326, 256, u) + (menea ? Math.sin(t * 20) * 1.6 : 0)), py = 62 + (menea ? Math.round(Math.abs(Math.sin(t * 10)) * -3) : 0);
+  if (u > 0) { T.brazo(R, 334, py + 44, px + 48, py + 26, '#3a5a8a', -1); peluche(px, py, 3, -(cae * 9 + rebote));
+    if (menea && Math.sin(t * 10) > 0.3) for (const [i, j] of [[-6, 8], [-9, 14], [-5, 20]]) { R.pset(px + i, py + j, hex('#fff2b8')); R.pset(px + i - 1, py + j, hex('#fff2b8')); } }
+};
+const p3 = (t) => {
+  const pelo = tramo(t, crece, porque - 0.15), aplasta = t > porque + 0.75 && t < porque + 1.12;
+  const o = { encuadre: 'efectos', camara: 'pantalla', pelo, punta: t > porque + 0.05 && !aplasta, monos: tramo(t, monosW - 0.15, monosW + 0.5) }; const g = T.keene(R, t, o);
+  R.recorte(g.pantalla);
+  // la ventana del programa: renglones de código (rayas de colores) que se escriben; al ejecutarlo se pliega
+  { const cierra = tramo(t, crece - 0.3, crece - 0.05), x0 = 200, y0 = 46, x1 = 272, y1 = Math.round(lerp(100, 54, cierra));
+    if (cierra < 1) { R.poligono([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], hex('#0c1830')); for (const [ax, ay, bx, by] of [[x0, y0, x1, y0], [x0, y1, x1, y1], [x0, y0, x0, y1], [x1, y0, x1, y1]]) R.linea(ax, ay, bx, by, hex('#58e0a0')); R.poligono([[x0 + 1, y0 + 1], [x1 - 1, y0 + 1], [x1 - 1, y0 + 5], [x0 + 1, y0 + 5]], hex('#1e5a52')); R.pset(x1 - 3, y0 + 3, hex('#ff6a5a')); R.pset(x1 - 6, y0 + 3, hex('#ffd45a'));
+      const L = [[0, 22, 0], [4, 30, 1], [4, 18, 2], [8, 26, 1], [8, 34, 3], [4, 12, 0], [0, 28, 2], [4, 22, 1]]; let n = Math.floor(tramo(t, P3 + 0.15, programas + 0.9) * 196), cx = x0 + 4, cy = y0 + 9;
+      for (let i = 0; i < L.length && y0 + 9 + i * 6 < y1 - 2; i++) { const [ind, len, c] = L[i], y = y0 + 9 + i * 6, w = Math.min(len, n); n -= w; if (w <= 0) break; for (let x = 0; x < w; x++) if (x % 7 !== 5) R.pset(x0 + 4 + ind + x, y, hex(['#58e0a0', '#8ac8ff', '#ffd45a', '#ff9a6a'][c])); cx = x0 + 4 + ind + w + 1; cy = y; }
+      if (cierra === 0 && Math.sin(t * 12) > 0) { R.pset(cx, cy, hex('#ffffff')); R.pset(cx, cy - 1, hex('#ffffff')); R.pset(cx + 1, cy, hex('#ffffff')); R.pset(cx + 1, cy - 1, hex('#ffffff')); } } }
+  // al crecer, chispas en el frente de la melena
+  if (pelo > 0 && pelo < 1) for (let i = 0; i < 5; i++) { const an = t * 9 + i * 1.3, x = Math.round(g.nuca[0] + (g.coronilla[0] - g.nuca[0]) * pelo + Math.cos(an) * (6 + i)), y = Math.round(g.nuca[1] + (g.coronilla[1] - g.nuca[1]) * pelo + Math.sin(an) * (6 + i)); R.pset(x, y, hex('#fff2b8')); }
+  // el cursor: baja a aplastar el mechón de punta, y el mechón vuelve a saltar
+  { const tip = g.punta ?? [g.coronilla[0], 27], v = ease(tramo(t, porque + 0.2, porque + 0.75)), sale = ease(tramo(t, porque + 1.12, porque + 1.3));
+    if (t > porque + 0.1 && t < monosW + 0.4) { const x = Math.round(lerp(236, tip[0] + 1, v) + sale * 9), y = Math.round(lerp(92, tip[1] - 2 + (aplasta ? 5 : 0), v) - sale * 7);
+      R.poligono([[x - 1, y - 1], [x - 1, y + 11], [x + 2, y + 9], [x + 5, y + 13], [x + 8, y + 12], [x + 5, y + 8], [x + 9, y + 8]], K); R.poligono([[x, y + 1], [x, y + 9], [x + 2, y + 7], [x + 5, y + 11], [x + 6, y + 11], [x + 4, y + 7], [x + 7, y + 7]], hex('#ffffff')); }
+    if (t > porque + 1.12 && t < porque + 1.5) for (const [i, j] of [[-5, -2], [5, -3], [-7, 3], [7, 2]]) R.pset(tip[0] + i, tip[1] + j, hex('#fff2b8')); }
+  R.recorte(null);
+};
+// EL LEÓN de la película (nuestro), de perfil hacia la derecha, con su melena de mechones: (ox, oy) lo desplaza
+const leon = (ox, oy, t, o = {}) => {
+  const C1 = hex('#d9a441'), C2 = hex('#a8742a'), C3 = hex('#f0c868'), M1 = hex('#7a4416'), M2 = hex('#a86220'), M3 = hex('#4e280c'), X = (x) => Math.round(x + ox), Y = (y) => Math.round(y + oy), pg = (pts, c) => R.poligono(pts.map(([x, y]) => [X(x), Y(y)]), c);
+  const pa = o.anda ? Math.floor(t * 5) & 1 : -1, cola = Math.sin(t * 2.4) * 5;
+  // la cola con su borla
+  R.linea(X(128), Y(58), X(118), Y(52), C2); R.linea(X(128), Y(59), X(118), Y(53), C1); R.linea(X(118), Y(52), X(112 + cola * 0.4), Y(42), C2); R.linea(X(118), Y(53), X(113 + cola * 0.4), Y(42), C1); R.disco(X(112 + cola * 0.5), Y(40), 3, M1); R.pset(X(111 + cola * 0.5), Y(38), M2);
+  // las patas de atrás y de delante (las de detrás, más oscuras)
+  for (const [x, lejos, k] of [[140, 1, 0], [182, 1, 1], [132, 0, 1], [174, 0, 0]]) { const up = pa === k ? 2 : 0, c = lejos ? C2 : C1; pg([[x, 68], [x + 8, 68], [x + 7, 86 - up], [x + 9, 88 - up], [x, 88 - up], [x + 1, 80]], c); R.linea(X(x), Y(88 - up), X(x + 9), Y(88 - up), M3); if (!lejos) R.linea(X(x + 8), Y(70), X(x + 7), Y(86 - up), C2); }
+  // el cuerpo: lomo, panza clara y sombra
+  pg([[128, 56], [150, 52], [186, 50], [194, 58], [192, 72], [176, 76], [146, 77], [130, 74], [126, 64]], C1); pg([[130, 70], [192, 68], [190, 73], [176, 76], [146, 77], [131, 74]], C2); R.linea(X(132), Y(55), X(184), Y(51), C3); R.linea(X(150), Y(53), X(184), Y(51), C3);
+  for (let i = 0; i < 9; i++) R.pset(X(136 + i * 6), Y(60 + (i * 5) % 9), C2);
+  // la melena: el disco y los mechones que se mecen (más revueltos al rugir)
+  const ag = o.ruge ? 2.2 : 0.8; R.disco(X(203), Y(60), 17, M1);
+  for (let i = 0; i < 22; i++) { const an = i / 22 * 6.283 + 0.3, l = 16 + (i * 7) % 5 + Math.sin(t * (o.ruge ? 14 : 3) + i * 1.7) * ag, x0 = 203 + Math.cos(an) * 12, y0 = 60 + Math.sin(an) * 12; if (an > 5.6 || an < 0.75) continue; R.linea(X(x0), Y(y0), X(203 + Math.cos(an + 0.12) * l), Y(60 + Math.sin(an + 0.12) * l * 1.05), i % 3 ? M2 : M3); R.linea(X(x0 + 1), Y(y0), X(204 + Math.cos(an + 0.12) * l), Y(60 + Math.sin(an + 0.12) * l * 1.05), M1); }
+  for (let i = 0; i < 16; i++) { const an = i * 2.4, d = 5 + (i * 5) % 9; R.linea(X(200 + Math.cos(an) * d), Y(60 + Math.sin(an) * d), X(200 + Math.cos(an) * d - 1), Y(63 + Math.sin(an) * d), i % 2 ? M2 : M3); }
+  // la cara: oreja, frente, hocico claro, nariz, ojo y la boca (abierta al rugir)
+  R.disco(X(204), Y(46), 3, C2); R.pset(X(204), Y(46), M3); R.disco(X(211), Y(59), 9, C1); R.disco(X(217), Y(63), 5, hex('#f4dca8')); pg([[220, 58], [223, 59], [222, 62], [219, 61]], M3); R.pset(X(212), Y(55), K); R.pset(X(213), Y(55), K); R.pset(X(212), Y(54), M3); R.pset(X(213), Y(54), M3); R.pset(X(213), Y(56), hex('#ffffff'));
+  if (o.ruge) { pg([[213, 64], [222, 63], [221, 72], [215, 71]], hex('#6a1a1a')); R.pset(X(215), Y(65), hex('#ffffff')); R.pset(X(220), Y(65), hex('#ffffff')); R.pset(X(216), Y(70), hex('#ffffff')); R.pset(X(219), Y(70), hex('#ffffff')); R.linea(X(216), Y(68), X(219), Y(68), hex('#e86a6a')); }
+  else { R.linea(X(215), Y(66), X(221), Y(65), M3); R.pset(X(218), Y(64), M3); }
+  for (const j of [61, 63]) R.linea(X(219), Y(j), X(226), Y(j - 1), hex('#f4ecd0'));
+};
+// un mono que se columpia de una liana (cuelga de (x, 28))
+const mono = (x, t, f) => { const an = Math.sin(t * 2.2 + f) * 0.5, L = 30, mx = Math.round(x + Math.sin(an) * L), my = Math.round(28 + Math.cos(an) * L), P1 = hex('#6a4426'), P2c = hex('#d8a878');
+  R.linea(x, 28, mx, my - 6, hex('#2e6a2a')); R.linea(x + 1, 28, mx + 1, my - 6, hex('#1c4a1e'));
+  R.linea(mx, my - 6, mx - 2, my, P1); R.linea(mx + 1, my - 6, mx + 3, my, P1); R.disco(mx, my + 3, 4, P1); R.disco(mx, my - 2, 3, P1); R.disco(mx + (an > 0 ? 1 : -1), my - 1, 2, P2c); R.pset(mx + (an > 0 ? 2 : -2), my - 2, K); R.pset(mx - 3, my - 3, P2c); R.pset(mx + 3, my - 3, P2c);
+  R.linea(mx - 2, my + 6, mx - 4, my + 10, P1); R.linea(mx + 2, my + 6, mx + 4, my + 10, P1); for (let i = 0; i < 7; i++) R.pset(Math.round(mx - 4 - i * 0.6 - Math.sin(i * 0.9) * 2), my + 5 + i, P1); };
+const p4 = (t) => {
+  const o = { encuadre: 'sala', pantalla: 'selva', lleno: 0.75 }; const g = T.cine(R, t, o), [x0, y0, x1, y1] = g.pantalla;
+  const entra = ease(tramo(t, P4 + 0.1, P4 + 2.0)), ruge = t > digital && t < digital + 1.5;
+  // LA PELÍCULA (la pinta la escena, recortada a la pantalla): la selva al fondo, el claro y el león que entra y ruge
+  R.recorte([x0, y0, x1, y1]);
+  for (let y = y0; y <= y1; y += 4) { const f = (y - y0) / (y1 - y0); R.poligono([[x0 - 1, y - 1], [x1 + 1, y - 1], [x1 + 1, y + 5], [x0 - 1, y + 5]], hex(['#0d3a24', '#0f4228', '#124a2c', '#165430', '#1a5e34', '#1f6a3a'][Math.min(5, Math.floor(f * 6 + ((y >> 2) & 1) * 0.5))])); }
+  for (let i = 0; i < 26; i++) { const lx = x0 + ((i * 53) % 200), ly = y0 + 2 + ((i * 29) % 50), an = -1.2 + (i % 5) * 0.6 + Math.sin(t * 1.1 + i) * 0.08, l = 14 + (i * 7) % 12, ex = lx + Math.cos(an) * l, ey = ly + Math.sin(an) * l, nx = -Math.sin(an) * (3 + i % 3), ny = Math.cos(an) * (3 + i % 3), c = hex(['#1c6a34', '#2a8a40', '#14522a', '#38a048'][i % 4]);
+    R.poligono([[lx, ly], [(lx + ex) / 2 + nx, (ly + ey) / 2 + ny], [ex, ey], [(lx + ex) / 2 - nx, (ly + ey) / 2 - ny]].map(([x, y]) => [Math.round(x), Math.round(y)]), c); R.linea(Math.round(lx), Math.round(ly), Math.round(ex), Math.round(ey), hex('#0d3a24')); }
+  for (let i = 0; i < 4; i++) { const rx = x0 + 30 + i * 46 + Math.round(Math.sin(t * 0.4 + i) * 3); for (let y = y0; y < y1 - 16; y += 2) R.pset(rx + ((y - y0) >> 2), y, hex('#7ad070')); }
+  R.poligono([[x0, y1], [x0, 86], [96, 80], [150, 77], [214, 79], [x1, 85], [x1, y1]], hex('#3a3220')); R.linea(x0, 86, 96, 80, hex('#6a5a34')); R.linea(96, 80, 150, 77, hex('#6a5a34')); R.linea(150, 77, 214, 79, hex('#6a5a34')); R.linea(214, 79, x1, 85, hex('#6a5a34'));
+  for (let i = 0; i < 14; i++) { const gx = x0 + 6 + i * 14, m = Math.round(Math.sin(t * 2 + i)); R.linea(gx, 84 + (i % 3), gx + m, 79 + (i % 3), hex('#2a8a40')); R.linea(gx + 3, 85 + (i % 3), gx + 4 - m, 81 + (i % 3), hex('#1c6a34')); }
+  mono(88, t, 0); mono(240, t, 2.1);
+  leon(Math.round(lerp(-176, -14, entra)), -10 + (entra < 1 && (Math.floor(t * 5) & 1) ? -1 : 0), t, { anda: entra < 1, ruge });
+  if (t > digital - 0.2) for (let i = 0; i < 7; i++) if (Math.sin(t * 6 + i * 2.1) > 0.5) { const sx = 189 + Math.round(Math.cos(i * 0.9) * 22), sy = 50 + Math.round(Math.sin(i * 0.9) * 20); R.pset(sx, sy, hex('#ffffff')); R.pset(sx - 1, sy, hex('#fff2b8')); R.pset(sx + 1, sy, hex('#fff2b8')); R.pset(sx, sy - 1, hex('#fff2b8')); R.pset(sx, sy + 1, hex('#fff2b8')); }
+  if (Math.floor(t * 24) % 9 === 0) R.linea(x0 + ((Math.floor(t * 24) * 37) % 190), y0, x0 + ((Math.floor(t * 24) * 37) % 190), y1, hex('#2f7a44'));
+  R.recorte(null);
+  // los que llegan tarde: la madre y el chico cruzan por el pasillo y se quedan pasmados cuando ruge
+  const v = tramo(t, P4 + 0.3, digital - 0.4), mx = Math.round(lerp(8, 92, v));
+  R.actor(EL.vecina2JM, mx, 153, t, { dir: 1, anda: v < 1, sorpresa: ruge, sonrisa: t > digital + 1.5 });
+  R.actor(EL.chico1JM, mx + 20, 154, t, { dir: 1, anda: v < 1, sorpresa: ruge, dedo: v >= 1, salto: ruge && t < digital + 0.3 ? 3 : 0, sonrisa: t > digital + 1.5 });
+  T.cineDelante(R, t, o);
+};
+const efectos = [[0.5, 'interruptor'], [problema + 0.05, 'bip'], [en1995 + 0.6, 'pop'], [P2 + 0.5, 'toc'], [compu + 0.1, 'boing'], [P3 + 0.3, 'tecleo'], [programas, 'tecleo'], [crece, 'zumbido'], [porque + 0.05, 'boing'], [porque + 0.78, 'golpecito'], [porque + 1.14, 'boing'], [P4 + 0.4, 'maquina'], [digital, 'publico'], [digital + 0.5, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1995 });
+</script>
+</body>
+</html>

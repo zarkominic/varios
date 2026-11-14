@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom con NUESTRO juego en el escritorio (gag 1). Atom ha bajado
+// con los dos dados colgando; bota en «I'm Atom»; en «explain» los agita y los tira: ruedan por la mesa y se paran
+// (5 y 3); en «wondered» una liana baja del techo, en «about» engancha el lápiz y se lo lleva; Atom da un respingo
+// («!») y en «Let's find out» vuelve de un salto a su esquina.
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c'), ROJOS = hex('#8e2418'), PZ = T.PIEZAS_JM;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
+// el vaho de cerca (visto desde arriba): bocanadas tramadas que suben desde el borde de abajo y se deshacen
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const vahoGrande = (x, y, t, f = 1) => { for (let k = 0; k < 3; k++) { const u = (t * 0.5 + k / 3) % 1, px = x + Math.sin(u * 5 + k * 2) * 6 + (k - 1) * 9, py = y - u * 44, r = 4 + u * 9;
+  for (let j = -12; j <= 12; j++) for (let i = -12; i <= 12; i++) { const dd = Math.hypot(i, j * 1.2) / r, X = Math.round(px) + i, Y = Math.round(py) + j; if (dd < 1 && Math.min(1, u * 6) * (1 - u) * f * (1 - dd * 0.6) * 1.5 > B4[(X & 3) + (Y & 3) * 4] / 16 + 0.04) R.pset(X, Y, dd < 0.45 ? hex('#eef4fc') : hex('#b8c8e0')); } } };
+// la mano que dibuja: la mano canónica sola (sin manga: el papel queda lejos del borde y un brazo pasaría de 45 px),
+// con su sombra tramada sobre el papel, y el lápiz con la punta en (px, py)
+const manoLapiz = (px, py, manga, o = {}) => {
+  px = Math.round(px); py = Math.round(py);
+  for (let j = 0; j < 9; j++) for (let i = 0; i < 16; i++) if (((i + j) & 1) && Math.hypot((i - 8) / 8, (j - 4) / 4.5) < 1) R.pset(px + 4 + i, py + 2 + j, hex('#8a8474'));
+  T.g_lapizGrande(R, px + 23, py - 24, px, py, { negro: !!o.negro });
+  T.mano(R, px + 12, py - 4, -1, manga, { sinManga: true });
+};
+
+R.companero = () => {};   // Atom está en el plano: baja a la mesa y al final vuelve a su esquina
+const wh = (s) => en('hola', (s - 0.5) / 4.588);
+const ATOM = wh(0.66), EXPLICA = wh(1.36), SUELTA = wh(1.86), LIANA = wh(2.66), COGE = wh(3.32), VAMOS = wh(4.17), PARAN = SUELTA + 0.85;
+const p1 = (t) => {
+  const cogido = t >= COGE, o = { encuadre: 'estudio', dados: t >= PARAN ? [5, 3] : false, lapiz: !cogido };
+  T.hoy(R, t, o);
+  const d = T.hoyDelante(R, t, o), [dx, dy] = d.dados || [125, 130], [lx, ly] = d.lapiz || [187, 128];
+  // Atom: bota en «I'm Atom», agita los dados y los suelta; respingo cuando la liana se lleva el lápiz; vuelve a su esquina
+  const AX = 118, AY = 80, sal = t > ATOM - 0.1 && t < EXPLICA ? Math.round(Math.abs(Math.sin((t - ATOM + 0.1) * Math.PI * 2.4)) * 9 * Math.max(0.3, 1 - (t - ATOM))) : 0;
+  const agita = t > EXPLICA && t < SUELTA ? Math.round(Math.sin((t - EXPLICA) * 40) * 3) : 0, resp = t > COGE && t < COGE + 0.5 ? Math.round(Math.sin((t - COGE) / 0.5 * Math.PI) * 7) : 0;
+  const v = tramo(t, VAMOS + 0.15, E.duracion - 0.35), e = ease(v);
+  const pos = (vv) => { const ee = ease(vv); return [lerp(AX, 297, ee), lerp(AY, 24, ee) - Math.sin(vv * Math.PI) * 16]; };
+  const [bx0, by0] = v > 0 ? pos(v) : [AX + agita, AY], ax = bx0, ay = by0 - sal - resp + (v < 1 ? Math.sin(t * 2.6) * 2 : Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6)));
+  // los dados: cuelgan de Atom, caen, botan dos veces y se paran en su sitio
+  if (t < SUELTA) { const hx = Math.round(ax + 2), hy = Math.round(ay + 30); for (let k = 0; k < 4; k++) R.pset(hx - 5 + k * 3, hy - 14 + ((k + Math.floor(t * 8)) & 1), hex('#c8f0ff')); PZ.dados(R, hx, hy, { caras: t < EXPLICA ? [2, 6] : [1 + Math.floor(t * 9) % 6, 1 + Math.floor(t * 7 + 3) % 6] }); }
+  else if (t < PARAN) { const f = (t - SUELTA) / (PARAN - SUELTA), hx = AX + 2, hy = AY + 30; let x, y;
+    if (f < 0.55) { const u = f / 0.55; x = lerp(hx, dx + 12, u); y = lerp(hy, dy + 1, u) - 4 * 24 * u * (1 - u); }
+    else if (f < 0.82) { const u = (f - 0.55) / 0.27; x = lerp(dx + 12, dx + 3, u); y = dy + 1 - Math.sin(u * Math.PI) * 8; }
+    else { const u = (f - 0.82) / 0.18; x = lerp(dx + 3, dx, u); y = dy + 1 - Math.sin(u * Math.PI) * 3; }
+    if (f < 0.55) for (let k = 1; k <= 4; k++) { const u = Math.max(0, f - k * 0.035) / 0.55; R.pset(Math.round(lerp(hx, dx + 12, u)), Math.round(lerp(hy, dy + 1, u) - 4 * 24 * u * (1 - u)) - 6, k & 1 ? BL : hex('#c8f0ff')); }
+    PZ.dados(R, Math.round(x), Math.round(y), { caras: [1 + Math.floor(t * 13) % 6, 1 + Math.floor(t * 11 + 2) % 6] }); }
+  else if (t < PARAN + 0.4) { const s = (t - PARAN) / 0.4; destello(dx - 4, dy - 14 - s * 4, s < 0.5 ? 3 : 2, hex('#fff4b8')); }
+  // la liana: baja del techo, engancha el lápiz y se lo lleva
+  const baja = ease(tramo(t, LIANA, COGE)), sube = 0.58 * ease(tramo(t, COGE + 0.15, COGE + 0.5)) + 0.42 * ease(tramo(t, COGE + 1.0, COGE + 1.4)), largo = lerp(lerp(6, ly - 5 - 8, baja), 4, sube);
+  if (baja > 0) { const li = PZ.liana(R, lx, 5, { largo, t }) || {}, [qx, qy] = li.punta || [lx, 5 + largo]; if (cogido && qy > 14) { const bal = sube > 0 && sube < 1 ? Math.round(Math.sin((t - COGE) * 11) * 2) : 0; R.rect(qx - 1 + bal, qy - 2, qx + 4 + bal, qy + 15, BL); T.g_lapizMesa(R, qx + 1 + bal, qy + 6, { vertical: true }); if (Math.floor(t * 10) % 2) destello(qx + 7 + bal, qy + 3, 1, hex('#fff4b8')); else destello(qx - 5 + bal, qy + 11, 1, BL); } }
+  if (t > COGE && t < COGE + 0.9) { const gx = Math.round(ax + 9), gy = Math.round(ay - 28); R.disco(gx, gy, 9, K); R.disco(gx, gy, 8, BL); R.disco(gx - 8, gy + 9, 2, K); R.disco(gx - 8, gy + 9, 1, BL); R.icono('!', gx - 3, gy - 6, ROJO, null, 2); }
+  if (v > 0 && v < 1) for (let k = 1; k <= 7; k++) { const [qx, qy] = pos(Math.max(0, v - k * 0.04)); R.pset(Math.round(qx), Math.round(qy), hex('#c8f0ff')); if (k % 2) R.pset(Math.round(qx) + 1, Math.round(qy) + 1, BL); }
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(12, 10, e)) + (sal > 3 ? 1 : 0), e: sal > 0 || agita || resp || (v > 0 && v < 1) ? 0.8 : 0.4, vel: 1 });
+  if (sal > 2 || resp > 2) chispas(ax, ay, t, 20, 10, hex('#c8f0ff'));
+};
+const efectos = [[ATOM, 'pop'], [SUELTA + 0.3, 'golpecito'], [LIANA + 0.1, 'whoosh'], [COGE + 0.15, 'boing'], [VAMOS + 0.15, 'brillo']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

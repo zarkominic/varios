@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Keene · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-KEENE (frase 14), 1994. Tres planos:
+// 1. el plató: la estrella (EL.williams, sin caracterizar) llega con su guion bajo el brazo, el foco se enciende sobre él,
+//    el director lo recibe con una palmada y él saluda con el guion en alto;  2. (corta en «they chose a real one») la calle mayor de Keene con
+//    el rodaje: los vecinos miran, suena la campana y salen pájaros de la aguja; el pintor cruza con su escalera y su bote
+//    camino de la pared;  3. (corta en «they painted») la pared de ladrillo: el pintor, en el andamio, pinta el zapato de
+//    izquierda a derecha (pintura lavable, pálida); abajo los vecinos miran, uno se pregunta «?» (la fábrica no existe) y
+//    al acabar el pintor saluda y le aplauden.
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-keene');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#16161c'), CREMA = hex('#fbf7ea'), ease = (u) => u * u * (3 - 2 * u);
+// un bocadillo (caja crema con filo) con el rabito hacia (px, py)
+const globo = (x0, y0, x1, y1, px, py) => {
+  R.rect(x0 + 1, y0, x1 - 1, y1, K); R.rect(x0, y0 + 1, x1, y1 - 1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, CREMA); R.rect(x0 + 2, y1 - 1, x1 - 2, y1 - 1, hex('#d8d0b8'));
+  const bx = Math.max(x0 + 3, Math.min(x1 - 8, px - 2)); R.poligono([[bx, y1], [bx + 6, y1], [px, py]], K); R.poligono([[bx + 1, y1 - 1], [bx + 5, y1 - 1], [px, py - 2]], CREMA);
+};
+
+const k = (f) => en('keene', f);
+const P2 = k(0.271), P3 = k(0.6235);
+const robin = k(0.077), keeneW = k(0.374), pared = k(0.494), zapato = k(0.7295), noExiste = k(0.839), fin = k(0.94);
+// el guion pequeño (hojas con dos grapas y rayas) en la mano
+const guion = (x, y) => { R.rect(x - 4, y - 6, x + 4, y + 5, K); R.rect(x - 3, y - 5, x + 3, y + 4, hex('#f4efe0')); R.rect(x - 3, y + 4, x + 3, y + 4, hex('#c8c0a8')); for (let j = -3; j <= 2; j += 2) R.rect(x - 1, y + j, x + 2, y + j, hex('#8a8698')); R.pset(x - 3, y - 4, hex('#c89a2a')); R.pset(x - 3, y + 2, hex('#c89a2a')); };
+const p1 = (t) => {
+  const o = { encuadre: 'plato' }; T.keene(R, t, o);
+  const u = ease(tramo(t, 0.15, robin + 0.45)), wx = Math.round(lerp(262, 148, u)), anda = u > 0 && u < 1, luz = t > robin;
+  // el foco que se enciende sobre él: el haz tramado desde la cercha y el charco de luz en la alfombra
+  if (luz) { const cx = wx + 8, f = Math.min(1, (t - robin) / 0.25);
+    R.rect(148, 40, 156, 41, hex('#ffffff')); R.rect(150, 42, 154, 42, hex('#fff2b8')); for (let y = 43; y <= 47; y++) for (let x = 152 - (y - 42); x <= 152 + (y - 42); x++) if ((x + y) & 1) R.pset(x, y, hex('#fff2b8'));
+    for (let j = -5; j <= 5; j++) { const w = Math.round(Math.sqrt(1 - (j * j) / 30) * 22 * f); for (let x = cx - w; x <= cx + w; x++) if ((x + j) % 2 === 0) R.pset(x, 151 + j, Math.abs(j) < 3 && Math.abs(x - cx) < w - 5 ? hex('#fff2b8') : hex('#f0c868')); } }
+  // el director (lo recibe con una palmada) y la ayudante con el guion en alto
+  const palm = t > robin + 0.5 && t < robin + 1.7;
+  R.actor(EL.guionista1JM, 92, 150, t, { dir: 1, brazos: palm && Math.sin(t * 16) > 0, sonrisa: t > robin, habla: t > robin + 1.7 && Math.sin(t * 8) > 0, dedo: t > robin + 1.9 });
+  const ay = R.actor(EL.guionista2JM, 186, 152, t, { dir: -1, sostiene: true, sonrisa: t > robin, salto: t > robin + 0.6 && t < robin + 0.9 ? 2 : 0 }); guion(ay.mano[0], ay.mano[1]);
+  // la estrella entra desde el puesto de comida, se para en la alfombra y saluda
+  const saluda = !anda && t > robin + 0.6;
+  const w = R.actor(EL.williams, wx, 150, t, { dir: -1, anda, sostiene: saluda ? [wx - 2, 133 + Math.round(Math.sin(t * 8) * 2)] : true, sonrisa: !anda, habla: saluda && Math.sin(t * 9) > 0.2, salto: saluda && t < robin + 0.85 ? 2 : 0 });
+  guion(w.mano[0], w.mano[1]);
+  T.keeneDelante(R, t, o);
+};
+// la escalera de mano que el pintor lleva al hombro
+const escalera = (x, y) => { const m = hex('#d8a868'), s = hex('#8a5a2c'); for (const [dy, c] of [[-1, K], [0, m], [1, s], [2, K]]) { R.linea(x - 18, y + 3 + dy, x + 20, y - 3 + dy, c); R.linea(x - 18, y - 4 + dy, x + 20, y - 10 + dy, c); } for (let i = -14; i <= 17; i += 6) { const yy = y - Math.round((i + 18) * 0.158); R.linea(x + i, yy + 3, x + i, yy - 3, K); R.linea(x + i + 1, yy + 2, x + i + 1, yy - 3, m); } };
+const p2 = (t) => {
+  const o = { encuadre: 'calle', rodaje: true }; const g = T.keene(R, t, o);
+  // la campana: los pájaros salen de la aguja de la iglesia
+  { const v = tramo(t, keeneW, keeneW + 2.2); if (v > 0 && v < 1) for (let i = 0; i < 6; i++) { const a = -2.4 + i * 0.36, d = v * (26 + i * 5), x = Math.round(222 + Math.cos(a) * d * 1.3), y = Math.round(30 + Math.sin(a) * d * 0.6 - v * 6), al = Math.sin(t * 16 + i) > 0 ? 1 : 0; if (y > 16 || x > 172) { R.pset(x, y, K); R.pset(x - 1, y - al, K); R.pset(x + 1, y - al, K); } }
+    if (t > keeneW && t < keeneW + 0.9) for (const s of [-1, 1]) { const r = 4 + Math.floor((t - keeneW) * 9); R.pset(222 + s * r, 40, hex('#ffe9a0')); R.pset(222 + s * r, 42, hex('#ffe9a0')); R.pset(222 + s * (r + 1), 41, hex('#ffe9a0')); } }
+  const px = Math.round(lerp(122, 306, tramo(t, P2 + 0.1, P3 + 0.3)));
+  // los vecinos: él señala el rodaje, ella se asombra, y los dos siguen con la cabeza al pintor; otra llega por la derecha
+  R.actor(EL.vecino1JM, 154, 134, t, { dir: px > 166 ? 1 : -1, dedo: t > P2 + 0.3 && t < keeneW, habla: t < keeneW && Math.sin(t * 8) > 0, sonrisa: true });
+  R.actor(EL.vecina2JM, 176, 134, t, { dir: px > 190 ? 1 : -1, sorpresa: t < P2 + 1.1, sonrisa: true, dedo: t > pared && t < P3 - 0.2 });
+  const v3 = tramo(t, P2, keeneW + 0.6); R.actor(EL.vecina3JM, Math.round(lerp(318, 262, v3)), 134, t, { dir: -1, anda: v3 < 1, sorpresa: v3 >= 1 && t < pared, sonrisa: t >= pared });
+  // el pintor, con la escalera al hombro y el bote, camino de la pared
+  const pin = R.actor(EL.pintorJM, px, 134, t, { dir: 1, anda: true, sostiene: [px + 16, 126] });
+  escalera(px + 5, 106 - (Math.floor(t * 5 + px * 0.37) & 1)); T.PIEZAS_JM.botePintura(R, pin.mano[0] + 1, pin.mano[1] + 15, {}); R.linea(pin.mano[0] - 3, pin.mano[1] + 1, pin.mano[0] + 1, pin.mano[1] - 3, hex('#8a8e9c')); R.linea(pin.mano[0] + 5, pin.mano[1] + 1, pin.mano[0] + 1, pin.mano[1] - 3, hex('#8a8e9c'));
+  T.keeneDelante(R, t, o);
+};
+// la brocha pequeña con pintura
+const brocha = (x, y) => { R.rect(x - 2, y - 5, x + 2, y + 1, K); R.rect(x - 1, y - 4, x + 1, y - 2, hex('#e0a090')); R.rect(x - 1, y - 1, x + 1, y, hex('#c8ccd4')); R.rect(x - 1, y + 2, x + 1, y + 7, K); R.rect(x, y + 2, x, y + 6, hex('#b88648')); };
+const p3 = (t) => {
+  const pinta = tramo(t, P3 + 0.15, zapato + 0.35), hecho = pinta >= 1;
+  const o = { encuadre: 'pared', letrero: lerp(0.42, 1, pinta), lavable: true, andamio: true }; const g = T.keene(R, t, o);
+  // el pintor, en el andamio: brochazos arriba y abajo en el frente de la pintura; al acabar se vuelve y saluda
+  const ax = Math.round(g.andamio.x) - 24, ay = g.andamio.y, by = ay - 17 + Math.round(Math.sin(t * 7) * 6);
+  if (!hecho) { const p = R.actor(EL.pintorJM, ax, ay, t, { dir: 1, sostiene: [ax + 22, by] }); brocha(p.mano[0] + 1, p.mano[1] - 2); if (Math.sin(t * 7) > 0.6) { R.pset(p.mano[0] + 3, p.mano[1] + 6, hex('#e0a090')); R.pset(p.mano[0] - 1, p.mano[1] + 9, hex('#e0a090')); } }
+  else R.actor(EL.pintorJM, ax, ay, t, { dir: -1, brazos: t > fin - 0.3 && Math.sin(t * 9) > -0.3 && (t < fin + 1.2 || t > fin + 1.9), dedo: t <= fin - 0.3, sonrisa: true });
+  T.keeneDelante(R, t, o);
+  // abajo, en la acera: los vecinos miran cómo sale el zapato; uno se pregunta por la fábrica; otra llega y aplaude
+  const duda = t > noExiste && t < fin + 0.4;
+  const v1 = R.actor(EL.vecino1JM, 84, 160, t, { dir: 1, dedo: t > zapato - 0.5 && t < noExiste, sorpresa: duda, habla: t > fin + 0.4 && Math.sin(t * 8) > 0 });
+  R.actor(EL.vecina2JM, 110, 160, t, { dir: duda ? -1 : 1, sonrisa: !duda, brazos: t > fin + 0.2 && Math.sin(t * 15) > 0 });
+  if (duda) { const e = Math.min(1, (t - noExiste) / 0.15), y0 = Math.round(lerp(128, 112, e)); globo(80, y0, 100, y0 + 20, 92, y0 + 26); R.icono('?', 86, y0 + 3, hex('#c8362e'), hex('#f0c8b8'), 2); }
+  const v3 = tramo(t, noExiste - 0.6, fin + 0.3); R.actor(EL.vecina3JM, Math.round(lerp(322, 232, v3)), 162, t, { dir: -1, anda: v3 > 0 && v3 < 1, dedo: v3 >= 1 && t < fin + 1.4, sonrisa: v3 >= 1 });
+};
+const efectos = [[robin, 'interruptor'], [robin + 0.6, 'palmada'], [keeneW, 'campana'], [P3 + 0.3, 'chof'], [zapato - 0.5, 'chof'], [noExiste, 'pop'], [fin + 0.3, 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1994 });
+</script>
+</body>
+</html>

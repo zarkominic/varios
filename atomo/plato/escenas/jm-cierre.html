@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lee las instrucciones · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-CIERRE (frase «instrucciones»), hoy (2026), sin cartela. Tres planos (cortes en So now · you can take):
+//  1 · la esquina de la lámina de hoy: el lápiz negro termina al perro blanco que asoma tras la hoja («the white dog is
+//      still hiding»); la mano se retira; una mariquita cruza el papel.
+//  2 · (extra) el parque, hoy y en color: un chaval llega por la hierba, ve la caja al pie del árbol («box»: «!») y la levanta.
+//  3 · el estudio de Atom tomado por las lianas (gag 8): la caja ya está en casa; Atom baja con el folleto, lo deja en el
+//      canto de la mesa en «read» y el rollo se desenrolla por el frente y por el suelo sin acabarse; Atom lo sigue y da un respingo («!»).
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-cierre');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c'), ROJOS = hex('#8e2418'), AMA = hex('#ffd030'), PZ = T.PIEZAS_JM;
+const ease = (u) => u * u * (3 - 2 * u), cl = (v) => Math.max(0, Math.min(1, v));
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// una chispa gorda (con filo negro), para lo que tiene que leerse sobre un fondo claro
+const chispa = (x, y, q = 0) => { const c = q % 2 ? hex('#fff6c0') : AMA; x = Math.round(x); y = Math.round(y); R.rect(x - 3, y - 1, x + 3, y + 1, K); R.rect(x - 1, y - 3, x + 1, y + 3, K); R.rect(x - 2, y, x + 2, y, c); R.rect(x, y - 2, x, y + 2, c); R.pset(x, y, hex('#ffffff')); };
+// un bocadillo blanco con su cola hacia (px, py)
+const bocadillo = (x0, y0, x1, y1, px, py) => { R.rect(x0 + 2, y0, x1 - 2, y1, K); R.rect(x0, y0 + 2, x1, y1 - 2, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, K); R.rect(x0 + 2, y0 + 1, x1 - 2, y1 - 1, BL); R.rect(x0 + 1, y0 + 2, x1 - 1, y1 - 2, BL);
+  if (px != null) { const d = px < (x0 + x1) / 2 ? -1 : 1, bx = Math.max(x0 + 5, Math.min(x1 - 5, px - d * 4)); R.poligono([[bx - 3, y1 - 1], [bx + 3, y1 - 1], [px, py]], K); R.poligono([[bx - 2, y1 - 1], [bx + 2, y1 - 1], [px, py - 2]], BL); R.rect(bx - 2, y1 - 1, bx + 2, y1 - 1, BL); } };
+// la mano que dibuja: la mano canónica sola (el papel queda lejos del borde y un brazo pasaría de 45 px), con su sombra
+// tramada, y el lápiz de dibujo con la punta en (px, py)
+const sombraMano = (px, py) => { for (let j = 0; j < 9; j++) for (let i = 0; i < 16; i++) if (((i + j) & 1) && Math.hypot((i - 8) / 8, (j - 4) / 4.5) < 1) R.pset(px + 4 + i, py + 2 + j, hex('#8a8474')); };
+const manoLapiz = (px, py, manga, o = {}) => { px = Math.round(px); py = Math.round(py); sombraMano(px, py); T.g_lapizGrande(R, px + 23, py - 24, px, py, { negro: !!o.negro }); T.mano(R, px + 12, py - 4, -1, manga, { sinManga: true }); };
+// Atom: baja de su esquina cuando la escena lo pide (atomEn(t) devuelve [x, y, energía] o null: en su sitio)
+const comp0 = R.companero, SIT = [297, 24];
+let atomEn = () => null;
+const atomPinta = (x, y, t, e) => { const r = 13 + 2.4 * e; for (let j = -16; j <= 16; j++) for (let i = -16; i <= 16; i++) { const g = 1 - Math.hypot(i, j) / r; if (g > 0.35) R.pset(x + i, y + j, g > 0.75 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); } R.atomo(x, y, t, { r: 10, orbita: R.PAL.ATOM[7], energia: e }); };
+R.companero = (t, e = 0) => { const p = atomEn(t); if (!p) return comp0(t, e); atomPinta(Math.round(p[0]), Math.round(p[1]), t, Math.max(e, p[2] || 0)); };
+const vuelo = (a, b, u, arco = 14) => { const e = ease(cl(u)); return [lerp(a[0], b[0], e), lerp(a[1], b[1], e) - Math.sin(cl(u) * Math.PI) * arco]; };
+
+const ti = (s) => en('instrucciones', (s - 0.5) / 11.644);   // el segundo de la voz inglesa → instante
+const P2 = ti(5.5), P3 = ti(9.27), FIN = E.duracion;
+// 1 · el perro blanco, todavía escondido
+const WHITE = ti(3.1), HIDING = ti(4.2);
+const p1 = (t) => {
+  const perro = t < WHITE ? 0.38 * tramo(t, 0.3, WHITE - 0.2) : lerp(0.38, 1, tramo(t, WHITE, HIDING + 0.25)), o = { encuadre: 'hoyTaller', camara: 'esquina', perro, lapiz: false }, g = T.hoy(R, t, o);
+  // la mariquita que cruza el papel
+  { const x = Math.round(18 + t * 9), y = 146 - (Math.floor(t * 6) % 2); R.rect(x - 2, y - 2, x + 2, y + 1, K); R.rect(x - 1, y - 1, x + 1, y, ROJO); R.pset(x, y - 1, K); R.pset(x + 2, y, K); R.pset(x - 2 + (Math.floor(t * 12) % 2), y + 2, K); R.pset(x + 1 + (Math.floor(t * 12) % 2), y + 2, K); }
+  // el lápiz y la mano: dibujan y, cuando el perro está entero, se retiran
+  const s = ease(tramo(t, HIDING + 0.4, HIDING + 1.1)), [px, py] = g.punta, ox = Math.round(s * 96), oy = Math.round(-s * 30), [lx, ly] = g.lapizLargo || [78, -64];
+  T.g_lapizGrande(R, px + lx + ox, py + ly + oy, px + ox, py + oy, { negro: true });
+  { const hx = Math.round(px + lx * 0.45) + ox, hy = Math.round(py + ly * 0.45) + oy; if (hx < 316) T.mano(R, hx + 3, hy + 6, -1, '#7a6a52', { sinManga: true }); }
+  if (perro > 0.05 && perro < 1 && Math.floor(t * 10) % 2) { R.pset(px - 2, py + 3, hex('#5a564e')); R.pset(px + 1, py + 5, hex('#8a8474')); }
+  if (t > HIDING + 0.3 && t < HIDING + 1.0) { const q = (t - HIDING - 0.3) / 0.7; for (let k = 0; k < 6; k++) chispa(204 + Math.cos(k * 1.05 + q * 2) * (40 + q * 10), 104 + Math.sin(k * 1.05 + q * 2) * (30 + q * 8), k); }
+  T.hoyDelante(R, t, o);
+};
+// 2 · el parque: una caja abandonada
+const FIND = ti(7.37), BOX = ti(7.75), COGE = ti(8.55);
+const p2 = (t) => {
+  const o = { encuadre: 'parque', caja: t < COGE - 0.3, color: 1 }; T.casaJuego(R, t, o);
+  const e = tramo(t, P2 + 0.05, FIND), v = tramo(t, COGE + 0.3, P3 + 0.4), x = Math.round(lerp(-14, 160, e) - 44 * v), vuelve = t > COGE + 0.3;
+  const sub = ease(tramo(t, COGE - 0.3, COGE));
+  const a = R.actor(EL.nino2017JM, x, 153, t, { dir: vuelve ? -1 : 1, anda: (e > 0 && e < 1) || vuelve, sorpresa: t > BOX - 0.1 && t < COGE - 0.3, sonrisa: t >= COGE - 0.3, dedo: t > BOX + 0.15 && t < COGE - 0.35, sostiene: t > COGE - 0.3, salto: t > BOX - 0.05 && t < BOX + 0.3 ? Math.round(Math.sin((t - BOX + 0.05) / 0.35 * Math.PI) * 4) : 0 });
+  if (t >= COGE - 0.3) { const [mx, my] = a.mano || [x + 10, 140], d = vuelve ? -1 : 1; const bx = Math.round(lerp(190, mx + d * 9, sub)), by = Math.round(lerp(153, my - 3, sub)); for (let j = -2; j <= 2; j++) for (let i = -15; i <= 15; i++) if (((i + j) & 1) && (i / 15) ** 2 + (j / 2.4) ** 2 < 1) R.pset(bx + i, 155 + j, hex('#3a6a34')); PZ.cajaJuego(R, bx, by); }
+  if (t > BOX - 0.05 && t < COGE - 0.35) { const b = Math.round(Math.sin(t * 6)); bocadillo(x - 8, 107 + b, x + 8, 124 + b, x + 2, 128 + b); R.icono('!', x - 2, 109 + b, ROJO, null, 2); }
+  if (t > BOX && t < BOX + 0.8 && Math.floor(t * 8) % 2) { destello(176, 136, 3, hex('#fff4b8')); destello(204, 131, 2, BL); }
+  T.casaJuegoDelante(R, t, o);
+};
+// 3 · el estudio, tomado por las lianas: las instrucciones, un rollo que no se acaba
+const HOME = ti(9.89), BUT = ti(10.63), READ = ti(11.09), INSTR = ti(11.37), PASMO = INSTR + 1.0;
+const AT0 = [146, 96], DEJA = BUT + (READ - BUT) * 0.5;
+const atomXY = (t) => { const baja = (t - P3 - 0.1) / 0.6; if (baja < 1) return vuelo(SIT, AT0, baja, -6);
+  const deja = tramo(t, BUT, READ), sigue = ease(tramo(t, READ + 0.5, FIN - 0.4)), resp = t > PASMO && t < PASMO + 0.5 ? Math.sin((t - PASMO) / 0.5 * Math.PI) * 8 : 0;
+  return [lerp(AT0[0], 112, sigue), AT0[1] + Math.sin(deja * Math.PI) * 13 + Math.sin(t * 2.6) * 2 - resp + sigue * 10]; };
+atomEn = (t) => { if (t < P3 + 0.1) return null; const p = atomXY(t); return [p[0], p[1], t < P3 + 0.7 || (t > PASMO && t < PASMO + 0.5) ? 0.9 : 0.35]; };
+const p3 = (t) => {
+  const o = { encuadre: 'estudio', lianas: 1, rollo: tramo(t, READ, FIN - 0.25), dados: [5, 3], lapiz: false }; T.hoy(R, t, o);
+  // la caja, ya en casa, junto a la mesa
+  PZ.cajaJuego(R, 228, 165); if (t > HOME - 0.2 && t < HOME + 0.7 && Math.floor(t * 8) % 2) { destello(220, 146, 3, hex('#fff4b8')); destello(238, 150, 2, BL); }
+  T.hoyDelante(R, t, o);
+  // la liana que se llevó el lápiz (acto 0) sigue ahí, con él colgando
+  { const li = PZ.liana(R, 187, 5, { largo: 40 + Math.sin(t * 1.4) * 2, t }) || {}, [qx, qy] = li.punta || [187, 45]; R.rect(qx - 1, qy - 2, qx + 4, qy + 15, BL); T.g_lapizMesa(R, qx + 1, qy + 6, { vertical: true }); }
+  // el folleto: Atom lo trae colgando, lo deja en el canto de la mesa y se abre
+  const [ax, ay] = atomXY(t);
+  if (t > P3 + 0.1 && t < DEJA) { const fx = Math.round(ax), fy = Math.round(ay + 26); for (let k = 0; k < 3; k++) R.pset(fx - 3 + k * 3, fy - 15 + ((k + Math.floor(t * 8)) & 1), hex('#c8f0ff')); PZ.instrucciones(R, fx, fy, { rollo: 0 }); }
+  else if (t >= DEJA) { PZ.instrucciones(R, 146, 135, { rollo: 0 }); if (t > READ && t < READ + 0.4) for (let q = 0; q < 6; q++) chispa(146 + Math.cos(q * 1.05) * (10 + (t - READ) * 26), 128 + Math.sin(q * 1.05) * (8 + (t - READ) * 18), q); }
+  if (t > PASMO && t < FIN - 0.2) { const gx = Math.round(ax + 20), gy = Math.round(ay - 16); bocadillo(gx - 8, gy - 9, gx + 8, gy + 8, gx - 9, gy + 13); R.icono('!', gx - 2, gy - 7, ROJO, null, 2); }
+};
+const efectos = [[0.5, 'lapiz'], [WHITE, 'lapiz'], [HIDING + 0.35, 'brillo'], [P2 + 0.3, 'viento'], [BOX, 'pop'], [COGE, 'golpecito'], [P3 + 0.2, 'whoosh'], [HOME, 'brillo'], [READ, 'papel'], [INSTR + 0.5, 'papel'], [PASMO, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

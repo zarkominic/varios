@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El estreno · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-ESTRENO (frase 16), 1995. Seis planos:
+// 1. el cine en diciembre de 1995, con nieve: la cola crece hasta salirse; una madre y su hijo llegan y el chico salta
+//    señalando la marquesina (sin letras);  2. (corta en «lukewarm») la sala desde la pantalla: el crítico, de pie, con su
+//    bocadillo de estrellas (dos de cuatro; la tercera duda); «no importó»: el público da un bote (el niño se tapa los ojos) y el crítico se va;
+//    «$65»;  3. (corta en «and took in») el contador: de 65 rueda hasta 260 (cae en la palabra) y llueven monedas; el
+//    mundo;  4. (corta en «And some newspapers») el periódico desde arriba: un lápiz rojo subraya la foto de la máscara,
+//    saltan las chispas de «efectos» y, al final, cae el folleto de la isla;  5. (corta en «Robin Williams had») la rueda
+//    de prensa: una periodista pregunta («?»), Williams contesta muy serio y en su bocadillo sale una isla con palmera;
+//    6. (corta en «in the Caribbean»; vista libre: mapa/caribe) el mapa: un lápiz DIBUJA la isla en el mar vacío, cae la
+//    chincheta, llega el avión por su ruta de puntos y se amontonan los billetes («reserva pronto»).
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-estreno');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#16161c'), CREMA = hex('#fbf7ea'), ease = (u) => u * u * (3 - 2 * u);
+// un bocadillo (caja crema con filo) con el rabito hacia (px, py)
+const globo = (x0, y0, x1, y1, px, py) => {
+  R.rect(x0 + 1, y0, x1 - 1, y1, K); R.rect(x0, y0 + 1, x1, y1 - 1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, CREMA); R.rect(x0 + 2, y1 - 1, x1 - 2, y1 - 1, hex('#d8d0b8'));
+  const bx = Math.max(x0 + 3, Math.min(x1 - 8, px - 2)); R.poligono([[bx, y1], [bx + 6, y1], [px, py]], K); R.poligono([[bx + 1, y1 - 1], [bx + 5, y1 - 1], [px, py - 2]], CREMA);
+};
+
+const e = (f) => en('estreno', f);
+const P2 = e(0.1278), P3 = e(0.2721), P4 = e(0.4337), P5 = e(0.6873), P6 = e(0.9152);
+const diciembre = e(0.027), noImporta = e(0.1773), s65 = e(0.224), rueda = e(0.305), s260 = e(0.3364), mundo = e(0.38), impreso = e(0.488), zulu = e(0.567), efectosW = e(0.613), folleto = e(0.655), respuesta = e(0.75), preguntan = e(0.783), serio = e(0.852), isla = e(0.895), caribe = e(0.929), reserva = e(0.967);
+const p1 = (t) => {
+  const o = { encuadre: 'fachada', epoca: 1995, cola: lerp(0.3, 1, tramo(t, 0, P2 - 0.8)) }; T.cine(R, t, o);
+  // la madre y el chico llegan por la derecha; él salta señalando la marquesina; una vecina se para ante el cartel
+  const u = tramo(t, 0.05, diciembre + 0.9), mx = Math.round(lerp(322, 212, u)), salta = u >= 1 && t < P2 - 0.5;
+  const v = tramo(t, 0, diciembre + 0.9), vx = Math.round(lerp(-14, 34, v));
+  R.actor(EL.vecina3JM, vx, 153, t, { dir: 1, anda: v < 1, sonrisa: v >= 1, dedo: v >= 1 && t > diciembre + 1.3 }); if (v >= 1) T.a_vaho(R, vx + 15, 137, t, 1);
+  R.actor(EL.vecina2JM, mx + 18, 154, t, { dir: -1, anda: u < 1, sonrisa: true, habla: u >= 1 && Math.sin(t * 7) > 0.3 }); T.a_vaho(R, mx + 18, 138, t + 0.7, -1);
+  R.actor(EL.chico1JM, mx, 155, t, { dir: -1, anda: u < 1, dedo: u >= 1, sonrisa: true, salto: salta ? Math.round(Math.abs(Math.sin((t - diciembre) * 7)) * 4) : 0 }); T.a_vaho(R, mx, 141, t, -1);
+  T.cineDelante(R, t, o);
+};
+// una estrella de la nota del crítico (llena o vacía)
+const estrella = (cx, cy, llena) => { const pts = []; for (let i = 0; i < 10; i++) { const an = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 2.6 : 6.4; pts.push([Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r)]); }
+  R.poligono(pts, llena ? hex('#f0b828') : hex('#e4dcc4')); for (let i = 0; i < 10; i++) R.linea(pts[i][0], pts[i][1], pts[(i + 1) % 10][0], pts[(i + 1) % 10][1], llena ? hex('#7a4a10') : hex('#8a8698')); if (llena) { R.pset(cx - 1, cy - 2, hex('#fff2b8')); R.pset(cx, cy - 3, hex('#fff2b8')); } };
+const p2 = (t) => {
+  const susto = t > noImporta && t < noImporta + 1.3;
+  const o = { encuadre: 'sala', camara: 'publico', criticos: true, susto, pantalla: 'selva' }; T.cine(R, t, o);
+  // el crítico, de pie ante la primera fila: duda, mira al público que bota, se encoge y se va
+  const v = tramo(t, noImporta + 0.7, P3), cx = Math.round(lerp(196, 322, v)), duda = t < noImporta;
+  R.actor(EL.criticoJM, cx, 172, t, { dir: susto && v === 0 ? (Math.sin(t * 9) > 0 ? 1 : -1) : 1, anda: v > 0, triste: !duda, habla: duda && Math.sin(t * 7) > 0.4 });
+  if (duda) { const en0 = Math.min(1, (t - P2) / 0.18), y0 = Math.round(lerp(126, 114, en0)); globo(174, y0, 238, y0 + 20, 206, y0 + 27); for (let i = 0; i < 4; i++) estrella(184 + i * 15, y0 + 10 + (i === 2 && Math.sin(t * 6) > 0 ? 1 : 0), i < 2 || (i === 2 && Math.sin(t * 6) > 0.2)); }
+  if (t > s65) { const en0 = Math.min(1, (t - s65) / 0.2); R.numero('$65', 160, Math.round(lerp(70, 60, en0)), { tam: 16, centro: true }); }
+};
+const p3 = (t) => {
+  const r = tramo(t, rueda, s260), ya = t >= s260;
+  const o = { encuadre: 'contador', signo: true, cifra: ya ? 260 : Math.round(lerp(65, 260, ease(r)) * 10) / 10, gira: r > 0 && !ya ? 1 : 0, lluvia: ya ? lerp(1, 0.35, tramo(t, s260 + 0.3, P4)) : r * 0.6 }; T.cine(R, t, o);
+  // al llegar, el destello en las ventanillas; con «worldwide», el mundo
+  if (ya && t < s260 + 0.5) { const f = 1 - (t - s260) / 0.5; for (let i = 0; i < 12; i++) { const an = i / 12 * 6.283, d = 60 + (1 - f) * 60; R.linea(Math.round(164 + Math.cos(an) * d), Math.round(87 + Math.sin(an) * d * 0.5), Math.round(164 + Math.cos(an) * (d + 10 * f)), Math.round(87 + Math.sin(an) * (d + 10 * f) * 0.5), hex('#fff2b8')); } }
+  if (t > mundo) { const en0 = Math.min(1, (t - mundo) / 0.2), cx = 160, cy = Math.round(lerp(176, 157, en0)), gi = t * 14;
+    R.disco(cx + 2, cy + 3, 15, hex('#3a0e1c')); R.disco(cx, cy, 15, K); R.disco(cx, cy, 14, hex('#3a78c8')); R.recorte([cx - 13, cy - 13, cx + 13, cy + 13]);
+    for (let k = 0; k < 4; k++) { const mx = cx - 30 + ((gi + k * 19) % 62), d = Math.abs(mx - cx); if (d > 14) continue; const hh = Math.round(Math.sqrt(196 - d * d)); for (let j = -hh + 1; j < hh; j++) { const w = [5, 3, 4, 2][k] + Math.round(Math.sin(j * 0.7 + k * 2) * 2); if (Math.abs(j - [-4, 3, -1, 6][k]) < [5, 4, 3, 3][k]) R.linea(Math.round(mx - w / 2), cy + j, Math.round(mx + w / 2), cy + j, hex('#4aa85a')); } }
+    R.recorte(null); for (let a = 0; a < 6.283; a += 0.1) R.pset(Math.round(cx + Math.cos(a) * 14), Math.round(cy + Math.sin(a) * 14), K); R.pset(cx - 6, cy - 8, hex('#bfe0ff')); R.pset(cx - 7, cy - 7, hex('#bfe0ff')); R.pset(cx - 5, cy - 9, hex('#bfe0ff')); }
+};
+// el lápiz rojo (de (x0, y0), en el puño, a la punta (x1, y1))
+const lapiz = (x0, y0, x1, y1, c = '#d8483a') => { for (let d = -1; d <= 1; d++) R.linea(x0, y0 + d, x1, y1 + d, d ? K : hex(c)); R.linea(x0, y0, x1, y1, hex(c)); const ux = (x1 - x0) / Math.hypot(x1 - x0, y1 - y0), uy = (y1 - y0) / Math.hypot(x1 - x0, y1 - y0); R.linea(Math.round(x1 - ux * 4), Math.round(y1 - uy * 4), x1, y1, hex('#e8c890')); R.pset(x1, y1, K); };
+const p4 = (t) => {
+  const o = { encuadre: 'prensa', camara: 'periodico', isla: tramo(t, folleto, P5 - 0.25) }; T.cine(R, t, o);
+  // el lápiz rojo del lector: entra, da dos toques en la foto de la máscara y la subraya; al caer el folleto, se aparta
+  const entra = ease(tramo(t, P4 + 0.2, impreso)), raya = tramo(t, zulu, zulu + 0.7), fuera = ease(tramo(t, folleto - 0.1, folleto + 0.5));
+  const toque = t > impreso && t < zulu ? Math.max(0, Math.sin((t - impreso) * 9)) * 3 : 0;
+  const tx = Math.round(lerp(40, 78, entra) + raya * 34 - fuera * 60), ty = Math.round(lerp(150, 120, entra) - toque + fuera * 26);
+  if (raya > 0) for (let x = 78; x <= 78 + Math.round(raya * 34); x++) { R.pset(x, 119 + Math.round(Math.sin(x * 0.9)), hex('#d8483a')); R.pset(x, 120 + Math.round(Math.sin(x * 0.9)), hex('#d8483a')); }
+  lapiz(tx - 22, ty + 13, tx, ty); T.brazo(R, tx - 52, 192, tx - 31, ty + 15, '#3a5a8a', 1);
+  // «many effects»: las chispas saltan de la foto
+  if (t > efectosW && t < folleto + 0.3) { const f = (t - efectosW) / 1.0; for (let i = 0; i < 12; i++) { const an = i / 12 * 6.283 + 0.2, d = 30 + ((f * 34 + i * 7) % 34), x = Math.round(112 + Math.cos(an) * d * 1.15), y = Math.round(86 + Math.sin(an) * d * 0.85), c = hex(['#ffe45a', '#ff8a5a', '#8ad8ff', '#ffffff'][i % 4]); if (x < 64 || y < 26) continue; R.pset(x, y, c); R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); if (i % 3 === 0) { R.pset(x - 2, y, c); R.pset(x + 2, y, c); R.pset(x, y - 2, c); R.pset(x, y + 2, c); } } }
+};
+// la islita del bocadillo: mar, arena, palmera y sol
+const islita = (x, y) => { R.rect(x - 11, y + 3, x + 11, y + 6, hex('#4a9ad8')); R.rect(x - 9, y + 5, x - 5, y + 5, hex('#bfe0ff')); R.rect(x + 4, y + 4, x + 9, y + 4, hex('#bfe0ff')); R.rect(x - 7, y + 2, x + 7, y + 3, hex('#f0d890')); R.rect(x - 5, y + 1, x + 5, y + 1, hex('#f0d890')); R.linea(x, y + 1, x + 2, y - 7, hex('#7a4a22')); R.linea(x + 1, y + 1, x + 3, y - 7, hex('#7a4a22'));
+  for (const [a, b] of [[-5, -9], [-4, -5], [8, -9], [8, -5], [2, -12]]) R.linea(x + 2, y - 8, x + 2 + a, y + b, hex('#2e8a3a')); R.disco(x - 8, y - 8, 2, hex('#ffc83a')); };
+const p5 = (t) => {
+  const contesta = t > serio - 0.6, o = { encuadre: 'prensa', flash: t > isla ? 1 : contesta ? 0.6 : 0.3 }; T.cine(R, t, o);
+  // Williams (en su sitio) escucha y contesta muy serio; la moderadora da la palabra y luego se tapa la risa
+  const w = R.actor(EL.williams, 120, 142, t, { dir: 1, habla: (t > respuesta - 0.3 && t < preguntan - 0.2 || contesta) && Math.sin(t * 9) > 0, dedo: t > isla - 0.2, quieto: contesta && t < isla - 0.2 });
+  R.actor(EL.guionista2JM, 186, 142, t, { dir: -1, dedo: t > preguntan - 0.5 && t < preguntan + 0.5, sorpresa: t > isla, sonrisa: t > serio && t <= isla });
+  T.cineDelante(R, t, o);
+  // la pregunta sale de los periodistas; la respuesta, encima de él: una isla con palmera
+  if (t > preguntan && t < serio) { const en0 = Math.min(1, (t - preguntan) / 0.15), y0 = Math.round(lerp(140, 128, en0)); globo(62, y0, 84, y0 + 22, 80, y0 + 32); R.icono('?', 69, y0 + 4, hex('#3a5ab0'), hex('#c8d4f0'), 2); }
+  if (t > isla - 0.35) { const en0 = Math.min(1, (t - isla + 0.35) / 0.18), y0 = Math.round(lerp(96, 82, en0)); globo(100, y0, 132, y0 + 26, 126, y0 + 34); islita(116, y0 + 16); }
+};
+const p6 = (t) => {
+  const P = T.mapa(R, t, { zoom: 2.6, centro: [-76, 24], rosa: [40, 78] });
+  R.recorte([8, 8, 311, 171]);
+  const TI = hex('#e8dcbc'), CO = hex('#4a3e34'), CL = hex('#c8b890'), poli = (pts, c = TI) => { const q = pts.map((p) => P(p).map(Math.round)); R.poligono(q, c); for (let i = 0; i < q.length; i++) { const a = q[i], b = q[(i + 1) % q.length]; R.linea(a[0], a[1], b[0], b[1], CO); }
+    const xs = q.map((p) => p[0]), ys = q.map((p) => p[1]); for (let y = Math.min(...ys); y <= Math.max(...ys); y++) for (let x = Math.min(...xs); x <= Math.max(...xs); x++) { if (R.pget(x, y) !== TI) continue; const r = Math.sin(x * 127.1 + y * 311.7) * 43758.5453, f = r - Math.floor(r); if (R.pget(x, y - 1) === CO || R.pget(x - 1, y) === CO) R.pset(x, y, CL); else if (f < 0.05) R.pset(x, y, CL); else if (f > 0.985 && R.pget(x, y - 2) === TI) { R.pset(x, y, CO); R.pset(x - 1, y + 1, CO); R.pset(x + 1, y + 1, CO); R.pset(x + 2, y + 2, CL); } } return q; };
+  // los vecinos de verdad (Cuba, las Bahamas, La Española, Jamaica), a tinta como el resto del mapa
+  { const q = poli([[-84.9, 21.9], [-84.3, 22.6], [-83.2, 23.0], [-82.0, 23.2], [-80.6, 23.1], [-79.3, 22.4], [-77.7, 21.8], [-76.0, 21.2], [-74.8, 20.7], [-74.2, 20.2], [-75.6, 19.9], [-77.7, 19.85], [-77.2, 20.6], [-78.5, 21.0], [-79.9, 21.7], [-81.8, 22.2], [-82.8, 22.5], [-83.9, 22.2], [-84.4, 21.8]]);
+    for (let i = 0; i < 9; i++) { const a = q[2 + i], x = a[0] + 2 + (i % 2) * 3, y = a[1] + 3 + (i % 3); R.pset(x, y, CO); R.pset(x - 1, y + 1, CL); R.pset(x + 1, y + 1, CL); }
+    poli([[-83.1, 21.9], [-82.6, 21.9], [-82.5, 21.5], [-83.0, 21.45]]);
+    poli([[-74.45, 18.35], [-73.4, 19.9], [-71.7, 19.95], [-70.0, 19.7], [-68.4, 18.6], [-68.8, 18.15], [-70.5, 18.25], [-71.4, 17.65], [-72.5, 18.2], [-73.8, 18.05]]); poli([[-78.35, 18.4], [-77.2, 18.5], [-76.25, 18.2], [-76.4, 17.9], [-77.3, 17.75], [-78.2, 18.1]]);
+    for (const b of [[[-78.4, 25.1], [-77.75, 25.0], [-77.6, 24.2], [-78.2, 24.3]], [[-79.0, 26.7], [-77.9, 26.78], [-77.9, 26.55], [-78.9, 26.5]], [[-77.5, 26.9], [-77.0, 26.5], [-77.05, 26.0], [-77.35, 26.3]], [[-76.8, 25.55], [-76.15, 25.15], [-76.15, 24.7], [-76.4, 25.1]], [[-75.75, 24.65], [-75.3, 24.2], [-75.45, 24.1]], [[-75.3, 23.65], [-74.85, 23.1], [-75.0, 23.05]], [[-77.55, 25.1], [-77.2, 25.1], [-77.3, 24.98]], [[-76.1, 23.75], [-75.6, 23.45], [-75.8, 23.4]], [[-73.65, 21.1], [-73.0, 21.3], [-73.1, 20.95]], [[-74.3, 22.8], [-73.9, 22.6], [-74.1, 22.5]]]) poli(b); }
+  // la ruta de puntos y el avión, desde Florida hasta el sitio de la isla
+  const IX = 244, IY = 78, M0 = P([-80.2, 25.8]).map(Math.round), ru = tramo(t, P6 + 0.2, reserva + 0.4), pts = [M0, [Math.round((M0[0] + IX) / 2), Math.min(M0[1], IY) - 22], [IX - 16, IY - 12]];
+  const bez = (s) => [0, 1].map((i) => Math.round((1 - s) * (1 - s) * pts[0][i] + 2 * s * (1 - s) * pts[1][i] + s * s * pts[2][i]));
+  for (let s = 0; s < ru; s += 0.03) { const [x, y] = bez(s); if (Math.floor(s / 0.03) % 2 === 0) { R.pset(x, y, hex('#c8362e')); R.pset(x + 1, y, hex('#c8362e')); R.pset(x, y + 1, hex('#8a1e1a')); } }
+  // la isla que no existe: el lápiz la DIBUJA en el mar vacío (orilla, arena, palmera y olas)
+  const dib = tramo(t, P6 + 0.15, caribe + 0.75), TR = [], ink = hex('#4e3a22');
+  for (let i = 0; i < 14; i++) { const a0 = i / 14 * 6.283 + 3.3, a1 = (i + 1) / 14 * 6.283 + 3.3, r = (an) => [IX + Math.round(Math.cos(an) * (17 + Math.sin(an * 3) * 2)), IY + Math.round(Math.sin(an) * (5 + Math.cos(an * 2)))]; TR.push([...r(a0), ...r(a1), ink]); }
+  TR.push([IX + 1, IY - 1, IX + 4, IY - 9, hex('#6a4420')], [IX + 4, IY - 9, IX + 3, IY - 17, hex('#6a4420')]);
+  for (const [dx, dy] of [[-9, -19], [-7, -12], [9, -21], [12, -14], [3, -24]]) TR.push([IX + 3, IY - 17, IX + 3 + dx, IY + dy, hex('#2e7a3a')]);
+  for (const [dx, dy] of [[-27, 5], [22, 8], [-8, 11], [26, -3]]) TR.push([IX + dx, IY + dy, IX + dx + 3, IY + dy - 1, hex('#3a6a9a')], [IX + dx + 3, IY + dy - 1, IX + dx + 6, IY + dy, hex('#3a6a9a')]);
+  const n = dib * TR.length, hechos = Math.floor(n);
+  if (hechos >= 14) { R.poligono(TR.slice(0, 14).map((s) => [s[0], s[1]]), hex('#f0dc9c')); for (let i = -12; i <= 12; i += 3) R.pset(IX + i, IY + 2 + (i & 1), hex('#d8bc70')); }
+  let pen = [IX - 17, IY];
+  for (let i = 0; i < TR.length && i <= hechos; i++) { const [ax, ay, bx, by, c] = TR[i], f = i < hechos ? 1 : n - hechos, ex = Math.round(lerp(ax, bx, f)), ey = Math.round(lerp(ay, by, f)); R.linea(ax, ay, ex, ey, c); if (i >= 14 && i < 21) R.linea(ax + 1, ay, ex + 1, ey, c); pen = [ex, ey]; }
+  if (hechos >= 21) { R.pset(IX + 2, IY - 15, hex('#4e2e12')); R.pset(IX + 5, IY - 15, hex('#4e2e12')); }
+  // «reserva pronto»: la chincheta cae en la isla y se amontonan los billetes de avión
+  T.chincheta(R, IX - 8, IY + 2, t, hex('#c8362e'), { baja: tramo(t, caribe + 0.8, caribe + 1.1), pulso: true });
+  for (let i = 0; i < 3; i++) { const b = ease(tramo(t, reserva - 0.25 + i * 0.4, reserva + 0.15 + i * 0.4)); if (b <= 0) continue; const x = Math.round(lerp(330, 246 + i * 9, b)), y = Math.round(lerp(140, 98 + i * 8, b) - Math.sin(b * Math.PI) * 8);
+    R.rect(x + 1, y + 1, x + 31, y + 15, hex('#3a4a5a')); R.rect(x - 1, y - 1, x + 30, y + 14, K); R.rect(x, y, x + 29, y + 13, hex('#f6efd8')); R.rect(x, y, x + 29, y + 2, hex(['#c8362e', '#3a6ab0', '#2e8a5a'][i])); for (let j = 1; j < 13; j += 2) R.pset(x + 21, y + j, K);
+    R.rect(x + 3, y + 5, x + 12, y + 5, hex('#8a8698')); R.rect(x + 3, y + 8, x + 9, y + 8, hex('#8a8698')); R.rect(x + 3, y + 11, x + 14, y + 11, hex('#8a8698')); R.rect(x + 23, y + 6, x + 27, y + 7, K); R.rect(x + 25, y + 4, x + 25, y + 9, K); R.pset(x + 23, y + 5, K); }
+  // el avión, en la punta de la ruta
+  { const gi = (t - reserva - 0.4) * 2.2, [x, y] = ru < 1 ? bez(ru) : [Math.round(IX - 2 - Math.cos(gi) * 14), Math.round(IY - 24 - Math.sin(gi) * 6)], [x2, y2] = bez(Math.min(1, ru + 0.05)), baja = y2 > y ? 1 : y2 < y ? -1 : 0, W = hex('#f4f4f0');
+    if (ru > 0) { R.rect(x - 5, y - 2 + baja, x + 4, y + 1 + baja, K); R.rect(x - 4, y - 1 + baja, x + 3, y + baja, W); R.rect(x + 4, y - 1 + baja * 2, x + 5, y + baja * 2, K); R.rect(x - 2, y - 5, x, y + 4, K); R.rect(x - 1, y - 4, x - 1, y + 3, W); R.rect(x - 6, y - 4 + baja, x - 5, y - 1 + baja, K); R.pset(x + 2, y - 1 + baja, hex('#3a6ab0')); } }
+  // la mano del lápiz (entra por la derecha en diagonal) mientras dibuja; luego se retira
+  { const fuera = ease(tramo(t, caribe + 0.8, caribe + 1.5)), hx = pen[0] + Math.round(fuera * 80), hy = pen[1] + Math.round(fuera * 46);
+    if (fuera < 1) { lapiz(hx + 20, hy + 11, hx, hy, '#e8b830'); T.brazo(R, Math.max(334, hx + 60), hy + 14 + Math.round((Math.max(334, hx + 60) - hx - 33) * 0.62), hx + 33, hy + 14, '#8a3a2e', -1); } }
+  R.recorte(null);
+};
+const efectos = [[0.3, 'viento'], [P2 + 0.2, 'papel'], [noImporta, 'publico'], [s65, 'pop'], [rueda, 'maquina'], [s260, 'brillo'], [mundo, 'pop'], [P4 + 0.3, 'papel'], [impreso + 0.2, 'golpecito'], [zulu, 'lapiz'], [efectosW, 'brillo'], [folleto + 0.2, 'whoosh'], [preguntan, 'pop'], [isla + 0.1, 'flash'], [P6 + 0.2, 'lapiz'], [caribe + 1.1, 'toc'], [reserva, 'papel'], [reserva + 0.8, 'papel']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 1995 });
+</script>
+</body>
+</html>
