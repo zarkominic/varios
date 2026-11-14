@@ -1,6 +1,6 @@
 # Búsquedas en tendencia en EE. UU.
 
-Registro diario del RSS de Google Trends (4 días: 2026-10-26 → 2026-11-12; 50 búsquedas distintas).
+Registro diario del RSS de Google Trends (5 días: 2026-10-26 → 2026-11-14; 60 búsquedas distintas).
 Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 
 | Días | Tráfico máx. | Búsqueda | Noticia que la explica |
@@ -10,6 +10,9 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 10.000 | rex ryan | [ESPN analyst Rex Ryan arrested after allegedly striking 2 pedestrians with his truck. running over their feet](https://sports.yahoo.com/nfl/article/espn-analyst-rex-ryan-arrested-after-allegedly-striking-2-pedestrians-with-his-truck-running-over-their-feet-170156903.html) (Yahoo Sports) |
 | 1 | 10.000 | chequia - españa | [¿A qué hora es el partido República Checa vs España y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-republica-checa-vs-espana-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
 | 1 | 10.000 | italia - francia | [¿A qué hora es el partido Italia vs Francia y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-italia-vs-francia-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
+| 1 | 10.000 | kenneth walker | [Chiefs RB Kenneth Walker III (groin) misses practice. status uncertain](https://www.espn.com/nfl/story/_/id/50473948/chiefs-rb-walker-groin-misses-practice-status-uncertain) (ESPN) |
+| 1 | 5.000 | georgia tech vs clemson | [Hours from a career milestone. Dabo Swinney will put on the headset for the 250th time as a head coach](https://www.wltx.com/article/sports/football/hours-from-a-career-milestone-dabo-swinney-will-put-on-the-headset-for-the-250th-time-as-a-head-coach/101-7adfc7d8-423d-4d4c-8104-ff5f4e50e7c1) (WLTX) |
+| 1 | 5.000 | nebraska vs rutgers | [Game 10: Football vs. Nebraska](https://scarletknights.com/news/2026/11/9/game-10-football-vs-nebraska) (Rutgers University Athletics) |
 | 1 | 2.000 | pga tour | [Seamus Power. Austin Smotherman head to Monday playoff as Butterfield Bermuda Championship shortened to 54 holes](https://www.pgatour.com/article/news/latest/2026/10/25/seamus-power-austin-smotherman-head-to-monday-playoff-after-weather-delay-tournament-shortened-to-54-holes-butterfield-bermuda-championship) (PGA Tour) |
 | 1 | 2.000 | sophia bush | [Sophia Bush Speaks Out About Rumors She and Wife Ashlyn Harris Started Off as an ‘Affair’](https://ca.news.yahoo.com/sophia-bush-speaks-rumors-she-160640814.html) (Yahoo News Canada) |
 | 1 | 2.000 | dameon pierce | [Eagles place Dameon Pierce on injured reserve](https://www.nbcsports.com/fantasy/football/player-news/2026-10-28/eagles-place-dameon-pierce-on-injured-reserve) (NBC Sports) |
@@ -17,6 +20,8 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 2.000 | will scharf | [White House Threatens Congress. Saying Aggressive Investigations Could Be Crime](https://www.nytimes.com/2026/11/11/us/politics/trump-democrats-congress-oversight-committee.html) (The New York Times) |
 | 1 | 2.000 | vanguard | [Why You Should Think Twice About Keeping Cash Savings at Vanguard. Schwab. or Fidelity](https://www.investopedia.com/why-you-should-think-twice-about-keeping-cash-savings-at-vanguard-schwab-or-fidelity-12248197) (Investopedia) |
 | 1 | 2.000 | gta 6 online release date | [Pre-Load Grand Theft Auto VI Now](https://www.rockstargames.com/newswire/article/89834o94713o21/pre-load-grand-theft-auto-vi-now) (Rockstar Games) |
+| 1 | 2.000 | keelon russell | [Sources: Alabama to start QB Austin Mack; Keelon Russell available](https://www.espn.com/college-football/story/_/id/50474755/sources-alabama-start-qb-austin-mack-russell-available) (ESPN) |
+| 1 | 2.000 | chiefs depth chart | [Travis Hunter makes Jessie Bates' Jaguars trade a hit with his nephews](https://www.espn.com/nfl/story/_/id/50464631/jaguars-jessie-bates-trade-travis-hunter) (ESPN) |
 | 1 | 1.000 | anthony rivers iii | [15-year-old arrested in connection to weekend mass shooting on Perry Street](https://www.wctv.tv/2026/10/26/tallahassee-police-provide-update-weekend-mass-shooting-perry-street/) (WCTV) |
 | 1 | 1.000 | the walking dead | [The Walking Dead franchise is on the verge of making its biggest mistake](https://undeadwalking.com/the-walking-dead-franchise-verge-making-biggest-twd-mistake) (Undead Walking) |
 | 1 | 1.000 | new dwarf planet | [‘It’s big’: Astronomers make startling discovery of a possible dwarf planet beyond Pluto](https://www.cnn.com/2026/10/28/science/ed138-dwarf-planet-candidate-beyond-pluto) (CNN) |
@@ -25,6 +30,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 1.000 | russian ambassador to us | [Russian ambassador to US dies. foreign ministry says](https://www.cnn.com/2026/11/11/europe/russian-ambassador-to-us-dies-intl) (CNN) |
 | 1 | 1.000 | 黄仁勋 | [黄仁勋事件中的“女主角”黄乐是谁？](https://cn.nytimes.com/business/20261111/alice-huang-megaspeed-nvidia-jensen-huang/) (纽约时报中文网) |
 | 1 | 1.000 | inglaterra - croacia | [¿A qué hora es el partido Inglaterra vs Croacia y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-inglaterra-vs-croacia-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
+| 1 | 1.000 | utah royals fc vs washington spirit | [NWSL semifinals guide 2026: Schedule. TV info and our staff’s reasons to watch - The Athletic](https://www.nytimes.com/athletic/7771742/2026/11/14/nwsl-semifinals-schedule-2026-how-to-watch/) (The New York Times) |
 | 1 | 500 | matthew perry | [“The One About Matthew Perry” Docuseries Comes to Netflix](https://www.nytimes.com/2026/10/26/arts/television/matthew-perry-netflix-documentary.html) (The New York Times) |
 | 1 | 500 | santos vs palmeiras | [Santos x Palmeiras: onde assistir ao vivo. horário e escalações](https://ge.globo.com/sp/santos-e-regiao/futebol/brasileirao-serie-a/noticia/2026/10/28/santos-x-palmeiras-onde-assistir-ao-vivo-horario-e-escalacoes.ghtml) (ge) |
 | 1 | 500 | jaydon blue | [Eagles sign RB Jaydon Blue to the active roster. add three to the practice squad](https://www.philadelphiaeagles.com/news/eagles-sign-rb-jaydon-blue-to-the-active-roster-add-three-to-the-practice-squad-dameon-pierce) (Philadelphia Eagles) |
@@ -41,6 +47,8 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 500 | microsoft layoffs | [Tech layoffs tracker 2026: All the job losses across Canva. Squarespace. Amazon. Microsoft. Apple. Meta and others](https://tech.yahoo.com/general/breaking-news/article/tech-layoffs-tracker-2026-all-the-job-losses-across-canva-squarespace-amazon-microsoft-apple-meta-and-others-141507340.html) (Yahoo Tech) |
 | 1 | 500 | spain national football team | [Spain's De la Fuente slams 'lying' over Lamine Yamal's 'special privileges'](https://www.espn.com/soccer/story/_/id/50455459/spain-lamine-yamal-injury-luis-de-la-fuente-nations-league) (ESPN) |
 | 1 | 500 | albania vs finland | [Albania vs Finland: UEFA Nations League stats & head-to-head](https://www.bbc.com/sport/football/live/ck86z8g3j1yzt) (BBC) |
+| 1 | 500 | travis etienne | [Schultz: Kenneth Walker (groin) out vs. Falcons](https://www.nbcsports.com/fantasy/football/player-news/2026-11-14/schultz-kenneth-walker-groin-out-vs-falcons) (NBC Sports) |
+| 1 | 500 | deebo samuel sr. | [Deebo Samuel has no injury designation. but four CBs are questionable for 49ers](https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/deebo-samuel-has-no-injury-designation-but-four-cbs-are-questionable-for-49ers) (NBC Sports) |
 | 1 | 200 | world | [Russia to stage World Weightlifting Championships. first major hosting since full-scale Ukraine invasion](https://www.nytimes.com/athletic/7726237/2026/10/26/russia-world-championship-olympic-moscow/) (The New York Times) |
 | 1 | 200 | racing sausages world series milwaukee | [Column: Sausage race controversy erupts as Fox Sports ignores Milwaukee’s finest tradition during World Series](https://www.chicagotribune.com/2026/10/26/world-series-milwaukee-brewers-sausage-race/) (Chicago Tribune) |
 | 1 | 200 | vegemite | [Murderer’s bid to eat Vegemite in Australian prison rejected by judge](https://www.cnn.com/2026/10/26/australia/prisoner-vegemite-rejected-judge-scli-intl) (CNN) |
@@ -53,5 +61,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 200 | fugitive | [Fugitive gang member helped Olympian run drug cartel and evade arrest. feds allege](https://www.latimes.com/california/story/2026-11-10/fugitive-helped-olympian-run-drug-cartel-evade-arrest-feds-allege) (Los Angeles Times) |
 | 1 | 200 | ohio state buckeyes football | [Buckeyes plummet to lowest ranking ever in playoff era](https://www.nbc4i.com/sports/buckeyes/buckeyes-plummet-to-lowest-ranking-ever-in-playoff-era/) (NBC4 WCMH-TV) |
 | 1 | 200 | aaron reitz letter richard blumenthal | [U.S. attorney demands Sen. Richard Blumenthal preserve documents from his inquiry into White House ballroom](https://www.nbcnews.com/politics/trump-administration/us-attorney-demands-sen-richard-blumenthal-preserve-documents-inquiry-rcna608899) (NBC News) |
+| 1 | 200 | princeton vs yale | [No. 23 Football Wraps Up Road Schedule at Yale Saturday](https://goprincetontigers.com/news/2026/11/13/football-wraps-up-road-schedule-at-yale-saturday) (Princeton University Athletics) |
+| 1 | 200 | alexei pergande | [Alexei Pergande discusses sudden social media fame. potential with Jake Paul and MVP](https://mmajunkie.usatoday.com/story/sports/pfl/2026/11/13/pfl-mvp-alexei-pergande-social-media-jake-paul-dubai/92762907007/) (MMA Junkie) |
 | 1 | 100 | rockstar | [New GTA VI Footage Looks So Stunning Fans Can’t Believe It](https://rockstarintel.com/new-gta-vi-footage-looks-so-stunning-fans-cant-believe-it/) (RockstarINTEL) |
 | 1 | 100 | jennifer aniston | [Jennifer Aniston Says ‘The Rachel’ Was Anything But Effortless](https://www.elle.com/beauty/hair/a74347544/jennifer-aniston-hair-routine-lolavie-hairspray/) (ELLE) |
