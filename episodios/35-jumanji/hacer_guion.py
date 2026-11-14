@@ -47,8 +47,15 @@ DEC_ES = {3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta
 CEN_ES = {1: 'ciento', 2: 'doscientos', 3: 'trescientos', 4: 'cuatrocientos', 5: 'quinientos', 6: 'seiscientos',
           7: 'setecientos', 8: 'ochocientos', 9: 'novecientos'}
 
+# Decena y unidad PEGADAS para la voz («ochentaiuno», «sesentaidós»): escrito «ochenta y uno», Kokoro en español
+# suelta la cola («mil novecientos ochenta… y uno»). Lo oyó el usuario (14/11/2026) y se midió con Whisper: separado
+# oye «1980 | y | dos»; pegado, «1982». Los subtítulos no cambian: salen del texto del guion, no de este.
+ACENTO_ES = {'dos': 'dós', 'tres': 'trés', 'seis': 'séis'}
+def pegado_es(dec, uni):
+    return dec + 'i' + ACENTO_ES.get(uni, uni)
+
 def dos_es(n):
-    return UNI_ES[n] if n < 30 else DEC_ES[n // 10] + (' y ' + UNI_ES[n % 10] if n % 10 else '')
+    return UNI_ES[n] if n < 30 else (pegado_es(DEC_ES[n // 10], UNI_ES[n % 10]) if n % 10 else DEC_ES[n // 10])
 
 def anyo_es(a):
     """1676 → mil seiscientos setenta y seis; 2019 → dos mil diecinueve."""
@@ -81,13 +88,17 @@ def hablado(texto, l):
     if l == 'en':
         t = t.replace(' BC', ' B.C.')
     # Nombres que el sintetizador lee mal: se escriben como se dicen (en español, «Halloween» se dice «jálouin»)
+    if l == 'es':   # también los números escritos con letra: «treinta y dos páginas» → «treintaidós páginas»
+        t = re.sub(r'\b(treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa) y (uno|una|un|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)\b',
+                   lambda m: pegado_es(m.group(1), m.group(2)), t)
     for x, y in PRONUNCIA[l]:
         t = t.replace(x, y)
     return t
 
 PREVIO = {
     'en': [],
-    'es': [],
+    # comas solo para la voz (el año, separado de lo que sigue): los subtítulos llevan la puntuación del guion
+    'es': [('y en 1982 ganó', 'y en 1982, ganó'), ('se traga en 1969 y devuelve', 'se traga en 1969, y devuelve')],
 }
 # Regla del usuario (05/11/2026): en español, TODOS los nombres propios extranjeros se escriben como se dicen en español
 # de México; la r fuerte se escribe doble y las siglas que se deletrean van en una sola palabra («achebeó»).

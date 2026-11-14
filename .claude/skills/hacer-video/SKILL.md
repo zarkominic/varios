@@ -228,6 +228,12 @@ Antes, el inglés se partía en cada coma y la entonación volvía a empezar en 
        se corrigió en otros episodios: `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md` lo busca
        en el guion y lo deja listo para pegar (míralo: alguna entrada es el arreglo de una frase concreta);
      - `numero`, `estado` y `titulo`.
+   **Los años y las comas en español (regla del usuario, 14/11/2026: «valida dónde debe ir coma, y también separa
+   los años; dice mil novecientos sesent… y dos»).** Copia `hacer_guion.py` del 35 o posterior: une la decena y la
+   unidad para la voz (`pegado_es`: «ochentaiuno», «sesentaidós»; escrito «ochenta y uno», Kokoro suelta la cola, y
+   Whisper oye «1980 | y | dos») también en los números con letra. Antes de locutar, repasa el texto español frase a
+   frase: coma tras cada complemento de tiempo que abre la oración («En 2002, …», «Cuatro años después, …») y el año
+   separado de lo que sigue; si la coma no cabe en el subtítulo, va solo en la voz, por `PREVIO['es']`.
 2. Genera, en este orden (`hacer_guion.py` lee `escenas.json`):
    `python3 episodios/<carpeta>/plan.py && python3 episodios/<carpeta>/hacer_guion.py`.
 3. Escribe unas marcas provisionales, para escribir y probar las escenas mientras se locuta:
