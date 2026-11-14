@@ -11,11 +11,11 @@ export function pintarJMchibi(R, t, n) {
     selva(R, t, o);
     selvaDelante(R, t, o);
     grado(R, { tinte: '#06180c', f: 0.14, desde: 0.62, max: 0.6 });
-    halo(R, 236, 120, 58, 62, '#fff0b0', 0.42);
-    halo(R, 150, 150, 40, 26, '#b8ffb0', 0.35);
-    P.tablero(R, 150, 158, { s: 2, abierto: true });
-    P.dados(R, 104, 166, { s: 2 });
-    figura(R, EL.vanallsburg, 244, 176, t, { dir: -1, sorpresa: true }, 2);
-    cifra(R, '?', 60, 62, 46);
+    halo(R, 118, 128, 62, 44, '#fff0b0', 0.45);
+    P.tablero(R, 118, 168, { s: 2, abierto: true, t });
+    P.dados(R, 182, 172, { s: 2 });
+    halo(R, 254, 110, 50, 70, '#fff0b0', 0.35);
+    figura(R, EL.vanallsburg, 254, 178, t, { dir: -1, sorpresa: true }, 3);
+    cifra(R, '?', 190, 10, 36);
   }
 }
