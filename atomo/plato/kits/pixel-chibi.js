@@ -10104,6 +10104,130 @@ export const ELENCO_NX = {
 };
 Object.assign(ELENCO_CHIBI, ELENCO_NX);
 
+// ════ Episodio 35 · «Jumanji: la palabra que no significa nada» ════
+// Las personas reales (Van Allsburg, Lisa, Lorraine, Williams) van solo con atributos sobrios, sin caricatura; los
+// hermanos, los niños y la jugadora de la selva son NUESTROS (no recuerdan a los del libro ni a los de las películas).
+// ── cuerpos ──
+// el jersey de lana (C, el bajo c) sobre la camisa (W) con el pantalón de pana (F, los canales f): Van Allsburg en 1979
+const CUERPO_PANA_JM = parche(CUERPO_PICO_DC, [[4, 6, 'ccccccc'], [5, 7, 'f'], [9, 7, 'f'], [5, 8, 'f'], [9, 8, 'f'], [5, 9, 'f'], [9, 9, 'f'], [5, 10, 'f'], [9, 10, 'f']]);
+// el niño de los cincuenta (10 filas): la camisa de cuadros (C con las rayas p), el cuello (W) y los tirantes (G)
+const CUERPO_TIRANTES_NINO_JM = parche(CUERPO_NINO, [[6, 0, 'WSW'], [4, 1, 'CGCpCGC'], [4, 2, 'pGpppGp'], [4, 3, 'CGCpCGC'], [4, 4, 'pGpppGp'], [2, 2, 'p'], [12, 2, 'p']]);
+// la camisa arrugada (C, las arrugas c) por fuera del pantalón, abierta al cuello y remangada: el guionista
+const CUERPO_CAMISA_ARRUGADA_JM = parche(CUERPO_REMANGADA_CF, [[5, 3, 'c'], [9, 4, 'c'], [6, 5, 'c'], [4, 7, 'CC'], [9, 7, 'CC'], [7, 4, 'C']]);
+// el mono blanco del pintor (el del 26) con las manchas de pintura (A, Y, D)
+const CUERPO_MONO_PINTOR_JM = parche(CUERPO_MONO_AT, [[4, 3, 'A'], [10, 4, 'Y'], [9, 1, 'D'], [5, 7, 'Y'], [10, 8, 'A'], [9, 10, 'D'], [5, 10, 'A'], [2, 3, 'D']]);
+// el vestido amplio de premamá de 1981 (C, la sombra c, la luz de la barriga e) con el cuello (W): la barriga asoma
+// por delante, con la mano apoyada encima
+const CUERPO_PREMAMA_JM = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCCCekCk.',
+  '.kSkCCCCCCeeSk.',
+  '..kkCCCCCCCeek.',
+  '..kCCCCCCCCCck.',
+  '..kCCCCCCCcck..',
+  '..kCCCCCCCCCk..',
+  '..kcCCCcCCCck..',
+  '..kkkkkkkkkkk..',
+  '....kLk.kLk....',
+];
+// la jugadora de la selva: el chaleco de exploradora (V, los bolsillos o) sobre la camisa (C), el cinturón (G), el
+// pantalón corto (F), las rodillas al aire, los calcetines (X) y las botas (L)
+const CUERPO_EXPLORADORA_JM = parche(CUERPO_BUSCADOR, [[4, 9, 'SSS'], [8, 9, 'SSS'], [4, 10, 'XXX'], [8, 10, 'XXX']]);
+// ── ganchos ──
+// el lápiz en la oreja del guionista: amarillo, con la goma rosa detrás y la punta hacia delante
+const lapizOrejaJM = (c) => { const a = hex('#f0c030'); c.cab.px(1, 4, hex('#f08aa0')); c.cab.px(2, 4, a); c.cab.px(3, 4, a); c.cab.px(4, 4, hex('#e8c890')); c.cab.px(5, 4, hex('#2a2430')); };
+// la capucha bajada de la sudadera, detrás de la nuca
+const capuchaBajadaJM = (c) => c.cuerpo.rej(['.kkk', 'kCCC', 'kcCC', '.kkk'], 0, -2);
+
+// ── el reparto del 35 ──
+const B35 = B23, B35N = B23N, B35J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_JM = {
+  // ── Providence y Boston, 1979–1981 ──
+  // Chris Van Allsburg hacia 1979, a los 30: el pelo castaño oscuro, la barba corta, las gafas redondas, el jersey de
+  // lana verde oscuro sobre la camisa clara y el pantalón de pana tostado
+  vanallsburg: { ...B35, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_PANA_JM, ceja: hex('#2a1c14'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#4a3020', h: '#6a4630', C: '#2e5a3e', c: '#1e4230', W: '#f2eee2', F: '#9a7a4e', f: '#7a5e38', n: '#3a2a1e' }) },
+  // el mismo hoy, a los 77: el pelo y la barba blancos, las mismas gafas y la chaqueta de punto gris sobre la camisa
+  vanallsburgMayor: { ...B35, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_REBECA, ceja: hex('#b0b0ba'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#f0f0f4', h: '#c8ccd8', C: '#8a8c98', c: '#6a6c78', W: '#e4ecf4', F: '#4a4a5a', n: '#2a2430' }) },
+  // Lisa, su mujer, maestra, hacia 1979: la media melena castaña clara, la rebeca mostaza sobre la blusa crema y la
+  // falda granate por debajo de la rodilla
+  lisa: { ...B35, cab: CAB_MEDIA_TR, cuerpo: CUERPO_FALDA_VM, ceja: hex('#7a5430'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8e6034', h: '#b08048', s: '#e8a080', C: '#d8a838', c: '#b08420', W: '#f6eeda', F: '#7a3040', L: '#4a2a20' }) },
+  // Walter Lorraine, el editor, hacia 1979: las entradas, el pelo gris, las gafas de pasta y la chaqueta de tweed
+  // parda con la corbata granate
+  lorraine: { ...B35, cab: CAB_ENTRADAS, cuerpo: CUERPO_TWEED_VM, ceja: hex('#7a7a86'), delante: gafasPastaDC,
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', C: '#8a6a48', c: '#644a2e', W: '#f2f2f6', o: '#8a2a3a', F: '#4a4652' }) },
+  // ── el rodaje, 1994–1995 ──
+  // Robin Williams en 1994, de paisano (sin caracterizar): el pelo castaño corto, afeitado, la camisa azul remangada
+  // y los vaqueros
+  williams: { ...B35, cuerpo: CUERPO_REMANGADA_CF, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#6a9ad0', c: '#4a78b0', o: '#4a78b0', F: '#34487a', n: '#4a3420' }) },
+  // ── NUESTRA casa del juego ── (tonos que aguantan una escena en grises: ella, oscura con el cuello blanco; él, claro
+  // con las rayas)
+  // la hermana: la coleta morena y el vestido rojo oscuro con el cuello blanco
+  judyJM: { ...B35N, cuerpo: CUERPO_NINA, ceja: hex('#2a1c14'), detras: coleta, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#3a2618', h: '#5a4028', s: '#e8a080', C: '#a8343a', c: '#7e2228', W: '#f6f6f6', L: '#2a2430' }) },
+  // el hermano pequeño: el pelo rubio oscuro y el jersey de rayas azules y blancas con el pantalón corto gris
+  peterJM: { ...B35N, cuerpo: CUERPO_RAYAS_NINO_TR, ceja: hex('#8a6430'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b870', s: '#e8a080', C: '#3a5a9a', W: '#f6f6f6', F: '#6a6a76', n: '#3a2a1e' }) },
+  // los dos niños que se llevan la caja: el de la gorra roja y la camiseta verde, y el del flequillo negro y el jersey
+  // naranja
+  chico1JM: { ...B35N, cuerpo: CUERPO_NINO, tocado: 'beisbol', ceja: hex('#6a3a1a'),
+    pal: CLT({ H: '#8a4a22', h: '#a8643a', J: '#c8303a', j: '#e85a5a', C: '#4a9a5a', F: '#3e5a8a', n: '#f0f0f0' }) },
+  chico2JM: { ...B35N, cab: CAB_TAZON_TR, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#e8862a', F: '#5a4a3a', n: '#2a2430' }) },
+  // el niño de los años cincuenta: el pelo engominado, la camisa de cuadros rojos, los tirantes y el pantalón corto
+  nino50JM: { ...B35N, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TIRANTES_NINO_JM, ceja: hex('#4a2a18'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#5a3a20', h: '#8a6038', s: '#e8a080', C: '#d85a4a', p: '#f2e4d0', G: '#4a3424', W: '#f6f6f6', F: '#6a5a3e', n: '#3a2a1e' }) },
+  // ── Hollywood, 1995 ──
+  // el guionista: despeinado, la camisa crema arrugada por fuera del pantalón y el lápiz en la oreja
+  guionista1JM: { ...B35, cab: CAB_RIZOS, cuerpo: CUERPO_CAMISA_ARRUGADA_JM, ceja: hex('#4a2a18'), delante: lapizOrejaJM,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#e8dcc0', c: '#c0b292', o: '#c0b292', F: '#5a5248', n: '#3a2a1e' }) },
+  // la guionista: el pelo negro largo, las gafas redondas y la rebeca granate sobre la blusa clara
+  guionista2JM: { ...B35, cab: CAB_LARGO, cuerpo: CUERPO_REBECA, ceja: hex('#1c1424'), delante: gafasRedondasDC,
+    pal: MOT({ H: '#241a20', h: '#42343c', C: '#8a3048', c: '#6a2036', W: '#f0e8d8', F: '#3a3a4a', n: '#2a2430' }) },
+  // los técnicos de efectos de 1995: el de la coleta rubia, las gafas finas y la sudadera morada, y el de la gorra
+  // oscura, la barba corta y la camisa de franela verde
+  tecnicoFX1JM: { ...B35, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#8a5a24'), detras: coleta, delante: gafasFinasDC,
+    pal: CLT({ H: '#c8944e', h: '#e0b068', C: '#6a5a9a', c: '#4e4278', X: '#e4e0f0', F: '#3e5a8a', n: '#e8e8e8' }) },
+  tecnicoFX2JM: { ...B35, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUADROS_AT, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: CLT({ H: '#2e2018', h: '#4a3626', J: '#2a2e3c', j: '#4a4e5e', C: '#3a7a5a', c: '#2a5e44', p: '#1e3e30', W: '#f2eee2', F: '#5a5a66', n: '#4a3420' }) },
+  // el pintor de brocha gorda: la gorra blanca y el mono blanco manchado de pintura
+  pintorJM: { ...B35, cuerpo: CUERPO_MONO_PINTOR_JM, tocado: 'beisbol', ceja: hex('#3a2418'),
+    pal: MOT({ H: '#2e2018', h: '#4a3626', J: '#f2f2ee', j: '#d0d0c8', C: '#f0f0ec', c: '#c8c8c0', o: '#b0b0aa', u: '#d8d8d0', G: '#c8c8c0', n: '#6a5a4a', A: '#d8503a', Y: '#3a8ad0', D: '#f0c838' }) },
+  // ── Keene (Nueva Inglaterra), años noventa ──
+  // el vecino: el gorro de lana rojo con borla, el abrigo azul marino y la bufanda gris
+  vecino1JM: { ...B35, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroLana', ceja: hex('#6a3a1a'),
+    pal: CLT({ H: '#8a4a22', h: '#a8643a', J: '#c8303a', j: '#a02430', Y: '#f2f2f2', C: '#2a3a6a', c: '#1c2a50', u: '#b0b4c0', o: '#1c2a50', F: '#4a4652', n: '#3a2a1e' }) },
+  // la vecina: la melena rubia larga, el abrigo granate y la bufanda crema
+  vecina2JM: { ...B35, cab: CAB_LARGO, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#d8b060', h: '#f0cc80', s: '#e8a080', C: '#8a2e3c', c: '#6a1e2c', u: '#f2e8c8', o: '#e8c860', F: '#3a3a4a', n: '#2a2430' }) },
+  // la vecina mayor: el pelo blanco, el gorro de punto verde, el abrigo camel y la bufanda verde
+  vecina3JM: { ...B35, cab: CAB_MEDIA_TR, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPuntoDC', ceja: hex('#b0b0ba'),
+    pal: CLT({ H: '#e8e8ee', h: '#c8ccd8', J: '#3a7a5a', j: '#2a5e44', C: '#c8a468', c: '#a08244', u: '#3a7a5a', o: '#7a5a2a', F: '#5a5248', n: '#4a3420' }) },
+  // el crítico de cine: el pelo negro engominado, el traje gris marengo, la corbata roja y la libreta
+  criticoJM: { ...B35, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1424'), delante: conLibreta,
+    pal: CLT({ H: '#1c1424', h: '#4a4458', C: '#4a4e5e', W: '#f6f6f6', o: '#c8303a', F: '#4a4e5e' }) },
+  // ── 1981 ──
+  // la señora embarazada: el pelo rizado castaño y el vestido amplio azul lavanda con el cuello blanco
+  senoraJM: { ...B35, cab: CAB_RIZOS, cuerpo: CUERPO_PREMAMA_JM, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#7a8ad0', c: '#5a68a8', e: '#a0b0ec', W: '#f6f6f6', L: '#4a2a20' }) },
+  // ── 2017 ──
+  // el chaval de 2017: el pelo oscuro de lado y la sudadera roja con capucha (12 filas)
+  nino2017JM: { ...B35J, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_TS, ceja: hex('#1c1424'), detras: capuchaBajadaJM,
+    pal: MOT({ H: '#241a20', h: '#42343c', C: '#c83a3a', c: '#962a2a', X: '#f6f6f6', F: '#2a2e3c', n: '#f0f0f0' }) },
+  // ── la selva del juego ──
+  // la jugadora (NUESTRA): pelirroja con la trenza de lado, el chaleco de exploradora verde oliva sobre la camisa
+  // crema, el pantalón corto caqui, los calcetines y las botas; sin salacot
+  aventureraJM: { ...B35, cuerpo: CUERPO_EXPLORADORA_JM, ceja: hex('#8a3a1a'), delante: trenza, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8562a', h: '#e87a3c', r: '#f0c838', s: '#e8a080', C: '#f0e8d0', V: '#6e7e4a', o: '#4e5c30', G: '#5a3a1a', F: '#b09a62', f: '#b09a62', X: '#f2f2f2', L: '#5a3a20' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_JM);
+
 // ── piezas del 34 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
 // o.dir −1 voltea ── Todo NUESTRO y SIN LETRAS: rayas, cifras y símbolos. Colores: los del 33 más la arcilla (F, la
 // sombra 1, la luz 2, las cuñas 3), el agua (4/5), el cuero (6/7), el óxido (8/9) y la piedra (0, la sombra $).
@@ -10474,4 +10598,367 @@ export const PIEZAS_NX = {
   remache: remacheNX, piedraAgujero: piedraAgujeroNX, martillo: martilloNX, radar: radarNX, hebilla: hebillaNX, bolsa: bolsaNX,
   perforadora: perforadoraNX, testigo: testigoNX, sobre: sobreNX, notaPrensa: notaPrensaNX, revistaCiencia: revistaCienciaNX,
   articulo: articuloNX, libroSagrado: libroSagradoNX, paloma: palomaNX, caracol: caracolNX,
+};
+
+// ── piezas del 35 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
+// o.dir −1 voltea ── Todo NUESTRO (ni el tablero del libro ni el de las películas) y SIN LETRAS: rayas, cifras e
+// iconos. Colores: los del 34 más el verde de selva oscuro (@) y la gema (%, la luz &).
+const PAL_JM = { ...PAL_NX, ...COLORES({ '@': '#1e5a30', '%': '#2eb872', '&': '#96ecc0' }) };
+const CACHE_JM = new Map();
+const unaJM = (clave, hacer) => cacheGT(CACHE_JM, clave, hacer);
+const pintaJM = (R, g, x, y, o = {}, pal = PAL_JM) => pintaJH(R, g, x, y, o, pal);
+const cuadroJM = cuadroNX;
+// una rejilla escrita a mano → la pieza con su contorno
+const deFilasJM = (filas) => forma(filas[0].length + 2, filas.length + 2, ({ put }) => filas.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i + 1, j + 1, f[i]); }));
+// el color de las piezas que lo cambian (o.color: un nombre de la lista o un '#rrggbb'): C, y su sombra c
+const COLORES_JM = { rojo: '#d8303a', azul: '#3a6ab0', verde: '#3aa85a', amarillo: '#f0c030', blanco: '#f2f2ee', naranja: '#f08a2a' };
+const PALES_JM = new Map();
+const palColorJM = (color, def) => { const c = COLORES_JM[color] ?? (typeof color === 'string' && color[0] === '#' ? color : COLORES_JM[def]); return cacheGT(PALES_JM, c, () => ({ ...PAL_JM, ...COLORES({ C: c, c: oscuroTR(c, 0.68) }) })); };
+
+// EL TABLERO (nuestro): plegable, de madera oscura, visto desde arriba; un CAMINO de casillas de colores entra en
+// espiral hasta la GEMA verde redonda del centro, con su aro de oro. 45 × 40 abierto. o.abierto 0–1 (por defecto 1):
+// 0, cerrado (la hoja izquierda doblada sobre la derecha: se ve la tapa con su rombo de latón y el cierre); entre
+// medias, la hoja izquierda se levanta. OJO: (x, y) es siempre el centro de abajo del tablero ABIERTO (la bisagra queda
+// en x), para que no se mueva al abrirlo. Con o.t, la gema destella
+const TABLERO_JM = () => forma(45, 36, ({ put, rect, disco }) => {
+  rect(1, 1, 43, 34, '7'); rect(1, 1, 43, 1, 'p'); rect(1, 1, 1, 34, 'p'); rect(2, 34, 43, 34, 'Q'); rect(43, 2, 43, 34, 'Q');
+  for (const [i, j] of [[7, 8], [8, 8], [15, 13], [16, 13], [29, 7], [30, 7], [38, 14], [14, 31], [15, 31], [27, 21], [28, 21], [20, 9], [37, 28], [38, 28], [8, 20]]) put(i, j, 'p');
+  const ruta = [[4, 31], [40, 31], [40, 4], [4, 4], [4, 25], [34, 25], [34, 10], [10, 10], [10, 19], [16, 19]], tonos = ['R', 'T', 'B', 'T', 'Y', 'T', 'G', 'T'];
+  let n = 0;
+  for (let k = 0; k < ruta.length - 1; k++) {
+    const [x0, y0] = ruta[k], [x1, y1] = ruta[k + 1], m = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) / 3;
+    for (let q = k ? 1 : 0; q <= m; q++, n++) { const cx = x0 + (x1 - x0) * q / m, cy = y0 + (y1 - y0) * q / m, ch = tonos[n % 8]; rect(cx - 1, cy - 1, cx + 1, cy + 1, ch); put(cx + 1, cy + 1, ch === 'T' ? 'A' : ch === 'R' ? 'r' : ch === 'B' ? 'b' : ch === 'Y' ? 'y' : 'v'); }
+  }
+  disco(23, 18, 4.4, 'O'); disco(23, 18, 3.3, '%'); for (const [i, j] of [[24, 20], [25, 19], [25, 20], [23, 21], [24, 21]]) put(i, j, '@');
+  put(21, 16, '&'); put(22, 16, '&'); put(21, 17, '&'); put(26, 21, 'g'); put(27, 20, 'g'); put(25, 22, 'g');
+  put(22, 1, 'O'); put(22, 2, 'O'); put(22, 33, 'O'); put(22, 34, 'g');
+});
+const tableroJM = (R, x, y, o = {}) => {
+  const n = pasoGT(o.abierto, 4, 1), f = cuadroJM(o.t, 4, 4);
+  pintaJM(R, unaJM('tablero' + n + f, () => {
+    const B = unaJM('tableroBase', TABLERO_JM);
+    return forma(45, 40, ({ put, rect }) => {
+      if (n === 0) {
+        rect(22, 3, 43, 36, '6'); rect(22, 3, 43, 3, 'P'); rect(22, 3, 22, 36, 'P'); rect(23, 36, 43, 36, '7'); rect(43, 4, 43, 36, '7');
+        rect(25, 6, 40, 6, '7'); rect(25, 33, 40, 33, '7'); rect(25, 6, 25, 33, '7'); rect(40, 6, 40, 33, '7');
+        for (let d = 0; d <= 4; d++) { put(32 - d, 15 + d, 'O'); put(33 + d, 15 + d, 'O'); put(32 - d, 24 - d, 'g'); put(33 + d, 24 - d, 'g'); }
+        rect(31, 18, 34, 21, '%'); put(31, 18, '&'); put(32, 18, '&'); put(34, 21, '@'); put(33, 21, '@');
+        rect(42, 18, 43, 21, 'O'); put(43, 21, 'g'); put(42, 21, 'g'); rect(22, 9, 22, 11, 'O'); rect(22, 28, 22, 30, 'O');
+        return;
+      }
+      for (let j = 1; j <= 34; j++) for (let i = 22; i <= 43; i++) put(i, j + 3, B[j][i]);
+      const lw = Math.round(21 * n / 4), sube = 4 - n;
+      for (let j = 1; j <= 34; j++) for (let i = 0; i < lw; i++) put(22 - lw + i, j + 3 - sube, B[j][1 + Math.min(20, Math.floor((i + 0.5) * 21 / lw))]);
+      if (n < 4) { for (let j = 1; j <= 34; j++) put(22, j + 3, 'Q'); for (let i = 22 - lw; i <= 21; i++) put(i, 38 - sube, 'Q'); }
+      if (f === 1) for (const [a, b] of [[21, 19], [20, 19], [22, 19], [21, 18], [21, 20]]) { if (n === 4 || a >= 22) put(a, b, 'E'); }
+      else if (f === 0 || f === 2) { if (n === 4) put(21, 19, 'E'); }
+    });
+  }), x, y, o);
+};
+
+// LOS DOS DADOS de hueso (H, la sombra h) con los puntos negros; el segundo, un poco más abajo. o.caras: [a, b] (1–6;
+// por defecto [5, 3]). 19 × 12
+const PUNTOS_JM = [[], [[3, 3]], [[1, 1], [5, 5]], [[1, 1], [3, 3], [5, 5]], [[1, 1], [5, 1], [1, 5], [5, 5]], [[1, 1], [5, 1], [3, 3], [1, 5], [5, 5]], [[1, 1], [5, 1], [1, 3], [5, 3], [1, 5], [5, 5]]];
+const dadosJM = (R, x, y, o = {}) => {
+  const [a, b] = (o.caras ?? [5, 3]).map((v) => Math.max(1, Math.min(6, Math.round(v))));
+  pintaJM(R, unaJM('dados' + a + b, () => forma(19, 12, ({ put, rect }) => {
+    for (const [i0, j0, v] of [[1, 1, a], [11, 4, b]]) {
+      rect(i0, j0, i0 + 6, j0 + 6, 'H'); rect(i0 + 6, j0 + 1, i0 + 6, j0 + 6, 'h'); rect(i0 + 1, j0 + 6, i0 + 6, j0 + 6, 'h'); put(i0, j0, 'E'); put(i0 + 1, j0, 'E'); put(i0, j0 + 1, 'E');
+      for (const [i, j] of PUNTOS_JM[v]) put(i0 + i, j0 + j, 'Q');
+    }
+  })), x, y, o);
+};
+
+// UNA FICHA: un peón de madera pintada (C, la sombra c) con su brillo. o.color: 'rojo' | 'azul' | 'verde' | 'amarillo'
+// (o un '#rrggbb'). 9 × 13
+const FICHA_JM = ['..CCC..', '.CECCc.', '.CCCCc.', '..CCc..', '..CCc..', '.CCCCc.', '.CCCCc.', 'CCECCCc', 'CCCCCCc', 'CCCCccc', 'ccccccc'];
+const fichaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('ficha', () => deFilasJM(FICHA_JM)), x, y, o, palColorJM(o.color, 'rojo'));
+
+// LA CAJA DEL JUEGO cerrada, de madera, vista un poco desde arriba: la tapa (M) con una HOJA DE SELVA verde, el
+// frente (P) con el cierre de latón y las esquinas reforzadas. 33 × 23. o.polvo 0–1: una capa de polvo gris y una
+// telaraña en la esquina
+const cajaJuegoJM = (R, x, y, o = {}) => {
+  const n = pasoGT(o.polvo, 3);
+  pintaJM(R, unaJM('caja' + n, () => forma(33, 23, ({ put, rect, linea }) => {
+    rect(1, 1, 31, 12, 'M'); rect(1, 1, 31, 1, 'A'); rect(1, 12, 31, 12, 'm'); rect(1, 13, 31, 21, 'P'); rect(1, 21, 31, 21, 'p'); rect(31, 13, 31, 21, 'p'); rect(1, 13, 31, 13, '7');
+    for (const [i, j] of [[4, 17], [5, 17], [22, 19], [23, 19], [9, 19], [26, 16], [27, 16]]) put(i, j, 'p');
+    for (const [i, j] of [[1, 1], [2, 1], [1, 2], [31, 1], [30, 1], [31, 2], [1, 21], [2, 21], [1, 20], [31, 21], [30, 21], [31, 20]]) put(i, j, 'g');
+    rect(15, 13, 17, 16, 'O'); put(16, 15, 'Q'); put(17, 16, 'g'); put(15, 16, 'g');
+    // la hoja: tumbada, la punta a la derecha, con el rabito, el nervio y los nervios en espiga
+    const hw = (i) => 4.3 * (1 - Math.pow(Math.abs((i - 16) / 9.6), 1.9));
+    for (let i = 7; i <= 25; i++) for (let j = 2; j <= 10; j++) { const d = j - 6; if (Math.abs(d) <= hw(i)) put(i, j, d > 0 ? 'v' : 'G'); }
+    linea(4, 6, 25, 6, '@'); put(4, 7, '@'); put(26, 6, 'G');
+    for (const i0 of [11, 15, 19, 23]) for (let d = 1; d <= 3; d++) if (d + 0.6 <= hw(i0 - d)) { put(i0 - d, 6 - d, '@'); put(i0 - d, 6 + d, '@'); }
+    for (const [i, j] of [[10, 3], [9, 4], [14, 2], [18, 2]]) put(i, j, 'J');
+    if (n >= 1) { for (let i = 2; i <= 22; i += 3) put(i + (i % 2), 1, 'Z'); for (const [i, j] of [[4, 3], [6, 10], [27, 10], [3, 8], [29, 9], [21, 11], [12, 11]]) put(i, j, 'x'); }
+    if (n >= 2) { rect(3, 1, 23, 1, 'Z'); for (const [i, j] of [[5, 2], [3, 5], [24, 11], [2, 11], [6, 16], [12, 20], [20, 15], [28, 18], [25, 20], [9, 15]]) put(i, j, 'x'); }
+    if (n >= 1) { linea(31, 1, 23, 1, 'W'); linea(31, 1, 31, 9, 'W'); linea(31, 1, 25, 7, 'W'); linea(31, 1, 27, 9, 'W'); if (n >= 2) { linea(28, 1, 28, 3, 'W'); linea(28, 3, 29, 5, 'W'); linea(29, 5, 31, 5, 'W'); } if (n >= 3) { linea(25, 1, 25, 3, 'W'); linea(25, 3, 26, 6, 'W'); linea(26, 6, 28, 8, 'W'); linea(28, 8, 31, 8, 'W'); rect(2, 2, 12, 2, 'Z'); for (const [i, j] of [[4, 4], [8, 9], [22, 10], [14, 11], [6, 18], [18, 19], [29, 15]]) put(i, j, 'Z'); } }
+  })), x, y, o);
+};
+
+// EL CARTUCHO de videojuego (inventado): oscuro (K, el canto u), con las muescas de agarre arriba, la etiqueta clara
+// con una HOJA verde y los contactos dorados abajo. 17 × 19
+const cartuchoJM = (R, x, y, o = {}) => pintaJM(R, unaJM('cartucho', () => forma(17, 19, ({ put, rect, linea }) => {
+  rect(1, 1, 15, 15, 'K'); rect(3, 15, 13, 17, 'K'); rect(1, 1, 15, 1, 'u'); rect(1, 1, 1, 15, 'u'); rect(15, 2, 15, 15, 'Q'); put(1, 1, '.'); put(15, 1, '.');
+  for (const i of [4, 6, 8, 10, 12]) put(i, 2, 'u'); for (const i of [4, 6, 8, 10, 12]) put(i, 3, 'Q');
+  rect(3, 5, 13, 13, 'H'); rect(3, 13, 13, 13, 'h'); rect(13, 5, 13, 13, 'h');
+  for (let j = 6; j <= 12; j++) for (let i = 5; i <= 11; i++) { const a = (i - 8) + (j - 9), b = (i - 8) - (j - 9); if (Math.abs(a) <= 5 && Math.abs(b) <= 2) put(i, j, b > 0 ? 'G' : 'v'); }
+  linea(5, 12, 10, 7, '@'); put(4, 13, '@');
+  for (const i of [4, 6, 8, 10, 12]) put(i, 17, 'O'); rect(3, 16, 13, 16, 'u');
+})), x, y, o);
+
+// LA CONSOLA vieja (inventada): gris, baja y ancha, con la RANURA del cartucho arriba, la franja oscura del frente, DOS
+// BOTONES y el piloto. 33 × 14. o.encendida: el piloto rojo encendido, con su reflejo
+const consolaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('consola' + !!o.encendida, () => forma(33, 14, ({ put, rect }) => {
+  rect(3, 1, 29, 3, 'Z'); rect(3, 1, 29, 1, 'W'); rect(1, 4, 31, 12, 'Z'); rect(1, 4, 31, 4, 'W'); rect(1, 12, 31, 12, 'z'); rect(31, 5, 31, 12, 'z');
+  rect(9, 2, 23, 3, 'Q'); rect(10, 3, 22, 3, 'K'); rect(1, 7, 31, 10, 'u'); rect(1, 10, 31, 10, 'K');
+  rect(4, 8, 7, 9, 'x'); rect(4, 8, 7, 8, 'Z'); rect(10, 8, 13, 9, 'l'); rect(10, 8, 13, 8, 'L');
+  rect(18, 8, 22, 9, 'K'); rect(24, 8, 25, 9, 'K');
+  rect(28, 8, 29, 9, o.encendida ? 'R' : 'r'); if (o.encendida) { put(28, 8, 'L'); put(27, 8, 'N'); put(30, 9, 'N'); put(28, 6, 'L'); put(29, 6, 'L'); }
+  put(1, 4, '.'); put(31, 4, '.'); rect(4, 13, 6, 13, 'K'); rect(26, 13, 28, 13, 'K');
+})), x, y, o);
+
+// EL LIBRO ILUSTRADO: apaisado y fino, en GRISES, con un tablero (un cuadrado con su camino y el punto del centro) en
+// la tapa, el lomo a la izquierda y el canto de las hojas abajo. 29 × 19
+const libroFinoJM = (R, x, y, o = {}) => pintaJM(R, unaJM('libroFino', () => forma(29, 19, ({ put, rect }) => {
+  rect(1, 1, 27, 15, 'x'); rect(1, 1, 27, 1, 'Z'); rect(1, 1, 2, 15, 'u'); rect(3, 1, 3, 15, 'z'); rect(27, 2, 27, 15, 'z');
+  rect(2, 16, 27, 16, 'W'); rect(1, 17, 27, 17, 'u'); put(1, 16, 'u'); put(27, 16, 'w');
+  rect(8, 3, 22, 13, 'Z'); rect(8, 13, 22, 13, 'j'); rect(22, 3, 22, 13, 'j');
+  rect(10, 5, 20, 5, 'u'); rect(20, 5, 20, 11, 'u'); rect(10, 11, 20, 11, 'u'); rect(10, 7, 10, 11, 'u'); rect(10, 7, 17, 7, 'u'); rect(17, 7, 17, 9, 'u'); rect(13, 9, 17, 9, 'u');
+  for (const [i, j] of [[12, 5], [16, 5], [20, 7], [20, 10], [14, 11], [10, 9], [14, 7]]) put(i, j, 'W');
+  put(13, 9, 'K'); put(12, 9, 'K'); rect(5, 4, 5, 5, 'Z'); rect(24, 12, 25, 12, 'Z');
+})), x, y, o);
+
+// LA MEDALLA: redonda y dorada (O, la luz o, el canto g) con una estrella en relieve, colgada de su cinta azul con la
+// raya blanca. 13 × 21. Con o.t, un destello
+const medallaJM = (R, x, y, o = {}) => {
+  const f = cuadroJM(o.t, 4, 4);
+  pintaJM(R, unaJM('medalla' + f, () => forma(13, 21, ({ put, rect, disco, linea }) => {
+    for (let j = 1; j <= 9; j++) { const d = Math.floor(j / 3); rect(2 + d, j, 4 + d, j, 'B'); rect(8 - d, j, 10 - d, j, 'B'); put(3 + d, j, 'W'); put(9 - d, j, 'W'); put(4 + d, j, 'b'); put(8 - d, j, 'b'); }
+    rect(5, 9, 7, 10, 'g'); disco(6, 14, 4.6, 'O');
+    for (let j = 9; j <= 19; j++) for (let i = 1; i <= 11; i++) { const d = Math.hypot(i - 6, j - 14); if (d <= 4.95 && d > 3.9 && (i - 6) + (j - 14) > 0) put(i, j, 'g'); }
+    for (const [i, j] of [[6, 12], [5, 13], [6, 13], [7, 13], [4, 14], [5, 14], [6, 14], [7, 14], [8, 14], [5, 15], [7, 15], [6, 15], [4, 16], [8, 16]]) put(i, j, 'g');
+    put(6, 14, 'o'); put(3, 11, 'o'); put(4, 11, 'o'); put(3, 12, 'o');
+    if (f === 1) for (const [a, b] of [[3, 11], [2, 11], [4, 11], [3, 10], [3, 12]]) put(a, b, 'E'); else if (f === 0 || f === 2) put(3, 11, 'E');
+  })), x, y, o);
+};
+
+// EL LÁPIZ CONTÉ: una barrita negra corta (Q, el brillo u), en diagonal, con la punta gastada abajo a la izquierda y
+// su polvo. 13 × 12
+const lapizConteJM = (R, x, y, o = {}) => pintaJM(R, unaJM('lapizConte', () => forma(13, 12, ({ put, linea }) => {
+  linea(3, 8, 10, 1, 'Q'); linea(4, 9, 11, 2, 'Q'); linea(3, 7, 9, 1, 'u'); linea(4, 8, 10, 2, 'K'); put(3, 9, 'x'); put(2, 9, 'K'); put(3, 8, 'x');
+  put(5, 10, 'u'); put(7, 10, 'x'); put(9, 10, 'u'); put(1, 10, 'u');
+})), x, y, o);
+
+// LA CARPETA DE DIBUJOS: grande, negra jaspeada, con las esquinas y el lomo de cuero, las hojas que asoman por arriba
+// y la CINTA granate atada con un lazo. 29 × 23
+const carpetaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('carpeta', () => forma(29, 23, ({ put, rect, linea }) => {
+  rect(3, 1, 24, 3, 'H'); rect(3, 1, 24, 1, 'W'); rect(6, 2, 26, 3, 'h'); rect(6, 2, 25, 2, 'H');
+  rect(1, 3, 27, 21, 'K'); rect(1, 3, 27, 3, 'u'); rect(1, 21, 27, 21, 'Q'); rect(27, 4, 27, 21, 'Q');
+  for (let j = 5; j <= 19; j += 2) for (let i = 4 + (j % 4); i <= 25; i += 5) { put(i, j, 'u'); if ((i + j) % 3) put(i + 1, j + 1, 'u'); }
+  rect(1, 3, 3, 21, '6'); rect(1, 3, 1, 21, 'P');
+  for (const [i, j, a, b] of [[27, 3, -1, 1], [27, 21, -1, -1]]) for (let d = 0; d <= 3; d++) for (let e = 0; e <= 3 - d; e++) put(i + a * d, j + b * e, '6');
+  rect(4, 12, 27, 12, 'R'); rect(4, 13, 27, 13, 'r');
+  for (const [i, j] of [[13, 10], [14, 10], [12, 11], [15, 11], [13, 11], [18, 10], [19, 10], [17, 11], [20, 11], [19, 11], [15, 14], [14, 15], [14, 16], [17, 14], [18, 15], [19, 16]]) put(i, j, 'R');
+  rect(15, 11, 17, 13, 'r'); put(16, 12, 'R');
+})), x, y, o);
+
+// EL PERRO: el bull terrier blanco (W, la sombra w), de perfil (mira a la derecha; o.dir −1), con la cabeza de huevo,
+// las orejas tiesas, el rabo fino y una MANCHA oscura en el ojo. 19 × 14 de pie; o.sentado: sentado, 15 × 15. Con o.t
+// mueve el rabo
+const PERRO_JM = [
+  ['..........W.W....', '..........WWW....', 'W.........WWWW...', '.W.......WuuWWW..', '.W.......WuQWWWW.', '.WWWWWWWWWWWWWWWQ', '..WWWWWWWWWWWWww.', '..WWWWWWWWWw.....', '..WWWwwwwWWW.....', '..WWw....WWw.....', '..WW.....WW......', '..Ww.....Ww......'],
+  ['..........W.W....', 'W.........WWW....', 'W.........WWWW...', '.W.......WuuWWW..', '.W.......WuQWWWW.', '.WWWWWWWWWWWWWWWQ', '..WWWWWWWWWWWWww.', '..WWWWWWWWWw.....', '..WWWwwwwWWW.....', '..WWw....WWw.....', '..WW.....WW......', '..Ww.....Ww......'],
+];
+const PERRO_SENTADO_JM = [
+  ['......W.W....', '......WWW....', '......WWWW...', '.....WuuWWW..', '.....WuQWWWW.', '.....WWWWWWWQ', '....WWWWWWww.', '...WWWWWW....', '..WWWWWWW....', '..WWWWWwW....', '.WWWWWWwW....', 'W.WWWWwwWW...', 'WWWWWWw.WW...'],
+  ['......W.W....', '......WWW....', '......WWWW...', '.....WuuWWW..', '.....WuQWWWW.', '.....WWWWWWWQ', '....WWWWWWww.', '...WWWWWW....', '..WWWWWWW....', '..WWWWWwW....', '.WWWWWWwW....', '..WWWWwwWW...', 'WWWWWWw.WW...'],
+];
+const perroJM = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroJM(o.t, 2, 6)), s = !!o.sentado;
+  pintaJM(R, unaJM('perro' + s + f, () => deFilasJM((s ? PERRO_SENTADO_JM : PERRO_JM)[f])), x, y, o);
+};
+// el perro diminuto de la esquina de un dibujo (8 × 5, mira a la derecha)
+const PERRITO_JM = ['....W.W.', 'W...WKWW', '.WWWWWWW', '.WWWW...', '.W..W...'];
+
+// UN DIBUJO a lápiz, en GRISES, sobre su hoja: o.tema 'salon' (un sillón, una lámpara de pie y una ventana), 'seto'
+// (un jardín de setos recortados: una bola, un cono y un arco) o 'tren' (una locomotora de vapor en la nieve).
+// o.perro: el bull terrier blanco, diminuto, asoma en la esquina de abajo a la derecha. 31 × 23
+const DIBUJOS_JM = {
+  salon: ({ put, rect, linea, disco }) => {
+    rect(3, 3, 27, 15, 'Z'); rect(3, 16, 27, 19, 'j'); rect(3, 16, 27, 16, 'x');
+    rect(5, 4, 12, 11, 'u'); rect(6, 5, 11, 10, 'W'); rect(8, 5, 8, 10, 'u'); rect(6, 7, 11, 7, 'u'); rect(6, 5, 7, 6, 'X');
+    linea(23, 6, 23, 17, 'K'); rect(21, 4, 25, 6, 'u'); rect(22, 3, 24, 3, 'u'); rect(21, 7, 25, 7, 'W'); rect(22, 18, 24, 18, 'K');
+    rect(12, 10, 18, 17, 'x'); rect(11, 13, 12, 17, 'u'); rect(18, 13, 19, 17, 'u'); rect(13, 10, 17, 13, 'u'); rect(13, 14, 17, 15, 'W'); rect(12, 18, 12, 18, 'K'); rect(18, 18, 18, 18, 'K'); rect(13, 9, 17, 9, 'K');
+  },
+  seto: ({ put, rect, linea, disco }) => {
+    rect(3, 3, 27, 12, 'X'); rect(3, 13, 27, 19, 'Z'); rect(3, 13, 27, 13, 'x'); for (const [i, j] of [[6, 5], [7, 5], [8, 5], [20, 4], [21, 4], [14, 6], [15, 6]]) put(i, j, 'Z');
+    linea(13, 19, 15, 13, 'W'); linea(17, 19, 16, 13, 'W'); linea(14, 19, 15, 14, 'W'); linea(16, 19, 16, 14, 'W'); linea(15, 19, 15, 14, 'W');
+    disco(7, 9, 3, 'u'); put(6, 8, 'x'); put(5, 9, 'x'); put(6, 7, 'x'); rect(7, 13, 7, 16, 'K'); disco(7, 9.2, 1.2, 'K');
+    for (let j = 5; j <= 16; j++) { const w = Math.round((j - 5) / 3.6); rect(23 - w, j, 23 + w, j, 'u'); put(23 - w, j, 'x'); put(23 + w, j, 'K'); }
+    rect(12, 8, 19, 12, 'u'); rect(14, 10, 17, 12, 'X'); put(14, 10, 'u'); put(17, 10, 'u'); rect(12, 8, 19, 8, 'x'); rect(19, 9, 19, 12, 'K'); rect(15, 13, 16, 13, 'W');
+  },
+  tren: ({ put, rect, linea, disco }) => {
+    rect(3, 3, 27, 14, 'j'); rect(3, 15, 27, 19, 'W'); rect(3, 15, 27, 15, 'X'); rect(3, 18, 27, 18, 'Z'); rect(3, 17, 27, 17, 'x');
+    for (const [i, j] of [[5, 5], [25, 7], [27, 11], [4, 12], [26, 13], [23, 4], [7, 9], [24, 10]]) put(i, j, 'W');
+    // la caseta (a la izquierda), la caldera, la chimenea delante y el quitanieves
+    rect(8, 6, 13, 14, 'K'); rect(7, 5, 14, 5, 'K'); rect(9, 7, 11, 9, 'W'); rect(10, 7, 10, 9, 'u'); rect(14, 9, 23, 14, 'K'); rect(14, 9, 23, 9, 'u'); rect(15, 11, 22, 11, 'u');
+    rect(20, 5, 21, 8, 'K'); rect(19, 4, 22, 4, 'K'); rect(16, 7, 17, 8, 'K'); put(23, 12, 'W');
+    linea(24, 13, 26, 15, 'K'); linea(24, 14, 26, 16, 'K'); linea(24, 15, 25, 16, 'K');
+    for (const cx of [10, 15, 19, 22]) { disco(cx, 15.5, 1.3, 'K'); put(cx, 15, 'x'); } rect(10, 16, 22, 16, 'u');
+    disco(19, 2.6, 1.2, 'W'); disco(15, 3, 1.7, 'W'); disco(11, 3.4, 1.3, 'X'); put(17, 2, 'W'); put(8, 3, 'X'); put(13, 4, 'Z');
+  },
+};
+const dibujoJM = (R, x, y, o = {}) => {
+  const tema = DIBUJOS_JM[o.tema] ? o.tema : 'salon';
+  pintaJM(R, unaJM('dibujo' + tema + !!o.perro, () => forma(31, 23, (h) => {
+    h.rect(1, 1, 29, 21, 'W'); h.rect(29, 2, 29, 21, 'w'); h.rect(1, 21, 29, 21, 'w');
+    DIBUJOS_JM[tema](h);
+    if (o.perro) { PERRITO_JM.forEach((f, j) => { for (let i = 0; i < f.length; i++) { if (f[i] === '.') continue; for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const ii = 20 + i + a, jj = 15 + j + b; if (PERRITO_JM[j + b]?.[i + a] === undefined || PERRITO_JM[j + b][i + a] === '.') h.put(ii, jj, 'K'); } } }); PERRITO_JM.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') h.put(20 + i, 15 + j, f[i] === 'K' ? 'Q' : 'E'); }); }
+  })), x, y, { ...o, dir: 1 });
+};
+
+// LA LIANA que cuelga: verde (v, la luz G), ondulada, con hojitas a los lados y la punta enroscada. o.largo: los
+// píxeles que cuelga (4–170). OJO: (x, y) es el punto de ARRIBA del que cuelga (el techo), para que baje sin moverse.
+// Con o.t, se mece un poco. Devuelve { punta: [x, y] }
+const lianaJM = (R, x, y, o = {}) => {
+  const L = Math.max(4, Math.min(170, Math.round(o.largo ?? 40))), f = Math.max(0, cuadroJM(o.t, 2, 1.5)), s = o.s ?? 1;
+  const cx = (j) => 8 + Math.round(Math.sin(j / 5.5 + f * 0.9) * 2.1 * Math.min(1, j / 10));
+  pintaJM(R, unaJM('liana' + L + f, () => forma(17, L + 3, ({ put }) => {
+    for (let j = 1; j <= L; j++) { const c = cx(j); put(c, j, 'G'); put(c + 1, j, 'v'); }
+    for (let j = 6, k = 0; j <= L - 4; j += 8, k++) {
+      const c = cx(j), d = k % 2 ? 1 : -1, b = d > 0 ? c + 1 : c;
+      for (const [a, e, ch] of [[1, 0, 'v'], [2, 0, 'G'], [3, 0, 'G'], [4, 0, 'G'], [2, -1, 'G'], [3, -1, 'G'], [2, 1, 'v'], [3, 1, 'v'], [5, 0, 'v']]) put(b + d * a, j + e, ch);
+    }
+    const c = cx(L); put(c - 1, L + 1, 'v'); put(c - 1, L, 'G'); put(c - 2, L, 'v');
+  })), x, y + (L + 3) * s, o);
+  return { punta: [Math.round(x + (cx(L) - 8) * s * (o.dir ?? 1)), Math.round(y + (L + 1) * s)] };
+};
+
+// UNA HOJA DE SELVA grande: verde (G, la sombra v), con el nervio (@), los cortes en el borde y el rabito. 17 × 19.
+// Con o.t, se balancea un píxel
+const hojaSelvaJM = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroJM(o.t, 2, 2));
+  pintaJM(R, unaJM('hoja' + f, () => forma(17, 19, ({ put, linea }) => {
+    for (let j = 1; j <= 14; j++) { const u = (j - 8) / 7, hw = 6.4 * Math.sqrt(Math.max(0, 1 - u * u)) * (j < 8 ? 0.55 + 0.45 * (j / 8) : 1); for (let i = 1; i <= 15; i++) { const d = i - 8 - (f ? (14 - j) / 9 : 0); if (Math.abs(d) <= hw) put(i, j, d > 0.4 ? 'v' : 'G'); } }
+    linea(8, 2, 8, 17, '@'); for (const j of [5, 8, 11]) { linea(8, j + 1, 4, j - 1, '@'); linea(8, j + 1, 12, j - 1, '@'); }
+    for (const [i, j] of [[2, 6], [14, 6], [1, 9], [15, 9], [2, 12], [14, 12]]) { put(i, j, '.'); put(i < 8 ? i + 1 : i - 1, j, '.'); }
+    put(4, 3, 'J'); put(5, 2, 'J'); put(3, 5, 'J'); put(8, 17, 'v'); put(8, 16, 'v');
+  })), x, y, o);
+};
+
+// EL BILLETE DE JUGUETE: de color pastel (verde claro), con el borde, el óvalo del centro con un «1» y las cuatro
+// esquinas marcadas. 21 × 12
+const billeteJugueteJM = (R, x, y, o = {}) => pintaJM(R, unaJM('billete', () => forma(21, 12, ({ put, rect, disco }) => {
+  rect(1, 1, 19, 10, 'J'); rect(2, 2, 18, 9, 'V'); rect(3, 3, 17, 8, 'J'); rect(1, 10, 19, 10, 'V'); rect(19, 2, 19, 10, 'V');
+  for (let j = 3; j <= 8; j++) for (let i = 7; i <= 13; i++) if (Math.hypot((i - 10) / 3.4, (j - 5.5) / 2.9) <= 1) put(i, j, 'W');
+  rect(10, 4, 10, 7, 'v'); put(9, 5, 'v'); put(9, 7, 'v'); put(11, 7, 'v');
+  for (const [i, j] of [[4, 4], [16, 4], [4, 7], [16, 7]]) put(i, j, 'v'); put(5, 5, 'V'); put(15, 6, 'V');
+})), x, y, o);
+
+// LAS INSTRUCCIONES: un folleto doblado, de papel viejo (H), con sus rayas de texto (sin letras) y un dibujito de los
+// dados arriba. 15 × 13 doblado. o.rollo 0–1: se desenrolla HACIA ABAJO (hasta 60 px más), con más y más rayas y el
+// extremo enroscado. OJO: (x, y) es el centro de abajo del folleto DOBLADO; lo desenrollado cuelga por debajo de y
+const instruccionesJM = (R, x, y, o = {}) => {
+  const n = pasoGT(o.rollo, 20), L = n * 3, h = 13 + L, s = o.s ?? 1;
+  pintaJM(R, unaJM('instrucciones' + n, () => forma(15, h, ({ put, rect }) => {
+    rect(1, 1, 13, h - 2, 'H'); rect(13, 2, 13, h - 2, 'h'); rect(1, 1, 13, 1, 'W');
+    rect(3, 3, 5, 5, 'W'); put(4, 4, 'Q'); rect(7, 3, 9, 5, 'W'); put(7, 3, 'Q'); put(9, 5, 'Q'); rect(3, 6, 5, 6, 'h'); rect(7, 6, 9, 6, 'h');
+    for (let j = 8, k = 0; j <= h - 4; j += 2, k++) { rect(3, j, [11, 9, 11, 10, 7][k % 5], j, 'd'); if (k % 5 === 4) j += 1; }
+    if (n === 0) { rect(1, 6, 13, 6, 'h'); rect(1, 11, 13, 11, 'h'); rect(1, 10, 13, 10, 'H'); }
+    else { rect(1, h - 3, 13, h - 3, 'h'); rect(1, h - 2, 13, h - 2, 'd'); put(1, h - 2, 'h'); put(13, h - 3, 'd'); for (let j = 13; j < h - 4; j += 12) rect(1, j, 13, j, 'T'); }
+  })), x, y + L * s, o);
+};
+
+// LA BROCHA gorda: el mango de madera (M) arriba, la virola de metal y las cerdas (A) hacia abajo, mojadas de pintura
+// (o.color, por defecto 'rojo'). 11 × 19
+const brochaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('brocha', () => forma(11, 19, ({ put, rect }) => {
+  rect(4, 1, 6, 8, 'M'); rect(6, 2, 6, 8, 'm'); put(5, 2, 'Q'); put(4, 1, '.'); put(6, 1, '.'); put(5, 1, 'M');
+  rect(2, 8, 8, 10, 'Z'); rect(2, 10, 8, 10, 'z'); rect(8, 8, 8, 10, 'z'); put(3, 9, 'u'); put(7, 9, 'u');
+  rect(2, 11, 8, 14, 'A'); for (const i of [3, 5, 7]) rect(i, 11, i, 13, 'a'); rect(1, 14, 9, 16, 'C'); rect(8, 14, 9, 16, 'c'); put(2, 15, 'E'); put(1, 17, 'C'); put(4, 17, 'C'); put(5, 17, 'C'); put(8, 17, 'c'); put(1, 14, '.'); put(9, 14, '.');
+})), x, y, o, palColorJM(o.color, 'rojo'));
+
+// EL BOTE DE PINTURA: la lata de metal (Z/z) con el asa de alambre, la tapa quitada y la pintura (o.color, por defecto
+// 'rojo') que rebosa y chorrea por el frente. 15 × 16
+const botePinturaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('bote', () => forma(15, 16, ({ put, rect }) => {
+  for (const [i, j] of [[2, 3], [1, 4], [1, 5], [1, 6], [12, 3], [13, 4], [13, 5], [13, 6], [3, 2], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1], [9, 1], [10, 1], [11, 2]]) put(i, j, 'u');
+  rect(2, 5, 12, 14, 'Z'); rect(10, 6, 12, 14, 'z'); rect(2, 14, 12, 14, 'z'); rect(3, 6, 3, 13, 'W'); rect(2, 4, 12, 5, 'x'); rect(3, 4, 11, 4, 'C'); rect(3, 5, 11, 5, 'c');
+  rect(4, 6, 6, 9, 'C'); put(6, 9, '.'); put(6, 9, 'Z'); put(4, 10, 'C'); put(4, 11, 'C'); put(5, 10, 'c'); rect(8, 6, 9, 7, 'C'); put(9, 8, 'C'); put(4, 6, 'E');
+  rect(2, 11, 12, 11, 'x'); put(2, 7, 'u'); put(12, 7, 'u');
+})), x, y, o, palColorJM(o.color, 'rojo'));
+
+// LA ESPONJA: amarilla (Y, la sombra y), con sus agujeros y las esquinas romas. 15 × 10. o.espuma: con pompas de jabón
+const esponjaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('esponja' + !!o.espuma, () => forma(15, 10, ({ put, rect, disco }) => {
+  rect(1, 2, 13, 8, 'Y'); rect(1, 8, 13, 8, 'y'); rect(13, 3, 13, 8, 'y'); rect(2, 2, 12, 2, 'o'); put(1, 2, '.'); put(13, 2, '.'); put(1, 8, '.'); put(13, 8, '.');
+  for (const [i, j] of [[3, 4], [4, 4], [7, 3], [10, 5], [11, 5], [5, 6], [8, 6], [8, 7], [11, 3], [3, 7]]) put(i, j, 'y'); put(4, 5, 'g'); put(11, 6, 'g'); put(8, 5, 'g');
+  if (o.espuma) { disco(4, 1.5, 1.2, 'I'); disco(9, 1.2, 1, 'W'); put(7, 2, 'I'); put(12, 2, 'W'); put(4, 1, 'E'); }
+})), x, y, o);
+
+// LA VELA: de cera (H, la sombra h) con un chorreón, sobre su platillo de latón, y la LLAMA (el centro claro, la punta
+// naranja) que tiembla con o.t. o.apagada: sin llama, con el hilillo de humo. 9 × 19
+const velaJM = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroJM(o.t, 3, 7)), ap = !!o.apagada;
+  pintaJM(R, unaJM('vela' + ap + f, () => forma(9, 19, ({ put, rect }) => {
+    rect(3, 7, 5, 15, 'H'); rect(5, 8, 5, 15, 'h'); put(3, 7, 'W'); put(4, 7, 'W'); put(2, 9, 'H'); put(2, 10, 'H'); put(6, 8, 'h'); put(4, 6, 'Q');
+    rect(1, 16, 7, 16, 'O'); rect(2, 17, 6, 17, 'g'); put(1, 16, 'o'); put(7, 16, 'g');
+    if (ap) { put(4 + (f === 1 ? 1 : 0), 4, 'x'); put(4, 5, 'x'); put(4 + (f === 2 ? -1 : 1), 2, 'Z'); put(4, 3, 'Z'); return; }
+    const d = f === 1 ? 1 : f === 2 ? -1 : 0;
+    put(4 + d, 1, 'N'); put(4 + (d > 0 ? 1 : 0), 2, 'N'); put(4, 2, 'N'); rect(3, 3, 5, 5, 'N'); rect(4, 3, 4, 5, 'Y'); put(4, 4, 'E'); put(4, 5, 'o'); put(3, 3, f === 2 ? 'N' : '.'); put(5, 3, f === 1 ? 'N' : '.'); put(3, 5, 'n'); put(5, 5, 'n');
+  })), x, y, o);
+};
+
+// EL RAMO de flores: tres flores (roja, rosa y amarilla, con su centro) y dos capullos entre las hojas, los tallos
+// envueltos en un cucurucho de papel crema con el lazo azul. 17 × 21
+const ramoJM = (R, x, y, o = {}) => pintaJM(R, unaJM('ramo', () => forma(17, 21, ({ put, rect, disco, linea }) => {
+  for (let j = 9; j <= 19; j++) { const w = Math.round((19 - j) * 0.48) + 1; rect(8 - w, j, 8 + w, j, 'H'); put(8 + w, j, 'h'); if (w > 1) put(8 + w - 1, j, 'h'); }
+  linea(3, 9, 8, 15, 'h'); rect(6, 15, 10, 15, 'B'); put(5, 16, 'B'); put(11, 16, 'B'); put(8, 16, 'b'); put(4, 15, 'B'); put(12, 15, 'B');
+  for (const [i, j] of [[2, 8], [3, 9], [13, 9], [14, 8], [8, 9], [7, 10], [9, 10], [5, 10], [11, 10], [1, 7], [15, 7], [8, 8]]) put(i, j, 'v'); put(4, 9, 'G'); put(12, 9, 'G'); put(6, 9, 'G'); put(10, 9, 'G');
+  disco(4, 5, 2, 'R'); put(4, 5, 'Y'); put(5, 6, 'r'); put(4, 7, 'r'); disco(12, 5, 2, 'L'); put(12, 5, 'Y'); put(13, 6, 'e'); put(12, 7, 'e'); disco(8, 3, 2, 'Y'); put(8, 3, 'N'); put(9, 4, 'y'); put(8, 5, 'y');
+  put(1, 2, 'l'); put(1, 3, 'l'); put(2, 3, 'v'); put(15, 2, 'W'); put(15, 3, 'W'); put(14, 3, 'v'); put(8, 6, 'v'); put(8, 7, 'G');
+})), x, y, o);
+
+// EL GUION DE CINE: un taco de hojas (las de debajo asoman) sujeto con DOS GRAPAS de latón a la izquierda, con las
+// rayas del diálogo centradas (sin letras). 19 × 23. o.hojas 1–3 (por defecto 2): lo grueso que es el taco
+const guionCineJM = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(3, Math.round(o.hojas ?? 2)));
+  pintaJM(R, unaJM('guion' + n, () => forma(19, 23, ({ put, rect }) => {
+    for (let k = n; k >= 1; k--) { rect(1 + k, 1 + k, 14 + k, 18 + k, k % 2 ? 'w' : 'X'); rect(14 + k, 2 + k, 14 + k, 18 + k, 'j'); rect(2 + k, 18 + k, 14 + k, 18 + k, 'j'); }
+    rect(1, 1, 14, 18, 'W'); rect(14, 2, 14, 18, 'X');
+    rect(2, 4, 3, 4, 'O'); put(3, 4, 'g'); rect(2, 14, 3, 14, 'O'); put(3, 14, 'g'); put(2, 9, 'x');
+    rect(6, 3, 10, 3, 'u'); for (const [a, b, j] of [[5, 12, 6], [5, 10, 7], [7, 10, 9], [6, 11, 10], [6, 9, 11], [5, 12, 13], [5, 11, 14], [7, 10, 16]]) rect(a, j, b, j, j === 9 || j === 16 ? 'x' : 'j');
+  })), x, y, o);
+};
+
+// EL CORAZÓN DE VIDA de videojuego: de píxeles, rojo (R, la sombra r) con su brillo. 11 × 10. o.lleno (por defecto
+// true); false: vacío, solo el hueco oscuro. Con o.t, late (da un saltito de un píxel)
+const CORAZON_JM = ['.RR...RR.', 'RERR.RRRR', 'REERRRRRr', 'RRRRRRRRr', 'RRRRRRRrr', '.RRRRRrr.', '..RRRrr..', '...Rrr...', '....r....'];
+const corazonVidaJM = (R, x, y, o = {}) => {
+  const lleno = o.lleno !== false, late = lleno && o.t != null && (o.t * 1.4) % 1 < 0.18;
+  const g = unaJM('corazon' + lleno, () => deFilasJM(lleno ? CORAZON_JM : CORAZON_JM.map((f) => f.replace(/[RE]/g, 'u').replace(/r/g, 'K'))));
+  pintaJM(R, g, x, y - (late ? (o.s ?? 1) : 0), o);
+};
+
+// EL ZAPATO DEL LETRERO: el pictograma de un zapato de vestir de perfil (la punta a la derecha; o.dir −1), negro, con
+// los cordones, la costura de la puntera y el tacón y la suela marrones; para el letrero pintado en la pared. 25 × 13
+const ZAPATO_JM = [
+  '....QQQQQQ.............',
+  '...QQuQQQQQ............',
+  '...QQQQQQxQx...........',
+  '...QQQQQQQxQxQ.........',
+  '...QQQQQQQQxQxQQQ......',
+  '..QQQQQQQQQQQQQQQuQQQ..',
+  '..QQuQQQQQQQQQQQQuQQQQQ',
+  '..QQuQQQQQQQQQQQQuQQQQQ',
+  '.QQQQQQQQQQQQQQQQQQQQQQ',
+  '.MMMMMMMMMMMMMMMMMMMMMM',
+  '.MMMMM...mmmmmmmmmmmmm.',
+];
+const zapatoLetreroJM = (R, x, y, o = {}) => pintaJM(R, unaJM('zapato', () => deFilasJM(ZAPATO_JM)), x, y, o);
+
+export const PIEZAS_JM = {
+  tablero: tableroJM, dados: dadosJM, ficha: fichaJM, cajaJuego: cajaJuegoJM, cartucho: cartuchoJM, consola: consolaJM,
+  libroFino: libroFinoJM, medalla: medallaJM, lapizConte: lapizConteJM, carpeta: carpetaJM, dibujo: dibujoJM, perro: perroJM,
+  liana: lianaJM, hojaSelva: hojaSelvaJM, billeteJuguete: billeteJugueteJM, instrucciones: instruccionesJM, brocha: brochaJM,
+  botePintura: botePinturaJM, esponja: esponjaJM, vela: velaJM, ramo: ramoJM, guionCine: guionCineJM, corazonVida: corazonVidaJM,
+  zapatoLetrero: zapatoLetreroJM,
 };
