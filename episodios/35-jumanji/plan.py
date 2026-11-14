@@ -46,7 +46,7 @@ E = [
   ['D y B: un libro fino junto a un rollo de película larguísimo; un reloj de diez minutos y otro de cien; guionistas que añaden hojas; un niño de 1969 ante el tablero (nuestro) y un adulto con barba que sale de él en 1995: el calendario pasa 26 hojas.'],
   'aventura', []),
  ('jm-keene', None, 14, 14, ['keene'],
-  ['C: una estrella de cine (EL.williams, sin caracterizar) aparta un guion y coge otro, más gordo y con tachones; una calle de ladrillo de Nueva Inglaterra con su iglesia; pintores en un andamio pintan en la pared un zapato enorme.'],
+  ['C: una estrella de cine (EL.williams, sin caracterizar) llega al plató con su guion; una calle de ladrillo de Nueva Inglaterra con su iglesia; pintores en un andamio pintan en la pared un zapato enorme.'],
   'aventura', []),
  ('jm-pelo', None, 15, 15, ['pelo'],
   ['C: el puesto de efectos: en la pantalla, un león de alambre; los técnicos teclean y la melena le crece pelo a pelo (golpe); el último pelo se queda de punta; unos monos de alambre esperan turno.'],
