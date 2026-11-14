@@ -11,7 +11,7 @@ E['jm-pregunta'] = ('La pregunta', '''// JM-PREGUNTA (frases 7–8), cartela «1
 // el círculo.''', r'''
 const ra = (s) => en('recuerdo', (s - 1.5) / 15.454), no = (s) => en('nombre', (s - 18.625) / 18.934), P = T.PIEZAS_JM;
 const P2 = ra(7.1), P3 = ra(11.05), P4 = no(18.2), P5 = no(25.35), P6 = no(32.5);
-const AZUL = '#3f66b0', VERDE = '#2e5a3e', K = hex('#1a1420'), ORO = hex('#ffd84a'), ROJO = hex('#e0303a');
+const AZUL = '#e6e0d0', VERDE = '#2e5a3e', K = hex('#1a1420'), ORO = hex('#ffd84a'), ROJO = hex('#e0303a');
 const mez = (c1, c2, f) => { const m = (s) => Math.round(((c1 >>> s) & 255) + (((c2 >>> s) & 255) - ((c1 >>> s) & 255)) * f); return (0xff000000 | (m(16) << 16) | (m(8) << 8) | m(0)) >>> 0; };
 const suave = (u) => u * u * (3 - 2 * u);
 const elipse = (cx, cy, rx, ry, c) => { for (let j = -Math.ceil(ry); j <= ry; j++) { const w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (j * j) / (ry * ry)))); for (let i = -w; i <= w; i++) R.pset(Math.round(cx) + i, Math.round(cy) + j, c); } };
@@ -24,15 +24,12 @@ const sienta = ra(3.0), mueve = ra(5.3), bost = ra(6.15);
 const p1 = (t) => {
   const mv = suave(tramo(t, mueve, mueve + 0.45));
   const o = { encuadre: 'cocina50', tedio: (t * 0.5) % 1, mueve: mv }; T.casaJuego(R, t, o);
-  // la tarde que no pasa: el sol de la ventana se arrastra por el suelo
-  const sol = tramo(t, 0.8, P2), sx = Math.round(lerp(96, 150, sol));
-  for (let y = 128; y <= 141; y++) for (let x = sx + (y - 128) * 2; x <= sx + 46 + (y - 128) * 3; x++) if (x >= 0 && x < 320 && ((x - sx) % 24 < 21) && (x + y) % 2 === 0) R.pset(x, y, mez(R.pget(x, y), hex('#fff6c8'), 0.55));
   // llega con ganas, se sienta, mira el reloj, tamborilea, mueve la ficha y bosteza
   const e1 = tramo(t, 1.25, 1.85), e2 = tramo(t, 1.85, sienta), llega = e2 >= 1, inc = Math.sin(tramo(t, mueve - 0.4, mueve + 0.75) * Math.PI), x = Math.round(e1 < 1 ? lerp(266, 236, e1) : lerp(236, 180, e2) - inc * 16), y = Math.round(lerp(162, 148, e1));
   const coge = t > mueve - 0.4 && t < mueve + 0.75, bz = t >= bost && t < bost + 0.95, reloj = llega && t < mueve - 0.5 && Math.floor((t - sienta) / 0.75) % 2 === 1;
   const est = bz ? Math.round(Math.sin(tramo(t, bost, bost + 0.95) * Math.PI) * 2) : 0;
   R.actor(EL.nino50JM, x, y - est, t, { dir: !llega || coge ? -1 : reloj ? 1 : -1, anda: !llega, sonrisa: !llega || t < sienta + 0.5, sostiene: !llega ? undefined : coge ? [x - 4, 140] : bz ? undefined : [reloj ? 199 : 176, 141 - (Math.floor(t * 7) % 3 === 0 ? 1 : 0)],
-    brazos: bz, parpadea: bz || undefined, habla: bz, triste: llega && !bz && (t > bost || (t > sienta + 0.5 && !coge && !reloj)) });
+    brazos: bz, ...(bz ? { parpadea: true } : {}), habla: bz, triste: llega && !bz && (t > bost || (t > sienta + 0.5 && !coge && !reloj)) });
   if (reloj) icono('reloj', 198, 112 - Math.round(Math.abs(Math.sin(t * 5)) * 2), hex('#fff4d8'), 1);
   T.casaJuegoDelante(R, t, o);
   if (bz) { const u = tramo(t, bost + 0.35, bost + 0.95); for (let k = 0; k < 3; k++) { const bx = 197 + k * 4 + Math.round(u * 6), by = 128 - k * 3 - Math.round(u * 7); R.disco(bx, by, 1.6 + k * 0.5, mez(R.pget(bx, by), hex('#ffffff'), 0.75 * (1 - u))); } }
@@ -287,7 +284,7 @@ const p6 = (t) => {
   if (le > 0 && le < 1) for (let k = 0; k < 6; k++) if (Math.floor(t * 9 + k) % 2) destello(178 + ((k * 17) % 44), 70 + ((k * 11) % 26), 2, BL);
   // la mano: dibuja el rinoceronte en zigzag, difumina con el dedo, da los últimos toques con cuidado y se va
   const dab = Math.floor(t * 5) % 2, ab = suave(tramo(t, frota - 0.15, frota + 0.1)), bc = suave(tramo(t, cuida - 0.3, cuida)), cd = suave(tramo(t, fuera, fuera + 0.8));
-  const A = [lerp(74, 152, rn) + 27, 139 + Math.sin(rn * Math.PI * 7) * 17 - 12], B = [126 + Math.sin(t * 10) * 9, 160 + Math.cos(t * 10) * 1.5], C = [150 + 27 + dab, 119 - dab * 2], D = [232, 222];
+  const A = [lerp(74, 152, rn) + 27, 139 + Math.sin(rn * Math.PI * 7) * 17 - 12], B = [126 + Math.sin(t * 10) * 9, 160 + Math.cos(t * 10) * 1.5], C = [130 + 27 + dab, 139 - dab * 2], D = [232, 222];
   const wx = Math.round(lerp(lerp(lerp(A[0], B[0], ab), C[0], bc), D[0], cd)), wy = Math.round(lerp(lerp(lerp(A[1], B[1], ab), C[1], bc), D[1], cd));
   if (cd < 1 && t > P6 + 0.05) { if (ab < 0.5 || bc > 0.5) P.lapizConte(R, wx - 15, wy + 12, { s: 2 }); T.brazo(R, wx + 40, wy + 58, wx, wy, VERDE, -1, { codo: [wx + 29, wy + 24] }); }
   flash(0.85 * (1 - tramo(t, foto, foto + 0.3)) * (t >= foto ? 1 : 0));
@@ -337,7 +334,7 @@ const nunca = di(38.52);
 const p9 = (t) => {
   const o = { encuadre: 'ventana', camara: 'folleto', pasos: tramo(t, P9 + 0.05, di(38.0)) }; T.casaJuego(R, t, o);
   // una hoja que cae y se posa en la hierba, junto al folleto
-  const c = tramo(t, P9 + 0.6, nunca + 0.3), hx = lerp(74, 250, c) + Math.sin(c * 9) * 10, hy = lerp(-8, 124, c);
+  const c = tramo(t, P9 + 0.6, nunca + 0.3), hx = lerp(196, 250, c) + Math.sin(c * 9) * 8, hy = lerp(-8, 124, c);
   resto(hx, hy, 0, 1.4, c < 1 ? Math.sin(c * 12) * 0.8 : 0.3);
   T.casaJuegoDelante(R, t, o);
   const e = tramo(t, nunca, nunca + 0.18); if (e > 0) icono('!', 154, 58 - Math.round(Math.abs(Math.sin(t * 6)) * 3) - (e < 1 ? 4 : 0), ORO, 3);
