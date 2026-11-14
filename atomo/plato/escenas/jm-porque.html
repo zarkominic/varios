@@ -13,12 +13,14 @@
 // And when · and so · And there's · The only · seeing):
 //  1 · el cuarto del ilustrador, hoy: Van Allsburg dibuja; un chaval entra con su «?» («why»); él levanta el lápiz y lo
 //      explica: en su bocadillo, un sillón y un rinoceronte.
-//  2 · (extra) NUESTRA lámina de la alacena, a lápiz: un mono entre las latas; la mano con el lápiz negro remata otro en la
-//      puerta, que aparece en «never»; las latas caen.
+//  2 · (extra) NUESTRA lámina de la alacena, a lápiz: un mono entre las latas; la mano con el lápiz negro sombrea la
+//      puerta; en «never» unos dedos agarran el canto, la mano se aparta y el segundo mono asoma poco a poco (cola,
+//      cabeza) hasta quedar colgado delante de la puerta; las latas caen.
 //  3 · la lámina de «cómo miramos»: los ojos van al salón («living room»), al rinoceronte («rhinoceros») y de uno a otro;
 //      «never together»: un aspa entre los dos recuadros. El ilustrador señala y se encoge de hombros.
 //  4 · el pasillo a ras de suelo, a lápiz: el ratón asoma y avisa («!»), se mete; tiembla el pasillo (polvo del friso,
-//      la zapatilla, la pelota) y entran pisando las patas del primer rinoceronte (sin llegar a la esquina de Atom).
+//      la zapatilla, la pelota) y cruzan pisando las patas de los DOS rinocerontes, uno detrás de otro (estampida
+//      0,14 → 0,78; el decorado solo pinta patas y polvo por debajo de y 46).
 //  5 · el dibujo único, de cerca: la mirada (unos ojos y su marco rojo) salta del sillón al rinoceronte; en «look away»
 //      intenta irse por la derecha y por la izquierda, y una goma la devuelve; al final abarca a los dos.
 //  6 · la cartulina de reglas: la ficha da tres pasos; una mano con una cera roja tacha la puerta («quit»), el dado
@@ -76,15 +78,15 @@ const p1 = (t) => {
   if (habla) { const s = cl((t - EXPL) / 0.2), y0 = 111 - Math.round(s * 3); bocadillo(62, y0, 110, y0 + 21, 104, y0 + 27); if (t > EXPL + 0.15) miniSillon(75, y0 + 17); if (t > EXPL + 0.55) { R.rect(84, y0 + 10, 88, y0 + 10, K); R.rect(86, y0 + 8, 86, y0 + 12, K); miniRino(101, y0 + 17); } }
 };
 
-// 2 · NUESTRA lámina de la alacena: la mano remata el segundo mono
+// 2 · NUESTRA lámina de la alacena: la mano sombrea la puerta y el segundo mono asoma por el canto
 const NEVER = tc(6.63), SAME = tc(7.53);
 const p2 = (t) => {
-  const o = { encuadre: 'cocina', camara: 'alacena', monos: t < NEVER ? 0.4 : 1 }; T.casaJuego(R, t, o); T.casaJuegoDelante(R, t, o);
-  const u = ease(tramo(t, P2 + 0.05, P2 + 0.75)), v = ease(tramo(t, NEVER - 0.05, NEVER + 0.7));
-  // los trazos que va dejando la mano donde va a salir el mono (se quedan debajo de él)
-  if (t < NEVER) { const n = Math.floor(cl((t - P2 - 0.7) / (NEVER - P2 - 0.7)) * 22); for (let k = 0; k < n; k++) { const x = 252 + (k * 7) % 22, y = 58 + (k * 5) % 34; R.linea(x, y, x + 5, y - 4, hex(k % 3 ? '#6e6c74' : '#9a98a0')); } }
-  if (v < 1) { const bx = 262 + Math.sin(t * 13) * 7 + Math.sin(t * 2.1) * 3, by = 84 + Math.sin(t * 9) * 11, px = lerp(lerp(350, bx, u), 352, v), py = lerp(lerp(120, by, u), 134, v); manoLapiz(px, py, MANGA, { negro: true }); }
-  if (t > NEVER && t < NEVER + 0.7) { const s = (t - NEVER) / 0.7; for (let q = 0; q < 8; q++) chispa(262 + Math.cos(q * 0.785 + s) * (16 + s * 12), 74 + Math.sin(q * 0.785 + s) * (20 + s * 10), q); }
+  const o = { encuadre: 'cocina', camara: 'alacena', monos: lerp(0.4, 1, tramo(t, NEVER - 0.1, NEVER + 0.9)) };   // el decorado lo hace asomar de 0,5 a 1: dedos, cola, cabeza, vuelta T.casaJuego(R, t, o); T.casaJuegoDelante(R, t, o);
+  const u = ease(tramo(t, P2 + 0.05, P2 + 0.75)), v = ease(tramo(t, NEVER + 0.02, NEVER + 0.42));
+  // el sombreado que va dejando la mano en la puerta; cuando el mono da la vuelta y se cuelga delante, queda debajo de él
+  { const n = Math.floor(cl((t - P2 - 0.7) / (NEVER - P2 - 0.7)) * 22 * (1 - tramo(t, NEVER + 0.6, NEVER + 0.88))); for (let k = 0; k < n; k++) { const x = 252 + (k * 7) % 22, y = 58 + (k * 5) % 34; R.linea(x, y, x + 5, y - 4, hex(k % 3 ? '#6e6c74' : '#9a98a0')); } }
+  // la mano dibuja hasta «never»; cuando los dedos del mono agarran el canto, se aparta deprisa hacia abajo
+  if (v < 1) { const bx = 262 + Math.sin(t * 13) * 7 + Math.sin(t * 2.1) * 3, by = 84 + Math.sin(t * 9) * 11, px = lerp(lerp(350, bx, u), 352, v), py = lerp(lerp(120, by, u), 140, v); manoLapiz(px, py, MANGA, { negro: true }); }
 };
 
 // 3 · la lámina de «cómo miramos»: el salón, el rinoceronte, nunca juntos
@@ -105,13 +107,12 @@ const p3 = (t) => {
 // 4 · el pasillo, a ras de suelo: pasan las patas
 const SHOW = tc(13.68);
 const p4 = (t) => {
-  // PARCHE DECORADO: c_pasilloBaja/c_panzaRino pinta la panza desde y 0 (de xb − 124 a xb + 150) y tapaba la esquina de
-  // Atom: la estampida se queda en e ≤ 0,30 (xb ≤ 123, la panza no pasa de x 273) y solo entra el primer rinoceronte.
-  // Primero el pasillo en calma (e ≤ 0,02: el ratón), luego el temblor y las patas.
-  const e = t < P4 + 0.47 ? 0.02 * tramo(t, P4 + 0.4, P4 + 0.47) : t < P4 + 0.6 ? lerp(0.02, 0.09, tramo(t, P4 + 0.47, P4 + 0.6)) : 0.09 + 0.21 * (1 - (1 - tramo(t, P4 + 0.6, P5 + 0.2)) ** 1.6);   // entra al trote y va frenando
+  // Primero el pasillo en calma (e ≤ 0,02: el ratón y su «!»); luego el temblor y cruzan los DOS rinocerontes, uno detrás
+  // de otro: estampida 0,14 → 0,78 (el decorado solo pinta patas, sombras y polvo por debajo de y 46)
+  const e = t < P4 + 0.47 ? 0.02 * tramo(t, P4 + 0.4, P4 + 0.47) : t < P4 + 0.62 ? lerp(0.02, 0.14, tramo(t, P4 + 0.47, P4 + 0.62)) : lerp(0.14, 0.78, tramo(t, P4 + 0.62, P5 + 0.2));
   const o = { encuadre: 'pasillo', camara: 'baja', estampida: e }; T.casaJuego(R, t, o);
-  // PARCHE DECORADO: c_pasilloBaja el ratón del agujero (x 120–136, y 36–50) parpadea a su aire y no sale con el «!»:
-  // aquí asoma, se asusta y se mete
+  // el ratón del agujero (x 120–136, y 36–50): el del decorado asoma a su aire (sin(t·0,9)) y en este instante le toca
+  // estar escondido, así que el que avisa con el «!» se pinta aquí: asoma, se asusta y se mete
   { const baja = Math.round(tramo(t, P4 + 0.45, P4 + 0.6) * 8), G = hex('#a4a4ac'), GS = hex('#6e6e78'); if (baja < 8) { R.recorte([120, 36, 136, 50]); for (let y = 43; y <= 49; y++) for (let x = 125; x <= 131; x++) if (y > 43 || (x > 125 && x < 131)) R.pset(x, y + baja, y === 49 ? GS : G);
     R.pset(124, 43 + baja, GS); R.pset(132, 43 + baja, GS); R.pset(126, 45 + baja, K); R.pset(130, 45 + baja, K); R.pset(128, 47 + baja + (Math.sin(t * 9) > 0 ? 0 : 1), hex('#d8a0a0')); R.recorte(null); } }
   if (t < P4 + 0.5 && t > P4 + 0.1) { const b = Math.round(Math.sin(t * 22)); bocadillo(120 + b, 20, 136 + b, 37, 128, 42); R.icono('!', 126 + b, 22, ROJO, null, 2); }
@@ -190,7 +191,7 @@ const p8 = (t) => {
   // la estela de Atom sobre el camino y la llegada
   if (t > META && t < META + 1.0) { const s = (t - META) / 1.0, [mx, my] = g.meta || g.gema; for (let q = 0; q < 10; q++) chispa(mx + Math.cos(q * 0.628 + s * 2) * (14 + s * 20), my + Math.sin(q * 0.628 + s * 2) * (12 + s * 16), q); }
 };
-const efectos = [[0.35, 'lapiz'], [WHY, 'pop'], [EXPL + 0.15, 'pop'], [P2 + 0.8, 'lapiz'], [NEVER, 'brillo'], [SAME + 0.25, 'golpecito'], [LIVING, 'pop'], [RHINO, 'pop'], [TOG, 'toc'], [P4 + 0.15, 'aviso'], [P4 + 0.6, 'avalancha'], [SHOW + 1.5, 'boom'],
+const efectos = [[0.35, 'lapiz'], [WHY, 'pop'], [EXPL + 0.15, 'pop'], [P2 + 0.8, 'lapiz'], [NEVER + 0.08, 'pop'], [SAME + 0.25, 'golpecito'], [LIVING, 'pop'], [RHINO, 'pop'], [TOG, 'toc'], [P4 + 0.15, 'aviso'], [P4 + 0.6, 'avalancha'], [SHOW + 1.5, 'boom'],
   [P5 + 0.1, 'tic'], [AWAY + 0.55, 'boing'], [AWAY + 1.6, 'boing'], [P6 + 0.6, 'golpecito'], [SECOND, 'whoosh'], [QUIT, 'lapiz'], [CHEAT, 'lapiz'], [CALL - 0.65, 'ring'], [CALL, 'lapiz'], [P7 + 0.5, 'golpecito'], [LLEGA, 'campana'], [LLEGA + 0.4, 'brillo'],
   [P8 + 0.2, 'whoosh'], [DRESSED + 0.3, 'golpecito'], [STAMP, 'carro'], [META, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: 2026 });
