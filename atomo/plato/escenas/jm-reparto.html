@@ -29,7 +29,7 @@ const q = { quieto: true, parpadea: false };
 // una fila de personajes a escala 1
 const fila1 = (nombres, s0, paso = 28, x0 = 8) => {
   R.rect(0, s0 + 1, 319, s0 + 2, suelo);
-  nombres.forEach((k, n) => { R.actor(EL[k], x0 + n * paso, s0, 0, q); rotulo(k.replace(/JM$/, ''), x0 + n * paso + 7, s0 + 3.4 + (n % 2) * 2.6); });
+  nombres.forEach((k, n) => { R.actor(EL[k], x0 + n * paso, s0, 0, q); rotulo(k, x0 + n * paso + 7, s0 + 3.4 + (n % 2) * 2.6); });
 };
 // una fila de personajes a escala 1 y, debajo, cada uno al doble (se copia del lienzo, píxel a píxel)
 const filaReparto = (nombres) => {

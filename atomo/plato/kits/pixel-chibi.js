@@ -10223,8 +10223,8 @@ export const ELENCO_JM = {
   // ── la selva del juego ──
   // la jugadora (NUESTRA): pelirroja con la trenza de lado, el chaleco de exploradora verde oliva sobre la camisa
   // crema, el pantalón corto caqui, los calcetines y las botas; sin salacot
-  aventureraJM: { ...B35, cuerpo: CUERPO_EXPLORADORA_JM, ceja: hex('#8a3a1a'), delante: trenza, mejillas: [[6, 8], [12, 8]],
-    pal: CLT({ H: '#c8562a', h: '#e87a3c', r: '#f0c838', s: '#e8a080', C: '#f0e8d0', V: '#6e7e4a', o: '#4e5c30', G: '#5a3a1a', F: '#b09a62', f: '#b09a62', X: '#f2f2f2', L: '#5a3a20' }) },
+  aventureraJM: { ...B35, cuerpo: CUERPO_EXPLORADORA_JM, ceja: hex('#1c1424'), delante: trenza, mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#241a20', h: '#42343c', r: '#f0c838', s: '#e8a080', C: '#f0e8d0', V: '#6e7e4a', o: '#4e5c30', G: '#5a3a1a', F: '#b09a62', f: '#b09a62', X: '#f2f2f2', L: '#5a3a20' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_JM);
 
@@ -10619,7 +10619,7 @@ const palColorJM = (color, def) => { const c = COLORES_JM[color] ?? (typeof colo
 // espiral hasta la GEMA verde redonda del centro, con su aro de oro. 45 × 40 abierto. o.abierto 0–1 (por defecto 1):
 // 0, cerrado (la hoja izquierda doblada sobre la derecha: se ve la tapa con su rombo de latón y el cierre); entre
 // medias, la hoja izquierda se levanta. OJO: (x, y) es siempre el centro de abajo del tablero ABIERTO (la bisagra queda
-// en x), para que no se mueva al abrirlo. Con o.t, la gema destella
+// en x), para que no se mueva al abrirlo. Con o.t, la gema destella (solo abierto del todo)
 const TABLERO_JM = () => forma(45, 36, ({ put, rect, disco }) => {
   rect(1, 1, 43, 34, '7'); rect(1, 1, 43, 1, 'p'); rect(1, 1, 1, 34, 'p'); rect(2, 34, 43, 34, 'Q'); rect(43, 2, 43, 34, 'Q');
   for (const [i, j] of [[7, 8], [8, 8], [15, 13], [16, 13], [29, 7], [30, 7], [38, 14], [14, 31], [15, 31], [27, 21], [28, 21], [20, 9], [37, 28], [38, 28], [8, 20]]) put(i, j, 'p');
@@ -10650,8 +10650,8 @@ const tableroJM = (R, x, y, o = {}) => {
       const lw = Math.round(21 * n / 4), sube = 4 - n;
       for (let j = 1; j <= 34; j++) for (let i = 0; i < lw; i++) put(22 - lw + i, j + 3 - sube, B[j][1 + Math.min(20, Math.floor((i + 0.5) * 21 / lw))]);
       if (n < 4) { for (let j = 1; j <= 34; j++) put(22, j + 3, 'Q'); for (let i = 22 - lw; i <= 21; i++) put(i, 38 - sube, 'Q'); }
-      if (f === 1) for (const [a, b] of [[21, 19], [20, 19], [22, 19], [21, 18], [21, 20]]) { if (n === 4 || a >= 22) put(a, b, 'E'); }
-      else if (f === 0 || f === 2) { if (n === 4) put(21, 19, 'E'); }
+      if (n === 4 && f === 1) for (const [a, b] of [[21, 19], [20, 19], [22, 19], [21, 18], [21, 20]]) put(a, b, 'E');
+      else if (n === 4 && (f === 0 || f === 2)) put(21, 19, 'E');
     });
   }), x, y, o);
 };
