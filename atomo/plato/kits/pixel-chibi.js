@@ -10721,12 +10721,14 @@ const consolaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('consola' + !!o.encendid
 // EL LIBRO ILUSTRADO: apaisado y fino, en GRISES, con un tablero (un cuadrado con su camino y el punto del centro) en
 // la tapa, el lomo a la izquierda y el canto de las hojas abajo. 29 × 19
 const libroFinoJM = (R, x, y, o = {}) => pintaJM(R, unaJM('libroFino', () => forma(29, 19, ({ put, rect }) => {
-  rect(1, 1, 27, 15, 'x'); rect(1, 1, 27, 1, 'Z'); rect(1, 1, 2, 15, 'u'); rect(3, 1, 3, 15, 'z'); rect(27, 2, 27, 15, 'z');
-  rect(2, 16, 27, 16, 'W'); rect(1, 17, 27, 17, 'u'); put(1, 16, 'u'); put(27, 16, 'w');
-  rect(8, 3, 22, 13, 'Z'); rect(8, 13, 22, 13, 'j'); rect(22, 3, 22, 13, 'j');
-  rect(10, 5, 20, 5, 'u'); rect(20, 5, 20, 11, 'u'); rect(10, 11, 20, 11, 'u'); rect(10, 7, 10, 11, 'u'); rect(10, 7, 17, 7, 'u'); rect(17, 7, 17, 9, 'u'); rect(13, 9, 17, 9, 'u');
-  for (const [i, j] of [[12, 5], [16, 5], [20, 7], [20, 10], [14, 11], [10, 9], [14, 7]]) put(i, j, 'W');
-  put(13, 9, 'K'); put(12, 9, 'K'); rect(5, 4, 5, 5, 'Z'); rect(24, 12, 25, 12, 'Z');
+  // álbum ilustrado apaisado y FINO: lomo de tela verde a la izquierda, tapa clara con una lámina a lápiz (una casa,
+  // un seto recortado y la luna: nuestra, no la del libro real), una raya por título y el canto de las hojas abajo
+  rect(1, 1, 27, 15, 'W'); rect(1, 1, 3, 15, '@'); rect(3, 1, 3, 15, 'G'); rect(4, 1, 27, 1, 'Z'); rect(27, 2, 27, 15, 'Z');
+  rect(7, 3, 24, 11, 'Z'); rect(7, 3, 24, 3, 'x'); rect(7, 3, 7, 11, 'x'); rect(24, 3, 24, 11, 'x'); rect(7, 11, 24, 11, 'x');
+  rect(8, 9, 23, 10, 'x'); rect(13, 6, 18, 9, 'u'); rect(14, 5, 17, 5, 'u'); rect(15, 4, 16, 4, 'u'); put(15, 7, 'W'); put(17, 8, 'K'); put(17, 9, 'K');
+  put(10, 6, 'u'); rect(9, 7, 11, 8, 'u'); put(10, 9, 'K'); rect(21, 4, 22, 5, 'W');
+  rect(10, 13, 21, 13, 'u'); put(22, 13, 'x');
+  rect(2, 16, 27, 16, 'W'); for (let i = 4; i <= 26; i += 2) put(i, 16, 'Z'); rect(1, 17, 27, 17, '@'); put(1, 16, '@'); put(27, 16, 'x');
 })), x, y, o);
 
 // LA MEDALLA: redonda y dorada (O, la luz o, el canto g) con una estrella en relieve, colgada de su cinta azul con la
