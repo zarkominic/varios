@@ -120,7 +120,7 @@ const paginas = {
   banner: {
     w: 2560, h: 1440, canal: { x: (1280 - AX) * 0.00683 * 1, y: (AY - 720) * 0.00683, d: 13.5, estrellas: false, aplanado: 0.36, giro: 0.26 },
     html: `${fuentes}<style>${base}
-      .titulo{position:absolute;left:1060px;top:556px;width:1000px;color:#fff;font:800 82px/1.04 Unbounded,sans-serif;letter-spacing:-.01em;white-space:nowrap}
+      .titulo{position:absolute;left:1060px;top:556px;width:1000px;color:#fff;font:800 64px/1.08 Unbounded,sans-serif;letter-spacing:-.01em;white-space:nowrap}
       .titulo b{color:#ffd43b;font-weight:800}
       .sub{position:absolute;left:1064px;top:818px;color:#9fb3ff;font:600 32px Unbounded,sans-serif;letter-spacing:.06em}
       .orbita{position:absolute;left:0;top:0}
@@ -130,8 +130,8 @@ const paginas = {
       <ellipse cx="${AX}" cy="${AY}" rx="1500" ry="380" transform="rotate(-9 ${AX} ${AY})"/>
       <ellipse cx="${AX}" cy="${AY}" rx="1250" ry="560" transform="rotate(24 ${AX} ${AY})" stroke-opacity=".1"/>
     </svg>
-    <div class="titulo">What school<br><b>didn’t teach you</b></div>
-    <div class="sub">LO QUE NO TE EXPLICARON EN CLASE</div>`,
+    <div class="titulo">The things you’ve<br><b>always wondered about</b></div>
+    <div class="sub">ESO QUE SIEMPRE TE HAS PREGUNTADO</div>`,
   },
 };
 

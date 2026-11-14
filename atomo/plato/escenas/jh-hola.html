@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Soy Atom · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-HOLA (frase 5), hoy. Un plano: el cuarto de la fan por la tarde. Atom, en el sofá junto al pan, salta a saludar en
+// «I'm Atom» y el pan saluda con él; en «wondered about» se clavan las chinchetas del mapa de los distritos y salen «?»;
+// en «Let's find out» la tele se enciende con la portada del sinsajo, Atom se acerca a ella y el pan, asustado, se tapa
+// los ojos.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('hola', f);
+const atom = a(0.03), explain = a(0.254), wonder = a(0.539), lets = a(0.822), out = a(0.876);
+const p1 = (t) => {
+  const tele = t > lets ? 1 : 0;
+  const g = T.hoy(R, t, { encuadre: 'cuarto', luz: 'tarde', mapa: 12 * tramo(t, explain, wonder + 0.4), tele, linea: 0, pistas: 0 });
+  // la tele que se enciende: un destello blanco en el hueco
+  const f = tramo(t, lets, lets + 0.3); if (f > 0 && f < 1) { R.recorte([224, 92, 300, 120]); for (let y = 92; y <= 120; y++) for (let x = 224; x <= 300; x++) if (((x + y) & 1) === 0) R.pset(x, y, T.C.blanco); R.recorte(null); }
+  // el pan saluda con Atom; se asusta con la tele y se tapa los ojos
+  T.pan(R, 140, 126, t, { dir: 1, saluda: t > atom && t < explain, expresion: t > lets + 0.2 ? 'susto' : t > wonder && t < lets ? 'normal' : 'normal', esconde: tramo(t, lets + 0.4, out + 0.4) });
+  if (t > wonder && t < lets) { const k = Math.floor((t - wonder) * 3); for (let i = 0; i <= Math.min(2, k); i++) R.icono('?', 128 + i * 9, 102 - i * 3 - Math.round(Math.sin(t * 4 + i) * 1), hex('#ffe890'), T.C.k, 1); }
+  // Atom salta dos veces para saludar y en «Let's find out» vuela hacia la tele
+  const sal = t > atom && t < explain + 0.3 ? Math.round(Math.abs(Math.sin((t - atom) * Math.PI * 1.6)) * 14) : 0;
+  const v = tramo(t, lets, out + 0.6), ax = Math.round(lerp(176, 206, v)), ay = Math.round(lerp(112, 100, v)) - sal + Math.round(Math.sin(t * 2.6));
+  if (sal > 0 || (v > 0 && v < 1)) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4 + t * 4, rr = 15 + Math.sin(t * 9) * 2; R.pset(Math.round(ax + Math.cos(an) * rr), Math.round(ay + Math.sin(an) * rr), hex('#c8f0ff')); }
+  R.atomo(ax, ay, t, { r: 10 + (sal > 0 ? 1.5 : 0), energia: sal > 0 || v > 0 ? 0.7 : 0.25 });
+  T.hoyDelante(R, t, { encuadre: 'cuarto', luz: 'tarde' });
+};
+const efectos = [[atom + 0.1, 'pop'], [explain + 0.3, 'golpecito'], [lets + 0.02, 'interruptor'], [lets + 0.45, 'boing']];
+T.rodar(E, R, [[0, p1]], { efectos, año: null });
+</script>
+</body>
+</html>

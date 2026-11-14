@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep15</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NY-MINIATURA · la miniatura del episodio 15 (se captura en t = 1, 1280 × 720). El mismo sitio con 500 años de
+// diferencia, partido por una diagonal: a la izquierda, la bahía virgen de 1524 con el bosque, las marismas y La Dauphine
+// fondeada; a la derecha, el muelle de hoy al atardecer con los rascacielos encendiéndose. Verrazzano al doble mira, sorprendido, hacia la ciudad que no llegó a ver. «1524» y «2026» en las esquinas de arriba. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { C, bahia1524, dauphine, hoy } from '/atomo/plato/escenas/ny-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 128 + Math.round((179 - y) * 0.22);   // la diagonal: arriba más a la derecha
+const dibujar = (t) => {
+  let prev = R.usar(izq); bahia1524(R, t, { encuadre: 'estrecho', luz: 'tarde' }); dauphine(R, 72, 128, t, { ancla: true, s: 1.2 });
+  R.usar(der); hoy(R, t, { encuadre: 'muelle', luz: 'anochecer' });
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.verrazzano, 12, 60, 0.5, { dir: 1, quieto: true, sorpresa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, C.k); R.pset(x, y, C.blanco); R.pset(x + 1, y, C.blanco); R.pset(x + 2, y, C.k); }
+  // Verrazzano al doble, abajo en el centro, sobre la diagonal, mirando a la ciudad
+  const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+  pon(pj, 0, 26, 28, 61, 92, 112, 2);
+  R.numero('1524', 44, 22, { tam: 14, centro: true });
+  R.numero('2026', 248, 22, { tam: 14, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sin confirmar · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-CONFIRMAR (frases 26–27, marcas «claro» y «falta»), 2026. Nueve planos:
+// 1. hoy/estudio/mesa: una nota de prensa con su megáfono, que pregona; una mano trae el sello de caucho, lo sostiene
+//    encima y en «confirmed» le planta un «?» rojo;
+// 2. insertos/revista: las notas de prensa se apilan; una mano da dos toques a la revista científica, que sigue cerrada, y
+//    los tres huecos de revisión quedan vacíos; aún llega otra nota de prensa al montón;
+// 3. insertos/sobres: una mano mete el trozo negro en el sobre 3 con la cinta parada (pilotos ámbar); en «sent» las tres
+//    cintas arrancan (la escena repinta la goma: costillas, flechas, pegatinas y rodillos avanzan con los sobres, pilotos
+//    verdes)… y se paran antes de la rampa (pilotos rojos): «?» en los tres matraces vacíos;
+// 4. ladera/corte en plano azul («según ellos»): el radar dibuja las rectas; la geóloga de fuera espera en la orilla con
+//    su martillo; un barrido pone en color la roca natural del cuenco y de los dos costados (estratos y juntas rectos),
+//    y el radar traza sobre ella, y en el radargrama del pie, las mismas rectas a trazos ámbar; la geóloga da tres
+//    golpes de martillo a la muestra de roca de la orilla (chispa y esquirlas);
+// 5. hoy/lista: la geóloga de fuera entra, se pregunta «?», va hasta debajo de la primera ficha (la excavación abierta) y
+//    la señala: casilla vacía; llama a dos colegas de fuera del equipo, que entran con su pala en la mano, en alto, y su maletín en
+//    la mano («from outside the team») y se paran a mirar la ficha: NADA ha empezado (ni plantan la pala ni dejan el
+//    maletín); al geólogo le sale un «?», Collins mira la casilla sin soltar la pala, la geóloga calla y sigue señalando, y
+//    la casilla sigue sin marcar, con su «?» dentro, que late: esperan;
+// 6. hoy/geologo/laboratorio vacío: la madera en su carro, sin datar (tres aros vacíos), bajo la lupa de un brazo
+//    articulado sujeto al carro; lo de las marcas de corte, en una ficha azul («según ellos») que se desenrolla de un
+//    portaplanos de pie; un robot de limpieza pasa traqueteando;
+// 7. hoy/geologo: Collins pasa la lupa por la bandeja vacía, la deja, levanta la bandeja para mirar debajo (nada) y la
+//    suelta; en el pie de pinza de la mesa, la ficha de la muestra gira y enseña su «?» rojo; la geóloga saca la hoja de
+//    la publicación, en blanco, y la enseña en la mano; llega el geólogo y mira el reloj dos veces (los dos de detrás
+//    de la mesa asoman cabeza y hombros);
+// 8. insertos/calendario: los meses de 2027 pasan; una mano coge el sello y espera: el hueco del permiso sigue vacío, «?»;
+// 9. el crepúsculo desde el camino del pastor (fondo propio de la escena, en un búfer: tapia, cancela, chopo y peñas
+//    delante; al otro lado del valle, a contraluz, la ladera con la forma, el centro y el pueblo; el Ararat detrás): el
+//    pastor lleva el rebaño a casa con su perro (la oveja guía con su esquila, el perro ladra y salta), se encienden las
+//    ventanas y salen las estrellas; al final el pastor se para a mirar la ladera y enciende el farol.
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-confirmar');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k ?? hex('#1c1222'), BLANCO = hex('#f6f2e6'), ROJO = hex('#d8343a'), ROJOS = hex('#8a1c24'), AMBAR = hex('#ffc84a'), CARBON = hex('#17131a'), CARBONL = hex('#4a4250');
+const MANGA = '#4a6a8a';
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// un aro de puntos que «camina» (lo pendiente, lo que se señala): solo pset, respeta R.recorte
+const aro = (cx, cy, r, col, t, paso = 2) => { const n = Math.max(8, Math.round(r * 6.283 / paso)); for (let i = 0; i < n; i++) { if ((i + Math.floor(t * 6)) % 3 === 2) continue; const an = i / n * 6.283; R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r), col); } };
+// un marco de trazos que camina alrededor de [x0, y0, x1, y1]
+const marco = (x0, y0, x1, y1, col, t, g = 1) => { const f = Math.floor(t * 8); for (let k = 0; k < g; k++) { for (let x = x0; x <= x1; x++) { if ((x + f) % 6 < 4) R.pset(x, y0 + k, col); if ((x - f + 600) % 6 < 4) R.pset(x, y1 - k, col); } for (let y = y0; y <= y1; y++) { if ((y - f + 600) % 6 < 4) R.pset(x0 + k, y, col); if ((y + f) % 6 < 4) R.pset(x1 - k, y, col); } } };
+// un trocito negro (lo que «parece» madera quemada): mancha irregular con un filo claro para que se lea
+const trocito = (x, y, k = 0, brillo = false) => { const f = [[[-3, -2, 2, 1], [-2, -3, 1, 2], [3, -1, 3, 0]], [[-2, -2, 3, 1], [-3, -1, 2, 2]], [[-3, -1, 3, 1], [-1, -3, 2, 2]]][k % 3];
+  for (const [a, b, c, d] of f) R.rect(x + a - 1, y + b - 1, x + c + 1, y + d + 1, brillo ? AMBAR : CARBONL); for (const [a, b, c, d] of f) R.rect(x + a, y + b, x + c, y + d, CARBON); R.pset(x - 1, y - 1, CARBONL); R.pset(x + 1, y, CARBONL); };
+// una oveja pequeña (11 × 8), de perfil: lana en dos tonos, cara oscura y patas que trotan
+const OVEJA = ['..kkkkkk...', '.kLLLLLLkk.', 'kLLLLLLLkCk', 'kLLLLLLlCCC', 'kLlLLLllkCk', '.kllllllk..', '..k.kk.k...'], OVEJA2 = [...OVEJA.slice(0, 6), '.k..kk..k..'];
+const oveja = (x, y, dir, t, k = 0) => R.dibujo(t && Math.sin(t * 9 + k * 2) > 0 ? OVEJA2 : OVEJA, x - 5, y - 7, dir, { k: K, L: hex('#f6f0e0'), l: hex('#c8beaa'), C: hex('#3a3038') });
+// una nota de prensa (34 × 46): megáfono rojo, rayas y el sello con «?»
+const nota = (x, y) => { R.rect(x - 1, y - 1, x + 34, y + 46, K); R.rect(x, y, x + 33, y + 45, BLANCO); R.rect(x + 31, y + 1, x + 33, y + 45, hex('#d8d2c2'));
+  R.poligono([[x + 3, y + 7], [x + 6, y + 7], [x + 10, y + 4], [x + 10, y + 13], [x + 6, y + 10], [x + 3, y + 10]], ROJO); for (let j = -2; j <= 2; j++) { R.pset(x + 13 - (Math.abs(j) > 1 ? 1 : 0), y + 8 + j, ROJO); R.pset(x + 16 - (Math.abs(j) > 1 ? 1 : 0), y + 8 + j * 2, ROJO); }
+  R.rect(x + 20, y + 5, x + 30, y + 6, hex('#4a4458')); for (let k = 0; k < 5; k++) R.rect(x + 3, y + 18 + k * 3, x + (k === 4 ? 14 : 29), y + 18 + k * 3, hex('#a8a6a0'));
+  aro(x + 24, y + 37, 6, ROJO, 0, 1); R.icono('?', x + 22, y + 34, ROJO, hex('#f0b0a8'), 1); };
+
+const a = (f) => en('claro', f), b = (f) => en('falta', f);
+const P2 = a(0.1722), P3 = a(0.4722), P4 = a(0.8165), P5 = b(-0.015), P6 = b(0.2498), P7 = b(0.4963), P8 = b(0.7297), P9 = b(0.9173);
+const confirmado = a(0.121), notas = a(0.196), revista = a(0.318), expertos = a(0.382), mete = a(0.546), enviado = a(0.63), noLlegan = a(0.763), rectas = a(0.86), capas = a(0.922);
+const otraNota = expertos + 1.15, arq = b(0.128);
+const que = b(0.0255), abierta = b(0.0752), fuera = b(0.194), dice = b(0.372), cortes = b(0.4614), nadie = b(0.505), publicado = b(0.635), v2027 = b(0.8), siPermiso = b(0.86);
+
+// 1 · la nota de prensa y el sello de «?»
+const p1 = (t) => {
+  const baja = tramo(t, confirmado - 0.22, confirmado), o = { encuadre: 'estudio', camara: 'mesa', mira: t > 1.6, gatoMira: 1 };
+  T.hoy(R, t, o);
+  // la nota (dibujada aquí: la pieza del kit ya trae el sello puesto)
+  const NX = 254, NY = 114, tiembla = t >= confirmado && t < confirmado + 0.2 ? 1 : 0;
+  R.rect(NX + 3, NY + 3, NX + 47, NY + 61, hex('#3a2416')); R.rect(NX - 1, NY - 1 + tiembla, NX + 45, NY + 59 + tiembla, K); R.rect(NX, NY + tiembla, NX + 44, NY + 58 + tiembla, BLANCO);
+  R.rect(NX, NY + tiembla, NX + 44, NY + 3 + tiembla, hex('#3a5a8a'));
+  // el megáfono, que «grita» hasta que cae el sello
+  R.poligono([[NX + 5, NY + 12], [NX + 9, NY + 12], [NX + 15, NY + 8], [NX + 15, NY + 20], [NX + 9, NY + 16], [NX + 5, NY + 16]], ROJO); R.rect(NX + 6, NY + 17, NX + 8, NY + 20, ROJOS);
+  if (t < confirmado) for (let k = 0; k < 3; k++) if ((Math.floor(t * 7) + k) % 3 !== 0) for (let j = -3 - k * 2; j <= 3 + k * 2; j++) R.pset(NX + 19 + k * 4 - Math.round(Math.abs(j) / 3), NY + 14 + j, ROJO);
+  R.rect(NX + 20 + 12, NY + 8, NX + 40, NY + 9, hex('#8a8c98'));
+  for (let k = 0; k < 7; k++) R.rect(NX + 5, NY + 25 + k * 4 + tiembla, NX + (k % 3 === 2 ? 26 : k > 3 ? 20 : 39), NY + 25 + k * 4 + tiembla, hex('#a8a6a0'));
+  const SX = NX + 30, SY = NY + 42;
+  if (t >= confirmado) { for (let r = 9; r <= 10; r++) aro(SX, SY, r, ROJO, 0, 1); aro(SX, SY, 12, ROJO, 0, 3); R.icono('?', SX - 4, SY - 7, ROJO, hex('#f0b0a8'), 2); }
+  // la mano con el sello de caucho: entra por la derecha, golpea y se va
+  const ent = tramo(t, confirmado - 1.75, confirmado - 0.7), sal = tramo(t, confirmado + 0.3, confirmado + 0.95);
+  if (ent > 0 && sal < 1) { const bx = SX + Math.round((1 - ent) * 50 + sal * 60), byy = Math.round(lerp(SY - 22, SY + 3, baja) - (1 - ent) * 14 - sal * 26);
+    R.rect(bx - 9, byy - 5, bx + 9, byy + 1, K); R.rect(bx - 8, byy - 4, bx + 8, byy - 2, hex('#7a2a2a')); R.rect(bx - 8, byy - 1, bx + 8, byy, ROJO);
+    R.rect(bx - 4, byy - 16, bx + 4, byy - 5, K); R.rect(bx - 3, byy - 15, bx + 3, byy - 6, hex('#b07a3a')); R.rect(bx - 3, byy - 15, bx - 2, byy - 6, hex('#d8a05a'));
+    T.brazo(R, bx + 46, byy - 34, bx + 8, byy - 12, MANGA, -1, { codo: [bx + 30, byy - 18] }); }
+  T.hoyDelante(R, t, o);
+};
+
+// 2 · notas de prensa, no una revista científica
+const p2 = (t) => {
+  const o = { encuadre: 'revista', abierta: 0 };
+  T.insertos(R, t, o);
+  // más notas de prensa que llegan al montón, deslizándose desde la izquierda
+  for (let k = 0; k < 3; k++) { const u = tramo(t, notas - 0.1 + k * 0.52, notas + 0.3 + k * 0.52); if (u <= 0) continue; const e = 1 - (1 - u) ** 2; nota(Math.round(lerp(-40, 12 + k * 3 - (k === 1 ? 6 : 0), e)), Math.round(lerp(110, 88 - k * 5, e))); }
+  // la mano da dos toques a la revista cerrada
+  const ent = tramo(t, revista - 0.7, revista - 0.1), sal = tramo(t, expertos - 0.3, expertos + 0.3);
+  if (ent > 0 && sal < 1) { const toque = (t > revista && t < revista + 0.14) || (t > revista + 0.5 && t < revista + 0.64) ? 3 : 0, hx = 236 + Math.round((1 - ent) * 30 + sal * 40), hy = 138 + toque + Math.round((1 - ent) * 40 + sal * 46);
+    T.brazo(R, hx + 34, hy + 44, hx, hy, MANGA, -1, { codo: [hx + 26, hy + 18] }); }
+  if ((t > revista && t < revista + 0.25) || (t > revista + 0.5 && t < revista + 0.75)) for (let k = 0; k < 3; k++) R.linea(214 - k * 6, 128 - k * 2, 210 - k * 6, 124 - k * 2, BLANCO);
+  // los tres huecos de la revisión de otros expertos, vacíos
+  for (let k = 0; k < 3; k++) { const u = tramo(t, expertos + k * 0.35, expertos + 0.25 + k * 0.35); if (u <= 0) continue; const cx = 80 + k * 28, cy = 60 - Math.round((1 - u) * 4);
+    R.disco(cx, cy, 12, K); R.disco(cx, cy, 11, hex('#2a5a44')); aro(cx, cy, 11, BLANCO, t + k); aro(cx, cy, 10, BLANCO, t + k); R.icono('lupa', cx - 3, cy - 4, hex('#9cc8ac'), hex('#1e4434')); }
+  // …y aún llega otra nota de prensa: el montón crece, la revista sigue cerrada
+  { const u = tramo(t, otraNota - 0.35, otraNota); if (u > 0) { const e = 1 - (1 - u) ** 2; nota(Math.round(lerp(-40, 9, e)), Math.round(lerp(104, 72, e))); } }
+  T.insertosDelante(R, t, o);
+};
+
+// 3 · nadie ha datado la madera: los sobres van de camino y los matraces siguen vacíos
+const madero = (x, y) => { const P = [[-9, -1], [-4, -6], [6, -5], [10, 0], [5, 5], [-6, 4]]; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) R.poligono(P.map(([a2, b2]) => [x + a2 + dx, y + b2 + dy]), AMBAR);
+  R.poligono(P.map(([a2, b2]) => [x + a2, y + b2]), CARBON); R.linea(x - 6, y - 1, x + 5, y - 3, CARBONL); R.linea(x - 3, y + 2, x + 6, y + 1, CARBONL); R.pset(x - 1, y - 4, CARBONL); R.pset(x + 2, y + 3, hex('#7a3a2a')); };
+// azar fijo, ruido suave, trama de Bayer y degradado tramado (para la goma de las cintas, la roca y el crepúsculo)
+const az = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const vn = (x, y, k = 0) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy); return lerp(lerp(az(xi, yi, k), az(xi + 1, yi, k), sx), lerp(az(xi, yi + 1, k), az(xi + 1, yi + 1, k), sx), sy); };
+const B4M = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => (B4M[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const grad = (S, v, x, y) => { let i = 0; while (i < S.length - 2 && v >= S[i + 1][0]) i++; return (v - S[i][0]) / (S[i + 1][0] - S[i][0]) > b4(x, y) ? S[i + 1][1] : S[i][1]; };
+const paradas = (L) => L.map(([p, c]) => [p, hex(c)]);
+// LA GOMA DE LAS TRES CINTAS, repintada por la escena encima del decorado (allí las marcas corren siempre, y no se ve
+// que la cinta arranque ni se pare). Todo lo de la goma —costillas cada 9 px con su luz y su sombra, flechas gastadas,
+// el empalme, pegatinas, cinta adhesiva y motas—, los rodillos de los dos extremos y los pilotos de la guía van con UNA
+// sola fase (los píxeles que han avanzado los sobres): la cinta está parada mientras la mano mete el trozo (piloto
+// ámbar), corre con los sobres (verde) y se para con ellos (rojo). No pisa los sobres ni el arco lector
+const GOMA = hex('#2a2c35'), GOMAD = hex('#17181e'), GOMAL = hex('#5e6274'), GOMAT = hex('#333640'), ACE = ['#5c6474', '#98a0b0', '#e4e9f2', '#98a0b0', '#5c6474'].map(hex);
+const PEGAS = [[150, 6, 0], [205, 19, 1], [262, 9, 2], [318, 21, 0], [372, 5, 1], [60, 20, 2], [110, 11, 1], [420, 14, 2], [24, 7, 0]];
+const cintas = (g, t, fase, estado) => {
+  const car = g.carriles ?? [56, 94, 132], alto = g.alto ?? 30, rampa = g.rampa ?? 226, ax = g.arco ?? 96, xf = rampa - 8, f = Math.round(fase);
+  car.forEach((y0, k) => { const y1 = y0 + alto, [sx, sy] = (g.sobres ?? [])[k] ?? [-99, -99], X = sx - 23, Y = sy - 13;
+    const libre = (x, y) => !((x >= X && x <= X + 45 && y >= Y && y <= Y + 25) || (x >= X + 3 && x <= X + 48 && y >= Y + 2 && y <= Y + 27)) && !(x >= ax - 1 && x <= ax + 7);
+    const pp = (x, y, c) => { if (x >= 6 && x <= xf && y > y0 + 1 && y < y1 - 1 && libre(x, y)) R.pset(x, y, c); };
+    for (let y = y0; y <= y1; y++) for (let x = 6; x <= xf; x++) { if (!libre(x, y)) continue; const u = (((x - f + k * 37) % 432) + 432) % 432, j = y - y0; let c;
+      if (j === 0 || j >= alto - 1) c = GOMAD; else if (j === 1) c = GOMAL;
+      else { const r = u % 9, q = u % 72, m = Math.abs(j - 15); c = r === 0 ? GOMAL : r === 1 ? GOMAD : az(u >> 1, j >> 1, 40 + k) < 0.24 ? GOMAT : GOMA;
+        if (q >= 29 && q <= 36 && (m === 36 - q || m === 35 - q) && m < 7 && r > 1) c = hex('#8c7c3e');   // la flecha de sentido, gastada
+        if (u === 300 + Math.round(j * 0.4) || u === 301 + Math.round(j * 0.4)) c = u & 1 ? hex('#646878') : GOMAD;   // el empalme de la goma
+        if (r > 1 && az(u, j, 44 + k) < 0.012) c = hex('#6a6e7c'); }   // motas
+      R.pset(x, y, c); }
+    // lo que viaja pegado a la goma: etiquetas, pegatinas ámbar y trozos de cinta adhesiva
+    for (const [ub, j0, tipo] of PEGAS) { const x = (((ub + f - k * 37 + k * 90) % 432) + 432) % 432, y = y0 + j0;
+      if (tipo === 0) { for (let j = 0; j < 6; j++) for (let i = 0; i < 9; i++) pp(x + i, y + j, i === 0 || i === 8 || j === 0 || j === 5 ? K : j === 2 && i > 1 && i < 7 ? hex('#8a8c98') : j === 4 && i > 1 && i < 5 ? hex('#8a8c98') : j === 1 && i === 7 ? ROJO : BLANCO); for (let i = 1; i < 9; i++) pp(x + i, y + 6, GOMAD); }
+      else if (tipo === 1) { for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) if (Math.abs(i) + Math.abs(j) < 4) pp(x + i, y + j, Math.abs(i) + Math.abs(j) === 3 ? hex('#8a5a1a') : i + j < 0 ? hex('#ffe08a') : AMBAR); pp(x + 1, y + 3, GOMAD); pp(x, y + 3, GOMAD); }
+      else { for (let i = 0; i < 7; i++) { pp(x + i, y + (i >> 1), hex('#d8c8a0')); pp(x + i, y + (i >> 1) + 1, hex('#a89870')); pp(x + i, y + (i >> 1) + 2, GOMAD); } pp(x + 9, y + 1, hex('#8a8c98')); pp(x - 3, y + 4, hex('#8a8c98')); } }
+    // la sombra y el láser del arco, otra vez encima de la goma nueva
+    for (let y = y0 + 1; y < y1; y++) for (const x of [ax + 8, ax + 9]) { if (!libre(x, y)) continue; let c = mez(R.pget(x, y), K, 0.3); if (x === ax + 9 && (y + Math.floor(t * 14)) % 3) c = mez(c, ROJO, 0.75); R.pset(x, y, c); }
+    // los rodillos de los dos extremos: giran con la cinta (sus muescas cruzan el cilindro) y se quedan quietos con ella
+    for (const xr of [0, rampa - 6]) for (let y = y0; y <= y1; y++) for (let i = 0; i < 5; i++) { const j = y - y0; R.pset(xr + i, y, j % 10 === 9 ? hex('#3a4050') : j % 5 === 2 && ((i + (f >> 1)) % 5 + 5) % 5 === 0 ? hex('#2a2e3a') : ACE[i]); }
+    R.rect(5, y0, 5, y1, K);
+    // los pilotos de la guía: ámbar (parada, esperando), verde que corre (en marcha), rojo que parpadea (detenida)
+    [142, 178].forEach((x, i) => { R.rect(x - 1, y0 - 3, x + 3, y0 - 1, K); R.rect(x, y0 - 3, x + 2, y0 - 2, estado === 1 ? ((Math.floor(t * 6) + i + k) % 2 ? hex('#5aff8a') : hex('#1a6a3a')) : estado === 2 ? (Math.floor(t * 4) % 2 ? hex('#ff5a4a') : ROJOS) : (i ? hex('#8a5a1a') : AMBAR)); }); });
+};
+const p3 = (t) => {
+  const o = { encuadre: 'sobres', viaje: tramo(t, enviado, noLlegan + 0.2) * 0.8 };
+  const g = T.insertos(R, t, o), [sx, sy] = (g.sobres ?? [[37, 147], [61, 109], [47, 71]])[2] ?? [37, 147];
+  cintas(g, t, o.viaje * (g.avance ?? 110), t < enviado ? 0 : t < noLlegan + 0.2 ? 1 : 2);
+  // la mano trae el trozo negro y lo mete en el sobre de abajo
+  const ent = tramo(t, P3 + 0.2, mete - 0.25), suelta = tramo(t, mete, mete + 0.25), sal = tramo(t, mete + 0.3, mete + 1);
+  if (suelta > 0 && suelta < 1) madero(sx + 4, Math.round(lerp(sy - 18, sy - 2, suelta)));
+  if (ent > 0 && sal < 1) { const hx = sx - 8 + Math.round(sal * 10), hy = sy - 20 + Math.round((1 - ent) * 54 + sal * 60); if (suelta <= 0) madero(hx + 13, hy + 2); T.brazo(R, hx - 22, hy + 44, hx, hy, MANGA, 1, { codo: [hx - 20, hy + 20] }); }
+  // lo que no ha llegado: «?» sobre cada matraz vacío
+  for (let k = 0; k < 3; k++) { const u = tramo(t, noLlegan - 0.5 + k * 0.3, noLlegan - 0.3 + k * 0.3); if (u <= 0 || (u >= 1 && Math.floor(t * 3 + k) % 4 === 0)) continue; const x = 264, y = 62 + k * 38 - Math.round((1 - u) * 3); R.icono('?', x, y, ROJO, hex('#f6d8d0'), 2); }
+  // los sobres se paran antes de la rampa
+  if (t > noLlegan + 0.2) for (let k = 0; k < 3; k++) { const y = 71 + k * 38; if (Math.floor(t * 5) % 2) for (let j = 0; j < 3; j++) R.linea(210 + j * 4, y - 6, 210 + j * 4, y + 6, AMBAR); }
+  T.insertosDelante(R, t, o);
+};
+
+// 4 · el radar también dibuja rectas en capas naturales de roca
+const FILAS = [95, 101, 108, 121], COLS = [124, 133, 142, 150, 166, 178, 194, 202, 212, 220], TONOS = ['#c88a5a', '#d8b46a', '#a89484', '#c06a4a', '#8a7a8a'];
+const fondoCuenco = (x) => 133 - 37 * ((x - 172) / 74) ** 2;
+const esAmbar = (c) => { const r = c & 255, g = (c >>> 8) & 255, bb = (c >>> 16) & 255; return r > 150 && g > 110 && r - bb > 70; };
+const GOLPE = 0.62;   // cada golpe del martillo
+// LA ROCA NATURAL DE LOS DOS COSTADOS (bajo la orilla de la izquierda y bajo la ladera de la derecha, hasta el pie del
+// plano): estratos rectos con sus juntas en ángulo recto. Antes del barrido van en línea azul, como el resto del plano;
+// el barrido los pone en color y, sobre ellos, el radar traza a trazos ámbar las MISMAS rectas que en el cuenco
+const ROCA = { b: ['#8a6a4a', '#d8b46a', '#b86a4a', '#8e8ea2', '#a88a6a'].map(hex), t: ['#6a4a34', '#b8904a', '#8a4630', '#6c6c80', '#86684a'].map(hex), r: hex('#3a2416') }, AZL = hex('#4a7ebc'), AZC = hex('#8ac0f0');
+const LQ = [84, 92, 101, 111, 122], RQ = [92, 104, 115, 127, 139, 151], COST = [[5, 86, 62], [252, 319, 40]];
+const esLinea = (c) => (c & 255) > 120 && ((c >>> 16) & 255) > 225 && ((c >>> 8) & 255) > 170;
+let SUP4 = null;   // el perfil del terreno, leído una vez del plano del decorado
+const costados = (t, xb, w) => {
+  if (!SUP4) { SUP4 = new Int16Array(320).fill(200); for (const [x0, x1, ys] of COST) for (let x = x0; x <= x1; x++) for (let y = ys; y < 128; y++) if (esLinea(R.pget(x, y))) { SUP4[x] = y; break; } }
+  COST.forEach(([x0, x1], lado) => { const Q = lado ? RQ : LQ, xt = Math.round(x0 + (x1 - x0 - 6) * w);
+    for (let x = x0; x <= x1; x++) { const yb = 131 - ((az(x >> 2, 1, 50) * 3) | 0), color = x <= xb;
+      for (let y = SUP4[x] + 1; y <= yb; y++) { const q = lado ? y + Math.round((x - 252) * 0.5) : y - Math.round(x * 0.07); let k = 0; while (k < Q.length && q >= Q[k]) k++;
+        const junta = Q.includes(q) || y === yb, grieta = k > 0 && (x + (lado ? Math.round(y * 0.5) : 0) + k * 5) % (9 + (k % 3) * 2) === 0;
+        if (color) { const radar = w > 0 && x <= xt && ((q === Q[2] && x % 4 !== 3) || (k === 3 && grieta && y % 4 !== 3) || (q === Q[3] && x % 4 !== 3 && x > x0 + 18));
+          const kk = k % 5, tr = kk === 0 ? (x + y) % 3 === 0 : kk === 1 ? (x * 3 + y * 7) % 11 === 0 : kk === 2 ? (x + q * 2) % 6 === 0 : kk === 3 ? q % 4 === 3 : (x * 5 + y * 3) % 7 === 0;
+          R.pset(x, y, radar ? AMBAR : junta || grieta ? ROCA.r : tr ? ROCA.t[kk] : ROCA.b[kk]); }
+        else if (junta ? (x + y) % 4 !== 3 : grieta && y % 2 === 0) R.pset(x, y, AZL); } }
+    // el cursor del radar, en la punta del trazo
+    if (w > 0 && w < 1 && Math.floor(t * 6) % 2) { const y = lado ? Q[2] - Math.round((xt - 252) * 0.5) : Q[2] + Math.round(xt * 0.07); R.rect(xt - 2, y, xt + 2, y, BLANCO); R.rect(xt, y - 2, xt, y + 2, BLANCO); } });
+  // dos cotas de proyección, del costado al radargrama del pie
+  for (const x of [10, 86]) for (let y = 133; y <= 140; y += 2) R.pset(x, y, AZL);
+};
+// el martillo de geólogo en la mano: el mango de la mano (hx, hy) a la cabeza (px, py), y la cabeza de acero atravesada
+const mazo = (hx, hy, px, py) => { const vert = Math.abs(py - hy) >= Math.abs(px - hx);
+  for (const [a2, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.linea(hx + a2, hy + b2, px + a2, py + b2, K); R.linea(hx, hy, px, py, hex('#b07a3a'));
+  if (vert) { R.rect(px - 4, py - 3, px + 5, py + 1, K); R.rect(px - 3, py - 2, px + 3, py, hex('#c8ccd8')); R.rect(px - 3, py, px + 3, py, hex('#8c90a4')); R.pset(px + 4, py - 1, hex('#8c90a4')); R.pset(px - 3, py - 2, BLANCO); }
+  else { R.rect(px - 1, py - 4, px + 3, py + 5, K); R.rect(px, py - 3, px + 2, py + 4, hex('#c8ccd8')); R.rect(px + 2, py - 3, px + 2, py + 4, hex('#8c90a4')); R.pset(px, py - 3, BLANCO); } };
+const p4 = (t) => {
+  const o = { encuadre: 'corte', plano: true, pasillos: 0.5 + 0.5 * tramo(t, P4, rectas + 0.5) };
+  const g = T.ladera(R, t, o), SU = g.suelo ?? 74;
+  const u = tramo(t, capas - 0.3, capas + 1.1), xb = u > 0 ? Math.round(lerp(0, 324, u)) : -1, w = tramo(t, capas + 0.35, capas + 1.6);
+  costados(t, xb, w);
+  if (u > 0) { for (let x = 98; x <= Math.min(xb, 246); x++) { const yb = fondoCuenco(x); for (let y = 97; y < yb; y++) { if (esAmbar(R.pget(x, y))) continue;
+        const k = y < 101 ? 0 : y < 108 ? 1 : y < 121 ? 2 : 3, borde = FILAS.includes(y) || y >= yb - 1, grieta = (k === 1 || k === 2) && COLS.includes(x - ((y >> 2) & 1)),
+          trama = k === 0 ? (x + y) % 3 === 0 : k === 1 ? (x * 3 + y * 7) % 11 === 0 : k === 2 ? (y - 108) % 4 === 3 || (x + ((y - 108) >> 2) * 5) % 10 === 0 : (x + y * 2) % 6 === 0;
+        R.pset(x, y, borde || grieta ? hex('#3a2416') : hex(trama ? ['#6a4a34', '#b8904a', '#8a4630', '#6c6c80'][k] : ['#8a6a4a', '#d8b46a', '#b86a4a', '#8e8ea2'][k])); } } }
+  // en el radargrama del pie, los mismos ecos rectos a trazos ámbar: la roca natural también los da
+  if (w > 0) { const xe = 14 + Math.round(100 * w); for (let x = 14; x <= xe; x++) { if (x % 4 !== 3) R.pset(x, 151, AMBAR); if (x > 34 && x % 4 !== 1) R.pset(x, 162, AMBAR); } for (const x of [34, 74, 102]) if (x <= xe) for (let y = 152; y < 162; y++) if (y % 3) R.pset(x, y, AMBAR); }
+  // la muestra de roca de la orilla (en línea hasta que pasa el barrido) y la geóloga de fuera, que la golpea tres veces
+  const RX = 40, RY = SU - 7, PR = [[RX - 6, SU + 1], [RX - 5, RY + 2], [RX - 2, RY], [RX + 3, RY], [RX + 5, RY + 3], [RX + 5, SU + 1]];
+  if (xb >= RX + 6) { for (const [dx, dy] of [[1, 0], [-1, 0], [0, -1]]) R.poligono(PR.map(([x, y]) => [x + dx, y + dy]), K); R.poligono(PR, ROCA.b[1]);
+    for (let y = RY; y <= SU; y++) for (let x = RX - 6; x <= RX + 5; x++) if (R.pget(x, y) === ROCA.b[1]) { const j = y - RY; R.pset(x, y, j === 0 ? hex('#f6e0a8') : j === 3 || j === 6 ? ROCA.r : (j < 3 && x === RX) || (j > 3 && j < 6 && (x === RX - 2 || x === RX + 3)) ? ROCA.r : j < 3 ? ((x + y) % 3 ? ROCA.b[1] : ROCA.t[1]) : j < 6 ? ((x + y) % 3 ? ROCA.b[2] : ROCA.t[2]) : ROCA.b[3]); } }
+  else { R.poligono(PR, hex('#102042')); PR.forEach(([x, y], i) => { const [x1, y1] = PR[(i + 1) % PR.length]; if (i < PR.length - 1) R.linea(x, y, x1, y1, AZC); }); for (let x = RX - 4; x <= RX + 4; x += 2) { R.pset(x, RY + 3, AZL); R.pset(x, RY + 6, AZL); } }
+  const d = t - capas, golpea = d > 0.25 && d < GOLPE * 3 + 0.16, fg = ((d % GOLPE) + GOLPE) % GOLPE, abajo = golpea && d > GOLPE - 0.1 && (fg > GOLPE - 0.08 || fg < 0.13);
+  const GX = 9, ge = R.actor(EL.geologa3NX, GX, SU, t, { dir: 1, sostiene: abajo ? [GX + 22, SU - 9] : golpea ? [GX + 19, SU - 17] : [GX + 20, SU - 11 + (Math.sin(t * 2.4) > 0.6 ? 1 : 0)], sorpresa: t > rectas && t < rectas + 0.45 });
+  { const [hx, hy] = ge.mano ?? [GX + 20, SU - 10]; if (abajo) mazo(hx, hy, RX - 1, RY - 5); else mazo(hx, hy, hx + 1, hy - 8); }
+  // la chispa y las esquirlas, en el punto del golpe
+  for (let k = 1; k <= 3; k++) { const e = d - k * GOLPE; if (e >= 0 && e < 0.24) { for (let q = 0; q < 6; q++) { const an = -2.6 + q * 0.5, rr = 3 + e * 46; R.pset(Math.round(RX + 1 + Math.cos(an) * rr), Math.round(RY - 1 + Math.sin(an) * rr * 0.8 + e * e * 60), q & 1 ? AMBAR : BLANCO); } if (e < 0.08) { R.rect(RX - 1, RY - 1, RX + 3, RY - 1, BLANCO); R.rect(RX + 1, RY - 3, RX + 1, RY + 1, BLANCO); } } }
+  // la línea del barrido, de arriba abajo del plano
+  if (u > 0 && u < 1) { for (let y = 58; y < 136; y++) R.pset(xb, y, (y + Math.floor(t * 12)) % 3 ? BLANCO : AMBAR); R.rect(xb - 3, 52, xb + 3, 57, K); R.rect(xb - 2, 53, xb + 2, 56, AMBAR); }
+  T.laderaDelante(R, t, o);
+};
+
+// 5 · lo que haría falta: la lista, con las casillas vacías
+// la pala de Collins (mango de fresno y hoja de acero), de pie: (x, y) = la punta de la hoja
+const pala = (x, y) => { R.rect(x - 1, y - 24, x + 1, y - 6, K); R.rect(x, y - 23, x, y - 6, hex('#c89a5a')); R.rect(x - 2, y - 26, x + 2, y - 24, K); R.pset(x, y - 25, hex('#c89a5a'));
+  R.poligono([[x - 3, y - 7], [x + 3, y - 7], [x + 3, y - 2], [x, y], [x - 3, y - 2]], K); R.rect(x - 2, y - 6, x + 2, y - 3, hex('#aeb4c4')); R.rect(x - 2, y - 6, x - 2, y - 3, BLANCO); R.pset(x, y - 2, hex('#7a8094')); R.pset(x - 1, y - 2, hex('#aeb4c4')); R.pset(x + 1, y - 2, hex('#7a8094')); };
+// el maletín de muestras del geólogo (11 × 8), con sus cierres: (x, y) = centro de la base
+const maletin = (x, y) => { R.rect(x - 6, y - 8, x + 6, y, K); R.rect(x - 5, y - 7, x + 5, y - 1, hex('#8a5a30')); R.rect(x - 5, y - 7, x + 5, y - 7, hex('#c08a50')); R.rect(x - 5, y - 4, x + 5, y - 4, hex('#5a3a20')); R.pset(x - 3, y - 4, AMBAR); R.pset(x + 3, y - 4, AMBAR);
+  R.rect(x - 2, y - 10, x + 2, y - 10, K); R.pset(x - 2, y - 9, K); R.pset(x + 2, y - 9, K); };
+const p5 = (t) => {
+  const o = { encuadre: 'lista', hechas: 0 };
+  T.hoy(R, t, o);
+  const luz = t > abierta, SU = 172;
+  if (luz) { marco(19, 27, 71, 89, AMBAR, t, 2); if (Math.floor(t * 4) % 2) marco(25, 66, 41, 82, ROJO, t, 1); }
+  // los dos colegas de fuera del equipo: entran por la derecha, Collins con la pala en la mano, en alto, y el geólogo con el maletín
+  // en la mano, y se paran a mirar la ficha. La excavación NO ha ocurrido: ni plantan la pala ni dejan el maletín; esperan
+  const w = Math.min(1, Math.max(0, (t - abierta - 0.35) / (fuera - 0.1 - abierta - 0.35))), llegan = w >= 1;
+  const cx = Math.round(lerp(338, 150, w)), mx2 = Math.round(lerp(366, 182, w)), duda = llegan && t > fuera + 0.3;
+  const ge2 = R.actor(EL.geologo2NX, mx2, SU, t, { dir: -1, anda: w > 0 && !llegan, sostiene: [mx2 - 7, 162], sorpresa: duda && t < fuera + 0.8 });
+  { const [hx, hy] = ge2.mano ?? [mx2 - 7, 162]; maletin(hx, hy + 9); }
+  if (duda) R.bocadillo(ge2.cabeza[0], ge2.cabeza[1] - 5, { icono: '?' });
+  const co = R.actor(EL.collins, cx, SU, t, { dir: -1, sostiene: [cx - 8, 153], anda: w > 0 && !llegan, sorpresa: duda && t < fuera + 0.7 });
+  { const [hx, hy] = co.mano ?? [cx - 8, 153]; pala(hx, hy + 9 - (w > 0 && !llegan ? Math.floor(t * 5) % 2 : 0)); }   // en alto, la hoja lejos del suelo
+  // la geóloga: entra, se pregunta, va hasta debajo de la ficha y la señala; llama a los colegas y vuelve a señalarla
+  const v = tramo(t, P5 + 0.1, abierta - 0.2), gx = Math.round(lerp(232, 77, v)), llama = t > arq - 0.1 && t < fuera - 0.15, calla = t > fuera + 0.75;   // al final calla y sigue señalando la casilla: nadie lo ha hecho aún
+  const ge = R.actor(EL.geologa3NX, gx, SU, t, { dir: llama ? 1 : -1, anda: v > 0 && v < 1, dedo: luz && !llama, brazos: llama && Math.sin(t * 9) > -0.4, habla: luz && !calla && Math.sin(t * 8) > 0, triste: calla });
+  if (t > que - 0.3 && t < abierta) R.bocadillo(ge.cabeza[0], ge.cabeza[1] - 5, { icono: '?' });
+  if (luz && t > fuera - 1.2) for (let k = 0; k < 3; k++) { const e = (t * 1.2 + k / 3) % 1; R.pset(46 + Math.round(Math.cos(k * 2.1) * (6 + e * 22)), 58 + Math.round(Math.sin(k * 2.1) * (6 + e * 22)), AMBAR); }
+  // la casilla, sin marcar, con su «?» dentro desde que se enciende la ficha: la miran los tres y sigue pendiente
+  if (luz) R.icono('?', 28, 67, Math.sin(t * 6) > 0 ? ROJO : ROJOS, hex('#f6d8d0'), 2);   // el «?» no se apaga nunca: solo late de color
+  if (t > fuera + 0.5) aro(33, 74, 12, ROJO, t, 2);
+  T.hoyDelante(R, t, o);
+};
+
+// 6 · la madera, sin datar; las marcas de corte, «según ellos»
+// una barra de acero con su contorno (los brazos y los pies de los soportes)
+const barra = (x0, y0, x1, y1, c = '#8c90a4') => { for (const [a2, b2] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.linea(x0 + a2, y0 + b2, x1 + a2, y1 + b2, K); R.linea(x0, y0, x1, y1, hex(c)); };
+const p6 = (t) => {
+  const o = { encuadre: 'geologo', camara: 'laboratorio', vacio: true };
+  T.hoy(R, t, o);
+  const CX = 150, CY = 134;
+  // el foco sobre el carro
+  for (let y = 60; y < CY + 2; y++) { const w = 6 + (y - 60) * 0.22; for (let x = Math.round(CX - w); x <= CX + w; x++) if (((x + y) & 1) === 0 && (y % 2 === 0)) { const c = R.pget(x, y); R.pset(x, y, (0xff000000 | (Math.min(255, ((c >>> 16) & 255) + 34) << 16) | (Math.min(255, ((c >>> 8) & 255) + 38) << 8) | Math.min(255, (c & 255) + 40)) >>> 0); } }
+  // el portaplanos de pie, a la izquierda del carro: pie en el suelo, mástil y travesaño con dos pinzas. De él cuelga,
+  // enrollada, la ficha azul (lo que el equipo dice): en «says» se desenrolla hacia abajo, con su contrapeso
+  const MX = 123, x0 = 82, y0 = 91, f = tramo(t, dice, dice + 0.45), H = Math.round(30 * (1 - (1 - f) ** 2)), AZ = hex('#16305a'), AZL2 = hex('#3a5c96'), LIN = hex('#bcd4f4');
+  R.rect(MX - 7, 159, MX + 7, 162, K); R.rect(MX - 6, 160, MX + 6, 161, hex('#5a6078')); R.rect(MX - 6, 160, MX + 6, 160, hex('#8c94b0')); for (let x = MX - 7; x <= MX + 8; x++) if ((x + 163) & 1) R.pset(x, 163, hex('#1a1c2c'));
+  R.rect(MX - 1, 86, MX + 2, 159, K); R.rect(MX, 87, MX + 1, 159, hex('#8c90a4')); R.rect(MX, 87, MX, 159, hex('#c8ccd8')); R.rect(MX - 2, 120, MX + 3, 123, K); R.rect(MX - 1, 121, MX + 2, 122, hex('#5a6078'));
+  R.rect(x0 - 3, 86, MX + 2, 89, K); R.rect(x0 - 2, 87, MX + 1, 88, hex('#8c90a4')); R.rect(x0 - 2, 87, MX + 1, 87, hex('#c8ccd8'));
+  { const yM = y0 + H, rr = (a2, b2, c2, d2, col) => { if (b2 <= yM) R.rect(a2, b2, c2, Math.min(d2, yM), col); };
+    if (H > 0) { rr(x0 - 1, y0 - 1, x0 + 39, y0 + 31, K); rr(x0, y0, x0 + 38, y0 + 30, AZ); for (let x = x0 + 4; x < x0 + 38; x += 6) rr(x, y0, x, y0 + 30, AZL2); for (let y = y0 + 4; y < y0 + 30; y += 6) rr(x0, y, x0 + 38, y, AZL2);
+      const P = [[x0 + 6, y0 + 12], [x0 + 16, y0 + 7], [x0 + 31, y0 + 10], [x0 + 33, y0 + 20], [x0 + 20, y0 + 25], [x0 + 8, y0 + 22]];
+      R.recorte([x0, y0, x0 + 38, yM]); R.poligono(P, AZ); P.forEach(([x, y], i) => { const [x1, y1] = P[(i + 1) % P.length]; R.linea(x, y, x1, y1, LIN); });
+      const n = Math.floor(tramo(t, cortes - 0.2, cortes + 0.5) * 3 + 0.01); for (let k = 0; k < n; k++) { R.linea(x0 + 12 + k * 6, y0 + 11, x0 + 15 + k * 6, y0 + 19, AMBAR); R.linea(x0 + 13 + k * 6, y0 + 11, x0 + 16 + k * 6, y0 + 19, AMBAR); }
+      R.recorte(null); }
+    // el rollo de abajo (el contrapeso) y las dos pinzas del travesaño
+    R.rect(x0 - 2, yM, x0 + 40, yM + 3, K); R.rect(x0 - 1, yM + 1, x0 + 39, yM + 2, hex('#e8eef6')); R.rect(x0 - 1, yM + 2, x0 + 39, yM + 2, hex('#9ab0d0')); R.pset(x0 - 1, yM + 1, AZL2); R.pset(x0 + 39, yM + 1, AZL2);
+    for (const x of [x0 + 6, x0 + 30]) { R.rect(x - 1, 88, x + 3, y0 + 2, K); R.rect(x, 89, x + 2, y0 + 1, hex('#c8ccd8')); R.pset(x + 1, y0, hex('#5a6078')); }
+    if (f >= 1) { for (let x = MX + 5; x < CX - 14; x += 2) R.pset(x, Math.round(lerp(y0 + 16, CY - 5, (x - x0 - 39) / (CX - 14 - x0 - 39))), LIN); R.icono('?', x0 + 31, y0 + 2, AMBAR, K, 1); } }
+  // el carro de acero con la bandeja y el trozo
+  R.rect(CX - 21, CY, CX + 21, CY + 4, K); R.rect(CX - 20, CY + 1, CX + 20, CY + 2, hex('#c8ccd8')); R.rect(CX - 20, CY + 3, CX + 20, CY + 3, hex('#8c90a4'));
+  for (const x of [CX - 18, CX + 17]) { R.rect(x - 1, CY + 5, x + 1, 160, K); R.rect(x, CY + 5, x, 159, hex('#8c90a4')); R.disco(x, 162, 2, K); R.pset(x, 162, hex('#8c90a4')); }
+  R.rect(CX - 19, 150, CX + 19, 152, K); R.rect(CX - 18, 151, CX + 18, 151, hex('#8c90a4'));
+  R.rect(CX - 13, CY - 3, CX + 13, CY, K); R.rect(CX - 12, CY - 2, CX + 12, CY - 1, BLANCO);
+  trocito(CX - 3, CY - 5, 0, false); trocito(CX + 5, CY - 4, 2, false);
+  // la lupa, en su brazo articulado con mordaza al canto del carro: queda sobre el trozo, esperando a quien mire
+  { const LX = CX + 4, LY = CY - 13, JX = CX + 26, JY = CY - 19;
+    R.rect(CX + 16, CY - 3, CX + 22, CY + 6, K); R.rect(CX + 17, CY - 2, CX + 21, CY + 5, hex('#5a6078')); R.rect(CX + 17, CY - 2, CX + 21, CY - 2, hex('#8c94b0')); R.pset(CX + 19, CY + 2, hex('#c8ccd8')); R.pset(CX + 19, CY + 4, K);
+    barra(CX + 19, CY - 4, JX, JY); barra(JX, JY, LX + 6, LY); R.disco(JX, JY, 2, K); R.pset(JX, JY, hex('#c8ccd8')); R.disco(CX + 19, CY - 4, 1, K);
+    R.disco(LX, LY, 6, K); R.disco(LX, LY, 5, hex('#aeb4c4'));
+    for (let j = -4; j <= 4; j++) for (let i = -4; i <= 4; i++) if (i * i + j * j <= 14) R.pset(LX + i, LY + j, mez(R.pget(LX + i, LY + j), hex('#9ad0ea'), 0.6));
+    R.rect(LX - 2, LY, LX + 2, LY + 2, CARBON); R.rect(LX - 1, LY - 1, LX + 1, LY - 1, CARBON); R.pset(LX - 1, LY, CARBONL); R.pset(LX + 1, LY + 1, CARBONL); R.pset(LX - 3, LY + 1, CARBON);
+    R.pset(LX - 3, LY - 2, BLANCO); R.pset(LX - 2, LY - 3, BLANCO); { const gl = (t * 0.6) % 1; if (gl < 0.3) { const q = Math.round(gl / 0.3 * 6) - 3; R.pset(LX + q, LY - q, BLANCO); R.pset(LX + q + 1, LY - q, hex('#dff4ff')); } } }
+  // tres laboratorios, ninguna fecha: tres aros vacíos
+  for (let k = 0; k < 3; k++) { const u = tramo(t, P6 + 0.5 + k * 0.4, P6 + 0.7 + k * 0.4); if (u <= 0) continue; const cx = CX - 18 + k * 18, cy = 106; R.disco(cx, cy, 6, hex('#20243a')); aro(cx, cy, 6, BLANCO, t + k); R.icono('?', cx - 2, cy - 3, AMBAR, K, 1); }
+  // el robot de limpieza, que cruza el suelo
+  const rx = Math.round(lerp(40, 290, ((t - P6) / (P7 - P6)))), ry = 160; R.rect(rx - 8, ry - 3, rx + 8, ry + 1, K); R.rect(rx - 7, ry - 2, rx + 7, ry, hex('#5a6078')); R.rect(rx - 7, ry - 2, rx + 7, ry - 2, hex('#8c94b0')); R.pset(rx + 5, ry - 1, Math.floor(t * 4) % 2 ? hex('#5aff8a') : hex('#1a6a3a')); for (let k = 1; k < 5; k++) if ((k + Math.floor(t * 8)) % 2) R.pset(rx - 9 - k * 2, ry + 1, hex('#8c94b0'));
+  T.hoyDelante(R, t, o);
+};
+
+// 7 · nadie de fuera lo ha examinado; nada publicado que revisar
+const p7 = (t) => {
+  const o = { encuadre: 'geologo' };
+  T.hoy(R, t, o);
+  // llega el geólogo por la derecha y mira el reloj
+  const v = tramo(t, P7 + 0.2, P7 + 2.0), gx = Math.round(lerp(326, 250, v)), DEJA = nadie + 1.2, SUELTA = nadie + 2.7, RELOJ = publicado + 0.95, SM = 148;   // SM: el suelo de los dos de detrás de la mesa, 6 px más al fondo: asoman cabeza y hombros sobre el tablero
+  // la geóloga: en «published» saca de detrás de la mesa la hoja de la publicación, en blanco, y la enseña en la mano
+  const sube = tramo(t, publicado, publicado + 0.3);
+  const ge = R.actor(EL.geologa3NX, 99, SM, t, { dir: 1, habla: t > publicado + 0.3 && Math.sin(t * 8) > 0, triste: t < publicado && !(t > DEJA && t < SUELTA), sorpresa: t > DEJA + 0.5 && t < SUELTA, ...(t > publicado ? { sostiene: [119, Math.round(lerp(143, 133, sube))] } : {}) });
+  if (t > publicado) { const [hx, hy] = ge.mano ?? [117, 133], piel = R.pget(hx, hy), x0 = hx + 1, y0 = hy - 16, AZU = hex('#3a5a8a');
+    R.rect(x0 - 1, y0 - 1, x0 + 13, y0 + 17, K); R.rect(x0, y0, x0 + 12, y0 + 16, hex('#e8eef6')); R.rect(x0 + 11, y0 + 1, x0 + 12, y0 + 16, hex('#c8d4e6')); marco(x0 + 1, y0 + 1, x0 + 11, y0 + 15, AZU, t, 1); R.icono('?', x0 + 4, y0 + 5, AZU, hex('#c8d4e6'), 1);
+    if (piel !== K) { R.pset(x0, hy, piel); R.pset(x0 + 1, hy, piel); R.pset(x0, hy - 1, piel); } }
+  // Collins pasa la lupa por la bandeja vacía, la deja, levanta la bandeja para mirar debajo (nada) y la suelta
+  const mira = t < DEJA, alza = tramo(t, DEJA + 0.45, DEJA + 0.75) * (1 - tramo(t, SUELTA - 0.25, SUELTA));
+  const co = R.actor(EL.collins, 196, SM, t, { dir: -1, triste: t > SUELTA, ...(mira ? { sostiene: [189 + Math.round(Math.sin((t - P7) * 3.4) * 5), 136] } : alza > 0 ? { sostiene: [190, 139 - Math.round(alza * 6)] } : {}) });
+  if (mira) T.PIEZAS_NX.lupa(R, co.mano[0] - 4, co.mano[1] + 6, { s: 1 });
+  T.hoyDelante(R, t, o);
+  // sobre la mesa: la bandeja vacía donde iría el trozo, con su pie de pinza para la ficha de la muestra
+  const TX = 171, TY = 146 - Math.round(alza * 6); if (alza > 0) { for (let x = TX - 19; x <= TX + 19; x++) if (x & 1) R.pset(x, 146, hex('#5a3a22')); if (alza >= 1 && Math.floor(t * 6) % 2) R.icono('?', TX - 2, 138, ROJO, hex('#f0b0a8'), 1); }
+  // el pie de pinza, de pie en el tablero a la izquierda de la bandeja: la ficha está de canto hasta «nobody»; entonces
+  // gira en su pinza y enseña el «?» rojo (nadie de fuera la ha examinado)
+  { const PX = 145, e = tramo(t, nadie - 0.3, nadie), hw = Math.round(lerp(1, 8, e));
+    R.rect(PX - 5, 141, PX + 5, 143, K); R.rect(PX - 4, 141, PX + 4, 142, hex('#8c90a4')); R.rect(PX - 4, 141, PX + 4, 141, hex('#c8ccd8')); for (let x = PX - 4; x <= PX + 6; x++) if (x & 1) R.pset(x, 144, hex('#5a3a22'));
+    R.rect(PX - 1, 127, PX + 1, 141, K); R.rect(PX, 128, PX, 140, hex('#aeb4c4'));
+    R.rect(PX - hw - 1, 107, PX + hw + 1, 128, K); R.rect(PX - hw, 108, PX + hw, 127, e >= 1 ? BLANCO : hex('#d8d2c2')); if (hw > 2) R.rect(PX + hw - 1, 109, PX + hw, 127, hex('#d8d2c2'));
+    R.rect(PX - 2, 124, PX + 2, 130, K); R.rect(PX - 1, 125, PX + 1, 129, hex('#c8ccd8')); R.pset(PX, 127, hex('#5a6078'));
+    if (e >= 1) R.icono('?', PX - 5, 110, ROJO, hex('#f0b0a8'), 2); }
+  R.rect(TX - 21, TY - 4, TX + 21, TY, K); R.rect(TX - 20, TY - 3, TX + 20, TY - 1, BLANCO); R.rect(TX - 20, TY - 1, TX + 20, TY - 1, hex('#c8c0b0'));
+  marco(TX - 12, TY - 11, TX + 12, TY - 4, ROJO, t, 1);
+  if (!mira) T.PIEZAS_NX.lupa(R, 222, 148, { s: 1 });
+  R.actor(EL.geologo2NX, gx, 170, t, { dir: -1, anda: v > 0 && v < 1, ...(v >= 1 && t > RELOJ - 0.3 && t < RELOJ + 1.1 ? { sostiene: [gx - 2, 153 + (t > RELOJ && (t - RELOJ) % 0.55 < 0.14 ? 2 : 0)] } : {}), triste: v >= 1 });
+};
+
+// 8 · 2027 y un permiso por sellar
+const p8 = (t) => {
+  const o = { encuadre: 'calendario' };
+  T.insertos(R, t, o);
+  // los meses que pasan, uno a uno
+  const m = Math.min(11, Math.floor(tramo(t, P8 + 0.2, siPermiso - 0.2) * 12)); { const x = 97 + (m % 4) * 25, y = 62 + Math.floor(m / 4) * 29; marco(x - 2, y - 2, x + 22, y + 26, ROJO, t, 1); }
+  if (t > v2027 - 0.1 && t < v2027 + 1 && Math.floor(t * 6) % 2) marco(93, 35, 195, 58, AMBAR, t, 2);
+  // el hueco del sello sigue vacío
+  if (t > siPermiso) { aro(247, 108, 13, ROJO, t); if (Math.floor(t * 3) % 3) R.icono('?', 245, 104, ROJO, hex('#f0d8c8'), 1); }
+  // la mano coge el sello y espera, tamborileando
+  const ent = tramo(t, siPermiso - 0.5, siPermiso + 0.1);
+  if (ent > 0) { const hx = 292 + Math.round((1 - ent) * 34), hy = 127 - Math.round((1 - ent) * 8) + (t > siPermiso + 0.2 && Math.floor(t * 7) % 3 === 0 ? 1 : 0); T.brazo(R, hx + 38, hy - 16, hx, hy, MANGA, -1, { codo: [hx + 24, hy - 2] }); }
+  T.insertosDelante(R, t, o);
+};
+
+// 9 · «Then we will see»: el crepúsculo visto DESDE EL CAMINO DEL PASTOR (otro encuadre que la ladera general): en
+// primer término el camino de tierra con su tapia de piedra seca, la cancela, unas peñas y un chopo; al otro lado del
+// valle, a contraluz y EN ESPEJO de la general (el Ararat y el pueblo a la izquierda, el sol y el centro de visitantes a
+// la derecha), la ladera con la forma, pequeña, de roca desmoronada (bordas a trozos con el canto encendido; la torre y
+// las tiendas, fuera de ella); detrás, un cielo que se apaga. Todo lo fijo va en un búfer
+const LADRA = P9 + 1.7, FAROL = E.duracion - 1.15;
+const yCresta = (x) => 106 - x * 0.05 + 2.5 * Math.sin(x * 0.06) + 1.5 * Math.sin(x * 0.17 + 2);
+const yArarat = (x) => { const d = x - 214; return 26 + (Math.sqrt(d * d + 30) - 5.5) * (d < 0 ? 0.68 : 0.6) + 1.6 * Math.sin(x * 0.31) + Math.sin(x * 0.83); };
+const yChico = (x) => 63 + Math.abs(x - 287) * 0.72 + Math.sin(x * 0.6);
+const ySierra = (x) => 87 + 4 * Math.sin(x * 0.045 + 1) + 2.5 * Math.sin(x * 0.13) + (az(x >> 1, 3, 7) < 0.3 ? 1 : 0);
+const CIELO9 = paradas([[-14, '#2a2252'], [20, '#45306c'], [40, '#7c3c74'], [55, '#c2565e'], [68, '#ee8e4c'], [80, '#fbcf7a'], [140, '#fbcf7a']]);
+const LADERA9 = paradas([[-4, '#6e4852'], [6, '#583c4c'], [18, '#45324a'], [34, '#332842'], [70, '#332842']]);
+const RIBAZO9 = paradas([[-4, '#4c4640'], [8, '#3c3a3a'], [20, '#2c2e34'], [40, '#2c2e34']]), CAMINO9 = paradas([[-5, '#a67e66'], [6, '#8c685a'], [16, '#72545a'], [34, '#5a4452']]);
+// la forma, tumbada en la ladera (x 55–169): u 0–1 de la proa (derecha, en punta) a la popa (izquierda, roma), con el contorno irregular de una roca; v −1…1 de la borda de atrás a la de delante
+const enForma = (X, y) => { const u = (169 - X) / 114; if (u < 0 || u > 1) return null; const yc = 117 - 10 * u, half = (0.86 + 0.3 * vn(u * 9, 1, 34)) * 10.5 * (u < 0.72 ? Math.sin(Math.PI / 2 * u / 0.72) ** 0.75 : Math.sqrt(Math.max(0, 1 - ((u - 0.72) / 0.28) ** 2))); if (half < 0.7) return null; const v = (y - yc) / half; return Math.abs(v) <= 1 ? [u, v] : null; };
+const VENT9 = [[281, 0.1], [277, 0.45], [273, 0.2], [269, 0.7], [265, 0.3], [261, 0.55]], CASAS9 = [[24, 97, 33, 103, 0.25], [13, 94, 22, 100, 0.5], [2, 98, 11, 104, 0.15], [18, 106, 27, 111, 0.65]];
+let F9 = null, SKY9 = null;
+const fondo9 = () => {
+  if (F9) return F9; const b = R.nuevo(), prev = R.usar(b), H = (c) => hex(c); SKY9 = new Uint8Array(320 * 180);
+  for (let y = 0; y < 132; y++) for (let X = 0; X < 320; X++) { let c; const x = 319 - X, yc = yCresta(x), ys = ySierra(x), ya = yArarat(x), yq = yChico(x);   // en espejo de la general: X es la pantalla, x la del dibujo
+    if (y >= yc) { const d = y - yc; c = grad(LADERA9, d + (vn(x * 0.08, y * 0.22, 3) - 0.5) * 12, x, y);   // la ladera de enfrente, a contraluz
+      if (d < 1) c = H('#e89058'); else if (d < 2) c = H('#9a5a50');
+      else if (Math.round(d + 2 * Math.sin(x * 0.03)) % 7 === 6 && az(x >> 2, Math.round(d), 4) < 0.7) c = H('#2c2238');   // bancales
+      else if (az(x >> 1, y >> 1, 5) < 0.035) c = y & 1 ? H('#221a2e') : H('#8a5a4a'); }   // matas
+    else if (y >= ys) { const d = y - ys; c = d < 1 && x < 200 ? H('#e0786a') : d / 10 + (vn(x * 0.1, y * 0.3, 6) - 0.5) * 0.6 > b4(x, y) ? H('#5a3a68') : H('#784c7a'); if (d > 1 && (x + Math.round(d * 2.5)) % 13 === 0 && az(x, y, 61) < 0.6) c = H('#4c3260'); }
+    else if (y >= yq) { c = x < 287 + (y - 63) * 0.2 ? ((x + y * 2) % 7 === 0 ? H('#8a5a7c') : H('#74487a')) : ((x - y) % 6 === 0 ? H('#3e3060') : H('#4c3a68')); if (y - yq < 1 && x <= 288) c = H('#f0a888'); if (y > 80 && (y - 80) / 18 > b4(x, y)) c = H('#8a4e74'); }
+    else if (y >= ya) { const d = x - 214, banda = Math.floor(Math.atan2(y - 20, d) * 11 + vn(x * 0.09, y * 0.09, 8) * 2.4), par = banda & 1, luz = d < (y - 26) * 0.22 - 3, nieve = y < 49 + 5 * Math.sin(x * 0.21) + 8 * az(banda, 1, 9) - Math.abs(d) * 0.05;
+      c = H(nieve ? (luz ? (par ? '#f8c4aa' : '#e8a09c') : (par ? '#b888aa' : '#8e6c9e')) : (luz ? (par ? '#86567a' : '#6c4674') : (par ? '#56406e' : '#463664')));
+      if (y - ya < 1.2 && d < 2) c = H('#ffd8b8'); if (y > 66 && (y - 66) / 30 > b4(x, y)) c = luz ? H('#a65e76') : H('#6e4a78'); }
+    else { c = grad(CIELO9, y + (vn(x * 0.022, y * 0.11, 11) - 0.5) * 15, x, y); SKY9[y * 320 + X] = 1; }
+    R.pset(X, y, c); }
+  // el sol, medio escondido tras la sierra, con su halo tramado
+  for (let y = 44; y < 100; y++) for (let x = 188; x < 274; x++) { if (!SKY9[y * 320 + x]) continue; const d = Math.hypot(x - 231, y - 81); if (d < 8.5) R.pset(x, y, H(d < 6 ? '#fffbe0' : '#fff0b8')); else if (d < 34 && ((1 - (d - 8.5) / 26) ** 2) * 0.95 > b4(x, y)) R.pset(x, y, H(d < 17 ? '#ffe9a8' : '#fdc070')); }
+  // la forma en la ladera: bordas con el canto encendido, costillas de través, la loma del centro y los cordeles de 2026
+  for (let x = 55; x <= 169; x++) { let yb = 0; for (let y = 92; y <= 131; y++) { const f = enForma(x, y); if (!f) continue; yb = y; const [u, v] = f, av = Math.abs(v); let c;
+      const roto = az(Math.floor(u * 26), v < 0 ? 1 : 2, 33) < 0.22;   // las bordas, a trozos: desmoronadas aquí y allá
+      if (av > 0.6 && roto) c = az(x, y, 36) < 0.4 ? H('#4a3446') : H('#5a3e4c');
+      else if (v < -0.62) c = v < -0.8 ? H('#ffb870') : az(x >> 1, y, 21) < 0.3 ? H('#2a1c30') : H('#3a2438');
+      else if (v > 0.6) c = v < 0.76 ? H('#f09a58') : v > 0.94 ? H('#1a1422') : az(x >> 1, y, 22) < 0.3 ? H('#4c3040') : H('#342234');
+      else { const cs = u * 15 + v * 0.7; c = cs - Math.floor(cs) < 0.2 && az(Math.floor(cs), 3, 35) < 0.6 && av < 0.3 + 0.3 * az(Math.floor(cs), 4, 35) ? H('#3a2638') : vn(x * 0.2, y * 0.4, 23) > 0.5 ? H('#8a5c56') : H('#74494e');
+        const lm = ((u - 0.5) / 0.2) ** 2 + (v / 0.32) ** 2; if (lm < 1) c = v < -0.14 ? H('#f0a468') : lm > 0.7 ? H('#4a3044') : H('#9a6860');
+        else if (Math.abs(u * 8 - Math.round(u * 8)) < 0.04 && (y & 1)) c = av < 0.08 ? H('#f0d070') : H('#a88a7a'); else if (av < 0.05 && x % 3 === 0) c = H('#a88a7a'); }
+      R.pset(x, y, c); } if (yb) { R.pset(x, yb + 1, H('#201828')); if (x & 1) R.pset(x, yb + 2, H('#201828')); } }
+  // la torre de la perforadora (su piloto va aparte), las dos tiendas de cúpula y la furgoneta
+  for (let y = 106; y <= 119; y++) { R.pset(40, y, H('#c8643c')); R.pset(y & 1 ? 39 : 41, y, H('#8a4430')); } R.rect(37, 120, 43, 121, H('#2e2236')); R.rect(38, 105, 42, 105, H('#2e2236'));
+  for (const [cx, cy, c1, c2] of [[48, 126, '#4a5a84', '#93a4cc'], [30, 127, '#9a543e', '#d88a5e']]) for (let j = 0; j <= 4; j++) { const w = Math.round(Math.sqrt(25 - (4 - j) ** 2)); for (let i = -w; i <= w; i++) R.pset(cx + i, cy - 4 + j, i === -w || j === 0 ? H(c2) : H(c1)); R.pset(cx, cy, H('#221a2e')); }
+  R.rect(12, 123, 21, 127, H('#2a2034')); R.rect(13, 123, 20, 125, H('#b4a4b8')); R.rect(13, 123, 20, 123, H('#e8c8b0')); R.rect(14, 124, 15, 125, H('#3a2c48')); R.pset(14, 127, H('#17121e')); R.pset(19, 127, H('#17121e'));
+  // el sendero que baja de la proa a la cancela, y unos chopos en el valle
+  for (let y = 119; y <= 131; y++) { const x = Math.round(161 - 9 * Math.sin((y - 118) * 0.28)); R.pset(x, y, H('#9a7260')); R.pset(x + 1, y, H('#7a5850')); if (y > 126) R.pset(x + 2, y, H('#7a5850')); }
+  for (const [x, yb2, h2] of [[201, 127, 13], [194, 128, 10], [72, 130, 12], [36, 96, 9], [12, 95, 10], [0, 99, 9], [223, 124, 9]]) for (let j = 0; j < h2; j++) { const w = j < 2 || j > h2 - 3 ? 0 : 1; for (let i = -w; i <= w; i++) R.pset(x + i, yb2 - 2 - j, i > 0 && az(x, j, 25) < 0.6 ? H('#a85e4c') : H('#281f34')); R.pset(x, yb2 - 1, H('#201828')); R.pset(x, yb2, H('#201828')); }
+  // el centro de visitantes en la loma (sus ventanas y su bandera van aparte) y el pueblo, arriba a la derecha
+  { const yv = Math.round(yCresta(46)); for (let x = 259; x <= 285; x++) { const top = yv - 8 + Math.round(((x - 272) / 13) ** 2 * 3.2); for (let y = top; y <= yv + 1; y++) R.pset(x, y, y === top ? H('#ffd8a8') : x < 264 ? H('#8a7494') : (x + y) % 5 === 0 ? H('#b09ab0') : H('#a48ca6')); }
+    for (const [x] of VENT9) R.rect(x, yv - 4, x + 1, yv - 3, H('#3a2c48')); R.rect(245, yv - 2, 258, yv - 2, H('#e0a878')); for (let x = 245; x <= 258; x += 3) R.rect(x, yv - 2, x, yv + 1, H('#6a4a58')); R.rect(288, yv - 18, 288, yv + 1, H('#d8c0c0')); }
+  for (const [x0, y0, x1, y1] of CASAS9) { R.rect(x0, y0, x1, y1, H('#3c2e46')); R.rect(x0, y0, x1, y0, H('#d08458')); R.rect(x1 - 1, y0 + 1, x1, y1, H('#2c2238')); R.rect(x0 + 2, y0 + 2, x0 + 3, y0 + 3, H('#241a30')); R.rect(x0, y1 + 1, x1 + 2, y1 + 1, H('#221a2e')); } R.rect(16, 91, 17, 93, H('#3c2e46'));
+  // el primer término (y 132–179): el ribazo de hierba con la tapia de piedra seca, el camino de tierra con sus rodadas y la orilla
+  for (let y = 132; y < 180; y++) for (let x = 0; x < 320; x++) { let c;
+    if (y < 150) { c = grad(RIBAZO9, y - 132 + (vn(x * 0.1, y * 0.3, 13) - 0.5) * 9, x, y); if (az(x, y >> 1, 14) < 0.17) c = H('#5e563e'); if (az(x, y, 15) < 0.025) c = H('#96784a'); if (y === 132 && az(x, 2, 15) < 0.5) c = H('#332842');
+      const tapia = x <= 142 || (x >= 180 && x <= 268), yw = (x > 142 ? 139 : 137) + ((az(x >> 3, 1, 16) * 2.5) | 0);
+      if (tapia && y >= yw) { const j = y - 136, r = j >> 2, sxx = x + (r & 1) * 4 + ((az(r, 3, 17) * 3) | 0), tono = az(Math.floor(sxx / 8), r, 18);
+        c = sxx % 8 === 0 || j % 4 === 3 ? H('#231c2c') : tono < 0.33 ? H('#5c4a58') : tono < 0.66 ? H('#6c5662') : H('#4e4052'); if (j % 4 === 0 && sxx % 8 > 1 && tono > 0.4) c = H('#84686a');
+        if (y === yw) c = H('#e69a5e'); else if (y === yw + 1 && sxx % 8) c = H('#9c6a5c'); if (az(x, y, 19) < 0.03) c = H('#8c8a5c'); if (y === 149) c = H('#1e1828'); } }
+    else if (y < 174) { c = grad(CAMINO9, y - 150 + (vn(x * 0.06, y * 0.25, 20) - 0.5) * 11, x, y);
+      if ((Math.abs(y - (157 + 1.5 * Math.sin(x * 0.05))) < 0.6 || Math.abs(y - (167 + 1.5 * Math.sin(x * 0.04 + 2))) < 0.6) && az(x >> 1, 1, 21) < 0.82) c = H('#4c3a48');
+      else if (az(x, y, 22) < 0.01) c = H('#d0a884'); else if (az(x, y - 1, 22) < 0.01) c = H('#3e3040'); else if (y > 159 && y < 165 && az(x >> 1, y, 23) < 0.03) c = H('#4c4a3c');
+      if (y === 150 && az(x, 3, 24) < 0.5) c = H('#2c2e34'); if (y === 173 && az(x, 1, 24) < 0.5) c = H('#2a2a32'); }
+    else c = az(x, y, 26) < 0.25 ? H('#45453a') : az(x >> 1, y >> 1, 27) < 0.4 ? H('#24242c') : H('#2a2a32');
+    R.pset(x, y, c); }
+  // los dos postes de la cancela, por donde entra el sendero
+  for (const x of [144, 176]) { R.rect(x - 1, 127, x + 3, 151, H('#1e1828')); R.rect(x, 128, x + 2, 150, H('#4e3438')); R.rect(x + 2, 128, x + 2, 150, H('#c47a52')); R.rect(x, 128, x + 2, 128, H('#f0a868')); R.pset(x + 1, 134, H('#2a2030')); R.pset(x + 1, 143, H('#2a2030')); }
+  for (let y = 132; y <= 150; y++) { const x = Math.round(160 + (y - 132) * 0.2); R.pset(x, y, H('#8c685a')); R.pset(x + 1, y, H('#8c685a')); R.pset(x + 2, y, H('#72545a')); R.pset(x - 1, y, H('#72545a')); }
+  // el chopo de la derecha, detrás de las peñas
+  R.rect(301, 118, 303, 137, H('#1e1828')); R.pset(301, 126, H('#a85e4c')); R.pset(301, 131, H('#a85e4c'));
+  for (let y = 56; y <= 128; y++) { const hw = 9.5 * Math.sin(Math.PI * ((y - 56) / 73) ** 0.62) ** 0.7; for (let x = 291; x <= 313; x++) { const dx = x - 302, e = hw - Math.abs(dx) + (az(x, y, 30) - 0.5) * 3; if (e < 0) continue; R.pset(x, y, dx < 0 && e < 2 && az(x, y, 32) < 0.6 ? H('#c06a4c') : az(x >> 1, y >> 2, 31) < 0.3 ? H('#3a2c42') : H('#261e34')); } }
+  // las peñas de la derecha y su mata
+  const pena = (cx, cy, rx, ry, s) => { for (let y = cy - ry; y <= Math.min(179, cy + ry); y++) for (let x = cx - rx; x <= Math.min(319, cx + rx); x++) { const nx = (x - cx) / rx, ny = (y - cy) / ry, d = nx * nx + ny * ny + (az(x >> 2, y >> 2, s) - 0.5) * 0.12; if (d > 1) continue; const l = -nx * 0.55 - ny * 0.8 + (vn(x * 0.15, y * 0.15, s + 1) - 0.5) * 0.5 + (b4(x, y) - 0.5) * 0.3;
+      R.pset(x, y, d > 0.88 ? H('#1c1626') : (x * 3 + y * 5 + s) % 23 === 0 && l < 0.4 ? H('#241c2e') : l > 0.62 ? H('#b0745c') : l > 0.25 ? H('#70505a') : l > -0.2 ? H('#4c3c4e') : H('#2e2638')); } };
+  pena(313, 134, 13, 11, 70); pena(298, 156, 27, 25, 72); pena(268, 167, 13, 10, 74);
+  for (const [cx, cy, r] of [[303, 126, 9], [289, 133, 6], [316, 120, 6]]) for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= Math.min(319, cx + r); x++) { const d = Math.hypot(x - cx, (y - cy) * 1.25) + (az(x, y, 76) - 0.5) * 4; if (d < r) R.pset(x, y, az(x, y, 77) < 0.12 && y < cy ? H('#8e6048') : az(x >> 1, y >> 1, 78) < 0.35 ? H('#2e2838') : H('#211c2e')); }
+  R.usar(prev); return (F9 = b);
+};
+// una nube del crepúsculo, solo sobre el cielo: lomo oscuro y panza encendida por el sol que ya está bajo el horizonte
+const nube9 = (x0, cy, w, capa, sem) => { const n = 4, T3 = [['#6a3e70', '#a4526c', '#e8845a'], ['#58346a', '#b85a68', '#f8a060'], ['#4a2e64', '#8e4670', '#f29870']][capa].map(hex), L = []; let rM = 0;
+  for (let i = 0; i < n; i++) { const r = w / n * (0.75 + az(i, sem, 80) * 0.6); L.push([x0 + w * (i + 0.5) / n, r, r * 0.44]); rM = Math.max(rM, r * 0.44); }
+  for (let y = Math.max(24, Math.round(cy - rM)); y <= cy + 2; y++) for (let x = Math.max(0, Math.round(x0 - 6)); x <= Math.min(319, x0 + w + 6); x++) { if (!SKY9[y * 320 + x] || (x > 262 && y < 50)) continue; if (!L.some(([cx, r, ry]) => ((x - cx) / r) ** 2 + ((y - cy) / ry) ** 2 < 1)) continue;
+    const rel = (y - (cy - rM)) / (rM + 2) + (b4(x, y) - 0.5) * 0.3; R.pset(x, y, rel > 0.72 ? T3[2] : rel > 0.38 ? T3[1] : T3[0]); } };
+const NUBES9 = [[30, 36, 44, 0, 1], [170, 47, 58, 0, 2], [330, 33, 40, 0, 3], [90, 60, 66, 1, 4], [260, 66, 50, 1, 5], [400, 54, 60, 1, 6], [0, 72, 40, 2, 7], [210, 39, 76, 2, 8], [350, 70, 46, 2, 9]];
+const ESTRELLAS9 = [[8, 24], [44, 31], [96, 26], [136, 37], [182, 25], [200, 44], [236, 30], [258, 24], [70, 44], [160, 52], [18, 46], [246, 52]];
+const p9 = (t) => {
+  R.copiar(fondo9());
+  const prog = tramo(t, P9 + 0.6, E.duracion - 0.3), H = hex;
+  // las primeras estrellas, las nubes a tres velocidades y la bandada que vuelve
+  ESTRELLAS9.forEach(([x, y], k) => { if (prog > 0.15 + k * 0.06 && SKY9[y * 320 + x] && Math.sin(t * 3 + k * 1.7) > -0.6) { R.pset(x, y, H('#fff4d8')); if (k % 3 === 0 && Math.sin(t * 2 + k) > 0.5) { R.pset(x - 1, y, H('#b89ac8')); R.pset(x + 1, y, H('#b89ac8')); } } });
+  for (const [x0, y, w, capa, sem] of NUBES9) nube9(Math.round(((x0 + t * [1.5, 3.2, 6][capa]) % 460) - 80), y, w, capa, sem);
+  for (let k = 0; k < 5; k++) { const x = Math.round(-30 + (t - P9) * 34 + k * 9 - (k % 2) * 3), y = Math.round(60 + (k % 2) * 5 + (k > 2 ? 4 : 0) + Math.sin(t * 2 + k) * 1.5), a2 = Math.sin(t * 11 + k * 1.3) > 0 ? 1 : 0; if (x < 2 || x > 316) continue; R.pset(x, y, H('#241c34')); R.pset(x - 1, y - a2, H('#241c34')); R.pset(x + 1, y - a2, H('#241c34')); R.pset(x - 2, y - a2 * 2 + 1 - a2, H('#241c34')); R.pset(x + 2, y - a2 * 2 + 1 - a2, H('#241c34')); }
+  // la niebla que se posa en el valle y el humo de una chimenea del pueblo
+  for (let y = 124; y <= 131; y++) for (let x = 0; x < 320; x++) if (b4(x, y) < 0.55 * vn(x * 0.03 + t * 0.06, y * 0.45, 12) * (1 - Math.abs(y - 128) / 6) && !enForma(x, y)) R.pset(x, y, H('#8a6480'));
+  for (let k = 0; k < 6; k++) { const e = (t * 0.3 + k / 6) % 1; R.pset(17 - Math.round(e * 7 + Math.sin(e * 6 + k) * 1.5), 90 - Math.round(e * 12), e < 0.5 ? H('#b89aa8') : H('#8a6c90')); }
+  // la bandera del centro, que ondea
+  { const yv = Math.round(yCresta(46)); for (let i = 0; i < 6; i++) { const dy = Math.round(Math.sin(t * 6 - i * 0.9) * 0.8); R.rect(287 - i, yv - 18 + dy, 287 - i, yv - 15 + dy, i === 2 ? H('#f0d8d0') : H('#c8343c')); } }
+  // el rebaño vuelve a casa por el camino, con su perro
+  const u = (t - P9) / (E.duracion - P9), fx = Math.round(lerp(44, 150, u)), para = t > FAROL - 0.5, lad = t > LADRA && t < LADRA + 0.45 ? Math.round(Math.abs(Math.sin((t - LADRA) * 14)) * 3) : 0;
+  const ovejas = (fila) => { for (let k = 0; k < 8; k++) { if ((k & 1) !== fila) continue; const ox = fx + (k >> 1) * 16 + (k & 1) * 7 + ((k * 5) % 3), oy = 159 + (k & 1) * 7 + ((k >> 1) % 2); for (let i = -4; i <= 5; i++) if ((i + oy) & 1) R.pset(ox + i, oy + 1, H('#3e3040')); oveja(ox, oy, 1, t, k); if (k === 7) { R.pset(ox + 3, oy - 1, K); R.pset(ox + 3, oy, Math.sin(t * 9) > 0 ? AMBAR : H('#b8862a')); } } };
+  ovejas(0);
+  // el pastor, detrás del rebaño: al final se para a mirar la ladera de enfrente y enciende el farol
+  const px = Math.min(Math.round(lerp(-12, 112, u)), Math.round(lerp(-12, 112, (FAROL - 0.5 - P9) / (E.duracion - P9))));
+  for (let i = 1; i <= 14; i++) if (i & 1) R.pset(px + i, 167, H('#3e3040'));
+  const pa = R.actor(EL.pastorNX, px, 166, t, { dir: 1, anda: !para, sostiene: [px + 11, para ? 148 : 153] }), [fmx, fmy] = pa.mano ?? [px + 8, 153], enc = t >= FAROL;
+  R.rect(fmx - 2, fmy + 1, fmx + 2, fmy + 7, K); R.rect(fmx - 1, fmy + 2, fmx + 1, fmy + 6, enc ? H('#ffe9a0') : H('#5a5468')); R.pset(fmx, fmy, K); if (enc) R.pset(fmx, fmy + 4, BLANCO);
+  ovejas(1);
+  { const x = fx - 20, y = 168 - lad, p = Math.sin(t * 10) > 0 ? 1 : 0, PE = H('#3a3038'); if (lad || (t > LADRA && t < LADRA + 0.45)) for (let q = 0; q < 3; q++) R.linea(x + 10 + q * 2, y - 9 + q * 3 - 3, x + 12 + q * 2, y - 10 + q * 4 - 3, BLANCO);
+    R.rect(x - 4, y - 5, x + 4, y - 2, K); R.rect(x - 3, y - 4, x + 3, y - 3, PE); R.rect(x + 4, y - 7, x + 7, y - 4, K); R.rect(x + 5, y - 6, x + 6, y - 5, PE); R.pset(x + 5, y - 8, K); R.pset(x - 5, y - 6, K); R.pset(x - 3 - p, y - 1, K); R.pset(x + 3 + p, y - 1, K); R.pset(x + 6, y - 6, BLANCO); }
+  // delante: las matas de la orilla, que se mecen con el aire de la tarde
+  for (let k = 0; k < 26; k++) { const x = Math.round(az(k, 1, 90) * 318), alto = 4 + Math.round(az(k, 2, 90) * 5), m = Math.sin(t * 1.8 + k * 0.9); for (let j = 0; j < alto; j++) { const xx = x + Math.round(m * j * j / 24); R.pset(xx, 179 - j, j === alto - 1 && k % 3 === 0 ? H('#b08a54') : k % 2 ? H('#3e3e36') : H('#1e1e26')); if (j < 3) R.pset(xx + 1, 179 - j, H('#1e1e26')); } }
+  // cae la tarde: todo se va al violeta, menos arriba (el año se sigue leyendo)
+  if (prog > 0) { const B = R.buf, V = H('#2a1c50'); for (let y = 22; y < 180; y++) { const al = 0.36 * prog * Math.min(1, (y - 20) / 56); for (let i = y * 320, n = i + 320; i < n; i++) B[i] = mez(B[i], V, al); } }
+  // las luces que se van encendiendo, por encima del anochecer: las ventanas del centro y del pueblo, la tienda y el piloto de la torre
+  { const yv = Math.round(yCresta(46)); for (const [x, cu] of VENT9) if (prog > cu) R.rect(x, yv - 4, x + 1, yv - 3, Math.sin(t * 5 + x) > -0.9 ? H('#ffd870') : H('#e8a850'));
+    for (const [x0, y0, , , cu] of CASAS9) if (prog > cu + 0.1) { R.rect(x0 + 2, y0 + 2, x0 + 3, y0 + 3, H('#ffc860')); R.pset(x0 + 2, y0 + 5, H('#8a5a48')); }
+    if (prog > 0.4) { R.pset(48, 124, H('#ffd870')); R.pset(47, 125, H('#ffc860')); R.pset(49, 125, H('#ffc860')); R.pset(48, 125, H('#fff0b0')); }
+    if (Math.floor(t * 2) % 2) { R.pset(40, 104, H('#ff5a4a')); R.pset(39, 104, H('#a8343c')); R.pset(41, 104, H('#a8343c')); R.pset(40, 103, H('#a8343c')); } else R.pset(40, 104, H('#6a2430')); }
+  // la luz del farol, por encima del anochecer
+  if (enc) { const d = Math.min(1, (t - FAROL) / 0.25), rr = Math.round(6 + d * 10 + Math.sin(t * 11) * 0.6); for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0 && (g > 0.5 || (((i + j) & 1) === 0 && (g > 0.25 || (j & 1) === 0)))) { const x = fmx + i, y = fmy + 4 + j; if (x >= 0 && x < 320 && y >= 0 && y < 180) R.pset(x, y, mez(R.pget(x, y), hex('#ffc860'), 0.22 + g * 0.45)); } }
+    R.actor(EL.pastorNX, px, 166, t, { dir: 1, anda: false, sostiene: [px + 11, 148] });   // el pastor, otra vez, por encima del resplandor: el farol lo ilumina, no lo borra
+    R.rect(fmx - 3, fmy + 1, fmx + 3, fmy + 8, K); R.rect(fmx - 2, fmy + 2, fmx + 2, fmy + 7, hex('#fff6c8')); R.rect(fmx - 1, fmy + 3, fmx + 1, fmy + 6, BLANCO); R.pset(fmx, fmy, K); R.pset(fmx - 1, fmy - 1, K); R.pset(fmx + 1, fmy - 1, K); }
+};
+
+// cada efecto va con algo que se ve: el megáfono que pregona, el sello, las notas que caen, los toques a la revista, los
+// huecos vacíos, la cinta que arranca, el radar que traza, los golpes del martillo de la geóloga, el «?» del colega de fuera, el robot, la ficha que gira, la lupa y la
+// bandeja, el reloj, los meses, el sello que espera, el ladrido y el farol (la esquila de la oveja guía no suena:
+// la receta «campana» es una campana de bronce)
+const efectos = [[0.55, 'aviso'], [confirmado, 'sello'], [notas + 0.3, 'papel'], [notas + 1.34, 'papel'], [revista, 'toc'], [revista + 0.5, 'toc'], [expertos + 0.1, 'tic'], [expertos + 0.8, 'tic'], [otraNota, 'papel'],
+  [mete + 0.2, 'papel'], [enviado, 'maquina'], [noLlegan + 0.2, 'tic'], [P4 + 0.3, 'bip'], [P4 + 0.8, 'lapiz'], [capas - 0.3, 'whoosh'], [capas + GOLPE, 'toc'], [capas + GOLPE * 2, 'toc'], [capas + GOLPE * 3, 'toc'],
+  [que, 'pop'], [abierta, 'interruptor'], [fuera + 0.3, 'pop'], [P6 + 0.3, 'maquina'], [dice + 0.1, 'papel'], [cortes, 'lapiz'],
+  [nadie, 'pop'], [nadie + 1.2, 'toc'], [nadie + 2.7, 'golpecito'], [publicado, 'pop'], [publicado + 0.95, 'tic'], [publicado + 1.5, 'tic'], [v2027, 'tic'], [siPermiso + 0.1, 'golpecito'],
+  [P9 + 0.4, 'viento'], [LADRA, 'guau'], [FAROL, 'interruptor']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

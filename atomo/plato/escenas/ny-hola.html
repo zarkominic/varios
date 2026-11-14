@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep15</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NY-HOLA (frase 7), hoy. Un plano: el muelle del bajo Manhattan por la tarde, con el perfil de la ciudad; el ferry
+// naranja cruza el río; un niño mira por los prismáticos de moneda, da un respingo en «Atom» y señala arriba, a Atom;
+// una vecina echa migas a las palomas; un corredor pasa por delante; en «Let's find out» el niño da un salto y echa a
+// correr hacia la ciudad.
+import * as T from '/atomo/plato/escenas/ny-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('ny-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const um = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const pal = (...a) => a.map(hex);
+const K = hex('#1a1424'), BL = hex('#f6f6ee');
+const suave = (u) => u * u * (3 - 2 * u);
+// un fondo fijo: se pinta una vez en su búfer (prev = R.usar(b) … R.usar(prev))
+const fijo = (pinta) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); } return b; }; };
+// pega un búfer con transparencia (0) desplazado (dx, dy)
+const pegar = (buf, dx = 0, dy = 0) => { const B = R.buf; dx = Math.round(dx); dy = Math.round(dy);
+  for (let y = Math.max(0, dy); y < Math.min(180, 180 + dy); y++) { const sy = y - dy, f = y * 320, sf = sy * 320; for (let x = Math.max(0, dx); x < Math.min(320, 320 + dx); x++) { const c = buf[sf + x - dx]; if (c) B[f + x] = c; } } };
+// degradado tramado (Bayer) entre bandas de color
+const banda = (y0, y1, cols, x0 = 0, x1 = 319) => { const n = cols.length - 1; for (let y = y0; y <= y1; y++) { const f = (y - y0) / Math.max(1, y1 - y0) * n, i = Math.floor(f), r = f - i; for (let x = x0; x <= x1; x++) R.pset(x, y, r > um(x, y) ? cols[Math.min(n, i + 1)] : cols[i]); } };
+// nube de tres tonos (sombra, cuerpo, luz)
+const nube3 = (cx, cy, w, [cS, cM, cL]) => { const bolas = [[0, 0, w * 0.32], [-w * 0.32, w * 0.06, w * 0.24], [w * 0.3, w * 0.05, w * 0.26], [-w * 0.1, -w * 0.12, w * 0.26], [w * 0.14, -w * 0.08, w * 0.22]];
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx), Math.round(cy + dy + 1), Math.round(r), cS);
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx), Math.round(cy + dy - 1), Math.round(r * 0.88), cM);
+  for (const [dx, dy, r] of bolas) R.disco(Math.round(cx + dx - 1), Math.round(cy + dy - 2), Math.round(r * 0.6), cL); };
+// nubes a tres velocidades: [x0, y, ancho, velocidad]
+const nubes = (t, lista, cols) => lista.forEach(([x0, y, w, v]) => nube3((((x0 + t * v) % 440) + 440) % 440 - 60, y, w, cols));
+// gaviotas que cruzan (fuera de la zona de Atom y de la barra del año)
+const aves = (t, n, y0, y1, k0 = 0, v0 = 7) => { for (let k = 0; k < n; k++) { const v = v0 + (k % 3) * 4, x = ((k * 97 + k0 + t * v) % 380) - 30, y = y0 + ((k * 37 + k0) % Math.max(1, y1 - y0)) + Math.round(Math.sin(t * 0.9 + k) * 3); if (x > 270 && y < 48) continue; R.gaviota(Math.round(x), y, t, k); } };
+// olas en perspectiva: rayas de luz con su sombra, más largas cerca; vx: deriva
+const olas = (t, y0, y1, n, cL, cS, vx = 0, k0 = 0, vy = 0) => { for (let k = 0; k < n; k++) {
+  const d0 = hh(k, 1, k0), d = vy ? (d0 + t * vy) % 1 : d0, y = Math.round(y0 + (y1 - y0) * d * d), L = Math.round(2 + d * 8), x = Math.round(((hh(k, 2, k0) * 360 + t * vx * (0.3 + d)) % 360 + 360) % 360 - 20);
+  if (Math.sin(t * 1.7 + k * 1.3) < -0.4) continue; R.rect(x, y, x + L, y, cL); if (d > 0.3) R.rect(x + 1, y + 1, x + L - 1, y + 1, cS); } };
+// garza en vuelo (alas lentas)
+const garza = (x, y, t, dir = -1) => { x = Math.round(x); y = Math.round(y); const a = Math.sin(t * 5) > 0, g = hex('#e8ecee'), gS = hex('#a8b4be');
+  R.rect(x - 3, y, x + 3, y + 1, g); R.rect(x - 2, y + 1, x + 2, y + 1, gS); R.pset(x + 4 * dir, y - 1, g); R.pset(x + 5 * dir, y - 1, g); R.pset(x + 6 * dir, y - 1, hex('#e8b830')); R.pset(x - 4 * dir, y + 1, hex('#3a3a3a')); R.pset(x - 5 * dir, y + 1, hex('#3a3a3a'));
+  if (a) { R.linea(x - 1, y - 1, x - 3, y - 5, g); R.linea(x + 1, y - 1, x + 3, y - 5, gS); } else { R.linea(x - 1, y + 2, x - 3, y + 5, gS); R.linea(x + 1, y + 2, x + 3, y + 5, g); } };
+
+const A = (f) => en('hola', f);
+const atom = A(0.037), vamos = A(0.797);
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'muelle', luz: 'tarde', ferry: Math.round(lerp(300, 40, t / E.duracion)) });
+  // las palomas que picotean las migas
+  for (let k = 0; k < 4; k++) { const x = 168 + k * 9 + Math.round(Math.sin(t * 0.8 + k) * 3), y = 164 + (k % 2) * 3, p = Math.sin(t * 8 + k * 2) > 0.5; R.rect(x - 2, y - 3, x + 2, y - 1, hex('#8a8a9a')); R.rect(x - 1, y - 2, x + 1, y - 2, hex('#a8a8b8')); R.rect(x + 2, y - (p ? 3 : 5), x + 3, y - (p ? 2 : 4), hex('#6a6a7a')); R.pset(x + 3, y - (p ? 3 : 5), K); R.pset(x - 3, y - 2, hex('#5a5a6a')); R.pset(x, y, hex('#e8783a')); }
+  // las migas que caen de la mano de la vecina
+  const ve = R.actor(EL.neoyorquina, 196, 162, t, { dir: -1, sostiene: [188, 146 + Math.round(Math.sin(t * 3) * 2)], sonrisa: true });
+  for (let k = 0; k < 5; k++) { const f = ((t * 0.9 + k / 5) % 1), x = ve.mano[0] - 2 + (k % 3) - 1, y = Math.round(ve.mano[1] + f * 18); R.pset(x, y, hex('#e8d8a8')); }
+  // el niño de los prismáticos
+  const salta = t > vamos && t < vamos + 0.5, corre = tramo(t, vamos + 0.4, E.duracion);
+  const nx = Math.round(lerp(46, 150, corre));
+  R.actor(EL.neoyorquino2, nx, 160, t, { dir: 1, salto: salta ? 4 : t > atom - 0.05 && t < atom + 0.25 ? 2 : 0, sorpresa: t > atom - 0.05 && t < A(0.3), dedo: t > atom + 0.2 && t < vamos, sonrisa: t >= A(0.3), anda: corre > 0 && corre < 1 });
+  // el corredor que pasa por delante
+  const c = tramo(t, A(0.18), A(0.95)); R.actor(EL.neoyorquino, Math.round(lerp(330, -24, c)), 172, t, { dir: -1, anda: c > 0 && c < 1 });
+};
+const efectos = [[atom, 'brillo'], [A(0.18), 'ola'], [vamos + 0.05, 'boing']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

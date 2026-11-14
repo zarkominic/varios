@@ -20,7 +20,7 @@ import sys
 import numpy as np
 import soundfile as sf
 
-args = sys.argv[1:]
+args = [a for a in sys.argv[1:] if a != '--por-escena']
 opcion = lambda n: args.pop(args.index(n) + 1) if n in args else None
 video, pista = opcion('--video'), opcion('--pista')
 D, plan = args[:2]
@@ -60,6 +60,11 @@ e, sr = mono(f'{D}/efectos.wav')
 ed = ventanas(e, sr, 0.5)
 activo = 100 * np.mean(ed > -45)
 nota(40 <= activo <= 65, f'algún efecto sonando el {activo:.0f} % del tiempo (el 11: 58 %; entre 40 y 65)')
+if '--por-escena' in sys.argv:   # desde el 13: para afinar en el borrador, antes de la producción (control-sonido.sh)
+    for esc in json.load(open(f'{D}/linea.json'))['escenas']:
+        a, b = int(esc['inicio'] / 0.5), int((esc['inicio'] + esc['duracion']) / 0.5)
+        p = 100 * np.mean(ed[a:b] > -45) if b > a else 0
+        print(f'        {esc["id"]:18} {p:3.0f} %' + ('   ← poco' if p < 35 else '   ← mucho' if p > 70 else ''))
 for l in ('en', 'es'):
     try:
         v, srv = mono(f'{D}/voz-{l}.wav')   # la voz va a 24 kHz y los efectos a 48 kHz: cada una con su frecuencia
@@ -85,7 +90,7 @@ for e in linea['escenas']:
     t = e['inicio']
     if t < 1 or not cartela.get(e['id']):
         continue
-    i = int(t * 10)
+    i = round(t * 10)   # como banda.cjs (Math.round): antes truncaba y las dos medidas se separaban una ventana
     antes, minimo, despues = md[i - 15:i - 5].mean(), md[max(0, i - 25):i + 25].min(), md[i + 5:i + 15].mean()
     caida = antes - minimo
     peor = max(peor, caida)

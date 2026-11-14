@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pong · ep26</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AT-PONG (frase 4), 1972 → 1981, cartela «1972». Seis planos:
+// 1. el bar de California en 1972 (el camarero asoma tras la barra secando un vaso): una pareja juega al Pong, un parroquiano entra a mirar, ella marca y salta;
+// 2. la pantalla de cerca, con las dos manos en los mandos: «two lines» las palas se iluminan, «ball» la pelota;
+// 3. inserto, 1976: el despacho de la Warner; la mano de Atari empuja su Pong de casa, «film» gira la bobina, «music» el disco, y
+//    «bought» la mano del traje azul firma;  4. el salón de 1977: el padre entra con la caja de la consola, «console» se
+//    enciende la tele, el niño salta y la madre aplaude;  5. la tele de cerca con dos manos en los mandos:
+//    en «cartridges» el cartucho de la consola cambia una y otra vez y la colección se amontona en la moqueta;  6. el rotafolio del despacho: columnas de
+//    cartuchos apilados por año (77–82) que crecen, el directivo las señala, la línea une las cimas y en «history» sale
+//    la flecha y todos celebran.
+import * as T from '/atomo/plato/escenas/at-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('at-pong');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('pong', f);
+const P2 = a(0.157), P3 = a(0.324), P4 = a(0.503), P5 = a(0.697), P6 = a(0.872);
+const DOS = a(0.242), BOLA = a(0.288), FILM = a(0.394), MUSIC = a(0.416), WARNER = a(0.448), FIRMA = a(0.465);
+const SALE = a(0.582), CONSOLA = a(0.621), CARTUCHO = a(0.723), POCOS = a(0.775), HIST = a(0.968), GOL = 4.0;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, u) => { const A = [c1 & 255, (c1 >>> 8) & 255, (c1 >>> 16) & 255], B = [c2 & 255, (c2 >>> 8) & 255, (c2 >>> 16) & 255]; const m = A.map((v, i) => Math.round(v + (B[i] - v) * u)); return (0xff000000 | (m[2] << 16) | (m[1] << 8) | m[0]) >>> 0; };
+const K = hex('#141016'), BL = hex('#f6f2e6');
+
+// 1 · el bar de 1972
+const p1 = (t) => {
+  T.atari(R, t, { encuadre: 'bar72', marcador: t < GOL ? [3, 2] : [3, 3] });
+  // el camarero, detrás de la barra (asoman cabeza y hombros), seca un vaso a la altura del pecho y mira la partida
+  const v = Math.round(Math.sin(t * 6) * 1);
+  const cm = R.actor(EL.dependiente, 203, 132, t, { dir: -1, sostiene: [197, 127 + v], sonrisa: t > GOL });
+  { const [mx, my] = cm.mano; R.rect(mx - 3, my - 5, mx + 2, my + 1, K); R.rect(mx - 2, my - 4, mx + 1, my, hex('#c8e4ec')); R.pset(mx - 2, my - 4, BL); R.pset(mx + 1, my - 1, hex('#8ab4c4')); }
+  // el parroquiano entra por la izquierda y se pone a mirar
+  const u = tramo(t, 1.5, 3.0), px = Math.round(lerp(-18, 30, u));
+  R.actor(EL.padre77, px, 156, t, { dir: 1, anda: u > 0 && u < 1, pal: { C: hex('#4a6a8a'), c: hex('#34506a') }, brazos: t > GOL && t < GOL + 0.9, sonrisa: t > GOL });
+  // la pareja juega: las manos en los mandos, que giran
+  const g = Math.sin(t * 3.1), mira = t > GOL + 0.2 && t < GOL + 1.2;
+  R.actor(EL.jugadorPong, 64, 152, t, mira ? { dir: -1, enfado: true } : { dir: 1, sostiene: [92, 127 + Math.round(g)] });
+  const gana = t > GOL && t < GOL + 0.8;
+  R.actor(EL.jugadoraPong, 130, 152, t, gana ? { dir: -1, brazos: true, salto: Math.round(Math.abs(Math.sin((t - GOL) * 8)) * 3), sonrisa: true } : { dir: -1, sostiene: [124, 127 - Math.round(g)], sonrisa: t > GOL });
+  T.atariDelante(R, t, { encuadre: 'bar72' });
+};
+
+// 2 · la pantalla del Pong de cerca: las dos palas y la pelota
+const p2 = (t) => {
+  const g = T.atari(R, t, { encuadre: 'bar72', camara: 'pantalla', vel: 0.62 }) || {};
+  // «two lines»: las palas laten; «ball»: un aro alrededor de la pelota
+  const lin = tramo(t, DOS - 0.05, DOS + 0.2) - tramo(t, BOLA - 0.1, BOLA + 0.1), bol = tramo(t, BOLA - 0.05, BOLA + 0.15);
+  if (lin > 0 && Math.floor(t * 8) % 2 === 0 && g.palas) for (const [x, y] of [[70, g.palas[0]], [248, g.palas[1]]]) { R.rect(x - 2, y - 2, x + 5, y + 2, hex('#a8f0c8')); }
+  if (bol > 0 && g.pelota) { const [bx, by] = g.pelota, r = 5 + Math.round(Math.sin(t * 12) * 1.5); for (let k = 0; k < 24; k++) { const an = k / 24 * Math.PI * 2; R.pset(Math.round(bx + 2 + Math.cos(an) * r), Math.round(by + 2 + Math.sin(an) * r), hex('#fff6a0')); } }
+  // las manos en los mandos (las de la pareja del bar): giran con las palas
+  const yl = g.palas ? Math.round((g.palas[0] - 60) / 20) : 0, yr = g.palas ? Math.round((g.palas[1] - 60) / 20) : 0;
+  T.brazo(R, 56, 192, 90, 153 + yl, '#d0783a', 1);
+  T.brazo(R, 264, 192, 230, 153 + yr, '#e8d070', -1);
+  // una moneda que baila sobre la pila con cada golpe
+  if (Math.sin(t * 9) > 0.8) R.pset(184, 160, BL);
+};
+
+// 3 · inserto, 1976: el despacho de la Warner y la firma
+let F3 = null;
+const fondo3 = () => {
+  if (F3) { R.copiar(F3); return; }
+  F3 = R.nuevo(); const prev = R.usar(F3);
+  // la pared: paneles de nogal con vetas a la izquierda, la ventana a la ciudad y la esquina lisa y tranquila
+  for (let y = 0; y < 70; y++) for (let x = 0; x < 320; x++) {
+    const tabla = Math.floor(x / 24), vx = x % 24, veta = Math.sin(y * 0.18 + tabla * 2.1 + Math.sin(y * 0.05 + tabla) * 2) > 0.86;
+    let c = [hex('#5a3420'), hex('#4c2c1a'), hex('#64402a')][tabla % 3]; if (veta) c = hex('#3e2414'); if (vx === 0) c = hex('#24140a'); if (vx === 1) c = hex('#74482c');
+    if (x >= 262 && y < 52) c = (x + y) % 9 === 0 ? hex('#4a2c1a') : hex('#4e2e1c');
+    R.pset(x, y, c);
+  }
+  // el marco de la ventana (el cielo y la ciudad van en cada fotograma)
+  R.rect(146, 4, 252, 62, hex('#24140a')); R.rect(148, 6, 250, 60, hex('#8a6a4a'));
+  // un disco de oro enmarcado y una foto de una claqueta (sin letras)
+  R.rect(62, 20, 96, 54, hex('#24140a')); R.rect(64, 22, 94, 52, hex('#c8a040')); R.rect(66, 24, 92, 50, hex('#1a1a20'));
+  R.disco(79, 37, 11, hex('#e8c050')); R.disco(79, 37, 10, hex('#c89a30')); for (let r = 3; r < 10; r += 2) for (let k = 0; k < 30; k++) { const an = k / 30 * 6.28; if (k % 3) R.pset(Math.round(79 + Math.cos(an) * r), Math.round(37 + Math.sin(an) * r), hex('#f0d880')); } R.disco(79, 37, 3, hex('#c8303a')); R.pset(79, 37, K);
+  R.rect(104, 22, 140, 52, hex('#24140a')); R.rect(106, 24, 138, 50, hex('#e8e0cc'));
+  for (let i = 0; i < 5; i++) R.poligono([[108 + i * 6, 26], [112 + i * 6, 26], [110 + i * 6, 31], [106 + i * 6, 31]], i % 2 ? BL : hex('#1a1a20'));
+  R.rect(108, 32, 136, 48, hex('#2a2a30')); R.rect(110, 35, 134, 36, hex('#5a5a66')); R.rect(110, 39, 128, 40, hex('#5a5a66')); R.rect(110, 43, 131, 44, hex('#5a5a66'));
+  // la moldura y el canto de la mesa
+  R.rect(0, 62, 319, 64, hex('#24140a')); R.rect(0, 62, 319, 62, hex('#8a5a32'));
+  // el tablero de caoba en perspectiva, con vetas largas y el reflejo de la ventana
+  for (let y = 65; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const v = Math.sin(x * 0.035 + y * 0.42 + Math.sin(x * 0.012 + y * 0.07) * 3), n = hh(x >> 1, y, 3);
+    let c = v > 0.7 ? hex('#5a2414') : v < -0.75 ? hex('#8a3e22') : hex('#74301a'); if (n < 0.03) c = hex('#4a1c10');
+    const refl = x > 150 && x < 250 && y < 120 && (x - y * 0.3) % 22 < 12; if (refl) c = mez(c, hex('#e8c8a0'), 0.12);
+    R.pset(x, y, c);
+  }
+  // el secante de cuero verde bajo el contrato, con sus cantoneras de latón
+  R.rect(194, 80, 280, 174, hex('#1a2a1a')); R.rect(196, 82, 278, 174, hex('#2e5a3a')); for (let y = 84; y < 174; y += 3) for (let x = 198; x < 277; x += 4) R.pset(x + (y % 2) * 2, y, hex('#3a6a46'));
+  for (const [x, y] of [[196, 82], [270, 82]]) R.poligono([[x, y], [x + 8, y], [x + (x < 230 ? 0 : 8), y + 8]], hex('#c8a040'));
+  // la lámpara de banquero de latón con la tulipa verde
+  R.rect(14, 76, 46, 80, K); R.rect(15, 77, 45, 79, hex('#c89a30')); R.rect(28, 58, 31, 76, hex('#a87a20'));
+  R.poligono([[10, 58], [50, 58], [46, 48], [14, 48]], K); R.poligono([[12, 57], [48, 57], [44, 49], [16, 49]], hex('#2a7a4a')); R.rect(16, 50, 44, 51, hex('#5aa87a'));
+  // el portaplumas de latón, el teléfono de la época y el cenicero de cristal
+  R.rect(172, 66, 186, 78, K); R.rect(173, 67, 185, 77, hex('#c89a30')); R.rect(174, 67, 176, 77, hex('#f0d070'));
+  R.linea(176, 66, 170, 54, K); R.linea(180, 66, 184, 52, hex('#1a1a40')); R.pset(184, 52, hex('#c8a040'));
+  R.rect(118, 66, 150, 84, K); R.rect(119, 67, 149, 83, hex('#2a2a30')); R.disco(134, 76, 6, hex('#c8c8d0')); R.disco(134, 76, 2, K); R.rect(114, 62, 154, 67, K); R.rect(115, 63, 153, 66, hex('#3a3a44')); R.disco(117, 64, 3, K); R.disco(151, 64, 3, K);
+  R.disco(298, 84, 9, K); R.disco(298, 84, 8, hex('#a8c8d0')); R.disco(298, 84, 5, hex('#5a7a84')); R.rect(284, 80, 298, 82, hex('#6a3a1a')); R.rect(284, 80, 287, 82, hex('#e85a2a'));
+  R.usar(prev); R.copiar(F3);
+};
+const sigX = (u) => 234 + u * 32, sigY = (u) => 158 + Math.round(Math.sin(u * 19) * 3 + Math.sin(u * 7) * 1.5);
+// el Pong de casa (la consolita de madera con sus dos ruedas y la pantallita), que llega empujado por la mano de Atari
+const pongCasa = (x, y) => { R.rect(x, y, x + 52, y + 26, K); R.rect(x + 1, y + 1, x + 51, y + 25, hex('#8a5a2a')); for (let k = 0; k < 4; k++) R.rect(x + 1, y + 4 + k * 6, x + 51, y + 4 + k * 6, hex('#6a4220'));
+  R.rect(x + 1, y + 1, x + 51, y + 8, hex('#1a1a20')); R.rect(x + 14, y + 2, x + 38, y + 7, hex('#2a3a2a')); R.rect(x + 16, y + 3, x + 16, y + 6, hex('#c8f0c8')); R.rect(x + 36, y + 3, x + 36, y + 6, hex('#c8f0c8')); R.pset(x + 26, y + 4, hex('#f0f8f0'));
+  for (const cx of [x + 10, x + 42]) { R.disco(cx, y + 17, 5, K); R.disco(cx, y + 17, 4, hex('#d8d8e0')); R.pset(cx, y + 14, K); } };
+const p3 = (t) => {
+  fondo3();
+  // por la ventana: el cielo tramado, nubes de tres tonos a tres velocidades y los rascacielos, recortados al hueco
+  R.recorte([150, 8, 248, 58]);
+  for (let y = 8; y <= 58; y++) for (let x = 150; x <= 248; x++) R.pset(x, y, (y < 24 ? hex('#5a9ad8') : y < 40 ? ((x + y) % 2 ? hex('#7ab4e4') : hex('#5a9ad8')) : hex('#9acaf0')));
+  for (const [v, y, c, w] of [[3, 14, hex('#f6f8fc'), 16], [5, 22, hex('#d8e4f0'), 12], [8, 30, hex('#b8c8dc'), 20]]) { const x = 150 + ((t * v + y * 7) % 130) - 16; R.disco(Math.round(x), y, 4, c); R.disco(Math.round(x) + 6, y - 2, 5, c); R.disco(Math.round(x) + w / 2 + 6, y, 4, c); }
+  for (const [x0, w, hgt, c] of [[150, 16, 30, hex('#4a5a7a')], [168, 12, 40, hex('#3a4a6a')], [182, 22, 24, hex('#5a6a86')], [206, 14, 44, hex('#34445e')], [222, 26, 30, hex('#4a5a7a')]]) {
+    R.rect(x0, 58 - hgt, x0 + w, 58, c); for (let y = 60 - hgt; y < 57; y += 4) for (let x = x0 + 2; x < x0 + w - 1; x += 3) R.pset(x, y, hh(x, y, Math.floor(t / 3)) < 0.5 ? hex('#f8e8a0') : hex('#2a3448')); }
+  { const bx = 150 + ((t * 9) % 120) - 10; R.pset(Math.round(bx), 18, K); R.pset(Math.round(bx) + 1, 17, K); R.pset(Math.round(bx) - 1, 17, K); }
+  R.recorte(null);
+  R.rect(198, 6, 200, 60, hex('#8a6a4a')); R.rect(148, 32, 250, 33, hex('#8a6a4a'));
+  // el humo del puro que sube en espiral
+  for (let k = 0; k < 10; k++) { const u = ((t * 0.5 + k / 10) % 1), x = Math.round(286 + Math.sin(u * 7 + t) * 3 * u), y = Math.round(78 - u * 26); R.pset(x, y, u < 0.5 ? hex('#d8d4cc') : hex('#a8a49c')); }
+  // la bobina de película (gira en «film»)
+  const gf = tramo(t, FILM - 0.1, FILM + 1.4), gm = tramo(t, MUSIC - 0.1, MUSIC + 1.6), bx = 72, by = 104;
+  R.disco(bx, by, 27, K); R.disco(bx, by, 26, hex('#9aa0aa')); R.disco(bx, by, 22, hex('#3a2a20')); for (let r = 12; r < 22; r += 3) for (let k = 0; k < 60; k++) { const an = k / 60 * 6.28; R.pset(Math.round(bx + Math.cos(an) * r), Math.round(by + Math.sin(an) * r), hex('#4a3626')); }
+  R.disco(bx, by, 11, hex('#b8bec8')); const af = gf * 9 + 0.3;
+  for (let k = 0; k < 5; k++) { const an = af + k / 5 * 6.28; R.disco(Math.round(bx + Math.cos(an) * 6), Math.round(by + Math.sin(an) * 6), 2, hex('#3a3a44')); } R.disco(bx, by, 2, K);
+  if (gf > 0 && gf < 1) { const an = af * 1.3; for (let r = 12; r < 26; r++) R.pset(Math.round(bx + Math.cos(an) * r), Math.round(by + Math.sin(an) * r), hex('#f0f0f8')); }
+  for (let k = 0; k < 14; k++) { const x = bx + 20 + k * 4, y = by + 20 + Math.round(k * 1.2); R.rect(x, y, x + 3, y + 5, hex('#3a2a20')); R.pset(x + 1, y, hex('#c8b890')); R.pset(x + 1, y + 5, hex('#c8b890')); }
+  // el disco que asoma de su funda (gira en «music») y la funda con la nota, por delante
+  const dx = 116; R.disco(dx, 138, 26, K); R.disco(dx, 138, 25, hex('#1e1e24')); for (let r = 10; r < 25; r += 2) for (let k = 0; k < 50; k++) { const an = k / 50 * 6.28; if ((k + r) % 3) R.pset(Math.round(dx + Math.cos(an) * r), Math.round(138 + Math.sin(an) * r), hex('#2c2c34')); }
+  { const an = gm * 14 + 2.4; for (let r = 11; r < 25; r++) R.pset(Math.round(dx + Math.cos(an) * r), Math.round(138 + Math.sin(an) * r), hex('#8a8a9a')); }
+  R.disco(dx, 138, 8, hex('#e85a2a')); R.disco(dx, 138, 2, K); { const an = gm * 14 + 3; R.pset(Math.round(dx + Math.cos(an) * 5), Math.round(138 + Math.sin(an) * 5), hex('#f8e0a0')); }
+  R.rect(120, 106, 182, 170, hex('#3a1a0a')); R.rect(116, 108, 176, 168, K); R.rect(117, 109, 175, 167, hex('#e8c040')); R.rect(123, 115, 169, 161, hex('#c8303a')); R.disco(146, 138, 16, hex('#f0d060'));
+  R.rect(140, 124, 142, 146, K); R.disco(138, 147, 3, K); R.rect(142, 124, 150, 126, K); R.rect(148, 126, 150, 135, K); R.disco(146, 136, 3, K);
+  R.rect(117, 109, 119, 167, hex('#f0d878'));
+  // el contrato sobre el secante, con su sello rojo y la línea de la firma
+  const cx = 202; R.rect(cx + 2, 90, cx + 70, 172, hex('#1a2a1a')); R.rect(cx, 88, cx + 68, 170, K); R.rect(cx + 1, 89, cx + 67, 169, BL);
+  for (let y = 96; y < 146; y += 5) R.rect(cx + 7, y, cx + 7 + 34 + Math.round(hh(y, 1, 5) * 20), y + 1, hex('#8a8a94'));
+  R.disco(cx + 14, 156, 6, hex('#a8281e')); R.disco(cx + 14, 156, 4, hex('#d84a3a')); R.rect(cx + 30, 163, cx + 66, 163, hex('#3a3a44'));
+  // la mano de Atari empuja su Pong de casa hasta el centro de la mesa y se va
+  const ll = tramo(t, P3 + 0.15, P3 + 1.0), px = Math.round(lerp(-60, 14, ll)), r = tramo(t, P3 + 1.1, P3 + 1.6);
+  pongCasa(px, 144);
+  if (r < 1) T.brazo(R, -30, 186 + Math.round(r * 30), px - 4 - Math.round(r * 30), 160 + Math.round(r * 30), '#c8a060', 1);
+  // la firma de la Warner: llega la mano del traje azul con la pluma, firma en «bought» y se retira
+  const llega = tramo(t, WARNER - 0.5, FIRMA - 0.05), fi = tramo(t, FIRMA, FIRMA + 0.55), va = tramo(t, FIRMA + 0.75, P4 + 0.2);
+  const n = Math.floor(fi * 40); for (let i = 0; i < n; i++) { const u = i / 40; R.linea(Math.round(sigX(u)), sigY(u), Math.round(sigX(u + 1 / 40)), sigY(u + 1 / 40), hex('#1a1a5a')); }
+  if (llega > 0 && va < 1) {
+    const tx = Math.round(sigX(fi)) + Math.round((1 - llega) * 50 + va * 60), ty = sigY(fi) + Math.round((1 - llega) * 20 + va * 30) - (fi > 0 && fi < 1 ? 0 : 3);
+    const hx = tx + 14, hy = ty - 6;
+    T.brazo(R, 336, 200, hx, hy, '#1e2a4a', -1);
+    R.linea(tx + 1, ty, hx - 4, hy - 1, K); R.linea(tx + 2, ty - 1, hx - 4, hy - 2, hex('#1a1a20')); R.pset(tx + 5, ty - 2, hex('#c8a040')); R.pset(tx, ty, hex('#c8a040'));
+  }
+};
+
+// 4 · el salón de 1977: la consola nueva
+const ENC = SALE - 0.1, PARA = SALE + 0.6;
+const apagada = (R2, t2, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, (x - x0 + (y - y0)) % 13 < 2 && y < y0 + 12 ? hex('#4a5058') : hex('#262a30')); };
+const p4 = (t) => {
+  const on = t >= CONSOLA, fl = t >= CONSOLA && t < CONSOLA + 0.15;
+  T.atari(R, t, { encuadre: 'salon77', pantalla: !on ? apagada : fl ? (R2, t2, [x0, y0, x1, y1]) => R.rect(x0, y0, x1, y1, BL) : undefined, cartucho: 'azul' });
+  // el niño, sentado delante de la tele, se levanta de un salto cuando se enciende
+  const sal = on && t < CONSOLA + 1.2 ? Math.round(Math.abs(Math.sin((t - CONSOLA) * 7)) * 4) : 0;
+  R.actor(EL.nino77, 70, 156, t, { dir: on ? 1 : -1, salto: sal, sonrisa: on, sorpresa: t > PARA && !on });
+  // la madre, junto al sofá, aplaude
+  R.actor(EL.madre77, 222, 152, t, { dir: -1, brazos: on && Math.floor(t * 6) % 2 === 0 && t < CONSOLA + 1.6, sonrisa: t > PARA, habla: t > P4 + 0.6 && t < ENC && Math.sin(t * 8) > 0 });
+  // el padre entra con la caja de la consola, la deja y señala la tele
+  const u = tramo(t, P4 + 0.2, ENC + 0.4), x = Math.round(lerp(330, 116, u)), lleva = t < PARA;
+  const pa = R.actor(EL.padre77, x, 154, t, { dir: -1, anda: u > 0 && u < 1, sostiene: lleva ? true : undefined, dedo: !lleva, sonrisa: on });
+  const caja = (bx, by) => { R.rect(bx - 9, by - 12, bx + 9, by, K); R.rect(bx - 8, by - 11, bx + 8, by - 1, hex('#e8e0cc')); R.rect(bx - 8, by - 11, bx + 8, by - 9, hex('#c8303a')); R.rect(bx - 6, by - 7, bx + 6, by - 3, hex('#1a1a20')); R.rect(bx - 6, by - 4, bx + 6, by - 3, hex('#8a5a2a')); R.pset(bx - 3, by - 6, hex('#c8c8d0')); R.pset(bx + 1, by - 6, hex('#c8c8d0')); };
+  if (lleva) caja(pa.mano[0] - 2, pa.mano[1] + 4); else caja(128, 157);
+  T.atariDelante(R, t, { encuadre: 'salon77' });
+};
+
+// 5 · la tele de cerca: dos manos en los mandos; en «cartridges» los cartuchos se cambian y se amontonan
+const MONTON = [[96, 'verde', 'flor'], [206, 'naranja', 'nave'], [100, 'morado', 'foso'], [210, 'amarillo', 'comecocos'], [96, 'turquesa', 'nave'], [206, 'rosa', 'flor']];
+const COLS = ['rojo', 'azul', 'verde', 'naranja', 'morado', 'amarillo'];
+const p5 = (t) => {
+  const ci = t < CARTUCHO ? 0 : Math.min(5, 1 + Math.floor((t - CARTUCHO) / 0.6));
+  T.atari(R, t, { encuadre: 'salon77', camara: 'tele', cartucho: COLS[ci] });
+  // cada cartucho nuevo: un parpadeo de la pantalla
+  const cambio = t >= CARTUCHO && ((t - CARTUCHO) % 0.6) < 0.08 && ci < 5; if (cambio) R.rect(54, 36, 186, 120, hex('#c8d0d8'));
+  // las manos de los dos jugadores en los mandos, que se menean
+  const j1 = Math.sin(t * 6), j2 = Math.sin(t * 5.2 + 1);
+  T.brazo(R, 14, 196, 52 + Math.round(j1 * 2), 158 + Math.round(Math.abs(j1) * 2), '#3a8a4a', 1);
+  T.brazo(R, 306, 196, 262 + Math.round(j2 * 2), 158 + Math.round(Math.abs(j2) * 2), '#e8784a', -1);
+  // los cartuchos de la colección entran deslizándose por la moqueta, uno tras otro
+  for (let k = 0; k < MONTON.length; k++) {
+    const t0 = CARTUCHO + 0.15 + k * 0.42; if (t < t0) continue; const [x, c, ic] = MONTON[k], fila = Math.floor(k / 2), cae = tramo(t, t0, t0 + 0.2);
+    const y = Math.round(lerp(196, 179 - fila * 8, cae)); T.PIEZAS_AT.cartucho?.(R, x + (fila % 2) * 3, y, { color: c, icono: ic });
+  }
+};
+
+// 6 · inserto local: el rotafolio del despacho, con columnas hechas de cartuchos apilados que crecen año a año
+let F6 = null;
+const fondo6 = () => {
+  if (F6) { R.copiar(F6); return; }
+  F6 = R.nuevo(); const prev = R.usar(F6);
+  // la pared de listones claros de los setenta (lisa en la esquina de Atom) y el rodapié
+  for (let y = 0; y < 150; y++) for (let x = 0; x < 320; x++) { const l = x % 12, n = hh(x, y >> 2, 6); R.pset(x, y, x >= 268 && y < 52 ? hex('#c89a64') : l === 0 ? hex('#8a5a32') : l === 1 ? hex('#dcaa72') : n < 0.15 ? hex('#b8844e') : hex('#c89a64')); }
+  R.rect(0, 146, 319, 150, hex('#5a3418')); R.rect(0, 146, 319, 146, hex('#a87a4a'));
+  // la moqueta naranja de pelo
+  for (let y = 151; y < 180; y++) for (let x = 0; x < 320; x++) { const n = hh(x, y, 8); R.pset(x, y, n < 0.2 ? hex('#a8501e') : n > 0.85 ? hex('#e88a4a') : hex('#c8642a')); }
+  // la ventana de la izquierda (el cielo va en cada fotograma) y la planta de la derecha
+  R.rect(6, 22, 62, 112, hex('#5a3418')); R.rect(8, 24, 60, 110, hex('#a8c8e0'));
+  R.rect(270, 128, 296, 150, K); R.rect(271, 129, 295, 149, hex('#c86a3a')); R.rect(271, 129, 295, 131, hex('#e88a5a'));
+  for (let k = 0; k < 11; k++) { const an = -2.9 + k * 0.28, L = 22 + (k % 3) * 6; R.linea(283, 128, Math.round(283 + Math.cos(an) * L), Math.round(128 + Math.sin(an) * L), hex('#2a6a2a')); R.disco(Math.round(283 + Math.cos(an) * L), Math.round(128 + Math.sin(an) * L), 2, hex('#4aa84a')); }
+  // el cuadro de un velero, la lámpara de pie y la mesita con el teléfono y el café
+  R.rect(242, 40, 268, 62, hex('#5a3418')); R.rect(244, 42, 266, 60, hex('#a8d0f0')); R.rect(244, 54, 266, 60, hex('#3a6ab0')); R.poligono([[254, 44], [254, 54], [262, 54]], BL); R.rect(250, 54, 262, 56, hex('#8a3a1a'));
+  R.rect(232, 92, 246, 104, K); R.poligono([[233, 103], [245, 103], [242, 93], [236, 93]], hex('#f0e0a8')); R.rect(238, 104, 240, 172, hex('#5a4a2a')); R.rect(232, 172, 246, 174, K);
+  R.rect(6, 150, 52, 154, K); R.rect(7, 151, 51, 153, hex('#8a5a2a')); R.rect(10, 154, 12, 172, K); R.rect(46, 154, 48, 172, K);
+  R.rect(14, 140, 32, 150, K); R.rect(15, 141, 31, 149, hex('#c8303a')); R.disco(23, 145, 3, hex('#e8e0d0')); R.rect(38, 142, 46, 150, K); R.rect(39, 143, 45, 149, BL);
+  // el caballete de madera y el rotafolio de papel cuadriculado
+  R.linea(118, 174, 132, 44, K); R.linea(119, 174, 133, 44, hex('#8a5a2a')); R.linea(206, 174, 192, 44, K); R.linea(205, 174, 191, 44, hex('#8a5a2a')); R.linea(162, 150, 162, 172, K);
+  R.rect(102, 46, 222, 148, K); R.rect(103, 47, 221, 147, hex('#f8f4e8'));
+  for (let y = 52; y < 147; y += 6) for (let x = 104; x < 221; x++) R.pset(x, y, hex('#d8e4ec')); for (let x = 106; x < 221; x += 6) for (let y = 48; y < 147; y++) R.pset(x, y, hex('#d8e4ec'));
+  R.rect(100, 42, 224, 47, K); R.rect(101, 43, 223, 46, hex('#4a4a54')); R.rect(101, 43, 223, 43, hex('#8a8a96'));
+  R.rect(110, 52, 110, 136, hex('#3a3a44')); R.rect(110, 136, 216, 136, hex('#3a3a44'));
+  // la bandeja de los rotuladores
+  R.rect(102, 148, 222, 151, K); R.rect(103, 149, 221, 150, hex('#8a5a2a')); for (const [x, c] of [[130, '#3ac85a'], [142, '#d82a2a'], [154, '#3a6ac8']]) { R.rect(x, 146, x + 8, 148, K); R.rect(x + 1, 147, x + 7, 147, hex(c)); }
+  R.usar(prev); R.copiar(F6);
+};
+const ANOS = [77, 78, 79, 80, 81, 82], ALTO = [2, 3, 5, 7, 10, 13], CC = ['#c8303a', '#3a6ac8', '#3a9a4a', '#e8a030', '#8a4ac8', '#2ab0b0'];
+const miniCart = (x, y, c) => { R.rect(x, y, x + 9, y + 5, K); R.rect(x + 1, y + 1, x + 8, y + 4, hex('#2a2a30')); R.rect(x + 2, y + 1, x + 7, y + 2, hex(c)); R.pset(x + 2, y + 1, BL); };
+const colX = (k) => 116 + k * 17, colTop = (k) => 135 - ALTO[k] * 6;
+const p6 = (t) => {
+  fondo6();
+  // por la ventana: el cielo de California, nubes de tres tonos y una palmera que se mece (recortados al hueco)
+  R.recorte([8, 24, 60, 110]);
+  for (let y = 24; y <= 110; y++) for (let x = 8; x <= 60; x++) R.pset(x, y, y < 50 ? hex('#4a8ad8') : y < 80 ? ((x + y) % 2 ? hex('#6aa4e4') : hex('#4a8ad8')) : y < 96 ? hex('#9ac4ec') : hex('#8a9a6a'));
+  for (const [v, y, c] of [[2, 34, hex('#f6f8fc')], [4, 48, hex('#d8e4f0')], [6, 60, hex('#b8c8dc')]]) { const x = 8 + ((t * v + y * 5) % 70) - 10; R.disco(Math.round(x), y, 3, c); R.disco(Math.round(x) + 5, y - 1, 4, c); }
+  { const m = Math.round(Math.sin(t * 1.3) * 2); R.linea(40, 110, 42 + m, 62, hex('#6a4a2a')); R.linea(41, 110, 43 + m, 62, hex('#8a6a3a')); for (let k = 0; k < 6; k++) { const an = -3 + k * 0.6 + Math.sin(t * 2 + k) * 0.1; R.linea(42 + m, 62, Math.round(42 + m + Math.cos(an) * 14), Math.round(62 + Math.sin(an) * 9 + 4), hex('#2a7a3a')); } }
+  { const bx = 8 + ((t * 7) % 60); R.pset(Math.round(bx), 40, K); R.pset(Math.round(bx) + 1, 39, K); R.pset(Math.round(bx) - 1, 39, K); }
+  for (const x of [8, 34, 60]) R.rect(x - 1, 24, x, 110, hex('#5a3418'));
+  R.recorte(null);
+  // el humo del café de la mesita
+  for (let k = 0; k < 5; k++) { const u = (t * 0.6 + k / 5) % 1; R.pset(Math.round(42 + Math.sin(u * 6 + k) * 2), Math.round(140 - u * 18), u < 0.5 ? hex('#f0ece4') : hex('#c8c0b4')); }
+  // los años en cifras y las columnas de cartuchos, una por año, que crecen
+  for (let k = 0; k < 6; k++) {
+    if (k === 0 || k === 5) R.numero(String(ANOS[k]), colX(k) + 5, 145, { centro: true, color: hex('#3a3a44'), sombra: false });
+    const t0 = P6 + 0.25 + k * 0.32; if (t < t0) continue; const n = Math.ceil(ALTO[k] * tramo(t, t0, t0 + 0.3));
+    for (let i = 0; i < n; i++) miniCart(colX(k), 130 - i * 6, CC[(i + k) % 6]);
+  }
+  // la línea verde que une las cimas, de 1977 a 1982, y la flecha en «history»
+  const u = tramo(t, P6 + 2.3, HIST - 0.1), L = u * 5, n = Math.floor(L);
+  const pt = (k) => [colX(k) + 5, colTop(k) - 3];
+  for (let k = 0; k < Math.min(n, 5); k++) { const [x0, y0] = pt(k), [x1, y1] = pt(k + 1); for (let d = 0; d < 2; d++) R.linea(x0, y0 + d, x1, y1 + d, hex('#2a9a3a')); }
+  if (n < 5 && u > 0) { const [x0, y0] = pt(n), [x1, y1] = pt(n + 1), f = L - n, mx = Math.round(x0 + (x1 - x0) * f), my = Math.round(y0 + (y1 - y0) * f); for (let d = 0; d < 2; d++) R.linea(x0, y0 + d, mx, my + d, hex('#2a9a3a')); R.disco(mx, my, 1, hex('#3ac85a')); }
+  const fl = tramo(t, HIST - 0.15, HIST + 0.2);
+  if (fl > 0) { const [ax, ay0] = pt(5), ay = ay0 - 3 - Math.round(Math.abs(Math.sin(t * 6)) * 2);
+    R.poligono([[ax - 7, ay + 2], [ax, ay - 7], [ax + 7, ay + 2]], K); R.poligono([[ax - 5, ay + 1], [ax, ay - 5], [ax + 5, ay + 1]], hex('#3ac85a')); }
+  // el directivo presenta junto al caballete: señala las columnas y celebra en «history»
+  const fiesta = t > HIST - 0.1;
+  R.actor(EL.ejecutivoWarner, 226, 172, t, { dir: -1, dedo: !fiesta && t > P6 + 0.4, brazos: fiesta && Math.floor(t * 5) % 2 === 0, sonrisa: t > P6 + 1.6, habla: !fiesta && t > P6 + 0.6 && Math.sin(t * 7) > 0.3 });
+  // los dos de Atari que miran: se sorprenden y aplauden
+  R.actor(EL.ejecutivoAtari2, 66, 176, t, { dir: 1, sorpresa: t > P6 + 1.7 && t < P6 + 2.6, brazos: fiesta && Math.floor(t * 6) % 2 === 1, sonrisa: t > P6 + 2.6 });
+  R.actor(EL.ejecutivoAtari, 84, 178, t, { dir: 1, habla: t < P6 + 1.5 && Math.sin(t * 6) > 0.4, brazos: fiesta && Math.floor(t * 6) % 2 === 0, sonrisa: t > P6 + 1.2 });
+};
+
+const año = (t) => (t < P3 ? 1972 : t < P4 ? 1976 : t < P6 ? 1977 : Math.round(lerp(1977, 1982, tramo(t, P6 + 0.25, P6 + 2.0))));
+const efectos = [[2.4, 'bip'], [3.2, 'bip'], [GOL, 'publico'], [DOS, 'bip'], [BOLA, 'bip'], [FILM, 'brillo'], [FIRMA, 'firma'], [P4 + 0.4, 'puerta'], [CONSOLA, 'interruptor'], [CARTUCHO, 'golpecito'], [CARTUCHO + 1.4, 'pop'], [P6 + 1.0, 'pop'], [HIST, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { cartela: '1972', efectos, año });
+</script>
+</body>
+</html>

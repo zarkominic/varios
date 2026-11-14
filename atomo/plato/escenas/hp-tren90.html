@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El tren de 1990 · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-TREN90 (frase 28), 1990, cartela «1990». Tres planos:
+// 1. (0 → «Rowling», 6 s) el vagón de 1990 parado en el campo: el revisor entra por la izquierda, mira su reloj de bolsillo,
+//    niega con la cabeza y se encoge de hombros (el tren no anda); por la derecha llega la escritora con su bolsa por el
+//    pasillo, la deja en el suelo al decir «woman» y señala la ventanilla, sonriendo. Los dos pasajeros de fondo van
+//    sentados en sus asientos, delante del antepecho (el decorado los pintaba dentro del cristal: aquí se borran de ahí,
+//    reponiendo el fondo fijo, y se pintan de nuevo recortados por encima del cojín): un señor de gafas lee el periódico
+//    junto al respaldo del centro y pasa la hoja; una señora dormita al fondo, da una cabezada y se despierta del susto
+//    cuando la bolsa cae al suelo con «woman».
+// 2. (→ «with», 6,8 s) la ventanilla de cerca: una lechuza cruza el campo por fuera (gag 8) y ella se sorprende y la
+//    sigue con la cabeza (mira a la derecha mientras llega y se vuelve cuando pasa); con «delayed» el reloj del vagón da
+//    cuatro vueltas y, con el «+4», da un respingo y suspira; con «And looking out the window» camina hasta debajo de la
+//    ventana (x≈150), se vuelve al prado y lo señala con el dedo; luego le salen las burbujas de un pensamiento y, dentro
+//    del cristal, un globo con un niño con gafas, que crece hasta llenar la pantalla.
+// 3. (→ fin, 3,8 s) del globo sale, con el fundido, la ventana del número 4 de Privet Drive de día; la sombra de una nube
+//    cruza la fachada y las nubes pasan reflejadas por el cristal de las hojas abiertas; la brisa mete las cortinas, un gato
+//    atigrado sube por el alféizar y se sienta; una mariposa de col lo ronda, él le da un salto (maúlla) y ella huye a
+//    posarse en la caja de la alarma, de donde la espanta la lechuza; tres gorriones picotean en el tejadillo; con
+//    «boy» el niño de las gafas se asoma, mira a un lado y a otro («?») y, con «wizard», una lechuza pasa por delante de
+//    la casa (el gato se encoge, los gorriones salen volando) y suelta una carta con lacre que cae dando vueltas al
+//    alféizar; él la coge, sorprendido, y la levanta sonriendo, con destellos.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-tren90');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P = T.PIEZAS_HP;
+const K = hex('#141018');
+// lo que pinta una pieza de PIEZAS_HP (con R.rect) queda dentro de box = [x0, y0, x1, y1]
+const enRecorte = (box, f) => {
+  const r0 = R.rect;
+  R.rect = (a, b, c, d, col) => { const x0 = Math.max(Math.min(a, c), box[0]), y0 = Math.max(Math.min(b, d), box[1]), x1 = Math.min(Math.max(a, c), box[2]), y1 = Math.min(Math.max(b, d), box[3]); if (x0 <= x1 && y0 <= y1) r0(x0, y0, x1, y1, col); };
+  try { f(); } finally { R.rect = r0; }
+};
+// una placa oscura con filo dorado y la cifra grande encima (que se lea a 640 px)
+const placa = (txt, x, base, tam = 16, pop = 1) => {
+  const w = String(txt).length * (tam >= 16 ? 16 : 8), x0 = Math.round(x - w / 2 - 5), x1 = Math.round(x + w / 2 + 4), y0 = base - (tam >= 16 ? 21 : 12), y1 = base + 4;
+  const ORO = hex('#e8b830'), FONDO = hex('#1c1630');
+  R.rect(x0 + 2, y0 + 2, x1 + 2, y1 + 2, hex('#06040c'));
+  R.rect(x0, y0, x1, y1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, ORO); R.rect(x0 + 2, y0 + 2, x1 - 2, y1 - 2, FONDO);
+  for (let xx = x0 + 3; xx < x1 - 2; xx += 2) R.pset(xx, y0 + 3, hex('#2a2446'));
+  R.pset(x0 + 1, y0 + 1, hex('#fff4c0')); R.pset(x1 - 1, y0 + 1, hex('#fff4c0'));
+  R.numero(String(txt), x, base - (pop < 1 ? Math.round((1 - pop) * 4) : 0), { tam, centro: true });
+};
+
+const P2 = en('tren', .328), P3 = en('tren', .82);
+const mujer = en('tren', .202), retraso = en('tren', .558), horas = en('tren', .635), mira = en('tren', .718), chico = en('tren', .851), sabe = en('tren', .896), mago = en('tren', .961);
+const BOLSA = hex('#7a3a2a'), BOLSAL = hex('#a85a3a'), ASA = hex('#3a2418'), ORO = hex('#e8b830');
+const bolsa = (x, yb) => {   // la bolsa de viaje de tela (x = centro, yb = abajo)
+  R.rect(x - 6, yb - 9, x + 6, yb, K); R.rect(x - 5, yb - 8, x + 5, yb - 1, BOLSA); R.rect(x - 5, yb - 8, x + 5, yb - 7, BOLSAL);
+  for (let i = -4; i <= 4; i += 3) R.pset(x + i, yb - 4, BOLSAL); R.rect(x - 1, yb - 7, x + 1, yb - 6, ORO);
+  R.linea(x - 3, yb - 9, x - 2, yb - 12, ASA); R.linea(x - 2, yb - 12, x + 2, yb - 12, ASA); R.linea(x + 2, yb - 12, x + 3, yb - 9, ASA);
+};
+// dibuja f() solo dentro de box (R.recorte para pset/linea/poligono/disco y R.rect recortado a mano)
+const recortado = (box, f) => { R.recorte(box); try { enRecorte(box, f); } finally { R.recorte(null); } };
+// los pasajeros de fondo del decorado van dentro del cristal: se borran reponiendo, en sus cajas, el fondo fijo del vagón
+const CAJAS_PASAJEROS = [[36, 109, 55, 126], [274, 109, 288, 127]];
+const sinPasajerosDelDecorado = (dibuja) => {
+  let capa = null; const c0 = R.copiar;
+  R.copiar = (b) => { if (!capa) capa = b; c0(b); };
+  let g; try { g = dibuja(); } finally { R.copiar = c0; }
+  if (capa) { const B = R.buf; for (const [x0, y0, x1, y1] of CAJAS_PASAJEROS) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) B[y * 320 + x] = capa[y * 320 + x]; }
+  return g;
+};
+const PAPEL = hex('#ece8dc'), PAPELS = hex('#c8c4b8'), TINTA = hex('#8a8a94');
+const p1 = (t) => {
+  const g = sinPasajerosDelDecorado(() => T.real(R, t, { encuadre: 'tren' }));
+  // los pasajeros, sentados: asoman por encima del cojín (lo de abajo queda tapado por el asiento), delante del antepecho
+  const SENTADO = [0, 0, 319, 141];
+  // el señor de gafas, de espaldas al respaldo del centro, lee el periódico abierto sobre la mesita y pasa la hoja
+  const pasa = (t % 2.6) > 2.15, hojaU = pasa ? ((t % 2.6) - 2.15) / 0.45 : 0;
+  recortado(SENTADO, () => {
+    const lec = R.actor(EL.caballero, 94, 148, t, { dir: -1, quieto: true, sostiene: [84, 131] });
+    const [mx, my] = lec.mano, px0 = mx - 9, py0 = my - 7;
+    R.rect(px0 - 1, py0 - 1, mx + 1, my + 4, K); R.rect(px0, py0, mx, my + 3, PAPEL); R.rect(mx, py0, mx, my + 3, PAPELS);
+    for (let j = py0 + 2; j < my + 3; j += 2) R.rect(px0 + 2, j, mx - 2, j, (j % 4) ? TINTA : hex('#6a6a78'));
+    R.rect(px0 + 2, py0 + 2, px0 + 4, py0 + 4, hex('#7a7a86'));
+    if (pasa) { const w = Math.round(Math.sin(Math.PI * hojaU) * 6); R.poligono([[mx, py0], [mx - w, py0 - 2], [mx - w, my + 1], [mx, my + 3]], hex('#f8f4ea')); R.linea(mx, py0, mx, my + 3, PAPELS); }
+    R.pset(mx, my, hex('#f0c8a0'));
+  });
+  // la señora del fondo dormita (da una cabezada de vez en cuando) y se despierta del susto cuando cae la bolsa
+  const susto = t > mujer + 0.05 && t < mujer + 0.9, cabezada = !susto && Math.sin(t * 1.3) > 0.6 ? 1 : 0;
+  recortado(SENTADO, () => {
+    R.actor(EL.abuela, 246, 148 + cabezada, t, { dir: 1, quieto: !susto, pal: { C: '#8a4a6a', c: '#6a3450' }, triste: !susto, sorpresa: susto });
+  });
+  if (susto && Math.floor(t * 10) % 2) for (const [dx, dy] of [[-8, -26], [9, -27], [0, -30]]) R.pset(246 + dx, 148 + dy, hex('#fff4c0'));
+  // el revisor: entra, mira el reloj, niega y se encoge de hombros
+  const ur = tramo(t, 0.3, 2.5), xr = Math.round(lerp(-22, 56, ur)), reloj = t > 2.7 && t < 4.9, niega = t > 3.9 && t < 4.8, hombros = t > 5.1 && t < 6.0;
+  const r = R.actor(EL.cartero, xr, g.suelo, t, { dir: niega && Math.floor(t * 6) % 2 ? -1 : 1, anda: ur > 0 && ur < 1, sostiene: reloj ? [xr + 17, g.suelo - 15] : undefined, brazos: hombros, triste: t > 3.9 });
+  if (reloj) { const [mx, my] = r.mano; R.disco(mx + 1, my - 3, 3, K); R.disco(mx + 1, my - 3, 2, hex('#f4ecd0')); R.pset(mx + 1, my - 4, K); R.pset(mx + 2, my - 3, K); R.pset(mx + 1, my - 7, ORO); }
+  // la escritora: llega por el pasillo con la bolsa, la deja y señala la ventanilla
+  const ue = tramo(t, 0.8, mujer - 0.1), xe = Math.round(lerp(336, 146, ue)), anda = ue > 0 && ue < 1, deja = t > mujer;
+  if (deja) bolsa(168, g.suelo);
+  const e = R.actor(EL.escritora, xe, g.suelo, t, { dir: deja ? 1 : -1, anda, sostiene: !deja ? true : undefined, dedo: t > mujer + 0.7, sonrisa: t > mujer + 0.3 });
+  if (!deja) bolsa(e.mano[0], e.mano[1] + 9);
+  T.realDelante(R, t, { encuadre: 'tren' });
+};
+// el reloj del vagón (sobre la ventanilla): de «delayed» a «hours» la aguja larga da cuatro vueltas y sale «+4»
+const reloj = (t, x, y) => {
+  const v = tramo(t, retraso, horas + 0.2), min = -Math.PI / 2 + (t - P2) * 0.05 + v * 8 * Math.PI, hor = -Math.PI / 2 + 1.1 + v * (Math.PI * 2 / 3);
+  R.disco(x + 1, y + 2, 11, hex('#3a2a20')); R.disco(x, y, 11, K); R.disco(x, y, 10, hex('#b88a3a')); R.disco(x, y, 8, hex('#f4ecd0'));
+  for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; R.pset(Math.round(x + Math.cos(a) * 7), Math.round(y + Math.sin(a) * 7), k % 3 ? hex('#8a7a6a') : K); }
+  R.linea(x, y, Math.round(x + Math.cos(hor) * 4), Math.round(y + Math.sin(hor) * 4), K);
+  R.linea(x, y, Math.round(x + Math.cos(min) * 7), Math.round(y + Math.sin(min) * 7), hex('#a8202a'));
+  R.pset(x, y, ORO);
+  if (v > 0 && v < 1 && Math.floor(t * 10) % 2) for (const [dx, dy] of [[-13, -3], [13, -3], [-12, 4], [12, 4]]) R.pset(x + dx, y + dy, hex('#fff4c0'));
+};
+// el globo del pensamiento: burbujas que suben de la cabeza y la nube con el niño dentro
+const nubeGlobo = (cx, cy, r, t) => {
+  const bolas = [[0, 0, 1], [-0.62, 0.18, 0.62], [0.62, 0.18, 0.62], [-0.32, -0.42, 0.66], [0.34, -0.4, 0.64], [0, 0.5, 0.6]];
+  for (const [dx, dy, s] of bolas) R.disco(Math.round(cx + dx * r), Math.round(cy + dy * r), Math.round(s * r * 0.62) + 1, K);
+  for (const [dx, dy, s] of bolas) R.disco(Math.round(cx + dx * r), Math.round(cy + dy * r), Math.round(s * r * 0.62), hex('#f4f0e2'));
+  for (const [dx, dy, s] of bolas) R.disco(Math.round(cx + dx * r - 1), Math.round(cy + dy * r - 2), Math.round(s * r * 0.4), hex('#fffcf2'));
+};
+const p2 = (t) => {
+  const g = T.real(R, t, { encuadre: 'tren', camara: 'ventanilla' }), V = g.ventana;
+  // la lechuza que cruza el campo por fuera (gag 8), recortada al cristal
+  const uo = tramo(t, P2 + 0.9, P2 + 2.4);
+  if (uo > 0 && uo < 1) enRecorte([V[0] + 3, V[1] + 3, V[2] - 3, V[3] - 3], () => P.lechuza(R, Math.round(lerp(V[2] + 14, V[0] - 14, uo)), Math.round(70 + Math.sin(uo * 10) * 4), { vuela: true, t, dir: -1 }));
+  reloj(t, 244, 17);
+  if (t > horas) placa('+4', 213, 26, 8, tramo(t, horas, horas + 0.25));
+  // la escritora: sigue a la lechuza con la cabeza (a la derecha mientras llega, a la izquierda cuando ha pasado su
+  // cabeza), da un respingo con el «+4» y suspira; con «And looking out the window» va hasta debajo de la ventana y
+  // señala el prado con el dedo
+  const xo = lerp(V[2] + 14, V[0] - 14, uo), ua = tramo(t, mira - 0.6, mira + 0.1), x = Math.round(lerp(92, 150, ua * ua * (3 - 2 * ua)));
+  const sigueIzq = uo > 0 && xo < x - 4 && t < retraso, respingo = Math.sin(Math.PI * tramo(t, horas, horas + 0.3));
+  const sorpresa = (uo > 0.05 && uo < 0.4) || (t > retraso && t < retraso + 0.5) || (t > horas && t < horas + 0.7);
+  const triste = t > horas + 0.7 && t < mira - 0.6, señala = t > mira + 0.1 && t < mira + 0.75;
+  R.actor(EL.escritora, x, g.suelo - Math.round(respingo * 3), t, { dir: sigueIzq ? -1 : 1, anda: ua > 0 && ua < 1, sorpresa, triste, sonrisa: (uo > 0.4 && uo < 1) || t > mira + 0.1, dedo: señala });
+  if (t > horas && t < horas + 0.7) R.bocadillo(x + 10, g.suelo - 34, { icono: '!' });
+  // el suspiro: una nubecilla que sale de la boca y se deshace
+  const us = tramo(t, horas + 0.8, horas + 1.5);
+  if (us > 0 && us < 1) { const sx = x + 6 + Math.round(us * 8), sy = g.suelo - 20 - Math.round(us * 6), sr = 1 + Math.round(us * 2); if (us < 0.8) { R.disco(sx, sy, sr + 1, hex('#c8c4bc')); R.disco(sx, sy, sr, hex('#f4f0e2')); } else R.pset(sx, sy, hex('#f4f0e2')); }
+  // las burbujas del pensamiento (suben de la cabeza en zigzag) y el globo con el niño de las gafas, dentro del cristal
+  const b0 = mira + 0.45;
+  [[x - 3, 129, 2], [x + 3, 117, 3], [x - 1, 104, 4]].forEach(([bx, by, br], k) => { const u = tramo(t, b0 + k * 0.1, b0 + k * 0.1 + 0.1); if (u > 0) { R.disco(bx, by, Math.round(br * u) + 1, K); R.disco(bx, by, Math.round(br * u), hex('#f4f0e2')); } });
+  const ug = tramo(t, b0 + 0.3, b0 + 0.48), ux = tramo(t, P3 - 0.34, P3 - 0.04);
+  if (ug > 0) {
+    if (ux > 0) llena(ux);
+    else nubeGlobo(150, 70, 24 * ug, t);
+    if (ug > 0.8) R.actor(EL.harryCalle, 143, 84, t, { sonrisa: true, quieto: true });
+  }
+};
+// al final del plano 2 el globo crece hasta llenar la pantalla (y el plano 3 sale de él con el fundido)
+const llena = (a) => {
+  const e = a * a * (3 - 2 * a), rr = lerp(26, 260, e), CR = hex('#f4f0e2'), CRS = hex('#e8e0cc');
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const dx = x - 150, dy = (y - 70) * 1.2, ang = Math.atan2(dy, dx), r = rr * (1 + 0.08 * Math.sin(ang * 7 + 0.6));
+    const d = Math.hypot(dx, dy);
+    if (d < r - 2) R.pset(x, y, ((x * 3 + y * 5) % 17) === 0 && d > r - 12 ? CRS : CR); else if (d < r) R.pset(x, y, K);
+  }
+};
+// los gorriones del tejadillo de plomo: picotean y, cuando pasa la lechuza, salen volando
+const gorrion = (x, y, t, k, vuela) => {
+  const MAR = hex('#8a5a32'), MARL = hex('#b8885a'), CAB = hex('#4a3020');
+  x = Math.round(x); y = Math.round(y);
+  if (vuela) { const a = Math.sin(t * 30 + k) > 0; R.rect(x - 2, y - 2, x + 2, y, K); R.rect(x - 1, y - 2, x + 1, y - 1, MAR); R.linea(x - 4, a ? y - 4 : y, x - 1, y - 2, MAR); R.linea(x + 1, y - 2, x + 4, a ? y - 4 : y, MAR); R.pset(x, y - 3, CAB); return; }
+  const pica = Math.sin(t * 5 + k * 2.3) > 0.55, d = k % 2 ? -1 : 1;
+  R.rect(x - 3, y - 4, x + 2, y - 1, K); R.rect(x - 2, y - 3, x + 1, y - 2, MAR); R.pset(x - 2, y - 3, MARL);
+  R.rect(x - 4 * d, y - 4, x - 3 * d, y - 3, MAR);                                   // la cola
+  const hx = x + 2 * d, hy = pica ? y - 2 : y - 5;
+  R.rect(hx - 1, hy - 1, hx + 1, hy + 1, K); R.pset(hx, hy, CAB); R.pset(hx + 2 * d, hy, hex('#e8b830'));
+  R.pset(x - 1, y, K); R.pset(x + 1, y, K);
+};
+// mezcla dos colores (a = cuánto del segundo)
+const mez = (c, d, a) => { const ch = (k) => Math.round(((c >>> k) & 255) * (1 - a) + ((d >>> k) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+// la sombra de una nube que cruza la fachada despacio (borde tramado); no entra en el cuarto
+const sombraNube = (t) => {
+  const B = R.buf, OS = hex('#241a2a');
+  for (let y = 13; y < 152; y++) { const oy = Math.sin(y * 0.031) * 0.9; for (let x = 0; x < 320; x++) {
+    if (x >= 102 && x <= 218 && y >= 38 && y <= 128) continue;
+    const s = 0.5 + 0.5 * Math.sin(x * 0.017 - t * 0.5 + oy), e = (s - 0.7) / 0.12;
+    if (e > BAYER[(y & 3) * 4 + (x & 3)] / 16) B[y * 320 + x] = mez(B[y * 320 + x], OS, 0.16); } }
+};
+// el reflejo de las nubes que pasan por el cristal de las dos hojas abiertas (mismo escorzo que el decorado)
+const reflejos = (t) => {
+  const BL = hex('#f2f8ff');
+  for (const [xa, xb, k] of [[98, 66, 0], [222, 254, 1]]) for (let x = Math.min(xa, xb) + 2; x <= Math.max(xa, xb) - 2; x++) {
+    const u = Math.abs(x - xa) / 32, y0 = Math.round(36 - u * 6) + 3, y1 = Math.round(127 + u * 6) - 3, ym = (y0 + y1) / 2;
+    for (let y = y0; y <= y1; y++) { if (Math.abs(y - ym) < 2) continue;
+      let a = 0;
+      for (let n = 0; n < 2; n++) { const cy = 24 + ((t * (8 + n * 3) + n * 61 + k * 29) % 130), cx = (xa + xb) / 2 + (n ? 4 : -4), d = Math.hypot((x - cx) / 8, (y - cy) / 6); if (d < 1) a = Math.max(a, d < 0.55 ? 0.38 : (1 - d) * 0.8); }
+      if (a > 0.06) { const p = R.pget(x, y); if (p) R.pset(x, y, mez(p, BL, a)); } } }
+};
+// una mariposa blanca de col (x, y el cuerpo); posada abre y cierra despacio
+const mariposa = (x, y, t, posada) => {
+  x = Math.round(x); y = Math.round(y);
+  const ab = posada ? Math.sin(t * 3) > 0.3 : Math.sin(t * 24) > 0, AL = hex('#fbf8ee'), ALS = hex('#d8d4c4');
+  if (ab) { for (const d of [-1, 1]) { R.rect(x + d, y - 2, x + 3 * d, y, AL); R.pset(x + 3 * d, y - 2, K); R.pset(x + 2 * d, y + 1, ALS); R.pset(x + 2 * d, y - 1, hex('#e8c040')); } }
+  else { R.rect(x - 1, y - 4, x + 1, y - 1, AL); R.pset(x, y - 4, K); R.pset(x - 1, y - 1, ALS); }
+  R.rect(x, y - 1, x, y + 1, K); R.pset(x - 1, y - 3, K); R.pset(x + 1, y - 3, K);
+};
+const p3 = (t) => {
+  const o = { encuadre: 'calle', camara: 'ventana', luz: 'dia' }, g = T.muggle(R, t, o), H = g.ventana;
+  sombraNube(t); reflejos(t);
+  const sube = tramo(t, chico - 0.3, chico + 0.15), suelo = Math.round(lerp(g.suelo + 28, g.suelo, sube));
+  const uo = tramo(t, mago - 0.25, mago + 0.9);
+  // la carta: la lechuza la suelta sobre la fachada, cae dando vueltas al alféizar y él la coge
+  const T_SUELTA = mago + 0.3, T_CAE = T_SUELTA + 0.4, T_COGE = T_CAE + 0.2, T_ALZA = T_COGE + 0.45;
+  const busca = t > sabe - 0.2 && t < mago - 0.1, dir = busca ? (Math.floor((t - sabe) * 2.6) % 2 ? -1 : 1) : uo > 0 && uo < 0.45 ? 1 : -1;
+  // la brisa mete hacia dentro el bajo de las cortinas (dentro del hueco)
+  R.recorte([H[0], H[1], H[2], H[3]]);
+  for (const [a, b, s] of [[104, 112, 1], [208, 216, -1]]) for (let y = 87; y <= 120; y++) {
+    const dx = Math.round((0.5 + 0.5 * Math.sin(t * 2.3 + y * 0.09 + (s > 0 ? 0 : 1.7))) * 3 * (y - 86) / 34);
+    const x0 = s > 0 ? a : a - dx, x1 = s > 0 ? b + dx : b;
+    for (let x = x0; x <= x1; x++) { const pl = ((s > 0 ? x - a : b - x) % 3 + 3) % 3; R.pset(x, y, pl === 0 ? hex('#7a2a3a') : pl === 1 ? hex('#a83a4a') : hex('#c85a64')); }
+    R.pset(s > 0 ? x1 + 1 : x0 - 1, y, hex('#5a1a2a'));
+  }
+  // el niño está dentro del cuarto: lo que baja del alféizar no se ve
+  const coge = t > T_COGE, alza = tramo(t, T_ALZA, T_ALZA + 0.3);
+  const mano = coge ? [Math.round(lerp(168, 164, alza)), Math.round(lerp(120, 108, alza))] : undefined;
+  const hr = R.actor(EL.harryCalle, 153, suelo, t, { dir: coge ? 1 : dir, sorpresa: (uo > 0.05 && t < T_COGE) || (t > T_COGE && t < T_ALZA), sonrisa: t > T_ALZA || t < sabe - 0.2, sostiene: mano });
+  R.recorte(null);
+  T.muggleDelante(R, t, o);
+  if (busca && t > sabe) R.bocadillo(176, 54, { icono: '?' });
+  // el gato atigrado del barrio sube por el alféizar, se sienta y se encoge cuando pasa la lechuza
+  const ug = tramo(t, P3 + 0.05, P3 + 1.1), gx = Math.round(lerp(94, 120, ug)), anda = ug > 0 && ug < 1;
+  const asusta = tramo(t, mago + 0.05, mago + 0.3) - tramo(t, mago + 0.6, mago + 1.0);
+  // una mariposa de col entra revoloteando, ronda al gato (que le da un salto y maúlla), huye a posarse en la caja de la
+  // alarma y, cuando pasa la lechuza, sale volando por la derecha
+  const M1 = P3 + 1.1, M2 = P3 + 1.85, M3 = mago + 0.05;
+  let mx, my, mvis = t < M3 + 1.3, posada = false;
+  if (t < M1) { const u = tramo(t, P3, M1); mx = lerp(6, 112, u) + Math.sin(t * 5) * 5; my = lerp(52, 104, u) + Math.sin(t * 7.3) * 6; }
+  else if (t < M2) { const u = tramo(t, M1, M2), e = u * u * (3 - 2 * u); mx = lerp(112, 268, e) + Math.sin(t * 6) * 3 * (1 - u); my = lerp(104, 54, e) - Math.sin(Math.PI * u) * 22 + Math.sin(t * 8) * 3 * (1 - u); }
+  else if (t < M3) { mx = 268; my = 54; posada = true; }
+  else { const u = tramo(t, M3, M3 + 1.3); mx = lerp(268, 334, u) + Math.sin(t * 6) * 4; my = lerp(54, 104, u) + Math.sin(t * 9) * 5; }
+  const salto = Math.sin(Math.PI * tramo(t, P3 + 1.15, P3 + 1.5));
+  // sentado sigue a la mariposa con la cabeza; cuando pasa la lechuza la sigue a ella
+  const gdir = uo > 0.55 ? -1 : uo > 0 ? 1 : anda ? 1 : mvis && mx < gx - 2 ? -1 : 1;
+  P.gato(R, gx, 128 - (anda && Math.floor(t * 8) % 2 ? 1 : 0) - Math.round(Math.sin(Math.PI * asusta) * 4) - Math.round(salto * 6), { dir: gdir });
+  if (mvis) mariposa(mx, my, t, posada);
+  // los gorriones del tejadillo
+  const vuelo = tramo(t, mago + 0.1, mago + 1.3);
+  [[78, 0], [244, 1], [214, 2]].forEach(([x0, k]) => {
+    if (vuelo <= 0) { const salta = Math.floor(t * 1.7 + k) % 3 === 0 ? Math.round(Math.abs(Math.sin(t * 9 + k)) * 2) : 0; gorrion(x0 + Math.round(Math.sin(t * 0.8 + k * 2) * 4), 152 - salta, t, k, false); }
+    else if (vuelo < 1) { const d = k ? 1 : -1; gorrion(x0 + d * vuelo * 120, 152 - vuelo * 70 - Math.sin(vuelo * 9) * 3, t, k, true); }
+  });
+  // la lechuza pasa por delante de la fachada
+  if (uo > 0 && uo < 1) P.lechuza(R, Math.round(lerp(338, -18, uo)), Math.round(lerp(58, 74, uo) + Math.sin(uo * 12) * 3), { vuela: true, t, dir: -1 });
+  // la carta (sin letras: el sobre de pergamino con su lacre)
+  if (t > T_SUELTA && !coge) { const u = tramo(t, T_SUELTA, T_CAE), e = u * u;
+    const cx = Math.round(lerp(176, 172, u) + Math.sin(u * 11) * 4 * (1 - u)), cy = Math.round(lerp(72, 128, e));
+    P.carta(R, cx, cy, {}); }
+  if (coge) { P.carta(R, hr.mano[0] + 1, hr.mano[1] + 2, {}); if (alza > 0.9) for (let k = 0; k < 5; k++) { const a = k * 1.25 + t * 4, rr = 9 + 2 * Math.sin(t * 8 + k); if (Math.sin(t * 13 + k * 2) > -0.2) R.pset(Math.round(hr.mano[0] + 1 + Math.cos(a) * rr), Math.round(hr.mano[1] - 2 + Math.sin(a) * rr), hex('#fff4c0')); } }
+  if (sube > 0.9 && t < chico + 0.9) for (let k = 0; k < 6; k++) { const a = k * 1.05 + t * 3, rr = 16 + 3 * Math.sin(t * 9 + k); if (Math.sin(t * 14 + k * 2) > 0) R.pset(Math.round(160 + Math.cos(a) * rr), Math.round(suelo - 16 + Math.sin(a) * rr), hex('#fff4c0')); }
+};
+const efectos = [[mujer + 0.05, 'golpecito'], [P2 + 1.2, 'whoosh'], [retraso + 0.05, 'tic'], [horas + 0.05, 'campana'], [mira + 0.5, 'pop'], [chico, 'brillo'], [P3 + 1.3, 'miau'], [mago, 'whoosh'], [mago + 0.72, 'papel']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { cartela: '1990', efectos, año: 1990 });
+</script>
+</body>
+</html>

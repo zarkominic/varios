@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep20 Short 3</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-SHORT3-MINIATURA · miniatura vertical del Short 3 del ep20 (el final que ya se contó: la cúpula de la arena con el campo de fuerza que devuelve la piedra, arriba, y Snow con su rosa blanca, abajo). Todo lo que cuenta va en la columna central
+// x 110–210 (lo que queda en 9:16). Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_JH as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const capa = R.nuevo(), VACIO = 0x01020304;
+const doble = (pinta, sx0, sx1, sy0, sy1, dx, dy) => { const prev = R.usar(capa); capa.fill(VACIO); pinta(); R.usar(prev);
+  for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = capa[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * 2, dy + (y - sy0) * 2, dx + (x - sx0) * 2 + 1, dy + (y - sy0) * 2 + 1, c); } };
+const dibujar = (t) => {
+  const a = R.nuevo(), b = R.nuevo(), prev = R.usar(a); T.arena(R, t, { encuadre: 'cupula' }); R.usar(b); T.capitolio(R, t, { encuadre: 'despacho', luz: 'noche' }); R.usar(prev);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.buf[y * 320 + x] = y < 96 ? a[y * 320 + x] : b[y * 320 + x];
+  // el campo de fuerza dentro de la columna: un arco que brilla en ondas donde la piedra choca y rebota
+  const cx = 160, cy = 150, r = 112, gy = cy - r;
+  for (let a = -0.62; a <= 0.62; a += 0.004) { const x = Math.round(cx + Math.sin(a) * r), y = Math.round(cy - Math.cos(a) * r); if (y < 96) { R.pset(x, y, hex('#e8fbff')); R.pset(x, y + 1, hex('#8ad8ff')); if (Math.abs(a) < 0.35) R.pset(x, y - 1, hex('#5ab0e8')); } }
+  for (let k = 1; k <= 4; k++) R.anillo(cx, gy + 2, 6 + k * 7, k % 2 ? hex('#e8fbff') : hex('#8ad8ff'), 2);
+  R.halo(cx, gy + 2, 26, [hex('#8ad8ff'), hex('#e8fbff')], 0.9);
+  // la piedra que rebota, con su estela
+  for (let k = 0; k < 10; k++) R.pset(cx + 8 + k * 2, gy + 10 + Math.round(k * k * 0.25), k % 2 ? hex('#c8d0e0') : hex('#8a90a0'));
+  R.disco(cx + 6, gy + 8, 3.5, T.C.k); R.disco(cx + 6, gy + 8, 2.6, hex('#8a8494')); R.pset(cx + 5, gy + 7, hex('#d8d4dc'));
+  R.rect(100, 95, 220, 96, T.C.k); R.rect(100, 97, 220, 97, hex('#f6f2ea'));
+  doble(() => R.actor(EL.snow, 40, 80, 0.5, { dir: 1, quieto: true }), 24, 62, 44, 81, 120, 104);
+  PZ.rosaBlanca(R, 196, 172, { s: 3 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

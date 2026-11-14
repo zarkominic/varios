@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las preguntas · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-PREGUNTA (frase 4): las tres preguntas del vídeo, cada una con su imagen. Tres planos de 4 s:
+// 1. el ojo desde lo alto, de cerca (corta desde el ojo por dentro del gancho): el pozo de nubes que gira y, en el
+//    fondo, el campo de Texas con su vida: un tren de vapor corre por la vía echando bocanadas de humo, frena y se para
+//    en la estación del pueblo (resopla al llegar), y una camioneta levanta polvo por un camino de tierra. La AT-6, con
+//    los dos pilotos en la cabina, da vueltas dentro con su sombra en los campos y dos gaviotas detrás; en «violent» la
+//    pared se enciende con un relámpago doble y la avioneta da un bandazo; en «quiet center» sale la «?» dorada en el
+//    centro del ojo; la cámara baja hacia el ojo y en «where» empieza a subir;
+// 2. (corta en «does it get») el huracán entero sobre el mar, que gira y se aleja un poco: por el mar de la izquierda
+//    huye un convoy de tres mercantes con sus estelas; por el borde izquierdo entra la AT-6 diminuta sobre el agua, con su
+//    sombra, y deja detrás su ruta de puntos dorados; en «power» relampaguea en cuatro sitios y sale una «?» grande sobre
+//    el mar, y el mar se calienta: chispas naranjas que titilan y cintas de calor que entran en espiral hacia el núcleo
+//    (la respuesta que viene); en «flying into one» la avioneta se mete bajo las nubes (se ve como una sombra dentro
+//    de ellas, con la ruta por encima) y en «just» asoma dentro del ojo, dando vueltas;
+// 3. (corta en «see if we could») la órbita de hoy: la barra del año corre de 1943 a 2026 mientras entra el satélite
+//    moderno (cuerpo de papel dorado, antena y mástil), frena con dos chorros de sus propulsores y despliega el ala de
+//    paneles panel a panel; en «seeing» su cámara destella, el haz barre y el visor enmarca el huracán; en «coming days
+//    in advance» se dibuja el cono del pronóstico con sus días (1 a 5) hasta la costa de Florida, donde late el aviso;
+//    detrás titilan las estrellas y cruza una estrella fugaz por encima del borde de la Tierra.
+import * as T from '/atomo/plato/escenas/hu-comun.js';
+const { E, R, M } = await T.preparar('hu-pregunta');
+const { lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C, K = C.k, TAU = Math.PI * 2;
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const suave = (u) => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+const entre = (t, a0, a1) => t >= a0 && t < a1;
+const parp = (t, v = 6) => Math.sin(t * v) > 0;
+const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const umbral = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const rgb = (c) => [c & 255, (c >>> 8) & 255, (c >>> 16) & 255];
+const mezcla = (a, b, f) => { const [ar, ag, ab] = rgb(a), [br, bg, bb] = rgb(b); return (0xff000000 | (Math.round(ab + (bb - ab) * f) << 16) | (Math.round(ag + (bg - ag) * f) << 8) | Math.round(ar + (br - ar) * f)) >>> 0; };
+const luz = (c) => { const [r, g, b] = rgb(c); return 0.3 * r + 0.59 * g + 0.11 * b; };
+// la zona de Atom y la de la barra del año, que quedan tranquilas
+const enAtom = (x, y) => x >= 276 && y <= 46;
+const tranquilo = (x, y) => enAtom(x, y) || (y < 17 && x < 176);
+const dentro = (x, y) => x >= 0 && x < 320 && y >= 0 && y < 180;
+// qué hay debajo: el suelo de Texas (verde, pardo: más verde que azul), el mar abierto (azul saturado) o nube
+const esSuelo = (c) => ((c >>> 8) & 255) > ((c >>> 16) & 255) + 3;
+const esMar = (c) => ((c >>> 16) & 255) > ((c >>> 8) & 255) * 1.55 && luz(c) < 130;
+
+// la AT-6 vista desde arriba (para las vistas desde lo alto): fuselaje y ala baja amarillos con la luz por la izquierda,
+// el capó y la cola azules, la cubierta de cristal con su brillo y las dos cabezas de los pilotos (casco de cuero), las
+// luces de las puntas (roja a babor, verde a estribor) y la hélice que parpadea. a: el rumbo (radianes, 0 hacia la
+// derecha); s: escala (1: 13 px de envergadura). o.ver(x, y, fondo): cuánto se ve en ese píxel (1 entera, 0 nada, entre
+// medias se trama: la avioneta dentro de una nube); o.sombra [dx, dy]: su sombra en el suelo o el mar, desplazada
+const avionArriba = (x, y, a, s, t, o = {}) => {
+  const ca = Math.cos(a), sa = Math.sin(a), R0 = Math.ceil(7 * s) + 2;
+  const forma = (u, v) => {
+    const au = u / s, av = v / s, w = Math.abs(av);
+    if (au > 4.1 && au < 5.5 && w < 1.15) return 'capo';
+    if (w <= 1.2 && au >= -5.3 && au <= 4.1) return au > 0.3 && au < 2.9 && w < 0.8 ? 'cristal' : au < -3.9 ? 'cola' : 'fus';
+    if (au >= -1.0 && au <= 1.8 - w * 0.1 && w <= 6.3) return w > 5.5 ? (av < 0 ? 'puntaI' : 'puntaD') : au < -0.2 ? 'alaS' : 'ala';
+    if (au >= -5.4 && au <= -4.0 && w <= 2.9) return 'cola';
+    return null;
+  };
+  const col = { fus: C.at6, ala: C.at6, alaS: C.at6S, capo: C.at6A, cola: C.at6A, cristal: hex('#2a3c62'), puntaI: C.rojo, puntaD: hex('#3ab85a') };
+  const pon = (X, Y, c, fondo) => {
+    const v = o.ver ? o.ver(X, Y, fondo) : 1; if (v <= 0) return;
+    if (v >= 1) R.pset(X, Y, c); else if (umbral(X, Y) < v) R.pset(X, Y, mezcla(fondo, c, 0.3 + 0.45 * v));
+  };
+  const pinta = (dx, dy, sombra) => {
+    for (let j = -R0; j <= R0; j++) for (let i = -R0; i <= R0; i++) {
+      const X = Math.round(x + i + dx), Y = Math.round(y + j + dy);
+      if (!dentro(X, Y)) continue;
+      const u = i * ca + j * sa, v = -i * sa + j * ca, f = forma(u, v);
+      let borde = false;
+      if (!f) { if (sombra) continue; for (const [p, q] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (forma((i + p) * ca + (j + q) * sa, -(i + p) * sa + (j + q) * ca)) { borde = true; break; } if (!borde) continue; }
+      const fondo = R.pget(X, Y);
+      if (sombra) { if ((o.ver ? o.ver(X, Y, fondo) : 1) >= 1 && umbral(X, Y) < 0.8) R.pset(X, Y, mezcla(fondo, hex('#0e1a2c'), 0.38)); continue; }
+      if (borde) { pon(X, Y, K, fondo); continue; }
+      let c = col[f];
+      if (f === 'fus' || f === 'ala') { const lado = (-i * 0.7 - j * 0.7) / R0; if (lado > 0.25) c = C.at6L; else if (lado < -0.35) c = C.at6S; }
+      if (f === 'cristal') { const au = u / s; if (Math.abs(v / s) < 0.55 && (Math.abs(au - 0.9) < 0.42 || Math.abs(au - 2.25) < 0.42)) c = hex('#6a4a2e'); else if (Math.abs(au - 1.6) < 0.4 && v < 0) c = hex('#8ac0e8'); }
+      pon(X, Y, c, fondo);
+    }
+  };
+  if (o.sombra) pinta(o.sombra[0], o.sombra[1], true);
+  pinta(0, 0, false);
+  // la hélice: un trazo que gira delante del morro
+  const hx = x + ca * 5.9 * s, hy = y + sa * 5.9 * s, g = t * 40;
+  for (let k = -3; k <= 3; k++) { if (k === 0) continue; const e = Math.abs(k) / 3, X = Math.round(hx - sa * k * s * Math.cos(g) * 0.95), Y = Math.round(hy + ca * k * s * Math.cos(g) * 0.95);
+    if (!dentro(X, Y)) continue; const fondo = R.pget(X, Y); if (o.ver && o.ver(X, Y, fondo) < 1) continue; if (umbral(X, Y) < 0.75 - e * 0.3) R.pset(X, Y, mezcla(fondo, hex('#d8dce4'), 0.6)); }
+};
+
+// los relámpagos vistos desde arriba: sobre la nube blanca solo se ven si llevan su halo morado y su contorno oscuro.
+// Un rayo quebrado (x, y: donde nace; ang: hacia dónde; len: largo; k: su semilla) con sus ramas, que dura lo que f > 0
+const rayo = (x, y, ang, len, k, f) => {
+  if (f <= 0) return;
+  const pts = [[x, y]]; let px = x, py = y;
+  for (let i = 1; i <= 5; i++) { const a2 = ang + (ruido(k, i, 91) - 0.5) * 1.6; px += Math.cos(a2) * len / 5; py += Math.sin(a2) * len / 5; pts.push([px, py]); }
+  const rama = pts[2], ar = ang + (ruido(k, 9, 91) > 0.5 ? 0.9 : -0.9), r2 = [rama, [rama[0] + Math.cos(ar) * len * 0.3, rama[1] + Math.sin(ar) * len * 0.3]];
+  // el halo morado tramado alrededor
+  const cx = (x + px) / 2, cy = (y + py) / 2, rh = len * 0.75;
+  for (let j = -rh; j <= rh; j++) for (let i = -rh; i <= rh; i++) { const X = Math.round(cx + i), Y = Math.round(cy + j), d = Math.hypot(i, j) / rh; if (d > 1 || tranquilo(X, Y) || !dentro(X, Y)) continue; if (umbral(X, Y) < (1 - d) * 0.7 * f) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#b8a8f8'), 0.55)); }
+  const traza = (q, c, g) => { for (let i = 1; i < q.length; i++) { const [a0, b0] = q[i - 1], [a1, b1] = q[i], n = Math.ceil(Math.hypot(a1 - a0, b1 - b0)); for (let s = 0; s <= n; s++) { const X = Math.round(a0 + (a1 - a0) * s / n), Y = Math.round(b0 + (b1 - b0) * s / n); if (tranquilo(X, Y)) continue; if (g) { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(X + dx, Y + dy, c); } else R.pset(X, Y, c); } } };
+  traza(pts, hex('#3a2a6a'), true); traza(r2, hex('#3a2a6a'), true); traza(pts, C.blanco, false); traza(r2, hex('#e8e0ff'), false);
+};
+
+// los instantes, por las letras de la frase inglesa: «How can a storm this violent have a quiet center, where does it
+// get all that power, and how did we go from flying into one just to see if we could to seeing them coming days in
+// advance?». Cortes en «does it get» y en «see if we could» (planos de 4,0 s)
+const a = (f) => en('pregunta', f);
+const P2 = a(0.323), P3 = a(0.695);
+const violento = a(0.105), calma = a(0.19), centro = a(0.225), donde = a(0.265), poder = a(0.41), volar = a(0.562), dentroDe = a(0.605), solo = a(0.652);
+const ver = a(0.792), vienen = a(0.862), dias = a(0.903), antes = a(0.944);
+
+// la «?» o la «!» grandes, con su contorno y una sombra que la despega del fondo
+const signo = (s, x, y, esc, c) => { for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1]]) R.icono(s, x + dx, y + dy, K, K, esc); R.icono(s, x, y, c, hex('#a87a18'), esc); };
+// dos gaviotas que viajan dentro del ojo, dando vueltas, con su sombra en el suelo
+const gaviotasOjo = (cx, cy, rr, t) => { for (let k = 0; k < 2; k++) { const g = -t * 0.7 + k * 2.4, x = Math.round(cx + Math.cos(g) * rr * (0.75 + 0.2 * k)), y = Math.round(cy + Math.sin(g) * rr * 0.7), ala = Math.sin(t * 8 + k * 2) > 0 ? 1 : 0;
+  R.pset(x + 3, y + 3, hex('#3a5a2a')); R.pset(x, y, C.blanco); R.pset(x - 1, y - ala, C.blanco); R.pset(x + 1, y - ala, C.blanco); R.pset(x - 2, y - ala * 2, hex('#c8ccd8')); R.pset(x + 2, y - ala * 2, hex('#c8ccd8')); } };
+
+// ── la vida del campo de Texas que se ve por el ojo (en unidades del campo: gx al este, gz al norte) ────────────────
+// lo que es suelo antes de pintar nada encima (no las nubecillas ni la pared): solo ahí se ven el tren y la camioneta
+const SUELO = new Uint8Array(320 * 180);
+const esSuelo0 = (X, Y) => { X = Math.round(X); Y = Math.round(Y); return dentro(X, Y) && SUELO[Y * 320 + X] === 1; };
+const HUMO = hex('#f4f4ec'), HUMOS = hex('#c8ccc0'), POLVO = hex('#e0c890'), POLVOS = hex('#b09868');
+// una bocanada (de humo o de polvo) que crece y se deshace, con su sombra abajo a la derecha
+const bocanada = (x, y, edad, vida, c = HUMO, cs = HUMOS, rmax = 3.4) => { const q = edad / vida, rr = 0.9 + q * (rmax - 0.9), f = (1 - q) * 1.05;
+  for (let j = -4; j <= 4; j++) for (let i = -4; i <= 4; i++) { const d = Math.hypot(i, j); if (d > rr) continue; const X = Math.round(x + i), Y = Math.round(y + j); if (!esSuelo0(X, Y) || umbral(X, Y) > f * (1.2 - d / (rr + 0.6))) continue; R.pset(X, Y, i + j > rr * 0.6 ? cs : c); } };
+// un vehículo visto desde arriba con su contorno: (hx, hy) el morro, (dx, dy) hacia dónde va; piezas: [desde, hasta,
+// color, color de la luz] a lo largo (en px desde el morro); ancho: filas a cada lado del eje
+const vehiculo = (hx, hy, dx, dy, piezas, ancho) => {
+  const L = piezas[piezas.length - 1][1], px = -dy, py = dx, x0 = Math.floor(Math.min(hx, hx - dx * L) - 4), x1 = Math.ceil(Math.max(hx, hx - dx * L) + 4), y0 = Math.floor(Math.min(hy, hy - dy * L) - 4), y1 = Math.ceil(Math.max(hy, hy - dy * L) + 4);
+  for (let Y = y0; Y <= y1; Y++) for (let X = x0; X <= x1; X++) { if (!esSuelo0(X, Y)) continue;
+    const s = -(X + 0.5 - hx) * dx - (Y + 0.5 - hy) * dy, v = (X + 0.5 - hx) * px + (Y + 0.5 - hy) * py;
+    if (s < -1.2 || s > L + 1.2 || Math.abs(v) > ancho + 1.2) continue;
+    const pz = Math.abs(v) <= ancho + 0.2 && s >= -0.2 && s <= L + 0.2 ? piezas.find(([a, b]) => s >= a && s < b) : null;
+    R.pset(X, Y, pz ? (v < -ancho * 0.35 ? pz[3] : pz[2]) : K); }
+};
+const TREN = [[0, 1.6, hex('#3a3a34'), hex('#6a6a5a')], [1.6, 5.2, hex('#26261e'), hex('#5e5e48')], [5.2, 7.4, hex('#8a2e1e'), hex('#c04a30')], [7.4, 8.3, K, K],
+  [8.3, 13.8, hex('#7e5028'), hex('#b07a40')], [13.8, 14.7, K, K], [14.7, 20, hex('#8e9086'), hex('#d0d2c4')]];
+const CAMIONETA = [[0, 2.2, hex('#d8d0b0'), hex('#f4eedc')], [2.2, 5.2, hex('#9a3a22'), hex('#c85a3a')]];
+// el tren llega por la vía (gz = 0,3 + 0,45 gx) desde el suroeste, frena y se para en la estación del pueblo
+const PARADA = 3.1;
+const trenGx = (t) => -0.58 + 0.74 * (1 - (1 - Math.min(1, t / PARADA)) ** 2);
+const vidaCampo = (t, campo, cx, cy, r) => {
+  const ax = Math.max(0, Math.floor(cx - r - 3)), bx = Math.min(319, Math.ceil(cx + r + 3)), ay = Math.max(0, Math.floor(cy - r - 3)), by = Math.min(179, Math.ceil(cy + r + 3));
+  SUELO.fill(0); for (let Y = ay; Y <= by; Y++) for (let X = ax; X <= bx; X++) SUELO[Y * 320 + X] = esSuelo(R.pget(X, Y)) ? 1 : 0;
+  const dx = 0.912, dy = -0.41, px = -dy, py = dx, via = (g) => campo(g, 0.3 + 0.45 * g);
+  // la camioneta por el camino de tierra (gz = −0,25), hacia el este, con su polvareda detrás
+  { const [mx, my] = campo(-0.62 + t * 0.26, -0.25);
+    for (let n = Math.floor((t - 1.2) / 0.12); n <= Math.floor(t / 0.12); n++) { const te = n * 0.12; if (te > t || te < 0) continue; const [ex, ey] = campo(-0.62 + te * 0.26, -0.25), edad = t - te; bocanada(ex - 6 - edad * 1.5, ey - edad * 2, edad, 1.2, POLVO, POLVOS, 2.6); }
+    vehiculo(mx, my, 1, 0, CAMIONETA, 1); }
+  // el tren: la locomotora negra (caja de humos, caldera con su brillo y la cabina roja), un furgón y un vagón cisterna;
+  // echa bocanadas de humo por la chimenea que se quedan atrás, tirando al noroeste
+  const parado = t > PARADA, cada = 0.17;
+  for (let n = Math.floor((t - 1.5) / cada); n <= Math.floor(t / cada); n++) { const te = n * cada; if (te > t || te < 0 || (te > PARADA && n % 3)) continue; const [ex, ey] = via(trenGx(te)), edad = t - te;
+    bocanada(ex - dx * 2.5 - edad * 2.4, ey - dy * 2.5 - edad * 2.8, edad, te > PARADA ? 1.5 : 1.3); }
+  const [hx, hy] = via(trenGx(t));
+  vehiculo(hx, hy, dx, dy, TREN, 1);
+  // al pararse en la estación, resopla: dos nubes de vapor a los lados de la locomotora
+  if (parado && t < PARADA + 1.2) { const q = t - PARADA; for (const sg of [-1, 1]) bocanada(hx - dx * 4 + px * sg * (2.5 + q * 5), hy - dy * 4 + py * sg * (2.5 + q * 5), q, 1.2, HUMO, HUMOS, 3.8); }
+};
+
+// ── 1 · el ojo desde lo alto, con la AT-6 que da vueltas dentro ─────────────────────────────────────────────────────
+const p1 = (t) => {
+  // la cámara baja despacio hacia el ojo y, en «where», empieza a subir
+  const zoom = 4.3 + 0.6 * suave(lin(t, 0, centro)) - 0.6 * suave(lin(t, donde - 0.05, P2 + 0.3)), o = { vista: 'arriba', zoom, suelo: 'texas' };
+  T.ojo(R, t, o);
+  const { x: cx, y: cy, r } = T.b_ojoArribaGeo(o), k = 150 * zoom / 14.5;
+  const campo = (gx, gz) => [cx + gx * k, cy - gz * k];
+  vidaCampo(t, campo, cx, cy, r);
+  // «violent»: la pared se enciende dos veces, en dos sitios
+  const f1 = entre(t, violento - 0.02, violento + 0.2) ? 1 : 0, f2 = entre(t, violento + 0.3, violento + 0.48) ? 1 : 0;
+  rayo(cx + r * 1.25, cy - r * 0.9, 2.2, r * 0.9, 3, f1); rayo(cx - r * 1.5, cy + r * 0.6, -0.4, r * 0.8, 7, f2); rayo(cx + r * 0.2, cy + r * 1.35, 0.3, r * 0.6, 11, f2);
+  gaviotasOjo(cx, cy, r * 0.42, t);
+  // la AT-6 da vueltas en sentido antihorario, ladeada, con su sombra en los campos; con el relámpago, un bandazo
+  const bandazo = entre(t, violento, violento + 0.45) ? 1 - lin(t, violento, violento + 0.45) : 0;
+  const g = 0.9 - t * 1.05, rr = r * 0.6, x = cx + Math.cos(g) * rr + Math.sin(t * 57) * 1.6 * bandazo, y = cy + Math.sin(g) * rr * 0.9 + Math.cos(t * 43) * 1.3 * bandazo, rumbo = Math.atan2(-Math.cos(g) * 0.9, Math.sin(g)) + Math.sin(t * 31) * 0.3 * bandazo;
+  avionArriba(Math.round(x), Math.round(y), rumbo, 1.4, t, { sombra: [7, 6] });
+  // «quiet center»: la «?» sale en el centro del ojo y se queda, flotando
+  const q = lin(t, calma, calma + 0.25); if (q > 0) { const esc = q < 1 ? 1 : 2, bote = q < 1 ? 0 : Math.round(Math.sin((t - calma) * 4) * 1.2); signo('?', Math.round(cx - 2.5 * esc), Math.round(cy - 3.5 * esc) + bote, esc, C.oroL); }
+};
+
+// ── 2 · el huracán entero sobre el mar; la AT-6 se mete en él ───────────────────────────────────────────────────────
+// el convoy de 1943 que huye de la tormenta por el mar de la izquierda: tres mercantes grises (casco, puente blanco,
+// chimenea) con su estela en V; en unidades del huracán respecto al centro (x a la derecha, y hacia abajo)
+const CONVOY = [[-0.36, -0.13], [-0.395, -0.035], [-0.43, 0.06]];
+const barcoArriba = (x, y, ang, t) => {
+  const ca = Math.cos(ang), sa = Math.sin(ang), pon = (u, v, c) => { const X = Math.round(x + ca * u - sa * v), Y = Math.round(y + sa * u + ca * v); if (dentro(X, Y) && esMar(R.pget(X, Y))) R.pset(X, Y, c); };
+  // la estela: dos brazos que se abren hacia atrás y el remolino blanco de la hélice
+  for (let d = 2; d < 16; d++) { const f = 1 - d / 16; for (const sg of [-1, 1]) { const u = -d - 2, v = sg * (0.6 + d * 0.33), X = Math.round(x + ca * u - sa * v), Y = Math.round(y + sa * u + ca * v); if (dentro(X, Y) && umbral(X, Y) < f * 1.3) pon(u, v, d < 6 ? hex('#e8eef8') : hex('#9ab0d0')); } }
+  for (let d = 3; d < 8; d++) if (umbral(Math.round(x - ca * d), Math.round(y - sa * d)) < 1 - d / 8 + Math.sin(t * 9 + d) * 0.2) pon(-d, 0, C.blanco);
+  for (let u = -4; u <= 3; u++) for (const v of [-0.5, 0.5]) pon(u, v, u === 3 ? hex('#6a6e78') : v < 0 ? hex('#c4c8d0') : hex('#80848e'));
+  pon(4, 0, hex('#6a6e78')); pon(-2, -0.5, C.blanco); pon(-2, 0.5, hex('#d8dce4')); pon(-3, 0, hex('#1c1c24')); pon(1, -0.5, hex('#a07a48'));
+};
+// la ruta de la AT-6: una curva desde el borde izquierdo hasta el ojo (llega por abajo, rumbo al este, y se pone a dar
+// vueltas en sentido antihorario)
+const ruta = (cx, cy, r, s) => { const P0 = [-14, 124], P2a = [cx, cy + 0.4 * r], P1 = [P2a[0] - 62, P2a[1] + 6], m = 1 - s;
+  return [m * m * P0[0] + 2 * m * s * P1[0] + s * s * P2a[0], m * m * P0[1] + 2 * m * s * P1[1] + s * s * P2a[1], Math.atan2(2 * m * (P1[1] - P0[1]) + 2 * s * (P2a[1] - P1[1]), 2 * m * (P1[0] - P0[0]) + 2 * s * (P2a[0] - P1[0]))]; };
+const ENTRA = P2 + 0.45;
+const p2 = (t) => {
+  const zoom = 1.85 - 0.3 * suave(lin(t, P2, P3)), o = { vista: 'arriba', zoom, centro: [146, 98] };
+  T.ojo(R, t, o);
+  const { x: cx, y: cy, r } = T.b_ojoArribaGeo(o), RS = 150 * zoom;
+  // el convoy, que se aleja despacio hacia el suroeste
+  for (const [wx, wy] of CONVOY) { const tt = t - P2; barcoArriba(cx + (wx - 0.011 * tt) * RS, cy + (wy + 0.004 * tt) * RS, Math.PI - 0.36, t); }
+  // «power»: el mar caliente; chispas naranjas que titilan sobre el agua y cintas de calor que entran en espiral hacia
+  // el núcleo y se meten bajo las nubes (solo se ven sobre el mar)
+  const calor = lin(t, poder - 0.25, poder + 0.6);
+  if (calor > 0) {
+    for (let k = 0; k < 90; k++) { const g0 = ruido(k, 4, 8) * TAU - (t - poder) * 0.25, rr = (0.42 + ruido(k, 5, 8) * 0.75) * RS * (1 - 0.05 * (t - poder)), X = Math.round(cx + Math.cos(g0) * rr * 1.1), Y = Math.round(cy + Math.sin(g0) * rr * 0.85);
+      if (!dentro(X, Y) || tranquilo(X, Y) || !esMar(R.pget(X, Y))) continue; const tw = Math.sin(t * (5 + ruido(k, 6, 8) * 4) + k * 1.7); if (tw < 0.1 || umbral(X, Y) > calor) continue;
+      R.pset(X, Y, tw > 0.75 ? hex('#ffe08a') : C.calor); if (tw > 0.9 && k % 3 === 0) { R.pset(X + 1, Y, C.calorL); R.pset(X, Y - 1, C.calorL); } }
+    for (let k = 0; k < 28; k++) {
+      const u = ((t - poder + 3) * 0.17 + ruido(k, 3, 7)) % 1, g0 = ruido(k, 1, 7) * TAU, rr = lerp(235, 66, u), g = g0 - u * 2.3, env = Math.sin(u * Math.PI);
+      for (let i = 0; i < 13; i++) { const gi = g + i * 0.016, ri = rr + i * 2.1, X = Math.round(cx + Math.cos(gi) * ri * 1.15 + Math.sin(t * 6 + i + k) * 0.5), Y = Math.round(cy + Math.sin(gi) * ri * 0.85);
+        if (!dentro(X, Y) || tranquilo(X, Y)) continue; const f = R.pget(X, Y);
+        if (!esMar(f) || umbral(X, Y) > calor * env * (1.75 - i / 13)) continue;
+        R.pset(X, Y, mezcla(f, i < 2 ? hex('#ffe08a') : i < 6 ? C.calorL : C.calor, 0.85)); if (i < 7 && dentro(X, Y + 1) && esMar(R.pget(X, Y + 1))) R.pset(X, Y + 1, mezcla(R.pget(X, Y + 1), C.calor, 0.45)); } }
+  }
+  // «power»: el núcleo se enciende por dentro, dos veces
+  const f1 = entre(t, poder - 0.02, poder + 0.18) ? 1 : 0, f2 = entre(t, poder + 0.26, poder + 0.42) ? 1 : 0;
+  rayo(cx - r * 2.6, cy - r * 1.8, 0.6, 26, 5, f1); rayo(cx + r * 2.2, cy + r * 1.2, 2.6, 22, 8, f1); rayo(cx + r * 0.6, cy - r * 3.0, 1.9, 20, 13, f2); rayo(cx - r * 1.4, cy + r * 3.2, -0.9, 18, 17, f2);
+  // «power?»: la «?» grande sobre el mar, a la derecha
+  const q = lin(t, poder, poder + 0.2); if (q > 0) signo('?', 258, Math.round(lerp(118, 102, suave(q)) + (q >= 1 ? Math.sin((t - poder) * 3.5) * 1.5 : 0)), q < 0.5 ? 2 : 3, C.oroL);
+  // la AT-6: entra por el borde izquierdo sobre el mar, cada vez más deprisa; en «flying into one» se mete bajo las nubes
+  // (dentro de ellas se ve como una sombra tramada) y en «just» asoma en el ojo; detrás deja su ruta de puntos dorados
+  const u = lin(t, ENTRA, solo), s = u ** 1.6, apaga = lin(t, solo + 0.1, P3);
+  if (u > 0 && apaga < 1) for (let i = 0; i < 64; i++) { const si = i / 64; if (si > s - 0.03) break; if (i % 3) continue; const [X0, Y0] = ruta(cx, cy, r, si), X = Math.round(X0), Y = Math.round(Y0);
+    if (!dentro(X, Y) || tranquilo(X, Y) || umbral(X, Y) < apaga) continue; R.pset(X, Y + 1, hex('#5a3a10')); R.pset(X, Y, C.oroL); R.pset(X + 1, Y, hex('#d8a030')); }
+  if (u > 0 && u < 1) { const [x, y, rumbo] = ruta(cx, cy, r, s);
+    avionArriba(Math.round(x), Math.round(y), rumbo, 0.8, t, { ver: (X, Y, f) => (esMar(f) ? 1 : 0.55), sombra: [4, 3] }); }
+  if (t >= solo) { const g = Math.PI / 2 - (t - solo) * 2.2, x = cx + Math.cos(g) * r * 0.45, y = cy + Math.sin(g) * r * 0.4; avionArriba(Math.round(x), Math.round(y), g - Math.PI / 2, 0.8, t, { ver: (X, Y, f) => (esMar(f) ? 1 : 0.5), sombra: [3, 2] }); }
+};
+
+// ── 3 · la órbita de hoy: el satélite moderno y el cono del pronóstico ──────────────────────────────────────────────
+// el satélite meteorológico de hoy, de perfil: el cuerpo forrado de papel dorado arrugado, el radiador blanco, el ala de
+// paneles solares con su brazo (abre 0–1: los paneles salen uno a uno del paquete plegado; el brillo del sol los
+// recorre), la cámara que mira a la Tierra con su parasol, la antena parabólica y el mástil del magnetómetro, y las dos
+// toberas de los propulsores en la cara de delante
+const satelite = (x, y, t, abre = 1) => {
+  const { rect, pset, linea } = R;
+  // el ala de paneles: el más pegado al brazo no se mueve; cada uno de los demás sale del anterior
+  linea(x - 18, y - 1, x - 10, y - 1, C.metalD); linea(x - 18, y, x - 10, y, C.metal);
+  const n = Math.max(0, Math.min(4, abre * 4)), pos = [];
+  pos[4] = x - 26.6; for (let p = 3; p >= 0; p--) pos[p] = pos[p + 1] - 9.6 * Math.max(0, Math.min(1, n - (3 - p)));
+  for (let p = 0; p <= 4; p++) { const x0 = Math.round(pos[p]);
+    rect(x0 - 1, y - 8, x0 + 9, y + 6, K);
+    for (let j = y - 7; j <= y + 5; j++) for (let i = x0; i < x0 + 9; i++) { const borde = i === x0 || i === x0 + 8 || j === y - 7 || j === y + 5, celda = (i - x0) % 3 === 0 || (j - y) % 3 === 0;
+      const brillo = Math.abs(((i - x) + (j - y) * 0.8 - ((t * 26) % 130 - 60))) < 3;
+      pset(i, j, borde ? hex('#8a94a8') : brillo ? hex('#8ab4f0') : celda ? hex('#2a4a9a') : ((i + j) % 2 ? hex('#16285e') : hex('#1c3270'))); } }
+  rect(Math.round(pos[4]) + 9, y - 8, x - 18, y + 6, K); rect(Math.round(pos[4]) + 9, y - 1, x - 18, y, C.metal);
+  // el cuerpo de papel dorado, con sus arrugas y el radiador blanco arriba
+  rect(x - 10, y - 10, x + 10, y + 10, K);
+  for (let j = y - 9; j <= y + 9; j++) for (let i = x - 9; i <= x + 9; i++) { const nn = ruido(i >> 1, j >> 1, 61), lado = (i - x + j - y) / 18;
+    pset(i, j, j < y - 5 ? (j === y - 9 ? C.blanco : (i + j) % 4 ? hex('#e4e8ee') : hex('#b8c0cc')) : nn > 0.82 ? hex('#fff0a0') : lado < -0.3 ? hex('#f0c848') : lado > 0.4 || nn < 0.18 ? hex('#a8781c') : hex('#d8a838')); }
+  rect(x - 9, y - 5, x + 9, y - 5, hex('#8a6a18'));
+  // las toberas de los propulsores
+  for (const ty of [y - 7, y + 7]) { rect(x + 10, ty - 1, x + 12, ty + 1, K); pset(x + 11, ty, hex('#6a7080')); }
+  // la cámara que mira a la Tierra, con su parasol negro
+  rect(x - 5, y + 10, x + 6, y + 17, K); rect(x - 4, y + 11, x + 5, y + 16, hex('#e8ecf2')); rect(x - 4, y + 11, x - 3, y + 16, hex('#b8c0cc'));
+  rect(x - 1, y + 14, x + 3, y + 18, K); pset(x + 1, y + 17, hex('#3a5a8a'));
+  // la antena parabólica a la derecha y el mástil del magnetómetro
+  for (let j = -6; j <= 6; j++) { const w = Math.round(Math.sqrt(36 - j * j) * 0.45); rect(x + 13, y + j, x + 13 + w, y + j, K); if (w > 0) rect(x + 13, y + j, x + 12 + w, y + j, j < 0 ? C.blanco : hex('#c8ccd8')); }
+  linea(x + 10, y, x + 13, y, C.metalD); linea(x + 16, y, x + 19, y, C.metal); pset(x + 20, y, K);
+  linea(x + 8, y - 10, x + 30, y - 26, C.metalL); linea(x + 9, y - 10, x + 31, y - 26, C.metalD); rect(x + 30, y - 29, x + 33, y - 26, K); rect(x + 31, y - 28, x + 32, y - 27, C.blanco);
+  return [x + 1, y + 18];
+};
+// un chorro de gas frío del propulsor: una bocanada tramada que sale hacia delante y se deshace
+const chorro = (x, y, q) => { const L = 4 + q * 14, w = 1 + q * 4;
+  for (let i = 0; i < L; i++) { const ww = w * (i / L), f = (1 - q) * (1.25 - i / L * 0.6); for (let j = -Math.ceil(ww); j <= Math.ceil(ww); j++) { const X = Math.round(x + 2 + i), Y = Math.round(y + j); if (!dentro(X, Y) || umbral(X, Y) > f) continue; R.pset(X, Y, mezcla(R.pget(X, Y), i < 3 ? C.blanco : hex('#c8d8f0'), 0.8)); } } };
+const DIAS = [[22.6, -57.6], [23.4, -62.2], [24.2, -66.6], [25.1, -71.0], [26.1, -75.3], [27.3, -79.6]];
+const LLEGA = P3 + 0.82, ABRE = [P3 + 0.72, ver - 0.04];
+const año3 = (t) => t < P3 + 0.05 ? 1943 : Math.round(lerp(1943, 2026, suave(lin(t, P3 + 0.05, ver - 0.12))));
+const p3 = (t) => {
+  const { P } = T.orbita(R, t, { encuadre: 'cerca', espiral: 1, espiralEn: DIAS[0], mira: [21.2, -68.5], tiros: false });
+  // una estrella fugaz que cruza por encima del borde de la Tierra
+  { const u = lin(t, antes - 0.55, antes + 0.05); if (u > 0 && u < 1) for (let i = 0; i < 12; i++) { const X = Math.round(26 + u * 54 - i * 1.6), Y = Math.round(36 + u * 16 - i * 0.5); if (dentro(X, Y) && !tranquilo(X, Y) && umbral(X, Y) < (1 - i / 12) * (1 - u * 0.5)) R.pset(X, Y, i < 2 ? C.blanco : hex('#a8c8f0')); } }
+  // el satélite entra frenando (los propulsores escupen gas hacia delante) y luego deriva despacio
+  const llega = lin(t, P3, LLEGA), sx = Math.round(lerp(-50, 132, 1 - (1 - llega) ** 3) + Math.max(0, t - ver) * 7), sy = Math.round(56 + Math.sin(t * 1.3) * 1.5);
+  const H = P(DIAS[0]);
+  // «seeing»: el haz de la cámara barre hacia el huracán y el visor lo enmarca
+  const ve = lin(t, ver, ver + 0.5);
+  const [ox, oy] = [sx + 1, sy + 18];
+  if (ve > 0) { const barre = (t - ver) * 1.8 % 1;
+    for (let y = oy + 2; y < H[1] + 24; y++) { const f = (y - oy) / (H[1] + 24 - oy), w = 2 + f * 34, xc = lerp(ox, H[0], f);
+      for (let x = Math.round(xc - w); x <= Math.round(xc + w); x++) { if (x < 0 || x > 319) continue; const borde = Math.abs(Math.abs(x - xc) - w) < 1, linea = Math.abs(f - barre) < 0.03;
+        if ((borde && (x + y) % 2 === 0) || (linea && umbral(x, y) < 0.6) || umbral(x, y) < 0.07 * ve) R.pset(x, y, mezcla(R.pget(x, y), hex('#bfe8ff'), borde || linea ? 0.65 : 0.4)); } }
+    // el visor: cuatro esquinas que se cierran sobre el huracán, con su piloto rojo
+    const w = Math.round(lerp(56, 30, suave(ve))), h = Math.round(w * 0.66), [vx, vy] = H.map(Math.round);
+    for (const [sx2, sy2] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const X = vx + sx2 * w, Y = vy + sy2 * h; R.rect(Math.min(X, X - sx2 * 7), Y, Math.max(X, X - sx2 * 7), Y, C.blanco); R.rect(X, Math.min(Y, Y - sy2 * 5), X, Math.max(Y, Y - sy2 * 5), C.blanco); }
+    if (parp(t, 9)) R.rect(vx + w - 3, vy - h + 2, vx + w - 2, vy - h + 3, C.rojo);
+  }
+  satelite(sx, sy, t, suave(lin(t, ABRE[0], ABRE[1])));
+  // los dos chorros de frenada, en la cara de delante, mientras llega
+  for (const [k, t0] of [[0, P3 + 0.38], [1, P3 + 0.56]]) { const q = lin(t, t0, t0 + 0.42); if (q > 0 && q < 1) for (const ty of [sy - 7, sy + 7]) chorro(sx + 11, ty + (k ? 1 : -1) * Math.round(q * 2), q); }
+  if (entre(t, ver, ver + 0.18)) { for (let k = 1; k < 9; k++) { R.pset(ox + k, oy, C.blanco); R.pset(ox - k, oy, C.blanco); R.pset(ox, oy + k, C.blanco); } R.disco(ox, oy, 2, C.blanco); }
+  // «coming days in advance»: el cono del pronóstico y la trayectoria, día a día, hasta la costa
+  const u = lin(t, vienen - 0.05, antes + 0.25);
+  if (u > 0) {
+    const pts = DIAS.map((d) => P(d)), n = pts.length - 1, hasta = u * n;
+    const camino = []; for (let k = 0; k <= Math.floor(hasta); k++) camino.push([pts[k][0], pts[k][1], k]);
+    if (hasta < n) { const i = Math.floor(hasta), e = hasta - i; camino.push([lerp(pts[i][0], pts[i + 1][0], e), lerp(pts[i][1], pts[i + 1][1], e), hasta]); }
+    if (camino.length > 1) {
+      // el cono: los bordes se abren con los días; se rellena tramado y se le marca el borde
+      const izq = [], der = [];
+      camino.forEach(([x, y, f], k) => { const a0 = camino[Math.max(0, k - 1)], a1 = camino[Math.min(camino.length - 1, k + 1)], dx = a1[0] - a0[0], dy = a1[1] - a0[1], l = Math.hypot(dx, dy) || 1, w = 2 + f * 3.2;
+        izq.push([x - dy / l * w, y + dx / l * w]); der.push([x + dy / l * w, y - dx / l * w]); });
+      const pol = [...izq, ...der.reverse()];
+      let x0 = 320, x1 = 0, y0 = 180, y1 = 0; for (const [x, y] of pol) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+      const dentroPol = (X, Y) => { let c = false; for (let i = 0, j = pol.length - 1; i < pol.length; j = i++) { const [xi, yi] = pol[i], [xj, yj] = pol[j]; if ((yi > Y) !== (yj > Y) && X < (xj - xi) * (Y - yi) / (yj - yi) + xi) c = !c; } return c; };
+      for (let Y = Math.floor(y0) - 1; Y <= y1 + 1; Y++) for (let X = Math.floor(x0) - 1; X <= x1 + 1; X++) { if (!dentroPol(X + 0.5, Y + 0.5)) continue;
+        const borde = !dentroPol(X - 0.5, Y + 0.5) || !dentroPol(X + 1.5, Y + 0.5) || !dentroPol(X + 0.5, Y - 0.5) || !dentroPol(X + 0.5, Y + 1.5);
+        if (borde) R.pset(X, Y, C.blanco); else if ((X + Y) % 2 === 0) R.pset(X, Y, mezcla(R.pget(X, Y), C.blanco, 0.55)); }
+      for (let k = 1; k < camino.length; k++) R.linea(Math.round(camino[k - 1][0]), Math.round(camino[k - 1][1]), Math.round(camino[k][0]), Math.round(camino[k][1]), K);
+    }
+    // los puntos de cada día, con su número encima; el último, rojo (la llegada a la costa)
+    for (let k = 1; k <= Math.floor(hasta + 0.001); k++) { const [px, py] = pts[k].map(Math.round), b = Math.min(1, (hasta - k) * 3 + 0.4);
+      R.disco(px, py, 3, K); R.disco(px, py, 2, k === n ? C.rojo : C.blanco); R.numero(String(k), px, py - 6 - Math.round((1 - b) * 3), { centro: true }); }
+  }
+  // «in advance»: en la costa late el aviso
+  const av = lin(t, antes + 0.25, antes + 0.45);
+  if (av > 0) { const [px, py] = P(DIAS[DIAS.length - 1]).map(Math.round), r = 4 + ((t - antes) * 14) % 10;
+    for (let g = 0; g < Math.PI * 2; g += 0.12) { const X = Math.round(px + Math.cos(g) * r), Y = Math.round(py + Math.sin(g) * r * 0.8); if (umbral(X, Y) < 0.8 - r / 16) R.pset(X, Y, C.rojo); }
+    signo('!', px - 14, py - 20, 2, hex('#ff6a5a')); }
+};
+
+const efectos = [[0.15, 'whoosh'], [violento - 0.02, 'trueno'], [calma + 0.05, 'brillo'],
+  [ENTRA + 0.1, 'motor', { dur: 1.6 }], [poder, 'boom'], [poder + 0.12, 'pop'], [volar, 'whoosh'], [solo + 0.05, 'pop'],
+  [P3 + 0.05, 'tecleo', { dur: 0.6 }], [P3 + 0.4, 'vapor'], [ABRE[0] + 0.15, 'cerrojo'], [ver, 'flash'], [vienen + 0.15, 'tic'], [dias + 0.1, 'tic'], [dias + 0.4, 'tic'], [antes - 0.1, 'tic'], [antes + 0.3, 'aviso']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: (t) => (t < P3 ? 1943 : año3(t)) });
+</script>
+</body>
+</html>

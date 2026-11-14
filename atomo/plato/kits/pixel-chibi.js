@@ -429,6 +429,21 @@ export const TOCADOS = {
     '.kNNNNNNNWDNk..',
     '..kkkkkkkkkk...',
   ], -1],
+  // tricornio del siglo XVIII (1765–1790), con el ribete claro
+  tricornio: [[
+    '.k..kkkkkk..k..',
+    'kJkkJJJJJJkkJk.',
+    'kJJJJJJJJJJJJk.',
+    '.kJjjjjjjjjJk..',
+    '..kkkkkkkkkk...',
+  ], -2],
+  // boina plana de marinero o de navegante (1524–1783), sin visera; el color es el de la ropa oscura (J)
+  boina: [[
+    '..kkkkkkkk.....',
+    '.kJJJJJJJJk....',
+    'kJjJJJJJJJJk...',
+    '.kkkkkkkkkkk...',
+  ], -2],
   // ── episodio 9 ──
   // sombrero alto de peregrino (capotain) con cinta y hebilla
   capotain: [[
@@ -541,6 +556,29 @@ export const TOCADOS = {
     '.kXXXXXXXXkkkk.',
     '.kXXXXXXXXkkkk.',
     '.kXkkkkkkkkkk..',
+  ], -2],
+  // el casco de cuero de 1913 (ep13): gorro marrón cosido en gajos, con orejeras que bajan por los lados sin tapar la cara
+  cuero: [[
+    '...kkkkkkkk....',
+    '..kBBbBBbBBk...',
+    '.kBBBbBBbBBBk..',
+    'kBBBBbBBbBBBBk.',
+    'kbkkkkkkkkkkbk.',
+    'kBk........kBk.',
+    'kBk........kBk.',
+    'kbk........kbk.',
+    '.k..........k..',
+  ], -2],
+  // el casco de hoy (ep13): carcasa brillante del color del equipo (X), franja central (x) y rejilla delante, sin tapar los ojos
+  futbol: [[
+    '....kkkkkkk....',
+    '..kkXXxXXXXkk..',
+    '.kXXXXxXXXXXXk.',
+    '.kXwXXxXXXXXXk.',
+    'kXXXXXXXXXkkkkk',
+    'kXXk.....kXk..k',
+    '.kXk......kkkkk',
+    '..kk...........',
   ], -2],
   kepi: [[
     '...kkkkkk......',
@@ -666,6 +704,122 @@ export const ELENCO_TH = {
 };
 Object.assign(ELENCO_CHIBI, ELENCO_TH);
 
+// ── Episodio 12 (huracanes y tornados): Bryan 1943, Galveston 1900, Miami y Chicago 1971, hoy ─────────────────────
+export const ELENCO_HU = {
+  // Joe Duckworth, teniente coronel de 1943: guerrera verde oliva, pantalón «pink» claro y gorra de plato de oficial
+  duckworth: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#4a3020'), tocado: 'general', pal: CLARA({ H: '#4a3020', h: '#6a4a30', C: '#6a6444', c: '#4e4a32', F: '#b8a888', W: '#d8cca8', o: '#c8a040', O: '#e8b830' }) },
+  // su navegante (Ralph O'Hair): cazadora A-2 de cuero marrón y gorra
+  navegante: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#8a5a2a'), tocado: 'gorra', pal: CLARA({ H: '#a8743c', h: '#c8904c', C: '#7a4a2a', c: '#5a341c', F: '#8a7a52', W: '#d8cca8', o: '#e8b830' }) },
+  // el oficial meteorológico (William Jones-Burdick): uniforme verde oliva con camisa caqui
+  meteorologo: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#2c2232'), tocado: 'gorra', pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#5e5a3e', c: '#46422c', F: '#5e5a3e', W: '#c8b88a', o: '#c8a040' }) },
+  // pilotos británicos en prácticas: uniforme azul grisáceo de la RAF
+  britanico: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#a87040'), tocado: 'gorra', pal: CLARA({ H: '#c8904c', h: '#e0ac64', C: '#6a7a96', c: '#4e5c78', F: '#6a7a96', W: '#d8dce8', o: '#e8b830' }) },
+  britanico2: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#6a7a96', c: '#4e5c78', F: '#6a7a96', W: '#d8dce8', o: '#2a2430' }) },
+  // Isaac Cline (1900): traje oscuro de tres piezas, bigote y sombrero de ala corta
+  cline: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#3a2418'), tocado: 'fedora', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3a3a4a', c: '#2a2a36', F: '#2e2e3c', G: '#1c1c24', W: '#f2eee2', o: '#c8a040' }) },
+  // vecinos de Galveston en 1900
+  vecino: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#7a5a3a', c: '#5a4028', F: '#8c8070', G: '#3a2a20', W: '#f2eee2', o: '#2a2430' }) },
+  vecina: { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', L: '#2a2430' }) },
+  // Herbert Saffir (1971): ingeniero, calvo, gafas, camisa blanca y corbata
+  saffir: { cab: CAB_CALVO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a6a7a'), tocado: 'gafas', pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#f2eee2', c: '#c8c0b0', F: '#5e5e70', W: '#f2eee2', o: '#3a5a8a' }) },
+  // Robert Simpson (1971): director del Centro Nacional de Huracanes, traje marrón y pelo gris
+  simpson: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a6a7a'), pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#6a5a4a', c: '#4e4234', F: '#6a5a4a', W: '#f2eee2', o: '#8a3a2a' }) },
+  // Ted Fujita (1971): gafas, pelo negro, camisa blanca y una cámara al cuello
+  fujita: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'gafas', pal: CLARA({ H: '#1c1424', h: '#3a3046', S: '#f0c8a0', s: '#c8946a', C: '#f2eee2', c: '#c8c0b0', F: '#3a3a4a', W: '#f2eee2', o: '#1c1c24' }) },
+  // los del Centro Nacional de Huracanes de hoy: polo azul marino
+  pronosticador: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#2a4a7a', c: '#1e365c', F: '#5e5e70', W: '#2a4a7a', o: '#e8e4dc' }) },
+  pronosticadora: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#a85a2a', h: '#c8783a', C: '#2a4a7a', c: '#1e365c', F: '#4a4a5a', W: '#2a4a7a', o: '#e8e4dc' }) },
+  // tripulación del P-3: mono de vuelo verde salvia con auriculares
+  tripulante: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), tocado: 'auriculares', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#7a8a6a', c: '#5e6c50', F: '#7a8a6a', W: '#7a8a6a', o: '#2a4a7a', M: '#2a2430' }) },
+  tripulanta: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'auriculares', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#7a8a6a', c: '#5e6c50', F: '#7a8a6a', W: '#7a8a6a', o: '#2a4a7a', M: '#2a2430' }) },
+  // granjero de las Grandes Llanuras: peto vaquero, camisa a cuadros roja y sombrero
+  granjero: { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a4a2a'), tocado: 'vaquero', pal: CLARA({ H: '#8a5a2a', h: '#a8743c', C: '#3e5a8a', c: '#2c4468', F: '#3e5a8a', W: '#c84a3a', o: '#e8b830', V: '#c8a46a', v: '#8a6e42' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_HU);
+
+// ── Episodio 13: la física del fútbol americano ────────────────────────────────────────────────────────────────────────
+// Sin colores ni escudos de equipos reales de hoy: los de 1905–1913 son de época; los de hoy, inventados
+const BASE13 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+export const ELENCO_FA = {
+  // Gus Dorais (1913): quarterback de Notre Dame, jersey de lana azul marino con cuello vuelto, pelo negro, sin casco
+  dorais: { ...BASE13, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a3458', c: '#1c2440', F: '#c8b88a', W: '#2a3458', o: '#c8a040' }) },
+  // Knute Rockne (1913): jersey azul marino de Notre Dame y casco de cuero
+  rockne: { ...BASE13, ceja: hex('#a87a48'), tocado: 'cuero', pal: CLARA({ H: '#c8a070', h: '#e0bc8c', B: '#7a4a24', b: '#5a3418', C: '#2a3458', c: '#1c2440', F: '#c8b88a', W: '#2a3458', o: '#c8a040' }) },
+  // los dos en Cedar Point, de socorristas: camiseta de tirantes blanca con franja roja y pantalón azul
+  doraisPlaya: { ...BASE13, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#f2eee2', c: '#c84a3a', F: '#2a3458', W: '#f2eee2', o: '#c84a3a' }) },
+  rocknePlaya: { ...BASE13, ceja: hex('#a87a48'), pal: CLARA({ H: '#c8a070', h: '#e0bc8c', C: '#f2eee2', c: '#c84a3a', F: '#2a3458', W: '#f2eee2', o: '#c84a3a' }) },
+  // jugador del Ejército (1913): jersey negro y dorado de lana, casco de cuero
+  soldadoJugador: { ...BASE13, ceja: hex('#5a3418'), tocado: 'cuero', pal: CLARA({ H: '#5a3418', h: '#8a5428', B: '#6a4020', b: '#4a2c14', C: '#2a2430', c: '#c8a040', F: '#c8b88a', W: '#2a2430', o: '#c8a040' }) },
+  // cadete de West Point (1913): guerrera gris con botones y quepis gris
+  cadete: { ...BASE13, ceja: hex('#6a4a2a'), tocado: 'kepi', pal: CLARA({ H: '#8a5a2a', h: '#a8743c', C: '#8c8ca0', c: '#6a6a7e', F: '#8c8ca0', W: '#f2eee2', o: '#2a2430' }) },
+  // periodista de 1913: traje marrón y bombín
+  periodista: { ...BASE13, ceja: hex('#3a2418'), tocado: 'fedora', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#7a5a3a', c: '#5a4028', F: '#5a4a3a', G: '#2a2430', W: '#f2eee2', o: '#2a2430' }) },
+  // jugador de 1905: jersey de lana a rayas, sin casco, pelo revuelto
+  jugador1905: { ...BASE13, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#8a2a2a', c: '#e8d8b4', F: '#c8b88a', W: '#8a2a2a', o: '#e8d8b4' }) },
+  // Theodore Roosevelt (1905): traje oscuro, gafas y bigote; siempre con trato serio
+  roosevelt: { ...BASE13, ceja: hex('#5a3a24'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#6a4a2a', h: '#8a6a44', C: '#3a3a4a', c: '#2a2a36', F: '#2e2e3c', W: '#f2eee2', o: '#c8a040' }) },
+  // representantes de las universidades (1905): traje y cuello duro
+  rector: { ...BASE13, ceja: hex('#6a6a7a'), pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#2e2e3c', c: '#1c1c24', F: '#2e2e3c', W: '#f2eee2', o: '#8a2a2a' }) },
+  // Eddie Cochems (1906): entrenador, jersey de cuello alto gris y gorra
+  cochems: { ...BASE13, ceja: hex('#3a2418'), tocado: 'gorra', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#7a7a8a', c: '#5a5a6a', F: '#3a3a4a', W: '#f2eee2', o: '#2a3a7a' }) },
+  // Bradbury Robinson y Jack Schneider (Saint Louis, 1906): jersey azul con franja blanca
+  robinson: { ...BASE13, ceja: hex('#8a5a2a'), pal: CLARA({ H: '#a8743c', h: '#c8904c', C: '#2a4a8a', c: '#f2eee2', F: '#c8b88a', W: '#2a4a8a', o: '#f2eee2' }) },
+  schneider: { ...BASE13, ceja: hex('#1c1424'), pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#2a4a8a', c: '#f2eee2', F: '#c8b88a', W: '#2a4a8a', o: '#f2eee2' }) },
+  // el físico y su colega (hoy): camisa y gafas, pelo gris; la colega, bata clara
+  fisico: { ...BASE13, ceja: hex('#6a6a7a'), tocado: 'gafas', pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#4a6a9a', c: '#36507a', F: '#4a4a5a', W: '#f2eee2', o: '#2a2430' }) },
+  fisica: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8e8f0', c: '#b8b8c8', F: '#3a3a4a', W: '#e8e8f0', o: '#2a6a8a' }) },
+  // trabajadores de la fábrica de Ada: delantal de cuero sobre camisa azul
+  obrero: { ...BASE13, ceja: hex('#5a3418'), pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#3e5a8a', c: '#8a5a2a', F: '#3a3a4a', W: '#3e5a8a', o: '#c8a040' }) },
+  obrera: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#a85a2a'), pal: CLARA({ H: '#c8783a', h: '#e0944c', C: '#3e5a8a', c: '#8a5a2a', F: '#3a3a4a', W: '#3e5a8a', o: '#c8a040' }) },
+  // Wellington Mara de niño (años veinte): recogepelotas con jersey y gorra
+  recogepelotas: { ...BASE13, ceja: hex('#3a2418'), tocado: 'gorra', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3e5a8a', c: '#2c4468', F: '#c8b88a', W: '#3e5a8a', o: '#c84a3a' }) },
+  // jugadores de hoy, de equipos inventados: verde azulado con naranja, y granate con blanco
+  pateador: { ...BASE13, ceja: hex('#5a3418'), tocado: 'futbol', pal: CLARA({ H: '#5a3418', h: '#8a5428', X: '#1e8a8a', x: '#e8783a', w: '#7ad8d8', C: '#1e8a8a', c: '#e8783a', F: '#f2eee2', W: '#1e8a8a', o: '#e8783a' }) },
+  quarterback: { ...BASE13, ceja: hex('#1c1424'), tocado: 'futbol', pal: MORENA({ H: '#1c1424', h: '#3a3046', X: '#1e8a8a', x: '#e8783a', w: '#7ad8d8', C: '#1e8a8a', c: '#e8783a', F: '#f2eee2', W: '#1e8a8a', o: '#e8783a' }) },
+  receptor: { ...BASE13, ceja: hex('#8a5a2a'), tocado: 'futbol', pal: CLARA({ H: '#a8743c', h: '#c8904c', X: '#1e8a8a', x: '#e8783a', w: '#7ad8d8', C: '#1e8a8a', c: '#e8783a', F: '#f2eee2', W: '#1e8a8a', o: '#e8783a' }) },
+  liniero: { ...BASE13, ceja: hex('#1c1424'), tocado: 'futbol', pal: MORENA({ H: '#1c1424', h: '#3a3046', X: '#8a2a3a', x: '#f2eee2', w: '#d87a8a', C: '#8a2a3a', c: '#f2eee2', F: '#f2eee2', W: '#8a2a3a', o: '#f2eee2' }) },
+  // técnicos de la sala de datos: polo gris oscuro con auriculares
+  tecnico: { ...BASE13, ceja: hex('#5a3418'), tocado: 'auriculares', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#3a3a4a', c: '#2a2a36', F: '#4a4a5a', W: '#3a3a4a', o: '#2aa8a0', M: '#2a2430' }) },
+  tecnica: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'auriculares', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#3a3a4a', c: '#2a2a36', F: '#4a4a5a', W: '#3a3a4a', o: '#2aa8a0', M: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_FA);
+
+// ── Episodio 14: Oak Island, el Pozo del Dinero ────────────────────────────────────────────────────────────────────────
+const BASE14 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+export const ELENCO_OI = {
+  // Daniel McGinnis (1795): muchacho colono, camisa de lino crema, chaleco marrón y pelo castaño
+  mcginnis: { ...BASE14, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#7a5230', c: '#e8dcc0', F: '#5a4a3a', W: '#e8dcc0', o: '#c8a040' }) },
+  // sus dos amigos (1795): casaca azul con sombrero de copa baja, y camisa roja con gorra de lana
+  amigo1: { ...BASE14, ceja: hex('#2c2232'), tocado: 'capotain', pal: CLARA({ H: '#2c2232', h: '#54466a', C: '#3a4a6a', c: '#2a3650', F: '#5a4a3a', W: '#e8dcc0', o: '#c8a040' }) },
+  amigo2: { ...BASE14, ceja: hex('#a8743c'), tocado: 'gorra', pal: CLARA({ H: '#c8904c', h: '#e0ac64', C: '#8a3a2a', c: '#6a2a1e', F: '#5a4a3a', W: '#e8dcc0', o: '#2a2430' }) },
+  // obreros de las compañías (1803–1909): camisa clara, tirantes, pantalón de faena y sombrero
+  cavador: { ...BASE14, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#d8ccaa', c: '#5a3a24', F: '#4a4a5a', G: '#3a2a20', W: '#d8ccaa', o: '#5a3a24' }) },
+  cavador2: { ...BASE14, ceja: hex('#1c1424'), tocado: 'gorra', bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#7a8a9a', c: '#3a3a4a', F: '#5a4a3a', W: '#7a8a9a', o: '#3a3a4a' }) },
+  // el capataz de las compañías: chaleco oscuro, cadena de reloj y sombrero
+  capataz: { ...BASE14, ceja: hex('#3a2418'), tocado: 'fedora', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3a3a4a', c: '#f2eee2', F: '#5a4a3a', G: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // Franklin D. Roosevelt joven (1909): traje claro de verano, quevedos; siempre con trato serio
+  fdr: { ...BASE14, ceja: hex('#5a3a24'), tocado: 'gafas', pal: CLARA({ H: '#6a4a2a', h: '#8a6a44', C: '#c8bca0', c: '#a89c80', F: '#c8bca0', W: '#f2eee2', o: '#2a3a6a' }) },
+  // Roosevelt de niño en Campobello: traje de marinerito blanco con cuello azul
+  fdrNino: { ...BASE14, ceja: hex('#6a4a2a'), pal: CLARA({ H: '#8a6a44', h: '#a8865a', C: '#f2eee2', c: '#2a3a6a', F: '#f2eee2', W: '#2a3a6a', o: '#c84a3a' }) },
+  // marinero del barco de 1939: jersey azul marino y gorra
+  marinero39: { ...BASE14, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#2a3458', c: '#1c2440', F: '#2a3458', W: '#f2eee2', o: '#f2eee2' }) },
+  // la granjera de 1878 (Sophia Sellers): vestido marrón y delantal
+  granjera: { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#7a5a3a', c: '#5a4028', W: '#f2eee2', L: '#2a2430' }) },
+  // un geólogo (de cualquier época): chaqueta de lana verde, gafas y martillo
+  geologo: { ...BASE14, ceja: hex('#6a6a7a'), tocado: 'gafas', pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#4e6a4a', c: '#3a5038', F: '#5a4a3a', W: '#f2eee2', o: '#c8a040' }) },
+  // Rick Lagina de niño (1965): jersey rojo de lana y pelo castaño
+  rickNino: { ...BASE14, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#b83a3a', c: '#8a2a2a', F: '#3e5a8a', W: '#b83a3a', o: '#f2eee2' }) },
+  // Dan Blankenship (1965): camisa de trabajo caqui y gorra
+  blankenship: { ...BASE14, ceja: hex('#6a6a7a'), tocado: 'gorra', pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#a8946a', c: '#7a6a48', F: '#4a4a5a', W: '#a8946a', o: '#3a3a4a' }) },
+  // los hermanos Lagina (hoy): Rick con gorra verde y barba canosa; Marty con gorra azul y chaqueta
+  rick: { ...BASE14, ceja: hex('#8c8ca0'), tocado: 'gorra', bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#4e6a4a', c: '#3a5038', F: '#4a4a5a', W: '#4e6a4a', o: '#3a5038' }) },
+  marty: { ...BASE14, ceja: hex('#8c8ca0'), tocado: 'gorra', pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#2a4a7a', c: '#1e365c', F: '#4a4a5a', W: '#2a4a7a', o: '#1e365c' }) },
+  // técnicos de hoy: chaleco naranja de alta visibilidad y casco
+  operario: { ...BASE14, ceja: hex('#5a3418'), tocado: 'casco', pal: CLARA({ H: '#5a3418', h: '#8a5428', X: '#e8d84a', x: '#c8b83a', w: '#f8f0a0', C: '#e8783a', c: '#e8d84a', F: '#3a3a4a', W: '#e8783a', o: '#e8d84a' }) },
+  operaria: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'casco', pal: MORENA({ H: '#1c1424', h: '#3a3046', X: '#f2eee2', x: '#c8c8c8', w: '#ffffff', C: '#e8783a', c: '#e8d84a', F: '#3a3a4a', W: '#e8783a', o: '#e8d84a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_OI);
+
 // ── Público: bustos de frente (9 × 12) que se asoman por encima de una borda, un muro o una grada ─────────────────
 export const BUSTOS = {
   rizos: ['..kkkkk..', '.kHhHhHk.', 'kHhHHHhHk', 'kHSSSSSHk', 'kSeSSSeSk', 'kSSSsSSSk', '.kSSmSSk.', '..kSSSk..', '.kkCCCkk.', 'kCCCCCCCk', 'kCcCCCcCk', 'kCcCCCcCk'],
@@ -725,12 +879,33 @@ export function conChibi(R) {
   ];
   const brazoCache = new Map();
   const brazoArriba = (def, x, yC, dir, pal) => {
-    const fila = def.cuerpo[2] ?? '', manga = fila[12] && fila[12] !== '.' && fila[12] !== 'k' ? fila[12] : 'S';
+    const sh = -(def.dxCuerpo ?? 0), cm = 12 + 2 * sh;   // cuerpos anchos (ep19: Hulk, la Cosa): el hombro más afuera
+    const fila = def.cuerpo[2] ?? '', manga = fila[cm] && fila[cm] !== '.' && fila[cm] !== 'k' ? fila[cm] : 'S';
     if (!brazoCache.has(manga)) brazoCache.set(manga, BRAZO.map((f) => f.replace(/M/g, manga)));
-    dibujo(brazoCache.get(manga), dir > 0 ? x + 10 : x - 4, yC - 7, dir, pal);
+    dibujo(brazoCache.get(manga), dir > 0 ? x + 10 + sh : x - 4 - sh, yC - 7, dir, pal);
+  };
+
+  // brazo que sostiene algo (desde el 14, aprobado por el usuario): sale del hombro hacia el punto (tx, ty) —como mucho
+  // 9 px—, manga del color de la ropa y antebrazo de piel, de 2 px con su contorno, y acaba en una mano redonda de 3 px
+  // donde la escena pinta lo que se sostiene (un farol, una pala, una revista…). Devuelve dónde ha quedado la mano
+  const brazoSostiene = (def, x, yC, dir, pal, objetivo) => {
+    const sh = -(def.dxCuerpo ?? 0), cm = 12 + 2 * sh;
+    const fila = def.cuerpo[2] ?? '', manga = pal[fila[cm]] && fila[cm] !== '.' && fila[cm] !== 'k' ? pal[fila[cm]] : pal.S;
+    const sx = dir > 0 ? x + 12 + sh : x + 2 - sh, sy = yC + 2;
+    let [tx, ty] = Array.isArray(objetivo) ? objetivo : [sx + 7 * dir, yC + 5];
+    const dx = tx - sx, dy = ty - sy, d = Math.hypot(dx, dy) || 1, L = Math.min(9, d);
+    const hx = Math.round(sx + dx / d * L), hy = Math.round(sy + dy / d * L), n = Math.max(1, Math.round(L));
+    for (const borde of [1, 0]) for (let i = 0; i <= n; i++) {
+      const cx = Math.round(sx + (hx - sx) * i / n), cy = Math.round(sy + (hy - sy) * i / n), c = borde ? P.k : i < n * 0.55 ? manga : pal.S;
+      for (let a = -borde; a <= 1 + borde; a++) for (let b = -borde; b <= 1 + borde; b++) if (borde ? (Math.abs(a - 0.5) > 1 || Math.abs(b - 0.5) > 1) : true) pset(cx + a, cy + b, c);
+    }
+    for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) { const r = Math.hypot(a, b); if (r <= 2.3) pset(hx + a, hy + b, r > 1.5 ? P.k : pal.S); }
+    pset(hx + (dir > 0 ? 1 : -1), hy - 1, pal.s ?? pal.S);
+    return [hx, hy];
   };
 
   // un personaje del reparto. o: dir (1 mira a la derecha), dedo (explica con el índice), brazos (los dos arriba),
+  // sostiene (true o [x, y]: el brazo de delante sostiene algo ahí; devuelve la mano en .mano),
   // salto (px), habla, sonrisa, sorpresa, enfado, triste, pal (cambia letras: otro pelo, otra ropa)
   const sinBrazoCache = new Map();
   // paso: en las cinco filas de abajo (las piernas), media rejilla sube un píxel, así un pie se levanta del suelo
@@ -750,12 +925,18 @@ export function conChibi(R) {
     const vivo = !o.quieto && !o.anda && salto === 0, resp = (def.respira ?? vivo) && Math.sin(t * 2.6 + fase) > 0.75 ? 1 : 0;
     const paso = o.anda ? Math.floor(t * 5 + fase) % 2 : vivo && (t * 0.35 + fase * 0.1) % 3 < 0.25 ? 0 : -1;
     const yC = suelo - def.altoCuerpo - salto - (o.anda && paso === 1 ? 1 : 0), yH = yC - def.altoCab + resp;
-    const manos = o.sorpresa && o.manos === true, levanta = o.dedo || o.brazos || manos;   // las manos arriba junto a la cabeza parecían orejas: la sorpresa va en la cara (o.manos: true para levantarlas)
-    if (levanta && !sinBrazoCache.has(def)) sinBrazoCache.set(def, sinBrazo(def.cuerpo, def.brazoCol));
+    const manos = o.sorpresa && o.manos === true, levanta = o.dedo || o.brazos || manos || o.sostiene;   // las manos arriba junto a la cabeza parecían orejas: la sorpresa va en la cara (o.manos: true para levantarlas)
+    if (levanta && !sinBrazoCache.has(def)) sinBrazoCache.set(def, sinBrazo(def.cuerpo, def.brazoCol, ...(def.brazoFilas ?? [])));
     const base = levanta ? sinBrazoCache.get(def) : def.cuerpo;
-    dibujo(paso >= 0 ? conPaso(base, paso) : base, x, yC, dir, pal);
+    // ep19: def.detras / def.delante (capa, alas, cola, katanas; garras, llamas, brillos) reciben un contexto con px y rej
+    // en coordenadas de la rejilla de 15 px (se voltean solas con dir); def.dxCuerpo centra un cuerpo más ancho que 15
+    const lado = (y0) => ({ px: (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(y0 + j), c), rej: (g, i, j, p = pal) => dibujo(g, dir > 0 ? x + i : x + 15 - i - g[0].length, y0 + j, dir, p) });
+    const ctx = (def.detras || def.delante) && { x, yC, yH, suelo, dir, pal, t, o, pset, pget: R.pget, cuerpo: lado(yC), cab: lado(yH) };
+    if (def.detras) def.detras(ctx);
+    dibujo(paso >= 0 ? conPaso(base, paso) : base, x + (def.dxCuerpo ?? 0), yC, dir, pal);
     if (o.dedo && !o.brazos && !manos) brazoArriba(def, x, yC, dir, pal);
     if (o.brazos || manos) { brazoArriba(def, x, yC, 1, pal); brazoArriba(def, x, yC, -1, pal); }
+    const sostiene = o.sostiene && !o.brazos ? brazoSostiene(def, x, yC, dir, pal, o.sostiene) : null;   // o.sostiene: true (delante, a la altura del pecho) o [x, y]
     dibujo(def.cab, x, yH, dir, pal);
     const px = (i, j, c) => pset(Math.round(x + (dir > 0 ? i : 14 - i)), Math.round(yH + j), c);
     if (!def.sinCara) {
@@ -767,8 +948,9 @@ export function conChibi(R) {
     }
     const toc = o.tocado ?? def.tocado;
     if (toc) { const [g, dy] = TOCADOS[toc]; dibujo(g, x, yH + dy, dir, pal); }
+    if (def.delante) def.delante(ctx);
     if (salto > 0) for (let i = -5; i <= 5; i++) if (Math.abs(i) > 2 - salto * 0.2) pset(x + 7 + i, suelo + 1, COL.mad1);
-    return { cabeza: [x + 7, yH], mano: [dir > 0 ? x + 15 : x, yH - 4] };
+    return { cabeza: [x + 7, yH], mano: sostiene ?? [dir > 0 ? x + 15 : x, yH - 4] };
   };
 
   // un busto del público en (x, y) = esquina de arriba; t para parpadear; o.rie, o.saluda
@@ -850,3 +1032,9446 @@ export function conChibi(R) {
   Object.defineProperty(K, 'buf', { get: () => R.buf, enumerable: true });
   return K;
 }
+
+// ── Episodio 15: Nueva York, de isla de bosques a ciudad de rascacielos (1524–hoy) ─────────────────────────────────────
+// Los lenapes, con respeto y según las fuentes (plumas de colores en 1524, por la carta de Verrazzano); sin burlas.
+const BASE15 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE15M = { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE15P = { cab: CAB_CORTO, cuerpo: CUERPO_PEREGRINO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+export const ELENCO_NY = {
+  // Giovanni da Verrazzano (1524): jubón granate, barba oscura, gorra negra de terciopelo
+  verrazzano: { ...BASE15, ceja: hex('#1c1424'), tocado: 'boina', bigote: true, pal: CLARA({ J: '#2a2430', j: '#4c4660', H: '#1c1424', h: '#3a3046', C: '#7a2a3a', c: '#5a1e2a', F: '#3a3046', W: '#e8dcc0', o: '#c8a040' }) },
+  // marineros de La Dauphine (1524) y del Halve Maen (1609): camisa de lino, chaleco y gorro de lana
+  marinero: { ...BASE15, ceja: hex('#6a3a1a'), tocado: 'boina', pal: CLARA({ J: '#8a3a2a', j: '#a85a44', H: '#7a4a24', h: '#a8743c', C: '#c8bc9a', c: '#7a5a3a', F: '#5a4a3a', W: '#c8bc9a', o: '#8a3a2a' }) },
+  marinero2: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#4a5a7a', c: '#36425a', F: '#5a4a3a', W: '#e8dcc0', o: '#c8a040' }) },
+  // los lenapes (1524–1626): manto de piel, collar de cuentas; plumas de colores
+  lenape: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma', pal: NATIVA({ W: '#3e9ad4', w: '#2a70a8', D: '#d84a3a' }) },
+  lenape2: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'plumas', pal: NATIVA({ W: '#e8c840', w: '#c8a020', B: '#a8784a', b: '#7a5030' }) },
+  lenapa: { ...BASE15M, ceja: hex('#1c1424'), pal: NATIVA({ C: '#b8895a', c: '#8a6038', W: '#d8b07a', L: '#6a4a2a' }) },
+  // Henry Hudson (1609): casaca oscura, cuello blanco, sombrero alto y barba
+  hudson: { ...BASE15P, ceja: hex('#6a3a1a'), tocado: 'capotain', bigote: true, pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#2a3046', F: '#3a3046', G: '#5a3a20' }) },
+  // Juan Rodríguez (1613): marinero nacido en Santo Domingo, camisa roja y pañuelo, con su hacha
+  rodriguez: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ S: '#a86a40', s: '#7a4a2a', H: '#1c1424', h: '#3a3046', C: '#a83a2a', c: '#7a2a1e', F: '#5a4a3a', W: '#e8dcc0', o: '#e8c840' }) },
+  // colonos holandeses (1624–1664): casaca oscura y sombrero alto; ella con cofia y delantal
+  colono: { ...BASE15P, ceja: hex('#8a5428'), tocado: 'capotain', pal: CLARA({ H: '#a8703a', h: '#c8904c', C: '#3a4a3a', F: '#3a3046', G: '#5a3a20' }) },
+  colona: { ...BASE15M, ceja: hex('#a8743c'), tocado: 'cofia', pal: CLARA({ H: '#c8904c', h: '#e0ac64', C: '#3a3a5a', c: '#2a2a46', W: '#f2eee2', L: '#2a2430' }) },
+  // Peter Stuyvesant (1664): casaca negra con cuello blanco, pelo gris y sombrero; trato serio, sin burlas
+  stuyvesant: { ...BASE15P, ceja: hex('#6a6a7a'), tocado: 'capotain', bigote: true, pal: CLARA({ H: '#8c8ca0', h: '#b8bccc', C: '#1c1c24', F: '#2a2430', G: '#3a2a20' }) },
+  // oficial inglés (1664–1783): casaca roja, pelo empolvado, tricornio negro
+  ingles: { ...BASE15, ceja: hex('#8a8a9a'), tocado: 'tricornio', pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#b8302a', c: '#8a2420', F: '#f2eee2', W: '#f2eee2', o: '#e8c840' }) },
+  casacaRoja: { ...BASE15, ceja: hex('#5a3418'), tocado: 'tricornio', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#b8302a', c: '#8a2420', F: '#f2eee2', W: '#f2eee2', o: '#f2eee2' }) },
+  // delegados de 1765 y congresistas de 1789: casaca de paño, chaleco, peluca blanca
+  delegado: { ...BASE15, ceja: hex('#8a8a9a'), tocado: 'tricornio', pal: CLARA({ H: '#f2eee2', h: '#d8d4cc', C: '#3a4a6a', c: '#c8a878', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  delegado2: { ...BASE15, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#5a3a2a', c: '#e8dcc0', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // los Hijos de la Libertad (1765): casaca marrón y tricornio; un farol en la mano
+  libertad: { ...BASE15, ceja: hex('#3a2418'), tocado: 'tricornio', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#7a5a3a', c: '#5a4028', F: '#3a3046', W: '#e8dcc0', o: '#c8a040' }) },
+  libertad2: { ...BASE15, ceja: hex('#a8743c'), pal: CLARA({ H: '#c8904c', h: '#e0ac64', C: '#4a5a3a', c: '#36442a', F: '#5a4a3a', W: '#e8dcc0', o: '#c8a040' }) },
+  // George Washington (1776–1789): casaca azul con solapas beis, pelo empolvado; tricornio en la guerra. Trato serio
+  washington: { ...BASE15, ceja: hex('#8a8a9a'), tocado: 'tricornio', pal: CLARA({ H: '#f2eee2', h: '#d8d4cc', C: '#2a3a6a', c: '#d8c49a', F: '#d8c49a', W: '#f2eee2', o: '#e8c840' }) },
+  // Washington en la investidura (1789): traje marrón de paño, sin sombrero
+  washington89: { ...BASE15, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#f2eee2', h: '#d8d4cc', C: '#6a4a2a', c: '#4e3420', F: '#6a4a2a', W: '#f2eee2', o: '#c8a040' }) },
+  // soldados continentales (1776): casaca azul o de cazador, tricornio
+  continental: { ...BASE15, ceja: hex('#5a3418'), tocado: 'tricornio', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#2a3a6a', c: '#f2eee2', F: '#c8bc9a', W: '#f2eee2', o: '#c8a040' }) },
+  continental2: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#8a7a52', c: '#6a5a3a', F: '#c8bc9a', W: '#e8dcc0', o: '#5a3a20' }) },
+  // el marinero del mástil (1783): camisa a rayas y gorro
+  marinero83: { ...BASE15, ceja: hex('#a8743c'), tocado: 'boina', pal: CLARA({ J: '#2a3a6a', j: '#4a5a8a', H: '#c8904c', h: '#e0ac64', C: '#f2eee2', c: '#2a3a6a', F: '#2a3a6a', W: '#f2eee2', o: '#c84a3a' }) },
+  // DeWitt Clinton (1825): levita negra, chaleco, pelo castaño y chistera
+  clinton: { ...BASE15, ceja: hex('#5a3418'), tocado: 'chistera', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#1c1c24', c: '#f2eee2', F: '#2e2e3c', W: '#f2eee2', o: '#c8a040' }) },
+  // obreros del canal y del puerto (1825–1860): camisa clara, tirantes y gorra
+  estibador: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#d8ccaa', c: '#5a3a24', F: '#4a4a5a', W: '#d8ccaa', o: '#5a3a24' }) },
+  estibador2: { ...BASE15, ceja: hex('#1c1424'), bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#7a8a9a', c: '#3a3a4a', F: '#5a4a3a', W: '#7a8a9a', o: '#3a3a4a' }) },
+  // comerciante y vecina de las brownstones (1850): levita y chistera; vestido largo
+  comerciante: { ...BASE15, ceja: hex('#3a2418'), tocado: 'chistera', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3a3a4a', c: '#e8dcc0', F: '#5a4a3a', W: '#f2eee2', o: '#c8a040' }) },
+  dama: { ...BASE15M, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#6a4a7a', c: '#4e3460', W: '#f2eee2', L: '#2a2430' }) },
+  // emigrantes (1840–1900): chaqueta gastada y gorra; ella con chal y pañuelo
+  emigrante: { ...BASE15, ceja: hex('#6a3a1a'), tocado: 'gorra', pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#5a5a4a', c: '#3e3e34', F: '#4a4a5a', W: '#e8dcc0', o: '#5a3a24' }) },
+  emigrante2: { ...BASE15, ceja: hex('#1c1424'), bigote: true, pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#6a4a3a', c: '#4e3428', F: '#3a3a4a', W: '#e8dcc0', o: '#c8a040' }) },
+  emigranta: { ...BASE15M, ceja: hex('#a85a2a'), tocado: 'cofia', pal: CLARA({ H: '#c8783a', h: '#e0944c', C: '#7a3a3a', c: '#5a2a2a', W: '#d8ccaa', L: '#2a2430' }) },
+  // Annie Moore (1892): muchacha irlandesa, abrigo verde oscuro y pelo pelirrojo; sus hermanos, con gorra
+  annie: { ...BASE15M, ceja: hex('#a8502a'), pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#3a5a3a', c: '#2a442a', W: '#e8dcc0', L: '#2a2430' }) },
+  hermanoMoore: { ...BASE15, ceja: hex('#a8502a'), tocado: 'gorra', pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#5a4a3a', c: '#3e3428', F: '#4a4a5a', W: '#e8dcc0', o: '#5a4a3a' }) },
+  // funcionario de Ellis Island (1892): uniforme azul marino y gorra de plato
+  funcionario: { ...BASE15, ceja: hex('#3a2418'), tocado: 'gorra', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#2a3458', c: '#1c2440', F: '#2a3458', W: '#f2eee2', o: '#c8a040' }) },
+  // Emily Roebling (1883): vestido largo morado oscuro y pelo recogido; Washington Roebling, barba y bata, en la ventana
+  emily: { ...BASE15M, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#4a2a4a', c: '#341c34', W: '#f2eee2', L: '#2a2430' }) },
+  roebling: { ...BASE15, ceja: hex('#5a3418'), bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a5a6a', c: '#42424e', F: '#3a3a4a', W: '#f2eee2', o: '#2a2430' }) },
+  // Elisha Otis (1854): barba, levita negra y chistera
+  otis: { ...BASE15, ceja: hex('#3a2418'), tocado: 'chistera', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#1c1c24', c: '#f2eee2', F: '#2e2e3c', W: '#f2eee2', o: '#c8a040' }) },
+  // obreros de las vigas (1902–1931): mono de trabajo, gorra y camisa de cuadros
+  vigas: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#3e5a8a', c: '#2c4468', F: '#3e5a8a', W: '#c84a3a', o: '#c8a040' }) },
+  vigas2: { ...BASE15, ceja: hex('#1c1424'), tocado: 'gorra', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#7a6a4a', c: '#5a4a32', F: '#4a4a5a', W: '#7a6a4a', o: '#3a3a4a' }) },
+  // oficinistas (1915–1931): traje gris, corbata y sombrero de fieltro
+  oficinista: { ...BASE15, ceja: hex('#3a2418'), tocado: 'fedora', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#5e5e70', c: '#46465a', F: '#5e5e70', G: '#2a2430', W: '#f2eee2', o: '#8a2a2a' }) },
+  oficinista2: { ...BASE15M, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a5a6a', c: '#1e4450', W: '#f2eee2', L: '#2a2430' }) },
+  // neoyorquinos de hoy: chaqueta, sudadera, abrigo
+  neoyorquino: { ...BASE15, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8783a', c: '#c85a2a', F: '#2a3a5a', W: '#e8783a', o: '#f2eee2' }) },
+  neoyorquina: { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#8a4a24', h: '#a8643a', C: '#2a6a5a', c: '#1e5044', F: '#3a3a4a', W: '#2a6a5a', o: '#e8c840' }) },
+  neoyorquino2: { ...BASE15, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a4a8a', c: '#42366a', F: '#3a3a4a', W: '#5a4a8a', o: '#e8c840' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_NY);
+
+// ── Episodio 16: homenaje a las aventuras de LucasArts (1987–1998 y hoy) ──────────────────────────────────────────────
+// Personajes de homenaje, dibujados por nosotros y reconocibles por su silueta y su ropa, sin copiar sprites. Los que no
+// son humanos (los dos tentáculos, el perro y el conejo detectives, el esqueleto agente de viajes, el demonio mecánico,
+// el mono de tres cabezas, el hámster) son piezas de la-comun.js.
+const BASE16 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE16M = { cab: CAB_EGIPCIA, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const BASE16V = { cab: CAB_EGIPCIA, cuerpo: CUERPO_VESTIDO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+export const ELENCO_LA = {
+  // el científico loco: bata blanca, gafas y pelo blanco revuelto
+  cientifico: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#f2eee2', h: '#c8c4bc', C: '#f2eee2', c: '#c8c0b0', F: '#4a4a5a', W: '#f2eee2', o: '#4aa8a0' }) },
+  // el empollón: gafas, camisa clara de manga corta con bolígrafos y pelo castaño
+  empollon: { ...BASE16, ceja: hex('#6a3a1a'), tocado: 'gafas', pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#e8e0c8', c: '#c8bc9a', F: '#6a5a4a', W: '#e8e0c8', o: '#3a5a8a' }) },
+  // el roquero: camiseta negra, gorra roja al revés y pelo largo castaño
+  roquero: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a2430', c: '#c84a3a', F: '#3e5a8a', W: '#2a2430', o: '#c84a3a' }) },
+  // la chica rara: vestido de bata de enfermera verde y pelo oscuro
+  chicaRara: { ...BASE16M, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#7aa87a', c: '#5a8a5a', F: '#3a3a4a', W: '#7aa87a', o: '#f2eee2' }) },
+  // el aspirante a pirata: camisa blanca, pantalón oscuro, coleta rubia
+  aspirante: { ...BASE16, ceja: hex('#a8743c'), pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#f2eee2', c: '#c8c0b0', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // la gobernadora: vestido rojo y pelo pelirrojo
+  gobernadora: { ...BASE16V, ceja: hex('#a8502a'), pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#a83a3a', c: '#7a2a2a', W: '#f2eee2', L: '#2a2430' }) },
+  // el pirata fantasma: casaca azul, barba verde, piel verdosa y sombrero de capitán
+  fantasma: { ...BASE16, ceja: hex('#2a6a3a'), tocado: 'bicornio', bigote: true, pal: { S: hex('#a8d8a8'), s: hex('#78a878'), H: hex('#3a8a4a'), h: hex('#5aa86a'), C: hex('#2a3a6a'), c: hex('#1e2a50'), F: hex('#2a2430'), W: hex('#c8f0c8'), o: hex('#e8c840'), N: hex('#1c1c24'), D: hex('#c84a3a') } },
+  // la maestra de esgrima: chaqueta oscura con fajín y pelo recogido
+  esgrimista: { ...BASE16M, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#4a2a4a', c: '#c84a3a', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // un pirata de la taberna: camisa a rayas y pañuelo
+  pirata: { ...BASE16, ceja: hex('#1c1424'), bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#f2eee2', c: '#c84a3a', F: '#5a4a3a', W: '#f2eee2', o: '#c84a3a' }) },
+  // diseñadores y programadores de los ochenta: camisa de cuadros, gafas, barba
+  disenador: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a3a3a', c: '#c8a878', F: '#3e5a8a', W: '#8a3a3a', o: '#c8a878' }) },
+  disenador2: { ...BASE16, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#3e6a8a', c: '#2c5068', F: '#4a4a5a', W: '#e8e0c8', o: '#c8a040' }) },
+  disenadora: { ...BASE16M, ceja: hex('#a85a2a'), tocado: 'gafas', pal: CLARA({ H: '#c8783a', h: '#e0944c', C: '#6a8a4a', c: '#4e6a38', F: '#3a3a4a', W: '#6a8a4a', o: '#f2eee2' }) },
+  // los músicos: jersey y camisa
+  musico: { ...BASE16, ceja: hex('#3a2418'), bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#5a4a7a', c: '#42365c', F: '#3a3a4a', W: '#5a4a7a', o: '#f2eee2' }) },
+  // un caballero de 1793 que vuela una cometa: casaca marrón, peluca gris y gafitas
+  caballero: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#c8c4bc', h: '#a8a49c', C: '#6a4a2a', c: '#4e3420', F: '#2a2430', W: '#f2eee2', o: '#c8a040' }) },
+  // un motero: chupa negra y pelo negro
+  motero: { ...BASE16, ceja: hex('#1c1424'), bigote: true, pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#1c1c24', c: '#5a5a6a', F: '#2a3a5a', W: '#1c1c24', o: '#c8c8d0' }) },
+  // un astronauta: traje blanco
+  astronauta: { ...BASE16, ceja: hex('#5a3418'), pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#e8e8f0', c: '#b8b8c8', F: '#e8e8f0', W: '#e8e8f0', o: '#c84a3a' }) },
+  // el chico de los noventa y de hoy, y su padre
+  chico: { ...BASE16, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#3e8a6a', c: '#2c6a50', F: '#3e5a8a', W: '#3e8a6a', o: '#f2eee2' }) },
+  padre: { ...BASE16, ceja: hex('#5a5a6a'), bigote: true, pal: CLARA({ H: '#6a6a7a', h: '#8a8a9a', C: '#7a5a3a', c: '#5a4028', F: '#3a3a4a', W: '#e8e0c8', o: '#c8a040' }) },
+  // creadores con canas (2016–2022): camisa y barba gris
+  creador: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#2a2430', c: '#5a5a6a', F: '#3e5a8a', W: '#2a2430', o: '#c84a3a' }) },
+  creador2: { ...BASE16, ceja: hex('#8a8a9a'), bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#6a3a3a', c: '#4e2a2a', F: '#3a3a4a', W: '#6a3a3a', o: '#f2eee2' }) },
+  // jóvenes que hacen juegos hoy
+  joven: { ...BASE16M, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8783a', c: '#c85a2a', F: '#2a3a5a', W: '#e8783a', o: '#f2eee2' }) },
+  joven2: { ...BASE16, ceja: hex('#5a3418'), tocado: 'auriculares', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#5a4a8a', c: '#42366a', F: '#3a3a4a', W: '#5a4a8a', o: '#e8c840', M: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_LA);
+
+// ── Episodio 17 (los tesoros perdidos): templarios, reyes, papas, masones, curas, arqueólogos y buscadores ─────────
+// caballero templario: sobreveste blanca larga hasta las rodillas con la cruz roja en el pecho (D), cota de malla gris
+// en brazos y piernas (Z/z), cinturón y botas. Con otra paleta (W negro, D blanco) es un hospitalario.
+const CUERPO_TEMPLARIO = [
+  '...kkZZZZZkk...',
+  '..kWWWWDWWWWk..',
+  '.kZkWWDDDWWkZk.',
+  '.kZkWWWDWWWkZk.',
+  '.kZkWWWDWWWkZk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkWWWWWWWkk..',
+  '...kWWWkWWWk...',
+  '...kWWWkWWWk...',
+  '...kZZZkZZZk...',
+  '...kzzzkzzzk...',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
+// túnica larga hasta los pies (rey, papa, obispo, peregrino medieval, poeta): C/c la túnica, o el ribete
+const CUERPO_TUNICA_LARGA = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kcccccccck..',
+  '...kooooooook..',
+  '...kkLkkkkLkk..',
+];
+// sotana negra con alzacuello blanco y botones (el cura de 1885)
+const CUERPO_SOTANA = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCoCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCoCCCk...',
+  '...kCCCCCCCk...',
+  '...kcccccccck..',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// masón del siglo XVIII: casaca con chaleco, y el mandil blanco atado a la cintura (W, con ribete azul A)
+const CUERPO_MANDIL = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkAAAAAAAkSk.',
+  '..kkAWWWWWAkk..',
+  '...kAWWWWWAk...',
+  '...kAWWWWWAk...',
+  '...kAAAAAAAk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// buscador de tesoros de hoy: chaleco de muchos bolsillos sobre camisa, pantalón de campo y botas
+const CUERPO_BUSCADOR = [
+  '...kkCCCCCkk...',
+  '..kCVVCCCVVCk..',
+  '.kCkVoVCVoVkCk.',
+  '.kCkVVVCVVVkCk.',
+  '.kCkVoVCVoVkCk.',
+  '.kSkVVVCVVVkSk.',
+  '..kkGGGGGGGkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kffFkFffk...',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
+Object.assign(TOCADOS, {
+  // corona de oro de rey (1307), con tres puntas y piedras rojas
+  corona: [[
+    '...k.k.k.k.k...',
+    '...kokokokok...',
+    '...kooDoooDok..',
+    '...kkkkkkkkk...',
+  ], -3],
+  // mitra de papa u obispo: alta y blanca (X) con la franja de oro (o) en medio
+  mitra: [[
+    '.....kkkkk.....',
+    '....kXXoXXk....',
+    '...kXXXoXXXk...',
+    '...kXXXoXXXk...',
+    '...kXXXoXXXk...',
+    '...kooooooook..',
+    '...kkkkkkkkkk..',
+  ], -6],
+  // capucha de malla de caballero (gris), que tapa el pelo y las orejas, nunca la cara
+  malla: [[
+    '...kkkkkkkk....',
+    '..kZZzZZzZZk...',
+    '.kZzZZzZZzZZk..',
+    '.kZZk.......k..',
+    '.kzZk..........',
+    '.kZZk..........',
+    '.kzZk..........',
+  ], 0],
+});
+export const ELENCO_TE = {
+  // el buscador de tesoros con su detector (nuestro, de hoy): fedora marrón, chaleco verde oliva y barba de tres días
+  buscador: { ...BASE16, cuerpo: CUERPO_BUSCADOR, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#e8dcc0', c: '#c8bc9a', V: '#6a7a3a', F: '#7a6a4a', f: '#5a4e34', G: '#5a3a1a', o: '#c8a040', J: '#7a4a24', j: '#5a3418' }) },
+  // caballeros templarios de 1120–1307: sobreveste blanca con cruz roja y capucha de malla
+  templario: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#3a2418'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', W: '#f2eee2', D: '#c8303a', G: '#5a3a1a', L: '#4a3020' }) },
+  templario2: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#a8743c'), tocado: 'malla', pal: CLARA({ H: '#a8743c', h: '#c8984a', W: '#f2eee2', D: '#c8303a', G: '#5a3a1a', L: '#4a3020' }) },
+  // Jacques de Molay, el último maestre (1314): mayor, barba blanca, sobreveste de templario sin malla
+  molay: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#c8c4bc'), bigote: true, pal: CLARA({ H: '#d8d4cc', h: '#f2eee2', W: '#f2eee2', D: '#c8303a', G: '#5a3a1a', L: '#4a3020' }) },
+  // un hospitalario: la misma sobreveste en negro con la cruz blanca
+  hospitalario: { ...BASE16, cuerpo: CUERPO_TEMPLARIO, ceja: hex('#1c1424'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#1c1424', h: '#3a3046', W: '#2a2430', D: '#f2eee2', G: '#5a3a1a', L: '#4a3020' }) },
+  // el rey Felipe IV de Francia (1307): túnica azul con ribete de oro, corona y pelo castaño claro
+  felipe: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a5a30'), tocado: 'corona', pal: CLARA({ H: '#a8743c', h: '#c8984a', C: '#2a4a9a', c: '#1e3670', o: '#e8b830', G: '#c8a040', L: '#3a2a4a', D: '#c8303a' }) },
+  // el papa (1312) y un obispo: túnica blanca o morada y mitra
+  papa: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a9a'), tocado: 'mitra', pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#f2eee2', c: '#c8c0b0', o: '#e8b830', G: '#e8b830', L: '#c8303a', X: '#f2eee2' }) },
+  obispo: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a9a'), tocado: 'mitra', bigote: true, pal: CLARA({ H: '#9c9cac', h: '#c8ccd8', C: '#6a2a7a', c: '#4e1e5a', o: '#e8b830', G: '#e8b830', L: '#2a2430', X: '#f2eee2' }) },
+  // soldados del rey (1307): capucha de malla y túnica azul con la flor dorada
+  soldado: { ...BASE16, ceja: hex('#3a2418'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#2a4a9a', c: '#1e3670', F: '#5a5a6a', W: '#c0c4d4', o: '#e8b830' }) },
+  // un peregrino medieval: hábito pardo largo con la concha (o), y un ladrón de caminos: túnica verde oscura
+  peregrino: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a6a4a', c: '#6a5038', o: '#f2eee2', G: '#5a3a1a', L: '#5a3a1a' }) },
+  ladron: { ...BASE16, ceja: hex('#1c1424'), bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#3a5a3a', c: '#2a422a', F: '#4a3a2a', W: '#3a5a3a', o: '#8a6a3a' }) },
+  // un escribano: túnica gris y pelo castaño
+  escribano: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#6a3a1a'), pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#6a6a7a', c: '#4e4e5c', o: '#c8c0b0', G: '#3a2a1a', L: '#3a2a1a' }) },
+  // el poeta (1190–1210): túnica roja larga y boina
+  poeta: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), tocado: 'boina', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#a83a3a', c: '#7a2a2a', o: '#e8b830', G: '#5a3a1a', L: '#3a2a1a', J: '#2a4a6a', j: '#1e3650' }) },
+  // masones del siglo XVIII (1717–1760): casaca, peluca y mandil; Andrew Ramsay, con casaca granate
+  mason: { ...BASE16, cuerpo: CUERPO_MANDIL, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#3a3a5a', c: '#2a2a44', W: '#f2eee2', A: '#3a6ac8', F: '#2a2430', o: '#e8b830' }) },
+  mason2: { ...BASE16, cuerpo: CUERPO_MANDIL, ceja: hex('#5a3418'), tocado: 'tricornio', pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#4a3a2a', c: '#33281c', W: '#f2eee2', A: '#3a6ac8', F: '#2a2430', o: '#e8b830', J: '#1c1c24', j: '#3a3a4a' }) },
+  ramsay: { ...BASE16, cuerpo: CUERPO_MANDIL, ceja: hex('#8a8a9a'), pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#7a2a3a', c: '#5a1e2a', W: '#f2eee2', A: '#3a6ac8', F: '#2a2430', o: '#e8b830' }) },
+  // Bérenger Saunière (1885–1910): sotana negra y pelo oscuro
+  sauniere: { ...BASE16, cuerpo: CUERPO_SOTANA, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#1c1c24', c: '#2a2a34', W: '#f2eee2', o: '#5a5a6a', L: '#1c1c24' }) },
+  // el dueño del hotel (años cincuenta): traje claro, corbata y bigote; un periodista con gabardina
+  corbu: { ...BASE16, ceja: hex('#3a2418'), bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#c8b89a', c: '#a8987a', F: '#a8987a', W: '#f2eee2', o: '#a83a3a' }) },
+  periodista: { ...BASE16, ceja: hex('#5a3418'), tocado: 'fedora', pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#a88a5a', c: '#86683e', F: '#4a4a5a', W: '#e8e0c8', o: '#3a3a4a', J: '#4a4a5a', j: '#2a2a34' }) },
+  // arqueólogos de 1952 con salacot y camisa caqui; el ingeniero de Manchester con bata gris
+  arqueologo: { ...BASE16, ceja: hex('#5a3418'), tocado: 'salacot', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#c8b078', c: '#a8905a', F: '#a8905a', W: '#c8b078', o: '#7a5a3a' }) },
+  arqueologa: { ...BASE16M, ceja: hex('#a8502a'), tocado: 'salacot', pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#c8b078', c: '#a8905a', F: '#7a6a4a', W: '#c8b078', o: '#f2eee2' }) },
+  ingeniero: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#6a6a7a', h: '#8a8a9a', C: '#8a8e9a', c: '#6a6e7a', F: '#3a3a4a', W: '#8a8e9a', o: '#3a3a4a' }) },
+  // Forrest Fenn (2010): mayor, pelo blanco, sombrero vaquero y chaleco; el estudiante de 2020 con gorra y mochila
+  fenn: { ...BASE16, ceja: hex('#c8c4bc'), tocado: 'vaquero', pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#e8dcc0', c: '#c8bc9a', F: '#3a4a6a', W: '#7a5a3a', o: '#c8a040', J: '#7a5a3a', j: '#5a3e24' }) },
+  estudiante: { ...BASE16, ceja: hex('#1c1424'), tocado: 'gorra', pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#3a6a8a', c: '#2a5068', F: '#4a4a5a', W: '#3a6a8a', o: '#e8783a' }) },
+  // gente de hoy: una niña en el museo y turistas
+  nina: { ...BASE16M, ceja: hex('#1c1424'), pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#e8783a', c: '#c85a2a', F: '#3a4a7a', W: '#e8783a', o: '#f2eee2' }) },
+  turista: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gorra', pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#e84a7a', c: '#c83a5a', F: '#3e5a8a', W: '#e84a7a', o: '#f2eee2' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_TE);
+export const ELENCO_SI = {
+  // Roberta Williams en 1979–1990: pelo castaño largo con flequillo, jersey malva; y de mayor (2020–2023): media melena rubia ceniza y gafas
+  roberta: { ...BASE16M, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#9a6a9a', c: '#7a4e7a', F: '#3a4a6a', W: '#9a6a9a', o: '#f2eee2' }) },
+  robertaMayor: { ...BASE16M, ceja: hex('#a8987a'), tocado: 'gafas', pal: CLARA({ H: '#d8c8a0', h: '#c0ae84', C: '#3a6a8a', c: '#2a5068', F: '#3a3a4a', W: '#3a6a8a', o: '#f2eee2' }) },
+  // Ken Williams en 1979–1990: pelo oscuro, barba, camisa de cuadros azul; y de mayor: pelo y barba grises, gafas
+  ken: { ...BASE16, ceja: hex('#2a1c14'), bigote: true, pal: CLARA({ H: '#2a1c14', h: '#4a3020', C: '#4a6a9a', c: '#c8d0e0', F: '#4a4a5a', W: '#4a6a9a', o: '#c8d0e0' }) },
+  kenMayor: { ...BASE16, ceja: hex('#8a8a9a'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#a8a8b4', h: '#c8ccd8', C: '#5a5a6a', c: '#3e3e4c', F: '#3a3a4a', W: '#5a5a6a', o: '#f2eee2' }) },
+  // el programador que exploraba cuevas (años setenta): casco con luz, mono caqui y barba
+  espeleologo: { ...BASE16, ceja: hex('#5a3418'), tocado: 'casco', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#a8905a', c: '#86703e', F: '#86703e', W: '#a8905a', o: '#e8c840' }) },
+  // dos ejecutivos de 1983: traje gris oscuro, camisa blanca y corbata
+  ejecutivo: { ...BASE16, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#3a3e4c', c: '#f2eee2', F: '#3a3e4c', W: '#3a3e4c', o: '#2a4a9a' }) },
+  ejecutivo2: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gafas', pal: CLARA({ H: '#c8984a', h: '#a8743c', C: '#2a2e3a', c: '#f2eee2', F: '#2a2e3a', W: '#2a2e3a', o: '#a83a3a' }) },
+  // el caballero del cuento (nuestro, homenaje): gorro rojo con pluma, túnica azul con cinturón, calzas rojas, pelo castaño
+  graham: { ...BASE16, ceja: hex('#6a3a1a'), tocado: 'pluma', pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#2a5aa8', c: '#1e4280', F: '#a83a3a', W: '#2a5aa8', o: '#c8a040', J: '#c83a3a', j: '#8a2a2a' }) },
+  // el viejo rey del cuento: túnica larga granate, corona y barba blanca
+  reyCuento: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#c8c4bc'), tocado: 'corona', bigote: true, pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#7a2a3a', c: '#5a1e2a', o: '#e8b830', G: '#e8b830', L: '#3a2a4a', D: '#e8b830' }) },
+  // la princesa del cuento: vestido azul celeste con ribete blanco y pelo rubio largo
+  rosella: { ...BASE16V, ceja: hex('#c8984a'), pal: CLARA({ H: '#f0c860', h: '#d8a840', C: '#6aa8d8', c: '#4a88b8', W: '#f2eee2', L: '#3a3a5a' }) },
+  // un gnomo del bosque: gorro rojo puntiagudo, barba blanca, chaqueta verde
+  gnomo: { ...BASE16, ceja: hex('#c8c4bc'), tocado: 'santa', bigote: true, pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#3a7a3a', c: '#2a5a2a', F: '#5a3a1a', W: '#3a7a3a', o: '#c83a3a' }) },
+  // la pastora de las canciones infantiles: vestido rosa, cofia blanca
+  pastora: { ...BASE16V, ceja: hex('#a8743c'), tocado: 'cofia', pal: CLARA({ H: '#c8984a', h: '#a8743c', C: '#e88aa8', c: '#c86a88', W: '#f2eee2', L: '#3a3a5a' }) },
+  // policía de carreteras de 1987: camisa caqui, pantalón verde oscuro, gorra; y su compañero, con bigote
+  policia: { ...BASE16, ceja: hex('#3a2418'), tocado: 'gorra', pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#c8b078', c: '#a8905a', F: '#3a4a3a', W: '#c8b078', o: '#e8c840', M: '#3a4a3a' }) },
+  policia2: { ...BASE16, ceja: hex('#1c1424'), tocado: 'gorra', bigote: true, pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#c8b078', c: '#a8905a', F: '#3a4a3a', W: '#c8b078', o: '#e8c840', M: '#3a4a3a' }) },
+  // la cajera del supermercado (1980): delantal verde y pelo rizado pelirrojo
+  cajera: { ...BASE16M, ceja: hex('#a8502a'), pal: CLARA({ H: '#c86a3a', h: '#e0844c', C: '#4a8a5a', c: '#f2eee2', F: '#3a3a4a', W: '#4a8a5a', o: '#f2eee2' }) },
+  // el cartero de 1981: uniforme azul grisáceo y gorra
+  cartero: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#6a7a9a', c: '#4e5c7a', F: '#3e4a6a', W: '#6a7a9a', o: '#c83a3a', M: '#3e4a6a' }) },
+  // los dos dibujantes de la oficina de la montaña (1986): uno con barba y camisa roja, otro rubio con camiseta amarilla
+  dibujante: { ...BASE16, ceja: hex('#3a2418'), bigote: true, pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#a83a3a', c: '#7a2a2a', F: '#3e5a8a', W: '#a83a3a', o: '#f2eee2' }) },
+  dibujante2: { ...BASE16, ceja: hex('#a8743c'), tocado: 'gafas', pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#e8c840', c: '#c8a830', F: '#3e5a8a', W: '#e8c840', o: '#3a3a4a' }) },
+  // el conserje espacial (nuestro, homenaje): mono gris azulado con bolsillos, pelo rubio
+  conserje: { ...BASE16, ceja: hex('#a8743c'), pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#7a8aa8', c: '#5a6a88', F: '#5a6a88', W: '#7a8aa8', o: '#e8c840' }) },
+  // los alienígenas que asaltan la nave (nuestros): piel verde, casco morado
+  alien: { ...BASE16, ceja: hex('#2a5a2a'), tocado: 'casco', pal: { S: hex('#7ac86a'), s: hex('#5aa84a'), H: hex('#5a2a7a'), h: hex('#7a3a9a'), C: hex('#5a2a7a'), c: hex('#3e1e5a'), F: hex('#3e1e5a'), W: hex('#5a2a7a'), o: hex('#e8c840'), G: hex('#2a2430'), L: hex('#2a2430') } },
+  // el ligón con mala suerte (1987): traje blanco de los setenta, camisa abierta, entradas
+  ligon: { ...BASE16, ceja: hex('#5a3418'), pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#f2eee2', c: '#d8d0c0', F: '#f2eee2', W: '#f2eee2', o: '#e8c840' }) },
+  // el antiguo profesor de música que escribía comedias: gafas, bigote, chaleco
+  humorista: { ...BASE16, ceja: hex('#3a2418'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#4a3020', h: '#6a4430', C: '#6a4a2a', c: '#e8e0c8', F: '#3a3a4a', W: '#6a4a2a', o: '#e8e0c8' }) },
+  // la pareja que inventó los héroes que aprenden (1989): ella con pelo largo oscuro, él con barba y gafas
+  lori: { ...BASE16M, ceja: hex('#2a1c14'), pal: CLARA({ H: '#2a1c14', h: '#4a3020', C: '#3a7a6a', c: '#2a5a4e', F: '#3a3a4a', W: '#3a7a6a', o: '#f2eee2' }) },
+  corey: { ...BASE16, ceja: hex('#6a3a1a'), tocado: 'gafas', bigote: true, pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#7a5a3a', c: '#5a4028', F: '#3a3a4a', W: '#7a5a3a', o: '#f2eee2' }) },
+  // los tres héroes de fantasía: guerrero (cota y casco), mago (túnica y gorro puntiagudo azul) y ladrona (capucha verde)
+  guerrero: { ...BASE16, ceja: hex('#5a3418'), tocado: 'malla', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a8a94', c: '#6a6a74', F: '#5a3a1a', W: '#8a8a94', o: '#c8a040', G: '#5a3a1a', L: '#4a3020' }) },
+  mago: { ...BASE16, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#c8c4bc'), tocado: 'santa', bigote: true, pal: CLARA({ H: '#e8e4dc', h: '#c8c4bc', C: '#3a4aa8', c: '#2a3680', o: '#e8c840', G: '#e8c840', L: '#2a2430', D: '#e8c840' }) },
+  ladrona: { ...BASE16M, ceja: hex('#1c1424'), tocado: 'capotain', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#3a6a3a', c: '#2a4e2a', F: '#3a3a2a', W: '#3a6a3a', o: '#8a6a3a', J: '#2a4e2a', j: '#1e3a1e' }) },
+  // el estudio de 1990: el técnico de sonido con auriculares, la actriz de voz y el compositor
+  tecnico: { ...BASE16, ceja: hex('#1c1424'), tocado: 'auriculares', pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#5a5a6a', c: '#3e3e4c', F: '#3a3a4a', W: '#5a5a6a', o: '#e8c840', M: '#2a2430' }) },
+  actriz: { ...BASE16M, ceja: hex('#a8502a'), pal: CLARA({ H: '#b85a2a', h: '#d8783a', C: '#e8c840', c: '#c8a830', F: '#3a3a4a', W: '#e8c840', o: '#f2eee2' }) },
+  compositor: { ...BASE16, ceja: hex('#5a3418'), tocado: 'auriculares', bigote: true, pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#2a2430', c: '#5a5a6a', F: '#3e5a8a', W: '#2a2430', o: '#c84a3a', M: '#c84a3a' }) },
+  // la escritora de misterio (1993): pelo largo castaño oscuro, chaqueta negra
+  escritora: { ...BASE16M, ceja: hex('#3a2418'), pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#2a2430', c: '#5a5a6a', F: '#2a2430', W: '#2a2430', o: '#a83a3a' }) },
+  // el actor de Hollywood (1993): pelo oscuro peinado hacia atrás, chaqueta burdeos y bufanda
+  actor: { ...BASE16, ceja: hex('#1c1424'), pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#6a2a3a', c: '#e8c840', F: '#2a2430', W: '#6a2a3a', o: '#e8c840' }) },
+  // jugadores: una abuela de los ochenta (rebeca y moño gris) y un adolescente de los noventa (camiseta y gorra)
+  abuela: { ...BASE16V, ceja: hex('#8a8a9a'), tocado: 'gafas', pal: CLARA({ H: '#b8b8c4', h: '#9c9cac', C: '#a86a8a', c: '#86506c', W: '#f2eee2', L: '#3a3a4a' }) },
+  adolescente: { ...BASE16, ceja: hex('#5a3418'), tocado: 'gorra', pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a6aa8', c: '#1e5080', F: '#3a4a7a', W: '#2a6aa8', o: '#e8c840', M: '#c83a3a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_SI);
+
+// ── Episodio 19: «Avengers: Doomsday». Héroes y villanos dibujados por nosotros, reconocibles por la silueta y los
+// colores (como en un juego de 16 bits), sin logos ni letras: solo la estrella del escudo, la araña, el «4» en su
+// círculo. Letras propias de este reparto (cada personaje las define en su pal): I cinturón · n botas · y/Y brillo
+// (reactor, ojos) · r/R detalle rojo · e gema · u/l/p/d colores sueltos de cada uno.
+// parche(filas, [[i, j, 'texto'], …]): superpone texto en la rejilla; '.' no cambia nada y ' ' borra
+const parche = (filas, ps) => { const a = filas.map((f) => f.split('')); for (const [i, j, s] of ps) for (let n = 0; n < s.length; n++) if (s[n] !== '.' && a[j] && i + n >= 0 && i + n < a[j].length) a[j][i + n] = s[n] === ' ' ? '.' : s[n]; return a.map((f) => f.join('')); };
+// tapa(filas, {H: 'C', …}): cambia letras (para sacar una máscara completa de una cabeza)
+const tapa = (filas, m) => filas.map((f) => f.replace(/./g, (ch) => m[ch] ?? ch));
+const OSCURA = (o) => ({ S: hex('#9a6644'), s: hex('#744628'), ...Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)])) });
+const COLORES = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
+
+// ── cabezas ──
+// sienes canosas (Strange, Reed): unas canas (w) delante de la oreja
+const CAB_SIENES = parche(CAB_CORTO, [[2, 3, '.ww'], [2, 4, 'ww'], [2, 5, 'w'], [2, 6, 'w']]);
+// pelo largo hasta los hombros (Thor, Bucky, Clea, Sue, Mística): la de las egipcias
+const CAB_LARGO = CAB_EGIPCIA;
+// coleta recogida atrás (Yelena)
+const COLETA = ['.kkk', 'kHHH', 'kHhk', '.kHk', '..kk'];
+const coleta = (c) => c.cab.rej(COLETA, -3, 3);
+// casco de Iron Man: rojo (H) con la placa de la cara dorada (O/g) y los ojos que brillan (y)
+const CAB_IRON = [
+  '...kkkkkkkk....',
+  '..kHHHhhHHHk...',
+  '.kHHHHHHHhHHk..',
+  'kHHHHHHHHHHHHk.',
+  'kHHHHHkkkkkkHk.',
+  'kHHHHkOOOOOOOk.',
+  'kHHHHkyyyOyyyk.',
+  'kHHhHkOOOOOOOOk',
+  '.kHHHkOOOOOOgk.',
+  '.kHHHHkOkkkgk..',
+  '..kHHHHkOOgk...',
+  '...kkHHkkkkk...',
+  '.....kkkkk.....',
+];
+// máscara completa de Spider-Man: roja (C/c) con los ojos blancos grandes de borde negro
+const CAB_ARANA = parche(tapa(CAB_CORTO, { H: 'C', h: 'd', S: 'C', s: 'd' }), [
+  [6, 4, 'kkk.kkk'], [5, 5, 'kEEEkEEEk'], [5, 6, 'kEEEkEEEk'], [6, 7, 'kEEk.kEk'], [7, 8, 'kk...k'], [13, 6, 'C'],
+]);
+// Deadpool: roja (C) con los parches negros (J) y los ojos blancos (E)
+const CAB_DEADPOOL = parche(tapa(CAB_CORTO, { H: 'C', h: 'c', S: 'C', s: 'c' }), [
+  [6, 5, 'JJJ.JJJJ'], [5, 6, 'JEEJ.JEEJ'], [6, 7, 'JJ...JJ'], [13, 6, 'C'],
+]);
+// Pantera Negra (Shuri): máscara negra (J/j) con orejitas, ojos plateados (E) y dibujos plateados (Z)
+const CAB_PANTERA = [
+  '...k....k......',
+  '..kJk..kJk.....',
+  '..kJJkkJJJk....',
+  '.kJJJJJJJJJk...',
+  'kJJJjJJJJJJJk..',
+  'kJJZJJJJJJJJk..',
+  'kJJjZJJJJJJJJk.',
+  'kJJJJJZEEJZEEJk',
+  'kJJjJJJJJJJJJk.',
+  '.kJJJZJJJJJJk..',
+  '..kJJJZJJJjk...',
+  '...kkJJJJJkk...',
+  '.....kkkkk.....',
+];
+// Ant-Man: casco plateado (Z/z) con los ojos rojos (r) y la rejilla de la boca
+const CAB_ANTMAN = parche(tapa(CAB_CORTO, { H: 'Z', h: 'z', S: 'Z', s: 'z' }), [
+  [1, 3, 'kkk'], [3, 4, 'z'], [7, 5, 'rrk.rr'], [7, 6, 'rrk.rr'], [8, 8, 'zkzk'], [8, 9, 'zkzk'], [2, 6, 'R'], [2, 7, 'R'],
+]);
+// Doctor Doom: capucha verde (V/v) y máscara de metal (Z/z) con los ojos rasgados y la rejilla en la boca
+const CAB_DOOM = [
+  '...kkkkkkkk....',
+  '..kVVVVVVVVk...',
+  '.kVVvVVVVVVVk..',
+  'kVVVVVVVVVVVVk.',
+  'kVVVvkkkkkkkVk.',
+  'kVVVkZZZZZZZZk.',
+  'kVVvkZkkkZkkkZk',
+  'kVVvkZZZZZZZZk.',
+  'kVVVkZzZkzkzZk.',
+  'kVVVkZzZkzkzk..',
+  '.kVVkzZZZZZzk..',
+  '..kVvkkkkkkk...',
+  '...kkk.........',
+];
+// Hulk: piel verde (S/s), pelo negro corto y la ceja gruesa; cabeza normal sobre un cuerpo enorme
+const CAB_HULK = parche(CAB_CORTO, [[4, 4, 'sssssssss'], [13, 6, 'S']]);
+// la Cosa: cabeza de rocas naranjas (S/s, grietas r) con la frente pesada
+const CAB_COSA = parche(tapa(CAB_CORTO, { H: 'S', h: 's' }), [
+  [3, 1, 'r..r'], [1, 3, 'rr.r..r'], [4, 4, 'rsssssssk'], [2, 7, 'r'], [5, 8, 'r'], [3, 10, 'r'], [9, 10, 'r'], [12, 8, 'r'],
+]);
+// Bestia: pelaje azul (S/s; pelo H) que le crece por la cara
+const CAB_BESTIA = parche(CAB_CORTO, [[3, 8, 'HH'], [2, 9, 'kHH'], [3, 10, 'kHHh'], [5, 11, 'HHH']]);
+// Thanos: calvo, morado, con la barbilla de surcos (z)
+const CAB_THANOS = parche(CAB_CALVO, [[4, 3, 'sss'], [8, 10, 'zSzS'], [9, 11, 'zz'], [3, 8, 's']]);
+// M'Baku: barba poblada (H) y el pelo alto
+const CAB_MBAKU = parche(CAB_BARBA, [[3, 0, 'kkkk'], [2, 1, 'kHHHH']]);
+// la Antorcha: cabeza en llamas, con el pelo de fuego hacia atrás (Y/y)
+const CAB_FUEGO = [
+  'k..kk..k.......',
+  'kYk.YkkYk......',
+  '.kYYyYYYYkk....',
+  'kYyYYYYYYYYk...',
+  'kYYyYSSSSSSSk..',
+  'kYyYsSSSSSSSk..',
+  'kyYYsSSSSSSSSk.',
+  '.kYsSSSSSSSSk..',
+  'kYySSSSSSSSSSk.',
+  '.kYSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+
+// ── cuerpos (15 de ancho y 13 de alto, como CUERPO_EUROPEO) ──
+// traje ceñido de héroe: C pecho, c costados, W brazos, G guantes, I cinturón, F piernas, n botas
+const CUERPO_HEROE = [
+  '...kkCCCCCkk...',
+  '..kWWCCCCCWWk..',
+  '.kWkCCCCCCCkWk.',
+  '.kWkCCCCCCCkWk.',
+  '.kWkcCCCCCckWk.',
+  '.kGkcCCCCCckGk.',
+  '..kkIIIIIIIkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// ropa de calle: camiseta de manga corta (C) y vaqueros (F)
+const CUERPO_CALLE = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkcCCCCCckSk.',
+  '.kSkcCCCCCckSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// gabardina larga abierta (Gambito): C gabardina, c su sombra, W pecho, F piernas
+const CUERPO_GABARDINA = [
+  '..kkCWWWWCkk...',
+  '.kCCCWWWWCCCk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kGkCCIIICCkGk.',
+  '.kckCCFFFCCkck.',
+  '.kCCCkFkFkCCCk.',
+  '.kCCCkFkFkCCCk.',
+  '.kcCCkFkFkCCck.',
+  '.kccckFkFkccck.',
+  '..kkkknkknkkk..',
+  '....kkk.kkk....',
+];
+// vestido de mujer de los años 40 (Peggy): chaqueta entallada y falda por la rodilla
+const CUERPO_SASTRE = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCWCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkcCCCCCckCk.',
+  '.kSkIIIIIIIkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kcCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '...kkkk.kkkk...',
+];
+// túnica larga abierta por delante (Strange, Aquel Que Permanece): C túnica, W fajín/camisa, F piernas
+const CUERPO_TUNICA_HEROE = [
+  '...kkCCCCCkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCWoWCCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kGkIIIIIIIkGk.',
+  '..kkCCWWWCCkk..',
+  '...kCCWkWCCk...',
+  '...kCCFkFCCk...',
+  '...kCcFkFcCk...',
+  '...kccFkFcck...',
+  '...kkknknkkk...',
+  '..kkkkk.kkkkk..',
+];
+// chaleco táctico (Yelena, Bucky): C chaleco con bolsillos (o), W mangas, F pantalón, n botas
+const CUERPO_TACTICO = [
+  '...kkCCCCCkk...',
+  '..kWWCCCCCWWk..',
+  '.kWkCoCCCoCkWk.',
+  '.kWkCCCCCCCkWk.',
+  '.kWkCoCCCoCkWk.',
+  '.kGkCCCCCCCkGk.',
+  '..kkIIIoIIIkk..',
+  '...kFFFkFFFk...',
+  '...kFoFkFoFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// bañador (Namor): torso desnudo, calzón verde (C) y alitas en los tobillos (W)
+const CUERPO_BANADOR = [
+  '...kkSSSSSkk...',
+  '..kSSSSSSSSSk..',
+  '.kSkSSsSsSSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '.kSkSSSsSSSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCcCCcCk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '.kWkSSSkSSSkWk.',
+  'kWWkSSSkSSSkWWk',
+  '.kkkkkk.kkkkkk.',
+];
+// M'Baku: pecho de piel (S) con el chaleco de pelaje (C/c), falda de pelaje y piernas desnudas
+const CUERPO_PELAJE = [
+  '..kkCCSSSCCkk..',
+  '.kCCcCSSSCcCCk.',
+  '.kCkCCSSSCCkCk.',
+  '.kSkCcSSSCcSkSk',
+  '.kSkCCSSSCCkSk.',
+  '.kSkCcIIICcksk.',
+  '..kkCCCCCCCkk..',
+  '...kCcCcCcCk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// Xavier sentado en su silla: traje oscuro y las piernas hacia delante
+const CUERPO_SENTADO_TRAJE = [
+  '...kkWWWWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkFFFFFFFFFk.',
+  '...kFFFFFFFFFk.',
+  '...kkkkkkkkFFk.',
+  '..........kFFk.',
+  '..........kkkkk',
+];
+// cuerpo ancho (17 × 15) de Thanos: hombreras de oro (O/g), peto azul (C/c), el guantelete (G con gemas e)
+const CUERPO_ANCHO = [
+  '...kkOOCCCCOOkk..',
+  '..kOOOOCCCCOOOOk.',
+  '.kOOgkCCCCCCkOOOk',
+  '.kWWkCCCOCCCCkWk.',
+  '.kWWkCCOOOCCCkWk.',
+  '.kWWkcCCOCCCckWk.',
+  '.kWWkcCCCCCCckGGk',
+  '.kGGkIIIIIIIIkGek',
+  '.kGGkFFFFkFFFkkk.',
+  '..kkkFFFFkFFFFk..',
+  '....kFFFFkFFFFk..',
+  '....kFFFFkFFFFk..',
+  '....knnnnknnnnk..',
+  '....knnnnknnnnk..',
+  '...kkkkkk.kkkkkk.',
+];
+// cuerpo grande (21 × 24) de Hulk, la Cosa y Bestia: hombros enormes, brazos hasta las rodillas, puños grandes;
+// S/s piel, r grietas o pelo, F/f calzón o pantalón (roto abajo)
+const CUERPO_GRANDE = [
+  '....kkkkkkkkkkkkk....',
+  '..kkSSSSSSSSSSSSSkk..',
+  '.kSSSSSSSSSSSSSSSSSk.',
+  'kSSSSSkSSSSSSSSkSSSSk',
+  'kSSSSkSSSSSSSSSSkSSSk',
+  'kSSSskSSSssSssSSkSSsk',
+  'kSSSskSSSSSSSSSSkSSsk',
+  'kSSSskSSSSSsSSSSkSSsk',
+  'kSSsSkSSSsSsSsSSkSsSk',
+  'kSSsSkSSSSSsSSSSkSsSk',
+  'kSSsSkSSSsSsSsSSkSsSk',
+  'kSSsSkSSSSSSSSSSkSsSk',
+  'kSSsSkFFFFFFFFFFkSsSk',
+  'kSSsSkFFFFFFFFFFkSsSk',
+  'kSSSSSkFFFFfFFFkSSSSk',
+  'kSSSSSkFFFFkFFFkSSSSk',
+  '.kSSSkkFFFFkFFFFkSSk.',
+  '..kkk.kFFFFkFFFFkkk..',
+  '......kFFFFkFFFFk....',
+  '......kFkFkkFkFFk....',
+  '......kSSSk.kSSSk....',
+  '......kSSSk.kSSSk....',
+  '.....kSSSSk.kSSSSk...',
+  '.....kkkkkk.kkkkkk...',
+];
+
+// ── capas, alas y cola (por detrás del cuerpo; en coordenadas de la rejilla de 15, la x empieza en −2) ──
+const CAPA_LARGA = [
+  '....kkkkkkkkkk.....',
+  '...kQQQQQQQQQQkk...',
+  '..kQQqQQQQQQQQQQk..',
+  '..kQqQQQQQQQQQQQQk.',
+  '.kQQqQQQQQQQQQQQQk.',
+  '.kQqQQQQQQQQQQQQQk.',
+  '.kQqQQQQQQQQQQQQQk.',
+  'kQQqQQQQQQQQQQQQQk.',
+  'kQqQQQQQQQQQQQQQQk.',
+  'kQqQQQQQQQQQQQQQqk.',
+  'kQqqQQQQQQQQQQQqqk.',
+  'kqQqQQQQQQQQQQqqk..',
+  '.kkkkkkkkkkkkkkk...',
+];
+const capa = (alto = 12) => (c) => c.cuerpo.rej(CAPA_LARGA.slice(0, alto).concat([CAPA_LARGA[12]]), -2, 0);
+// cuello alto de la capa de Strange, que sube por detrás de la cabeza
+const CUELLO_ALTO = ['kk..', 'kQk.', 'kQqk', 'kQqk', 'kQQk', '.kQk'];
+// alas plegadas de Sam: dos alas de metal (Z/z) que asoman por encima de los hombros, por detrás
+const ALAS = [
+  '..kk...........',
+  '.kZZk..........',
+  '.kZzk......kk..',
+  'kZZzk.....kZZk.',
+  'kZzZk.....kZzk.',
+  'kZzZk....kZzZk.',
+  'kZzZk....kZzZk.',
+  'kZzZk....kZzk..',
+  'kzZzk.....kk...',
+  '.kZzk..........',
+  '.kzk...........',
+  '..k............',
+];
+// las dos katanas de Deadpool, cruzadas a la espalda (asoman las empuñaduras)
+const KATANAS = [
+  'kk.kk...',
+  'kJkkJk..',
+  '.kJkkJk.',
+  '..kZkkZk',
+  '...kZkkZk',
+];
+// cola de Rondador Nocturno, que sale por detrás y acaba en punta de flecha
+const COLA = [
+  '......kk.',
+  '.....kSSk',
+  '.....kSk.',
+  '....kSk..',
+  '...kSk...',
+  '..kSk....',
+  '.kSk.....',
+  'kSk......',
+  'kSk......',
+  '.kSk.....',
+  '..kkk....',
+];
+
+// ── tocados nuevos ──
+Object.assign(TOCADOS, {
+  // capucha azul del Capitán América (C): tapa la frente y la nuca, con las alitas blancas (X) en la sien
+  capitan: [[
+    '...kkkkkkkk....',
+    '..kCCCCCCCCk...',
+    '.kCCcCCCCCCCk..',
+    'kCCCCCCCCCCCCk.',
+    'kCkkCCCCCCCCCk.',
+    'kXXXkCCCCCCCCk.',
+    'kCXXXk.........',
+    'kCCXCk.........',
+    '.kCCk..........',
+    '.kCk...........',
+  ], 0],
+  // casco de Loki: banda de oro (O/g) con los dos cuernos largos curvados hacia atrás
+  cuernos: [[
+    'kk......kk.....',
+    'kOk.....kOk....',
+    '.kOk.....kOk...',
+    '.kOOk....kOOk..',
+    '..kOOk....kOOk.',
+    '..kkOOkkkkkOOk.',
+    '.kkOOOOOOOOOOk.',
+    'kOgOOOOOOOOOOk.',
+    'kgOOkkkkkkkkk..',
+    'kgOk...........',
+    'kgOk...........',
+    '.kgk...........',
+  ], -7],
+  // yelmo de Kang: azul (A/a) con las aletas laterales que suben por detrás y el cuello verde (V)
+  yelmo: [[
+    'kk.............',
+    'kAk............',
+    'kAAk.kkkkkk....',
+    '.kAAkAAAAAAkk..',
+    '.kAAAAaAAAAAAk.',
+    'kAaAAAAAAAAAAk.',
+    'kAAAAkkkkkkkkk.',
+    'kAAAk..........',
+    'kAAAk..........',
+    'kaAAk..........',
+    'kAAAk..........',
+    '.kAAk..........',
+    '.kVVVk.........',
+  ], -3],
+  // casco de Magneto: rojo (D/d) que cubre la cabeza y baja por la mejilla, con el borde de la frente
+  magneto: [[
+    '...kkkkkkkk....',
+    '..kDDDDDDDDk...',
+    '.kDDdDDDDDDDk..',
+    'kDDDDDDDDDDDDk.',
+    'kDDDDDDDDDDDDDk',
+    'kDDDDkkkkkkkkk.',
+    'kDDDk..........',
+    'kDdDk..........',
+    'kDDDk..........',
+    'kDdDDk.........',
+    '.kDDDk.........',
+    '..kkk..........',
+  ], -2],
+  // máscara de Lobezno: amarilla (Y) con los lados negros (J) y las dos puntas hacia atrás; ojos blancos (E)
+  lobezno: [[
+    '.k.............',
+    'kJk............',
+    'kJJk...........',
+    '.kJJkkkkkkk....',
+    '.kJJYYYYYYYk...',
+    '.kJJYYYYYYYYk..',
+    'kJJYYYYYYYYYYk.',
+    'kJJJYYYYYYYYYk.',
+    'kJJJJJJYYJJJJk.',
+    'kJJJJJkEEkJEEk.',
+    'kJJJk..kk..kk..',
+  ], -3],
+  // visor de Cíclope: la banda roja (r) de lado a lado con su montura (J)
+  visor: [[
+    'kJJJJJkkkkkkkk.',
+    'kJJJJkrrrrrrrrk',
+    'kJJJJJkkkkkkkk.',
+  ], 5],
+  // gafas de aviador de Sam (cristal rojo r) y gafas de sol (J)
+  goggles: [[
+    'kJk....kkk.kkk.',
+    'kJJJJJkrrrkrrrk',
+    '.kk....kkk.kkk.',
+  ], 5],
+  gafasClaras: [[
+    '......E..EE..E.',
+    '......E..EE..E.',
+    '.......EE..EE..',
+  ], 6],
+  sol: [[
+    '.....kkkkkkkkk.',
+    '.....kJJJkkJJJk',
+    '.......kk..kk..',
+  ], 5],
+  // cinta de Gambito: la bandana oscura (J) por la frente
+  cinta: [[
+    'kJJJJJJJJJJJJk.',
+    'kJjJJJJJJJJJJk.',
+    'kJk............',
+    'kJk............',
+  ], 3],
+  // sombrero rojo de Peggy (D/d), pequeño e inclinado
+  peggy: [[
+    '.......kkkk....',
+    '...kkkkDDDDk...',
+    '..kDDDDDDdDDkk.',
+    '.kkkkkkkkkkkkkk',
+  ], -2],
+  // gorra de visera de Feige (C) y gorra de fan
+  visera: [[
+    '...kkkkkkkk....',
+    '..kCCCCCCCCk...',
+    '.kCCcCCCCCCCk..',
+    '.kkkkkkkkkkkkkk',
+    '..........kkkk.',
+  ], -1],
+});
+
+// ── piezas (se pintan con el R de conChibi: R.dibujo, R.pset, R.rect) ──
+const PAL_PIEZAS = COLORES({
+  k: '#1c1222', r: '#c8303a', R: '#e84a4a', X: '#f2eee2', x: '#c8c0b0', A: '#2a4fa8', a: '#1e3680', Z: '#c0c4d4', z: '#8c90a4',
+  O: '#e8b830', g: '#a87a18', B: '#7a4a24', b: '#4e2e14', J: '#2a2430', S: '#f6c290', s: '#d48a5a', H: '#e0b860', C: '#4a8ad8', c: '#2e64a8',
+});
+// el escudo del Capitán: aros rojo-blanco-rojo y estrella blanca sobre azul. o.r radio (6), o.ancho (1; 0.4 de canto)
+const escudoCap = (R, cx, cy, o = {}) => {
+  const r = o.r ?? 6, sx = o.ancho ?? 1, P_ = PAL_PIEZAS;
+  for (let y = -r - 1; y <= r + 1; y++) for (let x = Math.floor(-(r + 1) * sx); x <= Math.ceil((r + 1) * sx); x++) {
+    const d = Math.hypot(x / sx, y); if (d > r + 0.6) continue;
+    const f = d / r, c = d > r - 0.4 ? P_.k : f > 0.82 ? (x / sx + y < -2 ? P_.R : P_.r) : f > 0.64 ? P_.X : f > 0.46 ? P_.r : P_.A;
+    R.pset(Math.round(cx + x), Math.round(cy + y), c);
+  }
+  if (sx > 0.6) R.dibujo(['..X..', 'XXXXX', '.XXX.', '.X.X.'], Math.round(cx - 2), Math.round(cy - 2), 1, P_);
+  R.pset(Math.round(cx - r * 0.5 * sx), Math.round(cy - r * 0.6), P_.X);   // el brillo
+};
+// el martillo corto de Thor: cabeza de metal (Z/z) y mango con tira de cuero; (x, y) = la mano; o.arriba: la cabeza arriba
+const MARTILLO = ['kkkkkkkk', 'kZZZZZZk', 'kZZZZzzk', 'kZzzzzzk', 'kkkkkkkk', '...kBk..', '...kbk..', '...kBk..', '...kbk..', '...kkk..'];
+const martillo = (R, x, y, o = {}) => { const g = o.arriba ? MARTILLO : [...MARTILLO].reverse(); R.dibujo(g, x - 4, o.arriba ? y - 7 : y - 2, 1, PAL_PIEZAS); };
+// el guantelete dorado con las seis gemas (morada, azul, roja, naranja, verde, amarilla); (x, y) = la muñeca
+const GUANTELETE = [
+  '.kk.kk.kk..',
+  'kOOkOOkOOk.',
+  'kOekOekOek.',
+  'kOOOOOOOOkk',
+  'kOOOOOOOOkOk',
+  'kOOOeOOOOkek',
+  'kgOOOOOOgkOk',
+  'kggOOOOggkk.',
+  '.kkgggggk...',
+  '..kOOOOOk...',
+  '..kkkkkkk...',
+];
+const guantelete = (R, x, y, t = 0) => {
+  const gemas = ['#9a4ae8', '#3a8ae8', '#e83a3a', '#e8903a', '#3ac85a', '#f0e040'].map(hex);
+  let n = 0;
+  GUANTELETE.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const ch = f[i]; if (ch === '.') continue; R.pset(x - 5 + i, y - 10 + j, ch === 'e' ? gemas[n++ % 6] : PAL_PIEZAS[ch]); } });
+  if (Math.sin(t * 5) > 0.6) R.pset(x - 1, y - 5, hex('#fff6c8'));
+};
+// silla de ruedas (Xavier): rueda grande con radios, asiento, respaldo y rueda pequeña delante; (x, suelo) = el asiento
+const sillaRuedas = (R, x, suelo, o = {}) => {
+  const dir = o.dir ?? 1, X = (i) => Math.round(x + dir * i), P_ = PAL_PIEZAS, cy = suelo - 6;
+  // o.parte: 'respaldo' (antes del actor), 'ruedas' (después) o las dos
+  if (o.parte !== 'ruedas') { for (let j = 0; j < 14; j++) { R.pset(X(-1), suelo - 8 - j, P_.k); R.pset(X(0), suelo - 8 - j, P_.z); R.pset(X(1), suelo - 8 - j, P_.k); }   // respaldo
+    for (let i = -1; i <= 13; i++) { R.pset(X(i), suelo - 10, P_.k); R.pset(X(i), suelo - 9, P_.z); } }   // asiento
+  if (o.parte === 'respaldo') return;
+  R.disco(X(4), cy, 6, P_.k); R.disco(X(4), cy, 5, P_.z); R.disco(X(4), cy, 4, P_.k); R.disco(X(4), cy, 3, P_.Z);
+  for (let k = 0; k < 4; k++) { const a = k * Math.PI / 4; for (let rr = -3; rr <= 3; rr++) R.pset(Math.round(X(4) + Math.cos(a) * rr), Math.round(cy + Math.sin(a) * rr), P_.z); }
+  R.pset(X(4), cy, P_.k);
+  for (let j = 0; j < 7; j++) R.pset(X(12), suelo - 9 + j, P_.k);
+  R.disco(X(12), suelo - 2, 2, P_.k); R.pset(X(12), suelo - 2, P_.z);
+};
+// Franklin, el bebé de Reed y Sue: pelele azul (C) y un mechón rubio (H); (x, suelo)
+const FRANKLIN = ['...kkk...', '..kHHHk..', '.kSSSSSk.', '.kSkSkSk.', '.kSSsSSk.', '..kkkkk..', '.kCCCCCk.', 'kSkCXCkSk', '.kCCCCCk.', '.kckkck..', '.kk..kk..'];
+const franklin = (R, x, suelo) => R.dibujo(FRANKLIN, x, suelo - FRANKLIN.length, 1, PAL_PIEZAS);
+// Galactus (primer boceto, el decorado lo pulirá): gigante morado con casco de grandes alas laterales; se pinta como pieza
+// a escala s (cada letra, s × s px; con s = 2 mide 88 px). (cx, pie) = centro de los pies
+const GALACTUS = [
+  '.kk..................kk.',
+  'kAAk................kAAk',
+  'kAAk................kAAk',
+  'kAAAk..............kAAAk',
+  'kAaAk...kkkkkkk....kAaAk',
+  'kAaAAk.kAAAAAAAk..kAAaAk',
+  '.kAaAkkAAAAAAAAAkkkAaAk.',
+  '.kAaAAkAAkkkkkAAAkAAaAk.',
+  '..kAaAkAkSSSSSkAkAAaAk..',
+  '..kAaAAkSkSSkSSkkAaAk...',
+  '...kAaAkSSSSSSSkAAaAk...',
+  '...kkAAkSSSsSSSkAAkk....',
+  '.....kkAkSSSSSkAkk......',
+  '....kkUUkkkkkkkUUkk.....',
+  '...kUUUUUUUUUUUUUUUk....',
+  '..kUUuUUUUAAAUUUUuUUk...',
+  '..kUuUUUUAAuAAUUUUuUk...',
+  '.kUUuUkUUAAAAAUUkUuUUk..',
+  '.kUuUUkUUUAAAUUUkUUuUk..',
+  '.kUuUkkUUUUUUUUUkkUuUk..',
+  '.kSSk.kUUUUUUUUUk.kSSk..',
+  '.kSSk.kAAAAAAAAAk.kSSk..',
+  '..kk..kUUUUkUUUUk..kk...',
+  '......kUUUUkUUUUk.......',
+  '......kUUuUkUuUUk.......',
+  '......kUUuUkUuUUk.......',
+  '......kUUUUkUUUUk.......',
+  '......kUUUUkUUUUk.......',
+  '......kUuUUkUUuUk.......',
+  '......kAAAAkAAAAk.......',
+  '......kAAAAkAAAAk.......',
+  '......kAaAAkAAaAk.......',
+  '......kAAAAkAAAAk.......',
+  '.....kAAAAAkAAAAAk......',
+  '.....kkkkkkkkkkkkk......',
+];
+const PAL_GALACTUS = COLORES({ k: '#1c1222', A: '#6a3aa8', a: '#4a2480', U: '#3a5ac8', u: '#283e94', S: '#b89ad8', s: '#8a6ab0' });
+const galactus = (R, cx, pie, o = {}) => {
+  const s = o.s ?? 2, w = GALACTUS[0].length, h = GALACTUS.length, x0 = Math.round(cx - w * s / 2), y0 = pie - h * s;
+  GALACTUS.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = PAL_GALACTUS[f[i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } });
+  if (o.ojos !== false) { const ex = x0 + 10 * s, ey = y0 + 9 * s; R.rect(ex, ey, ex + s - 1, ey + s - 1, hex('#e8f0ff')); R.rect(ex + 3 * s, ey, ex + 4 * s - 1, ey + s - 1, hex('#e8f0ff')); }
+};
+export const PIEZAS_DO = { escudo: escudoCap, martillo, guantelete, silla: sillaRuedas, franklin, galactus };
+
+// ── ganchos de los personajes (def.detras / def.delante) ──
+// ojos de Iron Man que brillan de vez en cuando
+const brilloIron = (c) => { if (Math.sin(c.t * 3 + c.x) > 0.7) { c.cab.px(7, 6, hex('#ffffff')); c.cab.px(11, 6, hex('#ffffff')); } };
+// garras de Lobezno: tres cuchillas que salen del puño de delante (o.garras: false las esconde)
+const GARRAS = [[13, 4], [14, 4], [15, 3], [16, 3], [17, 2], [13, 5], [14, 5], [15, 5], [16, 5], [17, 5], [13, 6], [14, 6], [15, 7], [16, 7], [17, 8]];
+const garras = (c) => { if (c.o.garras === false || c.o.sostiene || c.o.dedo || c.o.brazos) return; for (const [i, j] of GARRAS) c.cuerpo.px(i, j, hex(i === 17 ? '#9ca0b4' : '#eef0f8')); };
+// carta de Gambito, que brilla rosa
+const cartaRosa = (c) => { if (c.o.sostiene || c.o.dedo || c.o.brazos) return; const on = Math.sin(c.t * 7 + c.x) > 0; const R1 = hex(on ? '#ff8ad8' : '#e84aa8'), R2 = hex('#ffd0f0'); c.cuerpo.px(13, 3, R1); c.cuerpo.px(14, 3, R1); c.cuerpo.px(13, 4, R2); c.cuerpo.px(14, 4, R1); c.cuerpo.px(15, 2, on ? R1 : R2); };
+// llamas de la Antorcha que se mueven alrededor del cuerpo
+const llamas = (c) => {
+  const Y = hex('#fff0a0'), y = hex('#f8b030'), q = hex('#e85a20');
+  for (let n = 0; n < 9; n++) { const i = [1, 3, 13, 2, 12, 4, 10, 0, 14][n], j = [2, -1, 3, 8, 7, 11, 11, 5, 9][n], h = 2 + ((Math.floor(c.t * 8) + n) % 3);
+    for (let k = 0; k < h; k++) c.cuerpo.px(i + (k === h - 1 ? (n % 2 ? 1 : -1) : 0), j - k, k === 0 ? q : k === h - 1 ? Y : y); }
+};
+const capaYcuello = (c) => { capa()(c); c.cuerpo.rej(CUELLO_ALTO, -2, -6); };
+
+// ── el reparto del 19 ──
+const B19 = { cab: CAB_CORTO, cuerpo: CUERPO_HEROE, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B19M = { ...B19, cab: CAB_LARGO };
+const BIG = { cuerpo: CUERPO_GRANDE, dxCuerpo: -3, brazoCol: 16, brazoFilas: [2, 16], altoCuerpo: 24, altoCab: 11, ojosY: 6, bocaY: 9 };
+export const ELENCO_DO = {
+  // Iron Man: armadura roja (C/H) y dorada (O), casco con la placa de la cara dorada, ojos que brillan y el reactor
+  ironman: { ...B19, cab: CAB_IRON, sinCara: true, delante: brilloIron,
+    cuerpo: parche(CUERPO_HEROE, [[6, 2, 'kyk'], [6, 3, 'yYy'], [6, 4, 'kyk'], [3, 7, '.OOO.OOO'], [3, 8, '.OOO.OOO']]),
+    pal: COLORES({ H: '#c8303a', h: '#e85a5a', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#e8b830', I: '#8a1e28', F: '#c8303a', n: '#c8303a', O: '#e8b830', g: '#a87a18', y: '#a8f0ff', Y: '#ffffff', S: '#f6c290', s: '#d48a5a' }) },
+  // Tony Stark sin armadura: perilla, camiseta oscura con el reactor que asoma, vaqueros (gafas de sol: tocado 'sol')
+  tony: { ...B19, cuerpo: parche(CUERPO_CALLE, [[7, 3, 'y']]), ceja: hex('#2a1c14'), bigote: true, barba: true,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', U: '#2a1c14', C: '#2a2e3a', c: '#1c1f28', F: '#3e5a8a', n: '#2a2430', y: '#a8f0ff' }) },
+  // Robert Downey Jr. en la Comic-Con: traje oscuro, camisa blanca, gafas de sol y perilla (sin parecido forzado)
+  rdj: { ...B19, cuerpo: CUERPO_EUROPEO, ceja: hex('#2a1c14'), bigote: true, barba: true, tocado: 'sol',
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', U: '#2a1c14', C: '#2a2e3a', c: '#1c1f28', W: '#f2eee2', o: '#2a2e3a', F: '#2a2e3a', J: '#1c1222' }) },
+  // el Capitán América: traje azul con la estrella blanca, franjas rojas y blancas en la cintura y la capucha con alitas
+  capitan: { ...B19, ceja: hex('#a8743c'), tocado: 'capitan',
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, 'rXrXr'], [5, 5, 'rXrXr']]),
+    pal: CLARA({ C: '#2a4fa8', c: '#1e3680', W: '#2a4fa8', G: '#a83a2a', I: '#5a3a24', F: '#1e3680', n: '#7a4a24', X: '#f2eee2', r: '#c8303a' }) },
+  // Steve Rogers con el mismo traje, sin capucha: el pelo rubio
+  steve: { ...B19, ceja: hex('#a8743c'),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, 'rXrXr'], [5, 5, 'rXrXr']]),
+    pal: CLARA({ H: '#e0b860', h: '#f0d088', C: '#2a4fa8', c: '#1e3680', W: '#2a4fa8', G: '#a83a2a', I: '#5a3a24', F: '#1e3680', n: '#7a4a24', X: '#f2eee2', r: '#c8303a' }) },
+  // Steve anciano: pelo blanco y traje gris con corbata
+  steveViejo: { ...B19, cuerpo: CUERPO_EUROPEO, ceja: hex('#c8c4bc'), mejillas: [[6, 8]],
+    pal: CLARA({ H: '#f2eee2', h: '#c8c4bc', C: '#7a7e8a', c: '#5a5e6a', W: '#f2eee2', o: '#3a4a7a', F: '#5a5e6a' }) },
+  // Peggy Carter: pelo castaño ondulado, traje azul de los 40 y el sombrero rojo
+  peggy: { ...B19M, cuerpo: CUERPO_SASTRE, ceja: hex('#4a2a14'), tocado: 'peggy',
+    pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#3a5a9a', c: '#2a4278', W: '#f2eee2', o: '#c8303a', I: '#2a2430', D: '#c8303a', d: '#8a2028' }) },
+  // Sam Wilson, el nuevo Capitán: traje azul con mangas blancas, la estrella, cinturón rojo, alas plegadas y gafas rojas
+  sam: { ...B19, ceja: hex('#1c1424'), tocado: 'goggles', detras: (c) => c.cuerpo.rej(ALAS, -1, -4),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, '.X.X.']]),
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#2a5ac8', c: '#1e3e90', W: '#e8e8f0', G: '#c8303a', I: '#c8303a', F: '#1e3e90', n: '#c8303a', X: '#f2eee2', r: '#c8303a', J: '#2a2430', Z: '#c8ccd8', z: '#8a90a4' }) },
+  // Thor: pelo rubio largo y barba, armadura gris oscura con los discos de plata y la capa roja (martillo: PIEZAS_DO)
+  thor: { ...B19M, cab: parche(CAB_LARGO, [[4, 9, 'kUSSSSSU'], [4, 10, 'kUUSSSUUk'], [4, 11, 'k.kUUUUk'], [4, 12, '...kkkk']]), ceja: hex('#c8984a'), detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'Z...Z'], [5, 4, 'Z...Z']]),
+    pal: CLARA({ H: '#e8c060', h: '#f8dc90', C: '#3a3a4a', c: '#26262f', W: '#3a3a4a', G: '#3a3a4a', I: '#5a4a3a', F: '#26262f', n: '#3a3a4a', Z: '#c8ccd8', Q: '#c8303a', q: '#8a1e28', U: '#c89a40' }) },
+  // Hulk: todo verde y más grande (36 px), pelo negro, pantalón morado roto
+  hulk: { ...BIG, cab: CAB_HULK, ceja: hex('#1c2a14'),
+    pal: COLORES({ S: '#5aa83a', s: '#3e7a28', H: '#1c1c24', h: '#3a3a4a', F: '#6a3a8a', f: '#4a2466' }) },
+  // Thanos: piel morada, barbilla de surcos, armadura dorada y azul, el guantelete dorado con las gemas
+  thanos: { ...B19, cab: CAB_THANOS, cuerpo: CUERPO_ANCHO, dxCuerpo: -1, brazoCol: 13, altoCuerpo: 15, ceja: hex('#4a2a5a'),
+    delante: (c) => { if (!c.o.sostiene && !c.o.dedo && !c.o.brazos) for (const [i, j, k] of [[14, 7, 0], [14, 6, 1], [13, 6, 2], [15, 7, 3]]) c.cuerpo.px(i, j, hex(['#9a4ae8', '#3a8ae8', '#e83a3a', '#3ac85a'][k])); },
+    pal: COLORES({ S: '#8a6aa8', s: '#6a4a88', z: '#4a2a68', C: '#2a4fa8', c: '#1e3680', O: '#e8b830', g: '#a87a18', W: '#2a4fa8', G: '#e8b830', e: '#e83a3a', I: '#a87a18', F: '#2a3a7a', n: '#a87a18' }) },
+  // Loki: traje verde (C) y negro (J) con dorado, y el casco de cuernos dorados largos
+  loki: { ...B19, ceja: hex('#1c1424'), tocado: 'cuernos', detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'O.....O'], [4, 2, 'JO...OJ'], [4, 3, 'J.O.O.J'], [4, 4, 'J..O..J']]),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a7a3a', c: '#1e5a2a', W: '#2a2430', G: '#2a2430', I: '#e8b830', F: '#2a2430', n: '#2a2430', O: '#e8b830', g: '#a87a18', J: '#2a2430', Q: '#2a7a3a', q: '#1e5a2a' }) },
+  // Aquel Que Permanece: túnica morada y verde, sin casco
+  permanece: { ...B19, cuerpo: CUERPO_TUNICA_HEROE, ceja: hex('#1c1424'),
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#6a3a8a', c: '#4a2466', W: '#3a8a5a', o: '#e8b830', G: '#9a6644', I: '#3a8a5a', F: '#2a2430', n: '#2a2430' }) },
+  // Kang: traje azul y verde con el yelmo azul de aletas laterales
+  kang: { ...B19, ceja: hex('#1c1424'), tocado: 'yelmo',
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'VVVVVVV'], [5, 2, 'VVVVV'], [6, 3, 'VVV'], [7, 4, 'V']]),
+    pal: OSCURA({ H: '#1c1424', C: '#2a5aa8', c: '#1e3e80', W: '#2a5aa8', G: '#3a8a3a', I: '#3a8a3a', F: '#1e3e80', n: '#3a8a3a', V: '#3a9a4a', A: '#3a6ac8', a: '#2a4a98' }) },
+  // agente de la oficina del tiempo: traje marrón de los 70, chaleco y corbata
+  agenteTVA: { ...B19, cuerpo: parche(CUERPO_EUROPEO, [[5, 2, 'u.o.u'], [5, 3, 'u.o.u'], [5, 4, 'uuouu'], [5, 5, 'uuuuu']]), ceja: hex('#5a3418'), bigote: true,
+    pal: CLARA({ H: '#5a3418', h: '#8a5428', C: '#8a5a2a', c: '#6a4220', W: '#e8dcc0', o: '#c8783a', u: '#a8783a', F: '#8a5a2a' }) },
+  // Mobius: bigote, entradas y traje gris
+  mobius: { ...B19, cab: parche(CAB_CORTO, [[4, 1, 'SSSS'], [5, 2, 'SSSS'], [6, 3, 'SSSSS']]), cuerpo: CUERPO_EUROPEO, ceja: hex('#8a6a4a'), bigote: true,
+    pal: CLARA({ H: '#a88a6a', h: '#c8a888', C: '#7a7e8a', c: '#5a5e6a', W: '#e8e4dc', o: '#5a3a6a', F: '#5a5e6a' }) },
+  // Spider-Man: rojo y azul, la máscara con los ojos blancos grandes y la araña sencilla en el pecho
+  spiderman: { ...B19, cab: CAB_ARANA, sinCara: true,
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'k.k.k'], [5, 3, '.kkk.'], [5, 4, 'k.k.k'], [3, 7, '.uuu.uuu'], [3, 8, '.uuu.uuu'], [3, 9, '.uuu.uuu']]),
+    pal: COLORES({ d: '#a02028', C: '#d8303a', c: '#2a4fb8', W: '#d8303a', G: '#d8303a', I: '#2a4fb8', F: '#2a4fb8', u: '#2a4fb8', n: '#d8303a', E: '#ffffff', S: '#f6c290', s: '#d48a5a' }) },
+  // Doctor Strange: túnica azul oscuro, capa roja con cuello alto, perilla y sienes canosas, el amuleto de oro
+  strange: { ...B19, cab: CAB_SIENES, cuerpo: CUERPO_TUNICA_HEROE, ceja: hex('#2a1c14'), bigote: true, barba: true, detras: capaYcuello,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', w: '#d8d8e0', U: '#2a1c14', C: '#2a3a7a', c: '#1e2a5a', W: '#3a4a8a', o: '#e8b830', G: '#c8a878', I: '#7a5a3a', F: '#1e2a5a', n: '#4a3020', Q: '#c8303a', q: '#8a1e28' }) },
+  // Clea: pelo blanco largo y traje morado
+  clea: { ...B19M, ceja: hex('#c8c4bc'), cuerpo: parche(CUERPO_HEROE, [[4, 1, 'uuuuuuu'], [7, 2, 'u']]),
+    pal: CLARA({ H: '#f2eee2', h: '#c8c8d8', C: '#7a3aa8', c: '#5a2a88', W: '#7a3aa8', G: '#e8b830', I: '#e8b830', F: '#5a2a88', n: '#3a1a5a', u: '#e8b830' }) },
+  // Reed Richards de otra Tierra: uniforme azul oscuro sin el 4, sienes canosas
+  reedOtro: { ...B19, cab: CAB_SIENES, ceja: hex('#4a3020'), cuerpo: parche(CUERPO_HEROE, [[6, 2, 'XXX']]),
+    pal: CLARA({ H: '#4a3020', h: '#6a4430', w: '#d8d8e0', C: '#1e3a6a', c: '#14284e', W: '#1e3a6a', G: '#2a2430', I: '#2a2430', F: '#14284e', n: '#2a2430', X: '#8ab0e0' }) },
+  // Charles Xavier: calvo, traje oscuro, sentado (la silla de ruedas es PIEZAS_DO.silla)
+  xavier: { ...B19, cab: CAB_CALVO, cuerpo: CUERPO_SENTADO_TRAJE, altoCuerpo: 10, ceja: hex('#8a6a4a'),
+    pal: CLARA({ C: '#2a2e3a', c: '#1c1f28', W: '#f2eee2', o: '#3a4a7a', F: '#2a2e3a' }) },
+  // Doctor Doom: armadura gris de metal, máscara con rejilla, capucha, túnica y capa verdes
+  doom: { ...B19, cab: CAB_DOOM, sinCara: true, detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'VVVVVVV'], [4, 2, 'VVVVVVV'], [4, 3, 'VVVVVVV'], [4, 4, 'vVVVVVv'], [4, 5, 'vVVVVVv'], [4, 6, 'IIIoIII'], [4, 7, 'VVVkVVV']]),
+    pal: COLORES({ V: '#2e7a3e', v: '#1e5a2a', Z: '#a8acbc', z: '#6a6e80', C: '#2e7a3e', c: '#1e5a2a', W: '#8c90a4', G: '#6a6e80', I: '#5a3a24', o: '#e8b830', F: '#6a6e80', n: '#4a4e5e', Q: '#2e7a3e', q: '#1e5a2a', S: '#f6c290', s: '#d48a5a' }) },
+  // Deadpool: rojo con negro, máscara de ojos blancos en óvalos negros y las dos katanas a la espalda
+  deadpool: { ...B19, cab: CAB_DEADPOOL, sinCara: true, detras: (c) => c.cuerpo.rej(KATANAS, -5, -4),
+    cuerpo: parche(CUERPO_HEROE, [[4, 2, 'J.....J'], [4, 3, 'J.....J'], [7, 6, 'O'], [3, 7, '.J...J']]),
+    pal: COLORES({ C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#c8303a', I: '#2a2430', O: '#c8c8d0', F: '#c8303a', n: '#2a2430', J: '#2a2430', E: '#ffffff', Z: '#c0c4d4', S: '#f6c290', s: '#d48a5a' }) },
+  // Lobezno: traje amarillo con azul, máscara de dos puntas y las garras de tres cuchillas (o.garras: false las quita)
+  lobezno: { ...B19, ceja: hex('#1c1424'), bigote: false, tocado: 'lobezno', delante: garras,
+    cab: parche(CAB_CORTO, [[3, 8, 'HH'], [3, 9, 'HH']]),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'c.....c'], [5, 3, 'J...J'], [5, 4, 'cJ.Jc'], [3, 7, '.cc...cc']]),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#f0c830', c: '#2a4fa8', W: '#f0c830', G: '#2a4fa8', I: '#c8303a', F: '#f0c830', n: '#2a4fa8', Y: '#f0c830', J: '#2a2430', E: '#ffffff' }) },
+  // Gambito: gabardina marrón larga, cinta en el pelo castaño y la carta que brilla rosa
+  gambito: { ...B19M, cuerpo: CUERPO_GABARDINA, ceja: hex('#4a2a14'), tocado: 'cinta', delante: cartaRosa,
+    pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#8a5a2a', c: '#6a4220', W: '#c84a8a', G: '#3a3046', I: '#2a2430', F: '#2a2e4a', n: '#2a2430', J: '#2a2430', j: '#4c4660' }) },
+  // Magneto: casco rojo y capa morada, traje rojo y morado
+  magneto: { ...B19, ceja: hex('#c8c4bc'), tocado: 'magneto', detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'u.....u'], [5, 2, 'u...u']]),
+    pal: CLARA({ H: '#e8e4dc', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#6a3a9a', I: '#6a3a9a', F: '#c8303a', n: '#6a3a9a', u: '#6a3a9a', D: '#c8303a', d: '#8a1e28', Q: '#6a3a9a', q: '#4a2470' }) },
+  // Cíclope: el visor rojo de lado a lado, traje azul con amarillo
+  ciclope: { ...B19, ceja: hex('#5a3418'), tocado: 'visor',
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'Y.....Y'], [5, 2, 'Y...Y'], [6, 3, 'Y.Y']]),
+    pal: CLARA({ H: '#6a4020', h: '#8a5a30', C: '#2a4fa8', c: '#1e3680', W: '#2a4fa8', G: '#f0c830', I: '#f0c830', F: '#1e3680', n: '#2a4fa8', Y: '#f0c830', J: '#2a2430', r: '#e83a3a' }) },
+  // Mística: piel azul con escamas, pelo rojo
+  mistica: { ...B19M, ceja: hex('#a8301a'), cuerpo: parche(CUERPO_HEROE, [[5, 2, 's.s'], [7, 3, 's'], [6, 4, 's.s'], [4, 8, 's'], [8, 9, 's']]),
+    pal: COLORES({ S: '#3a6ac8', s: '#2a4a98', H: '#c83a2a', h: '#e8583a', C: '#3a6ac8', c: '#2a4a98', W: '#3a6ac8', G: '#3a6ac8', I: '#2a4a98', F: '#3a6ac8', n: '#2a4a98' }) },
+  // Rondador Nocturno: piel azul oscuro, pelo negro, traje negro y rojo y la cola en punta
+  rondador: { ...B19, ceja: hex('#1c1424'), detras: (c) => c.cuerpo.rej(COLA, -6, 2),
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'r...r'], [6, 3, 'r.r'], [7, 4, 'r']]),
+    pal: COLORES({ S: '#2a3a7a', s: '#1e2a5a', H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1c1424', W: '#2a2430', G: '#f2eee2', I: '#c8303a', F: '#2a2430', n: '#c8303a', r: '#c8303a' }) },
+  // Bestia: grande como Hulk pero de pelaje azul, con gafas y calzón negro
+  bestia: { ...BIG, cab: CAB_BESTIA, ceja: hex('#1e2a5a'), tocado: 'gafasClaras',
+    cuerpo: parche(CUERPO_GRANDE, [[7, 5, 'r..r..r'], [3, 8, 'r'], [18, 8, 'r'], [8, 10, 'r...r']]),
+    pal: COLORES({ S: '#4a78e0', s: '#2e52b0', r: '#1e2a7a', H: '#24368a', h: '#3a5ac8', F: '#2a2430', f: '#1c1424', E: '#e8ecf4' }) },
+  // los Cuatro Fantásticos de la Tierra 828: traje azul claro con el 4 blanco en su círculo
+  // la Cosa: piel de rocas naranjas, grande, calzón azul
+  cosa: { ...BIG, cab: CAB_COSA, ceja: hex('#5a2a10'),
+    cuerpo: parche(CUERPO_GRANDE, [[7, 3, 'r..r'], [2, 5, 'r'], [9, 4, 'rr'], [12, 7, 'r.r'], [1, 9, 'rr'], [18, 10, 'r'], [7, 9, 'r'], [2, 14, 'r'], [18, 14, 'r'], [7, 20, 'r'], [13, 21, 'r']]),
+    pal: COLORES({ S: '#e8883a', s: '#b85a20', r: '#7a3810', H: '#e8883a', h: '#f8a85a', F: '#2a5ac8', f: '#1e3e90' }) },
+  // los Thunderbolts: Yelena (chaleco táctico negro, pelo rubio recogido)
+  yelena: { ...B19, detras: coleta, cuerpo: CUERPO_TACTICO, ceja: hex('#a8743c'),
+    pal: CLARA({ H: '#e0c070', h: '#f0d898', C: '#2a2430', c: '#1c1424', W: '#3a3a4a', o: '#4a4a5a', G: '#2a2430', I: '#4a4a5a', F: '#2a2a34', n: '#1c1424' }) },
+  // Bucky: ropa negra, brazo de metal plateado (el de delante) y pelo largo oscuro
+  bucky: { ...B19M, ceja: hex('#2a1c14'), cuerpo: parche(CUERPO_TACTICO, [[11, 1, 'ZZk'], [11, 2, 'kZk'], [11, 3, 'kZk'], [11, 4, 'kzk'], [11, 5, 'kZk']]),
+    pal: CLARA({ H: '#2a1c14', h: '#4a3020', C: '#2a2430', c: '#1c1424', W: '#2a2430', o: '#3a3a4a', G: '#2a2430', I: '#4a4a5a', F: '#2a2a34', n: '#1c1424', Z: '#c8ccd8', z: '#8c90a4' }) },
+  // el Guardián Rojo: traje rojo con la estrella blanca, barba y bigote castaños
+  guardian: { ...B19, cab: parche(CAB_BARBA, [[4, 4, 'S'], [3, 9, 'kH'], [2, 10, '.'], [12, 10, 'k']]), ceja: hex('#4a2a14'),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.XXX.'], [5, 4, '.X.X.']]),
+    pal: CLARA({ H: '#6a3a1a', h: '#8a5428', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#e8b830', I: '#e8b830', F: '#2a4fa8', n: '#e8b830', X: '#f2eee2' }) },
+  // Bob / Sentry: traje azul con el pecho dorado, rubio, capa azul
+  sentry: { ...B19, ceja: hex('#a8743c'), detras: capa(),
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'OOOOOOO'], [4, 2, 'OOOOOOO'], [5, 3, 'OOOOO'], [6, 4, 'OOO'], [7, 5, 'O']]),
+    pal: CLARA({ H: '#f0d070', h: '#f8e4a0', C: '#2a3e90', c: '#1e2a6a', W: '#2a3e90', G: '#2a3e90', I: '#e8b830', F: '#2a3e90', n: '#e8b830', O: '#f0c830', Q: '#2a4fb8', q: '#1e3680' }) },
+  // Wakanda: Shuri como Pantera Negra (traje negro con dibujos plateados, máscara con orejitas)
+  shuri: { ...B19, cab: CAB_PANTERA, sinCara: true,
+    cuerpo: parche(CUERPO_HEROE, [[4, 1, 'ZZZZZZZ'], [5, 2, 'Z...Z'], [7, 3, 'Z'], [6, 4, 'Z.Z'], [4, 8, 'Z'], [8, 9, 'Z']]),
+    pal: COLORES({ J: '#24202c', j: '#3a3646', C: '#24202c', c: '#14121a', W: '#24202c', G: '#24202c', I: '#3a3646', F: '#24202c', n: '#14121a', Z: '#b8bcd8', E: '#e8ecff', S: '#24202c', s: '#14121a' }) },
+  // M'Baku: pelo, barba y el chaleco de pelaje marrón
+  mbaku: { ...B19, cab: CAB_MBAKU, cuerpo: CUERPO_PELAJE, ceja: hex('#1c1424'),
+    pal: OSCURA({ S: '#7a4a2a', s: '#5a3418', H: '#1c1424', h: '#3a3046', C: '#8a5a2a', c: '#5a3a1a', I: '#2a2430', n: '#5a3a1a' }) },
+  // Namor: piel morena, bañador verde y las alitas blancas en los tobillos
+  namor: { ...B19, cuerpo: CUERPO_BANADOR, ceja: hex('#1c1424'), cab: parche(CAB_CORTO, [[3, 0, 'kk'], [2, 1, 'kHH']]),
+    pal: MORENA({ S: '#b88058', s: '#8a5a38', H: '#1c1424', h: '#3a3046', C: '#2a8a5a', c: '#1e6a42', W: '#f2eee2' }) },
+  // Shang-Chi: traje rojo y oro con los anillos azules en los antebrazos
+  shangchi: { ...B19, ceja: hex('#1c1424'),
+    cuerpo: parche(CUERPO_HEROE, [[5, 1, 'O...O'], [6, 2, 'O.O'], [7, 3, 'O'], [1, 4, 'kYk.......kYk'], [1, 3, 'kYk.......kYk']]),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#c8303a', c: '#8a1e28', W: '#c8303a', G: '#f6c290', I: '#e8b830', F: '#2a2430', n: '#2a2430', O: '#e8b830', Y: '#4ad8f8' }) },
+  // Ant-Man: traje rojo y negro con el casco plateado de ojos rojos
+  antman: { ...B19, cab: CAB_ANTMAN, sinCara: true,
+    cuerpo: parche(CUERPO_HEROE, [[5, 2, 'J...J'], [5, 3, 'J...J'], [6, 4, 'JJJ'], [3, 7, '.J...J'], [3, 8, '.J...J']]),
+    pal: COLORES({ Z: '#c0c4d4', z: '#7c8094', r: '#e83a3a', R: '#c8303a', C: '#c8303a', c: '#2a2430', W: '#2a2430', G: '#c8303a', I: '#c0c4d4', F: '#c8303a', n: '#2a2430', J: '#2a2430', S: '#f6c290', s: '#d48a5a' }) },
+  // Kevin Feige, el presentador: gorra y chaqueta (sin parecido forzado)
+  feige: { ...B19, cuerpo: parche(CUERPO_EUROPEO, [[5, 2, '.....'], [5, 3, '.....']]), ceja: hex('#5a3418'), tocado: 'visera', bigote: true, barba: true,
+    pal: CLARA({ H: '#6a4a2a', h: '#8a6a4a', U: '#a88a6a', C: '#3a4a3a', c: '#2a362a', W: '#2a2430', o: '#2a2430', F: '#3e5a8a' }) },
+  // fans de la Comic-Con disfrazados con ropa de calle: capa roja, cuernos de juguete, camiseta de la araña con gorra
+  fanCapa: { ...B19, cuerpo: CUERPO_CALLE, ceja: hex('#5a3418'), detras: capa(),
+    pal: CLARA({ H: '#7a4a24', h: '#a8743c', C: '#2a5ac8', c: '#1e3e90', F: '#3e4a6a', n: '#2a2430', Q: '#d8303a', q: '#8a1e28' }) },
+  fanCuernos: { ...B19M, cuerpo: CUERPO_CALLE, ceja: hex('#1c1424'), tocado: 'cuernos',
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#2a7a3a', c: '#1e5a2a', F: '#2a2430', n: '#2a2430', O: '#e8c840', g: '#a88a28' }) },
+  fanArana: { ...B19, cuerpo: parche(CUERPO_CALLE, [[5, 2, 'k.k.k'], [5, 3, '.kkk.'], [5, 4, 'k.k.k']]), ceja: hex('#a8743c'), tocado: 'visera',
+    pal: CLARA({ H: '#e0b860', h: '#c8984a', C: '#d8303a', c: '#a82028', F: '#3e5a8a', n: '#f2eee2' }) },
+};
+// los Cuatro Fantásticos de la Tierra 828: traje azul claro, cinturón y botas oscuros, el 4 blanco en su círculo
+const CUERPO_4F = parche(CUERPO_HEROE, [[5, 1, '.XXX.'], [5, 2, 'XaXaX'], [5, 3, 'XaaaX'], [5, 4, 'XXXaX'], [5, 5, '.XXX.']]);
+const PAL_4F = { C: '#4a8ad8', c: '#2e64a8', W: '#4a8ad8', G: '#1e2a4a', I: '#1e2a4a', F: '#2e64a8', n: '#1e2a4a', X: '#f2eee2', a: '#2e64a8' };
+Object.assign(ELENCO_DO, {
+  reed: { ...B19, cab: CAB_SIENES, cuerpo: CUERPO_4F, ceja: hex('#4a3020'), pal: CLARA({ ...PAL_4F, H: '#4a3020', h: '#6a4430', w: '#d8d8e0' }) },
+  sue: { ...B19M, cuerpo: CUERPO_4F, ceja: hex('#a8843c'), pal: CLARA({ ...PAL_4F, H: '#f0d070', h: '#f8e4a0' }) },
+  johnny: { ...B19, cuerpo: CUERPO_4F, ceja: hex('#a8743c'), pal: CLARA({ ...PAL_4F, H: '#f0c860', h: '#f8dc90' }) },
+  // la Antorcha Humana: Johnny encendido, todo en llamas naranja y amarillo
+  antorcha: { ...B19, cab: CAB_FUEGO, cuerpo: CUERPO_4F, ceja: hex('#a83a10'), detras: llamas, delante: (c) => { if (Math.floor(c.t * 8) % 2) llamas({ ...c, t: c.t + 0.4 }); },
+    pal: COLORES({ S: '#f8a030', s: '#e86a20', Y: '#fff0a0', y: '#f8c840', C: '#f8a030', c: '#e86a20', W: '#f8a030', G: '#fff0a0', I: '#e86a20', F: '#f8a030', n: '#e86a20', X: '#fff0a0', a: '#e86a20' }) },
+});
+Object.assign(ELENCO_CHIBI, ELENCO_DO);
+
+// ── Episodio 20: «Los Juegos del Hambre» (antes de «Amanecer en la cosecha»). Personajes dibujados por nosotros,
+// reconocibles solo por sus atributos (la trenza, el broche, la petaca, la rosa blanca, las plumas, la peluca rosa…),
+// sin parecido con los actores de las películas y sin logos. Letras propias de este reparto (cada uno las define en su
+// pal): O/g oro del broche · r/R, y, v/V, u/U, p, d colores sueltos · n botas · I cinturón · J/j pelucas oscuras.
+// Los niños (Prim, el hermano de Haymitch) llevan un cuerpo más bajo (10 filas), con la misma cabeza.
+const pad = (g) => { const w = Math.max(...g.map((f) => f.length)); return g.map((f) => f.padEnd(w, '.')); };
+// piel del Veta (Seam) del Distrito 12: oliva
+const OLIVA = (o) => ({ S: hex('#dcae84'), s: hex('#b08058'), ...Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)])) });
+
+// ── cabezas ──
+// pelo rizado y revuelto (Haymitch a los 16, su hermano, Teseo): la silueta de arriba con bultos y unos rizos en la frente
+const CAB_RIZOS = [
+  '..kk.kk.kk.....',
+  '.kHHkHHkHHkk...',
+  '.kHhHHhHHhHHk..',
+  'kHHHhHHHHHhHHk.',
+  'kHhHSHSSSHSSSk.',
+  'kHHhSSSSSSSSSk.',
+  'kHhssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  '.kHSSSSSSSSSSk.',
+  '.kSSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+// Haymitch mentor: greñas largas y revueltas hasta el cuello, barba de varios días (u) y las mejillas coloradas (r)
+const CAB_GRENAS = [
+  '..kk.kkk.kk....',
+  '.kHHkHHHkHHk...',
+  '.kHhHHHHhHHHk..',
+  'kHHHHHhHHHHHHk.',
+  'kHhHHHSSSHSSSk.',
+  'kHHHHSSSSSSSSk.',
+  'kHHHsSSSSSSSSSk',
+  'kHhHSSSSSSSSsk.',
+  'kHHHSSrrSSSSrk.',
+  'kHhHkuuuuSSSk..',
+  'kHHhkkuuuuukk..',
+  'khHHk.kkkkk....',
+  '.kkHk..........',
+  '..kk...........',
+];
+// Lenore Dove: rizos oscuros largos con plumitas de colores (r roja, y amarilla, u azul) entre el pelo
+const CAB_PLUMAS = [
+  '..kk.kk.kk.....',
+  '.kHHkHHkHHkk...',
+  '.kHhHrHHhHHHk..',
+  'kHHHHrHHHHhHHk.',
+  'kHyHHSSSSSSSSk.',
+  'kHyHhSSSSSSSSk.',
+  'kHHHsSSSSSSSSSk',
+  'khHHSSSSSSSSsk.',
+  'kHuHSSSSSSSSSk.',
+  'kHuHkSSSSSSSk..',
+  'khHhkkSSSSSkk..',
+  'kHhHk.kkkkk....',
+  '.kkk...........',
+];
+// pelo peinado hacia atrás y liso (Snow joven, el tributo profesional): una raya de brillo
+const CAB_ENGOMINADO = parche(CAB_CORTO, [[3, 1, 'hhhhh'], [2, 2, 'HHHHHHHhh'], [4, 4, 'H']]);
+// peluca empolvada del siglo XVIII (Hume): blanca, con los rulos sobre la oreja
+const CAB_PELUCA = parche(CAB_CORTO, [[1, 4, 'hH'], [1, 5, 'Hh'], [1, 6, 'hH'], [1, 7, 'Hh'], [2, 8, 'h']]);
+// entradas (Beetee): la frente despejada
+const CAB_ENTRADAS = parche(CAB_CORTO, [[6, 3, 'SSSSSS'], [5, 4, 'S']]);
+// mechones canosos (Mags): el pelo largo con vetas grises (w)
+const CAB_VETAS = parche(CAB_LARGO, [[3, 1, 'ww'], [5, 2, 'w'], [2, 3, 'w'], [1, 5, 'w'], [2, 7, 'w'], [1, 9, 'w'], [2, 10, 'w']]);
+
+// ── cuerpos ──
+// camisa de trabajo remangada con tirantes (G) y el cuello abierto: el Distrito 12 minero (Haymitch joven)
+const CUERPO_TIRANTES = parche(CUERPO_CALLE, [[6, 0, 'SSS'], [5, 1, 'G...G'], [2, 2, 'W..G...G..W'], [5, 3, 'G...G'], [5, 4, 'G...G'], [5, 5, 'G...G'], [5, 6, 'G...G']]);
+// chaqueta arrugada (c) con la camisa por fuera (W): Haymitch mentor
+const CUERPO_ARRUGADO = parche(CUERPO_EUROPEO, [[4, 3, 'c'], [10, 4, 'c'], [4, 7, 'WW'], [9, 7, 'WW']]);
+// manga larga (camisa, jersey, sudadera): CUERPO_CALLE con las mangas hasta la muñeca
+const CUERPO_MANGA = parche(CUERPO_CALLE, [[2, 3, 'C.........C'], [2, 4, 'C.........C']]);
+// chaqueta de cuero de caza (C) abierta sobre la camisa verde (W), el broche de oro (O) en la solapa y las botas (n)
+const CUERPO_CAZADORA = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCCWCOCkCk.',
+  '.kCkCCCWCCCkCk.',
+  '.kCkcCCWCCckCk.',
+  '.kSkcCCWCCckSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// vestido sin delantal, solo el cuello (W): las chicas del 12 el día de la cosecha, Maysilee, Madge
+const VESTIDO_LISO = parche(CUERPO_VESTIDO, [[4, 4, 'CCCCCCC'], [4, 5, 'CCCCCCC'], [4, 6, 'CCCCCCC'], [4, 7, 'CCCCCCC'], [4, 8, 'CCCCCCC']]);
+// el vestido de la hija del comerciante (Maysilee): lazo en la cintura (I) y pliegues (c)
+const CUERPO_PLIEGUES = parche(VESTIDO_LISO, [[4, 4, 'IIIIIII'], [4, 6, 'cCCCCCc'], [4, 7, 'CcCCCcC'], [4, 8, 'CcCCCcC'], [4, 9, 'cCcCcCc']]);
+// ropa de capas de colores del Covey (Lenore Dove): collar de cuentas (y r b), blusa mostaza con lunares (d), fajín
+// (u) y la falda de tres capas (roja, verde y morada)
+const CUERPO_COVEY = [
+  '....kkSSSkk....',
+  '..kkCyrybyCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCdCCCdCkCk.',
+  '.kSkuuuuuuukSk.',
+  '.kSkrrrrrrrkSk.',
+  '..kkrRrrrRrkk..',
+  '...krrrrrrrk...',
+  '...kvvvvvvvk...',
+  '...kvVvvvVvk...',
+  '...kpppppppk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el vestido de volantes de Lucy Gray: los colores del arcoíris en bandas y la falda que se abre
+const CUERPO_VOLANTES = [
+  '....kkSSSkk....',
+  '..kkrrrrrrrkk..',
+  '.krkrrRrRrrkrk.',
+  '.kSkqqqqqqqkSk.',
+  '.kSkyyyyyyykSk.',
+  '.kskvvvvvvvksk.',
+  '..kuuuuuuuuuk..',
+  '.kuuUuuuuUuuuk.',
+  '.kpppppppppppk.',
+  'kpppPppppppPppk',
+  'krRrrRrrRrrRrrk',
+  '.kkkkkkkkkkkkk.',
+  '....kLk.kLk....',
+];
+// la toga del emperador: blanca (T) con la banda morada (A) en diagonal y el borde de abajo
+const CUERPO_TOGA = [
+  '...kkTTTTTkk...',
+  '..kAATTTTTTTk..',
+  '.kTkTAATTTTkSk.',
+  '.kTkTTAATTTkSk.',
+  '.kTkTTTAATTkSk.',
+  '.kSkTTTTAATksk.',
+  '..kkTTTTTAAkk..',
+  '...kTTTTTTAk...',
+  '...kTTTTTTTk...',
+  '...ktTTTTTtk...',
+  '...kAAAAAAAk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// quitón corto griego (Teseo): túnica blanca ceñida (G), brazos y piernas al aire, sandalias
+const CUERPO_QUITON = [
+  '...kkTTTTTkk...',
+  '..kTTTTTTTTTk..',
+  '.kSkTTTTTTTkSk.',
+  '.kSkTTTTTTTkSk.',
+  '.kSkTTTTTTTkSk.',
+  '.kskGGGGGGGksk.',
+  '..kkTTTTTTTkk..',
+  '...kTTtTTtTk...',
+  '...ktttttttk...',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+  '...kLLk.kLLk...',
+];
+// niños (10 filas): vestido con cuello (W) y camisa con pantalón corto
+const CUERPO_NINA = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkcCCCCCckk..',
+  '...kCCCCCCCk...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+];
+const CUERPO_NINO = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkFFFFFFFkk..',
+  '...kFFFkFFFk...',
+  '...kSSSkSSSk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+
+// ── tocados nuevos ──
+Object.assign(TOCADOS, {
+  // la peluca rosa altísima de Effie (P/p) con el sombrerito verde (V) arriba
+  pelucaRosa: [[
+    '.....kkkk......',
+    '....kVVVVk.....',
+    '...kkkkkkkk....',
+    '...kPPPPPPk....',
+    '..kPPpPPPPPk...',
+    '..kPPPPPPpPk...',
+    '.kPPpPPPPPPPk..',
+    '.kPPPPPPPpPPk..',
+    'kPPPPpPPPPPPPk.',
+    'kPPPPPPPPPPPPk.',
+    'kPpPPPPPPPPPPk.',
+    'kPPPPPPPPPPPPk.',
+  ], -8],
+  // la torre de Drusilla: peluca ciruela (J/j) altísima e inclinada hacia atrás, con dos bandas de oro (O)
+  torre: [[
+    '..kkkk.........',
+    '.kJJJJk........',
+    '.kJjJJk........',
+    '.kOOOOk........',
+    '..kJJJJk.......',
+    '..kJJjJJk......',
+    '..kJJJJJk......',
+    '.kJJJJjJJk.....',
+    '.kOOOOOOOOk....',
+    'kJJJJJJJJJJk...',
+    'kJJjJJJJJJJJk..',
+    'kJJJJJJJJjJJJk.',
+    'kJJJJJJJJJJJJk.',
+    'kJJJJJJJJJJJJk.',
+  ], -10],
+  // el tupé de Caesar: pelo de color (H) en una ola alta que se adelanta sobre la frente (sin taparla)
+  tupe: [[
+    '......kkkkk....',
+    '....kkHHHHHkk..',
+    '...kHHhhHHHHHk.',
+    '..kHHHHHHHhHHHk',
+    '.kHHHHHHHHHHHk.',
+    'kHHHhHHHHHHHk..',
+  ], -4],
+  // corona de laurel (V/v): las hojas alrededor de la cabeza, por encima de la frente
+  laurel: [[
+    '..kV.kV.kV.k...',
+    '.kVVkVVkVVkVk..',
+    'kVvVVvVVvVVvVk.',
+    'kVk.........kVk',
+  ], 1],
+  // pelucas del Capitolio: pinchos verdes (V/v) y una bola turquesa enorme (Y/y)
+  pinchos: [[
+    '.k...k...k.....',
+    'kVk.kVk.kVk....',
+    'kVVkVVVkVVVk.k.',
+    '.kVVVvVVVvVVkVk',
+    'kVVvVVVVVVVVVVk',
+    'kVVVVVVVVVvVVk.',
+    'kVvVVVVVVVVVVk.',
+    'kVVVVVVVVVVVVk.',
+    'kVVVVVVVVVVVVk.',
+  ], -5],
+  pompon: [[
+    '....kkkkkk.....',
+    '..kkYYYYYYkk...',
+    '.kYYyYYYYYYYk..',
+    'kYYYYYYYyYYYYk.',
+    'kYyYYYYYYYYYYk.',
+    'kYYYYYYYYYYyYYk',
+    'kYYYyYYYYYYYYk.',
+    'kYYYYYYYYYYYYk.',
+    'kYYYYYYYYYYYYk.',
+    'kYYYYYYYYYYYYk.',
+    '.kYYYYYYYYYYYk.',
+  ], -7],
+  // casco blanco de los agentes de la paz (X/x), con la visera oscura (J) subida: la cara se ve entera
+  cascoPaz: [[
+    '...kkkkkkkk....',
+    '..kXXXXXXXXk...',
+    '.kXXxXXXXXXXk..',
+    'kXXXXXXXXXXXXk.',
+    'kXXXkJJJJJJJJJk',
+    'kXXXkkkkkkkkkk.',
+    'kXXXk..........',
+    'kXxXk..........',
+    'kXXXk..........',
+    '.kXXk..........',
+    '..kk...........',
+  ], -1],
+  // casco antidisturbios oscuro (J/j) con la visera transparente: solo su marco gris (Z) por delante de la cara
+  antidisturbios: [[
+    '...kkkkkkkk....',
+    '..kJJJJJJJJk...',
+    '.kJJjJJJJJJJk..',
+    'kJJJJJJJJJJJJk.',
+    'kJJJJJJJJJJJJJk',
+    'kJJJkZZZZZZZZZk',
+    'kJJJk.........Z',
+    'kJjJk.........Z',
+    'kJJJk.........Z',
+    'kJJJk........Z.',
+    '.kJJk......ZZ..',
+    '..kk...........',
+  ], -1],
+});
+
+// ── piezas (con el R de conChibi). Todas: (x, y) = el centro de abajo de la pieza (donde se apoya o por donde se
+// coge); o.s escala (1 = tamaño de escena; 2 al doble, para los insertos), o.dir −1 la voltea ──
+const PAL_JH = COLORES({
+  k: '#1c1222', O: '#f0c040', g: '#a87a18', o: '#ffe890', X: '#f6f2e6', x: '#c8c0b0', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff',
+  B: '#d8943a', b: '#9a5a24', T: '#f4cc80', t: '#e0a85a', m: '#7a2026', r: '#e86a7a', V: '#4a9a3a', v: '#2e6a24',
+  G: '#c8e6ee', W: '#e6f4f8', R: '#c8303a', J: '#24202c', j: '#4a4458', w: '#f2f2f2', u: '#8a8a96', U: '#5a5a66',
+  C: '#c87a3a', c: '#8a4a1e', M: '#a8642a', L: '#6a3a1a',
+});
+const pintaJH = (R, g, x, y, o = {}, pal = PAL_JH) => {
+  const s = o.s ?? 1, dir = o.dir ?? 1, w = g[0].length, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - g.length * s);
+  g.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = pal[f[i]]; if (c == null) continue; const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, c); } });
+};
+// el broche del sinsajo: un aro de oro (O, sombra g) con el pájaro de alas abiertas en negro dentro
+const BROCHE = [
+  '.....kkkkk.....',
+  '...kkOOOOOkk...',
+  '..kOOOOOOOOOk..',
+  '.kOOOkOOOOOOOk.',
+  '.kOOOkkOOOOOOk.',
+  'kOOOOkkkOOOOOOk',
+  'kOOOOOkkkOOkkOk',
+  'kkkOOkkkkkkkkkk',
+  'kOkkkkkkkkkOOOk',
+  'kOOOOOkkkOOOOOk',
+  '.kOOOOOOOOOOOk.',
+  '.kOOOOOOOOOOgk.',
+  '..kOOOOOOOOgk..',
+  '...kkggggggk...',
+  '.....kkkkk.....',
+]
+const broche = (R, x, y, o = {}) => { pintaJH(R, BROCHE, x, y, o); if (o.brillo) R.pset(Math.round(x - 2 * (o.s ?? 1)), Math.round(y - 7 * (o.s ?? 1)), PAL_JH.o); };
+// la petaca de Haymitch: plata (Z/z) con el tapón oscuro y un brillo
+const PETACA = ['.kk.', 'kjjk', 'kZZk', 'kZEk', 'kZZk', 'kzZk', 'kzzk', '.kk.'];
+const petaca = (R, x, y, o = {}) => pintaJH(R, PETACA, x, y, o);
+// la urna de cristal de la cosecha (G/W cristal, E brillo) sobre su pie, llena de papeletas (X/x); o.nivel 0–1
+const URNA = [
+  '..kkkkkkkkkkkkkkk..',
+  '.kWWWWWWWWWWWWWWWk.',
+  '..kGGGGGGGGGGGGGk..',
+  '.kGEGGGGGGGGGGGGGk.',
+  'kGGEGGGGGGGGGGGGGGk',
+  'kGGEGGGGGGGGGGGGGGk',
+  'kGGGGGGGGGGGGGGGGGk',
+  'kGGGGGGGGGGGGGGGGGk',
+  'kGGGGGGGGGGGGGGGGGk',
+  '.kGGGGGGGGGGGGGGGk.',
+  '..kGGGGGGGGGGGGGk..',
+  '...kkkkkkkkkkkkk...',
+  '......kuuuuuk......',
+  '.......kuuuk.......',
+  '.....kkuuuuukk.....',
+  '....kuuuuuuuuuk....',
+  '....kkkkkkkkkkk....',
+];
+const urna = (R, x, y, o = {}) => {
+  const nivel = o.nivel ?? 0.6, arriba = Math.round(10 - nivel * 7);
+  const g = URNA.map((f, j) => (j < arriba || j > 10 ? f : f.replace(/G/g, (_, i) => ((i * 7 + j * 3) % 5 === 0 ? 'x' : (i + j) % 3 === 0 ? 'G' : 'X'))));
+  pintaJH(R, g, x, y, o);
+};
+// la rosa blanca de Snow: flor (X/x) con el tallo y una hoja (V/v)
+const ROSA = ['.kkk.', 'kXxXk', 'kxXXk', '.kxk.', '..Vk.', '.vV..', 'kVV..', '..V..', '..v..'];
+const rosaBlanca = (R, x, y, o = {}) => pintaJH(R, ROSA, x, y, o);
+// la guitarra vieja de Lucy Gray: cuerpo de madera (C/c) con la boca negra y el mástil (M/L)
+const GUITARRA = [
+  '..kkk..',
+  '..kLk..',
+  '..kkk..',
+  '..kMk..',
+  '..kMk..',
+  '..kMk..',
+  '..kMk..',
+  '.kkMkk.',
+  'kCCCCck',
+  'kCCCCck',
+  '.kCCck.',
+  'kCCkCCk',
+  'kCkkkck',
+  'kCCkCck',
+  'kCCCCck',
+  '.kcccck',
+  '..kkkk.',
+];
+const guitarra = (R, x, y, o = {}) => pintaJH(R, GUITARRA, x, y, o);
+// el arco de Katniss: la pala de madera (B/b) curvada y la cuerda (x) recta
+const ARCO = [
+  'kk...',
+  'xbk..',
+  'x.bk.',
+  'x.Bk.',
+  'x..Bk',
+  'x..Bk',
+  'x..Bk',
+  'x..Bk',
+  'x..Bk',
+  'x.Bk.',
+  'x.bk.',
+  'xbk..',
+  'kk...',
+];
+const arco = (R, x, y, o = {}) => pintaJH(R, ARCO, x, y, o);
+// flecha: plumas rojas (R), astil (B) y punta de metal (Z); apunta a la derecha (o.dir −1 a la izquierda)
+const FLECHA = ['RR........kk.', '.RBBBBBBBBZZk', 'RR........kk.'];
+const flecha = (R, x, y, o = {}) => pintaJH(R, FLECHA, x, y, o);
+// la aguja de tejer de Wiress: plata (Z) con la bolita de la punta (O)
+const AGUJA = ['.k.', 'kOk', 'kZk', 'kZk', 'kZk', 'kZk', 'kZk', 'kzk', '.k.'];
+const aguja = (R, x, y, o = {}) => pintaJH(R, AGUJA, x, y, o);
+// el anzuelo de Mags: sedal (x) y el gancho de plata (Z) en forma de J con su punta
+const ANZUELO = ['...x.', '...x.', '..kZk', '...Zk', '...Zk', 'kk.Zk', 'kZkZk', '.kZZk', '..kk.'];
+const anzuelo = (R, x, y, o = {}) => pintaJH(R, ANZUELO, x, y, o);
+// la bobina de cable de Beetee: vueltas de cobre (C/c) y la punta suelta
+const CABLE = [
+  '..kkkkk...',
+  '.kCcCcCk..',
+  'kCk...kCk.',
+  'kc.....ck.',
+  'kCk...kCkk',
+  '.kCcCcCkCk',
+  '..kkkkk.kc',
+  '.........k',
+];
+const cable = (R, x, y, o = {}) => pintaJH(R, CABLE, x, y, o);
+// EL PAN CON OJOS, la mascota del episodio: hogaza redonda de corteza dorada (B, cortes b) y miga clara (T/t) con cara.
+// o.cara: 'normal' (y parpadea con o.t), 'feliz', 'susto' (ojos grandes y boca en O), 'estornudo' (ojos cerrados,
+// boca abierta y migas que salen); o.mordido: le falta la mitad de la derecha (el gag del maratón)
+const PAN = [
+  '...kkkkkkk...',
+  '.kkBBbBBbBkk.',
+  'kBBbBBbBBbBBk',
+  'kBBBBBBBBBBBk',
+  'kBTTTTTTTTTBk',
+  'kTTTTTTTTTTTk',
+  'kTTTTTTTTTTTk',
+  'kTTTTTTTTTTtk',
+  '.kttTTTTTttk.',
+  '..kkkkkkkkk..',
+];
+const PAN_MORDIDO = [
+  '...kkkkk.....',
+  '.kkBBbBBk....',
+  'kBBbBBbBk....',
+  'kBBBBBBk.....',
+  'kBTTTTTxk....',
+  'kTTTTTTk.....',
+  'kTTTTTTxk....',
+  'kTTTTTTk.....',
+  '.kttTTTxk....',
+  '..kkkkkk.....',
+];
+const pan = (R, x, y, o = {}) => {
+  const s = o.s ?? 1, dir = o.dir ?? 1, cara = o.cara ?? 'normal', w = PAN[0].length;
+  pintaJH(R, o.mordido ? PAN_MORDIDO : PAN, x, y, o);
+  const x0 = Math.round(x - w * s / 2), y0 = Math.round(y - PAN.length * s);
+  const dx = o.mordido ? -2 : 0, px = (i, j, c) => { const ii = dir > 0 ? i + dx : w - 1 - i - dx; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, PAL_JH[c]); };
+  if (cara === 'susto') { for (const ex of [3, 8]) { px(ex, 4, 'E'); px(ex + 1, 4, 'E'); px(ex, 5, 'E'); px(ex + 1, 5, 'k'); } px(6, 6, 'k'); px(6, 7, 'm'); px(6, 8, 'k'); }
+  else if (cara === 'estornudo') {
+    px(3, 4, 'k'); px(4, 5, 'k'); px(3, 6, 'k'); px(9, 4, 'k'); px(8, 5, 'k'); px(9, 6, 'k');
+    px(5, 6, 'k'); px(6, 6, 'm'); px(7, 6, 'k'); px(6, 7, 'm'); px(5, 7, 'k'); px(7, 7, 'k');
+    for (const [i, j] of [[14, 4], [15, 6], [14, 7], [16, 5], [17, 7]]) px(i, j, 'T');
+  } else {
+    const cierra = cara === 'normal' && ((o.t ?? 0) + x * 0.13) % 2.6 < 0.1;
+    for (const ex of [4, 8]) { if (!cierra) px(ex, 4, 'k'); px(ex, 5, 'k'); }
+    if (cara === 'feliz') { px(5, 6, 'k'); px(6, 7, 'k'); px(7, 6, 'k'); } else px(6, 7, 'k');
+    px(3, 6, 'r'); px(9, 6, 'r');
+  }
+};
+// pájaros (mirando a la derecha; o.t bate las alas): cuerpo J, ala j, barras del ala w, ojo E, pico Z, cola U
+const PAJARO = pad([
+  '.......kkk..',
+  '......kJJJk.',
+  '.....kJJEJkk',
+  'kkk.kJJJJJkZk',
+  'kUUkJjjjJJkk',
+  '.kUUjwwjJJk',
+  '..kkJjjJJk',
+  '....kkkkk',
+]);
+const ALA_ARRIBA = [[5, 2, 'kj'], [4, 1, 'kjk'], [4, 0, '.k']];
+const pajaro = (pal) => (R, x, y, o = {}) => {
+  const arriba = o.t != null && Math.sin(o.t * 14 + x) > 0;
+  pintaJH(R, arriba ? parche(PAJARO, ALA_ARRIBA) : PAJARO, x, y, o, { ...PAL_JH, ...pal });
+};
+// el charlajo (jabberjay): todo negro, ojo blanco; el sinsonte: gris con barras blancas; el sinsajo: negro con el oro
+const charlajo = pajaro(COLORES({ J: '#24202c', j: '#3a3646', w: '#3a3646', U: '#24202c', Z: '#5a5a66', E: '#ffffff' }));
+const sinsonte = pajaro(COLORES({ J: '#8a8a96', j: '#6a6a76', w: '#f2f2f2', U: '#5a5a66', Z: '#3a3646', E: '#1c1222' }));
+const sinsajo = pajaro(COLORES({ J: '#24202c', j: '#3a3646', w: '#f0c040', U: '#a87a18', Z: '#f0c040', E: '#f0c040' }));
+export const PIEZAS_JH = { broche, petaca, urna, rosaBlanca, guitarra, arco, flecha, aguja, anzuelo, cable, pan, charlajo, sinsonte, sinsajo };
+
+// ── ganchos (lo que llevan en la mano: se quita si la escena le pone o.sostiene, o.dedo u o.brazos) ──
+const manoLibre = (c) => !(c.o.sostiene || c.o.dedo || c.o.brazos || c.o.sinObjeto);
+// la trenza de lado (Katniss): baja desde detrás de la oreja por encima del hombro, con su lazo (r)
+const TRENZA = ['.kHk', 'kHhk', 'kHHk', 'khHk', 'kHHk', 'kHhk', '.kHk', '.krk', '.kHk', '..k.'];
+const trenza = (c) => c.cab.rej(TRENZA, 3, 10);
+// las dos trencitas rubias de Prim: una por detrás de la espalda y otra por encima del hombro
+const TRENCITA = ['kHk', 'khk', 'kHk', 'khk', 'krk', '.k.'];
+const trencitas = { detras: (c) => c.cab.rej(TRENCITA, -1, 8), delante: (c) => c.cab.rej(TRENCITA, 2, 9) };
+// las dos coletas de Maysilee con sus pinzas rosas (r): una detrás y la otra asomando por arriba
+const COLETA_M = ['.kk.', 'krrk', 'kHHk', 'kHhk', '.kHk', '..k.'];
+const COLETA_ALTA = ['.kk.', 'kHHk', 'kHhk', 'krrk', '.kk.'];
+const coletas = (c) => { c.cab.rej(COLETA_M, -3, 4); };   // una coleta baja por detrás (la alta parecía un lazo)
+// plumas de colores que asoman del pelo de Lenore
+const plumitas = (c) => { for (const [i, j, k] of [[1, -1, 'r'], [0, -2, 'r'], [3, -1, 'y'], [3, -2, 'y'], [-1, 3, 'u'], [-2, 2, 'u']]) c.cab.px(i, j, c.pal[k]); };
+// el moño con la aguja de tejer cruzada (Wiress)
+const MONO = ['z......', '.z.kk..', '.kzHHk.', 'kHHzhHk', 'kHhHzHk', '.kHHHZz', '..kkk..'];
+const mono = (c) => c.cab.rej(MONO, -3, 0, { ...c.pal, Z: hex('#c8ccd8'), z: hex('#e8ecf4') });
+// la coleta con lazo negro de la peluca de Hume
+const LAZO = ['kk.', 'kJk', 'kJJ', '.kk'];
+const lazo = (c) => c.cab.rej(LAZO, -2, 7);
+// el cuello rígido de oro de Drusilla, que sube por detrás de la cabeza
+const CUELLO_RIGIDO = ['k...', 'kOk.', 'kOOk', 'kOgk', 'kOOk', 'kOgk', '.kOk'];
+// cosas en la mano de delante (columna 12–16 de la rejilla del cuerpo, la mano en la fila 5)
+const enMano = (g, i, j, pal) => (c) => { if (manoLibre(c)) c.cuerpo.rej(g, i, j, pal ? { ...c.pal, ...pal } : c.pal); };
+const PAL_MANO = COLORES({ O: '#f0c040', g: '#a87a18', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', X: '#f6f2e6', x: '#c8c0b0', B: '#d8943a', b: '#9a5a24', C: '#c87a3a', c: '#8a4a1e', j: '#4a4458', J: '#24202c', u: '#6a3a9a' });
+const conPetaca = enMano(['.kk.', 'kjjk', 'kZZk', 'kZEk', 'kzZk', '.kk.'], 13, 2, PAL_MANO);
+const conLibreta = enMano(['kkkkk', 'kXkXk', 'kxkxk', 'kkkkk'], 13, 3, PAL_MANO);
+const conMicro = enMano(['.kk.', 'kJjk', 'kJJk', '.kk.', '.kZk', '.kzk', '..k.'], 12, -1, PAL_MANO);
+const conAbanico = enMano(['kkkkkk', 'kOuOuk', '.kOuk.', '..kk..'], 12, 2, PAL_MANO);
+const conCable = enMano(['.kkk.', 'kCcCk', 'kc.ck', 'kCcCk', '.kkk.'], 12, 4, PAL_MANO);
+const conEspada = enMano(['..k..', '.kZk.', '.kZk.', '.kZk.', '.kZk.', '.kZk.', 'kOOOk', '.kbk.', '.kkk.'], 12, -2, PAL_MANO);
+const conArco = enMano(ARCO, 13, -1, PAL_MANO);
+// la sonrisa enorme de Caesar (dientes E) y los brillos del traje, que centellean
+const sonrisaCaesar = (c) => { if (c.o.habla || c.o.sorpresa || c.o.triste) return; const y = 9; c.cab.px(8, y, P.k); for (let i = 9; i <= 12; i++) { c.cab.px(i, y, P.E); c.cab.px(i, y + 1, P.k); } c.cab.px(13, y, P.k); };
+const brillos = (c) => { const on = Math.floor(c.t * 4 + c.x) % 3; [[5, 2], [9, 4], [4, 6], [10, 1], [6, 8]].forEach(([i, j], n) => { if ((n + on) % 3) c.cuerpo.px(i, j, hex((n + on) % 3 === 1 ? '#c8d0ff' : '#ffffff')); }); };
+// cejas severas (Drusilla): las dos cejas hacia abajo por dentro
+const severa = (c) => { if (c.o.sonrisa || c.o.sorpresa) return; const ceja = hex('#3a1a4a'); c.cab.px(7, 4, ceja); c.cab.px(7, 5, c.pal.S); c.cab.px(12, 4, ceja); c.cab.px(12, 5, c.pal.S); };
+// el maquillaje del Capitolio: dos piedrecitas de color en las mejillas
+const gemas = (col) => (c) => { c.cab.px(6, 8, hex(col)); c.cab.px(13, 8, hex(col)); };
+const varios = (...fs) => (c) => { for (const f of fs) f(c); };
+
+// ── el reparto del 20 ──
+const B20 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B20M = { ...B20, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO };
+const B20N = { ...B20, altoCuerpo: 10 };
+export const ELENCO_JH = {
+  // ── Distrito 12, Juegos 50 (2.º Vasallaje) ──
+  // Haymitch a los 16: rizos oscuros revueltos, camisa de trabajo gris azulada remangada, tirantes, pantalón y botas
+  haymitch: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_TIRANTES, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#7a8aa0', c: '#5a6a80', W: '#a8b8c8', G: '#5a3a20', F: '#4a4038', n: '#2a2018' }) },
+  // Haymitch mentor (74–75): greñas largas, barba de días, mejillas coloradas, chaqueta parda arrugada con la camisa
+  // por fuera; la petaca en la mano (o.sinObjeto la quita)
+  haymitchViejo: { ...B20, cab: CAB_GRENAS, cuerpo: CUERPO_ARRUGADO, ceja: hex('#3a2a20'), delante: conPetaca,
+    pal: OLIVA({ H: '#5a4632', h: '#7a6248', u: '#9a7a5c', r: '#e07a6a', C: '#6a5a40', c: '#4e422e', W: '#d8ccb0', o: '#d8ccb0', F: '#3e3a34' }) },
+  // Lenore Dove Baird: piel oscura, rizos negros con plumitas de colores, collar de cuentas y capas de colores del Covey
+  lenore: { ...B20, cab: CAB_PLUMAS, cuerpo: CUERPO_COVEY, ceja: hex('#1c1424'), detras: plumitas,
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', r: '#e8483a', R: '#f07a5a', y: '#f0c840', b: '#3a8ad8', u: '#2a9aa0', C: '#d8a030', d: '#a86a18', v: '#4a9a4a', V: '#7ac86a', p: '#8a4aa8', L: '#4a2e1a' }) },
+  // Maysilee Donner: rubia, el pelo bien peinado con una coleta baja y pinza rosa, vestido rosa de comerciante con lazo
+  maysilee: { ...B20, cuerpo: CUERPO_PLIEGUES, ceja: hex('#b8903c'), detras: coletas,
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', r: '#f07ab0', C: '#e88aa8', c: '#c0607e', W: '#f8f4ec', I: '#f8f4ec', L: '#2a2430' }) },
+  // la madre y el hermano pequeño de Haymitch (Veta): ella con vestido gris y delantal; él, de camisa y pantalón corto
+  madreHaymitch: { ...B20M, ceja: hex('#1c1424'), pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#6e6a5c', c: '#545046', W: '#d8d0bc', L: '#3a2a20' }) },
+  hermanoHaymitch: { ...B20N, cab: CAB_RIZOS, cuerpo: CUERPO_NINO, ceja: hex('#1c1424'), pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#8a7a6a', c: '#6a5a4a', F: '#4a4038', n: '#2a2018' }) },
+  // la vendedora del Quemador: mayor, pelo gris, mantón granate de punto sobre los hombros y delantal
+  vendedoraHob: { ...B20M, ceja: hex('#8a8a9a'),
+    cuerpo: parche(CUERPO_VESTIDO, [[4, 1, 'uuuuuuu'], [2, 2, 'u.uuuuuuu.u'], [2, 3, 'u..uuuuu..u'], [6, 4, 'UuU']]),
+    pal: OLIVA({ H: '#a8a8b0', h: '#c8c8d0', u: '#8a2a3a', U: '#c85a6a', C: '#5a4a3a', c: '#3e3228', W: '#c8bca0', L: '#2a2018' }) },
+  // tributos genéricos del 12: él con camisa clara de domingo; ella con vestido azul gastado (sin delantal)
+  tributoChico: { ...B20, cuerpo: CUERPO_MANGA, ceja: hex('#1c1424'), pal: OLIVA({ H: '#3a2a20', h: '#5a4232', C: '#d8d2c2', c: '#b0a894', F: '#4a4a52', n: '#2a2018' }) },
+  tributoChica: { ...B20M, cuerpo: VESTIDO_LISO, ceja: hex('#2a1c14'), pal: OLIVA({ H: '#3a2a20', h: '#5a4232', C: '#6a7a9a', c: '#4e5a78', W: '#d8d2c2', L: '#2a2018' }) },
+  // ── Distrito 12, Juegos 74–75 ──
+  // Katniss: trenza oscura de lado, chaqueta de cuero marrón de caza, camisa verde, el broche (punto de oro) y botas
+  katniss: { ...B20, cuerpo: CUERPO_CAZADORA, ceja: hex('#1c1424'), delante: trenza,
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', r: '#6a4a2a', C: '#7a4a2a', c: '#5a341c', W: '#3e5a3a', O: '#f0c040', F: '#5a5246', n: '#3a2618' }) },
+  // Katniss con el arco en la mano (o.sinObjeto lo quita)
+  katnissArco: { ...B20, cuerpo: CUERPO_CAZADORA, ceja: hex('#1c1424'), delante: varios(trenza, conArco),
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', r: '#6a4a2a', C: '#7a4a2a', c: '#5a341c', W: '#3e5a3a', O: '#f0c040', F: '#5a5246', n: '#3a2618', B: '#c8843a', b: '#8a5424', x: '#e8e4dc' }) },
+  // Prim: niña pequeña, rubia, con dos trencitas y vestido azul claro con cuello blanco
+  prim: { ...B20N, cuerpo: CUERPO_NINA, ceja: hex('#b8903c'), ...trencitas,
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', r: '#7aa8e0', C: '#9ac0e8', c: '#7098c8', W: '#f8f4ec', L: '#4a3a5a' }) },
+  // Peeta: rubio de pelo ondulado, fuerte, camisa lisa azul grisácea de manga larga, pantalón marrón
+  peeta: { ...B20, cab: parche(CAB_CORTO, [[3, 1, 'h..h..h'], [2, 2, '..h..h..h']]), cuerpo: CUERPO_MANGA, ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c060', h: '#f8dc90', C: '#7a90a8', c: '#5a7088', F: '#6a5040', n: '#3a2a20' }) },
+  // Peeta panadero: el mismo con el delantal blanco enharinado
+  peetaPanadero: { ...B20, cab: parche(CAB_CORTO, [[3, 1, 'h..h..h'], [2, 2, '..h..h..h']]), cuerpo: parche(CUERPO_MANDIL, [[6, 7, 'x'], [8, 8, 'x']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c060', h: '#f8dc90', C: '#7a90a8', c: '#5a7088', W: '#f8f4ec', o: '#5a7088', A: '#d8ccb4', x: '#e0d8c8', F: '#6a5040' }) },
+  // Madge: rubia de pelo largo, vestido blanco y el broche de oro en el pecho
+  madge: { ...B20M, cuerpo: parche(VESTIDO_LISO, [[9, 2, 'O']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', C: '#f8f6f0', c: '#d0ccc4', W: '#ffffff', O: '#f0c040', L: '#8a7a6a' }) },
+  // ── el Capitolio ──
+  // el presidente Snow: pelo y barba blancos y cortos, traje oscuro elegante, corbata granate y la rosa blanca en la solapa
+  snow: { ...B20, cab: CAB_BARBA, cuerpo: parche(CUERPO_EUROPEO, [[9, 1, 'XX'], [9, 2, 'Xv']]), ceja: hex('#c8c8d0'),
+    pal: CLARA({ H: '#f2f0ec', h: '#c8c8d0', C: '#2a2834', W: '#f2f0ec', o: '#6a1e2a', F: '#2a2834', X: '#ffffff', v: '#3a7a3a' }) },
+  // Snow a los 18 (Juegos 10): rubio engominado, uniforme granate de la Academia con hombreras y botones de oro
+  snowJoven: { ...B20, cab: CAB_ENGOMINADO, cuerpo: parche(CUERPO_EUROPEO, [[3, 1, 'o.......o']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c870', h: '#f8e4a8', C: '#7a1e2e', c: '#5a1420', W: '#f2eee2', o: '#f0c040', F: '#2a2430' }) },
+  // Lucy Gray Baird: pelo oscuro largo, vestido de volantes con los colores del arcoíris (la guitarra: PIEZAS_JH)
+  lucyGray: { ...B20M, cuerpo: CUERPO_VOLANTES, ceja: hex('#2a1c14'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a28', r: '#e8483a', R: '#f88a7a', q: '#f0902a', y: '#f0d040', v: '#4aa84a', u: '#3a7ad8', U: '#7aaaf0', p: '#8a4ab8', P: '#b07ad8', L: '#4a2e1a' }) },
+  // Plutarch: pelo castaño y barba corta, traje burdeos con corbata dorada (para no confundirlo con Snow); la libreta
+  plutarch: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#4a2e1a'), delante: conLibreta,
+    pal: CLARA({ H: '#6a4426', h: '#8a6040', C: '#7a2436', c: '#561826', W: '#e8e4dc', o: '#e8b830', F: '#561826' }) },
+  // Effie joven: peluca rosa altísima con sombrerito verde, traje rosa chillón con blusa verde
+  effie: { ...B20, tocado: 'pelucaRosa', cuerpo: CUERPO_SASTRE, ceja: hex('#c84a88'), mejillas: [[6, 8], [12, 8]],
+    pal: CLARA({ H: '#f070b0', h: '#ff9ad0', P: '#f070b0', p: '#c84a88', V: '#4ac87a', s: '#f0a0a0', C: '#f070b0', c: '#c84a88', W: '#4ac87a', o: '#f0c040', I: '#3aa86a' }) },
+  // Caesar Flickerman: tupé de color lila azulado, sonrisa enorme, traje azul noche que centellea y el micrófono
+  caesar: { ...B20, tocado: 'tupe', cuerpo: CUERPO_EUROPEO, ceja: hex('#6a4ac8'), delante: varios(sonrisaCaesar, brillos, conMicro),
+    pal: CLARA({ H: '#8a7ae8', h: '#c0b4ff', C: '#1e2466', c: '#141a4a', W: '#f2eee2', o: '#1e2466', F: '#1e2466' }) },
+  // Drusilla, la escolta del 12 en los Juegos 50: peluca torre ciruela con oro, cuello rígido de oro, vestido morado
+  // con el peto dorado, cejas severas; el abanico en la mano
+  drusilla: { ...B20, tocado: 'torre', cuerpo: CUERPO_VESTIDO, ceja: hex('#3a1a4a'), detras: (c) => c.cuerpo.rej(CUELLO_RIGIDO, -1, -7), delante: varios(severa, conAbanico),
+    pal: CLARA({ H: '#3a1a4a', h: '#5a2a6a', J: '#4a2a5a', j: '#6a4a7a', O: '#e8b830', g: '#a87a18', C: '#5a2a7a', c: '#3e1a5a', W: '#e0b040', L: '#2a1a3a', u: '#5a2a7a' }) },
+  // un vigilante (Gamemaker): túnica morada larga con el ribete de oro
+  vigilante: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'),
+    pal: CLARA({ H: '#2a2028', h: '#4a3e4c', C: '#6a3a9a', c: '#4a2470', o: '#e8b830', G: '#e8b830', L: '#2a2430' }) },
+  // un agente de la paz: uniforme blanco entero, casco blanco con la visera subida, guantes y botas negros
+  agentePaz: { ...B20, tocado: 'cascoPaz', cuerpo: CUERPO_TACTICO, ceja: hex('#5a3a28'),
+    pal: CLARA({ X: '#f6f4f0', x: '#c8c8d0', J: '#2a2e3a', C: '#f2f0ec', c: '#c8c8d0', o: '#c8c8d0', W: '#f2f0ec', G: '#2a2430', I: '#2a2430', F: '#e8e6e2', n: '#2a2430' }) },
+  // gente del Capitolio: él con pinchos verdes, cejas magenta y traje naranja; ella con la bola turquesa y traje fucsia
+  capitolino1: { ...B20, tocado: 'pinchos', cuerpo: CUERPO_EUROPEO, ceja: hex('#e83ab0'), delante: gemas('#e83ab0'),
+    pal: CLARA({ H: '#4ac84a', V: '#5ad85a', v: '#2e9a2e', C: '#f08a2a', c: '#c0601a', W: '#f8e040', o: '#e83ab0', F: '#f08a2a' }) },
+  capitolino2: { ...B20, tocado: 'pompon', cuerpo: CUERPO_SASTRE, ceja: hex('#2a9aa0'), delante: gemas('#f0c040'),
+    pal: CLARA({ H: '#3ac8c0', Y: '#3ac8c0', y: '#9af0e8', C: '#d83ab0', c: '#a82a88', W: '#f0c040', o: '#f0c040', I: '#f0c040' }) },
+  // un tributo profesional de un distrito rico: rubio engominado, pecho dorado brillante, brazos al aire, fuerte
+  tributoCarrera: { ...B20, cab: CAB_ENGOMINADO, cuerpo: parche(CUERPO_HEROE, [[5, 1, 'y'], [5, 2, 'y'], [6, 3, 'y']]), ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#f0d070', h: '#f8ecb0', C: '#e8b830', c: '#a87a18', y: '#fff0a0', W: '#f6c290', G: '#f6c290', I: '#5a1e2a', F: '#5a1e2a', n: '#a87a18' }) },
+  // ── vencedores de los Juegos 50 (veinticinco años más jóvenes que en «En llamas») ──
+  // Beetee: gafas, pelo corto con entradas, chaqueta de técnico gris verdosa con bolsillos; el cable en la mano
+  beetee: { ...B20, cab: CAB_ENTRADAS, tocado: 'gafasClaras', cuerpo: CUERPO_TACTICO, ceja: hex('#1c1424'), delante: conCable,
+    pal: MORENA({ E: '#e8ecf4', S: '#a87050', s: '#7e5034', H: '#1c1424', h: '#3a3046', C: '#5a6a64', c: '#3e4a46', o: '#3e4a46', W: '#5a6a64', G: '#a87050', I: '#2a2430', F: '#3a3a44', n: '#2a2430' }) },
+  // Wiress: delgada, moño con la aguja de tejer cruzada, vestido gris sencillo
+  wiress: { ...B20, cuerpo: VESTIDO_LISO, ceja: hex('#4a3a2a'), delante: mono,
+    pal: CLARA({ H: '#6a5038', h: '#8a6c50', C: '#8a8a96', c: '#6a6a76', W: '#b8b8c4', L: '#3a3a44' }) },
+  // Mags (de mediana edad): pelo largo con vetas grises, jersey de pescadora verde azulado, cuerda de cinturón, botas
+  mags: { ...B20, cab: CAB_VETAS, cuerpo: parche(CUERPO_MANGA, [[4, 6, 'IIIIIII']]), ceja: hex('#5a4a40'),
+    pal: MORENA({ H: '#6a5448', h: '#8a7466', w: '#c8c4bc', C: '#3a7080', c: '#28505e', I: '#c8a868', F: '#8a7a5a', n: '#3a3028' }) },
+  // ── el mundo real y la historia (sección final) ──
+  // una mujer en el sofá (representa a la autora de forma genérica, sin parecido): pelo castaño largo, gafas, jersey
+  // mostaza, vaqueros y zapatillas
+  mujerSofa: { ...B20, cab: CAB_LARGO, tocado: 'gafas', cuerpo: CUERPO_MANGA, ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#6a4426', h: '#8a6040', C: '#d0a040', c: '#a87a28', F: '#3e5a8a', n: '#f2eee2' }) },
+  // Teseo: joven griego de pelo rizado, quitón blanco ceñido y la espada corta
+  teseo: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_QUITON, ceja: hex('#3a2418'), delante: conEspada,
+    pal: MORENA({ H: '#3a2418', h: '#5a3a28', T: '#f4eedc', t: '#c8bc9a', G: '#8a5a2a', L: '#6a4020' }) },
+  // un emperador romano: toga blanca con la banda morada y corona de laurel
+  emperador: { ...B20, cuerpo: CUERPO_TOGA, tocado: 'laurel', ceja: hex('#2a1c14'),
+    pal: CLARA({ H: '#3a2a20', h: '#5a4232', T: '#f4eedc', t: '#c8bc9a', A: '#6a2a8a', V: '#5aa83a', v: '#3a7a24', L: '#6a4020' }) },
+  // David Hume (siglo XVIII): peluca blanca empolvada con rulos y lazo, casaca marrón, chorrera blanca
+  hume: { ...B20, cab: CAB_PELUCA, ceja: hex('#8a7a6a'), detras: lazo,
+    pal: CLARA({ H: '#ecebe6', h: '#c4c0b8', J: '#2a2430', C: '#6a4a30', W: '#f2eee2', o: '#e8dcc0', F: '#3a2a20' }) },
+  // un manifestante: sudadera verde, pañuelo rojo al cuello, vaqueros
+  manifestante: { ...B20, cuerpo: parche(CUERPO_MANGA, [[5, 0, 'uuuuu'], [6, 1, 'uuu']]), ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', u: '#c8303a', C: '#3a6a3a', c: '#2a4e2a', F: '#3e5a8a', n: '#2a2430' }) },
+  // un agente antidisturbios: casco oscuro con la visera transparente, uniforme negro azulado acolchado
+  agenteCasco: { ...B20, tocado: 'antidisturbios', cuerpo: CUERPO_TACTICO, ceja: hex('#2a1c14'),
+    pal: CLARA({ J: '#2a2e3a', j: '#4a5060', Z: '#a8b8c8', C: '#2a2e3a', c: '#1c1f28', o: '#3e4454', W: '#2a2e3a', G: '#1c1c24', I: '#1c1c24', F: '#2a2e3a', n: '#14141a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_JH);
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ── Episodio 21: «Harry Potter: lo que hay que saber antes de la serie de HBO» ──
+// Todos dibujados por nosotros y reconocibles solo por sus atributos (gafas redondas y cicatriz, pelo rojo, melena
+// espesa, barba blanca…): ningún parecido con los actores, ni escudos ni letras. El pelo nunca tapa la cara.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+// ── ayudas ──
+// mezcla dos colores (de hex()) a partes f / 1−f, canal a canal
+const mezclaHP = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+// fantasmas de verdad translúcidos: detrás guarda el fondo de su recuadro y delante mezcla lo pintado con él (el fondo
+// se ve a través); o.opaco lo desactiva
+const fantasma = (f = 0.62) => ({
+  detras: (c) => { if (!c.pget || c.o.opaco) return; const x0 = c.x - 9, x1 = c.x + 23, y0 = c.yH - 11, y1 = c.suelo + 2, m = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) m.push(c.pget(x, y)); c.fondoHP = { x0, x1, y0, y1, m }; },
+  delante: (c) => { const F = c.fondoHP; if (!F) return; let n = 0; for (let y = F.y0; y <= F.y1; y++) for (let x = F.x0; x <= F.x1; x++) { const b = F.m[n++], a = c.pget(x, y); if (a !== b) c.pset(x, y, mezclaHP(a, b, f)); } },
+});
+// ¿tiene los ojos abiertos y normales? (para pintar encima el color del ojo o las gafas sin pisar un parpadeo)
+const ojoNormal = (c) => !(c.o.sorpresa || (c.o.parpadea ?? (c.t + c.x * 0.13) % 2.6 < 0.1));
+// gafas (en la rejilla de la cabeza, desde la columna 4: la patilla hacia la oreja y los dos aros en los ojos 8 y 12)
+const GAFAS_REDONDAS = ['....k...k.', 'kkkk.kkk.k', '...k.k.k.k', '....k...k.'];   // filas 5–8
+const GAFAS_MEDIALUNA = ['kkkk.k.k.k', '....k...k.'];                              // filas 7–8: solo la mitad de abajo
+const GAFAS_CUADRADAS = ['kkkk.kkk.k', '...k.k.k.k', '...kkk.kkk'];   // filas 6–8 (sin el borde de arriba: la ceja lo hace)
+const gafasHP = (g, j0, col) => (c) => c.cab.rej(g, 4, j0, col ? { ...c.pal, k: hex(col) } : c.pal);
+// cristal de las gafas: un brillo claro dentro de cada aro, para que se lean como gafas y no como un antifaz (Harry)
+const cristalHP = (c) => { const v = hex('#dfeaf2'); c.cab.px(8, 6, v); c.cab.px(12, 6, v); };
+
+// ── cabezas ──
+// Harry: pelo negro revuelto en punta y el flequillo abierto en la frente para que se vea la cicatriz del rayo (r)
+const CAB_HARRY = [
+  '..k.kk.kk.k....',
+  '.kHkHHkHHkHk...',
+  'kHHHHhHHHHHHk..',
+  'kHHhHHHHSSrHHk.',
+  'kHHHSSSSSrrHSk.',
+  'kHHsSSSSSrSSSk.',
+  'kHHssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  '.kHSSSSSSSSSSk.',
+  '.kSSSSSSSSSSk..',
+  '..kSSSSSSSSsk..',
+  '...kksSSSSkk...',
+  '.....kkkkk.....',
+];
+// Ron: pelo rojo, pecas (f) en las mejillas y la mancha en la nariz (u)
+const CAB_RON = parche(CAB_CORTO, [[3, 1, 'h...h'], [6, 8, 'f.f'], [11, 8, 'f'], [13, 6, 'u']]);
+// la melena espesa de Hermione: el volumen se pinta encima de la cabeza (gancho delante), solo por arriba y por detrás
+const MELENA = [
+  '.....kk.kk.kk.....',
+  '...kkHHkHHkHHkk...',
+  '..kHHHHHHHHHHHHk..',
+  '.kHHHHHHHHHHHhHHk.',
+  'kHHHHHHHHHHHHHHHk.',
+  'kHHHHHHHHHHhHHHHHk',
+  'kHHHHHHHHHHHHHHHk.',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  'kHHHHHH...........',
+  '.kHHHHH...........',
+  '.kHHHHk...........',
+  '..kkkk............',
+];
+const melena = (c) => c.cab.rej(MELENA, -3, -3);
+// Snape: pelo negro grasiento hasta los hombros (brillo h) y la nariz ganchuda que cae una fila
+const CAB_SNAPE = parche(CAB_LARGO, [[3, 2, 'hh'], [2, 5, 'h'], [2, 9, 'h'], [12, 7, 'Ssk']]);
+// Draco: rubio platino engominado hacia atrás
+const CAB_DRACO = parche(CAB_CORTO, [[3, 1, 'hhhhh'], [2, 2, 'HHHHHHHhh'], [4, 4, 'H'], [3, 3, 'hhh']]);
+// Neville: la cara redonda (la mejilla más llena) y el flequillo castaño
+const CAB_NEVILLE = parche(CAB_CORTO, [[0, 9, 'kSSSSSSSSSSSk'], [1, 10, 'kSSSSSSSSSsk'], [2, 11, 'kksSSSSSkk'], [4, 4, 'HH']]);
+// Hagrid: pelo negro salvaje arriba y la barba que empieza en las mejillas, dejando libres la boca y los ojos
+const CAB_HAGRID = [
+  '.k.kk.kkk.kk...',
+  'kHkHHkHHHkHHkk.',
+  'kHHHHHHhHHHHHHk',
+  'kHhHHHHHHHHhHHk',
+  'kHHHSSSSSSSSSHk',
+  'kHHHsSSSSSSSSk.',
+  'kHHssSSSSSSSSSk',
+  'kHHsSSSSSSSSsk.',
+  'kHHHSSSSSSSSSHk',
+  'kHHHHSSSSSSSSHk',
+  'kHHHHHHSSSSSHHk',
+  '.kHHHHHHHHHHHk.',
+  '..kkHHHHHHHkk..',
+];
+// la melena y la barba de Hagrid, enormes: el pelo hace un aro alrededor de la cara sin taparla (atrás y por encima)
+const MELENA_HAGRID = [
+  '...k.kk.kk.kk.k.k....',
+  '..kHkHHkHHkHHkHkHk...',
+  '.kHHHHHHHHHHHHhHHHk..',
+  'kHHHHHHHHHHHHHHHHHHk.',
+  'kHHHHHHHHHHHHHHHHHHHk',
+  'kHHHHHHHHHHHHHHHHHHk.',
+  'kHHHHHH..........kHHk',
+  'kHHHHHH...........kHk',
+  'kHHHHHH..........kHHk',
+  'kHHHHHH...........kHk',
+  'kHHHHHH..........kHHk',
+  'kHHHHHH...........kHk',
+  'kHHHHHH..........kHHk',
+  '.kHHHHH...........kk.',
+  '.kHHHHH..............',
+  '..kHHHk..............',
+  '...kkk...............',
+];
+const BARBA_HAGRID = [
+  '..kHHHHHHHHHHHHk..',
+  '.kHHHHHHHHHHHHHHk.',
+  '.kHHHHHHHHHHHHHHk.',
+  '.kHHHHHHHHHHHHHk..',
+  '..kHHHHHHHHHHHHk..',
+  '..kHHHHHHHHHHHk...',
+  '...kHHHHHHHHHHk...',
+  '...kHHHHHHHHHk....',
+  '....kHHHHHHHHk....',
+  '....kHHHHHHHk.....',
+  '.....kHHHHHk......',
+  '......kHHHk.......',
+  '.......kkk........',
+];
+// Dumbledore: pelo y barba blancos (CAB_BARBA), con la barba larguísima por el pecho y el pelo largo por la espalda
+const BARBA_LARGA = [
+  '.kWWWWWWWk',
+  '.kWWWWWWWk',
+  '..kWWWwWWk',
+  '..kWWWWWk.',
+  '..kWWWWWk.',
+  '...kWWWWk.',
+  '...kWWWk..',
+  '...kWWWk..',
+  '....kWk...',
+  '....kWk...',
+  '.....k....',
+];
+const PELO_LARGO = ['kWWWk', 'kWWWk', 'kWwWk', 'kWWWk', 'kWWWk', 'kWWWk', 'kWWWk', 'kWWwk', 'kWWWk', 'kWWWk', 'kWWWk', '.kWWk', '.kWWk', '.kWk.', '..k..'];
+const barbaBlanca = (c) => { c.cab.rej(PELO_LARGO, -1, 4); c.cuerpo.rej(BARBA_LARGA, 3, -1); };
+// el turbante morado de Quirrell (A/a) y su cara de nervios
+// el moño de McGonagall (y el de la costurera), por detrás y debajo del ala del sombrero
+const MONO_HP = ['.kk.', 'kHHk', 'kHhk', 'kHHk', '.kk.'];
+const monoHP = (c) => c.cab.rej(MONO_HP, -2, 4);
+// la oreja puntiaguda del duende, que sube hacia atrás
+const OREJA_DUENDE = ['k....', 'kSk..', '.kSk.', '.kSSk', '..kSk', '..kSk'];
+// Binns: calvo con el cerquillo blanco (w) alrededor de la oreja
+const CAB_BINNS = parche(CAB_CALVO, [[1, 4, 'ww'], [1, 5, 'www'], [1, 6, 'ww'], [1, 7, 'ww'], [2, 8, 'w']]);
+// el escribano y otros: la cabeza con flequillo recto medieval
+// el compositor: pelo largo hasta los hombros con raya
+const CAB_MELENA_H = parche(CAB_LARGO, [[3, 2, 'h'], [2, 6, 'h']]);
+// el duende: calvo con un mechón y la nariz larga y puntiaguda
+const CAB_DUENDE = parche(CAB_CALVO, [[4, 1, 'HH'], [3, 2, 'H'], [13, 5, 'S'], [13, 6, 'SSs'], [12, 7, 'Sk']]);
+
+// ── tocados ──
+const BRUJA = [
+  '..kk...........',
+  '..kVk..........',
+  '...kVk.........',
+  '...kVVk........',
+  '....kVVk.......',
+  '....kVVVk......',
+  '...kVVVVVk.....',
+  '...kVvVVVVk....',
+  '..kVVVVVVVVk...',
+  '..kVvVVVVVVVk..',
+  '..koooooooook..',
+  'kkkkkkkkkkkkkkk',
+  'kVVVVVVVVVVVVVk',
+  '.kkkkkkkkkkkkk.',
+];
+Object.assign(TOCADOS, {
+  // el sombrero de bruja alto y puntiagudo, con la punta doblada hacia atrás (V/v y la cinta o): McGonagall
+  bruja: [BRUJA, -10],
+  // el de mago de Dumbledore: morado (P/p) con estrellas (y)
+  mago: [parche(tapa(BRUJA, { V: 'P', v: 'p', o: 'p' }), [[5, 5, 'y'], [7, 7, 'y'], [4, 9, 'y'], [9, 9, 'y'], [6, 12, 'y'], [11, 12, 'y']]), -10],
+  // el turbante de Quirrell: tela morada (A/a) en vueltas, por encima de la frente
+  turbante: [[
+    '...kkkkkkk.....',
+    '..kAAaAAAAkk...',
+    '.kAAAAaAAAAAk..',
+    'kAaAAAAaAAAAAk.',
+    'kAAAaAAAAaAAAk.',
+    'kAAAAAaAAAAAak.',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+  // el gorro de bufón de Peeves: tres puntas caídas de colores (A lila, Q naranja) con cascabeles (o)
+  bufon: [pad([
+    'o...........o..',
+    'kAk.......kQk..',
+    '.kAk..o..kQk...',
+    '..kAk.k.kQk....',
+    '..kAAkQkQQk....',
+    '.kAAAAQQQQQk...',
+    'kAAAAAQQQQQQk..',
+    'kkkkkkkkkkkkkk.',
+    'kQAQAQAQAQAQk..',
+  ]), -5],
+  // la capucha del escribano (B/b): tapa el pelo y la nuca, la cara queda entera
+  capucha: [[
+    '...kkkkkkkk....',
+    '..kBBBBBBBBk...',
+    '.kBBbBBBBBBBk..',
+    'kBBBBBBBBBBBBk.',
+    'kBBBBkkkkkkkkk.',
+    'kBBBk..........',
+    'kBBbk..........',
+    'kBBBk..........',
+    'kBBBk..........',
+    'kBbBk..........',
+    'kBBBBk.........',
+    '.kBBBk.........',
+  ], -1],
+  // gorra de béisbol (el director): copa (J) y visera hacia delante
+  beisbol: [[
+    '...kkkkkkk.....',
+    '..kJJJJJJJk....',
+    '.kJJjJJJJJJk...',
+    '.kkkkkkkkkkkkk.',
+    '..........kkk..',
+  ], -1],
+});
+
+// ── cuerpos ──
+// la túnica negra del colegio (C/c) abierta sobre la camisa blanca (W), la corbata (o) y el jersey gris (I)
+const CUERPO_COLEGIO = [
+  '...kkWWWWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCWoWCCkCk.',
+  '.kCkCCIoICCkCk.',
+  '.kCkCCIIICCkCk.',
+  '.kSkCCIIICCkSk.',
+  '..kCCCFFFCCCk..',
+  '..kCCCFkFCCCk..',
+  '..kCCCFkFCCCk..',
+  '..kcCCFkFCCck..',
+  '..kccckkkccck..',
+  '...kkknkknkk...',
+  '....kkk.kkk....',
+];
+// la falda del uniforme (Hermione, alumnas): la túnica igual, con falda gris y medias
+const CUERPO_COLEGIO_F = parche(CUERPO_COLEGIO, [[6, 6, 'III'], [6, 7, 'III'], [6, 8, 'IIi'], [6, 9, 'SkS'], [6, 10, 'k.k']]);
+// el jersey heredado de Harry: enorme, las mangas tapan las manos y el bajo cae hasta los muslos, con un remiendo (d)
+const CUERPO_HEREDADO = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCdCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kckCCCCCCCkck.',
+  '.kCkCCCCCCCkCk.',
+  '..kccccccccck..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el jersey de punto granate de Ron: liso (sin letra), con el canalé (c) en el cuello, los puños y el bajo
+const CUERPO_PUNTO = parche(CUERPO_MANGA, [[5, 0, 'kcCck'], [4, 6, 'cCcCcCc'], [1, 4, '.c.........c']]);
+// la túnica larga de profesor, alta (dos filas más): McGonagall
+const CUERPO_TUNICA_ALTA = [...CUERPO_TUNICA_LARGA.slice(0, 9), CUERPO_TUNICA_LARGA[8], CUERPO_TUNICA_LARGA[8], ...CUERPO_TUNICA_LARGA.slice(9)];
+// la levita negra abotonada de arriba abajo de Snape (sin nada blanco)
+const CUERPO_LEVITA = [
+  '....kkCCCkk....',
+  '..kkCCCoCCCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCoCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCoCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCoCCCk...',
+  '...kcccccccck..',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el cuerpo gigante de Hagrid (23 × 33): abrigo de piel de topo pardo (C/c) con bolsillos (c), cinturón (G), manos
+// enormes y botas (n); la barba le tapa el pecho
+const CUERPO_HAGRID = [
+  '.......kkkkkkkkk.......',
+  '....kkkCCCCCCCCCkkk....',
+  '..kkCCCCCCCCCCCCCCCkk..',
+  '.kCCCCCCCCCCCCCCCCCCCk.',
+  'kCCCCkCCCCCCCCCCCkCCCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCccccCccccCkCcCCk',
+  'kCCcCkCcCCcCcCCcCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkGGGGGOGGGGGkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCCCCCCCCCCCkCcCCk',
+  'kCCcCkCccccCccccCkCcCCk',
+  'kCCcCkCcCCcCcCCcCkCcCCk',
+  'kcccckCcccCCcccCCkcccck',
+  'kSSSSkCCCCCCCCCCCkSSSSk',
+  'kSSSskCCCCCCCCCCCkSSSsk',
+  '.kSskkCCCCCCCCCCCkkSsk.',
+  '..kk.kCCCCCCCCCCCk.kk..',
+  '.....kCCCCCkCCCCCk.....',
+  '.....kCCCCCkCCCCCk.....',
+  '.....kcCCCCkCCCCck.....',
+  '.....kcccckkkcccck.....',
+  '......kFFFFkFFFFk......',
+  '......kFFFFkFFFFk......',
+  '......kFFFFkFFFFk......',
+  '......knnnnknnnnk......',
+  '......knnnnknnnnk......',
+  '.....knnnnnknnnnnk.....',
+  '.....kkkkkkkkkkkkk.....',
+];
+// Flitwick: un cuerpecillo con túnica (7 filas) de pie sobre tres libros (R rojo, V verde, A azul; X las hojas)
+const CUERPO_ENANO = [
+  '....kkWWWkk....',
+  '..kkCCWWWCCkk..',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kcccccccck..',
+  '....kLk.kLk....',
+];
+const LIBROS_PILA = [
+  '..kkkkkkkkkkk..',
+  '..kRRRRRRRRXk..',
+  '.kkkkkkkkkkkkk.',
+  '.kVVVVVVVVVVXk.',
+  '..kkkkkkkkkkk..',
+  '..kAAAAAAAAXk..',
+  '..kkkkkkkkkkk..',
+];
+// el cuerpo de fantasma (Peeves): sin piernas, acaba en una cola de humo; pajarita (o)
+const CUERPO_FANTASMA = [
+  '....kkCCCkk....',
+  '..kkCCoCoCCkk..',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCk....',
+  '....kCCCCCk....',
+  '....kcCCCk.....',
+  '.....kCCCk.....',
+  '.....kcCk......',
+  '......kCk......',
+  '.......k.......',
+];
+// Binns: la túnica larga de profesor que se deshace en humo abajo
+const CUERPO_TUNICA_HUMO = [...CUERPO_TUNICA_LARGA.slice(0, 9), '...kcCCCCCck...', '....kcCCCck....', '.....kcCck.....', '......kkk......'];
+// el duende de Gringotts: bajito (10 filas), traje oscuro con chaleco dorado (o) y botines
+const CUERPO_DUENDE = [
+  '...kkWWWWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCoWoCCkCk.',
+  '.kCkCCooOCCkCk.',
+  '.kSkCCoooCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// los dedos largos del duende, que bajan de la mano de delante
+const dedosLargos = (c) => { if (c.o.sostiene || c.o.dedo || c.o.brazos) return; for (const [i, j, ch] of [[12, 6, 'S'], [13, 6, 'S'], [12, 7, 'S'], [13, 7, 'k'], [11, 6, 'k'], [11, 7, 'k'], [12, 8, 'k']]) c.cuerpo.px(i, j, c.pal[ch]); };
+// la costurera: rechoncha, vestido malva ancho (C/c) con delantal (W) y la cinta métrica amarilla al cuello (y)
+const CUERPO_RECHONCHO = [
+  '....kkSSSkk....',
+  '..kkCyCCCyCkk..',
+  '.kCkCyCCCyCkCk.',
+  '.kCkCyWWWyCkCk.',
+  '.kCkCCWWWCCkCk.',
+  '.kSkCWWWWWCkSk.',
+  '.kkCCWWWWWCCkk.',
+  '.kCCCWWWWWCCCk.',
+  '.kCCCWWWWWCCCk.',
+  '.kcCCCCCCCCCck.',
+  '..kccccccccck..',
+  '..kkkkkkkkkkk..',
+  '....kLk.kLk....',
+];
+// el centauro (30 × 19): el torso de hombre (piel S, banda B en bandolera) sobre el cuerpo de caballo (M/m) con la
+// cola (T) y cuatro patas; mira a la derecha. La cabeza normal va encima del torso
+const CUERPO_CENTAURO = pad([
+  '..................kkSSSkk.....',
+  '................kkSSSSSSBkk...',
+  '...............kSkSSSSSBSkSk..',
+  '...............kSkSsSSBsSkSk..',
+  '...............kSkSSSBSSSkSk..',
+  '...............kSkSSBSSSSkSk..',
+  '..kkkkkkkkkkkkkkkkkMMMMMMMMk..',
+  '.kMMMMMMMMMMMMMMMMMMMMMMMMMk..',
+  'kTkMMMMMMMMMMMMMMMMMMMMMMMMk..',
+  'kTkMMMMMMMMMMMMMMMMMMMMMMMk...',
+  'kTkmMMMMMMMMMMMMMMMMMMMMMmk...',
+  'kTTkmMMMMmkkkkkkkkkkmMMMmk....',
+  'kTk.kMMMk.........kMMk.kMk....',
+  '.k..kMMk..........kMk..kMk....',
+  '....kMk...........kMk..kMk....',
+  '....kMk...........kMk..kMk....',
+  '....kmk...........kmk..kmk....',
+  '....kkk...........kkk..kkk....',
+]);
+// guionista, contable, editor: chaqueta de punto abierta (C/c) sobre camisa (W)
+const CUERPO_REBECA = parche(CUERPO_MANGA, [[6, 0, 'WWW'], [6, 1, 'WWW'], [7, 2, 'W'], [7, 3, 'W'], [7, 4, 'W'], [7, 5, 'W']]);
+// el subastador: frac negro con pajarita (o) y camisa blanca
+const CUERPO_FRAC = parche(CUERPO_EUROPEO, [[6, 0, 'oWo']]);
+
+// lo que llevan en la mano
+const PAL_MANO_HP = COLORES({ R: '#a8303a', r: '#7a1e28', X: '#f6f2e6', x: '#c8c0b0', O: '#f0c040', g: '#a87a18', B: '#a8743c', b: '#6a4422', V: '#5a9a3a', v: '#3a6a24', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', o: '#ffe890', T: '#f4d8a0', u: '#f0a0c0', j: '#4a4458' });
+const conLibroHP = enMano(['kkkkk', 'kRRRk', 'kRORk', 'kRRXk', 'kkkkk'], 12, 3, PAL_MANO_HP);
+const conSapo = enMano(['.k.k.', 'kVkVk', 'kVVVk', 'kvVvk', '.kkk.'], 12, 3, PAL_MANO_HP);
+const conMazo = enMano(['kkkkk', 'kBBBk', 'kkkkk', '..kbk', '..kbk', '..kk.'], 12, 0, PAL_MANO_HP);
+const conLibretaHP = enMano(['kkkkk', 'kXkXk', 'kxkxk', 'kkkkk'], 13, 3, PAL_MANO_HP);
+const conBatuta = enMano(['....k', '...kE', '..kE.', '.kb..', 'kb...'], 12, 0, PAL_MANO_HP);
+// lo que lleva Hagrid en su mano enorme (fila 18 de su cuerpo, columnas 14–17 de la cabeza)
+const FAROL_MANO = ['..kkk..', '.k...k.', 'kkkkkkk', 'kZoOoZk', 'kZOEOZk', 'kZoOoZk', 'kkkkkkk', '.kzzzk.', '..kkk..'];
+const HELADO_MANO = ['.kkk.', 'kuuuk', 'kuEuk', 'kTTTk', '.kTk.', '.kTk.', '..k..'];
+const BEBE_MANO = ['..kkkk..', '.kXXXXk.', 'kXkSSSkk', 'kXSSkSSk', 'kXSSSSkX', 'kXXkkXXk', '.kXXXXk.', '..kkkk..'];
+const enManoHagrid = (g, i, j) => (c) => { if (manoLibre(c)) c.cuerpo.rej(g, i, j, { ...c.pal, ...PAL_MANO_HP }); };
+// el farol parpadea: la llama cambia de tono con t
+const hagridFarol = (c) => { if (!manoLibre(c)) return; const g = Math.sin(c.t * 9 + c.x) > 0.3 ? FAROL_MANO : FAROL_MANO.map((f) => f.replace(/O/g, 'o')); c.cuerpo.rej(g, 13, 19, { ...c.pal, ...PAL_MANO_HP }); };
+const barbaHagrid = (c) => { c.cab.rej(MELENA_HAGRID, -3, -4); c.cuerpo.rej(BARBA_HAGRID, -2, -1); };
+// cicatriz, nervios y sonrisas
+const nervios = (c) => {
+  const ceja = c.pal.H; c.cab.px(13, 4, hex('#8ad0f0')); c.cab.px(14, 5, hex('#8ad0f0'));   // la gota de sudor
+  if (c.o.sorpresa) return; c.cab.px(8, 4, ceja); c.cab.px(8, 5, c.pal.S); c.cab.px(11, 4, ceja); c.cab.px(11, 5, c.pal.S);
+  if (c.o.habla || c.o.sonrisa || c.o.triste) return; c.cab.px(10, 9, c.pal.S); c.cab.px(11, 9, c.pal.S); for (const [i, j] of [[9, 9], [10, 10], [11, 9], [12, 10]]) c.cab.px(i, j, P.k);
+};
+const sonrisaPeeves = (c) => { if (c.o.habla || c.o.sorpresa || c.o.triste) return; const y = 9; c.cab.px(8, y - 1, P.k); c.cab.px(13, y - 1, P.k); for (let i = 9; i <= 12; i++) { c.cab.px(i, y, P.m); c.cab.px(i, y + 1, P.k); } c.cab.px(10, y, P.E); c.cab.px(12, y, P.E); };   // sonrisa de oreja a oreja, con dientes
+const bigoteBlanco = (c) => { for (let i = 10; i <= 13; i++) c.cab.px(i, 8, c.pal.W); c.cab.px(9, 9, c.pal.W); };
+const cejaDura = (col) => (c) => { if (c.o.sonrisa || c.o.sorpresa) return; const ceja = hex(col); c.cab.px(7, 4, ceja); c.cab.px(7, 5, c.pal.S); c.cab.px(12, 4, ceja); c.cab.px(12, 5, c.pal.S); };
+const PEEVES = fantasma(0.6), BINNS = fantasma(0.55);
+
+// ── el reparto del 21 ──
+const B21 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B21M = { ...B21, cab: CAB_LARGO };
+const COLEGIO = { ...B21, cuerpo: CUERPO_COLEGIO };
+// la túnica del colegio con los colores de la casa en la corbata (o) y el jersey gris (I)
+const ROJO = { C: '#24202c', c: '#14111a', W: '#f2eee2', o: '#b8283a', I: '#8a8a96', i: '#6a6a76', F: '#3a3a44', n: '#2a2430' };
+const VERDE = { ...ROJO, o: '#2e8a4a' };
+const AMARILLO = { ...ROJO, o: '#e0b030' };
+const AZUL = { ...ROJO, o: '#3a6ad8' };
+// los alumnos de la casa con su corbata del color
+export const ELENCO_HP = {
+  // ── los tres ──
+  // Harry: pelo negro revuelto, gafas redondas, la cicatriz del rayo en la frente, ojos verdes y la túnica negra
+  harry: { ...COLEGIO, cab: CAB_HARRY, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), cristalHP),
+    pal: CLARA({ H: '#1c1820', h: '#3a3448', r: '#c8283a', ...ROJO }) },
+  // Harry en Privet Drive: el jersey heredado de su primo, enorme y gastado, con remiendo, y vaqueros anchos
+  harryCalle: { ...B21, cab: CAB_HARRY, cuerpo: CUERPO_HEREDADO, ceja: hex('#1c1424'), delante: varios(gafasHP(GAFAS_REDONDAS, 5), cristalHP),
+    pal: CLARA({ H: '#1c1820', h: '#3a3448', r: '#c8283a', C: '#8a8070', c: '#6a6252', d: '#a89c84', F: '#4a6a9a', n: '#2a2430' }) },
+  // Ron: pelo rojo, pecas, la mancha en la nariz y la túnica
+  ron: { ...COLEGIO, cab: CAB_RON, ceja: hex('#c04a1a'),
+    pal: CLARA({ H: '#e0602a', h: '#f8904a', f: '#d08050', u: '#7a6a62', ...ROJO }) },
+  // Ron con el jersey de punto granate que le teje su madre (liso, sin letra) y pantalón marrón
+  ronJersey: { ...B21, cab: CAB_RON, cuerpo: CUERPO_PUNTO, ceja: hex('#c04a1a'),
+    pal: CLARA({ H: '#e0602a', h: '#f8904a', f: '#d08050', u: '#7a6a62', C: '#7a2032', c: '#561424', F: '#5a4a3a', n: '#2a2018' }) },
+  // Hermione: melena castaña espesa (encima y detrás de la cabeza, nunca en la cara), túnica con falda y el libro rojo
+  hermione: { ...COLEGIO, cab: CAB_LARGO, cuerpo: CUERPO_COLEGIO_F, ceja: hex('#4a2a14'), delante: varios(melena, conLibroHP),
+    pal: CLARA({ H: '#7a4a26', h: '#9a6640', ...ROJO }) },
+  // ── los profesores ──
+  // Dumbledore: pelo y barba blancos larguísimos, gafas de media luna, túnica morada con estrellas (y) y cinturón de oro
+  dumbledore: { ...B21, cab: CAB_BARBA, cuerpo: parche(CUERPO_TUNICA_LARGA, [[5, 7, 'y'], [9, 9, 'y'], [4, 10, 'y'], [8, 11, '.']]), ceja: hex('#c8c8d0'),
+    delante: varios(barbaBlanca, gafasHP(GAFAS_MEDIALUNA, 7, '#a8acbc')),
+    pal: CLARA({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#6a3aa8', c: '#4a2480', o: '#e8c040', G: '#e8c040', y: '#ffe890', L: '#3a2a4a' }) },
+  // el mismo con el sombrero de mago morado de estrellas
+  dumbledoreSombrero: { ...B21, cab: CAB_BARBA, cuerpo: parche(CUERPO_TUNICA_LARGA, [[5, 7, 'y'], [9, 9, 'y'], [4, 10, 'y']]), ceja: hex('#c8c8d0'), tocado: 'mago',
+    delante: varios(barbaBlanca, gafasHP(GAFAS_MEDIALUNA, 7, '#a8acbc')),
+    pal: CLARA({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#6a3aa8', c: '#4a2480', o: '#e8c040', G: '#e8c040', y: '#ffe890', P: '#6a3aa8', p: '#4a2480', L: '#3a2a4a' }) },
+  // McGonagall: alta, moño negro, gafas cuadradas, túnica verde esmeralda larga y el sombrero de bruja alto
+  mcgonagall: { ...B21, cuerpo: CUERPO_TUNICA_ALTA, altoCuerpo: 15, ceja: hex('#1c1424'), tocado: 'bruja', delante: varios(monoHP, gafasHP(GAFAS_CUADRADAS, 6, '#4a4a5a')),
+    pal: CLARA({ H: '#1c1820', h: '#3a3448', V: '#1e3a2a', v: '#2e5a3e', C: '#2e7a4a', c: '#1e5a34', o: '#c8a040', G: '#1e5a34', L: '#1c1820' }) },
+  // Snape: pelo negro grasiento hasta los hombros, nariz ganchuda, piel cetrina y todo de negro: levita y capa
+  snape: { ...B21, cab: CAB_SNAPE, cuerpo: CUERPO_LEVITA, ceja: hex('#14111a'), detras: capa(), delante: cejaDura('#14111a'),
+    pal: COLORES({ S: '#e8d4b4', s: '#bca484', H: '#1c1820', h: '#4a4458', C: '#2e2a36', c: '#1a1720', o: '#4a4656', Q: '#24202c', q: '#14111a', L: '#14111a' }) },
+  // Hagrid: el doble de grande, pelo y barba negros y salvajes, abrigo pardo de piel de topo con bolsillos y botazas
+  hagrid: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: barbaHagrid,
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Hagrid con el farol encendido en la mano (la llama parpadea con t; o.sinObjeto lo quita)
+  hagridFarol: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: varios(barbaHagrid, hagridFarol),
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Hagrid con un helado (el callejón Diagon, por el escaparate)
+  hagridHelado: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: varios(barbaHagrid, enManoHagrid(HELADO_MANO, 15, 13)),
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Hagrid con el bebé en brazos, envuelto en su manta (la primera noche en Privet Drive)
+  hagridBebe: { cab: CAB_HAGRID, cuerpo: CUERPO_HAGRID, dxCuerpo: -4, brazoCol: 17, brazoFilas: [3, 19], altoCuerpo: 33, altoCab: 11, ojosY: 6, bocaY: 9,
+    ceja: hex('#14111a'), delante: varios(barbaHagrid, enManoHagrid(BEBE_MANO, 6, 12)),
+    pal: COLORES({ S: '#eab894', s: '#c48a64', H: '#1e1618', h: '#3e3034', C: '#7a5a3a', c: '#5a3e24', G: '#3a2a1a', O: '#c8a040', F: '#4a3e34', n: '#2a1e16' }) },
+  // Quirrell: turbante morado, pálido, nervioso (cejas de preocupación, boca temblona y una gota de sudor)
+  quirrell: { ...B21, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#6a5a4a'), tocado: 'turbante', delante: nervios,
+    pal: COLORES({ S: '#f2e2d0', s: '#cdb49a', H: '#8a6a4a', h: '#a88a6a', A: '#7a3aa8', a: '#56247e', C: '#4a3a5a', c: '#342846', o: '#7a3aa8', G: '#342846', L: '#2a2430' }) },
+  // Flitwick: bajito, pelo y bigote blancos, túnica azul noche, de pie sobre tres libros
+  flitwick: { ...B21, cuerpo: [...CUERPO_ENANO, ...LIBROS_PILA], altoCuerpo: 14, brazoFilas: [2, 3], ceja: hex('#c8c8d0'), delante: bigoteBlanco,
+    pal: CLARA({ H: '#ecebe6', h: '#c4c0b8', W: '#ecebe6', C: '#2a3a6a', c: '#1e2a4e', o: '#c8a040', L: '#2a2430', R: '#a8303a', V: '#3a7a3a', A: '#3a5ab0', X: '#f2eee2' }) },
+  // Flitwick sin los libros (de pie en el suelo: se ve lo bajito que es)
+  flitwickSolo: { ...B21, cuerpo: CUERPO_ENANO, altoCuerpo: 7, brazoFilas: [2, 3], ceja: hex('#c8c8d0'), delante: bigoteBlanco,
+    pal: CLARA({ H: '#ecebe6', h: '#c4c0b8', W: '#ecebe6', C: '#2a3a6a', c: '#1e2a4e', o: '#c8a040', L: '#2a2430' }) },
+  // ── fantasmas (translúcidos de verdad: se ve el fondo a través) ──
+  // Peeves: el poltergeist, pálido y flotando sin pies, gorro de bufón con cascabeles, pajarita y sonrisa de travieso
+  peeves: { ...B21, cuerpo: CUERPO_FANTASMA, ceja: hex('#6a5a9a'), tocado: 'bufon', detras: PEEVES.detras, delante: varios(sonrisaPeeves, PEEVES.delante),
+    pal: COLORES({ k: '#5a5a8a', S: '#eef2fa', s: '#c8d0e8', H: '#d8dcf0', h: '#f2f4fc', C: '#d8e0f4', c: '#b0bcdc', o: '#f0a040', A: '#b8a0e8', Q: '#f4b070' }) },
+  // Binns: el profesor fantasma, viejo, calvo con el cerquillo blanco, gris azulado y translúcido; abajo, humo
+  binns: { ...B21, cab: CAB_BINNS, cuerpo: CUERPO_TUNICA_HUMO, ceja: hex('#8a9ab8'), detras: BINNS.detras, delante: varios((c) => { for (const [i, j] of [[6, 8], [12, 8]]) c.cab.px(i, j, c.pal.s); }, BINNS.delante),
+    pal: COLORES({ k: '#4a5a7a', S: '#c8d4e4', s: '#a0b0c8', w: '#eef2f8', C: '#8a9ab8', c: '#6a7a98', o: '#a8b8d0', G: '#6a7a98', E: '#ffffff' }) },
+  // ── alumnos ──
+  // Draco: pálido, rubio platino engominado hacia atrás, túnica con la corbata verde
+  draco: { ...COLEGIO, cab: CAB_DRACO, ceja: hex('#c8c0a0'), delante: cejaDura('#a8a088'),
+    pal: COLORES({ S: '#f6e4d4', s: '#d8b8a0', H: '#ece6c8', h: '#ffffff', ...VERDE }) },
+  // Neville: cara redonda con los mofletes colorados, pelo castaño, túnica
+  neville: { ...COLEGIO, cab: CAB_NEVILLE, ceja: hex('#5a3a20'), mejillas: [[6, 9], [12, 9]],
+    pal: CLARA({ H: '#7a5a3a', h: '#9a7854', s: '#e8988a', ...ROJO }) },
+  // Neville con su sapo en la mano
+  nevilleSapo: { ...COLEGIO, cab: CAB_NEVILLE, ceja: hex('#5a3a20'), mejillas: [[6, 9], [12, 9]], delante: conSapo,
+    pal: CLARA({ H: '#7a5a3a', h: '#9a7854', s: '#e8988a', ...ROJO }) },
+  // alumnos genéricos: un chico (corbata amarilla) y una chica de pelo largo (corbata azul)
+  alumno: { ...COLEGIO, ceja: hex('#3a2a20'), pal: MORENA({ H: '#2a1c14', h: '#4a3424', ...AMARILLO }) },
+  alumna: { ...COLEGIO, cab: CAB_LARGO, cuerpo: CUERPO_COLEGIO_F, ceja: hex('#6a4a2a'), pal: CLARA({ H: '#d8a850', h: '#f0cc7a', ...AZUL }) },
+  // ── el mundo mágico ──
+  // el duende de Gringotts: bajito, calvo, orejas puntiagudas, nariz larga, dedos largos, traje oscuro y chaleco dorado
+  duende: { ...B21, cab: CAB_DUENDE, cuerpo: CUERPO_DUENDE, altoCuerpo: 10, ceja: hex('#4a4a2a'),
+    delante: varios((c) => c.cab.rej(OREJA_DUENDE, 0, 1), dedosLargos, cejaDura('#4a4a2a')),
+    pal: COLORES({ S: '#c8c08a', s: '#9a9064', H: '#5a5040', C: '#2a2834', c: '#1c1a24', W: '#f2eee2', o: '#c8a040', O: '#f0d060', F: '#2a2834', n: '#1c1a24' }) },
+  // la costurera (Madame Malkin): bruja rechoncha, todo malva, delantal, cinta métrica al cuello y sombrerito de bruja
+  costurera: { ...B21, cuerpo: CUERPO_RECHONCHO, ceja: hex('#8a8a96'), tocado: 'bruja', delante: monoHP, mejillas: [[6, 8], [12, 8]],
+    pal: CLARA({ H: '#a8a8b0', h: '#c8c8d0', V: '#9a6a9a', v: '#7a4a7a', o: '#5a3a5a', C: '#b07ab0', c: '#8a5a8a', W: '#f6f0f4', y: '#f0d040', L: '#3a2a3a' }) },
+  // centauros: torso de hombre sobre cuerpo de caballo. Uno castaño de pelo y barba negros; otro rubio de caballo
+  // pío claro (palomino)
+  centauro: { ...B21M, cuerpo: CUERPO_CENTAURO, dxCuerpo: -13, brazoCol: 25, brazoFilas: [2, 5], altoCuerpo: 18, barba: true, ceja: hex('#1c1424'),
+    pal: COLORES({ S: '#c89068', s: '#9a6a44', H: '#1c1820', h: '#3a3448', U: '#1c1820', B: '#6a4a2a', M: '#7a4a2a', m: '#5a321a', T: '#1c1820' }) },
+  centauro2: { ...B21M, cuerpo: CUERPO_CENTAURO, dxCuerpo: -13, brazoCol: 25, brazoFilas: [2, 5], altoCuerpo: 18, ceja: hex('#b89040'),
+    pal: COLORES({ S: '#f0c8a0', s: '#c89a70', H: '#f0d890', h: '#fff0c0', B: '#3a6a8a', M: '#d8b070', m: '#a88448', T: '#f4ecd0' }) },
+  // ── el mundo real (sección final y producción de la serie) ──
+  // la escritora (genérica, sin parecido con nadie): pelo largo castaño rojizo, chaqueta verde y falda
+  escritora: { ...B21M, cuerpo: CUERPO_SASTRE, ceja: hex('#5a2a1a'),
+    pal: CLARA({ H: '#8a4a2a', h: '#a8643c', C: '#3a6a5a', c: '#284e42', W: '#f2eee2', o: '#3a6a5a', I: '#2a2430' }) },
+  // el editor americano (genérico): gafas, pelo corto canoso en las sienes, traje gris y corbata
+  editor: { ...B21, cab: CAB_SIENES, ceja: hex('#3a2a20'), delante: gafasHP(GAFAS_CUADRADAS, 6, '#4a4a5a'),
+    pal: CLARA({ H: '#4a3a2a', h: '#6a5440', w: '#c8c8d0', C: '#6a6e7a', c: '#4e525e', W: '#f2eee2', o: '#a8303a', F: '#4e525e' }) },
+  // un escribano del París medieval: capucha parda, túnica larga y cinturón de cuerda
+  escribano: { ...B21, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#3a2418'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a28', B: '#7a5a3a', b: '#5a3e24', C: '#6a4a30', c: '#4e3420', o: '#c8b080', G: '#c8b080', L: '#3a2418' }) },
+  // el subastador: frac negro, pajarita, pelo engominado gris y el martillo en la mano
+  subastador: { ...B21, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, ceja: hex('#6a6a76'), bigote: true, delante: conMazo,
+    pal: CLARA({ H: '#8a8a96', h: '#b0b0bc', C: '#24202c', c: '#14111a', W: '#f6f4f0', o: '#24202c', F: '#24202c' }) },
+  // la guionista: media melena, rebeca mostaza y la libreta
+  guionista: { ...B21M, cab: parche(CAB_LARGO, [[1, 9, 'kHHHk'], [1, 10, 'kkkk'], [0, 11, '.....'], [0, 12, '....']]), cuerpo: CUERPO_REBECA, ceja: hex('#1c1424'), delante: conLibretaHP,
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#d0a040', c: '#a87a28', W: '#f2eee2', F: '#2a2e3a', n: '#2a2430' }) },
+  // el director: gorra de béisbol, barba, chaqueta de trabajo verde oliva
+  director: { ...B21, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#3a2a20'), bigote: true, barba: true,
+    pal: CLARA({ H: '#4a3424', h: '#6a4c34', U: '#4a3424', J: '#24202c', j: '#3e3a48', C: '#5a6a3a', c: '#3e4a28', W: '#d8d2c2', O: '#5a6a3a', F: '#2a2e3a', n: '#2a2430' }) },
+  // el compositor: pelo largo y canoso, camisa negra, la batuta en la mano
+  compositor: { ...B21, cab: CAB_MELENA_H, cuerpo: CUERPO_MANGA, ceja: hex('#6a6a76'), delante: conBatuta,
+    pal: CLARA({ H: '#9a9aa4', h: '#c8c8d0', C: '#24202c', c: '#14111a', F: '#2a2e3a', n: '#14111a' }) },
+  // el contable: gafas, calvo con entradas, chaleco de punto marrón sobre la camisa y la libreta de cifras
+  contable: { ...B21, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA, ceja: hex('#3a2a20'), delante: varios(gafasHP(GAFAS_CUADRADAS, 6, '#4a4a5a'), conLibretaHP),
+    pal: CLARA({ H: '#5a4a3a', h: '#7a6450', C: '#8a6a4a', c: '#6a4e34', W: '#e8eef6', F: '#3a3a44', n: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_HP);
+
+// ── piezas del 21 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_HP = { ...PAL_JH, ...COLORES({
+  P: '#7a3aa8', p: '#5a2480', Y: '#8a7a6a', y: '#6a5a4a', A: '#3a6ad8', a: '#24489a', Q: '#f07a2a', q: '#f8d040',
+  D: '#f0dca0', d: '#c8b070', H: '#7a5a3a', h: '#5a3e26', i: '#9a7a52', K: '#2a2832', N: '#8ad07a', n: '#f0a0b0',
+  F: '#b8e0f0', e: '#3a3046', s: '#e8c0a0', S: '#f6d8b8', I: '#c8a880', l: '#e8f0ff',
+}) };
+const pintaHP = (R, g, x, y, o = {}) => pintaJH(R, g, x, y, o, PAL_HP);
+// dibuja formas sencillas en una rejilla de letras y le pone el contorno (k) por fuera: para las piezas grandes
+const forma = (w, h, pinta) => {
+  const g = Array.from({ length: h }, () => Array(w).fill('.'));
+  const put = (i, j, ch) => { i = Math.round(i); j = Math.round(j); if (i >= 0 && i < w && j >= 0 && j < h) g[j][i] = ch; };
+  const rect = (x0, y0, x1, y1, ch) => { for (let j = y0; j <= y1; j++) for (let i = x0; i <= x1; i++) put(i, j, ch); };
+  const disco = (cx, cy, r, ch) => { for (let j = Math.floor(cy - r - 1); j <= cy + r + 1; j++) for (let i = Math.floor(cx - r - 1); i <= cx + r + 1; i++) if (Math.hypot(i - cx, j - cy) <= r + 0.35) put(i, j, ch); };
+  const linea = (x0, y0, x1, y1, ch) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1; for (let k = 0; k <= n; k++) put(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, ch); };
+  pinta({ put, rect, disco, linea });
+  const out = g.map((f) => f.slice());
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) if (g[j][i] === '.' && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => (g[j + b]?.[i + a] ?? '.') !== '.')) out[j][i] = 'k';
+  return out.map((f) => f.join(''));
+};
+// pinta encima de una pieza en su rejilla (con su escala y su volteo), para caras y detalles que cambian
+const encima = (R, w, hgt, x, y, o) => { const s = o.s ?? 1, dir = o.dir ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - hgt * s); return (i, j, c) => { const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, PAL_HP[c]); }; };
+
+// LA SNITCH CON OJOS, la mascota del episodio: bola de oro (O, sombra g, brillo o) con alas de plata (W/G) que baten con
+// o.t. o.cara: 'normal' (parpadea), 'feliz', 'susto' (ojos grandes y boca en O), 'tapaOjos' (se tapa los ojos con las
+// alas, gag del aviso de destripe), 'tapaOidos' (las alas pegadas a los lados de la cabeza, gag del sombrero que canta)
+const BOLA = ['..kkkkk..', '.kOoOOOk.', 'kOoOOOOOk', 'kOOOOOOOk', 'kOOOOOOgk', 'kOOOOOOgk', 'kOOOOOggk', '.kgOOggk.', '..kkkkk..'];
+const ALA_ARRIBA_HP = ['kk...', 'kWWk.', '.kGWk', '..kWk'];
+const ALA_ABAJO_HP = ['.....', 'kkkk.', 'kWWWk', '.kGGk'];
+const espejar = (g) => g.map((f) => f.split('').reverse().join(''));
+const SNITCH = {};
+for (const [n, ala, j] of [['arriba', ALA_ARRIBA_HP, 0], ['abajo', ALA_ABAJO_HP, 1]]) {
+  SNITCH[n] = parche(parche(parche(Array(9).fill('.'.repeat(19)), BOLA.map((f, jj) => [5, jj, f])), ala.map((f, jj) => [0, j + jj, f])), espejar(ala).map((f, jj) => [14, j + jj, f]));
+}
+// alas pegadas a los lados (tapa los oídos) y alas cruzadas delante de los ojos (tapa los ojos)
+SNITCH.oidos = parche(Array(9).fill('.'.repeat(19)), [...BOLA.map((f, jj) => [5, jj, f]), [3, 2, 'kk'], [2, 3, 'kWk'], [2, 4, 'kWGk'], [3, 5, 'kk'], [14, 2, 'kk'], [14, 3, 'kWk'], [13, 4, 'kGWk'], [14, 5, 'kk']]);
+SNITCH.ojos = parche(Array(9).fill('.'.repeat(19)), [...BOLA.map((f, jj) => [5, jj, f]), [3, 2, 'kkk'], [4, 3, 'kWWWWWWWWWk'], [4, 4, 'kGWWGWWWGk'], [5, 5, 'kkkkkkkkk'], [13, 2, 'kkk']]);
+const snitch = (R, x, y, o = {}) => {
+  const cara = o.cara ?? 'normal', t = o.t ?? 0, sube = Math.sin(t * 22 + x) > 0;
+  const g = cara === 'tapaOjos' ? SNITCH.ojos : cara === 'tapaOidos' ? SNITCH.oidos : sube ? SNITCH.arriba : SNITCH.abajo;
+  pintaHP(R, g, x, y, o);
+  const px = encima(R, 19, 9, x, y, o);
+  if (cara === 'tapaOjos') { px(9, 6, 'k'); return; }
+  if (cara === 'susto') { px(7, 3, 'E'); px(8, 3, 'E'); px(7, 4, 'E'); px(8, 4, 'k'); px(10, 3, 'E'); px(11, 3, 'E'); px(10, 4, 'E'); px(11, 4, 'k'); px(9, 6, 'k'); px(9, 7, 'm'); return; }
+  if (cara === 'feliz') { px(7, 4, 'k'); px(8, 3, 'k'); px(9, 4, 'k'); px(10, 4, 'k'); px(11, 3, 'k'); px(12, 4, 'k'); px(9, 6, 'k'); px(10, 6, 'k'); return; }
+  const cierra = ((t + x * 0.13) % 2.6) < 0.1 && cara === 'normal' && o.t != null;
+  for (const ex of [8, 11]) { if (!cierra) px(ex, 3, 'k'); px(ex, 4, 'k'); }
+  px(9, 6, 'k'); px(10, 6, 'k'); if (cara === 'tapaOidos') { px(9, 6, 'm'); px(10, 6, 'k'); }
+};
+// la carta de Hogwarts: sobre de pergamino (D/d) con el sello de lacre rojo (R); sin letras
+const CARTA = ['kkkkkkkkkkk', 'kDkddddDkDk', 'kDDkdddkDDk', 'kDDDkRkDDDk', 'kDDDRRRDDDk', 'kDDDDRDDDDk', 'kddddddddDk', 'kkkkkkkkkkk'];
+const carta = (R, x, y, o = {}) => pintaHP(R, CARTA, x, y, o);
+// las gafas redondas grandes (para insertos y el póster): dos aros con el cristal (F) y un brillo (E); o.reflejo pinta en
+// los cristales un castillo de noche con ventanas encendidas
+const GAFAS_PZ = [
+  '...kkk.......kkk...',
+  '..kFFFk.....kFFFk..',
+  '.kFEFFFk...kFEFFFk.',
+  'kkFFFFFkkkkkFFFFFkk',
+  'k.kFFFFFk.kFFFFFk.k',
+  '..kFFFFFk.kFFFFFk..',
+  '...kFFFk...kFFFk...',
+  '....kkk.....kkk....',
+];
+const gafasPieza = (R, x, y, o = {}) => {
+  pintaHP(R, GAFAS_PZ, x, y, o);
+  if (!o.reflejo) return;
+  const px = encima(R, 19, 8, x, y, o);
+  for (const c0 of [3, 11]) { for (let i = 0; i < 5; i++) { px(c0 + i, 5, 'e'); px(c0 + i, 4, i === 1 || i === 3 ? 'e' : 'F'); } px(c0 + 1, 6, 'e'); px(c0 + 2, 6, 'e'); px(c0 + 3, 6, 'e'); px(c0 + 1, 3, 'e'); px(c0 + 1, 5, 'q'); px(c0 + 3, 5, 'q'); }
+};
+// la varita: madera (B/b) con la punta clara; o.chispa enciende la punta
+const VARITA = ['.k.', 'kXk', 'kBk', 'kBk', 'kbk', 'kBk', 'kbk', 'kLk', 'kLk', '.k.'];
+const varita = (R, x, y, o = {}) => { pintaHP(R, VARITA, x, y, o); if (o.chispa) { const px = encima(R, 3, 10, x, y, o), on = Math.sin((o.t ?? 0) * 12) > 0; px(1, -1, on ? 'q' : 'E'); px(0, 0, 'q'); px(2, 0, 'q'); px(1, -2, 'q'); } };
+// la escoba: mango (B/b) y las ramitas (T/t) atadas con una cinta (Z); mira a la derecha (las ramitas detrás)
+const ESCOBA = [
+  'kkkk...................',
+  'kTtTkk.................',
+  'kTTtTTkk..............k',
+  'kTtTTTZbBBBBBBBBBBBBBBk',
+  'kTTtTTkk..............k',
+  'kTtTkk.................',
+  'kkkk...................',
+];
+const escoba = (R, x, y, o = {}) => pintaHP(R, ESCOBA_P, x, y, o);
+const ESCOBA_P = pad(ESCOBA);
+// EL SOMBRERO SELECCIONADOR: sombrero de mago viejo y remendado (H/h, remiendos i) con cara en los pliegues; o.canta abre
+// y cierra la boca con o.t (o.abre: siempre abierta)
+const SOMBRERO = [
+  '...........kkk.....',
+  '..........kHHhk....',
+  '.........kHHk.kk...',
+  '........kHHk.......',
+  '.......kHHHk.......',
+  '......kHhHHHk......',
+  '......kHHiiHk......',
+  '.....kHHHiiHHk.....',
+  '.....kHHHHHHHk.....',
+  '....kHHHHHHHHHk....',
+  '....kHhHHHHHhHk....',
+  '...kHHHHHHHHHHHk...',
+  '...kHHHHHHHHHHHk...',
+  'kkkkhHHHHHHHHHhkkkk',
+  'kHHHHHHHHHHHHHHHHHk',
+  '.khhhhhhhhhhhhhhhk.',
+  '..kkkkkkkkkkkkkkk..',
+];
+const sombrero = (R, x, y, o = {}) => {
+  pintaHP(R, SOMBRERO, x, y, o);
+  const px = encima(R, 19, 17, x, y, o), abre = o.abre || (o.canta && Math.sin((o.t ?? 0) * 9) > -0.2);
+  for (const i of [6, 7, 11, 12]) px(i, 9, 'h');   // los pliegues de los párpados
+  px(7, 10, 'k'); px(6, 10, 'k'); px(11, 10, 'k'); px(12, 10, 'k');
+  if (abre) { for (let i = 7; i <= 11; i++) { px(i, 12, 'k'); px(i, 14, 'k'); } px(6, 13, 'k'); px(12, 13, 'k'); for (let i = 7; i <= 11; i++) px(i, 13, 'm'); }
+  else { for (const [i, j] of [[6, 13], [7, 12], [8, 13], [9, 12], [10, 13], [11, 12], [12, 13]]) px(i, j, 'k'); }
+};
+// la lechuza blanca: plumas blancas (w) con motitas (u), ojos amarillos (O) y pico (e); o.vuela abre las alas (baten con
+// o.t); o.jaula la mete en su jaula de barrotes dorados
+const LECHUZA = ['..kkkkk..', '.kwwwwwk.', 'kwwwwwwwk', 'kwOOwOOwk', 'kwOkwkOwk', 'kwwwewwwk', 'kwwuwwuwk', 'kwuwwwwwk', 'kwwwwuwwk', '.kwwwwwk.', '..kOkOk..'];
+const ALAS_LECHUZA = (arriba) => (arriba
+  ? [[0, 3, 'kk'], [0, 4, 'kwk'], [0, 5, 'kwwk'], [1, 6, 'kwk'], [15, 3, 'kk'], [14, 4, 'kwk'], [13, 5, 'kwwk'], [13, 6, 'kwk']]
+  : [[0, 6, 'kkkk'], [0, 7, 'kwwk'], [1, 8, 'kk'], [13, 6, 'kkkk'], [13, 7, 'kwwk'], [14, 8, 'kk']]);
+const lechuza = (R, x, y, o = {}) => {
+  if (o.vuela) { const g = parche(Array(11).fill('.'.repeat(17)), [...LECHUZA.map((f, j) => [4, j, f]), ...ALAS_LECHUZA(Math.sin((o.t ?? 0) * 12 + x) > 0)]); pintaHP(R, g, x, y, o); return; }
+  if (!o.jaula) { pintaHP(R, LECHUZA, x, y, o); return; }
+  const J = [
+    '......kk......',
+    '.....kOOk.....',
+    '...kkkOOkkk...',
+    '..kO.O..O.Ok..',
+    '.kO.O....O.Ok.',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kO..O....O..Ok',
+    'kkkkkkkkkkkkkk',
+    'kggggggggggggk',
+    'kkkkkkkkkkkkkk',
+  ];
+  pintaHP(R, J, x, y, o);
+  pintaHP(R, LECHUZA, x, y - 3 * (o.s ?? 1), o);
+  const s = o.s ?? 1, x0 = Math.round(x - 7 * s), y0 = Math.round(y - 17 * s);
+  for (const i of [4, 9]) for (let j = 3; j < 14; j++) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, PAL_HP.O);   // los barrotes por delante
+};
+// la rata de Ron (Scabbers), gris parda (Y/y) y enroscada durmiendo; o.ojo: abre un ojo (el gag de la lupa)
+const RATA = ['....kkkk.....', '..kkYYYYkkrk.', '.kYYYYYYYYkrk', 'kYYYYYYYYYYYk', 'kYYyYYYYYYYrk', '.kYYYYYYYYYkk', 'rkkkkkkkkkk..', '.rr..........'];
+const rata = (R, x, y, o = {}) => { pintaHP(R, RATA, x, y, o); const px = encima(R, 13, 8, x, y, o); if (o.ojo) { px(9, 3, 'E'); px(10, 3, 'k'); } else { px(9, 3, 'k'); px(10, 3, 'k'); } };
+// el sapo de Neville: verde parduzco (V/v) con los ojos saltones
+const SAPO = ['.kk...kk.', 'kEkk.kEkk', 'kVVkkkVVk', 'kVVVVVVVk', 'kVvVVVvVk', 'kkkkkkkkk', 'kVk...kVk', '.k.....k.'];
+const sapo = (R, x, y, o = {}) => { pintaHP(R, SAPO, x, y, { ...o }); const px = encima(R, 9, 8, x, y, o); px(2, 1, 'k'); px(7, 1, 'k'); };
+// la flauta de madera tallada (B/b) con sus agujeros
+const FLAUTA = ['kkkkkkkkkkkkkk', 'kBBkBkBkBkBBbk', 'kbbbbbbbbbbbbk', 'kkkkkkkkkkkkkk'];
+const flauta = (R, x, y, o = {}) => pintaHP(R, FLAUTA, x, y, o);
+// el huevo de dragón: negro con motas (e/K) y un brillo; o.grieta lo rompe un poco
+const HUEVO = ['..kkk..', '.kKjKk.', 'kKjKKKk', 'kKKKeKk', 'kKeKKKk', 'kKKKKjk', '.kKKKk.', '..kkk..'];
+const huevoDragon = (R, x, y, o = {}) => { pintaHP(R, HUEVO, x, y, o); if (o.grieta) { const px = encima(R, 7, 8, x, y, o); for (const [i, j] of [[2, 3], [3, 4], [4, 3], [5, 4]]) px(i, j, 'q'); } };
+// el bebé de dragón verde (V/v, tripa y, alas N): o.estornudo cierra los ojos y le sale una chispa por la nariz
+const DRAGON = pad([
+  '.........kkkk...',
+  '..kk....kVVVVk..',
+  '.kNNk..kVVVkVkk.',
+  '.kNvNk.kVVVVVVVk',
+  '..kNvNkkVVVVVkk.',
+  '...kNNkVVVVVk...',
+  '....kkVVVVVVVk..',
+  '..kkVVyyyyVVVk..',
+  '.kVVkVyyyyVVk...',
+  'kVk.kVVyyVVVk...',
+  'kk..kVkkkkVk....',
+  '....kkk..kkk....',
+]);
+const dragon = (R, x, y, o = {}) => {
+  pintaHP(R, DRAGON, x, y, o);
+  const px = encima(R, 16, 12, x, y, o);
+  if (o.estornudo) { px(11, 2, 'V'); px(10, 2, 'k'); px(12, 2, 'k'); for (const [i, j, c] of [[16, 2, 'q'], [17, 3, 'Q'], [16, 4, 'q'], [18, 2, 'q'], [18, 4, 'Q'], [19, 3, 'q'], [17, 1, 'E']]) px(i, j, c); }
+  else px(11, 2, 'E');
+};
+// las siete botellas del acertijo: de formas y colores distintos (la pequeña, la del medio, es la buena)
+const BOTELLAS = pad([
+  '..kk.......kk..................kk.........kk...',
+  '..kk......kddk......kk.........kk........kddk..',
+  '.kRRk.....kRRk.....kddk.......kAAk.......kAAk..',
+  '.kRRk......kk......kVVk..kk..kAAAAk.....kAAAAk.',
+  'kRRRRk....kPPk....kVVVVk.kdk.kAaAAk....kAAAAAAk',
+  'kRrRRk...kPPPPk...kVVVVk.kqk.kAAAAk...kAAaAAAAk',
+  'kRRRRk...kPpPPk...kVvVVk.kqk.kAAAAk...kAAAAAAAk',
+  'kRRRRk...kPPPPk...kVVVVk.kqk.kaAAak...kaAAAAAak',
+  '.kkkk.....kkkk.....kkkk..kkk..kkkk.....kkkkkkk.',
+]);
+const botellas = (R, x, y, o = {}) => pintaHP(R, BOTELLAS, x, y, o);
+// el espejo de marco dorado (O/g) con patas de garra; el cristal (G) con un brillo; o.brillo hace que el cristal reluzca
+const ESPEJO = forma(23, 34, ({ rect, disco, put }) => {
+  rect(2, 4, 20, 30, 'O'); disco(11, 4, 8, 'O'); rect(4, 6, 18, 28, 'g'); disco(11, 6, 6, 'g');
+  rect(5, 7, 17, 27, 'G'); disco(11, 7, 5, 'G'); for (let j = 8; j < 26; j += 5) { put(7, j, 'W'); put(8, j - 1, 'W'); }
+  for (const i of [3, 19]) for (let j = 8; j < 29; j += 4) put(i, j, 'o');
+  put(11, -1 + 2, 'o'); put(10, 2, 'o'); put(12, 2, 'o');
+  rect(3, 31, 6, 32, 'O'); rect(16, 31, 19, 32, 'O'); put(2, 32, 'g'); put(20, 32, 'g');
+});
+const espejo = (R, x, y, o = {}) => { pintaHP(R, ESPEJO, x, y, o); if (o.brillo) { const px = encima(R, 23, 34, x, y, o), n = Math.floor((o.t ?? 0) * 6) % 6; for (let j = 0; j < 3; j++) px(8 + n + j, 10 + n * 2 + j, 'E'); } };
+// los calcetines de lana (el regalo que quiere Dumbledore): a rayas rojas (R) y crema (D)
+const CALCETIN = ['kkkk...', 'kDDk...', 'kRRk...', 'kDDk...', 'kRRk...', 'kDDkk..', 'kRRRRk.', 'kDDDDDk', '.kkkkk.'];
+const calcetin = (R, x, y, o = {}) => pintaHP(R, CALCETIN, x, y, o);
+// el apagador: un aparato de plata (Z/z) como un mechero, con su botón; o.luz: una bolita de luz que entra arriba
+const APAGADOR = ['.kk..', 'kZZk.', 'kZEkk', 'kZZzk', 'kZZZk', 'kZzZk', 'kZZZk', 'kzzzk', '.kkk.'];
+const apagador = (R, x, y, o = {}) => { pintaHP(R, APAGADOR, x, y, o); if (o.luz) { const px = encima(R, 5, 9, x, y, o); px(1, -1, 'q'); px(2, -2, 'q'); px(1, -2, 'o'); px(2, -1, 'o'); } };
+// la moto voladora gigante con sidecar (para Hagrid): negra (K) con cromados (Z/z), sillín de cuero (B), faro (o),
+// tubo de escape; el sidecar verde (V/v) por detrás. Mira a la derecha. o.faro enciende el faro
+const MOTO = forma(48, 24, ({ rect, disco, linea, put }) => {
+  // el sidecar (detrás): una barquilla redonda con su ruedecita y el parabrisas
+  disco(28, 15, 1, 'V'); rect(18, 11, 40, 17, 'k'); rect(19, 12, 39, 16, 'V'); disco(40, 14, 3, 'V'); rect(19, 15, 39, 16, 'v'); disco(30, 18, 3, 'k'); disco(30, 18, 2, 'U');
+  linea(36, 8, 38, 11, 'W'); linea(37, 8, 39, 11, 'W');
+  // las ruedas
+  for (const cx of [8, 39]) { disco(cx, 18, 5, 'k'); disco(cx, 18, 4, 'K'); disco(cx, 18, 2, 'z'); put(cx, 18, 'Z'); }
+  // el cuerpo de la moto
+  rect(9, 9, 31, 13, 'k'); rect(10, 10, 30, 12, 'K'); rect(20, 8, 29, 9, 'K'); rect(13, 13, 24, 17, 'k'); rect(14, 14, 23, 16, 'z'); rect(15, 14, 22, 14, 'Z');
+  rect(2, 15, 14, 16, 'k'); rect(3, 15, 13, 15, 'Z');   // el escape
+  rect(9, 7, 19, 9, 'k'); rect(10, 7, 18, 8, 'B');   // el sillín
+  linea(32, 6, 38, 17, 'Z'); linea(33, 6, 39, 17, 'z');   // la horquilla
+  rect(30, 3, 35, 4, 'Z'); put(29, 3, 'K'); put(36, 4, 'K');   // el manillar
+  disco(37, 8, 2, 'k'); disco(37, 8, 1, 'o');   // el faro
+  rect(4, 10, 9, 12, 'K');   // el guardabarros de atrás
+});
+const moto = (R, x, y, o = {}) => { pintaHP(R, MOTO, x, y, o); if (o.faro) { const px = encima(R, 48, 24, x, y, o); px(37, 8, 'E'); for (let i = 40; i < 46; i++) for (let j = 7 - (i - 40) / 3; j <= 9 + (i - 40) / 3; j++) px(i, Math.round(j), 'o'); } };
+// el farol: de hierro (k) con cristales (Z) y la llama (O, o) que parpadea con o.t; el asa arriba
+const farol = (R, x, y, o = {}) => pintaHP(R, Math.sin((o.t ?? 0) * 9 + x) > 0.3 ? FAROL_MANO : FAROL_MANO.map((f) => f.replace(/O/g, 'o')), x, y, o);
+// el libro de la piedra: tapas granates (m) con el canto (X) y la piedra roja engastada en oro en la portada; o.abierto
+// lo pinta abierto por la mitad
+const LIBRO = ['kkkkkkkkkkk', 'kmmmmmmmmXk', 'kmOOOOOOmXk', 'kmOmmmmOmXk', 'kmmmOOmmmXk', 'kmmORrOmmXk', 'kmmORROmmXk', 'kmmmOOmmmXk', 'kmOmmmmOmXk', 'kmOOOOOOmXk', 'kmmmmmmmmXk', 'kkkkkkkkkkk'];
+const LIBRO_ABIERTO = ['kkkkkkk.kkkkkkk', 'kXXXXXXkXXXXXXk', 'kXxxxXXkXxxxxXk', 'kXXXXXXkXXXXXXk', 'kXxxxxXkXxxxXXk', 'kXXXXXXkXXXXXXk', 'kXxxxXXkXxxxxXk', 'kXXXXXXkXXXXXXk', 'kmmmmmmkmmmmmmk', '.kkkkkkkkkkkkk.'];
+const libro = (R, x, y, o = {}) => pintaHP(R, o.abierto ? LIBRO_ABIERTO : LIBRO, x, y, o);
+// la piedra roja: talla de gema (R, r) con brillo (E); o.brillo la hace relucir con o.t
+const PIEDRA = ['.kkk.', 'kREmk', 'kRRrk', 'kRrrk', '.kmk.', '..k..'];
+const piedra = (R, x, y, o = {}) => { pintaHP(R, PIEDRA, x, y, o); if (o.brillo && Math.sin((o.t ?? 0) * 6) > 0.4) { const px = encima(R, 5, 6, x, y, o); px(2, -1, 'E'); px(5, 1, 'E'); px(-1, 2, 'E'); } };
+// la moneda de oro (galeón), con el canto (g) y un brillo
+const MONEDA = ['.kkk.', 'kOoOk', 'kOOOk', 'kgOgk', '.kkk.'];
+const moneda = (R, x, y, o = {}) => pintaHP(R, MONEDA, x, y, o);
+// el martillo de subasta: cabeza de madera (B/b) con aros (O) y mango; o.golpe lo inclina abajo
+const MAZO = ['.kkkkkkk.', 'kBOBBBOBk', 'kbObbbObk', '.kkkkkkk.', '....kBk..', '....kbk..', '....kBk..', '....kbk..', '....kkk..'];
+const MAZO_GOLPE = ['kkkk.......', 'kBBBkkkkkkk', 'kOObBBBBBBk', 'kBBBkkkkkkk', 'kbbbk......', 'kOObk......', 'kbbbk......', 'kkkkk......'];
+const martilloHP = (R, x, y, o = {}) => pintaHP(R, o.golpe ? MAZO_GOLPE : MAZO, x, y, o);
+// el baúl del colegio: madera (B/b) con esquinas y cierre de latón (O), dos correas (H)
+const BAUL = forma(21, 13, ({ rect, put }) => {
+  rect(1, 1, 19, 11, 'B'); rect(1, 1, 19, 3, 'b'); rect(1, 4, 19, 4, 'k');
+  for (const i of [5, 15]) rect(i, 1, i + 1, 11, 'H');
+  for (const [i, j] of [[1, 1], [19, 1], [1, 11], [19, 11]]) put(i, j, 'O');
+  rect(9, 4, 11, 6, 'O'); put(10, 6, 'k');
+});
+const baul = (R, x, y, o = {}) => pintaHP(R, BAUL, x, y, o);
+// el bebé envuelto en su manta (para la puerta de Privet Drive); duerme
+const bebe = (R, x, y, o = {}) => pintaHP(R, BEBE_MANO, x, y, o);
+// el gato atigrado de la tapia (gris pardo Y/y con rayas) y las marcas de gafas alrededor de los ojos (e); mira a la
+// derecha, sentado
+const GATO = ['.....k.k..', '....kYkYk.', '...kYeYeYk', '...kYOeOYk', '...keYYYek', '....kYnYk.', '..kkYyYyk.', '.kYYyYYYk.', 'kYYYYyYYk.', 'kYyYYYyYk.', '.kkkkkkk..', 'kyk.......', '.k........'];
+const gato = (R, x, y, o = {}) => pintaHP(R, GATO, x, y, o);
+// la boa del zoo: enroscada (V/v con manchas y), la cabeza levantada mirando a la derecha; o.guino cierra un ojo
+const BOA = pad([
+  '...............kkkk.',
+  '..............kVVVVk',
+  '..............kVEVVk',
+  '...............kVVnk',
+  '...kkkkkkk....kVVk.k',
+  '.kkVVyVVyVkk..kVk...',
+  'kVVvVVVVVVyVk.kVk...',
+  'kVyVkkkkkkVVVkVVk...',
+  'kVVVyVVyVVVyVVVk....',
+  '.kvvvvvvvvvvvvk.....',
+  '..kkkkkkkkkkkk......',
+]);
+const boa = (R, x, y, o = {}) => { pintaHP(R, BOA, x, y, o); if (o.guino) { const px = encima(R, 20, 11, x, y, o); px(16, 2, 'k'); } else { const px = encima(R, 20, 11, x, y, o); px(17, 2, 'k'); } };
+// el helado (bola rosa y cucurucho)
+const helado = (R, x, y, o = {}) => pintaHP(R, HELADO_MANO, x, y, o);
+// la lupa (la snitch vigila a la rata; la lupa recorre la mesa del final): aro de latón (O), cristal (F), mango (B)
+const LUPA = ['..kkkkk..', '.kOOOOOk.', 'kOFFFFFOk', 'kOFEFFFOk', 'kOFFFFFOk', 'kOFFFFFOk', '.kOOOOOk.', '..kkOkk..', '....kBk..', '....kBk..', '....kbk..', '....kkk..'];
+const lupa = (R, x, y, o = {}) => pintaHP(R, LUPA, x, y, o);
+export const PIEZAS_HP = { snitch, carta, gafas: gafasPieza, varita, escoba, sombrero, lechuza, rata, sapo, flauta, huevoDragon, dragon, botellas, espejo, calcetin, apagador, moto, farol, libro, piedra, moneda, martillo: martilloHP, baul, bebe, gato, boa, helado, lupa };
+
+// ── Episodio 22: «La Navidad estuvo prohibida: los mitos que todos creen» ─────────────────────────────────────────────
+// Puritanos de 1647, Mira en el siglo IV, la Roma de 354, el Nueva York de 1823, Windsor en 1848, la vuelta al mundo
+// (Filipinas, Gävle, Austria, Islandia, México, Cataluña, Japón, Australia, Italia) y la tregua de 1914. Todo dibujado
+// por nosotros, reconocible por los atributos y SIN logos ni letras. Letras propias de este reparto (cada personaje las
+// define en su pal): n botas · u bufanda, rebozo o remiendo · U/I detalle de color · y franja reflectante o adorno ·
+// P polainas · d madera oscura.
+Object.assign(TOCADOS, {
+  // gorra plana de paño (aprendices de 1647, el obrero escocés de los años 50, el soldado británico de 1914): copa
+  // baja y una visera corta delante (J/j)
+  gorraPlana: [[
+    '...kkkkkkkk....',
+    '..kJJJJJJJJk...',
+    '.kJJjJJJJJJJkk.',
+    '.kJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkkk',
+  ], -1],
+  // la gorra redonda sin visera del soldado alemán de 1914: gris (J) con la banda roja (D) y la escarapela (o)
+  gorraGris: [[
+    '...kkkkkkkk....',
+    '..kJJJJJJJJk...',
+    '.kJJJJJJoJJJk..',
+    '.kDDDDDDDDDDk..',
+    '.kkkkkkkkkkkk..',
+  ], -1],
+  // el píleo romano de las Saturnales: gorro de fieltro (J/j) sin ala, en cúpula ajustada a la cabeza
+  pileo: [[
+    '.....kkkk......',
+    '...kkJJJJkk....',
+    '..kJJJJJJjJk...',
+    '..kJJjJJJJJk...',
+    '.kJJJJJJJJJJk..',
+    '.kjjjjjjjjjjk..',
+    '.kkkkkkkkkkkk..',
+  ], -4],
+  // el gorro de papel doblado del impresor (X/x)
+  gorroPapel: [[
+    '...kkkkkkkk....',
+    '...kXXXXXXk....',
+    '..kXXxXXXXXk...',
+    '..kXXXXXXXXk...',
+    '.kkkkkkkkkkkk..',
+  ], -3],
+  // gorro de lana con borla y la vuelta de otro color (J/j el punto, Y la vuelta y la borla): los muchachos de Yule y
+  // el vigilante de Gävle
+  gorroLana: [[
+    '.....kkk.......',
+    '....kYYYk......',
+    '...kkkkkkk.....',
+    '..kJJjJJjJk....',
+    '.kJjJJjJJjJk...',
+    '.kJJJJJJJJJJk..',
+    '.kYYYYYYYYYYk..',
+    '.kkkkkkkkkkkk..',
+  ], -5],
+  // pañuelo a la cabeza con lunares (J/y): tapa el pelo de arriba y de atrás y nunca la cara (la Befana, la obrera, el
+  // rebozo de la procesión, el paño de José)
+  panuelo: [[
+    '...kkkkkkkk....',
+    '..kJJyJJJyJk...',
+    '.kJJJJJJJJJJk..',
+    'kJyJJJJyJJJJJk.',
+    'kJJJk..........',
+    'kJJJk..........',
+    'kJyJk..........',
+    'kJJJk..........',
+    'kJJJk..........',
+    '.kJJJk.........',
+    '..kJJk.........',
+    '...kk..........',
+  ], -1],
+  // el manto azul de María (A con el ribete a): cae por detrás hasta los hombros, la cara entera
+  manto: [[
+    '...kkkkkkkk....',
+    '..kAAAAAAAAk...',
+    '.kAAaAAAAAAAk..',
+    'kAAAAAAAAAAAAk.',
+    'kAAAAAAAAAAAAk.',
+    'kAAAkaaaaaaaak.',
+    'kAAAk..........',
+    'kAaAk..........',
+    'kAAAk..........',
+    'kAAAk..........',
+    'kAaAk..........',
+    'kAAAk..........',
+    'kAAAAk.........',
+    'kAaAAk.........',
+    'kAAAAk.........',
+    '.kkkk..........',
+  ], -2],
+  // el casco del traje de los 60 (Gemini): blanco (X/x) con el visor oscuro (J/j) subido; la cara se ve entera
+  gemini: [[
+    '....kkkkkkk....',
+    '..kkXXXXXXXkk..',
+    '.kXXXXXXXXXXXk.',
+    'kXXXXXXXXXXXXXk',
+    'kXXXXJJJJJJJJXk',
+    'kXXXXJjjJJJJJXk',
+    'kXXXkkkkkkkkkkk',
+    'kXXXk..........',
+    'kXxXk..........',
+    'kXXXk..........',
+    'kXXXk..........',
+    'kXxXk..........',
+    'kXXXk..........',
+    'kXXXk..........',
+    '.kXXk..........',
+    '..kk...........',
+  ], -3],
+  // los cuernos del Krampus (J/j): suben y se abren hacia fuera desde lo alto de la cabeza
+  cuernosK: [[
+    'kk.........kk..',
+    'kjk.......kjk..',
+    'kJjk.....kjJk..',
+    '.kJJk...kJJk...',
+    '.kJJJk.kJJJk...',
+    '..kJJJkJJJk....',
+  ], -5],
+  // el casco de obra (J/j): los obreros que vuelven a levantar la cabra de Gävle
+  cascoObra: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '..kJJjJJJJJk...',
+    '..kJJJJJJJJk...',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+});
+
+// ── cabezas ──
+// la tonsura de los monjes: la coronilla afeitada (S) y el cerco de pelo
+const CAB_TONSURA_NV = parche(CAB_CORTO, [[4, 1, 'SSSSS'], [4, 2, 'SSSSS']]);
+// patillas largas hasta la mandíbula (el príncipe Alberto)
+const CAB_PATILLAS_NV = parche(CAB_CORTO, [[4, 6, 'H'], [4, 7, 'HH'], [4, 8, 'HH'], [4, 9, 'H']]);
+// la reina Victoria joven: el pelo oscuro con raya en medio recogido por encima de las orejas (el moño, aparte)
+const CAB_VICTORIA_NV = parche(CAB_LARGO, [[1, 9, 'kHHHk'], [1, 10, 'kkkk'], [0, 11, '.....'], [0, 12, '....'], [7, 1, 'h']]);
+// el Krampus: máscara de madera tallada (B/b) con las cejas y los ojos hundidos, colmillos (W) y lengua (m), rodeada
+// de pelo (H/h). Da un poco de miedo, pero es chibi: los ojos son redondos
+const CAB_KRAMPUS_NV = [
+  '...kkkkkkkk....',
+  '..kHhHHhHHHk...',
+  '.kHHHHHhHHhHk..',
+  'kHhHHkkkkkkkHk.',
+  'kHHHkBBBBBBBBk.',
+  'kHHkBkkBBBkkBk.',
+  'kHhkBEkBBBEkBBk',
+  'kHHkBBBBbBBBBk.',
+  'kHHkBBkkkkkBBk.',
+  'kHhkBkWmmmWkBk.',
+  '.kHkBBkkkkkBk..',
+  '.kHHkkBBBBkk...',
+  '..kkk.kkkk.....',
+];
+
+// ── cuerpos ──
+// Santa barrigón: traje (C/c) con el ribete de piel blanca (W), cinturón (G) con hebilla (O) y botas (n)
+const CUERPO_SANTA_NV = [   // 17 de ancho (dxCuerpo −1): la barriga sale por los lados
+  '....kkWWWWWkk....',
+  '...kCCCCWCCCCk...',
+  '.kCkCCCCWCCCCkCk.',
+  '.kCkCCCCWCCCCkCk.',
+  '.kWkCCCCWCCCCkWk.',
+  '.kSkGGGGOGGGGkSk.',
+  '.kkCCCCCWCCCCCkk.',
+  'kCCCCCCCWCCCCCCCk',
+  'kcCCCCCCWCCCCCCck',
+  '.kWWWWWWWWWWWWWk.',
+  '....knnnknnnk....',
+  '...knnnnknnnnk...',
+  '...kkkkkkkkkkk...',
+];
+// Santa delgado (el de 1823 y los primeros de Nast): abrigo largo de piel con el ribete blanco
+const CUERPO_SANTA_FLACO_NV = [
+  '...kkWWWWWkk...',
+  '..kCCCCWCCCCk..',
+  '.kCkCCCWCCCkCk.',
+  '.kCkCCCWCCCkCk.',
+  '.kWkCCCWCCCkWk.',
+  '.kSkGGGOGGGkSk.',
+  '..kkCCCWCCCkk..',
+  '...kCCCWCCCk...',
+  '...kWWWWWWWk...',
+  '...kCCCkCCCk...',
+  '...knnnknnnk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// Santa elfo (el «viejo elfo» del poema: pequeño, 10 filas)
+const CUERPO_SANTA_ELFO_NV = [
+  '...kkWWWWWkk...',
+  '..kCCCCWCCCCk..',
+  '.kCkCCCWCCCkCk.',
+  '.kWkCCCWCCCkWk.',
+  '.kSkGGGOGGGkSk.',
+  '..kkCCCWCCCkk..',
+  '...kWWWWWWWk...',
+  '...knnnknnnk...',
+  '..knnnnknnnnk..',
+  '..kkkkkkkkkkk..',
+];
+// Santa en la playa: bañador (C/c), barriga, chanclas (V la suela, I la tira)
+const CUERPO_PLAYA_NV = [
+  '...kkSSSSSkk...',
+  '..kSSSSSSSSSk..',
+  '.kSkSSsSsSSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '.kSkSSSsSSSkSk.',
+  '.kSkSSSSSSSkSk.',
+  '.kkCCCCCCCCCkk.',
+  '...kCCcCCcCk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '...kSSSkSSSk...',
+  '...kSISkSISk...',
+  '..kVVVVkVVVVk..',
+];
+// el surfista: bañador largo de colores (C/c con la franja U), descalzo
+const CUERPO_SURF_NV = parche(CUERPO_PLAYA_NV, [[3, 6, 'kCCCCCCCCCk'], [1, 6, '.k'], [12, 6, 'k.'], [4, 7, 'CUCCCUC'], [3, 8, 'kCCCkCCCk'], [3, 11, 'kSSSkSSSk'], [2, 12, 'kkkkk.kkkkk']]);
+// abrigo cerrado hasta la rodilla con bufanda (u): el obrero escocés, los japoneses, el vigilante de Gävle
+const CUERPO_ABRIGO_NV = [
+  '...kkuuuuukk...',
+  '..kCuuuuuuuCk..',
+  '.kCkCCCuCCCkCk.',
+  '.kCkCCCuCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCoCCCkk..',
+  '...kCCCCCCCk...',
+  '...kcCCCCCck...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el vigilante: el mismo abrigo con la franja reflectante (y)
+const CUERPO_VIGILANTE_NV = parche(CUERPO_ABRIGO_NV, [[4, 6, 'yyyyyyy'], [4, 4, 'C']]);
+// camisa remangada (W) con el mandil de cuero (B/b) y sus cintas (G): aprendices de 1647 y el impresor de 1823
+const CUERPO_TALLER_NV = [
+  '...kkWWWWWkk...',
+  '..kWWWWWWWWWk..',
+  '.kWkWBBBBBWkWk.',
+  '.kWkWBBBBBWkWk.',
+  '.kWkGBBBBBGkWk.',
+  '.kSkBBBBBBBkSk.',
+  '..kkBBBBBBBkk..',
+  '...kBBbBBBBk...',
+  '...kBBBBBbBk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// chaleco (C) sobre la camisa (W) de manga larga: el dibujante
+const CUERPO_CHALECO_NV = parche(CUERPO_EUROPEO, [[2, 2, 'W'], [2, 3, 'W'], [2, 4, 'W'], [12, 2, 'W'], [12, 3, 'W'], [12, 4, 'W']]);
+// casulla roja (C/c) con la franja de oro (o) sobre el alba blanca (W): el obispo Nicolás
+const CUERPO_CASULLA_NV = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCoCCCkSk.',
+  '..kkCCCoCCCkk..',
+  '...kcCCoCCck...',
+  '...kWWWWWWWk...',
+  '...kWWWWWWWk...',
+  '...kwWWWWWwk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// la túnica romana con las dos franjas verticales (clavi, D) y el cinturón: calígrafo y gente de las Saturnales
+const CUERPO_ROMANO_NV = parche(CUERPO_QUITON, [[5, 0, 'D...D'], [5, 1, 'D...D'], [5, 2, 'D...D'], [5, 3, 'D...D'], [5, 4, 'D...D'], [5, 6, 'D...D'], [5, 7, 'D...D']]);
+// el uniforme de 1914: guerrera (C/c) con bolsillos y botones (o), cinturón (G) con hebilla (O), pantalón (F),
+// polainas o botas (P) y botas (n)
+const CUERPO_SOLDADO_NV = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCoCCCoCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCoCCCoCkCk.',
+  '.kSkGGGOGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kPPPkPPPk...',
+  '...kPpPkPpPk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el Krampus: todo pelo (H/h), cinturón (G) con el cencerro (O/o), pezuñas (n)
+const CUERPO_KRAMPUS_NV = [
+  '...kkHHHHHkk...',
+  '..kHhHHhHHhHk..',
+  '.kHkHHHhHHHkHk.',
+  '.kHkhHHHHhHkHk.',
+  '.kHkHGGGGGHkHk.',
+  '.khkHHkOkHHkhk.',
+  '..kkHkOOOkHkk..',
+  '...kHkOoOkHk...',
+  '...kHhkkkhHk...',
+  '...kHhHkHhHk...',
+  '...kHHHkHHHk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el traje de astronauta de los 60: blanco plateado (C/c), conexiones azules (o), anillo del cuello (Z), guantes y botas
+const CUERPO_ESPACIAL_NV = [
+  '...kkZZZZZkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCoCoCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCcCcCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '..kkcCCCCCckk..',
+  '...kCCCkCCCk...',
+  '...kCCCkCCCk...',
+  '...kCCCkCCCk...',
+  '...kcCCkCCck...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el barong tagalog: camisa larga clara y fina (C) con bordados (c) y pantalón oscuro
+const CUERPO_BARONG_NV = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCcCcCcCkCk.',
+  '.kCkCCcCcCCkCk.',
+  '.kCkCcCcCcCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kcCcCcCck...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el terno filipino: blusa con las mangas de mariposa (C/c), fajín (I) y falda larga (u/U)
+const CUERPO_TERNO_NV = [
+  '....kkSSSkk....',
+  '.kkkCCCCCCCkkk.',
+  'kCCkCCcCcCCkCCk',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkIIIIIIIkSk.',
+  '..kkuuuuuuukk..',
+  '...kuUuuuUuk...',
+  '...kuuuuuuuk...',
+  '...kuuUuuuUk...',
+  '...kuuuuuuuk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el vestido de gala de 1848: corpiño y falda ancha (C/c) con la banda azul (A) en bandolera
+const CUERPO_GALA_NV = [
+  '....kkSSSkk....',
+  '..kkCCCCCCCkk..',
+  '.kCkAACCCCCkCk.',
+  '.kCkCAACCCCkCk.',
+  '.kSkCCAACCCkSk.',
+  '.kSkCCCAACCkSk.',
+  '..kkCCCCCCCkk..',
+  '..kCCCCCCCCCk..',
+  '..kCCCCCCCCCk..',
+  '.kCCCCCCCCCCCk.',
+  '.kcCCCCCCCCCck.',
+  'kccccccccccccck',
+  'kkkkkkkkkkkkkkk',
+];
+// la Befana: mantón (u) sobre los hombros, falda remendada (C con remiendos D e Y)
+const CUERPO_BEFANA_NV = [
+  '...kkuuuuukk...',
+  '..kuuuuuuuuuk..',
+  '.kCkuuuuuuukCk.',
+  '.kCkCuuuuuCkCk.',
+  '.kCkCCuuuCCkCk.',
+  '.kSkCCCuCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCDCCCCk...',
+  '...kCDDCCCYk...',
+  '...kCCCCCYYk...',
+  '...kcCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// las tres hermanas pobres: vestido liso con remiendos (u)
+const CUERPO_POBRE_NV = parche(VESTIDO_LISO, [[5, 6, 'uu'], [6, 7, 'u'], [8, 9, 'uu']]);
+// niños: el traje de marinerito victoriano (cuello W, corbata D) y la túnica corta de los niños de la posada
+const CUERPO_MARINERO_NV = parche(CUERPO_NINO, [[5, 0, 'WWWWW'], [3, 1, 'WW'], [10, 1, 'WW'], [7, 1, 'D'], [7, 2, 'D']]);
+const CUERPO_TUNICA_NINO_NV = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kccccccck...',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+];
+// el niño catalán de hoy: jersey (C) y vaqueros
+const CUERPO_JERSEY_NINO_NV = parche(CUERPO_NINO, [[7, 0, 'C'], [2, 3, 'C'], [12, 3, 'C']]);
+
+// ── lo que llevan en la mano (delante) y otros detalles ──
+const PAL_MANO_NV = COLORES({ O: '#f0c040', g: '#a87a18', o: '#ffe890', y: '#f08a2a', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', X: '#f6f2e6', x: '#c8c0b0', B: '#a8743c', b: '#6a4422', d: '#4a2e16', R: '#c8303a', r: '#8a1e26', J: '#c07a3a', i: '#d89a5a', V: '#2e7a3a', Q: '#c0603a', K: '#2a2832', u: '#3a3a4a' });
+const conBibliaNV = enMano(['kkkkk', 'kdOdk', 'kOOOk', 'kdOdk', 'kddXk', 'kkkkk'], 12, 2, PAL_MANO_NV);
+const conPlumaNV = enMano(['k....', 'kXk..', '.kXk.', '..kxk', '...kk', '....k'], 13, -1, PAL_MANO_NV);
+const conLapizNV = enMano(['....k', '...kO', '..kO.', '.kO..', 'kk...'], 12, 1, PAL_MANO_NV);
+const conFiambreraNV = enMano(['..kkk..', '.k...k.', 'kkkkkkk', 'kZZZZZk', 'kzzzzzk', 'kZZZZZk', 'kkkkkkk'], 12, 4, PAL_MANO_NV);
+const conTermoNV = enMano(['.kk.', 'kZZk', 'kRRk', 'kRRk', 'kRrk', 'kRRk', '.kk.'], 13, 2, PAL_MANO_NV);
+const conPastelNV = enMano(['.kkkkk.', 'kJiJiJk', 'kJJJJJk', 'kzZZZzk', '.kkkkk.'], 12, 3, PAL_MANO_NV);
+const conHozNV = enMano(['.kkk..', 'kOOOk.', 'kk.kOk', '....kO', '...kbk', '..kbk.', '..kk..'], 12, -1, PAL_MANO_NV);
+const conMacetaNV = enMano(['.kRk.', 'kRVRk', '.kVk.', 'kQQQk', '.kQk.', '.kkk.'], 13, 1, PAL_MANO_NV);
+const conPaloNV = enMano(['....k', '...kb', '..kb.', '.kb..', 'kb...', 'k....'], 12, 1, PAL_MANO_NV);
+const conCalamoNV = enMano(['...k', '..kb', '.kb.', 'kk..'], 13, 2, PAL_MANO_NV);
+// la vela encendida en la mano (la llama baila con t)
+const conVelaNV = (c) => {
+  if (!manoLibre(c)) return;
+  const on = Math.sin(c.t * 11 + c.x) > 0;
+  c.cuerpo.rej(on ? ['.o.', 'oOo', '.y.', '.k.', 'kXk', 'kXk', 'kxk', 'kkk'] : ['.o.', '.Oo', '.y.', '.k.', 'kXk', 'kXk', 'kxk', 'kkk'], 12, -2, { ...c.pal, ...PAL_MANO_NV });
+};
+// el farol de hierro con la llama que parpadea (el guarda del bosque)
+const conFarolNV = (c) => { if (!manoLibre(c)) return; const g = Math.sin(c.t * 9 + c.x) > 0.3 ? FAROL_MANO : FAROL_MANO.map((f) => f.replace(/O/g, 'o')); c.cuerpo.rej(g, 12, 3, { ...c.pal, ...PAL_MANO_HP }); };
+// bastones largos que llegan al suelo, cogidos con la mano de delante (columna 14, la mano en la fila 4–6):
+// tipo 'alguacil' (madera con el pomo de latón), 'baculo' (de oro, con la voluta arriba), 'jose' (rama nudosa),
+// 'pertiga' (la vara alta del guarda)
+const BASTON_TOPE_NV = {
+  alguacil: [-4, ['.kkk.', 'kOOok', 'kOggk', '.kkk.']],
+  baculo: [-12, ['.kkkk.', 'kOOOgk', 'kOkkOk', 'kOk.kk', 'kOk...']],
+  jose: [-5, ['.kk', 'kbbk', '.kbk']],
+  pertiga: [-10, ['.k.', 'kbk']],
+};
+const bastonNV = (tipo) => (c) => {
+  if (c.o.sostiene || c.o.dedo || c.o.brazos || c.o.sinObjeto) return;
+  const [j0, tope] = BASTON_TOPE_NV[tipo], core = tipo === 'baculo' ? 'O' : tipo === 'alguacil' ? 'd' : 'b', alto = c.suelo - c.yC - 1;
+  const pal = { ...c.pal, ...PAL_MANO_NV };
+  for (let j = j0 + tope.length - 1; j <= alto; j++) { c.cuerpo.px(14, j, P.k); c.cuerpo.px(15, j, pal[tipo === 'baculo' && j % 4 === 0 ? 'g' : core]); c.cuerpo.px(16, j, P.k); }
+  c.cuerpo.px(15, alto + 1, P.k);
+  c.cuerpo.rej(tope, tipo === 'alguacil' ? 13 : 14, j0, pal);
+  c.cuerpo.rej(['.kkk.', 'kSSSk', 'kSSsk', '.kkk.'], 12, 3);   // el puño que lo agarra
+};
+// la tabla de surf de pie, por detrás del surfista (A/a con la franja W)
+const TABLA_NV = ['..kkk..', '.kAAAk.', 'kAAWAAk', 'kAAWAAk', 'kAAWAAk', 'kAaWAak', 'kAAWAAk', 'kAAWAAk', 'kAAWAAk', 'kAaWAak', 'kAAWAAk', 'kAAWAAk', 'kAAWAAk', 'kAaWAak', 'kAAWAAk', 'kAAWAAk', 'kAAWAAk', 'kAaWAak', 'kAAWAAk', 'kAAWAAk', '.kAAAk.', '..kkk..'];
+const conTablaNV = (c) => { if (c.o.sinObjeto) return; c.cuerpo.rej(TABLA_NV, 11, -9, { ...c.pal, ...COLORES({ A: c.o.tabla ?? '#f0a030', a: '#c87a18', W: '#ffffff' }) }); };
+// la corona pequeña de la reina Victoria (o.corona: false la quita: el grabado americano de 1850)
+const CORONITA_NV = ['k.k.k.k', 'kOkOkOk', 'kOODOOk', 'kgOOOgk', '.kkkkk.'];
+const coronitaNV = (c) => { if (c.o.corona === false) return; c.cab.rej(CORONITA_NV, 5, -3, { ...c.pal, ...COLORES({ O: '#f0c040', g: '#a87a18', D: '#c8303a' }) }); };
+// el pelo blanco largo con la barba que baja sobre el pecho (el druida, Nicolás): la de Dumbledore, más corta
+const BARBA_MEDIA_NV = ['.kWWWWWWWk', '.kWWWWWWWk', '..kWWWwWWk', '..kWWWWWk.', '...kWWWWk.', '...kWWWk..', '....kWk...', '.....k....'];
+const barbaMediaNV = (c) => { c.cab.rej(PELO_LARGO.slice(0, 11), -1, 4); c.cuerpo.rej(BARBA_MEDIA_NV, 3, -1); };
+// los trajes de Santa: o.traje 'rojo' (por omisión), 'verde', 'marron' o 'azul' (cambia el traje y el gorro)
+const TRAJES_NV = {
+  rojo: COLORES({ C: '#d23a3a', c: '#a02828', Q: '#d23a3a', q: '#a02828' }),
+  verde: COLORES({ C: '#3a8a4a', c: '#2a6a36', Q: '#3a8a4a', q: '#2a6a36' }),
+  marron: COLORES({ C: '#8a5a34', c: '#64401f', Q: '#8a5a34', q: '#64401f' }),
+  azul: COLORES({ C: '#3a5ab0', c: '#2a4080', Q: '#3a5ab0', q: '#2a4080' }),
+};
+const trajeNV = (c) => Object.assign(c.pal, TRAJES_NV[c.o.traje] ?? TRAJES_NV.rojo);   // antes de pintar el cuerpo
+const mejillasRojasNV = (c) => { c.cab.px(7, 8, hex('#f0907a')); c.cab.px(13, 8, hex('#f0907a')); };
+const manchaTintaNV = (c) => { c.cab.px(6, 8, hex('#2a2832')); c.cab.px(5, 9, hex('#2a2832')); };
+
+// ── el reparto del 22 ──
+const B22 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B22M = { ...B22, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO };
+const B22N = { ...B22, cuerpo: CUERPO_NINO, altoCuerpo: 10 };
+const CLN = (o) => CLARA({ n: '#2a2430', ...o });
+const MON = (o) => MORENA({ n: '#2a2430', ...o });
+const OSN = (o) => OSCURA({ n: '#2a2430', ...o });
+const PURITANO_PAL = { H: '#4a3020', h: '#6a4630', C: '#24222a', c: '#16141a', F: '#2a2830', w: '#5a5a66', G: '#3a2a1a', J: '#1c1c24', j: '#3a3a48', o: '#c8ccd8' };
+const SANTA_PAL = { H: '#f6f6f6', h: '#d8dce8', W: '#f6f6f6', w: '#d8dce8', G: '#24202c', O: '#f0c040', n: '#24202c' };
+const B_SANTA = { ...B22, cab: CAB_BARBA, ceja: hex('#e8e8f0'), tocado: 'santa', detras: trajeNV, mejillas: [[6, 8], [13, 8]] };
+export const ELENCO_NV = {
+  // ── A. 1647–1681: Inglaterra y Boston ──
+  // el puritano: sombrero alto negro de copa (capotain), cuello blanco ancho, jubón negro, calzas y zapatos de hebilla
+  puritano: { ...B22, cuerpo: CUERPO_PEREGRINO, tocado: 'capotain', ceja: hex('#3a2418'), pal: CLN(PURITANO_PAL) },
+  // el mismo leyendo la Biblia (en la mano; o.sinObjeto la quita)
+  puritanoBiblia: { ...B22, cuerpo: CUERPO_PEREGRINO, tocado: 'capotain', ceja: hex('#3a2418'), delante: conBibliaNV, pal: CLN({ ...PURITANO_PAL, H: '#7a5a3a', h: '#9a7854' }) },
+  // la puritana: cofia blanca, vestido gris oscuro con cuello y delantal blancos
+  puritana: { ...B22M, tocado: 'cofia', ceja: hex('#5a3418'), pal: CLN({ H: '#6a4020', h: '#8a5a30', C: '#34323c', c: '#24222a', W: '#f6f4ee', w: '#c8c4bc', L: '#1c1c24' }) },
+  // el alguacil puritano: canoso, bigote, jubón pardo oscuro y el bastón de mando con pomo de latón
+  alguacil: { ...B22, cuerpo: CUERPO_PEREGRINO, tocado: 'capotain', ceja: hex('#6a6a7a'), bigote: true, delante: bastonNV('alguacil'), pal: CLN({ ...PURITANO_PAL, H: '#8c8ca0', h: '#b8bccc', C: '#3a2e2a', c: '#2a201c' }) },
+  // el escribano del Parlamento: melena castaña, toga negra larga con la valona blanca y la pluma en la mano
+  escribanoParl: { ...B22, cab: CAB_MELENA_H, cuerpo: parche(CUERPO_TUNICA_LARGA, [[6, 0, 'WWW'], [6, 1, 'WWW'], [7, 2, 'W']]), ceja: hex('#4a2e1a'), delante: conPlumaNV,
+    pal: CLN({ H: '#6a4426', h: '#8a5e38', C: '#24222a', c: '#16141a', o: '#24222a', G: '#16141a', W: '#f6f4ee', L: '#16141a' }) },
+  // aprendices con el mandil de cuero y la gorra plana: uno moreno (gorra azul) y otro pelirrojo de rizos (gorra roja)
+  aprendiz: { ...B22, cuerpo: CUERPO_TALLER_NV, tocado: 'gorraPlana', ceja: hex('#2c2232'), pal: CLN({ H: '#2c2232', h: '#54466a', W: '#e8dcc0', B: '#8a5a30', b: '#64401f', G: '#4a3020', F: '#5a4a3a', J: '#3a4a7a', j: '#2a3660' }) },
+  aprendiz2: { ...B22, cab: CAB_RIZOS, cuerpo: CUERPO_TALLER_NV, tocado: 'gorraPlana', ceja: hex('#b8501a'), mejillas: [[6, 8], [12, 8]], pal: CLN({ H: '#d0602a', h: '#f08a4a', s: '#e8a080', W: '#f0e8d4', B: '#7a4a28', b: '#5a341a', G: '#4a3020', F: '#4a4a5a', J: '#a83a3a', j: '#7a2a2a' }) },
+  // el vecino de Boston: sombrero alto pardo, abrigo largo marrón sobre el chaleco; y con el pastel en la mano
+  vecino: { ...B22, cuerpo: CUERPO_GABARDINA, tocado: 'capotain', ceja: hex('#5a3418'), pal: CLN({ H: '#5a3418', h: '#8a5428', C: '#6a4a2e', c: '#4e3420', W: '#c8b890', G: '#f6c290', I: '#3a2a1a', F: '#3a3040', J: '#4a3424', j: '#2e2018', o: '#c8a040' }) },
+  vecinoPastel: { ...B22, cuerpo: CUERPO_GABARDINA, tocado: 'capotain', ceja: hex('#5a3418'), delante: conPastelNV, pal: CLN({ H: '#5a3418', h: '#8a5428', C: '#6a4a2e', c: '#4e3420', W: '#c8b890', G: '#f6c290', I: '#3a2a1a', F: '#3a3040', J: '#4a3424', j: '#2e2018', o: '#c8a040' }) },
+  // la vecina de Boston: cofia y vestido granate con delantal
+  vecina: { ...B22M, tocado: 'cofia', ceja: hex('#8a5428'), pal: CLN({ H: '#a85a2a', h: '#c8783a', C: '#7a2a3a', c: '#5a1e2a', W: '#f2eee2', w: '#c8c4bc', L: '#2a2430' }) },
+  // Escocia, años 50: el obrero con gorra plana de tweed, abrigo gris pardo, bufanda verde y la fiambrera; la obrera
+  // con pañuelo a la cabeza y abrigo azul
+  obreroEscoces: { ...B22, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorraPlana', ceja: hex('#4a3020'), delante: conFiambreraNV, pal: CLN({ H: '#5a3a24', h: '#7a5434', C: '#6a6458', c: '#4e4a40', u: '#3a6a4a', o: '#2a2430', F: '#3a3a44', J: '#7a7a6a', j: '#5a5a4e' }) },
+  obreraEscocesa: { ...B22, cuerpo: CUERPO_ABRIGO_NV, tocado: 'panuelo', ceja: hex('#8a5428'), pal: CLN({ H: '#a85a2a', h: '#c8783a', C: '#3a5a8a', c: '#2a4268', u: '#c8a040', o: '#f2eee2', F: '#4a4a5a', J: '#a83a4a', y: '#f2eee2' }) },
+  // ── B. Roma tardía y Mira (siglo IV) ──
+  // el obispo Nicolás: mitra blanca y oro, barba y pelo blancos, casulla roja sobre el alba y el báculo de oro
+  nicolas: { ...B22, cuerpo: CUERPO_CASULLA_NV, tocado: 'mitra', ceja: hex('#c8c8d0'), delante: varios(barbaMediaNV, bastonNV('baculo')),
+    pal: CLN({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#b8283a', c: '#8a1a28', o: '#f0c040', X: '#f6f4ee', L: '#5a3a20' }) },
+  // las tres hermanas pobres: vestidos lisos y gastados con remiendos; morena de pelo suelto, castaña con trenza y la
+  // pequeña, rubia de coleta
+  hermana1: { ...B22M, cuerpo: CUERPO_POBRE_NV, ceja: hex('#1c1424'), pal: MON({ H: '#2a1c14', h: '#4a3424', C: '#8a7a62', c: '#6a5c48', W: '#c8bc9a', u: '#6a5a8a', L: '#5a3a20' }) },
+  hermana2: { ...B22, cuerpo: CUERPO_POBRE_NV, ceja: hex('#5a3418'), delante: trenza, pal: MON({ H: '#6a4020', h: '#8a5a30', r: '#a83a3a', C: '#7a6a8a', c: '#5a4e6a', W: '#c8bc9a', u: '#8a6a3a', L: '#5a3a20' }) },
+  hermana3: { ...B22, cuerpo: CUERPO_POBRE_NV, ceja: hex('#a8743c'), detras: coleta, pal: MON({ H: '#c89a50', h: '#e0b868', C: '#6a8a6a', c: '#4e6a4e', W: '#c8bc9a', u: '#a86a4a', L: '#5a3a20' }) },
+  // el calígrafo romano (Filócalo, 354): túnica clara con franjas, pelo corto oscuro y el cálamo en la mano
+  caligrafo: { ...B22, cuerpo: CUERPO_ROMANO_NV, ceja: hex('#2a1c14'), delante: conCalamoNV, pal: MON({ H: '#2a1c14', h: '#4a3424', T: '#e8dcc0', t: '#bfae80', D: '#8a3a2a', G: '#6a4422', L: '#6a4020' }) },
+  // el cristiano rico: canoso con entradas, toga blanca con la banda morada
+  cristianoRico: { ...B22, cab: CAB_ENTRADAS, cuerpo: CUERPO_TOGA, ceja: hex('#6a6a7a'), pal: MON({ H: '#9a9aa8', h: '#c0c0cc', T: '#f4f0e4', t: '#ccc4b0', A: '#6a2a7a', L: '#5a3a20' }) },
+  // romanos de las Saturnales con el píleo de fieltro: túnica verde, túnica azul (barbudo) y una romana con la palla
+  romanoPileo: { ...B22, cuerpo: CUERPO_ROMANO_NV, tocado: 'pileo', ceja: hex('#3a2418'), pal: MON({ H: '#3a2418', h: '#5a3a24', T: '#6a9a5a', t: '#4e7a42', D: '#c8a040', G: '#6a4422', J: '#d8c8a0', j: '#b0a078', L: '#6a4020' }) },
+  romanoPileo2: { ...B22, cab: CAB_BARBA, cuerpo: CUERPO_ROMANO_NV, tocado: 'pileo', ceja: hex('#1c1424'), pal: CLN({ H: '#3a2a20', h: '#5a4232', T: '#4a6aa8', t: '#34508a', D: '#e8dcc0', G: '#6a4422', J: '#c8a878', j: '#a08458', L: '#6a4020' }) },
+  romana: { ...B22M, cuerpo: VESTIDO_LISO, ceja: hex('#2a1c14'), delante: monoHP, pal: MON({ H: '#2a1c14', h: '#4a3424', C: '#c8603a', c: '#9a4426', W: '#f0e4c4', L: '#6a4020' }) },
+  // ── C. del siglo XVI al XIX ──
+  // el impresor de 1823: gorro de papel doblado, camisa remangada, mandil de cuero manchado y tinta en la mejilla
+  impresor: { ...B22, cab: CAB_SIENES, cuerpo: CUERPO_TALLER_NV, tocado: 'gorroPapel', ceja: hex('#3a2a20'), bigote: true, delante: manchaTintaNV, pal: CLN({ H: '#4a3a2a', h: '#6a5440', w: '#c8c8d0', W: '#ece4d0', B: '#4e4a44', b: '#34322e', G: '#2a2430', F: '#3a3a44' }) },
+  // el dibujante con barba (Nast, años 1860–1880): pelo y barba castaño oscuro, chaleco granate, camisa y el lápiz
+  nast: { ...B22, cab: CAB_BARBA, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#2a1c14'), delante: conLapizNV, pal: CLN({ H: '#3a2a1c', h: '#5a4230', C: '#7a2a32', c: '#561c24', W: '#f2eee2', o: '#c8a040', F: '#3a3a44' }) },
+  // Santa: barba blanca, gorro con borla y el traje (o.traje: 'rojo' | 'verde' | 'marron' | 'azul'): barrigón (el de
+  // 1931 en adelante), delgado (el de los primeros grabados) y elfo (el «viejo elfo» pequeño del poema de 1823)
+  santa: { ...B_SANTA, cuerpo: CUERPO_SANTA_NV, dxCuerpo: -1, brazoCol: 13, pal: CLN(SANTA_PAL) },
+  santaDelgado: { ...B_SANTA, cuerpo: CUERPO_SANTA_FLACO_NV, pal: CLN(SANTA_PAL) },
+  santaElfo: { ...B_SANTA, cuerpo: CUERPO_SANTA_ELFO_NV, altoCuerpo: 10, pal: CLN(SANTA_PAL) },
+  // la reina Victoria (1848): pelo oscuro recogido con moño, vestido de gala marfil con la banda azul y la corona
+  // pequeña (o.corona: false se la quita, como en el grabado americano de 1850)
+  victoria: { ...B22, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_GALA_NV, ceja: hex('#3a2418'), delante: varios(monoHP, coronitaNV), pal: CLN({ H: '#3a2418', h: '#5a3a24', C: '#f0e6dc', c: '#c8b8b0', A: '#3a5ab0', L: '#2a2430' }) },
+  // el príncipe Alberto: patillas y bigote, levita azul oscuro con el chaleco claro y la corbata
+  alberto: { ...B22, cab: CAB_PATILLAS_NV, ceja: hex('#2a1c14'), bigote: true, pal: CLN({ H: '#3a2a1c', h: '#5a4230', C: '#24304a', c: '#182034', W: '#f2eee2', o: '#a8303a', F: '#3a3a44' }) },
+  // los niños de la reina (1848): el niño con traje de marinerito y la niña con vestido rosa de cuello blanco y tirabuzones
+  ninoVictoriano: { ...B22N, cuerpo: CUERPO_MARINERO_NV, ceja: hex('#6a4020'), pal: CLN({ H: '#7a5030', h: '#9a6c44', C: '#2a3a6a', c: '#1e2a4e', W: '#f6f6f6', D: '#c8303a', F: '#2a3a6a', n: '#24202c' }) },
+  ninaVictoriana: { ...B22N, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#8a5428'), pal: CLN({ H: '#a87040', h: '#c8904c', C: '#e890a8', c: '#c87088', W: '#f6f6f6', L: '#24202c' }) },
+  // el druida: túnica blanca, pelo y barba blancos, corona de hojas de roble y la hoz de oro en la mano
+  druida: { ...B22, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'laurel', ceja: hex('#c8c8d0'), delante: varios(barbaMediaNV, conHozNV),
+    pal: CLN({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#f4f0e6', c: '#c8c2b0', o: '#f4f0e6', G: '#c8a040', L: '#6a4a2a', V: '#4a8a3a', v: '#2e6a24' }) },
+  // criados de una casa inglesa del siglo XVIII: él con librea azul de botones dorados, peluca blanca con lazo;
+  // ella con cofia, vestido verde y delantal
+  criado: { ...B22, cab: CAB_PELUCA, ceja: hex('#8a8a96'), detras: lazo, pal: CLN({ H: '#f2f0ec', h: '#d0ccc4', C: '#2e4a8a', c: '#1e3468', W: '#f6f4ee', o: '#f0c040', F: '#f2eee2', J: '#24202c' }) },
+  criada: { ...B22M, tocado: 'cofia', ceja: hex('#6a3a1a'), mejillas: [[6, 8], [12, 8]], pal: CLN({ H: '#7a4424', h: '#9a5e36', C: '#4a7a5a', c: '#345a42', W: '#f6f4ee', w: '#c8c4bc', L: '#2a2430' }) },
+  // los guardas del bosque de Alsacia (1521): capucha y túnica verde de paño; uno con el farol encendido y otro con
+  // la pértiga (una vara, sin hoja)
+  guarda: { ...B22, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#3a2418'), bigote: true, delante: conFarolNV, pal: CLN({ H: '#3a2418', h: '#5a3a24', B: '#5a6a3a', b: '#3e4a28', C: '#4a6a3a', c: '#344e28', o: '#4a6a3a', G: '#5a3a1a', L: '#3a2a1a' }) },
+  guarda2: { ...B22, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#6a3a1a'), delante: bastonNV('pertiga'), pal: CLN({ H: '#7a4424', h: '#9a5e36', B: '#7a5a3a', b: '#5a3e24', C: '#6a5a3a', c: '#4e4228', o: '#6a5a3a', G: '#3a2a1a', L: '#3a2a1a' }) },
+  // el copista medieval: tonsura, hábito pardo con la cuerda y la pluma; y el monje de la leyenda (hábito negro)
+  // con la vela encendida
+  copista: { ...B22, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), delante: conPlumaNV, pal: CLN({ H: '#6a4020', h: '#8a5a30', C: '#7a5a3a', c: '#5a4028', o: '#7a5a3a', G: '#d8c8a0', L: '#3a2a1a' }) },
+  monje: { ...B22, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#2a1c14'), delante: conVelaNV, pal: CLN({ H: '#2a1c14', h: '#4a3424', C: '#24222a', c: '#16141a', o: '#24222a', G: '#5a5a66', L: '#16141a' }) },
+  // los astronautas de la Gemini 6A (1965): traje blanco plateado, casco con el visor subido; uno moreno y otro rubio
+  astronauta: { ...B22, cuerpo: CUERPO_ESPACIAL_NV, tocado: 'gemini', ceja: hex('#3a2418'), pal: CLN({ H: '#3a2418', h: '#5a3a24', C: '#e8ecf2', c: '#b0b8c6', o: '#3a6ad8', Z: '#8c90a4', n: '#c8ccd8', X: '#f4f6fa', x: '#c8ccd8', J: '#2a3448', j: '#5a6a8a' }) },
+  astronauta2: { ...B22, cuerpo: CUERPO_ESPACIAL_NV, tocado: 'gemini', ceja: hex('#a8743c'), pal: CLN({ H: '#c89a50', h: '#e0b868', C: '#e8ecf2', c: '#b0b8c6', o: '#c8303a', Z: '#8c90a4', n: '#c8ccd8', X: '#f4f6fa', x: '#c8ccd8', J: '#2a3448', j: '#5a6a8a' }) },
+  // la carrera de trineos de 1857: el señor con chistera y bufanda roja, la dama con capota y abrigo verde
+  senor1857: { ...B22, cuerpo: CUERPO_ABRIGO_NV, tocado: 'chistera', ceja: hex('#3a2418'), bigote: true, pal: CLN({ H: '#3a2418', h: '#5a3a24', C: '#2a2a3a', c: '#1c1c28', u: '#c8303a', o: '#c8a040', F: '#3a3a44', J: '#1c1c24', j: '#3a3a48' }) },
+  dama1857: { ...B22M, cuerpo: parche(CUERPO_ABRIGO_NV, [[3, 9, 'kCCCCCCCk'], [3, 10, 'kcCCCCCck'], [3, 11, 'kkkkkkkkk'], [2, 12, '..kLk.kLk..']]), tocado: 'cofia', ceja: hex('#8a5428'),
+    pal: CLN({ H: '#a85a2a', h: '#c8783a', C: '#3a6a4a', c: '#2a4e36', u: '#f2eee2', o: '#c8a040', W: '#e8d8b0', w: '#b8a880', L: '#24202c' }) },
+  // ── D. la vuelta al mundo ──
+  // Filipinas: el del coro con el barong tagalog bordado; ella con el terno de mangas de mariposa y falda roja
+  filipino: { ...B22, cuerpo: CUERPO_BARONG_NV, ceja: hex('#1c1424'), pal: MON({ H: '#1c1424', h: '#3a3046', C: '#f4ecd6', c: '#d0c2a0', F: '#24202c' }) },
+  filipina: { ...B22M, cuerpo: CUERPO_TERNO_NV, ceja: hex('#1c1424'), delante: monoHP, pal: MON({ H: '#1c1424', h: '#3a3046', C: '#f6eed8', c: '#d8caa8', I: '#c8a040', u: '#b8283a', U: '#e8c040', L: '#24202c' }) },
+  // Gävle: el vigilante con gorro de lana, abrigo de invierno con la franja reflectante y el termo
+  vigilante: { ...B22, cuerpo: CUERPO_VIGILANTE_NV, tocado: 'gorroLana', ceja: hex('#b89040'), delante: conTermoNV, pal: CLN({ H: '#e0c070', h: '#f0d890', C: '#24344a', c: '#182434', u: '#3a6ad8', o: '#24344a', y: '#e8e040', F: '#2a2a34', J: '#2a5aa8', j: '#1e4280', Y: '#f2eee2' }) },
+  // el obrero que vuelve a levantar la cabra: casco de obra amarillo y abrigo naranja de trabajo
+  obreroSueco: { ...B22, cuerpo: CUERPO_VIGILANTE_NV, tocado: 'cascoObra', ceja: hex('#6a4020'), bigote: true, pal: CLN({ H: '#7a5030', h: '#9a6c44', C: '#e8782a', c: '#b85a1a', u: '#2a2a34', o: '#e8782a', y: '#e8e8f0', F: '#2a3a5a', J: '#f0c830', j: '#c8a020' }) },
+  // San Nicolás de los Alpes: mitra roja y oro, capa roja, alba blanca, barba blanca y el báculo
+  nicolasAlpino: { ...B22, cuerpo: CUERPO_CASULLA_NV, tocado: 'mitra', ceja: hex('#c8c8d0'), delante: varios(barbaMediaNV, bastonNV('baculo')),
+    pal: CLN({ H: '#f2f0ec', h: '#c8c8d0', W: '#f6f6f6', w: '#c4c8d4', C: '#c8303a', c: '#962230', o: '#f0c040', X: '#c8303a', L: '#2a2430' }) },
+  // el Krampus: cuernos, máscara de madera tallada, todo pelo y el cencerro; da un poco de miedo, pero es chibi.
+  // Uno de pelo pardo oscuro y otro de pelo negro con la máscara más oscura
+  krampus: { ...B22, cab: CAB_KRAMPUS_NV, cuerpo: CUERPO_KRAMPUS_NV, sinCara: true, tocado: 'cuernosK', ceja: hex('#2a1c14'),
+    pal: COLORES({ H: '#4a3424', h: '#6a4c34', B: '#b88a50', b: '#8a6034', W: '#f6f2e6', m: '#a8303a', E: '#f6e8b0', G: '#2a1c14', O: '#c8a040', o: '#ffe890', n: '#2a1c14', J: '#3a3030', j: '#d8d0c0' }) },
+  krampus2: { ...B22, cab: CAB_KRAMPUS_NV, cuerpo: CUERPO_KRAMPUS_NV, sinCara: true, tocado: 'cuernosK', ceja: hex('#2a1c14'),
+    pal: COLORES({ H: '#2a2430', h: '#4a4454', B: '#8a5a34', b: '#64401f', W: '#f6f2e6', m: '#a8303a', E: '#f6e8b0', G: '#5a3a20', O: '#a8a8b4', o: '#e8e8f0', n: '#1c1222', J: '#e8dcc0', j: '#ffffff' }) },
+  // los muchachos de Yule de Islandia: gorro de lana con borla y jersey de lana de colores; tres para variar
+  muchachoYule: { ...B22, cuerpo: CUERPO_MANGA, tocado: 'gorroLana', ceja: hex('#6a4020'), mejillas: [[6, 8], [12, 8]], pal: CLN({ H: '#7a5030', h: '#9a6c44', s: '#e8a080', C: '#8a3a2a', c: '#6a2a1e', F: '#4a4a5a', J: '#4a5a3a', j: '#344228', Y: '#e8dcc0' }) },
+  muchachoYule2: { ...B22, cab: CAB_RIZOS, cuerpo: CUERPO_MANGA, tocado: 'gorroLana', ceja: hex('#b8501a'), mejillas: [[6, 8], [12, 8]], pal: CLN({ H: '#d0602a', h: '#f08a4a', s: '#e8a080', C: '#3a5a7a', c: '#2a425a', F: '#5a4a3a', J: '#a83a3a', j: '#7a2a2a', Y: '#f2eee2' }) },
+  muchachoYule3: { ...B22, cab: CAB_GRENAS, cuerpo: CUERPO_MANGA, tocado: 'gorroLana', ceja: hex('#c89a50'), mejillas: [[6, 8], [12, 8]], pal: CLN({ H: '#e0c070', h: '#f0d890', u: '#c8a050', r: '#e8a080', s: '#e8a080', C: '#6a6a4a', c: '#4e4e36', F: '#3a3a44', J: '#5a4a6a', j: '#40344e', Y: '#e8c040' }) },
+  // las posadas: la niña vestida de María (manto azul con el velo blanco y túnica clara) y el niño de José (paño a la
+  // cabeza, túnica parda y bastón)
+  maria: { ...B22N, cuerpo: CUERPO_TUNICA_NINO_NV, tocado: 'manto', ceja: hex('#1c1424'), pal: MON({ H: '#1c1424', h: '#3a3046', C: '#f2eee2', c: '#c8c0b0', G: '#3a5ab0', A: '#3a5ab0', a: '#2a4080', W: '#f6f6f6', L: '#6a4020' }) },
+  jose: { ...B22N, cuerpo: CUERPO_TUNICA_NINO_NV, tocado: 'panuelo', ceja: hex('#1c1424'), delante: bastonNV('jose'), pal: MON({ H: '#1c1424', h: '#3a3046', C: '#8a6a44', c: '#6a4e30', G: '#c8a878', J: '#d8c8a0', y: '#a87a48', L: '#6a4020' }) },
+  // México: la señora del rebozo con la vela y el señor de chaqueta
+  mexicana: { ...B22M, cuerpo: VESTIDO_LISO, tocado: 'panuelo', ceja: hex('#1c1424'), delante: conVelaNV, pal: MON({ H: '#1c1424', h: '#3a3046', C: '#2a8a7a', c: '#1e6a5e', W: '#f2eee2', J: '#7a2a5a', y: '#e8a0c0', L: '#24202c' }) },
+  mexicano: { ...B22, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#1c1424'), bigote: true, pal: MON({ H: '#1c1424', h: '#3a3046', C: '#8a5a34', c: '#64401f', u: '#e8c040', o: '#e8dcc0', F: '#2a3a5a' }) },
+  // Joel Poinsett (1828): pelo gris, levita verde oscura con corbatín blanco; y llevándose la flor de Nochebuena
+  poinsett: { ...B22, cab: CAB_SIENES, ceja: hex('#6a6a7a'), pal: CLN({ H: '#8c8ca0', h: '#b8bccc', w: '#e8e8f0', C: '#2a4a3a', c: '#1e3628', W: '#f6f4ee', o: '#c8a040', F: '#4a4a5a' }) },
+  poinsettMaceta: { ...B22, cab: CAB_SIENES, ceja: hex('#6a6a7a'), delante: conMacetaNV, pal: CLN({ H: '#8c8ca0', h: '#b8bccc', w: '#e8e8f0', C: '#2a4a3a', c: '#1e3628', W: '#f6f4ee', o: '#c8a040', F: '#4a4a5a' }) },
+  // Cataluña: la niña de jersey rojo y el niño de jersey azul con el palo (para el tió), y la madre de jersey verde
+  ninaCatalana: { ...B22N, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], pal: CLN({ H: '#6a4020', h: '#8a5a30', s: '#e8a080', C: '#c8303a', c: '#9a2230', W: '#f6f6f6', L: '#2a2430' }) },
+  ninoCatalan: { ...B22N, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: conPaloNV, pal: CLN({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', C: '#3a6ab0', c: '#2a5090', F: '#3a4a7a', n: '#c8303a' }) },
+  adultoCatalan: { ...B22M, cuerpo: CUERPO_MANGA, ceja: hex('#5a3418'), pal: CLN({ H: '#5a3418', h: '#8a5428', C: '#3a7a5a', c: '#2a5a42', F: '#3a3a4a' }) },
+  // Japón: él y ella con abrigo de invierno y bufanda
+  japones: { ...B22, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#1c1424'), pal: CLN({ S: '#f2d0a8', s: '#d0a47a', H: '#1c1424', h: '#3a3046', C: '#2a3048', c: '#1c2034', u: '#a8a8b4', o: '#5a5a6a', F: '#2a2a34' }) },
+  japonesa: { ...B22M, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#1c1424'), pal: CLN({ S: '#f2d0a8', s: '#d0a47a', H: '#2a1c24', h: '#4a3444', C: '#c8b490', c: '#a8946e', u: '#c8303a', o: '#7a6a4a', F: '#2a2a34' }) },
+  // Australia: Santa en bañador rojo y chanclas, con su gorro; surfistas con la tabla detrás (o.tabla: el color)
+  santaPlaya: { ...B22, cab: CAB_BARBA, cuerpo: CUERPO_PLAYA_NV, ceja: hex('#e8e8f0'), tocado: 'santa', mejillas: [[6, 8], [13, 8]], pal: CLN({ ...SANTA_PAL, S: '#f8c8a0', s: '#e0987a', C: '#d23a3a', c: '#a02828', V: '#3a8ad8', I: '#e8e040', Q: '#d23a3a', q: '#a02828' }) },
+  surfista: { ...B22, cab: CAB_GRENAS, cuerpo: CUERPO_SURF_NV, ceja: hex('#c89a50'), detras: conTablaNV, pal: CLN({ S: '#e8b080', s: '#c08a5a', H: '#e0c070', h: '#f0d890', u: '#c8a050', r: '#d8907a', C: '#2a8ab0', c: '#1e6a8a', U: '#f0d040' }) },
+  surfista2: { ...B22M, cuerpo: CUERPO_SURF_NV, ceja: hex('#2a1c14'), detras: conTablaNV, pal: MON({ H: '#2a1c14', h: '#4a3424', C: '#e8487a', c: '#b8305a', U: '#f6f6f6' }) },
+  // Italia: la Befana, viejecita de pañuelo de lunares, mantón y falda remendada (la escoba: PIEZAS_NV.escoba)
+  befana: { ...B22, cab: CAB_CORTO, cuerpo: CUERPO_BEFANA_NV, tocado: 'panuelo', ceja: hex('#8a8a96'), mejillas: [[6, 8], [12, 8]],
+    pal: CLN({ H: '#b8b8c4', h: '#d8d8e0', s: '#e8a08a', J: '#5a3a6a', y: '#f2eee2', u: '#7a5a3a', C: '#3a3a4a', c: '#2a2a36', D: '#a83a3a', Y: '#3a7a5a', L: '#2a2430' }) },
+  // ── E. la tregua de 1914 (sin armas) ──
+  // el soldado británico: gorra plana caqui con visera, guerrera y polainas caqui; el alemán: gorra redonda gris con
+  // la banda roja, guerrera gris verdosa, botas altas y bigote
+  soldadoBritanico: { ...B22, cuerpo: CUERPO_SOLDADO_NV, tocado: 'gorraPlana', ceja: hex('#5a3418'), pal: CLN({ H: '#6a4020', h: '#8a5a30', C: '#8a7a4a', c: '#6a5c36', o: '#c8a040', G: '#6a5c36', O: '#c8a040', F: '#8a7a4a', P: '#7a6a40', p: '#5a4e30', n: '#4a3020', J: '#8a7a4a', j: '#6a5c36' }) },
+  soldadoAleman: { ...B22, cuerpo: CUERPO_SOLDADO_NV, tocado: 'gorraGris', ceja: hex('#a8743c'), bigote: true, pal: CLN({ H: '#c89a50', h: '#e0b868', C: '#7a8270', c: '#5c6454', o: '#c8ccd8', G: '#3a2a1a', O: '#c8ccd8', F: '#6a7060', P: '#2a2028', p: '#1c1418', n: '#1c1418', J: '#7a8270', D: '#c8303a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_NV);
+
+// ── piezas del 22 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_NV = COLORES({
+  k: '#1c1222', E: '#ffffff', W: '#f8f4ec', w: '#d8d0c4', J: '#c07a3a', j: '#8a4e22', i: '#e0a060', R: '#c8303a', r: '#8a1e26',
+  m: '#7a2026', V: '#2e7a3a', v: '#1a5228', l: '#6ab04a', O: '#f0c040', g: '#a87a18', o: '#ffe890', B: '#a8743c', b: '#6a4422',
+  d: '#4a2e16', T: '#e8c070', t: '#b88a3a', X: '#f2ead2', x: '#c8bc9a', Z: '#c8ccd8', z: '#8c90a4', K: '#2a2832', u: '#4a4858',
+  F: '#b8e0f0', A: '#3a6ad8', a: '#24489a', M: '#9a6a3a', n: '#6a4422', C: '#f4f0e0', P: '#f0a0b0', p: '#8a4aa8', Y: '#f0d040',
+  y: '#f08a2a', Q: '#c0603a', q: '#8a3e22', S: '#f6d0a8', s: '#d8a070', H: '#f6f6f6', h: '#c8ccd8', L: '#8a5028', e: '#5a3218',
+  G: '#5a5a66', N: '#1a2a5a', c: '#e8dcc0', U: '#2a8a7a',
+});
+const pintaNV = (R, g, x, y, o = {}, pal = PAL_NV) => pintaJH(R, g, x, y, o, pal);
+// pinta encima de una pieza de w × h (en su rejilla, con su escala y su volteo)
+const encimaNV = (R, w, hgt, x, y, o, pal = PAL_NV) => { const s = o.s ?? 1, dir = o.dir ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - hgt * s); return (i, j, c) => { const col = pal[c]; if (col == null) return; const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, col); }; };
+// pinta una sub-rejilla g dentro del marco w × h de la pieza, en (i, j) del marco (se voltea y escala con él)
+const subNV = (R, w, hgt, x, y, o, pal = PAL_NV) => { const px = encimaNV(R, w, hgt, x, y, o, pal); return (g, i0, j0, p2) => g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') { if (p2) { const c = p2[f[i]]; if (c != null) { const pp = encimaNV(R, w, hgt, x, y, o, { [f[i]]: c }); pp(i0 + i, j0 + j, f[i]); } } else px(i0 + i, j0 + j, f[i]); } }); };
+// cifras de 3 × 5 para los números (la multa, el calendario): no son letras, son el número que pide el guion
+const CIFRAS_NV = {
+  0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['###', '..#', '###', '#..', '###'],
+  3: ['###', '..#', '.##', '..#', '###'], 4: ['#.#', '#.#', '###', '..#', '..#'], 5: ['###', '#..', '###', '..#', '###'],
+  6: ['###', '#..', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'],
+  9: ['###', '#.#', '###', '..#', '###'],
+};
+// pinta un número con px (de encimaNV) desde (i0, j0), con el color c y a escala e (1 o 2)
+const numeroNV = (px, n, i0, j0, c, e = 1) => { String(n).split('').forEach((d, k) => { const g = CIFRAS_NV[d]; if (!g) return; g.forEach((f, j) => { for (let i = 0; i < 3; i++) if (f[i] === '#') for (let a = 0; a < e; a++) for (let b = 0; b < e; b++) px(i0 + k * 4 * e + i * e + a, j0 + j * e + b, c); }); }); };
+const anchoNumeroNV = (n, e = 1) => String(n).length * 4 * e - e;
+
+// LA GALLETA DE JENGIBRE CON OJOS, la mascota del episodio: masa (J, sombra j, brillo i), glaseado blanco (W) en las
+// muñecas y los pies y dos botones (R y V). o.cara: 'normal' (parpadea con o.t), 'susto' (ojos grandes y boca en O),
+// 'feliz' (mofletes y sonrisa grande); o.corre (con o.t) la pone a correr, piernas y brazos alternos
+const GALLETA_NV = {};
+const cuerpoGalleta = (pose) => forma(13, 17, ({ rect, disco, linea, put }) => {
+  disco(6, 3.8, 3.6, 'J');
+  rect(4, 8, 8, 12, 'J');
+  if (pose === 'quieta') { rect(1, 8, 11, 10, 'J'); rect(3, 12, 5, 15, 'J'); rect(7, 12, 9, 15, 'J'); for (const [a, b] of [[2, 8], [2, 10], [10, 8], [10, 10]]) put(a, b, 'W'); rect(3, 14, 5, 14, 'W'); rect(7, 14, 9, 14, 'W'); }
+  else {
+    const p = pose === 'a' ? 1 : -1;
+    for (const d of [0, 1]) { linea(4, 9 + d, 1, 9 - 2 * p + d, 'J'); linea(8, 9 + d, 11, 9 + 2 * p + d, 'J'); }
+    for (const d of [0, 1, 2]) { linea(4 + d, 12, 2 + d + (p > 0 ? 0 : 2), 15, 'J'); linea(6 + d, 12, 7 + d + (p > 0 ? 2 : 0), 15, 'J'); }
+    put(1, 9 - 2 * p, 'W'); put(11, 9 + 2 * p, 'W'); put(2 + (p > 0 ? 0 : 2), 15, 'W'); put(3 + (p > 0 ? 0 : 2), 15, 'W'); put(9 + (p > 0 ? 0 : -2), 15, 'W'); put(10 + (p > 0 ? 0 : -2), 15, 'W');
+  }
+  put(6, 9, 'R'); put(6, 11, 'V'); put(4, 2, 'i'); put(5, 1, 'i'); put(8, 6, 'j'); put(7, 7, 'j');
+});
+GALLETA_NV.quieta = cuerpoGalleta('quieta'); GALLETA_NV.a = cuerpoGalleta('a'); GALLETA_NV.b = cuerpoGalleta('b');
+const galletaNV = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, cara = o.cara ?? 'normal', corre = !!o.corre, f = corre ? (Math.floor(t * 8) % 2 ? 'a' : 'b') : 'quieta';
+  const yy = corre && f === 'a' ? y - (o.s ?? 1) : y;
+  pintaNV(R, GALLETA_NV[f], x, yy, o);
+  const px = encimaNV(R, 13, 17, x, yy, o);
+  if (cara === 'susto') { for (const e of [4, 7]) { px(e, 2, 'E'); px(e + 1, 2, 'E'); px(e, 3, 'E'); px(e + 1, 3, 'k'); } px(6, 5, 'k'); px(6, 6, 'm'); return; }
+  if (cara === 'feliz') { px(5, 3, 'k'); px(8, 3, 'k'); px(4, 5, 'P'); px(9, 5, 'P'); px(5, 5, 'k'); px(6, 6, 'k'); px(7, 6, 'k'); px(8, 5, 'k'); return; }
+  const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12;
+  for (const e of [5, 8]) { if (!cierra) px(e, 2, 'k'); px(e, 3, 'k'); }
+  px(5, 5, 'k'); px(6, 6, 'k'); px(7, 6, 'k'); px(8, 5, 'k');
+};
+// la multa: papel (X) con el «5» grande, una línea de texto falsa (x, sin letras) y el sello rojo; o.mini, la diminuta
+// del gag (9 × 9)
+const MULTA_NV = ['kkkkkkkkkkk', 'kXXXXXXXXXk', 'kXxxxxxxxXk', 'kXXXXXXXXXk', 'kXXXkkkXXXk', 'kXXXkXXXXXk', 'kXXXkkkXXXk', 'kXXXXXkXXXk', 'kXXXkkkXXXk', 'kXXXXXXXXXk', 'kXxxxxXRRXk', 'kXXXXXXRRXk', 'kkkkkkkkkkk'];
+const MULTA_MINI_NV = ['kkkkkkkkk', 'kXXXXXXXk', 'kXXkkkXXk', 'kXXkXXXXk', 'kXXkkkXXk', 'kXXXXkXXk', 'kXXkkkXXk', 'kXXXXXXRk', 'kkkkkkkkk'];
+const multaNV = (R, x, y, o = {}) => pintaNV(R, o.mini ? MULTA_MINI_NV : MULTA_NV, x, y, o);
+// el acebo: dos hojas con pinchos (V/v) y tres bayas rojas (R)
+const ACEBO_NV = ['.k.k...k.k.', 'kVkVk.kVkVk', '.kVVVkVVVk.', 'kVvVVRVVvVk', '.kVVRRRVVk.', 'kVkVkRkVkVk', '.k.k.k.k.k.'];
+const aceboNV = (R, x, y, o = {}) => pintaNV(R, ACEBO_NV, x, y, o);
+// la corona de acebo para la puerta: aro de hojas (V/v) con bayas (R) y el lazo rojo abajo
+const CORONA_ACEBO_NV = forma(21, 21, ({ disco, put, rect }) => {
+  disco(10, 10, 9.2, 'V');
+  disco(10, 10, 4.6, '.');
+  for (let a = 0; a < 16; a++) { const an = a / 16 * Math.PI * 2; put(10 + Math.cos(an) * 7.5, 10 + Math.sin(an) * 7.5, a % 2 ? 'v' : 'l'); put(10 + Math.cos(an + 0.2) * 5.6, 10 + Math.sin(an + 0.2) * 5.6, 'v'); }
+  for (const an of [0.3, 1.9, 3.4, 4.6]) for (const [dx, dy] of [[0, 0], [1, 0], [0, 1]]) put(10 + Math.cos(an) * 7 + dx, 10 + Math.sin(an) * 7 + dy, 'R');
+  rect(8, 15, 12, 17, 'R'); put(7, 16, 'R'); put(13, 16, 'R'); rect(5, 14, 7, 18, 'R'); rect(13, 14, 15, 18, 'R'); put(10, 16, 'r'); put(9, 18, 'R'); put(8, 19, 'R'); put(11, 18, 'R'); put(12, 19, 'R');
+});
+const coronaAceboNV = (R, x, y, o = {}) => pintaNV(R, CORONA_ACEBO_NV, x, y, o);
+// el muérdago colgado de su cinta roja: ramitas (b), hojas en V verde claro (l/V) y bayas blancas (C)
+const MUERDAGO_NV = forma(15, 15, ({ rect, linea, put }) => {
+  rect(7, 0, 7, 3, 'R'); put(6, 1, 'R'); put(8, 1, 'R'); put(5, 0, 'R'); put(9, 0, 'R');
+  linea(7, 4, 7, 7, 'b'); linea(7, 6, 3, 9, 'b'); linea(7, 6, 11, 9, 'b');
+  for (const [a, b, sx] of [[3, 9, -1], [11, 9, 1], [7, 7, 0]]) { for (const d of [0, 1]) { linea(a, b, a - 2 + (sx || -1) * 0 - d, b + 3, 'l'); linea(a, b, a + 2 + d, b + 3, 'l'); } put(a - 2, b + 3, 'V'); put(a + 2, b + 3, 'V'); }
+  for (const [a, b] of [[3, 10], [11, 10], [7, 8], [3, 12], [11, 12], [7, 11], [7, 13], [2, 13], [12, 13]]) put(a, b, 'C');
+});
+const muerdagoNV = (R, x, y, o = {}) => pintaNV(R, MUERDAGO_NV, x, y, o);
+// la baya blanca del muérdago (la que le cae en la cabeza a la galleta)
+const bayaNV = (R, x, y, o = {}) => pintaNV(R, ['.kk.', 'kCEk', 'kCCk', '.kk.'], x, y, o);
+// EL TRINEO CON RENOS: el trineo rojo (R/r) con ribete y patines de oro (O), el saco (L) y Santa pequeñito dentro
+// (o.santa: false lo quita); delante, o.renos (1–8, por omisión 8) en parejas, con arneses y las patas al galope (o.t).
+// (x, y) = el centro de abajo de todo el conjunto; mira a la derecha (o.dir −1 a la izquierda)
+const TRINEO_NV = forma(26, 14, ({ rect, disco, linea, put }) => {
+  rect(2, 2, 5, 9, 'R'); disco(4, 2, 1.6, 'R');
+  rect(2, 6, 20, 10, 'R'); rect(3, 10, 20, 10, 'r');
+  disco(20, 5, 2.4, 'R'); rect(19, 5, 21, 8, 'R');
+  rect(2, 6, 20, 6, 'O'); put(20, 3, 'O'); put(21, 3, 'O');
+  for (const i of [5, 12, 18]) put(i, 11, 'O');
+  rect(1, 12, 22, 12, 'O'); linea(22, 12, 24, 10, 'O'); put(25, 9, 'O'); put(24, 8, 'O');
+  for (let i = 7; i < 19; i += 3) put(i, 8, 'O');
+});
+const SANTITA_NV = ['..kkk..', '.kRRRk.', 'kWkRRRk', '.kWWWWk', '.kHSkSk', '.kHHSSk', '.kHHHHk', 'kRkHHkk', 'kRRRRRk', 'kkkkkkk'];
+const SACO_NV = ['.kkk.', 'kLbLk', 'kLLLk', 'kLLbk', '.kkk.'];
+const RENO_NV = {};
+for (const f of [0, 1]) RENO_NV[f] = forma(16, 15, ({ rect, linea, put }) => {
+  linea(11, 3, 9, 0, 'c'); put(8, 1, 'c'); linea(12, 3, 13, 0, 'c'); put(14, 1, 'c');
+  rect(11, 4, 13, 6, 'M'); put(14, 5, 'M'); put(15, 5, 'n');
+  rect(9, 5, 11, 8, 'M'); rect(2, 7, 11, 10, 'M'); rect(3, 10, 10, 10, 'n'); put(1, 7, 'X'); put(1, 8, 'W');
+  rect(9, 8, 10, 8, 'R'); put(10, 9, 'O');
+  if (f === 0) { linea(9, 11, 12, 13, 'M'); linea(10, 11, 13, 13, 'n'); linea(4, 11, 1, 13, 'M'); linea(3, 11, 0, 13, 'n'); }
+  else { linea(9, 11, 8, 14, 'M'); linea(10, 11, 10, 14, 'n'); linea(4, 11, 4, 14, 'M'); linea(3, 11, 2, 14, 'n'); }
+});
+const RENO_ATRAS_NV = { ...PAL_NV, ...COLORES({ M: '#7a5230', n: '#4e321a', c: '#b8a888', X: '#c8c0b0', W: '#c8c0b0' }) };
+const trineoNV = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(8, o.renos ?? 8)), pares = Math.ceil(n / 2), t = o.t ?? 0, W = 26 + 4 + pares * 18, H = 18;
+  const sub = subNV(R, W, H, x, y, o);
+  // las riendas, por detrás de todo
+  for (let i = 20; i < W - 6; i++) sub(['k'], i, 9);
+  if (o.santa !== false) { sub(SACO_NV, 1, 1); sub(SANTITA_NV, 9, 1); }
+  sub(TRINEO_NV, 0, 4);
+  for (let p = pares - 1; p >= 0; p--) {
+    const i0 = 28 + p * 18, f = (Math.floor(t * 8) + p) % 2;
+    if (2 * p + 1 < n) sub(RENO_NV[1 - f], i0 + 4, 0, RENO_ATRAS_NV);   // el de atrás de la pareja, más oscuro
+    sub(RENO_NV[f], i0, 3);
+  }
+};
+// EL TIÓ: un tronco (B/b) tumbado sobre dos patitas, con la cara sonriente pintada en el corte (T/t), la barretina roja
+// (R/r) y la manta (A/a con rayas W) por encima de la espalda. o.golpe: da un saltito y pone cara de «¡ay!»
+const TIO_NV = forma(30, 19, ({ rect, disco, put, linea }) => {
+  rect(14, 15, 15, 18, 'b'); rect(20, 15, 21, 18, 'b');
+  rect(2, 7, 23, 15, 'B'); for (let i = 3; i < 22; i += 4) { put(i, 9, 'b'); put(i + 2, 12, 'b'); put(i + 1, 14, 'b'); }
+  disco(24, 11, 4.7, 'T'); disco(24, 11, 3, 't'); disco(24, 11, 2.2, 'T');
+  rect(1, 6, 15, 13, 'A'); for (let j = 7; j <= 13; j += 2) rect(1, j, 15, j, 'a'); rect(1, 6, 15, 6, 'W'); rect(1, 13, 15, 13, 'W'); put(0, 14, 'A'); put(15, 14, 'A'); put(1, 14, 'W'); put(14, 14, 'W');
+  rect(20, 4, 27, 6, 'R'); rect(16, 3, 21, 5, 'R'); rect(14, 4, 16, 6, 'R'); put(13, 6, 'R'); rect(20, 6, 27, 6, 'r'); linea(15, 6, 19, 5, 'r');
+});
+const tioNV = (R, x, y, o = {}) => {
+  const golpe = !!o.golpe, yy = golpe ? y - (o.s ?? 1) : y;
+  pintaNV(R, TIO_NV, x, yy, o);
+  const px = encimaNV(R, 30, 19, x, yy, o);
+  if (golpe) { px(22, 9, 'k'); px(23, 10, 'k'); px(27, 9, 'k'); px(26, 10, 'k'); px(24, 12, 'k'); px(25, 12, 'k'); px(24, 13, 'm'); px(25, 13, 'm'); px(24, 14, 'k'); px(25, 14, 'k'); }
+  else { for (const e of [22, 26]) { px(e, 9, 'k'); px(e, 10, 'k'); } px(22, 13, 'k'); px(23, 14, 'k'); px(24, 14, 'k'); px(25, 14, 'k'); px(26, 13, 'k'); }
+  px(21, 12, 'P'); px(28, 12, 'P');
+};
+// LA CABRA DE PAJA de Gävle: paja (T/t) con las cintas rojas (R) en el cuello, los cuernos, las patas y la cola;
+// mira a la derecha. Para la plaza, a escala grande (o.s 3 o 4)
+const CABRA_NV = forma(30, 30, ({ rect, disco, linea, put }) => {
+  rect(5, 12, 21, 19, 'T'); disco(6, 15, 4, 'T'); disco(20, 15, 4, 'T');
+  rect(19, 6, 23, 14, 'T'); rect(21, 4, 26, 9, 'T'); put(27, 7, 'T'); put(27, 8, 'T');
+  linea(22, 4, 19, 0, 't'); linea(21, 4, 18, 0, 't'); linea(18, 0, 15, 1, 't'); linea(18, 1, 15, 2, 't'); linea(15, 2, 15, 5, 't'); linea(16, 2, 16, 4, 't');
+  put(20, 5, 'T'); put(19, 5, 'T');
+  for (const i of [6, 10, 16, 20]) rect(i, 20, i + 2, 28, 'T');
+  linea(2, 12, 0, 10, 't'); linea(3, 12, 1, 10, 't');
+  for (let i = 6; i < 21; i += 2) { put(i, 13, 't'); put(i + 1, 16, 't'); put(i, 18, 't'); }
+  for (let j = 6; j < 13; j += 2) put(21, j, 't');
+  rect(19, 12, 23, 13, 'R'); put(18, 13, 'R'); put(24, 13, 'R'); put(17, 14, 'R'); put(25, 14, 'R');
+  for (const i of [6, 10, 16, 20]) rect(i, 25, i + 2, 25, 'R');
+  put(15, 5, 'R'); put(16, 4, 'R'); put(0, 10, 'R'); put(1, 10, 'R');
+  put(27, 9, 't'); put(26, 10, 't');
+});
+const cabraNV = (R, x, y, o = {}) => { pintaNV(R, CABRA_NV, x, y, o); const px = encimaNV(R, 30, 30, x, y, o); px(24, 6, 'k'); };
+// EL PAROL filipino: farol en forma de estrella de cinco puntas (o.color: 'rojo' | 'amarillo' | 'azul' | 'verde'),
+// con el centro que brilla (o.t lo hace latir) y dos colas de tiras de colores
+const PAROL_NV = forma(19, 26, ({ put, linea }) => {
+  const cx = 9, cy = 9, Re = 8.6, Ri = 3.6;
+  for (let j = 0; j < 19; j++) for (let i = 0; i < 19; i++) {
+    const dx = i - cx, dy = j - cy, r = Math.hypot(dx, dy), an = Math.atan2(dy, dx) + Math.PI / 2, seg = Math.PI / 5;
+    const a = ((an % (2 * seg)) + 2 * seg) % (2 * seg), f = Math.abs(a - seg) / seg, lim = Ri + (Re - Ri) * f;
+    if (r <= lim) put(i, j, r < 2.6 ? 'o' : r < lim - 1.2 ? 'C' : 'c');
+  }
+  linea(6, 16, 4, 24, 'Y'); linea(7, 16, 6, 25, 'R'); linea(12, 16, 13, 25, 'A'); linea(11, 16, 14, 24, 'V');
+});
+const PAROL_COL = { rojo: ['#d83a3a', '#9a2228'], amarillo: ['#f0c840', '#c89a20'], azul: ['#3a7ad8', '#2a54a0'], verde: ['#3a9a5a', '#2a7040'] };
+const parolNV = (R, x, y, o = {}) => {
+  const [c1, c2] = PAROL_COL[o.color] ?? PAROL_COL.rojo, on = Math.sin((o.t ?? 0) * 4 + x) > 0;
+  pintaNV(R, PAROL_NV, x, y, o, { ...PAL_NV, ...COLORES({ C: c1, c: c2, o: on ? '#fff6c0' : '#ffe890' }) });
+};
+// LA PIÑATA de siete picos: una bola (P) con siete conos de colores y borlas en las puntas, y la cuerda arriba
+const PINATA_NV = forma(29, 31, ({ put, disco, linea }) => {
+  linea(14, 0, 14, 3, 'b');
+  const cx = 14, cy = 17, cols = ['R', 'Y', 'A', 'V', 'p', 'y', 'P'];
+  for (let k = 0; k < 7; k++) {
+    const an = -Math.PI / 2 + (k + 0.5) * 2 * Math.PI / 7, tx = cx + Math.cos(an) * 12.5, ty = cy + Math.sin(an) * 12.5;
+    for (let j = 0; j < 31; j++) for (let i = 0; i < 29; i++) {
+      const vx = i - cx, vy = j - cy, along = vx * Math.cos(an) + vy * Math.sin(an), perp = Math.abs(-vx * Math.sin(an) + vy * Math.cos(an));
+      if (along > 3 && along < 12.4 && perp < (12.4 - along) * 0.36 + 0.5) put(i, j, cols[k]);
+    }
+    put(tx, ty, cols[(k + 3) % 7]); put(tx + Math.cos(an), ty + Math.sin(an), cols[(k + 3) % 7]);
+  }
+  disco(cx, cy, 5.2, 'P'); for (let i = 10; i <= 18; i += 2) { put(i, cy - 2, 'Y'); put(i + 1, cy + 1, 'A'); put(i, cy + 3, 'R'); }
+  linea(14, 3, 14, cy - 6, 'b');
+});
+const pinataNV = (R, x, y, o = {}) => pintaNV(R, PINATA_NV, x, y, o);
+// la flor de Nochebuena en su maceta de barro: brácteas rojas (R/r), el centro amarillo, hojas verdes y la maceta (Q/q)
+const FLOR_NV = forma(15, 16, ({ rect, linea, put }) => {
+  rect(4, 11, 10, 14, 'Q'); rect(3, 10, 11, 11, 'Q'); rect(3, 11, 11, 11, 'q'); rect(5, 14, 9, 14, 'q');
+  for (const [a, b] of [[1, 6], [13, 6], [2, 9], [12, 9]]) linea(7, 6, a, b, 'V');
+  for (let k = 0; k < 6; k++) { const an = k / 6 * Math.PI * 2 - Math.PI / 2; for (let r = 1; r <= 4.6; r += 0.5) { put(7 + Math.cos(an) * r, 5 + Math.sin(an) * r * 0.9, r > 3.5 ? 'r' : 'R'); put(7 + Math.cos(an + 0.25) * r, 5 + Math.sin(an + 0.25) * r * 0.9, 'R'); } }
+  put(7, 5, 'Y'); put(6, 5, 'O'); put(7, 4, 'O'); put(8, 5, 'Y');
+});
+const florNV = (R, x, y, o = {}) => pintaNV(R, FLOR_NV, x, y, o);
+// la cubeta de pollo: rayas verticales rojas y blancas (R/W), SIN letras ni logos, con trozos de pollo frito (B/b)
+const CUBETA_NV = forma(13, 14, ({ put, disco }) => {
+  for (let j = 5; j <= 12; j++) { const m = Math.round((j - 5) / 7); for (let i = 1 + m; i <= 11 - m; i++) put(i, j, Math.floor((i - 1) / 2) % 2 ? 'W' : 'R'); }
+  for (let i = 1; i <= 11; i++) put(i, 5, 'W');
+  disco(3.5, 3.5, 2, 'B'); disco(9, 3, 2.2, 'B'); put(6, 1, 'X'); put(6, 2, 'X'); put(5, 3, 'B'); put(6, 3, 'B'); put(7, 3, 'B'); put(6, 4, 'B'); put(12, 2, 'X'); put(11, 3, 'B');
+  put(3, 3, 'b'); put(9, 2, 'b'); put(8, 4, 'b'); put(4, 2, 'T'); put(10, 2, 'T'); put(6, 3, 'b');
+});
+const cubetaNV = (R, x, y, o = {}) => pintaNV(R, CUBETA_NV, x, y, o);
+// la botella de refresco SIN etiqueta: cristal oscuro con brillo (E) y chapa (Z)
+const BOTELLA_NV = ['.kkk.', '.kZk.', '.kuk.', '.kuk.', 'kuuuk', 'kuEuk', 'kuuuk', '.kuk.', 'kuuuk', 'kuEuk', 'kuuuk', 'kuuuk', '.kkk.'];
+const botellaNV = (R, x, y, o = {}) => pintaNV(R, BOTELLA_NV, x, y, o);
+// la armónica diminuta de la Gemini 6A: plata (Z/z) con los agujeros
+const ARMONICA_NV = ['kkkkkkkkk', 'kZZZZZZZk', 'kZkZkZkZk', 'kzzzzzzzk', 'kkkkkkkkk'];
+const armonicaNV = (R, x, y, o = {}) => pintaNV(R, ARMONICA_NV, x, y, o);
+// los cascabeles: una correa de cuero (L) con tres cascabeles de latón (O/g) que se mueven con o.t
+const CORREA_NV = ['kkkkkkkkkkkkkkkkk', 'kLLLLLLLLLLLLLLLk', 'kkkkkkkkkkkkkkkkk'];
+const CASCABEL_NV = ['.kkk.', 'kOoOk', 'kOOgk', 'kgkgk', '.kkk.'];
+const cascabelesNV = (R, x, y, o = {}) => { const sub = subNV(R, 17, 9, x, y, o), t = o.t ?? 0; sub(CORREA_NV, 0, 0); for (const [k, i] of [[0, 1], [1, 6], [2, 11]]) sub(CASCABEL_NV, i + (o.t != null && Math.sin(t * 20 + k * 2) > 0 ? 1 : 0), 3 + (o.t != null && Math.sin(t * 17 + k) > 0.3 ? 1 : 0)); };
+// el calendario de pared: la cabecera roja con las anillas y la hoja (X). o.dia: un número grande (25, 1974…);
+// sin o.dia, la cuadrícula del mes, con o.marca [desde, hasta] en rojo (las Saturnales del 17 al 23)
+const CALENDARIO_NV = forma(21, 22, ({ rect }) => { rect(1, 3, 19, 20, 'X'); rect(1, 3, 19, 6, 'R'); rect(1, 6, 19, 6, 'r'); rect(2, 20, 19, 20, 'x'); });
+const calendarioNV = (R, x, y, o = {}) => {
+  pintaNV(R, CALENDARIO_NV, x, y, o);
+  const px = encimaNV(R, 21, 22, x, y, o);
+  for (const i of [5, 10, 15]) { px(i, 1, 'k'); px(i, 2, 'Z'); px(i, 3, 'Z'); px(i, 4, 'k'); }
+  if (o.dia != null) { const e = String(o.dia).length <= 2 ? 2 : 1, w = anchoNumeroNV(o.dia, e); numeroNV(px, o.dia, Math.round(10.5 - w / 2), e === 2 ? 9 : 11, 'k', e); return; }
+  const [m0, m1] = o.marca ?? [0, -1];
+  for (let d = 1; d <= 31; d++) { const c = (d - 1) % 7, f = Math.floor((d - 1) / 7); px(4 + c * 2, 8 + f * 2, d >= m0 && d <= m1 ? 'R' : 'x'); }
+};
+// la postal antigua de Santa: borde crema (X), fondo de noche (N) con copos (W) y un Santa del color o.color
+// ('rojo' | 'verde' | 'marron' | 'azul')
+const POSTAL_NV = forma(19, 15, ({ rect, put }) => { rect(1, 1, 17, 13, 'X'); rect(3, 3, 15, 11, 'N'); for (const [a, b] of [[4, 4], [7, 3], [13, 5], [5, 9], [14, 10], [10, 4]]) put(a, b, 'W'); rect(3, 11, 15, 11, 'W'); });
+const SANTA_POSTAL_NV = ['..kkk..', '.kCCCk.', 'kCCCCCk', 'kWWWWWk', 'kSkSkSk', 'kHHHHHk', 'kCHHHCk', 'kCCCCCk', 'kkkkkkk'];
+const COL_POSTAL = { rojo: ['#d23a3a', '#a02828'], verde: ['#3a8a4a', '#2a6a36'], marron: ['#8a5a34', '#64401f'], azul: ['#3a5ab0', '#2a4080'] };
+const postalNV = (R, x, y, o = {}) => {
+  pintaNV(R, POSTAL_NV, x, y, o);
+  const [c1] = COL_POSTAL[o.color] ?? COL_POSTAL.rojo, sub = subNV(R, 19, 15, x, y, o, { ...PAL_NV, ...COLORES({ C: c1 }) });
+  sub(SANTA_POSTAL_NV, 6, 3);
+};
+// el balón de cuero antiguo con su costura de cordón (X)
+const BALON_NV = ['.kkkkk.', 'kLLXLLk', 'kLeXeLk', 'kLLXLLk', 'kLeXeLk', 'kLLLLek', '.kkkkk.'];
+const balonNV = (R, x, y, o = {}) => pintaNV(R, BALON_NV, x, y, o);
+// la vela encendida: cera (X, o roja con o.color 'roja') y la llama que baila con o.t
+const velaNV = (R, x, y, o = {}) => {
+  const on = Math.sin((o.t ?? 0) * 11 + x) > 0, cera = o.color === 'roja' ? 'R' : 'X', sombra = o.color === 'roja' ? 'r' : 'x';
+  pintaNV(R, [on ? '.o.' : '..o', on ? 'oYo' : '.oY', '.y.', '.k.', `k${cera}k`, `k${cera}k`, `k${cera}k`, `k${sombra}k`, 'kkk'], x, y, o);
+};
+// el zapato de cuero oscuro (b/d) con cordones, junto a la ventana o la puerta; o.asoma: la galleta asoma la cabeza
+// (con los ojos) por dentro
+const ZAPATO_NV = ['.kkkk..........', 'kbKKbk.........', 'kbKKbbkk.......', 'kbbbbbbbkk.....', 'kbbbbbXbXbkk...', 'kbbbbbbbbbbbk..', 'kbbbbbbbbbbbbk.', 'kdddddddddddddk', 'kkkkkkkkkkkkkkk'];
+const zapatoNV = (R, x, y, o = {}) => {
+  if (o.asoma) { const sub = subNV(R, 15, 9, x, y, o); sub(['..kkkkk..', '.kJJJJJk.', 'kJiJJJJJk', 'kJkJJJkJk', 'kJkJJJkJk', 'kJJkJkJJk', 'kJJJkJJJk', 'kJJJJJJJk'], -2, -7); sub(['.k.', 'kWk', 'kJk'], -2, -1); sub(['.k.', 'kWk', 'kJk'], 4, -1); }
+  pintaNV(R, ZAPATO_NV, x, y, o);
+};
+// las monedas de oro apiladas (O/g)
+const MONEDAS_NV = ['.kkkkk.....', 'kOoOOOk....', 'kgggggk....', 'kOOOOOk....', 'kgggggk.kkk', 'kOOOOOkkOok', 'kgggggkkOgk', '.kkkkk..kk.'];
+const monedasNV = (R, x, y, o = {}) => pintaNV(R, MONEDAS_NV, x, y, o);
+// la bolsita de monedas (las tres de Nicolás): tela parda (B/b) atada con el cordón (O) y una moneda que asoma
+const BOLSA_NV = ['...kkk...', '..kOoOk..', '...kOk...', '..kBOBk..', '.kBBBBBk.', 'kBBbBBBBk', 'kBBBBBbBk', 'kBbBBBBBk', '.kBBBBBk.', '..kkkkk..'];
+const bolsaNV = (R, x, y, o = {}) => pintaNV(R, BOLSA_NV, x, y, o);
+// la Biblia: tapas de cuero oscuro (d) con la cruz de oro y el canto de las hojas (X); o.abierta, abierta con renglones
+const BIBLIA_NV = ['kkkkkkkkkkk', 'kddddddddXk', 'kddddOdddXk', 'kddddOdddXk', 'kddOOOOOdXk', 'kddddOdddXk', 'kddddOdddXk', 'kddddOdddXk', 'kddddddddXk', 'kddddddddXk', 'kkkkkkkkkkk'];
+const BIBLIA_ABIERTA_NV = ['kkkkkkk.kkkkkkk', 'kXXXXXXkXXXXXXk', 'kXxxxXXkXxxxxXk', 'kXXXXXXkXXXXXXk', 'kXxxxxXkXxxxXXk', 'kXXXXXXkXXXXXXk', 'kXxxxXXkXxxxxXk', 'kXXXXXXkXXXXXXk', 'kddddddkddddddk', '.kkkkkkkkkkkkk.'];
+const bibliaNV = (R, x, y, o = {}) => pintaNV(R, o.abierta ? BIBLIA_ABIERTA_NV : BIBLIA_NV, x, y, o);
+// la escoba de la Befana: palo (B/b) y el haz de ramitas (T/t) atado con el cordón rojo (R); mira a la derecha (las
+// ramitas detrás, a la izquierda)
+const ESCOBA_NV = forma(30, 11, ({ rect, linea, put }) => {
+  rect(10, 5, 28, 5, 'B'); rect(10, 6, 28, 6, 'b');
+  for (let k = 0; k <= 8; k++) linea(10, 5 + (k > 4 ? 1 : 0), 1, 1 + k, k % 2 ? 't' : 'T');
+  rect(9, 4, 10, 7, 'R'); put(11, 4, 'R'); put(11, 7, 'R');
+});
+const escobaNV = (R, x, y, o = {}) => pintaNV(R, ESCOBA_NV, x, y, o);
+// el carbón de azúcar: terrones negros (K) con brillos (u, E)
+const CARBON_NV = forma(13, 8, ({ disco, put }) => { disco(3.5, 4.5, 2.6, 'K'); disco(8.5, 4.5, 2.8, 'K'); disco(6, 2.6, 2, 'K'); put(3, 3, 'u'); put(8, 3, 'u'); put(6, 1, 'u'); put(9, 4, 'E'); put(4, 5, 'E'); });
+const carbonNV = (R, x, y, o = {}) => pintaNV(R, CARBON_NV, x, y, o);
+// dulces: una tableta de turrón (C con almendras B y la oblea X) y dos caramelos envueltos (R, A); o.tipo 'turron'
+// solo la tableta
+const DULCES_NV = forma(21, 9, ({ rect, put, disco }) => {
+  rect(1, 2, 10, 7, 'C'); rect(1, 2, 10, 2, 'X'); rect(1, 7, 10, 7, 'X'); for (const [a, b] of [[3, 4], [6, 3], [8, 5], [4, 6], [9, 3]]) put(a, b, 'B');
+  disco(14, 6, 1.6, 'R'); put(12, 5, 'R'); put(12, 7, 'R'); put(16, 5, 'R'); put(16, 7, 'R'); put(14, 5, 'E');
+  disco(18, 3, 1.4, 'A'); put(16, 2, 'A'); put(20, 4, 'A'); put(18, 2, 'E');
+});
+const TURRON_NV = forma(12, 9, ({ rect, put }) => { rect(1, 2, 10, 7, 'C'); rect(1, 2, 10, 2, 'X'); rect(1, 7, 10, 7, 'X'); for (const [a, b] of [[3, 4], [6, 3], [8, 5], [4, 6], [9, 3]]) put(a, b, 'B'); });
+const dulcesNV = (R, x, y, o = {}) => pintaNV(R, o.tipo === 'turron' ? TURRON_NV : DULCES_NV, x, y, o);
+// el pastel del vecino de Boston: masa dorada (J/i) en celosía sobre el molde de lata (Z/z)
+const PASTEL_NV = ['..kkkkkkk..', '.kiJiJiJik.', 'kJJiJiJiJJk', 'kjjjjjjjjjk', 'kZZZZZZZZZk', '.kzzzzzzzk.', '..kkkkkkk..'];
+const pastelNV = (R, x, y, o = {}) => pintaNV(R, PASTEL_NV, x, y, o);
+// el aviso del alguacil: papel clavado (X, el clavo z), sin letras, con el acebo tachado por una cruz roja
+const AVISO_NV = forma(15, 17, ({ rect, linea, put }) => {
+  rect(1, 1, 13, 15, 'X'); rect(2, 14, 13, 15, 'x'); put(7, 2, 'z');
+  for (const [a, b] of [[4, 7], [5, 6], [6, 7], [5, 8], [8, 7], [9, 6], [10, 7], [9, 8], [4, 8], [10, 8]]) put(a, b, 'V');
+  put(6, 9, 'R'); put(7, 9, 'R'); put(8, 9, 'R'); put(7, 8, 'R');
+  for (const d of [0, 1]) { linea(3 + d, 4, 11 + d, 12, 'R'); linea(11 + d, 4, 3 + d, 12, 'R'); }
+});
+const avisoNV = (R, x, y, o = {}) => pintaNV(R, AVISO_NV, x, y, o);
+// la tabla de surf de pie (o.color: el color de la tabla)
+const tablaNV = (R, x, y, o = {}) => pintaNV(R, TABLA_NV, x, y, o, { ...PAL_NV, ...COLORES({ A: o.color ?? '#f0a030', a: '#c87a18', W: '#ffffff' }) });
+// EL GATO DE YULE: la cabeza enorme de un gato negro (K, pelo u) con ojos amarillos (Y) de pupila rasgada, que asoma
+// por detrás de una colina (el borde de abajo es recto: se pinta antes que la colina)
+const GATO_YULE_NV = forma(31, 19, ({ rect, disco, linea }) => {
+  disco(15, 13, 10.5, 'K'); rect(4, 13, 26, 18, 'K');
+  for (const s of [-1, 1]) { linea(15 + s * 5, 4, 15 + s * 9, -1, 'K'); linea(15 + s * 6, 4, 15 + s * 10, 0, 'K'); linea(15 + s * 8, 4, 15 + s * 10, 0, 'K'); linea(15 + s * 7, 4, 15 + s * 9, 1, 'u'); }
+  for (const s of [-1, 1]) { disco(15 + s * 5, 11, 2.4, 'Y'); rect(15 + s * 5, 9, 15 + s * 5, 13, 'k'); }
+  linea(14, 15, 16, 15, 'P'); rect(15, 16, 15, 16, 'P');
+  for (const [a, b] of [[8, 7], [21, 7], [6, 12], [24, 12], [10, 17], [20, 17]]) linea(a, b, a + 1, b + 1, 'u');
+});
+const gatoYuleNV = (R, x, y, o = {}) => { pintaNV(R, GATO_YULE_NV, x, y, o); if (o.t != null && ((o.t + 1.3) % 3.4) < 0.12) { const px = encimaNV(R, 31, 19, x, y, o); for (const s of [-1, 1]) for (let i = -2; i <= 2; i++) for (let j = 9; j <= 13; j++) px(15 + s * 5 + i, j, j === 11 ? 'k' : 'K'); } };
+// la fiambrera de lata del obrero y el termo del vigilante
+const fiambreraNV = (R, x, y, o = {}) => pintaNV(R, ['..kkkkk..', '.k.....k.', 'kkkkkkkkk', 'kZZZZZZZk', 'kzzzzzzzk', 'kZZZZZZZk', 'kZZZZZZZk', 'kkkkkkkkk'], x, y, o);
+const termoNV = (R, x, y, o = {}) => pintaNV(R, ['.kk.', 'kZZk', 'kRRk', 'kRRk', 'kRrk', 'kRRk', 'kRRk', '.kk.'], x, y, o);
+export const PIEZAS_NV = {
+  galleta: galletaNV, multa: multaNV, acebo: aceboNV, coronaAcebo: coronaAceboNV, muerdago: muerdagoNV, baya: bayaNV,
+  trineo: trineoNV, tio: tioNV, cabra: cabraNV, parol: parolNV, pinata: pinataNV, flor: florNV, cubeta: cubetaNV,
+  botella: botellaNV, armonica: armonicaNV, cascabeles: cascabelesNV, calendario: calendarioNV, postal: postalNV,
+  balon: balonNV, vela: velaNV, zapato: zapatoNV, monedas: monedasNV, bolsa: bolsaNV, biblia: bibliaNV, escoba: escobaNV,
+  carbon: carbonNV, dulces: dulcesNV, pastel: pastelNV, aviso: avisoNV, tabla: tablaNV, gatoYule: gatoYuleNV,
+  fiambrera: fiambreraNV, termo: termoNV,
+};
+
+// ── Episodio 23 (Las tradiciones del año: de dónde vienen de verdad) ─────────────────────────────────────────────────
+// el reparto: Madrid de 1890 y la Puerta del Sol, Alicante 1909, una familia de 1962, Inglaterra 1752, Roma, Babilonia,
+// los Valentines, Chaucer, Carlos de Orleans, el correo victoriano y Esther Howland, la Pascua (gallinas, la liebre de
+// 1682, Pensilvania), Irlanda y Halloween (nabos, Jack, 1927, los cincuenta), el conde de 1746 y Goethe, las hermanas
+// Hill, el pleito de 2015, las bodas (Victoria y Alberto, María Estuardo, novias de otras épocas) y el joyero.
+// Sin logos ni letras; el pelo nunca tapa la cara; cada uno se reconoce por sus atributos.
+
+// ── tocados nuevos ──
+Object.assign(TOCADOS, {
+  // la mantilla de encaje negro (J, el dibujo j) sobre la peineta alta de carey (B/b): cae por detrás hasta los hombros, la cara entera
+  mantilla: [[
+    '..kk.kk.kk.....',
+    '.kBBkBBkBBk....',
+    '.kBbBBbBBBk....',
+    '..kkkkkkkkkk...',
+    '.kJJjJJJjJJJk..',
+    'kJjJJJjJJJJJJk.',
+    'kJJJkkkkkkkkk..',
+    'kjJJk..........',
+    'kJJjk..........',
+    'kJjJk..........',
+    'kjJJk..........',
+    'kJJjk..........',
+    'kJjJk..........',
+    'kJJjk..........',
+    '.kJJk..........',
+    '..kk...........',
+  ], -4],
+  // el bombín (J/j): copa redonda y ala corta (el estudioso del XIX)
+  bombin: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '..kJJjJJJJJk...',
+    '..kJJJJJJJJk...',
+    '..kjjjjjjjjk...',
+    'kkkkkkkkkkkkkk.',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+  // la parpusa del chulapo: gorra de cuadros (J/j) pegada a la cabeza, el botón (o) arriba y la visera corta delante
+  parpusa: [[
+    '......kk.......',
+    '....kkokkk.....',
+    '..kkJjJjJjkk...',
+    '.kJjJjJjJjJJk..',
+    '.kjJjJjJjJjJJkk',
+    '.kkkkkkkkkkkkkk',
+  ], -3],
+  // el sombrero de paja del campo (T/t) con la cinta oscura (D): el viticultor de Alicante, el campesino
+  sombreroPaja: [[
+    '....kkkkkkk....',
+    '...kTTTtTTTk...',
+    '...kTtTTTtTk...',
+    '...kDDDDDDDk...',
+    'kkkkkkkkkkkkkkk',
+    'kTtTTtTTtTTtTTk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+  // la toca francesa del siglo XVI (attifet): blanca (X/x) con el borde de oro (o) sobre la frente, el pelo de delante
+  // a la vista y la caída por detrás; la cara entera (María Estuardo, las damas de la corte)
+  attifet: [[
+    '...kkkkkkkk....',
+    '..kXXXXXXXXk...',
+    '.kXXxXXXXXXXk..',
+    'kXXXXkooooook..',
+    'kXXXo..........',
+    'kXXXo..........',
+    'kXxXo..........',
+    'kXXXk..........',
+    'kXxXk..........',
+    '.kXXk..........',
+    '..kk...........',
+  ], -1],
+  // los cuernecitos del diablillo de cuento (J)
+  cuernitos: [[
+    '...k.....k.....',
+    '..kJk...kJk....',
+    '..kJJk..kJJk...',
+  ], -2],
+  // orejas de gato (J) del disfraz
+  orejasGato: [[
+    '...k.....k.....',
+    '..kJk...kJk....',
+    '..kJJk.kJJJk...',
+  ], -2],
+  // la diadema de princesa de juguete: oro (o) con la piedra (D)
+  tiara: [[
+    '....k.k.k......',
+    '...kokDkok.....',
+    '..kooooooook...',
+  ], -1],
+  // corona de flores de colores (R, Y, E) con hojas (V): novias de otras épocas
+  coronaFlores: [[
+    '..kk.kk.kk.k...',
+    '.kRRkYYkEEkRk..',
+    '.kVVkVVkVVkVk..',
+  ], 0],
+  // la corona de azahar (flores blancas E, hojas V): la reina Victoria de novia
+  azahar: [[
+    '..k.k.k.k.k....',
+    '.kEkEkEkEkEk...',
+    '.kVEVEVEVEVk...',
+  ], 0],
+});
+
+// ── cabezas ──
+// la peluca larga de rizos de 1682 (alonga): rizos en la frente y la melena rizada hasta los hombros
+const CAB_ALONGA_TR = [...CAB_RIZOS.slice(0, 4), ...parche(CAB_LARGO, [[1, 5, 'h'], [2, 7, 'h'], [1, 9, 'h'], [2, 10, 'h']]).slice(4)];
+// el corte en tazón del siglo XV (Carlos de Orleans): el flequillo recto por encima de las cejas
+const CAB_TAZON_TR = parche(CAB_CORTO, [[3, 4, 'HHHHHHHHHH']]);
+// barba rizada de rey de Babilonia (rizos h); y la de Chaucer, partida en dos puntas
+const CAB_BARBA_RIZOS_TR = parche(CAB_BARBA, [[4, 9, 'h.h.h.h'], [4, 10, '.h.h.h'], [5, 11, 'h.h.h']]);
+const CAB_BARBA_PARTIDA_TR = parche(CAB_BARBA, [[7, 12, 'k']]);
+// media melena por encima de los hombros (la madre de 1962): la de la guionista
+const CAB_MEDIA_TR = parche(CAB_LARGO, [[1, 9, 'kHHHk'], [1, 10, 'kkkk'], [0, 11, '.....'], [0, 12, '....']]);
+
+// ── cuerpos ──
+// el jubón del siglo XV (C/c) con flores de lis de oro (o), cinturón (G), calzas (F) y zapatos (n): Carlos de Orleans;
+// con colores pardos, la túnica corta del campesino
+const CUERPO_JUBON_TR = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCoCCCoCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCoCCCoCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el vestido de los años 1840 (C/c): cuello de encaje (W), talle y falda ancha acampanada (Esther Howland)
+const CUERPO_1840_TR = [
+  '....kkWWWkk....',
+  '..kkCWWWWWCkk..',
+  '.kCkCCWWWCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kSkcCCCCCckSk.',
+  '..kkCCCCCCCkk..',
+  '..kCCCCCCCCCk..',
+  '..kCcCCCCCcCk..',
+  '.kCCCCCCCCCCCk.',
+  '.kcCCcCCCcCCck.',
+  'kccccccccccccck',
+  'kkkkkkkkkkkkkkk',
+];
+// la blusa de 1893 con las mangas de jamón (W), el broche (o), el cinturón (I) y la falda larga (C/c): las hermanas Hill
+const CUERPO_1893_TR = [
+  '....kkWWWkk....',
+  '.kkkWWWWWWWkkk.',
+  'kWWkWWWWWWWkWWk',
+  'kWWkWWWoWWWkWWk',
+  '.kWkWWWWWWWkWk.',
+  '.kSkIIIIIIIkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kcCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// el vestido del Renacimiento (C/c): escote cuadrado, collar de perlas (o), peto de pedrería (O) y falda ancha:
+// María Estuardo, las damas de luto blanco y la novia de 1600
+const CUERPO_RENAC_TR = [
+  '....kkSSSkk....',
+  '..kkCSSSSSCkk..',
+  '.kCkCoSoSoCkCk.',
+  '.kCkCCOOOCCkCk.',
+  '.kCkcCCOCCckCk.',
+  '.kSkkcCOCckkSk.',
+  '..kkCCkOkCCkk..',
+  '..kCCCCCCCCCk..',
+  '..kCCCCCCCCCk..',
+  '.kCCCcCCCcCCCk.',
+  '.kcCCCCCCCCCck.',
+  'kccccccccccccck',
+  'kkkkkkkkkkkkkkk',
+];
+// el vestido de Babilonia (C/c): brazos al aire, el chal en diagonal (D), la faja (G) y los flecos (Y)
+const CUERPO_BABILONIO_TR = [
+  '...kkCCCCCkk...',
+  '..kCCCCCCCCCk..',
+  '.kSkCCCCDCCkSk.',
+  '.kSkCCCDCCCkSk.',
+  '.kSkCCDCCCCkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCcCCcCCk...',
+  '...kCCCCCCCk...',
+  '...kYkYkYkYk...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// la casaca del siglo XVIII cerrada hasta la rodilla, con medias blancas (w) y zapatos de hebilla (O): el recaudador,
+// el conde
+const CUERPO_CASACA_TR = parche(CUERPO_EUROPEO, [[3, 7, 'kCCCCCCCk'], [3, 8, 'kcCFkFCck'], [3, 10, 'kwwwkwwwk'], [3, 11, 'kwwwkwwwk'], [5, 12, 'O'], [10, 12, 'O']]);
+// el uniforme de mariscal (el príncipe Alberto en su boda): charreteras (O) y la banda (A) en diagonal
+const CUERPO_UNIFORME_TR = parche(CUERPO_EUROPEO, [[3, 1, 'O'], [11, 1, 'O'], [5, 2, 'A'], [6, 3, 'A'], [7, 4, 'A'], [8, 5, 'A'], [9, 6, 'A']]);
+// la toga negra del juez con el cuello blanco (W); y la del erudito de 1682 con las tiras blancas del cuello
+const CUERPO_TOGA_JUEZ_TR = parche(CUERPO_TUNICA_LARGA, [[6, 0, 'WWW']]);
+const CUERPO_ERUDITO_TR = parche(CUERPO_TUNICA_LARGA, [[6, 0, 'WWW'], [7, 1, 'W'], [7, 2, 'W']]);
+// el blusón negro del campo con la faja (G): el viticultor de Alicante
+const CUERPO_BLUSON_TR = parche(CUERPO_MANGA, [[4, 5, 'GGGGGGG'], [4, 6, 'CCCCCCC']]);
+// el niño disfrazado de fantasma: una sábana blanca (W/w) hasta los tobillos
+const CUERPO_SABANA_TR = [
+  '...kkWWWWWkk...',
+  '..kWWWWWWWWWk..',
+  '.kWWWWWWWWWWWk.',
+  '.kWwWWWWWWWwWk.',
+  '.kWWWWWWWWWWWk.',
+  '.kWWWWWwWWWWWk.',
+  '.kWwWWWWWWWwWk.',
+  '.kWkWWkWWkWWk..',
+  '..k.kkLkkLkk...',
+  '....kLk.kLk....',
+];
+// el delantal de los niños de 1893 (W) sobre el vestido (C)
+const CUERPO_DELANTAL_NINA_TR = parche(CUERPO_NINA, [[5, 2, 'WWWWW'], [5, 3, 'WWWWW'], [5, 4, 'WWWWW'], [5, 5, 'WWWWW'], [5, 6, 'WWWWW']]);
+// el pirata de los cincuenta: camiseta a rayas (C/W)
+const CUERPO_RAYAS_NINO_TR = parche(CUERPO_NINO, [[4, 1, 'WWWWWWW'], [4, 3, 'WWWWWWW']]);
+
+// ── lo que llevan en la mano y otros detalles ──
+const PAL_MANO_TR = COLORES({
+  O: '#f0c040', g: '#a87a18', o: '#ffe890', y: '#f08a2a', Z: '#c8ccd8', z: '#8c90a4', E: '#ffffff', X: '#f6f2e6',
+  x: '#c8c0b0', B: '#a8743c', b: '#6a4422', U: '#6a2a7a', u: '#3e1450', I: '#b07ac8', V: '#4a9a3a', R: '#c8303a',
+  r: '#8a1e26', P: '#f0a0b8', W: '#f6f0e0', w: '#d8ccb0', Y: '#f0d040', K: '#2a2832', A: '#3a6ad8', p: '#8a4aa8',
+});
+// la copa de champán de 1890 (O con burbujas o)
+const conCopaTR = enMano(['k...k', 'kOoOk', '.kOk.', '..k..', '..k..', '.kkk.'], 12, 0, PAL_MANO_TR);
+// el racimo de uvas colgando de la mano
+const conRacimoTR = enMano(['..k..', '.kVk.', 'kUIUk', 'kUUuk', '.kUk.', '..k..'], 12, 3, PAL_MANO_TR);
+// las tijeras de recortar encaje
+const conTijerasTR = enMano(['k...k', 'kZ.Zk', '.kZk.', '.kZk.', 'kOkOk', 'kkkkk'], 12, 1, PAL_MANO_TR);
+// el cuenco de madera de los que piden pastelitos
+const conCuencoTR = enMano(['k...k', 'kBBBk', 'kbBbk', '.kkk.'], 12, 3, PAL_MANO_TR);
+// la tarjeta de San Valentín (encaje W y corazón R)
+const conTarjetaTR = enMano(['kkkkk', 'kRXRk', 'kRRRk', 'kXRXk', 'kkkkk'], 12, 2, PAL_MANO_TR);
+// el ramo de novia: blanco (azahar) o de colores
+const conRamoTR = enMano(['.kkk.', 'kEwEk', 'kwEwk', '.kVk.', '.kRk.', '..k..'], 12, 1, PAL_MANO_TR);
+const conRamoColorTR = enMano(['.kkk.', 'kRYPk', 'kYPRk', '.kVk.', '.kAk.', '..k..'], 12, 1, PAL_MANO_TR);
+// la argolla de oro entre los dedos (el joyero)
+const conArgollaTR = enMano(['.kk.', 'kOOk', 'kOgk', '.kk.'], 13, 2, PAL_MANO_TR);
+// la cesta pequeña (la campesina)
+const conCestaTR = enMano(['.kkk.', 'k...k', 'kBbBk', 'kbBbk', '.kkk.'], 12, 3, PAL_MANO_TR);
+// el libro de tapas pardas (el erudito, el recaudador)
+const conLibroTR = enMano(['kkkkk', 'kBBBk', 'kBOBk', 'kBBXk', 'kkkkk'], 12, 2, PAL_MANO_TR);
+// el pastelito de alma en la mano
+const conPastelitoTR = enMano(['.kkk.', 'kiJik', 'kJJJk', '.kkk.'], 12, 3, { ...PAL_MANO_TR, ...COLORES({ J: '#c07a3a', i: '#e0a060' }) });
+// la linterna de nabo colgada de un cordel, con la cara tallada que brilla (la brasa parpadea con t)
+const conNaboTR = (c) => {
+  if (!manoLibre(c)) return;
+  const on = Math.sin(c.t * 11 + c.x) > 0, l = on ? 'Y' : 'o';
+  c.cuerpo.rej(['..k..', '..k..', '.kVk.', 'kWpWk', `k${l}W${l}k`, 'kWWWk', `kW${l}Wk`, '.kkk.'], 12, 5, { ...c.pal, ...PAL_MANO_TR });
+};
+// el bigote (del color del pelo)
+const bigoteTR = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, c.pal.H); };
+// la máscara de papel de los que van disfrazados en Escocia: papel (X) con dibujos (D), con los agujeros de los ojos
+const antifazTR = (c) => {
+  for (let i = 6; i <= 13; i++) { c.cab.px(i, 4, P.k); c.cab.px(i, 8, P.k); }
+  for (let j = 5; j <= 7; j++) { for (let i = 6; i <= 13; i++) if (!((i === 8 || i === 12) && j >= 6)) c.cab.px(i, j, (i === 10 || (j === 5 && i % 2)) ? c.pal.D : c.pal.X); c.cab.px(14, j, P.k); }
+};
+// la aureola dorada por detrás de la cabeza (los santos)
+const AUREOLA_TR = ['...kkkkkkkk....', '..kOOOOOOOOk...', '.kOk......kOk..', 'kOk........kOk.', 'kOk........kOk.'];
+const aureolaTR = (c) => c.cab.rej(AUREOLA_TR, 0, -3, { ...c.pal, ...COLORES({ O: '#f0c840' }) });
+// el velo de novia de encaje (X/x) que cae por detrás
+const VELO_TR = ['.kk.', 'kXXk', 'kXxk', 'kXXk', 'kxXk', 'kXXk', 'kXxk', 'kXXk', 'kxXk', 'kXXk', 'kXxk', 'kXXk', 'kxXk', 'kXXk', 'kXxk', 'kXXk', '.kk.'];
+const veloTR = (c) => c.cab.rej(VELO_TR, -2, 2, { ...c.pal, ...COLORES({ X: '#f8f6f0', x: '#c8c4c0' }) });
+// el moño bajo en la nuca (el rey de Babilonia)
+const monoBajoTR = (c) => c.cab.rej(['.kk.', 'kHHk', 'kHhk', 'kHHk', '.kk.'], -2, 7);
+// LA CORONA ALTA DE BABILONIA (oro O con bandas de lapislázuli D): o.corona false se la quita (el sacerdote)
+const POLOS_TR = ['....kk....', '...kOOk...', '.kkkkkkkk.', '.kOOOOOOk.', '.kDDDDDDk.', '.kOgOgOOk.', '.kOOOOOOk.', 'kDDDDDDDDk', 'kOOOOOOOOk', 'kkkkkkkkkk'];
+const PAL_POLOS_TR = COLORES({ O: '#f0c040', g: '#a87a18', D: '#2e4aa0' });
+const polosTR = (c) => { if (c.o.corona === false) return; c.cab.rej(POLOS_TR, 2, -7, { ...c.pal, ...PAL_POLOS_TR }); };
+// el grillete del preso (Z) con la cadena por el suelo; o.libre lo quita
+const grilleteTR = (c) => { if (c.o.libre) return; const pal = { ...c.pal, ...PAL_MANO_TR }; c.cuerpo.rej(['kZZZk'], 7, 10, pal); c.cuerpo.rej(['zkzkzkz'], -2, 12, pal); };
+// la saca de cartero en bandolera (B/b); o.saca 'llena': asoman las cartas
+const SACA_TR = ['.kkkkk.', 'kBBBBBk', 'kBbbbBk', 'kBBBBBk', 'kBBBBbk', '.kkkkk.'];
+const SACA_LLENA_TR = ['.kXkAk.', '.kXkPk.', ...SACA_TR];
+const sacaTR = (c) => {
+  if (c.o.sinObjeto) return;
+  const pal = { ...c.pal, ...PAL_MANO_TR };
+  for (let k = 0; k < 5; k++) c.cuerpo.px(10 - k, k, pal.b);
+  if (c.o.saca === 'llena') c.cuerpo.rej(SACA_LLENA_TR, 1, 3, pal); else c.cuerpo.rej(SACA_TR, 1, 5, pal);
+};
+// la lupa de joyero en la frente, sujeta con una cinta
+const lupaTR = (c) => { const K = hex('#2a2832'); for (let i = 4; i <= 8; i++) c.cab.px(i, 3, K); c.cab.rej(['.kk.', 'kKKk', 'kFFk', '.kk.'], 9, 1, { ...c.pal, ...COLORES({ K: '#2a2832', F: '#b8e0f0' }) }); };
+// la cola del diablillo con la punta de flecha (R)
+const colaTR = (c) => c.cuerpo.rej(['kk....', 'kRk...', '.kRk..', '..kRk.', '...kRk', '....kk'], -4, 2);
+// el clavel rojo en la solapa
+const clavelTR = (c) => { c.cuerpo.px(5, 1, hex('#d8303a')); c.cuerpo.px(5, 2, hex('#4a9a3a')); };
+
+// ── el reparto del 23 ──
+const B23 = { cab: CAB_CORTO, cuerpo: CUERPO_EUROPEO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9 };
+const B23M = { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO };
+const B23N = { ...B23, cuerpo: CUERPO_NINO, altoCuerpo: 10 };
+const B23NA = { ...B23N, cab: CAB_LARGO, cuerpo: CUERPO_NINA };
+const CLT = (o) => CLARA({ n: '#2a2430', ...o });
+const MOT = (o) => MORENA({ n: '#2a2430', ...o });
+export const ELENCO_TR = {
+  // ── A. Año Nuevo: Madrid, Alicante, 1962, la Puerta del Sol de hoy ──
+  // el burgués de 1890: chistera, bigote, frac negro con la pechera blanca y la copa de champán
+  burgues: { ...B23, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, tocado: 'chistera', ceja: hex('#3a2418'), delante: varios(bigoteTR, conCopaTR),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#24202c', c: '#14111a', W: '#f6f4f0', o: '#24202c', F: '#24202c', J: '#1c1c24', j: '#3a3a48' }) },
+  // la señora con mantilla negra y peineta, vestido granate de seda y el abanico
+  senoraMantilla: { ...B23M, cuerpo: CUERPO_1840_TR, tocado: 'mantilla', ceja: hex('#1c1424'), delante: conAbanico,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', J: '#1c1c24', j: '#4a4458', C: '#7a1e34', c: '#561424', W: '#2a2430', L: '#1c1c24' }) },
+  // el chulapo: parpusa de cuadros, pañuelo blanco al cuello, chaleco negro, el clavel y pantalón de cuadros gris
+  chulapo: { ...B23, cuerpo: CUERPO_CHALECO_NV, tocado: 'parpusa', ceja: hex('#2a1c14'), delante: varios(bigoteTR, clavelTR),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', J: '#4a4a52', j: '#2a2a32', o: '#2a2a32', C: '#1c1c24', c: '#121218', W: '#f6f4ee', F: '#6a6a72' }) },
+  // la chulapa: pañuelo blanco a la cabeza, mantón de Manila rojo de flecos sobre los hombros y falda oscura
+  chulapa: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_BEFANA_NV, tocado: 'panuelo', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#f6f4ee', y: '#d8303a', u: '#c8303a', C: '#24202c', c: '#14111a', D: '#24202c', Y: '#24202c', L: '#1c1c24' }) },
+  // el viticultor de Alicante (1909): sombrero de paja, blusón negro, faja roja y el racimo
+  viticultor: { ...B23, cab: CAB_SIENES, cuerpo: CUERPO_BLUSON_TR, tocado: 'sombreroPaja', ceja: hex('#2a1c14'), delante: varios(bigoteTR, conRacimoTR),
+    pal: OSCURA({ H: '#2a1c14', h: '#4a3424', w: '#a8a8b4', T: '#e8c870', t: '#b89040', D: '#3a2a20', C: '#24242e', c: '#16161e', G: '#c8303a', F: '#4a4038', n: '#d8c8a0' }) },
+  // la familia de 1962: el padre con traje gris y corbata, la madre con media melena y vestido de pliegues, el niño con
+  // jersey y pantalón corto, y la abuela de luto con el moño
+  padre62: { ...B23, cab: CAB_ENGOMINADO, ceja: hex('#2a1c14'), pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#5e6270', c: '#464a56', W: '#f6f4ee', o: '#8a2a2a', F: '#4e525e' }) },
+  madre62: { ...B23, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PLIEGUES, ceja: hex('#4a2a1a'), pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#3a7aa8', c: '#2a5a80', I: '#f2eee2', W: '#f2eee2', L: '#2a2430' }) },
+  nino62: { ...B23N, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', C: '#a8302a', c: '#7a2420', F: '#5a5e6a', S: '#f6c290' }) },
+  abuela62: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: VESTIDO_LISO, ceja: hex('#9a9aa8'), delante: monoHP, mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#b8b8c4', h: '#d8d8e0', C: '#24222a', c: '#16141a', W: '#3a3a44', L: '#16141a' }) },
+  // hoy: la chica con coleta y sudadera morada (come las uvas debajo de la mesa) y el chico con abrigo y bufanda
+  chicaHoy: { ...B23M, cuerpo: CUERPO_MANGA, ceja: hex('#4a2a1a'), detras: coleta, pal: MOT({ H: '#3a2418', h: '#5a3a24', C: '#7a3a9a', c: '#5a2a74', F: '#2a3a5a' }) },
+  chicoHoy: { ...B23, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#6a4020'), pal: CLT({ H: '#7a5030', h: '#9a6c44', C: '#2a3a5a', c: '#1e2a44', u: '#d8a030', o: '#e8dcc0', F: '#3a3a44' }) },
+  // ── el calendario: Inglaterra 1752 y Roma ──
+  // el recaudador inglés de 1752: peluca blanca con lazo, quevedos, casaca parda, medias blancas y la pluma
+  recaudador: { ...B23, cab: CAB_PELUCA, cuerpo: CUERPO_CASACA_TR, tocado: 'gafas', ceja: hex('#8a7a6a'), detras: lazo, delante: varios(conPlumaNV, cristalHP),
+    pal: CLT({ H: '#ecebe6', h: '#c4c0b8', J: '#2a2430', C: '#5a4a3a', c: '#3e3226', W: '#f2eee2', o: '#c8a040', F: '#3e3226', w: '#f2eee2', O: '#c8ccd8' }) },
+  // Julio César en el relieve: el emperador del 20 (corona de laurel y toga con la banda morada)
+  cesar: ELENCO_JH.emperador,
+  // ── Babilonia ──
+  // el rey: barba negra rizada, el moño en la nuca, la corona alta de oro (o.corona: false se la quita) y el vestido azul
+  // y oro con flecos
+  reyBabilonia: { ...B23, cab: CAB_BARBA_RIZOS_TR, cuerpo: CUERPO_BABILONIO_TR, ceja: hex('#1c1424'), detras: monoBajoTR, delante: polosTR,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#2e4aa0', c: '#1e3474', D: '#f0c040', G: '#f0c040', Y: '#f0c040', L: '#6a4020' }) },
+  // el sacerdote: calvo y sin barba, vestido de lino blanco con el chal rojo y los flecos
+  sacerdote: { ...B23, cab: CAB_CALVO, cuerpo: CUERPO_BABILONIO_TR, ceja: hex('#5a3a24'),
+    pal: MOT({ C: '#f2eade', c: '#c8bea8', D: '#b8303a', G: '#b8303a', Y: '#c8a040', L: '#6a4020' }) },
+  // ── el amor ──
+  // los dos Valentines, con la aureola: el sacerdote de Roma (tonsura, túnica roja) y el obispo de Terni (mitra, casulla
+  // verde)
+  valentinRoma: { ...B23, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#3a2418'), detras: aureolaTR,
+    pal: CLT({ H: '#4a3020', h: '#6a4630', C: '#a8283a', c: '#7a1c2a', o: '#f0c840', G: '#f0c840', L: '#4a3020' }) },
+  valentinTerni: { ...B23, cuerpo: CUERPO_CASULLA_NV, tocado: 'mitra', ceja: hex('#8a8a96'), detras: aureolaTR, delante: barbaMediaNV,
+    pal: CLT({ H: '#c8c8d0', h: '#e0e0e8', W: '#e8e8f0', w: '#b8bccc', X: '#f6f4ee', C: '#3a8a4a', c: '#2a6a36', o: '#f0c840', L: '#4a3020' }) },
+  // Geoffrey Chaucer (siglo XIV): capucha gris oscura, barba gris partida en dos, túnica negra larga y la pluma
+  chaucer: { ...B23, cab: CAB_BARBA_PARTIDA_TR, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#7a7a86'), delante: conPlumaNV,
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', B: '#4a4a56', b: '#34343e', C: '#2a2832', c: '#1c1a22', o: '#5a5a66', G: '#6a4a2a', L: '#1c1a22' }) },
+  // Carlos de Orleans (1415, preso): corte en tazón, jubón azul con flores de lis de oro, calzas granate, la pluma y el
+  // grillete en el tobillo (o.libre lo quita)
+  orleans: { ...B23, cab: CAB_TAZON_TR, cuerpo: CUERPO_JUBON_TR, ceja: hex('#4a2a14'), delante: varios(conPlumaNV, grilleteTR),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#2a4aa0', c: '#1e3474', o: '#f0c840', G: '#6a4020', F: '#7a2a3a', n: '#3a2418' }) },
+  // el cartero victoriano (1840): chistera de castor, levita roja con el cuello azul, botones de latón y la saca en
+  // bandolera (o.saca: 'llena', con las cartas que asoman)
+  carteroVictoriano: { ...B23, cab: CAB_PATILLAS_NV, tocado: 'chistera', ceja: hex('#3a2418'), delante: varios(bigoteTR, sacaTR),
+    pal: CLT({ H: '#4a3020', h: '#6a4630', J: '#1c1c24', j: '#3a3a48', C: '#c8303a', c: '#962230', W: '#24304a', o: '#f0c040', F: '#24304a' }) },
+  // Esther Howland (Worcester, años 1840): raya en medio, moño, vestido verde de los cuarenta con cuello de encaje y la
+  // tarjeta; y sus ayudantes, con delantal y las tijeras de recortar el encaje
+  esther: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1840_TR, ceja: hex('#4a2a14'), delante: varios(monoHP, conTarjetaTR),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#3a7a6a', c: '#2a5a4e', W: '#f6f4ee' }) },
+  ayudanta: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_VESTIDO, ceja: hex('#8a5428'), delante: varios(monoHP, conTijerasTR),
+    pal: CLT({ H: '#a85a2a', h: '#c8783a', C: '#8a4a6a', c: '#6a3450', W: '#f6f4ee', L: '#2a2430' }) },
+  ayudanta2: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_VESTIDO, ceja: hex('#a8743c'), delante: varios(monoHP, conTijerasTR), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#4a5a8a', c: '#34406a', W: '#f6f4ee', L: '#2a2430' }) },
+  // ── la primavera ──
+  // la familia del campo (Cuaresma y Pascua): él con sombrero de paja y túnica parda; ella con pañuelo, delantal y la
+  // cesta; los niños
+  labriego: { ...B23, cuerpo: CUERPO_JUBON_TR, tocado: 'sombreroPaja', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', T: '#e8c870', t: '#b89040', D: '#6a4020', C: '#7a6a4a', c: '#5a4e36', o: '#7a6a4a', G: '#4a3020', F: '#5a4a3a', n: '#3a2418' }) },
+  labriega: { ...B23M, tocado: 'panuelo', ceja: hex('#6a3a1a'), mejillas: [[6, 8], [12, 8]], delante: conCestaTR,
+    pal: CLT({ H: '#7a4424', h: '#9a5e36', s: '#e8a080', J: '#c8303a', y: '#f2eee2', C: '#6a7a4a', c: '#4e5a36', W: '#f2eee2', L: '#3a2418' }) },
+  ninoCampo: { ...B23N, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#8a6a44', c: '#6a4e30', F: '#5a4a3a' }) },
+  ninaCampo: { ...B23NA, ceja: hex('#6a3a1a'), mejillas: [[6, 8], [12, 8]], detras: coleta, pal: CLT({ H: '#7a4424', h: '#9a5e36', s: '#e8a080', C: '#a8503a', c: '#7a3a2a', W: '#f2eee2', L: '#3a2418' }) },
+  // los niños de 1682 que buscan los huevos: él con casaca azul y sombrero de tres picos; ella con cofia y vestido rojo
+  ninoBarroco: { ...B23N, tocado: 'tricornio', ceja: hex('#6a4020'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#7a5030', h: '#9a6c44', s: '#e8a080', J: '#2a2430', j: '#5a5a66', C: '#2e4a8a', c: '#1e3468', F: '#2a2430' }) },
+  ninaBarroca: { ...B23NA, tocado: 'cofia', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#b8303a', c: '#8a2228', W: '#f6f4ee', w: '#c8c4bc' }) },
+  // el erudito alemán de 1682 (el que escribe lo de la liebre): peluca larga de rizos, toga negra con las tiras blancas
+  // y el libro
+  erudito: { ...B23, cab: CAB_ALONGA_TR, cuerpo: CUERPO_ERUDITO_TR, ceja: hex('#4a2a14'), delante: conLibroTR,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#24222a', c: '#16141a', o: '#24222a', G: '#24222a', W: '#f6f4ee', L: '#16141a' }) },
+  // los colonos de Pensilvania: los del 15 (sombrero alto y cofia)
+  colonoPA: ELENCO_NY.colono,
+  colonaPA: ELENCO_NY.colona,
+  // ── el otoño: Irlanda, Halloween ──
+  // los aldeanos irlandeses: él con gorra plana, chaleco y camisa; ella pelirroja con el chal verde; el niño de la
+  // gorra con la linterna de nabo
+  irlandes: { ...B23, cuerpo: CUERPO_CHALECO_NV, tocado: 'gorraPlana', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#6a6458', j: '#4e4a40', C: '#3a3a44', c: '#2a2a32', o: '#c8a040', W: '#f2eee2', F: '#5a4a3a' }) },
+  irlandesa: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_BEFANA_NV, ceja: hex('#b8501a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8582a', h: '#e87a3a', s: '#e8a080', u: '#3a7a4a', C: '#5a4a6a', c: '#40344e', D: '#5a4a6a', Y: '#5a4a6a', L: '#2a2430' }) },
+  ninoIrlandes: { ...B23N, cab: CAB_RIZOS, tocado: 'gorraPlana', ceja: hex('#b8501a'), mejillas: [[6, 8], [12, 8]], delante: conNaboTR,
+    pal: CLT({ H: '#d0602a', h: '#f08a4a', s: '#e8a080', J: '#5a5a4a', j: '#40403a', C: '#7a6a5a', c: '#5a4e40', F: '#4a4a5a' }) },
+  // la leyenda de Jack (en sombra chinesca): el tacaño de greñas con abrigo remendado y su nabo; y el diablillo de cuento,
+  // rojo, con cuernecitos y la cola (cómico, nada de miedo)
+  jack: { ...B23, cab: CAB_GRENAS, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorraPlana', ceja: hex('#4a3020'), delante: conNaboTR,
+    pal: CLT({ H: '#6a4a2a', h: '#8a6440', u: '#5a3a24', r: '#e8907a', J: '#3a3a30', j: '#5a5a4a', C: '#5a4a34', c: '#40341f', o: '#7a6a4a', F: '#3a3040' }) },
+  diablillo: { ...B23N, cab: CAB_CALVO, cuerpo: CUERPO_NINO, tocado: 'cuernitos', ceja: hex('#5a1a1a'), detras: colaTR,
+    pal: COLORES({ S: '#d84a3a', s: '#a83228', J: '#3a1a1a', C: '#b8302a', c: '#8a2220', F: '#b8302a', R: '#b8302a', n: '#3a1a1a' }) },
+  // los pobres de la Edad Media que piden pastelitos de puerta en puerta: capa con capucha y el cuenco
+  pobreCapa: { ...B23, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#4a3020'), delante: conCuencoTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', B: '#6a5a4a', b: '#4e4234', C: '#7a6a5a', c: '#5a4e40', o: '#7a6a5a', G: '#4a3020', L: '#3a2a1a' }) },
+  pobreCapa2: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_POBRE_NV, tocado: 'capucha', ceja: hex('#6a3a1a'), delante: conPastelitoTR,
+    pal: CLT({ H: '#7a4424', h: '#9a5e36', B: '#5a4a5a', b: '#403440', C: '#8a7a62', c: '#6a5c48', W: '#c8bc9a', u: '#6a5a4a', L: '#3a2a1a' }) },
+  // los disfrazados de Escocia con máscara de papel: uno con abrigo pardo y otro con gorro de papel
+  disfrazado: { ...B23, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#4a3020'), delante: antifazTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', X: '#f2e8c8', D: '#c8303a', C: '#6a5a3a', c: '#4e4228', u: '#3a6a4a', o: '#6a5a3a', F: '#3a3a44' }) },
+  disfrazado2: { ...B23, cab: CAB_RIZOS, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPapel', ceja: hex('#b8501a'), delante: antifazTR,
+    pal: CLT({ H: '#d0602a', h: '#f08a4a', X: '#f0e060', D: '#2a5aa8', C: '#4a5a6a', c: '#34404e', u: '#a83a3a', o: '#4a5a6a', F: '#3a3a44' }) },
+  // el estudioso del XIX que se inventa lo de los druidas: bombín, bigote, levita verde oscura y el cuaderno
+  estudioso: { ...B23, cab: CAB_SIENES, tocado: 'bombin', ceja: hex('#3a2a20'), delante: varios(bigoteTR, conLibreta),
+    pal: CLT({ H: '#4a3a2a', h: '#6a5440', w: '#c8c8d0', J: '#24202c', j: '#3e3a48', C: '#2a4a3a', c: '#1e3628', W: '#f2eee2', o: '#a8303a', F: '#3a3a44' }) },
+  // los niños disfrazados de 1927 (Canadá): la brujita, el fantasma de sábana y el gato
+  brujita27: { ...B23NA, tocado: 'bruja', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', V: '#2a2430', v: '#4a4458', o: '#f08a2a', C: '#2a2430', c: '#1c1a22', W: '#f08a2a', L: '#1c1a22' }) },
+  fantasma27: { ...B23N, cuerpo: CUERPO_SABANA_TR, tocado: 'capucha', ceja: hex('#6a4020'), pal: CLT({ H: '#7a5030', h: '#9a6c44', B: '#f6f6f6', b: '#d8dce8', W: '#f6f6f6', w: '#d8dce8', L: '#2a2430' }) },
+  gato27: { ...B23N, tocado: 'orejasGato', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#24202c', h: '#3e3a48', s: '#e8a080', J: '#24202c', C: '#24202c', c: '#16141a', F: '#24202c', n: '#16141a' }) },
+  // los disfrazados de los cincuenta: el vaquero, la princesa y el pirata
+  vaquero50: { ...B23N, tocado: 'vaquero', ceja: hex('#6a4020'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#7a5030', h: '#9a6c44', s: '#e8a080', V: '#a8743c', v: '#7a5028', C: '#c8303a', c: '#962230', F: '#3a5aa0', n: '#6a4020' }) },
+  princesa50: { ...B23NA, tocado: 'tiara', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#d8a850', h: '#f0cc7a', s: '#e8a080', o: '#f0c840', D: '#3a8ad8', C: '#f0a0c0', c: '#d07898', W: '#f6f6f6', L: '#d07898' }) },
+  pirata50: { ...B23N, cuerpo: CUERPO_RAYAS_NINO_TR, tocado: 'panuelo', ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], pal: CLT({ H: '#2a1c14', h: '#4a3424', s: '#e8a080', J: '#c8303a', y: '#f6f6f6', C: '#24304a', c: '#1c2438', W: '#f6f6f6', F: '#3a3a44' }) },
+  // ── los cumpleaños ──
+  // el conde alemán de 1746: peluca blanca con lazo, casaca granate con galones de oro y medias blancas
+  conde: { ...B23, cab: CAB_PELUCA, cuerpo: CUERPO_CASACA_TR, ceja: hex('#8a7a6a'), detras: lazo,
+    pal: CLT({ H: '#f2f0ec', h: '#d0ccc4', J: '#2a2430', C: '#7a1e34', c: '#561424', W: '#f6f4ee', o: '#f0c040', F: '#561424', w: '#f6f4ee', O: '#f0c040' }) },
+  // Goethe en 1801: entradas, pelo castaño con la coleta, frac azul, chaleco amarillo, corbata blanca y calzón claro
+  goethe: { ...B23, cab: CAB_ENTRADAS, cuerpo: parche(CUERPO_EUROPEO, [[5, 0, 'XXXXX']]), ceja: hex('#3a2418'), detras: lazo,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#2a2430', C: '#2a4a8a', c: '#1e3468', W: '#e8c040', X: '#f6f4ee', o: '#e8c040', F: '#d8c8a0' }) },
+  // las hermanas Hill (1893): blusa blanca con mangas de jamón y moño; Mildred, la del piano (falda azul), y Patty, la
+  // maestra (falda granate y quevedos)
+  mildred: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, ceja: hex('#5a3418'), delante: monoHP,
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', W: '#f6f4ee', o: '#c8a040', I: '#24304a', C: '#2a3a6a', c: '#1e2a4e' }) },
+  patty: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, tocado: 'gafas', ceja: hex('#2a1c14'), delante: varios(monoHP, cristalHP),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', W: '#f6f4ee', o: '#c8a040', I: '#3a1a24', C: '#6a2a3a', c: '#4e1e2a' }) },
+  // los niños del kínder de 1893: los dos niños victorianos del 22 y una niña con delantal
+  ninoKinder: ELENCO_NV.ninoVictoriano,
+  ninaKinder: ELENCO_NV.ninaVictoriana,
+  ninaDelantal: { ...B23NA, cuerpo: CUERPO_DELANTAL_NINA_TR, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], detras: coleta, pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#3a6aa8', c: '#2a5088', W: '#f6f6f6', L: '#2a2430' }) },
+  // el pleito de 2015: el director del rodaje (el del 21), la cantante (la actriz del 16), el ejecutivo de la disquera
+  // (el del 16) y el juez con toga negra, el cuello blanco, gafas y el mazo
+  directorCine: ELENCO_HP.director,
+  cantante: ELENCO_SI.actriz,
+  disquera: ELENCO_SI.ejecutivo,
+  juezToga: { ...B23, cab: CAB_SIENES, cuerpo: CUERPO_TOGA_JUEZ_TR, tocado: 'gafas', ceja: hex('#6a6a76'), delante: varios(conMazo, cristalHP),
+    pal: OSCURA({ H: '#3a3a44', h: '#5a5a66', w: '#c8c8d0', C: '#1c1c24', c: '#121218', o: '#1c1c24', G: '#1c1c24', W: '#f6f4ee', L: '#121218' }) },
+  // ── las bodas ──
+  // la reina Victoria de novia (1840): el moño, la corona de azahar, el velo de encaje y el vestido de seda blanca;
+  // y la de 1848 del 22, por si sale de reina
+  victoriaNovia: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1840_TR, tocado: 'azahar', ceja: hex('#3a2418'), detras: veloTR, delante: varios(monoHP, conRamoTR),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#f8f6f0', c: '#d8d4cc', W: '#e8e2d8', L: '#2a2430' }) },
+  victoria: ELENCO_NV.victoria,
+  // el príncipe Alberto: el del 22 (levita azul) y de novio, con el uniforme rojo de mariscal, las charreteras y la banda
+  alberto: ELENCO_NV.alberto,
+  albertoBoda: { ...B23, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_UNIFORME_TR, ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2a1c', h: '#5a4230', C: '#b8283a', c: '#8a1c2a', W: '#f2eee2', o: '#f0c040', O: '#f0c040', A: '#3a5ab0', F: '#f2eee2' }) },
+  // María Estuardo (París, 1558): pelo cobrizo, toca blanca con el borde de oro y vestido blanco con perlas; y la corte de
+  // luto blanco: la dama (toca y vestido blancos) y el cortesano barbudo (gorra y jubón blancos con oro, calzas grises)
+  mariaEstuardo: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'attifet', ceja: hex('#8a3a1a'),
+    pal: CLT({ H: '#a8502a', h: '#c8683a', X: '#f8f6f0', x: '#d0ccc4', o: '#f0d070', O: '#e8d8b8', C: '#f8f6f0', c: '#d0ccc4' }) },
+  damaBlanca: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'attifet', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', X: '#f2f0ea', x: '#c8c4bc', o: '#c8c4bc', O: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc' }) },
+  cortesano: { ...B23, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#5a3418'), barba: true, delante: bigoteTR,
+    pal: CLT({ H: '#5a3418', h: '#8a5428', J: '#f2f0ea', j: '#c8c4bc', C: '#f2f0ea', c: '#c8c4bc', o: '#d8b040', G: '#d8b040', F: '#9a9aa8', n: '#3a3a44' }) },
+  // novias de otras épocas, con vestidos de colores: la medieval de azul con la corona de flores, la de 1600 de rojo y la
+  // del XIX con su mejor vestido gris; y la de hoy, de blanco con velo
+  noviaAzul: { ...B23M, cuerpo: VESTIDO_LISO, tocado: 'coronaFlores', ceja: hex('#a8743c'), delante: conRamoColorTR, pal: CLT({ H: '#c89a50', h: '#e0b868', C: '#3a6ab0', c: '#2a5090', W: '#f2eee2', L: '#2a2430' }) },
+  noviaRoja: { ...B23, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'coronaFlores', ceja: hex('#2a1c14'), delante: conRamoColorTR, pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#b8283a', c: '#8a1c2a', o: '#f0c040', O: '#f0c040' }) },
+  noviaGris: { ...B23, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1893_TR, ceja: hex('#6a3a1a'), delante: varios(monoHP, conRamoTR), pal: CLT({ H: '#7a4424', h: '#9a5e36', W: '#8a8a9a', o: '#c8a040', I: '#5a5a6a', C: '#6a6a7a', c: '#4e4e5c' }) },
+  noviaBlanca: { ...B23M, cuerpo: VESTIDO_LISO, ceja: hex('#2a1c14'), detras: veloTR, delante: conRamoTR, pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#f8f6f0', c: '#d8d4cc', W: '#f8f6f0', L: '#d8d4cc' }) },
+  // el joyero: canoso con entradas, bigote, la lupa en la frente, mandil de cuero sobre la camisa y la argolla
+  joyero: { ...B23, cab: CAB_ENTRADAS, cuerpo: CUERPO_TALLER_NV, ceja: hex('#6a6a76'), delante: varios(bigoteTR, lupaTR, conArgollaTR),
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', W: '#e8eef6', B: '#6a4a30', b: '#4e3420', G: '#3a2a1a', F: '#3a3a44' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_TR);
+
+// ── piezas del 23 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_TR = { ...PAL_NV, ...COLORES({
+  U: '#6a2a7a', u: '#3e1450', I: '#b07ac8', l: '#7ab83a', F: '#b8e0f0', f: '#7ab0d0', D: '#2e4aa0', e: '#5a3218',
+  N: '#24202c', a: '#e8e4dc',
+}) };
+const pintaTR = (R, g, x, y, o = {}, pal = PAL_TR) => pintaJH(R, g, x, y, o, pal);
+const encimaTR = (R, w, hgt, x, y, o, pal = PAL_TR) => encimaNV(R, w, hgt, x, y, o, pal);
+const subTR = (R, w, hgt, x, y, o, pal = PAL_TR) => subNV(R, w, hgt, x, y, o, pal);
+// un tono más oscuro de un color (para las sombras de los colores que se eligen con o.color)
+const oscuroTR = (c, f = 0.68) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(c.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+
+// LA UVA CON OJOS, el gag del episodio: grano morado (U, sombra u, brillo I) con el rabito y la hoja (V/l), bracitos y
+// pies. o.cara: 'normal' (parpadea con o.t), 'susto' (ojos grandes, boca en O y una gota), 'feliz' (ojos cerrados de
+// gusto, sonrisa y mofletes); o.corre (con o.t): corre con los pies y los brazos alternos; o.color: 'morada' (por
+// omisión), 'verde', 'roja' o 'colores' (a rayas: la que pinta la liebre); o.corazon: un corazón pintado en la barriga
+const UVA_TR = {};
+const DENTRO_UVA_TR = (i, j) => Math.hypot(i - 6, j - 8.5) <= 5.55;
+const cuerpoUvaTR = (pose) => forma(13, 17, ({ rect, put }) => {
+  rect(6, 1, 6, 3, 'b'); put(7, 1, 'V'); put(8, 1, 'V'); put(8, 0, 'l'); put(9, 0, 'l'); put(7, 2, 'V');
+  for (let j = 2; j <= 15; j++) for (let i = 0; i < 13; i++) if (DENTRO_UVA_TR(i, j)) put(i, j, (i - 6) + (j - 8.5) > 4.2 ? 'u' : 'U');
+  put(3, 5, 'I'); put(4, 4, 'I'); put(3, 6, 'I');
+  if (pose === 'quieta') { rect(4, 14, 5, 15, 'u'); rect(7, 14, 8, 15, 'u'); put(0, 9, 'u'); put(12, 9, 'u'); put(0, 10, 'u'); put(12, 10, 'u'); }
+  else if (pose === 'a') { rect(2, 15, 4, 15, 'u'); put(4, 14, 'u'); rect(8, 13, 10, 13, 'u'); put(0, 8, 'u'); put(12, 11, 'u'); put(0, 7, 'u'); put(12, 12, 'u'); }
+  else { rect(8, 15, 10, 15, 'u'); put(8, 14, 'u'); rect(2, 13, 4, 13, 'u'); put(0, 11, 'u'); put(12, 8, 'u'); put(0, 12, 'u'); put(12, 7, 'u'); }
+});
+UVA_TR.quieta = cuerpoUvaTR('quieta'); UVA_TR.a = cuerpoUvaTR('a'); UVA_TR.b = cuerpoUvaTR('b');
+const COLOR_UVA_TR = { morada: ['#6a2a7a', '#3e1450', '#b07ac8'], verde: ['#8ac04a', '#5a8a2a', '#d0f08a'], roja: ['#b8304a', '#7a1a30', '#f08aa0'] };
+const uvaTR = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, cara = o.cara ?? 'normal', corre = !!o.corre, f = corre ? (Math.floor(t * 8) % 2 ? 'a' : 'b') : 'quieta';
+  const yy = corre && f === 'a' ? y - (o.s ?? 1) : y, [c1, c2, c3] = COLOR_UVA_TR[o.color] ?? COLOR_UVA_TR.morada;
+  const pal = { ...PAL_TR, ...COLORES({ U: c1, u: c2, I: c3 }) };
+  pintaTR(R, UVA_TR[f], x, yy, o, pal);
+  const px = encimaTR(R, 13, 17, x, yy, o, pal);
+  if (o.color === 'colores') { const bandas = ['R', 'y', 'Y', 'V', 'A', 'p']; for (let j = 3; j <= 14; j++) for (let i = 0; i < 13; i++) if (DENTRO_UVA_TR(i, j) && Math.hypot(i - 6, j - 8.5) <= 4.6) px(i, j, bandas[Math.floor((j - 3 + (i > 6 ? 1 : 0)) / 2) % 6]); }
+  if (o.corazon) { for (const [a, b] of [[8, 11], [10, 11], [8, 12], [9, 12], [10, 12], [9, 13]]) px(a, b, 'R'); px(8, 11, 'P'); }
+  if (cara === 'susto') { for (const e of [3, 7]) { for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2]]) px(e + a, 6 + b, 'E'); px(e + 1, 7, 'k'); } px(5, 10, 'k'); px(6, 10, 'k'); px(5, 11, 'm'); px(6, 11, 'm'); px(5, 12, 'k'); px(6, 12, 'k'); px(11, 4, 'F'); px(11, 5, 'F'); return; }
+  if (cara === 'feliz') { for (const e of [3, 7]) { px(e, 8, 'k'); px(e + 1, 7, 'k'); px(e + 2, 8, 'k'); } px(2, 9, 'P'); px(10, 9, 'P'); px(4, 10, 'k'); px(8, 10, 'k'); for (let i = 5; i <= 7; i++) { px(i, 11, 'k'); px(i, 10, 'm'); } return; }
+  const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12;
+  for (const e of [3, 7]) { if (cierra) { px(e, 8, 'k'); px(e + 1, 8, 'k'); } else { px(e, 7, 'E'); px(e, 8, 'E'); px(e + 1, 7, 'k'); px(e + 1, 8, 'k'); } }
+  px(4, 10, 'k'); px(5, 11, 'k'); px(6, 11, 'k'); px(7, 10, 'k');
+};
+// el racimo de uvas (U con brillo I, el rabo b y la hoja V); o.hueco: le falta un grano (el que se ha escapado);
+// o.color 'verde' para las blancas
+const granosTR = (hueco) => forma(13, 17, ({ rect, put, disco }) => {
+  rect(6, 0, 6, 2, 'b'); put(7, 1, 'V'); put(8, 1, 'V'); put(8, 0, 'l'); put(7, 2, 'V');
+  const G = [[3.5, 4.5], [6.5, 4.5], [9.5, 4.5], [2, 7.5], [5, 7.5], [8, 7.5], [11, 7.5], [3.5, 10.5], [6.5, 10.5], [9.5, 10.5], [5, 13.5], [8, 13.5]];
+  G.forEach(([cx, cy], n) => { if (hueco && n === 5) { disco(cx, cy, 1.4, 'k'); return; } disco(cx, cy, 1.75, 'k'); disco(cx, cy, 1.3, 'U'); put(cx + 1, cy + 1, 'u'); put(cx - 1, cy - 1, 'I'); });
+});
+const RACIMO_TR = granosTR(false), RACIMO_HUECO_TR = granosTR(true);
+const racimoTR = (R, x, y, o = {}) => { const [c1, c2, c3] = COLOR_UVA_TR[o.color] ?? COLOR_UVA_TR.morada; pintaTR(R, o.hueco ? RACIMO_HUECO_TR : RACIMO_TR, x, y, o, { ...PAL_TR, ...COLORES({ U: c1, u: c2, I: c3 }) }); };
+// la copa de champán de 1890 (cristal F, champán O con burbujas o); o.llena false, vacía
+const COPA_TR = ['k.....k', 'kFoOoFk', '.kOOOk.', '..kkk..', '..kFk..', '..kFk..', '..kFk..', '.kkFkk.', 'kFFFFFk', 'kkkkkkk'];
+const copaTR = (R, x, y, o = {}) => pintaTR(R, o.llena === false ? COPA_TR.map((f) => f.replace(/[Oo]/g, 'F')) : COPA_TR, x, y, o);
+// LA TELE DE 1962: mueble de madera (B/b) con patas, la pantalla redondeada y los mandos; o.encendida (por omisión)
+// en blanco y negro con las rayas, y o.reloj (por omisión) el reloj de la Puerta del Sol en la torre, con las agujas casi
+// en las doce; o.pantalla(R, [x0, y0, x1, y1]) pinta otra cosa dentro (la escena)
+const TELE_TR = forma(24, 24, ({ rect, put, disco }) => {
+  rect(1, 1, 22, 17, 'B'); rect(1, 17, 22, 17, 'b'); rect(1, 1, 22, 1, 'T');
+  rect(2, 2, 15, 15, 'K'); rect(3, 3, 14, 14, 'u');
+  rect(17, 3, 21, 15, 'b'); disco(19, 5, 1.2, 'Z'); disco(19, 9, 1.2, 'Z'); for (let j = 12; j <= 14; j++) for (let i = 17; i <= 21; i += 2) put(i, j, 'e');
+  put(19, 4, 'k'); put(20, 9, 'k');
+  for (const [a, b] of [[3, 18], [4, 19], [4, 20], [5, 21], [5, 22], [20, 18], [19, 19], [19, 20], [18, 21], [18, 22]]) put(a, b, 'b');
+});
+const teleTR = (R, x, y, o = {}) => {
+  pintaTR(R, TELE_TR, x, y, o);
+  if (o.encendida === false) return;
+  const px = encimaTR(R, 24, 24, x, y, o), t = o.t ?? 0;
+  for (let j = 3; j <= 14; j++) for (let i = 3; i <= 14; i++) px(i, j, (j + Math.floor(t * 6)) % 3 ? 'h' : 'Z');
+  if (typeof o.pantalla === 'function') { const s = o.s ?? 1, x0 = Math.round(x - 12 * s), y0 = Math.round(y - 24 * s); o.pantalla(R, [x0 + 3 * s, y0 + 3 * s, x0 + 15 * s - 1, y0 + 15 * s - 1]); return; }
+  if (o.reloj === false) return;
+  for (let j = 10; j <= 14; j++) for (let i = 3; i <= 14; i++) px(i, j, 'G');
+  for (let j = 6; j <= 9; j++) for (let i = 7; i <= 10; i++) px(i, j, 'G');
+  px(8, 4, 'G'); px(9, 4, 'G'); px(8, 5, 'G'); px(9, 5, 'G');
+  for (const [a, b, c] of [[7, 6, 'k'], [8, 6, 'k'], [9, 6, 'H'], [10, 6, 'k'], [7, 7, 'H'], [8, 7, 'k'], [9, 7, 'H'], [10, 7, 'H'], [7, 8, 'k'], [8, 8, 'H'], [9, 8, 'H'], [10, 8, 'k']]) px(a, b, c);
+  for (const i of [4, 6, 11, 13]) { px(i, 11, 'H'); px(i, 13, 'H'); }
+};
+// los calzones de la suerte, colgados con dos pinzas (B): o.color 'rojo' (por omisión) o 'amarillo'; o.pinzas false
+// sin las pinzas
+const CALZONES_TR = forma(13, 11, ({ rect, put }) => {
+  rect(1, 2, 11, 3, 'r'); rect(1, 4, 11, 5, 'R');
+  for (let j = 6; j <= 9; j++) { rect(1 + (j - 6), j, 5, j, 'R'); rect(7, j, 11 - (j - 6), j, 'R'); }
+  rect(5, 6, 7, 6, 'R'); put(6, 7, 'R'); put(3, 4, 'E');
+});
+const COL_CALZONES_TR = { rojo: ['#d8303a', '#9a1e28'], amarillo: ['#f0c830', '#c89a18'] };
+const calzonesTR = (R, x, y, o = {}) => {
+  const [c1, c2] = COL_CALZONES_TR[o.color] ?? COL_CALZONES_TR.rojo;
+  pintaTR(R, CALZONES_TR, x, y, o, { ...PAL_TR, ...COLORES({ R: c1, r: c2 }) });
+  if (o.pinzas !== false) { const px = encimaTR(R, 13, 11, x, y, o); for (const i of [2, 10]) { px(i - 1, 0, 'k'); px(i, 0, 'B'); px(i + 1, 0, 'k'); px(i - 1, 1, 'k'); px(i, 1, 'B'); px(i + 1, 1, 'k'); px(i, 2, 'b'); } }
+};
+// la maleta de cuero (B/b, o.color cambia el cuero) con el asa, las correas (b) y las esquinas de metal (Z)
+const MALETA_TR = forma(17, 13, ({ rect, put }) => {
+  rect(6, 0, 10, 0, 'b'); put(6, 1, 'b'); put(10, 1, 'b'); put(6, 2, 'b'); put(10, 2, 'b');
+  rect(1, 3, 15, 11, 'B'); rect(1, 11, 15, 11, 'b'); rect(1, 3, 15, 3, 'i');
+  for (const i of [4, 12]) rect(i, 3, i, 11, 'b');
+  for (const [a, b] of [[1, 3], [15, 3], [1, 11], [15, 11]]) put(a, b, 'Z');
+  put(4, 6, 'O'); put(12, 6, 'O');
+});
+const maletaTR = (R, x, y, o = {}) => pintaTR(R, MALETA_TR, x, y, o, o.color ? { ...PAL_TR, ...COLORES({ B: o.color, b: oscuroTR(o.color), i: o.color }) } : PAL_TR);
+// EL CALENDARIO DE PARED de 19 × 22: las anillas, la cabecera del color del mes (o.mes 1–12) con el número del mes en
+// blanco (sin letras) y la hoja (X). o.dia: un número grande (1, 14, 1752…); sin o.dia, la cuadrícula del mes con
+// o.marca [desde, hasta] en el color del mes
+const MESES_TR = ['#3a6ad8', '#d84a7a', '#4a9a3a', '#8ab83a', '#e8a030', '#e8c030', '#e8783a', '#c8503a', '#8a5a34', '#e06a1a', '#6a4a8a', '#c8303a'];
+const CAL_TR = forma(19, 22, ({ rect }) => { rect(1, 3, 17, 20, 'X'); rect(1, 3, 17, 9, 'R'); rect(1, 9, 17, 9, 'r'); rect(2, 20, 17, 20, 'x'); });
+const calendarioTR = (R, x, y, o = {}) => {
+  const m = Math.max(1, Math.min(12, o.mes ?? 1)), col = MESES_TR[m - 1], pal = { ...PAL_TR, ...COLORES({ R: col, r: oscuroTR(col) }) };
+  pintaTR(R, CAL_TR, x, y, o, pal);
+  const px = encimaTR(R, 19, 22, x, y, o, pal);
+  for (const i of [3, 15]) { px(i, 1, 'k'); px(i, 2, 'Z'); px(i, 3, 'Z'); px(i, 4, 'k'); }
+  numeroNV(px, m, Math.round(9.5 - anchoNumeroNV(m) / 2), 4, 'W');
+  if (o.dia != null) { const e = String(o.dia).length <= 2 ? 2 : 1, w = anchoNumeroNV(o.dia, e); numeroNV(px, o.dia, Math.round(9.5 - w / 2), e === 2 ? 10 : 13, 'k', e); return; }
+  const [m0, m1] = o.marca ?? [0, -1];
+  for (let d = 1; d <= 31; d++) { const c = (d - 1) % 7, f = Math.floor((d - 1) / 7); px(3 + c * 2, 11 + f * 2, d >= m0 && d <= m1 ? 'R' : 'x'); }
+};
+// LA HOJA DE CALENDARIO suelta, arrancada (para que vuele): borde de arriba roto, la cabecera del color del mes con su
+// número (o.mes) y el día (o.dia) grande; la esquina doblada
+const HOJA_CAL_TR = forma(13, 15, ({ rect, put }) => { rect(1, 1, 11, 13, 'X'); rect(1, 1, 11, 6, 'R'); for (let i = 1; i <= 11; i += 2) put(i, 0, 'R'); put(11, 13, 'x'); put(10, 13, 'x'); put(11, 12, 'x'); });
+const hojaCalendarioTR = (R, x, y, o = {}) => {
+  const m = Math.max(1, Math.min(12, o.mes ?? 1)), col = MESES_TR[m - 1], pal = { ...PAL_TR, ...COLORES({ R: col }) };
+  pintaTR(R, HOJA_CAL_TR, x, y, o, pal);
+  const px = encimaTR(R, 13, 15, x, y, o, pal);
+  numeroNV(px, m, Math.round(6.5 - anchoNumeroNV(m) / 2), 1, 'W');
+  if (o.dia != null) numeroNV(px, o.dia, Math.round(6.5 - anchoNumeroNV(o.dia) / 2), 8, 'k');
+};
+// EL SELLO DE UN PENIQUE (1840): dentado (X), tinta negra (N; o.color 'rojo' el de 1841), el perfil de la reina en
+// blanco y un «1» (sin letras)
+const SELLO_TR = forma(13, 17, ({ rect, put }) => {
+  for (let j = 0; j < 17; j++) for (let i = 0; i < 13; i++) if (i === 0 || j === 0 || i === 12 || j === 16) { if ((i + j) % 2 === 0) put(i, j, 'X'); } else put(i, j, 'X');
+  rect(2, 2, 10, 14, 'N');
+  for (const [a, b, c] of [[6, 3, 3], [5, 4, 4], [4, 5, 5], [3, 6, 5], [4, 7, 4], [5, 8, 3], [5, 9, 5]]) rect(a, b, a + c - 1, b, 'W');
+  put(8, 3, 'x'); put(9, 4, 'x'); put(9, 5, 'x');
+  put(6, 12, 'W'); put(5, 11, 'W'); put(6, 11, 'W'); put(6, 13, 'W'); put(6, 10, 'W'); rect(5, 13, 7, 13, 'W');
+});
+const selloTR = (R, x, y, o = {}) => pintaTR(R, SELLO_TR, x, y, o, o.color === 'rojo' ? { ...PAL_TR, ...COLORES({ N: '#a83a3a' }) } : PAL_TR);
+// LA TARJETA DE SAN VALENTÍN de Esther Howland: encaje de papel (X, calados x) con el borde festoneado, el fondo rosa
+// (P) y el corazón rojo (R, o.color lo cambia)
+const TARJETA_TR = forma(17, 15, ({ rect, put }) => {
+  rect(1, 1, 15, 13, 'X');
+  for (let i = 1; i <= 15; i += 2) { put(i, 0, 'X'); put(i, 14, 'X'); }
+  for (let j = 1; j <= 13; j += 2) { put(0, j, 'X'); put(16, j, 'X'); }
+  for (let i = 2; i <= 14; i += 2) { put(i, 2, 'x'); put(i, 12, 'x'); }
+  for (let j = 4; j <= 10; j += 2) { put(2, j, 'x'); put(14, j, 'x'); }
+  rect(4, 4, 12, 10, 'P');
+  for (const [r, a, b] of [[4, 5, 6], [4, 9, 10], [5, 5, 11], [6, 5, 11], [7, 6, 10], [8, 7, 9], [9, 8, 8]]) rect(a, r, b, r, 'R');
+  put(6, 5, 'E');
+});
+const tarjetaTR = (R, x, y, o = {}) => pintaTR(R, TARJETA_TR, x, y, o, o.color ? { ...PAL_TR, ...COLORES({ R: o.color }) } : PAL_TR);
+// EL HUEVO: o.color 'blanco' (por omisión), 'marron', 'rojo', 'azul', 'verde', 'amarillo', 'morado', 'rosa' o
+// 'naranja'; o.dibujo 'liso', 'rayas' (zigzag blanco) o 'puntos' (los de color, a rayas si no se dice)
+const HUEVO_TR = ['..kkk..', '.kYYYk.', 'kYEYYYk', 'kYYYYYk', 'kYYYYYk', 'kYYYYyk', 'kYYYyyk', '.kyyyk.', '..kkk..'];
+const COL_HUEVO_TR = { blanco: ['#f6f0e0', '#d8ccb0'], marron: ['#d8a070', '#a87448'], rojo: ['#d8303a', '#9a1e28'], azul: ['#3a7ad8', '#2a54a0'], verde: ['#4aa84a', '#2e7a34'], amarillo: ['#f0d040', '#c8a020'], morado: ['#9a4ab8', '#6a2a8a'], rosa: ['#f0a0b8', '#c87090'], naranja: ['#f08a2a', '#b85a18'] };
+const huevoTR = (R, x, y, o = {}) => {
+  const c = o.color ?? 'blanco', [c1, c2] = COL_HUEVO_TR[c] ?? COL_HUEVO_TR.blanco, pal = { ...PAL_TR, ...COLORES({ Y: c1, y: c2 }) };
+  pintaTR(R, HUEVO_TR, x, y, o, pal);
+  const dib = o.dibujo ?? (c === 'blanco' || c === 'marron' ? 'liso' : 'rayas'), px = encimaTR(R, 7, 9, x, y, o, pal);
+  if (dib === 'rayas') { for (const i of [1, 3, 5]) px(i, 4, 'W'); for (const i of [2, 4]) px(i, 5, 'W'); }
+  else if (dib === 'puntos') for (const [a, b] of [[2, 4], [4, 3], [4, 6], [2, 6], [5, 5]]) px(a, b, 'W');
+};
+// LA CESTA DE MIMBRE con huevos (o.n de 0 a 5, por omisión 4): naturales (blancos y morenos) o de colores (o.colores)
+const CESTA_TR = forma(17, 13, ({ rect, put, linea }) => {
+  linea(2, 6, 4, 1, 'b'); linea(4, 1, 12, 1, 'b'); linea(12, 1, 14, 6, 'b');
+  rect(1, 7, 15, 11, 'B'); rect(2, 12, 14, 12, 'B'); rect(1, 7, 15, 7, 'b');
+  for (let j = 8; j <= 11; j++) for (let i = 1 + (j % 2); i <= 15; i += 2) put(i, j, 'b');
+});
+const cestaTR = (R, x, y, o = {}) => {
+  const n = Math.max(0, Math.min(5, o.n ?? 4)), sub = subTR(R, 17, 13, x, y, o);
+  pintaTR(R, CESTA_TR, x, y, o);
+  const cols = o.colores ? ['rojo', 'azul', 'amarillo', 'verde', 'morado'] : ['blanco', 'marron', 'blanco', 'marron', 'blanco'];
+  [[3, 4], [10, 4], [6, 3], [8, 5], [12, 5]].slice(0, n).forEach(([i, j], k) => { const [c1, c2] = COL_HUEVO_TR[cols[k]]; sub(['.kk.', 'kYYk', 'kYyk', 'kyyk'], i, j, COLORES({ k: '#1c1222', Y: c1, y: c2 })); });
+  if (n) sub(['bbbbbbbbbbbbb'], 2, 7);
+};
+// LA LIEBRE DE PASCUA: parda (M, sombra n, barriga c), orejas largas por dentro rosas (P), cola blanca; sentada o con
+// o.salta (con o.t) a saltos; o.cesta: la cestita de huevos a la espalda
+const LIEBRE_SENTADA_TR = forma(20, 17, ({ rect, disco, linea, put }) => {
+  for (const d of [0, 1]) { linea(12 + d, 5, 10 + d, 0, 'M'); linea(14 + d, 5, 15 + d, 0, 'M'); }
+  put(11, 2, 'P'); put(11, 3, 'P'); put(15, 2, 'P'); put(15, 3, 'P');
+  disco(7, 11.5, 4.6, 'M'); disco(5.5, 12.5, 3.6, 'n'); disco(5, 12.2, 3, 'M');
+  disco(14, 7.5, 3, 'M'); rect(10, 9, 13, 12, 'M'); rect(10, 11, 12, 14, 'c');
+  rect(12, 13, 13, 15, 'M'); rect(9, 15, 13, 15, 'n'); rect(3, 15, 7, 15, 'n');
+  put(2, 9, 'W'); put(1, 10, 'W'); put(2, 10, 'W');
+  put(17, 8, 'P'); put(16, 9, 'c');
+});
+const LIEBRE_SALTA_TR = forma(22, 15, ({ rect, disco, linea, put }) => {
+  for (const d of [0, 1]) linea(15 + d, 5, 11 + d, 0, 'M');
+  put(13, 2, 'P'); put(14, 3, 'P');
+  disco(6, 9, 3.4, 'M'); disco(10, 8, 3.6, 'M'); disco(16, 6.5, 2.8, 'M'); rect(12, 7, 14, 9, 'M');
+  rect(8, 10, 12, 11, 'c');
+  for (const d of [0, 1]) { linea(4, 11 + d, 0, 13 + d, 'n'); linea(13, 10 + d, 19, 12 + d, 'M'); }
+  put(2, 7, 'W'); put(2, 8, 'W'); put(3, 7, 'W');
+  put(19, 7, 'P');
+});
+const liebreTR = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, salta = !!o.salta && Math.floor(t * 4) % 2 === 0, s = o.s ?? 1;
+  const g = salta ? LIEBRE_SALTA_TR : LIEBRE_SENTADA_TR, w = salta ? 22 : 20, h = salta ? 15 : 17, yy = salta ? y - Math.round(Math.abs(Math.sin(t * Math.PI * 4)) * 4 * s) : y;
+  if (o.cesta) { const sub = subTR(R, w, h, x, yy, o); sub(['.kkkk.', 'kOkkOk', 'kBRYBk', 'kBbBbk', '.kkkk.'], salta ? 6 : 3, salta ? 2 : 4); }
+  pintaTR(R, g, x, yy, o);
+  const px = encimaTR(R, w, h, x, yy, o);
+  if (salta) { px(17, 6, 'k'); px(18, 6, 'E'); } else { px(15, 7, 'k'); px(16, 7, 'E'); }
+};
+// EL NABO TALLADO de Irlanda: nabo blanco (W/w) con la corona morada (p), las hojas cortadas (V) y la cara tallada; con
+// o.luz (y o.t) la brasa de dentro brilla y parpadea (Y/o), sin luz la talla queda oscura (K)
+const NABO_TR = forma(11, 14, ({ rect, put, disco }) => {
+  put(4, 0, 'V'); put(5, 0, 'V'); put(6, 1, 'V'); put(5, 1, 'V'); put(3, 1, 'V');
+  disco(5, 7.5, 4.6, 'W'); for (let j = 3; j <= 5; j++) for (let i = 1; i <= 9; i++) if (Math.hypot(i - 5, j - 7.5) <= 4.95) put(i, j, 'p');
+  put(8, 9, 'w'); put(8, 10, 'w'); put(7, 11, 'w'); put(5, 12, 'w'); put(5, 13, 'w');
+});
+const naboTR = (R, x, y, o = {}) => {
+  pintaTR(R, NABO_TR, x, y, o);
+  const px = encimaTR(R, 11, 14, x, y, o), l = !o.luz ? 'K' : Math.sin((o.t ?? 0) * 11 + x) > 0 ? 'Y' : 'o';
+  for (const [a, b] of [[3, 6], [2, 7], [3, 7], [7, 6], [7, 7], [8, 7], [5, 8], [3, 9], [4, 10], [5, 10], [6, 10], [7, 9]]) px(a, b, l);
+};
+// LA CALABAZA TALLADA (y, sombra Q y gajos q) con el rabo (b) y la hoja (V); o.tallada false: sin cara; o.luz (con o.t)
+// la cara brilla y parpadea
+const CALABAZA_TR = forma(17, 14, ({ rect, put, disco }) => {
+  rect(8, 0, 9, 2, 'b'); put(10, 1, 'V'); put(11, 1, 'V'); put(11, 0, 'V');
+  disco(4.6, 8, 4.6, 'y'); disco(12.4, 8, 4.6, 'y'); disco(8.5, 7.8, 5.6, 'y');
+  for (const i of [5, 8, 11]) for (let j = 4; j <= 12; j++) put(i + (j < 6 || j > 10 ? (i < 8 ? 1 : i > 8 ? -1 : 0) : 0), j, 'Q');
+  rect(3, 12, 14, 12, 'q');
+});
+const calabazaTR = (R, x, y, o = {}) => {
+  pintaTR(R, CALABAZA_TR, x, y, o);
+  if (o.tallada === false) return;
+  const px = encimaTR(R, 17, 14, x, y, o), l = !o.luz ? 'K' : Math.sin((o.t ?? 0) * 11 + x) > 0 ? 'Y' : 'o';
+  for (const [a, b] of [[4, 6], [3, 7], [4, 7], [5, 7], [12, 6], [11, 7], [12, 7], [13, 7], [8, 8], [9, 8]]) px(a, b, l);
+  for (let i = 3; i <= 14; i++) px(i, 10, l);
+  for (const i of [4, 7, 10, 13]) px(i, 9, l);
+  for (const i of [5, 8, 11]) px(i, 11, l);
+};
+// el pastelito de alma (soul cake): torta dorada (J, brillo i) con la cruz marcada (j) y pasas (d)
+const PASTELITO_TR = forma(11, 7, ({ rect, put }) => { rect(2, 1, 8, 5, 'J'); rect(1, 2, 9, 4, 'J'); rect(2, 1, 8, 1, 'i'); rect(3, 3, 7, 3, 'j'); rect(5, 2, 5, 4, 'j'); put(3, 2, 'd'); put(7, 4, 'd'); put(8, 2, 'd'); put(2, 4, 'd'); });
+const pastelitoTR = (R, x, y, o = {}) => pintaTR(R, PASTELITO_TR, x, y, o);
+// LA CARTILLA DE RACIONAMIENTO (años cuarenta): tapa crema (c) con la franja azul (A) y el sello rojo (R), sin letras, y
+// la hoja de cupones (X, con los cortes x); o.cupones: los que quedan (0–12, por omisión 5), los arrancados se ven vacíos
+const CARTILLA_TR = forma(17, 13, ({ rect }) => { rect(1, 1, 15, 11, 'c'); rect(1, 1, 15, 2, 'A'); rect(1, 11, 15, 11, 'x'); });
+const cartillaTR = (R, x, y, o = {}) => {
+  pintaTR(R, CARTILLA_TR, x, y, o);
+  const px = encimaTR(R, 17, 13, x, y, o), n = Math.max(0, Math.min(12, o.cupones ?? 5));
+  for (let k = 0; k < 12; k++) { const i0 = 2 + (k % 4) * 3, j0 = 4 + Math.floor(k / 4) * 2; if (k < n) { px(i0, j0, 'X'); px(i0 + 1, j0, 'X'); px(i0 + 2, j0, 'x'); px(i0, j0 + 1, 'x'); px(i0 + 1, j0 + 1, 'x'); } else { px(i0, j0, 'w'); px(i0 + 1, j0, 'w'); } }
+  px(14, 4, 'R'); px(13, 4, 'R'); px(14, 5, 'R');
+};
+// EL FRASCO DE AZÚCAR: cristal (F, reflejo E) con la tapa de lata (Z/z) y el azúcar (W/w) hasta o.nivel (0–1, por
+// omisión 0.15: casi vacío)
+const FRASCO_TR = forma(11, 15, ({ rect }) => { rect(2, 1, 8, 2, 'Z'); rect(2, 2, 8, 2, 'z'); rect(1, 3, 9, 13, 'F'); rect(2, 4, 2, 11, 'E'); rect(1, 13, 9, 13, 'f'); });
+const frascoTR = (R, x, y, o = {}) => {
+  pintaTR(R, FRASCO_TR, x, y, o);
+  const px = encimaTR(R, 11, 15, x, y, o), alto = Math.round(Math.max(0, Math.min(1, o.nivel ?? 0.15)) * 10);
+  for (let j = 13 - alto + 1; j <= 13; j++) for (let i = 1; i <= 9; i++) px(i, j, j === 13 - alto + 1 ? 'W' : (i + j) % 3 ? 'W' : 'w');
+};
+// EL PASTEL DE CUMPLEAÑOS: bizcocho rosa (P) con el glaseado (W) que chorrea, la capa de fresa (R) y el plato (Z/z);
+// o.velas: cuántas velas (1–60, por omisión 5; con muchas, en dos o tres filas y el pastel más ancho); o.encendidas:
+// true (por omisión), false o cuántas quedan encendidas (las del centro: la del gag es 1); o.humo con las apagadas
+// (con o.t)
+const PASTEL_CACHE_TR = new Map();
+const COL_VELAS_TR = ['A', 'R', 'Y', 'V', 'p', 'y'];
+const medidaPastelTR = (n) => { const filas = n <= 12 ? 1 : n <= 30 ? 2 : 3, porFila = Math.ceil(n / filas); return { filas, porFila, W: Math.max(15, porFila * 2 + 5) }; };
+const velasPastelTR = (n) => {
+  const { filas, porFila, W } = medidaPastelTR(n), out = [];
+  for (let k = 0; k < filas; k++) { const m = Math.min(porFila, n - k * porFila), x0 = Math.round((W - (m * 2 - 1)) / 2) + (k % 2 && m === porFila && x0Ok(W, m) ? 1 : 0); for (let i = 0; i < m; i++) out.push([x0 + i * 2, 5 + 2 * k, out.length]); }
+  return out;
+};
+const x0Ok = (W, m) => Math.round((W - (m * 2 - 1)) / 2) + m * 2 < W - 2;
+const gridPastelTR = (n) => {
+  if (PASTEL_CACHE_TR.has(n)) return PASTEL_CACHE_TR.get(n);
+  const { filas, W } = medidaPastelTR(n), S1 = 5 + 2 * (filas - 1), H = S1 + 10;
+  const g = forma(W, H, ({ rect, put }) => {
+    rect(2, 5, W - 3, S1, 'W');
+    rect(2, S1 + 1, W - 3, S1 + 6, 'P'); rect(2, S1 + 4, W - 3, S1 + 4, 'R');
+    for (let i = 2; i <= W - 3; i++) if (i % 3 !== 1) put(i, S1 + 1, 'W');
+    for (let i = 3; i <= W - 4; i += 5) put(i, S1 + 2, 'W');
+    rect(1, S1 + 7, W - 2, S1 + 7, 'Z'); rect(2, S1 + 8, W - 3, S1 + 8, 'z');
+    for (const [i, j, k] of velasPastelTR(n)) for (let d = 1; d <= 3; d++) put(i, j - d, COL_VELAS_TR[k % COL_VELAS_TR.length]);
+  });
+  const r = { g, W, H }; PASTEL_CACHE_TR.set(n, r); return r;
+};
+const pastelCumpleTR = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(60, Math.round(o.velas ?? 5))), { g, W, H } = gridPastelTR(n), t = o.t ?? 0;
+  pintaTR(R, g, x, y, o);
+  const px = encimaTR(R, W, H, x, y, o), velas = velasPastelTR(n), cx = W / 2;
+  const enc = o.encendidas ?? true, lit = new Set(enc === true ? velas.map((v) => v[2]) : enc === false ? [] : [...velas].sort((a, b) => Math.abs(a[0] - cx) + a[1] * 0.1 - Math.abs(b[0] - cx) - b[1] * 0.1).slice(0, enc).map((v) => v[2]));
+  for (const [i, j, k] of velas) {
+    if (lit.has(k)) { const on = Math.sin(t * 11 + k * 1.7) > 0; px(i, j - 4, on ? 'Y' : 'y'); px(i + (on ? 0 : 1), j - 5, 'o'); }
+    else { px(i, j - 4, 'k'); if (o.humo) { const f = Math.floor(t * 3 + k) % 3; px(i + (f === 1 ? 1 : 0), j - 6 - f, 'h'); } }
+  }
+};
+// el mazo del juez (B/b) apoyado sobre su taco redondo (b)
+const MAZO_TR = forma(15, 9, ({ rect, put }) => { rect(1, 1, 6, 4, 'B'); rect(1, 1, 6, 1, 'i'); for (const i of [2, 5]) rect(i, 1, i, 4, 'b'); rect(7, 2, 13, 3, 'b'); put(13, 2, 'B'); rect(2, 6, 12, 7, 'b'); rect(3, 6, 11, 6, 'B'); });
+const mazoTR = (R, x, y, o = {}) => pintaTR(R, MAZO_TR, x, y, o);
+// LA CAJA FUERTE de la disquera (Z/z gris) con la rueda de la combinación (K/Z), la manivela (O) y las patas; o.abierta:
+// la puerta abierta a un lado y dentro las monedas apiladas (o.monedas 0–1, por omisión 0.7)
+const CAJA_TR = forma(21, 21, ({ rect, disco, put }) => {
+  rect(1, 1, 19, 18, 'Z'); rect(1, 1, 19, 1, 'H'); rect(19, 1, 19, 18, 'z');
+  rect(3, 3, 17, 16, 'z'); rect(4, 4, 16, 15, 'Z');
+  disco(10, 9, 3, 'K'); disco(10, 9, 1.6, 'Z'); put(10, 6, 'H'); put(13, 9, 'H'); put(10, 12, 'H'); put(7, 9, 'H');
+  rect(14, 7, 15, 11, 'O'); put(14, 6, 'g');
+  rect(2, 19, 4, 19, 'K'); rect(16, 19, 18, 19, 'K');
+});
+const CAJA_ABIERTA_TR = forma(26, 21, ({ rect, put }) => {
+  rect(1, 1, 19, 18, 'Z'); rect(1, 1, 19, 1, 'H'); rect(3, 3, 17, 16, 'K'); rect(3, 3, 17, 4, 'u');
+  rect(20, 2, 24, 17, 'z'); rect(21, 3, 23, 16, 'Z'); put(22, 9, 'O'); put(22, 10, 'O');
+  rect(2, 19, 4, 19, 'K'); rect(16, 19, 18, 19, 'K');
+});
+const cajaFuerteTR = (R, x, y, o = {}) => {
+  if (!o.abierta) { pintaTR(R, CAJA_TR, x, y, o); return; }
+  pintaTR(R, CAJA_ABIERTA_TR, x, y, o);
+  const px = encimaTR(R, 26, 21, x, y, o), alto = Math.round(Math.max(0, Math.min(1, o.monedas ?? 0.7)) * 12);
+  for (let j = 16 - alto + 1; j <= 16; j++) for (let i = 4; i <= 16; i++) px(i, j, j % 2 ? 'O' : (i % 4 === 0 ? 'o' : 'g'));
+};
+// la argolla de oro (O, sombra g); con o.t el brillo (E) parpadea
+const ARGOLLA_TR = ['.kkkk.', 'kOooOk', 'kOkkgk', 'kOkkgk', 'kgOOgk', '.kkkk.'];
+const argollaTR = (R, x, y, o = {}) => { pintaTR(R, ARGOLLA_TR, x, y, o); if (o.t != null && Math.sin(o.t * 5 + x) > 0.6) { const px = encimaTR(R, 6, 6, x, y, o); px(1, 1, 'E'); } };
+// EL RAMO DE NOVIA: flores (o.color 'blanco', por omisión, el azahar E/w; 'colores' rojas, amarillas y rosas), las hojas
+// (V), los tallos (l) y la cinta (R)
+const RAMO_TR = forma(11, 15, ({ rect, disco, put }) => {
+  disco(5, 4, 3.8, 'V');
+  for (const [a, b] of [[3, 2], [6, 1], [8, 3], [2, 5], [5, 4], [8, 6], [4, 7], [6, 7]]) { put(a, b, 'E'); put(a + 1, b, 'E'); put(a, b + 1, 'w'); put(a + 1, b + 1, 'E'); }
+  rect(4, 8, 6, 13, 'l'); rect(3, 9, 7, 10, 'R'); put(2, 11, 'R'); put(8, 11, 'R'); put(2, 12, 'R'); put(8, 12, 'R');
+});
+const ramoTR = (R, x, y, o = {}) => pintaTR(R, RAMO_TR, x, y, o, o.color === 'colores' ? { ...PAL_TR, ...COLORES({ E: '#e8486a', w: '#f0c840' }) } : PAL_TR);
+// LA CORONA DE REY suelta: o.tipo 'babilonia' (por omisión: la alta de oro con lapislázuli, la que el sacerdote le quita
+// al rey) o 'europea' (de puntas, con piedras rojas)
+const CORONA_EUROPEA_TR = ['.k..k..k..k.', 'kOk.kOk.kOk.', 'kOOkOOOkOOk.', 'kOOODOODOOOk', 'kgOOOOOOOOgk', 'kkkkkkkkkkkk'].map((f) => f.padEnd(12, '.'));
+const coronaReyTR = (R, x, y, o = {}) => pintaTR(R, o.tipo === 'europea' ? CORONA_EUROPEA_TR : POLOS_TR, x, y, o, { ...PAL_TR, ...PAL_POLOS_TR, ...(o.tipo === 'europea' ? COLORES({ D: '#c8303a' }) : {}) });
+// LA GALLINA de corral: blanca (W/w) o parda (o.color 'parda'), con la cresta (R), el pico (y) y las patas; o.picotea
+// (con o.t) baja la cabeza al suelo
+const GALLINA_TR = {};
+for (const pica of [0, 1]) GALLINA_TR[pica] = forma(15, 13, ({ rect, disco, put, linea }) => {
+  disco(6, 7, 4, 'W'); disco(5, 8, 3, 'w'); disco(6, 6.6, 3, 'W');
+  linea(2, 6, 0, 2, 'W'); linea(3, 6, 1, 2, 'w'); put(0, 1, 'W'); put(2, 2, 'W');
+  const hx = pica ? 12 : 10, hy = pica ? 8 : 3;
+  rect(9, pica ? 6 : 4, 10, 7, 'W'); disco(hx, hy, 1.8, 'W'); put(hx, hy - 2, 'R'); put(hx - 1, hy - 2, 'R'); put(hx + 1, hy - 1, 'R');
+  put(hx + 2, hy, 'y'); put(hx + 1, hy + 2, 'R');
+  rect(5, 11, 5, 12, 'y'); rect(8, 11, 8, 12, 'y'); put(9, 12, 'y'); put(6, 12, 'y');
+});
+const gallinaTR = (R, x, y, o = {}) => {
+  const pica = o.picotea && Math.floor((o.t ?? 0) * 3 + x) % 3 === 0 ? 1 : 0;
+  const pal = o.color === 'parda' ? { ...PAL_TR, ...COLORES({ W: '#b8703a', w: '#8a4e24' }) } : { ...PAL_TR, ...COLORES({ w: '#d8d0c4' }) };
+  pintaTR(R, GALLINA_TR[pica], x, y, o, pal);
+  const px = encimaTR(R, 15, 13, x, y, o, pal); px(pica ? 12 : 10, pica ? 7 : 2, 'k');
+};
+// LA SACA DE CORREOS de lona (T/t) atada con el cordel (b); o.llena: rebosa de cartas (X, P, A)
+const SACA_PZ_TR = forma(13, 14, ({ rect, disco, put }) => { rect(4, 1, 8, 3, 'T'); disco(6, 9, 5, 'T'); rect(2, 8, 10, 12, 'T'); rect(4, 3, 8, 3, 'b'); put(3, 10, 't'); put(8, 7, 't'); put(9, 11, 't'); rect(2, 12, 10, 12, 't'); });
+const SACA_LLENA_PZ_TR = forma(13, 14, ({ rect, disco, put }) => { disco(6, 9, 5, 'T'); rect(2, 8, 10, 12, 'T'); rect(2, 4, 10, 5, 'b'); rect(3, 0, 5, 3, 'X'); rect(6, 1, 8, 3, 'P'); rect(8, 0, 10, 2, 'A'); put(4, 1, 'R'); put(3, 10, 't'); put(9, 11, 't'); rect(2, 12, 10, 12, 't'); });
+const sacaPiezaTR = (R, x, y, o = {}) => pintaTR(R, o.llena ? SACA_LLENA_PZ_TR : SACA_PZ_TR, x, y, o);
+// EL PERIÓDICO antiguo, sin letras: la cabecera (K), las columnas de texto falso (x), el dibujo (o.dibujo 'uvas', por
+// omisión, o 'calabaza') y el año (o.anio, en cifras: 1894, 1927)
+const PERIODICO_TR = forma(19, 19, ({ rect }) => { rect(1, 1, 17, 17, 'X'); rect(2, 2, 16, 3, 'K'); rect(2, 10, 16, 10, 'x'); for (let j = 12; j <= 16; j += 2) rect(2, j, 8, j, 'x'); });
+const periodicoTR = (R, x, y, o = {}) => {
+  pintaTR(R, PERIODICO_TR, x, y, o);
+  const sub = subTR(R, 19, 19, x, y, o), px = encimaTR(R, 19, 19, x, y, o);
+  for (let j = 11; j <= 16; j++) for (let i = 10; i <= 16; i++) px(i, j, 'c');
+  if (o.dibujo === 'calabaza') sub(['.kkk.', 'kyyyk', 'kKyKk', 'kyKyk', '.kkk.'], 11, 11); else sub(['.kVk.', 'kUUUk', 'kUIUk', '.kUk.', '..k..'], 11, 11);
+  if (o.anio != null) numeroNV(px, o.anio, Math.round(9.5 - anchoNumeroNV(o.anio) / 2), 5, 'K');
+  else for (let j = 5; j <= 8; j++) rect2(px, 2, j, 16, 'x');
+};
+const rect2 = (px, i0, j, i1, c) => { if (j % 2) for (let i = i0; i <= i1; i++) px(i, j, c); };
+export const PIEZAS_TR = {
+  uva: uvaTR, racimo: racimoTR, copa: copaTR, tele1962: teleTR, calzones: calzonesTR, maleta: maletaTR,
+  calendario: calendarioTR, hojaCalendario: hojaCalendarioTR, sello: selloTR, tarjeta: tarjetaTR, huevo: huevoTR,
+  cesta: cestaTR, liebre: liebreTR, nabo: naboTR, calabaza: calabazaTR, pastelito: pastelitoTR, cartilla: cartillaTR,
+  frasco: frascoTR, pastel: pastelCumpleTR, mazo: mazoTR, cajaFuerte: cajaFuerteTR, argolla: argollaTR, ramo: ramoTR,
+  corona: coronaReyTR, gallina: gallinaTR, saca: sacaPiezaTR, periodico: periodicoTR,
+};
+
+
+// ── Episodio 24 (los archivos desclasificados): 1942–1945, la Luna de 1958, la CIA de los sesenta, los videntes de los
+// setenta y los archivos de 2004–2024 ─────────────────────────────────────────────────────────────────────────────────
+// tocados nuevos del 24 (nombres con DC para no pisar los de otros episodios)
+Object.assign(TOCADOS, {
+  // el casco M1 de la Segunda Guerra Mundial (V/v verde oliva): cúpula redonda con el ala corta, sin tapar la frente
+  cascoM1DC: [[
+    '....kkkkkkk....',
+    '..kkVVVVVVVkk..',
+    '.kVVwVVVVVVVVk.',
+    '.kVVVVVVVVVVVk.',
+    'kVVVVVVVVVVVVVk',
+    'kkkkkkkkkkkkkkk',
+  ], -2],
+  // el gorro de punto ceñido, sin borla (J/j): el pintor del ejército fantasma y los técnicos de la nieve
+  gorroPuntoDC: [[
+    '...kkkkkkkk....',
+    '..kJjJJjJJjk...',
+    '.kJJjJJjJJjJk..',
+    '.kJJjJJjJJjJk..',
+    '.kjjjjjjjjjjk..',
+    '.kkkkkkkkkkkk..',
+  ], -3],
+  // la gorra de plato de marino: copa blanca (X/x), cinta negra (J), el emblema de oro (O) y la visera negra
+  gorraNavalDC: [[
+    '..kkkkkkkkkk...',
+    '.kXXXXXXXXXXk..',
+    '.kXxXXXXXXXXk..',
+    '.kJJJJOOJJJJk..',
+    '.kkkkkkkkkkkkk.',
+    '..........kkkk.',
+  ], -3],
+  // la gorra de veterano, sin letras: azul marino (J) con la franja bordada de oro (O) y la visera hacia delante
+  gorraVetDC: [[
+    '...kkkkkkk.....',
+    '..kJJJJJJJk....',
+    '.kJOOOOOOOJk...',
+    '.kkkkkkkkkkkkk.',
+    '..........kkk..',
+  ], -1],
+  // el gorro canadiense de orejeras: copa de paño (J/j), la vuelta de borrego (X) y la orejera que baja por detrás
+  orejerasDC: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '..kJJjJJJJJk...',
+    '.kJJJJJjJJJJk..',
+    'kXXXXXXXXXXXXk.',
+    'kXXkkkkkkkkkk..',
+    'kXXk...........',
+    'kXXk...........',
+    'kXXk...........',
+    '.kk............',
+  ], -3],
+});
+
+// ── cabezas ──
+// pelo oscuro abundante peinado de lado (Sagan a los 23): volumen arriba y el mechón que cruza la frente hacia delante
+const CAB_LADO_DC = parche(CAB_CORTO, [[2, 0, 'kkkkkkkkkk'], [1, 1, 'kHHhhHHHHHkk'], [0, 2, 'kHhHHHHhHHHHk'], [0, 3, 'kHHHHHHHHHHHHHk'], [4, 4, 'HHHHH']]);
+// calvo con entradas hondas (Skinner): pelo solo detrás de la oreja y una línea fina arriba
+const CAB_CALVA_ENTRADAS_DC = parche(CAB_CORTO, [[5, 1, 'SSSS'], [4, 2, 'SSSSSSSS'], [4, 3, 'SSSSSSSSS'], [3, 4, 'S']]);
+// entradas, barba poblada y descuidada con pelos sueltos (Pyke)
+const CAB_PYKE_DC = parche(CAB_BARBA, [[6, 3, 'SSSSSS'], [5, 4, 'S'], [12, 9, 'h'], [3, 10, 'h'], [9, 11, 'h'], [4, 12, 'kHkHkHk']]);
+// barba corta recortada y bigote (Targ): solo la mandíbula y la barbilla, la boca a la vista
+const CAB_BARBA_CORTA_DC = parche(CAB_CORTO, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+
+// ── cuerpos ──
+// la bata de laboratorio larga hasta la rodilla (C/c) abierta sobre la camisa (W) con la corbata (o)
+const CUERPO_BATA_DC = [
+  '...kkWWoWWkk...',
+  '..kCCCWoWCCCk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCcCoCcCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCWWWCCkSk.',
+  '..kkCCFFFCCkk..',
+  '...kCCFkFCCk...',
+  '...kCcFkFcCk...',
+  '...kkkFkFkkk...',
+  '....kFFkFFk....',
+  '....knnknnk....',
+  '...kkkk.kkkk...',
+];
+// camisa de manga larga (C) con corbata fina (o) de arriba abajo: los ingenieros de la CIA
+const CUERPO_CAMISA_DC = parche(CUERPO_MANGA, [[7, 0, 'o'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o']]);
+// camisa de los setenta (C) con la corbata ancha (o/O) que se ensancha al bajar: los científicos del SRI
+const CUERPO_CORBATA_ANCHA_DC = parche(CUERPO_MANGA, [[7, 0, 'o'], [7, 1, 'o'], [6, 2, 'ooo'], [6, 3, 'oOo'], [6, 4, 'ooo'], [7, 5, 'o']]);
+// la camisa de cuello ancho de los setenta: cuello de picos grandes (X), abierta al cuello y estampada (p): Ingo Swann
+const CUERPO_CUELLO_ANCHO_DC = parche(CUERPO_MANGA, [[5, 0, 'XXSXX'], [4, 1, 'XX.S.XX'], [4, 2, 'X'], [10, 2, 'X'], [6, 3, 'p'], [9, 3, 'p'], [8, 2, 'p'], [5, 5, 'p'], [8, 5, 'p']]);
+// jersey de cuello de pico (C) con la camisa blanca (W) que asoma: Sagan
+const CUERPO_PICO_DC = parche(CUERPO_MANGA, [[5, 0, 'WWWWW'], [6, 1, 'WWW'], [7, 2, 'W']]);
+// traje con corbata (o) de arriba abajo
+const CUERPO_TRAJE_DC = parche(CUERPO_EUROPEO, [[7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [7, 5, 'C']]);
+// traje con el pañuelo en el bolsillo (X): el diseñador elegante
+const CUERPO_TRAJE_PANUELO_DC = parche(CUERPO_TRAJE_DC, [[9, 2, 'X']]);
+// chaqueta de pana (C con los canales c) sobre la camisa (W) abierta
+const CUERPO_PANA_DC = parche(CUERPO_EUROPEO, [[5, 2, 'c'], [9, 2, 'c'], [5, 4, 'c'], [9, 4, 'c'], [4, 6, 'c'], [10, 6, 'c'], [7, 3, 'W'], [7, 5, 'W']]);
+// rebeca abotonada (C, botones o) sobre la camisa (W) con la corbata (J): el padre de 1957 y la archivista
+const CUERPO_REBECA_DC = parche(CUERPO_REBECA, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'J'], [6, 3, 'o'], [6, 5, 'o']]);
+// guerrera de la Fuerza Aérea: camisa azul (W), corbata (J), charreteras (O) y los pasadores de colores (D, A, Y)
+const CUERPO_AF_DC = parche(CUERPO_EUROPEO, [[7, 1, 'J'], [7, 2, 'J'], [3, 1, 'O'], [11, 1, 'O'], [4, 2, 'DA'], [4, 3, 'YD']]);
+// el uniforme azul marino de marino: botones de oro (o), corbata (J) y los galones de oro en la bocamanga (O)
+const CUERPO_NAVAL_DC = parche(CUERPO_EUROPEO, [[7, 1, 'J'], [7, 2, 'J'], [2, 4, 'O'], [12, 4, 'O']]);
+// el uniforme blanco de gala de Mountbatten: cuello alto, botones (o), charreteras y galones de oro (O) y los pasadores
+const CUERPO_GALA_BLANCA_DC = parche(CUERPO_EUROPEO, [[5, 0, 'CCCCC'], [3, 1, 'O'], [11, 1, 'O'], [2, 4, 'O'], [12, 4, 'O'], [4, 2, 'DA'], [4, 3, 'AY'], [7, 1, 'o'], [7, 2, 'C'], [7, 4, 'C']]);
+// el oficial británico de 1943: guerrera caqui con el correaje cruzado (G) y el cinturón
+const CUERPO_OFICIAL_DC = parche(CUERPO_EUROPEO, [[7, 1, 'J'], [7, 2, 'J'], [10, 1, 'G'], [9, 2, 'G'], [8, 3, 'G'], [4, 5, 'GGGOGGG']]);
+// la gabardina con cinturón, la camisa (W) y la corbata (o); las manos de piel (no los guantes de Gambito)
+const CUERPO_GABARDINA_DC = parche(CUERPO_GABARDINA, [[2, 5, 'S'], [12, 5, 'S'], [5, 0, 'CWoW'], [5, 1, 'CWoW'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o']]);
+// el uniforme verde oliva de 1944 de EE. UU.: el de 1914 con la guerrera de bolsillos (o) y las polainas de lona (P)
+const CUERPO_GI_DC = CUERPO_SOLDADO_NV;
+// el traje viejo y arrugado de Pyke: la chaqueta con arrugas (c), la camisa por fuera y un remiendo (u)
+const CUERPO_PYKE_DC = parche(CUERPO_ARRUGADO, [[7, 1, 'o'], [7, 2, 'o'], [9, 3, 'u'], [5, 5, 'c']]);
+// polo de manga corta (C) con el cuello (W): el vidente de paisano
+const CUERPO_POLO_DC = parche(CUERPO_CALLE, [[5, 0, 'WW.WW'], [7, 0, 'S'], [7, 1, 'o'], [7, 2, 'o']]);
+// la chaqueta del veterano (C) sobre la camisa (W) abierta
+const CUERPO_CHAQUETA_DC = parche(CUERPO_EUROPEO, [[7, 3, 'W'], [7, 5, 'W']]);
+
+// ── detalles (delante) ──
+// gafas de pasta oscura (los cincuenta y sesenta), redondas de metal (Skinner), grandes de los setenta (Puthoff) y finas
+// (montura oscura con el puente fino y la piel a la vista dentro del cristal, para que no parezcan gafas de sol)
+const GAFAS_PASTA_DC = ['..kkkkkkkkk', 'kkk...k...k', '..k...k...k', '..kkkkkkkkk'];
+const gafasPastaDC = (c) => { c.cab.rej(GAFAS_PASTA_DC, 4, 5, { ...c.pal, k: hex('#2e2226') }); const v = hex('#e4eef6'); c.cab.px(9, 6, v); c.cab.px(13, 6, v); };
+const gafasFinasDC = varios(gafasHP(GAFAS_CUADRADAS, 6, '#6a6a76'), cristalHP);
+const gafasRedondasDC = varios(gafasHP(GAFAS_REDONDAS, 5, '#5a5a66'), cristalHP);
+// (las grandes de los setenta, de concha parda: una fila más altas, con la ceja dentro del cristal)
+const GAFAS_GRANDES_DC = ['..kkkkkkkkk', 'kkk...k...k', '..k...k...k', '..k...k...k', '..kkkkkkkkk'];
+const gafasGrandesDC = (c) => { c.cab.rej(GAFAS_GRANDES_DC, 4, 4, { ...c.pal, k: hex('#7a4e2a') }); const v = hex('#e4eef6'); c.cab.px(9, 5, v); c.cab.px(13, 5, v); };
+// bigote espeso de los setenta (dos filas): Swann
+const bigoteDobleDC = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, c.pal.H); c.cab.px(8, 9, c.pal.H); c.cab.px(13, 9, c.pal.H); };
+// bigote blanco del veterano
+const bigoteCanoDC = (c) => { for (let i = 9; i <= 12; i++) c.cab.px(i, 8, hex('#e8e8ee')); };
+// las arrugas de los muy mayores: bolsas bajo los ojos y el surco de la mejilla
+const arrugasDC = (c) => { c.cab.px(8, 8, c.pal.s); c.cab.px(12, 8, c.pal.s); c.cab.px(6, 9, c.pal.s); };
+// la medalla de oro colgada al cuello (o.medalla: la cinta y el disco; la dan en la ceremonia de 2024)
+const medallaDC = (c) => { if (!c.o.medalla) return; const pal = { ...c.pal, ...COLORES({ A: '#2a4a9a', O: '#f0c840', g: '#a87a18' }) }; c.cuerpo.px(6, 0, pal.A); c.cuerpo.px(8, 0, pal.A); c.cuerpo.px(6, 1, pal.A); c.cuerpo.px(8, 1, pal.A); c.cuerpo.rej(['kOk', 'kgk', '.k.'], 6, 2, pal); };
+// el cuaderno de dibujo del pintor con el lápiz
+const conCuadernoDC = enMano(['kkkkkk', 'kXXXXk', 'kXVxXk', 'kXxXXk', 'kkkkkk'], 12, 2, { ...PAL_MANO, ...COLORES({ V: '#6a6444' }) });
+// la carpeta del archivo (beige T con el sello rojo R): el archivista y el portavoz
+const conCarpetaDC = enMano(['kkkkkk', 'kTTTTk', 'kTRTTk', 'kTTTTk', 'kkkkkk'], 12, 2, { ...PAL_MANO, ...COLORES({ T: '#d8c08a', R: '#c8303a' }) });
+// la regla de cálculo (Sagan): una tira clara con la reglilla del medio
+const conReglaDC = enMano(['kkkkkkk', 'kXXZXXk', 'kxxxxxk', 'kkkkkkk'], 11, 3, PAL_MANO);
+// la libreta de taquigrafía de los periodistas
+const conLibretaDC = conLibreta;
+
+// ── el reparto del 24 ──
+const B24 = B23, B24M = B23M, B24N = B23N;
+export const ELENCO_DC = {
+  // ── A · la Luna, 1957–1958 ──
+  // la familia del suburbio de 1957 que oye el bip del Sputnik: el padre con el pelo engominado, rebeca parda, camisa
+  // blanca y corbata; la madre con media melena y vestido verde agua de pliegues; el niño rubio con el jersey de rayas
+  padre57: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_REBECA_DC, ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#8a6a44', c: '#6a4e30', W: '#f2eee2', J: '#2a3a6a', o: '#c8b48a', F: '#4e525e' }) },
+  madre57: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PLIEGUES, ceja: hex('#7a4a24'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#9a6232', h: '#b8804a', s: '#e8a080', C: '#4aa89a', c: '#2e8078', I: '#f2eee2', W: '#f2eee2', L: '#2a2430' }) },
+  nino57: { ...B24N, cuerpo: CUERPO_RAYAS_NINO_TR, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#c8403a', c: '#962e2a', W: '#f6f2e6', F: '#3a4a7a' }) },
+  // los generales de la Fuerza Aérea (azul, gorra de plato): el del 10 y otro con entradas, bigote, charreteras y pasadores
+  generalAF: ELENCO_OV.generalAzul,
+  generalAF2: { ...B24, cab: CAB_ENTRADAS, cuerpo: CUERPO_AF_DC, tocado: 'general', ceja: hex('#4a3a2a'), delante: bigoteTR,
+    pal: CLT({ H: '#5a4a3a', h: '#7a6a58', C: '#46587e', c: '#334262', F: '#46587e', W: '#a8c0e0', J: '#24283a', o: '#e8b830', O: '#e8b830' }) },
+  // Leonard Reiffel (1958, ~30 años): pelo corto engominado, gafas de pasta, bata blanca larga con camisa y corbata
+  reiffel: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), delante: gafasPastaDC,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f4f4f8', c: '#c8ccd8', W: '#c8d8ec', o: '#2a3a6a', F: '#4a4a5a', n: '#2a2430' }) },
+  // Carl Sagan (1958, 23 años): pelo oscuro abundante peinado de lado, jersey granate de pico sobre la camisa blanca,
+  // pantalón caqui y la regla de cálculo
+  sagan: { ...B24, cab: CAB_LADO_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1424'), delante: conReglaDC,
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#7a2e3a', c: '#5a1e2a', W: '#f6f2e6', F: '#a8946a', n: '#4a3020' }) },
+  // el biógrafo (2000): pelo castaño con canas, gafas finas, chaqueta de pana marrón con la camisa azul abierta
+  biografo: { ...B24, cab: CAB_SIENES, cuerpo: CUERPO_PANA_DC, ceja: hex('#4a3020'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d0', C: '#9a6a3a', c: '#74502a', W: '#a8c8e8', o: '#a8c8e8', F: '#4a4a5a' }) },
+  // Reiffel en 2000: el pelo blanco con entradas, las mismas gafas de pasta, chaqueta gris azulada y corbata granate
+  reiffelMayor: { ...B24, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#a8a8b4'), delante: varios(gafasPastaDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#c0c0cc', C: '#5a6a7e', c: '#445264', W: '#f2eee2', o: '#8a2a3a', F: '#3a3e4a' }) },
+  // el periodista de 2000: americana azul marino, camisa abierta y la libreta
+  periodista2000: { ...B24, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#6a4020'), delante: conLibretaDC,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#2a3a5a', c: '#1e2a44', W: '#e8eef6', o: '#e8eef6', F: '#5e5e70' }) },
+  // ── B · los animales espía ──
+  // los ingenieros de la CIA (años sesenta): camisa blanca, corbata fina negra, gafas de pasta; el segundo con los
+  // auriculares de escuchar (en la furgoneta)
+  ingenieroCIA: { ...B24, cuerpo: CUERPO_CAMISA_DC, ceja: hex('#6a4a2a'), delante: gafasPastaDC,
+    pal: CLT({ H: '#8a5a2a', h: '#a8743c', C: '#f4f4f8', c: '#c8ccd8', o: '#1c1c24', F: '#4a4a5a' }) },
+  ingenieroCIA2: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_CAMISA_DC, tocado: 'auriculares', ceja: hex('#1c1424'), delante: gafasPastaDC,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#eef0f6', c: '#c4c8d4', o: '#1c1c24', F: '#5a5a66', M: '#3a3a44' }) },
+  // los dos del banco del parque: gabardina con cinturón y sombrero de fieltro (beige con el sombrero gris; gris con el
+  // sombrero pardo)
+  hombreBanco: { ...B24, cuerpo: CUERPO_GABARDINA_DC, tocado: 'fedora', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#b8a272', c: '#8e7a50', W: '#f2eee2', o: '#8a2a2a', I: '#8e7a50', F: '#4a4a54', G: '#1c1c24', n: '#2a2430' }) },
+  hombreBanco2: { ...B24, cuerpo: CUERPO_GABARDINA_DC, tocado: 'fedora', ceja: hex('#5a5a66'), delante: bigoteTR,
+    pal: CLT({ H: '#6a6a76', h: '#8a8a96', C: '#7a7e88', c: '#5a5e68', W: '#f2eee2', o: '#2a3a6a', I: '#5a5e68', F: '#5a4232', G: '#2a2018', n: '#2a2430' }) },
+  // B. F. Skinner (años cuarenta): calvo con entradas hondas, gafas redondas, bata blanca con corbata
+  skinner: { ...B24, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_BATA_DC, ceja: hex('#6a4a2a'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#7a5a3a', h: '#9a7652', C: '#f4f4f8', c: '#c8ccd8', W: '#f2eee2', o: '#6a2a2a', F: '#5a5046', n: '#2a2430' }) },
+  // el oficial de la Marina que mira con duda: gorra de plato blanca y uniforme azul marino con botones y galones de oro
+  oficialNaval: { ...B24, cuerpo: CUERPO_NAVAL_DC, tocado: 'gorraNavalDC', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#1e2848', c: '#141c34', F: '#1e2848', W: '#f2eee2', J: '#1c1c24', o: '#e8b830', O: '#e8b830', X: '#f6f6f6', x: '#c8ccd8' }) },
+  // los técnicos británicos de la nieve (años cincuenta): abrigo largo, bufanda y gorro de punto
+  tecnicoBritanico: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPuntoDC', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', s: '#e8907a', C: '#5a4632', c: '#403222', u: '#b8303a', o: '#8a7458', F: '#3a3a44', J: '#4a5a4a', j: '#34403a' }) },
+  tecnicoBritanico2: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'gorroPuntoDC', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8904c', h: '#e0ac64', s: '#e8907a', C: '#3a4a5e', c: '#283444', u: '#d8a030', o: '#6a7a8e', F: '#3a3a44', J: '#8a3a3a', j: '#6a2a2a' }) },
+  // el archivo británico de 2004: la archivista con rebeca morada y gafas y la carpeta; el portavoz (Tom O'Leary) con
+  // traje gris, corbata azul y el pelo canoso corto; los periodistas con su libreta
+  archivista: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_REBECA_DC, ceja: hex('#5a3418'), delante: varios(gafasFinasDC, conCarpetaDC),
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', C: '#7a3a6a', c: '#5a2a4e', W: '#f2eee2', J: '#f2eee2', o: '#e8c8e0', F: '#3a3a44' }) },
+  portavoz: { ...B24, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a96'),
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#6a6e7a', c: '#50545e', W: '#f2eee2', o: '#2a4a8a', F: '#5a5e68' }) },
+  periodistaUK: { ...B24, cab: CAB_RIZOS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), delante: conLibretaDC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#6a5a3a', c: '#4e4228', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44' }) },
+  periodistaUK2: { ...B24M, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#a8743c'), delante: conLibretaDC,
+    pal: CLT({ H: '#c89a50', h: '#e0b868', C: '#2a6a6a', c: '#1e4e4e', W: '#f2eee2', o: '#f2eee2', F: '#2a2a34' }) },
+  // ── C · los videntes, años setenta ──
+  // Ingo Swann: pelo oscuro rizado, bigote espeso, camisa naranja estampada de cuello ancho y pantalón pardo (para
+  // dibujar con los ojos cerrados, la escena le pasa parpadea: true)
+  swann: { ...B24, cab: CAB_RIZOS, cuerpo: CUERPO_CUELLO_ANCHO_DC, ceja: hex('#1c1424'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#d0783a', c: '#a85a2a', X: '#f2e2c0', p: '#f0d070', F: '#5a3a24', n: '#2a2018' }) },
+  // los científicos del SRI: Puthoff con las gafas grandes de los setenta, camisa amarilla clara y corbata ancha parda;
+  // Targ con barba corta y bigote, camisa azul clara y corbata ancha granate
+  cientificoSRI: { ...B24, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#5a3a24'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#ece2b0', c: '#c8bc88', o: '#9a5a2a', O: '#c88a4a', F: '#6a5a44' }) },
+  cientificoSRI2: { ...B24, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#b8d0e8', c: '#90aac8', o: '#7a2a3a', O: '#a84a5a', F: '#4a4a54' }) },
+  // el vidente de Fort Meade (años ochenta): militar de paisano, pelo muy corto, bigote, polo azul y pantalón caqui
+  videnteFM: { ...B24, ceja: hex('#7a5030'), cuerpo: CUERPO_POLO_DC, delante: bigoteTR,
+    pal: CLT({ H: '#8a5a30', h: '#a8743c', C: '#3a6aa8', c: '#2a5088', W: '#f2eee2', o: '#f2eee2', F: '#a89870', n: '#4a3020' }) },
+  // los expertos de 1995 que cierran el programa: el escéptico (entradas canosas, gafas, traje pardo) y la estadística
+  // (media melena, traje azul)
+  expertoAIR: { ...B24, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a96'), delante: gafasFinasDC,
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e0', C: '#6a5a46', c: '#4e4232', W: '#f2eee2', o: '#2a5a3a', F: '#4e4232' }) },
+  expertoAIR2: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a2a14'),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#2e4a7a', c: '#20365c', W: '#f2eee2', o: '#c8a040', F: '#20365c' }) },
+  // ── D · el ejército fantasma (1944–1945) ──
+  // los soldados de EE. UU.: guerrera y pantalón verde oliva, correaje caqui, polainas de lona, botas y el casco M1
+  soldadoGA: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'cascoM1DC', ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', V: '#5e6440', v: '#454a2e', w: '#7a8256' }) },
+  soldadoGA2: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'cascoM1DC', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', V: '#5e6440', v: '#454a2e', w: '#7a8256' }) },
+  soldadoGA3: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'cascoM1DC', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c8904c', h: '#e0ac64', s: '#e8907a', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', V: '#5e6440', v: '#454a2e', w: '#7a8256' }) },
+  // el pintor del ejército fantasma: el mismo uniforme con el gorro de punto y el cuaderno de dibujo
+  pintorGA: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'gorroPuntoDC', ceja: hex('#6a4020'), delante: conCuadernoDC,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', J: '#5a5a3a', j: '#44442a' }) },
+  // el operador de radio: el mismo uniforme sin casco, con los auriculares
+  operadorRadio: { ...B24, cuerpo: CUERPO_GI_DC, tocado: 'auriculares', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#6a6a44', c: '#4e4e30', o: '#4e4e30', G: '#a8986a', O: '#c8b040', F: '#5e5e3e', P: '#b8a882', p: '#968864', n: '#4a3020', M: '#2a2a30' }) },
+  // los veteranos de 2024, muy mayores: gorra de veterano sin letras, chaqueta, arrugas; o.medalla les cuelga la de oro
+  veterano: { ...B24, cuerpo: CUERPO_CHAQUETA_DC, tocado: 'gorraVetDC', ceja: hex('#c8c8d0'), delante: varios(gafasFinasDC, arrugasDC, medallaDC),
+    pal: CLT({ H: '#b4b4c0', h: '#d0d0da', C: '#2a3a5a', c: '#1e2a44', W: '#f2eee2', o: '#f2eee2', F: '#5e5e70', J: '#1e2a44' }) },
+  veterano2: { ...B24, cab: CAB_CALVO, cuerpo: CUERPO_CHAQUETA_DC, tocado: 'gorraVetDC', ceja: hex('#c8c8d0'), delante: varios(bigoteCanoDC, arrugasDC, medallaDC),
+    pal: CLT({ H: '#d8d8e0', h: '#c8c8d2', C: '#7a6a52', c: '#5a4e3c', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44', J: '#2a2430' }) },
+  veterana: { ...B24, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CHAQUETA_DC, tocado: 'gorraVetDC', ceja: hex('#c8c8d0'), delante: varios(arrugasDC, medallaDC),
+    pal: CLT({ H: '#bcbcc8', h: '#d8d8e2', C: '#8a3a4a', c: '#6a2a38', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44', J: '#1e2a44' }) },
+  // Bill Blass joven: pelo engominado, traje azul noche impecable con corbata granate y el pañuelo en el bolsillo
+  disenadorModa: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_PANUELO_DC, ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#6a4a30', C: '#24283a', c: '#181c2a', W: '#f6f6f6', o: '#8a2a3a', X: '#f6f6f6', F: '#24283a' }) },
+  // ── D · Habakuk (1942–1943) ──
+  // Geoffrey Pyke: entradas, barba poblada y descuidada, traje viejo arrugado pardo con la camisa por fuera y un remiendo
+  pyke: { ...B24, cab: CAB_PYKE_DC, cuerpo: CUERPO_PYKE_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#6a4a2a', h: '#8a6440', C: '#6a5e4a', c: '#4e4434', W: '#d8d0b8', o: '#5a3a3a', u: '#8a7a5a', F: '#5a5446' }) },
+  // lord Mountbatten: uniforme blanco de la Marina con galones y charreteras de oro, pasadores y gorra de plato blanca
+  mountbatten: { ...B24, cab: CAB_ENGOMINADO, cuerpo: CUERPO_GALA_BLANCA_DC, tocado: 'gorraNavalDC', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f6f4ee', c: '#c8c4b8', W: '#f6f4ee', F: '#e8e4da', o: '#e8b830', O: '#e8b830', J: '#1c1c24', X: '#f6f6f6', x: '#c8ccd8', n: '#2a2430' }) },
+  // los ingenieros del lago Patricia (Canadá): abrigo grueso con el cuello de borrego y el gorro de orejeras
+  ingenieroCA: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'orejerasDC', ceja: hex('#5a3a24'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#6a4426', h: '#8a6040', s: '#e8907a', C: '#6a4a2e', c: '#4e3420', u: '#d8c8a8', o: '#3a2a1a', F: '#3a3a44', J: '#5a4632', j: '#40321f', X: '#d8c8a8' }) },
+  ingenieroCA2: { ...B24, cuerpo: CUERPO_ABRIGO_NV, tocado: 'orejerasDC', ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#a8343a', c: '#7a242a', u: '#2a2430', o: '#2a2430', F: '#3a3a44', J: '#2a2430', j: '#44404e', X: '#c8c0b0' }) },
+  // los oficiales aliados de la reunión: el británico (guerrera caqui con correaje, gorra de plato caqui) y el de EE. UU.
+  // (el del 12)
+  oficialAliado: { ...B24, cab: CAB_SIENES, cuerpo: CUERPO_OFICIAL_DC, tocado: 'general', ceja: hex('#5a4a3a'), delante: bigoteTR,
+    pal: CLT({ H: '#6a5a4a', h: '#8a7a6a', w: '#c8c8d0', C: '#8a7a52', c: '#6a5c3c', W: '#c8b890', J: '#4a4030', G: '#5a3a20', O: '#c8a040', o: '#c8a040', F: '#8a7a52' }) },
+  oficialAliado2: ELENCO_HU.duckworth,
+};
+Object.assign(ELENCO_CHIBI, ELENCO_DC);
+
+// ── piezas del 24 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_DC = { ...PAL_TR, ...COLORES({
+  M: '#9a9aa8', m: '#686878', B: '#d4d4dc', P: '#e89aa8', R: '#c8303a', r: '#8a1e26', Z: '#c8ccd8', z: '#7a7e90', K: '#2a2832',
+  E: '#ffffff', Y: '#f0d040', T: '#d8c08a', t: '#b09868', X: '#f6f2e6', x: '#b8b0a0',
+}) };
+const pintaDC = (R, g, x, y, o = {}, pal = PAL_DC) => pintaJH(R, g, x, y, o, pal);
+const encimaDC = (R, w, hgt, x, y, o, pal = PAL_DC) => encimaNV(R, w, hgt, x, y, o, pal);
+const subDC = (R, w, hgt, x, y, o, pal = PAL_DC) => subNV(R, w, hgt, x, y, o, pal);
+
+// EL GATO ESPÍA, el gag del episodio: gato gris atigrado (M, rayas m, pecho B) sentado, con el collar rojo (R), el
+// micrófono diminuto colgando (Z/z) y la antena fina que sube por detrás de la cabeza (K, la bolita roja arriba).
+// o.t: la cola se mueve y la antena se balancea; o.cara: 'normal' (parpadea con o.t) o 'travieso' (ojos entornados y
+// media sonrisa); o.anda (con o.t): de perfil caminando, patas alternas; o.microfono: lleva en la boca el micrófono de
+// Atom (el gag del final). Sentado mide 18 × 17 (con la antena), andando 21 × 15.
+const COLAS_GATO_DC = [
+  [[5, 15], [4, 15], [3, 15], [2, 14], [1, 13], [1, 12], [1, 11], [1, 10], [2, 9], [3, 8]],
+  [[5, 15], [4, 15], [3, 15], [2, 14], [1, 13], [1, 12], [1, 11], [1, 10], [1, 9], [2, 8]],
+  [[5, 15], [4, 15], [3, 15], [2, 14], [2, 13], [2, 12], [2, 11], [2, 10], [3, 9], [4, 9]],
+];
+const GATO_SENTADO_DC = COLAS_GATO_DC.map((cola) => forma(18, 17, ({ rect, disco, put }) => {
+  cola.forEach(([i, j], n) => put(i, j, n >= cola.length - 2 || n % 3 === 2 ? 'm' : 'M'));
+  disco(8, 13, 3.3, 'M'); rect(11, 10, 13, 15, 'M'); rect(12, 15, 14, 15, 'M');
+  disco(13.5, 8, 3, 'M');
+  put(11, 4, 'M'); put(11, 5, 'P'); put(12, 5, 'M'); put(16, 4, 'M'); put(16, 5, 'P'); put(15, 5, 'M');
+  for (const [i, j] of [[6, 11], [6, 12], [8, 10], [8, 11], [5, 13], [10, 12], [7, 15], [13, 5], [14, 5]]) put(i, j, 'm');
+  put(12, 13, 'B'); put(13, 13, 'B'); put(12, 14, 'B'); put(13, 14, 'B'); put(13, 15, 'm');
+  rect(11, 11, 15, 11, 'R'); put(14, 12, 'Z'); put(14, 13, 'z');
+}));
+const GATO_ANDA_DC = [0, 1].map((f) => forma(21, 15, ({ rect, disco, put }) => {
+  const s = Math.sin(f * 2) > 0 ? 1 : 0;
+  for (const [i, j] of [[4, 9], [3, 8], [2, 7], [2, 6], [2, 5], [3, 4 - s]]) put(i, j, j < 6 ? 'm' : 'M');
+  rect(5, 8, 13, 11, 'M'); disco(6, 9.5, 1.6, 'M'); disco(12, 9.5, 1.6, 'M');
+  disco(16, 7, 2.6, 'M');
+  put(14, 3, 'M'); put(14, 4, 'P'); put(15, 4, 'M'); put(18, 3, 'M'); put(18, 4, 'P'); put(17, 4, 'M');
+  const pat = f ? [[5, 12], [5, 13], [8, 12], [8, 13], [11, 12], [11, 13], [14, 12], [14, 13]] : [[4, 12], [4, 13], [7, 12], [7, 13], [12, 12], [12, 13], [15, 12], [15, 13]];
+  for (const [i, j] of pat) put(i, j, 'M');
+  for (const [i, j] of [[6, 8], [6, 9], [8, 8], [8, 9], [10, 8], [10, 9], [16, 4]]) put(i, j, 'm');
+  rect(8, 11, 12, 11, 'B');
+  rect(14, 9, 14, 10, 'R'); put(13, 9, 'R'); put(14, 11, 'Z');
+}));
+const gatoEspiaDC = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, anda = !!o.anda, tr = o.cara === 'travieso';
+  if (anda) {
+    const f = Math.floor(t * 6) % 2;
+    pintaDC(R, GATO_ANDA_DC[f], x, y - (f ? 0 : 0), o);
+    const px = encimaDC(R, 21, 15, x, y, o);
+    const bal = Math.round(Math.sin(t * 5) * 0.8);
+    for (let j = 1; j <= 8; j++) px(j < 5 ? 12 + (j < 3 ? bal : 0) : 12, j, 'K');
+    px(12 + bal, 0, 'R');
+    if (tr) { px(16, 6, 'm'); px(16, 7, 'k'); px(17, 6, 'm'); px(17, 7, 'k'); px(18, 9, 'k'); px(19, 8, 'k'); }
+    else { const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12; if (cierra) px(17, 7, 'k'); else { px(17, 6, 'k'); px(17, 7, 'k'); } }
+    px(19, 7, 'P'); px(20, 8, 'z');
+    if (o.microfono) { px(19, 9, 'K'); px(20, 9, 'K'); px(20, 10, 'z'); px(19, 10, 'Z'); px(20, 11, 'K'); }
+    return;
+  }
+  const fase = Math.floor(((Math.sin(t * 2.2) + 1) / 2) * 2.99);
+  pintaDC(R, GATO_SENTADO_DC[o.t == null ? 0 : fase], x, y, o);
+  const px = encimaDC(R, 18, 17, x, y, o);
+  const bal = o.t == null ? 0 : Math.round(Math.sin(t * 3.1) * 0.8);
+  for (let j = 2; j <= 10; j++) px(j < 6 ? 10 + (j < 4 ? bal : 0) : 10, j, 'K');
+  px(10 + bal, 1, 'R'); px(10 + bal, 0, 'k');
+  if (tr) {
+    for (const e of [12, 15]) { px(e, 7, 'k'); px(e + (e === 12 ? -1 : 1), 6, 'k'); px(e, 8, 'Y'); }
+    px(13, 10, 'k'); px(14, 10, 'k'); px(15, 9, 'k');
+  } else {
+    const cierra = o.t != null && ((t + x * 0.13) % 2.6) < 0.12;
+    for (const e of [12, 15]) { if (cierra) px(e, 8, 'k'); else { px(e, 7, 'k'); px(e, 8, 'k'); } }
+    px(14, 10, 'k');
+  }
+  px(13, 9, 'P'); px(14, 9, 'P'); px(17, 9, 'z'); px(17, 10, 'z');
+  if (o.microfono) { px(13, 10, 'K'); px(12, 10, 'K'); px(12, 11, 'z'); px(13, 11, 'Z'); px(13, 12, 'K'); }
+};
+
+// LA PALOMA bravía: gris azulada (G, ala g con las dos barras negras), el cuello tornasolado (V verde, U morado), el pico
+// (b) y las patas rosas (P); o.picotea (con o.t) baja la cabeza; o.vuela (con o.t) bate las alas
+const PAL_PALOMA_DC = { ...PAL_DC, ...COLORES({ G: '#9aa4b8', g: '#6e788e', V: '#4a9a7a', U: '#8a5aa8', b: '#3a3a44', P: '#d8607a', y: '#e8783a' }) };
+const PALOMA_DC = {};
+for (const pose of ['quieta', 'pica', 'alaArriba', 'alaAbajo']) PALOMA_DC[pose] = forma(14, 11, ({ rect, disco, put }) => {
+  disco(6, 7, 2.6, 'G'); rect(1, 6, 3, 7, 'g'); put(0, 6, 'g');
+  const [hx, hy] = pose === 'pica' ? [10, 8] : [10, 4];
+  disco(hx, hy, 1.5, 'G'); put(hx - 1, hy + 2, 'V'); put(hx - 2, hy + 2, 'U'); put(9, 6, 'V'); put(8, 5, 'U'); put(hx + 2, hy, 'b');
+  if (pose === 'alaArriba') { rect(4, 1, 7, 4, 'g'); put(5, 2, 'k'); put(6, 3, 'k'); }
+  else if (pose === 'alaAbajo') { rect(4, 8, 7, 9, 'g'); put(5, 9, 'k'); }
+  else { rect(4, 6, 7, 7, 'g'); put(5, 6, 'k'); put(6, 7, 'k'); }
+  if (pose !== 'alaArriba' && pose !== 'alaAbajo') { put(5, 10, 'P'); put(7, 10, 'P'); }
+});
+const palomaDC = (R, x, y, o = {}) => {
+  const t = o.t ?? 0;
+  const pose = o.vuela ? (Math.floor(t * 10) % 2 ? 'alaArriba' : 'alaAbajo') : o.picotea && Math.floor(t * 3 + x) % 3 === 0 ? 'pica' : 'quieta';
+  pintaDC(R, PALOMA_DC[pose], x, y, o, PAL_PALOMA_DC);
+  const px = encimaDC(R, 14, 11, x, y, o, PAL_PALOMA_DC);
+  const [hx, hy] = pose === 'pica' ? [10, 8] : [10, 4];
+  px(hx, hy - 1, 'y'); px(hx + 1, hy - 1, 'k');
+};
+
+// LA GALLINA: la del 23 (blanca o parda, o.picotea); o.sentada: echada a empollar, sin patas, con el pecho hinchado
+const GALLINA_SENTADA_DC = forma(16, 11, ({ rect, disco, put }) => {
+  disco(7, 7, 3.8, 'W'); rect(2, 7, 12, 9, 'W'); rect(2, 10, 12, 10, 'w');
+  put(2, 4, 'W'); put(1, 3, 'W'); put(1, 2, 'W'); put(2, 3, 'W'); put(3, 4, 'W'); put(2, 5, 'W');
+  put(5, 6, 'w'); put(6, 7, 'w'); put(7, 7, 'w'); put(8, 7, 'w'); put(9, 6, 'w');
+  rect(10, 4, 11, 6, 'W'); disco(11.5, 3, 1.7, 'W'); put(11, 0, 'R'); put(12, 0, 'R'); put(13, 1, 'R'); put(14, 3, 'y'); put(13, 5, 'R');
+});
+const gallinaDC = (R, x, y, o = {}) => {
+  if (!o.sentada) return gallinaTR(R, x, y, o);
+  const pal = o.color === 'parda' ? { ...PAL_TR, ...COLORES({ W: '#b8703a', w: '#8a4e24' }) } : { ...PAL_TR, ...COLORES({ w: '#d8d0c4' }) };
+  pintaTR(R, GALLINA_SENTADA_DC, x, y, o, pal);
+  const px = encimaTR(R, 16, 11, x, y, o, pal);
+  if (o.t != null && ((o.t + x * 0.13) % 3) < 0.15) px(12, 3, 'w'); else px(12, 2, 'k');
+};
+
+// LA RADIO DE ONDA CORTA de los cincuenta: caja de madera (B/b, filo de luz T) con la rejilla de tela (t), el dial redondo
+// crema (X) con su aguja, los dos mandos y la antena telescópica; o.dial 0–1 mueve la aguja (si no, con o.t barre
+// despacio); o.encendida: el dial se ilumina y la lucecita verde; o.antena false la quita. 22 × 13 (la antena sube 9 más)
+const RADIO_DC = forma(22, 13, ({ rect, disco, put }) => {
+  rect(1, 1, 20, 12, 'B'); rect(1, 1, 20, 1, 'T'); rect(1, 12, 20, 12, 'b'); rect(20, 1, 20, 12, 'b');
+  rect(2, 3, 9, 10, 't'); for (let j = 4; j <= 10; j += 2) rect(2, j, 9, j, 'x');
+  disco(15, 6, 3.3, 'X'); put(13, 11, 'K'); put(17, 11, 'K'); put(12, 11, 'K'); put(18, 11, 'K');
+  rect(3, 11, 8, 11, 'T');
+});
+const radioOndaDC = (R, x, y, o = {}) => {
+  const t = o.t ?? 0, enc = !!o.encendida;
+  const pal = { ...PAL_DC, ...COLORES({ B: '#a8743c', b: '#6a4422', T: '#d8a868', t: '#c8b48a', ...(enc ? { X: '#fff0a0' } : {}) }) };
+  if (o.antena !== false) { const pxA = encimaDC(R, 22, 13, x, y, o, pal); for (let k = 0; k <= 8; k++) pxA(18 - Math.round(k * 0.5), -k, k > 5 ? 'z' : 'Z'); pxA(14, -9, 'K'); }
+  pintaDC(R, RADIO_DC, x, y, o, pal);
+  const px = encimaDC(R, 22, 13, x, y, o, pal);
+  for (const [i, j] of [[13, 4], [15, 3], [17, 4], [18, 6], [12, 6]]) px(i, j, 'x');
+  const d = o.dial != null ? o.dial : (Math.sin(t * 0.7) + 1) / 2, a = Math.PI * (1.15 - d * 1.3);
+  for (let r = 0; r <= 3; r++) px(Math.round(15 + Math.cos(a) * r), Math.round(6 - Math.sin(a) * r), r === 0 ? 'K' : 'R');
+  px(19, 3, enc ? (Math.sin(t * 6) > -0.6 ? 'l' : 'V') : 'v');
+};
+
+// LA CARPETA de expediente: cartulina beige (T, sombra t) con la pestaña, el canto de las hojas (X) y el sello rojo
+// redondo con una raya (R), sin letras; o.dibujo: 'luna' | 'gato' | 'gallina' | 'ojo' | 'tanque' | 'hielo' (o 'barco'),
+// el dibujo de la tapa; o.sello false lo quita (o 'sonrojado': el sello con la cara colorada del final); o.abierta: abierta
+// de par en par (34 × 15) con la hoja de rayas (sin letras), el dibujo en la hoja y el sello. Cerrada 19 × 15
+const DIBUJOS_DC = {
+  luna: [['kkkkkkk', 'kNNYYNk', 'kNYYyYk', 'kNYyYYk', 'kNNYYNk', 'kNNNNNk', 'kkkkkkk'], { N: '#24305a', Y: '#f6f0c8', y: '#c8c098' }],
+  gato: [['R......', 'K.k...k', 'KkMk.kM', 'KkMMMMM', 'KkkMMkM', 'K.kMPMk', '..kRRk.'], { M: '#8a8a98', K: '#2a2832', P: '#e89aa8', R: '#c8303a' }],
+  gallina: [['....RR.', '...kWWk', '.k.kWkWy', 'kWkWWWk', 'kWWWWWk', '.kWWWk.', '..y.y..'], { W: '#f6f2e6', R: '#c8303a', y: '#e8a030' }],
+  ojo: [['.u..u.', 'u.kk.u', '.kEAk.', 'u.kk.u', '.u..u.', '......'], { E: '#ffffff', A: '#3a6ad8', u: '#8a5aa8' }],
+  tanque: [['..kk..', '.kVVkk', 'kVVVVk', 'kvvvvk', 'kgkgkk', '......'], { V: '#6a6e44', v: '#4e5232', g: '#8a8e5a' }],
+  hielo: [['...k..', '..kWk.', '.kkkkk', 'kFFFFk', '.kFFk.', 'AAAAAA'], { W: '#8a6a4a', F: '#c8ecf8', A: '#3a6ad8' }],
+};
+DIBUJOS_DC.barco = DIBUJOS_DC.hielo;
+const CARPETA_DC = forma(19, 15, ({ rect }) => { rect(1, 2, 17, 14, 'T'); rect(2, 0, 7, 1, 'T'); rect(9, 1, 16, 1, 'X'); rect(17, 3, 17, 14, 't'); rect(1, 14, 17, 14, 't'); rect(1, 3, 17, 3, 't'); });
+const CARPETA_ABIERTA_DC = forma(34, 15, ({ rect }) => {
+  rect(1, 1, 16, 14, 't'); rect(2, 2, 15, 13, 'T'); rect(17, 1, 32, 14, 'T'); rect(18, 2, 31, 13, 'X');
+  for (let j = 4; j <= 12; j += 2) rect(19, j, j === 12 ? 25 : 30, j, 'x');
+  rect(17, 1, 17, 14, 't'); rect(3, 3, 14, 12, 'X'); rect(4, 4, 13, 4, 'x');
+});
+const SELLO_MARCA_DC = ['..RRR..', '.R...R.', 'R.....R', 'RRRRRRR', 'R.....R', '.R...R.', '..RRR..'];
+const SELLO_CARA_DC = ['..RRR..', '.R...R.', 'R.k.k.R', 'RP...PR', 'R.kkk.R', '.R...R.', '..RRR..'];
+const carpetaDC = (R, x, y, o = {}) => {
+  const dib = o.dibujo && DIBUJOS_DC[o.dibujo], sello = o.sello === false ? null : o.sello === 'sonrojado' ? SELLO_CARA_DC : SELLO_MARCA_DC;
+  const palS = { ...PAL_DC, ...COLORES({ R: '#c8303a', P: '#f08aa0' }) };
+  if (o.abierta) {
+    pintaDC(R, CARPETA_ABIERTA_DC, x, y, o);
+    const sub = subDC(R, 34, 15, x, y, o, palS);
+    if (dib) sub(dib[0], 5, 6, { ...PAL_DC, ...COLORES(dib[1]) });
+    if (sello) sub(sello, 24, 6, palS);
+    return;
+  }
+  pintaDC(R, CARPETA_DC, x, y, o);
+  const sub = subDC(R, 19, 15, x, y, o, palS);
+  if (dib) sub(dib[0], 3, 6, { ...PAL_DC, ...COLORES(dib[1]) });
+  if (sello) sub(sello, 10, 5, palS);
+};
+
+// EL SELLO DE GOMA: puño de madera (B/b), mango y la base con la goma roja (R); o.tipo 'marca': solo la marca de tinta
+// (el círculo con la raya, 7 × 7); o.cara 'sonrojada' (con 'marca'): la marca es una cara colorada (el final)
+const SELLO_DC = forma(11, 14, ({ rect, disco }) => { disco(5, 2.5, 2.3, 'B'); rect(4, 4, 6, 8, 'b'); rect(1, 9, 9, 10, 'B'); rect(1, 10, 9, 10, 'b'); rect(1, 11, 9, 12, 'R'); });
+const selloDC = (R, x, y, o = {}) => {
+  const palS = { ...PAL_DC, ...COLORES({ R: '#c8303a', P: '#f08aa0' }) };
+  if (o.tipo === 'marca') return pintaDC(R, o.cara === 'sonrojada' ? SELLO_CARA_DC : SELLO_MARCA_DC, x, y, o, palS);
+  pintaDC(R, SELLO_DC, x, y, o, { ...PAL_DC, ...COLORES({ B: '#a8743c', b: '#6a4422' }) });
+  const px = encimaDC(R, 11, 14, x, y, o, { ...PAL_DC, ...COLORES({ o: '#e0a868' }) }); px(4, 1, 'o'); px(4, 2, 'o');
+};
+
+// LA MINA BLUE PEACOCK: cilindro de acero enorme tumbado (Z, luz E, sombra z, fondo u) con los aros de remaches (w), la
+// tapa de registro arriba con sus pernos, el cable y las cajas de mando; o.escarcha: la capa blanca de nieve encima.
+// 44 × 22
+const MINA_DC = forma(44, 22, ({ rect, disco, put }) => {
+  rect(5, 3, 38, 20, 'Z'); disco(5, 11.5, 8.3, 'Z'); disco(38, 11.5, 8.3, 'Z'); rect(5, 3, 38, 20, 'Z');
+  for (let i = 0; i < 44; i++) for (let j = 0; j < 22; j++) {
+    const den = Math.hypot(i - Math.min(38, Math.max(5, i)), j - 11.5) <= 8.6 && j >= 3 && j <= 20;
+    if (!den) continue;
+    put(i, j, j <= 5 ? 'E' : j >= 17 ? 'z' : j >= 15 ? 'u' : 'Z');
+  }
+  for (const c of [12, 22, 32]) for (let j = 3; j <= 20; j++) put(c, j, j % 3 === 0 ? 'w' : 'z');
+  rect(19, 0, 25, 2, 'z'); rect(20, 0, 24, 1, 'Z'); put(19, 0, 'w'); put(25, 0, 'w');
+  rect(1, 10, 3, 13, 'u'); put(2, 11, 'w');
+  rect(40, 9, 43, 13, 'u'); rect(41, 10, 42, 12, 'K');
+});
+const minaPeacockDC = (R, x, y, o = {}) => {
+  const pal = { ...PAL_DC, ...COLORES({ Z: '#8a92a2', E: '#b8c0cc', z: '#6a7282', u: '#4e5464', w: '#c8ccd6', K: '#c8303a' }) };
+  pintaDC(R, MINA_DC, x, y, o, pal);
+  if (o.escarcha) { const px = encimaDC(R, 44, 22, x, y, o, { ...pal, ...COLORES({ X: '#f6f8fc', x: '#d8e4f0' }) }); for (let i = 4; i <= 39; i++) { px(i, 3, 'X'); if ((i * 7) % 5 < 3) px(i, 4, 'x'); } }
+};
+
+// EL TANQUE DE GOMA del ejército fantasma: un Sherman hinchable verde oliva (V, sombra v, brillo de goma l) con sus costuras
+// (k), las ruedas pintadas (g) y la válvula; o.inflado 0–1 (1 por omisión): al bajar se aplasta, se arruga y el cañón se
+// cae. 38 × 20
+const TANQUE_CACHE_DC = new Map();
+const tanqueGomaFormaDC = (n) => forma(38, 20, ({ rect, disco, put, linea }) => {
+  const f = 0.3 + 0.7 * n / 8, Y = (j) => Math.round(19 - (19 - j) * f);
+  for (let j = Y(12); j <= 18; j++) for (let i = 2; i <= 35; i++) put(i, j, 'V');
+  for (let j = Y(9); j < Y(12); j++) for (let i = 5; i <= 32; i++) put(i, j, 'V');
+  for (let j = Y(3); j < Y(9); j++) for (let i = 12; i <= 23; i++) put(i, j, 'V');
+  for (let i = 2; i <= 35; i++) { put(i, 18, 'v'); put(i, Y(15), 'v'); }
+  for (let k = 0; k < 5; k++) disco(7 + k * 6, (Y(15) + 18) / 2 + 0.5, Math.max(0.6, 1.6 * f), 'g');
+  for (let i = 13; i <= 22; i++) put(i, Y(4), 'l'); for (let i = 6; i <= 31; i++) put(i, Y(10), 'l');
+  const cy = Y(5), caida = Math.round((1 - n / 8) * 7);
+  linea(24, cy, 36, cy + caida, 'V'); linea(24, cy + 1, 36, cy + 1 + caida, 'v');
+  put(17, Y(3) - 1, 'v');
+  if (n < 8) for (let k = 0; k < 8 - n; k++) { const i = 5 + ((k * 11) % 27), j = Y(10) + (k % 3); put(i, j, 'v'); put(i + 1, j + 1, 'v'); }
+});
+const tanqueGomaDC = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.inflado ?? 1)) * 8);
+  if (!TANQUE_CACHE_DC.has(n)) TANQUE_CACHE_DC.set(n, tanqueGomaFormaDC(n));
+  pintaDC(R, TANQUE_CACHE_DC.get(n), x, y, o, { ...PAL_DC, ...COLORES({ V: '#6a6e44', v: '#4c5030', l: '#90946a', g: '#3e4228' }) });
+};
+
+// EL BLOQUE DE PYKRETE: hielo con serrín, gris azulado (cara A, tapa a, lado n) con las motas del serrín (d); o.tipo
+// 'hielo': el bloque de hielo normal, claro y con brillo; o.roto (con 'hielo'): partido en tres trozos. 15 × 12
+const BLOQUE_DC = forma(15, 12, ({ rect, put }) => {
+  for (let j = 1; j <= 3; j++) for (let i = 4 - j; i <= 13 - j; i++) put(i, j, 'a');
+  rect(1, 4, 10, 11, 'A');
+  rect(11, 3, 11, 10, 'n'); rect(12, 2, 12, 9, 'n'); rect(13, 1, 13, 8, 'n');
+});
+const BLOQUE_ROTO_DC = forma(19, 12, ({ rect, put }) => {
+  rect(1, 6, 5, 11, 'A'); put(2, 5, 'a'); put(3, 5, 'a'); put(4, 5, 'a');
+  rect(7, 8, 11, 11, 'A'); rect(8, 7, 10, 7, 'a');
+  rect(13, 5, 17, 11, 'A'); rect(14, 4, 17, 4, 'a'); put(17, 3, 'n');
+  put(6, 10, 'a'); put(12, 11, 'a');
+});
+const bloqueHieloDC = (R, x, y, o = {}) => {
+  const hielo = o.tipo === 'hielo';
+  const pal = { ...PAL_DC, ...COLORES(hielo ? { A: '#b8e4f4', a: '#e4f6fc', n: '#88c4dc', d: '#ffffff' } : { A: '#8a9cae', a: '#aebccc', n: '#6a7a8c', d: '#7a5a3a' }) };
+  if (hielo && o.roto) { pintaDC(R, BLOQUE_ROTO_DC, x, y, o, pal); return; }
+  pintaDC(R, BLOQUE_DC, x, y, o, pal);
+  const px = encimaDC(R, 15, 12, x, y, o, pal);
+  if (hielo) { px(2, 5, 'd'); px(2, 6, 'd'); px(3, 5, 'd'); px(7, 2, 'd'); }
+  else for (const [i, j] of [[2, 5], [5, 7], [8, 5], [3, 9], [7, 10], [9, 8], [6, 2], [9, 3], [12, 5], [4, 7]]) px(i, j, 'd');
+};
+
+// EL MICRÓFONO DE MESA de Atom: cápsula redonda con la rejilla plateada (Z/z) y el aro oscuro (K), el pie y la base;
+// o.encendido: la lucecita roja del pie. 9 × 16
+const MICRO_DC = forma(9, 16, ({ rect, disco, put }) => {
+  disco(4, 3.5, 3.2, 'Z'); for (let j = 1; j <= 6; j++) for (let i = 1; i <= 7; i++) if ((i + j) % 2 === 0 && Math.hypot(i - 4, j - 3.5) <= 2.8) put(i, j, 'z');
+  rect(1, 4, 7, 4, 'K'); rect(4, 7, 4, 13, 'K'); rect(3, 8, 5, 9, 'K'); rect(1, 14, 7, 15, 'K'); rect(2, 13, 6, 13, 'K');
+});
+const microfonoDC = (R, x, y, o = {}) => {
+  pintaDC(R, MICRO_DC, x, y, o, { ...PAL_DC, ...COLORES({ K: '#3a3a48' }) });
+  const px = encimaDC(R, 9, 16, x, y, o); px(2, 2, 'E');
+  if (o.encendido) px(4, 14, 'R');
+};
+
+export const PIEZAS_DC = {
+  gatoEspia: gatoEspiaDC, paloma: palomaDC, gallina: gallinaDC, radioOnda: radioOndaDC, carpeta: carpetaDC, sello: selloDC,
+  minaPeacock: minaPeacockDC, tanqueGoma: tanqueGomaDC, bloqueHielo: bloqueHieloDC, microfono: microfonoDC,
+};
+
+// ── Episodio 26 (Atari, el juego enterrado): el bar de 1972, el salón de 1977, las oficinas de 1982, la tienda de
+// juguetes, Tokio 1983, el vertedero de Alamogordo (1983 y 2014) y la consulta de hoy ──────────────────────────────────
+// Sin logos ni letras: las consolas, los cartuchos y las camisetas son genéricos; las personas reales (Warshaw, Heller)
+// se reconocen solo por sus atributos. Los nombres nuevos llevan AT para no pisar los de otros episodios.
+
+// tocados nuevos del 26
+Object.assign(TOCADOS, {
+  // el sombrero de ala de fieltro (J/j copa, D cinta): los arqueólogos de 2014 (y Tepenec en el 25)
+  alaAT: [[
+    '....kkkkkk.....',
+    '...kJJJJJJk....',
+    '...kJjJJJJk....',
+    '...kDDDDDDk....',
+    '.kkkkkkkkkkkk..',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+});
+
+// ── cabezas ──
+// rizos con barba gris corta (Warshaw de hoy): la cabeza de rizos con la barba recortada del 24, la boca a la vista
+const CAB_RIZOS_BARBA_AT = parche(CAB_RIZOS, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+// el volumen de los rizos abundantes (Warshaw a los 24, la madre de 1985): una masa de pelo por detrás y por encima de
+// la cabeza, que se pinta antes (detras) para que la cabeza la tape por dentro y nunca toque la cara
+const RIZOS_AT = [
+  '...kk.kk.kk......',
+  '..kHHkHHkHHkk....',
+  '.kHhHHHHhHHHHk...',
+  'kHHHHHHHHHHHhHk..',
+  'kHhHHHHHHHHHHHk..',
+  'kHHHHk...........',
+  'kHHhHk...........',
+  'kHhHHk...........',
+  'kHHHHk...........',
+  'kHHhHk...........',
+  '.kHHk............',
+  '..kk.............',
+];
+const rizosAT = (c) => c.cab.rej(RIZOS_AT, -2, -2);
+// la cinta del pelo de los setenta (u), en la frente por encima de las cejas
+const cintaAT = (c) => { for (let i = 1; i <= 12; i++) c.cab.px(i, 3, c.pal.u); };
+
+// ── cuerpos ──
+// los pantalones de campana de 1972: la pierna se abre desde la rodilla
+const BAJOS_CAMPANA_AT = [[2, 10, 'kFFFFkFFFFk'], [1, 11, 'kFFFFFkFFFFFk'], [1, 12, 'kkkkkk kkkkkk']];
+// él: la camisa de cuello ancho estampada (la de Swann) con campana
+const CUERPO_CAMPANA_AT = parche(CUERPO_CUELLO_ANCHO_DC, BAJOS_CAMPANA_AT);
+// ella: la blusa de manga corta con flores (p) y campana
+const CUERPO_CAMPANA_F_AT = parche(CUERPO_CALLE, [[5, 0, 'CSSSC'], [5, 2, 'p'], [9, 2, 'p'], [7, 3, 'p'], [5, 5, 'p'], [9, 5, 'p'], ...BAJOS_CAMPANA_AT]);
+// traje oscuro con la corbata ancha (o, el nudo O) de finales de los setenta
+const CUERPO_TRAJE_ANCHA_AT = parche(CUERPO_EUROPEO, [[7, 1, 'O'], [6, 2, 'ooo'], [6, 3, 'ooo'], [6, 4, 'ooo'], [7, 5, 'o']]);
+// la camisa de cuadros (C con las rayas p), el cuello abierto y los vaqueros: Warshaw en 1982
+const CUERPO_CUADROS_AT = parche(CUERPO_MANGA, [[5, 0, 'WCSCW'], [5, 1, 'p'], [9, 1, 'p'], [5, 2, 'p'], [9, 2, 'p'], [4, 3, 'ppppppp'], [2, 3, 'p'], [12, 3, 'p'], [5, 4, 'p'], [9, 4, 'p'], [5, 5, 'p'], [9, 5, 'p'], [4, 6, 'ppppppp']]);
+// el pijama de niño (10 filas): manga y pantalón largos con lunares (p)
+const CUERPO_PIJAMA_AT = [
+  '...kkCCCCCkk...',
+  '..kCCpCCCpCCk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCpCCCpCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCpCCCkk..',
+  '...kCCCkCCCk...',
+  '...kCpCkCpCk...',
+  '...kCCCkCCCk...',
+  '..kkkkk.kkkkk..',
+];
+// el chaleco de la tienda (C) sobre la camisa (W) con la plaquita del nombre (X, sin letras)
+const CUERPO_CHALECO_ROJO_AT = parche(CUERPO_CHALECO_NV, [[9, 2, 'XX']]);
+// la camisa blanca remangada (el puño c), la corbata (o) y los bolígrafos en el bolsillo (A): el gerente del almacén
+const CUERPO_REMANGADA_AT = parche(CUERPO_CALLE, [[5, 0, 'WWSWW'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [2, 2, 'c'], [12, 2, 'c'], [9, 2, 'A']]);
+// el chaleco reflectante de los ochenta (V) con las dos franjas (Y) sobre la camisa de manga larga (C)
+const CUERPO_REFLECTANTE_AT = parche(CUERPO_MANGA, [[4, 2, 'VVCCCVV'], [4, 3, 'VVVCVVV'], [4, 4, 'YYYYYYY'], [4, 5, 'VVVVVVV'], [4, 6, 'YYYYYYY']]);
+// el mono de trabajo de una pieza (C/c) con la cremallera (o), los bolsillos (u) y las botas (n)
+const CUERPO_MONO_AT = [
+  '...kkCCCCCkk...',
+  '..kCCCCoCCCCk..',
+  '.kCkCuCoCuCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kCuCkCuCk...',
+  '...kCCCkCCCk...',
+  '...kcCCkCCck...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// la americana de los ochenta con hombreras (la madre de 1985): el traje sastre con los hombros más anchos
+const CUERPO_HOMBRERAS_AT = parche(CUERPO_SASTRE, [[1, 1, 'kC'], [12, 1, 'Ck']]);
+// las camisetas retro de 2014, sin letras: un joystick en el pecho (X, la bola Q) o un corazón de píxeles (Q)
+const CUERPO_RETRO_AT = parche(CUERPO_CALLE, [[7, 2, 'Q'], [7, 3, 'X'], [6, 4, 'XXX']]);
+const CUERPO_RETRO2_AT = parche(CUERPO_CALLE, [[5, 2, 'QQ.QQ'], [5, 3, 'QQQQQ'], [6, 4, 'QQQ'], [7, 5, 'Q']]);
+// la sudadera con el dibujo de un mando (X, los botones k y Q) y el bolsillo canguro (c): el paciente
+const CUERPO_SUDADERA_AT = parche(CUERPO_MANGA, [[5, 0, 'cCCCc'], [5, 2, 'XXXXX'], [5, 3, 'XkXQX'], [5, 4, 'XX.XX'], [5, 6, 'ccccc']]);
+// el delantal (V/v) atado sobre la camisa (W) y el jubón o chaleco (C): el vendedor de Tokio (y Tepenec en el 25)
+const CUERPO_DELANTAL_AT = parche(CUERPO_EUROPEO, [[6, 2, 'VVV'], [5, 3, 'VVVVV'], [4, 4, 'VVVVVVV'], [4, 5, 'VVVVVVV'], [4, 6, 'VvVVVvV'], [4, 7, 'VVVVVVV'], [4, 8, 'VvVVVvV'], [4, 9, 'vvvvvvv']]);
+
+// ── lo que llevan en la mano ──
+// la linterna encendida (los chicos del pueblo, de noche): el cuerpo oscuro (K), el aro (Z) y la luz (Y)
+const conLinternaAT = enMano(['kkkkk.', 'kKKZYk', 'kkkkk.'], 11, 4, { ...PAL_MANO, ...COLORES({ K: '#3a3a48', Z: '#c8ccd8', Y: '#fff0a0' }) });
+
+// ── el reparto del 26 ──
+const B26 = B23, B26M = B23M, B26N = B23N;
+export const ELENCO_AT = {
+  // ── el bar de California, 1972 (la máquina del Pong) ──
+  // él: melena con raya hasta los hombros, bigote, camisa naranja de cuello ancho estampada y vaqueros de campana
+  jugadorPong: { ...B26, cab: CAB_MELENA_H, cuerpo: CUERPO_CAMPANA_AT, ceja: hex('#4a2a14'), delante: bigoteTR,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', C: '#d0783a', c: '#a85a2a', X: '#f2e2c0', p: '#f0d070', F: '#3e5e9a', n: '#4a3020' }) },
+  // ella: pelo largo liso con la cinta en la frente, blusa amarilla de flores y campana
+  jugadoraPong: { ...B26, cab: CAB_LARGO, cuerpo: CUERPO_CAMPANA_F_AT, ceja: hex('#8a5a24'), mejillas: [[6, 8], [12, 8]], delante: cintaAT,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', s: '#e8a080', u: '#c8403a', C: '#e8d070', c: '#c8b050', p: '#d84a6a', F: '#4a6aa8', n: '#4a3020' }) },
+  // ── el salón de 1977 ──
+  // el padre: patillas largas, bigote, jersey de cuello alto pardo y pantalón de pana beige
+  padre77: { ...B26, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_MANGA, ceja: hex('#3a2414'), delante: bigoteTR,
+    pal: CLT({ H: '#4a2e1a', h: '#6a4428', C: '#8a5a2a', c: '#6a4220', F: '#c8a868', n: '#4a3020' }) },
+  // la madre: pelo rizado de permanente y vestido naranja de pliegues con el cinturón pardo
+  madre77: { ...B26, cab: CAB_RIZOS, cuerpo: CUERPO_PLIEGUES, ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', s: '#e8a080', C: '#d8803a', c: '#a85e2a', I: '#5a3418', W: '#f2e2c0', L: '#4a3020' }) },
+  // el niño: corte en tazón y camiseta de rayas verdes
+  nino77: { ...B26N, cab: CAB_TAZON_TR, cuerpo: CUERPO_RAYAS_NINO_TR, ceja: hex('#7a4a24'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a5a2a', h: '#a8743c', s: '#e8a080', C: '#3a8a5a', c: '#2a6a44', W: '#f6f2e6', F: '#6a5a3a' }) },
+  // el ejecutivo de la Warner que compra Atari (1976): sienes canosas, traje azul noche y la corbata ancha granate
+  ejecutivoWarner: { ...B26, cab: CAB_SIENES, cuerpo: CUERPO_TRAJE_ANCHA_AT, ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#3a2a20', h: '#5a4434', w: '#c8c8d2', C: '#24283a', c: '#181c2a', W: '#e8eef6', o: '#8a2a3a', O: '#a83a4a', F: '#24283a' }) },
+  // ── las oficinas de Atari, 1982 ──
+  // los ejecutivos: camisa clara y corbata ancha; el segundo con entradas, bigote, camisa blanca y corbata fina
+  ejecutivoAtari: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#5a3a24'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#b8d0e8', c: '#90aac8', o: '#3a4a7a', O: '#5a6a9a', F: '#4a4a54' }) },
+  ejecutivoAtari2: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_CAMISA_DC, ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f4f4f8', c: '#c8ccd8', o: '#8a2a2a', F: '#5a4a3a' }) },
+  // Howard Scott Warshaw a los 24: pelo oscuro rizado y abundante, camisa de cuadros roja y vaqueros
+  warshaw: { ...B26, cab: CAB_RIZOS, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#1c1424'), detras: rizosAT,
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#c84a3a', c: '#963028', p: '#6a2420', W: '#f2eee2', F: '#3e5e9a', n: '#4a3020' }) },
+  // Warshaw de hoy (2014–2026): los rizos canosos, la barba gris corta, gafas y americana oscura con la camisa azul
+  warshawHoy: { ...B26, cab: CAB_RIZOS_BARBA_AT, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#8a8a96'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#2a2e3a', c: '#1e2230', W: '#7a9ac8', o: '#7a9ac8', F: '#3a3a44' }) },
+  // ── la cola del cine, 1982 ──
+  espectador: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_CAZADORA, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#3a5a8a', c: '#2a4468', W: '#e8e0c8', O: '#c8c8d2', F: '#4a5a7a', n: '#4a3020' }) },
+  espectadora: { ...B26, cab: CAB_MEDIA_TR, cuerpo: CUERPO_MANGA, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#d86a8a', c: '#b04a6a', F: '#3a4a7a' }) },
+  // ── la Navidad de 1982 y la tienda de juguetes ──
+  // el niño en pijama azul de lunares amarillos
+  ninoNavidad: { ...B26N, cuerpo: CUERPO_PIJAMA_AT, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#4a7ac8', c: '#3a5aa0', p: '#f0d040' }) },
+  // el dependiente: chaleco rojo de la tienda con la plaquita, camisa blanca y pantalón gris
+  dependiente: { ...B26, cuerpo: CUERPO_CHALECO_ROJO_AT, ceja: hex('#6a3418'),
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', C: '#c8303a', c: '#962428', W: '#f2eee2', o: '#f0c040', X: '#f6f6f6', F: '#4a4a54' }) },
+  // el comprador que duda: entradas, gafas grandes de los ochenta y la cazadora beige
+  comprador: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#5a3a24'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#b8a272', c: '#8e7a50', W: '#7a3a3a', o: '#7a3a3a', F: '#4a4a5a' }) },
+  // ── el almacén y el vertedero, 1983 ──
+  // el gerente: entradas, gafas de pasta, camisa blanca remangada, corbata y los bolígrafos en el bolsillo
+  gerenteAlmacen: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_REMANGADA_AT, ceja: hex('#3a2a20'), delante: gafasPastaDC,
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#eef0f6', c: '#c4c8d4', W: '#eef0f6', o: '#3a4a6a', A: '#3a6ad8', F: '#5a5a66', n: '#2a2430' }) },
+  // los camioneros: gorra, camisa de manga larga y el chaleco reflectante (naranja con franjas plateadas; amarillo)
+  camionero: { ...B26, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'beisbol', ceja: hex('#5a3a24'), delante: bigoteTR,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#3a5a8a', j: '#2a4468', C: '#8a6a4a', c: '#6a4e34', V: '#f08a2a', Y: '#e8e8ee', F: '#4a5a7a', n: '#4a3020' }) },
+  camionero2: { ...B26, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#a83a3a', j: '#7a2a2a', C: '#5a7a5a', c: '#44603f', V: '#e8d040', Y: '#c8ccd8', F: '#3a3a44', n: '#4a3020' }) },
+  // el operario de la apisonadora: casco de obra amarillo y mono azul
+  operario: { ...B26, cuerpo: CUERPO_MONO_AT, tocado: 'cascoObra', ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#f0c040', j: '#c89a20', C: '#3a5a8a', c: '#2a4468', o: '#c8ccd8', u: '#2a4468', G: '#2a3448', n: '#3a2a1a' }) },
+  // los chicos del pueblo, de noche, con la linterna: él con sudadera roja; ella con coleta y cazadora vaquera
+  chicoPueblo: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_MANGA, ceja: hex('#7a4a24'), delante: conLinternaAT,
+    pal: CLT({ H: '#8a5428', h: '#a86e3a', C: '#b8343a', c: '#8a2428', F: '#3e4e7a' }) },
+  chicaPueblo: { ...B26, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], cuerpo: CUERPO_CAZADORA, delante: varios(coleta, conLinternaAT),
+    pal: CLT({ H: '#c8904c', h: '#e0ac64', s: '#e8907a', C: '#5a7aa8', c: '#44608a', W: '#f2eee2', O: '#c8c8d2', F: '#3a3a4a', n: '#2a2430' }) },
+  // ── Tokio, 1983 ──
+  // el vendedor: pelo negro, camisa blanca y el delantal azul de la tienda
+  vendedorTokio: { ...B26, cuerpo: CUERPO_DELANTAL_AT, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1424', h: '#3a3046', W: '#f2eee2', C: '#f2eee2', o: '#c8ccd8', V: '#2e4a8a', v: '#20366a', F: '#2a2a34' }) },
+  // el niño de la cola: corte en tazón negro y jersey azul
+  ninoJapones: { ...B26N, cab: CAB_TAZON_TR, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#1c1424', h: '#3a3046', s: '#e8a080', C: '#3a7ac8', c: '#2a5aa0', F: '#2a2a44' }) },
+  // ── la familia de 1985 que vuelve a comprar ──
+  padre85: { ...B26, cuerpo: CUERPO_POLO_DC, ceja: hex('#3a2418'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#2e8a8a', c: '#226a6a', W: '#f2eee2', o: '#f2eee2', F: '#c8b890', n: '#4a3020' }) },
+  madre85: { ...B26, cab: CAB_MEDIA_TR, cuerpo: CUERPO_HOMBRERAS_AT, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], detras: rizosAT,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#a83a8a', c: '#7a2a66', W: '#f2eee2', I: '#2a2430', o: '#f0c040' }) },
+  nino85: { ...B26N, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#c8403a', c: '#962e2a', F: '#3a4a7a' }) },
+  // ── la excavación de 2014 ──
+  // el público con camisetas retro sin letras y gorras: él con barba corta y la del joystick; ella con la del corazón
+  publico2014: { ...B26, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_RETRO_AT, tocado: 'beisbol', ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', J: '#2a2a34', j: '#44445a', C: '#2a6a5a', c: '#1e4e42', X: '#f2eee2', Q: '#e8503a', F: '#3e4e7a' }) },
+  publico2014b: { ...B26, cab: CAB_LARGO, cuerpo: CUERPO_RETRO2_AT, tocado: 'beisbol', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#c8303a', j: '#962428', C: '#3a3a5a', c: '#2a2a44', Q: '#e83a5a', F: '#4a5a7a' }) },
+  // los arqueólogos: sombrero de ala, chaleco de bolsillos, camisa de campo y botas; él con barba, ella con media melena
+  arqueologo: { ...B26, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_BUSCADOR, tocado: 'alaAT', ceja: hex('#5a3a24'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#a8865a', j: '#86683e', D: '#4a2e16', C: '#d8c8a0', V: '#6a6a3e', o: '#4e4e2a', G: '#4a2e16', F: '#8a7a5a', f: '#6a5a3e', L: '#4a2e16' }) },
+  arqueologa: { ...B26, cab: CAB_MEDIA_TR, cuerpo: CUERPO_BUSCADOR, tocado: 'alaAT', ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', J: '#c8b48a', j: '#a8946a', D: '#7a3a2a', C: '#a8c0d8', V: '#8a6a44', o: '#6a4e30', G: '#4a2e16', F: '#5a5a4a', f: '#44443a', L: '#4a2e16' }) },
+  // James Heller ya mayor: pelo blanco con entradas, gafas, arrugas y polo azul
+  heller: { ...B26, cab: CAB_ENTRADAS, cuerpo: CUERPO_POLO_DC, ceja: hex('#c8c8d0'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#c8c8d2', C: '#3a5a8a', c: '#2a4468', W: '#f2eee2', o: '#f2eee2', F: '#a89870', n: '#4a3020' }) },
+  // el paciente de la consulta: sudadera gris con el dibujo de un mando
+  paciente: { ...B26, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_AT, ceja: hex('#4a2a14'),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', C: '#5a5a6a', c: '#444452', X: '#e8e8ee', Q: '#e8503a', F: '#3a4a6a' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían: operario, paciente… ya eran de otros episodios)
+for (const [k, v] of Object.entries(ELENCO_AT)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 26 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_AT = { ...PAL_DC, ...COLORES({
+  K: '#24222c', u: '#4a4856', U: '#8a8898', B: '#8a5a2e', b: '#5e3a1c', T: '#b8834a', N: '#0c0a12', G: '#5a5a66',
+  Z: '#c8ccd8', z: '#8c90a4', d: '#6a4a2e', D: '#3a2a1a',
+}) };
+const pintaAT = (R, g, x, y, o = {}, pal = PAL_AT) => pintaJH(R, g, x, y, o, pal);
+const encimaAT = (R, w, hgt, x, y, o, pal = PAL_AT) => encimaNV(R, w, hgt, x, y, o, pal);
+// pinta una rejilla de letras con el px de encima (los '.' no se pintan)
+const rejAT = (px, g, i0, j0, esc = 1) => g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') for (let a = 0; a < esc; a++) for (let b = 0; b < esc; b++) px(i0 + i * esc + a, j0 + j * esc + b, f[i]); });
+// los colores con nombre de las etiquetas y su sombra
+const COLOR_AT = { rojo: '#d0383a', azul: '#3a6ad8', verde: '#3a9a4a', naranja: '#e8803a', morado: '#8a4ab8', amarillo: '#e8c840', rosa: '#e86a9a', turquesa: '#2aa8a0', gris: '#9a9aa8' };
+const oscAT = (h, f = 0.68) => '#' + [1, 3, 5].map((i) => Math.round(parseInt(h.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
+const colorAT = (c, d = 'rojo') => (typeof c === 'string' && c[0] === '#' ? c : COLOR_AT[c] ?? COLOR_AT[d]);
+
+// LOS DIBUJOS DE LAS ETIQUETAS (6 × 6, sin letras): 'foso' (el muñequito amarillo sobre el agujero negro), 'comecocos'
+// (un bocadito de queso redondo con agujeros y un mordisco en el borde, NO el de la marca), 'nave', 'flor'
+const ICONOS_AT = {
+  foso: ['..S...', '.AAA..', '..A...', '.A.A..', 'VV..VV', 'VVkkVV'],
+  comecocos: ['.YYY..', 'YYYyY.', 'YyYYYY', 'YYYYyY', 'YYyYYY', '.YYYY.'],
+  nave: ['..A...', '..A...', '.AEA..', 'AAAAA.', 'A.R.A.', '..R...'],
+  flor: ['.P.P..', 'PPYPP.', '.PPP..', '..V...', '.VV...', '..V...'],
+};
+const PAL_ICONOS_AT = COLORES({ S: '#f6c290', Y: '#f0d040', y: '#d8802a', V: '#3a9a4a', A: '#a8c8f0', E: '#ffffff', R: '#f0603a', P: '#f07aa8', k: '#05040a' });
+
+// EL CARTUCHO genérico de los setenta y ochenta: plástico negro (K, canto u) con la etiqueta de color (o.color: 'rojo',
+// 'azul', 'verde', 'naranja', 'morado', 'amarillo', 'rosa', 'turquesa', 'gris' o '#rrggbb'), la ventanita oscura con el
+// dibujo (o.icono: 'foso' | 'comecocos' | 'nave' | 'flor') y las estrías de agarre. 12 × 15
+const CARTUCHO_AT = forma(12, 15, ({ rect, put }) => {
+  rect(1, 0, 10, 14, 'K'); rect(1, 0, 10, 0, 'U');
+  rect(2, 1, 9, 8, 'L'); rect(3, 2, 8, 7, 'n');
+  for (let j = 10; j <= 13; j += 2) rect(2, j, 9, j, 'u');
+  rect(10, 1, 10, 14, 'u'); put(1, 14, 'u');
+});
+const cartuchoAT = (R, x, y, o = {}) => {
+  const col = colorAT(o.color), pal = { ...PAL_AT, ...COLORES({ L: col, n: '#1a2440' }) };
+  pintaAT(R, CARTUCHO_AT, x, y, o, pal);
+  if (o.icono && ICONOS_AT[o.icono]) rejAT(encimaAT(R, 12, 15, x, y, o, { ...pal, ...PAL_ICONOS_AT }), ICONOS_AT[o.icono], 3, 2);
+};
+
+// LA CAJA DEL CARTUCHO: cartón del color de la etiqueta (o.color) con el lateral en sombra, la franja negra de arriba
+// y la portada oscura con el dibujo en grande (o.icono, al doble). 17 × 20
+const CAJA_AT = forma(17, 20, ({ rect }) => {
+  rect(1, 0, 14, 19, 'L'); rect(15, 1, 15, 19, 'l');
+  rect(1, 0, 14, 3, 'K'); rect(2, 2, 13, 2, 'U');
+  rect(2, 5, 13, 16, 'n'); rect(1, 18, 14, 18, 'l');
+});
+const cajaCartuchoAT = (R, x, y, o = {}) => {
+  const col = colorAT(o.color), pal = { ...PAL_AT, ...COLORES({ L: col, l: oscAT(col), n: '#1a2440' }) };
+  pintaAT(R, CAJA_AT, x, y, o, pal);
+  const px = encimaAT(R, 17, 20, x, y, o, { ...pal, ...PAL_ICONOS_AT });
+  if (o.icono && ICONOS_AT[o.icono]) rejAT(px, ICONOS_AT[o.icono], 2, 5, 2);
+  px(3, 6, 'E'); px(4, 6, 'E');
+};
+
+// LA CONSOLA VIEJA de madera y negro (genérica, sin logo): la tapa negra con las rejillas de ventilación (u), la ranura
+// del cartucho en medio, la fila de seis palancas plateadas (Z/z) y el frente de madera con vetas (B/b). o.cartucho: un
+// color (o true) pincha un cartucho en la ranura; o.palancas: 0–63, qué palancas están bajadas (bits). 34 × 14
+const CONSOLA_AT = forma(34, 14, ({ rect }) => {
+  rect(1, 3, 32, 8, 'K');
+  for (let i = 3; i <= 9; i += 2) rect(i, 4, i, 5, 'u');
+  for (let i = 24; i <= 30; i += 2) rect(i, 4, i, 5, 'u');
+  rect(12, 3, 21, 4, 'u'); rect(13, 4, 20, 4, 'N');
+  rect(1, 6, 32, 6, 'u');
+  rect(1, 9, 32, 12, 'B');
+  for (const [i, j, n] of [[3, 10, 6], [12, 11, 7], [22, 10, 8], [6, 12, 4], [26, 12, 5]]) rect(i, j, i + n - 1, j, 'b');
+  rect(1, 9, 32, 9, 'T'); rect(32, 3, 32, 12, 'u');
+  rect(2, 13, 4, 13, 'K'); rect(29, 13, 31, 13, 'K');
+});
+const consolaViejaAT = (R, x, y, o = {}) => {
+  pintaAT(R, CONSOLA_AT, x, y, o);
+  const px = encimaAT(R, 34, 14, x, y, o, { ...PAL_AT, ...COLORES({ L: colorAT(o.cartucho === true ? 'rojo' : o.cartucho) }) });
+  const bits = o.palancas ?? 0;
+  [8, 11, 14, 19, 22, 25].forEach((i, n) => { const baja = (bits >> n) & 1; px(i, 8, 'z'); px(i - 1, 8, 'u'); px(i + 1, 8, 'u'); if (baja) px(i, 7, 'z'); else { px(i, 7, 'Z'); px(i, 6, 'Z'); } });
+  if (o.cartucho) { rejAT(px, ['kkkkkkkk', 'kKLLLLKk', 'kKLLLLKk', 'kKKKKKKk', '.kuuuuk.'], 13, -1); }
+};
+
+// EL JOYSTICK: la base negra (K, tapa u) con el botón rojo (R) y la palanca con su bola; o.inclina −1–1 la ladea;
+// o.pulsado: el botón hundido y encendido. 11 × 14
+const JOY_CACHE_AT = new Map();
+const joystickAT = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(-1, Math.min(1, o.inclina ?? 0)) * 2);
+  if (!JOY_CACHE_AT.has(n)) JOY_CACHE_AT.set(n, forma(11, 14, ({ rect, linea, disco }) => {
+    rect(1, 7, 9, 12, 'K'); rect(1, 7, 9, 7, 'u'); rect(9, 7, 9, 12, 'u');
+    rect(2, 13, 8, 13, 'K');
+    linea(5, 8, 5 + n, 3, 'K'); disco(5 + n, 2, 1.4, 'u');
+    rect(2, 8, 3, 8, 'R');
+  }));
+  pintaAT(R, JOY_CACHE_AT.get(n), x, y, o);
+  const px = encimaAT(R, 11, 14, x, y, o, { ...PAL_AT, ...COLORES({ L: '#ff6a5a' }) });
+  px(4 + n, 1, 'U');
+  if (o.pulsado) { px(2, 8, 'L'); px(3, 8, 'L'); } else px(2, 8, 'E');
+};
+
+// LA TELE DE TUBO de los setenta y ochenta: mueble de madera (B/b, filo T) con las antenas de conejo, el marco negro,
+// la pantalla redondeada, el panel de mandos (dos ruedas y la rejilla del altavoz) y las patas. o.pantalla(R, [x0, y0,
+// x1, y1]) pinta la pantalla (se le pasa el hueco en píxeles); si no, nieve que corre con o.t; o.encendida false: apagada
+// con un reflejo. 28 × 30
+const TELE_AT = forma(28, 30, ({ rect, linea, disco }) => {
+  linea(13, 5, 7, 0, 'Z'); linea(14, 5, 21, 0, 'Z'); rect(11, 5, 16, 6, 'K');
+  rect(0, 7, 27, 26, 'B'); rect(0, 7, 27, 7, 'T'); rect(27, 7, 27, 26, 'b'); rect(0, 26, 27, 26, 'b');
+  for (const [i, j, n] of [[1, 9, 1], [1, 15, 1], [1, 21, 1], [20, 24, 5], [3, 25, 9]]) rect(i, j, i + n - 1, j + (n === 1 ? 2 : 0), 'b');
+  rect(2, 8, 19, 25, 'K'); rect(3, 9, 18, 24, 'G');
+  rect(21, 9, 25, 24, 'u'); disco(23, 11.5, 1.5, 'Z'); disco(23, 16, 1.5, 'Z');
+  for (let j = 19; j <= 23; j += 2) rect(22, j, 24, j, 'K');
+  rect(3, 27, 4, 29, 'K'); rect(23, 27, 24, 29, 'K');
+});
+const teleCRTAT = (R, x, y, o = {}) => {
+  pintaAT(R, TELE_AT, x, y, o);
+  const px = encimaAT(R, 28, 30, x, y, o), t = o.t ?? 0, s = o.s ?? 1, dir = o.dir ?? 1;
+  px(23, 11, 'k'); px(23, 16, 'k'); px(24, 12, 'z'); px(22, 16, 'z');
+  if (typeof o.pantalla === 'function') {
+    const x0 = Math.round(x - 14 * s) + (dir > 0 ? 3 : 9) * s, y0 = Math.round(y - 30 * s) + 9 * s;
+    o.pantalla(R, [x0, y0, x0 + 16 * s - 1, y0 + 16 * s - 1]);
+  } else if (o.encendida === false) {
+    for (let j = 9; j <= 24; j++) for (let i = 3; i <= 18; i++) px(i, j, 'u');
+    for (let k = 0; k < 4; k++) px(5 + k, 11 + k, 'G');
+  } else {
+    for (let j = 9; j <= 24; j++) for (let i = 3; i <= 18; i++) px(i, j, ((i * 7 + j * 13 + Math.floor(t * 12) * 5) % 9) < 3 ? 'z' : (j + Math.floor(t * 8)) % 4 ? 'Z' : 'U');
+  }
+  for (const [i, j] of [[3, 9], [18, 9], [3, 24], [18, 24]]) px(i, j, 'K');
+};
+
+// EL FOSO: un agujero negro que se abre en el suelo (N el fondo, b la pared de enfrente iluminada, T los terrones del
+// borde); o.abierto 0–1 (0 no pinta nada). 32 × 10
+const FOSO_CACHE_AT = new Map();
+const fosoAT = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.abierto ?? 1)) * 10);
+  if (!n) return;
+  if (!FOSO_CACHE_AT.has(n)) FOSO_CACHE_AT.set(n, forma(32, 10, ({ put }) => {
+    const rx = 1.5 + 13.5 * n / 10, ry = 0.8 + 3.4 * n / 10;
+    for (let j = 0; j < 10; j++) for (let i = 0; i < 32; i++) {
+      const d = ((i - 15.5) / rx) ** 2 + ((j - 5) / ry) ** 2;
+      if (d <= 1) put(i, j, j < 5 && d > 0.62 ? 'b' : 'N');
+    }
+    if (n >= 4) for (const a of [0.7, 3.9]) put(Math.round(15.5 + Math.cos(a) * (rx + 1)), Math.round(5 + Math.sin(a) * (ry + 1)), 'T');
+  }));
+  pintaAT(R, FOSO_CACHE_AT.get(n), x, y, o);
+};
+
+// LA CONSOLA JAPONESA de 1983, roja y blanca (genérica, sin logo): la carcasa blanca (X, sombra x) con la ranura arriba,
+// la base roja oscura (R/r), los dos mandos rojos encajados a los lados (la cruz k y los botones), la palanca dorada de
+// expulsar (O) y el interruptor. 32 × 12
+const CONSOLA_JP_AT = forma(32, 12, ({ rect, put }) => {
+  rect(1, 2, 30, 6, 'X'); rect(1, 6, 30, 6, 'x'); rect(30, 2, 30, 6, 'x');
+  rect(10, 2, 21, 3, 'x'); rect(11, 2, 20, 2, 'N');
+  rect(1, 7, 30, 10, 'R'); rect(1, 10, 30, 10, 'r'); rect(30, 7, 30, 10, 'r');
+  rect(2, 3, 8, 5, 'r'); rect(3, 3, 7, 4, 'R'); rect(23, 3, 29, 5, 'r'); rect(24, 3, 28, 4, 'R');
+  put(4, 3, 'k'); put(26, 3, 'k'); put(6, 4, 'O'); put(7, 4, 'O'); put(27, 4, 'O'); put(28, 4, 'O');
+  rect(13, 8, 14, 9, 'O'); rect(18, 8, 19, 8, 'x');
+  rect(2, 11, 4, 11, 'K'); rect(27, 11, 29, 11, 'K');
+});
+const consolaJaponesaAT = (R, x, y, o = {}) => pintaAT(R, CONSOLA_JP_AT, x, y, o, { ...PAL_AT, ...COLORES({ X: '#f2eee2', x: '#c8c0b0', R: '#a8282e', r: '#76181e', O: '#d8a838' }) });
+
+// LA CONSOLA GRIS de 1985 (genérica, sin logo): caja de carga frontal, tapa gris clara (Z) con la trampilla y sus
+// estrías, la franja negra, el frente gris oscuro (G) con la portezuela, los dos enchufes de los mandos, los botones y
+// la luz roja (o.encendida). 32 × 12
+const CONSOLA_GRIS_AT = forma(32, 12, ({ rect }) => {
+  rect(1, 1, 30, 5, 'Z'); rect(30, 1, 30, 5, 'z');
+  rect(6, 1, 25, 4, 'z'); rect(7, 1, 24, 3, 'Z'); for (let j = 1; j <= 3; j += 2) rect(8, j, 23, j, 'U');
+  rect(1, 6, 30, 6, 'K');
+  rect(1, 7, 30, 10, 'G'); rect(1, 10, 30, 10, 'u');
+  rect(7, 7, 20, 9, 'u'); for (let i = 8; i <= 19; i += 2) rect(i, 7, i, 9, 'G');
+  rect(2, 8, 3, 9, 'K'); rect(4, 8, 5, 9, 'K');
+  rect(23, 8, 25, 8, 'U'); rect(26, 8, 28, 8, 'U');
+  rect(2, 11, 4, 11, 'K'); rect(27, 11, 29, 11, 'K');
+});
+const consolaGrisAT = (R, x, y, o = {}) => {
+  const pal = { ...PAL_AT, ...COLORES({ Z: '#c8c8cc', z: '#9a9aa2', U: '#e0e0e4', G: '#6a6a72', u: '#4a4a52' }) };
+  pintaAT(R, CONSOLA_GRIS_AT, x, y, o, pal);
+  const px = encimaAT(R, 32, 12, x, y, o, pal); px(29, 8, o.encendida ? 'R' : 'r'); px(2, 8, 'Z'); px(4, 8, 'Z');
+};
+
+// EL SELLO DORADO DE CALIDAD (sin letras): la medalla de borde dentado (O, sombra g) con la estrella (Y) y las dos
+// cintas rojas; con o.t, un destello que recorre el borde. 15 × 17
+const SELLO_AT = forma(15, 17, ({ rect, disco, put }) => {
+  rect(3, 10, 5, 16, 'R'); rect(9, 10, 11, 16, 'R'); put(4, 16, '.'); put(10, 16, '.'); rect(5, 10, 5, 15, 'r'); rect(11, 10, 11, 15, 'r');
+  for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8; put(7 + Math.cos(a) * 6.4, 6.5 + Math.sin(a) * 6.4, 'O'); }
+  disco(7, 6.5, 5.6, 'O'); disco(7, 6.5, 4.4, 'g'); disco(7, 6.5, 3.6, 'O');
+  for (const [i, j] of [[7, 4], [6, 5], [7, 5], [8, 5], [5, 6], [6, 6], [7, 6], [8, 6], [9, 6], [6, 7], [7, 7], [8, 7], [6, 8], [8, 8]]) put(i, j, 'Y');
+});
+const selloCalidadAT = (R, x, y, o = {}) => {
+  const pal = { ...PAL_AT, ...COLORES({ O: '#e8b830', g: '#a87a18', Y: '#fff0a0', R: '#c8303a', r: '#8a1e26' }) };
+  pintaAT(R, SELLO_AT, x, y, o, pal);
+  if (o.t != null) { const a = o.t * 3, px = encimaAT(R, 15, 17, x, y, o, pal); px(Math.round(7 + Math.cos(a) * 5), Math.round(6.5 + Math.sin(a) * 5), 'E'); }
+};
+
+// LA PALA: el puño en D (T), el mango de madera (B/b) y la hoja de acero (Z, sombra z) con la punta; o.tierra: con
+// tierra encima. 9 × 26
+const PALA_AT = forma(9, 26, ({ rect, put }) => {
+  rect(3, 0, 5, 0, 'T'); put(2, 1, 'T'); put(6, 1, 'T'); rect(3, 2, 5, 2, 'T');
+  rect(4, 3, 4, 17, 'B'); rect(5, 3, 5, 17, 'b');
+  rect(3, 17, 5, 18, 'z');
+  rect(1, 19, 7, 23, 'Z'); rect(2, 24, 6, 24, 'Z'); rect(3, 25, 5, 25, 'Z'); rect(7, 19, 7, 23, 'z'); put(6, 24, 'z');
+});
+const palaAT = (R, x, y, o = {}) => {
+  pintaAT(R, PALA_AT, x, y, o);
+  const px = encimaAT(R, 9, 26, x, y, o); px(2, 20, 'E');
+  if (o.tierra) for (const [i, j] of [[2, 19], [3, 19], [4, 19], [5, 19], [3, 20], [4, 20], [5, 20], [6, 19], [4, 21]]) px(i, j, (i + j) % 3 ? 'd' : 'D');
+};
+
+export const PIEZAS_AT = {
+  cartucho: cartuchoAT, cajaCartucho: cajaCartuchoAT, consolaVieja: consolaViejaAT, joystick: joystickAT, teleCRT: teleCRTAT,
+  foso: fosoAT, consolaJaponesa: consolaJaponesaAT, consolaGris: consolaGrisAT, selloCalidad: selloCalidadAT, pala: palaAT,
+};
+
+// ── Episodio 25 (el manuscrito Voynich, 1600–2026): la Praga de Rodolfo II, Marci, Baresch y Kircher, Voynich y su
+// librería, los descifradores del siglo XX, el carbono 14 de 2009 y la sala de libros raros de Yale ─────────────────
+// Las personas reales se reconocen solo por sus atributos (gola, perilla, bonete, bigote, quevedos); los escribas son
+// inventados. Las letras del libro son signos inventados que no son de ningún alfabeto. Nombres nuevos con VM.
+
+// tocados nuevos del 25
+Object.assign(TOCADOS, {
+  // el gorro de piel del alquimista (M/m, el pelaje a mechones)
+  gorroPielVM: [[
+    '...kkkkkkkk....',
+    '..kMmMMmMMMk...',
+    '.kMMMMmMMmMMk..',
+    '.kmMMmMMMMmMk..',
+    'kMMmMMMmMMMMMk.',
+    'kkkkkkkkkkkkkk.',
+  ], -3],
+  // el bonete de los jesuitas (J/j): cuadrado, con las tres crestas y la borla
+  boneteVM: [[
+    '......kk.......',
+    '.....kJJk......',
+    '...kkkkkkkk....',
+    '..kJjJJjJJjk...',
+    '..kJjJJjJJjk...',
+    '.kJJJJJJJJJJk..',
+    '.kkkkkkkkkkkk..',
+  ], -4],
+  // la corona imperial de Rodolfo II: el aro de oro (O/o) con piedras (Q roja, A azul), las dos mitras rojas (D) a los
+  // lados, el arco de oro por encima y la cruz
+  coronaImperialVM: [[
+    '.......k.......',
+    '......kOk......',
+    '.....kkOkk.....',
+    '...kkDkOkDkk...',
+    '..kDDDkOkDDDk..',
+    '..kDDDkOkDDDk..',
+    '..kOoOOOOOoOk..',
+    '..kOQOOAOOQOk..',
+    '..kkkkkkkkkkk..',
+  ], -6],
+});
+
+// ── cabezas ──
+// la perilla puntiaguda bajo la barbilla (Marci): con el bigote (bigoteTR) queda la barba de médico de 1665
+const CAB_PERILLA_VM = parche(CAB_CORTO, [[9, 10, 'HHH'], [8, 11, 'HH'], [8, 12, 'HHk']]);
+// barba corta y la mandíbula prominente, adelantada (Rodolfo II): la barbilla baja y sale una fila
+const CAB_HABSBURGO_VM = parche(CAB_BARBA_CORTA_DC, [[5, 11, 'HHHHHH'], [11, 11, 'k'], [5, 12, 'kkkkkk'], [12, 10, 'k'], [11, 10, 'H']]);
+// el pelo corto de ella (Lisa Fagin Davis): el de siempre con la nuca un poco más larga
+const CAB_CORTA_VM = parche(CAB_CORTO, [[0, 8, 'kHH'], [0, 9, 'kHHk'], [1, 10, 'kk']]);
+
+// ── cuerpos ──
+// el jubón negro de 1600–1665 (C/c) con la gola blanca de lechuguilla plisada (X/x), los botones (o), las calzas (F) y
+// las medias (w): Marci, Rodolfo
+const CUERPO_GOLA_VM = [
+  '..kXxXxXxXxXk..',
+  '..kxXxXxXxXxk..',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kCkCCCoCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkcCCCCCckk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kwwwkwwwk...',
+  '...kwwwkwwwk...',
+  '..kkkkk.kkkkk..',
+];
+// el del emperador: la cadena de oro (O) colgando en pico sobre el pecho
+const CUERPO_GOLA_ORO_VM = parche(CUERPO_GOLA_VM, [[4, 2, 'O'], [10, 2, 'O'], [5, 3, 'O'], [9, 3, 'O'], [6, 4, 'OOO']]);
+// el traje de tweed de 1921 (C con las motas c) con la corbata (o)
+const CUERPO_TWEED_VM = parche(CUERPO_TRAJE_DC, [[4, 2, 'c'], [9, 3, 'c'], [5, 4, 'c'], [10, 5, 'c'], [5, 6, 'c'], [9, 6, 'c'], [4, 1, 'c']]);
+// rebeca (C) con la blusa (W) y la falda por debajo de la rodilla (F), medias (S) y zapatos (L): las descifradoras de
+// los cuarenta
+const CUERPO_FALDA_VM = parche(CUERPO_REBECA, [[3, 7, 'kFFFFFFFk'], [3, 8, 'kFFFFFFFk'], [3, 9, 'kFFFFFFFk'], [3, 10, 'kkkkkkkkk'], [3, 11, ' kSk kSk '], [2, 12, ' kLLk kLLk ']]);
+// la bibliotecaria de Yale: la misma ropa con los guantes blancos de algodón (X)
+const CUERPO_GUANTES_VM = parche(CUERPO_FALDA_VM, [[2, 5, 'X'], [12, 5, 'X']]);
+// la sudadera de 2018 (C) con los cordones de la capucha (X) y el bolsillo canguro (c)
+const CUERPO_SUDADERA_VM = parche(CUERPO_MANGA, [[5, 0, 'cCCCc'], [6, 1, 'X.X'], [6, 2, 'X.X'], [5, 5, 'ccccc']]);
+
+// ── detalles (delante) ──
+// el gran bigote de puntas caídas (Voynich)
+const bigoteGrandeVM = (c) => { for (let i = 7; i <= 12; i++) c.cab.px(i, 8, c.pal.H); c.cab.px(7, 9, c.pal.H); c.cab.px(12, 9, c.pal.h); };
+// la barba larga del alquimista, que le cae sobre el pecho
+const barbaLargaVM = (c) => c.cuerpo.rej(['kHHHHk', 'kHhHHk', '.kHHk.', '..kk..'], 6, 0);
+// la capa roja del emperador por detrás (Q/q), que asoma a los lados de las piernas
+const CAPA_VM = ['..kkkkkkkkkk...', '.kQQQQQQQQQQk..', '.kQQQQQQQQQQk..', 'kQQQQQQQQQQQQk.', 'kQQQQQQQQQQQQk.', 'kQQQQQQQQQQQQk.', 'kQQQQQQQQQQQQk.', 'kQqQQQQQQQQqQk.', 'kqQQQQQQQQQQqk.', 'kqQqQQQQQQqQqk.', 'kqqqqqqqqqqqqk.', 'kkkkkkkkkkkkkk.'];
+const capaVM = (c) => c.cuerpo.rej(CAPA_VM, 0, 1);
+const PAL_MANO_VM = { ...PAL_MANO, ...COLORES({ X: '#efe6cc', x: '#c8b88a', R: '#c8303a', A: '#2a3a5a', E: '#a8d8f0', Z: '#9a9aa8', Y: '#f0c840', b: '#7a4a24', V: '#3a8a3a' }) };
+// la carta doblada con el lacre rojo (Marci)
+const conCartaVM = enMano(['kkkkkk', 'kXXXXk', 'kxRRxk', 'kXXXXk', 'kkkkkk'], 12, 2, PAL_MANO_VM);
+// el portátil abierto en las manos (2018): la pantalla (A, el brillo E) y el teclado (Z)
+const conPortatilVM = enMano(['kkkkkk.', 'kAAAAk.', 'kAEAAk.', 'kAAAAk.', 'kkkkkkk', '.kZZZZk', '..kkkkk'], 10, 1, PAL_MANO_VM);
+// el girasol de verdad que compara el botánico
+const conGirasolVM = enMano(['.kkk.', 'kYYYk', 'kYbYk', 'kYYYk', '.kVk.', '..kV.', '..k..'], 12, 0, PAL_MANO_VM);
+// el mazo de fichas perforadas (las descifradoras)
+const conFichasVM = enMano(['kkkkk', 'kXkXk', 'kXXkk', 'kxkxk', 'kkkkk'], 12, 2, PAL_MANO_VM);
+
+// ── el reparto del 25 ──
+const B25 = B23, B25M = B23M;
+export const ELENCO_VM = {
+  // ── Praga, 1600–1665 ──
+  // Johannes Marcus Marci (1665): el pelo gris corto, bigote y perilla gris, gola blanca y todo de negro; la carta
+  marci: { ...B25, cab: CAB_PERILLA_VM, cuerpo: CUERPO_GOLA_VM, ceja: hex('#8a8a96'), delante: varios(bigoteTR, arrugasDC, conCartaVM),
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#24202c', c: '#16121c', X: '#f6f4ee', x: '#c8c4bc', o: '#4a4458', F: '#24202c', w: '#2a2430' }) },
+  // Athanasius Kircher: jesuita con la sotana negra, el bonete y la barba oscura
+  kircher: { ...B25, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_SOTANA, tocado: 'boneteVM', ceja: hex('#3a2a20'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#1e1a24', c: '#141018', W: '#e8e4da', o: '#3a3446', J: '#1e1a24', j: '#3a3446', L: '#1e1a24' }) },
+  // Georg Baresch, alquimista (hacia 1639): barba larga canosa, gorro de piel y el mandil de cuero sobre la camisa
+  baresch: { ...B25, cab: CAB_BARBA, cuerpo: CUERPO_TALLER_NV, tocado: 'gorroPielVM', ceja: hex('#5a4a3a'), delante: varios(barbaLargaVM, arrugasDC),
+    pal: CLT({ H: '#8a7a6a', h: '#a89888', M: '#6a4426', m: '#4a2e18', W: '#d8d0b8', B: '#8a5a2e', b: '#6a4220', G: '#4a2e16', F: '#4a4a3a', n: '#3a2a1a' }) },
+  // el emperador Rodolfo II (hacia 1610): barba castaña, la mandíbula adelantada, la gola, el jubón negro con la cadena
+  // de oro, la capa roja y la corona imperial
+  rodolfo: { ...B25, cab: CAB_HABSBURGO_VM, cuerpo: CUERPO_GOLA_ORO_VM, tocado: 'coronaImperialVM', ceja: hex('#5a3a1e'), detras: capaVM,
+    pal: CLT({ H: '#7a5030', h: '#9a6a40', C: '#24202c', c: '#16121c', X: '#f6f4ee', x: '#c8c4bc', o: '#f0c040', O: '#f0c040', F: '#24202c', w: '#e8e4da', Q: '#b02a34', q: '#7a1a22', D: '#b02a34' }) },
+  // Jacobus Horcicky de Tepenec, químico y jardinero del emperador: sombrero de ala y el delantal verde de jardinero
+  tepenec: { ...B25, cuerpo: CUERPO_DELANTAL_AT, tocado: 'alaAT', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', J: '#3a2a1a', j: '#5a4430', D: '#6a5a3a', W: '#e8e0c8', C: '#5a4a3a', o: '#c8b48a', V: '#3a7a3a', v: '#2a5a2a', F: '#4a3a2a' }) },
+  // ── el librero, 1912–1960 ──
+  // Wilfrid Voynich: entradas oscuras, el gran bigote, los quevedos (las gafas redondas de metal) y el traje oscuro
+  voynich: { ...B25, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1424'), delante: varios(gafasRedondasDC, bigoteGrandeVM),
+    pal: CLT({ H: '#2a1c18', h: '#4a3430', C: '#34343e', c: '#24242c', W: '#f2eee2', o: '#6a2a3a', F: '#34343e' }) },
+  // Ethel Voynich (1930): señora con el pelo corto canoso y el vestido azul de pliegues
+  ethel: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PLIEGUES, ceja: hex('#8a8a96'), delante: arrugasDC,
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e2', C: '#4a5a8a', c: '#36446a', I: '#2a2a3a', W: '#f2eee2', L: '#2a2430' }) },
+  // Anne Nill (1960): la secretaria con las gafas de pasta y el traje sastre verde
+  nill: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SASTRE, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: gafasPastaDC,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#5a8a7a', c: '#3e6a5a', W: '#f2eee2', o: '#f0c040', I: '#2a2a34' }) },
+  // Hans P. Kraus (los sesenta): calvo con entradas, gafas de pasta, traje gris y pajarita
+  kraus: { ...B25, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_FRAC, ceja: hex('#3a3a44'), delante: gafasPastaDC,
+    pal: CLT({ H: '#4a4a54', h: '#6a6a76', C: '#4a4e5a', c: '#363a44', W: '#f2eee2', o: '#8a2a3a', F: '#4a4e5a' }) },
+  // ── los descifradores, 1921–1945 ──
+  // William Newbold (1921): sienes canosas, bigote, traje de tweed pardo con la corbata verde
+  newbold: { ...B25, cab: CAB_SIENES, cuerpo: CUERPO_TWEED_VM, ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d2', C: '#8a7a5a', c: '#6a5a3e', W: '#f2eee2', o: '#3a6a3a', F: '#6a5a3e' }) },
+  // John Manly (1931): pelo blanco, gafas redondas y traje gris
+  manly: { ...B25, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#c8c8d0'), delante: varios(gafasRedondasDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#c8c8d2', C: '#5a5a6a', c: '#444452', W: '#f2eee2', o: '#2a3a6a', F: '#5a5a6a' }) },
+  // William Friedman (los cuarenta): pelo engominado, bigote fino, gafas redondas, traje pardo y pajarita
+  friedman: { ...B25, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, ceja: hex('#2a1c14'), delante: varios(bigoteTR, gafasRedondasDC),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#6a5a4a', c: '#4e4234', W: '#f2eee2', o: '#2a2430', F: '#6a5a4a' }) },
+  // su equipo: dos descifradoras con rebeca, blusa, falda y el pelo recogido en un moño; un descifrador con camisa y
+  // tirantes
+  descifradora: { ...B25, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_FALDA_VM, ceja: hex('#4a2a14'), mejillas: [[6, 8], [12, 8]], delante: varios(monoBajoTR, conFichasVM),
+    pal: CLT({ H: '#5a3418', h: '#7a4a24', s: '#e8a080', C: '#8a3a4a', c: '#6a2a38', W: '#f2eee2', F: '#4a4a5a', L: '#2a2430' }) },
+  descifradora2: { ...B25, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_FALDA_VM, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], delante: varios(monoBajoTR, gafasFinasDC),
+    pal: CLT({ H: '#c89a50', h: '#e0b868', s: '#e8a080', C: '#4a7a6a', c: '#365a4e', W: '#f2eee2', F: '#5a4a3a', L: '#2a2430' }) },
+  descifrador: { ...B25, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TIRANTES, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#e8eef6', c: '#c4ccd8', W: '#c4ccd8', G: '#4a3a2a', F: '#5a5a66', n: '#2a2430' }) },
+  // ── 2009–2019 ──
+  // Greg Hodgins (2009): sienes canosas, gafas, bata blanca con la camisa azul
+  hodgins: { ...B25, cab: CAB_SIENES, cuerpo: CUERPO_BATA_DC, ceja: hex('#4a3a2a'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4a3a', h: '#7a6a58', w: '#c8c8d0', C: '#f4f4f8', c: '#c8ccd8', W: '#a8c0e0', o: '#2a4a6a', F: '#4a4a5a', n: '#2a2430' }) },
+  // Lisa Fagin Davis: pelo corto, gafas y la americana azul marino
+  davis: { ...B25, cab: CAB_CORTA_VM, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#4a3a2a'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4a3a', h: '#7a6a58', s: '#e8a080', C: '#2a3a5a', c: '#1e2a44', W: '#e8e0d0', o: '#e8e0d0', F: '#2a2a34' }) },
+  // los botánicos de 2013: él con barba, camisa de campo verde y el girasol; su colega con gafas y rebeca naranja
+  botanico: { ...B25, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_MANGA, ceja: hex('#5a3a24'), delante: conGirasolVM,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#7a8a5a', c: '#5e6c44', F: '#8a7a5a' }) },
+  colega: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_REBECA, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: gafasPastaDC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#c87a3a', c: '#a05a2a', W: '#f2eee2', F: '#3a4a6a' }) },
+  // los investigadores de la inteligencia artificial (2018): sudadera con capucha y el portátil abierto
+  investigadorIA: { ...B25, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#1c1424'), delante: conPortatilVM,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#3a4a6a', c: '#2a3654', X: '#e8e8ee', F: '#2a2a34' }) },
+  investigadoraIA: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#7a4a24'), mejillas: [[6, 8], [12, 8]], delante: conPortatilVM,
+    pal: CLT({ H: '#8a5428', h: '#a86e3a', s: '#e8a080', C: '#8a3a5a', c: '#6a2a44', X: '#f2eee2', F: '#3a4a6a' }) },
+  // el académico británico de 2019: entradas, gafas y la chaqueta de pana marrón sobre la camisa azul
+  academicoBritanico: { ...B25, cab: CAB_ENTRADAS, cuerpo: CUERPO_PANA_DC, ceja: hex('#5a3a24'), delante: gafasFinasDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#8a6a3a', c: '#6a4e2a', W: '#a8c8e8', o: '#a8c8e8', F: '#4a4a5a' }) },
+  // ── el siglo XV: cinco escribas inventados, cada uno con su túnica, su gorro y su pluma ──
+  escriba1: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'pileo', ceja: hex('#5a3418'), delante: conPlumaNV,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', J: '#a83a3a', j: '#7a2a2a', C: '#3a5a9a', c: '#2a4478', o: '#2a4478', G: '#4a2e16', L: '#3a2a1a' }) },
+  escriba2: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'boina', ceja: hex('#2a1c14'), delante: varios(bigoteTR, conPlumaNV),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', J: '#2a4a2a', j: '#3a5e3a', C: '#a8343a', c: '#7a242a', o: '#7a242a', G: '#2a2018', L: '#3a2a1a' }) },
+  escriba3: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'capucha', ceja: hex('#7a4a24'), delante: conPlumaNV,
+    pal: CLT({ H: '#8a5428', h: '#a86e3a', B: '#6a4a2a', b: '#4e3420', C: '#6a6a3a', c: '#4e4e2a', o: '#4e4e2a', G: '#3a2a1a', L: '#3a2a1a' }) },
+  escriba4: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'cofia', ceja: hex('#8a5a24'), mejillas: [[6, 8], [12, 8]], delante: conPlumaNV,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', s: '#e8a080', W: '#f2eee2', w: '#c8c4bc', C: '#7a4a8a', c: '#5a3468', o: '#5a3468', G: '#c8a040', L: '#3a2a1a' }) },
+  escriba5: { ...B25, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'pileo', ceja: hex('#a8a8b4'), delante: varios(arrugasDC, conPlumaNV),
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e2', J: '#2a2430', j: '#4c4660', C: '#c8903a', c: '#9a6a28', o: '#9a6a28', G: '#4a2e16', L: '#3a2a1a' }) },
+  // la bibliotecaria de la sala de libros raros de Yale: media melena, gafas, rebeca gris y los guantes blancos
+  bibliotecaria: { ...B25, cab: CAB_MEDIA_TR, cuerpo: CUERPO_GUANTES_VM, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#4a4a5a', c: '#36364a', W: '#f2eee2', X: '#ffffff', F: '#2a2a34', L: '#1e1a24' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían)
+for (const [k, v] of Object.entries(ELENCO_VM)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 25 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_VM = { ...PAL_DC, ...COLORES({
+  X: '#efe6cc', x: '#c8b88a', P: '#e8d8a8', p: '#c4ac78', e: '#5a3a24', V: '#4a8a3a', v: '#2e6a2a', l: '#8ac04a',
+  T: '#d8b878', B: '#a8743c', b: '#6a4422', A: '#3a6ad8', a: '#9ab8e0', U: '#4a9a8a', O: '#e8b830', g: '#a87a18',
+  o: '#ffe890', Q: '#c0603a', q: '#8a3e22', R: '#c8303a', r: '#8a1e26', Y: '#f0d040', G: '#6a7a72', u: '#4e5a54',
+  K: '#24222c', d: '#5a3a22', S: '#f6c290', M: '#c8a070', I: '#f07aa8',
+}) };
+const pintaVM = (R, g, x, y, o = {}, pal = PAL_VM) => pintaJH(R, g, x, y, o, pal);
+const encimaVM = (R, w, hgt, x, y, o, pal = PAL_VM) => encimaNV(R, w, hgt, x, y, o, pal);
+
+// LOS SIGNOS INVENTADOS del libro (2 × 2, y los «de horca» de 3 × 3 que suben una fila): trazos sueltos que no son
+// letras de ningún alfabeto; una línea es una serie de palabras de 2–4 signos con un hueco entre ellas, siempre igual
+// para la misma semilla; las líneas van cada 3 filas
+const SIGNOS_VM = [['ee', 'e.'], ['e.', 'ee'], ['.e', 'ee'], ['ee', '.e'], ['e.', '.e'], ['.e', 'e.'], ['ee', 'ee']];
+const HORCA_VM = [['e.e', 'eee', '.e.'], ['.ee', 'e.e', 'e..']];
+const lineaSignosVM = (px, i0, j0, ancho, semilla, tinta, mueve = 0) => {
+  let i = i0, k = semilla * 7 + 3;
+  const rnd = () => { k = (k * 1103515245 + 12345) & 0x7fffffff; return k / 0x7fffffff; };
+  while (i < i0 + ancho) {
+    const n = 2 + Math.floor(rnd() * 3);
+    for (let m = 0; m < n && i < i0 + ancho - 1; m++) {
+      const horca = m === 0 && rnd() < 0.3, g = horca ? HORCA_VM[Math.floor(rnd() * 2)] : SIGNOS_VM[Math.floor(rnd() * SIGNOS_VM.length)];
+      if (i + g[0].length > i0 + ancho) break;
+      const dj = (mueve ? Math.round(Math.sin(mueve + i * 0.9) * 0.8) : 0) - (horca ? 1 : 0);
+      g.forEach((f, j) => { for (let a = 0; a < f.length; a++) if (f[a] !== '.') px(i + a, j0 + j + dj, tinta); });
+      i += g[0].length + 1;
+    }
+    i += 1;
+  }
+};
+// los dibujos de las páginas (12 × 12 en la hoja, a la izquierda): 'planta' (la planta de raíces como patas), 'estrellas'
+// (la rueda de estrellas), 'estanques' (figuritas vestidas en los estanques verdes unidos por tubos) y 'tarros'
+const DIBUJO_PLANTA_VM = ['....rAr.....', '.....V......', '..VVlVVV....', '.VlVVVVlV...', '..VV.V.VV...', '.....V......', '...VVVVV....', '..VlV.VlV...', '.....B......', '....BBB.....', '...B.B.B....', '..B..B..B...'];
+const dibujoPaginaVM = (px, pag, i0, j0) => {
+  if (pag === 'estrellas') {
+    for (let a = 0; a < 40; a++) { const t = a / 40 * Math.PI * 2; px(i0 + Math.round(6 + Math.cos(t) * 5.5), j0 + Math.round(6 + Math.sin(t) * 5.5), 'e'); }
+    for (let a = 0; a < 20; a++) { const t = a / 20 * Math.PI * 2; px(i0 + Math.round(6 + Math.cos(t) * 2.6), j0 + Math.round(6 + Math.sin(t) * 2.6), 'e'); }
+    for (let a = 0; a < 8; a++) { const t = a / 8 * Math.PI * 2 + 0.3; px(i0 + Math.round(6 + Math.cos(t) * 4), j0 + Math.round(6 + Math.sin(t) * 4), a % 2 ? 'Y' : 'A'); }
+    for (const [a, b] of [[6, 5], [5, 6], [6, 6], [7, 6], [6, 7]]) px(i0 + a, j0 + b, 'Y');
+    return;
+  }
+  if (pag === 'estanques') {
+    for (const [cx, cy] of [[3.5, 3.5], [8.5, 9.5]]) for (let j = -2; j <= 2; j++) for (let i = -4; i <= 4; i++) if ((i / 3.6) ** 2 + (j / 1.8) ** 2 <= 1) px(i0 + Math.round(cx + i), j0 + Math.round(cy + j), Math.abs(j) === 2 || Math.abs(i) >= 4 ? 'e' : 'U');
+    for (const [a, b] of [[6, 5], [7, 6], [7, 7], [8, 8]]) { px(i0 + a, j0 + b, 'V'); px(i0 + a + 1, j0 + b, 'v'); }
+    for (const [a, b, c] of [[2, 3, 'A'], [4, 3, 'R'], [7, 9, 'R'], [10, 9, 'A']]) { px(i0 + a, j0 + b - 1, 'S'); px(i0 + a, j0 + b, c); }
+    return;
+  }
+  if (pag === 'tarros') {
+    const tarro = (x0, y0, w, h, c) => { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) px(i0 + x0 + i, j0 + y0 + j, i === 0 || i === w - 1 || j === h - 1 ? 'e' : c); for (let i = 1; i < w - 1; i++) px(i0 + x0 + i, j0 + y0 - 1, 'B'); };
+    tarro(0, 5, 4, 7, 'A'); tarro(4, 2, 4, 10, 'R'); tarro(8, 6, 4, 6, 'V');
+    px(i0 + 5, j0 + 6, 'Y'); px(i0 + 1, j0 + 8, 'a');
+    return;
+  }
+  DIBUJO_PLANTA_VM.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') px(i0 + i, j0 + j, f[i] === 'r' ? 'R' : f[i]); });
+};
+
+// EL MANUSCRITO VOYNICH: cerrado, la encuadernación flexible de pergamino (X, sombra x) con las manchas de los siglos
+// (T) y el canto de las hojas (p); o.abierto: las dos páginas amarillentas (P/p) con el dibujo de o.pagina ('planta' |
+// 'estrellas' | 'estanques' | 'tarros') y las líneas de signos inventados en tinta parda; o.brilla: los signos brillan
+// en oro; o.mueve (con o.t): los signos se mueven para no dejarse leer. Cerrado 14 × 17, abierto 34 × 18
+const LIBRO_VM = forma(14, 17, ({ rect, put }) => {
+  // tapa de vitela clara (X), lomo oscuro (x), y el grueso de las hojas a la derecha y abajo con sus rayas (p/x), para
+  // que se lea como un libro y no como una hoja suelta (aviso de las escenas del 25)
+  rect(1, 1, 11, 14, 'X'); rect(1, 1, 2, 15, 'x');
+  rect(12, 2, 13, 15, 'p'); for (let j = 3; j <= 14; j += 2) put(13, j, 'x');
+  rect(3, 15, 13, 16, 'p'); for (let i = 4; i <= 12; i += 2) put(i, 16, 'x');
+  rect(11, 1, 11, 14, 'x'); rect(3, 14, 11, 14, 'x');
+  for (const [i, j] of [[8, 4], [9, 4], [5, 10], [6, 11], [10, 12]]) put(i, j, 'T');
+  rect(4, 7, 10, 7, 'x');
+});
+const LIBRO_ABIERTO_VM = forma(34, 18, ({ rect, put }) => {
+  rect(0, 16, 33, 17, 'x'); rect(1, 1, 16, 16, 'P'); rect(17, 1, 32, 16, 'P');
+  rect(15, 1, 16, 16, 'p'); rect(17, 1, 17, 16, 'p'); put(1, 1, '.'); put(32, 1, '.');
+  rect(1, 16, 32, 16, 'p');
+});
+const libroVoynichVM = (R, x, y, o = {}) => {
+  if (!o.abierto) { pintaVM(R, LIBRO_VM, x, y, o); return; }
+  pintaVM(R, LIBRO_ABIERTO_VM, x, y, o);
+  const px = encimaVM(R, 34, 18, x, y, o), tinta = o.brilla ? 'Y' : 'e', mv = o.mueve ? (o.t ?? 0) * 6 : 0;
+  dibujoPaginaVM(px, o.pagina ?? 'planta', 2, 2);
+  for (let n = 0; n < 4; n++) lineaSignosVM(px, 19, 3 + n * 3, 12, n + 2 + (o.pagina ?? 'planta').length, tinta, mv);
+  lineaSignosVM(px, 19, 15, 7, 9, tinta, mv);
+  if (o.brilla) for (const [i, j] of [[21, 2], [28, 8], [24, 13]]) px(i, j, 'o');
+};
+
+// LA PLANTA IMPOSIBLE en su maceta de barro (Q/q): el bulbo de raíz (T) de pie sobre la tierra con tres patas, el tallo
+// que sube (V) y las hojas en espiral que se enroscan (V, luz l, sombra v); o.crece 0–1 (1 por omisión) la hace crecer;
+// o.flor: la flor rosa en la punta; o.t: se mece. 20 × 36
+const PLANTA_CACHE_VM = new Map();
+const plantaFormaVM = (n, flor, mece) => forma(20, 36, ({ rect, put, linea, disco }) => {
+  rect(4, 29, 15, 30, 'Q'); rect(4, 29, 15, 29, 'T'); rect(5, 28, 14, 28, 'd');
+  rect(5, 31, 14, 34, 'Q'); rect(6, 35, 13, 35, 'Q'); rect(13, 31, 14, 34, 'q'); rect(12, 35, 13, 35, 'q'); rect(5, 32, 12, 32, 'q');
+  disco(9.5, 21.5, 2, 'T'); put(8, 20, 'M'); put(11, 23, 'B');
+  linea(8, 23, 5, 25, 'B'); linea(5, 25, 4, 27, 'B'); linea(10, 23, 10, 27, 'B'); linea(11, 23, 14, 25, 'B'); linea(14, 25, 15, 27, 'B'); put(3, 27, 'B'); put(9, 27, 'B'); put(16, 27, 'B');
+  const L = 2 + Math.round(14 * n / 10), sx = (k) => Math.round(9.5 + mece * (k / 19) * 2);
+  for (let k = 0; k <= L; k++) put(sx(k), 19 - k, 'V');
+  for (let k = 3, lado = 1; k <= L - 2; k += 4, lado = -lado) {
+    const x0 = sx(k), y0 = 19 - k, t = k > 12 ? 0.7 : 1;
+    const hoja = t < 1 ? [[1, 0, 'V'], [2, -1, 'l'], [2, -2, 'V'], [1, -2, 'v']] : [[1, 0, 'V'], [2, 0, 'V'], [3, -1, 'l'], [3, -2, 'V'], [2, -3, 'V'], [1, -2, 'v']];
+    for (const [a, b, c] of hoja) put(x0 + a * lado, y0 + b, c);
+  }
+  const tx = sx(L), ty = 19 - L;
+  if (flor) { for (const [a, b] of [[0, -2], [-2, 0], [2, 0], [-1, -2], [1, -2], [-2, -1], [2, -1], [0, 1]]) put(tx + a, ty - 1 + b, 'I'); put(tx, ty - 1, 'Y'); put(tx - 1, ty - 1, 'Y'); put(tx + 1, ty - 1, 'o'); }
+  else { put(tx, ty - 1, 'l'); put(tx + 1, ty - 1, 'V'); }
+});
+const plantaImposibleVM = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.crece ?? 1)) * 10), mece = o.t == null ? 0 : Math.round(Math.sin(o.t * 1.7));
+  const clave = n + (o.flor ? 'f' : '') + mece;
+  if (!PLANTA_CACHE_VM.has(clave)) PLANTA_CACHE_VM.set(clave, plantaFormaVM(n, !!o.flor, mece));
+  pintaVM(R, PLANTA_CACHE_VM.get(clave), x, y, o);
+};
+
+// EL MICROSCOPIO DE LATÓN de 1921: el ocular negro, el tubo de latón (O, luz o, anillos g), el brazo, la platina negra,
+// el espejo redondo (Z) y el pie en herradura; con o.t el espejo destella. 14 × 20
+const MICRO_VM = forma(14, 20, ({ rect, disco }) => {
+  rect(4, 0, 6, 1, 'K'); rect(4, 2, 6, 10, 'O'); rect(4, 2, 4, 10, 'o'); rect(4, 4, 6, 4, 'g'); rect(4, 8, 6, 8, 'g'); rect(5, 11, 5, 11, 'K');
+  rect(7, 5, 9, 6, 'g'); rect(9, 5, 10, 16, 'O'); rect(10, 5, 10, 16, 'g');
+  rect(2, 12, 8, 12, 'K'); disco(5, 15, 1.3, 'Z');
+  rect(3, 17, 11, 17, 'u'); rect(1, 18, 12, 19, 'K');
+});
+const microscopioVM = (R, x, y, o = {}) => {
+  pintaVM(R, MICRO_VM, x, y, o, { ...PAL_VM, ...COLORES({ Z: '#c8ccd8', u: '#4a4856' }) });
+  if (o.t != null && Math.sin(o.t * 4) > 0.6) encimaVM(R, 14, 20, x, y, o, { E: hex('#ffffff') })(4, 14, 'E');
+};
+
+// LA CARTA CON LACRE: cerrada, el papel doblado (X, pliegues x) con el sello de lacre rojo (R/r); o.abierta: la hoja
+// desplegada con renglones ondulados de tinta (sin letras) y el lacre partido abajo. Cerrada 14 × 9, abierta 14 × 16
+const CARTA_VM = forma(14, 9, ({ rect, linea, disco, put }) => {
+  rect(1, 1, 12, 7, 'X'); linea(1, 1, 6, 4, 'x'); linea(12, 1, 7, 4, 'x');
+  disco(6.5, 4.5, 1.7, 'R'); put(7, 5, 'r'); put(6, 4, 'o');
+});
+const CARTA_ABIERTA_VM = forma(14, 16, ({ rect, put }) => {
+  rect(1, 0, 12, 15, 'X'); rect(1, 5, 12, 5, 'x'); rect(1, 10, 12, 10, 'x');
+  for (let j = 2; j <= 12; j += 2) for (let i = 2; i <= (j === 12 ? 7 : 11); i++) if ((i * 3 + j) % 7 !== 0) put(i, j + ((i + j) % 3 === 0 ? -1 : 0), 'e');
+  rect(5, 14, 6, 14, 'R'); put(8, 14, 'R'); put(7, 13, 'r');
+});
+const cartaLacreVM = (R, x, y, o = {}) => pintaVM(R, o.abierta ? CARTA_ABIERTA_VM : CARTA_VM, x, y, o);
+
+// LA BOLSA DE MONEDAS de cuero (B, sombra b) atada con el cordón (T); o.abierta: la boca abierta con las monedas de oro
+// (O/g) que asoman y dos más por el suelo. 14 × 13
+const BOLSA_VM = forma(14, 13, ({ rect, disco, put }) => {
+  disco(7, 8.5, 4.3, 'B'); rect(5, 3, 9, 5, 'B'); put(4, 2, 'B'); put(5, 1, 'B'); put(7, 1, 'B'); put(9, 1, 'B'); put(10, 2, 'B');
+  rect(5, 4, 9, 4, 'T'); put(10, 5, 'T'); put(11, 6, 'T');
+  for (const [i, j] of [[9, 10], [10, 9], [8, 11], [4, 7]]) put(i, j, 'b');
+});
+const BOLSA_ABIERTA_VM = forma(16, 13, ({ rect, disco, put }) => {
+  disco(7, 8.5, 4.3, 'B'); rect(4, 3, 10, 5, 'B'); rect(4, 1, 10, 2, 'b');
+  rect(5, 1, 9, 2, 'O'); put(6, 0, 'O'); put(8, 0, 'O'); put(7, 1, 'g'); put(5, 2, 'g');
+  rect(4, 4, 10, 4, 'T'); for (const [i, j] of [[9, 10], [10, 9], [8, 11], [4, 7]]) put(i, j, 'b');
+  rect(13, 11, 14, 12, 'O'); put(14, 12, 'g'); rect(12, 12, 12, 12, 'O');
+});
+const bolsaMonedasVM = (R, x, y, o = {}) => pintaVM(R, o.abierta ? BOLSA_ABIERTA_VM : BOLSA_VM, x, y, o);
+
+// LAS FICHAS PERFORADAS: un mazo de tarjetas color crema (X, la trama de las columnas impresas x) con la esquina
+// cortada y los agujeros (k); o.n: cuántas (1–5, 3 por omisión), en abanico. Una ficha 15 × 9 (el abanico, 2 px más
+// por ficha)
+const FICHA_VM = forma(15, 9, ({ rect, put }) => {
+  rect(1, 1, 13, 7, 'X'); put(1, 1, '.'); rect(1, 7, 13, 7, 'x');
+  for (let i = 3; i <= 12; i++) for (let j = 2; j <= 6; j++) put(i, j, (i * 5 + j * 3) % 7 === 0 ? 'k' : (i + j) % 2 ? 'X' : 'x');
+});
+const tarjetasPerforadasVM = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(5, Math.round(o.n ?? 3))), s = o.s ?? 1, dir = o.dir ?? 1;
+  for (let c = 0; c < n; c++) pintaVM(R, FICHA_VM, x + (c - (n - 1) / 2) * 2 * s * dir, y - (n - 1 - c) * s, o, { ...PAL_VM, ...COLORES({ X: '#f2e6bc', x: '#d8c898' }) });
+};
+
+// LA MÁQUINA DE DESCIFRAR de los cuarenta (genérica): el mueble gris verdoso (G, sombra u) con dos esferas (Z), la fila
+// de luces ámbar que parpadean con o.t, el teclado (X), el rodillo de arriba y la tira de papel que sale por la derecha,
+// cae y corre por el suelo; o.tira 0–1 su largo (hasta 60 px más allá de la máquina); o.pregunta: un «?» al final de la
+// tira. 28 × 22 (más la tira)
+const MAQUINA_VM = forma(28, 22, ({ rect, disco }) => {
+  rect(1, 4, 26, 20, 'G'); rect(1, 4, 26, 4, 'a'); rect(26, 4, 26, 20, 'u'); rect(1, 20, 26, 20, 'u');
+  rect(5, 0, 22, 3, 'Z'); rect(4, 1, 4, 2, 'K'); rect(23, 1, 23, 2, 'K');
+  rect(3, 6, 24, 10, 'u'); disco(6.5, 8, 1.6, 'Z'); disco(11.5, 8, 1.6, 'Z');
+  for (let j = 13; j <= 17; j += 2) for (let i = 4; i <= 22; i += 3) rect(i, j, i + 1, j, 'X');
+  rect(2, 21, 4, 21, 'K'); rect(23, 21, 25, 21, 'K');
+});
+const PREGUNTA_VM = ['.kkk.', 'k...k', '...k.', '..k..', '..k..', '.....', '..k..'];
+const maquinaDescifrarVM = (R, x, y, o = {}) => {
+  const pal = { ...PAL_VM, ...COLORES({ G: '#6a7a72', u: '#4e5a54', a: '#8a9a92', Z: '#c8ccd8', X: '#efe6cc', L: '#f0a030', l: '#6a4a24' }) };
+  pintaVM(R, MAQUINA_VM, x, y, o, pal);
+  const px = encimaVM(R, 28, 22, x, y, o, pal), t = o.t ?? 0;
+  px(6, 7, 'k'); px(7, 8, 'k'); px(11, 8, 'k'); px(12, 7 + (Math.sin(t * 3) > 0 ? 0 : 2), 'k');
+  for (let i = 15; i <= 23; i += 2) px(i, 8, Math.sin(t * 7 + i * 1.3) > 0 ? 'L' : 'l');
+  for (let i = 6; i <= 21; i += 3) px(i + (Math.floor(t * 8) % 3), 2, 'z');
+  // la tira: sale del rodillo hacia la derecha, cae al suelo y corre por él
+  const largo = Math.round(Math.max(0, Math.min(1, o.tira ?? 0.5)) * 80);
+  const camino = [];
+  for (let i = 23; i <= 29; i++) camino.push([i, 1]);
+  for (let j = 2; j <= 20; j++) camino.push([29 + (j > 14 ? 1 : 0), j]);
+  for (let i = 31; i < 31 + 60; i++) camino.push([i, 21]);
+  const n = Math.min(camino.length, largo), tira = new Map(), clave = (i, j) => i + ',' + j;
+  for (let k = 0; k < n; k++) { const [i, j] = camino[k], v = j > 1 && j < 21; for (const [a, b] of v ? [[0, 0], [1, 0]] : [[0, 0], [0, -1]]) tira.set(clave(i + a, j + b), k % 4 === 1 ? 'u' : 'X'); }
+  for (const c of tira.keys()) { const [i, j] = c.split(',').map(Number); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!tira.has(clave(i + a, j + b)) && j + b <= 21 && i + a > 22) px(i + a, j + b, 'k'); }
+  for (const [c, l] of tira) { const [i, j] = c.split(',').map(Number); px(i, j, l); }
+  if (o.pregunta && n > 0) {
+    const [i, j] = camino[n - 1], i0 = j === 21 ? i + 1 : i + 2, j0 = j === 21 ? 12 : j - 4;
+    for (let a = -1; a <= 5; a++) for (let b = -1; b <= 7; b++) px(i0 + a, j0 + b, a === -1 || a === 5 || b === -1 || b === 7 ? 'k' : 'X');
+    rejAT(px, PREGUNTA_VM, i0, j0);
+  }
+};
+
+// LA PLUMA de ave para escribir: el cañón (x) en diagonal, las barbas blancas (X, sombra x) y la punta mojada en tinta
+// (L, o.tinta '#rrggbb'). 10 × 16
+const PLUMA_VM = forma(10, 16, ({ put, linea }) => {
+  linea(2, 15, 8, 0, 'x');
+  for (let k = 4; k <= 14; k++) {
+    const xx = Math.round(2 + 6 * (k / 15)), yy = 15 - k, w = Math.round(2.2 * Math.sin(Math.PI * (k - 3) / 12));
+    for (let d = 1; d <= w; d++) { put(xx + d, yy, 'X'); put(xx - d, yy, d === w ? 'x' : 'X'); }
+  }
+  put(2, 15, 'L'); put(1, 15, 'L'); put(3, 14, 'K');
+});
+const plumaVM = (R, x, y, o = {}) => pintaVM(R, PLUMA_VM, x, y, o, { ...PAL_VM, ...COLORES({ L: o.tinta ?? '#2a2832', X: '#f6f2e6', x: '#b8b0a0' }) });
+
+// EL TINTERO de vidrio oscuro (K, brillos Z) con el cuello y la tinta (A); o.pluma: con la pluma metida; o.tinta: el
+// color de la tinta. 9 × 9 (la pluma sube 12 más)
+const TINTERO_VM = forma(9, 9, ({ rect, disco }) => { disco(4, 5.5, 3.2, 'K'); rect(3, 1, 5, 2, 'K'); rect(2, 1, 6, 1, 'u'); });
+const tinteroVM = (R, x, y, o = {}) => {
+  const pal = { ...PAL_VM, ...COLORES({ A: o.tinta ?? '#2a3a6a', Z: '#8a92b0', u: '#4a4856', X: '#f6f2e6', x: '#b8b0a0' }) };
+  pintaVM(R, TINTERO_VM, x, y, o, pal);
+  const px = encimaVM(R, 9, 9, x, y, o, pal);
+  px(2, 4, 'Z'); px(2, 5, 'Z'); px(3, 3, 'Z'); px(4, 1, 'A');
+  if (o.pluma) { for (let k = 0; k <= 11; k++) { const i = 4 + Math.round(k * 0.4), j = 0 - k; px(i, j, 'x'); if (k > 4) { px(i + 1, j, 'X'); px(i - 1, j, k > 9 ? 'x' : 'X'); px(i + 2, j, 'k'); px(i - 2, j, 'k'); } else { px(i + 1, j, 'k'); px(i - 1, j, 'k'); } } px(9, -12, 'k'); }
+};
+
+export const PIEZAS_VM = {
+  libroVoynich: libroVoynichVM, plantaImposible: plantaImposibleVM, lupa, microscopio: microscopioVM, cartaLacre: cartaLacreVM,
+  bolsaMonedas: bolsaMonedasVM, tarjetasPerforadas: tarjetasPerforadasVM, maquinaDescifrar: maquinaDescifrarVM,
+  pluma: plumaVM, tintero: tinteroVM,
+};
+
+// ── Episodio 27 (Tetris: sus derechos entre la URSS y Occidente, 1984–2023): el centro de cálculo de Moscú, Budapest,
+// Londres, Elorg, Las Vegas y Tokio, el juzgado de 1989, la juguetería, Harvard en 2000 y el salón de Oklahoma en 2023 ──
+// Las personas reales se reconocen solo por sus atributos (barba y gafas, bigote, camisa hawaiana, cejas pobladas…),
+// con respeto. Nada reproduce el juego (ni las siete piezas de colores, ni el pozo, ni la pieza siguiente) ni la Game
+// Boy; sin letras ni logos en nada. Nombres nuevos con TS.
+
+// tocados nuevos del 27
+Object.assign(TOCADOS, {
+  // la gorra de plato soviética del guardia: copa ancha (J), la banda roja (D) con la estrella de oro (O) y la visera
+  gorraPlatoTS: [[
+    '.kkkkkkkkkkkk..',
+    'kJJJJJJJJJJJJk.',
+    '.kDDDDDODDDDk..',
+    '.kkkkkkkkkkkkkk',
+    '..........kkkk.',
+  ], -2],
+  // el gorro de piel con orejeras (ushanka) de Moscú en febrero: la copa (J), la vuelta de piel (M/m) por delante y la
+  // orejera bajada sobre la oreja, por detrás; la cara queda entera
+  ushankaTS: [[
+    '...kkkkkkkk....',
+    '..kJJJJJJJJk...',
+    '.kJJjJJJJjJJk..',
+    'kMmMMmMMMmMMMk.',
+    'kMMMmMMMmMMMMk.',
+    'kMMMMkkkkkkkk..',
+    'kMmMMk.........',
+    'kMMmMk.........',
+    'kMMMMk.........',
+    'kmMMMk.........',
+    'kMMmk..........',
+    '.kkk...........',
+  ], -4],
+  // los cascos grandes de 2023: la diadema (M) por encima del pelo y el auricular (A, brillo a) sobre la oreja de
+  // atrás; lejos de los ojos
+  cascosTS: [[
+    '.....kkkkk.....',
+    '...kkMMMMMkk...',
+    '..kMMk...kkMMk.',
+    '..kMk......kk..',
+    '..kMk..........',
+    '.kkMkk.........',
+    'kAAAAk.........',
+    'kAaAAk.........',
+    'kAaAAk.........',
+    'kAAAAk.........',
+    '.kkkk..........',
+  ], -2],
+});
+
+// ── cabezas ──
+// barba corta con las sienes canosas (w): Pázhitnov en 1996
+const CAB_BARBA_SIENES_TS = parche(CAB_BARBA_CORTA_DC, [[2, 3, '.ww'], [2, 4, 'ww'], [2, 5, 'w'], [2, 6, 'w']]);
+
+// ── cuerpos ──
+// el magnate corpulento (17 de ancho, dxCuerpo −1): traje oscuro cruzado (C/c) sobre la camisa (W), la corbata (o) y
+// la barriga redonda que llena la chaqueta (botones O)
+const CUERPO_MAGNATE_TS = [
+  '....kkWWoWWkk....',
+  '..kkCCCWoWCCCkk..',
+  '.kCkCCCWoWCCCkCk.',
+  '.kCkCCCCoCCCCkCk.',
+  '.kCkCCCCoCCCCkCk.',
+  '.kSkCCCCOCCCCkSk.',
+  '..kCCCCCCCCCCCk..',
+  '..kCCCCCOCCCCCk..',
+  '..kcCCCCCCCCCck..',
+  '...kccccccccck...',
+  '...kFFFFkFFFFk...',
+  '...knnnnknnnnk...',
+  '..kkkkkk.kkkkkk..',
+];
+// el cuerpo de un chico (12 filas, una menos de pierna que el de adulto): Gerásimov a los 16, Gibson a los 13
+const sinFila = (filas, j0) => filas.filter((_, j) => j !== j0);
+// jersey de cuello de pico (C) con la camisa (W) del estudiante
+const CUERPO_JOVEN_TS = sinFila(CUERPO_PICO_DC, 9);
+// la sudadera con capucha (C, cordones X, bolsillo c) del chico de 2023
+const CUERPO_SUDADERA_TS = sinFila(CUERPO_SUDADERA_VM, 9);
+// la camisa hawaiana de manga corta (C) abierta al cuello (X) con las flores (P, el centro p) y el pantalón claro
+const CUERPO_HAWAIANA_TS = parche(CUERPO_CALLE, [[5, 0, 'CXSXC'], [4, 1, 'P'], [9, 1, 'p'], [2, 2, 'P'], [6, 2, 'Pp'], [10, 3, 'P'], [4, 4, 'p'], [8, 4, 'PP'], [5, 6, 'P'], [9, 5, 'p'], [12, 2, 'p']]);
+// el abrigo militar de invierno del guardia (C/c), las hombreras rojas (D), los botones (o) y el cinturón (G, hebilla O)
+const CUERPO_CAPOTE_TS = parche(CUERPO_ABRIGO_NV, [[3, 1, 'D'], [11, 1, 'D'], [4, 5, 'GGGOGGG']]);
+// el voluntario del laboratorio del sueño: camiseta (C) y el pantalón de pijama a rayas (F, raya f) con zapatillas (n)
+const CUERPO_PIJAMA_TS = parche(CUERPO_CALLE, [[5, 7, 'f'], [9, 7, 'f'], [5, 8, 'f'], [9, 8, 'f'], [5, 9, 'f'], [9, 9, 'f'], [5, 10, 'f'], [9, 10, 'f']]);
+
+// ── detalles (delante y detrás) ──
+// las cejas pobladas del magnate: dos filas de pelo (H) sobre los ojos (suben con la sorpresa)
+const cejasPobladasTS = (c) => { const y = (c.o.sorpresa ? 4 : 5); for (const i of [6, 7, 8, 9, 11, 12, 13]) c.cab.px(i, y, c.pal.H); c.cab.px(8, y - 1, c.pal.H); c.cab.px(12, y - 1, c.pal.H); };
+// la capucha de la sudadera, caída a la espalda
+const capuchaTS = (c) => c.cuerpo.rej(['.kkkk.', 'kCCCck', 'kcCCck'], 1, -2);
+const PAL_MANO_TS = { ...PAL_MANO, ...COLORES({ M: '#6a4422', m: '#4a2e16', O: '#f0c040', Z: '#a8acb8', z: '#6a6e7a', I: '#a8c8d0', A: '#3a6ad8', R: '#c8303a', X: '#f6f2e6', x: '#c8c0b0', K: '#2a2832', e: '#5a5866' }) };
+// el maletín colgando de la mano (Kevin Maxwell, Rogers en Moscú)
+const conMaletinTS = enMano(['..kkk..', '.kk.kk.', 'kkkkkkk', 'kMMOMMk', 'kMMMMMk', 'kmmmmmk', 'kkkkkkk'], 10, 5, PAL_MANO_TS);
+// la taza de café que se le queda fría en la mano (el científico)
+const conTazaTS = enMano(['kkkk..', 'kXXkkk', 'kXXk.k', 'kxXkkk', 'kkkk..'], 12, 2, PAL_MANO_TS);
+// la consola de bolsillo genérica en las manos (apaisada, pantalla en medio, botones redondos a los lados)
+const conConsolaTS = enMano(['.kkkkkkk.', 'kZkkkkkZk', 'kAkIIIkRk', 'kZkkkkkZk', '.kkkkkkk.'], 9, 2, PAL_MANO_TS);
+// la tablilla de notas de la investigadora: la madera (B), la pinza (K) y la hoja (X)
+const conNotasTS = enMano(['.kkk.', 'kBKBk', 'kXXXk', 'kxxXk', 'kXXXk', 'kxXxk', 'kBBBk', 'kkkkk'], 12, 1, { ...PAL_MANO_TS, ...COLORES({ B: '#a8743c' }) });
+
+// ── el reparto del 27 ──
+const B27 = B23, B27M = B23M, B27J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_TS = {
+  // ── Moscú, el centro de cálculo de la Academia de Ciencias (1984–1985) ──
+  // Pázhitnov en 1984: pelo y barba corta oscuros, gafas y el jersey de pico verde gris sobre la camisa
+  pazhitnov: { ...B27, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1414'), delante: gafasFinasDC,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', C: '#5e6e58', c: '#465442', W: '#e8e4d8', F: '#4a4a54', n: '#2a2430' }) },
+  // Gerásimov, el estudiante de 16: delgado, más bajo, el pelo de lado castaño claro y el jersey azul con la camisa
+  gerasimov: { ...B27J, cab: CAB_LADO_DC, cuerpo: CUERPO_JOVEN_TS, ceja: hex('#7a5a34'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a6a40', h: '#a88452', s: '#e8a080', C: '#3a5a8a', c: '#2a4468', W: '#f2eee2', F: '#4a4a5a', n: '#2a2430' }) },
+  // el científico del centro: entradas, gafas redondas, bigote, la bata blanca y la taza de café en la mano
+  cientifico: { ...B27, cab: CAB_ENTRADAS, cuerpo: CUERPO_BATA_DC, ceja: hex('#4a3020'), delante: varios(bigoteTR, gafasRedondasDC, conTazaTS),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#f2f2f6', c: '#c8ccd8', W: '#c8b890', o: '#5a4a3a', F: '#4a4a54', n: '#2a2430' }) },
+  // la científica: el pelo recogido en moño, la bata blanca sobre el jersey burdeos
+  cientifica: { ...B27, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_BATA_DC, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: monoBajoTR,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#f2f2f6', c: '#c8ccd8', W: '#8a3040', o: '#8a3040', F: '#3a3a44', n: '#2a2430' }) },
+  // el burócrata: calvo con entradas, traje gris de los ochenta soviético y la corbata granate
+  burocrata: { ...B27, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a4a54'), delante: arrugasDC,
+    pal: CLT({ H: '#5a5a64', h: '#7a7a86', C: '#6a6c72', c: '#52545a', W: '#e8e4d8', o: '#6a2a32', F: '#5a5c62' }) },
+  // el guardia: el capote militar verde gris con hombreras rojas, cinturón y la gorra de plato con la estrella
+  guardia: { ...B27, cuerpo: CUERPO_CAPOTE_TS, tocado: 'gorraPlatoTS', ceja: hex('#5a3a24'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#5a6448', C: '#5a6448', c: '#444c36', u: '#4e5640', o: '#c8a040', D: '#b02a34', O: '#f0c040', G: '#4a2e16', F: '#3e4434', n: '#1e1a20' }) },
+  // ── Elorg (1988–1989) ──
+  // Bélikov: serio, el pelo oscuro peinado hacia atrás, traje pardo soviético y la corbata oscura
+  belikov: { ...B27, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1414'),
+    pal: CLT({ H: '#2a201c', h: '#4a3a34', C: '#5a5046', c: '#443c34', W: '#e8e4d8', o: '#2a2a3a', F: '#4a443c' }) },
+  // Pázhitnov en 1996: la barba con las sienes canosas, gafas finas y la americana parda sobre la camisa azul
+  pazhitnovMayor: { ...B27, cab: CAB_BARBA_SIENES_TS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1e1a'), delante: gafasFinasDC,
+    pal: CLT({ H: '#3a2c26', h: '#5a4a42', w: '#b8b8c2', C: '#6a5a48', c: '#524436', W: '#a8c0d8', o: '#a8c0d8', F: '#3a3a44' }) },
+  // ── Las Vegas, Tokio y Moscú (1988–1989) ──
+  // Rogers: el pelo oscuro, el bigote, la camisa hawaiana roja de flores y el pantalón claro
+  rogers: { ...B27, cuerpo: CUERPO_HAWAIANA_TS, ceja: hex('#1c1414'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', C: '#c8403a', c: '#963028', X: '#f2eee2', P: '#f6e6a0', p: '#f0a030', F: '#d8c8a0', n: '#4a3020' }) },
+  // Rogers en Moscú: el mismo bigote con el abrigo de invierno pardo de cuello de piel y el gorro de piel con orejeras
+  rogersAbrigo: { ...B27, cuerpo: CUERPO_ABRIGO_NV, tocado: 'ushankaTS', ceja: hex('#1c1414'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', J: '#6a5442', j: '#7e6650', M: '#b0946e', m: '#86694a', C: '#4a3a30', c: '#382c24', u: '#b0946e', o: '#2a2018', F: '#3a3a44', n: '#1e1a20' }) },
+  // el ejecutivo japonés de Tokio: el pelo negro peinado, gafas finas y el traje azul marino
+  ejecutivoNintendo: { ...B27, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1424'), delante: gafasFinasDC,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#2a3450', c: '#1e263c', W: '#f2eee2', o: '#6a7a9a', F: '#2a3450' }) },
+  // ── Budapest y Londres (1986–1989) ──
+  // Stein: sienes canosas, el bigote doble y el traje gris marengo con la corbata azul
+  stein: { ...B27, cab: CAB_SIENES, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#3a2a20'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#4a3a2c', h: '#6a5444', w: '#c8c8d2', C: '#4a4c56', c: '#383a42', W: '#eef0f6', o: '#3a5a8a', F: '#4a4c56' }) },
+  // el magnate: grande y corpulento, el pelo negro peinado hacia atrás, las cejas pobladas y el traje oscuro
+  maxwell: { ...B27, cab: CAB_ENGOMINADO, cuerpo: CUERPO_MAGNATE_TS, dxCuerpo: -1, brazoCol: 13, ceja: hex('#14101a'), delante: cejasPobladasTS,
+    pal: CLT({ H: '#1a1418', h: '#3a3036', C: '#22242e', c: '#16181f', W: '#eef0f6', o: '#8a2a3a', O: '#c8c8d2', F: '#22242e', n: '#141218' }) },
+  // su hijo: joven, el pelo oscuro de lado, traje azul noche y el maletín
+  kevinMaxwell: { ...B27, cab: CAB_LADO_DC, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#2a1e1a'), delante: conMaletinTS,
+    pal: CLT({ H: '#2a1e1a', h: '#4a3630', C: '#283048', c: '#1c2236', W: '#eef0f6', o: '#8a8a96', F: '#283048' }) },
+  // el ejecutivo de la editorial de software de Londres: pelo castaño, traje gris claro con el pañuelo en el bolsillo
+  ejecutivoMirror: { ...B27, cuerpo: CUERPO_TRAJE_PANUELO_DC, ceja: hex('#6a4426'),
+    pal: CLT({ H: '#7a5030', h: '#9a6a40', C: '#8a8c94', c: '#6e7078', W: '#eef0f6', o: '#a83a3a', X: '#e86a6a', F: '#6e7078' }) },
+  // ── EE. UU., 1989 ──
+  // la jueza: media melena gris, gafas finas y la toga negra con el cuello blanco
+  jueza: { ...B27M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_TOGA_JUEZ_TR, ceja: hex('#6a6a76'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: CLT({ H: '#9a9aa6', h: '#b8b8c4', s: '#e8a080', C: '#1e1e26', c: '#16161c', o: '#2a2a34', G: '#1e1e26', W: '#f2eee2', L: '#16161c' }) },
+  // el operario que retira las cajas: gorra, el mono gris azulado y las botas
+  operario: { ...B27, cuerpo: CUERPO_MONO_AT, tocado: 'beisbol', ceja: hex('#5a3a24'),
+    pal: MOT({ H: '#3a2a20', h: '#5a4434', J: '#5a6a7a', j: '#44505e', C: '#6a7a8a', c: '#52606e', o: '#c8ccd8', u: '#52606e', G: '#3a3a44', n: '#2a2018' }) },
+  // el tendero de la juguetería de 1989: entradas, bigote, chaleco verde con la plaquita sin letras y camisa blanca
+  tendero: { ...B27, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHALECO_ROJO_AT, ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#2e7a4a', c: '#22603a', W: '#f2eee2', o: '#f0c040', X: '#f6f6f6', F: '#4a4a54' }) },
+  // la gente que juega con la consola de bolsillo: el niño de jersey amarillo y el adulto de gabardina en el autobús
+  ninoJuega: { ...B23N, cab: CAB_TAZON_TR, cuerpo: CUERPO_JERSEY_NINO_NV, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: conConsolaTS,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#e8b830', c: '#c09020', F: '#3a4a7a', n: '#2a2430' }) },
+  adultoJuega: { ...B27, cab: CAB_LADO_DC, cuerpo: CUERPO_GABARDINA_DC, ceja: hex('#1c1424'), delante: conConsolaTS,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#b8a272', c: '#8e7a50', W: '#e8eef6', o: '#3a4a6a', F: '#3a3a44' }) },
+  // ── Harvard, 2000 ──
+  // la investigadora del laboratorio del sueño: media melena, gafas, bata y la carpeta de notas
+  investigadora: { ...B27M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: varios(gafasFinasDC, conNotasTS),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#f2f2f6', c: '#c8ccd8', W: '#5a7aa8', o: '#5a7aa8', F: '#3a3a44', n: '#2a2430' }) },
+  // el voluntario: el pelo revuelto, la camiseta gris y el pantalón de pijama azul a rayas
+  voluntario: { ...B27, cab: CAB_LADO_DC, cuerpo: CUERPO_PIJAMA_TS, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#8a8c96', c: '#6e7078', F: '#5a7ab8', f: '#3a5490', n: '#4a5a8a' }) },
+  // ── Oklahoma, 2023 ──
+  // el chico de 13: el pelo corto castaño, los cascos grandes rojos y negros, la sudadera azul con capucha
+  gibson: { ...B27J, cuerpo: CUERPO_SUDADERA_TS, tocado: 'cascosTS', ceja: hex('#6a4426'), mejillas: [[6, 8], [12, 8]], detras: capuchaTS,
+    pal: CLT({ H: '#7a5030', h: '#9a6a40', s: '#e8a080', M: '#4a4856', A: '#c8303a', a: '#e86a6a', C: '#3a6aa8', c: '#2a5088', X: '#e8e8ee', F: '#3a3a44', n: '#2a2430' }) },
+  // ── el público genérico (la feria de Las Vegas, la cola, el autobús) ──
+  publico: { ...B27, cab: CAB_CORTO, cuerpo: CUERPO_POLO_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#3a7a8a', c: '#2a5e6a', W: '#f2eee2', o: '#f2eee2', F: '#4a4a5a', n: '#2a2430' }) },
+  publica: { ...B27, cab: CAB_RIZOS, cuerpo: CUERPO_HOMBRERAS_AT, ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#3a2418', h: '#5a3a24', s: '#c07a5a', C: '#7a4a9a', c: '#5a3478', W: '#f2eee2', I: '#2a2430', o: '#f0c040' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían: cientifico, guardia y operario ya eran de otros episodios)
+for (const [k, v] of Object.entries(ELENCO_TS)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 27 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+const PAL_TS = { ...PAL_DC, ...COLORES({
+  K: '#24222c', u: '#4a4856', N: '#0a120c', G: '#56f07a', g: '#1e7a34', T: '#d0c8b0', t: '#a8a088', e: '#6a6456',
+  X: '#f6f2e6', x: '#c8c0b0', B: '#b8844a', b: '#7a5028', l: '#dcb07a', R: '#c8303a', r: '#8a1e26', O: '#f0c040',
+  o: '#ffe890', Z: '#b8bcc8', z: '#7c8090', A: '#3a6ad8', a: '#9ab8e0', V: '#3a8a4a', v: '#2a6a36', Y: '#f0d040',
+  M: '#8a5a2e', m: '#5e3a1c', D: '#3a2a1a', E: '#ffffff', P: '#e2cc98', p: '#b89c68', Q: '#7a3a5a', q: '#4e2a3e',
+  W: '#e8e4dc', w: '#b8b4ac', S: '#f6c290', I: '#a8c8d0', i: '#3e5a66', F: '#5a5466', f: '#3e3a48',
+}) };
+const pintaTS = (R, g, x, y, o = {}, pal = PAL_TS) => pintaJH(R, g, x, y, o, pal);
+const encimaTS = (R, w, hgt, x, y, o, pal = PAL_TS) => encimaNV(R, w, hgt, x, y, o, pal);
+
+// EL TERMINAL SOVIÉTICO de los ochenta: la caja beis (T, sombra t) con el marco oscuro (e), la pantalla negra (N) de
+// fósforo verde y el pie; o.texto: cuántas filas de corchetes «[ ]» verdes (G) hay, de abajo arriba (0–3, 3 por
+// omisión; el resto de la pantalla queda negra, sin pozo ni colores); o.completa: la fila de abajo llena, que
+// parpadea con o.t; o.t: el cursor parpadea; o.teclado (true por omisión): el teclado delante. 34 × 25 (con el
+// teclado, 34 × 29)
+const MONITOR_TS = forma(34, 25, ({ rect, put }) => {
+  rect(1, 0, 32, 20, 'T'); rect(1, 0, 32, 0, 'W'); rect(31, 1, 32, 20, 't'); rect(1, 19, 32, 20, 't');
+  rect(3, 2, 30, 17, 'e'); rect(4, 3, 29, 16, 'N');
+  put(5, 19, 'g'); rect(25, 19, 26, 19, 'e'); rect(28, 19, 29, 19, 'e');
+  rect(12, 21, 21, 22, 't'); rect(8, 23, 25, 24, 'T'); rect(8, 24, 25, 24, 't');
+});
+const TECLADO_TS = forma(34, 6, ({ rect, put }) => {
+  rect(1, 1, 32, 4, 'T'); rect(1, 4, 32, 4, 't');
+  for (let i = 3; i <= 29; i += 2) { put(i, 2, 'e'); put(i + 1, 3, 'e'); }
+  rect(12, 3, 21, 3, 'e');
+});
+const CORCHETES_TS = ['GG.GG', 'G...G', 'GG.GG'];
+const FILAS_TS = [[1, 1, 0, 1], [1, 0, 1, 1], [0, 1, 1, 0]];
+const terminalTS = (R, x, y, o = {}) => {
+  const tec = o.teclado !== false, s = o.s ?? 1, ym = tec ? y - 4 * s : y;
+  pintaTS(R, MONITOR_TS, x, ym, o);
+  const px = encimaTS(R, 34, 25, x, ym, o), t = o.t ?? 0, n = Math.max(0, Math.min(3, Math.round(o.texto ?? 3)));
+  for (let f = 0; f < n; f++) {
+    const llena = f === 0 && o.completa, celdas = llena ? [1, 1, 1, 1] : FILAS_TS[f];
+    const col = llena && Math.sin(t * 12) > 0 ? 'o' : 'G';
+    celdas.forEach((c, k) => { if (c) rejAT(px, CORCHETES_TS.map((r) => r.replace(/G/g, col)), 5 + k * 6, 13 - f * 4); });
+  }
+  if (Math.sin(t * 5) > -0.2) { px(5, 4, 'G'); px(6, 4, 'G'); px(5, 5, 'G'); px(6, 5, 'G'); }
+  if (tec) pintaTS(R, TECLADO_TS, x, y, o);
+};
+
+// EL DISQUETE de 5¼: la funda negra (K, brillo u) con la etiqueta blanca (X, renglones x, sin letras), el agujero del
+// centro con su aro (u), el agujero índice y la ventana de lectura; o.etiqueta: el color de la etiqueta. 14 × 14
+const DISQUETE_TS = forma(14, 14, ({ rect, put, disco }) => {
+  rect(0, 0, 13, 13, 'K'); rect(0, 0, 13, 0, 'u');
+  rect(2, 1, 11, 4, 'X'); rect(3, 2, 9, 2, 'x'); rect(3, 3, 7, 3, 'x');
+  disco(6.5, 7.5, 1.8, 'u'); rect(6, 7, 7, 8, 'N'); put(3, 8, 'N');
+  rect(6, 10, 7, 12, 'u'); put(13, 3, 'u');
+});
+const disqueteTS = (R, x, y, o = {}) => pintaTS(R, DISQUETE_TS, x, y, o, { ...PAL_TS, ...COLORES({ K: '#2e2c36', u: '#5a5866', N: '#0c0a12', X: o.etiqueta ?? '#f6f2e6' }) });
+
+// EL TÉLEX: la máquina de teletipo (T, sombra t) con la hoja en el rodillo (X), el teclado (e, teclas W), la lucecita
+// (R, parpadea con o.t) y la cinta de papel perforada que sale por la derecha, cae al suelo y corre por él; o.cinta 0–1
+// su largo (hasta 120 px más allá de la máquina). 30 × 22 (más la cinta)
+const TELEX_TS = forma(30, 22, ({ rect, put }) => {
+  rect(8, 0, 21, 3, 'X'); rect(10, 1, 19, 1, 'x'); rect(10, 2, 16, 2, 'x');
+  rect(5, 3, 24, 4, 'K'); rect(3, 5, 26, 7, 'T'); rect(3, 5, 26, 5, 'W');
+  rect(1, 8, 28, 20, 'T'); rect(27, 8, 28, 20, 't'); rect(1, 19, 28, 20, 't');
+  rect(4, 11, 25, 16, 'e'); for (const j of [12, 14]) for (let i = 5; i <= 23; i += 2) put(i + (j === 14 ? 1 : 0), j, 'W');
+  rect(9, 16, 20, 16, 'W'); put(25, 9, 'R'); rect(27, 9, 28, 10, 'e');
+  rect(2, 21, 4, 21, 'K'); rect(25, 21, 27, 21, 'K');
+});
+const telexTS = (R, x, y, o = {}) => {
+  pintaTS(R, TELEX_TS, x, y, o);
+  const px = encimaTS(R, 30, 22, x, y, o), t = o.t ?? 0;
+  if (o.t != null && Math.sin(t * 6) < 0) px(25, 9, 'r');
+  const camino = [];
+  for (let i = 29; i <= 32; i++) camino.push([i, 9]);
+  for (let j = 10; j <= 20; j++) camino.push([32 + (j > 15 ? 1 : 0), j]);
+  for (let i = 34; i < 34 + 120; i++) camino.push([i, 21]);
+  const n = Math.round(Math.max(0, Math.min(1, o.cinta ?? 0.4)) * camino.length), tira = new Map(), clave = (i, j) => i + ',' + j;
+  for (let k = 0; k < n; k++) { const [i, j] = camino[k], v = j > 9 && j < 21; for (const [a, b] of v ? [[0, 0], [1, 0]] : [[0, 0], [0, -1]]) tira.set(clave(i + a, j + b), k % 3 === 1 ? 'x' : 'X'); }
+  for (const c of tira.keys()) { const [i, j] = c.split(',').map(Number); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!tira.has(clave(i + a, j + b)) && j + b <= 21 && i + a > 28) px(i + a, j + b, 'k'); }
+  for (const [c, l] of tira) { const [i, j] = c.split(',').map(Number); px(i, j, l); }
+};
+
+// LA CAJA DEL JUEGO de cartón (P, canto p) con la Plaza Roja pintada: el cielo (A, estrellas o), las cúpulas de cebolla a rayas
+// (R/O, V/Y, Q/W) sobre sus torres (W), la muralla roja almenada (R) con su estrella y el empedrado (x). Sin letras
+// ni logo. 20 × 26
+const CAJA_TS = forma(20, 26, ({ rect, put, disco }) => {
+  rect(1, 0, 19, 1, 'X'); rect(17, 1, 19, 25, 'p'); rect(0, 2, 16, 25, 'P');
+  rect(2, 4, 14, 15, 'A'); put(4, 5, 'o'); put(12, 6, 'o'); put(8, 4, 'o');
+  const cebolla = (cx, cy, r, c1, c2) => { disco(cx, cy, r + 0.9, 'k'); disco(cx, cy, r, c1); for (let j = Math.floor(cy - r); j <= cy + r; j += 2) for (let i = cx - r; i <= cx + r; i++) if (Math.hypot(i - cx, j - cy) <= r) put(i, j, c2); put(cx, cy - r - 1, 'O'); put(cx, cy - r - 2, 'O'); };
+  rect(4, 13, 6, 18, 'W'); rect(7, 10, 10, 18, 'W'); rect(11, 13, 13, 18, 'W'); rect(10, 10, 10, 18, 'w'); rect(13, 13, 13, 18, 'w');
+  cebolla(5, 11, 1.6, 'R', 'O'); cebolla(8.5, 8, 2.2, 'V', 'Y'); cebolla(12, 11, 1.6, 'Q', 'W');
+  rect(2, 17, 14, 20, 'R'); for (let i = 2; i <= 14; i += 2) put(i, 16, 'R'); rect(2, 20, 14, 20, 'r');
+  put(3, 13, 'R'); rect(3, 14, 3, 16, 'r');
+  rect(2, 21, 14, 23, 'x'); for (let i = 3; i <= 13; i += 3) put(i, 22, 'w');
+});
+const cajaJuegoTS = (R, x, y, o = {}) => pintaTS(R, CAJA_TS, x, y, o);
+
+// EL CONTRATO: la hoja (X, sombra x) con renglones de tinta sin letras (e), tres casillas con su pictograma (un
+// ordenador, una consola de salón, una de bolsillo); o.casillas: cuáles van marcadas ([1, 0, 0] por omisión, o un
+// número: las n primeras); o.firma: la firma en tinta azul; o.sello: el sello rojo redondo. 22 × 28
+const CONTRATO_TS = forma(22, 28, ({ rect }) => { rect(0, 0, 20, 27, 'X'); rect(21, 1, 21, 27, 'x'); rect(1, 27, 21, 27, 'x'); });
+const ICONOS_TS = [
+  ['eeeee', 'eaaae', 'eeeee', '.eee.'],       // el ordenador: la pantalla y el pie
+  ['.....', 'eeeee', 'eZeZe', 'eeeee'],       // la consola de salón: la caja ancha con dos botones
+  ['eeeee', 'ZeaeZ', 'eeeee', '.....'],       // la de bolsillo: apaisada, la pantalla en medio
+];
+const contratoTS = (R, x, y, o = {}) => {
+  pintaTS(R, CONTRATO_TS, x, y, o);
+  const px = encimaTS(R, 22, 28, x, y, o);
+  for (const [j, a] of [[2, 17], [4, 15], [6, 12]]) for (let i = 2; i <= a; i++) if ((i * 5 + j) % 9) px(i, j, 'e');
+  const marca = Array.isArray(o.casillas) ? o.casillas : [0, 1, 2].map((k) => (k < (o.casillas ?? 1) ? 1 : 0));
+  for (let k = 0; k < 3; k++) {
+    const j0 = 9 + k * 5;
+    for (let a = 0; a < 4; a++) for (let b = 0; b < 4; b++) px(2 + a, j0 + b, a === 0 || a === 3 || b === 0 || b === 3 ? 'e' : 'X');
+    if (marca[k]) { px(2, j0 + 1, 'A'); px(3, j0 + 2, 'A'); px(4, j0 + 1, 'A'); px(5, j0, 'A'); px(6, j0 - 1, 'A'); }
+    rejAT(px, ICONOS_TS[k], 8, j0);
+    for (let i = 14; i <= 18; i++) if (i % 4) px(i, j0 + 2, 'w');
+  }
+  for (let i = 9; i <= 18; i++) px(i, 25, 'w');
+  if (o.firma) for (let i = 10; i <= 17; i++) px(i, 24 - Math.round(Math.abs(Math.sin(i * 1.3)) * 2), 'A');
+  if (o.sello) for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) { const r = Math.hypot(a, b); if ((r <= 2.6 && r > 1.7) || r < 0.5) px(5 + a, 24 + b, 'R'); }
+};
+
+// EL CARTUCHO genérico (ni de la NES ni de nadie): la carcasa gris (Z, sombra z) alta y estrecha con el hueco de la
+// etiqueta (X, la franja de color de o.color, sin letras), las estrías de agarre abajo y los contactos de oro (O)
+// que asoman. 14 × 17
+const CARTUCHO_TS = forma(14, 17, ({ rect, put }) => {
+  rect(1, 0, 12, 13, 'Z'); rect(12, 0, 12, 13, 'z'); rect(1, 0, 12, 0, 'W');
+  rect(3, 2, 10, 8, 'X'); rect(3, 2, 10, 4, 'L'); rect(4, 6, 9, 6, 'x'); rect(4, 7, 7, 7, 'x');
+  for (const j of [10, 12]) rect(2, j, 11, j, 'z');
+  rect(3, 14, 10, 15, 'z'); for (let i = 3; i <= 10; i += 2) put(i, 15, 'O');
+});
+const cartuchoTS = (R, x, y, o = {}) => pintaTS(R, CARTUCHO_TS, x, y, o, { ...PAL_TS, ...COLORES({ L: o.color ?? '#3a8a9a' }) });
+
+// LA CONSOLA DE BOLSILLO genérica de 1989 (nada que ver con la Game Boy): apaisada, gris (Z, sombra z), la pantalla
+// ancha en medio (marco u, cristal I; con o.encendida se enciende y brilla), dos botones redondos azules a la
+// izquierda y dos rojos a la derecha, uno encima del otro, y dos botoncitos bajo la pantalla; o.pano: tapada con un
+// paño granate (Q/q) con sus pliegues. 28 × 14
+const CONSOLA_TS = forma(28, 14, ({ rect, put, disco }) => {
+  rect(1, 1, 26, 12, 'Z'); for (const [i, j] of [[1, 1], [26, 1], [1, 12], [26, 12]]) put(i, j, '.');
+  rect(2, 1, 25, 1, 'W'); rect(2, 12, 25, 12, 'z'); rect(26, 2, 26, 11, 'z');
+  rect(8, 2, 19, 10, 'u'); rect(9, 3, 18, 9, 'i');
+  disco(4.5, 4.5, 1.2, 'A'); disco(4.5, 8.5, 1.2, 'A'); disco(22.5, 4.5, 1.2, 'R'); disco(22.5, 8.5, 1.2, 'R');
+  rect(11, 11, 12, 11, 'z'); rect(15, 11, 16, 11, 'z');
+});
+const PANO_TS = forma(32, 16, ({ rect, put }) => {
+  rect(2, 0, 29, 15, 'Q'); for (const i of [7, 15, 23]) rect(i, 2, i, 15, 'q'); rect(1, 13, 30, 15, 'Q'); for (const i of [4, 11, 19, 27]) put(i, 15, 'q');
+  rect(3, 0, 28, 0, 'P');
+});
+const consolaBolsilloTS = (R, x, y, o = {}) => {
+  if (o.pano) { pintaTS(R, PANO_TS, x, y, o, { ...PAL_TS, ...COLORES({ P: '#9a4a6a' }) }); return; }
+  pintaTS(R, CONSOLA_TS, x, y, o);
+  if (o.encendida) {
+    const px = encimaTS(R, 28, 14, x, y, o);
+    for (let j = 3; j <= 9; j++) for (let i = 9; i <= 18; i++) px(i, j, 'I');
+    px(10, 4, 'E'); px(11, 4, 'E'); px(10, 5, 'E');
+    if (o.t != null && Math.sin(o.t * 5) > 0) px(7, 11, 'R');
+  }
+};
+
+// LA MALETA de cuero (M, sombra m) con las dos correas (D), los cierres y las esquinas de metal (O) y el asa (K);
+// o.abierta: la tapa levantada detrás con el forro (Q/q) y la ropa doblada en montones de tela que encajan justos.
+// Cerrada 24 × 16, abierta 24 × 28
+const MALETA_TS = forma(24, 16, ({ rect, put }) => {
+  rect(9, 0, 14, 0, 'K'); rect(9, 1, 9, 2, 'K'); rect(14, 1, 14, 2, 'K');
+  rect(0, 3, 23, 15, 'M'); rect(0, 3, 23, 3, 'l'); rect(0, 14, 23, 15, 'm'); rect(23, 4, 23, 15, 'm');
+  rect(6, 3, 7, 15, 'D'); rect(16, 3, 17, 15, 'D'); put(6, 6, 'O'); put(16, 6, 'O');
+  for (const [i, j] of [[0, 3], [23, 3], [0, 15], [23, 15]]) put(i, j, 'O');
+  rect(1, 8, 22, 8, 'm');
+});
+const MALETA_ABIERTA_TS = forma(24, 28, ({ rect, put }) => {
+  rect(0, 0, 23, 12, 'M'); rect(2, 2, 21, 11, 'Q'); rect(2, 2, 21, 2, 'q'); for (let i = 4; i <= 20; i += 4) put(i, 6, 'q');
+  rect(0, 13, 23, 27, 'M'); rect(0, 26, 23, 27, 'm'); rect(1, 14, 22, 25, 'q');
+  rect(2, 15, 8, 19, 'a'); rect(2, 17, 8, 17, 'A'); rect(9, 15, 15, 19, 'W'); rect(9, 17, 15, 17, 'w'); rect(16, 15, 21, 19, 'v'); rect(16, 17, 21, 17, 'V');
+  rect(2, 20, 11, 24, 'x'); rect(2, 22, 11, 22, 'X'); rect(12, 20, 21, 24, 'f'); rect(12, 22, 21, 22, 'F');
+  put(0, 13, 'O'); put(23, 13, 'O'); put(6, 13, 'O'); put(17, 13, 'O');
+});
+const maletaTS = (R, x, y, o = {}) => pintaTS(R, o.abierta ? MALETA_ABIERTA_TS : MALETA_TS, x, y, o);
+
+// EL MAZO del juez de madera (B, luz l, sombra b) con los aros (b): tumbado o, con o.arriba, levantado para el golpe;
+// o.base (true por omisión): el taco redondo donde golpea. Tumbado 16 × 11, levantado 16 × 18
+const MAZO_TS = forma(16, 7, ({ rect }) => { rect(1, 0, 7, 5, 'B'); rect(1, 0, 7, 0, 'l'); rect(1, 5, 7, 5, 'b'); rect(3, 0, 3, 5, 'b'); rect(5, 0, 5, 5, 'b'); rect(8, 2, 15, 3, 'B'); rect(8, 3, 15, 3, 'b'); });
+const MAZO_ALTO_TS = forma(16, 14, ({ rect, linea }) => {
+  rect(8, 0, 14, 5, 'B'); rect(8, 0, 14, 0, 'l'); rect(8, 5, 14, 5, 'b'); rect(10, 0, 10, 5, 'b'); rect(12, 0, 12, 5, 'b');
+  linea(9, 6, 2, 13, 'B'); linea(10, 6, 3, 13, 'b');
+});
+const TACO_TS = forma(16, 4, ({ rect }) => { rect(2, 0, 13, 1, 'B'); rect(2, 0, 13, 0, 'l'); rect(1, 2, 14, 3, 'b'); });
+const mazoTS = (R, x, y, o = {}) => {
+  const base = o.base !== false, s = o.s ?? 1;
+  if (base) pintaTS(R, TACO_TS, x, y, o);
+  pintaTS(R, o.arriba ? MAZO_ALTO_TS : MAZO_TS, x, y - (base ? 4 * s : 0) - (o.arriba ? 4 * s : 0), o);
+};
+
+// EL RUBLO: la moneda plateada (Z, sombra z, brillo E) con el «1» en relieve (z); o.giro 0–1 la hace girar sobre sí
+// misma (0 de frente, 0.5 de canto: una raya), para que ruede y dé vueltas antes de pararse. 8 × 8
+const RUBLO_CACHE_TS = new Map();
+const rubloTS = (R, x, y, o = {}) => {
+  const w = Math.max(1, Math.round(7 * Math.abs(Math.cos((o.giro ?? 0) * Math.PI))));
+  if (!RUBLO_CACHE_TS.has(w)) RUBLO_CACHE_TS.set(w, forma(9, 9, ({ put }) => {
+    for (let j = 1; j <= 7; j++) for (let i = 1; i <= 7; i++) { const dx = (i - 4) / Math.max(0.6, w / 2), dy = (j - 4) / 3.5; if (dx * dx + dy * dy <= 1) put(i, j, i - 4 >= w / 2 - 1 && w > 2 ? 'z' : 'Z'); }
+    if (w >= 5) { put(4, 2, 'z'); put(4, 3, 'z'); put(4, 4, 'z'); put(4, 5, 'z'); put(3, 3, 'z'); put(3, 5, 'z'); put(5, 5, 'z'); put(2, 3, 'E'); }
+  }));
+  pintaTS(R, RUBLO_CACHE_TS.get(w), x, y, o);
+};
+
+// LOS BLOQUES de madera: cubos de un solo color (B, luz l, sombra b, la veta T) que se tocan; o.n cuántos en fila (3 por
+// omisión), o.filas cuántas filas apiladas (1). Cada bloque 9 × 9
+const BLOQUE_TS = forma(9, 9, ({ rect, put }) => { rect(0, 0, 8, 8, 'B'); rect(0, 0, 8, 0, 'l'); rect(0, 0, 0, 8, 'l'); rect(8, 1, 8, 8, 'b'); rect(1, 8, 8, 8, 'b'); put(3, 3, 'T'); put(4, 3, 'T'); put(5, 5, 'T'); });
+const bloquesTS = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.round(o.n ?? 3)), filas = Math.max(1, Math.round(o.filas ?? 1)), s = o.s ?? 1, pal = { ...PAL_TS, ...COLORES({ T: '#9a6a38' }) };
+  for (let f = 0; f < filas; f++) for (let c = 0; c < n; c++) pintaTS(R, BLOQUE_TS, x + (c - (n - 1) / 2) * 10 * s, y - f * 10 * s, o, pal);
+};
+
+// EL MALETÍN de ejecutivo (M, sombra m; o.color lo cambia) con el asa (K) y los dos cierres de oro (O). 16 × 13
+const MALETIN_TS = forma(16, 13, ({ rect, put }) => {
+  rect(6, 0, 9, 0, 'K'); put(6, 1, 'K'); put(9, 1, 'K');
+  rect(0, 2, 15, 12, 'M'); rect(0, 2, 15, 2, 'l'); rect(0, 11, 15, 12, 'm'); rect(15, 3, 15, 12, 'm'); rect(1, 5, 14, 5, 'm');
+  put(3, 4, 'O'); put(12, 4, 'O');
+});
+const maletinTS = (R, x, y, o = {}) => pintaTS(R, MALETIN_TS, x, y, o, o.color ? { ...PAL_TS, ...COLORES({ M: o.color, m: oscuroTR(o.color), l: o.color }) } : PAL_TS);
+
+// EL TELÉFONO ROJO de despacho (R, sombra r, brillo o fino E) con el disco de marcar (W, agujeros w) y el auricular
+// sobre la horquilla; o.descolgado: el auricular levantado por encima y el cordón rizado que cuelga. 16 × 11 (descolgado,
+// 16 × 18)
+const TELEFONO_TS = forma(16, 11, ({ rect, put, disco }) => {
+  rect(1, 0, 14, 2, 'R'); rect(0, 1, 2, 3, 'R'); rect(13, 1, 15, 3, 'R'); rect(3, 0, 12, 0, 'E');
+  rect(2, 4, 13, 10, 'R'); rect(1, 9, 14, 10, 'r'); rect(13, 5, 13, 9, 'r');
+  disco(7.5, 6.5, 2.4, 'W'); put(7, 6, 'R'); put(8, 7, 'R'); for (const [i, j] of [[6, 5], [9, 5], [5, 7], [10, 7], [7, 9]]) put(i, j, 'w');
+});
+const TELEFONO_SOLO_TS = forma(16, 18, ({ rect, put, disco, linea }) => {
+  rect(1, 0, 14, 2, 'R'); rect(0, 1, 2, 3, 'R'); rect(13, 1, 15, 3, 'R'); rect(3, 0, 12, 0, 'E');
+  for (let k = 0; k < 5; k++) put(14 + (k % 2), 4 + k, 'r');
+  rect(3, 11, 12, 11, 'r'); put(3, 10, 'r'); put(12, 10, 'r');
+  rect(2, 12, 13, 17, 'R'); rect(1, 16, 14, 17, 'r'); rect(13, 12, 13, 16, 'r');
+  disco(7.5, 14, 2, 'W'); put(7, 14, 'R'); for (const [i, j] of [[6, 13], [9, 13], [5, 15], [10, 15]]) put(i, j, 'w');
+  linea(15, 9, 14, 12, 'r');
+});
+const telefonoRojoTS = (R, x, y, o = {}) => pintaTS(R, o.descolgado ? TELEFONO_SOLO_TS : TELEFONO_TS, x, y, o);
+
+export const PIEZAS_TS = {
+  terminal: terminalTS, disquete: disqueteTS, telex: telexTS, cajaJuego: cajaJuegoTS, contrato: contratoTS, cartucho: cartuchoTS,
+  consolaBolsillo: consolaBolsilloTS, maleta: maletaTS, mazo: mazoTS, rublo: rubloTS, bloques: bloquesTS, maletin: maletinTS,
+  telefonoRojo: telefonoRojoTS,
+};
+
+// ── Episodio 28 (la New Coke de 1985: la empresa cambia su fórmula y el país protesta): la farmacia de Atlanta en 1886,
+// el despacho de 1890–1899, los cuarenta, el supermercado de 1975, la sede y el laboratorio de 1985, la rueda de prensa
+// de Nueva York, la oficina del rival, el sótano, la centralita, la calle de protesta, el Congreso, el laboratorio de
+// Texas en 2004 y el aula de la escuela de negocios ──
+// DERECHOS: nada de logotipos de ninguna de las dos marcas, ni su letra cursiva, ni la onda blanca, ni el disco rojo, ni
+// el globo de tres colores, ni la botella de contorno (con cintura y estrías), ni latas reales: latas lisas de rojo y
+// azul planos (rojo #c8382e, azul #2e5aa8, distintos de los de las marcas) sin ninguna forma blanca encima (como mucho
+// una banda gris lisa); botellas rectas genéricas; nada de Papá Noel ni de osos polares. Sin letras en nada (solo
+// cifras o pictogramas; las «A» y «B» de los vasos de cata son pictogramas de la cata a ciegas). Las personas reales
+// se reconocen solo por sus atributos, con respeto. Nombres nuevos con NC.
+
+// tocados nuevos del 28
+Object.assign(TOCADOS, {
+  // el gorro de fiesta de cartulina (A con las rayas X y la borla de oro O): los empleados del rival celebrando
+  gorroFiestaNC: [[
+    '......kkk......',
+    '......kOk......',
+    '......kkk......',
+    '.....kAAAk.....',
+    '.....kXXXk.....',
+    '....kAAAAAk....',
+    '....kXXXXXk....',
+    '...kAAAAAAAk...',
+    '...kkkkkkkkk...',
+  ], -8],
+  // el gorro de cuartel de los cuarenta (V, sombra v): plegado y bajo, sin visera
+  gorroCuartelNC: [[
+    '...kkkkkkkk....',
+    '..kVVVVVVVVk...',
+    '.kVvVVVVVVVVk..',
+    '.kkkkkkkkkkkk..',
+  ], -2],
+  // los cascos de centralita de las operadoras: la diadema (M) por encima del pelo, el auricular (M, brillo m) sobre la
+  // oreja de atrás y el micrófono de varilla (M, la punta A) que baja por la mejilla hasta la barbilla, lejos de los
+  // ojos y de la boca
+  cascoCentralitaNC: [[
+    '.....kkkkk.....',
+    '...kkMMMMMkk...',
+    '..kMMk...kkMMk.',
+    '..kMk......kk..',
+    '..kMk..........',
+    '.kkMkk.........',
+    'kMMMMk.........',
+    'kMmMMk.........',
+    'kMmMMkk........',
+    '.kkkkMMk.......',
+    '......kMMk.....',
+    '.......kAAk....',
+    '........kk.....',
+  ], 0],
+});
+
+// ── detalles (delante) ──
+// la pajarita (dos alas del color col y el nudo más oscuro); dos: las alas de dos filas
+const pajaritaNC = (col, dos = true) => (c) => {
+  const a = hex(col), n = hex(oscuroTR(col, 0.6));
+  c.cuerpo.px(6, 1, a); c.cuerpo.px(7, 1, n); c.cuerpo.px(8, 1, a);
+  if (dos) { c.cuerpo.px(6, 2, a); c.cuerpo.px(8, 2, a); }
+};
+// la sonrisa de siempre del directivo canoso (si no habla ni pone otra cara)
+const sonrisaNC = (c) => {
+  if (c.o.habla || c.o.sorpresa || c.o.triste || c.o.enfado) return;
+  const y = c.o.bocaY ?? 9;
+  c.cab.px(10, y, c.pal.S); c.cab.px(11, y, c.pal.S);
+  c.cab.px(9, y, P.k); c.cab.px(10, y + 1, P.k); c.cab.px(11, y + 1, P.k); c.cab.px(12, y, P.k);
+};
+const PAL_MANO_NC = { ...PAL_MANO_TS, ...COLORES({
+  Z: '#b8bcc8', z: '#7c8090', G: '#6a3a1e', J: '#a8744a', P: '#c8985a', p: '#9a6a3a', L: '#c8382e', l: '#8e2620',
+  I: '#cfe2ea', D: '#4a2414', K: '#2a2832', e: '#5a5866', R: '#c8382e', r: '#8e2620', X: '#f2ead6', x: '#c8bc9a', B: '#a8743c', b: '#6a4422',
+}) };
+// la botella recta genérica de cristal pardo en la mano (los soldados que brindan): chapa (Z), cuello y cuerpo recto
+const BOTELLA_MANO_NC = ['.kkk.', '.kZk.', '.kGk.', 'kkGkk', 'kGGGk', 'kJGGk', 'kJGGk', 'kGGGk', '.kkk.'];
+const conBotellaNC = enMano(BOTELLA_MANO_NC, 12, -3, PAL_MANO_NC);
+// la probeta de cristal (I) con jarabe oscuro (D): el laboratorio de sabores
+const conProbetaNC = enMano(['kkkk', '.kIk', '.kIk', '.kDk', '.kDk', '..k.'], 12, 0, PAL_MANO_NC);
+// la cámara de tele de los ochenta sostenida delante, el objetivo (I) hacia delante y la lucecita roja (R)
+const conCamaraNC = enMano(['..kkkk...', '.kKKKKkkk', 'kKeKKKKIk', 'kKKRKKKIk', '.kKKKKkkk', '..kkkk...'], 10, 1, PAL_MANO_NC);
+// la caja de cartón (P, la cinta p) en brazos, sin letras: el vecino del sótano
+const conCajaNC = enMano(['kkkkkkkkk', 'kPPPpPPPk', 'kPPPpPPPk', 'kpppppppk', 'kPPPPPPPk', 'kPPPPPPpk', 'kkkkkkkkk'], 6, 1, PAL_MANO_NC);
+// los pictogramas de las pancartas (10 × 8): la lata lisa tachada con una X gruesa (K) y el corazón roto (R, la grieta X)
+const dibujoNC = (pinta) => { const g = Array.from({ length: 8 }, () => Array(10).fill('.')); pinta((i, j, c) => { if (i >= 0 && i < 10 && j >= 0 && j < 8) g[j][i] = c; }); return g.map((f) => f.join('')); };
+const DIBUJOS_NC = {
+  lata: dibujoNC((put) => {
+    for (let i = 3; i <= 6; i++) put(i, 0, 'Z');
+    for (let j = 1; j <= 7; j++) for (let i = 2; i <= 7; i++) put(i, j, i === 7 ? 'r' : 'R');
+    for (let i = 2; i <= 7; i++) put(i, 1, 'Z');
+    for (let j = 0; j < 8; j++) for (let i = 0; i < 10; i++) {
+      const d1 = Math.abs(j * 9 - i * 7) / Math.hypot(9, 7), d2 = Math.abs(j * 9 - (9 - i) * 7) / Math.hypot(9, 7);
+      if (d1 < 0.5 || d2 < 0.5) put(i, j, 'K');
+    }
+  }),
+  corazon: dibujoNC((put) => {
+    for (let j = 0; j < 8; j++) for (let i = 0; i < 10; i++) {
+      const lobulo = Math.hypot(i - 3, j - 2) <= 1.9 || Math.hypot(i - 6, j - 2) <= 1.9;
+      const pico = j >= 2 && j <= 7 && Math.abs(i - 4.5) <= 4.4 - (j - 2) * 0.9;
+      if (lobulo || pico) put(i, j, 'R');
+    }
+    for (const [i, j] of [[5, 1], [4, 2], [5, 3], [4, 4], [5, 5], [4, 6]]) put(i, j, 'X');
+  }),
+};
+const blitNC = (put, g, i0, j0, e = 1) => g.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') for (let a = 0; a < e; a++) for (let b = 0; b < e; b++) put(i0 + i * e + a, j0 + j * e + b, f[i]); });
+// la pancarta de cartón (X) en alto, con el palo (B) que sale del puño, por encima y a la derecha de la cabeza (nunca
+// tapa la cara); o.dibujo 'lata' | 'corazon' cambia el pictograma
+const PANCARTA_MANO_NC = Object.fromEntries(Object.entries(DIBUJOS_NC).map(([k, d]) => [k, forma(15, 34, ({ rect }) => {
+  rect(1, 1, 12, 10, 'X'); rect(1, 10, 12, 10, 'x'); rect(8, 11, 8, 32, 'B'); rect(6, 30, 8, 31, 'S');
+}).map((f, j) => (j >= 2 && j <= 9 ? f.slice(0, 2) + d[j - 2] .replace(/\./g, 'X') + f.slice(12) : f))]));
+const conPancartaNC = (dib) => (c) => { if (manoLibre(c)) c.cuerpo.rej(PANCARTA_MANO_NC[c.o.dibujo ?? dib] ?? PANCARTA_MANO_NC.lata, 8, -27, { ...c.pal, ...PAL_MANO_NC }); };
+
+// ── el reparto del 28 ──
+const B28 = B23, B28M = B23M;
+export const ELENCO_NC = {
+  // ── Atlanta, la farmacia de 1886 ──
+  // Pemberton, el farmacéutico: patillas, bigote, el chaleco pardo con botones de latón y las mangas de camisa
+  pemberton: { ...B28, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#3a2a20'), delante: bigoteTR,
+    pal: CLT({ H: '#4a3628', h: '#6a5040', C: '#5a3e2e', c: '#422e22', W: '#f2eee2', o: '#d8b050', F: '#3a3a44' }) },
+  // el dependiente de la fuente de soda: el gorrito de papel blanco, la pajarita, la camisa clara y el delantal blanco
+  dependiente1886: { ...B28, cuerpo: CUERPO_DELANTAL_AT, tocado: 'gorroPapel', ceja: hex('#7a4a24'), delante: pajaritaNC('#2a2a3a', false),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', X: '#fbfaf4', x: '#c8c4bc', C: '#c8d4e4', c: '#a4b2c6', W: '#f2f2f6', V: '#fbfaf4', v: '#d0ccc4', F: '#3a3a44' }) },
+  // ── el despacho de 1890–1899 ──
+  // Candler, el empresario: calvo con bigote, traje oscuro con la pechera blanca y la pajarita negra
+  candler: { ...B28, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_EUROPEO, ceja: hex('#5a4a40'), delante: varios(bigoteTR, pajaritaNC('#24222c')),
+    pal: CLT({ H: '#6a5a4e', h: '#8a7a6e', C: '#2e2e3a', c: '#22222c', W: '#f2eee2', o: '#c8a040', F: '#2e2e3a' }) },
+  // los dos abogados de 1899: sombrero de bombín y traje; uno gris con bigote espeso, el otro pardo con patillas
+  abogado1: { ...B28, cuerpo: CUERPO_TRAJE_DC, tocado: 'bombin', ceja: hex('#3a2a20'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#3a2a20', h: '#5a4434', J: '#2a2430', j: '#4a4458', C: '#4a4a52', c: '#38383e', W: '#f2eee2', o: '#6a2a32', F: '#4a4a52' }) },
+  abogado2: { ...B28, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_TRAJE_DC, tocado: 'bombin', ceja: hex('#7a4a24'),
+    pal: CLT({ H: '#8a5a30', h: '#a8743e', J: '#4a3626', j: '#6a5240', C: '#6a5440', c: '#524030', W: '#f2eee2', o: '#2a3a5a', F: '#524030' }) },
+  // ── los cuarenta ──
+  // el soldado que brinda: uniforme verde oliva con cinturón y polainas, el gorro de cuartel y la botella recta en la mano
+  soldado: { ...B28, cuerpo: CUERPO_GI_DC, tocado: 'gorroCuartelNC', ceja: hex('#6a4426'), delante: conBotellaNC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', V: '#6a6a44', v: '#52522f', C: '#7a7048', c: '#5e5636', o: '#c8a040', G: '#5a4a2a', O: '#c8a040', F: '#6a6040', P: '#a8946a', p: '#86744e', n: '#3a2a1e' }) },
+  // ── el supermercado de 1975 ──
+  // la compradora: la media melena con volumen de los setenta, la blusa mostaza con lunares y los pantalones de campana
+  senora75: { ...B28M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CAMPANA_F_AT, ceja: hex('#6a4420'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a5a2a', h: '#a8743a', s: '#e8a080', C: '#d8902a', c: '#b07018', p: '#f2e0a0', F: '#6a4a2a' }) },
+  // el cámara de la tele: gorra, la cazadora y la cámara de hombro sostenida delante
+  camarografo: { ...B28, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#2a1e1a'), delante: conCamaraNC,
+    pal: MOT({ H: '#2a1e1a', h: '#4a3630', J: '#3a3a44', j: '#5a5a66', C: '#5a6a4a', c: '#46543a', W: '#d8d4c8', O: '#c8c8d2', F: '#3a4a6a', n: '#2a2018' }) },
+  // ── la sede de Atlanta y el laboratorio de sabores (1985) ──
+  // Goizueta, el presidente: elegante, el pelo oscuro peinado hacia atrás, gafas finas y el traje oscuro con la corbata granate
+  goizueta: { ...B28, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#14101a'), delante: gafasFinasDC,
+    pal: CLT({ H: '#1a1418', h: '#3a3036', C: '#22283a', c: '#181c2a', W: '#f2f2f6', o: '#7a2a3a', F: '#22283a' }) },
+  // el científico del laboratorio de sabores: sienes canosas, gafas, la bata blanca y la probeta de jarabe en la mano
+  cientifico: { ...B28, cab: CAB_SIENES, cuerpo: CUERPO_BATA_DC, ceja: hex('#4a3020'), delante: varios(gafasFinasDC, conProbetaNC),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d2', C: '#f2f2f6', c: '#c8ccd8', W: '#8ab0d0', o: '#3a4a6a', F: '#4a4a54', n: '#2a2430' }) },
+  // la científica: el pelo rizado, la bata blanca sobre la blusa verde y la probeta
+  cientifica: { ...B28, cab: CAB_RIZOS, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: conProbetaNC,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', s: '#a8684a', C: '#f2f2f6', c: '#c8ccd8', W: '#4a8a6a', o: '#4a8a6a', F: '#3a3a44', n: '#2a2430' }) },
+  // ── la rueda de prensa de Nueva York (1985) ──
+  // el periodista: el pelo de lado, la americana beis de los ochenta con la corbata ancha y la libreta
+  periodista: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#6a4426'), delante: conLibretaDC,
+    pal: CLT({ H: '#8a6040', h: '#a87a50', C: '#b8a07a', c: '#94805c', o: '#8a3a2a', O: '#c8a040', F: '#5a5046', n: '#2a2430' }) },
+  // la periodista: el pelo rizado con volumen, la chaqueta de hombreras verde azulado y el micrófono de mano
+  periodista2: { ...B28M, cab: CAB_RIZOS, cuerpo: CUERPO_HOMBRERAS_AT, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]], delante: conMicro,
+    pal: MOT({ H: '#3a2418', h: '#5a3a24', s: '#c07a5a', C: '#2a6a6a', c: '#1e5050', W: '#f2eee2', I: '#2a2430', o: '#f0c040' }) },
+  // el presentador de la tele de 1985: el pelo castaño peinado, el traje gris azulado y la corbata roja oscura
+  presentador: { ...B28, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#4a5468', c: '#384050', W: '#eef0f6', o: '#8a2a3a', F: '#4a5468' }) },
+  // ── la oficina del rival ──
+  // el ejecutivo del rival: sienes canosas, el traje azul y la corbata gris
+  ejecutivoPepsi: { ...B28, cab: CAB_SIENES, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a3020'),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', w: '#c8c8d2', C: '#2e4a8a', c: '#22386a', W: '#eef0f6', o: '#9a9caa', F: '#2e4a8a' }) },
+  // el empleado de fiesta: rubio, camisa blanca remangada con la corbata azul y el gorro de fiesta
+  empleadoPepsi: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_REMANGADA_AT, tocado: 'gorroFiestaNC', ceja: hex('#a8743a'),
+    pal: CLT({ H: '#c89a4a', h: '#e0b464', C: '#eef0f4', c: '#c4cad6', W: '#eef0f4', o: '#3a5aa8', A: '#3a6ad8', X: '#f6f2e6', O: '#f0c040', F: '#4a4a5a', n: '#2a2430' }) },
+  // ── el sótano, la centralita y el psiquiatra (1985) ──
+  // el vecino del sótano: el pelo de lado, bigote, la camisa de cuadros y la caja de cartón en brazos
+  vecinoSotano: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#4a3020'), delante: varios(bigoteTR, conCajaNC),
+    pal: CLT({ H: '#5a3a24', h: '#7a5434', C: '#a84a3a', c: '#86382c', p: '#5a2a24', W: '#e8e0d0', F: '#4a5a7a', n: '#3a2a20' }) },
+  // la operadora de la centralita: el pelo rizado, la rebeca rosa y los cascos con micrófono de varilla
+  operadora: { ...B28M, cab: CAB_RIZOS, cuerpo: CUERPO_REBECA_DC, tocado: 'cascoCentralitaNC', ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', s: '#e8a080', M: '#3a3a44', m: '#6a6a78', A: '#2a2832', C: '#c86a8a', c: '#a04e6a', W: '#f2eee2', J: '#f2eee2', o: '#f0c040', F: '#3a3a54', n: '#2a2430' }) },
+  // el psiquiatra que escucha las cintas: barba entrecana, gafas redondas y la chaqueta de pana parda
+  psiquiatra: { ...B28, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#5a4a40'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#7a6a5e', h: '#9a8a7e', C: '#7a5a3a', c: '#5e442a', W: '#e8e4d8', F: '#4a4038' }) },
+  // ── Seattle y la calle de protesta ──
+  // Mullins: barba, la gorra verde, la cazadora de ante parda sobre la camiseta y los vaqueros
+  mullins: { ...B28, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#6a4426', h: '#8a6040', J: '#2a4a3a', j: '#3e6a52', C: '#7a5a3a', c: '#5e442a', W: '#d8d0b8', O: '#c8a040', F: '#3a4a6a', n: '#2a2018' }) },
+  // los que protestan con la pancarta en alto (la lata tachada él; el corazón roto ella; o.dibujo las cambia)
+  manifestante: { ...B28, cuerpo: CUERPO_CALLE, ceja: hex('#3a2a20'), delante: conPancartaNC('lata'),
+    pal: CLT({ H: '#3a2a20', h: '#5a4434', C: '#4a7a5a', c: '#3a6048', F: '#4a5a7a', n: '#2a2430' }) },
+  manifestante2: { ...B28M, cuerpo: CUERPO_POLO_DC, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], delante: conPancartaNC('corazon'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#a8684a', C: '#e8b830', c: '#c09020', W: '#f2eee2', o: '#f2eee2', F: '#3a3a54', n: '#2a2430' }) },
+  // ── el Congreso y la segunda rueda de prensa ──
+  // el senador: el pelo canoso, las arrugas, el traje azul marino y la corbata burdeos
+  senador: { ...B28, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#a8a8b2'), delante: arrugasDC,
+    pal: CLT({ H: '#c8c8d0', h: '#e8e8ee', C: '#2a3048', c: '#1e2436', W: '#eef0f6', o: '#6a2a4a', F: '#2a3048' }) },
+  // Keough, el directivo: el pelo blanco con entradas, sonriente con humor, el traje gris y la corbata azul
+  keough: { ...B28, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#b8b8c2'), delante: varios(sonrisaNC, arrugasDC),
+    pal: CLT({ H: '#e0e0e6', h: '#f6f6f8', C: '#5a5c66', c: '#46484f', W: '#eef0f6', o: '#2a4a7a', F: '#5a5c66' }) },
+  // ── el laboratorio de neurociencia de Texas (2004) ──
+  // el voluntario: el pelo de lado, la camiseta azul claro y los vaqueros
+  voluntario: { ...B28, cab: CAB_LADO_DC, cuerpo: CUERPO_CALLE, ceja: hex('#6a4020'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#8ab0c8', c: '#6a90a8', F: '#4a5a7a', n: '#3a3a44' }) },
+  // el investigador: el pelo corto negro, gafas de pasta, la bata blanca y la tablilla de notas
+  investigador: { ...B28, cuerpo: CUERPO_BATA_DC, ceja: hex('#1c1424'), delante: varios(gafasPastaDC, conNotasTS),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#f2f2f6', c: '#c8ccd8', W: '#5a6a8a', o: '#5a6a8a', F: '#3a3a44', n: '#2a2430' }) },
+  // ── el aula de la escuela de negocios ──
+  // el profesor: sienes canosas, gafas finas, la americana de tweed parda sobre la camisa celeste
+  profesor: { ...B28, cab: CAB_SIENES, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#4a3a30'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4a40', h: '#7a6a5e', w: '#c8c8d2', C: '#6a5a44', c: '#52442f', W: '#c8d8e8', F: '#4a4a54' }) },
+  // la estudiante (o el estudiante): el pelo corto, el jersey granate de cuello de camisa y la libreta
+  estudiante: { ...B28, cab: CAB_CORTA_VM, cuerpo: CUERPO_PICO_DC, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], delante: conLibretaDC,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', C: '#8a3040', c: '#6a2432', W: '#f2eee2', F: '#3a4a6a', n: '#2a2430' }) },
+};
+// (en ELENCO_CHIBI solo las claves que no existían: cientifico, cientifica, periodista, soldado, manifestante, voluntario,
+// profesor y estudiante ya eran de otros episodios)
+for (const [k, v] of Object.entries(ELENCO_NC)) if (!(k in ELENCO_CHIBI)) ELENCO_CHIBI[k] = v;
+
+// ── piezas del 28 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Los colores de las latas y botellas: rojo y azul planos propios (no los de las marcas) y el pardo del cristal
+const COLOR_NC = {
+  rojo: { C: '#c8382e', c: '#8e2620', J: '#e2675c' },
+  azul: { C: '#2e5aa8', c: '#1f3e78', J: '#5a82c8' },
+  marron: { C: '#6a3a1e', c: '#4a2814', J: '#9a6a40' },
+};
+const PAL_NC = { ...PAL_TS, ...COLORES({
+  k: '#1c1222', ...COLOR_NC.rojo, Z: '#b8bcc8', z: '#7c8090', H: '#4e525e', E: '#ffffff', W: '#e8e4dc', w: '#b8b4ac',
+  D: '#3a1e14', d: '#7a4a2a', Y: '#f4ecd8', y: '#d4c4a0', R: '#c8382e', r: '#8e2620', I: '#d6e6ee', i: '#9ab8c4',
+  P: '#c8985a', p: '#9a6a3a', l: '#e0b47a', Q: '#e8a0b0', q: '#b87080', O: '#f0c040', o: '#ffe890', K: '#2a2832',
+  N: '#141018', f: '#2a2630', X: '#f6f2e6', x: '#c8c0b0', e: '#3a3640', G: '#56d07a', a: '#9ab8e0', A: '#3a6ad8',
+}) };
+const palNC = (color, extra = {}) => ({ ...PAL_NC, ...COLORES({ ...(COLOR_NC[color] ?? COLOR_NC.rojo), ...extra }) });
+const pintaNC = (R, g, x, y, o = {}, pal = PAL_NC) => pintaJH(R, g, x, y, o, pal);
+const encimaNC = (R, w, hgt, x, y, o, pal = PAL_NC) => encimaNV(R, w, hgt, x, y, o, pal);
+const cacheNC = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+// celdas sueltas (espuma, paño, pala): las pinta con su contorno alrededor; celdas: Map 'i,j' → letra
+const celdasNC = (px, celdas) => {
+  const hay = (i, j) => celdas.has(i + ',' + j);
+  for (const c of celdas.keys()) { const [i, j] = c.split(',').map(Number); for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!hay(i + a, j + b)) px(i + a, j + b, 'k'); }
+  for (const [c, l] of celdas) { const [i, j] = c.split(',').map(Number); px(i, j, l); }
+};
+
+// LA LATA lisa: la tapa gris (Z, sombra z), el cuerpo de un solo color plano (C, sombra c a la derecha, un tono más
+// claro J a la izquierda) y el culo gris; sin nada blanco encima. o.color 'rojo' | 'azul'; o.abierta: la anilla (z) y
+// el agujero negro (N) en la tapa; o.franja: una banda gris lisa en medio; o.banda: la banda de honor dorada (O)
+// cruzada (sombra M); o.espuma 0–1: el chorro de espuma (Y, sombra y) que salta de la tapa hasta 24 px, con o.t ondula y suelta
+// gotas. 12 × 18
+const LATA_CACHE_NC = new Map();
+const LATA_NC = (ab, fr, ba) => cacheNC(LATA_CACHE_NC, `${ab}${fr}${ba}`, () => forma(12, 18, ({ rect, put, linea }) => {
+  rect(2, 1, 9, 1, 'Z'); rect(1, 2, 10, 2, 'z');
+  rect(1, 3, 10, 15, 'C'); rect(9, 3, 10, 15, 'c'); rect(2, 4, 2, 14, 'J');
+  rect(2, 16, 9, 16, 'z');
+  if (ab) { put(6, 1, 'N'); put(7, 1, 'N'); put(4, 1, 'z'); put(5, 1, 'z'); }
+  if (fr) { rect(1, 8, 10, 10, 'Z'); rect(9, 8, 10, 10, 'z'); }
+  if (ba) { linea(1, 13, 10, 5, 'O'); linea(1, 14, 10, 6, 'O'); linea(1, 15, 10, 7, 'M'); }
+}));
+const lataNC = (R, x, y, o = {}) => {
+  const pal = palNC(o.color, { M: '#a87a18' });
+  pintaNC(R, LATA_NC(!!(o.abierta || o.espuma), !!o.franja, !!o.banda), x, y, o, pal);
+  const e = Math.max(0, Math.min(1, o.espuma ?? 0));
+  if (e <= 0) return;
+  const px = encimaNC(R, 12, 18, x, y, o, pal), t = o.t ?? 0, h = Math.round(e * 24), celdas = new Map();
+  const pon = (i, j, l) => celdas.set(i + ',' + j, l);
+  let cx = 6.5;
+  for (let j = 0; j <= h; j++) {
+    cx = 6.5 + Math.sin(j * 0.55 + t * 13) * Math.min(1.2, j / 6);
+    const a = j < 3 ? 2.4 : 1.8;
+    for (let i = Math.round(cx - a); i <= Math.round(cx + a); i++) pon(i, 1 - j, i >= Math.round(cx + a) ? 'y' : 'Y');
+  }
+  const r = 2 + e * 2.2, cy = 1 - h;
+  for (let a = -4; a <= 4; a++) for (let b = -4; b <= 4; b++) { const d = Math.hypot(a, b * 1.15); if (d <= r) pon(Math.round(cx + a), cy + b, a + b > r * 0.6 ? 'y' : 'Y'); }
+  if (e > 0.3) for (let k = 0; k < 4; k++) { const f = (t * 3 + k * 0.27) % 1, lado = k % 2 ? 1 : -1; pon(Math.round(cx + lado * (4 + f * 6)), Math.round(cy + 2 + f * f * 10 - 3 * f), 'Y'); }
+  if (e > 0.5) for (let j = 2; j <= 2 + Math.round(e * 5); j++) pon(1, j, 'Y');
+  celdasNC(px, celdas);
+};
+
+// LA BOTELLA RECTA genérica (jamás la de contorno: sin cintura ni estrías): la chapa (Z), el cuello recto y el cuerpo
+// cilíndrico. o.color 'marron': cristal pardo entero (C, sombra c, brillo J); 'rojo' | 'azul': cristal claro (I/i)
+// con el refresco oscuro (D) dentro y una etiqueta lisa sin letras del color. 10 × 24
+const BOTELLA_CACHE_NC = new Map();
+const BOTELLA_NC = (pardo) => cacheNC(BOTELLA_CACHE_NC, pardo, () => forma(10, 24, ({ rect }) => {
+  rect(3, 1, 6, 2, 'Z'); rect(3, 2, 6, 2, 'z');
+  rect(4, 3, 5, 8, pardo ? 'C' : 'I'); rect(3, 9, 6, 9, pardo ? 'C' : 'I'); rect(2, 10, 7, 10, pardo ? 'C' : 'I');
+  if (pardo) { rect(1, 11, 8, 22, 'C'); rect(7, 11, 8, 22, 'c'); rect(5, 3, 5, 9, 'c'); rect(2, 12, 2, 20, 'J'); }
+  else {
+    rect(4, 6, 5, 8, 'D'); rect(3, 9, 6, 10, 'D'); rect(1, 11, 8, 22, 'D'); rect(1, 11, 1, 22, 'i'); rect(8, 11, 8, 22, 'i'); rect(2, 11, 2, 13, 'I');
+    rect(1, 14, 8, 18, 'C'); rect(7, 14, 8, 18, 'c');
+  }
+}));
+const botellaNC = (R, x, y, o = {}) => pintaNC(R, BOTELLA_NC((o.color ?? 'marron') === 'marron'), x, y, o, palNC(o.color ?? 'marron'));
+
+// EL VASO DE CATA sin marca: de plástico transparente (I, sombra i), más ancho arriba; o.lleno (true o 0–1): el refresco
+// oscuro (D) con la línea de espuma (y); o.letra 'A' | 'B': la pegatina blanca pequeña con la letra de la cata a ciegas
+// como pictograma (sin ella, nada); el refresco se ve a los lados y debajo. 14 × 16
+const VASO_CACHE_NC = new Map();
+const LETRAS_NC = { A: ['.e.', 'e.e', 'eee', 'e.e', 'e.e'], B: ['ee.', 'e.e', 'ee.', 'e.e', 'ee.'] };
+const vasoNC = (R, x, y, o = {}) => {
+  const n = o.lleno === true ? 0.8 : Math.max(0, Math.min(1, +o.lleno || 0)), letra = LETRAS_NC[o.letra] ? o.letra : '';
+  const g = cacheNC(VASO_CACHE_NC, `${Math.round(n * 10)}${letra}`, () => forma(14, 16, ({ rect, put }) => {
+    for (let j = 1; j <= 14; j++) { const m = Math.floor((j - 1) / 6); rect(1 + m, j, 12 - m, j, j === 1 ? 'Z' : 'I'); put(12 - m, j, j === 1 ? 'z' : 'i'); }
+    const top = 14 - Math.round(n * 12);
+    if (n > 0) for (let j = Math.max(2, top); j <= 14; j++) { const m = Math.floor((j - 1) / 6); rect(2 + m, j, 11 - m, j, j === Math.max(2, top) ? 'y' : 'D'); }
+    for (let j = 2; j <= 6; j++) if (j < top) put(2, j, 'E');
+    if (letra) { rect(5, 4, 9, 10, 'X'); blitNC(put, LETRAS_NC[letra], 6, 5); }
+  }));
+  pintaNC(R, g, x, y, o);
+};
+
+// LA CAJA DE CARTÓN de latas, sin letras: cerrada, con la cinta (T) y una lata pintada como pictograma del color
+// o.color; o.abierta: las solapas levantadas y las tapas de las latas (Z) asomando. 28 × 16 (abierta, 28 × 19)
+const CAJA_CACHE_NC = new Map();
+const cajaLatasNC = (R, x, y, o = {}) => {
+  const g = cacheNC(CAJA_CACHE_NC, !!o.abierta, () => o.abierta
+    ? forma(28, 19, ({ rect }) => {
+      rect(1, 0, 3, 5, 'p'); rect(24, 0, 26, 5, 'p');
+      rect(4, 3, 23, 4, 'b'); for (let k = 0; k < 4; k++) { rect(5 + k * 5, 3, 7 + k * 5, 3, 'Z'); rect(5 + k * 5, 4, 7 + k * 5, 4, 'C'); }
+      rect(1, 5, 26, 17, 'P'); rect(21, 5, 26, 17, 'p'); rect(1, 5, 26, 5, 'l');
+    })
+    : forma(28, 16, ({ rect }) => {
+      rect(1, 1, 26, 3, 'l'); rect(11, 1, 14, 3, 'T');
+      rect(1, 4, 26, 14, 'P'); rect(21, 4, 26, 14, 'p'); rect(11, 4, 14, 6, 'T');
+      rect(6, 7, 9, 7, 'Z'); rect(6, 8, 9, 12, 'C'); rect(9, 8, 9, 12, 'c');
+    }));
+  pintaNC(R, g, x, y, o, palNC(o.color, { b: '#5a3a1e', T: '#d8c8a0' }));
+};
+
+// LA CÁMARA ACORAZADA del banco: la placa de acero (z, remaches Z), el marco redondo grueso (H) y la puerta redonda (Z,
+// el canto z, los cerrojos w) con el volante de radios (H) en medio; o.abre 0–1 la gira sobre la bisagra de la izquierda
+// (se ve de canto al final) y deja ver el hueco oscuro (N) con su balda (f). 44 × 42
+const CAJAF_CACHE_NC = new Map();
+const cajaFuerteNC = (R, x, y, o = {}) => {
+  const paso = Math.round(Math.max(0, Math.min(1, o.abre ?? 0)) * 16);
+  const g = cacheNC(CAJAF_CACHE_NC, paso, () => forma(44, 42, ({ rect, put, disco }) => {
+    rect(1, 1, 42, 40, 'z'); rect(1, 1, 42, 1, 'Z'); for (const [i, j] of [[3, 3], [40, 3], [3, 38], [40, 38]]) put(i, j, 'Z');
+    disco(21.5, 20.5, 17.5, 'H'); disco(21.5, 20.5, 14.5, 'N'); rect(9, 27, 34, 27, 'f');
+    const u = paso / 16, rx = 15 * Math.cos(u * Math.PI / 2), cx = 6.5 + rx;
+    rect(4, 13, 6, 28, 'K');
+    if (rx < 0.6) { rect(6, 5, 7, 36, 'z'); return; }
+    for (let j = 4; j <= 37; j++) for (let i = 4; i <= 40; i++) {
+      const nx = (i - cx) / rx, ny = (j - 20.5) / 16, d = Math.hypot(nx, ny);
+      if (d <= 1) {
+        const ang = Math.atan2(ny, nx), radio = (n) => Math.abs(Math.sin(ang * 3)) < 0.18 && d > 0.12 && d < n;
+        let l = d > 0.86 ? 'z' : 'Z';
+        if (d > 0.7 && d < 0.8 && Math.abs(Math.sin(ang * 4)) < 0.25) l = 'w';
+        if (rx > 5 && (d < 0.12 || (d > 0.4 && d < 0.48) || radio(0.44))) l = 'H';
+        put(i, j, l);
+      } else if (u > 0 && nx > 0 && Math.hypot((i - cx - 2) / rx, ny) <= 1) put(i, j, 'z');
+    }
+  }));
+  pintaNC(R, g, x, y, o);
+};
+
+// EL PAPELITO doblado por la mitad (la hoja de abajo X y la mitad de arriba un poco levantada W, el pliegue x y la
+// sombra w), sin nada escrito; o.abierto: desdoblado, con tres
+// renglones de tinta sin letras (e). 12 × 8 (abierto, 12 × 12)
+const PAPEL_NC = forma(12, 8, ({ rect }) => { rect(1, 4, 10, 6, 'X'); rect(1, 6, 10, 6, 'w'); rect(6, 1, 9, 1, 'W'); rect(4, 2, 9, 2, 'W'); rect(3, 3, 10, 3, 'W'); rect(9, 1, 10, 3, 'w'); rect(2, 4, 10, 4, 'x'); });
+const PAPEL_ABIERTO_NC = forma(12, 12, ({ rect, put }) => {
+  rect(1, 1, 10, 10, 'X'); rect(6, 1, 6, 10, 'x'); rect(1, 10, 10, 10, 'w');
+  for (const [j, a] of [[3, 9], [5, 8], [7, 5]]) for (let i = 2; i <= a; i++) if (i !== 6 && (i + j) % 4) put(i, j, 'e');
+});
+const papelitoNC = (R, x, y, o = {}) => pintaNC(R, o.abierto ? PAPEL_ABIERTO_NC : PAPEL_NC, x, y, o);
+
+// EL TELÉFONO DE GÓNDOLA de los ochenta: la base baja redondeada (C, sombra c; o.color la cambia, beis por omisión) con
+// el teclado de botones (W) y el auricular atravesado encima; o.suena (con o.t): el teléfono da saltitos, el auricular
+// bota más alto y tiembla con unas rayitas a los lados. 22 × 14
+const TEL_BASE_NC = forma(22, 11, ({ rect, put }) => {
+  rect(3, 2, 18, 2, 'C'); rect(2, 3, 19, 9, 'C'); rect(2, 8, 19, 9, 'c'); rect(18, 3, 19, 9, 'c');
+  rect(3, 1, 5, 1, 'c'); rect(16, 1, 18, 1, 'c');
+  for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) put(8 + a * 2, 3 + b * 2, 'W');
+});
+const TEL_AURIC_NC = forma(22, 6, ({ rect }) => { rect(1, 1, 5, 4, 'C'); rect(16, 1, 20, 4, 'C'); rect(5, 1, 16, 2, 'C'); rect(1, 4, 5, 4, 'c'); rect(16, 4, 20, 4, 'c'); rect(19, 1, 20, 3, 'c'); });
+const telefonoNC = (R, x, y, o = {}) => {
+  const s = o.s ?? 1, t = o.t ?? 0, suena = !!o.suena, pal = palNC('rojo', { C: o.color ?? '#d8c8a0', c: oscuroTR(o.color ?? '#d8c8a0', 0.78), W: '#f6f2e6' });
+  const salto = suena ? Math.round(Math.abs(Math.sin(t * 22)) * 2) * s : 0, bota = suena ? Math.round(Math.abs(Math.sin(t * 22 + 0.9)) * 3) * s : 0;
+  pintaNC(R, TEL_BASE_NC, x, y - salto, o, pal);
+  pintaNC(R, TEL_AURIC_NC, x + (suena ? Math.round(Math.sin(t * 40)) * s : 0), y - salto - 8 * s - bota, o, pal);
+  if (suena && Math.sin(t * 11) > -0.3) {
+    const px = encimaNC(R, 22, 14, x, y - salto, o, pal);
+    for (const [i, j] of [[-2, 4], [-3, 5], [-3, 6], [-2, 7], [23, 4], [24, 5], [24, 6], [23, 7]]) px(i, j, 'k');
+  }
+};
+
+// EL SACO DE CORREOS de lona (P, sombra p) abierto, con los sobres (X, solapa x; uno azul claro a) que asoman y la
+// cuerda suelta (m); o.cartas false: cerrado, atado con la cuerda. 22 × 24
+const SACO_NC = (cartas) => forma(22, 24, ({ rect, put }) => {
+  rect(4, 5, 17, 7, 'P'); rect(2, 8, 19, 20, 'P'); rect(3, 21, 18, 21, 'P'); rect(5, 22, 16, 22, 'P');
+  rect(16, 8, 19, 21, 'p'); for (let j = 10; j <= 20; j += 2) put(10, j, 'p');
+  if (cartas) {
+    rect(5, 1, 10, 6, 'X'); put(6, 2, 'x'); put(7, 3, 'x'); put(8, 3, 'x'); put(9, 2, 'x');
+    rect(11, 0, 16, 5, 'a'); put(12, 1, 'x'); put(13, 2, 'x'); put(14, 2, 'x'); put(15, 1, 'x');
+    rect(8, 3, 12, 6, 'X'); put(9, 4, 'x'); put(10, 5, 'x'); put(11, 4, 'x');
+    put(18, 6, 'm'); put(19, 7, 'm'); put(20, 8, 'm');
+  } else { rect(7, 2, 14, 5, 'P'); rect(8, 0, 13, 1, 'P'); rect(6, 6, 15, 6, 'm'); }
+});
+const SACOS_NC = [SACO_NC(false), SACO_NC(true)];
+const sacoCartasNC = (R, x, y, o = {}) => pintaNC(R, SACOS_NC[o.cartas === false ? 0 : 1], x, y, o, palNC('rojo', { P: '#d8c08a', p: '#a88a58', m: '#6a4422' }));
+
+// LA PANCARTA de cartón (X, canto x) clavada en un palo (B, sombra b) con un pictograma a doble tamaño; o.dibujo
+// 'lata' (la lata lisa tachada) | 'corazon' (el corazón roto). 26 × 40
+const PANCARTA_NC = Object.fromEntries(Object.entries(DIBUJOS_NC).map(([k, d]) => [k, forma(26, 40, ({ rect, put }) => {
+  rect(1, 1, 24, 19, 'X'); rect(1, 19, 24, 19, 'x'); rect(12, 20, 13, 38, 'B'); rect(13, 20, 13, 38, 'b');
+  blitNC(put, d, 3, 2, 2);
+})]));
+const pancartaNC = (R, x, y, o = {}) => pintaNC(R, PANCARTA_NC[o.dibujo] ?? PANCARTA_NC.lata, x, y, o, { ...PAL_NC, ...COLORES({ B: '#a8743c', b: '#6a4422' }) });
+
+// EL MICRÓFONO de rueda de prensa con su pie: la cabeza (V; o.color la cambia, gris oscura por omisión) con la rejilla
+// (u), la pinza, la barra (Z/z), la rosca y la base redonda (K). 14 × 34
+const MICRO_NC = forma(14, 34, ({ rect, put, disco, linea }) => {
+  disco(9, 4, 2.6, 'V'); put(8, 3, 'u'); put(10, 3, 'u'); put(9, 4, 'u'); put(8, 5, 'u'); put(10, 5, 'u');
+  linea(8, 7, 7, 10, 'K'); rect(6, 10, 7, 11, 'z');
+  rect(6, 12, 7, 30, 'z'); rect(6, 12, 6, 30, 'Z'); rect(5, 21, 8, 22, 'K');
+  rect(3, 31, 10, 31, 'K'); rect(2, 32, 11, 32, 'K');
+});
+const microfonoNC = (R, x, y, o = {}) => pintaNC(R, MICRO_NC, x, y, o, { ...PAL_NC, ...COLORES({ V: o.color ?? '#3a3a46', u: '#6a6a78' }) });
+
+// EL PAÑO que tapa algo en el escenario (Q, pliegues q, brillo P; o.color lo cambia, morado por omisión): de pie es una
+// campana que lo cubre todo (o.w × o.h, 26 × 30 por omisión); o.tira 0–1: alguien tira de él hacia la derecha, se
+// levanta, se aplana y ondea hasta salir volando
+const panoNC = (R, x, y, o = {}) => {
+  const w = o.w ?? 26, h = o.h ?? 30, u = Math.max(0, Math.min(1, o.tira ?? 0)), col = o.color ?? '#6a3a7a';
+  const pal = { ...PAL_NC, ...COLORES({ Q: col, q: oscuroTR(col, 0.7), P: '#' + [1, 3, 5].map((i) => Math.min(255, Math.round(parseInt(col.slice(i, i + 2), 16) * 1.35 + 20)).toString(16).padStart(2, '0')).join('') }) };
+  const px = encimaNC(R, w, h, x, y, o, pal), celdas = new Map();
+  const hh = Math.max(4, Math.round(h * (1 - 0.55 * u))), dy = Math.round(-u * h * 0.45), dx = u * w * 1.4;
+  for (let j = 0; j < hh; j++) {
+    const fr = j / (hh - 1), mitad = (w / 2) * Math.sqrt(Math.min(1, (j + 1.5) / (hh * 0.3))) * (1 + u * 0.5) + (j >= hh - 2 ? 1 : 0);
+    const sx = dx + u * w * 0.5 * (1 - fr) + Math.sin(j * 0.45 + u * 9) * u * 2.5, c = w / 2 - 0.5 + sx;
+    for (let i = Math.round(c - mitad); i <= Math.round(c + mitad); i++) {
+      if (j === hh - 1 && (i + Math.round(u * 12)) % 5 === 0) continue;
+      const l = j < 2 && Math.abs(i - c) < mitad - 2 ? 'P' : fr > 0.25 && (i - Math.round(c - mitad)) % 6 === 3 ? 'q' : 'Q';
+      celdas.set(i + ',' + (h - hh + j + dy), l);
+    }
+  }
+  celdasNC(px, celdas);
+};
+
+// EL PEROL de cobre (B, sombra b, borde l) con el jarabe oscuro (D) que borbotea (burbujas d con o.t) y las dos asas;
+// o.pala: la pala de madera (M) metida en el jarabe, inclinada; o.vapor: hilillos de vapor (w) que suben. 26 × 19
+const JARABE_NC = forma(26, 19, ({ rect, put }) => {
+  for (let j = 1; j <= 7; j++) for (let i = 1; i <= 24; i++) { const a = ((i - 12.5) / 11.5) ** 2 + ((j - 4) / 2.6) ** 2, b = ((i - 12.5) / 9.8) ** 2 + ((j - 4) / 1.6) ** 2; if (b <= 1) put(i, j, 'D'); else if (a <= 1) put(i, j, 'l'); }
+  rect(2, 6, 23, 15, 'B'); rect(1, 4, 1, 5, 'l'); rect(24, 4, 24, 5, 'l'); rect(19, 6, 23, 15, 'b'); rect(3, 16, 22, 16, 'b'); rect(5, 17, 20, 17, 'b');
+  rect(4, 7, 4, 13, 'l'); rect(0, 8, 1, 10, 'b'); rect(24, 8, 25, 10, 'b'); put(0, 8, '.'); put(25, 8, '.');
+});
+const jarabeNC = (R, x, y, o = {}) => {
+  const pal = { ...PAL_NC, ...COLORES({ B: '#b8744a', b: '#7a4428', l: '#e0a070', M: '#a8743c' }) };
+  pintaNC(R, JARABE_NC, x, y, o, pal);
+  const px = encimaNC(R, 26, 19, x, y, o, pal), t = o.t ?? 0;
+  for (let k = 0; k < 5; k++) if (Math.sin(t * 5 + k * 2.3) > 0.4) px(6 + k * 3, 3 + (k % 2), 'd');
+  if (o.pala) { const celdas = new Map(); for (let k = 0; k <= 13; k++) { celdas.set((14 + Math.round(k * 0.6)) + ',' + (4 - k), 'M'); celdas.set((15 + Math.round(k * 0.6)) + ',' + (4 - k), 'M'); } celdasNC(px, celdas); }
+  if (o.vapor) for (let k = 0; k < 3; k++) { const f = (t * 0.7 + k / 3) % 1; for (let j = 0; j < 3; j++) px(7 + k * 6 + Math.round(Math.sin(f * 6 + j) * 1.5), -2 - Math.round(f * 10) - j, 'w'); }
+};
+
+// EL DÓLAR de 1899: la moneda de plata (Z, sombra z, brillo E) con el canto marcado y el «1» en relieve (z); o.giro 0–1
+// la hace girar sobre sí misma (0.5, de canto) como el rublo. 10 × 10
+const DOLAR_CACHE_NC = new Map();
+const dolarNC = (R, x, y, o = {}) => {
+  const w = Math.max(1, Math.round(8 * Math.abs(Math.cos((o.giro ?? 0) * Math.PI))));
+  const g = cacheNC(DOLAR_CACHE_NC, w, () => forma(10, 10, ({ put }) => {
+    for (let j = 1; j <= 8; j++) for (let i = 1; i <= 8; i++) { const dx = (i - 4.5) / Math.max(0.6, w / 2), dy = (j - 4.5) / 4; const d = dx * dx + dy * dy; if (d <= 1) put(i, j, d > 0.62 && w > 4 ? 'z' : i - 4.5 >= w / 2 - 1 && w > 2 ? 'z' : 'Z'); }
+    if (w >= 6) { for (let j = 3; j <= 6; j++) put(5, j, 'z'); put(4, 3, 'z'); put(4, 6, 'z'); put(6, 6, 'z'); put(3, 3, 'E'); }
+  }));
+  pintaNC(R, g, x, y, o);
+};
+
+// EL ESCÁNER de resonancia, de lado y sencillo: la carcasa blanca (W, sombra w) con la franja azul (A), la cara de
+// delante (X) con la boca del túnel (N), la camilla acolchada (a) sobre su pie (z) y la lucecita verde (G) que
+// parpadea con o.t. 66 × 38
+const ESCANER_NC = forma(66, 38, ({ rect, put }) => {
+  rect(34, 3, 63, 34, 'W'); for (const [i, j] of [[34, 3], [35, 3], [34, 4], [63, 3], [62, 3], [63, 4]]) put(i, j, '.');
+  rect(60, 4, 63, 34, 'w'); rect(34, 10, 63, 12, 'A'); rect(60, 10, 63, 12, 'a');
+  rect(28, 5, 33, 34, 'X'); rect(28, 10, 33, 12, 'a');
+  for (let j = 14; j <= 28; j++) for (let i = 28; i <= 33; i++) if (((i - 31.5) / 1.8) ** 2 + ((j - 21) / 5.5) ** 2 <= 1) put(i, j, 'N');
+  rect(2, 21, 32, 22, 'a'); rect(2, 23, 31, 24, 'Z'); rect(2, 24, 31, 24, 'z');
+  rect(12, 25, 20, 34, 'z'); rect(8, 35, 24, 36, 'K'); rect(28, 35, 63, 36, 'K');
+  rect(52, 5, 57, 7, 'w'); put(58, 6, 'G');
+});
+const escanerNC = (R, x, y, o = {}) => {
+  pintaNC(R, ESCANER_NC, x, y, o);
+  if (o.t != null && Math.sin(o.t * 4) < 0) encimaNC(R, 66, 38, x, y, o)(58, 6, 'g');
+};
+
+// EL CEREBRO de lado (Q rosa, surcos q, cerebelo y tronco más oscuros); o.zonas 0–1: se van encendiendo cinco zonas
+// (O con el centro o) como las luces de un árbol, que titilan con o.t. 26 × 20
+const CEREBRO_NC = forma(26, 20, ({ disco, linea, rect }) => {
+  disco(7.5, 9, 6, 'Q'); disco(13, 6.5, 6.5, 'Q'); disco(19, 9, 5, 'Q'); disco(12, 11, 5.5, 'Q');
+  disco(19.5, 14.5, 2.6, 'q'); rect(15, 15, 17, 18, 'q');
+  linea(4, 7, 8, 4, 'q'); linea(10, 3, 12, 8, 'q'); linea(15, 2, 17, 7, 'q'); linea(6, 12, 11, 10, 'q'); linea(18, 8, 22, 10, 'q'); linea(13, 11, 17, 12, 'q');
+});
+const ZONAS_NC = [[7, 8], [14, 5], [19, 9], [10, 12], [15, 9]];
+const cerebroNC = (R, x, y, o = {}) => {
+  pintaNC(R, CEREBRO_NC, x, y, o);
+  const z = Math.max(0, Math.min(1, o.zonas ?? 0)), t = o.t ?? 0;
+  if (z <= 0) return;
+  const px = encimaNC(R, 26, 20, x, y, o);
+  ZONAS_NC.forEach(([cx, cy], k) => {
+    const f = Math.max(0, Math.min(1, z * ZONAS_NC.length - k));
+    if (f <= 0) return;
+    const r = 0.8 + f * 1.6;
+    for (let a = -3; a <= 3; a++) for (let b = -3; b <= 3; b++) { const d = Math.hypot(a, b); if (d <= r && 'Qq'.includes(CEREBRO_NC[cy + b]?.[cx + a] ?? '.')) px(cx + a, cy + b, d < 0.9 ? (Math.sin(t * 9 + k * 1.7) > 0.5 ? 'E' : 'o') : 'O'); }
+  });
+};
+
+export const PIEZAS_NC = {
+  lata: lataNC, botella: botellaNC, vaso: vasoNC, cajaLatas: cajaLatasNC, cajaFuerte: cajaFuerteNC, papelito: papelitoNC,
+  telefono: telefonoNC, sacoCartas: sacoCartasNC, pancarta: pancartaNC, microfono: microfonoNC, 'paño': panoNC, pano: panoNC,
+  jarabe: jarabeNC, dolar: dolarNC, escaner: escanerNC, cerebro: cerebroNC,
+};
+
+// ── Episodio 29 · Piri Reis ──
+// (el mapa de 1513): el Galípoli de 1475, las galeras de Kemal Reis y el prisionero de 1501, Colón y los pilotos
+// portugueses, el Cairo de Selim I en 1517, los monjes de san Brandán, el palacio de Topkapı en 1929, el college de
+// Hapgood (1956–1966), la Fuerza Aérea en 1960, Von Däniken en 1968 y el museo de hoy.
+// DERECHOS: el mapa es de 1513 y se dibuja a nuestra manera en pixel, sin letras (los textos son garabatos); nada de
+// logotipos ni de insignias reconocibles; nada de fez en 1929 (prohibido desde 1925). Las personas reales, por sus
+// atributos y con respeto; los otomanos sin caricatura: turbantes y caftanes de su época, como los de los retratos.
+// Nombres nuevos con PR.
+
+// tocados nuevos del 29
+Object.assign(TOCADOS, {
+  // el turbante otomano grande del siglo XVI: la tela blanca enrollada en vueltas (X, los pliegues x), más ancha que la
+  // cabeza, con la copa roja del gorro (kavuk, D/d) que asoma arriba; acaba encima de las cejas: la cara entera
+  turbantePR: [[
+    '.....kkkkk.....',
+    '....kDDdDDk....',
+    '..kkkDDDDdkkk..',
+    '.kXXxkkkkkkXXk.',
+    'kXXXXXxxXXXXXXk',
+    'kXxXXXXXXxxXXXk',
+    'kXXxxXXXXXXxXXk',
+    'kxXXXxxXXXXXxXk',
+    '.kkkkkkkkkkkkk.',
+  ], -5],
+  // el turbante alto del sultán (Selim I): un cilindro blanco alto (X, las vueltas x en diagonal) con el penacho de
+  // delante: la joya de oro (O/g) y la pluma blanca (W)
+  turbanteAltoPR: [[
+    '.........k.....',
+    '........kWk....',
+    '........kWk....',
+    '...kkkkkkWkk...',
+    '..kXXXXXXWXXk..',
+    '..kxxXXXOOXXk..',
+    '..kXXxxXOgXxk..',
+    '..kXXXXxxXXXk..',
+    '..kxXXXXXxxXk..',
+    '.kXXxxXXXXXXk..',
+    'kXXXXXxxXXXXXk.',
+    'kxXXXXXXxxXXXk.',
+    '.kkkkkkkkkkkk..',
+  ], -9],
+  // el sombrero de ala ancha y copa baja del capitán portugués (J/j) con la pluma blanca (W) que cae por detrás
+  sombreroPlumaPR: [[
+    'kk.............',
+    'kWkk...........',
+    '.kWWk.kkkkk....',
+    '..kkWkJJJJJk...',
+    '.kkkkJJjJJJJkk.',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -4],
+});
+
+// ── cuerpos ──
+// el caftán otomano largo hasta los tobillos (C/c), abierto por delante sobre la túnica de debajo (I), con el fajín
+// ancho (G) y las babuchas (n): Piri, Kemal, el visir
+const CUERPO_CAFTAN_PR = [
+  '...kkIIIIIkk...',
+  '..kCCCIIICCCk..',
+  '.kCkCCIIICCkCk.',
+  '.kCkCCIIICCkCk.',
+  '.kCkCCIIICCkCk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkCCIIICCkk..',
+  '...kCCIIICCk...',
+  '...kCCIIICCk...',
+  '...kCcIIIcCk...',
+  '...kccIIIcck...',
+  '...kknnkknnkk..',
+  '....kkk.kkk....',
+];
+// el del sultán: el mismo caftán con las pieles (M/m) en el cuello y por el borde de delante, y sin fajín (I)
+const CUERPO_CAFTAN_PIEL_PR = parche(CUERPO_CAFTAN_PR, [[4, 0, 'MMMMMMM'], [3, 1, 'MMM...MMM'], [5, 2, 'M...M'], [5, 3, 'm...M'], [5, 4, 'M...m'], [4, 5, 'CMIIIMC'], [5, 6, 'M...M'], [5, 7, 'm...M'], [5, 8, 'M...m'], [5, 9, 'M...M'], [5, 10, 'm...M']]);
+// el niño de 1475: la camisa blanca (W) con el chaleco abierto (C), el fajín (G), los calzones anchos (F) y las babuchas (n)
+const CUERPO_NINO_PR = [
+  '...kkWWWWWkk...',
+  '..kCCWWWWWCCk..',
+  '.kWkCCWWWCCkWk.',
+  '.kSkCCWWWCCkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kkFFFFFFFkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...knnnknnnk...',
+  '..kkkkk.kkkkk..',
+];
+// el marinero de galera: la camisa blanca (W) remangada y abierta al cuello, el fajín (G), los calzones anchos (F/f) y
+// descalzo
+const CUERPO_GALERA_PR = [
+  '...kkSSSSSkk...',
+  '..kWWWSSSWWWk..',
+  '.kWkWWWSWWWkWk.',
+  '.kWkWWWWWWWkWk.',
+  '.kSkWWWWWWWkSk.',
+  '.kSkGGGGGGGkSk.',
+  '..kFFFFFFFFFk..',
+  '..kFFFFkFFFFk..',
+  '..kFFFFkFFFFk..',
+  '..kfFFkkkFFfk..',
+  '...kkSk.kSkk...',
+  '....kSk.kSk....',
+  '...kkkk.kkkk...',
+];
+// la camisa de lino abierta al cuello (C) con las calzas (F): el prisionero español de 1501
+const CUERPO_LINO_PR = parche(CUERPO_EUROPEO, [[5, 0, 'SSSSS'], [6, 1, 'SSS'], [7, 2, 'S'], [7, 3, 'C'], [7, 4, 'C'], [7, 5, 'C'], [4, 5, 'GGGGGGG']]);
+// el jubón con la capa por detrás (capaPR) lo da CUERPO_JUBON_TR; el traje de tres piezas: el chaleco (V) asoma entre
+// las solapas, con la cadena del reloj (O)
+const CUERPO_TRES_PIEZAS_PR = parche(CUERPO_TRAJE_DC, [[6, 2, 'VoV'], [6, 3, 'VoV'], [6, 4, 'OoV'], [6, 5, 'VCV']]);
+// la americana de tweed (C, motas c) con las coderas de cuero (p) y la corbata (o): Hapgood
+const CUERPO_CODERAS_PR = parche(CUERPO_TWEED_VM, [[2, 3, 'p'], [2, 4, 'p'], [12, 3, 'p'], [12, 4, 'p']]);
+// la chaqueta universitaria de finales de los cincuenta: el cuerpo de paño (C) con las mangas de cuero claro (X) y el
+// canalé del bajo (x); sin letras
+const CUERPO_VARSITY_PR = parche(CUERPO_EUROPEO, [[3, 1, 'X'], [11, 1, 'X'], [2, 2, 'X'], [2, 3, 'X'], [2, 4, 'X'], [12, 2, 'X'], [12, 3, 'X'], [12, 4, 'X'], [4, 6, 'xxxxxxx'], [7, 3, 'X'], [7, 5, 'X']]);
+// el jersey (C) con la blusa (W) y la falda de vuelo (F, pliegues f) por debajo de la rodilla
+const CUERPO_VUELO_PR = parche(CUERPO_FALDA_VM, [[2, 8, 'kFFFFFFFFFk'], [2, 9, 'kFfFFFFFfFk'], [2, 10, 'kkkkkkkkkkk']]);
+// el traje oscuro del conservador con los guantes blancos de algodón (X)
+const CUERPO_GUANTES_PR = parche(CUERPO_TRAJE_DC, [[2, 5, 'X'], [12, 5, 'X']]);
+
+// ── cabezas ──
+// calvo con la barba blanca corta (Deissmann): el pelo solo detrás de la oreja
+const CAB_CALVA_BARBA_PR = parche(CAB_CALVA_ENTRADAS_DC, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+
+// ── detalles ──
+const PAL_MANO_PR = { ...PAL_MANO, ...COLORES({ X: '#efe2b8', x: '#c8b080', R: '#b84a32', A: '#3a6aa8', V: '#6a9a4a', O: '#e0b040', g: '#a87a18', B: '#8a5a2e', I: '#cfe2ea', K: '#2a2430', Z: '#b8bcc8' }) };
+// el alfanje al cinto (Kemal): el pomo y la guarda de oro (O) y la empuñadura (B) sobre el fajín, y la vaina negra (K)
+// curva que baja hacia atrás y asoma por debajo del caftán con la contera de oro
+const alfanjePR = (c) => {
+  const K = hex('#2a2430'), O = hex('#e0b040'), B = hex('#6a4422');
+  c.cuerpo.px(8, 2, O); c.cuerpo.px(7, 3, B); c.cuerpo.px(7, 4, B); c.cuerpo.px(5, 5, O); c.cuerpo.px(6, 5, O); c.cuerpo.px(7, 5, O);
+  for (const [i, j] of [[5, 6], [4, 7], [4, 8], [3, 9], [3, 10], [2, 11]]) { c.cuerpo.px(i, j, K); c.cuerpo.px(i + 1, j, K); }
+  c.cuerpo.px(1, 11, P.k); c.cuerpo.px(2, 12, P.k); c.cuerpo.px(1, 12, O);
+};
+// la capa por detrás (Q/q), larga hasta los tobillos: Colón y Cabral
+const capaPR = capaVM;
+// la capucha bajada del hábito, caída sobre la espalda
+const capuchaPR = capuchaTS;
+// la carta de navegación en la mano (el piloto portugués): el pergamino (X) con la costa (R/V) y un rumbo (A)
+const conCartaPR = enMano(['kkkkkkk', 'kXRVXAk', 'kXXRAXk', 'kXAXRXk', 'kkkkkkk'], 11, 2, PAL_MANO_PR);
+// el catalejo de latón (O, sombra g) con el cuero (B) y la lente (I): el capitán de 1820
+const conCatalejoPR = enMano(['kkkkkkkkk', 'kBBgOOOIk', 'kkkkkkkkk'], 10, 4, PAL_MANO_PR);
+
+// ── el reparto del 29 ──
+const B29 = B23, B29N = B23N;
+// la piel de los otomanos y los mediterráneos (un poco más morena que la clara)
+const OTO = (o) => CLARA({ S: '#e8b07e', s: '#bc7c4e', n: '#2a2430', ...o });
+export const ELENCO_PR = {
+  // ── Galípoli, 1475 y las galeras (1487–1511) ──
+  // Piri de niño: el turbante pequeño blanco, la camisa blanca con el chaleco azul, los calzones y las babuchas rojas
+  piriNino: { ...B29N, cuerpo: CUERPO_NINO_PR, tocado: 'turbante', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: OTO({ H: '#1c1424', h: '#3a3046', A: '#f4f0e4', a: '#cfc6b0', W: '#f4f0e4', C: '#2e5a9a', c: '#22447a', G: '#c8402e', F: '#d8ccb0', n: '#a83a2a' }) },
+  // Piri Reis en 1513: la barba negra cuidada, el turbante blanco grande, el caftán azul con el fajín rojo; capitán de mar
+  piri: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#1c1424'),
+    pal: OTO({ H: '#1c1424', h: '#3a3046', X: '#f6f2e8', x: '#cfc6b0', D: '#c8402e', d: '#922c22', C: '#2e5a9a', c: '#22447a', I: '#e8dcb8', G: '#c8402e' }) },
+  // Piri mayor (el cierre): la misma ropa, con la barba gris
+  piriMayor: { ...B29, cab: CAB_BARBA, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#9a9aa4'), delante: arrugasDC,
+    pal: OTO({ H: '#a8a8b2', h: '#c8c8d0', X: '#f6f2e8', x: '#cfc6b0', D: '#c8402e', d: '#922c22', C: '#2e5a9a', c: '#22447a', I: '#e8dcb8', G: '#c8402e' }) },
+  // Kemal Reis, el tío corsario: la barba negra espesa, el turbante con la copa verde, el caftán rojo, el fajín verde
+  // y el alfanje al cinto
+  kemal: { ...B29, cab: CAB_BARBA, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#14101a'), delante: alfanjePR,
+    pal: OTO({ H: '#14101a', h: '#2e2638', X: '#f6f2e8', x: '#cfc6b0', D: '#3a7a4a', d: '#285a34', C: '#a8302a', c: '#7a2420', I: '#e8dcb8', G: '#3a7a4a' }) },
+  // los marineros de las galeras: el gorro rojo ceñido (uno) y el turbante corto de tela cruda (el otro), la camisa
+  // blanca remangada, el fajín y los calzones anchos
+  marineroOtomano1: { ...B29, cuerpo: CUERPO_GALERA_PR, tocado: 'pileo', ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', J: '#c0382e', j: '#8a2620', W: '#f2eee2', G: '#3a6a8a', F: '#d8ccb0', f: '#b0a488' }) },
+  marineroOtomano2: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_GALERA_PR, tocado: 'turbante', ceja: hex('#4a2a18'),
+    pal: OTO({ S: '#d09a6a', s: '#a46e44', H: '#4a2a18', h: '#6a4428', A: '#d8c8a0', a: '#b0a078', W: '#ece6d4', G: '#a8302a', F: '#5a6a8a', f: '#46546e' }) },
+  // el prisionero español de 1501: la barba rubia corta, la camisa de lino abierta, las calzas y el gorro de lana rojo
+  prisionero: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_LINO_PR, tocado: 'gorroPuntoDC', ceja: hex('#a8743a'),
+    pal: CLT({ H: '#c89a4a', h: '#e0b464', J: '#a8402e', j: '#7a2e22', C: '#e8dcc0', c: '#c4b494', G: '#6a4422', F: '#6a5a46', W: '#e8dcc0', o: '#e8dcc0' }) },
+  // otro marinero español (la camisa de lino, el chaleco y el gorro de lana): el de La Dauphine (ep15) ya sirve
+  marineroEspanol: ELENCO_NY.marinero,
+  // ── Colón y los portugueses (1492–1500) ──
+  // Cristóbal Colón hacia 1500: el pelo canoso hasta los hombros (por detrás de la cara), sin barba, el gorro negro, el
+  // jubón granate y la capa oscura
+  colon: { ...B29, cab: CAB_LARGO, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#9a9aa4'), detras: capaPR,
+    pal: CLT({ H: '#d8d8de', h: '#f2f2f6', J: '#24222c', j: '#3e3a48', C: '#7a2a3a', c: '#5a1e2a', o: '#7a2a3a', G: '#3a2a20', F: '#3a3046', n: '#24202a', Q: '#2a2e3e', q: '#1c1f2c' }) },
+  // el piloto portugués: el gorro pardo, el jubón verde y la carta de navegación en la mano
+  pilotoPortugues: { ...B29, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#3a2418'), delante: varios(bigoteTR, conCartaPR),
+    pal: CLT({ S: '#eab486', s: '#c08050', H: '#3a2418', h: '#5a3a24', J: '#6a4a2a', j: '#8a6440', C: '#3a6a4a', c: '#2a5038', o: '#3a6a4a', G: '#5a3a20', F: '#5a4a3a', n: '#2a2430' }) },
+  // Cabral, el capitán portugués: la barba castaña, el sombrero de ala con la pluma, el jubón negro con oro y la capa granate
+  cabral: { ...B29, cab: CAB_BARBA, cuerpo: CUERPO_JUBON_TR, tocado: 'sombreroPlumaPR', ceja: hex('#4a2a18'), detras: capaPR,
+    pal: CLT({ S: '#eab486', s: '#c08050', H: '#5a3a20', h: '#7a5434', J: '#24222c', j: '#3e3a48', W: '#f6f6f6', C: '#2a2832', c: '#1c1a22', o: '#d8a838', G: '#d8a838', F: '#2a2832', n: '#1c1a22', Q: '#7a2a32', q: '#561c24' }) },
+  // ── El Cairo, 1517 ──
+  // el sultán Selim I: el turbante alto blanco con la joya y la pluma, el bigote largo sin barba, el caftán de oro con pieles
+  selim: { ...B29, cuerpo: CUERPO_CAFTAN_PIEL_PR, tocado: 'turbanteAltoPR', ceja: hex('#14101a'), delante: bigoteGrandeVM,
+    pal: OTO({ H: '#14101a', h: '#2e2638', X: '#f8f6ee', x: '#d2cab4', W: '#ffffff', O: '#e0b040', C: '#d8a838', c: '#a87a20', I: '#a8302a', M: '#8a5a34', m: '#6a4224' }) },
+  // el visir (el cortesano del sultán): el turbante blanco con la copa roja, el caftán verde y el fajín blanco
+  visir: { ...B29, cuerpo: CUERPO_CAFTAN_PR, tocado: 'turbantePR', ceja: hex('#5a5a66'), delante: bigoteTR,
+    pal: OTO({ H: '#6a6a74', h: '#8a8a94', X: '#f6f2e8', x: '#cfc6b0', D: '#a8302a', d: '#7a2420', C: '#3a7a4a', c: '#285a34', I: '#e8dcb8', G: '#f2eee2' }) },
+  // ── los monjes de san Brandán ──
+  // la tonsura, el hábito pardo con la capucha bajada y la cuerda; el joven y el mayor (canoso)
+  monje1: { ...B29, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a3418'), detras: capuchaPR,
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', C: '#7a5a3a', c: '#5a4028', o: '#7a5a3a', G: '#d8c8a0', L: '#3a2a1a' }) },
+  monje2: { ...B29, cab: CAB_TONSURA_NV, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a94'), detras: capuchaPR, delante: arrugasDC,
+    pal: CLT({ H: '#b8b8c0', h: '#d8d8de', C: '#6a4a30', c: '#4e3622', o: '#6a4a30', G: '#d8c8a0', L: '#3a2a1a' }) },
+  // ── Topkapı, 1929, y Berlín ──
+  // Halil Edhem: el pelo blanco, el bigote blanco, el traje oscuro y el sombrero de ala (nada de fez)
+  edhem: { ...B29, cuerpo: CUERPO_TRAJE_DC, tocado: 'fedora', ceja: hex('#b8b8c2'), delante: varios(bigoteCanoDC, arrugasDC),
+    pal: CLT({ H: '#d8d8de', h: '#f2f2f6', C: '#2a2e3a', c: '#1e212a', W: '#f2eee2', o: '#5a2a32', F: '#3a3e4a', G: '#1c1a22' }) },
+  // Deissmann, el estudioso alemán: calvo con la barba blanca corta, las gafas redondas y el traje gris de tres piezas
+  deissmann: { ...B29, cab: CAB_CALVA_BARBA_PR, cuerpo: CUERPO_TRES_PIEZAS_PR, ceja: hex('#b8b8c2'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#e8e8ee', h: '#f6f6f8', C: '#6a6c74', c: '#52545a', V: '#4a4c54', O: '#e0b040', W: '#f2eee2', o: '#3a3e4a', F: '#6a6c74' }) },
+  // Kahle, el experto en lenguas: la barba oscura, las gafas redondas y el traje pardo
+  kahle: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#2a1c14'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#6a5440', c: '#524030', W: '#f2eee2', o: '#2a3a5a', F: '#524030' }) },
+  // el operario de la imprenta (gorro de papel, camisa remangada y mandil de cuero manchado): el impresor del 22 ya sirve
+  impresor: ELENCO_NV.impresor,
+  // ── el college de Hapgood (1956–1966) ──
+  // Charles Hapgood: el pelo blanco, gafas, la americana de tweed con coderas y la corbata
+  hapgood: { ...B29, cab: CAB_ENTRADAS, cuerpo: CUERPO_CODERAS_PR, ceja: hex('#b8b8c2'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLT({ H: '#e8e8ee', h: '#f6f6f8', C: '#8a7a5a', c: '#6a5c42', p: '#5a3a22', W: '#f2eee2', o: '#7a2a32', F: '#5a5246' }) },
+  // los estudiantes de finales de los cincuenta: la chaqueta universitaria granate; ella, la coleta, el jersey y la
+  // falda de vuelo; el otro, la camisa clara de cuadros por fuera
+  alumno1: { ...B29, cab: CAB_LADO_DC, cuerpo: CUERPO_VARSITY_PR, ceja: hex('#6a4426'),
+    pal: CLT({ H: '#8a6040', h: '#a87a50', C: '#7a2a32', c: '#5a1e26', X: '#f0e6cc', x: '#5a1e26', W: '#f2eee2', o: '#7a2a32', F: '#3a4a6a' }) },
+  alumna1: { ...B29, cuerpo: CUERPO_VUELO_PR, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', s: '#e8a080', C: '#f0e0b0', c: '#d0bc88', W: '#f6f6f6', F: '#e88aa0', f: '#c06a80', L: '#2a2430', o: '#f0e0b0' }) },
+  alumno2: { ...B29, cab: CAB_CORTA_VM, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#4a7aa8', c: '#365c80', p: '#e8e4dc', W: '#e8e4dc', F: '#c8b890', n: '#4a3020' }) },
+  // ── la Fuerza Aérea de EE. UU., 1960 ──
+  // Ohlmeyer, teniente coronel: el uniforme azul y la gorra de plato, sin insignias reconocibles
+  ohlmeyer: { ...B29, cuerpo: CUERPO_AF_DC, tocado: 'general', ceja: hex('#5a4a40'),
+    pal: CLT({ H: '#6a5a4e', h: '#8a7a6e', C: '#3a4a72', c: '#2a3658', O: '#3a4a72', W: '#a8c0e0', J: '#1e2436', D: '#8a3a3a', A: '#3a5a9a', Y: '#c8b060', F: '#3a4a72' }) },
+  // ── 1966–1968 ──
+  // el librero de 1966: las entradas canosas, las gafas finas y la rebeca parda sobre la camisa
+  librero: { ...B29, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA_DC, ceja: hex('#7a7a84'), delante: gafasFinasDC,
+    pal: CLT({ H: '#9a9aa4', h: '#b8b8c2', C: '#7a5a3a', c: '#5e442a', W: '#f2eee2', J: '#3a4a3a', o: '#c8a040', F: '#4a4a54', n: '#2a2430' }) },
+  // Erich von Däniken en 1968: las gafas grandes, el pelo castaño peinado hacia atrás, el traje y la corbata de los sesenta
+  daniken: { ...B29, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#5a3a20'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#6a4426', h: '#8a6040', C: '#4a5468', c: '#384050', W: '#f2f2f6', o: '#2a2a3a', F: '#4a5468' }) },
+  // ── hoy ──
+  // McIntosh, el historiador: gafas, la barba gris corta y el chaleco de punto verde sobre la camisa
+  mcintosh: { ...B29, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#8a8a94'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', C: '#4a6a4a', c: '#36503a', W: '#dce6f0', o: '#36503a', F: '#5a5246' }) },
+  // el conservador del museo: el pelo corto, el traje oscuro y los guantes blancos de algodón
+  conservador: { ...B29, cab: CAB_SIENES, cuerpo: CUERPO_GUANTES_PR, ceja: hex('#3a2418'),
+    pal: MOT({ H: '#3a2418', h: '#5a3a24', w: '#c8c8d2', C: '#2a2e3a', c: '#1e212a', W: '#f2eee2', X: '#ffffff', o: '#3a5a8a', F: '#2a2e3a' }) },
+  // la guía del museo: la media melena, el jersey de pico azul petróleo
+  guia: { ...B29, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PICO_DC, ceja: hex('#6a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', s: '#e8a080', C: '#2a6a7a', c: '#1e505c', W: '#f2eee2', F: '#3a3a4a', n: '#2a2430' }) },
+  // los visitantes de hoy: la sudadera mostaza; ella, el pelo largo y la camiseta coral
+  visitante1: { ...B29, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#1c1424'),
+    pal: MOT({ S: '#a8704a', s: '#80522e', H: '#1c1424', h: '#3a3046', C: '#d8a030', c: '#a87a20', X: '#f2eee2', F: '#3a4a6a', n: '#2a2430' }) },
+  visitante2: { ...B29, cab: CAB_LARGO, cuerpo: CUERPO_CALLE, ceja: hex('#a8743a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#c89a4a', h: '#e0b464', s: '#e8a080', C: '#e0705a', c: '#b85844', F: '#4a5a7a', n: '#2a2430' }) },
+  // ── el velero de 1820 ──
+  // el capitán: las patillas, la casaca azul con botones de oro, el bicornio y el catalejo
+  capitan1820: { ...B29, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_NAVAL_DC, tocado: 'bicornio', ceja: hex('#4a2a18'), delante: conCatalejoPR,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', N: '#1e2436', D: '#c8402e', W: '#f2eee2', C: '#24345a', c: '#1a2644', J: '#f2eee2', o: '#e0b040', O: '#e0b040', F: '#e8e0cc' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_PR);
+
+// ── piezas del 29 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Nada de letras: los textos del mapa son garabatos (e) sueltos.
+const PAL_PR = { ...PAL_TS, ...COLORES({
+  k: '#1c1222', Y: '#ead6a4', y: '#c8ae78', u: '#d6bc86', R: '#b84a32', r: '#8a3424', P: '#d8a860', p: '#b08040',
+  V: '#a8c07a', v: '#6a8a48', A: '#3a6aa8', a: '#9ab8e0', O: '#e0b040', g: '#a87a18', o: '#fff0a0', e: '#5a3a22',
+  B: '#8a5a2e', b: '#5e3a1c', X: '#f6f0de', x: '#d0c4a4', Z: '#b8bcc8', z: '#7c8090', K: '#2a2430', I: '#d6eef6',
+  i: '#a8d0e4', E: '#ffffff', N: '#24161a', n: '#7a8aa0', W: '#f6f6f6', M: '#c8a070', m: '#9a7448',
+}) };
+const pintaPR = (R, g, x, y, o = {}, pal = PAL_PR) => pintaJH(R, g, x, y, o, pal);
+const cachePR = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+
+// EL MAPA (32 × 20, sin contorno): el pergamino (Y, el marco y), las líneas de rumbo (u) que salen de las dos rosas de
+// los vientos, la costa de Sudamérica a la izquierda (tierra V, costa A) que abajo gira hacia el este, la de África y la
+// península a la derecha (tierra P, costa R), las islas de arriba, dos barquitos y los garabatos (e) en vez de letras;
+// el borde derecho, roto (los barquitos: el casco y el mástil b con la vela roja R)
+const MAPA_PR = (() => {
+  const W = 32, H = 20, g = Array.from({ length: H }, () => Array(W).fill('Y'));
+  const put = (i, j, c) => { if (i >= 0 && i < W && j >= 0 && j < H) g[j][i] = c; };
+  for (const [cx, cy] of [[13, 7], [21, 14]]) for (let k = 0; k < 16; k++) {
+    const a = k * Math.PI / 8;
+    for (let r = 3; r < 30; r++) { const i = Math.round(cx + Math.cos(a) * r), j = Math.round(cy + Math.sin(a) * r); if (g[j]?.[i] === 'Y') put(i, j, 'u'); }
+  }
+  for (let j = 0; j < H; j++) {
+    const ca = Math.round(25 + 1.6 * Math.sin(j * 0.7) + (j < 6 ? -1 : 0) + (j > 13 ? 1 : 0));
+    for (let i = ca + 1; i < W; i++) put(i, j, 'P');
+    put(ca, j, 'R');
+    if (j >= 5) {
+      const cs = Math.round(5 + 2 * Math.sin(j * 0.55 + 1) - (j > 14 ? 1 : 0));
+      for (let i = 0; i < cs; i++) put(i, j, 'V');
+      put(cs, j, 'A');
+    }
+  }
+  for (let j = 17; j < H; j++) { const fin = 6 + (j - 16) * 4; for (let i = 0; i < fin; i++) put(i, j, 'V'); put(fin, j, 'A'); }
+  for (const [i, j, c] of [[4, 1, 'R'], [5, 1, 'R'], [7, 2, 'V'], [8, 2, 'V'], [8, 3, 'A'], [10, 1, 'R'], [16, 2, 'V'], [3, 3, 'V'], [4, 3, 'A']]) put(i, j, c);
+  for (const [i, j] of [[27, 3], [29, 6], [28, 11], [30, 15], [2, 8], [3, 12], [27, 17]]) put(i, j, 'v');
+  for (const [cx, cy] of [[13, 7], [21, 14]]) {
+    for (let r = 1; r <= 2; r++) { put(cx, cy - r, 'R'); put(cx, cy + r, 'A'); put(cx - r, cy, 'A'); put(cx + r, cy, 'R'); }
+    put(cx - 1, cy - 1, 'O'); put(cx + 1, cy - 1, 'O'); put(cx - 1, cy + 1, 'O'); put(cx + 1, cy + 1, 'O'); put(cx, cy, 'O');
+  }
+  for (const [i, j] of [[17, 11], [11, 16]]) { put(i, j - 3, 'b'); put(i, j - 2, 'b'); put(i + 1, j - 2, 'R'); put(i + 1, j - 1, 'R'); put(i + 2, j - 1, 'R'); put(i, j - 1, 'b'); for (let a = -1; a <= 2; a++) put(i + a, j, 'b'); }
+  for (const [i, j, n] of [[16, 4, 4], [5, 7, 3], [1, 10, 4], [27, 8, 3], [26, 13, 4], [11, 12, 3], [3, 15, 3], [28, 4, 2]]) for (let k = 0; k < n; k++) if (k % 3 !== 2) put(i + k, j, 'e');
+  for (let i = 0; i < W; i++) { if (g[0][i] === 'Y' || g[0][i] === 'u') g[0][i] = 'y'; if (g[H - 1][i] === 'Y' || g[H - 1][i] === 'u') g[H - 1][i] = 'y'; }
+  for (let j = 0; j < H; j++) if (g[j][0] === 'Y' || g[j][0] === 'u') g[j][0] = 'y';
+  for (let j = 0; j < H; j++) { const roto = (j * 7) % 3; for (let i = W - roto; i < W; i++) g[j][i] = '.'; }
+  return g.map((f) => f.join(''));
+})();
+const blitPR = (put, g, i0, j0, desde = 0) => g.forEach((f, j) => { if (j < desde) return; for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i0 + i, j0 + j, f[i]); });
+
+// EL PERGAMINO del mapa: o.abierto (true por omisión) lo despliega entero (34 × 22: el mapa); o.abierto false: doblado
+// en cuatro (16 × 13), con el pliegue (y) y un pico de costa pintada que asoma
+const PERG_ABIERTO_PR = forma(34, 22, ({ put }) => blitPR(put, MAPA_PR, 1, 1));
+const PERG_DOBLADO_PR = forma(16, 13, ({ rect, put }) => {
+  rect(1, 2, 13, 11, 'y'); rect(2, 1, 14, 10, 'Y'); rect(2, 10, 14, 10, 'y'); rect(8, 1, 8, 10, 'y');
+  for (let i = 9; i <= 14; i++) { put(i, 6 + ((i * 3) % 2), 'R'); for (let j = 7 + ((i * 3) % 2); j <= 9; j++) put(i, j, 'P'); }
+  for (let k = 0; k < 4; k++) put(3 + k * 2 - (k % 2), 3 + k, 'u');
+  put(4, 6, 'e'); put(5, 6, 'e'); put(3, 8, 'e'); put(5, 8, 'e'); put(6, 8, 'e');
+});
+const pergaminoPR = (R, x, y, o = {}) => pintaPR(R, o.abierto === false ? PERG_DOBLADO_PR : PERG_ABIERTO_PR, x, y, o);
+
+// EL ROLLO del mapa: o.abre 0–1 lo desenrolla; el rollo (Y con las vueltas y, los cantos M) se queda abajo y la hoja
+// del mapa sube por encima de él (a 0, solo el rollo tumbado). 36 × 27
+const ROLLO_CACHE_PR = new Map();
+const rolloPR = (R, x, y, o = {}) => {
+  const paso = Math.round(Math.max(0, Math.min(1, o.abre ?? 0)) * 20);
+  const g = cachePR(ROLLO_CACHE_PR, paso, () => forma(36, 27, ({ rect, put }) => {
+    if (paso > 0) blitPR(put, MAPA_PR, 2, 21 - 20, 20 - paso);
+    rect(1, 21, 34, 25, 'Y'); rect(1, 21, 34, 21, 'X'); rect(1, 24, 34, 25, 'y');
+    for (let i = 4; i <= 31; i += 5) put(i, 23, 'y');
+    rect(1, 21, 2, 25, 'M'); rect(33, 21, 34, 25, 'm'); put(1, 23, 'm'); put(34, 23, 'M');
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// LA CARTA DE NAVEGACIÓN (portulano): el pergamino (X, borde x) con la costa de arriba (tierra P, costa R), la rosa
+// pequeña de dieciséis rumbos (u, el centro O) y un barquito; sin letras. 24 × 16
+const CARTA_PR = forma(24, 16, ({ rect, put, linea }) => {
+  rect(1, 1, 22, 14, 'X'); rect(1, 14, 22, 14, 'x'); rect(22, 1, 22, 14, 'x');
+  for (let k = 0; k < 16; k++) { const a = k * Math.PI / 8; for (let r = 2; r < 18; r++) { const i = Math.round(11 + Math.cos(a) * r), j = Math.round(9 + Math.sin(a) * r * 0.8); if (i >= 1 && i <= 21 && j >= 1 && j <= 13) put(i, j, 'u'); } }
+  for (let i = 1; i <= 21; i++) { const c = Math.round(3 + 1.5 * Math.sin(i * 0.6)); for (let j = 1; j < c; j++) put(i, j, 'P'); put(i, c, 'R'); }
+  linea(10, 9, 12, 9, 'O'); linea(11, 8, 11, 10, 'O'); put(11, 7, 'R'); put(11, 11, 'A');
+  put(17, 10, 'X'); put(17, 9, 'X'); put(16, 11, 'b'); put(17, 11, 'b'); put(18, 11, 'b');
+  for (const [i, j] of [[4, 11], [5, 11], [7, 11], [3, 6], [4, 6]]) put(i, j, 'e');
+});
+const cartaPR = (R, x, y, o = {}) => pintaPR(R, CARTA_PR, x, y, o);
+
+// LA LUPA: el aro de latón (O, sombra g), el cristal (I) con su brillo (E) y el mango de madera (B/b). 12 × 17
+const LUPA_PR = forma(12, 17, ({ disco, put, linea }) => {
+  disco(5.5, 5.5, 4.6, 'O'); disco(5.5, 5.5, 3.4, 'I'); put(4, 3, 'E'); put(3, 4, 'E'); put(8, 8, 'g'); put(9, 7, 'g');
+  linea(9, 9, 10, 10, 'g'); linea(10, 11, 10, 15, 'B'); linea(11, 11, 11, 15, 'b');
+});
+const lupaPR = (R, x, y, o = {}) => pintaPR(R, LUPA_PR, x, y, o);
+
+// EL COMPÁS DE PUNTAS: el eje de latón (O) arriba y las dos patas de hierro (Z, sombra z) abiertas con las puntas (K);
+// o.abre 0–1 las abre más. 13 × 18
+const COMPAS_CACHE_PR = new Map();
+const compasPR = (R, x, y, o = {}) => {
+  const a = Math.round(Math.max(0, Math.min(1, o.abre ?? 0.5)) * 4);
+  const g = cachePR(COMPAS_CACHE_PR, a, () => forma(13, 18, ({ put, linea, disco }) => {
+    const ab = 2 + a;
+    linea(6, 3, 6 - ab, 15, 'Z'); linea(7, 3, 7 - ab, 15, 'z'); linea(6, 3, 6 + ab, 15, 'Z'); linea(7, 3, 7 + ab, 15, 'z');
+    put(6 - ab, 16, 'K'); put(6 + ab, 16, 'K');
+    disco(6.5, 2.5, 1.6, 'O'); put(6, 0, 'O'); put(7, 0, 'O');
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// EL TINTERO de cristal oscuro (K, el brillo n) con la tinta y la pluma de ave (X, el cañón x) metida. 12 × 18
+const TINTERO_PR = forma(12, 18, ({ rect, put, linea }) => {
+  rect(2, 11, 9, 16, 'K'); rect(1, 12, 10, 15, 'K'); rect(4, 9, 7, 10, 'K'); put(3, 12, 'n'); put(3, 13, 'n'); rect(2, 16, 9, 16, 'N');
+  linea(6, 9, 9, 2, 'x'); linea(7, 8, 10, 1, 'X'); linea(8, 7, 11, 0, 'X'); linea(8, 5, 10, 3, 'X'); put(9, 5, 'X');
+});
+const tinteroPR = (R, x, y, o = {}) => pintaPR(R, TINTERO_PR, x, y, o);
+
+// EL CATALEJO de latón (O, sombra g) con el cuero del tubo grande (B), los aros (g) y la lente (I); o.abre 0–1 saca los
+// tubos (de 14 a 24 de largo). 26 × 7
+const CATALEJO_CACHE_PR = new Map();
+const catalejoPR = (R, x, y, o = {}) => {
+  const n = Math.round(Math.max(0, Math.min(1, o.abre ?? 1)) * 10);
+  const g = cachePR(CATALEJO_CACHE_PR, n, () => forma(26, 7, ({ rect, put }) => {
+    rect(1, 1, 9, 5, 'B'); rect(1, 4, 9, 5, 'b'); rect(1, 1, 1, 5, 'g'); rect(9, 1, 9, 5, 'g');
+    const f1 = 10 + Math.round(n * 0.6), f2 = f1 + 3 + Math.round(n * 0.4);
+    rect(10, 2, f1, 4, 'O'); rect(10, 4, f1, 4, 'g'); rect(f1 + 1, 2, f2, 4, 'O'); rect(f1 + 1, 4, f2, 4, 'g'); put(f1, 2, 'g'); put(f1, 3, 'g');
+    rect(f2 + 1, 1, f2 + 2, 5, 'O'); rect(f2 + 2, 2, f2 + 2, 4, 'I'); put(f2 + 1, 5, 'g');
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// EL LIBRO sin letras: cerrado, de pie y de canto (la tapa de cuero B/b con el marco y el adorno dorados O, las hojas X); o.abierto:
+// abierto en dos páginas (X, el pliegue x) con renglones de garabatos (e) y una carta pequeña dibujada. 14 × 17
+// (abierto, 24 × 12)
+const LIBRO_PR = forma(14, 17, ({ rect, put }) => {
+  rect(1, 1, 10, 15, 'B'); rect(1, 1, 1, 15, 'b'); rect(11, 2, 12, 15, 'X'); rect(11, 15, 12, 15, 'x');
+  rect(3, 3, 8, 3, 'O'); rect(3, 13, 8, 13, 'O'); rect(3, 3, 3, 13, 'O'); rect(8, 3, 8, 13, 'O'); rect(5, 7, 6, 9, 'O'); put(10, 1, 'b');
+});
+const LIBRO_ABIERTO_PR = forma(24, 12, ({ rect, put }) => {
+  rect(1, 2, 11, 9, 'X'); rect(12, 2, 22, 9, 'X'); rect(1, 1, 10, 1, 'X'); rect(13, 1, 22, 1, 'X');
+  rect(11, 1, 12, 10, 'x'); rect(1, 10, 22, 10, 'B'); rect(0, 9, 0, 10, 'B'); rect(23, 9, 23, 10, 'B');
+  for (const j of [3, 5, 7]) for (let i = 2; i <= 9; i++) if ((i + j) % 4) put(i, j, 'e');
+  rect(14, 3, 20, 7, 'Y'); for (let j = 3; j <= 7; j++) put(17 + Math.round(Math.sin(j) * 1.5), j, 'R'); rect(14, 8, 20, 8, 'e'); put(16, 8, 'X'); put(19, 8, 'X');
+});
+const libroPR = (R, x, y, o = {}) => pintaPR(R, o.abierto ? LIBRO_ABIERTO_PR : LIBRO_PR, x, y, o);
+
+// EL ASTROLABIO de latón: la anilla de colgar (O), el disco (O, borde g) con la red calada (g), la alidada (K) en
+// diagonal y el pasador (o). 16 × 19
+const ASTRO_PR = forma(16, 19, ({ disco, put, linea }) => {
+  disco(7.5, 1.5, 1.4, 'O'); put(7, 1, '.'); put(8, 1, '.'); put(7, 2, '.'); put(8, 2, '.');
+  disco(7.5, 10.5, 6.8, 'g'); disco(7.5, 10.5, 5.8, 'O'); disco(7.5, 10.5, 4, 'g'); disco(7.5, 10.5, 3.2, 'O');
+  for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; put(7.5 + Math.cos(a) * 5, 10.5 + Math.sin(a) * 5, 'g'); }
+  linea(2, 6, 13, 15, 'K'); put(7, 10, 'o'); put(8, 11, 'o'); put(4, 7, 'o');
+});
+const astrolabioPR = (R, x, y, o = {}) => pintaPR(R, ASTRO_PR, x, y, o);
+
+// EL COFRE pequeño de madera (B, sombra b) con los flejes de hierro (Z/z) y la cerradura de oro (O); o.abre 0–1 levanta
+// la tapa (de dentro se ve su cara oscura b con los flejes) y deja ver el hueco (N) con un rollo de pergamino (Y) y unas monedas (O). 20 × 20
+const COFRE_CACHE_PR = new Map();
+const cofrePR = (R, x, y, o = {}) => {
+  const a = Math.round(Math.max(0, Math.min(1, o.abre ?? 0)) * 3);
+  const g = cachePR(COFRE_CACHE_PR, a, () => forma(20, 20, ({ rect, put }) => {
+    rect(1, 11, 18, 18, 'B'); rect(14, 11, 18, 18, 'b'); rect(4, 11, 5, 18, 'Z'); rect(14, 11, 15, 18, 'z'); rect(1, 18, 18, 18, 'b');
+    if (a === 0) {
+      rect(2, 6, 17, 6, 'B'); rect(1, 7, 18, 10, 'B'); rect(14, 7, 18, 10, 'b'); rect(4, 6, 5, 10, 'Z'); rect(14, 6, 15, 10, 'z');
+      rect(1, 10, 18, 10, 'b'); rect(9, 9, 10, 12, 'O'); put(9, 11, 'K');
+    } else {
+      rect(2, 9, 17, 11, 'N'); rect(6, 9, 13, 10, 'Y'); rect(6, 10, 13, 10, 'y'); put(3, 10, 'O'); put(4, 10, 'O'); put(15, 10, 'O'); put(16, 9, 'O'); put(9, 11, 'O');
+      const h = [0, 2, 4, 6][a], top = 9 - h;
+      rect(2, top, 17, 8, 'b'); rect(2, top, 17, top, 'B'); rect(4, top, 5, 8, 'z'); rect(14, top, 15, 8, 'z'); rect(2, 8, 17, 8, 'N');
+    }
+  }));
+  pintaPR(R, g, x, y, o);
+};
+
+// LA ROSA DE LOS VIENTOS suelta: la estrella de dieciséis puntas (las cuatro grandes en rojo R y azul A, las de en medio
+// O y las pequeñas u) dentro del aro (y) y el centro de oro; el norte, una punta en flor (R). 17 × 17
+const ROSA_PR = forma(17, 17, ({ put, disco }) => {
+  disco(8, 8, 7.4, 'Y'); disco(8, 8, 6.4, 'y'); disco(8, 8, 5.6, 'Y');
+  for (let k = 0; k < 16; k++) {
+    const a = k * Math.PI / 8 - Math.PI / 2, largo = k % 4 === 0 ? 7.6 : k % 2 === 0 ? 5.5 : 3.6, l = k % 4 === 0 ? (k % 8 === 0 ? 'R' : 'A') : k % 2 === 0 ? 'O' : 'u';
+    for (let r = 0; r <= largo; r += 0.5) { const w = (1 - r / largo) * (k % 4 === 0 ? 1.4 : 0.8); for (let s = -w; s <= w; s += 0.5) put(8 + Math.cos(a) * r - Math.sin(a) * s, 8 + Math.sin(a) * r + Math.cos(a) * s, l); }
+  }
+  put(7, 0, 'R'); put(9, 0, 'R'); disco(8, 8, 1, 'O');
+});
+const rosaPR = (R, x, y, o = {}) => pintaPR(R, ROSA_PR, x, y, o);
+
+// EL TESTIGO DE HIELO tumbado: el cilindro de hielo (I, brillo E) con las capas de los años (i) y dos de ceniza (n),
+// y los extremos redondeados. 38 × 9
+const HIELO_PR = forma(38, 9, ({ rect, put }) => {
+  rect(2, 1, 35, 7, 'I'); rect(1, 2, 36, 6, 'I'); rect(2, 6, 35, 7, 'i');
+  for (let i = 3; i <= 34; i++) if ([4, 7, 9, 13, 16, 18, 21, 25, 27, 30, 33].includes(i)) rect(i, 1, i, 7, i === 13 || i === 27 ? 'n' : 'i');
+  rect(3, 2, 34, 2, 'E'); put(2, 2, 'E');
+});
+const testigoHieloPR = (R, x, y, o = {}) => pintaPR(R, HIELO_PR, x, y, o);
+
+export const PIEZAS_PR = {
+  rollo: rolloPR, pergamino: pergaminoPR, carta: cartaPR, lupa: lupaPR, compas: compasPR, 'compás': compasPR,
+  tintero: tinteroPR, catalejo: catalejoPR, libro: libroPR, astrolabio: astrolabioPR, cofre: cofrePR, rosa: rosaPR,
+  testigoHielo: testigoHieloPR,
+};
+
+// ── Episodio 30 · Bajo las pirámides ──
+// (los pozos de Kefrén): la rueda de prensa italiana de 2025, el vidente de los años treinta, los muones de ScanPyramids
+// (2017), el pasillo de 2023 con el ministro, el pozo de Osiris, el radar de suelo de 2024, los expertos, la revista de
+// 2026, Heródoto en el laberinto de Hawara (hacia el 450 a. C.), Petrie en 1888, el escaneo de 2008 y la Giza de hoy.
+// DERECHOS: nada de letras en ninguna pieza (la revista, el sello, las pantallas: dibujos y rayas); nada de logotipos ni
+// de insignias. Las personas reales, por sus atributos (la ropa, el pelo, el sombrero, las gafas) y con respeto, sin
+// caricatura. Los egipcios antiguos son los de ELENCO_EG. Nombres nuevos con GZ.
+
+// tocados nuevos del 30
+Object.assign(TOCADOS, {
+  // el pétaso griego de viaje (Heródoto): la copa baja y redonda (J, brillo j) y el ala ancha y plana; acaba en la
+  // fila 2 de la cabeza: la frente y la cara, enteras
+  petasoGZ: [[
+    '.....kkkkk.....',
+    '....kJJJjJk....',
+    '...kJjJJJJJk...',
+    'kkkkkkkkkkkkkkk',
+    'kJJJJJJJJJJJJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+  // la cinta de la linterna frontal (J, la goma) con la lámpara (z, el cristal E) encima de la frente, lejos de las
+  // cejas; la goma sale por detrás de la oreja (los de ScanPyramids, 2017)
+  frontalGZ: [[
+    '..........kkkk.',
+    '.........kzzzEk',
+    'kJJJJJJJJkzzzEk',
+    'kJjJJJJJJJkkkk.',
+    'kJk............',
+  ], 1],
+  // el casco de obra (J/j) con la linterna frontal (z, el cristal E) en la frente del casco
+  cascoFrontalGZ: [[
+    '....kkkkkk.....',
+    '...kJJJJJJkkkk.',
+    '..kJJjJJJkzzEk.',
+    '..kJJJJJJkzzEk.',
+    '.kkkkkkkkkkkkkk',
+  ], -3],
+  // el salacot de explorador con otras letras (X/x), para no llevarse el color de la camisa (W): Petrie en 1888
+  salacotGZ: [tapa(TOCADOS.salacot[0], { W: 'X', w: 'x' }), TOCADOS.salacot[1]],
+});
+
+// ── cuerpos ──
+// el quitón (T, pliegues t) hasta los tobillos y el himatión (M/m) que cae del hombro de atrás y cruza en diagonal,
+// las sandalias (L): Heródoto. El brazo de delante, de piel, con la manga del quitón (T)
+const CUERPO_HIMATION_GZ = [
+  '...kkMMTTTkk...',
+  '..kMMMMMTTTTk..',
+  '.kMkMMMMMTTkTk.',
+  '.kMkmMMMMMTkSk.',
+  '.kMkMMmMMMMkSk.',
+  '.kmkMMMMmMMkSk.',
+  '..kkMMMMMMmkk..',
+  '...kMMMMMMMk...',
+  '...kmMMMMMmk...',
+  '...kTTtTTtTk...',
+  '...kTTTTTTTk...',
+  '....kSk.kSk....',
+  '...kLLk.kLLk...',
+];
+// la camisa de campo (C/c) de manga larga, abierta al cuello, con la tapeta de botones (o), los dos bolsillos (u) y el
+// cinturón (G): Conyers, Hawass (vaquera) y Parcak
+const CUERPO_CAMPO_GZ = parche(CUERPO_MANGA, [[5, 0, 'CCSCC'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [5, 2, 'u'], [9, 2, 'u'], [4, 6, 'GGGGGGG']]);
+// la ropa de campaña de 1888: la chaqueta clara (C) sobre la camisa (W) y las botas altas (n) hasta la rodilla: Petrie
+const CUERPO_CAMPANA_GZ = parche(CUERPO_EUROPEO, [[4, 9, 'nnn'], [8, 9, 'nnn'], [4, 10, 'nnn'], [8, 10, 'nnn'], [4, 11, 'nnn'], [8, 11, 'nnn']]);
+// la galabiya (C, la tapeta y el bajo c) hasta los pies, sin cinturón: los trabajadores de 1888 y el camellero
+const CUERPO_GALABIYA_GZ = tapa(CUERPO_TUNICA_LARGA, { o: 'c', G: 'C' });
+
+// ── detalles ──
+const PAL_MANO_GZ = { ...PAL_MANO, ...COLORES({ X: '#efe2b8', x: '#c8b080', Z: '#c8ccd8', z: '#7c8090', K: '#2a2832', A: '#3a6ad8', a: '#9ab8e0', E: '#ffffff', G: '#56f07a', B: '#8a5a2e', b: '#5e3a1c', O: '#c89a3a' }) };
+// el rollo de papiro bajo el brazo (Heródoto): asoma por delante, por debajo del brazo; se quita si levanta la mano
+const conRolloGZ = (c) => { if (manoLibre(c)) c.cuerpo.rej(['.kkkkkkk.', 'kxXXXXXxk', 'kxXXXXXxk', 'kxxxxxxxk', '.kkkkkkk.'], 9, 3, { ...c.pal, ...PAL_MANO_GZ }); };
+// la lanza del guardián, de pie a su lado: la punta de bronce (O), el asta de madera (B) y la mano que la agarra
+const LANZA_GZ = ['.k.', 'kOk', 'kOk', 'kOk', 'kkk', ...Array(20).fill('kBk'), '.k.'];
+const lanzaGZ = (c) => { if (!manoLibre(c)) return; c.cuerpo.rej(LANZA_GZ, 12, -14, { ...c.pal, ...PAL_MANO_GZ }); c.cuerpo.px(13, 5, c.pal.S); c.cuerpo.px(13, 6, c.pal.s); };
+// el aparato de medir en la mano (2008): la caja gris (Z) con la pantallita azul (A) y la luz verde (G)
+const conAparatoGZ = enMano(['kkkkkk', 'kZZZZk', 'kZAAZk', 'kZZZGk', 'kkkkkk'], 11, 2, PAL_MANO_GZ);
+// la tableta en la mano (2008): el marco oscuro (K) con la pantalla (A, el brillo E)
+const conTabletaGZ = enMano(['kkkkkkk', 'kKAAAKk', 'kKAEAKk', 'kKAAAKk', 'kkkkkkk'], 10, 2, PAL_MANO_GZ);
+// las gafas redondas finas sin el brillo del cristal (Cayce): los ojos se ven enteros, y cerrados se nota
+const gafasRedondasGZ = gafasHP(GAFAS_REDONDAS, 5, '#5a5a66');
+// los ojos cerrados (el vidente en trance): de cada ojo queda la raya de abajo (lo mismo que o.parpadea: true)
+const ojosCerradosGZ = (c) => { if (c.o.sorpresa) return; for (const ex of [8, 12]) { c.cab.px(ex, 6, c.pal.S); c.cab.px(ex, 7, P.k); } };
+
+// ── el reparto del 30 ──
+const B30 = B23;
+export const ELENCO_GZ = {
+  // ── la rueda de prensa de Italia, 15 de marzo de 2025 ──
+  // Malanga, el químico jubilado: mayor, el pelo blanco con entradas, las gafas finas y la chaqueta beis sobre la
+  // camisa clara
+  malanga: { ...B30, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#b8b8c2'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: OTO({ H: '#e8e8ee', h: '#f6f6f8', C: '#a8946a', c: '#86744e', W: '#eef2f6', F: '#5a5246' }) },
+  // Biondi, el ingeniero: la barba corta oscura, la americana gris azulada y la camisa celeste (el portátil, aparte:
+  // PIEZAS_GZ.portatil con o.sostiene)
+  biondi: { ...B30, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'),
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', C: '#4a5a7a', c: '#384660', W: '#bcd4ec', F: '#3a3e4a' }) },
+  // Mei, el investigador: el pelo oscuro corto, sin barba, la chaqueta oscura casi negra y la camiseta blanca
+  mei: { ...B30, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#1c1424'),
+    pal: OTO({ H: '#1c1424', h: '#3a3046', C: '#2a2a34', c: '#1c1c24', W: '#f2f2f6', F: '#4a4a56' }) },
+  // los periodistas de 2025: él, la americana azul marino y la libreta (el periodista de 2000 del 24 ya sirve); ella,
+  // la media melena, la americana granate y el micrófono de mano
+  periodista1: ELENCO_DC.periodista2000,
+  periodista2025: { ...B30, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], delante: conMicro,
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', s: '#b07450', C: '#8a3040', c: '#6a2432', W: '#f2eee2', F: '#2a2a34' }) },
+  // ── los años treinta ──
+  // Cayce, el vidente: el pelo corto peinado hacia atrás, las gafas redondas finas, el traje marrón con la corbata
+  // granate; los ojos cerrados del trance, con o.parpadea: true (o la clave cayceTrance)
+  cayce: { ...B30, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#5a4a3a'), delante: gafasRedondasGZ,
+    pal: CLT({ H: '#7a6450', h: '#9a8470', C: '#6a5a48', c: '#4e4234', W: '#f2eee2', o: '#7a2a32', F: '#5a4c3c' }) },
+  // ── ScanPyramids, 2017 ──
+  // el científico japonés: el casco blanco con la linterna frontal y el mono de trabajo azul grisáceo
+  cientificoJapones: { ...B30, cuerpo: CUERPO_MONO_AT, tocado: 'cascoFrontalGZ', ceja: hex('#1c1424'), delante: gafasFinasDC,
+    pal: CLT({ S: '#f0c49a', s: '#c8946a', H: '#1c1424', h: '#3a3046', J: '#f2f2f6', j: '#c8ccd8', C: '#4a6a8a', c: '#36506a', o: '#c8ccd8', u: '#36506a', G: '#2a2a34', n: '#2a2430' }) },
+  // la científica francesa: la cinta de la linterna frontal, la coleta castaña y el chaleco de bolsillos verde oliva
+  // sobre la camisa clara
+  cientificaFrancesa: { ...B30, cuerpo: CUERPO_BUSCADOR, tocado: 'frontalGZ', ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#6a3a1a', h: '#8a5428', s: '#e8a080', J: '#2a2a34', j: '#4a4a56', C: '#e8e0cc', V: '#6a7040', o: '#4e5430', G: '#3a2a1a', F: '#8a7a5a', f: '#6a5c42', L: '#3a2a1a' }) },
+  // ── el andamio de 2023 ──
+  // el técnico egipcio: el casco de obra blanco, el chaleco reflectante naranja con las franjas plateadas y el bigote
+  tecnicoEgipcio: { ...B30, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'cascoObra', ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#f2f2f6', j: '#c8ccd8', V: '#f07a2a', Y: '#d8dce4', C: '#5a6a8a', c: '#46546e', F: '#3a3a44' }) },
+  // el ministro de Antigüedades (Ahmed Issa): el pelo canoso corto con entradas, las gafas finas, el traje oscuro y la
+  // corbata azul
+  ministro2023: { ...B30, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a94'), delante: gafasFinasDC,
+    pal: MOT({ H: '#a8a8b2', h: '#c8c8d0', C: '#2a2e3a', c: '#1e212a', W: '#f2eee2', o: '#2a4a8a', F: '#2a2e3a' }) },
+  // ── los expertos ──
+  // Conyers, el del georradar: mayor, la barba gris corta, el sombrero de ala pardo y la camisa de campo caqui
+  conyers: { ...B30, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAMPO_GZ, tocado: 'vaquero', ceja: hex('#8a8a94'), delante: arrugasDC,
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', V: '#8a6a44', v: '#6a4e2e', C: '#a8a070', c: '#86804e', o: '#e8e4dc', u: '#86804e', G: '#5a3a20', F: '#3a4a6a' }) },
+  // Parcak, la arqueóloga: el pelo castaño largo recogido en la coleta (por detrás: la cara entera) y la camisa
+  // verde azulado
+  parcak: { ...B30, cuerpo: CUERPO_CAMPO_GZ, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', s: '#e8a080', C: '#3a8a8a', c: '#2a6a6a', o: '#e8e4dc', u: '#2a6a6a', G: '#3a2a1a', F: '#c8b890' }) },
+  // Hawass, el antiguo ministro: mayor, el pelo blanco, el sombrero de ala ancha de explorador, la camisa vaquera y el
+  // pantalón caqui
+  hawass: { ...B30, cuerpo: CUERPO_CAMPO_GZ, tocado: 'alaAT', ceja: hex('#b8b8c2'), delante: arrugasDC,
+    pal: MOT({ H: '#e8e8ee', h: '#f6f6f8', J: '#b08a5a', j: '#8a6a40', D: '#5a3a20', C: '#5a7aa8', c: '#425e88', o: '#e8e4dc', u: '#425e88', G: '#5a3a20', F: '#c8b48a' }) },
+  // ── la redacción de la revista, 2026 ──
+  // el editor: las sienes canosas, las gafas de pasta y el jersey de pico verde sobre la camisa; la editora: la media
+  // melena, las gafas finas y el jersey mostaza
+  editor1: { ...B30, cab: CAB_SIENES, cuerpo: CUERPO_PICO_DC, ceja: hex('#3a2a20'), delante: gafasPastaDC,
+    pal: CLT({ H: '#4a3a30', h: '#6a5a4e', w: '#c8c8d2', C: '#4a6a4a', c: '#36503a', W: '#f2eee2', F: '#4a4a54' }) },
+  editora2: { ...B30, cab: CAB_MEDIA_TR, cuerpo: CUERPO_MANGA, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#b07450', C: '#c89a3a', c: '#a07a24', F: '#3a3a4a' }) },
+  // ── Hawara, hacia el 450 a. C. ──
+  // Heródoto: la barba castaña, el pétaso de viaje, el quitón claro, el himatión azul y las sandalias; el rollo de
+  // papiro bajo el brazo
+  herodoto: { ...B30, cab: CAB_BARBA, cuerpo: CUERPO_HIMATION_GZ, tocado: 'petasoGZ', ceja: hex('#4a2a18'), detras: conRolloGZ,
+    pal: OTO({ H: '#5a3a20', h: '#7a5434', J: '#c8a46a', j: '#e0c08a', T: '#f0e8d4', t: '#c8bc9a', M: '#3a5a8a', m: '#2a446a', L: '#6a4020' }) },
+  // el guía egipcio: la cabeza rapada, el faldellín de lino y el ojo pintado (el calvo de ELENCO_EG); el guardián:
+  // el pelo corto, el faldellín y la lanza
+  guiaEgipcio450: ELENCO_EG.calvo,
+  guardian450: { ...ELENCO_EG.campesino, delante: lanzaGZ },
+  // ── Hawara, 1888 ──
+  // Petrie: la barba castaña, el salacot claro, la chaqueta de campaña clara y las botas altas
+  petrie: { ...B30, cab: CAB_BARBA, cuerpo: CUERPO_CAMPANA_GZ, tocado: 'salacotGZ', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', X: '#ece4cc', x: '#c8bc9a', C: '#d8ccaa', c: '#b8aa84', W: '#f6f2e6', o: '#b8aa84', F: '#a8987a', n: '#4a3020' }) },
+  // los trabajadores: la galabiya, el turbante y la cesta; uno con la galabiya azul y el turbante blanco, el otro con
+  // la galabiya parda, el turbante crudo y la barba corta
+  trabajadorEgipcio1888: { ...B30, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#1c1424'), delante: varios(bigoteTR, conCestaTR),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', A: '#f2eee2', a: '#c8c0b0', C: '#4a6a9a', c: '#36507a', L: '#6a4a2a' }) },
+  trabajadorEgipcio1888b: { ...B30, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#2a1c14'), delante: conCestaTR,
+    pal: MOT({ S: '#b88058', s: '#8a5a38', H: '#2a1c14', h: '#4a3424', A: '#d8c8a0', a: '#b0a078', C: '#8a6a4a', c: '#6a4e34', L: '#4a3020' }) },
+  // ── Hawara, 2008 ──
+  // el investigador belga: el pelo castaño de lado, la camisa de campo azul y la tableta; el geofísico egipcio: el
+  // chaleco de bolsillos gris, el bigote y el aparato de medir
+  belga2008: { ...B30, cab: CAB_LADO_DC, cuerpo: CUERPO_CAMPO_GZ, ceja: hex('#6a4426'), delante: conTabletaGZ,
+    pal: CLT({ H: '#8a6040', h: '#a87a50', C: '#5a7ab0', c: '#46609a', o: '#e8e4dc', u: '#46609a', G: '#3a2a1a', F: '#c8b890' }) },
+  geofisico2008: { ...B30, cuerpo: CUERPO_BUSCADOR, ceja: hex('#1c1424'), delante: varios(bigoteTR, conAparatoGZ),
+    pal: MOT({ H: '#2a2028', h: '#4a3a46', C: '#e8e4dc', V: '#7a7a72', o: '#5a5a54', G: '#2a2430', F: '#4a4a56', f: '#36363e', L: '#2a2430' }) },
+  // ── el cementerio de mastabas, 2024 ──
+  // el investigador japonés: la gorra azul y el chaleco de bolsillos beis; la investigadora egipcia (NRIAG): el pañuelo
+  // liso verde azulado (nunca tapa la cara) y la camisa larga; los dos empujan PIEZAS_GZ.carritoRadar (o.sostiene)
+  japones2024: { ...B30, cuerpo: CUERPO_BUSCADOR, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: CLT({ S: '#f0c49a', s: '#c8946a', H: '#1c1424', h: '#3a3046', J: '#2a4a7a', j: '#3a5a8a', C: '#f2f2f6', V: '#c8b07a', o: '#a8905a', G: '#3a2a1a', F: '#5a5a66', f: '#46464e', L: '#2a2430' }) },
+  egipcia2024: { ...B30, cuerpo: CUERPO_CAMPO_GZ, tocado: 'panuelo', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#b07450', J: '#2a7a7a', y: '#2a7a7a', C: '#e8dcc8', c: '#c8bca4', o: '#c8bca4', u: '#c8bca4', G: '#6a4a2a', F: '#3a3e5a' }) },
+  // ── Giza, hoy ──
+  // los turistas: la de la gorra y la camiseta rosa (la del 16) y la del pelo largo y la camiseta coral (la del 29)
+  turista1: ELENCO_TE.turista,
+  turista2: ELENCO_PR.visitante2,
+  // el camellero: la galabiya azul oscura, el turbante blanco, el bigote y la vara
+  camellero: { ...B30, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#1c1424'), delante: varios(bigoteTR, conPaloNV),
+    pal: MOT({ S: '#b88058', s: '#8a5a38', H: '#1c1424', h: '#3a3046', A: '#f6f6f6', a: '#c8ccd8', C: '#2a3a5a', c: '#1e2a44', L: '#4a3020' }) },
+};
+// Cayce en trance: los ojos cerrados siempre
+ELENCO_GZ.cayceTrance = { ...ELENCO_GZ.cayce, delante: varios(ojosCerradosGZ, gafasRedondasGZ) };
+Object.assign(ELENCO_CHIBI, ELENCO_GZ);
+
+// ── piezas del 30 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Nada de letras: la revista lleva una banda de color y rayas; las pantallas, dibujos.
+const PAL_GZ = COLORES({
+  k: '#1c1222', P: '#ecd096', p: '#c8a062', q: '#a87a40', O: '#f0c040', g: '#a87a18', o: '#ffe890',
+  W: '#f6f6f6', E: '#ffffff', Z: '#c8ccd8', z: '#7c8090', K: '#2a2832', u: '#4a4856', N: '#14204a', n: '#5ad8f0',
+  A: '#3a6ad8', a: '#9ab8e0', Y: '#fff4b0', y: '#f0d040', R: '#c8303a', r: '#8a1e26', G: '#56f07a', L: '#f0a030',
+  B: '#b8844a', b: '#7a5028', X: '#f6f2e6', x: '#c8c0b0', T: '#e8cc8a', t: '#c0a062', C: '#e8783a', c: '#b85a1a',
+  M: '#5a5466', m: '#3e3a48', I: '#a8c8d0', i: '#3e5a66', e: '#e88a9a', D: '#2a1a14', V: '#6a7a8a', v: '#4a5866',
+});
+const pintaGZ = (R, g, x, y, o = {}, pal = PAL_GZ) => pintaJH(R, g, x, y, o, pal);
+const cacheGZ = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+const pasoGZ = (v, n, def = 0) => Math.round(Math.max(0, Math.min(1, v ?? def)) * n);
+
+// LA PIRÁMIDE DE PISAPAPELES del escritorio de Atom: la cara de la luz (P) y la de sombra (p), con las hiladas (q/p) y
+// la punta de oro (O, sombra g) que se levanta con o.abre 0–1 (hasta 6 px); abierta, se ve el hueco oscuro (D) por
+// dentro, vacío (para el gag del lápiz, PIEZAS_GZ.lapiz encima del hueco). 22 × 22 (la base no se mueve)
+const PIRAMIDE_CACHE_GZ = new Map();
+const piramidePisapapelesGZ = (R, x, y, o = {}) => {
+  const d = pasoGZ(o.abre, 6);
+  const g = cacheGZ(PIRAMIDE_CACHE_GZ, d, () => forma(22, 22, ({ put }) => {
+    const ancho = (j) => (j - 7) * 0.72 + 0.4;
+    for (let j = 12; j <= 21; j++) {
+      const w = ancho(j);
+      for (let i = 0; i < 22; i++) { const dx = i + 0.5 - 11; if (Math.abs(dx) <= w) put(i, j, dx < 0 ? ((j - 12) % 3 === 2 ? 'p' : 'P') : ((j - 12) % 3 === 2 ? 'q' : 'p')); }
+    }
+    if (d > 0) { const w = ancho(12); for (let i = 0; i < 22; i++) { const dx = i + 0.5 - 11; if (Math.abs(dx) <= w - 1.2) put(i, 12, 'D'); } }
+    for (let j = 7; j <= 11; j++) {
+      const w = ancho(j);
+      for (let i = 0; i < 22; i++) { const dx = i + 0.5 - 11; if (Math.abs(dx) <= w) put(i, j - d, dx < 0 ? 'O' : 'g'); }
+    }
+    put(10, 8 - d, 'o');
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// LA LINTERNA de mano: el cuerpo negro (K) con las estrías (u), la cabeza de metal (Z/z) y el cristal (I; o.encendida,
+// amarillo Y y el haz delante, en dos tonos y sin tramas; o.haz false: sin haz). o.abajo: de pie, con la luz hacia
+// abajo (bajar por un pozo). Horizontal 14 × 6 (el haz, 18 × 9 delante); de pie, 6 × 14 (el haz, 9 × 18 por debajo de y)
+const LINTERNA_GZ = (luz) => forma(14, 6, ({ rect, put }) => {
+  rect(1, 2, 8, 3, 'K'); rect(1, 3, 8, 3, 'u'); for (const i of [3, 5, 7]) put(i, 2, 'u');
+  rect(9, 1, 11, 4, 'Z'); rect(9, 4, 11, 4, 'z'); rect(12, 0, 12, 5, 'Z'); put(12, 5, 'z'); rect(12, 1, 12, 4, luz ? 'Y' : 'I');
+});
+const HAZ_GZ = forma(18, 9, ({ put }) => { for (let i = 0; i < 18; i++) { const w = 1.5 + i * 0.2; for (let j = 0; j < 9; j++) { const d = Math.abs(j - 4); if (d <= w) put(i, j, d <= w * 0.45 ? 'Y' : 'y'); } } });
+const girarGZ = (g) => g[0].split('').map((_, i) => g.map((f) => f[i]).join(''));
+const LINTERNAS_GZ = [LINTERNA_GZ(false), LINTERNA_GZ(true)], LINTERNAS_ABAJO_GZ = LINTERNAS_GZ.map(girarGZ), HAZ_ABAJO_GZ = girarGZ(HAZ_GZ.map((f) => f));
+const linternaGZ = (R, x, y, o = {}) => {
+  const s = o.s ?? 1, dir = o.dir ?? 1, on = !!o.encendida, haz = on && o.haz !== false;
+  if (o.abajo) {
+    if (haz) pintaGZ(R, HAZ_ABAJO_GZ, x, y + 18 * s, { s });
+    return pintaGZ(R, LINTERNAS_ABAJO_GZ[on ? 1 : 0], x, y, { s });
+  }
+  if (haz) pintaGZ(R, HAZ_GZ, x + (7 + 9) * s * dir, y + 1.5 * s, { s, dir });
+  pintaGZ(R, LINTERNAS_GZ[on ? 1 : 0], x, y, o);
+};
+
+// EL LÁPIZ amarillo (O, la arista g) con la goma rosa (e), la virola (Z/z), la madera (T) y la mina (K). 17 × 4
+const LAPIZ_GZ = forma(17, 4, ({ rect, put }) => {
+  rect(1, 1, 2, 2, 'e'); rect(3, 1, 4, 2, 'Z'); put(4, 2, 'z'); rect(5, 1, 12, 1, 'O'); rect(5, 2, 12, 2, 'g');
+  put(13, 1, 'T'); put(13, 2, 'T'); put(14, 1, 'T'); put(14, 2, 't'); put(15, 1, 'K'); put(15, 2, 'K');
+});
+const lapizGZ = (R, x, y, o = {}) => pintaGZ(R, LAPIZ_GZ, x, y, o);
+
+// EL PORTÁTIL abierto: la pantalla (N, el marco K) con el plano azul de la pirámide (líneas n) o.pantalla 'piramide'
+// (por omisión) o 'azul' (lisa, con el brillo a), y la base gris (Z/z) con el teclado (rayas z); o.abierto false:
+// cerrado, una tapa fina. 18 × 14 (cerrado, 18 × 4)
+const PORTATIL_GZ = (pir) => forma(18, 14, ({ rect, put, linea }) => {
+  rect(2, 0, 15, 9, 'K'); rect(3, 1, 14, 8, 'N');
+  if (pir) { linea(4, 7, 8.5, 2, 'n'); linea(13, 7, 8.5, 2, 'n'); rect(4, 7, 13, 7, 'n'); linea(7, 5, 10, 5, 'a'); put(8, 6, 'n'); put(10, 6, 'n'); }
+  else { put(4, 2, 'a'); put(5, 2, 'a'); put(4, 3, 'a'); }
+  rect(0, 10, 17, 12, 'Z'); rect(0, 12, 17, 12, 'z'); for (let i = 2; i <= 15; i += 2) put(i, 11, 'z'); rect(7, 12, 10, 12, 'u');
+});
+const PORTATILES_GZ = { piramide: PORTATIL_GZ(true), azul: PORTATIL_GZ(false), cerrado: forma(18, 4, ({ rect }) => { rect(0, 1, 17, 1, 'u'); rect(0, 2, 17, 2, 'z'); rect(1, 1, 3, 1, 'K'); }) };
+const portatilGZ = (R, x, y, o = {}) => pintaGZ(R, o.abierto === false ? PORTATILES_GZ.cerrado : PORTATILES_GZ[o.pantalla] ?? PORTATILES_GZ.piramide, x, y, o);
+
+// EL DETECTOR DE MUONES: la caja gris (Z, sombra z) con las asas (K) y el panel negro (K) con las lucecitas verdes (G),
+// ámbar (L) y rojas (R) que se encienden y se apagan con o.t; los cables que salen por detrás (u). 26 × 15
+const DETECTOR_CACHE_GZ = new Map();
+const detectorMuonesGZ = (R, x, y, o = {}) => {
+  const f = Math.floor((o.t ?? 0) * 4) % 8;
+  const g = cacheGZ(DETECTOR_CACHE_GZ, f, () => forma(26, 15, ({ rect, put, linea }) => {
+    linea(0, 13, 2, 9, 'u'); linea(1, 13, 3, 9, 'u');
+    rect(3, 3, 24, 13, 'Z'); rect(3, 12, 24, 13, 'z'); rect(23, 3, 24, 13, 'z'); rect(8, 1, 10, 1, 'K'); rect(17, 1, 19, 1, 'K'); put(8, 2, 'K'); put(10, 2, 'K'); put(17, 2, 'K'); put(19, 2, 'K');
+    rect(5, 5, 21, 10, 'K');
+    for (let k = 0; k < 6; k++) { const on = ((f + k * 3) % 8) < 4; put(7 + k * 2.6, 7, on ? ['G', 'G', 'L', 'G', 'R', 'G'][k] : 'u'); }
+    rect(7, 9, 19, 9, 'u'); rect(7, 9, 7 + (f % 4) * 3 + 2, 9, 'G');
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// LA PLACA DE EMULSIÓN: la película (M, oscura) en su marco fino de metal (Z/z); o.luz 0–1 enciende en el centro una
+// mancha alargada clara (y, el centro Y), como una radiografía donde hay vacío; o.tumbada: de canto, en el suelo.
+// De pie 22 × 15 (tumbada 22 × 3)
+const PLACA_CACHE_GZ = new Map();
+const placaEmulsionGZ = (R, x, y, o = {}) => {
+  if (o.tumbada) return pintaGZ(R, cacheGZ(PLACA_CACHE_GZ, 't', () => forma(22, 3, ({ rect }) => { rect(1, 1, 20, 1, 'z'); rect(2, 1, 19, 1, 'M'); })), x, y, o);
+  const l = pasoGZ(o.luz, 4);
+  const g = cacheGZ(PLACA_CACHE_GZ, l, () => forma(22, 15, ({ rect, put }) => {
+    rect(1, 1, 20, 13, 'Z'); rect(1, 13, 20, 13, 'z'); rect(20, 1, 20, 13, 'z'); rect(2, 2, 19, 12, 'M'); rect(2, 2, 19, 3, 'm');
+    if (l > 0) for (let j = 2; j <= 12; j++) for (let i = 2; i <= 19; i++) {
+      const d = Math.hypot((i - 10.5) / (2.2 + l * 1.6), (j - 6.5) / (0.8 + l * 0.5));
+      if (d <= 1) put(i, j, d <= 0.5 && l > 1 ? 'Y' : 'y');
+    }
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// EL ENDOSCOPIO: el cable fino (z) que entra por la izquierda con una ondita y la cabeza de la cámara (Z, el cristal I
+// y la lucecita Y); o.largo 0–1 (1 por omisión) cuánto cable ha entrado: la cabeza va de 8 a 40 px desde el borde de la
+// izquierda (x − 21). 42 × 7 fijos
+const ENDO_CACHE_GZ = new Map();
+const endoscopioGZ = (R, x, y, o = {}) => {
+  const n = pasoGZ(o.largo, 16, 1);
+  const g = cacheGZ(ENDO_CACHE_GZ, n, () => forma(42, 7, ({ rect, put }) => {
+    const fin = 8 + n * 2;
+    for (let i = 0; i < fin; i++) put(i, 3 + Math.round(Math.sin(i * 0.35) * 1.2), 'z');
+    rect(fin, 2, fin + 1, 4, 'Z'); put(fin + 1, 4, 'z'); put(fin + 2, 3, 'I'); put(fin + 2, 2, 'Y');
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// EL CARRITO DEL GEORRADAR: la caja de la antena naranja (C, sombra c) baja entre las dos ruedas (K, el buje Z, los
+// radios u que giran con o.t), el asa (z) que sube hacia atrás con el agarre (K) y la pantallita (N) con las líneas del
+// radargrama (la superficie n y el arco a de lo enterrado); mira a la derecha (o.dir −1, a la izquierda). El agarre, a unos (−15, −21) de (x, y). 34 × 23
+const CARRITO_CACHE_GZ = new Map();
+const carritoRadarGZ = (R, x, y, o = {}) => {
+  const f = Math.floor((o.t ?? 0) * 8) % 2;
+  const g = cacheGZ(CARRITO_CACHE_GZ, f, () => forma(34, 23, ({ rect, put, linea, disco }) => {
+    linea(4, 1, 13, 15, 'z'); linea(5, 1, 14, 15, 'z'); rect(2, 0, 5, 1, 'K');
+    rect(7, 4, 14, 9, 'K'); rect(8, 5, 13, 8, 'N'); rect(8, 5, 13, 5, 'n'); put(10, 6, 'a'); put(11, 6, 'a'); put(9, 7, 'a'); put(12, 7, 'a'); put(8, 8, 'a'); put(13, 8, 'a');
+    rect(12, 13, 29, 18, 'C'); rect(12, 17, 29, 18, 'c'); rect(13, 14, 28, 14, 'L');
+    for (const cx of [13.5, 28.5]) {
+      disco(cx, 19, 3.2, 'K'); disco(cx, 19, 1, 'Z');
+      if (f) { put(cx - 2, 19, 'u'); put(cx + 2, 19, 'u'); } else { put(cx, 17, 'u'); put(cx, 21, 'u'); }
+    }
+  }));
+  pintaGZ(R, g, x, y, o);
+};
+
+// LA REVISTA científica, la portada sin letras: el papel (X), la banda de cabecera de color (A, sin letras), la imagen
+// grande del plano azul (N) con la pirámide en líneas (n) y su rejilla (u), y unas rayas grises (x) abajo; o.sello: la
+// marca roja del sello (PIEZAS_GZ.selloRojo) estampada encima. 18 × 23
+const REVISTA_GZ = forma(18, 23, ({ rect, put, linea }) => {
+  rect(1, 1, 16, 21, 'X'); rect(16, 2, 16, 21, 'x'); rect(1, 21, 16, 21, 'x');
+  rect(2, 2, 15, 4, 'A'); rect(2, 4, 15, 4, 'a');
+  rect(3, 6, 14, 16, 'N'); for (const i of [5, 8, 11]) rect(i, 6, i, 16, 'u'); for (const j of [9, 13]) rect(3, j, 14, j, 'u');
+  linea(4, 15, 8.5, 8, 'n'); linea(13, 15, 8.5, 8, 'n'); rect(4, 15, 13, 15, 'n'); linea(8.5, 8, 9.5, 15, 'a');
+  rect(3, 18, 12, 18, 'x'); rect(3, 20, 9, 20, 'x');
+});
+const revistaGZ = (R, x, y, o = {}) => {
+  pintaGZ(R, REVISTA_GZ, x, y, o);
+  if (o.sello) { const s = o.s ?? 1; pintaGZ(R, SELLO_MARCA_DC, x + 2 * s * (o.dir ?? 1), y - 5 * s, { s, dir: o.dir }, { ...PAL_GZ, ...COLORES({ R: '#d0303a' }) }); }
+};
+
+// LA CESTA DE ARENA: la cesta de palma trenzada (B, el trenzado b) con las dos asas y el montón de arena (T, sombra t)
+// por encima del borde. 18 × 14
+const CESTA_GZ = forma(18, 14, ({ rect, put, disco }) => {
+  disco(8.5, 7, 6.2, 'T'); rect(1, 0, 17, 5, '.'); disco(8.5, 7.5, 5.6, 'T'); for (let i = 3; i <= 14; i++) put(i, 6, 'T');
+  put(6, 4, 't'); put(10, 5, 't'); put(12, 6, 't'); put(5, 6, 't');
+  rect(2, 7, 15, 12, 'B'); rect(3, 13, 14, 13, 'B'); for (const j of [8, 10, 12]) rect(2, j, 15, j, 'b'); for (let i = 4; i <= 13; i += 3) { put(i, 9, 'b'); put(i + 1, 11, 'b'); }
+  rect(0, 8, 1, 9, 'b'); rect(16, 8, 17, 9, 'b');
+});
+const cestaArenaGZ = (R, x, y, o = {}) => pintaGZ(R, CESTA_GZ, x, y, o);
+
+// LA TROMPETILLA DE OÍDO enorme (el gag del satélite): el pabellón de latón (O, sombra g, la boca oscura D) que se abre
+// a la derecha y el tubo que se estrecha y se curva hasta la boquilla (g) a la izquierda. 30 × 17
+const TROMPETILLA_GZ = forma(30, 17, ({ put, disco }) => {
+  for (let i = 6; i <= 27; i++) { const r = 1 + Math.pow((i - 6) / 21, 2.2) * 6.5; for (let j = 0; j < 17; j++) { const d = Math.abs(j - 8); if (d <= r) put(i, j, j > 8 + r * 0.45 ? 'g' : 'O'); } }
+  for (let j = 2; j <= 14; j++) if (Math.abs(j - 8) <= 6.2) { put(28, j, 'g'); if (Math.abs(j - 8) <= 5) put(27, j, 'D'); }
+  for (let a = 0; a <= 12; a++) { const t = a / 12 * Math.PI; put(6 - Math.sin(t) * 4, 11 - Math.cos(t) * 3, 'O'); put(6 - Math.sin(t) * 4, 12 - Math.cos(t) * 3, 'g'); }
+  disco(6, 14.5, 1.2, 'g'); put(9, 7, 'o'); put(13, 6, 'o'); put(18, 4, 'o');
+});
+const trompetillaGZ = (R, x, y, o = {}) => pintaGZ(R, TROMPETILLA_GZ, x, y, o);
+
+export const PIEZAS_GZ = {
+  piramidePisapapeles: piramidePisapapelesGZ, linterna: linternaGZ, lapiz: lapizGZ, portatil: portatilGZ,
+  microfono: PIEZAS_NC.microfono, detectorMuones: detectorMuonesGZ, placaEmulsion: placaEmulsionGZ, endoscopio: endoscopioGZ,
+  carritoRadar: carritoRadarGZ, revista: revistaGZ, selloRojo: selloDC, carpeta: (R, x, y, o = {}) => carpetaDC(R, x, y, { sello: false, ...o }),
+  cestaArena: cestaArenaGZ, trompetilla: trompetillaGZ, lupa: PIEZAS_PR.lupa,
+};
+
+// ── Episodio 31 · GTA: el juego de Escocia que casi se cancela ──
+// (Dundee y Edimburgo, 1987–2013): el estudio de los ochenta, la prueba de los coches de policía, el editor de BMG y el
+// publicista de 1997, los lores de 1997–1998, el tabloide, los hermanos de Nueva York, el abogado y la jueza, el mod de
+// 2005, las tiendas de 2008 y 2013.
+// DERECHOS: nada de Grand Theft Auto real (ni logo, ni portadas, ni personajes del juego, ni su estilo); nada de letras en
+// ninguna pieza (el «18» de la caja va en cifras sueltas sobre una etiqueta lisa, sin el círculo de ninguna calificadora).
+// Los bichitos son una criatura nuestra (redonda, con el mechón verde de punta y el mono naranja), nunca los de Lemmings.
+// Las personas reales, por sus atributos (la ropa, el pelo, las gafas) y con respeto, sin caricatura. Nombres nuevos con
+// GT (o el sufijo del año) para no pisar las claves de otros episodios.
+
+// ── cuerpos ──
+// el jersey de cuello redondo de finales de los ochenta (C) con la franja ancha del pecho (D, su sombra d): Jones
+const CUERPO_JERSEY_GT = parche(CUERPO_MANGA, [[4, 2, 'DDDDDDD'], [4, 3, 'ddddddd']]);
+// la cazadora de cuero (C, los pliegues c) abierta sobre la camiseta (W), sin el broche: los hermanos de Nueva York
+const CUERPO_CUERO_GT = parche(CUERPO_CAZADORA, [[9, 2, 'C']]);
+// la toga roja de los lores (C, los pliegues c) con el cuello y la barra de armiño del pecho (X con las motas negras J),
+// la camisa blanca (W) que asoma y el bajo de armiño; los brazos, los de siempre
+const CUERPO_TOGA_LORD_GT = parche(CUERPO_TUNICA_LARGA, [
+  [3, 0, 'kkWWWWWkk'], [3, 1, 'XXJXWXJXX'], [4, 2, 'CCXWXCC'], [4, 3, 'XJXWCCC'], [4, 4, 'CCCWCCC'], [4, 5, 'CCCCCCC'],
+  [4, 6, 'CcCCCcC'], [4, 7, 'CCCcCCC'], [4, 8, 'CcCcCcC'], [4, 9, 'CCCcCCC'], [4, 10, 'cccccccc'], [4, 11, 'XXJXXXJX'],
+]);
+// el polo de la tienda (C) con el cuello (W), los botones (o) y la plaquita del nombre (X, sin letras)
+const CUERPO_POLO_TIENDA_GT = parche(CUERPO_POLO_DC, [[9, 2, 'X']]);
+
+// ── el reparto del 31 ──
+const B31 = B23, B31J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_GT = {
+  // ── Dundee, finales de los ochenta ──
+  // David Jones joven: el pelo corto castaño de lado y el jersey azul marino con la franja mostaza
+  jonesGT: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_JERSEY_GT, ceja: hex('#4a2a14'),
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', C: '#2a3a6a', c: '#1e2a50', D: '#d8a840', d: '#b08428', F: '#4a4a54', n: '#2a2430' }) },
+  // Mike Dailly joven: el pelo oscuro corto, las gafas grandes de los ochenta y la camiseta verde con los vaqueros
+  daillyGT: { ...B31, cuerpo: CUERPO_CALLE, ceja: hex('#2a1c14'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#3a8a6a', c: '#2a6a50', F: '#3e5a8a', n: '#2a2430' }) },
+  // ── los noventa ──
+  // Gary Penn: la barba corta, la gorra verde oscura y la camisa de cuadros azul abierta sobre la camiseta
+  pennGT: { ...B31, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUADROS_AT, tocado: 'beisbol', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#2e5a46', j: '#3e7058', C: '#4a6a9a', c: '#36507a', p: '#24345a', W: '#f2eee2', F: '#3a3a44', n: '#2a2430' }) },
+  // el ejecutivo de la discográfica (BMG): el pelo oscuro peinado hacia atrás, el traje gris marengo y la corbata granate
+  ejecutivoBMG: { ...B31, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#4a4e5a', c: '#383b45', W: '#eef0f6', o: '#8a2a4a', F: '#4a4e5a' }) },
+  // Max Clifford, el publicista: el pelo canoso peinado hacia atrás, el traje oscuro y la camisa blanca abierta, sin corbata
+  clifford: { ...B31, cab: CAB_ENGOMINADO, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#9a9aa4'),
+    pal: CLT({ H: '#d0d0d8', h: '#ececf0', C: '#24242e', c: '#18181f', W: '#f6f6f8', F: '#24242e' }) },
+  // ── la Cámara de los Lores, 1997–1998 ──
+  // lord Campbell: mayor, el pelo blanco con entradas, las arrugas y la toga roja con el armiño
+  lordCampbell: { ...B31, cab: CAB_ENTRADAS, cuerpo: CUERPO_TOGA_LORD_GT, ceja: hex('#b8b8c2'), delante: arrugasDC,
+    pal: CLT({ H: '#e8e8ee', h: '#f6f6f8', C: '#b8283a', c: '#8a1e2c', X: '#f6f4ee', J: '#1c1c24', W: '#f6f4ee', L: '#1c1c24' }) },
+  // lord Avebury: mayor, el pelo blanco, las gafas finas, las arrugas y la misma toga
+  lordAvebury: { ...B31, cuerpo: CUERPO_TOGA_LORD_GT, ceja: hex('#b8b8c2'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLT({ H: '#e0e0e8', h: '#f2f2f6', C: '#b8283a', c: '#8a1e2c', X: '#f6f4ee', J: '#1c1c24', W: '#f6f4ee', L: '#1c1c24' }) },
+  // el ministro que contesta en los Lores (pelo canoso, arrugas, traje azul marino y corbata burdeos): el senador del 28 ya sirve
+  ministroLores: ELENCO_NC.senador,
+  // el hijo del lord, 12 años en 1998: el pelo rubio oscuro de lado, la sudadera granate con capucha y los vaqueros
+  hijoLord: { ...B31J, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_TS, ceja: hex('#8a5a2a'), mejillas: [[6, 8], [12, 8]], detras: capuchaTS,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', s: '#e8a080', C: '#8a2a3a', c: '#6a1e2c', X: '#e8e8ee', F: '#3a4a6a', n: '#2a2430' }) },
+  // ── la prensa ──
+  // el periodista del tabloide: las sienes canosas, la gabardina parda con cinturón, la corbata y la libreta
+  periodistaTabloide: { ...B31, cab: CAB_SIENES, cuerpo: CUERPO_GABARDINA_DC, ceja: hex('#3a2a20'), delante: conLibretaDC,
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', w: '#c8c8d2', C: '#8a7a5a', c: '#6a5c42', W: '#f2eee2', o: '#2a3a6a', I: '#6a5c42', F: '#3a3a44', G: '#3a2a1a', n: '#2a2430' }) },
+  // los periodistas británicos con su libreta (los del 24 ya sirven)
+  periodista1GT: ELENCO_DC.periodistaUK,
+  periodista2GT: ELENCO_DC.periodistaUK2,
+  // ── Nueva York, finales de los noventa ──
+  // Sam Houser: la barba corta oscura, las gafas de sol, la cazadora de cuero negra sobre la camiseta gris
+  samHouser: { ...B31, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUERO_GT, tocado: 'sol', ceja: hex('#1c1424'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', J: '#14121a', C: '#2a2630', c: '#3e3a46', W: '#6a6e7a', F: '#2a3448', n: '#1c1a20' }) },
+  // Dan Houser: sin barba, el pelo oscuro, las gafas de sol y la cazadora de cuero marrón sobre la camiseta blanca
+  danHouser: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_CUERO_GT, tocado: 'sol', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', J: '#14121a', C: '#5a3a24', c: '#74502e', W: '#f2eee2', F: '#3a4a6a', n: '#2a2018' }) },
+  // ── Edimburgo ──
+  // el programador de DMA en Edimburgo: el pelo castaño rojizo, la sudadera verde con capucha y los vaqueros
+  programadorNorth: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#7a3a1a'), detras: capuchaTS,
+    pal: CLT({ H: '#8a4a24', h: '#a8643a', C: '#3a6a44', c: '#2a5034', X: '#e8e8ee', F: '#3a4a6a', n: '#2a2430' }) },
+  // ── los juicios ──
+  // Jack Thompson, el abogado: el pelo canoso peinado, las gafas finas, el traje azul marino y la corbata roja
+  abogadoThompson: { ...B31, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#7a7a86'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', C: '#2a3048', c: '#1e2436', W: '#f2eee2', o: '#b8303a', F: '#2a3048' }) },
+  // la jueza (media melena gris, gafas finas y toga negra con el cuello blanco): la del 27 ya sirve
+  juezaGT: ELENCO_TS.jueza,
+  // ── 2005 ──
+  // el aficionado: la gorra roja, la camiseta azul y los vaqueros
+  aficionado2005: { ...B31, cuerpo: CUERPO_CALLE, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#c8303a', j: '#962428', C: '#2a6aa8', c: '#1e5080', F: '#3a4a6a', n: '#2a2430' }) },
+  // el hacker del mod (2005): joven, el pelo rubio de lado, la cara amable, la sudadera gris con la capucha bajada a la
+  // espalda (nunca puesta) y los vaqueros
+  hackerGT: { ...B31, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], detras: capuchaTS,
+    pal: CLT({ H: '#c8984a', h: '#e0b464', s: '#e8a080', C: '#6a6e7a', c: '#52565f', X: '#e8e8ee', F: '#3e5a8a', n: '#2a2430' }) },
+  // ── las tiendas, 2008 y 2013 ──
+  // el dependiente: el pelo corto, el polo azul de la tienda con la plaquita sin letras y el pantalón caqui
+  dependienteGT: { ...B31, cab: CAB_CORTA_VM, cuerpo: CUERPO_POLO_TIENDA_GT, ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#2a5aa8', c: '#1e4488', W: '#f2eee2', o: '#f2eee2', X: '#f6f6f6', F: '#a89870', n: '#2a2430' }) },
+  // los compradores: él con el abrigo gris y la bufanda roja (2008); ella con la media melena, el abrigo camel y la
+  // bufanda verde azulada (2013)
+  comprador1GT: { ...B31, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#5a5e68', c: '#464a54', u: '#b8303a', o: '#2a2430', F: '#2a2a34', n: '#1c1a20' }) },
+  comprador2GT: { ...B31, cab: CAB_MEDIA_TR, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#b07450', C: '#b08a5a', c: '#8e6e44', u: '#2a7a7a', o: '#5a4028', F: '#2a2a34', n: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_GT);
+
+// ── piezas del 31 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Nada de letras ni logotipos: el periódico, rayas; la caja del juego, dibujos y el «18» en cifras sueltas.
+const PAL_GT = COLORES({
+  k: '#1c1222', W: '#f6f6f6', w: '#c8ccd8', E: '#ffffff', K: '#2a2832', u: '#4a4856', Z: '#d8dce6', z: '#8c90a4',
+  L: '#ff4a4a', l: '#7a2a34', B: '#4a9aff', b: '#26305a', R: '#d8303a', r: '#8a1e26', e: '#f49a9a',
+  O: '#f0c040', g: '#a87a18', o: '#ffe890', G: '#5ac83a', v: '#2e8a24', N: '#f08a2a', n: '#b8561a', F: '#f6d0a8',
+  T: '#e8dcc0', t: '#c0b490', d: '#6a6252', Q: '#10121c', M: '#6a6478', m: '#48445a', x: '#9a9aa6',
+  Y: '#f2ecd8', y: '#c8c0a8', I: '#a8d8f0', i: '#6a9ab8', A: '#3a6ad8', a: '#24449a', V: '#5a9a4a', P: '#c8a062',
+  p: '#8a6a3a', s: '#1e2a50', X: '#ececf2', j: '#a8a8b8', H: '#8ae08a', h: '#f0a0c8', q: '#8ae0f0', f: '#f6e890',
+  C: '#3a6ad8', c: '#24449a',
+});
+const pintaGT = (R, g, x, y, o = {}, pal = PAL_GT) => pintaJH(R, g, x, y, o, pal);
+const cacheGT = (m, clave, hacer) => { if (!m.has(clave)) m.set(clave, hacer()); return m.get(clave); };
+const pasoGT = (v, n, def = 0) => Math.round(Math.max(0, Math.min(1, v ?? def)) * n);
+const palColorGT = (color, def) => ({ ...PAL_GT, ...COLORES({ C: color ?? def, c: oscuroTR(color ?? def, 0.7) }) });
+// el humo que sube de una pieza (o.humo 0–1): hasta cuatro bocanadas (X, la sombra j) cada vez más grandes y más altas,
+// que se mecen con el fotograma f; se pinta en las filas de arriba de la rejilla (sobre la pieza: no mueve su base)
+const humoGT = (put, disco, cx, base, n, f) => {
+  for (let k = 0; k < n; k++) {
+    const r = 1.2 + k * 0.45, cy = base - 2 - k * 3.6, x = cx + Math.round(Math.sin(f * 1.6 + k * 1.9)) + (k % 2 ? 2 : -2);
+    disco(x + 0.5, cy + 0.5, r, 'j'); disco(x, cy, r, 'X');
+  }
+};
+
+// EL COCHE DE JUGUETE de perfil (mira a la derecha; o.dir −1, a la izquierda): la carrocería redondeada, las ventanillas
+// (I), las ruedas gordas (K, el tapacubos Z) y los faros (o, el de atrás R). 32 × 16
+const COCHE_GT = (policia, luz) => forma(32, 16, ({ rect, put, disco }) => {
+  const cuerpo = policia ? 'W' : 'C', sombra = policia ? 'w' : 'c';
+  rect(3, 8, 28, 11, cuerpo); rect(3, 11, 28, 11, sombra);
+  if (policia) { rect(3, 8, 9, 11, 'K'); rect(22, 8, 28, 11, 'K'); rect(3, 11, 9, 11, 'u'); rect(22, 11, 28, 11, 'u'); }
+  else rect(4, 9, 27, 9, 'W');
+  put(3, 8, '.'); put(28, 8, '.');
+  for (let j = 4; j <= 7; j++) {
+    const ini = Math.round(10 - (j - 4) * 0.8), fin = 20 + (j - 4);
+    rect(ini, j, fin, j, cuerpo);
+    if (j >= 5) { rect(ini + 1, j, 14, j, 'I'); rect(16, j, fin - 1, j, 'I'); }
+  }
+  put(17, 5, 'i'); put(12, 6, 'i');
+  rect(15, 8, 15, 10, policia ? 'w' : sombra); put(13, 9, 'u'); put(18, 9, 'u');
+  put(28, 9, 'o'); put(3, 9, 'R'); rect(29, 10, 29, 11, 'Z'); rect(2, 10, 2, 11, 'Z');
+  if (policia) { rect(12, 3, 19, 3, 'K'); rect(13, 1, 15, 2, luz !== 1 ? 'L' : 'l'); rect(16, 1, 18, 2, luz !== 0 ? 'B' : 'b'); put(13, 1, luz !== 1 ? 'e' : 'l'); }
+  for (const cx of [8.5, 23.5]) { disco(cx, 12, 2.3, 'K'); put(cx - 0.5, 12, 'Z'); put(cx + 0.5, 12, 'z'); }
+});
+// el coche de policía de JUGUETE, genérico: blanco con el morro y la cola negros, sin letras ni escudos; las luces del
+// techo (roja L y azul B) se encienden por turnos con o.t (sin o.t, las dos encendidas)
+const COCHE_POLICIA_GT = [COCHE_GT(true, 0), COCHE_GT(true, 1), COCHE_GT(true, 2)];
+const cochePoliciaGT = (R, x, y, o = {}) => pintaGT(R, COCHE_POLICIA_GT[o.t == null ? 2 : Math.floor(o.t * 6) % 2], x, y, o);
+// el coche de juguete de otro color (o.color, azul por omisión) con la franja blanca
+const COCHE_JUGUETE_GT = COCHE_GT(false, 2);
+const cocheJugueteGT = (R, x, y, o = {}) => pintaGT(R, COCHE_JUGUETE_GT, x, y, o, palColorGT(o.color, '#3a6ad8'));
+
+// EL BICHITO, la criatura del juego de Dundee (nuestra): redonda, con el mono naranja (N, sombra n) y el botón de oro,
+// la carita (F) con los ojos grandes (E con la pupila K) y la mata de pelo verde con tres puntas (G, sombra v); o.anda (con o.t)
+// mueve los pies por turnos; o.paraguas: lo lleva abierto encima (rojo R y blanco W), flotando. 11 × 16 (con el
+// paraguas, 18 × 24)
+const BICHITO_CACHE_GT = new Map();
+const bichitoGT = (R, x, y, o = {}) => {
+  const f = o.anda ? Math.floor((o.t ?? 0) * 6) % 2 : 0, par = !!o.paraguas;
+  const g = cacheGT(BICHITO_CACHE_GT, f + '|' + par, () => forma(par ? 18 : 11, par ? 24 : 16, ({ rect, put, disco }) => {
+    const dx = par ? 1 : 0, dy = par ? 8 : 0, P2 = (i, j, c) => put(i + dx, j + dy, c);
+    if (par) {
+      for (let i = 4; i <= 16; i++) { const top = Math.round(4 - Math.sqrt(Math.max(0, 36 - (i - 10) ** 2)) * 0.55); for (let j = top; j <= 4; j++) put(i, j, Math.floor((i - 4) / 3) % 2 ? 'W' : 'R'); }
+      for (let i = 4; i <= 16; i += 3) put(i, 5, 'R'); put(10, 0, 'K'); rect(10, 5, 10, 15, 'K');
+    }
+    for (let j = 6; j <= 13; j++) for (let i = 0; i < 11; i++) if (Math.hypot(i - 5, (j - 9.3) * 1.05) <= 4.3) P2(i, j, j >= 12 ? 'n' : 'N');
+    for (let j = 4; j <= 8; j++) for (let i = 0; i < 11; i++) if (Math.hypot(i - 5, (j - 7) * 1.3) <= 3.2) P2(i, j, 'F');
+    for (const [i, j] of [[5, 0], [3, 1], [5, 1], [7, 1], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [2, 4], [3, 4], [7, 4], [8, 4]]) P2(i, j, 'G');
+    P2(4, 3, 'v'); P2(6, 3, 'v'); P2(2, 4, 'v'); P2(8, 4, 'v');
+    P2(4, 6, 'E'); P2(4, 7, 'K'); P2(6, 6, 'E'); P2(6, 7, 'K'); P2(5, 9, 'n'); P2(5, 11, 'O');
+    if (par) P2(9, 8, 'F');
+    const pies = f ? [[2, 13], [3, 13], [7, 14], [8, 14]] : [[2, 14], [3, 14], [7, 14], [8, 14]];
+    for (const [i, j] of pies) P2(i, j, 'K');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL BOTÓN ROJO GIGANTE en su peana: la seta roja (R, sombra r, brillo e) sobre el aro negro (K) y la columna de metal
+// (Z, sombra z) con la placa del suelo; o.pulsado 0–1 hunde la seta (hasta 3 px). 22 × 24
+const BOTON_CACHE_GT = new Map();
+const botonRojoGT = (R, x, y, o = {}) => {
+  const p = pasoGT(o.pulsado, 3);
+  const g = cacheGT(BOTON_CACHE_GT, p, () => forma(22, 24, ({ rect, put }) => {
+    rect(2, 21, 19, 22, 'K'); rect(2, 21, 19, 21, 'u');
+    rect(5, 12, 16, 20, 'Z'); rect(14, 12, 16, 20, 'z'); rect(5, 12, 16, 12, 'z');
+    rect(3, 10, 18, 11, 'K'); rect(3, 10, 18, 10, 'u');
+    rect(5, 6 + p, 16, 9, 'R'); rect(6, 4 + p, 15, 5 + p, 'R'); rect(8, 3 + p, 13, 3 + p, 'R');
+    rect(14, 5 + p, 16, 9, 'r'); rect(5, 9, 16, 9, 'r');
+    put(8, 4 + p, 'e'); put(9, 4 + p, 'e'); put(7, 5 + p, 'e');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// LA CAJA DEL VIDEOJUEGO de cartón (C, el canto c; o.color la cambia), genérica: la ilustración de la noche (s) con los
+// edificios (M/m, ventanas o), la calle (u) y un coche rojo, y abajo la etiqueta lisa (W) con el «18» en cifras sueltas
+// (K); unas rayas (c) en vez de letras. 21 × 28
+const CAJA_JUEGO_GT = forma(21, 28, ({ rect: r0, put: p0 }) => {
+  const rect = (a, b, c, d, ch) => r0(a + 1, b + 1, c + 1, d + 1, ch), put = (i, j, ch) => p0(i + 1, j + 1, ch);
+  rect(1, 0, 19, 1, 'Y'); rect(17, 1, 19, 26, 'c'); rect(0, 2, 16, 26, 'C');
+  rect(2, 4, 14, 17, 's'); put(4, 5, 'o'); put(11, 6, 'o');
+  rect(3, 9, 5, 14, 'M'); rect(6, 7, 9, 14, 'm'); rect(10, 10, 13, 14, 'M'); put(7, 9, 'o'); put(8, 11, 'o'); put(4, 11, 'o'); put(12, 12, 'o');
+  rect(2, 15, 14, 17, 'u'); rect(3, 16, 4, 16, 'o'); rect(12, 16, 13, 16, 'o');
+  rect(6, 14, 11, 15, 'R'); rect(7, 13, 10, 13, 'R'); put(8, 13, 'I'); put(9, 13, 'I'); put(7, 16, 'K'); put(10, 16, 'K'); put(11, 14, 'o');
+  rect(2, 19, 10, 25, 'W'); rect(4, 20, 4, 24, 'K'); put(3, 21, 'K'); rect(6, 20, 8, 24, 'K'); put(7, 21, 'W'); put(7, 23, 'W');
+  rect(12, 20, 15, 20, 'c'); rect(12, 22, 14, 22, 'c'); rect(12, 24, 15, 24, 'c');
+});
+const cajaJuegoGT = (R, x, y, o = {}) => pintaGT(R, CAJA_JUEGO_GT, x, y, o, palColorGT(o.color, '#e0a030'));
+
+// LA CAJA REGISTRADORA: el visor en su mástil (K, las cifras verdes H), el teclado inclinado (Z con las teclas W y la
+// roja R), el cajón (z, el tirador K) y la base; o.humo 0–1 (con o.t, se mece): humea de tanto vender. 24 × 21 (más el
+// humo: 24 × 36)
+const CAJA_REG_CACHE_GT = new Map();
+const cajaRegistradoraGT = (R, x, y, o = {}) => {
+  const n = pasoGT(o.humo, 4), f = o.t == null ? 0 : Math.floor(o.t * 3) % 4;
+  const g = cacheGT(CAJA_REG_CACHE_GT, n + '|' + (n ? f : 0), () => forma(24, 36, ({ rect, put, disco }) => {
+    const b = 15;
+    rect(15, b + 1, 21, b + 5, 'K'); rect(16, b + 2, 20, b + 3, 'H'); put(17, b + 2, 'K'); put(19, b + 3, 'K'); rect(17, b + 6, 18, b + 7, 'z');
+    rect(2, b + 8, 21, b + 12, 'Z'); rect(2, b + 8, 21, b + 8, 'W');
+    for (let j = b + 9; j <= b + 11; j++) for (let i = 4; i <= 16; i += 2) put(i + ((j - b) % 2), j, 'W');
+    rect(18, b + 10, 20, b + 11, 'R');
+    rect(1, b + 13, 22, b + 18, 'z'); rect(1, b + 13, 22, b + 13, 'u'); rect(9, b + 16, 14, b + 16, 'K'); rect(1, b + 19, 22, b + 19, 'u');
+    humoGT(put, disco, 12, b + 1, n, f);
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL PERIÓDICO sensacionalista: la primera plana (Y, sombra y) con la cabecera roja lisa (R), el titular en dos rayas
+// gruesas (K), el icono de un coche (K, las ventanillas Y) y las columnas de rayas (u), sin letras; o.humo 0–1 (con o.t,
+// se mece): la noticia echa humo. 20 × 24 (más el humo: 20 × 39)
+const PERIODICO_CACHE_GT = new Map();
+const periodicoGT = (R, x, y, o = {}) => {
+  const n = pasoGT(o.humo, 4), f = o.t == null ? 0 : Math.floor(o.t * 3) % 4;
+  const g = cacheGT(PERIODICO_CACHE_GT, n + '|' + (n ? f : 0), () => forma(20, 39, ({ rect, put, disco }) => {
+    const b = 15;
+    rect(1, b + 1, 18, b + 22, 'Y'); rect(18, b + 2, 18, b + 22, 'y'); rect(1, b + 22, 18, b + 22, 'y');
+    rect(2, b + 2, 17, b + 4, 'R'); rect(3, b + 3, 6, b + 3, 'r');
+    rect(2, b + 6, 17, b + 8, 'K'); rect(2, b + 10, 13, b + 12, 'K');
+    rect(2, b + 17, 9, b + 18, 'K'); rect(4, b + 15, 7, b + 16, 'K'); put(5, b + 16, 'Y'); put(6, b + 16, 'Y'); put(3, b + 19, 'K'); put(8, b + 19, 'K'); put(9, b + 17, 'R');
+    for (let j = b + 14; j <= b + 20; j += 2) rect(11, j, 17, j, 'u');
+    humoGT(put, disco, 10, b + 1, n, f);
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL DISCO COMPACTO: el plástico plateado (Z) con los reflejos de arco iris (h rosa, f amarillo, q cian), el aro de
+// dentro (w) y el agujero; o.t hace girar el brillo. 16 × 16
+const DISCO_CACHE_GT = new Map();
+const discoGT = (R, x, y, o = {}) => {
+  const f = o.t == null ? 0 : Math.floor(o.t * 8) % 8;
+  const g = cacheGT(DISCO_CACHE_GT, f, () => forma(16, 16, ({ put }) => {
+    for (let j = 0; j < 16; j++) for (let i = 0; i < 16; i++) {
+      const r = Math.hypot(i - 7.5, j - 7.5); if (r > 6.9 || r < 1.3) continue;
+      if (r < 2.5) { put(i, j, 'w'); continue; }
+      const a = ((Math.atan2(j - 7.5, i - 7.5) - f * Math.PI / 4) % Math.PI + Math.PI) % Math.PI;
+      put(i, j, a < 0.35 ? 'h' : a < 0.7 ? 'f' : a < 1.05 ? 'q' : r > 6 ? 'w' : 'Z');
+    }
+    put(4, 3, 'E'); put(3, 4, 'E');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL TROFEO, sin letras: la copa de oro (O, sombra g, brillo o) con las dos asas, el pie y la peana negra (K) con la
+// placa de oro lisa. 18 × 23
+const TROFEO_GT = forma(18, 23, ({ rect, put }) => {
+  for (let j = 1; j <= 9; j++) { const w = 5.6 - Math.max(0, j - 4) * 0.75; for (let i = 0; i < 18; i++) { const d = i + 0.5 - 9; if (Math.abs(d) <= w) put(i, j, d > w - 2 ? 'g' : 'O'); } }
+  rect(4, 1, 13, 1, 'o'); put(6, 3, 'o'); put(6, 4, 'o'); put(7, 6, 'o');
+  for (const [i, j] of [[2, 2], [1, 3], [1, 4], [1, 5], [2, 6], [3, 7]]) { put(i, j, 'O'); put(17 - i, j, 'g'); }
+  rect(8, 10, 9, 13, 'O'); put(9, 12, 'g'); put(9, 13, 'g'); rect(6, 14, 11, 15, 'O'); rect(10, 14, 11, 15, 'g');
+  rect(4, 16, 13, 21, 'K'); rect(4, 16, 13, 16, 'u'); rect(6, 18, 11, 19, 'O'); rect(11, 18, 11, 19, 'g');
+});
+const trofeoGT = (R, x, y, o = {}) => pintaGT(R, TROFEO_GT, x, y, o);
+
+// LA MAQUETA de la ciudad de juguete en bloques: el tablero verde (V, el canto v) con la calle (x, las rayas o) que lo
+// cruza, los bloques de colores (gris M/m, rojo R/r, azul A/a, amarillo O/g, con sus ventanas I), dos arbolitos (G) y un
+// cochecito. 40 × 27
+const MAQUETA_GT = forma(40, 27, ({ rect, put, disco }) => {
+  rect(1, 16, 38, 22, 'V'); rect(1, 23, 38, 24, 'v'); rect(1, 24, 38, 24, 'p');
+  rect(1, 19, 38, 20, 'x'); for (let i = 3; i <= 36; i += 4) put(i, 19, 'o'); rect(18, 16, 20, 22, 'x');
+  const bloque = (x0, x1, top, base, c1, c2) => { rect(x0, top, x1, base, c1); rect(x1 - 1, top, x1, base, c2); for (let j = top + 2; j < base - 1; j += 2) for (let i = x0 + 1; i < x1 - 1; i += 2) put(i, j, 'I'); };
+  bloque(2, 8, 5, 17, 'M', 'm'); bloque(10, 15, 9, 17, 'R', 'r'); bloque(22, 28, 2, 17, 'A', 'a'); bloque(30, 35, 8, 17, 'O', 'g'); bloque(36, 38, 12, 17, 'M', 'm');
+  bloque(4, 9, 21, 22, 'O', 'g'); bloque(29, 33, 21, 22, 'R', 'r');
+  disco(14, 22, 1.4, 'G'); put(14, 22, 'v'); disco(35, 22, 1.4, 'G'); put(35, 22, 'v');
+  rect(23, 19, 26, 20, 'R'); put(24, 19, 'I'); put(23, 21, 'K'); put(26, 21, 'K');
+});
+const maqueta3DGT = (R, x, y, o = {}) => pintaGT(R, MAQUETA_GT, x, y, o);
+
+// EL TELÉFONO DE MESA de los noventa: la base gris (z, la cara de arriba Z) con el teclado de botones (W sobre K), la
+// pantallita verde (H) y la lucecita (L), el auricular negro (K, brillo u) tumbado en la horquilla y el cable rizado; o.suena (con o.t):
+// el auricular bota, la lucecita parpadea y salen unas rayitas a los lados. 28 × 17
+const TELEFONO_CACHE_GT = new Map();
+const telefonoNoventaGT = (R, x, y, o = {}) => {
+  const f = o.suena ? Math.floor((o.t ?? 0) * 12) % 3 : 0;
+  const g = cacheGT(TELEFONO_CACHE_GT, (o.suena ? 's' : '') + f, () => forma(28, 17, ({ rect, put }) => {
+    rect(3, 8, 25, 14, 'z'); rect(4, 7, 24, 8, 'Z'); rect(3, 14, 25, 14, 'u'); rect(24, 8, 25, 13, 'u');
+    rect(15, 8, 21, 13, 'K'); for (let a = 0; a < 3; a++) for (let b = 0; b < 3; b++) put(16 + a * 2, 9 + b * 2, 'W');
+    rect(14, 4, 23, 6, 'K'); rect(15, 5, 22, 5, 'H'); put(23, 10, o.suena && f !== 1 ? 'L' : 'l');
+    const h = [0, -2, -1][f];
+    rect(3, 4 + h, 12, 5 + h, 'K'); rect(3, 3 + h, 5, 6 + h, 'K'); rect(10, 3 + h, 12, 6 + h, 'K'); rect(4, 4 + h, 11, 4 + h, 'u');
+    for (let j = 7; j <= 13; j++) put(1 + (j % 2), j, 'K');
+    if (o.suena && f !== 2) for (const [i, j] of [[0, 2], [1, 1], [26, 2], [27, 1], [0, 5], [27, 5]]) put(i, j, 'K');
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+// EL MONITOR DE TUBO beis de los noventa (T, sombra t, el marco d) con su pie; o.pantalla: 'ciudad' (las calles vistas
+// desde arriba, x, los tejados M/m, un parque V y tres coches que circulan con o.t), 'bichitos' (un nivel con el fondo
+// azul noche s, las plataformas de tierra P/p y nuestros bichitos, el mechón verde y el mono naranja, que andan con o.t)
+// o apagada (por omisión: negra, con el reflejo). La lucecita verde (H) encendida si hay imagen. 32 × 27
+const MONITOR_CACHE_GT = new Map();
+const monitorTuboGT = (R, x, y, o = {}) => {
+  const pan = o.pantalla === 'ciudad' || o.pantalla === 'bichitos' ? o.pantalla : 'apagada', f = o.t == null ? 0 : Math.floor(o.t * 6) % 24;
+  const g = cacheGT(MONITOR_CACHE_GT, pan + '|' + (pan === 'apagada' ? 0 : f), () => forma(32, 27, ({ rect, put }) => {
+    rect(1, 1, 30, 21, 'T'); rect(1, 1, 30, 1, 'W'); rect(29, 2, 30, 21, 't'); rect(1, 20, 30, 21, 't');
+    rect(3, 3, 28, 18, 'd'); rect(4, 4, 27, 17, 'Q');
+    put(26, 19, pan === 'apagada' ? 't' : 'H'); rect(5, 19, 6, 19, 't'); rect(8, 19, 9, 19, 't');
+    rect(11, 22, 20, 23, 't'); rect(7, 24, 24, 25, 'T'); rect(7, 25, 24, 25, 't');
+    if (pan === 'apagada') { put(6, 6, 'u'); put(7, 5, 'u'); put(6, 7, 'u'); put(8, 5, 'u'); return; }
+    if (pan === 'ciudad') {
+      rect(4, 4, 27, 17, 'm');
+      for (const [x0, y0, x1, y1] of [[5, 5, 9, 7], [12, 5, 16, 7], [19, 5, 22, 7], [5, 10, 9, 12], [12, 10, 16, 12], [25, 10, 27, 12], [5, 15, 9, 17], [19, 15, 22, 17]]) rect(x0, y0, x1, y1, 'M');
+      rect(19, 10, 22, 12, 'V'); put(20, 11, 'v');
+      rect(4, 8, 27, 9, 'x'); rect(4, 13, 27, 14, 'x'); rect(10, 4, 11, 17, 'x'); rect(17, 4, 18, 17, 'x'); rect(23, 4, 24, 17, 'x');
+      put(4 + (f + 3) % 24, 8, 'R'); put(4 + (f + 4) % 24, 8, 'R');
+      put(18, 4 + (f + 5) % 14, 'A'); put(18, 4 + (f + 6) % 14, 'A');
+      put(27 - (f + 9) % 24, 14, 'O'); put(27 - (f + 10) % 24, 14, 'O');
+      return;
+    }
+    rect(4, 4, 27, 17, 's'); put(7, 5, 'w'); put(21, 6, 'w'); put(14, 5, 'w');
+    rect(4, 15, 27, 17, 'P'); for (let i = 5; i <= 26; i += 3) put(i, 16, 'p');
+    rect(5, 11, 13, 12, 'P'); rect(5, 12, 13, 12, 'p'); rect(18, 9, 27, 10, 'P'); rect(18, 10, 27, 10, 'p');
+    const bicho = (i, j) => { put(i, j, 'G'); put(i, j + 1, 'N'); };
+    for (const k of [0, 1, 2]) bicho(5 + (f + k * 8) % 22, 13);
+    bicho(18 + (f + 3) % 10, 7); bicho(5 + (f + 5) % 9, 9);
+    put(13, 5, 'R'); put(12, 5, 'W'); put(14, 5, 'W'); bicho(13, 6);
+  }));
+  pintaGT(R, g, x, y, o);
+};
+
+export const PIEZAS_GT = {
+  cochePolicia: cochePoliciaGT, cocheJuguete: cocheJugueteGT, bichito: bichitoGT, botonRojo: botonRojoGT,
+  cajaJuego: cajaJuegoGT, cajaRegistradora: cajaRegistradoraGT, periodico: periodicoGT, disco: discoGT,
+  mazo: PIEZAS_TS.mazo, trofeo: trofeoGT, maqueta3D: maqueta3DGT, telefonoNoventa: telefonoNoventaGT, monitorTubo: monitorTuboGT,
+};
+
+// ── Episodio 32 («The Secret»: los doce cofres de 1982) ──────────────────────────────────────────────────────────────
+// ── cuerpos ──
+// la camiseta y los vaqueros de un chaval (12 filas, una menos de pierna): los adolescentes de Chicago
+const CUERPO_CHAVAL_CF = sinFila(CUERPO_CALLE, 9);
+// la misma con dos rayas (W) en el pecho
+const CUERPO_CHAVAL_RAYAS_CF = parche(CUERPO_CHAVAL_CF, [[4, 2, 'WWWWWWW'], [4, 4, 'WWWWWWW']]);
+// la sudadera de la chica de 12 años (12 filas), sin capucha
+const CUERPO_CHAVALA_CF = sinFila(CUERPO_MANGA, 9);
+// la camisa de campo remangada (C, el doblez c en el codo), abierta al cuello, con la tapeta (o): Zinn cavando
+const CUERPO_REMANGADA_CF = parche(CUERPO_CALLE, [[5, 0, 'CCSCC'], [7, 1, 'o'], [7, 2, 'o'], [7, 3, 'o'], [7, 4, 'o'], [2, 2, 'c'], [12, 2, 'c']]);
+// el chaleco del banco (C) sobre la camisa (W) con la corbata (J) y la plaquita (X, sin letras)
+const CUERPO_BANCO_CF = parche(CUERPO_CHALECO_NV, [[7, 1, 'J'], [7, 2, 'J'], [7, 3, 'J'], [7, 4, 'J'], [9, 2, 'X']]);
+// la chaqueta de explorador de muchos bolsillos (la del buscador del 16) con el pañuelo anudado al cuello (u)
+const CUERPO_EXPLORADOR_CF = parche(CUERPO_BUSCADOR, [[5, 0, 'uuuuu'], [6, 1, 'uuu'], [7, 2, 'u']]);
+// la camisa del uniforme de guarda (C) con los dos bolsillos (u), la placa (O), el cinturón (G) y la corbata corta (o)
+const CUERPO_GUARDA_CF = parche(CUERPO_CAMPO_GZ, [[7, 3, 'C'], [7, 4, 'C'], [9, 2, 'O']]);
+// el jersey de punto (C) con el cuello redondo (c) de las veinteañeras
+const CUERPO_JERSEY_CF = parche(CUERPO_MANGA, [[5, 0, 'ccScc'], [4, 6, 'ccccccc']]);
+
+// ── detalles (delante) ──
+const PAL_MANO_CF = { ...PAL_MANO, ...COLORES({ M: '#a8743c', R: '#d8303a', A: '#3a6ad8', Y: '#f0c840', W: '#f6f2e6', w: '#c8c0b0', V: '#5a9a4a', T: '#d8c08a' }) };
+// las manchas de pintura del delantal del pintor (roja, azul, amarilla y verde) y el pincel en la mano
+const manchasCF = (c) => { for (const [i, j, col] of [[5, 4, '#d8303a'], [9, 5, '#3a6ad8'], [7, 7, '#f0c840'], [6, 8, '#5a9a4a'], [10, 8, '#d8303a'], [8, 3, '#3a6ad8']]) c.cuerpo.px(i, j, hex(col)); };
+const conPincelCF = enMano(['...kk', '..kRk', '.kMk.', 'kMk..', 'kk...'], 12, 0, PAL_MANO_CF);
+// la barba de pocos días: la mandíbula un tono más oscura, sin tapar la boca
+const barbaDiasCF = (c) => { const v = hex('#b88e78'); for (const [i, j] of [[3, 9], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [6, 11], [7, 11], [8, 11], [9, 11]]) c.cab.px(i, j, v); };
+// las gafas de Krupat: las de pasta oscura; con sorpresa (los ojos muy abiertos las convertirían en un antifaz), la
+// montura fina y gris con el cristal claro, para que los ojos se vean siempre
+const gafasSustoCF = varios(gafasHP(GAFAS_CUADRADAS, 6, '#5a5560'), cristalHP);
+const gafasKrupatCF = (c) => (c.o.sorpresa ? gafasSustoCF : gafasPastaDC)(c);
+// la carpeta de obra (azul, con la hoja blanca) del jefe
+const conCarpetaCF = enMano(['kkkkkk', 'kAWWAk', 'kAwwAk', 'kAWWAk', 'kkkkkk'], 12, 2, PAL_MANO_CF);
+
+// ── el reparto del 32 ──
+const B32 = B23, B32J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_CF = {
+  // ── Nueva York, 1981–2005: la editorial ──
+  // Byron Preiss a los 28: el pelo oscuro rizado, las gafas grandes, la barba corta y la chaqueta de pana marrón sobre
+  // la camisa clara
+  preiss: { ...B32, cab: CAB_RIZOS_BARBA_AT, cuerpo: CUERPO_PANA_DC, ceja: hex('#2a1c14'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#2e1e16', h: '#4e3626', C: '#9a6a3c', c: '#74481f', W: '#f0e8d0', o: '#f0e8d0', F: '#4a4e5e' }) },
+  // Preiss en 2004: lo mismo con canas (el pelo y la barba grises) y la pana más oscura
+  preissMayor: { ...B32, cab: CAB_RIZOS_BARBA_AT, cuerpo: CUERPO_PANA_DC, ceja: hex('#7a7a86'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#9a9aa6', h: '#c4c4cc', C: '#6e5a48', c: '#524232', W: '#e8eef6', o: '#e8eef6', F: '#3a3e4a' }) },
+  // el primer escritor (años ochenta): el pelo castaño de lado, el bigote y el jersey mostaza de pico sobre la camisa
+  escritor1CF: { ...B32, cab: CAB_LADO_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#5a3418'), bigote: true,
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#d8a838', c: '#b08424', W: '#f2eee2', F: '#5a4a3a', n: '#3a2a20' }) },
+  // el segundo escritor: las entradas, el pelo rubio ceniza, las gafas redondas y la rebeca granate sobre la camisa y la
+  // corbata mostaza
+  escritor2CF: { ...B32, cab: CAB_ENTRADAS, cuerpo: CUERPO_REBECA_DC, ceja: hex('#8a6a3a'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#b89858', h: '#d4b874', C: '#8a2e3c', c: '#6a1e2c', W: '#f2eee2', o: '#e8d8a0', J: '#d8a838', F: '#5a5648', n: '#2a2430' }) },
+  // el pintor joven: las greñas negras hasta el cuello (la cara despejada), la camisa azul, el delantal crudo manchado de pintura y el pincel
+  pintorCF: { ...B32, cab: CAB_GRENAS, cuerpo: CUERPO_DELANTAL_AT, ceja: hex('#1c1424'), delante: varios(manchasCF, conPincelCF),
+    pal: CLT({ H: '#241a20', h: '#42343c', u: '#dcae90', r: '#e8a080', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', o: '#f2eee2', V: '#e8dcc0', v: '#c0b490', F: '#3e5a8a' }) },
+  // ── Chicago, 1983: los adolescentes (más bajos que los adultos) ──
+  // el de los rizos castaños y la camiseta roja
+  chico1CF: { ...B32J, cab: CAB_RIZOS, cuerpo: CUERPO_CHAVAL_CF, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#d8403a', c: '#a82c28', F: '#3e5a8a', n: '#f2f2f2' }) },
+  // el de la gorra azul y la camiseta amarilla, rubio
+  chico2CF: { ...B32J, cuerpo: CUERPO_CHAVAL_CF, tocado: 'beisbol', ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#d0a04a', h: '#e8bc64', s: '#e8a080', J: '#2a5aa8', j: '#4a7ac8', C: '#f0c838', c: '#c8a020', F: '#3e5a8a', n: '#f2f2f2' }) },
+  // el moreno del pelo negro corto y la camiseta verde de rayas
+  chico3CF: { ...B32J, cuerpo: CUERPO_CHAVAL_RAYAS_CF, ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#3a9a5a', c: '#2a7444', W: '#f2f2f2', F: '#2e4a7a', n: '#c83a3a' }) },
+  // ── Cleveland, 2004 ──
+  // Brian Zinn, el abogado: el pelo castaño corto, las gafas finas, el traje gris azulado y la corbata granate
+  zinn: { ...B32, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#5a3418'), delante: gafasFinasDC,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#56627a', c: '#404a5e', W: '#f2f2f6', o: '#a8303a', F: '#56627a' }) },
+  // Zinn cavando: las mismas gafas, la camisa azul clara remangada y el pantalón caqui con las botas
+  zinnCampo: { ...B32, cuerpo: CUERPO_REMANGADA_CF, ceja: hex('#5a3418'), delante: gafasFinasDC,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#9ac0e0', c: '#7098b8', o: '#f2f2f6', F: '#a89868', n: '#5a3a1e' }) },
+  // Andy Abrams, su amigo: la gorra roja, el pelo negro, el polo verde y el pantalón claro
+  abrams: { ...B32, cuerpo: CUERPO_POLO_DC, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: CLT({ H: '#241a20', h: '#42343c', J: '#c8303a', j: '#e05058', C: '#3a8a5a', c: '#2a6a44', W: '#f2f2f2', o: '#f2f2f2', F: '#c8b890', n: '#f2f2f2' }) },
+  // el jardinero del jardín griego: mayor, el bigote y el pelo grises, el sombrero de paja y el mono verde
+  jardineroCF: { ...B32, cuerpo: CUERPO_MONO_AT, tocado: 'sombreroPaja', ceja: hex('#9a9aa4'), bigote: true,
+    pal: CLT({ H: '#b8b8c2', h: '#d8d8e0', C: '#4a8a4a', c: '#346a36', o: '#d8d8a0', u: '#346a36', G: '#5a3a1e', T: '#e8cc7a', t: '#c8a850', D: '#7a4a24', n: '#4a3420' }) },
+  // ── la familia Preiss (2005–2019) ──
+  // la viuda, de unos 55: la media melena rubia ceniza, el traje sastre ciruela y el collar de perlas
+  viudaCF: { ...B32, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SASTRE, ceja: hex('#8a6a4a'),
+    pal: CLT({ H: '#c8a878', h: '#e0c494', C: '#5a3458', c: '#44263f', W: '#f6f2ea', o: '#f6f6fa', I: '#44263f', L: '#2a2430' }) },
+  // la hija mayor: la melena larga castaña oscura, el jersey verde azulado y el pantalón negro
+  hija1CF: { ...B32, cab: CAB_LARGO, cuerpo: CUERPO_JERSEY_CF, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', s: '#e8a080', C: '#2a8a8a', c: '#1e6a6a', F: '#2a2a34', n: '#1c1a20' }) },
+  // la hija pequeña: la media melena negra, la rebeca crema sobre la blusa y la falda granate
+  hija2CF: { ...B32, cab: CAB_MEDIA_TR, cuerpo: CUERPO_FALDA_VM, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#241a20', h: '#42343c', s: '#e8a080', C: '#e8d8b0', c: '#c8b88a', W: '#f6f6f6', F: '#8a2a3a', L: '#2a2430' }) },
+  // ── Boston, 2019: los Krupat ──
+  // Jason Krupat: el pelo castaño corto, las gafas de pasta, la barba de pocos días, la sudadera gris con la capucha a
+  // la espalda (nunca puesta) y los vaqueros
+  krupat: { ...B32, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#4a2a18'), delante: varios(barbaDiasCF, gafasKrupatCF), detras: capuchaTS,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#8a8e9a', c: '#6c707c', X: '#f0f0f4', F: '#3e5a8a', n: '#2a2430' }) },
+  // su mujer: el pelo corto pelirrojo, el jersey coral y los vaqueros
+  mujerKrupat: { ...B32, cab: CAB_CORTA_VM, cuerpo: CUERPO_JERSEY_CF, ceja: hex('#8a3a1a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#f08a70', c: '#d06a54', F: '#3e5a8a', n: '#6a4a2a' }) },
+  // la hija, 12 años: la melena castaña, la sudadera lila y los vaqueros (más baja que los adultos)
+  hijaKrupat: { ...B32J, cab: CAB_LARGO, cuerpo: CUERPO_CHAVALA_CF, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#a88ad8', c: '#8468b8', F: '#3e5a8a', n: '#f2f2f2' }) },
+  // el hijo, 10 años: el pelo castaño corto, la camiseta naranja y el pantalón corto (el más bajo)
+  hijoKrupat: { ...B23N, ceja: hex('#5a3418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', s: '#e8a080', C: '#f08a2a', c: '#c86a1a', F: '#3a4a6a', n: '#f2f2f2' }) },
+  // el operario de la excavadora: el casco amarillo, el chaleco naranja con las franjas claras y la camisa azul
+  operarioCF: { ...B32, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'cascoObra', ceja: hex('#3a2418'),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', J: '#f0c830', j: '#c8a020', V: '#f07a2a', Y: '#f6f0a8', C: '#3a5a8a', c: '#2a4468', F: '#3a3e4e', n: '#4a3420' }) },
+  // el jefe de obra: el casco blanco, el bigote, la camisa clara con la corbata y la carpeta azul
+  jefeObraCF: { ...B32, cuerpo: CUERPO_CAMISA_DC, tocado: 'cascoObra', ceja: hex('#4a2a18'), bigote: true, delante: conCarpetaCF,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#f4f4f6', j: '#c8ccd8', C: '#e8ecf2', c: '#c4cad6', o: '#2a4a8a', F: '#5a5040', n: '#4a3420' }) },
+  // ── la tele, 2018 ──
+  // el presentador del programa de aventuras (GENÉRICO, no se parece a nadie): el pelo rubio arena de lado, la chaqueta
+  // caqui de explorador y el pañuelo rojo al cuello
+  presentadorCF: { ...B32, cab: CAB_LADO_DC, cuerpo: CUERPO_EXPLORADOR_CF, ceja: hex('#8a6a3a'),
+    pal: CLT({ H: '#c09a58', h: '#dcb874', C: '#e8dcc0', c: '#c8bc9a', V: '#b09a62', o: '#8a7444', u: '#d8303a', G: '#5a3a1a', F: '#6a6248', f: '#524a34', L: '#4a3420' }) },
+  // ── hoy ──
+  // el buscador de Charleston: la gorra verde, la barba corta castaña, la camisa de cuadros rojos y los vaqueros
+  buscadorCF: { ...B32, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUADROS_AT, tocado: 'beisbol', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4020', h: '#8a5a30', J: '#4a6a3a', j: '#628450', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
+  // el guarda de parques: el sombrero de ala pardo, la camisa gris con la placa y el pantalón verde
+  guardaCF: { ...B32, cuerpo: CUERPO_GUARDA_CF, tocado: 'alaAT', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#a8905a', j: '#c0a870', D: '#4a3420', C: '#9aa0a8', c: '#7a808a', u: '#7a808a', o: '#2a4a34', O: '#f0c040', G: '#3a2a1a', F: '#3e6a44', n: '#3a2a1a' }) },
+  // el empleado del banco: el pelo oscuro peinado hacia atrás, el chaleco azul marino, la camisa blanca y la corbata verde
+  empleadoBancoCF: { ...B32, cab: CAB_ENGOMINADO, cuerpo: CUERPO_BANCO_CF, ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#2a3458', c: '#1e2644', W: '#f6f6f8', o: '#c8a040', J: '#2a8a5a', X: '#f0c040', F: '#2a3458' }) },
+  // el cartero (el uniforme azul grisáceo, la gorra y el bigote del 16) con un sobre en la mano
+  carteroCF: { ...ELENCO_SI.cartero, delante: conCartaVM },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_CF);
+
+// ══ Episodio 33 (Dune: el libro que nadie quería publicar): Florence (Oregón) en 1957, las editoriales de 1963–1965,
+// Chilton, los premios de 1966, el campus de 1970, el París de Jodorowsky (1974), Hollywood (1976–1984), el rodaje de
+// 2021 y las dunas de hoy. Personas reales: con respeto, sin caricatura ──────────────────────────────────────────────
+// ── cabezas ──
+// la barba poblada con las entradas hondas (Herbert de mayor): la boca a la vista
+const CAB_BARBA_ENTRADAS_DU = parche(CAB_BARBA, [[6, 3, 'SSSSSS'], [5, 4, 'S']]);
+// ── cuerpos ──
+// la camisa marinera de rayas (C con las rayas W) del dibujante
+const CUERPO_RAYAS_DU = parche(CUERPO_MANGA, [[3, 1, 'WWWWWWWWW'], [4, 3, 'WWWWWWW'], [4, 5, 'WWWWWWW'], [2, 3, 'W'], [12, 3, 'W']]);
+// la camisa (C) abotonada hasta el cuello, sin corbata: el cuello cerrado (c) y los botones (o)
+const CUERPO_ABOTONADA_DU = parche(CUERPO_MANGA, [[5, 0, 'CcCcC'], [7, 1, 'o'], [7, 3, 'o'], [7, 5, 'o']]);
+// el jersey de cuello alto (C, el cuello vuelto y el bajo c)
+const CUERPO_CUELLO_ALTO_DU = parche(CUERPO_MANGA, [[5, 0, 'ccccc'], [4, 6, 'ccccccc']]);
+// el traje con corbata de un hombre bajito (12 filas, una menos de pierna)
+const CUERPO_BAJITO_DU = sinFila(CUERPO_TRAJE_DC, 9);
+// el pijama de rayas de un chaval de 1980 (12 filas): la chaqueta (C, las rayas p) con el cuello (W) y el pantalón (F, la raya f)
+const CUERPO_PIJAMA_DU = parche(sinFila(CUERPO_MANGA, 9), [[6, 0, 'WWW'], [5, 1, 'p'], [9, 1, 'p'], [5, 2, 'p'], [9, 2, 'p'], [5, 3, 'p'], [9, 3, 'p'], [5, 4, 'p'], [9, 4, 'p'], [5, 5, 'p'], [9, 5, 'p'],
+  [7, 2, 'o'], [7, 4, 'o'], [5, 7, 'f'], [9, 7, 'f'], [5, 8, 'f'], [9, 8, 'f'], [5, 9, 'f'], [9, 9, 'f']]);
+// la camiseta lisa con los vaqueros de campana de 1970
+const CUERPO_CAMPANA_LISA_DU = parche(CUERPO_CALLE, BAJOS_CAMPANA_AT);
+// la ropa de campo de los voluntarios con los guantes de trabajo (X): la camisa de campo y la de cuadros
+const CUERPO_VOLUNTARIO_DU = parche(CUERPO_CAMPO_GZ, [[2, 5, 'X'], [12, 5, 'X']]);
+const CUERPO_VOLUNTARIA_DU = parche(CUERPO_CUADROS_AT, [[2, 5, 'X'], [12, 5, 'X']]);
+
+// ── detalles ──
+// los bigotes largos y finos de Dalí, con las puntas hacia arriba (por delante y por detrás de la cara, sin tapar ojos ni boca)
+const bigotesDaliDU = (c) => { const v = hex('#1c1424'); for (const [i, j] of [[8, 8], [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 7], [15, 6], [7, 8], [6, 7], [5, 6]]) c.cab.px(i, j, v); };
+// la capa negra y ancha de Welles, por detrás: asoma a los dos lados del cuerpo y llega al suelo (Q, los pliegues q)
+const CAPA_WELLES_DU = Array.from({ length: 13 }, (_, j) => { const a = Math.round((11 - Math.min(11, j)) * 0.28), n = 19 - 2 * a; return '.'.repeat(a) + 'k' + (j === 12 ? 'k'.repeat(n) : 'QQq' + 'Q'.repeat(n - 6) + 'qQQ') + 'k' + '.'.repeat(a); });
+const capaWellesDU = (c) => c.cuerpo.rej(CAPA_WELLES_DU, -3, 0);
+
+// ── el reparto del 33 ──
+const B33 = B23, B33J = { ...B23, altoCuerpo: 12 };
+export const ELENCO_DU = {
+  // ── Florence (Oregón), 1957 ──
+  // Frank Herbert a los 36: el pelo castaño corto, SIN barba, la camisa clara y el chaleco de punto verde
+  herbert57: { ...B33, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#5a3418'),
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#5a7a52', c: '#42603c', W: '#f2eee2', o: '#3a4a34', F: '#6a5a48' }) },
+  // Herbert de 1963 en adelante: la barba castaña poblada y la chaqueta de pana parda sobre la camisa crema
+  herbert: { ...B33, cab: CAB_BARBA, cuerpo: CUERPO_PANA_DC, ceja: hex('#5a3418'),
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#a8743c', c: '#7e5226', W: '#f0e8d0', o: '#f0e8d0', F: '#4a4a5a' }) },
+  // Herbert en 1984–1986: la barba y el pelo canosos, las entradas y la pana verde grisácea
+  herbertMayor: { ...B33, cab: CAB_BARBA_ENTRADAS_DU, cuerpo: CUERPO_PANA_DC, ceja: hex('#8a8a94'),
+    pal: CLT({ H: '#a8a8b2', h: '#cfcfd6', C: '#6a6e58', c: '#50543f', W: '#e8eef6', o: '#e8eef6', F: '#3e3e4a' }) },
+  // Beverly, su mujer: el pelo oscuro recogido en un moño y el vestido verde azulado de los 50 con el cuello blanco y el lazo
+  beverly: { ...B33, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_PLIEGUES, ceja: hex('#2a1c14'), delante: monoHP, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#2e1e16', h: '#4e3626', s: '#e8a080', C: '#2a8a8a', c: '#1e6a6a', W: '#f6f2ea', I: '#f0e0b0', L: '#2a2430' }) },
+  // el piloto de la avioneta: la gorra verde, el bigote, la cazadora de cuero marrón y el pantalón caqui
+  piloto: { ...B33, cuerpo: CUERPO_CAZADORA, tocado: 'beisbol', ceja: hex('#4a2a18'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#3a5a44', j: '#527a5c', C: '#7a4a24', c: '#5a3418', W: '#e8dcc0', O: '#7a4a24', F: '#8a8262', n: '#3a2a1a' }) },
+  // ── Nueva York y Filadelfia, 1963–1965 ──
+  // el agente literario: canoso con entradas, las gafas redondas, el traje gris y la corbata azul
+  agenteDU: { ...B33, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#7a7a86'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#8a8a94', h: '#b0b0ba', C: '#8a8e9a', c: '#6c707c', W: '#f2f2f6', o: '#2a4a8a', F: '#8a8e9a' }) },
+  // el primer editor (el confundido): calvo con entradas, el bigote, el chaleco burdeos sobre la camisa y la pajarita roja
+  editor1DU: { ...B33, cab: CAB_CALVA_ENTRADAS_DC, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#5a3418'), delante: varios(bigoteTR, pajaritaNC('#d8303a')),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#7a3a4a', c: '#5a2a38', W: '#f2eee2', o: '#e8d8a0', F: '#4a4a5a' }) },
+  // el segundo editor (el prudente): canoso, el traje azul oscuro y la corbata granate
+  editor2DU: { ...B33, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#8a8a94'),
+    pal: CLT({ H: '#b0b0ba', h: '#d4d4dc', C: '#34426a', c: '#252f52', W: '#f2f2f6', o: '#a8303a', F: '#34426a' }) },
+  // Sterling Lanier: el pelo corto castaño, las gafas de pasta, la chaqueta de tweed y la corbata verde
+  lanier: { ...B33, cuerpo: CUERPO_TWEED_VM, ceja: hex('#5a3418'), delante: gafasKrupatCF,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#9a8a5e', c: '#74663e', W: '#f2eee2', o: '#3a6a4a', F: '#5a4e3a' }) },
+  // el impresor de 1965: la gorra plana gris, el bigote y el mono azul de trabajo
+  impresor: { ...B33, cuerpo: CUERPO_MONO_AT, tocado: 'gorraPlana', ceja: hex('#3a2418'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2a1e', h: '#5a4434', J: '#5a5e6e', j: '#7a7e8e', C: '#3a5a8a', c: '#2a4468', o: '#c8ccd8', u: '#2a4468', G: '#3a2a1a', n: '#2a2430' }) },
+  // el presentador de la gala de 1966: el pelo oscuro engominado y el esmoquin con la pajarita negra
+  presentadorDU: { ...B33, cab: CAB_ENGOMINADO, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), delante: pajaritaNC('#24202c'),
+    pal: CLT({ H: '#2a1c14', h: '#5a4434', C: '#3a3644', c: '#2a2632', W: '#f6f6f8', F: '#3a3644' }) },
+  // ── los lectores de 1963 (gente corriente) ──
+  // el de la rebeca azul con la camisa y la corbata
+  lector1DU: { ...B33, cuerpo: CUERPO_REBECA_DC, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#4a6a8a', c: '#36506a', W: '#f2eee2', o: '#e8d8a0', J: '#a8303a', F: '#5a5648', n: '#2a2430' }) },
+  // la pelirroja de la media melena: el jersey amarillo, la blusa y la falda de vuelo verde
+  lector2DU: { ...B33, cab: CAB_MEDIA_TR, cuerpo: CUERPO_VUELO_PR, ceja: hex('#8a3a1a'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#e8d070', c: '#c8b050', W: '#f6f6f6', F: '#3a7a6a', f: '#2a5e50', L: '#2a2430' }) },
+  // el chico moreno de las gafas: el jersey rojo de pico sobre la camisa
+  lector3DU: { ...B33, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1424'), delante: gafasFinasDC,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', C: '#c8483a', c: '#a03428', W: '#f2f2f2', F: '#3a3e4e', n: '#2a2430' }) },
+  // ── el campus, 1968–1970 ──
+  // la rubia de la melena larga: la cinta roja en la frente, la blusa naranja de flores y los vaqueros de campana
+  estudiante1DU: { ...B33, cab: CAB_LARGO, cuerpo: CUERPO_CAMPANA_F_AT, ceja: hex('#a8743c'), mejillas: [[6, 8], [12, 8]], delante: cintaAT,
+    pal: CLT({ H: '#d0a04a', h: '#e8bc64', s: '#e8a080', u: '#d8403a', C: '#f08a2a', c: '#c86a1a', p: '#f6e890', F: '#4a6aa8', n: '#4a3020' }) },
+  // el de la melena castaña hasta los hombros: la cinta verde, la camisa morada de cuello ancho y la campana
+  estudiante2DU: { ...B33, cab: CAB_MELENA_H, cuerpo: CUERPO_CAMPANA_AT, ceja: hex('#4a2a18'), delante: cintaAT,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', u: '#3a9a5a', C: '#8a5ab8', c: '#6a429a', X: '#f2e2c0', p: '#f0d070', F: '#3e5e9a', n: '#4a3020' }) },
+  // el de los rizos negros largos: la cinta amarilla, la camiseta verde y la campana
+  estudiante3DU: { ...B33, cab: CAB_ALONGA_TR, cuerpo: CUERPO_CAMPANA_LISA_DU, ceja: hex('#1c1424'), delante: cintaAT,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', u: '#f0c838', C: '#3a9a6a', c: '#2a7450', F: '#4a6aa8', n: '#4a3020' }) },
+  // ── Hollywood y París, 1972–1974 ──
+  // el productor de Hollywood: el pelo rubio oscuro engominado, las gafas de sol, el traje crema y la corbata naranja
+  productorHollywood: { ...B33, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_PANUELO_DC, tocado: 'sol', ceja: hex('#6a4a2a'),
+    pal: CLT({ H: '#8a6a3a', h: '#b08a52', J: '#24202c', C: '#e8dcc0', c: '#c8bc9a', W: '#f6f6f8', o: '#d8703a', X: '#d8703a', F: '#e8dcc0' }) },
+  // el productor francés: joven, el pelo castaño de lado y el jersey burdeos de cuello alto
+  productorFrances: { ...B33, cab: CAB_LADO_DC, cuerpo: CUERPO_CUELLO_ALTO_DU, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', s: '#e8a080', C: '#8a2e3c', c: '#6a1e2c', F: '#4a4a5a', n: '#2a2430' }) },
+  // Alejandro Jodorowsky en 1974: el pelo OSCURO alborotado, la chaqueta blanca sobre la camisa oscura y el pantalón claro
+  jodorowsky: { ...B33, cab: CAB_RIZOS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#241a20', h: '#42343c', C: '#f4f2ec', c: '#cfcabd', W: '#3a3644', F: '#e4e0d6' }) },
+  // Salvador Dalí: el pelo negro hacia atrás, los bigotes largos con las puntas hacia arriba, el traje oscuro con la
+  // corbata dorada y el bastón de pomo de latón
+  dali: { ...B33, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_PANUELO_DC, ceja: hex('#4a4058'), delante: varios(bigotesDaliDU, bastonNV('alguacil')),
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#3e3850', c: '#2c2640', W: '#f6f6f8', o: '#d8a838', X: '#d8303a', F: '#3e3850' }) },
+  // Orson Welles: grande y corpulento, la barba oscura entrecana, el traje negro y la capa negra hasta el suelo
+  welles: { ...B33, cab: CAB_BARBA, cuerpo: CUERPO_MAGNATE_TS, dxCuerpo: -1, brazoCol: 13, ceja: hex('#2a2428'), detras: capaWellesDU,
+    pal: CLT({ H: '#4a4044', h: '#6e6468', C: '#3e3a4a', c: '#2c2836', W: '#f2f2f6', o: '#24202c', O: '#6a6676', F: '#3e3a4a', n: '#1c1a20', Q: '#2a2634', q: '#4a4460' }) },
+  // el cantante de rock: la melena castaña, la camisa magenta de cuello ancho abierta y estampada y el pantalón negro
+  jagger: { ...B33, cab: CAB_GRENAS, cuerpo: CUERPO_CUELLO_ANCHO_DC, ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', u: '#f6c290', r: '#f6c290', C: '#d83a8a', c: '#a82a6a', X: '#f6e890', p: '#3ac8d8', F: '#34303e', n: '#1c1a20' }) },
+  // Moebius, el dibujante: la barba corta castaña, las gafas redondas y la camisa marinera de rayas
+  moebius: { ...B33, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_RAYAS_DU, ceja: hex('#4a2a18'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#2a4a8a', c: '#1e3868', W: '#f2f2f2', F: '#5a5648', n: '#2a2430' }) },
+  // H. R. Giger: todo de negro, el pelo negro de lado
+  giger: { ...B33, cab: CAB_LADO_DC, cuerpo: CUERPO_MANGA, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1424', h: '#3a3046', C: '#3e3a4a', c: '#2c2836', F: '#34303e', n: '#1c1a20' }) },
+  // Dan O'Bannon: el pelo castaño claro, las gafas finas, la camisa de cuadros verdes y los vaqueros
+  obannon: { ...B33, cab: CAB_CORTA_VM, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#8a5a24'), delante: gafasFinasDC,
+    pal: CLT({ H: '#a8743c', h: '#c8944e', C: '#4a8a5a', c: '#346a44', p: '#2a5a38', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
+  // ── Hollywood, 1976–1984 ──
+  // Dino De Laurentiis: bajito, canoso con entradas, las gafas de pasta, el traje azul gris y la corbata granate
+  deLaurentiis: { ...B33J, cab: CAB_ENTRADAS, cuerpo: CUERPO_BAJITO_DU, ceja: hex('#7a7a86'), delante: gafasKrupatCF,
+    pal: CLT({ H: '#8a8a94', h: '#b0b0ba', C: '#46526a', c: '#343e54', W: '#f2f2f6', o: '#a8303a', F: '#46526a' }) },
+  // Ridley Scott: la gorra azul, la barba corta rojiza y la cazadora verde oliva sobre la camiseta
+  scottDU: { ...B33, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CUERO_GT, tocado: 'beisbol', ceja: hex('#8a3a1a'),
+    pal: CLT({ H: '#a8562a', h: '#c8743c', J: '#2a3458', j: '#3e4a74', C: '#6a6e52', c: '#50543c', W: '#e8e4d8', O: '#6a6e52', F: '#3e5a8a', n: '#4a3420' }) },
+  // David Lynch joven: el pelo castaño alto con tupé y la camisa blanca abotonada hasta el cuello, sin corbata
+  lynch: { ...B33, cuerpo: CUERPO_ABOTONADA_DU, tocado: 'tupe', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', C: '#f6f6f8', c: '#c4cad6', o: '#9a9aa6', F: '#34303e', n: '#1c1a20' }) },
+  // ── Quebec, 1980, y el rodaje de 2021 ──
+  // Denis Villeneuve de adolescente: el pelo castaño oscuro de lado y el pijama azul de rayas (más bajo que los adultos)
+  villeneuveJoven: { ...B33J, cab: CAB_LADO_DC, cuerpo: CUERPO_PIJAMA_DU, ceja: hex('#3a2418'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', s: '#e8a080', C: '#8ab8e0', c: '#6a98c0', p: '#f6f6f8', W: '#f6f6f8', o: '#f6f6f8', F: '#8ab8e0', f: '#f6f6f8', n: '#d8d0c0' }) },
+  // Villeneuve de adulto: el pelo gris, la barba corta gris y la chaqueta oscura sobre la camisa gris
+  villeneuve: { ...B33, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#7a7a86'),
+    pal: CLT({ H: '#9a9aa6', h: '#c4c4cc', C: '#343848', c: '#262a38', W: '#b8bcc8', F: '#343848' }) },
+  // el operador de cámara: la gorra negra, la camisa azul y el chaleco caqui de bolsillos
+  operadorDU: { ...B33, cuerpo: CUERPO_BUSCADOR, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', J: '#3a3644', j: '#56526a', C: '#5a7a9a', c: '#44607c', V: '#b09a62', o: '#8a7444', G: '#5a3a1a', F: '#4a4a5a', f: '#3a3a48', L: '#4a3420' }) },
+  // el subastador de 2021: rubio ceniza con entradas, el traje gris azulado y la pajarita roja
+  subastadorDU: { ...B33, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#8a6a3a'), delante: pajaritaNC('#d8303a'),
+    pal: CLT({ H: '#b89858', h: '#d4b874', C: '#56627a', c: '#404a5e', W: '#f2f2f6', F: '#56627a' }) },
+  // ── las dunas, hoy ──
+  // el voluntario: el gorro de lana naranja, la camisa de campo verde, los guantes de trabajo amarillos y las botas
+  voluntario1DU: { ...B33, cuerpo: CUERPO_VOLUNTARIO_DU, tocado: 'gorroLana', ceja: hex('#5a3418'), delante: barbaDiasCF,
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', J: '#e0703a', j: '#b85428', Y: '#f2eee2', C: '#6a8a5a', c: '#4e6a42', o: '#4e6a42', u: '#4e6a42', G: '#5a3a1e', X: '#f0c838', F: '#7a7252', n: '#4a3420' }) },
+  // la voluntaria: la melena oscura, el gorro de lana verde azulado, la camisa de cuadros rojos, los guantes y los vaqueros
+  voluntario2DU: { ...B33, cab: CAB_LARGO, cuerpo: CUERPO_VOLUNTARIA_DU, tocado: 'gorroLana', ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#2e1e16', h: '#4e3626', s: '#e8a080', J: '#3a9a9a', j: '#2a7474', Y: '#f2eee2', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', X: '#f0c838', F: '#3e5a8a', n: '#4a3420' }) },
+  // el operario de la excavadora: el casco blanco, el bigote, el chaleco reflectante lima con las franjas plateadas y la camisa naranja
+  operarioDU: { ...B33, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'cascoObra', ceja: hex('#4a2a18'), delante: bigoteTR,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#f4f4f6', j: '#c8ccd8', V: '#c8e030', Y: '#e4e8f0', C: '#e07a2a', c: '#b85c1a', F: '#3a3e4e', n: '#4a3420' }) },
+};
+// «impresor» ya existía (el de 1823 del episodio 22, que también usa el 29): en ELENCO_CHIBI no se pisa; el de 1965 es
+// ELENCO_DU.impresor y, en ELENCO_CHIBI, impresorDU
+ELENCO_DU.impresorDU = ELENCO_DU.impresor;
+Object.assign(ELENCO_CHIBI, { ...ELENCO_DU, impresor: ELENCO_CHIBI.impresor });
+
+// ── piezas del 32 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala (2 al doble, insertos), o.dir −1 voltea ──
+// Todo NUESTRO: ni la portada ni las pinturas del libro real; nada de letras (rayas en vez de versos).
+const PAL_CF = COLORES({
+  k: '#1c1222', W: '#f6f6f6', w: '#c8ccd8', E: '#ffffff', K: '#2a2832', u: '#4a4856', Z: '#d0d4de', z: '#8c90a4',
+  T: '#f0e6cc', t: '#cdbd96', d: '#8a7a5a', A: '#3a6ab0', a: '#24447a', I: '#d2ecf6', i: '#9ccae0',
+  M: '#a8743c', m: '#7a4e24', R: '#d8303a', r: '#8a1e26', O: '#f0c040', g: '#a87a18', o: '#ffe890',
+  G: '#5ac83a', v: '#2e8a24', V: '#3a7a4a', B: '#c4e4b4', b: '#7ab87a', P: '#8a5a34', p: '#5e3a20', q: '#b07a4a',
+  Y: '#f0c030', y: '#c89a18', N: '#f08a2a', n: '#c8643a', c: '#96442a', X: '#ececf2', j: '#a8a8b8',
+  C: '#2eb872', D: '#1c7448', e: '#96dcb8', S: '#8ac8f0', s: '#28346a', H: '#f6eed8', h: '#cdbf9e',
+  L: '#f0a0c8', l: '#9a6ad0', F: '#f6d0a8', f: '#f6e890', U: '#4a3a7a', Q: '#10121c', x: '#9a9aa6', J: '#e2dccc',
+});
+const pintaCF = (R, g, x, y, o = {}, pal = PAL_CF) => pintaJH(R, g, x, y, o, pal);
+const cacheCF = cacheGT, pasoCF = pasoGT;
+// pinta encima de una pieza en su rejilla (con su escala y su volteo), sin contorno: destellos
+const encimaCF = (R, w, h, x, y, o) => { const s = o.s ?? 1, dir = o.dir ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - h * s); return (i, j, c) => { const ii = dir > 0 ? i : w - 1 - i; R.rect(x0 + ii * s, y0 + j * s, x0 + ii * s + s - 1, y0 + j * s + s - 1, PAL_CF[c]); }; };
+const claroCF = (c, f = 0.55) => '#' + [1, 3, 5].map((i) => { const v = parseInt(c.slice(i, i + 2), 16); return Math.round(v + (255 - v) * f).toString(16).padStart(2, '0'); }).join('');
+
+// EL COFRE (el «casque», a nuestra manera): un cofrecito de cerámica crema (T, sombra t) con la tapa abombada, el pomo y
+// la cenefa azul (A), dentro de una caja de plástico transparente (I, los cantos i, el brillo E). o.sinCaja: solo el
+// cofrecito; o.abierto: la tapa levantada en cuña y la llave asomando; o.roto: la caja partida, el cofre rajado y
+// los trozos por el suelo. 26 × 22 (la caja, 18 × 18; el cofrecito, 10 × 11)
+const COFRE_CACHE_CF = new Map();
+const cofreCF = (R, x, y, o = {}) => {
+  const ab = !!o.abierto, ro = !!o.roto, sc = !!o.sinCaja;
+  const g = cacheCF(COFRE_CACHE_CF, [ab, ro, sc].join(), () => forma(26, 22, ({ rect, put, linea }) => {
+    const dy = sc ? 1 : 0;
+    if (!sc) {
+      rect(4, 3, 21, 20, 'I'); rect(20, 4, 21, 20, 'i'); rect(4, 20, 21, 20, 'i'); rect(4, 3, 21, 3, 'E'); rect(4, 3, 4, 20, 'E');
+      linea(6, 9, 9, 6, 'E'); linea(6, 11, 7, 10, 'E'); put(18, 17, 'E'); put(19, 16, 'E');
+      if (ab) rect(5, 3, 20, 3, 'I');
+      if (ro) {
+        for (let j = 3; j <= 12; j++) for (let i = 13 + Math.floor((j - 3) * 0.9) + (j % 2); i <= 21; i++) put(i, j, '.');
+        linea(9, 3, 11, 7, 'i'); linea(11, 7, 9, 10, 'i'); linea(4, 14, 7, 15, 'i');
+      }
+    }
+    // el cofrecito
+    rect(8, 13 + dy, 17, 19 + dy, 'T'); rect(16, 13 + dy, 17, 19 + dy, 't'); rect(8, 19 + dy, 17, 19 + dy, 't');
+    rect(8, 16 + dy, 17, 16 + dy, 'A'); put(16, 16 + dy, 'a'); put(17, 16 + dy, 'a'); put(10, 16 + dy, 'T'); put(13, 16 + dy, 'T');
+    put(12, 14 + dy, 'A'); put(13, 14 + dy, 'A'); put(9, 18 + dy, 'E');
+    if (ab) {
+      // la tapa levantada en cuña (abisagrada a la derecha), la boca oscura y, en el hueco, la llave asomando (a/W)
+      rect(9, 11 + dy, 16, 11 + dy, 't'); rect(8, 12 + dy, 17, 12 + dy, 'T'); rect(9, 12 + dy, 16, 12 + dy, 'Q');
+      for (let i = 8; i <= 17; i++) { const top = 4 + Math.round((i - 8) * 0.45) + dy; rect(i, top, i, top + 1, 'T'); put(i, top + 2, 't'); }
+      put(8, 4 + dy, 'E'); put(9, 4 + dy, 'E'); put(12, 5 + dy, 'A'); put(13, 5 + dy, 'A');
+      put(10, 8 + dy, 'a'); put(9, 9 + dy, 'a'); put(11, 9 + dy, 'a'); put(10, 10 + dy, 'a'); put(10, 9 + dy, 'W'); rect(10, 11 + dy, 10, 12 + dy, 'a');
+    } else {
+      rect(8, 10 + dy, 17, 12 + dy, 'T'); rect(9, 9 + dy, 16, 9 + dy, 'T'); rect(16, 10 + dy, 17, 12 + dy, 't');
+      rect(8, 12 + dy, 17, 12 + dy, 'd'); put(10, 10 + dy, 'E'); put(11, 10 + dy, 'E'); rect(12, 8 + dy, 13, 8 + dy, 'A');
+    }
+    if (ro) {
+      for (let j = 8; j <= 12; j++) for (let i = 14 + (j % 2); i <= 17; i++) put(i, j + dy, '.');
+      linea(12, 9 + dy, 13, 13 + dy, 'k'); linea(13, 13 + dy, 11, 16 + dy, 'k'); linea(11, 16 + dy, 13, 19 + dy, 'k'); put(14, 14 + dy, 'k'); put(15, 15 + dy, 'k');
+      put(22, 20, 'T'); put(23, 20, 't'); put(24, 19, 'T'); put(1, 20, 'T'); put(2, 20, 'A');
+      if (!sc) { put(23, 18, 'I'); put(24, 17, 'I'); put(0, 19, 'I'); put(2, 18, 'i'); }
+    }
+  }));
+  pintaCF(R, g, x, y, o);
+};
+
+// LA LLAVE de cerámica, pequeña y tumbada: el ojo redondo (T, el hueco d), la tija con el anillo azul (A) y los dos
+// dientes hacia abajo. 15 × 9
+const LLAVE_CF = forma(15, 9, ({ rect, put, disco }) => {
+  disco(4, 4, 2.4, 'T'); rect(3, 3, 5, 5, 'd'); put(4, 4, 'Q'); put(3, 2, 'E');
+  rect(7, 3, 13, 4, 'T'); rect(7, 4, 13, 4, 't'); rect(8, 3, 8, 4, 'A');
+  rect(10, 5, 10, 6, 'T'); rect(12, 5, 13, 6, 'T'); put(13, 6, 't');
+});
+const llaveCF = (R, x, y, o = {}) => pintaCF(R, LLAVE_CF, x, y, o);
+
+// LA PALA de pie, con la hoja abajo: el puño en D y el mango de madera (M), el cubo y la hoja de acero (Z, sombra z)
+// con el nervio. 9 × 22; o.larga: la de casi dos metros de Preiss, más alta que un personaje (9 × 46)
+const PALA_CF = (h) => forma(9, h, ({ rect, put }) => {
+  rect(2, 1, 6, 1, 'M'); rect(2, 2, 2, 3, 'M'); rect(6, 2, 6, 3, 'm'); rect(2, 4, 6, 4, 'm');
+  rect(4, 5, 4, h - 12, 'M'); for (let j = 8; j < h - 12; j += 5) put(4, j, 'm');
+  rect(4, h - 11, 4, h - 10, 'z'); rect(3, h - 11, 5, h - 11, 'z');
+  rect(2, h - 9, 6, h - 4, 'Z'); rect(6, h - 9, 6, h - 4, 'z'); rect(4, h - 9, 4, h - 6, 'w'); put(2, h - 9, 'E');
+  rect(3, h - 3, 5, h - 3, 'Z'); put(5, h - 3, 'z'); put(4, h - 2, 'z');
+});
+const PALAS_CF = [PALA_CF(22), PALA_CF(46)];
+const palaCF = (R, x, y, o = {}) => pintaCF(R, PALAS_CF[o.larga ? 1 : 0], x, y, o);
+// LA PALA DE JUGUETE de Atom: de plástico, la hoja roja (R) y el mango amarillo (Y) con el puño en D. 9 × 15
+const PALA_JUGUETE_CF = forma(9, 15, ({ rect, put }) => {
+  rect(2, 1, 6, 2, 'Y'); put(4, 2, '.'); put(3, 2, '.'); put(5, 2, '.'); rect(2, 3, 6, 3, 'Y'); rect(6, 1, 6, 3, 'y'); rect(4, 4, 4, 7, 'Y');
+  rect(3, 8, 5, 8, 'r'); rect(1, 9, 7, 11, 'R'); rect(7, 9, 7, 11, 'r'); rect(2, 12, 6, 12, 'R'); put(6, 12, 'r'); rect(3, 13, 5, 13, 'R'); put(5, 13, 'r');
+  rect(4, 9, 4, 11, 'r'); put(2, 9, 'E'); put(2, 10, 'E');
+});
+const palaJugueteCF = (R, x, y, o = {}) => pintaCF(R, PALA_JUGUETE_CF, x, y, o);
+
+// LA PIEDRA preciosa tallada: la tabla, la corona clara (e), el filetín y la culata en punta (C, la sombra D). o.color:
+// 'esmeralda' (por omisión), 'aguamarina', 'peridoto' o cualquier hex; con o.t, un destello blanco que salta de faceta
+// (se pinta encima, sin contorno). 13 × 12
+const PIEDRA_CF = forma(13, 12, ({ put }) => {
+  const filas = [[4, 8], [3, 9], [2, 10], [1, 11], [2, 10], [3, 9], [4, 8], [5, 7], [6, 6]];
+  filas.forEach(([a, b], n) => { for (let i = a; i <= b; i++) put(i, n + 1, n < 3 ? (i <= 5 ? 'e' : i >= 9 ? 'D' : 'C') : n === 3 ? 'e' : i >= 7 ? 'D' : 'C'); });
+  put(4, 2, 'E'); put(5, 2, 'E'); put(3, 3, 'E'); put(10, 4, 'C'); put(11, 4, 'C'); put(4, 6, 'e'); put(5, 7, 'e');
+});
+const COLORES_PIEDRA_CF = { esmeralda: '#2eb872', aguamarina: '#62cce8', peridoto: '#a8d430' };
+const PAL_PIEDRA_CF = new Map();
+const piedraCF = (R, x, y, o = {}) => {
+  const col = COLORES_PIEDRA_CF[o.color] ?? (/^#[0-9a-f]{6}$/i.test(o.color ?? '') ? o.color : COLORES_PIEDRA_CF.esmeralda);
+  pintaCF(R, PIEDRA_CF, x, y, o, cacheCF(PAL_PIEDRA_CF, col, () => ({ ...PAL_CF, ...COLORES({ C: col, D: oscuroTR(col, 0.6), e: claroCF(col) }) })));
+  if (o.t == null) return;
+  const f = Math.floor(o.t * 5) % 5, P = encimaCF(R, 13, 12, x, y, o);
+  const cruz = (i, j, r) => { P(i, j, 'E'); for (let k = 1; k <= r; k++) { P(i - k, j, 'E'); P(i + k, j, 'E'); P(i, j - k, 'E'); P(i, j + k, 'E'); } };
+  if (f === 0) cruz(4, 2, 1); else if (f === 1) cruz(4, 2, 2); else if (f === 2) cruz(4, 2, 1); else if (f === 3) cruz(9, 5, 1);
+};
+
+// EL LIBRO de bolsillo grande, de frente, con NUESTRA portada: la noche azul (s) con una estrella de oro (O) sobre una
+// gema verde (C) y unas colinas (V); el lomo (U) a la izquierda y el corte de las hojas (H) a la derecha. 18 × 24.
+// o.abierto: abierto por la mitad, un cuadrito (una torre al atardecer) en la página izquierda y un poema en la
+// derecha (rayas cortas, sin letras). 36 × 17
+const LIBRO_CF = forma(18, 24, ({ rect, put }) => {
+  rect(2, 1, 15, 22, 's'); rect(1, 1, 2, 22, 'U'); rect(16, 2, 16, 21, 'H'); for (let j = 3; j <= 21; j += 3) put(16, j, 'h');
+  rect(4, 3, 14, 3, 'O'); rect(4, 20, 14, 20, 'O'); put(4, 4, 'O'); put(14, 4, 'O'); put(4, 19, 'O'); put(14, 19, 'O');
+  put(9, 5, 'O'); rect(8, 6, 10, 6, 'O'); rect(7, 7, 11, 7, 'O'); rect(8, 8, 10, 8, 'O'); put(9, 9, 'O'); put(9, 7, 'o'); put(7, 5, 'o'); put(11, 5, 'o'); put(7, 9, 'o'); put(11, 9, 'o');
+  rect(8, 11, 10, 11, 'e'); rect(7, 12, 11, 12, 'C'); rect(7, 12, 8, 12, 'e'); rect(8, 13, 10, 13, 'C'); put(10, 13, 'D'); put(9, 14, 'D'); put(11, 12, 'D');
+  rect(4, 17, 14, 18, 'V'); put(5, 16, 'V'); put(6, 16, 'V'); rect(10, 16, 13, 16, 'V'); put(11, 15, 'V'); put(12, 15, 'V');
+  put(5, 11, 'W'); put(13, 10, 'W'); put(12, 13, 'W'); put(6, 14, 'W');
+});
+const LIBRO_ABIERTO_CF = forma(36, 17, ({ rect, put, linea }) => {
+  rect(1, 14, 34, 15, 's'); rect(17, 13, 18, 15, 'U');
+  rect(2, 2, 17, 13, 'H'); rect(18, 2, 33, 13, 'H'); rect(2, 13, 33, 13, 'h'); rect(17, 2, 18, 12, 'h'); put(2, 2, '.'); put(33, 2, '.');
+  rect(4, 4, 15, 11, 'L'); rect(4, 4, 15, 6, 'S'); rect(4, 10, 15, 11, 'V'); rect(8, 5, 10, 10, 'J'); put(10, 6, 'x'); put(10, 8, 'x'); put(9, 4, 'R'); put(9, 7, 'Q'); put(13, 5, 'f');
+  linea(5, 7, 7, 5, 'W'); linea(11, 7, 13, 9, 'W');
+  for (const [a, b, j] of [[22, 29, 4], [21, 30, 6], [22, 28, 8], [21, 29, 10]]) rect(a, j, b, j, 'd');
+  put(25, 12, 'O'); put(26, 12, 'O');
+});
+const libroCF = (R, x, y, o = {}) => pintaCF(R, o.abierto ? LIBRO_ABIERTO_CF : LIBRO_CF, x, y, o);
+
+// EL CUADRO de fantasía en su marco dorado (O, sombra g), NUESTRO y visto de lejos; o.n elige el lienzo (22 × 18):
+// 0, una torre con molinos al atardecer; 1, un jardín con columnas; 2, un farol y una campana de noche; 3, el barco de
+// las hadas en el mar. 28 × 24
+const CUADRO_CF = (n) => forma(28, 24, ({ rect, put, disco, linea }) => {
+  rect(1, 1, 26, 22, 'O'); rect(1, 22, 26, 22, 'g'); rect(26, 1, 26, 22, 'g'); rect(2, 2, 25, 2, 'o'); rect(2, 2, 2, 21, 'o');
+  for (const [i, j] of [[1, 1], [26, 1], [1, 22], [26, 22]]) put(i, j, 'g');
+  const r = (a, b, c, d, ch) => rect(a + 3, b + 3, c + 3, d + 3, ch), p = (i, j, ch) => put(i + 3, j + 3, ch), l = (a, b, c, d, ch) => linea(a + 3, b + 3, c + 3, d + 3, ch);
+  if (n === 0) {
+    r(0, 0, 21, 6, 'l'); r(0, 7, 21, 10, 'L'); r(0, 11, 21, 12, 'f'); r(0, 13, 21, 17, 'V'); for (let i = 1; i < 21; i += 4) p(i, 15, 'v');
+    disco(20, 6, 1.4, 'f'); p(2, 2, 'W'); p(6, 1, 'W'); p(15, 2, 'W');
+    r(9, 4, 12, 15, 'J'); r(12, 4, 12, 15, 'x'); r(8, 3, 13, 3, 'x'); p(10, 1, 'R'); p(11, 1, 'R'); r(9, 2, 12, 2, 'R'); p(10, 0, 'r');
+    p(10, 6, 'Q'); p(10, 10, 'Q'); r(10, 13, 11, 15, 'm');
+    l(3, 5, 7, 9, 'W'); l(7, 5, 3, 9, 'W'); p(5, 7, 'K'); l(5, 8, 5, 14, 'm');
+    l(15, 7, 19, 11, 'W'); l(19, 7, 15, 11, 'W'); p(17, 9, 'K'); l(17, 10, 17, 14, 'm');
+  } else if (n === 1) {
+    r(0, 0, 21, 8, 'S'); r(0, 9, 21, 11, 'G'); r(0, 11, 21, 11, 'v'); r(0, 12, 21, 17, 'J'); for (let i = 2; i < 21; i += 5) p(i, 15, 'x');
+    p(3, 2, 'W'); p(4, 2, 'W'); p(5, 1, 'W'); p(16, 3, 'W'); p(17, 3, 'W'); disco(8, 8.5, 1.6, 'v'); disco(14, 8.5, 1.6, 'v');
+    r(1, 2, 20, 3, 'W'); r(1, 3, 20, 3, 'w');
+    for (const i of [2, 10, 18]) { r(i, 4, i + 1, 14, 'W'); r(i + 1, 5, i + 1, 13, 'w'); r(i - 1, 4, i + 2, 4, 'W'); r(i - 1, 14, i + 2, 14, 'w'); }
+    p(6, 13, 'R'); p(7, 14, 'L'); p(14, 13, 'L'); p(15, 14, 'R'); p(6, 16, 'G'); p(15, 16, 'G');
+  } else if (n === 2) {
+    r(0, 0, 21, 17, 's'); r(0, 15, 21, 17, 'U'); for (const [i, j] of [[1, 2], [10, 1], [19, 3], [11, 9], [20, 10], [1, 11]]) p(i, j, 'W');
+    disco(5, 8, 4.2, 'U'); p(5, 2, 'K'); r(4, 3, 6, 3, 'K'); r(3, 4, 7, 4, 'K'); r(3, 5, 7, 11, 'O'); r(4, 6, 6, 10, 'o'); p(5, 8, 'E'); r(3, 5, 3, 11, 'K'); r(7, 5, 7, 11, 'K'); r(3, 12, 7, 12, 'K'); r(4, 13, 6, 13, 'K');
+    r(12, 2, 18, 3, 'M'); r(12, 3, 18, 3, 'm'); r(14, 4, 16, 5, 'O'); r(13, 6, 17, 10, 'O'); r(12, 11, 18, 12, 'O'); r(17, 6, 17, 10, 'g'); r(12, 12, 18, 12, 'g'); p(14, 6, 'o'); p(14, 7, 'o'); p(15, 13, 'g'); p(15, 14, 'K');
+  } else {
+    r(0, 0, 21, 4, 's'); r(0, 5, 21, 8, 'l'); r(0, 9, 21, 11, 'L'); r(0, 12, 21, 17, 'A'); r(0, 12, 21, 12, 'i');
+    for (const [i, j] of [[1, 14], [2, 14], [7, 16], [8, 16], [15, 15], [16, 15], [19, 13], [20, 13], [11, 14]]) p(i, j, 'i');
+    disco(3, 3, 1.5, 'f'); for (const [i, j] of [[8, 1], [18, 2], [14, 0], [20, 6]]) p(i, j, 'W');
+    r(5, 11, 16, 12, 'M'); r(6, 13, 15, 13, 'm'); p(4, 10, 'M'); p(17, 10, 'M'); p(18, 9, 'M'); p(17, 11, 'M'); r(5, 12, 16, 12, 'm'); p(8, 11, 'O'); p(11, 11, 'O'); p(14, 11, 'O');
+    r(10, 2, 10, 10, 'm'); for (let j = 3; j <= 9; j++) r(11, j, 11 + Math.min(5, j - 2), j, j === 9 ? 'h' : 'H'); for (let j = 5; j <= 9; j++) r(9 - Math.min(3, j - 4), j, 9, j, 'f');
+    p(10, 1, 'R'); p(11, 1, 'R'); for (const [i, j] of [[3, 8], [19, 5], [6, 5], [16, 2]]) p(i, j, 'o');
+  }
+});
+const CUADROS_CF = [0, 1, 2, 3].map(CUADRO_CF);
+const cuadroCF = (R, x, y, o = {}) => pintaCF(R, CUADROS_CF[Math.max(0, Math.min(3, Math.round(o.n ?? 0)))], x, y, o);
+
+// EL SOBRE de carta de frente: blanco (W) con la solapa en pico (w) y el sello rojo (R). 16 × 11
+const SOBRE_CF = forma(16, 11, ({ rect, put, linea }) => {
+  rect(1, 1, 14, 9, 'W'); rect(1, 9, 14, 9, 'w'); linea(1, 1, 7, 5, 'w'); linea(14, 1, 8, 5, 'w'); rect(11, 6, 12, 7, 'R'); rect(3, 7, 6, 7, 'w');
+});
+const sobreCF = (R, x, y, o = {}) => pintaCF(R, SOBRE_CF, x, y, o);
+
+// LAS CARTAS: un montón de sobres apilados y descolocados (blancos W y crema H, el canto w, algún sello R), con uno de
+// frente encima; o.alto 0–1: de 4 sobres a 16 (por omisión, a media altura). 24 × hasta 40
+const CARTAS_CACHE_CF = new Map();
+const cartasCF = (R, x, y, o = {}) => {
+  const p = pasoCF(o.alto, 6, 0.5);
+  const g = cacheCF(CARTAS_CACHE_CF, p, () => {
+    const n = 4 + p * 2, h = n * 2 + 9;
+    return forma(24, h, ({ rect, put, linea }) => {
+      for (let k = 0; k < n; k++) {
+        const yb = h - 2 - k * 2, dx = [0, 2, -2, 1, -1, 3, -3, 0, 2, -1][k % 10], c = k % 3 === 1 ? 'H' : 'W';
+        rect(4 + dx, yb - 1, 19 + dx, yb - 1, c); rect(4 + dx, yb, 19 + dx, yb, k % 3 === 1 ? 'h' : 'w'); if (k % 4 === 2) put(17 + dx, yb - 1, 'R'); if (k % 5 === 0) put(6 + dx, yb - 1, 'A');
+      }
+      const t = h - 2 - n * 2 - 5;
+      rect(5, t, 18, t + 6, 'W'); rect(5, t + 6, 18, t + 6, 'w'); linea(5, t, 11, t + 3, 'w'); linea(18, t, 12, t + 3, 'w'); rect(15, t + 4, 16, t + 5, 'R');
+    });
+  });
+  pintaCF(R, g, x, y, o);
+};
+
+// EL BONO de ahorro: un papel verde claro (B) apaisado con la orla (V y b), el sello redondo en el centro y unas rayas
+// a los lados en vez de letras. 24 × 14
+const BONO_CF = forma(24, 14, ({ rect, put, disco }) => {
+  rect(1, 1, 22, 12, 'B');
+  for (let i = 2; i <= 21; i++) { put(i, 2, i % 2 ? 'V' : 'b'); put(i, 11, i % 2 ? 'b' : 'V'); }
+  for (let j = 3; j <= 10; j++) { put(2, j, j % 2 ? 'b' : 'V'); put(21, j, j % 2 ? 'V' : 'b'); }
+  disco(11.5, 6.5, 2.3, 'V'); rect(11, 6, 12, 7, 'B'); put(11, 6, 'O'); put(12, 7, 'O');
+  for (const j of [5, 7, 9]) { rect(4, j, 7, j, 'b'); rect(16, j, 19, j, 'b'); }
+  put(4, 4, 'V'); put(19, 4, 'V'); put(1, 1, 'E');
+});
+const bonoCF = (R, x, y, o = {}) => pintaCF(R, BONO_CF, x, y, o);
+
+// LA FOTO DE TIERRA: una polaroid (W, el canto w) con el margen ancho abajo y, en la imagen, solo tierra marrón recién
+// apisonada (P con los terrones p y q y una piedrecita x). 16 × 18
+const FOTO_TIERRA_CF = forma(16, 18, ({ rect, put }) => {
+  rect(1, 1, 14, 16, 'W'); rect(14, 2, 14, 16, 'w'); rect(1, 16, 14, 16, 'w');
+  rect(3, 3, 12, 11, 'P');
+  for (const [i, j] of [[4, 4], [8, 3], [11, 5], [5, 7], [9, 8], [3, 10], [7, 11], [12, 10], [6, 5]]) put(i, j, 'p');
+  for (const [i, j] of [[6, 4], [10, 4], [4, 6], [8, 6], [11, 8], [5, 9], [9, 10], [7, 8]]) put(i, j, 'q');
+  put(10, 7, 'x'); put(4, 9, 'x');
+});
+const fotoTierraCF = (R, x, y, o = {}) => pintaCF(R, FOTO_TIERRA_CF, x, y, o);
+
+// LA VARILLA DE SONDEO: una barra fina de acero (Z, las marcas z) con el puño en T (K, las empuñaduras rojas R) y la
+// punta abajo. 9 × 32
+const VARILLA_CF = forma(9, 32, ({ rect, put }) => {
+  rect(1, 1, 7, 2, 'K'); rect(1, 1, 2, 2, 'R'); rect(6, 1, 7, 2, 'R'); rect(4, 3, 4, 28, 'Z'); for (let j = 7; j <= 27; j += 5) put(4, j, 'z'); put(4, 29, 'z'); put(4, 30, 'z');
+});
+const varillaCF = (R, x, y, o = {}) => pintaCF(R, VARILLA_CF, x, y, o);
+
+// LA EXCAVADORA de perfil (mira a la derecha), amarilla (Y, sombra y): las orugas (K, las ruedas z), la carrocería con
+// la rejilla y el contrapeso, la cabina con su ventana (I), el tubo de escape y el brazo de dos tramos con la cuchara
+// de dientes (Z). o.cuchara 0–1: la altura del brazo (0, la cuchara en el suelo; 1, arriba del todo); con o.t, el
+// humo del escape. Devuelve { cuchara: [x, y] }: el punto de debajo de la cuchara en la pantalla (para colgarle algo).
+// 62 × 46
+const EXCAVADORA_CACHE_CF = new Map();
+const excavadoraCF = (R, x, y, o = {}) => {
+  const c8 = pasoCF(o.cuchara, 8), c = c8 / 8, f = o.t == null ? -1 : Math.floor(o.t * 4) % 4;
+  const bx = Math.round(53 + c), by = Math.round(38 - 28 * c);
+  const g = cacheCF(EXCAVADORA_CACHE_CF, c8 + '|' + f, () => forma(62, 46, ({ rect, put, disco, linea }) => {
+    const ex = Math.round(44 - 2 * c), ey = Math.round(13 - 7 * c);
+    if (f >= 0) humoGT(put, disco, 9, 21, 4, f);
+    // el brazo (por detrás de la cabina)
+    for (const d of [-1, 0, 1]) linea(31, 29 + d, ex, ey + d, d === 1 ? 'y' : 'Y');
+    linea(33, 26, Math.round((31 + ex) / 2) + 1, Math.round((29 + ey) / 2) - 2, 'Z');
+    for (const d of [-1, 0, 1]) { linea(ex + d, ey, bx + d, by, d === 1 ? 'y' : 'Y'); linea(ex, ey + d, bx, by + d, d === 1 ? 'y' : 'Y'); }
+    linea(ex + 3, ey + 2, Math.round((ex + bx) / 2) + 3, Math.round((ey + by) / 2), 'Z');
+    disco(ex, ey, 1.2, 'K');
+    rect(bx - 2, by, bx + 2, by, 'K'); rect(bx - 4, by + 1, bx + 3, by + 4, 'Y'); rect(bx + 2, by + 1, bx + 3, by + 4, 'y'); rect(bx - 4, by + 4, bx + 3, by + 4, 'y');
+    for (let i = bx - 4; i <= bx + 3; i += 2) put(i, by + 5, 'Z');
+    // las orugas
+    rect(4, 39, 32, 44, 'K'); rect(3, 40, 33, 43, 'K'); rect(5, 39, 31, 39, 'u');
+    for (let i = 6; i <= 30; i += 6) { disco(i, 41.5, 1.3, 'z'); put(i, 41, 'Z'); }
+    rect(12, 36, 26, 38, 'u');
+    // la carrocería y el contrapeso
+    rect(5, 27, 31, 35, 'Y'); rect(5, 34, 31, 35, 'y'); rect(3, 29, 5, 35, 'y'); rect(5, 27, 19, 27, 'o');
+    for (let j = 29; j <= 32; j++) rect(7, j, 12, j, j % 2 ? 'K' : 'y'); rect(14, 31, 18, 31, 'K'); rect(14, 33, 18, 33, 'K');
+    rect(9, 22, 10, 26, 'u'); rect(8, 21, 11, 21, 'K');
+    // la cabina
+    rect(20, 17, 31, 30, 'Y'); rect(19, 16, 32, 16, 'K'); rect(22, 19, 29, 26, 'I'); rect(22, 19, 22, 26, 'K'); rect(29, 19, 29, 26, 'K'); rect(22, 19, 29, 19, 'K'); rect(22, 26, 29, 26, 'K');
+    linea(24, 24, 27, 21, 'E'); put(25, 24, 'i'); rect(20, 29, 31, 30, 'y'); put(30, 28, 'K');
+  }));
+  pintaCF(R, g, x, y, o);
+  const s = o.s ?? 1, dir = o.dir ?? 1;
+  return { cuchara: [Math.round(x + dir * (bx - 30.5) * s), Math.round(y - (46 - (by + 6)) * s)] };
+};
+
+// LA MACETA de barro (n, sombra c, el borde N) con su tierra (P) y una plantita de dos hojas (v y G). o.hoyo: un hoyo
+// oscuro en la tierra, el montoncito al lado y unos terrones caídos en el borde. 20 × 23
+const MACETA_CF = (hoyo) => forma(20, 23, ({ rect, put, linea }) => {
+  for (let j = 15; j <= 21; j++) { const m = Math.floor((j - 15) / 3); rect(4 + m, j, 15 - m, j, 'n'); rect(14 - m, j, 15 - m, j, 'c'); put(5 + m, j, 'N'); }
+  rect(3, 13, 16, 14, 'n'); rect(3, 13, 14, 13, 'N'); rect(15, 13, 16, 14, 'c'); rect(4, 12, 15, 12, 'P'); put(5, 12, 'q'); put(9, 12, 'p'); put(14, 12, 'q');
+  linea(7, 11, 7, 6, 'v'); put(8, 5, 'v');
+  for (const [i, j] of [[6, 8], [5, 7], [4, 7], [5, 8], [4, 6], [8, 9], [9, 8], [10, 8], [9, 9], [10, 7], [8, 4], [9, 4], [9, 3], [8, 3]]) put(i, j, 'G');
+  put(4, 6, 'f'); put(10, 7, 'f'); put(9, 3, 'f');
+  if (hoyo) { rect(10, 12, 13, 12, 'Q'); rect(10, 13, 13, 13, 'Q'); put(10, 13, 'p'); put(13, 13, 'p'); rect(13, 11, 16, 11, 'P'); put(14, 10, 'P'); put(15, 10, 'q'); put(17, 12, 'P'); put(16, 12, 'p'); put(2, 12, 'P'); }
+});
+const MACETAS_CF = [MACETA_CF(false), MACETA_CF(true)];
+const macetaCF = (R, x, y, o = {}) => pintaCF(R, MACETAS_CF[o.hoyo ? 1 : 0], x, y, o);
+
+// EL HADA del cuento (nuestra): pequeña, el pelo rubio (O), el vestido rosa (L, el bajo l) y las alas transparentes
+// (I, el brillo E) que baten con o.t. 15 × 14
+const HADA_CF = [0, 1].map((f) => forma(15, 14, ({ rect, put, disco }) => {
+  const alas = f ? [[4, 7], [3, 7], [2, 7], [3, 8], [2, 8], [1, 8], [2, 9], [1, 9]] : [[4, 6], [3, 5], [2, 5], [3, 6], [2, 4], [1, 4], [1, 3], [2, 6], [3, 4]];
+  for (const [i, j] of alas) { put(i, j, 'I'); put(14 - i, j, 'I'); }
+  put(alas[2][0], alas[2][1], 'E'); put(14 - alas[2][0], alas[2][1], 'E');
+  disco(7, 3, 1.7, 'F'); rect(6, 1, 8, 1, 'O'); put(5, 2, 'O'); put(9, 2, 'O'); put(5, 3, 'O'); put(6, 2, 'O'); put(8, 3, 'K'); put(6, 3, 'K'); put(7, 0, 'f');
+  rect(6, 6, 8, 7, 'L'); rect(5, 8, 9, 9, 'L'); rect(4, 10, 10, 10, 'l'); put(5, 7, 'F'); put(9, 7, 'F'); put(7, 6, 'W');
+  put(6, 11, 'F'); put(8, 11, 'F'); put(6, 12, 'R'); put(8, 12, 'R');
+}));
+const hadaCF = (R, x, y, o = {}) => pintaCF(R, HADA_CF[o.t == null ? 0 : Math.floor(o.t * 8) % 2], x, y, o);
+
+// EL DUENDE del cuento (nuestro): el gorro verde de pico (G, el ala v), las orejas de punta, la carita (F), el jubón
+// pardo (M) con el cinturón y la hebilla de oro, y las botas; con o.t, la punta del gorro se mece. 13 × 15
+const DUENDE_CF = [0, 1].map((f) => forma(13, 15, ({ rect, put }) => {
+  put(f ? 5 : 8, 0, 'G'); put(f ? 6 : 7, 1, 'G'); rect(6, 1, 6 + (f ? 0 : 1), 1, 'G'); rect(5, 2, 7, 2, 'G'); rect(4, 3, 8, 3, 'G'); rect(3, 4, 9, 4, 'v'); put(f ? 5 : 8, 0, 'O');
+  rect(4, 5, 8, 7, 'F'); put(3, 6, 'F'); put(2, 5, 'F'); put(9, 6, 'F'); put(10, 5, 'F'); put(5, 6, 'K'); put(7, 6, 'K'); put(6, 7, 'N');
+  rect(4, 8, 8, 11, 'M'); rect(4, 10, 8, 10, 'K'); put(6, 10, 'O'); put(3, 8, 'M'); put(9, 8, 'M'); put(3, 9, 'F'); put(9, 9, 'F'); rect(4, 11, 8, 11, 'm');
+  rect(4, 12, 5, 12, 'v'); rect(7, 12, 8, 12, 'v'); rect(3, 13, 5, 13, 'K'); rect(7, 13, 9, 13, 'K');
+}));
+const duendeCF = (R, x, y, o = {}) => pintaCF(R, DUENDE_CF[o.t == null ? 0 : Math.floor(o.t * 3) % 2], x, y, o);
+
+// EL DRAGÓN del cuento (nuestro): pequeño y simpático, de perfil (mira a la derecha): verde (G, sombra v), la barriga
+// amarilla (f), los cuernecitos de oro, el ojo grande y las alas moradas (l, el borde L) que baten con o.t. 19 × 16
+const DRAGON_CF = [0, 1].map((f) => forma(19, 16, ({ rect, put, disco, linea }) => {
+  const ala = f ? [[4, 8], [5, 8], [6, 8], [3, 9], [4, 9], [5, 9], [2, 10], [3, 10], [4, 10]] : [[7, 6], [6, 5], [7, 5], [5, 4], [6, 4], [7, 4], [4, 3], [5, 3], [6, 3], [3, 2], [4, 2], [5, 2], [3, 1]];
+  linea(5, 11, 2, 13, 'G'); put(1, 12, 'G'); put(0, 11, 'N'); put(1, 11, 'N');
+  if (!f) for (const [i, j] of ala) put(i, j, 'l');
+  disco(8, 10, 3.1, 'G'); rect(10, 6, 12, 9, 'G'); disco(13, 5, 2.3, 'G'); rect(14, 5, 17, 7, 'G'); put(17, 5, '.'); put(17, 6, 'v'); put(16, 7, 'v'); put(15, 7, 'v');
+  rect(7, 12, 10, 13, 'f'); put(11, 9, 'f'); put(11, 10, 'f'); put(10, 11, 'f'); put(6, 8, 'v'); put(5, 10, 'v'); put(8, 7, 'v'); put(10, 5, 'v');
+  put(13, 4, 'E'); put(14, 4, 'K'); put(13, 5, 'E'); put(11, 2, 'O'); put(13, 2, 'O'); put(12, 3, 'G');
+  rect(6, 13, 7, 14, 'v'); rect(10, 13, 11, 14, 'v'); put(8, 14, 'W'); put(12, 14, 'W');
+  if (f) for (const [i, j] of ala) put(i, j, 'l');
+  put(ala[ala.length - 1][0], ala[ala.length - 1][1], 'L'); put(ala[ala.length - 2][0], ala[ala.length - 2][1], 'L');
+}));
+const dragonCF = (R, x, y, o = {}) => pintaCF(R, DRAGON_CF[o.t == null ? 0 : Math.floor(o.t * 6) % 2], x, y, o);
+
+// EL RELOJ DE SOL: un trozo de cerámica roto (T, la sombra t, el canto d) con el dibujo de un reloj de sol en azul: el
+// aro (a), las marcas de las horas (A), el gnomon y su sombra. 21 × 18
+const RELOJ_SOL_CF = forma(21, 18, ({ put, linea, rect }) => {
+  const filas = [[6, 12], [4, 15], [2, 17], [2, 18], [1, 18], [1, 19], [1, 19], [2, 19], [2, 18], [3, 18], [3, 17], [5, 16], [7, 14], [9, 12]];
+  filas.forEach(([a, b], n) => { for (let i = a; i <= b; i++) put(i, n + 2, n >= 12 || i >= b - 1 ? 't' : 'T'); });
+  for (let j = 3; j <= 14; j++) for (let i = 3; i <= 17; i++) { const d = Math.hypot(i - 10, j - 8.5); if (d >= 4.3 && d <= 5.3) put(i, j, 'a'); }
+  for (const [i, j] of [[10, 5], [13, 6], [14, 9], [13, 11], [10, 12], [7, 11], [6, 9], [7, 6]]) put(i, j, 'A');
+  linea(10, 9, 12, 6, 'a'); linea(10, 8, 11, 7, 'a'); rect(9, 9, 11, 9, 'a'); linea(9, 10, 7, 10, 'd'); put(8, 9, 'd');
+  put(3, 5, 'E'); put(4, 4, 'E'); put(16, 13, 'd'); put(15, 14, 'd');
+});
+const relojSolCF = (R, x, y, o = {}) => pintaCF(R, RELOJ_SOL_CF, x, y, o);
+
+export const PIEZAS_CF = {
+  cofre: cofreCF, llave: llaveCF, pala: palaCF, palaJuguete: palaJugueteCF, piedra: piedraCF, libro: libroCF, cuadro: cuadroCF,
+  sobre: sobreCF, cartas: cartasCF, bono: bonoCF, fotoTierra: fotoTierraCF, varilla: varillaCF, excavadora: excavadoraCF,
+  maceta: macetaCF, hada: hadaCF, duende: duendeCF, dragon: dragonCF, relojSol: relojSolCF,
+};
+
+// ── piezas del 33 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
+// o.dir −1 voltea ── Todo NUESTRO (ni la portada del libro real ni los trofeos de verdad) y SIN LETRAS: rayas, cifras
+// e iconos.
+const PAL_DU = COLORES({
+  k: '#1c1222', W: '#f6f6f6', w: '#c8ccd8', E: '#ffffff', X: '#ececf2', j: '#a8a8b8', H: '#f6eed8', h: '#cdbf9e', d: '#8a7a5a',
+  K: '#2a2832', u: '#4a4856', x: '#9a9aa6', Z: '#d0d4de', z: '#8c90a4', Q: '#10121c',
+  s: '#1e2a5e', S: '#34448a', U: '#141c44', N: '#f08a2a', n: '#c8643a', f: '#f6c468',
+  A: '#e8c880', a: '#c8a058', T: '#f6e4b0', O: '#f0c040', g: '#a87a18', o: '#ffe890',
+  R: '#d8303a', r: '#8a1e26', G: '#6ac84a', v: '#2e8a24', M: '#a8743c', m: '#7a4e24', P: '#8a5a34', p: '#5e3a20',
+  Y: '#f0c030', y: '#c89a18', B: '#3a6ab0', b: '#24447a', I: '#d2ecf6', i: '#9ccae0', L: '#f4a8c4', e: '#d07a9c', l: '#9a6ad0',
+  C: '#c8473a', c: '#96302a', q: '#5a8a80', t: '#3e6a62', J: '#d8ecd2', V: '#8cbc8a', D: '#62cce8',
+});
+const pintaDU = (R, g, x, y, o = {}, pal = PAL_DU) => pintaJH(R, g, x, y, o, pal);
+const pasoDU = pasoGT;
+const CACHE_DU = new Map();
+const unaDU = (clave, hacer) => cacheGT(CACHE_DU, clave, hacer);
+// pinta encima de una pieza en su rejilla (con su escala; sin volteo: para las cifras, que no se pueden leer al revés)
+const encimaDU = (R, w, h, x, y, o) => { const s = o.s ?? 1, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - h * s); return (i, j, c) => R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, PAL_DU[c]); };
+const sinDirDU = (o) => (o.dir === -1 ? { ...o, dir: 1 } : o);
+
+// EL LIBRO de Dune, el NUESTRO, de frente: la tapa azul noche (s) con las estrellas, DOS LUNAS (T y f) y una duna
+// naranja (N, la cara de sombra n, la cresta f); el lomo (U) a la izquierda y el corte de las hojas (H) a la derecha.
+// 18 × 24. o.abierto: abierto por la mitad, con la duna dibujada en una página y rayas en la otra (36 × 17).
+// o.lomo: solo el lomo, de pie, para las estanterías (6 × 24)
+const libroDU = (R, x, y, o = {}) => pintaDU(R, unaDU('libro' + (o.abierto ? 'A' : o.lomo ? 'L' : ''), () => (o.abierto ? forma(36, 17, ({ rect, put }) => {
+  rect(1, 14, 34, 15, 's'); rect(17, 13, 18, 15, 'U');
+  rect(2, 2, 17, 13, 'H'); rect(18, 2, 33, 13, 'H'); rect(2, 13, 33, 13, 'h'); rect(17, 2, 18, 12, 'h'); put(2, 2, '.'); put(33, 2, '.');
+  rect(4, 4, 15, 11, 's'); put(6, 5, 'T'); put(7, 5, 'T'); put(6, 6, 'T'); put(7, 6, 'T'); put(11, 5, 'f'); put(13, 7, 'W'); put(5, 8, 'W');
+  for (let i = 4; i <= 15; i++) { const top = i <= 11 ? Math.round(11 - 3 * Math.sin((i - 4) / 7 * Math.PI / 2)) : 8 + (i - 11); for (let j = top; j <= 11; j++) put(i, j, i > 11 - (j - 8) * 0.5 ? 'n' : j === top ? 'f' : 'N'); }
+  for (const [a, b, j] of [[21, 30, 4], [21, 28, 6], [21, 30, 8], [21, 26, 10]]) rect(a, j, b, j, 'd');
+}) : o.lomo ? forma(6, 24, ({ rect, put }) => {
+  rect(1, 1, 4, 22, 's'); rect(4, 1, 4, 22, 'U'); rect(1, 3, 4, 3, 'O'); put(2, 6, 'T'); put(3, 8, 'f');
+  rect(1, 16, 4, 20, 'N'); put(1, 15, 'N'); put(2, 15, 'N'); put(2, 14, 'f'); put(1, 14, 'N'); rect(3, 17, 4, 20, 'n'); put(3, 16, 'n');
+}) : forma(18, 24, ({ rect, put, disco }) => {
+  rect(2, 1, 15, 22, 's'); rect(1, 1, 2, 22, 'U'); rect(16, 2, 16, 21, 'H'); for (let j = 3; j <= 21; j += 3) put(16, j, 'h');
+  for (const [i, j] of [[4, 3], [14, 9], [9, 2], [4, 11], [13, 2], [10, 8]]) put(i, j, 'W');
+  disco(7, 6, 2, 'T'); put(8, 7, 'A'); put(8, 6, 'A'); put(7, 8, 'A'); disco(12.5, 4.5, 0.8, 'f');
+  // otra duna más baja, detrás
+  for (let i = 3; i <= 9; i++) { const top = Math.round(15.5 + Math.abs(i - 5) * 0.9); for (let j = top; j <= 21; j++) put(i, j, j === top ? 'N' : 'n'); }
+  // la duna: la ladera suave a la izquierda, la cara de sombra a la derecha y la arista sinuosa que las separa
+  for (let i = 3; i <= 15; i++) {
+    const top = i <= 11 ? Math.round(20 - 6 * Math.sin((i - 3) / 8 * Math.PI / 2)) : [15, 17, 18, 19][i - 12];
+    for (let j = top; j <= 21; j++) { const ar = 11 - (j - 14) * 0.45 + Math.sin(j * 1.3) * 0.6; put(i, j, i > ar + 0.5 ? 'n' : i > ar - 0.5 || (j === top && i < 11) ? 'f' : 'N'); }
+  }
+}))), x, y, o);
+
+// EL MANUSCRITO: un taco de folios gordísimo (H, los cantos h) atado en cruz con un cordel rojo (R) y su lazo; arriba,
+// la primera hoja con rayas en vez de letras. 24 × 19. o.vuela: inclinado, por el aire (24 × 26)
+const manuscritoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('manuscrito' + (o.vuela ? 'V' : ''), () => {
+  const p = o.vuela ? 0.34 : 0;
+  return forma(24, o.vuela ? 27 : 19, (f) => {
+    const put = (i, j, ch) => f.put(i, j + Math.round((22 - i) * p), ch), rect = (a, b, c, d, ch) => { for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) put(i, j, ch); };
+    rect(2, 4, 21, 6, 'H'); rect(3, 3, 20, 3, 'H'); for (const [a, b, j] of [[5, 9, 4], [13, 18, 4], [5, 8, 5], [13, 17, 5]]) rect(a, j, b, j, 'd');
+    for (let j = 7; j <= 17; j++) rect(2, j, 21, j, j % 2 ? 'H' : 'h');
+    rect(20, 7, 21, 17, 'h'); for (let j = 8; j <= 17; j += 3) put(21, j, 'd');
+    rect(11, 3, 12, 17, 'R'); rect(2, 11, 21, 11, 'R'); rect(2, 12, 21, 12, 'r');
+    put(10, 2, 'R'); put(9, 1, 'R'); put(8, 2, 'R'); put(13, 2, 'R'); put(14, 1, 'R'); put(15, 2, 'R'); put(11, 2, 'r'); put(12, 2, 'r');
+  });
+}), x, y, o);
+
+// LA CARTA: un sobre crema de frente (H) con la solapa en pico (h), las rayas de las señas (d) y el sello azul (B). 16 × 11
+const cartaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('carta', () => forma(16, 11, ({ rect, linea }) => {
+  rect(1, 1, 14, 9, 'H'); rect(1, 9, 14, 9, 'h'); linea(1, 1, 7, 5, 'h'); linea(14, 1, 8, 5, 'h'); rect(11, 6, 12, 7, 'B'); rect(3, 7, 7, 7, 'd');
+})), x, y, o);
+
+// EL CHEQUE: un papel verde claro (J, la orla V) apaisado con la cifra «7500» (o.cifra para otra, hasta 5 cifras), las
+// rayas del texto (d) y la firma (B). 28 × 14. No se voltea (la cifra)
+const chequeDU = (R, x, y, o = {}) => {
+  const n = String(o.cifra ?? 7500).slice(0, 5);
+  pintaDU(R, unaDU('cheque' + n, () => forma(28, 14, ({ rect, put }) => {
+    rect(1, 1, 26, 12, 'J'); rect(1, 1, 26, 1, 'V'); rect(1, 12, 26, 12, 'V'); rect(1, 1, 1, 12, 'V'); rect(26, 1, 26, 12, 'V');
+    numeroNV(put, n, 25 - anchoNumeroNV(n), 3, 'K');
+    rect(3, 4, 6, 4, 'd'); rect(3, 6, 5, 6, 'd'); rect(3, 9, 9, 9, 'd');
+    for (const [i, j] of [[16, 10], [17, 9], [18, 10], [19, 9], [20, 10], [21, 9], [22, 10], [23, 10]]) put(i, j, 'B');
+  })), x, y, sinDirDU(o));
+};
+
+// LA AVIONETA: un monomotor de ala alta de los 50, de perfil (mira a la derecha): el fuselaje blanco (W) con la franja
+// roja (R), el ala encima de la cabina (con su montante), las ventanillas (I), la cola, el tren fijo y la hélice.
+// o.helice (con o.t): la hélice gira. 48 × 22
+const avionetaDU = (R, x, y, o = {}) => {
+  const f = o.helice ? 1 + Math.floor((o.t ?? 0) * 12) % 3 : 0;
+  pintaDU(R, unaDU('avioneta' + f, () => forma(48, 22, ({ rect, put, disco, linea }) => {
+    // la cola
+    for (let j = 2; j <= 8; j++) rect(2 + Math.max(0, 4 - j), j, 6, j, j <= 3 ? 'R' : 'W'); rect(1, 9, 7, 9, 'Z');
+    // el fuselaje
+    for (let i = 3; i <= 41; i++) {
+      const top = i < 17 ? 9 : i <= 35 ? 6 : i <= 39 ? 7 : 8, bot = i < 17 ? Math.round(10 + (i - 3) * 0.3) : i >= 40 ? 13 : 14;
+      for (let j = top; j <= bot; j++) put(i, j, j === bot ? 'w' : 'W');
+    }
+    rect(5, 11, 41, 11, 'R'); rect(17, 12, 41, 12, 'R'); put(42, 10, 'K'); put(42, 11, 'K'); put(43, 10, 'Z');
+    // las ventanillas y el parabrisas
+    rect(19, 7, 24, 10, 'I'); rect(26, 7, 31, 10, 'I'); for (let j = 7; j <= 10; j++) rect(33, j, 33 + Math.min(3, j - 6), j, 'i'); put(20, 8, 'E'); put(27, 8, 'E');
+    // el ala alta y el montante
+    rect(15, 3, 36, 4, 'W'); rect(15, 5, 36, 5, 'w'); rect(15, 3, 36, 3, 'E'); put(15, 3, 'R'); put(15, 4, 'R');
+    linea(26, 6, 31, 13, 'z');
+    // el tren
+    linea(31, 15, 33, 18, 'z'); disco(33.5, 18.5, 1.6, 'K'); put(33, 18, 'Z'); linea(8, 12, 6, 15, 'z'); put(6, 16, 'K'); put(5, 16, 'K');
+    // la hélice
+    if (f === 0) rect(44, 4, 44, 16, 'K');
+    else if (f === 1) { rect(44, 3, 44, 17, 'j'); rect(45, 6, 45, 14, 'X'); }
+    else if (f === 2) { rect(44, 7, 44, 13, 'K'); rect(45, 3, 45, 17, 'X'); }
+    else { rect(44, 5, 45, 15, 'j'); rect(44, 9, 44, 11, 'K'); }
+  })), x, y, o);
+};
+
+// EL ZAPATO de cuero marrón (P, la suela p) de perfil, con sus cordones. 18 × 10. o.arena: boca abajo, con un chorro
+// de arena (A) que cae hasta (x, y) y hace un montoncito; o.arena puede ser el largo del chorro en px (por omisión,
+// 16) y con o.t los granos bajan. 18 × (17 + largo): el chorro cae 4 px a la izquierda de x
+const zapatoDU = (R, x, y, o = {}) => {
+  const L = o.arena ? Math.max(4, Math.min(70, Math.round(o.arena === true ? 16 : o.arena))) : 0, f = o.arena && o.t != null ? Math.floor(o.t * 10) % 3 : 0;
+  pintaDU(R, unaDU('zapato' + L + '|' + f, () => forma(18, L ? 17 + L : 10, (F) => {
+    const put = (i, j, ch) => F.put(i, L ? 14 - j - Math.round(Math.max(0, i - 5) * 0.35) : j, ch), rect = (a, b, c, d, ch) => { for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) put(i, j, ch); };
+    rect(2, 2, 8, 7, 'P'); rect(8, 4, 15, 7, 'P'); put(16, 6, 'P'); put(16, 7, 'P'); rect(9, 3, 10, 3, 'P');
+    rect(3, 2, 7, 2, 'Q'); rect(1, 8, 16, 8, 'p'); rect(2, 7, 4, 7, 'p'); put(2, 3, 'p'); put(2, 4, 'p');
+    put(9, 4, 'W'); put(11, 5, 'W'); put(10, 4, 'p'); put(13, 5, 'M'); put(14, 5, 'M');
+    if (!L) return;
+    for (let j = 13; j <= 15 + L; j++) { F.put(5, j, (j + f) % 3 === 0 ? 'T' : 'A'); if (j < 16 || (j + f) % 3 !== 1) F.put(4, j, 'A'); if ((j + f) % 4 === 1) F.put(6, j, 'a'); }
+    F.rect(1, 15 + L, 8, 15 + L, 'A'); F.rect(2, 14 + L, 7, 14 + L, 'A'); F.rect(3, 13 + L, 6, 13 + L, 'T'); F.put(7, 15 + L, 'a'); F.put(8, 15 + L, 'a');
+  })), x, y, o);
+};
+
+// LA PILA DE NOTAS: hojas sueltas apiladas y descolocadas (H, los cantos h, alguna crema A), con la de arriba escrita
+// (rayas). o.alto 0–1: de tres hojas a una torre de 42 px, más alta que un personaje (por omisión, 0.3); o.tambalea
+// (con o.t): la torre se mece, más cuanto más alta. 30 × (6 + 3 × pasos), de 6 a 42
+const pilaNotasDU = (R, x, y, o = {}) => {
+  const p = pasoDU(o.alto, 12, 0.3), f = o.tambalea ? Math.floor((o.t ?? 0) * 7) % 8 : -1;
+  pintaDU(R, unaDU('pila' + p + '|' + f, () => {
+    const n = 3 + p * 3, h = n + 3, amp = f < 0 ? 0 : (0.6 + 3.4 * p / 12) * Math.sin(f / 8 * Math.PI * 2);
+    return forma(30, h, ({ rect, put }) => {
+      for (let k = 0; k < n; k++) {
+        const j = h - 2 - k, dx = [0, 1, -1, 0, 2, -1, 1, 0, -2, 1][k % 10] + Math.round(amp * Math.pow(k / Math.max(1, n - 1), 1.6));
+        rect(8 + dx, j, 21 + dx, j, k % 2 ? 'h' : k % 7 === 3 ? 'A' : 'H'); if (k % 5 === 2) put(22 + dx, j, 'H'); if (k % 6 === 4) put(7 + dx, j, 'H');
+      }
+      const dx = Math.round(amp); rect(8 + dx, 1, 21 + dx, 1, 'H'); rect(10 + dx, 1, 14 + dx, 1, 'd'); rect(16 + dx, 1, 19 + dx, 1, 'd');
+    });
+  }), x, y, o);
+};
+
+// LA MÁQUINA DE ESCRIBIR de los 50, de frente: verde azulada (q, la sombra t), el carro negro con el rodillo y sus
+// pomos (Z), la palanca, las dos filas de teclas (X) y la hoja (W) con unas rayas escritas. 26 × 21
+const maquinaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('maquina', () => forma(26, 21, ({ rect, put, linea }) => {
+  rect(8, 1, 17, 8, 'W'); rect(17, 2, 17, 8, 'w'); rect(10, 3, 15, 3, 'd'); rect(10, 5, 13, 5, 'd');
+  rect(2, 8, 23, 10, 'K'); rect(4, 8, 21, 8, 'u'); rect(1, 8, 1, 10, 'Z'); rect(24, 8, 24, 10, 'Z'); linea(4, 7, 2, 4, 'Z');
+  rect(3, 11, 22, 18, 'q'); rect(22, 11, 22, 18, 't'); rect(3, 18, 22, 18, 't'); rect(3, 11, 22, 11, 'D'); rect(8, 11, 17, 12, 'K'); rect(10, 12, 15, 12, 'u');
+  for (let i = 5; i <= 20; i += 2) put(i, 14, 'X'); for (let i = 6; i <= 19; i += 2) put(i, 16, 'X'); rect(8, 17, 17, 17, 'X'); put(4, 12, 'O');
+})), x, y, o);
+
+// EL RELOJ DE ARENA: los dos bulbos de cristal (I, el brillo E) entre las tapas y las columnas de madera (M/m), con la
+// arena (A). o.nivel 0–1: la arena que queda ARRIBA (1, toda arriba; por omisión, 0.6); mientras queda, cae el hilo
+// (con o.t, parpadea). o.roto: el bulbo de abajo rajado y la arena que se sale y se amontona al pie, a los lados.
+// 15 × 21 (roto, 27 × 21)
+const relojArenaDU = (R, x, y, o = {}) => {
+  const p = pasoDU(o.nivel, 6, 0.6), ro = !!o.roto, f = o.t != null ? Math.floor(o.t * 8) % 2 : 0;
+  pintaDU(R, unaDU('reloj' + p + '|' + ro + '|' + f, () => forma(ro ? 27 : 15, 21, (F) => {
+    const dx = ro ? 6 : 0, put = (i, j, ch) => F.put(i + dx, j, ch), rect = (a, b, c, d, ch) => F.rect(a + dx, b, c + dx, d, ch);
+    const hw = [4, 4, 4, 3, 2, 1, 0];
+    rect(2, 1, 12, 2, 'M'); rect(2, 2, 12, 2, 'm'); rect(2, 18, 12, 19, 'M'); rect(2, 19, 12, 19, 'm'); rect(2, 3, 2, 17, 'm'); rect(12, 3, 12, 17, 'm');
+    for (let k = 0; k < 7; k++) { rect(7 - hw[k], 3 + k, 7 + hw[k], 3 + k, 'I'); rect(7 - hw[k], 17 - k, 7 + hw[k], 17 - k, 'I'); }
+    put(7, 10, 'I'); put(4, 4, 'E'); put(4, 5, 'E'); put(4, 15, 'E');
+    for (let k = 0; k < p; k++) rect(7 - hw[6 - k], 9 - k, 7 + hw[6 - k], 9 - k, k === p - 1 ? 'T' : 'A');
+    const q = ro ? 1 : 6 - p;
+    for (let k = 0; k < q; k++) rect(7 - hw[Math.min(6, k)], 17 - k, 7 + hw[Math.min(6, k)], 17 - k, k === q - 1 ? 'T' : 'A');
+    if (p > 0) for (let j = 10; j <= 17 - q; j++) if ((j + f) % 2 === 0 || j === 10) put(7, j, 'a');
+    if (ro) {
+      F.linea(9 + dx, 12, 11 + dx, 14, 'k'); F.linea(11 + dx, 14, 10 + dx, 17, 'k'); put(8, 14, 'k');
+      for (let i = 1; i <= 25; i++) { const hh = Math.round(4.2 * Math.pow(Math.max(0, 1 - Math.abs(i - 14) / 13), 0.8)); for (let j = 19 - hh + 1; j <= 19; j++) F.put(i, j, j === 19 - hh + 1 ? 'T' : i > 17 && j > 17 ? 'a' : 'A'); }
+      F.put(18, 16, 'A'); F.put(19, 15, 'a'); F.put(17, 15, 'A');
+    }
+  })), x, y, o);
+};
+
+// EL MONTÓN DE ARENA (A, la luz T, la sombra a): o.alto 0–1, de un montoncito de 12 × 4 a una duna de mesa de 44 × 18
+// (por omisión, 0.3)
+const montonArenaDU = (R, x, y, o = {}) => {
+  const p = pasoDU(o.alto, 8, 0.3);
+  pintaDU(R, unaDU('monton' + p, () => {
+    const w = 12 + p * 4, H = 3 + Math.round(p * 1.75), c = (w - 1) / 2 - w * 0.06;
+    return forma(w + 2, H + 2, ({ put }) => {
+      for (let i = 0; i < w; i++) {
+        const u = (i - c) / (i < c ? c + 0.5 : w - 0.5 - c), hh = Math.max(1, Math.round(H * Math.pow(Math.cos(u * Math.PI / 2), 1.3)));
+        for (let k = 0; k < hh; k++) put(i + 1, H - k, k === hh - 1 && i <= c + 1 ? 'T' : i > c + 1 && k < hh - 1 - (i - c) * 0.15 && (i - c) > hh - k ? 'a' : 'A');
+      }
+      for (let n = 0; n < p + 1; n++) put(3 + ((n * 7) % Math.max(1, w - 6)), H - (n % 2), 'a');
+    });
+  }), x, y, o);
+};
+
+// LA HIERBA de playa: una mata de briznas largas y curvadas por el viento (G, las de atrás v, las puntas claras T).
+// o.n: cuántas matas en fila (1–12, cada 7 px); con o.t se mecen. 11 × 13 (+7 de ancho por mata)
+const hierbaDU = (R, x, y, o = {}) => {
+  const n = Math.max(1, Math.min(12, Math.round(o.n ?? 1))), f = o.t != null ? Math.floor(o.t * 3) % 2 : 0;
+  pintaDU(R, unaDU('hierba' + n + '|' + f, () => forma(11 + (n - 1) * 7, 13, ({ put, linea }) => {
+    for (let m = 0; m < n; m++) {
+      const b = 5 + m * 7, a = m % 2, g = (m + f) % 2;
+      linea(b - 1, 11, b - 3, 5 + a, 'v'); put(b - 4 + g, 4 + a, 'v');
+      linea(b + 1, 11, b + 3, 6 - a, 'v'); put(b + 4, 5 - a + g, 'v');
+      linea(b, 11, b - 1, 3 + a, 'G'); put(b - 1 + g, 2 + a, 'T'); put(b + g, 1 + a, 'T');
+      linea(b, 11, b + 2, 4, 'G'); put(b + 3, 3 - g + 1, 'G'); put(b + 4, 4 + (1 - g), 'T');
+      put(b - 1, 11, 'v'); put(b + 1, 11, 'v');
+    }
+  })), x, y, o);
+};
+
+// EL MANUAL DE TALLER: un libro de tapa lisa (C; o.color para otro color, hex) con la franja blanca y la LLAVE INGLESA
+// arriba y, debajo, un coche. 18 × 24. o.alas: en vez del coche, una máquina con alas (el gag). o.lomo: solo el lomo
+// de pie, con la llave inglesa, para llenar estanterías (6 × 24)
+const PAL_MANUAL_DU = new Map();
+const manualDU = (R, x, y, o = {}) => {
+  const col = /^#[0-9a-f]{6}$/i.test(o.color ?? '') ? o.color : null;
+  const pal = col ? cacheGT(PAL_MANUAL_DU, col, () => ({ ...PAL_DU, ...COLORES({ C: col, c: oscuroTR(col, 0.7) }) })) : PAL_DU;
+  pintaDU(R, unaDU('manual' + (o.lomo ? 'L' : o.alas ? 'A' : ''), () => (o.lomo ? forma(6, 24, ({ rect, put }) => {
+    rect(1, 1, 4, 22, 'C'); rect(4, 1, 4, 22, 'c'); rect(1, 3, 4, 11, 'X');
+    put(1, 4, 'K'); put(4, 4, 'K'); rect(1, 5, 4, 5, 'K'); rect(2, 6, 3, 9, 'K'); put(2, 10, 'K'); put(3, 10, 'K'); rect(1, 19, 4, 19, 'X');
+  }) : forma(18, 24, ({ rect, put, disco, linea }) => {
+    rect(2, 1, 15, 22, 'C'); rect(1, 1, 2, 22, 'c'); rect(16, 2, 16, 21, 'H'); for (let j = 3; j <= 21; j += 3) put(16, j, 'h');
+    rect(4, 3, 14, 9, 'X');
+    // la llave inglesa, en diagonal: la boca abierta arriba a la derecha y el ojo abajo a la izquierda
+    linea(7, 7, 11, 5, 'K'); linea(7, 6, 11, 4, 'K'); rect(11, 3, 13, 5, 'K'); put(13, 4, 'X'); put(12, 4, 'X'); rect(5, 6, 7, 8, 'K'); put(6, 7, 'X');
+    if (o.alas) {
+      linea(7, 15, 3, 11, 'X'); linea(7, 16, 3, 13, 'X'); linea(4, 12, 6, 15, 'X'); linea(11, 15, 15, 11, 'X'); linea(11, 16, 15, 13, 'X'); linea(14, 12, 12, 15, 'X');
+      rect(7, 15, 11, 17, 'K'); rect(8, 14, 10, 14, 'K'); put(9, 15, 'D'); put(10, 15, 'D'); put(7, 18, 'K'); put(11, 18, 'K'); put(6, 19, 'K'); put(12, 19, 'K');
+    } else {
+      rect(4, 15, 14, 17, 'X'); rect(6, 13, 11, 14, 'X'); put(7, 14, 'D'); put(8, 14, 'D'); put(10, 14, 'D'); disco(6, 18, 1.2, 'K'); disco(12, 18, 1.2, 'K'); put(14, 16, 'Y');
+    }
+    rect(4, 21, 14, 21, 'X');
+  }))), x, y, o, pal);
+};
+
+// LA REVISTA de ciencia ficción (nuestra): la portada del espacio (Q) con un planeta naranja con su anillo, las
+// estrellas, la cabecera amarilla con dos barras (sin letras) y la franja roja de abajo. 16 × 21
+const revistaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('revista', () => forma(16, 21, ({ rect, put, disco, linea }) => {
+  rect(1, 1, 14, 19, 'Q'); rect(1, 1, 14, 4, 'Y'); rect(3, 2, 9, 3, 'R'); rect(11, 2, 12, 3, 'K');
+  for (const [i, j] of [[3, 6], [12, 7], [2, 14], [13, 15], [11, 5], [4, 16]]) put(i, j, 'W');
+  linea(2, 13, 13, 9, 'T'); disco(7.5, 11, 3.2, 'N'); for (let j = 9; j <= 14; j++) for (let i = 8; i <= 11; i++) if (Math.hypot(i - 7.5, j - 11) <= 3.5 && i - 7.5 + (j - 11) > 2.2) put(i, j, 'n');
+  linea(4, 12, 11, 10, 'T'); put(6, 9, 'f'); put(5, 10, 'f');
+  rect(1, 18, 14, 19, 'R'); rect(3, 18, 8, 18, 'X'); put(1, 7, 'Z'); put(1, 14, 'Z');
+})), x, y, o);
+
+// EL TROFEO «NEBULA» (a nuestra manera): un bloque transparente (I, los cantos i, el brillo E) con una nube ladeada de
+// tres tonos (morado, malva y rosa, núcleo claro y estrellas sueltas) dentro, sobre su peana negra. 12 × 20. Con o.t,
+// un destello
+const trofeoNebulaDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 4) % 4 : -1;
+  pintaDU(R, unaDU('nebula' + f, () => forma(12, 20, ({ rect, put }) => {
+    rect(1, 16, 10, 18, 'K'); rect(1, 16, 10, 16, 'u'); rect(2, 1, 9, 15, 'I'); rect(9, 2, 9, 15, 'i'); rect(2, 15, 9, 15, 'i'); rect(2, 1, 2, 14, 'E'); rect(2, 1, 8, 1, 'E');
+    // la nube: una mancha ladeada de tres tonos (morado l, malva e, rosa L) con el núcleo claro y jirones sueltos; es
+    // una mancha rellena, sin trazo continuo (que no se lea como una cifra o una letra)
+    for (const [i, j] of [[5, 5], [6, 5], [4, 6], [5, 6], [7, 6], [4, 7], [8, 7], [3, 8], [4, 9], [7, 9], [5, 10], [7, 10], [6, 11], [8, 5], [3, 10]]) put(i, j, 'l');
+    for (const [i, j] of [[6, 6], [5, 7], [4, 8], [6, 9], [6, 10]]) put(i, j, 'e');
+    for (const [i, j] of [[6, 7], [7, 7], [5, 8], [7, 8], [5, 9]]) put(i, j, 'L'); put(6, 8, 'W');
+    // estrellas sueltas y el brillo del cristal en diagonal
+    for (const [i, j] of [[8, 3], [4, 12], [7, 13], [3, 4], [8, 12]]) put(i, j, 'W');
+    put(3, 2, 'E'); put(4, 2, 'E'); put(3, 3, 'E'); put(8, 14, 'E');
+    if (f === 0 || f === 2) { put(5, 3, 'E'); } else if (f === 1) { for (const [i, j] of [[5, 3], [4, 3], [6, 3], [5, 2], [5, 4]]) put(i, j, 'E'); }
+  })), x, y, o);
+};
+
+// EL TROFEO «HUGO» (a nuestra manera): un cohete plateado (Z, la sombra z, el brillo E) de aletas, de pie en su peana
+// de madera. 11 × 24. Con o.t, un destello que sube
+const trofeoHugoDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 5) % 5 : -1;
+  pintaDU(R, unaDU('hugo' + f, () => forma(11, 24, ({ rect, put }) => {
+    rect(2, 19, 8, 22, 'M'); rect(2, 22, 8, 22, 'm'); rect(8, 19, 8, 22, 'm'); rect(3, 18, 7, 18, 'P'); put(4, 20, 'O'); put(5, 20, 'O'); put(6, 20, 'O');
+    put(5, 1, 'Z'); put(5, 2, 'Z'); rect(4, 3, 6, 4, 'Z'); rect(4, 5, 6, 17, 'Z'); rect(6, 4, 6, 17, 'z'); rect(4, 5, 4, 14, 'E');
+    rect(3, 13, 3, 17, 'Z'); rect(2, 15, 2, 17, 'Z'); rect(7, 13, 7, 17, 'z'); rect(8, 15, 8, 17, 'z'); put(5, 7, 'i'); put(5, 8, 'B');
+    if (f >= 0 && f < 4) { const j = 12 - f * 3; put(5, j, 'E'); put(4, j, 'E'); put(3, j, 'E'); put(4, j - 1, 'E'); put(4, j + 1, 'E'); }
+  })), x, y, o);
+};
+
+// EL CATÁLOGO grande (nuestro): la tapa crema (H) con la franja negra de la cabecera y dos barras (sin letras) y, debajo,
+// herramientas dibujadas: un martillo, un serrucho, una llave inglesa y un destornillador. 22 × 28
+const catalogoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('catalogo', () => forma(22, 28, ({ rect, put, linea }) => {
+  rect(1, 1, 20, 26, 'H'); rect(1, 1, 2, 26, 'h'); rect(20, 2, 20, 25, 'h'); rect(3, 2, 19, 5, 'K'); rect(5, 3, 13, 3, 'X'); rect(5, 4, 10, 4, 'j'); rect(16, 3, 17, 4, 'N');
+  // el martillo
+  linea(5, 16, 8, 10, 'M'); linea(6, 16, 9, 10, 'M'); rect(6, 8, 11, 9, 'u'); put(6, 10, 'u'); put(11, 8, 'K');
+  // el serrucho
+  for (let i = 12; i <= 18; i++) { rect(i, 8, i, 8 + Math.round((i - 12) * 0.45), 'Z'); put(i, 9 + Math.round((i - 12) * 0.45), i % 2 ? 'z' : 'Z'); } rect(17, 7, 19, 12, 'M'); put(18, 9, 'H'); put(18, 10, 'H');
+  // la llave inglesa
+  put(11, 15, 'z'); put(14, 15, 'z'); rect(11, 16, 14, 16, 'z'); rect(12, 17, 13, 23, 'z'); rect(11, 24, 14, 24, 'z'); put(12, 24, 'H');
+  // el destornillador
+  rect(17, 14, 17, 19, 'Z'); rect(16, 20, 18, 24, 'R'); put(18, 21, 'r'); put(18, 23, 'r');
+  // la sierra de arco pequeña (un arco y su hoja)
+  rect(4, 19, 9, 19, 'B'); put(4, 20, 'B'); put(9, 20, 'B'); rect(4, 21, 9, 21, 'z'); rect(3, 20, 3, 22, 'M');
+})), x, y, o);
+
+// EL TAXÍMETRO: un reloj redondo (W, el aro Z) encima de la caja negra del taxímetro, con la bandera roja levantada
+// y la pantalla con la cifra en rojo. o.cifra: el número (hasta 5 cifras; por omisión, 0); con o.t, el minutero gira.
+// 27 × 28. No se voltea (la cifra)
+const taximetroDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 6) % 8 : 0;
+  o = sinDirDU(o);
+  pintaDU(R, unaDU('taxi' + f, () => forma(27, 28, ({ rect, put, disco, linea }) => {
+    disco(13, 7, 6, 'Z'); disco(13, 7, 4.7, 'W'); for (const [i, j] of [[13, 3], [13, 11], [9, 7], [17, 7]]) put(i, j, 'K');
+    const a = f / 8 * Math.PI * 2; linea(13, 7, 13 + Math.round(Math.sin(a) * 3.6), 7 - Math.round(Math.cos(a) * 3.6), 'K'); linea(13, 7, 15, 8, 'R'); put(13, 7, 'K');
+    rect(11, 13, 15, 13, 'z');
+    rect(2, 14, 24, 25, 'u'); rect(2, 14, 24, 14, 'x'); rect(24, 15, 24, 25, 'K'); rect(2, 25, 24, 25, 'K'); rect(3, 16, 23, 22, 'Q');
+    put(5, 24, 'Z'); put(8, 24, 'Z'); put(11, 24, 'O'); rect(4, 26, 6, 26, 'K'); rect(20, 26, 22, 26, 'K');
+    rect(22, 8, 22, 13, 'z'); rect(19, 8, 24, 11, 'R'); rect(19, 11, 24, 11, 'r');
+  })), x, y, o);
+  const n = String(Math.max(0, Math.floor(o.cifra ?? 0))).slice(-5);
+  numeroNV(encimaDU(R, 27, 28, x, y, o), n, 23 - anchoNumeroNV(n), 17, 'R');
+};
+
+// EL TRONO dorado y recargado (O, la sombra g, el brillo o), de frente: el respaldo alto de terciopelo rojo capitoné
+// con el copete, la gema y los remates, los brazos de voluta, el cojín y las patas. Un personaje se sienta con los
+// pies a unos 8 px del suelo (el cojín, a y − 11). 28 × 38
+const tronoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('trono', () => forma(28, 38, ({ rect, put, disco }) => {
+  rect(6, 6, 21, 25, 'O'); rect(21, 6, 21, 25, 'g'); rect(8, 8, 19, 24, 'R'); rect(19, 8, 19, 24, 'r');
+  for (let j = 10; j <= 22; j += 3) for (let i = 9 + (j % 2 ? 0 : 2); i <= 18; i += 4) put(i, j, 'r');
+  rect(8, 4, 19, 5, 'O'); rect(10, 2, 17, 3, 'O'); disco(13.5, 1.5, 1, 'o'); put(13, 4, 'B'); put(14, 4, 'B'); put(13, 3, 'D'); put(14, 3, 'B');
+  rect(5, 3, 6, 6, 'O'); put(5, 2, 'o'); put(6, 2, 'o'); rect(21, 3, 22, 6, 'O'); put(21, 2, 'o'); put(22, 2, 'o'); put(22, 4, 'g'); put(22, 5, 'g');
+  for (let i = 9; i <= 18; i += 3) put(i, 5, 'g'); for (let j = 8; j <= 23; j += 3) { put(7, j, 'o'); put(20, j, 'g'); }
+  disco(4, 20.5, 2.2, 'O'); put(4, 20, 'g'); disco(23, 20.5, 2.2, 'O'); put(23, 20, 'g'); put(24, 22, 'g'); rect(3, 23, 5, 28, 'O'); rect(22, 23, 24, 28, 'O'); rect(24, 23, 24, 28, 'g');
+  rect(5, 25, 22, 27, 'R'); rect(5, 27, 22, 27, 'r'); rect(6, 25, 21, 25, 'C');
+  rect(3, 28, 24, 31, 'O'); rect(3, 31, 24, 31, 'g'); for (let i = 5; i <= 22; i += 3) put(i, 29, 'o'); put(13, 30, 'R'); put(14, 30, 'R');
+  rect(4, 32, 6, 36, 'O'); rect(21, 32, 23, 36, 'O'); rect(6, 32, 6, 36, 'g'); rect(23, 32, 23, 36, 'g'); rect(3, 36, 7, 36, 'g'); rect(20, 36, 24, 36, 'g'); put(5, 33, 'o'); put(22, 33, 'o');
+})), x, y, o);
+
+// EL LISTÍN: un guion gordo como una guía de teléfonos, tumbado: la tapa amarilla (Y) con sus tres encuadernadores
+// (Z) y una barra blanca (sin letras), y el canto de cientos de hojas (H/h). 26 × 14
+const listinDU = (R, x, y, o = {}) => pintaDU(R, unaDU('listin', () => forma(26, 14, ({ rect, put }) => {
+  rect(3, 1, 23, 3, 'Y'); rect(2, 2, 24, 3, 'Y'); rect(9, 2, 17, 2, 'X'); put(4, 2, 'Z'); put(6, 2, 'Z'); put(21, 2, 'y');
+  rect(2, 4, 24, 11, 'H'); for (let j = 5; j <= 11; j += 2) rect(3, j, 24, j, 'h'); rect(1, 3, 2, 12, 'y'); rect(2, 12, 24, 12, 'y'); put(24, 6, 'd'); put(24, 9, 'd');
+})), x, y, o);
+
+// EL LIBRO DE DIBUJOS: un libro enorme y apaisado (la tapa negra K con las cantoneras de oro y una nave de colores
+// pegada en el centro) del que asoman láminas de colores por arriba y por el lado. 37 × 24. o.abierto: abierto, con
+// una nave y un castillo raro de colores en las páginas (nuestros). 46 × 21
+const libroDibujosDU = (R, x, y, o = {}) => pintaDU(R, unaDU('dibujos' + (o.abierto ? 'A' : ''), () => (o.abierto ? forma(46, 21, ({ rect, put, linea, disco }) => {
+  rect(1, 17, 44, 19, 'K'); rect(22, 16, 23, 19, 'u');
+  rect(2, 2, 22, 17, 'H'); rect(23, 2, 43, 17, 'H'); rect(2, 17, 43, 17, 'h'); rect(22, 2, 23, 16, 'h'); put(2, 2, '.'); put(43, 2, '.');
+  // la nave: un pez de colores con su estela
+  rect(4, 4, 20, 14, 'U'); disco(11, 9, 3.2, 'L'); rect(11, 7, 17, 11, 'N'); rect(17, 8, 18, 10, 'Y'); put(19, 9, 'Y'); rect(9, 8, 11, 9, 'D'); linea(5, 6, 8, 8, 'l'); linea(5, 12, 8, 10, 'l'); put(6, 9, 'G'); put(5, 9, 'G');
+  put(15, 5, 'W'); put(18, 13, 'W'); put(6, 4, 'W'); rect(13, 9, 15, 9, 'R');
+  // el castillo raro
+  rect(25, 4, 41, 14, 'f'); rect(25, 12, 41, 14, 'n'); rect(28, 7, 30, 12, 'l'); rect(32, 5, 35, 12, 'D'); rect(37, 8, 39, 12, 'L'); put(29, 6, 'l'); put(29, 5, 'R'); put(33, 4, 'B'); put(34, 4, 'B'); put(38, 7, 'L'); put(38, 6, 'G');
+  put(33, 8, 'K'); put(34, 10, 'K'); put(29, 9, 'K'); put(38, 10, 'K'); disco(27, 5.5, 1, 'R');
+}) : forma(37, 24, ({ rect, put, disco, linea }) => {
+  rect(7, 2, 10, 4, 'L'); rect(13, 1, 18, 4, 'Y'); rect(21, 2, 25, 4, 'D'); rect(27, 1, 30, 4, 'G'); put(14, 2, 'N'); put(16, 2, 'N'); put(22, 3, 'B'); put(28, 2, 'v'); put(8, 3, 'R');
+  rect(33, 8, 35, 11, 'N'); rect(33, 14, 34, 18, 'l'); put(34, 9, 'R');
+  rect(2, 5, 32, 21, 'K'); rect(2, 5, 3, 21, 'u'); rect(2, 21, 32, 21, 'Q');
+  for (const [i, j, a, b] of [[4, 6, 1, 1], [31, 6, -1, 1], [4, 20, 1, -1], [31, 20, -1, -1]]) { put(i, j, 'O'); put(i + a, j, 'O'); put(i, j + b, 'O'); }
+  rect(10, 8, 25, 18, 'U'); disco(15, 13, 2.6, 'L'); rect(15, 11, 21, 15, 'N'); rect(21, 12, 22, 14, 'Y'); put(23, 13, 'Y'); rect(13, 12, 15, 13, 'D'); linea(11, 10, 13, 12, 'l'); linea(11, 16, 13, 14, 'l');
+  put(20, 9, 'W'); put(23, 17, 'W'); put(11, 13, 'G'); rect(17, 13, 19, 13, 'R');
+}))), x, y, o);
+
+// LA CLAQUETA: la pizarra negra con sus casillas (rayas, sin letras) y el listón de franjas blancas y negras.
+// 22 × 19. o.abierta: el listón levantado (22 × 27); o.telarana: una telaraña en la esquina de abajo
+const claquetaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('claqueta' + (o.abierta ? 'A' : '') + (o.telarana ? 'T' : ''), () => forma(22, o.abierta ? 27 : 19, (F) => {
+  const dy = o.abierta ? 8 : 0, put = (i, j, ch) => F.put(i, j + dy, ch), rect = (a, b, c, d, ch) => F.rect(a, b + dy, c, d + dy, ch), linea = (a, b, c, d, ch) => F.linea(a, b + dy, c, d + dy, ch);
+  rect(1, 6, 20, 17, 'K'); for (let i = 1; i <= 20; i++) put(i, 6, (i + 1) % 6 < 3 ? 'W' : 'K'); rect(1, 7, 20, 7, 'u');
+  const fin = o.telarana ? 9 : 18;
+  rect(3, 10, fin, 10, 'x'); rect(3, 13, fin, 13, 'x'); for (let j = 11; j <= 16; j++) { put(8, j, 'x'); if (j > 13 && !o.telarana) put(14, j, 'x'); } rect(4, 9, 6, 9, 'W'); if (!o.telarana) rect(10, 12, 12, 12, 'W');
+  for (let i = 1; i <= 20; i++) { const up = o.abierta ? Math.round((i - 1) * 0.42) : 0; for (let j = 3; j <= 5; j++) put(i, j - up, (i + j) % 6 < 3 ? 'W' : 'K'); }
+  put(1, 5, 'Z'); put(1, 6, 'Z');
+  if (o.telarana) {
+    linea(19, 16, 19, 8, 'W'); linea(19, 16, 12, 9, 'W'); linea(19, 16, 10, 16, 'W'); linea(19, 12, 16, 13, 'W'); linea(16, 13, 15, 16, 'W'); linea(19, 9, 13, 10, 'W'); linea(13, 10, 11, 16, 'W');
+  }
+})), x, y, o);
+
+// LA CÁMARA DE CINE en su trípode de madera, de perfil (mira a la derecha): el cuerpo oscuro con las dos bobinas
+// arriba, el visor detrás, el objetivo con su parasol y el cristal (I), la manivela y las tres patas. 34 × 43
+const camaraCineDU = (R, x, y, o = {}) => pintaDU(R, unaDU('camara', () => forma(34, 43, ({ rect, put, disco, linea }) => {
+  for (const d of [0, 1]) { linea(15 + d, 26, 5 + d, 41, d ? 'm' : 'M'); linea(17 + d, 26, 27 + d, 41, d ? 'm' : 'M'); } rect(16, 26, 17, 41, 'M'); rect(17, 27, 17, 41, 'm'); rect(11, 33, 22, 33, 'm');
+  rect(4, 41, 7, 41, 'K'); rect(15, 41, 18, 41, 'K'); rect(26, 41, 29, 41, 'K');
+  rect(13, 23, 20, 25, 'z'); rect(13, 25, 20, 25, 'u'); linea(13, 24, 6, 29, 'z'); put(5, 30, 'K'); put(6, 30, 'K');
+  disco(11, 6, 5, 'K'); disco(11, 6, 3.2, 'u'); disco(22, 6, 5, 'K'); disco(22, 6, 3.2, 'u'); put(11, 6, 'Z'); put(22, 6, 'Z'); put(9, 4, 'x'); put(20, 4, 'x'); put(13, 8, 'K'); put(24, 8, 'K');
+  rect(7, 11, 25, 22, 'u'); rect(7, 11, 25, 11, 'x'); rect(7, 22, 25, 22, 'K'); rect(25, 12, 25, 22, 'K'); rect(9, 14, 16, 20, 'K'); put(10, 15, 'R'); rect(19, 14, 22, 15, 'Z'); put(20, 19, 'O');
+  rect(3, 13, 6, 17, 'K'); put(2, 14, 'u'); put(2, 15, 'u'); put(2, 16, 'u');
+  rect(26, 14, 28, 19, 'K'); rect(29, 12, 31, 21, 'u'); rect(29, 12, 31, 12, 'x'); rect(31, 14, 31, 19, 'I'); put(31, 15, 'E'); put(31, 19, 'i');
+})), x, y, o);
+
+// LA ESTATUILLA dorada (GENÉRICA: una llama abstracta sobre una esfera, no el premio de verdad), en su peana negra.
+// 11 × 24. Con o.t, un destello
+const estatuillaDU = (R, x, y, o = {}) => {
+  const f = o.t != null ? Math.floor(o.t * 4) % 4 : -1;
+  pintaDU(R, unaDU('estatuilla' + f, () => forma(11, 24, ({ rect, put, disco }) => {
+    rect(2, 20, 8, 22, 'K'); rect(2, 20, 8, 20, 'u'); rect(3, 18, 7, 19, 'u'); rect(3, 19, 7, 19, 'K'); put(5, 21, 'O');
+    disco(5, 15.5, 1.7, 'O'); put(6, 16, 'g'); put(6, 17, 'g'); put(4, 15, 'o');
+    const hw = [0, 0, 1, 1, 2, 2, 2, 2, 1, 1, 1, 0];
+    hw.forEach((w, k) => { rect(5 - w, 2 + k, 5 + w, 2 + k, 'O'); if (w) put(5 + w, 2 + k, 'g'); });
+    put(5, 1, 'o'); put(4, 6, 'o'); put(4, 7, 'o'); put(4, 8, 'o'); put(5, 5, 'o');
+    if (f === 1) { for (const [i, j] of [[4, 5], [3, 5], [5, 5], [4, 4], [4, 6]]) put(i, j, 'E'); } else if (f === 0 || f === 2) put(4, 5, 'E');
+  })), x, y, o);
+};
+
+// LA HUCHA: un cerdito rosa (L, la sombra e) de perfil (mira a la derecha) con la ranura en el lomo y una moneda de
+// oro entrando. 24 × 19. o.vacia: patas arriba en el suelo, sin moneda, con el tapón quitado (el agujero negro en la
+// barriga y el corcho al lado)
+const huchaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('hucha' + (o.vacia ? 'V' : ''), () => forma(24, 19, (F) => {
+  const v = !!o.vacia, put = (i, j, ch) => F.put(i, v ? 18 - j : j, ch), rect = (a, b, c, d, ch) => { for (let j = b; j <= d; j++) for (let i = a; i <= c; i++) put(i, j, ch); };
+  for (let j = 5; j <= 15; j++) for (let i = 2; i <= 18; i++) { const u = (i - 10) / 8.2, w = (j - 10) / 5.4; if (u * u + w * w <= 1) put(i, j, w > 0.45 || (u > 0.5 && w > 0.1) ? 'e' : 'L'); }
+  rect(18, 8, 20, 11, 'L'); rect(20, 8, 20, 11, 'e'); put(20, 9, 'K'); put(20, 10, 'L');
+  put(14, 4, 'e'); put(15, 4, 'e'); put(15, 3, 'e'); put(14, 5, 'e'); put(16, 8, 'K'); put(16, 7, 'K'); put(17, 12, 'e'); put(15, 11, 'R');
+  rect(5, 15, 6, 17, 'e'); rect(13, 15, 14, 17, 'e'); put(1, 9, 'e'); put(1, 8, 'L'); put(2, 7, 'e');
+  put(6, 7, 'E'); put(7, 6, 'E'); put(5, 8, 'E');
+  if (v) { rect(8, 4, 11, 4, 'K'); rect(9, 15, 10, 15, 'Q'); put(8, 15, 'K'); put(11, 15, 'K'); F.rect(21, 15, 22, 16, 'M'); F.put(22, 16, 'm'); F.put(21, 14, 'P'); }
+  else { rect(8, 4, 11, 4, 'K'); rect(9, 1, 10, 3, 'O'); put(10, 2, 'g'); put(10, 3, 'g'); put(9, 1, 'o'); put(8, 2, 'O'); put(11, 2, 'g'); }
+})), x, y, o);
+
+// EL MAZO de subasta: el mazo de madera (M/m, los aros de oro) apoyado en su taco redondo, con el mango hacia la
+// derecha. 24 × 14. o.golpe: tumbado, golpeando el taco, con las rayitas del golpe
+const mazoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('mazo' + (o.golpe ? 'G' : ''), () => forma(24, 14, ({ rect, put, linea }) => {
+  rect(2, 10, 13, 12, 'P'); rect(2, 12, 13, 12, 'p'); rect(3, 10, 12, 10, 'M');
+  if (o.golpe) {
+    rect(4, 3, 10, 8, 'M'); rect(4, 8, 10, 8, 'm'); rect(4, 3, 4, 8, 'O'); rect(10, 3, 10, 8, 'O'); rect(6, 3, 6, 8, 'm'); rect(11, 5, 21, 6, 'P'); rect(11, 6, 21, 6, 'p'); put(22, 5, 'O'); put(22, 6, 'g');
+    put(1, 8, 'Y'); put(1, 6, 'Y'); put(15, 9, 'Y'); put(16, 8, 'Y'); put(14, 8, 'Y');
+  } else {
+    for (let i = 3; i <= 9; i++) { const d = Math.round((i - 3) * 0.35); rect(i, 3 + d, i, 7 + d, i === 3 || i === 9 ? 'O' : i === 6 ? 'm' : 'M'); put(i, 8 + d, i === 3 || i === 9 ? 'g' : 'm'); }
+    linea(10, 6, 21, 2, 'P'); linea(10, 7, 21, 3, 'p'); put(22, 2, 'O'); put(22, 1, 'O');
+  }
+})), x, y, o);
+
+// EL CONTRATO: una hoja blanca (W) con la cabecera, las rayas del texto (d), la firma azul (B) y el sello de lacre
+// rojo con sus cintas. 15 × 20
+const contratoDU = (R, x, y, o = {}) => pintaDU(R, unaDU('contrato', () => forma(15, 20, ({ rect, put, disco }) => {
+  rect(1, 1, 13, 18, 'W'); rect(13, 2, 13, 18, 'w'); rect(1, 18, 13, 18, 'w'); rect(4, 3, 10, 3, 'K');
+  for (const [a, b, j] of [[3, 11, 5], [3, 10, 7], [3, 11, 9], [3, 8, 11]]) rect(a, j, b, j, 'd');
+  for (const [i, j] of [[3, 15], [4, 14], [5, 15], [6, 14], [7, 15]]) put(i, j, 'B');
+  disco(10, 14.5, 1.8, 'R'); put(10, 14, 'r'); put(10, 15, 'r'); put(9, 17, 'R'); put(11, 17, 'R'); put(9, 13, 'C');
+})), x, y, o);
+
+// LA EXCAVADORA pequeña (una bulldozer amarilla, Y/y) de perfil (mira a la derecha): las orugas, el motor con su
+// rejilla y el escape, la cabina con la ventana (I) y la pala de acero delante. o.pala 0–1: la altura de la pala
+// (0, en el suelo); con o.t, el humo del escape. Devuelve { pala: [x, y] }: el pie de la pala en la pantalla.
+// 38 × 26 (más 10 px de aire arriba para el humo)
+const excavadoraDU = (R, x, y, o = {}) => {
+  const p4 = pasoDU(o.pala, 4), f = o.t == null ? -1 : Math.floor(o.t * 4) % 4, by = 16 - Math.round(p4 * 1.75);
+  pintaDU(R, unaDU('bulldozer' + p4 + '|' + f, () => forma(38, 36, (F) => {
+    const put = (i, j, ch) => F.put(i, j + 10, ch), rect = (a, b, c, d, ch) => F.rect(a, b + 10, c, d + 10, ch), disco = (a, b, r, ch) => F.disco(a, b + 10, r, ch), linea = (a, b, c, d, ch) => F.linea(a, b + 10, c, d + 10, ch);
+    if (f >= 0) humoGT(F.put, F.disco, 22, 13, 3, f);
+    rect(4, 19, 27, 24, 'K'); rect(5, 18, 26, 18, 'u'); for (let i = 7; i <= 25; i += 6) { disco(i, 21.5, 1.3, 'z'); put(i, 21, 'Z'); }
+    rect(6, 11, 26, 17, 'Y'); rect(6, 17, 26, 17, 'y'); rect(17, 9, 26, 10, 'Y'); rect(17, 9, 26, 9, 'o'); rect(4, 13, 5, 17, 'y');
+    for (let j = 11; j <= 15; j += 2) rect(20, j, 24, j, 'K'); rect(26, 10, 26, 17, 'y');
+    rect(22, 5, 22, 8, 'u'); rect(21, 4, 23, 4, 'K');
+    rect(8, 3, 16, 12, 'Y'); rect(7, 2, 17, 2, 'K'); rect(10, 5, 15, 9, 'I'); rect(10, 5, 10, 9, 'K'); rect(15, 5, 15, 9, 'K'); rect(10, 5, 15, 5, 'K'); rect(10, 9, 15, 9, 'K'); linea(11, 8, 13, 6, 'E'); rect(8, 11, 16, 12, 'y');
+    linea(26, 15, 31, by + 4, 'u'); linea(26, 16, 31, by + 5, 'u');
+    rect(32, by, 34, by + 8, 'Z'); rect(32, by + 1, 32, by + 7, 'z'); put(35, by, 'Z'); put(35, by + 8, 'Z'); put(36, by + 8, 'z'); put(34, by + 1, 'E'); put(34, by + 2, 'E'); put(34, by + 3, 'E');
+  })), x, y, o);
+  const s = o.s ?? 1, dir = o.dir ?? 1;
+  return { pala: [Math.round(x + dir * (36 - 18.5) * s), Math.round(y - (36 - (by + 19)) * s)] };
+};
+
+// LA SEÑAL DE LA HIERBA: una señal redonda de prohibido (el aro rojo R, el fondo blanco) con una mata de hierba
+// tachada, en su poste de acero. 17 × 34. o.sinPoste: solo el disco (17 × 17)
+const senalHierbaDU = (R, x, y, o = {}) => pintaDU(R, unaDU('senal' + (o.sinPoste ? 'S' : ''), () => forma(17, o.sinPoste ? 17 : 34, ({ rect, put, disco, linea }) => {
+  if (!o.sinPoste) { rect(8, 15, 9, 32, 'Z'); rect(9, 15, 9, 32, 'z'); }
+  disco(8, 8, 7, 'R'); disco(8, 8, 5.1, 'W');
+  linea(8, 12, 8, 5, 'v'); linea(7, 12, 5, 7, 'G'); put(5, 6, 'G'); linea(9, 12, 11, 7, 'G'); put(11, 6, 'G'); put(8, 4, 'G'); put(7, 12, 'v'); put(9, 12, 'v');
+  linea(3, 12, 12, 3, 'R'); linea(4, 13, 13, 4, 'R');
+})), x, y, o);
+
+export const PIEZAS_DU = {
+  libro: libroDU, manuscrito: manuscritoDU, carta: cartaDU, cheque: chequeDU, avioneta: avionetaDU, zapato: zapatoDU,
+  pilaNotas: pilaNotasDU, maquina: maquinaDU, relojArena: relojArenaDU, montonArena: montonArenaDU, hierba: hierbaDU,
+  manual: manualDU, revista: revistaDU, trofeoNebula: trofeoNebulaDU, trofeoHugo: trofeoHugoDU, catalogo: catalogoDU,
+  taximetro: taximetroDU, trono: tronoDU, listin: listinDU, libroDibujos: libroDibujosDU, claqueta: claquetaDU,
+  camaraCine: camaraCineDU, estatuilla: estatuillaDU, hucha: huchaDU, mazo: mazoDU, contrato: contratoDU,
+  excavadoraDU, senalHierba: senalHierbaDU,
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// EPISODIO 34 · «El Arca de Noé: el relato, las religiones y la roca con forma de barco»
+// A Noé (Nuh), a Manu y a las figuras religiosas NO se les dibuja (decisión aprobada): aquí solo hay gente de 1872 a
+// 2026 (el museo, las expediciones, los geólogos, el equipo del radar), un pastor de la zona y los turistas.
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ── tocados ──
+Object.assign(TOCADOS, {
+  // la gorra de marino de paño azul (J/j), con la cinta negra (D), el botón de oro (O) y la visera corta: Fasold
+  gorraMarinoNX: [[
+    '..kkkkkkkkk....',
+    '.kJJJJJJJJJk...',
+    '.kJjJJJJJJJk...',
+    '.kDDDDDODDDk...',
+    '.kkkkkkkkkkkkk.',
+    '..........kkkk.',
+  ], -3],
+  // el gorro de fieltro del pastor, redondo y sin visera (J, el punto j y la vuelta j)
+  gorroPastorNX: [[
+    '...kkkkkkkk....',
+    '..kJJjJJjJJk...',
+    '.kJjJJjJJjJJk..',
+    '.kjjjjjjjjjjk..',
+    '.kkkkkkkkkkkk..',
+  ], -1],
+});
+
+// ── cabezas ──
+// George Smith: el pelo oscuro con la raya a un lado y la barba corta (la boca a la vista)
+const CAB_SMITH_NX = parche(CAB_LADO_DC, [[3, 8, 'H'], [2, 9, 'kHH'], [9, 8, 'HHHH'], [3, 10, 'HHHHHHHH'], [5, 11, 'HHHHH']]);
+// el señor mayor de 1872: el pelo ralo (la coronilla despejada) y las grandes patillas hasta la mandíbula; la cara,
+// entera (los ojos van en las columnas 8 y 12)
+const CAB_PATILLONES_NX = parche(CAB_CALVA_ENTRADAS_DC, [[3, 5, 'H'], [3, 6, 'HH'], [3, 7, 'HHH'], [2, 8, 'HHHH'], [2, 9, 'kHHH'], [3, 10, 'kHH'], [4, 11, 'k']]);
+
+// ── cuerpos ──
+// el uniforme caqui del capitán (C/c): la camisa y la corbata (u), el correaje en diagonal y el cinturón (G) con su
+// hebilla (O), los botones (o) y las botas altas (L)
+const CUERPO_CAPITAN_NX = parche(CUERPO_EUROPEO, [[7, 1, 'u'], [7, 2, 'u'], [10, 1, 'G'], [9, 2, 'G'], [8, 3, 'G'], [4, 5, 'GGGOGGG'], [4, 10, 'LLL'], [8, 10, 'LLL'], [4, 11, 'LLL'], [8, 11, 'LLL']]);
+// la levita victoriana (C/c), larga hasta la rodilla, abierta sobre el chaleco (V, los botones o) y el cuello blanco (W)
+const CUERPO_LEVITA_NX = [
+  '...kkWWWWWkk...',
+  '..kCCCWWWCCCk..',
+  '.kCkCCVVVCCkCk.',
+  '.kCkCCVoVCCkCk.',
+  '.kCkCCVVVCCkCk.',
+  '.kSkCCVoVCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCkCCCk...',
+  '...kCCCkCCCk...',
+  '...kcCCkCCck...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// el mismo caballero SIN la levita: las mangas de la camisa (W) y el chaleco (V) abotonado (o)
+const CUERPO_SIN_LEVITA_NX = [
+  '...kkWWWWWkk...',
+  '..kWWVWWWVWWk..',
+  '.kWkVVVVVVVkWk.',
+  '.kWkVVVoVVVkWk.',
+  '.kWkVVVVVVVkWk.',
+  '.kSkVVVoVVVkSk.',
+  '..kkVVVVVVVkk..',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kkkkk.kkkkk..',
+];
+// la levita negra del señor mayor: el cuello alto y blanco hasta la mandíbula y el corbatín negro (u)
+const CUERPO_LEVITA_ALTA_NX = parche(CUERPO_LEVITA_NX, [[3, 0, 'kWWWWWWWk'], [6, 1, 'uuu'], [7, 2, 'u']]);
+// la capa de fieltro del pastor (C, la costura c): ancha y recta de hombros, cerrada hasta las rodillas; asoma la mano
+// que lleva el cayado, y las botas (L)
+const CUERPO_KEPENEK_NX = [
+  '..kkkCCCCCkkk..',
+  '.kCCCCCCCCCCCk.',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCkSSk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kCCCCCCcCCCCCCk',
+  'kcCCCCCcCCCCCck',
+  'kkkkkkkkkkkkkkk',
+  '...kLLLkLLLk...',
+  '..kkkkk.kkkkk..',
+];
+// el vestido de verano de tirantes (C, los lunares p, el cinturón I): los brazos y las piernas al aire y las sandalias (L)
+const CUERPO_VERANO_NX = [
+  '....kkSSSkk....',
+  '..kkSCSSSCSkk..',
+  '.kSkCCCCCCCkSk.',
+  '.kSkCCpCCCpkSk.',
+  '.kSkIIIIIIIkSk.',
+  '.kSkCCCpCCCkSk.',
+  '..kkCpCCCpCkk..',
+  '..kCCCCpCCCCk..',
+  '..kCpCCCCCpCk..',
+  '..kkkkkkkkkkk..',
+  '....kSk.kSk....',
+  '....kSk.kSk....',
+  '...kkLk.kLkk...',
+];
+
+// ── detalles ──
+// la mochila de Wyatt, por detrás: el saco verde (B/b) con la esterilla enrollada (Y) arriba; y las correas, por delante
+const MOCHILA_NX = ['.kkkk.', 'kYYYYk', 'kkkkkk', 'kBBBBk', 'kBbBBk', 'kBBBBk', 'kBbbBk', '.kkkk.'];
+const PAL_MOCHILA_NX = COLORES({ B: '#6a8a52', b: '#4a6a3a', Y: '#e8c860' });
+const mochilaNX = (c) => c.cuerpo.rej(MOCHILA_NX, -3, -1, { ...c.pal, ...PAL_MOCHILA_NX });
+const correasNX = (c) => { for (const [i, j] of [[4, 1], [4, 2], [10, 1], [10, 2]]) c.cuerpo.px(i, j, PAL_MOCHILA_NX.b); };
+// la barba blanca, larga y poblada, de Finkel: cae sobre el pecho (por encima de la chaqueta) y el pelo blanco le
+// llega a la nuca; la boca y los ojos, a la vista
+const barbaFinkelNX = (c) => { c.cab.rej([...PELO_LARGO.slice(0, 6), '.kkk.'], -1, 4); c.cuerpo.rej(BARBA_MEDIA_NV, 3, -1); };
+// la cámara de fotos colgada del cuello del turista (la correa, la caja negra y el objetivo)
+const camaraCuelloNX = (c) => {
+  const pal = { ...c.pal, ...COLORES({ K: '#2a2832', Z: '#c8ccd8', I: '#8ad0f0', u: '#5a4a3a' }) };
+  c.cuerpo.px(5, 1, pal.u); c.cuerpo.px(9, 1, pal.u); c.cuerpo.px(5, 2, pal.u); c.cuerpo.px(9, 2, pal.u);
+  c.cuerpo.rej(['kkkkk', 'kKZIk', 'kKKKk', 'kkkkk'], 5, 3, pal);
+};
+// el cayado del pastor: una vara de madera (b) con la vuelta arriba, hacia delante, en la mano de delante
+const cayadoNX = (c) => {
+  if (c.o.sostiene || c.o.dedo || c.o.brazos || c.o.sinObjeto) return;
+  const pal = { ...c.pal, ...COLORES({ b: '#8a5a34' }) }, alto = c.suelo - c.yC - 1;
+  c.cuerpo.rej(['..kkk.', '.kbbbk', 'kbkkbk', 'kbk.kk'], 14, -9, pal);
+  for (let j = -5; j <= alto; j++) { c.cuerpo.px(14, j, P.k); c.cuerpo.px(15, j, pal.b); c.cuerpo.px(16, j, P.k); }
+  c.cuerpo.px(15, alto + 1, P.k);
+  c.cuerpo.rej(['.kkk.', 'kSSSk', 'kSSsk', '.kkk.'], 12, 3);   // el puño que lo agarra
+};
+
+// ── el reparto del 34 ──
+const B34 = B23;
+export const ELENCO_NX = {
+  // ── Turquía, 1959–1960 ──
+  // el capitán Durupınar: la gorra de plato caqui, el bigote negro, el uniforme caqui con el correaje y las botas
+  durupinar: { ...B34, cuerpo: CUERPO_CAPITAN_NX, tocado: 'gorraPlatoTS', ceja: hex('#1c1424'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#1c1424', h: '#3a3046', J: '#a89660', j: '#c0ae78', D: '#5e5230', O: '#f0c840', C: '#a89660', c: '#857444', W: '#d8cc9a', u: '#5a5030', o: '#f0c840', G: '#6a4424', F: '#a89660', L: '#3a2a1e' }) },
+  // el expedicionario del salacot blanco: la barba CLARA (rubia) corta, la camisa de campo caqui, el cinturón y las botas
+  expedicionario1NX: { ...B34, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAMPO_GZ, tocado: 'salacotGZ', ceja: hex('#a8743c'),
+    pal: CLT({ H: '#d8b060', h: '#f0cc80', X: '#f4f0e4', x: '#c8c0a8', C: '#c8b480', c: '#a08e5c', o: '#8a7444', u: '#a08e5c', G: '#5a3a1e', F: '#7a6a48', n: '#4a3420' }) },
+  // el del sombrero de ala gris: afeitado, la camisa azul remangada con los tirantes, el pantalón pardo y las botas
+  expedicionario2NX: { ...B34, cuerpo: CUERPO_TIRANTES, tocado: 'alaAT', ceja: hex('#4a2a18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', J: '#8a8a80', j: '#a8a89c', D: '#3a3a36', C: '#7a9ab8', c: '#5c7a98', W: '#7a9ab8', G: '#8a3a2a', F: '#6a5238', n: '#3a2a1e' }) },
+  // ── Londres, 1872 ──
+  // George Smith a los 32: el pelo oscuro con raya, la barba oscura corta, la levita azul noche sobre el chaleco
+  // tostado y la corbata de lazo granate
+  smith: { ...B34, cab: CAB_SMITH_NX, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#2a1c14'), delante: pajaritaNC('#8a2a3a'),
+    pal: CLT({ H: '#3a2618', h: '#5a4028', C: '#2e3a56', c: '#1e2840', V: '#c8a868', o: '#7a5a2a', W: '#f6f2ea', F: '#6a6a72' }) },
+  // Smith en mangas de camisa: sin la levita (solo la levita), con el chaleco y la corbata de lazo
+  smithSinChaqueta: { ...B34, cab: CAB_SMITH_NX, cuerpo: CUERPO_SIN_LEVITA_NX, ceja: hex('#2a1c14'), delante: pajaritaNC('#8a2a3a'),
+    pal: CLT({ H: '#3a2618', h: '#5a4028', V: '#c8a868', o: '#7a5a2a', W: '#f6f2ea', F: '#6a6a72' }) },
+  // el colega canoso: las patillas, las gafas redondas, la levita parda y el chaleco granate
+  colega1NX: { ...B34, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#7a7a86'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#9a9aa6', h: '#c0c0ca', C: '#6a4a32', c: '#4e3422', V: '#8a2e3c', o: '#e8c860', W: '#f6f2ea', F: '#8a8672' }) },
+  // el colega calvo: el bigote grande castaño, la levita verde botella, el chaleco mostaza y el pantalón gris
+  colega2NX: { ...B34, cab: CAB_CALVO, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#6a3a1a'), delante: bigoteGrandeVM,
+    pal: CLT({ H: '#8a4a22', h: '#a8643a', C: '#2e5a4a', c: '#1e4236', V: '#d8b048', o: '#7a5a1a', W: '#f6f2ea', F: '#5a5a66' }) },
+  // el señor mayor de la primera fila (el primer ministro): el pelo blanco ralo, las grandes patillas blancas, la
+  // levita negra y el cuello alto con el corbatín negro. Solo atributos, sin caricatura
+  gladstone: { ...B34, cab: CAB_PATILLONES_NX, cuerpo: CUERPO_LEVITA_ALTA_NX, ceja: hex('#b0b0ba'),
+    pal: CLT({ H: '#f0f0f4', h: '#c8ccd8', C: '#2a2832', c: '#1c1a22', V: '#3a3844', o: '#6a6876', u: '#1c1a22', W: '#ffffff', F: '#3a3844' }) },
+  // ── Londres, 2014 ──
+  // Irving Finkel: el pelo blanco, la barba blanca larga y poblada, las gafas redondas y la chaqueta de tweed
+  finkel: { ...B34, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_TWEED_VM, ceja: hex('#b0b0ba'), delante: varios(barbaFinkelNX, gafasRedondasDC),
+    pal: CLT({ H: '#f2f2f6', h: '#d0d4de', w: '#c8ccd8', C: '#8a7a50', c: '#64562e', W: '#f2f2f6', o: '#7a3040', F: '#5a5648' }) },
+  // ── la ladera, 1977–1990 ──
+  // Ron Wyatt en 1977: el pelo y la barba oscuros, la camisa de cuadros rojos, los vaqueros y la mochila
+  wyatt: { ...B34, cab: CAB_BARBA, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#1c1424'), detras: mochilaNX, delante: correasNX,
+    pal: CLT({ H: '#2e2018', h: '#4a3626', C: '#c8483a', c: '#a03428', p: '#7a2420', W: '#f2eee2', F: '#3e5a8a', n: '#4a3420' }) },
+  // David Fasold, marino mercante: la gorra de marino azul, el bigote entrecano, el jersey azul marino de cuello vuelto
+  // y el pantalón crema
+  fasold: { ...B34, cuerpo: CUERPO_CUELLO_ALTO_DU, tocado: 'gorraMarinoNX', ceja: hex('#6a6a76'), delante: bigoteDobleDC,
+    pal: CLT({ H: '#8a8a94', h: '#b0b0ba', J: '#2a3a6a', j: '#40528a', D: '#1c1a20', O: '#f0c840', C: '#263460', c: '#182446', F: '#d8ccaa', n: '#4a3420' }) },
+  // Lorence Collins, geólogo, en los 90: canoso, las gafas de pasta y el chaleco de campo caqui de bolsillos sobre la
+  // camisa celeste
+  collins: { ...B34, cab: CAB_ENTRADAS, cuerpo: CUERPO_BUSCADOR, ceja: hex('#8a8a94'), delante: gafasKrupatCF,
+    pal: CLT({ H: '#b0b0ba', h: '#d4d4dc', C: '#a8c8e0', c: '#88a8c0', V: '#b09a62', o: '#8a7444', G: '#5a3a1a', F: '#6a6252', f: '#564e40', L: '#4a3420' }) },
+  // el geólogo joven: el casco amarillo, el pelo castaño y la camisa de campo verde
+  geologo2NX: { ...B34, cuerpo: CUERPO_CAMPO_GZ, tocado: 'cascoObra', ceja: hex('#4a2a18'),
+    pal: MOT({ H: '#6a4424', h: '#8a5e34', J: '#f0c838', j: '#c89a18', C: '#5a9a6a', c: '#42784e', o: '#2e5a3a', u: '#42784e', G: '#3a2a1a', F: '#8a8262', n: '#4a3420' }) },
+  // la geóloga: pelirroja con coleta, el chaleco de campo azul verdoso sobre la camisa crema
+  geologa3NX: { ...B34, cuerpo: CUERPO_BUSCADOR, ceja: hex('#8a3a1a'), detras: coleta, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8562a', h: '#d8743c', s: '#e8a080', C: '#f0e8d0', c: '#d0c8b0', V: '#3a8a8a', o: '#2a6a6a', G: '#5a3a1a', F: '#5a5a66', f: '#484854', L: '#4a3420' }) },
+  // ── la ladera, 2026 ──
+  // el fundador del grupo (persona real, sin caricatura): joven, el pelo corto castaño y la camisa de campo azul remangada
+  fundadorNX: { ...B34, cuerpo: CUERPO_REMANGADA_AT, ceja: hex('#5a3418'),
+    pal: CLT({ H: '#7a4a24', h: '#9a6434', C: '#3a6ab8', c: '#2a4e90', W: '#5a8ad0', o: '#e8eef6', A: '#2a4e90', F: '#b0a680', n: '#4a3420' }) },
+  // el arqueólogo turco: el pelo oscuro, la barba corta, el sombrero de ala pardo, el chaleco de campo verde oliva y
+  // el pañuelo rojo al cuello
+  arqueologoNX: { ...B34, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_EXPLORADOR_CF, tocado: 'alaAT', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#241a20', h: '#42343c', J: '#9a7a4a', j: '#b8985e', D: '#4a3020', C: '#ece4cc', c: '#ccc4ac', V: '#6e7e4a', o: '#4e5c30', u: '#c8483a', G: '#5a3a1a', F: '#7a6a48', f: '#62542e', L: '#3a2a1e' }) },
+  // el técnico del radar: la gorra azul, el chaleco reflectante naranja con las franjas plateadas y la camisa oscura
+  tecnicoNX: { ...B34, cuerpo: CUERPO_REFLECTANTE_AT, tocado: 'beisbol', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#4a2c18', h: '#6a4428', J: '#2a5aa8', j: '#4a7ac8', V: '#f08a2a', Y: '#e4e8f0', C: '#3a3e4e', c: '#2a2e3c', F: '#4a4a5a', n: '#2a2430' }) },
+  // ── la zona, hace siglos ──
+  // un pastor de la zona: el gorro de fieltro claro, el bigote oscuro, la capa parda de fieltro y el cayado
+  pastorNX: { ...B34, cuerpo: CUERPO_KEPENEK_NX, brazoCol: 12, tocado: 'gorroPastorNX', ceja: hex('#2a1c14'), delante: varios(bigoteGrandeVM, cayadoNX),
+    pal: MOT({ H: '#2e2018', h: '#4a3626', J: '#d8ccb0', j: '#b0a484', C: '#8a6844', c: '#6a4c2e', L: '#3a2a1e' }) },
+  // ── los turistas, 1977–1990 ──
+  // el turista: el sombrero de paja, la camisa de flores turquesa, la cámara al cuello y el pantalón claro
+  turista1NX: { ...B34, cuerpo: CUERPO_HAWAIANA_TS, tocado: 'sombreroPaja', ceja: hex('#8a5a24'), delante: camaraCuelloNX,
+    pal: CLT({ H: '#c8944e', h: '#e0b068', T: '#f0d890', t: '#d0b060', D: '#a8303a', C: '#2aa8a8', c: '#1e8484', X: '#f6f6f6', P: '#f6e060', p: '#f08a8a', F: '#e8dcc0', n: '#8a5a34' }) },
+  // la turista: la media melena castaña con la cinta blanca y el vestido de verano amarillo de lunares
+  turista2NX: { ...B34, cab: CAB_MEDIA_TR, cuerpo: CUERPO_VERANO_NX, ceja: hex('#4a2a18'), mejillas: [[6, 8], [12, 8]], delante: cintaAT,
+    pal: CLT({ H: '#6a4424', h: '#8a5e34', s: '#e8a080', u: '#f6f6f6', C: '#f0c838', c: '#c89a18', p: '#f6f6f6', I: '#d8503a', L: '#a8643a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_NX);
+
+// ── piezas del 34 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
+// o.dir −1 voltea ── Todo NUESTRO y SIN LETRAS: rayas, cifras y símbolos. Colores: los del 33 más la arcilla (F, la
+// sombra 1, la luz 2, las cuñas 3), el agua (4/5), el cuero (6/7), el óxido (8/9) y la piedra (0, la sombra $).
+const PAL_NX = { ...PAL_DU, ...COLORES({ F: '#c89a6a', 1: '#9a6e44', 2: '#e4c090', 3: '#5e3e22', 4: '#4a9ad8', 5: '#8ad0f0', 6: '#7a4a2a', 7: '#4e2c18', 8: '#b85a3a', 9: '#8a3a24', 0: '#a8a294', $: '#7a7468' }) };
+const CACHE_NX = new Map();
+const unaNX = (clave, hacer) => cacheGT(CACHE_NX, clave, hacer);
+const pintaNX = (R, g, x, y, o = {}, pal = PAL_NX) => pintaJH(R, g, x, y, o, pal);
+const cuadroNX = (t, n, v) => (t == null ? -1 : Math.floor(t * v) % n);
+const giraNX = (g) => g[0].split('').map((_, i) => g.map((f) => f[i]).reverse().join(''));
+
+// LA TABLILLA de arcilla: MEDIA tablilla rota (le falta el trozo de arriba a la derecha: el borde partido, en diagonal
+// y más claro) con sus filas de cuñas. 19 × 20. o.entera: la tablilla completa (19 × 25). Con o.t, un destello en la esquina
+const tablillaNX = (R, x, y, o = {}) => {
+  const f = cuadroNX(o.t, 4, 4), en = !!o.entera, h = en ? 25 : 20;
+  pintaNX(R, unaNX('tablilla' + en + f, () => forma(19, h, ({ put }) => {
+    const top = (i) => (en ? 1 : [2, 1, 1, 2, 3, 3, 4, 6, 7, 6, 7, 9, 8, 9, 10, 10, 11][i - 1]);
+    for (let i = 1; i <= 17; i++) for (let j = top(i); j <= h - 2; j++) put(i, j, i >= 16 || j >= h - 3 ? '1' : i === 1 || j === top(i) ? '2' : 'F');
+    put(1, h - 2, '.'); put(17, h - 2, '.'); if (en) { put(1, 1, '.'); put(17, 1, '.'); }
+    for (let j = 4, n = 0; j <= h - 5; j += 3, n++) for (let i = 3 + (n % 2); i <= 14; i += 3) {
+      if (j <= top(i) + 1) continue;
+      put(i, j, '3'); if ((i + n) % 2) { put(i + 1, j, '3'); put(i, j + 1, '3'); } else put(i, j + 1, '3');
+    }
+    if (f === 1) for (const [a, b] of [[3, 4], [2, 4], [4, 4], [3, 3], [3, 5]]) put(a, b, 'E'); else if (f === 0 || f === 2) put(3, 4, 'E');
+  })), x, y, o);
+};
+
+// LA TABLILLA PEQUEÑA, del tamaño de un móvil: de pie, con un CÍRCULO grabado (el plano del barco redondo) y dos filas
+// de cuñas. 11 × 16
+const tablillaPequenaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('tablillaP', () => forma(11, 16, ({ put, rect }) => {
+  rect(1, 1, 9, 14, 'F'); rect(9, 2, 9, 14, '1'); rect(1, 14, 9, 14, '1'); rect(1, 1, 1, 13, '2'); rect(1, 1, 8, 1, '2');
+  put(1, 1, '.'); put(9, 1, '.'); put(1, 14, '.'); put(9, 14, '.');
+  ['..333..', '.3...3.', '3.....3', '3.....3', '3.....3', '.3...3.', '..333..'].forEach((f, j) => { for (let i = 0; i < 7; i++) if (f[i] === '3') put(2 + i, 2 + j, '3'); });
+  for (const [i, j] of [[3, 10], [4, 10], [6, 10], [7, 11], [7, 10], [3, 12], [5, 12], [6, 12], [3, 13]]) put(i, j, '3');
+})), x, y, o);
+
+// UN FRAGMENTO suelto de tablilla, con dos o tres cuñas. o.n 0–2: tres trozos distintos. ~11 × 8
+const FRAGMENTOS_NX = [
+  ['..2222...', '.2FFFFF2.', '2FF3FFFF1', 'FF3FF3FF1', '.FFFF3F11', '..F1111..'],
+  ['.222.....', '2FFF22...', '2F3FFFF2.', '.FF3F3FF1', '..FFFFF11', '...1111..'],
+  ['...2222..', '.22FFFF2.', '2FF3FFF1.', '2F3FF3F1.', '.FFF3F11.', '..111....'],
+];
+const fragmentoNX = (R, x, y, o = {}) => {
+  const n = Math.max(0, Math.min(2, Math.round(o.n ?? 0)));
+  pintaNX(R, unaNX('fragmento' + n, () => forma(11, 8, ({ put }) => FRAGMENTOS_NX[n].forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i + 1, j + 1, f[i]); }))), x, y, o);
+};
+
+// EL PEZ NARANJA de la pecera de Atom (N, la aleta y la cola n), mirando a la derecha: 9 × 6. mira: mira hacia
+// arriba con desconfianza (la pupila arriba y la ceja recta)
+const PEZ_NX = ['...NNNN..', 'n.NNNNNN.', 'nnNNNWKN.', 'nnNNNNNNf', 'n.NNNNNN.', '...NnN...'];
+const PEZ_MIRA_NX = ['...NKKKK.', 'n.NNNWKN.', 'nnNNNWWN.', 'nnNNNNNNf', 'n.NNNNNN.', '...NnN...'];
+const pezNX = (put, i0, j0, mira) => (mira ? PEZ_MIRA_NX : PEZ_NX).forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i0 + i, j0 + j, f[i]); });
+
+// EL BARQUITO DE PAPEL blanco (W, los pliegues w), de perfil: el casco con las dos puntas y el pico del centro.
+// 19 × 12. o.pez: el pez naranja va subido dentro, asomado por detrás del pico
+const barquitoNX = (R, x, y, o = {}) => pintaNX(R, unaNX('barquito' + !!o.pez, () => forma(19, 12, ({ put, rect }) => {
+  const hw = [0, 1, 2, 2, 3, 4];
+  if (o.pez) pezNX(put, 9, 2, false);
+  hw.forEach((w, k) => { for (let i = 9 - w; i <= 9 + w; i++) put(i, 1 + k, i > 9 ? 'w' : 'W'); });
+  rect(1, 6, 2, 6, 'W'); rect(16, 6, 17, 6, 'W'); rect(1, 7, 17, 7, 'W'); rect(2, 8, 16, 8, 'W'); rect(4, 9, 14, 9, 'W'); rect(5, 10, 13, 10, 'w');
+  for (const [i, j] of [[9, 7], [8, 8], [10, 8], [7, 9], [11, 9], [15, 8], [14, 9]]) put(i, j, 'w');
+})), x, y, o);
+
+// LA PECERA redonda: el cristal (I), el agua (4, la superficie 5), la grava (A/a), dos plantas (G/v), las burbujas
+// (animadas con o.t) y, salvo o.pez: false, el pez naranja. o.mira: el pez mira hacia arriba con desconfianza.
+// 27 × 22. No se voltea con o.dir (el pez mira siempre a la derecha); o.pezDir −1: el pez mira a la izquierda
+const peceraNX = (R, x, y, o = {}) => {
+  const f = cuadroNX(o.t, 3, 3), pez = o.pez !== false, pd = o.pezDir === -1;
+  pintaNX(R, unaNX('pecera' + pez + !!o.mira + pd + f, () => forma(27, 22, ({ put, rect, linea }) => {
+    for (let j = 3; j <= 20; j++) for (let i = 1; i <= 25; i++) {
+      const d = Math.hypot(i - 13, j - 11.5); if (d > 11.4) continue;
+      put(i, j, d > 10.3 || j <= 4 ? 'I' : j >= 19 ? ((i + j) % 3 ? 'A' : 'a') : j === 6 ? '5' : j < 6 ? 'E' : '4');
+    }
+    rect(6, 2, 20, 2, 'I'); rect(7, 2, 19, 2, 'E'); put(6, 2, 'i'); put(20, 2, 'i');
+    linea(7, 18, 6, 11, 'G'); linea(8, 18, 9, 13, 'v'); put(5, 10, 'G'); linea(19, 18, 20, 10, 'G'); linea(18, 18, 17, 14, 'v'); put(21, 9, 'G'); put(20, 13, 'v');
+    for (const [i, j] of [[4, 9], [3, 10], [3, 11], [4, 8]]) put(i, j, 'E'); put(22, 15, '5'); put(21, 16, '5');
+    if (pez) { const g = []; pezNX((i, j, ch) => g.push([i, j, ch]), 0, 0, !!o.mira); for (const [i, j, ch] of g) put(pd ? 17 - i : 9 + i, 11 + j, ch); }
+    const bx = pez && !pd ? 19 : 8;
+    for (const [dx, dy] of [[[0, 9], [1, 13]], [[1, 8], [0, 12], [0, 16]], [[0, 7], [1, 11], [1, 15]]][Math.max(0, f)]) put(bx + dx, dy, 'E');
+  })), x, y, { ...o, dir: 1 });
+};
+
+// LA FOTO AÉREA en blanco y negro: el marco blanco y, entre los pliegues del terreno, la SILUETA alargada (la punta a un
+// lado y el otro extremo, romo). o.giro: cuartos de vuelta (0, tumbada con la punta a la derecha; 1, de pie con la
+// punta abajo; 2; 3, de pie con la punta ARRIBA). 24 × 18 tumbada, 18 × 24 de pie
+const FOTO_NX = () => forma(24, 18, ({ put, rect, linea }) => {
+  rect(1, 1, 22, 16, 'W'); rect(22, 2, 22, 16, 'w'); rect(1, 16, 22, 16, 'w'); rect(3, 3, 20, 14, 'x');
+  for (const [a, b, c, d] of [[3, 5, 8, 3], [3, 11, 6, 14], [14, 14, 20, 11], [16, 3, 20, 5]]) linea(a, b, c, d, 'j');
+  linea(3, 13, 9, 14, 'u'); linea(13, 3, 20, 8, 'u'); put(5, 4, 'u'); put(18, 13, 'j'); put(7, 12, 'j');
+  for (let i = 5; i <= 18; i++) {
+    const u = (i - 11.5) / 7, hw = 2.6 * (1 - Math.pow(Math.abs(u), u < 0 ? 5 : 1.3));
+    for (let j = 4; j <= 13; j++) { const d = Math.abs(j - 8.5); if (d <= hw + 0.5) put(i, j, d > hw - 0.6 || i === 5 ? 'K' : j < 8.5 ? 'Z' : 'X'); }
+  }
+  put(19, 8, 'K'); put(19, 9, 'K');
+});
+const fotoAereaNX = (R, x, y, o = {}) => {
+  const q = ((Math.round(o.giro ?? 0) % 4) + 4) % 4;
+  pintaNX(R, unaNX('foto' + q, () => { let g = FOTO_NX(); for (let n = 0; n < q; n++) g = giraNX(g); return g; }), x, y, { ...o, dir: 1 });
+};
+
+// LA REVISTA abierta: las dos páginas (W) con la foto de la silueta a DOBLE PÁGINA y, debajo, las rayas del texto; las
+// tapas rojas asoman por abajo. 38 × 20
+const revistaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('revista', () => forma(38, 20, ({ put, rect, linea }) => {
+  rect(1, 16, 36, 18, 'C'); rect(18, 15, 19, 18, 'c');
+  rect(2, 2, 18, 16, 'W'); rect(19, 2, 35, 16, 'W'); rect(2, 16, 35, 16, 'w'); put(2, 2, '.'); put(35, 2, '.');
+  rect(4, 4, 33, 11, 'x'); linea(4, 6, 10, 4, 'j'); linea(26, 11, 33, 8, 'j'); linea(4, 10, 9, 11, 'u'); linea(27, 4, 33, 6, 'u');
+  for (let i = 9; i <= 28; i++) {
+    const u = (i - 18.5) / 10, hw = 2.4 * (1 - Math.pow(Math.abs(u), u < 0 ? 5 : 1.3));
+    for (let j = 4; j <= 11; j++) { const d = Math.abs(j - 7.5); if (d <= hw + 0.5) put(i, j, d > hw - 0.6 || i === 9 ? 'K' : j < 7.5 ? 'Z' : 'X'); }
+  }
+  rect(18, 2, 19, 15, 'w'); rect(18, 4, 19, 11, 'j');
+  for (const [a, b, j] of [[4, 15, 13], [4, 12, 14], [22, 33, 13], [22, 29, 14]]) rect(a, j, b, j, 'd');
+})), x, y, o);
+
+// LA LUPA: el aro de acero (Z), el cristal (I, el brillo E) y el mango de madera hacia abajo a la derecha. 15 × 18
+const lupaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('lupa', () => forma(15, 18, ({ put, disco, linea }) => {
+  disco(6, 6, 5, 'Z'); disco(6, 6, 3.7, 'I'); put(4, 4, 'E'); put(5, 4, 'E'); put(4, 5, 'E'); put(8, 8, 'i'); put(9, 9, 'z'); put(10, 9, 'z'); put(9, 10, 'z');
+  linea(10, 11, 12, 16, 'M'); linea(11, 11, 13, 16, 'm'); linea(10, 10, 11, 12, 'M');
+})), x, y, o);
+
+// LA CINTA MÉTRICA amarilla: la caja redonda (Y) y la cinta que sale por abajo hacia la derecha, con sus rayas.
+// o.largo: los píxeles de cinta desenrollados (0–150). OJO: (x, y) es el centro de abajo de la CAJA (11 × 11), para
+// que la caja no se mueva al tirar de la cinta. Devuelve { punta: [x, y] }: el extremo de la cinta en la pantalla
+const cintaNX = (R, x, y, o = {}) => {
+  const L = Math.max(0, Math.min(150, Math.round(o.largo ?? 0))), w = 11 + L, s = o.s ?? 1, dir = o.dir ?? 1;
+  pintaNX(R, unaNX('cinta' + L, () => forma(w, 11, ({ put, rect, disco }) => {
+    disco(5, 5, 4, 'Y'); for (let j = 1; j <= 9; j++) for (let i = 1; i <= 9; i++) { const d = Math.hypot(i - 5, j - 5); if (d <= 4.35 && (i - 5) + (j - 5) > 3) put(i, j, 'y'); }
+    disco(5, 5, 1.2, 'K'); put(5, 5, 'Z'); put(3, 3, 'o'); put(4, 2, 'o');
+    if (L > 0) { rect(8, 8, 9 + L - 1, 9, 'Y'); for (let i = 10; i < 9 + L - 1; i += 3) put(i, 8, 'K'); for (let i = 16; i < 9 + L - 1; i += 9) put(i, 9, 'K'); put(9 + L - 1, 8, 'Z'); put(9 + L - 1, 9, 'Z'); }
+    else { put(9, 8, 'Z'); put(9, 9, 'Z'); }
+  })), x + dir * Math.round((w / 2 - 5.5) * s), y, o);
+  return { punta: [Math.round(x + dir * (L + 4) * s), Math.round(y - 2 * s)] };
+};
+
+// LA MULA de carga, de perfil (mira a la derecha; o.dir −1): parda (P/p), el hocico claro, las orejas largas, la crin
+// y la cola negras, la manta roja y DOS CAJAS de madera atadas al lomo. Con o.t, anda. 32 × 26
+const mulaNX = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroNX(o.t, 2, 5));
+  pintaNX(R, unaNX('mula' + f, () => forma(32, 26, ({ put, rect, disco, linea }) => {
+    linea(5, 12, 3, 18, 'K'); linea(4, 12, 3, 16, 'K');
+    const patas = f ? [[7, 0], [11, -1], [18, -1], [21, 0]] : [[8, -1], [10, 0], [19, 0], [20, -1]];
+    patas.forEach(([i, d], n) => { rect(i, 16, i + 1, 23 + d, n % 2 ? 'p' : 'P'); rect(i, 23 + d, i + 1, 23 + d, 'K'); });
+    for (let j = 9; j <= 18; j++) for (let i = 4; i <= 23; i++) { const u = (i - 13.5) / 9.6, v = (j - 13.5) / 4.6; if (u * u + v * v <= 1) put(i, j, v > 0.45 ? 'p' : 'P'); }
+    for (let k = 0; k <= 6; k++) { disco(21 + k * 0.75, 11 - k * 0.8, 2.3, 'P'); }
+    for (let k = 0; k <= 5; k++) put(20 + k * 0.8, 8 - k * 0.85, 'K');
+    disco(27, 6.5, 2.2, 'P'); rect(28, 6, 30, 8, 'P'); rect(29, 7, 30, 8, 'H'); put(30, 8, 'K'); put(27, 6, 'K'); put(27, 5, 'E');
+    linea(25, 4, 24, 1, 'P'); linea(26, 4, 27, 1, 'P'); put(24, 2, 'p'); put(27, 2, 'p');
+    rect(8, 9, 19, 10, 'R'); rect(8, 11, 19, 11, 'r');
+    rect(7, 3, 12, 8, 'M'); rect(14, 2, 20, 8, 'M'); rect(7, 8, 12, 8, 'm'); rect(14, 8, 20, 8, 'm'); rect(12, 3, 12, 8, 'm'); rect(20, 2, 20, 8, 'm');
+    rect(7, 5, 12, 5, 'm'); rect(14, 5, 20, 5, 'm'); put(9, 4, 'A'); put(17, 3, 'A'); put(17, 4, 'A');
+    rect(10, 9, 10, 15, 'A'); rect(17, 9, 17, 15, 'A');
+  })), x, y, o);
+};
+
+// LA EXPLOSIÓN pequeña: una nube de polvo (T/A/a) que nace con un fogonazo, crece, sube y se deshace. o.f 0–1 (0, nada)
+// 36 × 26
+const explosionNX = (R, x, y, o = {}) => {
+  const p = pasoGT(o.f, 7);
+  if (p === 0) return;
+  pintaNX(R, unaNX('explosion' + p, () => forma(36, 26, ({ put, disco }) => {
+    const k = [0, 0.4, 0.65, 0.85, 1, 0.9, 0.62, 0.36][p], sep = 0.45 + p * 0.1, sube = p * 0.9;
+    const bolas = [[-7, 0, 4], [0, -1, 5.2], [7, 0, 4], [-4, -5, 3.6], [4, -6, 3.2], [0, -9, 2.4]];
+    for (const [dx, dy, r] of bolas) disco(18 + dx * sep + 0.6, 19 + dy * sep - sube + 0.8, r * k, 'a');
+    for (const [dx, dy, r] of bolas) disco(18 + dx * sep, 19 + dy * sep - sube, r * k, 'A');
+    for (const [dx, dy, r] of bolas) if (r * k > 1.6) disco(18 + dx * sep - 0.8, 19 + dy * sep - sube - 0.9, r * k * 0.5, 'T');
+    if (p <= 2) { disco(18, 21, p === 1 ? 2.6 : 1.6, 'O'); disco(18, 21, p === 1 ? 1.4 : 0.6, 'o'); }
+    if (p >= 2 && p <= 5) for (const [dx, dy] of [[-12, -4], [11, -6], [-9, -11], [8, -12], [14, -1], [-14, 0]]) put(18 + dx * (0.5 + p * 0.1), 20 + dy * (0.4 + p * 0.12), 'd');
+  })), x, y, o);
+};
+
+// EL REMACHE: pequeño y rojizo, de óxido (8/9), tumbado: la cabeza redonda a la izquierda, el vástago y la punta
+// remachada (más ancha) a la derecha. 12 × 9
+const remacheNX = (R, x, y, o = {}) => pintaNX(R, unaNX('remache', () => forma(12, 9, ({ put, rect }) => {
+  rect(1, 2, 1, 6, '8'); rect(2, 1, 3, 7, '8'); rect(4, 3, 8, 5, '8'); rect(9, 2, 10, 6, '8');
+  rect(4, 5, 8, 5, '9'); rect(9, 6, 10, 6, '9'); put(2, 7, '9'); put(3, 7, '9'); put(1, 6, '9'); put(3, 6, '9'); put(10, 5, '9');
+  put(2, 1, 'N'); put(1, 2, 'N'); put(2, 2, 'N'); put(5, 3, 'N'); put(6, 3, 'N'); put(9, 2, 'N'); put(7, 4, '9');
+})), x, y, o);
+
+// LA PIEDRA DEL AGUJERO: una gran losa de piedra en pie (0, la sombra $), más ancha por abajo, con un AGUJERO arriba
+// (se ve lo que hay detrás) y manchas de liquen. 18 × 32
+const piedraAgujeroNX = (R, x, y, o = {}) => pintaNX(R, unaNX('piedra', () => forma(18, 32, ({ put }) => {
+  for (let j = 1; j <= 30; j++) {
+    const hw = j < 5 ? [2.5, 4, 5, 5.5][j - 1] : 5.6 + (j - 5) * 0.07 + (j > 26 ? 0.6 : 0), a = Math.round(8.5 - hw + Math.sin(j * 0.9) * 0.4), b = Math.round(8.5 + hw + Math.sin(j * 0.6 + 1) * 0.5);
+    for (let i = a; i <= b; i++) put(i, j, i >= b - 2 || j >= 29 ? '$' : j === 1 || (i === a && j < 12) ? 'H' : '0');
+  }
+  for (let j = 3; j <= 10; j++) for (let i = 5; i <= 12; i++) { const d = Math.hypot(i - 8.5, j - 6.5); if (d <= 2.2) put(i, j, '.'); }
+  for (const [i, j] of [[6, 13], [7, 14], [10, 19], [5, 22], [6, 22], [11, 25], [8, 17]]) put(i, j, 'q');
+  for (const [i, j] of [[9, 11], [9, 12], [10, 13], [6, 18], [6, 19], [7, 20], [9, 24], [8, 25]]) put(i, j, '$');
+})), x, y, o);
+
+// EL MARTILLO de geólogo, de pie: la cabeza de acero con la cara plana a un lado y el PICO al otro, y el mango con la
+// empuñadura azul. 17 × 18
+const martilloNX = (R, x, y, o = {}) => pintaNX(R, unaNX('martillo', () => forma(17, 18, ({ put, rect }) => {
+  rect(7, 5, 8, 9, 'Z'); rect(8, 5, 8, 9, 'z'); rect(7, 10, 8, 16, 'B'); rect(8, 10, 8, 16, 'b'); put(7, 12, 'b'); put(7, 14, 'b');
+  rect(2, 1, 4, 5, 'Z'); rect(2, 5, 4, 5, 'z'); rect(5, 2, 9, 4, 'Z'); rect(5, 4, 9, 4, 'z'); put(2, 1, 'E'); put(3, 1, 'E');
+  for (let i = 10; i <= 15; i++) { const b = 4 - Math.round((i - 10) * 0.5); for (let j = 2; j <= Math.max(2, b); j++) put(i, j, j === Math.max(2, b) && b > 2 ? 'z' : 'Z'); }
+})), x, y, o);
+
+// EL RADAR DE SUELO: un carrito de TRES RUEDAS con la caja naranja de la antena (N), el manillar y, arriba, la
+// PANTALLA con su traza verde. o.pita: la luz roja encendida, la traza en rojo y las ondas del pitido (parpadean con
+// o.t). 31 × 28
+const radarNX = (R, x, y, o = {}) => {
+  const pita = !!o.pita, f = pita ? Math.max(0, cuadroNX(o.t, 2, 6)) : 0;
+  pintaNX(R, unaNX('radar' + pita + f, () => forma(31, 28, ({ put, rect, disco, linea }) => {
+    disco(16, 23.5, 2.2, 'u'); put(16, 23, 'x');
+    linea(8, 14, 5, 6, 'z'); linea(9, 14, 6, 6, 'Z'); rect(2, 4, 5, 5, 'K');
+    rect(6, 13, 25, 20, 'N'); rect(6, 13, 25, 13, 'f'); rect(6, 20, 25, 20, 'n'); rect(25, 14, 25, 20, 'n');
+    rect(8, 15, 14, 18, 'K'); put(9, 16, 'Z'); put(11, 16, 'Z'); put(13, 16, 'Z'); rect(9, 18, 13, 18, 'u'); rect(17, 15, 19, 15, 'W'); rect(17, 17, 21, 17, 'W');
+    put(23, 15, pita ? (f ? 'R' : 'o') : 'r'); if (pita) { put(22, 15, 'R'); put(24, 15, 'R'); put(23, 14, 'R'); put(23, 16, 'R'); }
+    rect(10, 21, 21, 21, 'K');
+    disco(8, 22.5, 3.3, 'K'); disco(8, 22.5, 1.2, 'Z'); disco(23, 22.5, 3.3, 'K'); disco(23, 22.5, 1.2, 'Z');
+    rect(6, 3, 15, 10, 'K'); rect(7, 4, 14, 9, 'U'); rect(6, 3, 15, 3, 'u');
+    for (const [i, j] of pita ? [[7, 8], [8, 7], [9, 8], [10, 5], [11, 8], [12, 6], [13, 8], [14, 7]] : [[7, 7], [8, 6], [9, 7], [10, 8], [11, 7], [12, 6], [13, 7], [14, 7]]) put(i, j, pita ? 'R' : 'G');
+    if (pita) {
+      for (const [i, j] of [[18, 4], [19, 5], [19, 6], [19, 7], [18, 8]]) put(i, j, 'R');
+      if (f) for (const [i, j] of [[21, 2], [22, 3], [23, 4], [23, 5], [23, 6], [23, 7], [23, 8], [22, 9], [21, 10]]) put(i, j, 'R');
+    }
+  })), x, y, o);
+};
+
+// LA HEBILLA de cinturón, vieja: el marco de latón (O, lo gastado g) con el HUECO (se ve lo que hay detrás), el
+// pasador de acero cruzado y un trozo de cuero a la izquierda. 16 × 11
+const hebillaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('hebilla', () => {
+  const g = forma(16, 11, ({ put, rect }) => {
+    rect(1, 3, 4, 7, '6'); rect(1, 7, 4, 7, '7'); put(2, 5, '7');
+    rect(5, 1, 14, 9, 'O'); rect(5, 9, 14, 9, 'g'); rect(14, 2, 14, 9, 'g'); rect(5, 1, 6, 9, 'g'); rect(8, 1, 11, 1, 'o'); put(5, 1, '.'); put(14, 1, '.'); put(5, 9, '.'); put(14, 9, '.');
+    put(12, 8, '9'); put(13, 3, '9');
+  }).map((f) => f.split(''));
+  for (let j = 3; j <= 7; j++) for (let i = 8; i <= 12; i++) g[j][i] = '.';
+  for (let i = 6; i <= 13; i++) g[5][i] = i === 13 ? 'z' : 'Z';
+  return g.map((f) => f.join(''));
+}), x, y, o);
+
+// LA BOLSITA DE MUESTRA: transparente (I), con el cierre arriba, la tierra en el fondo y la etiqueta blanca con su
+// NÚMERO (o.n, 0–99; por omisión, 1). 15 × 18. No se voltea (la cifra)
+const bolsaNX = (R, x, y, o = {}) => {
+  o = sinDirDU(o);
+  pintaNX(R, unaNX('bolsa', () => forma(15, 18, ({ put, rect }) => {
+    rect(2, 3, 12, 16, 'I'); rect(12, 4, 12, 16, 'i'); rect(1, 1, 13, 2, 'Z'); rect(1, 2, 13, 2, 'z'); put(11, 1, 'R'); put(11, 2, 'R');
+    rect(2, 13, 12, 16, 'P'); for (const [i, j] of [[3, 12], [4, 12], [5, 12], [8, 12], [9, 12], [10, 12], [11, 12]]) put(i, j, 'P'); for (const [i, j] of [[4, 14], [7, 15], [10, 14], [5, 16], [9, 16], [11, 13]]) put(i, j, 'p'); put(6, 14, 'M'); put(9, 13, 'M');
+    rect(3, 4, 11, 10, 'W'); rect(3, 10, 11, 10, 'w'); put(2, 5, 'E'); put(2, 6, 'E');
+  })), x, y, o);
+  const n = String(Math.max(0, Math.min(99, Math.floor(o.n ?? 1))));
+  numeroNV(encimaDU(R, 15, 18, x, y, o), n, 3 + Math.floor((9 - anchoNumeroNV(n)) / 2), 5, 'K');
+};
+
+// LA PERFORADORA: una torre pequeña de sondeo (la celosía de acero z/Z), con la polea arriba, la varilla que baja por
+// el centro hasta el suelo, el cabezal naranja y, al pie, el MOTOR azul con su correa y su escape. o.gira: la varilla
+// gira (las marcas bajan con o.t) y el escape echa humo. 30 × 44. La varilla entra en el suelo en (x − 1·s, y)
+const perforadoraNX = (R, x, y, o = {}) => {
+  const f = o.gira ? Math.max(0, cuadroNX(o.t, 3, 9)) : 3;
+  pintaNX(R, unaNX('perforadora' + f, () => forma(30, 44, ({ put, rect, disco, linea }) => {
+    if (f < 3) humoGT(put, disco, 26, 29, 2, f);
+    linea(8, 41, 12, 5, 'z'); linea(9, 41, 13, 5, 'Z'); linea(20, 41, 16, 5, 'z'); linea(19, 41, 15, 5, 'Z');
+    for (let j = 9, n = 0; j < 38; j += 6, n++) { const a = 13 - (j - 5) / 9, b = 15 + (j - 5) / 9, a2 = 13 - (j + 1) / 9, b2 = 15 + (j + 1) / 9; linea(n % 2 ? a : b, j, n % 2 ? b2 : a2, j + 6, 'z'); }
+    rect(11, 3, 17, 4, 'K'); disco(14, 2, 1.2, 'Z'); put(14, 2, 'K');
+    rect(14, 5, 14, 41, 'Z'); for (let j = 6 + (f % 3); j <= 40; j += 3) put(14, j, 'K');
+    rect(12, 20, 16, 24, 'N'); rect(12, 24, 16, 24, 'n'); rect(16, 21, 16, 24, 'n'); put(13, 21, 'f');
+    rect(3, 41, 26, 42, 'K'); rect(3, 41, 26, 41, 'u');
+    rect(21, 33, 27, 40, 'B'); rect(21, 40, 27, 40, 'b'); rect(27, 34, 27, 40, 'b'); rect(21, 33, 27, 33, 'D'); rect(26, 30, 26, 32, 'u'); put(25, 30, 'u');
+    disco(23.5, 36.5, 1.6, 'Z'); put(23, 36, 'K'); linea(16, 23, 22, 35, 'K'); put(25, 38, 'Y'); put(25, 36, 'R');
+    for (const [i, j] of [[12, 40], [13, 40], [15, 40], [16, 40], [13, 39], [15, 39], [11, 40]]) put(i, j, 'P');
+  })), x, y, o);
+};
+
+// EL TESTIGO: el cilindro de tierra que sale del sondeo, tumbado en su media caña de acero, con sus tramos de colores
+// y, en el tramo claro del centro, UNOS TROCITOS NEGROS. o.brillo: los trocitos destellan (con o.t, parpadean). 38 × 10
+const testigoNX = (R, x, y, o = {}) => {
+  const b = !!o.brillo, f = b ? Math.max(0, cuadroNX(o.t, 2, 5)) : 0;
+  pintaNX(R, unaNX('testigo' + b + f, () => forma(38, 10, ({ put, rect }) => {
+    rect(1, 6, 36, 8, 'z'); rect(1, 6, 36, 6, 'Z'); rect(1, 4, 1, 8, 'Z'); rect(36, 4, 36, 8, 'Z'); rect(2, 8, 35, 8, 'u');
+    const tramo = (i) => (i <= 8 ? 'A' : i <= 14 ? 'P' : i <= 26 ? 'h' : i <= 30 ? 'P' : 'a');
+    for (let i = 3; i <= 34; i++) { const c = tramo(i); put(i, 3, c === 'A' ? 'T' : c === 'P' ? 'M' : c === 'h' ? 'H' : 'A'); put(i, 4, c); put(i, 5, c); put(i, 6, c === 'h' ? 'd' : c === 'P' ? 'm' : c === 'A' ? 'a' : 'd'); }
+    for (const i of [11, 28]) for (let j = 3; j <= 6; j++) put(i, j, 'k');
+    for (const [i, j] of [[17, 4], [18, 4], [18, 5], [17, 5], [21, 5], [22, 5], [22, 4], [24, 3], [24, 4], [20, 3]]) put(i, j, 'Q');
+    if (b) for (const [i, j] of f ? [[20, 1], [19, 2], [21, 2], [20, 2], [20, 3], [24, 2]] : [[20, 2], [24, 1], [23, 2], [25, 2], [24, 2], [24, 3]]) put(i, j, 'E');
+  })), x, y, o);
+};
+
+// EL SOBRE ACOLCHADO: de papel de estraza (A, la sombra a), gordo, con la solapa, la etiqueta blanca con rayas y dos
+// sellos. 24 × 16
+const sobreNX = (R, x, y, o = {}) => pintaNX(R, unaNX('sobre', () => forma(24, 16, ({ put, rect, linea }) => {
+  rect(1, 2, 22, 13, 'A'); rect(2, 1, 21, 1, 'A'); rect(2, 14, 21, 14, 'a'); rect(1, 13, 22, 13, 'a'); rect(22, 3, 22, 13, 'a'); rect(2, 2, 21, 2, 'T');
+  linea(1, 2, 11, 7, 'a'); linea(22, 2, 12, 7, 'a');
+  for (let i = 3; i <= 20; i += 3) put(i, 12, 'T');
+  rect(7, 8, 16, 11, 'W'); rect(8, 9, 14, 9, 'd'); rect(8, 10, 12, 10, 'd');
+  rect(18, 3, 20, 6, 'R'); put(19, 4, 'X'); put(19, 5, 'X'); rect(14, 3, 16, 5, 'B'); put(15, 4, 'X');
+})), x, y, o);
+
+// LA NOTA DE PRENSA: una hoja blanca con la cabecera, las rayas del texto y un SELLO rojo redondo con un «?» dentro.
+// 17 × 22. No se voltea (el signo)
+const notaPrensaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('nota', () => forma(17, 22, ({ put, rect }) => {
+  rect(1, 1, 14, 20, 'W'); rect(14, 2, 14, 20, 'w'); rect(1, 20, 14, 20, 'w'); rect(3, 3, 9, 3, 'K'); rect(11, 3, 12, 3, 'B');
+  for (const [a, b, j] of [[3, 12, 5], [3, 11, 7], [3, 12, 9], [3, 5, 11], [3, 4, 13], [3, 5, 15]]) rect(a, j, b, j, 'd');
+  for (let j = 9; j <= 19; j++) for (let i = 5; i <= 14; i++) { const d = Math.hypot(i - 9.5, j - 14); if (d <= 4.6) put(i, j, d >= 3.5 ? 'R' : 'W'); }
+  for (const [i, j] of [[9, 12], [10, 12], [11, 13], [10, 14], [10, 16]]) put(i, j, 'R'); put(8, 13, 'R');
+})), x, y, sinDirDU(o));
+
+// LA REVISTA CIENTÍFICA, cerrada: la tapa azul (B) con la cabecera blanca y sus dos barras (sin letras) y un ÁTOMO
+// en el centro: el núcleo naranja y tres órbitas blancas con sus electrones. 18 × 23
+const revistaCienciaNX = (R, x, y, o = {}) => pintaNX(R, unaNX('revistaC', () => forma(18, 23, ({ put, rect, disco }) => {
+  rect(1, 1, 16, 21, 'B'); rect(1, 1, 1, 21, 'b'); rect(1, 21, 16, 21, 'b'); rect(1, 1, 16, 4, 'X'); rect(3, 2, 10, 3, 'R'); rect(12, 2, 14, 3, 'K');
+  for (const th of [0, Math.PI / 3, -Math.PI / 3]) for (let a = 0; a < 6.3; a += 0.08) {
+    const u = Math.cos(a) * 6, v = Math.sin(a) * 2.1; put(8.5 + u * Math.cos(th) - v * Math.sin(th), 12.5 + u * Math.sin(th) + v * Math.cos(th), 'X');
+  }
+  disco(8.5, 12.5, 1.1, 'N'); put(14, 12, 'Y'); put(6, 8, 'Y'); put(6, 17, 'Y'); rect(3, 20, 9, 20, 'D');
+})), x, y, o);
+
+// EL ARTÍCULO: dos hojas grapadas (la de atrás asoma), con la cabecera, las rayas del texto y, abajo, una FIRMA DOBLE
+// (una azul y una roja, cada una sobre su raya). 19 × 23
+const articuloNX = (R, x, y, o = {}) => pintaNX(R, unaNX('articulo', () => forma(19, 23, ({ put, rect }) => {
+  rect(4, 1, 17, 19, 'w'); rect(17, 2, 17, 19, 'j'); rect(1, 3, 14, 21, 'W'); rect(14, 4, 14, 21, 'w'); rect(1, 21, 14, 21, 'w');
+  put(2, 4, 'u'); put(3, 5, 'u'); rect(4, 6, 11, 6, 'K');
+  for (const [a, b, j] of [[3, 12, 8], [3, 11, 10], [3, 12, 12], [3, 9, 14]]) rect(a, j, b, j, 'd');
+  for (const [i, j] of [[2, 17], [3, 16], [4, 17], [5, 16], [6, 17]]) put(i, j, 'B'); for (const [i, j] of [[8, 16], [9, 17], [10, 16], [11, 17], [12, 16]]) put(i, j, 'R');
+  rect(2, 19, 6, 19, 'd'); rect(8, 19, 12, 19, 'd');
+})), x, y, o);
+
+// EL LIBRO SAGRADO: un libro antiguo, cerrado y de pie: la tapa de cuero (6, el lomo 7 con sus nervios), las cantoneras
+// y el broche de oro, el canto de las hojas y, en el centro, el SÍMBOLO de oro. o.simbolo: 'estrella' (de seis puntas),
+// 'cruz' o 'luna' (la media luna): los tres en el mismo libro, con el mismo oro y en la misma caja de 9 × 9.
+// 20 × 26. No se voltea. Sin o.simbolo, la tapa lisa
+const SIMBOLOS_NX = {
+  estrella: ['....O....', '...O.O...', 'OOOOOOOOO', '.OO...OO.', '.O.....O.', '.OO...OO.', 'OOOOOOOOO', '...O.O...', '....O....'],
+  cruz: ['...OOO...', '...OOO...', '.OOOOOOO.', '.OOOOOOO.', '...OOO...', '...OOO...', '...OOO...', '...OOO...', '...OOO...'],
+  luna: ['...OOOO..', '.OOO...O.', '.OO......', 'OOO......', 'OOO......', 'OOO......', '.OO......', '.OOO...O.', '...OOOO..'],
+};
+const libroSagradoNX = (R, x, y, o = {}) => {
+  const sm = SIMBOLOS_NX[o.simbolo] ? o.simbolo : '';
+  pintaNX(R, unaNX('sagrado' + sm, () => forma(20, 26, ({ put, rect }) => {
+    rect(2, 1, 17, 24, '6'); rect(1, 1, 2, 24, '7'); rect(18, 2, 18, 23, 'H'); for (let j = 3; j <= 22; j += 2) put(18, j, 'h'); rect(3, 24, 17, 24, '7');
+    for (const j of [5, 12, 19]) rect(1, j, 2, j, 'g');
+    for (const [i, j, a, b] of [[4, 2, 1, 1], [17, 2, -1, 1], [4, 23, 1, -1], [17, 23, -1, -1]]) { put(i, j, 'O'); put(i + a, j, 'O'); put(i, j + b, 'O'); }
+    rect(5, 4, 15, 4, 'g'); rect(5, 21, 15, 21, 'g'); rect(4, 5, 4, 20, 'g'); rect(16, 5, 16, 20, 'g');
+    rect(17, 12, 18, 13, 'O'); put(18, 13, 'g');
+    if (sm) SIMBOLOS_NX[sm].forEach((f, j) => { for (let i = 0; i < 9; i++) if (f[i] !== '.') put(6 + i, 8 + j, 'O'); });
+  })), x, y, sinDirDU(o));
+};
+
+// LA PALOMA blanca, volando (mira a la derecha; o.dir −1): el cuerpo, la cola en abanico, el pico y las alas, que
+// baten con o.t. o.hoja: lleva en el pico UNA HOJA de olivo (una sola hoja, no una rama). 22 × 16
+const palomaNX = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroNX(o.t, 2, 6));
+  pintaNX(R, unaNX('paloma' + f + !!o.hoja, () => forma(22, 16, ({ put, rect, disco }) => {
+    for (let j = 5; j <= 11; j++) for (let i = 4; i <= 15; i++) { const u = (i - 9.5) / 5.4, v = (j - 8) / 2.7; if (u * u + v * v <= 1) put(i, j, v > 0.5 ? 'w' : 'W'); }
+    rect(2, 7, 4, 8, 'W'); put(1, 6, 'W'); put(1, 7, 'W'); put(1, 9, 'w'); put(2, 9, 'w'); put(3, 9, 'w');
+    disco(15.5, 6, 1.9, 'W'); put(16, 5, 'K'); put(18, 6, 'N'); put(19, 6, 'N'); put(18, 7, 'n');
+    const ala = f ? [[6, 11, 9], [6, 10, 10], [5, 9, 11], [5, 8, 12], [4, 6, 13], [4, 5, 14]] : [[6, 11, 6], [6, 10, 5], [5, 10, 4], [5, 9, 3], [4, 7, 2], [4, 5, 1]];
+    for (const [a, b, j] of ala) { rect(a, j, b, j, 'W'); put(a, j, 'w'); }
+    if (f) { put(9, 9, 'w'); put(10, 9, 'w'); } else { put(8, 6, 'w'); put(9, 6, 'w'); put(10, 6, 'w'); }
+    if (o.hoja) { put(19, 7, 'v'); put(19, 8, 'G'); put(20, 8, 'G'); put(19, 9, 'v'); put(20, 9, 'G'); put(20, 10, 'v'); }
+  })), x, y, o);
+};
+
+// EL CARACOL, de perfil (mira a la derecha; o.dir −1): la concha en espiral (N/n), el cuerpo claro y los dos cuernos
+// con sus ojos. Con o.t, se estira y se encoge al andar. 15 × 10
+const caracolNX = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroNX(o.t, 2, 2));
+  pintaNX(R, unaNX('caracol' + f, () => forma(15, 10, ({ put, rect, disco }) => {
+    rect(2 + f, 7, 11 + f, 8, 'T'); put(1 + f, 8, 'T'); rect(3 + f, 8, 10, 8, 'A'); rect(10 + f, 5, 12 + f, 7, 'T'); put(12 + f, 6, 'K');
+    put(10 + f, 4, 'T'); put(12 + f, 4, 'T'); put(10 + f, 3, 'T'); put(12 + f, 3, 'T'); put(10 + f, 2, 'K'); put(13 + f, 2, 'K');
+    disco(5.5, 4.5, 3.3, 'N'); for (const [i, j] of [[5, 2], [6, 2], [7, 3], [8, 4], [8, 5], [7, 6], [5, 6], [4, 5], [4, 4], [5, 4], [6, 4]]) put(i, j, 'n'); put(3, 3, 'f'); put(4, 2, 'f');
+  })), x, y, o);
+};
+
+export const PIEZAS_NX = {
+  tablilla: tablillaNX, tablillaPequena: tablillaPequenaNX, fragmento: fragmentoNX, barquito: barquitoNX, pecera: peceraNX,
+  fotoAerea: fotoAereaNX, revista: revistaNX, lupa: lupaNX, cinta: cintaNX, mula: mulaNX, explosion: explosionNX,
+  remache: remacheNX, piedraAgujero: piedraAgujeroNX, martillo: martilloNX, radar: radarNX, hebilla: hebillaNX, bolsa: bolsaNX,
+  perforadora: perforadoraNX, testigo: testigoNX, sobre: sobreNX, notaPrensa: notaPrensaNX, revistaCiencia: revistaCienciaNX,
+  articulo: articuloNX, libroSagrado: libroSagradoNX, paloma: palomaNX, caracol: caracolNX,
+};

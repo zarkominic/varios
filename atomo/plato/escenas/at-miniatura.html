@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep26</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AT-MINIATURA · ep26, con chibis (regla del 09/11/2026: personas chibi del reparto, nada de mascotas ni objetos con
+// cara). El vertedero de Alamogordo de noche, 1983: el volquete vacía cajas de cartuchos en la fosa bajo la torre de
+// focos; delante, al doble, un chico del pueblo que se ha colado y se lleva un cartucho, sorprendido, mirando la fosa.
+// Luz de cine: tinte azul de noche, viñeta y el halo de los focos que lo recorta. «1983» en blanco hueso.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { desierto, desiertoDelante, PIEZAS_AT } from '/atomo/plato/escenas/at-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  desierto(R, t, { encuadre: 'vertedero83', noche: true, camion: 0.55 });
+  desiertoDelante(R, t, { encuadre: 'vertedero83', noche: true, camion: 0.55 });
+  // cartuchos al doble que asoman en la fosa, para que se lea qué se entierra
+  { const COL = ['rojo', 'azul', 'amarillo', 'verde', 'naranja', 'morado'], ICO = ['foso', 'nave', 'flor'];
+    let k = 0;
+    for (let fila = 0; fila < 3; fila++) for (let i = 0; i < 9 - fila * 2; i++) {      // un montón: más ancho abajo
+      const x = 120 + fila * 12 + i * 13 + ((i * 7 + fila * 3) % 5), y = 150 - fila * 9 + ((i * 5) % 3);
+      PIEZAS_AT.cartucho(R, x, y, { color: COL[k % 6], icono: ICO[k % 3] }); k++;
+    }
+    PIEZAS_AT.cartucho(R, 178, 128, { color: 'rojo', icono: 'foso', s: 2 });              // y uno grande en lo alto
+  }
+  grado(R, { tinte: '#1a2a5a', f: 0.2, desde: 0.75, max: 0.5 });
+  halo(R, 250, 104, 120, 60, '#ffd890', 0.22);                 // la luz de los focos sobre la fosa
+  halo(R, 64, 120, 54, 60, '#ffb85a', 0.30);                   // y el borde de luz detrás del chico
+  const EJ = EL.chicoPueblo;
+  figura(R, EJ, 64, 178, t, { dir: 1, sorpresa: true, sostiene: true, cosa: (R2, m) => PIEZAS_AT.cartucho(R2, m[0] + 2, m[1] + 4, { color: 'rojo', icono: 'foso' }) }, 2);
+  cifra(R, '1983', 60, 26, 20);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

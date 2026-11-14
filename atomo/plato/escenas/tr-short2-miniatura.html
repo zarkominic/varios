@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep23 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-SHORT2-MINIATURA · miniatura vertical del Short 2 del ep23, «En Babilonia abofeteaban al rey cada Año Nuevo», en el
+// estilo noir aprobado (ayudas en noir-mini.js). Dentro del templo, de noche: al fondo, la puerta de ladrillo con su arco
+// y la noche azul detrás, y dos braseros encendidos en ámbar con su humo; en el centro, de perfil, la silueta del rey con
+// su corona alta y la barba cuadrada, arrodillado, ante la silueta del sacerdote de pie con la mano abierta en alto (el
+// instante antes: no se ve el golpe); un brillo de lágrima en la mejilla del rey. Filo ámbar de los braseros, humo,
+// grano y viñeta. Arriba, «4000» en blanco hueso.
+// Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, get, hh, tinte, mez, trama, poligono, elipse, halo, linea, SIL } = N;
+const SUELO = 162;
+
+// pone una figura dibujada en coordenadas locales (mirando a la derecha) en (x, SUELO), con espejo d y escala s
+const figura = (x, d, s) => ({
+  P: (pts, c = SIL) => poligono(pts.map(([a, b]) => [x + a * d * s, SUELO + b * s]), c),
+  E: (a, b, rx, ry, c = SIL) => elipse(x + a * d * s, SUELO + b * s, rx * s, ry * s, c),
+  at: (a, b) => [Math.round(x + a * d * s), Math.round(SUELO + b * s)],
+});
+
+// un brasero de pie: trípode, cuenco y fuego, con su luz
+const brasero = (x, y) => {
+  const HI = hex('#0a0806');
+  linea(x - 6, SUELO, x - 1, y + 4, HI); linea(x + 6, SUELO, x + 1, y + 4, HI); linea(x, SUELO, x, y + 4, HI);
+  poligono([[x - 7, y], [x + 7, y], [x + 5, y + 5], [x - 5, y + 5]], HI);
+  halo(x, y - 6, 46, 46, N.AMBAR, 0.38, 1.5);
+  for (let k = 0; k < 7; k++) { const fx = x - 5 + k * 1.6, fh = 6 + hh(k, x, 1) * 9; poligono([[fx - 1.6, y], [fx + 1.6, y], [fx + 0.4, y - fh]], hex('#e8701c')); }
+  for (let k = 0; k < 5; k++) { const fx = x - 3 + k * 1.5, fh = 3 + hh(k, x, 2) * 6; poligono([[fx - 1, y], [fx + 1, y], [fx, y - fh]], hex('#ffd890')); }
+  for (let xx = x - 5; xx <= x + 5; xx++) set(xx, y, hex('#fff2c8'));
+  for (let xx = x - 6; xx <= x + 6; xx++) set(xx, y + 5, hex('#7a4a1a'));
+  linea(x + 1, y + 6, x + 6, SUELO, hex('#6a3e16'), 0.7); linea(x, y + 6, x, SUELO, hex('#4a2c12'), 0.6);
+  N.humo({ x, y: y - 14, alto: 60, deriva: (x < 160 ? 10 : -10), amp: 4, color: '#a08a70', f: 0.32, f2: 0.18, n: 60 });
+};
+
+const dibujar = () => {
+  // 1 · la noche azul al fondo (lo que se ve por la puerta)
+  N.cielo({ cx: 160, cy: 70, r: 120, colores: ['#070a18', '#101a36', '#1c2a50'], estrellas: 40, altoEstrellas: 120, semilla: 9 });
+  // 2 · el muro de ladrillo del templo, con hiladas y la puerta en arco en el centro (x 128–192)
+  const LAD = [hex('#120c0a'), hex('#1a120e'), hex('#221812')];
+  const enPuerta = (x, y) => x >= 128 && x <= 192 && (y >= 80 || Math.hypot(x - 160, y - 80) <= 32) && y < SUELO;
+  for (let y = 0; y < SUELO; y++) for (let x = 0; x < W; x++) { if (enPuerta(x, y)) continue; const fila = y >> 2, junta = (y & 3) === 0 || ((x + (fila & 1) * 6) % 12) === 0;
+    set(x, y, junta ? hex('#0a0706') : LAD[Math.floor(hh(x >> 3, fila, 3) * 3)]); }
+  // el arco: dovelas en el borde y las jambas, con un friso de animales sugerido por una banda más clara
+  for (let t = 3.1416; t <= 6.2832; t += 0.01) for (const r of [33, 34, 35]) set(Math.round(160 + Math.cos(t) * r), Math.round(80 + Math.sin(t) * r), r === 35 ? hex('#2a1c14') : hex('#0c0807'));
+  for (let y = 80; y < SUELO; y++) for (const x of [125, 126, 127, 193, 194, 195]) set(x, y, x === 125 || x === 195 ? hex('#2a1c14') : hex('#0c0807'));
+  for (let x = 0; x < W; x++) for (let y = 40; y < 46; y++) if (!enPuerta(x, y)) set(x, y, (x + y) % 5 === 0 ? hex('#3a2a1a') : hex('#2a1c14'));
+  // la luz de luna en la puerta, detrás de las figuras: el contraluz
+  for (let y = 40; y < SUELO; y++) for (let x = 124; x < 197; x++) if (enPuerta(x, y)) { const d = Math.hypot((x - 162) / 40, (y - 112) / 60); if (d < 1) tinte(x, y, hex('#5a6ea8'), 0.5 * (1 - d) ** 1.1); }
+  // 3 · el suelo de losas
+  poligono([[0, SUELO], [320, SUELO], [320, 180], [0, 180]], (x, y) => ((x + (y - SUELO) * 3) % 22 === 0 || y === SUELO + 6 ? hex('#0e0a08') : (hh(x >> 3, y >> 2, 5) > 0.6 ? hex('#1e1610') : hex('#18120e'))));
+  // 4 · los dos braseros, a los lados, dentro de la columna
+  brasero(114, 104); brasero(206, 104);
+  // la luz del fuego en el suelo
+  for (let y = SUELO; y < H; y++) for (let x = 90; x < 230; x++) { const d = Math.min(Math.hypot((x - 114) / 40, (y - SUELO) / 10), Math.hypot((x - 206) / 40, (y - SUELO) / 10)); if (d < 1) tinte(x, y, N.AMBAR, 0.4 * (1 - d)); }
+  // 5 · el rey, arrodillado de perfil mirando a la derecha: corona alta, barba cuadrada, manto
+  const R1 = figura(142, 1, 1.12);
+  R1.P([[-19, -3], [-16, 0], [-2, 0], [0, -4], [-4, -6], [-16, -6]]);            // la pierna de atrás: espinilla en el suelo y el pie
+  R1.P([[-7, -22], [5, -22], [2, -12], [0, -2], [-6, -2], [-8, -12]]);          // el muslo de atrás, hasta la rodilla en el suelo
+  R1.P([[-4, -24], [6, -24], [16, -22], [16, -16], [2, -14]]);                  // el muslo de delante, horizontal
+  R1.P([[11, -20], [17, -20], [17, -2], [22, -1], [22, 0], [11, 0]]);           // la espinilla de delante y el pie
+  R1.P([[-8, -12], [-11, -2], [-2, -2], [2, -14]]);                             // el manto que cae por detrás
+  R1.P([[-7, -22], [6, -22], [9, -36], [6, -42], [-5, -42], [-8, -34]]);        // el torso, un poco inclinado
+  R1.P([[-1, -44], [4, -44], [4, -40], [-1, -40]]);                             // el cuello
+  R1.E(2.5, -47.5, 5, 5.5);                                                    // la cabeza, gacha
+  R1.P([[6.5, -50], [9, -47], [7, -46]]);                                       // la nariz
+  R1.P([[1.5, -45], [8, -44.5], [8.5, -36], [2, -35], [0, -41]]);               // la barba cuadrada, larga
+  R1.P([[-3, -52], [8, -52], [8, -55], [-3, -55]]);                             // el aro de la corona
+  R1.P([[-3, -55], [-3.5, -62], [-0.5, -57], [2.5, -64], [5, -57], [8.5, -62], [8, -55]]);   // las puntas de la corona
+  R1.P([[3, -40], [7, -41], [15, -24], [12, -22]]);                             // el brazo apoyado en la rodilla
+  // 6 · el sacerdote de pie, mirando a la izquierda, con la mano abierta en alto: el instante antes
+  const S1 = figura(184, -1, 1.12);
+  S1.P([[-8, 0], [10, 0], [8, -30], [6, -50], [-4, -53], [-6, -30]]);           // la túnica larga
+  S1.P([[-1, -55], [4, -55], [4, -51], [-1, -51]]);                             // el cuello
+  S1.E(2, -59, 4.6, 5.2);                                                      // la cabeza
+  S1.P([[6, -61], [8.6, -58], [6, -57]]);                                       // la nariz
+  S1.P([[-3, -62], [7, -62], [6, -67], [2, -69], [-2, -67]]);                   // el gorro redondo
+  S1.P([[1, -52], [6, -53], [12, -69], [8, -71]]);                              // el brazo alzado
+  S1.P([[7, -71], [11, -77], [14, -76], [15, -72], [12, -68]]);                 // la palma abierta
+  for (const [a, b] of [[10.5, -77], [12, -78.5], [13.6, -78], [15, -76]]) { const [px, py] = S1.at(a, b); set(px, py, SIL(px, py)); set(px, py - 1, SIL(px, py - 1)); }
+  { const [tx, ty] = S1.at(15.4, -72); set(tx, ty, SIL(tx, ty)); set(tx + 1, ty - 1, SIL(tx, ty)); }   // el pulgar
+  S1.P([[-2, -50], [2, -50], [0, -30], [-4, -30]]);                             // el otro brazo, caído
+  // 7 · el filo ámbar de los braseros: por la izquierda del rey y por la derecha del sacerdote; arriba, en las cabezas
+  N.filo({ x0: 112, x1: 158, y0: 84, y1: SUELO, lado: 'izq', yClaro: 120, color: '#c8701c', claro: '#ffc070' });
+  N.filo({ x0: 166, x1: 204, y0: 70, y1: SUELO, lado: 'der', yClaro: 120, color: '#c8701c', claro: '#ffc070' });
+  N.filoSup({ x0: 120, x1: 200, y0: 66, y1: 120, color: '#ffb060', f: 0.55 });
+  // el oro de la corona, que pilla el fuego: el borde del aro y las puntas
+  { const [a0, b0] = R1.at(-3, -52), [a1] = R1.at(8, -52); for (let x = a0; x <= a1; x++) { set(x, b0 - 1, hex('#b8742a')); set(x, b0 - 3, hex('#7a4a1a')); }
+    for (const [px, py] of [[-3.5, -62], [2.5, -64], [8.5, -62]]) { const [cx, cy] = R1.at(px, py); set(cx, cy, hex('#ffd080')); set(cx, cy + 1, hex('#c8883a')); } }
+  // la lágrima: un brillo en la mejilla y el rastro que baja
+  { const [lx, ly] = R1.at(5, -46.5); halo(lx, ly, 3, 3, hex('#fff0d0'), 0.18); set(lx, ly, hex('#ffffff')); tinte(lx, ly + 1, hex('#fff0d0'), 0.55); tinte(lx, ly + 2, hex('#fff0d0'), 0.25); }
+  // 8 · el «4000»
+  N.cifra('4000', 160, 28, { tam: 16 });
+  // 9 · grano y viñeta, centrados en la columna
+  N.granoVineta({ cx: 160, cy: 100, rx: 150, ry: 120, desde: 0.5 });
+};
+N.listo(dibujar);
+</script>
+</body>
+</html>

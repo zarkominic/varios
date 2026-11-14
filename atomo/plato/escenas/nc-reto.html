@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El reto · ep28</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NC-RETO (frase 8, «In 1975, its big rival, Pepsi, set up tables in supermarkets…»), cartela 1975 y barra en 1975.
+// Cuatro planos:
+// 1. «In 1975, its big rival, Pepsi, set up tables in supermarkets» (cartela–6,4 s): el supermercado de 1975; el
+//    empleado del rival llega por detrás de la mesa con la bandeja y deja los dos vasos en «tables»; el cámara enciende
+//    la cámara de tele en «Pepsi»; la señora llega con su bolso en «supermarkets» y se pregunta qué es eso; un cliente
+//    cruza por delante con su carro.
+// 2. «with two unmarked cups and asked people to taste both colas blind» (6,4–10,9 s): la mesa de la cata de cerca; las
+//    dos manos del empleado tocan los vasos en «two», brillan en «unmarked», y desde «asked» los cambian de sitio tres
+//    veces como los trileros (gag 3); en «blind» las manos se retiran y salta un «?» sobre cada vaso.
+// 3. «It called it the Pepsi Challenge, and it filmed it for TV» (10,9–14,5 s): el salón de una casa de 1975; en la
+//    tele, la cata grabada en el súper (la señora que prueba, los dos vasos); en «Challenge» sale un «?» enorme, en
+//    «filmed» el piloto rojo de grabación; los niños la miran de pie y el niño la señala; el padre entra con las palomitas.
+// 4. «Most people picked theirs, the sweeter one» (14,5 s–fin): la frutería del súper con otra mesa de cata y una cola;
+//    la señora prueba, se le iluminan los ojos y en «picked» señala el vaso de la derecha; en «theirs» el empleado
+//    sube de detrás del mantel la lata azul, de pie al lado de ese vaso (su cara siempre a la vista); al destaparla
+//    salta el gas con un destello y él se vuelve y la señala; el azucarero está a la izquierda; el tablero de palotes suma rayas azules; en «sweeter» la cola aplaude.
+import * as T from '/atomo/plato/escenas/nc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_NC as NC } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nc-reto');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_NC, K = hex('#1c1222');
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const tr = (x, y, a) => a * 16 > BAY[((y & 3) << 2) | (x & 3)] + 0.5;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const CAPAS = new Map();
+// la capa fija de un plano: se pinta una vez en su búfer y en cada fotograma se copia entera
+const capa = (k, pintar) => { let b = CAPAS.get(k); if (!b) { b = R.nuevo(); const prev = R.usar(b); pintar(); R.usar(prev); CAPAS.set(k, b); } R.copiar(b); };
+const grad = (x0, y0, x1, y1, cols) => { const n = cols.length - 1; for (let y = y0; y <= y1; y++) { const u = (y - y0) / Math.max(1, y1 - y0) * n, i = Math.min(n - 1, Math.floor(u)), f = u - i; for (let x = x0; x <= x1; x++) R.pset(x, y, tr(x, y, f) ? cols[i + 1] : cols[i]); } };
+const caja = (x0, y0, x1, y1, c, borde = K) => { R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, borde); R.rect(x0, y0, x1, y1, c); };
+const cajaR = (x0, y0, x1, y1, c) => { for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, c); };   // respeta R.recorte
+const sombrear = (x0, y0, x1, y1, c, a) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (tr(x, y, a)) R.pset(x, y, c); };
+const nube = (cx, cy, w, c1, c2, c3) => {
+  const r = w / 5, P = [[-1.6, .4, .9], [-.6, -.2, 1.2], [.6, -.4, 1.3], [1.6, .3, 1], [0, .5, 1.1]];
+  for (const [a, b, q] of P) R.disco(Math.round(cx + a * r), Math.round(cy + b * r + 1), Math.round(q * r), c3);
+  for (const [a, b, q] of P) R.disco(Math.round(cx + a * r), Math.round(cy + b * r), Math.round(q * r), c2);
+  for (const [a, b, q] of P.slice(1, 3)) R.disco(Math.round(cx + a * r - 1), Math.round(cy + b * r - 1), Math.max(1, Math.round(q * r * .6)), c1);
+};
+// nubes de tres tonos a tres velocidades dentro de cl (con R.recorte puesto)
+const nubes = (cl, t, y0, y1, cols, n = 6, v = 1, w0 = 12) => { for (let k = 0; k < n; k++) { const c3 = k % 3, vel = (1.5 + c3 * 2.5) * v, w = w0 + c3 * 6 + hh(k, 1) * 8, ancho = cl[2] - cl[0] + 2 * w + 20; const x = cl[0] - w - 10 + ((hh(k, 2) * ancho + t * vel) % ancho), y = y0 + hh(k, 3) * (y1 - y0); nube(x, y, w, cols[0], c3 === 0 ? cols[2] : cols[1], c3 === 0 ? cols[3] ?? cols[2] : cols[2]); } };
+const pajaros = (t, x0, x1, y, n = 3, v = 9, c = K) => { for (let k = 0; k < n; k++) { const x = Math.round(x0 + ((hh(k, 7) * (x1 - x0) + t * v * (1 + (k % 2) * 0.3)) % (x1 - x0))), yy = Math.round(y + hh(k, 8) * 10 + Math.sin(t * 2 + k) * 2), a = Math.sin(t * 11 + k * 2) > 0 ? 1 : 0; R.pset(x, yy, c); R.pset(x - 1, yy - a, c); R.pset(x + 1, yy - a, c); R.pset(x - 2, yy - 2 * a + (a ? 0 : 1), c); R.pset(x + 2, yy - 2 * a + (a ? 0 : 1), c); } };
+// la botellita recta a escala de chibi (3 × 9) con su chapa y su brillo; (x, y) el centro de abajo
+const BOT = { marron: [hex('#6a3a1e'), hex('#9a6a40')], rojo: [hex('#c8382e'), hex('#e2675c')], azul: [hex('#2e5aa8'), hex('#5a82c8')] };
+const botellita = (x, y, col = 'marron', inclina = 0) => { const [c, l] = BOT[col]; const dx = (j) => Math.round(inclina * j / 9); for (let j = 0; j < 9; j++) { const w = j < 3 ? 0 : 1; R.rect(x - w - 1 + dx(j), y - j, x + w + 1 + dx(j), y - j, K); } for (let j = 1; j < 8; j++) { const w = j < 3 ? 0 : 1; R.rect(x - w + dx(j), y - j, x + w + dx(j), y - j, c); if (j > 2) R.pset(x - 1 + dx(j), y - j, l); } R.pset(x + dx(9), y - 9, hex('#c8c8d2')); R.pset(x + dx(9), y - 10, K); };
+const vasito = (x, y, lleno = 0.7) => { R.rect(x - 3, y - 6, x + 3, y, K); R.rect(x - 2, y - 5, x + 2, y - 1, hex('#d6e6ee')); const h = Math.round(4 * lleno); if (h) R.rect(x - 2, y - h, x + 2, y - 1, hex('#4a2414')); R.pset(x - 2, y - 5, hex('#ffffff')); };
+// el globo grande de un símbolo (se lee a 640 px): «!», «?» o «X» a escala 2 sobre fondo claro, con su piquito abajo en (x, y)
+const globo = (x, y, ic, col = hex('#c8382e')) => { R.rect(x - 9, y - 18, x + 9, y - 1, K); R.rect(x - 8, y - 17, x + 8, y - 2, hex('#fbf6ea')); R.rect(x - 8, y - 3, x + 8, y - 2, hex('#d8d0c0')); R.rect(x - 2, y, x + 1, y, K); R.rect(x - 1, y + 1, x, y + 1, K); R.rect(x - 1, y - 1, x, y, hex('#fbf6ea')); R.icono(ic, x - 5, y - 15, col, K, 2); };
+const destello = (x, y, u, c = hex('#fff6c0')) => { if (u <= 0 || u >= 1) return; const r = Math.round(2 + 4 * Math.sin(u * Math.PI)); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } R.pset(x - 1, y - 1, c); R.pset(x + 1, y + 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); };
+
+const r = (f) => en('reto', f);
+const P2 = r(.3212), P3 = r(.6104), P4 = r(.8487);
+// ── 1 · el súper: llegan los vasos, la cámara y la señora ──
+const PEPSI = r(.1658), MESAS = r(.2298), SUPER = r(.2742);
+const p1 = (t) => {
+  const o = { encuadre: 'super', vasos: t > MESAS, graba: t > PEPSI, azul: 0.5 };
+  T.colas(R, t, o);
+  // el empleado llega por detrás de la mesa con la bandeja y deja los vasos
+  const ex = Math.round(lerp(146, 177, tramo(t, 1.4, 3.2)));
+  const em = R.actor(NC.empleadoPepsi, ex, 138, t, { dir: t > MESAS + 0.2 ? 1 : 1, anda: t > 1.4 && t < 3.2, sostiene: t < MESAS ? [ex + 16, 124] : undefined, dedo: t > MESAS + 0.3, habla: t > MESAS + 0.3 && t < P2 - 0.3 && Math.sin(t * 9) > 0, sonrisa: true });
+  if (t < MESAS) { const [mx, my] = em.mano; R.rect(mx - 9, my + 1, mx + 9, my + 2, K); R.rect(mx - 8, my + 1, mx + 8, my + 1, hex('#c8c8d2')); vasito(mx - 4, my, 0.8); vasito(mx + 4, my, 0.8); }
+  T.colasDelante(R, t, o);
+  if (t > MESAS && t < MESAS + 0.5) destello(184, 112, tramo(t, MESAS, MESAS + 0.5));
+  // el cámara mira por el visor y enciende la cámara en «Pepsi»
+  R.actor(NC.camarografo, 6, 166, t, { dir: 1, sostiene: t > PEPSI - 0.3 ? [30, 138] : undefined, sonrisa: t > PEPSI });
+  // la señora llega con su bolso en «supermarkets» y se pregunta qué es
+  const sx = Math.round(lerp(330, 234, tramo(t, 2.2, SUPER)));
+  R.actor(NC.senora75, sx, 158, t, { dir: -1, anda: t > 2.2 && t < SUPER, sorpresa: t > SUPER && t < SUPER + 0.5, sonrisa: t > SUPER + 0.5 });
+  if (t > SUPER + 0.1 && t < P2) globo(sx + 8, 128, '?', hex("#2e5aa8"));
+  // un cliente cruza por delante empujando su carro
+  { const cx = Math.round(lerp(-40, 150, tramo(t, 2.6, P2))); if (cx > -40 && cx < 150) {
+    R.actor(EL.senor30, cx, 179, t, { dir: 1, anda: true });
+    const x0 = cx + 15; R.rect(x0, 163, x0 + 22, 174, K); R.rect(x0 + 1, 164, x0 + 21, 173, hex('#c8c8d2')); for (let i = x0 + 3; i < x0 + 21; i += 3) R.rect(i, 164, i, 173, hex('#8a8c98')); R.rect(x0 + 1, 168, x0 + 21, 168, hex('#8a8c98')); R.disco(x0 + 4, 177, 2, K); R.disco(x0 + 19, 177, 2, K); R.rect(x0 - 3, 162, x0, 163, K);
+    R.rect(x0 + 4, 158, x0 + 10, 163, hex('#e8a040')); R.rect(x0 + 12, 157, x0 + 16, 163, hex('#5aa04a')); } }
+};
+
+// ── 2 · la mesa de cerca: los vasos sin marca y el trile ──
+const DOS = r(.3447), SINMARCA = r(.3617), PIDE = r(.4465), CIEGAS = r(.5771);
+const S1 = PIDE, S2 = PIDE + 0.6, S3 = PIDE + 1.2;
+const trile = (t) => t < S1 ? 0 : t < S1 + 0.5 ? tramo(t, S1, S1 + 0.5) : t < S2 ? 1 : t < S2 + 0.5 ? 1 - tramo(t, S2, S2 + 0.5) : t < S3 ? 0 : tramo(t, S3, S3 + 0.5);
+const p2 = (t) => {
+  const u = trile(t), e = u * u * (3 - 2 * u), alto = Math.round(Math.sin(e * Math.PI) * 24);
+  const xa = Math.round(lerp(130, 196, e)), xb = Math.round(lerp(196, 130, e));
+  T.colas(R, t, { encuadre: 'super', camara: 'mesa', trile: u });
+  // las manos del empleado: entran por abajo, tocan los vasos en «two», los mueven en el trile y se van en «blind»
+  const dentro = tramo(t, P2 + 0.1, DOS) * (1 - tramo(t, CIEGAS - 0.3, CIEGAS + 0.2));
+  if (dentro > 0) {
+    const baja = Math.round((1 - dentro) * 60), toca = t > DOS && t < DOS + 0.4 ? 2 : 0;
+    const ya = 140 - alto + baja + toca, yb = 142 + Math.round(alto * 0.4) + baja + toca;
+    const brazoA = () => T.brazo(R, xa - 34, 186 + baja, xa - 20, ya, '#3a6ad8', 1);
+    const brazoB = () => T.brazo(R, xb + 34, 186 + baja, xb + 20, yb, '#3a6ad8', -1);
+    if (xa < xb) { brazoB(); brazoA(); } else { brazoA(); brazoB(); }
+  }
+  for (const [vx, k] of [[130, 0], [196, 1]]) destello(vx + 12, 108, tramo(t, SINMARCA + k * 0.12, SINMARCA + 0.6 + k * 0.12));
+  if (t > CIEGAS) for (const vx of [130, 196]) { const s = Math.min(1, (t - CIEGAS) * 5), y = Math.round(92 - s * 8); R.rect(vx - 9, y - 9, vx + 9, y + 9, K); R.rect(vx - 8, y - 8, vx + 8, y + 8, hex('#fbf6ea')); R.icono('?', vx - 5, y - 6, hex('#2e5aa8'), K, 2); }
+};
+
+// ── 3 · el salón: la cata sale por la tele ──
+const RETO = r(.6776), GRABA = r(.7599), TELE = r(.8004);
+const p3 = (t) => {
+  const o = { encuadre: 'rival', camara: 'tele' };
+  T.anuncio(R, t, o);
+  // la pantalla: la cata grabada en el súper (recortada al tubo), con su «?», el piloto rojo y las líneas del tubo
+  const cl = [202, 88, 252, 124]; R.recorte(cl);
+  grad(202, 88, 252, 112, [hex('#f0d8a0'), hex('#e8c080')]);
+  for (let x = 203; x < 252; x += 3) { const c = hh(x, 1) > 0.5 ? hex('#c8382e') : hex('#2e5aa8'); R.linea(x, 90, x, 93, c); R.linea(x + 1, 90, x + 1, 93, c); } R.linea(202, 94, 252, 94, hex('#8a8c98'));
+  cajaR(202, 113, 252, 124, hex('#a89070')); cajaR(214, 111, 252, 118, hex('#fbf6ea')); R.linea(214, 118, 252, 118, hex('#c8382e')); R.linea(214, 111, 252, 111, K);
+  for (const vx of [228, 242]) { cajaR(vx - 4, 100, vx + 4, 110, K); cajaR(vx - 3, 101, vx + 3, 109, hex('#d6e6ee')); cajaR(vx - 3, 104, vx + 3, 109, hex('#4a2414')); }
+  { const bebe = Math.sin(t * 3) > 0, hx = 209; R.disco(hx, 99, 4, K); R.disco(hx, 99, 3, hex('#8a5a2a')); R.disco(hx + 1, 100, 2, hex('#f0c090')); cajaR(hx - 4, 104, hx + 4, 120, K); cajaR(hx - 3, 105, hx + 3, 120, hex('#d8902a')); if (bebe) { cajaR(hx + 3, 99, hx + 6, 104, K); cajaR(hx + 4, 100, hx + 5, 103, hex('#d6e6ee')); } }
+  if (t > RETO - 0.1 && t < GRABA) { const s = 1 + Math.round(Math.sin(t * 8) * 0.4 + 0.5); R.icono('?', 229 - 3 * s, 92, hex('#ffffff'), K, s + 1); }
+  if (t > GRABA && Math.floor(t * 3) % 2 === 0) R.disco(208, 93, 2, hex('#ff3030'));
+  for (let y = 89; y <= 124; y += 3) for (let x = 202; x <= 252; x++) if ((x + y) % 4 === 0) R.pset(x, y, hex('#5a4a50'));
+  R.recorte(null);
+  T.anuncioDelante(R, t, o);
+  // los niños miran la tele de pie; el niño la señala en «Challenge»
+  R.actor(EL.nina, 176, 166, t, { dir: 1, sonrisa: true, sorpresa: t > GRABA && t < TELE + 0.3 });
+  R.actor(EL.chico, 160, 172, t, { dir: 1, dedo: t > RETO && t < GRABA + 0.4, habla: t > RETO && t < RETO + 0.8 && Math.sin(t * 10) > 0, sonrisa: t > GRABA });
+  // el padre entra con el cuenco de palomitas
+  const px = Math.round(lerp(-18, 92, tramo(t, P3 + 0.3, P3 + 2.1)));
+  const pa = R.actor(EL.padre, px, 174, t, { dir: 1, anda: t > P3 + 0.3 && t < P3 + 2.1, sostiene: true, sorpresa: t > TELE - 0.2, sonrisa: t < TELE - 0.2 });
+  { const [mx, my] = pa.mano; R.disco(mx, my, 5, K); R.rect(mx - 5, my - 1, mx + 5, my + 3, hex('#e8a040')); R.rect(mx - 4, my, mx + 4, my + 2, hex('#c8782a')); for (let k = 0; k < 6; k++) R.pset(mx - 4 + k * 2, my - 2 - (k % 2), hex('#fbf6ea')); }
+  if (t > TELE - 0.1 && t < TELE + 0.6) globo(px + 8, 144, '!');
+};
+
+// ── 4 · la frutería del súper: la señora elige el vaso de la derecha ──
+const ELIGE = r(.8878), SUYO = r(.9074), DULCE = r(.9505);
+const p4 = (t) => {
+  capa('fruteria', () => {
+    // el techo de placas con los tubos, la pared de azulejos y el toldo de rayas de la frutería
+    R.rect(0, 0, 319, 19, hex('#e8e0cc')); for (let x = 0; x < 320; x += 20) R.rect(x, 0, x, 19, hex('#d0c8b4')); R.rect(0, 10, 319, 10, hex('#d0c8b4'));
+    for (const x0 of [34, 196]) { caja(x0, 4, x0 + 62, 8, hex('#fbfaf4'), hex('#a8a090')); R.rect(x0 + 2, 5, x0 + 60, 5, hex('#ffffff')); }
+    R.rect(0, 20, 319, 22, hex('#8a5a2a'));
+    for (let y = 23; y < 118; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (x < 272 || y > 48) && (x % 10 === 0 || y % 10 === 3) ? hex('#c8bca0') : y < 60 ? hex('#efe6cc') : hex('#e8dcc0'));
+    for (let x = 0; x < 272; x++) { R.rect(x, 36, x, 38, hex('#e8902a')); R.rect(x, 40, x, 42, hex('#d8b040')); R.rect(x, 44, x, 46, hex('#8a5a2a')); }
+    // el toldo verde y blanco sobre la fruta
+    for (let x = 0; x < 168; x++) { const c = Math.floor(x / 8) % 2 ? hex('#3a8a4a') : hex('#f2eee2'); R.rect(x, 52, x, 62, c); const yb = 62 + (x % 8 < 4 ? x % 8 : 8 - x % 8) / 2; R.rect(x, 63, x, Math.round(yb + 2), c); R.pset(x, Math.round(yb + 3), K); }
+    R.rect(0, 51, 168, 51, K); R.rect(0, 52, 168, 53, hex('#2a6a3a'));
+    // los cajones inclinados de fruta en dos gradas
+    const FR = [['#c8382e', '#8a2018', '#f08070'], ['#f0902a', '#c86818', '#ffc070'], ['#e8d040', '#b89a20', '#fff090'], ['#4a9a3a', '#2a6a2a', '#8ad06a'], ['#7a3a8a', '#4a1a5a', '#b070c0'], ['#d84a3a', '#a02a1a', '#f8907a']];
+    for (const [k, [x0, y0]] of [[0, 70], [28, 70], [56, 70], [84, 70], [112, 70], [140, 70], [0, 92], [28, 92], [56, 92], [84, 92], [112, 92], [140, 92]].entries()) {
+      const [c, cs, cl] = FR[(k * 5 + (y0 > 80 ? 2 : 0)) % 6].map(hex);
+      R.rect(x0 + 1, y0 + 14, x0 + 27, y0 + 22, hex('#a8743e')); R.rect(x0 + 1, y0 + 14, x0 + 27, y0 + 14, hex('#c8945a')); R.rect(x0 + 1, y0 + 18, x0 + 27, y0 + 18, hex('#7a4a24')); R.rect(x0, y0 + 14, x0, y0 + 22, K); R.rect(x0 + 28, y0 + 14, x0 + 28, y0 + 22, K);
+      for (let j = 0; j < 3; j++) for (let i = 0; i < 6; i++) { const fx = x0 + 3 + i * 4 + (j % 2) * 2, fy = y0 + 12 - j * 3; if (fx > x0 + 26) continue; R.disco(fx, fy, 2, cs); R.disco(fx, fy - 1, 1, c); R.pset(fx - 1, fy - 2, cl); }
+    }
+    caja(170, 64, 176, 118, hex('#a8743e')); R.rect(0, 114, 176, 117, hex('#7a4a24')); R.rect(0, 114, 176, 114, hex('#c8945a'));
+    // la mesa plegable de la cata con su mantel de cuadros (el faldón va delante, en cada fotograma)
+    // el caballete con el tablero de palotes
+    R.linea(262, 150, 270, 60, hex('#7a4a24')); R.linea(306, 150, 298, 60, hex('#7a4a24')); R.linea(284, 150, 284, 70, hex('#5a3418'));
+    caja(258, 58, 310, 128, hex('#fbf6ea'), hex('#5a3418')); R.rect(258, 128, 310, 131, hex('#a8743e'));
+    R.rect(284, 62, 284, 124, hex('#c8c0b0')); R.icono('lata', 267, 62, hex('#c8382e'), K, 1); R.icono('lata', 293, 62, hex('#2e5aa8'), K, 1);
+    for (let k = 0; k < 2; k++) { const x0 = 262 + Math.floor(k / 1) * 0, y0 = 74 + k * 10; for (let i = 0; i < 4; i++) R.rect(x0 + i * 3, y0, x0 + i * 3, y0 + 7, hex('#c8382e')); R.linea(x0 - 1, y0 + 6, x0 + 11, y0 + 1, hex('#c8382e')); }
+    // el suelo de linóleo a cuadros con el brillo de los tubos
+    for (let y = 118; y < 180; y++) { const d = y - 70; for (let x = 0; x < 320; x++) { const i = Math.floor((x - 160) / d * 5 + 100), j = Math.floor(600 / d); R.pset(x, y, (i + j) & 1 ? hex('#c8b890') : hex('#e8dcc0')); } }
+    for (let y = 124; y < 160; y += 2) for (let x = 60 + (y - 124); x < 100 + (y - 124); x++) if (tr(x, y, 0.4)) R.pset(x, y, hex('#fbf6ea'));
+    // la báscula colgada
+    R.linea(214, 22, 214, 40, hex('#8a8c98')); R.disco(214, 46, 7, K); R.disco(214, 46, 6, hex('#f2eee2')); R.pset(214, 42, hex('#c8382e'));
+  });
+  // el tubo que parpadea y la neblina que riega la fruta
+  if (Math.floor(t * 7) % 9 === 0) R.rect(36, 5, 94, 7, hex('#c8c0b0'));
+  if ((t % 3) < 0.7) for (let k = 0; k < 20; k++) R.pset(Math.round(4 + hh(k, 1) * 160), Math.round(66 + ((t * 30 + k * 7) % 28)), hex('#e8f4ff'));
+  // los precios colgados que se mecen
+  for (const [k, [px, num]] of [[40, '39'], [100, '59'], [150, '25']].entries()) { const s = Math.round(Math.sin(t * 1.6 + k) * 1.5); R.linea(px, 22, px + s, 28, hex('#8a8c98')); caja(px + s - 9, 28, px + s + 9, 37, hex('#f0c040')); R.numero(num, px + s + 1, 36, { centro: true, color: hex('#c8382e'), sombra: false }); }
+  // la aguja de la báscula que oscila
+  { const a = Math.sin(t * 2) * 0.6; R.linea(214, 46, Math.round(214 + Math.sin(a) * 5), Math.round(46 - Math.cos(a) * 5), K); }
+  // el dependiente de la fruta coloca manzanas al fondo
+  R.actor(EL.cajera, 6, 122, t, { dir: 1, sostiene: Math.sin(t * 2) > 0 ? [20, 98] : [18, 104], sonrisa: true });
+  // el tablero de palotes: suman rayas azules (la mayoría elige la suya)
+  { const n = 6 + Math.floor(tramo(t, P4, DULCE + 0.4) * 12); for (let k = 0; k < n; k++) { const g = Math.floor(k / 5), i = k % 5, x0 = 289 + (g % 2) * 0, y0 = 74 + g * 10; if (y0 > 120) break; if (i < 4) R.rect(x0 + i * 3, y0, x0 + i * 3, y0 + 7, hex('#2e5aa8')); else R.linea(x0 - 1, y0 + 6, x0 + 11, y0 + 1, hex('#2e5aa8')); } }
+  // el empleado detrás de la mesa; en «theirs» destapa la lata azul detrás del vaso de la derecha
+  const destapa = tramo(t, SUYO - 0.15, SUYO + 0.2);
+  // la lata sube de debajo de la mesa y queda de pie detrás del vaso de la derecha; la mano la sujeta por su costado
+  // derecho (x ≥ 226), así la lata nunca tapa la cara del empleado
+  // (sube por detrás del mantel, que la tapa hasta que asoma); al destaparla salta el gas y el empleado se vuelve y la señala
+  const lyb = Math.round(lerp(146, 125, destapa));
+  if (destapa > 0) PZ.lata(R, 235, lyb, { color: 'azul' });
+  R.actor(NC.empleadoPepsi, 198, 128, t, { dir: destapa > 0.5 ? 1 : -1, dedo: t > SUYO + 0.1, sonrisa: t > SUYO, habla: t < ELIGE && Math.sin(t * 7) > 0.3 });
+  { const g = tramo(t, SUYO, SUYO + 0.9); if (g > 0 && g < 1) for (let k = 0; k < 7; k++) { const u = (g * 1.6 + hh(k, 3)) % 1; R.pset(Math.round(235 + (hh(k, 5) - 0.5) * 8 * u), Math.round(lyb - 18 - u * 12), u > 0.7 ? hex('#a8c8f0') : hex('#e8f4ff')); } }
+  // la mesa con su mantel de cuadros y los dos vasos
+  for (let x = 176; x <= 244; x++) for (let y = 126; y <= 146; y++) R.pset(x, y, (Math.floor(x / 4) + Math.floor(y / 4)) % 2 ? hex('#c8382e') : hex('#fbf6ea'));
+  R.rect(175, 125, 245, 125, K); R.rect(175, 125, 175, 146, K); R.rect(245, 125, 245, 146, K); R.rect(178, 147, 180, 156, K); R.rect(240, 147, 242, 156, K);
+  PZ.vaso(R, 192, 126, { lleno: 0.8 }); PZ.vaso(R, 222, 126, { lleno: 0.35 });
+  if (destapa > 0) destello(238, lyb - 19, tramo(t, SUYO, SUYO + 0.6));
+  // el azucarero que brilla en «sweeter»
+  R.rect(176, 118, 183, 125, K); R.rect(177, 119, 182, 124, hex('#fbf6ea')); R.rect(178, 116, 181, 118, hex('#c8c0b0')); destello(180, 114, tramo(t, DULCE, DULCE + 0.7));
+  // la señora prueba, se le iluminan los ojos y señala el vaso de la derecha en «picked»
+  const prueba = t < ELIGE - 0.1;
+  const se = R.actor(NC.senora75, 152, 158, t, { dir: 1, sostiene: prueba ? [166, 140 - (Math.sin(t * 3) > 0 ? 4 : 0)] : undefined, dedo: !prueba, sorpresa: t > ELIGE - 0.1 && t < SUYO, sonrisa: t > SUYO });
+  if (prueba) vasito(se.mano[0], se.mano[1] + 2, 0.5);
+  if (t > ELIGE - 0.1 && t < ELIGE + 0.6) { destello(160, 132, tramo(t, ELIGE - 0.1, ELIGE + 0.5)); destello(166, 131, tramo(t, ELIGE, ELIGE + 0.6)); }
+  if (t > SUYO) T.visto(R, 216, 86, 2);
+  // la cola de clientes que espera y aplaude en «sweeter»
+  const aplaude = t > DULCE && Math.floor(t * 6) % 2 === 0;
+  R.actor(EL.senor30, 126, 156, t, { dir: 1, brazos: aplaude, sonrisa: t > SUYO });
+  R.actor(EL.chica, 102, 154, t, { dir: 1, brazos: t > DULCE && !aplaude, sonrisa: t > SUYO, sorpresa: t > ELIGE && t < SUYO });
+  R.actor(EL.chico, 80, 152, t, { dir: 1, dedo: t > SUYO && t < DULCE, sonrisa: t > SUYO });
+  // un carro de la compra que pasa por delante
+  { const cx = Math.round(lerp(330, -40, tramo(t, P4 + 0.5, P4 + 4.0))); R.rect(cx, 164, cx + 24, 175, K); R.rect(cx + 1, 165, cx + 23, 174, hex('#c8c8d2')); for (let i = cx + 3; i < cx + 23; i += 3) R.rect(i, 165, i, 174, hex('#8a8c98')); R.rect(cx + 1, 169, cx + 23, 169, hex('#8a8c98')); R.disco(cx + 4, 178, 2, K); R.disco(cx + 20, 178, 2, K); R.rect(cx + 24, 162, cx + 28, 163, K); R.rect(cx + 5, 159, cx + 12, 164, hex('#2e5aa8')); R.rect(cx + 14, 160, cx + 20, 164, hex('#e8d040')); }
+};
+
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], {
+  cartela: '1975', año: 1975,
+  efectos: [[PEPSI, 'bip'], [MESAS, 'golpecito'], [SINMARCA, 'brillo'], [S1, 'whoosh'], [S2, 'whoosh'], [S3, 'whoosh'], [CIEGAS, 'pop'], [RETO, 'pop'], [GRABA, 'bip'], [ELIGE, 'pop'], [SUYO, 'brillo'], [DULCE + 0.1, 'palmada']],
+});
+</script>
+</body>
+</html>

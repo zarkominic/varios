@@ -1,0 +1,488 @@
+{
+ "serie": "ASK Atom",
+ "numero": 25,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Voynich Manuscript: The Book Nobody Can Read",
+  "es": "El manuscrito Voynich: el libro que nadie puede leer"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.92
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.95
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "vm-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "libro"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "libro",
+     "es": "En una biblioteca de Yale hay un libro de seiscientos años que nadie en la Tierra sabe leer. Está lleno de plantas que no existen y de estrellas que no cuadran, y ha derrotado a descifradores de las dos guerras mundiales y, más recientemente, a la inteligencia artificial.",
+     "en": "In a library at Yale, there's a six-hundred-year-old book that nobody on Earth can read. It's full of plants that don't exist and stars that don't add up, and it has beaten codebreakers from both World Wars and, more recently, artificial intelligence.",
+     "visual": "A: la sala de libros raros de Yale de noche, con la luz filtrada por el mármol; el libro abierto en su atril; las letras desconocidas de la página brillan y no se dejan leer; un sello de descifrado de la guerra y una pantalla de ordenador con un «?».",
+     "es_voz": "En una biblioteca de Yeil hay un libro de seiscientos años que nadie en la Tierra sabe leer. Está lleno de plantas que no existen y de estrellas que no cuadran, y ha derrotado a descifradores de las dos guerras mundiales y, más recientemente, a la inteligencia artificial."
+    },
+    {
+     "n": 2,
+     "marca": "pistas",
+     "es": "Por el camino vas a conocer a un emperador que, según una carta, pagó una fortuna por él, a un profesor que juró haberlo leído con un microscopio y a un librero que le dio su nombre. Todos tenían una pista. Ninguno tenía la respuesta.",
+     "en": "Along the way, you'll meet an emperor who, according to one letter, paid a fortune for it, a professor who swore he had read it with a microscope, and a book dealer who gave it his name. They all had a clue. None of them had the answer.",
+     "visual": "A y E: pasan las pistas como en un tablero de detective: una moneda de oro con una corona, un microscopio, una etiqueta de librero; hilos rojos las unen y en el centro el libro con un «?»."
+    }
+   ]
+  },
+  {
+   "id": "vm-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "E: Atom saluda en su estudio; en la maceta de la mesa crece una planta imposible (raíz de patas, hojas en espiral) (gag 1)."
+    }
+   ]
+  },
+  {
+   "id": "vm-pergamino",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "pergamino",
+     "es": "Empecemos por lo que sí sabemos. Son unas doscientas cuarenta páginas de pergamino, escritas a mano en un alfabeto que no aparece en ningún otro sitio, con unos veinte o treinta signos distintos que se repiten una y otra vez. No hay ni una sola palabra que alguien haya podido leer con seguridad.",
+     "en": "Let's start with what we do know. It's about two hundred and forty pages of vellum, handwritten in an alphabet that doesn't appear anywhere else, with some twenty or thirty different symbols repeated over and over. There isn't a single word that anyone has been able to read for certain.",
+     "visual": "A (la mesa de estudio): el libro de cerca: el pergamino amarillento, las líneas de letras redondas que no existen en ningún alfabeto; Atom mira con lupa y las letras se mueven para no dejarse leer (gag 2); un recuento de signos (20–30) aparece al lado.",
+     "acto": true
+    }
+   ]
+  },
+  {
+   "id": "vm-dibujos",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "dibujos",
+     "es": "Y luego están los dibujos. La primera parte está llena de plantas, pero casi ninguna se parece a una planta de verdad: raíces como patas, hojas que parecen de otra especie. Después vienen ruedas de estrellas con signos del zodiaco, unas figuras pequeñas bañándose en estanques de agua verde unidos por tubos, y al final, tarros como los de una botica.",
+     "en": "And then there are the drawings. The first part is full of plants, but almost none of them look like real plants: roots like legs, leaves that seem to belong to another species. Then come wheels of stars with signs of the zodiac, small figures bathing in pools of green water connected by tubes, and at the end, jars like the ones in an apothecary.",
+     "visual": "A (inserto de páginas): una planta con raíces como patas, una rueda de estrellas con signos del zodiaco, figuras pequeñas en estanques verdes unidos por tubos (sin desnudos), tarros de botica; las páginas pasan solas."
+    }
+   ]
+  },
+  {
+   "id": "vm-pista",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "pista",
+     "es": "Parece un libro de medicina, de astrología o de alquimia, y quizá sea las tres cosas a la vez. Pero sin poder leer el texto, cada dibujo es una adivinanza. Así que la única manera de avanzar ha sido seguirle la pista al propio libro: quién lo tuvo, quién lo intentó leer y qué dejó escrito.",
+     "en": "It looks like a book of medicine, astrology or alchemy, and maybe it's all three at once. But without being able to read the text, every drawing is a riddle. So the only way forward has been to follow the trail of the book itself: who owned it, who tried to read it, and what they left in writing.",
+     "visual": "A: la biblioteca; sobre la mesa se despliega un mapa de Europa con hilos que van de Praga a Roma y a Nueva York; una lupa recorre el camino del libro."
+    }
+   ]
+  },
+  {
+   "id": "vm-marci",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1665",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "marci",
+     "es": "La pista más antigua es una carta de 1665. La escribió Johannes Marcus Marci, un médico de Praga, para mandarle el libro a Athanasius Kircher, un sabio jesuita de Roma famoso por intentar descifrar los jeroglíficos egipcios. En la carta, Marci cuenta lo que le habían dicho: que el emperador Rodolfo II había pagado por el libro seiscientos ducados de oro.",
+     "en": "The oldest clue is a letter from 1665. It was written by Johannes Marcus Marci, a doctor in Prague, to send the book to Athanasius Kircher, a Jesuit scholar in Rome famous for trying to decipher Egyptian hieroglyphs. In the letter, Marci says what he had been told: that Emperor Rudolf the Second had paid six hundred gold ducats for the book.",
+     "visual": "B (el estudio de Marci en Praga en 1665): el médico escribe una carta a la luz de una vela, la dobla y la sella; la carta viaja a Roma; Kircher, jesuita con sotana entre jeroglíficos, la abre; un saco de 600 monedas de oro aparece como recuerdo.",
+     "acto": true,
+     "es_voz": "La pista más antigua es una carta de mil seiscientos sesenta y cinco. La escribió Yoánes Márcus Márchi, un médico de Praga, para mandarle el libro a Atanasio Kírjer, un sabio jesuita de Roma famoso por intentar descifrar los jeroglíficos egipcios. En la carta, Márchi cuenta lo que le habían dicho: que el emperador Rodolfo segundo había pagado por el libro seiscientos ducados de oro.",
+     "en_voz": "The oldest clue is a letter from sixteen sixty-five. It was written by Johannes Marcus Mar-tsee, a doctor in Prague, to send the book to Athanasius Keer-ker, a Jesuit scholar in Rome famous for trying to decipher Egyptian hieroglyphs. In the letter, Mar-tsee says what he had been told: that Emperor Rudolf the Second had paid six hundred gold ducats for the book."
+    }
+   ],
+   "cartela": "1665"
+  },
+  {
+   "id": "vm-baresch",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "baresch",
+     "es": "Antes de Marci, el libro fue de otro vecino de Praga, un alquimista llamado Georg Baresch, que pasó años intentando leerlo. Hacia 1639 copió unas páginas y se las mandó a Kircher a Roma pidiéndole ayuda, porque creía que guardaba recetas de medicina de Oriente. Kircher no supo qué contestar, y cuando Baresch murió, el libro pasó a su amigo Marci.",
+     "en": "Before Marci, the book belonged to another resident of Prague, an alchemist named Georg Baresch, who spent years trying to read it. Around 1639, he copied a few pages and sent them to Kircher in Rome asking for help, because he believed it held medical recipes from the East. Kircher didn't know what to answer, and when Baresch died, the book passed to his friend Marci.",
+     "visual": "B (el laboratorio de un alquimista de Praga hacia 1639): Baresch entre alambiques copia unas páginas; manda la copia a Roma; Kircher se rasca la cabeza.",
+     "es_voz": "Antes de Márchi, el libro fue de otro vecino de Praga, un alquimista llamado Yórg Báresh, que pasó años intentando leerlo. Hacia mil seiscientos treinta y nueve copió unas páginas y se las mandó a Kírjer a Roma pidiéndole ayuda, porque creía que guardaba recetas de medicina de Oriente. Kírjer no supo qué contestar, y cuando Báresh murió, el libro pasó a su amigo Márchi.",
+     "en_voz": "Before Mar-tsee, the book belonged to another resident of Prague, an alchemist named Georg Bah-resh, who spent years trying to read it. Around sixteen thirty-nine, he copied a few pages and sent them to Keer-ker in Rome asking for help, because he believed it held medical recipes from the East. Keer-ker didn't know what to answer, and when Bah-resh died, the book passed to his friend Mar-tsee."
+    }
+   ]
+  },
+  {
+   "id": "vm-rodolfo",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "rodolfo",
+     "es": "Rodolfo II coleccionaba de todo: relojes, alquimistas, astrónomos y rarezas. En la primera página del libro, con luz ultravioleta, todavía se lee el nombre borrado de uno de sus hombres, Jacobo de Tepenec, el químico que cuidaba sus jardines reales. Así que el libro probablemente estuvo en Praga a principios del siglo diecisiete, y nadie allí supo leerlo tampoco. Kircher, el gran experto en signos, tampoco lo consiguió.",
+     "en": "Rudolf the Second collected everything: clocks, alchemists, astronomers and curiosities. On the book's first page, under ultraviolet light, you can still read the faded name of one of his men, Jacobus of Tepenec, the chemist who kept his royal gardens. So the book was probably in Prague in the early sixteen-hundreds, and nobody there could read it either. Kircher, the great expert on symbols, didn't manage it either.",
+     "visual": "B (el gabinete de curiosidades de Rodolfo II en Praga hacia 1610): relojes, un cocodrilo disecado colgado, astrolabios, alquimistas; el emperador paga una bolsa de monedas y el libro le hace una reverencia (gag 3); la primera página con luz ultravioleta deja ver una firma borrada.",
+     "es_voz": "Rodolfo segundo coleccionaba de todo: relojes, alquimistas, astrónomos y rarezas. En la primera página del libro, con luz ultravioleta, todavía se lee el nombre borrado de uno de sus hombres, Jacobo de Tépenets, el químico que cuidaba sus jardines reales. Así que el libro probablemente estuvo en Praga a principios del siglo diecisiete, y nadie allí supo leerlo tampoco. Kírjer, el gran experto en signos, tampoco lo consiguió.",
+     "en_voz": "Rudolf the Second collected everything: clocks, alchemists, astronomers and curiosities. On the book's first page, under ultraviolet light, you can still read the faded name of one of his men, Jacobus of Teh-peh-nets, the chemist who kept his royal gardens. So the book was probably in Prague in the early sixteen-hundreds, and nobody there could read it either. Keer-ker, the great expert on symbols, didn't manage it either."
+    }
+   ]
+  },
+  {
+   "id": "vm-mondragone",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1912",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "voynich",
+     "es": "Después, el libro desapareció durante más de dos siglos, hasta que en 1912 un librero polaco llamado Wilfrid Voynich lo compró entre los libros que los jesuitas vendían en una villa cerca de Roma. Voynich lo enseñó por todas partes, convencido de haber encontrado un tesoro, y por eso hoy el libro lleva su nombre.",
+     "en": "After that, the book disappeared for more than two centuries, until in 1912 a Polish book dealer named Wilfrid Voynich bought it among books the Jesuits were selling at a villa near Rome. Voynich showed it everywhere, convinced he had found a treasure, and that's why the book carries his name today.",
+     "visual": "B (la villa Mondragone cerca de Roma en 1912): una sala de la villa con cajas de libros de los jesuitas; Wilfrid Voynich, librero con bigote, saca el libro de una caja y lo levanta con cara de tesoro.",
+     "es_voz": "Después, el libro desapareció durante más de dos siglos, hasta que en mil novecientos doce un librero polaco llamado Wílfrid Vóinich lo compró entre los libros que los jesuitas vendían en una villa cerca de Roma. Vóinich lo enseñó por todas partes, convencido de haber encontrado un tesoro, y por eso hoy el libro lleva su nombre.",
+     "en_voz": "After that, the book disappeared for more than two centuries, until in nineteen twelve a Polish book dealer named Wilfrid Voynich bought it among books the Jesuits were selling at a villa near Rome. Voynich showed it everywhere, convinced he had found a treasure, and that's why the book carries his name today."
+    }
+   ],
+   "cartela": "1912"
+  },
+  {
+   "id": "vm-kraus",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "kraus",
+     "es": "Voynich murió en 1930 sin haberlo descifrado. Su viuda, la escritora Ethel Voynich, lo guardó en una caja fuerte, y años después su amiga Anne Nill se lo vendió a otro librero de Nueva York, Hans Kraus, que pagó veinticuatro mil quinientos dólares y pidió por él ciento sesenta mil. Nadie lo quiso comprar. En 1969 lo regaló a Yale, y allí sigue, como el manuscrito 408.",
+     "en": "Voynich died in 1930 without having deciphered it. His widow, the writer Ethel Voynich, kept it in a safe, and years later her friend Anne Nill sold it to another New York book dealer, Hans Kraus, who paid twenty-four thousand five hundred dollars and asked a hundred and sixty thousand for it. Nobody wanted to buy it. In 1969 he donated it to Yale, and it's still there, as manuscript 408.",
+     "visual": "B y A (Nueva York y Yale): una caja fuerte con el libro dentro; un cartel de precio que sube a 100.000 sin compradores; el libro llega a la biblioteca de Yale con su número 408 en la etiqueta.",
+     "es_voz": "Vóinich murió en mil novecientos treinta sin haberlo descifrado. Su viuda, la escritora Ézel Vóinich, lo guardó en una caja fuerte, y años después su amiga An Nil se lo vendió a otro librero de Nueva York, Jans Kráus, que pagó veinticuatro mil quinientos dólares y pidió por él ciento sesenta mil. Nadie lo quiso comprar. En mil novecientos sesenta y nueve lo regaló a Yeil, y allí sigue, como el manuscrito cuatrocientos ocho.",
+     "en_voz": "Voynich died in nineteen thirty without having deciphered it. His widow, the writer Ethel Voynich, kept it in a safe, and years later her friend Anne Nill sold it to another New York book dealer, Hans Kraus, who paid twenty-four thousand five hundred dollars and asked a hundred and sixty thousand for it. Nobody wanted to buy it. In nineteen sixty-nine he donated it to Yale, and it's still there, as manuscript four oh-eight."
+    }
+   ]
+  },
+  {
+   "id": "vm-newbold",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1921",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "newbold",
+     "es": "Y aparecieron los descifradores. En 1921, un profesor de Filadelfia, William Newbold, anunció que lo había leído. Según él, lo había escrito el sabio medieval Roger Bacon, y el secreto estaba en unas marcas diminutas dentro de cada letra que solo se veían con microscopio. Los periódicos se volvieron locos.",
+     "en": "Then the codebreakers showed up. In 1921, a professor in Philadelphia, William Newbold, announced that he had read it. According to him, it had been written by the medieval scholar Roger Bacon, and the secret was in tiny marks inside each letter that could only be seen under a microscope. The newspapers went wild.",
+     "visual": "C (el despacho de un profesor de Filadelfia en 1921): Newbold con su microscopio, al lado los periódicos que salen volando; en el ocular, unas marcas diminutas que parecen letras… y es una mosca (gag 4).",
+     "acto": true,
+     "es_voz": "Y aparecieron los descifradores. En mil novecientos veintiuno, un profesor de Filadelfia, Wíliam Niúbold, anunció que lo había leído. Según él, lo había escrito el sabio medieval Róyer Béicon, y el secreto estaba en unas marcas diminutas dentro de cada letra que solo se veían con microscopio. Los periódicos se volvieron locos.",
+     "en_voz": "Then the codebreakers showed up. In nineteen twenty-one, a professor in Philadelphia, William Newbold, announced that he had read it. According to him, it had been written by the medieval scholar Roger Bacon, and the secret was in tiny marks inside each letter that could only be seen under a microscope. The newspapers went wild."
+    }
+   ],
+   "cartela": "1921"
+  },
+  {
+   "id": "vm-manly",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "manly",
+     "es": "Pero diez años después, el académico John Manly, que había descifrado mensajes en la Primera Guerra Mundial, demostró que esas marcas eran solo grietas de la tinta seca, y que el método de Newbold sacaba mensajes distintos del mismo párrafo. La solución se vino abajo.",
+     "en": "But ten years later, the scholar John Manly, who had worked on breaking messages in World War One, showed that those marks were just cracks in the dried ink, and that Newbold's method pulled different messages out of the same paragraph. The solution fell apart.",
+     "visual": "C (el mismo despacho, años después): Manly enseña con un puntero que las marcas son grietas de tinta seca; dos papeles con traducciones distintas del mismo párrafo se cruzan con una X.",
+     "es_voz": "Pero diez años después, el académico Yon Mánli, que había descifrado mensajes en la Primera Guerra Mundial, demostró que esas marcas eran solo grietas de la tinta seca, y que el método de Niúbold sacaba mensajes distintos del mismo párrafo. La solución se vino abajo."
+    }
+   ]
+  },
+  {
+   "id": "vm-friedman",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "friedman",
+     "es": "Después le tocó a William Friedman, el criptógrafo que dirigió al equipo que rompió el código diplomático de Japón antes de que Estados Unidos entrara en la Segunda Guerra Mundial. Él y su equipo pasaron el texto a fichas para analizarlo, y Friedman acabó pensando que podía ser un idioma inventado, un intento antiguo de crear una lengua artificial. Murió sin poder demostrarlo.",
+     "en": "Next came William Friedman, the cryptographer who led the team that broke Japan's diplomatic code before the United States entered World War Two. He and his team transcribed the text onto cards to analyze it, and Friedman ended up thinking it might be an invented language, an early attempt to create an artificial one. He died without being able to prove it.",
+     "visual": "C (una oficina de descifrado de los cuarenta): Friedman con gafas y su equipo pasan el texto a fichas; una máquina imprime una tira de papel infinita con un «?» al final (gag 5).",
+     "es_voz": "Después le tocó a Wíliam Frídman, el criptógrafo que dirigió al equipo que rompió el código diplomático de Japón antes de que Estados Unidos entrara en la Segunda Guerra Mundial. Él y su equipo pasaron el texto a fichas para analizarlo, y Frídman acabó pensando que podía ser un idioma inventado, un intento antiguo de crear una lengua artificial. Murió sin poder demostrarlo."
+    }
+   ]
+  },
+  {
+   "id": "vm-carbono",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [
+    "carbono"
+   ],
+   "empieza_con": "cartela 2009",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "carbono",
+     "es": "Si los descifradores no podían leerlo, quizá la ciencia pudiera al menos fecharlo. En 2009, un laboratorio de la Universidad de Arizona tomó muestras diminutas del pergamino y las dató con carbono catorce. El resultado: la piel se preparó entre 1404 y 1438.",
+     "en": "If the codebreakers couldn't read it, maybe science could at least date it. In 2009, a lab at the University of Arizona took tiny samples of the vellum and carbon-dated them. The result: the skin was prepared between 1404 and 1438.",
+     "visual": "D (el laboratorio de radiocarbono de Arizona en 2009): pinzas que toman una muestra diminuta del borde del pergamino; el acelerador; en la pantalla, la franja 1404–1438.",
+     "acto": true,
+     "es_voz": "Si los descifradores no podían leerlo, quizá la ciencia pudiera al menos fecharlo. En dos mil nueve, un laboratorio de la Universidad de Arizona tomó muestras diminutas del pergamino y las dató con carbono catorce. El resultado: la piel se preparó entre mil cuatrocientos cuatro y mil cuatrocientos treinta y ocho.",
+     "en_voz": "If the codebreakers couldn't read it, maybe science could at least date it. In two thousand nine, a lab at the University of Arizona took tiny samples of the vellum and carbon-dated them. The result: the skin was prepared between fourteen oh-four and fourteen thirty-eight."
+    }
+   ],
+   "cartela": "2009"
+  },
+  {
+   "id": "vm-fecha",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "fecha",
+     "es": "Eso tumbó dos teorías de golpe. No podía ser de Roger Bacon, que había muerto más de cien años antes, y tampoco una falsificación del propio Voynich, a no ser que hubiera encontrado pergamino en blanco de esa época. El libro es de principios del siglo quince, más de medio siglo antes de que Colón llegara a América.",
+     "en": "That knocked down two theories at once. It couldn't be Roger Bacon's, since he had died more than a hundred years earlier, and it was unlikely to be a forgery by Voynich himself, unless he had found blank vellum from that era. The book is from the early fifteenth century, more than half a century before Columbus reached the Americas.",
+     "visual": "D: una línea del tiempo en la pared con Roger Bacon (muere en 1292) muy a la izquierda, el libro en 1404–1438 y una carabela de 1492 a la derecha; las teorías de Bacon y del fraude de Voynich se tachan.",
+     "es_voz": "Eso tumbó dos teorías de golpe. No podía ser de Róyer Béicon, que había muerto más de cien años antes, y tampoco una falsificación del propio Vóinich, a no ser que hubiera encontrado pergamino en blanco de esa época. El libro es de principios del siglo quince, más de medio siglo antes de que Colón llegara a América."
+    }
+   ]
+  },
+  {
+   "id": "vm-estadistica",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "estadistica",
+     "es": "Y luego vinieron las estadísticas. Las palabras del libro se repiten con la misma frecuencia que en los idiomas de verdad, pero a la vez son demasiado ordenadas, como si siguieran reglas muy rígidas. En 2020, la experta en manuscritos Lisa Fagin Davis comparó la forma de cada letra y concluyó que lo escribieron al menos cinco personas distintas.",
+     "en": "And then came the statistics. The book's words repeat with the same frequency as in real languages, but at the same time they're too orderly, as if they followed very rigid rules. In 2020, the manuscript expert Lisa Fagin Davis compared the shape of every letter and concluded that it was written by at least five different people.",
+     "visual": "D (la sala de ordenadores): una gráfica de frecuencias de palabras que se parece a la de los idiomas; las barras se ponen en fila como si bailaran (gag 6); cinco plumas con tintas distintas sobre la mesa.",
+     "es_voz": "Y luego vinieron las estadísticas. Las palabras del libro se repiten con la misma frecuencia que en los idiomas de verdad, pero a la vez son demasiado ordenadas, como si siguieran reglas muy rígidas. En dos mil veinte, la experta en manuscritos Lísa Féigan Déivis comparó la forma de cada letra y concluyó que lo escribieron al menos cinco personas distintas.",
+     "en_voz": "And then came the statistics. The book's words repeat with the same frequency as in real languages, but at the same time they're too orderly, as if they followed very rigid rules. In twenty twenty, the manuscript expert Lisa Fagin Davis compared the shape of every letter and concluded that it was written by at least five different people."
+    }
+   ]
+  },
+  {
+   "id": "vm-rarezas",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "rarezas",
+     "es": "Hay detalles todavía más raros. Algunas palabras aparecen dos y tres veces seguidas, una detrás de otra, algo que casi ningún idioma hace. Ciertas letras aparecen casi solo al principio de una línea y otras casi solo al final, y las páginas de plantas usan un vocabulario distinto del de las páginas de los baños, como si fueran dos dialectos.",
+     "en": "There are even stranger details. Some words appear two or three times in a row, one after another, something almost no language does. Certain letters show up almost only at the beginning of a line and others almost only at the end, and the plant pages use a different vocabulary from the bathing pages, as if they were two dialects.",
+     "visual": "D: una página proyectada con las palabras repetidas dos y tres veces seguidas marcadas en amarillo; letras que solo salen al principio y al final de las líneas, marcadas; dos montones de palabras distintos para plantas y estrellas."
+    }
+   ]
+  },
+  {
+   "id": "vm-teorias",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "teorias",
+     "es": "Con todo eso, hay tres grandes teorías. La primera: que es un código, un idioma conocido escrito con letras inventadas para esconderlo. La segunda: que es un idioma perdido, escrito con su propio alfabeto, del que no queda ningún otro texto. Y la tercera, la más incómoda: que no dice nada, que es un galimatías hecho para parecer un libro sabio y venderlo caro.",
+     "en": "With all that, there are three big theories. The first: it's a code, a known language written in invented letters to hide it. The second: it's a lost language, written in its own alphabet, with no other text left behind. And the third, the most uncomfortable one: that it says nothing at all, that it's gibberish made to look like a learned book and sell for a lot of money.",
+     "visual": "A: tres carpetas sobre la mesa: un candado (código), un pueblo perdido (idioma), una máscara de teatro (fraude); se abren una tras otra.",
+     "acto": true
+    }
+   ]
+  },
+  {
+   "id": "vm-plantas",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "plantas",
+     "es": "Hubo hasta quien buscó la respuesta en las plantas. En 2013, un botánico y un colega propusieron que algunas eran plantas de México, dibujadas como las de un antiguo herbario azteca, y que el libro venía de América. Pero el pergamino es de antes de que los europeos llegaran allí, así que, para que fuera cierto, alguien habría tenido que escribir en hojas viejas mucho después.",
+     "en": "Some even looked for the answer in the plants. In 2013, a botanist and a colleague proposed that some of them were plants from Mexico, drawn like the ones in an old Aztec herbal, and that the book came from the Americas. But the vellum is from before Europeans arrived there, so for that to be true, someone would have had to write on old sheets long afterward.",
+     "visual": "A y E: dos botánicos comparan una página con un girasol de verdad; un mapa de América se ilumina y luego se apaga junto a la franja de 1404–1438.",
+     "es_voz": "Hubo hasta quien buscó la respuesta en las plantas. En dos mil trece, un botánico y un colega propusieron que algunas eran plantas de México, dibujadas como las de un antiguo herbario azteca, y que el libro venía de América. Pero el pergamino es de antes de que los europeos llegaran allí, así que, para que fuera cierto, alguien habría tenido que escribir en hojas viejas mucho después.",
+     "en_voz": "Some even looked for the answer in the plants. In twenty thirteen, a botanist and a colleague proposed that some of them were plants from Mexico, drawn like the ones in an old Aztec herbal, and that the book came from the Americas. But the vellum is from before Europeans arrived there, so for that to be true, someone would have had to write on old sheets long afterward."
+    }
+   ]
+  },
+  {
+   "id": "vm-ia",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "ia",
+     "es": "Cada pocos años alguien anuncia que lo ha resuelto. En 2018, unos investigadores usaron un programa de inteligencia artificial y dijeron que podía ser hebreo; en 2019, un académico británico aseguró que era una lengua romance perdida. Los expertos en manuscritos revisaron las dos propuestas y las rechazaron: las palabras «traducidas» no formaban frases con sentido.",
+     "en": "Every few years, someone announces they've solved it. In 2018, researchers used an artificial intelligence program and said it might be Hebrew; in 2019, a British academic claimed it was a lost Romance language. Manuscript experts reviewed both proposals and rejected them: the \"translated\" words didn't form sentences that made sense.",
+     "visual": "E (una pantalla moderna): un programa de inteligencia artificial escupe palabras sueltas; los expertos las revisan y salen sellos de «no»; lo mismo con la propuesta de 2019.",
+     "es_voz": "Cada pocos años alguien anuncia que lo ha resuelto. En dos mil dieciocho, unos investigadores usaron un programa de inteligencia artificial y dijeron que podía ser hebreo; en dos mil diecinueve, un académico británico aseguró que era una lengua romance perdida. Los expertos en manuscritos revisaron las dos propuestas y las rechazaron: las palabras «traducidas» no formaban frases con sentido.",
+     "en_voz": "Every few years, someone announces they've solved it. In twenty eighteen, researchers used an artificial intelligence program and said it might be Hebrew; in twenty nineteen, a British academic claimed it was a lost Romance language. Manuscript experts reviewed both proposals and rejected them: the \"translated\" words didn't form sentences that made sense."
+    }
+   ]
+  },
+  {
+   "id": "vm-fraude",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "fraude",
+     "es": "Lo curioso es que la teoría del fraude tampoco cuadra del todo. Fabricar un galimatías tan bien hecho en el siglo quince, con cinco escribas y una estadística tan parecida a la de un idioma, habría sido casi tan difícil como escribir un libro de verdad. Por eso, seiscientos años después, nadie se atreve a cerrar el caso.",
+     "en": "The strange thing is that the hoax theory doesn't fully add up either. Making gibberish that well in the fifteenth century, with five scribes and statistics so close to a real language, would have been almost as hard as writing a real book. That's why, six hundred years later, nobody dares to close the case.",
+     "visual": "A: cinco escribas del siglo quince en un taller con plumas, cada uno con su letra; una balanza: en un plato «galimatías», en el otro «libro de verdad», y queda igualada."
+    }
+   ]
+  },
+  {
+   "id": "vm-reves",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "reves",
+     "es": "Así que, si lo piensas, el manuscrito Voynich es un misterio al revés. Sabemos casi todo sobre el libro: de qué piel está hecho, cuándo, cuántas manos lo escribieron, por qué casas pasó. Y no sabemos lo único que importa, que es qué dice. Yale lo tiene escaneado en internet, gratis, para que cualquiera pueda intentarlo.",
+     "en": "So if you think about it, the Voynich manuscript is a mystery in reverse. We know almost everything about the book: what skin it's made of, when, how many hands wrote it, whose homes it passed through. And we don't know the only thing that matters, which is what it says. Yale has it scanned online for free, so anyone can try.",
+     "visual": "A y E: el libro rodeado de todas sus etiquetas (piel, fecha, cinco manos, Praga, Roma, Yale) y en el centro un «?»; la pantalla de Atom con el libro escaneado.",
+     "acto": true,
+     "es_voz": "Así que, si lo piensas, el manuscrito Vóinich es un misterio al revés. Sabemos casi todo sobre el libro: de qué piel está hecho, cuándo, cuántas manos lo escribieron, por qué casas pasó. Y no sabemos lo único que importa, que es qué dice. Yeil lo tiene escaneado en internet, gratis, para que cualquiera pueda intentarlo."
+    }
+   ]
+  },
+  {
+   "id": "vm-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "cierre",
+     "es": "Ahora cuéntame tú en los comentarios: ¿crees que dice algo o que es el mejor fraude de la historia? Yo, mientras tanto, voy a averiguar qué planta es la de mi maceta… otra vez.",
+     "en": "Now tell me in the comments: do you think it says something, or is it the greatest hoax in history? Meanwhile, I'm going to find out what plant is growing in my pot… again.",
+     "visual": "E (el estudio de Atom de noche): la planta de la maceta le pone una flor en la cabeza y vuelve a crecer (gag 7)."
+    }
+   ]
+  }
+ ]
+}

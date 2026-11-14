@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El pergamino · ep25</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// VM-PERGAMINO (frase 4): lo que sabemos del libro. Cuatro planos:
+// 1. la mesa de estudio de la biblioteca: la bibliotecaria (pies en 121, tras el borde de la mesa en 120) entra por detrás de la lámpara hasta el libro; por la derecha
+//    llega una estudiante con una pila de libros y se para junto a la libreta; con «240» las hojas pasan solas y un
+//    contador sube hasta 240 con el icono del libro: el investigador da un respingo, la estudiante se vuelve a mirar y
+//    los dos sonríen; él lo señala;
+// 2. inserto local, los signos de muy cerca sobre el pergamino (vitela, poros, cercos): un dedo recorre el renglón de
+//    abajo y los signos que toca se encienden; con «anywhere else» saltan tres «?» sobre los signos; por el margen de
+//    arriba corre un pececillo de plata que se esconde bajo la hoja de debajo;
+// 3. inserto local, el recuento: la libreta cuadriculada junto al libro; los signos se copian en casillas (20 con
+//    «20», 30 con «30») y la mano con el lápiz escribe la cifra en la etiqueta; con «over and over» se marcan palotes y
+//    en el libro parpadean en oro los que se repiten;
+// 4. inserto local, gag 2: la lupa baja sobre la página y los signos echan patitas y huyen del cristal; la lupa los
+//    persigue tres veces («single word», «anyone», «read») y se va; los signos vuelven a su renglón.
+// Efectos: las hojas que pasan, el «240», el dedo que roza, los «?», el lápiz (20, 30 y los palotes), la lupa que entra
+// y cada vez que cae sobre los signos, y el «pop» cuando vuelven a su sitio.
+import * as T from '/atomo/plato/escenas/vm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('vm-pergamino');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const Q = Object.fromEntries(Object.entries({
+  perg: '#ecdcb2', pergL: '#f7ecd2', pergS: '#d2bc90', pergD: '#a88c60', pergM: '#dcc698', pergO: '#8a6e44',
+  tinta: '#4a2e1c', tintaL: '#7a5034', tintaS: '#2a180c', oro: '#e8b830', oroL: '#ffe890', oroS: '#a87a18',
+  verde: '#6a9a4a', verdeL: '#a0c870', verdeS: '#3e6a2a', azul: '#5a82b8', azulL: '#9ab8dc', azulS: '#34588a',
+  rojo: '#b0482e', rojoL: '#d87a50', rojoS: '#7a2a1a', ocre: '#c8a050', ocreL: '#e0c078', ocreS: '#9a7430',
+  agua: '#6aae7e', aguaL: '#a8d8b0', aguaS: '#3e8058',
+  tap: '#2e5a3a', tapL: '#3e7048', tapS: '#1e3e28', tapD: '#14281a',
+  nog: '#5a3a24', nogL: '#7a5232', nogS: '#3a2414', nogD: '#2a180c',
+  laton: '#c8a040', latonL: '#f0d080', latonS: '#8a6420', papel: '#f2eedc', papelS: '#cfc8b0', raya: '#a8bcd2', margen: '#d88a8a',
+  guante: '#f4f2ea', guanteS: '#c8c4b8', k: '#1a1014', luz: '#fff0c4', blanco: '#ffffff', piel: '#f2c49a', pielS: '#d4946a', grafito: '#4a4a52', amarillo: '#e8c040',
+}).map(([k, v]) => [k, hex(v)]));
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const tine = (x, y, k, c) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, k)); };
+const ease = (u) => { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u); };
+const BUF = {};
+// un fondo fijo, pintado una sola vez en su búfer
+const fijo = (k, f) => { if (!BUF[k]) { const b = R.nuevo(); const prev = R.usar(b); f(); R.usar(prev); BUF[k] = b; } R.copiar(BUF[k]); };
+// una trayectoria por fotogramas clave [t, x, y] con entrada y salida suaves
+const camino = (K, t) => { if (t <= K[0][0]) return [K[0][1], K[0][2]]; for (let i = 1; i < K.length; i++) if (t < K[i][0]) { const u = ease((t - K[i - 1][0]) / (K[i][0] - K[i - 1][0])); return [lerp(K[i - 1][1], K[i][1], u), lerp(K[i - 1][2], K[i][2], u)]; } const L = K[K.length - 1]; return [L[1], L[2]]; };
+// los signos del libro, inventados (bucles, rizos, «gallows»; nunca letras): 8 formas de 5 × 9 (la fila 6 es la línea)
+// y cuatro variantes (punto, cola, raya), 32 en total
+const GL = [
+  ['.....', '.....', '.....', '.##..', '#..#.', '#..#.', '.##.#', '.....', '.....'],
+  ['.#.#.', '.#.#.', '.###.', '##.##', '.#.#.', '.#.#.', '.#.#.', '.....', '.....'],
+  ['.....', '.....', '.....', '.##..', '#..#.', '.###.', '...#.', '..#..', '.#...'],
+  ['.....', '.....', '.....', '.....', '#.#..', '#.#..', '.#.#.', '.....', '.....'],
+  ['.....', '.....', '.#...', '.....', '.##..', '#..#.', '...#.', '..#..', '.....'],
+  ['#....', '.#...', '.#...', '.##..', '.#.#.', '.#.#.', '.##..', '.....', '.....'],
+  ['.....', '.....', '.....', '.....', '.#.#.', '#.#..', '.#.#.', '.....', '.....'],
+  ['..##.', '.#...', '..#..', '...#.', '.##..', '#..#.', '.##..', '.....', '.....'],
+];
+const GLW = GL.map((m) => Math.max(...m.map((f) => f.lastIndexOf('#') + 1)));
+const anchoG = (id) => GLW[id % 8] + (((id >> 3) & 3) === 2 ? 1 : 0);
+const glifo = (id, x, yb, esc, col) => {
+  const g = id % 8, mod = (id >> 3) & 3, m = GL[g], w = GLW[g];
+  const p = (i, j) => { const X = Math.round(x + i * esc), Y = Math.round(yb + (j - 6) * esc); for (let a = 0; a < esc; a++) for (let b = 0; b < esc; b++) R.pset(X + a, Y + b, col); };
+  for (let j = 0; j < 9; j++) for (let i = 0; i < 5; i++) if (m[j][i] === '#') p(i, j);
+  if (mod === 1) p(Math.max(0, w - 2), 1);
+  if (mod === 2) { p(w, 5); p(w, 4); }
+  if (mod === 3) for (let i = 0; i < w; i++) p(i, 2);
+  return anchoG(id) * esc;
+};
+// un renglón de palabras de signos entre x0 y x1 (col: color o función (x, id, i)); con out, solo apunta las posiciones
+const renglon = (x0, yb, x1, sem, col, esc = 1, out = null) => {
+  let x = x0, i = 0;
+  for (let p = 0; p < 60; p++) {
+    const nw = 2 + Math.floor(hh(sem, p, 8) * 4), ids = []; let w = 0;
+    for (let j = 0; j < nw; j++) { const id = Math.floor(hh(sem, i + j, 9) * 32); ids.push(id); w += (anchoG(id) + 1) * esc; }
+    if (x + w > x1) break;
+    for (const id of ids) { if (out) out.push({ x, y: yb, id, i }); else glifo(id, x, yb, esc, typeof col === 'function' ? col(x, id, i) : col); x += (anchoG(id) + 1) * esc; i++; }
+    x += 3 * esc;
+  }
+  return i;
+};
+// una hoja de pergamino: moteado en tres tonos, poros, bordes irregulares oscurecidos, puntos de óxido y dos cercos de agua
+const pergamino = (x0, y0, x1, y1, k = 0) => {
+  for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) {
+    const d = Math.min(y - y0 - hh(x >> 2, k, 7) * 2, y1 - y - hh(x >> 2, k, 17) * 2, x - x0 - hh(y >> 2, k, 27) * 2, x1 - x - hh(y >> 2, k, 37) * 2);
+    if (d < 0) continue;
+    const n = hh(x >> 1, y >> 1, k + 1), m = hh(x >> 3, y >> 3, k + 2), m2 = hh(x >> 4, y >> 4, k + 12);
+    let c = Q.perg;
+    if (m < 0.3 && n < 0.6) c = Q.pergM;
+    if (m2 < 0.2 && n < 0.4) c = Q.pergS;
+    if (n > 0.93) c = Q.pergL;
+    if (hh(x, y, k + 5) > 0.988) c = Q.pergS;
+    if (d < 1.5) c = Q.pergD; else if (d < 4 && ((x + y) & 1)) c = Q.pergS; else if (d < 7 && (x + y) % 3 === 0) c = Q.pergM;
+    if (hh(x >> 1, y >> 1, k + 9) > 0.996) c = Q.pergO;
+    R.pset(x, y, c);
+  }
+  for (let s = 0; s < 2; s++) {
+    const cx = x0 + (x1 - x0) * (0.2 + hh(s, k, 41) * 0.6), cy = y0 + (y1 - y0) * (0.2 + hh(s, k, 42) * 0.6), rx = 12 + hh(s, k, 43) * 14, ry = rx * 0.7;
+    for (let a = 0; a < 220; a++) { const an = a / 220 * Math.PI * 2, w = 1 + Math.sin(an * 5 + s) * 0.08, X = Math.round(cx + Math.cos(an) * rx * w), Y = Math.round(cy + Math.sin(an) * ry * w); if (X >= x0 + 4 && X <= x1 - 4 && Y >= y0 + 4 && Y <= y1 - 4) { tine(X, Y, 0.3, Q.pergO); tine(X, Y + 1, 0.12, Q.pergD); } }
+  }
+};
+// el tapete verde de la mesa, con su trama
+const tapete = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const n = hh(x >> 1, y >> 1, 3); let c = n < 0.2 ? Q.tapS : n > 0.86 ? Q.tapL : Q.tap; if ((x + 2 * y) % 5 === 0 && n > 0.45) c = Q.tapS; if (hh(x, y, 13) > 0.985) c = Q.tapL; R.pset(x, y, c); } };
+// la luz de la lámpara: un charco cálido y los bordes en penumbra
+const vineta = (cx, cy, r, k = 0.45) => { for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - cx) / r, (y - cy) / (r * 0.75)); if (d > 1) { const a = Math.min(k, (d - 1) * 0.7); if (a > 0.04 && ((x + y) & 1 || a > 0.12)) R.pset(x, y, mez(R.pget(x, y), Q.tapD, a)); } else if (d < 0.55 && ((x + y) & 1)) tine(x, y, 0.07, Q.luz); } };
+// motas de polvo en la luz
+const motas = (t, n = 12, y0 = 20, y1 = 170, sem = 3) => { for (let k = 0; k < n; k++) { const x = Math.round((hh(k, 1, sem) * 340 + t * (3 + hh(k, 2, sem) * 4)) % 340 - 10), y = Math.round(y0 + hh(k, 3, sem) * (y1 - y0) + Math.sin(t * 0.7 + k) * 5); if (Math.sin(t * 1.3 + k * 1.7) > -0.2 && !(x > 274 && y < 48) && !(x < 172 && y < 16)) { tine(x, y, 0.6, Q.luz); if (k % 3 === 0) tine(x + 1, y, 0.3, Q.luz); } } };
+// la cadena de cuentas de latón que sujeta la hoja (con t, un brillo la recorre)
+const cuentas = (x0, y0, x1, y1, t = null) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 4); const b = t == null ? -9 : Math.floor(((t % 4) / 4) * (n + 20)); for (let i = 0; i <= n; i++) { const x = Math.round(x0 + (x1 - x0) * i / n), y = Math.round(y0 + (y1 - y0) * i / n + Math.sin(i * 0.7)); if (t == null) { R.disco(x + 1, y + 2, 1.6, Q.tapD); R.disco(x, y, 1.7, Q.latonS); R.pset(x, y, Q.laton); R.pset(x - 1, y - 1, Q.latonL); } else if (i === b) { R.pset(x - 1, y - 1, Q.blanco); R.pset(x, y - 1, Q.latonL); } } };
+// un lápiz de grafito: madera amarilla, punta afilada
+const lapiz = (x0, y0, x1, y1) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0)); for (let i = 0; i <= n; i++) { const u = i / n, x = Math.round(lerp(x0, x1, u)), y = Math.round(lerp(y0, y1, u)); if (u > 0.9) R.pset(x, y, Q.grafito); else if (u > 0.78) { R.pset(x, y, Q.ocreL); R.pset(x + 1, y, Q.pergD); } else { R.pset(x, y, Q.amarillo); R.pset(x + 1, y, Q.ocreS); R.pset(x - 1, y, Q.k); R.pset(x + 2, y, Q.k); } } };
+// la lupa de latón: el cristal aumenta (zoom) lo que tiene debajo, con su reflejo; el aro con luz y sombra y un brillo
+const lupa = (cx, cy, r, t, zoom = 2) => {
+  cx = Math.round(cx); cy = Math.round(cy);
+  const S = [];
+  for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) { const sx = Math.round(cx + x / zoom), sy = Math.round(cy + y / zoom); S.push(sx >= 0 && sx < 320 && sy >= 0 && sy < 180 ? R.pget(sx, sy) : Q.k); }
+  let n = 0;
+  for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++, n++) { const d = Math.hypot(x, y); if (d > r) continue; let c = mez(S[n], hex('#d8eef6'), 0.1); if (d > r - 4 && x + y < -r * 0.7) c = mez(c, Q.blanco, 0.5); else if (Math.abs(x + y + r * 0.45) < 1.1 && d < r - 3) c = mez(c, Q.blanco, 0.35); R.pset(cx + x, cy + y, c); }
+  for (let y = -r - 4; y <= r + 4; y++) for (let x = -r - 4; x <= r + 4; x++) { const d = Math.hypot(x, y); if (d > r && d <= r + 3.6) { const l = (-x - y) / (d * 1.41); R.pset(cx + x, cy + y, d > r + 2.8 || d < r + 0.6 ? Q.k : l > 0.45 ? Q.latonL : l < -0.35 ? Q.latonS : Q.laton); } }
+  const g = (t % 3.2) / 0.6; if (g < 1) { const a = -2.7 + g * 1.9; R.pset(Math.round(cx + Math.cos(a) * (r + 2)), Math.round(cy + Math.sin(a) * (r + 2)), Q.blanco); R.pset(Math.round(cx + Math.cos(a) * (r + 1)), Math.round(cy + Math.sin(a) * (r + 1)), Q.latonL); }
+};
+// el mango de la lupa, a 45° hacia abajo a la derecha; devuelve su punta
+const mango = (cx, cy, r, L = 18) => { const s = (r + 3) / 1.414; for (let k = 0; k <= L; k++) { const x = cx + s + k * 0.707, y = cy + s + k * 0.707; for (let w = -2; w <= 2; w++) { const X = Math.round(x - w * 0.707), Y = Math.round(y + w * 0.707), c = Math.abs(w) === 2 ? Q.k : k < 5 ? (w < 0 ? Q.latonL : Q.laton) : (w < 0 ? Q.nogL : w > 0 ? Q.nogS : Q.nog); R.pset(X, Y, c); if (Math.abs(w) < 2) R.pset(X + 1, Y, c); } } return [Math.round(cx + s + L * 0.707), Math.round(cy + s + L * 0.707)]; };
+// una hoja dibujada a tinta con aguada: elipse girada con nervio
+const hojaT = (cx, cy, l, w, ang, c, cS) => { const ca = Math.cos(ang), sa = Math.sin(ang); for (let j = -l - 1; j <= l + 1; j++) for (let i = -w - 1; i <= w + 1; i++) { const d = (j * j) / (l * l) + (i * i) / (w * w); if (d > 1.25) continue; const X = Math.round(cx + j * ca - i * sa), Y = Math.round(cy + j * sa + i * ca); R.pset(X, Y, d > 0.8 ? Q.tinta : i === 0 ? cS : (i < 0 ? c : mez(c, cS, 0.35))); } };
+
+const P2 = en('pergamino', 0.2358), P3 = en('pergamino', 0.5030), P4 = en('pergamino', 0.7593);
+const N240 = en('pergamino', 0.1330);
+// 1 · la mesa: la bibliotecaria entra, las hojas pasan solas y el contador llega a 240
+const p1 = (t) => {
+  T.biblioteca(R, t, { camara: 'mesa' });
+  const u = tramo(t, 0.25, 1.75), x = Math.round(lerp(18, 112, ease(u)));
+  R.actor(EL.bibliotecaria, x, 121, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > N240 - 0.25 && t < P2 - 0.2, sonrisa: t > en('pergamino', 0.1857), habla: t > en('pergamino', 0.0000) && t < en('pergamino', 0.0617) + 0.2 && Math.sin(t * 9) > 0 });
+  const v = tramo(t, en('pergamino', 0.1857), en('pergamino', 0.2248));
+  R.actor(EL.investigadorIA, 206, 121, t, { dir: -1, salto: t > N240 + 0.15 && t < N240 + 0.4 ? 2 : 0, sorpresa: t > N240 + 0.2 && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857), dedo: v > 0 && v < 1, habla: t < N240 - 0.3 && t > 0.6 && Math.sin(t * 8) > 0.3 });
+  // la estudiante con su pila de libros: entra por la derecha, se para junto a la libreta y con «240» se vuelve a mirar
+  { const w = tramo(t, 0.5, 2.3), ex = Math.round(lerp(338, 262, ease(w))), mira = t > N240 + 0.3;
+    const es = R.actor(EL.alumna, ex, 117, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true, sorpresa: mira && t < en('pergamino', 0.1857), sonrisa: t > en('pergamino', 0.1857) });
+    if (es && es.mano) { const [mx, my] = es.mano; for (const [k, c, cS] of [[0, Q.rojo, Q.rojoS], [1, Q.azul, Q.azulS], [2, Q.verde, Q.verdeS]]) { const y = my - 2 - k * 3, dx = (k % 2) - 1; R.rect(mx - 5 + dx, y, mx + 4 + dx, y + 2, Q.k); R.rect(mx - 4 + dx, y, mx + 3 + dx, y + 1, c); R.rect(mx - 4 + dx, y + 1, mx + 3 + dx, y + 1, cS); R.pset(mx + 3 + dx, y, Q.papel); } } }
+  T.bibliotecaDelante(R, t, { camara: 'mesa' });
+  // las hojas de la derecha pasan solas mientras sube la cuenta
+  const f = tramo(t, N240 - 0.1, en('pergamino', 0.1857) + 0.15);
+  if (f > 0 && f < 1) for (let k = 0; k < 2; k++) {
+    const ph = (f * 7 + k * 0.5) % 1, xe = Math.round(218 - ph * 55), lift = Math.round(Math.sin(ph * Math.PI) * 9);
+    R.poligono([[163, 127], [xe, 127 - lift], [xe, 157 - lift], [163, 157]], mez(Q.pergL, Q.pergS, ph * 0.6));
+    R.linea(xe, 127 - lift, xe, 157 - lift, Q.pergD); R.linea(163, 127, xe, 127 - lift, Q.pergD);
+    for (let j = 133; j < 154; j += 5) R.linea(Math.min(xe, 166) + 3, j - Math.round(lift * 0.5), Math.max(xe, 166) - 4, j - Math.round(lift * 0.6), Q.tintaL);
+  }
+  // la cuenta: el icono del libro y la cifra, sobre los paneles
+  const c = tramo(t, N240 - 0.1, en('pergamino', 0.1857));
+  if (c > 0) {
+    const n = Math.round(240 * (1 - (1 - c) * (1 - c))), sube = Math.round((1 - ease(tramo(t, N240 - 0.1, N240 + 0.25))) * 6);
+    { const bx = 140, by = 72 + sube; R.poligono([[bx - 1, by + 1], [bx + 10, by - 1], [bx + 10, by + 13], [bx - 1, by + 15]], Q.tintaS); R.poligono([[bx + 10, by - 1], [bx + 21, by + 1], [bx + 21, by + 15], [bx + 10, by + 13]], Q.tintaS); R.poligono([[bx, by + 2], [bx + 9, by], [bx + 9, by + 12], [bx, by + 14]], Q.pergL); R.poligono([[bx + 11, by], [bx + 20, by + 2], [bx + 20, by + 14], [bx + 11, by + 12]], Q.perg); for (let j = 3; j < 12; j += 3) { R.linea(bx + 2, by + j + 1, bx + 7, by + j, Q.tintaL); R.linea(bx + 13, by + j, bx + 18, by + j + 1, Q.tintaL); } }
+    R.numero(String(n), 186, 86 + sube, { tam: 16, centro: true });
+    if (t > en('pergamino', 0.1857) && t < en('pergamino', 0.1857) + 0.5 && Math.floor(t * 10) % 2) for (const [dx, dy] of [[-30, -18], [30, -16], [-26, 4], [34, 2]]) { R.pset(186 + dx, 76 + dy, Q.blanco); R.pset(185 + dx, 76 + dy, Q.oroL); }
+  }
+};
+// 2 · los signos de cerca: el dedo recorre el renglón y se encienden; saltan los «?»
+const L1 = [], L4 = [];
+const p2 = (t) => {
+  fijo('signos', () => {
+    tapete(0, 0, 319, 179);
+    pergamino(-8, 10, 330, 190, 11);
+    // la hoja de debajo asoma por arriba y la cadena de cuentas la sujeta
+    for (let x = 0; x < 320; x++) { R.pset(x, 9 + Math.round(hh(x >> 3, 0, 4)), Q.pergD); }
+    cuentas(-4, 17, 324, 14);
+    // en el margen izquierdo, la punta de un dibujo: un tallo con tres hojas azules y verdes
+    R.linea(14, 178, 20, 24, Q.tinta); R.linea(15, 178, 21, 24, Q.verdeS);
+    hojaT(10, 60, 10, 4, 2.2, Q.azul, Q.azulS); hojaT(26, 104, 11, 4, 0.9, Q.verde, Q.verdeS); hojaT(9, 146, 10, 4, 2.4, Q.azul, Q.azulS);
+    renglon(36, 60, 306, 3, Q.tinta, 3, L1); for (const g of L1) glifo(g.id, g.x, g.y, 3, Q.tinta);
+    renglon(36, 90, 306, 4, Q.tinta, 3);
+    renglon(36, 120, 306, 5, Q.tinta, 3);
+    renglon(36, 150, 306, 6, Q.tinta, 3, L4); for (const g of L4) glifo(g.id, g.x, g.y, 3, Q.tinta);
+    // la tinta, más clara donde se gastó: unos píxeles de luz dentro de los trazos
+    for (let y = 30; y < 170; y++) for (let x = 36; x < 306; x++) if (R.pget(x, y) === Q.tinta && hh(x, y, 61) > 0.86) R.pset(x, y, Q.tintaL);
+    vineta(170, 96, 196, 0.38);
+  });
+  cuentas(-4, 17, 324, 14, t);
+  // el renglón de abajo: lo que el dedo ya tocó, en oro
+  const u = tramo(t, en('pergamino', 0.2525), en('pergamino', 0.4812)), fx = Math.round(lerp(30, 300, u));
+  for (const g of L4) { const c = g.x + 6 < fx ? (fx - g.x < 22 ? Q.oroL : Q.oro) : Q.tinta; if (c !== Q.tinta) glifo(g.id, g.x, g.y, 3, c); }
+  motas(t, 14, 24, 170, 5);
+  // un pececillo de plata corre por el margen de arriba, se para, mueve las antenas y se mete bajo la hoja de debajo
+  { const SF = [[P2 + 0.3, 334, 27], [P2 + 1.5, 214, 27], [P2 + 2.3, 214, 27], [P2 + 3.3, 122, 27], [P2 + 3.8, 114, 8]];
+    const [fx0, fy0] = camino(SF, t), sx = Math.round(fx0), sy = Math.round(fy0 + (fy0 > 20 ? Math.sin(fx0 * 0.15) : 0)), para = t > P2 + 1.5 && t < P2 + 2.3, pata = para ? 0 : Math.floor(t * 14) % 2, ant = para ? Math.floor(t * 6) % 2 : 0;
+    // a doble tamaño (16 px de largo) para que se lea: cuerpo plateado en escamas, antenas y tres colas
+    const q = (i, j, c) => { const X = sx + i * 2, Y = sy + j * 2; R.rect(X, Y, X + 1, Y + 1, c); };
+    if (t > P2 + 0.3 && sy > 11 && sx < 326) { for (let i = 0; i < 7; i++) { q(i, 0, i < 2 ? hex('#7a8494') : hex('#9aa4b4')); q(i, -1, i % 2 ? hex('#d4dce6') : hex('#b8c2d0')); } q(-1, 0, hex('#5a6474')); q(-1, -1, hex('#6a7484'));
+      q(-2, -2 - ant, Q.grafito); q(-3, -3 - ant, Q.grafito); q(-2, 1, Q.grafito); q(-3, 2 - ant, Q.grafito);
+      for (const k of [1, 3, 5]) { q(k, 1 + ((k + pata) & 1), Q.grafito); q(k, -2 - ((k + pata) & 1), Q.grafito); }
+      q(7, -1, Q.grafito); q(8, -2, Q.grafito); q(8, 0, Q.grafito); q(8, 1, Q.grafito); } }
+  // los «?» que saltan sobre tres signos del primer renglón: «doesn't appear anywhere else»
+  [[en('pergamino', 0.3938), 3], [en('pergamino', 0.4156), 9], [en('pergamino', 0.4285), 15]].forEach(([t0, i]) => { const g = L1[Math.min(i, L1.length - 1)]; if (!g || t < t0) return; const s = tramo(t, t0, t0 + 0.25), y = Math.round(20 - Math.sin(s * Math.PI) * 4); glifo(g.id, g.x, g.y, 3, Q.rojoS); R.icono('?', g.x, y, Q.rojo, Q.k, 3); });
+  // el dedo con su brazo canónico, desde abajo a la izquierda
+  T.brazo(R, fx - 44, 202, fx - 13, 163, '#3a4a6a', 1);
+};
+// 3 · el recuento en la libreta
+const MS = [];
+const CEL = (k) => [128 + (k % 6) * 28, 56 + Math.floor(k / 6) * 24];
+const p3 = (t) => {
+  fijo('recuento', () => {
+    tapete(0, 0, 319, 179);
+    pergamino(-10, 4, 100, 128, 21);
+    for (let r = 0; r < 7; r++) renglon(4, 24 + r * 16, 92, 30 + r, Q.tinta, 2, MS);
+    for (const g of MS) glifo(g.id, g.x, g.y, 2, Q.tinta);
+    // la libreta de espiral con su cuadrícula y el margen rojo
+    R.rect(112, 50, 306, 179, Q.tapD);
+    for (let y = 46; y <= 179; y++) for (let x = 108; x <= 302; x++) { let c = hh(x >> 1, y >> 1, 71) > 0.9 ? Q.papelS : Q.papel; if ((x - 108) % 8 === 0 || (y - 46) % 8 === 0) c = ((x + y) & 1) ? Q.raya : mez(Q.raya, Q.papel, 0.5); if (x === 120) c = Q.margen; if (x > 296) c = mez(c, Q.papelS, 0.5); R.pset(x, y, c); }
+    for (let x = 114; x < 300; x += 10) { R.disco(x, 46, 3, Q.grafito); R.disco(x, 46, 2, Q.tap); R.pset(x - 1, 43, Q.blanco); R.rect(x - 1, 47, x + 1, 50, Q.tapD); }
+    // arriba, en la mesa: la goma, un clip y la caja de fichas de archivo
+    R.rect(186, 22, 266, 42, Q.tapD); R.rect(182, 18, 262, 38, Q.nogS); R.rect(183, 19, 261, 37, Q.nog); for (let x = 188; x < 258; x += 4) { R.rect(x, 15, x + 2, 19, x % 8 ? Q.papel : Q.papelS); } R.rect(210, 25, 234, 31, Q.latonS); R.rect(211, 26, 233, 30, Q.laton); R.rect(211, 26, 233, 26, Q.latonL);
+    R.linea(130, 26, 150, 26, Q.grafito); R.linea(130, 26, 130, 32, Q.grafito); R.linea(130, 32, 148, 32, Q.grafito); R.linea(148, 32, 148, 28, Q.grafito);
+    // la etiqueta de papel con su ojal y cordel
+    R.rect(16, 138, 94, 174, Q.tapD); R.rect(13, 135, 91, 171, Q.papelS); R.rect(14, 136, 90, 170, Q.papel);
+    for (let x = 14; x < 91; x++) if (hh(x, 1, 5) > 0.7) R.pset(x, 136, Q.papelS);
+    R.disco(22, 142, 2.5, Q.papelS); R.disco(22, 142, 1.2, Q.tapD); R.linea(22, 142, 4, 128, Q.rojoS); R.linea(23, 142, 5, 128, Q.rojo);
+    // el lápiz de repuesto y la goma
+    lapiz(232, 178, 300, 172); R.rect(16, 120, 30, 126, Q.rojoL); R.rect(16, 120, 30, 120, Q.blanco);
+    vineta(200, 92, 210, 0.3);
+  });
+  // cuántas casillas: 20 con «20», 30 con «30»
+  const n = t < en('pergamino', 0.5396) ? Math.round(20 * ease(tramo(t, P3 + 0.03, en('pergamino', 0.5204)))) : 20 + Math.round(10 * ease(tramo(t, en('pergamino', 0.5461), en('pergamino', 0.5750))));
+  for (let k = 0; k < n; k++) {
+    const [cx, cy] = CEL(k), id = (k * 7 + 3) % 32, nueva = k === n - 1 && t < en('pergamino', 0.5814);
+    if (nueva) { R.rect(cx, cy, cx + 13, cy + 22, Q.oroL); }
+    glifo(id, cx + 2, cy + 16, 2, nueva ? Q.tintaS : Q.tinta);
+  }
+  // «repeated over and over»: los palotes crecen en ola y los signos repetidos parpadean en el libro
+  for (let k = 0; k < n; k++) {
+    const [cx, cy] = CEL(k), m = Math.floor(Math.max(0, Math.min(5 + (k % 4), (t - en('pergamino', 0.6232) - k * 0.025) * 7)));
+    for (let s = 0; s < m; s++) { const x = cx + 15 + (s % 5) * 2, y = cy + 6 + Math.floor(s / 5) * 9; if (s % 5 === 4) R.linea(x - 8, y + 6, x, y + 1, Q.rojoS); else R.linea(x, y, x, y + 6, Q.grafito); }
+  }
+  const sel = [2, 9, 21][Math.floor(Math.max(0, t - en('pergamino', 0.6341)) / 0.45) % 3];
+  if (t > en('pergamino', 0.6341) && t < en('pergamino', 0.7324)) for (const g of MS) if (g.id % 8 === sel % 8) glifo(g.id, g.x, g.y, 2, Math.floor(t * 6) % 2 ? Q.oroL : Q.oro);
+  // la cifra de la etiqueta, que escribe la mano con el lápiz
+  const cifra = n >= 30 ? 30 : n >= 20 ? 20 : n;
+  if (cifra > 0) R.numero(String(cifra), 56, 165, { tam: 16, centro: true });
+  const escribe = (t > P3 && t < en('pergamino', 0.5268)) || (t > en('pergamino', 0.5461) && t < en('pergamino', 0.5814)) || (t > en('pergamino', 0.6232) && t < en('pergamino', 0.7388));
+  const jx = escribe ? Math.round(Math.sin(t * 31) * 2) : 0, jy = escribe ? Math.round(Math.cos(t * 23)) : 0, mx = 70 + jx + (t > en('pergamino', 0.6232) ? 6 : 0), my = 160 + jy;
+  lapiz(mx + 4, my - 12, mx + 13, my + 3);
+  T.brazo(R, mx - 46, 204, mx, my, '#3a4a6a', 1);
+  motas(t, 10, 24, 170, 9);
+};
+// 4 · gag 2: la lupa, y los signos que huyen con patitas
+const G4 = [];
+const LUPA = [[P4, 352, 160], [en('pergamino', 0.7934), 150, 112], [en('pergamino', 0.8448), 150, 112], [en('pergamino', 0.8673), 84, 132], [en('pergamino', 0.9090), 84, 132], [en('pergamino', 0.9315), 196, 120], [en('pergamino', 0.9765), 196, 120], [en('pergamino', 0.9990), 118, 104], [en('pergamino', 1.0472), 118, 104], [en('pergamino', 1.0921), 372, 168]];
+const p4 = (t) => {
+  fijo('lupa', () => {
+    tapete(0, 0, 319, 179);
+    pergamino(4, 6, 316, 178, 31);
+    // la planta del margen derecho: bulbo con raíces, tallo y hojas en espiral
+    R.linea(268, 98, 262, 26, Q.tinta); R.linea(269, 98, 263, 26, Q.verdeS);
+    hojaT(250, 40, 12, 5, 2.6, Q.azul, Q.azulS); hojaT(282, 52, 13, 5, 0.4, Q.verde, Q.verdeS); hojaT(248, 70, 12, 5, 2.9, Q.verde, Q.verdeS); hojaT(286, 82, 11, 4, 0.2, Q.azul, Q.azulS);
+    for (let j = -8; j <= 8; j++) for (let i = -14; i <= 14; i++) { const d = (i * i) / 196 + (j * j) / 64; if (d <= 1) R.pset(268 + i, 104 + j, d > 0.78 ? Q.tinta : (i + j) % 4 === 0 ? Q.ocreS : Q.ocre); }
+    for (const [a, b] of [[-12, 116], [-4, 118], [6, 118], [13, 115]]) { R.linea(268 + Math.round(a * 0.6), 110, 268 + a, b, Q.tinta); R.pset(268 + a - 1, b, Q.tinta); R.pset(268 + a + 1, b, Q.tinta); }
+    for (let r = 0; r < 9; r++) renglon(20, 30 + r * 16, 30 + r * 16 < 120 ? 228 : 300, 50 + r, Q.tinta, 2, G4);
+    vineta(156, 100, 200, 0.5);
+  });
+  const L = (tt) => camino(LUPA, tt);
+  const RF = 36;
+  for (const g of G4) {
+    const hx = g.x + 4, hy = g.y - 4; let ox = 0, oy = 0, best = 0;
+    for (const tau of [0, 0.15, 0.3, 0.45, 0.6, 0.8]) { const [lx, ly] = L(t - tau), vx = hx - lx, vy = hy - ly, d = Math.max(0.5, Math.hypot(vx, vy)); if (d < RF) { const w = (RF - d) * (1 - tau / 0.9), m = Math.abs(w); if (m > best) { best = m; ox = vx / d * w; oy = vy / d * w * 0.8; } } }
+    const x = Math.round(g.x + ox), y = Math.round(g.y + oy);
+    glifo(g.id, x, y, 2, Q.tinta);
+    if (best > 1.5) { const p = Math.sin(t * 24 + g.i) > 0 ? 1 : 0; R.pset(x + 1, y + 2 + p, Q.tinta); R.pset(x + 1, y + 3 + p, Q.tinta); R.pset(x + 5, y + 3 - p, Q.tinta); R.pset(x + 5, y + 2 - p, Q.tinta); }
+    if (best > 6) { R.pset(x + 1, y - 9, Q.blanco); R.pset(x + 4, y - 9, Q.blanco); R.pset(x + (ox > 0 ? 2 : 1), y - 9, Q.k); R.pset(x + (ox > 0 ? 5 : 4), y - 9, Q.k); }
+  }
+  motas(t, 10, 24, 170, 13);
+  const [lx, ly] = L(t);
+  if (lx < 345) {
+    lupa(lx, ly, 22, t, 2);
+    const [ex, ey] = mango(Math.round(lx), Math.round(ly), 22, 16);
+    T.brazo(R, ex + 46, ey + 52, ex + 12, ey + 2, '#7a3a4a', -1);
+  }
+};
+const efectos = [
+  [N240, 'papel'], [en('pergamino', 0.1857), 'brillo'],
+  [en('pergamino', 0.2525), 'papel'], [en('pergamino', 0.3938), 'pop'], [en('pergamino', 0.4600), 'brillo'],
+  [P3 + 0.05, 'lapiz'], [en('pergamino', 0.5204), 'pop'], [en('pergamino', 0.5461), 'lapiz'], [en('pergamino', 0.6232), 'lapiz'],
+  [P4 + 0.05, 'whoosh'], [en('pergamino', 0.7998), 'boing'], [en('pergamino', 0.8673), 'tic'], [en('pergamino', 0.9315), 'whoosh'], [en('pergamino', 1.0664), 'pop'],
+];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

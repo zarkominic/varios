@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep27</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _REPARTO-TS · hoja estática del reparto del episodio 27 («Tetris: sus derechos entre la URSS y Occidente») para que
+// el usuario lo apruebe: todos de pie y quietos, a escala 1 (el tamaño real de las escenas), en filas por lugares del
+// guion sobre fondo neutro claro. Dos páginas: t en [1, 2) los personajes, una fila con todas las piezas y otra con sus
+// variantes; [2, 3) poses y las piezas al doble. Los rótulos van solo en la imagen ampliada para el usuario, nunca en
+// el lienzo. it.dx: desplazamiento del personaje en su hueco.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_TS as EL, PIEZAS_TS as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const HOJA = [[{"g":"Moscú 1984–1989, Elorg, Las Vegas y Tokio","suelo":37,"items":[{"o":{},"w":15,"t":"a","k":"pazhitnov","n":"Pázhitnov 1984","x":6},{"o":{},"w":15,"t":"a","k":"gerasimov","n":"Gerásimov","x":30},{"o":{},"w":15,"t":"a","k":"cientifico","n":"científico","x":54},{"o":{},"w":15,"t":"a","k":"cientifica","n":"científica","x":78},{"o":{},"w":15,"t":"a","k":"burocrata","n":"burócrata","x":102},{"o":{},"w":15,"t":"a","k":"guardia","n":"guardia","x":126},{"o":{},"w":15,"t":"a","k":"belikov","n":"Bélikov","x":150},{"o":{},"w":15,"t":"a","k":"pazhitnovMayor","n":"Pázhitnov 1996","x":174},{"o":{},"w":15,"t":"a","k":"rogers","n":"Rogers","x":198},{"o":{},"w":15,"t":"a","k":"rogersAbrigo","n":"Rogers abrigo","x":222},{"o":{},"w":15,"t":"a","k":"ejecutivoNintendo","n":"ejecutivo Tokio","x":246},{"o":{"habla":true,"dedo":true},"w":19,"t":"a","k":"pazhitnov","n":"Pázhitnov habla","x":270,"dx":0}],"fin":289},{"g":"Londres y Budapest, EE. UU. 1989, Harvard 2000, Oklahoma 2023, público","suelo":80,"items":[{"o":{},"w":15,"t":"a","k":"stein","n":"Stein","x":6},{"o":{},"w":17,"t":"a","k":"maxwell","n":"magnate","x":28,"dx":1},{"o":{},"w":15,"t":"a","k":"kevinMaxwell","n":"hijo","x":52},{"o":{},"w":15,"t":"a","k":"ejecutivoMirror","n":"ejecutivo Londres","x":74},{"o":{},"w":15,"t":"a","k":"jueza","n":"jueza","x":96},{"o":{},"w":15,"t":"a","k":"operario","n":"operario","x":118},{"o":{},"w":15,"t":"a","k":"tendero","n":"tendero","x":140},{"o":{},"w":15,"t":"a","k":"ninoJuega","n":"niño juega","x":162},{"o":{},"w":15,"t":"a","k":"adultoJuega","n":"adulto juega","x":184},{"o":{},"w":15,"t":"a","k":"investigadora","n":"investigadora","x":206},{"o":{},"w":15,"t":"a","k":"voluntario","n":"voluntario","x":228},{"o":{},"w":15,"t":"a","k":"gibson","n":"Gibson","x":250},{"o":{},"w":15,"t":"a","k":"publico","n":"público","x":272},{"o":{},"w":15,"t":"a","k":"publica","n":"pública","x":294}],"fin":309},{"g":"Todas las piezas","suelo":128,"items":[{"o":{},"w":34,"t":"p","k":"terminal","n":"terminal","x":6},{"o":{},"w":14,"t":"p","k":"disquete","n":"disquete","x":42},{"o":{"cinta":0.15},"w":42,"t":"p","k":"telex","n":"télex","x":58},{"o":{},"w":20,"t":"p","k":"cajaJuego","n":"caja","x":102},{"o":{},"w":22,"t":"p","k":"contrato","n":"contrato","x":124},{"o":{},"w":14,"t":"p","k":"cartucho","n":"cartucho","x":148},{"o":{},"w":28,"t":"p","k":"consolaBolsillo","n":"consola","x":164},{"o":{},"w":24,"t":"p","k":"maleta","n":"maleta","x":194},{"o":{},"w":16,"t":"p","k":"mazo","n":"mazo","x":220},{"o":{},"w":9,"t":"p","k":"rublo","n":"rublo","x":238},{"o":{},"w":29,"t":"p","k":"bloques","n":"bloques","x":249},{"o":{},"w":16,"t":"p","k":"maletin","n":"maletín","x":280},{"o":{},"w":16,"t":"p","k":"telefonoRojo","n":"teléfono rojo","x":298}],"fin":314},{"g":"Variantes","suelo":176,"items":[{"o":{"texto":1,"completa":true,"teclado":false},"w":34,"t":"p","k":"terminal","n":"texto 1 completa","x":6},{"o":{"casillas":3,"firma":true,"sello":true},"w":22,"t":"p","k":"contrato","n":"casillas 3 firma sello","x":44},{"o":{"encendida":true,"t":0.2},"w":28,"t":"p","k":"consolaBolsillo","n":"encendida","x":70},{"o":{"pano":true},"w":32,"t":"p","k":"consolaBolsillo","n":"paño","x":102},{"o":{"abierta":true},"w":24,"t":"p","k":"maleta","n":"abierta","x":138},{"o":{"arriba":true},"w":16,"t":"p","k":"mazo","n":"arriba","x":166},{"o":{"giro":0.3},"w":9,"t":"p","k":"rublo","n":"giro .3","x":186},{"o":{"giro":0.5},"w":9,"t":"p","k":"rublo","n":"giro .5","x":199},{"o":{"n":2,"filas":2},"w":19,"t":"p","k":"bloques","n":"n2 filas2","x":212},{"o":{"descolgado":true},"w":16,"t":"p","k":"telefonoRojo","n":"descolgado","x":235},{"o":{"etiqueta":"#e86a6a"},"w":14,"t":"p","k":"disquete","n":"etiqueta roja","x":255},{"o":{"color":"#c8503a"},"w":14,"t":"p","k":"cartucho","n":"color","x":273},{"o":{"color":"#2a2832"},"w":16,"t":"p","k":"maletin","n":"negro","x":291}],"fin":307}],[{"g":"Poses","suelo":40,"items":[{"o":{"sorpresa":true},"w":17,"t":"a","k":"maxwell","n":"magnate sorpresa","x":6,"dx":1},{"o":{"dir":-1},"w":17,"t":"a","k":"maxwell","n":"magnate dir −1","x":31,"dx":1},{"o":{"sostiene":true},"w":19,"t":"a","k":"rogers","n":"Rogers sostiene","x":56,"dx":0},{"o":{"dir":-1},"w":15,"t":"a","k":"rogersAbrigo","n":"dir −1","x":83},{"o":{"brazos":true,"sorpresa":true},"w":21,"t":"a","k":"gibson","n":"Gibson brazos","x":106,"dx":3},{"o":{"dir":-1},"w":15,"t":"a","k":"gibson","n":"dir −1","x":135},{"o":{"enfado":true},"w":15,"t":"a","k":"guardia","n":"guardia enfado","x":158},{"o":{"dir":-1},"w":15,"t":"a","k":"belikov","n":"Bélikov dir −1","x":181},{"o":{"anda":true},"w":15,"t":"a","k":"kevinMaxwell","n":"anda","x":204},{"o":{"dir":-1},"w":15,"t":"a","k":"cientifico","n":"dir −1","x":227},{"o":{"dir":-1},"w":15,"t":"a","k":"ninoJuega","n":"dir −1","x":250}],"fin":265},{"g":"Al doble","suelo":120,"items":[{"o":{"s":2,"texto":2,"t":0.1},"w":68,"t":"p","k":"terminal","n":"terminal ×2","x":6},{"o":{"s":2,"encendida":true},"w":56,"t":"p","k":"consolaBolsillo","n":"consola ×2","x":80},{"o":{"s":2},"w":40,"t":"p","k":"cajaJuego","n":"caja ×2","x":142},{"o":{"s":2},"w":44,"t":"p","k":"contrato","n":"contrato ×2","x":188},{"o":{"s":2},"w":28,"t":"p","k":"disquete","n":"disquete ×2","x":238}],"fin":266},{"g":"Más","suelo":176,"items":[{"o":{"s":2},"w":28,"t":"p","k":"cartucho","n":"cartucho ×2","x":6},{"o":{"s":2},"w":18,"t":"p","k":"rublo","n":"rublo ×2","x":40},{"o":{"s":2},"w":32,"t":"p","k":"telefonoRojo","n":"teléfono ×2","x":64},{"o":{"s":2},"w":32,"t":"p","k":"maletin","n":"maletín ×2","x":102},{"o":{"s":2},"w":32,"t":"p","k":"mazo","n":"mazo ×2","x":140},{"o":{"cinta":0.5,"t":1},"w":30,"t":"p","k":"telex","n":"télex cinta 0.5","x":178}],"fin":208}]];
+const PANTALLA = {};
+const fondo = hex('#e8e4dc'), fondo2 = hex('#dcd6ca'), suelo = hex('#c8c0b0'), sombra = hex('#b0a898'), raya = hex('#a8a090'), oscuro = hex('#1e2440'), oscuro2 = hex('#2a3058');
+const dibujar = (t) => {
+  const pag = HOJA[Math.min(HOJA.length - 1, Math.max(0, Math.floor(t) - 1))];
+  R.rect(0, 0, 319, 179, fondo);
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) R.pset(x, y, fondo2);
+  for (const fila of pag) {
+    R.rect(0, fila.suelo + 1, 319, fila.suelo + 2, suelo);
+    for (const it of fila.items) {
+      const { k, x, w } = it, s = fila.suelo, q = { quieto: true, parpadea: false };
+      if (it.t === 'bg') { R.rect(x - 3, s - 42, x + w, s, oscuro); for (let y = s - 42; y <= s; y += 6) R.rect(x - 3, y, x + w, y, oscuro2); continue; }
+      if (it.t !== 'sep' && it.t !== 'x') for (let i = 1; i < w - 1; i++) R.pset(x + i, s + 1, sombra);
+      if (it.t === 'a') R.actor(EL[k], Math.round(x + (it.dx ?? (w - 15) / 2)), s, 0, { ...q, ...it.o });
+      else if (it.t === 'p') PZ[k](R, x + w / 2, s + 1, { ...it.o, ...(it.o.demo ? { pantalla: PANTALLA[it.o.demo] } : {}) });
+      else if (it.t === 'sep') for (let y = s - 40; y <= s; y += 2) R.pset(x + 2, y, raya);
+    }
+  }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

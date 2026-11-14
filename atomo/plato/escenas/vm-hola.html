@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep25</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// VM-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom de noche. En «Atom» la maceta de la mesa está casi
+// vacía; mientras Atom se presenta, la planta imposible crece (raíz de patas, hojas en espiral) y un ratón cruza la
+// tarima y se queda mirándola; en «wondered» le sale un «?» (nadie sabe qué es); en «Let's find out» la planta da dos
+// saltitos en su maceta y el ratón huye por donde vino (gag 1).
+import * as T from '/atomo/plato/escenas/vm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('vm-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const H = (f) => en('hola', f);
+const p1 = (t) => {
+  T.hoy(R, t, { maceta: false });
+  // el ratón: entra por la izquierda, se para a mirar la planta, se asusta con el salto y se va
+  const va = tramo(t, H(0.12), H(0.42)), vuelve = tramo(t, H(0.82), H(0.98));
+  const x = Math.round(lerp(-12, 186, va) - vuelve * 210), y = 168, dir = vuelve > 0 ? -1 : 1, corre = (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1);
+  if (x > -14) {
+    const pata = corre && Math.floor(t * 14) % 2, G = hex('#b0a8b8'), GS = hex('#6a6272'), K = hex('#1a1420'), RS = hex('#e8a0a8');
+    const px = (i, j, c) => { const X = x + (dir > 0 ? i : 10 - i) * 2, Y = y + j * 2; R.rect(X, Y, X + 1, Y + 1, c); };
+    for (let i = 1; i <= 7; i++) for (let j = -3; j <= 0; j++) if (!(j === -3 && (i < 3 || i > 6))) px(i, j, j === 0 ? GS : G);
+    for (let i = 8; i <= 9; i++) for (let j = -3; j <= -1; j++) px(i, j, G); px(10, -2, RS); px(8, -3, K); px(7, -5, RS); px(7, -4, G); px(8, -4, G);
+    px(9, -3, K); for (let i = -4; i <= 0; i++) px(i, -1 + Math.round(Math.sin(t * 8 + i) * 0.6) + (i < -2 ? -1 : 0), RS);
+    px(pata ? 2 : 3, 1, K); px(pata ? 7 : 6, 1, K);
+    if (va === 1 && vuelve === 0 && t > H(0.5) && Math.floor(t * 2) % 2) px(9, -5, K);
+  }
+  T.hoyDelante(R, t, { maceta: false });
+  // la planta imposible en su maceta (escala 2): crece mientras Atom se presenta y salta en «Let's find out»
+  const crece = 0.12 + 0.88 * tramo(t, H(0.22), H(0.56)), salto = t > H(0.8) && t < H(0.8) + 0.7 ? Math.round(Math.abs(Math.sin((t - H(0.8)) * 9)) * 4) : 0;
+  T.PIEZAS_VM.plantaImposible(R, 246, 138 - salto, { s: 2, crece, t });
+  if (salto > 0) { R.pset(236, 139, hex('#3a2416')); R.pset(256, 139, hex('#3a2416')); }
+  if (t > H(0.54) && t < H(0.8)) R.bocadillo(262, Math.round(138 - 72 * crece) + 4, { icono: '?' });
+};
+const efectos = [[H(0.24), 'brillo'], [H(0.54), 'pop'], [H(0.8), 'boing']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep16 · Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-SHORT1-MINIATURA · la miniatura vertical del Short del tentáculo. Se dibuja en el lienzo de siempre (320 × 180) pero
+// todo lo que cuenta va en la columna central x 110–210 (el 9:16), que se recorta al capturar: el tentáculo morado al
+// doble (como en la miniatura del episodio), brillando, con los bracitos de conquistador, sobre el río de lodo; el verde, preocupado, detrás; arriba la
+// regla secreta (el «1» y la calavera tachada) de la miniatura del episodio. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { C, mansion, tentaculo } from '/atomo/plato/escenas/la-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  mansion(R, t, { encuadre: 'rio', camara: 'general', luz: 'noche' });
+  tentaculo(R, 134, 172, t, { color: 'verde', s: 2, dir: 1, expresion: 'preocupado', mira: [1, -0.4], quieto: true });
+  tentaculo(R, 180, 176, t, { s: 2, dir: -1, expresion: 'malvado', brazos: 1, pose: 'arriba', brillo: 0.7, quieto: true });
+  const x0 = 120, y0 = 6, x1 = 200, y1 = 48, oro = hex('#e8b830'), oroS = hex('#8a5a10'), fondo = hex('#1a1030');
+  R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, C.k); R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, oroS); R.rect(x0, y0, x1, y1, oro); R.rect(x0 + 3, y0 + 3, x1 - 3, y1 - 3, fondo);
+  R.numero('1', x0 + 20, y1 - 6, { tam: 30, centro: true });
+  const cx = 176, cy = 26, hueso = hex('#f2eee2'), hS = hex('#a8a090');
+  R.disco(cx, cy - 4, 11, hueso); R.rect(cx - 7, cy + 4, cx + 7, cy + 11, hueso); R.rect(cx - 7, cy + 10, cx + 7, cy + 11, hS);
+  R.disco(cx - 5, cy - 4, 3.6, fondo); R.disco(cx + 5, cy - 4, 3.6, fondo); R.rect(cx - 1, cy + 2, cx + 1, cy + 4, fondo);
+  for (let i = -1; i <= 1; i++) R.rect(cx + i * 4, cy + 8, cx + i * 4, cy + 11, fondo);
+  const rojo = hex('#e83a3a'), rojoS = hex('#7a1010');
+  for (let k = -16; k <= 16; k++) for (const [a, c] of [[-2, rojoS], [-1, rojo], [0, rojo], [1, rojo], [2, rojoS]]) R.pset(cx + k, cy + 1 + k + a, c);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

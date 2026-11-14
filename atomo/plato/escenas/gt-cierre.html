@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cierre · ep31</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GT-CIERRE (frase 31), 2026, sin cartela. Dos planos:
+// 1. hoy/estudio (2.ª vez): Atom flota en el estudio; en «comments» suben tres bocadillos de comentario (un coche, un
+//    bichito nuestro, naranja con la mata verde, que anda en el sitio; una interrogación); en «video game story» brillan los juegos de la estantería; en «tell?» sale una «?»
+//    grande y Atom gira; al final se lanza hacia la mesa. Corta en «Meanwhile».
+// 2. hoy/estudio/mesa (gag 8, 2.ª vez): Atom cae en su coche de juguete y persigue al coche de policía; lo adelanta
+//    por dentro y, en «escape», el de policía se pone a perseguirle a él, pegado a su parachoques («won't leave me
+//    alone»: «!» y gotas de sudor); al final Atom salta del coche y vuelve volando a su esquina, y el de policía
+//    sigue persiguiendo al coche vacío.
+import * as T from '/atomo/plato/escenas/gt-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gt-cierre');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k;
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const RA = (...c) => c.map(hex);
+const tono = (r, v, x, y) => r[Math.max(0, Math.min(r.length - 1, Math.floor(v + BY[(y & 3) * 4 + (x & 3)] / 16)))];
+const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+// lo fijo de un plano se pinta una vez en su búfer y se copia en cada fotograma
+const fijo = (pinta) => { let b = null; return () => { if (!b) { b = R.nuevo(); const prev = R.usar(b); pinta(); R.usar(prev); } R.copiar(b); }; };
+// mezcla de dos colores (a: cuánto del segundo) y aclarado/oscurecido de una zona (luz de un foco, sombra)
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const baña = (x0, y0, x1, y1, col, a, f = null) => { for (let y = Math.max(0, y0 | 0); y <= Math.min(179, y1 | 0); y++) for (let x = Math.max(0, x0 | 0); x <= Math.min(319, x1 | 0); x++) { const k = f ? f(x, y) : 1; if (k > 0) R.pset(x, y, mez(R.pget(x, y), col, a * k)); } };
+// relleno tramado con ruido (paredes, suelos): r rampa, v0 tono base, amp ruido
+const relleno = (x0, y0, x1, y1, r, v0, amp = 0.6, k = 0) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, tono(r, v0 + (h(x >> 1, y >> 1, k) - 0.5) * amp, x, y)); };
+// madera con vetas (tablas horizontales de alto ht)
+const madera = (x0, y0, x1, y1, r, ht = 12, k = 0) => { for (let y = y0; y <= y1; y++) { const tb = Math.floor((y - y0) / ht), fy = (y - y0) % ht;
+  for (let x = x0; x <= x1; x++) { const v = 1.6 + Math.sin(x * 0.045 + tb * 1.7 + Math.sin(y * 0.55 + tb) * 1.4) * 0.8 + (h(x >> 2, y, k + tb) - 0.5) * 0.5 - (fy === 0 ? 1.6 : 0) + (fy === 1 ? 0.6 : 0);
+    R.pset(x, y, tono(r, v, x, y)); }
+  if (fy === 0) for (let x = x0 + ((tb * 53) % 70); x <= x1; x += 70 + (tb % 3) * 9) R.pset(x, y + 4, r[0]); } };
+// cuarterón de madera en relieve (paneles de pared)
+const cuarteron = (x0, y0, x1, y1, r) => { R.rect(x0, y0, x1, y1, r[1]); R.rect(x0, y0, x1, y0, r[3]); R.rect(x0, y0, x0, y1, r[3]); R.rect(x0, y1, x1, y1, r[0]); R.rect(x1, y0, x1, y1, r[0]);
+  for (let y = y0 + 2; y < y1 - 1; y++) for (let x = x0 + 2; x < x1 - 1; x++) R.pset(x, y, tono(r, 1.4 + Math.sin(y * 0.3 + x * 0.02) * 0.5 + (h(x, y >> 1, 7) - 0.5) * 0.4, x, y)); };
+// nube de tres tonos
+const nube3 = (cx, cy, w, c) => { const B = [[0, 0, .32], [-.32, .06, .24], [.3, .05, .26], [-.1, -.12, .26], [.14, -.08, .22]];
+  for (const [dx, dy, r] of B) R.disco(Math.round(cx + dx * w), Math.round(cy + dy * w + 1), Math.round(r * w), c[0]);
+  for (const [dx, dy, r] of B) R.disco(Math.round(cx + dx * w), Math.round(cy + dy * w), Math.round(r * w), c[1]);
+  for (const [dx, dy, r] of B) R.disco(Math.round(cx + dx * w - 1), Math.round(cy + dy * w - 2), Math.round(r * w * 0.7), c[2]); };
+// la esquina de Atom (x 272–319, y 0–48) tranquila: dos tonos casi iguales, sin dibujo
+const calma = (c1, c2) => { for (let y = 0; y <= 64; y++) for (let x = 252; x < 320; x++) { const k = Math.min(1, Math.min(x - 252, 64 - y) / 18); if (BY[(y & 3) * 4 + (x & 3)] < k * 16) R.pset(x, y, BY[(y & 3) * 4 + (x & 3)] < 3 ? c2 : c1); } };
+// una estrella de cinco puntas (emblemas sin letras)
+const estrella = (x, y, r, c) => { const P = []; for (let k = 0; k < 10; k++) { const a = -Math.PI / 2 + k * Math.PI / 5, rr = k % 2 ? r * 0.45 : r; P.push([x + Math.cos(a) * rr, y + Math.sin(a) * rr]); } R.poligono(P, c); };
+// una caja de juego genérica (sin letras) vista de frente: x, y arriba a la izquierda, 22 × 30; n: la cifra grande
+const cajaN = (x, y, n, c1, c2, k = 0) => { x = Math.round(x); y = Math.round(y);
+  R.rect(x, y, x + 21, y + 29, K); R.rect(x + 1, y + 1, x + 20, y + 28, c1); R.rect(x + 1, y + 1, x + 20, y + 1, mez(c1, hex('#ffffff'), 0.4)); R.rect(x + 20, y + 2, x + 20, y + 28, c2);
+  R.rect(x + 3, y + 3, x + 18, y + 21, hex('#1e2a50')); for (let i = 0; i < 4; i++) { const bx = x + 3 + i * 4, bh = 5 + ((i * 7 + k) % 5) * 2; R.rect(bx, y + 21 - bh, bx + 3, y + 21, hex('#3a3458')); if ((i + k) % 2) R.pset(bx + 1, y + 21 - bh + 2, hex('#f0c040')); }
+  R.disco(x + 15, y + 7, 2, hex('#f6e890'));
+  R.rect(x + 3, y + 23, x + 18, y + 27, hex('#f2ecd8')); R.rect(x + 5, y + 25, x + 16, y + 25, c2);
+  if (n != null) R.numero(String(n), x + 11, y + 20, { tam: 16, centro: true }); };
+// la caja de juego pequeña que se lleva en la mano (x, y = el centro de abajo; 11 × 15): la ilustración de la noche, la
+// etiqueta blanca y el canto
+const cajaMini = (x, y, c, k = 0) => { x = Math.round(x) - 5; y = Math.round(y) - 15; const C1 = hex(c);
+  R.rect(x, y, x + 10, y + 14, K); R.rect(x + 1, y + 1, x + 9, y + 13, C1); R.rect(x + 9, y + 1, x + 9, y + 13, mez(C1, K, 0.35)); R.rect(x + 1, y + 1, x + 8, y + 1, mez(C1, hex('#ffffff'), 0.45));
+  R.rect(x + 2, y + 2, x + 7, y + 8, hex('#1e2a50')); R.rect(x + 2, y + 6, x + 3, y + 8, hex('#3a3458')); R.rect(x + 5, y + 4, x + 6, y + 8, hex('#3a3458')); R.pset(x + 6, y + 3, hex('#f6e890')); R.pset(x + 2 + (k % 3), y + 7, hex('#f0c040'));
+  R.rect(x + 2, y + 10, x + 7, y + 12, hex('#f2ecd8')); R.pset(x + 3, y + 11, K); R.pset(x + 5, y + 11, K); };
+// figurita de público de espaldas o de frente (bustos pequeños de 6 px) para gradas
+const cabecita = (x, y, c, piel, t, k) => { const dy = Math.sin(t * 3 + k) > 0.92 ? -1 : 0; R.rect(x - 2, y + dy, x + 2, y + 3 + dy, piel); R.rect(x - 2, y + dy, x + 2, y + dy, c); R.rect(x - 3, y + 4, x + 3, y + 7, c); };
+const PIELES = RA('#f2c49a', '#d8a070', '#a86a40', '#7a4a2a', '#f6d4b4');
+const ROPA = RA('#c8303a', '#3a6ad8', '#3ac85a', '#f0c040', '#8a4ad8', '#e8e8ee', '#2a2a34', '#f08a2a');
+
+const b4 = (x, y) => BY[(y & 3) * 4 + (x & 3)] / 16;
+const ease = (u) => u * u * (3 - 2 * u);
+// un triángulo de reproducción genérico (blanco, con su sombra), sin insignia ni marca
+const triangulo = (x, y, s, c = hex('#ffffff')) => { R.poligono([[x - s + 1, y - s + 1], [x - s + 1, y + s + 1], [x + s + 1, y + 1]], hex('#1a1a2a')); R.poligono([[x - s, y - s], [x - s, y + s], [x + s, y]], c); };
+// la carpeta de papel manila que vuela (x, y el centro; a: aleteo de la tapa en px)
+const carpetaV = (x, y, t, s = 1) => { x = Math.round(x); y = Math.round(y); const w = 13 * s, hh = 9 * s, ala = Math.round(Math.sin(t * 13) * 3 * s), sub = Math.abs(ala);
+  R.rect(x - w, y - hh, x + w, y + hh, K); R.rect(x - w + 1, y - hh + 1, x + w - 1, y + hh - 1, hex('#c89a40'));
+  R.rect(x - w, y - hh - 3 * s, x - w + 9 * s, y - hh, K); R.rect(x - w + 1, y - hh - 3 * s + 1, x - w + 9 * s - 1, y - hh, hex('#c89a40'));
+  R.rect(x - w + 2, y - hh - 1, x + w - 3, y - hh + 3 * s, hex('#f4f0e4')); R.linea(x - w + 4, y - hh + 1, x + w - 6, y - hh + 1, hex('#a8a8b8'));
+  R.poligono([[x - w, y + hh], [x + w, y + hh], [x + w + ala, y - hh + 3 + sub], [x - w + ala, y - hh + 3 + sub]], K);
+  R.poligono([[x - w + 1, y + hh - 1], [x + w - 1, y + hh - 1], [x + w - 1 + ala, y - hh + 4 + sub], [x - w + 1 + ala, y - hh + 4 + sub]], hex('#f0c868'));
+  R.linea(x - w + 1 + ala, y - hh + 4 + sub, x + w - 1 + ala, y - hh + 4 + sub, hex('#fff0b8'));
+  R.linea(x - w + 1, y + hh - 1, x + w - 1, y + hh - 1, hex('#b0802c'));
+  triangulo(x + Math.round(ala / 2), y + 2 + Math.round(sub / 2), 3 * s, hex('#3a2a1a')); };
+// una hoja que revolotea (x, y; fase)
+const hoja = (x, y, f) => { x = Math.round(x); y = Math.round(y); const g = Math.sin(f) ; const w = Math.max(1, Math.round(Math.abs(g) * 4));
+  R.rect(x - w, y - 3, x + w, y + 3, hex('#8a8a9a')); R.rect(x - w + (w > 1 ? 1 : 0), y - 2, x + w - (w > 1 ? 1 : 0), y + 2, g > 0 ? hex('#f8f6ee') : hex('#d8d4c8')); if (w > 2) { R.pset(x - 1, y - 1, hex('#a0a0b0')); R.pset(x, y + 1, hex('#a0a0b0')); } };
+// el átomo pequeño con su halo (cuando Atom entra en el plano)
+const atomPeq = (x, y, t, e, r = 10) => { x = Math.round(x); y = Math.round(y); const rr = r * 1.75; for (let j = -Math.ceil(rr); j <= Math.ceil(rr); j++) for (let i = -Math.ceil(rr); i <= Math.ceil(rr); i++) { const gg = 1 - Math.hypot(i, j) / rr; if (gg > 0.3 && ((i + j) & 1 || gg > 0.6)) R.pset(x + i, y + j, gg > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); } R.atomo(x, y, t, { r, orbita: R.PAL.ATOM[7], energia: e }); };
+
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila hasta que vuelve
+const at = (s) => en('cierre', (s - 0.5) / 9.785);
+const P2 = at(5.22);
+// ── 1: el estudio ──
+const COM = at(1.38), JUEGOS = at(2.28), TELL = at(4.52), VA = at(4.75);
+const bocadillo = (x, y, ic, e) => { x = Math.round(x); y = Math.round(y); const w = Math.round(12 * e), hh = Math.round(9 * e); if (w < 3) return;
+  R.rect(x - w - 1, y - hh - 1, x + w + 1, y + hh + 1, K); R.rect(x - w, y - hh, x + w, y + hh, hex('#f8f8fc')); R.rect(x - w, y + hh - 1, x + w, y + hh, hex('#d0d4e0')); R.rect(x - w, y - hh, x + w, y - hh, hex('#ffffff'));
+  R.poligono([[x + w - 6, y + hh], [x + w - 1, y + hh], [x + w + 3, y + hh + 5]], K); R.poligono([[x + w - 5, y + hh], [x + w - 2, y + hh], [x + w + 1, y + hh + 3]], hex('#f8f8fc'));
+  if (e <= 0.9) return;
+  // el bichito es el nuestro (PIEZAS_GT.bichito: naranja con la mata verde), en pequeño y andando en el sitio
+  if (ic === 'bichito') { R.rect(x - 5, y + 7, x + 5, y + 7, hex('#d0d4e0')); T.PIEZAS_GT.bichito(R, x, y + 8, { anda: true, t: tB }); return; }
+  R.icono(ic, x - 7, y - 6, ic === '?' ? hex('#3a6ad8') : hex('#d83a3a'), hex('#c8ccd8'), 2); };
+let tB = 0;
+const p1 = (t) => {
+  tB = t;
+  const o = { encuadre: 'estudio', coche: 'para' };
+  const g = T.hoy(R, t, o);
+  // los juegos de la estantería brillan uno a uno en «video game story»
+  if (t > JUEGOS - 0.2) for (let k = 0; k < 7; k++) { const tk = JUEGOS - 0.2 + k * 0.16; if (t < tk) continue; const e = Math.max(0, 1 - (t - tk) * 0.9), x = 200 + (k * 23) % 62, y = 36 + ((k * 37) % 72);
+    if (e > 0) { R.pset(x, y - 2, hex('#fff6c0')); R.pset(x, y + 2, hex('#fff6c0')); R.pset(x - 2, y, hex('#fff6c0')); R.pset(x + 2, y, hex('#fff6c0')); R.pset(x, y, hex('#ffffff')); if (e > 0.5) { R.pset(x, y - 3, hex('#f8d870')); R.pset(x, y + 3, hex('#f8d870')); } } }
+  T.hoyDelante(R, t, o);
+  // los bocadillos de comentario que suben como en una lista
+  [['coche', 64, 72, 0], ['bichito', 98, 58, 0.25], ['?', 132, 72, 0.5]].forEach(([ic, x, y, d]) => { const t0 = COM + d; if (t < t0) return; const e = Math.min(1, (t - t0) * 6), sube = (t - t0) * 3 + (t > VA ? (t - VA) * 30 : 0);
+    if (y - sube < 20) return; bocadillo(x, y - sube, ic, e < 1 ? e * 1.15 : 1); });
+  // Atom: flota, se acerca a la estantería en «video game story», gira con la «?» en «tell?» y se lanza a la mesa
+  const bob = Math.round(Math.sin(t * 2.6) * 2);
+  let ax = lerp(168, 182, ease(tramo(t, JUEGOS - 0.3, JUEGOS + 0.8))), ay = 96 + bob;
+  if (t > VA) { const u = tramo(t, VA, P2), e = u * u; ax = lerp(ax, 150, e); ay = lerp(ay, 150, e); }
+  const gira = t > TELL - 0.3 && t < VA + 0.2;
+  if (t > TELL - 0.4 && t < VA + 0.3) R.icono('?', Math.round(ax) - 7, Math.round(ay) - 46 + Math.round(Math.sin(t * 8) * 2), hex('#ffe890'), K, 3);
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const gg = 1 - Math.hypot(i, j) / 19; if (gg > 0.3 && ((i + j) & 1 || gg > 0.6)) R.pset(Math.round(ax) + i, Math.round(ay) + j, gg > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  if (gira) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 5, rr = 19 + Math.sin(t * 9) * 2; R.pset(Math.round(ax + Math.cos(an) * rr), Math.round(ay + Math.sin(an) * rr), hex('#c8f0ff')); }
+  R.atomo(Math.round(ax), Math.round(ay), t, { r: 12, orbita: R.PAL.ATOM[7], energia: gira ? 0.8 : 0.4, vel: gira ? 3 : 1 });
+  if (t > VA) for (let k = 1; k <= 5; k++) { const u = Math.max(0, tramo(t - k * 0.04, VA, P2)); R.pset(Math.round(lerp(182, 150, u * u)), Math.round(lerp(96, 150, u * u)) - 2, hex('#c8f0ff')); }
+};
+// ── 2: la mesa de cerca: la persecución al revés (gag 8) ──
+const ISLA = [[100, 134, 'casa', 0], [124, 132, 'arbol', 0], [146, 133, 'casa', 1], [172, 131, 'farola', 0], [228, 134, 'arbol', 1], [116, 147, 'arbol', 2], [138, 150, 'casa', 2], [168, 149, 'cono', 0], [222, 148, 'casa', 3], [244, 144, 'cono', 1], [192, 152, 'farola', 1]];
+const CAJAS = RA('#e04a3a', '#3a7ae0', '#f0b030', '#4ab86a', '#9a5ad8', '#f07a30', '#30b0c0', '#e8e0d0');
+// los juguetes de la isla, como en el decorado, para repintarlos por profundidad con el segundo coche
+const juguete = (x, yb, tipo, k, t) => {
+  if (tipo === 'casa') { const c = CAJAS[[0, 1, 5, 2][k]];
+    R.rect(x - 7, yb - 10, x + 7, yb, K); R.rect(x - 6, yb - 9, x + 6, yb - 1, hex('#f0dcb0')); R.rect(x + 4, yb - 9, x + 6, yb - 1, hex('#d0b88a'));
+    R.poligono([[x - 9, yb - 9], [x + 9, yb - 9], [x, yb - 17]], K); R.poligono([[x - 7, yb - 10], [x + 7, yb - 10], [x, yb - 16]], c); R.poligono([[x, yb - 16], [x + 7, yb - 10], [x, yb - 10]], mez(c, K, 0.3));
+    R.rect(x - 4, yb - 7, x - 2, yb - 5, hex('#8ac0e0')); R.rect(x + 1, yb - 6, x + 3, yb - 1, hex('#8a5a3a')); R.pset(x - 3, yb - 7, hex('#ffffff')); }
+  else if (tipo === 'arbol') { const s = Math.sin(t * 1.5 + k) * 0.6; R.rect(x - 1, yb - 6, x + 1, yb, hex('#6a4024')); R.disco(x + s, yb - 10, 6, K); R.disco(x + s, yb - 10, 5, hex('#3a9a4a')); R.disco(x - 1 + s, yb - 12, 3, hex('#6ac06a')); R.pset(x - 2 + s, yb - 13, hex('#aae09a')); }
+  else if (tipo === 'farola') { R.rect(x, yb - 14, x, yb, hex('#3a3a44')); R.rect(x, yb - 14, x + 3, yb - 14, hex('#3a3a44')); R.pset(x + 3, yb - 13, Math.sin(t * 2 + k) > -0.6 ? hex('#fff2a0') : hex('#c8a040')); R.rect(x - 1, yb, x + 1, yb, K); }
+  else { R.poligono([[x - 4, yb], [x + 4, yb], [x, yb - 9]], K); R.poligono([[x - 3, yb - 1], [x + 3, yb - 1], [x, yb - 8]], hex('#f07a30')); R.rect(x - 2, yb - 5, x + 2, yb - 5, hex('#ffffff')); } };
+const LLEGA = at(5.62), GO = at(5.8), SALTA = at(9.95), CASA = at(11.1);
+const AP0 = 2.3, AA0 = 1.62;
+// la persecución, integrada paso a paso: el de policía va despacio hasta que Atom le adelanta y entonces acelera tras él
+const sim = (tt) => { let ap = AP0, aa = AA0, pas = false, tp = 0; const dt = 1 / 60;
+  for (let s = P2; s < tt; s += dt) { const wp = s < P2 + 0.15 ? 0 : pas ? Math.min(2.7, 0.9 + (s - tp) * 5) : 0.9;
+    const wa = s < GO ? 0 : !pas ? Math.min(3.9, (s - GO) * 9) : s < SALTA ? 2.55 + Math.sin(s * 3.1) * 0.3 : 2.8;
+    ap += wp * dt; aa += wa * dt; if (!pas && aa > ap + 0.5) { pas = true; tp = s; } }
+  return { ap, aa, pas }; };
+const pista = (a, rx, ry) => [160 + Math.cos(a) * rx, 146 + Math.sin(a) * ry];
+const p2 = (t) => {
+  const S = sim(t), dt0 = Math.max(0.001, t);
+  const o = { encuadre: 'estudio', camara: 'mesa', coche: 'persigue', vueltas: S.ap / dt0 };
+  const g = T.hoy(R, t, o);
+  // el coche de Atom, por el carril de dentro
+  const [cx, cy] = pista(S.aa, 92, 15), cdir = -Math.sin(S.aa) >= 0 ? 1 : -1, X = Math.round(cx), Y = Math.round(cy);
+  const pc = g.coche;
+  // el humo de los dos coches cuando corren
+  if (t > GO) for (let k = 1; k <= 4; k++) { const [x, y] = pista(S.aa - k * 0.07, 92, 15); R.disco(Math.round(x), Math.round(y - 2), 1 + k * 0.5, mez(hex('#e0e0e8'), hex('#9a9aa6'), k / 5)); }
+  if (S.pas) for (let k = 1; k <= 3; k++) { const [x, y] = pista(S.ap - k * 0.07, 105, 23); R.disco(Math.round(x), Math.round(y - 2), 1 + k * 0.5, mez(hex('#e0e0e8'), hex('#9a9aa6'), k / 4)); }
+  // repintado por profundidad: los juguetes de la isla, el coche de policía y el de Atom
+  const L = ISLA.map(([x, yb, tipo, k]) => [yb, () => juguete(x, yb, tipo, k, t)]);
+  L.push([pc.y, () => T.PIEZAS_GT.cochePolicia(R, pc.x, pc.y, { dir: pc.dir, t })]);
+  const enCoche = t > LLEGA && t < SALTA;
+  L.push([Y + 0.5, () => { T.PIEZAS_GT.cocheJuguete(R, X, Y, { dir: cdir, color: '#30b0c0' }); if (enCoche) { const b = Math.round(Math.abs(Math.sin(t * 12)) * (t > GO ? 1 : 0)); atomPeq(X + cdir * 2, Y - 18 - b, t, 0.7, 7); } }]);
+  L.sort((a, b) => a[0] - b[0]).forEach(([, f]) => f());
+  // la luz de la sirena sobre la alfombrilla cuando le persigue
+  if (S.pas) { const c = Math.floor(t * 6) % 2 ? hex('#ff4a4a') : hex('#4a7aff'); baña(pc.x - 26, pc.y - 26, pc.x + 26, pc.y + 4, c, 0.3, (x, y) => { const d = Math.hypot((x - pc.x) / 26, (y - pc.y + 10) / 16); return d < 1 && b4(x, y) < 1 - d ? 1 : 0; }); }
+  // el «!» y las gotas de sudor mientras el de policía no le deja en paz
+  if (S.pas && enCoche) { R.icono('!', X - 2, Y - 40 + Math.round(Math.sin(t * 8)), hex('#ffe890'), K, 2); for (const s of [-1, 1]) { const u = (t * 3 + (s > 0 ? 0.5 : 0)) % 1; R.pset(Math.round(X + s * (9 + u * 4)), Math.round(Y - 22 + u * 6), hex('#8ad0ff')); R.pset(Math.round(X + s * (9 + u * 4)), Math.round(Y - 21 + u * 6), hex('#8ad0ff')); } }
+  T.hoyDelante(R, t, o);
+  // Atom: baja del plano de antes, cae en su coche; al final salta y vuelve volando a su esquina
+  if (t < LLEGA) { const u = tramo(t, P2, LLEGA), e = u * u; atomPeq(lerp(150, X + cdir * 2, e), lerp(-10, Y - 16, e), t, 0.6, Math.round(lerp(10, 6, e))); }
+  if (t > SALTA) { const u = tramo(t, SALTA, CASA), e = ease(u), [sx, sy] = pista(sim(SALTA).aa, 92, 15);
+    const ax = lerp(sx, 297, e), ay = lerp(sy - 16, 24, e) - Math.sin(u * Math.PI) * 30; atomPeq(ax, ay, t, u < 1 ? 0.9 : 0.4, Math.round(lerp(6, 10, e)));
+    if (u > 0 && u < 1) for (let k = 1; k <= 5; k++) { const uu = Math.max(0, u - k * 0.04), ee = ease(uu); R.pset(Math.round(lerp(sx, 297, ee)), Math.round(lerp(sy - 16, 24, ee) - Math.sin(uu * Math.PI) * 30), hex('#c8f0ff')); } }
+};
+const efectos = [[COM, 'pop'], [JUEGOS, 'brillo'], [TELL, 'boing'], [VA + 0.1, 'whoosh'],
+  [LLEGA, 'golpecito'], [GO, 'arranque'], [at(6.6), 'whoosh'], [at(7.6), 'silbato'], [SALTA, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Uso: node herramientas/render-escenas.mjs <carpeta_linea> [--trabajadores 3] [--solo id1,id2] [--faltan]
+// Uso: node herramientas/render-escenas.mjs <carpeta_linea> [--trabajadores 3] [--solo id1,id2] [--faltan] [--efectos | --barrer]
 // Renderiza un vídeo largo escena a escena: cada escena es una página de atomo/plato/escenas/
 // (los marcadores comparten marcador.html) que dibuja el instante t de la escena con
 // window.__frame(t). Antes de cargarla se le inyecta window.ESCENA con su duración, sus marcas,
@@ -23,8 +23,13 @@ const dirLinea = path.resolve(args[0]);
 const linea = JSON.parse(fs.readFileSync(path.join(dirLinea, 'linea.json'), 'utf8'));
 const W = Number(opcion('--trabajadores', 3));
 const solo = opcion('--solo', null)?.split(',');
+// --carpeta _tmp_S3: las páginas salen de atomo/plato/escenas/_tmp_S3/ (los borradores de un agente, para --barrer)
+const carpeta = opcion('--carpeta', null);
 const faltan = args.includes('--faltan');
 const soloEfectos = args.includes('--efectos');
+// --barrer: llama a __frame en cada instante que dibujaría el render, sin capturar, y apunta el primer error de cada escena
+// (las hojas solo miran inicio, centro y final: en el 13 un error a mitad de plano rompió el render)
+const barrer = args.includes('--barrer'), errores = [];
 const archEfectos = path.join(dirLinea, 'efectos.json');
 const efectos = fs.existsSync(archEfectos) ? JSON.parse(fs.readFileSync(archEfectos, 'utf8')) : {};
 const fotos = path.join(dirLinea, 'fotos');
@@ -73,9 +78,12 @@ async function renderizar(esc) {
   await pag.addInitScript((e) => { window.ESCENA = e; }, ESCENA);
   // Sin esperar a «load»: con varias escenas pesadas cargando a la vez (WebGL, fuentes) puede tardar
   // más de 30 s; lo que cuenta es window.__listo.
-  await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${pagina}.html?captura`, { waitUntil: 'domcontentloaded', timeout: 120000 });
+  await pag.goto(`http://localhost:${servidor.address().port}/atomo/plato/escenas/${carpeta ? carpeta + '/' : ''}${pagina}.html?captura`, { waitUntil: 'domcontentloaded', timeout: 120000 });
   await pag.waitForFunction(() => window.__listo === true && typeof window.__frame === 'function', null, { timeout: 180000 });
   efectos[esc.id] = (await pag.evaluate(() => window.__efectos ?? [])).map(([t, nombre, o]) => [+(esc.inicio + t).toFixed(3), nombre, o ?? {}]);
+  // se guarda en cuanto se recoge: si el render se corta en otra escena, un --faltan posterior salta las ya dibujadas y
+  // sin esto sus efectos se perdían (en el 13 el control dio un 21 % de tiempo con efectos por eso)
+  if (!barrer) fs.writeFileSync(archEfectos, JSON.stringify(efectos, null, 1));
   if (soloEfectos) {
     await pag.close();
     console.log(`${esc.id}: ${efectos[esc.id].length} efectos`);
@@ -89,6 +97,11 @@ async function renderizar(esc) {
     if (faltan && fs.existsSync(nombre(n))) {
       previo = { t, archivo: nombre(n) };
       continue;
+    }
+    if (barrer) {
+      if (previo && previo.t === t) continue;
+      try { await pag.evaluate((t) => window.__frame(t), t); } catch (e) { errores.push(`${esc.id} t=${t.toFixed(2)}: ${String(e.message).split('\n')[0]}`); break; }
+      previo = { t }; dibujados++; continue;
     }
     if (previo && previo.t === t) {
       fs.copyFileSync(previo.archivo, nombre(n));
@@ -107,7 +120,12 @@ const pendientes = cola.slice();
 await Promise.all(Array.from({ length: W }, async () => {
   while (pendientes.length) await renderizar(pendientes.shift());
 }));
-fs.writeFileSync(archEfectos, JSON.stringify(efectos, null, 1));
+if (!barrer) fs.writeFileSync(archEfectos, JSON.stringify(efectos, null, 1));   // el barrido no toca los efectos
 console.log(`Hecho en ${((Date.now() - t0) / 60000).toFixed(1)} min`);
 await nav.close();
 servidor.close();
+if (barrer) {
+  for (const e of errores) console.log(`ERROR ${e}`);
+  console.log(errores.length ? `${errores.length} escenas con errores` : 'barrido sin errores');
+  process.exit(errores.length ? 1 : 0);
+}

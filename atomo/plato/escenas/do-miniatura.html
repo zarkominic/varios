@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-MINIATURA · la miniatura del episodio 19 (se captura en t = 1, 1280 × 720). El héroe y el villano con el mismo
+// actor, partidos por una diagonal: a la izquierda, Iron Man al doble en la batalla de 2019, con el guantelete brillando;
+// a la derecha, Doom al doble ante su castillo de Latveria, con la capa verde. En medio, las tres Tierras con sus números
+// y, abajo, el cubo de palomitas con ojos asustado. Arriba, un «12·18» dorado (la fecha del estreno). Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/do-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 150 + Math.round((179 - y) * 0.25);
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const dibujar = (t) => {
+  let prev = R.usar(izq); T.lago(R, t, { encuadre: 'batalla', luz: 'dia' });
+  R.usar(der); T.latveria(R, t, { encuadre: 'castillo' });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, T.C.k); R.pset(x, y, hex('#f6f2ea')); R.pset(x + 1, y, hex('#f6f2ea')); R.pset(x + 2, y, T.C.k); }
+  // Iron Man al doble, con la mano en alto (guantelete)
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.ironman, 20, 70, 0.5, { dir: 1, brazos: true, quieto: true }); R.usar(prev);
+  pon(pj, 12, 46, 36, 71, 30, 104, 2);
+  // Doom al doble, mirando a Iron Man
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.doom, 20, 70, 0.5, { dir: -1, quieto: true }); R.usar(prev);
+  pon(pj, 10, 46, 36, 71, 222, 104, 2);
+  // arriba: «12·18» dorado en su placa
+  const x0 = 112, y0 = 6, x1 = 216, y1 = 48, oro = hex('#e8b830'), oroS = hex('#8a5a10'), fondo = hex('#1a1030');
+  R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, T.C.k); R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, oroS); R.rect(x0, y0, x1, y1, oro); R.rect(x0 + 3, y0 + 3, x1 - 3, y1 - 3, fondo);
+  R.usar(pj); pj.fill(VACIO); T.a_cifras(R, '12', 20, 30); T.a_cifras(R, '18', 50, 30); R.usar(prev);
+  pon(pj, 13, 27, 21, 31, 117, 12, 3); pon(pj, 43, 57, 21, 31, 171, 12, 3); R.rect(164, 36, 167, 39, oro);
+  // abajo en el centro: las palomitas, asustadas
+  T.palomitas(R, 160, 176, t, { s: 2, expresion: 'susto' });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

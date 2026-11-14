@@ -91,7 +91,21 @@ lista.
 ## Sonido
 
 - **Voces:** inglés `am_puck` 0,85 y español `em_santa` 0,92, igualadas a −19 dB RMS.
+  El español, desde el 16, con cada frase entera de una vez y sin estirar (la «B» que eligió el usuario de oído el
+  30/10/2026: partida en las comas y estirada sonaba entrecortada). `locutar_frases.py` lo hace solo; para un episodio
+  ya montado, `revocear-otro.py` la rehace sin mover la línea de tiempo.
 - **Música con emoción en cada escena** (`herramientas/banda.cjs`): suspense, misterio, intriga o cierre, con golpes en los momentos clave. Tiene que oírse, también en el altavoz de un móvil.
+- **Todas las melodías al mismo volumen percibido** (desde el 29/10/2026, el usuario: «hay melodías que suenan más fuertes
+  que otras»): cada ánimo se iguala en LUFS (`ANIMO` en `banda.cjs`) y un nivelador frena los picos dentro de un tramo.
+  Medido en el 15: los ánimos quedan dentro de 2 dB (antes, 4,2), la música en las pausas a unos −22 LUFS (antes −18,3,
+  casi como la voz), los golpes unos 4 dB por encima y, bajo la voz, la mediana 13,9 dB por debajo (antes 7,1). No se
+  baja más: a −26/−30 dB RMS el usuario dijo que «casi no se escucha».
+- **La mezcla que eligió el usuario de oído (la «B», 30/10/2026),** después de dos quejas con el 16 («la música aún
+  molesta y los sfx están muy fuertes»): en el montaje (`montar-largo.sh`) la música baja 9 dB sobre su nivel de
+  `banda.cjs`, deja hueco a la voz (−5 dB en 2,5 kHz) y casi desaparece cuando habla el narrador (umbral 0,02, razón
+  10); los efectos bajan 6 dB y la voz también los aparta (umbral 0,05, razón 3). No se toca sin preguntar: es canon.
+  Las cifras de efectos de abajo se miden sobre `efectos.wav` antes del montaje; lo que se oye queda 6 dB más bajo y
+  más bajo aún bajo la voz.
 - **Música continua:** nunca se corta ni vuelve a empezar en un cambio de escena ni en una cartela de año. Las escenas
   seguidas con el mismo ánimo suenan como un tramo, hay un lecho grave de principio a fin y cada cartela tiene su
   transición. Se mide: en los cambios de año la música baja como mucho 7,5 dB (el 11: 2,0–6,7), nunca al silencio.

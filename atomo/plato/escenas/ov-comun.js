@@ -819,9 +819,31 @@ export function manoBaja(R, x0, y0, x, y, manga = '#5e6a44') {
   const n = Math.max(1, Math.ceil(Math.hypot(x - x0, y - y0))); for (let i = 0; i <= n; i++) { const px = Math.round(x0 + (x - x0) * i / n), py = Math.round(y0 + (y - 4 - y0) * i / n); R.rect(px - 3, py, px + 3, py, C.k); R.rect(px - 2, py, px + 2, py, hex(manga)); }
   R.dibujo(MANO_ABAJO, Math.round(x - 4), Math.round(y - 4), 1, { k: C.k, S: hex('#f6c290'), s: hex('#d48a5a'), M: hex(manga) });
 }
-export function mano(R, x, y, dir = 1, manga = '#5e6a44') {
+// o.sinManga: solo la mano (con su puño), sin la manga recta de 40 px; el brazo lo pone brazo() (desde el 13)
+export function mano(R, x, y, dir = 1, manga = '#5e6a44', o = {}) {
   R.dibujo(MANO, Math.round(x - (dir > 0 ? 3 : 10)), Math.round(y - 4), dir, { k: C.k, S: hex('#f6c290'), s: hex('#d48a5a'), M: hex(manga) });
+  if (o.sinManga) return;
   const mx = dir > 0 ? x - 3 : x + 3; R.rect(Math.min(mx, mx - dir * 40), Math.round(y - 2), Math.max(mx, mx - dir * 40), Math.round(y + 2), hex(manga)); R.rect(Math.min(mx, mx - dir * 40), Math.round(y - 3), Math.max(mx, mx - dir * 40), Math.round(y - 3), C.k); R.rect(Math.min(mx, mx - dir * 40), Math.round(y + 3), Math.max(mx, mx - dir * 40), Math.round(y + 3), C.k);
+}
+// el brazo canónico (desde el 13; antes cada escena se hacía el suyo para no caer en el «brazo palo»): manga de 8–9 px
+// que se estrecha a 6, con luz, sombra, dos pliegues, puño y su sombra en el suelo o la mesa, del hombro (x0, y0) a la
+// muñeca (x1, y1), con la mano canónica de 14 px al final. dir 1: los dedos hacia la derecha; −1: a la izquierda.
+// o.codo [x, y]: el brazo se dobla ahí (dos tramos); o.sombra false: sin sombra; o.puno: color del puño (por defecto, crema).
+const o_mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+function o_tramo(R, x0, y0, x1, y1, w0, w1, M, ML, MS, MSS, puno, PU, PUS, sombra) {
+  const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0))), ux = (x1 - x0) / n, uy = (y1 - y0) / n, nx = -uy, ny = ux;
+  if (sombra) for (let i = 0; i <= n; i++) { const w = w0 + (w1 - w0) * i / n; for (let s = -w; s <= w; s += 0.5) { const px = Math.round(x0 + ux * i + nx * s + 3), py = Math.round(y0 + uy * i + ny * s + 6); R.pset(px, py, o_mez(R.pget(px, py), C.k, 0.3)); } }
+  for (const borde of [1, 0]) for (let i = 0; i <= n; i++) { const w = w0 + (w1 - w0) * i / n + (puno && i > n - 6 ? -0.4 : 0) + borde, cx = x0 + ux * i, cy = y0 + uy * i;
+    for (let s = -w; s <= w; s += 0.5) { const px = Math.round(cx + nx * s), py = Math.round(cy + ny * s), p = puno && i > n - 6 && i <= n - 3;
+      R.pset(px, py, borde ? C.k : p ? (s < 0 ? PU : PUS) : s < -w * 0.55 ? ML : s > w * 0.72 ? MSS : s > w * 0.3 ? MS : M); } }
+  for (const u of [0.32, 0.58]) { const cx = x0 + (x1 - x0) * u, cy = y0 + (y1 - y0) * u; for (let s = -2.5; s <= 3; s += 0.5) { const b = Math.abs(s) * 0.7; R.pset(Math.round(cx + nx * s - ux * b), Math.round(cy + ny * s - uy * b), MSS); } }
+}
+export function brazo(R, x0, y0, x1, y1, manga = '#5e6a44', dir = 1, o = {}) {
+  const M = hex(manga), BL = hex('#f6f6ee'), ML = o_mez(M, BL, 0.35), MS = o_mez(M, C.k, 0.38), MSS = o_mez(M, C.k, 0.6), PU = o.puno ? hex(o.puno) : BL, PUS = o_mez(PU, C.k, 0.2), sombra = o.sombra !== false;
+  if (o.codo) { const [cx, cy] = o.codo; o_tramo(R, x0, y0, cx, cy, 4.4, 3.6, M, ML, MS, MSS, false, PU, PUS, sombra); o_tramo(R, cx, cy, x1, y1, 3.6, 2.6, M, ML, MS, MSS, true, PU, PUS, sombra); }
+  else o_tramo(R, x0, y0, x1, y1, 4.2, 2.6, M, ML, MS, MSS, true, PU, PUS, sombra);
+  R.dibujo(MANO, Math.round(dir > 0 ? x1 - 1 : x1 - 13), Math.round(y1 - 4), dir, { k: C.k, S: hex('#f6c290'), s: hex('#d48a5a'), M: PU });
 }
 // papel de aluminio arrugado: un polígono irregular con facetas de luz y sombra y brillos
 export function aluminio(R, cx, cy, s, t, k = 0) {

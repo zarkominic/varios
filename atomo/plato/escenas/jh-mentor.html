@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El mentor · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-MENTOR (frases 10–11), Juegos 74. Tres planos:
+// 1. el vagón del tren: suena el silbato y el vapor de la locomotora pasa por las tres ventanas; Haymitch, despeinado,
+//    dormita en el sofá y da un sorbo de la petaca sin despertarse; Katniss lo señala a Peeta en «her mentor»; en
+//    «Haymitch» le da hipo (pompa que estalla); en «drunk» se cae del sofá al suelo (bote y una botella que rueda); Katniss
+//    y Peeta se sorprenden y él gruñe en «cynical» (corta en «and much smarter»). Katniss y Peeta asoman cabeza y hombros
+//    por encima de la mesa (suelo en y 139), con la mesa dibujada aquí: el frutero a la izquierda, la vela y las copas
+//    entre los dos y el pastelero a la derecha, de modo que nada les tapa la cara;
+// 2. la ventana del tren: se levanta del suelo, se le ilumina el ojo en «smarter» y sonríe con el dedo arriba; Katniss lo
+//    mira asombrada; por la ventana se cruza un tren de mercancías; él le explica señalando fuera y en «house» pasa un paso
+//    a nivel con las luces rojas (corta en «Village»);
+// 3. la Aldea de los Vencedores: sale de su casa, recoge el periódico rodeado de gansos; en «every year» las hojas del
+//    calendario del Capitolio pasan del 51 al 74; suspira en «back to the Games», se mete el periódico bajo el brazo, bebe
+//    de la petaca en «as a mentor» y se va con los gansos detrás (uno abre las alas y grazna).
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-mentor');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C;
+// un ganso blanco de 10 px que anda (pico y patas naranjas); dir 1 mira a la derecha
+const ganso = (x, y, t, dir = 1, k = 0) => {
+  const { rect, pset } = R, X = (i) => Math.round(x + dir * i), pa = Math.floor(t * 6 + k) % 2, cab = Math.sin(t * 3 + k) > 0.6 ? 1 : 0;
+  rect(Math.min(X(-5), X(4)), y - 6, Math.max(X(-5), X(4)), y - 2, T.C.k);
+  rect(Math.min(X(-4), X(3)), y - 5, Math.max(X(-4), X(3)), y - 3, hex('#f4f2ec')); rect(Math.min(X(-4), X(3)), y - 3, Math.max(X(-4), X(3)), y - 3, hex('#c8c4bc'));
+  pset(X(-5), y - 6, hex('#c8c4bc')); pset(X(-2), y - 4, hex('#dcd8d0'));
+  for (let j = 0; j < 5; j++) { pset(X(3), y - 6 - j + cab, T.C.k); pset(X(4), y - 6 - j + cab, hex('#f4f2ec')); pset(X(5), y - 6 - j + cab, T.C.k); }
+  rect(Math.min(X(3), X(6)), y - 12 + cab, Math.max(X(3), X(6)), y - 10 + cab, T.C.k); rect(Math.min(X(4), X(5)), y - 11 + cab, Math.max(X(4), X(5)), y - 10 + cab, hex('#f4f2ec'));
+  pset(X(5), y - 11 + cab, T.C.k); pset(X(7), y - 10 + cab, hex('#f08a2a')); pset(X(8), y - 10 + cab, hex('#e06a1a'));
+  pset(X(-1 + pa), y - 1, hex('#e06a1a')); pset(X(1 - pa), y - 1, hex('#e06a1a')); pset(X(-1 + pa), y, hex('#c85a10')); pset(X(1 - pa), y, hex('#c85a10'));
+};
+// destello de cuatro puntas
+const destello = (x, y, n, c = hex('#fff8d0')) => { R.pset(x, y, hex('#ffffff')); for (let i = 1; i <= n; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+
+const Mn = (f) => en('mentor', f), Al = (f) => en('aldea', f);
+const P2 = Mn(0.816), P3 = Al(0.256), CRUCE = Mn(0.92);
+const ALAS = Al(0.92), MENTOR = Mn(0.016), VICTOR = Mn(0.338), HAY = Mn(0.492), BORRACHO = Mn(0.639), CINICO = Mn(0.68), LISTO = Mn(0.849), CASA = Al(0.098), VIDA = Al(0.323), CADA = Al(0.469), VUELVE = Al(0.592), JUEGOS = Al(0.682), COMO = Al(0.811);
+
+// el vapor de la locomotora que pasa por las ventanas (recortado a cada cristal); u 0–1: de la derecha a la izquierda
+const vaporVentanas = (ventanas, t, t0, t1) => { const u = tramo(t, t0, t1); if (u <= 0 || u >= 1) return;
+  for (const g of ventanas) { R.recorte(g);
+    for (let k = 0; k < 9; k++) { const x = Math.round(340 - u * 420 + k * 17 + Math.sin(t * 3 + k) * 3), y = g[1] + 8 + (k % 3) * 5 - Math.round(u * 6) + Math.round(Math.sin(k * 1.7) * 3), r = 4 + (k % 3) * 2 + Math.round(u * 3), deja = 0.15 + k * 0.07 + u * 0.3;
+      // la bocanada: luz arriba, gris en medio, sombra abajo, y se deshilacha (tramada) hacia la cola
+      for (let yy = y - r; yy <= y + r; yy++) for (let xx = x - r; xx <= x + r; xx++) { const d = Math.hypot(xx - x, (yy - y) * 1.2) / r; if (d > 1 || ((xx * 5 + yy * 3) & 7) < deja * 8 * d) continue;
+        R.pset(xx, yy, yy < y - r * 0.3 ? hex('#ffffff') : yy < y + r * 0.4 ? (d > 0.8 ? hex('#d8dce4') : hex('#eef0f4')) : hex('#bcc2cc')); } }
+    R.recorte(null); } };
+// la petaca de Haymitch en la mano (plata, con el tapón)
+const petaca = ([x, y]) => { R.rect(x - 2, y - 4, x + 2, y + 2, T.C.k); R.rect(x - 1, y - 3, x + 1, y + 1, hex('#c8ccd8')); R.pset(x - 1, y - 3, hex('#ffffff')); R.rect(x - 1, y - 6, x, y - 5, T.C.k); };
+// la mesa del vagón del plano 1, por delante de Katniss y Peeta (la misma de T.interiorDelante, recolocada para que no les
+// tape la cara): tablero en y 134–146 y mantel hasta 168; el frutero a la izquierda (x 184–206), la vela y dos copas en el
+// hueco entre los dos y el pastelero a la derecha (x 250–276)
+const MP = { alfO: hex('#d0a040'), alfOS: hex('#8e6620'), mantel: hex('#f6f1e6'), mantelS: hex('#d8d0c0'), mantelD: hex('#aea492'), plata: hex('#c8ccd4'), plataS: hex('#8a909c'), plataL: hex('#f4f6fa'), cristal: hex('#d8eef8') };
+const mesaVagon = (t) => {
+  const { rect, pset, linea, disco, poligono } = R, k = T.C.k, cx = 230, cy = 140, rx = 46, ry = 6;
+  for (const lx of [194, 266]) { rect(lx - 2, 166, lx + 2, 179, k); rect(lx - 1, 166, lx + 1, 179, MP.alfO); rect(lx + 1, 166, lx + 1, 179, MP.alfOS); rect(lx - 2, 172, lx + 2, 173, MP.alfOS); }
+  for (let y = cy; y <= 168; y++) { const ex = Math.round((y - cy) * 0.12); for (let x = cx - rx - 1 - ex; x <= cx + rx + 1 + ex; x++) { const p = ((x - cx + 200) % 11); pset(x, y, x === cx - rx - 1 - ex || x === cx + rx + 1 + ex ? k : p < 2 ? MP.mantelS : p === 2 ? MP.mantelD : MP.mantel); } }
+  for (let x = cx - rx - 4; x <= cx + rx + 4; x++) { const d = (x & 3) < 2 ? 1 : 0; pset(x, 168 + d, MP.mantelS); pset(x, 169 + d, (x & 1) ? MP.mantel : MP.mantelD); }
+  for (let j = -ry; j <= ry; j++) { const w = Math.round(rx * Math.sqrt(1 - (j / (ry + 0.5)) ** 2)); linea(cx - w, cy + j, cx + w, cy + j, j < -ry + 2 ? MP.mantelS : MP.mantel); pset(cx - w - 1, cy + j, k); pset(cx + w + 1, cy + j, k); }
+  linea(cx - rx + 4, cy - ry - 1, cx + rx - 4, cy - ry - 1, k); linea(cx - rx, cy + ry, cx + rx, cy + ry, MP.mantelD);
+  // el frutero (corrido 12 px a la izquierda, fuera de la cara de Katniss)
+  { const d = -12;
+    rect(203 + d, 140, 211 + d, 141, MP.plataS); rect(205 + d, 137, 209 + d, 139, MP.plata); poligono([[196 + d, 131], [218 + d, 131], [214 + d, 137], [200 + d, 137]], k); poligono([[197 + d, 132], [217 + d, 132], [213 + d, 136], [201 + d, 136]], MP.plata); rect(198 + d, 132, 216 + d, 132, MP.plataL);
+    disco(201 + d, 129, 3, k); disco(201 + d, 129, 2.4, hex('#c8323a')); pset(200 + d, 128, hex('#f08a8a')); disco(207 + d, 128, 3.2, k); disco(207 + d, 128, 2.6, hex('#f09030')); pset(206 + d, 127, hex('#ffd090'));
+    disco(213 + d, 129, 3, k); disco(213 + d, 129, 2.4, hex('#8ac040')); pset(212 + d, 128, hex('#c8e88a')); for (const [x, y] of [[215, 132], [217, 133], [216, 135], [218, 136], [217, 138]]) { disco(x + d, y, 1.6, k); pset(x + d, y, hex('#7a3a9a')); pset(x + d - 1, y - 1, hex('#aa7ac8')); }
+    linea(199 + d, 126, 205 + d, 124, k); linea(200 + d, 125, 205 + d, 123, hex('#f0d040')); pset(205 + d, 122, hex('#6a5a20')); }
+  // el pastelero (corrido a la derecha, fuera de la cara de Peeta)
+  { const d = 8;
+    rect(254 + d, 125, 255 + d, 138, MP.alfO); rect(242 + d, 138, 268 + d, 139, k); rect(243 + d, 137, 267 + d, 137, MP.plataL); rect(247 + d, 127, 263 + d, 128, k); rect(248 + d, 126, 262 + d, 126, MP.plataL); disco(254 + d, 122, 1.5, MP.alfO);
+    for (const [x, y, c] of [[245, 136, '#f08ab0'], [250, 136, '#8ae0c0'], [255, 136, '#f6e2b0'], [260, 136, '#f08ab0'], [265, 136, '#c8a0f0'], [249, 125, '#8ae0c0'], [254, 125, '#f08ab0'], [259, 125, '#f6e2b0']]) {
+      rect(x + d - 2, y - 2, x + d + 2, y, k); rect(x + d - 1, y - 2, x + d + 1, y - 1, hex(c)); pset(x + d - 1, y - 2, MP.mantel); if ((x + d) % 3 === 0) pset(x + d, y - 3, hex('#c8323a')); } }
+  // las copas con licor que tiembla con el traqueteo, y la vela, en el hueco entre los dos (por debajo de los hombros)
+  for (const gx of [223, 234]) { const s = Math.round(Math.sin(t * 9 + gx) * 0.6); rect(gx - 2, 131, gx + 2, 134, k); rect(gx - 1, 132 + (s > 0 ? 1 : 0), gx + 1, 133, hex('#d89030')); pset(gx - 1, 132, MP.cristal); rect(gx, 135, gx, 137, MP.cristal); rect(gx - 2, 138, gx + 2, 138, MP.cristal); pset(gx + 1, 133, hex('#f8c870')); }
+  rect(228, 129, 230, 137, k); rect(229, 130, 229, 137, MP.mantel); rect(226, 137, 232, 138, MP.alfO); const fl = Math.sin(t * 13) > 0 ? 1 : 0; pset(229, 127 - fl, hex('#ffe080')); pset(229, 128, hex('#ffb040')); pset(228 + fl, 127, hex('#fff6c8'));
+};
+const SORBO = Mn(0.12);
+const p1 = (t) => {
+  const tren = T.interior(R, t, { encuadre: 'tren', luz: 'dia' });
+  // el pitido de la locomotora: su vapor pasa por las tres ventanas
+  vaporVentanas(tren.ventanas, t, 0.2, 3.4);
+  // Katniss y Peeta detrás de la mesa
+  const mira = t > MENTOR + 0.1 && t < VICTOR;
+  R.actor(EL.katniss, 216, 139, t, { dir: -1, dedo: mira, habla: mira && Math.sin(t * 9) > 0, sorpresa: t > BORRACHO && t < BORRACHO + 0.6, enfado: t > CINICO + 0.2 });
+  R.actor(EL.peeta, 241, 139, t, { dir: t > VICTOR - 0.6 && t < HAY ? -1 : -1, sonrisa: t > VICTOR && t < BORRACHO, sorpresa: t > BORRACHO && t < BORRACHO + 0.9, habla: t > VICTOR && t < HAY && Math.sin(t * 8) > 0 });
+  // Haymitch: dormita en el sofá, se cae en «drunk» y gruñe
+  const u = tramo(t, BORRACHO, BORRACHO + 0.3), x = Math.round(lerp(64 + (u === 0 ? Math.round(Math.sin(t * 2.2) * 2) : 0), 84, u)), y = Math.round(lerp(140, 156, u * u));
+  const sueño = t < HAY - 0.3;
+  // dormido da un sorbo de la petaca sin despertarse; en «Haymitch» le da hipo
+  const sorbo = t > SORBO && t < SORBO + 0.7, hipo = t > HAY && t < HAY + 0.18;
+  const hm = R.actor(EL.haymitchViejo, x, y, t, { dir: 1, sorpresa: u > 0 && t < CINICO, enfado: t > CINICO, habla: t > CINICO && Math.sin(t * 7) > 0.2, salto: u >= 1 && t < BORRACHO + 0.45 ? 2 : hipo ? 1 : 0, sostiene: sorbo ? [x + 11, y - 17] : true });
+  petaca(hm.mano);
+  if (t > HAY && t < HAY + 0.5) { const v = (t - HAY) / 0.5, [cx, cy] = hm.cabeza; R.disco(cx + 6, Math.round(cy + 6 - v * 8), 1 + Math.round(v * 2), hex('#e8f4ff')); if (v > 0.8) for (let i = 0; i < 4; i++) R.pset(cx + 6 + [3, -3, 0, 0][i], Math.round(cy - 2) + [0, 0, 3, -3][i], hex('#ffffff')); }
+  if (sueño) { const k = Math.floor((t * 1.2) % 3); for (let i = 0; i <= k; i++) { const zx = x + 15 + i * 5, zy = y - 30 - i * 5; R.rect(zx, zy, zx + 3, zy, hex('#e8e4f0')); R.pset(zx + 2, zy + 1, hex('#e8e4f0')); R.pset(zx + 1, zy + 2, hex('#e8e4f0')); R.rect(zx, zy + 3, zx + 3, zy + 3, hex('#e8e4f0')); } }
+  // el polvo del golpe y la botella que rueda por la moqueta
+  if (u >= 1 && t < BORRACHO + 0.8) for (let i = 0; i < 6; i++) { const r = (t - BORRACHO - 0.3) * 30; R.pset(Math.round(x + 7 + Math.cos(i) * r), Math.round(156 - Math.abs(Math.sin(i * 2)) * r * 0.3), hex('#d8c8b0')); }
+  { const v = tramo(t, BORRACHO + 0.1, BORRACHO + 1.1), bx = Math.round(lerp(96, 168, 1 - (1 - v) * (1 - v))), by = 158, a = v * 12;
+    if (v > 0) { const dx = Math.round(Math.cos(a) * 3), dy = Math.round(Math.sin(a) * 1); R.linea(bx - dx, by - dy, bx + dx, by + dy, T.C.k); R.linea(bx - dx, by - dy - 1, bx + dx, by + dy - 1, hex('#3a7a4a')); R.pset(bx + dx, by + dy - 1, hex('#c8a870')); }
+    else { R.rect(98, 128, 100, 136, T.C.k); R.rect(99, 129, 99, 135, hex('#3a7a4a')); } }
+  mesaVagon(t);
+};
+
+const p2 = (t) => {
+  const tv = T.interior(R, t, { encuadre: 'tren', camara: 'ventana', luz: 'dia' }), g = tv.ventana;
+  // por la ventana: un tren de mercancías que se cruza (vagones con su carga de carbón) y, en «house», un paso a nivel
+  R.recorte(g);
+  { const u = tramo(t, CRUCE, CRUCE + 0.9); if (u > 0 && u < 1) for (let k = 0; k < 6; k++) { const x0 = Math.round(260 - u * 700 + k * 64), y0 = 84;
+      if (x0 > 240 || x0 + 60 < 40) continue;
+      R.poligono([[x0, y0], [x0 + 60, y0], [x0 + 60, y0 + 30], [x0, y0 + 30]], T.C.k); R.poligono([[x0 + 1, y0 + 2], [x0 + 59, y0 + 2], [x0 + 59, y0 + 28], [x0 + 1, y0 + 28]], k ? hex('#6a3a2a') : hex('#2a4a3a'));
+      for (let yy = y0 + 4; yy < y0 + 27; yy += 5) R.linea(x0 + 2, yy, x0 + 58, yy, k ? hex('#82503a') : hex('#3a6a4a'));
+      if (k) for (let i = 0; i < 8; i++) R.disco(x0 + 6 + i * 7, y0 - 1 + (i % 2), 3, i % 2 ? hex('#2a2a32') : hex('#3a3a44'));
+      else { R.poligono([[x0 + 6, y0 + 6], [x0 + 20, y0 + 6], [x0 + 20, y0 + 16], [x0 + 6, y0 + 16]], hex('#a8c8e0')); R.poligono([[x0 + 26, y0 + 6], [x0 + 40, y0 + 6], [x0 + 40, y0 + 16], [x0 + 26, y0 + 16]], hex('#a8c8e0')); }
+      for (const wx of [x0 + 10, x0 + 50]) { R.disco(wx, y0 + 31, 4, T.C.k); R.disco(wx, y0 + 31, 2, hex('#5a5a66')); } } }
+  { const u = tramo(t, CASA - 0.35, CASA + 0.55); if (u > 0 && u < 1) { const x = Math.round(250 - u * 230), on = Math.floor(t * 8) % 2;
+      R.linea(x, 92, x, 126, T.C.k); R.linea(x + 1, 92, x + 1, 126, hex('#e8e8e8')); R.linea(x - 8, 88, x + 9, 100, T.C.k); R.linea(x - 8, 100, x + 9, 88, T.C.k); R.linea(x - 7, 88, x + 10, 100, hex('#f4f4f4')); R.linea(x - 7, 100, x + 10, 88, hex('#f4f4f4'));
+      R.linea(x - 5, 106, x + 6, 106, T.C.k); R.disco(x - 5, 106, 3, T.C.k); R.disco(x + 6, 106, 3, T.C.k); R.disco(x - 5, 106, 2, on ? hex('#ff3a3a') : hex('#5a1a1a')); R.disco(x + 6, 106, 2, on ? hex('#5a1a1a') : hex('#ff3a3a'));
+      for (let i = 0; i < 40; i += 2) { const c = (i >> 2) % 2 ? hex('#e83a3a') : hex('#f4f4f4'); R.linea(x + 2 + i, 116, x + 3 + i, 116, c); R.linea(x + 2 + i, 117, x + 3 + i, 117, c); } } }
+  R.recorte(null);
+  // se levanta del suelo y se le enciende la mirada
+  const sube = tramo(t, P2, P2 + 0.45), y = Math.round(lerp(166, 152, sube));
+  const listo = t > LISTO + 0.15;
+  const h = R.actor(EL.haymitchViejo, 92, y, t, { dir: 1, sonrisa: listo, dedo: t > LISTO + 0.3 && t < CASA - 0.1, habla: t > Al(0) && Math.sin(t * 8) > 0.1, sostiene: t > Al(0) + 0.2 ? [128, 108] : false });
+  if (t > LISTO && t < LISTO + 0.9) { const [cx, cy] = h.cabeza; destello(cx + 5, cy + 6, Math.floor(t * 10) % 2 ? 3 : 2); }
+  // Katniss lo mira y se asombra; luego mira por la ventana
+  R.actor(EL.katniss, 160, 152, t, { dir: t > CASA ? 1 : -1, sorpresa: t > LISTO + 0.3 && t < Al(0) });
+  T.interiorDelante(R, t, { encuadre: 'tren', camara: 'ventana', luz: 'dia' });
+};
+
+// el calendario del Capitolio en un poste: las hojas pasan del 51 al 74
+const calendario = (t) => {
+  const { rect, pset } = R, x0 = 198, y0 = 112, x1 = 226, y1 = 146;
+  rect(210, 112, 213, 168, T.C.k); rect(211, 112, 212, 168, hex('#8a6a4a')); rect(211, 112, 211, 168, hex('#a8885e'));
+  rect(x0, y0, x1, y1, T.C.k); rect(x0 + 1, y0 + 1, x1 - 1, y0 + 7, hex('#e85aa8')); rect(x0 + 1, y0 + 7, x1 - 1, y0 + 7, hex('#e8b830'));
+  for (const xx of [x0 + 6, x1 - 6]) { rect(xx, y0 - 2, xx + 1, y0 + 2, hex('#c8c8d0')); }
+  rect(x0 + 1, y0 + 8, x1 - 1, y1 - 1, hex('#f8f4ec')); rect(x0 + 1, y1 - 2, x1 - 1, y1 - 1, hex('#d8d0c0'));
+  const u = tramo(t, CADA, JUEGOS - 0.2), n = Math.round(51 + u * 23);
+  R.numero(String(n), Math.round((x0 + x1) / 2) + 1, y1 - 6, { tam: 8, centro: true, color: hex('#3a1a3a') });
+  // la hoja que se va volando
+  if (u > 0 && u < 1) { const f = (t * 14) % 1; const fx = Math.round(x1 - 2 + f * 18), fy = Math.round(y0 + 10 - f * 10 + Math.sin(f * 6) * 3); rect(fx, fy, fx + 6, fy + 5, T.C.k); rect(fx + 1, fy + 1, fx + 5, fy + 4, hex('#f8f4ec')); }
+};
+const p3 = (t) => {
+  T.distrito(R, t, { encuadre: 'aldea', luz: 'dia', periodico: false });
+  calendario(t);
+  // el periódico doblado en la hierba, hasta que lo coge
+  const coge = Al(0.4);
+  if (t < coge) { R.rect(244, 158, 256, 162, T.C.k); R.rect(245, 159, 255, 161, hex('#e8e0cc')); R.rect(245, 160, 255, 160, hex('#a89c88')); }
+  // Haymitch sale de su casa, baja, recoge el periódico, mira el calendario y se va con los gansos detrás
+  const a = tramo(t, P3, P3 + 0.8), b = tramo(t, COMO + 0.2, Al(1) + 0.75), bebe = t > COMO - 0.3 && t < COMO + 0.3;
+  const x = Math.round(lerp(lerp(272, 250, a), 120, b)), y = Math.round(lerp(130, 168, Math.min(1, a * 1.2)));
+  const agacha = t > coge - 0.3 && t < coge + 0.1;
+  const h = R.actor(EL.haymitchViejo, x, y + (agacha ? 2 : 0), t, { dir: b > 0 ? -1 : t > CADA - 0.1 && t < COMO ? -1 : 1, anda: (a > 0 && a < 1) || (b > 0 && b < 1), sostiene: agacha ? [x + 6, 162] : bebe ? [x + (b > 0 ? 3 : 11), y - 18] : t > coge ? true : false, sorpresa: t > CADA && t < VUELVE, triste: t > VUELVE && t < COMO, salto: 0 });
+  if (t >= coge - 0.1 && t < JUEGOS) { const [hx, hy] = h.mano; R.rect(hx - 4, hy - 2, hx + 4, hy + 1, T.C.k); R.rect(hx - 3, hy - 1, hx + 3, hy, hex('#e8e0cc')); }
+  // desde «Games», el periódico va bajo el brazo y en la mano, la petaca (bebe en «as a mentor»)
+  if (t >= JUEGOS) { const bx = x + 7 + (b > 0 ? 3 : -3); R.rect(bx - 3, y - 14, bx + 3, y - 11, T.C.k); R.rect(bx - 2, y - 13, bx + 2, y - 12, hex('#e8e0cc')); petaca(h.mano); }
+  // el suspiro
+  if (t > JUEGOS && t < COMO - 0.3) { const v = (t - JUEGOS) % 1; R.disco(Math.round(x + (b > 0 ? -2 : 18) + v * 4), Math.round(y - 26 - v * 6), 2, hex('#e8eef4')); }
+  // dos gansos que le siguen (y graznan)
+  for (const [k, dx] of [[0, 18], [1, 32]]) { const gx = Math.round(x + (b > 0 ? dx : -dx + 8)), gy = 170 + k * 3; ganso(gx, gy, t, b > 0 ? -1 : 1, k);
+    if (t > VIDA + k * 0.4 && t < VIDA + 0.5 + k * 0.4) R.bocadillo(gx, gy - 14, { icono: '!' });
+    // el segundo ganso abre las alas y grazna cuando él se va
+    if (k === 1 && t > ALAS && t < ALAS + 0.6) { const s = Math.floor(t * 12) % 2 ? -3 : -1; R.linea(gx - 3, gy - 5, gx - 8, gy - 5 + s, hex('#f4f2ec')); R.linea(gx - 3, gy - 4, gx - 8, gy - 4 + s, hex('#c8c4bc')); R.bocadillo(gx, gy - 14, { icono: '!' }); } }
+};
+
+const efectos = [[0.3, 'silbato'], [SORBO + 0.15, 'burbujas'], [HAY + 0.1, 'pop'], [BORRACHO + 0.25, 'boing'], [BORRACHO + 0.4, 'golpecito'], [LISTO + 0.05, 'brillo'], [CRUCE, 'whoosh'],
+  [P3 + 0.1, 'puerta'], [VIDA, 'pop'], [CADA, 'papel'], [ALAS, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 74 });
+</script>
+</body>
+</html>
