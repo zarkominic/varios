@@ -82,7 +82,7 @@
 ## jm-espacio
 - p1: cine/tele/general — f17 la serie de dibujos
 - p2: cine/tele/tienda — f17 el juego de mesa de verdad
-- p3: selva/espacio/general — f17 la continuación: la casa flotando en el espacio
+- p3: selva/espacio/general — f17 la continuación: OTRO tablero, de hojalata, a la deriva entre planetas (NUESTRO: el decorado ya NO pinta una casa flotante ni un planeta con anillos, y la escena tampoco: eso sería la portada del libro real). Los dos chicos (chico1JM, chico2JM) de pie sobre el tablero en g.pie, o el cohetito que avanza; «la casa acaba en el espacio» se cuenta en el plano con la ventana del cuarto si hace falta, nunca con una casa flotando
 - p4: cine/fachada/taquilla — f18 2005: casi nadie ({ encuadre: 'fachada', camara: 'taquilla', epoca: 2005 })
 - p5: cine/sala/general — f18 la sala vacía ({ encuadre: 'sala', lleno: 0.05, pantalla: 'espacio' })
 - p6: cine/calendario/caja — f18 nadie volvió a abrir la caja: polvo y telaraña
@@ -125,7 +125,7 @@
 - p4: hoy/ojos/juntos — f26 la cabeza no sabe con cuál quedarse
 - p5: hoy/reglas/general — f27 las reglas: ni dejarlo, ni trampas, ni llamar ({ encuadre: 'reglas', tacha: 3 }; o.tacha va de 0 a 3, con decimales)
 - p6: hoy/reglas/meta — f27 solo se arregla terminando ({ encuadre: 'reglas', camara: 'meta', avance: 1 }; o.avance 0→1)
-- p7: hoy/estudio/mesa — f27 un cuento sobre acabar las cosas: la ficha de Atom llega al final ({ encuadre: 'estudio', camara: 'mesa', fichas: false }) [LO PINTA LA ESCENA: la ficha que avanza hasta la gema: esta vista no tiene o.avance (lo tienen casaJuego/tablero y hoy/reglas); la escena mueve la suya por g.casillas hasta g.gema]
+- p7: hoy/estudio/mesa — f27 un cuento sobre acabar las cosas: la ficha de Atom llega al final ({ encuadre: 'estudio', camara: 'mesa', avance: 0→1 }: la ficha roja recorre el camino y con 1 queda en la meta; devuelve ficha y meta)
 
 ## jm-cierre
 - p1: hoy/hoyTaller/esquina — f28 el perro blanco sigue escondido ({ encuadre: 'hoyTaller', camara: 'esquina', perro: 1 }; o.perro 0→1)
