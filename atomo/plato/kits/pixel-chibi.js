@@ -10616,7 +10616,7 @@ const PALES_JM = new Map();
 const palColorJM = (color, def) => { const c = COLORES_JM[color] ?? (typeof color === 'string' && color[0] === '#' ? color : COLORES_JM[def]); return cacheGT(PALES_JM, c, () => ({ ...PAL_JM, ...COLORES({ C: c, c: oscuroTR(c, 0.68) }) })); };
 
 // EL TABLERO (nuestro): plegable, de madera oscura, visto desde arriba; un CAMINO de casillas de colores entra en
-// espiral hasta la GEMA verde redonda del centro, con su aro de oro. 45 × 40 abierto. o.abierto 0–1 (por defecto 1):
+// espiral hasta la META del centro: un sol de latón con una estrella roja (no una gema verde: eso es de la película). 45 × 40 abierto. o.abierto 0–1 (por defecto 1):
 // 0, cerrado (la hoja izquierda doblada sobre la derecha: se ve la tapa con su rombo de latón y el cierre); entre
 // medias, la hoja izquierda se levanta. OJO: (x, y) es siempre el centro de abajo del tablero ABIERTO (la bisagra queda
 // en x), para que no se mueva al abrirlo. Con o.t, la gema destella (solo abierto del todo)
@@ -10629,8 +10629,10 @@ const TABLERO_JM = () => forma(45, 36, ({ put, rect, disco }) => {
     const [x0, y0] = ruta[k], [x1, y1] = ruta[k + 1], m = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) / 3;
     for (let q = k ? 1 : 0; q <= m; q++, n++) { const cx = x0 + (x1 - x0) * q / m, cy = y0 + (y1 - y0) * q / m, ch = tonos[n % 8]; rect(cx - 1, cy - 1, cx + 1, cy + 1, ch); put(cx + 1, cy + 1, ch === 'T' ? 'A' : ch === 'R' ? 'r' : ch === 'B' ? 'b' : ch === 'Y' ? 'y' : 'v'); }
   }
-  disco(23, 18, 4.4, 'O'); disco(23, 18, 3.3, '%'); for (const [i, j] of [[24, 20], [25, 19], [25, 20], [23, 21], [24, 21]]) put(i, j, '@');
-  put(21, 16, '&'); put(22, 16, '&'); put(21, 17, '&'); put(26, 21, 'g'); put(27, 20, 'g'); put(25, 22, 'g');
+  // la META (nuestra, no la cúpula verde de la película): un sol de latón con una estrella roja de cuatro puntas
+  disco(23, 18, 4.4, 'O'); disco(23, 18, 3.3, 'Y'); for (let k = -3; k <= 3; k++) { put(23 + k, 18, 'R'); put(23, 18 + k, 'R'); }
+  for (const [i, j] of [[22, 17], [24, 17], [22, 19], [24, 19]]) put(i, j, 'R'); put(23, 18, 'W'); put(21, 15, 'W'); put(22, 15, 'W');
+  put(26, 21, 'g'); put(27, 20, 'g'); put(25, 22, 'g');
   put(22, 1, 'O'); put(22, 2, 'O'); put(22, 33, 'O'); put(22, 34, 'g');
 });
 const tableroJM = (R, x, y, o = {}) => {
@@ -10642,7 +10644,7 @@ const tableroJM = (R, x, y, o = {}) => {
         rect(22, 3, 43, 36, '6'); rect(22, 3, 43, 3, 'P'); rect(22, 3, 22, 36, 'P'); rect(23, 36, 43, 36, '7'); rect(43, 4, 43, 36, '7');
         rect(25, 6, 40, 6, '7'); rect(25, 33, 40, 33, '7'); rect(25, 6, 25, 33, '7'); rect(40, 6, 40, 33, '7');
         for (let d = 0; d <= 4; d++) { put(32 - d, 15 + d, 'O'); put(33 + d, 15 + d, 'O'); put(32 - d, 24 - d, 'g'); put(33 + d, 24 - d, 'g'); }
-        rect(31, 18, 34, 21, '%'); put(31, 18, '&'); put(32, 18, '&'); put(34, 21, '@'); put(33, 21, '@');
+        rect(31, 18, 34, 21, 'R'); put(31, 18, 'W'); put(32, 18, 'W'); put(34, 21, 'r'); put(33, 21, 'r');
         rect(42, 18, 43, 21, 'O'); put(43, 21, 'g'); put(42, 21, 'g'); rect(22, 9, 22, 11, 'O'); rect(22, 28, 22, 30, 'O');
         return;
       }
