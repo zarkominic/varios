@@ -16,6 +16,6 @@ export function pintarJMchibi(R, t, n) {
     P.dados(R, 182, 172, { s: 2 });
     halo(R, 254, 110, 50, 70, '#fff0b0', 0.35);
     figura(R, EL.vanallsburg, 254, 178, t, { dir: -1, sorpresa: true }, 3);
-    cifra(R, '?', 190, 10, 36);
+    cifra(R, '?', 200, 52, 40);
   }
 }
