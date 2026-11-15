@@ -12,17 +12,21 @@
 // TU-TURIN (frases 16–17), sin cartela; la barra dice 2016 (el segundo equipo) y 2018 (Turín). Seis planos, cortados
 // en la palabra inglesa (el inserto de la carpeta va ANTES de la pared pintada para caer con «no rooms», y la pared con
 // «ghosts»; las vistas son las del reparto):
-// 1. la misma pared en escorzo con luz de LED: en «a second team» entra el técnico del chaleco gris; en «repeated the
-//    scan» señala el ordenador; la técnica llega con el rollo de cable y en «different equipment» señala el carro;
+// 1. la misma pared en escorzo con luz de LED: en «a second team» entra el técnico del chaleco gris; la fotógrafa sube
+//    la cámara y en «National Geographic» dispara dos flashes; en «repeated the scan» él señala el ordenador; la
+//    técnica llega con el rollo de cable, lo deja en el suelo y en «different equipment» señala el carro;
 // 2. la pantalla plana (corta en «found»): la línea verde pinta un radargrama limpio; en «Two radars» la mano traza el
 //    ✓ verde y en «different answers» el ✗ rojo, y se retira;
 // 3. el laboratorio de Turín (corta en «In 2018»; gag 5): el equipo enciende el radar grande; en «arrived» la pantalla
-//    pita con una puerta y «!»; el ayudante salta; en «Turin» el jefe va a la pared de prueba y señala la LATA olvidada;
-// 4. la carpeta del caso (corta en «led»): la mano entra y en «clear» cierra la tapa; en «no rooms» el sello
-//    estampa el candado rojo; la mano vuelve y da dos golpecitos;
-// 5. la pared pintada de frente (corta en «few yards»): una técnica pasa el radar de mano por delante; en «echoes» los
-//    arcos rebotan en el foco colgado DELANTE de la pared (el eco «fantasma» vuelve en rojo, «!»); en «in front of the
-//    wall» el foco se mece y salta la raya roja foco→radar; la pared no se toca;
+//    pita con una puerta y «!»; el ayudante salta y el de la tablilla se sobresalta y apunta deprisa; en «Turin» el jefe
+//    va a la pared de prueba y señala la LATA olvidada;
+// 4. la carpeta del caso (corta en «led»): la mano entra con la última hoja (el radargrama con la hipérbola tachada) y
+//    la deja en el montón; en «clear» cierra la tapa (cartón con fibras, goma, etiqueta del radar, banderitas); en «no
+//    rooms» el sello estampa el candado rojo; la mano vuelve y da dos golpecitos;
+// 5. la pared pintada de frente (corta en «few yards»): una técnica pasa el radar de mano por delante; el compañero del
+//    portátil (cable al radar) sigue la lectura; en «echoes» los arcos rebotan en el foco colgado DELANTE de la pared (el
+//    eco «fantasma» vuelve en rojo, «!»; él se sorprende); en «in front of the wall» el foco se mece, salta la raya roja
+//    foco→radar y él señala el foco; la pared no se toca;
 // 6. la entrada de la tumba hoy (corta en «not behind it»): la técnica sale con la maleta del radar y se va por la
 //    derecha; la cola de turistas sigue; en «case closed» el guarda tiende la cadena entre dos postes y sale el candado.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
@@ -62,6 +66,13 @@ const p1 = (t) => {
   else { R.disco(218, 160, 4, hex('#2a2a2a')); R.disco(218, 160, 3, hex('#e8783a')); R.disco(218, 160, 1, hex('#2a2a2a')); R.linea(218, 163, 236, 164, hex('#2a2a2a')); }
   R.actor(NG, xn, 164, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > en('natgeo', 0.3402) && t < en('natgeo', 0.47),
     habla: t > en('natgeo', 0.36) && t < en('natgeo', 0.45), triste: t > en('natgeo', 0.56) });
+  // la fotógrafa del equipo: espera junto al carro, sube la cámara y en «National Geographic» dispara dos flashes a la
+  // pared; luego la baja y mira la pantalla
+  const sube = ease(tramo(t, en('natgeo', 0.16), en('natgeo', 0.23))), baja = ease(tramo(t, en('natgeo', 0.36), en('natgeo', 0.42)));
+  const fo = R.actor(EL.chica, 150, 166, t, { dir: -1, sostiene: true, sorpresa: t > en('natgeo', 0.645) && t < en('natgeo', 0.69), habla: t > en('natgeo', 0.43) && t < en('natgeo', 0.47) });
+  if (fo && fo.mano) { const [mx, my0] = fo.mano, my = N(my0 - 7 * sube * (1 - baja));
+    R.rect(mx - 4, my - 2, mx + 2, my + 2, hex('#1a1a20')); R.rect(mx - 3, my - 1, mx + 1, my - 1, hex('#4a4a56')); R.disco(mx - 4, my, 1, hex('#6a7a8a')); R.rect(mx, my - 4, mx + 1, my - 3, hex('#d8d8e0'));
+    for (const f of [en('natgeo', 0.25), en('natgeo', 0.30)]) { const q = tramo(t, f, f + 0.25); if (q > 0 && q < 1) destello(mx, my - 4, N(3 + 6 * Math.sin(q * Math.PI)), '#ffffff'); } }
   T.radaresDelante(R, t, o);
 };
 
@@ -101,20 +112,90 @@ const p3 = (t) => {
   R.actor(PO, xp, 158, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: t < en('turin', 0.15) && t > en('turin', 0.07), dedo: lata, habla: lata && t < en('turin', 0.26) });
   // una tercera, al fondo de la estantería, que se gira a mirar
   R.actor(EL.tecnica, 248, 158, t, { dir: t > en('turin', 0.09) ? -1 : 1, habla: t > en('turin', 0.18) && t < en('turin', 0.21) });
+  // el de las notas, junto a la estantería: apunta en su tablilla (el lápiz va y viene), se sorprende con el pitido y
+  // vuelve a escribir deprisa
+  const no = R.actor(EL.oficinista, 58, 158, t, { dir: 1, sostiene: true, sorpresa: t > en('turin', 0.075) && t < en('turin', 0.12), habla: t > en('turin', 0.13) && t < en('turin', 0.16) });
+  if (no && no.mano) { const [mx, my] = no.mano; R.rect(mx - 3, my - 6, mx + 3, my + 1, hex('#5a3a20')); R.rect(mx - 2, my - 5, mx + 2, my, hex('#f4f0e4'));
+    R.rect(mx - 1, my - 7, mx + 1, my - 6, hex('#a8a8b0')); for (let k = 0; k < 3; k++) R.linea(mx - 2, my - 4 + k * 2, mx + (k === 2 ? 0 : 1), my - 4 + k * 2, hex('#8a8a96'));
+    const lx = N(mx - 1 + Math.sin(t * (t > en('turin', 0.12) ? 14 : 6)) * 1.5); R.linea(lx, my - 3, lx + 2, my - 6, hex('#e8b830')); R.pset(lx, my - 3, K); }
   if (lata) { const a = tramo(t, en('turin', 0.222), en('turin', 0.222) + 0.5); destello(214, 112, N(2 + 3 * Math.sin(Math.min(1, a) * Math.PI)), '#ffffff'); }
   T.radaresDelante(R, t, o);
 };
 
-// 4 · la carpeta: la mano mete la última hoja; en «clear» la tapa se cierra; en «no rooms» el sello; dos golpecitos
+// la textura de la tapa de la carpeta (inserto de la carpeta, X 100–230, Y 52–150): cada punto va pegado a la tapa con
+// (u, v) y gira con ella; por fuera (cerrada > 0,5) fibras, luz de la ventana arriba a la izquierda, cantos gastados y,
+// cerrada, la goma, la etiqueta del radar, las banderitas y el cerco del café; por dentro, el bolsillo con su clip.
+// No pinta encima del sello mientras baja ni del candado de tinta.
+const hsh = (i, j) => { const s = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return s - Math.floor(s); };
+// PARCHE DECORADO: e_carpeta tapa lisa (la tapa de la carpeta es un bloque de un color; cuando el decorado la texture,
+// esta función sobra). Repite del decorado la bisagra (giro sobre el lomo con −cos y 10 px de vuelo), la cifra 2018 en
+// X0 + 100, Y1 − 10 y la banderita roja del canto.
+const tapa = (t, cer, s, caja, sl) => {
+  const [X0, Y0, X1, Y1] = caja || [100, 52, 230, 150], [SX, SY] = sl || [172, 96], c = Math.max(0, Math.min(1, cer)), a = c * Math.PI, w = (X1 - X0) * -Math.cos(a), dy = Math.sin(a) * 10;
+  if (Math.abs(w) < 6) return;
+  const fuera = w > 0, cerrada = c > 0.92;
+  const libre = (x, y) => !(s > 0 && s < 1 && x > SX - 32 && x < SX + 34 && y < SY + 34) && !(s > 0.55 && cerrada && x > SX - 18 && x < SX + 18 && y > SY - 18 && y < SY + 18);
+  const P = (u, v) => [N(X0 + w * u), N(Y0 - dy * u + (Y1 - Y0 + 2 * dy * u) * v)];
+  const F1 = hex(fuera ? '#c4ae84' : '#9a8460'), F2 = hex(fuera ? '#eadcb4' : '#c4ae84'), LZ = hex(fuera ? '#e6d4a8' : '#b8a074'), GA = hex(fuera ? '#b49c70' : '#8a7454');
+  const AW = X1 - X0, AH = Y1 - Y0;
+  for (let j = 1; j < AH - 1; j++) for (let i = 1; i < AW - 1; i++) {
+    const u = i / AW, v = j / AH, h = hsh(i, j);
+    let col = null;
+    if (i < 3 || i > AW - 4 || j < 3 || j > AH - 4) { if (h < 0.55) col = GA; }                        // los cantos gastados
+    else if (h < 0.045) col = F1; else if (h > 0.965) col = F2;                                      // las fibras del cartón
+    else if (fuera && i + j < 70 && ((i + j) & 1) === 0 && h > 0.55) col = LZ;                        // la luz de la ventana
+    else if (!fuera && v > 0.7 && ((i + j) & 1) === 0 && h > 0.4) col = GA;                         // la sombra del bolsillo
+    if (!col) continue;
+    const [x, y] = P(u, v); if (libre(x, y)) R.pset(x, y, col);
+  }
+  if (!fuera) { // el borde del bolsillo y un clip
+    for (let i = 4; i < AW - 4; i++) { const [x, y] = P(i / AW, 0.7 + 0.04 * Math.sin(i / 130 * Math.PI)); R.pset(x, y, hex('#6a5638')); }
+    if (c < 0.2) { const [x, y] = P(0.5, 0.66); R.rect(x - 1, y - 6, x + 1, y + 4, hex('#a8acb4')); R.pset(x, y - 4, hex('#e8ecf0')); R.pset(x, y + 2, hex('#5a5e66')); }
+    return;
+  }
+  if (!cerrada) return;
+  // el cerco del café, a medio borrar
+  for (let k = 0; k < 40; k++) { if (k % 7 === 3) continue; const an = k / 40 * Math.PI * 2; R.pset(N(X0 + 62 + Math.cos(an) * 9), N(Y1 - 16 + Math.sin(an) * 8), hex('#a8875a')); }
+  // la etiqueta con el pictograma del radar (sin letras): la antena y tres arcos
+  const LX = X0 + 12, LY = Y0 + 50;
+  R.rect(LX, LY, LX + 24, LY + 18, hex('#5a4228')); R.rect(LX + 1, LY + 1, LX + 23, LY + 17, hex('#f8f4e8')); R.rect(LX + 1, LY + 17, LX + 23, LY + 17, hex('#d8d0bc'));
+  R.rect(LX + 6, LY + 10, LX + 10, LY + 14, hex('#2a3a5a')); R.linea(LX + 8, LY + 10, LX + 8, LY + 6, hex('#2a3a5a'));
+  for (let r = 3; r <= 9; r += 3) for (let k = -3; k <= 3; k++) { const an = -Math.PI / 2 + k * 0.22; R.pset(N(LX + 8 + Math.cos(an) * r + r * 0.6), N(LY + 6 + Math.sin(an) * r * 0.5), hex('#3a6ab8')); }
+  // la goma elástica que abraza la carpeta (con su brillo) y las banderitas de papel que asoman por el canto
+  for (let y = Y0 - 1; y <= Y1 + 1; y++) { R.pset(X1 - 10, y, hex('#6a1e16')); R.pset(X1 - 9, y, hex('#a8382a')); R.pset(X1 - 8, y, (y & 3) === 0 ? hex('#e07060') : hex('#8a2a20')); }
+  for (const [y, c1, c2] of [[Y0 + 48, '#f0d040', '#b89a20'], [Y0 + 60, '#5ac86a', '#2a8a3a']]) { R.rect(X1 - 1, y, X1 + 5, y + 6, hex(c2)); R.rect(X1, y + 1, X1 + 4, y + 5, hex(c1)); }
+  for (let y = Y0 + 68; y < Y1 - 4; y++) R.pset(X1 + 1, y, (y % 5) ? hex('#f4f0e4') : hex('#b8b4a8'));
+};
+// la última hoja del informe: el radargrama con la hipérbola tachada (rojo); se recorta a la derecha del canto de la tapa
+const hoja = (x, y, xTapa) => {
+  for (let j = 0; j < 38; j++) for (let i = 0; i < 28; i++) { const px = x + i, py = y + j; if (px <= xTapa) continue;
+    const borde = i === 0 || i === 27 || j === 0 || j === 37;
+    let c = borde ? hex('#5a5048') : hex('#fbf8ee');
+    if (!borde && j > 4 && j < 30 && j % 4 === 0 && i > 3 && i < 24) c = hex('#b0aca0');
+    if (!borde && j === 36 - 1 && i > 0) c = hex('#d8d2c2');
+    R.pset(px, py, c); }
+  for (let i = 4; i < 24; i++) { const px = x + i, py = N(y + 22 - Math.sqrt(4 + (i - 14) * (i - 14) * 0.7) + 4); if (px > xTapa) R.pset(px, py, hex('#2a2a34')); }
+  for (let k = 0; k < 12; k++) { const px = x + 8 + k, a = y + 12 + k, b = y + 23 - k; if (px > xTapa) { R.pset(px, a, hex('#d83a2a')); R.pset(px, b, hex('#d83a2a')); } }
+};
+
+// 4 · la carpeta: la mano deja la última hoja; en «clear» la tapa se cierra; en «no rooms» el sello; dos golpecitos
 const p4 = (t) => {
   const cerrada = ease(tramo(t, en('turin', 0.3834), en('turin', 0.43)));
   const sello = tramo(t, en('turin', 0.44), en('turin', 0.5));
-  T.radares(R, t, { encuadre: 'turin', camara: 'carpeta', cerrada, sello });
-  // la mano entra por abajo a la izquierda, coge la tapa y la cierra en «clear»; se va; luego vuelve a dar dos golpecitos
-  const coge = ease(tramo(t, P4 + 0.4, en('turin', 0.37))), suelta = ease(tramo(t, en('turin', 0.44), en('turin', 0.48)));
-  const kc = coge * (1 - suelta);
-  if (kc > 0.02) { const ex = N(100 - 92 * Math.cos(Math.PI * cerrada)), ey = N(150 - 30 * Math.sin(Math.PI * cerrada));
-    const hx = N(lerp(-20, ex, kc)), hy = N(lerp(210, ey, kc));
+  const g = T.radares(R, t, { encuadre: 'turin', camara: 'carpeta', cerrada, sello });
+  // la tapa de cartón con su textura (fibras, cantos gastados, la luz de la ventana, la goma, las banderitas, la
+  // etiqueta con el radar; por dentro, el bolsillo con su clip), pegada a la tapa mientras gira
+  tapa(t, cerrada, sello, g.carpeta, g.sello);
+  // la mano entra por abajo a la izquierda con la ÚLTIMA HOJA (el informe, con la hipérbola tachada), la deja encima del
+  // montón, va al canto de la tapa, la cierra en «clear» y se va; luego vuelve a dar dos golpecitos
+  const lleva = ease(tramo(t, P4 + 0.1, P4 + 0.9)), deja = t > P4 + 1.0;
+  const coge = ease(tramo(t, P4 + 1.15, en('turin', 0.37))), suelta = ease(tramo(t, en('turin', 0.44), en('turin', 0.48)));
+  const xTapa = N(100 - 130 * Math.cos(Math.PI * Math.max(0, Math.min(1, cerrada))));
+  if (deja) hoja(118, 102, xTapa);
+  if (!deja && lleva > 0.02) { const hx = N(lerp(-20, 128, lleva)), hy = N(lerp(210, 146, lleva));
+    hoja(hx - 10, hy - 44, -999); T.brazo(R, hx - 30, 204, hx, hy, '#4a5a6a', 1, { codo: [hx - 30, hy + 26] }); }
+  else if (deja && suelta < 1) { const ex = N(100 - 92 * Math.cos(Math.PI * cerrada)), ey = N(150 - 30 * Math.sin(Math.PI * cerrada));
+    const hx = N(lerp(lerp(128, ex, coge), -20, suelta)), hy = N(lerp(lerp(146, ey, coge), 210, suelta));
     T.brazo(R, hx - 30, 204, hx, hy, '#4a5a6a', 1, { codo: [hx - 30, hy + 26] }); }
   const toc = tramo(t, en('turin', 0.52), en('turin', 0.58));
   if (toc > 0 && toc < 1) { const k = Math.sin(toc * Math.PI), golpe = Math.floor(toc * 4) % 2 ? 3 : 0;
@@ -143,6 +224,15 @@ const p5 = (t) => {
     sorpresa: t > en('turin', 0.7505) && t < en('turin', 0.8), sonrisa: t > en('turin', 0.85) });
   const rx = x + 24, ry = 150;
   if (a && a.mano) T.PIEZAS_TU.radarMano(R, a.mano[0] + 4, a.mano[1] + 9, { t });
+  // el compañero del portátil, a la derecha: sigue la lectura (la pantallita corre), se sorprende con el eco rojo y en
+  // «in front of the wall» señala el foco; el cable le une al radar por el suelo
+  const tc = R.actor(EL.tecnico, 236, 172, t, { dir: -1, sostiene: true, sorpresa: t > en('turin', 0.79) && t < en('turin', 0.83),
+    dedo: t > en('turin', 0.837) && t < en('turin', 0.9), habla: t > en('turin', 0.7) && t < en('turin', 0.74) });
+  if (tc && tc.mano) { const [mx, my] = tc.mano; R.rect(mx - 6, my - 1, mx + 3, my + 1, hex('#2a2a30')); R.rect(mx - 6, my - 8, mx + 3, my - 2, hex('#1a1a20'));
+    R.rect(mx - 5, my - 7, mx + 2, my - 3, hex('#14303a')); for (let i = 0; i < 7; i++) R.pset(mx - 5 + i, N(my - 5 + Math.sin(i * 1.3 + t * 6) * 1.2), hex('#5ae08a'));
+    if (t > en('turin', 0.79) && Math.floor(t * 5) % 2) R.pset(mx + 1, my - 6, hex('#ff5a4a'));
+    for (let k = 0; k <= 20; k++) { const q = k / 20; R.pset(N(lerp(rx - 2, mx - 4, q)), N(lerp(ry + 6, my + 1, q) + Math.sin(q * Math.PI) * 14), hex('#1a1a1a')); } }
+  T.tumbaDelante(R, t, o);
   // los arcos: salen del radar hacia arriba y a la derecha, chocan con el foco y vuelven (rojos) — no tocan la pared
   const e1 = tramo(t, en('turin', 0.6933), en('turin', 0.75)), e2 = tramo(t, en('turin', 0.79), en('turin', 0.8443));
   const dx = fx - rx, dy = fy - ry, d = Math.hypot(dx, dy), an = Math.atan2(dy, dx);
@@ -175,11 +265,12 @@ const p6 = (t) => {
   T.valleDelante(R, t, o);
 };
 
-const efectos = [[en('natgeo', 0.3402), 'zumbido'],
-  [en('natgeo', 0.7034), 'lapiz'], [en('natgeo', 0.9034), 'lapiz'],
-  [en('turin', 0.0685), 'bip'], [en('turin', 0.222), 'pop'],
-  [en('turin', 0.3834), 'papel'], [en('turin', 0.475), 'sello'], [en('turin', 0.54), 'toc'],
-  [en('turin', 0.6933), 'zumbido'], [en('turin', 0.8443), 'bip'], [en('turin', 0.972), 'cerrojo']];
+const efectos = [[en('natgeo', 0.25), 'flash'], [en('natgeo', 0.3402), 'zumbido'], [en('natgeo', 0.46), 'tic'],
+  [P2 + 0.05, 'interruptor'], [en('natgeo', 0.7034), 'lapiz'], [en('natgeo', 0.9034), 'lapiz'],
+  [P3 + 0.3, 'lapiz'], [en('turin', 0.0685), 'bip'], [en('turin', 0.222), 'pop'],
+  [P4 + 1.0, 'papel'], [en('turin', 0.3834), 'papel'], [en('turin', 0.475), 'sello'], [en('turin', 0.54), 'toc'],
+  [en('turin', 0.6933), 'zumbido'], [en('turin', 0.7505), 'pop'], [en('turin', 0.79), 'bip'], [en('turin', 0.8443), 'brillo'],
+  [P6 + 0.2, 'publico'], [en('turin', 0.972), 'cerrojo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => t < P3 + 0.2 ? 2016 : 2018 });
 </script>
 </body>

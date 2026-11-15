@@ -10,16 +10,23 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TU-RADAR (frases 14–15), finales de 2015, sin cartela. Seis planos:
-// 1. la cámara pintada de noche: Watanabe entra con el radar de mano, lo apoya en la pared en «Watanabe» (bip) y en
-//    «ran his device along the walls» lo pasa de un lado a otro; el ayudante apunta;
-// 2. la rueda de prensa en Luxor: el ministro habla; en «announced» la pantalla sube y en «90 %» se para en 90; él
-//    señala, los de la mesa sonríen; flashes;
-// 3. el público desde la mesa: en «hidden rooms» estalla la tanda de flashes;
-// 4. el cañón: el excursionista llega a la repisa y en «shouting» grita; la onda cruza, choca y en «echo» vuelve;
-// 5. el corte de roca: la onda baja y en «material to another» rebota en el aire; en «rubble» rebota en el escombro;
-//    el cronómetro mide cada vuelta;
-// 6. la pantalla del radar: en «bounces back» salen las hipérbolas; la mano señala la del fondo y en «how deep» baja
-//    el dedo por la escala de metros.
+// 1. la cámara pintada de noche, a oscuras: el vigilante de la puerta barre el suelo con su linterna y Watanabe entra
+//    con el radar de mano; en «late 2015» el ayudante enciende el foco (clic, parpadeo) y el vigilante apaga la
+//    linterna; en «Watanabe» apoya el radar en la pared (bip) y en «ran his device along the walls» lo pasa de un lado
+//    a otro (pitidos); el ayudante apunta en su libreta;
+// 2. la rueda de prensa en Luxor: murmullo; un ayudante entra por detrás de la mesa y le pasa un papel al ministro en
+//    «minister» y se va; el ministro se levanta y habla; en «announced» la pantalla sube (tic, tic) y en «90 %» se para
+//    en 90; él señala, los de la mesa sonríen; flashes;
+// 3. el público desde la mesa: en «chance» y «hidden rooms» los periodistas alzan teléfonos y grabadoras uno tras otro
+//    y estalla la tanda de flashes;
+// 4. el cañón: el excursionista llega a la repisa con su compañera; en «shouting» grita: los pájaros de la pared
+//    salen volando y la compañera se tapa (sorpresa); la onda cruza, choca (caen piedrecitas) y en «echo» vuelve;
+// 5. el corte de roca: un escarabajo empuja su bola por la superficie; la onda baja y en «material to another» rebota
+//    en el aire; en «rubble» rebota en el escombro; el cronómetro mide cada vuelta (pitido al salir, golpe al rebotar,
+//    tic al volver);
+// 6. la pantalla del radar: una polilla revolotea en la luz de la pantalla y se posa; en «bounces back» salen las
+//    hipérbolas y el contador de tiempo corre en «time it takes to return»; la mano entra (la polilla huye), señala la
+//    del fondo y en «how deep» baja por la escala de metros.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-radar');
@@ -27,15 +34,23 @@ const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const N = Math.round;
 const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= N(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const velo = (x, y, c, k) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, k)); };
+// todo el cuadro más oscuro (k 0–1) o más claro (sube 0–255): un solo recorrido del búfer
+const oscurece = (k) => { const B = R.buf, f = 1 - k; for (let i = 0; i < 57600; i++) { const p = B[i]; B[i] = (0xff000000 | (N(((p >> 16) & 255) * f) << 16) | (N(((p >> 8) & 255) * f) << 8) | N((p & 255) * f)) >>> 0; } };
 const P2 = en('watanabe', 0.4098), P3 = en('watanabe', 0.8659), P4 = en('eco', 0) - 0.33, P5 = en('eco', 0.3648), P6 = en('eco', 0.7472);
+const ENC = en('watanabe', 0.025);   // «late 2015»: el ayudante enciende el foco
 
-// 1 · la pared de noche: Watanabe entra, apoya el radar y lo pasa por la pared
+// 1 · la pared de noche: a oscuras la linterna del vigilante; se enciende el foco; Watanabe apoya y pasa el radar
 const p1 = (t) => {
   const llega = en('watanabe', 0.1586);
   const pasada = ease(tramo(t, en('watanabe', 0.2181), en('watanabe', 0.4032)));
   const enPared = t >= llega;
   const o = { encuadre: 'pared', pasada, radar: enPared, ayudante: true };
   const g = T.radares(R, t, o);
+  // el vigilante en el paso del este, con la linterna; la apaga cuando se enciende el foco
+  const linterna = t < ENC + 0.6;
+  const vg = R.actor(EL.guardia, 284, 164, t, { dir: -1, sostiene: linterna ? [276, 150] : undefined, sonrisa: t > en('watanabe', 0.3) });
   if (enPared) {
     const rx = g.radar[0], mira = t > en('watanabe', 0.1719) && t < en('watanabe', 0.2181);
     R.actor(T.ELENCO_TU.watanabeTU, rx - 15, 162, t, { dir: 1, anda: pasada > 0.02 && pasada < 0.98, sostiene: [rx - 6, 140], habla: mira });
@@ -45,9 +60,16 @@ const p1 = (t) => {
     if (a && a.mano) T.PIEZAS_TU.radarMano(R, a.mano[0] + 4, a.mano[1] + 9, { t });
   }
   T.radaresDelante(R, t, o);
+  // a oscuras hasta «late 2015»; el foco parpadea al encenderse
+  const k = t < ENC ? 0.62 : t < ENC + 0.35 ? (Math.floor((t - ENC) * 16) % 2 ? 0.45 : 0.1) : 0;
+  if (k > 0) oscurece(k);
+  // el haz de la linterna: un cono suave que barre el suelo (se pinta después de oscurecer)
+  if (linterna && vg && vg.mano) { const [lx, ly] = vg.mano, ang = Math.PI - 0.35 + Math.sin(t * 1.3) * 0.3, F = hex('#fff4c8'), on = t < ENC + 0.6;
+    R.rect(lx - 3, ly - 1, lx, ly + 1, hex('#2a2a32')); R.pset(lx - 4, ly, hex('#fff8e0'));
+    if (on) for (let r = 4; r < 70; r++) { const w = r * 0.22; for (let s = -w; s <= w; s += 0.8) { const x = N(lx - 4 + Math.cos(ang) * r - Math.sin(ang) * s), y = N(ly + Math.sin(ang) * r * -1 + Math.cos(ang) * s + r * 0.28); velo(x, y, F, (t < ENC ? 0.32 : 0.12) * (1 - r / 70)); } } }
 };
 
-// 2 · la rueda de prensa: el ministro anuncia; la pantalla sube hasta 90 en «90 %»
+// 2 · la rueda de prensa: el ayudante trae el papel; el ministro anuncia; la pantalla sube hasta 90 en «90 %»
 const p2 = (t) => {
   const cifra = ease(tramo(t, en('watanabe', 0.7866), en('watanabe', 0.8494)));
   const o = { encuadre: 'prensa', cifra, flash: 1 };
@@ -57,47 +79,94 @@ const p2 = (t) => {
   const de = ease(tramo(t, en('watanabe', 0.5751), en('watanabe', 0.5751) + 0.5)), charla = t < en('watanabe', 0.5751);
   R.actor(T.ELENCO_TU.watanabeTU, 77, 136, t, { dir: 1, sonrisa: punto, habla: charla && Math.floor(t * 2) % 2 === 0 });
   R.actor(T.ELENCO_TU.reevesTU, 113, 136, t, { dir: charla ? -1 : 1, sonrisa: punto || charla, habla: charla && Math.floor(t * 2) % 2 === 1, sorpresa: t > en('watanabe', 0.7866) && !punto });
-  R.actor(T.ELENCO_TU.eldamatyTU, 153, N(lerp(136, 129, de)), t, { dir: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) ? -1 : 1, habla: habla && !punto, dedo: de > 0.9 && !punto ? t % 2 < 1.2 : false, brazos: punto, sonrisa: punto });
+  // el ayudante: entra por la derecha detrás de la mesa, le da el papel al ministro y se va
+  const ta = en('watanabe', 0.56), va = ease(tramo(t, P2 + 0.5, ta)), vu = ease(tramo(t, ta + 0.5, ta + 1.9)), xa = N(lerp(322, 168, va) + 160 * vu);
+  const conPapel = t < ta + 0.25;
+  if (va > 0 && vu < 1) { const a = R.actor(EL.ejecutivo, xa, 132, t, { dir: vu > 0 ? 1 : -1, anda: (va > 0 && va < 1) || vu > 0, sostiene: conPapel ? [xa - 2, 124] : undefined, sonrisa: vu > 0 });
+    if (conPapel && a && a.mano) { const [mx, my] = a.mano; R.rect(mx - 4, my - 6, mx + 1, my + 1, hex('#1a1a22')); R.rect(mx - 3, my - 5, mx, my, hex('#f4f4ee')); R.linea(mx - 3, my - 3, mx - 1, my - 3, hex('#9a9aa8')); } }
+  const tienePapel = t > ta + 0.25 && t < en('watanabe', 0.7866);
+  const mi = R.actor(T.ELENCO_TU.eldamatyTU, 153, N(lerp(136, 129, de)), t, { dir: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) ? -1 : 1, habla: habla && !punto, dedo: de > 0.9 && !punto && !tienePapel ? t % 2 < 1.2 : false, brazos: punto, sonrisa: punto, sostiene: tienePapel ? true : undefined });
+  if (tienePapel && mi && mi.mano) { const [mx, my] = mi.mano; R.rect(mx - 2, my - 6, mx + 3, my + 1, hex('#1a1a22')); R.rect(mx - 1, my - 5, mx + 2, my, hex('#f4f4ee')); R.pset(mx, my - 3, hex('#9a9aa8')); }
   R.actor(EL.guia, 193, 136, t, { dir: -1, habla: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) });
   R.actor(EL.tecnico, 229, 136, t, { dir: -1, sorpresa: punto });
   T.radaresDelante(R, t, o);
+  // el papel, que el ministro deja en la mesa cuando la pantalla sube
+  if (t >= en('watanabe', 0.7866)) { R.rect(158, 126, 165, 128, hex('#1a1a22')); R.rect(159, 126, 164, 127, hex('#f4f4ee')); R.pset(161, 126, hex('#9a9aa8')); }
 };
 
-// 3 · el público: la tanda de flashes en «hidden rooms»
+// 3 · el público: en «chance» y «hidden rooms» se alzan teléfonos y grabadoras; la tanda de flashes
 const p3 = (t) => {
   const o = { encuadre: 'prensa', camara: 'publico', flash: 1 };
   T.radares(R, t, o);
+  // los periodistas de las filas 3 y 4 (los que no llevan ya cámara o grabadora) alzan el teléfono, uno tras otro
+  const filas = [[120, 4, 12, 2], [146, 5, 10, 3]], ROPA = [hex('#3a4a6a'), hex('#5a3a3a'), hex('#3a5a4a'), hex('#4a4a52'), hex('#6a5a3a'), hex('#2a3a5a')];
+  let n = 0;
+  for (const [y, r, nn, f] of filas) for (let k = 0; k < nn; k++) { if ((k + f) % 3 === 0 || (k + f) % 4 === 1) continue;
+    const i = k * 7 + f * 3, x = N(12 + (k + (f % 2) * 0.5) * (300 / nn)), by = y + N(Math.sin(t * 1.1 + i) * 0.7), t0 = en('watanabe', 0.9) + (n++ % 7) * 0.17 + (k % 2) * 0.05, u = ease(tramo(t, t0, t0 + 0.35));
+    if (u <= 0) continue;
+    const s = (k % 2 ? -1 : 1), hx = x + s * (r + 2), hy = N(lerp(by + r, by - r - 8, u));
+    R.linea(x + s * (r + 1), by + r, hx, hy + 2, ROPA[i % 6]); R.linea(x + s * (r + 1) + s, by + r, hx + s, hy + 2, ROPA[(i + 1) % 6]);
+    R.rect(hx - 2, hy - 4, hx + 2, hy + 2, hex('#14141a')); R.rect(hx - 1, hy - 3, hx + 1, hy + 1, hex(Math.floor(t * 3 + k) % 4 ? '#8ac8f0' : '#c8e8ff'));
+    if (u >= 1 && Math.sin(t * 7 + i * 1.7) > 0.97) { R.linea(hx - 4, hy - 1, hx + 4, hy - 1, hex('#ffffff')); R.linea(hx, hy - 5, hx, hy + 3, hex('#ffffff')); } }
   T.radaresDelante(R, t, o);
   const f = [en('watanabe', 0.8924), en('watanabe', 0.9453), en('watanabe', 0.9717)].some((g) => t > g && t < g + 0.08);
   if (f) { const B = R.buf; for (let i = 0; i < 57600; i++) { const p = B[i]; B[i] = (0xff000000 | (Math.min(255, ((p >> 16) & 255) + 70) << 16) | (Math.min(255, ((p >> 8) & 255) + 70) << 8) | Math.min(255, (p & 255) + 70)) >>> 0; } }
 };
 
-// 4 · el cañón: el excursionista llega y grita en «shouting»; la onda cruza y el eco vuelve en «echo»
+// 4 · el cañón: el excursionista llega y grita en «shouting»; los pájaros huyen; la onda cruza y el eco vuelve en «echo»
 const p4 = (t) => {
   const u = ease(tramo(t, P4 + 0.1, en('eco', 0.0573)));
   const x = N(lerp(24, 64, u));
   const onda = ease(tramo(t, en('eco', 0.1108), en('eco', 0.2124)));
   const vuelve = ease(tramo(t, en('eco', 0.2498), en('eco', 0.3568)));
   const o = { encuadre: 'canon', boca: [x + 13, 134], onda, vuelve };
-  T.radares(R, t, o);
+  const g = T.radares(R, t, o);
   const grita = t > en('eco', 0.1055) && t < en('eco', 0.1589);
+  // la compañera llega detrás, se sobresalta con el grito y sonríe con el eco
+  const uc = ease(tramo(t, P4 + 0.6, en('eco', 0.08))), xc = N(lerp(-14, 30, uc));
+  R.actor(EL.turista2, xc, 150, t, { dir: 1, anda: uc > 0 && uc < 1, sorpresa: grita, sonrisa: t > en('eco', 0.3354) });
   R.actor(EL.turista1, x, 150, t, { dir: 1, anda: u > 0 && u < 1, habla: grita, brazos: grita, sonrisa: t > en('eco', 0.3354) });
+  // los pájaros que dormían en la pared de enfrente salen volando con el grito (hacia arriba a la izquierda)
+  const ex = g.eco ? g.eco[0] : 212;
+  for (let k = 0; k < 5; k++) { const t0 = en('eco', 0.12) + k * 0.12, s = tramo(t, t0, t0 + 2.4), bx0 = ex + 10 + k * 7, by0 = 96 + (k % 3) * 5;
+    const bx = N(lerp(bx0, -12 - k * 6, s)), by = N(lerp(by0, 30 + k * 5, Math.sqrt(s)) - Math.sin(s * Math.PI) * 6), D = hex('#2a1a14'), ala = Math.floor(t * 10 + k) % 2;
+    if (s <= 0) { R.pset(bx0, by0, D); R.pset(bx0 + 1, by0, D); R.pset(bx0, by0 - 1, D); }
+    else if (s < 1) { R.pset(bx, by, D); R.pset(bx - 1, by - 1 + ala * 2, D); R.pset(bx + 1, by - 1 + ala * 2, D); R.pset(bx - 2, by - ala, D); R.pset(bx + 2, by - ala, D); } }
+  // las piedrecitas que caen de la pared cuando la onda choca
+  { const s = tramo(t, en('eco', 0.2124), en('eco', 0.2124) + 1.2); if (s > 0 && s < 1) for (let k = 0; k < 4; k++) { const yy = N(122 + (s * (1.2 + k * 0.2)) ** 2 * 45); if (yy < 178) R.rect(ex + 1 + k * 2, yy, ex + 2 + k * 2, yy + 1, hex(k % 2 ? '#7a3a28' : '#b85a3a')); } }
   T.radaresDelante(R, t, o);
 };
 
-// 5 · el corte de roca: dos idas y vueltas, primero en el aire (en «another») y luego en el escombro (en «rubble»)
+// 5 · el corte de roca: el escarabajo con su bola; dos idas y vueltas (aire en «another», escombro en «rubble»)
 const p5 = (t) => {
   const c2 = en('eco', 0.6616);
   const prim = t < c2;
   const onda = prim ? tramo(t, en('eco', 0.3942), en('eco', 0.6616) - 0.1) : tramo(t, c2, en('eco', 0.7472) + 0.2);
   T.radares(R, t, { encuadre: 'canon', camara: 'roca', onda, material: prim ? 'aire' : 'escombro' });
+  // un escarabajo empuja su bola de barro por la superficie (y 56), de izquierda a derecha, hasta pararse ante el radar
+  { const s = ease(tramo(t, P5 + 0.2, P6 - 0.4)), bx = N(lerp(28, 118, s)), rod = Math.floor(t * 6) % 2, D = hex('#1a2a2a'), V = hex('#3a6a5a'), B = hex('#8a6a42');
+    R.disco(bx + 8, 50, 5, hex('#4a3420')); R.disco(bx + 8, 50, 4, B); R.pset(bx + 6 + rod * 2, 48, hex('#b08a5a')); R.pset(bx + 9 - rod * 2, 52, hex('#6a4a2a'));
+    R.rect(bx - 6, 49, bx + 1, 54, D); R.rect(bx - 5, 49, bx, 53, V); R.linea(bx - 5, 49, bx - 1, 49, hex('#7ab09a')); R.linea(bx - 3, 49, bx - 3, 53, D); R.rect(bx + 1, 50, bx + 2, 52, D);
+    for (let k = 0; k < 3; k++) { R.pset(bx - 5 + k * 3 + (rod ^ (k % 2)), 55, D); R.pset(bx - 5 + k * 3 + (rod ^ (k % 2)), 56, D); } R.pset(bx + 3, 49 - rod, D); }
+  // al emitir: tres arquitos verdes que salen bajo el radar, en la superficie
+  for (const t0 of [en('eco', 0.3942), c2]) { const e = tramo(t, t0, t0 + 0.6); if (e > 0 && e < 1) for (let i = 0; i < 3; i++) { const r = 3 + e * 10 + i * 3; if (r > 14) continue;
+    for (let a = 0.35; a < Math.PI - 0.35; a += 0.12) R.pset(N(150 + Math.cos(a) * r * 1.6), N(58 + Math.sin(a) * r * 0.6), hex(i ? '#a8f0b8' : '#ffffff')); } }
 };
 
-// 6 · la pantalla: las hipérbolas; la mano señala la del fondo y baja por la escala en «how deep»
+// 6 · la pantalla: la polilla; las hipérbolas y el contador; la mano señala la del fondo y baja en «how deep»
 const p6 = (t) => {
   const eco = ease(tramo(t, en('eco', 0.7579), en('eco', 0.9129)));
   const g = T.radares(R, t, { encuadre: 'pared', camara: 'pantalla', eco });
   const ex = (g.eco ? g.eco[0] : 168), ey = (g.eco ? g.eco[1] : 104);
+  // «the time it takes to return»: el contador de la barra de arriba corre de 0 a 48 y se queda
+  { const c = tramo(t, en('eco', 0.814), en('eco', 0.87)); if (c > 0) { const v = N(c * 48); R.rect(206, 31, 236, 39, hex('#101418')); R.numero(String(v), 208, 39, { tam: 8 }); } }
+  // la polilla: revolotea en la luz de la pantalla, se posa en el marco y huye cuando entra la mano
+  { const fin = en('eco', 0.8809) - 0.6, pos = t > P6 + 1.6 && t < fin, huye = tramo(t, fin, fin + 1.2);
+    let mx, my; if (huye > 0) { mx = N(lerp(268, 330, huye)); my = N(lerp(26, 92, Math.sqrt(huye)) + Math.sin(t * 20) * 2); }
+    else if (pos) { mx = 268; my = 26; } else { mx = N(250 + Math.sin(t * 3.1) * 22 + Math.sin(t * 7.3) * 5); my = N(60 + Math.cos(t * 2.3) * 22 + Math.sin(t * 9) * 3); }
+    if (mx < 324) { const ala = pos ? 0 : Math.floor(t * 18) % 2, C = hex('#5a4a36'), S = hex('#241a12');
+      R.rect(mx, my - 1, mx, my + 3, S); R.pset(mx, my - 2, hex('#2a2018'));
+      for (const d of [-1, 1]) { const a = ala ? -2 : 0; R.rect(mx + d, my + a, mx + d * 3, my + 1 + a, C); R.pset(mx + d * 4, my + a, C); R.rect(mx + d, my + 2, mx + d * 2, my + 3, S); R.pset(mx + d * 2, my + a, hex('#9a8668')); R.pset(mx + d * 4, my + 1 + a, S); } } }
   const entra = ease(tramo(t, en('eco', 0.8809) - 0.6, en('eco', 0.8809))), baja = ease(tramo(t, en('eco', 0.9236), en('eco', 0.9611)));
   // en «how deep»: la raya de puntos roja va del vértice a la escala de metros y la cifra se enciende
   if (baja > 0) { const x1 = N(lerp(ex - 4, 58, baja)); for (let x = ex - 4; x >= x1; x--) if (x % 4 < 2) R.pset(x, ey, hex('#ff5a4a'));
@@ -107,10 +176,12 @@ const p6 = (t) => {
     T.brazo(R, hx + 22, 196, hx, hy, '#4a5a6a', -1, { codo: [hx + 26, hy + 24] }); }
 };
 
-const efectos = [[en('watanabe', 0.1586), 'bip'], [en('watanabe', 0.2181), 'zumbido'], [en('watanabe', 0.8494), 'flash'],
-  [en('watanabe', 0.8924), 'publico'], [en('watanabe', 0.9453), 'flash'],
-  [en('eco', 0.1108), 'whoosh'], [en('eco', 0.2124), 'golpecito'], [en('eco', 0.3354), 'pop'],
-  [en('eco', 0.5279), 'tic'], [en('eco', 0.7044), 'tic'], [en('eco', 0.7579), 'bip'], [en('eco', 0.9236), 'golpecito']];
+const efectos = [[ENC, 'interruptor'], [en('watanabe', 0.1586), 'bip'], [en('watanabe', 0.2181), 'zumbido'], [en('watanabe', 0.3), 'lapiz'], [en('watanabe', 0.37), 'bip'],
+  [P2 + 0.15, 'publico', { dur: 1.8 }], [en('watanabe', 0.56), 'papel'], [en('watanabe', 0.7866) + 0.1, 'tic'], [en('watanabe', 0.82), 'tic'], [en('watanabe', 0.8494), 'flash'],
+  [en('watanabe', 0.8924), 'publico', { dur: 2.4 }], [en('watanabe', 0.9453), 'flash'],
+  [P4 + 0.1, 'viento', { dur: 2.4 }], [en('eco', 0.1108), 'whoosh'], [en('eco', 0.13), 'papel'], [en('eco', 0.2124), 'golpecito'], [en('eco', 0.2498), 'whoosh'], [en('eco', 0.3354), 'pop'],
+  [en('eco', 0.3942), 'bip'], [en('eco', 0.5243), 'golpecito'], [en('eco', 0.6616) + 0.05, 'bip'], [en('eco', 0.6944), 'golpecito'], [en('eco', 0.7444), 'tic'],
+  [en('eco', 0.7579) + 0.15, 'bip'], [en('eco', 0.814), 'tic'], [en('eco', 0.85), 'tic'], [en('eco', 0.9236), 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2015 });
 </script>
 </body>

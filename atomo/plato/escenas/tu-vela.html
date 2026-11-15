@@ -87,7 +87,7 @@ const p1 = (t) => {
   aLaLuz(() => {
     cajon();
     // un obrero se lleva una cesta de cascotes hacia la escalera, por detrás (más al fondo: pies en 152)
-    { const u = tramo(t, 0.2, 4.9), xo = N(lerp(168, 22, u)), bob = Math.floor(t * 6) % 2;
+    { const u = tramo(t, 0.2, 4.9), xo = N(lerp(168, -18, u)), bob = Math.floor(t * 6) % 2;
       if (u < 1) { const ob = R.actor(T.ELENCO_TU.obrero1TU, xo, 152, t, { dir: -1, anda: u > 0, sostiene: [xo - 2, 128 - bob] }).mano;
         if (ob) { const [bx, by] = ob; R.rect(bx - 6, by - 6, bx + 4, by, hex('#2a1a0e')); R.rect(bx - 5, by - 5, bx + 3, by - 1, hex('#8a6a3a'));
           for (let i = -5; i <= 3; i += 2) R.pset(bx + i, by - 3, hex('#5a4024')); R.pset(bx - 3, by - 7, hex('#9a8a70')); R.pset(bx, by - 7, hex('#7a6a58')); R.pset(bx + 2, by - 6, hex('#9a8a70')); } } }
@@ -118,9 +118,9 @@ const p2 = (t) => {
   // habla y en «Yes» se retira: oscurece lo que ya está pintado (solo dentro de su silueta)
   { const e = ease(tramo(t, v(0.335), v(0.37))) * (1 - ease(tramo(t, v(0.5), v(0.55)))), habla = t > v(0.348) && t < v(0.433) ? Math.sin(t * 9) * 1.2 : 0;
     if (e > 0.01) { const sx = N(lerp(-40, 44, e)), sy = N(70 + habla), B = R.buf;
-      for (let y = Math.max(22, sy - 26); y < 180; y++) for (let x = Math.max(0, sx - 44); x < Math.min(320, sx + 44); x++) {
+      for (let y = Math.max(22, sy - 26); y < 180; y++) for (let x = Math.max(0, sx - 70); x < Math.min(112, sx + 70); x++) {
         const dx = x - sx, dy = y - sy, cab = (dx * dx) / 196 + (dy * dy) / 256 < 1, ala = Math.abs(dy + 8) < 3 && Math.abs(dx) < 24 - Math.abs(dy + 8) * 2, copa = dy < -8 && dy > -22 && Math.abs(dx) < 12,
-          hombro = y > sy + 16 && Math.abs(dx) < 16 + (y - sy - 16) * 1.3;
+          hombro = y > sy + 16 && Math.abs(dx) < 15 + (y - sy - 16) * 0.55 + (h3(x, y, 6) - 0.5) * 2;
         if (cab || ala || copa || hombro) { const i = y * 320 + x, p = B[i], k = 0.5; B[i] = (0xff000000 | (N(((p >> 16) & 255) * k) << 16) | (N(((p >> 8) & 255) * k) << 8) | N((p & 255) * k * 0.95)) >>> 0; } } } }
   // el aire de la tumba: motas que salen del hueco hacia la llama mientras la dobla
   { const s = tramo(t, v(0.34), v(0.565)), [hx, hy] = g2?.hueco ?? [128, 76];
@@ -164,12 +164,12 @@ const p4 = (t) => {
   // la llama recorre: la rueda del carro («chariots»), baja al cofre («chests») y, en «piled up like an attic», sube
   // hacia el trono y lo alto del montón
   const u1 = ease(tramo(t, v(0.868), v(0.9))), u2 = ease(tramo(t, v(0.93), v(0.965))), u3 = ease(tramo(t, v(0.975), v(0.975) + 1.2));
-  const lx = N(lerp(lerp(118, 82, u1), 206, u2) + u3 * 8), ly = N(lerp(lerp(124, 146, u1), 126, u2) - u3 * 22);
+  const lx = N(lerp(lerp(118, 82, u1), 206, u2) + u3 * 28), ly = N(lerp(lerp(124, 146, u1), 126, u2) - u3 * 22);
   // la otra mano limpia el polvo de la tapa del cofre, de un lado a otro, y se va (en «chests»)
   const lm = tramo(t, v(0.893), v(0.942));
-  if (lm > 0 && lm < 1) { const ent = Math.min(1, lm * 5, (1 - lm) * 5), hx = N(lerp(-10, 52 + Math.sin(lm * Math.PI * 6) * 16, ent)), hy = N(lerp(150, 104, ent));
+  if (lm > 0 && lm < 1) { const ent = Math.min(1, lm * 5, (1 - lm) * 5), hx = N(lerp(-10, 30 + Math.sin(lm * Math.PI * 6) * 9, ent)), hy = N(lerp(116, 104, ent));
     for (let i = 0; i < 10; i++) { const u = ((t * 1.6 + i / 10) % 1); if (ent > 0.8) R.pset(N(hx + 6 + (h3(i, 5, 3) - 0.5) * 20 + u * 6), N(hy - 2 - u * 16), hex(i % 2 ? '#f0e0c0' : '#c8b490')); }
-    T.brazo(R, -14, 200, hx, hy, '#c8b896', 1, { codo: [N(hx * 0.4 - 6), N(hy + 46)] }); }
+    T.brazo(R, -10, 122, hx, hy, '#c8b896', 1, { codo: [N(hx * 0.45 - 6), 120] }); }
   // el polvo que cae de lo alto en «attic»
   const pv = tramo(t, v(0.955), v(0.955) + 1.3);
   if (pv > 0 && pv < 1) for (let i = 0; i < 22; i++) { const x = N(196 + h3(i, 1, 9) * 44 + Math.sin(i + t * 2) * 2), y = N(48 + pv * (50 + h3(i, 2, 9) * 40)); R.pset(x, y, hex(i % 3 ? '#e8d8b0' : '#fff2d0')); }

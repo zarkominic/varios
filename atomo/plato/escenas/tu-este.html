@@ -10,19 +10,23 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TU-ESTE (frases 18–19), cartela «2020». Seis planos, cortados en la palabra inglesa:
-// 1. la ladera sobre la tumba (corta en «and led by»): un técnico sube empujando el radar de carrito; Eldamaty
-//    le sigue y en «hillside» señala el monte; turistas y el milano;
-// 2. el radar de carrito de cerca (corta en «but beside»): en «Eldamati» entra Eldamaty y se para a mirar; en
-//    «search» la pantallita da el eco y él señala;
-// 3. el bloque del monte en corte (corta en «long»): en «showed up» sale la mancha alargada paralela al pasillo; la
-//    mano con el puntero largo marca el alto en «six and a half feet high» y el largo en «30 feet long»;
+// 1. la ladera sobre la tumba (corta en «and led by»): un técnico sube empujando el radar de carrito; más arriba la
+//    geofísica clava un jalón con banderita a mazazos en «radar survey»; Eldamaty le sigue y en «hillside» señala el
+//    monte; turistas y el milano;
+// 2. el radar de carrito de cerca (corta en «but beside»): al fondo dos geofísicos diminutos suben con un jalón; en
+//    «Eldamati» entra Eldamaty, mira la pantallita y comenta; en «beside» la pantallita da el eco y él la toca; polvo;
+// 3. el bloque del monte en corte (corta en «long»): el carrito de la cumbre barre (ondas que bajan por la roca); en
+//    «showed up» sale la mancha alargada paralela al pasillo; la mano con el puntero largo marca
+//    el alto en «six and a half feet high» y el largo en «30 feet long»;
 // 4. el radargrama (corta en «Zahi»): en «a few yards» sube la banda brillante alargada; el dedo la recorre en
 //    «running parallel»;
-// 5. el despacho oficial (corta en «discovery»): Hawass detrás de la mesa; en «wasn't convinced» niega con la cabeza
-//    (globo con X) y la carpeta se queda a medio cerrar; en «never» señala, sale un globo con «0» y el sello baja, duda
-//    y vuelve a subir;
-// 6. el corte del monte (hasta el final): el lápiz se acerca a la mancha del pasillo del este en «eastern corridor»,
-//    duda y se retira; en «left hanging» la «?» parpadea encima.
+// 5. el despacho oficial (corta en «discovery»): Hawass llega detrás de la mesa; la ayudante entra con el
+//    ESTUDIO (carpeta azul) y se lo ofrece; en «wasn't convinced» él dice que no con la cabeza (tres giros lentos, globo
+//    con X) y la carpeta de la mesa se queda a medio cerrar; en «never» señala, sale un globo con «0» y el sello baja,
+//    duda y vuelve a subir; la ayudante baja el estudio, se encoge y se va con él;
+// 6. el corte del monte (hasta el final): en «full study wasn't published» la mano entra con el lápiz azul y lo pasea
+//    sin decidirse; en «eastern corridor» baja a la mancha del pasillo del este, amaga dos veces y en «left hanging» se
+//    retira sin marcar; la «?» parpadea encima; polvo en el aire.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-este');
@@ -50,18 +54,40 @@ const p1 = (t) => {
   const ue = ease(tramo(t, en('este', 0.06), en('este', 0.24)));
   const xe = N(lerp(40, xt - 26, ue));
   R.actor(ED, xe, pie(xe + 7), t, { dir: 1, anda: ue > 0 && ue < 1, dedo: t > en('este', 0.213) && t < en('este', 0.27), habla: t > en('este', 0.2) && t < en('este', 0.25) });
+  // la geofísica, más arriba: en «radar survey» clava un jalón con su banderita a mazazos (dos golpes) y se aparta a
+  // mirar cómo llega el carrito
+  const xg = 214, sg = pie(xg + 7);
+  const g1 = tramo(t, en('este', 0.11), en('este', 0.135)), g2 = tramo(t, en('este', 0.15), en('este', 0.175));
+  const golpe = (g1 > 0 && g1 < 1) || (g2 > 0 && g2 < 1);
+  const hunde = N(4 * ease(tramo(t, en('este', 0.11), en('este', 0.175))));
+  R.linea(xg - 3, sg - 14 + hunde, xg - 3, sg + 1, hex('#f4f0e8')); for (let y = sg - 14 + hunde; y < sg; y += 4) R.pset(xg - 3, y, hex('#d83a2a'));
+  { const fl = N(Math.sin(t * 7) * 1.2); R.poligono([[xg - 3, sg - 14 + hunde], [xg + 3, sg - 12 + hunde + fl], [xg - 3, sg - 10 + hunde]], hex('#e8483a')); }
+  const ga = R.actor(EL.geofisica2TU, xg, sg, t, { dir: -1, sostiene: true, sonrisa: t > en('este', 0.2), habla: t > en('este', 0.19) && t < en('este', 0.22) });
+  if (ga && ga.mano) { const [mx, my] = ga.mano, alza = golpe ? N(Math.abs(Math.sin(((g1 > 0 && g1 < 1) ? g1 : g2) * Math.PI)) * 5) : 0;
+    R.linea(mx, my - alza, mx - 3, my - 5 - alza, hex('#6a4a2a')); R.rect(mx - 6, my - 7 - alza, mx - 2, my - 5 - alza, hex('#3a3a42')); }
   T.laderaDelante(R, t, o);
 };
 
 // 2 · el radar de carrito de cerca: Eldamaty llega, mira la pantallita y señala el eco en «search»
 const p2 = (t) => {
-  const eco = ease(tramo(t, en('este', 0.4317), en('este', 0.48)));
+  const eco = ease(tramo(t, en('este', 0.44), en('este', 0.475)));
   const o = { encuadre: 'ladera', camara: 'carrito', epoca: 2020, eco };
   T.ladera(R, t, o);
+  // al fondo, en la ladera, dos geofísicos diminutos llevan un jalón largo entre los dos monte arriba
+  { const u2 = tramo(t, P2, P3), bx = N(lerp(40, 120, u2)), by = N(108 - (bx - 40) * 0.08), paso = Math.floor(t * 4) % 2;
+    for (const [dx, cam] of [[0, '#3a6a9a'], [16, '#c8783a']]) { const x = bx + dx, y = by - N(dx * 0.08);
+      R.rect(x - 1, y - 11, x + 1, y - 11, hex('#f4f0e8')); R.rect(x - 1, y - 10, x + 1, y - 9, hex('#d0905e'));   // gorro y cara
+      R.rect(x - 1, y - 8, x + 1, y - 4, hex(cam)); R.pset(x + 1, y - 8, hex('#1a1a1a'));                            // camisa
+      R.pset(x - 1 + (paso ? 0 : 1), y - 3, hex('#4a4038')); R.pset(x - 1 + (paso ? 0 : 1), y - 2, hex('#4a4038'));     // piernas que andan
+      R.pset(x + 1 - (paso ? 0 : 1), y - 3, hex('#4a4038')); R.pset(x + 1 - (paso ? 0 : 1), y - 2, hex('#4a4038')); }
+    for (let i = 0; i <= 16; i++) R.pset(bx + 1 + i, N(by - 7 - i * 0.08), (i >> 2) % 2 ? hex('#d83a2a') : hex('#f4f0e8')); }
+  // Eldamaty llega, mira la pantallita del asa, comenta y en «beside» toca el eco con el dedo
   const u = ease(tramo(t, P2 + 0.1, en('este', 0.305)));
   const x = N(lerp(10, 112, u));
-  R.actor(ED, x, 158, t, { dir: 1, anda: u > 0 && u < 1, habla: t > en('este', 0.33) && t < en('este', 0.37), dedo: t > en('este', 0.4317), sorpresa: t > en('este', 0.48) && t < en('este', 0.5) });
-  if (eco > 0.9) { const q = tramo(t, en('este', 0.48), en('este', 0.48) + 0.5); if (q < 1) destello(190, 120, N(2 + 4 * Math.sin(q * Math.PI))); }
+  R.actor(ED, x, 158, t, { dir: 1, anda: u > 0 && u < 1, habla: t > en('este', 0.33) && t < en('este', 0.37), dedo: t > en('este', 0.47), sorpresa: t > en('este', 0.475) && t < en('este', 0.499) });
+  // el polvo fino que el viento arrastra por el suelo
+  for (let i = 0; i < 9; i++) { const px = N(((t * 26 + i * 41) % 360) - 20), py = 150 + (i * 7) % 26 + N(Math.sin(t * 3 + i) * 1.5); R.pset(px, py, hex('#f4e4c4')); R.pset(px - 1, py, hex('#e8d4a8')); }
+  if (eco > 0.9) { const q = tramo(t, en('este', 0.475), en('este', 0.475) + 0.5); if (q < 1) destello(190, 120, N(2 + 4 * Math.sin(q * Math.PI))); }
 };
 
 // 3 · el bloque en corte: la mancha alargada sale; el puntero mide el alto y el largo
@@ -70,6 +96,11 @@ const p3 = (t) => {
   const o = { encuadre: 'este', epoca: 2020, pasillo, duda: 0 };
   const g = T.ladera(R, t, o);
   const [x0, y0, x1, y1] = g.espacio || [70, 82, 160, 94];
+  // el radar de carrito de la cumbre sigue barriendo: cada 1,3 s una onda baja por la roca (a trazos, dentro del corte)
+  { const [cx, cy] = g.carrito || [70, 68];
+    for (let k = 0; k < 2; k++) { const f = ((t + k * 0.65) % 1.3) / 1.3, r = N(4 + f * 40);
+      for (let i = 0; i <= 18; i++) { if ((i + N(t * 6)) % 3 === 0) continue; const an = 0.35 + i / 18 * (Math.PI - 0.7), px = N(cx + Math.cos(an) * r * 1.4), py = N(cy + 2 + Math.sin(an) * r);
+        if (py > cy + 3 && py < 176 && px > 2 && px < 258) { R.pset(px, py, hex(f < 0.6 ? '#2a6ab8' : '#5a8ac0')); if (f < 0.6) R.pset(px, py - 1, hex('#cfeaff')); } } }}
   const entra = ease(tramo(t, en('este', 0.62), en('este', 0.6858)));
   const alto = tramo(t, en('este', 0.6858), en('este', 0.74)), largo = ease(tramo(t, en('este', 0.7758), en('este', 0.8)));
   if (entra > 0.02) {
@@ -102,10 +133,23 @@ const p5 = (t) => {
   const o = { encuadre: 'permiso', carpeta, sello };
   T.ladera(R, t, o);
   const u = ease(tramo(t, P5 + 0.1, en('hawass', 0.12)));
-  const x = N(lerp(240, 208, u));
-  const niega = t > en('hawass', 0.2706) && t < en('hawass', 0.36);
-  const dir = niega ? (Math.floor((t - en('hawass', 0.2706)) * 6) % 2 ? 1 : -1) : -1;
-  R.actor(HW, x, 132, t, { dir, anda: u > 0 && u < 1, habla: (t > en('hawass', 0.3644) && t < en('hawass', 0.5)) , dedo: t > en('hawass', 0.4415) && t < en('hawass', 0.52), enfado: niega });
+  const x = N(lerp(242, 214, u));
+  // el «no» de cabeza en «wasn't convinced»: tres giros lentos (≈ 0,35 s cada uno: izquierda, derecha, izquierda), con
+  // un píxel de vaivén y las rayitas del movimiento; nada de temblor
+  const n0 = en('hawass', 0.227), n1 = n0 + 1.05, niega = t > n0 && t < n1;
+  const fase = niega ? Math.floor((t - n0) / 0.35) : 0, dir = niega ? (fase % 2 ? 1 : -1) : -1, vaiven = niega ? (fase % 2 ? 1 : -1) : 0;
+  // la ayudante entra por la izquierda con el ESTUDIO (una carpeta azul gruesa) y se la ofrece; tras el «no» y el
+  // «never» la baja, se encoge y se va por donde vino con ella (el estudio no se publica)
+  const ua = ease(tramo(t, P5 + 0.2, en('hawass', 0.16))), va = ease(tramo(t, en('hawass', 0.40), P6 - 0.05));
+  const xa = N(lerp(lerp(-18, 62, ua), -18, va));
+  const ofrece = ease(tramo(t, en('hawass', 0.17), en('hawass', 0.22))) * (1 - ease(tramo(t, en('hawass', 0.4), en('hawass', 0.45))));
+  const ay = R.actor(EL.oficinista, xa, 156, t, { dir: va > 0 ? -1 : 1, anda: (ua > 0 && ua < 1) || (va > 0 && va < 1), sostiene: true,
+    habla: t > en('hawass', 0.17) && t < en('hawass', 0.22), triste: t > en('hawass', 0.33) });
+  if (ay && ay.mano) { const [mx, my0] = ay.mano, my = N(my0 - 6 * ofrece);
+    R.rect(mx - 5, my - 7, mx + 4, my + 1, hex('#1a2a4a')); R.rect(mx - 4, my - 6, mx + 3, my, hex('#3a5a9a')); R.rect(mx - 4, my - 6, mx - 3, my, hex('#2a4070'));
+    R.rect(mx - 1, my - 4, mx + 2, my - 2, hex('#f4f0e4')); R.rect(mx + 4, my - 5, mx + 5, my - 1, hex('#f4f0e4')); }
+  R.actor(HW, x + vaiven, 132, t, { dir, anda: u > 0 && u < 1, habla: (t > en('hawass', 0.3644) && t < en('hawass', 0.5)) , dedo: t > en('hawass', 0.4415) && t < en('hawass', 0.52), enfado: niega });
+  if (niega) { const s = -dir, hx = x + vaiven + 7 + s * 9; for (let k = 0; k < 3; k++) R.pset(hx + s * (k === 1 ? 1 : 0), 110 + k * 2, hex('#5a4a3a')); }
   T.laderaDelante(R, t, o);
   // lo que dice, en globos: «no» (X) mientras niega, y el radar con «0» descubrimientos en «never … single discovery»
   if (niega) globo(x - 8, 92, 'X', hex('#d83a2a'));
@@ -119,15 +163,27 @@ const p6 = (t) => {
   const g = T.ladera(R, t, o);
   // la mancha del pasillo del este: x 60–150, y 80–90 (cabecera de ladera 'corte')
   const [px, py] = [108, 86];
-  const acerca = ease(tramo(t, en('hawass', 0.6759), en('hawass', 0.86))), retira = ease(tramo(t, en('hawass', 0.9406), en('hawass', 0.99)));
-  const k = acerca * (1 - retira), tiembla = acerca >= 1 && retira === 0 ? (Math.floor(t * 10) % 2) : 0;
-  if (k > 0.02) { const tx = px + tiembla, ty = N(py + 6 + 10 * (1 - k)), hx = N(lerp(220, tx + 26, k)), hy = N(lerp(214, ty + 44, k));
+  // el polvo que flota en el aire del corte (vida) y las nubecillas de la cumbre las pone el decorado
+  for (let i = 0; i < 7; i++) { const mx = N(20 + ((i * 47 + t * 5) % 280)), my = N(60 + ((i * 29) % 90) + Math.sin(t * 0.8 + i) * 3); R.pset(mx, my, hex('#f0dcb4')); }
+  // en «full study wasn't published» la mano entra con el lápiz azul y lo pasea por encima del corte sin decidirse (de la
+  // cámara al pasillo de entrada); en «eastern corridor» baja hacia la mancha del pasillo del este, duda (dos amagos)
+  // y en «left hanging» se retira sin marcar nada; la «?» parpadea encima
+  const entra = ease(tramo(t, en('hawass', 0.6), en('hawass', 0.68))), busca = ease(tramo(t, en('hawass', 0.68), en('hawass', 0.82)));
+  const acerca = ease(tramo(t, en('hawass', 0.839), en('hawass', 0.9))), retira = ease(tramo(t, en('hawass', 0.938), en('hawass', 0.99)));
+  const k = entra * (1 - retira);
+  const amago = acerca >= 1 && retira === 0 ? N(Math.abs(Math.sin((t - en('hawass', 0.9)) * 7)) * 4) : 0;
+  if (k > 0.02) { const bx = lerp(lerp(196, 150, busca), px, acerca), by = lerp(py - 22 + Math.sin(t * 3) * 2, py + 6, acerca);
+    const tx = N(bx), ty = N(by - amago + 12 * (1 - entra)), hx = N(lerp(230, tx + 26, k)), hy = N(lerp(214, ty + 44, k));
     puntero(tx, ty, hx - tx - 2, hy - ty - 4, '#3a6ad8'); T.brazo(R, hx + 22, 204, hx, hy, '#4a6a8a', -1, { codo: [hx + 24, hy + 24] }); }
-  if (t > en('hawass', 0.9406) && Math.floor(t * 3) % 2 === 0) globo(px - 4, py - 20, '?', hex('#3a6ad8'));
+  if (t > en('hawass', 0.938) && Math.floor(t * 3) % 2 === 0) globo(px - 4, py - 20, '?', hex('#3a6ad8'));
 };
 
-const efectos = [[en('este', 0.4317), 'bip'], [en('este', 0.5549), 'brillo'], [en('este', 0.7758), 'lapiz'],
-  [en('este', 0.8369), 'bip'], [en('hawass', 0.2706), 'papel'], [en('hawass', 0.9406), 'pop']];
+const efectos = [[en('este', 0.04), 'zumbido'], [en('este', 0.135), 'toc'], [en('este', 0.175), 'toc'],
+  [P2 + 0.3, 'viento'], [en('este', 0.44), 'bip'], [en('este', 0.47), 'golpecito'],
+  [P3 + 0.3, 'zumbido'], [en('este', 0.5549), 'brillo'], [en('este', 0.6858), 'lapiz'], [en('este', 0.7758), 'lapiz'],
+  [en('este', 0.8369), 'bip'], [en('este', 0.9163), 'golpecito'],
+  [en('hawass', 0.17), 'papel'], [en('hawass', 0.2706), 'papel'], [en('hawass', 0.4415), 'pop'], [en('hawass', 0.5), 'tic'],
+  [en('hawass', 0.9), 'golpecito'], [P6 + 0.2, 'viento'], [en('hawass', 0.938), 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, cartela: '2020', año: 2020 });
 </script>
 </body>

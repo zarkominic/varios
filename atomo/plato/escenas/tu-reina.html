@@ -16,12 +16,13 @@
 // 2. el museo de Berlín: un padre entra con su hija; la otra visitante abre el folleto en «wife» y explica; el padre
 //    señala la vitrina en «pharaoh Akhenaten»; en «father» la niña da saltitos para ver; una abuela pasa de la vitrina
 //    de pared al busto; el guarda cabecea;
-// 3. el busto en su vitrina: el reflejo de un visitante cruza el cristal; motas en el haz del foco; en «bust» la mano de
+// 3. el busto en su vitrina: una franja de reflejo cruza el cristal; motas en el haz del foco; en «bust» la mano de
 //    la niña se apoya en el cristal (quedan las huellas y el vaho); en «never been found» sale la «?» grande;
 // 4. la cámara pintada (2015): Reeves entra por la pasarela y en «behind that wall» señala la pared norte, donde se
 //    traza y parpadea su contorno azul a rayas; la turista que se iba se para, se vuelve sorprendida y sigue;
 // 5. la ciudad del disco solar: los reyes salen al balcón; abajo, una mujer con su cesto, un campesino y un sacerdote
-//    van hacia el palacio; en «3,350 years ago» la cifra; en «religion» todos alzan los brazos al disco, que se enciende;
+//    van hacia el palacio; en «3,350 years ago» la cifra; en «With Akhenaten» el disco se enciende, los reyes alzan los
+//    brazos y la gente de abajo también (la mujer deja el cesto en el suelo);
 // 6. la pared del templo: una salamanquesa trepa por los sillares y la luz de la tarde barre la pared (pasa el tiempo);
 //    en «disk of the sun» el disco late con tres anillos de oro; en «After they died» la corona pasa de la reina al rey
 //    niño; en «erased» el cincel raspa los cartuchos y las caras: polvo a cada golpe y un montoncito de esquirlas abajo;
@@ -51,7 +52,7 @@ const tapar = (x0, y0, x1, y1, src) => { const v = []; for (let y = y0; y <= y1;
 // una salamanquesa de 12 px (dir 1 a la derecha, -1 a la izquierda; arriba: trepa en vertical)
 const lagartija = (x, y, t, dir = 1, arriba = false, V = hex('#8a7a4a'), v = hex('#5a4a2a')) => { const pa = Math.floor(t * 8) % 2;
   if (arriba) { R.rect(x, y, x + 1, y + 6, V); R.pset(x, y - 1, V); R.linea(x + 1, y + 7, x + 2 + pa, y + 11, v); R.pset(x - 1, y + 1 + pa, v); R.pset(x + 2, y + 1 - pa + 1, v); R.pset(x - 1, y + 5 - pa, v); R.pset(x + 2, y + 5 + pa - 1, v); R.pset(x, y, hex('#1a1410')); return; }
-  const s = dir > 0 ? -1 : 1; R.rect(Math.min(x, x - s * 6), y, Math.max(x, x - s * 6), y + 1, V); R.pset(x + (dir > 0 ? 1 : -1), y, V); R.linea(x - s * 7, y + 1, x - s * 12, y + 2 + pa, v);
+  const s = dir > 0 ? 1 : -1; R.rect(Math.min(x, x - s * 6), y, Math.max(x, x - s * 6), y + 1, V); R.pset(x + (dir > 0 ? 1 : -1), y, V); R.linea(x - s * 7, y + 1, x - s * 12, y + 2 + pa, v);
   R.pset(x - s, y - 1 + pa, v); R.pset(x - s, y + 2 - pa, v); R.pset(x - s * 5, y - pa, v); R.pset(x - s * 5, y + 2 + pa, v); R.pset(x, y, hex('#1a1410')); };
 const P2 = en('reina', 0.3409), P3 = en('reina', 0.6178), P4 = en('reina', 0.8716), P5 = en('nefertiti', 0) - 0.1;
 const P6 = en('nefertiti', 0.2789), P7 = en('nefertiti', 0.5437), P8 = en('nefertiti', 0.8085);
@@ -99,10 +100,10 @@ const p2 = (t) => {
 const p3 = (t) => {
   const duda = ease(tramo(t, en('reina', 0.81), en('reina', 0.8408)));
   T.radares(R, t, { encuadre: 'museo', camara: 'busto', duda });
-  // el reflejo de un visitante que pasa por detrás de la cámara: una silueta oscura y suave que cruza el cristal
+  // el reflejo de la sala en el cristal: una franja de luz en diagonal que se desliza despacio
   R.recorte([82, 22, 238, 156]);
-  { const s = tramo(t, P3, P3 + 4.6), cx = N(lerp(250, 60, s)), D = hex('#0a1a1c');
-    if (s > 0 && s < 1) for (let y = 40; y < 156; y++) { const w = y < 62 ? N(Math.sqrt(Math.max(0, 100 - (y - 52) ** 2))) : y < 66 ? 4 : 14; for (let x = cx - w; x <= cx + w; x++) if (x > 82 && x < 238 && (x + y) % 2 === 0) velo(x, y, D, 0.32); } }
+  { const s = tramo(t, P3, P3 + 4.6), cx = N(lerp(260, 50, s)), L = hex('#d8f0ec');
+    if (s > 0 && s < 1) for (let y = 22; y < 157; y++) { const xo = cx + N((y - 90) * 0.45); for (let x = xo - 9; x <= xo + 9; x++) if (x > 82 && x < 238) velo(x, y, L, 0.14 * (1 - Math.abs(x - xo) / 10)); } }
   // motas de polvo que bajan despacio por el haz del foco, encima del busto
   for (let k = 0; k < 9; k++) { const f = (t * 0.06 + k * 0.111) % 1, x = N(150 + Math.sin(k * 2.3 + t * 0.7) * 26 + (k - 4) * 4), y = N(26 + f * 70); R.pset(x, y, hex(f < 0.5 ? '#c8e0d8' : '#8ab0a8')); }
   R.recorte(null);
@@ -140,13 +141,14 @@ const p5 = (t) => {
   const o = { encuadre: 'amarna', disco };
   T.radares(R, t, o);
   const sal = ease(tramo(t, P5 + 0.15, en('nefertiti', 0.039)));
-  const alza = t > en('nefertiti', 0.2127), rel = t > en('nefertiti', 0.269);
+  const alza = t > en('nefertiti', 0.2127), rel = t > en('nefertiti', 0.2127) + 0.4;
   R.actor(T.ELENCO_TU.nefertitiTU, N(lerp(176, 186, sal)), 96, t, { dir: 1, anda: sal > 0 && sal < 1, brazos: alza, habla: t > en('nefertiti', 0.1755) && t < en('nefertiti', 0.2127), sonrisa: alza });
   R.actor(T.ELENCO_TU.akenatonTU, N(lerp(213, 203, sal)), 96, t, { dir: -1, anda: sal > 0 && sal < 1, brazos: t > en('nefertiti', 0.2127) + 0.3 });
   // abajo, en el camino: la mujer con el cesto, el campesino y el sacerdote van hacia el palacio y se paran debajo
   const gente = [[EL.egipcia, 70, 150, P5 + 0.2, 3.6, 1], [EL.campesino, 300, 238, P5 + 0.8, 3.2, -1], [EL.calvo, 20, 112, P5 + 1.6, 3.4, 1]];
   for (const [quien, x0, x1, t0, d, dir] of gente) { const w = ease(tramo(t, t0, t0 + d)), anda = w > 0 && w < 1;
     const a = R.actor(quien, N(lerp(x0, x1, w)), 166, t, { dir: rel ? (quien === EL.campesino ? -1 : 1) : dir, anda, brazos: rel && !anda, sonrisa: rel, sostiene: quien === EL.egipcia && !rel ? true : undefined });
+    if (quien === EL.egipcia && rel) { const bx = N(lerp(x0, x1, w)) - 4; R.rect(bx - 4, 159, bx + 3, 166, hex('#3a2410')); R.rect(bx - 3, 160, bx + 2, 165, hex('#c89a4a')); R.linea(bx - 3, 162, bx + 2, 162, hex('#a87a32')); R.pset(bx - 2, 159, hex('#e84a3a')); R.pset(bx, 159, hex('#4a8a3a')); R.pset(bx + 1, 159, hex('#e8c040')); }
     if (quien === EL.egipcia && !rel && a && a.mano) { const [mx, my] = a.mano; R.rect(mx - 4, my - 5, mx + 3, my - 1, hex('#5a3a1a')); R.rect(mx - 3, my - 5, mx + 2, my - 2, hex('#c89a4a')); R.pset(mx - 2, my - 6, hex('#e84a3a')); R.pset(mx, my - 6, hex('#4a8a3a')); R.pset(mx + 1, my - 6, hex('#e8c040')); } }
   const n = tramo(t, en('nefertiti', 0.0472), en('nefertiti', 0.0472) + 0.35), fu = 1 - tramo(t, en('nefertiti', 0.1589), en('nefertiti', 0.1589) + 0.4);
   if (n > 0 && fu > 0) R.numero('3350', 92, N(lerp(52, 48, n)), { tam: 16, centro: true });
@@ -188,7 +190,7 @@ const p7 = (t) => {
   const g = T.tumba(R, t, { encuadre: 'mascara', brillo });
   // dos visitantes que pasan por delante de la vitrina se reflejan en el cristal (siluetas suaves)
   R.recorte([102, 26, 218, 134]);
-  for (const [t0, x0, x1, al] of [[P7 + 0.1, 230, 90, 54], [P7 + 2.6, 90, 230, 46]]) { const s = tramo(t, t0, t0 + 3.4), cx = N(lerp(x0, x1, s));
+  for (const [t0, x0, x1, al] of [[P7 + 0.1, 230, 90, 34], [P7 + 2.6, 90, 230, 28]]) { const s = tramo(t, t0, t0 + 3.4), cx = N(lerp(x0, x1, s));
     if (s > 0 && s < 1) for (let y = 134 - al; y < 135; y++) { const yy = y - (134 - al), w = yy < 10 ? N(Math.sqrt(Math.max(0, 25 - (yy - 5) ** 2))) : yy < 13 ? 3 : 9; for (let x = cx - w; x <= cx + w; x++) if ((x + y) % 2 === 0) velo(x, y, hex('#03061a'), 0.45); } }
   R.recorte(null);
   // motas en los conos de los focos
@@ -244,7 +246,7 @@ const efectos = [
   [P2 + 0.1, 'publico', { dur: 2.2 }], [en('reina', 0.387), 'papel'], [en('reina', 0.5281), 'golpecito'], [en('reina', 0.5563), 'golpecito'],
   [en('reina', 0.6614), 'golpecito'], [en('reina', 0.72), 'brillo'], [en('reina', 0.81), 'pop'],
   [en('reina', 0.9485), 'lapiz'], [en('reina', 0.9485) + 0.75, 'pop'],
-  [P5 + 0.2, 'viento', { dur: 3 }], [en('nefertiti', 0.0472), 'pop'], [en('nefertiti', 0.2127), 'brillo'], [en('nefertiti', 0.269), 'publico', { dur: 2.2 }],
+  [P5 + 0.2, 'viento', { dur: 3 }], [en('nefertiti', 0.0472), 'pop'], [en('nefertiti', 0.2127), 'brillo'], [en('nefertiti', 0.2127) + 0.45, 'publico', { dur: 1.1 }],
   [en('nefertiti', 0.339), 'brillo'], [en('nefertiti', 0.3865), 'whoosh'],
   [en('nefertiti', 0.45), 'toc'], [en('nefertiti', 0.48), 'toc'], [en('nefertiti', 0.51), 'toc'], [en('nefertiti', 0.525), 'golpecito'],
   [en('nefertiti', 0.6409), 'brillo'], [en('nefertiti', 0.7464), 'lapiz'], [en('nefertiti', 0.765), 'pop'],

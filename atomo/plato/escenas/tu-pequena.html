@@ -158,11 +158,12 @@ const p4 = (t) => {
   let mf = null;
   aLaLuz(() => {
     // el fotógrafo de la expedición, a la izquierda, detrás de su cámara de trípode: alza el polvo de magnesio y dispara
-    mf = R.actor(EL.britanico, 22, 168, t, { dir: 1, sostiene: alza ? [28, 132] : [32, 150], sorpresa: fl > 0.3, sonrisa: t > FL + 0.6 }).mano;
-    R.linea(38, 146, 32, 168, hex('#3a2414')); R.linea(38, 146, 44, 168, hex('#3a2414')); R.linea(38, 146, 38, 168, hex('#5a3a20'));
-    R.rect(33, 138, 43, 146, hex('#1a1210')); R.rect(34, 139, 42, 145, hex('#5a3a24')); R.rect(43, 140, 46, 144, hex('#2a2a30')); R.pset(45, 142, hex('#8a9ab8')); R.rect(35, 139, 41, 139, hex('#8a6a44'));
+    mf = R.actor(EL.britanico, 20, 168, t, { dir: 1, sostiene: alza ? [26, 132] : [29, 150], sorpresa: fl > 0.3, sonrisa: t > FL + 0.6 }).mano;
     if (alza && mf) { const [px, py] = mf; R.rect(px - 3, py - 1, px + 3, py, hex('#6a6a72')); R.pset(px, py + 1, hex('#3a3a40')); }
     mo = R.actor(T.ELENCO_TU.obrero1TU, 52, 168, t, { dir: 1, sostiene: [72, 150], sonrisa: t > a(0.86) && t < a(0.94) }).mano;
+    // la cámara de trípode (caja de madera, fuelle y objetivo), delante del obrero
+    R.linea(35, 146, 29, 168, hex('#3a2414')); R.linea(35, 146, 41, 168, hex('#3a2414')); R.linea(35, 146, 35, 168, hex('#5a3a20'));
+    R.rect(29, 137, 39, 146, hex('#1a1210')); R.rect(30, 138, 38, 145, hex('#5a3a24')); R.rect(31, 138, 37, 138, hex('#8a6a44')); R.rect(39, 139, 42, 144, hex('#2a2a30')); R.pset(41, 141, hex('#8a9ab8'));
     const cv = R.actor(T.ELENCO_TU.carterTU, xc, 168, t, { dir: vuelve ? 1 : -1, anda: va > 0 && va < 1, sostiene: !vuelve ? [xc - 2, 150] : null, dedo: vuelve && !duda, habla: vuelve && !duda && Math.sin(t * 7) > 0, sorpresa: duda, brazos: duda });
     mc = cv.mano;
   }, [[278, 140, 150, 0.9], [60, 150, 70, 0.3 + fl * 1.1]], 0.5);
@@ -201,15 +202,16 @@ const p6 = (t) => {
   const muele = Math.sin(t * 6);
   // una mujer entra por la izquierda con una jarra, la deja en la mesa baja y se vuelve
   const dj = b(0.555), ida = ease(tramo(t, P6 + 0.1, dj - 0.5)), vuelta = ease(tramo(t, dj + 0.5, dj + 2.2)), xj = N(lerp(lerp(-12, 74, ida), -14, vuelta));
-  if (xj > -12) R.actor(EL.egipcia, xj, 154, t, { dir: t > dj + 0.4 ? -1 : 1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), sostiene: t < dj ? [xj + 6, t > dj - 0.5 ? 146 : 140] : null, sonrisa: t > dj - 0.2 && t < dj + 0.8 });
+  const baja = ease(tramo(t, dj - 0.4, dj));
+  const mj = xj > -12 ? R.actor(EL.egipcia, xj, 154, t, { dir: t > dj + 0.4 ? -1 : 1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), sostiene: t < dj ? [N(lerp(xj + 6, 82, baja)), N(lerp(140, 154, baja))] : null, sonrisa: t > dj - 0.2 && t < dj + 0.8 }).mano : null;
   const jarra = (x, y) => { R.rect(x - 3, y - 7, x + 3, y, hex('#3a1c0c')); R.rect(x - 2, y - 6, x + 2, y - 1, hex('#c87a40')); R.pset(x - 1, y - 5, hex('#f0b080')); R.rect(x - 1, y - 9, x + 1, y - 7, hex('#8a4a24')); R.linea(x - 2, y - 3, x + 2, y - 3, hex('#3a6ab0')); };
-  if (xj > -12 && t < dj) jarra(xj + 6, t > dj - 0.5 ? 146 : 140);
+  if (mj && t < dj) jarra(mj[0], mj[1] + 3);
   R.actor(EL.campesino, 230, 156, t, { dir: 1, sostiene: [248 + N(muele * 4), 150], sonrisa: t > b(0.5) });
   const sc = R.actor(EL.escriba, 118, 154, t, { dir: 1, dedo: t > b(0.565) && t < b(0.61), habla: t > b(0.47) && t < b(0.565) && Math.sin(t * 7) > 0, sostiene: raspa ? [140 + N(Math.sin(t * 14) * 3), 128] : null });
   if (raspa) { const [mx, my] = sc.mano; R.linea(mx, my, mx + 6, my - 4, hex('#3a1a08')); R.linea(mx + 1, my, mx + 6, my - 3, hex('#e08a40')); R.pset(mx + 6, my - 4, hex('#fff0c0'));
     for (let i = 0; i < 6; i++) { const u = ((t * 2.2 + i / 6) % 1); R.rect(N(mx + 7 + u * 6), N(my - 3 + u * u * 22), N(mx + 8 + u * 6), N(my - 3 + u * u * 22), hex(i % 2 ? '#fff8e8' : '#e8d8b0')); } }
   T.tumbaDelante(R, t, o);
-  if (t >= dj) jarra(84, 158);   // la jarra ya en la mesa (delante: se pinta después de la mesa)
+  if (t >= dj) jarra(82, 157);   // la jarra ya en la mesa (delante: se pinta después de la mesa)
 };
 
 // 7 · el cartucho de cerca: acaba de raspar, pinta sol, ankh y cesta y repasa de oro el borde de abajo del óvalo; una mosca
