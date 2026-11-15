@@ -18,7 +18,7 @@
 // 4. selva/cabana/tabla: su mano (sola, T.mano) aparta el musgo y aparecen las rayas grabadas en la madera;
 // 5. cine/sala/publico: 2019, otra: la mano enseña la entrada «2019», la sala llena con gafas da un bote y el contador
 //    del borde del escenario sube a 800;
-// 6. cine/contador/suma: 260 + 960 + 800 → 2020 (la suma exacta de lo que marcan los contadores; GOLPE). Bajo el
+// 6. cine/contador/suma: 263 + 962 + 802 → 2027 (las tres taquillas exactas; GOLPE). Bajo el
 //    terciopelo, un mostrador de madera: con cada taquilla caen monedas a sus montones y llega un billete planeando;
 //    en la pared, una balda con montones y el rollo de entradas, y una tira de entradas que se mece. Una mano deja el libro fino en el mostrador y el
 //    cronómetro llega balanceándose colgado de su gancho y marca sus 10 minutos.
@@ -151,7 +151,7 @@ const balda = () => {
 };
 const p6 = (t) => {
   const SALE = [P6, b(25.55), b(25.95)], BOOM = b(27.3), TOC = b(29.2);
-  const o = { encuadre: 'contador', camara: 'suma', cifras: [260, 960, 800], ver: 1 + (t > SALE[1] ? 1 : 0) + (t > SALE[2] ? 1 : 0), total: tramo(t, b(26.4), BOOM) }; T.cine(R, t, o);   // el total es la suma: 2020
+  const o = { encuadre: 'contador', camara: 'suma', cifras: [263, 962, 802], totalCifra: 2027, ver: 1 + (t > SALE[1] ? 1 : 0) + (t > SALE[2] ? 1 : 0), total: tramo(t, b(26.4), BOOM) }; T.cine(R, t, o);   // los sumandos exactos (262,8 + 962,5 + 801,7) y su total: 2027
   if (!FIJO6) fijo6();
   for (let k = 0; k < FIJO6.length; k++) { if (k === PARCHES_N) { balda(); lluvia(t); } R.pset(FIJO6[k][0], FIJO6[k][1], FIJO6[k][2]); }
   // una tira de entradas colgada de su clavo, a la izquierda, que se mece
