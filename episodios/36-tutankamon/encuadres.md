@@ -26,8 +26,9 @@
 
 ## tu-vela
 - p1: tumba/pasillo/general — f6 la segunda puerta; Carter abre un hueco y acerca la vela ({ encuadre: 'pasillo', abierta: 0, oro: 0, vela: 1, llama: [170, 120] }; se anima o.abierta 0→1, o.oro 0→0.5; o.llama [x, y] sigue la llama de la vela de Carter, de unos [170, 120] a [220, 92]; mueve la luz con la vela; el hueco crece en geo.hueco [228, 84]) [LO PINTA LA ESCENA: Carter (ELENCO_TU.carterTU) en libre [40, 190], suelo 156, junto a la puerta, con PIEZAS_TU.vela en la mano; o.llama tiene que seguir su llama]
-- p2: tumba/antecamara/general — f6 «cosas maravillosas» (GOLPE en «vela»; gag 3: la vela se apaga y se enciende) ({ encuadre: 'antecamara', vela: 1, oro: 0 }; se anima o.oro 0→1; o.oro 0→1 enciende los destellos del oro poco a poco, el golpe en «vela») [LO PINTA LA ESCENA: el apagón del gag 3: o.vela no sirve para eso (al bajarla sube la luz de fondo, 0,16 + (1 − vela) · 0,4, y con 0 queda el foco eléctrico blanco de 1923); un velo casi negro encima unos instantes, un hilo de humo abajo en medio (la llama entra por [160, 186]) y vuelve la luz]
-- p3: tumba/antecamara/ajuar — f6 oro, estatuas, carros y cofres amontonados ({ encuadre: 'antecamara', camara: 'ajuar' }; sin opciones: el trono, el cofre pintado, la rueda de carro y el abanico con los brillos que corren solos; las estatuas guardianas solo salen en la general)
+- p2: tumba/pasillo/hueco — f6 el aire de la tumba apaga la vela y Carter la vuelve a encender (gag 3) ({ encuadre: 'pasillo', camara: 'hueco', abierta: 1, acerca: 1, soplo: 0, enciende: 0 }; se anima o.soplo 0→1 (pasado 0,8 se apaga) y luego o.enciende 0→1 (pasado 0,55 vuelve a arder))
+- p3: tumba/antecamara/general — f6 «cosas maravillosas» (GOLPE en «vela») ({ encuadre: 'antecamara', vela: 1, oro: 0 }; se anima o.oro 0→1; o.oro 0→1 enciende los destellos del oro poco a poco, el golpe en «vela») [LO PINTA LA ESCENA: el apagón del gag 3: o.vela no sirve para eso (al bajarla sube la luz de fondo, 0,16 + (1 − vela) · 0,4, y con 0 queda el foco eléctrico blanco de 1923); un velo casi negro encima unos instantes, un hilo de humo abajo en medio (la llama entra por [160, 186]) y vuelve la luz]
+- p4: tumba/antecamara/ajuar — f6 oro, estatuas, carros y cofres amontonados ({ encuadre: 'antecamara', camara: 'ajuar' }; sin opciones: el trono, el cofre pintado, la rueda de carro y el abanico con los brillos que corren solos; las estatuas guardianas solo salen en la general)
 
 ## tu-pequena
 - p1: tumba/plano/general — f7 la tumba de cuatro cuartos, pequeña para un rey ({ encuadre: 'plano', contar: 0, comparar: 0 }; se anima o.contar 0→4, o.comparar 0→1; primero contar enciende los cuatro cuartos con su número; después comparar desenrolla el plano rojo de la tumba grande y encoge el de Tutankamón a geo.tutChica, ya sin números)
@@ -40,8 +41,8 @@
 
 ## tu-maldicion
 - p1: cairo/hotel/ventana — f9 abril de 1923: Carnarvon muere de una infección (sobrio: una ventana que se apaga) ({ encuadre: 'hotel', camara: 'ventana', apaga: 0 }; se anima o.apaga 0→1; la lámpara se apaga, el cuarto queda azul y sale el reflejo de la luna; el telegrama ya está en el alféizar)
-- p2: cairo/redaccion/periodico — f9 los periódicos se inventan la maldición (pirámide con «!», sin momias) ({ encuadre: 'redaccion', camara: 'periodico', titular: 0, copias: 0 }; se anima o.titular 0→1, o.copias 0→1; copias empieza cuando titular llega a 1, porque tapa el pictograma) [OJO: el pictograma del decorado (c_PICTO de c_picto, tu-comun.js l. 3372–3375; aquí, a escala 4, en geo.picto) no cumple aún la regla del episodio (pirámide con «!» y nada más); hay que corregirlo en el decorado antes de rodar este plano]
-- p3: cairo/calle/vendedor — f9 el vendedor grita el titular; el gato se sienta encima (gag 4) ({ encuadre: 'calle', camara: 'vendedor', gato: 0 }; se anima o.gato 0→1; el gato anda, salta a la acera, da una vuelta y se sienta encima del periódico del suelo, x 244, y 170; con 1 se lame una pata) [LO PINTA LA ESCENA: el vendedor (ELENCO_TU.vendedorTU) en geo.vendedor [104, 166] gritando con R.icono «!»] [OJO: el periódico del suelo y el cartel de la pared usan el mismo pictograma c_picto, que hay que corregir en el decorado como en p2]
+- p2: cairo/redaccion/periodico — f9 los periódicos se inventan la maldición (pirámide con «!», sin momias) ({ encuadre: 'redaccion', camara: 'periodico', titular: 0, copias: 0 }; se anima o.titular 0→1, o.copias 0→1; copias empieza cuando titular llega a 1, porque tapa el pictograma) [el pictograma del decorado ya es una pirámide lisa con «!», SIN ojo: no le añadas ninguno]
+- p3: cairo/calle/vendedor — f9 el vendedor grita el titular; el gato se sienta encima (gag 4) ({ encuadre: 'calle', camara: 'vendedor', gato: 0 }; se anima o.gato 0→1; el gato anda, salta a la acera, da una vuelta y se sienta encima del periódico del suelo, x 244, y 170; con 1 se lame una pata) [LO PINTA LA ESCENA: el vendedor (ELENCO_TU.vendedorTU) en geo.vendedor [104, 166] gritando con R.icono «!»] [el pictograma del decorado ya es una pirámide lisa con «!», SIN ojo: no le añadas ninguno]
 - p4: cairo/londres/puerta — f9 Carter, ya mayor, en Londres, en 1939 ({ encuadre: 'londres', camara: 'puerta', baston: false, hojas: 0.5, niebla: 0.4 }; con baston false no está apoyado en la jamba, porque lo lleva Carter) [LO PINTA LA ESCENA: Carter mayor (ELENCO_TU.carterMayorTU, ya con su bastón) en libre [20, 132], suelo 166, ante la puerta geo.puerta [142, 106, 192, 158]]
 
 ## tu-escaneo
@@ -54,7 +55,7 @@
 - p7: escaneo/rasante/linea — f11 las líneas rectas bajo la pintura: dos puertas tapiadas ({ encuadre: 'rasante', camara: 'linea', dedo: 0, color: 0 }; se anima o.dedo 0→1; el dedo de Reeves repasa el dintel de x 60 a x 260; el brazo lo pinta el decorado; el inserto enseña UNA arista: las dos puertas juntas solo salen en la general con rectangulos 1)
 
 ## tu-reina
-- p1: ladera/trazo/general — f12 la idea enorme: la tumba, entrada de otra más grande (trazo azul «según él») ({ encuadre: 'trazo', reeves: 1, traza: 0, anomalias: 0 }; se anima o.traza 0→1; o.traza dibuja el contorno azul a rayas en geo.grande [214, 72, 314, 150] con la mano y el lápiz siguiendo la punta; sin perforadora, porque no se da o.broca)
+- p1: ladera/trazo/general — f12 la idea enorme: la tumba, entrada de otra más grande (trazo azul «según él») ({ encuadre: 'trazo', epoca: 2015, reeves: 1, traza: 0, anomalias: 0 }; se anima o.traza 0→1; o.traza dibuja el contorno azul a rayas en geo.grande [214, 72, 314, 150] con la mano y el lápiz siguiendo la punta; sin perforadora, porque no se da o.broca)
 - p2: radares/museo/general — f12 Nefertiti, una reina; el museo de Berlín ({ encuadre: 'museo' }; sin opciones: la vitrina con el busto, los visitantes que pasan y el guarda que cabecea los pinta el decorado)
 - p3: radares/museo/busto — f12 el busto (el nuestro); su tumba nunca encontrada ({ encuadre: 'museo', camara: 'busto', duda: 0 }; se anima o.duda 0→1; sale la «?» grande que flota)
 - p4: tumba/pintada/general — f12 «podría estar detrás de esa pared» ({ encuadre: 'pintada', epoca: 2015 }; la pasarela, los focos y la barandilla de tumbaDelante; la pared norte en geo.pared [146, 50, 304, 148])
@@ -73,18 +74,18 @@
 ## tu-turin
 - p1: radares/segundo/general — f16 unos meses después, el segundo equipo ({ encuadre: 'segundo' }; sin opciones: el carro de dos antenas, el ordenador con su radargrama plano y el sarcófago CERRADO delante) [LO PINTA LA ESCENA: el segundo equipo (ELENCO_TU.natgeoTU y otro técnico) en libre [86, 236], suelo 164]
 - p2: radares/segundo/plana — f16 no encontró nada: ✓ y ✗ ({ encuadre: 'segundo', camara: 'plana', barrido: 0, marcas: 0 }; se anima o.barrido 0→1, o.marcas 0→2; las dos valen lo máximo por omisión: hay que darlas desde 0; marcas traza primero el ✓ verde y luego el ✗ rojo)
-- p3: radares/turin/general — f17 2018: el tercero, el más completo, de Turín ({ encuadre: 'turin', pita: 0 }; la lata ya está olvidada en el saliente, x 214, y 119, pero sin pitar todavía) [LO PINTA LA ESCENA: el equipo de Turín (ELENCO_TU.porcelliTU) en libre [48, 268], suelo 158]
-- p4: tumba/pintada/pared — f17 los ecos «fantasma» salen de delante de la pared (gag 5: la lata) ({ encuadre: 'pintada', camara: 'pared', raya: 0, rectangulos: 0 }) [LO PINTA LA ESCENA: esta vista no tiene lata ni ecos (eso es o.pita de radares/turin): PIEZAS_TU.lata en el suelo de losas DELANTE de la pared (suelo 172, p. ej. x ≈ 186, bajo la puerta escondida x 150–224) y los arcos de eco que salen de la lata, no de la pared]
+- p3: radares/turin/general — f17 2018: el tercero, el más completo, de Turín; una lata olvidada pita «¡cuarto!» (gag 5) ({ encuadre: 'turin', pita: 0 }; se anima o.pita 0→1: la lata olvidada en el saliente, x 214, y 119, pita con ondas, sin cara) [LO PINTA LA ESCENA: el equipo de Turín (ELENCO_TU.porcelliTU) en libre [48, 268], suelo 158]
+- p4: tumba/pintada/pared — f17 los ecos «fantasma» salen de DELANTE de la pared, no de detrás ({ encuadre: 'pintada', camara: 'pared', raya: 0, rectangulos: 0 }) [LO PINTA LA ESCENA: arcos de eco que nacen a un palmo delante de la pintura (pasarela, cables, el aire) y no la atraviesan]
 - p5: radares/turin/carpeta — f17 no hay cuartos pegados: el caso, cerrado ({ encuadre: 'turin', camara: 'carpeta', cerrada: 0, sello: 0 }; se anima o.cerrada 0→1, o.sello 0→1; cerrada vale 1 por omisión: hay que empezar en 0; el sello solo deja el candado rojo si la carpeta ya está cerrada, así que empieza cuando cerrada llega a 1)
 - p6: valle/entrada/general — f17 Egipto da el caso por cerrado ({ encuadre: 'entrada', cola: 0.4 }; la entrada no lee o.epoca (siempre es hoy); o.cola 0–1: cuántos turistas bajan por el sendero)
 
 ## tu-este
 - p1: ladera/ladera/general — f18 «No del todo»: 2020, un radar desde la ladera ({ encuadre: 'ladera', epoca: 2020, carrito: 0 }; se anima o.carrito 0→0.6; sin o.carrito no se pinta el radar; devuelve carrito y asa [x − 14, y − 21]) [LO PINTA LA ESCENA: quien empuja el carrito (ELENCO_TU.eldamatyTU o un técnico) con la mano en geo.asa y los pies en round(140 − 0,12 · (x − 160))]
 - p2: ladera/ladera/carrito — f18 el radar de carrito de Eldamaty ({ encuadre: 'ladera', camara: 'carrito', epoca: 2020, eco: 0 }; se anima o.eco 0→1; la sombra del técnico ya la pinta el decorado) [LO PINTA LA ESCENA: si sale, Eldamaty (ELENCO_TU.eldamatyTU) en libre [20, 150], suelo 158]
-- p3: ladera/este/general — f18 al lado, no detrás ({ encuadre: 'este', pasillo: 0, duda: 0 }; se anima o.pasillo 0→1; la mancha alargada paralela al pasillo, en geo.espacio [70, 82, 160, 94], con las cotas 10 y 2)
-- p4: ladera/este/radargrama — f18 un espacio alargado, paralelo al pasillo de entrada ({ encuadre: 'este', camara: 'radargrama', eco: 0 }; se anima o.eco 0→1)
+- p3: ladera/este/general — f18 al lado, no detrás ({ encuadre: 'este', epoca: 2020, pasillo: 0, duda: 0 }; se anima o.pasillo 0→1; la mancha alargada paralela al pasillo, en geo.espacio [70, 82, 160, 94], con las cotas 10 y 2)
+- p4: ladera/este/radargrama — f18 un espacio alargado, paralelo al pasillo de entrada ({ encuadre: 'este', epoca: 2020, camara: 'radargrama', eco: 0 }; se anima o.eco 0→1)
 - p5: ladera/permiso/general — f19 Hawass no se lo cree (el despacho oficial) ({ encuadre: 'permiso', carpeta: 0, sello: 0 }; se anima o.carpeta 0→1, o.sello 0→1; las dos van en laderaDelante: la carpeta se queda a medio cerrar y el sello baja un poco, duda y vuelve a subir) [LO PINTA LA ESCENA: Hawass (ELENCO_TU.hawassTU) DETRÁS de la mesa con los pies en y 135 (asoman cabeza y hombros)]
-- p6: ladera/corte/general — f19 el pasillo del este se queda en el aire ({ encuadre: 'corte', pasillo: 1, anomalias: 0.4, broca: 0 }; el pasillo del este parpadea con un «?») [LO PINTA LA ESCENA: el «?» que parpadea sobre el pasillo]
+- p6: ladera/corte/general — f19 el pasillo del este se queda en el aire ({ encuadre: 'corte', epoca: 2020, pasillo: 1, anomalias: 0.4, broca: 0 }; el pasillo del este parpadea con un «?») [LO PINTA LA ESCENA: el «?» que parpadea sobre el pasillo]
 
 ## tu-gravedad
 - p1: hoy/mesa/manzana — f20 la gravedad: todo lo que tiene masa tira (la manzana) ({ encuadre: 'mesa', camara: 'manzana', cae: 0 }; se anima o.cae 0→1; rueda hasta el filo hasta 0,12, cae con la flecha roja que crece y bota en la tarima; el gato la mira)
@@ -136,7 +137,6 @@
 - cairo/redaccion/general
 - escaneo/taller/general
 - hoy/mesa/general
-- hoy/pizarra/final
 - tumba/capillas/general
 - valle/escalera/general
 - valle/valle/arena
