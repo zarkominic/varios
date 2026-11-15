@@ -131,13 +131,14 @@
 
 ## Registro (cada grupo añade aquí una línea si cambia o añade una vista)
 - tu-pequena p0: tumba/capillas/general (vista libre; la frase pasaba de 7 s)
+- tu-escaneo p6: escaneo/taller/general (vista libre; la frase 11 dura 15,3 s)
+- tu-reina p8: valle/valle/arena (vista libre; la frase 13 dura 24,6 s)
+- tu-turin: turin/carpeta va antes que pintada/pared (para que los ecos caigan en «ghosts»)
 
 ## Vistas LIBRES (sin usar; se pueden usar una vez si hace falta, apuntándolo en el Registro)
 - cairo/hotel/general
 - cairo/londres/general
 - cairo/redaccion/general
-- escaneo/taller/general
 - hoy/mesa/general
 - valle/escalera/general
-- valle/valle/arena
 - valle/telegrafo/general
