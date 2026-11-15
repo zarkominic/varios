@@ -1,6 +1,6 @@
 # Episodio 36 · Tutankamón: los cuartos que nadie ha abierto
 
-**Estado:** v2, 15 de noviembre de 2026, escrita como cuento (voz «B») y verificada por 3 agentes (17 correcciones). Pendiente de aprobar.
+**Estado:** v2, 15 de noviembre de 2026, escrita como cuento (voz «B») y verificada por 3 agentes (17 correcciones). Aprobada por el usuario el 15/11/2026 («ok»).
 
 **Por qué este tema:** elegido por el usuario el 15/11/2026 («el 1»), entre cuatro candidatos (Tutankamón, los archivos
 de ovnis, 3I/ATLAS, la Gran Pirámide). Sin CSV de Trends. Tiene noticia viva: en septiembre de 2026 se publicó un
