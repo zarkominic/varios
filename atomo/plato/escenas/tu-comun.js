@@ -326,7 +326,7 @@ export function tumbaDelante(R, t, o = {}) {
 //     (vendedorTU y otro pequeño) con fajos bajo el brazo que gritan (bocas abiertas, burbujas con «!»); un gato
 //     egipcio flaco y digno sentado en un escalón (T.gato o el suyo). o.gente 0–1. Cámara 'vendedor': el vendedor de
 //     cerca, gritando, con el periódico abierto en alto (PIEZAS_TU.periodico: columnas de rayas y un titular de rayas
-//     gruesas, con un pictograma CÓMICO de la maldición: un ataúd de dibujo sonriente con un «!», nada de momia), y en el
+//     gruesas, con un pictograma de la maldición: una pirámide con un «!» y un ojo, nada de momia ni de ataúdes y ningún objeto con cara), y en el
 //     escalón el GATO egipcio, muy digno, que se sube y SE SIENTA ENCIMA del periódico tirado (o.gato 0–1: su recorrido;
 //     con 1, sentado y lamiéndose una pata). (tu-maldicion; la cámara, también tu-gancho.) Devuelve suelo, libre,
 //     vendedor: [x, y] y, en la cámara, periodico: [x0, y0, x1, y1] (el del suelo) y gato: [x, y].
@@ -342,7 +342,7 @@ export function tumbaDelante(R, t, o = {}) {
 //     escupe periódicos (o.rotativa 0–1: cuántos salen; vuelan por la sala). Un redactor (EL.periodista2025 vestido de
 //     época, o figura de fondo) teclea con prisa. La mesa de delante va en cairoDelante. Cámara 'periodico' (inserto):
 //     el periódico DESDE ARRIBA sobre una mesa con café: columnas de rayas, el titular de rayas gruesas que crece
-//     (o.titular 0–1) y el pictograma CÓMICO (el ataúd sonriente con «!», como en 'calle'), y o.copias 0–1: otros
+//     (o.titular 0–1) y el pictograma (la pirámide con «!» y el ojo, como en 'calle'), y o.copias 0–1: otros
 //     periódicos (de otros países: otras cabeceras de rayas, otros colores) caen encima uno tras otro con el mismo
 //     pictograma. (tu-maldicion.) Devuelve suelo, libre, rotativa: [x0, y0, x1, y1] y, en la cámara, titular:
 //     [x0, y0, x1, y1].
