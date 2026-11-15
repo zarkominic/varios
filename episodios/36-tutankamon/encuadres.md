@@ -130,6 +130,7 @@
 - p5: hoy/estudio/general — f29 «cuando miren, aquí te lo contaré»: Atom se despide ({ encuadre: 'estudio' }; sin o.golpe: la pared quieta) [LO PINTA LA ESCENA: la despedida de Atom (el de la esquina); si sale alguien, en libre [212, 262] o libre2 [10, 88], suelo 162]
 
 ## Registro (cada grupo añade aquí una línea si cambia o añade una vista)
+- tu-pequena p0: tumba/capillas/general (vista libre; la frase pasaba de 7 s)
 
 ## Vistas LIBRES (sin usar; se pueden usar una vez si hace falta, apuntándolo en el Registro)
 - cairo/hotel/general
@@ -137,7 +138,6 @@
 - cairo/redaccion/general
 - escaneo/taller/general
 - hoy/mesa/general
-- tumba/capillas/general
 - valle/escalera/general
 - valle/valle/arena
 - valle/telegrafo/general
