@@ -135,10 +135,11 @@
 - tu-reina p8: valle/valle/arena (vista libre; la frase 13 dura 24,6 s)
 - tu-gravedad p4: hoy/mesa/general (vista libre; la frase 20 pedía otro plano)
 - tu-medir p5–p7: museo/busto antes que trazo/posibles (por «Nefertiti's»); p7 hoy/pizarra/final (vista sin uso; la frase 27 dura 15 s; sin ojo en la camarita)
-- tu-cierre p1: valle/escalera/general (vista libre; la frase 28 dura 14 s) — PENDIENTE de calidad: el agujero de Carter fue en la SEGUNDA puerta (tumba/pasillo), no en la de la escalera
+- tu-cierre p1: tumba/pasillo/general (2.º uso; el 1.º en tu-vela p1, no vecina; { abierta: 0→0.3, vela: 1, oro: 0 }: Carter, en una escalera de tijera, pica el agujerito en la SEGUNDA puerta con la vela; de noche); valle/escalera/general vuelve a quedar libre
 - tu-turin: turin/carpeta va antes que pintada/pared (para que los ecos caigan en «ghosts»)
 
 ## Vistas LIBRES (sin usar; se pueden usar una vez si hace falta, apuntándolo en el Registro)
+- valle/escalera/general
 - cairo/hotel/general
 - cairo/londres/general
 - cairo/redaccion/general

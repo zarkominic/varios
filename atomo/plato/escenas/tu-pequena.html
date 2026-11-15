@@ -9,24 +9,26 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// TU-PEQUENA (frases 7–8), sin cartela. Ocho planos:
-// 0. la cámara del sarcófago en la época antigua, a la luz de las lámparas: dos obreros tiran de la cuerda y el panel
-//    de la capilla dorada sube por la polea; el capataz lo dirige; en «19» sale la placa del 19 (su edad) y en
-//    «ruling», la de la corona y el 10 de su reinado (sin barra del año: es antes de Cristo);
-// 1. el plano de la tumba (1923): la mano con el lápiz toca los cuatro cuartos en «four rooms», que se encienden; en
+// TU-PEQUENA (frases 7–8), sin cartela. Ocho planos (numerados como en la hoja):
+// 1. la cámara del sarcófago en la época antigua, a la luz de las lámparas: dos obreros tiran de la cuerda y el panel
+//    de la capilla dorada sube por la polea; el capataz lo dirige; una mujer trae la jarra de aceite, rellena la
+//    lámpara de la izquierda (la luz crece) y se vuelve; en «19» sale la placa del 19 (su edad) y en «ruling», la de
+//    la corona y el 10 de su reinado (sin barra del año: es antes de Cristo);
+// 2. el plano de la tumba (1923): la mano con el lápiz toca los cuatro cuartos en «four rooms», que se encienden; en
 //    «small for a king» se desenrolla el plano rojo de la tumba grande y el de Tutankamón se encoge;
-// 2. la antecámara en planta: los objetos caen uno tras otro y el contador sube a 5000 en «5,000»; en «squeezed … so
+// 3. la antecámara en planta: los objetos caen uno tras otro y el contador sube a 5000 en «5,000»; en «squeezed … so
 //    tightly» la mano mete a presión la última caja y todo se sacude;
-// 3. el panel de la capilla de cerca, al revés: el panel se mece en sus cuerdas y las manos lo sujetan; en
-//    «wrong way» una mano se va a rascar y sale la «?»; una polilla revolotea y cae polvo de oro;
-// 4. el sarcófago cerrado (1923): Carter recula desde el obrero (a la izquierda) desenrollando la cinta de medir a lo largo del
-//    sarcófago hasta la vela («rushed burial»), se vuelve, lo señala y en «not have been meant for him» se encoge de
-//    hombros, sorprendido (los dos brazos arriba);
-// 5. la cámara pintada (2015): dos visitantes avanzan por la pasarela; uno señala las escenas en «scenes … gods»; el
-//    otro levanta el móvil, ve el pictograma de la cámara tachada y lo baja;
-// 6. el taller del escriba: el aprendiz muele el pigmento; el escriba explica, señala el nombre en «another name» y en
-//    «scraped» empieza a raspar con la cuchilla de cobre (virutas);
-// 7. el cartucho de cerca: la cuchilla acaba de raspar, el pincel pinta sol, ankh y cesta en «replaced with his» y,
+// 4. el panel de la capilla de cerca, al revés: el panel se mece en sus cuerdas y las manos lo sujetan; entra un mazo
+//    por la derecha y da tres golpecitos en el canto en «put together»; en «wrong way» el mazo se queda en el aire,
+//    una mano se va a rascar y sale la «?»; el mazo se retira; una polilla revolotea y cae polvo de oro;
+// 5. el sarcófago cerrado (1923): Carter recula desde el obrero desenrollando la cinta de medir a lo largo del
+//    sarcófago hasta la vela; a la izquierda, el fotógrafo alza el magnesio y dispara en «rushed burial» (destello y
+//    humo blanco); Carter se vuelve, lo señala y en «not have been meant for him» levanta los brazos, sorprendido;
+// 6. la cámara pintada (2015): dos visitantes avanzan por la pasarela y un vigilante llega junto al cartel; uno
+//    señala las escenas en «scenes … gods»; el otro levanta el móvil, el vigilante le avisa con el dedo (silbato) y lo baja;
+// 7. el taller del escriba: el aprendiz muele el pigmento; una mujer trae una jarra y la deja en la mesa en «another
+//    name»; el escriba explica, señala el nombre y en «scraped» empieza a raspar con la cuchilla de cobre (virutas);
+// 8. el cartucho de cerca: la cuchilla acaba de raspar, el pincel pinta sol, ankh y cesta en «replaced with his» y,
 //    en «someone else», repasa de oro el borde de abajo del óvalo; una mosca se pasea por el estuco.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -79,9 +81,14 @@ const p0 = (t) => {
     // dos obreros tiran de la cuerda, a la derecha, y se echan atrás a cada tirón
     R.actor(EL.calvo, 270 + (tira ? 2 : 0), 161, t, { dir: 1, sostiene: [294, 140 + (tira ? 4 : 0)], sonrisa: panel >= 1 });
     R.actor(EL.campesino, 288 + (tira ? 2 : 0), 163, t, { dir: 1, sostiene: [300, 148 + (tira ? 4 : 0)], sonrisa: panel >= 1 });
+    // una mujer trae la jarra de aceite, rellena la lámpara de la izquierda (la llama crece) y se vuelve por donde vino
+    { const ida = ease(tramo(t, 0.3, 2.4)), vuelta = ease(tramo(t, 4.3, 6.3)), xm = N(lerp(lerp(-12, 46, ida), -14, vuelta)), vierte = t > 2.5 && t < 4.1;
+      if (xm > -12) { const m = R.actor(EL.egipcia, xm, 161, t, { dir: t > 4.2 ? -1 : 1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), sostiene: vierte ? [40, 143] : [xm + (t > 4.2 ? -5 : 5), 147], sonrisa: t > 3.6 && t < 4.6 }).mano;
+        if (m) { const [jx, jy] = m, k = vierte ? 1 : 0; R.rect(jx - 3, jy - 6 + k, jx + 2, jy, hex('#4a2410')); R.rect(jx - 2, jy - 5 + k, jx + 1, jy - 1, hex('#b8683a')); R.pset(jx - 1, jy - 4 + k, hex('#e8a070')); R.rect(jx - 1, jy - 8 + k, jx, jy - 6 + k, hex('#8a4a24'));
+          if (vierte) for (let i = 0; i < 3; i++) R.pset(jx - 3 - i, jy - 5 + i * 2 + ((t * 8) | 0) % 2, hex('#e8c060')); } } }
     // el capataz, a la izquierda: señala el panel que sube y da órdenes; al final, satisfecho
     R.actor(EL.escriba, 74, 162, t, { dir: 1, dedo: t > 0.9 && t < 3.4, habla: t > 0.9 && t < 3.4 && Math.sin(t * 7) > 0, sonrisa: t > 3.6 });
-  }, [[34, 136, 80, 0.75], [300, 140, 80, 0.75], [160, 168, 90, 0.6]], 0.38);
+  }, [[34, 136, 80, 0.75 + 0.3 * ease(tramo(t, 2.9, 4.0))], [300, 140, 80, 0.75], [160, 168, 90, 0.6]], 0.38);
   T.tumbaDelante(R, t, o);
   // la vida del rey en cifras: la corona y el 19 (murió a los 19); después, el 10 de su reinado
   const u19 = tramo(t, a(0.152), a(0.172)), u10 = tramo(t, a(0.205), a(0.222));
@@ -129,8 +136,17 @@ const p3 = (t) => {
     R.pset(px, py, hex('#3a3024')); R.pset(px, py + 1, hex('#3a3024')); R.rect(px - 3, py - al, px - 1, py - al + 1, hex('#e8dcc0')); R.rect(px + 1, py - al, px + 3, py - al + 1, hex('#e8dcc0')); }
   { const u = tramo(t, a(0.76), a(0.76) + 1.4); if (u > 0 && u < 1) for (let i = 0; i < 14; i++) R.pset(N(80 + h3(i, 1, 4) * 160), N(160 + u * (6 + h3(i, 2, 4) * 18)), hex(i % 2 ? '#f0d890' : '#c8a050')); }
   T.tumbaDelante(R, t, o);
+  // un mazo de madera entra por la derecha y da tres golpecitos en el canto para encajar el panel («put together»); en
+  // «wrong way» se queda en el aire, tiembla, y se retira
+  { const ent = ease(tramo(t, P3 + 0.3, P3 + 1.1)) * (1 - ease(tramo(t, a(0.81), a(0.826)))), golpe = MAZO.reduce((g, m) => Math.max(g, 1 - Math.abs(t - m) / 0.12), 0);
+    if (ent > 0.02) { const duda = t > a(0.783) ? 1 : 0, hx = N(lerp(340, 266, ent) - golpe * 10 + (duda ? Math.sin(t * 40) : 0)), hy = N(104 - duda * 10 + (duda ? 0 : (1 - golpe) * 2));
+      R.rect(hx - 1, hy - 14, hx + 1, hy, hex('#4a2c14')); R.linea(hx, hy - 14, hx, hy - 1, hex('#a07040'));
+      R.rect(hx - 7, hy - 21, hx + 4, hy - 13, hex('#2a1808')); R.rect(hx - 6, hy - 20, hx + 3, hy - 14, hex('#9a6a3a')); R.rect(hx - 6, hy - 20, hx + 3, hy - 20, hex('#c8985a')); R.linea(hx - 6, hy - 18, hx - 6, hy - 15, hex('#6a4420'));
+      if (golpe > 0.6) for (let i = 0; i < 5; i++) R.pset(hx - 9 - (i % 2), hy - 21 + i * 2, hex(i % 2 ? '#fff0b0' : '#f0d070'));
+      T.brazo(R, 336, 156, hx + 2, hy - 2, '#d8c8a0', -1, { codo: [hx + 30, hy + 30] }); } }
 };
 
+const MAZO = [a(0.712), a(0.746), a(0.768)], FL_P4 = a(0.87);
 // 4 · el sarcófago cerrado: Carter recula desenrollando la cinta; lo señala; en «not meant for him», brazos arriba
 const p4 = (t) => {
   const o = { encuadre: 'mascara', camara: 'sarcofago', vela: 1 };
@@ -138,11 +154,22 @@ const p4 = (t) => {
   techo(46, [[278, 0.7], [160, 0.25]], 2);
   const va = ease(tramo(t, P4 + 0.2, a(0.9))), xc = N(lerp(84, 228, va)), vuelve = t > a(0.9), duda = t > a(0.945);
   let mc = null, mo = null;
+  const FL = FL_P4, fl = t > FL && t < FL + 0.5 ? 1 - (t - FL) / 0.5 : 0, alza = t > FL - 1.2 && t < FL + 0.6;
+  let mf = null;
   aLaLuz(() => {
+    // el fotógrafo de la expedición, a la izquierda, detrás de su cámara de trípode: alza el polvo de magnesio y dispara
+    mf = R.actor(EL.britanico, 22, 168, t, { dir: 1, sostiene: alza ? [28, 132] : [32, 150], sorpresa: fl > 0.3, sonrisa: t > FL + 0.6 }).mano;
+    R.linea(38, 146, 32, 168, hex('#3a2414')); R.linea(38, 146, 44, 168, hex('#3a2414')); R.linea(38, 146, 38, 168, hex('#5a3a20'));
+    R.rect(33, 138, 43, 146, hex('#1a1210')); R.rect(34, 139, 42, 145, hex('#5a3a24')); R.rect(43, 140, 46, 144, hex('#2a2a30')); R.pset(45, 142, hex('#8a9ab8')); R.rect(35, 139, 41, 139, hex('#8a6a44'));
+    if (alza && mf) { const [px, py] = mf; R.rect(px - 3, py - 1, px + 3, py, hex('#6a6a72')); R.pset(px, py + 1, hex('#3a3a40')); }
     mo = R.actor(T.ELENCO_TU.obrero1TU, 52, 168, t, { dir: 1, sostiene: [72, 150], sonrisa: t > a(0.86) && t < a(0.94) }).mano;
     const cv = R.actor(T.ELENCO_TU.carterTU, xc, 168, t, { dir: vuelve ? 1 : -1, anda: va > 0 && va < 1, sostiene: !vuelve ? [xc - 2, 150] : null, dedo: vuelve && !duda, habla: vuelve && !duda && Math.sin(t * 7) > 0, sorpresa: duda, brazos: duda });
     mc = cv.mano;
-  }, [[278, 140, 150, 0.9], [60, 150, 70, 0.3]], 0.5);
+  }, [[278, 140, 150, 0.9], [60, 150, 70, 0.3 + fl * 1.1]], 0.5);
+  // el destello de magnesio y su humo blanco, que sube y se deshace
+  if (fl > 0 && mf) { const [px, py] = mf, r = N(4 + fl * 8); R.disco(px, py - 3, r, hex('#fffbe8')); R.disco(px, py - 3, Math.max(1, r - 4), hex('#ffffff'));
+    for (let i = 0; i < 8; i++) { const an = i * Math.PI / 4; R.linea(px, py - 3, N(px + Math.cos(an) * r * 1.8), N(py - 3 + Math.sin(an) * r * 1.8), hex('#fff0b0')); } }
+  { const hu = tramo(t, FL + 0.1, FL + 2.4); if (hu > 0 && hu < 1) for (let i = 0; i < 16; i++) { const u = hu + h3(i, 2, 7) * 0.2, x = N(28 + Math.sin(i * 1.7 + t * 2) * (3 + u * 6)), y = N(128 - u * 40 - (i % 4) * 2); R.pset(x, y, hex(i % 3 ? '#d8d4cc' : '#f4f2ec')); R.pset(x + 1, y, hex('#b8b4ac')); } }
   // la cinta de medir, clara, de mano a mano (con sus marcas rojas); al volverse Carter la deja en el suelo
   if (!vuelve && va > 0) { const [x1, y1] = mc, [x0, y0] = mo; for (let x = x0; x <= x1; x++) { const y = N(lerp(y0, y1, (x - x0) / Math.max(1, x1 - x0)) + Math.sin((x - x0) / Math.max(1, x1 - x0) * Math.PI) * 2);
     R.pset(x, y, hex('#f4e4a0')); R.pset(x, y + 1, hex('#a88a40')); if ((x - x1) % 8 === 0) R.pset(x, y, hex('#c8301e')); } }
@@ -158,6 +185,10 @@ const p5 = (t) => {
   R.actor(EL.turista1, x1, 170, t, { dir: 1, anda: v1 > 0 && v1 < 1, dedo: senala, habla: senala && Math.sin(t * 7) > 0, sonrisa: t > b(0.3) });
   const movil = t > b(0.31) && t < b(0.37), baja = t > b(0.37);
   const t2 = R.actor(EL.turista2, x2, 170, t, { dir: 1, anda: v2 > 0 && v2 < 1, sostiene: movil ? [x2 + 20, 140] : null, sorpresa: t > b(0.35) && t < b(0.4), sonrisa: baja });
+  // el vigilante llega por la derecha y se para junto al cartel; al ver el móvil levanta el dedo, se lo dice y, cuando
+  // lo bajan, sonríe
+  { const u = ease(tramo(t, P5 + 0.4, P5 + 2.2)), xg = N(lerp(336, 268, u)), avisa = t > b(0.32) && t < b(0.38);
+    R.actor(EL.guardia, xg, 170, t, { dir: -1, anda: u > 0 && u < 1, dedo: avisa, habla: avisa && Math.sin(t * 9) > 0, sonrisa: t > b(0.385) }); }
   if (movil) { const [mx, my] = t2.mano; R.rect(mx - 1, my - 8, mx + 4, my, hex('#1a1a22')); R.rect(mx, my - 7, mx + 3, my - 1, hex('#6a9ad8')); R.pset(mx + 1, my - 6, hex('#e0f0ff')); }
   T.tumbaDelante(R, t, o);
 };
@@ -168,11 +199,17 @@ const p6 = (t) => {
   const o = { encuadre: 'escriba', cartucho: t > b(0.655) ? 'raspado' : 'sol' };
   T.tumba(R, t, o);
   const muele = Math.sin(t * 6);
+  // una mujer entra por la izquierda con una jarra, la deja en la mesa baja y se vuelve
+  const dj = b(0.555), ida = ease(tramo(t, P6 + 0.1, dj - 0.5)), vuelta = ease(tramo(t, dj + 0.5, dj + 2.2)), xj = N(lerp(lerp(-12, 74, ida), -14, vuelta));
+  if (xj > -12) R.actor(EL.egipcia, xj, 154, t, { dir: t > dj + 0.4 ? -1 : 1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), sostiene: t < dj ? [xj + 6, t > dj - 0.5 ? 146 : 140] : null, sonrisa: t > dj - 0.2 && t < dj + 0.8 });
+  const jarra = (x, y) => { R.rect(x - 3, y - 7, x + 3, y, hex('#3a1c0c')); R.rect(x - 2, y - 6, x + 2, y - 1, hex('#c87a40')); R.pset(x - 1, y - 5, hex('#f0b080')); R.rect(x - 1, y - 9, x + 1, y - 7, hex('#8a4a24')); R.linea(x - 2, y - 3, x + 2, y - 3, hex('#3a6ab0')); };
+  if (xj > -12 && t < dj) jarra(xj + 6, t > dj - 0.5 ? 146 : 140);
   R.actor(EL.campesino, 230, 156, t, { dir: 1, sostiene: [248 + N(muele * 4), 150], sonrisa: t > b(0.5) });
   const sc = R.actor(EL.escriba, 118, 154, t, { dir: 1, dedo: t > b(0.565) && t < b(0.61), habla: t > b(0.47) && t < b(0.565) && Math.sin(t * 7) > 0, sostiene: raspa ? [140 + N(Math.sin(t * 14) * 3), 128] : null });
   if (raspa) { const [mx, my] = sc.mano; R.linea(mx, my, mx + 6, my - 4, hex('#3a1a08')); R.linea(mx + 1, my, mx + 6, my - 3, hex('#e08a40')); R.pset(mx + 6, my - 4, hex('#fff0c0'));
     for (let i = 0; i < 6; i++) { const u = ((t * 2.2 + i / 6) % 1); R.rect(N(mx + 7 + u * 6), N(my - 3 + u * u * 22), N(mx + 8 + u * 6), N(my - 3 + u * u * 22), hex(i % 2 ? '#fff8e8' : '#e8d8b0')); } }
   T.tumbaDelante(R, t, o);
+  if (t >= dj) jarra(84, 158);   // la jarra ya en la mesa (delante: se pinta después de la mesa)
 };
 
 // 7 · el cartucho de cerca: acaba de raspar, pinta sol, ankh y cesta y repasa de oro el borde de abajo del óvalo; una mosca
@@ -194,7 +231,13 @@ const p7 = (t) => {
 
 // la barra del año: en la época antigua no sale (es antes de Cristo y la barra va de 1922 a 2027)
 const año = (t) => t < P1 ? null : t < P3 ? 1923 : t < P4 ? null : t < P5 ? 1923 : t < P6 ? 2015 : null;
-const efectos = [[1.0, 'toc'], [a(0.155), 'brillo'], [a(0.207), 'brillo'], [a(0.345), 'lapiz'], [a(0.36), 'lapiz'], [a(0.385), 'papel'], [a(0.47), 'tic'], [a(0.6), 'golpecito'], [a(0.79), 'pop'], [P4 + 0.4, 'papel'], [a(0.947), 'pop'], [b(0.32), 'bip'], [b(0.62), 'lapiz'], [b(0.72), 'lapiz'], [b(0.78), 'lapiz'], [b(0.88), 'brillo']];
+// efectos: la cuerda, el aceite que se vierte en la lámpara, las placas del 19 y del 10, el panel que encaja; el lápiz que
+// cuenta y el plano que se desenrolla; los objetos que caen y la caja a presión; los tres golpes del mazo y la «?»; la
+// cinta y el magnesio del fotógrafo; el móvil y el silbato del vigilante; el viento en el toldo, la jarra en la mesa,
+// la cuchilla y el pincel
+const efectos = [[1.0, 'toc'], [2.7, 'burbujas', { dur: 1.3 }], [a(0.155), 'brillo'], [a(0.207), 'brillo'], [P1 - 0.4, 'golpecito'], [a(0.345), 'lapiz'], [a(0.36), 'lapiz'], [a(0.385), 'papel'],
+  [a(0.47), 'tic'], [a(0.515), 'golpecito'], [a(0.547), 'tic'], [a(0.6), 'golpecito'], ...MAZO.map((m) => [m, 'toc']), [a(0.79), 'pop'], [P4 + 0.3, 'papel'], [FL_P4, 'flash'], [a(0.947), 'pop'],
+  [b(0.32), 'bip'], [b(0.338), 'silbato'], [P6 + 0.5, 'rafaga'], [b(0.555), 'golpecito'], [b(0.62), 'lapiz'], [b(0.72), 'lapiz'], [b(0.78), 'lapiz'], [b(0.88), 'brillo']];
 T.rodar(E, R, [[0, p0], [P1, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>
 </body>

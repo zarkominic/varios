@@ -10,13 +10,15 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TU-DUDAS (frase 22), sin cartela; la barra dice 2026. Tres planos, cortados en la palabra inglesa:
-// 1. los tres cortes (corta antes de «and a low»): las agujas apenas se mueven en la banda gris; en «isn't proof» sale
-//    una «?» sobre cada corte, una tras otra, y en «very limit» la mano da dos golpecitos con el lápiz al aparato de en medio;
-// 2. la aguja de cerca (corta antes de «Other»): la aguja apenas asoma de la banda de ruido; en «room», «rubble-filled
-//    passage» y «cracked rock» salen las tres posibilidades en tarjetas;
+// 1. los tres cortes (corta antes de «and a low»): las agujas apenas se mueven en la banda gris; por la abertura de la
+//    tienda cruzan un geofísico lejano con su jalón y un milano; en «isn't proof» sale una «?» sobre cada corte, una tras
+//    otra, y en «very limit» la mano da dos golpecitos con el lápiz al aparato de en medio;
+// 2. la aguja de cerca (corta antes de «Other»): tras «detect» un nudillo (T.brazo) da un golpecito al cristal, la aguja
+//    salta, oscila y vuelve a la banda de ruido; en «room», «rubble-filled passage» y «cracked rock» llegan las tres
+//    posibilidades en tarjetas y cada una se clava con su chincheta;
 // 3. la ladera (hasta el final): los dos geofísicos bajan por la derecha, él con la maleta y ella con banderitas; en
 //    «more data» ella pregunta («?») y clava una banderita nueva y él deja la maleta; en «before concluding» él niega con
-//    la cabeza y, al acabar, los dos dan media vuelta y suben otra vez a medir.
+//    la cabeza y, al acabar, los dos dan media vuelta y suben otra vez a medir (él recoge la maleta).
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-dudas');
@@ -33,6 +35,13 @@ const P2 = en('escombro', 0.3463), P3 = en('escombro', 0.7271);
 // 1 · los tres cortes
 const p1 = (t) => {
   T.ladera(R, t, { encuadre: 'cortes' });
+  // vida por la abertura de la tienda (recortada a su hueco): un geofísico lejano cruza la ladera con su jalón y un
+  // milano planea; los dos, de pocos píxeles, como la gente pequeña del decorado
+  R.recorte([187, 5, 253, 43]);
+  { const x = N(250 - ((t * 5) % 80)), y = 38, p = Math.floor(t * 6) % 2; R.pset(x, y - 5, hex('#2a1a10')); R.pset(x, y - 4, hex('#d8a878')); R.linea(x, y - 3, x, y - 2, hex('#4a6a3a')); R.pset(x - 1 + p, y - 1, hex('#3a2a1a')); R.pset(x + 1 - p, y - 1, hex('#3a2a1a'));
+    R.linea(x + 2, y - 7, x + 2, y - 1, hex('#5a4a3a')); R.pset(x + 3, y - 7, hex('#d83a2a')); }
+  { const x = N(188 + ((t * 9) % 70)), y = N(14 + Math.sin(t * 0.8) * 3), a = Math.floor(t * 3) % 2; R.pset(x, y, hex('#3a2a20')); R.pset(x - 1, y - a, hex('#3a2a20')); R.pset(x + 1, y - a, hex('#3a2a20')); R.pset(x - 2, y - 1 + a, hex('#3a2a20')); R.pset(x + 2, y - 1 + a, hex('#3a2a20')); }
+  R.recorte(null);
   // en «isn't proof» sale una «?» sobre cada corte, una tras otra
   [[57, 0.0291], [160, 0.06], [263, 0.0963]].forEach(([x, f]) => { if (t > en('escombro', f)) { const s = N(3 * (1 - ease(tramo(t, en('escombro', f), en('escombro', f) + 0.25)))); globo(x, 30 + s, '?', hex('#3a6ad8')); } });
   // en «very limit» la mano da dos golpecitos con el lápiz al cristal del aparato de en medio
@@ -46,19 +55,28 @@ const p1 = (t) => {
 
 // 2 · la aguja de cerca: apenas asoma; salen las tres posibilidades
 const p2 = (t) => {
-  const aguja = 0.4 * ease(tramo(t, P2 + 0.2, en('escombro', 0.62))) + 0.04 * Math.sin(t * 9);
+  // en «detect» un nudillo da un golpecito al cristal: la aguja salta, oscila y vuelve a quedarse en la banda de ruido
+  const TQ = en('escombro', 0.395), dq = t - TQ, salto = dq > 0 ? 0.5 * Math.exp(-dq * 2.2) * Math.sin(dq * 9) : 0;
+  const aguja = 0.4 * ease(tramo(t, P2 + 0.2, en('escombro', 0.62))) + 0.04 * Math.sin(t * 9) + salto;
   T.ladera(R, t, { encuadre: 'cortes', camara: 'aguja', aguja });
+  const entra = ease(tramo(t, P2, TQ - 0.05)), sale = ease(tramo(t, TQ + 0.35, TQ + 0.95)), k = entra * (1 - sale);
+  if (k > 0.01) { const tap = dq > -0.06 && dq < 0.1 ? -3 : 0, wx = N(lerp(320, 252 + tap, k)), wy = N(lerp(216, 150, k));
+    T.brazo(R, wx + 44, 214, wx, wy, '#6a5a3a', -1, { codo: [wx + 36, wy + 30] });
+    if (tap) for (const [dx, dy] of [[-16, -8], [-18, 0], [-16, 8]]) R.linea(wx + dx, wy + dy, wx + dx - 4, wy + dy + Math.sign(dy) * 2, hex('#f8f4e8')); }
   // las tres posibilidades, en tarjetas a la derecha del aparato: cuarto vacío, pasillo con cascotes y roca agrietada
   const RO = hex('#b8905a'), RS = hex('#8a6a3a'), RL = hex('#d8b880');
   [[0.4938, 0], [0.5457, 1], [0.6517, 2]].forEach(([f, k]) => {
     const t0 = en('escombro', f); if (t < t0) return;
     const s = ease(tramo(t, t0, t0 + 0.25)), x0 = 280, y0 = 50 + k * 42 - N(6 * (1 - s));
-    R.rect(x0 - 1, y0 - 1, x0 + 36, y0 + 34, K); R.rect(x0, y0, x0 + 35, y0 + 33, RO);
+    R.rect(x0 - 1, y0 - 1, x0 + 36, y0 + 34, K);
+    // cada tarjeta llega con su chincheta, que se clava arriba en el centro (se dibuja después de la tarjeta)
+    const pin = () => T.chincheta(R, x0 + 18, y0 + 4, t, k === 1 ? hex('#3a8ad8') : hex('#d83a2a'), { baja: 0.9 + 0.1 * ease(tramo(t, t0 + 0.1, t0 + 0.35)) }); R.rect(x0, y0, x0 + 35, y0 + 33, RO);
     for (let j = 0; j < 34; j += 4) for (let i = (j / 4 % 2) * 4; i < 36; i += 8) { R.pset(x0 + i, y0 + j, RS); R.pset(x0 + i + 1, y0 + j, RL); }
     if (k === 0) { R.rect(x0 + 8, y0 + 10, x0 + 27, y0 + 23, K); R.rect(x0 + 9, y0 + 11, x0 + 26, y0 + 22, hex('#f4ecd8')); }
     if (k === 1) { R.rect(x0 + 3, y0 + 13, x0 + 32, y0 + 21, K); R.rect(x0 + 4, y0 + 14, x0 + 31, y0 + 20, hex('#f4ecd8'));
       for (let i = 0; i < 9; i++) R.disco(x0 + 6 + i * 3, y0 + 19 - (i % 3), 2 - (i % 2), i % 2 ? RS : hex('#a07a48')); }
     if (k === 2) { const C = hex('#2a1a10'); R.linea(x0 + 4, y0 + 6, x0 + 16, y0 + 16, C); R.linea(x0 + 16, y0 + 16, x0 + 30, y0 + 5, C); R.linea(x0 + 16, y0 + 16, x0 + 13, y0 + 30, C); R.linea(x0 + 22, y0 + 10, x0 + 31, y0 + 24, C); }
+    pin();
   });
 };
 
@@ -86,8 +104,13 @@ const p3 = (t) => {
   if (t > en('escombro', 0.8262) && t < en('escombro', 0.9)) globo(x2 + 8, pie(x2 + 7) - 36, '?', hex('#3a6ad8'));
 };
 
-const efectos = [[en('escombro', 0.0291), 'pop'], [en('escombro', 0.1898), 'golpecito'], [en('escombro', 0.4938), 'papel'], [en('escombro', 0.5457), 'papel'],
-  [en('escombro', 0.6517), 'papel'], [en('escombro', 0.85), 'toc']];
+const efectos = [
+  // 1 · las «?» sobre los cortes y el lápiz que golpea el aparato de en medio
+  [en('escombro', 0.0291), 'pop'], [en('escombro', 0.06), 'pop'], [en('escombro', 0.0963), 'pop'], [en('escombro', 0.1898), 'golpecito'], [en('escombro', 0.1898) + 0.4, 'tic'],
+  // 2 · el nudillo en el cristal y las tres tarjetas con su chincheta
+  [en('escombro', 0.395), 'golpecito'], [en('escombro', 0.4938), 'papel'], [en('escombro', 0.5457), 'papel'], [en('escombro', 0.6517), 'papel'],
+  // 3 · la pregunta, la maleta en el suelo, la banderita que se clava y la maleta que él recoge
+  [P3 + 0.3, 'viento'], [en('escombro', 0.8262), 'pop'], [en('escombro', 0.85), 'golpecito'], [en('escombro', 0.868), 'toc'], [en('escombro', 0.995), 'golpecito']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
 </script>
 </body>
