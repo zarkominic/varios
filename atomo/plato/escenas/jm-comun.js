@@ -346,7 +346,8 @@ export function casaJuegoDelante(R, t, o = {}) {
 //   'pared': LA PARED lateral de ladrillo, de frente (el muro es x 0–270, y 0–149; a la derecha, la bocacalle con un
 //     arce, gente diminuta y nubes): aparejo americano con sus juntas, hollín, humedades, zócalo de granito, sillares
 //     de esquina, una ventana cegada, la bajante de cobre que gotea, la escalera de incendios con palomas y un gato,
-//     dos apliques; en ella, el letrero (x 70–236, y 30–126): un ZAPATO de vestir enorme (nuestro) en un marco con
+//     dos apliques; en ella, el letrero (x 70–236, y 30–126): un ZAPATO de vestir enorme (nuestro: marrón oscuro, con
+//     cordones crema, vira clara, suela y tacón; el mismo dibujo en todas las vistas) en un marco con
 //     orlas y rayas donde irían las letras; la pintura deja ver las juntas. o.letrero 0–1: cuánto se ha pintado (de
 //     izquierda a derecha, por omisión 1); o.lavable true: aguado y pálido; o.lavado 0–1: la franja ya borrada (desde
 //     la izquierda) con el agua que chorrea; o.buena 0–1: lo repasado con pintura fuerte que brilla (desde la
@@ -4470,23 +4471,53 @@ function d_ladrillo(x, y, k = 0, bw = 8, bh = 4) {
 const d_esJunta = (c) => c === d_L.junta[0] || c === d_L.junta[1];
 
 // el letrero pintado: marco granate con filete dorado, una cinta verde con rayas donde irían las letras, el ZAPATO de
-// vestir enorme (nuestro: negro, con los cordones crema y la suela marrón) y dos renglones de rayas; LET = su caja
+// vestir enorme (nuestro: cuero marrón oscuro, cordones crema, vira clara, suela y tacón marrones) y dos renglones de
+// rayas; LET = su caja
 const d_LET = [70, 30, 236, 126];
 
-// los colores de la pintura del letrero y del zapato
-const d_PIN = { rojo: hex('#8a2c24'), crema: hex('#eadfc2'), cremaS: hex('#d6c7a2'), oro: hex('#c2963c'), verde: hex('#2c5a48'), negro: hex('#1e1a1e'), brillo: hex('#56505a'), suela: hex('#7a4a2a'), suelaL: hex('#b0763e'), pesp: hex('#8a848c'), forro: hex('#6e5a48') };
+// los colores de la pintura del letrero
+const d_PIN = { rojo: hex('#8a2c24'), crema: hex('#eadfc2'), cremaS: hex('#d6c7a2'), oro: hex('#c2963c'), verde: hex('#2c5a48') };
+// y los del zapato (los mismos de jm-keene): filo, cuero y sus sombras y luces, cordones crema, forro, vira, suela y tacón
+const d_ZAP = { KZ: hex('#221a1e'), U: hex('#43363c'), US: hex('#32282e'), UC: hex('#574850'), UF: hex('#63535c'), HL: hex('#9a8a92'), GL: hex('#efe6de'), CR: hex('#f6eed8'), CRS: hex('#cfc3a4'), FO: hex('#a88860'), VI: hex('#e0b676'), SU: hex('#a8703a'), SUS: hex('#7e5028'), TA: hex('#74462a'), TAS: hex('#4e2e18') };
 
-// el zapato de vestir de perfil (la punta a la derecha), de 122 × 55, con su esquina en (ox, oy); s lo amplía
+// el zapato de vestir de perfil (la punta a la derecha), en una caja de 122 × 55 con su esquina en (ox, oy); s lo
+// amplía (trazos y puntos engordan con él). Es EL zapato del anuncio, el mismo dibujo que repasa jm-keene (plano 3):
+// caña con cuello y forro, empeine con su pala de cordones (cinco cordones crema con ojales), puntera redonda con
+// costura y brillo, contrafuerte, vira clara con pespunte, suela y tacón en marrones
 function d_zapato(R, ox, oy, s = 1) {
-  const Z = d_PIN, P = (pts) => pts.map(([x, y]) => [ox + x * s, oy + y * s]), L = (a, b, c, d, col, p) => R.linea(ox + a * s, oy + b * s, ox + c * s, oy + d * s, col, p);
-  R.poligono(P([[3, 43], [118, 43], [120, 46], [116, 50], [35, 50], [33, 55], [5, 55], [3, 50]]), Z.suela);
-  R.poligono(P([[3, 43], [118, 43], [119, 45], [3, 45]]), Z.suelaL); R.poligono(P([[5, 53], [33, 53], [33, 55], [5, 55]]), d_mez(Z.suela, d_K, 0.4));
-  R.poligono(P([[8, 5], [13, 1], [35, 1], [40, 6], [49, 14], [63, 21], [80, 24], [96, 27], [108, 32], [115, 38], [118, 43], [3, 43], [4, 24]]), Z.negro);
-  R.poligono(P([[14, 2], [34, 2], [37, 5], [16, 5]]), Z.forro);
-  R.poligono(P([[90, 29], [103, 32], [111, 38], [100, 35]]), Z.brillo); R.poligono(P([[8, 10], [10, 10], [9, 30], [7, 30]]), Z.brillo); R.poligono(P([[52, 20], [70, 26], [70, 28], [52, 22]]), Z.brillo);
-  for (let k = 0; k < 18 * s; k++) { const u = k / (18 * s); if (k & 1) continue; R.pset(ox + (86 - u * 5 - Math.sin(u * 3.1) * 4) * s, oy + (26 + u * 17) * s, Z.pesp); R.pset(ox + (27 + u * 4) * s, oy + (4 + u * 39) * s, Z.pesp); }
-  for (let k = 0; k < 5; k++) for (let g = 0; g < Math.max(2, s + 1); g++) L(42 + k * 4.6, 9 + k * 2.9 + g / s, 47.5 + k * 4.6, 4.5 + k * 2.9 + g / s, Z.crema);
-  for (const [a, b] of [[36, -3], [44, -4]]) { R.disco(ox + a * s, oy + (b + 3) * s, 2.2 * s, Z.crema); R.disco(ox + a * s, oy + (b + 3) * s, 0.9 * s, Z.negro); }
+  const X = (x) => ox + x * s, Y = (y) => oy + y * s, Q = (pts) => pts.map(([x, y]) => [X(x), Y(y)]);
+  const L = (x0, y0, x1, y1, c) => { for (let gy = 0; gy < s; gy++) for (let gx = 0; gx < s; gx++) R.linea(X(x0) + gx, Y(y0) + gy, X(x1) + gx, Y(y1) + gy, c); };
+  const px = (x, y, c) => R.rect(X(x), Y(y), X(x) + s - 1, Y(y) + s - 1, c), rc = (x0, y0, x1, y1, c) => R.rect(X(x0), Y(y0), X(x1) + s - 1, Y(y1) + s - 1, c);
+  const filo = (pts, c) => { for (let k = 0; k < pts.length; k++) { const [x0, y0] = pts[k], [x1, y1] = pts[(k + 1) % pts.length]; L(x0, y0, x1, y1, c); } };
+  const { KZ, U, US, UC, UF, HL, GL, CR, CRS, FO, VI, SU, SUS, TA, TAS } = d_ZAP;
+  // la suela, la vira con su pespunte y el tacón con su tapa
+  const SOLE = [[1, 43], [122, 43], [123, 46], [119, 50], [36, 50], [34, 56], [3, 56], [1, 50]];
+  R.poligono(Q(SOLE), SU); rc(2, 43, 121, 45, VI); rc(2, 46, 121, 46, SUS); R.poligono(Q([[36, 49], [119, 49], [118, 50], [36, 50]]), SUS);
+  rc(2, 50, 34, 56, TA); rc(2, 54, 34, 54, TAS); rc(2, 55, 33, 56, hex('#5e3820')); rc(3, 51, 3, 53, hex('#a06a3e')); for (let x = 7; x < 34; x += 6) px(x, 52, TAS);
+  for (let x = 4; x < 121; x += 3) px(x, 44, SUS);
+  filo(SOLE, KZ);
+  // el cuero: la caña, el empeine y la puntera redonda
+  const UP = [[3, 43], [2, 24], [5, 6], [9, 0], [14, -2], [34, -2], [38, 1], [41, 6], [50, 13], [64, 19], [80, 21], [92, 22], [102, 22], [110, 24], [116, 29], [119, 35], [120, 43]];
+  R.poligono(Q(UP), U); R.poligono(Q([[3, 39], [119, 39], [120, 43], [3, 43]]), US);
+  // la puntera (con su costura doble y su brillo) y el contrafuerte del talón
+  R.poligono(Q([[95, 22], [102, 22], [110, 24], [116, 29], [119, 35], [120, 42], [91, 42], [92, 32]]), UC); L(95, 22, 92, 32, KZ); L(92, 32, 91, 42, KZ);
+  for (let k = 0; k < 10; k++) px(Math.round(92.6 - k * 0.3 - (k > 5 ? 0.6 : 0)), 23 + k * 2, GL);
+  R.poligono(Q([[100, 25], [108, 26], [114, 30], [116, 35], [111, 31], [102, 28]]), HL); rc(104, 26, 108, 26, GL); px(109, 27, GL); px(110, 27, GL); px(113, 31, GL); rc(96, 39, 118, 39, US);
+  R.poligono(Q([[3, 42], [2, 24], [4, 13], [17, 17], [24, 29], [27, 42]]), UC); L(4, 13, 17, 17, KZ); L(17, 17, 24, 29, KZ); L(24, 29, 27, 42, KZ);
+  for (let k = 0; k < 8; k++) px(Math.round(15 + k * 1.3), Math.round(19 + k * 2.9), GL);
+  L(6, 17, 5, 36, HL); L(7, 17, 6, 30, HL);
+  // el cuello acolchado y el forro que asoma
+  R.poligono(Q([[12, -1], [33, -1], [36, 2], [14, 3]]), FO); L(14, 3, 36, 2, KZ); L(6, 7, 14, 4, HL); px(13, 0, hex('#c8a880')); px(14, 0, hex('#c8a880'));
+  // las arrugas del empeine y su luz
+  L(70, 24, 75, 31, US); L(77, 25, 81, 31, US); L(84, 26, 87, 31, US); for (let x = 68; x < 90; x += 2) px(x, 22 + Math.round((x - 68) * 0.09), HL);
+  // la pala de los cordones: cinco cordones crema con sus ojales y los cabos que cuelgan
+  const PALA = [[36, 2], [41, 6], [50, 13], [64, 19], [67, 28], [46, 25], [31, 12]];
+  R.poligono(Q(PALA), UF); L(31, 12, 46, 25, KZ); L(46, 25, 67, 28, KZ); L(64, 19, 67, 28, KZ); for (let k = 0; k < 9; k++) px(Math.round(34 + k * 3.4), Math.round(17 + k * 1.5), GL);
+  for (let k = 0; k < 5; k++) { const ax = Math.round(42 + k * 4.9), ay = Math.round(9 + k * 2.9), bx = ax - 5, by = ay + 8;
+    L(ax + 1, ay + 1, bx + 1, by + 1, KZ); L(ax, ay, bx, by, CR); L(ax - 1, ay, bx - 1, by, CR); L(ax + 1, ay, bx + 1, by, CRS);
+    for (const [ex, ey] of [[ax, ay], [bx, by]]) { rc(ex - 1, ey - 1, ex + 1, ey + 1, CR); px(ex, ey, KZ); } }
+  L(39, 7, 33, 16, CR); L(40, 7, 34, 16, CRS); L(40, 8, 39, 20, CR); px(33, 17, FO); px(33, 18, FO); px(39, 21, FO); px(39, 22, FO);
+  filo(UP, KZ);
 }
 
 // el letrero entero, pintado una vez en su capa (0 = sin pintura): d_letreroPinta lo vuelca sobre el ladrillo
@@ -4668,14 +4699,12 @@ function d_pieFija(R) {
     if (hum > d_b4(x, y)) c = d_mez(c, OSC, 0.28); if (d_ruido(x, y, 14, 47) > 0.8 && h(x, y, 48) > 0.5) c = d_mez(c, hex('#e8dcd0'), 0.3); if (y > 92 && h(x >> 1, y, 49) < (y - 90) / 22) c = d_mez(c, MUS, 0.4);
     px(x, y, c); }
   { const sig = R.nuevo(), prev = R.usar(sig), YB = 76;
-    // el letrero sigue a izquierda y derecha fuera de cuadro: bajo la barra del año solo queda el cuero negro
+    // el letrero sigue a izquierda y derecha fuera de cuadro: del zapato solo entra la mitad de abajo
     R.rect(0, 0, 319, YB, P.rojo); R.rect(0, 0, 319, YB - 6, P.crema); for (let x = 0; x < 320; x++) R.pset(x, YB - 12, P.oro);
     for (let x = 4; x <= 316; x += 2) R.pset(x, 58, P.cremaS);
-    // la mitad de abajo del zapato: el cuero negro con su brillo y el pespunte, la suela con su vira y el tacón
-    R.poligono([[16, 0], [190, 0], [214, 6], [238, 15], [256, 27], [264, 40], [14, 40], [13, 14]], P.negro);
-    R.poligono([[214, 12], [236, 21], [250, 33], [232, 25]], P.brillo); R.poligono([[18, 18], [21, 18], [20, 36], [17, 36]], P.brillo); R.poligono([[120, 18], [160, 24], [160, 27], [120, 21]], P.brillo);
-    for (let k = 16; k < 40; k += 2) { R.pset(196 - k * 0.2 - Math.sin(k / 13) * 6, k, P.pesp); R.pset(197 - k * 0.2 - Math.sin(k / 13) * 6, k, P.pesp); R.pset(52 + k * 0.2, k, P.pesp); }
-    R.poligono([[12, 40], [266, 40], [270, 45], [264, 52], [70, 52], [66, 62], [16, 62], [12, 52]], P.suela); R.rect(12, 40, 266, 43, P.suelaL); R.rect(16, 59, 66, 62, d_mez(P.suela, d_K, 0.4)); for (let x = 16; x < 264; x += 5) R.pset(x, 42, P.suela);
+    // la mitad de abajo del zapato, el mismo dibujo del letrero al doble (la suela en y 36, el tacón hasta y 63): el
+    // final de los cordones, el empeine con sus arrugas, la puntera con su costura, la vira, la suela y el tacón
+    d_zapato(R, 14, -50, 2);
     for (const ax of [286, 302]) { R.poligono([[ax, 42], [ax + 5, 49], [ax, 56], [ax - 5, 49]], P.rojo); R.poligono([[ax, 46], [ax + 2, 49], [ax, 52], [ax - 2, 49]], P.oro); }
     R.usar(prev); const B = R.buf;
     for (let y = 0; y <= YB; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x, s = sig[i]; if (!s || (d_ruido(x, y, 7, 85) > 0.86 && h(x, y, 87) > 0.3 && !(y < 16 && x < 180))) continue; const base = B[i]; B[i] = d_mez(s, base, d_esJunta(base) ? 0.36 : 0.1 + (h(x, y, 86) < 0.2 ? 0.1 : 0)); } }
