@@ -148,7 +148,7 @@ for e in plan['escenas']:
 assert usadas == list(range(1, len(filas) + 1)), 'faltan o sobran frases'
 
 guion = {
-    'serie': 'ASK Atom', 'numero': 36, 'estado': 'v1', 'formato': '16:9', 'rotulos': False,
+    'serie': 'ASK Atom', 'numero': 36, 'estado': 'v2', 'formato': '16:9', 'rotulos': False,
     'titulo': {'en': "King Tut's Tomb May Hide Rooms Nobody Has Opened",
                'es': 'La tumba de Tutankamón podría esconder cuartos sin abrir'},
     'principal': 'en',
