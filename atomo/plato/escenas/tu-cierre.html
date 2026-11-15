@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Un agujero y una luz · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-CIERRE (frases 28–29), 1922 → 2026, sin cartela. Seis planos (cortes en held · a small hole · It might ·
+// than all · And when):
+// 1. 1922, los dieciséis escalones: Carter baja los últimos peldaños hasta la puerta tapiada; Carnarvon le sigue desde
+//    abajo; en «made a small hole» Carter golpea el enlucido con el cincel (polvo) y se abre el agujerito; Carnarvon se
+//    asoma («!»); obreros diminutos pasan arriba;
+// 2. las dos luces: a la izquierda (1922) la mano de Carter enciende la vela en «candle» y en «wonderful things» brilla
+//    el oro por el hueco; a la derecha (2026), en «Now», se enciende la luz fría de la camarita; cifras 1922 y 2026;
+// 3. las dos luces de cerca: la luz de la camarita crece en «light»; en «the candle is a camera» una flecha a trazos
+//    corre de la llama a la camarita y en «from above» tres flechitas bajan sobre ella;
+// 4. hoy, el estudio por la tarde (gag 8): Atom baja de su esquina con la linterna; en «queen» hace el agujerito en la
+//    caja con la punta; en «rock» enciende la linterna y la luz se asoma por el agujero; el gato del sillón mira;
+// 5. dentro de la caja: entra el rayito; una araña baja por su hilo; en «finally have looked» sale del círculo de luz OTRA
+//    caja con su agujerito, «?»;
+// 6. el estudio: Atom, delante de la ventana, alarga el guante y da una palmadita a la caja del escritorio en «when they
+//    do»; en «I'll tell you about it here» se despide con el guante en arco y vuelve de un salto a su esquina.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-cierre');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const TU = T.ELENCO_TU, PZ = T.PIEZAS_TU, N = Math.round;
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c'), AZ = hex('#3a6ac8'), ORO = hex('#ffd860');
+const ease = (u) => u * u * (3 - 2 * u);
+const destello = (x, y, r, c = BL) => { x = N(x); y = N(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } };
+// el globito con un símbolo encima de alguien (o de algo)
+const globo = (x, y, ic, c = ROJO) => { x = N(x); y = N(y); R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+// una chispa de cuatro puntas que se abre y se cierra (u 0–1)
+const chispa = (x, y, u, c = ORO) => { const r = N(Math.sin(Math.min(1, Math.max(0, u)) * Math.PI) * 3); if (r > 0) destello(x, y, r, c); };
+
+const wv = (s) => en('vela2', (s - 0.9) / 13.369), wl = (s) => en('final', (s - 15.247) / 11.355);   // segundo de la voz inglesa → instante
+const P2 = wv(4.0), P3 = wv(8.9), P4 = wv(15.0), P5 = wl(19.9), P6 = wl(24.3), FIN = E.duracion;
+// Atom: en su esquina hasta el plano 4; baja al estudio y vuelve a la esquina al final del 6
+const BAJA = P4 + 0.15, VUELVE = wl(26.55), LLEGA = VUELVE + 0.8;
+const ESQ = R.companero;
+R.companero = (t, e) => { if (t < BAJA || t > LLEGA) ESQ(t, e); };
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = N(ax); ay = N(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: 1 });
+};
+const vuelo = (a, b, u, alto) => [lerp(a[0], b[0], ease(u)), lerp(a[1], b[1], ease(u)) - Math.sin(u * Math.PI) * alto];
+const GUANTE = '#5a8ad0';
+
+// 1 · 1922: los escalones y el agujerito en la puerta
+const CARTER = wv(2.48), HOLE = wv(3.3);
+const p1 = (t) => {
+  const g = T.valle(R, t, { encuadre: 'escalera' }) || {};
+  // Carter baja los últimos peldaños hasta el rellano, a la izquierda de la puerta
+  const u = ease(tramo(t, 0.1, CARTER - 0.2)), cy = N(lerp(150, 117, u)), cx = N(lerp(150, 128, u));
+  const golpea = t > CARTER + 0.1 && t < HOLE + 0.2, gol = golpea ? N(Math.max(0, Math.sin((t - CARTER) * 14)) * 2) : 0;
+  // el agujerito en la esquina de arriba de la puerta (crece con los golpes) y su polvo
+  const ag = tramo(t, CARTER + 0.3, HOLE);
+  if (ag > 0) { const r = ag < 0.4 ? 1 : ag < 0.8 ? 2 : 3; R.disco(147, 82, r + 1, hex('#8a6a48')); R.disco(147, 82, r, hex('#140c08')); }
+  // los trocitos de enlucido que saltan con cada golpe
+  if (golpea) for (let k = 0; k < 4; k++) { const f = ((t - CARTER) * 2.2 + k * 0.25) % 1; R.rect(N(150 + k * 2 + f * 6), N(80 + f * f * 34), N(151 + k * 2 + f * 6), N(81 + f * f * 34), hex('#d8c8a0')); }
+  if (golpea) for (let k = 0; k < 6; k++) { const f = ((t * 3 + k * 0.17) % 1); R.pset(N(145 + k % 3 - f * 3), N(84 + f * 30), hex('#e8dcc0')); }
+  // Carnarvon sube desde abajo, detrás de él, y se asoma
+  const v = ease(tramo(t, 0.6, HOLE)), nx = N(lerp(178, 160, v)), ny = N(lerp(196, 132, v));
+  R.actor(TU.carnarvonTU, nx, ny, t, { dir: -1, anda: v > 0 && v < 1, sorpresa: t > HOLE + 0.1, habla: t > HOLE + 0.4 && Math.sin(t * 9) > 0 });
+  const a = R.actor(TU.carterTU, cx, cy, t, golpea || ag >= 1 ? { dir: 1, sostiene: [146 - gol, 88 + gol], sonrisa: ag >= 1 } : { dir: 1, anda: u > 0 && u < 1 });
+  if (golpea || ag >= 1) { const [mx, my] = a.mano; R.linea(mx, my, mx + 3, my - 4, K); R.linea(mx + 1, my, mx + 4, my - 4, hex('#9aa0a8')); R.pset(mx + 4, my - 5, BL); }
+  if (t > HOLE + 0.2) globo(nx + 6, ny - 34 + N(Math.sin(t * 6)), '!', ROJO);
+  T.valleDelante(R, t, { encuadre: 'escalera' });
+};
+
+// 2 · las dos luces: la vela de 1922 y la camarita de 2026
+const VELA = wv(4.48), MARAVILLA = wv(5.38), AHORA = wv(6.89);
+const p2 = (t) => {
+  const vela = ease(tramo(t, VELA - 0.25, VELA + 0.2)), luz = 0.6 * ease(tramo(t, AHORA, AHORA + 0.6));
+  T.ladera(R, t, { encuadre: 'luces', vela, luz });
+  // «wonderful things»: el oro brilla dentro del hueco
+  if (t > MARAVILLA) for (let k = 0; k < 3; k++) chispa(103 + k * 4, 87 + (k % 2) * 4, ((t - MARAVILLA) * 1.4 + k * 0.33) % 1);
+  // las dos cifras, cada una en su lado
+  const c1 = tramo(t, VELA, VELA + 0.4), c2 = tramo(t, AHORA, AHORA + 0.4);
+  if (c1 > 0) R.numero('1922', 128, 162 + N((1 - c1) * 6), { centro: true, color: hex('#f0c870') });
+  if (c2 > 0) R.numero('2026', 238, 162 + N((1 - c2) * 6), { centro: true, color: hex('#a8d8f0') });
+};
+
+// 3 · las dos luces de cerca
+const LUZ = wv(9.89), CAMARA = wv(12.22), ARRIBA = wv(13.3);
+const p3 = (t) => {
+  const luz = 0.6 + 0.4 * ease(tramo(t, LUZ - 0.3, LUZ + 0.3));
+  T.ladera(R, t, { encuadre: 'luces', camara: 'cerca', vela: 1, luz });
+  // «the candle is a camera»: la flecha a trazos de la llama a la camarita
+  const fl = tramo(t, CAMARA - 0.4, CAMARA + 0.3);
+  if (fl > 0) { const x1 = N(lerp(118, 200, fl)); for (let x = 118; x <= x1; x++) if (((x - N(t * 20)) >> 2) % 2 === 0) { R.rect(x, 60, x, 61, ORO); }
+    if (fl >= 1) for (let i = 0; i < 5; i++) { R.rect(200 + i, 56 + i, 200 + i, 65 - i, ORO); } }
+  // «from above»: tres flechitas que bajan hacia la camarita
+  if (t > ARRIBA - 0.2) for (let k = 0; k < 3; k++) { const y = N(14 + ((t - ARRIBA) * 26 + k * 12) % 36); if (y > 12) { const x = 214 + k * 12; R.rect(x, y, x + 1, y + 6, hex('#a8d8f0')); R.rect(x - 2, y + 5, x + 3, y + 5, hex('#a8d8f0')); R.rect(x - 1, y + 6, x + 2, y + 6, hex('#a8d8f0')); R.pset(x, y + 7, hex('#a8d8f0')); R.pset(x + 1, y + 7, hex('#a8d8f0')); } }
+};
+
+// 4 · la caja del estudio: el agujerito y la linterna (gag 8)
+const REINA = wl(16.05), ROCA = wl(17.44), MIRA = wl(18.4);
+const ATC = [104, 108];
+const p4 = (t) => {
+  const agujero = ease(tramo(t, REINA - 0.3, REINA + 0.1)), on = t > ROCA, luz = ease(tramo(t, MIRA - 0.3, MIRA + 0.5));
+  const g = T.hoy(R, t, { encuadre: 'caja', agujero, luz });
+  T.hoyDelante(R, t, { encuadre: 'caja' });
+  const [hx0, hy0] = g.agujero || [151, 121];
+  // las dos copas pintadas junto al agujero, con él, parecían una carita: se tapan con el cartón de la cara de delante
+  { const c = R.pget(166, 134); R.rect(129, 124, 146, 133, c); for (let x = 129; x <= 146; x += 5) R.pset(x, 133, R.pget(166, 136)); }
+  // Atom baja de la esquina y se coloca a la izquierda de la caja
+  const b = tramo(t, BAJA, BAJA + 0.7), [ax, ay0] = b < 1 ? vuelo([297, 24], ATC, b, 14) : ATC;
+  const ay = ay0 + (b >= 1 ? Math.sin(t * 2.4) * 1.5 : 0) - (t > ROCA && t < ROCA + 0.3 ? 3 : 0);
+  // la linterna en el guante: llega con Atom, empuja con la punta en «queen», se enciende en «rock» y apunta al agujero
+  const pin = ease(tramo(t, REINA - 0.5, REINA - 0.1)) - ease(tramo(t, REINA + 0.2, REINA + 0.6)), apunta = ease(tramo(t, MIRA - 0.6, MIRA));
+  const lx = N(b < 1 ? ax + 14 : lerp(lerp(128, hx0 - 9, pin), hx0 - 13, apunta)), ly = N(b < 1 ? ay + 18 : lerp(lerp(118, hy0 + 4, pin), hy0 + 4, apunta) + Math.sin(t * 2.4) * 0.6);
+  atomAbajo(ax, ay, t, { r: N(lerp(10, 12, Math.min(1, b))), e: on ? 0.8 : 0.4 });
+  PZ.linterna(R, lx, ly, { encendida: on });
+  T.mano(R, lx - 7, ly - 4, 1, GUANTE, { sinManga: true });
+  if (t > REINA && t < REINA + 0.4) chispa(hx0, hy0 - 2, (t - REINA) / 0.4, BL);
+  if (t > ROCA && t < ROCA + 0.3) destello(lx + 10, ly - 5, 2, hex('#fff4b8'));
+};
+
+// 5 · dentro de la caja: otra caja
+const MIRADO = wl(23.0);
+const p5 = (t) => {
+  const g = T.hoy(R, t, { encuadre: 'caja', camara: 'dentro', luz: ease(tramo(t, P5 + 0.1, P5 + 0.7)), otra: ease(tramo(t, MIRADO, MIRADO + 0.6)) });
+  // una araña baja por su hilo en la esquina de arriba y vuelve a subir
+  const ya = N(40 + 26 * (0.5 - 0.5 * Math.cos((t - P5) * 1.3)));
+  R.linea(232, 36, 232, ya - 2, hex('#d8c8a8'));
+  R.disco(232, ya, 3, hex('#d8c8a8')); R.disco(232, ya, 2, K); R.pset(231, ya - 1, hex('#8a7a62')); for (const s of [-1, 1]) for (let k = 0; k < 3; k++) { const p = Math.floor(t * 8 + k) % 2; R.pset(232 + s * 3, ya - 1 + k + p, K); R.pset(232 + s * 4, ya - 2 + k * 2, K); }
+  const [ox0, oy0, ox1] = g.otra || [137, 110, 179, 144];
+  if (t > MIRADO + 0.6) globo(ox1 + 8, oy0 - 10 + N(Math.sin(t * 5)), '?', AZ);
+  if (t > MIRADO + 0.4 && t < MIRADO + 0.9) chispa(N((ox0 + ox1) / 2), oy0 - 4, (t - MIRADO - 0.4) / 0.5);
+};
+
+// 6 · el estudio: la despedida
+const CUANDO = wl(24.6), CUENTO = wl(25.35), AQUI = wl(26.19);
+const AT6 = [206, 74];
+const p6 = (t) => {
+  const o = { encuadre: 'estudio' }; T.hoy(R, t, o); const gd = T.hoyDelante(R, t, o) || {};
+  const [cx0, cy0, cx1] = gd.caja || [153, 108, 177, 131];
+  const v = tramo(t, VUELVE, LLEGA);
+  if (t > LLEGA) return;
+  const [ax, ay] = v > 0 ? vuelo(AT6, [297, 24], v, 18) : [AT6[0], AT6[1] + Math.sin(t * 2.4) * 1.5];
+  atomAbajo(ax, ay, t, { r: N(lerp(12, 10, v)), e: t > CUENTO && t < AQUI + 0.3 ? 0.8 : 0.4 });
+  if (v > 0) return;
+  // el guante: palmadita en la caja en «when they do»; luego dice adiós moviéndose de lado a lado
+  const pal = ease(tramo(t, CUANDO - 0.4, CUANDO)) * (1 - ease(tramo(t, CUANDO + 0.3, CUENTO - 0.1)));
+  const tap = t > CUANDO && t < CUANDO + 0.3 ? N(Math.sin((t - CUANDO) / 0.3 * Math.PI) * 2) : 0;
+  const adios = t > CUENTO - 0.1;
+  const ola = Math.sin((t - CUENTO) * 8), gx = N(adios ? ax - 24 + ola * 9 : lerp(ax - 16, (cx0 + cx1) / 2 + 2, pal)), gy = N(adios ? ay - 6 - Math.abs(ola) * 5 : lerp(ay + 14, cy0 - 3, pal) + tap);
+  T.mano(R, gx, gy, adios ? -1 : 1, GUANTE, { sinManga: true });
+  if (adios && t < AQUI + 0.4) for (let k = 0; k < 2; k++) { const s = Math.sin((t - CUENTO) * 9) > 0 ? 1 : -1; R.pset(gx - 4 + s * 9, gy - 6 + k * 3, BL); }
+};
+
+const año = (t) => t < AHORA ? 1922 : 2026;
+const efectos = [[CARTER + 0.12, 'golpecito'], [CARTER + 0.57, 'golpecito'], [HOLE, 'toc'],
+  [VELA - 0.1, 'brillo'], [AHORA + 0.05, 'interruptor'],
+  [LUZ - 0.2, 'zumbido'],
+  [BAJA, 'whoosh'], [REINA, 'pop'], [ROCA, 'interruptor'],
+  [MIRADO + 0.4, 'boing'],
+  [CUANDO, 'golpecito'], [VUELVE + 0.05, 'whoosh']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
+</script>
+</body>
+</html>

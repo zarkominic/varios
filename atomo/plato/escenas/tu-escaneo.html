@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El escaneo · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-ESCANEO (frases 10–11), cartela «2015»; la barra dice 2009 (el escaneo), 2014 (la copia) y 2015 (Reeves). Ocho
+// planos, cortados en la palabra inglesa:
+// 1. (tras la cartela) la cola de turistas a la entrada de la tumba, de lado, con su aliento: el primero entra por la
+//    boca, la cola avanza a tirones y en «Too many visitors» el guarda la para con la mano y un «!»;
+// 2. («To protect it») el escáner en su raíl ante la pared pintada: el carro avanza y deja la malla azul; el técnico
+//    lo acompaña andando y en «scanned» se vuelve y la señala; la técnica mira el portátil y habla;
+// 3. («every wall») el cabezal de cerca: una mano pulsa el botón (verde), baja la línea roja y la pantallita se llena;
+//    en «fractions of a millimeter» se enciende «0.1»;
+// 4. («and built an exact copy») la impresora del taller de Madrid de cerca: yeso, relieve y el color en «copy»;
+// 5. («next to Carter's old house») la casa de Carter y el pabellón de la copia con su banderola «2014»: el guía baja del
+//    autobús con dos turistas, señala la casa en «Carter's», uno hace una foto y van hacia la copia;
+// 6. («Egyptologist»; vista libre del taller) Reeves cruza el taller y estudia con su lupa los paneles impresos en
+//    «studied those scans» mientras la impresora sigue;
+// 7. («noticed») las dos paredes escaneadas: la luz rasante llega en «naked eye»; en «straight lines» salen las rayas
+//    rectas de las dos puertas y un brillo las recorre; Reeves señala la oeste y la norte en «two walls»;
+// 8. («To him») la arista de cerca: el dedo de Reeves repasa el dintel en «outlines of two doorways» y en «painted
+//    over» la pintura vuelve encima.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-escaneo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c');
+const wc = (s) => en('copia', (s - 1.5) / 17.225), wr = (s) => en('rayas', (s - 19.225) / 15.301);
+const P2 = wc(5.5), P3 = wc(9.59), P4 = wc(13.39), P5 = wc(16.95), P6 = wr(20.49), P7 = wr(24.21), P8 = wr(30.05);
+const globo = (x, y, ic = '!', c = ROJO) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (N(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (N(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | N(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const lupa = (x, y) => { R.linea(x - 6, y + 6, x - 3, y + 3, hex('#5a3a22')); R.linea(x - 5, y + 6, x - 3, y + 4, hex('#3a2414')); R.disco(x, y, 5, K); R.disco(x, y, 4, hex('#9ab8c4')); R.disco(x, y, 3, hex('#d4eef8')); R.pset(x - 1, y - 2, BL); R.pset(x - 2, y - 1, BL); R.pset(x - 2, y - 2, BL); };
+
+// 1 · la cola: entra uno, la cola avanza a tirones y el guarda la para en «Too many visitors»
+const COLA = [EL.turista1, EL.chica, EL.senor30, EL.turista2, EL.sudadera, EL.senora30, EL.chico];
+const PARA = wc(4.56);
+const q1 = (t) => {
+  const o = { encuadre: 'entrada', camara: 'cola', aliento: lerp(0.3, 0.6, tramo(t, 1.3, P2)) };
+  T.valle(R, t, o);
+  // el guarda, un paso por detrás de la cola, junto a la boca
+  const para = t > PARA - 0.1;
+  R.actor(EL.guarda, 232, 161, t, { dir: -1, dedo: para, sorpresa: para && t < PARA + 0.4, habla: t > 2.0 && t < 2.6 });
+  const pasa = tramo(t, 1.7, 2.9), tiron = tramo(t, 2.5, 3.3), tiron2 = tramo(t, 3.7, 4.2);
+  COLA.forEach((d, k) => {
+    if (k === COLA.length - 1) {   // el primero entra por la boca
+      if (pasa >= 1) return;
+      R.recorte([0, 0, 262, 179]); R.actor(d, N(lerp(196, 266, pasa)), 166, t, { dir: 1, anda: pasa > 0 }); R.recorte(null); return;
+    }
+    const x = N(18 + k * 28 + tiron * 22 + tiron2 * 6 * (k > 2 ? 1 : 0)), mueve = (tiron > 0 && tiron < 1) || (tiron2 > 0 && tiron2 < 1 && k > 2);
+    R.actor(d, x, 166, t, { dir: 1, anda: mueve, sorpresa: para && k === COLA.length - 2 && t < PARA + 0.6, triste: para && k < 3, dedo: k === 2 && t > 2.0 && t < 2.6,
+      sostiene: k === 1 && t > 2.9 && t < 4.4 ? [x + 13, 145] : k === 4 ? [x + 16, 148 - N(Math.abs(Math.sin(t * 9)) * 3)] : undefined });
+    if (k === 1 && t > 2.9 && t < 4.4) { R.rect(x + 12, 137, x + 14, 144, hex('#bfe4f4')); R.rect(x + 12, 136, x + 14, 136, hex('#3a6ac8')); R.pset(x + 12, 140, BL); }   // bebe agua
+    if (k === 4) { const fy = 144 - N(Math.abs(Math.sin(t * 9)) * 3); R.rect(x + 15, fy - 6, x + 21, fy, K); R.rect(x + 16, fy - 5, x + 20, fy - 1, hex('#e8d8a0')); R.pset(x + 18, fy - 3, hex('#3a8a4a')); R.pset(x + 17, fy - 4, ROJO); }   // se abanica con el plano
+  });
+  if (para) globo(236, 128, '!');
+  T.valleDelante(R, t, o);
+};
+
+// 2 · el escáner en su raíl: el técnico acompaña el carro y señala la malla en «scanned»
+const q2 = (t) => {
+  const pas = (s) => lerp(0.34, 0.8, tramo(s, P2 + 0.15, P3 - 0.15)), u = tramo(t, P2 + 0.15, P3 - 0.15), o = { encuadre: 'escaner', pasada: pas(t) };
+  const g = T.escaneo(R, t, o), cx = g.carro ? g.carro[0] : 40 + 212 * o.pasada;
+  const senala = t > wc(9.25) - 0.1;
+  R.actor(EL.tecnica, 66, 170, t, { dir: -1, habla: t > wc(7.5) && t < wc(8.6), sonrisa: t > wc(8.9), dedo: t > wc(8.9) && t < wc(9.5) });
+  R.actor(EL.tecnico, senala ? N(40 + 212 * pas(wc(9.25) - 0.1) - 27) : N(cx - 27), 170, t, { dir: senala ? -1 : 1, anda: u > 0 && u < 1 && !senala, dedo: senala });
+  T.escaneoDelante(R, t, o);
+};
+
+// 3 · el cabezal: la mano pulsa, baja la línea roja y en «fractions of a millimeter» sale 0.1
+const PULSA = P3 + 0.55, CIFRA = wc(12.2);
+const q3 = (t) => {
+  const o = { encuadre: 'escaner', camara: 'cabezal', barrido: 0.13 + 0.87 * tramo(t, PULSA + 0.25, P4 - 0.2) };
+  T.escaneo(R, t, o);
+  // el botón de marcha (rojo → verde) en la chapa del cabezal
+  const on = t > PULSA;
+  R.disco(298, 68, 4, K); R.disco(298, 68, 3, hex('#5a5e66')); R.disco(298, 68, 2, on ? hex('#4ad86a') : hex('#d84a3a')); R.pset(297, 67, on ? hex('#c8ffd0') : hex('#ffb0a0'));
+  // la mano del técnico (manga gris) entra por la derecha, pulsa y se va
+  const ent = tramo(t, P3 + 0.05, PULSA), sal = tramo(t, PULSA + 0.25, PULSA + 0.75), k = ease(ent) * (1 - ease(sal));
+  if (k > 0) { const wx = N(lerp(340, 312, k)), wy = N(lerp(84, 70, k)); T.brazo(R, wx + 26, wy + 14, wx, wy, '#6a7480', -1, {}); }
+  // la cifra: décimas de milímetro
+  if (t > CIFRA) { const a = tramo(t, CIFRA, CIFRA + 0.25); R.rect(254, 92, 304, 106, K); R.rect(255, 93, 303, 105, hex('#0e1a12'));
+    if (a > 0.5 || Math.floor(t * 12) % 2) R.numero('0.1', 279, 103, { color: hex('#6af08a'), centro: true, sombra: false }); }
+};
+
+// 4 · la impresora: yeso, relieve y el color en «exact copy»
+const q4 = (t) => { const o = { encuadre: 'taller', camara: 'impresora', capas: tramo(t, P4 + 0.15, P4 + 2.1) }; T.escaneo(R, t, o); T.escaneoDelante(R, t, o); };
+
+// 5 · la casa de Carter y la copia (2014): el guía señala la casa en «Carter's»
+const CASA = wc(17.45);
+const banderola = (t) => {
+  const ond = (x) => N(Math.sin(t * 4 + x * 0.25) * 1);
+  R.linea(194, 96, 194, 118, hex('#5a5048')); R.linea(242, 96, 242, 118, hex('#5a5048'));
+  for (let x = 196; x <= 240; x++) { const d = ond(x); R.pset(x, 97 + d, K); R.pset(x, 109 + d, K); for (let y = 98; y <= 108; y++) R.pset(x, y + d, (x + y) % 9 === 0 ? hex('#e8d8b0') : hex('#f4ead0')); R.pset(x, 108 + d, hex('#c8a060')); }
+  R.numero('2014', 219, 106, { color: hex('#2a4a8a'), centro: true, sombra: false });
+};
+const q5 = (t) => {
+  const o = { encuadre: 'replica' };
+  T.escaneo(R, t, o);
+  banderola(t);
+  const ida = tramo(t, P5 - 0.3, wc(17.85)), vuelta = tramo(t, wc(18.9), P6 + 0.4);
+  const grupo = [[EL.guia, 0], [EL.turista1, 18], [EL.chica, 34]];
+  grupo.forEach(([d, dx], k) => {
+    const x = N(lerp(196 + dx, 148 + dx, ida) + vuelta * 34), anda = (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), dir = vuelta > 0 ? 1 : -1;
+    const ao = { dir, anda };
+    if (k === 0) { ao.dedo = t > wc(17.85) && t < wc(18.8); ao.habla = t > CASA + 0.2 && t < wc(18.4); }
+    if (k === 1) { ao.sorpresa = t > CASA + 0.2 && t < CASA + 0.9; ao.sonrisa = t > CASA + 0.9; }
+    if (k === 2 && t > wc(17.8) && t < wc(18.7)) { ao.sostiene = [x - 2, 147]; }
+    const a = R.actor(d, x, 168, t, ao);
+    if (ao.sostiene) { const [mx, my] = a.mano; R.rect(mx - 3, my - 3, mx + 2, my + 1, K); R.rect(mx - 2, my - 2, mx + 1, my, hex('#5a6a8a')); R.pset(mx - 3, my - 1, hex('#c8d8f0'));
+      if (t > wc(18.15) && t < wc(18.3)) { R.disco(mx - 4, my - 2, 4, hex('#fff8d0')); R.disco(mx - 4, my - 2, 2, BL); } }
+  });
+  T.escaneoDelante(R, t, o);
+};
+
+// 6 · (vista libre) el taller: Reeves cruza y estudia los paneles impresos con su lupa en «studied those scans»
+const ESTUDIA = wr(22.8);
+const q6 = (t) => {
+  const o = { encuadre: 'taller', imprime: lerp(0.35, 0.95, tramo(t, P6, P7)) };
+  T.escaneo(R, t, o);
+  const an = tramo(t, P6, ESTUDIA - 0.2), x = N(lerp(84, 204, an)), est = t > ESTUDIA;
+  const sube = est ? Math.sin((t - ESTUDIA) * 1.6) * 8 : 0;
+  const ro = { dir: 1, anda: an > 0 && an < 1, sorpresa: t > wr(23.9) };
+  if (est) ro.sostiene = [x + 19, N(140 - tramo(t, ESTUDIA, ESTUDIA + 0.3) * 10 - sube)];
+  const r = R.actor(T.ELENCO_TU.reevesTU, x, 168, t, ro);
+  if (est) { const lx = r.mano[0] + 6, ly = r.mano[1] - 6; lupa(lx, ly);
+    // lo que la lupa encuentra: un destello en el panel y la duda
+    if (Math.floor(t * 6) % 3 === 0) { R.pset(lx + 1, ly - 1, BL); R.pset(lx + 2, ly, hex('#fff0a0')); }
+    if (t > wr(23.4)) globo(r.cabeza[0] - 2, r.cabeza[1] - 10, '?', hex('#2a6ac8')); }
+  T.escaneoDelante(R, t, o);
+};
+
+// 7 · las dos paredes: la luz rasante, las rayas rectas y Reeves que las señala en «two walls»
+const RAYAS = wr(26.99), OESTE = wr(28.5), NORTE = wr(28.95);
+const filo = (x0, y0, x1, y1, u, brillo) => {   // dintel y jambas con su luz y su sombra; u = cuánto se ha trazado
+  const tramos = [[x0, y1, x0, y0], [x0, y0, x1, y0], [x1, y0, x1, y1]], largo = (y1 - y0) * 2 + (x1 - x0);
+  let hecho = u * largo, pos = brillo * largo, acc = 0;
+  for (const [a, b, c, d] of tramos) { const n = Math.abs(c - a) + Math.abs(d - b);
+    for (let i = 0; i <= n; i++) { if (acc + i > hecho) return; const x = a + Math.sign(c - a) * i, y = b + Math.sign(d - b) * i, hor = b === d;
+      const cerca = brillo > 0 && Math.abs(acc + i - pos) < 6;
+      const lx = hor ? x : x - 1, ly = hor ? y - 1 : y, sx = hor ? x : x + 1, sy = hor ? y + 1 : y;
+      R.pset(lx, ly, mez(R.pget(lx, ly), cerca ? hex('#ffffff') : hex('#f0f0ec'), cerca ? 1 : 0.75)); R.pset(sx, sy, mez(R.pget(sx, sy), hex('#18181c'), 0.7)); R.pset(x, y, mez(R.pget(x, y), hex('#5a5a60'), 0.5)); }
+    acc += n; }
+};
+const q7 = (t) => {
+  const o = { encuadre: 'rasante', luzRasante: ease(tramo(t, P7 + 0.2, wr(26.3))), rectangulos: 0.3 * tramo(t, RAYAS - 0.05, RAYAS + 0.6) };
+  const g = T.escaneo(R, t, o);
+  const [nx0, ny0, nx1, ny1] = g.norte || [168, 52, 232, 148], [ox0, oy0, ox1, oy1] = g.oeste || [30, 82, 70, 148];
+  const un = tramo(t, RAYAS, RAYAS + 0.9), uo = tramo(t, RAYAS + 0.3, RAYAS + 1.2);
+  const bn = t > NORTE ? tramo(t, NORTE, NORTE + 0.9) : tramo(t, RAYAS + 0.9, RAYAS + 1.7), bo = t > OESTE && t < NORTE + 0.3 ? tramo(t, OESTE, OESTE + 0.6) : 0;
+  if (un > 0) filo(nx0, ny0, nx1, ny1 - 1, un, bn > 0 && bn < 1 ? bn : 0);
+  if (uo > 0) filo(ox0, oy0, ox1, oy1 - 1, uo, bo > 0 && bo < 1 ? bo : 0);
+  // Reeves: estudia en el atril, cruza, se sorprende en «straight lines» y señala cada pared en «two walls»
+  const an = tramo(t, wr(25.2), wr(26.6)), x = N(lerp(256, 136, ease(an)));
+  const dir = an <= 0 ? 1 : t > OESTE && t < NORTE ? -1 : t >= NORTE ? 1 : -1;
+  R.actor(T.ELENCO_TU.reevesTU, x, 168, t, { dir, anda: an > 0 && an < 1, sorpresa: t > RAYAS && t < OESTE - 0.1, dedo: t > OESTE && t < wr(29.7), habla: t > wr(29.3) });
+  T.escaneoDelante(R, t, o);
+};
+
+// 8 · la arista de cerca: el dedo repasa el dintel; en «painted over» vuelve la pintura
+const q8 = (t) => { const o = { encuadre: 'rasante', camara: 'linea', dedo: ease(tramo(t, P8 + 0.5, wr(33.3))), color: tramo(t, wr(33.65), wr(34.6)) }; T.escaneo(R, t, o); T.escaneoDelante(R, t, o); };
+
+const efectos = [[P2 + 0.2, 'motor'], [wc(9.25), 'bip'], [PULSA, 'interruptor'], [CIFRA, 'bip'], [P4 + 0.2, 'maquina'], [wc(18.15), 'flash'],
+  [ESTUDIA, 'brillo'], [RAYAS, 'brillo'], [wr(33.7), 'brillo']];
+T.rodar(E, R, [[0, q1], [P2, q2], [P3, q3], [P4, q4], [P5, q5], [P6, q6], [P7, q7], [P8, q8]], {
+  cartela: '2015', efectos, año: (t) => (t < P4 ? 2009 : t < P6 ? 2014 : 2015),
+});
+</script>
+</body>
+</html>

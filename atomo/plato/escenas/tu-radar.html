@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El radar · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-RADAR (frases 14–15), finales de 2015, sin cartela. Seis planos:
+// 1. la cámara pintada de noche: Watanabe entra con el radar de mano, lo apoya en la pared en «Watanabe» (bip) y en
+//    «ran his device along the walls» lo pasa de un lado a otro; el ayudante apunta;
+// 2. la rueda de prensa en Luxor: el ministro habla; en «announced» la pantalla sube y en «90 %» se para en 90; él
+//    señala, los de la mesa sonríen; flashes;
+// 3. el público desde la mesa: en «hidden rooms» estalla la tanda de flashes;
+// 4. el cañón: el excursionista llega a la repisa y en «shouting» grita; la onda cruza, choca y en «echo» vuelve;
+// 5. el corte de roca: la onda baja y en «material to another» rebota en el aire; en «rubble» rebota en el escombro;
+//    el cronómetro mide cada vuelta;
+// 6. la pantalla del radar: en «bounces back» salen las hipérbolas; la mano señala la del fondo y en «how deep» baja
+//    el dedo por la escala de metros.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-radar');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const P2 = en('watanabe', 0.4098), P3 = en('watanabe', 0.8659), P4 = en('eco', 0) - 0.33, P5 = en('eco', 0.3648), P6 = en('eco', 0.7472);
+
+// 1 · la pared de noche: Watanabe entra, apoya el radar y lo pasa por la pared
+const p1 = (t) => {
+  const llega = en('watanabe', 0.1586);
+  const pasada = ease(tramo(t, en('watanabe', 0.2181), en('watanabe', 0.4032)));
+  const enPared = t >= llega;
+  const o = { encuadre: 'pared', pasada, radar: enPared, ayudante: true };
+  const g = T.radares(R, t, o);
+  if (enPared) {
+    const rx = g.radar[0], mira = t > en('watanabe', 0.1719) && t < en('watanabe', 0.2181);
+    R.actor(T.ELENCO_TU.watanabeTU, rx - 15, 162, t, { dir: 1, anda: pasada > 0.02 && pasada < 0.98, sostiene: [rx - 6, 140], habla: mira });
+  } else {
+    const u = ease(tramo(t, 0.3, llega)), x = N(lerp(56, 137, u));
+    const a = R.actor(T.ELENCO_TU.watanabeTU, x, 162, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [x + 14, 146] });
+    if (a && a.mano) T.PIEZAS_TU.radarMano(R, a.mano[0] + 4, a.mano[1] + 9, { t });
+  }
+  T.radaresDelante(R, t, o);
+};
+
+// 2 · la rueda de prensa: el ministro anuncia; la pantalla sube hasta 90 en «90 %»
+const p2 = (t) => {
+  const cifra = ease(tramo(t, en('watanabe', 0.7866), en('watanabe', 0.8494)));
+  const o = { encuadre: 'prensa', cifra, flash: 1 };
+  T.radares(R, t, o);
+  const habla = t > en('watanabe', 0.5751) && Math.floor(t * 3) % 4 !== 3, punto = t > en('watanabe', 0.8494);
+  // el ministro se levanta en «minister» y señala la pantalla; antes, Reeves y Watanabe cuchichean
+  const de = ease(tramo(t, en('watanabe', 0.5751), en('watanabe', 0.5751) + 0.5)), charla = t < en('watanabe', 0.5751);
+  R.actor(T.ELENCO_TU.watanabeTU, 77, 136, t, { dir: 1, sonrisa: punto, habla: charla && Math.floor(t * 2) % 2 === 0 });
+  R.actor(T.ELENCO_TU.reevesTU, 113, 136, t, { dir: charla ? -1 : 1, sonrisa: punto || charla, habla: charla && Math.floor(t * 2) % 2 === 1, sorpresa: t > en('watanabe', 0.7866) && !punto });
+  R.actor(T.ELENCO_TU.eldamatyTU, 153, N(lerp(136, 129, de)), t, { dir: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) ? -1 : 1, habla: habla && !punto, dedo: de > 0.9 && !punto ? t % 2 < 1.2 : false, brazos: punto, sonrisa: punto });
+  R.actor(EL.guia, 193, 136, t, { dir: -1, habla: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) });
+  R.actor(EL.tecnico, 229, 136, t, { dir: -1, sorpresa: punto });
+  T.radaresDelante(R, t, o);
+};
+
+// 3 · el público: la tanda de flashes en «hidden rooms»
+const p3 = (t) => {
+  const o = { encuadre: 'prensa', camara: 'publico', flash: 1 };
+  T.radares(R, t, o);
+  T.radaresDelante(R, t, o);
+  const f = [en('watanabe', 0.8924), en('watanabe', 0.9453), en('watanabe', 0.9717)].some((g) => t > g && t < g + 0.08);
+  if (f) { const B = R.buf; for (let i = 0; i < 57600; i++) { const p = B[i]; B[i] = (0xff000000 | (Math.min(255, ((p >> 16) & 255) + 70) << 16) | (Math.min(255, ((p >> 8) & 255) + 70) << 8) | Math.min(255, (p & 255) + 70)) >>> 0; } }
+};
+
+// 4 · el cañón: el excursionista llega y grita en «shouting»; la onda cruza y el eco vuelve en «echo»
+const p4 = (t) => {
+  const u = ease(tramo(t, P4 + 0.1, en('eco', 0.0573)));
+  const x = N(lerp(24, 64, u));
+  const onda = ease(tramo(t, en('eco', 0.1108), en('eco', 0.2124)));
+  const vuelve = ease(tramo(t, en('eco', 0.2498), en('eco', 0.3568)));
+  const o = { encuadre: 'canon', boca: [x + 13, 134], onda, vuelve };
+  T.radares(R, t, o);
+  const grita = t > en('eco', 0.1055) && t < en('eco', 0.1589);
+  R.actor(EL.turista1, x, 150, t, { dir: 1, anda: u > 0 && u < 1, habla: grita, brazos: grita, sonrisa: t > en('eco', 0.3354) });
+  T.radaresDelante(R, t, o);
+};
+
+// 5 · el corte de roca: dos idas y vueltas, primero en el aire (en «another») y luego en el escombro (en «rubble»)
+const p5 = (t) => {
+  const c2 = en('eco', 0.6616);
+  const prim = t < c2;
+  const onda = prim ? tramo(t, en('eco', 0.3942), en('eco', 0.6616) - 0.1) : tramo(t, c2, en('eco', 0.7472) + 0.2);
+  T.radares(R, t, { encuadre: 'canon', camara: 'roca', onda, material: prim ? 'aire' : 'escombro' });
+};
+
+// 6 · la pantalla: las hipérbolas; la mano señala la del fondo y baja por la escala en «how deep»
+const p6 = (t) => {
+  const eco = ease(tramo(t, en('eco', 0.7579), en('eco', 0.9129)));
+  const g = T.radares(R, t, { encuadre: 'pared', camara: 'pantalla', eco });
+  const ex = (g.eco ? g.eco[0] : 168), ey = (g.eco ? g.eco[1] : 104);
+  const entra = ease(tramo(t, en('eco', 0.8809) - 0.6, en('eco', 0.8809))), baja = ease(tramo(t, en('eco', 0.9236), en('eco', 0.9611)));
+  // en «how deep»: la raya de puntos roja va del vértice a la escala de metros y la cifra se enciende
+  if (baja > 0) { const x1 = N(lerp(ex - 4, 58, baja)); for (let x = ex - 4; x >= x1; x--) if (x % 4 < 2) R.pset(x, ey, hex('#ff5a4a'));
+    if (baja >= 1 && Math.floor(t * 4) % 2 === 0) for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI * 2; R.pset(N(50 + Math.cos(an) * 8), N(ey + Math.sin(an) * 7), hex('#ff5a4a')); } }
+  const toc = t > en('eco', 0.8809) && Math.floor((t - en('eco', 0.8809)) * 3) % 3 === 0 ? 2 : 0;
+  if (entra > 0.02) { const hx = N(lerp(300, ex + 8, entra)), hy = N(lerp(200, ey + 12, entra)) + toc;
+    T.brazo(R, hx + 22, 196, hx, hy, '#4a5a6a', -1, { codo: [hx + 26, hy + 24] }); }
+};
+
+const efectos = [[en('watanabe', 0.1586), 'bip'], [en('watanabe', 0.2181), 'zumbido'], [en('watanabe', 0.8494), 'flash'],
+  [en('watanabe', 0.8924), 'publico'], [en('watanabe', 0.9453), 'flash'],
+  [en('eco', 0.1108), 'whoosh'], [en('eco', 0.2124), 'golpecito'], [en('eco', 0.3354), 'pop'],
+  [en('eco', 0.5279), 'tic'], [en('eco', 0.7044), 'tic'], [en('eco', 0.7579), 'bip'], [en('eco', 0.9236), 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2015 });
+</script>
+</body>
+</html>

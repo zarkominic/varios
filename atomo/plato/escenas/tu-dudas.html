@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Las dudas · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-DUDAS (frase 22), sin cartela; la barra dice 2026. Tres planos, cortados en la palabra inglesa:
+// 1. los tres cortes (corta antes de «and a low»): las agujas apenas se mueven en la banda gris; en «isn't proof» sale
+//    una «?» sobre cada corte, una tras otra, y en «very limit» la mano da dos golpecitos con el lápiz al aparato de en medio;
+// 2. la aguja de cerca (corta antes de «Other»): la aguja apenas asoma de la banda de ruido; en «room», «rubble-filled
+//    passage» y «cracked rock» salen las tres posibilidades en tarjetas;
+// 3. la ladera (hasta el final): los dos geofísicos bajan por la derecha, él con la maleta y ella con banderitas; en
+//    «more data» ella pregunta («?») y clava una banderita nueva y él deja la maleta; en «before concluding» él niega con
+//    la cabeza y, al acabar, los dos dan media vuelta y suben otra vez a medir.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-dudas');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const K = hex('#1a1410'), BL = hex('#f8f4e8');
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+const G1 = T.ELENCO_TU.geofisico1TU, G2 = T.ELENCO_TU.geofisica2TU;
+const pie = (x) => N(140 - 0.12 * (x - 160));
+const P2 = en('escombro', 0.3463), P3 = en('escombro', 0.7271);
+
+// 1 · los tres cortes
+const p1 = (t) => {
+  T.ladera(R, t, { encuadre: 'cortes' });
+  // en «isn't proof» sale una «?» sobre cada corte, una tras otra
+  [[57, 0.0291], [160, 0.06], [263, 0.0963]].forEach(([x, f]) => { if (t > en('escombro', f)) { const s = N(3 * (1 - ease(tramo(t, en('escombro', f), en('escombro', f) + 0.25)))); globo(x, 30 + s, '?', hex('#3a6ad8')); } });
+  // en «very limit» la mano da dos golpecitos con el lápiz al cristal del aparato de en medio
+  const entra = ease(tramo(t, en('escombro', 0.13), en('escombro', 0.1898))), sale = ease(tramo(t, en('escombro', 0.31), en('escombro', 0.3463)));
+  const k = entra * (1 - sale);
+  if (k > 0.01) { const d = t - en('escombro', 0.1898), tap = (d > 0 && d < 0.15) || (d > 0.35 && d < 0.5) ? 3 : 0;
+    const hx = N(lerp(260, 178, k)), hy = N(lerp(210, 160 + tap, k));
+    R.linea(hx - 10, hy - 8, hx - 2, hy, hex('#2a2a34')); R.linea(hx - 9, hy - 8, hx - 1, hy, hex('#d8a040')); R.pset(hx - 11, hy - 9, hex('#3a3a3a'));
+    T.brazo(R, hx + 50, 214, hx + 4, hy + 2, '#4a6a8a', -1, { codo: [hx + 34, hy + 34] }); }
+};
+
+// 2 · la aguja de cerca: apenas asoma; salen las tres posibilidades
+const p2 = (t) => {
+  const aguja = 0.4 * ease(tramo(t, P2 + 0.2, en('escombro', 0.62))) + 0.04 * Math.sin(t * 9);
+  T.ladera(R, t, { encuadre: 'cortes', camara: 'aguja', aguja });
+  // las tres posibilidades, en tarjetas a la derecha del aparato: cuarto vacío, pasillo con cascotes y roca agrietada
+  const RO = hex('#b8905a'), RS = hex('#8a6a3a'), RL = hex('#d8b880');
+  [[0.4938, 0], [0.5457, 1], [0.6517, 2]].forEach(([f, k]) => {
+    const t0 = en('escombro', f); if (t < t0) return;
+    const s = ease(tramo(t, t0, t0 + 0.25)), x0 = 280, y0 = 50 + k * 42 - N(6 * (1 - s));
+    R.rect(x0 - 1, y0 - 1, x0 + 36, y0 + 34, K); R.rect(x0, y0, x0 + 35, y0 + 33, RO);
+    for (let j = 0; j < 34; j += 4) for (let i = (j / 4 % 2) * 4; i < 36; i += 8) { R.pset(x0 + i, y0 + j, RS); R.pset(x0 + i + 1, y0 + j, RL); }
+    if (k === 0) { R.rect(x0 + 8, y0 + 10, x0 + 27, y0 + 23, K); R.rect(x0 + 9, y0 + 11, x0 + 26, y0 + 22, hex('#f4ecd8')); }
+    if (k === 1) { R.rect(x0 + 3, y0 + 13, x0 + 32, y0 + 21, K); R.rect(x0 + 4, y0 + 14, x0 + 31, y0 + 20, hex('#f4ecd8'));
+      for (let i = 0; i < 9; i++) R.disco(x0 + 6 + i * 3, y0 + 19 - (i % 3), 2 - (i % 2), i % 2 ? RS : hex('#a07a48')); }
+    if (k === 2) { const C = hex('#2a1a10'); R.linea(x0 + 4, y0 + 6, x0 + 16, y0 + 16, C); R.linea(x0 + 16, y0 + 16, x0 + 30, y0 + 5, C); R.linea(x0 + 16, y0 + 16, x0 + 13, y0 + 30, C); R.linea(x0 + 22, y0 + 10, x0 + 31, y0 + 24, C); }
+  });
+};
+
+// 3 · la ladera: los geofísicos bajan con más aparatos y piden más datos
+const p3 = (t) => {
+  const o = { encuadre: 'ladera', epoca: 2026 };
+  T.ladera(R, t, o);
+  // bajan por la derecha con más aparatos: él con la maleta, ella con un manojo de banderitas; en «more data» ella clava
+  // una banderita nueva (otro punto que medir) y él deja la maleta; en «before concluding» él niega con la cabeza
+  // al acabar, los dos dan media vuelta y suben otra vez a medir (él recoge la maleta)
+  const u = ease(tramo(t, P3 + 0.05, en('escombro', 0.83))), w = ease(tramo(t, en('escombro', 0.99), en('escombro', 1.09)));
+  const x1 = N(lerp(334, 214, u) + 40 * w), x2 = N(lerp(356, 246, u) + 46 * w);
+  const clava = tramo(t, en('escombro', 0.83), en('escombro', 0.865));
+  // las banderitas ya clavadas por ella (aparecen una a una por detrás de su paso)
+  const banderas = [[300, -1], [276, -1], [238, 0.865]];
+  for (const [bx, f] of banderas) if (f < 0 || t > en('escombro', f)) { const by = pie(bx), fl = Math.floor(t * 4 + bx) % 2; R.linea(bx, by - 10, bx, by, hex('#5a4a3a')); R.rect(bx + 1, by - 10, bx + 5, by - 7 + fl, hex('#d83a2a')); R.pset(bx + 1, by - 7, hex('#8a1a10')); }
+  const m2 = R.actor(G2, x2, pie(x2 + 7), t, { dir: w > 0 ? 1 : -1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sostiene: clava > 0 && clava < 1 ? [x2 - 4, pie(x2 + 7) - 4] : true, sonrisa: t > en('escombro', 0.87) });
+  if (m2 && m2.mano && !(clava >= 1)) { const [mx, my] = m2.mano; R.linea(mx, my - 9, mx, my + 2, hex('#5a4a3a')); R.rect(mx + 1, my - 9, mx + 5, my - 6, hex('#d83a2a')); R.linea(mx - 2, my - 8, mx - 2, my + 1, hex('#5a4a3a')); R.rect(mx - 6, my - 8, mx - 3, my - 5, hex('#3a8ad8')); }
+  const niega = t > en('escombro', 0.9162) && t < en('escombro', 0.99);
+  const deja = t > en('escombro', 0.85) && w < 0.05;
+  const m1 = R.actor(G1, x1, pie(x1 + 7), t, { dir: niega ? (Math.floor(t * 6) % 2 ? 1 : -1) : w > 0 ? 1 : -1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sostiene: !deja, habla: t > en('escombro', 0.83) && t < en('escombro', 0.9) && Math.floor(t * 6) % 2 === 0 });
+  const maleta = (mx, my) => { R.rect(mx - 6, my - 1, mx + 6, my + 8, K); R.rect(mx - 5, my, mx + 5, my + 7, hex('#7a7a84')); R.rect(mx - 5, my + 3, mx + 5, my + 3, hex('#4a4a54')); R.rect(mx - 2, my - 3, mx + 2, my - 2, K); R.pset(mx - 3, my + 1, hex('#c8c8d0')); };
+  if (!deja && m1 && m1.mano) maleta(m1.mano[0], m1.mano[1]); else if (deja) maleta(x1 - 6, pie(x1 - 6) - 8);
+  T.laderaDelante(R, t, o);
+  if (t > en('escombro', 0.8262) && t < en('escombro', 0.9)) globo(x2 + 8, pie(x2 + 7) - 36, '?', hex('#3a6ad8'));
+};
+
+const efectos = [[en('escombro', 0.0291), 'pop'], [en('escombro', 0.1898), 'golpecito'], [en('escombro', 0.4938), 'papel'], [en('escombro', 0.5457), 'papel'],
+  [en('escombro', 0.6517), 'papel'], [en('escombro', 0.85), 'toc']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

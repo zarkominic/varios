@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Turín · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-TURIN (frases 16–17), sin cartela; la barra dice 2016 (el segundo equipo) y 2018 (Turín). Seis planos, cortados
+// en la palabra inglesa (el inserto de la carpeta va ANTES de la pared pintada para caer con «no rooms», y la pared con
+// «ghosts»; las vistas son las del reparto):
+// 1. la misma pared en escorzo con luz de LED: en «a second team» entra el técnico del chaleco gris; en «repeated the
+//    scan» señala el ordenador; la técnica llega con el rollo de cable y en «different equipment» señala el carro;
+// 2. la pantalla plana (corta en «found»): la línea verde pinta un radargrama limpio; en «Two radars» la mano traza el
+//    ✓ verde y en «different answers» el ✗ rojo, y se retira;
+// 3. el laboratorio de Turín (corta en «In 2018»; gag 5): el equipo enciende el radar grande; en «arrived» la pantalla
+//    pita con una puerta y «!»; el ayudante salta; en «Turin» el jefe va a la pared de prueba y señala la LATA olvidada;
+// 4. la carpeta del caso (corta en «led»): la mano entra y en «clear» cierra la tapa; en «no rooms» el sello
+//    estampa el candado rojo; la mano vuelve y da dos golpecitos;
+// 5. la pared pintada de frente (corta en «few yards»): una técnica pasa el radar de mano por delante; en «echoes» los
+//    arcos rebotan en el foco colgado DELANTE de la pared (el eco «fantasma» vuelve en rojo, «!»); en «in front of the
+//    wall» el foco se mece y salta la raya roja foco→radar; la pared no se toca;
+// 6. la entrada de la tumba hoy (corta en «not behind it»): la técnica sale con la maleta del radar y se va por la
+//    derecha; la cola de turistas sigue; en «case closed» el guarda tiende la cadena entre dos postes y sale el candado.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-turin');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const K = hex('#1a1410'), BL = hex('#f8f4e8');
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+const destello = (x, y, r, c = '#fff8d0') => { const C = hex(c); R.linea(x - r, y, x + r, y, C); R.linea(x, y - r, x, y + r, C); const d = N(r * 0.5); R.linea(x - d, y - d, x + d, y + d, C); R.linea(x - d, y + d, x + d, y - d, C); R.pset(x, y, hex('#ffffff')); };
+// un candado rojo de tinta (sin letras): arco y cuerpo con su ojo
+const candado = (x, y, c = '#d83a2a') => { const C = hex(c), S = hex('#7a1a10');
+  for (let a = 0; a <= 12; a++) { const an = Math.PI + a / 12 * Math.PI; R.pset(N(x + Math.cos(an) * 3), N(y - 3 + Math.sin(an) * 3), C); }
+  R.rect(x - 4, y - 2, x + 4, y + 4, C); R.rect(x - 4, y + 4, x + 4, y + 4, S); R.pset(x, y, S); R.pset(x, y + 1, S); };
+// lápiz o rotulador en la mano: un palito de 1 px con la punta de color
+const rotu = (x, y, c) => { R.linea(x, y, x + 6, y + 6, hex('#2a2a34')); R.linea(x + 1, y, x + 7, y + 6, hex('#5a5a68')); R.pset(x - 1, y - 1, hex(c)); R.pset(x, y - 1, hex(c)); };
+// arco de onda (semicírculo hacia un lado) a trazos
+const arco = (cx, cy, r, a0, a1, c, fase = 0) => { const C = hex(c); const n = Math.max(8, N(r * 2.2)); for (let i = 0; i <= n; i++) { if (((i + fase) % 4) === 3) continue; const an = a0 + (a1 - a0) * i / n; R.pset(N(cx + Math.cos(an) * r), N(cy + Math.sin(an) * r), C); } };
+const P2 = en('natgeo', 0.5903), P3 = en('turin', 0) - 0.1, P4 = en('turin', 0.2787), P5 = en('turin', 0.572), P6 = en('turin', 0.8694);
+const NG = T.ELENCO_TU.natgeoTU, PO = T.ELENCO_TU.porcelliTU;
+
+// 1 · el segundo equipo en la misma pared: entra, señala el ordenador; la técnica señala el carro
+const p1 = (t) => {
+  const o = { encuadre: 'segundo' };
+  T.radares(R, t, o);
+  // sale de detrás del sarcófago (x 1–79) desde el primer instante
+  const u = ease(tramo(t, 0.15, en('natgeo', 0.3)));
+  const xn = N(lerp(70, 116, u));
+  const v = ease(tramo(t, en('natgeo', 0.2), en('natgeo', 0.46)));
+  const xt = N(lerp(250, 196, v));
+  const ta = R.actor(EL.tecnica, xt, 164, t, { dir: -1, anda: v > 0 && v < 1, sostiene: v < 1 ? true : null,
+    dedo: t > en('natgeo', 0.4842) && t < en('natgeo', 0.58), habla: t > en('natgeo', 0.4842) && t < en('natgeo', 0.56) });
+  // el rollo de cable naranja en la mano mientras llega; luego lo deja en el suelo, junto al carro
+  if (v < 1 && ta && ta.mano) { const [mx, my] = ta.mano; R.disco(mx, my + 3, 4, hex('#2a2a2a')); R.disco(mx, my + 3, 3, hex('#e8783a')); R.disco(mx, my + 3, 1, hex('#2a2a2a')); }
+  else { R.disco(218, 160, 4, hex('#2a2a2a')); R.disco(218, 160, 3, hex('#e8783a')); R.disco(218, 160, 1, hex('#2a2a2a')); R.linea(218, 163, 236, 164, hex('#2a2a2a')); }
+  R.actor(NG, xn, 164, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > en('natgeo', 0.3402) && t < en('natgeo', 0.47),
+    habla: t > en('natgeo', 0.36) && t < en('natgeo', 0.45), triste: t > en('natgeo', 0.56) });
+  T.radaresDelante(R, t, o);
+};
+
+// 2 · la pantalla plana: la línea verde y, en la pizarrita, la mano traza ✓ y luego ✗
+const p2 = (t) => {
+  const barrido = ease(tramo(t, P2 + 0.05, en('natgeo', 0.69)));
+  const m1 = tramo(t, en('natgeo', 0.7034), en('natgeo', 0.79)), m2 = tramo(t, en('natgeo', 0.9034), en('natgeo', 0.99));
+  const marcas = m1 + m2;
+  const g = T.radares(R, t, { encuadre: 'segundo', camara: 'plana', barrido, marcas });
+  // la mano con el rotulador: entra, va a la primera marca, a la segunda y se va
+  const [ax, ay] = g.marcas ? g.marcas[0] : [236, 110], [bx, by] = g.marcas ? g.marcas[1] : [270, 110];
+  const entra = ease(tramo(t, en('natgeo', 0.65), en('natgeo', 0.7034))), cruza = ease(tramo(t, en('natgeo', 0.8), en('natgeo', 0.9034)));
+  const sale = ease(tramo(t, en('natgeo', 1.0), en('natgeo', 1.0) + 0.6));
+  const k = entra * (1 - sale);
+  if (k > 0.02) {
+    const tx = lerp(ax, bx, cruza) + (m1 > 0 && m1 < 1 ? Math.sin(m1 * 9) * 3 : 0) + (m2 > 0 && m2 < 1 ? Math.sin(m2 * 9) * 3 : 0);
+    const ty = ay + 6 + (m1 > 0 && m1 < 1 ? Math.cos(m1 * 7) * 3 : 0) + (m2 > 0 && m2 < 1 ? Math.cos(m2 * 7) * 3 : 0);
+    const hx = N(lerp(330, tx + 8, k)), hy = N(lerp(196, ty + 6, k));
+    rotu(hx - 9, hy - 8, m2 > 0 ? '#d83a2a' : '#3ac85a');
+    T.brazo(R, hx + 30, 200, hx, hy, '#7a7e86', -1, { codo: [hx + 30, hy + 22] });
+  }
+};
+
+// 3 · Turín: el radar grande pita (gag 5); el ayudante se alegra; el jefe va a la pared y señala la LATA
+const p3 = (t) => {
+  const pita = ease(tramo(t, en('turin', 0.0685), en('turin', 0.12)));
+  const o = { encuadre: 'turin', pita };
+  const g = T.radares(R, t, o);
+  // el ayudante, en el monitor: se alegra con el pitido; cuando el jefe señala la lata, se queda triste
+  const lata = t > en('turin', 0.222);
+  const salto = t > en('turin', 0.075) && t < en('turin', 0.14) ? N(Math.abs(Math.sin((t - en('turin', 0.075)) * 9)) * 3) : 0;
+  R.actor(EL.tecnico, 98, 158, t, { dir: 1, brazos: t > en('turin', 0.075) && t < en('turin', 0.16), salto, sonrisa: t > en('turin', 0.075) && !lata,
+    sorpresa: lata && t < en('turin', 0.25), triste: t > en('turin', 0.25), habla: t > en('turin', 0.005) && t < en('turin', 0.05) });
+  // el jefe del equipo: junto al radar; en «Polytechnic» echa a andar hacia la pared de prueba y en «Turin» señala la lata
+  const u = ease(tramo(t, en('turin', 0.15), en('turin', 0.215)));
+  const xp = N(lerp(140, 196, u));
+  R.actor(PO, xp, 158, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: t < en('turin', 0.15) && t > en('turin', 0.07), dedo: lata, habla: lata && t < en('turin', 0.26) });
+  // una tercera, al fondo de la estantería, que se gira a mirar
+  R.actor(EL.tecnica, 248, 158, t, { dir: t > en('turin', 0.09) ? -1 : 1, habla: t > en('turin', 0.18) && t < en('turin', 0.21) });
+  if (lata) { const a = tramo(t, en('turin', 0.222), en('turin', 0.222) + 0.5); destello(214, 112, N(2 + 3 * Math.sin(Math.min(1, a) * Math.PI)), '#ffffff'); }
+  T.radaresDelante(R, t, o);
+};
+
+// 4 · la carpeta: la mano mete la última hoja; en «clear» la tapa se cierra; en «no rooms» el sello; dos golpecitos
+const p4 = (t) => {
+  const cerrada = ease(tramo(t, en('turin', 0.3834), en('turin', 0.43)));
+  const sello = tramo(t, en('turin', 0.44), en('turin', 0.5));
+  T.radares(R, t, { encuadre: 'turin', camara: 'carpeta', cerrada, sello });
+  // la mano entra por abajo a la izquierda, coge la tapa y la cierra en «clear»; se va; luego vuelve a dar dos golpecitos
+  const coge = ease(tramo(t, P4 + 0.4, en('turin', 0.37))), suelta = ease(tramo(t, en('turin', 0.44), en('turin', 0.48)));
+  const kc = coge * (1 - suelta);
+  if (kc > 0.02) { const ex = N(100 - 92 * Math.cos(Math.PI * cerrada)), ey = N(150 - 30 * Math.sin(Math.PI * cerrada));
+    const hx = N(lerp(-20, ex, kc)), hy = N(lerp(210, ey, kc));
+    T.brazo(R, hx - 30, 204, hx, hy, '#4a5a6a', 1, { codo: [hx - 30, hy + 26] }); }
+  const toc = tramo(t, en('turin', 0.52), en('turin', 0.58));
+  if (toc > 0 && toc < 1) { const k = Math.sin(toc * Math.PI), golpe = Math.floor(toc * 4) % 2 ? 3 : 0;
+    const hx = N(lerp(330, 206, Math.min(1, k * 1.6))), hy = N(lerp(196, 128, Math.min(1, k * 1.6))) - golpe;
+    T.brazo(R, hx + 34, 200, hx, hy, '#4a5a6a', -1, { codo: [hx + 30, hy + 26] }); }
+};
+
+// 5 · la pared pintada de frente: el radar de mano pasa por DELANTE; los ecos rebotan en el foco colgado, no en la pared
+const p5 = (t) => {
+  const o = { encuadre: 'pintada', camara: 'pared', raya: 0, rectangulos: 0 };
+  T.tumba(R, t, o);
+  // el foco colgado de su cable, delante de la pared (se mece cuando el eco lo «descubre»)
+  const mece = t > en('turin', 0.8389) ? Math.sin((t - en('turin', 0.8389)) * 6) * 4 * Math.max(0, 1 - (t - en('turin', 0.8389)) / 2.5) : Math.sin(t * 1.3) * 0.6;
+  const fx = N(196 + mece), fy = 100;
+  // el charco de luz del foco en la pared (se mueve con él) y el foco: cable, casquillo, pantalla con brillo y bombilla
+  for (let j = 0; j < 26; j++) for (let i = -16 - j; i <= 16 + j; i += 2) if (((i + j) & 1) === 0 && Math.abs(i) < 30) R.pset(fx + i, fy + 6 + j, hex(j < 10 ? '#fff0a8' : '#f4d88a'));
+  R.linea(196, 0, fx, fy - 9, hex('#1a1a1a')); R.linea(197, 0, fx + 1, fy - 9, hex('#4a4a4a'));
+  R.rect(fx - 2, fy - 9, fx + 2, fy - 6, hex('#2a2a30'));
+  R.poligono([[fx - 4, fy - 6], [fx + 4, fy - 6], [fx + 10, fy + 3], [fx - 10, fy + 3]], hex('#2e5a3a'));
+  R.linea(fx - 3, fy - 5, fx - 8, fy + 2, hex('#5a9a6a')); R.linea(fx - 10, fy + 3, fx + 10, fy + 3, hex('#1a2a1e'));
+  R.disco(fx, fy + 4, 3, hex('#fff8d8')); R.pset(fx - 1, fy + 3, hex('#ffffff'));
+  // la técnica con el radar de mano, de izquierda a derecha por delante del zócalo
+  const u = tramo(t, P5 + 0.1, en('turin', 0.86));
+  const x = N(lerp(40, 170, ease(u)));
+  const a = R.actor(EL.tecnica, x, 172, t, { dir: 1, anda: u > 0 && u < 1 && !(t > en('turin', 0.69) && t < en('turin', 0.79)), sostiene: [x + 22, 150],
+    sorpresa: t > en('turin', 0.7505) && t < en('turin', 0.8), sonrisa: t > en('turin', 0.85) });
+  const rx = x + 24, ry = 150;
+  if (a && a.mano) T.PIEZAS_TU.radarMano(R, a.mano[0] + 4, a.mano[1] + 9, { t });
+  // los arcos: salen del radar hacia arriba y a la derecha, chocan con el foco y vuelven (rojos) — no tocan la pared
+  const e1 = tramo(t, en('turin', 0.6933), en('turin', 0.75)), e2 = tramo(t, en('turin', 0.79), en('turin', 0.8443));
+  const dx = fx - rx, dy = fy - ry, d = Math.hypot(dx, dy), an = Math.atan2(dy, dx);
+  for (const [e, rojo] of [[e1, false], [e2, true]]) if (e > 0 && e < 1) {
+    for (let k = 0; k < 3; k++) { const s = e * 1.6 - k * 0.18; if (s <= 0) continue;
+      if (s < 1) { arco(rx, ry, N(s * d), an - 0.5, an + 0.5, '#bfe4ff', N(t * 10)); arco(rx, ry, N(s * d) - 1, an - 0.5, an + 0.5, '#2a6ab8', N(t * 10)); }
+      else if (s < 2) { const c = rojo ? '#ff5a4a' : '#ffb0a0'; arco(fx, fy, N((s - 1) * d), an + Math.PI - 0.45, an + Math.PI + 0.45, c, N(t * 10)); arco(fx, fy, N((s - 1) * d) + 1, an + Math.PI - 0.45, an + Math.PI + 0.45, '#7a1a10', N(t * 10)); } } }
+  if (t > en('turin', 0.7505) && t < en('turin', 0.8443)) globo(fx + 18, fy - 14, '!', hex('#d83a2a'));
+  // «in front of the wall»: la raya roja de puntos del foco al radar y el destello en el foco
+  if (t > en('turin', 0.8443)) { const n = N(d / 3); for (let i = 0; i < n; i++) if ((i + N(t * 8)) % 3 === 0) { R.pset(N(rx + dx * i / n), N(ry + dy * i / n), hex('#ff5a4a')); R.pset(N(rx + dx * i / n) + 1, N(ry + dy * i / n), hex('#ff5a4a')); }
+    const q = tramo(t, en('turin', 0.8443), en('turin', 0.8443) + 0.6); if (q < 1) destello(fx, fy, N(3 + 5 * Math.sin(q * Math.PI))); }
+};
+
+// 6 · la entrada de hoy: la técnica sale con la maleta del radar; en «case closed» el guarda echa la cadena y el candado
+const p6 = (t) => {
+  const o = { encuadre: 'entrada', cola: 0.4 };
+  const g = T.valle(R, t, o);
+  const u = ease(tramo(t, P6 + 0.1, en('turin', 0.99)));
+  const xs = N(lerp(150, 240, u));
+  const ta = R.actor(EL.tecnica, xs, 152, t, { dir: 1, anda: u > 0 && u < 1, sostiene: true });
+  if (ta && ta.mano) { const [mx, my] = ta.mano; R.rect(mx - 6, my, mx + 4, my + 7, hex('#2a2e36')); R.rect(mx - 5, my + 1, mx + 3, my + 1, hex('#4a505a')); R.rect(mx - 2, my - 1, mx, my - 1, hex('#1a1a1a')); }
+  // el guarda: sale de la caseta, tiende la cadena del sendero de servicio (dos postes) y en «closed» la cierra
+  const sal = ease(tramo(t, en('turin', 0.91), en('turin', 0.955)));
+  const xg = N(lerp(54, 74, sal));
+  const tiende = ease(tramo(t, en('turin', 0.94), en('turin', 0.972)));
+  R.rect(70, 136, 71, 152, hex('#5a5a62')); R.rect(102, 136, 103, 152, hex('#5a5a62')); R.pset(70, 135, hex('#e8c860')); R.pset(102, 135, hex('#e8c860'));
+  { const xe = N(lerp(72, 102, tiende)); for (let x = 71; x <= xe; x++) { const y = N(138 + 3 * Math.sin((x - 71) / Math.max(1, xe - 71) * Math.PI)), c = (x >> 1) % 2 ? hex('#e83a2a') : hex('#f4f0e8'); R.pset(x, y, c); R.pset(x, y + 1, c); R.pset(x, y + 2, hex('#3a2a20')); } }
+  R.actor(EL.guarda, xg, 154, t, { dir: 1, anda: sal > 0 && sal < 1, dedo: t > en('turin', 0.94) && t < en('turin', 0.972), sonrisa: t > en('turin', 0.975) });
+  if (t > en('turin', 0.972)) { const q = tramo(t, en('turin', 0.972), en('turin', 0.972) + 0.25); R.disco(86, 120, N(6 + q), K); R.disco(86, 120, N(5 + q), BL); candado(86, 120); }
+  T.valleDelante(R, t, o);
+};
+
+const efectos = [[en('natgeo', 0.3402), 'zumbido'],
+  [en('natgeo', 0.7034), 'lapiz'], [en('natgeo', 0.9034), 'lapiz'],
+  [en('turin', 0.0685), 'bip'], [en('turin', 0.222), 'pop'],
+  [en('turin', 0.3834), 'papel'], [en('turin', 0.475), 'sello'], [en('turin', 0.54), 'toc'],
+  [en('turin', 0.6933), 'zumbido'], [en('turin', 0.8443), 'bip'], [en('turin', 0.972), 'cerrojo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => t < P3 + 0.2 ? 2016 : 2018 });
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El permiso · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-PERMISO (frase 25), 2026, sin cartela. Dos planos:
+// 1. el calendario de pared del despacho oficial (noviembre de 2026): en «permit» y «Supreme Council» el sello de su
+//    balda se ilumina con una «?», pero no baja; la mano con el lápiz rojo tacha los días uno a uno hacia el 20 rodeado;
+//    en «if it came through» la mano se para y da golpecitos en el último día y la «?» vuelve al sello (corta en «work»);
+// 2. el Valle de los Reyes en 2026: la perforadora espera en su terraza con la lona y la cinta; abajo, un técnico del
+//    equipo espera en la sombra: mira el reloj en «November 2026», da vueltas, mira el móvil; dos turistas pasan y
+//    fotografían la máquina; en «no decision has been announced» el técnico se encoge de hombros y sale la «?».
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-permiso');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const p = (f) => en('permiso', f);
+const P2 = p(0.5207), CONSEJO = p(0.153), EQUIPO = p(0.347), CAME = p(0.459), NOV = p(0.606), MEDIO = p(0.795), NADA = p(0.867), ANUNCIO = p(0.95);
+const N = Math.round, K = hex('#141018'), BL = hex('#f8f4ec'), ROJO = hex('#d8342a'), ORO = hex('#ffd860');
+const suave = (u) => u * u * (3 - 2 * u);
+const globo = (x, y, ic, col) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 4, y + 7, K); R.pset(x - 5, y + 8, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - 2, y - 3, col, null); };
+
+// 1 · el calendario: los días que pasan y el sello que no baja
+const D0 = 6.98 / 19;   // ya están tachados los seis primeros días
+const p1 = (t) => {
+  // la mano tacha desde 0,6 s hasta «if it came through», se para y señala; luego tacha el último antes del corte
+  const pausa = 0, golpea = t > CAME - 0.4 ? N(Math.abs(Math.sin(t * 7)) * 2) : 0;
+  const prog = tramo(t, 0.6, CAME - 0.5);
+  const dias = lerp(D0, 1, prog);
+  const g = T.ladera(R, t, { encuadre: 'permiso', camara: 'calendario', dias, hoy: 20 });
+  // el sello en su balda: en «permit» y «Supreme Council» brilla y sale la «?»; no baja
+  const s = tramo(t, 0.3, 0.7) - tramo(t, EQUIPO - 0.3, EQUIPO) + tramo(t, CAME - 0.3, CAME);
+  if (s > 0) { globo(268, 86 + N(Math.sin(t * 3) * 1.5), '?', hex('#3a6ac8'));
+    if (t > CONSEJO - 0.2 && t < CONSEJO + 0.8) { const k = (t - CONSEJO) * 4; for (const [dx, dy] of [[-10, 0], [10, 0], [0, -10], [0, 14]]) R.pset(266 + N(dx * (0.6 + k * 0.1)), 116 + N(dy * (0.6 + k * 0.1)), ORO); } }
+  // la punta del lápiz: al final del trazo del día que se está tachando
+  const di = dias * 19, hasta = Math.floor(di + 1e-6), frac = di - hasta;
+  const d = Math.min(19, Math.max(1, frac > 0 ? hasta : hasta)), k = d - 1, cx = 66 + (k % 7) * 22, cy = 64 + Math.floor(k / 7) * 20;
+  const nn = dias < 1 ? Math.min(1, frac * 3 + 0.4) : 1, ii = 3 + 15 * nn;
+  let tx = cx + ii, ty = cy + 2 + ii * 0.9;
+  if (pausa > 0) { tx = lerp(tx, 238, suave(pausa)); ty = lerp(ty, 116, suave(pausa)); }   // señala el sello
+  const entra = suave(tramo(t, 0.1, 0.7)), oy = (1 - entra) * 90;
+  ty += oy - golpea;
+  // el lápiz rojo (punta en tx, ty) y el brazo que entra desde abajo a la derecha
+  R.linea(N(tx), N(ty), N(tx + 7), N(ty + 7), K); R.linea(N(tx + 1), N(ty), N(tx + 7), N(ty + 6), hex('#d84a2a')); R.linea(N(tx), N(ty + 1), N(tx + 6), N(ty + 7), hex('#a02a1a')); R.pset(N(tx), N(ty), ROJO);
+  T.brazo(R, N(tx + 70), N(ty + 80), N(tx + 20), N(ty + 10), '#e8e0d0', -1, { codo: [N(tx + 54), N(ty + 36)] });
+  return g;
+};
+
+// 2 · el valle en 2026: la perforadora que espera; el técnico que espera abajo
+const p2 = (t) => {
+  const o = { encuadre: 'valle', epoca: 2026, luz: 'dia' };
+  T.valle(R, t, o);
+  // la nevera y la caja del equipo, en la arena de la derecha
+  R.rect(272, 147, 294, 157, K); R.rect(273, 148, 293, 156, hex('#3a7ac8')); R.rect(273, 148, 293, 149, hex('#8ab8e8')); R.rect(279, 146, 287, 147, K); R.rect(274, 156, 293, 157, hex('#c8a870'));
+  // el técnico del equipo: mira el reloj, da unas vueltas, mira el móvil y se encoge de hombros
+  const ronda = tramo(t, NOV + 0.4, MEDIO), xt = N(246 + Math.sin(ronda * Math.PI * 2) * 12);
+  const reloj = t > NOV - 0.5 && t < NOV + 0.4, movil = t > MEDIO && t < NADA, hombros = t > NADA && t < ANUNCIO + 0.6;
+  const dirT = ronda > 0 && ronda < 1 ? (Math.cos(ronda * Math.PI * 2) > 0 ? 1 : -1) : -1;
+  const r = R.actor(EL.tecnico, xt, 156, t, { dir: dirT, anda: ronda > 0 && ronda < 1, sostiene: reloj ? [xt + (dirT > 0 ? 13 : 2), 140] : movil ? [xt + (dirT > 0 ? 15 : 0), 138] : undefined, brazos: hombros, triste: hombros || movil });
+  if (movil) { const [mx, my] = r.mano; R.rect(mx - 1, my - 7, mx + 3, my, K); R.rect(mx, my - 6, mx + 2, my - 1, hex('#5a8ad8')); }
+  if (reloj) globo(xt + 8, 112, 'reloj', hex('#3a3a44'));
+  if (t > NADA + 0.2) globo(xt + 8, 112, '?', hex('#3a6ac8'));
+  // dos turistas que bajan por el asfalto hacia delante; en «mid-November» se paran y fotografían la máquina
+  const foto = t > MEDIO - 0.3 && t < NADA, uu = tramo(t, P2 + 0.2, MEDIO - 0.3) * 0.55 + tramo(t, NADA, ANUNCIO + 0.8) * 0.45, u = (uu > 0 && uu < 1) ? 0.5 : uu;
+  const x1 = N(lerp(198, 140, uu)), s1 = N(lerp(150, 176, uu));
+  R.actor(EL.turista2, x1 - 20, s1 + 4, t, { dir: foto ? 1 : -1, anda: u > 0 && u < 1 && !foto, sonrisa: true, dedo: t > NOV && t < MEDIO - 0.3 });
+  const rt = R.actor(EL.turista1, x1, s1, t, { dir: foto ? 1 : -1, anda: u > 0 && u < 1 && !foto, sostiene: foto ? [x1 + 16, s1 - 22] : undefined, sonrisa: true });
+  if (foto) { const [mx, my] = rt.mano; R.rect(mx - 2, my - 5, mx + 5, my, K); R.rect(mx - 1, my - 4, mx + 4, my - 1, hex('#3a3a44')); R.pset(mx + 3, my - 3, hex('#8ad8f8')); if (t > MEDIO + 0.3 && t < MEDIO + 0.45) R.disco(mx + 6, my - 3, 5, BL); }
+  T.valleDelante(R, t, o);
+};
+
+const efectos = [[0.7, 'lapiz'], [CONSEJO, 'brillo'], [2.9, 'lapiz'], [EQUIPO, 'lapiz'], [CAME, 'toc'],
+  [NOV - 0.3, 'tic'], [MEDIO + 0.3, 'flash'], [NADA + 0.2, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
