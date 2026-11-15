@@ -384,8 +384,8 @@ export function tumbaDelante(R, t, o = {}) {
 // o.encuadre (y o.camara: 'general' por omisión o la segunda de cada uno; un encuadre que no existe cae en 'calle'). Pinta
 // los 320 × 180 y devuelve la geometría del encuadre ({ encuadre, camara, suelo, libre: [x0, x1], y sus puntos, abajo }).
 // Lo de delante de los personajes va en cairoDelante (se llama DESPUÉS de los actores, con las mismas opciones). CUIDADO:
-// la «maldición» es un INVENTO DE PERIÓDICO: titulares de rayas gruesas, el pictograma (una pirámide con UN ojo plano y
-// un «!» rojo, sin boca ni brillo), gente que grita y un gato digno; SIN calaveras, momias, ataúdes, sombras ni rayos.
+// la «maldición» es un INVENTO DE PERIÓDICO: titulares de rayas gruesas, el pictograma (una pirámide lisa SIN OJO y
+// un «!» rojo), gente que grita y un gato digno; SIN calaveras, momias, ataúdes, sombras ni rayos.
 // Carnarvon murió de una infección: nada de cama ni de enfermo; basta una ventana que se apaga. Nada tiene letras.
 //   'calle' (general, de día; año 1923): el cielo tramado con nubes de tres tonos a tres velocidades, dos milanos que
 //     planean, palomas alrededor del palomar; al fondo, en la calima, la ciudad y la mezquita (cúpula y dos alminares de
@@ -3369,9 +3369,9 @@ function c_gato(R, x, suelo, t, modo = 'sienta', dir = 1, contorno = true) {
   for (let i = 1; i <= 6; i++) ps(-3 - i, Math.round(suelo - Math.max(0, i - 2) * (0.6 + 0.5 * Math.sin(t * 2.2 + i * 0.4))), i > 4 ? k : a);
 }
 
-// EL PICTOGRAMA DE LA MALDICIÓN (NUESTRO): una pirámide con UN ojo plano dentro (sin brillo y sin boca) y un «!» rojo
+// EL PICTOGRAMA DE LA MALDICIÓN (NUESTRO): una pirámide lisa, SIN OJO (con ojo sería el símbolo de la conspiración), y un «!» rojo
 // al lado; 16 × 8 celdas de s px; (x, y): su esquina de arriba a la izquierda; ap 0–1: el «!» aparece
-const c_PICTO = ['......K.....R...', '.....KuK....R...', '....KuuuK...R...', '...KuKKKuK..R...', '..KuKWKWKuK.R...', '.KuuuKKKuuuK....', 'KuuuuuuuuuuuK.R.', 'KKKKKKKKKKKKK...'];
+const c_PICTO = ['......K.....R...', '.....KuK....R...', '....KuuuK...R...', '...KuuuuuK..R...', '..KuuuuuuuK.R...', '.KuuuuuuuuuK....', 'KuuuuuuuuuuuK.R.', 'KKKKKKKKKKKKK...'];
 
 function c_picto(R, x, y, s = 1, o = {}) {
   const col = { K: o.k ?? hex('#2a2630'), u: o.u ?? hex('#e0b86a'), W: o.w ?? hex('#f6f2ea'), R: o.r ?? hex('#c83a3a') };
