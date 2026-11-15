@@ -11446,7 +11446,7 @@ const escarabajoTU = (R, x, y, o = {}) => {
 // abajo, colgado de las patas, con las alas plegadas. 21 × 13
 const murcielagoTU = (R, x, y, o = {}) => {
   const a = o.colgado ? 0 : Math.round(Math.max(0, Math.min(1, o.alas ?? 1)) * 2);
-  pintaTU(R, unaTU('murcielago' + a + !!o.colgado, () => {
+  pintaTU(R, unaTU('murcielago2' + a + !!o.colgado, () => {
     const g = forma(21, 13, ({ put, rect }) => {
       put(9, 2, 'K'); put(11, 2, 'K'); rect(9, 3, 11, 5, 'K'); put(9, 4, 'E'); put(11, 4, 'E'); rect(9, 6, 11, 9, 'K'); put(10, 10, 'K');
       if (a === 0) { rect(7, 5, 8, 10, 'u'); rect(12, 5, 13, 10, 'u'); put(7, 5, 'K'); put(13, 5, 'K'); put(8, 11, 'u'); put(12, 11, 'u'); }
@@ -11454,11 +11454,14 @@ const murcielagoTU = (R, x, y, o = {}) => {
         const top = 6 - (a === 2 ? Math.round(i * 0.45) : 0), bot = top + 3 - (i % 3 === 0 ? 1 : 0) - (i > 7 ? 1 : 0);
         for (let j = top; j <= bot; j++) put(10 + s * (1 + i), j, j === top && i % 3 !== 1 ? 'K' : 'u');
       }
+      rect(10, 6, 10, 8, 'b'); put(10, 3, 'b');
       if (o.colgado) { put(9, 11, 'K'); put(11, 11, 'K'); }
     });
     return o.colgado ? bocaAbajoTU(g) : g;
-  }), x, y, o);
+  }), x, y, o, PAL_MURC_TU);
 };
+// su paleta propia: membrana de color piel de ciruela que se lee contra la roca oscura, cuerpo gris pardo, ojillos claros
+const PAL_MURC_TU = { ...PAL_TU, ...COLORES({ K: '#2a2030', u: '#8a6476', E: '#f4e8c8', b: '#6a5468' }) };
 
 // LA CAJA de cartón (F, la sombra 1, la luz 2) en tres cuartos: la cara de delante, la de arriba con la cinta de
 // embalar (A) y el canto. o.abierta: las solapas levantadas y el hueco oscuro (3); o.agujero: el agujerito redondo en
