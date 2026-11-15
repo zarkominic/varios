@@ -592,3 +592,36 @@ en el borrador; proponer al usuario el arreglo de `subtitulos.py` para las inici
 
 Pendiente para el próximo: comprobar el reparto de encuadres con script antes de lanzar; borrar los fotogramas del 34;
 nivelar los Shorts en dos pasadas; mirar los símbolos de los kits a 640 px.
+
+## Episodio 35 · Jumanji: la palabra que no significa nada (14–15/11/2026)
+
+- **Derechos, el riesgo del episodio:** nada de las películas ni de las ilustraciones de los libros. Aun con la regla
+  escrita en los encargos, los agentes de decorados dibujaron dos parecidos por su cuenta: el centro del tablero como una
+  gema verde redonda (la cúpula del tablero de la película) y una casa flotando junto a un planeta con anillos (la
+  portada de «Zathura»), esta última en tres sitios (la selva, la pantalla del cine y un cartel). Se vieron al mirar
+  las hojas de contacto y por un aviso de un agente de escenas, y se rehicieron ANTES de las escenas: meta de latón con
+  estrella roja y tablero de hojalata con planeta a rayas. En un tema con obra ajena, el encargo de decorados tiene que
+  decir «no dibujes X» con el objeto concreto, no solo «nada de la película».
+- **El español, con los años de corrido** (regla del usuario, 14/11): «mil novecientos ochentaidós» para la voz (los
+  subtítulos no cambian) y comas solo de voz tras el año. Va en `hacer_guion.py` desde este episodio.
+- **Barrido de opciones de los decorados antes de las escenas:** el integrador dejó fuera una sentencia suelta
+  (`Object.assign(d_PICTOS…)`) y una vista rompía. Un agente barrió las 337 combinaciones de opciones y, de paso, puso
+  las opciones reales en el plan de planos (65 de 93 líneas las llevaban inventadas o sin poner; 18 planos pedían algo
+  que el decorado no daba). Ojo: `comprobar-decorados.mjs` sin `--hoja` pierde su primer argumento.
+- **El plan de planos se cuenta por oraciones:** aun validado por script (93 planos), los agentes añadieron 9 vistas
+  extra porque había oraciones de más de 7 s; acabó en 102 planos. Falta en el plan una lista de vistas libres.
+- **Calidad:** 43 de 102 planos suspendieron en la revisión completa (el 34: 44 de 102); 43 → 1 → 0. Por tipo: orden de
+  dibujo o algo que flota 23, brazo o mano 14, algo que no se lee 6. Al mirar yo después: el contador sumaba 2020 y el
+  gancho decía 2027 (se pusieron los sumandos exactos), y el zapato del letrero era otro dibujo en la escena y en el
+  decorado (se unificó).
+- **Sonido:** antes de la pasada de movimiento, cinco escenas entre el 32 y el 37 % y el cierre en el 71 %; después,
+  todas entre el 42 y el 67 % (pelo y taquilla, por encima de 60). Total 54 %.
+- **Disco:** 8,9 GB antes del render (pedía ~8,7); quedó en 2,4. Se liberó con la música y los efectos del 34 y capturas.
+- **Shorts:** el 1 salió a −14,7 LUFS y se subió 0,6 dB; en el 3 el recorte automático dejaba fuera el muro con las
+  flores (`--x 4=0`).
+- **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 6,4 dB; 144 y 141 subtítulos, 0 fuera de norma).
+- **Cifras:** calidad 6,15 M de tokens (2 h 45 min, 38 agentes); decorados (primera versión) 2,47 M; escenas 2,64 M.
+
+Pendiente para el próximo: borrar los fotogramas del 35; en temas con obra ajena, nombrar en el encargo los objetos
+prohibidos; añadir al plan de planos una lista de vistas libres; barrer las opciones de los decorados al integrar;
+nivelar los Shorts en dos pasadas.

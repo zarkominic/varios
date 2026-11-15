@@ -136,4 +136,24 @@ imágenes de los libros ni de las películas: todos los dibujos son propios.
 
 ## Shorts
 
-(se rellena al producirlos)
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+inglesa como pista principal, la pista en español, sus dos SRT y su miniatura vertical (con chibis). En «Vídeo
+relacionado» se elige el episodio completo.
+
+### Short 1 · La palabra que no significa nada · tramo 0.25-31.3
+- **EN:** Jumanji Means Nothing. A Sculptor Made It Up #Shorts
+- **ES:** Jumanji no significa nada: se lo inventó un escultor #Shorts
+- **EN:** "Jumanji" doesn't mean anything. A sculptor made the word up in 1981 for a 32-page picture book, and the movies that came out of it have taken in more than two billion dollars. The full story is in the linked video. #Jumanji #ChrisVanAllsburg #MovieHistory #ASKAtom #Shorts
+- **ES:** «Jumanji» no significa nada. Un escultor se inventó la palabra en 1981 para un libro ilustrado de 32 páginas, y las películas que salieron de él han recaudado más de dos mil millones de dólares. La historia completa, en el vídeo enlazado. #Jumanji #ChrisVanAllsburg #HistoriaDelCine #ASKAtom #Shorts
+
+### Short 2 · Cómo nació la palabra · tramo 100.92-137.5
+- **EN:** How Jumanji Got Its Name: A Word That Sounds Like Jungle #Shorts
+- **ES:** Jumanji: de dónde salió la palabra que suena a jungla #Shorts
+- **EN:** As a kid, board games let Chris Van Allsburg down: paper money, nothing real. So he imagined a game where everything is real while you play, and he needed a word that sounded far away and hinted at "jungle." He wrote down "Jumanji." The full story is in the linked video. #Jumanji #ChrisVanAllsburg #Books #ASKAtom #Shorts
+- **ES:** De niño, a Chris Van Allsburg los juegos de mesa lo decepcionaban: dinero de papel y nada de verdad. Así que imaginó un juego donde todo es real mientras juegas, y le hacía falta una palabra que sonara lejana y recordara a «jungla». Escribió «Jumanji». La historia completa, en el vídeo enlazado. #Jumanji #ChrisVanAllsburg #Libros #ASKAtom #Shorts
+
+### Short 3 · El letrero que Keene no quiso borrar · tramo 329.5-356.2 --x 4=0
+- **EN:** Jumanji: The Town That Refused to Erase a Movie Sign #Shorts
+- **ES:** Jumanji: el pueblo que no quiso borrar un letrero #Shorts
+- **EN:** For the 1995 film, a shoe-factory ad was painted on a brick wall in Keene, New Hampshire, in washable paint. The neighbors asked for it to stay. And in August 2014, the night people learned Robin Williams had died, someone lit candles at the foot of that wall. The full story is in the linked video. #Jumanji #RobinWilliams #Keene #ASKAtom #Shorts
+- **ES:** Para la película de 1995 pintaron en una pared de ladrillo de Keene, New Hampshire, el anuncio de una fábrica de zapatos, con pintura lavable. Los vecinos pidieron que se quedara. Y en agosto de 2014, la noche en que se supo que Robin Williams había muerto, alguien encendió velas al pie de esa pared. La historia completa, en el vídeo enlazado. #Jumanji #RobinWilliams #Keene #ASKAtom #Shorts
