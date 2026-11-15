@@ -72,7 +72,7 @@ const p1 = (t) => {
 // 2 · la rueda de prensa: el ayudante trae el papel; el ministro anuncia; la pantalla sube hasta 90 en «90 %»
 const p2 = (t) => {
   const cifra = ease(tramo(t, en('watanabe', 0.7866), en('watanabe', 0.8494)));
-  const o = { encuadre: 'prensa', cifra, flash: 1 };
+  const o = { encuadre: 'prensa', cifra, flash: 1, mesa: 131 };
   T.radares(R, t, o);
   const habla = t > en('watanabe', 0.5751) && Math.floor(t * 3) % 4 !== 3, punto = t > en('watanabe', 0.8494);
   // el ministro se levanta en «minister» y señala la pantalla; antes, Reeves y Watanabe cuchichean
@@ -82,16 +82,16 @@ const p2 = (t) => {
   // el ayudante: entra por la derecha detrás de la mesa, le da el papel al ministro y se va
   const ta = en('watanabe', 0.56), va = ease(tramo(t, P2 + 0.5, ta)), vu = ease(tramo(t, ta + 0.5, ta + 1.9)), xa = N(lerp(322, 168, va) + 160 * vu);
   const conPapel = t < ta + 0.25;
-  if (va > 0 && vu < 1) { const a = R.actor(EL.ejecutivo, xa, 132, t, { dir: vu > 0 ? 1 : -1, anda: (va > 0 && va < 1) || vu > 0, sostiene: conPapel ? [xa - 2, 124] : undefined, sonrisa: vu > 0 });
+  if (va > 0 && vu < 1) { const a = R.actor(EL.ejecutivo, xa, 128, t, { dir: vu > 0 ? 1 : -1, anda: (va > 0 && va < 1) || vu > 0, sostiene: conPapel ? [xa - 2, 120] : undefined, sonrisa: vu > 0 });
     if (conPapel && a && a.mano) { const [mx, my] = a.mano; R.rect(mx - 4, my - 6, mx + 1, my + 1, hex('#1a1a22')); R.rect(mx - 3, my - 5, mx, my, hex('#f4f4ee')); R.linea(mx - 3, my - 3, mx - 1, my - 3, hex('#9a9aa8')); } }
   const tienePapel = t > ta + 0.25 && t < en('watanabe', 0.7866);
-  const mi = R.actor(T.ELENCO_TU.eldamatyTU, 153, N(lerp(136, 129, de)), t, { dir: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) ? -1 : 1, habla: habla && !punto, dedo: de > 0.9 && !punto && !tienePapel ? t % 2 < 1.2 : false, brazos: punto, sonrisa: punto, sostiene: tienePapel ? true : undefined });
+  const mi = R.actor(T.ELENCO_TU.eldamatyTU, 153, N(lerp(136, 125, de)), t, { dir: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) ? -1 : 1, habla: habla && !punto, dedo: de > 0.9 && !punto && !tienePapel ? t % 2 < 1.2 : false, brazos: punto, sonrisa: punto, sostiene: tienePapel ? true : undefined });
   if (tienePapel && mi && mi.mano) { const [mx, my] = mi.mano; R.rect(mx - 2, my - 6, mx + 3, my + 1, hex('#1a1a22')); R.rect(mx - 1, my - 5, mx + 2, my, hex('#f4f4ee')); R.pset(mx, my - 3, hex('#9a9aa8')); }
   R.actor(EL.guia, 193, 136, t, { dir: -1, habla: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) });
   R.actor(EL.tecnico, 229, 136, t, { dir: -1, sorpresa: punto });
   T.radaresDelante(R, t, o);
   // el papel, que el ministro deja en la mesa cuando la pantalla sube
-  if (t >= en('watanabe', 0.7866)) { R.rect(158, 126, 165, 128, hex('#1a1a22')); R.rect(159, 126, 164, 127, hex('#f4f4ee')); R.pset(161, 126, hex('#9a9aa8')); }
+  if (t >= en('watanabe', 0.7866)) { R.rect(158, 130, 165, 132, hex('#1a1a22')); R.rect(159, 130, 164, 131, hex('#f4f4ee')); R.pset(161, 130, hex('#9a9aa8')); }
 };
 
 // 3 · el público: en «chance» y «hidden rooms» se alzan teléfonos y grabadoras; la tanda de flashes

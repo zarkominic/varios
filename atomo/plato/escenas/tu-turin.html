@@ -185,7 +185,7 @@ const p4 = (t) => {
   const g = T.radares(R, t, { encuadre: 'turin', camara: 'carpeta', cerrada, sello });
   // la tapa de cartón con su textura (fibras, cantos gastados, la luz de la ventana, la goma, las banderitas, la
   // etiqueta con el radar; por dentro, el bolsillo con su clip), pegada a la tapa mientras gira
-  tapa(t, cerrada, sello, g.carpeta, g.sello);
+  // tapa(t, cerrada, sello, g.carpeta, g.sello);  // PARCHE quitado: el decorado ya pinta el cartón
   // la mano entra por abajo a la izquierda con la ÚLTIMA HOJA (el informe, con la hipérbola tachada), la deja encima del
   // montón, va al canto de la tapa, la cierra en «clear» y se va; luego vuelve a dar dos golpecitos
   const lleva = ease(tramo(t, P4 + 0.1, P4 + 0.9)), deja = t > P4 + 1.0;
