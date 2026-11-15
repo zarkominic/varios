@@ -10,7 +10,8 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // TU-GANCHO (frases 1–2), sin cartela. Siete planos, cortados en la palabra inglesa:
-// 1. (0) la pared norte pintada, de cerca: en el golpe de música asoma la RAYA recta del dintel; un turista entra, se
+// 1. (0) la pared norte pintada, de cerca: en el golpe de música asoma la RAYA recta del dintel (la pinta el decorado,
+//    b_puertaFilo, con su filo de luz y su brillo); un turista entra, se
 //    para debajo, se sorprende en «walls» y la señala en «chamber»;
 // 2. («there could be rooms») el corte del monte: la tumba dentro y, en «rooms», salen las manchas; en «3,300» la cifra;
 // 3. («And this year») la cumbre con la perforadora: la geofísica llega con el permiso y lo alza en «permission»; en
@@ -37,11 +38,8 @@ const P2 = wm(6.5), P3 = wm(10.95), P4 = wc(17.45), P5 = wc(21.95), P6 = wc(24.4
 // 1. la pared pintada: la raya sale con el golpe de música («muro», ~0,6 s) y el turista la descubre
 const p1 = (t) => {
   const ry = ease(tramo(t, 0.2, 0.75));
-  const g = T.tumba(R, t, { encuadre: 'pintada', camara: 'pared', raya: ry }), [qx0, qy, qx1] = g.puerta || [150, 52, 224];
-  // la raya, que se lea a 640 px: su sombra debajo y un brillo que la recorre con el golpe y otra vez en «walls»
-  if (ry > 0) { const qm = (qx0 + qx1) / 2, qh = (qx1 - qx0) / 2, x0 = Math.round(qm - qh * ry), x1 = Math.round(qm + qh * ry);
-    for (let x = x0; x <= x1; x++) { R.pset(x, qy - 1, hex('#ffe8a8')); R.pset(x, qy + 1, hex('#5a3410')); if ((x & 1) === 0) R.pset(x, qy + 2, hex('#a8742c')); }
-    for (const [a, b] of [[0.45, 1.6], [wm(3.9), wm(4.9)]]) { const s = tramo(t, a, b); if (s > 0 && s < 1) { const cx = lerp(qx0 - 4, qx1 + 4, s); for (let x = Math.round(cx) - 7; x <= Math.round(cx) + 7; x++) if (x >= x0 && x <= x1) { R.pset(x, qy, hex('#fff8e0')); if (Math.abs(x - cx) < 3) { R.pset(x, qy - 2, hex('#fff2c0')); R.pset(x, qy + 1, hex('#fff2c0')); } } } } }
+  // la raya la pinta entera el decorado (b_puertaFilo: filo de luz, sombra fina y el brillo que la recorre)
+  T.tumba(R, t, { encuadre: 'pintada', camara: 'pared', raya: ry });
   const u = tramo(t, 1.0, wm(3.5)), x = Math.round(lerp(-20, 118, ease(u)));
   R.actor(EL.turista1, x, 172, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > wm(3.95) && t < wm(5.4), dedo: t > wm(5.6), sonrisa: t > wm(6.0) });
   const v = tramo(t, wm(4.3), wm(6.3)), x2 = Math.round(lerp(330, 236, ease(v)));

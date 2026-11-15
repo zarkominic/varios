@@ -30,6 +30,8 @@
 //    name»; el escriba explica, señala el nombre y en «scraped» empieza a raspar con la cuchilla de cobre (virutas);
 // 8. el cartucho de cerca: la cuchilla acaba de raspar, el pincel pinta sol, ankh y cesta en «replaced with his» y,
 //    en «someone else», repasa de oro el borde de abajo del óvalo; una mosca se pasea por el estuco.
+// El techo de roca del plano 1 lo pinta ya el decorado (b_techoRoca en 'capillas'); el del plano 5 sigue en techo() local
+// porque 'mascara'/'sarcofago' solo pinta b_techo, casi liso.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-pequena');
@@ -49,7 +51,8 @@ const aLaLuz = (pinta, fuentes, amb = 0.32) => {
     const r = Math.min(255, (p & 255) * L * (1 + 0.12 * w)), g = Math.min(255, ((p >> 8) & 255) * L * (1 - 0.05 * w)), bb = Math.min(255, ((p >> 16) & 255) * L * (1 - 0.25 * w) + (1 - w) * 10);
     B[i] = (0xff000000 | (N(bb) << 16) | (N(g) << 8) | N(r)) >>> 0; }
 };
-// el techo de roca de la cámara (el decorado lo deja casi liso): bloques desbastados con sus juntas, marcas de cincel,
+// el techo de roca de la cámara del sarcófago (plano 5: el decorado 'mascara'/'sarcofago' lo deja casi liso, con
+// b_techo y no b_techoRoca): bloques desbastados con sus juntas, marcas de cincel,
 // hollín encima de las lámparas y una grieta; la esquina de Atom, más tranquila. Se pinta una vez en un búfer
 const techos = {};
 const techo = (y1, luces, k) => {
@@ -75,7 +78,6 @@ const p0 = (t) => {
   const panel = ease(tramo(t, 0.5, P1 - 0.4));
   const o = { encuadre: 'capillas', panel };
   T.tumba(R, t, o);
-  techo(46, [[34, 1], [300, 1], [160, 0.5]], 1);
   const tira = Math.floor(t * 2.2) % 2 === 0 && panel < 1;
   aLaLuz(() => {
     // dos obreros tiran de la cuerda, a la derecha, y se echan atrás a cada tirón

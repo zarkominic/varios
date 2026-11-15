@@ -14,14 +14,16 @@
 // 1. 1922, de noche, el pasillo de bajada ante la SEGUNDA puerta (tumba/pasillo/general): Carter entra con la vela y
 //    sube la escalera de tijera; Carnarvon llega detrás y sujeta la pata; Carter deja la vela en la tapa, pica con el
 //    cincel tres golpes (el enlucido se raja, caen trocitos) y en «made a small hole» se abre el agujerito; coge otra vez
-//    la vela y la acerca; Carnarvon, «!»; el murciélago cruza por la boca de la escalera; sin oro todavía;
+//    la vela y la acerca (el boquete del enlucido es el del decorado, sin grietas añadidas); Carnarvon, «!»; el murciélago
+//    cruza por la boca de la escalera; sin oro todavía;
 // 2. las dos luces: a la izquierda (1922) la mano de Carter enciende la vela en «candle» y en «wonderful things» brilla
 //    el oro por el hueco; a la derecha (2026), en «Now», se enciende la luz fría de la camarita; cifras 1922 y 2026;
 // 3. las dos luces de cerca: una gota de cera baja por el cabo y una polilla ronda la llama (se aparta cuando crece la
 //    luz fría); la luz de la camarita crece en «light»; en «the candle is a camera» una flecha a trazos
 //    corre de la llama a la camarita y en «from above» tres flechitas bajan sobre ella;
 // 4. hoy, el estudio por la tarde (gag 8): Atom baja de su esquina con la linterna; en «queen» hace el agujerito en la
-//    caja con la punta; en «rock» enciende la linterna y la luz se asoma por el agujero; el gato del sillón mira;
+//    caja con la punta; en «rock» enciende la linterna y la luz se asoma por el agujero; el gato del sillón mira; la caja
+//    lleva la flecha y la etiqueta de envío del decorado, ya sin parche encima;
 // 5. dentro de la caja: entra el rayito; una araña baja por su hilo; en «finally have looked» sale del círculo de luz OTRA
 //    caja con su agujerito, «?»;
 // 6. el estudio: Atom, delante de la ventana, alarga el guante y da una palmadita a la caja del escritorio en «when they
@@ -104,9 +106,7 @@ const p1 = (t) => {
   const ce = ease(tramo(t, 0.3, SUBE - 0.2)), nx = N(lerp(128, 181, ce));
   // la vela en la tapa va detrás del brazo de Carter (se pinta antes que los actores)
   if (!enMano) PZ.vela(R, vb[0], vb[1], { t });
-  // el enlucido que se raja alrededor del agujerito, con cada golpe una grieta más (y el agujero no queda como un óvalo liso)
-  { const n = TOQ.filter((a) => t > a).length, G = [[[-2, -2], [-6, -5], [-9, -5]], [[3, -2], [7, -6], [8, -9]], [[1, 3], [3, 7], [7, 9]]];
-    for (let k = 0; k < n; k++) { let [px, py] = HUECO; for (const [dx, dy] of G[k]) { const qx = HUECO[0] + dx, qy = HUECO[1] + dy; R.linea(px, py, qx, qy, hex('#4a3420')); px = qx; py = qy; } } }
+  // (el boquete irregular del enlucido ya lo pinta el decorado: sin grietas propias encima)
   aLaLuz(() => {
     escalera();
     R.actor(TU.carnarvonTU, nx, 156, t, { dir: 1, anda: ce > 0 && ce < 1, sostiene: ce >= 1 ? [201, 141] : undefined, sorpresa: t > HOLE + 0.05, habla: t > HOLE + 0.45 && Math.sin(t * 9) > 0 });
@@ -163,8 +163,6 @@ const p4 = (t) => {
   const g = T.hoy(R, t, { encuadre: 'caja', agujero, luz });
   T.hoyDelante(R, t, { encuadre: 'caja' });
   const [hx0, hy0] = g.agujero || [151, 121];
-  // PARCHE DECORADO: g_hyCaja las dos copas pintadas junto al agujero, con él, parecían una carita: se tapan con el cartón de la cara de delante
-  { const c = R.pget(166, 134); R.rect(129, 124, 146, 133, c); for (let x = 129; x <= 146; x += 5) R.pset(x, 133, R.pget(166, 136)); }
   // Atom baja de la esquina y se coloca a la izquierda de la caja
   const b = tramo(t, BAJA, BAJA + 0.7), [ax, ay0] = b < 1 ? vuelo([297, 24], ATC, b, 14) : ATC;
   const ay = ay0 + (b >= 1 ? Math.sin(t * 2.4) * 1.5 : 0) - (t > ROCA && t < ROCA + 0.3 ? 3 : 0);

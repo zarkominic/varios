@@ -23,7 +23,8 @@
 //    a las estatuas guardianas en «statues»; un escarabajo cruza un cofre;
 // 4. el ajuar de cerca: la vela (en la mano, T.brazo) está en la rueda del carro en «chariots», baja al cofre pintado en
 //    «chests», donde la otra mano limpia el polvo de la tapa, y sube al trono y lo alto del montón en «piled up»; una
-//    polilla da vueltas a la llama; en «attic» cae polvo de lo alto y la vela sube a mirar la cima del montón.
+//    polilla da vueltas a la llama; en «attic» cae polvo de lo alto y la vela sube a mirar la cima del montón. La luz
+//    del decorado sale de la llama (o.llama) y la sigue: el foco cálido barre el ajuar y el resto queda en penumbra.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-vela');
@@ -159,12 +160,12 @@ const p3 = (t) => {
 
 // 4 · el ajuar: la vela barre el trono, la rueda en «chariots» y el cofre en «chests»; una polilla y el polvo del «attic»
 const p4 = (t) => {
-  const o = { encuadre: 'antecamara', camara: 'ajuar' };
-  T.tumba(R, t, o);
   // la llama recorre: la rueda del carro («chariots»), baja al cofre («chests») y, en «piled up like an attic», sube
-  // hacia el trono y lo alto del montón
+  // hacia el trono y lo alto del montón; la luz del decorado sale de la llama y la sigue (foco cálido, resto en penumbra)
   const u1 = ease(tramo(t, v(0.868), v(0.9))), u2 = ease(tramo(t, v(0.93), v(0.965))), u3 = ease(tramo(t, v(0.975), v(0.975) + 1.2));
   const lx = N(lerp(lerp(118, 82, u1), 206, u2) + u3 * 28), ly = N(lerp(lerp(124, 146, u1), 126, u2) - u3 * 22);
+  const o = { encuadre: 'antecamara', camara: 'ajuar', vela: 1, llama: [lx, ly - 4] };
+  T.tumba(R, t, o);
   // la otra mano limpia el polvo de la tapa del cofre, de un lado a otro, y se va (en «chests»)
   const lm = tramo(t, v(0.893), v(0.942));
   if (lm > 0 && lm < 1) { const ent = Math.min(1, lm * 5, (1 - lm) * 5), hx = N(lerp(-10, 30 + Math.sin(lm * Math.PI * 6) * 9, ent)), hy = N(lerp(116, 104, ent));

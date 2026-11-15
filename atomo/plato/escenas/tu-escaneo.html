@@ -15,7 +15,8 @@
 //    boca, la cola avanza a tirones y en «Too many visitors» el guarda la para con la mano y un «!»;
 // 2. («To protect it») el escáner en su raíl ante la pared pintada: el carro avanza y deja la malla azul; el técnico
 //    lo acompaña andando y en «scanned» se vuelve y la señala; la técnica mira el portátil y habla;
-// 3. («every wall») el cabezal de cerca: una mano pulsa el botón (verde), baja la línea roja y la pantallita se llena;
+// 3. («every wall») el cabezal de cerca: una mano pulsa el botón (verde), la línea roja baja desde arriba del
+//    todo (y 29, bajo la barra del año) hasta abajo y la pantallita se llena;
 //    en «fractions of a millimeter» se enciende «0.1»;
 // 4. («and built an exact copy») la impresora del taller de Madrid de cerca: yeso, relieve y el color en «copy»;
 // 5. («next to Carter's old house») la casa de Carter y el pabellón de la copia con su banderola «2014»: el guía baja del
@@ -79,7 +80,7 @@ const q2 = (t) => {
 // 3 · el cabezal: la mano pulsa, baja la línea roja y en «fractions of a millimeter» sale 0.1
 const PULSA = P3 + 0.55, CIFRA = wc(12.2);
 const q3 = (t) => {
-  const o = { encuadre: 'escaner', camara: 'cabezal', barrido: 0.13 + 0.87 * tramo(t, PULSA + 0.25, P4 - 0.2) };
+  const o = { encuadre: 'escaner', camara: 'cabezal', barrido: tramo(t, PULSA + 0.25, P4 - 0.2) }; // 0→1: el decorado ya arranca la línea en y 29, bajo la barra del año
   T.escaneo(R, t, o);
   // el botón de marcha (rojo → verde) en la chapa del cabezal
   const on = t > PULSA;
