@@ -21,11 +21,15 @@
 //  4 · el pasillo a ras de suelo, a lápiz: el ratón asoma y avisa («!»), se mete; tiembla el pasillo (polvo del friso,
 //      la zapatilla, la pelota) y cruzan pisando las patas de los DOS rinocerontes, uno detrás de otro (estampida
 //      0,14 → 0,78; el decorado solo pinta patas y polvo por debajo de y 46).
-//  5 · el dibujo único, de cerca: la mirada (unos ojos y su marco rojo) salta del sillón al rinoceronte; en «look away»
-//      intenta irse por la derecha y por la izquierda, y una goma la devuelve; al final abarca a los dos.
+//  5 · el dibujo único, de cerca: la mirada es un marco rojo (sin ojos: sobre la hoja parecían su cara) que salta del
+//      sillón al rinoceronte; en «look away» intenta irse por la derecha y por la izquierda, y una goma de puntos atada
+//      con dos chinchetas a los dos la devuelve; al final se abre y abarca a los dos.
 //  6 · la cartulina de reglas: la ficha da tres pasos; una mano con una cera roja tacha la puerta («quit»), el dado
 //      («cheat») y el teléfono («call»).
-//  7 · las últimas casillas y la META: la ficha llega en «finish… started»; las lianas del borde se retiran y salta el confeti.
+//  7 · las últimas casillas y la META: la ficha llega en «finish… started». La escena pinta encima del decorado la
+//      lámina de selva de la cabecera, el pliegue, el filete, el cerco de té, la esquina gastada y más mesa (dados,
+//      lápiz, fichas azul y amarilla, la taza que humea, la hoja); las lianas (grandes, con sombra) dan un latigazo y
+//      se retiran soltando hojas, y de la META sale el confeti, que flota y se posa en la mesa.
 //  8 · la mesa desde arriba: Atom baja y acompaña a su ficha por la espiral; en «dressed up» entran los dados rodando, en
 //      «stampede» tiembla la mesa y asoma la liana; la ficha llega a la meta y Atom vuelve a su esquina.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
@@ -81,7 +85,7 @@ const p1 = (t) => {
 // 2 · NUESTRA lámina de la alacena: la mano sombrea la puerta y el segundo mono asoma por el canto
 const NEVER = tc(6.63), SAME = tc(7.53);
 const p2 = (t) => {
-  const o = { encuadre: 'cocina', camara: 'alacena', monos: lerp(0.4, 1, tramo(t, NEVER - 0.1, NEVER + 0.9)) };   // el decorado lo hace asomar de 0,5 a 1: dedos, cola, cabeza, vuelta T.casaJuego(R, t, o); T.casaJuegoDelante(R, t, o);
+  const o = { encuadre: 'cocina', camara: 'alacena', monos: lerp(0.4, 1, tramo(t, NEVER - 0.1, NEVER + 0.9)) }; T.casaJuego(R, t, o); T.casaJuegoDelante(R, t, o);   // el decorado lo hace asomar de 0,5 a 1: dedos, cola, cabeza, vuelta
   const u = ease(tramo(t, P2 + 0.05, P2 + 0.75)), v = ease(tramo(t, NEVER + 0.02, NEVER + 0.42));
   // el sombreado que va dejando la mano en la puerta; cuando el mono da la vuelta y se cuelga delante, queda debajo de él
   { const n = Math.floor(cl((t - P2 - 0.7) / (NEVER - P2 - 0.7)) * 22 * (1 - tramo(t, NEVER + 0.6, NEVER + 0.88))); for (let k = 0; k < n; k++) { const x = 252 + (k * 7) % 22, y = 58 + (k * 5) % 34; R.linea(x, y, x + 5, y - 4, hex(k % 3 ? '#6e6c74' : '#9a98a0')); } }
@@ -122,24 +126,29 @@ const p4 = (t) => {
   T.casaJuegoDelante(R, t, o);
 };
 
-// 5 · el dibujo único: la mirada no puede irse
+// 5 · el dibujo único: la mirada no puede irse (la mirada es el marco rojo: sin ojos, que sobre la hoja parecían su cara)
 const AWAY = tc(17.98);
-const ojo = (x, y, dx, dy) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.disco(x + dx, y + dy, 3, hex('#2f62b8')); R.disco(x + dx, y + dy, 1.5, K); R.pset(Math.round(x + dx) - 1, Math.round(y + dy) - 1, BL); };
 const marcoMira = (cx, cy, w, h) => { for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const x = Math.round(cx + sx * w), y = Math.round(cy + sy * h);
   for (const [g, c] of [[1, K], [0, ROJO]]) { R.rect(Math.min(x, x - sx * 9) - g, y - 1 - g, Math.max(x, x - sx * 9) + g, y + g, c); R.rect(x - 1 - g, Math.min(y, y - sy * 9) - g, x + g, Math.max(y, y - sy * 9) + g, c); } } };
 const tiron = (a, amp) => a <= 0 || a > 1 ? 0 : a < 0.55 ? amp * ease(a / 0.55) : a < 0.72 ? amp * (1 - ease((a - 0.55) / 0.17)) : -amp * 0.14 * Math.sin((a - 0.72) / 0.28 * Math.PI * 2) * (1 - (a - 0.72) / 0.28);
+// una chincheta roja (donde se ata la goma) y la goma: una línea de puntos gordos, rojos y negros
+const chincheta5 = (x, y) => { R.disco(x, y, 3.4, K); R.disco(x, y, 2.4, ROJO); R.rect(x - 1, y - 1, x, y - 1, hex('#f8a088')); };
+const goma5 = (x0, y0, x1, y1) => { const N = Math.max(2, Math.round(Math.hypot(x1 - x0, y1 - y0) / 5)); for (let k = 1; k < N; k++) { const x = Math.round(lerp(x0, x1, k / N)), y = Math.round(lerp(y0, y1, k / N)); R.rect(x - 1, y - 1, x + 2, y + 2, K); R.rect(x, y, x + 1, y + 1, k % 2 ? ROJO : hex('#fff6c0')); } };
 const p5 = (t) => {
   const o = { encuadre: 'ojos', camara: 'juntos' }; T.hoy(R, t, o); T.hoyDelante(R, t, o);
   const A = [86, 120], B = [200, 118], n = Math.floor((t - P5) / 0.32), u = ((t - P5) / 0.32) % 1, de = n % 2 ? A : B, a = n % 2 ? B : A, s = ease(cl(u * 2.4));
-  const fijo = ease(tramo(t, AWAY + 2.15, AWAY + 2.5)), salta = t < AWAY ? 1 : 0;
-  let cx = salta ? lerp(de[0], a[0], s) : lerp(lerp(de[0], a[0], s), 143, cl((t - AWAY) / 0.25)), cy = salta ? lerp(de[1], a[1], s) : 119, w = lerp(salta ? 30 : lerp(30, 86, cl((t - AWAY) / 0.25)), 92, fijo), hh = lerp(26, 32, fijo) + (fijo >= 1 ? Math.round(Math.sin(t * 7)) : 0);
-  const off = tiron((t - AWAY - 0.1) / 1.0, 70) + tiron((t - AWAY - 1.15) / 1.0, -62), ex = 148 + Math.round(off), ey = 30;
+  // hasta «look away» salta del sillón al rinoceronte; luego se junta en el centro e intenta irse: a la derecha (pasa
+  // de largo al rinoceronte, hasta el canto de la hoja) y a la izquierda (más allá del sillón); la goma, atada con dos
+  // chinchetas al sillón y al rinoceronte, se tensa y la devuelve; al final se abre y abarca a los dos
+  const fijo = ease(tramo(t, AWAY + 2.0, AWAY + 2.3)), salta = t < AWAY, junta = ease(cl((t - AWAY) / 0.25));
+  const off = tiron((t - AWAY - 0.1) / 0.85, 104) + tiron((t - AWAY - 1.13) / 0.85, -92), tm = t > AWAY + 2.3 ? Math.round(Math.sin(t * 31)) : 0;
+  const cx = (salta ? lerp(de[0], a[0], s) : lerp(lerp(de[0], a[0], s), 143, junta) + off) + tm, cy = salta ? lerp(de[1], a[1], s) : lerp(lerp(de[1], a[1], s), 119, junta);
+  const w = lerp(30, 92, fijo), hh = lerp(26, 32, fijo) + (fijo >= 1 ? Math.round(Math.sin(t * 7)) : 0);
+  if (!salta) { const PA = [A[0], A[1] - 8], PB = [B[0], B[1] + 8];
+    if (junta > 0.5) { goma5(PA[0], PA[1], cx, cy - 8); goma5(PB[0], PB[1], cx, cy + 8); chincheta5(PA[0], PA[1]); chincheta5(PB[0], PB[1]); } }
   marcoMira(cx, cy, w, hh);
-  // la goma que la devuelve: una línea de puntos de los ojos al marco, tensa cuando tiran
-  if (Math.abs(off) > 3) { const N = Math.round(Math.hypot(ex - cx, ey - (cy - hh)) / 5); for (let k = 1; k < N; k++) { const x = Math.round(lerp(ex, cx, k / N)), y = Math.round(lerp(ey + 8, cy - hh - 2, k / N)); R.rect(x, y, x + 1, y + 1, k % 2 ? ROJO : K); } }
-  const tm = t > AWAY + 2.5 ? Math.round(Math.sin(t * 31)) : 0, an = Math.atan2(cy - ey, cx - ex + (salta ? 0 : 0)), px = Math.cos(an) * 3 + tm, py = Math.max(0, Math.sin(an) * 3);
-  ojo(ex - 9, ey, px, py); ojo(ex + 9, ey, px, py);
-  if (Math.abs(off) > 40) { const d = Math.sign(off); for (let k = 0; k < 3; k++) R.rect(ex - d * (22 + k * 5), ey - 3 + k * 3, ex - d * (19 + k * 5), ey - 3 + k * 3, K); }
+  // las rayas de velocidad, por detrás del marco, cuando tira fuerte
+  if (Math.abs(off) > 55) { const dd = Math.sign(off); for (let k = 0; k < 3; k++) { const x = Math.round(cx - dd * (w + 8 + k * 6)), y = Math.round(cy - 12 + k * 12); R.rect(x - 4, y - 1, x + 4, y + 1, K); R.rect(x - 3, y, x + 3, y, BL); } }
 };
 
 // 6 · la cartulina de reglas: tres aspas
@@ -163,15 +172,97 @@ const p6 = (t) => {
 
 // 7 · la meta: solo se sale llegando al final
 const FINISH = tr(29.13), LLEGA = tr(29.69) + 0.2;
+// La cartulina del decorado es casi lisa y enseña poca mesa: la escena pinta ENCIMA (una capa fija en su búfer) la
+// lámina de selva impresa arriba (x 8–268, y 25–56: lejos del año y de Atom), el filete, el cerco de té, la esquina
+// gastada y, de y 148 abajo, la mesa de nogal con los dados, el lápiz, las fichas azul y amarilla y la taza. Entre
+// y 60 y 134 no se pinta nada fijo: por ahí pasan la ficha y la META, que el decorado ya ha pintado.
+const CAR = hex('#f1e6c8'), CARS = hex('#d8c9a2'), CARD = hex('#b4a27a'), CARL = hex('#fbf4de'), TIN = hex('#2a2a3a'), TINL = hex('#5a5a70');
+const NOG = ['#70462a', '#50301a', '#94623a', '#321d10', '#b88250'].map(hex);   // nogal, sombra, luz, oscuro, brillo
+const V0 = hex('#1e5a30'), V1 = hex('#2f7a46'), V2 = hex('#3f9a54'), V3 = hex('#7ac86a'), SF = hex('#e2ecc6'), SF2 = hex('#f2f7de'), SFS = hex('#bfd49c'), TRONCO = hex('#8a5a32'), TRONCOS = hex('#5a3a22'), AZUL = hex('#3a6fc0');
+const b4 = (x, y) => [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][(x & 3) + ((y & 3) << 2)] / 16;
+const h7 = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// el nogal de la mesa (las mismas vetas que el decorado), con un nudo y el charco de luz
+const madera = (x, y) => { const v = y + Math.sin(x * 0.035 + y * 0.11) * 3 + Math.sin(x * 0.011 + 2) * 5, f = ((v % 9) + 9) % 9, n = Math.hypot((x - 196) / 2.2, y - 170); let c = f < 1 ? NOG[1] : f < 1.6 ? NOG[3] : f > 7.6 ? NOG[2] : NOG[0];
+  if (n < 5) c = n < 2 ? NOG[3] : (Math.floor(n) & 1) ? NOG[1] : NOG[0]; if (h7(x >> 2, y, 52) < 0.06) c = NOG[1]; else if (h7((x + 2) >> 3, y, 53) < 0.05) c = NOG[2];
+  const d = Math.hypot((x - 150) / 150, (y - 162) / 30); if (d < 1 && b4(x, y) < (1 - d) * 0.7) c = c === NOG[0] ? NOG[2] : c === NOG[2] ? NOG[4] : c === NOG[1] ? NOG[0] : c; return c; };
+const sombraMesa = (cx, cy, rx, ry = 3) => { for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) if ((i / rx) ** 2 + (j / ry) ** 2 < 1 && ((i + j) & 1)) R.pset(cx + i, cy + j, NOG[3]); };
+// la selva impresa: una palmera (tronco anillado y seis frondas), una mata con su flor, el mono y el tucán
+const palma = (x, base, alto, lean) => { let px = x; for (let j = 0; j <= alto; j++) { px = x + Math.round(lean * (j / alto) ** 2 * 5); R.pset(px, base - j, j % 3 ? TRONCO : TRONCOS); R.pset(px + 1, base - j, TRONCOS); }
+  const cy = base - alto; for (const [ex, ey] of [[-10, 3], [-8, -3], [-3, -6], [4, -6], [9, -3], [11, 3]]) { R.linea(px, cy, px + ex, cy + ey, V0); R.linea(px, cy - 1, px + ex, cy + ey - 1, V1); R.linea(px + Math.sign(ex), cy - 1, px + Math.round(ex * 0.6), cy + Math.round(ey * 0.6) - 1, V2); R.pset(px + ex, cy + ey + 1, V0); R.pset(px + Math.round(ex * 0.7), cy + Math.round(ey * 0.7) + 2, V1); }
+  R.pset(px, cy + 1, TRONCOS); R.pset(px + 2, cy + 1, TRONCOS); };
+const mata = (x, base, flor) => { R.disco(x, base - 3, 4.4, V0); R.disco(x, base - 3, 3.4, V1); R.disco(x + 4, base - 2, 3.2, V0); R.disco(x + 4, base - 2, 2.3, V2); R.pset(x - 1, base - 5, V3); R.pset(x + 1, base - 4, V3); R.pset(x + 5, base - 3, V3); R.linea(x - 3, base - 6, x - 5, base - 9, V0); R.linea(x + 1, base - 7, x + 2, base - 10, V0);
+  if (flor) { R.rect(x - 1, base - 9, x + 1, base - 7, flor); R.pset(x, base - 8, AMA); R.pset(x + 6, base - 5, flor); } };
+let F7 = null;
+const fijo7 = () => { if (F7) return F7; F7 = R.nuevo(); const prev = R.usar(F7);
+  // LA MESA (de y 148 abajo) y el canto de la cartulina, con sus mellas y su sombra sobre la madera
+  for (let y = 148; y <= 179; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y < 151 && b4(x, y) < 0.9 - (y - 148) * 0.3 ? NOG[3] : madera(x, y));
+  R.rect(4, 141, 310, 142, TIN); R.rect(0, 145, 319, 145, CARS); R.rect(0, 146, 319, 146, CARD); R.rect(0, 147, 319, 147, K);
+  for (let x = 0; x < 320; x++) { const q = h7(x >> 1, 7, 61); if (q < 0.07) { R.pset(x, 146, K); R.pset(x, 147, NOG[3]); } else if (q > 0.93) R.pset(x, 145, CARD); }
+  // el filete de la derecha con su rombo, el cerco de una taza de té y la esquina gastada, que deja ver la mesa
+  R.rect(309, 52, 310, 142, TIN); R.rect(306, 58, 306, 138, V1); for (let y = 62; y < 136; y += 8) R.rect(305, y, 307, y + 1, V2); R.poligono([[309, 46], [313, 51], [309, 56], [306, 51]], TIN); R.poligono([[309, 48], [311, 51], [309, 54], [308, 51]], ROJO);
+  for (let j = -10; j <= 10; j++) for (let i = -10; i <= 10; i++) { const r = Math.hypot(i, j * 1.15); if (Math.abs(r - 8) < 0.9 && h7(i, j, 62) > 0.22) R.pset(294 + i, 90 + j, hex(i + j > 2 ? '#c89058' : '#dcb078')); else if (Math.abs(r - 6.4) < 0.5 && b4(i + 16, j + 16) < 0.4) R.pset(294 + i, 90 + j, hex('#e6cfa0')); }
+  for (let y = 134; y <= 147; y++) for (let x = 304; x < 320; x++) { const q = x + y - 455; if (q > 1) R.pset(x, y, y >= 146 && q < 4 ? NOG[3] : madera(x, y)); else if (q === 1) R.pset(x, y, K); else if (q === 0) R.pset(x, y, CARD); else if (q === -1 && (y & 1)) R.pset(x, y, CARS); }
+  R.linea(292, 144, 301, 135, CARS); R.linea(296, 144, 300, 140, CARD); R.linea(14, 144, 6, 136, CARS);
+  // LA LÁMINA DE SELVA impresa en la cabecera: montes y un volcán al fondo, el sol, palmeras, matas en flor, NUESTRO
+  // rinoceronte, un mono que cuelga y un tucán en su rama
+  R.rect(8, 25, 268, 56, TIN); R.rect(9, 26, 267, 55, CARL); R.rect(10, 27, 266, 54, SF); for (let y = 27; y <= 42; y++) for (let x = 10; x <= 266; x++) if (b4(x, y) < (42 - y) / 18) R.pset(x, y, SF2);
+  R.recorte([10, 27, 266, 54]);
+  R.poligono([[22, 51], [52, 33], [84, 51]], SFS); R.poligono([[52, 33], [47, 37], [57, 37]], CARL); R.poligono([[92, 51], [110, 36], [118, 36], [138, 51]], SFS); R.poligono([[148, 51], [186, 30], [226, 51]], SFS); R.poligono([[186, 30], [180, 34], [193, 34]], CARL); R.poligono([[216, 51], [240, 38], [266, 51]], SFS);
+  for (const [x, y] of [[113, 33], [116, 30], [112, 28]]) { R.disco(x, y, 2, CARL); R.pset(x + 1, y + 1, SFS); }
+  R.disco(236, 34, 5.4, hex('#c88a1c')); R.disco(236, 34, 4.3, AMA); R.pset(234, 32, hex('#fff6c0')); for (let q = 0; q < 8; q++) { const an = q * Math.PI / 4; R.linea(Math.round(236 + Math.cos(an) * 7), Math.round(34 + Math.sin(an) * 7), Math.round(236 + Math.cos(an) * 9), Math.round(34 + Math.sin(an) * 9), hex('#c88a1c')); }
+  for (const [x, y] of [[62, 31], [72, 34], [160, 30], [204, 33]]) { R.linea(x - 2, y - 1, x, y + 1, TIN); R.linea(x, y + 1, x + 2, y - 1, TIN); }
+  for (let x = 10; x <= 266; x++) { const gy = 49 + Math.round(Math.sin(x * 0.09) * 1.5 + Math.sin(x * 0.031 + 1) * 1.5); for (let y = gy; y <= 54; y++) R.pset(x, y, y === gy ? V3 : y > gy + 1 && b4(x, y) < 0.45 ? V1 : V2); if (h7(x, 3, 63) < 0.16) R.pset(x, gy - 1, V1); }
+  palma(22, 51, 19, 1); palma(66, 50, 13, -1); palma(132, 51, 20, 1); palma(178, 50, 14, -1); palma(250, 51, 16, -1);
+  mata(38, 53, ROJO); mata(82, 54, null); mata(116, 54, AMA); mata(156, 54, ROJO); mata(208, 54, hex('#f08aa0')); mata(228, 53, null); mata(259, 55, ROJO);
+  miniRino(100, 53);
+  // el mono, colgado de una fronda, y el tucán
+  { const M1 = hex('#8a5a32'), M2 = hex('#e8c8a0'); R.linea(146, 30, 146, 36, K); R.rect(143, 35, 149, 39, K); R.rect(144, 36, 148, 38, M1); R.rect(145, 37, 147, 38, M2); R.pset(145, 37, K); R.pset(147, 37, K); R.rect(144, 40, 148, 44, K); R.rect(145, 40, 147, 43, M1); R.linea(148, 43, 151, 46, K); R.linea(151, 46, 153, 44, K); R.pset(144, 45, K); R.pset(147, 45, K); R.linea(143, 40, 141, 43, K); }
+  { R.linea(180, 43, 200, 43, TRONCOS); R.linea(184, 44, 198, 44, TRONCO); R.rect(187, 35, 192, 42, K); R.rect(188, 38, 189, 41, BL); R.pset(190, 36, BL); R.rect(193, 35, 198, 39, K); R.rect(193, 36, 197, 37, AMA); R.rect(193, 38, 196, 38, ROJO); R.rect(186, 42, 187, 46, K); R.pset(190, 43, AMA); }
+  for (const [x, y, c] of [[214, 41, ROJO], [48, 42, AZUL], [166, 38, hex('#f0a020')]]) { R.rect(x - 2, y - 1, x - 1, y, c); R.rect(x + 1, y - 1, x + 2, y, c); R.pset(x, y, K); R.pset(x, y - 1, K); R.pset(x - 2, y + 1, K); R.pset(x + 2, y + 1, K); }
+  R.recorte(null);
+  for (const [x, y] of [[8, 25], [268, 25], [8, 56], [268, 56]]) { R.rect(x - 2, y - 2, x + 2, y + 2, TIN); R.rect(x - 1, y - 1, x + 1, y + 1, ROJO); }
+  for (let y = 27; y <= 54; y++) { const c = R.pget(202, y), c2 = R.pget(203, y); if (c === SF || c === SF2 || c === SFS) R.pset(202, y, CARL); if (c2 === SF || c2 === SF2) R.pset(203, y, SFS); }   // el pliegue cruza la lámina
+  // SOBRE LA MESA: los dados, el lápiz, las fichas azul y amarilla (de pie, por delante del canto) y la taza de té
+  sombraMesa(80, 176, 22); PZ.dados?.(R, 78, 177, { s: 2, caras: [6, 6] });
+  sombraMesa(150, 169, 34, 4); T.g_lapizGrande(R, 118, 160, 180, 170);
+  sombraMesa(232, 171, 11); PZ.ficha?.(R, 230, 171, { color: 'azul', s: 2 }); sombraMesa(256, 177, 11, 2); PZ.ficha?.(R, 254, 177, { color: 'amarillo', s: 2 });
+  { const x = 292, G = hex('#c4bcae'); sombraMesa(296, 174, 16, 4);
+    R.rect(302, 156, 310, 168, K); R.rect(303, 157, 309, 167, BL); R.rect(307, 158, 309, 167, G); for (let j = 160; j <= 164; j++) for (let i = 303; i <= 306; i++) R.pset(i, j, madera(i, j)); R.rect(302, 159, 306, 159, K); R.rect(302, 165, 306, 165, K); R.rect(306, 159, 306, 165, K);
+    R.rect(281, 149, 303, 174, K); R.pset(281, 174, madera(281, 174)); R.pset(303, 174, madera(303, 174)); R.rect(282, 150, 302, 173, BL); R.rect(297, 152, 302, 173, G); R.rect(300, 152, 302, 173, hex('#9a9288')); R.rect(284, 153, 285, 170, hex('#ffffff')); R.rect(282, 167, 302, 169, AZUL); R.rect(297, 167, 302, 169, hex('#2a4f90'));
+    R.rect(280, 144, 304, 151, K); R.pset(280, 144, CAR); R.pset(304, 144, CAR); R.pset(280, 151, madera(280, 151)); R.pset(304, 151, madera(304, 151)); R.rect(281, 145, 303, 150, AZUL); R.rect(282, 145, 302, 145, hex('#6a9ae0')); R.rect(283, 146, 301, 149, hex('#b8763a')); R.rect(284, 146, 293, 146, hex('#d89a58')); R.rect(283, 149, 301, 149, hex('#8e5626')); }
+  R.usar(prev); return F7; };
+// pega la capa fija sobre el búfer en uso (el de ese momento: en los fundidos no es la pantalla)
+const pega7 = () => { const b = fijo7(), d = R.buf; for (const [y0, y1, x0] of [[23, 58, 0], [59, 133, 288], [134, 179, 0]]) for (let y = y0; y <= y1; y++) for (let i = y * 320 + x0, n = y * 320 + 320; i < n; i++) { const c = b[i]; if (c) d[i] = c; } };
+// la sombra tramada que echa una liana sobre la cartulina y la lámina (cada color baja un tono)
+const SOMBRA7 = new Map([[CAR, CARS], [CARL, CARS], [CARS, CARD], [SF, SFS], [SF2, SFS], [SFS, V3], [V3, V2], [V2, V1]]);
+const sombraLiana = (X, largo) => { for (let j = 0; j < largo; j++) { const x = X + 8 + Math.round(Math.sin(j / 11) * 4 * Math.min(1, j / 20)), y = j + 4; for (let i = 0; i < 4; i++) if ((x + i + y) & 1) { const q = SOMBRA7.get(R.pget(x + i, y)); if (q !== undefined) R.pset(x + i, y, q); } } };
+// el confeti: papelitos, rombos y hojas de 7–9 px con su filo negro
+const CONF = [AMA, ROJO, V2, AZUL, BL, hex('#f08aa0'), V3];
+const papel = (x, y, q, g) => { x = Math.round(x); y = Math.round(y); const c = CONF[q % 7], tipo = q % 3;
+  if (tipo === 0) { const a = g ? 3 : 2, b = g ? 2 : 3; R.rect(x - a - 1, y - b - 1, x + a + 1, y + b + 1, K); R.rect(x - a, y - b, x + a, y + b, c); R.rect(x - a, y - b, x + a, y - b, hex('#ffffff')); }
+  else if (tipo === 1) { const r = g ? 4 : 3; R.poligono([[x - r - 1, y], [x, y - 5], [x + r + 1, y], [x, y + 5]], K); R.poligono([[x - r + 1, y], [x, y - 3], [x + r - 1, y], [x, y + 3]], c); R.pset(x, y - 2, hex('#ffffff')); }
+  else { const v = c === BL || c === AZUL ? V3 : c; R.rect(x - 4, y - 2, x + 4, y + 2, K); R.rect(x - 3, y - 1, x + 3, y + 1, v); R.rect(x - 3, y - 1, x - 1, y - 1, hex('#c8f0a8')); R.linea(x - 3, y + (g ? 1 : -1), x + 3, y + (g ? -1 : 1), V0); } };
 const p7 = (t) => {
   const av = tramo(t, P7 + 0.35, LLEGA), o = { encuadre: 'reglas', camara: 'meta', avance: av }, g = T.hoy(R, t, o), [mx, my] = g.gema;
-  // las lianas que cuelgan sobre la cartulina: se retiran cuando la ficha llega
-  { const r = ease(tramo(t, LLEGA, LLEGA + 0.55)); for (const [x, L, f] of [[196, 62, 0], [228, 44, 1.3], [262, 54, 2.1]]) PZ.liana(R, x, -2, { largo: lerp(L + Math.sin(t * 1.7 + f) * 3, 4, r), t: t + f }); }
+  // los renglones de la cartulina, con más tinta, y EL PLIEGUE (x 202): solo donde hay cartulina, que la ficha pasa por delante
+  for (const [bx, w2, y] of [[20, 60, 70], [96, 40, 70], [150, 30, 70], [20, 44, 76], [70, 70, 76]]) for (let x = bx; x <= bx + w2; x++) for (let j = 0; j < 2; j++) if (R.pget(x, y + j) === CARD) R.pset(x, y + j, j ? TINL : TIN);
+  for (let y = 0; y <= 144; y++) { const c = R.pget(202, y), c2 = R.pget(203, y); if (c === CAR || c === CARS) R.pset(202, y, CARL); if (c2 === CAR || c2 === CARL) R.pset(203, y, CARS); for (let d = 1; d <= 5; d++) if (R.pget(203 + d, y) === CAR && b4(203 + d, y) < 0.78 - d * 0.13) R.pset(203 + d, y, CARS); }
+  pega7();
+  // las lianas que cuelgan sobre la cartulina (con su sombra): bajan un poco más mientras la ficha avanza y, cuando
+  // llega, dan un latigazo y se retiran soltando hojas
+  const s = t - LLEGA, r = ease(tramo(t, LLEGA + 0.1, LLEGA + 0.5)), lat = Math.sin(cl(s / 0.1) * Math.PI) * 2;
+  const LIA = [[202, 27, 0], [230, 19, 1.3], [256, 24, 2.1]];
+  for (const [x, L, f] of LIA) { const largo = lerp(L + av * 4 + Math.sin(t * 1.7 + f) * 1.5 + lat, 2, r); sombraLiana(x, Math.round(largo * 2 * (1 - r))); PZ.liana(R, x, -2 - Math.round(r * 18), { largo, t: t + f, s: 2 }); }   // al retirarse suben del todo: no queda el muñón
+  // la hoja de selva en la esquina de la mesa y el vapor del té
+  sombraMesa(26, 177, 16, 2); PZ.hojaSelva?.(R, 24, 179, { s: 2, t, dir: -1 });
+  for (let k = 0; k < 3; k++) { const u = (t * 0.4 + k / 3) % 1, x = Math.round(288 + k * 4 + Math.sin(u * 7 + k * 2) * 3), y = Math.round(144 - u * 28), rr = 2 + u * 3; for (let j = -5; j <= 5; j++) for (let i = -5; i <= 5; i++) { const dd = Math.hypot(i, j) / rr; if (dd < 1 && b4(x + i, y + j) < 1.05 * (1 - u)) R.pset(x + i, y + j, dd < 0.6 ? hex('#ffffff') : hex('#9fb0c4')); } }
   T.hoyDelante(R, t, o);
-  // la llegada: rayos y confeti de hojas
-  if (t > LLEGA) { const s = t - LLEGA, e = cl(s / 0.6);
-    if (s < 0.9) for (let q = 0; q < 12; q++) { const an = q * Math.PI / 6 + 0.26, r0 = 30 + e * 10, r1 = r0 + 6 + (q % 2) * 5; R.linea(Math.round(mx + Math.cos(an) * r0), Math.round(my + Math.sin(an) * r0), Math.round(mx + Math.cos(an) * r1), Math.round(my + Math.sin(an) * r1), q % 2 ? AMA : ROJO); }
-    for (let q = 0; q < 14; q++) { const an = -Math.PI * (0.08 + 0.84 * q / 13), v0 = 62 + (q * 37) % 30, x = mx + Math.cos(an) * v0 * s * 0.9 + Math.sin(t * 5 + q) * 2, y = my - 10 + Math.sin(an) * v0 * s + 46 * s * s; if (y < 158 && x < 276) { const c = [hex('#3f9a54'), AMA, ROJO, hex('#7ac86a')][q % 4]; R.rect(Math.round(x) - 2, Math.round(y) - 1, Math.round(x) + 2, Math.round(y) + 1, K); R.rect(Math.round(x) - 1, Math.round(y), Math.round(x) + 1, Math.round(y), c); R.pset(Math.round(x), Math.round(y) + (Math.floor(t * 8 + q) % 2 ? -1 : 1), c); } }
+  // la llegada: rayos, las hojas que sueltan las lianas y el confeti, que sale de la META, flota y se posa en la mesa
+  if (s > 0) { const e = cl(s / 0.6);
+    if (s < 0.9) for (let q = 0; q < 12; q++) { const an = q * Math.PI / 6 + 0.26, r0 = 30 + e * 10, r1 = r0 + 7 + (q % 2) * 6; for (const [dx, c] of [[1, K], [0, q % 2 ? AMA : ROJO]]) R.linea(Math.round(mx + Math.cos(an) * r0) + dx, Math.round(my + Math.sin(an) * r0) + dx, Math.round(mx + Math.cos(an) * r1) + dx, Math.round(my + Math.sin(an) * r1) + dx, c); }
+    if (s > 0.1) LIA.forEach(([x, L], k) => { for (let q = 0; q < 4; q++) { const s2 = s - 0.1 - q * 0.05; if (s2 <= 0) continue; const y = Math.min(8 + (q + 1) * L * 0.5 + 34 * s2 + 16 * s2 * s2, 150 + (q * 13 + k * 7) % 26), px = x + (q % 2 ? 7 : -7) + Math.sin(s2 * 6 + q + k) * 5; papel(px, y, 5 + q * 3 + k, Math.floor(t * 7 + q) % 2); } });
+    for (let q = 0; q < 40; q++) { const an = q * 2.39996, d = 44 + (q * 37) % 46, k = 1 - Math.exp(-4.5 * s), suelo = 152 + (q * 11) % 24, y0 = my - 6 + Math.sin(an) * d * 0.56 * k + 22 * s * s, posa = y0 >= suelo, x = mx + Math.cos(an) * d * 1.6 * k + Math.sign(Math.cos(an)) * 16 * k + (posa ? 0 : Math.sin(t * 5 + q) * 2);
+      if (x < 314) papel(x, Math.min(y0, suelo), q, posa ? q % 2 : Math.floor(t * 8 + q) % 2); }
     for (let q = 0; q < 5; q++) if (Math.floor(t * 7 + q) % 3 === 0) chispa(mx + Math.cos(q * 1.9 + t) * (34 + q * 3), my + Math.sin(q * 1.9 + t) * (30 + q * 2), q); }
 };
 

@@ -18,7 +18,8 @@
 //    saltan las chispas de «efectos» y, al final, cae el folleto de la isla;  5. (corta en «Robin Williams had») la rueda
 //    de prensa: una periodista pregunta («?»), Williams contesta muy serio y en su bocadillo sale una isla con palmera;
 //    6. (corta en «in the Caribbean»; vista libre: mapa/caribe) el mapa: un lápiz DIBUJA la isla en el mar vacío, cae la
-//    chincheta, llega el avión por su ruta de puntos y se amontonan los billetes («reserva pronto»).
+//    chincheta, llega el avión por su ruta de puntos (acaba 9 px antes de la orilla y el avión espera dando vueltas a la
+//    izquierda de la isla, sin pisar la palmera ni la chincheta) y se amontonan los billetes («reserva pronto»).
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-estreno');
@@ -103,8 +104,8 @@ const p6 = (t) => {
     poli([[-83.1, 21.9], [-82.6, 21.9], [-82.5, 21.5], [-83.0, 21.45]]);
     poli([[-74.45, 18.35], [-73.4, 19.9], [-71.7, 19.95], [-70.0, 19.7], [-68.4, 18.6], [-68.8, 18.15], [-70.5, 18.25], [-71.4, 17.65], [-72.5, 18.2], [-73.8, 18.05]]); poli([[-78.35, 18.4], [-77.2, 18.5], [-76.25, 18.2], [-76.4, 17.9], [-77.3, 17.75], [-78.2, 18.1]]);
     for (const b of [[[-78.4, 25.1], [-77.75, 25.0], [-77.6, 24.2], [-78.2, 24.3]], [[-79.0, 26.7], [-77.9, 26.78], [-77.9, 26.55], [-78.9, 26.5]], [[-77.5, 26.9], [-77.0, 26.5], [-77.05, 26.0], [-77.35, 26.3]], [[-76.8, 25.55], [-76.15, 25.15], [-76.15, 24.7], [-76.4, 25.1]], [[-75.75, 24.65], [-75.3, 24.2], [-75.45, 24.1]], [[-75.3, 23.65], [-74.85, 23.1], [-75.0, 23.05]], [[-77.55, 25.1], [-77.2, 25.1], [-77.3, 24.98]], [[-76.1, 23.75], [-75.6, 23.45], [-75.8, 23.4]], [[-73.65, 21.1], [-73.0, 21.3], [-73.1, 20.95]], [[-74.3, 22.8], [-73.9, 22.6], [-74.1, 22.5]]]) poli(b); }
-  // la ruta de puntos y el avión, desde Florida hasta el sitio de la isla
-  const IX = 244, IY = 78, M0 = P([-80.2, 25.8]).map(Math.round), ru = tramo(t, P6 + 0.2, reserva + 0.4), pts = [M0, [Math.round((M0[0] + IX) / 2), Math.min(M0[1], IY) - 22], [IX - 16, IY - 12]];
+  // la ruta de puntos y el avión, desde Florida hasta 9 px antes de la orilla de la isla (no pisa la palmera ni la chincheta)
+  const IX = 244, IY = 78, M0 = P([-80.2, 25.8]).map(Math.round), ru = tramo(t, P6 + 0.2, reserva + 0.4), pts = [M0, [Math.round((M0[0] + IX) / 2), Math.min(M0[1], IY) - 22], [IX - 28, IY - 14]];
   const bez = (s) => [0, 1].map((i) => Math.round((1 - s) * (1 - s) * pts[0][i] + 2 * s * (1 - s) * pts[1][i] + s * s * pts[2][i]));
   for (let s = 0; s < ru; s += 0.03) { const [x, y] = bez(s); if (Math.floor(s / 0.03) % 2 === 0) { R.pset(x, y, hex('#c8362e')); R.pset(x + 1, y, hex('#c8362e')); R.pset(x, y + 1, hex('#8a1e1a')); } }
   // la isla que no existe: el lápiz la DIBUJA en el mar vacío (orilla, arena, palmera y olas)
@@ -123,9 +124,11 @@ const p6 = (t) => {
   for (let i = 0; i < 3; i++) { const b = ease(tramo(t, reserva - 0.25 + i * 0.4, reserva + 0.15 + i * 0.4)); if (b <= 0) continue; const x = Math.round(lerp(330, 246 + i * 9, b)), y = Math.round(lerp(140, 98 + i * 8, b) - Math.sin(b * Math.PI) * 8);
     R.rect(x + 1, y + 1, x + 31, y + 15, hex('#3a4a5a')); R.rect(x - 1, y - 1, x + 30, y + 14, K); R.rect(x, y, x + 29, y + 13, hex('#f6efd8')); R.rect(x, y, x + 29, y + 2, hex(['#c8362e', '#3a6ab0', '#2e8a5a'][i])); for (let j = 1; j < 13; j += 2) R.pset(x + 21, y + j, K);
     R.rect(x + 3, y + 5, x + 12, y + 5, hex('#8a8698')); R.rect(x + 3, y + 8, x + 9, y + 8, hex('#8a8698')); R.rect(x + 3, y + 11, x + 14, y + 11, hex('#8a8698')); R.rect(x + 23, y + 6, x + 27, y + 7, K); R.rect(x + 25, y + 4, x + 25, y + 9, K); R.pset(x + 23, y + 5, K); }
-  // el avión, en la punta de la ruta
-  { const gi = (t - reserva - 0.4) * 2.2, [x, y] = ru < 1 ? bez(ru) : [Math.round(IX - 2 - Math.cos(gi) * 14), Math.round(IY - 24 - Math.sin(gi) * 6)], [x2, y2] = bez(Math.min(1, ru + 0.05)), baja = y2 > y ? 1 : y2 < y ? -1 : 0, W = hex('#f4f4f0');
-    if (ru > 0) { R.rect(x - 5, y - 2 + baja, x + 4, y + 1 + baja, K); R.rect(x - 4, y - 1 + baja, x + 3, y + baja, W); R.rect(x + 4, y - 1 + baja * 2, x + 5, y + baja * 2, K); R.rect(x - 2, y - 5, x, y + 4, K); R.rect(x - 1, y - 4, x - 1, y + 3, W); R.rect(x - 6, y - 4 + baja, x - 5, y - 1 + baja, K); R.pset(x + 2, y - 1 + baja, hex('#3a6ab0')); } }
+  // el avión, en la punta de la ruta; al llegar da vueltas de espera a la IZQUIERDA de la isla (x ≤ IX − 23), mirando hacia donde vuela
+  { const gi = Math.max(0, t - reserva - 0.4) * 2.2, vuelta = ru >= 1, [x, y] = vuelta ? [Math.round(IX - 40 + Math.cos(gi) * 12), Math.round(IY - 14 + Math.sin(gi) * 5)] : bez(ru), [x2, y2] = bez(Math.min(1, ru + 0.05));
+    const m = vuelta && Math.sin(gi) > 0.15 ? -1 : 1, baja = vuelta ? (Math.cos(gi) > 0.4 ? 1 : Math.cos(gi) < -0.4 ? -1 : 0) : y2 > y ? 1 : y2 < y ? -1 : 0, W = hex('#f4f4f0');
+    const rr = (a, y0, b, y1, c) => R.rect(Math.min(x + m * a, x + m * b), y0, Math.max(x + m * a, x + m * b), y1, c);
+    if (ru > 0) { rr(-5, y - 2 + baja, 4, y + 1 + baja, K); rr(-4, y - 1 + baja, 3, y + baja, W); rr(4, y - 1 + baja * 2, 5, y + baja * 2, K); rr(-2, y - 5, 0, y + 4, K); rr(-1, y - 4, -1, y + 3, W); rr(-6, y - 4 + baja, -5, y - 1 + baja, K); R.pset(x + m * 2, y - 1 + baja, hex('#3a6ab0')); } }
   // la mano del lápiz (entra por la derecha en diagonal) mientras dibuja; luego se retira
   { const fuera = ease(tramo(t, caribe + 0.8, caribe + 1.5)), hx = pen[0] + Math.round(fuera * 80), hy = pen[1] + Math.round(fuera * 46);
     if (fuera < 1) { lapiz(hx + 20, hy + 11, hx, hy, '#e8b830'); T.brazo(R, Math.max(334, hx + 60), hy + 14 + Math.round((Math.max(334, hx + 60) - hx - 33) * 0.62), hx + 33, hy + 14, '#8a3a2e', -1); } }

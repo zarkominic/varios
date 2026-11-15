@@ -11,8 +11,10 @@
 <script type="module">
 // JM-NUEVO (frases 20–21), cartela «2017». Siete planos (cortes en Robin · The writers · what kid · Nobody · And · Now):
 // 1. cine/anuncio (2015): la noticia en la pantalla y los pulgares hacia abajo que se amontonan;
-// 2. cine/anuncio/vela (2014): la foto en gris con las velas; sobrio: en la foto cae la noche y la luz de las velas
-//    crece, una vela más prende («had died»), cae un pétalo y el cursor se aparta de la foto (campana lejana);
+// 2. cine/anuncio/vela (2014): OTRA maqueta, el visor de fotos: la foto en gris grande y centrada, con la cinta negra
+//    en la esquina del marco; sobrio: anochece en la foto y las ocho velas prenden una a una de izquierda a derecha
+//    con la voz (o.prende 0→1, «Robin Williams had died just a year before»); con cada llama la luz sube por el muro;
+//    al final prende la vela pequeña de delante, cae un pétalo y el cursor se aparta de la foto (campana lejana);
 // 3. keene/guionistas 2016: los guionistas ante la caja del juego llena de polvo: uno sopla, el otro tose y se
 //    encoge («?»); por delante pasa el chaval de 2017 con el móvil;
 // 4. cine/salon 2017: el chaval cruza el salón mirando el móvil; el tablero del estante le suelta polvo, él mira un
@@ -34,29 +36,35 @@ const movil = (m, t) => { R.rect(m[0] - 2, m[1] - 5, m[0] + 2, m[1] + 1, K); R.r
 const polvo = (x, y, u, n = 7, k0 = 0) => { if (u <= 0 || u >= 1) return; for (let k = 0; k < n; k++) { const q = k0 + k * 2.4, px = Math.round(x + Math.cos(q) * (3 + u * (8 + (k % 3) * 4))), py = Math.round(y - u * (6 + (k % 4) * 3) + Math.sin(q) * 2), r = u < 0.6 ? 1 : 0; R.rect(px - r - 1, py - r - 1, px + r + 1, py + 1, hex('#8a8272')); R.rect(px - r, py - r, px + r, py, hex(k % 2 ? '#e8e2d4' : '#c8c0b0')); } };
 const cursor = (x, y) => { R.poligono([[x, y], [x, y + 10], [x + 3, y + 8], [x + 5, y + 12], [x + 7, y + 11], [x + 5, y + 7], [x + 8, y + 7]], K); R.poligono([[x + 1, y + 2], [x + 1, y + 8], [x + 3, y + 6], [x + 5, y + 6]], B); };
 const p1 = (t) => { T.cine(R, t, { encuadre: 'anuncio', enfado: 0.22 * tramo(t, a(2.3), a(3.3)) + 0.78 * tramo(t, a(3.3), a(5.0)) }); };
-// 2 · el recuerdo (sobrio): en la foto cae la noche poco a poco y las velas alumbran más; alguien ha dejado una vela más,
-// que prende; cae un pétalo; el cursor se aparta de la foto. Todo en gris menos las llamas y su luz.
+// 2 · el recuerdo (sobrio): el visor de fotos con la foto en gris. Anochece en la foto y las ocho velas prenden una a
+// una, de izquierda a derecha, con la voz; con cada llama la luz cálida avanza por la acera y sube por el muro. Al final
+// prende la vela pequeña que alguien ha dejado delante, cae un pétalo y el cursor se aparta de la foto.
 const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => B4[(x & 3) + (y & 3) * 4] / 16, ease = (u) => u * u * (3 - 2 * u);
 const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
   return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
-const PRENDE = a(6.55), PETALO = a(8.0);
+const V0 = P2 + 0.3, V1 = a(8.35), PRENDE = a(8.75), PETALO = a(7.6);   // las ocho velas (V0–V1) y la novena, la pequeña
 const p2 = (t) => {
-  const g = T.cine(R, t, { encuadre: 'anuncio', camara: 'vela' }), F = g.foto ?? [20, 40, 204, 152], V = g.velas ?? [[60, 138], [84, 140], [112, 138], [140, 140], [166, 138]];
-  const noche = ease(tramo(t, P2 + 0.2, P3 - 0.3)), NV = [117, 151], luz6 = tramo(t, PRENDE, PRENDE + 0.5), OSC = hex('#2c2c36'), CAL = hex('#ffd890');
-  // la luz de cada vela (tiembla a su aire) y la de la nueva
-  const focos = V.map(([x, y], k) => [x, y - 11, 1 + 0.1 * Math.sin(t * (2.1 + k * 0.37) + k * 2)]); if (luz6 > 0) focos.push([NV[0], NV[1] - 10, luz6 * (1 + 0.1 * Math.sin(t * 2.9))]);
-  const rr = 12 + 15 * noche;
-  for (let y = F[1]; y <= F[3]; y++) for (let x = F[0]; x <= F[2]; x++) { let gl = 0; for (const [fx, fy, w] of focos) { const d = Math.hypot(x - fx, (y - fy) * 1.25); if (d < rr) gl = Math.max(gl, w * (1 - d / rr)); } gl = Math.min(1, gl);
-    let c = R.pget(x, y); const osc = 0.36 * noche * (1 - gl); if (osc > 0.01) c = mez(c, OSC, osc); if (gl > 0.05 && gl * 1.1 > b4(x, y)) c = mez(c, CAL, 0.2 * noche * gl); if (osc > 0.01 || gl > 0.05) R.pset(x, y, c); }
-  // la vela nueva, delante de las flores: apagada al principio; una chispa y prende
-  { const [x, y] = NV, hh = 8, som = (c) => mez(hex(c), OSC, 0.36 * noche * (1 - luz6)); R.rect(x - 3, y - hh, x + 3, y, som('#5a5a62')); R.rect(x - 2, y - hh + 1, x + 2, y - 1, som('#e8e8ee')); R.rect(x + 1, y - hh + 1, x + 2, y - 1, som('#c0c0c8')); R.rect(x - 4, y, x + 4, y + 1, som('#6a6a74')); R.pset(x, y - hh, K);
+  const prende = tramo(t, V0, V1), pr = prende * 8, g = T.cine(R, t, { encuadre: 'anuncio', camara: 'vela', prende }), F = g.foto ?? [34, 34, 272, 152], V = g.velas ?? [];
+  R.rect(30, 135, 32, 141, hex('#dcdce4')); R.rect(33, 135, 33, 141, hex('#3a3a44'));   // la flor del primer ramo pisaba el marco: se repinta el filo
+  const NV = [117, 151], luz9 = tramo(t, PRENDE, PRENDE + 0.5), OSC = hex('#24242e'), CAL = hex('#ffd890');
+  const noche = 0.3 + 0.16 * ease(tramo(t, P2, P2 + 1.6)), nivel = ease(Math.min(1, (pr + luz9) / 9));
+  // el foco de cada vela encendida (tiembla a su aire) y el de la pequeña
+  const focos = V.map(([x, y], k) => [x, y - 12, Math.min(1, pr - k) * (1 + 0.1 * Math.sin(t * (2.1 + k * 0.37) + k * 2))]); if (luz9 > 0) focos.push([NV[0], NV[1] - 10, luz9 * (1 + 0.1 * Math.sin(t * 2.9))]);
+  const rr = 15 + 13 * nivel, frente = F[0] - 10 + prende * 270, alto = lerp(132, 46, nivel);   // hasta dónde llega la luz: a lo ancho y muro arriba
+  for (let y = F[1]; y <= F[3]; y++) { const sube = y > 132 ? 0.72 : Math.max(0, Math.min(1, (y - alto) / 46)) * 0.72;
+    for (let x = F[0]; x <= F[2]; x++) { let gl = sube > 0 ? sube * nivel * Math.max(0, Math.min(1, (frente - x) / 44)) : 0;
+      for (const [fx, fy, w] of focos) { const dx = x - fx; if (dx > rr || dx < -rr) continue; const dy = y - fy, d = Math.hypot(dx, dy < 0 ? dy * 0.72 : dy * 1.3); if (d < rr) gl = Math.max(gl, w * (1 - d / rr)); }
+      if (gl > 1) gl = 1; let c = mez(R.pget(x, y), OSC, noche * (1 - gl)); if (gl > 0.05 && gl * 1.15 > b4(x, y)) c = mez(c, CAL, 0.34 * gl); R.pset(x, y, c); } }
+  // la vela pequeña, delante de las flores: apagada casi todo el plano; una chispa y prende la última
+  { const [x, y] = NV, hh = 8, som = (c) => mez(hex(c), OSC, noche * (1 - Math.max(luz9, 0.5 * nivel))); R.rect(x - 3, y - hh, x + 3, y, som('#5a5a62')); R.rect(x - 2, y - hh + 1, x + 2, y - 1, som('#e8e8ee')); R.rect(x + 1, y - hh + 1, x + 2, y - 1, som('#c0c0c8')); R.rect(x - 4, y, x + 4, y + 1, som('#6a6a74')); R.pset(x, y - hh, K);
     if (t > PRENDE - 0.12 && t < PRENDE + 0.1) { for (const [i, j] of [[0, -2], [-2, 0], [2, 0], [0, 2], [0, 0]]) R.pset(x + i, y - hh - 3 + j, hex('#fff6d8')); }
-    if (luz6 > 0) { const fy = y - hh - 1, alto = (luz6 < 0.4 ? 6 : 4) + (Math.sin(t * 3.7) > 0.2 ? 1 : 0), dx = Math.sin(t * 2.6) > 0.6 ? 1 : Math.sin(t * 2.6) < -0.7 ? -1 : 0; R.rect(x - 1, fy - alto + 2, x + 1, fy, hex('#ffb040')); R.pset(x + dx, fy - alto + 1, hex('#ffb040')); R.pset(x + dx, fy - alto, hex('#ffd890')); R.rect(x, fy - 1, x, fy, hex('#fff6d8')); } }
+    if (luz9 > 0) { const fy = y - hh - 1, al = (luz9 < 0.4 ? 6 : 4) + (Math.sin(t * 3.7) > 0.2 ? 1 : 0), dx = Math.sin(t * 2.6) > 0.6 ? 1 : Math.sin(t * 2.6) < -0.7 ? -1 : 0; R.rect(x - 1, fy - al + 2, x + 1, fy, hex('#ffb040')); R.pset(x + dx, fy - al + 1, hex('#ffb040')); R.pset(x + dx, fy - al, hex('#ffd890')); R.rect(x, fy - 1, x, fy, hex('#fff6d8')); } }
   // un pétalo se suelta de un ramo y se posa en la acera (y otro, antes, a la derecha)
   R.recorte([F[0], F[1], F[2], F[3]]);
   for (const [t0, x0, y0, x1, y1] of [[P2 + 0.7, 186, 138, 176, 151], [PETALO, 132, 137, 141, 150]]) { const u = tramo(t, t0, t0 + 1.5); if (u <= 0) continue; const x = Math.round(lerp(x0, x1, u) + Math.sin(u * 9) * 3 * (1 - u)), y = Math.round(lerp(y0, y1, u * u * 0.4 + u * 0.6)); R.pset(x, y, hex('#e8e8ee')); R.pset(x + (u < 1 && Math.sin(u * 14) > 0 ? -1 : 1), y, hex('#c8c8d0')); R.pset(x, y + 1, hex('#5a5a62')); }
   R.recorte(null);
-  const u = tramo(t, a(7.2), a(9.2)), e = ease(u); cursor(Math.round(lerp(176, 248, e)), Math.round(lerp(96, 154, e)));
+  // el cursor, quieto sobre la foto mientras prenden; luego se aparta al margen oscuro, junto a la tira de miniaturas
+  const e = ease(tramo(t, a(8.3), a(9.6))); cursor(Math.round(lerp(176, 283, e)), Math.round(lerp(96, 146, e)));
 };
 const p3 = (t) => {
   const o = { encuadre: 'guionistas', epoca: 2016 }; T.keene(R, t, o);

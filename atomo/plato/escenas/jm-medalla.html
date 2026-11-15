@@ -12,19 +12,23 @@
 // JM-MEDALLA (frases «medalla» y «senora»), 1981–1986. Sin cartela. Seis planos:
 // 1. la sala de premios: Van Allsburg cruza el escenario (sus pasos en la tarima) mientras la bibliotecaria del jurado habla en el
 //    atril; con «1982» la sala rompe a aplaudir y ella sale del atril con la medalla en la mano; él da un salto;
-// 2. de cerca, sobre el terciopelo: la medalla cae y se posa en el libro («Medal»), salen tres estrellas («the most
-//    important award»), confeti y dos destellos de cámara; con «Four years later» el calendario pasa a 1986 y entra el
-//    segundo libro con su medalla (corta en «won it again»);
-// 3. la mesa con sus cuatro libros, desde arriba: una mano lleva la lupa hasta el tren en la nieve («a train»; nieva con
-//    viento y la locomotora echa vapor y pita: la lupa da un respingo) y, con «Christmas Eve», la baja a la esquina: el
-//    perro blanco, otra vez (gag 2);
+// 2. de cerca, sobre el terciopelo: nada más cortar (acaba de sonar «Medal»), la medalla cuelga ya del cordón dorado por
+//    su cinta (sale de un pasador de latón: nada cruza la barra del año), baja, toca la tapa, da un bote y la cinta
+//    se escurre del pasador y cae con ella (1,2 s en total, para que se lean la bajada y el bote); salen tres estrellas
+//    («the most important award»), confeti y dos destellos de cámara; con «Four years later» el calendario pasa a 1986 y
+//    entra el segundo libro, y su medalla baja y bota igual (1,1 s; posada antes de «won it again»);
+// 3. la mesa con sus cuatro libros, desde arriba: una mano sola (la canónica, sin manga, con su sombra) coge la lupa por
+//    el mango y la lleva hasta el tren en la nieve («a train»; nieva con viento y la locomotora echa vapor y pita: la lupa
+//    da un respingo) y, con «Christmas Eve», la baja a la esquina: el perro blanco, otra vez (gag 2);
 // 4. la cocina de la señora (1983): lee el libro junto a la nevera y del libro brota una hojita («took on a life of its
 //    own»); el gato maúlla y da un brinco; ella va a la mesa, deja el libro y escribe la carta: un «?» sobre su cabeza;
-// 5. la carta desde arriba, con el sonajero al lado: la mano entra con la pluma, duda dando golpecitos y traza el «?»
+// 5. la carta desde arriba, con el sonajero al lado: la mano sola (sin manga, con su sombra) entra con la pluma, duda dando golpecitos y traza el «?»
 //    («what Jumanji meant»); con el punto final, el sonajero da un bote y rueda un poco;
 // 6. la meta del tablero, a lápiz, con un «?» encima: la mano del autor entra por abajo a la izquierda, tamborilea y, con «nothing», lo
-//    deshace de un papirotazo; el disco se empaña, deja ver una hoja y, con «jungle», vuelve el color, baja una liana,
-//    brotan hojas por los bordes y la mano se aparta.
+//    deshace de un papirotazo; el disco se empaña y se aclara: dentro no hay nada, solo el latón y su estrella roja
+//    (la META nunca lleva nada verde dentro); con «jungle» vuelve el color, baja una liana, brotan hojas por los bordes,
+//    la mano se aparta y una hoja cae meciéndose y se posa atravesada sobre el canto del disco, abajo a la izquierda,
+//    con el rabito fuera y su sombra en el latón: la estrella sigue mandando.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-medalla');
@@ -40,7 +44,10 @@ const estrella = (cx, cy, r, c) => { const pts = []; for (let i = 0; i < 10; i++
 const CONF = ['#f0c030', '#e83a34', '#3a8ad0', '#f2f2ee', '#3aa85a'].map(hex);
 const confeti = (t, t0, x0, x1, y0, y1, n) => { if (t < t0) return; for (let k = 0; k < n; k++) { const v = 16 + hh(k, 3) * 14, rec = (t - t0) * v - hh(k, 5) * (y1 - y0); if (rec < 0) continue; const y = y0 + rec % (y1 - y0), x = x0 + hh(k, 1) * (x1 - x0) + Math.sin(t * 3 + k) * 3, c = CONF[k % 5]; if ((x > 272 && y < 50) || (x < 172 && y < 22)) continue; R.pset(Math.round(x), Math.round(y), c); if (Math.sin(t * 9 + k * 2) > 0) R.pset(Math.round(x) + 1, Math.round(y), c); else R.pset(Math.round(x), Math.round(y) + 1, c); } };
 const BIBLIO = { H: hex('#a8a8b2'), h: hex('#c8c8d0'), C: hex('#7a3a5a'), c: hex('#5a2a44') };   // la bibliotecaria del jurado que entrega la medalla (no hay un presentador en el reparto)
-const SEG = (t) => tramo(t, a(10.53), a(12.0));
+// la segunda medalla: la primera mitad trae el libro del tren y pasa el calendario; la segunda (1,1 s) es la bajada y el bote
+const SEG = (t) => tramo(t, a(10.0), a(10.7)) * 0.5 + tramo(t, a(10.7), a(11.8)) * 0.5;
+// la sombra tramada de una mano sola (T.mano con dir −1 en x, y) sobre lo que tenga debajo: sin ella, flota
+const sombraMano = (x, y) => { for (let j = -4; j <= 4; j++) for (let i = -8; i <= 8; i++) { const px = x - 2 + i, py = y + 7 + j; if (((px + py) & 1) && Math.hypot(i / 8.5, j / 4.5) < 1 && px >= 0 && px < 320 && py >= 0 && py < 180) R.pset(px, py, mez(R.pget(px, py), K, 0.45)); } };
 
 // 1. la sala de premios
 const p1 = (t) => {
@@ -59,9 +66,23 @@ const p1 = (t) => {
 };
 
 // 2. la medalla se posa en el libro; cuatro años después, otra
+// el cordón dorado del decorado (su fila de arriba en cada x) y el decorado limpio, sin medallas, que se pinta una vez:
+// de él sale la franja de encima del cordón, para que la cinta nazca del cordón y no del borde (la barra del año, libre)
+const cordon = (x) => 26 + Math.round(Math.sin(x / 270 * Math.PI * 3) * 4 + 4);
+let LIMPIO = null;
 const p2 = (t) => {
-  const o = { encuadre: 'premios', camara: 'medalla', medalla: tramo(t, P2 + 0.2, a(6.25)), segunda: SEG(t) };
+  // la medalla empieza ya por debajo del cordón (0,16), toca la tapa en P2 + 0,61 (0,4: ahí suena el «toc») y se posa
+  const o = { encuadre: 'premios', camara: 'medalla', medalla: 0.16 + tramo(t, P2 + 0.1, P2 + 0.61) * 0.24 + tramo(t, P2 + 0.61, P2 + 1.3) * 0.6, segunda: SEG(t) };
+  if (!LIMPIO) { LIMPIO = R.nuevo(); const prev = R.usar(LIMPIO); T.editorial(R, 0, { encuadre: 'premios', camara: 'medalla' }); R.usar(prev); }
   T.editorial(R, t, o);
+  // la cinta pasa por detrás del cordón: por encima de él, el terciopelo limpio; y en el cordón, la anilla de latón de la que cuelga
+  for (let x = 86; x <= 138; x++) for (let y = cordon(x) + 1; y >= 0; y--) R.pset(x, y, LIMPIO[y * 320 + x]);
+  // la segunda medalla baja por x≈270 meciéndose: que su vaivén no asome por la zona de Atom
+  if (o.segunda > 0.5 && o.segunda < 0.75) for (let y = 0; y <= 46; y++) for (let x = 278; x <= 296; x++) R.pset(x, y, LIMPIO[y * 320 + x]);
+  // el pasador de latón, tan ancho como la cinta, colgado del cordón por su anilla: de él sale (y por él se escurre) la cinta
+  { const ax = 112, ay = cordon(112) + 2; R.rect(ax - 1, ay - 4, ax + 1, ay - 1, K); R.rect(ax, ay - 4, ax, ay - 1, hex('#e8c860'));
+    R.rect(ax - 12, ay, ax + 12, ay + 6, K); R.rect(ax - 11, ay + 1, ax + 11, ay + 5, hex('#c8a040')); R.rect(ax - 11, ay + 1, ax + 11, ay + 1, hex('#fff0a0')); R.rect(ax - 11, ay + 2, ax + 11, ay + 2, hex('#e8c860')); R.rect(ax - 11, ay + 5, ax + 11, ay + 5, hex('#8a6a2a'));
+    for (const d of [-9, 9]) { R.pset(ax + d, ay + 3, hex('#6a4e1c')); R.pset(ax + d, ay + 2, hex('#fff6c0')); } for (let d = -5; d <= 5; d += 2) R.pset(ax + d, ay + 4, hex('#a8842e')); }
   // tres estrellas sobre el libro: «the most important award»
   [[84, a(6.9)], [112, a(7.35)], [140, a(7.8)]].forEach(([x, t0], k) => { const u = tramo(t, t0, t0 + 0.25); if (u <= 0) return; const r = Math.round(2 + u * 5 + (u >= 1 && Math.sin(t * 5 + k * 2) > 0.6 ? 1 : 0)), y = 60 - Math.round(Math.sin(u * Math.PI) * 4) - (k === 1 ? 3 : 0);
     estrella(x, y + 1, r + 2, K); estrella(x, y, r, hex('#f0c030')); estrella(x - 1, y - 1, Math.max(1, r - 3), hex('#ffe890')); R.pset(x - 2, y - 2, hex('#ffffff')); });
@@ -84,9 +105,9 @@ const p3 = (t) => {
   for (let k = 0; k < 4; k++) { const u = (t * 0.7 + k / 4) % 1, x = Math.round(52 - u * 12 + Math.sin(u * 5 + k) * 2), y = Math.round(56 - u * 14); if (y > 33 && x > 29 && fuera(x, y)) { R.pset(x, y, hex('#e8ecf4')); if (u > 0.3) R.pset(x + 1, y, hex('#c8d0e0')); if (u > 0.6) R.pset(x, y - 1, hex('#c8d0e0')); } }
   // la locomotora pita: dos bocanadas blancas que suben por encima de la lupa
   { const s = tramo(t, PITA, PITA + 0.7); if (s > 0 && s < 1) for (let k = 0; k < 4; k++) { const x = Math.round(40 + k * 5 - s * 5 + Math.sin(s * 6 + k) * 1.5), y = Math.round(41 - s * 6 - (k % 2) * 3); if (y > 33 && fuera(x, y)) { R.disco(x, y, 1.2 + s * 1.2, hex('#ffffff')); R.pset(x + 1, y + 1, hex('#c8d0e0')); } } }
-  // la mano que lleva la lupa por el mango
+  // la mano que lleva la lupa por el mango: sola, sin manga (un brazo acabaría en mitad del cuadro), con su sombra en la mesa
   const wx = lx + 28, wy = ly + 25;
-  T.brazo(R, wx + 31, wy + 32, wx, wy, '#6a4a34', -1, { codo: [wx + 22, wy + 13] });
+  sombraMano(wx - 3, wy); T.mano(R, wx - 3, wy, -1, '#6a4a34', { sinManga: true });
   // lo encontró: el perro
   { const u = tramo(t, a(16.95), a(17.15)); if (u > 0) { const y = ly - 34 - Math.round(Math.sin(Math.min(1, u) * Math.PI) * 3) + (Math.sin(t * 6) > 0 ? 0 : 1); R.icono('!', lx - 4, y, hex('#e83a34'), K, 2); } }
   T.editorialDelante(R, t, o);
@@ -138,7 +159,7 @@ const p5 = (t) => {
   tx = Math.round(tx); ty = Math.round(ty) - alto;
   const wx = tx + 18, wy = ty - 7;
   for (const [d, c] of [[-2, K], [2, K], [-1, hex('#5a6ab0')], [0, hex('#22306a')], [1, hex('#1a2450')]]) R.linea(tx + 11 + d, ty - 11, tx + 21 + d, ty - 21, c); R.rect(tx + 20, ty - 23, tx + 23, ty - 21, K); R.pset(tx + 21, ty - 22, hex('#c8a040'));
-  T.brazo(R, wx + 32, wy + 36, wx, wy, '#7a8ad0', -1, { codo: [wx + 25, wy + 15] });
+  sombraMano(wx - 3, wy + alto); T.mano(R, wx - 3, wy, -1, '#7a8ad0', { sinManga: true });   // la mano sola, sin manga; la sombra se queda en el papel cuando la pluma se levanta
   for (const [d, c] of [[-2, K], [2, K], [-1, hex('#5a6ab0')], [0, hex('#22306a')], [1, hex('#1a2450')]]) R.linea(tx + 3 + d, ty - 3, tx + 7 + d, ty - 7, c); R.linea(tx, ty, tx + 3, ty - 3, K); R.linea(tx + 1, ty, tx + 3, ty - 2, hex('#c8a040')); R.pset(tx, ty, K);
   T.editorialDelante(R, t, o);
 };
@@ -147,7 +168,7 @@ const p5 = (t) => {
 const INT = ['.###.', '#...#', '...#.', '..#..', '..#..', '.....', '..#..'];
 const p6 = (t) => {
   const NADA = b(30.09), SELVA = b(31.55);
-  const o = { encuadre: 'tablero', camara: 'gema', dentro: tramo(t, NADA + 0.15, SELVA), color: tramo(t, SELVA - 0.25, SELVA + 0.7) };
+  const o = { encuadre: 'tablero', camara: 'gema', dentro: 0.3125 * Math.sin(tramo(t, NADA + 0.15, SELVA) * Math.PI), color: tramo(t, SELVA - 0.25, SELVA + 0.7) };
   T.casaJuego(R, t, o);
   // el «?» sobre el disco, que con «nothing» se deshace en polvo
   { const s = 6, x0 = 160 - 15, y0 = 96 - 22 + Math.round(Math.sin(t * 3) * 2), dt = t - NADA, pop = tramo(t, P6 + 0.1, P6 + 0.35);
@@ -162,10 +183,21 @@ const p6 = (t) => {
   { const gsel = sua(tramo(t, SELVA - 0.1, SELVA + 0.9));
     if (gsel > 0) { if (P.liana) P.liana(R, 228, 0, { largo: Math.round(4 + gsel * 74), t }); if (P.liana) P.liana(R, 196, 0, { largo: Math.round(4 + gsel * 30), t: t + 1 });
       if (P.hojaSelva) for (const [x, y, d, dx, dy, k] of [[34, 178, 1, -30, 26, 0], [84, 184, -1, 0, 40, 1], [246, 182, 1, 0, 40, 2], [296, 172, -1, 30, 22, 3], [14, 104, 1, -34, 0, 4], [306, 112, -1, 36, 0, 5]]) { const u = sua(tramo(gsel, k * 0.1, 0.5 + k * 0.1)); if (u > 0) P.hojaSelva(R, x + Math.round(dx * (1 - u)), y + Math.round(dy * (1 - u)), { s: 2, dir: d, t: t + k }); } } }
+  // una hoja entra por la izquierda con el viento (por debajo de la barra del año), meciéndose, y se posa atravesada sobre
+  // el canto del disco, abajo a la izquierda, entre dos puntas de la estrella: el rabito queda fuera, en la madera, y la
+  // sombra, que se le va pegando, cae sobre el latón
+  { const ch = tramo(t, SELVA + 0.05, SELVA + 1.15);
+    if (ch > 0 && P.hojaSelva) { const HX = 121, HY = 156, ya = ch >= 1, dp = t - (SELVA + 1.15);
+      const x = Math.round(lerp(-22, HX, sua(ch)) + Math.sin(ch * Math.PI * 3) * 6 * (1 - ch)), y = Math.round(lerp(56, HY, ch) - Math.sin(ch * Math.PI) * 10 - (ya && dp < 0.3 ? Math.sin(dp / 0.3 * Math.PI) * 2 : 0));
+      const al = Math.round((1 - ch) * 10), sx = x + 5 + al, sy = y - 15 + al;
+      for (let j = -18; j <= 18; j++) for (let i = -14; i <= 14; i++) { const px = sx + i, py = sy + j; if (((px + py) % 3) && Math.hypot(i / 13.5, j / 17.5) < 1 && px >= 0 && px < 320 && py >= 0 && py < 180) R.pset(px, py, mez(R.pget(px, py), K, 0.3 + ch * 0.25)); }
+      // el rabito, largo, hacia fuera del disco
+      for (const [i, j] of [[0, 0], [-1, 1], [-1, 2], [-2, 3], [-2, 4], [-3, 5]]) { R.rect(x + i - 1, y + j - 1, x + i + 1, y + j + 1, K); } for (const [i, j] of [[0, 0], [-1, 1], [-1, 2], [-2, 3], [-2, 4], [-3, 5]]) R.pset(x + i, y + j, j < 3 ? hex('#3aa85a') : hex('#7ad06a'));
+      P.hojaSelva(R, x, y, { s: 2, dir: ya ? -1 : Math.sin(ch * Math.PI * 3) > 0 ? 1 : -1, t: ya ? t : t * 3 }); } }
   T.casaJuegoDelante(R, t, o);
 };
 const año = (t) => t < a(3.52) ? 1981 : t < P3 ? 1982 + Math.min(4, Math.floor(SEG(t) * 8)) : t < P4 ? 1986 : 1983;
-const efectos = [[0.5, 'toc'], [a(3.6), 'publico'], [a(5.0), 'palmada'], [a(6.2), 'toc'], [a(6.9), 'brillo'], [a(8.3), 'flash'], [a(9.45), 'flash'], [a(10.6), 'papel'], [a(11.9), 'toc'],
+const efectos = [[0.5, 'toc'], [a(3.6), 'publico'], [a(5.0), 'palmada'], [P2 + 0.61, 'toc'], [a(6.9), 'brillo'], [a(8.3), 'flash'], [a(9.45), 'flash'], [a(10.05), 'papel'], [a(11.15), 'toc'],
   [P3 + 0.3, 'viento', { dur: 1.5 }], [a(14.2), 'vapor'], [PITA, 'silbato'], [a(17.0), 'guau'],
   [b(19.0), 'brillo'], [MIAU, 'miau'], [b(21.3), 'toc'], [b(22.95), 'lapiz'], [b(23.45), 'pop'], [b(25.45), 'golpecito'], [b(26.6), 'lapiz'], [b(28.1), 'toc'],
   [P6 + 1.0, 'golpecito'], [b(30.1), 'pop'], [b(31.55), 'viento', { dur: 1.9 }]];

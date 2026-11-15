@@ -16,7 +16,8 @@
 //    salen a la calle (un gorrión de la repisa sale volando);  4. en el estudio, la liana que le quitó el lápiz a Atom
 //    dibuja la línea: la mesa, el tablero (1981), el cartucho (2017); el «45» sube;  5. de cerca, la línea sale de la
 //    consola de 2026, da la vuelta y la flecha toca el principio: la mesa con el flexo;  6. 1979: el escultor dibuja de
-//    noche, Lisa le trae una taza y, por la ventana, asoma una hoja de selva: ella se vuelve a mirarla y él también.
+//    noche, Lisa le trae una taza y, tras el cristal, crecen las hojas de selva (recortadas, bajo los travesaños): levantan
+//    la hoja de guillotina y por la rendija entra el tallo, que se apoya en el alféizar y cuelga; ella se vuelve y él también.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-open');
@@ -138,11 +139,23 @@ const p5 = (t) => {
 // 6 · 1979, de noche: el escultor dibuja; Lisa le trae una taza; por la ventana asoma una hoja de selva
 const p6 = (t) => {
   const o = { encuadre: 'casa' }; T.taller(R, t, o);
+  // la selva empuja desde fuera: las hojas crecen TRAS el cristal (recortadas al hueco, y encima se repintan los
+  // travesaños), levantan la hoja de guillotina de abajo y por esa rendija entra el tallo: se apoya en el alféizar y cuelga
   const h = tramo(t, jungla - 0.6, lado + 0.1);
-  if (h > 0) { R.recorte([29, 32, 77, 85]);
+  if (h > 0) { const MZ = hex('#343a52'), MS = hex('#1a1c2c'), ML = hex('#4a5676');
+    const sube = suave(tramo(h, 0.2, 0.62)), tiembla = sube > 0 && sube < 1 && Math.floor(t * 12) % 2 ? 1 : 0, lv = Math.round(sube * 16) - (sube > 0 ? tiembla : 0), yr = 87 - lv;
+    // la rendija no tiene montante: ahí se ve la noche y la nieve del alféizar de fuera
+    if (lv > 1) { R.rect(52, yr + 1, 53, 83, hex('#1a1c3a')); R.rect(52, 84, 53, 84, hex('#f4f8fc')); R.rect(52, 85, 53, 86, hex('#c0d0e4')); }
+    R.recorte([28, 31, 78, 86]);
     hoja(Math.round(lerp(92, 74, h)), Math.round(lerp(96, 80, h)), -2.5, 34, t, 0); hoja(Math.round(lerp(96, 78, h)), Math.round(lerp(70, 58, h)), 3.3, 26, t, 2); hoja(Math.round(lerp(60, 52, h)), Math.round(lerp(110, 88, h)), -1.75, 24, t, 4);
     R.recorte(null);
-    if (h > 0.7) vid(76, 84, 84, Math.round(lerp(86, 112, tramo(t, lado, lado + 1.6))), 2, t, 1, true); }
+    // la carpintería, por delante de las hojas: el montante (hasta donde llega la hoja subida) y el travesaño fijo
+    R.rect(52, 30, 53, Math.min(87, yr), MZ); R.rect(53, 30, 53, Math.min(87, yr), MS); R.rect(27, 58, 79, 59, MZ);
+    // la hoja de abajo, subida: su larguero inferior, con luz arriba y sombra debajo, y su travesaño montado sobre la de arriba
+    if (lv > 0) { R.rect(27, yr - 2, 79, yr, MZ); R.rect(27, yr - 2, 79, yr - 2, ML); R.rect(27, yr + 1, 79, yr + 1, MS); R.rect(27, 58 - lv, 79, 59 - lv, MZ); R.rect(27, 57 - lv, 79, 57 - lv, ML); R.rect(27, yr - 3, 79, yr - 3, ML); R.rect(27, yr - 4, 79, yr - 4, hex('#6a78a0')); for (const x of [38, 67]) { R.rect(x, yr - 1, x + 3, yr - 1, hex('#c8943a')); R.pset(x, yr, MS); R.pset(x + 3, yr, MS); } }
+    // el tallo entra por la rendija, se apoya en el alféizar y cuelga por el friso; una hoja cuelga bajo el alféizar
+    const e = tramo(t, lado - 0.35, lado + 1.7);
+    if (e > 0 && lv > 6) { vid(76, 82, 70, 90, 0, t, tramo(e, 0, 0.3), false); if (e > 0.3) { vid(70, 90, 69, Math.round(lerp(92, 114, tramo(e, 0.3, 1))), 0, t, 1, true); hoja(70, 91, 2.3, Math.round(lerp(5, 15, tramo(e, 0.3, 0.8))), t, 6); } } }
   const ve = t > jungla + 0.7, vuelta = t > jungla + 1.3;
   const xl = Math.round(lerp(-20, 96, tramo(t, P6 + 0.2, noche)));
   const li = R.actor(EL.lisa, xl, 156, t, { dir: ve ? -1 : 1, anda: xl < 96, sostiene: true, sorpresa: ve && t < lado + 0.6, sonrisa: t > lado + 0.6, habla: ve && t < jungla + 1.5 });

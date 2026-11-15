@@ -21,7 +21,10 @@
 // el color se va;  6. el salón con lluvia y lianas: la mano raya con la barrita, difumina con el dedo (polvo), se
 // retira; destello de «fotografía» y aparece lo imposible: el rinoceronte;  7. el parque: llegan corriendo con la caja,
 // la dejan al pie del árbol y se van;  8. desde la ventana: dos chicos se la llevan; Peter los señala y se miran;
-// 9. el folleto en la hierba: las zapatillas pasan sin mirarlo, cae una hoja y salta un «!».
+// 9. el folleto en la hierba: los dos chicos (chibis, con la caja) cruzan por la senda de detrás sin mirarlo, el
+// gorrión echa a volar y vuelve a posarse, el aire levanta la esquina del papel, cae una hoja y salta un «!».
+// La barrita Conté (p5 y p6) la pinta la escena: lisa, de 3 px de grueso y con filo claro, a la escala de la mano; en
+// p6 la mano trabaja abajo y del brazo se ven menos de 45 px.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-libro');
@@ -125,6 +128,9 @@ const resto = (x, y, tipo, s, an) => { if (s < 0.15) return;
   if (tipo === 0) { const c = Math.cos(an), q = Math.sin(an), pt = (a, b) => [Math.round(x + (a * c - b * q) * s), Math.round(y + (a * q + b * c) * s)]; R.poligono([pt(-9, 0), pt(-3, -5), pt(5, -4), pt(10, 0), pt(5, 4), pt(-3, 5)], K); R.poligono([pt(-7, 0), pt(-3, -4), pt(4, -3), pt(8, 0), pt(4, 3), pt(-3, 4)], G[2]); R.linea(...pt(-7, 0), ...pt(8, 0), G[0]); R.linea(...pt(-2, 0), ...pt(1, -3), G[0]); R.linea(...pt(2, 0), ...pt(5, 2), G[0]); R.linea(...pt(-3, -3), ...pt(3, -3), G[4]); }
   else if (tipo === 1) { for (let d = -5; d <= 5; d++) { const a = d * s, b = (d * d) * 0.16 * s, px = Math.round(x + Math.cos(an) * a - Math.sin(an) * b), py = Math.round(y + Math.sin(an) * a + Math.cos(an) * b); R.rect(px - 1, py - 1, px + 1, py + 1, K); } for (let d = -5; d <= 5; d++) { const a = d * s, b = (d * d) * 0.16 * s, px = Math.round(x + Math.cos(an) * a - Math.sin(an) * b), py = Math.round(y + Math.sin(an) * a + Math.cos(an) * b); R.pset(px, py, Math.abs(d) === 5 ? G[1] : G[4]); R.pset(px, py + 1, G[3]); } }
   else { for (let j = -3; j <= 3; j++) { const w = Math.round(9 * s * Math.sqrt(1 - (j * j) / 10)); for (let i = -w; i <= w; i++) R.pset(Math.round(x) + i, Math.round(y + j * s), Math.abs(i) === w || Math.abs(j) === 3 ? G[1] : G[3]); } R.linea(Math.round(x - 4 * s), Math.round(y - 1), Math.round(x + 1 * s), Math.round(y - 1), G[4]); const u = (an * 0.3 + x) % 1; R.pset(Math.round(x + (u - 0.5) * 8 * s), Math.round(y + 1), G[4]); } };
+// la barrita Conté: lisa, negra, de 3 px de grueso, con un filo claro alrededor para que se lea sobre la alfombra y la
+// tarima (a la escala de la mano); luz = el brillo que gira al rodar
+const barrita = (x0, y0, x1, y1, luz = 0) => { const ux = Math.sign(x1 - x0); for (const [d, c] of [[-2, G[4]], [2, G[4]], [1, K], [-1, G[0]], [0, luz ? G[2] : K]]) R.linea(x0, y0 + d, x1, y1 + d, c); for (let d = -1; d <= 1; d++) { R.pset(x0 - ux, y0 + d, G[4]); R.pset(x1 + ux, y1 + d, G[4]); } R.linea(x0 + ux, y0 - 1, x0 + ux * 4, y0 - 1 + Math.round((y1 - y0) * 3 / Math.max(1, Math.abs(x1 - x0))), G[2]); };
 const p5 = (t) => {
   const col = suave(tramo(t, llegada - 0.1, llegada + 0.4)) * (1 - suave(tramo(t, bn, di(21.9))));
   const o = { encuadre: 'tablero', color: col, tira: tramo(t, P5 + 0.05, P5 + 0.65), avance: lerp(0.86, 1, tramo(t, P5 + 0.75, llegada)) };
@@ -135,7 +141,7 @@ const p5 = (t) => {
   const ray = tramo(t, llegada, llegada + 0.5), apaga = tramo(t, llegada + 0.9, llegada + 1.5);
   if (ray > 0 && apaga < 1) for (let k = 0; k < 12; k++) { const an = k * Math.PI / 6 + t * 0.8, r0 = 18 + apaga * 14, r1 = 18 + ray * (k % 2 ? 22 : 14); if (r1 > r0) R.linea(Math.round(mx + Math.cos(an) * r0), Math.round(my + Math.sin(an) * r0), Math.round(mx + Math.cos(an) * r1), Math.round(my + Math.sin(an) * r1), k % 2 ? ORO : BL); }
   // la barrita de lápiz entra rodando por la tarima
-  const rr = suave(tramo(t, rueda, rueda + 0.6)); if (rr > 0) { const bx = Math.round(lerp(340, 214, rr)); for (let i = 0; i < 9; i++) if ((i + Math.floor(t * 10)) % 3 && rr < 1) R.pset(bx + 16 + i * 4, 176 - (i % 2), G[0]); P.lapizConte(R, bx + 10, 177, { s: 2 }); }
+  const rr = suave(tramo(t, rueda, rueda + 0.6)); if (rr > 0) { const bx = Math.round(lerp(340, 214, rr)); for (let i = 0; i < 9; i++) if ((i + Math.floor(t * 10)) % 3 && rr < 1) R.pset(bx + 18 + i * 4, 173 - (i % 2), G[1]); barrita(bx, 171, bx + 15, 171, rr < 1 && Math.floor(t * 12) % 2); }
   T.casaJuegoDelante(R, t, o);
 };
 
@@ -152,9 +158,9 @@ const p6 = (t) => {
   if (le > 0 && le < 1) for (let k = 0; k < 6; k++) if (Math.floor(t * 9 + k) % 2) destello(178 + ((k * 17) % 44), 70 + ((k * 11) % 26), 2, BL);
   // la mano: dibuja el rinoceronte en zigzag, difumina con el dedo, da los últimos toques con cuidado y se va
   const dab = Math.floor(t * 5) % 2, ab = suave(tramo(t, frota - 0.15, frota + 0.1)), bc = suave(tramo(t, cuida - 0.3, cuida)), cd = suave(tramo(t, fuera, fuera + 0.8));
-  const A = [lerp(74, 152, rn) + 27, 139 + Math.sin(rn * Math.PI * 7) * 17 - 12], B = [126 + Math.sin(t * 10) * 9, 160 + Math.cos(t * 10) * 1.5], C = [130 + 27 + dab, 139 - dab * 2], D = [232, 222];
+  const A = [lerp(74, 152, rn) + 14, 149 + Math.sin(rn * Math.PI * 7) * 7], B = [126 + Math.sin(t * 10) * 9, 160 + Math.cos(t * 10) * 1.5], C = [130 + 16 + dab, 151 - dab * 2], D = [232, 222];
   const wx = Math.round(lerp(lerp(lerp(A[0], B[0], ab), C[0], bc), D[0], cd)), wy = Math.round(lerp(lerp(lerp(A[1], B[1], ab), C[1], bc), D[1], cd));
-  if (cd < 1 && t > P6 + 0.05) { if (ab < 0.5 || bc > 0.5) P.lapizConte(R, wx - 15, wy + 12, { s: 2 }); T.brazo(R, wx + 40, wy + 58, wx, wy, VERDE, -1, { codo: [wx + 29, wy + 24] }); }
+  if (cd < 1 && t > P6 + 0.05) { if (ab < 0.5 || bc > 0.5) barrita(wx - 19, wy - 9, wx - 5, wy + 3); T.brazo(R, wx + 18, wy + 42, wx, wy, VERDE, -1, { codo: [wx + 13, wy + 21] }); }
   flash(0.85 * (1 - tramo(t, foto, foto + 0.3)) * (t >= foto ? 1 : 0));
 };
 
@@ -172,25 +178,10 @@ const p7 = (t) => {
   T.casaJuegoDelante(R, t, o);
 };
 
-// 8 · desde la ventana: dos chicos se la llevan (figuritas en color sobre las del decorado, recortadas al hueco)
-const SENDA = [[92, 128], [116, 119], [140, 112], [164, 105], [196, 97], [226, 92]];
-const enSenda = (u) => { u = Math.max(0, Math.min(1, u)); const v = u * 5, i = Math.min(4, Math.floor(v)), f = v - i; return [lerp(SENDA[i][0], SENDA[i + 1][0], f), lerp(SENDA[i][1], SENDA[i + 1][1], f)]; };
-const figurita = (x, y, al, ropa, gorra, fase, t, lleva) => { const paso = Math.floor(t * 7 + fase) % 2; x = Math.round(x); y = Math.round(y) - paso;
-  const big = al > 10, hw = big ? 2 : 1, hc = big ? 5 : 4, hb = big ? 5 : 3, hl = Math.max(2, al - hc - hb), pts = [], PANT = hex('#3a4a8a'), PIEL = hex('#f6c290');
-  for (let d = 0; d < hl; d++) { const pie = d < 2 ? 1 : 0; for (let w = 0; w < (big ? 2 : 1); w++) { pts.push([-1 - w - (paso ? pie : -pie * 0), -d, d === 0 ? K : PANT]); pts.push([1 + w + (paso ? 0 : pie), -d, d === 0 ? K : PANT]); } }
-  for (let d = hl; d < hl + hb; d++) for (let i = -hw; i <= hw; i++) pts.push([i, -d, i === -hw ? mez(ropa, K, 0.25) : ropa]);
-  pts.push([hw + 1, -hl - hb + 2, PIEL]);
-  for (let d = hl + hb; d < hl + hb + hc; d++) { const top = d === hl + hb + hc - 1; for (let i = -hw + (top ? 1 : 0); i <= hw - (top ? 1 : 0); i++) pts.push([i, -d, d >= hl + hb + hc - 2 ? gorra : i === hw - 1 && d === hl + hb + 1 + (big ? 1 : 0) ? K : PIEL]); }
-  pts.push([hw + 1, -(hl + hb + hc - 2), gorra]);
-  if (lleva) { const bw = big ? 8 : 5, bh = big ? 5 : 3; for (let j = 0; j < bh; j++) for (let i = 0; i < bw; i++) pts.push([hw + 2 + i, -hl - 1 - j, j === bh - 1 ? hex('#f4d898') : i === bw - 1 ? hex('#8a5a2a') : j === Math.floor(bh / 2) && i === Math.floor(bw / 2) ? hex('#ffd84a') : hex('#c8924a')]); }
-  const px = (i, j, c) => { const X = x + i, Y = y + j; if (X > 77 && X < 243 && Y > 29 && Y < 131 && Math.abs(X - 160) > 2) R.pset(X, Y, c); };
-  for (const [i, j] of pts) { px(i - 1, j, K); px(i + 1, j, K); px(i, j - 1, K); px(i, j + 1, K); }
-  for (const [i, j, c] of pts) px(i, j, c);
-  for (let k = 1; k <= 3; k++) if ((Math.floor(t * 8) + k) % 2) px(-hw - 2 - k * 3, -k % 2, hex('#ecece8')); };
+// 8 · desde la ventana: dos chicos se la llevan (los pinta el decorado, en color y recortados al hueco: o.chicos)
 const dos = di(34.96), conoce = di(35.98);
 const p8 = (t) => {
-  const ch = lerp(0.1, 0.97, tramo(t, P8 + 0.1, di(36.45))), o = { encuadre: 'ventana', chicos: ch }; T.casaJuego(R, t, o);
-  for (const [k, ret, ropa, gorra] of [[1, 0.07, hex('#f0c030'), hex('#1c1424')], [0, 0, hex('#f2f2ee'), hex('#d8303a')]]) { const uu = ch - ret + 0.07, [x, y] = enSenda(uu); figurita(x + (k ? -4 : 0), y, Math.round(lerp(14, 8, Math.max(0, Math.min(1, uu)))), ropa, gorra, k * 2, t, k === 0); }
+  const ch = lerp(0.3, 0.97, tramo(t, P8 + 0.1, di(36.45))), o = { encuadre: 'ventana', chicos: ch }; T.casaJuego(R, t, o);
   const sube = 1 - tramo(t, P8, P8 + 0.3);
   R.actor(EL.judyJM, 84, 135, t, { dir: 1, salto: Math.round(Math.sin(sube * Math.PI) * 3), sorpresa: t > di(34.3) && t < conoce, sonrisa: t >= conoce, sostiene: t < dos ? [100, 121] : undefined });
   R.actor(EL.peterJM, 100, 135, t, { dir: t > conoce + 0.15 ? -1 : 1, dedo: t >= dos && t < conoce + 0.15, sorpresa: t > di(34.3) && t < conoce, sonrisa: t >= conoce, habla: t > conoce + 0.15 && Math.sin(t * 9) > 0 });
@@ -200,10 +191,12 @@ const p8 = (t) => {
 // 9 · el folleto de instrucciones, en el suelo
 const nunca = di(38.52);
 const p9 = (t) => {
-  const o = { encuadre: 'ventana', camara: 'folleto', pasos: tramo(t, P9 + 0.05, di(38.0)) }; T.casaJuego(R, t, o);
-  // una hoja que cae y se posa en la hierba, junto al folleto
-  const c = tramo(t, P9 + 0.6, nunca + 0.3), hx = lerp(196, 250, c) + Math.sin(c * 9) * 8, hy = lerp(-8, 124, c);
-  resto(hx, hy, 0, 1.4, c < 1 ? Math.sin(c * 12) * 0.8 : 0.3);
+  // los chicos ya van por la senda en el corte y la cruzan a paso constante (tramo() acelera: aquí va lineal); el último
+  // sale de cuadro cuando salta el «!», y el gorrión vuelve a posarse justo después
+  const o = { encuadre: 'ventana', camara: 'folleto', pasos: lerp(0.12, 1, Math.min(1, Math.max(0, (t - P9) / (nunca + 0.4 - P9)))) }; T.casaJuego(R, t, o);
+  // una hoja que cae y se posa en la hierba, junto al folleto; después del «!», otra ráfaga se la lleva dando tumbos
+  const c = tramo(t, P9 + 0.6, nunca + 0.3), v = suave(tramo(t, nunca + 0.55, nunca + 1.5)), hx = lerp(196, 250, c) + Math.sin(c * 9) * 8 + v * 58, hy = lerp(-8, 124, c) - Math.abs(Math.sin(v * Math.PI * 3)) * 7 + v * 10;
+  resto(hx, hy, 0, 1.4, c < 1 ? Math.sin(c * 12) * 0.8 : 0.3 + v * 9);
   T.casaJuegoDelante(R, t, o);
   const e = tramo(t, nunca, nunca + 0.18); if (e > 0) icono('!', 154, 58 - Math.round(Math.abs(Math.sin(t * 6)) * 3) - (e < 1 ? 4 : 0), ORO, 3);
 };

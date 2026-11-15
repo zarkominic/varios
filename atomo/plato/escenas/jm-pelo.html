@@ -15,8 +15,10 @@
 //    de cine: la claqueta se cierra y una mano mete el peluche en plano, lo menea como si rugiera… y se le dobla la cabeza;
 //    3. (corta en «The effects crew») la pantalla de tubo: se escribe el programa (rayas), la melena crece mechón a mechón,
 //    el último se queda de punta (gag 5: el cursor lo aplasta y vuelve a saltar) y llegan los monos de alambre;
-//    4. (corta en «in Jumanji») el cine: el león, ya con su melena, entra en la pantalla y ruge; los monos se columpian;
-//    una madre y su hijo, que llegan tarde, se quedan pasmados en el pasillo.
+//    4. (corta en «in Jumanji») el cine: la película de fondo es la del decorado (o.pantalla 'hojas'); la escena pinta encima,
+//    recortado a la pantalla, solo la rama, el león que entra por ella, ya con su melena y su pelo (cuerpo con forma, mechones
+//    de tres tonos, patas con zarpas y garras; al rugir se le eriza el lomo y el pelo corre en oleadas), y ruge (ondas, hojas que caen) y
+//    los monos de las lianas, que se encogen del susto; una madre y su hijo, que llegan tarde, se quedan pasmados en el pasillo.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-pelo');
@@ -84,17 +86,49 @@ const p3 = (t) => {
     if (t > porque + 1.12 && t < porque + 1.5) for (const [i, j] of [[-5, -2], [5, -3], [-7, 3], [7, 2]]) R.pset(tip[0] + i, tip[1] + j, hex('#fff2b8')); }
   R.recorte(null);
 };
-// EL LEÓN de la película (nuestro), de perfil hacia la derecha, con su melena de mechones: (ox, oy) lo desplaza
+// EL LEÓN de la película (nuestro), de perfil hacia la derecha: cuerpo con forma (grupa, lomo, cintura, pecho), pelo a
+// mechones de tres tonos con luz en el lomo y sombra en el vientre, patas con muslo, codo, zarpa y garras, cola con borla
+// y la melena de mechones; o.anda: camina; o.ruge: el pelo se eriza y corre en oleadas; (ox, oy) lo desplaza
 const leon = (ox, oy, t, o = {}) => {
   const C1 = hex('#d9a441'), C2 = hex('#a8742a'), C3 = hex('#f0c868'), M1 = hex('#7a4416'), M2 = hex('#a86220'), M3 = hex('#4e280c'), X = (x) => Math.round(x + ox), Y = (y) => Math.round(y + oy), pg = (pts, c) => R.poligono(pts.map(([x, y]) => [X(x), Y(y)]), c);
-  const pa = o.anda ? Math.floor(t * 5) & 1 : -1, cola = Math.sin(t * 2.4) * 5;
-  // la cola con su borla
-  R.linea(X(128), Y(58), X(118), Y(52), C2); R.linea(X(128), Y(59), X(118), Y(53), C1); R.linea(X(118), Y(52), X(112 + cola * 0.4), Y(42), C2); R.linea(X(118), Y(53), X(113 + cola * 0.4), Y(42), C1); R.disco(X(112 + cola * 0.5), Y(40), 3, M1); R.pset(X(111 + cola * 0.5), Y(38), M2);
-  // las patas de atrás y de delante (las de detrás, más oscuras)
-  for (const [x, lejos, k] of [[140, 1, 0], [182, 1, 1], [132, 0, 1], [174, 0, 0]]) { const up = pa === k ? 2 : 0, c = lejos ? C2 : C1; pg([[x, 68], [x + 8, 68], [x + 7, 86 - up], [x + 9, 88 - up], [x, 88 - up], [x + 1, 80]], c); R.linea(X(x), Y(88 - up), X(x + 9), Y(88 - up), M3); if (!lejos) R.linea(X(x + 8), Y(70), X(x + 7), Y(86 - up), C2); }
-  // el cuerpo: lomo, panza clara y sombra
-  pg([[128, 56], [150, 52], [186, 50], [194, 58], [192, 72], [176, 76], [146, 77], [130, 74], [126, 64]], C1); pg([[130, 70], [192, 68], [190, 73], [176, 76], [146, 77], [131, 74]], C2); R.linea(X(132), Y(55), X(184), Y(51), C3); R.linea(X(150), Y(53), X(184), Y(51), C3);
-  for (let i = 0; i < 9; i++) R.pset(X(136 + i * 6), Y(60 + (i * 5) % 9), C2);
+  const C4 = hex('#7c5220'), O = hex('#46280e'), GA = hex('#f4ecd0');
+  const pl = (Kp, x) => { for (let i = 1; i < Kp.length; i++) if (x <= Kp[i][0]) { const [xa, ya] = Kp[i - 1], [xb, yb] = Kp[i]; return ya + (yb - ya) * (x - xa) / (xb - xa); } return Kp[Kp.length - 1][1]; };
+  const traza = (pts, c, cDentro) => pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length]; if (i === 0) return; R.linea(X(p[0]), Y(p[1]), X(q[0]), Y(q[1]), cDentro && (i === 1 || i === pts.length - 1) ? cDentro : c); });
+  // la cola: curva de dos tonos con filo, y la borla de mechones (da latigazos al rugir)
+  { const cola = Math.sin(t * (o.ruge ? 11 : 2.4)) * 3, q = (u) => [126 * (1 - u) * (1 - u) + 2 * 106 * u * (1 - u) + (119 + cola) * u * u, 60 * (1 - u) * (1 - u) + 2 * 67 * u * (1 - u) + 50 * u * u];
+    for (let pasa = 0; pasa < 2; pasa++) for (let i = 0; i < 12; i++) { const [xa, ya] = q(i / 12), [xb, yb] = q((i + 1) / 12); if (!pasa) { R.linea(X(xa - 1), Y(ya), X(xb - 1), Y(yb), O); R.linea(X(xa + 2), Y(ya), X(xb + 2), Y(yb), O); R.linea(X(xa), Y(ya - 1), X(xb), Y(yb - 1), O); R.linea(X(xa), Y(ya + 2), X(xb), Y(yb + 2), O); } else { R.linea(X(xa), Y(ya), X(xb), Y(yb), C1); R.linea(X(xa + 1), Y(ya), X(xb + 1), Y(yb), i % 3 ? C1 : C3); R.linea(X(xa), Y(ya + 1), X(xb), Y(yb + 1), C2); } }
+    const [bx, by] = q(1); R.disco(X(bx), Y(by - 2), 3, M3); R.disco(X(bx), Y(by - 2), 2, M1);
+    for (let i = 0; i < 5; i++) { const an = -2.5 + i * 0.45 + Math.sin(t * (o.ruge ? 15 : 3) + i) * 0.2; R.linea(X(bx), Y(by - 2), X(bx + Math.cos(an) * 6), Y(by - 2 + Math.sin(an) * 6), i % 2 ? M2 : M3); } }
+  // una pata: muslo (o brazo con su codo), caña y zarpa con dedos y garras; al andar, el pie va y viene y se levanta
+  const pata = (x, k, lejos, tras) => { const an = t * 5 * Math.PI + k * Math.PI, f = o.anda ? Math.sin(an) * 3 : 0, up = o.anda ? Math.max(0, Math.cos(an)) * 2.4 : 0, g = f * 0.4, ca = lejos ? C2 : C1, cb = lejos ? C4 : C2, cl = lejos ? C1 : C3;
+    const muslo = tras ? [[x - 3, 64], [x + 11, 63], [x + 12, 72], [x + 6 + g, 80], [x + g, 78], [x - 4, 70]] : [[x, 64], [x + 10, 64], [x + 9, 70], [x + 7 + g, 77], [x + 1 + g, 77], [x - 2, 71]];
+    const cana = tras ? [[x + g, 77], [x + 5 + g, 79], [x + 6 + f, 85 - up], [x + 2 + f, 85 - up]] : [[x + 1 + g, 76], [x + 7 + g, 76], [x + 7 + f, 85 - up], [x + 2 + f, 85 - up]];
+    const zarpa = [[x + 1 + f, 85 - up], [x + 8 + f, 84 - up], [x + 11 + f, 86 - up], [x + 11 + f, 88 - up], [x + 1 + f, 88 - up]];
+    pg(cana, ca); traza(cana, O); R.linea(X(cana[0][0] + 1), Y(cana[0][1] + 1), X(cana[3][0] + 1), Y(cana[3][1]), cb); if (!lejos) R.linea(X(cana[1][0] - 1), Y(cana[1][1] + 1), X(cana[2][0] - 1), Y(cana[2][1]), cl);
+    pg(muslo, ca); traza(muslo, O, lejos ? null : cb);
+    if (!lejos) { for (let i = 0; i < 5; i++) { const fx = x + 1 + (i * 5) % 8, fy = 66 + (i * 7) % 10; R.pset(X(fx), Y(fy), cb); R.pset(X(fx - 1), Y(fy + 1), cb); if (i % 2) R.pset(X(fx + 1), Y(fy), cl); } R.linea(X(x + 8), Y(65), X(x + 8), Y(71), cl);
+      if (!tras) { R.pset(X(x - 3), Y(72), cb); R.pset(X(x - 3), Y(73), O); R.pset(X(x - 2), Y(74), cb); } }       // el mechón del codo
+    pg(zarpa, ca); traza(zarpa, O); R.linea(X(x + 1 + f), Y(88 - up), X(x + 11 + f), Y(88 - up), O); R.linea(X(x + 3 + f), Y(85 - up), X(x + 8 + f), Y(85 - up), cl);
+    for (const d of [5, 8]) { R.pset(X(x + d + f), Y(87 - up), O); R.pset(X(x + d + f), Y(86 - up), cb); } for (const d of [6, 9, 11]) R.pset(X(x + d + f), Y(88 - up), GA); };
+  pata(143, 0, 1, 1); pata(182, 1, 1, 0);
+  // el cuerpo, columna a columna: lomo con luz, costado, vientre en sombra, grupa redonda, pecho hondo y cintura recogida;
+  // los pelos del lomo asoman por el contorno y se erizan en oleadas con el rugido
+  const TOPE = [[124, 62], [125, 59], [128, 56], [133, 54], [140, 53], [156, 55], [170, 52], [182, 50], [196, 50]], BAJO = [[124, 64], [127, 69], [134, 73], [146, 74], [158, 71], [168, 72], [180, 76], [186, 75], [191, 72], [196, 67]];
+  const yT = (x) => Math.round(pl(TOPE, x)), yB = (x) => Math.round(pl(BAJO, x)) + (o.ruge && x > 166 ? 1 : 0);
+  for (let x = 124; x <= 196; x++) { const a0 = yT(x), b0 = yB(x), er = ((x * 7) % 11 < 3 ? 1 : 0) + (o.ruge && x > 134 && Math.sin(t * 18 - x * 0.35) > 0.2 ? 1 : 0);
+    for (let e = 1; e <= er; e++) R.pset(X(x), Y(a0 - e), e === er && er > 1 ? C3 : C1); R.pset(X(x), Y(a0 - er - 1), O);
+    for (let y = a0; y <= b0; y++) { const d = y - a0, r = b0 - y; R.pset(X(x), Y(y), d < 2 ? C3 : r < 1 ? C4 : r < 4 ? C2 : (r < 6 && ((x + y) & 1)) ? C2 : (d < 4 && ((x + y) & 1)) ? C3 : C1); }
+    R.pset(X(x), Y(b0 + 1), O); if ((x * 5) % 9 < 2 && x > 148 && x < 190) { R.pset(X(x), Y(b0 + 1), C2); R.pset(X(x), Y(b0 + 2), (x * 5) % 9 ? C4 : O); } }
+  R.linea(X(123), Y(59), X(123), Y(66), O); R.linea(X(124), Y(65), X(126), Y(69), O);
+  // el pelo del costado: mechones cortos en diagonal, de tres tonos según la luz; se mecen al respirar y corren hacia atrás con el rugido
+  for (let gx = 126; gx < 194; gx += 4) for (let gy = 0; gy < 7; gy++) { const w = o.ruge ? Math.round(Math.sin(t * 16 - gx * 0.2 + gy) * 1.3) : Math.round(Math.sin(t * 1.8 + gx * 0.1 + gy) * 0.6), x = gx + (gx * 5 + gy * 3) % 4 + w, y = 52 + gy * 4 + (gx * 3 + gy * 7) % 3;
+    if (x < 126 || x > 195) continue; const a0 = yT(x), b0 = yB(x); if (y < a0 + 2 || y + 2 > b0 - 1) continue; const d = y - a0, r = b0 - y, c = d < 3 ? C2 : r < 7 ? C4 : (gx + gy) % 3 ? C2 : C4;
+    R.pset(X(x), Y(y), c); R.pset(X(x - 1), Y(y + 1), c); R.pset(X(x - 2), Y(y + 2), c); if (r >= 7 && (gx + gy) % 2) R.pset(X(x + 1), Y(y), C3); }
+  // el músculo de la paletilla y el anca (dos arcos de sombra con su luz)
+  for (const [ax, s] of [[171, 1], [147, -1]]) { R.linea(X(ax), Y(56), X(ax - 2 * s), Y(64), C2); R.linea(X(ax - 2 * s), Y(64), X(ax + s), Y(71), C2); R.linea(X(ax + s), Y(57), X(ax - s), Y(64), C3); }
+  pata(132, 1, 0, 1); pata(174, 0, 0, 0);
+  // pelos sueltos que el rugido se lleva hacia atrás
+  if (o.ruge) for (let i = 0; i < 6; i++) { const q = (t * 1.8 + i * 0.17) % 1, hx = 186 - q * 52, hy = 44 + i * 4 - Math.sin(q * 3.1) * 5; R.pset(X(hx), Y(hy), i % 2 ? M2 : C3); R.pset(X(hx - 1), Y(hy + (i % 2)), i % 2 ? M2 : C3); }
   // la melena: el disco y los mechones que se mecen (más revueltos al rugir)
   const ag = o.ruge ? 2.2 : 0.8; R.disco(X(203), Y(60), 17, M1);
   for (let i = 0; i < 22; i++) { const an = i / 22 * 6.283 + 0.3, l = 16 + (i * 7) % 5 + Math.sin(t * (o.ruge ? 14 : 3) + i * 1.7) * ag, x0 = 203 + Math.cos(an) * 12, y0 = 60 + Math.sin(an) * 12; if (an > 5.6 || an < 0.75) continue; R.linea(X(x0), Y(y0), X(203 + Math.cos(an + 0.12) * l), Y(60 + Math.sin(an + 0.12) * l * 1.05), i % 3 ? M2 : M3); R.linea(X(x0 + 1), Y(y0), X(204 + Math.cos(an + 0.12) * l), Y(60 + Math.sin(an + 0.12) * l * 1.05), M1); }
@@ -105,26 +139,45 @@ const leon = (ox, oy, t, o = {}) => {
   else { R.linea(X(215), Y(66), X(221), Y(65), M3); R.pset(X(218), Y(64), M3); }
   for (const j of [61, 63]) R.linea(X(219), Y(j), X(226), Y(j - 1), hex('#f4ecd0'));
 };
-// un mono que se columpia de una liana (cuelga de (x, 28))
-const mono = (x, t, f) => { const an = Math.sin(t * 2.2 + f) * 0.5, L = 30, mx = Math.round(x + Math.sin(an) * L), my = Math.round(28 + Math.cos(an) * L), P1 = hex('#6a4426'), P2c = hex('#d8a878');
+// un mono que se columpia de una liana (cuelga de (x, 28)); susto: 0…1, se encoge liana arriba y tiembla
+const mono = (x, t, f, susto = 0) => { const an = Math.sin(t * 2.2 + f) * (0.5 - susto * 0.3) + Math.sin(t * 18 + f) * 0.07 * susto, L = Math.round(30 - susto * 9), mx = Math.round(x + Math.sin(an) * L), my = Math.round(28 + Math.cos(an) * L), P1 = hex('#6a4426'), P2c = hex('#d8a878');
   R.linea(x, 28, mx, my - 6, hex('#2e6a2a')); R.linea(x + 1, 28, mx + 1, my - 6, hex('#1c4a1e'));
   R.linea(mx, my - 6, mx - 2, my, P1); R.linea(mx + 1, my - 6, mx + 3, my, P1); R.disco(mx, my + 3, 4, P1); R.disco(mx, my - 2, 3, P1); R.disco(mx + (an > 0 ? 1 : -1), my - 1, 2, P2c); R.pset(mx + (an > 0 ? 2 : -2), my - 2, K); R.pset(mx - 3, my - 3, P2c); R.pset(mx + 3, my - 3, P2c);
   R.linea(mx - 2, my + 6, mx - 4, my + 10, P1); R.linea(mx + 2, my + 6, mx + 4, my + 10, P1); for (let i = 0; i < 7; i++) R.pset(Math.round(mx - 4 - i * 0.6 - Math.sin(i * 0.9) * 2), my + 5 + i, P1); };
+// la rama gorda por la que entra el león (nuestra, sobre la selva de hojas del decorado): corteza con vetas y nudos, musgo
+// por arriba, ramitas con hojas y una liana enroscada; cimbrea un poco bajo el peso (peso: 0…1) y tiembla con el rugido
+const rama = (t, x0, x1, peso, tiembla) => {
+  const B1 = hex('#5a3a22'), B2 = hex('#3a2414'), B3 = hex('#7a5430'), MU = hex('#5cb060'), MU2 = hex('#2e7a42'), H1 = hex('#38a048'), H2 = hex('#1c6a34');
+  const yT = (x) => { const u = (x - x0) / (x1 - x0); return Math.round(78 + Math.sin(u * Math.PI) * (1.2 + peso * 1.6) - u * 2 + (tiembla ? Math.sin(t * 40 + x * 0.2) * 0.5 : 0)); }, gr = (x) => Math.round(7 - (x - x0) / (x1 - x0) * 4);
+  // dos ramitas con hojas: una hacia arriba a la izquierda y otra que cuelga a la derecha
+  for (const [bx, dx, dy, n] of [[x0 + 16, 5, -10, 3], [x1 - 34, 9, 8, 3], [x1 - 6, 4, -6, 2]]) { const by = yT(bx) + (dy > 0 ? gr(bx) : 0), m = Math.sin(t * 1.6 + bx) * 1.5 + (tiembla ? Math.sin(t * 30 + bx) : 0), ex = Math.round(bx + dx + m), ey = by + dy;
+    R.linea(bx, by, ex, ey, B2); for (let k = 0; k < n; k++) { const hx = Math.round(bx + (ex - bx) * (k + 1) / n), hy = Math.round(by + (ey - by) * (k + 1) / n), s = k % 2 ? 1 : -1; R.poligono([[hx, hy], [hx + s * 3, hy - 3], [hx + s * 7, hy - 1], [hx + s * 4, hy + 1]], k % 2 ? H1 : H2); R.linea(hx, hy, hx + s * 6, hy - 1, hex('#16402a')); } }
+  // el tronco de la rama, columna a columna: filo oscuro, luz arriba, vetas y sombra abajo
+  for (let x = x0; x <= x1; x++) { const y = yT(x), g = gr(x); R.pset(x, y - 1, K); for (let j = 0; j <= g; j++) R.pset(x, y + j, j === 0 ? B3 : j >= g - 1 ? B2 : ((x * 3 + j * 7) % 11 === 0 || (x + j * 5) % 17 === 3) ? B2 : (x + j * 2) % 9 === 0 ? B3 : B1); R.pset(x, y + g + 1, K);
+    if ((x * 7) % 13 < 5) { R.pset(x, y, (x * 5) % 3 ? MU : MU2); if ((x * 7) % 13 < 2) R.pset(x, y - 1, MU); } }
+  for (const nx of [x0 + 40, x0 + 118, x0 + 160]) { const y = yT(nx) + 3; R.disco(nx, y, 2, B2); R.pset(nx, y, B3); }
+  // la liana enroscada y unas hebras de musgo que cuelgan y se mecen
+  for (const lx of [x0 + 66, x0 + 138]) { const y = yT(lx), g = gr(lx); R.linea(lx, y - 1, lx + 3, y + g + 1, MU2); R.linea(lx + 1, y - 1, lx + 4, y + g + 1, hex('#16402a')); }
+  for (let k = 0; k < 7; k++) { const hx = x0 + 9 + k * 27, n = 4 + (k * 5) % 5, y = yT(hx) + gr(hx) + 1; for (let j = 0; j < n; j++) R.pset(hx + Math.round(Math.sin(t * 1.4 + k + j * 0.4) * j * 0.3 + (tiembla ? Math.sin(t * 28 + k) * j * 0.2 : 0)), y + j, j === n - 1 ? MU : MU2); }
+};
 const p4 = (t) => {
-  const o = { encuadre: 'sala', pantalla: 'selva', lleno: 0.75 }; const g = T.cine(R, t, o), [x0, y0, x1, y1] = g.pantalla;
-  const entra = ease(tramo(t, P4 + 0.1, P4 + 2.0)), ruge = t > digital && t < digital + 1.5;
-  // LA PELÍCULA (la pinta la escena, recortada a la pantalla): la selva al fondo, el claro y el león que entra y ruge
+  // el decorado pone la película de fondo (o.pantalla 'hojas': la selva de hojas que se mece, lianas, helechos y
+  // luciérnagas); la escena pinta encima solo lo suyo, recortado a la pantalla
+  const o = { encuadre: 'sala', pantalla: 'hojas', lleno: 0.75 }; const g = T.cine(R, t, o), [x0, y0, x1, y1] = g.pantalla;
+  const entra = ease(tramo(t, P4 + 0.1, P4 + 2.0)), ruge = t > digital && t < digital + 1.5, susto = tramo(t, digital, digital + 0.25) * (1 - tramo(t, digital + 1.6, digital + 2.3));
+  const lx = lerp(-176, -14, entra), paso = entra < 1 && (Math.floor(t * 5) & 1) ? -1 : 0;
   R.recorte([x0, y0, x1, y1]);
-  for (let y = y0; y <= y1; y += 4) { const f = (y - y0) / (y1 - y0); R.poligono([[x0 - 1, y - 1], [x1 + 1, y - 1], [x1 + 1, y + 5], [x0 - 1, y + 5]], hex(['#0d3a24', '#0f4228', '#124a2c', '#165430', '#1a5e34', '#1f6a3a'][Math.min(5, Math.floor(f * 6 + ((y >> 2) & 1) * 0.5))])); }
-  for (let i = 0; i < 26; i++) { const lx = x0 + ((i * 53) % 200), ly = y0 + 2 + ((i * 29) % 50), an = -1.2 + (i % 5) * 0.6 + Math.sin(t * 1.1 + i) * 0.08, l = 14 + (i * 7) % 12, ex = lx + Math.cos(an) * l, ey = ly + Math.sin(an) * l, nx = -Math.sin(an) * (3 + i % 3), ny = Math.cos(an) * (3 + i % 3), c = hex(['#1c6a34', '#2a8a40', '#14522a', '#38a048'][i % 4]);
-    R.poligono([[lx, ly], [(lx + ex) / 2 + nx, (ly + ey) / 2 + ny], [ex, ey], [(lx + ex) / 2 - nx, (ly + ey) / 2 - ny]].map(([x, y]) => [Math.round(x), Math.round(y)]), c); R.linea(Math.round(lx), Math.round(ly), Math.round(ex), Math.round(ey), hex('#0d3a24')); }
-  for (let i = 0; i < 4; i++) { const rx = x0 + 30 + i * 46 + Math.round(Math.sin(t * 0.4 + i) * 3); for (let y = y0; y < y1 - 16; y += 2) R.pset(rx + ((y - y0) >> 2), y, hex('#7ad070')); }
-  R.poligono([[x0, y1], [x0, 86], [96, 80], [150, 77], [214, 79], [x1, 85], [x1, y1]], hex('#3a3220')); R.linea(x0, 86, 96, 80, hex('#6a5a34')); R.linea(96, 80, 150, 77, hex('#6a5a34')); R.linea(150, 77, 214, 79, hex('#6a5a34')); R.linea(214, 79, x1, 85, hex('#6a5a34'));
-  for (let i = 0; i < 14; i++) { const gx = x0 + 6 + i * 14, m = Math.round(Math.sin(t * 2 + i)); R.linea(gx, 84 + (i % 3), gx + m, 79 + (i % 3), hex('#2a8a40')); R.linea(gx + 3, 85 + (i % 3), gx + 4 - m, 81 + (i % 3), hex('#1c6a34')); }
-  mono(88, t, 0); mono(240, t, 2.1);
-  leon(Math.round(lerp(-176, -14, entra)), -10 + (entra < 1 && (Math.floor(t * 5) & 1) ? -1 : 0), t, { anda: entra < 1, ruge });
+  // los monos de las lianas (se encogen y se mecen deprisa con el rugido), la rama y NUESTRO león, que entra por ella y ruge
+  mono(88, t, 0, susto); mono(246, t, 2.1, susto);
+  rama(t, x0 - 2, x1 - 8, entra, ruge);
+  // la sombra del león sobre la rama (va con él) y el polvillo de corteza de cada pisada
+  for (let x = Math.round(lx + 130); x <= Math.round(lx + 192); x++) if ((x + 78) & 1) R.pset(x, 79 + Math.round(Math.sin((x - x0 + 2) / (x1 - x0 - 6) * Math.PI) * (1.2 + entra * 1.6) - (x - x0 + 2) / (x1 - x0 - 6) * 2), hex('#2a180c'));
+  leon(Math.round(lx), -10 + paso, t, { anda: entra < 1, ruge });
+  if (entra > 0.05 && entra < 1) for (let i = 0; i < 3; i++) { const q = (t * 5 + i * 0.33) % 1; R.pset(Math.round(lx + 176 - q * 5 + i * 2), Math.round(79 - q * 4), hex('#a88a5a')); }
+  // con el rugido: ondas que salen de la boca, las hojas que se sueltan de las ramitas y los destellos de la melena
+  if (ruge) { for (let k = 0; k < 3; k++) { const q = ((t - digital) * 2.2 + k / 3) % 1, r = 5 + q * 16, cx = lx + 224, cy = 57; if (q < 0.9) for (let a = -0.7; a <= 0.7; a += 0.14) R.pset(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r * 1.1), q < 0.5 ? hex('#fff2b8') : hex('#8ad05a')); } }
+  if (t > digital) for (let i = 0; i < 8; i++) { const q = (t - digital) * 0.55 - i * 0.07; if (q <= 0 || q >= 1) continue; const hx = Math.round(x0 + 16 + i * 26 + Math.sin(q * 9 + i) * 5), hy = Math.round(lerp(34 + (i * 11) % 30, y1 + 4, q * q)), c = hex(['#5cb060', '#38a048', '#8ad05a'][i % 3]); R.pset(hx, hy, c); R.pset(hx + 1, hy, c); R.pset(hx + (Math.sin(q * 14 + i) > 0 ? 1 : 0), hy + 1, hex('#1c6a34')); }
   if (t > digital - 0.2) for (let i = 0; i < 7; i++) if (Math.sin(t * 6 + i * 2.1) > 0.5) { const sx = 189 + Math.round(Math.cos(i * 0.9) * 22), sy = 50 + Math.round(Math.sin(i * 0.9) * 20); R.pset(sx, sy, hex('#ffffff')); R.pset(sx - 1, sy, hex('#fff2b8')); R.pset(sx + 1, sy, hex('#fff2b8')); R.pset(sx, sy - 1, hex('#fff2b8')); R.pset(sx, sy + 1, hex('#fff2b8')); }
-  if (Math.floor(t * 24) % 9 === 0) R.linea(x0 + ((Math.floor(t * 24) * 37) % 190), y0, x0 + ((Math.floor(t * 24) * 37) % 190), y1, hex('#2f7a44'));
   R.recorte(null);
   // los que llegan tarde: la madre y el chico cruzan por el pasillo y se quedan pasmados cuando ruge
   const v = tramo(t, P4 + 0.3, digital - 0.4), mx = Math.round(lerp(8, 92, v));

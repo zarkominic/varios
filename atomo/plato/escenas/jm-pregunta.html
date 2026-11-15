@@ -12,15 +12,15 @@
 // JM-PREGUNTA (frases 7–8), cartela «1981». Seis planos (cortes en You moved · So · He picked · And he needed · Maybe):
 // 1. el recuerdo (1957, en color): el niño ante un juego corriente: se sienta (golpe de silla), mira el reloj que no avanza,
 // tamborilea, mueve la ficha sin ganas y bosteza estirándose;  2. el billete de juguete desde arriba (gag 3): la ficha
-// azul salta una casilla, la mano coge el billete («won»), lo suelta, cae una «X» encima («none of it was real») y la
+// azul salta una casilla, la mano (sola, canónica y sin manga, con su sombra: el billete queda lejos del borde) coge el billete («won»), lo suelta, cae una «X» encima («none of it was real») y la
 // ficha se estira, se desinfla y suelta una nubecilla;  3. la pregunta (1981): NUESTRA meta a lápiz: un «?», la mano tira
 // los dados (ruedan y se paran), el disco se empaña y de él sale una hoja de VERDAD, en color; la mano se aparta, la hoja
-// se mece entre destellos y vuela una mariposa;  4. la mesa desde arriba: la mano con la barrita dibuja el salón tranquilo
+// se mece entre destellos y vuela una mariposa;  4. la mesa desde arriba: la mano con la barrita (sola, canónica y sin manga, con su sombra en el papel) dibuja el salón tranquilo
 // y, en «wild animals», el rinoceronte; con el último trazo la barrita se parte (el trozo salta y rueda por la hoja), y
 // él moja el dedo en el polvo y sombrea;  5. busca el nombre: tres bolas de papel a la papelera («name», «far away»,
 // «English»); de fondo, un ratón sale de la ratonera, se lleva rodando una de las bolas hasta su agujero, no le cabe y
-// se mete sin ella; en «jungle», la idea («!») y él corre a la mesa;  6. la libreta: tacha el último intento, duda dando
-// golpecitos, y en «with a J» escribe la J, las rayas y el círculo; de fondo, una mariquita baja por el nervio de la
+// se mete sin ella (mientras anda fuera, la ratonera se ve vacía: se tapan los ojos del decorado); en «jungle», la idea («!») y él corre a la mesa;  6. la libreta: tacha el último intento, duda dando
+// golpecitos, y en «with a J» escribe la J, las rayas y el círculo (la mano sola, canónica y sin manga, con su lápiz y su sombra); de fondo, una mariquita baja por el nervio de la
 // hoja suelta, se para mientras él duda y echa a volar cuando la palabra queda rodeada.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -74,7 +74,8 @@ const p2 = (t) => {
   // la mano del niño: entra, coge el billete, lo suelta y se va
   const e = suave(tramo(t, gana - 0.55, gana)), f = suave(tramo(t, nada + 0.15, nada + 0.85)), gozo = t > gana && t < nada ? Math.round(Math.abs(Math.sin((t - gana) * 9)) * 3 * (1 - tramo(t, gana, nada))) : 0;
   const wx = Math.round(lerp(280, 201, e) + f * 96), wy = Math.round(lerp(190, 134, e) + f * 60) - gozo;
-  if (e > 0 && f < 1) T.brazo(R, wx + 66, wy + 50, wx, wy, AZUL, -1, { codo: [wx + 36, wy + 18] });
+  // la mano sola (canónica, sin manga) con su sombra sobre el tablero: el billete queda lejos del borde y un brazo pasaría de 45 px
+  if (e > 0 && f < 1) { sombra(wx + 3, wy + 7 + gozo, 8, 3.5, 0.28); T.mano(R, wx, wy, -1, AZUL, { sinManga: true }); }
 };
 
 // 3 · la pregunta: de NUESTRA meta sale una hoja de verdad
@@ -124,8 +125,10 @@ const p4 = (t) => {
     else { R.rect(bx - 4, by - 2, bx + 4, by + 1, K); R.rect(bx - 3, by - 1, bx + 3, by, hex('#3a3a42')); R.rect(bx - 3, by - 1, bx + 1, by - 1, hex('#6a6a72')); R.pset(bx - 3, by - 1, hex('#c8c8d0')); R.pset(bx + 4, by - 2, hex('#f6f2e6')); }
     if (rt < 0.3) for (const [ax, ay] of [[-5, -5], [1, -7], [6, -4]]) R.linea(PF[0] + ax, PF[1] + ay, PF[0] + Math.round(ax * 1.7), PF[1] + Math.round(ay * 1.7), ORO); }
   wy -= Math.round(Math.sin(tramo(t, finRino, finRino + 0.25) * Math.PI) * 5);   // el respingo de la mano
+  // la mano sola (canónica, sin manga) con la barrita y su sombra en el papel, como en jm-gancho: nada de brazo que nazca a media mesa
+  sombra(wx + 3, wy + 8, 9, 4, 0.26);
   if (a1 < 0.5) P.lapizConte(R, wx - 15, wy + 12, { s: 2 });
-  T.brazo(R, wx + 58, wy + 42, wx, wy, VERDE, -1, { codo: [wx + 32, wy + 14] });
+  T.mano(R, wx, wy, -1, VERDE, { sinManga: true });
 };
 
 // 5 · busca un nombre: bolas de papel
@@ -141,6 +144,8 @@ const p5 = (t) => {
   T.taller(R, t, o);
   // la idea: la luz del flexo llena el cuarto
   const luz = suave(tramo(t, idea, idea + 0.5)); if (luz > 0) for (let y = 62; y <= 179; y++) { const x1 = Math.min(319, Math.round(120 + (y - 62) * 1.5)); for (let x = 0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), hex('#ffd890'), 0.2 * luz * (1 - x / (x1 + 40)))); }
+  // mientras el ratón de la escena anda fuera, la ratonera queda vacía: se tapan los ojos que pinta el decorado (vuelven cuando entra)
+  if (t > mA - 0.15 && t < mD + 0.7) R.poligono([[154, 117], [154, 113], [157, 110], [161, 110], [164, 113], [164, 117]], hex('#08060c'));
   // cada bola que cae echa otra del montón, que rueda por el suelo
   // de fondo: el ratón sale de la ratonera, empuja la segunda bola hasta su agujero, no le cabe y se mete sin ella
   const em = suave(tramo(t, mC, mD)), choque = Math.sin(tramo(t, mD, mD + 0.3) * Math.PI), bola2 = [Math.round(lerp(172, RAT[0] + 1, em) + choque * 2), Math.round(lerp(162, RAT[1] + 1, em) + choque * 3)];
@@ -171,9 +176,10 @@ const p6 = (t) => {
   const duda = t > no(33.9) && t < jota, hecho = suave(tramo(t, fin, fin + 0.5));
   // el lápiz: escribe, duda en el aire (da golpecitos) y al final se aparta
   const lx = Math.round(duda ? lerp(px, 108, tramo(t, no(33.9), no(34.3))) : px + hecho * 60), ly = Math.round(duda ? lerp(py, 126, tramo(t, no(33.9), no(34.3))) - Math.abs(Math.sin(t * 8)) * 3 : py + hecho * 18);
-  for (let d = -1; d <= 2; d++) R.linea(lx + 2 + d, ly - 2, lx + 21 + d, ly - 17, d === -1 || d === 2 ? K : d === 0 ? hex('#ffd84a') : hex('#d8a020'));
-  R.linea(lx, ly, lx + 3, ly - 3, hex('#e8c8a0')); R.linea(lx + 1, ly, lx + 4, ly - 3, hex('#e8c8a0')); R.pset(lx, ly, K); R.pset(lx + 1, ly - 1, K);
-  T.brazo(R, lx + 74, ly + 30, lx + 22, ly - 12, VERDE, -1, { codo: [lx + 52, ly + 6] });
+  // la mano sola (canónica, sin manga) con su lápiz y su sombra tramada en el papel: nada de manga cortada a media mesa
+  for (let j = 0; j < 9; j++) for (let i = 0; i < 16; i++) if (((i + j) & 1) && Math.hypot((i - 8) / 8, (j - 4) / 4.5) < 1) R.pset(lx + 4 + i, ly + 2 + j, hex('#8a8474'));
+  T.g_lapizGrande(R, lx + 23, ly - 24, lx, ly);
+  T.mano(R, lx + 12, ly - 4, -1, VERDE, { sinManga: true });
   // de fondo: una mariquita baja por el nervio de la hoja suelta, se para mientras él duda y, con la palabra rodeada, echa a volar
   { const [hx0, hy0, hx1, hy1] = g.hojaSelva ?? [235, 55, 309, 153], w = 0.45 * tramo(t, P6 + 0.35, no(33.9)) + 0.55 * tramo(t, jota + 0.1, escribe + 0.9), v = tramo(t, fin + 0.05, fin + 0.75), anda = w > 0 && w < 1 && !duda && (t < no(33.9) || t > jota + 0.1);
     const mx = Math.round(lerp(lerp(hx1 - 13, hx0 + 17, w), hx1 + 16, v * v) + (anda ? Math.sin(t * 9) : 0)), my = Math.round(lerp(lerp(hy0 + 15, hy1 - 20, w), hy0 + 22, v) - Math.sin(v * Math.PI) * 14);

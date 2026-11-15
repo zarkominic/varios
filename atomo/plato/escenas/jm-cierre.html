@@ -13,7 +13,8 @@
 //  1 · la esquina de la lámina de hoy: el lápiz negro termina al perro blanco que asoma tras la hoja («the white dog is
 //      still hiding»); la mano se retira; una mariquita cruza el papel.
 //  2 · (extra) el parque, hoy y en color: un chaval llega por la hierba, ve la caja al pie del árbol («box»: «!»), la
-//      levanta y se la lleva; caen hojas del árbol.
+//      levanta y se la lleva apoyada en la mano (R.actor con sostiene), a la altura del pecho y sin taparle la cara;
+//      caen hojas del árbol.
 //  3 · el estudio de Atom tomado por las lianas (gag 8): la caja ya está en casa; Atom baja con el folleto, lo deja en el
 //      canto de la mesa en «read» y el rollo se desenrolla por el frente y por el suelo sin acabarse; Atom lo sigue y da un respingo («!»).
 import * as T from '/atomo/plato/escenas/jm-comun.js';
@@ -57,14 +58,32 @@ const p1 = (t) => {
   if (t > HIDING + 0.3 && t < HIDING + 1.0) { const q = (t - HIDING - 0.3) / 0.7; for (let k = 0; k < 6; k++) chispa(204 + Math.cos(k * 1.05 + q * 2) * (40 + q * 10), 104 + Math.sin(k * 1.05 + q * 2) * (30 + q * 8), k); }
   T.hoyDelante(R, t, o);
 };
+// la caja del juego a otro tamaño (para llevarla en brazos): la pieza del kit, pintada una vez en un búfer y muestreada
+let CAJA = null;
+const cajaChica = (cx, base, w, h) => {
+  if (w >= 33) return PZ.cajaJuego(R, cx, base);
+  if (!CAJA) { const b = R.nuevo(); b.fill(0); const prev = R.usar(b); PZ.cajaJuego(R, 20, 30); CAJA = []; for (let j = 0; j < 23; j++) { CAJA.push([]); for (let i = 0; i < 33; i++) CAJA[j].push(R.pget(4 + i, 7 + j)); } R.usar(prev); }
+  const x0 = Math.round(cx - w / 2), y0 = base - h;
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const c = CAJA[Math.round(j * 22 / (h - 1))][Math.round(i * 32 / (w - 1))]; if (c) R.pset(x0 + i, y0 + j, c); }
+};
 // 2 · el parque: una caja abandonada
 const FIND = ti(7.37), BOX = ti(7.75), COGE = ti(8.55);
 const p2 = (t) => {
   const o = { encuadre: 'parque', caja: t < COGE - 0.3, color: 1 }; T.casaJuego(R, t, o);
   const e = tramo(t, P2 + 0.05, FIND), v = tramo(t, COGE + 0.3, P3 + 0.4), x = Math.round(lerp(-14, 160, e) - 44 * v), vuelve = t > COGE + 0.3;
   const sub = ease(tramo(t, COGE - 0.3, COGE));
-  const a = R.actor(EL.nino2017JM, x, 153, t, { dir: vuelve ? -1 : 1, anda: (e > 0 && e < 1) || vuelve, sorpresa: t > BOX - 0.1 && t < COGE - 0.3, sonrisa: t >= COGE - 0.3, dedo: t > BOX + 0.15 && t < COGE - 0.35, sostiene: t > COGE - 0.3, salto: t > BOX - 0.05 && t < BOX + 0.3 ? Math.round(Math.sin((t - BOX + 0.05) / 0.35 * Math.PI) * 4) : 0 });
-  if (t >= COGE - 0.3) { const [mx, my] = a.mano || [x + 10, 140], d = vuelve ? -1 : 1; const bx = Math.round(lerp(190, mx + d * 9, sub)), by = Math.round(lerp(153, my - 3, sub)); for (let j = -2; j <= 2; j++) for (let i = -15; i <= 15; i++) if (((i + j) & 1) && (i / 15) ** 2 + (j / 2.4) ** 2 < 1) R.pset(bx + i, 155 + j, hex('#3a6a34')); PZ.cajaJuego(R, bx, by); }
+  const lleva = t >= COGE - 0.3, d = vuelve ? -1 : 1;
+  const chaval = () => R.actor(EL.nino2017JM, x, 153, t, { dir: d, anda: (e > 0 && e < 1) || vuelve, sorpresa: t > BOX - 0.1 && t < COGE - 0.3, sonrisa: lleva, dedo: t > BOX + 0.15 && t < COGE - 0.35, sostiene: lleva, salto: t > BOX - 0.05 && t < BOX + 0.3 ? Math.round(Math.sin((t - BOX + 0.05) / 0.35 * Math.PI) * 4) : 0 });
+  const a = chaval();
+  // la caja, cogida: sube del césped a la mano (.mano, a la altura del pecho) y se queda apoyada en ella, por delante
+  // del cuerpo y por debajo de la barbilla (algo más pequeña al cargarla, para que no tape la cara); el chaval se pinta
+  // otra vez encima, con el brazo y la mano sobre el canto de la caja; la sombra, en la hierba, debajo
+  if (lleva) {
+    const [mx, my] = a.mano || [x + (d > 0 ? 19 : -5), 147], w = Math.round(lerp(33, 21, sub)), h = Math.round(lerp(23, 14, sub));
+    const cx = Math.round(lerp(190, mx + d * 8, sub)), base = Math.round(lerp(154, my + 4, sub)), rs = Math.round(lerp(15, 9, sub));
+    for (let j = -2; j <= 2; j++) for (let i = -rs; i <= rs; i++) if (((i + j) & 1) && (i / rs) ** 2 + (j / 2.4) ** 2 < 1) R.pset(cx + i, 155 + j, hex('#3a6a34'));
+    cajaChica(cx, base, w, h); chaval();
+  }
   if (t > BOX - 0.05 && t < COGE - 0.35) { const b = Math.round(Math.sin(t * 6)); bocadillo(x - 8, 107 + b, x + 8, 124 + b, x + 2, 128 + b); R.icono('!', x - 2, 109 + b, ROJO, null, 2); }
   if (t > BOX && t < BOX + 0.8 && Math.floor(t * 8) % 2) { destello(176, 136, 3, hex('#fff4b8')); destello(204, 131, 2, BL); }
   // las hojas del árbol, que caen meciéndose y se posan en la hierba

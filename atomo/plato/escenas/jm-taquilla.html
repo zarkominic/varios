@@ -18,8 +18,10 @@
 // 4. selva/cabana/tabla: su mano (sola, T.mano) aparta el musgo y aparecen las rayas grabadas en la madera;
 // 5. cine/sala/publico: 2019, otra: la mano enseña la entrada «2019», la sala llena con gafas da un bote y el contador
 //    del borde del escenario sube a 800;
-// 6. cine/contador/suma: 260 + 960 + 800 → 2027 (GOLPE); al lado, una mano deja el libro fino y un cronómetro marca
-//    sus 10 minutos.
+// 6. cine/contador/suma: 260 + 960 + 800 → 2020 (la suma exacta de lo que marcan los contadores; GOLPE). Bajo el
+//    terciopelo, un mostrador de madera: con cada taquilla caen monedas a sus montones y llega un billete planeando;
+//    en la pared, una balda con montones y el rollo de entradas, y una tira de entradas que se mece. Una mano deja el libro fino en el mostrador y el
+//    cronómetro llega balanceándose colgado de su gancho y marca sus 10 minutos.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-taquilla');
@@ -106,21 +108,83 @@ const p5 = (t) => {
   if (t > b(21.57)) { R.disco(x + 82, y - 8, 2, hex('#5e1622')); const q = t - b(21.57); if (q < 0.5) for (let k = 0; k < 4; k++) R.pset(Math.round(x + 82 + Math.cos(k * 1.6) * q * 22), Math.round(y - 8 - q * 20 + q * q * 60 + Math.sin(k * 1.6) * 4), hex('#f6e8b8')); }
   T.brazo(R, -8, y + 30, x + 1, y + 15, '#c83a3a', 1, { codo: [8, y + 26] });
 };
+// ── plano 6 ── el decorado deja billetes, monedas y montones sueltos sobre el terciopelo (flotaban, quietos): aquí se
+// borran con su mismo terciopelo (la fórmula de e_terciopelo, semilla 3) y se rehacen sobre una balda y un mostrador
+const h6 = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], ton = (ramp, v, x, y) => { const m = Math.max(0, Math.min(ramp.length - 1.001, v)), i = Math.floor(m); return ramp[m - i > (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16 ? i + 1 : i]; };
+const mez = (c, d, q) => { const r = c & 255, g = c >> 8 & 255, bb = c >> 16 & 255; return (0xff000000 | ((bb + ((d >> 16 & 255) - bb) * q) << 16) | ((g + ((d >> 8 & 255) - g) * q) << 8) | (r + ((d & 255) - r) * q)) >>> 0; };
+const osc = (x0, y0, x1, y1, q = 0.4) => { for (let y = y0; y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) R.pset(x, y, mez(R.pget(x, y), K, q)); };
+const RT = ['#1c0a14', '#2a0e1a', '#3e1422', '#56182a', '#701e32', '#8a2a3c'].map(hex), RM = ['#2e1a12', '#42261a', '#5a3422', '#74462a', '#8e5a34', '#a87040'].map(hex);
+const terciopelo = (x, y) => { const ag = Math.sin(x * 0.045 + Math.sin(y * 0.028 + 3) * 2.2 + 3) * 0.9 + Math.sin(x * 0.013 - y * 0.035) * 0.7, vi = Math.hypot((x - 160) / 200, (y - 96) / 120);
+  let v = 2.5 + ag - vi * 1.9 + (h6(x, y, 14) - 0.5) * 0.9; const qa = Math.max(0, 1 - Math.hypot((x - 298) / 44, (y - 24) / 40)), qb = Math.max(0, 1 - Math.hypot((x - 95) / 110, y / 26)); v -= Math.max(0, v - 1.6) * Math.min(1, Math.max(qa, qb) * 2); return ton(RT, v, x, y); };
+// el mostrador de madera (y 147–179): tres tablas con veta, juntas, dos nudos, el canto y el frente con tachuelas
+const madera = (x, y) => {
+  if (y === 147) return hex('#c89858');
+  if (y <= 170) { const tb = y < 155 ? 0 : y < 163 ? 1 : 2; if (y === 155 || y === 163) return h6(x >> 3, y, 5) < 0.85 ? RM[0] : RM[1]; if ((x + tb * 61) % 113 === 0) return RM[0];
+    let v = 1.6 + (y - 148) / 22 * 1.6 + Math.sin(x * 0.05 + tb * 2.1 + Math.sin(x * 0.021 + tb) * 2.4 + (y - 148) * 0.4) * 0.7 + (h6(x >> 1, y, 61 + tb) - 0.5) * 0.9;
+    for (const [nx, ny] of [[74, 159], [206, 167], [300, 151]]) { const d = Math.hypot((x - nx) / 2.2, y - ny); if (d < 3.4) v = d < 1.2 ? 0 : d < 2.4 ? 3.6 : 0.8; }
+    return ton(RM, v, x, y); }
+  if (y === 171) return hex('#d8a868'); if (y === 172) return RM[4]; if (y === 173) return hex('#1c0e0a'); if (y === 177) return RM[2];
+  if (y === 175 && x % 32 === 9) return hex('#fff0a0'); if (y === 175 && x % 32 === 10) return hex('#c8901c');
+  return ton(RM, 0.7 + Math.sin(x * 0.7) * 0.3 + (h6(x, y >> 1, 71) - 0.5) * 0.8, x, y);
+};
+const PARCHES = [[249, 78, 277, 97], [35, 25, 63, 44], [297, 105, 308, 116], [14, 92, 23, 101], [80, 128, 89, 137], [228, 58, 237, 67], [261, 141, 289, 146], [251, 112, 292, 136]];
+let FIJO6 = null;
+const fijo6 = () => { FIJO6 = [];
+  for (const [x0, y0, x1, y1] of PARCHES) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) FIJO6.push([x, y, terciopelo(x, y)]);
+  for (let y = 147; y < 180; y++) for (let x = 0; x < 320; x++) { if (x >= 96 && x <= 222 && y <= 161) continue; let c = madera(x, y);
+    if ((y >= 162 && y <= 164 && x >= 99 && x <= 226) || (y <= 149 && x >= 17 && x <= 58)) c = mez(c, K, 0.45);   // las sombras del contador grande y de la calculadora
+    FIJO6.push([x, y, c]); } };
+const moneda = (x, y, r, ancho = 1) => { const w = Math.max(0.5, r * Math.abs(ancho)); for (let j = -r; j <= r; j++) for (let i = -Math.ceil(w); i <= Math.ceil(w); i++) { const d = Math.hypot(i / w * r, j); if (d > r + 0.4) continue; R.pset(x + i, y + j, d > r - 0.7 ? hex('#7a5210') : j < -r * 0.3 && i < 0 ? hex('#fff0a0') : j > r * 0.35 ? hex('#c8901c') : hex('#f0c030')); } };
+const monedaTumbada = (x, y) => { osc(x - 3, y + 2, x + 5, y + 2); R.rect(x - 3, y - 1, x + 3, y + 1, hex('#7a5210')); R.rect(x - 4, y - 1, x + 4, y, hex('#7a5210')); R.rect(x - 3, y - 2, x + 3, y - 1, hex('#f0c030')); R.rect(x - 2, y - 2, x + 1, y - 2, hex('#fff0a0')); R.rect(x - 3, y, x + 3, y, hex('#c8901c')); };
+const pila = (mx, base, n) => { osc(mx - 3, base + 2, mx + 7, base + 3); for (let k = 0; k < n; k++) { const yy = base - k * 2; R.rect(mx - 5, yy - 1, mx + 5, yy + 1, hex('#7a5210')); R.rect(mx - 4, yy - 1, mx + 4, yy, k === n - 1 ? hex('#fff0a0') : hex('#f0c030')); R.rect(mx - 4, yy, mx + 4, yy, hex('#c8901c')); R.pset(mx - 3, yy - 1, hex('#fff0a0')); } };
+const billete = (x, y, inc = 0, posado = false) => { for (let i = 0; i < 26; i++) { const yy = y + Math.round(i * inc / 8); R.pset(x + i, yy - 1, K); R.pset(x + i, yy + 12, K); if (posado) R.pset(x + i + 1, yy + 13, mez(R.pget(x + i + 1, yy + 13), K, 0.45));
+    for (let j = 0; j < 12; j++) { const bd = i < 2 || i > 23 || j < 1 || j > 10, ov = Math.hypot((i - 12.5) / 5, (j - 5.5) / 4); R.pset(x + i, yy + j, i === 0 || i === 25 ? K : bd ? hex('#3a7a4a') : ov < 0.6 ? hex('#5a9a62') : ov < 1 ? hex('#2e6a40') : ((i + j) & 1) ? hex('#a8d8a0') : hex('#c0e8b4')); } }
+  R.numero('1', x + 4, y + 9 + Math.round(4 * inc / 8), { fina: true, color: hex('#2e6a40'), sombra: false }); };
+const BILLETES = [[58, 151, -1, 60], [64, 154, 1, 98], [33, 156, -1, 78]], PILAS = [[230, 2], [241, 4], [252, 1]];
+// la balda de la pared con sus montones y el rollo de entradas (antes que la lluvia: las monedas caen por delante)
+const balda = () => {
+  osc(249, 126, 305, 127, 0.35); R.rect(246, 122, 302, 125, K); R.rect(247, 123, 301, 124, RM[3]); R.rect(247, 123, 301, 123, RM[5]);
+  for (const ex of [254, 294]) { R.rect(ex - 1, 126, ex + 1, 129, K); R.rect(ex, 126, ex, 128, hex('#c8a040')); }
+  pila(254, 120, 5); pila(266, 120, 8); pila(278, 120, 3);
+  R.disco(292, 116, 5, K); R.disco(292, 116, 4, hex('#f0a888')); R.anillo(292, 116, 2, hex('#c88068')); R.pset(292, 116, K); R.rect(297, 119, 301, 121, K); R.rect(297, 120, 300, 120, hex('#f0a888'));
+};
 const p6 = (t) => {
-  const o = { encuadre: 'contador', camara: 'suma', cifras: [260, 960, 800], ver: 1 + (t > b(25.55) ? 1 : 0) + (t > b(25.95) ? 1 : 0), total: tramo(t, b(26.4), b(27.3)), totalCifra: 2027 }; T.cine(R, t, o);
-  // el libro fino, que deja una mano, y encima el despertador con sus diez minutos
-  const llega = tramo(t, b(28.6), b(29.2)), e = llega * (2 - llega), bx = Math.round(lerp(352, 278, e)), se = tramo(t, b(29.3), b(29.9));
-  if (llega > 0) { for (let j = 0; j < 3; j++) R.rect(bx - 27 + j, 177 + j, bx + 31, 177 + j, hex('#2a0a14')); PZ.libroFino(R, bx, 176, { s: 2 });
-    if (se < 1) T.brazo(R, 334 + Math.round(se * 30), 172, bx + 26 + Math.round(se * 44), 158, '#3a3a40', -1, { codo: [bx + 46 + Math.round(se * 44), 170], sombra: false }); }
-  const cl = tramo(t, b(29.45), b(29.75)), diez = tramo(t, b(29.97), b(30.7));
-  if (cl > 0) { const cx = 296, cy = 84 - Math.round((1 - cl) * (1 - cl) * 30), r = 12, tic = diez > 0 && diez < 1 ? Math.round(Math.sin(t * 40)) : 0;   // el cronómetro, tumbado en el terciopelo
-    R.disco(cx + 2, cy + 3, r + 3, hex('#2a0a14')); R.rect(cx - 2, cy - r - 8 + tic, cx + 2, cy - r - 2, K); R.rect(cx - 1, cy - r - 7 + tic, cx + 1, cy - r - 3, hex('#f0d878')); R.rect(cx - 4, cy - r - 10 + tic, cx + 4, cy - r - 8 + tic, K); R.rect(cx - 3, cy - r - 9 + tic, cx + 3, cy - r - 9 + tic, hex('#f0d878'));
+  const SALE = [P6, b(25.55), b(25.95)], BOOM = b(27.3), TOC = b(29.2);
+  const o = { encuadre: 'contador', camara: 'suma', cifras: [260, 960, 800], ver: 1 + (t > SALE[1] ? 1 : 0) + (t > SALE[2] ? 1 : 0), total: tramo(t, b(26.4), BOOM) }; T.cine(R, t, o);   // el total es la suma: 2020
+  if (!FIJO6) fijo6();
+  for (let k = 0; k < FIJO6.length; k++) { if (k === PARCHES_N) { balda(); lluvia(t); } R.pset(FIJO6[k][0], FIJO6[k][1], FIJO6[k][2]); }
+  // una tira de entradas colgada de su clavo, a la izquierda, que se mece
+  R.rect(10, 23, 12, 25, K); R.pset(11, 24, hex("#f0d878")); for (let j = 0; j < 4; j++) { const x0 = 6 + Math.round(Math.sin(t * 1.7 - j * 0.6) * j * 0.7), y0 = 26 + j * 13, c = hex(["#f0a888", "#a8d8a0", "#a8c8f0", "#f0a888"][j]); R.rect(x0, y0, x0 + 10, y0 + 13, K); R.rect(x0 + 1, y0 + 1, x0 + 9, y0 + 12, c); R.rect(x0 + 1, y0 + 1, x0 + 9, y0 + 1, B); R.rect(x0 + 3, y0 + 4, x0 + 7, y0 + 5, K); R.rect(x0 + 3, y0 + 8, x0 + 5, y0 + 9, K); for (let i = 2; i < 9; i += 2) R.pset(x0 + i, y0 + 12, K); }
+  R.rect(294, 47, 298, 51, K); R.rect(295, 48, 297, 50, hex('#c8a040')); R.pset(295, 48, hex('#fff0a0')); R.rect(296, 51, 296, 53, K);
+  // sobre el mostrador: lo que ya había (un billete, monedas tumbadas) y lo que va cayendo con cada taquilla
+  const bote = (t >= BOOM && t < BOOM + 0.12) || (t >= TOC && t < TOC + 0.1) ? 1 : 0;
+  billete(5, 154, 1, true); monedaTumbada(92, 151 - bote); monedaTumbada(10, 150); monedaTumbada(93, 167 - bote); billete(272, 151, 1, true); monedaTumbada(308, 152 - bote);
+  const vuelan = [];
+  PILAS.forEach(([mx, n0], k) => { let n = n0; for (let j = 0; j < 3; j++) { const u = tramo(t, SALE[k] + 0.1 + j * 0.16, SALE[k] + 0.6 + j * 0.16); if (u >= 1) n++; else if (u > 0) vuelan.push([mx, Math.round(lerp(-6, 164 - (n0 + j) * 2 - 4, u * u)), j + k]); } pila(mx, 164 - bote, n); });
+  monedaTumbada(238, 169 - bote);
+  BILLETES.forEach(([tx, ty, inc], k) => { if (t >= SALE[k] + 1.05) billete(tx, ty, inc, true); });
+  BILLETES.forEach(([tx, ty, inc, ys], k) => { const u = tramo(t, SALE[k] + 0.05, SALE[k] + 1.05); if (u > 0 && u < 1) billete(Math.round(lerp(-30, tx, 1 - (1 - u) ** 2)), Math.round(lerp(ys, ty, u * u) + Math.sin(u * Math.PI * 3) * 6 * (1 - u)), u > 0.9 ? inc : Math.round(Math.sin(u * 14 + k) * 2)); });
+  for (const [mx, my, f] of vuelan) moneda(mx, my, 4, Math.cos(t * 10 + f * 2));
+  // el libro fino, que deja una mano en el mostrador
+  const llega = tramo(t, b(28.6), TOC), e = llega * (2 - llega), bx = Math.round(lerp(352, 286, e)), se = tramo(t, b(29.3), b(29.9));
+  if (llega > 0) { for (let j = 0; j < 3; j++) R.rect(bx - 27 + j, 169 + j, Math.min(319, bx + 31), 169 + j, hex('#1c0e0a')); PZ.libroFino(R, bx, 168, { s: 2 });
+    if (se < 1) T.brazo(R, 334 + Math.round(se * 30), 164, bx + 26 + Math.round(se * 44), 150, '#3a3a40', -1, { codo: [bx + 46 + Math.round(se * 44), 162], sombra: false }); }
+  // el cronómetro llega balanceándose colgado de su cadena, se para y marca sus diez minutos
+  const q0 = t - b(29.45), diez = tramo(t, b(29.97), b(30.7));
+  if (q0 > 0) { const ang = 1.25 * Math.exp(-4.5 * q0) * Math.cos(7.5 * q0), cx = Math.round(296 + Math.sin(ang) * 34), cy = Math.round(50 + Math.cos(ang) * 34), r = 12, tic = diez > 0 && diez < 1 ? Math.round(Math.sin(t * 40)) : 0;
+    R.disco(cx + 2, cy + 3, r + 3, hex('#2a0a14')); R.linea(296, 53, cx, cy - r - 10, hex('#f0d878')); for (let j = 54; j < cy - r - 10; j += 2) R.pset(Math.round(lerp(296, cx, (j - 53) / Math.max(1, cy - r - 63))), j, hex('#8a6a20'));
+    R.rect(cx - 2, cy - r - 8 + tic, cx + 2, cy - r - 2, K); R.rect(cx - 1, cy - r - 7 + tic, cx + 1, cy - r - 3, hex('#f0d878')); R.rect(cx - 4, cy - r - 10 + tic, cx + 4, cy - r - 8 + tic, K); R.rect(cx - 3, cy - r - 9 + tic, cx + 3, cy - r - 9 + tic, hex('#f0d878'));
     R.disco(cx, cy, r + 3, K); R.disco(cx, cy, r + 2, hex('#c8a040')); R.anillo(cx, cy, r + 2, hex('#f0d878')); R.disco(cx, cy, r, K); R.disco(cx, cy, r - 1, hex('#f6f2ea'));
-    for (let j = -r; j <= r; j++) for (let i = 0; i <= r; i++) { const d = Math.hypot(i, j), ang = Math.atan2(i, -j); if (d < r - 1.5 && ang >= 0 && ang <= diez * Math.PI / 3) R.pset(cx + i, cy + j, hex('#f0a030')); }
+    for (let j = -r; j <= r; j++) for (let i = 0; i <= r; i++) { const d = Math.hypot(i, j), an = Math.atan2(i, -j); if (d < r - 1.5 && an >= 0 && an <= diez * Math.PI / 3) R.pset(cx + i, cy + j, hex('#f0a030')); }
     for (let k = 0; k < 12; k++) { const q = k * Math.PI / 6; R.pset(Math.round(cx + Math.sin(q) * (r - 2.5)), Math.round(cy - Math.cos(q) * (r - 2.5)), K); }
     const q = diez * Math.PI / 3; R.linea(cx, cy, Math.round(cx + Math.sin(q) * (r - 3)), Math.round(cy - Math.cos(q) * (r - 3)), hex('#c83a3a')); R.linea(cx + 1, cy, Math.round(cx + 1 + Math.sin(q) * (r - 3)), Math.round(cy - Math.cos(q) * (r - 3)), hex('#c83a3a')); R.rect(cx - 1, cy - 1, cx + 1, cy + 1, K);
     if (diez > 0) R.numero('10', 262, 93 - (diez < 0.15 ? 2 : 0), { tam: 16, centro: true }); }
 };
+// las seis monedas que el decorado deja caer por los lados, otra vez (misma fórmula), para que los parches no las muerdan;
+// se pintan después de la balda (caen por delante) y antes que el mostrador (caen por detrás de él)
+const PARCHES_N = PARCHES.reduce((s, [x0, y0, x1, y1]) => s + (x1 - x0 + 1) * (y1 - y0 + 1), 0);
+const lluvia = (t) => { for (let k = 0; k < 6; k++) { const izq = k % 2 === 0, per = 2.2 + h6(k, 1, 43) * 1.4, u = ((t / per + h6(k, 2, 43)) % 1), xx = Math.round(izq ? 62 + h6(k, 3, 43) * 16 : 286 + h6(k, 3, 43) * 28), ya = izq ? 22 : 48; moneda(xx, Math.round(ya + u * u * (176 - ya)), 3, Math.cos(t * 8 + k * 2)); } };
 const efectos = [[0.5, 'coche'], [a(2.6), 'publico'], [P2 + 0.6, 'lapiz'], [P2 + 1.8, 'lapiz'], [a(9.1), 'papel'], [a(10.3), 'campana'], [P3 + 0.4, 'golpecito'], [a(14.45), 'pop'],
   [P4 + 0.5, 'rafaga'], [a(17.9), 'rafaga'], [P5 + 0.3, 'papel'], [b(21.57), 'sello'], [b(23.5), 'campana'], [b(23.8), 'publico'], [P6 + 0.1, 'tic'], [b(27.3), 'boom'],
   [b(29.2), 'toc'], [b(29.97), 'tic'], [b(30.7), 'campana']];

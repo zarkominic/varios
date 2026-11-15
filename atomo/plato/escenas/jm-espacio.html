@@ -13,7 +13,9 @@
 // That book · In theaters · For more than):
 // 1. el salón de 1996: dos niños detrás del sofá miran la serie de dibujos; uno llega corriendo y los dos botan con el
 //    dado de la tele (notas que salen del altavoz);  2. la juguetería: la niña señala NUESTRA caja en el expositor y da
-//    un bote; llega el autor (EL.vanallsburg) con un libro nuevo en la mano y su etiqueta «2002», y lo levanta;
+//    un bote; al fondo, una clienta a escala de actor llega empujando su carro (el carrito en miniatura del decorado
+//    se quita: carrito: false); llega el autor (EL.vanallsburg) con el libro nuevo, pequeño (12×14), a un lado, y lo
+//    levanta junto a la cabeza con la cara entera a la vista; la etiqueta «2002» va encima del libro;
 // 3. el otro tablero, el de hojalata, a la deriva: los dos chicos encima; uno tira las instrucciones, que se van
 //    flotando, y el otro señala el cohetito;  4. (vista añadida: selva/espacio/ventana) el cuarto: el planeta a rayas
 //    pasa por la ventana, los chicos corren a mirar y se quedan flotando;  5. la taquilla de 2005: una paloma, hojas
@@ -68,20 +70,40 @@ const p1 = (t) => {
   T.cineDelante(R, t, o);
 };
 // 2 · la juguetería: el juego de mesa de verdad, y llega la continuación (2002)
+// el carrito de la compra a escala de actor (cesta de alambre con dos cajas, asa y ruedas que giran)
+const carro = (cx, cy, t, rueda) => { const G = hex('#8c8ca0'), Gl = hex('#d0d4e0');
+  R.linea(cx - 15, cy - 16, cx - 11, cy - 13, K); R.linea(cx - 15, cy - 17, cx - 11, cy - 14, G); R.rect(cx - 16, cy - 18, cx - 14, cy - 16, K); R.pset(cx - 15, cy - 17, hex('#d8303a'));
+  // las cajas que ya lleva (asoman por arriba y botan un poco al rodar)
+  const j = rueda ? Math.floor(t * 9) & 1 : 0; R.rect(cx - 8, cy - 20 + j, cx - 1, cy - 13, K); R.rect(cx - 7, cy - 19 + j, cx - 2, cy - 14, hex('#3a8a4a')); R.rect(cx - 7, cy - 19 + j, cx - 2, cy - 19 + j, hex('#6ac07a')); R.rect(cx - 5, cy - 17 + j, cx - 4, cy - 16 + j, hex('#f0e8b0'));
+  R.rect(cx + 1, cy - 18 - j, cx + 8, cy - 13, K); R.rect(cx + 2, cy - 17 - j, cx + 7, cy - 14, hex('#e8c040')); R.rect(cx + 2, cy - 17 - j, cx + 7, cy - 17 - j, hex('#fff0a0')); R.rect(cx + 4, cy - 15 - j, cx + 5, cy - 15 - j, hex('#c8362e'));
+  R.poligono([[cx - 12, cy - 14], [cx + 12, cy - 14], [cx + 10, cy - 4], [cx - 10, cy - 4]], K);
+  for (let y = cy - 13; y <= cy - 5; y++) { const m = 11 - Math.round((y - (cy - 13)) / 4); for (let x = cx - m; x <= cx + m; x++) R.pset(x, y, ((x - cx + 30) % 3 === 0 || (y - cy + 30) % 3 === 0) ? (y === cy - 13 ? Gl : hex('#b8bccc')) : hex('#e8e4d8')); }
+  R.linea(cx - 9, cy - 4, cx - 8, cy - 2, G); R.linea(cx + 9, cy - 4, cx + 8, cy - 2, G); R.rect(cx - 8, cy - 3, cx + 8, cy - 3, G);
+  for (const s of [-8, 8]) { R.disco(cx + s, cy - 1, 2, K); const an = rueda ? t * 12 : 0; R.pset(cx + s + Math.round(Math.cos(an)), cy - 1 + Math.round(Math.sin(an)), Gl); }
+  for (let i = -11; i <= 11; i += 2) R.pset(cx + i, cy + 1, hex('#b8a090')); };
+// el libro nuevo, pequeño (12×14): cubierta de noche con estrellas y NUESTRO cohetito de cuerda; (x, y) = centro del canto de abajo
+const libro = (x, y, t) => { const x0 = x - 6, y0 = y - 13; R.rect(x0, y0, x0 + 11, y, K); R.rect(x0 + 1, y0 + 1, x0 + 10, y - 1, hex('#1e2a6a')); R.rect(x0 + 1, y0 + 1, x0 + 10, y0 + 1, hex('#3a4a9a')); R.rect(x0 + 1, y0 + 1, x0 + 1, y - 1, hex('#4a5ab0')); R.rect(x0 + 2, y - 1, x0 + 10, y - 1, hex('#f2ecd8'));
+  R.dibujo(COHETE, x0 + 3, y0 + 2, 1, PALC); R.pset(x0 + 6, y - 2, hex(Math.floor(t * 14) % 2 ? '#ff8a2a' : '#ffd45a'));
+  for (const [i, j, k] of [[2, 3, 0], [10, 4, 1], [2, 9, 2], [10, 10, 3]]) if (Math.sin(t * 5 + k * 2) > -0.6) R.pset(x0 + i, y0 + j, hex('#fff2b8')); };
 const p2 = (t) => {
-  const o = { encuadre: 'tele', camara: 'tienda', carrito: lerp(0.02, 0.3, tramo(t, P2, P3)) }; T.cine(R, t, o);
+  // el carrito del decorado (figura en miniatura) se quita: el carro lo empuja aquí una clienta a escala de actor
+  const o = { encuadre: 'tele', camara: 'tienda', carrito: false }; T.cine(R, t, o);
   // el destello de NUESTRA caja en el expositor
   if (t < a2002) for (let k = 0; k < 4; k++) { const an = t * 3 + k * 1.57; destello(150 + Math.cos(an) * 40, 82 + Math.sin(an) * 26, Math.sin(t * 8 + k) > 0 ? 2 : 1, hex('#fff2b8')); }
+  const m = ease(tramo(t, P2 - 0.2, P2 + 1.3)), vx = Math.round(lerp(330, 194, ease(tramo(t, a2002 - 0.2, secuela - 0.5)))), alza = t > secuela - 0.15;
+  // al fondo del pasillo, la clienta llega empujando su carro, se para ante la estantería y se vuelve a mirar el libro
+  { const cu = ease(tramo(t, a2002 - 0.2, secuela - 0.6)), cx = Math.round(lerp(-30, 44, cu)), rueda = cu > 0 && cu < 1;
+    if (cu > 0) { R.actor(EL.vecina3JM, cx - 31, 167, t, { dir: 1, anda: rueda, sostiene: [cx - 15, 151], sorpresa: alza && t < secuela + 0.7, sonrisa: !alza || t >= secuela + 0.7 }); carro(cx, 167, t, rueda); } }
   // la niña señala la caja y da un bote; la mayor llega detrás y asiente
-  const m = ease(tramo(t, P2 - 0.2, P2 + 1.3)), vx = Math.round(lerp(330, 184, ease(tramo(t, a2002 - 0.2, secuela - 0.5)))), alza = t > secuela - 0.15;
   R.actor(EL.tecnicoFX1JM, Math.round(lerp(40, 92, m)), 170, t, { dir: 1, anda: m < 1, sonrisa: true, habla: m >= 1 && t < a2002 && Math.sin(t * 8) > 0.2 });
   R.actor(EL.judyJM, 118, 171, t, { dir: 1, dedo: t < a2002 + 0.9 || alza, sonrisa: !alza, sorpresa: alza, salto: bote(t, P2 + 0.25) + bote(t, P2 + 0.95) + bote(t, secuela + 0.1, 6) });
-  // el autor entra con el libro nuevo (el fino, con una estrella) y su etiqueta «2002», y lo levanta al llegar
-  if (t > a2002 - 0.2) { const anda = vx > 184, by = alza ? 146 : 153;
-    const v = R.actor(EL.vanallsburg, vx, 170, t, { dir: -1, anda, sostiene: [vx - 4, by], sonrisa: true, habla: alza && Math.sin(t * 9) > 0 });
-    const lx = v.mano[0] - 3, ly = v.mano[1] + 8; PZ.libroFino(R, lx, ly, {}); R.rect(lx - 9, ly - 16, lx + 12, ly - 4, hex('#1e2a6a')); R.rect(lx - 9, ly - 16, lx + 12, ly - 16, hex('#3a4a9a')); for (const [i, j] of [[-6, -13], [9, -7], [-4, -7], [7, -13], [-7, -9]]) R.pset(lx + i, ly + j, hex('#fff2b8')); R.disco(lx + 8, ly - 10, 2, hex('#e89848')); R.pset(lx + 8, ly - 11, hex('#f8d8a0')); cohete(lx, ly - 6, t);
-    globo(lx - 20, ly - 38, lx + 20, ly - 24, lx, ly - 20); R.numero('2002', lx, ly - 27, { centro: true, color: hex('#c8362e'), sombra: false });
-    if (alza && t < secuela + 0.6) for (let k = 0; k < 6; k++) { const an = k * 1.047 + t * 3, q = 16 + (t - secuela) * 14; destello(lx + Math.cos(an) * q, ly - 10 + Math.sin(an) * q * 0.7, 1, hex('#fff2b8')); } }
+  // el autor entra con el libro nuevo (pequeño, a un lado, con la cara entera a la vista) y lo levanta al llegar junto a
+  // la cabeza; la etiqueta «2002» va encima del libro
+  if (t > a2002 - 0.2) { const anda = vx > 194, sube = ease(tramo(t, secuela - 0.15, secuela + 0.2));
+    const v = R.actor(EL.vanallsburg, vx, 170, t, { dir: -1, anda, sostiene: [vx - 8, Math.round(lerp(162, 147, sube))], sonrisa: true, habla: alza && Math.sin(t * 9) > 0 });
+    const lx = v.mano[0] - 7, ly = v.mano[1] + 2; libro(lx, ly, t);   // el canto del libro, pegado a la mano del kit (que se ve)
+    globo(lx - 12, ly - 30, lx + 28, ly - 16, lx, ly - 13); R.numero('2002', lx + 8, ly - 19, { centro: true, color: hex('#c8362e'), sombra: false });
+    if (alza && t < secuela + 0.6) for (let k = 0; k < 6; k++) { const an = k * 1.047 + t * 3, q = 11 + (t - secuela) * 14; destello(lx + Math.cos(an) * q, ly - 7 + Math.sin(an) * q * 0.7, 1, hex('#fff2b8')); } }
 };
 // 3 · el otro tablero, el de hojalata, a la deriva: los dos chicos que nunca leen las instrucciones
 const p3 = (t) => {

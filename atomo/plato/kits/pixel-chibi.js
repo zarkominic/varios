@@ -10678,10 +10678,10 @@ const fichaJM = (R, x, y, o = {}) => pintaJM(R, unaJM('ficha', () => deFilasJM(F
 
 // LA CAJA DEL JUEGO cerrada, de madera, vista un poco desde arriba: la tapa (M) con una HOJA DE SELVA verde, el
 // frente (P) con el cierre de latón y las esquinas reforzadas. 33 × 23. o.polvo 0–1: una capa de polvo gris y una
-// telaraña en la esquina
+// telaraña en la esquina (o.sinTela: sin la telaraña, para pintarla fina encima cuando la caja va ampliada con o.s)
 const cajaJuegoJM = (R, x, y, o = {}) => {
   const n = pasoGT(o.polvo, 3);
-  pintaJM(R, unaJM('caja' + n, () => forma(33, 23, ({ put, rect, linea }) => {
+  pintaJM(R, unaJM('caja' + n + (o.sinTela ? 's' : ''), () => forma(33, 23, ({ put, rect, linea }) => {
     rect(1, 1, 31, 12, 'M'); rect(1, 1, 31, 1, 'A'); rect(1, 12, 31, 12, 'm'); rect(1, 13, 31, 21, 'P'); rect(1, 21, 31, 21, 'p'); rect(31, 13, 31, 21, 'p'); rect(1, 13, 31, 13, '7');
     for (const [i, j] of [[4, 17], [5, 17], [22, 19], [23, 19], [9, 19], [26, 16], [27, 16]]) put(i, j, 'p');
     for (const [i, j] of [[1, 1], [2, 1], [1, 2], [31, 1], [30, 1], [31, 2], [1, 21], [2, 21], [1, 20], [31, 21], [30, 21], [31, 20]]) put(i, j, 'g');
@@ -10694,7 +10694,7 @@ const cajaJuegoJM = (R, x, y, o = {}) => {
     for (const [i, j] of [[10, 3], [9, 4], [14, 2], [18, 2]]) put(i, j, 'J');
     if (n >= 1) { for (let i = 2; i <= 22; i += 3) put(i + (i % 2), 1, 'Z'); for (const [i, j] of [[4, 3], [6, 10], [27, 10], [3, 8], [29, 9], [21, 11], [12, 11]]) put(i, j, 'x'); }
     if (n >= 2) { rect(3, 1, 23, 1, 'Z'); for (const [i, j] of [[5, 2], [3, 5], [24, 11], [2, 11], [6, 16], [12, 20], [20, 15], [28, 18], [25, 20], [9, 15]]) put(i, j, 'x'); }
-    if (n >= 1) { linea(31, 1, 23, 1, 'W'); linea(31, 1, 31, 9, 'W'); linea(31, 1, 25, 7, 'W'); linea(31, 1, 27, 9, 'W'); if (n >= 2) { linea(28, 1, 28, 3, 'W'); linea(28, 3, 29, 5, 'W'); linea(29, 5, 31, 5, 'W'); } if (n >= 3) { linea(25, 1, 25, 3, 'W'); linea(25, 3, 26, 6, 'W'); linea(26, 6, 28, 8, 'W'); linea(28, 8, 31, 8, 'W'); rect(2, 2, 12, 2, 'Z'); for (const [i, j] of [[4, 4], [8, 9], [22, 10], [14, 11], [6, 18], [18, 19], [29, 15]]) put(i, j, 'Z'); } }
+    if (n >= 1 && !o.sinTela) { linea(31, 1, 23, 1, 'W'); linea(31, 1, 31, 9, 'W'); linea(31, 1, 25, 7, 'W'); linea(31, 1, 27, 9, 'W'); if (n >= 2) { linea(28, 1, 28, 3, 'W'); linea(28, 3, 29, 5, 'W'); linea(29, 5, 31, 5, 'W'); } if (n >= 3) { linea(25, 1, 25, 3, 'W'); linea(25, 3, 26, 6, 'W'); linea(26, 6, 28, 8, 'W'); linea(28, 8, 31, 8, 'W'); rect(2, 2, 12, 2, 'Z'); for (const [i, j] of [[4, 4], [8, 9], [22, 10], [14, 11], [6, 18], [18, 19], [29, 15]]) put(i, j, 'Z'); } }
   })), x, y, o);
 };
 
@@ -10860,16 +10860,18 @@ const billeteJugueteJM = (R, x, y, o = {}) => pintaJM(R, unaJM('billete', () => 
   for (const [i, j] of [[4, 4], [16, 4], [4, 7], [16, 7]]) put(i, j, 'v'); put(5, 5, 'V'); put(15, 6, 'V');
 })), x, y, o);
 
-// LAS INSTRUCCIONES: un folleto doblado, de papel viejo (H), con sus rayas de texto (sin letras) y un dibujito de los
-// dados arriba. 15 × 13 doblado. o.rollo 0–1: se desenrolla HACIA ABAJO (hasta 60 px más), con más y más rayas y el
+// LAS INSTRUCCIONES: un folleto doblado, de papel viejo (H), con sus rayas de texto (sin letras) y un pictograma
+// arriba a la izquierda (un dado con cinco puntos y dos rayas: sin cara). 15 × 13 doblado. o.rollo 0–1: se desenrolla HACIA ABAJO (hasta 60 px más), con más y más rayas y el
 // extremo enroscado. OJO: (x, y) es el centro de abajo del folleto DOBLADO; lo desenrollado cuelga por debajo de y
 const instruccionesJM = (R, x, y, o = {}) => {
   const n = pasoGT(o.rollo, 20), L = n * 3, h = 13 + L, s = o.s ?? 1;
   pintaJM(R, unaJM('instrucciones' + n, () => forma(15, h, ({ put, rect }) => {
     rect(1, 1, 13, h - 2, 'H'); rect(13, 2, 13, h - 2, 'h'); rect(1, 1, 13, 1, 'W');
-    rect(3, 3, 5, 5, 'W'); put(4, 4, 'Q'); rect(7, 3, 9, 5, 'W'); put(7, 3, 'Q'); put(9, 5, 'Q'); rect(3, 6, 5, 6, 'h'); rect(7, 6, 9, 6, 'h');
-    for (let j = 8, k = 0; j <= h - 4; j += 2, k++) { rect(3, j, [11, 9, 11, 10, 7][k % 5], j, 'd'); if (k % 5 === 4) j += 1; }
-    if (n === 0) { rect(1, 6, 13, 6, 'h'); rect(1, 11, 13, 11, 'h'); rect(1, 10, 13, 10, 'H'); }
+    // el pictograma, descentrado: UN dado con sus cinco puntos y, a su derecha, dos rayas cortas (nada de dos puntos
+    // con una raya debajo: los objetos no llevan cara)
+    rect(2, 2, 6, 6, 'd'); rect(3, 3, 5, 5, 'W'); for (const [i, j] of [[3, 3], [5, 3], [4, 4], [3, 5], [5, 5]]) put(i, j, 'Q'); rect(8, 3, 11, 3, 'd'); rect(8, 5, 10, 5, 'd');
+    for (let j = 9, k = 0; j <= h - 4; j += 2, k++) { rect(3, j, [11, 9, 11, 10, 7][k % 5], j, 'd'); if (k % 5 === 4) j += 1; }
+    if (n === 0) { rect(1, 7, 13, 7, 'h'); rect(1, 11, 13, 11, 'h'); rect(1, 10, 13, 10, 'H'); }
     else { rect(1, h - 3, 13, h - 3, 'h'); rect(1, h - 2, 13, h - 2, 'd'); put(1, h - 2, 'h'); put(13, h - 3, 'd'); for (let j = 13; j < h - 4; j += 12) rect(1, j, 13, j, 'T'); }
   })), x, y + L * s, o);
 };

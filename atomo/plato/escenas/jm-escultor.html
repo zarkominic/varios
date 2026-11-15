@@ -15,8 +15,9 @@
 // Providence por la línea de puntos y cae la chincheta;  4. la clase de dibujo: entra con una escultura pequeña, la deja
 // en la tarima y explica; una alumna levanta la mano;  5. el banco del taller: cae la tarde, el radiador se apaga
 // (el termómetro baja), tirita con vaho y se va;  6. su dibujo a lápiz (NUESTRA cocina): la mano acaba de sombrear y se
-// retira; una puerta se entorna y una bola sale rodando: algo está a punto de pasar;  7. en casa, de noche: Lisa entra,
-// mira los dibujos de la pared y él le da uno;  8. Lisa, con la carpeta, de puerta en puerta por el pasillo de editoriales.
+// retira (el brazo, corto, entra por abajo); una puerta se entorna y una bola sale rodando: algo está a punto de pasar;  7. en casa, de noche: Lisa entra,
+// mira los dibujos de la pared y él le da uno;  8. Lisa, con la carpeta, de puerta en puerta por el pasillo de editoriales
+// (al llamar la deja apoyada a su espalda); al fondo cruza el cartero con un paquete.
 import * as T from '/atomo/plato/escenas/jm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('jm-escultor');
@@ -128,11 +129,12 @@ const p6 = (t) => {
   if (rb > 0) { const bx = Math.round(lerp(287, 238, q)), by = Math.round(lerp(130, 157, q)); for (let i = -6; i <= 8; i++) { if ((i + by) % 2) R.pset(bx + i + 2, by + 7, G[0]); R.pset(bx + i + 2, by + 6, G[1]); }
     R.disco(bx, by, 6.6, G[0]); R.disco(bx, by, 5.6, G[4]); const an = -q * 7; for (let d = -5; d <= 5; d++) { const ex = Math.round(bx + Math.cos(an) * d), ey = Math.round(by + Math.sin(an) * d); R.pset(ex, ey, G[1]); R.pset(ex + 1, ey, G[1]); } for (let d = 2; d <= 5; d++) R.pset(bx + d, by + 7 - d + 2, G[2]); R.pset(bx - 2, by - 3, hex('#ffffff')); R.pset(bx - 3, by - 2, hex('#ffffff')); }
   T.casaJuegoDelante(R, t, o);
-  // la mano con la barrita de lápiz (abajo a la izquierda): sombrea y se retira
+  // la mano con la barrita de lápiz (abajo a la izquierda): sombrea y se retira. El brazo entra corto por el borde de
+  // abajo (~37 px a la vista, con el codo doblado)
   const fuera = suave(tramo(t, n(0.41), n(0.47))), rasca = t < n(0.39) ? Math.sin(t * 13) : 0;
   if (fuera < 1) { const wx = Math.round(52 - rasca * 4 - fuera * 70), wy = Math.round(152 - rasca * 3 + fuera * 34);
     for (let k = 0; k < 7; k++) { const z = tramo(t, P6 + 0.2 + k * 0.25, P6 + 0.5 + k * 0.25); if (z > 0) R.linea(94 - k * 4, 170, Math.round(94 - k * 4 - 9 * z), Math.round(170 - 9 * z), G[1]); }
-    P.lapizConte(R, wx + 15, wy + 12, { s: 2, dir: -1 }); T.brazo(R, wx - 56, wy + 40, wx, wy, VERDE, 1, { codo: [wx - 30, wy + 12] }); }
+    P.lapizConte(R, wx + 15, wy + 12, { s: 2, dir: -1 }); T.brazo(R, wx - 28, wy + 36, wx, wy, VERDE, 1, { codo: [wx - 14, wy + 12] }); }
 };
 
 // 7 · en casa: Lisa mira los dibujos
@@ -159,11 +161,14 @@ const p8 = (t) => {
   const u1 = tramo(t, P8 + 0.05, T1 - 0.1), u2 = tramo(t, T1 + 0.75, T2 - 0.1), u3 = tramo(t, T2 + 0.75, E.duracion);
   const x = Math.round(lerp(lerp(lerp(8, 50, u1), 134, u2), 196, u3)), anda = (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1) || (u3 > 0 && u3 < 1);
   const llama = (t > T1 && t < T1 + 0.7) || (t > T2 && t < T2 + 0.7);
-  // la señora de los manuscritos, que cruza al fondo
-  const vx = Math.round(lerp(300, 150, tramo(t, P8, E.duracion))); const sra = R.actor(EL.senora75 ?? EL.senora30, vx, 146, t, { dir: -1, anda: true, sostiene: true }); R.rect(sra.mano[0] - 5, sra.mano[1] - 3, sra.mano[0] + 3, sra.mano[1] + 3, K); R.rect(sra.mano[0] - 4, sra.mano[1] - 2, sra.mano[0] + 2, sra.mano[1] + 2, hex('#f4f0e4')); R.rect(sra.mano[0] - 4, sra.mano[1], sra.mano[0] + 2, sra.mano[1], hex('#b8b8c0'));
-  if (!llama) P.carpeta(R, x + 18, 152 - 6 - (anda && Math.floor(t * 5) % 2 ? 1 : 0), {});
+  // el cartero (uniforme azul y gorra: no se confunde con Lisa) cruza al fondo con un paquete atado
+  const vx = Math.round(lerp(300, 150, tramo(t, P8, E.duracion))); const crt = R.actor(EL.cartero, vx, 146, t, { dir: -1, anda: true, sostiene: true });
+  { const [px, py] = crt.mano; R.rect(px - 6, py - 4, px + 2, py + 3, K); R.rect(px - 5, py - 3, px + 1, py + 2, hex('#c89a5a')); R.rect(px - 5, py + 2, px + 1, py + 2, hex('#8a5a30')); R.rect(px - 2, py - 3, px - 2, py + 2, hex('#f4f0e4')); R.rect(px - 5, py - 1, px + 1, py - 1, hex('#f4f0e4')); }
+  // la carpeta va ANTES que Lisa: en la mano al andar y, al llamar, apoyada en el suelo a su espalda (se le ve entera)
+  const posa8 = Math.max(...[T1, T2].map((q) => Math.min(tramo(t, q, q + 0.12), 1 - tramo(t, q + 0.58, q + 0.7))));
+  P.carpeta(R, Math.round(lerp(x + 18, x - 24, posa8)), Math.round(lerp(152 - 6 - (anda && Math.floor(t * 5) % 2 ? 1 : 0), 152, posa8)), {});
   const lisa = R.actor(EL.lisa, x, 152, t, { dir: 1, anda, dedo: llama && Math.sin(t * 20) > -0.3, sostiene: llama ? undefined : [x + 17, 138], sonrisa: true });
-  if (llama) { P.carpeta(R, x - 6, 152, {}); for (let k = 0; k < 3; k++) { const r = 3 + k * 3 + Math.round(((t * 4) % 1) * 3); R.pset(x + 19 + r, 128 - k, hex('#fff8e0')); R.pset(x + 19 + r, 132 + k, hex('#fff8e0')); } }
+  if (llama) for (let k = 0; k < 3; k++) { const r = 3 + k * 3 + Math.round(((t * 4) % 1) * 3); R.pset(x + 19 + r, 128 - k, hex('#fff8e0')); R.pset(x + 19 + r, 132 + k, hex('#fff8e0')); }
   T.editorialDelante(R, t, o);
 };
 const efectos = [[nace, 'pop'], [clava, 'toc'], [deja, 'golpecito'], ...GOLPES.map((g, k) => [talla + k * 0.45 + 0.42, 'toc']).filter(([x]) => x < P3), [P3 + 0.3, 'motor'], [llega + 0.1, 'toc'], [a(0.716), 'pop'], [posa, 'golpecito'], [mano4, 'pop'],
