@@ -31,8 +31,8 @@
 //    flecha de puntos va del cartucho a la máscara;
 // 8. (vista libre) el montón de arena del valle (2015): turistas diminutos suben al mirador; Reeves llega, mira; en
 //    «lost tomb» la arena resbala y él recula; en «mysteries» la «?»; una salamanquesa cruza.
-//    PARCHE DECORADO (a_valleArena): la pala, la criba y la cesta de 1922 se tapan con la arena de al lado y los
-//    obreros con cesta se repintan como turistas (fondo local: tu-reina plano 8).
+//    El decorado (valle/arena, o.epoca 2015) ya pinta el valle de hoy: sendero con turistas, plataforma con asomados,
+//    cuerda roja y letrero de pictograma; sin parches en la escena.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-reina');
@@ -47,8 +47,6 @@ const rayas = (x0, y0, x1, y1, c, fase = 0) => { const C = hex(c); const per = (
 // mezcla de dos colores del búfer (k 0–1) y un velo (más claro u oscuro) sobre un píxel
 const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= N(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
 const velo = (x, y, c, k) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, k)); };
-// copia un rectángulo del cuadro desde otro sitio (src(x, y) → [x, y]) pasando por un búfer, para tapar algo del decorado
-const tapar = (x0, y0, x1, y1, src) => { const v = []; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const [sx, sy] = src(x, y); v.push(R.pget(sx, sy)); } let i = 0; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, v[i++]); };
 // una salamanquesa de 12 px (dir 1 a la derecha, -1 a la izquierda; arriba: trepa en vertical)
 const lagartija = (x, y, t, dir = 1, arriba = false, V = hex('#8a7a4a'), v = hex('#5a4a2a')) => { const pa = Math.floor(t * 8) % 2;
   if (arriba) { R.rect(x, y, x + 1, y + 6, V); R.pset(x, y - 1, V); R.linea(x + 1, y + 7, x + 2 + pa, y + 11, v); R.pset(x - 1, y + 1 + pa, v); R.pset(x + 2, y + 1 - pa + 1, v); R.pset(x - 1, y + 5 - pa, v); R.pset(x + 2, y + 5 + pa - 1, v); R.pset(x, y, hex('#1a1410')); return; }
@@ -215,22 +213,8 @@ const p7 = (t) => {
 // 8 · el valle (vista libre, 2015): turistas al mirador; Reeves llega al montón; en «lost tomb» la arena resbala y recula
 const p8 = (t) => {
   const resbala = ease(tramo(t, en('nefertiti', 0.8912), en('nefertiti', 0.9533)));
-  const o = { encuadre: 'valle', camara: 'arena', epoca: 2014, sombrero: false, resbala };
+  const o = { encuadre: 'valle', camara: 'arena', epoca: 2015, sombrero: false, resbala };
   T.valle(R, t, o);
-  // PARCHE DECORADO: a_valleArena pinta la pala (230,124), la criba (122,164) y la cesta volcada (290,172) de 1922; se
-  // tapan con la arena de al lado (la pala, con la ladera de sombra del montón grande: cresta cx 252, base 156, w 150,
-  // alto 70; sobre la cresta, el acantilado de 60 px a la izquierda)
-  { const cr = (x) => N(156 - 70 * Math.max(0, 1 - ((x - 252) / 75) ** 2) ** 0.75);
-    tapar(220, 88, 233, 131, (x, y) => (y < cr(x) ? [x - 60, y] : [x - 10, y + cr(x - 10) - cr(x)]));
-    tapar(111, 153, 133, 175, (x, y) => [x - 26, y]);
-    tapar(279, 157, 301, 176, (x, y) => [x - 60, y]); }
-  // PARCHE DECORADO: a_valleArena — los dos obreros lejanos con cesta (1922) se repintan como turistas de 2015 que suben
-  // al mirador del cono y bajan (mismas cuentas que el decorado: x 30 + v·30, suelo 118 − v·4)
-  for (let k = 0; k < 2; k++) { const uu = ((t * 0.07 + k * 0.5) % 1), sube = uu < 0.5, v = sube ? uu * 2 : (1 - uu) * 2, X = N(30 + v * 30), s = N(118 - v * 4), d = sube ? 1 : -1;
-    tapar(X - 3, s - 13, X + 3, s - 9, (x, y) => [x + 8 * d, y]);
-    const cam = hex(k ? '#3a7ac8' : '#d84a3a'), camS = hex(k ? '#2a5a98' : '#a83a2a'), piel = hex('#e8b890');
-    R.rect(X - 1, s - 6, X + 1, s - 3, cam); R.pset(X + d, s - 4, camS); R.rect(X - 1, s - 2, X + 1, s - 2, hex('#c8b080')); R.pset(X - 1, s - 1, piel); R.pset(X + 1, s - 1, piel);
-    R.pset(X, s - 7, piel); R.pset(X + d, s - 7, piel); R.rect(X - 2, s - 8, X + 2, s - 8, hex('#f4f0e0')); R.rect(X - 1, s - 9, X + 1, s - 9, hex('#f4f0e0')); R.pset(X - d, s - 5, hex('#2a2a2a')); }
   const u = ease(tramo(t, P8 + 0.1, en('nefertiti', 0.8705)));
   const rec = ease(tramo(t, en('nefertiti', 0.9036), en('nefertiti', 0.9036) + 0.4));
   const xr = N(lerp(30, 136, u) - 10 * rec), hop = rec > 0 && rec < 1 ? N(Math.sin(rec * Math.PI) * 4) : 0;

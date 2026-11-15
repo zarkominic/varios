@@ -26,10 +26,11 @@
 //    difference», la pesa sube un pelo, la aguja se va a 0,3 y el lápiz deja una rayita roja junto a la lupa; se va;
 // 6. el gravímetro en la ladera (2023–24, corta en «And in»; gag 6): la geofísica llega con la libreta hasta el trípode
 //    (pasa una hoja); el geofísico teclea junto al portátil; en «twelve hundred» canta la cuenta (globo con la cifra); el
-//    escarabajo (de la escena, parche) pasa con su bola por delante del trípode, la aguja tiembla, los dos contienen el
+//    escarabajo (el del decorado, o.escarabajo) pasa con su bola por delante del trípode, la aguja tiembla, los dos contienen el
 //    aire («!») y, al verlo, sonríen y ella lo señala; el escarabajo baja y sale por DELANTE de la caja del portátil;
 // 7. el mapa (2026, corta en «Low»): en «September 2026» se pinta la rejilla de 1.242 puntos en zigzag; en
-//    «published the results» salen las manchas y en «Reeves himself» cae una chincheta roja en la grande;
+//    «published the results» salen las manchas y en «Reeves himself» la mano del decorado clava una chincheta roja en la
+//    grande (o.chincheta) y se va; el borde de la mancha late;
 // 8. las esquinas (corta en «lined up»): en «Low density zones» la mancha late; en «right-angled corners» las escuadras
 //    entran y se posan en cada esquina recta (sale la cota 35) y, al posarse, cada esquina destella y queda marcada con
 //    su cuadradito;
@@ -141,16 +142,12 @@ const p5 = (t) => {
 
 // 6 · el gravímetro en la ladera (gag 6): miden; el escarabajo pasa y la aguja tiembla
 const p6 = (t) => {
-  // PARCHE DECORADO: f_ldGravimetro escarabajo — el del decorado va por y 160 y, desde x ≈ 205, queda tapado por la caja
-  // del portátil de laderaDelante; aquí lo pinta la escena (sin o.escarabajo): cruza por delante del trípode y baja hacia
-  // la cámara hasta pasar por DELANTE de la caja (y ≥ 172), con su rastro en la arena
+  // el escarabajo es el del decorado (o.escarabajo): cruza por delante del trípode y, desde x 192, laderaDelante lo pasa
+  // por DELANTE de la caja del portátil (geo escarabajo [96 + 140e, 160 → 176]), con su rastro en la arena
   const esc = tramo(t, en('medidas', 0.12), en('medidas', 0.33));
-  const xe = N(96 + 140 * esc), ye = N(160 + 16 * ease(Math.max(0, (esc - 0.45) / 0.55))), tiembla = xe > 140 && xe < 182 ? Math.sin((xe - 140) / 42 * Math.PI) : 0;
-  const escarabajo = () => { if (esc <= 0) return; T.PIEZAS_TU.escarabajo(R, xe, ye, { paso: t * 8, dir: -1 });
-    for (let i = 1; i < 12; i++) if (i % 3) { const u = Math.max(0, esc - i * 0.022), y = N(160 + 16 * ease(Math.max(0, (u - 0.45) / 0.55))); R.pset(xe - 10 - i * 3, y, hex('#b8966a')); } };
-  const o = { encuadre: 'gravimetro', tiembla };
+  const xe = N(96 + 140 * esc), tiembla = xe > 140 && xe < 182 ? Math.sin((xe - 140) / 42 * Math.PI) : 0;
+  const o = { encuadre: 'gravimetro', tiembla, escarabajo: esc };
   T.ladera(R, t, o);
-  if (xe < 192) escarabajo();
   const susto = tiembla > 0.3, ve = esc > 0.62 && esc < 1;
   // la geofísica llega desde la izquierda con la libreta hasta el trípode; el geofísico apunta en el portátil
   const u = ease(tramo(t, P6 + 0.2, en('medidas', 0.08)));
@@ -161,7 +158,6 @@ const p6 = (t) => {
     const fl = tramo(t, en('medidas', 0.08), en('medidas', 0.08) + 0.3); if (fl > 0 && fl < 1) R.linea(lx - 1 + N(3 * fl), ly - 4, lx - 1 + N(3 * fl), ly + 1, hex('#b8b0a0')); }
   const m1 = R.actor(G1, 198, 151, t, { dir: 1, sorpresa: susto, sonrisa: ve, sostiene: !susto && !ve ? [212, 140 - (t > P6 + 0.5 && t < P6 + 1.6 && Math.floor(t * 10) % 2 ? 1 : 0)] : false, habla: t > en('medidas', 0.1787) && t < en('medidas', 0.25) && Math.floor(t * 6) % 2 === 0 });
   T.laderaDelante(R, t, o);
-  if (xe >= 192) escarabajo();
   // en «1200» el geofísico canta la cuenta: globo con la cifra
   if (t > en('medidas', 0.1787) && t < en('medidas', 0.31)) { const bx = 222, by = 96; R.rect(bx - 19, by - 9, bx + 19, by + 7, K); R.rect(bx - 18, by - 8, bx + 18, by + 6, BL); R.pset(bx - 14, by + 8, K); R.pset(bx - 15, by + 9, K); R.pset(bx - 14, by + 7, BL);
     R.numero('1200', bx, by + 4, { centro: true }); }
@@ -172,11 +168,11 @@ const p6 = (t) => {
 const p7 = (t) => {
   const rejilla = tramo(t, P7 + 0.1, en('medidas', 0.4));
   const manchas = ease(tramo(t, en('medidas', 0.436), en('medidas', 0.4849)));
-  T.ladera(R, t, { encuadre: 'mapa', rejilla: Math.max(0.001, rejilla), manchas });
-  // en «Reeves himself» cae una chincheta roja en la mancha grande y su borde late
-  const k = tramo(t, en('medidas', 0.5032), en('medidas', 0.5032) + 0.35);
-  if (k > 0) { T.chincheta(R, 172, 70, t, hex('#d83a2a'), { baja: ease(k) });
-    if (k >= 1 && Math.floor(t * 4) % 2 === 0) for (let i = 0; i < 90; i++) { const a = i / 90 * Math.PI * 2; if (i % 3) R.pset(N(162 + Math.cos(a) * 30), N(78 + Math.sin(a) * 16), hex('#fff4a0')); } }
+  // en «Reeves himself» la mano del decorado (o.chincheta) entra por la derecha y clava la chincheta roja en la mancha
+  // grande (172, 70) al 0,5 del tramo (con el «toc»), y se va; al clavarla, el borde de la mancha late
+  const r0 = en('medidas', 0.5032) + 0.3, k = tramo(t, r0 - 0.8, r0 + 0.8);
+  T.ladera(R, t, { encuadre: 'mapa', rejilla: Math.max(0.001, rejilla), manchas, chincheta: k });
+  if (k >= 0.5 && Math.floor(t * 4) % 2 === 0) for (let i = 0; i < 90; i++) { const a = i / 90 * Math.PI * 2; if (i % 3) R.pset(N(162 + Math.cos(a) * 30), N(78 + Math.sin(a) * 16), hex('#fff4a0')); }
 };
 
 // 8 · las esquinas: la escuadra se posa en cada esquina recta; cota 35
@@ -202,9 +198,7 @@ const p9 = (t) => {
   T.laderaDelante(R, t, o);
   // en «north wall» la pared norte se enciende (dos rayas que laten)
   if (t > en('medidas', 0.7806) && t < en('medidas', 0.88)) { const c = Math.floor(t * 5) % 2 ? '#fff4a0' : '#f8c040'; R.linea(213, 92, 213, 132, hex(c)); R.linea(214, 92, 214, 132, hex(c)); }
-  // las manchas, más oscuras para que se lean, al otro lado de la pared
-  if (anomalias > 0) { const V = hex('#3a2a7a'), V2 = hex('#5a4aa8');
-    for (let y = -14; y <= 14; y++) for (let x = -16; x <= 16; x++) { const d = (x * x) / 256 + (y * y) / 196; if (d > anomalias) continue; if (((x + y) & 1) === 0) R.pset(256 + x, 108 + y, d < 0.45 * anomalias ? V : V2); } }
+  // (las manchas, ya reforzadas por el decorado en 'trazo': núcleo oscuro y borde tramado)
   if (t > en('medidas', 0.9448)) { const q = (t * 2) % 1; anillo(256, 108, 16 + N(q * 6), '#fff4a0'); if (Math.floor(t * 3) % 2 === 0) globo(256, 78, '?', hex('#3a6ad8')); }
 };
 
