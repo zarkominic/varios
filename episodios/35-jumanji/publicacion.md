@@ -146,7 +146,7 @@ relacionado» se elige el episodio completo.
 - **EN:** "Jumanji" doesn't mean anything. A sculptor made the word up in 1981 for a 32-page picture book, and the movies that came out of it have taken in more than two billion dollars. The full story is in the linked video. #Jumanji #ChrisVanAllsburg #MovieHistory #ASKAtom #Shorts
 - **ES:** «Jumanji» no significa nada. Un escultor se inventó la palabra en 1981 para un libro ilustrado de 32 páginas, y las películas que salieron de él han recaudado más de dos mil millones de dólares. La historia completa, en el vídeo enlazado. #Jumanji #ChrisVanAllsburg #HistoriaDelCine #ASKAtom #Shorts
 
-### Short 2 · Cómo nació la palabra · tramo 100.92-137.5
+### Short 2 · Cómo nació la palabra · tramo 100.92-137.5 --x 4=70
 - **EN:** How Jumanji Got Its Name: A Word That Sounds Like Jungle #Shorts
 - **ES:** Jumanji: de dónde salió la palabra que suena a jungla #Shorts
 - **EN:** As a kid, board games let Chris Van Allsburg down: paper money, nothing real. So he imagined a game where everything is real while you play, and he needed a word that sounded far away and hinted at "jungle." He wrote down "Jumanji." The full story is in the linked video. #Jumanji #ChrisVanAllsburg #Books #ASKAtom #Shorts
