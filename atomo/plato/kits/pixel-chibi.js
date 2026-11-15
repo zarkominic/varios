@@ -10968,3 +10968,580 @@ export const PIEZAS_JM = {
   botePintura: botePinturaJM, esponja: esponjaJM, vela: velaJM, ramo: ramoJM, guionCine: guionCineJM, corazonVida: corazonVidaJM,
   zapatoLetrero: zapatoLetreroJM,
 };
+
+// ════ Episodio 36 · «Tutankamón: los cuartos que nadie ha abierto» ════
+// Las personas reales (Carter, Carnarvon, Reeves, Watanabe, Eldamaty, Porcelli) van solo con atributos sobrios, sin
+// caricatura; los obreros, el telegrafista, el vendedor, la técnica del radar y los geofísicos son NUESTROS. Los
+// antiguos (la reina, Akenatón y Tutankamón VIVO) con la piel, el kohl y los cuerpos de ELENCO_EG. Nada de momias.
+// ── tocados ──
+Object.assign(TOCADOS, {
+  // el homburg de Carter (J la copa, j la luz, D la cinta): la copa con el surco del centro y el ala rígida con los
+  // bordes vueltos hacia arriba (el fedora del 13 tiene el ala plana; el sombrero de Carnarvon, alaAT, ancha y clara)
+  homburgTU: [[
+    '....kkkkkk.....',
+    '...kJJkkJJk....',
+    '...kJjJJJJk....',
+    '...kJJJJJJk....',
+    '...kDDDDDDk....',
+    'kJk.kkkkkk.kJk.',
+    'kJJJJJJJJJJJJk.',
+    '.kkkkkkkkkkkk..',
+  ], -5],
+  // el tarbús (D, la sombra d) de fieltro rojo, con la copa plana y la borla negra (J) colgando por detrás: el
+  // telegrafista de Luxor y el vendedor de periódicos de 1923
+  tarbusTU: [[
+    '....kkkkkk.....',
+    '...kDDDDDdk....',
+    '..kJDDDDDDdk...',
+    '.kJkDDDDDDdk...',
+    '.kJkDDDDDDDdk..',
+    '.kJkDDDDDDDdk..',
+    '..kkkkkkkkkkk..',
+  ], -4],
+  // el sombrero de sol de tela (J, la luz j, la cinta D) con el ala blanda que cae a los lados: los geofísicos de 2026
+  sombreroSolTU: [[
+    '....kkkkkkk....',
+    '...kJJJJJJJk...',
+    '...kJjJJJJJk...',
+    '...kDDDDDDDk...',
+    '.kkJJJJJJJJJkk.',
+    'kJJJJJJJJJJJJJk',
+    'kjk.........kjk',
+    '.k...........k.',
+  ], -5],
+  // la corona alta de copa PLANA de la reina (NUESTRA): azul (K, la luz A), con la cinta de oro y piedras (O, Y, D)
+  // abajo y la cobra de oro delante; por detrás baja hasta la nuca. No toca la cara
+  coronaReinaTU: [[
+    'kkkkkkkkkkkk...',
+    'kKKKKKKKKKKKk..',
+    'kKAKKKKKKKKKk..',
+    'kKAKKKKKKKKKk..',
+    'kKKKKKKKKKKKKk.',
+    'kKKKKKKKKKKKKk.',
+    'kKKKKKKKKKKKKkk',
+    'kKKKKKKKKKKKkOk',
+    'kOYODOYODOYOkOk',
+    'kKKKKKKKKKKKKk.',
+    'kKKk...........',
+    'kKKk...........',
+    'kKKk...........',
+    '.kk............',
+  ], -6],
+});
+// ── cuerpos ──
+// el chaleco (C, los botones o) sobre la camisa (W) con los manguitos negros de oficina (u) en los antebrazos: el
+// telegrafista
+const CUERPO_MANGUITOS_TU = parche(CUERPO_CHALECO_NV, [[2, 3, 'u'], [2, 4, 'u'], [12, 3, 'u'], [12, 4, 'u']]);
+// la galabiya corta de niño (C) a rayas finas (c) con el cinturón (G): el vendedor de periódicos
+const CUERPO_RAYAS_NINO_TU = parche(CUERPO_TUNICA_NINO_NV, [[5, 1, 'c'], [9, 1, 'c'], [5, 2, 'c'], [9, 2, 'c'], [5, 3, 'c'], [9, 3, 'c'], [5, 5, 'c'], [9, 5, 'c'], [5, 6, 'c'], [9, 6, 'c']]);
+// el vestido blanco de la reina con el collar ANCHO de oro y turquesa (Y, O) que baja hasta el pecho
+const CUERPO_REINA_TU = parche(CUERPO_EGIPCIA, [[4, 2, 'YOYOYOY'], [5, 3, 'OYOYO'], [6, 4, 'YOY']]);
+// el faraón adolescente: el de ELENCO_EG con una fila menos de faldellín (12 filas: un poco más bajo que los mayores)
+const CUERPO_TUT_TU = CUERPO_FARAON.filter((_, j) => j !== 8);
+// ── ganchos ──
+// la pila de periódicos doblados bajo el brazo (X, las rayas x) con la franja negra del titular (K), sin letras
+const conPeriodicosTU = enMano(['kkkkkkk', 'kXKKKXk', 'kxxxxxk', 'kXXXXXk', 'kxxxxxk', 'kXXXXXk', 'kkkkkkk'], 10, 1, PAL_MANO_GZ);
+
+// ── el reparto del 36 ──
+const B36 = B23, B36N = { ...B23, cuerpo: CUERPO_TUNICA_NINO_NV, altoCuerpo: 10 };
+const B36EG = { cab: CAB_CALVO, cuerpo: CUERPO_EG, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: P.H, pal: EG, kohl: true };
+export const ELENCO_TU = {
+  // ── el Valle de los Reyes, 1922 ──
+  // Howard Carter a los 48: el pelo oscuro, el BIGOTE oscuro espeso, la pajarita negra, el traje de tres piezas oscuro
+  // (el chaleco pardo con la cadena del reloj) y el homburg gris oscuro. Todo OSCURO: Carnarvon va todo claro
+  carterTU: { ...B36, cuerpo: CUERPO_TRES_PIEZAS_PR, tocado: 'homburgTU', ceja: hex('#1c1424'), delante: varios(bigoteDobleDC, pajaritaNC('#1c1820')),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', J: '#3a3640', j: '#5a5662', D: '#16121a', C: '#3e3836', c: '#2c2826', V: '#7a6650', o: '#7a6650', O: '#e8c860', W: '#f2eee2', F: '#3e3836' }) },
+  // Carter en 1939, en Londres: mayor, el pelo y el bigote grises, las arrugas, el mismo traje y la pajarita, y el
+  // bastón de pomo de latón (sin sombrero; con o.tocado: 'homburgTU', con él)
+  carterMayorTU: { ...B36, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRES_PIEZAS_PR, ceja: hex('#9a9aa4'), delante: varios(bigoteDobleDC, arrugasDC, pajaritaNC('#1c1820'), bastonNV('alguacil')),
+    pal: CLT({ H: '#a8a8b2', h: '#c8c8d0', J: '#3a3640', j: '#5a5662', D: '#16121a', C: '#3e3836', c: '#2c2826', V: '#7a6650', o: '#7a6650', O: '#e8c860', W: '#f2eee2', F: '#3e3836' }) },
+  // lord Carnarvon: el pelo castaño claro, el bigote fino, el traje de tweed CLARO con la corbata azul y el sombrero de
+  // ala ancha de fieltro crema con la cinta parda
+  carnarvonTU: { ...B36, cuerpo: CUERPO_TWEED_VM, tocado: 'alaAT', ceja: hex('#6a4a2a'), delante: bigoteTR,
+    pal: CLT({ H: '#8a6440', h: '#a87e54', J: '#ece2c8', j: '#fff6e0', D: '#6a4a2a', C: '#cdb98e', c: '#a8925e', o: '#2e4e8a', W: '#f6f2ea', F: '#b8a47a' }) },
+  // los obreros egipcios de 1922: uno con la galabiya crema y el turbante blanco; el otro, con el bigote, la galabiya
+  // gris azulada, el turbante beis y el cesto
+  obrero1TU: { ...B36, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046', A: '#f6f4ec', a: '#c8c4b4', C: '#e8dcc0', c: '#c0b08c', L: '#6a4a2a' }) },
+  obrero2TU: { ...B36, cuerpo: CUERPO_GALABIYA_GZ, tocado: 'turbante', ceja: hex('#2a1c14'), delante: varios(bigoteTR, conCestaTR),
+    pal: MOT({ S: '#b88058', s: '#8a5a38', H: '#2a1c14', h: '#4a3424', A: '#e0d0a8', a: '#b8a47c', C: '#a8b8c8', c: '#8494a8', L: '#4a3020' }) },
+  // el telegrafista de Luxor: el tarbús rojo con la borla, el bigote, el chaleco gris sobre la camisa blanca y los
+  // manguitos negros
+  telegrafistaTU: { ...B36, cuerpo: CUERPO_MANGUITOS_TU, tocado: 'tarbusTU', ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', D: '#b8282e', d: '#80181e', J: '#1c1820', C: '#5e5e6c', c: '#46464e', o: '#d8d0b0', W: '#f2eee2', u: '#26242c', F: '#3a3a44' }) },
+  // ── El Cairo, 1923 ──
+  // el chaval que vende periódicos: el tarbús rojo, la galabiya corta beis a rayas y la pila de periódicos (sin letras)
+  vendedorTU: { ...B36N, cuerpo: CUERPO_RAYAS_NINO_TU, tocado: 'tarbusTU', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], delante: conPeriodicosTU,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', D: '#c8303a', d: '#8a1e26', J: '#1c1820', C: '#d8c8a4', c: '#a8906a', G: '#6a4a2a', L: '#5a3a20' }) },
+  // ── el escaneo y los radares, 2015–2018 ──
+  // Nicholas Reeves, egiptólogo, hacia los 60: el pelo gris claro corto, las gafas finas, la chaqueta de lino crema
+  // sobre la camisa celeste abierta
+  reevesTU: { ...B36, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#8a8a94'), delante: gafasFinasDC,
+    pal: CLT({ H: '#c4c4cc', h: '#e0e0e6', C: '#e4d8b8', c: '#c4b896', W: '#a8c4e0', F: '#7a7466' }) },
+  // Hirokatsu Watanabe, técnico de radar japonés, mayor: el pelo gris (asoma por los lados), la gorra azul marino, las
+  // arrugas, el chaleco de técnico azul marino de bolsillos sobre la camisa blanca
+  watanabeTU: { ...B36, cuerpo: CUERPO_BUSCADOR, tocado: 'beisbol', ceja: hex('#9a9aa4'), delante: arrugasDC,
+    pal: CLT({ S: '#f0c49a', s: '#c8946a', H: '#b0b0b8', h: '#d0d0d8', J: '#2a3660', j: '#3e4c80', C: '#f2f2f6', V: '#34446a', o: '#24304e', G: '#2a2430', F: '#5a5a66', f: '#46464e', L: '#2a2430' }) },
+  // Mamdouh Eldamaty, hacia los 60: el pelo canoso, el bigote gris, las gafas de pasta, el traje oscuro y la corbata
+  // granate (el ministro de 2023, ministro2023, no lleva bigote y va con gafas finas y corbata azul)
+  eldamatyTU: { ...B36, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#6a6a74'), delante: varios(bigoteTR, gafasPastaDC),
+    pal: MOT({ H: '#8e8e98', h: '#b4b4be', C: '#2a2a34', c: '#1e1e26', W: '#f2eee2', o: '#8a2a3a', F: '#2a2a34' }) },
+  // la técnica del segundo radar (2016), NUESTRA: la coleta castaña oscura, el chaleco de campo GRIS de bolsillos (gris
+  // también los bolsillos: nada de amarillo) sobre la camisa azul y las botas
+  natgeoTU: { ...B36, cuerpo: CUERPO_BUSCADOR, ceja: hex('#2a1c14'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: CLT({ H: '#3a2618', h: '#5a4028', s: '#e8a080', C: '#4a6a9a', V: '#86868a', o: '#646468', G: '#2a2430', F: '#4a4a52', f: '#38383e', L: '#2a2430' }) },
+  // Francesco Porcelli, hacia los 50: el pelo y la barba recortada castaño oscuro, el polo azul y el pantalón chino
+  porcelliTU: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_POLO_DC, ceja: hex('#2a1c14'),
+    pal: OTO({ H: '#3a2a22', h: '#5a4838', C: '#2a5aa8', c: '#1e4688', W: '#4a7ac8', o: '#f2f2f6', F: '#c8b890', n: '#5a3a20' }) },
+  // ── la ladera, 2020 ──
+  // el arqueólogo del sombrero de ala: el de Giza (ELENCO_GZ.hawass), con su clave de este episodio
+  hawassTU: ELENCO_GZ.hawass,
+  // ── la ladera, 2026 ── (NUESTROS)
+  // el geofísico: la barba corta, el sombrero de sol caqui, el chaleco de bolsillos verde oliva sobre la camisa
+  // celeste y la tableta
+  geofisico1TU: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_BUSCADOR, tocado: 'sombreroSolTU', ceja: hex('#2a1c14'), delante: conTabletaGZ,
+    pal: CLT({ H: '#4a3020', h: '#6a4630', J: '#c8b88a', j: '#e0d4a8', D: '#6a5a3a', C: '#a8c8e0', V: '#6e7e4a', o: '#4e5c30', G: '#3a2a1a', F: '#8a7a5a', f: '#6a5c42', L: '#3a2a1a' }) },
+  // la geofísica: la coleta negra, el sombrero de sol piedra, el chaleco de bolsillos teja sobre la camisa blanca
+  geofisica2TU: { ...B36, cuerpo: CUERPO_BUSCADOR, tocado: 'sombreroSolTU', ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]], detras: coleta,
+    pal: MOT({ H: '#1c1424', h: '#3a3046', s: '#a86a44', J: '#e2dccc', j: '#f4f0e4', D: '#8a7a5a', C: '#f2f2f6', V: '#a8583a', o: '#7e3e26', G: '#3a2a1a', F: '#5a5a66', f: '#46464e', L: '#3a2a1a' }) },
+  // ── Amarna y Tebas, hacia el 1340 a. C. ──
+  // la reina (NUESTRA): la corona alta de copa plana azul con la cinta de oro, el kohl, el vestido blanco y el collar ancho
+  nefertitiTU: { ...B36EG, cuerpo: CUERPO_REINA_TU, tocado: 'coronaReinaTU', mejillas: [[6, 8], [12, 8]], pal: { ...EG, A: hex('#5a8ae0') } },
+  // el faraón Akenatón: la corona azul de guerra (jepresh) con la cobra, la barba postiza y el faldellín
+  akenatonTU: { ...B36EG, cuerpo: CUERPO_FARAON, tocado: 'azul', barba: true },
+  // Tutankamón VIVO, adolescente: el nemes a rayas azul y oro con la barba postiza, la cara de chaval (mejillas) y un
+  // poco más bajo que los mayores. Nunca momia
+  tutTU: { ...ELENCO_EG.faraon, cuerpo: CUERPO_TUT_TU, altoCuerpo: 12, mejillas: [[6, 8], [12, 8]] },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_TU);
+
+// ── piezas del 36 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
+// o.dir −1 voltea ── Todo NUESTRO y SIN LETRAS: rayas, cifras e iconos; nada de calaveras ni de momias. Colores: los
+// del 35 más la cuarcita del sarcófago (~, la sombra ^, la luz :) y el resplandor de la llama y de la lámpara (+).
+const PAL_TU = { ...PAL_JM, ...COLORES({ '~': '#d6ae7a', '^': '#a07a4c', ':': '#ecd0a0', '+': '#fff6c8' }) };
+const CACHE_TU = new Map();
+const unaTU = (clave, hacer) => cacheGT(CACHE_TU, clave, hacer);
+const pintaTU = (R, g, x, y, o = {}, pal = PAL_TU) => pintaJH(R, g, x, y, o, pal);
+const cuadroTU = cuadroNX;
+// media vuelta (el panel montado al revés) y vuelta de arriba abajo (el murciélago colgado)
+const mediaVueltaTU = (g) => g.slice().reverse().map((f) => f.split('').reverse().join(''));
+const bocaAbajoTU = (g) => g.slice().reverse();
+// una rejilla escrita a mano dentro de forma (sin contorno propio)
+const ponerTU = (put, i0, j0, filas) => filas.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] !== '.') put(i0 + i, j0 + j, f[i]); });
+
+// LA VELA de Carter: el cabo de vela (H, la sombra h) con su chorreón en un CANDELERO alto de latón (O, la sombra g, la
+// luz o): el platillo, el nudo, el pie y la base redonda. La LLAMA (el centro claro, la punta naranja) tiembla con o.t.
+// o.apagada: sin llama, con el hilillo de humo. 11 × 25
+const velaTU = (R, x, y, o = {}) => {
+  const f = Math.max(0, cuadroTU(o.t, 3, 7)), ap = !!o.apagada;
+  pintaTU(R, unaTU('vela' + ap + f, () => forma(11, 25, ({ put, rect }) => {
+    rect(1, 22, 9, 23, 'O'); rect(2, 23, 9, 23, 'g'); put(1, 22, 'o'); put(2, 22, 'o'); put(1, 23, '.'); put(9, 23, '.'); rect(2, 21, 8, 21, 'O'); put(8, 21, 'g'); put(2, 21, 'o');
+    rect(4, 15, 6, 20, 'O'); rect(6, 15, 6, 20, 'g'); rect(4, 15, 4, 20, 'o'); rect(3, 18, 7, 18, 'O'); put(7, 18, 'g'); put(3, 18, 'o');
+    rect(2, 14, 8, 14, 'O'); put(8, 14, 'g'); put(2, 14, 'o'); rect(3, 13, 7, 13, 'g');
+    rect(4, 7, 6, 12, 'H'); rect(6, 8, 6, 12, 'h'); put(4, 7, 'W'); put(5, 7, 'W'); put(3, 9, 'H'); put(3, 10, 'h'); put(5, 6, 'Q');
+    if (ap) { put(5 + (f === 1 ? 1 : 0), 5, 'x'); put(5, 4, 'x'); put(5 + (f === 2 ? -1 : 1), 2, 'Z'); put(5, 3, 'Z'); put(5 + (f === 1 ? -1 : 0), 1, 'Z'); return; }
+    const d = f === 1 ? 1 : f === 2 ? -1 : 0;
+    put(5 + d, 1, 'N'); put(5 + d, 2, 'N'); put(5, 2, 'N'); rect(4, 3, 6, 5, 'N'); rect(5, 3, 5, 5, 'Y'); put(5, 3, '+'); put(5, 4, 'E'); put(5, 5, 'o'); put(4, 5, 'n'); put(6, 5, 'n');
+  })), x, y, o);
+};
+
+// EL TELEGRAMA: la hoja crema (H, la sombra h) con la franja azul de arriba (B) y el rayo blanco (el icono del
+// telégrafo), tres tiras de cinta pegadas (W, el canto X) con sus puntos y rayas (K) y la raya de la firma. 15 × 19
+const TIRAS_TU = ['K.KKK.K..KK', 'KKK.K.K.KKK', '.K..KKK.K.K'];
+const telegramaTU = (R, x, y, o = {}) => pintaTU(R, unaTU('telegrama', () => forma(15, 19, ({ put, rect }) => {
+  rect(1, 1, 13, 17, 'H'); rect(13, 2, 13, 17, 'h'); rect(2, 17, 13, 17, 'h');
+  rect(2, 2, 12, 4, 'B'); rect(2, 4, 12, 4, 'b'); for (const [i, j] of [[5, 2], [4, 3], [5, 3], [4, 4]]) put(i, j, 'W'); rect(7, 3, 11, 3, 'I');
+  TIRAS_TU.forEach((p, n) => { const j = 7 + n * 3; rect(2, j, 12, j, 'W'); rect(2, j + 1, 12, j + 1, 'X'); for (let i = 0; i < 11; i++) if (p[i] === 'K') put(2 + i, j, 'K'); });
+  rect(8, 15, 12, 15, 'x');
+})), x, y, o);
+
+// LA CINTA DEL TELÉGRAFO: la tira de papel blanco (W, el canto X) con los puntos y las rayas (K), que sale ondulando y
+// acaba en un rizo. o.largo: los píxeles de cinta (8–240). OJO: (x, y) es el EXTREMO de donde sale (a la altura de la
+// cinta) y va hacia la derecha (o.dir −1, a la izquierda). Con o.t, los puntos y rayas corren (la cinta avanza).
+// Devuelve { punta: [x, y] } (el rizo del final)
+const MORSE_TU = 'K.KKK..K.K..KKK.KKK.K...K.KKK.K..K.K.KKK..';
+const cintaTelegrafoTU = (R, x, y, o = {}) => {
+  const L = Math.max(8, Math.min(240, Math.round(o.largo ?? 40))), s = o.s ?? 1, dir = o.dir ?? 1;
+  const off = o.t == null ? 0 : Math.floor(o.t * 10) % MORSE_TU.length;
+  const ola = (i) => Math.round(Math.sin(i / 7) * 1.4 * Math.min(1, i / 8));
+  const W = L + 5, H = 11, c0 = 4;
+  pintaTU(R, unaTU('cinta' + L + '_' + off, () => forma(W, H, ({ put }) => {
+    for (let i = 1; i <= L; i++) { const j = c0 + ola(i); put(i, j - 1, 'W'); put(i, j, i > 2 && MORSE_TU[(i - off + MORSE_TU.length * 9) % MORSE_TU.length] === 'K' ? 'K' : 'W'); put(i, j + 1, 'X'); }
+    const j = c0 + ola(L);
+    for (const [a, b, ch] of [[L + 1, j - 1, 'W'], [L + 1, j, 'W'], [L + 2, j, 'W'], [L + 2, j + 1, 'X'], [L + 2, j + 2, 'W'], [L + 2, j + 3, 'X'], [L + 1, j + 3, 'W'], [L, j + 3, 'X']]) put(a, b, ch);
+  })), x + dir * W * s / 2, y + (H - c0) * s, o);
+  return { punta: [Math.round(x + dir * (L + 2) * s), Math.round(y + (ola(L) + 2) * s)] };
+};
+
+// EL SELLO de barro de la puerta (F, el canto 1): un óvalo plano con la huella hundida (3) del CHACAL tumbado con la
+// cabeza alta (las orejas de punta, las patas de delante estiradas, la cola) encima de una fila de figuritas de
+// rodillas (solo bultitos), sin letras. 21 × 15. o.roto: partido (la grieta)
+const CHACAL_TU = ['...........3.3.', '...........333.', '..........33333', '..........33...', '.33333333333...', '3333333333333..', '3.33....3333333'];
+const selloTU = (R, x, y, o = {}) => pintaTU(R, unaTU('sello' + !!o.roto, () => forma(21, 15, ({ put, linea }) => {
+  for (let j = 1; j <= 13; j++) for (let i = 1; i <= 19; i++) { const d = Math.hypot((i - 10) / 9.4, (j - 7) / 6.4); if (d > 1) continue; put(i, j, d > 0.84 ? '1' : 'F'); }
+  ponerTU(put, 3, 2, CHACAL_TU);
+  for (const i of [5, 8, 11, 14]) { put(i, 10, '3'); put(i, 11, '3'); put(i + 1, 11, '3'); }
+  if (o.roto) linea(11, 0, 9, 14, '.');
+})), x, y, o);
+
+// EL PANEL de una capilla dorada (O, la sombra g, la luz o): la cornisa de arriba a rayas azules (B), doradas y
+// turquesa (D), el marco y, dentro, dos columnas de amuletos en azul (el pilar con sus travesaños y el nudo); en medio,
+// abajo, la marca roja del carpintero: una flecha que apunta ARRIBA. o.reves: montado al revés (media vuelta: la
+// cornisa abajo y la flecha apuntando abajo). 23 × 31
+const PILAR_TU = ['BBBBB', '.B.B.', 'BBBBB', '.B.B.', 'BBBBB', '.BBB.', '.BBB.', 'BBBBB'];
+const NUDO_TU = ['.BBB.', 'B...B', 'B...B', '.BBB.', 'BBBBB', '..B..', '.BBB.', 'BBBBB'];
+const PANEL_TU = () => forma(23, 31, ({ put, rect }) => {
+  rect(1, 1, 21, 29, 'O'); rect(21, 2, 21, 29, 'g'); rect(1, 29, 21, 29, 'g'); rect(1, 1, 1, 28, 'o'); rect(1, 1, 21, 1, 'o');
+  for (let i = 2; i <= 20; i++) { const c = 'BOD'[i % 3]; put(i, 2, c); put(i, 3, c); } rect(1, 4, 21, 4, 'g');
+  rect(3, 6, 19, 27, 'g'); rect(4, 7, 18, 26, 'O'); rect(4, 7, 18, 7, 'o');
+  for (const [i0, j0, g] of [[5, 9, PILAR_TU], [13, 9, NUDO_TU], [5, 18, NUDO_TU], [13, 18, PILAR_TU]]) ponerTU(put, i0, j0, g);
+  for (const [i, j] of [[11, 21], [10, 22], [11, 22], [12, 22], [11, 23], [11, 24], [11, 25]]) put(i, j, 'R');
+});
+const panelCapillaTU = (R, x, y, o = {}) => pintaTU(R, unaTU('panel' + !!o.reves, () => (o.reves ? mediaVueltaTU(PANEL_TU()) : PANEL_TU())), x, y, o);
+
+// EL COFRE de madera pintada (NUESTRO): la tapa abombada crema (T) con la cenefa de oro y el SOL CON ALAS (N, las alas
+// B), la caja de estuco crema (H, la sombra h) con la cenefa de cuadritos (R, O, B), dos paneles de flores de loto (V, B)
+// y, en medio, el CARTUCHO del nombre (el óvalo de oro g) con su icono; las patas de madera (M, m). o.cartucho: 'sol'
+// (por defecto), 'ankh', 'raspado' (rascado: solo rayones), 'nuevo' (otro icono pintado encima de lo rascado) o false
+// (sin óvalo). 27 × 21
+const ICONOS_CARTUCHO_TU = {
+  sol: ['.NNN.', 'NRRRN', 'NRRRN', '.NNN.', '.....', 'BBBBB', '.....'],
+  ankh: ['.BBB.', 'B...B', '.B.B.', 'BBBBB', '..B..', '..B..', '..B..'],
+  raspado: ['x.h.x', '.x.xh', 'hx.x.', '.hxh.', 'x.x.h', '.x.xh', 'h.x..'],
+  nuevo: ['.BBB.', 'BhxhB', '.BxB.', 'BBBBB', 'x.B.h', '.hBx.', 'x.B.h'],
+};
+const cofreTU = (R, x, y, o = {}) => {
+  const ca = o.cartucho === false ? 'no' : ICONOS_CARTUCHO_TU[o.cartucho] ? o.cartucho : 'sol';
+  pintaTU(R, unaTU('cofre' + ca, () => forma(27, 21, ({ put, rect, disco }) => {
+    [8, 10, 12, 12, 12].forEach((w, k) => rect(13 - w, 1 + k, 13 + w, 1 + k, 'T')); rect(1, 5, 25, 5, 'O'); rect(1, 6, 25, 6, 'm');
+    disco(13, 3, 1.3, 'N'); put(13, 3, 'R'); for (let i = 5; i <= 10; i++) { put(i, 3, 'B'); put(26 - i, 3, 'B'); if (i > 6) { put(i, 2, 'B'); put(26 - i, 2, 'B'); } if (i > 7) { put(i, 4, 'D'); put(26 - i, 4, 'D'); } }
+    rect(1, 7, 25, 17, 'H'); rect(25, 8, 25, 17, 'h');
+    for (let i = 1; i <= 25; i++) { put(i, 7, 'ROBO'[i % 4]); put(i, 17, 'ROBO'[(i + 2) % 4]); }
+    for (let j = 8; j <= 16; j++) { put(1, j, 'ROBO'[j % 4]); put(25, j, 'ROBO'[(j + 1) % 4]); }
+    for (const i0 of [3, 18]) for (let j = 9; j <= 15; j += 3) { put(i0 + 1, j, 'V'); put(i0 + 2, j - 1, 'B'); put(i0 + 3, j, 'V'); put(i0 + 2, j, 'v'); put(i0 + 2, j + 1, 'v'); }
+    if (ca !== 'no') {
+      rect(11, 8, 15, 8, 'g'); rect(10, 9, 10, 15, 'g'); rect(16, 9, 16, 15, 'g'); rect(11, 16, 15, 16, 'g'); rect(11, 9, 15, 15, 'X'); rect(9, 16, 17, 16, 'g');
+      ponerTU(put, 11, 9, ICONOS_CARTUCHO_TU[ca]);
+    }
+    rect(2, 18, 4, 19, 'M'); rect(22, 18, 24, 19, 'M'); put(4, 19, 'm'); put(24, 19, 'm'); rect(5, 18, 21, 18, 'm');
+  })), x, y, o);
+};
+
+// LA MÁSCARA DE ORO (NUESTRA, sencilla y digna), de frente: el tocado a rayas de oro (O) y lapislázuli (B), la cara de
+// oro (la luz o, la sombra g) con las cejas y el kohl azules, los ojos blancos con la pupila negra, las orejas, la
+// barba trenzada y el collar ancho de cuentas (turquesa D, oro, lapislázuli y cornalina R). Con o.t, un destello.
+// 23 × 29
+const mascaraTU = (R, x, y, o = {}) => {
+  const brilla = o.t != null && Math.floor(o.t * 1.2) % 4 === 0;
+  pintaTU(R, unaTU('mascara' + brilla, () => forma(23, 29, ({ put, rect }) => {
+    const c = 11;
+    for (let j = 18; j <= 27; j++) for (let i = 0; i <= 22; i++) { const r = Math.hypot((i - c) / 1.05, j - 16); if (r > 11 || r < 4.5) continue; put(i, j, 'DOBORO'[Math.min(5, Math.floor(r - 4.5))]); }
+    const hw = (j) => (j <= 1 ? 3 : j === 2 ? 5 : j === 3 ? 6 : j === 4 ? 7 : j <= 9 ? 8 : j <= 19 ? 10 : 0);
+    for (let j = 1; j <= 19; j++) for (let i = c - hw(j); i <= c + hw(j); i++) put(i, j, Math.floor((j + 1) / 2) % 2 ? 'O' : 'B');
+    rect(c - 7, 5, c + 7, 5, 'O');
+    const fw = (j) => (j <= 15 ? 4 : j <= 17 ? 3 : 2);
+    for (let j = 6; j <= 18; j++) for (let i = c - fw(j); i <= c + fw(j); i++) put(i, j, i === c + fw(j) ? 'g' : i === c - fw(j) ? 'o' : 'O');
+    for (const s of [-1, 1]) { put(c + s * 5, 10, 'O'); put(c + s * 5, 11, 'g'); put(c + s * 5, 12, 'O'); }
+    for (const s of [-1, 1]) { put(c + s * 2, 8, 'B'); put(c + s * 3, 8, 'B'); put(c + s * 4, 8, 'B'); put(c + s * 2, 9, 'K'); put(c + s * 3, 9, 'W'); put(c + s * 4, 9, 'B'); put(c + s * 3, 10, 'g'); }
+    put(c, 11, 'g'); put(c, 12, 'g'); put(c - 1, 12, 'g'); rect(c - 1, 14, c + 1, 14, 'g'); put(c, 15, 'o');
+    put(c, 4, 'O'); put(c, 3, 'O'); put(c - 1, 5, 'O'); put(c + 1, 5, 'O'); put(c, 5, 'D');
+    for (let j = 19; j <= 24; j++) { rect(c - 1, j, c + 1, j, j % 2 ? 'B' : 'O'); } put(c - 1, 24, '.'); put(c + 1, 24, '.'); put(c, 25, 'g');
+    if (brilla) { put(c - 3, 7, 'E'); put(c - 4, 13, 'E'); put(c - 2, 12, 'E'); }
+  })), x, y, o);
+};
+
+// EL SARCÓFAGO de piedra, CERRADO (NUESTRO), de lado: cuarcita (~, la sombra ^, la luz :) con la tapa de cornisa, el
+// friso de rayitas, el disco con alas grabado en medio y las diosas aladas grabadas en las esquinas (solo plumas), sobre
+// el zócalo de piedra (0, $). 39 × 19
+const sarcofagoTU = (R, x, y, o = {}) => pintaTU(R, unaTU('sarcofago', () => forma(39, 19, ({ put, rect, linea, disco }) => {
+  rect(2, 1, 36, 1, ':'); rect(1, 2, 37, 4, '~'); rect(1, 4, 37, 4, '^'); rect(37, 2, 37, 4, '^'); rect(1, 2, 1, 3, ':');
+  rect(3, 5, 35, 5, '^');
+  rect(3, 6, 35, 16, '~'); rect(35, 6, 35, 16, '^'); rect(3, 6, 3, 16, ':');
+  for (let i = 5; i <= 33; i += 2) put(i, 7, '^'); rect(4, 8, 34, 8, '^'); rect(4, 15, 34, 15, '^');
+  disco(19, 11.5, 1.6, '^'); put(19, 11, ':'); for (let i = 1; i <= 7; i++) { put(19 - 2 - i, 11 - (i < 4 ? 1 : 0), '^'); put(19 + 2 + i, 11 - (i < 4 ? 1 : 0), '^'); if (i > 1) { put(19 - 2 - i, 12, '^'); put(19 + 2 + i, 12, '^'); } }
+  for (const [a, d] of [[6, 1], [32, -1]]) for (let k = 0; k < 4; k++) linea(a, 10 + k, a + d * (3 - k), 13 + k > 14 ? 14 : 13, '^');
+  rect(2, 17, 36, 17, '0'); rect(2, 17, 2, 17, '0'); rect(36, 17, 36, 17, '$'); rect(3, 17, 35, 17, '0');
+})), x, y, o);
+
+// EL BUSTO DE UNA REINA (NUESTRO, no copia del de Berlín), de perfil mirando a la derecha: la corona alta de copa
+// PLANA azul (B, la luz I) con la cinta de oro y piedras (O, D, R) y la cobra delante, la piel (F, la sombra 1), el
+// kohl, el cuello largo, el collar ancho de bandas (Y, O, D, R) y el vestido (H), sobre el pie de piedra (0, $).
+// 21 × 31. o.vitrina: dentro de la vitrina de museo (el cristal I con sus brillos E y la peana de madera M): 29 × 43
+const BUSTO_TU = [
+  '..BBBBBBBBBBB......',
+  '..BIBBBBBBBBBB.....',
+  '...BIBBBBBBBBB.....',
+  '...BBBBBBBBBBB.....',
+  '....BBBBBBBBBBB....',
+  '....BBBBBBBBBBB....',
+  '.....ODORODORODO...',
+  '.....BBBBBBBBBBBO..',
+  '.....BBBBBBBBFFFO..',
+  '.....BBBBBBFFFFF...',
+  '......BBBBFFFFFFF..',
+  '......BBBFFFFKQFF..',
+  '.......BBF1FFFFFFF.',
+  '........FFFFFFFFF..',
+  '........FFFFFFrrF..',
+  '.........FFFFFFF...',
+  '.........11FFFF....',
+  '..........FFFF.....',
+  '..........FFFF.....',
+  '.........1FFFF.....',
+  '.......YYYYYYYYY...',
+  '.....OOOOOOOOOOOO..',
+  '....DDDDDDDDDDDDDD.',
+  '...RRRRRRRRRRRRRRR.',
+  '...OOOOOOOOOOOOOOO.',
+  '...HHHHHHHHHHHHHHH.',
+  '...HHHHHHHHHHHHHHh.',
+  '..00000000000000000',
+  '..$$$$$$$$$$$$$$$$$',
+];
+const bustoReinaTU = (R, x, y, o = {}) => {
+  const vit = !!o.vitrina;
+  pintaTU(R, unaTU('busto' + vit, () => (vit
+    ? forma(29, 43, ({ put, rect, linea }) => {
+      ponerTU(put, 4, 4, BUSTO_TU); rect(2, 1, 26, 1, 'I'); rect(2, 1, 2, 33, 'I'); rect(26, 1, 26, 33, 'I');
+      linea(5, 3, 3, 6, 'E'); linea(24, 5, 22, 9, 'E'); linea(24, 11, 23, 13, 'E');
+      rect(1, 34, 27, 35, 'M'); rect(1, 35, 27, 35, 'm'); rect(4, 36, 24, 41, 'M'); rect(22, 36, 24, 41, 'm'); rect(4, 36, 24, 36, 'm');
+    })
+    : forma(21, 31, ({ put }) => ponerTU(put, 1, 1, BUSTO_TU)))), x, y, o);
+};
+
+// EL RADAR DE MANO: la caja de la antena (Z, la sombra z, la luz X) con la placa de la antena delante (N, la sombra n),
+// la pantallita (U) con su raya (D) y la lucecita (G, parpadea con o.t), el ASA arriba (K) y el cable (u) que sale por
+// detrás y cae enroscado. 19 × 17. La placa (a la derecha; o.dir −1, a la izquierda) es la que se apoya en la pared
+const radarManoTU = (R, x, y, o = {}) => {
+  const luz = o.t == null || Math.floor(o.t * 3) % 2 === 0;
+  pintaTU(R, unaTU('radarMano' + luz, () => forma(19, 17, ({ put, rect, linea }) => {
+    rect(5, 1, 12, 1, 'K'); rect(5, 2, 5, 4, 'K'); rect(12, 2, 12, 4, 'K');
+    rect(3, 5, 14, 12, 'Z'); rect(3, 12, 14, 12, 'z'); rect(14, 6, 14, 12, 'z'); rect(3, 5, 14, 5, 'X');
+    rect(15, 4, 16, 13, 'N'); rect(16, 4, 16, 13, 'n');
+    rect(5, 7, 9, 9, 'U'); put(5, 8, 'D'); put(6, 8, 'D'); put(7, 7, 'D'); put(8, 9, 'D'); put(9, 8, 'D');
+    put(12, 7, luz ? 'G' : 'v'); put(11, 10, 'u'); put(12, 10, 'u');
+    linea(2, 10, 1, 13, 'u'); linea(1, 13, 3, 15, 'u'); linea(3, 15, 9, 15, 'u');
+  })), x, y, o);
+};
+
+// EL RADAR DE CARRITO (NUESTRO; el de Giza es otro): la caja roja (R, la sombra r, la tapa u) con la franja blanca,
+// sobre cuatro ruedas (se ven dos, K con el buje Z), el asa (z) que sube hacia atrás con el agarre negro (K) y, en el
+// asa, la pantallita (U) con la línea del radargrama (D) que avanza con o.t. Mira a la derecha (o.dir −1, a la
+// izquierda). El agarre queda a unos (−14, −21) de (x, y). 33 × 23
+const radarCarritoTU = (R, x, y, o = {}) => {
+  const f = o.t == null ? 0 : Math.floor(o.t * 4) % 4;
+  pintaTU(R, unaTU('radarCarrito' + f, () => forma(33, 23, ({ put, rect, linea, disco }) => {
+    linea(14, 14, 4, 3, 'z'); linea(15, 14, 5, 3, 'z'); rect(1, 1, 5, 3, 'K'); put(2, 1, 'u');
+    rect(8, 5, 14, 10, 'K'); rect(9, 6, 13, 9, 'U');
+    for (let i = 0; i < 5; i++) put(9 + i, 7 + [0, 1, 0, 2, 1, 0, 1, 2][(i + f) % 8], 'D');
+    rect(12, 12, 30, 17, 'R'); rect(12, 12, 30, 12, 'u'); rect(30, 13, 30, 17, 'r'); rect(12, 17, 30, 17, 'r'); rect(14, 14, 28, 14, 'W');
+    for (const cx of [16, 26]) { disco(cx, 19, 2.6, 'K'); put(cx, 19, 'Z'); put(cx + [1, 0, -1, 0][f], 19 + [0, 1, 0, -1][f], 'u'); }
+  })), x, y, o);
+};
+
+// EL GRAVÍMETRO sobre su trípode: el cilindro de metal (Z, la sombra z, la luz X) con la tapa negra (K), la ESFERA
+// blanca (W) con sus marcas (x) y la AGUJA roja (R): o.aguja −1…1 (0 arriba, en medio; se reparte en 9 posiciones),
+// la burbuja de nivel (D) y las tres patas de madera (M, m). 23 × 31
+const gravimetroTU = (R, x, y, o = {}) => {
+  const a = Math.round(Math.max(-1, Math.min(1, o.aguja ?? 0)) * 4);
+  pintaTU(R, unaTU('grav' + a, () => forma(23, 31, ({ put, rect, disco, linea }) => {
+    linea(10, 20, 3, 29, 'M'); linea(12, 20, 19, 29, 'M'); linea(11, 20, 11, 29, 'm');
+    rect(6, 18, 16, 19, 'K'); rect(7, 18, 15, 18, 'u');
+    rect(5, 4, 17, 17, 'Z'); rect(16, 5, 17, 17, 'z'); rect(5, 5, 6, 17, 'X'); rect(4, 2, 18, 3, 'K'); rect(6, 1, 16, 1, 'K'); rect(5, 2, 17, 2, 'u');
+    disco(11, 10, 4.3, 'W');
+    for (let k = -2; k <= 2; k++) { const an = k * Math.PI / 6; put(11 + Math.round(Math.sin(an) * 4), 10 - Math.round(Math.cos(an) * 4), 'x'); }
+    const an = a * Math.PI / 12; linea(11, 10, 11 + Math.sin(an) * 3.6, 10 - Math.cos(an) * 3.6, 'R'); put(11, 10, 'K');
+    rect(9, 15, 13, 15, 'u'); put(11, 15, 'D');
+  })), x, y, o);
+};
+
+// LA PERFORADORA pequeña (NUESTRA): la base con sus patas (u, K), el mástil (K, la luz u) con la polea arriba, el
+// MOTOR naranja (N, la sombra n) con la abrazadera (K) que BAJA por el mástil con o.broca 0–1 (en 16 pasos) y la BROCA de
+// metal (Z; las estrías z giran con o.t). Con o.broca 1, la punta llega al suelo, al agujero de la base.
+// (x, y) = el centro de abajo de la base. 23 × 37. Devuelve { punta: [x, y] } (la punta de la broca)
+const perforadoraTU = (R, x, y, o = {}) => {
+  const b = pasoGT(o.broca, 16), f = Math.max(0, cuadroTU(o.t, 2, 8)), s = o.s ?? 1, dir = o.dir ?? 1;
+  const c = 4 + Math.round(b * 0.75), punta = c + 18;
+  pintaTU(R, unaTU('perfo' + b + '_' + f, () => forma(23, 37, ({ put, rect, disco }) => {
+    rect(2, 33, 20, 34, 'u'); rect(2, 33, 20, 33, 'x'); rect(1, 35, 4, 35, 'K'); rect(18, 35, 21, 35, 'K'); rect(7, 33, 10, 34, 'Q');
+    rect(16, 29, 20, 32, 'B'); rect(17, 30, 19, 30, 'b'); put(19, 31, 'G');
+    rect(13, 3, 14, 32, 'K'); rect(14, 3, 14, 32, 'u'); disco(13.5, 2.5, 1.6, 'Z'); put(13, 2, 'K');
+    rect(5, c + 1, 11, c + 5, 'N'); rect(11, c + 1, 11, c + 5, 'n'); rect(5, c + 5, 11, c + 5, 'n'); rect(6, c + 2, 9, c + 2, 'n'); rect(6, c + 3, 9, c + 3, 'f'); put(5, c, 'K'); put(6, c, 'K');
+    rect(12, c, 15, c + 6, 'K'); put(15, c + 3, 'Z'); rect(7, c + 6, 10, c + 6, 'z');
+    for (let j = c + 7; j < punta; j++) { put(8, j, (j + f) % 3 ? 'Z' : 'z'); put(9, j, (j + f + 1) % 3 ? 'Z' : 'z'); }
+    put(8, punta, 'z'); put(9, punta, 'z');
+  })), x, y, o);
+  return { punta: [Math.round(x - dir * 2.5 * s), Math.round(y - (36 - punta) * s)] };
+};
+
+// LA CAMARITA que cuelga del cable fino (Q) que baja por el agujero: la cámara diminuta (Z, la sombra z) con el aro de
+// luz (+) abajo, que parpadea suave con o.t (o.luz false: apagada, x). o.cable: los píxeles de cable (2–240). OJO: (x, y)
+// es el punto de ARRIBA del que cuelga (la boca del agujero). 7 × 10 la cámara.
+// Devuelve { punta: [x, y] } (la luz, abajo)
+const camaritaTU = (R, x, y, o = {}) => {
+  const L = Math.max(2, Math.min(240, Math.round(o.cable ?? 30))), s = o.s ?? 1, luz = o.luz !== false;
+  const f = luz && o.t != null ? Math.floor(o.t * 3) % 2 : 0;
+  R.rect(Math.round(x), Math.round(y), Math.round(x) + s - 1, Math.round(y + L * s) - 1, PAL_TU.Q);
+  pintaTU(R, unaTU('camarita' + luz + f, () => forma(7, 10, ({ put, rect }) => {
+    put(3, 1, 'u'); rect(2, 2, 4, 2, 'z'); rect(1, 3, 5, 7, 'Z'); rect(5, 3, 5, 7, 'z'); put(2, 4, 'X'); rect(1, 8, 5, 8, 'u');
+    rect(2, 8, 4, 8, luz ? (f ? 'f' : '+') : 'x'); if (luz) put(3, 9, f ? 'f' : '+');
+  })), Math.round(x) + s / 2, Math.round(y + L * s) + 9 * s, { ...o, dir: 1 });
+  return { punta: [Math.round(x), Math.round(y + (L + 9) * s)] };
+};
+
+// EL ESTETOSCOPIO de Atom: las dos olivas (x) y los arcos de metal (Z) que se juntan, el tubo gris oscuro (u) y la
+// campana redonda (Z, la sombra z, el disco claro X). 19 × 21
+const estetoscopioTU = (R, x, y, o = {}) => pintaTU(R, unaTU('esteto', () => forma(19, 21, ({ put, linea, disco }) => {
+  put(3, 1, 'x'); put(15, 1, 'x'); linea(3, 2, 6, 9, 'Z'); linea(15, 2, 12, 9, 'Z');
+  linea(6, 10, 9, 12, 'u'); linea(12, 10, 9, 12, 'u'); linea(9, 13, 9, 15, 'u'); linea(9, 15, 7, 17, 'u');
+  disco(4.5, 17.5, 2.4, 'Z'); disco(4, 17, 1.2, 'X'); put(6, 19, 'z'); put(5, 19, 'z'); put(6, 18, 'z');
+})), x, y, o);
+
+// EL PERIÓDICO de 1923, doblado (NUESTRO, SIN LETRAS): el papel (H, la sombra h), la cabecera (la franja negra K),
+// el TITULAR en dos barras gordas, la foto (j) con un icono y las columnas de rayas (x). o.icono: 'piramide' (por
+// defecto), 'ojo' (el ojo pintado), 'excl' (dos exclamaciones rojas), 'gato' (el gato sentado). 21 × 27
+const ICONOS_PERIODICO_TU = {
+  piramide: ['.......', '...K...', '..KuK..', '.KuuuK.', 'KuuuuuK', 'KKKKKKK', '.......'],
+  ojo: ['.KKKKK.', 'K.WWW.K', 'KWWKWWK', '.KKKKK.', '...K...', '..K....', '.K.....'],
+  excl: ['.R...R.', '.R...R.', '.R...R.', '.R...R.', '.......', '.R...R.', '.......'],
+  gato: ['..K.K..', '..KKK..', '..KKK..', '.KKKK..', '.KKKKK.', 'KKKKKK.', '.KKKKK.'],
+};
+const periodicoTU = (R, x, y, o = {}) => {
+  const ic = ICONOS_PERIODICO_TU[o.icono] ? o.icono : 'piramide';
+  pintaTU(R, unaTU('periodico' + ic, () => forma(21, 27, ({ put, rect }) => {
+    rect(1, 1, 19, 25, 'H'); rect(19, 2, 19, 25, 'h'); rect(2, 25, 19, 25, 'h');
+    rect(3, 2, 17, 4, 'K'); rect(5, 3, 15, 3, 'u'); rect(3, 5, 17, 5, 'x');
+    rect(3, 7, 17, 8, 'K'); rect(3, 10, 13, 10, 'K');
+    rect(3, 12, 11, 20, 'j'); rect(3, 12, 11, 12, 'x'); ponerTU(put, 4, 13, ICONOS_PERIODICO_TU[ic]);
+    for (let j = 12; j <= 23; j++) rect(13, j, j % 4 === 3 ? 15 : 17, j, j % 2 ? 'H' : 'x');
+    for (const j of [22, 23]) rect(3, j, j === 23 ? 8 : 11, j, 'x');
+  })), x, y, o);
+};
+
+// LA LATA de refresco SIN MARCA: verde azulado (q, la sombra t) con la franja blanca ondulada (W), la tapa y el culo
+// de metal (Z, z). 9 × 13. o.tumbada: tirada de lado (13 × 9)
+const LATA_TU = () => forma(9, 13, ({ put, rect }) => {
+  rect(2, 1, 6, 1, 'Z'); rect(1, 2, 7, 2, 'z'); put(4, 1, 'u');
+  rect(1, 3, 7, 10, 'q'); rect(6, 3, 7, 10, 't'); rect(2, 3, 2, 10, 'J');
+  for (let i = 1; i <= 7; i++) { put(i, 6 + (i % 3 === 0 ? 1 : 0), 'W'); } rect(1, 11, 7, 11, 'z'); rect(2, 11, 6, 11, 'Z');
+});
+const lataTU = (R, x, y, o = {}) => pintaTU(R, unaTU('lata' + !!o.tumbada, () => (o.tumbada ? giraNX(LATA_TU()) : LATA_TU())), x, y, o);
+
+// EL ESCARABAJO pelotero (K, el brillo u) que rueda su BOLA (P, la sombra p) cabeza abajo, empujándola con las patas de
+// atrás; la bola va a la izquierda (o.dir −1, a la derecha). o.paso: un número que avanza (las patas se alternan y la
+// bola gira). 21 × 13
+const escarabajoTU = (R, x, y, o = {}) => {
+  const n = Math.floor(Math.abs(o.paso ?? 0)), f = n % 2, k = n % 4;
+  pintaTU(R, unaTU('escarabajo' + f + k, () => forma(21, 13, ({ put, rect, disco, linea }) => {
+    disco(6, 6.5, 4.6, 'P'); for (let a = 0; a < 3; a++) { const an = (a * 2 + k) * Math.PI / 3; put(6 + Math.round(Math.cos(an) * 2.6), 6.5 + Math.round(Math.sin(an) * 2.6), 'p'); } put(4, 4, 'M'); put(5, 4, 'M');
+    for (let j = 4; j <= 9; j++) { const w = [1, 2, 3, 3, 3, 2][j - 4]; rect(15 - w, j, 15 + w, j, 'K'); } put(14, 5, 'u'); put(13, 6, 'u'); rect(15, 4, 15, 9, 'Q');
+    rect(17, 9, 18, 10, 'K'); put(19, 10, 'K');
+    linea(12, 6, 10, 3 + f, 'K'); linea(12, 8, 10, 6 - f, 'K');
+    linea(14, 10, 13 - f, 11, 'K'); linea(16, 10, 17 + f, 11, 'K');
+  })), x, y, o);
+};
+
+// EL MURCIÉLAGO (NUESTRO, simpático): el cuerpo (K) con las orejas y los ojillos (E), las alas de membrana (u) con los
+// dedos (K). o.alas 0–1 (en 3 posiciones): 0 plegadas, 0.5 a media altura, 1 abiertas hacia arriba. o.colgado: cabeza
+// abajo, colgado de las patas, con las alas plegadas. 21 × 13
+const murcielagoTU = (R, x, y, o = {}) => {
+  const a = o.colgado ? 0 : Math.round(Math.max(0, Math.min(1, o.alas ?? 1)) * 2);
+  pintaTU(R, unaTU('murcielago' + a + !!o.colgado, () => {
+    const g = forma(21, 13, ({ put, rect }) => {
+      put(9, 2, 'K'); put(11, 2, 'K'); rect(9, 3, 11, 5, 'K'); put(9, 4, 'E'); put(11, 4, 'E'); rect(9, 6, 11, 9, 'K'); put(10, 10, 'K');
+      if (a === 0) { rect(7, 5, 8, 10, 'u'); rect(12, 5, 13, 10, 'u'); put(7, 5, 'K'); put(13, 5, 'K'); put(8, 11, 'u'); put(12, 11, 'u'); }
+      else for (const s of [-1, 1]) for (let i = 1; i <= 9; i++) {
+        const top = 6 - (a === 2 ? Math.round(i * 0.45) : 0), bot = top + 3 - (i % 3 === 0 ? 1 : 0) - (i > 7 ? 1 : 0);
+        for (let j = top; j <= bot; j++) put(10 + s * (1 + i), j, j === top && i % 3 !== 1 ? 'K' : 'u');
+      }
+      if (o.colgado) { put(9, 11, 'K'); put(11, 11, 'K'); }
+    });
+    return o.colgado ? bocaAbajoTU(g) : g;
+  }), x, y, o);
+};
+
+// LA CAJA de cartón (F, la sombra 1, la luz 2) en tres cuartos: la cara de delante, la de arriba con la cinta de
+// embalar (A) y el canto. o.abierta: las solapas levantadas y el hueco oscuro (3); o.agujero: el agujerito redondo en
+// la cara de delante (Q; con o.luz, con luz dentro, f). 25 × 25
+const cajaTU = (R, x, y, o = {}) => {
+  const ab = !!o.abierta, ag = o.agujero ? (o.luz ? 'f' : 'Q') : '';
+  pintaTU(R, unaTU('caja' + ab + ag, () => forma(25, 25, ({ put, rect }) => {
+    for (let k = 1; k <= 4; k++) rect(1 + k, 12 - k, 17 + k, 12 - k, ab ? '3' : '2');
+    for (let k = 1; k <= 4; k++) rect(17 + k, 12 - k, 17 + k, 23 - k, '1');
+    rect(1, 12, 17, 23, 'F'); rect(1, 12, 17, 12, '2');
+    if (ab) { for (let k = 1; k <= 4; k++) rect(2 + k, 12 - k, 16 + k, 12 - k, '3'); rect(5, 2, 21, 7, '2'); rect(21, 3, 21, 7, '1'); rect(5, 7, 21, 7, '1'); rect(1, 12, 17, 14, '1'); rect(1, 14, 17, 14, '3'); }
+    else { for (let k = 1; k <= 4; k++) put(9 + k, 12 - k, 'A'); rect(8, 12, 10, 14, 'A'); }
+    if (ag) { rect(8, 16, 10, 18, ag); put(8, 16, 'F'); put(10, 16, 'F'); put(8, 18, 'F'); put(10, 18, 'F'); }
+  })), x, y, o);
+};
+
+// LA LINTERNA de mano, tumbada y mirando a la derecha (o.dir −1, a la izquierda): el mango negro (u) con las estrías (K),
+// el botón rojo (R), la cabeza de metal (Z, la sombra z) y el cristal (I; con o.encendida, la luz + y unos rayitos f).
+// 19 × 9
+const linternaTU = (R, x, y, o = {}) => {
+  const on = !!o.encendida;
+  pintaTU(R, unaTU('linterna' + on, () => forma(19, 9, ({ put, rect }) => {
+    rect(1, 3, 11, 5, 'u'); rect(1, 3, 11, 3, 'x'); for (let i = 2; i <= 8; i += 2) put(i, 5, 'K'); put(1, 4, 'K'); rect(6, 2, 7, 2, 'R');
+    rect(12, 2, 16, 6, 'Z'); rect(12, 6, 16, 6, 'z'); rect(14, 1, 16, 7, 'Z'); rect(14, 7, 16, 7, 'z'); rect(12, 2, 16, 2, 'X');
+    rect(17, 1, 17, 7, on ? '+' : 'I'); if (on) for (const j of [1, 3, 5, 7]) put(18, j, 'f');
+  })), x, y, o);
+};
+
+// EL PLANO DE LA TUMBA a lápiz azul (B) sobre papel crema (H, la cuadrícula h): la escalera (los peldaños), el pasillo,
+// la antecámara, el anexo, la cámara del sarcófago (el sarcófago, b) y el tesoro, con el norte arriba; sin letras.
+// o.pared: la pared norte de la cámara, en rojo a trazos (R). o.grande: el plano de una tumba real GRANDE (pasillos
+// largos, la sala de pilares y la cámara del fondo), para ponerlo al lado. 45 × 31
+const planoTumbaTU = (R, x, y, o = {}) => {
+  const gr = !!o.grande, pa = !!o.pared && !gr;
+  pintaTU(R, unaTU('plano' + gr + pa, () => forma(45, 31, ({ put, rect }) => {
+    rect(1, 1, 43, 29, 'H'); rect(43, 2, 43, 29, 'h'); rect(2, 29, 43, 29, 'h');
+    for (let i = 6; i <= 42; i += 6) rect(i, 2, i, 28, 'h'); for (let j = 6; j <= 28; j += 6) rect(2, j, 42, j, 'h');
+    const caja = (a, b, c, d) => { rect(a, b, c, b, 'B'); rect(a, d, c, d, 'B'); rect(a, b, a, d, 'B'); rect(c, b, c, d, 'B'); for (let j = b + 1; j < d; j++) for (let i = a + 1; i < c; i++) put(i, j, 'H'); };
+    const hueco = (i, j) => put(i, j, 'H');
+    if (gr) {
+      caja(36, 13, 41, 17); for (let i = 37; i <= 40; i += 1) if (i % 2) rect(i, 14, i, 16, 'B');
+      caja(28, 14, 36, 16); caja(22, 13, 28, 17); caja(12, 9, 22, 21); caja(4, 6, 12, 24); caja(14, 4, 18, 9); caja(6, 24, 10, 27);
+      for (const [i, j] of [[15, 12], [19, 12], [15, 18], [19, 18], [6, 10], [10, 10], [6, 20], [10, 20]]) put(i, j, 'B');
+      rect(6, 14, 10, 16, 'b');
+      for (const [i, j] of [[36, 15], [28, 15], [22, 15], [12, 15], [16, 9], [8, 24]]) hueco(i, j);
+    } else {
+      caja(33, 17, 41, 21); for (let i = 34; i <= 40; i += 2) rect(i, 18, i, 20, 'B');
+      caja(24, 18, 33, 20);
+      caja(14, 13, 24, 24);
+      caja(6, 20, 14, 27);
+      caja(12, 4, 26, 13);
+      caja(26, 6, 33, 13);
+      rect(16, 7, 22, 10, 'b');
+      for (const [i, j] of [[33, 19], [24, 19], [14, 22], [19, 13], [20, 13], [26, 9]]) hueco(i, j);
+      if (pa) for (let i = 12; i <= 26; i++) if (i % 3 !== 2) put(i, 4, 'R');
+    }
+    for (const [i, j] of [[40, 3], [39, 4], [40, 4], [41, 4], [40, 5], [40, 6]]) put(i, j, 'B');
+  })), x, y, o);
+};
+
+// EL MAPA DE DENSIDAD (NUESTRO): un mapa de colores (de menos a más: azul oscuro b, azul B, celeste D, verde claro J,
+// amarillo claro f, naranja N y rojo R) con suaves ondas de fondo y, al NORTE (arriba), dos MANCHAS AZULES DE ESQUINAS
+// RECTAS (menos masa: huecos); en medio, el contorno blanco de la tumba (W; o.tumba false, sin él) y la flecha del
+// norte. El marco negro (K). 41 × 31
+const mapaDensidadTU = (R, x, y, o = {}) => {
+  const tu = o.tumba !== false;
+  pintaTU(R, unaTU('mapa' + tu, () => forma(41, 31, ({ put, rect }) => {
+    rect(1, 1, 39, 29, 'K');
+    const RAMPA = 'bBDJfNR';
+    for (let j = 2; j <= 28; j++) for (let i = 2; i <= 38; i++) {
+      let v = 0.55 + 0.22 * Math.sin(i / 6.5 + 0.8) * Math.cos(j / 7.5) + 0.14 * Math.sin((i + j) / 4.3) + 0.08 * Math.cos(i / 2.7 - j / 3.9);
+      if ((i >= 9 && i <= 18 && j >= 4 && j <= 9) || (i >= 19 && i <= 25 && j >= 5 && j <= 11) || (i >= 27 && i <= 31 && j >= 3 && j <= 6)) v = (i + j) % 5 === 0 ? 0.12 : 0.02;
+      put(i, j, RAMPA[Math.max(0, Math.min(6, Math.floor(v * 7)))]);
+    }
+    if (tu) { for (const [a, b, c, d] of [[13, 14, 25, 22], [25, 17, 31, 19], [10, 18, 13, 24], [14, 11, 24, 14]]) { rect(a, b, c, b, 'W'); rect(a, d, c, d, 'W'); rect(a, b, a, d, 'W'); rect(c, b, c, d, 'W'); } }
+    for (const [i, j] of [[35, 3], [34, 4], [35, 4], [36, 4], [35, 5], [35, 6], [35, 7]]) put(i, j, 'W');
+  })), x, y, o);
+};
+
+export const PIEZAS_TU = {
+  vela: velaTU, telegrama: telegramaTU, cintaTelegrafo: cintaTelegrafoTU, sello: selloTU, panelCapilla: panelCapillaTU,
+  cofre: cofreTU, mascara: mascaraTU, sarcofago: sarcofagoTU, bustoReina: bustoReinaTU, radarMano: radarManoTU,
+  radarCarrito: radarCarritoTU, gravimetro: gravimetroTU, perforadora: perforadoraTU, camarita: camaritaTU,
+  estetoscopio: estetoscopioTU, periodico: periodicoTU, lata: lataTU, escarabajo: escarabajoTU, murcielago: murcielagoTU,
+  caja: cajaTU, linterna: linternaTU, planoTumba: planoTumbaTU, mapaDensidad: mapaDensidadTU,
+};

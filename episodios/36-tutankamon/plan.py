@@ -34,7 +34,7 @@ E = [
    'B: la única sala pintada, con sus escenas (nuestras); un cofre al que un escriba antiguo le raspa un nombre y pinta otro (sin letras: cartuchos con iconos).'],
   'intriga', []),
  ('tu-maldicion', None, 9, 9, ['maldicion'],
-  ['C: una calle de El Cairo en 1923 con vendedores de periódicos y un titular de miedo (un icono de momia de dibujo, sin sustos); un gato egipcio, muy digno, se sienta encima del periódico; Carter, ya mayor, en Londres, con su bastón.'],
+  ['C: una calle de El Cairo en 1923 con vendedores de periódicos y un titular de miedo (iconos de pirámide y «!», sin momias ni sustos); un gato egipcio, muy digno, se sienta encima del periódico; Carter, ya mayor, en Londres, con su bastón.'],
   'curiosidad', []),
  ('tu-escaneo', '2015', 10, 11, ['copia', 'rayas'],
   ['D: colas de turistas en la tumba; un escáner que recorre la pared en un raíl; una impresora enorme en un taller; la copia junto a la casa de Carter.',
