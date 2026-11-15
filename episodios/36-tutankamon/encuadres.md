@@ -83,7 +83,7 @@
 - p2: ladera/ladera/carrito — f18 el radar de carrito de Eldamaty
 - p3: ladera/este/general — f18 al lado, no detrás
 - p4: ladera/este/radargrama — f18 un espacio alargado, paralelo al pasillo de entrada
-- p5: ladera/permiso/general — f19 Hawass no se lo cree (o.epoca 2020)
+- p5: ladera/permiso/general — f19 Hawass no se lo cree (el despacho oficial)
 - p6: ladera/corte/mancha — f19 el pasillo del este se queda en el aire
 
 ## tu-gravedad
@@ -111,7 +111,7 @@
 
 ## tu-permiso
 - p1: ladera/permiso/calendario — f25 el permiso del Consejo Supremo de Antigüedades; los días pasan
-- p2: valle/valle/arena — f25 a mediados de noviembre: la perforadora espera en la ladera (o.epoca 2026)
+- p2: valle/valle/general — f25 a mediados de noviembre: la perforadora espera en la terraza del valle (o.epoca 2026: geo.perforadora)
 
 ## tu-medir
 - p1: hoy/pizarra/general — f26 ¿por qué cinco estudios dan respuestas tan distintas?
@@ -139,4 +139,5 @@
 - hoy/pizarra/final
 - tumba/capillas/general
 - valle/escalera/general
+- valle/valle/arena
 - valle/telegrafo/general
