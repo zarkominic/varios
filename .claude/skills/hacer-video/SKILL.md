@@ -220,6 +220,11 @@ exactamente este (no el de Kokoro del episodio que copies):
 ```
 
 El español se sigue escribiendo como se dice (`PRONUNCIA['es']`, los años de corrido): así se aprobó la muestra.
+**Regla del usuario (16/11/2026): los nombres extranjeros, a prueba de oído con ZONOS3.** Las grafías hechas para Kokoro
+no siempre valen: «Jáuard Cárter» sonó «yaguar Carter» y Whisper oyó «Joward» (el control automático no lo ve). En cada
+episodio, antes de la locución entera, se saca con ZONOS3 una muestra corta con cada nombre extranjero del guion en dos o
+tres grafías (la de `PRONUNCIA['es']`, el nombre tal cual y otra), se le manda al usuario y la que elija va a
+`PRONUNCIA['es']` (y a `pronuncia.py --anadir`). No se corrige a mano en el audio ya hecho.
 ZONOS3 no tiene velocidad: cada reintento es otra toma, y si una frase española dura más que la inglesa la línea de
 tiempo deja el hueco. Las descripciones llevan la línea de voz sintética (paso 11): la licencia de Supertonic lo exige.
 
