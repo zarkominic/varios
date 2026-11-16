@@ -76,6 +76,14 @@ def chatterbox():
         _chatterbox = ChatterboxMultilingualTTS.from_pretrained(device=torch.device('cpu'))
     return _chatterbox
 _supertonic = None
+# Supertonic no deja tocar fonemas: «Atom» sale «Adam» (la t blanda americana, como en Kokoro). Escrito «Ah-tom», Whisper oye
+# «Atom» (probado el 16/11/2026 frente a «Attom», «Atum», «Ahtom» y «At-tom»). Solo cambia lo que se sintetiza; el control
+# compara con el texto original.
+TEXTO_SUPERTONIC = [(re.compile(r'\bAtom\b'), 'Ah-tom')]
+def texto_supertonic(t):
+    for x, y in TEXTO_SUPERTONIC:
+        t = x.sub(y, t)
+    return t
 def supertonic():
     """Supertonic 3 (Supertone, OpenRAIL-M: la voz hay que declararla sintética), la voz inglesa desde el 37 (M1, elegida a
     ciegas por el usuario el 16/11/2026). Los pesos los baja preparar-voz.sh a <modelos>/supertonic3."""
@@ -176,12 +184,12 @@ def sintetizar(texto, l, vel):
     if v.get('motor') == 'supertonic':
         # «vel» es la velocidad de Supertonic (1,05 por omisión); la semilla del ruido inicial se fija para que el mismo
         # texto a la misma velocidad dé siempre el mismo clip
-        clave = hashlib.sha1(f"st3|{v['voz']}|{v.get('pasos', 8)}|{vel:.3f}|{texto}".encode()).hexdigest()[:16]
+        clave = hashlib.sha1(f"st3b|{v['voz']}|{v.get('pasos', 8)}|{vel:.3f}|{texto}".encode()).hexdigest()[:16]
         f = f'{CLIPS}/{l}-{clave}.wav'
         if not os.path.exists(f):
             m = supertonic()
             np.random.seed(int(round(vel * 1000)))
-            a, _ = m.synthesize(texto, voice_style=m.get_voice_style(voice_name=v['voz']), lang=v.get('lang', 'en')[:2],
+            a, _ = m.synthesize(texto_supertonic(texto), voice_style=m.get_voice_style(voice_name=v['voz']), lang=v.get('lang', 'en')[:2],
                                 total_steps=v.get('pasos', 8), speed=vel)
             sf.write(f, recortar(a_sr(np.asarray(a, dtype=np.float64).squeeze(), m.sample_rate)), SR)
         a, _ = sf.read(f)
