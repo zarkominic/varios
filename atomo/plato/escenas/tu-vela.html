@@ -21,7 +21,8 @@
 // 3. la antecámara por el hueco: unos instantes casi a oscuras (el humo abajo en medio), vuelve la luz; la punta de la
 //    llama asoma abajo y Carter la lleva a la izquierda (carros, «gold everywhere», el oro se enciende) y a la derecha,
 //    a las estatuas guardianas en «statues»; un escarabajo cruza un cofre;
-// 4. el ajuar de cerca: la vela (en la mano, T.brazo) está en la rueda del carro en «chariots», baja al cofre pintado en
+// 4. el ajuar de cerca: la vela (en la mano, T.brazo corto que entra por abajo: la vela va baja, a la altura del pecho)
+//    está bajo la rueda del carro en «chariots», baja al cofre pintado (madera con tablas, veta, herrajes y penumbra) en
 //    «chests», donde la otra mano limpia el polvo de la tapa, y sube al trono y lo alto del montón en «piled up»; una
 //    polilla da vueltas a la llama; en «attic» cae polvo de lo alto y la vela sube a mirar la cima del montón. La luz
 //    del decorado sale de la llama (o.llama) y la sigue: el foco cálido barre el ajuar y el resto queda en penumbra.
@@ -158,14 +159,50 @@ const p3 = (t) => {
   if (velo < 0.5) llama(lx + N(Math.sin(t * 7) * 2), 179, t, 2);
 };
 
+// el cofre de tapa pintada, de cerca: la madera (tablas, veta, desgaste, las esquinas gastadas y la sombra de la tapa)
+// y la penumbra que lo oscurece lejos de la llama; modula los píxeles ya pintados, así las pinturas de caza se quedan
+const cofre = (fx, fy, t) => {
+  const B = R.buf, fl = 1 + Math.sin(t * 9) * 0.03;
+  for (let y = 108; y <= 169; y++) {
+    const tapa = y < 122, a = tapa ? N(14 + (122 - y) * 10 / 14) + 1 : 19, b = tapa ? N(136 - (122 - y) * 10 / 14) - 1 : 131;
+    if (y === 122) continue;
+    for (let x = a; x <= b; x++) {
+      let k = 1;
+      if (tapa) { k *= 0.94 + 0.05 * Math.sin(x * 0.55 + Math.sin(y * 0.8 + x * 0.05) * 2.4) + (h3(x, y, 2) - 0.5) * 0.08; if (y >= 120) k *= 0.82; }
+      else {
+        const sx = (x - 18) % 29;
+        if (sx === 0) k *= 0.66; else if (sx === 1) k *= 1.06;
+        k *= 0.93 + 0.05 * Math.sin(y * 0.9 + Math.sin(x * 0.07 + y * 0.3) * 2.2) + (h3(x, y, 1) - 0.5) * 0.09;
+        if (h3(x >> 3, y >> 2, 4) > 0.82) k *= 0.9;
+        if (y <= 125) k *= 0.72 + (y - 123) * 0.08;
+        if (y > 158) k *= 1 - (y - 158) * 0.03;
+        if (x < 24) k *= 0.82 + (x - 19) * 0.035; if (x > 126) k *= 0.82 + (131 - x) * 0.035;
+      }
+      const d = Math.hypot(x - fx, (y - fy) * 1.2), sh = Math.max(0, Math.min(1, (d - 30) / 120));
+      k *= (1 - 0.32 * sh) * (sh < 0.4 ? fl : 1);
+      const i = y * 320 + x, p = B[i], r = Math.min(255, N((p & 255) * Math.pow(k, 0.7))), g = Math.min(255, N(((p >> 8) & 255) * k * 0.95)), bb = Math.min(255, N(((p >> 16) & 255) * k * (0.9 + 0.1 * k)));
+      B[i] = (0xff000000 | (bb << 16) | (g << 8) | r) >>> 0;
+    }
+  }
+  // los herrajes de bronce de las esquinas y el pomo del cierre, con su cordel
+  const O = hex('#e0b040'), Os = hex('#7a5418');
+  for (const [cx, cy, dx, dy] of [[19, 123, 1, 1], [131, 123, -1, 1], [19, 169, 1, -1], [131, 169, -1, -1]]) {
+    for (let j = 0; j < 6; j++) { R.pset(cx + dx * j, cy, j < 5 ? O : Os); R.pset(cx, cy + dy * j, j < 5 ? O : Os); }
+    R.pset(cx + dx, cy + dy, Os); R.pset(cx + dx * 2, cy + dy * 2, O); }
+  R.disco(75, 128, 2, Os); R.disco(75, 127, 1, O); R.pset(74, 126, hex('#fff0b0'));
+  for (let j = 0; j < 7; j++) R.pset(75 + N(Math.sin(j * 0.9 + t * 1.2) * 0.6), 130 + j, hex(j % 2 ? '#6a4a2a' : '#8a6a3a'));
+};
+
 // 4 · el ajuar: la vela barre el trono, la rueda en «chariots» y el cofre en «chests»; una polilla y el polvo del «attic»
 const p4 = (t) => {
   // la llama recorre: la rueda del carro («chariots»), baja al cofre («chests») y, en «piled up like an attic», sube
   // hacia el trono y lo alto del montón; la luz del decorado sale de la llama y la sigue (foco cálido, resto en penumbra)
   const u1 = ease(tramo(t, v(0.868), v(0.9))), u2 = ease(tramo(t, v(0.93), v(0.965))), u3 = ease(tramo(t, v(0.975), v(0.975) + 1.2));
-  const lx = N(lerp(lerp(118, 82, u1), 206, u2) + u3 * 28), ly = N(lerp(lerp(124, 146, u1), 126, u2) - u3 * 22);
+  // (la vela va baja, a la altura del pecho de quien la lleva: el brazo entra por abajo y se ve corto, 35–45 px)
+  const lx = N(lerp(lerp(118, 78, u1), 206, u2) + u3 * 24), ly = N(lerp(lerp(138, 150, u1), 136, u2) - u3 * 8);
   const o = { encuadre: 'antecamara', camara: 'ajuar', vela: 1, llama: [lx, ly - 4] };
   T.tumba(R, t, o);
+  cofre(lx, ly - 4, t);
   // la otra mano limpia el polvo de la tapa del cofre, de un lado a otro, y se va (en «chests»)
   const lm = tramo(t, v(0.893), v(0.942));
   if (lm > 0 && lm < 1) { const ent = Math.min(1, lm * 5, (1 - lm) * 5), hx = N(lerp(-10, 30 + Math.sin(lm * Math.PI * 6) * 9, ent)), hy = N(lerp(116, 104, ent));
@@ -179,7 +216,7 @@ const p4 = (t) => {
   R.pset(px, py, hex('#3a3024')); R.rect(px - 2, py - al, px - 1, py - al, hex('#d8c8a8')); R.rect(px + 1, py - al, px + 2, py - al, hex('#d8c8a8'));
   // la vela en la mano, que entra por abajo a la derecha
   T.PIEZAS_TU.vela(R, lx, ly + 14, { t, s: 2 });
-  T.brazo(R, lx + 50, 196, lx + 10, ly + 8, '#c8b896', -1, { codo: [lx + 30, ly + 34] });
+  T.brazo(R, lx + 36, 204, lx + 10, ly + 8, '#c8b896', -1, { codo: [lx + 27, ly + 28] });
 };
 
 // efectos: el salto al cajón, los tres golpes del cincel, el cincel que deja en el cajón; las dos ráfagas del aire de la

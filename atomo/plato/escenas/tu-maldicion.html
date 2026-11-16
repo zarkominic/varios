@@ -19,6 +19,8 @@
 //    sienta encima del periódico del suelo (gag 4), y el chaval lo mira y se ríe;
 // 4. («and died in London») Londres, 1939 (la barra cuenta de 1923 a 1939 al empezar): Carter, ya mayor, llega con su
 //    bastón por la acera mojada, sube los escalones, abre la puerta (luz cálida), mira atrás y entra; la puerta se cierra.
+//    Carter espera en el escalón un paso a la izquierda del buzón dorado (x 140, la cara lejos de la ranura) y al entrar
+//    cruza el hueco; detrás de Atom el ladrillo se templa (bajo contraste) para que la esquina quede tranquila.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('tu-maldicion');
@@ -101,15 +103,23 @@ const p3 = (t) => {
 
 // 4 · Londres, 1939: Carter llega, sube, abre la puerta, mira atrás y entra
 const SUBE = wm(16.3), ABRE = wm(16.62), ENTRA = wm(17.4), CIERRA = wm(17.95);
+const TEMPLE = hex('#6a4a3e');   // el tono del muro templado detrás de Atom
 const p4 = (t) => {
   const o = { encuadre: 'londres', camara: 'puerta', baston: false, hojas: 0.5, niebla: 0.4 };
   const g = T.cairo(R, t, o), [dx0, dy0, dx1, dy1] = g.puerta || [142, 106, 192, 158];
+  // detrás de Atom (x 266–319, y 0–47) el ladrillo se templa: cada píxel se acerca a un tono de muro hollinado, con un
+  // fundido suave por la izquierda y por abajo; quedan las hiladas y la niebla, pero sin juntas claras ni piezas oscuras
+  for (let y = 0; y <= 47; y++) for (let x = 262; x < 320; x++) {
+    const a = Math.min(1, (x - 262) / 8) * Math.min(1, (47 - y) / 5) * 0.72; if (a <= 0) continue;
+    const c = R.pget(x, y), m = TEMPLE;
+    R.pset(x, y, ((((c & 0xff) * (1 - a) + (m & 0xff) * a) | 0) | (((((c >> 8) & 0xff) * (1 - a) + ((m >> 8) & 0xff) * a) | 0) << 8) | (((((c >> 16) & 0xff) * (1 - a) + ((m >> 16) & 0xff) * a) | 0) << 16) | (c & 0xff000000)) >>> 0);
+  }
   const W = dx1 - dx0 + 1, H = dy1 - dy0 + 1, abre = ease(tramo(t, ABRE, ABRE + 0.45)) * (1 - ease(tramo(t, CIERRA, CIERRA + 0.45)));
   const hoja = new Uint32Array(W * H);
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) hoja[j * W + i] = R.pget(dx0 + i, dy0 + j);
   // Carter: anda despacio, sube los dos escalones, se para ante la puerta, mira atrás y entra
   const an = tramo(t, P4, SUBE), su = tramo(t, SUBE, SUBE + 0.32), dentro = tramo(t, ENTRA, ENTRA + 0.5);
-  const cx = N(su > 0 ? lerp(124, 150, su) + dentro * 6 : lerp(6, 124, an)), cs = N(lerp(166, 158, su) - dentro * 2);
+  const cx = N(su > 0 ? lerp(124, 140, su) + dentro * 22 : lerp(6, 124, an)), cs = N(lerp(166, 158, su) - dentro * 2);
   const mira = t > wm(17.0) && t < ENTRA;
   const carter = () => R.actor(TU.carterMayorTU, cx, cs, t, { dir: mira ? -1 : 1, anda: (an > 0 && an < 1) || (su > 0 && su < 1) || (dentro > 0 && dentro < 1), sonrisa: mira });
   const puerta = () => {

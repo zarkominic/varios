@@ -22,7 +22,7 @@
 // 5. la cola de la tumba al sol: «3300» sobre la boca en «3,300 years»; el aliento de la cola sube y entra; en «breath»
 //    una turista resopla una nube grande y dentro de la boca sale la mancha en el yeso; en «hunch» el guarda dice que no
 //    con el dedo (corta en «A small hole»);
-// 6. el plano de la tumba: la mano con el lápiz rojo pone el punto del agujero al norte, fuera de la cámara pintada, en
+// 6. el plano de la tumba: la mano (brazo corto desde el borde izquierdo, ≤45 px de manga) con el lápiz rojo largo pone el punto del agujero al norte, fuera de la cámara pintada, en
 //    «hole», lo rodea, traza la cota hasta la pared en «far from the paintings» (la cámara pintada se enciende) y lo
 //    vuelve a rodear en «risk»; la mano se va.
 import * as T from '/atomo/plato/escenas/tu-comun.js';
@@ -198,10 +198,19 @@ const p6 = (t) => {
   if (otra > 0 && otra < 1) { const an = -1.6 + otra * 6.283; tx = HX + Math.cos(an) * 8; ty = HY + Math.sin(an) * 8; }
   const vis = entra * (1 - sale);
   if (vis > 0) {
-    const ox = (1 - vis) * -70, oy = (1 - vis) * -20, px = tx + ox, py = ty + oy;
-    // el lápiz: la punta en (px, py), sube hacia arriba a la izquierda, a la mano
-    R.linea(N(px), N(py), N(px - 7), N(py - 7), K); R.linea(N(px - 1), N(py - 1), N(px - 7), N(py - 8), hex('#d84a2a')); R.linea(N(px), N(py - 1), N(px - 6), N(py - 7), hex('#a02a1a')); R.pset(N(px), N(py), ROJO);
-    T.brazo(R, N(-18 + ox), N(30 + oy), N(px - 18), N(py - 6), '#5a7aa8', 1, { codo: [N((px - 34 + ox) / 2 + 6), N(Math.min(py - 6, 40 + oy))] });
+    const ox = (1 - vis) * -120, oy = (1 - vis) * -30, px = tx + ox, py = ty + oy;
+    // brazo corto (≤45 px de manga): la muñeca casi fija cerca del borde (x ≈ 40) y el lápiz rojo largo, como el amarillo
+    // del tablero, salva el resto hasta la punta; el hombro, fuera del cuadro, sube y baja con la muñeca
+    const wx = 40 + 0.3 * (tx - HX) + ox, wy = py - 10, gx = wx + 9, gy = wy - 1;
+    const dl = Math.hypot(px - gx, py - gy) || 1, ux = (px - gx) / dl, uy = (py - gy) / dl, bx = gx - ux * 10, by = gy - uy * 10 - 2;
+    // el lápiz: de la cola (detrás del puño) a la punta; madera, filo de luz y de sombra, punta afilada con la mina roja
+    const nx = -uy, ny = ux, ex = px - ux * 4, ey = py - uy * 4, cuad = (w, x0, y0, x1, y1) => [[x0 + nx * w, y0 + ny * w], [x1 + nx * w, y1 + ny * w], [x1 - nx * w, y1 - ny * w], [x0 - nx * w, y0 - ny * w]].map(([x, y]) => [N(x), N(y)]);
+    R.poligono(cuad(2.1, bx - ux, by - uy, ex, ey), K); R.poligono([[N(ex + nx * 2.1), N(ey + ny * 2.1)], [N(px + ux), N(py + uy)], [N(ex - nx * 2.1), N(ey - ny * 2.1)]], K);
+    R.poligono(cuad(1.2, bx, by, ex, ey), hex('#d84a2a')); R.poligono([[N(ex + nx * 1.2), N(ey + ny * 1.2)], [N(px), N(py)], [N(ex - nx * 1.2), N(ey - ny * 1.2)]], hex('#e8c89a'));
+    R.linea(N(bx + nx), N(by + ny), N(ex + nx), N(ey + ny), hex('#a02a1a')); R.linea(N(bx - nx * 0.6), N(by - ny * 0.6), N(ex - nx * 0.6), N(ey - ny * 0.6), hex('#f07a4a'));
+    R.linea(N(bx), N(by), N(bx + ux), N(by + uy), hex('#f0c040'));
+    R.pset(N(px), N(py), ROJO);
+    T.brazo(R, N(-16 + ox), N(wy - 16), N(wx), N(wy), '#5a7aa8', 1);
   }
 };
 
