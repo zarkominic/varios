@@ -35,3 +35,22 @@ misma voz en ~30 clips. Necesita ~8–10 GB de disco.
 
 Fuentes: los README, LICENSE y tarjetas de cada modelo en GitHub y Hugging Face; artificialanalysis.ai/text-to-speech/leaderboard;
 ocdevel.com/blog/20260711-quantized-cpu-tts; github.com/resemble-ai/chatterbox/issues/536; github.com/QwenLM/Qwen3-TTS/issues/386.
+
+## Prueba a ciegas (16/11/2026) — resultado medido; falta el oído del usuario
+
+Párrafos del ep36 «vela» y «cierre», normalizados a −16 LUFS. Velocidad sin GPU, cada modelo solo en la máquina:
+
+| Modelo | Velocidad (s de cálculo por s de audio) | Min por episodio de 9 min | Ruido en pausas (dBFS) | Whisper |
+|---|---|---|---|---|
+| Kokoro (actual) | ~0,3 | ~3 | −63 a −180 (silencio puesto) | bien |
+| Supertonic 3 (M1, M3) | ~0,5 | ~5 | −63 a −68 | bien |
+| ZONOS3-Mini (Rodrigo, Wyatt) | ~0,5 | ~5 | −64 a −86 (las pausas más limpias) | bien; «vio» → «dio» una vez con emoción; picos a 0 dBFS (hay que bajar la ganancia) |
+| Qwen3-TTS 1.7B CustomVoice (Ryan), PyTorch fp32 | ~5,2 | ~47 | −55 a −66 (el más ruidoso) | **falla**: en la «vela» en español alucinó «oooohhhm… ah, ah» y duró 44 s en vez de ~17 |
+
+OJO: dos modelos a la vez en los 4 núcleos se estorban y van ~25 veces más lentos; siempre de uno en uno.
+
+Clave de las muestras (no decírsela al usuario antes de que vote): ES-1 Supertonic M1, ES-2 Kokoro em_santa,
+ES-3 ZONOS3 Rodrigo neutro, ES-4 Supertonic M3, ES-5 Qwen3 Ryan, ES-6 ZONOS3 Rodrigo emoción; EN-1 Supertonic M3,
+EN-2 Qwen3 Ryan, EN-3 Kokoro am_puck, EN-4 Supertonic M1, EN-5 ZONOS3 Wyatt emoción, EN-6 ZONOS3 Wyatt neutro.
+Las muestras y el análisis están en el scratchpad de la sesión (voces/ciegas, voces/analisis.json); el código de la
+prueba, en voces/*.py y zonos_run.sh. ZONOS3 se compila en servers/ggml (CMake + Rust) y se descarga en ~1,3 GB.
