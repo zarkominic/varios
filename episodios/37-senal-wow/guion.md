@@ -4,8 +4,8 @@
 
 **Por qué este tema:** elegido por el usuario el 16/11/2026 entre tres misterios con arranque fuerte («los 3 en el orden
 1, 3, 2»: la señal «Wow!», el Mary Celeste y Roanoke, de uno en uno). Sin CSV de Trends. Tiene noticia viva: en 2025 un
-equipo de Puerto Rico volvió a ejecutar el programa original de 1977 y la señal salió al menos cuatro veces más fuerte; en
-2026 aparecieron más de cuarenta mil detecciones archivadas sin estudiar; en agosto de 2027 se cumplen cincuenta años.
+equipo de Puerto Rico volvió a medir los listados de 1977 y la señal salió al menos cuatro veces más fuerte; en
+2026 llegaron papeles y tarjetas de antiguos voluntarios, y esperan más de cuarenta mil señales archivadas; en agosto de 2027 se cumplen cincuenta años.
 
 **Formato:** el de siempre (YouTube 16:9, inglés principal y pista en español, pixel chibi, mezcla «B», voz contada como un
 cuento). **Primer episodio con las voces nuevas:** Supertonic 3 `M1` (inglés) y ZONOS3-Mini `Rodrigo` con emoción (español).
@@ -75,7 +75,7 @@ asombro que no termina de resolverse, como la señal.
 | **5 · La segunda oreja** | intriga | Solo una de las dos la oyó |
 | **6 · Buscarla otra vez** | aventura, luego calma | Cincuenta años de telescopios, y nada |
 | **7 · Las explicaciones de aquí abajo** | curiosidad | Aviones, satélites, cometas |
-| **8 · El papel que vuelve** | asombro con golpe | El programa de 1977 vuelve a funcionar |
+| **8 · El papel que vuelve** | asombro con golpe | Los papeles de 1977, medidos otra vez |
 | **9 · Una sola vez** | calma | Por qué no se puede cerrar |
 | **10 · El cierre** | cierre | Si nunca buscamos |
 
@@ -84,7 +84,7 @@ asombro que no termina de resolverse, como la señal.
 | ES | EN |
 | --- | --- |
 | En 1977, un radiotelescopio de Ohio captó durante setenta y dos segundos una señal que venía del cielo, y nadie la ha vuelto a oír. Un astrónomo la rodeó con un bolígrafo rojo y escribió al lado una sola palabra: «Wow!». | In 1977, a radio telescope in Ohio caught a signal from the sky for seventy-two seconds, and no one has ever heard it again. An astronomer circled it in red pen and wrote a single word next to it: "Wow!" |
-| Casi cincuenta años después, sigue sin explicación. Por el camino vas a conocer un telescopio más grande que dos campos de fútbol, a unos voluntarios que trabajaban gratis, una línea de seis letras y números que no es un mensaje, y a unos científicos que han vuelto a encender un programa de 1977 para mirar aquella noche otra vez. | Almost fifty years later, it's still unexplained. Along the way, you'll meet a telescope bigger than three football fields, volunteers who worked for free, a line of six letters and numbers that isn't a message, and scientists who brought a 1977 computer program back to life to look at that night one more time. |
+| Casi cincuenta años después, sigue sin explicación. Por el camino vas a conocer un telescopio más grande que dos campos de fútbol, a unos voluntarios que trabajaban gratis, una línea de seis letras y números que no es un mensaje, y a unos científicos que han vuelto a abrir los papeles de 1977 para mirar aquella noche otra vez. | Almost fifty years later, it's still unexplained. Along the way, you'll meet a telescope bigger than three football fields, volunteers who worked for free, a line of six letters and numbers that isn't a message, and scientists who reopened the 1977 printouts to look at that night one more time. |
 | Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo. | I'm Atom, and I explain the things you've always wondered about. Let's find out. |
 
 ## 1 · La gran oreja
@@ -147,8 +147,8 @@ asombro que no termina de resolverse, como la señal.
 | Mientras tanto, la gran oreja desapareció. Dejó de funcionar en 1997, y en 1998 la derribaron para ampliar un campo de golf y construir casas. El papel con el «Wow!» acabó en un archivo de historia de Ohio. | Meanwhile, Big Ear disappeared. It stopped running in 1997, and in 1998 it was torn down to expand a golf course and build houses. The printout with the "Wow!" ended up in a history archive in Ohio. |
 | Pero quedaba mucho más papel. Entre 2006 y 2017, Marc Abel fotografió más de setenta y cinco mil páginas de aquellos listados. Y en 2024, un equipo de Puerto Rico, dirigido por el astrónomo Abel Méndez, empezó a revisarlas. | But there was much more paper. Between 2006 and 2017, Marc Abel photographed more than seventy-five thousand pages of those printouts. And in 2024, a team in Puerto Rico led by astronomer Abel Méndez started going through them. |
 | Primero propusieron una idea natural: una nube fría de hidrógeno que, por un instante, brilla mucho más de lo normal, encendida por el destello de una estrella muerta y muy magnética, un magnetar. Algo rarísimo, que nunca se ha visto con esa fuerza. | First they proposed a natural idea: a cold cloud of hydrogen that, for an instant, shines far brighter than usual, set off by a flash from a dead, highly magnetic star, a magnetar. Something extremely rare, never seen at that strength. |
-| Después hicieron algo más difícil: copiaron a mano el programa original de 1977 y lo hicieron funcionar en una imitación de aquel ordenador. Así, en 2025, volvieron a calcular la señal: era al menos cuatro veces más fuerte de lo que se creía, y su frecuencia era un poco distinta. | Then they did something harder: they copied the original 1977 program by hand and ran it on a simulation of that old computer. That way, in 2025, they recalculated the signal: it was at least four times stronger than anyone had thought, and its frequency was slightly different. |
-| Eso no resuelve el misterio, y su estudio todavía no ha pasado la revisión de otros científicos. Pero refuerza la idea de que no fue una interferencia de la Tierra. Y en 2026, antiguos voluntarios mandaron cajas que guardaban en sus garajes: más de cuarenta mil señales cortas que nadie había estudiado. | That doesn't solve the mystery, and their study hasn't yet been reviewed by other scientists. But it strengthens the case that it wasn't interference from Earth. And in 2026, former volunteers sent in boxes they'd kept in their garages: more than forty thousand short signals no one had ever studied. |
+| Después hicieron algo más difícil: revisaron uno a uno los listados de aquellos días y volvieron a medir la señal con métodos de hoy. En 2025 publicaron el resultado: era al menos cuatro veces más fuerte de lo que se solía calcular, y su frecuencia era un poco distinta. Y además copiaron a mano el programa original y empezaron a hacerlo funcionar en una imitación de aquel ordenador. | Then they did something harder: they went through the printouts from those days one by one and measured the signal again with modern methods. In 2025, they published the result: it was at least four times stronger than most estimates, and its frequency was slightly different. They also copied the original program by hand and started running it on a simulation of that old computer. |
+| Eso no resuelve el misterio, y su estudio todavía no ha pasado la revisión de otros científicos. Pero refuerza la idea de que no fue una interferencia de la Tierra. Y para 2026, antiguos voluntarios ya les habían mandado cientos de papeles y tarjetas perforadas que llevaban décadas guardados en garajes y desvanes. Y en el archivo esperan más de cuarenta mil señales cortas que casi nadie ha vuelto a mirar desde 1985. | That doesn't solve the mystery, and their study hasn't yet been reviewed by other scientists. But it strengthens the case that it wasn't interference from Earth. And by 2026, former volunteers had sent them hundreds of papers and punch cards that had sat for decades in garages and attics. And the archive holds more than forty thousand short signals that hardly anyone has looked at since 1985. |
 
 ## 9 · Una sola vez
 
@@ -174,7 +174,7 @@ Kawa, Cleveland Plain Dealer, 18/09/1994 (la cita de Ehman; la financiación per
 Nature 184 (1959) · Gray y Marvel, ApJ 546 (2001) · Gray y Ellingsen (2002) · Harp et al., AJ 160 (2020) · Caballero,
 International Journal of Astrobiology (2022) y Breakthrough Listen, RNAAS (2022) · Paris (2017) y las respuestas de Ehman
 y Dixon (Live Science, 2017) · Méndez et al., arXiv 2408.08513 (2024, la nube de hidrógeno y el magnetar) · Méndez et
-al., arXiv 2508.10657 (2025, preprint: el programa N50CH en un emulador de IBM 1130, ≥ 256 Jy frente a 54 Jy, 1420,726
+al., arXiv 2508.10657 (2025, preprint: los listados medidos de nuevo, ≥ 256 Jy frente a 54 Jy de Ehman; el programa N50CH, de hacia 1984, transcrito y empezado a ejecutar en un emulador de IBM 1130; 1420,726
 MHz, las 75.000 páginas de Marc Abel) · Méndez, Dixon y Childers, arXiv 2606.11102 (2026: SETI de 1973 a 1998, más de
-40.000 eventos) · National Geographic (30/06/2026: las cajas de los garajes) · phl.upr.edu/wow (Arecibo Wow! III,
+40.000 eventos) · National Geographic (30/06/2026: los papeles y tarjetas de garajes y desvanes; las 45.000 detecciones sin publicar) · phl.upr.edu/wow (Arecibo Wow! III,
 previsto para agosto de 2027).
