@@ -54,3 +54,11 @@ ES-3 ZONOS3 Rodrigo neutro, ES-4 Supertonic M3, ES-5 Qwen3 Ryan, ES-6 ZONOS3 Rod
 EN-2 Qwen3 Ryan, EN-3 Kokoro am_puck, EN-4 Supertonic M1, EN-5 ZONOS3 Wyatt emoción, EN-6 ZONOS3 Wyatt neutro.
 Las muestras y el análisis están en el scratchpad de la sesión (voces/ciegas, voces/analisis.json); el código de la
 prueba, en voces/*.py y zonos_run.sh. ZONOS3 se compila en servers/ggml (CMake + Rust) y se descarga en ~1,3 GB.
+
+## Voto del usuario (16/11/2026), a ciegas
+- Español: 1.º ES-6 (ZONOS3-Mini, Rodrigo, con emoción mood.valence=1 y mood.arousal=1), 2.º ES-3 (ZONOS3-Mini, Rodrigo,
+  neutro). Kokoro em_santa (ES-2) no entró.
+- Inglés: 1.º EN-4 (Supertonic 3, voz M1), 2.º EN-3 (Kokoro am_puck, la actual).
+- «Guárdalas por ahora»: las cuatro están en `atomo/plato/voces-prueba/`. El canon NO cambia hasta que el usuario lo diga.
+- Ajustes de la prueba: ZONOS3 con `--seed 1 --headroom-db 3`, voz `Rodrigo_es_M_1.embedding.npy`, texto por párrafo;
+  Supertonic 3 con `voice_name="M1"`, `lang="en"`, valores por omisión (8 pasos, velocidad 1,05).
