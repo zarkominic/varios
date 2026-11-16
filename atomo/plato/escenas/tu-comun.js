@@ -1220,10 +1220,10 @@ function a_burro(R, x, suelo, t, o = {}) {
   if (o.ata) { const [ax, ay] = o.ata; R.linea(X(10), Y(16), ax, ay, a_c('maderaL', luz)); }
 }
 
-// el pico de pirámide (canon: cima en x ≈ 60, y 26), lejano y con bruma: la cara de la derecha al sol, la izquierda en
+// el Qurn (canon: cima en x ≈ 60, y 26; cumbre natural, NO una pirámide), lejano y con bruma: la cara de la derecha al sol, la izquierda en
 // sombra azulada, estratos finos y canales
 function a_pico(R, bruma = 0.42) {
-  const aire = hex('#e8e2dc'), top = (x) => x < 60 ? 26 + (60 - x) * 0.62 + Math.max(0, 22 - x) * 0.3 : 26 + (x - 60) * 0.5 + Math.sin(x * 0.2) * 0.8;
+  const aire = hex('#e8e2dc'), top = (x) => f_ldQurnTop(x, 60, 26);   // el Qurn: cumbre natural, roma y torcida (no una pirámide)
   for (let x = 0; x <= 150; x++) { const y0 = Math.round(top(x)); for (let y = y0; y <= 90; y++) {
     const sol = x >= 60, q = h(x, y, 720), estr = (y + Math.round(x * (sol ? 0.18 : -0.2))) % 5 === 0, canal = Math.sin(x * 0.5 + y * 0.08) > 0.75;
     let c = y - y0 < 1 ? (sol ? 'r0' : 'r2') : sol ? (estr ? 'r2' : canal ? 'r2' : q < 0.08 ? 'r3' : 'r1') : (estr ? 'azS' : canal ? 'azS' : q < 0.1 ? 'r3' : 'az');
@@ -3246,10 +3246,10 @@ function b_cieloDia(R, t, y1) {
 // ¿es cielo? (el tono azul del degradado: lo que no es acantilado ni toldo)
 const b_esCielo = (R, x, y) => { const p = R.pget(x, y), r = p & 255, b = (p >> 16) & 255; return b > r + 30; };
 
-// los acantilados de la necrópolis al fondo (caliza ocre y rosada en estratos) con el pico de pirámide a la izquierda
+// los acantilados de la necrópolis al fondo (caliza ocre y rosada en estratos) con el Qurn (cumbre natural) a la izquierda
 function b_acantilados(R, y0, y1, k = 0) {
   const rp = b_rp('#a8805c', '#c49a70', '#d8b48a', '#e8c8a0', '#f4dcb8');
-  for (let x = 0; x < 320; x++) { const top = Math.round(Math.min(y0 + 16 + Math.sin(x * 0.03) * 6 + h(x >> 3, 0, k) * 4, x < 120 ? y0 + Math.abs(x - 60) * 0.55 : 999));
+  for (let x = 0; x < 320; x++) { const top = Math.round(Math.min(y0 + 16 + Math.sin(x * 0.03) * 6 + h(x >> 3, 0, k) * 4, x < 120 ? f_ldQurnTop(x, 60, y0) : 999));   // el Qurn, cumbre natural (no una pirámide)
     for (let y = top; y <= y1; y++) R.pset(x, y, b_tono(rp, 1.8 + (Math.sin(y * 0.6 + Math.sin(x * 0.05) * 2) > 0.7 ? -0.7 : 0) + h(x >> 1, y >> 2, k + 1) * 0.8 - (x > 60 && x < 120 && y < y0 + 40 ? 0.6 : 0) + (y - top < 2 ? 1 : 0), x, y)); }
 }
 B_VISTAS['escriba.general'] = (R, t, o, geo) => {
@@ -5352,7 +5352,7 @@ D_VISTAS['replica.general'] = (R, t, o) => {
     R.disco(222, 30, 10, (x, y) => (x + y) % 2 === 0 ? hex('#fff6dc') : R.pget(x, y)); R.disco(222, 30, 7, hex('#fffaf0'));
     // los acantilados lejanos del valle (bruma rosa) con el pico de pirámide a la izquierda
     const lejos = (x) => 62 + Math.round(Math.sin(x * 0.045) * 4 + Math.sin(x * 0.13) * 2 + (h(x >> 4, 1, 71) > 0.6 ? -3 : 0));
-    for (let x = 0; x < 320; x++) { const pico = 42 + Math.abs(x - 64) * 0.75, top = Math.min(lejos(x), Math.round(pico));
+    for (let x = 0; x < 320; x++) { const pico = f_ldQurnTop(x, 64, 42), top = Math.min(lejos(x), Math.round(pico));
       for (let y = top; y < 112; y++) R.pset(x, y, d_tono(d_rp('#c09a8a', '#d0ac98', '#dcbca4', '#e6c8ac'), 2.2 + h(x >> 2, y >> 3, 72) * 0.8 - (y - top) * 0.02 + ((y - top) % 9 === 0 ? -0.8 : 0) + (x > 64 && x < 100 && y > top + 2 ? -0.6 : 0), x, y)); }
     // los acantilados de en medio (ocre, escalonados, con barrancos en sombra y conos de escombro claro)
     for (let x = 140; x < 320; x++) { const top = 78 + Math.round(Math.sin(x * 0.06) * 5 + ((x >> 4) % 3) * 2);
