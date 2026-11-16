@@ -134,3 +134,27 @@ fotos ni grabaciones: todos los dibujos son propios.
   lee a su manera: es normal.
 - **El permiso de perforar:** ver «Publicar», arriba.
 - **Derechos:** solo dibujos propios.
+
+## Shorts
+
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · Las rayas bajo la pintura · tramo 172.47-209.83
+- **EN:** Straight Lines Under King Tut's Wall: A Hidden Door? #Shorts
+- **ES:** Rayas rectas bajo la pared de Tutankamón: ¿una puerta? #Shorts
+- **EN:** In 2015, Egyptologist Nicholas Reeves studied high-resolution scans of King Tut's burial chamber and saw straight lines under the paint, on two walls. To him, they were sealed doorways, and behind one of them could be the lost tomb of Nefertiti. The full story is in the linked video. #Tutankhamun #Nefertiti #Archaeology #ASKAtom #Shorts
+- **ES:** En 2015, el egiptólogo Nicholas Reeves estudió los escaneos de la cámara de Tutankamón y vio líneas rectas bajo la pintura, en dos paredes. Para él, eran puertas tapiadas, y detrás de una podría estar la tumba perdida de Nefertiti. La historia completa, en el vídeo enlazado. #Tutankamón #Nefertiti #Arqueología #ASKAtom #Shorts
+
+### Short 2 · Cosas maravillosas · tramo 57.21-95.3
+- **EN:** King Tut's Tomb: A Candle, a Small Hole, "Wonderful Things" #Shorts
+- **ES:** Tutankamón: una vela, un hueco pequeño y cosas maravillosas #Shorts
+- **EN:** November 1922: a step cut into the rock, then another, down to a sealed door. Weeks later Howard Carter made a small hole, held up a candle and, by his own account, saw "wonderful things." The full story is in the linked video. #Tutankhamun #HowardCarter #History #ASKAtom #Shorts
+- **ES:** Noviembre de 1922: un escalón tallado en la roca, luego otro, hasta una puerta sellada. Semanas después, Howard Carter abrió un hueco pequeño, acercó una vela y, según contó él, vio «cosas maravillosas». La historia completa, en el vídeo enlazado. #Tutankamón #HowardCarter #Historia #ASKAtom #Shorts
+
+### Short 3 · Pesar la montaña · tramo 350.62-399.2
+- **EN:** They Weighed the Mountain Over King Tut's Tomb #Shorts
+- **ES:** Pesaron la montaña sobre la tumba de Tutankamón #Shorts
+- **EN:** An empty room means less rock, and slightly weaker gravity right above it. After more than 1,200 measurements around King Tut's tomb, a study published in September 2026 found low-density zones with right-angled corners beyond the chamber's north wall. It isn't proof yet. The full story is in the linked video. #Tutankhamun #Archaeology #Science #ASKAtom #Shorts
+- **ES:** Un cuarto vacío es menos roca, y la gravedad justo encima es un poquito más débil. Tras más de mil doscientas medidas alrededor de la tumba de Tutankamón, un estudio publicado en septiembre de 2026 encontró zonas de menos densidad con esquinas rectas al otro lado de la pared norte. Aún no es una prueba. La historia completa, en el vídeo enlazado. #Tutankamón #Arqueología #Ciencia #ASKAtom #Shorts
