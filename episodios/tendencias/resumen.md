@@ -1,6 +1,6 @@
 # Búsquedas en tendencia en EE. UU.
 
-Registro diario del RSS de Google Trends (5 días: 2026-10-26 → 2026-11-14; 60 búsquedas distintas).
+Registro diario del RSS de Google Trends (6 días: 2026-10-26 → 2026-11-16; 70 búsquedas distintas).
 Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 
 | Días | Tráfico máx. | Búsqueda | Noticia que la explica |
@@ -22,6 +22,8 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 2.000 | gta 6 online release date | [Pre-Load Grand Theft Auto VI Now](https://www.rockstargames.com/newswire/article/89834o94713o21/pre-load-grand-theft-auto-vi-now) (Rockstar Games) |
 | 1 | 2.000 | keelon russell | [Sources: Alabama to start QB Austin Mack; Keelon Russell available](https://www.espn.com/college-football/story/_/id/50474755/sources-alabama-start-qb-austin-mack-russell-available) (ESPN) |
 | 1 | 2.000 | chiefs depth chart | [Travis Hunter makes Jessie Bates' Jaguars trade a hit with his nephews](https://www.espn.com/nfl/story/_/id/50464631/jaguars-jessie-bates-trade-travis-hunter) (ESPN) |
+| 1 | 2.000 | john summit | [John Summit Calls Out the Grammys After Receiving No Nominations](https://variety.com/2026/music/news/john-summit-calls-out-grammys-after-no-nominations-1236949004/) (Variety) |
+| 1 | 2.000 | us employment based green card proposal | [Trump administration proposes restrictions for employer-sponsored green cards](https://www.washingtonpost.com/immigration/2026/11/16/trump-administration-proposes-restrictions-employer-sponsored-green-cards/) (The Washington Post) |
 | 1 | 1.000 | anthony rivers iii | [15-year-old arrested in connection to weekend mass shooting on Perry Street](https://www.wctv.tv/2026/10/26/tallahassee-police-provide-update-weekend-mass-shooting-perry-street/) (WCTV) |
 | 1 | 1.000 | the walking dead | [The Walking Dead franchise is on the verge of making its biggest mistake](https://undeadwalking.com/the-walking-dead-franchise-verge-making-biggest-twd-mistake) (Undead Walking) |
 | 1 | 1.000 | new dwarf planet | [‘It’s big’: Astronomers make startling discovery of a possible dwarf planet beyond Pluto](https://www.cnn.com/2026/10/28/science/ed138-dwarf-planet-candidate-beyond-pluto) (CNN) |
@@ -31,6 +33,10 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 1.000 | 黄仁勋 | [黄仁勋事件中的“女主角”黄乐是谁？](https://cn.nytimes.com/business/20261111/alice-huang-megaspeed-nvidia-jensen-huang/) (纽约时报中文网) |
 | 1 | 1.000 | inglaterra - croacia | [¿A qué hora es el partido Inglaterra vs Croacia y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-inglaterra-vs-croacia-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
 | 1 | 1.000 | utah royals fc vs washington spirit | [NWSL semifinals guide 2026: Schedule. TV info and our staff’s reasons to watch - The Athletic](https://www.nytimes.com/athletic/7771742/2026/11/14/nwsl-semifinals-schedule-2026-how-to-watch/) (The New York Times) |
+| 1 | 1.000 | uscis prior approval deference removal | [US government is proposing one sentence change in USCIS rules that would change every H-1B visa extension](https://timesofindia.indiatimes.com/technology/tech-news/us-government-is-proposing-one-sentence-change-in-uscis-rules-that-would-change-every-h-1b-visa-extension-form-with-thousands-losing-their-approval/articleshow/135886323.cms) (The Times of India) |
+| 1 | 1.000 | ap top 25 basketball | [Louisville No. 3 in women's AP Top 25 after UConn win; South Carolina still tops](https://www.espn.com/womens-college-basketball/story/_/id/50502552/louisville-no-3-women-ap-poll-beating-uconn) (ESPN) |
+| 1 | 1.000 | fema nationwide emergency test date | [FEMA and FCC Schedule 2026 Nationwide Test of the Emergency Alert System for November 17](https://www.hstoday.us/subject-matter-areas/emergency-preparedness/fema-and-fcc-schedule-2026-nationwide-test-of-the-emergency-alert-system-for-november-17/) (Homeland Security Today) |
+| 1 | 1.000 | college basketball rankings | [Michigan State up to No. 2 in AP men's poll behind Florida](https://www.espn.com/mens-college-basketball/story/_/id/50503030/michigan-state-no-2-ap-men-poll-florida) (ESPN) |
 | 1 | 500 | matthew perry | [“The One About Matthew Perry” Docuseries Comes to Netflix](https://www.nytimes.com/2026/10/26/arts/television/matthew-perry-netflix-documentary.html) (The New York Times) |
 | 1 | 500 | santos vs palmeiras | [Santos x Palmeiras: onde assistir ao vivo. horário e escalações](https://ge.globo.com/sp/santos-e-regiao/futebol/brasileirao-serie-a/noticia/2026/10/28/santos-x-palmeiras-onde-assistir-ao-vivo-horario-e-escalacoes.ghtml) (ge) |
 | 1 | 500 | jaydon blue | [Eagles sign RB Jaydon Blue to the active roster. add three to the practice squad](https://www.philadelphiaeagles.com/news/eagles-sign-rb-jaydon-blue-to-the-active-roster-add-three-to-the-practice-squad-dameon-pierce) (Philadelphia Eagles) |
@@ -49,6 +55,9 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 500 | albania vs finland | [Albania vs Finland: UEFA Nations League stats & head-to-head](https://www.bbc.com/sport/football/live/ck86z8g3j1yzt) (BBC) |
 | 1 | 500 | travis etienne | [Schultz: Kenneth Walker (groin) out vs. Falcons](https://www.nbcsports.com/fantasy/football/player-news/2026-11-14/schultz-kenneth-walker-groin-out-vs-falcons) (NBC Sports) |
 | 1 | 500 | deebo samuel sr. | [Deebo Samuel has no injury designation. but four CBs are questionable for 49ers](https://www.nbcsports.com/nfl/profootballtalk/rumor-mill/news/deebo-samuel-has-no-injury-designation-but-four-cbs-are-questionable-for-49ers) (NBC Sports) |
+| 1 | 500 | tara harding ford bronco purchase | [North Dakota woman buys Ford Bronco. drives 27 hours home after flights grounded](https://www.cbsnews.com/news/woman-buys-ford-bronco-drives-27-hours-home-flights-grounded/) (CBS News) |
+| 1 | 500 | ncaa soccer tournament | [2026 DI men's soccer championship: Selection show info. bracket. schedule](https://www.ncaa.com/news/soccer-men/article/2026-11-09/2026-di-mens-soccer-championship-selection-show-info-bracket-schedule) (NCAA.com) |
+| 1 | 500 | w9 | [Tout beau. tout n9uf. Première partie E56 lundi 16 novembre 2026 sur W9 : résumé et diffusions](https://programmetv.ouest-france.fr/divers/divertissement/tout-beau-tout-n9uf-m385855399/e56-premiere-partie-c450806231/) (Programme TV Ouest-France) |
 | 1 | 200 | world | [Russia to stage World Weightlifting Championships. first major hosting since full-scale Ukraine invasion](https://www.nytimes.com/athletic/7726237/2026/10/26/russia-world-championship-olympic-moscow/) (The New York Times) |
 | 1 | 200 | racing sausages world series milwaukee | [Column: Sausage race controversy erupts as Fox Sports ignores Milwaukee’s finest tradition during World Series](https://www.chicagotribune.com/2026/10/26/world-series-milwaukee-brewers-sausage-race/) (Chicago Tribune) |
 | 1 | 200 | vegemite | [Murderer’s bid to eat Vegemite in Australian prison rejected by judge](https://www.cnn.com/2026/10/26/australia/prisoner-vegemite-rejected-judge-scli-intl) (CNN) |
@@ -63,5 +72,6 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 200 | aaron reitz letter richard blumenthal | [U.S. attorney demands Sen. Richard Blumenthal preserve documents from his inquiry into White House ballroom](https://www.nbcnews.com/politics/trump-administration/us-attorney-demands-sen-richard-blumenthal-preserve-documents-inquiry-rcna608899) (NBC News) |
 | 1 | 200 | princeton vs yale | [No. 23 Football Wraps Up Road Schedule at Yale Saturday](https://goprincetontigers.com/news/2026/11/13/football-wraps-up-road-schedule-at-yale-saturday) (Princeton University Athletics) |
 | 1 | 200 | alexei pergande | [Alexei Pergande discusses sudden social media fame. potential with Jake Paul and MVP](https://mmajunkie.usatoday.com/story/sports/pfl/2026/11/13/pfl-mvp-alexei-pergande-social-media-jake-paul-dubai/92762907007/) (MMA Junkie) |
+| 1 | 200 | john summit tour bus | [Musician tour bus involved in deadly crash in Marion County](https://www.wcjb.com/2026/11/16/musician-tour-bus-involved-deadly-crash-marion-county/) (WCJB) |
 | 1 | 100 | rockstar | [New GTA VI Footage Looks So Stunning Fans Can’t Believe It](https://rockstarintel.com/new-gta-vi-footage-looks-so-stunning-fans-cant-believe-it/) (RockstarINTEL) |
 | 1 | 100 | jennifer aniston | [Jennifer Aniston Says ‘The Rachel’ Was Anything But Effortless](https://www.elle.com/beauty/hair/a74347544/jennifer-aniston-hair-routine-lolavie-hairspray/) (ELLE) |
