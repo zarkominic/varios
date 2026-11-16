@@ -625,3 +625,28 @@ nivelar los Shorts en dos pasadas; mirar los símbolos de los kits a 640 px.
 Pendiente para el próximo: borrar los fotogramas del 35; en temas con obra ajena, nombrar en el encargo los objetos
 prohibidos; añadir al plan de planos una lista de vistas libres; barrer las opciones de los decorados al integrar;
 nivelar los Shorts en dos pasadas.
+
+## Episodio 36 · Tutankamón: los cuartos que nadie ha abierto (15–16/11/2026)
+
+- **Un error de geografía que no vio ninguna pasada:** al fondo del Valle de los Reyes salía una pirámide lisa, de
+  Guiza, en tres decorados (el valle, los acantilados de la necrópolis y la réplica). En la pasada de decorados se pidió
+  el Qurn (cumbre natural) solo para la ladera, y las otras dos copias del pico no las revisó nadie. Lo vi yo al
+  mirar un fundido de Carter; se arregló reusando el perfil del Qurn (`f_ldQurnTop`) en los tres sitios. Cuando un
+  fallo de realidad aparece en un decorado, hay que buscar la misma forma en TODOS (grep de la fórmula, no solo del nombre).
+- **El agujero de la vela, en la puerta equivocada:** se dibujó en la puerta de la escalera; Carter lo abrió en la
+  segunda puerta. Se movió a tumba/pasillo. Las anécdotas con lugar exacto van en el plan de planos con su sitio.
+- **Pasada de calidad cortada a medias:** una interrupción del turno mató el workflow (estado «killed») y se notó horas
+  después porque el .output seguía vacío. Se reanudó con `resumeFromRunId`: 16 de 17 agentes salieron de la caché.
+  Si el usuario interrumpe con un workflow en marcha, comprobar su estado en `workflows/<run>.json` al volver.
+- **Calidad:** 46 de 98 planos suspendieron en la revisión completa (el 35: 43 de 102); 46 → 6 → 0. Dejó un PARCHE
+  DECORADO en tu-turin (la tapa de la carpeta), que ya es más rico que el decorado: se queda.
+- **Sonido:** antes de la pasada de movimiento, 33 %; después, todas entre el 41 y el 61 %. Total 48 %.
+- **Disco:** 11 GB antes del render (se borraron los mp4 del 17 al 34, con permiso); quedó en 2,7.
+- **Shorts:** los tres, a la primera dentro de −14 ±0,5 (−14,2 / −14,5 / −14,4); sin `--x`. El de los tres radares
+  (73 s) no cabía en un Short sin cortar un párrafo.
+- **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 7,3 dB; 139 y 143 subtítulos, 0 fuera de norma).
+- **Cifras:** calidad 4,0 M de tokens en la parte reanudada (39 agentes, 1 h 57 min).
+
+Pendiente para el próximo: borrar los fotogramas del 36; buscar en todos los decorados la forma de un fallo de
+realidad, no solo en el que se vio; comprobar los workflows tras una interrupción; comprobar si Egipto dio el permiso de
+perforar (si sí, rehacer la frase del permiso del 36).
