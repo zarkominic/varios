@@ -23,7 +23,8 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
 - **Comparación lado a lado** de cada plano con la referencia. Si no aguanta, no pasa.
 - **Si algo no cabe en el plazo, se pregunta.** No se baja el listón en silencio ni se propone acortar el episodio («eso
   no se cuestiona por el largo del video»).
-- **El canon manda:** estilo pixel chibi, mano de 14 px, voces Kokoro `am_puck` 0,85 y `em_santa` 0,92, música
+- **El canon manda:** estilo pixel chibi, mano de 14 px, voces (desde el 37, elegidas a ciegas por el usuario el 16/11/2026) Supertonic 3 `M1` en inglés y ZONOS3-Mini
+  `Rodrigo` con emoción en español (`atomo/plato/VOZ.md`; hasta el 36, Kokoro `am_puck` y `em_santa`), música
   `banda.cjs`, narración del 10 y del 11. No se cambia sin preguntar.
 - **El sonido que eligió el usuario de oído (30/10/2026, con el 16), también canon:**
   - **la mezcla «B»** en `montar-largo.sh`: la música 9 dB por debajo de su nivel de `banda.cjs`, con un hueco a la voz
@@ -209,6 +210,19 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
 oraciones enteras (sin cortar en las comas) con 0,32 s entre oraciones, 0,5 s entre párrafos y 0,9 s al empezar un acto.
 Antes, el inglés se partía en cada coma y la entonación volvía a empezar en cada trozo: sonaba «a robot».
 
+**Las voces desde el 37 (elegidas a ciegas por el usuario el 16/11/2026):** en `hacer_guion.py`, el bloque `voces` es
+exactamente este (no el de Kokoro del episodio que copies):
+
+```python
+'voces': {'en': {'motor': 'supertonic', 'voz': 'M1', 'lang': 'en', 'velocidad': 1.05},
+          'es': {'motor': 'zonos3', 'voz': 'Rodrigo_es_M_1', 'lang': 'es',
+                 'controles': {'mood.valence': 1, 'mood.arousal': 1}, 'headroom': 3}},
+```
+
+El español se sigue escribiendo como se dice (`PRONUNCIA['es']`, los años de corrido): así se aprobó la muestra.
+ZONOS3 no tiene velocidad: cada reintento es otra toma, y si una frase española dura más que la inglesa la línea de
+tiempo deja el hueco. Las descripciones llevan la línea de voz sintética (paso 11): la licencia de Supertonic lo exige.
+
 1. Copia `plan.py` y `hacer_guion.py` del 11 a `episodios/<carpeta>/`. Cambia solo esto:
    - en `plan.py`:
      - el docstring con los decorados;
@@ -252,10 +266,10 @@ Antes, el inglés se partía en cada coma y la entonación volvía a empezar en 
    quede bien, guarda las pronunciaciones nuevas para los siguientes:
    `python3 atomo/herramientas/pronuncia.py episodios/<carpeta>/guion.md --anadir`.
 6. El español sale con la frase entera y sin estirar (desde el 16). Si una frase española es más larga que la inglesa,
-   la línea de tiempo deja el hueco; no se acelera más allá de la velocidad 1,10 de Kokoro. Para rehacer el español de
+   la línea de tiempo deja el hueco; con Kokoro (hasta el 36) no se aceleraba más allá de 1,10, y ZONOS3 no se acelera. Para rehacer el español de
    un episodio YA montado sin mover el vídeo: `$VOZ/venv/bin/python atomo/herramientas/revocear-otro.py
-   atomo/build/largo/<ep> episodios/<carpeta>/guion.json` (acelera con la velocidad de Kokoro, como mucho 1,15, solo
-   lo que no cabe), y después rehaz el SRT español con los tiempos nuevos (una línea por frase y
+   atomo/build/largo/<ep> episodios/<carpeta>/guion.json` (solo para episodios de Kokoro, hasta el 36: acelera con su velocidad, como mucho
+   1,15, lo que no cabe), y después rehaz el SRT español con los tiempos nuevos (una línea por frase y
    `python3 atomo/herramientas/subtitulos.py <frases.srt> atomo/build/largo/<ep>/subtitulos-es.srt`) antes de
    `producir.sh … --desde montar`.
 
@@ -478,6 +492,10 @@ Copia `episodios/11-theranos/publicacion.md` y rellénala con la misma estructur
 - **El título no contradice al vídeo:** cada año, cifra y verbo del título (y de las alternativas A/B) se comprueba contra
   el guion ANTES de presentarlo para aprobar. En el 32, «Buried Since 1982» se aprobó con el guion y el vídeo dice que
   los cofres se enterraron en 1981 (1982 es el libro): hubo que avisar en la entrega.
+- **Voz sintética (desde el 37; la licencia de Supertonic 3 lo exige):** las dos descripciones dicen, junto a la línea de
+  «explicación independiente», «The narration is AI-generated (synthetic voices).» / «La narración está hecha con voces
+  sintéticas (IA).», y los pasos para subirlo recuerdan marcar en YouTube Studio el aviso de contenido alterado o
+  sintético si YouTube lo pide para voces.
 - **Lo demás:** las descripciones completas en los dos idiomas con las fuentes, las etiquetas, los pasos para subirlo y lo
   que hay que revisar antes de publicar: las frases dudosas se copian de `informe.json` (campo `problemas`), con el
   minuto de cada una; no se escriben de memoria.

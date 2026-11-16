@@ -3,7 +3,8 @@
 Uso: python locutar_frases.py <guion.json> <salida> <carpeta_modelos> [--solo id1,id2] [--marcas <json>]
 
 Sustituye a locutar_escenas.py + preparar_largo.py desde el episodio 3 (ver atomo/plato/VOZ.md):
-  1. Cada frase de cada idioma es un clip propio (Kokoro). Nunca se corta una locución: las pausas
+  1. Cada frase de cada idioma es un clip propio (desde el 37: Supertonic 3 en inglés y ZONOS3-Mini en español; hasta
+     el 36, Kokoro; el motor lo dice guion.json «voces»). Nunca se corta una locución: las pausas
      solo van entre clips. Se locuta el texto «<idioma>_voz» si existe (cifras escritas como se
      dicen); los subtítulos usan el texto original.
   2. Control de cada clip con Whisper: palabras que faltan, sobran o se repiten, y huecos dentro de
@@ -74,6 +75,29 @@ def chatterbox():
         from chatterbox.mtl_tts import ChatterboxMultilingualTTS
         _chatterbox = ChatterboxMultilingualTTS.from_pretrained(device=torch.device('cpu'))
     return _chatterbox
+_supertonic = None
+def supertonic():
+    """Supertonic 3 (Supertone, OpenRAIL-M: la voz hay que declararla sintética), la voz inglesa desde el 37 (M1, elegida a
+    ciegas por el usuario el 16/11/2026). Los pesos los baja preparar-voz.sh a <modelos>/supertonic3."""
+    global _supertonic
+    if _supertonic is None:
+        from supertonic import TTS
+        _supertonic = TTS(model='supertonic-3', model_dir=f'{modelos}/supertonic3', auto_download=False)
+    return _supertonic
+
+# Los motores que no tienen velocidad fiable: cada intento es otra toma (otra semilla), no otra velocidad.
+TOMAS = ('chatterbox', 'zonos3')
+ZONOS3_CLI = os.path.join(os.path.dirname(os.path.abspath(modelos)), 'zonos3/repo/servers/ggml/build/zonos3-cli')
+
+def a_sr(a, sr):
+    """Pasa un clip a SR (24 kHz) con un filtro polifásico (44,1 kHz → 24 kHz es 80/147), sin el aliasing de np.interp."""
+    if sr == SR:
+        return a
+    from math import gcd
+    from scipy.signal import resample_poly
+    k = gcd(SR, sr)
+    return resample_poly(a, SR // k, sr // k)
+
 def kokoro():
     global _kokoro
     if _kokoro is None:
@@ -129,6 +153,37 @@ def sintetizar(texto, l, vel):
             if m.sr != SR:
                 a = np.interp(np.linspace(0, len(a) - 1, int(len(a) * SR / m.sr)), np.arange(len(a)), a)
             sf.write(f, limpiar(a), SR)
+        a, _ = sf.read(f)
+        return a, f
+    if v.get('motor') == 'zonos3':
+        # ZONOS3-Mini (Zyphra, Apache-2.0), la voz española desde el 37: Rodrigo con un poco de emoción (mood.valence y
+        # mood.arousal a 1; con 2 el propio Zyphra mide que tiende a subir hacia el grito). «vel» es el número de toma.
+        ctl = sorted(v.get('controles', {}).items())
+        clave = hashlib.sha1(f"z3|{v['voz']}|{ctl}|{v.get('headroom', 3)}|{vel}|{texto}".encode()).hexdigest()[:16]
+        f = f'{CLIPS}/{l}-{clave}.wav'
+        if not os.path.exists(f):
+            with tempfile.TemporaryDirectory() as d:
+                orden = [ZONOS3_CLI, f'{modelos}/zonos3/backbone-ptq.gguf', '--cpu', '--tts', texto, f'{d}/z.wav',
+                         '--speaker-embedding', f"{modelos}/zonos3/voces/{v['voz']}.embedding.npy",
+                         '--seed', str(1 + int(vel)), '--headroom-db', str(v.get('headroom', 3))]
+                for c, dosis in ctl:
+                    orden += ['--control', f'{c}={dosis}']
+                subprocess.run(orden, check=True, capture_output=True)
+                a, sr = sf.read(f'{d}/z.wav')
+            sf.write(f, recortar(a_sr(a, sr)), SR)
+        a, _ = sf.read(f)
+        return a, f
+    if v.get('motor') == 'supertonic':
+        # «vel» es la velocidad de Supertonic (1,05 por omisión); la semilla del ruido inicial se fija para que el mismo
+        # texto a la misma velocidad dé siempre el mismo clip
+        clave = hashlib.sha1(f"st3|{v['voz']}|{v.get('pasos', 8)}|{vel:.3f}|{texto}".encode()).hexdigest()[:16]
+        f = f'{CLIPS}/{l}-{clave}.wav'
+        if not os.path.exists(f):
+            m = supertonic()
+            np.random.seed(int(round(vel * 1000)))
+            a, _ = m.synthesize(texto, voice_style=m.get_voice_style(voice_name=v['voz']), lang=v.get('lang', 'en')[:2],
+                                total_steps=v.get('pasos', 8), speed=vel)
+            sf.write(f, recortar(a_sr(np.asarray(a, dtype=np.float64).squeeze(), m.sample_rate)), SR)
         a, _ = sf.read(f)
         return a, f
     clave = hashlib.sha1(f"{v['voz']}|{v['lang']}|{vel:.3f}|{texto}|{FONEMAS[l]}".encode()).hexdigest()[:16]
@@ -330,14 +385,19 @@ for e in escenas:
         if k and f.get('acto'):
             t += ENTRADA_ACTO - pausa_tras(e['frases'][k - 1])
         texto = {l: f.get(f'{l}_voz', f[l]) for l in IDIOMAS}
-        intentos_p = [0, 1, 2, 3] if VOCES[PRINCIPAL].get('motor') == 'chatterbox' else [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05]
+        intentos_p = [0, 1, 2, 3] if VOCES[PRINCIPAL].get('motor') in TOMAS else [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05]
         a_p, oid_p, vel_p, prob_p, av_p = frase_voz(texto[PRINCIPAL], PRINCIPAL, intentos_p)
         d_p = len(a_p) / SR
-        # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
-        a_o = frase_voz(texto[OTRO], OTRO, [v0[OTRO]])[0]
-        r = len(a_o) / SR / d_p
-        vel = v0[OTRO] if 0.95 <= r <= 1.05 else float(np.clip(v0[OTRO] * r / (1.03 if r > 1 else 0.98), VEL_MIN, VEL_MAX))
-        a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
+        if VOCES[OTRO].get('motor') in TOMAS:
+            # ZONOS3 (el español desde el 37) no tiene una velocidad fiable: va a su ritmo, con otra toma si falla, y si
+            # dura más que el inglés la frase ocupa lo suyo (el inglés deja silencio detrás, como siempre)
+            a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [0, 1, 2])
+        else:
+            # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
+            a_o = frase_voz(texto[OTRO], OTRO, [v0[OTRO]])[0]
+            r = len(a_o) / SR / d_p
+            vel = v0[OTRO] if 0.95 <= r <= 1.05 else float(np.clip(v0[OTRO] * r / (1.03 if r > 1 else 0.98), VEL_MIN, VEL_MAX))
+            a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
         tempo = 1.0 if ENTERA[OTRO] else float(np.clip(len(a_o) / SR / d_p, LENTO, RAPIDO))
         oidas = {PRINCIPAL: oid_p, OTRO: [(w, s / tempo, x / tempo) for w, s, x in oid_o]}
         a_o = estirar(a_o, tempo)

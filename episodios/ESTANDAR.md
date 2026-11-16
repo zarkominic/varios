@@ -90,7 +90,8 @@ lista.
 
 ## Sonido
 
-- **Voces:** inglés `am_puck` 0,85 y español `em_santa` 0,92, igualadas a −19 dB RMS.
+- **Voces** (desde el 37): inglés Supertonic 3 `M1` a 1,05 y español ZONOS3-Mini `Rodrigo` con emoción (valence y
+  arousal a 1), igualadas a −19 dB RMS. Hasta el 36: Kokoro `am_puck` y `em_santa`.
   El español, desde el 16, con cada frase entera de una vez y sin estirar (la «B» que eligió el usuario de oído el
   30/10/2026: partida en las comas y estirada sonaba entrecortada). `locutar_frases.py` lo hace solo; para un episodio
   ya montado, `revocear-otro.py` la rehace sin mover la línea de tiempo.
