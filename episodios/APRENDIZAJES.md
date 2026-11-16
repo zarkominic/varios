@@ -642,8 +642,13 @@ nivelar los Shorts en dos pasadas.
   DECORADO en tu-turin (la tapa de la carpeta), que ya es más rico que el decorado: se queda.
 - **Sonido:** antes de la pasada de movimiento, 33 %; después, todas entre el 41 y el 61 %. Total 48 %.
 - **Disco:** 11 GB antes del render (se borraron los mp4 del 17 al 34, con permiso); quedó en 2,7.
-- **Shorts:** los tres, a la primera dentro de −14 ±0,5 (−14,2 / −14,5 / −14,4); sin `--x`. El de los tres radares
-  (73 s) no cabía en un Short sin cortar un párrafo.
+- **Shorts:** en el 3, el tramo empezaba 0,06 s antes de la voz (tras la cartela «2026», que dura hasta el fotograma
+  10514) y el fundido de 0,12 s se comía la primera sílaba: se adelantó a 350,5 (fotograma limpio, 0,18 s de margen).
+  Antes de cortar, mirar la voz y el fotograma en el arranque de cada tramo, no solo el límite del párrafo. En el 1 el
+  recorte dejaba el busto en el borde (`--x 5=40`). Segunda pasada de volumen: −14,0 / −14,1 / −14,1. El de los tres
+  radares (73 s) no cabía sin cortar un párrafo.
+- **Miniatura:** a 320×180, la cara de sorpresa de Carter (la del kit, canon) apenas se lee; lo que vende es el «?» y el
+  contorno azul. Para la próxima, la emoción tiene que venir de la pose o de la composición, no de 3 px de boca.
 - **Control final a la primera:** sí (−14,1 y −14,0 LUFS; peor cartela 7,3 dB; 139 y 143 subtítulos, 0 fuera de norma).
 - **Cifras:** calidad 4,0 M de tokens en la parte reanudada (39 agentes, 1 h 57 min).
 

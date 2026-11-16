@@ -141,7 +141,7 @@ Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrad
 en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
 vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
 
-### Short 1 · Las rayas bajo la pintura · tramo 172.47-209.83
+### Short 1 · Las rayas bajo la pintura · tramo 172.47-209.83 --x 5=40
 - **EN:** Straight Lines Under King Tut's Wall: A Hidden Door? #Shorts
 - **ES:** Rayas rectas bajo la pared de Tutankamón: ¿una puerta? #Shorts
 - **EN:** In 2015, Egyptologist Nicholas Reeves studied high-resolution scans of King Tut's burial chamber and saw straight lines under the paint, on two walls. To him, they were sealed doorways, and behind one of them could be the lost tomb of Nefertiti. The full story is in the linked video. #Tutankhamun #Nefertiti #Archaeology #ASKAtom #Shorts
@@ -153,7 +153,7 @@ vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
 - **EN:** November 1922: a step cut into the rock, then another, down to a sealed door. Weeks later Howard Carter made a small hole, held up a candle and, by his own account, saw "wonderful things." The full story is in the linked video. #Tutankhamun #HowardCarter #History #ASKAtom #Shorts
 - **ES:** Noviembre de 1922: un escalón tallado en la roca, luego otro, hasta una puerta sellada. Semanas después, Howard Carter abrió un hueco pequeño, acercó una vela y, según contó él, vio «cosas maravillosas». La historia completa, en el vídeo enlazado. #Tutankamón #HowardCarter #Historia #ASKAtom #Shorts
 
-### Short 3 · Pesar la montaña · tramo 350.62-399.2
+### Short 3 · Pesar la montaña · tramo 350.5-399.2
 - **EN:** They Weighed the Mountain Over King Tut's Tomb #Shorts
 - **ES:** Pesaron la montaña sobre la tumba de Tutankamón #Shorts
 - **EN:** An empty room means less rock, and slightly weaker gravity right above it. After more than 1,200 measurements around King Tut's tomb, a study published in September 2026 found low-density zones with right-angled corners beyond the chamber's north wall. It isn't proof yet. The full story is in the linked video. #Tutankhamun #Archaeology #Science #ASKAtom #Shorts
