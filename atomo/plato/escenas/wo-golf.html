@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El golf · ep37</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// WO-GOLF (frase 22), sin cartela; año 1998 en toda la escena (la barra no inventa el año del archivo). Tres planos:
+// 1. (0) el derribo, 1998 (oreja 'golf' general): la excavadora muerde el curvo y en «disappeared» arranca un trozo de
+//    chapa que cae con una nube de polvo; una operaria con casco lleva una chapa al volquete y la echa dentro en «1997»;
+//    un operario hace señas a la excavadora; un antiguo voluntario, con su termo, mira desde la cerca, baja la cabeza en
+//    «disappeared» y se va despacio por la izquierda. Pájaros, nubes y molino del decorado.
+// 2. («and in 1998», 5,27) el GAG 6 (oreja 'golf' cámara 'plancha', 2000): la última plancha olvidada entre la hierba;
+//    un jardinero rastrilla el borde del green; la pelota entra botando y rebota en la plancha con un «tonk» en «golf
+//    course» (ondas y destello; el jardinero da un respingo con un «!»); en «houses» entra el golfista con su palo, la
+//    busca y la señala.
+// 3. («The printout», 10,58) el archivo de historia de Ohio (archivo 'garaje' cámara 'archivo'): la archivera, con
+//    guantes blancos, trae una caja gris por el pasillo, la deja en la mesa de consulta en «archive» y en «Ohio» señala
+//    la vitrina con el listado (círculo y «Wow!»); al fondo, la archivera diminuta con su carrito y el fluorescente.
+import * as T from '/atomo/plato/escenas/wo-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('wo-golf');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea');
+const cl = (u) => Math.max(0, Math.min(1, u));
+const ease = (u) => { u = cl(u); return u * u * (3 - 2 * u); };
+const hs = (a, b, k = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const bay = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const tono = (cs, f, x, y) => cs[Math.max(0, Math.min(cs.length - 1, Math.floor(cl(f) * (cs.length - 1) + bay(x, y))))];
+const mez = (a, b, k) => { let r = 0; for (const sh of [0, 8, 16]) r |= Math.round(((a >>> sh) & 255) * (1 - k) + ((b >>> sh) & 255) * k) << sh; return (r | 0xff000000) >>> 0; };
+const tinta = (x, y, c, f) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && x < 320 && y >= 0 && y < 180) R.pset(x, y, mez(R.pget(x, y), c, f)); };
+const tranquila = (x, y) => (x >= 274 && y <= 48) || (x >= 16 && x <= 174 && y <= 22);
+const curva = (t, pts) => { if (t <= pts[0][0]) return pts[0][1]; for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const [a, va] = pts[i - 1], [b, vb] = pts[i]; return va + (vb - va) * ease((t - a) / Math.max(1e-6, b - a)); } return pts[pts.length - 1][1]; };
+const fijo = (() => { const B = {}; return (k, f) => { if (!B[k]) { const b = R.nuevo(), prev = R.usar(b); f(); R.usar(prev); B[k] = b; } R.copiar(B[k]); }; })();
+const globo = (x, y, ic, c, e = 1) => { if (e <= 0) return; const r = Math.round(6 * Math.min(1, e * 1.3)); R.disco(x, y, r + 1, K); R.disco(x, y, r, BL); R.pset(x - 4, y + r + 1, K); R.pset(x - 3, y + r, BL); R.pset(x - 3, y + r + 1, K); if (e > 0.6) R.icono(ic, x - (ic === '?' || ic === 'X' ? 2 : ic === '!' ? 1 : 3), y - 3, c, null, 1); };
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { if (!tranquila(x + i, y)) R.pset(x + i, y, c); if (!tranquila(x, y + i)) R.pset(x, y + i, c); } };
+const vapor = (t, x, y, k = 0) => { for (let i = 0; i < 4; i++) { const q = (t * 0.7 + i / 4 + k * 0.13) % 1; tinta(x + Math.sin(q * 6 + i + k) * 1.6, y - q * 11, hex('#f0f0f4'), 0.55 * (1 - q)); } };
+const madera = (x0, y0, x1, y1, sem, C = ['#4a2c18', '#5e3a20', '#70482a', '#86583a', '#9a6a46'].map(hex)) => {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const v = Math.sin(y * 0.55 + Math.sin(x * 0.045 + y * 0.02) * 2.4 + hs(y >> 3, 1, sem) * 3) * 0.5 + 0.5; const f = 0.25 + v * 0.45 + (hs(x >> 4, y >> 1, sem) - 0.5) * 0.1; R.pset(x, y, tono(C, f, x, y)); }
+  for (let k = 0; k < 5; k++) { const cx = x0 + hs(k, 1, sem + 3) * (x1 - x0), cy = y0 + hs(k, 2, sem + 3) * (y1 - y0); for (let a = 0; a < 6.28; a += 0.2) R.pset(Math.round(cx + Math.cos(a) * 4), Math.round(cy + Math.sin(a) * 1.6), C[0]); }
+};
+// ruido suave (valor interpolado) y fbm de tres octavas, para las nubes de gas
+const ruido = (x, y, s) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+  const a = hs(xi, yi, s), b = hs(xi + 1, yi, s), c = hs(xi, yi + 1, s), d = hs(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
+const fbm = (x, y, s) => ruido(x, y, s) * 0.55 + ruido(x * 2.1, y * 2.1, s + 1) * 0.3 + ruido(x * 4.3, y * 4.3, s + 2) * 0.15;
+// el fondo del espacio: degradado tramado, una banda de la Vía Láctea con su polvo oscuro y estrellas de tres tamaños
+const ESP = ['#05060f', '#090b1c', '#0e1028', '#151636', '#1e1c44', '#2a2452', '#3a3064'].map(hex);
+const espacio = (sem, banda, tinte = null) => {
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    let f = 0.12 + (hs(x >> 4, y >> 4, sem) - 0.5) * 0.06;
+    const d = banda(x, y); if (d < 1) { const n = fbm(x * 0.05, y * 0.05, sem); f += (1 - d) * (0.35 + n * 0.45); if (n > 0.62 && d < 0.6) f -= 0.35 * (n - 0.62) * 4; }
+    let c = tono(ESP, f, x, y); if (tinte) { const k = tinte(x, y); if (k > 0) c = mez(c, tinte.c, k); } R.pset(x, y, c);
+  }
+  for (let k = 0; k < 520; k++) { const x = Math.floor(hs(k, 1, sem) * 320), y = Math.floor(hs(k, 2, sem) * 180); if (tranquila(x, y)) continue; const b = hs(k, 4, sem), cerca = banda(x, y) < 1 ? 1 : 0;
+    R.pset(x, y, b > 0.93 ? BL : b > 0.7 ? hex('#c8d4f0') : b > 0.4 ? hex('#7a86b8') : hex('#4a5288'));
+    if (b > 0.985 - cerca * 0.01) { const cc = hs(k, 5, sem) > 0.5 ? hex('#ffd8a0') : hex('#a8c8ff'); R.pset(x, y, cc); R.pset(x - 1, y, mez(cc, ESP[2], 0.5)); R.pset(x + 1, y, mez(cc, ESP[2], 0.5)); R.pset(x, y - 1, mez(cc, ESP[2], 0.5)); R.pset(x, y + 1, mez(cc, ESP[2], 0.5)); } }
+};
+// estrellas que titilan (encima del fondo fijo), con una deriva lenta en x (la cámara se mueve)
+const titilan = (t, n, sem, dx = 0) => { for (let k = 0; k < n; k++) { const x = Math.round(((hs(k, 5, sem) * 340 + dx * (0.5 + hs(k, 8, sem))) % 340 + 340) % 340) - 10, y = Math.floor(hs(k, 6, sem) * 180); if (tranquila(x, y)) continue; const s = Math.sin(t * (1.5 + hs(k, 7, sem) * 3) + k); if (s > 0.3) { R.pset(x, y, s > 0.85 ? BL : hex('#9aa8d8')); if (s > 0.94) { tinta(x - 1, y, hex('#9aa8d8'), 0.6); tinta(x + 1, y, hex('#9aa8d8'), 0.6); tinta(x, y - 1, hex('#9aa8d8'), 0.6); tinta(x, y + 1, hex('#9aa8d8'), 0.6); } } } };
+// una galaxia lejana de canto
+const galaxia = (x, y, t, k, c = hex('#c8d0ff')) => { for (let i = 0; i < 22; i++) { const a = i * 0.5 + t * 0.15 + k, rr = i * 0.3; tinta(x + Math.cos(a) * rr * 1.7, y + Math.sin(a) * rr * 0.6, c, 0.55); tinta(x - Math.cos(a) * rr * 1.7, y - Math.sin(a) * rr * 0.6, c, 0.55); } R.pset(Math.round(x), Math.round(y), hex('#fff4d0')); };
+// un átomo de hidrógeno diminuto: el protón rojo y el electrón que gira (con su órbita punteada)
+const atomoH = (x, y, t, k, e = 1) => { if (e <= 0) return; x = Math.round(x); y = Math.round(y); for (let a = 0; a < 6.28; a += 0.25) if (Math.floor(a * 4) % 2 === 0 && e > 0.3) tinta(x + Math.cos(a) * 8, y + Math.sin(a) * 4.5, hex('#e8f8ff'), 0.7 * e);
+  R.disco(x, y, 2, K); R.rect(x - 1, y - 1, x + 1, y + 1, hex('#ff5a5a')); R.pset(x - 1, y - 1, hex('#ffb0b0')); const a = t * 4 + k * 1.7, ex = Math.round(x + Math.cos(a) * 8), ey = Math.round(y + Math.sin(a) * 4.5); R.rect(ex - 1, ey - 1, ex + 1, ey + 1, K); R.rect(ex, ey - 1, ex + 1, ey, hex('#9ae8ff')); };
+
+const tg = (s) => en('golf', (s - 0.9) / 13.65);
+const P2 = tg(5.27), P3 = tg(10.58);
+// ── 1 · el derribo ───────────────────────────────────────────────────────────────────────────────────────────────
+const DISAP = tg(1.72), Y97 = tg(3.62), STOP = tg(2.77), PZ = [236, 96];
+// un trozo de chapa del curvo (cuadrilátero con remaches) en (x, y), girado a
+const trozo = (x, y, a, s = 1) => { const c = Math.cos(a), si = Math.sin(a), P = [[-9, -5], [9, -6], [10, 5], [-8, 6]].map(([u, v]) => [Math.round(x + (u * c - v * si) * s), Math.round(y + (u * si + v * c) * s)]);
+  R.poligono(P.map(([px, py]) => [px + 1, py + 1]), hex('#3a3e46')); R.poligono(P, hex('#a8b4c0')); R.linea(P[0][0], P[0][1], P[1][0], P[1][1], hex('#e8f0f8')); R.linea(P[1][0], P[1][1], P[2][0], P[2][1], hex('#6a7480')); R.linea(P[2][0], P[2][1], P[3][0], P[3][1], hex('#5a6470')); R.linea(P[3][0], P[3][1], P[0][0], P[0][1], hex('#c8d4e0'));
+  for (const [u, v] of [[-5, 0], [0, 0], [5, 0]]) R.pset(Math.round(x + (u * c - v * si) * s), Math.round(y + (u * si + v * c) * s), hex('#5a6470')); };
+// la nube de polvo que levanta el trozo al caer (motas que suben y se abren)
+const polvo = (x, y, q, n = 26, sem = 3) => { if (q <= 0 || q >= 1) return; for (let k = 0; k < n; k++) { const a = -Math.PI * hs(k, 1, sem), v = 6 + hs(k, 2, sem) * 22, r = 1 + Math.round(hs(k, 3, sem) * 2), px = x + Math.cos(a) * v * q * 1.4, py = y + Math.sin(a) * v * q * 0.7 - q * 6;
+  for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++) if (i * i + j * j <= r * r && bay(Math.round(px + i), Math.round(py + j)) < (1 - q) * 0.9) tinta(px + i, py + j, hs(k, 4, sem) > 0.5 ? hex('#d8c8a0') : hex('#b8a47a'), 0.75); } };
+const p1 = (t) => {
+  const o = { encuadre: 'golf', epoca: 1998 };
+  const g = T.oreja(R, t, o), [pa, pb] = g.pala || [236, 92];
+  // en «disappeared» la pala arranca un trozo del curvo, lo suelta y cae detrás de los operarios, con su polvo
+  if (t > DISAP - 0.45) { const c = tramo(t, DISAP, DISAP + 0.3), cx = c > 0 ? lerp(PZ[0], 196, c) : pa, cy = c > 0 ? lerp(PZ[1], 118, c * c) : pb + 4, ca = c < 1 ? lerp(-0.3, 0.4, c) : 0.1; if (c === 0) { PZ[0] = pa; PZ[1] = pb + 4; } trozo(cx, cy, ca, 1); }
+  polvo(198, 120, tramo(t, DISAP + 0.25, DISAP + 2.6), 30, 5);
+  // la operaria lleva una chapa al volquete y la echa dentro en «1997»; luego vuelve
+  const w1 = tramo(t, 0.2, Y97 - 0.35), xo = Math.round(t < Y97 + 0.4 ? lerp(176, 146, ease(w1)) : lerp(146, 170, ease(tramo(t, Y97 + 0.6, P2)))), echa = tramo(t, Y97 - 0.35, Y97 + 0.05);
+  const lleva = t < Y97 + 0.05, vuelta = t > Y97 + 0.6;
+  const A = R.actor(EL.operaria, xo, 156, t, { dir: vuelta ? 1 : -1, anda: (w1 > 0 && w1 < 1) || (vuelta && t < P2 - 0.2), sostiene: lleva ? [xo - 4, 136 - Math.round(echa * 8)] : false, sonrisa: t > Y97 + 0.1 && t < Y97 + 0.9 });
+  if (lleva && A.mano) { const [mx, my] = A.mano; trozo(mx - 6, my - 2, -0.15 - echa * 0.5, 0.75); }
+  // la chapa que cae en el volquete con un saltito
+  const cae = tramo(t, Y97 + 0.05, Y97 + 0.3); if (cae > 0) trozo(124, lerp(122, 128, cae) - Math.sin(cae * Math.PI) * 3, 0.05, 0.75);
+  // el operario hace señas a la excavadora (el dedo arriba y abajo), y habla
+  const sena = Math.sin(t * 3.2) > -0.2;
+  R.actor(EL.operario, 204, 158, t, { dir: 1, dedo: sena, habla: Math.sin(t * 7) > 0.4 && t > DISAP + 0.6, sorpresa: t > DISAP - 0.05 && t < DISAP + 0.5 });
+  // el antiguo voluntario, con su termo, mira desde la cerca; baja la cabeza en «disappeared» y se va por la izquierda
+  const vx = Math.round(lerp(40, -20, ease(tramo(t, Y97 + 0.2, P2 + 0.6)))), seVa = t > Y97 + 0.2;
+  const V = R.actor(EL.voluntario1WO, vx, 162, t, { dir: seVa ? -1 : 1, anda: seVa, triste: t > DISAP + 0.15, sostiene: true, habla: false });
+  if (V.mano) { const [mx, my] = V.mano; R.rect(mx - 1, my - 7, mx + 2, my + 1, K); R.rect(mx, my - 6, mx + 1, my, hex('#3a7a4a')); R.pset(mx, my - 6, hex('#8ac89a')); R.rect(mx - 1, my - 8, mx + 2, my - 7, hex('#c8c8d0')); }
+  T.orejaDelante(R, t, o);
+};
+// ── 2 · la última plancha: «tonk» ───────────────────────────────────────────────────────────────────────────────
+const GOLF = tg(8.62), HOUSES = tg(9.62);
+const p2 = (t) => {
+  const pel = cl(0.5 + (t - GOLF) / 2.2);
+  const o = { encuadre: 'golf', camara: 'plancha', epoca: 2000, pelota: t < GOLF - 1.1 ? 0 : pel };
+  const g = T.oreja(R, t, o);
+  // ondas del «tonk» encima de las del decorado, más grandes y claras (que se lea a 640 px)
+  const k = tramo(t, GOLF, GOLF + 0.9);
+  if (k > 0 && k < 1) for (let n = 0; n < 3; n++) { const q = cl(k * 1.4 - n * 0.2), rr = 4 + q * 26; if (q <= 0 || q >= 1) continue; for (let a = -Math.PI; a < 0; a += 0.6 / rr) { const x = Math.round(166 + Math.cos(a) * rr), y = Math.round(140 + Math.sin(a) * rr * 0.55); if (bay(x, y) < (1 - q) * 1.1) R.pset(x, y, n === 0 ? BL : hex('#fff2b0')); } }
+  // el jardinero rastrilla la hierba a la derecha; en el «tonk» da un respingo y mira
+  const susto = t > GOLF && t < GOLF + 0.5, rx = 252, mira = t > GOLF;
+  const J = R.actor(EL.operario, rx, 162, t, { dir: -1, sostiene: [rx - 6 + Math.round(Math.sin(t * 5) * 3 * (mira ? 0 : 1)), 150], salto: susto ? 2 : 0, sorpresa: t > GOLF && t < GOLF + 1.2, pal: { X: hex('#3a6a3a'), x: hex('#2a5a2a'), C: hex('#5a8a4a'), c: hex('#4a7a3a') } });
+  if (J.mano) { const [mx, my] = J.mano, px = mx - 10, py = 168; R.linea(mx, my, px, py - 1, hex('#8a6a40')); R.linea(mx + 1, my, px + 1, py - 1, hex('#5a4228')); R.linea(px - 3, py, px + 4, py, hex('#6a6e78')); for (let i = -3; i <= 4; i += 2) R.pset(px + i, py + 1, hex('#4a4e58')); }
+  globo(rx + 8, 128, '!', hex('#c83a2a'), tramo(t, GOLF + 0.05, GOLF + 0.3) * (t < GOLF + 1.4 ? 1 : 0));
+  // el golfista entra con su palo, busca la pelota y la señala en «houses»
+  const gx = Math.round(lerp(-18, 40, ease(tramo(t, GOLF + 0.25, HOUSES + 0.1)))), anda = t > GOLF + 0.25 && t < HOUSES + 0.1, senala = t > HOUSES + 0.15;
+  const G = R.actor(EL.oficinista, gx, 158, t, { dir: 1, anda, dedo: senala, sostiene: senala ? false : [gx + 15, 146], sonrisa: senala, tocado: 'beisbol', pal: { C: hex('#e86a8a'), c: hex('#c84a6a'), F: hex('#e8e0c8'), W: hex('#e86a8a'), H: hex('#5a3a24') } });
+  if (!senala && G.mano) { const [mx, my] = G.mano; R.linea(mx, my, mx + 6, my + 12, hex('#c8ccd4')); R.linea(mx + 6, my + 12, mx + 9, my + 12, hex('#3a3e46')); R.pset(mx + 9, my + 11, hex('#6a6e78')); }
+  if (senala) { const pb = g.pelota || [218, 154]; for (let i = 0; i < 3; i++) { const q = ((t - HOUSES) * 1.6 + i / 3) % 1; tinta(lerp(gx + 22, pb[0] - 6, q), lerp(140, pb[1] - 4, q), hex('#fff0b0'), 0.8); } }
+  T.orejaDelante(R, t, o);
+};
+// ── 3 · el archivo de historia de Ohio ──────────────────────────────────────────────────────────────────────────
+const ARCH = tg(13.18), OHIO = tg(13.92);
+const cajaGris = (x, y, s = 1) => { const w = 18 * s, h = 10 * s; R.rect(x, y - h, x + w, y, K); R.rect(x + 1, y - h + 1, x + w - 1, y - 1, hex('#8a909a')); R.rect(x + 1, y - h + 1, x + w - 1, y - h + 3, hex('#a8aeb8')); R.linea(x + 1, y - h + 4, x + w - 1, y - h + 4, hex('#5a606a')); R.rect(x + Math.round(w / 2) - 3, y - h + 5, x + Math.round(w / 2) + 3, y - h + 7, hex('#e8e4d8')); R.pset(x + 2, y - 2, hex('#6a707a')); };
+const p3 = (t) => {
+  const o = { encuadre: 'garaje', camara: 'archivo' };
+  T.archivo(R, t, o);
+  // la archivera trae la caja por el pasillo y la deja en la mesa en «archive»; en «Ohio» señala la vitrina
+  const w = tramo(t, P3 + 0.15, ARCH - 0.3), ax = Math.round(lerp(20, 160, ease(w))), deja = t > ARCH, senala = t > OHIO - 0.1;
+  const A = R.actor(EL.vecina, ax, 158, t, { dir: 1, sinObjeto: true, anda: w > 0 && w < 1, sostiene: deja ? false : [ax + 18, 136 - Math.round(tramo(t, ARCH - 0.3, ARCH) * 4)], dedo: senala, sonrisa: senala, habla: senala && Math.sin(t * 9) > 0, pal: { C: hex('#4a5a7a'), c: hex('#3a4a6a'), W: hex('#f4f4f8') } });
+  if (!deja && A.mano) cajaGris(A.mano[0] - 6, A.mano[1] + 2);
+  if (deja) cajaGris(181, 127, 1);
+  if (senala) { const [hx, hy] = A.cabeza; for (let i = 0; i < 3; i++) { const q = ((t - OHIO) * 1.4 + i / 3) % 1; tinta(lerp(hx + 12, 228, q), lerp(hy - 4, 96, q), hex('#ffd25a'), 0.85); } }
+  T.archivoDelante(R, t, o);
+};
+const efectos = [[0.4, 'motor'], [DISAP + 0.2, 'avalancha'], [Y97 + 0.15, 'golpecito'], [GOLF, 'toc'], [ARCH, 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1998 });
+</script>
+</body>
+</html>
