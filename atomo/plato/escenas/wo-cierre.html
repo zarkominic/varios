@@ -122,6 +122,17 @@ const revista = (t, pasa) => {
   for (const [x0, x1] of [[X0 + 8, MX - 52], [MX - 46, MX - 8], [MX + 8, MX + 46], [MX + 52, X1 - 8]]) for (let y = Y0 + 10; y < Y1 - 10; y += 4) { if (x0 === MX + 52 && y > Y0 + 30 && y < Y0 + 70) continue; const w = y > Y1 - 20 && x0 === MX + 52 ? 0.55 : 1; R.rect(x0, y, Math.round(x0 + (x1 - x0) * w * (0.86 + hs(y, x0, 83) * 0.14)), y, H('#7a7468')); }
   R.rect(MX + 52, Y0 + 32, X1 - 8, Y0 + 68, H('#e4dcc4')); for (let x = MX + 54; x < X1 - 10; x++) R.pset(x, Math.round(Y0 + 50 + Math.sin(x * 0.3) * 8 * Math.exp(-((x - 230) ** 2) / 200)), H('#2a2a3a'));
   R.numero('1959', X0 + 30, Y0 + 7, { tam: 8, fina: true });
+  // antes de pasar la página: el artículo anterior (otra maqueta: un gráfico de barras a la izquierda y una tabla a la
+  // derecha). La izquierda vieja sigue hasta que la hoja cae sobre ella; la derecha vieja, hasta que la hoja se levanta
+  const vieja = (a, b, izq) => { R.rect(a, Y0, b, Y1, H('#ece4cc')); for (let y = Y0; y <= Y1; y++) tinta(izq ? b - 2 : a + 2, y, K, 0.12);
+    const m = Math.round((a + b) / 2);
+    for (const [x0, x1] of [[a + 8, m - 3], [m + 3, b - 8]]) for (let y = Y0 + 10; y < Y1 - 10; y += 4) { if (izq ? (y > Y0 + 74 && y < Y0 + 124) : (y < Y0 + 58)) continue; R.rect(x0, y, Math.round(x0 + (x1 - x0) * (0.84 + hs(y, x0, 91) * 0.16)), y, H('#7a7468')); }
+    if (izq) { R.rect(a + 10, Y0 + 76, b - 10, Y0 + 122, H('#e4dcc4')); R.rect(a + 12, Y0 + 120, b - 12, Y0 + 120, H('#2a2a3a')); R.rect(a + 12, Y0 + 80, a + 12, Y0 + 120, H('#2a2a3a'));
+      [14, 26, 20, 34, 9, 30, 18].forEach((v, k) => { const x = a + 18 + k * 11; R.rect(x, Y0 + 119 - v, x + 6, Y0 + 119, H(k === 3 ? '#8a3a2a' : '#5a5a6a')); }); }
+    else { for (let k = 0; k <= 5; k++) R.rect(a + 8, Y0 + 10 + k * 9, b - 8, Y0 + 10 + k * 9, H('#9a9280')); for (const x of [a + 8, a + 40, a + 66, b - 8]) R.rect(x, Y0 + 10, x, Y0 + 55, H('#9a9280'));
+      for (let k = 0; k < 5; k++) for (const x of [a + 12, a + 44, a + 70]) R.rect(x, Y0 + 14 + k * 9, x + (x > a + 60 ? 6 : 14) + Math.round(hs(k, x, 92) * (x > a + 60 ? 4 : 8)), Y0 + 15 + k * 9, H('#7a7468')); } };
+  if (pasa < 1) vieja(X0, MX - 2, true);
+  if (pasa <= 0) vieja(MX + 2, X1, false);
   // la página que pasa (de la derecha a la izquierda)
   if (pasa > 0 && pasa < 1) { const w = Math.round(Math.cos(pasa * Math.PI) * (X1 - MX)), xa = Math.min(MX, MX + w), xb = Math.max(MX, MX + w); R.rect(xa, Y0 - 2, xb, Y1 + 2, K); R.rect(xa + 1, Y0 - 1, xb - 1, Y1 + 1, pasa < 0.5 ? H('#f4ecd4') : H('#e0d8c0')); for (let y = Y0 + 10; y < Y1 - 10; y += 4) R.rect(xa + 4, y, xb - 4, y, H('#a8a090')); }
   return [MX + 52, Y1 - 14, X1 - 8];
@@ -136,6 +147,12 @@ const brazoDer = (wx, wy, manga, dir, dy = 10, o = {}) => { const sx = Math.max(
 const c1 = (t) => {
   fijo('escritorio', escritorioFijo);
   const [lx0, ly, lx1] = revista(t, ease(tramo(t, PASA, PASA + 0.7)));
+  // la mano izquierda de Morrison coge la esquina de abajo y pasa la página (entra desde abajo a la derecha, sigue la
+  // esquina de la hoja y se va por abajo a la izquierda; la muñeca a ~16 px del borde de abajo: brazo corto, con codo)
+  { const ent = ease(tramo(t, PASA - 0.55, PASA)), sal = ease(tramo(t, PASA + 0.7, PASA + 1.15)), pq = ease(tramo(t, PASA, PASA + 0.7));
+    if (ent > 0 && sal < 1) { const ex = 160 + Math.cos(pq * Math.PI) * 94, alza = Math.sin(pq * Math.PI) * 6;
+      const wx = lerp(312, ex + 6, ent) - sal * 40, wy = lerp(204, 162 - alza, ent) + sal * 44;
+      brazoAbajo(wx, wy, '#2a3450', pq < 0.5 ? -1 : 1, pq < 0.5 ? 0.42 : -0.3); } }
   // la luz del flexo desde arriba a la derecha y su borde
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot(x - 200, (y - 80) * 1.1); if (d > 150) tinta(x, y, K, cl((d - 150) / 90) * 0.5); }
   // la mano de Morrison con la pluma: entra y subraya el último renglón, que se enciende en ámbar
