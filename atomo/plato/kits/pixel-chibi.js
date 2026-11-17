@@ -11589,3 +11589,61 @@ export const PIEZAS_TU = {
   estetoscopio: estetoscopioTU, periodico: periodicoTU, lata: lataTU, escarabajo: escarabajoTU, murcielago: murcielagoTU,
   caja: cajaTU, linterna: linternaTU, planoTumba: planoTumbaTU, mapaDensidad: mapaDensidadTU,
 };
+
+// ── Episodio 38 · El Mary Celeste (1861–1885, Gibraltar, 1884, 2006, 2026) ────────────────────────────────────────────
+export const ELENCO_MC = {
+  // Benjamin Briggs en 1872, capitán y copropietario: barba oscura cerrada, chaquetón azul de capitán, gorra de marino
+  briggsMC: { ...B36, cab: CAB_BARBA, cuerpo: CUERPO_CAPITAN_NX, tocado: 'gorraMarinoNX', ceja: hex('#2a1c14'),
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#24304e', c: '#1a2440', W: '#f2eee2', G: '#c8a040', F: '#24304e' }) },
+  // Sarah Briggs en 1872: el pelo castaño recogido, vestido largo verde botella con cuello blanco
+  sarahMC: { ...B36, cab: CAB_VICTORIA_NV, cuerpo: CUERPO_1840_TR, ceja: hex('#4a2a14'), delante: monoHP, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#2a5a44', c: '#1e4434', W: '#f6f2ea', L: '#24202c' }) },
+  // Sophia, dos años: el pelo castaño claro, vestidito azul celeste con cuello blanco
+  sophiaMC: { ...B23NA, ceja: hex('#8a5a34'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#9a6a40', h: '#ba8a5a', C: '#8ab4d8', c: '#6a94b8', W: '#f6f6f6', L: '#24202c' }) },
+  // Arthur, siete años: el pelo castaño, traje de marinerito azul con cuello blanco
+  arthurMC: { ...B23N, cuerpo: CUERPO_MARINERO_NV, ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#6a4424', h: '#8a6038', C: '#2a3a6a', c: '#1e2a4e', W: '#f6f6f6', D: '#c8303a', F: '#2a3a6a' }) },
+  // la abuela de Arthur: el pelo gris recogido, vestido negro liso
+  abuelaMC: { ...B36, cab: CAB_VICTORIA_NV, cuerpo: VESTIDO_LISO, ceja: hex('#9a9aa8'), delante: monoHP, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#b8b8c4', h: '#d8d8e0', C: '#24222a', c: '#16141a', W: '#3a3a44', L: '#16141a' }) },
+  // David Morehouse, capitán del Dei Gratia: barba corta pelirroja, chaquetón gris de capitán, gorra de marino
+  morehouseMC: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAPITAN_NX, tocado: 'gorraMarinoNX', ceja: hex('#8a4a24'),
+    pal: CLT({ H: '#8a4a24', h: '#aa6a3a', C: '#4a4e58', c: '#383c44', W: '#f2eee2', G: '#c8a040', F: '#383c44' }) },
+  // Oliver Deveau, primer oficial del Dei Gratia: patillas negras, chaquetón azul marino, gorra plana
+  deveauMC: { ...B36, cab: CAB_PATILLAS_NV, cuerpo: CUERPO_CAZADORA, tocado: 'gorraPlana', ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1820', h: '#34303a', C: '#2a3450', c: '#1e2640', F: '#3a3a44' }) },
+  // John Wright, segundo oficial del Dei Gratia: el pelo castaño, jersey de lana crudo, gorro de lana
+  wrightMC: { ...B36, cuerpo: CUERPO_JERSEY_GT, tocado: 'gorroLana', ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#6a4424', h: '#8a6038', C: '#d8ccb0', c: '#b8ac90', F: '#3a3a44' }) },
+  // marineros del Dei Gratia y estibadores del puerto (1872): camisa a rayas o chaleco pardo, gorra plana
+  marineroMC: { ...B36, cuerpo: CUERPO_CHALECO_NV, tocado: 'gorraPlana', ceja: hex('#3a2a1c'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2a1c', h: '#5a4430', C: '#7a5a3a', c: '#5a4228', W: '#e8e0cc', F: '#3a3a44' }) },
+  estibadorMC: { ...B36, cuerpo: CUERPO_MANDIL, tocado: 'gorraPlana', ceja: hex('#6a4a2a'),
+    pal: MOT({ H: '#2a1c14', h: '#4a3424', C: '#8a7a5a', c: '#6a5a40', F: '#3a3a44' }) },
+  // el pintor del astillero (1868): mono blanco manchado, gorra de papel
+  pintorMC: { ...B36, cuerpo: CUERPO_MONO_PINTOR_JM, tocado: 'gorroPapel', ceja: hex('#4a3424'),
+    pal: CLT({ H: '#4a3424', h: '#6a4c34' }) },
+  // Frederick Solly-Flood, fiscal de Gibraltar (1872): patillones grises, levita negra con chaleco y cuello blanco
+  sollyfloodMC: { ...B36, cab: CAB_PATILLONES_NX, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#8a8a94'),
+    pal: CLT({ H: '#9a9aa4', h: '#babac4', C: '#1c1a22', c: '#121016', V: '#3a3440', W: '#f6f2ea', F: '#1c1a22' }) },
+  // Arthur Conan Doyle en 1884, joven médico: el pelo castaño corto, bigote grande, levita parda de tweed
+  doyleMC: { ...B36, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#5a3a20'), delante: bigoteGrandeVM,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#6a5038', c: '#54402c', V: '#8a6a48', W: '#f2eee2', F: '#54402c' }) },
+  // Gilman Parker, el último capitán (1885): barba gris, chaquetón negro de capitán
+  parkerMC: { ...B36, cab: CAB_BARBA, cuerpo: CUERPO_CAPITAN_NX, tocado: 'gorraMarinoNX', ceja: hex('#7a7a84'),
+    pal: CLT({ H: '#8a8a94', h: '#aaaab4', C: '#1c1a22', c: '#121016', W: '#f2eee2', G: '#c8a040', F: '#1c1a22' }) },
+  // Andrea Sella en 2006, químico del University College de Londres: el pelo oscuro corto, gafas, bata blanca
+  sellaMC: { ...B36, cab: CAB_ENTRADAS, cuerpo: CUERPO_BATA_DC, ceja: hex('#2a1c14'), delante: gafasFinasDC,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#f2f2ee', c: '#d0d0ca', F: '#3a3a44' }) },
+  // Jack Rowbotham en 2026, químico de Mánchester: joven, el pelo castaño, bata y gafas de laboratorio
+  rowbothamMC: { ...B36, cuerpo: CUERPO_BATA_DC, tocado: 'goggles', ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#6a4424', h: '#8a6038', C: '#f2f2ee', c: '#d0d0ca', F: '#2a3450' }) },
+  // Frank Mair en 2026, químico de Mánchester: el pelo canoso corto, barba corta canosa, bata
+  mairMC: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_BATA_DC, ceja: hex('#8a8a94'), delante: gafasFinasDC,
+    pal: CLT({ H: '#9a9aa4', h: '#babac4', C: '#f2f2ee', c: '#d0d0ca', F: '#3a3a44' }) },
+  // los buceadores de 2001: traje de neopreno negro con franja azul y gafas de buceo
+  buzoMC: { ...B36, cuerpo: CUERPO_JERSEY_GT, tocado: 'goggles', ceja: hex('#3a2a1c'),
+    pal: CLT({ H: '#3a2a1c', h: '#5a4430', C: '#1c1e24', c: '#121418', F: '#1c1e24' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_MC);
