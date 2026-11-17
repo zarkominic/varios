@@ -12,7 +12,8 @@
 // WO-HOLA (frase 3), hoy (2026). Un plano: el estudio de Atom con su «gran oreja» casera (un embudo y un vaso pegados
 // al techo). Atom baja de su esquina en «I'm Atom» y saluda con la mano; se arrima al vaso para escuchar; en «and I
 // explain» el vecino de arriba pasa la aspiradora: el embudo tiembla, cae polvo de yeso y Atom tirita; en «wondered» le
-// sale un «?»; en «Let's find out» se sacude el polvo y vuelve a su esquina.
+// sale un «?»; en «Let's find out» se sacude el polvo y vuelve a su esquina. La esquina de Atom (x 278–318, y 4–44) es
+// pared tranquila: papel liso con sus listas, sin estrellitas ni planetas, ni cortados al borde (esquinaTranquila).
 import * as T from '/atomo/plato/escenas/wo-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('wo-hola');
@@ -25,12 +26,22 @@ const atomAbajo = (ax, ay, t, o = {}) => {
   R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: 1 });
 };
 const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+// LA ESQUINA DE ATOM, tranquila del todo: el decorado ya deja liso el papel en x ≥ 264, y ≤ 50, pero al borde quedan
+// media estrellita cortada (x 260–263, y 31–37) y los puntos sueltos del motivo de abajo (x 271 y 303, y 51). Aquí se pasan a
+// papel liso (crema con sus listas finas cada 8 px y el moteado de siempre), cambiando solo los píxeles del motivo
+const MOTIVO = ['#8a9ab6', '#6e7e9c', '#c49a68', '#a47c4e'].map(hex), PAPEL = hex('#e8dcc0'), PAPELS = hex('#dccfb0');
+const hh = (x, y, k) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const esquinaTranquila = () => {
+  for (let y = 28; y <= 52; y++) for (let x = 259; x <= 319; x++) if (MOTIVO.includes(R.pget(x, y)))
+    R.pset(x, y, x % 8 === 0 || hh(x >> 1, y >> 1, 91) < 0.05 ? PAPELS : PAPEL);
+};
 R.companero = () => {};   // Atom baja al plano y al final vuelve a su esquina
 const th = (s) => en('hola', (s - 0.5) / 4.076);   // el instante de la palabra que dice la voz inglesa en s
 const BAJA = th(0.5), LLEGA = th(1.2), RUIDO = th(1.5), DUDA = th(2.88), VUELVE = th(3.89);
 const p1 = (t) => {
   const o = { encuadre: 'estudio', ruido: t > RUIDO ? 1 : 0 };
   const g = T.hoy(R, t, o);
+  esquinaTranquila();
   const [vx, vy] = g.vaso || [246, 51], esq = [297, 24];
   const AX = vx, AY = vy + 12;
   const b = ease(tramo(t, BAJA, LLEGA)), v = ease(tramo(t, VUELVE + 0.3, E.duracion - 0.25));

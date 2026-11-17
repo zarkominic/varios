@@ -28,8 +28,9 @@
 //    resalta en «the log») y el termo: en «which of the two horns» sale una nota con las dos bocinas, 1 ? 2; en «two
 //    possible spots» la mano dibuja con el lápiz rojo dos círculos junto al asa de la tetera, uno y otro.
 // 6. («For about sixty days», 30,3) la franja del cielo con el calendario (1.º uso del episodio): las hojas pasan de 1
-//    a 60, la luna cambia de fase, dos voluntarios con auriculares escuchan junto a la mesita; un zorro cruza; en
-//    «Nothing» se encogen de hombros y se quedan tristes.
+//    a 60, la luna cambia de fase, las nubes pasan altas (sin tapar las puntas de los postes ni el mástil), dos
+//    voluntarios con auriculares escuchan junto a la mesita; un zorro cruza; en «Nothing» se encogen de hombros y se
+//    quedan tristes.
 // 7. («Years later», 35,15) el despacho (2.º uso, 1994; distinto: ordenador beige en el escritorio): Ehman entra con
 //    un papel; en «Ehman» se vuelve y habla; en «common sense» levanta el dedo; sigue explicándolo con calma.
 // 8. («they'd have sent», 40,3) un faro de noche en la costa: destella una y otra vez (1, 2, 3, 4, 5 suben y se
@@ -65,12 +66,13 @@ const cieloNoche = (x0, y0, x1, y1, sem, via = true) => {
 const titilan = (t, x0, y0, x1, y1, n, sem) => { for (let k = 0; k < n; k++) { const x = x0 + Math.floor(hs(k, 5, sem) * (x1 - x0)), y = y0 + Math.floor(hs(k, 6, sem) * (y1 - y0)); if (tranquila(x, y)) continue; const s = Math.sin(t * (2 + hs(k, 7, sem) * 3) + k); if (s > 0.7) { R.pset(x, y, BL); if (s > 0.93) { R.pset(x - 1, y, hex('#8a9ac8')); R.pset(x + 1, y, hex('#8a9ac8')); } } } };
 // nubes de noche de tres tonos a tres velocidades (luz de luna arriba, sombra abajo)
 const NUBE = [hex('#2a3458'), hex('#3c4874'), hex('#5a6894'), hex('#8a96b8')];
-const nubes = (t, x0, x1, y0, y1, n, sem, P = NUBE) => {
+// (cl = [ya, yb]: recorte vertical propio, si las nubes deben quedarse en una banda más estrecha que la de sus centros)
+const nubes = (t, x0, x1, y0, y1, n, sem, P = NUBE, cl = [y0, y1]) => {
   const an = x1 - x0 + 90;
   for (let k = 0; k < n; k++) { const capa = k % 3, v = [1.1, 2.2, 3.6][capa], w = 14 + hs(k, 1, sem) * 20 + capa * 4, hh = 3 + hs(k, 2, sem) * 3 + capa;
     const cx = x0 - 45 + ((hs(k, 3, sem) * an + t * v) % an), cy = y0 + hs(k, 4, sem) * (y1 - y0);
     for (let dy = -hh; dy <= hh; dy++) for (let dx = -w; dx <= w; dx++) { const d = (dx / w) ** 2 + (dy / hh) ** 2 + Math.sin(dx * 0.6 + k) * 0.08; if (d > 1) continue;
-      const x = Math.round(cx + dx), y = Math.round(cy + dy); if (x < x0 || x > x1 || y < y0 || y > y1 || tranquila(x, y)) continue;
+      const x = Math.round(cx + dx), y = Math.round(cy + dy); if (x < x0 || x > x1 || y < cl[0] || y > cl[1] || tranquila(x, y)) continue;
       if (d > 0.8 && bay(x, y) > 0.5) continue; const f = (dy + hh) / (2 * hh); R.pset(x, y, f < 0.25 ? P[3] : f < 0.55 ? P[2] : f < 0.85 ? P[1] : P[0]); } }
 };
 // una chapa redonda con su número (1, 2, 3…) que sale con un saltito
@@ -281,7 +283,8 @@ const p6 = (t) => {
   T.cielo2(R, t, o);
   // la luna cambia de fase con los días y las nubes pasan (en el hueco entre la franja y el horizonte)
   { const mx = 150, my = 94, f = (dias % 29.5) / 29.5; R.disco(mx, my, 6, hex('#e8e4d0')); const sx = Math.cos(f * 6.283) * 6; for (let y = -6; y <= 6; y++) for (let x = -6; x <= 6; x++) { if (x * x + y * y > 36) continue; const lim = Math.sqrt(36 - y * y), sombra = f < 0.5 ? x < lerp(lim, -lim, f * 2) : x > lerp(lim, -lim, (f - 0.5) * 2) * -1; if (sombra) R.pset(mx + x, my + y, hex('#1a2244')); } R.pset(mx - 2, my - 1, hex('#c8c4b0')); R.pset(mx + 1, my + 2, hex('#c8c4b0')); }
-  nubes(t, 0, 204, 70, 116, 7, 81);
+  // (centros entre 74 y 92, recortadas a y 66–101: pasan por encima de las puntas del poste 1 y del mástil, sin taparlos)
+  nubes(t, 0, 204, 74, 92, 7, 81, NUBE, [66, 101]);
   for (let k = 0; k < 2; k++) murcielago(210 - ((t * (26 + k * 10) + k * 90) % 230), 80 + k * 16 + Math.sin(t * 4 + k) * 4, t, k);
   luciernagas(t, 4, 200, 146, 172, 12, 83);
   // el zorro cruza por delante de la oreja

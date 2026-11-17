@@ -22,11 +22,14 @@
 //    «suddenly» el papel tiembla y la secuencia se enciende (halo); en «saw» las manos lo suben hacia la luz y una marca
 //    ámbar baja carácter a carácter mientras la voz dice 6, E, Q, U, J, 5; la polilla da vueltas a la lámpara.
 // 5. («He took», 18,47 = golpe «wow2») EL GAG 4 desde arriba (listado mesa 'listado'): el lápiz se rompe, el bolígrafo
-//    azul no pinta, el rojo rodea la línea en «circled» y escribe «Wow!» en el margen, que acaba en «Wow!» con un aro.
-// 6. («The signal», 24,70) a la mañana siguiente, el corcho de la oficina de la gran oreja: la hoja del «Wow!» clavada
-//    entre la foto de la gran oreja, el mapa de estrellas, la tabla de turnos y una postal; una mano clava la última
-//    chincheta; la luz de la persiana se mueve, el aire levanta la esquina de la hoja, una mosca se posa en la foto; en
-//    «called that ever since» el «Wow!» brilla una vez.
+//    azul no pinta (los dos con el brazo canónico corto desde abajo), el rojo (solo la mano canónica con su puño, sin
+//    brazo que cruce el listado) rodea la línea en «circled» y escribe «Wow!» en el margen, que acaba en «Wow!» con un aro.
+// 6. («The signal», 24,70) a la mañana siguiente, el corcho de la oficina de la gran oreja sobre una pared de azulejos
+//    (juntas, sombra del marco, reloj de pared con su segundero, calendario, interruptor, enchufe con su cable): la hoja
+//    del «Wow!» clavada entre la foto de la gran oreja, el mapa de estrellas, la tabla de turnos y una postal; la esquina
+//    de abajo aletea con el aire hasta que una mano (brazo canónico desde abajo a la derecha, ~25 px) entra con una
+//    chincheta azul, la clava («golpecito») y se va; las franjas de luz de la persiana avanzan por el corcho con motas;
+//    una mosca entra, se posa en la foto, se frota las patas y se va; en «ever since» el «Wow!» brilla una vez.
 import * as T from '/atomo/plato/escenas/wo-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('wo-wow');
@@ -346,11 +349,29 @@ const p5 = (t) => {
 
 // ── 6 · a la mañana siguiente: la hoja del «Wow!» clavada en el corcho de la oficina ───────────────────────────────
 const corchoFondo = () => {
-  // la pared verde clara arriba (tranquila) y a la derecha, con el calendario de agosto y el interruptor
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y > 26 && x > 274 && y > 52 && ((y - 52) % 12 === 0 || (x + ((y - 52) / 12 & 1) * 10) % 20 === 0) ? hex('#a4b89c') : hex('#b8ccb0'));
-  R.rect(282, 60, 314, 104, K); R.rect(283, 61, 313, 103, hex('#f8f4e8')); R.rect(283, 61, 313, 70, hex('#3a6ac8'));
+  // la pared de azulejos verde claro (juntas, tono de cada pieza, un brillo en la esquina y la sombra del techo);
+  // arriba y en la zona de Atom las juntas van más suaves, para que quede tranquila
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const tx = Math.floor(x / 12), ty = Math.floor(y / 12), jx = x % 12, jy = y % 12, calma = tranquila(x, y);
+    const v = hs(tx, ty, 61), techo = y < 6 ? (6 - y) * 0.04 : 0;
+    let c = v > 0.8 ? hex('#bed2b6') : v < 0.25 ? hex('#b2c6aa') : hex('#b8ccb0');
+    if (jx === 0 || jy === 0) c = calma ? hex('#adc1a5') : hex('#98ac90'); else if (jx === 1 && jy === 1 && !calma) c = hex('#d4e4cc'); else if ((jx === 11 || jy === 11) && !calma) c = hex('#a8bca0');
+    else if (hs(x, y, 62) > 0.97) c = hex('#c6d8be');
+    R.pset(x, y, techo > 0 ? mez(c, hex('#7a8a74'), techo) : c); }
+  // la sombra del corcho en la pared (abajo a la derecha del marco)
+  for (let y = 28; y <= 177; y++) for (let x = 273; x <= 277; x++) tine(x, y, hex('#5a6a52'), 0.42 - (x - 273) * 0.07);
+  // el reloj de pared (arriba, entre la barra del año y Atom): la esfera, las horas y su sombra; las agujas en p6
+  R.disco(212, 13, 10, hex('#7a8a74')); R.disco(211, 12, 10, K); R.disco(211, 12, 9, hex('#e8e4d8')); R.disco(211, 12, 8, hex('#fbf8ee'));
+  for (let k = 0; k < 12; k++) { const a = k / 12 * 6.283; R.pset(Math.round(211 + Math.cos(a) * 7), Math.round(12 + Math.sin(a) * 7), k % 3 ? hex('#8a8478') : K); }
+  R.pset(207, 6, BL); R.pset(206, 7, BL);
+  // el calendario de agosto y el interruptor
+  R.rect(283, 61, 315, 105, hex('#8a9a82'));
+  R.rect(282, 60, 314, 104, K); R.rect(283, 61, 313, 103, hex('#f8f4e8')); R.rect(283, 61, 313, 70, hex('#3a6ac8')); R.rect(283, 103, 313, 103, hex('#d8d2c2'));
   for (let j = 0; j < 4; j++) for (let i = 0; i < 6; i++) { const x = 285 + i * 5, y = 74 + j * 7; R.rect(x, y, x + 2, y + 2, (j === 2 && i === 1) ? hex('#c83a2a') : hex('#8a8478')); }
-  R.rect(292, 120, 300, 132, hex('#e8e4d8')); R.rect(295, 123, 297, 129, hex('#c8c4b8'));
+  R.rect(293, 121, 301, 133, hex('#8a9a82')); R.rect(292, 120, 300, 132, hex('#e8e4d8')); R.rect(292, 120, 300, 120, BL); R.rect(295, 123, 297, 129, hex('#c8c4b8'));
+  // el enchufe de pared con su clavija y el cable de la lámpara que baja hasta el suelo
+  R.rect(291, 147, 301, 157, hex('#8a9a82')); R.rect(290, 146, 300, 156, hex('#e8e4d8')); R.rect(290, 146, 300, 146, BL); R.rect(290, 156, 300, 156, hex('#b8b4a8'));
+  R.pset(293, 150, K); R.pset(297, 150, K); R.rect(293, 151, 297, 154, hex('#3a3a40')); R.rect(293, 151, 297, 151, hex('#6a6a72'));
+  for (let y = 155; y <= 179; y++) { const x = Math.round(295 + Math.sin((y - 155) * 0.18) * 3 + (y - 155) * 0.3); R.pset(x, y, hex('#2a2a30')); R.pset(x + 1, y, hex('#5a5a62')); }
   // el marco de madera y el corcho
   R.rect(4, 24, 272, 174, hex('#5a3a20')); R.rect(4, 24, 272, 25, hex('#8a6038')); R.rect(4, 172, 272, 174, hex('#3a2414'));
   for (let y = 30; y <= 168; y++) for (let x = 10; x <= 266; x++) { const n = hs(x, y, 53), m = hs(x >> 1, y >> 1, 54); R.pset(x, y, n > 0.78 ? hex('#d8a468') : n < 0.2 ? hex('#9a6a38') : m > 0.6 ? hex('#c08a50') : hex('#b47e46')); }
@@ -372,35 +393,61 @@ const corchoFondo = () => {
   R.poligono([[230, 156], [238, 148], [246, 156]], hex('#a83a2a')); R.rect(231, 156, 245, 163, hex('#c84a3a')); R.rect(236, 158, 240, 163, hex('#5a2a1a')); chin(240, 141, '#e8c040');
   // la bandeja del marco con tiza y chinchetas
   R.rect(4, 174, 272, 179, hex('#6a4a2a')); R.rect(4, 174, 272, 174, hex('#9a7048')); for (let k = 0; k < 9; k++) R.pset(30 + k * 7, 176, hex(['#c83a2a', '#3a6ac8', '#e8c040'][k % 3])); R.rect(180, 175, 196, 176, BL);
-  R.rect(273, 174, 319, 179, hex('#8a9a82'));
+  // el rodapié de la pared, con su veta
+  for (let y = 174; y <= 179; y++) for (let x = 273; x <= 319; x++) if (R.pget(x, y) !== hex('#2a2a30') && R.pget(x, y) !== hex('#5a5a62')) R.pset(x, y, y === 174 ? hex('#a8b8a0') : hs(x >> 2, y, 63) > 0.7 ? hex('#7a8a72') : hex('#8a9a82'));
 };
 const p6 = (t) => {
   capa('corcho', corchoFondo);
-  // la luz de la mañana entra por la persiana: franjas en diagonal que se mueven poco a poco
-  for (let y = 30; y <= 168; y++) for (let x = 10; x <= 266; x++) { const q = ((x + y * 0.8 + t * 3) % 34); if (q < 12 && bay(x, y) < 0.35) tine(x, y, hex('#fff2c8'), 0.28); }
-  // la hoja del «Wow!»: el aire del ventilador le mueve la esquina de abajo
+  // el reloj de pared: el minutero quieto y el segundero que salta
+  R.linea(211, 12, 211, 6, K); R.linea(211, 12, 215, 14, K);
+  { const sg = Math.floor(t * 1) / 60 * 6.283 - 1.57; R.linea(211, 12, 211 + Math.round(Math.cos(sg) * 7), 12 + Math.round(Math.sin(sg) * 7), hex('#c83a2a')); R.pset(211, 12, K); }
+  // la hoja del «Wow!», con las dos chinchetas de arriba ya puestas
   const g = T.piezaListado(R, 84, 32, { s: 1, w: 120, hh: 132, rodea: 1, wow: 1, linea: 5, margen: 26, sombra: true });
-  const ond = Math.sin(t * 5.3) * 0.5 + 0.5, cx0 = 204, cy0 = 164;
-  R.poligono([[cx0 - 14 - ond * 4, cy0], [cx0, cy0 - 12 - ond * 4], [cx0, cy0]], hex('#b47e46'));
-  R.poligono([[cx0 - 14 - ond * 4, cy0], [cx0, cy0 - 12 - ond * 4], [cx0 - 9, cy0 - 5]], hex('#e8e0cc')); R.linea(cx0 - 14 - ond * 4, cy0, cx0, cy0 - 12 - ond * 4, hex('#a8a090'));
-  R.disco(88, 36, 2, hex('#c83a2a')); R.pset(87, 35, BL);
-  // «ever since»: el «Wow!» se enciende una vez
-  const brilla = cl01((t - (SIGNAL + 0.3)) / 1.2);
-  if (brilla > 0 && brilla < 1 && g.cajaWow) { const [x0, y0, x1, y1] = g.cajaWow; for (let y = y0 - 3; y <= y1 + 3; y++) for (let x = x0 - 3; x <= x1 + 3; x++) if (bay(x, y) < Math.sin(brilla * Math.PI) * 0.35) tine(x, y, hex('#ffe0a0'), 0.4); }
-  // la mano que clava la última chincheta arriba a la derecha (entra, aprieta y se va)
-  const clava = S(25.5), e = ease(cl01((t - (P6 + 0.15)) / 0.6)) - ease(cl01((t - (clava + 0.45)) / 0.7));
-  const pinX = 199, pinY = 36;
-  if (t > clava) { R.disco(pinX, pinY, 2, hex('#3a6ac8')); R.pset(pinX - 1, pinY - 1, hex('#a8c8f8')); R.pset(pinX + 1, pinY + 2, K); }
-  if (e > 0.01) { const aprieta = t > clava - 0.25 && t < clava + 0.15 ? 2 : 0, wx = Math.round(lerp(pinX + 30, pinX + 13, e)) - aprieta, wy = Math.round(lerp(-30, pinY + 8, e));
-    if (t < clava) { R.disco(wx - 13, wy - 7, 2, hex('#3a6ac8')); R.pset(wx - 14, wy - 8, hex('#a8c8f8')); }
-    T.brazo(R, wx + 16, wy - 50, wx, wy, '#8a5a3a', -1); }
-  // una mosca que se posa en la foto, camina y se va
-  { const u = ((t - P6) % 3.6) / 3.6, fx = u < 0.25 ? lerp(-6, 40, u / 0.25) : u < 0.7 ? 40 + Math.sin(u * 30) * 2 : lerp(40, 120, (u - 0.7) / 0.3), fy = u < 0.25 ? 20 + u * 200 : u < 0.7 ? 70 : 70 - (u - 0.7) * 160;
-    R.pset(Math.round(fx), Math.round(fy), K); R.pset(Math.round(fx) + 1, Math.round(fy), K); if (u < 0.25 || u > 0.7 || Math.sin(t * 50) > 0) { R.pset(Math.round(fx), Math.round(fy) - 1, hex('#c8d8e8')); R.pset(Math.round(fx) + 1, Math.round(fy) - 1, hex('#c8d8e8')); } }
+  const chin = (x, y, c, cl) => { R.disco(x, y, 2, hex(c)); R.pset(x - 1, y - 1, hex(cl)); R.pset(x + 1, y + 2, K); };
+  chin(88, 36, '#c83a2a', '#f8a090'); chin(199, 36, '#e8c040', '#fff0a0');
+  // la mano que clava la última chincheta en la esquina de abajo, que el aire del ventilador levanta: entra desde abajo
+  // a la derecha con la chincheta en los dedos, aprieta, la esquina se queda quieta y la mano se va por donde vino
+  const LLEGA = P6 + 0.75, CLAVA = P6 + 1.3, VA = P6 + 1.9;
+  const e = ease(cl01((t - P6) / 0.75)) - ease(cl01((t - VA) / 0.9));
+  const pinX = 196, pinY = 153, clavada = t > CLAVA;
+  // la esquina suelta aletea hasta que la chincheta la sujeta
+  const ond = clavada ? 0 : Math.sin(t * 5.3) * 0.5 + 0.5, cx0 = 204, cy0 = 164, lev = clavada ? 0 : 1;
+  if (lev) { R.poligono([[cx0 - 14 - ond * 4, cy0], [cx0, cy0 - 12 - ond * 4], [cx0, cy0]], hex('#b47e46'));
+    R.poligono([[cx0 - 14 - ond * 4, cy0], [cx0, cy0 - 12 - ond * 4], [cx0 - 9, cy0 - 5]], hex('#e8e0cc')); R.linea(cx0 - 14 - ond * 4, cy0, cx0, cy0 - 12 - ond * 4, hex('#a8a090'));
+    for (let k = 0; k < 4; k++) R.pset(cx0 - 9 + k * 2, cy0 - 3 - k, hex('#c8c0a8')); }
+  else chin(pinX, pinY, '#3a6ac8', '#a8c8f8');
+  // la luz de la mañana entra por la persiana: tres franjas en diagonal que avanzan por el corcho y la hoja, con motas
+  const av = (t - P6) * 9;
+  for (let y = 30; y <= 168; y++) for (let x = 10; x <= 266; x++) { const q = ((x + y * 0.8 - av) % 30 + 30) % 30, f = q < 9 ? 1 - Math.abs(q - 4.5) / 6 : 0; if (f > 0 && bay(x, y) < 0.25 + f * 0.6) tine(x, y, hex('#fff2c8'), 0.22 + f * 0.16); }
+  for (let k = 0; k < 9; k++) { const mx = Math.round(20 + hs(k, 1, 64) * 240 + Math.sin(t * 0.7 + k) * 5), my = Math.round(40 + ((hs(k, 2, 64) * 120 + t * 4) % 120));
+    const q = ((mx + my * 0.8 - av) % 30 + 30) % 30; if (q < 9 && Math.sin(t * 3 + k * 2) > -0.3) R.pset(mx, my, hex('#fff8e0')); }
+  // una mosca entra, se posa en el cielo de la foto, camina, se frota las patas y se va volando hacia la luz
+  { const a = t - P6, u1 = cl01((a - 0.5) / 0.8), u3 = cl01((a - 3.0) / 0.7);
+    if (a > 0.5 && u3 < 1) { let fx, fy, vuela = true;
+      if (u1 < 1) { fx = lerp(-4, 36, u1); fy = 26 + u1 * 28 + Math.sin(u1 * 14) * 5; }
+      else if (a < 3.0) { const w = cl01((a - 1.3) / 1.2); fx = 36 + w * 8; fy = 54 - w * 3; vuela = false; }
+      else { fx = lerp(44, 140, u3); fy = 51 - Math.sin(u3 * 3) * 20 + u3 * 10; }
+      fx = Math.round(fx); fy = Math.round(fy);
+      if (!vuela) R.pset(fx + 1, fy + 1, hex('#6a8ab0'));
+      R.rect(fx, fy, fx + 2, fy, K); R.pset(fx + 2, fy - 1, K); R.pset(fx + 3, fy, hex('#8a2a2a'));
+      const ala = vuela ? (Math.sin(t * 60) > 0 ? -1 : 0) : (Math.sin(t * 9) > 0.6 ? -1 : 0);
+      R.pset(fx, fy - 1 + ala, hex('#d8e4f0')); R.pset(fx + 1, fy - 1 + ala, hex('#c0d0e0'));
+      if (!vuela && Math.sin(t * 14) > 0) R.pset(fx + 3, fy + 1, K); } }
+  // «ever since»: el «Wow!» se enciende una vez, con un destello
+  const BRILLA = P6 + 2.45, brilla = cl01((t - BRILLA) / 1.5);
+  if (brilla > 0 && brilla < 1 && g.cajaWow) { const [x0, y0, x1, y1] = g.cajaWow, b = Math.sin(brilla * Math.PI);
+    for (let y = y0 - 5; y <= y1 + 5; y++) for (let x = x0 - 5; x <= x1 + 5; x++) { const dd = Math.max(x0 - x, x - x1, y0 - y, y - y1, 0) / 5; if (bay(x, y) < b * (0.75 - dd * 0.6)) tine(x, y, hex('#ffd878'), 0.55 - dd * 0.25); }
+    // el destello en la esquina del «Wow!» y unas chispas que se abren
+    const gx = x1 + 1, gy = y0 - 1, r = Math.round(1 + b * 5); for (let k = -r; k <= r; k++) { const c = Math.abs(k) < 2 ? BL : hex('#ffe8a0'); R.pset(gx + k, gy, c); R.pset(gx, gy + k, c); }
+    for (let k = 0; k < 6; k++) { const an = k * 1.047 + brilla, q = 6 + brilla * 14; R.pset(Math.round((x0 + x1) / 2 + Math.cos(an) * q * 1.4), Math.round((y0 + y1) / 2 + Math.sin(an) * q * 0.7), hex('#ffe8a0')); } }
+  // la mano (brazo canónico desde abajo a la derecha: se ven unos 25 px de antebrazo), delante de todo
+  if (e > 0.01) { const aprieta = t > CLAVA - 0.25 && t < CLAVA + 0.2 ? 1 : 0, busca = t > LLEGA && t < CLAVA - 0.25 ? Math.round(Math.sin((t - LLEGA) * 9)) : 0, wx = Math.round(lerp(pinX + 40, pinX + 13, e)) - aprieta + busca, wy = Math.round(lerp(pinY + 34, pinY + 6, e)) - aprieta;
+    if (!clavada) chin(wx - 14, wy - 5, '#3a6ac8', '#a8c8f8');
+    T.brazo(R, wx + 36, wy + 38, wx, wy, '#8a5a3a', -1, { codo: [wx + 22, wy + 22] }); }
 };
 
 const efectos = [[TOC, 'toc'], [JERRY - 0.25, 'puerta'], [P2 + 1.15, 'papel'], [P3 + 0.4, 'papel'], [RUIDO + 0.1, 'miau'], [DEPRONTO + 0.05, 'brillo'],
-  [LAPIZ + 0.35, 'golpecito'], [AZUL + 0.15, 'lapiz'], [CIRCLED, 'lapiz'], [WROTE + 0.2, 'lapiz'], [WOW, 'brillo'], [S(25.5), 'golpecito'], [SIGNAL + 0.4, 'brillo']];
+  [LAPIZ + 0.35, 'golpecito'], [AZUL + 0.15, 'lapiz'], [CIRCLED, 'lapiz'], [WROTE + 0.2, 'lapiz'], [WOW, 'brillo'], [P6 + 1.3, 'golpecito'], [P6 + 2.5, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 1977 });
 </script>
 </body>

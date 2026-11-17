@@ -18,7 +18,8 @@
 //    an answer» da dos toques en el 1420, que brilla; los dos sonríen.
 // 3. («the frequency of hydrogen», 11,54) la pizarra de cerca (la misma tiza: átomo, onda, 1420 y 21): la mano de
 //    Morrison subraya el 1420; en «the most common element» dibuja cuatro barras (la del hidrógeno, con su átomo,
-//    llega arriba) y en «universe» la rodea; se va.
+//    llega arriba) y en «universe» la rodea; se va por la derecha. Es SOLO LA MANO canónica con su puño, la tiza y su
+//    sombra en la pizarra (escribe a 30–100 px del borde: un brazo hasta ahí sería un «brazo palo»).
 // 4. («Cold hydrogen», 16,97) el espacio: la nube fría de hidrógeno respira; en «gives off a faint signal» salen sus
 //    ondas y una onda limpia viaja a la derecha; en «fixed frequency» una regla de tiza marca crestas iguales.
 // 5. («about 1,420», 21,37) la radio antigua: la mano gira el sintonizador, la aguja va a la raya del 1420, se pasa,
@@ -192,8 +193,14 @@ const p3 = (t) => {
   const va = ease(tramo(t, VA, VA + 0.8)), [tx, ty] = [punta[0] + va * 90, punta[1] + va * 70];
   if (va < 1) {
     const wx = Math.round(tx + 18), wy = Math.round(ty + 3);
-    T.brazo(R, wx + 30, wy + 32, wx, wy, '#2a3450', -1, { sombra: false });
+    // la tiza va a 30–100 px del borde: un antebrazo hasta ahí sería un «brazo palo», así que va SOLO LA MANO canónica
+    // con su puño (como el bolígrafo rojo del listado), con su sombra blanda en la pizarra; cuando se va y la muñeca
+    // llega a 40 px del borde de abajo, entra el brazo canónico desde fuera del cuadro (se ven como mucho ~45 px); al
+    // dibujar las barras la muñeca baja hasta 143 pero sigue la mano sola, para que el brazo no aparezca y desaparezca
+    for (let j = -4; j <= 4; j++) for (let i = -10; i <= 10; i++) { const q = (i / 10) ** 2 + (j / 4) ** 2, X = wx - 5 + i + 3, Y = wy + j + 6; if (q < 1 && X >= 0 && X < 320 && Y >= 0 && Y < 180) R.pset(X, Y, mez(R.pget(X, Y), K, 0.28 * (1 - q * 0.6))); }
     R.linea(wx - 14, wy - 1, Math.round(tx), Math.round(ty), BL); R.linea(wx - 14, wy, Math.round(tx) + 1, Math.round(ty) + 1, CH2);
+    if (va > 0 && wy >= 140) T.brazo(R, wx + 22, 214, wx, wy, '#2a3450', -1, { sombra: false, codo: [wx + 12, Math.round((wy + 214) / 2) - 6] });
+    else T.mano(R, wx - 3, wy, -1, '#2a3450', { sinManga: true });
   }
 };
 // ── 4 · la nube fría de hidrógeno ─────────────────────────────────────────────────────────────────────────────────

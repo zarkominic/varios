@@ -10,8 +10,10 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // WO-GOLF (frase 22), sin cartela; año 1998 en toda la escena (la barra no inventa el año del archivo). Tres planos:
-// 1. (0) el derribo, 1998 (oreja 'golf' general): la excavadora muerde el curvo y en «disappeared» arranca un trozo de
-//    chapa que cae con una nube de polvo; una operaria con casco lleva una chapa al volquete y la echa dentro en «1997»;
+// 1. (0) el derribo, 1998 (oreja 'golf' general, epoca: 1998: el curvo sin chapas, la excavadora, el volquete, polvo y
+//    obreros del decorado): la excavadora muerde el curvo y en «disappeared» arranca un trozo de chapa (sale de la pala,
+//    calculada con palaEn) que cae con una nube de polvo; una operaria con casco lleva una chapa hasta el volquete y la
+//    echa dentro de la caja (VQ) en «1997»;
 //    un operario hace señas a la excavadora; un antiguo voluntario, con su termo, mira desde la cerca, baja la cabeza en
 //    «disappeared» y se va despacio por la izquierda. Pájaros, nubes y molino del decorado.
 // 2. («and in 1998», 5,27) el GAG 6 (oreja 'golf' cámara 'plancha', 2000): la última plancha olvidada entre la hierba;
@@ -73,7 +75,13 @@ const atomoH = (x, y, t, k, e = 1) => { if (e <= 0) return; x = Math.round(x); y
 const tg = (s) => en('golf', (s - 0.9) / 13.65);
 const P2 = tg(5.27), P3 = tg(10.58);
 // ── 1 · el derribo ───────────────────────────────────────────────────────────────────────────────────────────────
-const DISAP = tg(1.72), Y97 = tg(3.62), STOP = tg(2.77), PZ = [236, 96];
+const DISAP = tg(1.72), Y97 = tg(3.62), STOP = tg(2.77);
+// dónde está la pala de la excavadora del decorado (a_orExcavadora en (244, 152), escala 1) en el instante t: la misma
+// cuenta que el decorado, para que el trozo salga siempre de la pala aunque el render salte de un instante a otro
+const palaEn = (t) => { const w = Math.sin(t * 0.9), a = -0.9 - (w * 0.5 + 0.5) * 0.8; return [230 - Math.cos(a) * 40 - 10, 132 + Math.sin(a) * 40 + 22 - w * 6]; };
+const PZ = palaEn(DISAP);
+// el volquete del decorado (a_orVolquete en (118, 150)): la caja va de x 92 a 128 y su borde de arriba está en y 130
+const VQ = [110, 128];
 // un trozo de chapa del curvo (cuadrilátero con remaches) en (x, y), girado a
 const trozo = (x, y, a, s = 1) => { const c = Math.cos(a), si = Math.sin(a), P = [[-9, -5], [9, -6], [10, 5], [-8, 6]].map(([u, v]) => [Math.round(x + (u * c - v * si) * s), Math.round(y + (u * si + v * c) * s)]);
   R.poligono(P.map(([px, py]) => [px + 1, py + 1]), hex('#3a3e46')); R.poligono(P, hex('#a8b4c0')); R.linea(P[0][0], P[0][1], P[1][0], P[1][1], hex('#e8f0f8')); R.linea(P[1][0], P[1][1], P[2][0], P[2][1], hex('#6a7480')); R.linea(P[2][0], P[2][1], P[3][0], P[3][1], hex('#5a6470')); R.linea(P[3][0], P[3][1], P[0][0], P[0][1], hex('#c8d4e0'));
@@ -82,18 +90,18 @@ const trozo = (x, y, a, s = 1) => { const c = Math.cos(a), si = Math.sin(a), P =
 const polvo = (x, y, q, n = 26, sem = 3) => { if (q <= 0 || q >= 1) return; for (let k = 0; k < n; k++) { const a = -Math.PI * hs(k, 1, sem), v = 6 + hs(k, 2, sem) * 22, r = 1 + Math.round(hs(k, 3, sem) * 2), px = x + Math.cos(a) * v * q * 1.4, py = y + Math.sin(a) * v * q * 0.7 - q * 6;
   for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++) if (i * i + j * j <= r * r && bay(Math.round(px + i), Math.round(py + j)) < (1 - q) * 0.9) tinta(px + i, py + j, hs(k, 4, sem) > 0.5 ? hex('#d8c8a0') : hex('#b8a47a'), 0.75); } };
 const p1 = (t) => {
-  const o = { encuadre: 'golf', epoca: 2000 };
-  const g = T.oreja(R, t, o), [pa, pb] = g.pala || [236, 92];
+  const o = { encuadre: 'golf', epoca: 1998 };
+  const g = T.oreja(R, t, o), [pa, pb] = (g.pala || palaEn(t)).map(Math.round);
   // en «disappeared» la pala arranca un trozo del curvo, lo suelta y cae detrás de los operarios, con su polvo
-  if (t > DISAP - 0.45) { const c = tramo(t, DISAP, DISAP + 0.3), cx = c > 0 ? lerp(PZ[0], 196, c) : pa, cy = c > 0 ? lerp(PZ[1], 118, c * c) : pb + 4, ca = c < 1 ? lerp(-0.3, 0.4, c) : 0.1; if (c === 0) { PZ[0] = pa; PZ[1] = pb + 4; } trozo(cx, cy, ca, 1); }
+  if (t > DISAP - 0.45) { const c = tramo(t, DISAP, DISAP + 0.3), cx = c > 0 ? lerp(PZ[0], 196, c) : pa, cy = c > 0 ? lerp(PZ[1] + 4, 118, c * c) : pb + 4, ca = c < 1 ? lerp(-0.3, 0.4, c) : 0.1; trozo(cx, cy, ca, 1); }
   polvo(198, 120, tramo(t, DISAP + 0.25, DISAP + 2.6), 30, 5);
   // la operaria lleva una chapa al volquete y la echa dentro en «1997»; luego vuelve
-  const w1 = tramo(t, 0.2, Y97 - 0.35), xo = Math.round(t < Y97 + 0.4 ? lerp(176, 146, ease(w1)) : lerp(146, 170, ease(tramo(t, Y97 + 0.6, P2)))), echa = tramo(t, Y97 - 0.35, Y97 + 0.05);
+  const w1 = tramo(t, 0.2, Y97 - 0.35), xo = Math.round(t < Y97 + 0.4 ? lerp(182, 136, ease(w1)) : lerp(136, 184, ease(tramo(t, Y97 + 0.6, P2)))), echa = tramo(t, Y97 - 0.35, Y97 + 0.05);
   const lleva = t < Y97 + 0.05, vuelta = t > Y97 + 0.6;
   const A = R.actor(EL.operaria, xo, 156, t, { dir: vuelta ? 1 : -1, anda: (w1 > 0 && w1 < 1) || (vuelta && t < P2 - 0.2), sostiene: lleva ? [xo - 4, 136 - Math.round(echa * 8)] : false, sonrisa: t > Y97 + 0.1 && t < Y97 + 0.9 });
   if (lleva && A.mano) { const [mx, my] = A.mano; trozo(mx - 6, my - 2, -0.15 - echa * 0.5, 0.75); }
   // la chapa que cae en el volquete con un saltito
-  const cae = tramo(t, Y97 + 0.05, Y97 + 0.3); if (cae > 0) trozo(124, lerp(122, 128, cae) - Math.sin(cae * Math.PI) * 3, 0.05, 0.75);
+  const cae = tramo(t, Y97 + 0.05, Y97 + 0.35); if (cae > 0) trozo(lerp(124, VQ[0], ease(cae)), lerp(122, VQ[1], cae * cae) - Math.sin(cae * Math.PI) * 5, lerp(-0.6, 0.05, cae), 0.75);
   // el operario hace señas a la excavadora (el dedo arriba y abajo), y habla
   const sena = Math.sin(t * 3.2) > -0.2;
   R.actor(EL.operario, 204, 158, t, { dir: 1, dedo: sena, habla: Math.sin(t * 7) > 0.4 && t > DISAP + 0.6, sorpresa: t > DISAP - 0.05 && t < DISAP + 0.5 });

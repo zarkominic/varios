@@ -27,8 +27,11 @@
 //    mientras el punto cruza el haz en la tarjeta; la mano marca con el lápiz cada lectura de 12 s en el eje del tiempo.
 // 6. («A transmitter», 30,08) el campo al atardecer: la gran oreja a la izquierda con su haz que mira al cielo; a la
 //    derecha, en una loma, el mástil de una emisora del pueblo que emite anillos siempre iguales que corren a ras de
-//    suelo y nunca entran en el haz; un tractor vuelve a casa por el camino, las vacas pastan, salen las primeras
-//    estrellas.
+//    suelo y nunca entran en el haz; un tractor con el faro encendido vuelve a casa por el camino. El sol se esconde
+//    detrás de las colinas con su resplandor, asoma la luna, las estrellas se encienden poco a poco, nubes de tres
+//    tonos a tres velocidades (cirros, cúmulos rosados y jirones dorados) pasan por detrás del mástil, tres bandadas
+//    vuelven a los árboles del pueblo; las vacas pastan, levantan la cabeza, rumian, mueven la cola y dan pasitos; el
+//    molino gira con las rachas, la chimenea de la granja echa humo y se encienden las ventanas.
 import * as T from '/atomo/plato/escenas/wo-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('wo-escala');
@@ -298,9 +301,19 @@ const p5 = (t) => {
 };
 
 // ── 6 · el campo al atardecer: la gran oreja mira al cielo; la emisora del pueblo emite a ras de suelo ───────────────
+// la línea de las colinas lejanas (el sol se esconde detrás)
+const cerro = (x) => Math.round(104 + Math.sin(x * 0.03) * 5 + Math.sin(x * 0.11) * 2);
+// el mástil: celosía triangular a franjas rojas y blancas, más ancha abajo, con sus vientos y la caseta de la emisora
+// (se repinta en cada fotograma encima de las nubes, que pasan por detrás)
+const mastil = () => {
+  for (let y = 50; y <= 114; y++) { const w = 1 + (y - 50) * 0.075, sec = Math.floor((y - 50) / 8) & 1, c1 = sec ? hex('#f4ece4') : hex('#d83a2a'), c2 = sec ? hex('#b8b0a8') : hex('#9a2a20');
+    R.pset(Math.round(254 - w), y, c1); R.pset(Math.round(254 + w), y, c2); if ((y - 50) % 4 === 0) R.linea(Math.round(254 - w), y, Math.round(254 + w), y, c1); else if ((y - 50) % 4 === 2) R.pset(254, y, c2); }
+  for (const [x2, y2] of [[226, 116], [282, 116], [236, 118], [272, 118]]) R.linea(254, 66 + (x2 === 236 || x2 === 272 ? 22 : 0), x2, y2, hex('#5a5a66'));
+  R.rect(244, 110, 264, 118, hex('#c8c0b0')); R.rect(244, 110, 264, 110, hex('#e8e0d0')); R.rect(250, 113, 254, 118, hex('#6a5a4a')); R.pset(258, 113, hex('#f8d070')); R.pset(259, 113, hex('#f8d070'));
+};
 const campoFondo = () => {
   degradado(0, 0, 319, 112, [hex('#1e2250'), hex('#2e2e66'), hex('#4a3a7a'), hex('#8a5a8a'), hex('#d0806a'), hex('#f0b070')]);
-  for (let k = 0; k < 40; k++) { const x = Math.floor(hs(k, 1, 81) * 320), y = Math.floor(hs(k, 2, 81) * 50); if (!tranquila(x, y)) R.pset(x, y, hex('#a8b0e0')); }
+  for (let k = 0; k < 12; k++) { const x = Math.floor(hs(k, 1, 81) * 320), y = Math.floor(hs(k, 2, 81) * 50); if (!tranquila(x, y)) R.pset(x, y, hex('#a8b0e0')); }
   // colinas lejanas y bosquecillos
   for (let x = 0; x < 320; x++) { const top = Math.round(104 + Math.sin(x * 0.03) * 5 + Math.sin(x * 0.11) * 2); for (let y = top; y <= 120; y++) R.pset(x, y, y === top ? hex('#6a5a7a') : hex('#4a4a6a')); }
   for (let x = 0; x < 320; x++) { const top = Math.round(114 + Math.sin(x * 0.05 + 2) * 4 + (hs(x >> 2, 1, 82) > 0.7 ? -4 : 0)); for (let y = top; y <= 124; y++) R.pset(x, y, hex('#3a4a3a')); }
@@ -320,13 +333,10 @@ const campoFondo = () => {
   for (const [x, h] of [[206, 6], [216, 8], [276, 7], [288, 5]]) { R.rect(x, 116 - h, x + 7, 116, hex('#6a5a6a')); R.poligono([[x - 1, 116 - h], [x + 3, 112 - h], [x + 8, 116 - h]], hex('#3a2a3a')); R.pset(x + 3, 114, hex('#f8d070')); R.pset(x + 5, 114, hex('#f8d070')); }
   R.rect(300, 94, 306, 116, hex('#8a8a96')); R.disco(303, 94, 3, hex('#9a9aa8')); R.rect(301, 98, 301, 116, hex('#a8a8b4'));
   for (const [x, r] of [[196, 6], [230, 5], [266, 6], [316, 5]]) { R.disco(x, 112, r, hex('#2e3e2e')); R.disco(x - 1, 111, r - 2, hex('#3e5236')); R.rect(x, 112, x + 1, 118, hex('#3a2a20')); }
-  // el mástil: celosía triangular a franjas rojas y blancas, más ancha abajo, con sus vientos y la caseta de la emisora
-  for (let y = 50; y <= 114; y++) { const w = 1 + (y - 50) * 0.075, sec = Math.floor((y - 50) / 8) & 1, c1 = sec ? hex('#f4ece4') : hex('#d83a2a'), c2 = sec ? hex('#b8b0a8') : hex('#9a2a20');
-    R.pset(Math.round(254 - w), y, c1); R.pset(Math.round(254 + w), y, c2); if ((y - 50) % 4 === 0) R.linea(Math.round(254 - w), y, Math.round(254 + w), y, c1); else if ((y - 50) % 4 === 2) R.pset(254, y, c2); }
-  for (const [x2, y2] of [[226, 116], [282, 116], [236, 118], [272, 118]]) R.linea(254, 66 + (x2 === 236 || x2 === 272 ? 22 : 0), x2, y2, hex('#5a5a66'));
-  R.rect(244, 110, 264, 118, hex('#c8c0b0')); R.rect(244, 110, 264, 110, hex('#e8e0d0')); R.rect(250, 113, 254, 118, hex('#6a5a4a')); R.pset(258, 113, hex('#f8d070')); R.pset(259, 113, hex('#f8d070'));
+  mastil();
   // la granja con su molino (el molino gira en el plano), postes de la luz por el camino y rollos de heno
   R.rect(140, 112, 166, 126, hex('#e8e0d0')); R.poligono([[136, 112], [153, 102], [170, 112]], hex('#5a3a3a')); R.rect(146, 116, 150, 120, hex('#f8d070')); R.rect(156, 116, 160, 120, hex('#f8d070')); R.rect(150, 120, 154, 126, hex('#6a4a3a'));
+  R.rect(158, 99, 162, 107, K); R.rect(159, 100, 161, 107, hex('#8a3a2a')); R.rect(158, 99, 162, 99, hex('#5a5a5a')); R.pset(159, 102, hex('#b8584a')); R.pset(161, 105, hex('#6a2a20'));   // la chimenea
   R.rect(172, 106, 178, 126, hex('#a83a2a')); R.disco(175, 106, 3, hex('#c8c8d0'));
   R.linea(186, 126, 188, 92, hex('#6a6a72')); R.linea(192, 126, 188, 92, hex('#6a6a72')); for (let y = 100; y < 126; y += 6) R.linea(187 - (126 - y) * 0.02, y, 190 + (126 - y) * 0.03, y + 3, hex('#6a6a72'));
   for (let x = 30; x < 320; x += 64) { R.rect(x, 128, x + 1, 150, hex('#4a3a2a')); R.rect(x - 3, 130, x + 4, 130, hex('#4a3a2a')); }
@@ -344,29 +354,92 @@ const tractor = (x, y, t) => { x = Math.round(x); y = Math.round(y);
   R.disco(x + 19, y - 2, 3.5, K); R.disco(x + 19, y - 2, 2.2, hex('#3a3a3a')); R.pset(x + 19, y - 2, hex('#e8c040'));
   const sp = Math.floor(t * 8) % 2; R.pset(x + 2 + (sp ? 3 : -3), y - 3, hex('#8a8a8a'));
   R.rect(x, y - 24, x + 4, y - 19, hex('#f0c090')); R.rect(x - 1, y - 26, x + 5, y - 24, hex('#c8a040')); R.rect(x - 2, y - 24, x + 6, y - 24, hex('#c8a040')); R.pset(x + 3, y - 22, K); };
-const vaca = (x, y, t, k) => { x = Math.round(x); y = Math.round(y); const B = hex('#f4f0e8'), N = hex('#2a2a2a'); R.rect(x - 6, y - 7, x + 5, y - 3, K); R.rect(x - 5, y - 6, x + 4, y - 4, B); R.rect(x - 3, y - 6, x - 1, y - 5, N); R.rect(x + 2, y - 5, x + 3, y - 4, N);
-  const come = Math.sin(t * 1.3 + k) > 0; R.rect(x + 5, y - (come ? 4 : 8), x + 8, y - (come ? 1 : 5), N); for (const lx of [-5, -3, 2, 4]) R.rect(x + lx, y - 3, x + lx, y, N); R.pset(x - 7, y - 6 + (Math.sin(t * 3 + k) > 0 ? 1 : 0), N); };
+// una vaca frisona de perfil (dir 1 mira a la derecha): pasta con la cabeza abajo, la levanta, rumia y mueve la cola;
+// o.paso (px andados) hace que dé pasitos al cambiar de mata
+const vaca = (x, y, t, k, dir = 1, o = {}) => { x = Math.round(x); y = Math.round(y);
+  const B = hex('#f4f0e8'), BS = hex('#c8c0b4'), N = hex('#26242a'), NL = hex('#4a4650'), P = hex('#e8a0a0'), PS = hex('#b87478');
+  const px = (i, j, c) => R.pset(x + i * dir, y + j, c);
+  // la cabeza: 0 pasta abajo, 1 levantada mirando; ciclo propio de cada vaca
+  const ph = (t * 0.55 + hs(k, 1, 90)) % 1, h = ph < 0.55 ? 0 : ph < 0.65 ? (ph - 0.55) / 0.1 : ph < 0.88 ? 1 : 1 - (ph - 0.88) / 0.12;
+  const andando = o.paso && Math.floor(o.paso) % 2;
+  // las patas (las del fondo, más oscuras) con su pezuña
+  for (const [lx, fondo, f] of [[-6, 1, 0], [-4, 0, 1], [3, 1, 1], [5, 0, 0]]) { const up = andando && f ? 1 : 0;
+    for (let j = -4; j <= -1 - up; j++) px(lx, j, fondo ? BS : B); px(lx, -up, N); px(lx + 1, -4, fondo ? N : BS); }
+  // el cuerpo: contorno, blanco con manchas negras, sombra de la tripa y brillo del lomo
+  for (let i = -8; i <= 6; i++) for (let j = -11; j <= -4; j++) { const d = (i / 7.6) ** 2 + ((j + 7.5) / 4) ** 2; if (d > 1) continue;
+    let c = d > 0.78 ? K : j > -6 ? BS : j < -10 ? hex('#fffaf2') : B; if (d <= 0.78 && hs(Math.floor((i + 9) / 3), Math.floor((j + 12) / 3), k + 91) > 0.62) c = j > -6 ? N : j < -9 ? NL : N; px(i, j, c); }
+  px(-1, -4, P); px(0, -4, PS);   // la ubre
+  // la cola que se mece y su borla
+  const sw = Math.round(Math.sin(t * 2.6 + k * 1.7) * 1.4);
+  for (let j = 0; j < 5; j++) px(-9 - (j > 2 ? sw : 0), -9 + j, NL); px(-9 - sw, -4, N); px(-10 - sw, -4, N);
+  // el cuello y la cabeza: de pastar (hocico en la hierba) a levantada
+  const hx = 7 + Math.round(h * -1), hy = Math.round(lerp(-3, -10, h));
+  for (let j = Math.min(hy, -8); j <= Math.max(hy + 2, -6); j++) { px(6, j, K); px(7, j, N); }
+  for (let i = 0; i <= 3; i++) for (let j = -1; j <= 2; j++) px(hx + i, hy + j, (i === 0 && j === -1) ? K : i === 1 && j <= 0 ? B : N);
+  px(hx + 4, hy + 1, P); px(hx + 4, hy + 2, PS); px(hx + 3, hy + 2, P);   // el hocico
+  if (h > 0.5 && Math.sin(t * 9 + k) > 0) px(hx + 4, hy + 3, PS);   // rumia
+  px(hx, hy - 2, BS); px(hx - 1, hy, N); px(hx + 2, hy, (t + k) % 3.3 < 0.12 ? N : hex('#e8e0d0'));   // cuerno, oreja y ojo que parpadea
+  if (h < 0.2) { px(hx + 5, hy + 3, hex('#9ab850')); px(hx + 3, hy + 3, hex('#7a9a3a')); }   // la mata que arranca
+};
+// un pájaro en vuelo (alas arriba, planas o abajo); no entra en las zonas tranquilas
+const pajaro = (x, y, ala, c) => { x = Math.round(x); y = Math.round(y); const p = (i, j) => { if (!tranquila(x + i, y + j)) R.pset(x + i, y + j, c); };
+  p(0, 0); p(1, 0); const a = ala > 0.33 ? -1 : ala < -0.33 ? 1 : 0; p(-1, a); p(-2, a + (a === 0 ? 0 : a)); p(2, a); p(3, a + (a === 0 ? 0 : a)); };
 const p6 = (t) => {
   capa('campo', campoFondo);
-  // las primeras estrellas que se encienden y una nube alargada de tres tonos
-  for (let k = 0; k < 12; k++) { const x = Math.floor(hs(k, 5, 86) * 320), y = Math.floor(hs(k, 6, 86) * 60); if (tranquila(x, y)) continue; if (t - P6 > k * 0.3 && Math.sin(t * 4 + k) > -0.3) R.pset(x, y, BL); }
-  nube(((60 + t * 1.5) % 380) - 30, 70, 80, 6, [hex('#6a4a7a'), hex('#b07a8a'), hex('#f0b090')], 1);
-  nube(((220 + t * 2.4) % 380) - 30, 84, 60, 5, [hex('#7a5a7a'), hex('#c8888a'), hex('#f8c0a0')], 2);
+  const u = t - P6;
+  // el resplandor del sol en el horizonte (se apaga poco a poco) y el sol que se esconde detrás de las colinas
+  const sx = 118, sy = 97 + u * 1.6, glo = 0.55 - cl01(u / 7) * 0.25;
+  for (let y = 70; y <= 108; y++) for (let x = 40; x <= 200; x++) { if (y >= cerro(x)) continue; const d = Math.hypot((x - sx) / 2.2, y - sy); if (d > 36) continue;
+    const a = glo * (1 - d / 36) ** 1.5; if (a > 0.04 && bay(x, y) < a * 1.6) tine(x, y, hex('#ffd89a'), Math.min(0.7, a + 0.15)); }
+  for (let y = Math.floor(sy - 8); y <= sy + 8; y++) for (let x = sx - 8; x <= sx + 8; x++) { if (y >= cerro(x)) continue; const d = Math.hypot(x - sx, y - sy); if (d > 7.5) continue;
+    R.pset(x, y, d > 6.5 ? hex('#ffb060') : d < 4 && (y - sy) < 0 ? hex('#fff4c8') : (y - sy) > 2 && bay(x, y) > 0.4 ? hex('#ff9850') : hex('#ffd890')); }
+  for (let k = 0; k < 3; k++) { const yy = Math.round(sy + 1 + k * 2.4); for (let x = sx - 9; x <= sx + 9; x++) if (yy < cerro(x) && Math.hypot(x - sx, yy - sy) < 8.5) R.pset(x, yy, hex('#e87a5a')); }   // franjas de bruma delante del sol
+  // las estrellas que se encienden poco a poco (primero las más brillantes) y titilan
+  for (let k = 0; k < 34; k++) { const x = Math.floor(hs(k, 5, 86) * 320), y = Math.floor(4 + hs(k, 6, 86) * 62); if (tranquila(x, y) || tranquila(x + 1, y)) continue;
+    const e = cl01((u - k * 0.13) / 0.6); if (e <= 0) continue; const tw = 0.75 + 0.25 * Math.sin(t * (3 + hs(k, 7, 86) * 4) + k);
+    tine(x, y, BL, Math.min(1, e * tw * (y < 40 ? 1 : 0.7)));
+    if (k % 6 === 0 && e > 0.8 && tw > 0.85) { for (const [i, j] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!tranquila(x + i, y + j)) tine(x + i, y + j, hex('#c8d0ff'), 0.45); } }
+  // nubes de tres tonos a tres velocidades: cirros altos y oscuros (lentos), cúmulos rosados (medios) y jirones dorados bajos (rápidos)
+  // la luna creciente que asoma por el este, con su halo
+  { const mx = 214, my = Math.round(34 - u * 0.5); for (let y = my - 9; y <= my + 9; y++) for (let x = mx - 9; x <= mx + 9; x++) { const d = Math.hypot(x - mx, y - my); if (d > 9 || tranquila(x, y)) continue;
+      if (d > 5) { if (bay(x, y) < 0.18 * (9 - d) / 4) tine(x, y, hex('#c8c8f0'), 0.3); continue; } if (Math.hypot(x - mx - 2.4, y - my + 1.2) < 4.2) continue; R.pset(x, y, d > 4 ? hex('#d8d0b0') : x < mx - 1 ? hex('#fff8e0') : hex('#f0e8c8')); } }
+  for (const [x0, y, w, h, v, k] of [[30, 30, 70, 5, 1.6, 11], [210, 40, 54, 4, 1.6, 12], [130, 26, 50, 4, 1.6, 18]]) nube(((x0 + t * v) % 400) - 40, y, w, h, [hex('#4a4272'), hex('#706094'), hex('#b098c0')], k);
+  for (const [x0, y, w, h, v, k] of [[90, 60, 84, 7, 4.2, 13], [300, 66, 64, 6, 4.2, 14]]) nube(((x0 + t * v) % 400) - 40, y, w, h, [hex('#6a4a7a'), hex('#b07a8a'), hex('#f0b090')], k);
+  for (const [x0, y, w, h, v, k] of [[190, 80, 60, 4, 8, 15], [10, 84, 46, 3, 8, 16], [350, 78, 40, 3, 8, 17]]) nube(((x0 + t * v) % 400) - 40, y, w, h, [hex('#a86a6a'), hex('#e09a7a'), hex('#ffd0a0')], k);
+  mastil();   // el mástil va delante de las nubes
+  // bandadas que vuelven al nido: en uve, bajando hacia los árboles del pueblo, batiendo las alas
+  for (const [f, x0, y0, x1, y1, n, dur] of [[0, 20, 50, 236, 104, 7, 6.5], [1, 120, 36, 270, 106, 5, 6.2], [2, -20, 74, 200, 108, 4, 7.5]]) {
+    const q = ease((u + f * 0.4) / dur); if (q > 0.96) continue; const bx = lerp(x0, x1, q), by = lerp(y0, y1, q) - Math.sin(q * Math.PI) * 8;
+    for (let i = 0; i < n; i++) { const fila = Math.ceil(i / 2), lado = i % 2 ? 1 : -1, ox = -fila * 4, oy = lado * fila * 2.5;
+      const ala = Math.sin(t * 11 + i * 1.3 + f) * (q > 0.85 ? 0.3 : 1); pajaro(bx + ox + Math.sin(t * 2 + i) * 0.6, by + oy, ala, q > 0.6 ? hex('#1e1a2a') : hex('#2e2840')); } }
   // el haz de la gran oreja: un cono tenue que sube al cielo (y se queda arriba)
   for (let y = 24; y < 132; y++) { const w = 5 + (132 - y) * 0.2, cx = 58 + (132 - y) * 0.1; for (let x = Math.round(cx - w); x <= cx + w; x++) if (!tranquila(x, y) && bay(x, y) < 0.22) tine(x, y, hex('#c8e0ff'), 0.35); }
-  // el molino de la granja que gira
-  for (let k = 0; k < 4; k++) { const an = t * 3 + k * 1.571; R.linea(188, 92, 188 + Math.round(Math.cos(an) * 7), 92 + Math.round(Math.sin(an) * 7), hex('#d8d8e0')); }
-  R.pset(188, 92, K);
+  // el humo de la chimenea de la granja: bocanadas que suben y se tuercen con el viento
+  for (let k = 0; k < 12; k++) { const q = (u * 0.3 + k / 12) % 1, x = 160 + q * q * 24 + Math.sin(q * 6 + k) * 1.5, y = 97 - q * 28, r = 1.8 + q * 3.4;
+    for (let j = -Math.ceil(r); j <= r; j++) for (let i = -Math.ceil(r); i <= r; i++) { const d = Math.hypot(i, j) / r; if (d > 1) continue; const X = Math.round(x + i), Y = Math.round(y + j); if (tranquila(X, Y)) continue;
+      if (bay(X, Y) < (1 - q) * 1.5 - d * 0.3) R.pset(X, Y, d > 0.75 ? hex('#6a5a72') : j < 0 && i <= 0 ? hex('#d8c8d0') : hex('#9a8a9e')); } }
+  // el molino de la granja: la rueda de doce aspas que gira con las rachas y la cola de veleta
+  const giro = t * 3.2 + Math.sin(t * 0.7) * 1.2;
+  R.linea(188, 92, 177, 90, hex('#5a5a62')); R.poligono([[175, 86], [180, 87], [180, 92], [175, 94]], hex('#c8c8d0')); R.linea(175, 86, 175, 94, hex('#8a8a92'));
+  for (let k = 0; k < 12; k++) { const an = giro + k * 0.5236, ex = 188 + Math.cos(an) * 8, ey = 92 + Math.sin(an) * 8;
+    R.linea(188 + Math.round(Math.cos(an) * 2), 92 + Math.round(Math.sin(an) * 2), Math.round(ex), Math.round(ey), k % 2 ? hex('#a8a8b4') : hex('#e8e8f0')); }
+  for (let a = 0; a < 6.283; a += 0.12) R.pset(Math.round(188 + Math.cos(a) * 8), Math.round(92 + Math.sin(a) * 8), hex('#6a6a78'));
+  R.disco(188, 92, 1.5, K); R.pset(188, 92, hex('#c8c8d0'));
   // los anillos de la emisora, siempre iguales: corren a ras de suelo hacia los lados y nunca suben al haz
-  for (let k = 0; k < 4; k++) { const r = ((t - P6) * 20 + k * 28) % 112 + 6; for (let a = 0; a < 6.283; a += 0.5 / r) { const x = Math.round(254 + Math.cos(a) * r), y = Math.round(114 + Math.sin(a) * r * 0.16) - (Math.sin(a) < 0 ? 0 : 0);
+  for (let k = 0; k < 4; k++) { const r = (u * 20 + k * 28) % 112 + 6; for (let a = 0; a < 6.283; a += 0.5 / r) { const x = Math.round(254 + Math.cos(a) * r), y = Math.round(114 + Math.sin(a) * r * 0.16);
       if (x < 100 || x > 319 || ((Math.round(a * r * 0.9)) & 1)) continue; R.pset(x, y, mez(R.pget(x, y), hex('#ffe0c8'), Math.max(0, 0.95 - r / 130))); } }
   if (Math.floor(t * 1.6) % 2) { R.disco(254, 49, 1.6, hex('#ff3a2a')); R.pset(254, 82, hex('#ff3a2a')); for (let y = 44; y < 55; y++) for (let x = 249; x < 260; x++) if (Math.hypot(x - 254, y - 49) < 5 && bay(x, y) < 0.3) tine(x, y, hex('#ff8a7a'), 0.5); }
-  // las vacas que pastan
-  vaca(70, 146, t, 1); vaca(132, 142, t, 2); vaca(238, 144, t, 3);
-  // el tractor que vuelve a casa por el camino, con su polvo
-  const tx = lerp(-30, 330, cl01((t - P6) / 5.6));
+  // las ventanas del pueblo que se van encendiendo
+  for (const [x, y, k] of [[146, 116, 0], [156, 116, 1], [209, 114, 2], [219, 114, 3], [279, 114, 4], [291, 114, 5]]) if (u > 0.6 + k * 0.5) { const w = Math.sin(t * 5 + k) > 0.9 ? hex('#ffe8a0') : hex('#f8d070'); R.pset(x, y, w); R.pset(x + 1, y, w); }
+  // las vacas que pastan, levantan la cabeza y dan algún paso; un ternero junto a su madre
+  vaca(70 + u * 0.8, 146, t, 1, 1, { paso: u * 3 }); vaca(132, 145, t, 2, -1); vaca(250 - u * 0.6, 144, t, 3, -1, { paso: u * 2.5 }); vaca(190, 146, t + 1.3, 4, 1);
+  // el tendido de la luz va por delante de las vacas: se repinta encima
+  for (let i = 0; i < 4; i++) { const a = 30 + i * 64; for (let k = 0; k <= 32; k++) { const w = k / 32, x = Math.round(a + 64 * w), y = Math.round(130 + Math.sin(w * Math.PI) * 3); if (x < 320) R.pset(x, y, hex('#2a2a30')); } }
+  // el tractor que vuelve a casa por el camino, con su polvo y el faro encendido
+  const tx = lerp(-30, 330, cl01(u / 5.6));
   for (let k = 0; k < 6; k++) { const q = ((t * 2 + k / 6) % 1), x = Math.round(tx - 4 - q * 16), y = Math.round(154 - q * 6); tine(x, y, hex('#d8c8a0'), 0.45 * (1 - q)); }
-  tractor(tx, 157, t);
+  for (let i = 0; i < 14; i++) for (let j = -i * 0.3; j <= i * 0.3; j++) { const X = Math.round(tx + 23 + i), Y = Math.round(151 + j); if (X >= 0 && X < 320 && bay(X, Y) < 0.5 - i * 0.03) tine(X, Y, hex('#fff0b0'), 0.4); }
+  tractor(tx, 157, t); R.pset(Math.round(tx) + 22, 151, hex('#fff8d0'));
 };
 
 const efectos = [[LETRA[0], 'tic'], [ESCALA + 0.1, 'interruptor'], [LETRAS, 'zumbido'], [P2 + 0.4, 'tic'], [RUIDO, 'golpecito'],

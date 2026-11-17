@@ -458,7 +458,8 @@ export function salaDelante(R, t, o = {}) {
 //     6EQUJ5 en vertical, bajo el foco de la lámpara; alrededor, la formica moteada de la mesa con su sombra, una mancha
 //     de café, una goma con sus virutas, la taza que humea vista desde arriba, el cantillo cromado de la mesa abajo (el
 //     papel cae por encima) y una polilla cuya sombra cruza a ratos; motas de polvo en la luz. EL GAG 4 Y EL GOLPE:
-//     o.boli 0–3: una mano (T.brazo, entra desde abajo a la derecha, manga verde oliva de Ehman) prueba en el margen de
+//     o.boli 0–3: una mano (con 1 y 2, T.brazo que entra desde abajo a la derecha, manga verde oliva de Ehman; con 3, que
+//     escribe a 80–100 px del borde, solo la mano canónica con su puño y su sombra, sin brazo palo) prueba en el margen de
 //     abajo con el LÁPIZ ROTO (1: la punta astillada, migas de madera), luego con el BOLÍGRAFO AZUL que no pinta (2: raya
 //     el papel y solo deja surcos sin tinta) y por fin coge el ROJO (3); los que ya ha probado vuelven a la mesa, a la
 //     derecha (con 0, los tres esperan allí). o.rodea 0–1: el círculo rojo se cierra; o.wow 0–1: el «Wow!» rojo se
@@ -2866,8 +2867,8 @@ function c_cocinaDelante(R, t, o) {
 const c_LA = { x: 50, y: 24, w: 212, hh: 160, s: 2, linea: 5 };
 
 // 'mesa' cámara 'listado': el listado desde arriba sobre la formica (fondo fijo en búfer), lo rojo que cambia (halo,
-// círculo, «Wow!»), los útiles tumbados, la mano canónica con su útil (o.boli 0–3, o.retira 0–1: sale por abajo a la
-// derecha con el útil) y la vida (vapor, motas, la sombra de la polilla). Las opciones, en la cabecera de listado()
+// círculo, «Wow!»), los útiles tumbados, la mano canónica con su útil (o.boli 0–3: con 1 y 2 al final del brazo
+// canónico, con 3 sola con su puño; o.retira 0–1: sale por abajo a la derecha con el útil) y la vida (vapor, motas, la sombra de la polilla). Las opciones, en la cabecera de listado()
 function c_listadoArriba(R, t, o) {
   const dia = o.luz === 'dia', s = o.s ?? c_LA.s, L = { ...c_LA, s, ...(s === 3 ? { x: 14, w: 262, linea: 3 } : s === 1 ? { linea: 12 } : {}) };
   const opc = { s, w: L.w, hh: L.hh, linea: L.linea, recorte: [0, 0, 319, 171], agujero: hex('#8a7a5a') };
@@ -2897,7 +2898,7 @@ function c_listadoArriba(R, t, o) {
   if (boli !== 2) c_util(R, boli >= 3 ? 296 : 284, boli >= 3 ? 150 : 124, boli >= 3 ? -2.5 : 1.9, 26, 'azul', { sombra: true });
   if (boli !== 3) c_util(R, 272, 152, 0.35, 26, 'rojo', { sombra: true });
   // la mano con el útil: prueba en el margen de abajo (1 y 2) o escribe donde va el trazo rojo (3)
-  let mano = null;
+  let muneca = null;
   if (boli > 0) {
     let P;
     if (boli === 3) P = g.punta;
@@ -2909,11 +2910,16 @@ function c_listadoArriba(R, t, o) {
     if (re < 1) {
       const Q = [P[0] + ox, P[1] + oy], ang = 0.42, tipo = boli === 1 ? 'lapiz' : boli === 2 ? 'azul' : 'rojo', manga = o.manga ?? '#5a6a3a';
       c_util(R, Q[0], Q[1], ang, 24, tipo, { roto: boli === 1 });
-      mano = [Q[0] + 16, Q[1] + 8];
-      brazo(R, P[0] + 74 + ox, 214 + oy, mano[0], mano[1], manga, -1, { puno: '#efe6d0', codo: [Q[0] + 44, Q[1] + 50] });
+      muneca = [Q[0] + 16, Q[1] + 8];
+      // con el lápiz y el azul (1 y 2) la muñeca está a ~20 px del borde de abajo y entra el brazo canónico (se ven
+      // 20–30 px de antebrazo); con el rojo (3) la punta recorre el círculo y el «Wow!» a 80–100 px del borde: un
+      // antebrazo hasta ahí sería un «brazo palo», así que va SOLO LA MANO canónica con su puño (como la tiza de
+      // wo-cierre), con su sombra blanda en el papel, desplazada abajo a la derecha por la lámpara
+      if (boli === 3) { c_sombra(R, muneca[0] + 2, muneca[1] + 5, 9, 4, 0.22); mano(R, muneca[0] - 3, muneca[1], -1, '#efe6d0', { sinManga: true }); }
+      else brazo(R, P[0] + 74 + ox, 214 + oy, muneca[0], muneca[1], manga, -1, { puno: '#efe6d0', codo: [Q[0] + 44, Q[1] + 50] });
       c_util(R, Q[0], Q[1], ang, 24, tipo, { roto: boli === 1, desde: 0.62 });
       R.rect(Q[0] + 5, Q[1] + 1, Q[0] + 7, Q[1] + 3, C.k); R.rect(Q[0] + 5, Q[1] + 2, Q[0] + 6, Q[1] + 3, hex('#f6c290'));   // el pulgar sobre el útil
-      if (mano[1] > 179) mano = null;
+      if (muneca[1] > 179) muneca = null;
     }
   }
   // vida: el vapor de la taza, motas de polvo en la luz y, a ratos, la sombra de la polilla que cruza
@@ -2921,7 +2927,7 @@ function c_listadoArriba(R, t, o) {
   if (!dia) { for (let k = 0; k < 7; k++) { const u = (t * 0.05 + h(k, 1, 86)) % 1, mx = Math.round(70 + h(k, 2, 86) * 140 + Math.sin(t * 0.8 + k) * 6), my = Math.round(40 + u * 120); if (mx > 268 && my < 48) continue; if (h(k, Math.floor(t * 3), 87) < 0.85) c_tine(R, mx, my, hex('#fff8e0'), 0.5); }
     const u = (t % 7) / 7; if (u < 0.35) { const q = u / 0.35, mx = lerp(-10, 330, q), my = 60 + Math.sin(q * 9) * 14 + q * 50; c_sombra(R, mx, my, 5 + Math.round(Math.abs(Math.sin(t * 30)) * 3), 3, 0.18); } }
   const [x0, y0, x1, y1] = g.caja;
-  return { seq: g.seq, wow: g.wow, punta: g.punta, mano, anillo: g.anillo, papelCaja: [x0, y0, x1, Math.min(y1, 179)] };
+  return { seq: g.seq, wow: g.wow, punta: g.punta, mano: muneca, anillo: g.anillo, papelCaja: [x0, y0, x1, Math.min(y1, 179)] };
 }
 const c_ESC = { base: 133, alto: 96, cols: [73, 103, 133, 163, 193, 223], vals: [6, 14, 26, 30, 19, 5], ancho: 7 };
 

@@ -11,17 +11,23 @@
 <script type="module">
 // WO-CIERRE (frases 30–31). Cinco planos, cortados en la palabra de la voz inglesa:
 // 1. (0, 1959) inserto: el artículo de Cocconi y Morrison abierto sobre el escritorio del despacho (renglones sin letras);
-//    en «In 1959» una mano pasa la página; en «one line» la pluma subraya el último renglón, que se enciende.
-// 2. («The probability of success») la pizarra de cerca: la tiza dibuja un «?» en «probability… difficult to estimate»;
-//    en «if we never search» la lupa y una X encima; en «the chance of success» la flecha; en «zero» el cero tachado.
+//    en «In 1959» una mano pasa la página; la pluma lee los tres últimos renglones de la columna, uno a uno de izquierda
+//    a derecha, y en «one line» subraya el último, que se enciende (el brazo de la pluma, T.brazo con codo, entra en
+//    diagonal desde abajo a la derecha con el hombro fuera; la muñeca no sube de y 147: se ven 35–40 px de brazo).
+// 2. («The probability of success») la pizarra de cerca: la tiza dibuja un «?» a la derecha (x 268) en «probability…
+//    difficult to estimate»; la mano se desliza a la lupa y le pone una X encima en «if we never search»; la flecha en
+//    «the chance of success»; en «zero» el cero tachado. La lupa, la flecha y el cero los pone el decorado a 55–85 px de
+//    los bordes, así que en todo el plano va solo la mano canónica con su puño y su sombra en la pizarra (sin brazo palo).
 // 3. («That's why a group of volunteers», 1973→1977) la caseta de la gran oreja de noche: la voluntaria sale con el termo,
 //    el voluntario con los cascos escucha y apunta; comparten el café; luciérnagas, un murciélago.
 // 4. («And one night, for seventy-two seconds», 1977) el cielo de Sagitario: la tetera se dibuja, unas ondas finas bajan
 //    hacia la gran oreja diminuta mientras el contador llega a 72; los dos círculos; un gato en la valla mira arriba y
 //    en «we still don't understand» le sale un «?».
-// 5. («Someone circled it in red», 2026) el techo del estudio de Atom: una mano rodea en rojo el listado clavado en la
-//    pared; Atom baja y pega su oído al vaso en «still listening»; el vecino da tres golpecitos; Atom da un respingo
-//    con cada uno, sonríe, se despide con la mano y vuelve a su esquina.
+// 5. («Someone circled it in red», 2026) el techo del estudio de Atom: una mano rodea en rojo el «6EQUJ5» del listado
+//    clavado en la pared, a la derecha, con la columna de las horas fuera del cuadro (el brazo entra y sale por el borde
+//    derecho con 10–25 px a la vista, sin tapar cifras y por encima del cuadro de la antena); Atom baja y pega su oído al
+//    vaso en «still listening»; el vecino da tres golpecitos; Atom da un respingo con cada uno, sonríe, se despide con la
+//    mano y vuelve a su esquina.
 import * as T from '/atomo/plato/escenas/wo-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('wo-cierre');
@@ -120,6 +126,13 @@ const revista = (t, pasa) => {
   if (pasa > 0 && pasa < 1) { const w = Math.round(Math.cos(pasa * Math.PI) * (X1 - MX)), xa = Math.min(MX, MX + w), xb = Math.max(MX, MX + w); R.rect(xa, Y0 - 2, xb, Y1 + 2, K); R.rect(xa + 1, Y0 - 1, xb - 1, Y1 + 1, pasa < 0.5 ? H('#f4ecd4') : H('#e0d8c0')); for (let y = Y0 + 10; y < Y1 - 10; y += 4) R.rect(xa + 4, y, xb - 4, y, H('#a8a090')); }
   return [MX + 52, Y1 - 14, X1 - 8];
 };
+// LOS BRAZOS QUE ENTRAN POR EL BORDE: el hombro de T.brazo siempre fuera del cuadro (nunca un muñón a la vista), en
+// diagonal y con codo. brazoAbajo: el hombro bajo el borde de abajo (k: cuánto se va a la derecha por cada px de
+// subida); brazoDer: el hombro tras el borde derecho (dy: cuánto baja el hombro respecto de la muñeca).
+const brazoAbajo = (wx, wy, manga, dir, k = 0.35, o = {}) => { const sy = Math.max(194, wy + 24), sx = wx + (sy - wy) * k;
+  T.brazo(R, Math.round(sx), sy, Math.round(wx), Math.round(wy), manga, dir, { ...o, codo: [Math.round(lerp(wx, sx, 0.5) + 6), Math.round(lerp(wy, sy, 0.5) + 2)] }); };
+const brazoDer = (wx, wy, manga, dir, dy = 10, o = {}) => { const sx = Math.max(336, wx + 24), sy = wy + dy;
+  T.brazo(R, sx, Math.round(sy), Math.round(wx), Math.round(wy), manga, dir, { ...o, codo: [Math.round(lerp(wx, sx, 0.5)), Math.round(lerp(wy, sy, 0.5) + 4)] }); };
 const c1 = (t) => {
   fijo('escritorio', escritorioFijo);
   const [lx0, ly, lx1] = revista(t, ease(tramo(t, PASA, PASA + 0.7)));
@@ -127,11 +140,16 @@ const c1 = (t) => {
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot(x - 200, (y - 80) * 1.1); if (d > 150) tinta(x, y, K, cl((d - 150) / 90) * 0.5); }
   // la mano de Morrison con la pluma: entra y subraya el último renglón, que se enciende en ámbar
   const entra = ease(tramo(t, PASA + 0.6, PASA + 1.3)), sub = ease(tramo(t, SUBRAYA0, SUBRAYA1)), va = ease(tramo(t, SUBRAYA1 + 0.3, C2 - 0.1));
-  // antes de subrayar, la pluma baja renglón a renglón por la columna (lee el final del artículo)
-  const lee = tramo(t, PASA + 1.3, SUBRAYA0), leeY = lerp(ly - 60, ly, lee) + (lee > 0 && lee < 1 ? Math.sin(lee * 40) * 1.5 : 0);
+  // antes de subrayar, la pluma lee los tres últimos renglones de la columna (144, 148 y 152), cada uno de izquierda a
+  // derecha, y vuelve al principio del siguiente; luego subraya el último. La punta va donde va la tinta y la muñeca
+  // 13 px a su derecha: así la muñeca no sube de y 147 y del brazo (que entra en diagonal desde abajo a la derecha,
+  // con el hombro fuera) se ven unos 35–40 px como mucho
+  const lee = tramo(t, PASA + 1.3, SUBRAYA0), REN = [144, 148, 152], ri = Math.min(2, Math.floor(lee * 3)), rs = cl(lee * 3 - ri);
+  const finR = REN[ri] === 144 ? 244 : 229, leeX = lerp(lx0 + 1, finR, ease(cl(rs * 1.25))) - (rs > 0.8 ? (finR - lx0) * ease((rs - 0.8) / 0.2) : 0), leeY = REN[ri] + 2 + (Math.floor(rs * 18) % 3 === 0 ? -1 : 0);
   if (sub > 0) { const x = Math.round(lerp(lx0, lx1 - 20, sub)); R.rect(lx0, ly + 2, x, ly + 2, H('#1a3a8a')); if (t > SUBRAYA1) for (let xx = lx0 - 2; xx <= lx1 - 18; xx++) tinta(xx, ly, H('#ffd040'), 0.35 + 0.15 * Math.sin(t * 5)); }
-  if (entra > 0 && va < 1) { const tx = lerp(lx0, lx1 - 20, sub) + (t < SUBRAYA0 ? 14 + Math.sin(lee * 25) * 6 : 0), wx = lerp(330, tx - 13, entra) + va * 80, wy = lerp(200, (t < SUBRAYA0 ? leeY : ly) + 6, entra) + va * 40;
-    T.brazo(R, wx + 46, wy + 44, wx, wy, '#2a3450', -1, { codo: [wx + 34, wy + 18] });
+  if (entra > 0 && va < 1) { const tx = t < SUBRAYA0 ? leeX : lerp(lx0, lx1 - 20, sub), ty = t < SUBRAYA0 ? leeY : ly + 2;
+    const wx = lerp(330, tx + 13, entra) + va * 80, wy = lerp(200, ty + 1, entra) + va * 40;
+    brazoAbajo(wx, wy, '#2a3450', -1, 0.42);
     R.linea(Math.round(wx - 12), Math.round(wy - 2), Math.round(wx - 4), Math.round(wy - 8), K); R.linea(Math.round(wx - 11), Math.round(wy - 2), Math.round(wx - 3), Math.round(wy - 8), H('#2a2a2a')); R.pset(Math.round(wx - 13), Math.round(wy - 1), H('#c8a040')); }
   // el humo de la taza de té que no se ve (sólo su vapor por el borde) y una mota en la luz
   for (let k = 0; k < 10; k++) { const x = Math.round(70 + hs(k, 1, 84) * 180 + Math.sin(t * 0.6 + k) * 5), y = Math.round(20 + ((hs(k, 2, 84) * 140 + t * (2 + k % 3)) % 140)); if (Math.sin(t * 2 + k) > 0.2) tinta(x, y, H('#fff4d0'), 0.5); }
@@ -143,7 +161,7 @@ const c2 = (t) => {
   const u = curva(t, [[C2, 0], [LUPA0, 0], [LUPA1, 0.33], [FLECHA0, 0.33], [FLECHA1, 0.66], [CERO0, 0.66], [CERO1, 1]]);
   const g = T.hoy(R, t, { encuadre: 'despacho', camara: 'pizarra', u });
   // el «?» de tiza arriba en el centro (la probabilidad, difícil de calcular), que se escribe trazo a trazo
-  const q = tramo(t, INT0, INT1), QX = 152, QY = 34;
+  const q = tramo(t, INT0, INT1), QX = 268, QY = 60;
   const ruta = []; for (let a = -3.0; a <= 0.6; a += 0.12) ruta.push([QX + Math.cos(a) * 9, QY + Math.sin(a) * 9]); ruta.push([QX + 4, QY + 13], [QX + 2, QY + 18], [QX + 2, QY + 23]);
   const n = Math.floor(q * ruta.length);
   for (let i = 0; i < n; i++) { const [x, y] = ruta[i]; for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) R.pset(Math.round(x + dx), Math.round(y + dy), bay(x + dx, y + dy) > 0.15 ? TIZA : TIZAS); }
@@ -151,12 +169,22 @@ const c2 = (t) => {
   // la X de tiza sobre la lupa en «never»
   const [lx, ly] = (g.iconos && g.iconos[0]) || [95, 113], xq = tramo(t, NUNCA + 0.1, NUNCA + 0.5);
   if (xq > 0) for (const [a, b] of [[[-20, -20], [20, 20]], [[20, -20], [-20, 20]]]) { const m = Math.min(1, xq * 2 - (a[0] < 0 ? 0 : 1)); if (m <= 0) continue; for (let s = 0; s <= m; s += 0.02) { const x = Math.round(lx + lerp(a[0], b[0], s)), y = Math.round(ly + lerp(a[1], b[1], s)); R.rect(x, y, x + 2, y + 2, H('#f0a0a0')); } }
-  // la mano con la tiza (la punta de ahora): en el «?», la X, y lo que escribe el decorado
+  // la mano con la tiza (la punta de ahora): en el «?», la X, y lo que escribe el decorado. La lupa, la flecha y el cero
+  // los pone el decorado a 55–85 px de cualquier borde: un brazo hasta ahí sería un «brazo palo», así que en todo el
+  // plano va SOLO LA MANO canónica con su puño (como la del boli rojo de piezaListado), con su sombra blanda en la
+  // pizarra; ya está en el «?» al empezar y se desliza de un trazo al siguiente, sin salir ni volver a entrar
   let [hx, hy] = g.tiza || [252, 113];
-  if (t < LUPA0 - 0.2) { const k = Math.max(0, Math.min(ruta.length - 1, n - 1)); [hx, hy] = q > 0 ? ruta[k] : [QX - 9, QY]; if (q >= 1) [hx, hy] = [QX + 2, QY + 30]; }
-  else if (t > NUNCA && t < FLECHA0 - 0.1) { const s = cl(xq * 2 % 1.0001); [hx, hy] = xq < 0.5 ? [lx - 20 + 40 * s, ly - 20 + 40 * s] : [lx + 20 - 40 * s, ly - 20 + 40 * s]; }
-  const wx = Math.round(hx) + 16, wy = Math.round(hy) + 3; T.brazo(R, wx + 30, wy + 32, wx, wy, '#2a3450', -1, { sombra: false });
-  R.linea(wx - 14, wy - 1, Math.round(hx), Math.round(hy), BL); R.linea(wx - 14, wy, Math.round(hx) + 1, Math.round(hy) + 1, TIZAS);
+  const LUPA_0 = [89, 93], X_FIN = [lx - 20, ly + 20], FLE_0 = [136, 113], FLE_FIN = [184, 123], CERO_0 = [233, 93], Q_FIN = [QX + 2, QY + 30];
+  if (t < INT1 + 0.15) { const k = Math.max(0, Math.min(ruta.length - 1, n - 1)); [hx, hy] = q > 0 ? ruta[k] : [QX - 9, QY]; if (q >= 1) [hx, hy] = Q_FIN; }
+  else if (t < LUPA0) { const e = ease(tramo(t, INT1 + 0.15, LUPA0 - 0.1)); [hx, hy] = [lerp(Q_FIN[0], LUPA_0[0], e), lerp(Q_FIN[1], LUPA_0[1], e) - Math.sin(e * Math.PI) * 10]; }
+  else if (t > NUNCA && t < FLECHA0) { const s = cl(xq * 2 % 1.0001); [hx, hy] = xq < 0.5 ? [lx - 20 + 40 * s, ly - 20 + 40 * s] : [lx + 20 - 40 * s, ly - 20 + 40 * s];
+    if (xq >= 1) { const e = ease(tramo(t, NUNCA + 0.55, FLECHA0 - 0.05)); [hx, hy] = [lerp(X_FIN[0], FLE_0[0], e), lerp(X_FIN[1], FLE_0[1], e)]; } }
+  else if (t > FLECHA1 && t < CERO0) { const e = ease(tramo(t, FLECHA1 + 0.05, CERO0 - 0.02)); [hx, hy] = [lerp(FLE_FIN[0], CERO_0[0], e), lerp(FLE_FIN[1], CERO_0[1], e)]; }
+  const wx = Math.round(hx) + 16, wy = Math.round(hy) + 3;
+  // la sombra blanda de la mano en la pizarra, abajo a la derecha
+  for (let j = -4; j <= 4; j++) for (let i = -10; i <= 10; i++) { const d = (i / 10) ** 2 + (j / 4) ** 2; if (d < 1) tinta(wx - 4 + i, wy + 8 + j, K, 0.24 * (1 - d * 0.6)); }
+  T.mano(R, wx - 3, wy, -1, '#efe6d0', { sinManga: true });
+  { const tx = wx - 16, ty = wy - 3; R.linea(wx - 14, wy - 1, tx, ty, BL); R.linea(wx - 14, wy, tx + 1, ty + 1, TIZAS); }
   // el polvo de tiza que cae
   for (let k = 0; k < 5; k++) { const f = ((t * 0.8 + k * 0.2) % 1); tinta(hx + k * 2 - 4, hy + 4 + f * 30, TIZA, 0.5 * (1 - f)); }
 };
@@ -212,10 +240,12 @@ const c5 = (t) => {
   const g = T.hoy(R, t, o);
   // el listado clavado en la pared, junto al embudo, con su círculo que una mano repasa en rojo
   const rodea = ease(tramo(t, ROJO0, ROJO1));
-  const L = T.piezaListado(R, 204, 80, { s: 1, w: 80, hh: 50, rodea: Math.max(0.02, rodea), wow: t > ROJO1 ? 1 : 0, resalta: t > ROJO1 ? 0.3 : 0 });
-  R.disco(244, 81, 2, K); R.disco(244, 81, 1, H('#d02a2a'));
-  if (L && t > ROJO0 - 0.6 && t < ROJO1 + 0.6) { const [px, py] = L.punta, e = ease(tramo(t, ROJO0 - 0.6, ROJO0)), v = ease(tramo(t, ROJO1, ROJO1 + 0.6)), wx = lerp(330, px + 2, e) + v * 60, wy = lerp(200, py + 4, e) + v * 50;
-    T.brazo(R, wx + 30, wy + 32, wx, wy, '#6a6e78', -1, { sombra: false }); R.linea(Math.round(wx - 12), Math.round(wy - 1), Math.round(wx - 4), Math.round(wy - 5), K); R.pset(Math.round(wx - 12), Math.round(wy - 1), ROJO); }
+  // (el listado va a la derecha, con la columna de las horas fuera del cuadro: así la mano que rodea el «6EQUJ5» entra
+  // por el borde derecho con 10–25 px de brazo, por debajo del borde de arriba del papel y sin tapar ninguna cifra)
+  const LX = 264, L = T.piezaListado(R, LX, 80, { s: 1, w: 80, hh: 50, rodea: Math.max(0.02, rodea), wow: t > ROJO1 ? 1 : 0, resalta: t > ROJO1 ? 0.3 : 0 });
+  R.disco(LX + 22, 81, 2, K); R.disco(LX + 22, 81, 1, H('#d02a2a'));
+  if (L && t > ROJO0 - 0.6 && t < ROJO1 + 0.6) { const [px, py] = L.punta, e = ease(tramo(t, ROJO0 - 0.6, ROJO0)), v = ease(tramo(t, ROJO1, ROJO1 + 0.6)), wx = lerp(345, px + 12, e) + v * 40, wy = lerp(py + 10, py + 1, e) + v * 8;
+    brazoDer(wx, wy, '#6a6e78', -1, 14, { sombra: false }); R.linea(Math.round(wx - 12), Math.round(wy - 1), Math.round(wx - 4), Math.round(wy - 5), K); R.pset(Math.round(wx - 12), Math.round(wy - 1), ROJO); }
   // Atom baja de su esquina, pone el oído al vaso, se sobresalta con cada golpecito, sonríe, se despide y vuelve
   const [vx, vy] = g.embudo || [176, 150];
   const OID = [vx - 22, vy - 8];
