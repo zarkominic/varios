@@ -11115,6 +11115,47 @@ export const ELENCO_TU = {
 };
 Object.assign(ELENCO_CHIBI, ELENCO_TU);
 
+// ── Episodio 37 · La señal «Wow!» (1959–2026) ──
+// Personas reales, por sus atributos y con ropa de su época; ninguna con rasgos inventados que la ridiculicen.
+export const ELENCO_WO = {
+  // John Kraus, ingeniero de la Universidad Estatal de Ohio, en 1956–1961: entradas, gafas redondas, chaqueta de tweed
+  // parda con corbata granate
+  krausWO: { ...B36, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#3a2a1c'), delante: gafasRedondasDC,
+    pal: CLT({ H: '#3a2a1c', h: '#5a4430', C: '#8a6a48', c: '#6a5038', W: '#f2eee2', o: '#7a2a32', F: '#5a4430' }) },
+  // Giuseppe Cocconi en 1959: el pelo negro peinado hacia atrás, traje gris, corbata oscura
+  cocconiWO: { ...B36, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1820', h: '#34303a', C: '#6a6a74', c: '#52525c', W: '#f2eee2', o: '#2a2a34', F: '#52525c' }) },
+  // Philip Morrison en 1959: el pelo castaño oscuro, gafas de pasta, chaqueta azul marino
+  morrisonWO: { ...B36, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), delante: gafasPastaDC,
+    pal: CLT({ H: '#3a2a1c', h: '#54402c', C: '#2a3450', c: '#1e2640', W: '#e8eef4', F: '#2a3450' }) },
+  // Jerry Ehman en 1977, voluntario: el pelo castaño, gafas grandes de los setenta, jersey verde oliva sobre camisa
+  ehmanWO: { ...B36, cuerpo: CUERPO_JERSEY_GT, ceja: hex('#3a2a1c'), delante: gafasGrandesDC,
+    pal: CLT({ H: '#4a3424', h: '#6a4c34', C: '#5a6a3a', c: '#44522c', W: '#efe6d0', F: '#44522c' }) },
+  // los voluntarios de Big Ear en los setenta: uno con la cazadora parda y bigote; una con el jersey mostaza y el pelo
+  // largo recogido
+  voluntario1WO: { ...B36, cuerpo: CUERPO_CAZADORA, ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: CLT({ H: '#2a1c14', h: '#4a3424', C: '#7a5a3a', c: '#5a4228', F: '#3a3a44' }) },
+  voluntaria2WO: { ...B36, cab: CAB_LARGO, cuerpo: CUERPO_JERSEY_GT, ceja: hex('#6a4a2a'),
+    pal: CLT({ H: '#8a6440', h: '#a87e54', C: '#c8962a', c: '#a07820', F: '#3a3a44' }) },
+  // Robert Gray en 1995, radioastrónomo aficionado: el pelo gris corto con barba corta gris, gafas finas, cazadora azul
+  grayWO: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAZADORA, ceja: hex('#7a7a84'), delante: gafasFinasDC,
+    pal: CLT({ H: '#8a8a94', h: '#aaaab4', C: '#34508a', c: '#263c6a', F: '#3a3a44' }) },
+  // Kevin Marvel en 1995, astrónomo: joven, el pelo castaño corto, polo granate
+  marvelWO: { ...B36, cuerpo: CUERPO_POLO_DC, ceja: hex('#4a3424'),
+    pal: CLT({ H: '#5a4030', h: '#7a5a44', C: '#8a2a3a', c: '#6a1e2c', F: '#3a3a44' }) },
+  // Alberto Caballero en 2020, astrónomo aficionado: joven, el pelo negro corto, barba corta, sudadera gris
+  caballeroWO: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAZADORA, ceja: hex('#1c1424'),
+    pal: CLT({ H: '#1c1820', h: '#34303a', C: '#6a6e78', c: '#545862', F: '#2a2a34' }) },
+  // Marc Abel, el que fotografió los listados (2006–2017): el pelo castaño, gafas finas, camisa a cuadros azul
+  abelWO: { ...B36, cuerpo: CUERPO_CUADROS_AT, ceja: hex('#4a3424'), delante: gafasFinasDC,
+    pal: CLT({ H: '#5a4030', h: '#7a5a44', F: '#3a3a44' }) },
+  // Abel Méndez en 2024–2026, astrobiólogo de la Universidad de Puerto Rico en Arecibo: el pelo corto entrecano,
+  // gafas finas, polo azul marino
+  mendezWO: { ...B36, cuerpo: CUERPO_POLO_DC, ceja: hex('#3a3440'), delante: gafasFinasDC,
+    pal: MOT({ H: '#4a4650', h: '#7a7680', C: '#24304e', c: '#1a2440', F: '#3a3a44' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_WO);
+
 // ── piezas del 36 (con el R de conChibi): (x, y) = el centro de abajo; o.s escala entera (2 al doble, insertos),
 // o.dir −1 voltea ── Todo NUESTRO y SIN LETRAS: rayas, cifras e iconos; nada de calaveras ni de momias. Colores: los
 // del 35 más la cuarcita del sarcófago (~, la sombra ^, la luz :) y el resplandor de la llama y de la lámpara (+).
