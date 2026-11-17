@@ -21,7 +21,14 @@ for k, tomas in E.items():
     rv = np.sqrt((viejo[v[0]:v[-1]] ** 2).mean()); rn = np.sqrt((nuevo ** 2).mean()); nuevo *= min(rv / rn, 0.93 / np.abs(nuevo).max())
     hueco = (ib - ia) / SR - 0.2
     print(f'frase {k}: antes {fin_viejo:.2f} s, ahora {len(nuevo)/SR:.2f} s, sitio {hueco:.2f} s, pico {np.abs(nuevo).max():.2f}')
-    assert len(nuevo) / SR <= hueco, 'no cabe'
+    if len(nuevo) / SR > hueco:   # un pelo largo: se acelera con atempo, como mucho un 5 %
+        import subprocess, tempfile
+        k = len(nuevo) / SR / hueco; assert k <= 1.05, 'no cabe'
+        with tempfile.TemporaryDirectory() as d:
+            sf.write(f'{d}/a.wav', nuevo, SR)
+            subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-af', f'atempo={k + 0.002:.4f}', f'{d}/b.wav'], check=True)
+            nuevo = sf.read(f'{d}/b.wav')[0]
+        print(f'  acelerada {k:.3f}')
     seg = np.zeros(ib - ia); seg[v[0]:v[0] + len(nuevo)] = nuevo
     if mono: a[ia:ib] = seg
     else: a[ia:ib] = seg[:, None]
