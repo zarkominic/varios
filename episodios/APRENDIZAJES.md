@@ -681,7 +681,8 @@ perforar (si sí, rehacer la frase del permiso del 36).
 - **Sonido:** efectos el 47–49 % del tiempo; cartelas 3,3 / 3,7 / 4,9 dB.
 - **Shorts:** el gancho dura 34,6 s con su voz; se tomó entero hasta el corte de escena (35,1 s) para llegar al mínimo.
   Las miniaturas verticales necesitaron tres intentos: lo que se lee en el 16:9 no cabe en los 100 px centrales
-  (el «Wow!» quedaba fuera); el papel tiene que ir dentro de x 110–210 desde el principio.
+  (el «Wow!» quedaba fuera); el papel tiene que ir dentro de x 110–210 desde el principio. Las pistas españolas de los Shorts salieron a −12,4 /
+  −15,2 / −15,2 LUFS: segunda pasada (volumen + limitador) a −14,1 / −14,0 / −14,1; el mp4 inglés salió bien a la primera.
 - **Control final a la primera:** sí (−14,1 y −13,7 LUFS; 136 y 142 subtítulos, 0 fuera de norma).
 
 Pendiente para el próximo: borrar los fotogramas del 37; pasar `--comprobar` después de la calidad; vigilar en

@@ -141,4 +141,24 @@ fotos ni grabaciones: todos los dibujos son propios. La narración está hecha c
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.0-35.1
+- **EN:** The Wow! Signal: 72 Seconds From the Sky, Never Again #Shorts
+- **ES:** La señal Wow!: 72 segundos del cielo y nunca más #Shorts
+- **EN:** In 1977, a radio telescope in Ohio caught a signal from the sky for seventy-two seconds, and no one has ever heard it again. An astronomer circled it in red pen and wrote one word: "Wow!" The full story is in the linked video. #WowSignal #SETI #Space #ASKAtom #Shorts
+- **ES:** En 1977, un radiotelescopio de Ohio captó una señal del cielo durante setenta y dos segundos, y nadie la ha vuelto a oír. Un astrónomo la rodeó en rojo y escribió una palabra: «Wow!». La historia completa, en el vídeo enlazado. #SeñalWow #SETI #Espacio #ASKAtom #Shorts
+
+### Short 2 · La noche del 15 de agosto · tramo 129.9-175.24
+- **EN:** August 15, 1977: The Night the Wow! Signal Was Printed #Shorts
+- **ES:** 15 de agosto de 1977: la noche de la señal Wow! #Shorts
+- **EN:** Nobody was at the telescope. A computer printed what Big Ear heard, and days later volunteer Jerry Ehman spotted a line unlike anything else: 6EQUJ5. He circled it in red and wrote "Wow!" in the margin. The full story is in the linked video. #WowSignal #SETI #Astronomy #ASKAtom #Shorts
+- **ES:** No había nadie en el telescopio. Una computadora imprimió lo que oía la Gran Oreja, y días después el voluntario Jerry Ehman vio una línea distinta a todo: 6EQUJ5. La rodeó en rojo y escribió «Wow!» al margen. La historia completa, en el vídeo enlazado. #SeñalWow #SETI #Astronomía #ASKAtom #Shorts
+
+### Short 3 · La segunda bocina · tramo 230.25-274.16
+- **EN:** The Wow! Signal Should Have Shown Up Twice. It Didn't #Shorts
+- **ES:** La señal Wow! debió aparecer dos veces. No lo hizo #Shorts
+- **EN:** Big Ear had two feed horns looking at the same patch of sky about three minutes apart, so a fixed source should have appeared twice. The Wow! signal showed up only once, and sixty days of listening found nothing. The full story is in the linked video. #WowSignal #SETI #Space #ASKAtom #Shorts
+- **ES:** La Gran Oreja tenía dos bocinas que miraban el mismo trozo de cielo con unos tres minutos de diferencia: una fuente fija tenía que salir dos veces. La señal Wow! salió una sola, y sesenta días escuchando no encontraron nada. La historia completa, en el vídeo enlazado. #SeñalWow #SETI #Espacio #ASKAtom #Shorts
