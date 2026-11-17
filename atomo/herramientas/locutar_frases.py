@@ -79,7 +79,9 @@ _supertonic = None
 # Supertonic no deja tocar fonemas: «Atom» sale «Adam» (la t blanda americana, como en Kokoro). Escrito «Ah-tom», Whisper oye
 # «Atom» (probado el 16/11/2026 frente a «Attom», «Atum», «Ahtom» y «At-tom»). Solo cambia lo que se sintetiza; el control
 # compara con el texto original.
-TEXTO_SUPERTONIC = [(re.compile(r'\bAtom\b'), 'Ah-tom')]
+# El 17/11/2026 el usuario eligió de oído «At-um» (muestra C) frente a «Atom», «Ah-tom» (la del 37) y «Attom».
+TEXTO_SUPERTONIC = [(re.compile(r'\bAtom\b'), 'At-um')]
+NIVELADOR_ES = 'dynaudnorm=f=300:g=11:p=0.5:m=4:r=0.1'
 def texto_supertonic(t):
     for x, y in TEXTO_SUPERTONIC:
         t = x.sub(y, t)
@@ -446,6 +448,14 @@ for e in escenas:
 energia = {}
 for l in IDIOMAS:
     voz = np.concatenate(pistas[l])
+    if VOCES[l].get('motor') == 'zonos3':
+        # ZONOS3 con emoción sube el volumen dentro de las frases largas (el usuario lo oyó en el 37: «siguen habiendo
+        # crecidas de volumen en las frases»). Un nivelador lento (ventana de ~3 s) baja lo que sobresale de la mediana
+        # de 4,8 a 2,2 dB sin aplastar la voz; los silencios entre frases son ceros y no se suben.
+        with tempfile.TemporaryDirectory() as d:
+            sf.write(f'{d}/a.wav', voz, SR)
+            subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-af', NIVELADOR_ES, '-c:a', 'pcm_s16le', f'{d}/b.wav'], check=True)
+            voz, _ = sf.read(f'{d}/b.wav')
     sf.write(f'{salida}/voz-{l}.wav', voz, SR)
     v = SR // FPS
     nf = int(np.ceil(len(voz) / v))
