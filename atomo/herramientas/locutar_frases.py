@@ -166,8 +166,9 @@ def sintetizar(texto, l, vel):
         a, _ = sf.read(f)
         return a, f
     if v.get('motor') == 'zonos3':
-        # ZONOS3-Mini (Zyphra, Apache-2.0), la voz española desde el 37: Rodrigo con un poco de emoción (mood.valence y
-        # mood.arousal a 1; con 2 el propio Zyphra mide que tiende a subir hacia el grito). «vel» es el número de toma.
+        # ZONOS3-Mini (Zyphra, Apache-2.0), la voz española desde el 37: Rodrigo con media emoción (mood.valence y
+        # mood.arousal a 0,5, elegido de oído por el usuario el 17/11/2026: a 1, la emoción constante se acumula en las
+        # oraciones largas y el tono sube hasta el grito; en el 37, 18 de 31 frases). «vel» es el número de toma.
         ctl = sorted(v.get('controles', {}).items())
         clave = hashlib.sha1(f"z3|{v['voz']}|{ctl}|{v.get('headroom', 3)}|{vel}|{texto}".encode()).hexdigest()[:16]
         f = f'{CLIPS}/{l}-{clave}.wav'

@@ -152,7 +152,7 @@ guion = {
     'narracion': 'cuento',   # la voz «B» (desde el 21): por oraciones enteras, sin cortar en las comas
     'voces': {'en': {'motor': 'supertonic', 'voz': 'M1', 'lang': 'en', 'velocidad': 1.05},
               'es': {'motor': 'zonos3', 'voz': 'Rodrigo_es_M_1', 'lang': 'es',
-                     'controles': {'mood.valence': 1, 'mood.arousal': 1}, 'headroom': 3}},
+                     'controles': {'mood.valence': 0.5, 'mood.arousal': 0.5}, 'headroom': 3}},
     'lotes': plan.get('lotes', []),
     'escenas': escenas,
 }
