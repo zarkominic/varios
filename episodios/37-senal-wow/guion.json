@@ -1,0 +1,494 @@
+{
+ "serie": "ASK Atom",
+ "numero": 37,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Wow! Signal: 72 Seconds From Space No One Can Explain",
+  "es": "La señal Wow!: 72 segundos del espacio que nadie explica"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 1.05
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 1,
+    "mood.arousal": 1
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "wo-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "wow"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "wow",
+     "es": "En 1977, un radiotelescopio de Ohio captó durante setenta y dos segundos una señal que venía del cielo, y nadie la ha vuelto a oír. Un astrónomo la rodeó con un bolígrafo rojo y escribió al lado una sola palabra: «Wow!».",
+     "en": "In 1977, a radio telescope in Ohio caught a signal from the sky for seventy-two seconds, and no one has ever heard it again. An astronomer circled it in red pen and wrote a single word next to it: \"Wow!\"",
+     "visual": "C y A: el listado de papel continuo de cerca, una línea de ceros y unos, y de pronto «6EQUJ5»; un bolígrafo rojo la rodea y escribe «Wow!» (golpe); la gran oreja de noche bajo las estrellas.",
+     "es_voz": "En mil novecientos setenta y siete, un radiotelescopio de Ohio captó durante setenta y dos segundos una señal que venía del cielo, y nadie la ha vuelto a oír. Un astrónomo la rodeó con un bolígrafo rojo y escribió al lado una sola palabra: «Wow!».",
+     "en_voz": "In nineteen seventy-seven, a radio telescope in Ohio caught a signal from the sky for seventy-two seconds, and no one has ever heard it again. An astronomer circled it in red pen and wrote a single word next to it: \"Wow!\""
+    },
+    {
+     "n": 2,
+     "marca": "camino",
+     "es": "Casi cincuenta años después, sigue sin explicación. Por el camino vas a conocer un telescopio más grande que dos campos de fútbol, a unos voluntarios que trabajaban gratis, una línea de seis letras y números que no es un mensaje, y a unos científicos que han vuelto a abrir los papeles de 1977 para mirar aquella noche otra vez.",
+     "en": "Almost fifty years later, it's still unexplained. Along the way, you'll meet a telescope bigger than three football fields, volunteers who worked for free, a line of six letters and numbers that isn't a message, and scientists who reopened the 1977 printouts to look at that night one more time.",
+     "visual": "A, F y G: la gran oreja de día, con sus dos muros y el suelo brillante; voluntarios con termos y linternas; el listado que pasa; una pantalla de hoy con el ordenador de 1977 imitado.",
+     "es_voz": "Casi cincuenta años después, sigue sin explicación. Por el camino vas a conocer un telescopio más grande que dos campos de fútbol, a unos voluntarios que trabajaban gratis, una línea de seis letras y números que no es un mensaje, y a unos científicos que han vuelto a abrir los papeles de mil novecientos setenta y siete para mirar aquella noche otra vez.",
+     "en_voz": "Almost fifty years later, it's still unexplained. Along the way, you'll meet a telescope bigger than three football fields, volunteers who worked for free, a line of six letters and numbers that isn't a message, and scientists who reopened the nineteen seventy-seven printouts to look at that night one more time."
+    }
+   ]
+  },
+  {
+   "id": "wo-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "G: Atom saluda en su estudio con su «gran oreja» casera (un embudo y un vaso) pegada al techo; solo se oye al vecino de arriba pasar la aspiradora."
+    }
+   ]
+  },
+  {
+   "id": "wo-oreja",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "ohio",
+     "es": "La historia empieza en un campo de Ohio, cerca de la ciudad de Delaware. Allí, entre 1956 y 1961, el ingeniero John Kraus y sus estudiantes de la Universidad Estatal de Ohio construyeron un radiotelescopio enorme, al que llamaron Big Ear: «la gran oreja».",
+     "en": "The story begins in a field in Ohio, near the town of Delaware. There, between 1956 and 1961, engineer John Kraus and his students at Ohio State University built a huge radio telescope, which they called Big Ear.",
+     "visual": "A: un campo de Ohio en 1956, obreros y estudiantes con John Kraus (EL.krausWO) levantando los muros de metal.",
+     "acto": true,
+     "es_voz": "La historia empieza en un campo de Ohio, cerca de la ciudad de Delaware. Allí, entre mil novecientos cincuenta y seis y mil novecientos sesenta y uno, el ingeniero John Kraus y sus estudiantes de la Universidad Estatal de Ohio construyeron un radiotelescopio enorme, al que llamaron Big Ear: «la gran oreja».",
+     "en_voz": "The story begins in a field in Ohio, near the town of Delaware. There, between nineteen fifty-six and nineteen sixty-one, engineer John Kraus and his students at Ohio State University built a huge radio telescope, which they called Big Ear."
+    },
+    {
+     "n": 5,
+     "marca": "cinta",
+     "es": "No se parecía a las antenas de las películas. Eran dos muros de metal, uno plano e inclinado y otro curvo, con un suelo de aluminio entre los dos más grande que dos campos de fútbol. Y no se movía: la Tierra, al girar, le iba pasando el cielo por delante, como una cinta.",
+     "en": "It didn't look like the dishes in the movies. It was two metal walls, one flat and tilted, one curved, with an aluminum floor between them bigger than three football fields. And it didn't move: as the Earth turned, it carried the sky past the telescope, like a conveyor belt.",
+     "visual": "A y D: el telescopio entero desde el aire, más grande que tres campos de fútbol; la Tierra gira y el cielo pasa por delante como una cinta, y una estrella se cae de la cinta."
+    }
+   ]
+  },
+  {
+   "id": "wo-voluntarios",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "voluntarios",
+     "es": "En 1972 se acabó el dinero del gobierno, y el equipo siguió como voluntario, por las tardes y los fines de semana. Desde 1973, la gran oreja se dedicó a algo que casi nadie se tomaba en serio: escuchar por si alguien, ahí fuera, estaba enviando una señal.",
+     "en": "In 1972, the government money ran out, and the team carried on as volunteers, in the evenings and on weekends. From 1973, Big Ear was devoted to something almost nobody took seriously: listening in case someone out there was sending a signal.",
+     "visual": "A: la caseta de los receptores al atardecer; voluntarios que llegan después del trabajo con un termo; un letrero de la caseta sin letras (icono de oreja).",
+     "es_voz": "En mil novecientos setenta y dos se acabó el dinero del gobierno, y el equipo siguió como voluntario, por las tardes y los fines de semana. Desde mil novecientos setenta y tres, la gran oreja se dedicó a algo que casi nadie se tomaba en serio: escuchar por si alguien, ahí fuera, estaba enviando una señal.",
+     "en_voz": "In nineteen seventy-two, the government money ran out, and the team carried on as volunteers, in the evenings and on weekends. From nineteen seventy-three, Big Ear was devoted to something almost nobody took seriously: listening in case someone out there was sending a signal."
+    }
+   ]
+  },
+  {
+   "id": "wo-hidrogeno",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "cocconi",
+     "es": "Pero el cielo es enorme y está lleno de ruido. ¿En qué frecuencia hay que escuchar? En 1959, dos físicos, Giuseppe Cocconi y Philip Morrison, propusieron una respuesta: en la del hidrógeno, el elemento más abundante del universo.",
+     "en": "But the sky is huge and full of noise. Which frequency should you listen to? In 1959, two physicists, Giuseppe Cocconi and Philip Morrison, proposed an answer: the frequency of hydrogen, the most common element in the universe.",
+     "visual": "G: un despacho de 1959 con dos físicos (EL.cocconiWO, EL.morrisonWO) ante una pizarra con un átomo de hidrógeno dibujado.",
+     "acto": true,
+     "es_voz": "Pero el cielo es enorme y está lleno de ruido. ¿En qué frecuencia hay que escuchar? En mil novecientos cincuenta y nueve, dos físicos, Giuseppe Cocconi y Philip Morrison, propusieron una respuesta: en la del hidrógeno, el elemento más abundante del universo.",
+     "en_voz": "But the sky is huge and full of noise. Which frequency should you listen to? In nineteen fifty-nine, two physicists, Giuseppe Cocconi and Philip Morrison, proposed an answer: the frequency of hydrogen, the most common element in the universe."
+    },
+    {
+     "n": 8,
+     "marca": "emisora",
+     "es": "El hidrógeno frío del espacio emite, muy débil, en una frecuencia fija: unos mil cuatrocientos veinte megahercios, como una emisora de radio que nunca cambia de canal. Cualquiera que estudie el cielo la conoce. Así que, si alguien quisiera que lo oyeran, esa sería una buena emisora para llamar.",
+     "en": "Cold hydrogen in space gives off a faint signal at a fixed frequency: about fourteen hundred and twenty megahertz, like a radio station that never changes channels. Anyone who studies the sky knows it. So if someone wanted to be heard, that would be a good station to call on.",
+     "visual": "D: una nube de hidrógeno en el espacio que «emite» en una sola raya del dial de una radio antigua; la aguja del dial se queda quieta en esa raya."
+    }
+   ]
+  },
+  {
+   "id": "wo-noche",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "cartela 1977",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "noche",
+     "es": "La noche del lunes 15 de agosto de 1977, hacia las once y cuarto, no había nadie en el telescopio. Una computadora IBM, grande como un escritorio, anotaba ella sola lo que oía la gran oreja y lo imprimía en un rollo de papel continuo, línea a línea.",
+     "en": "On the night of Monday, August 15, 1977, at about a quarter past eleven, nobody was at the telescope. An IBM computer the size of a desk logged what Big Ear heard all on its own and printed it on a roll of continuous paper, line by line.",
+     "visual": "A y B: la gran oreja de noche, sin nadie; dentro, el ordenador grande como un escritorio y la impresora que escupe papel continuo, que llena la caja, el suelo y sale por la puerta.",
+     "acto": true,
+     "es_voz": "La noche del lunes quince de agosto de mil novecientos setenta y siete, hacia las once y cuarto, no había nadie en el telescopio. Una computadora ibeéme, grande como un escritorio, anotaba ella sola lo que oía la gran oreja y lo imprimía en un rollo de papel continuo, línea a línea.",
+     "en_voz": "On the night of Monday, August fifteenth, nineteen seventy-seven, at about a quarter past eleven, nobody was at the telescope. An IBM computer the size of a desk logged what Big Ear heard all on its own and printed it on a roll of continuous paper, line by line."
+    }
+   ],
+   "cartela": "1977"
+  },
+  {
+   "id": "wo-wow",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "wow2"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "listado",
+     "es": "Unos días después, a Jerry Ehman, uno de los voluntarios, le llevaron los papeles a casa para revisarlos. Iba mirando columnas de números y letras, casi todo unos y espacios en blanco: el ruido de siempre. Y de pronto vio una línea que no se parecía a nada: 6EQUJ5.",
+     "en": "A few days later, the printouts were brought to the home of Jerry Ehman, one of the volunteers, for him to check. He was scanning columns of numbers and letters, almost all ones and blanks: the usual noise. And suddenly he saw a line unlike anything else: 6EQUJ5.",
+     "visual": "C: la cocina de Ehman (EL.ehmanWO) con el listado desplegado en la mesa, columnas de unos y espacios; de pronto la línea 6EQUJ5.",
+     "es_voz": "Unos días después, a Jerry Ehman, uno de los voluntarios, le llevaron los papeles a casa para revisarlos. Iba mirando columnas de números y letras, casi todo unos y espacios en blanco: el ruido de siempre. Y de pronto vio una línea que no se parecía a nada: seis e cu u jota cinco.",
+     "en_voz": "A few days later, the printouts were brought to the home of Jerry Eeman, one of the volunteers, for him to check. He was scanning columns of numbers and letters, almost all ones and blanks: the usual noise. And suddenly he saw a line unlike anything else: six, E, cue, you, jay, five."
+    },
+    {
+     "n": 11,
+     "marca": "wow2",
+     "es": "Tomó el bolígrafo rojo que estaba usando, rodeó la línea y escribió en el margen una sola palabra: «Wow!». Desde entonces, la señal se llama así.",
+     "en": "He took the red pen he was using, circled the line and wrote a single word in the margin: \"Wow!\" The signal has been called that ever since.",
+     "visual": "C: busca con qué marcar: un lápiz roto, un bolígrafo azul seco… y el rojo; rodea la línea y escribe «Wow!» (golpe)."
+    }
+   ]
+  },
+  {
+   "id": "wo-escala",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "escala",
+     "es": "6EQUJ5 no es un mensaje. Es una escala: los números del uno al nueve, y después las letras, para lo que pasaba de nueve. Cada carácter dice cuántas veces más fuerte que el ruido de fondo era lo que se oía. Y en el centro hay una U: unas treinta veces más fuerte.",
+     "en": "6EQUJ5 isn't a message. It's a scale: the numbers one to nine, then letters for anything above nine. Each character says how many times louder than the background noise the signal was. And in the middle there's a U: about thirty times louder.",
+     "visual": "C y G: la línea 6EQUJ5 con cada carácter convertido en una barra de altura distinta; la U llega hasta arriba (treinta veces).",
+     "acto": true,
+     "es_voz": "seis e cu u jota cinco no es un mensaje. Es una escala: los números del uno al nueve, y después las letras, para lo que pasaba de nueve. Cada carácter dice cuántas veces más fuerte que el ruido de fondo era lo que se oía. Y en el centro hay una U: unas treinta veces más fuerte.",
+     "en_voz": "six, E, cue, you, jay, five isn't a message. It's a scale: the numbers one to nine, then letters for anything above nine. Each character says how many times louder than the background noise the signal was. And in the middle there's a U: about thirty times louder."
+    },
+    {
+     "n": 13,
+     "marca": "curva",
+     "es": "Lo importante era la forma. La señal subió, llegó a su punto más alto y bajó en unos setenta y dos segundos, con la misma forma que deja un punto fijo del cielo al cruzar por delante de la gran oreja mientras gira la Tierra. Una emisora de aquí abajo no habría hecho ese dibujo.",
+     "en": "What mattered was the shape. The signal rose, peaked and faded over about seventy-two seconds, the same shape a fixed point in the sky leaves as it passes in front of Big Ear while the Earth turns. A transmitter down here wouldn't have drawn that curve.",
+     "visual": "D y A: un punto del cielo que cruza el haz de la gran oreja mientras gira la Tierra; la curva sube y baja en setenta y dos segundos."
+    }
+   ]
+  },
+  {
+   "id": "wo-sagitario",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "sagitario",
+     "es": "Además, estaba en un solo canal, muy estrecho, muy cerca de la frecuencia del hidrógeno. Casi todo lo que emite el cielo ocupa muchas frecuencias a la vez, como un ruido. En 1977, algo tan fino se parecía más a lo que hacen nuestras propias emisoras. Venía de la dirección de Sagitario.",
+     "en": "It was also in a single, very narrow channel, very close to the hydrogen frequency. Almost everything in the sky broadcasts across many frequencies at once, like static. In 1977, something that narrow looked more like what our own transmitters do. It came from the direction of Sagittarius.",
+     "visual": "D: el dial con muchas emisoras naturales anchas como manchas y una sola raya fina en el hidrógeno; el cielo con Sagitario.",
+     "es_voz": "Además, estaba en un solo canal, muy estrecho, muy cerca de la frecuencia del hidrógeno. Casi todo lo que emite el cielo ocupa muchas frecuencias a la vez, como un ruido. En mil novecientos setenta y siete, algo tan fino se parecía más a lo que hacen nuestras propias emisoras. Venía de la dirección de Sagitario.",
+     "en_voz": "It was also in a single, very narrow channel, very close to the hydrogen frequency. Almost everything in the sky broadcasts across many frequencies at once, like static. In nineteen seventy-seven, something that narrow looked more like what our own transmitters do. It came from the direction of Sagittarius."
+    }
+   ]
+  },
+  {
+   "id": "wo-segunda",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "receptores",
+     "es": "Pero había un problema. La gran oreja tenía dos bocinas, como dos orejas pequeñas, una al lado de la otra, que miraban el mismo trozo de cielo con unos tres minutos de diferencia. Si la fuente estaba quieta en el cielo, la señal tenía que aparecer dos veces. Apareció solo una.",
+     "en": "But there was a problem. Big Ear had two feed horns, like two little ears, side by side, which looked at the same patch of sky about three minutes apart. If the source was fixed in the sky, the signal should have shown up twice. It showed up only once.",
+     "visual": "A: dos trompetillas gigantes en el campo, una al lado de la otra; la primera da un respingo y la segunda se queda esperando tres minutos (sin cara: se inclina).",
+     "acto": true
+    },
+    {
+     "n": 16,
+     "marca": "dos",
+     "es": "O sea, que en esos tres minutos la señal se encendió o se apagó, y nadie sabe cuánto tiempo estuvo ahí. Y el registro ni siquiera guardaba cuál de las dos bocinas la había oído, así que hay dos puntos posibles en el cielo.",
+     "en": "In other words, sometime in those three minutes it either switched on or switched off, and no one knows how long it was there. And the log didn't even record which of the two horns had heard it, so there are two possible spots in the sky.",
+     "visual": "D: el cielo con dos puntos posibles marcados con un círculo cada uno."
+    },
+    {
+     "n": 17,
+     "marca": "sesenta",
+     "es": "Durante unos sesenta días, el equipo volvió a escuchar esa franja de cielo. Nada. Años después, Ehman lo resumió con sentido común: aunque fueran seres inteligentes, lo habrían enviado muchas más veces.",
+     "en": "For about sixty days, the team listened to that strip of sky again. Nothing. Years later, Ehman summed it up with common sense: even if it were intelligent beings, they'd have sent it far more than once.",
+     "visual": "A: un calendario que pasa sesenta hojas mientras el telescopio escucha la misma franja; nada.",
+     "en_voz": "For about sixty days, the team listened to that strip of sky again. Nothing. Years later, Eeman summed it up with common sense: even if it were intelligent beings, they'd have sent it far more than once."
+    }
+   ]
+  },
+  {
+   "id": "wo-busqueda",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1995",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "vla",
+     "es": "Otros lo intentaron con telescopios mejores. En 1995 y 1996, el radioastrónomo aficionado Robert Gray y el astrónomo Kevin Marvel escucharon con el gran conjunto de antenas de Nuevo México. Después, Gray probó desde Tasmania, en Australia. Y en 2020, otro equipo lo intentó con las antenas del Instituto SETI, en California.",
+     "en": "Others tried with better telescopes. In 1995 and 1996, amateur radio astronomer Robert Gray and astronomer Kevin Marvel listened with the giant antenna array in New Mexico. Later, Gray tried from Tasmania, in Australia. And in 2020, another team tried with the SETI Institute's antennas in California.",
+     "visual": "E: el conjunto de antenas del desierto de Nuevo México con Gray (EL.grayWO); una antena en Tasmania; las antenas del norte de California.",
+     "acto": true,
+     "es_voz": "Otros lo intentaron con telescopios mejores. En mil novecientos noventa y cinco y mil novecientos noventa y seis, el radioastrónomo aficionado Robert Gray y el astrónomo Kevin Marvel escucharon con el gran conjunto de antenas de Nuevo México. Después, Gray probó desde Tasmania, en Australia. Y en dos mil veinte, otro equipo lo intentó con las antenas del Instituto Sétti, en California.",
+     "en_voz": "Others tried with better telescopes. In nineteen ninety-five and nineteen ninety-six, amateur radio astronomer Robert Gray and astronomer Kevin Marvel listened with the giant antenna array in New Mexico. Later, Gray tried from Tasmania, in Australia. And in twenty twenty, another team tried with the Setty Institute's antennas in California."
+    },
+    {
+     "n": 19,
+     "marca": "caballero",
+     "es": "También en 2020, un astrónomo aficionado español, Alberto Caballero, buscó en esa zona del cielo una estrella parecida al Sol y encontró una candidata, a unos mil ochocientos años luz. En 2022, dos grandes telescopios la escucharon. Tampoco nada.",
+     "en": "Also in 2020, a Spanish amateur astronomer, Alberto Caballero, searched that patch of sky for a star like the Sun and found a candidate, about eighteen hundred light-years away. In 2022, two big telescopes listened to it. Nothing there either.",
+     "visual": "D y E: Caballero (EL.caballeroWO) busca en un mapa de estrellas una parecida al Sol; dos telescopios la escuchan: nada.",
+     "es_voz": "También en dos mil veinte, un astrónomo aficionado español, Alberto Caballero, buscó en esa zona del cielo una estrella parecida al Sol y encontró una candidata, a unos mil ochocientos años luz. En dos mil veintidós, dos grandes telescopios la escucharon. Tampoco nada.",
+     "en_voz": "Also in twenty twenty, a Spanish amateur astronomer, Alberto Caballero, searched that patch of sky for a star like the Sun and found a candidate, about eighteen hundred light-years away. In twenty twenty-two, two big telescopes listened to it. Nothing there either."
+    }
+   ],
+   "cartela": "1995"
+  },
+  {
+   "id": "wo-explicaciones",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "tierra",
+     "es": "Las explicaciones terrestres se fueron cayendo. Un avión o un satélite se habrían movido por el cielo de otra manera. Y esa banda de frecuencias está protegida para la astronomía: nadie puede emitir en ella.",
+     "en": "The earthly explanations fell away one by one. A plane or a satellite would have moved across the sky differently. And that band of frequencies is protected for astronomy: no one is allowed to broadcast on it.",
+     "visual": "D: un avión y un satélite cruzan el cielo con otro dibujo; un candado sobre la banda del hidrógeno (protegida).",
+     "acto": true
+    },
+    {
+     "n": 21,
+     "marca": "cometas",
+     "es": "En 2016, un astrónomo propuso que habían sido dos cometas que pasaban por allí, envueltos en nubes de hidrógeno, y en 2017 dijo haberlo confirmado. Sonaba bien, pero no encajaba: un cometa habría aparecido en las dos bocinas, y si los cometas sonaran así, oiríamos un «Wow!» todo el tiempo.",
+     "en": "In 2016, an astronomer suggested it had been two passing comets, wrapped in clouds of hydrogen, and in 2017 he claimed to have confirmed it. It sounded good, but it didn't fit: a comet would have shown up in both horns, and if comets sounded like that, we'd be hearing a \"Wow!\" all the time.",
+     "visual": "D: dos cometas con su nube pasan; aparecen en los dos receptores a la vez, y un tablero de «Wow!» que salta sin parar.",
+     "es_voz": "En dos mil dieciséis, un astrónomo propuso que habían sido dos cometas que pasaban por allí, envueltos en nubes de hidrógeno, y en dos mil diecisiete dijo haberlo confirmado. Sonaba bien, pero no encajaba: un cometa habría aparecido en las dos bocinas, y si los cometas sonaran así, oiríamos un «Wow!» todo el tiempo.",
+     "en_voz": "In twenty sixteen, an astronomer suggested it had been two passing comets, wrapped in clouds of hydrogen, and in twenty seventeen he claimed to have confirmed it. It sounded good, but it didn't fit: a comet would have shown up in both horns, and if comets sounded like that, we'd be hearing a \"Wow!\" all the time."
+    }
+   ]
+  },
+  {
+   "id": "wo-golf",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "golf",
+     "es": "Mientras tanto, la gran oreja desapareció. Dejó de funcionar en 1997, y en 1998 la derribaron para ampliar un campo de golf y construir casas. El papel con el «Wow!» acabó en un archivo de historia de Ohio.",
+     "en": "Meanwhile, Big Ear disappeared. It stopped running in 1997, and in 1998 it was torn down to expand a golf course and build houses. The printout with the \"Wow!\" ended up in a history archive in Ohio.",
+     "visual": "A y F: máquinas derriban los muros en 1998; un campo de golf y casas; una pelota rebota en la última plancha («tonk»); el listado en una caja gris de un archivo.",
+     "acto": true,
+     "es_voz": "Mientras tanto, la gran oreja desapareció. Dejó de funcionar en mil novecientos noventa y siete, y en mil novecientos noventa y ocho la derribaron para ampliar un campo de golf y construir casas. El papel con el «Wow!» acabó en un archivo de historia de Ohio.",
+     "en_voz": "Meanwhile, Big Ear disappeared. It stopped running in nineteen ninety-seven, and in nineteen ninety-eight it was torn down to expand a golf course and build houses. The printout with the \"Wow!\" ended up in a history archive in Ohio."
+    }
+   ]
+  },
+  {
+   "id": "wo-archivo",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 2024",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "paginas",
+     "es": "Pero quedaba mucho más papel. Entre 2006 y 2017, Marc Abel fotografió más de setenta y cinco mil páginas de aquellos listados. Y en 2024, un equipo de Puerto Rico, dirigido por el astrobiólogo Abel Méndez, empezó a revisarlas.",
+     "en": "But there was much more paper. Between 2006 and 2017, Marc Abel photographed more than seventy-five thousand pages of those printouts. And in 2024, a team in Puerto Rico led by astrobiologist Abel Méndez started going through them.",
+     "visual": "F: Marc Abel (EL.abelWO) fotografía montones de listados; el laboratorio de Puerto Rico con Méndez (EL.mendezWO) ante las fotos.",
+     "es_voz": "Pero quedaba mucho más papel. Entre dos mil seis y dos mil diecisiete, Marc Abel fotografió más de setenta y cinco mil páginas de aquellos listados. Y en dos mil veinticuatro, un equipo de Puerto Rico, dirigido por el astrobiólogo Abel Méndez, empezó a revisarlas.",
+     "en_voz": "But there was much more paper. Between two thousand six and twenty seventeen, Marc Abel photographed more than seventy-five thousand pages of those printouts. And in twenty twenty-four, a team in Puerto Rico led by astrobiologist Abel Méndez started going through them."
+    },
+    {
+     "n": 24,
+     "marca": "nube",
+     "es": "Primero propusieron una idea natural: una nube fría de hidrógeno que, por un instante, brilla mucho más de lo normal, encendida por el destello de una estrella muerta y muy magnética, un magnetar. Algo rarísimo, que nunca se ha visto con esa fuerza.",
+     "en": "First they proposed a natural idea: a cold cloud of hydrogen that, for an instant, shines far brighter than usual, set off by a flash from a dead, highly magnetic star, a magnetar. Something extremely rare, never seen at that strength.",
+     "visual": "D: una nube fría de hidrógeno que se enciende de golpe por el destello de un magnetar."
+    }
+   ],
+   "cartela": "2024"
+  },
+  {
+   "id": "wo-programa",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "programa"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "programa",
+     "es": "Después hicieron algo más difícil: revisaron uno a uno los listados de aquellos días y volvieron a medir la señal con métodos de hoy. En 2025 publicaron el resultado: era al menos cuatro veces más fuerte de lo que se solía calcular, y su frecuencia era un poco distinta. Y además pasaron a texto el programa original y empezaron a hacerlo funcionar en una imitación de aquella computadora.",
+     "en": "Then they did something harder: they went through the printouts from those days one by one and measured the signal again with modern methods. In 2025, they published the result: it was at least four times stronger than most estimates, and its frequency was slightly different. They also transcribed the original program and started running it on a simulation of that old computer.",
+     "visual": "F: los listados fotografiados, uno a uno, medidos de nuevo en una pantalla de hoy: la curva vuelve a salir, cuatro veces más alta (golpe); al lado, el programa copiado a mano y la pantalla que imita el ordenador de 1977.",
+     "es_voz": "Después hicieron algo más difícil: revisaron uno a uno los listados de aquellos días y volvieron a medir la señal con métodos de hoy. En dos mil veinticinco publicaron el resultado: era al menos cuatro veces más fuerte de lo que se solía calcular, y su frecuencia era un poco distinta. Y además pasaron a texto el programa original y empezaron a hacerlo funcionar en una imitación de aquella computadora.",
+     "en_voz": "Then they did something harder: they went through the printouts from those days one by one and measured the signal again with modern methods. In twenty twenty-five, they published the result: it was at least four times stronger than most estimates, and its frequency was slightly different. They also transcribed the original program and started running it on a simulation of that old computer."
+    },
+    {
+     "n": 26,
+     "marca": "cajas",
+     "es": "Eso no resuelve el misterio, y su estudio todavía no ha pasado la revisión de otros científicos. Pero refuerza la idea de que no fue una interferencia de la Tierra. Y para 2026, antiguos voluntarios ya les habían mandado cientos de papeles y tarjetas perforadas que llevaban décadas guardados en garajes y desvanes. Y en el archivo esperan más de cuarenta mil señales cortas que casi nadie ha vuelto a mirar desde 1985.",
+     "en": "That doesn't solve the mystery, and their study hasn't yet been reviewed by other scientists. But it strengthens the case that it wasn't interference from Earth. And by 2026, former volunteers had sent them hundreds of papers and punch cards that had sat for decades in garages and attics. And the archive holds more than forty thousand short signals that hardly anyone has looked at since 1985.",
+     "visual": "F: un antiguo voluntario abre una caja del garaje y salen tarjetas perforadas como confeti; un gato duerme encima de otra; detrás, estanterías con miles de listados.",
+     "es_voz": "Eso no resuelve el misterio, y su estudio todavía no ha pasado la revisión de otros científicos. Pero refuerza la idea de que no fue una interferencia de la Tierra. Y para dos mil veintiséis, antiguos voluntarios ya les habían mandado cientos de papeles y tarjetas perforadas que llevaban décadas guardados en garajes y desvanes. Y en el archivo esperan más de cuarenta mil señales cortas que casi nadie ha vuelto a mirar desde mil novecientos ochenta y cinco.",
+     "en_voz": "That doesn't solve the mystery, and their study hasn't yet been reviewed by other scientists. But it strengthens the case that it wasn't interference from Earth. And by twenty twenty-six, former volunteers had sent them hundreds of papers and punch cards that had sat for decades in garages and attics. And the archive holds more than forty thousand short signals that hardly anyone has looked at since nineteen eighty-five."
+    }
+   ]
+  },
+  {
+   "id": "wo-unavez",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "unavez",
+     "es": "¿Por qué, entonces, no sabemos qué fue? Porque en ciencia, algo que pasa una sola vez no se puede comprobar. No puedes volver a medirlo, ni ver si cambia, ni pedirle a otro telescopio que lo mire. Solo queda el papel.",
+     "en": "So why don't we know what it was? Because in science, something that happens only once can't be checked. You can't measure it again, see whether it changes, or ask another telescope to look. All that's left is the paper.",
+     "visual": "G: Atom con su oreja casera ante una pizarra: una sola marca, sin otra con la que compararla.",
+     "acto": true
+    },
+    {
+     "n": 28,
+     "marca": "posibles",
+     "es": "Puede que fuera una nube de hidrógeno encendida por un destello. Puede que fuera algo que todavía no conocemos. Y la posibilidad que todos tienen en la cabeza, que alguien llamara una sola vez, nadie la puede probar, pero tampoco descartar.",
+     "en": "Maybe it was a hydrogen cloud lit up by a flash. Maybe it was something we don't know about yet. And the possibility everyone has in mind, that someone called just once, no one can prove, but no one can rule out either.",
+     "visual": "D: tres caminos en el cielo: la nube, un signo de interrogación, y una luz lejana."
+    },
+    {
+     "n": 29,
+     "marca": "cincuenta",
+     "es": "En agosto de 2027 se cumplirán cincuenta años, y el equipo de Puerto Rico espera publicar entonces su siguiente estudio. Si hay otra señal escondida en esos papeles, puede que la encuentren.",
+     "en": "August 2027 will mark fifty years, and the Puerto Rico team hopes to publish its next study then. If there's another signal hiding in those papers, they might just find it.",
+     "visual": "F y G: un calendario de agosto de 2027 con un círculo; el equipo de Puerto Rico con montañas de papel.",
+     "es_voz": "En agosto de dos mil veintisiete se cumplirán cincuenta años, y el equipo de Puerto Rico espera publicar entonces su siguiente estudio. Si hay otra señal escondida en esos papeles, puede que la encuentren.",
+     "en_voz": "August twenty twenty-seven will mark fifty years, and the Puerto Rico team hopes to publish its next study then. If there's another signal hiding in those papers, they might just find it."
+    }
+   ]
+  },
+  {
+   "id": "wo-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "nunca",
+     "es": "En 1959, Cocconi y Morrison terminaron su artículo con una frase: la probabilidad de éxito es difícil de calcular, pero si nunca buscamos, es cero. Por eso un grupo de voluntarios se pasó años escuchando el cielo gratis, en un campo de Ohio.",
+     "en": "In 1959, Cocconi and Morrison ended their paper with one line: the probability of success is difficult to estimate, but if we never search, the chance of success is zero. That's why a group of volunteers spent years listening to the sky for free, in a field in Ohio.",
+     "visual": "G y A: la pizarra de 1959 con su frase en iconos (un cero tachado); los voluntarios en el campo, de noche, escuchando.",
+     "acto": true,
+     "es_voz": "En mil novecientos cincuenta y nueve, Cocconi y Morrison terminaron su artículo con una frase: la probabilidad de éxito es difícil de calcular, pero si nunca buscamos, es cero. Por eso un grupo de voluntarios se pasó años escuchando el cielo gratis, en un campo de Ohio.",
+     "en_voz": "In nineteen fifty-nine, Cocconi and Morrison ended their paper with one line: the probability of success is difficult to estimate, but if we never search, the chance of success is zero. That's why a group of volunteers spent years listening to the sky for free, in a field in Ohio."
+    },
+    {
+     "n": 31,
+     "marca": "final",
+     "es": "Y una noche, durante setenta y dos segundos, el cielo dijo algo que todavía no entendemos. Alguien lo rodeó en rojo. Y seguimos escuchando.",
+     "en": "And one night, for seventy-two seconds, the sky said something we still don't understand. Someone circled it in red. And we're still listening.",
+     "visual": "G: Atom vuelve a poner su oreja casera en el techo… y el vecino de arriba da un golpecito: tres. Se despide."
+    }
+   ]
+  }
+ ]
+}
