@@ -17,11 +17,15 @@
 //    («evenings»), ella anota junto a los receptores; el registrador escribe y el reloj corre; a «1973» el calendario
 //    pasa sus hojas y la barra del año llega a 1973; los dos brindan;
 // 3. «Big Ear was devoted to something almost nobody took seriously»: el anochecer azul desde la cerca (fondo local): la
-//    gran oreja enorme de canto, la caseta con luz y una camioneta que pasa; una vaca mira la oreja y, a «took
-//    seriously», le da la espalda y sigue pastando;
-// 4. «listening in case someone out there was sending a signal»: el estudio de Atom (hoy): la oreja casera del techo se
-//    despega, una mano la coge al vuelo y la vuelve a pegar a «signal».
-
+//    gran oreja enorme de canto, la caseta con luz, una camioneta que pasa y un voluntario con linterna; EL GAG: una vaca
+//    grande en primer término (unos 64 × 46 px, delante de la cerca) pasta; en «almost» levanta la cabeza, mira la gran
+//    oreja y le sale un «?»; en «took seriously» se da la vuelta (se estrecha y se ensancha, polvo en las pezuñas), le
+//    enseña la cola a la oreja, da un coletazo y vuelve a pastar masticando;
+// 4. «listening in case someone out there was sending a signal»: el estudio de Atom (hoy, cámara 'techo'): la oreja
+//    casera tira de sus tres cintas, que se estiran; en «someone» se sueltan (los trozos rotos se quedan colgando del
+//    techo y salta el yeso) y el embudo cae con rayas de velocidad; una mano entra desde abajo y lo coge por el vaso al
+//    vuelo (con su «¡zas!»), lo sostiene, en «signal» lo aprieta contra el techo con dos palmaditas y pega dos tiras de
+//    cinta nuevas en cruz; luego se va.
 import * as T from '/atomo/plato/escenas/wo-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('wo-voluntarios');
@@ -234,18 +238,54 @@ const anochecer = () => capa('anochecer', () => {
   R.rect(126, 109, 140, 114, C.k); R.rect(127, 110, 139, 113, H('#5a2a2e')); R.rect(129, 107, 137, 109, H('#3a2a2e'));
   R.linea(170, 76, 170, 99, H('#1a1830')); for (let k = 0; k < 4; k++) R.linea(166 + k, 78 + k * 3, 174 - k, 78 + k * 3, H('#1a1830'));
 });
-const vaca = (x, s, t, dir, cabeza) => {
-  const X = (i) => Math.round(dir > 0 ? x + i : x + 34 - i), m = Math.round(Math.sin(t * 3) * 0.6), B = H('#f4f0e8'), N = H('#2a2430'), S = H('#c8c0b8'), RO = H('#e8a0a0');
-  const px = (i, j, c) => R.pset(X(i), s - j, c);
-  for (let i = 4; i <= 26; i++) for (let j = 8; j <= 19; j++) { let c = j < 11 ? S : B; if ((i - 12) ** 2 + (j - 15) ** 2 < 14 || (i - 21) ** 2 / 2 + (j - 12) ** 2 < 8) c = N; if (i === 4 || i === 26 || j === 8 || j === 19) c = C.k; px(i, j, c); }
-  for (const i of [6, 9, 21, 24]) for (let j = 0; j <= 8; j++) px(i, j, j < 2 ? C.k : N), px(i + 1, j, j < 2 ? C.k : S);
-  px(14, 6, RO); px(15, 6, RO); px(16, 7, RO);
-  const ct = Math.round(Math.sin(t * 4) * 2); for (let k = 0; k < 7; k++) px(4 - (k > 3 ? 1 : 0) - (ct > 0 && k > 4 ? 1 : 0), 18 - k, N); px(3 + ct, 10, N); px(4 + ct, 10, N);
-  const hy = cabeza === 'arriba' ? 24 : cabeza === 'pasta' ? 8 : 18;
-  for (let i = 26; i <= 34; i++) for (let j = hy - 5; j <= hy + 2; j++) { let c = i > 31 ? RO : B; if (i === 26 + 0 && j === hy) c = N; if (i === 34 || j === hy - 5 || j === hy + 2) c = C.k; px(i, j, c); }
-  px(29, hy, C.k); px(28, hy + 3, H('#e8e0c8')); px(30, hy + 3, H('#e8e0c8')); px(27, hy + 1, N);
-  if (cabeza === 'pasta') { px(33, hy - 6 + m, H('#5a8a3a')); px(34, hy - 7, H('#5a8a3a')); }
-  else px(33, hy - 2 + m, C.k);
+// la vaca a tamaño de primer término (unos 64 × 46 px, pintada píxel a píxel con luz del ocaso por arriba y su contorno):
+// cx el centro, base la línea de las pezuñas, dir 1 mira a la derecha (a la gran oreja); cab 0 pasta, 1 mira arriba;
+// sx < 1 la estrecha (al darse la vuelta); cola: lo que se agita la cola
+const vaca = (cx, base, t, dir, cab, sx = 1, cola = 0) => {
+  const B0 = H('#f2ece6'), BL = H('#fae0c8'), BS = H('#b8aebc'), BD = H('#8a8098'), N = H('#2a2430'), NL = H('#4e4458'), RO = H('#e8a0a4'), ROS = H('#b87080'), CU = H('#e8dcb8'), OUT = H('#16121c');
+  // dónde va la cabeza: pastando (abajo, delante) o mirando la gran oreja (arriba, morro al frente)
+  const masca = cab < 0.5 ? Math.round(Math.sin(t * 9)) : 0;
+  const hu = lerp(57, 55, cab), hv = lerp(9, 36, cab) + masca * 0.6, mu = lerp(1.5, 5.5, cab), mv = lerp(-5.5, 1, cab);
+  const oreja = Math.sin(t * 2.3) > 0.85 ? 1 : 0;
+  const sw = cola + Math.sin(t * 2.1) * 1.2;
+  const W = 84, Hh = 54, x0 = Math.round(cx - 42), y0 = base - 50, M = new Array(W * Hh).fill(0);
+  const ell = (u, v, a, b, ra, rb) => ((u - a) / ra) ** 2 + ((v - b) / rb) ** 2;
+  const manchas = [[16, 26, 6.5, 5], [33, 19, 5, 4], [41, 30, 4.5, 3.5], [26, 32, 3.5, 2.5], [10, 21, 3, 4]];
+  for (let j = 0; j < Hh; j++) for (let i = 0; i < W; i++) {
+    const x = x0 + i, y = y0 + j, u = 32 + (x - cx) / (sx * dir), v = base - y;
+    let c = 0;
+    // las patas del otro lado, más oscuras
+    if (v >= 0 && v <= 15 && ((u >= 15 && u <= 18) || (u >= 48 && u <= 51))) c = v < 2 ? OUT : BD;
+    // el cuerpo, con las manchas
+    const dc = Math.pow(Math.abs(u - 29) / 23, 2.6) + Math.pow(Math.abs(v - 24) / 11, 2.6);
+    if (dc <= 1) { c = v > 32 ? BL : v < 18 ? BS : B0; if (v < 15.5) c = BD;
+      for (const [a, b, ra, rb] of manchas) if (ell(u, v, a, b, ra, rb) < 1) c = v > 30 ? NL : N; }
+    // la ubre
+    if (ell(u, v, 21, 13, 4.5, 2.6) < 1 && v < 15) c = v < 12 ? ROS : RO;
+    // las patas de este lado, con su rodilla y la pezuña
+    if (v >= 0 && v <= 16 && ((u >= 9 && u <= 13) || (u >= 42 && u <= 46))) c = v < 2 ? OUT : v < 3 ? NL : (u === 9 || u === 42) ? BL : (v > 6 && v < 8) ? BS : B0;
+    // la cola, que se agita, con su borla
+    for (let k = 0; k <= 18; k++) { const q = k / 18, tu = 6 - q * 2 + Math.sin(q * 2.4) * sw, tv = 31 - q * 18; if (Math.abs(u - tu) < 0.9 && Math.abs(v - tv) < 0.9) c = q > 0.82 ? N : B0; }
+    if (ell(u, v, 4 + sw * 0.8, 12, 1.6, 2.4) < 1) c = N;
+    // el cuello y la cabeza (con su mancha, el ojo, la oreja, los cuernos y el morro rosa)
+    for (let k = 0; k <= 10; k++) { const q = k / 10, nu = lerp(46, hu - 2, q), nv = lerp(27, hv + 2, q); if (ell(u, v, nu, nv, 4.2, 4.6) < 1) c = v > nv + 2.5 ? BL : B0; }
+    if (ell(u, v, hu, hv, 5.5, 6) < 1) { c = v > hv + 4 ? BL : B0; if (ell(u, v, hu - 2, hv + 2, 3, 3) < 1) c = N; }
+    if (ell(u, v, hu + mu, hv + mv, 3.6, 3) < 1) c = v < hv + mv - 1 ? ROS : RO;
+    if (ell(u, v, hu - 6, hv + 3 + oreja, 2.6, 1.3) < 1) c = u > hu - 6 ? RO : B0;
+    if ((Math.round(u) === Math.round(hu - 1) && Math.round(v) === Math.round(hv + 7)) || (Math.round(u) === Math.round(hu + 1.5) && Math.round(v) === Math.round(hv + 7))) c = CU;
+    M[j * W + i] = c;
+  }
+  // la sombra en la hierba
+  for (let j = -2; j <= 2; j++) for (let i = -30 * sx - 4; i <= 30 * sx + 4; i++) if ((i / (30 * sx + 4)) ** 2 + (j / 2.5) ** 2 < 1 && bay(cx + i, base + j) < 0.6) R.pset(Math.round(cx + i), base + j, H('#1e1a26'));
+  // el contorno: un píxel de cuerpo con un vecino vacío
+  for (let j = 0; j < Hh; j++) for (let i = 0; i < W; i++) { const c = M[j * W + i]; if (!c) continue;
+    const borde = i === 0 || j === 0 || i === W - 1 || j === Hh - 1 || !M[j * W + i - 1] || !M[j * W + i + 1] || !M[(j - 1) * W + i] || !M[(j + 1) * W + i];
+    R.pset(x0 + i, y0 + j, borde ? OUT : c); }
+  // el ojo (con su brillo) y la hierba que mastica
+  const ex = Math.round(cx + (hu + 1.5 - 32) * sx * dir), ey = Math.round(base - (hv + 2));
+  if (sx > 0.5) { R.pset(ex, ey, OUT); R.pset(ex, ey - 1, OUT); if (cab > 0.5) R.pset(ex + dir, ey - 1, H('#ffffff')); }
+  if (cab < 0.5 && sx > 0.5) { const mx = Math.round(cx + (hu + mu + 3 - 32) * dir), my = Math.round(base - (hv + mv - 1)); for (let k = 0; k < 4; k++) R.linea(mx + k * dir, my, mx + (k + (k % 2 ? 1 : -1)) * dir, my - 3 - (k % 2) + masca, k % 2 ? H('#6a9a4a') : H('#4a7a3a')); }
+  return [ex, ey];
 };
 const p3 = (t) => {
   anochecer();
@@ -259,35 +299,72 @@ const p3 = (t) => {
   if (cq > 0 && cq < 1) { R.rect(qx, 106, qx + 16, 111, C.k); R.rect(qx + 1, 107, qx + 15, 110, H('#3a4a6a')); R.rect(qx + 1, 104, qx + 7, 107, C.k); R.rect(qx + 2, 105, qx + 6, 106, H('#e0c070')); for (let k = 0; k < 10; k++) if (bay(qx - k, 109) < 1 - k / 10) R.pset(qx - k, 109, H('#fff0b0')); R.pset(qx + 15, 108, H('#ff3a3a')); }
   const wv = lin(t, P3 + 0.2, CASI), wx = Math.round(lerp(126, 152, wv));
   if (wv < 1) { R.rect(wx, 104, wx + 2, 111, H('#5a4228')); R.rect(wx, 101, wx + 2, 103, H('#f0c890')); R.pset(wx + (Math.floor(t * 5) % 2), 112, H('#2a2430')); for (let k = 1; k < 7; k++) if (bay(wx + 3 + k, 110) < 1 - k / 7) R.pset(wx + 3 + k, 110 + Math.round(k / 3), H('#fff4b0')); }
-  // la vaca: pasta, levanta la cabeza para mirar la gran oreja y, a «took seriously», le da la espalda y sigue pastando
-  const gira = t > ENSERIO;
-  vaca(gira ? 84 : 70, 160, t, gira ? -1 : 1, t < CASI - 0.4 ? 'pasta' : t < ENSERIO + 0.5 ? 'arriba' : 'pasta');
   // la cerca de delante, con su alambre de espino, la hierba alta y las luciérnagas
   for (const x of [8, 62, 116, 170, 224, 278]) { R.rect(x, 136, x + 3, 172, C.k); R.rect(x + 1, 137, x + 2, 171, H('#5a4436')); R.pset(x + 1, 138, H('#8a7058')); }
   for (const y of [144, 156]) for (let x = 0; x < 320; x++) { const yy = Math.round(y + Math.sin(x * 0.058) * 2); R.pset(x, yy, H('#8a8a9a')); if (x % 9 === 4) { R.pset(x, yy - 1, H('#8a8a9a')); R.pset(x + 1, yy + 1, H('#8a8a9a')); } }
+  // LA VACA, en primer término delante de la cerca: pasta; en «almost» levanta la cabeza y mira la gran oreja (con su
+  // «?»); en «took seriously» se da la vuelta (se estrecha y se ensancha), le enseña la cola a la oreja, da un coletazo
+  // y vuelve a pastar
+  const gv = lin(t, ENSERIO, ENSERIO + 0.4), sxv = gv > 0 && gv < 1 ? Math.max(0.2, Math.abs(Math.cos(gv * Math.PI))) : 1, dv = gv < 0.5 ? 1 : -1;
+  const cab = t < ENSERIO ? suave(lin(t, CASI - 0.45, CASI)) : 1 - suave(lin(t, ENSERIO + 0.45, ENSERIO + 0.95)) * 1 - (gv > 0 && gv < 1 ? 0.4 : 0);
+  const coleta = t > ENSERIO + 0.5 && t < ENSERIO + 1.6 ? Math.sin((t - ENSERIO - 0.5) * 16) * 3.2 * (1 - (t - ENSERIO - 0.5) / 1.1) : 0;
+  const [ox, oy] = vaca(82, 175, t, dv, Math.max(0, Math.min(1, cab)), sxv, coleta);
+  if (gv > 0.2 && gv < 1) for (let k = 0; k < 6; k++) { const px = Math.round(82 + (k - 2.5) * 11 + Math.sin(t * 9 + k) * 2), py = 174 - Math.round(lin(t, ENSERIO, ENSERIO + 0.9) * 6) - (k % 2); if (bay(px, py) < 0.7) R.pset(px, py, H('#7a6a5a')); }
+  const ve = tramo(t, CASI, CASI + 0.25) * (t < ENSERIO - 0.05 ? 1 : 0);
+  if (ve > 0) { const bx = ox + 9, by = oy - 14, r = Math.round(6 * Math.min(1, ve * 1.3)); R.disco(bx, by, r + 1, C.k); R.disco(bx, by, r, H('#f6f2ea')); R.pset(bx - 4, by + r + 1, C.k); R.pset(bx - 3, by + r, H('#f6f2ea')); R.pset(bx - 3, by + r + 1, C.k); if (ve > 0.6) R.icono('?', bx - 2, by - 3, H('#3a5ab0'), null, 1); }
   for (let k = 0; k < 40; k++) { const x = Math.floor(hs(k, 1, 8) * 320), h = 8 + Math.floor(hs(k, 2, 8) * 10), sw = Math.sin(t * 1.8 + k) * 2; R.linea(x, 180, Math.round(x + sw), 180 - h, k % 3 ? H('#3a4a3a') : H('#5a6a48')); }
   for (let k = 0; k < 9; k++) { const x = Math.round(hs(k, 3, 9) * 300 + Math.sin(t * 0.7 + k) * 8), y = Math.round(118 + hs(k, 4, 9) * 50 + Math.cos(t * 0.9 + k) * 4); if (Math.sin(t * 2.2 + k * 1.9) > 0.3) { R.pset(x, y, H('#e8ff8a')); R.pset(x + 1, y, H('#8aa04a')); } }
 };
 
-// ── 4 · el estudio de Atom: la oreja casera se despega y una mano la vuelve a pegar ─────────────────────────────
-const CAE = ALGUIEN - 0.35, COGE = CAE + 0.35;
+// ── 4 · el estudio de Atom: la oreja casera se despega, cae de verdad y una mano la coge y la vuelve a pegar ──────
+// (cámara 'techo': boca del embudo en g.boca; baja como mucho 28 px con o.oreja 0; las tiras de cinta del decorado
+// solo se pintan pegadas, así que las estiradas, las rotas y las nuevas son de la escena)
+const CAE = ALGUIEN - 0.35, COGE = CAE + 0.24;
+// una tira de cinta de (ax, ay) a (bx, by), de ancho w, con su brillo y su borde (nueva: más clara)
+const cinta = (ax, ay, bx, by, w, nueva = false) => {
+  const dx = bx - ax, dy = by - ay, l = Math.hypot(dx, dy) || 1, nx = -dy / l * w / 2, ny = dx / l * w / 2;
+  R.poligono([[ax + nx, ay + ny], [bx + nx, by + ny], [bx - nx, by - ny], [ax - nx, ay - ny]].map(([x, y]) => [Math.round(x), Math.round(y)]), H(nueva ? '#fff2c0' : '#d8cca0'));
+  R.linea(Math.round(ax + nx), Math.round(ay + ny), Math.round(bx + nx), Math.round(by + ny), H(nueva ? '#ffffff' : '#f0e8c8'));
+  R.linea(Math.round(ax - nx), Math.round(ay - ny), Math.round(bx - nx), Math.round(by - ny), H(nueva ? '#d8c890' : '#a89a70'));
+  for (let k = 1; k < 4; k++) { const q = k / 4; R.pset(Math.round(ax + dx * q), Math.round(ay + dy * q), H(nueva ? '#e8dca8' : '#bcae84')); }
+};
 const p4 = (t) => {
-  const cae = suave(lin(t, CAE, CAE + 0.25)), sube = suave(lin(t, SENAL - 0.6, SENAL));
-  const oreja = t < CAE ? 1 : t < SENAL - 0.6 ? 1 - 0.55 * cae : lerp(0.45, 1, sube);
-  const g = T.hoy(R, t, { encuadre: 'estudio', camara: 'techo', oreja: oreja >= 0.999 ? 1 : oreja });
-  // la mano entra por abajo, coge el vaso al vuelo, lo sube al techo, da dos palmaditas y se va
-  const entra = suave(lin(t, CAE + 0.05, COGE)), va = suave(lin(t, SENAL + 0.55, P4 + 4.0));
-  if (entra > 0 && va < 1) { const [ex, ey] = g.embudo; const pal = t > SENAL && t < SENAL + 0.5 ? Math.abs(Math.sin((t - SENAL) * 14)) * 2 : 0;
-    const wx = ex + 9, wy = Math.round(lerp(200, ey + 3, entra) + va * 60 + pal);
-    T.brazo(R, wx + 26, wy + 40, wx, wy, '#5a8ad0', -1); }
-  // las motas de yeso que caen al despegarse
-  if (t > CAE && t < CAE + 1.2) for (let k = 0; k < 6; k++) { const f = (t - CAE) / 1.2, x = Math.round(160 + k * 6 + Math.sin(k * 3 + t * 4) * 2), y = Math.round(34 + f * (60 + k * 10)); R.pset(x, y, H('#f4f0e8')); }
+  // la oreja: tira de las cintas (baja 2 px y se estiran), se suelta en «someone» y cae con gravedad; la mano la coge
+  // abajo; en «signal» la sube y la aprieta contra el techo
+  const tira = suave(lin(t, P4 + 0.05, CAE)), cae = lin(t, CAE, COGE), sube = suave(lin(t, SENAL - 0.6, SENAL));
+  const oreja = t < CAE ? 1 - 0.08 * tira : t < SENAL - 0.6 ? 0.92 * (1 - cae * cae) : sube;
+  const ore = oreja >= 0.999 ? 1 : oreja;
+  const g = T.hoy(R, t, { encuadre: 'estudio', camara: 'techo', oreja: ore });
+  const [bx, by] = g.boca, by0 = by - Math.round((1 - ore) * 28), [ex, ey] = g.embudo;
+  const tiemb = t < CAE && tira > 0.2 ? (Math.floor(t * 30) % 2) * (tira > 0.7 ? 1 : 0) : 0;
+  // las tres anclas de la cinta en el techo y dónde se pegan al embudo (las del decorado)
+  const AN = [[bx - 40, by0 - 7, bx - 30, by + 9], [bx + 40, by0 - 7, bx + 30, by + 9], [bx + 5, by0 - 6, bx + 4, by + 14]];
+  if (ore < 1 && t < CAE) for (const [ax, ay, cx, cy] of AN) cinta(ax, ay, cx + tiemb, cy, 7 - tira * 2);
+  // rotas: los trozos que se quedan colgando del techo y se mecen (hasta que la mano pone cinta nueva)
+  if (t >= CAE) for (const [ax, ay, cx] of AN) { const s = Math.sign(cx - ax) || 1, m = Math.sin((t - CAE) * 9 + ax) * 3 * Math.exp(-(t - CAE) * 1.2); cinta(ax, ay, ax + s * 3 + m, ay + 10, 5); R.pset(Math.round(ax + s * 3 + m), ay + 11, H('#a89a70')); }
+  // la caída: rayas de velocidad sobre los bordes del cono y el yeso que salta de las anclas
+  if (cae > 0 && cae < 1) for (const dxs of [-30, -16, 16, 30]) { const y1 = by - 2, y0 = Math.max(24, y1 - 6 - Math.round(cae * 14)); if (y1 > y0) R.linea(bx + dxs, y0, bx + dxs, y1, H('#ffffff')); }
+  if (t > CAE && t < CAE + 1.6) { const f = (t - CAE) / 1.6; for (let k = 0; k < 12; k++) { const [ax, ay] = AN[k % 3], x = Math.round(ax + (hs(k, 1) - 0.5) * 14 + Math.sin(k * 3 + t * 5) * 2), y = Math.round(ay + 2 + f * f * (90 + k * 8)); if (y < 178) { R.pset(x, y, H('#f4f0e8')); if (k % 3 === 0) R.pset(x + 1, y, H('#c8c0b4')); } }
+    if (f < 0.25) for (const [ax, ay] of AN) for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI, r = 3 + f * 30; R.pset(Math.round(ax + Math.cos(a) * r), Math.round(ay + 2 + Math.sin(a) * r * 0.4), H('#e8e0d4')); } }
+  // la mano (el brazo entra desde abajo, en diagonal) llega justo cuando el embudo toca fondo, lo coge por el vaso, lo
+  // sube, da dos palmaditas y pone dos tiras de cinta nuevas en cruz; luego se va
+  const entra = suave(lin(t, CAE + 0.02, COGE)), va = suave(lin(t, SENAL + 1.1, SENAL + 1.7));
+  const pal = t > SENAL && t < SENAL + 0.45 ? Math.round(Math.abs(Math.sin((t - SENAL) * 14)) * 2) : 0;
+  const tc = suave(lin(t, SENAL + 0.45, SENAL + 0.95));
+  // las dos tiras nuevas en cruz (se desenrollan en «signal» y se quedan): así el plano acaba distinto de como empieza
+  if (tc > 0) { cinta(bx - 18, by0 - 8, Math.round(lerp(bx - 18, bx + 12, tc)), Math.round(lerp(by0 - 8, by + 22, tc)), 6, true); cinta(bx + 18, by0 - 8, Math.round(lerp(bx + 18, bx - 12, tc)), Math.round(lerp(by0 - 8, by + 22, tc)), 6, true); }
+  if (entra > 0 && va < 1) {
+    const wx = ex + 22, wy = Math.round(ey - 16 + (1 - entra) * 60 + va * 70 + pal), sx = wx + 34 - Math.round(tc * 8), sy = wy + 60;
+    T.brazo(R, sx, sy, Math.round(wx - tc * 8), wy - Math.round(tc * 18), '#5a8ad0', -1, { sombra: false });
+    // el «¡zas!» de la mano que coge al vuelo: cuatro rayas que salen del puño
+    const z = lin(t, COGE, COGE + 0.35); if (z > 0 && z < 1) for (const [dx, dy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) { const l = 3 + Math.round(z * 5); R.linea(wx - 8 + dx * 9, wy - 3 + dy * 6, wx - 8 + dx * (9 + l), wy - 3 + dy * (6 + l * 0.6), H('#fff6d0')); }
+  }
 };
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], {
   año: (t) => t >= P4 ? 2026 : t >= Y1973 ? 1973 : 1972,
   efectos: [[RANOUT - 0.5, 'puerta'], [RANOUT, 'motor'], [SIGUE - 0.6, 'coche'], [VOLUNT + 0.1, 'puerta'], [TARDES - 0.1, 'burbujas'], [Y1973, 'papel'],
-    [P3 + 0.6, 'coche'], [CAE, 'pop'], [SENAL, 'golpecito']],
+    [P3 + 0.6, 'coche'], [CAE - 0.05, 'papel'], [COGE, 'palmada'], [SENAL, 'golpecito'], [ENSERIO + 0.8, 'masca']],
 });
 </script>
 </body>

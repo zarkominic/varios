@@ -131,7 +131,11 @@ const p3 = (t) => {
   }
   T.salaDelante(R, t, o);
 };
-const efectos = [[CUARTO, 'bip'], [CUARTO + 0.05, 'boing'], [P2 + 0.1, 'maquina'], [SOLO, 'pop'], [P3 + 0.3, 'papel'], [LINEA, 'whoosh'], [LINEA + 0.6, 'papel']];
+// efectos (uno por segundo como mucho, cada uno con su acción): el mapache olfatea el cable; el piloto y el brinco; la
+// impresora arranca y traquetea línea a línea; el ratón asoma; el papel cae en la caja; la sala zumba con la impresora
+// y los receptores; la ola de papel por la puerta; el reloj de la pared
+const efectos = [[CUARTO - 1.3, 'masca'], [CUARTO, 'bip'], [CUARTO + 0.05, 'boing'], [P2 + 0.1, 'maquina', { dur: 2.4 }], [P2 + 3.1, 'tecleo', { dur: 1.6 }],
+  [SOLO, 'pop'], [P3 + 0.3, 'papel'], [P3 + 1.2, 'zumbido'], [LINEA, 'whoosh'], [LINEA + 0.6, 'papel'], [LINEA + 1.7, 'tic']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, cartela: '1977', año: 1977 });
 </script>
 </body>

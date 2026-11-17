@@ -28,8 +28,11 @@
 //    (fondo local), con las sombras de las nubes, los pájaros y un coche en la carretera; a «three», «football» y
 //    «fields» caen tres campos de fútbol dentro del suelo de metal y sobra sitio;
 // 7. «as the Earth turned, it carried the sky past… like a conveyor belt»: el esquema de la deriva: la Tierra gira y
-//    el cielo pasa (o.u); a los lados, dos rodillos de cinta que giran; a «conveyor belt» una estrella se cae de la
-//    cinta por la derecha y rebota en la Tierra (gag 2).
+//    el cielo pasa (o.u); por el borde de la Tierra corre una cinta de goma estriada, a la velocidad del cielo, entre
+//    dos rodillos de acero con su caballete; encima viajan estrellas y una galaxia como la compra en la caja (al pasar
+//    bajo el telescopio, un destello); una estrella grande va en la cinta desde el principio, llega al rodillo de la
+//    derecha, se tambalea en el borde y a «conveyor belt» se cae por delante, salta por encima del reloj de arena,
+//    rebota dos veces en la hierba y se queda tumbada y mareada (gag 2). La cinta pasa por detrás del reloj de arena.
 
 import * as T from '/atomo/plato/escenas/wo-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -417,25 +420,67 @@ const p6 = (t) => {
 };
 
 // ── 7 · la Tierra gira y el cielo pasa como una cinta; una estrella se cae ──────────────────────────────────────
-const rodillo = (x, y, t) => { R.disco(x, y, 9, C.k); R.disco(x, y, 8, H('#7a828c')); R.disco(x, y, 6, H('#a8b0b8')); for (let k = 0; k < 3; k++) { const a = t * 2.4 + k * 2.09; R.linea(x, y, Math.round(x + Math.cos(a) * 6), Math.round(y + Math.sin(a) * 6), H('#4a525c')); } R.disco(x, y, 2, H('#dce2e8')); R.pset(x - 3, y - 4, H('#ffffff')); };
+// la cinta corre por el borde de la Tierra (unos px por debajo del horizonte, para no pisar el telescopio del
+// decorado), a la misma velocidad que el cielo (o.u · 240 px); dos rodillos de acero con su caballete en los extremos
+const limbo = (x) => 107 + 31 * ((x - 160) / 160) ** 2;
+const VCINTA = 240;
+const rodillo = (x, y, t, off) => {
+  // el caballete: dos patas de hierro clavadas en la hierba, con su travesaño y sus tornillos
+  for (const d of [-5, 5]) { R.linea(x, y, x + d, 176, C.k); R.linea(x + 1, y, x + d + 1, 176, H('#5a626c')); }
+  R.rect(x - 4, 166, x + 5, 167, H('#4a525c')); R.pset(x - 3, 166, H('#a8b0b8')); R.pset(x + 4, 166, H('#a8b0b8'));
+  R.disco(x, y, 9, C.k); R.disco(x, y, 8, H('#5a626c')); R.disco(x, y, 7, H('#8a929c')); R.disco(x - 1, y - 1, 5, H('#a8b0b8'));
+  for (let k = 0; k < 4; k++) { const a = off / 7 + k * Math.PI / 2; R.linea(x, y, Math.round(x + Math.cos(a) * 6), Math.round(y + Math.sin(a) * 6), H('#4a525c')); }
+  R.disco(x, y, 2, H('#dce2e8')); R.pset(x, y, C.k); R.pset(x - 4, y - 5, H('#ffffff')); R.pset(x - 3, y - 6, H('#ffffff'));
+};
+// una estrella de cinco puntas (7 × 7) con su filo; e = 0–1 de estirada (se aplasta al rebotar)
+const ESTR = ['...#...', '...#...', '.#####.', '#######', '.#####.', '.##.##.', '##...##'];
+const estrella = (x, y, c1, c2, aplasta = 0, s = 1) => { x = Math.round(x); y = Math.round(y);
+  ESTR.forEach((fl, j) => { for (let i = 0; i < 7; i++) if (fl[i] === '#') { const borde = j === 0 || i === 0 || i === 6 || j === 6 || ESTR[j - 1]?.[i] !== '#' || (s > 1 && (ESTR[j + 1]?.[i] !== '#' || fl[i - 1] !== '#' || fl[i + 1] !== '#'));
+    const yy = aplasta ? y - 7 * s + 1 + Math.round(j * s * 0.7) + 2 * s : y - 7 * s + 1 + j * s, xx = x - 3 * s - (s > 1 ? 0 : 0) + i * s + (aplasta && i > 3 ? s : aplasta && i < 3 ? -s : 0);
+    for (let a = 0; a < s; a++) for (let b = 0; b < (aplasta ? Math.max(1, s - 1) : s); b++) if (!detras(xx + a, yy + b)) R.pset(xx + a, yy + b, borde ? c2 : c1); } }); };
+// el reloj de arena del decorado va delante de la cinta: lo que pasa por detrás de él no se pinta
+const detras = (x, y) => x >= 276 && x <= 297 && y >= 127 && y <= 156;
 const p7 = (t) => {
-  const o = { encuadre: 'cinta', u: lin(t, P7, 35.6) };
+  const u = lin(t, P7, 35.6), off = u * VCINTA, o = { encuadre: 'cinta', u };
   T.oreja(R, t, o);
-  // la banda de goma estriada de la cinta, arriba y abajo de la franja del cielo, y sus rodillos
-  rodillo(2, 136, t); rodillo(318, 136, t);
-  // la estrella que se sale de la cinta por la derecha, cae y rebota en la Tierra
-  const f = lin(t, CINTA - 0.5, CINTA + 1.1);
-  const limbo = (x) => 107 + 31 * ((x - 160) / 160) ** 2;
-  if (f > 0) { let x, y; if (f < 0.35) { x = lerp(250, 318, f / 0.35); y = lerp(limbo(250) - 16, 124, f / 0.35); } else { const g = (f - 0.35) / 0.65; x = lerp(318, 280, g); const b = g < 0.45 ? g / 0.45 : g < 0.75 ? (g - 0.45) / 0.3 : (g - 0.75) / 0.25; const alto = g < 0.45 ? 0 : g < 0.75 ? 10 : 4; y = g < 0.45 ? lerp(124, limbo(x) - 3, b * b) - Math.sin(b * Math.PI) * 8 : limbo(x) - 3 - Math.sin(b * Math.PI) * alto; }
-    const xi = Math.round(x), yi = Math.round(y); for (let i = -3; i <= 3; i++) { R.pset(xi + i, yi, H('#fff4a0')); R.pset(xi, yi + i, H('#fff4a0')); } R.pset(xi - 1, yi - 1, H('#ffffff')); R.pset(xi + 1, yi + 1, H('#ffffff')); R.pset(xi + 1, yi - 1, H('#ffffff')); R.pset(xi - 1, yi + 1, H('#ffffff')); R.pset(xi, yi, H('#ffffff'));
-    if (f > 0.35 && f < 0.65) for (let k = 1; k < 5; k++) R.pset(Math.round(x + k * 3), Math.round(y - k * 2), H('#c8b860'));
-    const choque = (f > 0.64 && f < 0.72) || (f > 0.83 && f < 0.88); if (choque) for (let r = 0; r < 8; r++) { const a = r * Math.PI / 4; R.pset(Math.round(xi + Math.cos(a) * 6), Math.round(yi + Math.sin(a) * 4), H('#ffffff')); } }
+  // la banda de goma estriada: brillo arriba, estrías que corren a la derecha, sombra abajo y la sombra en la hierba
+  for (let x = 6; x <= 314; x++) { const y = Math.round(limbo(x)) + 3, s = ((x - off) % 6 + 6) % 6;
+    const P_ = (yy, c) => { if (!detras(x, yy)) R.pset(x, yy, c); };
+    P_(y - 1, H('#9a9aa8')); P_(y, H('#6a6a74')); P_(y + 1, s < 1 ? C.k : H('#4a4a56')); P_(y + 2, s < 1 ? C.k : H('#3a3a44')); P_(y + 3, s < 1.5 ? H('#1e1e24') : H('#30303a')); P_(y + 4, H('#141418'));
+    if (!detras(x, y + 5)) R.pset(x, y + 5, mez(R.pget(x, y + 5), H('#05100a'), 0.45)); }
+  // los objetos del cielo que viajan sobre la cinta (estrellas y una galaxia), como la compra en la caja; al pasar
+  // por debajo del telescopio, un destello: «visto»
+  for (let k = 0; k < 5; k++) { const x = ((k * 68 + off + 20) % 340) - 10; if (x < 10 || x > 300) continue; const yb = Math.round(limbo(x)) + 2;
+    if (detras(x, yb - 3)) continue;
+    if (k === 2) { R.disco(x, yb - 3, 3, H('#3a3a6a')); R.disco(x, yb - 3, 2, H('#8a8ad8')); R.pset(Math.round(x), yb - 3, H('#ffffff')); R.pset(Math.round(x) + 3, yb - 5, H('#c8c8f8')); R.pset(Math.round(x) - 3, yb - 1, H('#c8c8f8')); }
+    else estrella(x, yb, H(k % 2 ? '#f4f0ff' : '#fff4a0'), H(k % 2 ? '#a8b0e8' : '#e8c040'));
+    if (Math.abs(x - 158) < 6 && !detras(x, yb)) for (let r = 0; r < 8; r++) { const a = r * Math.PI / 4; R.pset(Math.round(x + Math.cos(a) * 6), Math.round(yb - 3 + Math.sin(a) * 5), H('#bfe8ff')); } }
+  rodillo(6, Math.round(limbo(6)) + 8, t, off); rodillo(314, Math.round(limbo(314)) + 8, t, off);
+  // EL GAG: una estrella grande va en la cinta desde el principio; llega al rodillo, se tambalea en el borde y en
+  // «conveyor belt» se cae por delante, rebota dos veces en la hierba y se queda tumbada y mareada
+  const LLEGA = CINTA - 0.2, X0 = 304 - (LLEGA - P7) * VCINTA / (35.6 - P7);
+  let x, y, aplasta = 0, mareo = false;
+  if (t < LLEGA) { x = X0 + (t - P7) * VCINTA / (35.6 - P7); y = limbo(x) + 2; }
+  else if (t < CINTA + 0.15) { x = 304 + Math.sin((t - LLEGA) * 30) * 1.5; y = limbo(304) + 2 - Math.abs(Math.sin((t - LLEGA) * 15)); }
+  else { const g = t - CINTA - 0.15;
+    if (g < 0.4) { const q = g / 0.4; x = lerp(304, 262, q); y = lerp(limbo(304) + 2, 152, q * q) - Math.sin(q * Math.PI) * 22; }
+    else if (g < 0.7) { const q = (g - 0.4) / 0.3; x = lerp(262, 248, q); y = lerp(152, 158, q) - Math.sin(q * Math.PI) * 9; aplasta = q < 0.15 ? 1 : 0; }
+    else if (g < 0.9) { const q = (g - 0.7) / 0.2; x = lerp(248, 240, q); y = lerp(158, 161, q) - Math.sin(q * Math.PI) * 3; aplasta = q < 0.2 ? 1 : 0; }
+    else { x = 240; y = 161; mareo = true; aplasta = g < 1.0 ? 1 : 0; } }
+  if (x > 20) {
+    if (t > CINTA + 0.15 && t < CINTA + 0.55) for (let k = 1; k < 6; k++) { const q = Math.max(0, (t - CINTA - 0.15 - k * 0.025) / 0.4); R.pset(Math.round(lerp(304, 262, q)), Math.round(lerp(limbo(304) + 2, 152, q * q) - Math.sin(q * Math.PI) * 22) - 6, H('#e8c860')); }
+    if (y > limbo(x) + 8) { R.linea(Math.round(x) - 6, 162, Math.round(x) + 6, 162, mez(H('#1a3a1a'), C.k, 0.3)); }   // su sombra en la hierba
+    estrella(x, y, H('#fff4a0'), H('#e8a020'), aplasta, 2); R.pset(Math.round(x) - 2, Math.round(y) - 7, H('#ffffff')); R.pset(Math.round(x) - 1, Math.round(y) - 7, H('#ffffff'));
+    const choque = (t > CINTA + 0.55 && t < CINTA + 0.65) || (t > CINTA + 0.85 && t < CINTA + 0.92);
+    if (choque) for (let r = 0; r < 8; r++) { const a = r * Math.PI / 4; R.pset(Math.round(x + Math.cos(a) * 11), Math.round(y - 6 + Math.sin(a) * 8), H('#ffffff')); }
+    if (mareo) for (let k = 0; k < 3; k++) { const a = t * 5 + k * 2.09; R.pset(Math.round(x + Math.cos(a) * 8), Math.round(y - 17 + Math.sin(a) * 2), H(k ? '#fff4a0' : '#ffffff')); }
+  }
 };
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], {
   año: (t) => t < P2 ? 1956 : t < BIGEAR ? Math.round(lerp(1956, 1961, lin(t, Y1956, BIGEAR))) : 1961,
   efectos: [[DELAWARE, 'golpecito'], [INGENIERO + 0.5, 'papel'], [P3 + 0.3, 'toc'], [CONSTRUYE - 0.6, 'toc'], [BIGEAR - 0.1, 'brillo'],
-    [PELIS - 0.05, 'palmada'], [PELIS + 0.2, 'motor'], [PLANO, 'lapiz'], [CURVO, 'lapiz'], [TRES, 'pop'], [CAMPOS, 'pop'], [CINTA + 0.53, 'brillo']],
+    [PELIS - 0.05, 'palmada'], [PELIS + 0.2, 'motor'], [PLANO, 'lapiz'], [CURVO, 'lapiz'], [TRES, 'pop'], [CAMPOS, 'pop'], [CINTA + 0.55, 'boing'], [CINTA + 0.86, 'toc']],
 });
 </script>
 </body>
