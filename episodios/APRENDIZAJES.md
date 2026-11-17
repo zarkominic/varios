@@ -655,3 +655,34 @@ nivelar los Shorts en dos pasadas.
 Pendiente para el próximo: borrar los fotogramas del 36; buscar en todos los decorados la forma de un fallo de
 realidad, no solo en el que se vio; comprobar los workflows tras una interrupción; comprobar si Egipto dio el permiso de
 perforar (si sí, rehacer la frase del permiso del 36).
+
+## Episodio 37 · La señal «Wow!»: setenta y dos segundos que nadie ha vuelto a oír (16–17/11/2026)
+
+- **Voces nuevas (primer episodio con ellas):** Supertonic 3 `M1` (inglés) y ZONOS3-Mini `Rodrigo` (español). ZONOS3
+  lee bien los nombres ingleses tal cual, sin escribirlos a la mexicana; el pegado de frases se desactivó. Supertonic
+  necesitó tres arreglos escritos: «Ah-tom» (Atom), «Setty» (SETI) y «Eeman» (Ehman). Aun así quedó «Kraus» como
+  «cross»: siguiendo la regla del usuario («no lo corrijas en el audio, tenlo como regla»), va a la lista para escuchar
+  y no se re-locuta.
+- **Golpes de música a mitad de frase:** `banda.cjs` acepta ahora «marca+segundos» en los golpes; los tres del 37 caen
+  en su palabra («Wow!», el segundo «Wow!» y el programa) sin volver a locutar nada.
+- **Un NaN que se comía la música:** desde 126,97 s hasta el final la música salía en NaN. En la capa de suspense, la
+  base de `**1.6` quedaba negativa por redondeo; el NaN pasaba al nivel y a la reverberación. Se arregló con
+  `Math.max(0, …)`. No lo causaron los golpes (se comprobó con el `escenas.json` de antes). Si el control de sonido da
+  algo raro, buscar NaN en el wav antes que en la mezcla.
+- **Calidad:** 34 de 98 planos suspendieron en la revisión completa (el 36: 46); 34 → 4 → 0, en 3 rondas, con 35
+  agentes, 5,6 M de tokens y 2 h 7 min. Un agente cambió `c_listadoArriba` en el decorado (la mano del boli rojo, sola
+  con su puño, sin brazo palo) y otros lo dieron por hecho; se integró en el mismo commit.
+- **Lo que vio el control y no la revisión:** después de la pasada de calidad, `--comprobar` marcó QUIETO el primer
+  plano del cierre (0,8 %): la página del artículo pasaba sola, sin mano y sin cambiar de contenido. Se arregló a mano
+  (una mano pasa del artículo anterior, con gráfico y tabla, al de 1959). Pasar `--comprobar` SIEMPRE tras la calidad.
+- **Disco:** el render de 8:34 pidió 8,8 GB y había 7,6; `producir.sh` paró antes de dibujar (bien). Se liberó sin
+  preguntar solo lo regenerable: `efectos.wav` y `musica.wav` del 35, 36 y 37 (1,1 GB; se rehacen en un minuto), las
+  hojas de revisión de las pasadas y las cachés de pip y uv. Quedaron 2,9 GB tras el montaje.
+- **Sonido:** efectos el 47–49 % del tiempo; cartelas 3,3 / 3,7 / 4,9 dB.
+- **Shorts:** el gancho dura 34,6 s con su voz; se tomó entero hasta el corte de escena (35,1 s) para llegar al mínimo.
+  Las miniaturas verticales necesitaron tres intentos: lo que se lee en el 16:9 no cabe en los 100 px centrales
+  (el «Wow!» quedaba fuera); el papel tiene que ir dentro de x 110–210 desde el principio.
+- **Control final a la primera:** sí (−14,1 y −13,7 LUFS; 136 y 142 subtítulos, 0 fuera de norma).
+
+Pendiente para el próximo: borrar los fotogramas del 37; pasar `--comprobar` después de la calidad; vigilar en
+Supertonic los apellidos alemanes (Kraus) y apuntarlos antes de locutar.

@@ -1,6 +1,6 @@
 # Episodio 37 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:34.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, narrada como un cuento) y pista de audio en español
   (ZONOS3-Mini, voz `Rodrigo` con emoción, con los nombres propios escritos como se dicen en México y los años dichos
   de corrido). Primer episodio con las voces nuevas.
@@ -46,7 +46,17 @@ What we cover:
 
 What do you think it was? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 72 seconds, then silence
+0:40 Big Ear
+1:34 Where to listen
+2:08 August 15, 1977
+2:55 What the paper says
+3:49 The second horn
+4:34 Searching again
+5:15 Explanations from down here
+5:48 The paper comes back
+7:26 Only once
+8:06 The ending
 
 Sources: Jerry Ehman, "The Big Ear Wow! Signal: What We Know and Don't Know About It After 30 Years" (bigear.org,
 2010) · bigear.org · Cleveland Plain Dealer (18 September 1994) · Cocconi and Morrison, Nature 184 (1959) · Gray and
@@ -83,7 +93,17 @@ Lo que contamos:
 
 ¿Qué crees que fue? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 72 segundos y luego silencio
+0:40 La gran oreja
+1:34 Dónde escuchar
+2:08 El 15 de agosto de 1977
+2:55 Lo que dice el papel
+3:49 La segunda bocina
+4:34 Buscarla otra vez
+5:15 Las explicaciones de aquí abajo
+5:48 El papel que vuelve
+7:26 Una sola vez
+8:06 El cierre
 
 Fuentes: Jerry Ehman, «The Big Ear Wow! Signal: What We Know and Don't Know About It After 30 Years» (bigear.org,
 2010) · bigear.org · Cleveland Plain Dealer (18 de septiembre de 1994) · Cocconi y Morrison, Nature 184 (1959) · Gray
@@ -110,7 +130,13 @@ fotos ni grabaciones: todos los dibujos son propios. La narración está hecha c
 - **Voz sintética:** al subirlo, YouTube Studio pregunta por «contenido alterado o sintético». Las voces son sintéticas
   pero no imitan a nadie real ni muestran hechos inventados; si YouTube lo pide para las voces, márcalo.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  - EN 4 (0:41): «Kraus» puede sonar «cross» (se dice «Krous»);
+  - ES 5 (0:59): el control echa en falta una «e»;
+  - ES 21 (5:28): un hueco de 0,17 s en «no encajaba»;
+  - ES 30 (8:07): «Ohio» puede sonar «ojayo».
+
+  Siguiendo tu regla, no lo he corregido en el audio: si alguno suena mal, dímelo y lo rehago. Los demás avisos son
+  nombres propios escritos como se dicen, que el control lee a su manera: es normal.
 - **Derechos:** solo dibujos propios.
 
 ## Shorts
