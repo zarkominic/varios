@@ -687,3 +687,4 @@ perforar (si sí, rehacer la frase del permiso del 36).
 
 Pendiente para el próximo: borrar los fotogramas del 37; pasar `--comprobar` después de la calidad; vigilar en
 Supertonic los apellidos alemanes (Kraus) y apuntarlos antes de locutar.
+- **Grito en el español (avisado por el usuario, 0:20–0:33):** ZONOS3 con emoción, en oraciones largas, a veces sube volumen y tono hasta gritar. `control-gritos.py` encontró dos casos claros (frase 2, +5,7 dB y +42 Hz; frase 25, +7 dB y +48 Hz). `calmar-voz.py` probó 5 semillas por oración y `empalmar-voz.py` puso las más tranquilas en su sitio, sin mover el vídeo; se remontó y se rehízo el Short 1. Desde el 38: pasar `control-gritos.py` en cuanto acabe la locución, y oraciones españolas de menos de ~30 palabras.
