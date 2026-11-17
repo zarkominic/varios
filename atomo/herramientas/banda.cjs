@@ -183,7 +183,7 @@ function capa(esc, animo) {
     // registro medio (La3, Mi4, Si4 tenso), para que el suspense se oiga también en un móvil
     pad(b, [[57 + T, 0.32], [64 + T, 0.22], [71 + T, 0.12]], t0, d, { cutoff: 1500, attack: Math.min(3, d / 3), release: 0.6, seed: 4 });
     for (let i = Math.round(t0 * SR), i1 = Math.min(n, Math.round((t0 + d) * SR)); i < i1; i++) {   // crece hasta el final
-      const k = 0.25 + 0.75 * ((i / SR - t0) / d) ** 1.6; b.L[i] *= k; b.R[i] *= k;
+      const k = 0.25 + 0.75 * Math.max(0, (i / SR - t0) / d) ** 1.6;   // max: el redondeo de t0*SR daba una base negativa y NaN (ep37) b.L[i] *= k; b.R[i] *= k;
     }
     if (esc.duracion > 7)
       for (let t = esc.inicio + esc.duracion * 0.35, p = 1.15; t < esc.inicio + esc.duracion - 0.8; t += p, p = Math.max(0.7, p * 0.96))
