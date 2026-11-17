@@ -109,10 +109,8 @@ const p2 = (t) => {
   const pel = cl(0.5 + (t - GOLF) / 2.2);
   const o = { encuadre: 'golf', camara: 'plancha', epoca: 2000, pelota: t < GOLF - 1.1 ? 0 : pel };
   const g = T.oreja(R, t, o);
-  // PARCHE DECORADO: a_orPlancha el golpe de o.pelota (ondas tramadas de un píxel y temblor de 1 px) no se lee a 640 px.
-  // EL «TONK», el gag del plano: la plancha suena como un gong. Estrella de impacto maciza con contorno; tres arcos
-  // gruesos que se abren y duran casi un segundo; dos brillos que corren por la chapa hacia los extremos; las marcas de
-  // vibración en las dos puntas; tres gorriones que salen de la hierba; y la imagen tiembla un instante (abajo)
+  // EL «TONK», el gag del plano: el golpe (estrella, arcos, brillo y vibración) lo pinta ya a_orPlancha; la escena
+  // añade los gorriones que salen de la hierba y el temblor de la imagen (abajo)
   const [qx, qy] = g.plancha, k = tramo(t, GOLF, GOLF + 1.0);
   const QP = [[100, 150], [208, 130], [232, 138], [124, 160]], enChapa = (a, b) => { const L = (p, q, u) => [lerp(p[0], q[0], u), lerp(p[1], q[1], u)], p = L(L(QP[0], QP[1], a), L(QP[3], QP[2], a), b); return [Math.round(p[0]), Math.round(p[1])]; };
   // los gorriones que saltan de la hierba con el golpe y se van volando hacia la izquierda, por encima del green
