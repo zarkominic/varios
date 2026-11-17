@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep38 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MC-MINIATURA · ep38, con chibis (regla del 09/11/2026). Una sola idea: el Mary Celeste navegando solo en el Atlántico
+// gris, con la cubierta vacía y el timón sin nadie, recortado por un claro de luz entre las nubes; Deveau, del Dei
+// Gratia, al doble y en primer plano, baja el catalejo con cara de sorpresa. «1872» en blanco hueso. Sin fantasmas.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { mar, marDelante } from '/atomo/plato/escenas/mc-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'alta', luz: 'gris', velas: 'pocas', bandazo: 0.5 };
+  mar(R, t, o); marDelante(R, t, o);
+  grado(R, { tinte: '#16222e', f: 0.2, desde: 0.55, max: 0.6 });
+  halo(R, 170, 100, 100, 70, '#f4ecd8', 0.26);                  // el claro que recorta el barco
+  halo(R, 46, 136, 46, 54, '#9ac0e0', 0.30);                    // el borde frío detrás de Deveau
+  figura(R, EL.deveauMC, 44, 196, t, { dir: 1, sorpresa: true }, 2);   // BORRADOR: en el paso 10, Deveau con el catalejo en la mano (la pieza PR flota)
+  cifra(R, '1872', 56, 22, 20);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
