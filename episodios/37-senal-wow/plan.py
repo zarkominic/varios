@@ -18,7 +18,7 @@ E = [
  ('wo-gancho', None, 1, 2, ['wow', 'camino'],
   ['C y A: el listado de papel continuo de cerca, una línea de ceros y unos, y de pronto «6EQUJ5»; un bolígrafo rojo la rodea y escribe «Wow!» (golpe); la gran oreja de noche bajo las estrellas.',
    'A, F y G: la gran oreja de día, con sus dos muros y el suelo brillante; voluntarios con termos y linternas; el listado que pasa; una pantalla de hoy con el ordenador de 1977 imitado.'],
-  'misterio', ['wow']),
+  'misterio', ['wow+13.21']),
  ('wo-hola', None, 3, 3, ['hola'],
   ['G: Atom saluda en su estudio con su «gran oreja» casera (un embudo y un vaso) pegada al techo; solo se oye al vecino de arriba pasar la aspiradora.'],
   'curiosidad', []),
@@ -39,7 +39,7 @@ E = [
  ('wo-wow', None, 10, 11, ['listado', 'wow2'],
   ['C: la cocina de Ehman (EL.ehmanWO) con el listado desplegado en la mesa, columnas de unos y espacios; de pronto la línea 6EQUJ5.',
    'C: busca con qué marcar: un lápiz roto, un bolígrafo azul seco… y el rojo; rodea la línea y escribe «Wow!» (golpe).'],
-  'asombro', ['wow2']),
+  'asombro', ['wow2+5.58']),
  ('wo-escala', None, 12, 13, ['escala', 'curva'],
   ['C y G: la línea 6EQUJ5 con cada carácter convertido en una barra de altura distinta; la U llega hasta arriba (treinta veces).',
    'D y A: un punto del cielo que cruza el haz de la gran oreja mientras gira la Tierra; la curva sube y baja en setenta y dos segundos.'],
@@ -70,7 +70,7 @@ E = [
  ('wo-programa', None, 25, 26, ['programa', 'cajas'],
   ['F: los listados fotografiados, uno a uno, medidos de nuevo en una pantalla de hoy: la curva vuelve a salir, cuatro veces más alta (golpe); al lado, el programa copiado a mano y la pantalla que imita el ordenador de 1977.',
    'F: un antiguo voluntario abre una caja del garaje y salen tarjetas perforadas como confeti; un gato duerme encima de otra; detrás, estanterías con miles de listados.'],
-  'asombro', ['programa']),
+  'asombro', ['programa+11.83']),
  ('wo-unavez', None, 27, 29, ['unavez', 'posibles', 'cincuenta'],
   ['G: Atom con su oreja casera ante una pizarra: una sola marca, sin otra con la que compararla.',
    'D: tres caminos en el cielo: la nube, un signo de interrogación, y una luz lejana.',
@@ -85,7 +85,7 @@ E = [
 escenas = []
 for id_, cartela, a, b, marcas, vis, animo, golpes in E:
     assert len(marcas) == len(vis) == b - a + 1, id_
-    assert all(g in marcas for g in golpes), (id_, golpes)
+    assert all(g.split('+')[0] in marcas for g in golpes), (id_, golpes)
     escenas.append({'id': id_, 'estilo': 'pixel', 'cartela': cartela, 'frase_ini': a, 'frase_fin': b,
                     'marcas': marcas, 'guion_visual': vis, 'animo': animo, 'golpes': golpes,
                     'empieza_con': 'cartela ' + cartela if cartela else 'corte desde la escena anterior',

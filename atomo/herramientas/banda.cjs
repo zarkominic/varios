@@ -248,7 +248,9 @@ const cartelas = CARTELAS;
 for (const esc of linea.escenas) {
   const p = plan[esc.id] || {};
   for (const marca of p.golpes || []) {
-    const t = esc.inicio + esc.marcas[marca];
+    // «marca+segundos» pone el golpe a mitad de frase, en la palabra (ep37: el «Wow!» y el «four» caen dentro de la frase)
+    const [base, desfase] = String(marca).split('+');
+    const t = esc.inicio + esc.marcas[base] + (desfase ? Number(desfase) : 0);
     // una marca que no existe daba NaN y llenaba de NaN toda la música (ep20, 04/11/2026): se avisa y se salta
     if (!Number.isFinite(t)) { console.error(`AVISO: golpe «${marca}» de ${esc.id}: la marca no existe, se salta`); continue; }
     cortes.push(t);
