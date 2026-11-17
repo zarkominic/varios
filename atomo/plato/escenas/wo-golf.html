@@ -82,7 +82,7 @@ const trozo = (x, y, a, s = 1) => { const c = Math.cos(a), si = Math.sin(a), P =
 const polvo = (x, y, q, n = 26, sem = 3) => { if (q <= 0 || q >= 1) return; for (let k = 0; k < n; k++) { const a = -Math.PI * hs(k, 1, sem), v = 6 + hs(k, 2, sem) * 22, r = 1 + Math.round(hs(k, 3, sem) * 2), px = x + Math.cos(a) * v * q * 1.4, py = y + Math.sin(a) * v * q * 0.7 - q * 6;
   for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++) if (i * i + j * j <= r * r && bay(Math.round(px + i), Math.round(py + j)) < (1 - q) * 0.9) tinta(px + i, py + j, hs(k, 4, sem) > 0.5 ? hex('#d8c8a0') : hex('#b8a47a'), 0.75); } };
 const p1 = (t) => {
-  const o = { encuadre: 'golf', epoca: 1998 };
+  const o = { encuadre: 'golf', epoca: 2000 };
   const g = T.oreja(R, t, o), [pa, pb] = g.pala || [236, 92];
   // en «disappeared» la pala arranca un trozo del curvo, lo suelta y cae detrás de los operarios, con su polvo
   if (t > DISAP - 0.45) { const c = tramo(t, DISAP, DISAP + 0.3), cx = c > 0 ? lerp(PZ[0], 196, c) : pa, cy = c > 0 ? lerp(PZ[1], 118, c * c) : pb + 4, ca = c < 1 ? lerp(-0.3, 0.4, c) : 0.1; if (c === 0) { PZ[0] = pa; PZ[1] = pb + 4; } trozo(cx, cy, ca, 1); }
@@ -115,22 +115,6 @@ const p2 = (t) => {
   // vibración en las dos puntas; tres gorriones que salen de la hierba; y la imagen tiembla un instante (abajo)
   const [qx, qy] = g.plancha, k = tramo(t, GOLF, GOLF + 1.0);
   const QP = [[100, 150], [208, 130], [232, 138], [124, 160]], enChapa = (a, b) => { const L = (p, q, u) => [lerp(p[0], q[0], u), lerp(p[1], q[1], u)], p = L(L(QP[0], QP[1], a), L(QP[3], QP[2], a), b); return [Math.round(p[0]), Math.round(p[1])]; };
-  if (k > 0 && k < 1) {
-    // los brillos que corren por la chapa desde el golpe hacia las dos puntas
-    const kb = tramo(t, GOLF, GOLF + 0.5);
-    if (kb < 1) for (const a of [0.58 - kb * 0.58, 0.58 + kb * 0.42]) for (let i = 0; i <= 14; i++) { const b = i / 14; for (const da of [-0.012, 0, 0.012]) { const [x, y] = enChapa(a + da - b * 0.04, b); tinta(x, y, BL, da === 0 ? 0.85 : 0.45); } }
-    // las marcas de vibración en las dos puntas (paréntesis que se repiten)
-    const vb = Math.floor(t * 16) % 2;
-    for (const [ex, ey, s] of [[108, 154, -1], [228, 134, 1]]) for (let n = 0; n < 2; n++) { const r = 5 + n * 4 + vb; for (let j = -3; j <= 3; j++) { const x = Math.round(ex + s * (r - j * j * 0.25)), y = ey + j * 2; R.pset(x, y, K); R.pset(x, y - 1, BL); } }
-    // tres arcos gruesos, con contorno oscuro, que se abren desde el golpe
-    for (let n = 0; n < 3; n++) { const q = cl(k * 1.25 - n * 0.12); if (q <= 0 || q >= 1) continue; const rr = 8 + q * 34;
-      for (let a = -Math.PI * 0.95; a < -Math.PI * 0.05; a += 0.5 / rr) { const x = Math.round(qx + Math.cos(a) * rr), y = Math.round(qy - 2 + Math.sin(a) * rr * 0.6); if (y < 26) continue; R.pset(x, y - 1, K); R.pset(x, y, n === 1 ? hex('#ffe070') : BL); R.pset(x, y + 1, n === 1 ? hex('#ffe070') : BL); R.pset(x, y + 2, K); } }
-    // la estrella del impacto, maciza y con contorno
-    const ke = tramo(t, GOLF, GOLF + 0.4);
-    if (ke < 1) { const l = Math.round(6 + (1 - ke) * 7); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4 + 0.2, ll = i % 2 ? l * 0.6 : l, x1 = Math.round(qx + Math.cos(a) * ll), y1 = Math.round(qy - 2 + Math.sin(a) * ll * 0.8);
-        R.linea(qx + 1, qy - 1, x1 + 1, y1 + 1, K); R.linea(qx, qy - 2, x1, y1, i % 2 ? hex('#ffe070') : BL); }
-      R.disco(qx, qy - 2, 3, K); R.disco(qx, qy - 2, 2, hex('#ffe070')); R.pset(qx, qy - 2, BL); }
-  }
   // los gorriones que saltan de la hierba con el golpe y se van volando hacia la izquierda, por encima del green
   const gf = tramo(t, GOLF + 0.05, GOLF + 2.2);
   if (gf > 0 && gf < 1) for (let n = 0; n < 3; n++) { const x = Math.round(150 + n * 14 - gf * (110 + n * 20)), y = Math.round(150 - n * 3 - gf * (70 + n * 12) + Math.sin(gf * 9 + n) * 2), ala = Math.floor(t * 14 + n) % 2;

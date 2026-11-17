@@ -441,21 +441,8 @@ const estrella = (x, y, c1, c2, aplasta = 0, s = 1) => { x = Math.round(x); y = 
 // el reloj de arena del decorado va delante de la cinta: lo que pasa por detrás de él no se pinta
 const detras = (x, y) => x >= 276 && x <= 297 && y >= 127 && y <= 156;
 const p7 = (t) => {
-  const u = lin(t, P7, 35.6), off = u * VCINTA, o = { encuadre: 'cinta', u };
+  const u = lin(t, P7, 35.6), off = u * VCINTA, o = { encuadre: 'cinta', u, cinta: true };
   T.oreja(R, t, o);
-  // la banda de goma estriada: brillo arriba, estrías que corren a la derecha, sombra abajo y la sombra en la hierba
-  for (let x = 6; x <= 314; x++) { const y = Math.round(limbo(x)) + 3, s = ((x - off) % 6 + 6) % 6;
-    const P_ = (yy, c) => { if (!detras(x, yy)) R.pset(x, yy, c); };
-    P_(y - 1, H('#9a9aa8')); P_(y, H('#6a6a74')); P_(y + 1, s < 1 ? C.k : H('#4a4a56')); P_(y + 2, s < 1 ? C.k : H('#3a3a44')); P_(y + 3, s < 1.5 ? H('#1e1e24') : H('#30303a')); P_(y + 4, H('#141418'));
-    if (!detras(x, y + 5)) R.pset(x, y + 5, mez(R.pget(x, y + 5), H('#05100a'), 0.45)); }
-  // los objetos del cielo que viajan sobre la cinta (estrellas y una galaxia), como la compra en la caja; al pasar
-  // por debajo del telescopio, un destello: «visto»
-  for (let k = 0; k < 5; k++) { const x = ((k * 68 + off + 20) % 340) - 10; if (x < 10 || x > 300) continue; const yb = Math.round(limbo(x)) + 2;
-    if (detras(x, yb - 3)) continue;
-    if (k === 2) { R.disco(x, yb - 3, 3, H('#3a3a6a')); R.disco(x, yb - 3, 2, H('#8a8ad8')); R.pset(Math.round(x), yb - 3, H('#ffffff')); R.pset(Math.round(x) + 3, yb - 5, H('#c8c8f8')); R.pset(Math.round(x) - 3, yb - 1, H('#c8c8f8')); }
-    else estrella(x, yb, H(k % 2 ? '#f4f0ff' : '#fff4a0'), H(k % 2 ? '#a8b0e8' : '#e8c040'));
-    if (Math.abs(x - 158) < 6 && !detras(x, yb)) for (let r = 0; r < 8; r++) { const a = r * Math.PI / 4; R.pset(Math.round(x + Math.cos(a) * 6), Math.round(yb - 3 + Math.sin(a) * 5), H('#bfe8ff')); } }
-  rodillo(6, Math.round(limbo(6)) + 8, t, off); rodillo(314, Math.round(limbo(314)) + 8, t, off);
   // EL GAG: una estrella grande va en la cinta desde el principio; llega al rodillo, se tambalea en el borde y en
   // «conveyor belt» se cae por delante, rebota dos veces en la hierba y se queda tumbada y mareada
   const LLEGA = CINTA - 0.2, X0 = 304 - (LLEGA - P7) * VCINTA / (35.6 - P7);

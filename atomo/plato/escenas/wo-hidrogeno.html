@@ -163,15 +163,8 @@ const tiza = (x, y, c = CH) => { if (hs(x, y, 7) < 0.82) R.pset(x, y, c); else R
 const trazo = (x0, y0, x1, y1, u = 1) => { const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0))); for (let i = 0; i <= n * u; i++) tiza(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n)); };
 const BARRAS = [[204, 222, 66], [232, 246, 120], [256, 268, 128], [278, 288, 131]];   // [x0, x1, techo]
 const p3 = (t) => {
-  const o = { encuadre: 'despacho', camara: 'pizarra', u: 0 };
+  const o = { encuadre: 'despacho', camara: 'pizarra', u: 0, cifras: 1 };
   T.hoy(R, t, o);
-  // la tiza que ya estaba (la de la vista general, a escala 2): la onda, el 1420 y el 21 con su línea de puntos
-  for (let x = 47; x <= 203; x++) { const y = Math.round(44 + Math.sin((x - 47) / 13.5 * Math.PI) * 13); tiza(x, y); tiza(x, y + 1, CH2); }
-  for (let x = 30; x < 46; x += 3) tiza(x, 46);
-  R.numero('1420', 103, 74, { tam: 16, color: CH, contorno: false, sombra: false });
-  R.numero('21', 75, 102, { tam: 16, color: CH, contorno: false, sombra: false });
-  for (let x = 110; x <= 191; x += 4) { tiza(x, 98); tiza(x + 1, 98); }
-  for (let y = 54; y < 104; y++) for (let x = 70; x < 166; x++) if (R.pget(x, y) === CH && hs(x, y, 3) < 0.18) R.pset(x, y, CH2);
   // la mano de Morrison: subraya el 1420, dibuja las barras y rodea la del hidrógeno
   const sub = tramo(t, SUB0 + 0.35, SUB1);
   trazo(100, 80, 164, 79, sub); if (sub >= 1) trazo(102, 82, 160, 82, 1);

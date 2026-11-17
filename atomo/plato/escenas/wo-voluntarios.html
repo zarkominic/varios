@@ -335,7 +335,7 @@ const p4 = (t) => {
   const oreja = t < CAE ? 1 - 0.08 * tira : t < SENAL - 0.6 ? 0.92 * (1 - cae * cae) : sube;
   const ore = oreja >= 0.999 ? 1 : oreja;
   const g = T.hoy(R, t, { encuadre: 'estudio', camara: 'techo', oreja: ore });
-  const [bx, by] = g.boca, by0 = by - Math.round((1 - ore) * 28), [ex, ey] = g.embudo;
+  const [bx, by] = g.boca, by0 = g.techo, [ex, ey] = g.embudo;
   const tiemb = t < CAE && tira > 0.2 ? (Math.floor(t * 30) % 2) * (tira > 0.7 ? 1 : 0) : 0;
   // las tres anclas de la cinta en el techo y dónde se pegan al embudo (las del decorado)
   const AN = [[bx - 40, by0 - 7, bx - 30, by + 9], [bx + 40, by0 - 7, bx + 30, by + 9], [bx + 5, by0 - 6, bx + 4, by + 14]];

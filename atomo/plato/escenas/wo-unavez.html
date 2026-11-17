@@ -105,16 +105,9 @@ const deNoche = (lx, ly) => {
     let n = mez(c, NOC, 0.1 + 0.62 * k); if (dentro > 0.2 && y < 158) n = mez(n, CAL, 0.12 * dentro); R.pset(x, y, n); }
 };
 const p1 = (t) => {
-  const o = { encuadre: 'estudio', pizarra: tramo(t, MARCA0, MARCA1) };
+  const o = { encuadre: 'estudio', luz: 'noche', pizarra: tramo(t, MARCA0, MARCA1) };
   const g = T.hoy(R, t, o);
   T.hoyDelante(R, t, o);
-  R.recorte(null); deNoche(200, 44);
-  // la ventana, de noche: el parque oscuro, la luna y estrellas; una farola encendida
-  R.recorte([74, 38, 112, 94]);
-  for (let y = 38; y <= 94; y++) for (let x = 74; x <= 112; x++) tinta(x, y, H('#0a0f2a'), y < 66 ? 0.62 : 0.4);
-  R.disco(102, 47, 4, H('#e8e4d0')); R.disco(103, 46, 1, H('#c8c4b0')); R.pset(100, 49, H('#c8c4b0'));
-  for (let k = 0; k < 9; k++) { const x = 76 + Math.floor(hs(k, 1, 4) * 34), y = 40 + Math.floor(hs(k, 2, 4) * 22); if (Math.sin(t * 2.4 + k * 1.7) > -0.3) R.pset(x, y, BL); }
-  R.disco(84, 78, 5, H('#ffe08a')); R.disco(84, 78, 2, H('#fff6d0'));
   R.recorte(null);
   // la polilla de la lámpara
   polilla(200, 44, t, 0, 12, 6); polilla(200, 46, t, 3, 8, 4);
