@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep39 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RK-MINIATURA · ep39, con chibis (regla del 09/11/2026). Una sola idea: la palabra. El poste de la empalizada vacía de
+// 1590 con «CROATOAN» tallado, recortado por un claro de luz; John White, al doble y en primer plano a la izquierda, se
+// vuelve hacia él con sorpresa y lo señala. «1590» en blanco hueso. Sin nadie más: lo que promete el título («115 people
+// vanished and left one word»). Nada morboso.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { roanoke, roanokeDelante } from '/atomo/plato/escenas/rk-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'poste', epoca: 1590, talla: 1 };
+  roanoke(R, t, o); roanokeDelante(R, t, o);
+  grado(R, { cx: 236, cy: 96, tinte: '#1a1408', f: 0.22, desde: 0.5, max: 0.62 });
+  halo(R, 236, 96, 44, 74, '#fff2c8', 0.30);                    // la luz sobre la talla
+  halo(R, 70, 130, 60, 70, '#c8d8f0', 0.18);                    // el borde frío detrás de White
+  figura(R, EL.whiteRK, 74, 172, t, { dir: 1, sorpresa: true, dedo: true }, 3);
+  cifra(R, '1590', 64, 24, 20);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
