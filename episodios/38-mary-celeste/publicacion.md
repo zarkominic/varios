@@ -1,6 +1,6 @@
 # Episodio 38 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 8:31.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, narrada como un cuento, «Atom» escrito «At-um») y
   pista de audio en español (ZONOS3-Mini, voz `Rodrigo` con media emoción, sin subidas, con los nombres propios escritos
   como se dicen en México y los años dichos de corrido).
@@ -48,7 +48,17 @@ What we cover:
 
 What do you think happened to the ten people on board? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 Found sailing with no one aboard
+0:43 A ship with two names
+1:32 Leaving New York
+2:04 December 4, 1872
+3:09 The tea that never was
+3:58 Gibraltar
+4:45 Theories that fall apart
+5:15 What the clues say
+6:10 Nine empty barrels
+7:22 The end of the ship
+7:59 The ending
 
 Sources: Britannica, "Mary Celeste" · Smithsonian Magazine (2007) · Paul Begg, "Mary Celeste: The Greatest Mystery of
 the Sea" (2005) · records of the Gibraltar salvage hearing (from 17 December 1872; award of £1,700, 8 April 1873;
@@ -87,7 +97,17 @@ Lo que contamos:
 
 ¿Qué crees que les pasó a las diez personas de a bordo? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Un barco sin nadie a bordo
+0:43 Un barco con dos nombres
+1:32 La salida
+2:04 El 4 de diciembre de 1872
+3:09 El té que nunca existió
+3:58 Gibraltar
+4:45 Las teorías que se caen
+5:15 Lo que dicen las pistas
+6:10 Nueve barriles vacíos
+7:22 El final del barco
+7:59 El cierre
 
 Fuentes: Britannica, «Mary Celeste» · Smithsonian Magazine (2007) · Paul Begg, «Mary Celeste: The Greatest Mystery of
 the Sea» (2005) · actas de la vista de salvamento de Gibraltar (desde el 17 de diciembre de 1872; premio de 1.700 libras,
@@ -121,3 +141,27 @@ fotos ni grabaciones: todos los dibujos son propios. La narración está hecha c
   Siguiendo tu regla, no lo he corregido en el audio: si alguno suena mal, dímelo y lo rehago. Los demás avisos son
   nombres propios escritos como se dicen, que el control lee a su manera: es normal.
 - **Derechos:** solo dibujos propios.
+
+## Shorts
+
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.25-37.64
+- **EN:** Mary Celeste: Found Sailing in 1872 With No One Aboard #Shorts
+- **ES:** El Mary Celeste navegaba solo y no había nadie a bordo #Shorts
+- **EN:** In December 1872, sailors found a ship drifting alone in the middle of the Atlantic. The cargo was intact, there was food for six months, and the ten people aboard were never seen again. The full story is in the linked video. #MaryCeleste #GhostShip #History #ASKAtom #Shorts
+- **ES:** En diciembre de 1872, unos marineros encontraron un barco navegando solo en mitad del Atlántico. La carga estaba intacta, había comida para seis meses y las diez personas de a bordo nunca aparecieron. La historia completa, en el vídeo enlazado. #MaryCeleste #BarcoFantasma #Historia #ASKAtom #Shorts
+
+### Short 2 · Lo que había a bordo · tramo 125.52-179.37
+- **EN:** Mary Celeste: What They Found When They Went Aboard #Shorts
+- **ES:** Mary Celeste: lo que encontraron al subir a bordo #Shorts
+- **EN:** On December 4, 1872, two men from the Dei Gratia boarded a ship no one was steering. Water in the hold, a pump taken apart, the lifeboat gone, and everything else still there. The full story is in the linked video. #MaryCeleste #Mystery #History #ASKAtom #Shorts
+- **ES:** El 4 de diciembre de 1872, dos hombres del Dei Gratia subieron a un barco que nadie gobernaba. Agua en la bodega, una bomba desmontada, el bote que faltaba, y todo lo demás en su sitio. La historia completa, en el vídeo enlazado. #MaryCeleste #Misterio #Historia #ASKAtom #Shorts
+
+### Short 3 · El té caliente y Conan Doyle · tramo 190.56-203.15 + 204.87-238.51
+- **EN:** Mary Celeste: The Warm Tea on the Table Never Existed #Shorts
+- **ES:** Mary Celeste: el té caliente nunca existió #Shorts
+- **EN:** No one who boarded the Mary Celeste saw warm tea on the table. That detail came from retellings, and the most famous was a story published in 1884 by a young Arthur Conan Doyle, who renamed the ship the Marie Celeste. The full story is in the linked video. #MaryCeleste #ConanDoyle #History #ASKAtom #Shorts
+- **ES:** Nadie de los que subieron al Mary Celeste vio té caliente en la mesa. Ese detalle salió de los relatos, y el más famoso lo publicó en 1884 un joven Arthur Conan Doyle, que rebautizó el barco como Marie Celeste. La historia completa, en el vídeo enlazado. #MaryCeleste #ConanDoyle #Historia #ASKAtom #Shorts
