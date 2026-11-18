@@ -35,9 +35,13 @@
 //    en «untouched» (lleno) y comprueba el lacre; en «No one drinks» el gato del tribunal olfatea una gota de la espita, en
 //    «sick» se le eriza el pelo y se va mareado.
 // 7. «and the tests showed the stains were not blood. The court found no evidence of any crime» (corta en «It paid»).
-//    gibraltar tribunal camara 'espada': la mano del fiscal sostiene la lupa enorme; en «tests» sopla (o.sopla) y sale la
-//    nube de óxido; en «not blood» el estornudo sacude la lupa y aparta la nube; en «court found» la gradilla del análisis
-//    (o.analisis): el líquido no cambia.
+//    gibraltar tribunal camara 'espada': la mano del fiscal recorre la hoja con la lupa enorme desde la guarda hasta las
+//    manchas; en «tests» sopla (hilos de aire desde la derecha) y sube una nube de óxido que se hincha y deriva hacia su
+//    nariz, fuera de cuadro; en «not blood» estornuda («!»): la ráfaga barre la nube, la lupa salta, la hoja del diario
+//    se levanta y la cinta del legajo ondea; sale la placa de la gota tachada; la lupa repasa las manchas; en «court
+//    found» la mano del escribano empuja la gradilla (o.analisis), echa una escama con pinzas y se va; la lupa va al tubo:
+//    el líquido no cambia; en «crime» la placa de la balanza y la lupa se retira. Fondo: siluetas borrosas que cruzan la
+//    sala, la sombra de una nube que pasa por la mesa, el brillo de la hoja y el polvo.
 // 8. «It paid the salvagers, but far less than they had hoped for, as if it didn't quite trust anyone» (hasta el final).
 //    FONDO LOCAL: la oficina del escribano del tribunal: en «paid» el escribano empuja una bolsita sobre el mostrador; en
 //    «far less» sobre Morehouse aparece a tiza el montón de sacos que esperaban y se encoge hasta la bolsita; en «didn't
@@ -500,18 +504,73 @@ const p6 = (t) => {
   R.rect(0, 168, 70, 179, K); R.rect(0, 169, 69, 172, H('#8a5a3a')); R.rect(0, 169, 69, 169, H('#c08a5a')); R.rect(0, 173, 69, 179, H('#5a3220'));
 };
 
-// ── 7 · LA ESPADA DE CERCA: la lupa, el soplido, el óxido y el estornudo ─────────────────────────────────────────
+// ── 7 · LA ESPADA DE CERCA: la lupa recorre la hoja, el soplido, la nube de óxido, el estornudo y el análisis ──────────
+// tiempos del gag: el análisis va de AN0 a AN1 (o.analisis 0–1 del decorado: la gradilla entra hasta 0,3, la escama cae
+// en 0,35–0,5 y burbujea en 0,5–0,85)
+const AN0 = COURT - 0.1, AN1 = CRIME2 + 0.2, anT = (a) => AN0 + a * (AN1 - AN0);
+// interpolación suave entre fotogramas clave [t, x, y]
+const clave = (t, ks) => { if (t <= ks[0][0]) return [ks[0][1], ks[0][2]]; for (let i = 1; i < ks.length; i++) if (t <= ks[i][0]) { const [a, b] = [ks[i - 1], ks[i]], u = suave((t - a[0]) / (b[0] - a[0])); return [lerp(a[1], b[1], u), lerp(a[2], b[2], u)]; } const z = ks[ks.length - 1]; return [z[1], z[2]]; };
+const OX = [H('#f0a060'), H('#d0703a'), H('#9a4a22')];
+const ESCRIBANO = '#3a4458';
+// la sala desenfocada de arriba (y 14–29, x 176–266): dos siluetas borrosas que cruzan al fondo (un ujier y un letrado)
+const fondo7 = (t) => {
+  for (const [k, v, col] of [[0, 9, H('#2a1e18')], [1, -6, H('#3a2a20')]]) { const x0 = k ? 262 - ((t * -v + 30) % 110) : 178 + ((t * v + 20) % 110);
+    if (x0 < 180 || x0 > 262) continue; const cx = Math.round(x0), cy = 20 + k * 2 + (Math.floor(t * 4 + k) % 2);
+    for (let y = cy - 4; y <= 29; y++) for (let x = cx - 7; x <= cx + 7; x++) { if (x < 176 || x > 266) continue; const dx = x - cx, cab = Math.hypot(dx, (y - cy) * 1.1) < 3.6, hom = y > cy + 3 && Math.abs(dx) < 4 + (y - cy - 3) * 0.9;
+      if ((cab || hom) && bay(x, y) < (cab || Math.abs(dx) < 4 ? 0.7 : 0.4)) R.pset(x, y, col); } }
+};
+// la sombra de una nube que pasa por la ventana y cruza la mesa despacio (franja de 46 px, tramada)
+const nube7 = (t) => { const cx = -60 + ((t * 14) % 440);
+  for (let y = 34; y < 180; y++) { const c0 = Math.round(cx + (y - 34) * 0.35); for (let x = Math.max(0, c0 - 23); x <= Math.min(319, c0 + 23); x++) { if (tranquila(x, y)) continue; const f = 1 - Math.abs(x - c0) / 23; if (bay(x, y) < f * 0.55) R.pset(x, y, mez(R.pget(x, y), K, 0.16)); } } };
+// la hoja del diario de a bordo que levanta el estornudo (gira sobre el lomo x 68 y cae)
+const hoja7 = (a) => { if (a <= 0.02) return; const w = Math.round(42 * Math.cos(a)), s = Math.round(Math.sin(a) * 9), x1 = 68 + w;
+  R.poligono([[68, 37], [x1, 37 - s], [x1, 74 - s], [68, 74]], w > 0 ? H('#fbf5e6') : H('#e4dcc6'));
+  for (let yy = 41; yy < 72; yy += 3) R.linea(68, yy, x1, yy - s, H('#d8ccb0')); R.linea(x1, 37 - s, x1, 74 - s, H('#a8987a')); R.linea(68, 37, x1, 37 - s, H('#a8987a')); };
+// una placa redonda con un símbolo (el resultado): aparece con un pequeño rebote
+const placa7 = (x, y, s, dibuja) => { if (s <= 0) return; const r = Math.round(12 * Math.min(1.15, s * 1.3) - (s > 0.77 ? (s - 0.77) * 6 : 0));
+  R.disco(x + 1, y + 2, r, H('#1e3a2a')); R.disco(x, y, r, K); R.disco(x, y, r - 1, H('#f2ead2')); R.disco(x, y, r - 3, H('#fbf6e8')); for (let a = 3.6; a < 4.8; a += 0.15) R.pset(Math.round(x + Math.cos(a) * (r - 2)), Math.round(y + Math.sin(a) * (r - 2)), BL); if (s > 0.6) dibuja(); };
 const p7 = (t) => {
-  const sopla = lin(t, TESTS - 0.05, BLOOD + 0.3), est = t > NOT - 0.2 && t < BLOOD + 0.5;
-  const sac = est ? Math.round(Math.sin((t - NOT) * 40) * 3 * (1 - lin(t, NOT, BLOOD + 0.5))) : 0;
-  const lupa = [178 + Math.round(Math.sin(t * 1.3) * 2) + sac, 101 + Math.round(Math.cos(t * 1.1)) - (est ? 3 : 0)];
-  const o = { encuadre: 'tribunal', camara: 'espada', lupa, sopla, analisis: lin(t, COURT - 0.1, CRIME2 + 0.2) };
+  // la lupa: recorre la hoja desde la guarda hasta las manchas, se acerca al soplar, salta con el estornudo, repasa las
+  // manchas, va al tubo de ensayo cuando el escribano echa la escama y, al no haber delito, se retira
+  const [lx, ly] = clave(t, [[P7, 92, 104], [TESTS + 0.22, 177, 100], [TESTS + 0.5, 180, 98], [NOT - 0.25, 182, 97], [BLOOD + 0.7, 168, 92], [COURT - 0.25, 192, 101],
+    [anT(0.5), 184, 100], [anT(0.7), 270, 128], [CRIME2 + 0.15, 268, 126], [PAID - 0.05, 336, 214]]);
+  const est = t > NOT - 0.2 && t < BLOOD + 0.5, sac = est ? Math.round(Math.sin((t - NOT) * 40) * 4 * (1 - lin(t, NOT, BLOOD + 0.5))) : 0;
+  const busca = t > BLOOD + 0.7 && t < COURT - 0.25 ? Math.round(Math.sin(t * 7) * 2) : 0;
+  const lupa = [Math.round(lx + Math.sin(t * 1.3) * 1.5) + sac, Math.round(ly + Math.cos(t * 1.1) + busca) - (est ? Math.round(3 * (1 - lin(t, NOT, BLOOD + 0.5))) : 0)];
+  const o = { encuadre: 'tribunal', camara: 'espada', lupa, sopla: lin(t, TESTS + 0.1, BLOOD + 0.3), analisis: lin(t, AN0, AN1) };
   const g = T.gibraltar(R, t, o);
-  if (g.mango) T.brazo(R, 252, 196, g.mango[0], g.mango[1], LEVITA, 1, { codo: [246, 170] });
+  fondo7(t);
+  // la hoja del diario: el estornudo la levanta y vuelve a caer, y luego una segunda que tiembla
+  if (t > NOT - 0.1) { const u = t - (NOT - 0.1); hoja7(Math.max(0, Math.sin(Math.min(1, u / 0.9) * Math.PI) * 1.25)); if (u > 0.5 && u < 1.6) hoja7(Math.max(0, Math.sin((u - 0.5) / 1.1 * Math.PI) * 0.5)); }
+  // las puntas de la cinta del legajo ondean con la ráfaga
+  { const v = est ? Math.sin(t * 30) * 3 * (1 - lin(t, NOT, BLOOD + 0.5)) : Math.sin(t * 2) * 0.6; R.linea(226, 49, Math.round(232 - (est ? 8 : 0) + v), Math.round(57 - (est ? 3 : 0)), H('#c83a3a')); R.linea(226, 49, Math.round(220 - (est ? 10 : 0) - v), 58 - (est ? 2 : 0), H('#a82a2a')); }
+  // el soplido: unos hilos de aire que entran por la derecha (el fiscal, fuera de cuadro) hacia las manchas
+  if (t > TESTS && t < TESTS + 0.55) { const f = lin(t, TESTS, TESTS + 0.55);
+    for (let k = 0; k < 4; k++) { const y = 82 + k * 4, x1 = Math.round(300 - f * 110 + k * 6), x0 = x1 + 10 + k * 2; if (x1 < 300) R.linea(x1, y + Math.round(f * 6), Math.min(312, x0), y + Math.round(f * 6) - 1, H('#e8f0f4')); } }
+  // LA NUBE DE ÓXIDO: sube de las manchas, se hincha y deriva hacia la nariz del fiscal (a la derecha); con el estornudo
+  // sale barrida hacia la izquierda y se deshace
+  if (t > TESTS + 0.15 && t < BLOOD + 0.9) { const sube = suave(lin(t, TESTS + 0.15, NOT - 0.2)), barre = lin(t, NOT - 0.15, BLOOD + 0.9);
+    const cx = lerp(178, 262, sube) - barre * 250, cy = lerp(96, 64, sube) + Math.sin(sube * 3) * 4 + barre * 8, rr = 4 + sube * 14 + barre * 8;
+    for (let k = 0; k < 13; k++) { const a = k * 2.4 + t * (0.8 + (k % 3) * 0.3), d = (k % 4) * rr * 0.28, px = Math.round(cx + Math.cos(a) * d * 1.4 - barre * hs(k, 2) * 60), py = Math.round(cy + Math.sin(a) * d * 0.7);
+      const r = Math.max(1, Math.round(rr * (0.32 + hs(k, 3) * 0.25) * (1 - barre * 0.8))); if (hs(k, 4) < barre * 1.3) continue;
+      if (tranquila(px, py - r) || tranquila(px + r, py - r)) continue; R.disco(px, py, r, OX[k % 3]); if (r > 2) R.disco(px - 1, py - 1, Math.max(1, r - 2), OX[0]); }
+    for (let k = 0; k < 18; k++) { const px = Math.round(cx + (hs(k, 7) - 0.5) * rr * 3.2 - barre * hs(k, 8) * 120), py = Math.round(cy + (hs(k, 9) - 0.5) * rr * 1.8); if (!tranquila(px, py) && hs(k, 10) > barre) R.pset(px, py, OX[(k + 1) % 3]); } }
+  // la mano del escribano (fuera de cuadro a la derecha) empuja la gradilla, echa la escama con unas pinzas y se va
+  const an = lin(t, AN0, AN1);
+  if (an > 0 && an < 0.62) { const fx = Math.round(lerp(340, 280, suave(an / 0.3))), fy = 150;
+    const [hx, hy] = an < 0.3 ? [fx + 16, fy - 3] : clave(an, [[0.3, fx + 16, fy - 3], [0.36, fx + 9, fy - 50], [0.47, fx + 9, fy - 50], [0.62, 352, fy - 70]]);
+    if (an > 0.32 && an < 0.5) { R.linea(Math.round(hx) - 6, Math.round(hy) + 1, fx + 1, fy - 45, H('#9a9aa6')); R.linea(Math.round(hx) - 6, Math.round(hy) + 3, fx + 1, fy - 44, H('#c8c8d0')); if (an < 0.36) { R.pset(fx, fy - 44, H('#7a3a1a')); R.pset(fx + 1, fy - 44, H('#5a2a12')); } }
+    T.brazo(R, Math.round(hx) + 44, Math.round(hy) + 22, Math.round(hx), Math.round(hy), ESCRIBANO, -1, { codo: [Math.round(hx) + 26, Math.round(hy) + 16] }); }
+  // el brazo del fiscal con la lupa (hombro fuera de cuadro, abajo a la derecha)
+  if (g.mango) T.brazo(R, g.mango[0] + 40, 200, g.mango[0], g.mango[1], LEVITA, 1, { codo: [g.mango[0] + 34, Math.max(g.mango[1] + 22, 172)] });
   // el estornudo (fuera de cuadro, a la derecha): una ráfaga que barre la nube y las motas hacia la izquierda
   if (est) { const f = lin(t, NOT - 0.2, BLOOD + 0.5);
-    for (let k = 0; k < 7; k++) { const y = 40 + k * 9 + Math.round(hs(k, 1) * 5), x1 = 319 - Math.round(f * 260) + k * 7, x0 = x1 + 18 + k * 2; R.linea(x1, y, Math.min(319, x0), y, H('#f0ece0')); }
-    if (t > NOT && t < BLOOD + 0.2) R.icono('!', 296, 60, H('#f8e070'), K, 2); }
+    for (let k = 0; k < 7; k++) { const y = 52 + k * 9 + Math.round(hs(k, 1) * 5), x1 = 319 - Math.round(f * 280) + k * 7, x0 = x1 + 18 + k * 2; if (x1 < 319) R.linea(x1, y, Math.min(319, x0), y, H('#f0ece0')); }
+    if (t > NOT && t < BLOOD + 0.2) R.icono('!', 300, 62, H('#f8e070'), K, 2); }
+  // «not blood»: la placa con la gota tachada; «court found… no crime»: la placa de la balanza, nivelada
+  placa7(238, 76, lin(t, BLOOD + 0.25, BLOOD + 0.55), () => { R.icono('gota', 231, 69, H('#c8202a'), H('#5a1010'), 2); R.linea(230, 68, 246, 84, K); R.linea(231, 68, 247, 84, K); R.linea(246, 68, 230, 84, K); R.linea(247, 68, 231, 84, K); });
+  placa7(130, 82, lin(t, CRIME2 - 0.15, CRIME2 + 0.15), () => R.icono('balanza', 123, 75, H('#a8781a'), H('#4a3010'), 2));
+  nube7(t);
 };
 
 // ── 8 · LA OFICINA DEL ESCRIBANO (marcador de posición) ───────────────────────────────────────────────────────────
@@ -615,7 +674,7 @@ const efectos = [[0.2, 'ola'], [THREE, 'pop'], [SAILED + 0.3, 'viento'],
   [CRIME, 'aviso'], [DECK, 'toc'],
   [CUTS, 'lapiz'], [DRUNK, 'lapiz'],
   [UNTOUCHED - 0.1, 'toc'], [DRINKS, 'miau'], [SICK, 'boing'],
-  [TESTS, 'whoosh'], [NOT - 0.1, 'rafaga'], [COURT + 0.2, 'burbujas'],
+  [TESTS + 0.05, 'whoosh'], [NOT - 0.1, 'rafaga'], [anT(0.3), 'golpecito'], [anT(0.5), 'burbujas'], [CRIME2, 'pop'],
   [PAID + 0.1, 'golpecito'], [TRUST, 'sello']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: (t) => (t < MONTHS + 0.2 ? 1872 : 1873) });
 </script>
