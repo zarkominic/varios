@@ -5721,7 +5721,7 @@ function f_mapaFondo(R) {
 const f_parchePx = (x, y, P0) => { const [u, v] = f_uv(x, y), base = f_mapaCol(u, v, x, y, 0.5, true); return f_mez(base, f_P.parche2, 0.62); };
 
 // EL MAPA DE CERCA: o.parche 0–1 vuelve transparente el parche del norte y aparece la estrella que late; o.rayos 0–1
-// pasa la franja azulada de los rayos X de izquierda a derecha (donde cruza el parche, la estrella se ve un momento);
+// pasa la franja azulada de los rayos X de izquierda a derecha, solo sobre la hoja (donde cruza el parche, la estrella se ve un momento);
 // la luz de la mesa respira un poco y flotan motas de polvo
 function f_mapaCerca(R, t, o) {
   const { pset, linea } = R, P = f_P;
@@ -5741,8 +5741,12 @@ function f_mapaCerca(R, t, o) {
   const vis = Math.max(pa, ray >= 0 && Math.abs(f_ESTRELLA[0] - rx) < 8 ? 0.8 : 0);
   if (vis > 0) { const r = 5 + (pa >= 1 ? Math.round((Math.sin(t * 4) + 1) * 0.6) : 0); if (pa > 0.6) for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5 + t * 0.8, d = 9 + Math.sin(t * 4 + k) * 1.5; pset(Math.round(f_ESTRELLA[0] + Math.cos(a) * d), Math.round(f_ESTRELLA[1] + Math.sin(a) * d), P.luzT3); }
     f_estrella(R, f_ESTRELLA[0], f_ESTRELLA[1], r, Math.min(1, vis * 1.2)); }
-  // la franja de los rayos X: un velo azul violeta con su filo claro
-  if (ray >= 0 && ray < 1) for (let y = 0; y < 180; y++) for (let x = rx - 6; x <= rx + 6; x++) { if (x < 0 || x > 319) continue; const e = Math.abs(x - rx); if (e === 6) { if ((y + Math.floor(t * 20)) % 3 === 0) pset(x, y, P.luzT3); continue; } pset(x, y, f_mez(R.pget(x, y), P.rayo, 0.32 - e * 0.03)); }
+  // la franja de los rayos X: un velo azul violeta con su filo claro, recortado a la hoja (no toca la mesa, la barra
+  // del año ni la esquina de Atom); dentro, la línea del detector sube y baja por la franja
+  if (ray >= 0 && ray < 1) { const yd = Math.round(f_MAPA[1] + 2 + (Math.sin(t * 2.4) * 0.5 + 0.5) * (f_MAPA[3] - f_MAPA[1] - 4));
+    for (let y = f_MAPA[1]; y <= f_MAPA[3]; y++) for (let x = Math.max(f_MAPA[0], rx - 6); x <= Math.min(f_MAPA[2], rx + 6); x++) { if (!f_enHoja(x, y) || f_atom(x, y)) continue;
+      const e = Math.abs(x - rx); if (e === 6) { if ((y + Math.floor(t * 20)) % 3 === 0) pset(x, y, P.luzT3); continue; }
+      pset(x, y, f_mez(R.pget(x, y), P.rayo, (Math.abs(y - yd) < 1 ? 0.5 : 0.32) - e * 0.03)); } }
   // la luz de abajo respira y flotan motas de polvo
   { const b = Math.sin(t * 1.3) * 0.5 + 0.5; for (let k = 0; k < 18; k++) { const x = Math.round((h(k, 5, 73) * 320 + t * (3 + k % 4) + Math.sin(t + k) * 4) % 320), y = Math.round((h(k, 6, 73) * 180 - t * (1.5 + k % 3)) % 180 + 180) % 180; if (!f_atom(x, y) && !(y < 21 && x > 18 && x < 172)) pset(x, y, b > 0.5 && k % 2 ? P.luzT3 : P.pap5); } }
   return { suelo: 180, libre: [0, 0], parche: f_PARCHE.slice(), parcheSur: f_PARCHE2.slice(), estrella: f_ESTRELLA.slice(), hoja: f_MAPA.slice(), rayo: [rx, 90] };
