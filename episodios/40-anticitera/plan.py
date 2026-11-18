@@ -71,7 +71,7 @@ E = [
    'G y E: el anillo del calendario con sus agujeros; dos físicos (EL.fisicoAK) cuentan con estadística; aparece una Luna en el anillo.'],
   'intriga', []),
  ('ak-atasco', None, 29, 30, ['simulacion', 'pregunta'],
-  ['G y E: una computadora simula los engranajes; los dientes irregulares chocan y la máquina se atasca; el mecanismo de cartón de Atom también.',
+  ['G y E: un ordenador simula los engranajes; los dientes irregulares chocan y la máquina se atasca; el mecanismo de cartón de Atom también.',
    'G: Atom ante un globo terráqueo de aula; la máquina como modelo para enseñar el cielo.'],
   'intriga', []),
  ('ak-cierre', None, 31, 33, ['siglos', 'misterio', 'final'],

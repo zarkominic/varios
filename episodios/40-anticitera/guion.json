@@ -1,0 +1,470 @@
+{
+ "serie": "ASK Atom",
+ "numero": 40,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Antikythera: A 2,000-Year-Old Computer From a Shipwreck",
+  "es": "Anticitera: el ordenador de hace 2000 años que salió del mar"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 1.05
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.5,
+    "mood.arousal": 0.5
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "ak-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "maquina"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "maquina",
+     "es": "Hace más de dos mil años, alguien construyó una máquina que predecía eclipses. Lo sabemos porque en 1901 unos buzos la sacaron de un naufragio griego, convertida en un terrón de bronce verde. Dentro había engranajes: diminutos, precisos, cortados a mano.",
+     "en": "More than two thousand years ago, someone built a machine that predicted eclipses. We know because in 1901, divers pulled it out of a Greek shipwreck as a lump of green, corroded bronze. Inside it were gears: tiny, precise, cut by hand.",
+     "visual": "F, B y E: un cielo antiguo con un eclipse; el naufragio en el fondo; un buzo saca un terrón de bronce verde; dentro, engranajes que brillan (golpe en «gears»).",
+     "es_voz": "Hace más de dos mil años, alguien construyó una máquina que predecía eclipses. Lo sabemos porque en mil novecientos uno unos buzos la sacaron de un naufragio griego, convertida en un terrón de bronce verde. Dentro había engranajes: diminutos, precisos, cortados a mano.",
+     "en_voz": "More than two thousand years ago, someone built a machine that predicted eclipses. We know because in nineteen oh-one, divers pulled it out of a Greek shipwreck as a lump of green, corroded bronze. Inside it were gears: tiny, precise, cut by hand."
+    },
+    {
+     "n": 2,
+     "marca": "nombre",
+     "es": "Se llama el mecanismo de Anticitera, y muchos lo llaman el ordenador más antiguo del mundo. Por el camino vas a conocer a unos buzos que vieron gente en el fondo del mar y a un científico que contaba dientes con rayos X. Y también a una máquina de ocho toneladas metida en un museo y un calendario de los Juegos Olímpicos.",
+     "en": "It's called the Antikythera mechanism, and many call it the oldest computer in the world. Along the way, you'll meet sponge divers who saw people on the seabed, a scientist who counted teeth with X-rays, an eight-ton machine squeezed into a museum, and a calendar for the Olympic Games.",
+     "visual": "E, B, D, C y F: la máquina reconstruida girando; buzos que ven siluetas; una radiografía con ruedas; el escáner entrando en el museo; atletas corriendo alrededor de una esfera."
+    }
+   ]
+  },
+  {
+   "id": "ak-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "G: Atom saluda en su estudio junto a su mecanismo de cartón; gira la manivela y una rueda sale rodando por el suelo."
+    }
+   ]
+  },
+  {
+   "id": "ak-buzos",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1900",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "tormenta",
+     "es": "Todo empezó por casualidad. En la primavera de 1900, un barco de buzos de esponjas de la isla de Simi volvía del norte de África cuando una tormenta lo obligó a refugiarse en Anticitera, una isla diminuta entre Creta y el resto de Grecia. Mientras esperaban, uno de ellos, Elias Stadiatis, bajó a echar un vistazo.",
+     "en": "It all began by accident. In the spring of 1900, a boat of sponge divers from the island of Symi was heading home from North Africa when a storm forced it to shelter at Antikythera, a tiny island between Crete and mainland Greece. While they waited, one of them, Elias Stadiatis, went down to take a look.",
+     "visual": "A: el caíque de los buzos de Simi en la tormenta; se refugia en la cala de Anticitera; Elias Stadiatis (EL.stadiatisAK) se pone la escafandra y baja.",
+     "acto": true,
+     "es_voz": "Todo empezó por casualidad. En la primavera de mil novecientos, un barco de buzos de esponjas de la isla de Simi volvía del norte de África cuando una tormenta lo obligó a refugiarse en Anticitera, una isla diminuta entre Creta y el resto de Grecia. Mientras esperaban, uno de ellos, Elias Stadiatis, bajó a echar un vistazo.",
+     "en_voz": "It all began by accident. In the spring of nineteen hundred, a boat of sponge divers from the island of Symi was heading home from North Africa when a storm forced it to shelter at Antikythera, a tiny island between Crete and mainland Greece. While they waited, one of them, Elias Stadiatis, went down to take a look."
+    },
+    {
+     "n": 5,
+     "marca": "gente",
+     "es": "Subió asustadísimo. Juraba que había visto gente y caballos tumbados en el fondo, a unos cincuenta metros. El capitán, Dimitrios Kontos, bajó a comprobarlo. No era gente: eran estatuas de bronce y de mármol, esparcidas alrededor de un barco antiguo hundido.",
+     "en": "He came back up badly shaken. He swore he had seen people and horses lying on the seabed, about fifty meters down. The captain, Dimitrios Kontos, dove in to check. They weren't people: they were statues, of bronze and marble, scattered around an ancient sunken ship.",
+     "visual": "B y A: siluetas en el fondo; el buzo sube a toda prisa; el capitán Kontos (EL.kontosAK) baja y ve estatuas de bronce y mármol; una parece saludarle con el brazo."
+    }
+   ],
+   "cartela": "1900"
+  },
+  {
+   "id": "ak-rescate",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "rescate",
+     "es": "Ese otoño, con la ayuda del gobierno griego y de la marina, los buzos empezaron a sacarlo todo. Fue una de las primeras grandes excavaciones bajo el agua de la historia, con escafandras de cobre y aire bombeado a mano, y duró hasta 1901.",
+     "en": "That fall, with help from the Greek government and the navy, the divers began to bring it all up. It was one of the first great underwater excavations in history, done with copper helmets and air pumped by hand, and it lasted until 1901.",
+     "visual": "A y B: el barco de la marina griega junto al caíque; la bomba de aire a mano; buzos con escafandra de cobre suben estatuas con cuerdas; un pulpo se lleva el pañuelo de un buzo.",
+     "es_voz": "Ese otoño, con la ayuda del gobierno griego y de la marina, los buzos empezaron a sacarlo todo. Fue una de las primeras grandes excavaciones bajo el agua de la historia, con escafandras de cobre y aire bombeado a mano, y duró hasta mil novecientos uno.",
+     "en_voz": "That fall, with help from the Greek government and the navy, the divers began to bring it all up. It was one of the first great underwater excavations in history, done with copper helmets and air pumped by hand, and it lasted until nineteen oh-one."
+    },
+    {
+     "n": 7,
+     "marca": "tesoros",
+     "es": "Salieron estatuas de bronce, vidrio, cerámica y joyas. El barco se había hundido hacia el año 60 antes de Cristo, cargado de lujos, seguramente camino de Roma. Y entre tantos tesoros, nadie se fijó en unos terrones de bronce verde y madera que se deshacían.",
+     "en": "Out came bronze statues, glass, pottery and jewelry. The ship had sunk around 60 BC, loaded with luxuries, probably on its way to Rome. And among so many treasures, nobody paid attention to a few lumps of green bronze and wood that were falling apart.",
+     "visual": "A y B: en cubierta, estatuas, ánforas, vidrio y joyas; en un rincón, unos terrones verdes que nadie mira; mapa del barco antiguo camino de Roma.",
+     "en_voz": "Out came bronze statues, glass, pottery and jewelry. The ship had sunk around 60 B.C., loaded with luxuries, probably on its way to Rome. And among so many treasures, nobody paid attention to a few lumps of green bronze and wood that were falling apart."
+    }
+   ]
+  },
+  {
+   "id": "ak-terron",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1902",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "stais",
+     "es": "En mayo de 1902, en el Museo Arqueológico Nacional de Atenas, el arqueólogo Valerios Stais y su primo Spyridon miraron uno de esos terrones más de cerca. La madera se había secado y partido, y en una grieta apareció algo que nadie esperaba de la Grecia antigua: una rueda dentada. Un engranaje.",
+     "en": "In May 1902, at the National Archaeological Museum in Athens, the archaeologist Valerios Stais and his cousin Spyridon took a closer look at one of those lumps. The wood had dried out and split, and in a crack was something no one expected from ancient Greece: a toothed wheel. A gear.",
+     "visual": "C: el museo de Atenas en 1902; Valerios Stais (EL.staisAK) y su primo Spyridon miran un terrón con la lupa; la madera se parte y aparece una rueda dentada (zoom).",
+     "acto": true,
+     "es_voz": "En mayo de mil novecientos dos, en el Museo Arqueológico Nacional de Atenas, el arqueólogo Valerios Stais y su primo Spyridon miraron uno de esos terrones más de cerca. La madera se había secado y partido, y en una grieta apareció algo que nadie esperaba de la Grecia antigua: una rueda dentada. Un engranaje.",
+     "en_voz": "In May nineteen oh-two, at the National Archaeological Museum in Athens, the archaeologist Valerios Stah-ees and his cousin Spyridon took a closer look at one of those lumps. The wood had dried out and split, and in a crack was something no one expected from ancient Greece: a toothed wheel. A gear."
+    },
+    {
+     "n": 9,
+     "marca": "dudas",
+     "es": "Algunos dijeron que era un instrumento de astronomía. Otros, que era imposible: los griegos no hacían cosas así, así que tenía que ser algo más moderno que había caído al mar mucho después. El terrón era demasiado pequeño, demasiado roto y demasiado raro. Algunos estudiosos lo intentaron, pero durante medio siglo nadie pudo ver lo que tenía dentro.",
+     "en": "Some said it was an astronomical instrument. Others said that was impossible: the Greeks didn't make things like that, so it had to be something more modern that had fallen into the sea much later. The lump was too small, too broken and too strange. A few scholars tried, but for half a century no one could see what was inside it.",
+     "visual": "C: unos estudiosos discuten ante la vitrina, unos asienten y otros niegan; el terrón vuelve a una caja; pasan los años sobre la vitrina (polvo, calendario)."
+    }
+   ],
+   "cartela": "1902"
+  },
+  {
+   "id": "ak-price",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1951",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "price",
+     "es": "En 1951, un físico e historiador británico, Derek de Solla Price, se obsesionó con el terrón. Lo estudió durante más de veinte años, y en los años setenta, con el físico nuclear griego Charalambos Karakalos, hizo algo nuevo: lo miró por dentro con rayos X y rayos gamma.",
+     "en": "In 1951, a British physicist and historian, Derek de Solla Price, became obsessed with the lump. He studied it for more than twenty years, and in the 1970s, with the Greek nuclear physicist Charalambos Karakalos, he did something new: he looked inside it with X-rays and gamma rays.",
+     "visual": "D: Derek de Solla Price (EL.priceAK) llega al museo; con Karakalos (EL.karakalosAK) pone el terrón ante la máquina de rayos gamma.",
+     "acto": true,
+     "es_voz": "En mil novecientos cincuenta y uno, un físico e historiador británico, Derek de Solla Price, se obsesionó con el terrón. Lo estudió durante más de veinte años, y en los años setenta, con el físico nuclear griego Charalambos Karakalos, hizo algo nuevo: lo miró por dentro con rayos X y rayos gamma.",
+     "en_voz": "In nineteen fifty-one, a British physicist and historian, Derek de Solla Price, became obsessed with the lump. He studied it for more than twenty years, and in the 1970s, with the Greek nuclear physicist Charalambos Karakalos, he did something new: he looked inside it with X-rays and gamma rays."
+    },
+    {
+     "n": 11,
+     "marca": "dientes",
+     "es": "En las imágenes aparecieron capas de engranajes, unas encima de otras, como páginas pegadas. Price contó sus dientes uno a uno, porque en un engranaje el número de dientes es la cuenta: si una rueda de veinte dientes mueve otra de cuarenta, la segunda gira a la mitad de velocidad. Cada pareja de ruedas era una división, y todas juntas, un cálculo.",
+     "en": "In the images, layers of gears appeared, one on top of another, like pages stuck together. Price counted their teeth one by one, because in a gear, the number of teeth is the math: if a wheel with twenty teeth turns one with forty, the second turns at half the speed. Each pair of wheels was a division, and together they made a calculation.",
+     "visual": "D y G: las radiografías a contraluz con capas de ruedas; Price cuenta dientes con un lápiz, suena el teléfono y pierde la cuenta; Atom explica con dos ruedas de 20 y 40 dientes."
+    },
+    {
+     "n": 12,
+     "marca": "libro",
+     "es": "En 1974 publicó un libro, «Engranajes de los griegos». Su conclusión: la máquina era un calendario que calculaba los movimientos del Sol y de la Luna. No todos le creyeron, y él no pudo verlo todo, pero iba por buen camino.",
+     "en": "In 1974, he published a book, \"Gears from the Greeks.\" His conclusion: the machine was a calendar that calculated the movements of the Sun and the Moon. Not everyone believed him, and he couldn't see everything, but he was on the right track.",
+     "visual": "D: el libro «Gears from the Greeks» sobre la mesa; unos colegas dudan, Price sonríe.",
+     "es_voz": "En mil novecientos setenta y cuatro publicó un libro, «Engranajes de los griegos». Su conclusión: la máquina era un calendario que calculaba los movimientos del Sol y de la Luna. No todos le creyeron, y él no pudo verlo todo, pero iba por buen camino.",
+     "en_voz": "In nineteen seventy-four, he published a book, \"Gears from the Greeks.\" His conclusion: the machine was a calendar that calculated the movements of the Sun and the Moon. Not everyone believed him, and he couldn't see everything, but he was on the right track."
+    }
+   ],
+   "cartela": "1951"
+  },
+  {
+   "id": "ak-escaner",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 2005",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "escaner",
+     "es": "Para ver más hacían falta mejores ojos. En 2005, un equipo de investigadores británicos y griegos llevó a Atenas un escáner de unas ocho toneladas, porque los fragmentos eran demasiado frágiles para salir del museo.",
+     "en": "To see more, you needed better eyes. In 2005, a team of British and Greek researchers brought a scanner weighing about eight tons to Athens, because the fragments were too fragile to leave the museum.",
+     "visual": "C: el escáner de ocho toneladas entra por la puerta del museo con un centímetro de margen; los investigadores lo rodean.",
+     "acto": true,
+     "es_voz": "Para ver más hacían falta mejores ojos. En dos mil cinco, un equipo de investigadores británicos y griegos llevó a Atenas un escáner de unas ocho toneladas, porque los fragmentos eran demasiado frágiles para salir del museo.",
+     "en_voz": "To see more, you needed better eyes. In two thousand five, a team of British and Greek researchers brought a scanner weighing about eight tons to Athens, because the fragments were too fragile to leave the museum."
+    },
+    {
+     "n": 14,
+     "marca": "letras",
+     "es": "El escáner descubrió algo que nadie había visto: letras. Miles de letras diminutas grabadas en las piezas y escondidas bajo la corrosión, algunas de poco más de un milímetro. Son instrucciones y descripciones, como un manual de uso.",
+     "en": "The scanner revealed something no one had seen: letters. Thousands of tiny letters engraved on the pieces and hidden under the corrosion, some barely more than a millimeter tall. They're instructions and descriptions, like a user's manual.",
+     "visual": "C y G: en la pantalla, las letras diminutas aparecen bajo la corrosión, como un manual; Atom mira con la lupa."
+    },
+    {
+     "n": 15,
+     "marca": "piezas",
+     "es": "Con los engranajes, las esferas y esos textos juntos, por fin se pudo reconstruir cómo funcionaba. Quedan ochenta y dos fragmentos, y en ellos, treinta engranajes de bronce. El más grande es como la palma de una mano. Y detrás hay otra rueda grande con doscientos veintitrés dientes. Ese número va a importar.",
+     "en": "With the gears, the dials and those texts together, they could finally rebuild how it worked. Eighty-two fragments survive, and in them, thirty bronze gears. The largest is about the size of the palm of a hand. And behind it sits another big wheel, with two hundred twenty-three teeth. That number will matter.",
+     "visual": "C y E: los ochenta y dos fragmentos en una mesa; el engranaje más grande junto a una mano y, detrás, la rueda de doscientos veintitrés dientes."
+    }
+   ],
+   "cartela": "2005"
+  },
+  {
+   "id": "ak-manivela",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "caja",
+     "es": "Imagina una caja de madera un poco más grande que una caja de zapatos, con una manivela en un lado. Giras la manivela y te mueves por el tiempo: hacia el futuro o hacia el pasado. Cada vuelta hace avanzar las fechas.",
+     "en": "Picture a wooden box a little bigger than a shoebox, with a crank on one side. You turn the crank, and you move through time: forward into the future or back into the past. Every turn moves the dates along.",
+     "visual": "E y G: la caja de madera junto a una caja de zapatos; Atom gira la manivela y las fechas avanzan y retroceden.",
+     "acto": true
+    },
+    {
+     "n": 17,
+     "marca": "esfera",
+     "es": "Delante había una esfera grande con dos anillos: los signos del zodiaco y un calendario con los meses de Egipto, que durante un siglo se leyó como un año de trescientos sesenta y cinco días. Unas agujas marcaban dónde estaban el Sol y la Luna en el cielo el día que habías elegido. Y una bolita, mitad clara y mitad oscura, giraba para enseñar la fase de la Luna.",
+     "en": "On the front was a large dial with two rings: the signs of the zodiac and a calendar marked with Egyptian months, which for a century was read as a year of three hundred sixty-five days. Pointers showed where the Sun and the Moon were in the sky on the date you'd chosen. And a little ball, half light and half dark, turned to show the phase of the Moon.",
+     "visual": "E: la esfera de delante con el zodiaco y el calendario; las agujas del Sol y de la Luna; la bolita de las fases que gira."
+    }
+   ]
+  },
+  {
+   "id": "ak-luna",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "truco",
+     "es": "Lo más ingenioso es un truco para la Luna. La Luna no cruza el cielo siempre a la misma velocidad: a veces va más rápido y a veces más despacio. Para imitarlo, el constructor puso dos engranajes con los ejes un poco desplazados, unidos por una clavija que se desliza en una ranura. El resultado es una velocidad que cambia, como la de la Luna de verdad.",
+     "en": "The cleverest part is a trick for the Moon. The Moon doesn't cross the sky at a steady speed: sometimes it goes faster, sometimes slower. To imitate that, the builder set two gears on slightly offset axles, joined by a pin that slides in a slot. The result is a speed that changes, just like the real Moon's.",
+     "visual": "E y F: la Luna cruza el cielo deprisa y despacio; por dentro, los dos engranajes desplazados con la clavija en la ranura; Atom gira demasiado rápido y la bolita de la Luna se marea."
+    },
+    {
+     "n": 19,
+     "marca": "hiparco",
+     "es": "Esa era la mejor teoría de su tiempo, la del astrónomo Hiparco, convertida en bronce. Hace dos mil años, alguien había metido un modelo del cielo en una caja de engranajes.",
+     "en": "That was the best theory of its time, the astronomer Hipparchus's, turned into bronze. Two thousand years ago, someone had put a model of the sky inside a box of gears.",
+     "visual": "F: el astrónomo Hiparco (EL.hiparcoAK) mira el cielo con sus instrumentos; su dibujo se convierte en ruedas de bronce."
+    }
+   ]
+  },
+  {
+   "id": "ak-espirales",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "saros"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "meton",
+     "es": "Detrás había dos grandes espirales. La de arriba contaba diecinueve años, lo que tardan la Luna y el Sol en volver a coincidir con el calendario: doscientos treinta y cinco meses. Los griegos lo usaban para que sus meses lunares no se separaran de las estaciones.",
+     "en": "On the back were two large spirals. The upper one counted nineteen years, the time it takes for the Moon and the Sun to line up with the calendar again: two hundred thirty-five months. The Greeks used it to keep their lunar months in step with the seasons.",
+     "visual": "E: la parte de atrás con las dos espirales; la aguja de arriba recorre diecinueve años; las estaciones pasan junto a ella.",
+     "acto": true
+    },
+    {
+     "n": 21,
+     "marca": "saros",
+     "es": "La de abajo la mueve esa rueda grande de atrás, la de doscientos veintitrés dientes. Doscientos veintitrés meses, unos dieciocho años, es el ciclo de Saros: pasado ese tiempo, los eclipses se repiten casi igual. Los babilonios lo habían descubierto siglos antes, mirando el cielo.",
+     "en": "The lower one is driven by that big wheel at the back, the one with two hundred twenty-three teeth. Two hundred twenty-three months, about eighteen years, is the Saros cycle: after that much time, eclipses repeat in almost the same pattern. The Babylonians had discovered it centuries earlier, just by watching the sky.",
+     "visual": "E y F: la rueda de doscientos veintitrés dientes; astrónomos babilonios apuntan eclipses en tablillas (golpe en «Saros»).",
+     "en_voz": "The lower one is driven by that big wheel at the back, the one with two hundred twenty-three teeth. Two hundred twenty-three months, about eighteen years, is the Say-ros cycle: after that much time, eclipses repeat in almost the same pattern. The Babylonians had discovered it centuries earlier, just by watching the sky."
+    }
+   ]
+  },
+  {
+   "id": "ak-eclipses",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "marcas",
+     "es": "A lo largo de la espiral, unas marcas avisaban de los meses en que habría un eclipse de Sol o de Luna, y hasta de la hora. Era como un calendario de eclipses para los próximos dieciocho años, que volvía a empezar.",
+     "en": "Along the spiral, small marks flagged the months when there would be an eclipse of the Sun or the Moon, and even the hour. It was like a calendar of eclipses for the next eighteen years, which then started over.",
+     "visual": "F y E: un eclipse de Sol sobre un templo; en la espiral, las marcas de los eclipses se encienden una a una."
+    },
+    {
+     "n": 23,
+     "marca": "juegos",
+     "es": "Y había una esfera pequeña para algo inesperado: los Juegos. Un ciclo de cuatro años marcaba los Juegos Olímpicos y otras grandes fiestas deportivas de Grecia. Era un calendario del cielo y del deporte a la vez.",
+     "en": "And there was a small dial for something unexpected: the Games. A four-year cycle marked the Olympic Games and other great athletic festivals of Greece. It was a calendar of the sky and of sports at the same time.",
+     "visual": "F y E: el estadio de Olimpia; en la esfera de los Juegos, unos atletas diminutos corren alrededor del dial."
+    }
+   ]
+  },
+  {
+   "id": "ak-quien",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "corinto",
+     "es": "No sabemos quién la construyó. Los nombres de los meses del calendario son de Corinto, y eso apunta a alguna de sus colonias, como Siracusa, en Sicilia, la ciudad de Arquímedes, o el noroeste de Grecia. Otros investigadores miran a la isla de Rodas, donde la astronomía estaba en pleno auge.",
+     "en": "We don't know who built it. The names of the months on the calendar are Corinthian, which points to one of Corinth's colonies, such as Syracuse in Sicily, Archimedes' city, or northwestern Greece. Other researchers look to the island of Rhodes, where astronomy was flourishing.",
+     "visual": "F: un mapa del Mediterráneo con Corinto, Siracusa y Rodas que se encienden; el taller de un artesano con limas y bronce.",
+     "acto": true
+    },
+    {
+     "n": 25,
+     "marca": "ciceron",
+     "es": "El escritor romano Cicerón habla de dos máquinas así. Una la construyó Arquímedes, y un general romano se la llevó a Roma después de conquistar Siracusa. La otra la hizo el filósofo Posidonio, en Rodas. Es tentador pensar que la nuestra tiene que ver con ellas, pero no hay ninguna prueba.",
+     "en": "The Roman writer Cicero describes two machines like this. One was built by Archimedes, and a Roman general took it home after conquering Syracuse. The other was made by the philosopher Posidonius, on Rhodes. It's tempting to think ours is related to them, but there's no proof.",
+     "visual": "F: Cicerón (EL.ciceronAK) escribe; Arquímedes (EL.arquimedesAK) con su esfera; un general romano se la lleva; Posidonio (EL.posidonioAK) en Rodas."
+    },
+    {
+     "n": 26,
+     "marca": "unica",
+     "es": "Lo que sí parece claro es que no fue la única. Unos engranajes tan pequeños y tan bien hechos no son un primer intento: quien la hizo tenía práctica. Pero nunca ha aparecido otra. El bronce valía dinero y se fundía para hacer cosas nuevas; esta se salvó solo porque se hundió.",
+     "en": "What does seem clear is that it wasn't the only one. Gears this small and this well made aren't a first attempt: whoever built it had practice. But no other one has ever turned up. Bronze was valuable and was melted down to make new things; this one survived only because it sank.",
+     "visual": "F y B: un horno funde bronce viejo para hacer cosas nuevas; la máquina hundida en el fondo, a salvo."
+    }
+   ]
+  },
+  {
+   "id": "ak-planetas",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 2021",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "planetas",
+     "es": "Falta mucho de la máquina, así que la investigación sigue. En 2021, un equipo del University College de Londres propuso cómo la esfera de delante podía enseñar también los planetas que se conocían entonces, usando los ciclos escritos en sus propias inscripciones.",
+     "en": "Much of the machine is missing, so the research goes on. In 2021, a team at University College London proposed how the front dial could also have shown the planets known at the time, using the cycles written in its own inscriptions.",
+     "visual": "G y E: la esfera de delante con los planetas de la época girando en anillos; una investigadora (EL.investigadoraAK) en Londres.",
+     "acto": true,
+     "es_voz": "Falta mucho de la máquina, así que la investigación sigue. En dos mil veintiuno, un equipo del University College de Londres propuso cómo la esfera de delante podía enseñar también los planetas que se conocían entonces, usando los ciclos escritos en sus propias inscripciones.",
+     "en_voz": "Much of the machine is missing, so the research goes on. In twenty twenty-one, a team at University College London proposed how the front dial could also have shown the planets known at the time, using the cycles written in its own inscriptions."
+    },
+    {
+     "n": 28,
+     "marca": "agujeros",
+     "es": "En 2024, dos físicos de la Universidad de Glasgow contaron con estadística los agujeros que faltan del anillo del calendario. Les salieron trescientos cincuenta y cuatro o trescientos cincuenta y cinco: un año de doce meses lunares, no uno solar. Ese anillo pudo seguir a la Luna, no al Sol.",
+     "en": "In 2024, two physicists at the University of Glasgow used statistics to count the missing holes of the calendar ring. They came up with three hundred fifty-four or three hundred fifty-five: a year of twelve lunar months, not a solar year. That ring may have followed the Moon, not the Sun.",
+     "visual": "G y E: el anillo del calendario con sus agujeros; dos físicos (EL.fisicoAK) cuentan con estadística; aparece una Luna en el anillo.",
+     "es_voz": "En dos mil veinticuatro, dos físicos de la Universidad de Glasgow contaron con estadística los agujeros que faltan del anillo del calendario. Les salieron trescientos cincuenta y cuatro o trescientos cincuenta y cinco: un año de doce meses lunares, no uno solar. Ese anillo pudo seguir a la Luna, no al Sol.",
+     "en_voz": "In twenty twenty-four, two physicists at the University of Glasgow used statistics to count the missing holes of the calendar ring. They came up with three hundred fifty-four or three hundred fifty-five: a year of twelve lunar months, not a solar year. That ring may have followed the Moon, not the Sun."
+    }
+   ],
+   "cartela": "2021"
+  },
+  {
+   "id": "ak-atasco",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "simulacion",
+     "es": "Y en 2025, dos investigadores de la Universidad Nacional de Mar del Plata, en Argentina, simularon los engranajes en un ordenador con los errores que se miden hoy en sus dientes. Su resultado: con esos errores, la máquina se atascaría casi siempre antes de cuatro meses de giro. Pero ellos mismos sospechan que lo que vemos es el daño de dos mil años bajo el mar, y que el original era más fino.",
+     "en": "And in 2025, two researchers at the National University of Mar del Plata, in Argentina, simulated the gears on a computer, using the errors measured in their teeth today. Their result: with those errors, the machine would almost always jam before four months of turning. But they themselves suspect that what we see is two thousand years of damage under the sea, and that the original was finer.",
+     "visual": "G y E: un ordenador simula los engranajes; los dientes irregulares chocan y la máquina se atasca; el mecanismo de cartón de Atom también.",
+     "es_voz": "Y en dos mil veinticinco, dos investigadores de la Universidad Nacional de Mar del Plata, en Argentina, simularon los engranajes en un ordenador con los errores que se miden hoy en sus dientes. Su resultado: con esos errores, la máquina se atascaría casi siempre antes de cuatro meses de giro. Pero ellos mismos sospechan que lo que vemos es el daño de dos mil años bajo el mar, y que el original era más fino.",
+     "en_voz": "And in twenty twenty-five, two researchers at the National University of Mar del Plata, in Argentina, simulated the gears on a computer, using the errors measured in their teeth today. Their result: with those errors, the machine would almost always jam before four months of turning. But they themselves suspect that what we see is two thousand years of damage under the sea, and that the original was finer."
+    },
+    {
+     "n": 30,
+     "marca": "pregunta",
+     "es": "Así que la pregunta sigue abierta: ¿era un instrumento preciso, o un bonito modelo para enseñar que no siempre funcionaba? Quizá las dos cosas. Como un globo terráqueo en un aula, pudo estar hecho más para explicar el cielo que para medirlo al minuto.",
+     "en": "So the question is still open: was it a precise instrument, or a beautiful teaching model that didn't always work? Maybe both. Like a globe in a classroom, it may have been made more to explain the sky than to measure it to the minute.",
+     "visual": "G: Atom ante un globo terráqueo de aula; la máquina como modelo para enseñar el cielo."
+    }
+   ]
+  },
+  {
+   "id": "ak-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 31,
+     "marca": "siglos",
+     "es": "Lo que sí sabemos ya es bastante asombroso. Después de esta máquina, no aparece nada con engranajes tan complicados durante unos mil cuatrocientos años, hasta los grandes relojes astronómicos de la Europa medieval.",
+     "en": "What we do know is astonishing enough. After this machine, nothing with gears this complex shows up for about fourteen hundred years, until the great astronomical clocks of medieval Europe.",
+     "visual": "F: una línea del tiempo de mil cuatrocientos años hasta un reloj astronómico medieval.",
+     "acto": true
+    },
+    {
+     "n": 32,
+     "marca": "misterio",
+     "es": "Ese es el verdadero misterio de Anticitera: no quién la hizo, sino cómo un saber así se pudo perder. No fue magia ni nada de otro mundo. Fue gente que miró el cielo durante siglos, apuntó lo que veía y encontró la manera de meterlo en una caja.",
+     "en": "That's the real mystery of Antikythera: not who made it, but how knowledge like this could be lost. It wasn't magic, or anything out of this world. It was people who watched the sky for centuries, wrote down what they saw, and found a way to fit it inside a box.",
+     "visual": "F: gente mirando el cielo durante siglos, tablillas y papiros; todo cabe dentro de una caja."
+    },
+    {
+     "n": 33,
+     "marca": "final",
+     "es": "Y a veces, para volver a encontrarlo, basta con una tormenta, unos buzos de esponjas y alguien que mira un terrón de bronce y ve un engranaje.",
+     "en": "And sometimes, all it takes to find it again is a storm, a few sponge divers, and someone who looks at a lump of bronze and sees a gear.",
+     "visual": "G y A: la tormenta, los buzos y la mirada de Stais; Atom gira la manivela de su mecanismo de cartón y por fin gira; la Luna de cartón sale por la ventana."
+    }
+   ]
+  }
+ ]
+}
