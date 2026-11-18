@@ -1,11 +1,11 @@
 # Episodio 39 · Roanoke: la colonia que desapareció y dejó una palabra
 
-**Estado:** v1, 18 de noviembre de 2026, escrita como cuento (voz «B»), pendiente de verificar con 3 agentes.
+**Estado:** v2, 18 de noviembre de 2026, escrita como cuento (voz «B») y verificada por 3 agentes (20 correcciones).
 
 **Por qué este tema:** elegido por el usuario el 16/11/2026 entre tres misterios con arranque fuerte («los 3 en el orden
-1, 3, 2»: la señal «Wow!», el Mary Celeste y Roanoke, de uno en uno). Sin CSV de Trends. Tiene noticia viva: en mayo de
-2025, en la isla de Hatteras, el equipo de Mark Horton y Scott Dawson encontró escamas de hierro de una forja inglesa
-(«hammerscale»), y en 2026 la First Colony Foundation trabaja en Cape Creek con un proyecto de ADN.
+1, 3, 2»: la señal «Wow!», el Mary Celeste y Roanoke, de uno en uno). Sin CSV de Trends. Tiene noticia viva: en 2025, el
+equipo de Mark Horton y Scott Dawson anunció en Hatteras escamas de hierro de forja («hammerscale», de tierra excavada en
+2024), y en marzo de 2026 presentó el análisis de los huesos de la comida y una bala isabelina (sin publicar aún).
 
 **Formato:** el de siempre (YouTube 16:9, inglés principal y pista en español, pixel chibi, mezcla «B», voz contada como un
 cuento). Voces del 37 y el 38: Supertonic 3 `M1` (inglés, «Atom» escrito «At-um») y ZONOS3-Mini `Rodrigo` (español, media
@@ -13,7 +13,7 @@ emoción). **Cuidado:** nada de muertes, esqueletos ni batallas; los pueblos alg
 (ropa y casas sacadas de las acuarelas de John White, no de las películas); las teorías violentas se cuentan de lejos,
 como rumores sin confirmar. Las personas reales, solo con hechos.
 
-**Duración objetivo:** unas 9:00 [Probable] (el 38: 1.440 palabras, 8:31). Son 31 párrafos y unas 1.420 palabras en inglés.
+**Duración objetivo:** unas 9:00 [Probable] (el 38: 1.440 palabras, 8:31). Son 33 párrafos y unas 1.470 palabras en inglés.
 
 **Publicar:** cuanto antes; el tema no caduca, y los hallazgos de Hatteras (2025–2026) le dan actualidad.
 
@@ -148,8 +148,9 @@ tiene algo de laúd y de camino.
 
 | ES | EN |
 | --- | --- |
-| La otra pista apunta adonde decía el poste: Croatoan, que hoy es la isla de Hatteras. Allí, desde hace más de diez años, dos equipos excavan junto a una ensenada. Han salido una empuñadura de espada, trozos de armas de fuego, una pizarra de escribir y un anillo de latón. | The other clue points where the post said: Croatoan, which today is Hatteras Island. There, for more than ten years, two teams have been digging beside an inlet. They've found the hilt of a sword, pieces of firearms, a writing slate and a brass ring. |
-| Y en 2025, el equipo de Mark Horton y Scott Dawson encontró algo más pequeño: escamas de hierro, que salen cuando un herrero golpea el metal al rojo, y que se recogen con un imán. Para ellos son la prueba de que alguien trabajó el hierro a la manera inglesa en un pueblo de Croatoan. | And in 2025, the team led by Mark Horton and Scott Dawson found something smaller: flakes of iron, the kind that fly off when a blacksmith hammers red-hot metal, collected with a magnet. To them, they're proof that someone worked iron the English way, inside a Croatoan village. |
+| La otra pista apunta adonde decía el poste: Croatoan, que hoy es la isla de Hatteras. Allí, desde 2009, un equipo de arqueólogos y vecinos excava antiguos pueblos de Croatoan. Han salido una empuñadura de espada, trozos de armas de fuego, una pizarra de escribir y, de una excavación anterior, un anillo de latón. | The other clue points where the post said: Croatoan, which today is Hatteras Island. There, since 2009, a team of archaeologists and local volunteers has been digging up old Croatoan villages. They've found the hilt of a sword, pieces of firearms, a writing slate and, from an earlier dig, a brass ring. |
+| Y en 2025, el equipo de Mark Horton y Scott Dawson anunció algo más pequeño: escamas de hierro, que saltan cuando un herrero golpea el metal al rojo. Se buscan entre la tierra cribada, con un imán. Para ellos, prueban que alguien forjó hierro a la manera inglesa en un pueblo de Croatoan. | And in 2025, the team led by Mark Horton and Scott Dawson announced something smaller: flakes of iron, the kind that fly off when a blacksmith hammers red-hot metal. They're found by running a magnet through sifted soil. To them, they're proof that someone forged iron the English way, inside a Croatoan village. |
+| Y en 2026 llegó otra pista: los huesos de los animales que comían. Según el mismo equipo, allí la dieta mezclaba la de los dos pueblos. Hasta apareció una bala de plomo inglesa de caza, aunque nadie sabe quién la disparó. | And in 2026 came another clue: the bones of the animals people ate there. According to the same team, the diet blended the habits of both peoples. There was even an English lead hunting ball, though no one can say who fired it. |
 | Hay otra pista, escrita más de cien años después. El explorador John Lawson escribió que la gente de Hatteras contaba que algunos antepasados suyos habían sido blancos y sabían «hablar con un libro». Añadió que entre ellos abundaban los ojos grises. | There's another clue, written down more than a hundred years later. The explorer John Lawson wrote that the people of Hatteras said some of their ancestors had been white and could "talk in a book." He added that gray eyes were common among them. |
 
 ## 9 · Lo que un objeto puede decir
@@ -157,8 +158,8 @@ tiene algo de laúd y de camino.
 | ES | EN |
 | --- | --- |
 | Pero cuidado con lo que prueba un objeto. Una espada inglesa en un pueblo de Croatoan puede significar que allí vivió un inglés… o que alguien la cambió por maíz. Los objetos viajan de mano en mano; las personas, no siempre. | But be careful about what an object proves. An English sword in a Croatoan village could mean an Englishman lived there… or that someone traded corn for it. Objects travel from hand to hand; people don't always. |
-| Por eso hay quien duda. Ni en Hatteras ni en el Sitio X ha aparecido todavía nada con un nombre de la colonia, y ninguna prueba de ADN ha unido a nadie de hoy con un colono concreto. Años después, en Jamestown, corrieron rumores de que los colonos habían acabado mal, pero nunca se confirmaron. | That's why some people have doubts. Neither on Hatteras nor at Site X has anything turned up with the name of a colonist on it, and no DNA test has linked anyone alive today to a specific colonist. Years later, in Jamestown, there were rumors that the colonists had come to a bad end, but they were never confirmed. |
-| Y luego están las falsificaciones. En 1937 aparecieron unas piedras con mensajes tallados que se atribuyeron a Eleanor Dare. Se encontraron decenas más, cada vez más novelescas, y hoy casi nadie duda de que eran un engaño. | And then there are the fakes. In 1937, stones turned up with carved messages attributed to Eleanor Dare. Dozens more were found, each one more like a novel than the last, and today almost no one doubts they were a hoax. |
+| Por eso hay quien duda. Las escamas aún no se han publicado en una revista científica, y otros arqueólogos piden ver la fragua antes de creérselo. Ni en Hatteras ni en el Sitio X ha aparecido nada con el nombre de un colono. Y ninguna prueba de ADN ha unido a nadie de hoy con un colono concreto. | That's why some people have doubts. The iron flakes haven't been published in a scientific journal yet, and other archaeologists want to see the forge itself before they're convinced. Neither on Hatteras nor at Site X has anything turned up with a colonist's name on it. And no DNA test has linked anyone alive today to a specific colonist. |
+| Y luego están los rumores y las falsificaciones. Años después, en Jamestown, se dijo que los colonos habían acabado mal, pero nunca se confirmó. Y en 1937 aparecieron unas piedras talladas con mensajes de Eleanor Dare: hoy casi nadie duda de que eran un engaño. | And then there are the rumors and the fakes. Years later, in Jamestown, people said the colonists had come to a bad end, but it was never confirmed. And in 1937, carved stones turned up with messages from Eleanor Dare: today almost no one doubts they were a hoax. |
 
 ## 10 · El cierre
 
@@ -170,9 +171,9 @@ tiene algo de laúd y de camino.
 
 ## Datos
 
-Fuentes por verificar: National Park Service, Fort Raleigh National Historic Site · Britannica, «Roanoke Island» y
+Fuentes: National Park Service, Fort Raleigh National Historic Site · Britannica, «Roanoke Island» y
 «Lost Colony» · John White, relato del viaje de 1590 (en Hakluyt, «Principal Navigations», 1600) · Stahle et al., «The
 Lost Colony and Jamestown Droughts», Science 280 (1998) · British Museum y First Colony Foundation (2012), «La Virginea
-Pars» y el Sitio X · Croatoan Archaeological Project (Mark Horton, Universidad de Bristol) y Scott Dawson, «The Lost
-Colony and Hatteras Island» (2020) · hammerscale de 2025 (prensa: The Outer Banks Voice, 27 de marzo de 2026) · John
+Pars» y el Sitio X · Mark Horton (Universidad de Bristol hasta 2018; hoy Royal Agricultural University) y Scott Dawson, «The Lost
+Colony and Hatteras Island» (2020) · hammerscale: WHRO (20 de enero de 2025), Island Free Press (15 de mayo de 2025), Live Science (junio de 2025, con la crítica de Charles Ewen) · huesos y bala: The Outer Banks Voice (27 de marzo de 2026, Beth Scaffidi y Mark Horton) · John
 Lawson, «A New Voyage to Carolina» (1709) · Brenau University y las «Dare Stones» (1937–1941).

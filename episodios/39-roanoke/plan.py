@@ -63,17 +63,20 @@ E = [
   ['F: la sala del Museo Británico; el mapa de White a contraluz: bajo el parche aparece un pequeño fuerte dibujado junto al estrecho de Albemarle.',
    'F: la orilla del estrecho en el Sitio X; arqueólogos con cuadrículas; aparecen unos trozos de cerámica inglesa.'],
   'curiosidad', []),
- ('rk-hatteras', '2026', 24, 26, ['hatteras', 'escamas', 'lawson'],
-  ['E: la excavación junto a la ensenada de Hatteras; sobre la mesa, una empuñadura de espada, trozos de armas, una pizarra y un anillo.',
+ ('rk-hatteras', '2026', 24, 26, ['hatteras', 'escamas', 'huesos'],
+  ['E: la excavación de Hatteras entre los árboles junto al agua; arqueólogos y vecinos con cribas; sobre la mesa, una empuñadura de espada, trozos de armas, una pizarra y un anillo.',
    'E: la arqueóloga (EL.arqueologaRK) pasa un imán por la criba: salen escamas de hierro (golpe)… y el clip de su tablilla y una moneda de 2025.',
-   'D: en 1701, el viajero Lawson (EL.lawsonRK) escucha a la gente de Hatteras; un libro abierto; unos ojos grises.'],
+   'E: en el laboratorio, una bandeja con huesecillos de pescado y de ciervo, una mazorca y un cuenco; una bala de plomo bajo la lupa y un signo de interrogación.'],
   'asombro', ['escamas']),
- ('rk-objeto', None, 27, 29, ['objeto', 'dudas', 'piedras'],
+ ('rk-lawson', None, 27, 27, ['lawson'],
+  ['D: hacia 1701, el explorador Lawson (EL.lawsonRK) escucha a la gente de Hatteras junto al fuego; un libro abierto; unos ojos grises.'],
+  'asombro', []),
+ ('rk-objeto', None, 28, 30, ['objeto', 'dudas', 'piedras'],
   ['G y D: Atom con una espada de juguete en una balanza; al otro lado, una mazorca: se cambia de mano en mano.',
-   'G: Atom con una tabla de ADN en blanco y un signo de interrogación; un rumor de Jamestown, de lejos, que se borra.',
-   'G: piedras talladas con letras que se van llenando de florituras, hasta que una se rompe y es de yeso.'],
+   'G: Atom ante una revista científica con la página en blanco; una tabla de ADN con un signo de interrogación.',
+   'G: un rumor de Jamestown, de lejos, que se borra; piedras talladas con letras que se van llenando de florituras, hasta que una se rompe y es de yeso.'],
   'intriga', []),
- ('rk-cierre', None, 30, 32, ['entonces', 'perdida', 'final'],
+ ('rk-cierre', None, 31, 33, ['entonces', 'perdida', 'final'],
   ['C, D y E: grupos de colonos se van con Manteo en canoas hacia el sur; años después, niños jugando en un pueblo de Croatoan.',
    'C: el poste con «CROATOAN» al atardecer: un mensaje claro; el barco de White lejos, que no vuelve.',
    'G: Atom vuelve a su estudio; su nota tiene ahora un dibujo claro: una flecha a la isla; levanta el imán y sonríe.'],
@@ -89,6 +92,6 @@ for id_, cartela, a, b, marcas, vis, animo, golpes in E:
                     'empieza_con': 'cartela ' + cartela if cartela else 'corte desde la escena anterior',
                     'termina_con': '', 'produccion': ''})
 assert [e['frase_ini'] for e in escenas][1:] == [e['frase_fin'] + 1 for e in escenas][:-1]
-assert escenas[-1]['frase_fin'] == 32
+assert escenas[-1]['frase_fin'] == 33
 json.dump({'banda': BANDA, 'escenas': escenas, 'lotes': []}, open(f'{D}/escenas.json', 'w'), ensure_ascii=False, indent=1)
 print(len(escenas), 'escenas')

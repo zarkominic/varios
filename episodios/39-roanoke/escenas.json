@@ -524,12 +524,12 @@
    "marcas": [
     "hatteras",
     "escamas",
-    "lawson"
+    "huesos"
    ],
    "guion_visual": [
-    "E: la excavación junto a la ensenada de Hatteras; sobre la mesa, una empuñadura de espada, trozos de armas, una pizarra y un anillo.",
+    "E: la excavación de Hatteras entre los árboles junto al agua; arqueólogos y vecinos con cribas; sobre la mesa, una empuñadura de espada, trozos de armas, una pizarra y un anillo.",
     "E: la arqueóloga (EL.arqueologaRK) pasa un imán por la criba: salen escamas de hierro (golpe)… y el clip de su tablilla y una moneda de 2025.",
-    "D: en 1701, el viajero Lawson (EL.lawsonRK) escucha a la gente de Hatteras; un libro abierto; unos ojos grises."
+    "E: en el laboratorio, una bandeja con huesecillos de pescado y de ciervo, una mazorca y un cuenco; una bala de plomo bajo la lupa y un signo de interrogación."
    ],
    "animo": "asombro",
    "golpes": [
@@ -540,11 +540,29 @@
    "produccion": ""
   },
   {
-   "id": "rk-objeto",
+   "id": "rk-lawson",
    "estilo": "pixel",
    "cartela": null,
    "frase_ini": 27,
-   "frase_fin": 29,
+   "frase_fin": 27,
+   "marcas": [
+    "lawson"
+   ],
+   "guion_visual": [
+    "D: hacia 1701, el explorador Lawson (EL.lawsonRK) escucha a la gente de Hatteras junto al fuego; un libro abierto; unos ojos grises."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "rk-objeto",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 28,
+   "frase_fin": 30,
    "marcas": [
     "objeto",
     "dudas",
@@ -552,8 +570,8 @@
    ],
    "guion_visual": [
     "G y D: Atom con una espada de juguete en una balanza; al otro lado, una mazorca: se cambia de mano en mano.",
-    "G: Atom con una tabla de ADN en blanco y un signo de interrogación; un rumor de Jamestown, de lejos, que se borra.",
-    "G: piedras talladas con letras que se van llenando de florituras, hasta que una se rompe y es de yeso."
+    "G: Atom ante una revista científica con la página en blanco; una tabla de ADN con un signo de interrogación.",
+    "G: un rumor de Jamestown, de lejos, que se borra; piedras talladas con letras que se van llenando de florituras, hasta que una se rompe y es de yeso."
    ],
    "animo": "intriga",
    "golpes": [],
@@ -565,8 +583,8 @@
    "id": "rk-cierre",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 30,
-   "frase_fin": 32,
+   "frase_ini": 31,
+   "frase_fin": 33,
    "marcas": [
     "entonces",
     "perdida",
