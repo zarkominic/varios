@@ -1,0 +1,330 @@
+{
+ "banda": {
+  "tono": "fa",
+  "modo": "lidio",
+  "tempo": 96,
+  "motivo": [
+   0,
+   2,
+   4,
+   6,
+   7,
+   4,
+   2,
+   7
+  ]
+ },
+ "escenas": [
+  {
+   "id": "ak-gancho",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 1,
+   "frase_fin": 2,
+   "marcas": [
+    "maquina",
+    "nombre"
+   ],
+   "guion_visual": [
+    "F, B y E: un cielo antiguo con un eclipse; el naufragio en el fondo; un buzo saca un terrón de bronce verde; dentro, engranajes que brillan (golpe en «gears»).",
+    "E, B, D, C y F: la máquina reconstruida girando; buzos que ven siluetas; una radiografía con ruedas; el escáner entrando en el museo; atletas corriendo alrededor de una esfera."
+   ],
+   "animo": "misterio",
+   "golpes": [
+    "maquina"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-hola",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 3,
+   "frase_fin": 3,
+   "marcas": [
+    "hola"
+   ],
+   "guion_visual": [
+    "G: Atom saluda en su estudio junto a su mecanismo de cartón; gira la manivela y una rueda sale rodando por el suelo."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-buzos",
+   "estilo": "pixel",
+   "cartela": "1900",
+   "frase_ini": 4,
+   "frase_fin": 5,
+   "marcas": [
+    "tormenta",
+    "gente"
+   ],
+   "guion_visual": [
+    "A: el caíque de los buzos de Simi en la tormenta; se refugia en la cala de Anticitera; Elias Stadiatis (EL.stadiatisAK) se pone la escafandra y baja.",
+    "B y A: siluetas en el fondo; el buzo sube a toda prisa; el capitán Kontos (EL.kontosAK) baja y ve estatuas de bronce y mármol; una parece saludarle con el brazo."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1900",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-rescate",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 6,
+   "frase_fin": 7,
+   "marcas": [
+    "rescate",
+    "tesoros"
+   ],
+   "guion_visual": [
+    "A y B: el barco de la marina griega junto al caíque; la bomba de aire a mano; buzos con escafandra de cobre suben estatuas con cuerdas; un pulpo se lleva el pañuelo de un buzo.",
+    "A y B: en cubierta, estatuas, ánforas, vidrio y joyas; en un rincón, unos terrones verdes que nadie mira; mapa del barco antiguo camino de Roma."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-terron",
+   "estilo": "pixel",
+   "cartela": "1902",
+   "frase_ini": 8,
+   "frase_fin": 9,
+   "marcas": [
+    "stais",
+    "dudas"
+   ],
+   "guion_visual": [
+    "C: el museo de Atenas en 1902; Valerios Stais (EL.staisAK) mira un terrón con la lupa; la madera se parte y aparece una rueda dentada (zoom).",
+    "C: unos estudiosos discuten ante la vitrina, unos asienten y otros niegan; el terrón vuelve a una caja; pasan los años sobre la vitrina (polvo, calendario)."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1902",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-price",
+   "estilo": "pixel",
+   "cartela": "1951",
+   "frase_ini": 10,
+   "frase_fin": 12,
+   "marcas": [
+    "price",
+    "dientes",
+    "libro"
+   ],
+   "guion_visual": [
+    "D: Derek de Solla Price (EL.priceAK) llega al museo; con Karakalos (EL.karakalosAK) pone el terrón ante la máquina de rayos gamma.",
+    "D y G: las radiografías a contraluz con capas de ruedas; Price cuenta dientes con un lápiz, suena el teléfono y pierde la cuenta; Atom explica con dos ruedas de 20 y 40 dientes.",
+    "D: el libro «Gears from the Greeks» sobre la mesa; unos colegas dudan, Price sonríe."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1951",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-escaner",
+   "estilo": "pixel",
+   "cartela": "2005",
+   "frase_ini": 13,
+   "frase_fin": 15,
+   "marcas": [
+    "escaner",
+    "letras",
+    "piezas"
+   ],
+   "guion_visual": [
+    "C: el escáner de ocho toneladas entra por la puerta del museo con un centímetro de margen; los investigadores lo rodean.",
+    "C y G: en la pantalla, las letras diminutas aparecen bajo la corrosión, como un manual; Atom mira con la lupa.",
+    "C y E: los ochenta y dos fragmentos en una mesa; el engranaje grande de doscientos veintitrés dientes junto a una mano."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 2005",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-manivela",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 16,
+   "frase_fin": 17,
+   "marcas": [
+    "caja",
+    "esfera"
+   ],
+   "guion_visual": [
+    "E y G: la caja de madera junto a una caja de zapatos; Atom gira la manivela y las fechas avanzan y retroceden.",
+    "E: la esfera de delante con el zodiaco y el calendario; las agujas del Sol y de la Luna; la bolita de las fases que gira."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-luna",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 18,
+   "frase_fin": 19,
+   "marcas": [
+    "truco",
+    "hiparco"
+   ],
+   "guion_visual": [
+    "E y F: la Luna cruza el cielo deprisa y despacio; por dentro, los dos engranajes desplazados con la clavija en la ranura; Atom gira demasiado rápido y la bolita de la Luna se marea.",
+    "F: el astrónomo Hiparco (EL.hiparcoAK) mira el cielo con sus instrumentos; su dibujo se convierte en ruedas de bronce."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-espirales",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 20,
+   "frase_fin": 21,
+   "marcas": [
+    "meton",
+    "saros"
+   ],
+   "guion_visual": [
+    "E: la parte de atrás con las dos espirales; la aguja de arriba recorre diecinueve años; las estaciones pasan junto a ella.",
+    "E y F: la rueda de doscientos veintitrés dientes; astrónomos babilonios apuntan eclipses en tablillas (golpe en «Saros»)."
+   ],
+   "animo": "asombro",
+   "golpes": [
+    "saros"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-eclipses",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 22,
+   "frase_fin": 23,
+   "marcas": [
+    "marcas",
+    "juegos"
+   ],
+   "guion_visual": [
+    "F y E: un eclipse de Sol sobre un templo; en la espiral, las marcas de los eclipses se encienden una a una.",
+    "F y E: el estadio de Olimpia; en la esfera de los Juegos, unos atletas diminutos corren alrededor del dial."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-quien",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 24,
+   "frase_fin": 26,
+   "marcas": [
+    "corinto",
+    "ciceron",
+    "unica"
+   ],
+   "guion_visual": [
+    "F: un mapa del Mediterráneo con Corinto, Siracusa y Rodas que se encienden; el taller de un artesano con limas y bronce.",
+    "F: Cicerón (EL.ciceronAK) escribe; Arquímedes (EL.arquimedesAK) con su esfera; un general romano se la lleva; Posidonio (EL.posidonioAK) en Rodas.",
+    "F y B: un horno funde bronce viejo para hacer cosas nuevas; la máquina hundida en el fondo, a salvo."
+   ],
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-planetas",
+   "estilo": "pixel",
+   "cartela": "2021",
+   "frase_ini": 27,
+   "frase_fin": 28,
+   "marcas": [
+    "planetas",
+    "agujeros"
+   ],
+   "guion_visual": [
+    "G y E: la esfera de delante con los planetas de la época girando en anillos; una investigadora (EL.investigadoraAK) en Londres.",
+    "G y E: el anillo del calendario con sus agujeros; dos físicos (EL.fisicoAK) cuentan con estadística; aparece una Luna en el anillo."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 2021",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-atasco",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 29,
+   "frase_fin": 30,
+   "marcas": [
+    "simulacion",
+    "pregunta"
+   ],
+   "guion_visual": [
+    "G y E: una computadora simula los engranajes; los dientes irregulares chocan y la máquina se atasca; el mecanismo de cartón de Atom también.",
+    "G: Atom ante un globo terráqueo de aula; la máquina como modelo para enseñar el cielo."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ak-cierre",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 31,
+   "frase_fin": 33,
+   "marcas": [
+    "siglos",
+    "misterio",
+    "final"
+   ],
+   "guion_visual": [
+    "F: una línea del tiempo de mil cuatrocientos años hasta un reloj astronómico medieval.",
+    "F: gente mirando el cielo durante siglos, tablillas y papiros; todo cabe dentro de una caja.",
+    "G y A: la tormenta, los buzos y la mirada de Stais; Atom gira la manivela de su mecanismo de cartón y por fin gira; la Luna de cartón sale por la ventana."
+   ],
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  }
+ ],
+ "lotes": []
+}
