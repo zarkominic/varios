@@ -691,3 +691,32 @@ Supertonic los apellidos alemanes (Kraus) y apuntarlos antes de locutar.
 - **Crecidas de volumen en el español (segundo aviso del usuario):** además de los gritos, ZONOS3 sube el volumen dentro de las frases (8 frases subían más de 2,5 dB del primer tercio al último; lo que sobresale de la mediana llegaba a 4,8 dB). Se niveló la pista con `dynaudnorm=f=300:g=11:p=0.5:m=4:r=0.1` (queda 1 frase y 2,2 dB); la variante más fuerte (g=7) dejaba 1,7 dB, pero aplana. Desde el 38 va dentro de `locutar_frases.py` (NIVELADOR_ES). «Atom» en inglés se escribe «At-um» (elegido de oído por el usuario entre cuatro muestras).
 - **La emoción del español, a la mitad (elegido de oído por el usuario, muestra 2):** con `mood.valence`/`mood.arousal` a 1 constantes, la emoción se acumula en las oraciones largas y el tono sube hasta el grito (la guía de ZONOS3 lo describe; nuestro paquete de emociones no trae `steer_release`). A 0,5, la frase de Kraus pasó de +60 a +4 Hz; con `control-tono.py` (sin errores de octava), de 6 frases con un tramo de 2 s a más de +30 Hz quedaron 2, al borde (+35). `revocear-zonos.py` rehízo el español entero del 37 sin mover el vídeo (~45 min) y se remontó con los Shorts. Desde el 38, 0,5 en `hacer_guion.py` y `control-tono.py` tras la locución.
 - **Ep38, voz:** con media emoción y el nivelador, `control-tono.py` dio 0 frases españolas con tramos a más de +30 Hz (en el 37, a 1: 18). Whisper oye «At-um» como «adam» (la t blanda americana, que es la elegida de oído).
+
+## Episodio 38 · El Mary Celeste: el barco que navegaba sin nadie a bordo (17–18/11/2026)
+
+- **Calidad:** 40 de 95 planos suspendieron en la revisión completa (el 37: 34 de 98); 40 → 0 en una ronda de pulido,
+  con 33 agentes, 5,8 M de tokens y 2 h 25 min (el 37: 35 agentes, 5,6 M, 2 h 7 min). Los cuatro fallos dirigidos
+  (barandillas dobles, coche sin caballo, trastos ilegibles, fundidos de pistas) se arreglaron en la ronda 0. Los fallos
+  por tipo: orden de dibujo 19, poco detalle 12, brazo o mano 9, no se lee 9, quieto 9, composición repetida 6.
+  Escenas con más: pistas (10), gibraltar (9), salida y manchester (7).
+- **Los pulidores tocaron el decorado diciendo que no:** varios avisos decían «no he tocado mc-comun.js», pero el diff
+  final tenía 366 líneas cambiadas en él (la cámara 'pasarela' en picado, nubes de temporal). Como el decorado es común,
+  se pasó `--comprobar` (0 sospechas) y `--fundidos` en todo el episodio antes del commit. Lección: no fiarse del aviso;
+  mirar `git diff --stat` del decorado tras la calidad.
+- **Fundidos «REVISAR» que no son fallo:** seis cortes al 3–4 % (gancho, salida, abordo, pistas) daban lo mismo con el
+  decorado de antes; son las olas y la espuma que parpadean. No se tocaron.
+- **Disco:** quedaban 989 MB al empezar la producción. Se borraron los fotogramas del 37 (6 GB, regla aprobada) y aun
+  así el render pidió 8,7 GB con 7,4 libres: se liberaron la caché de npm (338 MB), la música y los efectos del 37 y
+  todas las hojas de las pasadas. Quedaron 2,2 GB tras el montaje. El scratchpad acumula ~1,5 GB de hojas por
+  episodio: borrarlas al cerrar cada pasada.
+- **Miniatura:** el catalejo de Deveau, pasado por `op.cosa`, quedó primero tapándole la cara (sostiene a la altura de
+  los ojos); bajarlo 7 px lo deja en el pecho y se ve la sorpresa.
+- **Shorts:** −14,0/−13,7, −14,3/−14,2 y −14,2/−14,4 LUFS a la primera (mp4/m4a); las pistas españolas ya salen bien
+  con el nivelador. El Short 3 se salta la cartela de 1884 con dos tramos.
+- **Control final a la primera:** sí (−14,1 y −14,0 LUFS; 145 y 140 subtítulos, 0 fuera de norma; cartelas 4,2 / 6,0 /
+  4,2 dB; efectos el 48 % del tiempo).
+- **Voz:** «Atom» oído «adam» y «Dei Gratia» oído «degracia» (frases 8, 9 y 16), a la lista para escuchar, sin re-locutar.
+
+Pendiente para el próximo: borrar los fotogramas del 38 al empezar; borrar las hojas del scratchpad al cerrar cada
+pasada; tras la calidad, mirar `git diff --stat` del decorado y, si cambió, `--comprobar` y `--fundidos` de todo el
+episodio.
