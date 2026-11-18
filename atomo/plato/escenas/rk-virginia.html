@@ -471,7 +471,12 @@ const p6 = (t) => {
 };
 
 const efectos = [[en('virginia', 0.2721), 'miau'], [en('virginia', 0.5441), 'pop'], [en('virginia', 0.5921), 'brillo'], [en('virginia', 0.7682), 'papel'], [en('virginia', 0.8962), 'lapiz'],
-  [en('justas', 0.0358), 'golpecito'], [en('justas', 0.1047), 'golpecito'], [en('justas', 0.4627), 'rafaga'], [en('justas', 0.6004), 'brillo'], [en('justas', 0.9928), 'pop']];
+  [en('justas', 0.0358), 'golpecito'], [en('justas', 0.1047), 'golpecito'], [en('justas', 0.4627), 'rafaga'], [en('justas', 0.6004), 'brillo'], [en('justas', 0.9928), 'pop'],
+  // pasada de efectos: la pluma de White, la cuna que cruje, el barquito en el mar, el guante que baja, la carita del
+  // diario, el viento del huerto seco, la tapa del barril del almacén
+  // y la brisa del fuerte mientras le piden a White que vaya
+  [en('virginia', 0.04), 'lapiz'], [en('virginia', 0.1920), 'tic'], [P2 + 0.3, 'ola'], [en('virginia', 0.5425) - 0.7, 'whoosh'], [en('virginia', 0.8322), 'lapiz'],
+  [P4 + 0.1, 'viento', { dur: 4 }], [en('justas', 0.3787), 'toc'], [P6 + 0.2, 'viento', { dur: 3 }]];
 T.rodar(E, R, [[P1, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 1587 });
 </script>
 </body>

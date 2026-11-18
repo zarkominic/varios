@@ -573,7 +573,14 @@ const o10 = (t) => {
 };
 const año = (t) => t < P2 ? 1590 : t < P3 ? 2026 : t < P4 ? 1600 : t < P8 ? 2026 : t < P9 ? 1608 : t < TODAY2 ? 1937 : 2026;
 const efectos = [[0.9, 'gluglu'], [PROVES - 0.1, 'pop'], [SWORD, 'brillo'], [CORN, 'golpecito'], [W(10.95), 'whoosh'], [DONT - 0.1, 'boing'], [P4 + 0.1, 'papel'], [JOURNAL - 0.05, 'sello'],
-  [NAME, 'lapiz'], [SPECIFIC, 'pop'], [JAMESTOWN, 'pop'], [NEVER - 0.25, 'papel'], [MESSAGES, 'brillo'], [ELEANOR, 'lapiz'], [HOAX - 0.02, 'golpecito']];
+  [NAME, 'lapiz'], [SPECIFIC, 'pop'], [JAMESTOWN, 'pop'], [NEVER - 0.25, 'papel'], [MESSAGES, 'brillo'], [ELEANOR, 'lapiz'], [HOAX - 0.02, 'golpecito'],
+  // pasada de efectos: el viento de fuera (casa de Croatoan, excavación, Sitio X), los
+  // bocadillos, el guante que trae la mazorca y la balanza que se asienta, las hojas de la revista, el traqueteo del
+  // banco de ADN y el hilo rojo, la tiza del rumor, la puerta del coche, la piedra que se levanta y la «!» del yeso
+  [0.2, 'viento', { dur: 2.5 }], [VILLAGE, 'pop'], [ENGLISHMAN - 0.2, 'pop'], [W(7.7), 'whoosh'], [W(10.1), 'tic'], [HAND2 + 0.1, 'pop'], [W(13.3), 'ola'],
+  [IRON, 'papel'], [PUBLISHED + 0.3, 'papel'], [P5 + 0.1, 'viento', { dur: 3 }], [FORGE, 'pop'], [CONVINCED, 'tic'], [P6 + 0.1, 'viento', { dur: 2.5 }], [ANYTHING, 'golpecito'], [W(26.5), 'pop'],
+  [P7 + 0.1, 'maquina', { dur: 3, ritmo: 4 }], [LINKED - 0.3, 'whoosh'], [SAID, 'lapiz'], [BADEND, 'lapiz'],
+  [NINETEEN - 0.3, 'puerta'], [TURNED - 0.2, 'golpecito'], [TODAY2, 'whoosh'], [HOAX + 0.4, 'pop']];
 T.rodar(E, R, [[0, o1], [P2, o2], [P3, o3], [P4, o4], [P5, o5], [P6, o6], [P7, o7], [P8, o8], [P9, o9], [P10, o10]], { efectos, año });
 </script>
 </body>

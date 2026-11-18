@@ -232,7 +232,10 @@ const l3 = (t) => {
   T.puebloDelante(R, t, o);
 };
 const año = (t) => AÑO;
-const efectos = [[0.4, 'ola'], [ANCESTORS - 0.5, 'lapiz'], [TALK - 0.15, 'lapiz'], [GRAY, 'brillo']];
+const efectos = [[0.4, 'ola'], [ANCESTORS - 0.5, 'lapiz'], [TALK - 0.15, 'lapiz'], [GRAY, 'brillo'],
+  // pasada de efectos: la pluma que dibuja a los antepasados blancos, la brisa de la
+  // noche junto al fuego (no hay receta de fuego) con el chisporroteo, y Lawson que anota
+  [WHITE - 0.2, 'lapiz'], [P3 + 0.1, 'viento', { dur: 4 }], [P3 + 0.5, 'tic'], [COMMON + 0.3, 'lapiz'], [COMMON + 1.4, 'tic']];
 T.rodar(E, R, [[0, l1], [P2, l2], [P3, l3]], { efectos, año });
 </script>
 </body>

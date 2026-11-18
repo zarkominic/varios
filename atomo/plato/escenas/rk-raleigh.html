@@ -24,6 +24,7 @@
 // 6. la orilla: Manteo y Wanchese suben a la canoa y reman hacia el barco inglés; una mujer los despide («went with them»);
 // 7. la cubierta del barco: Manteo piensa en su isla («Manteo from the island of Croatoan») y Wanchese en la suya
 //    («Wanchese from Roanoke»); el marinero lleva el timón.
+// Sonido: cada acción con su efecto (lista «efectos» al final); control-sonido.sh: 40–60 % del tiempo.
 import * as T from '/atomo/plato/escenas/rk-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('rk-raleigh');
@@ -209,7 +210,17 @@ const p7 = (t) => {
   if (bw > 0) { const x = w.cabeza[0] - 18, y = w.cabeza[1] - 26; pensamiento(x, y, 40, 26, w.cabeza[0] - 6, w.cabeza[1] - 2, bw); if (bw >= 1) { isla(x, y + 2); R.rect(x - 9, y - 9, x - 6, y - 7, hex('#7a5a3a')); } }
   T.marDelante(R, t, o);
 };
-const efectos = [[GIRA[0] + 0.1, 'whoosh'], [ACHIS, 'boing'], [PERMISO, 'papel'], [ANIO, 'lapiz'], [LLEGAN, 'chof'], [ISLAS, 'pop'], [B(19.6), 'golpecito'], [ROANOKE, 'golpecito'], [TRUEQUE + 0.3, 'pop'], [ZARPA[0], 'ola'], [CROATONE, 'pop'], [ROANOKE2, 'pop']];
+// efectos: el globo que gira, la pluma y el estornudo, los pasos del paje y la carta; el globo, las islas, la pluma que
+// escribe «1584» y la ruta por el mar; el ancla con su chapuzón y las olas de los bancos; los pasos del compás y la tinta;
+// la aldea de Secotan, los peces, el maíz y el trueque; la subida a la canoa y los remos; las islas pensadas y el mar en
+// cubierta (como mucho uno por segundo; 40–60 % del tiempo)
+const efectos = [[GIRA[0] + 0.1, 'whoosh'], [PLUMA[0], 'papel'], [ACHIS, 'boing'], [A(5.55), 'golpecito'], [PERMISO, 'papel'],
+  [P2 + 0.2, 'whoosh'], [AMERICA, 'pop'], [ANIO - 0.05, 'tecleo', { dur: 1.0 }], [SALE, 'whoosh'], [A(11.55), 'ola'], [COSTA, 'pop'],
+  [LLEGAN, 'chof'], [ISLAS, 'pop'], [A(15.5), 'ola'],
+  [B(18.5), 'golpecito'], [B(19.6), 'golpecito'], [B(20.45), 'golpecito'], [ROANOKE, 'golpecito'], [ROANOKE + 0.6, 'lapiz'],
+  [P5 + 0.3, 'aldea', { k: 0 }], [B(23.2), 'aldea', { k: 2 }], [PESCA, 'chof'], [MAIZ, 'papel'], [TRUEQUE + 0.3, 'pop'], [VA, 'golpecito'],
+  [P6 + 0.15, 'ola'], [SUBEN[1] - 0.3, 'golpecito'], [ZARPA[0], 'ola'], [ZARPA[0] + 0.9, 'chof'], [ZARPA[0] + 1.9, 'chof'],
+  [CROATONE, 'pop'], [B(34.3), 'ola'], [ROANOKE2, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año: 1584 });
 </script>
 </body>

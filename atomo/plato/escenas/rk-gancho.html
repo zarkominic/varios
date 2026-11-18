@@ -25,6 +25,7 @@
 // 6. el acantilado inglés: la Armada en media luna avanza por el horizonte («a fleet»); el pastorcillo la señala y corre;
 // 7. inserto en la arena: un corte de tronco cuyos anillos finos se encienden («those years») y la mano que sube un imán
 //    rojo de la criba con escamas de hierro que brillan («magnets»).
+// Sonido: cada acción con su efecto (lista «efectos» al final); control-sonido.sh: 40–60 % del tiempo.
 import * as T from '/atomo/plato/escenas/rk-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('rk-gancho');
@@ -345,7 +346,16 @@ const p7 = (t) => {
   }
 };
 const año = (t) => t < P4 ? 1590 : t < P5 ? Math.round(lerp(1590, 2026, tramo(t, P4 + 0.3, P5 - 0.3))) : t < P6 ? 1587 : t < P7 ? 1588 : 2026;
-const efectos = [[A(1.55), 'toc'], [NADIE + 0.05, 'rafaga'], [NADIE + 0.25, 'pop'], [CROA, 'pop'], [B(20.0), 'lapiz'], [PINTA[0] + 0.2, 'lapiz'], [GOB + 0.3, 'brillo'], [BEBE, 'pop'], [ANIOS, 'brillo'], [IMAN + 0.3, 'brillo']];
+// efectos: olas y pasos en el embarcadero; viento, bocadillo, «3» y la ráfaga del golpe en la empalizada; el papel del
+// marinero y la mano en el poste; olas y lápiz en los bancos; lápiz, cadena, manita y cuna en el inserto; el «!» y la
+// carrera del pastorcillo; olas, anillos, imán y escamas en la playa (como mucho uno por segundo; 40–60 % del tiempo)
+const efectos = [[0.3, 'ola'], [A(1.55), 'toc'], [A(2.55), 'golpecito'], [A(3.5), 'ola'],
+  [P2 + 0.2, 'viento', { dur: 2.6 }], [HIJA - 0.2, 'pop'], [TRES, 'tic'], [NADIE + 0.05, 'rafaga'], [NADIE + 0.25, 'pop'],
+  [P3 + 0.7, 'papel'], [TOCA[0] + 0.15, 'tic'], [CROA, 'pop'],
+  [P4 + 0.15, 'ola'], [LOST, 'lapiz'], [ROANOKE, 'pop'],
+  [PINTA[0] + 0.2, 'lapiz'], [B(23.3), 'lapiz'], [GOB + 0.3, 'brillo'], [BEBE, 'pop'], [B(26.2), 'tic'],
+  [FLOTA, 'pop'], [FLOTA + 0.8, 'golpecito'],
+  [P7 + 0.2, 'ola'], [ANIOS, 'brillo'], [ARQ, 'whoosh'], [B(33.6), 'ola'], [IMAN + 0.3, 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>
 </body>
