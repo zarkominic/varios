@@ -11707,3 +11707,102 @@ export const ELENCO_RK = {
     pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#f2f2ee', c: '#d0d0ca', F: '#3a3a44' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_RK);
+
+// ── Ep40 · Anticitera (los buzos de 1900, el museo de Atenas de 1902, Price y el escáner de 2005, la Grecia de hacia el
+// 150 a. C. y hoy). Nada de muertes: los buzos, con su escafandra de cobre y la cara a la vista por el cristal.
+Object.assign(TOCADOS, {
+  // la escafandra de cobre de 1900 (J, brillo j; los remaches X): la cúpula sobre la cabeza y el aro del cristal, que
+  // deja la cara ENTERA a la vista (ojos y boca); acaba en el collar de la fila 12
+  escafandraAK: [[
+    '....kkkkkkk....',
+    '..kkJJJjjJJkk..',
+    '.kJJjJJJJJJJJk.',
+    'kJjJJJXJJJXJJJk',
+    'kJJJkkkkkkkkJJk',
+    'kJJk........kJk',
+    'kJk..........kk',
+    'kJk..........kk',
+    'kJk..........kk',
+    'kJk..........kk',
+    'kJk..........kk',
+    'kJk..........kk',
+    'kJJk........kJk',
+    'kJJJkkkkkkkkJJk',
+    'kJXJJJJJJJJXJJk',
+    '.kkkkkkkkkkkkk.',
+  ], -3],
+});
+// el traje de lona de los buzos (C/c, crudo) con el cinturón de plomos (G)
+const CUERPO_LONA_AK = parche(CUERPO_MANGA, [[4, 5, 'GGGGGGG']]);
+const B40 = B36;
+export const ELENCO_AK = {
+  // Elias Stadiatis, buzo de esponjas de Simi (1900): con la escafandra de cobre y el traje de lona
+  stadiatisAK: { ...B40, cuerpo: CUERPO_LONA_AK, tocado: 'escafandraAK', ceja: hex('#2a1c14'), delante: bigoteTR,
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', J: '#c87a3a', j: '#f0b070', X: '#e8d8a0', C: '#d8ccaa', c: '#b8aa84', G: '#4a4a54', F: '#b8aa84' }) },
+  // el mismo buzo sin la escafandra, en cubierta: el pelo negro rizado, bigote, camisa blanca y chaleco negro
+  stadiatisCubiertaAK: { ...B40, cab: CAB_RIZOS, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: OTO({ H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1c1820', W: '#f2eee2', F: '#3a3a44' }) },
+  // Dimitrios Kontos, el capitán: barba negra, gorra de marino, chaquetón azul oscuro con botones de latón
+  kontosAK: { ...B40, cab: CAB_BARBA, cuerpo: CUERPO_CAPITAN_NX, tocado: 'gorraMarinoNX', ceja: hex('#1c1424'),
+    pal: OTO({ H: '#1c1424', h: '#3a3046', C: '#1e2a44', c: '#141c30', W: '#f2eee2', G: '#c8a040', F: '#1e2a44' }) },
+  // los buzos de esponjas con escafandra (otro color de cobre) y los de cubierta que bombean el aire: gorro de lana
+  buzoAK: { ...B40, cuerpo: CUERPO_LONA_AK, tocado: 'escafandraAK', ceja: hex('#3a2a1c'),
+    pal: OTO({ H: '#3a2a1c', h: '#5a4430', J: '#b86a30', j: '#e09a5a', X: '#e8d8a0', C: '#c8bc98', c: '#a89c78', G: '#4a4a54', F: '#a89c78' }) },
+  bomberoAK: { ...B40, cuerpo: CUERPO_CHALECO_NV, tocado: 'gorroLana', ceja: hex('#3a2a1c'), delante: bigoteTR,
+    pal: OTO({ H: '#3a2a1c', h: '#5a4430', C: '#5a3a2a', c: '#44281c', W: '#e8e0cc', Y: '#8a2a2a', J: '#2a3a5a', j: '#3a4a6a', F: '#3a3a44' }) },
+  // un marinero de la marina griega (1900): blusa blanca de cuello azul y gorra blanca
+  marineroAK: { ...B40, cuerpo: CUERPO_LINO_PR, tocado: 'gorraMarinoNX', ceja: hex('#2a1c14'),
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', C: '#2a4a8a', c: '#1e3870', G: '#2a4a8a', F: '#1e2a44', W: '#f6f6f2' }) },
+  // Valerios Stais, arqueólogo (1902): bigote, levita negra, chaleco gris y cuello blanco
+  staisAK: { ...B40, cab: CAB_ENTRADAS, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#2a1c14'), delante: bigoteGrandeVM,
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', C: '#1c1a22', c: '#121016', V: '#5a5a66', W: '#f6f2ea', F: '#1c1a22' }) },
+  // su primo Spyridon Stais, político: más joven, el pelo negro, traje gris oscuro y bigote fino
+  spyridonAK: { ...B40, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: OTO({ H: '#1c1424', h: '#3a3046', C: '#3a3a46', c: '#2a2a34', V: '#7a6a54', W: '#f6f2ea', F: '#3a3a46' }) },
+  // los estudiosos que discuten en 1902: barba gris y levita parda; el otro, con gafas finas y levita negra
+  estudiosoAK: { ...B40, cab: CAB_BARBA, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#8a8a94'),
+    pal: OTO({ H: '#9a9aa4', h: '#babac4', C: '#5a4430', c: '#44321e', V: '#8a7a5a', W: '#f6f2ea', F: '#44321e' }) },
+  estudioso2AK: { ...B40, cab: CAB_SIENES, cuerpo: CUERPO_LEVITA_NX, ceja: hex('#3a2a20'), delante: gafasFinasDC,
+    pal: OTO({ H: '#3a2a20', h: '#5a4434', w: '#c8c8d2', C: '#1c1a22', c: '#121016', V: '#6a2a3a', W: '#f6f2ea', F: '#1c1a22' }) },
+  // Derek de Solla Price (1951–1974): el pelo canoso con entradas, gafas de pasta, traje gris y corbata
+  priceAK: { ...B40, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#7a7a84'), delante: gafasPastaDC,
+    pal: CLT({ H: '#9a9aa4', h: '#babac4', C: '#5a5c66', c: '#46484f', W: '#eef0f6', o: '#7a2a2a', F: '#5a5c66' }) },
+  // Charalambos Karakalos, físico nuclear griego: el pelo negro, bigote, bata blanca
+  karakalosAK: { ...B40, cuerpo: CUERPO_BATA_DC, ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: OTO({ H: '#1c1424', h: '#3a3046', C: '#f2f2ee', c: '#d0d0ca', F: '#3a3a44' }) },
+  // el equipo de 2005: él, barba corta, polo azul marino; ella, melena castaña, gafas finas, chaqueta verde
+  investigadorAK: { ...B40, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_POLO_DC, ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#6a4424', h: '#8a6038', C: '#1e2a44', c: '#141c30', W: '#f2eee2', F: '#4a4a56' }) },
+  investigadoraAK: { ...B40, cab: CAB_MEDIA_TR, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#5a3a20'), mejillas: [[6, 8], [12, 8]], delante: gafasFinasDC,
+    pal: CLT({ H: '#7a4a24', h: '#9a643a', C: '#3a6a4a', c: '#2a5038', W: '#f2eee2', F: '#3a3a44' }) },
+  // los dos físicos de Glasgow (2024): uno con barba gris y jersey azul; el otro, joven, gafas de pasta y jersey granate
+  fisicoAK: { ...B40, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#8a8a94'),
+    pal: CLT({ H: '#9a9aa4', h: '#babac4', C: '#2a4a7a', c: '#1e3860', W: '#f2eee2', F: '#3a3a44' }) },
+  fisico2AK: { ...B40, cab: CAB_LADO_DC, cuerpo: CUERPO_PICO_DC, ceja: hex('#4a2c18'), delante: gafasPastaDC,
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#7a2a3a', c: '#5a1e2a', W: '#f2eee2', F: '#3a3a44' }) },
+  // la Grecia de hacia el 150 a. C. (quitón, himatión y sandalias):
+  // Hiparco, astrónomo: barba gris, himatión azul
+  hiparcoAK: { ...B40, cab: CAB_BARBA, cuerpo: CUERPO_HIMATION_GZ, ceja: hex('#8a8a94'),
+    pal: OTO({ H: '#8a8a94', h: '#aaaab4', T: '#f0e8d4', t: '#c8bc9a', M: '#2a4a7a', m: '#1e3860', L: '#6a4020' }) },
+  // Arquímedes: calvo con barba blanca, himatión granate
+  arquimedesAK: { ...B40, cab: CAB_BARBA, cuerpo: CUERPO_HIMATION_GZ, ceja: hex('#d8d8e0'),
+    pal: OTO({ H: '#e0e0e6', h: '#f4f4f6', T: '#f0e8d4', t: '#c8bc9a', M: '#7a2a3a', m: '#5a1e2a', L: '#6a4020' }) },
+  // Posidonio, filósofo de Rodas: barba negra, himatión verde
+  posidonioAK: { ...B40, cab: CAB_BARBA, cuerpo: CUERPO_HIMATION_GZ, ceja: hex('#1c1424'),
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', T: '#f0e8d4', t: '#c8bc9a', M: '#3a6a4a', m: '#2a5038', L: '#6a4020' }) },
+  // Cicerón, escritor romano: sin barba, el pelo corto con entradas, toga blanca con la banda morada
+  ciceronAK: { ...B40, cab: CAB_ENTRADAS, cuerpo: CUERPO_TOGA, ceja: hex('#4a3424'),
+    pal: OTO({ H: '#5a4430', h: '#7a6048', T: '#f2eee2', t: '#d0c8b8', A: '#6a2a7a', a: '#4a1e5a', L: '#6a4020' }) },
+  // el general romano que se lleva la esfera: casco y coraza (el legionario), con la capa roja
+  generalAK: { ...ELENCO_CHIBI.legionario, detras: capaPR },
+  // el artesano del taller: túnica corta parda, mandil de cuero, el pelo rizado
+  artesanoAK: { ...B40, cab: CAB_RIZOS, cuerpo: CUERPO_MANDIL, ceja: hex('#2a1c14'),
+    pal: OTO({ H: '#2a1c14', h: '#4a3424' }) },
+  // un astrónomo babilonio: barba larga negra, túnica larga y turbante
+  babilonioAK: { ...B40, cab: CAB_BARBA, cuerpo: CUERPO_TUNICA_LARGA, tocado: 'turbante', ceja: hex('#1c1424'),
+    pal: MOT({ H: '#1c1424', h: '#3a3046' }) },
+  // los atletas de los Juegos: túnica corta blanca, cinta en la frente (laurel)
+  atletaAK: { ...B40, cuerpo: CUERPO_TUNICA, tocado: 'laurel', ceja: hex('#2a1c14'),
+    pal: OTO({ H: '#2a1c14', h: '#4a3424', A: '#f2eee2', Q: '#c8bc9a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_AK);
