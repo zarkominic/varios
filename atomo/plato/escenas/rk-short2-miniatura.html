@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep39 · short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RK-SHORT2-MINIATURA · ep39, vertical (x 110–210). El regreso de 1590: el árbol de la duna con «CRO» tallado, al
+// amanecer y con niebla baja; White al doble, debajo, lo descubre y lo señala. «1590».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { roanoke, roanokeDelante, museo } from '/atomo/plato/escenas/rk-comun.js';
+import { figura, grado, halo, cifra, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+// el índice que sale de la mano (como en la miniatura principal), en el búfer del actor
+const indice = (R, m) => { if (!m) return; const [hx, hy] = m, K = 0xff302024, S = R.buf[hy * 320 + hx];
+  for (let a = 2; a <= 6; a++) { R.pset(hx + a, hy - 3, K); R.pset(hx + a, hy, K); R.pset(hx + a, hy - 2, S); R.pset(hx + a, hy - 1, S); }
+  R.pset(hx + 7, hy - 2, K); R.pset(hx + 7, hy - 1, K); };
+const dibujar = (t) => {
+  const o = { encuadre: 'poste', camara: 'arbol', epoca: 1590, talla: 1, luz: 'amanecer' };
+  roanoke(R, t, o); roanokeDelante(R, t, o); desplazar(R, -46);
+  grado(R, { cx: 160, cy: 110, tinte: '#2a1420', f: 0.18, desde: 0.45, max: 0.6 });
+  halo(R, 178, 116, 34, 22, '#fff2c8', 0.38);
+  figura(R, EL.whiteRK, 124, 176, t, { dir: 1, sorpresa: true, sostiene: [90, 64], cosa: indice }, 2);
+  cifra(R, '1590', 160, 18, 14);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

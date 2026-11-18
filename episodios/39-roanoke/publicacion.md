@@ -1,6 +1,6 @@
 # Episodio 39 · Material para publicar
 
-**Duración:** 8:52.
+**Duración:** 8:51.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, narrada como un cuento, «Atom» escrito «At-um») y
   pista de audio en español (ZONOS3-Mini, voz `Rodrigo` con media emoción, con los nombres propios escritos tal cual).
 - Subtítulos en inglés y en español.
@@ -153,4 +153,24 @@ fotos ni grabaciones: todos los dibujos son propios. La narración está hecha c
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.25-36.03
+- **EN:** Roanoke: He Came Back and Found One Word on a Post #Shorts
+- **ES:** Roanoke: volvió y solo encontró una palabra en un poste #Shorts
+- **EN:** In August 1590, John White finally made it back to his colony in America. More than a hundred people, his daughter and his three-year-old granddaughter among them, were gone. All that was left was one word carved into a post. The full story is in the linked video. #Roanoke #LostColony #History #ASKAtom #Shorts
+- **ES:** En agosto de 1590, John White por fin volvió a su colonia en América. Más de cien personas, entre ellas su hija y su nieta de tres años, ya no estaban. Solo quedaba una palabra tallada en un poste. La historia completa, en el vídeo enlazado. #Roanoke #ColoniaPerdida #Historia #ASKAtom #Shorts
+
+### Short 2 · CROATOAN y ninguna cruz · tramo 250.27-296.69
+- **EN:** Roanoke: CROATOAN on the Post, and No Cross #Shorts
+- **ES:** Roanoke: «CROATOAN» en el poste, y ninguna cruz #Shorts
+- **EN:** Before leaving, John White agreed on a signal with the colonists: a name if they moved, and a cross if they left in danger. In 1590 he found "CROATOAN" carved on a post, and no cross. Then a storm hit. The full story is in the linked video. #Roanoke #Croatoan #History #ASKAtom #Shorts
+- **ES:** Antes de irse, John White acordó una señal con los colonos: un nombre si se mudaban, y una cruz si se iban en peligro. En 1590 encontró «CROATOAN» tallado en un poste, y ninguna cruz. Luego llegó la tormenta. La historia completa, en el vídeo enlazado. #Roanoke #Croatoan #Historia #ASKAtom #Shorts
+
+### Short 3 · Los árboles y el mapa · tramo 297.64-352.08
+- **EN:** Roanoke: Tree Rings and a Hidden Star on a 1580s Map #Shorts
+- **ES:** Roanoke: los anillos de los árboles y la estrella del mapa #Shorts
+- **EN:** Bald cypress rings show that 1587 to 1589 were the driest years in eight centuries. And in 2012, under a patch on John White's own map, researchers found a tiny star that may mark a fort inland. The full story is in the linked video. #Roanoke #LostColony #Science #ASKAtom #Shorts
+- **ES:** Los anillos de los cipreses dicen que de 1587 a 1589 hubo la peor sequía en ocho siglos. Y en 2012, bajo un parche del mapa del propio John White, apareció una estrellita que puede marcar un fuerte tierra adentro. La historia completa, en el vídeo enlazado. #Roanoke #ColoniaPerdida #Ciencia #ASKAtom #Shorts

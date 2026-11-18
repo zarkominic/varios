@@ -720,3 +720,33 @@ Supertonic los apellidos alemanes (Kraus) y apuntarlos antes de locutar.
 Pendiente para el próximo: borrar los fotogramas del 38 al empezar; borrar las hojas del scratchpad al cerrar cada
 pasada; tras la calidad, mirar `git diff --stat` del decorado y, si cambió, `--comprobar` y `--fundidos` de todo el
 episodio.
+
+## Episodio 39 · Roanoke: la colonia que desapareció y dejó una palabra (18/11/2026)
+
+- **Calidad:** 37 de 103 planos suspendieron en la revisión completa (el 38: 40 de 95); 37 → 0 en una ronda de pulido,
+  con 22 agentes, 4,3 M de tokens y 1 h 51 min (el 38: 33 agentes, 5,8 M, 2 h 25 min). Fallos por tipo: orden de
+  dibujo o flota 14, quieto 11, composición repetida 9, poco detalle 9, no se lee 8, zona de Atom o barra del año 6,
+  brazo o mano 4. Escenas con más: objeto (11), árboles (8), familias y regreso (7).
+- **El decorado tras la calidad:** esta vez el diff de `rk-comun.js` en la calidad fue de 10 líneas (el 38: 366). Se
+  pasaron `--comprobar` (0 sospechas) y los fundidos de todo el episodio en `producir.sh`: solo «REVISAR» del 3–5 %, los
+  mismos que antes de los decorados (mar y tormenta animados), ningún roto.
+- **Golpe con desfase:** el golpe de las escamas sonaba 14 s antes del imán porque la marca cae al principio de la
+  frase. Se arregló con «marca+segundos» (`escamas+14.1`) en `plan.py`, sin tocar `banda.cjs`.
+- **Luz doble:** el cierre teñía de tarde un plano que el decorado ya pintaba con `luz:'tarde'`; se quitó el tinte de
+  la escena. Lección: si el decorado tiene opción de luz, la escena no tiñe.
+- **Miniatura:** el `dedo` de White le dejaba la mano delante de la cara (como el catalejo del 38). Con `sostiene` hacia
+  el poste y un índice de 2 px dibujado con `op.cosa`, señala y se lee a 320 × 180. Ya van dos episodios: para señalar
+  en una miniatura, `sostiene` + índice, no `dedo`.
+- **Disco:** el render pedía 9,0 GB con 7,0 libres al acabar la calidad. Se borraron tres carpetas temporales de Shorts
+  del 12/11 (670 MB), las hojas de las pasadas del 39 (~600 MB) y, con permiso del usuario, los MP4 largos del 35, 36 y
+  37 y la caché de Whisper (~1 GB). Quedaron 2 GB tras el montaje. Las hojas del scratchpad se siguen acumulando: hay
+  que borrarlas al cerrar cada pasada, como se dijo en el 38 y no se hizo.
+- **Control final a la primera:** sí (−14,0 y −14,0 LUFS; 148 y 146 subtítulos, 0 fuera de norma; cartelas 7,5 / 5,2 /
+  3,5 dB, la primera justo en el límite; efectos el 45 % del tiempo, cinco escenas entre el 36 y el 38 %).
+- **Voz:** «Atom» oído «adam», «Raleigh» «rallick» (ES), falta «an» (EN 15), «Croatian» (EN 24), «Sitio X» «texio»
+  (ES 23) y subidas de tono en ES 14 y 32: a la lista para escuchar, sin re-locutar (regla del usuario).
+- **Shorts:** tramos de una sola pieza cada uno; el 2 y el 3 empiezan a 1,42 s de la cartela del año.
+
+Pendiente para el próximo: borrar los fotogramas del 39 al empezar (regla aprobada); borrar las hojas del scratchpad al
+cerrar cada pasada (sigue pendiente); cartelas: el 1587 cae 7,5 dB, en el máximo, vigilarlo en `banda.cjs` si se repite;
+efectos: subir las escenas por debajo del 40 % en la pasada de movimiento aunque el total cumpla.

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep39 · short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RK-SHORT1-MINIATURA · ep39, vertical: todo lo que cuenta en la columna central (x 110–210). El gancho: el poste con
+// «CROATOAN» en el centro, recortado por la luz; John White al doble, delante a la izquierda, lo señala. «1590».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { roanoke, roanokeDelante, museo } from '/atomo/plato/escenas/rk-comun.js';
+import { figura, grado, halo, cifra, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+// el índice que sale de la mano (como en la miniatura principal), en el búfer del actor
+const indice = (R, m) => { if (!m) return; const [hx, hy] = m, K = 0xff302024, S = R.buf[hy * 320 + hx];
+  for (let a = 2; a <= 6; a++) { R.pset(hx + a, hy - 3, K); R.pset(hx + a, hy, K); R.pset(hx + a, hy - 2, S); R.pset(hx + a, hy - 1, S); }
+  R.pset(hx + 7, hy - 2, K); R.pset(hx + 7, hy - 1, K); };
+const dibujar = (t) => {
+  const o = { encuadre: 'poste', epoca: 1590, talla: 1 };
+  roanoke(R, t, o); roanokeDelante(R, t, o); desplazar(R, -58);
+  grado(R, { cx: 160, cy: 96, tinte: '#1a1408', f: 0.22, desde: 0.45, max: 0.62 });
+  halo(R, 178, 96, 30, 80, '#fff2c8', 0.40);
+  halo(R, 128, 140, 26, 40, '#c8d8f0', 0.18);
+  figura(R, EL.whiteRK, 126, 178, t, { dir: 1, sorpresa: true, sostiene: [90, 66], cosa: indice }, 2);
+  cifra(R, '1590', 160, 18, 14);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
