@@ -1,0 +1,486 @@
+{
+ "serie": "ASK Atom",
+ "numero": 39,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Roanoke: 115 People Vanished and Left One Word",
+  "es": "Roanoke: 115 personas desaparecieron y dejaron una palabra"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 1.05
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.5,
+    "mood.arousal": 0.5
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "rk-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "vuelta"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "vuelta",
+     "es": "En agosto de 1590, John White por fin volvió a su colonia en América. Allí había dejado a más de cien personas, entre ellas a su hija y a su nieta, que tenía tres años. No quedaba nadie. Solo encontró una palabra tallada en un poste.",
+     "en": "In August 1590, John White finally made it back to his colony in America. He had left more than a hundred people there, among them his daughter and his granddaughter, who was three years old. No one was left. All he found was one word carved into a post.",
+     "visual": "B y C: los barcos de 1590 llegan a la isla; John White (EL.whiteRK) baja a tierra; la empalizada vacía; el poste con «CROATOAN» tallado (golpe en «no quedaba nadie»).",
+     "es_voz": "En agosto de mil quinientos noventa, John White por fin volvió a su colonia en América. Allí había dejado a más de cien personas, entre ellas a su hija y a su nieta, que tenía tres años. No quedaba nadie. Solo encontró una palabra tallada en un poste.",
+     "en_voz": "In August fifteen ninety, John White finally made it back to his colony in America. He had left more than a hundred people there, among them his daughter and his granddaughter, who was three years old. No one was left. All he found was one word carved into a post."
+    },
+    {
+     "n": 2,
+     "marca": "camino",
+     "es": "La palabra era «CROATOAN», y desde entonces a esto lo llaman la colonia perdida de Roanoke. Por el camino vas a conocer a un pintor que acabó de gobernador y a una niña que hizo historia al nacer. Y también a una flota que lo retrasó todo, unos árboles que guardan el clima de entonces y unos arqueólogos que buscan con imanes.",
+     "en": "The word was \"CROATOAN,\" and ever since, this has been called the Lost Colony of Roanoke. Along the way, you'll meet a painter who ended up as a governor, a baby girl who made history just by being born, a fleet that delayed everything, trees that remember the weather of those years, and archaeologists who search with magnets.",
+     "visual": "A, D, B y E: una acuarela a medio pintar; una cuna; una flota en el horizonte; un corte de tronco con sus anillos; un imán que sale de la arena con escamas de hierro.",
+     "en_voz": "The word was \"Crow-a-toan,\" and ever since, this has been called the Lost Colony of Roanoke. Along the way, you'll meet a painter who ended up as a governor, a baby girl who made history just by being born, a fleet that delayed everything, trees that remember the weather of those years, and archaeologists who search with magnets."
+    }
+   ]
+  },
+  {
+   "id": "rk-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "G: Atom saluda en su estudio junto a una maqueta de la empalizada; deja una nota con el dibujo de una taza y sale; nadie la entiende."
+    }
+   ]
+  },
+  {
+   "id": "rk-raleigh",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "raleigh",
+     "es": "La historia empieza en Inglaterra, con un cortesano ambicioso, Walter Raleigh. La reina Isabel le dio permiso para fundar una colonia en América, y en 1584 mandó dos barcos a explorar la costa. Llegaron a una cadena de islas largas de arena, en lo que hoy es Carolina del Norte.",
+     "en": "The story begins in England, with an ambitious courtier, Walter Raleigh. Queen Elizabeth gave him permission to found a colony in America, and in 1584 he sent two ships to explore the coast. They reached a chain of long sandy islands, in what is now North Carolina.",
+     "visual": "A: el estudio de Raleigh (EL.raleighRK) con mapas y un globo; la pluma del sombrero le hace cosquillas; dos barcos salen hacia América; las islas de arena desde el mar.",
+     "acto": true,
+     "es_voz": "La historia empieza en Inglaterra, con un cortesano ambicioso, Walter Raleigh. La reina Isabel le dio permiso para fundar una colonia en América, y en mil quinientos ochenta y cuatro mandó dos barcos a explorar la costa. Llegaron a una cadena de islas largas de arena, en lo que hoy es Carolina del Norte.",
+     "en_voz": "The story begins in England, with an ambitious courtier, Walter Raleigh. Queen Elizabeth gave him permission to found a colony in America, and in fifteen eighty-four he sent two ships to explore the coast. They reached a chain of long sandy islands, in what is now North Carolina."
+    },
+    {
+     "n": 5,
+     "marca": "islas",
+     "es": "Detrás de esas islas había otra, más protegida: Roanoke. Allí vivían pueblos algonquinos que pescaban, cultivaban maíz y comerciaban por toda la costa. Cuando los barcos volvieron a Inglaterra, dos de ellos viajaron también: Manteo, de la isla de Croatoan, y Wanchese, de Roanoke.",
+     "en": "Behind those islands was another, more sheltered one: Roanoke. It was home to Algonquian peoples who fished, grew corn and traded up and down the coast. When the ships sailed back to England, two of those men went with them: Manteo, from the island of Croatoan, and Wanchese, from Roanoke.",
+     "visual": "D y A: un pueblo algonquino junto al agua (canoas, nasas, maíz); Manteo (EL.manteoRK) y Wanchese (EL.wancheseRK) en la cubierta de un barco rumbo a Inglaterra.",
+     "en_voz": "Behind those islands was another, more sheltered one: Roanoke. It was home to Algonquian peoples who fished, grew corn and traded up and down the coast. When the ships sailed back to England, two of those men went with them: Manteo, from the island of Crow-a-toan, and Wan-cheese, from Roanoke."
+    }
+   ]
+  },
+  {
+   "id": "rk-soldados",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "pintor",
+     "es": "Al año siguiente, en 1585, llegó el primer intento de verdad: más de cien hombres, casi todos soldados. Con ellos iba un pintor, John White, encargado de dibujar todo lo que vieran. Sus acuarelas de los pueblos de la costa todavía se conservan en el Museo Británico.",
+     "en": "The next year, in 1585, came the first real attempt: more than a hundred men, most of them soldiers. With them went a painter, John White, whose job was to draw everything they saw. His watercolors of the coastal villages are still kept at the British Museum.",
+     "visual": "C y D: los soldados de 1585 levantan un fuerte de tierra; White pinta acuarelas de un pueblo con su caja de pinturas.",
+     "es_voz": "Al año siguiente, en mil quinientos ochenta y cinco, llegó el primer intento de verdad: más de cien hombres, casi todos soldados. Con ellos iba un pintor, John White, encargado de dibujar todo lo que vieran. Sus acuarelas de los pueblos de la costa todavía se conservan en el Museo Británico.",
+     "en_voz": "The next year, in fifteen eighty-five, came the first real attempt: more than a hundred men, most of them soldiers. With them went a painter, John White, whose job was to draw everything they saw. His watercolors of the coastal villages are still kept at the British Museum."
+    },
+    {
+     "n": 7,
+     "marca": "mal",
+     "es": "Aquello salió mal. A los soldados les faltaba comida, dependían de sus vecinos y la relación se fue rompiendo. En 1586, Francis Drake hizo escala para ayudarlos. Una tormenta se llevó el barco que les dejaba, y los soldados acabaron volviéndose a casa con él.",
+     "en": "It went badly. The soldiers ran short of food, depended on their neighbors, and the relationship fell apart. In 1586, Francis Drake stopped by to help them. A storm carried off the ship he was leaving them, and the soldiers ended up sailing home with him.",
+     "visual": "C y B: la despensa vacía de los soldados; los barcos de Drake en el horizonte; los soldados suben a los botes y se van.",
+     "es_voz": "Aquello salió mal. A los soldados les faltaba comida, dependían de sus vecinos y la relación se fue rompiendo. En mil quinientos ochenta y seis, Francis Drake hizo escala para ayudarlos. Una tormenta se llevó el barco que les dejaba, y los soldados acabaron volviéndose a casa con él.",
+     "en_voz": "It went badly. The soldiers ran short of food, depended on their neighbors, and the relationship fell apart. In fifteen eighty-six, Francis Drake stopped by to help them. A storm carried off the ship he was leaving them, and the soldiers ended up sailing home with him."
+    }
+   ]
+  },
+  {
+   "id": "rk-familias",
+   "estilo": "pixel",
+   "animo": "pastoral",
+   "golpes": [],
+   "empieza_con": "cartela 1587",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "familias",
+     "es": "Raleigh probó otra idea: en vez de soldados, familias que quisieran quedarse a vivir. En 1587 salieron de Plymouth unas ciento quince personas, con hombres, mujeres y niños. El gobernador era el pintor, John White, y en el barco iban su hija Eleanor y el marido de ella, Ananias Dare.",
+     "en": "Raleigh tried another idea: instead of soldiers, families who wanted to stay for good. In 1587, about a hundred and fifteen people set sail from Plymouth, men, women and children. Their governor was the painter, John White, and on board were his daughter Eleanor and her husband, Ananias Dare.",
+     "visual": "A: el puerto de Plymouth en 1587: familias con baúles, niños, gallinas; Eleanor (EL.eleanorRK) y Ananias Dare (EL.ananiasRK) suben a bordo; White las cuenta.",
+     "acto": true,
+     "es_voz": "Raleigh probó otra idea: en vez de soldados, familias que quisieran quedarse a vivir. En mil quinientos ochenta y siete salieron de Plymouth unas ciento quince personas, con hombres, mujeres y niños. El gobernador era el pintor, John White, y en el barco iban su hija Eleanor y el marido de ella, Ananias Dare.",
+     "en_voz": "Raleigh tried another idea: instead of soldiers, families who wanted to stay for good. In fifteen eighty-seven, about a hundred and fifteen people set sail from Plymouth, men, women and children. Their governor was the painter, John White, and on board were his daughter Eleanor and her husband, Anna-nye-us Dare."
+    },
+    {
+     "n": 9,
+     "marca": "piloto",
+     "es": "Su destino no era Roanoke, sino la bahía de Chesapeake, más al norte, con mejor puerto y mejor tierra. Pero en julio, al parar en Roanoke, el piloto, Simon Fernandes, se negó a llevarlos más lejos. Dijo que el verano se acababa. White sospechó que lo que quería era irse a cazar barcos españoles.",
+     "en": "Their destination wasn't Roanoke but Chesapeake Bay, farther north, with a better harbor and better land. But in July, when they stopped at Roanoke, the pilot, Simon Fernandes, refused to take them any farther. He said the summer was almost over. White suspected he really wanted to go hunting for Spanish ships.",
+     "visual": "B: en el timón, el piloto Fernandes (EL.fernandesRK) se cruza de brazos mientras los colonos señalan Chesapeake en el mapa; una gaviota se le posa en la gorra."
+    },
+    {
+     "n": 10,
+     "marca": "quedan",
+     "es": "Así que se quedaron en la isla. Arreglaron las casas que habían dejado los soldados, y Manteo, que había vuelto con ellos, les sirvió de puente con su pueblo, en Croatoan.",
+     "en": "So they stayed on the island. They repaired the houses the soldiers had left behind, and Manteo, who had come back with them, acted as their bridge to his own people on Croatoan.",
+     "visual": "C: los colonos arreglan las casitas de madera y tejado de juncos; Manteo hace de puente con los suyos.",
+     "en_voz": "So they stayed on the island. They repaired the houses the soldiers had left behind, and Manteo, who had come back with them, acted as their bridge to his own people on Crow-a-toan."
+    }
+   ],
+   "cartela": "1587"
+  },
+  {
+   "id": "rk-virginia",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "virginia",
+     "es": "El 18 de agosto de 1587, Eleanor Dare tuvo una niña. La llamaron Virginia, y fue la primera criatura inglesa nacida en América. Su abuelo, el gobernador, lo apuntó en su diario.",
+     "en": "On August 18, 1587, Eleanor Dare gave birth to a baby girl. They named her Virginia, and she was the first English child born in the Americas. Her grandfather, the governor, wrote it down in his journal.",
+     "visual": "C: la casita de los Dare; la cuna de Virginia, que se mece sola… y es un gato el que la mece; White escribe en su diario.",
+     "acto": true,
+     "es_voz": "El dieciocho de agosto de mil quinientos ochenta y siete, Eleanor Dare tuvo una niña. La llamaron Virginia, y fue la primera criatura inglesa nacida en América. Su abuelo, el gobernador, lo apuntó en su diario.",
+     "en_voz": "On August eighteenth, fifteen eighty-seven, Eleanor Dare gave birth to a baby girl. They named her Virginia, and she was the first English child born in the Americas. Her grandfather, the governor, wrote it down in his journal."
+    },
+    {
+     "n": 12,
+     "marca": "justas",
+     "es": "Pero las cosas iban justas. Habían llegado tarde para sembrar, los vecinos de Roanoke desconfiaban y las provisiones no daban para el invierno. Alguien tenía que volver a Inglaterra a por ayuda, y los colonos le pidieron a White que fuera él, porque era quien más peso tenía allí.",
+     "en": "But things were tight. They had arrived too late to plant, the people of Roanoke didn't trust them, and their supplies wouldn't last the winter. Someone had to go back to England for help, and the colonists asked White to go himself, because he had the most influence there.",
+     "visual": "C: el huerto seco, el granero casi vacío; los colonos rodean a White y le piden que vaya a Inglaterra."
+    }
+   ]
+  },
+  {
+   "id": "rk-senal",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "senal",
+     "es": "Antes de irse, White pactó una señal con ellos. Si se mudaban, tallarían el nombre del sitio adonde fueran, en un árbol o en un poste. Y si se iban en peligro, encima del nombre tallarían una cruz.",
+     "en": "Before he left, White agreed on a signal with them. If they moved, they would carve the name of the place they had gone to, on a tree or a post. And if they left in danger, they would carve a cross above the name.",
+     "visual": "G y C: Atom, en su maqueta, talla un nombre en un poste y luego una cruz encima; la cruz le sale torcida, la repite dos veces.",
+     "acto": true
+    },
+    {
+     "n": 14,
+     "marca": "despedida",
+     "es": "Ya hablaban de mudarse unas cincuenta millas tierra adentro. A finales de agosto, White se despidió de su hija y de su nieta, que tenía poco más de una semana, y se embarcó. Pensaba volver en unos meses.",
+     "en": "They were already talking about moving some fifty miles inland. At the end of August, White said goodbye to his daughter and his granddaughter, barely a week old, and set sail. He expected to be back within a few months.",
+     "visual": "C y B: White se despide de Eleanor con la niña en brazos en el embarcadero; el barco se aleja."
+    }
+   ]
+  },
+  {
+   "id": "rk-armada",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "armada",
+     "es": "Pero llegó a una Inglaterra a punto de entrar en guerra. España preparaba una flota enorme, la Armada, y la reina prohibió que los barcos grandes salieran del país: hacían falta para defenderse.",
+     "en": "But he arrived in an England on the brink of war. Spain was preparing an enormous fleet, the Armada, and the queen banned large ships from leaving the country: they were needed for defense.",
+     "visual": "A: el puerto inglés con los barcos retenidos; en el horizonte, la Armada con sus velas en media luna.",
+     "acto": true
+    },
+    {
+     "n": 16,
+     "marca": "piratas",
+     "es": "En 1588, White consiguió dos barcos pequeños y salió de todos modos. Unos piratas franceses los asaltaron, les quitaron la carga y tuvieron que volver. La Armada fue derrotada aquel verano, pero aún pasaron dos años antes de que encontrara barcos otra vez.",
+     "en": "In 1588, White managed to get two small ships and set out anyway. French pirates attacked them, took their cargo, and they had to turn back. The Armada was defeated that summer, but two more years went by before he found ships again.",
+     "visual": "B: los dos barquitos de White; un barco pirata los alcanza; vuelven con las bodegas vacías; pasan las estaciones sobre el puerto.",
+     "es_voz": "En mil quinientos ochenta y ocho, White consiguió dos barcos pequeños y salió de todos modos. Unos piratas franceses los asaltaron, les quitaron la carga y tuvieron que volver. La Armada fue derrotada aquel verano, pero aún pasaron dos años antes de que encontrara barcos otra vez.",
+     "en_voz": "In fifteen eighty-eight, White managed to get two small ships and set out anyway. French pirates attacked them, took their cargo, and they had to turn back. The Armada was defeated that summer, but two more years went by before he found ships again."
+    }
+   ]
+  },
+  {
+   "id": "rk-regreso",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "croatoan"
+   ],
+   "empieza_con": "cartela 1590",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "regreso",
+     "es": "Llegó por fin a Roanoke en agosto de 1590. Una noche vieron un fuego entre los árboles, y desde las barcas tocaron la trompeta y canciones inglesas. Nadie contestó. Al amanecer, aunque White no lo anotó, Virginia cumplía tres años.",
+     "en": "He finally reached Roanoke in August 1590. One night they saw a fire among the trees, and from the boats they sounded a trumpet and played English songs. No one answered. At dawn, though White never mentioned it, it was Virginia's third birthday.",
+     "visual": "B y C: los barcos de 1590 frente a la isla; humo entre los árboles; marineros tocan la trompeta; silencio.",
+     "acto": true,
+     "es_voz": "Llegó por fin a Roanoke en agosto de mil quinientos noventa. Una noche vieron un fuego entre los árboles, y desde las barcas tocaron la trompeta y canciones inglesas. Nadie contestó. Al amanecer, aunque White no lo anotó, Virginia cumplía tres años.",
+     "en_voz": "He finally reached Roanoke in August fifteen ninety. One night they saw a fire among the trees, and from the boats they sounded a trumpet and played English songs. No one answered. At dawn, though White never mentioned it, it was Virginia's third birthday."
+    },
+    {
+     "n": 18,
+     "marca": "croatoan",
+     "es": "En tierra encontraron las casas desmontadas y una empalizada de troncos que no estaba cuando White se fue. En la duna, un árbol tenía tallado «CRO». Y en un poste de la entrada, la palabra entera: «CROATOAN». No había ninguna cruz.",
+     "en": "On land, they found the houses taken down and a log palisade that hadn't been there when White left. On the dune, a tree had \"CRO\" carved into it. And on one of the posts at the entrance, the whole word: \"CROATOAN.\" There was no cross.",
+     "visual": "C: las casas desmontadas, la empalizada; el árbol de la duna con «CRO»; el poste con «CROATOAN» (golpe); White busca la cruz y no la hay.",
+     "en_voz": "On land, they found the houses taken down and a log palisade that hadn't been there when White left. On the dune, a tree had \"CRO\" carved into it. And on one of the posts at the entrance, the whole word: \"Crow-a-toan.\" There was no cross."
+    },
+    {
+     "n": 19,
+     "marca": "tormenta",
+     "es": "Para White fue un alivio: Croatoan era la isla de Manteo, unas cincuenta millas al sur, y sin cruz no había habido peligro. Quiso ir a buscarlos al día siguiente. Pero llegó una tormenta, perdieron anclas, y los barcos acabaron volviendo a Inglaterra. White nunca regresó.",
+     "en": "To White, it was a relief: Croatoan was Manteo's island, some fifty miles to the south, and no cross meant no danger. He wanted to go and find them the next day. But a storm hit, they lost anchors, and the ships ended up heading back to England. White never returned.",
+     "visual": "B: White señala al sur, hacia Croatoan; llega la tormenta, el cabo del ancla se rompe, los barcos se van mar adentro.",
+     "en_voz": "To White, it was a relief: Crow-a-toan was Manteo's island, some fifty miles to the south, and no cross meant no danger. He wanted to go and find them the next day. But a storm hit, they lost anchors, and the ships ended up heading back to England. White never returned."
+    }
+   ],
+   "cartela": "1590"
+  },
+  {
+   "id": "rk-arboles",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "anillos",
+     "es": "Así que, ¿qué pasó? Lo primero lo cuentan los árboles. En 1998, unos científicos midieron los anillos de cipreses de los pantanos de Virginia, árboles que pueden vivir más de mil años. Los anillos de 1587 a 1589 eran finísimos: fueron los tres años más secos de los últimos ochocientos en aquella región.",
+     "en": "So what happened? The first part of the answer comes from trees. In 1998, scientists measured the rings of bald cypresses from the swamps of nearby Virginia, trees that can live more than a thousand years. The rings from 1587 to 1589 were extremely thin: the driest three years that region had seen in eight centuries.",
+     "visual": "G y B: Atom cuenta con la lupa los anillos de un corte de ciprés; los de 1587–1589 son finísimos; el tronco cruje como un suspiro; cipreses en el agua.",
+     "acto": true,
+     "es_voz": "Así que, ¿qué pasó? Lo primero lo cuentan los árboles. En mil novecientos noventa y ocho, unos científicos midieron los anillos de cipreses de los pantanos de Virginia, árboles que pueden vivir más de mil años. Los anillos de mil quinientos ochenta y siete a mil quinientos ochenta y nueve eran finísimos: fueron los tres años más secos de los últimos ochocientos en aquella región.",
+     "en_voz": "So what happened? The first part of the answer comes from trees. In nineteen ninety-eight, scientists measured the rings of bald cypresses from the swamps of nearby Virginia, trees that can live more than a thousand years. The rings from fifteen eighty-seven to fifteen eighty-nine were extremely thin: the driest three years that region had seen in eight centuries."
+    },
+    {
+     "n": 21,
+     "marca": "sequia",
+     "es": "Sin lluvia no hay cosecha, ni para los colonos ni para sus vecinos. Eso pudo hacer que no pudieran quedarse quietos esperando, y que tuvieran que repartirse para comer.",
+     "en": "No rain means no harvest, not for the colonists and not for their neighbors. That may be why they couldn't just sit and wait, and why they might have had to split up just to eat.",
+     "visual": "D y C: un campo de maíz seco bajo el sol; colonos y vecinos se reparten en grupos con sus cestas."
+    }
+   ]
+  },
+  {
+   "id": "rk-mapa",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "parche",
+     "es": "La segunda pista estaba en un mapa. En 2012, en el Museo Británico, estudiaron con luz y rayos X un mapa que dibujó el propio John White. Debajo de un parche de papel había una estrellita roja y azul, quizá la señal de un fuerte. Estaba tierra adentro, junto al estrecho de Albemarle, más o menos a la distancia de la que hablaban los colonos.",
+     "en": "The second clue was on a map. In 2012, at the British Museum, researchers studied a map drawn by John White himself, using light and X-rays. Under a paper patch was a tiny red-and-blue star, possibly the mark of a fort. It sat inland, by Albemarle Sound, roughly as far as the colonists had talked about moving.",
+     "visual": "F: la sala del Museo Británico; el mapa de White a contraluz: bajo el parche aparece un pequeño fuerte dibujado junto al estrecho de Albemarle.",
+     "es_voz": "La segunda pista estaba en un mapa. En dos mil doce, en el Museo Británico, estudiaron con luz y rayos X un mapa que dibujó el propio John White. Debajo de un parche de papel había una estrellita roja y azul, quizá la señal de un fuerte. Estaba tierra adentro, junto al estrecho de Albemarle, más o menos a la distancia de la que hablaban los colonos.",
+     "en_voz": "The second clue was on a map. In twenty twelve, at the British Museum, researchers studied a map drawn by John White himself, using light and X-rays. Under a paper patch was a tiny red-and-blue star, possibly the mark of a fort. It sat inland, by Albemarle Sound, roughly as far as the colonists had talked about moving."
+    },
+    {
+     "n": 23,
+     "marca": "sitiox",
+     "es": "Los arqueólogos excavaron cerca, en un sitio al que llaman el Sitio X, y encontraron trozos de cerámica inglesa que pueden ser de aquellos años. Pocas piezas, pero inglesas. Pudo ser un grupo pequeño que se fue tierra adentro.",
+     "en": "Archaeologists dug nearby, at a place they call Site X, and found fragments of English pottery that could date from those years. Only a few pieces, but English. It may have been a small group that went inland.",
+     "visual": "F: la orilla del estrecho en el Sitio X; arqueólogos con cuadrículas; aparecen unos trozos de cerámica inglesa."
+    }
+   ]
+  },
+  {
+   "id": "rk-hatteras",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "escamas"
+   ],
+   "empieza_con": "cartela 2026",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "hatteras",
+     "es": "La otra pista apunta adonde decía el poste: Croatoan, que hoy es la isla de Hatteras. Allí, desde 2009, un equipo de arqueólogos y vecinos excava antiguos pueblos de Croatoan. Han salido una empuñadura de espada, trozos de armas de fuego, una pizarra de escribir y, de una excavación anterior, un anillo de latón.",
+     "en": "The other clue points where the post said: Croatoan, which today is Hatteras Island. There, since 2009, a team of archaeologists and local volunteers has been digging up old Croatoan villages. They've found the hilt of a sword, pieces of firearms, a writing slate and, from an earlier dig, a brass ring.",
+     "visual": "E: la excavación de Hatteras entre los árboles junto al agua; arqueólogos y vecinos con cribas; sobre la mesa, una empuñadura de espada, trozos de armas, una pizarra y un anillo.",
+     "acto": true,
+     "es_voz": "La otra pista apunta adonde decía el poste: Croatoan, que hoy es la isla de Hatteras. Allí, desde dos mil nueve, un equipo de arqueólogos y vecinos excava antiguos pueblos de Croatoan. Han salido una empuñadura de espada, trozos de armas de fuego, una pizarra de escribir y, de una excavación anterior, un anillo de latón.",
+     "en_voz": "The other clue points where the post said: Crow-a-toan, which today is Hatter-us Island. There, since two thousand nine, a team of archaeologists and local volunteers has been digging up old Crow-a-toan villages. They've found the hilt of a sword, pieces of firearms, a writing slate and, from an earlier dig, a brass ring."
+    },
+    {
+     "n": 25,
+     "marca": "escamas",
+     "es": "Y en 2025, el equipo de Mark Horton y Scott Dawson anunció algo más pequeño: escamas de hierro, que saltan cuando un herrero golpea el metal al rojo. Se buscan entre la tierra cribada, con un imán. Para ellos, prueban que alguien forjó hierro a la manera inglesa en un pueblo de Croatoan.",
+     "en": "And in 2025, the team led by Mark Horton and Scott Dawson announced something smaller: flakes of iron, the kind that fly off when a blacksmith hammers red-hot metal. They're found by running a magnet through sifted soil. To them, they're proof that someone forged iron the English way, inside a Croatoan village.",
+     "visual": "E: la arqueóloga (EL.arqueologaRK) pasa un imán por la criba: salen escamas de hierro (golpe)… y el clip de su tablilla y una moneda de 2025.",
+     "es_voz": "Y en dos mil veinticinco, el equipo de Mark Horton y Scott Dawson anunció algo más pequeño: escamas de hierro, que saltan cuando un herrero golpea el metal al rojo. Se buscan entre la tierra cribada, con un imán. Para ellos, prueban que alguien forjó hierro a la manera inglesa en un pueblo de Croatoan.",
+     "en_voz": "And in twenty twenty-five, the team led by Mark Horton and Scott Dawson announced something smaller: flakes of iron, the kind that fly off when a blacksmith hammers red-hot metal. They're found by running a magnet through sifted soil. To them, they're proof that someone forged iron the English way, inside a Crow-a-toan village."
+    },
+    {
+     "n": 26,
+     "marca": "huesos",
+     "es": "Y en 2026 llegó otra pista: los huesos de los animales que comían. Según el mismo equipo, allí la dieta mezclaba la de los dos pueblos. Hasta apareció una bala de plomo inglesa de caza, aunque nadie sabe quién la disparó.",
+     "en": "And in 2026 came another clue: the bones of the animals people ate there. According to the same team, the diet blended the habits of both peoples. There was even an English lead hunting ball, though no one can say who fired it.",
+     "visual": "E: en el laboratorio, una bandeja con huesecillos de pescado y de ciervo, una mazorca y un cuenco; una bala de plomo bajo la lupa y un signo de interrogación.",
+     "es_voz": "Y en dos mil veintiséis llegó otra pista: los huesos de los animales que comían. Según el mismo equipo, allí la dieta mezclaba la de los dos pueblos. Hasta apareció una bala de plomo inglesa de caza, aunque nadie sabe quién la disparó.",
+     "en_voz": "And in twenty twenty-six came another clue: the bones of the animals people ate there. According to the same team, the diet blended the habits of both peoples. There was even an English lead hunting ball, though no one can say who fired it."
+    }
+   ],
+   "cartela": "2026"
+  },
+  {
+   "id": "rk-lawson",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "lawson",
+     "es": "Hay otra pista, escrita más de cien años después. El explorador John Lawson escribió que la gente de Hatteras contaba que algunos antepasados suyos habían sido blancos y sabían «hablar con un libro». Añadió que entre ellos abundaban los ojos grises.",
+     "en": "There's another clue, written down more than a hundred years later. The explorer John Lawson wrote that the people of Hatteras said some of their ancestors had been white and could \"talk in a book.\" He added that gray eyes were common among them.",
+     "visual": "D: hacia 1701, el explorador Lawson (EL.lawsonRK) escucha a la gente de Hatteras junto al fuego; un libro abierto; unos ojos grises.",
+     "en_voz": "There's another clue, written down more than a hundred years later. The explorer John Lawson wrote that the people of Hatter-us said some of their ancestors had been white and could \"talk in a book.\" He added that gray eyes were common among them."
+    }
+   ]
+  },
+  {
+   "id": "rk-objeto",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "objeto",
+     "es": "Pero cuidado con lo que prueba un objeto. Una espada inglesa en un pueblo de Croatoan puede significar que allí vivió un inglés… o que alguien la cambió por maíz. Los objetos viajan de mano en mano; las personas, no siempre.",
+     "en": "But be careful about what an object proves. An English sword in a Croatoan village could mean an Englishman lived there… or that someone traded corn for it. Objects travel from hand to hand; people don't always.",
+     "visual": "G y D: Atom con una espada de juguete en una balanza; al otro lado, una mazorca: se cambia de mano en mano.",
+     "acto": true,
+     "en_voz": "But be careful about what an object proves. An English sword in a Crow-a-toan village could mean an Englishman lived there… or that someone traded corn for it. Objects travel from hand to hand; people don't always."
+    },
+    {
+     "n": 29,
+     "marca": "dudas",
+     "es": "Por eso hay quien duda. Las escamas aún no se han publicado en una revista científica, y otros arqueólogos piden ver la fragua antes de creérselo. Ni en Hatteras ni en el Sitio X ha aparecido nada con el nombre de un colono. Y ninguna prueba de ADN ha unido a nadie de hoy con un colono concreto.",
+     "en": "That's why some people have doubts. The iron flakes haven't been published in a scientific journal yet, and other archaeologists want to see the forge itself before they're convinced. Neither on Hatteras nor at Site X has anything turned up with a colonist's name on it. And no DNA test has linked anyone alive today to a specific colonist.",
+     "visual": "G: Atom ante una revista científica con la página en blanco; una tabla de ADN con un signo de interrogación.",
+     "en_voz": "That's why some people have doubts. The iron flakes haven't been published in a scientific journal yet, and other archaeologists want to see the forge itself before they're convinced. Neither on Hatter-us nor at Site X has anything turned up with a colonist's name on it. And no DNA test has linked anyone alive today to a specific colonist."
+    },
+    {
+     "n": 30,
+     "marca": "piedras",
+     "es": "Y luego están los rumores y las falsificaciones. Años después, en Jamestown, se dijo que los colonos habían acabado mal, pero nunca se confirmó. Y en 1937 aparecieron unas piedras talladas con mensajes de Eleanor Dare: hoy casi nadie duda de que eran un engaño.",
+     "en": "And then there are the rumors and the fakes. Years later, in Jamestown, people said the colonists had come to a bad end, but it was never confirmed. And in 1937, carved stones turned up with messages from Eleanor Dare: today almost no one doubts they were a hoax.",
+     "visual": "G: un rumor de Jamestown, de lejos, que se borra; piedras talladas con letras que se van llenando de florituras, hasta que una se rompe y es de yeso.",
+     "es_voz": "Y luego están los rumores y las falsificaciones. Años después, en Jamestown, se dijo que los colonos habían acabado mal, pero nunca se confirmó. Y en mil novecientos treinta y siete aparecieron unas piedras talladas con mensajes de Eleanor Dare: hoy casi nadie duda de que eran un engaño.",
+     "en_voz": "And then there are the rumors and the fakes. Years later, in Jamestown, people said the colonists had come to a bad end, but it was never confirmed. And in nineteen thirty-seven, carved stones turned up with messages from Eleanor Dare: today almost no one doubts they were a hoax."
+    }
+   ]
+  },
+  {
+   "id": "rk-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 31,
+     "marca": "entonces",
+     "es": "Entonces, ¿qué pasó con la colonia de Roanoke? Lo que mejor encaja con las pistas es que no desapareciera de golpe. Con la sequía y sin barcos, se repartieron: unos se fueron con Manteo a Croatoan, como decía el poste, y quizá otros tierra adentro. Con los años, sus hijos crecieron como parte de los pueblos que los acogieron.",
+     "en": "So what happened to the colony at Roanoke? What fits the clues best is that it didn't vanish all at once. With the drought and no ships, they split up: some went with Manteo to Croatoan, just as the post said, and perhaps others went inland. Over the years, their children grew up as part of the peoples who took them in.",
+     "visual": "C, D y E: grupos de colonos se van con Manteo en canoas hacia el sur; años después, niños jugando en un pueblo de Croatoan.",
+     "acto": true,
+     "en_voz": "So what happened to the colony at Roanoke? What fits the clues best is that it didn't vanish all at once. With the drought and no ships, they split up: some went with Manteo to Crow-a-toan, just as the post said, and perhaps others went inland. Over the years, their children grew up as part of the peoples who took them in."
+    },
+    {
+     "n": 32,
+     "marca": "perdida",
+     "es": "Si es así, la colonia nunca estuvo perdida. Les dejaron un mensaje claro a los suyos, y la única persona que podía ir a buscarlos no consiguió volver.",
+     "en": "If that's right, the colony was never really lost. They left a clear message for their own people, and the one person who could have gone looking for them never managed to come back.",
+     "visual": "C: el poste con «CROATOAN» al atardecer: un mensaje claro; el barco de White lejos, que no vuelve."
+    },
+    {
+     "n": 33,
+     "marca": "final",
+     "es": "A veces un misterio no es que nadie sepa nada. Es que la respuesta está escrita, pero en un idioma que se nos ha olvidado leer: un poste, unos anillos de árbol, unas escamas de hierro. Y para entenderlo hace falta paciencia, y un buen imán.",
+     "en": "Sometimes a mystery isn't about no one knowing anything. The answer is written down, just in a language we've forgotten how to read: a post, some tree rings, a few flakes of iron. And to understand it, you need patience, and a good magnet.",
+     "visual": "G: Atom vuelve a su estudio; su nota tiene ahora un dibujo claro: una flecha a la isla; levanta el imán y sonríe."
+    }
+   ]
+  }
+ ]
+}
