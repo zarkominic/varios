@@ -11647,3 +11647,63 @@ export const ELENCO_MC = {
     pal: CLT({ H: '#3a2a1c', h: '#5a4430', C: '#1c1e24', c: '#121418', F: '#1c1e24' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_MC);
+
+// ── Ep39 · Roanoke (1584–1590 y hoy). Los algonquinos de la costa, con respeto y según las acuarelas de John White (manto
+// de piel de ciervo, collares de cuentas y conchas, una pluma), sin burlas ni estereotipos de película.
+export const ELENCO_RK = {
+  // John White en 1587, pintor y gobernador: barba castaña, jubón pardo oscuro con gola blanca, sombrero alto de copa
+  whiteRK: { ...B36, cab: CAB_BARBA, cuerpo: CUERPO_GOLA_VM, tocado: 'capotain', ceja: hex('#4a2c18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#4a3a2c', c: '#36281e', X: '#f6f4ee', x: '#c8c4bc', o: '#c8a040', F: '#3a3046', w: '#2a2430' }) },
+  // Walter Raleigh, cortesano: perilla y bigote, jubón marfil con cadena de oro y gola, sombrero de ala con pluma, capa
+  raleighRK: { ...B36, cab: CAB_PERILLA_VM, cuerpo: CUERPO_GOLA_ORO_VM, tocado: 'sombreroPlumaPR', ceja: hex('#3a2418'), detras: capaPR, delante: bigoteTR,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#e8dcc0', c: '#c8b898', X: '#f8f6f0', x: '#d0ccc4', o: '#c8a040', O: '#f0c840', F: '#7a2a3a', w: '#e8e0cc', J: '#2a2430', j: '#3a3446', Q: '#5a1e2a', q: '#3e1420' }) },
+  // Manteo, de Croatoan: el pelo negro corto con una pluma, manto de piel de ciervo, collar de conchas blancas
+  manteoRK: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma',
+    pal: NATIVA({ W: '#f2eee2', Y: '#d8d0c0', B: '#b8895a', b: '#8a6038' }) },
+  // Wanchese, de Roanoke: una pluma, manto de piel más oscuro, collar de cobre
+  wancheseRK: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma',
+    pal: NATIVA({ W: '#d8843a', Y: '#b86a2a', B: '#8a6038', b: '#6a4628' }) },
+  // gente de los pueblos de la costa (Croatoan, Roanoke, Secotan): hombre, mujer (el pelo largo) y niño
+  croatoanRK: { cab: CAB_CORTO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), tocado: 'pluma',
+    pal: NATIVA({ W: '#3e9ad4', Y: '#f2eee2', B: '#a8784a', b: '#7a5030' }) },
+  croatoanaRK: { cab: CAB_LARGO, cuerpo: CUERPO_NATIVO, brazoCol: 11, altoCuerpo: 13, altoCab: 12, ojosY: 6, bocaY: 9, ceja: hex('#1c1424'), mejillas: [[6, 8], [12, 8]],
+    pal: NATIVA({ W: '#f2eee2', Y: '#c83a3a', B: '#c89a6a', b: '#9a6e44' }) },
+  ninoCroatoanRK: { ...B23N, ceja: hex('#1c1424'), pal: NATIVA({ C: '#b8895a', c: '#8a6038', W: '#f2eee2', F: '#8a6038', L: '#6a4a2a' }) },
+  // Eleanor Dare, hija de White: el pelo castaño bajo la cofia blanca, vestido verde oscuro de escote cuadrado
+  eleanorRK: { ...B36, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'cofia', ceja: hex('#5a3a20'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#6a4424', h: '#8a6038', C: '#2a5a44', c: '#1e4434', o: '#f2eee2', O: '#d8ccb0', W: '#f6f2ea' }) },
+  // Ananias Dare, albañil: barba corta, jubón pardo y gorra plana de lana
+  ananiasRK: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_JUBON_TR, tocado: 'gorraPlana', ceja: hex('#3a2418'),
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#7a5a3a', c: '#5a4228', o: '#7a5a3a', G: '#3a2a20', F: '#5a4a3a', n: '#2a2430' }) },
+  // colonos de 1587: él con jubón pardo y sombrero de paja; ella con cofia y vestido de lana; un niño
+  colonoRK: { ...B36, cuerpo: CUERPO_JUBON_TR, tocado: 'sombreroPaja', ceja: hex('#4a3020'), delante: bigoteTR,
+    pal: CLT({ H: '#4a3020', h: '#6a4830', C: '#8a7a5a', c: '#6a5a40', o: '#8a7a5a', G: '#4a3a2a', F: '#5a4a3a', n: '#2a2430' }) },
+  colonaRK: { ...B36, cab: CAB_LARGO, cuerpo: CUERPO_RENAC_TR, tocado: 'cofia', ceja: hex('#8a5a34'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#a8743c', h: '#c8945a', C: '#7a3a2a', c: '#5a2a1e', o: '#f2eee2', O: '#d8ccb0' }) },
+  ninoColonoRK: { ...B23N, ceja: hex('#6a4424'), pal: CLT({ H: '#7a5030', h: '#9a6c44', C: '#6a7a8a', c: '#4a5a6a', W: '#f2eee2', F: '#5a4a3a', L: '#2a2430' }) },
+  // los soldados de 1585: jubón de cuero, casco de hierro
+  soldadoRK: { ...B36, cuerpo: CUERPO_JUBON_TR, tocado: 'casco', ceja: hex('#3a2418'), delante: bigoteTR,
+    pal: CLT({ H: '#3a2418', h: '#5a3a24', C: '#8a6a44', c: '#6a4e30', o: '#c8ccd8', G: '#3a2a20', F: '#7a2a2a', n: '#2a2430' }) },
+  // Simon Fernandes, el piloto: gorro pardo, bigote, jubón verde
+  fernandesRK: { ...B36, cuerpo: CUERPO_JUBON_TR, tocado: 'boina', ceja: hex('#1c1424'), delante: bigoteTR,
+    pal: CLT({ S: '#e2a87a', s: '#b8784a', H: '#1c1424', h: '#3a3046', C: '#3a6a4a', c: '#2a5038', o: '#3a6a4a', G: '#5a3a20', F: '#5a4a3a', n: '#2a2430' }) },
+  // Francis Drake: barba rojiza en punta, jubón negro con gola, capa
+  drakeRK: { ...B36, cab: CAB_PERILLA_VM, cuerpo: CUERPO_GOLA_VM, ceja: hex('#8a4a24'), detras: capaPR, delante: bigoteTR,
+    pal: CLT({ H: '#8a4a24', h: '#aa6a3a', C: '#24202c', c: '#16121c', X: '#f6f4ee', x: '#c8c4bc', o: '#c8a040', F: '#24202c', w: '#2a2430', J: '#2a2430', j: '#3a3446', Q: '#24202c', q: '#16121c' }) },
+  // marineros isabelinos: camisa de lino crudo, gorro de punto
+  marineroRK: { ...B36, cuerpo: CUERPO_LINO_PR, tocado: 'gorroPuntoDC', ceja: hex('#5a3a20'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434' }) },
+  // John Lawson, explorador (hacia 1701): casaca azul hasta la rodilla, tricornio
+  lawsonRK: { ...B36, cuerpo: CUERPO_CASACA_TR, tocado: 'tricornio', ceja: hex('#4a2c18'),
+    pal: CLT({ H: '#5a3a20', h: '#7a5434', C: '#2a3a5a', c: '#1e2a44', F: '#2a3a5a', w: '#f2eee2', O: '#c8a040' }) },
+  // la arqueóloga de Hatteras (hoy): coleta, camisa de campo caqui y sombrero de ala para el sol
+  arqueologaRK: { ...B36, cab: CAB_LARGO, cuerpo: CUERPO_EXPLORADORA_JM, tocado: 'sombreroSolTU', ceja: hex('#5a3a20'), mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#6a4424', h: '#8a6038' }) },
+  // un voluntario de la excavación (hoy): polo azul y gorra
+  voluntarioRK: { ...B36, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_POLO_DC, tocado: 'beisbol', ceja: hex('#8a7a6a'),
+    pal: CLT({ H: '#9a8a7a', h: '#baaa9a' }) },
+  // la conservadora del Museo Británico (2012): el pelo gris corto, bata blanca y gafas
+  conservadoraRK: { ...B36, cab: CAB_CORTA_VM, cuerpo: CUERPO_BATA_DC, ceja: hex('#8a8a94'), delante: gafasFinasDC, mejillas: [[6, 8], [12, 8]],
+    pal: CLT({ H: '#a8a8b4', h: '#c8c8d2', C: '#f2f2ee', c: '#d0d0ca', F: '#3a3a44' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_RK);
