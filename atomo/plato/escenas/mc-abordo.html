@@ -26,7 +26,10 @@
 // 4. «off the island of Santa Maria in the Azores» y el silencio (corta en «In those»). FONDO LOCAL: Santa María al
 //    amanecer del 25 (acantilados, bancales con muros, Vila do Porto y su iglesia, el molino); el bergantín pasa por
 //    delante y se aleja al este; la campana tañe en «Santa»; sale el sol en «Azores»; una barca sale del puerto; una ballena
-//    sopla en el silencio.
+//    sopla en el silencio. Cielo de amanecer (no de atardecer): estrellas que se apagan, la luna que se pone al oeste, cirros
+//    y cúmulos de cuatro tonos con filo dorado a tres velocidades. Mar de primer plano: mar de fondo en filas, olas que se
+//    levantan y rompen en espuma, un bote de pesca con la vela latina arriada (el pescador cobra el sedal y en «Azores»
+//    saca un pez), la boya de su nasa, gaviotas posadas (una se arranca a volar en «Santa») y otra que pasa rasante.
 // 5. «In those nine days, the ship had sailed on by herself for some 400 nautical miles» (corta en «No one»). La carta:
 //    o.deriva, el barquito deriva solo con los días 1–9; en «400» la cota roja con el 400.
 // 6. «No one was steering her. And no one knew what had happened to the 10 people on board». El timón al sol: en
@@ -461,17 +464,100 @@ const isla = () => {
   // el puertecito con su muelle de piedra
   R.rect(198, 113, 218, 116, K); R.rect(199, 113, 217, 115, H('#a89a80')); for (let x = 200; x < 217; x += 4) R.pset(x, 114, H('#7a6e5a'));
 };
+// el cielo y el mar de primer plano del 4 (dibujados encima del búfer de la isla)
+// suelta4: 0 fuera de las zonas tranquilas; dentro de su orla sube a 1, y nubes y cirros se deshacen en trama en vez de cortarse
+const suelta4 = (x, y) => Math.max(Math.min((28 - y) / 6, (194 - x) / 10), Math.min((x - 262) / 10, (56 - y) / 6));
+const ESTR4 = Array.from({ length: 40 }, (_, i) => [1 + Math.floor(hs(i, 3, 1) * 318), 1 + Math.floor(hs(i, 5, 2) * 36), hs(i, 7, 3) * 6]);
+const CIRROS4 = [[20, 30, 46, 1.0], [150, 33, 60, 0.8], [260, 29, 38, 1.1], [360, 35, 52, 0.9]];
+const NUB4 = { lejos: [[-10, 90, 20], [40, 84, 16], [222, 99, 24], [300, 101, 20], [70, 66, 18]],
+  medio: [[60, 46, 28], [190, 50, 30], [330, 44, 24]], cerca: [[0, 36, 40], [150, 40, 36], [290, 34, 42]] };
+// un cúmulo de cuatro tonos con el filo dorado del lado del sol; tapado por la isla (cumbre) y por el pueblo (x 140–206,
+// que asoma sobre la cumbre), y deshecho en las zonas tranquilas
+const nube4 = (cx, cy, w, cs) => {
+  const h = Math.max(3, w * 0.34);
+  for (let y = Math.floor(cy - h); y <= cy + h * 0.45; y++) for (let x = Math.floor(cx - w * 0.62); x <= cx + w * 0.62; x++) {
+    if (x < 0 || x > 319 || y < 0 || y >= HOR4 || y >= cumbre(x) - 1 || (x >= 140 && x <= 206 && y >= 64)) continue;
+    const z = suelta4(x, y); if (z >= 1 || (z > 0 && bay(x, y) < z)) continue;
+    let d = 9; for (const [bx, by, r] of BOLAS) { const dx = (x - (cx + bx * w)) / (r * w), dy = (y - (cy + by * w)) / (r * w * 0.7); d = Math.min(d, dx * dx + dy * dy); }
+    if (d > 1 || y > cy + h * 0.42) continue; if (d > 0.8 && bay(x, y) < 0.5) continue;
+    const v = (y - (cy - h)) / (h * 1.42), lado = (x - cx) / (w * 0.62);
+    let c = tono(cs.slice(0, 4), Math.max(0, Math.min(1, v * 0.85 + lado * 0.25 + 0.05)), x, y);
+    if (d > 0.62 && (lado > 0.2 || v > 0.75)) c = cs[4];
+    R.pset(x, y, c);
+  }
+};
+const nubes4 = (t, lista, cs, v) => { for (const [x0, y, w] of lista) nube4(((x0 + t * v) % 440 + 440) % 440 - 60, y, w, cs); };
+// una ola de primer plano: se levanta, rompe en espuma y se deshace; avanza hacia la derecha con el viento
+const OLAS4 = Array.from({ length: 30 }, (_, i) => { const y = 128 + i * 1.75 + hs(i, 1) * 2; return [hs(i, 2) * 380, y, (y - 124) / 56, hs(i, 3) * 6.3]; });
+const olas4 = (t, y0, y1) => {
+  for (const [x0, y, s, ph] of OLAS4) { if (y < y0 || y >= y1) continue;
+    const vida = (Math.sin(t * 1.1 + ph) + 1) / 2; if (vida < 0.15) continue;
+    const cx = ((x0 + t * (3 + 7 * s)) % 380 + 380) % 380 - 30, w = Math.round(5 + 15 * s), h = (vida - 0.15) * (1.5 + 4 * s), yb = Math.round(y);
+    for (let i = -w; i <= w; i++) { const x = Math.round(cx + i), u = i / w; if (x < 0 || x > 319) continue;
+      const top = Math.round(yb - h * Math.pow(1 - u * u, 1.4) * (u > 0 ? 1 - u * 0.4 : 1));
+      for (let yy = top; yy <= yb; yy++) R.pset(x, yy, yy === top ? (vida > 0.6 && Math.abs(u) < 0.6 ? H('#f4f0f8') : H('#a89ec8')) : yy === top + 1 ? H('#6a6e9e') : H('#2c3a66'));
+      if (bay(x, yb) < 0.6) R.pset(x, yb + 1, H('#1a2444'));
+      if (vida > 0.7 && u > -0.2 && u < 0.5 && hs(x, Math.floor(t * 8), ph) > 0.6) R.pset(x, top - 1 - (hs(x, 3) > 0.5 ? 1 : 0), H('#ffffff'));
+      if (vida > 0.5 && u < -0.4 && hs(x, yb, 9) > 0.55) R.pset(x - 3, yb + 2, H('#c8c4dc')); } }
+};
+// una gaviota posada en el agua (se mece con la ola) o en vuelo (aleteo); dir 1 mira a la derecha
+const gaviota = (x, y, t, vuela, dir = 1, ph = 0) => { x = Math.round(x); y = Math.round(y); const B = H('#f6f4f0'), G = H('#9a9eb0'), N = H('#24242e');
+  if (!vuela) { R.rect(x - 3, y - 1, x + 3, y + 1, K); R.rect(x - 2, y, x + 2, y + 1, B); R.linea(x - 2 * dir, y - 1, x + dir, y - 1, G); R.linea(x - 3 * dir, y - 1, x - 4 * dir, y - 2, N); R.rect(Math.min(x + 2 * dir, x + 3 * dir), y - 3, Math.max(x + 2 * dir, x + 3 * dir), y - 1, B); R.pset(x + 4 * dir, y - 2, H('#e8b040')); R.pset(x + 3 * dir, y - 3, N); R.linea(x - 4, y + 2, x + 4, y + 2, H('#6a70a0')); return; }
+  const a = Math.sin(t * 9 + ph); R.rect(x - 2, y, x + 1, y + 1, B); R.pset(x + 2 * dir, y, B); R.pset(x + 3 * dir, y, H('#e8b040')); R.pset(x - 3 * dir, y, G);
+  for (const s of [-1, 1]) { const yy = y - Math.round(a * 3); R.linea(x, y, x + s * 4, yy, G); R.linea(x, y - 1, x + s * 3, yy - 1, B); R.linea(x + s * 4, yy, x + s * 6, yy + Math.round(a * 1.5), G); R.pset(x + s * 6, yy + Math.round(a * 1.5), N); } };
+// un bote de pesca azoriano con su vela latina arriada: un pescador cobra el sedal y en «Azores» saca un pez
+const bote4 = (t) => {
+  const bx = Math.round(56 + (t - P4) * 1.6), by = Math.round(166 + Math.sin(t * 1.6) * 1), ro_ = Math.sin(t * 1.6 + 1) * 0.06, Y = (u) => by + Math.round(u * ro_);
+  const MAD = [H('#e8dcc0'), H('#b84a2a'), H('#3e5a7a'), H('#283c58')];
+  R.poligono([[bx - 18, Y(-18) - 6], [bx + 17, Y(17) - 8], [bx + 13, Y(13) + 3], [bx - 14, Y(-14) + 3]], K);
+  R.poligono([[bx - 17, Y(-17) - 5], [bx + 16, Y(16) - 7], [bx + 12, Y(12) + 2], [bx - 13, Y(-13) + 2]], MAD[2]);
+  R.linea(bx - 13, Y(-13) + 1, bx + 12, Y(12) + 1, MAD[3]); R.linea(bx + 15, Y(15) - 6, bx + 12, Y(12) + 1, H('#5a7a9a'));
+  R.linea(bx - 17, Y(-17) - 4, bx + 16, Y(16) - 5, MAD[0]); R.linea(bx - 16, Y(-16) - 3, bx + 15, Y(15) - 4, MAD[1]);
+  R.linea(bx - 15, Y(-15) - 1, bx + 14, Y(14) - 2, MAD[3]); for (let u = -12; u <= 12; u += 6) R.pset(bx + u, Y(u) - 2, MAD[3]);
+  // el palo con la vela latina arriada y recogida en su entena
+  R.linea(bx - 4, Y(-4) - 5, bx - 4, Y(-4) - 24, H('#5a3a22')); R.linea(bx - 3, Y(-3) - 6, bx - 3, Y(-3) - 22, H('#a07a4a'));
+  R.linea(bx - 16, Y(-16) - 9, bx + 10, Y(10) - 23, H('#5a3a22')); for (let k = 0; k < 9; k++) { const u = -14 + k * 3; R.rect(bx + u, Y(u) - 11 - Math.round(k * 1.5), bx + u + 1, Y(u) - 10 - Math.round(k * 1.5), k % 2 ? H('#e8dcc0') : H('#c8b898')); }
+  { const [px, py] = [bx - 4, Y(-4) - 25]; for (let i = 0; i < 4; i++) R.pset(px + 1 + i, py + Math.round(Math.sin(t * 7 + i) * (i / 3)), H('#c83a2a')); }
+  // las nasas y una cesta a popa
+  R.rect(bx - 14, Y(-14) - 8, bx - 10, Y(-10) - 5, H('#8a6a3a')); R.linea(bx - 14, Y(-14) - 7, bx - 10, Y(-10) - 7, H('#c8a868'));
+  // el pescador (chaqueta azul y gorra) se inclina por la borda y cobra el sedal a tirones
+  const tir = (Math.sin(t * 5) + 1) / 2, pesca = t > AZORES - 0.2, sube = suave(lin(t, AZORES - 0.2, AZORES + 0.6));
+  const hx = bx + 8, hy = Y(8) - 12, mx = hx + 3, my = hy + 4 - Math.round(tir * 2);
+  R.rect(hx - 2, hy, hx + 1, hy + 6, H('#2a3a5a')); R.linea(hx + 1, hy, hx + 1, hy + 5, H('#5a6a8e')); R.linea(hx - 1, hy, hx, hy, H('#e8dcc0')); R.rect(hx - 1, hy - 3, hx + 1, hy - 1, H('#e0b088')); R.rect(hx - 2, hy - 4, hx + 1, hy - 4, H('#3a2a2a')); R.pset(hx + 1, hy - 2, H('#3a2a2a'));
+  R.linea(hx + 1, hy + 2, mx, my, H('#2a3a5a')); R.pset(mx, my, H('#e0b088'));
+  if (!pesca || sube < 1) { const wx = mx + 12, wy = 176; R.linea(mx, my, wx, wy, H('#d8d4c8')); if (bay(wx, wy) < 0.5) R.pset(wx + 1, wy, H('#f4f0f8')); }
+  if (pesca) { const fx = Math.round(lerp(mx + 12, mx + 1, sube)), fy = Math.round(lerp(176, my + 3, sube)), co = Math.sin(t * 18) > 0 ? 1 : 0;
+    R.linea(mx, my, fx, fy - 2, H('#d8d4c8')); R.rect(fx - 1, fy - 1, fx + 1, fy + 2, H('#c8d0dc')); R.pset(fx, fy, H('#ffffff')); R.pset(fx - 1 + co * 2, fy + 3, H('#8a94a8'));
+    if (sube < 1) for (let k = 0; k < 3; k++) R.pset(fx + k - 1, Math.round(176 - sube * 6 - k), H('#e8eef8')); }
+  // el agua que lame el casco
+  for (let u = -15; u <= 14; u++) if (Math.sin(u * 0.8 + t * 4) > 0.1) R.pset(bx + u, Y(u) + 2 + (u % 2 ? 1 : 0), H('#c8c4dc'));
+};
 const p4 = (t) => {
   capa('isla', isla);
-  // las nubes del amanecer, a tres velocidades, por encima de la isla
-  nubes(t, [[40, 36, 30, 1.2], [200, 40, 34, 0.8], [330, 34, 26, 1.6], [120, 44, 22, 2.0]], [H('#f8d8b0'), H('#e0a090'), H('#9a6a8a')], 49);
+  // el cielo del amanecer del 25: las estrellas que se apagan, la luna que se pone al oeste (tras la isla)
+  const sol = suave(lin(t, ISLAND, P5 + 0.3)), sy = Math.round(HOR4 + 6 - sol * 16);
+  const dia = lin(t, P4 - 0.5, P5 + 0.5);
+  for (const [x, y, ph] of ESTR4) { if (y >= cumbre(x) - 1 || suelta4(x, y) > 0) continue; const b = (1 - dia * 0.8) * (1 - y / 40) * (0.6 + 0.4 * Math.sin(t * 3 + ph));
+    if (b > 0.2) R.pset(x, y, mez(R.pget(x, y), H('#fff6e8'), Math.min(1, b))); if (b > 0.55 && ph > 4) { R.pset(x - 1, y, mez(R.pget(x - 1, y), H('#c8c0e8'), 0.4)); R.pset(x + 1, y, mez(R.pget(x + 1, y), H('#c8c0e8'), 0.4)); } }
+  { const lx = 13, ly = Math.round(60 + dia * 5); for (let y = ly - 8; y <= ly + 8; y++) for (let x = lx - 8; x <= lx + 8; x++) { if (x < 0 || y >= cumbre(x) - 1) continue; const d = Math.hypot(x - lx, y - ly);
+      if (d < 5) R.pset(x, y, hs(x, y, 4) > 0.8 || Math.hypot(x - lx + 1, y - ly - 1) < 1.5 ? H('#c8c0d8') : (x - lx > 2 ? H('#d8d0e4') : H('#f2ecf2'))); else if (d < 8 && bay(x, y) < 0.35 * (1 - d / 8) * 3) R.pset(x, y, mez(R.pget(x, y), H('#e8d8f0'), 0.35)); } }
+  // los cirros altos, rosados por debajo, y los cúmulos a tres velocidades (lejos, medio, cerca), iluminados desde
+  // abajo a la derecha por el sol que todavía no ha salido; pasan por detrás de la isla
+  for (const [x0, y, L, v] of CIRROS4) { const x = ((x0 + t * v) % 420 + 420) % 420 - 50;
+    for (let i = 0; i < L; i++) { const xx = Math.round(x + i), yy = Math.round(y + Math.sin(i * 0.15 + x0) * 1.2), z = suelta4(xx, yy);
+      if (xx < 0 || xx > 319 || z >= 1 || (z > 0 && bay(xx, yy) < z)) continue; const e = Math.min(i, L - i) / 6;
+      if (e < 1 && bay(xx, yy) > e) continue; R.pset(xx, yy, mez(R.pget(xx, yy), H('#f2b8a8'), 0.7)); if (i % 3) R.pset(xx, yy + 1, mez(R.pget(xx, yy + 1), H('#9a6a90'), 0.45)); } }
+  nubes4(t, NUB4.lejos, [H('#5a4a7c'), H('#7a5a88'), H('#a8708a'), H('#c88a86'), H('#e8aa90')], 0.5);
+  nubes4(t, NUB4.medio, [H('#6a4a7e'), H('#946690'), H('#c8808c'), H('#eca88e'), H('#ffd8a8')], 1.3);
+  nubes4(t, NUB4.cerca, [H('#5e4276'), H('#8e5e8c'), H('#c47a8a'), H('#f0a88c'), H('#fff0c4')], 2.4);
   for (let k = 0; k < 4; k++) pajaro(((t * (9 + k * 4) + k * 70) % 260) + 20, 56 + k * 7 + Math.sin(t + k) * 2, t, H('#2a2a3a'));
   // el sol que asoma por el horizonte en «Azores»
-  const sol = suave(lin(t, ISLAND, P5 + 0.3)), sy = Math.round(HOR4 + 6 - sol * 16);
   for (let y = sy - 14; y < HOR4; y++) for (let x = 244; x <= 272; x++) { const d = Math.hypot(x - 258, y - sy); if (d < 10) R.pset(x, y, d < 8 ? H('#fff4c8') : H('#f8d888')); else if (d < 14) R.pset(x, y, mez(R.pget(x, y), H('#fff0c0'), 0.4)); }
-  // el mar: rizos, el reguero del sol y la espuma en la costa
+  // el mar: rizos, la mar de fondo en filas (más anchas cerca), el reguero del sol y la espuma en la costa
   for (let x = 0; x < 320; x++) for (let y = shore(x) + 1; y < 180; y++) { const f = (y - HOR4) / 68, w = Math.sin(x * (0.3 - f * 0.15) + y * 1.7 + t * 2) + Math.sin(x * 0.11 - y * 0.6 - t * 1.2) * 0.7;
     let c = tono([H('#8a7aa0'), H('#5a5a8a'), H('#3a4a74'), H('#24345a')], f + w * 0.05, x, y);
+    const mf = Math.sin(y * (0.9 - f * 0.55) - x * 0.03 + Math.sin(x * 0.05 + y * 0.2) * 1.4 - t * 1.1);
+    if (f > 0.3 && mf > 0.82) c = mez(c, H('#9a8cb8'), 0.35 + f * 0.2); else if (f > 0.3 && mf < -0.86) c = mez(c, H('#141e3a'), 0.4);
     const dsol = Math.abs(x - 258) - (y - HOR4) * 0.5; if (dsol < 6 && w > 0.4 && sol > 0.1) c = H('#fce8b0'); else if (w > 1.5) c = H('#b8a8c8');
     if (x <= 214 && y - shore(x) < 3 && Math.sin(x * 0.7 + t * 3) > 0.2) c = H('#f0ece8');
     R.pset(x, y, c); }
@@ -484,10 +570,23 @@ const p4 = (t) => {
   { const f = lin(t, P4, P5 + 0.4), bx = Math.round(lerp(212, 236, f)), by = Math.round(lerp(118, 126, f)), r = Math.floor(t * 3) % 2;
     R.rect(bx - 6, by, bx + 6, by + 2, K); R.rect(bx - 5, by, bx + 5, by + 1, H('#3a6a8a')); R.rect(bx - 1, by - 4, bx + 1, by - 1, H('#c84a2a')); R.pset(bx, by - 5, H('#f0c8a0'));
     R.linea(bx - 2, by - 2, bx - 7 - r * 2, by + 3, H('#c8a868')); R.linea(bx + 2, by - 2, bx + 7 + r * 2, by + 3, H('#c8a868')); }
+  olas4(t, 0, 147);
   // el bergantín pasa frente a la isla y se aleja hacia el este; su estela
   const f = lin(t, P4 - 0.4, P5 + 0.4), x = lerp(150, 262, f), s = lerp(0.46, 0.34, f), y = 146 - f * 8;
   for (let k = 0; k < 26; k++) { const ex = Math.round(x - 30 * s / 0.46 - k * 3), ey = Math.round(y + 2 + Math.sin(k + t * 3)); if (ex > 0) R.pset(ex, ey, k % 3 ? H('#d8d0e0') : H('#a8a0c0')); }
   bergantin(x, y, s, { dir: 1, rot: Math.sin(t * 1.1) * 0.03, velas: 1, t });
+  // las olas de delante del barco, el bote de pesca, la boya de su nasa y las gaviotas; en «Santa» se arranca a volar una
+  olas4(t, 147, 165);
+  bote4(t);
+  { const yb = Math.round(171 + Math.sin(t * 1.9 + 2) * 1.2), xb = 138; R.rect(xb - 2, yb - 2, xb + 2, yb + 1, K); R.rect(xb - 1, yb - 1, xb + 1, yb, H('#d84a2a')); R.pset(xb - 1, yb - 1, H('#f8a888'));
+    R.linea(xb, yb - 3, xb, yb - 11, H('#3a2a1c')); for (let i = 0; i < 4; i++) R.linea(xb + 1 + i, yb - 11 + Math.round(Math.sin(t * 8 - i) * (i / 3)), xb + 1 + i, yb - 9 + Math.round(Math.sin(t * 8 - i) * (i / 3)), i % 2 ? H('#f2ece0') : H('#d84a2a'));
+    if (Math.sin(t * 1.9 + 2) > 0.6) R.linea(xb - 3, yb + 2, xb + 3, yb + 2, H('#c8c4dc')); }
+  gaviota(18, 172 + Math.sin(t * 1.7) * 1.2, t, false, 1);
+  gaviota(104, 160 + Math.sin(t * 1.7 + 1) * 1, t, false, -1);
+  { const tv = t - SANTA, vx = tv < 0 ? 122 : 122 - tv * 14, vy = tv < 0 ? 168 + Math.sin(t * 1.7 + 2) : 168 - tv * 9 - Math.sin(tv * 2) * 2;
+    if (tv < 0) gaviota(vx, vy, t, false, -1); else { gaviota(vx, vy, t, true, -1, 1); if (tv < 0.5) for (let k = 0; k < 4; k++) R.pset(122 - k * 2 + Math.round(tv * 4), 170 - Math.round(tv * 6 * (k % 2)), H('#e8eef8')); } }
+  gaviota(lerp(20, 200, lin(t, P4 - 0.5, P5 + 0.5)), 128 + Math.sin(t * 0.9) * 3, t, true, 1, 2);
+  olas4(t, 165, 999);
   // la ballena que sopla a lo lejos, en el silencio
   { const tb = AZORES + 1.4; if (t > tb && t < tb + 2.2) { const f2 = (t - tb) / 2.2; R.poligono([[292, 121], [306, 121], [303, 118], [296, 117]], H('#2a2a40')); if (f2 < 0.6) for (let k = 0; k < 8; k++) R.pset(298 + Math.round(Math.sin(k) * (2 + f2 * 4)), Math.round(117 - f2 * 14 - k * 0.8), H('#e8eef8')); } }
 };

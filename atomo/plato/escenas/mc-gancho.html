@@ -17,13 +17,16 @@
 //    puerta se cierra de un portazo.
 // 3. («and the ten people», 11,43) EL TIMÓN que gira solo; el farolillo de la bitácora tiembla y en «never seen again» se
 //    apaga con un hilo de humo; en el silencio, una gaviota baja y se posa en la regala de popa.
-// 4. («Her name was», 17,43) EL CAMAROTE VACÍO: con el balanceo cae un carrete de la máquina de coser y rueda por el suelo
-//    soltando hilo rojo; las hojas del diario se levantan; en «what happened» sale un «?» sobre el diario.
+// 4. («Her name was», 17,43) EL CAMAROTE VACÍO: la luz de la lámpara colgada barre la pared con el balanceo; cae un carrete
+//    de la máquina de coser y cruza rodando toda la alfombra soltando un hilo rojo tendido, hasta chocar con el taburete,
+//    que se desliza y vuelve; el diario pasa sus hojas una tras otra; la cortina de la litera se corre y deja ver la
+//    litera vacía, y se cierra; en «what happened» sale un «?» sobre el diario.
 // 5. («Along the way», 24,11) LA BODEGA en el viaje: en «captain» baja el capitán por la escala con el farol, detrás su
 //    mujer y la niña; en «seventeen hundred» levanta el farol y sale el 1700 sobre los barriles; en «alcohol» la niña
 //    arruga la nariz.
 // 6. («a prosecutor», 29,31) 1884, el escritorio del escritor: un recorte de periódico con la espada y la lupa entra sobre
-//    la revista y en «blood everywhere» se llena de manchas rojas; en «a writer» la mano coge la pluma y escribe.
+//    la revista y en «blood everywhere» se llena de manchas rojas; en «a writer» la mano (brazo corto que entra por abajo)
+//    escribe los últimos renglones de la hoja.
 // 7. («and chemists», 33,93) 2026, la maqueta de Mánchester: la mano pulsa el encendido en «blew up»: fogonazo azul, la
 //    tapa vuela girando y vuelve a caer; la mano se retira.
 import * as T from '/atomo/plato/escenas/mc-comun.js';
@@ -117,27 +120,69 @@ const p3 = (t) => {
   T.marDelante(R, t, o);
 };
 
-// ── 4 · el camarote vacío: el carrete rueda, el diario se levanta, «?» ────────────────────────────────────────────
-const CAE = tc(17.75), SUELO = tc(18.25), QUE = tc(23.07);
+// ── 4 · el camarote vacío: el carrete cruza la alfombra, el diario pasa hojas, la cortina se abre, «?» ─────────────
+const CAE = tc(17.75), SUELO = tc(18.25), CHOCA = tc(21.3), QUE = tc(23.07);
 const globo = (x, y, ic, c) => { R.disco(x, y, 8, K); R.disco(x, y, 7, BL); R.pset(x - 2, y + 8, K); R.pset(x - 1, y + 8, K); R.pset(x - 1, y + 7, BL); R.pset(x - 2, y + 9, K); R.icono(ic, x - 3, y - 5, c, null, 1.4); };
+// el taburete de tres patas del camarote, sobre la tarima a la izquierda de la alfombra (x: el centro del asiento)
+const taburete = (x) => {
+  x = Math.round(x); const MA = hex('#8a5a34'), MAL = hex('#b07a4a'), MAS = hex('#5a3420');
+  for (let i = -9; i <= 9; i++) { const px = x + i + 2, py = 165; R.pset(px, py, mez(R.pget(px, py), K, 0.4)); R.pset(px, py + 1, mez(R.pget(px, py + 1), K, 0.25)); }   // su sombra en la tarima
+  for (const [a, b] of [[-6, -8], [6, 8], [1, 1]]) { R.linea(x + a, 152, x + b, 165, K); R.linea(x + a + 1, 152, x + b + 1, 164, b === 1 ? MAS : MA); }   // las tres patas abiertas
+  R.linea(x - 7, 159, x + 7, 159, K); R.linea(x - 6, 158, x + 6, 158, MAS);   // el travesaño
+  R.rect(x - 9, 148, x + 9, 152, K); R.rect(x - 8, 149, x + 8, 151, MA); R.rect(x - 8, 149, x + 8, 149, MAL); R.rect(x - 8, 151, x + 8, 151, MAS);   // el asiento redondo, de canto
+  R.rect(x - 7, 147, x + 7, 147, K); R.pset(x - 4, 150, MAS); R.pset(x + 3, 150, MAS); R.pset(x - 6, 149, hex('#d8a060'));
+};
+const h2 = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
 const p4 = (t) => {
   const o = { encuadre: 'camarote' };
   T.abordo(R, t, o);
-  // el carrete de hilo rojo: cae de la máquina de coser, bota y rueda por el suelo hacia la izquierda con el balanceo
-  const u = tramo(t, CAE, SUELO), r = tramo(t, SUELO, tc(21.6)), vuelve = tramo(t, tc(21.8), tc(23.4));
+  const roll = Math.sin(t * 0.55);
+  // la luz de la lámpara colgada, que barre la pared de paneles con el balanceo (va con la lámpara del decorado)
+  { const sw = Math.sin(t * 0.55 + 0.4), cx = 160 + sw * 40, cy = 64;
+    for (let y = 24; y <= 112; y++) for (let x = Math.max(0, Math.round(cx - 46)); x <= Math.min(319, Math.round(cx + 46)); x++) {
+      if (x >= 268 && y < 46) continue;   // la esquina de Atom, tranquila
+      const d = ((x - cx) / 46) ** 2 + ((y - cy) / 44) ** 2; if (d >= 1) continue;
+      const a = (1 - d) * 0.36 * (d < 0.4 || ((x + y) & 1) ? 1 : 0.55); R.pset(x, y, mez(R.pget(x, y), hex('#ffd890'), a)); } }
+  // la cortina roja de la litera: el balanceo la corre sobre su barra y deja ver la litera vacía, y luego la vuelve a cerrar
+  { const ab = tramo(t, tc(19.6), tc(20.5)) - tramo(t, tc(22.0), tc(22.9)), w = Math.round(25 - 17 * ease(ab));
+    if (w < 25) {
+      // la litera vacía detrás: el fondo de tablas en penumbra, la almohada y la colcha de retales, lisa, sin nadie
+      for (let y = 71; y <= 113; y++) for (let x = 271 + w; x <= 296; x++) { let c = y > 96 ? null : ((x - 271) % 6 === 0 ? hex('#2a1a10') : (h2(x, y >> 2) < 0.15 ? hex('#4a2e1a') : hex('#3a2416')));
+        if (y >= 90 && y <= 96 && x >= 280) c = y === 90 || x === 280 ? K : y === 91 ? BL : hex('#e8e0d0');
+        if (y > 96) { const q = (Math.floor((x - 260) / 6) + Math.floor((y - 97) / 5)) % 4; c = y === 97 ? K : [hex('#b84a3a'), hex('#e8dcc0'), hex('#4a6a3a'), hex('#4a5a8a')][q]; if ((x - 260) % 6 === 0 || (y - 97) % 5 === 0) c = mez(c, K, 0.4); }
+        R.pset(x, y, c); }
+      // la cortina recogida en la cabecera, con sus pliegues apretados
+      for (let x = 271; x <= 271 + w; x++) { const f = Math.sin((x - 271) * 0.9 * 25 / Math.max(6, w)); for (let y = 70; y <= 112 + (x === 271 + w ? 1 : 0); y++) R.pset(x, y, x === 271 + w ? K : f > 0.5 ? hex('#b84a3a') : f < -0.4 ? hex('#6a1e1a') : hex('#8a2a24')); }
+      for (let x = 271; x <= 271 + w; x += 3) R.pset(x, 70, hex('#e8c060'));   // las anillas en la barra
+    } }
+  // el carrete de hilo rojo: cae de la máquina de coser, bota y cruza rodando toda la alfombra con el balanceo hasta el
+  // taburete, choca, el taburete se desliza y el carrete se queda meciéndose; deja el hilo tendido por el suelo
+  const u = tramo(t, CAE, SUELO), r = tramo(t, SUELO, CHOCA), YS = 167;
   let cx, cy;
-  if (u < 1) { cx = lerp(246, 236, u); cy = lerp(110, 157, u * u); }
-  else { cx = lerp(236, 132, ease(r)) + 14 * Math.sin(vuelve * Math.PI); cy = 157 - Math.abs(Math.sin(tramo(t, SUELO, SUELO + 0.35) * Math.PI)) * 5; }
-  const RO = hex('#c8303a'), ROS = hex('#8a1a24');
-  // el hilo que suelta, de la máquina al carrete (por el suelo)
-  if (t > CAE) { R.linea(244, 109, 236, 156, RO); if (u >= 1) R.linea(236, 157, Math.round(cx), 157, RO); }
+  if (u < 1) { cx = lerp(244, 228, u); cy = lerp(112, YS, u * u); }
+  else if (r < 1) { cx = lerp(228, 94, r * r * (2 - r) * 0.5 + r * 0.5); cy = YS - Math.abs(Math.sin(tramo(t, SUELO, SUELO + 0.4) * Math.PI)) * 6; }
+  else { const k = t - CHOCA; cx = 94 + 5 * Math.sin(Math.min(1, k / 0.5) * Math.PI / 2) * Math.exp(-k * 0.3) + roll * 3; cy = YS; }
+  // el taburete: el carrete lo empuja en el choque y el balanceo lo devuelve despacio
+  const emp = tramo(t, CHOCA - 0.05, CHOCA + 0.25) - tramo(t, CHOCA + 0.9, CHOCA + 2.0);
+  taburete(76 - 6 * emp);
+  const RO = hex('#e0303c'), ROL = hex('#ff7080'), ROS = hex('#8a1a24');
+  // el hilo: de la aguja de la máquina hasta el suelo y, tendido por la tarima y la alfombra, hasta el carrete
+  if (t > CAE) {
+    const x0 = 244, y0 = 109, xs = u < 1 ? cx : 228, ys = u < 1 ? cy - 2 : YS - 1;
+    R.linea(x0 + 1, y0, xs + 1, ys, K); R.linea(x0, y0, xs, ys, RO);
+    if (u >= 1) for (let x = Math.round(cx) + 4; x <= 228; x++) { const y = YS - 1 + Math.round(Math.sin(x * 0.13) * 1.2 + Math.sin(x * 0.051 + 1) * 1); R.pset(x, y + 1, K); R.pset(x, y, (x & 3) === 0 ? ROL : RO); } }
   { const x = Math.round(cx), y = Math.round(cy), f = Math.floor(cx * 0.6) % 4;
-    R.rect(x - 4, y - 6, x + 4, y + 2, K); R.rect(x - 3, y - 5, x + 3, y + 1, RO); R.rect(x - 3, y - 5 + f, x + 3, y - 5 + f, ROS); R.rect(x - 3, y - 3 + f, x + 3, y - 3 + f, hex('#e8505a'));
+    R.rect(x - 4, y - 6, x + 4, y + 2, K); R.rect(x - 3, y - 5, x + 3, y + 1, RO); R.rect(x - 3, y - 5 + f, x + 3, y - 5 + f, ROS); R.rect(x - 3, y - 3 + f, x + 3, y - 3 + f, ROL);
     R.rect(x - 6, y - 7, x - 4, y + 3, K); R.rect(x + 4, y - 7, x + 6, y + 3, K); R.rect(x - 5, y - 6, x - 5, y + 2, T.C.tablaL); R.rect(x + 5, y - 6, x + 5, y + 2, T.C.tablaS); R.pset(x - 5, y - 2 + (f % 2), K); }
-  // las hojas del diario se levantan con la corriente que entra por la puerta
-  for (const t0 of [tc(19.4), tc(21.0)]) { const h = Math.sin(tramo(t, t0, t0 + 0.7) * Math.PI); if (h > 0.02) { const dy = Math.round(h * 7); R.poligono([[153, 111], [163, 111], [161, 111 - dy], [151, 111 - dy]], K); R.poligono([[154, 110], [162, 110], [160, 111 - dy], [152, 111 - dy + 1]], hex('#f4ecd8')); } }
+  // el diario de a bordo: la corriente levanta las hojas y las pasa de verdad, una tras otra, de la derecha a la izquierda
+  for (const t0 of [tc(19.0), tc(19.9), tc(20.8), tc(21.9)]) { const p = tramo(t, t0, t0 + 0.75); if (p <= 0 || p >= 1) continue;
+    const th = ease(p) * Math.PI, ex = Math.round(152 + Math.cos(th) * 14), up = Math.round(Math.sin(th) * 13), atras = th > Math.PI / 2;
+    const sg = ex < 152 ? -1 : 1, ex1 = ex + sg;
+    R.poligono([[152, 109], [152, 116], [ex1, 117 - up], [ex1, 108 - up]], K);
+    if (Math.abs(ex - 152) > 1) { R.poligono([[152, 110], [152, 115], [ex, 115 - up], [ex, 110 - up]], atras ? hex('#d8ccb0') : hex('#f4ecd8'));
+      for (const j of [111, 113]) R.linea(152 + sg, j, ex - sg, j - up, hex('#6a6070')); } }
   const q = tramo(t, QUE, QUE + 0.25);
-  if (q > 0) globo(152, Math.round(96 - q * 4), '?', hex('#3a6ac8'));
+  if (q > 0) globo(152, Math.round(92 - q * 4), '?', hex('#3a6ac8'));
   T.abordoDelante(R, t, o);
 };
 
@@ -195,7 +240,7 @@ const recorte = (x, y, t) => {
   if (n >= MANCHAS.length && Math.floor(t * 4) % 2) R.icono('!', x + 50, y - 8, ROJ, null, 1.4);
 };
 const p6 = (t) => {
-  const esc = 0.72 + 0.28 * tramo(t, ESCRITOR + 0.1, P7 - 0.1);
+  const esc = 0.86 + 0.14 * tramo(t, ESCRITOR + 0.1, P7 - 0.1);   // la pluma escribe en los renglones de abajo, cerca del borde
   const o = { encuadre: 'doyle', camara: 'revista', escribe: esc, firma: 0 };
   const g = T.hoy(R, t, o);
   // el recorte entra deslizándose sobre la revista en «a prosecutor»
@@ -205,7 +250,7 @@ const p6 = (t) => {
   // empieza a escribir; en «legend» hace un floreo
   const p = g.pluma || [107, 136], adorno = t > LEYENDA && t < LEYENDA + 0.6 ? Math.round(Math.sin(t * 30) * 2) : 0;
   const wx = p[0] + 13 + adorno, wy = p[1] - 4;
-  T.brazo(R, 214, 206, wx, wy, '#3a3a4a', -1, { codo: [wx + 40, wy + 34] });
+  T.brazo(R, wx + 22, 190, wx, wy, '#3a3a4a', -1, { codo: [wx + 18, wy + 24] });   // corto: entra por abajo, cerca de la mano
   if (t > LEYENDA) for (let k = 0; k < 3; k++) { const d = tramo(t, LEYENDA + k * 0.25, LEYENDA + 0.6 + k * 0.25); if (d > 0 && d < 1) destello(p[0] - 6 - k * 10, p[1] - 4 - k * 2, 1 + Math.round((1 - d) * 2), hex('#e8c860')); }
 };
 

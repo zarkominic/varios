@@ -18,7 +18,8 @@
 //    sentada en el bote a remolque; choca en «reef», se escora, cae la verga y el bote rema tranquilo a la playa; un
 //    pescador que remendaba la red se levanta con sorpresa y lo señala; un niño llega corriendo.
 // 3. «to collect the insurance on a nearly worthless cargo»: en la oficina del consignatario, una balanza de latón sobre
-//    el mostrador: a un lado el cajón de la carga (una bota vieja, una botella rota, trapos), al otro la póliza lacrada; en
+//    el mostrador: a un lado el cajón de la carga, grande y legible (una bota vieja boca abajo, una botella verde de
+//    cuello roto, trapos a cuadros que cuelgan y se mecen), al otro la póliza lacrada; en
 //    «insurance» llueven monedas y la balanza se va al lado del dinero; en «worthless» sale una polilla del cajón.
 // 4. «He was put on trial, the jury couldn't agree, and he died ruined a few months later»: un tribunal de Boston en
 //    invierno (nieve tras el ventanal); el juez da el mazazo en «trial»; en «couldn't agree» los doce del jurado se miran y
@@ -30,8 +31,8 @@
 //    (decorado), el buzo llega a los restos y en «wood» coge el trozo de madera; el corte con sus anillos se enciende hasta
 //    1894; el segundo buzo, arriba, hace fotos con flash.
 // 7. «nearly 10 years after the wreck. Even her ending has a question mark»: en la mesa de trabajo de la lancha, el trozo
-//    de madera con sus anillos; un lápiz traza la flecha de 1885 (barco y X) a 1894 con nueve marcas; en «question mark»
-//    sale un «?» grande.
+//    de madera con sus anillos; un brazo (T.brazo, desde el borde inferior derecho) entra con el lápiz y traza la flecha
+//    de 1885 (barco y X) a 1894 con nueve marcas, y se retira; en «question mark» sale un «?» grande.
 import * as T from '/atomo/plato/escenas/mc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('mc-haiti');
@@ -343,18 +344,44 @@ const p3 = (t) => {
   // los platillos colgados
   const plato = (px, py) => { for (const d of [-14, 0, 14]) R.linea(px, py, px + d, py + 40, H('#8a7a5a')); R.poligono([[px - 18, py + 40], [px + 18, py + 40], [px + 12, py + 46], [px - 12, py + 46]], K); R.poligono([[px - 17, py + 41], [px + 17, py + 41], [px + 11, py + 45], [px - 11, py + 45]], H('#d8a840')); R.linea(px - 16, py + 41, px + 16, py + 41, H('#f8d870')); return [px, py + 40]; };
   const [lpx, lpy] = plato(lx, ly), [rpx, rpy] = plato(rx, ry);
-  // izquierda: EL CAJÓN DE LA CARGA, abierto, con lo que de verdad llevaba: una bota vieja, una botella rota y trapos
-  R.rect(lpx - 14, lpy - 14, lpx + 14, lpy, K); R.rect(lpx - 13, lpy - 13, lpx + 13, lpy - 1, H('#9a7448')); for (let x = lpx - 9; x < lpx + 13; x += 7) R.linea(x, lpy - 12, x, lpy - 2, H('#7a5a34')); R.linea(lpx - 13, lpy - 13, lpx + 13, lpy - 13, H('#c8a070'));
-  R.poligono([[lpx - 13, lpy - 14], [lpx + 13, lpy - 14], [lpx + 18, lpy - 22], [lpx - 8, lpy - 22]], K); R.poligono([[lpx - 12, lpy - 15], [lpx + 12, lpy - 15], [lpx + 16, lpy - 21], [lpx - 7, lpy - 21]], H('#b8905a'));
-  R.rect(lpx - 10, lpy - 19, lpx - 3, lpy - 14, H('#4a3424')); R.rect(lpx - 10, lpy - 23, lpx - 7, lpy - 19, H('#4a3424')); R.pset(lpx - 9, lpy - 22, H('#6a5040'));   // la bota
-  R.linea(lpx + 2, lpy - 22, lpx + 6, lpy - 15, H('#3a8a5a')); R.linea(lpx + 3, lpy - 22, lpx + 7, lpy - 15, H('#5aaa7a')); R.pset(lpx + 2, lpy - 23, H('#9adab0'));   // la botella rota
-  for (let i = 0; i < 6; i++) R.pset(lpx + 8 + i, lpy - 16 - (i % 2), H('#c8bca0'));   // trapos
+  // izquierda: EL CAJÓN DE LA CARGA, grande y abierto, con lo que de verdad llevaba, a escala que se lee: una bota vieja
+  // boca abajo asomando, una botella verde con el cuello roto y trapos colgando por el borde (se mecen con la balanza)
+  { const x0 = lpx - 17, x1 = lpx + 17, yt = lpy - 18, bal = Math.round(Math.sin(t * 2.4 + 1) * 1 + osc * 20);
+    // la tapa abierta hacia atrás, apoyada en las cuerdas: tablas con su listón
+    R.poligono([[x0 + 2, yt], [x1, yt], [x1 + 5, yt - 13], [x0 + 7, yt - 13]], K); R.poligono([[x0 + 3, yt - 1], [x1 - 1, yt - 1], [x1 + 3, yt - 12], [x0 + 8, yt - 12]], H('#a88050'));
+    for (const f of [0.33, 0.66]) R.linea(x0 + 3 + Math.round(f * 5), yt - 1 - Math.round(f * 11), x1 - 1 + Math.round(f * 4), yt - 1 - Math.round(f * 11), H('#7a5a34')); R.linea(x0 + 8, yt - 12, x1 + 3, yt - 12, H('#d0a874'));
+    // el hueco oscuro del cajón
+    R.rect(x0 + 1, yt - 2, x1 - 1, yt + 1, H('#2a1c12'));
+    // LA BOTA vieja, boca abajo: caña dentro del cajón y el pie con la suela agujereada hacia arriba
+    { const bx = lpx - 9; R.rect(bx - 4, yt - 14, bx + 4, yt, K); R.rect(bx - 3, yt - 13, bx + 3, yt, H('#5a3a24')); R.linea(bx - 2, yt - 12, bx - 2, yt - 1, H('#7a5434'));
+      for (let j = 0; j < 3; j++) { R.pset(bx + 1, yt - 4 - j * 3, H('#c8b890')); R.pset(bx + 2, yt - 3 - j * 3, H('#c8b890')); }   // los cordones
+      R.rect(bx - 11, yt - 20, bx + 4, yt - 13, K); R.rect(bx - 10, yt - 19, bx + 3, yt - 14, H('#5a3a24')); R.disco(bx - 10, yt - 16, 3, K); R.disco(bx - 10, yt - 16, 2, H('#6a4630'));
+      R.linea(bx - 10, yt - 14, bx + 3, yt - 14, H('#7a5434')); R.rect(bx - 11, yt - 22, bx + 4, yt - 20, K); R.linea(bx - 10, yt - 21, bx + 3, yt - 21, H('#3a2a20'));   // la suela
+      R.rect(bx + 1, yt - 22, bx + 4, yt - 19, K); R.pset(bx - 6, yt - 21, H('#c8b890')); R.pset(bx - 5, yt - 21, H('#c8b890'));   // el tacón y el agujero
+      R.pset(bx - 8, yt - 18, H('#8a6448')); R.pset(bx - 4, yt - 17, H('#8a6448')); }
+    // LA BOTELLA verde, inclinada, con el cuello roto en picos
+    { const by = yt; for (let i = 0; i <= 17; i++) { const cx2 = Math.round(lpx + 3 + i * 0.35), w = i < 10 ? 3 : (i < 12 ? 2 : 1), yy = by - i;
+        if (i > 14 && (i + (i > 16 ? 1 : 0)) % 2) continue; R.linea(cx2 - w - 1, yy, cx2 + w + 1, yy, K); R.linea(cx2 - w, yy, cx2 + w, yy, i < 10 ? H('#2a7a4a') : H('#3a9a5a')); R.pset(cx2 - w + 1, yy, H('#8ad8a8')); }
+      R.rect(lpx + 3, by - 8, lpx + 6, by - 5, H('#d8cca8')); R.pset(lpx + 8, by - 17, H('#e8fff0')); R.pset(lpx + 9, by - 16, H('#e8fff0')); R.pset(lpx + 7, by - 18, H('#e8fff0'));
+      R.linea(lpx + 5, by - 13, lpx + 7, by - 11, H('#bfeed4')); }   // el filo roto y una grieta
+    // LOS TRAPOS: un bulto de tela azul desteñida, arrugada y con rayas, sobre el borde derecho
+    { R.poligono([[lpx + 8, yt + 1], [lpx + 9, yt - 5], [lpx + 12, yt - 8], [lpx + 15, yt - 6], [lpx + 18, yt - 7], [lpx + 20, yt + 1]], K);
+      R.poligono([[lpx + 9, yt], [lpx + 10, yt - 4], [lpx + 12, yt - 7], [lpx + 15, yt - 5], [lpx + 18, yt - 6], [lpx + 19, yt]], H('#7a8aa4'));
+      R.linea(lpx + 11, yt - 5, lpx + 17, yt - 4, H('#a8b8cc')); R.linea(lpx + 10, yt - 2, lpx + 18, yt - 2, H('#4a5a74')); R.pset(lpx + 14, yt - 3, H('#c8bca0')); R.pset(lpx + 15, yt - 3, H('#c8bca0')); R.pset(lpx + 13, yt - 1, H('#4a5a74')); }
+    // el cuerpo del cajón por delante: tres tablas con veta, cantoneras y clavos
+    R.rect(x0 - 1, yt, x1 + 1, lpy, K); R.rect(x0, yt + 1, x1, lpy - 1, H('#9a7448'));
+    for (let j = 0; j < 3; j++) { const y0 = yt + 1 + j * 6; R.linea(x0, y0, x1, y0, H('#c09868')); R.linea(x0, y0 + 5, x1, y0 + 5, H('#5a4024')); for (let x = x0 + 2; x < x1; x += 5) R.pset(x + ((j * 3) % 4), y0 + 2 + (x % 3 ? 1 : 0), H('#7a5a34')); }
+    for (const xx of [x0, x1 - 3]) { R.rect(xx, yt + 1, xx + 3, lpy - 1, H('#6a4a2a')); R.linea(xx + 1, yt + 1, xx + 1, lpy - 1, H('#8a6a40')); for (const yy of [yt + 3, lpy - 3]) R.pset(xx + 2, yy, H('#2a2a30')); }
+    R.linea(x0 + 7, yt + 3, x0 + 7, lpy - 2, H('#5a4024')); R.linea(x1 - 7, yt + 3, x1 - 7, lpy - 2, H('#5a4024'));
+    // el faldón del trapo cuelga por el costado del cajón, con el borde deshilachado, y se mece con la balanza
+    { const fx = x1 - 2; R.poligono([[fx, yt - 1], [fx + 6, yt - 1], [fx + 7 + bal, yt + 12], [fx + 1 + bal, yt + 13]], K); R.poligono([[fx + 1, yt], [fx + 5, yt], [fx + 6 + bal, yt + 11], [fx + 2 + bal, yt + 12]], H('#6a7a94'));
+      for (let k = 0; k < 4; k++) R.pset(fx + 2 + k + bal, yt + 13 + (k % 2), K); R.linea(fx + 2, yt + 2, fx + 3 + bal, yt + 10, H('#9aaabe')); R.linea(fx + 1, yt + 5, fx + 6 + Math.round(bal / 2), yt + 5, H('#4a5a74')); } }
   // derecha: LA PÓLIZA lacrada y las monedas que caen en «insurance»
   R.poligono([[rpx - 14, rpy - 3], [rpx + 12, rpy - 5], [rpx + 14, rpy], [rpx - 12, rpy]], H('#efe6d0')); for (let k = 0; k < 2; k++) R.linea(rpx - 10, rpy - 2 - k, rpx + 9, rpy - 3 - k, H('#9a9488')); R.disco(rpx + 6, rpy - 2, 2, H('#b82a24'));
   const N = 9;
   for (let k = 0; k < N; k++) { const tk = INSUR + k * 0.09, f = lin(t, tk, tk + 0.35); if (f <= 0) continue; const tx = rpx - 8 + (k % 3) * 7, ty = rpy - 5 - Math.floor(k / 3) * 3; moneda(tx, f < 1 ? lerp(-6, ty, f * f) : ty); }
   // la polilla que sale del cajón en «worthless»
-  if (t > WORTH) { const u = t - WORTH, mx = lpx - 2 + u * 22 + Math.sin(u * 6) * 6, my = lpy - 24 - u * 14 + Math.cos(u * 9) * 3, al = Math.floor(t * 14) % 2;
+  if (t > WORTH) { const u = t - WORTH, mx = lpx + 12 + u * 22 + Math.sin(u * 6) * 6, my = lpy - 26 - u * 14 + Math.cos(u * 9) * 3, al = Math.floor(t * 14) % 2;
     if (my > 30) { R.pset(Math.round(mx), Math.round(my), H('#8a7a6a')); R.pset(Math.round(mx) - 1, Math.round(my) - al, H('#d8ccb0')); R.pset(Math.round(mx) + 1, Math.round(my) - al, H('#d8ccb0')); R.pset(Math.round(mx) - 2, Math.round(my) - 1 + al, H('#c8bca0')); R.pset(Math.round(mx) + 2, Math.round(my) - 1 + al, H('#c8bca0')); } }
 };
 
@@ -560,12 +587,20 @@ const p7 = (t) => {
   if (fl > 0) { R.linea(x0, 116, xf, 116, H('#2a3a8a')); R.linea(x0, 117, xf, 117, H('#2a3a8a')); for (let k = 1; k <= 9; k++) { const xk = Math.round(lerp(x0, x1, k / 10)); if (xk < xf) { R.linea(xk, 112, xk, 120, H('#2a3a8a')); } } }
   if (fl >= 1) { R.linea(x1 - 5, 111, x1, 116, H('#2a3a8a')); R.linea(x1 - 5, 122, x1, 117, H('#2a3a8a')); }
   if (fl > 0.98) { for (let a = 0; a < 6.28; a += 0.2) R.pset(Math.round(244 + Math.cos(a) * 9), Math.round(114 + Math.sin(a) * 9), H('#8a6038')); for (let a = 0; a < 6.28; a += 0.3) R.pset(Math.round(244 + Math.cos(a) * 5), Math.round(114 + Math.sin(a) * 5), H('#8a6038')); R.pset(244, 114, H('#8a6038')); R.numero('1894', 226, 140, { color: H('#2a2a44') }); }
-  // el lápiz en la mano: sigue la punta de la flecha y luego se retira
+  // el lápiz en la mano: el brazo canónico entra desde abajo a la derecha (el hombro fuera de cuadro), la punta del
+  // lápiz sigue la punta de la flecha con un temblor de escritura y luego el brazo se retira por donde vino
   const ret = suave(lin(t, WRECK + 0.5, WRECK + 1.3)), lx = fl < 1 ? xf : x1 + 4, ly = 116;
-  const hx = Math.round(lerp(lx + 8, 330, ret)), hy = Math.round(lerp(ly + 10, 200, ret));
-  if (ret < 1 && t > TEN - 0.6) { const ent = suave(lin(t, TEN - 0.6, TEN - 0.1)), ex = Math.round(lerp(330, hx, ent)), ey = Math.round(lerp(200, hy, ent));
-    R.linea(ex - 8, ey - 10, ex + 2, ey + 2, K); R.linea(ex - 7, ey - 10, ex + 3, ey + 2, H('#e8c020')); R.pset(ex - 8, ey - 11, H('#3a3a3a'));
-    T.brazo(R, ex + 30, ey + 40, ex + 6, ey + 6, '#3a7ab0', -1); }
+  const esc = fl > 0 && fl < 1 ? Math.round(Math.sin(t * 22)) : 0;
+  const px = Math.round(lerp(lx, 340, ret)), py = Math.round(lerp(ly + esc, 230, ret));
+  if (ret < 1 && t > TEN - 0.6) { const ent = suave(lin(t, TEN - 0.6, TEN - 0.1)), tx = Math.round(lerp(340, px, ent)), ty = Math.round(lerp(230, py, ent));
+    // el lápiz (unos 20 px): punta de grafito abajo a la izquierda, cuerpo amarillo y goma rosa asomando sobre el puño
+    const bx = tx + 15, by = ty - 14;
+    R.linea(tx + 1, ty, bx + 1, by, K); R.linea(tx, ty - 1, bx, by - 1, K); R.linea(tx + 1, ty - 1, bx + 1, by - 1, H('#e8c020')); R.linea(tx + 2, ty - 1, bx + 1, by, H('#b89010'));
+    R.pset(tx + 2, ty - 2, H('#e8c8a0')); R.pset(tx + 3, ty - 3, H('#e8c8a0')); R.pset(tx, ty, H('#2a2a2a')); R.pset(tx + 1, ty - 1, H('#5a5a5a'));
+    R.rect(bx - 1, by - 2, bx + 1, by, H('#c8c8c0')); R.pset(bx + 1, by - 2, H('#e88a9a')); R.pset(bx + 2, by - 3, H('#e88a9a')); R.pset(bx + 2, by - 2, K);
+    // el brazo: hombro fuera del borde inferior derecho, codo abajo; la muñeca deja el puño sobre el cuerpo del lápiz
+    const wx = tx + 14, wy = ty - 6;
+    T.brazo(R, wx + 56, 214, wx, wy, '#3a7ab0', -1, { codo: [wx + 40, wy + 38] }); }
   // «?» grande en «question mark», en la libreta entre 1885 y 1894
   const q = suave(lin(t, QUEST - 0.1, QUEST + 0.35)); if (q > 0) { const s = Math.max(1, Math.round(q * 6)); R.disco(158, 140, 4 + s * 3, K); R.disco(158, 140, 3 + s * 3, H('#fff4c8')); R.icono('?', Math.round(158 - s * 2.5), Math.round(140 - s * 3.5), ORO2, K, s); }
 };

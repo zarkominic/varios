@@ -18,7 +18,9 @@
 //    doyleMC escribe de noche; en «doctor» mira su estetoscopio (brilla); en «wrote stories» arruga una hoja y la encesta
 //    en la papelera; en «bills» mira los sobres de las facturas y suspira.
 // 3. «Arthur Conan Doyle, a few years before he created Sherlock Holmes»: (fondo local) la consulta de Southsea de
-//    noche: Doyle escribe tras el mirador encendido; pasan un señor de chistera y el cartero, y un gato cruza; en
+//    noche: Doyle escribe tras el mirador encendido; pasan un señor de chistera y el cartero, un gato cruza y un coche
+//    de punto (hansom) pasa al trote por la calzada, con su caballo a escala del chibi (más alto que la gente), por
+//    delante de ellos y por debajo del mirador (no tapa a Doyle); en
 //    «Sherlock Holmes» sale de la ventana un bocadillo con la gorra de cazador, la pipa, la lupa y el 1887.
 // 4. «He published, without his name, the made-up statement of a survivor, and changed the ship's name to the Marie
 //    Celeste»: hoy doyle camara 'revista' (o.escribe acaba, o.firma 0): la mano de Doyle acaba el relato; en «without his
@@ -28,7 +30,8 @@
 //    lado; en «wrong name» el tercero la señala con un «?»; el perro mueve la cola, el reloj y el fuego.
 // 6. «So, to understand what happened, the first step is to strip away everything that was added afterward»: (fondo
 //    local, 2026) el banco de trabajo de Atom con la maqueta grande del bergantín: la mano de Atom despega las pegatinas
-//    una a una (la taza, el plato, el superviviente, el «IE» de MARIE) y queda MARY CELESTE; en «afterward» brilla.
+//    una a una (la taza, el plato, el superviviente y la plaquita del nombre falso con su ✕, pegada en la popa; sin
+//    letras) y la popa queda limpia con su moldura dorada; en «afterward» brilla.
 import * as T from '/atomo/plato/escenas/mc-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('mc-doyle');
@@ -132,13 +135,7 @@ const barrilP = (x, y, s = 1, azul = false) => { x = Math.round(x); y = Math.rou
 
 const ORO = [H('#f0d070'), H('#c8a040'), H('#8a6a28')];
 const K = C.k, BL = H('#f6f2ea'), ROJO = H('#d8342a'), ROJOS = H('#7a1a14');
-// letras de 5×7 a 6 px de paso, SOLO para el nombre del barco en la popa de la maqueta (MARY / MARIE CELESTE)
-const GL = { M: ['#...#', '##.##', '#.#.#', '#.#.#', '#...#', '#...#', '#...#'], A: ['.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
-  R: ['####.', '#...#', '#...#', '####.', '#.#..', '#..#.', '#...#'], Y: ['#...#', '#...#', '.#.#.', '..#..', '..#..', '..#..', '..#..'],
-  I: ['.###.', '..#..', '..#..', '..#..', '..#..', '..#..', '.###.'], E: ['#####', '#....', '#....', '####.', '#....', '#....', '#####'],
-  C: ['.###.', '#...#', '#....', '#....', '#....', '#...#', '.###.'], L: ['#....', '#....', '#....', '#....', '#....', '#....', '#####'],
-  S: ['.###.', '#...#', '#....', '.###.', '....#', '#...#', '.###.'], T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'], ' ': [] };
-const rotulo = (txt, x, y, c, cs) => [...txt].forEach((l, k) => (GL[l] || []).forEach((f, j) => [...f].forEach((p, i) => { if (p !== '#') return; if (cs) R.pset(x + k * 6 + i + 1, y + j + 1, cs); R.pset(x + k * 6 + i, y + j, c); })));
+// (sin rótulos: el nombre añadido es una plaquita de trazos en la popa, sin letras)
 // la mano de Atom (el guante azul de mc-hola y mc-te) con su estela de chispas; (x, y) la muñeca, dir −1 dedos a la izquierda
 const guante = (x, y, t, dir = -1) => { x = Math.round(x); y = Math.round(y);
   for (let k = 1; k <= 4; k++) R.pset(x - dir * (6 + k * 3), y - 5 - k * 2, pul(t, 12, k) ? H('#bfe8ff') : H('#7ac0f0'));
@@ -348,6 +345,70 @@ const fachada = () => {
   R.poligono([[260, 64], [276, 64], [272, 78], [264, 78]], K); R.poligono([[262, 66], [274, 66], [271, 76], [265, 76]], H('#f8e0a0')); R.rect(259, 60, 277, 64, K); R.rect(266, 56, 270, 60, K);
   R.rect(258, 82, 278, 83, H('#3a4a4a'));
 };
+// UN COCHE DE PUNTO (hansom) con su caballo, A ESCALA DEL CHIBI (el caballo, 46 px de alto, más alto que la gente),
+// de perfil hacia la derecha; x = el morro del caballo, g = el suelo (cascos y ruedas). Trota con t: patas en diagonal,
+// la cabeza cabecea, la cola se mece, el vaho sale de los ollares; la rueda gira según avanza; los faroles laten; el
+// cochero (detrás y arriba, de hombros para arriba) lleva la fusta
+const COCHERO = { ...EL.senor1857, tocado: 'gorraPlana', pal: { ...EL.senor1857.pal, C: H('#5a4630'), c: H('#3e3020'), H: H('#8a8478'), h: H('#a8a294') } };
+const CAB = [H('#2a1a10'), H('#4a2e1c'), H('#6a4428'), H('#8a5e3a')];   // el caballo castaño oscuro: sombra … luz
+const LAC = [H('#14181e'), H('#222a36'), H('#36425a'), H('#5a6c8a')];   // la caja lacada del coche
+const hansom = (x, g, t) => {
+  x = Math.round(x); const ph = t * 9, cab = Math.round(Math.sin(t * 4.5)), wx = x - 62, wy = g - 13;
+  // la sombra en los adoquines mojados
+  for (let i = x - 80; i < x + 4; i++) { if ((i + g) % 2) R.pset(i, g + 1, H('#14141c')); R.pset(i, g + 2, H('#1a1a24')); }
+  // EL COCHERO en su pescante, detrás y encima de la capota (la caja le tapa de los hombros abajo), con la fusta
+  R.actor(COCHERO, x - 69, g - 33, t, { dir: 1 });
+  { const sw = Math.round(Math.sin(t * 3) * 3); R.linea(x - 61, g - 47, x - 53, g - 55, H('#3a2a1a')); R.linea(x - 53, g - 55, x - 38 + sw, g - 51 + sw, H('#6a5a48')); }
+  // LA CAJA del coche: la capota redonda, el cristal delantero con la luz de dentro, las puertecillas y el estribo
+  R.poligono([[x - 78, g - 40], [x - 74, g - 47], [x - 54, g - 47], [x - 50, g - 42], [x - 48, g - 18], [x - 76, g - 18]], K);
+  R.poligono([[x - 77, g - 40], [x - 73, g - 46], [x - 55, g - 46], [x - 51, g - 42], [x - 49, g - 19], [x - 75, g - 19]], LAC[1]);
+  R.linea(x - 72, g - 45, x - 56, g - 45, LAC[3]); R.linea(x - 76, g - 39, x - 76, g - 20, LAC[2]); R.linea(x - 50, g - 41, x - 50, g - 20, LAC[0]);
+  for (let y = g - 38; y < g - 20; y += 3) R.linea(x - 74, y, x - 70, y, LAC[2]);                     // el lacado de los costados
+  R.rect(x - 60, g - 41, x - 52, g - 30, K); R.rect(x - 59, g - 40, x - 53, g - 31, mez(H('#f0c070'), H('#b07a40'), 0.3 + 0.2 * Math.sin(t * 2)));
+  R.pset(x - 58, g - 39, H('#fff0c0')); R.linea(x - 59, g - 35, x - 53, g - 35, H('#8a5a30'));
+  R.rect(x - 55, g - 29, x - 49, g - 20, K); R.rect(x - 54, g - 28, x - 50, g - 21, LAC[2]); R.linea(x - 54, g - 28, x - 50, g - 28, LAC[3]); R.pset(x - 51, g - 24, ORO[1]);
+  R.linea(x - 77, g - 33, x - 49, g - 33, ORO[2]); R.rect(x - 52, g - 17, x - 46, g - 16, K);
+  // los dos faroles del coche, que laten
+  for (const [fx, fy] of [[x - 48, g - 40], [x - 78, g - 36]]) { R.rect(fx - 1, fy - 3, fx + 2, fy + 2, K); R.rect(fx, fy - 2, fx + 1, fy + 1, Math.sin(t * 6 + fx) > -0.3 ? H('#fff0b0') : H('#f0c060')); R.pset(fx, fy - 4, K); }
+  R.halo(x - 47, g - 39, 6, [H('#3a3428'), H('#6a5a3a'), H('#a89060')], 0.5);
+  // LA RUEDA grande, que gira con lo que avanza el coche
+  R.disco(wx, wy, 13, K); R.disco(wx, wy, 12, H('#3a2a1e')); R.disco(wx, wy, 10, K);
+  R.recorte([wx - 10, wy - 10, wx + 10, wy + 10]);
+  const giro = x / 13;
+  for (let k = 0; k < 6; k++) { const a = giro + (k * Math.PI) / 6; R.linea(wx - Math.round(Math.cos(a) * 10), wy - Math.round(Math.sin(a) * 10), wx + Math.round(Math.cos(a) * 10), wy + Math.round(Math.sin(a) * 10), H('#8a6a3a')); }
+  R.recorte(null);
+  R.disco(wx, wy, 2, ORO[2]); R.pset(wx - 1, wy - 1, ORO[0]); R.linea(wx - 9, wy - 12, wx - 3, wy - 13, H('#6a5a48'));
+  // las varas: la de detrás antes que el caballo
+  R.linea(x - 50, g - 22, x - 8, g - 25, H('#2a1a10'));
+  // EL CABALLO: patas en diagonal al trote (las de detrás, más oscuras), el cuerpo, el cuello largo, la cabeza
+  // alargada con su anteojera, las orejas y la crin; todo con su contorno
+  const pata = (i, f, c) => { const s = Math.sin(ph + f), sube = Math.max(0, Math.round(s * 3)), dx = Math.round(s * 2), px = x + i + dx;
+    R.rect(px - 1, g - 19, px + 3, g - 9 - sube, K); R.rect(px, g - 18, px + 2, g - 10 - sube, c);
+    R.rect(px, g - 10 - sube, px + 2, g - 1 - sube, K); R.linea(px + 1, g - 10 - sube, px + 1, g - 2 - sube, c); R.rect(px - 1, g - 1 - sube, px + 2, g - sube, K); };
+  pata(-35, Math.PI, CAB[0]); pata(-13, 0, CAB[0]);
+  const cuerpo = [[x - 42, g - 24], [x - 38, g - 30], [x - 16, g - 30], [x - 9, g - 27], [x - 7, g - 21], [x - 11, g - 16], [x - 37, g - 16], [x - 42, g - 19]];
+  const cuello = [[x - 15, g - 28], [x - 8, g - 41 + cab], [x - 3, g - 43 + cab], [x - 1, g - 37 + cab], [x - 6, g - 22]];
+  const cabeza = [[x - 5, g - 44 + cab], [x, g - 44 + cab], [x + 7, g - 35 + cab], [x + 7, g - 31 + cab], [x + 3, g - 30 + cab], [x - 3, g - 37 + cab]];
+  for (const pts of [cuerpo, cuello, cabeza]) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.poligono(pts.map(([a, b]) => [a + dx, b + dy]), K);
+  R.poligono(cuerpo, CAB[2]); R.poligono(cuello, CAB[2]); R.poligono(cabeza, CAB[2]);
+  // la luz de la farola por arriba, la sombra de la panza, la grupa y el pecho redondos
+  R.linea(x - 37, g - 29, x - 17, g - 29, CAB[3]); R.linea(x - 39, g - 27, x - 30, g - 27, CAB[3]); R.linea(x - 7, g - 39 + cab, x - 4, g - 42 + cab, CAB[3]); R.linea(x - 3, g - 43 + cab, x + 1, g - 43 + cab, CAB[3]);
+  R.linea(x - 36, g - 17, x - 11, g - 17, CAB[1]); R.linea(x - 32, g - 18, x - 14, g - 18, CAB[1]); R.linea(x - 41, g - 20, x - 41, g - 23, CAB[1]); R.linea(x + 2, g - 32 + cab, x + 6, g - 32 + cab, CAB[1]);
+  R.rect(x + 4, g - 32 + cab, x + 6, g - 31 + cab, CAB[1]); R.pset(x + 6, g - 33 + cab, K);                                          // el morro y el ollar
+  R.pset(x - 4, g - 46 + cab, K); R.pset(x - 4, g - 45 + cab, CAB[1]); R.pset(x - 2, g - 46 + cab, K); R.pset(x - 2, g - 45 + cab, CAB[1]);   // las orejas
+  R.rect(x - 2, g - 41 + cab, x, g - 39 + cab, K); R.pset(x + 1, g - 39 + cab, BL);                                                  // la anteojera y el brillo del ojo
+  for (let i = 0; i < 9; i++) R.rect(x - 10 + Math.round(i * 0.6) - 1, g - 41 + cab + Math.round(i * 1.6), x - 9 + Math.round(i * 0.6) - 1, g - 40 + cab + Math.round(i * 1.6), CAB[0]);   // la crin
+  pata(-38, 0, CAB[1]); pata(-16, Math.PI, CAB[1]);
+  // la cola, que se mece
+  { const sw = Math.round(Math.sin(t * 3.4) * 2); R.linea(x - 42, g - 26, x - 46 + sw, g - 17, CAB[0]); R.linea(x - 43, g - 25, x - 47 + sw, g - 16, CAB[0]); R.linea(x - 46 + sw, g - 17, x - 45 + sw, g - 12, CAB[0]); }
+  // los arreos: la collera, la sufra con su hebilla, la brida y las riendas por encima de la capota hasta el cochero; la vara de delante
+  R.linea(x - 13, g - 29, x - 8, g - 18, K); R.linea(x - 12, g - 30, x - 7, g - 18, H('#6a4a2a')); R.pset(x - 9, g - 24, ORO[1]);
+  R.rect(x - 27, g - 31, x - 22, g - 17, H('#1a1410')); R.pset(x - 25, g - 30, ORO[1]);
+  R.linea(x - 4, g - 38 + cab, x + 5, g - 33 + cab, H('#1a1410')); R.linea(x, g - 37 + cab, x - 60, g - 46, H('#2a1e14'));
+  R.linea(x - 50, g - 21, x - 8, g - 23, K); R.linea(x - 50, g - 20, x - 8, g - 22, H('#7a5a32'));
+  // el vaho de los ollares, en la noche fría
+  for (let i = 0; i < 3; i++) { const e = (t * 0.9 + i / 3) % 1; if (e < 0.7) R.disco(x + 9 + Math.round(e * 10), g - 32 + cab - Math.round(e * 4), 1 + Math.round(e * 2), mez(H('#8a8aa0'), H('#3a3e52'), e)); }
+};
 const p3 = (t) => {
   capa('fachada', fachada);
   // la luna entre nubes y las estrellas que titilan; el humo de las chimeneas
@@ -379,8 +440,11 @@ const p3 = (t) => {
   // EL SEÑOR de chistera cruza por delante, junto al bordillo, de izquierda a derecha; en «Holmes» se para y mira arriba
   { const pa = t > SHERLOCK + 0.1 && t < SHERLOCK + 1.0, u = lin(t, P3, SHERLOCK + 0.1) * 0.7 + lin(t, SHERLOCK + 1.0, P4) * 0.3, x = Math.round(lerp(-20, 250, u));
     R.actor(EL.senor1857, x, 156, t, { dir: 1, anda: !pa, sorpresa: pa }); }
+  // EL COCHE DE PUNTO pasa al trote por la calzada, de izquierda a derecha, por delante de la gente (y detrás del gato)
+  // (sale ya por delante del señor, para no adelantarlo ni taparlo; se cruza con el cartero y ha pasado el mirador antes de «Holmes»)
+  { const x = 95 + 78 * (t - P3); if (x < 420) hansom(x, 172, t); }
   // el gato que cruza la calle por los adoquines
-  { const u = lin(t, P3 + 0.5, P3 + 3.0); if (u > 0 && u < 1) { const x = Math.round(lerp(330, 60, u)), y = 170, p = Math.floor(t * 10) % 2; R.rect(x, y - 4, x + 8, y - 1, K); R.rect(x + 1, y - 3, x + 7, y - 2, H('#3a3a44')); R.rect(x - 3, y - 6, x + 1, y - 2, K); R.pset(x - 3, y - 7, K); R.pset(x, y - 7, K); R.pset(x - 2, y - 4, H('#c8e060'));
+  { const u = lin(t, P3 + 0.5, P3 + 3.0); if (u > 0 && u < 1) { const x = Math.round(lerp(330, 60, u)), y = 178, p = Math.floor(t * 10) % 2; R.rect(x, y - 4, x + 8, y - 1, K); R.rect(x + 1, y - 3, x + 7, y - 2, H('#3a3a44')); R.rect(x - 3, y - 6, x + 1, y - 2, K); R.pset(x - 3, y - 7, K); R.pset(x, y - 7, K); R.pset(x - 2, y - 4, H('#c8e060'));
       R.linea(x + 1, y - 1, x + 1 - p, y + 1, K); R.linea(x + 6, y - 1, x + 6 + p, y + 1, K); R.linea(x + 8, y - 3, x + 11, y - 7 + p, K); } }
   // EL BOCADILLO de «Sherlock Holmes»: sale del mirador, con la gorra de cazador, la pipa, la lupa y el 1887
   const b = suave(lin(t, SHERLOCK - 0.15, SHERLOCK + 0.25));
@@ -432,8 +496,11 @@ const salon = () => {
     else if (Math.abs(((x % 40) - 20)) + Math.abs((by % 24) - 12) < 7) c = H('#2a3a5a'); else if (hs(x, y) > 0.92) c = H('#a83a30'); R.pset(x, y, c); }
   R.rect(0, 126, 319, 128, H('#2a1a10'));
   // la ventana alta con su cortina
-  R.rect(12, 20, 60, 106, K); R.rect(13, 21, 59, 105, H('#d8d0c0')); R.rect(16, 24, 56, 102, H('#6a7a8a'));
-  R.rect(8, 16, 20, 110, H('#3a5a3a')); R.rect(52, 16, 64, 110, H('#3a5a3a')); for (const x of [10, 14, 18, 54, 58, 62]) R.linea(x, 16, x, 110, H('#2a4a2a')); R.rect(6, 14, 66, 17, ORO[1]);
+  // (bajada a y ≥ 26 para que detrás del año de la barra quede la pared tranquila)
+  R.rect(12, 30, 60, 106, K); R.rect(13, 31, 59, 105, H('#d8d0c0')); R.rect(16, 34, 56, 102, H('#6a7a8a')); R.linea(36, 34, 36, 102, H('#d8d0c0')); R.linea(16, 68, 56, 68, H('#d8d0c0'));
+  R.rect(8, 28, 20, 110, H('#3a5a3a')); R.rect(52, 28, 64, 110, H('#3a5a3a')); for (const x of [10, 14, 18, 54, 58, 62]) R.linea(x, 28, x, 110, H('#2a4a2a'));
+  for (const x of [8, 52]) { R.linea(x + 12, 28, x + 12, 110, H('#5a7a5a')); R.rect(x, 74, x + 12, 76, ORO[2]); }
+  R.rect(6, 26, 66, 28, ORO[1]); R.linea(6, 26, 66, 26, ORO[0]); R.disco(6, 27, 2, ORO[1]); R.disco(66, 27, 2, ORO[1]);
   // la librería: lomos de piel y oro
   R.rect(70, 30, 152, 104, K); R.rect(71, 31, 151, 103, H('#4a2a18'));
   for (const y0 of [32, 50, 68, 86]) { R.rect(71, y0 + 16, 151, y0 + 17, H('#2a1a10')); for (let x = 73; x < 150;) { const w = 2 + Math.floor(hs(x, y0) * 3), hh = 11 + Math.floor(hs(x, y0, 1) * 4), c = [H('#6a2a24'), H('#2a3a5a'), H('#3a4a2a'), H('#7a5a2a'), H('#4a2a3a')][Math.floor(hs(x, y0, 2) * 5)];
@@ -461,7 +528,7 @@ const revistaMano = (hx, hy, dir) => { const x = hx - (dir > 0 ? 0 : 14); R.rect
 const p5 = (t) => {
   capa('salon', salon);
   // la lluvia por la ventana, el fuego, el péndulo
-  R.recorte([16, 24, 56, 102]); for (let k = 0; k < 26; k++) { const x = 16 + Math.floor(hs(k, 3) * 40), y = 24 + ((Math.floor(t * 90) + k * 17) % 80); R.linea(x, y, x - 1, y + 3, H('#9aaabb')); } R.recorte(null);
+  R.recorte([16, 34, 56, 102]); for (let k = 0; k < 26; k++) { const x = 16 + Math.floor(hs(k, 3) * 40), y = 34 + ((Math.floor(t * 90) + k * 17) % 70); R.linea(x, y, x - 1, y + 3, H('#9aaabb')); } R.recorte(null);
   for (let k = 0; k < 18; k++) { const x = 228 + Math.floor(hs(k, 1) * 26), h = 6 + Math.round((Math.sin(t * 9 + k) + 1) * 5 * hs(k, 2)); R.linea(x, 124, x + Math.round(Math.sin(t * 7 + k)), 124 - h, k % 3 ? H('#f08a2a') : H('#f8d060')); }
   R.halo(241, 112, 30, [H('#7a3a28'), H('#9a4a30'), H('#c06a3a')], 0.55);
   { const a = Math.sin(t * Math.PI) * 0.35, x = Math.round(299 + Math.sin(a) * 30); R.linea(299, 82, x, 112, ORO[2]); R.disco(x, 114, 4, ORO[1]); R.pset(x - 1, 113, ORO[0]); }
@@ -520,18 +587,21 @@ const banco = () => {
   for (const x of [118, 182]) { R.poligono([[x - 8, 132], [x + 8, 132], [x + 6, 120], [x - 6, 120]], K); R.poligono([[x - 7, 131], [x + 7, 131], [x + 5, 121], [x - 5, 121]], H('#8a5a34')); R.linea(x - 5, 121, x + 5, 121, H('#c89a62')); }
 };
 // las pegatinas: [qué, u, v en el barco (u a lo largo, v hacia arriba)]; una sola mano, ciclos seguidos de 0,95 s:
-// se acerca (0,35 s), tira (0,15 s), la lleva a la bandeja (0,4 s) y la suelta. La última es el nombre entero «MARIE
-// CELESTE», pegado encima del «MARY CELESTE» pintado en el costado, junto a la popa
+// se acerca (0,35 s), tira (0,15 s), la lleva a la bandeja (0,4 s) y la suelta. La última es la plaquita del nombre
+// añadido (oscura, con trazos y una ✕ roja, sin letras), pegada sobre la popa; debajo queda la popa limpia con su moldura dorada
 const PEG = [['taza', 6, 22], ['plato', -26, 21], ['hombre', 40, 26], ['nombre', 0, 0]];
 const PEEL = [UNDER - 0.04, UNDER + 0.91, UNDER + 1.86, UNDER + 2.81];
 const pegatina = (que, x, y, t, curva = 0, dorso = false) => { x = Math.round(x); y = Math.round(y);
   const bo = (x0, y0, x1, y1, f) => { R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, H('#3a3a44')); R.rect(x0, y0, x1, y1, f); };
-  if (dorso) { const w = que === 'nombre' ? 80 : 13, h = que === 'nombre' ? 10 : 12; bo(x, y, x + w, y + h, H('#f2f2ee')); for (let k = 3; k < w; k += 6) R.linea(x + k, y + 2, x + k - 2, y + h - 2, H('#d8d8e0')); return; }
+  if (dorso) { const w = que === 'nombre' ? 22 : 13, h = que === 'nombre' ? 9 : 12; bo(x, y, x + w, y + h, H('#f2f2ee')); for (let k = 3; k < w; k += 6) R.linea(x + k, y + 2, x + k - 2, y + h - 2, H('#d8d8e0')); return; }
   if (que === 'taza') { bo(x - 6, y - 7, x + 6, y + 4, BL); R.rect(x - 3, y - 2, x + 2, y + 2, ROJO); R.rect(x + 3, y - 1, x + 4, y + 1, ROJO); R.linea(x - 4, y + 3, x + 3, y + 3, H('#9a9aa4')); for (let i = 0; i < 3; i++) R.pset(x - 1 + (i % 2), y - 4 - i, H('#9a9aa4')); }
   if (que === 'plato') { bo(x - 7, y - 5, x + 7, y + 4, BL); R.rect(x - 5, y, x + 5, y + 2, H('#c8c8d0')); R.rect(x - 3, y - 2, x - 1, y, H('#f0b020')); R.rect(x + 1, y - 1, x + 4, y, H('#a8642a')); }
   if (que === 'hombre') { bo(x - 5, y - 9, x + 5, y + 4, BL); R.disco(x, y - 5, 2, H('#f6c290')); R.rect(x - 1, y - 3, x + 1, y + 1, H('#2a4a8a')); R.linea(x - 1, y + 1, x - 2, y + 3, K); R.linea(x + 1, y + 1, x + 2, y + 3, K); R.linea(x + 1, y - 3, x + 4, y - 7, H('#2a4a8a')); }
-  if (que === 'nombre') { bo(x, y, x + 80, y + 10, H('#24222a')); for (let k = 0; k < 80; k += 4) { R.pset(x + k, y, H('#8a8a94')); R.pset(x + k, y + 10, H('#8a8a94')); } rotulo('MARIE CELESTE', x + 2, y + 2, H('#f0e8c8')); }
-  if (curva > 0) { const c = Math.round(curva * 6), [cx, cy] = que === 'nombre' ? [x + 80, y] : [x + 7, y - 8]; R.poligono([[cx, cy], [cx - c, cy], [cx, cy + c]], H('#f2f2ee')); } };
+  if (que === 'nombre') { bo(x, y, x + 22, y + 9, H('#24222a')); for (let k = 0; k <= 22; k += 3) { R.pset(x + k, y, H('#8a8a94')); R.pset(x + k, y + 9, H('#8a8a94')); }
+    // trazos de «escritura» (no letras) y la ✕ roja del nombre equivocado
+    for (const [a, b, yy] of [[2, 13, 3], [2, 9, 6]]) for (let k = a; k <= b; k += 2) { R.pset(x + k, y + yy, H('#f0e8c8')); R.pset(x + k + 1, y + yy - ((k >> 1) % 2), H('#f0e8c8')); }
+    R.linea(x + 16, y + 2, x + 20, y + 6, ROJO); R.linea(x + 20, y + 2, x + 16, y + 6, ROJO); }
+  if (curva > 0) { const c = Math.round(curva * 6), [cx, cy] = que === 'nombre' ? [x + 22, y] : [x + 7, y - 8]; R.poligono([[cx, cy], [cx - c, cy], [cx, cy + c]], H('#f2f2ee')); } };
 const p6 = (t) => {
   capa('banco', banco);
   // por la ventana: el cielo de la tarde, nubes que pasan y gaviotas
@@ -540,13 +610,15 @@ const p6 = (t) => {
   for (let k = 0; k < 2; k++) pajaro(212 + ((t * 9 + k * 30) % 46), 50 + k * 8 + Math.sin(t * 2 + k) * 2, t, H('#4a4a5a')); R.recorte(null);
   R.rect(229, 18, 230, 92, H('#f2f2ea')); R.rect(198, 54, 262, 55, H('#f2f2ea'));
   R.halo(262, 80, 44, [H('#e8c890'), H('#f0d8a0'), H('#f8e8c0')], 0.35);
-  // LA MAQUETA: el bergantín grande en sus calzos, con «MARY CELESTE» pintado en el costado, junto a la popa
+  // LA MAQUETA: el bergantín grande en sus calzos; en la popa, la moldura dorada que queda limpia al despegar la plaquita
   const g = bergantin(146, 120, 1.12, { dir: 1, velas: 0.9, t: t * 0.4 });
-  const [nx, ny] = g.P(-50, 7); rotulo('MARY CELESTE', nx, ny, BL, H('#3a3a44'));
+  const [nx, ny] = g.P(-54, 10);
+  R.linea(nx + 1, ny + 1, nx + 21, ny + 1, ORO[1]); R.linea(nx + 1, ny + 7, nx + 21, ny + 7, ORO[2]);
+  for (let k = 3; k < 21; k += 4) { R.pset(nx + k, ny + 4, ORO[1]); R.pset(nx + k + 1, ny + 3, ORO[0]); R.pset(nx + k + 1, ny + 5, ORO[2]); }
   // la mano: un solo recorrido. Cada pegatina: de dónde sale (sobre el barco), adónde va (la bandeja)
-  const sitio = (k) => (PEG[k][0] === 'nombre' ? [nx - 4, ny - 2] : g.P(PEG[k][1], PEG[k][2]));
-  const asa = (k) => { const [x, y] = sitio(k); return PEG[k][0] === 'nombre' ? [x + 80, y] : [x + 7, y - 8]; };
-  const bandeja = (k) => [256 + k * 9 - (PEG[k][0] === 'nombre' ? 30 : 0), 149 - (k % 2) * 2];
+  const sitio = (k) => (PEG[k][0] === 'nombre' ? [nx, ny - 1] : g.P(PEG[k][1], PEG[k][2]));
+  const asa = (k) => { const [x, y] = sitio(k); return PEG[k][0] === 'nombre' ? [x + 22, y] : [x + 7, y - 8]; };
+  const bandeja = (k) => [256 + k * 9 - (PEG[k][0] === 'nombre' ? 8 : 0), 149 - (k % 2) * 2];
   let mano = [300, 40];
   const ent0 = P6 + 0.15;
   if (t < PEEL[0] - 0.35) { const f = suave(lin(t, ent0, PEEL[0] - 0.35)), [ax, ay] = asa(0); mano = [lerp(300, ax + 2, f), lerp(40, ay - 4, f)]; }
@@ -564,7 +636,7 @@ const p6 = (t) => {
   if (sal < 1) guante(mano[0], mano[1], t, -1);
   // en «afterward» la maqueta limpia brilla
   const br = lin(t, AFTER - 0.2, AFTER + 0.4) * (1 - lin(t, AFTER + 1.0, AFTER + 1.4));
-  if (br > 0) for (const [x, y] of [[96, 100], [146, 66], [196, 104], [nx + 36, ny + 3]]) { const r = Math.round(1 + br * 4); R.linea(x - r, y, x + r, y, BL); R.linea(x, y - r, x, y + r, BL); R.pset(x, y, H('#fff8c0')); }
+  if (br > 0) for (const [x, y] of [[96, 100], [146, 66], [196, 104], [nx + 11, ny + 4]]) { const r = Math.round(1 + br * 4); R.linea(x - r, y, x + r, y, BL); R.linea(x, y - r, x, y + r, BL); R.pset(x, y, H('#fff8c0')); }
 };
 
 const efectos = [[NEWS - 0.6, 'toc'], [RETELL - 0.4, 'toc'], [RETELL + 0.4, 'papel'], [STORY + 0.15, 'toc'], [STORY + 0.5, 'whoosh'],
