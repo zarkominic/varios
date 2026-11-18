@@ -67,7 +67,7 @@ E = [
   ['E: la excavación de Hatteras entre los árboles junto al agua; arqueólogos y vecinos con cribas; sobre la mesa, una empuñadura de espada, trozos de armas, una pizarra y un anillo.',
    'E: la arqueóloga (EL.arqueologaRK) pasa un imán por la criba: salen escamas de hierro (golpe)… y el clip de su tablilla y una moneda de 2025.',
    'E: en el laboratorio, una bandeja con huesecillos de pescado y de ciervo, una mazorca y un cuenco; una bala de plomo bajo la lupa y un signo de interrogación.'],
-  'asombro', ['escamas']),
+  'asombro', ['escamas+14.1']),
  ('rk-lawson', None, 27, 27, ['lawson'],
   ['D: hacia 1701, el explorador Lawson (EL.lawsonRK) escucha a la gente de Hatteras junto al fuego; un libro abierto; unos ojos grises.'],
   'asombro', []),
