@@ -545,10 +545,9 @@ const UNDERSTAND = W(39.98), PATIENCE = W(41.14), MAGNET = W(42.2), FIN = en('fi
 const p9 = (t) => {
   const remueve = t > UNDERSTAND - 0.1 && t < MAGNET - 0.5 ? Math.abs(Math.sin((t - UNDERSTAND) * 5)) * 0.08 : 0;
   const iman = (1 - ease(tramo(t, MAGNET - 0.45, MAGNET + 0.05))) - remueve;
-  const o = { encuadre: 'excavacion', camara: 'criba', iman, escamas: 0.15 + 0.85 * ease(tramo(t, W(39.9), MAGNET - 0.5)), gag: 0 };
+  const o = { encuadre: 'excavacion', camara: 'criba', luz: 'tarde', iman, escamas: 0.15 + 0.85 * ease(tramo(t, W(39.9), MAGNET - 0.5)), gag: 0 };
   const g = T.hatteras(R, t, o);
-  // la luz cálida de la tarde sobre la criba
-  T.tinte(R, 0, 179, [255, 176, 96], 0.13);
+  // la luz cálida de la tarde la pone el decorado (o.luz 'tarde')
   T.brazo(R, ...g.brazo, ...g.iman, '#b49a6a', -1);
   // al subir, la barba de escamas destella
   if (t > MAGNET && t < MAGNET + 0.7) { const d = (t - MAGNET) / 0.7; for (const [px, py] of g.polos) for (let k = 0; k < 8; k++) { const a = k / 8 * 6.283, r = 4 + d * 14; R.pset(ri(px + Math.cos(a) * r), ri(py + 6 + Math.sin(a) * r), d < 0.5 ? BL : H('#ffe0a0')); } }
