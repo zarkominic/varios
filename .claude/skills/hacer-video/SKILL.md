@@ -601,6 +601,13 @@ Todo lo del repositorio (ver el paso 0 para la rama). `atomo/build/` no va a git
 
 ### 14. Entrega en el chat
 
+**Regla del usuario (18/11/2026), desde el 38:** cuando el vídeo y los Shorts están listos, se descargan en la carpeta
+`proyectos/atom` del ordenador del usuario (donde están los demás capítulos) y se suben a YouTube con su Chrome, que ya
+tiene la sesión del canal abierta: vídeo, pista española, subtítulos, miniatura y los 3 Shorts, con los textos de la
+ficha. Solo cuando todo está publicado se sigue con el siguiente episodio. Desde una sesión en la nube hace falta que esa
+carpeta esté conectada con Remote Control (`list_computer_folders` → `request_computer_folder`); si no se puede, se
+entrega en el chat como siempre y se le dice al usuario qué falta, sin inventar que se subió.
+
 1. Envía los seis archivos con SendUserFile: vídeo, pista en español, miniatura, los dos SRT y la ficha.
    Después, en otro envío por Short, los cinco archivos de cada uno de los 3 Shorts (paso 12b): mp4, m4a ES, miniatura y
    los dos SRT.
