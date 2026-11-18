@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep38 · miniatura del Short 3</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MC-SHORT3-MINIATURA · ep38, vertical: todo lo que cuenta en la columna central (x 110–210).
+// El mito: el joven Conan Doyle, al doble, escribe de noche en su estudio, a la luz de la lámpara. «1884».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import * as T from '/atomo/plato/escenas/mc-comun.js';
+import { figura, grado, halo, cifra, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const H = (c) => (0xff000000 | (parseInt(c.slice(5, 7), 16) << 16) | (parseInt(c.slice(3, 5), 16) << 8) | parseInt(c.slice(1, 3), 16)) >>> 0;
+const dibujar = (t) => {
+  const o = { encuadre: 'doyle' };
+  const g = T.hoy(R, t, o);
+  grado(R, { tinte: '#2a1608', f: 0.18, desde: 0.6, max: 0.6 });
+  halo(R, 160, 130, 44, 50, '#ffd890', 0.26);
+  figura(R, EL.doyleMC, 138, 186, t, { dir: 1, sonrisa: true, sostiene: [72, 88], cosa: (R, [x, y]) => { R.rect(x - 1, y - 6, x + 9, y + 6, H('#3a2a1c')); R.rect(x, y - 5, x + 8, y + 5, H('#efe6d0')); for (let k = 0; k < 4; k++) R.linea(x + 1, y - 3 + k * 2, x + 6, y - 3 + k * 2, H('#8a7a6a')); R.linea(x + 9, y - 2, x + 13, y - 9, H('#f2f2ee')); } }, 2);
+  cifra(R, '1884', 132, 16, 14);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
