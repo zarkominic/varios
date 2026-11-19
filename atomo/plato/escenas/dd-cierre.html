@@ -12,7 +12,9 @@
 // DD-CIERRE (frase 35), 2026. Dos planos:
 // 1. la mesa de Atom a oscuras, de cerca: el monitor con la barra quieta en 99 % y la cuenta atrás (29 días) que baja; el
 //    gato cruza y pisa el teclado («If the final trailer comes out»): las teclas se encienden y la barra sigue en 99; se
-//    hace un ovillo junto al ratón (corta en «And you»);
+//    hace un ovillo junto al ratón (corta en «And you»), donde respira, mueve una oreja y suelta burbujas de sueño; mientras,
+//    un brillo recorre la barra, el último hueco parpadea en ámbar sin llenarse, la luz de la pantalla varía sobre la mesa,
+//    el piloto del monitor respira, pasan nubes por delante de la luna y un avión con su luz, y flota polvo en el haz;
 // 2. el estudio a oscuras (o.dormido): Atom se ha dormido (una burbuja de sueño que se hincha y se deshincha a su lado);
 //    el reloj de la pared sigue bajando; en el corcho se encienden la máscara de Doom y el puño verde, con un hilo rojo y
 //    una «?» en «Doom wants Hulk».
@@ -99,14 +101,37 @@ const p1 = (t) => {
   caja(80, 72, 210, 82, H('#0a0a10'), H('#3a4a5a')); R.rect(81, 73, 207, 81, Math.floor(t * 2) % 2 ? H('#3ae88a') : H('#2ac87a')); R.rect(208, 73, 209, 81, H('#1a2a2a'));
   const quedan = 29 * 86400 + 6 * 3600 + 14 * 60 + 52 - Math.floor(t), hh = Math.floor((quedan % 86400) / 3600), mm = Math.floor((quedan % 3600) / 60), ss = quedan % 60, d2 = (n) => String(n).padStart(2, '0');
   R.numero('29', 96, 102, { centro: true, color: ROJO }); R.numero(d2(hh) + ':' + d2(mm) + ':' + d2(ss), 160, 102, { centro: true, color: H('#c8d0e8') });
+  // la barra no acaba de llenarse: un brillo la recorre y el último hueco parpadea en ámbar, como si fuera a cargar
+  const bx = 81 + Math.round(((t * 0.8) % 1.3) * 126 / 1.3) - 8;
+  for (let i = 0; i < 9; i++) { const x = bx + i; if (x >= 81 && x <= 207) R.rect(x, 73, x, 81, mez(H('#3ae88a'), AMAL, 0.5 * (1 - Math.abs(i - 4) / 5))); }
+  const casi = Math.sin(t * 5) > 0.2; R.rect(208, 73, 209, 81, casi ? H('#c8a040') : H('#1a2a2a')); if (casi) R.pset(209, 77, AMAL);
+  // el piloto del monitor, que respira en reposo
+  R.rect(224, 111, 226, 112, mez(H('#2a2e38'), H('#ffb040'), 0.35 + 0.65 * (Math.sin(t * 2.2) + 1) / 2));
+  // la luz de la pantalla en la mesa y el teclado: varía con lo que se ve en el reproductor
+  const luzP = 0.12 + 0.06 * Math.sin(t * 1.7) + (azar(Math.floor(t * 6)) > 0.85 ? 0.05 : 0);
+  for (let y = 119; y <= 166; y++) { const w = 60 + (y - 119) * 1.2; for (let x = Math.round(145 - w); x <= Math.round(145 + w); x++) if ((x + y) & 1 && x >= 0 && x <= 248) R.pset(x, y, mez(R.pget(x, y), H('#5ad8a0'), luzP * (1 - (y - 119) / 60))); }
+  // por la ventana: nubes de tres tonos que pasan por delante de la luna y un avión con su luz que parpadea
+  R.recorte([263, 57, 315, 111]);
+  for (const [v, cy, col, n] of [[3, 66, H('#2a3058'), 2], [5, 80, H('#3a4270'), 2], [8, 96, H('#22284a'), 2]]) for (let k = 0; k < n; k++) {
+    const cx = 250 + ((k * 41 + t * v) % 90); for (let i = -10; i <= 10; i++) for (let j = -2; j <= 2; j++) if (Math.abs(i) / 10 + Math.abs(j) / 2.5 < 1 && (i + j) % 2 === 0) R.pset(Math.round(cx + i), cy + j + k * 3, col); }
+  const av = 318 - ((t * 9) % 70), avy = 100 - Math.round((318 - av) * 0.12); R.pset(Math.round(av), avy, Math.floor(t * 3) % 2 ? ROJO : H('#8a90b8'));
+  R.recorte(null);
   // el gato cruza la mesa, pisa el teclado (las teclas se encienden) y se hace un ovillo
   const cruza = tramo(t, 0.3, en('final', 0.3941)), gx = Math.round(lerp(-20, 216, cruza)), gy = 150, paso = cruza > 0 && cruza < 1 ? Math.floor(t * 8) % 2 : 0;
   if (gx > 70 && gx < 214 && cruza < 1) for (let k = 0; k < 4; k++) { const i = Math.floor((gx - 74) / 8) + k - 2; if (i >= 0 && i < 16) caja(74 + i * 8 + 2, 147, 80 + i * 8 + 2, 152, H('#8ac8ff'), K); }
   if (cruza < 1) { R.disco(gx, gy - 8, 7, H('#c87a3a')); R.disco(gx + 8, gy - 14, 5, H('#c87a3a')); R.pset(gx + 5, gy - 20, H('#c87a3a')); R.pset(gx + 10, gy - 20, H('#c87a3a')); R.pset(gx + 7, gy - 15, AMA); R.pset(gx + 10, gy - 15, AMA);
     R.rect(gx - 5, gy - 3, gx - 4, gy + paso, H('#a85a2a')); R.rect(gx + 4, gy - 3, gx + 5, gy + 1 - paso, H('#a85a2a')); for (let k = 0; k < 8; k++) R.pset(gx - 8 - k, gy - 10 - Math.round(Math.sin(t * 4 + k * 0.6) * k * 0.4), H('#c87a3a')); }
-  else { const ox = 244, oy = 164; R.disco(ox, oy, 8, H('#c87a3a')); R.disco(ox + 6, oy - 2, 4, H('#c87a3a')); R.rect(ox + 4, oy - 2, ox + 5, oy - 2, K); R.rect(ox + 7, oy - 2, ox + 8, oy - 2, K); for (let k = 0; k < 6; k++) R.pset(ox - 8 + k, oy + 6 - Math.round(Math.abs(Math.sin(t * 2 + k)) * 1), H('#a85a2a')); }
+  else { const ox = 244, oy = 164, res = (Math.sin(t * 2.6) + 1) / 2, oreja = Math.sin(t * 1.3) > 0.93 ? 1 : 0;
+    // el ovillo respira (el lomo sube y baja), mueve una oreja y suelta burbujas de sueño que suben y se deshacen
+    R.disco(ox, oy - Math.round(res), 8, H('#c87a3a')); R.rect(ox - 6, oy + 1, ox + 6, oy + 6, H('#c87a3a')); R.linea(ox - 5, oy - 6 - Math.round(res), ox + 1, oy - 7 - Math.round(res), H('#e89a5a'));
+    R.disco(ox + 6, oy - 2, 4, H('#c87a3a')); R.pset(ox + 4, oy - 6 - oreja, H('#a85a2a')); R.pset(ox + 8, oy - 6, H('#a85a2a')); R.rect(ox + 4, oy - 2, ox + 5, oy - 2, K); R.rect(ox + 7, oy - 2, ox + 8, oy - 2, K);
+    for (let k = 0; k < 6; k++) R.pset(ox - 8 + k, oy + 6 - Math.round(Math.abs(Math.sin(t * 2 + k)) * 1), H('#a85a2a'));
+    for (let k = 0; k < 3; k++) { const f = (t * 0.7 + k / 3) % 1, bxx = Math.round(ox + 10 + f * 8 + Math.sin(t * 2 + k) * 1.5), byy = Math.round(oy - 8 - f * 22);
+      if (f < 0.85) R.anillo(bxx, byy, 1 + Math.round(f * 2), mez(H('#c8e0ff'), H('#2e1e12'), f * 0.7)); } }
   // la luz de la luna en la mesa
   for (let y = 120; y < 179; y++) for (let x = 250 - (y - 120); x < 300 - (y - 120) * 0.5; x++) if ((x + y) % 3 === 0) R.pset(x, y, mez(R.pget(x, y), H('#8a90c8'), 0.25));
+  // motas de polvo que flotan despacio en el haz de la luna
+  for (let k = 0; k < 7; k++) { const f = (t * 0.06 + azar(k, 7)) % 1, y = Math.round(120 + f * 50), x = Math.round(262 - f * 40 + Math.sin(t * 0.9 + k * 2) * 4 + azar(k, 3) * 20); if (Math.sin(t * 1.5 + k) > -0.3) R.pset(x, y, H('#b8c0e8')); }
 };
 // 2 · el estudio dormido: el reloj sigue bajando; la máscara, el puño y la «?»
 const p2 = (t) => {

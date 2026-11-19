@@ -194,8 +194,8 @@ const p6 = (t) => {
   const ap = tramo(t, P6, U(0.771)); if (ap < 1) { const prev = R.usar(BUFW); p5(t); R.usar(prev); const off = Math.round(ap * ap * 330);
     for (let y = 0; y < 180; y++) for (let x = 0; x < 320 - off; x++) R.pset(x, y, BUFW[y * 320 + x + off]); R.rect(320 - off, 0, 322 - off, 179, K); }
 };
-const efectos = [[0.6, 'bip'], [V(0.076), 'lapiz'], [V(0.171), 'bip'], [V(0.207), 'brillo'], [P2 + 0.2, 'zumbido'], [V(0.535), 'whoosh'], [V(0.55), 'viento'], [P3 + 0.3, 'avalancha'], [P3 + 0.5, 'publico'],
-  [U(0.079), 'interruptor'], [U(0.096), 'interruptor'], [P4 + 0.2, 'lluvia'], [U(0.2), 'toc'], [P5 + 0.2, 'lluvia'], [U(0.504), 'brillo'], [U(0.619), 'bip'], [P6, 'whoosh'], [U(0.8), 'viento'], [U(0.959), 'zumbido']];
+const efectos = [[0.6, 'bip'], [V(0.076), 'lapiz'], [V(0.171), 'bip'], [V(0.207), 'brillo'], [P2 + 0.2, 'zumbido'], [V(0.535), 'whoosh'], [P3 + 0.3, 'avalancha'], [P3 + 0.5, 'publico'],
+  [U(0.079), 'interruptor'], [U(0.096), 'interruptor'], [P4 + 0.2, 'lluvia'], [U(0.2), 'toc'], [U(0.504), 'brillo'], [U(0.619), 'bip'], [P6, 'whoosh'], [U(0.959), 'zumbido']];
 const año = (t) => (t >= P3 && t < P4 ? 2022 : 2026);
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año });
 </script>

@@ -20,7 +20,8 @@
 //    vuelve a 0 en «trailer»; la mano que tamborilea da un golpe en la mesa; el corcho se llena (corta en «pieces»);
 // 6. la mesa desde arriba: caen seis piezas de puzle (dos escenas, pósters, vídeo, etiqueta, cifra), el móvil vibra y en
 //    «together» una mano las junta y encajan;  7. los once pósters de la pared se llenan de golpe en «eleven», sale el
-//    «11» y en «behind-the-scenes» la cámara de cine;  8. el vestíbulo del cine: la etiqueta del «13» cae sobre la
+//    «11» y en «behind-the-scenes» la cámara de cine (en el último marco, el Rondador MAYOR del episodio: pelo blanco,
+//    abrigo largo y espadas, como en dd-parejas);  8. el vestíbulo del cine: la etiqueta del «13» cae sobre la
 //    pantalla de venta en «rating label» y el contador se dispara en «dizzying numbers»; la cola se asombra.
 import * as T from '/atomo/plato/escenas/dd-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -140,11 +141,22 @@ const p6 = (t) => {
   if (m > 0) T.brazo(R, 192, 206, mx, my, '#3a4a8a', -1, { codo: [186, Math.max(my + 22, 184)] });
 };
 // ── 7. Los once pósters encajan ──
-const PAREJAS = [[EL.thor, EL.steve], [EL.sam, EL.ciclope], [EL.magneto, EL.shuri], [EL.xavier, EL.reed], [EL.loki, EL.mistica], [EL.doom], [EL.bucky, EL.shangchi], [EL.antman, EL.guardian], [EL.sue, EL.namor], [EL.gambito, EL.yelena], [EL.rondador, EL.mbaku]];
+// Rondador Nocturno MAYOR (el de todo el episodio, como en dd-parejas): pelo blanco, abrigo largo oscuro, la cola y dos
+// espadas cruzadas a la espalda
+const RM = Object.assign({}, EL.rondador, { cuerpo: EL.gambito.cuerpo, ceja: hex('#c8ccd8'), detras: (c) => { EL.rondador.detras(c); EL.deadpool.detras(c); },
+  pal: { ...EL.rondador.pal, H: hex('#eef0f6'), h: hex('#aeb4c6'), C: hex('#2c2634'), c: hex('#1a1620'), W: hex('#7a1a26'), G: EL.rondador.pal.S, I: hex('#5a4630'), F: hex('#2a2430'), n: hex('#141018'), J: hex('#4a3424'), j: hex('#4c4660'), Z: hex('#e8ecf4') } });
+for (const k of ['altoCuerpo', 'brazoCol', 'brazoFilas', 'dxCuerpo']) if (EL.gambito[k] !== undefined) RM[k] = EL.gambito[k];
+// sus dos espadas cruzadas a la espalda, a escala 1 y más cortas que en dd-parejas (en el marco estrecho las
+// empuñaduras asoman sobre los hombros, sin pisar al compañero): se pintan ANTES que él
+const espadas = (xl, gy, dir = 1) => {
+  for (const [a, b, c, d] of [[12, 11, 3, 27], [5, 11, 14, 27]]) { const x0 = xl + (dir > 0 ? a : 15 - a), y0 = gy - b, x1 = xl + (dir > 0 ? c : 15 - c), y1 = gy - d;
+    for (let k = -1; k <= 1; k++) R.linea(x0 + k, y0, x1 + k, y1, k === 0 ? hex('#f4f6fa') : k === 1 ? hex('#b8bcc8') : K);
+    R.rect(x1 - 1, y1 - 1, x1 + 1, y1, hex('#4a3424')); } };
+const PAREJAS = [[EL.thor, EL.steve], [EL.sam, EL.ciclope], [EL.magneto, EL.shuri], [EL.xavier, EL.reed], [EL.loki, EL.mistica], [EL.doom], [EL.bucky, EL.shangchi], [EL.antman, EL.guardian], [EL.sue, EL.namor], [EL.gambito, EL.yelena], [RM, EL.mbaku]];
 const p7 = (t) => {
   const n = Math.min(11, Math.floor(2 + 9 * tramo(t, P7 + 0.2, 28.3))), o = { encuadre: 'campo', camara: 'marcos', n, doom: 1 };
   const g = T.batalla(R, t, o);
-  for (let k = 0; k < n; k++) { const xs = g.sitios?.[k] ?? []; PAREJAS[k].forEach((d, i) => { if (d && xs[i] != null) R.actor(d, xs[i], g.pies ?? 154, t, { dir: i ? -1 : 1, brazos: k === 5 && t > 27.6 }); }); }
+  for (let k = 0; k < n; k++) { const xs = g.sitios?.[k] ?? []; PAREJAS[k].forEach((d, i) => { if (d === RM && xs[i] != null) espadas(xs[i], g.pies ?? 154, i ? -1 : 1); if (d && xs[i] != null) R.actor(d, xs[i], g.pies ?? 154, t, { dir: i ? -1 : 1, brazos: k === 5 && t > 27.6 }); }); }
   T.batallaDelante(R, t, o);
   const e = tramo(t, ELEVEN, ELEVEN + 0.3);
   if (e > 0) { R.rect(186, 18, 246, 42, K); R.rect(187, 19, 245, 41, hex('#1a2030')); R.numero('11', 216, Math.round(38 + (1 - e) * 6), { tam: 16, centro: true }); }

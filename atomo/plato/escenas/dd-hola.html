@@ -11,7 +11,7 @@
 <script type="module">
 // DD-HOLA (frase 3), 2026. Un plano: el corcho del estudio de cerca. En las tres fotos, lo del gancho (el símbolo verde
 // del búnker, la montaña de Wundagore, la máscara de Doom); en «wondered» tres hilos rojos van de las fotos al recuadro
-// del «?», y en «Let's find out» la mano de Atom clava una chincheta roja en el «?», que se enciende. A la derecha, el
+// del «?» (cada uno queda prendido con una chincheta que destella y suena), y en «Let's find out» la mano de Atom clava una chincheta roja en el «?», que se enciende. A la derecha, el
 // reloj pequeño de la cuenta atrás.
 import * as T from '/atomo/plato/escenas/dd-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -41,7 +41,10 @@ const p1 = (t) => {
   // los hilos rojos que van de cada foto al recuadro del «?»
   const q = [145, 136], PIN = [150, 156];
   F.slice(0, 3).forEach(([x0, y0, x1], k) => { const u = tramo(t, 0.8 + k * 0.6, 1.7 + k * 0.6); if (u <= 0) return; const sx = (x0 + x1) / 2, sy = y0 + 2;
-    R.linea(sx, sy, lerp(sx, q[0], u), lerp(sy, q[1] - 22, u), ROJO); R.linea(sx + 1, sy, lerp(sx, q[0], u) + 1, lerp(sy, q[1] - 22, u), hex('#8a1018')); });
+    R.linea(sx, sy, lerp(sx, q[0], u), lerp(sy, q[1] - 22, u), ROJO); R.linea(sx + 1, sy, lerp(sx, q[0], u) + 1, lerp(sy, q[1] - 22, u), hex('#8a1018'));
+    // al llegar, el hilo queda prendido con una chincheta pequeña que destella un instante (suena el golpecito)
+    if (u >= 1) { const fl = 1 - tramo(t, 1.7 + k * 0.6, 2.0 + k * 0.6), px = q[0] - 4 + k * 4, py = q[1] - 22; R.disco(px, py, 1, K); R.pset(px, py, ROJO);
+      if (fl > 0) { R.pset(px - 2, py - 1, hex('#ffe08a')); R.pset(px + 2, py - 1, hex('#ffe08a')); R.pset(px, py - 3, hex('#fff6c8')); } } });
   // el «?» que se enciende cuando entra la chincheta
   const pin = tramo(t, FIND + 0.1, FIND + 0.3), luz = pin * (1 - tramo(t, FIND + 0.6, 5.3) * 0.5);
   if (luz > 0) { const c = Math.sin(t * 10) > -0.3 ? hex('#ffe08a') : hex('#c8a040'); R.rect(105, 111, 183, 112, c); R.rect(105, 160, 183, 161, c); R.rect(105, 111, 106, 161, c); R.rect(182, 111, 183, 161, c);
@@ -57,7 +60,7 @@ const p1 = (t) => {
   const s = 59 - Math.floor(t) % 60; R.numero(String(s).padStart(2, '0'), 300, 146, { centro: true, fina: true, rampa: [hex('#8a8a8a'), BL, BL, BL] });
   R.linea(300, 116, 292, 122, hex('#8a6a4a')); R.linea(300, 116, 308, 122, hex('#8a6a4a')); R.disco(300, 116, 1, hex('#c8c0a8'));
 };
-const efectos = [[WOND, 'lapiz'], [FIND + 0.15, 'pop'], [FIND + 0.25, 'brillo']];
+const efectos = [[1.7, 'golpecito'], [2.3, 'golpecito'], [WOND, 'lapiz'], [FIND + 0.15, 'pop'], [FIND + 0.25, 'brillo']];
 T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
 </script>
 </body>

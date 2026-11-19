@@ -12,7 +12,7 @@
 // DD-ANUNCIOS (frases 22–24), 2026. Diez planos, cortados en la palabra:
 // 1. el escaparate de una tienda de teles al anochecer (fondo local): seis teles pasan el mismo anuncio con su cuenta de
 //    segundos; una fan se para, lo celebra en «trailers» y en «TV spots» la cuenta llega a 0 y se sorprende; pasa un perro
-//    con su dueño y una bici por delante (corta en «In the late October»);
+//    con su dueño (le ladra una vez a la fan) y una bici por delante (corta en «In the late October»);
 // 2. la azotea de Nueva York al atardecer: los tres Capitanes con su escudo; Ant-Man llega y en «which Captain» duda («?»);
 //    los tres dan un paso con un «!» a la vez y él se encoge de vergüenza (corta en «a longer cut»);
 // 3. el lago al atardecer: Steve espera; Thor llega y en «reunites» se abrazan (las manos arriba y la mano en el hombro);
@@ -114,9 +114,10 @@ const p1 = (t) => {
   const ll = tramo(t, 0, 1.6), fx = Math.round(lerp(-16, 128, ll));
   R.actor(EL.chicaHoy, fx, 160, t, { dir: 1, anda: ll > 0 && ll < 1, brazos: dentro(t, TR - 0.3, TR + 0.8) && parpa(t, 18), sonrisa: t < SP, sorpresa: t > SP, dedo: dentro(t, 1.7, TR - 0.3) });
   if (t > SP) globo(fx + 7, 130, tramo(t, SP, SP + 0.3), '?', hex('#3a5a9a'));
-  // un señor con su perro pasa de derecha a izquierda
+  // un señor con su perro pasa de derecha a izquierda; el perro ladra una vez a la fan que llega (en 1,7 s)
   const dx = Math.round(330 - (t * 26) % 380); R.actor(EL.vecino, dx, 160, t, { dir: -1, anda: true });
-  { const px = dx - 16, py = 160, pa = Math.floor(t * 8) % 2; R.rect(px, py - 7, px + 9, py - 4, hex('#c8963a')); R.rect(px - 3, py - 10, px + 1, py - 6, hex('#c8963a')); R.pset(px - 3, py - 9, K); R.rect(px, py - 3, px, py - 1 + pa, hex('#a87428')); R.rect(px + 8, py - 3, px + 8, py - pa, hex('#a87428')); R.linea(px + 9, py - 7, px + 12, py - 10 + pa, hex('#c8963a')); R.linea(px + 2, py - 8, dx + 4, 144, hex('#c8303a')); }
+  { const px = dx - 16, ladra = dentro(t, 1.7, 2.15), py = 160 - (ladra && parpa(t, 20) ? 1 : 0), pa = Math.floor(t * 8) % 2;
+    if (ladra) for (let k = 0; k < 3; k++) { const f = (t - 1.7) / 0.45; R.linea(px - 5 - Math.round(f * 3), py - 12 + k * 2, px - 7 - Math.round(f * 3), py - 13 + k * 3, hex('#f2eee2')); } R.rect(px, py - 7, px + 9, py - 4, hex('#c8963a')); R.rect(px - 3, py - 10, px + 1, py - 6, hex('#c8963a')); R.pset(px - 3, py - 9, K); R.rect(px, py - 3, px, py - 1 + pa, hex('#a87428')); R.rect(px + 8, py - 3, px + 8, py - pa, hex('#a87428')); R.linea(px + 9, py - 7, px + 12, py - 10 + pa, hex('#c8963a')); R.linea(px + 2, py - 8, dx + 4, 144, hex('#c8303a')); }
   // una bici por la calle, por delante de todos
   const bx = Math.round(((t - 1.2) * 70) % 420) - 40; if (t > 1.2) { const by = 172; for (const w of [bx, bx + 16]) { R.anillo(w, by, 5, K); R.pset(w, by, K); } R.linea(bx, by, bx + 8, by - 6, hex('#2a7ab8')); R.linea(bx + 8, by - 6, bx + 16, by, hex('#2a7ab8')); R.linea(bx + 8, by - 6, bx + 6, by - 12, hex('#2a7ab8'));
     R.actor(EL.chicoHoy, bx, by - 6, t, { dir: 1, quieto: true }); }
@@ -382,6 +383,9 @@ const efectos = [[en('spot', 0.1242), 'palmada'], [en('spot', 0.1641), 'timbre']
   [en('equipos', 0.0225), 'papel'], [en('equipos', 0.2023), 'bip'],
   [en('equipos', 0.3273), 'brillo'], [en('equipos', 0.4256), 'bip'], [en('equipos', 0.5786), 'brillo'],
   [en('equipos', 0.7053), 'brillo'], [en('equipos', 0.7801), 'papel'], [en('equipos', 0.8382), 'palmada'],
+  [1.7, 'guau'], [en('spot', 0.7272) + 0.35, 'brillo'], [en('equipos', 0.0850), 'tic'],
+  [en('equipos', 0.3843), 'bip'], [en('equipos', 0.4837), 'brillo'], [A6 + 0.1, 'pop'], [en('equipos', 0.7801) + 0.6, 'lapiz'],
+  [A7 + 0.3, 'carro', { largo: 2.4 }], [A9 + 0.45, 'tic'], [A10 + 0.45, 'publico', { dur: 1.6 }],
   [en('japon', 0.0986), 'boom'], [en('japon', 0.1675), 'publico'],
   [en('japon', 0.3106), 'whoosh'], [en('japon', 0.5005), 'publico'],
   [en('japon', 0.6407), 'pop'],
