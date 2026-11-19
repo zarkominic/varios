@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep41</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DD-GANCHO (frases 1–2), 2026. Ocho planos, cortados en la palabra:
+// 1. «Dr. Doom has already started making his moves»: la ciudad en ruinas; Doom en lo alto de los cascotes levanta los
+//    brazos y se enciende la columna verde; Thor y Steve llegan por los lados y se paran a mirarlo (corta en «scene»);
+// 2. el búnker: Banner graba su informe ante la cámara de vídeo; con «his voice» entra la luz verde, Banner se vuelve y en
+//    «vanishes» lo traga un destello;  3. GOLPE en «Hulk» (hulk+7.0): lo que graba la cámara: Hulk ruge en la luz verde,
+//    la imagen se rasga, un destello y solo queda el símbolo humeante; los papeles suben en la luz (corta en «Scarlet»);
+// 4. Wundagore: las rocas suben con su halo verde, Doom con los brazos en alto; Wanda, como dormida, en el hueco; en
+//    «wake up» un pulso rojo y abre los ojos (corta en «but»);  5. el estudio de Atom: la barra del tráiler llega al 99 y
+//    vuelve a 0 en «trailer»; la mano que tamborilea da un golpe en la mesa; el corcho se llena (corta en «pieces»);
+// 6. la mesa desde arriba: caen seis piezas de puzle (dos escenas, pósters, vídeo, etiqueta, cifra), el móvil vibra y en
+//    «together» una mano las junta y encajan;  7. los once pósters de la pared se llenan de golpe en «eleven», sale el
+//    «11» y en «behind-the-scenes» la cámara de cine;  8. el vestíbulo del cine: la etiqueta del «13» cae sobre la
+//    pantalla de venta en «rating label» y el contador se dispara en «dizzying numbers»; la cola se asombra.
+import * as T from '/atomo/plato/escenas/dd-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dd-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const P2 = 3.55, P3 = en('hulk', 0) + 7.0, P4 = 11.05, P5 = 15.8, P6 = 20.0, P7 = 25.97, P8 = 30.6;
+const MOVES = 1.74, VOICE = 4.35, VANISH = 7.05, LIFTS = 9.83, WAKE = 12.85, TRAILER = 16.58, PIECES = 20.0, PUZZLE = 20.92, WORLD = 22.02, TOGETHER = 25.07, ELEVEN = 26.89, BEHIND = 29.09, RATING = 30.91, NUMBERS = 32.39;
+const K = T.C.k, BL = hex('#f6f6ee');
+// ── 1. Doom mueve ficha: la ciudad en ruinas ──
+const p1 = (t) => {
+  const o = { encuadre: 'campo', doom: 0.25 + 0.75 * tramo(t, MOVES - 0.3, MOVES + 0.9) };
+  T.batalla(R, t, o);
+  const a = tramo(t, 0.1, 1.6), b = tramo(t, 0.4, 2.0);
+  R.actor(EL.thor, Math.round(lerp(-18, 62, a)), 158, t, { dir: 1, anda: a > 0 && a < 1, sorpresa: t > MOVES && t < MOVES + 1.2, enfado: t > MOVES + 1.2 });
+  R.actor(EL.steve, Math.round(lerp(330, 232, b)), 158, t, { dir: -1, anda: b > 0 && b < 1, dedo: t > 2.3, sorpresa: t > MOVES && t < 2.3 });
+  const brazos = t > MOVES - 0.2;
+  R.actor(EL.doom, 153, 121, t, { dir: 1, brazos, quieto: false });
+  const pul = t - MOVES; if (pul > 0 && pul < 1.2) R.anillo(160, 110, 8 + pul * 40, pul < 0.6 ? hex('#3ae88a') : hex('#1a8a4a'), 3);
+  T.batallaDelante(R, t, o);
+};
+// ── 2. El búnker: Banner graba y la luz verde lo traga ──
+const p2 = (t) => {
+  const v = tramo(t, VOICE, VANISH - 0.2), o = { encuadre: 'bunker', verde: v, foco: [150, 112], ruge: tramo(t, VANISH - 0.6, VANISH) * 0.5 };
+  T.bunker(R, t, o);
+  if (t < VANISH) {
+    const mira = t > VOICE + 0.6 && t < VANISH - 0.7;
+    R.actor(EL.bannerDD, 140, 158, t, { dir: mira ? -1 : 1, habla: t < VOICE && Math.sin(t * 8) > 0, dedo: t < VOICE - 0.2 && t > P2 + 0.3, sorpresa: t > VOICE + 0.2 });
+  }
+  T.bunkerDelante(R, t, o);
+  // el destello que se lo lleva: una columna de luz blanca y verde que sube y se cierra
+  const f = tramo(t, VANISH - 0.25, VANISH) * (1 - tramo(t, VANISH + 0.05, VANISH + 0.4));
+  if (f > 0) for (let y = 24; y <= 160; y++) { const w = Math.round((3 + 13 * f) * (0.45 + 0.55 * (y - 24) / 136)); R.linea(147 - w, y, 147 + w, y, hex('#3ae88a')); R.linea(147 - Math.round(w / 2), y, 147 + Math.round(w / 2), y, hex('#d2ffe6')); }
+};
+// ── 3. GOLPE: lo que graba la cámara: Hulk ruge y desaparece; queda el símbolo ──
+const VAN3 = P3 + 1.15;
+const p3 = (t) => {
+  const ruge = t < VAN3 ? 1 - 0.5 * tramo(t, P3 + 0.8, VAN3) : 0, vacio = t > VAN3;
+  const o = { encuadre: 'bunker', camara: 'camara', verde: vacio ? 1 - 0.75 * tramo(t, VAN3, VAN3 + 1.2) : 1, ruge, vacio };
+  T.bunker(R, t, o);
+  // los papeles que suben en la luz (el eco de «lifts»)
+  const u = tramo(t, LIFTS - 0.6, P4);
+  if (u > 0) for (let k = 0; k < 6; k++) { const x = 104 + k * 22 + Math.round(Math.sin(t * 2 + k) * 4), y = Math.round(168 - u * (40 + k * 9) - (k % 2) * 4);
+    R.rect(x - 4, y - 3, x + 4, y + 3, T.C.doomVS ?? hex('#1a8a4a')); R.rect(x - 3, y - 2, x + 3, y + 2, BL); R.linea(x - 2, y - 1, x + 2, y - 1, hex('#9aa0a8')); R.linea(x - 2, y + 1, x + 1, y + 1, hex('#9aa0a8')); }
+  T.bunkerDelante(R, t, o);
+  // Hulk, por encima del tinte para que se lea: tiembla, ruge (rayas del rugido) y desaparece en el destello
+  if (!vacio) { const j = Math.round(Math.sin(t * 47) * 1.5), g = R.actor(EL.hulk, 152 + j, 170, t, { dir: 1, brazos: true, enfado: true, sorpresa: Math.sin(t * 9) > -0.6, quieto: true });
+    if (t < P3 + 0.9) for (let k = 0; k < 7; k++) { const a = -Math.PI * (0.15 + k * 0.12), r0 = 14 + ((t * 40 + k * 5) % 12); R.linea(g.cabeza[0] + Math.cos(a) * r0, g.cabeza[1] + 6 + Math.sin(a) * r0, g.cabeza[0] + Math.cos(a) * (r0 + 6), g.cabeza[1] + 6 + Math.sin(a) * (r0 + 6), BL); } }
+  const fl = tramo(t, VAN3 - 0.12, VAN3) * (1 - tramo(t, VAN3 + 0.05, VAN3 + 0.6));
+  if (fl > 0) T.tinte(R, 0, 179, [214, 255, 232], fl * 0.9);
+};
+// ── 4. Wundagore: las rocas suben y Wanda despierta ──
+const wanda = (x, y, t, abre) => {     // Wanda tumbada, como dormida (28 × 12), la cabeza a la izquierda
+  const PEL = hex('#9a2a1e'), PELS = hex('#6a1a14'), PI = hex('#f6c290'), PIS = hex('#d48a5a'), RO = hex('#c01a2e'), ROS = hex('#7a1020'), NE = hex('#2a1a24');
+  R.disco(x + 5, y + 6, 5, K); R.disco(x + 5, y + 6, 4, PEL); R.rect(x + 5, y + 3, x + 10, y + 9, K); R.rect(x + 6, y + 4, x + 9, y + 8, PI); R.rect(x + 6, y + 8, x + 9, y + 8, PIS);
+  R.rect(x + 3, y + 2, x + 7, y + 3, PELS); R.rect(x + 1, y + 8, x + 5, y + 11, PEL);
+  if (abre) { R.pset(x + 8, y + 5, BL); R.pset(x + 8, y + 6, K); R.pset(x + 9, y + 5, BL); } else R.linea(x + 7, y + 6, x + 9, y + 6, PIS);
+  R.rect(x + 10, y + 3, x + 22, y + 10, K); R.rect(x + 11, y + 4, x + 21, y + 9, RO); R.rect(x + 11, y + 8, x + 21, y + 9, ROS); R.linea(x + 13, y + 4, x + 19, y + 4, hex('#e84a5a'));
+  R.rect(x + 22, y + 5, x + 28, y + 10, K); R.rect(x + 23, y + 6, x + 27, y + 9, NE); R.rect(x + 14, y + 7, x + 17, y + 8, PI);
+};
+const p4 = (t) => {
+  const lev = 0.3 + 0.7 * tramo(t, P4, P4 + 1.1), o = { encuadre: 'ruinas', verde: 1, levanta: lev };
+  T.wundagore(R, t, o);
+  const abre = t > WAKE + 0.1;
+  wanda(191, 140, t, abre);
+  R.actor(EL.doom, 112, 160, t, { dir: 1, brazos: t < WAKE + 0.6, dedo: t >= WAKE + 0.6, quieto: false });
+  T.wundagoreDelante(R, t, o);
+  // el despertar: pulsos rojos que salen de ella y el «!» encima
+  const d = t - (WAKE + 0.1);
+  if (d > 0) for (let k = 0; k < 3; k++) { const e = d - k * 0.35; if (e > 0 && e < 1.4) R.anillo(205, 146, 6 + e * 34, e < 0.7 ? hex('#ff3a4a') : hex('#a8182a'), 3); }
+  if (d > 0 && d < 1.8) { const y = Math.round(126 - Math.min(1, d * 4) * 6); R.rect(200, y - 2, 208, y + 9, K); R.rect(201, y - 1, 207, y + 8, BL); R.icono('!', 203, y, hex('#d01a2a'), BL); }
+};
+// ── 5. El estudio: la barra que no acaba (gag 1) ──
+const p5 = (t) => {
+  const carga = t < TRAILER ? lerp(0.93, 0.99, tramo(t, P5, TRAILER - 0.25)) : 0.13 * tramo(t, TRAILER + 0.3, P6);
+  const o = { encuadre: 'estudio', carga, pared: 0.5 + 0.18 * tramo(t, 19.0, 19.6), dias: 29 };
+  T.estudio(R, t, o); T.estudioDelante(R, t, o);
+  // la mano de Atom que tamborilea y da el golpe cuando la barra vuelve a 0
+  const sale = tramo(t, 18.6, 19.4), golpe = t > TRAILER && t < TRAILER + 0.25;
+  const y = 152 - (golpe ? -2 : Math.floor(t * 7) % 2 ? 1 : 0) + Math.round(sale * 40);
+  if (sale < 1) T.brazo(R, 336, 196 + Math.round(sale * 30), 300, y, '#3a4a8a', -1, { codo: [326, 170 + Math.round(sale * 30)] });
+};
+// ── 6. La mesa desde arriba: las piezas del puzle ──
+const PZ = [   // [x final, y final, x suelta, y suelta, instante de caída, color, qué lleva]
+  [128, 56, 112, 44, PIECES + 0.05, '#2a6a4a', 'simbolo'], [150, 56, 168, 40, PIECES + 0.45, '#5a6a8a', 'montana'], [172, 56, 196, 60, PUZZLE + 0.1, '#c8a040', 'posters'],
+  [128, 78, 98, 96, PUZZLE + 0.5, '#4a4a5a', 'camara'], [150, 78, 168, 102, WORLD - 0.4, '#d8c050', 'trece'], [172, 78, 204, 92, WORLD, '#a83a4a', 'cifra']];
+const pieza = (x, y, col, que, t, brillo) => {
+  const C0 = hex(col), CL = hex('#f0f0e0'), CS = hex('#1a1820');
+  R.rect(x + 2, y + 2, x + 21, y + 21, hex('#3a2a1a'));                              // sombra en la mesa
+  R.rect(x - 1, y - 1, x + 20, y + 20, CS); R.disco(x + 20, y + 10, 4, CS); R.disco(x + 10, y - 1, 4, CS);
+  R.rect(x, y, x + 19, y + 19, C0); R.disco(x + 20, y + 10, 3, C0); R.disco(x + 10, y - 1, 3, C0);
+  R.linea(x, y, x + 19, y, CL); R.linea(x, y, x, y + 19, CL);
+  R.disco(x + 4, y + 8, 3, CS); R.disco(x + 4, y + 8, 2, hex('#6a4a2a'));             // el hueco de la izquierda
+  const cx = x + 10, cy = y + 10;
+  if (que === 'simbolo') { R.rect(x + 3, y + 3, x + 17, y + 17, hex('#1a2a22')); T.a_simbolo(R, cx, cy + 1, 6, 4, t); }
+  else if (que === 'montana') { R.rect(x + 3, y + 3, x + 17, y + 17, hex('#2a3048')); R.poligono([[x + 3, y + 17], [cx, y + 5], [x + 17, y + 17]], hex('#8a8a9a')); R.poligono([[cx - 3, y + 9], [cx, y + 5], [cx + 3, y + 9]], BL); R.disco(cx, y + 14, 2, hex('#3ae88a')); }
+  else if (que === 'posters') { for (let k = 0; k < 3; k++) { R.rect(x + 3 + k * 5, y + 4, x + 6 + k * 5, y + 15, BL); R.rect(x + 4 + k * 5, y + 5, x + 5 + k * 5, y + 14, hex(['#d8783a', '#3ae88a', '#d8783a'][k])); } }
+  else if (que === 'camara') R.icono('camara', x + 3, y + 5, BL, CS, 2);
+  else if (que === 'trece') { R.rect(x + 3, y + 5, x + 17, y + 15, CS); R.rect(x + 4, y + 6, x + 16, y + 14, hex('#3a8ae8')); R.numero('13', cx, y + 14, { centro: true, rampa: [BL, BL, BL, BL] }); }
+  else R.numero('50', cx, y + 14, { centro: true });
+  if (brillo > 0) R.anillo(cx, cy, 12 + brillo * 6, hex('#fff6c0'), 2);
+};
+const p6 = (t) => {
+  const o = { encuadre: 'pared', camara: 'escritorio', vibra: t > WORLD + 0.2 && t < 23.6 ? 1 : 0 };
+  T.estudio(R, t, o);
+  const junta = tramo(t, 24.1, TOGETHER), br = tramo(t, TOGETHER, TOGETHER + 0.5) * (1 - tramo(t, TOGETHER + 0.5, TOGETHER + 0.9));
+  PZ.forEach(([xf, yf, xs, ys, t0, col, que], k) => {
+    const c = tramo(t, t0, t0 + 0.35); if (c <= 0) return;
+    const rebote = c < 1 ? 0 : Math.round(Math.max(0, Math.sin((t - t0 - 0.35) * 18)) * 3 * (1 - tramo(t, t0 + 0.35, t0 + 0.7)));
+    const x = Math.round(lerp(xs, xf, junta)), y = Math.round(lerp(lerp(-30, ys, c), yf, junta)) - rebote;
+    pieza(x, y, col, que, t, k === 5 ? br : 0);
+  });
+  if (br > 0) R.anillo(160, 78, 34 + br * 14, hex('#fff6c0'), 3);
+  // la mano que las junta: entra por abajo y empuja hacia el centro
+  // la mano de Atom da el empujón final desde abajo, en el hueco que deja la mesa (x 155–185, y 150–170)
+  const m = tramo(t, 23.6, 24.1) * (1 - tramo(t, TOGETHER + 0.3, P7 - 0.2)), mx = Math.round(176 - 4 * junta), my = Math.round(lerp(200, 160, m) - 3 * junta);
+  if (m > 0) T.brazo(R, 192, 206, mx, my, '#3a4a8a', -1, { codo: [186, Math.max(my + 22, 184)] });
+};
+// ── 7. Los once pósters encajan ──
+const PAREJAS = [[EL.thor, EL.steve], [EL.sam, EL.ciclope], [EL.magneto, EL.shuri], [EL.xavier, EL.reed], [EL.loki, EL.mistica], [EL.doom], [EL.bucky, EL.shangchi], [EL.antman, EL.guardian], [EL.sue, EL.namor], [EL.gambito, EL.yelena], [EL.rondador, EL.mbaku]];
+const p7 = (t) => {
+  const n = Math.min(11, Math.floor(2 + 9 * tramo(t, P7 + 0.2, 28.3))), o = { encuadre: 'campo', camara: 'marcos', n, doom: 1 };
+  const g = T.batalla(R, t, o);
+  for (let k = 0; k < n; k++) { const xs = g.sitios?.[k] ?? []; PAREJAS[k].forEach((d, i) => { if (d && xs[i] != null) R.actor(d, xs[i], g.pies ?? 154, t, { dir: i ? -1 : 1, brazos: k === 5 && t > 27.6 }); }); }
+  T.batallaDelante(R, t, o);
+  const e = tramo(t, ELEVEN, ELEVEN + 0.3);
+  if (e > 0) { R.rect(186, 18, 246, 42, K); R.rect(187, 19, 245, 41, hex('#1a2030')); R.numero('11', 216, Math.round(38 + (1 - e) * 6), { tam: 16, centro: true }); }
+  const c = tramo(t, BEHIND, BEHIND + 0.25);
+  if (c > 0) { const y = Math.round(22 + (1 - c) * 8); R.rect(250, y - 2, 274, y + 17, K); R.rect(251, y - 1, 273, y + 16, hex('#e8e0c8')); R.icono('camara', 255, y + 1, hex('#2a2a3a'), hex('#9a9080'), 2); }
+};
+// ── 8. El vestíbulo: la etiqueta nueva y las cifras que marean ──
+const p8 = (t) => {
+  const ventas = 0.3 + 0.7 * tramo(t, NUMBERS - 0.3, 33.6) ** 1.6, o = { encuadre: 'vestibulo', ventas };
+  T.cine(R, t, o);
+  const a = tramo(t, P8, P8 + 1.6), b = tramo(t, P8 + 0.6, P8 + 2.4);
+  R.actor(EL.chica, 52, 140, t, { dir: 1, sonrisa: true, habla: Math.sin(t * 6) > 0.4 });
+  R.actor(EL.espectador, Math.round(lerp(330, 214, a)), 160, t, { dir: -1, anda: a > 0 && a < 1, sorpresa: t > NUMBERS + 0.2, dedo: t > NUMBERS + 0.8 });
+  R.actor(EL.espectadora, Math.round(lerp(352, 238, b)), 160, t, { dir: -1, anda: b > 0 && b < 1, sorpresa: t > NUMBERS + 0.4 });
+  R.actor(EL.chico, 140, 160, t, { dir: 1, sorpresa: t > NUMBERS, sonrisa: t < NUMBERS });
+  T.cineDelante(R, t, o);
+  // la etiqueta del «13» cae y se balancea colgada en la esquina de la pantalla de venta
+  const c = tramo(t, RATING - 0.35, RATING); if (c > 0) {
+    const sw = Math.round(Math.sin((t - RATING) * 9) * 3 * (1 - tramo(t, RATING, RATING + 1.4))), x = 198 + sw, y = Math.round(lerp(-20, 36, c));
+    R.linea(206, 30, x + 8, y, hex('#c8c0a8')); R.rect(x - 1, y - 1, x + 17, y + 13, K); R.rect(x, y, x + 16, y + 12, hex('#3a8ae8')); R.rect(x, y, x + 16, y + 1, hex('#8ac0ff')); R.numero('13', x + 8, y + 11, { centro: true, rampa: [BL, BL, BL, BL] }); }
+  // las cifras que marean: espirales alrededor del contador
+  const m = tramo(t, NUMBERS, NUMBERS + 0.3);
+  if (m > 0) for (let k = 0; k < 10; k++) { const a2 = t * 7 + k * 0.63, r = 30 + k * 1.6; R.pset(Math.round(152 + Math.cos(a2) * r), Math.round(68 + Math.sin(a2) * r * 0.55), k % 2 ? hex('#ffd84a') : BL); }
+};
+const efectos = [[MOVES, 'zumbido'], [VOICE + 0.1, 'whoosh'], [VANISH - 0.1, 'flash'], [P3, 'boom'], [VAN3, 'flash'], [LIFTS, 'papel'], [P4 + 0.1, 'trueno'], [WAKE + 0.1, 'brillo'],
+  [TRAILER, 'bip'], [TRAILER + 0.05, 'golpecito'], [19.1, 'papel'], [PIECES + 0.4, 'golpecito'], [PUZZLE + 0.45, 'golpecito'], [WORLD + 0.25, 'zumbido'], [TOGETHER, 'brillo'],
+  [ELEVEN, 'papel'], [BEHIND, 'pop'], [RATING, 'golpecito'], [NUMBERS, 'tic']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: 2026 });
+</script>
+</body>
+</html>
