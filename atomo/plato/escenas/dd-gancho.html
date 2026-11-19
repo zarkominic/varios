@@ -11,11 +11,14 @@
 <script type="module">
 // DD-GANCHO (frases 1–2), 2026. Ocho planos, cortados en la palabra:
 // 1. «Dr. Doom has already started making his moves»: la ciudad en ruinas; Doom en lo alto de los cascotes levanta los
-//    brazos y se enciende la columna verde; Thor y Steve llegan por los lados y se paran a mirarlo (corta en «scene»);
+//    brazos y se enciende la columna verde; Thor llega volando y aterriza a la izquierda (x 86) y Steve sube desde abajo a
+//    la derecha (x 214, y 166), sin pisar nunca un coche, y se paran a mirarlo (corta en «scene»);
 // 2. el búnker: Banner graba su informe ante la cámara de vídeo; con «his voice» entra la luz verde, Banner se vuelve y en
-//    «vanishes» lo traga un destello;  3. GOLPE en «Hulk» (hulk+7.0): lo que graba la cámara: Hulk ruge en la luz verde,
-//    la imagen se rasga, un destello y solo queda el símbolo humeante; los papeles suben en la luz (corta en «Scarlet»);
-// 4. Wundagore: las rocas suben con su halo verde, Doom con los brazos en alto; Wanda, como dormida, en el hueco; en
+//    «vanishes» lo traga un destello;  3. GOLPE en «Hulk» (hulk+7.0): INSERTO de la cámara de vídeo en su trípode, de lado
+//    y de cerca, con la pantalla abatible abierta hacia nosotros, en el búnker desenfocado (decorado propio de la escena);
+//    en la pantalla, lo que graba: Hulk ruge, la imagen se rasga, un destello y solo queda el símbolo humeante; la cámara
+//    tiembla con el rugido, el fluorescente parpadea, cae polvo y los papeles suben en la luz (corta en «Scarlet»);
+// 4. Wundagore: el rayo cae con el trueno al cortar (o.rayo P4+0.1); las rocas suben con su halo verde, Doom con los brazos en alto; Wanda, como dormida, en el hueco; en
 //    «wake up» un pulso rojo y abre los ojos (corta en «but»);  5. el estudio de Atom: la barra del tráiler llega al 99 y
 //    vuelve a 0 en «trailer»; la mano que tamborilea da un golpe en la mesa; el corcho se llena (corta en «pieces»);
 // 6. la mesa desde arriba: caen seis piezas de puzle (dos escenas, pósters, vídeo, etiqueta, cifra), el móvil vibra y en
@@ -35,9 +38,21 @@ const K = T.C.k, BL = hex('#f6f6ee');
 const p1 = (t) => {
   const o = { encuadre: 'campo', doom: 0.25 + 0.75 * tramo(t, MOVES - 0.3, MOVES + 0.9) };
   T.batalla(R, t, o);
-  const a = tramo(t, 0.1, 1.6), b = tramo(t, 0.4, 2.0);
-  R.actor(EL.thor, Math.round(lerp(-18, 62, a)), 158, t, { dir: 1, anda: a > 0 && a < 1, sorpresa: t > MOVES && t < MOVES + 1.2, enfado: t > MOVES + 1.2 });
-  R.actor(EL.steve, Math.round(lerp(330, 232, b)), 158, t, { dir: -1, anda: b > 0 && b < 1, dedo: t > 2.3, sorpresa: t > MOVES && t < 2.3 });
+  // Thor llega VOLANDO desde arriba a la izquierda (baja en curva: lejos del coche rojo, x 38–70) y aterriza en x 86,
+  // entre el coche rojo y el coche aplastado (x 95–114); Steve sube desde abajo a la derecha, por delante de todo y por
+  // debajo del coche azul (x 235–265, y ≤ 153), y se para en x 214 (y 166), entre el cráter y ese coche: ninguna figura
+  // pisa un coche en ningún instante
+  const a = tramo(t, 0.1, 1.5), b = tramo(t, 0.4, 2.0), ea = 1 - (1 - a) * (1 - a);
+  const tx = Math.round(lerp(-20, 86, ea)), ty = Math.round(60 + 98 * a * a), vuela = a < 1;
+  if (vuela && a > 0) for (let k = 1; k <= 4; k++) { const u = Math.max(0, a - k * 0.05), ex = 1 - (1 - u) * (1 - u);   // la estela del vuelo
+    R.linea(Math.round(lerp(-20, 86, ex)) - 6, Math.round(60 + 98 * u * u) - 12, Math.round(lerp(-20, 86, ex)) - 12, Math.round(60 + 98 * u * u) - 14, k < 3 ? hex('#cfe4ff') : hex('#7a90b8')); }
+  // vuela con el martillo por delante (el brazo estirado hacia donde va) y lo baja al aterrizar
+  const gT = R.actor(EL.thor, tx, ty, t, { dir: 1, sostiene: vuela ? [tx + 14, ty - 22] : true, quieto: vuela, sorpresa: t > MOVES && t < MOVES + 1.2, enfado: t > MOVES + 1.2 });
+  if (gT && gT.mano) { const [mx, my] = gT.mano, MG = hex('#9aa0aa'), MGL = hex('#d8dce4'), MGS = hex('#5a5e66');
+    if (vuela) { R.rect(mx, my - 1, mx + 3, my, hex('#6a4a2a')); R.rect(mx + 3, my - 4, mx + 9, my + 3, K); R.rect(mx + 4, my - 3, mx + 8, my + 2, MG); R.linea(mx + 4, my - 3, mx + 8, my - 3, MGL); R.linea(mx + 4, my + 2, mx + 8, my + 2, MGS); }
+    else { R.rect(mx, my, mx + 1, my + 4, hex('#6a4a2a')); R.rect(mx - 3, my + 4, mx + 4, my + 9, K); R.rect(mx - 2, my + 5, mx + 3, my + 8, MG); R.linea(mx - 2, my + 5, mx + 3, my + 5, MGL); R.linea(mx - 2, my + 8, mx + 3, my + 8, MGS); } }
+  const al = t - 1.5; if (al > 0 && al < 0.7) for (let k = 0; k < 10; k++) { const s = k < 5 ? -1 : 1, d = 3 + al * (16 + (k % 5) * 5), yy = 158 - Math.round(Math.sin(al * 4 + k) * 2 + (k % 3)); R.pset(86 + s * Math.round(d), yy, k % 2 ? hex('#b8a890') : hex('#8a7a66')); }
+  R.actor(EL.steve, Math.round(lerp(300, 214, b)), Math.round(lerp(205, 166, b)), t, { dir: -1, anda: b > 0 && b < 1, dedo: t > 2.3, sorpresa: t > MOVES && t < 2.3 });
   const brazos = t > MOVES - 0.2;
   R.actor(EL.doom, 153, 121, t, { dir: 1, brazos, quieto: false });
   const pul = t - MOVES; if (pul > 0 && pul < 1.2) R.anillo(160, 110, 8 + pul * 40, pul < 0.6 ? hex('#3ae88a') : hex('#1a8a4a'), 3);
@@ -56,22 +71,186 @@ const p2 = (t) => {
   const f = tramo(t, VANISH - 0.25, VANISH) * (1 - tramo(t, VANISH + 0.05, VANISH + 0.4));
   if (f > 0) for (let y = 24; y <= 160; y++) { const w = Math.round((3 + 13 * f) * (0.45 + 0.55 * (y - 24) / 136)); R.linea(147 - w, y, 147 + w, y, hex('#3ae88a')); R.linea(147 - Math.round(w / 2), y, 147 + Math.round(w / 2), y, hex('#d2ffe6')); }
 };
-// ── 3. GOLPE: lo que graba la cámara: Hulk ruge y desaparece; queda el símbolo ──
+// ── 3. GOLPE: INSERTO DE LA CÁMARA DE VÍDEO en su trípode (otra composición: el aparato de cerca, de lado, con la pantalla
+// abatible abierta hacia nosotros) en el búnker desenfocado; en su pantalla, lo que graba: Hulk ruge en la luz verde, la
+// imagen se rasga, un destello y queda el símbolo humeante; la cámara tiembla con el rugido y los papeles suben ──
 const VAN3 = P3 + 1.15;
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], b4 = (x, y) => BAY[(x & 3) + ((y & 3) << 2)] / 16;
+const hs = (a, b) => { let h = Math.imul(a * 374761393 + b * 668265263, 1274126177) | 0; h ^= h >>> 13; h = Math.imul(h, 1103515245); return ((h ^ (h >>> 16)) >>> 0) % 1000 / 1000; };
+const mez = (a, b, f) => { const r = (a & 255) + ((b & 255) - (a & 255)) * f, g = ((a >> 8) & 255) + (((b >> 8) & 255) - ((a >> 8) & 255)) * f, z = ((a >> 16) & 255) + (((b >> 16) & 255) - ((a >> 16) & 255)) * f;
+  return (0xff000000 | (Math.round(z) << 16) | (Math.round(g) << 8) | Math.round(r)) >>> 0; };
+const VD = hex('#3ae88a'), VDS = hex('#1a8a4a'), VDL = hex('#d2ffe6');
+// el fondo fijo (en su búfer): el búnker desenfocado detrás de la cámara: hormigón con juntas y humedad, la tubería con sus
+// abrazaderas, el cuadro eléctrico, el fluorescente, la franja amarilla y negra, el suelo con losas, una caja y un cubo
+let F3 = null;
+const fondo3 = () => {
+  const b = R.nuevo(), prev = R.usar(b);
+  const W0 = hex('#3e403c'), W1 = hex('#4b4d48'), W2 = hex('#585a54'), W3 = hex('#65675f'), JD = hex('#2e2f2b'), JL = hex('#6e7068');
+  for (let y = 0; y < 132; y++) for (let x = 0; x < 320; x++) {
+    let l = 0.55 + 0.22 * (hs(x >> 3, y >> 3) - 0.5) + 0.12 * (hs(x, y) - 0.5) - (y < 22 ? 0.18 * (1 - y / 22) : 0) + 0.1 * Math.sin(x * 0.02);
+    const pn = x >> 6; if (hs(pn, 77) > 0.35 && y > 32 && y < 32 + 50 * hs(pn, 78) + 20 && Math.abs((x & 63) - 20 - 20 * hs(pn, 79)) < 6 + (y - 32) * 0.12) l -= 0.16;   // la humedad que baja
+    const q = l + (b4(x, y) - 0.5) * 0.2, c = q < 0.38 ? W0 : q < 0.52 ? W1 : q < 0.66 ? W2 : W3;
+    R.pset(x, y, (x & 63) === 0 || y === 70 ? JD : (x & 63) === 1 || y === 71 ? JL : c);
+  }
+  for (let k = 0; k < 40; k++) { const x = Math.floor(hs(k, 5) * 320), y = 34 + Math.floor(hs(k, 6) * 90); R.pset(x, y, JD); R.pset(x + 1, y, W0); }   // poros y desconchones
+  // la tubería del techo (y 24–30) con sus abrazaderas y su sombra
+  const TU = ['#2a2c30', '#4a4e56', '#7a808a', '#9aa0aa', '#6a707a', '#4a4e56', '#2a2c30'].map(hex);
+  // (la tubería acaba en un codo que sube al techo en x 262–268: la esquina de Atom, x 278–318, queda de pared lisa de hormigón)
+  for (let x = 0; x < 269; x++) { for (let j = 0; j < 7; j++) R.pset(x, 24 + j, TU[j]); if (b4(x, 31) < 0.5) R.pset(x, 31, JD); if (b4(x, 32) < 0.25) R.pset(x, 32, W0); }
+  for (let y = 0; y < 31; y++) for (let j = 0; j < 7; j++) R.pset(262 + j, y, y > 23 && j + y > 30 ? TU[6] : TU[j]);
+  R.rect(260, 8, 270, 11, hex('#1e2024')); R.linea(261, 9, 269, 9, hex('#5a5e66'));
+  for (let x = 14; x < 260; x += 52) { R.rect(x, 22, x + 3, 32, hex('#1e2024')); R.rect(x + 1, 23, x + 1, 31, hex('#5a5e66')); R.pset(x + 1, 34, JD); }
+  // el cuadro eléctrico de la izquierda, con su tubo que sube a la tubería y el triángulo de aviso
+  R.rect(8, 38, 42, 64, hex('#1e2024')); R.rect(9, 39, 41, 63, hex('#6a7078')); R.rect(9, 39, 41, 40, hex('#9aa0a8')); R.rect(40, 41, 41, 63, hex('#4a4e56'));
+  R.linea(25, 40, 25, 62, hex('#4a4e56')); R.rect(37, 49, 38, 53, hex('#2a2c30'));
+  R.poligono([[17, 44], [22, 54], [12, 54]], hex('#e8c43a')); R.linea(17, 44, 12, 54, hex('#8a6a1a')); R.pset(17, 48, K); R.pset(17, 49, K); R.pset(17, 51, K);
+  R.rect(30, 32, 32, 38, hex('#3a3e44')); R.pset(31, 33, hex('#7a808a'));
+  for (let k = 0; k < 4; k++) R.rect(28 + k * 3, 57, 29 + k * 3, 61, hex('#2a2c30'));
+  // el fluorescente (x 186–262, y 36–41): la carcasa; el tubo lo enciende la vida
+  R.rect(184, 35, 264, 42, hex('#2a2c30')); R.rect(185, 36, 263, 37, hex('#6a707a')); R.linea(196, 33, 196, 35, hex('#3a3e44')); R.linea(252, 33, 252, 35, hex('#3a3e44'));
+  // la franja amarilla y negra al pie de la pared
+  for (let y = 126; y < 132; y++) for (let x = 0; x < 320; x++) R.pset(x, y, ((x + y) >> 3) & 1 ? hex('#1e1e1c') : y === 126 ? hex('#f0d060') : hex('#d8b030'));
+  // el suelo de losas en perspectiva, con grietas y manchas
+  for (let y = 132; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const l = 0.45 + 0.18 * (hs(x >> 2, y >> 2) - 0.5) + (y - 132) * 0.004 + (b4(x, y) - 0.5) * 0.18;
+    R.pset(x, y, l < 0.38 ? hex('#2c2e2a') : l < 0.5 ? hex('#383a35') : hex('#454741'));
+  }
+  for (const yy of [138, 147, 160, 176]) for (let x = 0; x < 320; x++) { R.pset(x, yy, hex('#24251f')); if (b4(x, yy + 1) < 0.5) R.pset(x, yy + 1, hex('#50524b')); }
+  for (let k = -6; k <= 6; k++) R.linea(160 + k * 30, 132, 160 + k * 52, 180, hex('#26271f'));
+  for (let k = 0; k < 3; k++) { let x = 40 + k * 110, y = 140 + k * 9; for (let i = 0; i < 14; i++) { const nx = x + 2 + Math.round(hs(k, i) * 3), ny = y + Math.round((hs(i, k) - 0.5) * 3); R.linea(x, y, nx, ny, hex('#1c1d19')); x = nx; y = ny; } }
+  // la caja de material (asoma debajo de la pantalla) con su pictograma de flecha, y el cubo de metal de la izquierda
+  R.rect(232, 104, 304, 150, K); R.rect(233, 105, 303, 149, hex('#7a6a3a')); for (let y = 108; y < 150; y += 7) R.linea(233, y, 303, y, hex('#5a4a26'));
+  for (let y = 105; y < 150; y++) for (let x = 233; x < 304; x++) if (hs(x, y >> 1) > 0.86) R.pset(x, y, hex('#8e7e4a'));
+  R.rect(233, 105, 236, 149, hex('#5a4a26')); R.rect(300, 105, 303, 149, hex('#5a4a26'));
+  R.linea(268, 128, 268, 144, hex('#2a2414')); R.linea(268, 128, 263, 134, hex('#2a2414')); R.linea(268, 128, 273, 134, hex('#2a2414'));
+  R.rect(12, 140, 36, 166, K); R.rect(13, 141, 35, 165, hex('#6a7078')); R.rect(13, 141, 35, 143, hex('#b0b6be')); R.rect(30, 144, 34, 165, hex('#4a4e56')); R.linea(16, 150, 32, 150, hex('#4a4e56')); R.linea(16, 158, 32, 158, hex('#4a4e56'));
+  R.rect(10, 166, 38, 168, hex('#1c1d19'));
+  // el cable de la cámara, que baja por la pata y se va por el suelo hacia la derecha
+  for (let x = 176; x < 320; x++) { const y = Math.round(172 - (x - 176) * 0.05 + Math.sin(x * 0.07) * 2); R.pset(x, y, hex('#141416')); R.pset(x, y - 1, hex('#3a3c40')); }
+  R.usar(prev); return b;
+};
+// la pantalla abatible: lo que graba la cámara (el búnker en pequeño, Hulk, el desgarro, el destello, el símbolo)
+const SX0 = 192, SY0 = 62, SX1 = 280, SY1 = 118, SCX = 236;
+const pantalla3 = (t, dx, dy, ruge, vacio) => {
+  const x0 = SX0 + dx, y0 = SY0 + dy, x1 = SX1 + dx, y1 = SY1 + dy, cx = SCX + dx, cy = 92 + dy;
+  R.recorte([x0, y0, x1, y1]);
+  const lat = 0.7 + 0.3 * Math.sin(t * 9), glow = vacio ? 0.35 + 0.25 * (1 - tramo(t, VAN3, VAN3 + 1.6)) : 0.75 + 0.25 * ruge * lat;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const lx = x - dx, ly = y - dy; let c;
+    if (ly < 104) { const q = 0.5 + 0.2 * (hs(lx >> 2, ly >> 2) - 0.5) + (b4(x, y) - 0.5) * 0.25; c = (lx - SX0) % 22 === 0 || ly === 84 ? hex('#4a4c46') : q < 0.45 ? hex('#6a6c66') : hex('#7c7e76'); }
+    else c = ly === 104 ? hex('#2e302a') : (b4(x, y) + (ly - 104) * 0.05) < 0.6 ? hex('#4c4e48') : hex('#5a5c55');
+    if (lx >= 196 && lx <= 216 && ly >= 68 && ly <= 90) c = lx === 196 || lx === 216 || ly === 68 || ly === 90 ? hex('#6a4a2a') : (ly % 4 === 0 && hs(lx >> 1, ly) > 0.4) ? hex('#cfe0d4') : hex('#24402e');   // la pizarra
+    if (lx >= 258 && lx <= 276 && ly >= 72 && ly <= 92) c = lx === 258 || lx === 276 || ly === 72 || ly === 92 ? hex('#1c1d1f') : Math.abs(ly - (84 - Math.round(Math.sin((lx + t * 30) * 0.5) * 4))) < 1 ? VD : hex('#0e1a12');   // el monitor
+    const d = Math.hypot(x - cx, (y - cy) * 1.25) / 34; if (d < 1) { const f = (1 - d) * glow; if (b4(x, y) < f * 1.6) c = mez(c, f > 0.55 ? VDL : VD, Math.min(0.85, f * 1.1)); }
+    R.pset(x, y, c);
+  }
+  if (!vacio) {   // Hulk ruge en la luz, dentro de la pantalla (cabe entero: x 223–249, y 75–112)
+    const j = Math.round(Math.sin(t * 47) * 1.5 * ruge);
+    const g = R.actor(EL.hulk, cx + j, 112 + dy, t, { dir: 1, brazos: true, enfado: true, sorpresa: Math.sin(t * 9) > -0.6, quieto: true });
+    if (g && ruge > 0.3) for (let k = 0; k < 5; k++) { const a = -Math.PI * (0.12 + k * 0.19), r0 = 15 + ((t * 40 + k * 5) % 8); R.linea(g.cabeza[0] + Math.cos(a) * r0, g.cabeza[1] + 6 + Math.sin(a) * r0, g.cabeza[0] + Math.cos(a) * (r0 + 5), g.cabeza[1] + 6 + Math.sin(a) * (r0 + 5), BL); }
+  } else {        // queda el símbolo quemado en el suelo y el humo que sube
+    T.a_simbolo(R, cx, 109 + dy, 14, 4, t, { quemado: true, brillo: 1 - 0.4 * tramo(t, VAN3 + 0.6, P4) });
+    for (let i = 0; i < 10; i++) { const u = (t * 0.35 + i / 10) % 1, sx = cx - 10 + (i * 7) % 20 + Math.sin(t * 2 + i) * 2 + u * 4, sy = 108 + dy - u * 34; if (b4(Math.round(sx), Math.round(sy)) < 0.75 - u * 0.6) { R.pset(sx, sy, hex('#a8b0aa')); R.pset(sx + 1, sy, hex('#7e8680')); } }
+  }
+  // el desgarro: filas que se corren de lado y nieve, justo antes del destello; después, nieve que se apaga
+  const tr = tramo(t, VAN3 - 0.45, VAN3 - 0.05) * (t < VAN3 + 0.05 ? 1 : 0) + (vacio ? 0.35 * (1 - tramo(t, VAN3 + 0.15, VAN3 + 0.7)) : 0);
+  if (tr > 0) { const fr = Math.floor(t * 24), fila = new Uint32Array(x1 - x0 + 1);
+    for (let y = y0; y <= y1; y++) { const banda = hs((y - y0) >> 2, fr); if (banda > tr) continue;
+      const off = Math.round((hs((y - y0) >> 3, fr + 7) - 0.5) * 30 * tr); for (let x = x0; x <= x1; x++) fila[x - x0] = R.pget(x, y);
+      for (let x = x0; x <= x1; x++) { const k = x - x0 - off; R.pset(x, y, hs(x, y + fr * 3) < 0.25 * tr ? (hs(y, x) < 0.5 ? BL : hex('#4a4c50')) : fila[Math.max(0, Math.min(fila.length - 1, k))]); } } }
+  // el destello que se lo lleva
+  const fl = tramo(t, VAN3 - 0.12, VAN3) * (1 - tramo(t, VAN3 + 0.05, VAN3 + 0.4));
+  if (fl > 0) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), VDL, fl * 0.95));
+  // líneas de barrido, el reflejo del cristal, las esquinas del visor, el tiempo que corre, el punto rojo y la pila
+  for (let y = y0; y <= y1; y += 2) for (let x = x0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), K, 0.14));
+  for (let k = 0; k < 18; k++) { const x = x0 + 30 + k, y = y0 + 1 + k; if (y <= y1) for (let i = 0; i < 9; i++) R.pset(x + i, y, mez(R.pget(x + i, y), BL, 0.12)); }
+  const E2 = hex('#e8ece8');
+  for (const [ax, ay, sx, sy] of [[x0 + 2, y0 + 2, 1, 1], [x1 - 2, y0 + 2, -1, 1], [x0 + 2, y1 - 2, 1, -1], [x1 - 2, y1 - 2, -1, -1]]) { R.linea(ax, ay, ax + 5 * sx, ay, E2); R.linea(ax, ay, ax, ay + 4 * sy, E2); }
+  const seg = 41 + Math.floor(t - P3);
+  R.numero('00:12:' + String(seg).padStart(2, '0'), x0 + 6, y1 - 3, { fina: true, color: E2 });
+  if (Math.floor(t * 2) % 2 === 0) { R.disco(x1 - 7, y0 + 7, 2, hex('#e82a2a')); R.pset(x1 - 8, y0 + 6, hex('#ff9a9a')); }
+  R.icono('pila', x1 - 10, y1 - 11, E2, K);
+  R.recorte(null);
+};
 const p3 = (t) => {
   const ruge = t < VAN3 ? 1 - 0.5 * tramo(t, P3 + 0.8, VAN3) : 0, vacio = t > VAN3;
-  const o = { encuadre: 'bunker', camara: 'camara', verde: vacio ? 1 - 0.75 * tramo(t, VAN3, VAN3 + 1.2) : 1, ruge, vacio };
-  T.bunker(R, t, o);
-  // los papeles que suben en la luz (el eco de «lifts»)
+  if (!F3) F3 = fondo3();
+  R.copiar(F3);
+  // el fluorescente que parpadea (y se apaga un instante con el golpe)
+  const tubo = (Math.sin(t * 31) > 0.85 || (t > VAN3 - 0.1 && t < VAN3 + 0.25)) ? hex('#8a9a94') : hex('#eef6f0');
+  R.rect(187, 38, 261, 40, tubo); R.linea(187, 38, 261, 38, BL);
+  // el polvo que cae del techo con el rugido
+  if (ruge > 0) for (let k = 0; k < 26; k++) { const u = (t * (0.7 + (k % 4) * 0.2) + k * 0.13) % 1, x = (k * 37 + 11) % 318, y = 33 + u * 140; if (hs(k, 3) < ruge) R.pset(x, y, k % 3 ? hex('#9a9a8e') : hex('#c8c8bc')); }
+  // la luz verde que viene de donde está Hulk (fuera de cuadro, a la izquierda, adonde apunta el objetivo): baja tras el destello
+  const v = vacio ? 0.32 * (1 - 0.6 * tramo(t, VAN3, VAN3 + 1.4)) : 0.3 + 0.12 * ruge * Math.sin(t * 9) ** 2;
+  T.a_luzVerde(R, -40, 92, v, t, { haces: false });
+  // EL TRÍPODE: las tres patas (la del centro, hacia nosotros, se sale por abajo), la columna, la rótula y el mango
+  const ME = hex('#8a8f98'), MEL = hex('#c0c4cc'), MES = hex('#4a4e56'), NE = hex('#1e2024'), NE2 = hex('#33363c'), NEL = hex('#565a62');
+  const pata = (xa, ya, xb, yb, an) => { for (let s = -an; s <= an; s++) R.linea(xa + s, ya, xb + s, yb, s === -an ? NEL : s === an ? K : NE2);
+    const xm = Math.round(lerp(xa, xb, 0.5)), ym = Math.round(lerp(ya, yb, 0.5));
+    for (let s = -an + 1; s <= an - 1; s++) R.linea(xm + s, ym, xb + s, yb, s < 0 ? MEL : ME);
+    R.rect(xm - an - 1, ym - 2, xm + an + 1, ym + 1, NE); R.linea(xm - an - 1, ym - 2, xm + an + 1, ym - 2, NEL); };
+  pata(104, 150, 44, 186, 2); pata(118, 150, 178, 186, 2); pata(111, 152, 116, 190, 3);
+  R.rect(98, 145, 124, 154, K); R.rect(99, 146, 123, 153, NE2); R.linea(99, 146, 123, 146, NEL);
+  // el cable que baja por la pata derecha hasta el suelo
+  for (let y = 120; y < 172; y++) R.pset(Math.round(150 + (y - 120) * 0.5 + Math.sin(y * 0.3)), y, hex('#141416'));
+  // la cámara entera tiembla con el rugido (y la rótula con ella)
+  const dx = Math.round(Math.sin(t * 53) * 1.2 * ruge), dy = Math.round(Math.sin(t * 41 + 1) * 1.2 * ruge);
+  R.rect(106, 128 + dy, 115, 145, K); R.rect(107, 129 + dy, 114, 145, ME); R.linea(108, 129 + dy, 108, 145, MEL); R.linea(114, 129 + dy, 114, 145, MES);
+  R.rect(94 + dx, 120 + dy, 128 + dx, 131 + dy, K); R.rect(95 + dx, 121 + dy, 127 + dx, 130 + dy, NE2); R.linea(95 + dx, 121 + dy, 127 + dx, 121 + dy, NEL);
+  R.disco(111 + dx, 126 + dy, 3, ME); R.pset(110 + dx, 125 + dy, MEL); R.pset(111 + dx, 126 + dy, K);
+  for (let s = -1; s <= 1; s++) R.linea(126 + dx, 127 + dy + s, 168 + dx, 150 + dy + s, s < 0 ? NEL : s > 0 ? K : NE2);   // el mango
+  for (let s = -2; s <= 2; s++) R.linea(156 + dx, 144 + dy + s, 170 + dx, 152 + dy + s, s === -2 ? hex('#3a3a3c') : hex('#141416'));
+  for (let k = 0; k < 4; k++) R.pset(158 + k * 3 + dx, 144 + k * 2 + dy, hex('#4a4a4e'));
+  R.rect(84 + dx, 115 + dy, 138 + dx, 120 + dy, K); R.rect(85 + dx, 116 + dy, 137 + dx, 119 + dy, NE2); R.linea(85 + dx, 116 + dy, 137 + dx, 116 + dy, ME);   // la zapata
+  // EL CUERPO de la cámara (x 52–170, y 64–116): plástico negro mate con su textura, juntas, rejilla y la correa de mano
+  const X = (x) => x + dx, Y = (y) => y + dy;
+  R.rect(X(52), Y(64), X(170), Y(116), K);
+  for (let y = 65; y <= 115; y++) for (let x = 53; x <= 169; x++) { const l = (y < 69 ? 0.75 : y > 109 ? 0.2 : 0.45) + (b4(x, y) - 0.5) * 0.2 + (hs(x >> 1, y >> 1) - 0.5) * 0.1;
+    R.pset(X(x), Y(y), l > 0.65 ? hex('#4e525a') : l > 0.4 ? hex('#30333a') : l > 0.25 ? hex('#25272c') : hex('#1a1b1f')); }
+  R.linea(X(53), Y(65), X(169), Y(65), hex('#6a6e78')); R.linea(X(76), Y(66), X(76), Y(114), hex('#141518')); R.linea(X(77), Y(66), X(77), Y(114), hex('#3e424a'));
+  for (let k = 0; k < 6; k++) R.linea(X(58 + k * 3), Y(98), X(58 + k * 3), Y(110), hex('#0e0f12'));   // la rejilla
+  R.rect(X(120), Y(104), X(152), Y(106), hex('#9aa0a8')); R.linea(X(120), Y(104), X(152), Y(104), hex('#d0d4dc'));   // la placa plateada (sin letras)
+  R.rect(X(92), Y(70), X(150), Y(100), K); R.rect(X(93), Y(71), X(149), Y(99), hex('#4a3e34')); R.linea(X(93), Y(71), X(149), Y(71), hex('#7a6a58'));   // la correa
+  for (let x = 95; x < 148; x += 3) { R.pset(X(x), Y(73), hex('#9a8a72')); R.pset(X(x), Y(97), hex('#9a8a72')); }
+  for (let y = 76; y < 96; y += 4) R.linea(X(96), Y(y), X(146), Y(y + 1), hex('#3a3028'));
+  R.rect(X(154), Y(70), X(166), Y(80), hex('#16171a')); R.disco(X(160), Y(75), 3, hex('#5a5e66')); R.pset(X(159), Y(74), hex('#a0a4ac'));   // el botón de grabar
+  R.disco(X(160), Y(90), 2, hex('#0e0f12')); R.disco(X(160), Y(98), 2, hex('#0e0f12'));
+  if (Math.floor(t * 2) % 2 === 0) { R.disco(X(60), Y(71), 2, hex('#ff2a2a')); R.pset(X(59), Y(70), hex('#ffb0b0')); } else R.disco(X(60), Y(71), 2, hex('#5a1414'));   // el piloto rojo
+  // el asa de arriba con el micrófono de espuma y el visor de atrás
+  R.rect(X(70), Y(52), X(156), Y(57), K); R.rect(X(71), Y(53), X(155), Y(56), NE2); R.linea(X(71), Y(53), X(155), Y(53), NEL);
+  R.rect(X(74), Y(57), X(80), Y(64), K); R.rect(X(146), Y(57), X(152), Y(64), K);
+  R.rect(X(28), Y(44), X(84), Y(53), K);
+  for (let y = 45; y <= 52; y++) for (let x = 29; x <= 83; x++) R.pset(X(x), Y(y), (b4(x, y) + (y - 45) * 0.06) < 0.5 ? hex('#6a6e74') : (x + y) % 3 ? hex('#4a4e54') : hex('#3a3d42'));
+  R.linea(X(29), Y(45), X(83), Y(45), hex('#8e9298')); R.rect(X(82), Y(46), X(92), Y(51), hex('#1e2024'));
+  R.rect(X(156), Y(56), X(178), Y(66), K); R.rect(X(157), Y(57), X(172), Y(65), NE2); R.rect(X(173), Y(55), X(180), Y(67), hex('#141416')); R.linea(X(157), Y(57), X(172), Y(57), NEL);
+  // EL OBJETIVO hacia la izquierda: el anillo de enfoque estriado, el de zoom y el parasol que se abre; el filo verde de la luz
+  R.rect(X(24), Y(72), X(52), Y(108), K);
+  for (let y = 73; y <= 107; y++) for (let x = 25; x <= 51; x++) { const r = (y - 73) / 34, l = 0.85 - Math.abs(r - 0.3) * 1.2 + (b4(x, y) - 0.5) * 0.15;
+    R.pset(X(x), Y(y), x > 40 && x < 46 ? ((x & 1) ? hex('#141416') : (l > 0.4 ? hex('#5a5e66') : hex('#3a3d44'))) : l > 0.55 ? hex('#5a5e66') : l > 0.25 ? hex('#33363c') : hex('#1a1b1f')); }
+  R.rect(X(30), Y(72), X(34), Y(108), hex('#16171a')); R.linea(X(30), Y(78), X(34), Y(78), hex('#c8c8c8'));
+  R.poligono([[X(4), Y(62)], [X(24), Y(70)], [X(24), Y(110)], [X(4), Y(118)]], K); R.poligono([[X(6), Y(64)], [X(23), Y(71)], [X(23), Y(109)], [X(6), Y(116)]], hex('#26282d'));
+  R.linea(X(6), Y(64), X(23), Y(71), hex('#5a5e66')); R.linea(X(6), Y(116), X(23), Y(109), hex('#121315'));
+  const vf = Math.min(1, v * 2.2);
+  for (let y = 64; y <= 116; y++) if (b4(4, y) < vf) R.pset(X(5), Y(y), VD);
+  for (let y = 46; y <= 52; y++) if (b4(28, y) < vf) R.pset(X(28), Y(y), VD);
+  for (let y = 72; y <= 108; y++) if (b4(24, y) < vf * 0.7) R.pset(X(24), Y(y), VDS);
+  // EL BRAZO DE LA PANTALLA y la pantalla abatible (x 184–288, y 56–124), abierta hacia nosotros
+  R.rect(X(168), Y(84), X(186), Y(96), K); R.rect(X(169), Y(85), X(185), Y(95), NE2); R.linea(X(169), Y(85), X(185), Y(85), NEL); R.disco(X(177), Y(90), 2, ME);
+  R.rect(X(184), Y(56), X(288), Y(124), K); R.rect(X(185), Y(57), X(287), Y(123), hex('#26282c'));
+  R.linea(X(185), Y(57), X(287), Y(57), hex('#5a5e66')); R.linea(X(185), Y(57), X(185), Y(123), hex('#44484f')); R.linea(X(186), Y(123), X(287), Y(123), hex('#121315'));
+  R.rect(X(SX0 - 1), Y(SY0 - 1), X(SX1 + 1), Y(SY1 + 1), K);
+  for (let k = 0; k < 3; k++) R.rect(X(283), Y(70 + k * 8), X(285), Y(73 + k * 8), hex('#141416'));
+  pantalla3(t, dx, dy, ruge, vacio);
+  // los papeles que suben en la luz, por delante de todo (el eco de «lifts»); se quedan por debajo de y 50
   const u = tramo(t, LIFTS - 0.6, P4);
-  if (u > 0) for (let k = 0; k < 6; k++) { const x = 104 + k * 22 + Math.round(Math.sin(t * 2 + k) * 4), y = Math.round(168 - u * (40 + k * 9) - (k % 2) * 4);
-    R.rect(x - 4, y - 3, x + 4, y + 3, T.C.doomVS ?? hex('#1a8a4a')); R.rect(x - 3, y - 2, x + 3, y + 2, BL); R.linea(x - 2, y - 1, x + 2, y - 1, hex('#9aa0a8')); R.linea(x - 2, y + 1, x + 1, y + 1, hex('#9aa0a8')); }
-  T.bunkerDelante(R, t, o);
-  // Hulk, por encima del tinte para que se lea: tiembla, ruge (rayas del rugido) y desaparece en el destello
-  if (!vacio) { const j = Math.round(Math.sin(t * 47) * 1.5), g = R.actor(EL.hulk, 152 + j, 170, t, { dir: 1, brazos: true, enfado: true, sorpresa: Math.sin(t * 9) > -0.6, quieto: true });
-    if (t < P3 + 0.9) for (let k = 0; k < 7; k++) { const a = -Math.PI * (0.15 + k * 0.12), r0 = 14 + ((t * 40 + k * 5) % 12); R.linea(g.cabeza[0] + Math.cos(a) * r0, g.cabeza[1] + 6 + Math.sin(a) * r0, g.cabeza[0] + Math.cos(a) * (r0 + 6), g.cabeza[1] + 6 + Math.sin(a) * (r0 + 6), BL); } }
-  const fl = tramo(t, VAN3 - 0.12, VAN3) * (1 - tramo(t, VAN3 + 0.05, VAN3 + 0.6));
-  if (fl > 0) T.tinte(R, 0, 179, [214, 255, 232], fl * 0.9);
+  if (u > 0) for (let k = 0; k < 6; k++) { const x = Math.round(40 + k * 44 - u * (14 + k * 3) + Math.sin(t * 2.4 + k) * 5), y = Math.round(190 - u * (70 + k * 13) - (k % 2) * 5);
+    const plano = Math.sin(t * 5 + k * 1.7) > -0.3, c = mez(BL, VDL, 0.5);
+    if (plano) { R.rect(x - 5, y - 3, x + 5, y + 3, hex('#4a6a54')); R.rect(x - 4, y - 2, x + 4, y + 2, c); R.linea(x - 3, y - 1, x + 3, y - 1, hex('#8a9a90')); R.linea(x - 3, y + 1, x + 1, y + 1, hex('#8a9a90')); }
+    else { R.rect(x - 5, y - 1, x + 5, y, hex('#4a6a54')); R.linea(x - 4, y - 1, x + 4, y - 1, c); } }
+  // el golpe de luz del destello en toda la sala
+  const fl = tramo(t, VAN3 - 0.08, VAN3 + 0.02) * (1 - tramo(t, VAN3 + 0.05, VAN3 + 0.45));
+  if (fl > 0) T.tinte(R, 0, 179, [214, 255, 232], fl * 0.55);
 };
 // ── 4. Wundagore: las rocas suben y Wanda despierta ──
 const wanda = (x, y, t, abre) => {     // Wanda tumbada, como dormida (28 × 12), la cabeza a la izquierda
@@ -83,7 +262,7 @@ const wanda = (x, y, t, abre) => {     // Wanda tumbada, como dormida (28 × 12)
   R.rect(x + 22, y + 5, x + 28, y + 10, K); R.rect(x + 23, y + 6, x + 27, y + 9, NE); R.rect(x + 14, y + 7, x + 17, y + 8, PI);
 };
 const p4 = (t) => {
-  const lev = 0.3 + 0.7 * tramo(t, P4, P4 + 1.1), o = { encuadre: 'ruinas', verde: 1, levanta: lev };
+  const lev = 0.3 + 0.7 * tramo(t, P4, P4 + 1.1), o = { encuadre: 'ruinas', verde: 1, levanta: lev, rayo: P4 + 0.1 };   // el rayo cae con el «trueno» (P4 + 0.1)
   T.wundagore(R, t, o);
   const abre = t > WAKE + 0.1;
   wanda(191, 140, t, abre);

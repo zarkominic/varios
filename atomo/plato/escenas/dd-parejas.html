@@ -21,8 +21,11 @@
 //    en «2003» sale el número grande, que rueda a «2026» con una flecha al póster.
 // 5. «older, white hair, swords, long coat»: la mansión de la escuela con la lona de Rondador colgada; tres alumnos
 //    señalan el pelo, las espadas y el abrigo, que se encienden por turno; en «someone is missing» uno se vuelve: «?».
-// 6. «Beast» (batalla 'ausente'): la silueta recortada de la Bestia; una «?» azul late; la mano de Atom pega una nota
-//    con «?» en el hueco en «without a poster».
+// 6. «Beast»: la valla de obra del plano 1, de cerca: los dos últimos pósters (Gambito y Yelena, Rondador y M'Baku) y el
+//    hueco del undécimo (cola seca, papel arrancado, grapas) con la silueta de la Bestia a tiza; la luz de obra se mece,
+//    pasan sombras de gente, una paloma picotea y un papel rueda por la acera. En «Beast» el filo se enciende de azul
+//    en vuelta y late una «?»; en «without a poster» el brazo de Atom (T.brazo) pega la nota azul con «?» en el pecho,
+//    la alisa y se va; la paloma sale volando.
 import * as T from '/atomo/plato/escenas/dd-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 import * as DO from '/atomo/plato/escenas/do-comun.js';
@@ -276,19 +279,116 @@ const q5 = (t) => {
   R.actor(EL.espectadora, 164, su, t, { dir: -1, dedo: a3 > 0, habla: t > MI && Math.sin(t * 7) > 0 });
   if (vuelve) { const u = tramo(t, MI, MI + 0.3); R.icono('?', 141, su - 42 - Math.round((1 - u) * 4), AMA, K, 2); }
 };
-// ── 6. La silueta de la Bestia: la nota con «?» ──
+// ── 6. La valla de obra de cerca: el hueco del póster de la Bestia; la nota con «?» ──
+// el hueco donde falta el undécimo póster (restos de cola y de papel arrancado) y la silueta de la Bestia a tiza dentro
+const GX0 = 164, GY0 = 46, GX1 = 312, GY1 = 150, BCX = 258, BCY = 98, BS = 1.2;
+const bestia = (x, y) => { const X = 160 + (x - BCX) / BS, Y = 118 + (y - BCY) / BS;
+  const e = (cx, cy, rx, ry) => ((X - cx) / rx) ** 2 + ((Y - cy) / ry) ** 2, c = (ax, ay, bx, by, r) => { const vx = bx - ax, vy = by - ay, u = Math.max(0, Math.min(1, ((X - ax) * vx + (Y - ay) * vy) / (vx * vx + vy * vy))); return Math.hypot(X - ax - vx * u, Y - ay - vy * u) / r; };
+  const v = Math.min(e(160, 118, 20, 22), e(160, 104, 25, 12), e(160, 91, 8.5, 8), c(138, 104, 131, 140, 6.5), c(182, 104, 189, 140, 6.5), e(130, 146, 7, 6), e(190, 146, 7, 6), c(150, 132, 145, 154, 7.5), c(170, 132, 175, 154, 7.5), e(144, 157, 9, 3), e(176, 157, 9, 3), c(153, 86, 151, 79, 2.2), c(167, 86, 169, 79, 2.2));
+  return v < 1 + (azar(X >> 1, Y >> 1, 97) - 0.5) * 0.3; };
+// la máscara de la silueta (1 dentro, 2 el filo) y el filo ordenado por ángulo (para encenderlo en vuelta)
+const MASK = new Uint8Array(320 * 180), FILO = [];
+for (let y = GY0; y <= GY1; y++) for (let x = GX0; x <= GX1; x++) if (bestia(x, y)) MASK[y * 320 + x] = 1;
+for (let y = GY0; y <= GY1; y++) for (let x = GX0; x <= GX1; x++) { const i = y * 320 + x; if (MASK[i] !== 1) continue;
+  if (!MASK[i - 1] || !MASK[i + 1] || !MASK[i - 320] || !MASK[i + 320] || !MASK[i - 2] || !MASK[i + 2] || !MASK[i - 640] || !MASK[i + 640]) { MASK[i] = 2; FILO.push([x, y, (Math.atan2(y - BCY, x - BCX) + Math.PI * 1.5) % (Math.PI * 2) / (Math.PI * 2)]); } }
+const VCERCA = () => fijo('valla-cerca', () => {
+  // arriba, la panza del andamio: chapa ondulada verde oscura, una viga y el tubo de hierro con sus abrazaderas
+  pinta(0, 0, 319, 13, (x, y) => { const tr = calma(x, y), on = Math.sin(x * 1.05); return rampa(HS('#0e1a14', '#16261c', '#1e3226', '#284030'), 1.4 + (tr ? on * 0.25 : on * 0.8) - (y > 10 ? 0.6 : 0) + (tr ? 0 : (azar(x >> 2, y >> 1, 21) - 0.5) * 0.4), x, y); });
+  for (const bx of [96, 232]) pinta(bx, 0, bx + 5, 13, (x, y) => calma(x, y) ? null : rampa(HS('#2a2a30', '#3e3e46', '#56565e'), x === bx ? 0.3 : 1.4 + (azar(x, y, 22) - 0.5), x, y));
+  pinta(0, 14, 319, 17, (x, y) => y === 17 ? K : y === 14 ? H('#a8acb6') : y === 15 ? H('#7a7e88') : H('#4a4e58'));
+  for (const ax of [40, 150, 260]) { caja(ax - 3, 13, ax + 3, 18, H('#6a6e78')); R.pset(ax, 15, H('#c8ccd4')); R.rect(ax - 2, 18, ax + 2, 19, H('#7a4a2a')); }
+  // los tableros de contrachapado de cerca: vetas en óvalo, la pintura verde a brochazos, desconchones y juntas
+  pinta(0, 18, 319, 149, (x, y) => { const lx = (x + 10) % 80, tab = Math.floor((x + 10) / 80); if (lx === 0) return K; if (lx === 1) return H('#12241a'); if (lx === 2) return H('#4e7e60');
+    const vet = Math.sin((y * 0.22 + Math.sin(x * 0.045 + tab * 2.1) * 3.2 + Math.sin(y * 0.03 + tab) * 2) * 1.7), bro = Math.sin(y * 1.9 + Math.sin(x * 0.07 + tab) * 3) * 0.18;
+    const d = azar(x >> 2, y >> 2, 31 + tab); if (d > 0.975 && azar(x >> 1, y >> 1, 32) > 0.3) return rampa(HS('#5a4028', '#8a6a44', '#a8865a'), 1 + vet * 0.6 + azar(x, y, 33) * 0.6, x, y);
+    return rampa(VERDEV, 1.8 + vet * 0.35 + bro + (azar(x >> 1, y >> 3, tab) - 0.5) * 0.35 - (y - 18) * 0.004 - (lx > 76 ? 0.7 : lx < 6 ? 0.3 : 0), x, y); });
+  // tornillos en las esquinas de cada tablero, con su chorreón de óxido
+  for (let jx = 70; jx < 330; jx += 80) for (const sx of [jx - 6, jx + 6]) for (const sy of [24, 142]) { if (sx < 2 || sx > 317 || calma(sx, sy)) continue;
+    R.disco(sx, sy, 2, K); R.disco(sx, sy, 1, H('#9a9ea8')); R.pset(sx - 1, sy - 1, H('#e0e4ea'));
+    for (let k = 3; k < 6 + (sx % 5) * 2 && sy + k < 149; k++) R.pset(sx + (k > 6 ? 1 : 0), sy + k, mez(H('#8a4a22'), R.pget(sx, sy + k), k / 14)); }
+  // restos de carteles viejos arrancados, entre los pósters
+  for (const [x, y, w, hh, c] of [[52, 22, 18, 14, '#e8e0d0'], [150, 132, 10, 16, '#c84a4a'], [148, 24, 14, 10, '#9ac8e8'], [4, 132, 12, 12, '#e8d8a0']]) {
+    pinta(x, y, x + w, y + hh, (px, py) => (px - x) + (py - y) * 0.5 + azar(px >> 1, py >> 1, 4) * 7 < w + 3 ? (b4(px, py) < 0.12 ? mez(H(c), K, 0.3) : (py - y) % 4 === 0 && azar(px, 9) > 0.6 ? mez(H(c), K, 0.15) : H(c)) : null); }
+  // el hueco del póster que falta: la cola seca y brillante, los brochazos, el papel arrancado por los bordes y las grapas
+  pinta(GX0, GY0, GX1, GY1, (x, y) => { const c0 = R.pget(x, y), br = Math.sin((x + y * 0.6) * 0.22) * 0.5 + 0.5; let c = mez(c0, H('#9ac0a0'), 0.18 + br * 0.08);
+    const bx = Math.min(x - GX0, GX1 - x), by = Math.min(y - GY0, GY1 - y), tira = 2 + azar(x >> 1, y >> 1, 41) * 5 + Math.sin((x + y) * 0.4) * 1.5;
+    if (Math.min(bx, by) < tira) return b4(x, y) < 0.1 ? H('#b8b2a2') : Math.min(bx, by) > tira - 1.2 ? H('#9a9484') : H('#ece6d6');
+    const pa = azar((x + y * 0.45) / 11 | 0, (y - x * 0.25) / 8 | 0, 42) + (azar(x >> 1, y >> 1, 43) - 0.5) * 0.3, cer = Math.min(bx, by);
+    if (pa > 0.9) return b4(x, y) < 0.15 ? H('#c8c2b2') : H('#e2dccb');
+    if (pa > 0.8 && cer < 20) return rampa(HS('#3a1a4a', '#6a2a5a', '#c8603a', '#f0a050'), (y - GY0) / (GY1 - GY0) * 3.4 + azar(x >> 2, y >> 2, 44), x, y);
+    const sw = Math.abs(Math.sin((x - GX0) * 0.03 + Math.sin(y * 0.05) * 1.4) * 40 - (y - GY0) * 0.5 - 10); if (sw < 1.2) c = mez(c, AMAL, 0.22);
+    return c; });
+  for (const [sx, sy] of [[GX0 + 4, GY0 + 4], [GX1 - 5, GY0 + 4], [GX0 + 4, GY1 - 4], [GX1 - 5, GY1 - 4], [Math.round((GX0 + GX1) / 2), GY0 + 3]]) { R.rect(sx, sy, sx + 2, sy, H('#c8ccd4')); R.pset(sx, sy + 1, K); R.pset(sx + 2, sy + 1, K); }
+  // la silueta de la Bestia a tiza: el filo grueso y polvoriento, y un rayado suelto dentro
+  for (let y = GY0; y <= GY1; y++) for (let x = GX0; x <= GX1; x++) { const m = MASK[y * 320 + x]; if (!m) continue;
+    if (m === 2) R.pset(x, y, b4(x, y) < 0.18 ? H('#b8c0c8') : H('#eef2f4'));
+    else { const c = R.pget(x, y); R.pset(x, y, mez(c, K, 0.14)); if (azar(x, y, 45) > 0.93) R.pset(x, y, mez(c, H('#dce4ea'), 0.35)); } }
+  // el «11» a tiza en la esquina del hueco: el sitio del undécimo póster
+  R.numero('11', 190, 70, { tam: 16, centro: true, color: H('#dfe6ea'), sombra: false });
+  // la franja de obra de abajo, gastada, y el bordillo de hormigón
+  pinta(0, 150, 319, 155, (x, y) => { const c = (Math.floor((x + y) / 7) % 2) ? H('#f0c830') : H('#1e1e24'); return azar(x >> 1, y, 51) > 0.86 ? mez(c, H('#6a6a70'), 0.6) : y === 150 ? mez(c, BL, 0.25) : c; });
+  // la acera de cerca: losas con juntas, chicles, una grieta, dos colillas y una chapa
+  pinta(0, 156, 319, 179, (x, y) => { if (y === 156) return K; if (x % 120 === 37 || y === 171) return H('#6a6a70');
+    const g = azar(x >> 2, y >> 2, 52); if (g > 0.985) return H('#4a4a52'); return rampa(HS('#7a7a82', '#8e8e96', '#a2a2aa', '#b6b6be'), 2.1 - (y - 156) * 0.03 + (azar(x, y, 53) - 0.5) * 0.9 + (g - 0.5) * 0.6, x, y); });
+  R.linea(186, 158, 200, 170, H('#4a4a52')); R.linea(200, 170, 214, 174, H('#4a4a52'));
+  for (const [x, y] of [[226, 165], [92, 175]]) { R.rect(x, y, x + 5, y + 1, BL); R.rect(x + 6, y, x + 7, y + 1, H('#d8903a')); }
+  R.disco(270, 176, 2, H('#c8a030')); R.pset(269, 175, AMAL);
+});
+// la sombra de alguien que pasa por la acera, por detrás de la cámara (u 0–1), proyectada en la valla
+const sombraPasa = (u, dir, t) => { if (u <= 0 || u >= 1) return; const cx = dir > 0 ? lerp(-60, 380, u) : lerp(380, -60, u), pa = Math.sin(t * 9) * 6;
+  pinta(cx - 34, 24, cx + 34, 179, (x, y) => { const dx = x - cx, cab = Math.hypot(dx, (y - 44) * 1.1) < 15, cue = Math.abs(dx) < 22 - Math.max(0, 70 - y) * 0.2 && y > 58 && y < 128,
+      pie = y >= 128 && (Math.abs(dx - pa) < 7 || Math.abs(dx + pa) < 7);
+    if (!(cab || cue || pie) || calma(x, y)) return null; const borde = !(Math.hypot(dx, (y - 44) * 1.1) < 12 || (Math.abs(dx) < 19 - Math.max(0, 70 - y) * 0.2 && y > 61));
+    return borde && b4(x, y) < 0.5 ? null : mez(R.pget(x, y), K, 0.24); }); };
 const q6 = (t) => {
-  const BE = B(.745), WI = B(.923), o = { encuadre: 'pareja', camara: 'ausente' }, g = T.batalla(R, t, o), [sx, sy] = g.silueta ?? [160, 118];
-  T.batallaDelante(R, t, o);
-  // «Beast»: pelos azules que brillan por el filo del recorte y una «?» que late
-  const be = tramo(t, BE, BE + 0.4);
-  if (be > 0) { for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2 + t * 0.3; chispa(sx + Math.cos(a) * (30 + 6 * Math.sin(k)), sy - 4 + Math.sin(a) * 38, t + k * 0.13, k % 2 ? H('#6a9aff') : H('#2a4ae8')); }
-    const v = Math.floor(t * 3) % 2; if (t < WI) R.icono('?', sx - 7, sy - 28 - v, H('#6a9aff'), K, 2); }
-  // la mano de Atom pega una nota azul con «?» en el hueco y se va
-  const pe = WI + 0.6, m = tramo(t, WI - 0.1, pe) - tramo(t, pe + 0.4, pe + 1.0), puesta = t > pe;
-  const nx = Math.round(puesta ? sx - 11 : lerp(330, sx - 11, tramo(t, WI - 0.1, pe))), ny = sy - 30;
-  if (t > WI - 0.1) { R.rect(nx + 1, ny + 1, nx + 23, ny + 23, mez(H('#2a2e3a'), K, 0.4)); caja(nx, ny, nx + 22, ny + 22, H('#8ac8f0'), H('#5a9ac8')); R.rect(nx + 1, ny + 1, nx + 21, ny + 3, H('#6ab0e0')); R.icono('?', nx + 4, ny + 6, H('#1e3a6a'), H('#5a9ac8'), 2); }
-  if (m > 0) T.mano(R, nx + 30, ny + 12, -1, MANGA);
+  const P0 = B(.694), BE = B(.745), WI = B(.923), pe = WI + 0.6;
+  R.copiar(VCERCA());
+  // los dos últimos pósters de la fila (Gambito y Yelena, cortado por el borde; Rondador y M'Baku), con la esquina suelta
+  poster(9, -34, 30, 50, 142, t, { s: 2, op: [{ sonrisa: true }, { sonrisa: Math.sin(t * 0.7) > 0 }] });
+  poster(10, 62, 30, 146, 142, t, { s: 2, op: [{ sonrisa: true }, { habla: Math.sin(t * 5) > 0.5 }] });
+  { const L = 7 + Math.round(Math.sin(t * 2.6) * 2 + Math.sin(t * 6.1) * 0.7); for (let b = 0; b < L; b++) for (let a = 0; a < L - b; a++) { const x = 146 - a, y = 30 + b; R.pset(x, y, a + b === L - 1 ? H('#b8b2a2') : b4(x, y) < 0.3 ? H('#d8d2c2') : H('#ece6d6')); }
+    R.linea(146 - L, 30, 146, 30 + L, mez(H('#2a3a2e'), K, 0.3)); }
+  // la luz de obra colgada del tubo, que se mece; su charco de luz cálida en la valla y las motas
+  const ang = Math.sin(t * 1.3) * 0.16, lx = Math.round(154 + Math.sin(ang) * 16), ly = Math.round(18 + Math.cos(ang) * 16);
+  pinta(70, 22, 250, 156, (x, y) => { const d = ((x - lx) / 80) ** 2 + ((y - ly - 50) / 70) ** 2; if (d > 1) return null; const a = (1 - d) * 0.3; return b4(x, y) < a * 3.4 ? mez(R.pget(x, y), H('#ffd890'), a) : null; });
+  R.linea(154, 17, lx, ly - 4, K); caja(lx - 4, ly - 4, lx + 4, ly + 6, H('#3a3a40')); R.rect(lx - 2, ly - 2, lx + 2, ly + 4, H('#fff0b0')); R.pset(lx - 1, ly - 1, BL);
+  for (let k = -3; k <= 3; k += 3) R.linea(lx + k, ly - 3, lx + k, ly + 5, H('#5a5a62')); R.rect(lx - 4, ly + 1, lx + 4, ly + 1, H('#5a5a62'));
+  for (let k = 0; k < 10; k++) { const mx = Math.round(lx - 40 + ((azar(k, 61) * 80 + t * (2 + k % 3)) % 80)), my = Math.round(ly + 10 + ((azar(k, 62) * 70 + t * 3) % 70)); if (Math.sin(t * 2 + k) > -0.2) R.pset(mx, my, mez(R.pget(mx, my), H('#fff0b0'), 0.6)); }
+  // «Beast»: el filo de tiza se enciende de azul en vuelta, con pelos que brillan; dentro, un azul que respira y la «?»
+  const be = tramo(t, BE - 0.1, BE + 0.6);
+  if (be > 0) { const res = 0.1 + 0.05 * Math.sin(t * 4);
+    for (let y = 50; y <= 148; y++) for (let x = 198; x <= 290; x++) if (MASK[y * 320 + x] === 1) R.pset(x, y, mez(R.pget(x, y), H('#2a4ae8'), res * be));
+    for (const [x, y, a] of FILO) if (a < be) R.pset(x, y, Math.floor(t * 6 + x * 0.3 + y * 0.2) % 5 ? H('#8ab8ff') : AMAL);
+    for (let k = 0; k < 9; k++) { const p = FILO[Math.floor(azar(k, Math.floor(t * 3)) * FILO.length)]; if (p && p[2] < be) chispa(p[0], p[1], t + k * 0.13, k % 2 ? H('#6a9aff') : H('#2a4ae8')); }
+    if (t < pe) { const v = Math.floor(t * 3) % 2; R.icono('?', BCX - 10, BCY - 30 - v, H('#8ab8ff'), K, 3); } }
+  // la paloma picotea en la acera; se va volando al golpecito
+  { const vu = tramo(t, pe, pe + 0.9), px = Math.round(lerp(118, 96, tramo(t, P0, P0 + 3)) - vu * 70), py = Math.round(172 - vu * 60), pic = vu === 0 && Math.sin(t * 5) > 0.6 ? 2 : 0;
+    R.rect(px, py - 6, px + 9, py - 2, H('#7a7e8a')); R.rect(px + 1, py - 7, px + 7, py - 6, H('#8a8e9a')); R.rect(px + 3, py - 5, px + 8, py - 4, H('#5a5e6a'));
+    R.rect(px - 3, py - 5, px, py - 3, H('#4a4e5a')); R.rect(px - 1, py - 10 + pic, px + 2, py - 7 + pic, H('#6a6e7a')); R.pset(px - 2, py - 9 + pic, H('#f0a020')); R.pset(px, py - 9 + pic, K); R.pset(px + 1, py - 7 + pic, H('#4a8a7a'));
+    if (vu > 0) { const a = Math.floor(t * 14) % 2; R.linea(px + 3, py - 6, px + 8, py - 12 + a * 8, H('#9a9eaa')); R.linea(px + 4, py - 6, px + 10, py - 11 + a * 8, H('#7a7e8a')); }
+    else { R.pset(px + 3, py - 1, H('#f0a020')); R.pset(px + 6, py - 1, H('#f0a020')); R.pset(px + 3, py, H('#f0a020')); R.pset(px + 6, py, H('#f0a020')); } }
+  // un trozo de papel arrancado que el viento arrastra por la acera, de derecha a izquierda
+  { const u = ((t - P0) * 0.22) % 1, x = Math.round(lerp(330, -20, u)), y = Math.round(170 + Math.sin(u * 30) * 2 - Math.abs(Math.sin(u * 14)) * 6), g = Math.floor(t * 8) % 3;
+    R.poligono([[x, y], [x + 5 + g, y - 2], [x + 7, y + 3 - g], [x + 1, y + 3]], H('#ece6d6')); R.pset(x + 2, y + 1, H('#c84a4a')); }
+  // el cubo de cola en primer plano, con la brocha apoyada en el borde y la cola que gotea
+  { const bx = 8, by = 152; R.poligono([[bx, by], [bx + 34, by], [bx + 31, 180], [bx + 3, 180]], K); R.poligono([[bx + 1, by + 1], [bx + 33, by + 1], [bx + 30, 180], [bx + 4, 180]], H('#b8bcc6'));
+    R.rect(bx + 6, by + 3, bx + 8, 179, H('#e0e4ea')); R.rect(bx + 26, by + 3, bx + 29, 179, H('#8a8e98')); R.rect(bx + 1, by + 8, bx + 33, by + 9, H('#7a7e88'));
+    R.rect(bx + 2, by + 1, bx + 32, by + 2, H('#f2eee0')); R.pset(bx + 10 + Math.round(Math.sin(t * 2) * 6), by + 1, BL);
+    R.linea(bx + 24, by + 1, bx + 44, by - 26, H('#6a4428')); R.linea(bx + 25, by + 1, bx + 45, by - 26, H('#8a5a34')); caja(bx + 41, by - 33, bx + 49, by - 25, H('#d8c8a0'));
+    const go = ((t * 0.8) % 1); R.pset(bx + 44, Math.round(by - 24 + go * 8), H('#f2eee0')); }
+  // dos sombras de gente que pasa por la acera
+  sombraPasa(tramo(t, P0 + 0.1, P0 + 2.4), 1, t); sombraPasa(tramo(t, pe + 1.2, pe + 3.6), -1, t);
+  // «without a poster»: el brazo de Atom entra por la derecha, pega la nota azul con «?» en el pecho y la alisa
+  const NX = BCX - 12, NY = BCY - 26, ent = tramo(t, WI - 0.15, pe), sal = tramo(t, pe + 0.5, pe + 1.1), puesta = t > pe;
+  const nx = Math.round(puesta ? NX : lerp(NX + 110, NX, ent)), ny = Math.round(puesta ? NY : lerp(NY + 16, NY, ent)) + (t > pe && t < pe + 0.15 ? 1 : 0);
+  if (t > WI - 0.15) { const lev = puesta ? Math.max(0, Math.round(Math.sin(t * 3.1) * 1.5)) : 0;
+    R.rect(nx + 2, ny + 2, nx + 24, ny + 24, mez(H('#1e2a22'), K, 0.4)); caja(nx, ny, nx + 22, ny + 22, H('#8ac8f0'), H('#5a9ac8')); R.rect(nx + 1, ny + 1, nx + 21, ny + 3, H('#6ab0e0'));
+    for (let k = 0; k < 3; k++) R.linea(nx + 3, ny + 16 + k * 2, nx + 19, ny + 16 + k * 2, H('#7ab8e4'));
+    R.icono('?', nx + 4, ny + 4, H('#1e3a6a'), H('#5a9ac8'), 2);
+    if (lev > 0) { for (let b = 0; b <= lev + 2; b++) for (let a = 0; a <= lev + 2 - b; a++) R.pset(nx + 22 - a, ny + 22 - b, a + b === lev + 2 ? H('#5a9ac8') : H('#b8e0fa')); }
+    if (puesta && t < pe + 0.6) R.anillo(nx + 11, ny + 11, Math.round(14 + (t - pe) * 20), mez(H('#8ab8ff'), BL, 0.4)); }
+  if (ent > 0 && sal < 1) { const al = t > pe && t < pe + 0.5 ? Math.round(Math.sin((t - pe) * 25) * 2) : 0, wx = nx + 26 + al + Math.round(sal * 70), wy = ny + 12 + Math.round(sal * 40);
+    T.brazo(R, 340 + Math.round(sal * 10), wy + 40, wx, wy, MANGA, -1, { codo: [wx + 18, wy + 28] }); }
 };
 const efectos = [[A(.0) + 0.05, 'papel'], [A(.146), 'brillo'], [A(.22), 'pop'], [A(.25), 'coche'],
   [A(.363), 'whoosh'], [A(.443), 'chof'], [A(.6), 'publico'],

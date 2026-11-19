@@ -180,7 +180,8 @@ export function lagoDelante(R, t, o = {}) {
 //     dorada recta que late; o.ramas (0–1) la ramifica (ramas rojas y naranjas que brotan, y la baliza roja de encima gira y
 //     destella); o.fosforo 'ambar' (por omisión) o 'verde' (el fondo de la pantalla); un magnetófono de dos bobinas que
 //     giran, botones que parpadean, dos relojes de aguja con la aguja que tiembla; detrás, la pared de madera, el papel
-//     pintado, la estación del tubo neumático (cae una cápsula en la bandeja), un reloj de pared y archivadores.
+//     pintado, la estación del tubo neumático (sale de la pared con su codo por debajo de y 26, lejos de la barra del año; cae
+//     una cápsula en la bandeja), un reloj de pared y archivadores.
 //     Suelo y 166; libre de x 10 a 96 (el agente que vigila con su lupa, delante de la pantalla, en x ~76) y de 264 a 300.
 //   'arbol': el vacío del tiempo, morado y estrellado, con hilos lejanos y motas doradas que flotan; la línea sagrada cruza
 //     dorada (y ≈ 88) con pulsos de luz que corren; o.ramas (0–1): brotan ramas de colores (la primera, verde, en x 112;
@@ -366,7 +367,8 @@ export function cosmos(R, t, o = {}) {
 //     letras) y su caída de luz, dos expositores enrollables con la máscara y 2026, una mesita con botellas, la tarima
 //     (suelo y = 122) y la moqueta; la cámara de televisión con su piloto y una fila de fotógrafos de espaldas con flashes.
 //     o.camara 'general' o 'cerca' (los emblemas y el atril más grandes; suelo y = 150). o.flashes (0–1, 0.5 por omisión):
-//     cuántos flashes saltan; el atril (x 146–174, tapa en y = 112; de cerca x 138–182, tapa en y = 140) lo pinta
+//     cuántos flashes saltan (de cerca, además: la tela en pliegues con los charcos de los focos, sus dos haces con motas,
+//     dos cámaras robotizadas en trípode a los lados de la tarima y dos filas de prensa apretadas con micros de mano); el atril (x 146–174, tapa en y = 112; de cerca x 138–182, tapa en y = 140) lo pinta
 //     escenarioDelante: quien habla se pone en x ≈ 153 y asoman su cabeza y sus hombros.
 // Delante: escenarioDelante(R, t, o) (mismas opciones): la fila de cabezas más cercana del auditorio (con brazos en la
 // ovación y móviles), y en la prensa el atril con el ramillete de micrófonos y la primera fila de fotógrafos con sus
@@ -587,7 +589,7 @@ export function latveria(R, t, o = {}) {
 //     que pasa un tráiler, el teclado que se ilumina, el flexo, la taza que humea y un cubo de palomitas vacío.
 //     o.camara 'estanteria': la estantería de cerca (x 30–250, y 14–150): arriba réplicas (escudo, martillo, casco de
 //     cuernos, el cubo azul que brilla, el guantelete); en medio las cinco cajas de película (x 46, 84, 122, 160, 198,
-//     de 32 × 36, y 56–92) con iconos: guante, cuernos, garras, asterisco y un 4; abajo cómics de lomo de colores, un
+//     de 32 × 36, y 56–92) con iconos sin emblemas: guante, cuernos, garras, asterisco y una llama (los Cuatro); abajo cómics de lomo de colores, un
 //     peluche y una lámpara de lava; a la derecha medio póster de los cuernos. Suelo en y 172.
 //     o.camara 'mapa' (nueva): el mapa de cerca (x 34–258, y 16–142), con la luz del flexo; suelo en y 176.
 //     o.mapa (0–1): el mapa se completa: del centro salen las ramas, aparecen las Tierras con número (616, 838, 10005,
@@ -1420,6 +1422,20 @@ function e_prensaFondo(R, cerca) {
   for (let x = 64 * s; x < 320; x += 64 * s) { rect(x, 0, x, yt - 1, EP.navyS); rect(x + 1, 0, x + 1, yt - 1, EP.navyL); }
 
   for (let y = 0; y < yt; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - 160) / 190, (y - yt * 0.7) / (yt * 0.95)); if (d > 0.55 && e_b4(x, y) < (d - 0.55) * 1.6) { const c = R.pget(x, y); pset(x, y, e_mezcla(c, hex('#04050a'), 0.45)); } }
+  if (cerca) {
+    // de cerca, el fondo tiene cuerpo: la tela cae en pliegues suaves (luz en la cresta, sombra en el valle), cada panel
+    // se aclara arriba y se hunde en sus juntas, los dos focos del techo dejan su charco cálido y la tarima su sombra
+    for (let y = 0; y < yt; y++) for (let x = 0; x < 320; x++) { const c = R.pget(x, y), pl = Math.sin(x * 0.11 + Math.sin(y * 0.03) * 0.8), xp = x % 128, junta = Math.min(xp, 128 - xp);
+      let f = pl > 0.75 ? 0.1 : pl < -0.7 ? -0.16 : 0; if (junta < 6) f -= (6 - junta) * 0.04; f += Math.max(0, 0.12 - y / yt * 0.2);
+      for (const [fx, fy, fr] of [[92, 58, 62], [232, 58, 62]]) { const d = Math.hypot((x - fx) / fr, (y - fy) / (fr * 0.8)); if (d < 1) f += (1 - d) * 0.3; }
+      const sb = (y - (yt - 22)) / 22; if (sb > 0) f -= sb * 0.35;
+      if (f > 0.02 && e_b4(x, y) < Math.min(1, f * 3.2)) pset(x, y, e_mezcla(c, hex('#8a9ad8'), Math.min(0.35, f))); else if (f < -0.02 && e_b4(x, y) < Math.min(1, -f * 3.2)) pset(x, y, e_mezcla(c, hex('#04050a'), Math.min(0.55, -f * 1.6))); }
+    for (let x = 128; x < 320; x += 128) { rect(x - 1, 0, x - 1, yt - 1, hex('#080a14')); rect(x, 0, x, yt - 1, EP.navyL); for (let y = 6; y < yt; y += 22) { disco(x, y, 2, EP.k); pset(x, y, EP.plata); } }
+    // el canto de la tarima con su listón de luz y la cinta de marca en el suelo
+    for (let x = 0; x < 320; x += 2) pset(x, yt + 1, e_mezcla(hex('#3a5aa0'), EP.blanco, 0.4)); for (const x of [96, 224]) { rect(x - 6, yt + 4, x + 6, yt + 5, EP.cinta); rect(x - 1, yt + 2, x + 1, yt + 7, EP.cinta); }
+    // los cables de la prensa por la moqueta, hacia las cámaras
+    for (const [x0, x1, k] of [[0, 120, 0], [320, 210, 1], [40, 150, 2]]) { let py = yt + 24 + k * 6; for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) { const y = Math.round(yt + 24 + k * 6 + Math.sin(x * 0.05 + k) * 3); pset(x, y, EP.k); pset(x, y - 1, hex('#3a3c4a')); py = y; } }
+  }
   // la barra del año y el rincón de Atom, en calma: el fondo se apaga ahí
   e_tinte(R, 14, 0, 176, 17, hex('#0a0e1c'), 0.6); e_tinte(R, 268, 0, 319, 50, hex('#0a0e1c'), 0.6);
   // los expositores enrollables a los lados, con la máscara, barras y 2026
@@ -1444,6 +1460,22 @@ function e_prensa(R, t, o, cerca) {
   // los flashes: iluminan el fondo un instante
   const fl = e_flash(t, o.flashes ?? 0.5);
   if (fl > 0.2) e_tinte(R, 0, 0, 319, yt + 12, EP.blanco, 0.18 * fl, 0.5);
+  if (cerca) {
+    // los haces de los dos focos del techo (entran por fuera de la barra del año y del rincón de Atom), con motas que flotan
+    const bal = Math.sin(t * 0.35) * 6;
+    e_haz(R, 0, 0, 92 + bal, 132, 4, 34, hex('#c8d4ff'), 0.16, 0.42); e_haz(R, 250, 0, 232 - bal, 132, 4, 34, hex('#ffe8c0'), 0.16, 0.42);
+    for (let k = 0; k < 26; k++) { const lado = k % 2, u = (h(k, 1, 671) + t * (0.03 + h(k, 2, 671) * 0.04)) % 1, y = 26 + u * 102, cx = lado ? 250 + (232 - bal - 250) * (y / 132) : (92 + bal) * (y / 132), w = 4 + 30 * (y / 132);
+      const x = Math.round(cx + (h(k, 3, 671) - 0.5) * 1.6 * w + Math.sin(t * 0.9 + k) * 2); if (Math.sin(t * 2 + k * 1.7) > -0.2) pset(x, Math.round(y), lado ? hex('#fff2d8') : hex('#e0e8ff')); }
+    // dos cámaras robotizadas en sus trípodes, en los lados de la tarima (detrás de quien pasa por ella), que apuntan al
+    // atril, con el piloto rojo del directo y el cable que baja
+    for (const [cx, d, k] of [[24, 1, 0], [298, -1, 1]]) { const cy = 116 + Math.round(Math.sin(t * 0.4 + k) * 1), rec = Math.floor(t * 1.5 + k) % 2;
+      for (const dx of [-9, 0, 9]) { linea(cx, cy + 6, cx + dx, yt + 2, EP.k); linea(cx + 1, cy + 6, cx + dx + 1, yt + 2, hex('#2a2c38')); } rect(cx - 2, cy + 4, cx + 2, cy + 9, EP.k);
+      rect(cx - 12, cy - 7, cx + 12, cy + 5, EP.k); rect(cx - 11, cy - 6, cx + 11, cy + 4, hex('#3a3e4a')); rect(cx - 11, cy - 6, cx + 11, cy - 6, hex('#6a6e7a')); rect(cx - 11, cy + 3, cx + 11, cy + 4, hex('#24262e'));
+      for (let i = -8; i < 8; i += 3) pset(cx + i, cy - 2, hex('#2a2c36'));
+      const lx = cx + d * 12; rect(Math.min(lx, lx + d * 8), cy - 5, Math.max(lx, lx + d * 8), cy + 3, EP.k); rect(Math.min(lx, lx + d * 7) + (d > 0 ? 1 : 0), cy - 4, Math.max(lx, lx + d * 7) - (d > 0 ? 0 : 1), cy + 2, hex('#22242e')); disco(lx + d * 8, cy - 1, 4, EP.k); disco(lx + d * 8, cy - 1, 3, hex('#2a3a5a')); pset(lx + d * 7, cy - 3, hex('#8ab8ff'));
+      rect(cx - 5, cy - 12, cx + 5, cy - 8, EP.k); rect(cx - 4, cy - 11, cx + 4, cy - 9, hex('#4a4e5a')); disco(cx - d * 8, cy - 10, 1.5, rec ? EP.rojo : EP.rojoS); if (rec) R.halo(cx - d * 8, cy - 10, 4, [EP.rojoS, EP.rojo], 0.4);
+      linea(cx - d * 11, cy + 2, cx - d * 16, cy + 6, EP.k); for (let y = cy + 6; y <= yt + 2; y++) pset(cx - d * 16 + Math.round(Math.sin(y * 0.3) * 1), y, EP.k); }
+  }
   if (!cerca) {
     // la cámara de televisión con su trípode, a la izquierda, con el piloto y el operador
     const cx = 34, cy = 128; linea(cx, cy + 4, cx - 10, 168, EP.k); linea(cx, cy + 4, cx + 8, 168, EP.k); linea(cx, cy + 4, cx, 168, hex('#2a2c38'));
@@ -1497,7 +1529,14 @@ function e_atril(R, t, cerca) {
 
 // la primera fila de la prensa, por delante del atril
 function e_prensaDelante(R, t, o, cerca) {
-  if (cerca) { e_fotografos(R, t, 164, 10, 62, 34, 9, o.flashes ?? 0.5, [124, 196]); return; }
+  const { rect, pset, disco, linea } = R;
+  if (cerca) {
+    // la fila de atrás, más pequeña y apretada; la de delante, más grande, con hueco ante el atril
+    e_fotografos(R, t, 160, 7, 19, 52, 11, o.flashes ?? 0.5, [124, 196]);
+    // dos micros de mano que asoman hacia el atril, con su cubo de color, que tiemblan un poco
+    for (const [x0, x1, c, k] of [[112, 128, EP.rojo, 0], [208, 194, EP.cintaA, 1]]) { const y1 = 154 + Math.round(Math.sin(t * 3 + k * 2)), x = x1 + Math.round(Math.sin(t * 2.2 + k) * 1);
+      linea(x0, 180, x, y1, EP.k); linea(x0 + 1, 180, x + 1, y1, hex('#3a3c46')); rect(x - 2, y1 + 3, x + 3, y1 + 7, EP.k); rect(x - 1, y1 + 4, x + 2, y1 + 6, c); disco(x, y1, 3, EP.k); disco(x, y1, 2, hex('#5a5e6a')); pset(x - 1, y1 - 1, EP.m3); }
+    e_fotografos(R, t, 170, 10, 34, 14, 9, o.flashes ?? 0.5, [116, 204]); return; }
   e_fotografos(R, t, 172, 9, 30, 46, 6, o.flashes ?? 0.5);
 }
 
@@ -4841,8 +4880,12 @@ function b_consolaFija(R) {
   rect(0, 96, 319, 152, PT.galeria);
   for (let x = 0; x < 320; x += 12) { rect(x, 96, x, 152, PT.galeriaS); rect(x + 1, 96, x + 1, 152, PT.galeriaL); for (let g = 0; g < 3; g++) { const gx = x + 3 + Math.round(h(x, g, 510) * 7); for (let y = 96; y < 152; y++) if (h(gx, y >> 2, 511 + g) < 0.6) pset(gx + (Math.sin(y * 0.2 + g) > 0.6 ? 1 : 0), y, PT.galeriaS); } }
   rect(0, 150, 319, 152, PT.mesaD);
-  // la estación del tubo neumático a la izquierda: el tubo que baja, la campana, la bandeja y la luz
-  b_tuboV(R, 30, 0, 104);
+  // la estación del tubo neumático a la izquierda: el tubo sale de la pared por la izquierda (por debajo de la barra del
+  // año), hace codo y baja a la campana; la bandeja y la luz
+  b_tuboH(R, 0, 26, 32); b_tuboV(R, 30, 30, 104);
+  disco(30, 32, 5, C.k); disco(30, 32, 4, PT.tuboV); pset(28, 30, PT.tuboVL); pset(29, 29, PT.tuboVL); pset(32, 34, PT.tuboVS);
+  rect(25, 26, 35, 29, C.k); rect(26, 27, 34, 28, PT.tubo); rect(26, 27, 34, 27, PT.tuboL);
+  rect(0, 26, 3, 38, C.k); rect(1, 27, 2, 37, PT.tuboS); pset(1, 27, PT.tuboL);
   rect(18, 104, 42, 118, C.k); rect(19, 105, 41, 117, PT.tubo); rect(19, 105, 41, 105, PT.tuboL); rect(19, 117, 41, 117, PT.tuboS); rect(24, 108, 36, 114, C.k); rect(25, 109, 35, 113, hex('#3a2a1a'));
   rect(14, 120, 46, 126, C.k); rect(15, 121, 45, 125, PT.archivo); rect(15, 121, 45, 121, PT.archivoL); rect(15, 125, 45, 125, PT.archivoS);
   // el reloj de pared de la derecha y los archivadores
@@ -4908,7 +4951,7 @@ function b_consola(R, t, o) {
   if (ram > 0) { const on = Math.floor(t * 6) % 2; disco(180, 18, 5, on ? C.rojo : hex('#a83030')); pset(178, 16, C.blanco);
     const a = t * 8; for (let k = 0; k < 18; k++) { const x = Math.round(180 + Math.cos(a) * k * 2.2), y = Math.round(18 + Math.sin(a) * k * 0.6); if ((k & 1) === 0) b_tinta(R, x, y, C.rojo, 0.4); } }
   // la cápsula que cae a la bandeja de la estación del tubo, cada nueve segundos
-  { const u = (t % 9) / 1.4; if (u < 1) { R.recorte([26, 0, 34, 104]); b_capsula(R, 30, -6 + u * 116, false); R.recorte(null); } else if (u < 4) { rect(24, 117, 36, 119, C.k); rect(25, 117, 35, 118, PT.capsula); rect(25, 117, 35, 117, PT.capsulaL); } }
+  { const u = (t % 9) / 1.4; if (u < 1) { R.recorte([26, 33, 34, 104]); b_capsula(R, 30, 28 + u * 82, false); R.recorte(null); } else if (u < 4) { rect(24, 117, 36, 119, C.k); rect(25, 117, 35, 118, PT.capsula); rect(25, 117, 35, 117, PT.capsulaL); } }
   b_agujas(R, 296, 64, 10, t, 25, 0.6);
   return { suelo: 166, libre: [[10, 96], [264, 300]], pantalla: [X0, Y0, X1, Y1], linea: yl };
 }
@@ -7555,7 +7598,13 @@ function j_caja(R, x, y, w, al, icono, c, t) {
     ico.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] === '#') { rect(x0 + i * s - 1, y0 + j * s - 1, x0 + i * s + s, y0 + j * s + s, C.k); } });
     ico.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] === '#') rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, j < 2 ? j_mezcla(hex(col), hex('#ffffff'), 0.4) : hex(col)); });
     if (icono === 'guante') { const gem = ['#e83a3a', '#3a8ae8', '#f0e040', '#a84ae8', '#3ad86a', '#ff8a2a']; for (let g = 0; g < 4; g++) rect(x0 + (2 + g * 1.5) * s, y0 + 3 * s, x0 + (2 + g * 1.5) * s + s - 1, y0 + 3 * s + s - 1, hex(gem[g])); rect(x0 + 4 * s, y0 + 5 * s, x0 + 4 * s + s - 1, y0 + 5 * s + s - 1, hex(gem[4])); }
-  } else if (icono === 'cuatro') { disco(cx, cy, 8 * s / 2 + 3, C.k); disco(cx, cy, 8 * s / 2 + 2, hex('#f6f6ff')); disco(cx, cy, 8 * s / 2, hex('#2a6ad8')); R.numero('4', cx, cy + (s > 1 ? 4 : 3), { centro: true, color: hex('#f6f6ff') }); }
+  } else if (icono === 'cuatro') { // los Cuatro por su atributo, sin emblema: la llama de la Antorcha sobre una franja del traje azul
+    const L = ['....#...', '...##...', '...###.#', '..####.#', '.#######', '.##.####', '##..###.', '##...##.', '.##.##..', '..####..'], x0 = cx - 4 * s, y0 = cy - 6 * s;
+    rect(x - 0, cy + 4 * s - 1, x + w, cy + 4 * s + 2, C.k); rect(x + 3, cy + 4 * s, x + w, cy + 4 * s + 1, hex('#2a6ad8')); rect(x + 3, cy + 4 * s, x + w, cy + 4 * s, hex('#8ab8ff'));
+    L.forEach((f, j) => { for (let i = 0; i < 8; i++) if (f[i] === '#') rect(x0 + i * s - 1, y0 + j * s - 1, x0 + i * s + s, y0 + j * s + s, C.k); });
+    const vi = Math.floor(t * 6 + x) % 3;
+    L.forEach((f, j) => { for (let i = 0; i < 8; i++) if (f[i] === '#') { const nucleo = j > 3 && i > 1 && i < 6 && f[i - 1] === '#' && f[i + 1] === '#'; rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, nucleo ? hex('#fff0a0') : j < 3 ? hex('#ffd040') : hex('#ff7a2a')); } });
+    if (vi === 0) rect(x0 + 4 * s, y0 - s, x0 + 4 * s + s - 1, y0 - 1, hex('#ffd040')); else if (vi === 1) rect(x0 + 7 * s, y0 + s, x0 + 7 * s + s - 1, y0 + 2 * s - 1, hex('#ffd040')); }
   if (Math.sin(t * 0.8 + x) > 0.85) linea(x + 4, y + 2, x + 10, y + 8, j_mezcla(hex(c), hex('#ffffff'), 0.5));   // un reflejo que pasa
 }
 

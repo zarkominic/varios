@@ -408,7 +408,7 @@ export function platoDelante(R, t, o = {}) {
 //     la luz. salaDelante pinta la última fila de butacas (y 168–180). Devuelve suelo 165, libre [100, 220], pantalla.
 //   'calificacion': UNA SALA DE PROYECCIÓN PEQUEÑA: pared de fieltro acolchado, la pantalla en la pared de la izquierda en
 //     perspectiva (luz azul y dos siluetas que pelean, con destellos), la cabina con el haz y sus motas, el calendario
-//     «1968», fotos viejas, un archivador; arriba, el altavoz, dos fotogramas enmarcados, el reloj que anda, dos apliques
+//     (sin año; o.anio pone el número en su banda), fotos viejas, un archivador; arriba, el altavoz, dos fotogramas enmarcados, el reloj que anda, dos apliques
 //     con su abanico de luz, los paneles del techo y el detector de humo que parpadea; la luz de la pantalla tiembla sobre
 //     la moqueta; la mesa con lápices, fichas y la almohadilla, y la PRENSA DE SELLAR (o.sello 0–3:
 //     baja con cada golpe, salta polvo y la ficha enseña el «13» rojo solo después del tercero; el gag 5). Diez butacas de
@@ -2790,16 +2790,19 @@ function c_tele(R, t, e, [x0, y0, x1, y1]) {
   pset(x1 - 2, y1 + 2, (e > 0 || Math.sin(t * 2.2) > 0) ? hex('#ff3a3a') : hex('#5a1a1a'));
 }
 
-// los cinco iconos del holograma, en una rejilla −6…6: el escudo, la estrella, la garra, el 4 en su círculo y la X
-const c_CUATRO = ['#..#.', '#..#.', '#..#.', '#####', '...#.', '...#.', '...#.'];
+// los cinco iconos del holograma, en una rejilla −6…6, por sus atributos y sin emblemas ni letras: el escudo, la
+// estrella, la garra, la LLAMA (la Antorcha de los Cuatro) y la cabeza con el VISOR de Cíclope (la banda ancha
+// con su rendija de luz)
+const c_LLAMA = ['......#......', '.....##......', '.....###.....', '....####..#..', '...#####.##..', '..##########.', '..###..####..', '.###....###..', '.##..#...##..', '.##.###..##..', '..##.#..##...', '...#######...', '....#####....'];
+const c_VISOR = ['....#####....', '..##.....##..', '.#.........#.', '#############', '#.#########.#', '#############', '#############', '#...........#', '.#..#####..#.', '.#.........#.', '..##.....##..', '....#####....', '.............'];
 
 function c_iconoHolo(n, i, j) {
   const d = Math.hypot(i, j), a = Math.atan2(j, i);
   if (n === 0) return d <= 6.4 && (d > 4.8 || (d > 2.4 && d <= 3.5) || d <= 1.1);
   if (n === 1) return d <= 2.6 + 4.2 * Math.pow(Math.abs(Math.cos(2.5 * (a + Math.PI / 2))), 4);
   if (n === 2) { for (const s of [-1, 0, 1]) { const u = i - s * 3.6 + j * 0.45; if (Math.abs(u) < 0.95 - Math.abs(j) * 0.06 && Math.abs(j) <= 6 - Math.abs(s)) return true; } return false; }
-  if (n === 3) { if (d > 5.4 && d <= 6.6) return true; const r = c_CUATRO[j + 3], c = i + 2; return !!r && c >= 0 && c < 5 && r[c] === '#'; }
-  return (d > 5.4 && d <= 6.6) || (d < 4.6 && (Math.abs(i - j) < 1.1 || Math.abs(i + j) < 1.1));
+  if (n === 3) return c_LLAMA[j + 6][i + 6] === '#';
+  return c_VISOR[j + 6][i + 6] === '#';
 }
 
 // el holograma: el haz que sube del proyector de la mesa, un anillo de datos que gira y el icono que da vueltas
@@ -2930,7 +2933,8 @@ function c_screenx(R, t, o) {
       let c;
       if (dentro && !vacia) { c = c_pano(160 + lado * (64 + u * 150), 22 + v * 78, t, x, y); c = c_mez(c, hex('#000000'), 0.18 + u * 0.3); }
       else { const s = Math.floor(u * 9), sv = Math.floor(v * 6); c = PANEL[(s + sv) % 2 + (Math.abs(u * 9 - s - 0.5) > 0.44 || Math.abs(v * 6 - sv - 0.5) > 0.45 ? -0 : 1)] ?? PANEL[0]; if (Math.abs(u * 9 - s - 0.5) > 0.44) c = hex('#0c0a10'); }
-      if (x >= 270 && y <= 48) c = c_mez(c, hex('#100c16'), 0.6);
+      // la esquina de Atom se apaga poco a poco (sin borde): sube hacia la esquina de arriba a la derecha
+      if (x > 232 && y < 72) { const sx = Math.min(1, (x - 232) / 52), sy = Math.min(1, (72 - y) / 36), a = 0.62 * sx * sx * (3 - 2 * sx) * sy * sy * (3 - 2 * sy); if (a > 0.01) c = c_mez(c, hex('#100c16'), a); }
       pset(x, y, c);
     }
   }
@@ -2990,9 +2994,10 @@ function c_calificacionFijo(R) {
   for (let y = 121; y < 180; y++) for (let x = 0; x < 320; x++) { if (y < Math.round(lerp(132, 120, Math.min(1, x / 62))) && x < 62) continue; const z = 60 / (y - 90), u = Math.floor((x - 160) * z / 8 + 100), v = Math.floor(y * z / 4); pset(x, y, ((u + v) % 2 === 0) ? (h(u, v, 2) > 0.85 ? hex('#5a3238') : hex('#4a262c')) : hex('#3e2026')); }
   // la cabina de proyección (ventanuco con su luz)
   rect(112, 32, 142, 48, hex('#1a1e2a')); rect(114, 34, 140, 46, hex('#3a3a4a')); rect(115, 35, 139, 45, hex('#e8d8a0')); rect(127, 35, 128, 45, hex('#1a1e2a')); rect(115, 42, 139, 45, hex('#c8a870'));
-  // el calendario de 1968 y las fotos viejas sobre el archivador
+  // el calendario (sin año: la escena lo pone con o.anio) y las fotos viejas sobre el archivador
   rect(222, 46, 254, 88, hex('#1a1c24')); rect(223, 47, 253, 87, hex('#f0e8d4')); rect(223, 47, 253, 56, hex('#b83a3a'));
-  R.numero('1968', 238, 55, { centro: true, color: hex('#fff4e0') });
+  rect(223, 47, 253, 47, hex('#d85a5a')); rect(223, 56, 253, 56, hex('#8a2a2a')); for (let i = 0; i < 7; i++) rect(226 + i * 4, 51, 227 + i * 4, 52, hex('#f6d8c8'));
+  for (let y = 58; y < 87; y += 2) R.pset(252, y, hex('#d8ccb4')); rect(249, 84, 253, 87, hex('#d8ccb4')); R.linea(249, 87, 253, 83, hex('#a89c84'));
   for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) { rect(226 + i * 4, 60 + j * 5, 227 + i * 4, 61 + j * 5, hex('#8a8070')); }
   R.anillo ? R.anillo(238.5, 70.5, 3.2, hex('#c83a3a')) : null; rect(230, 44, 231, 47, hex('#8a8a90')); rect(245, 44, 246, 47, hex('#8a8a90'));
   for (const [x, y, c] of [[266, 50, '#d8c8a0'], [282, 48, '#c8b890'], [298, 51, '#e0d0a8']]) {
@@ -3040,6 +3045,8 @@ function c_calificacionFijo(R) {
 // la imagen de la pantalla de la izquierda (en perspectiva): una pelea de siluetas sobre luz azul, con destellos
 function c_calificacion(R, t, o) {
   R.copiar(c_capa(R, 'calificacion', () => c_calificacionFijo(R)));
+  // el año del calendario, si la escena lo da (o.anio); sin él, la banda roja queda con sus días sin número
+  if (o.anio != null) { R.rect(224, 48, 252, 55, hex('#b83a3a')); R.numero(String(o.anio), 238, 55, { centro: true, color: hex('#fff4e0') }); }
   const { pset } = R, [X0, , X1] = c_PANTALLA_CAL, AZ = [hex('#1a2a5a'), hex('#24407a'), hex('#3a5a9a'), hex('#6a8ac8'), hex('#a8c4ec')];
   const fase = (t % 3.2) / 3.2, a = 0.3 + Math.sin(fase * Math.PI * 2) * 0.1, b = 0.7 - Math.sin(fase * Math.PI * 2) * 0.1, golpe = Math.sin(fase * Math.PI * 2) > 0.92;
   for (let x = X0; x <= X1; x++) {
@@ -4200,10 +4207,11 @@ function d_escritorio(R, t, o) {
 //     o.mascara 0–1: de 0 a 0.5 la máscara al rojo en las brasas; desde 0.5, en el yunque, enfriándose del rojo vivo al
 //     acero gris (primero solo queda al rojo el filo; nunca un tono de piel) y humeando, con una estrella «!» al caer (la escena pone a los monjes y a Doom joven). Suelo 150, libre
 //     [40, 240]; yunque [169, 128] (la cara de arriba), fragua [221, 104], puerta [67, 132].
-//     Cámara 'vapor': DE CERCA: un abanico de rayos naranja y amarillo detrás, LA MÁSCARA DE HIERRO grande (remaches,
-//     ranuras de ojos y boca) sujeta por unas tenazas que entran desde abajo, con el filo al rojo (o.calor 0–1, por omisión
-//     0.6 y bajando con t), nubes de vapor que suben y tapan la abertura de UNA CAPUCHA que se inclina a la izquierda (sin
-//     cara), y una estrella «!». Suelo 180, libre [0, 0], mascara [166, 96].
+//     Cámara 'vapor': INSERTO: un abanico de rayos naranja y amarillo detrás, LA MÁSCARA DE HIERRO grande (remaches,
+//     ranuras de ojos y boca) sujeta por unas tenazas que entran desde abajo, sobre el yunque (con su martillo), con el
+//     filo al rojo (o.calor 0–1, por omisión 0.6 y bajando con t); el tonel de templar que humea; una viñeta pequeña
+//     (x 14–84, y 24–106) con la fragua donde Victor, chibi y encapuchado (sin cara), levanta la máscara con las tenazas
+//     hacia la capucha a medida que se enfría; y una estrella «!». Suelo 180, libre [0, 0], mascara [166, 96].
 //   'latveria': EL CASTILLO DE DOOM: muro de sillares, columnas con capiteles y antorchas, dos vidrieras ojivales con su
 //     luz, dos estandartes verdes con la máscara (sin letras), el trono en su estrado, la alfombra roja larga sobre un suelo
 //     ajedrezado en perspectiva, dos candelabros con velas que tiemblan y dos guardias-robot pequeños con ojos que se
@@ -4427,34 +4435,68 @@ function d_fragua(R, t, o) {
   R.recorte(null);
 }
 
-// la máscara de cerca (cámara 'vapor'): rayos de fuego detrás, la capucha que se inclina (la abertura, siempre en sombra
-// o tapada por el vapor: nunca se ve la cara), las tenazas, la máscara de hierro grande con el filo al rojo (o.calor
-// 0–1), las rendijas que dejan ver el fuego, el vapor que sube, las chispas que saltan del filo y las gotas que
-// chisporrotean; la estrella de onomatopeya arriba
+// la máscara de cerca (cámara 'vapor'): un INSERTO de la máscara de hierro al rojo (o.calor 0–1) en las tenazas, sobre
+// el yunque, con los rayos de fuego detrás; a la izquierda, el tonel de templar que humea y el martillo en el yunque; y
+// una viñeta pequeña dentro de la viñeta (x 14–84, y 24–106) con la fragua del monasterio: Victor, chibi y encapuchado
+// (de perfil, sin cara), levanta la máscara con las tenazas hacia la capucha a medida que se enfría (1 − o.calor).
+// Encima, las chispas del filo, el vapor que sube, las gotas que chisporrotean y la estrella de onomatopeya
+const D_VC = [14, 24, 84, 106];
+
+function d_vaporCercaFijo(R) {
+  const { rect, poligono, pset, disco, linea } = R; rect(9, 8, 310, 171, DC.naranja);
+  for (let i = 0; i < 24; i++) { if (i % 2) continue; const a0 = i / 24 * Math.PI * 2, a1 = (i + 1) / 24 * Math.PI * 2; poligono([[166, 96], [166 + Math.cos(a0) * 400, 96 + Math.sin(a0) * 400], [166 + Math.cos(a1) * 400, 96 + Math.sin(a1) * 400]], DC.amarillo); }
+  R.disco(166, 96, 56, DC.fuego);
+  // el yunque bajo la máscara: la cara de arriba con su brillo, el cuerno a la izquierda, la cintura y el tocón
+  d_poliT(R, [[106, 154], [238, 154], [238, 162], [214, 164], [204, 171], [140, 171], [130, 164], [106, 162], [72, 157]], DC.hierroS);
+  poligono([[108, 155], [236, 155], [236, 157], [108, 157], [76, 157]], DC.hierro); linea(110, 155, 230, 155, hex('#d2d6dc')); for (let x = 116; x < 232; x += 9) pset(x, 159, DC.hierro);
+  rect(226, 156, 230, 160, DC.tinta);
+  // el martillo apoyado en el yunque
+  d_poliT(R, [[206, 146], [226, 146], [226, 153], [206, 153]], DC.hierroS); linea(207, 147, 225, 147, DC.hierro); d_poliT(R, [[226, 148], [262, 140], [263, 143], [227, 151]], DC.marron); linea(230, 148, 260, 142, DC.marronS);
+  // el tonel de templar, de duelas con sus aros, con el agua oscura arriba
+  d_poliT(R, [[18, 132], [70, 132], [74, 171], [14, 171]], DC.marron); for (let x = 24; x < 70; x += 8) linea(x, 133, x + Math.round((x - 44) * 0.1), 170, DC.marronS);
+  for (const y of [140, 160]) { d_poliT(R, [[16, y], [72, y], [72, y + 3], [16, y + 3]], DC.hierroS); }
+  d_poliT(R, [[18, 128], [70, 128], [70, 133], [18, 133]], DC.azulS); linea(22, 130, 40, 130, DC.cian);
+  // la viñeta pequeña: marco de tinta con su calle de papel, pared de sillares, la boca de la fragua y el suelo de losas
+  const [x0, y0, x1, y1] = D_VC; rect(x0 - 3, y0 - 3, x1 + 3, y1 + 3, DC.papel); rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, DC.tinta);
+  rect(x0, y0, x1, y1, DC.piedra);
+  for (let y = y0; y < 92; y++) for (let x = x0; x <= x1; x++) { const f = Math.floor((y - y0) / 8), o = (f % 2) * 6; if ((y - y0) % 8 === 0 || (x - x0 + o) % 12 === 0) pset(x, y, DC.piedraS); else if (h(x >> 1, y >> 1, 131) < 0.08) pset(x, y, DC.piedraS); }
+  for (let y = 92; y <= y1; y++) for (let x = x0; x <= x1; x++) pset(x, y, (y === 92 || (x - x0 + (y - 92) * 2) % 14 === 0) ? DC.losaS : DC.losa);
+  d_poliT(R, [[x0, 48], [x0 + 26, 48], [x0 + 30, 54], [x0 + 30, 92], [x0, 92]], DC.piedraS); d_poliT(R, [[x0 + 2, 64], [x0 + 24, 64], [x0 + 24, 86], [x0 + 2, 86]], DC.tinta);
+  d_poliT(R, [[x0 + 4, 32], [x0 + 22, 32], [x0 + 26, 48], [x0, 48]], DC.granateS); rect(x0 + 10, y0, x0 + 16, 31, DC.granateS); linea(x0 + 10, y0, x0 + 10, 31, DC.tinta); linea(x0 + 16, y0, x0 + 16, 31, DC.tinta);
+  // las herramientas colgadas y el cubo de carbón
+  for (const [x, l] of [[52, 12], [58, 16], [64, 10]]) { linea(x, 30, x, 30 + l, DC.tinta); disco(x, 30 + l, 1.5, DC.hierroS); } rect(48, 28, 70, 29, DC.marronS);
+  d_poliT(R, [[68, 84], [80, 84], [78, 92], [70, 92]], DC.hierroS); for (const [i, j] of [[71, 83], [74, 82], [77, 83]]) pset(i, j, DC.tinta);
+}
+
 function d_vaporCerca(R, t, o) {
-  d_vineta(R, 'c_fraguavapor', () => {
-    const { rect, poligono } = R; rect(9, 8, 310, 171, DC.naranja);
-    for (let i = 0; i < 24; i++) { if (i % 2) continue; const a0 = i / 24 * Math.PI * 2, a1 = (i + 1) / 24 * Math.PI * 2; poligono([[166, 96], [166 + Math.cos(a0) * 400, 96 + Math.sin(a0) * 400], [166 + Math.cos(a1) * 400, 96 + Math.sin(a1) * 400]], DC.amarillo); }
-    R.disco(166, 96, 56, DC.fuego);
-  }, () => { for (let y = 8; y <= 171; y++) for (let x = 9; x <= 310; x++) { const d = Math.hypot(x - 166, y - 96); if (d > 60 && d < 64 && (x + y) % 2 === 0) R.pset(x, y, DC.tinta); } });
+  d_vineta(R, 'c_fraguavapor', () => d_vaporCercaFijo(R), () => { for (let y = 8; y <= 171; y++) for (let x = 9; x <= 310; x++) { const d = Math.hypot(x - 166, y - 96); if (d > 60 && d < 64 && (x + y) % 2 === 0) R.pset(x, y, DC.tinta); } });
+  const { pset, linea, disco } = R, calor = o.calor ?? Math.max(0.15, 0.7 - (t % 12) * 0.04), [x0, y0, x1, y1] = D_VC;
+  // la viñeta pequeña: la boca de la fragua que late, el resplandor en el suelo, Victor que levanta la máscara
+  R.recorte(D_VC);
+  for (let y = 65; y <= 85; y++) for (let x = x0 + 3; x <= x0 + 23; x++) { const v = Math.sin(x * 0.8 + y * 1.1 + t * 5) + Math.sin(x * 0.3 - t * 3) + (y - 65) * 0.08; pset(x, y, v > 1.2 ? DC.amarillo : v > 0.2 ? DC.fuego : v > -0.8 ? DC.naranja : DC.rojoS); }
+  for (let y = 93; y <= y1; y++) for (let x = x0; x <= x0 + 40; x++) if (((x + y) & 1) && Math.hypot((x - x0 - 14) / 30, (y - 93) / 10) < 0.8 + Math.sin(t * 6) * 0.08) pset(x, y, DC.fuego);
+  for (let k = 0; k < 5; k++) { const u = (t * 0.8 + k / 5) % 1; pset(Math.round(x0 + 14 + Math.sin(k * 2.3 + u * 5) * 6), Math.round(64 - u * 18), u < 0.5 ? DC.amarillo : DC.naranja); }
+  const sube = Math.max(0, Math.min(1, (1 - calor) / 0.7)), ee = sube * sube * (3 - 2 * sube);
+  const tx = Math.round(60 - ee * 4), ty = Math.round(90 - ee * 12);
+  const ac = R.actor(ELENCO_CHIBI.doomJovenDD, 36, 100, t, { dir: 1, sostiene: [tx - 6, ty + 2] }), [mx, my] = ac && ac.mano ? ac.mano : [tx - 6, ty + 2];
+  linea(mx, my, tx - 1, ty + 1, DC.tinta); linea(mx, my + 1, tx - 1, ty + 3, DC.tinta); pset(mx + 1, my, DC.hierro);
+  d_mascara(R, tx + 3, ty, 0.5, calor);
+  if (calor > 0.3) R.halo(tx + 3, ty, 6, [DC.naranja, DC.amarillo], 0.35 * calor);
+  d_vaporC(R, tx + 2, ty - 4, t, 3, 0.45, 1.3);
   R.recorte([9, 8, 310, 171]);
-  // la capucha que se inclina, con sus pliegues (la abertura queda en sombra y tapada por el vapor)
-  const inc = Math.sin(t * 0.8) * 4 + 3;
-  const H = [[14, 172], [18, 120], [30, 78], [52 + inc, 46], [84 + inc, 36], [108 + inc, 48], [118 + inc, 74], [112 + inc, 96], [96 + inc, 112], [98, 172]];
-  d_poliT(R, H, DC.tela); R.poligono([[18, 172], [22, 120], [34, 80], [52 + inc, 50], [44 + inc, 84], [38, 172]], DC.telaS);
-  for (const [a, b, c, d] of [[40, 172, 50 + inc, 100], [62, 172, 70 + inc, 104], [84 + inc, 40, 100 + inc, 60]]) R.linea(a, b, c, d, DC.telaS);
-  R.poligono([[96 + inc, 58], [110 + inc, 60], [116 + inc, 80], [100 + inc, 100], [86 + inc, 88]], DC.tinta);
   // las tenazas que entran desde abajo y la máscara grande, de acero con el filo al rojo
-  const calor = o.calor ?? Math.max(0.15, 0.7 - (t % 12) * 0.04);
-  for (const [x0, y0, x1, y1] of [[262, 172, 196, 104], [276, 172, 200, 122]]) { R.linea(x0, y0, x1, y1, DC.tinta); R.linea(x0 + 1, y0, x1 + 1, y1, DC.hierro); R.linea(x0 + 2, y0, x1 + 2, y1, DC.hierroS); R.linea(x0 + 3, y0, x1 + 3, y1, DC.tinta); }
+  for (const [a, b, c, d] of [[262, 172, 196, 104], [276, 172, 200, 122]]) { linea(a, b, c, d, DC.tinta); linea(a + 1, b, c + 1, d, DC.hierro); linea(a + 2, b, c + 2, d, DC.hierroS); linea(a + 3, b, c + 3, d, DC.tinta); }
   d_mascara(R, 166, 96, 4, calor, true, DC.fuego);
   R.rect(194, 100, 202, 106, DC.hierroS); R.rect(194, 100, 202, 100, DC.hierro); R.rect(198, 118, 206, 124, DC.hierroS); R.rect(198, 118, 206, 118, DC.hierro);
+  // el reflejo del fuego en la cara del yunque, que tiembla, y las gotas que caen del filo y chisporrotean en él
+  for (let x = 112; x < 230; x += 2) if (Math.sin(x * 0.2 + t * 4) > 0.2) pset(x, 156, calor > 0.4 ? DC.naranja : DC.rojo);
+  for (let k = 0; k < 4; k++) { const u = (t * 0.9 + k / 4) % 1, x = 140 + k * 16; if (u < 0.7) pset(x, Math.round(150 + u * 6), DC.cian); else { pset(x - 1, 153, DC.blanco); pset(x + 1, 152, DC.blanco); } }
   // las chispas que saltan del filo: rayitas que salen hacia fuera y caen (más y más amarillas cuanto más quema)
   const nch = Math.round(6 + calor * 14);
   for (let k = 0; k < nch; k++) { const u = ((t * 1.3 + h(k, 1, 121)) % 1), a = h(k, 2, 121) * Math.PI * 2, r0 = 42 + u * 46, x = 166 + Math.cos(a) * r0, y = 96 + Math.sin(a) * r0 * 0.95 + u * u * 26;
-    if (u > 0.9) continue; const c = u < 0.4 && calor > 0.4 ? DC.amarillo : DC.blanco; R.linea(Math.round(x), Math.round(y), Math.round(x - Math.cos(a) * 3), Math.round(y - Math.sin(a) * 3 - u * 2), u < 0.5 ? c : DC.fuego); }
-  // el vapor que sube y tapa la capucha, y las gotas que chisporrotean sobre el metal
-  d_vaporC(R, 124, 92, t, 5, 1.6, 0.8); d_vaporC(R, 150, 60, t + 1.3, 4, 1.2, 1.1); d_vaporC(R, 200, 70, t + 0.7, 3, 1.0, 1);
+    if (u > 0.9) continue; if (x < x1 + 4 && y < y1 + 4) continue; const c = u < 0.4 && calor > 0.4 ? DC.amarillo : DC.blanco; linea(Math.round(x), Math.round(y), Math.round(x - Math.cos(a) * 3), Math.round(y - Math.sin(a) * 3 - u * 2), u < 0.5 ? c : DC.fuego); }
+  // el vapor que sube del tonel y del metal, y las gotas que chisporrotean sobre la máscara
+  R.recorte([9, 110, 310, 171]); d_vaporC(R, 40, 128, t, 4, 0.6, 0.7); R.recorte([9, 8, 310, 171]); d_vaporC(R, 150, 60, t + 1.3, 4, 1.2, 1.1); d_vaporC(R, 200, 70, t + 0.7, 3, 1.0, 1);
   for (let k = 0; k < 10; k++) { const a = k / 10 * Math.PI * 2 + t, r = 40 + ((t * 30 + k * 7) % 14); R.pset(Math.round(166 + Math.cos(a) * r), Math.round(96 + Math.sin(a) * r * 0.9), DC.amarillo); }
   d_estalla(R, 236, 34, 18, DC.amarillo, DC.rojo, Math.sin(t * 3) * 0.1);
   R.recorte(null);
@@ -4580,7 +4622,13 @@ function d_cuna(R, t, o) {
   if ((t % 1.5) < 0.2) { disco(258, 112, 1, DC.rojo); }
   { const u = (t % 2) / 2; pset(284, 74 + Math.round(u * 6), DC.cian); }
   // la enfermera que pasa por detrás del cristal de la puerta
-  R.recorte([24, 54, 50, 82]); { const x = Math.round(((t * 9) % 70) - 10); disco(x, 62, 4, DC.tinta); disco(x, 62, 3, hex('#e0b090')); rect(x - 4, 59, x + 4, 60, DC.blanco); rect(x - 5, 67, x + 5, 82, DC.azul); rect(x - 5, 67, x + 5, 68, DC.tinta); }
+  // (todo con poligono, disco y pset, que respetan el recorte del cristal: R.rect no lo respeta)
+  R.recorte([24, 54, 50, 82]); { const x = Math.round(((t * 9) % 70) - 10), pa = Math.floor(t * 4) % 2, P = R.poligono;
+    P([[x - 6, 67], [x + 6, 67], [x + 6, 83], [x - 6, 83]], DC.tinta); P([[x - 5, 68], [x + 5, 68], [x + 5, 83], [x - 5, 83]], DC.azul); P([[x + 2, 68], [x + 5, 68], [x + 5, 83], [x + 2, 83]], DC.azulS);
+    P([[x - 2, 68], [x + 1, 68], [x - 1, 71]], DC.blanco); pset(x - 3, 74, DC.blanco); pset(x - 3, 75, DC.rojo);
+    P([[x + 6, 72], [x + 11, 72], [x + 11, 80], [x + 6, 80]], DC.tinta); P([[x + 7, 73], [x + 10, 73], [x + 10, 79], [x + 7, 79]], DC.blanco); for (let j = 74; j < 79; j += 2) pset(x + 8 + pa, j, DC.grisS);
+    disco(x, 62, 4, DC.tinta); disco(x, 62, 3, hex('#e0b090')); disco(x - 1, 60, 3, DC.marronS); pset(x + 2, 62, DC.tinta);
+    P([[x - 4, 57], [x + 4, 57], [x + 3, 59], [x - 3, 59]], DC.blanco); pset(x, 58, DC.rojo); }
   R.recorte([9, 8, 310, 171]);
   // el globo de corazón atado a la cuna, que se mece
   { const bx = Math.round(194 + Math.sin(t * 1.1) * 4), by = Math.round(80 + Math.sin(t * 1.7) * 2); linea(184, 132, bx, by + 8, DC.tinta); d_poliT(R, [[bx, by + 8], [bx - 8, by], [bx - 7, by - 5], [bx - 3, by - 6], [bx, by - 3], [bx + 3, by - 6], [bx + 7, by - 5], [bx + 8, by]], DC.rojo); pset(bx - 4, by - 3, DC.blanco); }
