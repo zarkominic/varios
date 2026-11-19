@@ -212,8 +212,8 @@ E['dd-encore'] = ('Endgame Encore', '''// DD-ENCORE (frases 4–5), 2026, cartel
 // 1. las puertas de las salas: la gente entra en la sala de la máscara; en «new name» se enciende el cartel nuevo (corta
 //    en «Encore»);  2. dentro de la sala IMAX, con la tormenta verde en la pantalla: en «four scenes» se abren en ella
 //    cuatro fotogramas nuevos (la puerta, el reloj, el yunque, el símbolo) y un chico con palomitas se para en el pasillo
-//    (corta en «Joe»);  3. la sala envolvente: Joe Russo entra hasta su silla de director y en «required» señala la
-//    pantalla, que se extiende por las paredes;  4. (película) la casa de Peggy de noche: Loki llama en «knocks», abre
+//    (corta en «Joe»);  3. una sala de proyección pequeña con público: Joe Russo entra, los espectadores se
+//    vuelven a mirarlo y en «required» señala la pantalla (flecha de puntos y «!»);  4. (película) la casa de Peggy de noche: Loki llama en «knocks», abre
 //    Peggy, Steve se asoma detrás y Loki les ofrece la mano con una chispa verde (corta en «The TVA»);  5. la consola de la
 //    oficina del tiempo (pieza del 19, con lo nuestro en la pantalla): dos universos se acercan y chocan en «collide»; la
 //    baliza gira y la agente se asusta;  6. un taller a oscuras: martillazos con chispas; en «turns out» la fragua se pone
@@ -263,18 +263,22 @@ const p2 = (t) => {
     if (t > FOUR + 0.4 && t < FOUR + 1.2) { const u = (t - FOUR - 0.4) / 0.8; R.pset(mx + Math.round(u * 6), my - 4 - Math.round(Math.sin(u * 3) * 8), hex('#fff6d0')); } }
   T.cineDelante(R, t, o);
 };
-// ── 3. Joe Russo: «obligatorio» ──
+// ── 3. Joe Russo, en una sala de proyección pequeña: «obligatorio» ──
 const p3 = (t) => {
-  const o = { encuadre: 'reunion', camara: 'pantalla', planos: tramo(t, REQUIRED - 0.2, REQUIRED + 0.8) }, g = T.sala(R, t, o);
-  const a = tramo(t, P3 + 0.1, P3 + 1.7), x = Math.round(lerp(84, 150, a));
-  R.actor(EL.russoAnthonyDD, 196, 165, t, { dir: -1, sonrisa: t > 11.4, habla: t > 11.2 && t < 11.9 && Math.sin(t * 9) > 0 });
-  const senala = t > REQUIRED - 0.1;
-  R.actor(EL.russoJoeDD, x, 165, t, { dir: senala ? -1 : 1, anda: a > 0 && a < 1, habla: t > PLANOS && t < REQUIRED + 1.0 && Math.sin(t * 8) > 0, dedo: senala, sonrisa: t > REQUIRED + 1.2 });
+  const o = { encuadre: 'calificacion' }, g = T.sala(R, t, o);
+  const AS = g.asientos ?? [[92, 126], [118, 126], [144, 126], [170, 126], [196, 126], [80, 158], [108, 158], [136, 158], [164, 158], [192, 158]];
+  const PUB = [EL.espectador, EL.chicaHoy, EL.vecino, EL.espectadora, EL.chicoHoy, EL.chica, EL.chico];
+  const vuelven = t > 12.0 && t < REQUIRED + 0.3;   // se vuelven a mirar al director cuando habla
+  [0, 2, 3, 5, 6, 8, 9].forEach((k, i) => { const [x, y] = AS[k]; R.actor(PUB[i % PUB.length], x, y, t, { dir: vuelven && i % 2 === 0 ? 1 : -1, sorpresa: t > REQUIRED + 0.2 && t < REQUIRED + 1.2 && i % 3 === 0, sonrisa: t > REQUIRED + 1.4 }); });
   T.salaDelante(R, t, o);
-  const e = tramo(t, REQUIRED, REQUIRED + 0.25);
-  if (e > 0 && t < REQUIRED + 1.8) { const hx = x + 2, hy = 128; for (let k = 0; k < 5; k++) { const u = (k + 1) / 6 * e; R.disco(Math.round(lerp(hx, 150, u)), Math.round(lerp(hy, 104, u)), 1, hex('#ffe08a')); }
-    R.poligono([[146, 104], [154, 104], [150, 98]], hex('#ffe08a'));
-    const y = Math.round(116 - e * 6); R.rect(x + 3, y - 2, x + 11, y + 9, K); R.rect(x + 4, y - 1, x + 10, y + 8, BL); R.icono('!', x + 6, y, hex('#d01a2a'), BL); }
+  // Joe Russo entra por la derecha, se planta delante de la mesa y en «required» señala la pantalla
+  const a = tramo(t, P3 + 0.1, P3 + 1.6), x = Math.round(lerp(330, 236, a)), senala = t > REQUIRED - 0.1;
+  const jr = R.actor(EL.russoJoeDD, x, 160, t, { dir: -1, anda: a > 0 && a < 1, habla: t > 12.6 && t < REQUIRED + 1.0 && Math.sin(t * 8) > 0, dedo: senala || (t > 11.1 && t < 11.9), sonrisa: t > REQUIRED + 1.2 });
+  const e = tramo(t, REQUIRED, REQUIRED + 0.3);
+  if (e > 0) { const [hx, hy] = jr.mano ?? [x, 132], pa = g.pantalla ?? [6, 26, 62, 116], tx = pa[2] + 4, ty = Math.round((pa[1] + pa[3]) / 2);
+    for (let k = 1; k <= 9; k++) { const u = k / 10 * e; R.disco(Math.round(lerp(hx - 2, tx, u)), Math.round(lerp(hy, ty, u) - Math.sin(u * Math.PI) * 18), 1, hex('#ffe08a')); }
+    if (e >= 1) R.poligono([[tx - 1, ty], [tx + 6, ty - 4], [tx + 6, ty + 4]], hex('#ffe08a'));
+    if (t < REQUIRED + 1.8) { const y = Math.round(hy - 22 - e * 4); R.rect(x + 3, y - 2, x + 11, y + 9, K); R.rect(x + 4, y - 1, x + 10, y + 8, BL); R.icono('!', x + 6, y, hex('#d01a2a'), BL); } }
 };
 // ── 4. (película) La casa de Peggy: llama Loki ──
 let fondoCasa = null;
