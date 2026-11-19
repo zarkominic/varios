@@ -156,14 +156,18 @@ function vista(R, t, o, V) {
 //     madera colgada de la borda (x 261–278), el palo (x 202–209) con sus cabillas y cabos adujados, esponjas colgadas de
 //     un cabo que se mecen, redes con corchos sobre la borda, dos cestos, una jarra de barro, el casco de cobre de
 //     repuesto sobre un cajón, una gaviota posada y gotas que caen; detrás, el mar con un caíque lejano y la isla, que
-//     suben y bajan con el balanceo. o.bomba 1 pinta dos bomberoAK en x 58 y 108. Devuelve suelo 158, libre [20, 250],
+//     suben y bajan con el balanceo. En la cara de la caja, una manivela a cada lado (cubo en x 73 y 109, y 150; mango de
+//     madera a 3 px) que gira con el volante, las dos a media vuelta. o.bomba 1 pinta dos bomberoAK en x ~55 y ~113
+//     que agarran el mango de su manivela (R.actor con sostiene) y dan vueltas con el cuerpo al compás (el brazo del
+//     chibi alcanza 9 px: el volante de 14 px de radio no se puede agarrar). Devuelve suelo 158, libre [20, 250],
 //     escalera, bomba, horizonte (el del momento).
 //   'rescate' (general): EL RESCATE DE 1900–1901: al fondo, el vapor de la marina griega de costado (casco gris con
 //     portillos, costuras y remaches, la franja roja de flotación, la caseta y el puente con toldo, una chimenea con su
 //     humo que se va a la izquierda, dos palos con jarcia, botes en los pescantes, manguerotes, marineritos que van y
 //     vienen, la bandera de franjas azules y blancas con la cruz, sin escudo), un bote de remos que va y viene, un casco de
 //     buzo que asoma con burbujas, Creta a lo lejos y la isla detrás a la derecha; delante, la cubierta del caíque con la
-//     bomba de aire (x 46; gira por omisión, o.bomba 0 la para; o.bomba 1 pinta dos bomberoAK en x 22 y 55), la
+//     bomba de aire (x 46; gira por omisión, o.bomba 0 la para; con dos manivelas a los lados, cubos en x 36 y 56, y 144, que
+//     giran con el volante; o.bomba 1 pinta dos bomberoAK en x ~19 y ~60 que las agarran y dan vueltas al compás), la
 //     escalerilla (x 176–182, en marDelante) y LA GRÚA DE MADERA (el puntal en x 230–233 y la pluma que sale sobre el agua
 //     hasta x 292) que iza desde el torno (x 212, su manubrio gira mientras sube) UNA ESTATUA de bronce verde con su peana,
 //     en una eslinga con su tabla, que sale del agua (y 160) y chorrea (o.iza 0–1: 0 bajo el agua, solo el cabo tenso y
@@ -556,7 +560,10 @@ export function maquinaDelante(R, t, o = {}) {
 //     torre (para «mil cuatrocientos años»). Delante: dos palomas en primer término. Devuelve suelo 160, libre [76, 250],
 //     esfera: [x, y, r], caja: [x, y] (el primer hito), hitos: [[x, y], …].
 //   Cámara 'tablillas': UNA AZOTEA DE BABILONIA AL ANOCHECER: cielo de poniente tramado con las primeras estrellas y la
-//     Luna creciente, nubes rosas lentas, vencejos; el ZIGURAT a lo lejos con su santuario, la muralla almenada, las
+//     Luna creciente, nubes de poniente de tres tonos (malva arriba, rosa, el borde de abajo dorado por el sol que ya se
+//     ha puesto) en tres capas a tres velocidades (alta y 22–32, media y 50–76, baja y 86–102, detrás del zigurat), que
+//     se deshacen en tramado al llegar a la esquina de Atom y alrededor de la Luna; una bandada de vencejos que gira en
+//     el centro del cielo (x 60–250, y 50–96) y dos sueltos; el ZIGURAT a lo lejos con su santuario, la muralla almenada, las
 //     azoteas de la ciudad con puertas que se encienden, palmeras que se mecen, el Éufrates que brilla; en otra azotea,
 //     un astrónomo diminuto que señala la Luna. En la nuestra: el pretil de adobe, esteras de junco tejidas, un perro que duerme, un taburete, un
 //     cántaro, un escobón, un banco de adobe
@@ -1253,10 +1260,22 @@ function a_mCubierta(R, t, o, L) {
   a_mGaviotaPosada(R, 240, 99, t, -1, 1);
   // el volante (gira con o.bomba) y el manómetro con la aguja que tiembla
   const gira = (o.bomba ?? 0) > 0, ang = gira ? t * 3.2 : 0.6;
-  a_mVolante(R, 90, 136, 14, ang + 0.35); a_mVolante(R, 91, 134, 14, ang);
+  // los volantes sin mango en la llanta (el mango lo llevan las manivelas, que es lo que agarran los bomberos)
+  const vol = (cx, cy, r, a) => { for (let k = 0; k < 4; k++) { const b = a + k * Math.PI / 2; R.linea(cx, cy, Math.round(cx + Math.cos(b) * r), Math.round(cy + Math.sin(b) * r), P.hierroL); } for (let k = 0; k < Math.round(r * 7); k++) { const b = k / (r * 7) * 6.283; R.pset(Math.round(cx + Math.cos(b) * r), Math.round(cy + Math.sin(b) * r), Math.sin(b) < -0.3 ? P.hierroL : P.hierro); } R.disco(cx, cy, Math.max(1, r * 0.2), P.laton); };
+  vol(90, 136, 14, ang + 0.35); vol(91, 134, 14, ang);
   R.disco(91, 106, 5, P.latonS); R.disco(91, 106, 4, P.blanco); R.pset(91, 102, P.negro); R.pset(87, 106, P.negro); R.pset(95, 106, P.negro);
   const ag = -2.4 + (gira ? 1.6 + Math.sin(t * 6.4) * 0.15 : 0.1); R.linea(91, 106, Math.round(91 + Math.cos(ag) * 3), Math.round(106 + Math.sin(ag) * 3), hex('#c02a2a')); R.pset(91, 106, P.negro); R.rect(90, 111, 92, 112, P.laton);
-  if ((o.bomba ?? 0) >= 1 && ELENCO_AK.bomberoAK) { R.actor(ELENCO_AK.bomberoAK, 58, 158, t, { dir: 1, brazos: Math.sin(t * 3.2) > 0 }); R.actor(ELENCO_AK.bomberoAK, 108, 158, t + 0.5, { dir: -1, brazos: Math.sin(t * 3.2) < 0 }); }
+  // las dos manivelas, una a cada lado de la caja, a media vuelta una de otra; los bomberos agarran el mango y el cuerpo
+  // va y viene con la vuelta (el brazo del chibi llega a 9 px del hombro: la manivela de 3 px, a la altura de la
+  // cintura y fuera del cuerpo, queda siempre a mano y a la vista)
+  const mani = (cx, cy, borde, a) => { const mx = Math.round(cx + Math.cos(a) * 3), my = Math.round(cy + Math.sin(a) * 3);
+    R.rect(Math.min(cx, borde), cy - 1, Math.max(cx, borde), cy + 1, P.hierro); R.rect(Math.min(cx, borde), cy - 1, Math.max(cx, borde), cy - 1, P.hierroL);
+    R.disco(cx, cy, 2.6, P.negro); R.disco(cx, cy, 2, P.hierro); R.pset(cx - 1, cy - 1, P.hierroL);
+    { const cxw = Math.round(cx - Math.cos(a) * 3), cyw = Math.round(cy - Math.sin(a) * 3); R.disco(cxw, cyw, 1.6, P.negro); R.disco(cxw, cyw, 1, P.hierroL); }   // el contrapeso, al otro lado
+    R.linea(cx, cy + 1, mx, my + 1, P.negro); R.linea(cx, cy, mx, my, P.hierroL); R.disco(cx, cy, 1, P.laton); R.pset(cx, cy, P.latonL);
+    R.rect(mx - 1, my - 1, mx + 1, my + 1, P.maderaL); R.pset(mx + 1, my + 1, P.maderaS); R.pset(mx - 1, my - 1, hex('#f0d8a8')); return [mx, my]; };
+  const mL = mani(73, 150, 73, ang), mR = mani(109, 150, 109, ang + Math.PI);
+  if ((o.bomba ?? 0) >= 1 && ELENCO_AK.bomberoAK) { R.actor(ELENCO_AK.bomberoAK, 55 + Math.round(Math.cos(ang) * 2), 158, t, { dir: 1, sostiene: mL }); R.actor(ELENCO_AK.bomberoAK, 113 + Math.round(Math.cos(ang + Math.PI) * 2), 158, t + 0.5, { dir: -1, sostiene: mR }); }
   // las gotas que caen de la escalerilla
   for (let k = 0; k < 2; k++) { const u = (t * 1.1 + k * 0.5) % 1; R.pset(264 + k * 12, Math.round(100 + u * 20), P.gota); }
   return { suelo: 158, libre: [20, 250], escalera: [269, 98], bomba: [91, 135], horizonte: hor };
@@ -1399,8 +1418,20 @@ function a_mRescate(R, t, o, L) {
   const b = a_mBuf(R, 'resCaique|' + K, (bb) => { a_mCaique(R, X, Y, Lc, { palo: null, bomba: 106 }); a_mGrua(R, Y); a_mTinte(bb, L); });
   a_mVolcarDesde(R, b, 0, dy, 0, Y - 3);
   a_mGruaCabos(R, gx, yG, dy);
-  const gira = (o.bomba ?? 1) > 0; a_mVolante(R, 46, Y - 13 + dy, 8, gira ? t * 3.2 : 0.4);
-  if ((o.bomba ?? 0) >= 1 && ELENCO_AK.bomberoAK) { R.actor(ELENCO_AK.bomberoAK, 22, Y + dy, t, { dir: 1, brazos: Math.sin(t * 3.2) > 0 }); R.actor(ELENCO_AK.bomberoAK, 55, Y + dy, t + 0.5, { dir: -1, brazos: Math.sin(t * 3.2) < 0 }); }
+  // la bomba: el volante (sin mango en la llanta) y una manivela a cada lado, a media vuelta una de otra, que agarran
+  // los dos bomberos; el cuerpo va y viene con la vuelta (el brazo del chibi llega a 9 px del hombro)
+  const gira = (o.bomba ?? 1) > 0, va = gira ? t * 3.2 : 0.4, vy = Y - 13 + dy;
+  for (let k = 0; k < 4; k++) { const b = va + k * Math.PI / 2; R.linea(46, vy, Math.round(46 + Math.cos(b) * 8), Math.round(vy + Math.sin(b) * 8), hex('#9aa0aa')); }
+  for (let k = 0; k < 56; k++) { const b = k / 56 * 6.283; R.pset(Math.round(46 + Math.cos(b) * 8), Math.round(vy + Math.sin(b) * 8), Math.sin(b) < -0.3 ? P.hierroL : P.hierro); }
+  R.disco(46, vy, 1.6, P.laton);
+  const mani = (cx, cy, borde, a) => { const mx = Math.round(cx + Math.cos(a) * 3), my = Math.round(cy + Math.sin(a) * 3);
+    R.rect(Math.min(cx, borde), cy - 1, Math.max(cx, borde), cy, P.hierro); R.rect(Math.min(cx, borde), cy - 1, Math.max(cx, borde), cy - 1, P.hierroL);
+    R.disco(cx, cy, 2.6, P.negro); R.disco(cx, cy, 2, P.hierro); R.pset(cx - 1, cy - 1, P.hierroL);
+    { const cxw = Math.round(cx - Math.cos(a) * 3), cyw = Math.round(cy - Math.sin(a) * 3); R.disco(cxw, cyw, 1.6, P.negro); R.disco(cxw, cyw, 1, P.hierroL); }   // el contrapeso, al otro lado
+    R.linea(cx, cy + 1, mx, my + 1, P.negro); R.linea(cx, cy, mx, my, P.hierroL); R.disco(cx, cy, 1, P.laton); R.pset(cx, cy, P.latonL);
+    R.rect(mx - 1, my - 1, mx + 1, my + 1, P.maderaL); R.pset(mx + 1, my + 1, P.maderaS); R.pset(mx - 1, my - 1, hex('#f0d8a8')); return [mx, my]; };
+  const mL = mani(36, 144 + dy, 40, va), mR = mani(56, 144 + dy, 52, va + Math.PI);
+  if ((o.bomba ?? 0) >= 1 && ELENCO_AK.bomberoAK) { R.actor(ELENCO_AK.bomberoAK, 19 + Math.round(Math.cos(va) * 2), Y + dy, t, { dir: 1, sostiene: mL }); R.actor(ELENCO_AK.bomberoAK, 60 + Math.round(Math.cos(va + Math.PI) * 2), Y + dy, t + 0.5, { dir: -1, sostiene: mR }); }
   // el torno: el tambor con la cuerda y el manubrio que gira mientras la estatua sube
   const ang = iza * 22 + (iza > 0 && iza < 1 ? t * 0.5 : 0); { const tx = 212, ty = Y - 12 + dy; R.rect(tx - 7, ty - 3, tx - 6, ty + 7, P.maderaS); R.rect(tx + 6, ty - 3, tx + 7, ty + 7, P.maderaS); R.rect(tx - 5, ty - 2, tx + 5, ty + 2, P.cuerda); for (let x = tx - 5; x <= tx + 5; x += 2) R.linea(x, ty - 2, x + 1, ty + 2, P.cuerdaS); R.rect(tx - 5, ty + 2, tx + 5, ty + 2, P.cuerdaS);
     const mx = Math.round(tx + 9 + Math.cos(ang) * 4), my = Math.round(ty + Math.sin(ang) * 4); R.linea(tx + 8, ty, mx, my, P.hierro); R.rect(mx, my - 1, mx + 1, my + 1, P.maderaL); }
@@ -4669,8 +4700,30 @@ function f_tablillas(R, t, o) {
   for (let k = 0; k < 40; k++) { const x = Math.round(h(k, 1, 486) * 319), y = Math.round(h(k, 2, 486) * 44); if (x > 270 && y < 50) continue; if (Math.sin(t * (1.2 + h(k, 3, 486) * 2) + k) > 0.1) pset(x, y, k % 5 ? FA.estrella : FA.estrellaL); }
   { const lx = 126, ly = 40; for (let j = -12; j <= 12; j++) for (let i = -12; i <= 12; i++) { const d = Math.hypot(i, j); if (d > 6 && d < 12 && f_umbral(lx + i, ly + j) < (1 - (d - 6) / 6) * 0.6) f_tinte(R, lx + i, ly + j, FA.luna, 0.2); }
     for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) if (i * i + j * j <= 36 && (i - 3) * (i - 3) + (j + 1) * (j + 1) > 26) pset(lx + i, ly + j, i < -4 ? FA.lunaS : FA.luna); }
-  for (let k = 0; k < 3; k++) { const x = ((h(k, 4, 486) * 400 + t * (1 + k * 0.6)) % 420) - 60, y = 60 + k * 12; for (let i = 0; i < 40 + k * 10; i++) { const xx = Math.round(x + i); if (h(i >> 2, k, 487) < 0.25 || (xx > 270 && y < 50)) continue; pset(xx, y, k ? hex('#e88a7a') : hex('#c86a7a')); if (i % 3) pset(xx + 2, y + 1, hex('#a85a7a')); if (i % 4 === 0) pset(xx - 1, y - 1, hex('#f8b890')); } }
-  for (let k = 0; k < 4; k++) { const a = t * 0.5 + k * 1.6, x = 60 + Math.cos(a) * 40 + k * 18, y = 76 + Math.sin(a * 1.3) * 10; f_pajaro(R, x, y, t, hex('#2a1a2a'), k); }   // los vencejos
+  // las nubes de poniente: masas de lóbulos con la luz de abajo (el sol ya se ha puesto): arriba malva en sombra, el
+  // cuerpo rosa y el borde de abajo dorado; el filo se deshace en tramado. Se apartan de la esquina de Atom, de la
+  // barra del año y de la Luna (allí se deshacen en tramado, sin corte)
+  const nube = (cx, cy, w, alto, sem, c) => {
+    const n = 3 + Math.round(w / 14), L = [];
+    for (let i = 0; i < n; i++) { const u = (i + 0.5) / n - 0.5, rx = w * (0.16 + 0.1 * h(i, sem, 491)), ry = alto * (0.55 + 0.45 * Math.cos(u * 2.6)) * (0.8 + 0.3 * h(i, sem, 492)); L.push([cx + u * w * 0.84, cy - ry * 0.35, rx, ry]); }
+    const den = (x, y) => { let m = 9; for (const [lx, ly, rx, ry] of L) { const d = ((x - lx) / rx) ** 2 + ((y - ly) / ry) ** 2; if (d < m) m = d; } return y > cy + alto * 0.3 ? 9 : m; };
+    const x0 = Math.max(0, Math.floor(cx - w * 0.75)), x1 = Math.min(319, Math.ceil(cx + w * 0.75)), y0 = Math.max(0, Math.floor(cy - alto * 1.4)), y1 = Math.min(179, Math.ceil(cy + alto * 0.35));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const d = den(x, y); if (d > 1) continue; const um = f_umbral(x, y);
+      if (d > 0.72 && um < (d - 0.72) / 0.28) continue;
+      if (x > 258 && y < 52 && um < (x - 258) / 14) continue;
+      if (x > 14 && x < 180 && y < 24 && um < (24 - y) / 3) continue;
+      const dl = Math.hypot(x - 126, (y - 40) * 1.2); if (dl < 18 && um < (18 - dl) / 6) continue;
+      const ab = den(x, y + 1) > 1, ab2 = den(x, y + 2) > 1, ar = den(x, y - 1) > 1, ar2 = den(x, y - 2) > 1, v = (y - y0) / Math.max(1, y1 - y0);
+      pset(x, y, ab ? c[3] : ab2 ? (um < 0.5 ? c[3] : c[2]) : ar ? c[0] : ar2 ? (um < 0.5 ? c[0] : c[1]) : um < 0.85 - v ? c[1] : c[2]); } };
+  const tonos = [[hex('#4e3468'), hex('#7a4a80'), hex('#b4628a'), hex('#f09a86')], [hex('#6a3e72'), hex('#a8587e'), hex('#e08480'), hex('#ffcc98')], [hex('#9a5a7a'), hex('#d8787a'), hex('#f4a07a'), hex('#ffe2a8')]];
+  // la baja (lenta, alargada, detrás del zigurat y de la muralla), la media (las masas grandes) y la alta (más rápida)
+  for (let k = 0; k < 4; k++) { const x = ((h(k, 1, 493) * 420 + k * 105 + t * 1.2) % 420) - 60; nube(x, 96 + (k % 2) * 5, 70 + h(k, 2, 493) * 24, 5 + (k % 2), k + 20, tonos[2]); }
+  for (let k = 0; k < 4; k++) { const x = ((h(k, 3, 493) * 60 + k * 105 + t * 2.6) % 420) - 60; nube(x, 66 + Math.round(h(k, 4, 493) * 8), 52 + h(k, 5, 493) * 22, 10 + Math.round(h(k, 6, 493) * 3), k + 30, tonos[1]); }
+  for (let k = 0; k < 3; k++) { const x = ((h(k, 7, 493) * 80 + k * 140 + t * 4.2) % 420) - 60; nube(x, 30 + (k % 2) * 2, 38 + h(k, 8, 493) * 14, 7, k + 40, tonos[0]); }
+  // la bandada de vencejos que gira en el centro del cielo, y dos sueltos
+  { const cx = 155 + Math.sin(t * 0.31) * 75, cy = 74 + Math.sin(t * 0.53) * 9, va = Math.cos(t * 0.31) >= 0 ? 1 : -1;
+    for (let k = 0; k < 9; k++) { const ox = Math.cos(t * 1.7 + k * 0.7) * (5 + k * 1.2) - va * k * 2.2, oy = Math.sin(t * 2.1 + k * 1.1) * 4 + ((k % 3) - 1) * 4; f_pajaro(R, cx + ox, cy + oy, t, hex('#2a1a2a'), k); } }
+  for (let k = 0; k < 2; k++) { const a = t * 0.5 + k * 2.6, x = 70 + Math.cos(a) * 30 + k * 140, y = 90 + Math.sin(a * 1.3) * 6; f_pajaro(R, x, y, t, hex('#3a2236'), k + 9); }
   f_sobre(R, f_capa(R, 'tablillas', () => f_tablillasFijo(R), true));
   // el perro que duerme en la azotea (respira y mueve la oreja)
   { const x = 150, y = 172, r = Math.sin(t * 2) > 0 ? 1 : 0, c = hex('#b8905a'), cS = hex('#8a6a3a'); rect(x - 6, y - 3 - r, x + 4, y, FA.k); rect(x - 5, y - 2 - r, x + 3, y, c); rect(x - 5, y, x + 3, y, cS); rect(x + 3, y - 3, x + 7, y, FA.k); rect(x + 4, y - 2, x + 6, y, c); pset(x + 6, y - 1, FA.k);

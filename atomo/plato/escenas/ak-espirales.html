@@ -21,11 +21,16 @@
 // 4. («The lower one» → «223 months») fondo local: por dentro de la caja, la rueda grande de dientes finos mueve el piñón
 //    y la aguja de la espiral de abajo; en «big wheel» el dedo de la mano cuenta dientes y en «223» baja la plaquita «223».
 // 5. («223 months» → «Saros») fondo local: un pastor en un monte de noche; la Luna pasa por sus fases deprisa y él raya
-//    una tabla mes a mes (contador hasta 223); en «18 years» salen 18 solecitos.
-// 6. (golpe en «Saros» → «The Babylonians») fondo local: un telar griego; la tejedora pasa la lanzadera y la fila nueva de
-//    marcas de eclipse repite la de arriba («eclipses repeat in almost the same pattern»), con una marca un poco corrida.
+//    una tabla mes a mes (contador hasta 223); en «18 years» salen 18 solecitos. (Sin calma(): el cielo ya es tranquilo.)
+// 6. (golpe en «Saros» → «The Babylonians») fondo local: un telar griego de pesas en un cuarto de cal (greca pintada,
+//    desconchones, zócalo de almagre, balda con cesto de ovillos, madejas, candil que tiembla; por la ventana, nubes de
+//    tres tonos, un ciprés y una golondrina). Dos tejedoras delante del telar se pasan la lanzadera por la calada (tres
+//    pasadas, la lleva siempre una mano) y aprietan la fila; la tela sube enrollándose en el enjulio y la fila nueva de
+//    marcas de eclipse repite la de arriba, con una marca un poco corrida; en «repeat» se unen y la de azul señala.
 // 7. («The Babylonians» → fin) antigua reloj camara 'tablillas', o.apunta: el astrónomo babilonio llega al atril, apunta
-//    marcas en la tablilla y en «watching the sky» señala la Luna.
+//    marcas en la tablilla y en «watching the sky» señala la Luna. Desde la escena, sobre el cielo del decorado: nubes de
+//    poniente de tres tonos con el borde de abajo encendido a tres velocidades (solo donde hay cielo, detrás del zigurat),
+//    estrellas que asoman arriba, una uve de grullas y una bandada lejana.
 import * as T from '/atomo/plato/escenas/ak-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ak-espirales');
@@ -333,7 +338,7 @@ const monte5 = () => capa('monte5', () => {
   rp(244, 118, 258, 146, K); rp(245, 119, 257, 146, hex('#e0903a')); R.linea(251, 119, 251, 146, hex('#b86a2a'));
   // la tabla de las rayas en su poste
   rp(118, 138, 122, 170, hex('#4a3020')); rp(92, 112, 176, 140, K); rp(93, 113, 175, 139, hex('#8a6a44')); for (let y = 115; y < 139; y += 3) R.linea(94, y, 174, y, hex('#7a5a38'));
-  calma(hex('#0a1028'));
+  // sin calma(): el cielo de noche ya es tranquilo en el rincón de Atom (la Vía Láctea y las estrellas lo esquivan)
 });
 const p5 = (t) => {
   monte5();
@@ -358,52 +363,167 @@ const p5 = (t) => {
   rp(176, 168, 190, 173, K); rp(177, 169, 189, 172, hex('#8a6a44')); R.disco(176, 168, 3, hex('#8a6a44')); R.pset(175, 165 - (Math.sin(t * 1.3) > 0.7 ? 1 : 0), hex('#5a4024'));
 };
 
-// 6 · el telar: la fila nueva de marcas repite la de arriba (golpe en «Saros»)
+// 6 · el telar: dos tejedoras se pasan la lanzadera por la calada, aprietan la fila y la fila nueva de marcas repite la
+// de arriba (golpe en «Saros»). La tela se enrolla en el enjulio de arriba a cada pasada, así la línea de tejer se queda
+// a la altura de las manos (frente FY6)
 const PAT = ['sol', 'luna', null, 'luna', 'sol', null, null, 'luna', 'sol', 'luna', null, 'sol'];
+const FY6 = 156, TX0 = 86, TX1 = 235;
 const telar6 = () => capa('telar6', () => {
-  // el patio: pared de cal con una ventana alta y una parra; suelo de guijarros
-  estuco(0, 0, 319, 150, hex('#e8dcc4'), hex('#c8b89c'), hex('#f8f0e0'), 61);
-  rp(0, 120, 319, 150, hex('#b86a4a')); R.linea(0, 120, 319, 120, hex('#d88a6a')); for (let x = 0; x < 320; x += 6) R.pset(x, 124 + (x % 12 ? 0 : 1), hex('#8a4a32'));
-  rp(252, 46, 290, 84, K); rp(254, 48, 288, 82, hex('#8ac0ec')); R.linea(271, 48, 271, 82, K); R.linea(254, 65, 288, 65, K); rp(250, 84, 292, 87, hex('#c8b89c'));
-  for (let y = 150; y < 180; y++) for (let x = 0; x < 320; x++) { const v = H_(x >> 1, y >> 1, 62); R.pset(x, y, v > 0.8 ? hex('#b8a888') : v < 0.2 ? hex('#8a7a62') : (x + y * 3) % 5 === 0 ? hex('#a89878') : hex('#9e8e70')); }
-  // el telar vertical: dos postes, el travesaño de arriba y las pesas de barro abajo
-  rp(78, 10, 84, 168, hex('#6a4428')); rp(236, 10, 242, 168, hex('#6a4428')); R.linea(78, 10, 78, 168, hex('#8a5a34')); R.linea(236, 10, 236, 168, hex('#8a5a34'));
-  rp(72, 14, 248, 20, hex('#5a3a22')); R.linea(72, 14, 248, 14, hex('#8a5a34'));
-  for (let x = 88; x < 234; x += 3) R.linea(x, 21, x + Math.round(Math.sin(x) * 1), 140, hex('#d8c8a0'));
-  for (let i = 0; i < 12; i++) { const x = 92 + i * 12, y = 146 + (i % 2) * 3; R.linea(x, 140, x, y - 4, hex('#c8b890')); R.disco(x, y, 4, K); R.disco(x, y, 3, hex('#a8603a')); R.pset(x - 1, y - 1, hex('#c8805a')); }
-  // las madejas de lana colgadas en clavijas y un estante con cuencos
-  for (let i = 0; i < 4; i++) { const x = 14 + i * 14; R.disco(x, 30, 2, hex('#5a3a22')); const c = [hex('#d84a4a'), hex('#3a6ab0'), hex('#e8c040'), hex('#f0e8d0')][i]; for (let y = 32; y < 60; y++) { R.pset(x - 2 + (y % 3 === 0 ? 1 : 0), y, c); R.pset(x + 1, y, mez(c, K, 0.25)); R.pset(x, y, c); } rp(x - 3, 58, x + 2, 61, c); }
-  rp(250, 100, 300, 103, hex('#6a4428')); R.linea(250, 100, 300, 100, hex('#8a5a34')); for (let i = 0; i < 4; i++) { const x = 256 + i * 12; R.disco(x, 96, 4, K); R.disco(x, 96, 3, i % 2 ? hex('#3a3a3a') : hex('#b8603a')); rp(x - 4, 92, x + 4, 95, hex('#e8dcc4')); }
-  R.disco(10, 92, 4, BR.b); R.linea(10, 88, 10, 70, hex('#3a2a1a'));
-  // un cesto de lana, el huso y un ánfora
+  // la pared de cal: enlucido con manchas grandes de humedad, la sombra del techo arriba y la luz de la ventana a la derecha
+  estuco(0, 0, 319, 122, hex('#e8dcc4'), hex('#c8b89c'), hex('#f8f0e0'), 61);
+  for (let y = 0; y <= 122; y++) for (let x = 0; x < 320; x++) { const n = vn(x, y, 22, 63), sombra = Math.max(0, 1 - y / 16) * 0.5 + (y > 92 ? (y - 92) / 30 * 0.35 * (0.6 + n) : 0), luz = Math.max(0, 1 - Math.hypot(x - 271, (y - 70) * 0.8) / 70) * 0.5;
+    if (sombra > b4(x, y) * 0.9 + 0.12 && !(x > 270 && y < 50)) R.pset(x, y, mez(R.pget(x, y), hex('#a8987c'), 0.45));
+    else if (n > 0.72 && b4(x, y) < (n - 0.72) * 3) R.pset(x, y, mez(R.pget(x, y), hex('#c8b898'), 0.5));
+    else if (luz > b4(x, y) + 0.08) R.pset(x, y, mez(R.pget(x, y), hex('#fff8e8'), 0.5)); }
+  // la greca pintada que recorre la pared (se deshace antes del rincón de Atom)
+  for (let x = 0; x < 262; x++) { const k = x % 10; for (let y = 22; y <= 28; y++) { const j = y - 22, dib = j === 0 || j === 6 || (k === 0 && j < 5) || (k < 6 && j === 4 && k > 0) || (k === 5 && j > 1 && j < 5) || (k > 1 && k < 6 && j === 2) || (k === 2 && j === 3);
+    if (x > 246 && b4(x, y) < (x - 246) / 16) continue; R.pset(x, y, dib ? hex('#a8503a') : j === 0 || j === 6 ? hex('#a8503a') : mez(hex('#e8dcc4'), hex('#d8a060'), 0.35)); } }
+  // dos desconchones con la piedra a la vista y unas grietas
+  for (const [cx, cy, rx, ry] of [[30, 106, 13, 7], [150, 12, 0, 0], [300, 114, 11, 6]]) { if (!rx) continue;
+    for (let y = cy - ry - 1; y <= cy + ry + 1; y++) for (let x = cx - rx - 1; x <= cx + rx + 1; x++) { const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 + (H_(x >> 1, y >> 1, 64) - 0.5) * 0.5; if (d > 1.25) continue;
+      if (d > 0.95) { R.pset(x, y, y < cy ? hex('#fff8e8') : hex('#a89878')); continue; } const f = Math.floor((y - cy + 20) / 4), j = (x + (f % 2) * 4) % 8; R.pset(x, y, (y - cy + 20) % 4 === 0 || j === 0 ? hex('#6a5a48') : H_(x, y, 65) > 0.7 ? hex('#a8988a') : hex('#8a7a6a')); } }
+  for (const [x0, y0, k] of [[56, 64, 0], [258, 96, 1], [6, 116, 2]]) { let x = x0, y = y0; for (let i = 0; i < 14; i++) { R.pset(x, y, hex('#a89878')); y += 1; x += Math.round(H_(i, k, 66) * 2 - 1); } }
+  // el zócalo de almagre: pinceladas, más oscuro abajo, la raya negra de arriba y los rozones
+  for (let y = 122; y < 150; y++) for (let x = 0; x < 320; x++) { const v = H_(x >> 2, y, 67), u = (y - 122) / 28; R.pset(x, y, y === 122 ? hex('#d88a6a') : y === 124 ? hex('#5a2a1e') : u > 0.55 + v * 0.3 ? hex('#9a5238') : v > 0.85 ? hex('#c87a5a') : (x + (y >> 1)) % 9 === 0 ? hex('#a85a40') : hex('#b86a4a')); }
+  for (let k = 0; k < 9; k++) { const x = Math.round(H_(k, 1, 68) * 300), y = 130 + Math.round(H_(k, 2, 68) * 14); R.linea(x, y, x + 4 + (k % 4), y - (k % 2), hex('#d8987a')); }
+  // el suelo de guijarros con sus juntas, la sombra del telar y unas hebras sueltas
+  for (let y = 150; y < 180; y++) for (let x = 0; x < 320; x++) { const v = H_(x >> 1, y >> 1, 62), sm = x > 76 && x < 246 && y < 172 && b4(x, y) < 0.45; R.pset(x, y, sm ? hex('#7a6a52') : v > 0.8 ? hex('#b8a888') : v < 0.2 ? hex('#8a7a62') : (x + y * 3) % 5 === 0 ? hex('#a89878') : hex('#9e8e70')); }
+  for (let k = 0; k < 10; k++) { const x = Math.round(H_(k, 3, 69) * 310), y = 162 + Math.round(H_(k, 4, 69) * 16); R.linea(x, y, x + 3, y + (k % 2 ? 1 : -1), [hex('#d84a4a'), hex('#3a6ab0'), hex('#f0e8d0')][k % 3]); }
+  // el telar vertical: dos postes con sus remates y la sombra de cada uno en la pared
+  for (const px of [78, 236]) { rp(px + 7, 40, px + 9, 150, mez(hex('#e8dcc4'), K, 0.25)); rp(px, 38, px + 6, 176, hex('#6a4428')); R.linea(px, 38, px, 176, hex('#8a5a34')); R.linea(px + 6, 38, px + 6, 176, hex('#4a2c18'));
+    for (let y = 44; y < 176; y += 7) R.pset(px + 2 + (y % 3), y, hex('#5a3a22')); rp(px - 1, 34, px + 7, 38, hex('#5a3a22')); R.linea(px - 1, 34, px + 7, 34, hex('#9a6a3a')); }
+  // las madejas de lana colgadas en clavijas
+  for (let i = 0; i < 4; i++) { const x = 14 + i * 14; R.disco(x, 34, 2, hex('#5a3a22')); const c = [hex('#d84a4a'), hex('#3a6ab0'), hex('#e8c040'), hex('#f0e8d0')][i]; for (let y = 36; y < 62; y++) { R.pset(x - 2 + (y % 3 === 0 ? 1 : 0), y, c); R.pset(x + 1, y, mez(c, K, 0.25)); R.pset(x, y, c); } rp(x - 3, 60, x + 2, 63, c); }
+  // la balda de la izquierda con el cesto de ovillos y una jarrita; el huso colgado
+  rp(16, 88, 70, 91, K); rp(17, 88, 69, 90, hex('#7a5030')); R.linea(17, 88, 69, 88, hex('#a87a4a')); for (const bx of [22, 62]) { R.linea(bx, 92, bx + 3, 97, hex('#5a3a22')); R.linea(bx + 1, 92, bx + 4, 97, hex('#5a3a22')); }
+  rp(19, 92, 68, 93, mez(hex('#e8dcc4'), K, 0.3));
+  for (let y = 78; y < 88; y++) { const w = 10 - Math.round((y - 78) * 0.2); for (let x = 34 - w; x <= 34 + w; x++) R.pset(x, y, x === 34 - w || x === 34 + w || y === 87 ? K : (x + y) % 3 === 0 ? hex('#8a6a34') : y % 3 === 0 ? hex('#c8a060') : hex('#b8904a')); }
+  for (const [ox, oy, c] of [[28, 76, '#d84a4a'], [35, 75, '#3a6ab0'], [41, 77, '#e8c040'], [32, 72, '#f0e8d0']]) { R.disco(ox, oy, 3.5, K); R.disco(ox, oy, 3, hex(c)); R.pset(ox - 1, oy - 1, mez(hex(c), BL, 0.5)); R.linea(ox - 2, oy + 1, ox + 2, oy - 1, mez(hex(c), K, 0.3)); }
+  for (let j = 0; j < 10; j++) { const w = j < 3 ? 2 : j < 7 ? 3 : 2; for (let i = -w; i <= w; i++) R.pset(58 + i, 87 - j, Math.abs(i) === w ? K : i > 0 ? hex('#8a4a2a') : hex('#c8703a')); } R.pset(61, 81, K); R.pset(62, 82, K);
+  R.linea(8, 64, 8, 98, hex('#3a2a1a')); R.disco(8, 100, 4, K); R.disco(8, 100, 3, BR.b); R.pset(7, 99, BR.bL); for (let y = 66; y < 96; y += 3) R.pset(9, y, hex('#f0e8d0'));
+  // la ventana alta (el cielo y las nubes, en cada fotograma) con su alféizar
+  rp(250, 44, 292, 86, K); rp(251, 45, 291, 85, hex('#8a6a44')); rp(250, 86, 294, 89, hex('#c8b89c')); R.linea(250, 86, 294, 86, hex('#f8f0e0')); R.linea(250, 89, 294, 89, hex('#a8987c'));
+  // el estante de la derecha con los cuencos
+  rp(250, 100, 300, 103, hex('#6a4428')); R.linea(250, 100, 300, 100, hex('#8a5a34')); rp(252, 104, 298, 105, mez(hex('#e8dcc4'), K, 0.3)); for (let i = 0; i < 4; i++) { const x = 256 + i * 12; R.disco(x, 96, 4, K); R.disco(x, 96, 3, i % 2 ? hex('#3a3a3a') : hex('#b8603a')); rp(x - 4, 92, x + 4, 95, hex('#e8dcc4')); R.pset(x - 2, 97, i % 2 ? hex('#6a6a6a') : hex('#d8805a')); }
+  // la ménsula del candil
+  rp(305, 93, 315, 95, K); rp(306, 93, 314, 94, hex('#7a5030')); R.linea(312, 96, 314, 100, hex('#5a3a22'));
+  // el cesto de lana y el ánfora
   R.disco(40, 158, 12, K); R.disco(40, 158, 11, hex('#b8904a')); for (let x = 30; x < 52; x += 3) R.linea(x, 150, x + 1, 168, hex('#8a6a34')); R.disco(36, 148, 5, hex('#d84a4a')); R.disco(44, 147, 5, hex('#3a6ab0')); R.disco(40, 144, 4, hex('#f0e8d0'));
-  R.disco(290, 150, 8, K); R.disco(290, 150, 7, hex('#b8603a')); rp(287, 136, 293, 143, hex('#b8603a')); R.pset(287, 148, hex('#d8805a'));
+  R.disco(290, 152, 8, K); R.disco(290, 152, 7, hex('#b8603a')); rp(287, 138, 293, 145, hex('#b8603a')); R.pset(287, 150, hex('#d8805a')); R.linea(284, 156, 296, 156, hex('#8a4a2a'));
   calma(hex('#e8dcc4'));
 });
+// la tela, en coordenadas de tejido: w = lo tejido (0 al empezar); la fila de abajo crece y la tela sube al enrollarse
+const tela6 = (L, flash) => {
+  const Li = Math.round(L);
+  for (let y = 56; y < FY6; y++) { const w = y - FY6 + Li;
+    const banda1 = w >= -48 && w <= -8, banda2 = w >= -4 && w <= 36, oro = w === -47 || w === -9 || w === -3 || w === 35, raya = w === -45 || w === -11 || w === -1 || w === 33, greca = w >= -62 && w <= -56, rombo = w >= -86 && w <= -78, hilo = w === -70 || w === -73 || w === -91 || w === -94;
+    for (let x = TX0; x <= TX1; x++) { let c;
+      if (x === TX0 || x === TX1) c = hex('#7a2a22');
+      else if (oro) c = (x & 1) ? hex('#e8c060') : hex('#c8983a');
+      else if (raya) c = hex('#7a2a22');
+      else if (hilo) c = (x & 1) ? hex('#e8c060') : hex('#7a2a22');
+      else if (rombo) { const k = (x - TX0) % 10, j = Math.abs(w + 82); c = Math.abs(k - 5) + j === 4 ? hex('#e8c060') : Math.abs(k - 5) + j < 2 ? hex('#f0e8d0') : hex('#3a5a8a'); }
+      else if (greca) { const k = (x - TX0) % 8, j = w + 62; c = (j === 0 || j === 6 || (k === 0 && j < 5) || (k < 4 && j === 4) || (k === 3 && j > 1)) ? hex('#e8c060') : hex('#5a2a3a'); }
+      else c = ((x >> 1) + (w >> 1)) & 1 ? hex('#c84a3a') : (x + w) % 4 === 0 ? hex('#a83a2e') : banda1 || banda2 ? hex('#c84a3a') : hex('#b8443a');
+      R.pset(x, y, c); } }
+  // la sombra suave bajo el enjulio
+  for (let x = TX0; x <= TX1; x++) for (let y = 56; y < 60; y++) if (b4(x, y) < (60 - y) / 5) R.pset(x, y, hex('#7a2a22'));
+  // las marcas de eclipse de las dos filas (la de abajo sale a medida que se teje)
+  const y1 = FY6 - Li - 28, y2 = FY6 - Li + 16;
+  R.recorte([TX0, 56, TX1, FY6 - 1]);
+  for (let i = 0; i < 12; i++) { const tp = PAT[i]; if (!tp) continue; marcaEcl(90 + i * 12 + 4, y1, tp, 1, 4, hex('#c84a3a')); marcaEcl(90 + i * 12 + 4 + (i === 9 ? 3 : 0), y2, tp, 1, 4, hex('#c84a3a')); }
+  R.recorte(null);
+  if (flash > 0) velo(TX0, Math.max(56, y1 - 20), TX1, Math.min(FY6 - 1, y1 + 20), hex('#fff4c0'), flash * 0.6);
+  return [y1, y2];
+};
 const p6 = (t) => {
   telar6();
-  // la tela tejida: dos filas con el mismo dibujo de eclipses; la de abajo crece con cada pasada
-  const x0 = 90, cw = 12, fila1 = 34, fila2 = 70, teje = tramo(t, P6 + 0.2, S_(28.2)), golpe = 1 - tramo(t, P6, P6 + 0.6);
-  rp(x0 - 4, 21, x0 + cw * 12 + 2, 52, hex('#c84a3a')); for (let x = x0 - 4; x < x0 + cw * 12 + 2; x += 2) { R.pset(x, 23, hex('#e8c060')); R.pset(x + 1, 50, hex('#e8c060')); }
-  const alto2 = Math.round(52 + teje * 36); rp(x0 - 4, 53, x0 + cw * 12 + 2, alto2, hex('#c84a3a')); if (alto2 > 86) for (let x = x0 - 4; x < x0 + cw * 12 + 2; x += 2) { R.pset(x, 55, hex('#e8c060')); R.pset(x + 1, 86, hex('#e8c060')); }
-  for (let y = 22; y < alto2; y += 2) for (let x = x0 - 4; x < x0 + cw * 12 + 2; x += 4) R.pset(x + (y % 4 ? 0 : 2), y, hex('#a83a2e'));
-  for (let i = 0; i < 12; i++) { const tp = PAT[i]; if (!tp) continue; marcaEcl(x0 + i * cw + 4, fila1, tp, 1, 4, hex('#c84a3a'));
-    // la fila nueva: el mismo dibujo, corrido un poquito (casi igual)
-    const x = x0 + i * cw + 4 + (i === 9 ? 3 : 0); if (fila2 + 6 < alto2) marcaEcl(x, fila2, tp, 1, 4, hex('#c84a3a')); }
-  if (golpe > 0) velo(x0 - 4, 21, x0 + cw * 12 + 2, 52, hex('#fff4c0'), golpe * 0.6);
-  // en «repeat»: las parejas se unen con una línea de puntos
-  const une = tramo(t, S_(28.33), S_(29.2)); if (une > 0) for (let i = 0; i < 12; i++) { if (!PAT[i]) continue; const xa = x0 + i * cw + 4, xb = xa + (i === 9 ? 3 : 0); for (let y = fila1 + 7; y < fila1 + 7 + (fila2 - fila1 - 14) * une; y += 3) R.pset(Math.round(lerp(xa, xb, (y - fila1) / (fila2 - fila1))), y, hex('#ffe8a0')); }
-  // la lanzadera va y viene por la urdimbre
-  const ph = ((t - P6) / 1.2) % 1, ida = Math.floor((t - P6) / 1.2) % 2 === 0, sx = Math.round(ida ? lerp(232, 86, ph) : lerp(86, 232, ph)); if (teje < 1) { rp(sx - 6, alto2 + 1, sx + 6, alto2 + 4, K); rp(sx - 5, alto2 + 2, sx + 5, alto2 + 3, hex('#a87a4a')); }
-  // la tejedora sigue la lanzadera con la mano; en «repeat» señala la fila de arriba
-  const tx = 250, m = R.actor(EL.romana, tx, 166, t, { dir: -1, sostiene: teje < 1 ? [cl(sx + 8, 226, 246), alto2 + 4] : undefined, dedo: une > 0 && t < S_(29.8), sonrisa: t > S_(29.0) });
+  // por la ventana: cielo tramado, el monte con un ciprés, nubes de tres tonos a tres velocidades y una golondrina
+  R.recorte([252, 46, 290, 84]);
+  degr(252, 46, 290, 84, [hex('#5a98d8'), hex('#7ab4e8'), hex('#9ccaf0'), hex('#c4e0f6')]);
+  for (const [x0, y, w, v] of [[0, 52, 16, 1.5], [30, 60, 22, 3.2], [12, 70, 14, 5]]) nube3(252 - w / 2 - 2 + ((x0 + t * v) % (w + 42)), y, w, hex('#a8b8d4'), hex('#dce6f2'), hex('#ffffff'));
+  for (let x = 252; x <= 290; x++) { const h = Math.round(76 + Math.sin(x * 0.15) * 2 + Math.sin(x * 0.05) * 3); for (let y = h; y <= 84; y++) R.pset(x, y, y === h ? hex('#7a9a6a') : (x + y) % 4 === 0 ? hex('#4a6a44') : hex('#5a7a50')); }
+  cipres(282, 84, 14, t, 3);
+  { const ph = ((t + 2) / 5) % 1, bx = 248 + ph * 48, by = 56 + Math.sin(t * 2) * 3; ave(bx, by, t, hex('#2a2a3a')); }
+  R.recorte(null);
+  R.linea(271, 46, 271, 84, K); R.linea(272, 46, 272, 84, hex('#6a4a2a')); R.linea(252, 65, 290, 65, K); R.linea(252, 66, 290, 66, hex('#6a4a2a'));
+  // el candil de la ménsula, con su luz que tiembla
+  const lf = lucerna(308, 92, t, 4); halo(lf[0], lf[1], 16 + Math.sin(t * 9) * 1.5, hex('#ffc860'), 0.28);
+  // las pasadas: tres, alternando; la lanzadera sale de una mano, corre por la calada y la coge la otra; luego aprietan
+  const TA = P6 + 0.2, TB = S_(28.2), u = tramo(t, TA, TB) * 3, k = Math.min(2, Math.floor(u)), f = u >= 3 ? 1 : u - k, teje = u < 3 && t >= TA;
+  const ida = k % 2 === 0, xa = ida ? 88 : 228, xb = ida ? 228 : 88, golpeF = tramo(f, 0.8, 1);
+  const L = 12 * (Math.min(3, k + (f >= 0.8 ? golpeF : 0)) + (u >= 3 ? 0 : 0)), Lf = u >= 3 ? 36 : L;
+  const corre = tramo(f, 0.15, 0.7), e = corre * corre * (3 - 2 * corre), sx = Math.round(xa + (xb - xa) * e), sy = FY6 + 4;
+  // el enjulio con la tela enrollada (engorda y gira)
+  const rr = 5 + Lf / 12; for (let y = Math.round(48 - rr); y <= Math.round(48 + rr); y++) for (let x = 84; x <= 236; x++) { const dy = (y - 48) / rr, rot = ((x + Math.round(Lf * 3) + Math.round(dy * 4)) % 9 + 9) % 9;
+    R.pset(x, y, Math.abs(dy) > 0.92 ? K : dy < -0.5 ? hex('#d85a48') : dy > 0.5 ? hex('#8a2e24') : rot === 0 ? hex('#a83a2e') : hex('#c84a3a')); }
+  rp(72, 46, 84, 50, hex('#5a3a22')); rp(236, 46, 248, 50, hex('#5a3a22')); R.linea(72, 46, 84, 46, hex('#8a5a34')); R.linea(236, 46, 248, 46, hex('#8a5a34'));
+  const flash = 1 - tramo(t, P6, P6 + 0.6), [y1, y2] = tela6(Lf, flash);
+  // la pasada nueva: el hilo de trama que deja la lanzadera en la boca del tejido, y el brillo al apretar
+  if (teje && f < 0.8) R.linea(xa, FY6, sx, FY6, hex('#f0a040'));
+  if (teje && f >= 0.8) for (let x = TX0; x <= TX1; x++) if (b4(x, FY6 - 1) < 1 - golpeF) R.pset(x, FY6 - 1, hex('#ffe8a0'));
+  // la urdimbre por debajo: los hilos de atrás, la lanzadera en la calada, los hilos de delante, la vara de lizos y las pesas
+  for (let x = TX0 + 2; x < TX1; x += 3) R.linea(x, FY6, x + ((x / 3) % 2 ? 0 : 0), 170, hex('#b8a880'));
+  const enCalada = teje && f >= 0.15 && f < 0.7;
+  if (enCalada) { rp(sx - 6, sy - 1, sx + 6, sy + 1, K); rp(sx - 5, sy - 1, sx + 5, sy, hex('#c8945a')); R.linea(sx - 2, sy - 1, sx + 2, sy - 1, hex('#d84a3a')); }
+  for (let x = TX0 + 3; x < TX1; x += 6) R.linea(x, FY6, x, 170, hex('#e8dcc0'));
+  const liz = enCalada ? (ida ? 1 : -1) : 0; rp(80, FY6 + 7 + liz, 240, FY6 + 8 + liz, hex('#6a4428')); R.linea(80, FY6 + 7 + liz, 240, FY6 + 7 + liz, hex('#9a6a3a'));
+  for (let i = 0; i < 12; i++) { const x = 92 + i * 12, y = 170 + (i % 2) * 2, sw = Math.round(Math.sin(t * 2 + i) * (enCalada ? 1 : 0.4)); R.linea(x - 4, FY6 + 9, x + sw, y - 4, hex('#c8b890')); R.linea(x + 4, FY6 + 9, x + sw, y - 4, hex('#c8b890'));
+    R.poligono([[x - 2 + sw, y - 4], [x + 2 + sw, y - 4], [x + 4 + sw, y + 3], [x - 4 + sw, y + 3]], K); R.poligono([[x - 1 + sw, y - 3], [x + 1 + sw, y - 3], [x + 3 + sw, y + 2], [x - 3 + sw, y + 2]], (px) => px > x + sw + 1 ? hex('#8a4a2a') : hex('#b8683a')); R.pset(x + sw, y - 2, K); }
+  // en «repeat»: las parejas de marcas se unen con una línea de puntos
+  const une = tramo(t, S_(28.33), S_(29.2)); if (une > 0) for (let i = 0; i < 12; i++) { if (!PAT[i]) continue; const xa2 = 90 + i * 12 + 4, xb2 = xa2 + (i === 9 ? 3 : 0); for (let y = y1 + 7; y < y1 + 7 + (y2 - y1 - 14) * une; y += 3) R.pset(Math.round(lerp(xa2, xb2, (y - y1) / (y2 - y1))), y, hex('#ffe8a0')); }
+  // las dos tejedoras delante del telar: la que tira la lanzadera la lleva en la mano, la otra la espera y la coge; al
+  // apretar, las dos suben la mano a la boca del tejido; en «repeat» la de la derecha señala la fila de arriba
+  const sube = teje && f >= 0.8, quien = (izq) => (izq === ida) ? 'tira' : 'coge';
+  const mano6 = (izq) => { const borde = izq ? 88 : 228; if (!teje) return undefined; if (sube) return [borde + (izq ? 6 : -6), FY6 - 2];
+    const rol = quien(izq); if (rol === 'tira') return f < 0.15 ? [borde + (izq ? 1 : -1) * Math.round(f / 0.15 * 6), sy] : [borde, sy + 2];
+    return f >= 0.7 ? [borde, sy] : [borde + (izq ? 2 : -2), sy + 1]; };
+  const m1 = R.actor(EL.romana, 64, 178, t, { dir: 1, sostiene: mano6(true), sonrisa: t > S_(29.0) });
+  const m2 = R.actor(EL.romana, 232, 178, t, { dir: -1, pal: { C: hex('#3a6ab0'), c: hex('#2a4a80'), H: hex('#4a2e1a'), h: hex('#6a4428') }, sostiene: mano6(false), dedo: une > 0 && t < S_(29.8), sonrisa: t > S_(29.0) });
+  // la lanzadera en la mano de quien la tiene (antes de entrar y después de cogerla)
+  if (teje && !enCalada && !sube) { const izqTiene = f < 0.15 ? ida : !ida, mm = izqTiene ? m1.mano : m2.mano; rp(mm[0] - 5, mm[1] - 1, mm[0] + 5, mm[1] + 1, K); rp(mm[0] - 4, mm[1] - 1, mm[0] + 4, mm[1], hex('#c8945a')); R.linea(mm[0] - 1, mm[1] - 1, mm[0] + 1, mm[1] - 1, hex('#d84a3a')); R.pset(mm[0], mm[1], hex('#e8a878')); }
   // el gato juega con el ovillo que rueda
-  const gv = (t - P6) * 0.6, gx = Math.round(60 + Math.sin(gv * 2) * 14); R.disco(gx + 10, 170, 3, K); R.disco(gx + 10, 170, 2, hex('#d84a4a')); T.gato(R, gx, 176, t, { dir: Math.cos(gv * 2) > 0 ? 1 : -1 });
+  const gv = (t - P6) * 0.6, gx = Math.round(14 + Math.sin(gv * 2) * 10); R.disco(gx + 22, 172, 3, K); R.disco(gx + 22, 172, 2, hex('#d84a4a')); R.pset(gx + 21, 171, hex('#f08a7a')); T.gato(R, gx, 176, t, { dir: Math.cos(gv * 2) > 0 ? 1 : -1 });
 };
 
-// 7 · Babilonia: el astrónomo apunta eclipses en la tablilla y mira el cielo
+// 7 · Babilonia: el astrónomo apunta eclipses en la tablilla y mira el cielo. Encima del cielo del decorado, desde la
+// escena: nubes de poniente de tres tonos con el borde de abajo encendido, a tres velocidades (solo donde hay cielo:
+// detrás del zigurat, de las torres y de las palmeras), estrellas que asoman arriba y dos bandadas
+const HOR7 = (() => { const a = new Int16Array(320); for (let x = 0; x < 320; x++) { let h = 105;
+  for (const tx of [40, 120, 300]) if (Math.abs(x - tx) <= 5) h = Math.min(h, 95);
+  for (let p = 0; p < 6; p++) if (Math.abs(x - 236) <= 40 - p * 6) h = Math.min(h, 100 - 8 * p);
+  if (x >= 232 && x <= 240) h = Math.min(h, 58);
+  for (const px of [24, 92, 168, 276]) if (Math.abs(x - px - 2) <= 9) h = Math.min(h, 100);
+  a[x] = h - 1; } return a; })();
+const nubeP = (cx, cy, w, alto, sem, c) => {
+  const n = 3 + Math.round(w / 14), Ls = [];
+  for (let i = 0; i < n; i++) { const uu = (i + 0.5) / n - 0.5, rx = w * (0.17 + 0.1 * H_(i, sem, 91)), ry = alto * (0.55 + 0.45 * Math.cos(uu * 2.6)) * (0.8 + 0.3 * H_(i, sem, 92)); Ls.push([cx + uu * w * 0.84, cy - ry * 0.35, rx, ry]); }
+  const den = (x, y) => { if (y > cy + alto * 0.3) return 9; let m = 9; for (const [lx, ly, rx, ry] of Ls) { const d = ((x - lx) / rx) ** 2 + ((y - ly) / ry) ** 2; if (d < m) m = d; } return m; };
+  const x0 = Math.max(0, Math.floor(cx - w * 0.75)), x1 = Math.min(319, Math.ceil(cx + w * 0.75)), y0 = Math.max(0, Math.floor(cy - alto * 1.4)), y1 = Math.min(179, Math.ceil(cy + alto * 0.35));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (y >= HOR7[x]) continue; const d = den(x, y); if (d > 1) continue; const um = b4(x, y);
+    if (d > 0.84 && um < (d - 0.84) / 0.16) continue;
+    if (x > 256 && y < 54 && um < (x - 256) / 14) continue;
+    if (x > 12 && x < 182 && y < 26 && um < (26 - y) / 4) continue;
+    const dl = Math.hypot(x - 126, (y - 40) * 1.2); if (dl < 16 && um < (16 - dl) / 5) continue;
+    const ab = den(x, y + 1) > 1, ab2 = den(x, y + 2) > 1, ar = den(x, y - 1) > 1, v = (y - y0) / Math.max(1, y1 - y0);
+    R.pset(x, y, ab ? c[3] : ab2 ? (um < 0.5 ? c[3] : c[2]) : ar ? c[0] : v < 0.3 ? (um < 0.6 ? c[0] : c[1]) : v > 0.66 ? (um < (v - 0.66) * 4 ? c[2] : c[1]) : c[1]); } };
+const grulla = (x, y, t, k) => { x = Math.round(x); y = Math.round(y); const a = Math.sin(t * 6 + k * 1.3), up = a > 0.3 ? -2 : a < -0.3 ? 1 : -1, col = hex('#2a1a2e');
+  const ps = (px, py) => { if (py < HOR7[px] && px >= 0 && px < 320) R.pset(px, py, col); };
+  ps(x, y); ps(x + 1, y); ps(x + 2, y); ps(x + 3, y - 1); ps(x - 1, y); ps(x - 2, y + 1);
+  for (let i = 1; i <= 3; i++) { ps(x + 1 - Math.round(i * 0.4), y + Math.round(up * i / 3) - (i === 3 && up < 0 ? 0 : 0)); ps(x + 1 + Math.round(i * 0.3), y + Math.round(up * i / 3)); } };
 const p7 = (t) => {
   const g = T.antigua(R, t, { encuadre: 'reloj', camara: 'tablillas', apunta: tramo(t, S_(31.4), S_(34.0)) });
+  // las estrellas que asoman arriba, donde el cielo ya es violeta (fuera de la zona del año y del rincón de Atom)
+  for (const [x, y, k] of [[184, 6, 0], [206, 18, 1], [231, 9, 2], [252, 24, 3], [196, 30, 4], [8, 10, 5], [14, 30, 6], [60, 26, 7], [148, 24, 8], [262, 4, 9]]) { const tw = Math.sin(t * (1.6 + k * 0.37) + k * 2.1);
+    if (tw < -0.4) continue; R.pset(x, y, tw > 0.5 ? BL : hex('#c8c0e8')); if (k % 3 === 0 && tw > 0.6) { R.pset(x - 1, y, hex('#9a90c8')); R.pset(x + 1, y, hex('#9a90c8')); R.pset(x, y - 1, hex('#9a90c8')); R.pset(x, y + 1, hex('#9a90c8')); } }
+  // tres capas de nubes: la alta (lenta y oscura), la media (masas grandes rosas) y la baja (doradas, junto al horizonte)
+  const TN = [[hex('#2a1c44'), hex('#44305e'), hex('#7a4a7a'), hex('#e08a92')], [hex('#4a2e5e'), hex('#7a4478'), hex('#c8667e'), hex('#ffc890')], [hex('#7a4a6a'), hex('#b8607a'), hex('#f09070'), hex('#ffe4a8')]];
+  for (let k = 0; k < 3; k++) nubeP(((k * 150 + 30 + t * 4.4) % 450) - 70, 36 + (k % 2) * 3, 46 + k * 6, 8, k + 60, TN[0]);
+  for (let k = 0; k < 4; k++) nubeP(((k * 112 + 70 + t * 2.4) % 450) - 70, 62 + (k % 2) * 6, 66 + (k % 3) * 10, 13, k + 70, TN[1]);
+  for (let k = 0; k < 4; k++) nubeP(((k * 118 + 10 + t * 1.1) % 450) - 70, 90 + (k % 2) * 3, 80 + (k % 2) * 16, 6, k + 80, TN[2]);
+  // la bandada de grullas en uve que cruza hacia el poniente, y otra lejana que vuelve
+  { const cx = 14 + (t - P7) * 22, cy = 48 + Math.sin(t * 0.7) * 2; for (let i = 0; i < 7; i++) { const fila = Math.ceil(i / 2), lado = i % 2 ? 1 : -1; grulla(cx - fila * 7, cy + lado * fila * 4, t, i); } }
+  { const cx = 250 - (t - P7) * 12, cy = 80 + Math.sin(t * 0.9) * 2; for (let i = 0; i < 5; i++) { const x = Math.round(cx + i * 6 + Math.sin(t * 2 + i) * 2), y = Math.round(cy + (i % 2) * 3); if (y < HOR7[x]) ave(x, y, t, hex('#3a2236'), i); } }
   const w = tramo(t, P7 + 0.1, S_(31.3)), bx = Math.round(lerp(96, 172, w)), mira = t > S_(33.8);
   const [tx, ty] = g.tablilla ?? [206, 128];
   const m = R.actor(EL.babilonioAK, bx, 160, t, { dir: 1, anda: w > 0 && w < 1, sostiene: w >= 1 && !mira ? [tx - 8 + Math.round(Math.sin(t * 5) * 3), ty - 2 + Math.round(Math.cos(t * 4) * 3)] : undefined, dedo: mira, sonrisa: mira });
@@ -413,7 +533,7 @@ const p7 = (t) => {
 
 const efectos = [[M_(1.2), 'papel'], [M_(3.7), 'tic'], [M_(4.4), 'tic'], [M_(4.1), 'brillo'], [P2 + 0.4, 'maquina'], [M_(8.0), 'tic'], [M_(9.7), 'brillo'],
   [P3 + 0.3, 'viento'], [M_(12.8), 'pop'], [M_(14.0), 'brillo'], [M_(15.2), 'papel'], [P4 + 0.2, 'maquina'], [S_(18.4), 'tic'], [S_(18.9), 'tic'], [S_(19.8), 'golpecito'],
-  [P5 + 0.2, 'viento'], [S_(22.3), 'lapiz'], [S_(23.0), 'lapiz'], [S_(23.8), 'brillo'], [P6 + 0.02, 'brillo'], [S_(26.3), 'toc'], [S_(27.5), 'toc'], [S_(28.4), 'brillo'],
+  [P5 + 0.2, 'viento'], [S_(22.3), 'lapiz'], [S_(23.0), 'lapiz'], [S_(23.8), 'brillo'], [P6 + 0.02, 'brillo'], ...[0, 1, 2].map((k) => [P6 + 0.2 + (k + 0.8) / 3 * (S_(28.2) - P6 - 0.2), 'toc']), [S_(28.4), 'brillo'],
   [P7 + 0.3, 'viento'], [S_(31.6), 'lapiz'], [S_(32.6), 'lapiz'], [S_(33.9), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6, 'corte'], [P7, p7]], { efectos, año: null });
 </script>
