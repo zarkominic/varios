@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep40 · short 3 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AK-SHORT3-MINIATURA · ep40, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { maquina, maquinaDelante } from '/atomo/plato/escenas/ak-comun.js';
+import { figura, grado, halo, cifra, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'caja', giro: 1.4, fecha: true };
+  maquina(R, t, o); maquinaDelante(R, t, o); desplazar(R, -20);
+  grado(R, { cx: 160, cy: 80, tinte: '#1c1006', f: 0.18, desde: 0.45, max: 0.65 });
+  halo(R, 174, 80, 54, 50, '#ffe6a0', 0.3);
+  figura(R, EL.hiparcoAK, 146, 178, t, { dir: 1, sorpresa: true }, 2);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
