@@ -352,3 +352,99 @@ pósters locales de cada país, carteles de autobús, etc.).
 - Las fugas de metraje sin terminar de primavera (TechRadar).
 - La afirmación de The Playlist de que Jackman y Reynolds «confirmaron» en D23 que vuelven: es un caso aislado y la
   contradice el resto de la cobertura.
+
+---
+
+## 7. Hulk / Bruce Banner (ampliación del 19 nov)
+
+- **La escena de *Avengers: Endgame Encore*** [CONFIRMADO OFICIAL]. El reestreno llegó a los cines el 25 de septiembre y a
+  **Disney+ el 13 de noviembre de 2026**, con 185 min y cuatro escenas nuevas.
+  - **Dónde va:** es una de las escenas poscréditos. Nofilmschool la pone como la primera de las tres poscréditos.
+  - **Qué se ve:** Banner (Mark Ruffalo, con barba larga) está encerrado en un búnker militar a kilómetros bajo tierra que
+    parece un laboratorio. Graba un vídeo-informe sobre su investigación para suprimir los rayos gamma, y una luz verde llena
+    la sala. La escena transcurre después de *Spider-Man: Brand New Day*; The Direct da la fecha del 12 de enero de 2029 dentro
+    de la ficción.
+  - **Qué se oye:** la voz de Doom, desde las sombras: «Mr. Banner. I'm here to collect you.» (una fuente, Nofilmschool: aprox.;
+    otros medios coinciden en que dice que viene a «collect», es decir, a «recogerle»).
+  - **Cómo termina:** se oye el rugido de Hulk y los dos desaparecen; en el suelo quedan runas verdes de Latveria (Nerdist).
+    Los medios no se ponen de acuerdo en si Banner llega a transformarse ni en si a Doom se le ve o solo se le oye.
+  - **Primera imagen oficial del rodaje de esta escena:** fotos de rodaje que publicó en Instagram el director de segunda
+    unidad, Anthony Leonardi, con crédito de Marvel Studios (The Direct, 1 oct) [CONFIRMADO OFICIAL].
+  - Fuentes: https://nofilmschool.com/avengers-endgame-encore (leído) ·
+    https://thedirect.com/article/avengers-endgame-encore-official-hulk-doomsday-scene (leído) ·
+    https://www.looper.com/2272285/why-doctor-doom-need-hulk-avengers-endgame-encore-breakdown/ (leído) ·
+    https://screenrant.com/avengers-endgame-encore-doomsday-hulk-doctor-doom-mcu-story-repeat/ (no leído) ·
+    https://www.yahoo.com/entertainment/movies/articles/captain-america-4-connection-avengers-144526635.html (no leído) ·
+    https://nerdist.com/article/avengers-endgame-encore-post-credits-may-tease-hulk-secret-wars-not-doomsday/ (no leído) ·
+    https://fictionhorizon.com/marvels-new-avengers-doomsday-teaser-looks-back-at-the-mcu-as-endgame-encore-heads-to-disney/ (leído; fecha de Disney+)
+- **Por qué quiere Doom a Hulk:** Marvel no lo ha explicado. Lo que circula son teorías de los medios: la energía gamma, la
+  inteligencia de Banner o el control mental. Nerdist plantea que puede estar preparando *Secret Wars* y no *Doomsday*.
+  [especulación: no presentar como hecho]
+- **¿Sale en algún tráiler o spot posterior?** No he encontrado ninguno. Ninguno de los spots de octubre y noviembre ni la
+  featurette ni el ScreenX descritos más abajo enseñan a Banner o a Hulk según la cobertura leída. Un resumen del buscador
+  decía que el ScreenX de septiembre lo mostraba, pero el artículo de CBM, una vez leído, dice que Banner solo aparece en
+  *Encore*.
+- **¿Está confirmado Ruffalo en *Doomsday*?** **No.** Joe Russo (29 sep, citado por CBM): Banner «is certainly involved in
+  the story that revolves around Doom», pero «We will not confirm nor deny his appearance in Doomsday» [INFORMADO; dos
+  fuentes con la misma frase: CBM y Wikipedia/THR]. El 27 de octubre Anthony Russo volvió a esquivar la pregunta: «Gosh,
+  you're really making us sweat here» (Netflix Junkie, leído).
+  - https://comicbookmovie.com/avengers/avengers-doomsday/update-avengers-doomsday-screenx-trailer-features-intriguing-new-footage-merch-popcorn-bucket-revealed-a230131 ·
+    https://www.netflixjunkie.com/hollywood-news-youre-really-making-us-sweat-russo-brothers-hint-at-what-hulks-avengers-endgame-encore-post-credits-scene-means/
+- **Para el guion:** se puede contar que en la escena de *Encore* Doom «se lleva» a Banner, porque es material oficial. Lo
+  que no se puede decir es que Hulk esté en *Doomsday*.
+
+---
+
+## 8. Los Maximoff: qué es oficial y qué no
+
+| Personaje | Situación | Etiqueta |
+|---|---|---|
+| **Wanda / Bruja Escarlata** | Doom la despierta en la segunda escena de créditos del final de VisionQuest (10 nov): «Scarlet Witch, awaken» (ver §4). Es el único material oficial. Marvel no ha anunciado a Olsen en el reparto de *Doomsday*, ni sale en pósters, spots o featurette. Tampoco he encontrado si Olsen rodó esa escena en persona o si se usó material de *Multiverse of Madness*. | Escena: [CONFIRMADO OFICIAL]. Que salga en *Doomsday*: [INFORMADO / interpretación] |
+| **Pietro / Quicksilver: Evan Peters** | **No está confirmado.** Hoy, el artículo de Wikipedia «Peter Maximoff» **no dice que haga un cameo** en *Doomsday*: solo recoge que, en una entrevista de enero de 2026 (MovieWeb, 14 ene), Peters dijo que le gustaría volver «de una forma más realista». Si alguna versión de Wikipedia, o un fragmento de ella, decía «cameo», no estaba respaldado: la fuente original es solo ese deseo del actor. 9to5Marvel dice que ni estudio, ni prensa del sector, ni compañeros de reparto lo han confirmado, y que el único rumor (de una cuenta de fans) lo sitúa en *Secret Wars*. | [RUMOR — no usar] |
+| **Pietro: Aaron Taylor-Johnson** | Nada. Ninguna fuente lo relaciona con *Doomsday*. | Sin datos |
+| **Tommy Maximoff** (Ruaridh Mollica, como el adulto Thomas Shepherd) | En VisionQuest es oficial: conserva la supervelocidad y apunta a poderes vibratorios. Al final de la serie, los hermanos (Billy y Tommy) vuelven a estar juntos. Que se convierta en «Speed» o que salga en *Doomsday*: nada confirmado, solo preguntas de los medios. | Serie: [CONFIRMADO OFICIAL]. *Doomsday*: sin datos |
+
+Fuentes: https://en.wikipedia.org/wiki/Peter_Maximoff (leído el 19 nov) ·
+https://movieweb.com/x-men-mcu-evan-peters-quicksilver-return-avengers-doomsday/ (no leído) ·
+https://www.9to5marvel.com/is-quicksilver-in-avengers-doomsday-evan-peters/ (no leído) ·
+https://www.inverse.com/entertainment/mcu-billy-and-tommy-visionquest-finale-young-avengers (no leído) ·
+https://guides.justwatch.com/us/visionquest-tommy-maximoff-powers-explained (no leído) ·
+https://gizmodo.com/what-does-the-end-credits-scene-of-visionquest-mean-for-avengers-doomsday-2000838390 (leído)
+
+---
+
+## 9. Todo lo que Marvel publicó como tráiler, teaser o spot entre el 3 y el 19 de noviembre de 2026
+
+**Respuesta a «salió otro tráiler después del 3 de noviembre»: NO, si por tráiler se entiende uno completo.** En esas dos
+semanas Marvel no ha publicado ningún tráiler completo nuevo. El único tráiler completo oficial sigue siendo el del 20 de
+julio, y el «tráiler final» sigue sin salir (§1.11). Lo que sí ha salido son **piezas cortas**, y algunos medios las llaman
+«trailer» en el titular: bamsmackpow habla de «new trailer» para el spot del 13 de noviembre y para el ScreenX, y The
+Playlist titula «trailer» la featurette del 18 (no leído, 403). Probablemente sea eso lo que vio el usuario. [Seguro en que
+no hay tráiler completo nuevo; Probable en que confunde una de estas piezas]
+
+| Fecha | Pieza | Qué muestra | ¿Imágenes nuevas de *Doomsday*? | Etiqueta |
+|---|---|---|---|---|
+| 11–13 nov | **Spot y póster «Countdown to Avengers: Doomsday»**, ligados a la llegada de *Endgame Encore* a Disney+ (13 nov) | Montaje con clips del MCU (*The First Avenger*, *Infinity War*, *Thunderbolts\**, *Fantastic Four: First Steps*), el lema «Return to the Universe», fondo verde de Doom tras el logo de Disney+ y cierre con Doom: «The Countdown is on» (una fuente: aprox.). Abre con una mano que se acerca a un casco dañado. | Casi nada: sobre todo material del MCU ya visto | [CONFIRMADO OFICIAL] |
+| 12 nov | Post de Downey en Instagram, «Patience, subjects…» | Vídeo mudo mirando el reloj | No | [CONFIRMADO OFICIAL] |
+| fecha sin precisar | Spot «One Month» de 30 s | Cosmic Book News lo menciona en una actualización; puede ser la promo del 18 | ? | [INFORMADO] |
+| 18 nov | **Featurette «The Return»** (unos 90 s) | Ver §1.9: Downey, el reactor ARC, peleas más largas, el grupo en el bosque y Sue de negro. Según bamsmackpow, también es la **primera imagen de Danny Ramírez como Falcon** en el equipo de Sam (una fuente). | Sí, pero sobre todo de rodaje | [CONFIRMADO OFICIAL] |
+| 18 nov | **Promo de equipos de 26 s** («In one month, return together…») | Avengers → New Avengers → Wakanda → 4 Fantásticos → X-Men. SuperHeroHype dice que la compartieron los Russo. | Poca; es un montaje | [CONFIRMADO OFICIAL] |
+| 18 nov | **Promo de ScreenX** con los Russo a cámara | Anthony: la película es enorme; Joe: diseñaron con ScreenX una versión para ese formato que extiende la imagen por las paredes de la sala (12 proyectores, 270°). Según bamsmackpow (leído) trae imágenes nuevas: **Reed Richards (Pedro Pascal) de pie detrás de Steve Rogers mientras Steve informa a los Vengadores veteranos**, **un plano general de Nueva York** más amplio que el de la Torre en el tráiler de julio, pasillos de la Mansión X con **la pelea Shang-Chi contra Gambit**, y John Walker en la reunión de los 4 Fantásticos con los wakandianos. El resto es material del teaser de julio. | Sí (algunos planos) | La pieza: [CONFIRMADO OFICIAL]. El detalle de los planos: [INFORMADO] (una fuente, que incluye un tuit del 19 nov) |
+| 18 nov | **Spot japonés «Assemble»** de 30 s (Marvel Japón) | Acción nueva, el aterrizaje de Doom y su voz japonesa (Toshiyuki Morikawa) | Sí | [CONFIRMADO OFICIAL] |
+| 19 nov | Nada nuevo a la hora de redactar esto (el Daily LITG de Bleeding Cool del 20 nov no menciona ningún tráiler) | — | — | — |
+
+- **Sobre «el teaser de equipos con versión ScreenX»:** las fuentes tratan la **promo de equipos de 26 s** y la **promo de
+  ScreenX de los Russo** como dos piezas distintas, las dos del 18 de noviembre. Los planos de Reed detrás de Steve y de
+  Nueva York vienen de la **ScreenX**, según bamsmackpow. Ninguna fuente leída dice que la promo de equipos tenga una versión
+  ScreenX. Ojo: hubo **otro tráiler ScreenX el 28 de septiembre** (CBM, leído) con Doom en primer plano y brujas de Latveria
+  inclinándose a su lado, y no hay que confundirlos.
+- Fuentes: https://bamsmackpow.com/new-avengers-doomsday-trailer-screenx-look-marvel-mcu-movie (leído) ·
+  https://fictionhorizon.com/marvel-unveils-another-avengers-doomsday-promo-as-the-countdown-begins/ (leído) ·
+  https://www.superherohype.com/news/707538-avengers-doomsday-trailer-new-tv-spot-footage (leído) ·
+  https://bamsmackpow.com/marvel-releases-new-sneak-peek-avengers-doomsday-ahead-film-release (leído) ·
+  https://bamsmackpow.com/marvel-studios-new-coutndown-avengers-doomsday-trailer-milestone (leído) ·
+  https://fictionhorizon.com/marvels-new-avengers-doomsday-teaser-looks-back-at-the-mcu-as-endgame-encore-heads-to-disney/ (leído) ·
+  https://www.yahoo.com/entertainment/movies/trailers/articles/marvel-releases-avengers-doomsday-video-181702657.html (leído) ·
+  https://www.comingsoon.net/movies/news/2225983-avengers-doomsday-japanese-international-tv-spot (leído) ·
+  https://theplaylist.net/avengers-doomsday-trailer-avengers-x-men-fantastic-four-20261118/ (no leído; 403) ·
+  https://comicbookmovie.com/avengers/avengers-doomsday/update-avengers-doomsday-screenx-trailer-features-intriguing-new-footage-merch-popcorn-bucket-revealed-a230131 (leído; ScreenX del 28 sep)
