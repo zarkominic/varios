@@ -12,8 +12,9 @@
 // DD-POSTERS (frases 14–15), 2026. Ocho planos, cortados en la palabra:
 // 1. «November 18»: en el cuarto del fan, el corcho del mapa con dos hojas de calendario (18 → 18, la flecha de un mes,
 //    la estrella del estreno); en «eleven posters» se clavan las once miniaturas y sale el «11»; el fan, con el móvil, salta.
-// 2. «Ten pair up» (marcos, 2.º uso): los once llegan uno a uno a la pared; el último se cae, la mano lo vuelve a clavar;
-//    en «Doom alone» el del centro se enciende en verde y Doom levanta los brazos; el último se vuelve a caer (gag 3).
+// 2. «Ten pair up» (marcos, 2.º uso): los once llegan uno a uno a la pared; el de Doom (el 5, el del centro) se suelta
+//    y cae, y la mano de Atom baja desde arriba y lo vuelve a clavar; en «Doom alone» se enciende en verde y Doom levanta
+//    los brazos; y el de Doom se vuelve a caer (gag 3).
 // 3. «And if you put them side by side»: inserto de la mesa de luz: las once tiras se juntan y en «single image» las
 //    juntas desaparecen; dos manos las empujan; la taza humea.
 // 4. «a city in ruins»: la ciudad entera en la pantalla gigante de la Comic-Con; en «giant robots» los ojos de los
@@ -155,18 +156,38 @@ const p1 = (t) => {
 const p2 = (t) => {
   const a0 = P(.303), a1 = P(.43), c1 = P(.442), pin = P(.497), dm = P(.53), c2 = P(.574);
   const n = t < a0 ? 0 : Math.min(11, 1 + Math.floor(10.999 * tramo(t, a0, a1)));
-  const cae = t >= c1 && t < pin ? Math.max(0.001, tramo(t, c1, c1 + 0.8)) : t >= c2 ? Math.max(0.001, tramo(t, c2, c2 + 0.6)) : 0;
-  const o = { encuadre: 'campo', camara: 'marcos', n, cae, doom: t > dm ? 1 : 0.4 }, g = T.batalla(R, t, o), pies = g.pies ?? 154;
-  for (let k = 0; k < n; k++) { if (k === n - 1 && cae > 0) continue; const xs = g.sitios?.[k] ?? [], ak = a0 + k * (a1 - a0) / 10, rec = t - ak < 0.7;
+  // las dos caídas son del póster de Doom (el marco 5), como dice la voz: «the last one is Doom alone»
+  const kc = t >= c1 && t < pin ? Math.max(0.001, tramo(t, c1, c1 + 0.8)) : t >= c2 ? Math.max(0.001, tramo(t, c2, c2 + 0.6)) : 0;
+  const o = { encuadre: 'campo', camara: 'marcos', n, cae: { marco: 5, k: kc }, doom: t > dm ? 1 : 0.4 }, g = T.batalla(R, t, o), pies = g.pies ?? 154;
+  if (g.cae != null) SNAP.set(R.buf);
+  for (let k = 0; k < n; k++) { if (g.cae != null && k === g.cae) continue; const xs = g.sitios?.[k] ?? [], ak = a0 + k * (a1 - a0) / 10, rec = t - ak < 0.7;
     PAR[k].forEach((d, i) => { if (xs[i] == null) return; const ve = t > P(.385) && t < P(.45);
       R.actor(d, xs[i], pies, t, { dir: k === 5 ? 1 : i ? -1 : 1, brazos: k === 5 && t > dm, sonrisa: rec || (ve && (k + i) % 2 === 0), dedo: rec && i === 0, habla: ve && (k + i) % 3 === 0 && Math.sin(t * 9 + k) > 0 }); }); }
+  if (g.cae != null) delanteCae(g.cae, kc);
   T.batallaDelante(R, t, o);
   // la llegada: un destello en el marco que acaba de entrar
   if (n > 0 && t < a1 + 0.3) { const k = n - 1, [x0, y0, x1, y1] = B_M(k), u = ((t - a0) * 10 / (a1 - a0)) % 1; if (u < 0.5) barre(x0, y0, x1, y1, u * 2, 0.4); }
   // «Doom alone»: el marco del centro late en verde
   if (t > dm - 0.15 && t < c2 + 0.6) { const [x0, y0, x1, y1] = B_M(5); contorno(x0, y0, x1, y1, t, VERDE); R.anillo(160, 100, 18 + 6 * tramo(t, dm, dm + 0.5), mez(VERDE, K, 0.2 + 0.6 * tramo(t, dm, dm + 0.5)), 2); }
-  // la mano de Atom vuelve a clavar el último (desde el borde derecho, solo la mano)
-  const m = tramo(t, pin - 0.35, pin - 0.05) - tramo(t, pin + 0.15, pin + 0.45); if (m > 0) T.mano(R, Math.round(lerp(336, 304, m)), 56, -1, MANGA);
+  // la mano de Atom baja desde arriba (a la derecha de la barra del año) y vuelve a clavar el de Doom por su esquina
+  // derecha; con el brazo canónico, del hombro fuera de cuadro a la muñeca, y un golpecito al clavar
+  const m = tramo(t, pin - 0.35, pin - 0.05) - tramo(t, pin + 0.15, pin + 0.45);
+  if (m > 0) { const [, y0m, x1m] = B_M(5), gol = t > pin - 0.05 && t < pin + 0.15 ? Math.round(Math.sin((t - pin + 0.05) * 31) * 1) : 0;
+    const wx = x1m + 11, wy = Math.round(lerp(-30, y0m + 2, m)) + gol;
+    T.brazo(R, wx + 16, wy - 52, wx, wy, MANGA, -1, { codo: [wx + 12, wy - 24], sombra: true });
+    if (t > pin - 0.05 && t < pin + 0.12) { R.pset(x1m - 1, y0m - 2, AMAL); R.pset(x1m + 2, y0m, AMAL); R.pset(x1m - 1, y0m + 3, AMAL); } }
+};
+// el póster que cae pasa POR DELANTE de las parejas de los marcos vecinos: tras pintar a los actores, se repone desde la
+// copia del búfer (hecha justo después del decorado) cada píxel que cae dentro del póster girado (la misma cuenta que el
+// decorado: gira sobre su chincheta izquierda y cae; u 0–1)
+const SNAP = new Uint32Array(320 * 180);
+const delanteCae = (i, u) => {
+  const [x0, y0, x1, y1] = B_M(i), w = x1 - x0, hh = y1 - y0, B = R.buf;
+  let a, dx = 0, dy = 0; if (u < 0.3) a = (u / 0.3) ** 2 * 0.4; else { const v = (u - 0.3) / 0.7; a = 0.4 + v * 0.5; dy = v * v * 120; dx = v * 10; }
+  const ca = Math.cos(a), sa = Math.sin(a), px = x0 + dx, py = y0 + dy;
+  for (let y = Math.max(0, Math.floor(py - 2)); y <= Math.min(179, py + hh + w + 2); y++) for (let x = Math.max(0, Math.floor(px - hh)); x <= Math.min(319, px + w + 2); x++) {
+    const X = x - px, Y = y - py, lx = X * ca + Y * sa, ly = -X * sa + Y * ca; if (lx < 0 || lx > w || ly < 0 || ly > hh) continue;
+    B[y * 320 + x] = SNAP[y * 320 + x]; }
 };
 const B_M = (k) => { let x = 3; for (let i = 0; i < k; i++) x += (i === 5 ? 24 : 28) + 1; return [x, 46, x + (k === 5 ? 24 : 28) - 1, 160]; };
 // ── 3. La mesa de luz: las once tiras se juntan en una sola imagen ──

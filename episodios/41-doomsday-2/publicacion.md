@@ -57,8 +57,8 @@ Why do you think Doom wants Hulk? Tell me in the comments.
 
 Sources: Marvel.com · Disney+ (Avengers: Endgame Encore, VisionQuest) · Motion Picture Association (rating) · Variety ·
 TheWrap · Empire · ScreenCrush · ComicBookMovie · ComingSoon · GamesRadar+ · Robert Downey Jr. on Instagram (November 12,
-2026) · Writers Guild of America (credits) · Marvel Comics: Fantastic Four Annual #2 (1964), Avengers: The Children's
-Crusade (2010–2012), Fantastic Four #54 (2002), Secret Wars (1984 and 2015).
+2026) · Writers Guild of America (credits) · Marvel Comics: Doctor Doom's origin (1964), Avengers: The Children's
+Crusade (2010–2012), Fantastic Four (2002), Secret Wars (1984 and 2015).
 
 This video is an independent explanation. It is not affiliated with Marvel, Disney or any of the media mentioned, and it
 uses no clips, posters or footage: every drawing is our own. No leaks or spoilers: only what Marvel has released. The
