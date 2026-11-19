@@ -18,7 +18,7 @@ E = [
  ('lf-gancho', None, 1, 2, ['caiman', 'leonida'],
   ['D: la cámara de seguridad de una tienda de madrugada (hora en pantalla); un caimán pequeño entra y se pasea entre las neveras; golpe en «really happened»; un «2018» y un mapa de Florida.',
    'H, A y G: Atom abre la caja de la edición física (solo un código); Ocean Drive con neones; la carretera sobre el mar; Atom con mochila y un mapa de Florida con cuatro iconos: caimán, puente, titular y una montaña con interrogante.'],
-  'asombro', ['caiman+6.0']),
+  'asombro', ['caiman+9.8']),
  ('lf-hola', None, 3, 3, ['hola'],
   ['H: Atom saluda en su salón, con la barra de descarga en la tele.'],
   'curiosidad', []),
