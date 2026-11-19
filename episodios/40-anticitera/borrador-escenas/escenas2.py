@@ -347,11 +347,14 @@ const p5 = (t) => {
   // los terrones: el de la izquierda se va desmoronando cuando la voz dice «falling apart»
   const cae = tramo(t, b(0.93), b(0.99));
   terron(128, 120, 16, 11, 1, false); terron(166, 118, 14, 10, 2, true); terron(146, 112, 18, 12, 3, false);
-  if (cae > 0) { for (let k = 0; k < 4; k++) { const fx = 116 + k * 5, fy = Math.round(lerp(118, 166, Math.min(1, cae * (1 + k * 0.2)))); R.rect(fx, fy, fx + 2, fy + 1, k % 2 ? hex('#2a2018') : hex('#4a8a6a')); } }
+  if (cae > 0) { for (let k = 0; k < 4; k++) { const fx = 116 + k * 5, fy = Math.round(lerp(118, 170, Math.min(1, cae * (1 + k * 0.2)))); R.rect(fx - 1, fy - 1, fx + 3, fy + 2, K); R.rect(fx, fy, fx + 2, fy + 1, k % 2 ? hex('#5a3e26') : hex('#4a8a6a')); } }
   // un marinero pasa por delante con un ánfora y ni los mira
   const u = Math.min(1, Math.max(0, (t - P5) / (b(0.97) - P5))), mx = Math.round(lerp(30, 340, u));
-  const mm = R.actor(EL.marineroAK, mx, 178, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [mx + 12, 158], sonrisa: true });
+  const mm = R.actor(EL.marineroAK, mx, 175, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [mx + 12, 158], sonrisa: true });
   { const [hx, hy] = mm.mano; R.disco(hx + 1, hy, 5, K); R.disco(hx + 1, hy, 4, hex('#b87a48')); R.rect(hx, hy - 8, hx + 2, hy - 4, K); R.pset(hx, hy - 1, hex('#e0a070')); }
+  { const tr = tramo(t, b(0.85), b(0.875)), bo = tramo(t, b(0.875), b(0.9)); if (tr > 0 && t < b(0.97)) { const fx = Math.round(lerp(164, 196, tr) + bo * 8), fy = Math.round(tr < 1 ? lerp(121, 172, tr * tr) : 172 - Math.sin(bo * Math.PI) * 6);
+    R.rect(fx - 3, fy - 3, fx + 3, fy + 2, K); R.rect(fx - 2, fy - 2, fx + 2, fy + 1, hex('#4a8a6a')); R.rect(fx - 2, fy - 2, fx, fy - 2, hex('#7ab89a')); R.rect(fx + 1, fy, fx + 2, fy + 1, hex('#2a2018'));
+    if (tr >= 1 && bo < 1) for (let k = 0; k < 6; k++) R.pset(Math.round(188 + (k - 2.5) * (3 + bo * 4)), Math.round(174 - Math.abs(k - 2.5) * bo * 2 - bo * 3), hex('#d8c8a0')); } }
   // la gaviota baja, se posa en el borde del cesto, picotea un terrón y se va sin interés
   const llega = tramo(t, b(0.74), b(0.79)), pica = t > b(0.79) && t < b(0.9), vete = tramo(t, b(0.94), b(1.0));
   if (llega < 1) gaviota(lerp(330, 170, llega), lerp(30, 118, llega), t, -1, false);
@@ -416,7 +419,7 @@ const p2 = (t) => {
   const hx = Math.round(lx + 30), hy = Math.round(ly + 40); for (let k = 0; k < 3; k++) R.linea(lx + 13 + k, ly + 14, hx + k, hy, k === 0 ? K : hex('#6a3e22')); R.linea(lx + 16, ly + 14, hx + 3, hy, K);
   T.brazo(R, hx + 40, hy + 52, hx + 4, hy + 4, LEVITA2, -1, { codo: [hx + 26, hy + 34] });
   // el pincel de Spyridon quita el polvo del terrón (por la izquierda) y se retira al rajarse
-  const cep = 1 - tramo(t, a(0.58), a(0.62)), bx = Math.round(lerp(40, 80 + Math.sin(t * 10) * 6, cep)), by = Math.round(lerp(186, 154, cep));
+  const cep = 1 - tramo(t, a(0.58), a(0.62)), bx = Math.round(lerp(10, 80 + Math.sin(t * 10) * 6, cep)), by = Math.round(lerp(236, 154, cep));
   for (let k = 0; k < 2; k++) R.linea(bx + 3 + k, by - 3, bx + 24 + k, by - 26, k ? hex('#c89a58') : K); R.rect(bx + 23, by - 31, bx + 28, by - 25, K); R.rect(bx + 24, by - 30, bx + 27, by - 26, hex('#6a4a2a')); R.rect(bx + 24, by - 26, bx + 27, by - 25, hex('#c8963a'));
   T.brazo(R, bx - 40, by + 50, bx, by, LEVITA, 1, { codo: [bx - 24, by + 30] });
   // el polvillo que levanta el pincel
@@ -434,7 +437,7 @@ const zoomTerron = () => capa('zoomTerron', () => {
   // fuera: el bronce corroído y la madera negra con fibras, enorme
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (enGrieta(x, y)) continue;
     const v = H_(x >> 1, y >> 1, 60), w = H_(x >> 3, y >> 3, 61), fibra = Math.sin(y * 0.9 + Math.sin(x * 0.05) * 3) > 0.6, madera = x < 70 || (x > 250 && y > 60) || (y > 150 && x < 120);
-    let c = madera ? (fibra ? hex('#3e2e20') : v > 0.8 ? hex('#5e4632') : hex('#2e241a')) : (v > 0.85 ? hex('#7ab89a') : v < 0.1 ? hex('#2e5a46') : w > 0.7 ? hex('#3a6a54') : w < 0.2 ? hex('#5a9a7a') : hex('#4a8a6a'));
+    const nudo = madera && ((x - 30) ** 2 + ((y - 110) * 2) ** 2 < 60 || (x - 286) ** 2 + ((y - 120) * 2) ** 2 < 50); let c = madera ? (nudo ? (((x - 30) ** 2 + ((y - 110) * 2) ** 2) % 17 < 6 ? hex('#3a2616') : hex('#7a5232')) : fibra ? hex('#5a3e26') : v > 0.8 ? hex('#a87a4e') : w > 0.6 ? hex('#8a6240') : hex('#76522f')) : (v > 0.85 ? hex('#7ab89a') : v < 0.1 ? hex('#2e5a46') : w > 0.7 ? hex('#3a6a54') : w < 0.2 ? hex('#5a9a7a') : hex('#4a8a6a'));
     if (!madera && H_(x, y, 62) > 0.985) c = hex('#c8963a'); R.pset(x, y, c); }
   // el canto de la grieta, con luz y sombra
   for (let i = 0; i < GR.length; i++) { const [x0, y0] = GR[i], [x1, y1] = GR[(i + 1) % GR.length]; R.linea(x0, y0, x1, y1, K); R.linea(x0 + 1, y0, x1 + 1, y1, x0 < 160 ? hex('#9ad8b8') : hex('#1e3a2e')); }
@@ -505,6 +508,7 @@ const p4 = (t) => {
   { const [hx, hy] = me.mano, tx = Math.round(lerp(hx - 10, 140, apunta)), ty = Math.round(lerp(hy - 24, 82 + (asiente ? 1 : 0), apunta)); R.linea(hx, hy, tx, ty, K); R.linea(hx + 1, hy, tx + 1, ty, hex('#a07040')); R.pset(tx, ty, BL); }
   // el escéptico niega con la cabeza, enfadado: «imposible»
   const niega = t > b(0.17) && t < b(0.24);
+  if (niega) R.icono('X', 212, 122 - (Math.floor(t * 6) % 2), hex('#e83a3a'), BL, 2);
   R.actor(EL.estudioso2AK, 212, 160, t, { dir: niega ? (Math.floor(t * 7) % 2 ? 1 : -1) : -1, enfado: t > b(0.15), dedo: t > b(0.16) && t < b(0.19), habla: t > b(0.15) && t < b(0.2) && Math.sin(t * 9) > 0 });
   // un oyente joven sentado en primera fila que toma notas (de espaldas no: de perfil, a la derecha)
   R.actor(EL.spyridonAK, 268, 166, t, { dir: -1, sostiene: [262, 150 + Math.round(Math.sin(t * 6))] });
@@ -538,8 +542,11 @@ const p5 = (t) => {
   const vx = 196 + Math.round(Math.sin(t * 0.8) * 2), vy = 76 + Math.round(Math.sin(t * 1.6)); R.poligono([[vx - 30, vy], [vx + 32, vy], [vx + 26, vy + 8], [vx - 26, vy + 8]], hex('#1e1e24')); R.rect(vx - 26, vy + 6, vx + 26, vy + 7, hex('#a83a2a'));
   R.rect(vx - 14, vy - 7, vx + 14, vy - 1, hex('#e8e0d0')); for (let k = 0; k < 6; k++) R.pset(vx - 12 + k * 5, vy - 4, hex('#2a3a4a')); R.rect(vx - 4, vy - 18, vx + 2, vy - 8, hex('#c83a2a')); R.rect(vx - 4, vy - 18, vx + 2, vy - 16, K);
   for (let k = 0; k < 6; k++) { const ph = (t * 0.6 + k / 6) % 1; R.disco(vx - 2 - ph * 30, vy - 20 - ph * 10, 2 + ph * 4, mez(hex('#3a3a40'), hex('#8a9aa8'), ph)); }
-  const cae = tramo(t, b(0.47), b(0.53)); if (cae < 1) { const cx = Math.round(vx + 20 + cae * 8), cy = Math.round(vy - 2 + cae * cae * 22); R.rect(cx - 3, cy - 3, cx + 3, cy + 2, K); R.rect(cx - 2, cy - 2, cx + 2, cy + 1, hex('#c8a060')); R.pset(cx, cy - 1, hex('#e8c860')); }
-  else { const s = tramo(t, b(0.53), b(0.60)); if (s < 1) for (let k = 0; k < 7; k++) R.pset(vx + 28 + (k - 3) * 2, Math.round(vy + 18 - Math.sin((k / 6) * Math.PI) * 8 * (1 - s)), BL); }
+  const cae = tramo(t, b(0.47), b(0.53)); if (cae < 1) { const cx = Math.round(vx + 22 + cae * 10), cy = Math.round(vy - 4 + cae * cae * 22); R.rect(cx - 6, cy - 5, cx + 6, cy + 5, K); R.rect(cx - 5, cy - 4, cx + 5, cy + 4, hex('#e8b060')); R.rect(cx - 5, cy - 1, cx + 5, cy, hex('#8a5a2a')); R.rect(cx - 1, cy - 4, cx, cy + 4, hex('#8a5a2a')); R.rect(cx - 5, cy - 4, cx + 5, cy - 4, hex('#fff0b0'));
+    for (let k = 0; k < 3; k++) R.pset(cx - 8 - k * 3, cy - 6 - k * 2, hex('#f8f0d0')); }
+  else { const s = tramo(t, b(0.53), b(0.62)), sx = vx + 32, sy = vy + 18;
+    if (s < 1) { for (let k = 0; k < 11; k++) { const an = Math.PI * (0.1 + 0.8 * k / 10), rr = 4 + s * 12; R.rect(Math.round(sx + Math.cos(an) * rr), Math.round(sy - Math.sin(an) * rr * 1.4 + s * s * 10), Math.round(sx + Math.cos(an) * rr) + 1, Math.round(sy - Math.sin(an) * rr * 1.4 + s * s * 10) + 1, BL); }
+      R.poligono([[sx - 8 - s * 6, sy + 2], [sx + 8 + s * 6, sy + 2], [sx + 5, sy - 2], [sx - 5, sy - 2]], hex('#e8f4f8')); R.rect(sx - 3, sy - 1 - Math.round((1 - s) * 3), sx + 3, sy - 1, hex('#c8963a')); } }
   R.recorte(null);
   // un vigilante pasa al fondo (vida) y el escéptico va hasta el cuadro, mueve el dedo («no hacían cosas así») y señala el vapor en «modern»
   const vg = tramo(t, P5 + 0.4, P6 - 0.3); R.actor(EL.policia, Math.round(lerp(330, 238, vg)), 156, t, { dir: -1, anda: vg > 0 && vg < 1 });
@@ -938,7 +945,9 @@ const libreria = () => capa('libreria', () => {
   // el cartel de la presentación: una rueda grande (sin letras)
   R.rect(126, 18, 190, 74, K); R.rect(127, 19, 189, 73, hex('#e8803a')); R.rect(129, 21, 187, 71, hex('#f0e0c0')); rueda(158, 46, 16, 16, 0.2, hex('#c8963a'), hex('#8a6024'), hex('#f0c868'), { diente: 3.5 });
   // la moqueta naranja y la mesa con la pila de libros
-  for (let y = 127; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, H_(x, y, 114) > 0.85 ? hex('#b85a2a') : hex('#c8662e'));
+  for (let y = 127; y < 180; y++) for (let x = 0; x < 320; x++) { const fila = Math.floor((y - 127) / 13), gx = ((x + fila * 14) % 28) - 14, gy = ((y - 127) % 13) - 6.5, d = Math.hypot(gx, gy * 2);
+    let c = d > 8 && d < 10.5 ? hex('#e8843e') : d < 3.5 ? hex('#8a3a1a') : d > 5 && d < 6.5 ? hex('#a84a22') : H_(x, y, 114) > 0.8 ? hex('#b85a2a') : hex('#c8662e');
+    if (x > 112 && x < 228 && y > 133 && y < 163) c = mez(c, hex('#4a1e0e'), 0.35); if (y < 132) c = mez(c, hex('#4a1e0e'), (132 - y) / 10); R.pset(x, y, c); }
   R.rect(0, 126, 319, 127, K);
   R.rect(116, 128, 222, 134, K); R.rect(117, 129, 221, 133, hex('#6a3e22')); R.rect(117, 129, 221, 129, hex('#8a5a34')); R.rect(120, 134, 124, 160, hex('#4a2a14')); R.rect(214, 134, 218, 160, hex('#4a2a14'));
   for (let p = 0; p < 2; p++) for (let k = 0; k < 4; k++) { const x = 128 + p * 58, y = 124 - k * 4; R.rect(x, y, x + 24, y + 3, K); R.rect(x + 1, y + 1, x + 23, y + 2, hex('#2a4a6a')); R.rect(x + 1, y + 1, x + 2, y + 2, hex('#e8c860')); }
@@ -955,6 +964,8 @@ const p8 = (t) => {
   const alza = tramo(t, c(0.17), c(0.21)), aplauso = t > c(0.22) && t < c(0.32);
   R.actor(EL.senora75 || EL.senora30, 34, 172, t, { dir: 1, brazos: aplauso && Math.floor(t * 8) % 2 === 0, sonrisa: aplauso });
   R.actor(EL.oficinista, 64, 176, t, { dir: 1, brazos: aplauso && Math.floor(t * 8 + 1) % 2 === 0, sonrisa: aplauso });
+  R.actor(EL.consejero, 94, 178, t, { dir: 1, brazos: aplauso && Math.floor(t * 8 + 0.5) % 2 === 0, sonrisa: aplauso, habla: !aplauso && Math.sin(t * 3) > 0.7 });
+  R.actor(EL.senora30, 196, 179, t, { dir: -1, brazos: aplauso && Math.floor(t * 8 + 1.5) % 2 === 0, sonrisa: aplauso });
   const fl = t > c(0.25) && t < c(0.25) + 0.15; R.actor(EL.periodista, 236, 172, t, { dir: -1, sostiene: [228, 152] }); R.rect(222, 148, 232, 155, K); R.rect(223, 149, 231, 154, hex('#3a3a44')); R.disco(225, 151, 1.5, hex('#a8c8e8')); if (fl) { R.disco(228, 146, 6, BL); velo(0, 0, 319, 179, BL, 0.25); }
   // Price, detrás de la mesa, levanta su libro y sonríe
   const mp = R.actor(EL.priceAK, 160, 128, t, { dir: 1, sostiene: [176, Math.round(lerp(118, 96, alza))], sonrisa: t > c(0.2), habla: t > P8 + 0.3 && t < c(0.12) && Math.sin(t * 8) > 0 });
@@ -1031,6 +1042,9 @@ const p10 = (t) => {
   R.actor(EL.consejero, 236, 168, t, { dir: -1, enfado: duda, dir2: 0, sorpresa: t > c(0.93) });
   R.actor(EL.consejeroCalvo, 262, 170, t, { dir: duda && t > c(0.74) && t < c(0.79) ? (Math.floor(t * 7) % 2 ? 1 : -1) : -1, triste: duda, sonrisa: t > c(0.95) });
   if (t > c(0.725) && t < c(0.86)) R.icono('?', 268, 132, hex('#f8f0d0'), K, 2);
+  for (let k = 0; k < 3; k++) { const x = 166 + k * 22 + Math.round(Math.sin(t * 0.7 + k * 2) * 1.2), y = 170 + (k === 1 && t > c(0.74) && t < c(0.8) ? -2 : 0), pelo = [hex('#5a3a22'), hex('#b8b8b8'), hex('#1e1612')][k], ropa = [hex('#3a4a3a'), hex('#4a3a5a'), hex('#6a4a2a')][k];
+    R.rect(x - 9, y + 6, x + 9, 179, K); R.rect(x - 8, y + 7, x + 8, 179, ropa); R.rect(x - 8, y + 7, x - 7, 179, mez(ropa, BL, 0.2)); R.rect(x - 3, y + 5, x + 3, y + 7, hex('#e8b088'));
+    R.disco(x, y, 7, K); R.disco(x, y, 6, pelo); R.disco(x - 2, y - 3, 2, mez(pelo, BL, 0.3)); R.rect(x - 7, y, x - 6, y + 2, hex('#e8b088')); R.rect(x + 6, y, x + 7, y + 2, hex('#e8b088')); }
   // Price señala la rueda de la pantalla y sonríe en «right track»
   R.actor(EL.priceAK, 140, 160, t, { dir: 1, dedo: t > c(0.81), habla: t > c(0.82) && t < c(0.95) && Math.sin(t * 8) > 0, sonrisa: t > c(0.95) });
 };
