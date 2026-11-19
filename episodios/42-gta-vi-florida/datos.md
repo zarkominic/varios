@@ -20,11 +20,11 @@ o dos fiables; [Probable]; [Supuesto].
 ## 2. Momentos virales reales (Rockstar no ha confirmado ninguno)
 - [Seguro] Caimán en un Wawa de Lakewood Ranch (condado de Manatee), madrugada del 15/06/2018; lo retiró un trampero de la
   FWC; el 26/06/2018 el sheriff identificó a un chico de 17 años que dijo que era una broma (CBS Miami; ABC Action News).
-  [Probable] que el plano del tráiler 1 venga de este caso (el más citado).
+  [Probable] que el plano del tráiler 1 venga de este caso: es el más citado, pero Kotaku y Know Your Meme lo ligan a un Walmart de 2013 (Apopka); en el tráiler el caimán entra solo por puertas automáticas. El chico recibió una citación por delito menor.
 - [Seguro] Caimán de ~1,1 m lanzado por la ventanilla del autoservicio de un Wendy's, Royal Palm Beach, 11/10/2015; nadie
-  herido; detenido en febrero de 2016 (CBS Miami; Snopes). [Supuesto] que salga en un tráiler: se usa como «Florida real».
+  herido; detenido en febrero de 2016 por agresión agravada (CBS Miami; Snopes): por eso el guion solo dice «la policía dio con él». [Supuesto] que salga en un tráiler: se usa como «Florida real».
 - [Seguro] Volusia, marzo de 2023: caimán de ~3,4 m (11 ft) rompe la mosquitera de un porche y entra en la piscina; la dueña:
-  «like the Kool-Aid Man» (WFTV). En el tráiler 1, un cuidador saca un caimán de una piscina [Supuesto que sea este caso].
+  «like the Kool-Aid Man» (WFTV). El plano del tráiler 1 (un cuidador saca a rastras un caimán de una piscina) la prensa lo liga a otro caso: Palm Beach Gardens, abril de 2019, caimán de ~2,7 m (GTA Boom; WPBF).
 - [Seguro] Mujer bailando en el techo de un coche en marcha, MacArthur Causeway (Miami–Miami Beach), vídeo publicado en
   X en marzo de 2017 (Know Your Meme, Miami New Times). [Probable] que sea la referencia (PC Gamer: «pretty much 1:1»).
 - Fuera por el criterio del canal: el «Florida Joker» (foto policial), el atropello del «dine-and-dash», la «Dual Hammer
