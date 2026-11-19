@@ -1,6 +1,6 @@
 # Episodio 41 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 10:10.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, narrada como un cuento, «Atom» escrito «At-um») y
   pista de audio en español (ZONOS3-Mini, voz `Rodrigo` con media emoción, con los nombres propios escritos tal cual).
   Desde este episodio, las dos voces pasan por el nivelador por voz (sin bajadas de volumen al final de cada oración).
@@ -53,7 +53,16 @@ What we cover:
 
 Why do you think Doom wants Hulk? Tell me in the comments.
 
-{CAPITULOS_EN}
+0:00 Doom's first moves
+0:39 Endgame Encore and Banner's bunker
+2:03 Wundagore and the Scarlet Witch
+3:27 Eleven posters
+4:38 A new mask
+5:44 The ads
+6:38 A new rating label
+7:28 The numbers
+8:16 What's still missing
+9:02 What the comics suggest
 
 Sources: Marvel.com · Disney+ (Avengers: Endgame Encore, VisionQuest) · Motion Picture Association (rating) · Variety ·
 TheWrap · Empire · ScreenCrush · ComicBookMovie · ComingSoon · GamesRadar+ · Robert Downey Jr. on Instagram (November 12,
@@ -93,7 +102,16 @@ Lo que contamos:
 
 ¿Para qué crees que Doom quiere a Hulk? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Los primeros movimientos de Doom
+0:39 Endgame Encore y el búnker de Banner
+2:03 Wundagore y la Bruja Escarlata
+3:27 Once pósters
+4:38 Una máscara nueva
+5:44 Los anuncios
+6:38 Una etiqueta nueva
+7:28 Las cifras
+8:16 Lo que falta
+9:02 Lo que anticipan los cómics
 
 Fuentes: Marvel.com · Disney+ (Avengers: Endgame Encore, VisionQuest) · Motion Picture Association (calificación) ·
 Variety · TheWrap · Empire · ScreenCrush · ComicBookMovie · ComingSoon · GamesRadar+ · Robert Downey Jr. en Instagram (12
@@ -118,7 +136,11 @@ publicado. La narración está hecha con voces sintéticas (IA).
 - **Voz sintética:** al subirlo, YouTube Studio pregunta por «contenido alterado o sintético». Las voces son sintéticas
   pero no imitan a nadie real ni muestran hechos inventados; si YouTube lo pide para las voces, márcalo.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  - EN 3 (0:34): «Atom» puede sonar «Adam» (está escrito «At-um», como elegiste);
+  - ES 13 (3:09): «Latveria» puede sonar «la adveria»;
+  - EN 27 (7:29): puede faltar «dollars» en «fifty million dollars sold»;
+  - EN 30 (8:31): hay un hueco corto (0,18 s) antes de «subjects»;
+  - EN 32 (9:03): «Feige» puede sonar «Faiji».
 
   Siguiendo tu regla, no lo he corregido en el audio: si alguno suena mal, dímelo y lo rehago.
 
@@ -128,19 +150,19 @@ Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrad
 en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
 vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
 
-### Short 1 · El gancho · tramo 0.25-39.70
+### Short 1 · El gancho y el búnker · tramos 0.25-33.83 y 87.65-103.53 (49,5 s)
 - **EN:** Avengers: Doomsday: Doom Took Hulk in a New Scene #Shorts
 - **ES:** Avengers: Doomsday: Doom se llevó a Hulk en una escena nueva #Shorts
-- **EN:** Doctor Doom has already made his move. In one new scene, Banner vanishes from his bunker, Hulk and all. In another, Doom wakes the Scarlet Witch. Neither is in a trailer. The full story is in the linked video. #AvengersDoomsday #DoctorDoom #Marvel #ASKAtom #Shorts
-- **ES:** Doctor Doom ya ha empezado a mover ficha. En una escena nueva, Banner desaparece de su búnker, con Hulk incluido. En otra, Doom despierta a la Bruja Escarlata. Ninguna está en un tráiler. La historia completa, en el vídeo enlazado. #AvengersDoomsday #DoctorDoom #Marvel #ASKAtom #Shorts
+- **EN:** Doctor Doom has already made his move. In one new scene, Banner vanishes from his bunker, Hulk and all. In another, Doom wakes the Scarlet Witch. Neither is in a trailer, and Marvel hasn't said why Doom wants Hulk. The full story is in the linked video. #AvengersDoomsday #DoctorDoom #Marvel #ASKAtom #Shorts
+- **ES:** Doctor Doom ya ha empezado a mover ficha. En una escena nueva, Banner desaparece de su búnker, con Hulk incluido. En otra, Doom despierta a la Bruja Escarlata. Ninguna está en un tráiler, y Marvel no ha dicho para qué quiere Doom a Hulk. La historia completa, en el vídeo enlazado. #AvengersDoomsday #DoctorDoom #Marvel #ASKAtom #Shorts
 
-### Short 2 · Doom despierta a Wanda · tramo 156.93-207.95
+### Short 2 · Doom despierta a Wanda · tramo 156.93-207.95 (51,0 s)
 - **EN:** Avengers: Doomsday: Doom Wakes the Scarlet Witch #Shorts
 - **ES:** Avengers: Doomsday: Doom despierta a la Bruja Escarlata #Shorts
 - **EN:** In the last episode of VisionQuest, Doom lifts the rocks of Wundagore and tells Wanda to wake up. And in the comics, this already happened once: Wanda turned up in Latveria with no memory, about to marry Doom. The full story is in the linked video. #AvengersDoomsday #ScarletWitch #Marvel #ASKAtom #Shorts
 - **ES:** En el último capítulo de VisionQuest, Doom levanta las rocas de Wundagore y le ordena a Wanda que despierte. Y en los cómics esto ya pasó una vez: Wanda apareció en Latveria sin memoria y a punto de casarse con Doom. La historia completa, en el vídeo enlazado. #AvengersDoomsday #BrujaEscarlata #Marvel #ASKAtom #Shorts
 
-### Short 3 · Sue de negro y Valeria · tramo 306.02-344.46
+### Short 3 · Sue de negro y Valeria · tramo 306.02-344.46 (38,4 s)
 - **EN:** Avengers: Doomsday: Sue Storm's New All-Black Suit #Shorts
 - **ES:** Avengers: Doomsday: el traje negro de Sue Storm #Shorts
 - **EN:** In Marvel's new behind-the-scenes video, Sue Storm wears an all-black suit with a blue glow, and Marvel hasn't said why. In the comics, Doom once helped her give birth, and named the baby Valeria. The full story is in the linked video. #AvengersDoomsday #FantasticFour #Marvel #ASKAtom #Shorts

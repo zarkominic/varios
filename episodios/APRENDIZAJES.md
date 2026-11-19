@@ -781,3 +781,33 @@ efectos: subir las escenas por debajo del 40 % en la pasada de movimiento aunque
 Pendiente para el próximo: borrar los fotogramas del 40 al empezar (regla aprobada); commit de cada módulo de borrador
 en cuanto exista; mandar a la calidad también las escenas con efectos por encima del 65 %; en los decorados con
 mecanismos, pedir desde el encargo el sitio y el agarre de quien los mueve.
+
+## Episodio 41 · Avengers: Doomsday, segunda parte, con los cómics (19/11/2026)
+
+- **Volumen de la voz desigual entre frases** (petición del usuario: «normaliza el volumen, valida que no suceda tambien
+  en ingles»). Medido: la mediana de caída entre oraciones era de 1,3 dB en español y de 3,9 dB en inglés (saltos de 2,4
+  y 4,4 dB). Nuevo `atomo/herramientas/nivelar_voz.py`: un nivelador con puerta de voz (RMS de 10 ms, puerta a −45 dB,
+  ganancia = mediana − nivel local solo sobre la voz, interpolada en los silencios y suavizada; ES ventana 0,25 s y
+  máximo 9 dB, EN 0,15 s y 12 dB). Después: ES 0,4 dB de caída (p90 0,7), EN 1,5 dB (p90 2,4). `locutar_frases.py` lo
+  aplica ya al escribir `voz-<l>.wav` y deja `nivelado.json`; en un episodio ya locutado se pasa una vez con la
+  herramienta (rehace `linea.json['energia']`). El 39 y el 40 siguen sin nivelar (solo si el usuario lo pide).
+- **Calidad:** 55 de 119 planos suspendieron en la revisión completa (el 40: 50 de 104); 55 → 0 en una ronda de pulido.
+  Antes, 5 fallos dirigidos en la ronda 0 (dos parches de decorado ya innecesarios, el póster que caía mal, unos discos
+  blancos sobre la máscara y el brazo del lápiz). 31 agentes, 5,9 M de tokens y 2 h 45 min. La calidad tocó también
+  `do-comun.js`, que comparte el 19 (ya publicado).
+- **Mi ojo:** 4 hojas (gancho p3–4, búnker p10, etiqueta p4, secret p9), las cuatro aguantan.
+- **Control final:** no a la primera: un subtítulo inglés a 20,8 caracteres por segundo (el último párrafo). Se adelantó
+  su entrada 0,21 s, dentro del silencio anterior. Luego: −14,0 y −13,9 LUFS; 167 y 172 subtítulos, 0 fuera de norma;
+  efectos el 48 % del tiempo (todas las escenas entre el 39 y el 60 %); cartela 2,5 dB.
+- **Short 1 mal planeado:** el tramo incluía la presentación de Atom, que la skill excluye. Sin ella el gancho dura 33,4 s
+  (por debajo de 35); se le pegó un párrafo entero del cuerpo («Why does Doom want Hulk?…», 87,65–103,53). Los cortes
+  van siempre en límites de PÁRRAFO: los comienzos de párrafo coinciden en las dos pistas, pero las oraciones de dentro
+  no (en el 41, «Bruce Banner is recording» empezaba 0,2 s antes en español). Shorts: −14,1/−14,0, −14,0/−13,9 y
+  −14,2/−14,2 LUFS.
+- **Voz:** «Atom» «adam» (EN 3), «Latveria» «la adveria» (ES 13), falta «dollars» (EN 27), hueco antes de «subjects»
+  (EN 30), «Feige» «faiji» (EN 32): a la lista para escuchar, sin re-locutar.
+- **Tráiler final:** no había salido el 19/11 (se esperaba el 16 y el 18); el acto 8 lo dice y la ficha avisa.
+
+Pendiente para el próximo: borrar los fotogramas del 41 al empezar; comprobar en el plan de Shorts que el gancho sin la
+presentación de Atom llega a 35 s y, si no, pegarle un párrafo entero; mirar el nivel de voz del episodio nuevo con
+`nivelado.json` (ya se nivela solo).
