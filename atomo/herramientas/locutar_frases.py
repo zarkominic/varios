@@ -446,6 +446,7 @@ for e in escenas:
     print(f"{e['id']:18s} {duracion:5.1f} s · {len(e['frases'])} frases", flush=True)
     t_global += duracion
 
+from nivelar_voz import nivelar_idioma
 energia = {}
 for l in IDIOMAS:
     voz = np.concatenate(pistas[l])
@@ -457,6 +458,9 @@ for l in IDIOMAS:
             sf.write(f'{d}/a.wav', voz, SR)
             subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-af', NIVELADOR_ES, '-c:a', 'pcm_s16le', f'{d}/b.wav'], check=True)
             voz, _ = sf.read(f'{d}/b.wav')
+    # Desde el 41: el nivelador por voz (nivelar_voz.py) quita la caída de volumen al final de cada oración y el salto al
+    # empezar la siguiente, en los dos idiomas (el usuario lo oyó en el 39 y el 40).
+    voz = nivelar_idioma(voz, SR, l)
     sf.write(f'{salida}/voz-{l}.wav', voz, SR)
     v = SR // FPS
     nf = int(np.ceil(len(voz) / v))
@@ -488,6 +492,7 @@ json.dump({'fps': FPS, 'duracion': round(t_global, 3), 'fotogramas': nf, 'princi
            'palabras': palabras, 'energia': [round(float(x), 3) for x in comun]},
           open(f'{salida}/linea.json', 'w'), ensure_ascii=False)
 json.dump(informe, open(f'{salida}/informe.json', 'w'), ensure_ascii=False, indent=1)
+json.dump({l: [0, 0] for l in IDIOMAS}, open(f'{salida}/nivelado.json', 'w'))   # nivelar_voz.py no la vuelve a nivelar
 if ruta_marcas:
     json.dump({x['id']: {'duracion': x['duracion'], 'marcas': x['marcas'], 'voz': x['voz'], 'fps': FPS, 'frases': x['frases'],
                          **({'cartela': x['cartela']} if 'cartela' in x else {})} for x in lineas},
