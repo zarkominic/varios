@@ -20,8 +20,11 @@
 //    astrolabio de la pizarra y asiente («astronomical instrument»); el otro, enfadado, niega con la cabeza («impossible»).
 // 5. («The Greeks» → «The lump») fondo local: una galería con un cuadro de un vapor moderno; el escéptico lo señala en
 //    «modern» y, dentro del cuadro, una caja cae del vapor al mar en «fallen into the sea».
-// 6. («The lump» → «but») fondo local: un estudioso dibuja ruedas de noche, arruga el papel en «small», «broken» y
-//    «strange» y lo tira a la papelera; en «tried» se desanima.
+// 6. («The lump» → «but») fondo local: de noche, un estudioso dibuja ruedas a la luz de una vela que se consume y gotea;
+//    en «small», «broken» y «strange» arruga la hoja y la lanza (la llama se tumba, su sombra grande la repite en la pared);
+//    las bolas se amontonan en la papelera y la de «strange» rebota en el borde y rueda por el suelo; tras cada tiro le
+//    llega una cuartilla nueva del taco. El gato del alféizar sigue cada bola con la cabeza; fuera pasan nubes ante la
+//    Luna. En «tried» suelta la pluma, se hunde en la silla y el gato se enrosca a dormir.
 // 7. («but» → fin) fondo local: la vitrina con el terrón; las hojas del calendario vuelan de 1902 a 1950, se posa el polvo,
 //    crece una telaraña y la luz pasa de día a noche; un «?» sobre el terrón («no one could see what was inside it»).
 import * as T from '/atomo/plato/escenas/ak-comun.js';
@@ -306,25 +309,89 @@ const mesaEstudio = (t) => {
   // el quinqué con su llama
   R.rect(74, 112, 84, 122, K); R.rect(75, 113, 83, 121, hex('#c8963a')); R.rect(76, 96, 82, 112, K); R.rect(77, 97, 81, 111, hex('#f4f0d8')); const fl = Math.round(Math.sin(t * 13) * 0.8); R.rect(78, 101 + fl, 80, 106, hex('#f8b040')); R.pset(79, 100 + fl, hex('#fff4c0'));
 };
+// una bola de papel arrugado (tres tonos, pliegues que giran con g)
+const bola = (x, y, r, g = 0) => { x = Math.round(x); y = Math.round(y); R.disco(x, y, r + 0.9, K); R.disco(x, y, r, hex('#e8e2cc')); R.disco(x - 1, y - 1, r * 0.55, hex('#fbf8ec'));
+  for (let k = 0; k < 3; k++) { const an = g + k * 2.1; R.pset(Math.round(x + Math.cos(an) * r * 0.6), Math.round(y + Math.sin(an) * r * 0.6), hex('#b8b098')); } R.pset(x + 1, y + 1, hex('#a8a088')); };
+// el gato atigrado del alféizar: sigue con la cabeza cada bola y, al final, se enrosca a dormir
+const gatoVentana = (t, mira, duerme) => {
+  const x = 30, y = 102, P = hex('#7a6a5a'), S = hex('#4e4238'), L = hex('#a89480');
+  if (duerme > 0.5) {   // enroscado: el lomo, la cabeza metida con las orejas y la cola que lo rodea; respira
+    const r = Math.sin(t * 2.4) > 0 ? 0 : 1;
+    R.disco(x + 4, y - 4, 4.8, K); R.disco(x + 9, y - 4 - r, 4.8, K); R.disco(x + 4, y - 4, 4, P); R.disco(x + 9, y - 4 - r, 4, P); R.disco(x + 7, y - 6 - r, 2.2, L);
+    for (const i of [4, 7, 10]) R.linea(x + i, y - 8 - r, x + i, y - 6 - r, S);
+    R.disco(x + 14, y - 4, 3.4, K); R.disco(x + 14, y - 4, 2.6, P); R.pset(x + 13, y - 8, K); R.pset(x + 13, y - 7, P); R.pset(x + 16, y - 7, K); R.linea(x + 13, y - 4, x + 15, y - 4, S);
+    R.linea(x, y - 1, x + 16, y - 1, S); R.linea(x + 1, y - 2, x + 15, y - 2, P); R.pset(x + 16, y - 2, L); return; }
+  // cuerpo sentado, de perfil, mirando a la habitación
+  R.disco(x + 5, y - 5, 5, K); R.disco(x + 5, y - 5, 4.2, P); R.disco(x + 6, y - 6, 2, L); for (const i of [3, 5, 7]) R.linea(x + i, y - 8, x + i, y - 6, S);
+  R.rect(x + 7, y - 3, x + 9, y - 1, K); R.rect(x + 8, y - 3, x + 8, y - 1, L);
+  const cy = y - 12 + (duerme > 0 ? Math.round(duerme * 4) : 0), cx = x + 8 + Math.round(mira * 2);
+  R.disco(cx, cy, 3.6, K); R.disco(cx, cy, 2.8, P); R.pset(cx - 2, cy - 4, K); R.pset(cx - 2, cy - 3, P); R.pset(cx + 2, cy - 4, K); R.pset(cx + 2, cy - 3, P);
+  const ojo = Math.sin(t * 2.3) > 0.94 ? S : hex('#e8d040'); R.pset(cx + Math.round(mira), cy, ojo); R.pset(cx + 2 + Math.round(mira), cy, ojo); R.pset(cx + 1 + Math.round(mira), cy + 1, hex('#d88a8a'));
+  // la cola que se mueve
+  const c = Math.sin(t * 3.2) * 3; R.linea(x, y - 2, x - 3, y - 6 + Math.round(c * 0.5), S); R.linea(x - 3, y - 6 + Math.round(c * 0.5), x - 2 + Math.round(c), y - 10, S); R.linea(x + 1, y - 2, x - 2, y - 6 + Math.round(c * 0.5), P);
+};
 const p6 = (t) => {
   estudio();
-  // el halo del quinqué en la pared
-  for (let y = 70; y < 122; y++) for (let x = 40; x < 120; x++) { const g = 1 - Math.hypot(x - 79, y - 104) / 40; if (g > 0 && g * 0.9 > b4(x, y) + 0.3) R.pset(x, y, mez(R.pget(x, y), hex('#f8d890'), 0.25)); }
-  // el estudioso escribe; arruga la hoja y la lanza a la papelera en «small», «broken» y «strange»; en «tried» se desanima
-  const tiros = [b(0.648), b(0.685), b(0.72)], hechos = tiros.filter((x) => t > x + 0.45).length, lanzando = tiros.find((x) => t > x - 0.25 && t < x + 0.45);
-  const escribe = !lanzando && t < b(0.77), mano = escribe ? [170 + Math.round(Math.sin(t * 11) * 4), 116] : lanzando ? [184, 96] : undefined;
-  const m = R.actor(EL.estudiosoAK, 146, 127, t, { dir: 1, sostiene: mano, enfado: !!lanzando, triste: t > b(0.79), habla: !!lanzando && Math.sin(t * 10) > 0 });
+  // fuera: estrellas que titilan y dos nubes que pasan por delante de la Luna (recortadas al cristal); luego los parteluces otra vez
+  R.recorte([16, 24, 64, 87]);
+  for (let k = 0; k < 6; k++) { const x = 18 + (k * 29) % 44, y = 26 + (k * 17) % 60; if (Math.sin(t * 4 + k * 1.7) > 0.6) { R.pset(x - 1, y, hex('#8a90b0')); R.pset(x + 1, y, hex('#8a90b0')); } }
+  for (const [x0, y0, v] of [[10, 39, 9], [0, 54, 5]]) { const x = x0 + (t - P6) * v; R.disco(x, y0, 5, hex('#2a3050')); R.disco(x + 6, y0 - 2, 6, hex('#2a3050')); R.disco(x + 12, y0, 4, hex('#2a3050')); R.disco(x + 5, y0 - 3, 3, hex('#4a5478')); R.linea(x + 2, y0 - 6, x + 9, y0 - 7, hex('#6a7498')); R.linea(x - 3, y0 + 4, x + 14, y0 + 4, hex('#1e2440')); }
+  R.recorte(null); R.rect(39, 24, 40, 102, hex('#8a6a4a')); R.rect(16, 62, 64, 63, hex('#8a6a4a'));
+  // los tiros: arruga la hoja en «small», «broken» y «strange» y la lanza a la papelera; en «tried» se rinde
+  const tiros = [b(0.648), b(0.685), b(0.72)], rinde = b(0.77);
+  const arruga = tiros.find((x) => t > x - 0.26 && t <= x), lanza = tiros.find((x) => t > x && t < x + 0.16);
+  const ult = tiros.filter((x) => t > x).pop(), hoja = ult === undefined ? P6 - 1.5 : ult + 0.15;   // cuándo llegó la hoja en blanco que tiene delante
+  const escribe = !arruga && !lanza && t < rinde, caido = tramo(t, rinde, rinde + 0.5);
+  const sube = escribe ? Math.round(Math.sin(t * 11) * 4) : 0;
+  const mano = arruga ? [166, 113] : lanza ? [182, 97] : escribe ? [170 + sube, 116] : undefined;
+  const xEst = 146 + (escribe ? 1 : 0), yEst = 127 + Math.round(caido * 2);
+  // la vela: se consume (de 16 a 7 px), gotea cera y su llama se tumba con el aire de cada tiro
+  const quema = tramo(t, P6, P7), alto = Math.round(16 - quema * 9), vx = 126, vy = 121 - alto;
+  const aire = tiros.reduce((s, x) => s + Math.max(0, 1 - Math.abs(t - x - 0.15) * 5), 0), fl = Math.sin(t * 17) * 0.6 + Math.sin(t * 7.3) * 0.4;
+  const lx = vx + Math.round(aire * 2 + fl * 0.6), ly = vy - 4;
+  // el halo del quinqué y de la vela en la pared (late con la llama)
+  const fuerza = 0.9 + fl * 0.08 - aire * 0.2 - caido * 0.15;
+  for (let y = 62; y < 122; y++) for (let x = 40; x < 176; x++) { const g = Math.max(1 - Math.hypot(x - 79, y - 104) / 40, 1 - Math.hypot(x - lx, y - ly) / 46) * fuerza; if (g > 0 && g * 0.9 > b4(x, y) + 0.3) R.pset(x, y, mez(R.pget(x, y), hex('#f8d890'), 0.25)); }
+  // la sombra grande del estudioso en la pared, proyectada por la vela: sube cuando la vela baja
+  { const hx = xEst + 7, hy = yEst - 20, k = 1.6, sx = Math.round(hx + (hx - lx) * (k - 1) + 4), sy = Math.round(hy - 8 + (hy - ly) * k);
+    const osc = (x, y) => R.pset(x, y, mez(R.pget(x, y), hex('#181a2c'), 0.55));
+    for (let y = sy - 10; y <= 121; y++) for (let x = sx - 16; x <= sx + 16; x++) { const cab = Math.hypot(x - sx, (y - sy) * 1.1) < 8.5, cue = y > sy + 5 && Math.abs(x - sx) < 4, hom = y > sy + 9 && Math.abs(x - sx) < 9 + (y - sy - 9) * 1.2; if (cab || cue || hom) osc(x, y); }
+    // el brazo en alto al lanzar: un muñón de sombra que sube del hombro
+    if (lanza) for (let d = -2; d <= 2; d++) R.linea(sx + 10 + d, sy + 10, sx + 18 + d, sy - 6, hex('#1e2236')); }
+  // el gato del alféizar: llega a mirar cada bola; tras «tried» se enrosca
+  const vuela = tiros.map((x) => tramo(t, x + 0.05, x + 0.5)).find((v) => v > 0 && v < 1);
+  gatoVentana(t, vuela !== undefined ? vuela * 2 - 1 : 0.5, tramo(t, rinde + 0.4, rinde + 1.1));
+  const m = R.actor(EL.estudiosoAK, xEst, yEst, t, { dir: 1, sostiene: mano, enfado: !!(arruga || lanza), triste: t > rinde, habla: !!lanza });
   mesaEstudio(t);
-  // la hoja con ruedas a medio dibujar
-  R.rect(164, 116, 192, 122, K); R.rect(165, 116, 191, 121, hex('#f4f0e0')); const dib = escribe ? ((t - P6) * 0.8) % 1 : 0; for (let k = 0; k < Math.floor(dib * 20); k++) { const an = k / 20 * 6.28; R.pset(Math.round(178 + Math.cos(an) * 4), Math.round(118 + Math.sin(an) * 1.8), hex('#2a2a4a')); }
-  if (escribe) { const [hx, hy] = m.mano; R.linea(hx, hy, hx + 5, hy - 8, hex('#f4f0e0')); }
-  // las bolas de papel: vuelan en arco hasta la papelera
-  for (let k = 0; k < 3; k++) { const v = tramo(t, tiros[k], tiros[k] + 0.45); if (v > 0 && v < 1) { const x = lerp(186, 274, v), y = lerp(96, 150, v) - Math.sin(v * Math.PI) * 30; R.disco(x, y, 3.4, K); R.disco(x, y, 2.6, hex('#f4f0e0')); R.pset(Math.round(x) - 1, Math.round(y), hex('#c8c0a8')); }
-    else if (v >= 1) { const x = 266 + k * 7, y = 147 - (k % 2) * 3; R.disco(x, y, 3.4, K); R.disco(x, y, 2.6, hex('#f4f0e0')); R.pset(x + 1, y - 1, hex('#c8c0a8')); } }
-  // dos bolas de antes, en el suelo junto a la papelera
-  for (const [x, y] of [[248, 172], [296, 175]]) { R.disco(x, y, 3.4, K); R.disco(x, y, 2.6, hex('#e8e0c8')); }
-  // una polilla da vueltas a la luz
-  { const an = t * 5, mx = Math.round(79 + Math.cos(an) * 12), my = Math.round(90 + Math.sin(an * 1.3) * 6); R.pset(mx, my, hex('#c8b898')); R.pset(mx + (Math.sin(t * 30) > 0 ? 1 : -1), my, hex('#a89878')); }
+  // la vela con su palmatoria de latón, sus goterones y la llama
+  R.rect(vx - 5, 120, vx + 5, 122, K); R.rect(vx - 4, 120, vx + 4, 121, hex('#c8963a')); R.pset(vx - 3, 120, hex('#f0c870')); R.rect(vx + 5, 117, vx + 7, 119, K); R.pset(vx + 6, 118, hex('#c8963a'));
+  R.rect(vx - 2, vy, vx + 2, 119, K); R.rect(vx - 1, vy + 1, vx + 1, 119, hex('#f4ecd0')); R.rect(vx - 1, vy + 1, vx - 1, 119, hex('#fffbe8'));
+  for (let k = 0; k < 3; k++) { const g0 = tramo(t, P6 + 0.6 + k * 1.3, P6 + 1.6 + k * 1.3); if (g0 > 0) R.linea(vx + (k % 2 ? 2 : -2), vy + 1, vx + (k % 2 ? 2 : -2), vy + 1 + Math.round(g0 * (alto - 2) * 0.7), hex('#e8dcb8')); }
+  R.pset(vx, vy, K); R.disco(lx, ly + 1, 1.6, hex('#f8b040')); R.linea(vx, vy - 1, lx, ly - 2 - Math.round(1 + fl), hex('#ffd860')); R.pset(lx, ly, hex('#fff4c0'));
+  // el taco de cuartillas en blanco encima de los libros
+  R.rect(216, 101, 240, 104, K); R.rect(217, 101, 239, 103, hex('#f4f0e0')); R.linea(217, 102, 239, 102, hex('#d8d0bc'));
+  // la hoja con ruedas a medio dibujar: desaparece al arrugarla y llega una nueva del taco
+  const llega = tramo(t, hoja, hoja + 0.3);
+  if (!arruga && !lanza) { const hx = Math.round(lerp(228, 178, llega)), hy = Math.round(lerp(102, 119, llega) - Math.sin(llega * Math.PI) * 6);
+    R.rect(hx - 14, hy - 3, hx + 14, hy + 3, K); R.rect(hx - 13, hy - 3, hx + 13, hy + 2, hex('#f4f0e0'));
+    if (llega >= 1) { const dib = Math.min(1, (Math.min(t, rinde) - hoja - 0.3) * 1.6); for (let k = 0; k < Math.floor(dib * 24); k++) { const an = k / 20 * 6.28, r = k < 20 ? 4 : 2; R.pset(Math.round(178 + Math.cos(an) * r), Math.round(118 + Math.sin(an) * r * 0.45), hex('#2a2a4a')); }
+      if (dib > 0.6) for (let k = 0; k < 6; k++) { const an = k * 1.05; R.pset(Math.round(178 + Math.cos(an) * 6), Math.round(118 + Math.sin(an) * 2.6), hex('#2a2a4a')); } } }
+  // la pluma: en la mano mientras escribe; tras «tried» queda tirada sobre la mesa
+  if (escribe) { const [hx, hy] = m.mano; R.linea(hx, hy, hx + 5, hy - 8, hex('#f4f0e0')); R.pset(hx, hy + 1, hex('#2a2a4a')); }
+  else if (t >= rinde) { R.linea(184, 120, 194, 117, hex('#f4f0e0')); R.pset(184, 120, hex('#2a2a4a')); }
+  // la bola en la mano mientras la arruga (crece) y al lanzarla
+  if (arruga || lanza) { const [hx, hy] = m.mano, r = lanza ? 3.6 : 2 + tramo(t, arruga - 0.26, arruga) * 1.6; bola(hx + 2, hy - 3, r, t * 20); }
+  // las bolas en vuelo y las que se acumulan: dos ya estaban en la papelera; la de «strange» rebota en el borde y cae al suelo
+  R.recorte([256, 0, 292, 148]); for (const [x, y] of [[268, 147], [279, 147]]) bola(x, y, 3.4, x);
+  for (let k = 0; k < 2; k++) if (t > tiros[k] + 0.5) bola([273, 274][k], [146, 142][k], 3.4, k * 3);
+  R.recorte(null);
+  for (let k = 0; k < 3; k++) { const v = tramo(t, tiros[k] + 0.05, tiros[k] + 0.5); if (v <= 0 || (v >= 1 && k < 2)) continue;
+    if (k < 2 || v < 1) { const x = lerp(184, 274, v), y = lerp(94, k < 2 ? 144 : 141, v) - Math.sin(v * Math.PI) * 32; bola(x, y, 3.6, t * 18 + k); continue; }
+    const r = tramo(t, tiros[2] + 0.5, tiros[2] + 1.1), x = lerp(276, 304, r), y = 141 + (r < 0.6 ? -Math.sin(r / 0.6 * Math.PI) * 12 + r / 0.6 * 31 : 31) + 0; bola(x, Math.min(172, y), 3.6, r * 8); }
+  // dos bolas de otros intentos ya en el suelo
+  for (const [x, y] of [[248, 172], [236, 175]]) bola(x, y, 3.2, x);
+  // una polilla da vueltas a la luz de la vela
+  { const an = t * 5, mx = Math.round(vx + Math.cos(an) * 10), my = Math.round(vy - 12 + Math.sin(an * 1.3) * 5); R.pset(mx, my, hex('#c8b898')); R.pset(mx + (Math.sin(t * 30) > 0 ? 1 : -1), my, hex('#a89878')); }
 };
 
 // 7 · la vitrina: pasa medio siglo y nadie puede ver dentro
@@ -380,8 +447,8 @@ const efectos = [[2.0, 'tic'], [4.2, 'toc'], [a(0.25), 'golpecito'],
   [P2 + 0.2, 'whoosh'], [P3 + 0.2, 'whoosh'], [a(0.91), 'brillo'], [a(0.968), 'pop'],
   [P4 + 0.2, 'toc'], [b(0.04), 'whoosh'], [b(0.17), 'boing'],
   [P5 + 0.3, 'toc'], [b(0.53), 'chof'],
-  [b(0.62), 'lapiz'], [b(0.648) + 0.1, 'papel'], [b(0.685) + 0.1, 'papel'], [b(0.72) + 0.1, 'papel'],
-  [P6 + 0.2, 'tic'], [P7 + 0.3, 'tic'], [b(0.88), 'papel'], [b(0.9), 'pop'], [b(0.93), 'viento']];
+  [P6 + 0.15, 'lapiz'], [b(0.648) - 0.25, 'papel'], [b(0.685) - 0.25, 'papel'], [b(0.72) - 0.25, 'papel'], [b(0.72) + 0.5, 'golpecito'],
+  [P7 + 0.3, 'tic'], [b(0.88), 'papel'], [b(0.9), 'pop'], [b(0.93), 'viento']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, cartela: '1902', año: (t) => t < P7 ? 1902 : Math.round(1902 + 48 * tramo(t, P7 + 0.2, E.duracion - 0.8)) });
 </script>
 </body>
