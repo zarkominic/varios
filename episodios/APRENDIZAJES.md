@@ -750,3 +750,34 @@ episodio.
 Pendiente para el próximo: borrar los fotogramas del 39 al empezar (regla aprobada); borrar las hojas del scratchpad al
 cerrar cada pasada (sigue pendiente); cartelas: el 1587 cae 7,5 dB, en el máximo, vigilarlo en `banda.cjs` si se repite;
 efectos: subir las escenas por debajo del 40 % en la pasada de movimiento aunque el total cumpla.
+
+## Episodio 40 · Anticitera: el ordenador de hace 2000 años que salió del mar (19/11/2026)
+
+- **Contenedor reiniciado dos veces** (en los decorados y en el borrador de escenas). No se perdió nada: los módulos
+  hechos se guardaron con commit y los workflows se reanudaron con `resumeFromRunId`. Lección: hacer commit de cada
+  módulo de borrador en cuanto existe, no al final.
+- **Borrador de escenas:** 104 planos en 15 escenas; 4 sospechas de `--comprobar` (1 quieto, 2 lisos, 1 Atom) y
+  efectos de más en dos escenas (rescate 81 %, eclipses 73 %). La red de efectos solo avisaba por abajo («← poco»); el
+  exceso también hay que mandarlo a la calidad con su encargo.
+- **Calidad:** 50 de 104 planos suspendieron en la revisión completa (el 39: 37 de 103); 50 → 0 en una ronda de pulido,
+  con 29 agentes, 5,4 M de tokens y 2 h 10 min. Antes, 9 fallos dirigidos (de los avisos y de `--comprobar`) pulidos en
+  la ronda 0.
+- **Manivela que gira sola:** el decorado de la caja no dejaba sitio a nadie a la derecha. La pasada de decorados añadió
+  un escabel con `geo.apoyo` y `geo.agarre`, y la calidad puso al artesano a girarla. Lección: un mecanismo que se mueve
+  necesita en el decorado el sitio y el punto de agarre de quien lo mueve.
+- **El decorado tras la calidad:** 62 líneas cambiadas en `ak-comun.js`; `--comprobar` de todo el episodio después:
+  1 sospecha (detalle detrás de Atom en eclipses p1, 126 px con umbral 120, marginal) y fundidos sin rotos en
+  `producir.sh`.
+- **Miniatura:** la rueda del terrón brillaba poco a 320 × 180; tres halos superpuestos (ancho, medio y núcleo) y el
+  grado más oscuro la convierten en el punto caliente, aunque sigue leyéndose como «algo que brilla» más que como rueda.
+- **Disco:** con 9,8 GB libres y 9,3 GB pedidos, se borraron los MP4 del 38 y su carpeta de montaje (ya publicado).
+  Las hojas de las pasadas (~400 MB) se borraron al cerrar, esta vez sí.
+- **Control final a la primera:** sí (−14,0 y −14,0 LUFS; 156 y 159 subtítulos, 0 fuera de norma; cartelas 5,7 / 4,8 /
+  3,6 / 7,0 / 2,2 dB; efectos el 58 % del tiempo, todas las escenas entre el 41 y el 68 %).
+- **Voz:** «Atom» oído «adam», «Stais» (EN 8), «Saros» «seiro» (EN 21), «Hiparco» «y parco» (ES 19), «tan bien»
+  «también» (ES 26) y subidas de tono en ES 2, 28, 29 y 32: a la lista para escuchar, sin re-locutar.
+- **Shorts:** −14,5/−13,9, −14,2/−14,2 y −14,0/−14,1 LUFS; el 2 empieza a 1,42 s de la cartela de 1900.
+
+Pendiente para el próximo: borrar los fotogramas del 40 al empezar (regla aprobada); commit de cada módulo de borrador
+en cuanto exista; mandar a la calidad también las escenas con efectos por encima del 65 %; en los decorados con
+mecanismos, pedir desde el encargo el sitio y el agarre de quien los mueve.

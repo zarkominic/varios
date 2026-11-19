@@ -1,6 +1,6 @@
 # Episodio 40 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 9:09.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, narrada como un cuento, «Atom» escrito «At-um») y
   pista de audio en español (ZONOS3-Mini, voz `Rodrigo` con media emoción, con los nombres propios escritos tal cual).
 - Subtítulos en inglés y en español.
@@ -50,7 +50,16 @@ What we cover:
 
 Precise instrument or beautiful teaching model? Tell me what you think in the comments.
 
-{CAPITULOS_EN}
+0:00 Gears from a shipwreck
+0:41 The sponge divers
+1:51 The lump
+2:33 Counting teeth
+3:30 An eight-ton machine
+4:18 How it worked
+5:24 Eclipses and Games
+6:25 Who made it
+7:17 What we still don't know
+8:32 The ending
 
 Sources: National Archaeological Museum, Athens · Antikythera Mechanism Research Project (Freeth et al., Nature 444, 2006;
 Nature 454, 2008) · Derek de Solla Price, "Gears from the Greeks" (1974) · Freeth et al., "A Model of the Cosmos in the
@@ -90,7 +99,16 @@ Lo que contamos:
 
 ¿Instrumento de precisión o bonito modelo para enseñar? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+0:00 Engranajes de un naufragio
+0:41 Los buzos de esponjas
+1:51 El terrón
+2:33 Contar dientes
+3:30 Una máquina de ocho toneladas
+4:18 Cómo funcionaba
+5:24 Eclipses y Juegos
+6:25 Quién la hizo
+7:17 Lo que todavía no sabemos
+8:32 El cierre
 
 Fuentes: Museo Arqueológico Nacional de Atenas · Antikythera Mechanism Research Project (Freeth et al., Nature 444, 2006;
 Nature 454, 2008) · Derek de Solla Price, «Gears from the Greeks» (1974) · Freeth et al., «A Model of the Cosmos in the
@@ -115,6 +133,35 @@ fotos ni grabaciones: todos los dibujos son propios. La narración está hecha c
 - **Voz sintética:** al subirlo, YouTube Studio pregunta por «contenido alterado o sintético». Las voces son sintéticas
   pero no imitan a nadie real ni muestran hechos inventados; si YouTube lo pide para las voces, márcalo.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  - EN 3 (0:36): «Atom» puede sonar «Adam» (está escrito «At-um», como elegiste);
+  - EN 8 (1:53): «Valerios Stais» puede sonar «Valerio Stahes»;
+  - ES 19 (5:13): «Hiparco» puede sonar «y parco»;
+  - EN 21 (5:41): «Saros» puede sonar «Seiro»;
+  - ES 26 (7:01): «tan bien hechos» puede sonar «también hechos»;
+  - ES 2 (0:17), ES 28 (7:35), ES 29 (7:53) y ES 32 (8:45): la voz sube de tono.
 
   Siguiendo tu regla, no lo he corregido en el audio: si alguno suena mal, dímelo y lo rehago.
+
+## Shorts
+
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.25-35.36
+- **EN:** Antikythera: A Machine That Predicted Eclipses #Shorts
+- **ES:** Anticitera: la máquina que predecía eclipses #Shorts
+- **EN:** More than two thousand years ago, someone built a machine that predicted eclipses. In 1901, divers pulled it out of a Greek shipwreck as a lump of corroded bronze, with tiny gears cut by hand inside. The full story is in the linked video. #Antikythera #AncientGreece #History #ASKAtom #Shorts
+- **ES:** Hace más de dos mil años, alguien construyó una máquina que predecía eclipses. En 1901, unos buzos la sacaron de un naufragio griego como un terrón de bronce corroído, con engranajes diminutos tallados a mano dentro. La historia completa, en el vídeo enlazado. #Anticitera #AntiguaGrecia #Historia #ASKAtom #Shorts
+
+### Short 2 · La «gente» del fondo · tramo 42.65-79.24
+- **EN:** Antikythera: Divers Saw People on the Seabed in 1900 #Shorts
+- **ES:** Anticitera: los buzos que vieron gente en el fondo del mar #Shorts
+- **EN:** In 1900, a storm pushed a boat of sponge divers to a tiny Greek island. One of them came back up swearing he had seen people and horses on the seabed. They weren't people. The full story is in the linked video. #Antikythera #Shipwreck #History #ASKAtom #Shorts
+- **ES:** En 1900, una tormenta llevó a unos buzos de esponjas a una islita griega. Uno subió jurando que había visto gente y caballos en el fondo. No eran personas. La historia completa, en el vídeo enlazado. #Anticitera #Naufragio #Historia #ASKAtom #Shorts
+
+### Short 3 · La caja y el truco de la Luna · tramo 258.97-313.43
+- **EN:** Antikythera: The 2,000-Year-Old Trick for the Moon #Shorts
+- **ES:** Anticitera: el truco de hace 2000 años para la Luna #Shorts
+- **EN:** A wooden box with a crank: turn it, and you move through time. A dial showed the Sun, the Moon and its phase, and a pin sliding in a slot made the Moon speed up and slow down like the real one. The full story is in the linked video. #Antikythera #Astronomy #AncientGreece #ASKAtom #Shorts
+- **ES:** Una caja de madera con una manivela: la giras y viajas en el tiempo. Una esfera enseñaba el Sol, la Luna y su fase, y una clavija que se desliza en una ranura hacía que la Luna acelerara y frenara como la de verdad. La historia completa, en el vídeo enlazado. #Anticitera #Astronomía #AntiguaGrecia #ASKAtom #Shorts
