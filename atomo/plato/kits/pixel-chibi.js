@@ -11806,3 +11806,82 @@ export const ELENCO_AK = {
     pal: OTO({ H: '#2a1c14', h: '#4a3424', A: '#f2eee2', Q: '#c8bc9a' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_AK);
+
+// ── Ep41 · Doomsday 2 (los Vengadores de «Avengers: Doomsday», segunda parte). Reutiliza ELENCO_DO tal cual; aquí solo
+// los que faltan, dibujados por nosotros y reconocibles por la ropa y el pelo, sin logos ni parecidos forzados.
+Object.assign(TOCADOS, {
+  // la tiara de la Bruja Escarlata (D rojo, d sombra): tres puntas hacia arriba sobre la frente; la banda acaba en la
+  // fila 3 de la cabeza, por encima de la piel, así la cara queda entera
+  tiaraDD: [[
+    '.....k...k...k.',
+    '....kDk.kDk.kDk',
+    '....kDDkDDDkDDk',
+    '....kdDDDDDDDdk',
+    '.....kkkkkkkkk.',
+  ], -1],
+});
+// la capucha subida del joven Victor (V/v verde, j la sombra de dentro): la de Doom sin la máscara, con el hueco en
+// sombra; no se le ve la cara (sinCara)
+const CAB_CAPUCHA_DD = parche(CAB_DOOM, [[5, 5, 'jjjjjjjj'], [5, 6, 'jjjjjjjjj'], [5, 7, 'jjjjjjjj'], [5, 8, 'jjjjjjjj'], [5, 9, 'jjjjjjj'], [5, 10, 'vjjjjjv']]);
+// Banner: el pelo rizado oscuro con las sienes canosas (w)
+const CAB_BANNER_DD = parche(CAB_RIZOS, [[2, 4, 'ww'], [2, 5, 'ww'], [2, 6, 'w']]);
+// camisa de manga larga arrugada (C, arrugas c) con el cuello abierto (W)
+const CUERPO_CAMISA_ARRUGADA_DD = parche(CUERPO_MANGA, [[5, 0, 'WWSWW'], [7, 1, 'S'], [5, 2, 'c'], [9, 3, 'c'], [6, 5, 'c']]);
+// sudadera de deporte ceñida (Pietro): azul con las vetas plateadas (u) en diagonal; las manos de piel (G)
+const CUERPO_DEPORTE_DD = parche(CUERPO_HEROE, [[4, 1, 'u'], [5, 2, 'u'], [6, 3, 'u'], [7, 4, 'u'], [10, 1, 'u'], [9, 2, 'u']]);
+// cazadora abierta (C) sobre la camiseta oscura (W) con la cremallera (o): Tommy
+const CUERPO_CAZADORA_DD = parche(CUERPO_MANGA, [[6, 0, 'WWW'], [6, 1, 'oWo'], [6, 2, 'oWo'], [6, 3, 'oWo'], [6, 4, 'oWo'], [6, 5, 'oWo']]);
+// U.S. Agent: traje azul marino con la estrella blanca (X) y las franjas rojas y blancas a lo ancho de la cintura
+const CUERPO_AGENTE_DD = parche(CUERPO_HEROE, [[5, 1, '..X..'], [5, 2, 'XXXXX'], [5, 3, '.X.X.'], [4, 4, 'rrrrrrr'], [4, 5, 'XXXXXXX']]);
+// el traje negro de Sue con el destello azul (X, brillo Y) en el pecho
+const CUERPO_SUE_NEGRA_DD = parche(CUERPO_HEROE, [[7, 1, 'Y'], [6, 2, 'XYX'], [7, 3, 'X']]);
+// la magia roja de Wanda junto a la mano de delante (parpadea; quieta, t = 0, ya se ve)
+const magiaDD = (c) => {
+  if (c.o.sostiene || c.o.brazos || c.o.dedo) return;
+  const f = Math.floor(c.t * 6) % 2, r = hex('#ff3a5a'), l = hex('#ffb0c0');
+  for (const [i, j, k] of [[14, 4, 0], [15, 5, 1], [14, 6, 0], [16, 4, 0], [16, 6, 1], [15, 3, 0], [15, 7, 0]]) if ((k + f) % 2 === 0 || k === 1) c.cuerpo.px(i, j, k ? l : r);
+};
+export const ELENCO_DD = {
+  // Bruce Banner: pelo rizado oscuro con canas en las sienes, gafas finas, camisa morada arrugada y pantalón caqui
+  bannerDD: { ...B19, cab: CAB_BANNER_DD, cuerpo: CUERPO_CAMISA_ARRUGADA_DD, ceja: hex('#2a1c14'), delante: gafasFinasDC,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3424', w: '#c8c8d2', C: '#6a5a8a', c: '#4e4270', W: '#8a7aaa', F: '#b8a074', n: '#5a3a20' }) },
+  // Wanda, la Bruja Escarlata: melena castaño rojiza, tiara roja, abrigo largo rojo oscuro sobre el traje rojo y la magia
+  wandaDD: { ...B19M, cuerpo: CUERPO_GABARDINA, ceja: hex('#6a1e14'), tocado: 'tiaraDD', delante: magiaDD,
+    pal: CLARA({ H: '#8a2e1a', h: '#b04a2a', C: '#8a1e28', c: '#5a1220', W: '#c8303a', G: '#5a1220', I: '#5a1220', F: '#3a1220', n: '#2a0c14', D: '#d8303a', d: '#8a1e28' }) },
+  // Ultron con su aspecto humano (VisionQuest): calvo, afeitado, gafas de pasta negras y traje oscuro con camisa oscura
+  ultronDD: { ...B19, cab: CAB_CALVO, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#4a4a54'), delante: gafasPastaDC,
+    pal: CLARA({ S: '#f0d0b0', s: '#c8a080', C: '#2a2832', c: '#1c1a22', W: '#4a4a5a', o: '#16141c', F: '#2a2832', n: '#16141c' }) },
+  // Tommy Maximoff, adolescente velocista: pelo blanco plateado, cazadora verde abierta, vaqueros y zapatillas blancas
+  tommyDD: { ...B19, cab: CAB_LADO_DC, cuerpo: CUERPO_CAZADORA_DD, ceja: hex('#9a9eae'), mejillas: [[6, 8]],
+    pal: CLARA({ H: '#eef0f6', h: '#b8bccc', C: '#3a9a4a', c: '#2a7a38', W: '#2a2430', o: '#c8ccd8', F: '#2e4a7a', n: '#eef0f6' }) },
+  // Pietro Maximoff (2015): pelo plateado de raíz oscura, sudadera de deporte azul con vetas plateadas, pantalón gris
+  pietroDD: { ...B19, cab: parche(CAB_CORTO, [[2, 1, 'hhh'], [1, 2, 'hh'], [0, 3, 'kh']]), cuerpo: CUERPO_DEPORTE_DD, ceja: hex('#6a6e80'),
+    pal: CLARA({ H: '#d8dce8', h: '#6a6e80', C: '#2a5ac8', c: '#1e3e90', W: '#2a5ac8', G: '#f6c290', I: '#2a2430', F: '#4a4e5e', n: '#2a2430', u: '#b8c4dc' }) },
+  // Joe Russo, director: gafas de pasta, chaqueta oscura sobre camiseta gris, el pelo oscuro corto
+  russoJoeDD: { ...B19, cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#2a1c14'), delante: gafasPastaDC,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3424', C: '#2a2e3a', c: '#1c1f28', W: '#8a8e9a', F: '#2e3a5a', n: '#1c1424' }) },
+  // Anthony Russo, director: barba corta, sin gafas, chaqueta parda sobre camiseta blanca, el pelo castaño con entradas
+  russoAnthonyDD: { ...B19, cab: parche(CAB_BARBA_CORTA_DC, [[6, 3, 'SSSSS']]), cuerpo: CUERPO_CHAQUETA_DC, ceja: hex('#3a2a1c'),
+    pal: CLARA({ H: '#4a3424', h: '#6a4c34', C: '#5a4a34', c: '#44361e', W: '#f2eee2', F: '#2a2a34', n: '#1c1424' }) },
+  // el joven Victor von Doom en el monasterio (cómic): túnica larga verde oscura con la capucha subida, sin cara
+  doomJovenDD: { ...B19, cab: CAB_CAPUCHA_DD, sinCara: true, cuerpo: CUERPO_TUNICA_LARGA,
+    pal: COLORES({ V: '#2a5a32', v: '#1a3e22', j: '#0e0c12', k: '#1c1222', C: '#2a5a32', c: '#1a3e22', o: '#1a3e22', G: '#6a5030', L: '#2a2018', S: '#2a5a32', s: '#1a3e22' }) },
+  // monje tibetano: la cabeza afeitada, túnica granate con la banda azafrán y un hombro al aire, sandalias
+  monjeDD: { ...B19, cab: CAB_CALVO, cuerpo: CUERPO_TOGA, ceja: hex('#2a1c14'),
+    pal: MORENA({ T: '#7a1e28', t: '#5a1420', A: '#e8a030', L: '#5a3a20' }) },
+  // Sue Storm con el traje negro: rubia, el destello azul en el pecho
+  sueNegraDD: { ...B19M, cuerpo: CUERPO_SUE_NEGRA_DD, ceja: hex('#a8843c'),
+    pal: CLARA({ H: '#f0d070', h: '#f8e4a0', C: '#2a2430', c: '#1c1820', W: '#2a2430', G: '#1c1820', I: '#3a3646', F: '#24202c', n: '#14121a', X: '#4a8ae8', Y: '#c8e8ff' }) },
+  // ejecutivo de finanzas del estudio (genérico): entradas canosas, traje gris, camisa blanca y corbata azul
+  ejecutivoDD: { ...B19, cab: CAB_ENTRADAS, cuerpo: CUERPO_TRAJE_DC, ceja: hex('#6a6a74'),
+    pal: CLARA({ H: '#8a8a94', h: '#aaaab4', C: '#6a6e7a', c: '#52555f', W: '#f2f2ee', o: '#2a4a8a', F: '#5a5e6a', n: '#1c1424' }) },
+  // el panel de padres: él, pelo castaño claro, polo verde y vaqueros; ella, piel oscura, melena negra, jersey mostaza
+  padreDD: { ...B19, cuerpo: CUERPO_POLO_DC, ceja: hex('#6a4424'),
+    pal: CLARA({ H: '#8a5a30', h: '#a8743c', C: '#3a7a5a', c: '#2a5a42', W: '#5a9a7a', o: '#2a5a42', F: '#3e5a8a', n: '#3a2a20' }) },
+  madreDD: { ...B19M, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PICO_DC, ceja: hex('#1c1424'), mejillas: [[12, 8]],
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#c8963a', c: '#a8782a', W: '#f2eee2', F: '#3a3a46', n: '#2a2430' }) },
+  // U.S. Agent (John Walker): traje azul marino oscuro con la estrella y las franjas rojas y blancas, pelo castaño corto
+  usAgentDD: { ...B19, cuerpo: CUERPO_AGENTE_DD, ceja: hex('#4a3020'),
+    pal: CLARA({ H: '#5a3a20', h: '#7a5434', C: '#1e2846', c: '#141c32', W: '#1e2846', G: '#2a2430', I: '#2a2430', F: '#1e2846', n: '#2a2430', X: '#f2eee2', r: '#c8303a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_DD);
