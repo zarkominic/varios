@@ -1,6 +1,6 @@
 # Búsquedas en tendencia en EE. UU.
 
-Registro diario del RSS de Google Trends (6 días: 2026-10-26 → 2026-11-16; 70 búsquedas distintas).
+Registro diario del RSS de Google Trends (7 días: 2026-10-26 → 2026-11-19; 80 búsquedas distintas).
 Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 
 | Días | Tráfico máx. | Búsqueda | Noticia que la explica |
@@ -11,6 +11,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 10.000 | chequia - españa | [¿A qué hora es el partido República Checa vs España y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-republica-checa-vs-espana-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
 | 1 | 10.000 | italia - francia | [¿A qué hora es el partido Italia vs Francia y cómo verlo en TV y streaming online?](https://www.si.com/es-us/a-que-hora-es-el-partido-italia-vs-francia-y-como-verlo-en-tv-y-streaming-online-12-11-2026) (Sports Illustrated) |
 | 1 | 10.000 | kenneth walker | [Chiefs RB Kenneth Walker III (groin) misses practice. status uncertain](https://www.espn.com/nfl/story/_/id/50473948/chiefs-rb-walker-groin-misses-practice-status-uncertain) (ESPN) |
+| 1 | 10.000 | zverev | [Shelton defeats Jodar. now awaits Nitto ATP Finals SF fate](https://www.atptour.com/en/news/shelton-jodar-nitto-atp-finals-2026-thursday) (ATP Tour) |
 | 1 | 5.000 | georgia tech vs clemson | [Hours from a career milestone. Dabo Swinney will put on the headset for the 250th time as a head coach](https://www.wltx.com/article/sports/football/hours-from-a-career-milestone-dabo-swinney-will-put-on-the-headset-for-the-250th-time-as-a-head-coach/101-7adfc7d8-423d-4d4c-8104-ff5f4e50e7c1) (WLTX) |
 | 1 | 5.000 | nebraska vs rutgers | [Game 10: Football vs. Nebraska](https://scarletknights.com/news/2026/11/9/game-10-football-vs-nebraska) (Rutgers University Athletics) |
 | 1 | 2.000 | pga tour | [Seamus Power. Austin Smotherman head to Monday playoff as Butterfield Bermuda Championship shortened to 54 holes](https://www.pgatour.com/article/news/latest/2026/10/25/seamus-power-austin-smotherman-head-to-monday-playoff-after-weather-delay-tournament-shortened-to-54-holes-butterfield-bermuda-championship) (PGA Tour) |
@@ -24,6 +25,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 2.000 | chiefs depth chart | [Travis Hunter makes Jessie Bates' Jaguars trade a hit with his nephews](https://www.espn.com/nfl/story/_/id/50464631/jaguars-jessie-bates-trade-travis-hunter) (ESPN) |
 | 1 | 2.000 | john summit | [John Summit Calls Out the Grammys After Receiving No Nominations](https://variety.com/2026/music/news/john-summit-calls-out-grammys-after-no-nominations-1236949004/) (Variety) |
 | 1 | 2.000 | us employment based green card proposal | [Trump administration proposes restrictions for employer-sponsored green cards](https://www.washingtonpost.com/immigration/2026/11/16/trump-administration-proposes-restrictions-employer-sponsored-green-cards/) (The Washington Post) |
+| 1 | 2.000 | alexander zverev | [Alexander Zverev improved to 7-0 vs. Ben Shelton. advancing to ATP Finals semis](https://www.espn.com/tennis/story/_/id/50513841/alexander-zverev-beats-ben-shelton-semis-atp-finals) (ESPN) |
 | 1 | 1.000 | anthony rivers iii | [15-year-old arrested in connection to weekend mass shooting on Perry Street](https://www.wctv.tv/2026/10/26/tallahassee-police-provide-update-weekend-mass-shooting-perry-street/) (WCTV) |
 | 1 | 1.000 | the walking dead | [The Walking Dead franchise is on the verge of making its biggest mistake](https://undeadwalking.com/the-walking-dead-franchise-verge-making-biggest-twd-mistake) (Undead Walking) |
 | 1 | 1.000 | new dwarf planet | [‘It’s big’: Astronomers make startling discovery of a possible dwarf planet beyond Pluto](https://www.cnn.com/2026/10/28/science/ed138-dwarf-planet-candidate-beyond-pluto) (CNN) |
@@ -37,6 +39,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 1.000 | ap top 25 basketball | [Louisville No. 3 in women's AP Top 25 after UConn win; South Carolina still tops](https://www.espn.com/womens-college-basketball/story/_/id/50502552/louisville-no-3-women-ap-poll-beating-uconn) (ESPN) |
 | 1 | 1.000 | fema nationwide emergency test date | [FEMA and FCC Schedule 2026 Nationwide Test of the Emergency Alert System for November 17](https://www.hstoday.us/subject-matter-areas/emergency-preparedness/fema-and-fcc-schedule-2026-nationwide-test-of-the-emergency-alert-system-for-november-17/) (Homeland Security Today) |
 | 1 | 1.000 | college basketball rankings | [Michigan State up to No. 2 in AP men's poll behind Florida](https://www.espn.com/mens-college-basketball/story/_/id/50503030/michigan-state-no-2-ap-men-poll-florida) (ESPN) |
+| 1 | 1.000 | drew mestemaker | [Drew Mestemaker injury status revealed for Oklahoma State football game vs Arizona State](https://sports.yahoo.com/articles/drew-mestemaker-injury-status-revealed-035043730.html) (Yahoo Sports) |
 | 1 | 500 | matthew perry | [“The One About Matthew Perry” Docuseries Comes to Netflix](https://www.nytimes.com/2026/10/26/arts/television/matthew-perry-netflix-documentary.html) (The New York Times) |
 | 1 | 500 | santos vs palmeiras | [Santos x Palmeiras: onde assistir ao vivo. horário e escalações](https://ge.globo.com/sp/santos-e-regiao/futebol/brasileirao-serie-a/noticia/2026/10/28/santos-x-palmeiras-onde-assistir-ao-vivo-horario-e-escalacoes.ghtml) (ge) |
 | 1 | 500 | jaydon blue | [Eagles sign RB Jaydon Blue to the active roster. add three to the practice squad](https://www.philadelphiaeagles.com/news/eagles-sign-rb-jaydon-blue-to-the-active-roster-add-three-to-the-practice-squad-dameon-pierce) (Philadelphia Eagles) |
@@ -58,6 +61,12 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 500 | tara harding ford bronco purchase | [North Dakota woman buys Ford Bronco. drives 27 hours home after flights grounded](https://www.cbsnews.com/news/woman-buys-ford-bronco-drives-27-hours-home-flights-grounded/) (CBS News) |
 | 1 | 500 | ncaa soccer tournament | [2026 DI men's soccer championship: Selection show info. bracket. schedule](https://www.ncaa.com/news/soccer-men/article/2026-11-09/2026-di-mens-soccer-championship-selection-show-info-bracket-schedule) (NCAA.com) |
 | 1 | 500 | w9 | [Tout beau. tout n9uf. Première partie E56 lundi 16 novembre 2026 sur W9 : résumé et diffusions](https://programmetv.ouest-france.fr/divers/divertissement/tout-beau-tout-n9uf-m385855399/e56-premiere-partie-c450806231/) (Programme TV Ouest-France) |
+| 1 | 500 | scott speedman | ['Landman' adds another big name as Scott Speedman signs on for the oil drama's third season](https://www.foxnews.com/outkick-culture/landman-adds-another-big-name-scott-speedman-signs-oil-drama-third-season) (Fox News) |
+| 1 | 500 | arthur fils | [ATP Finals 2026 - Arthur Fils qualifié en demi-finales du Masters si…](https://www.eurosport.fr/tennis/atp-finals-1/2026/atp-finals-2026-arthur-fils-qualifie-en-demi-finales-du-masters-si_sto23356308/story.shtml) (Eurosport) |
+| 1 | 500 | federal emergency management agency | [FEMA Administrator Testifies on Agency's Disaster Readiness](https://www.c-span.org/event/house-committee/fema-administrator-testifies-on-agencys-disaster-readiness/449687) (C-SPAN) |
+| 1 | 500 | nasa voyager 1 | [After 49 Years. Voyager 1 Is a Mind-Blowing One Light-Day From Earth](https://www.nytimes.com/2026/11/18/science/nasa-voyager-1-earth-light-day.html) (The New York Times) |
+| 1 | 500 | corey ruiz | [Prosecutor declines to charge a White police officer who fatally shot a Black man in Wisconsin](https://www.cnn.com/2026/11/19/us/madison-police-shooting) (CNN) |
+| 1 | 500 | hyundai elantra | [View Exterior Photos of the 2027 Hyundai Elantra](https://www.caranddriver.com/photos/a74470042/2027-hyundai-elantra-revealed-exterior-gallery/) (Car and Driver) |
 | 1 | 200 | world | [Russia to stage World Weightlifting Championships. first major hosting since full-scale Ukraine invasion](https://www.nytimes.com/athletic/7726237/2026/10/26/russia-world-championship-olympic-moscow/) (The New York Times) |
 | 1 | 200 | racing sausages world series milwaukee | [Column: Sausage race controversy erupts as Fox Sports ignores Milwaukee’s finest tradition during World Series](https://www.chicagotribune.com/2026/10/26/world-series-milwaukee-brewers-sausage-race/) (Chicago Tribune) |
 | 1 | 200 | vegemite | [Murderer’s bid to eat Vegemite in Australian prison rejected by judge](https://www.cnn.com/2026/10/26/australia/prisoner-vegemite-rejected-judge-scli-intl) (CNN) |
@@ -73,5 +82,6 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 200 | princeton vs yale | [No. 23 Football Wraps Up Road Schedule at Yale Saturday](https://goprincetontigers.com/news/2026/11/13/football-wraps-up-road-schedule-at-yale-saturday) (Princeton University Athletics) |
 | 1 | 200 | alexei pergande | [Alexei Pergande discusses sudden social media fame. potential with Jake Paul and MVP](https://mmajunkie.usatoday.com/story/sports/pfl/2026/11/13/pfl-mvp-alexei-pergande-social-media-jake-paul-dubai/92762907007/) (MMA Junkie) |
 | 1 | 200 | john summit tour bus | [Musician tour bus involved in deadly crash in Marion County](https://www.wcjb.com/2026/11/16/musician-tour-bus-involved-deadly-crash-marion-county/) (WCJB) |
+| 1 | 200 | puka nacua news | [Rams rumors: ESPN insider opens door to shocking Puka Nacua free agency gambit](https://sports.yahoo.com/articles/rams-rumors-espn-insider-opens-170340411.html) (Yahoo Sports) |
 | 1 | 100 | rockstar | [New GTA VI Footage Looks So Stunning Fans Can’t Believe It](https://rockstarintel.com/new-gta-vi-footage-looks-so-stunning-fans-cant-believe-it/) (RockstarINTEL) |
 | 1 | 100 | jennifer aniston | [Jennifer Aniston Says ‘The Rachel’ Was Anything But Effortless](https://www.elle.com/beauty/hair/a74347544/jennifer-aniston-hair-routine-lolavie-hairspray/) (ELLE) |
