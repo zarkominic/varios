@@ -10,21 +10,29 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // LF-JASON (frases 24–25), sin cartela; 2026 salvo la foto (1933). Siete planos:
-// 1. vicecity/playa cámara 'coche': Jason al volante y Lucia en su descapotable turquesa junto al mar; él saluda al nombrarlo,
-//    ella se gira y señala el mar al nombrarla; una gaviota se posa en el capó y se va (corta en «According»);
+// 1. vicecity/playa cámara 'coche': Jason al volante y Lucia en su descapotable turquesa junto al mar; él saluda con los
+//    brazos y toca el claxon al nombrarlo, ella se gira, habla y señala el mar al nombrarla; una gaviota baja al capó y se
+//    va (corta en «According»);
 // 2. INSERTO sobre el tapete: la baraja; nuestras dos cartas bajas de corazones a la izquierda; la mano canónica reparte
-//    picas en un montón que crece y crece («the deck is stacked against them»); las dos cartas tiemblan (corta en «Lucia»);
-// 3. interior/carcel: la corredera se abre al sol («walked out»); Lucia sale, se estira y echa a andar hacia la
-//    carretera; el vigilante saluda; el bocadillo con la casita y la palmera («the good life») (corta en «Jason»);
-// 4. interior/carcel cámara 'carretera': Jason en su silla plegable con la nevera en el arcén («an easy life»); la silla
-//    se cierra de golpe («harder») y el descapotable rosa se va sin él (corta en «The press»);
-// 5. INSERTO, 1933: la foto en sepia de la pareja de los años treinta junto a su coche, que la mano deja sobre un
-//    escritorio de la época (reloj de bolsillo, lupa, café que humea, periódico sin letras); en «1930s» la mano lleva la
-//    lupa sobre él (corta en «although»);
-// 6. salon/salon cámara 'mesa': la mano trae la foto a la mesita; «?» en «doesn't use that name»; la mano da dos
-//    golpecitos en el libro («everything anyone knew») y en «story» cae el candado (corta en «the rest»);
-// 7. INSERTO del libro con candado (de cerca): la mano gira la llavecita y el arco se cierra en «spoil»; el mando de la
-//    consola vibra en «playing».
+//    picas en un montón que crece y crece («the deck is stacked against them»); las dos cartas tiemblan; una salamanquesa
+//    cruza el canto y la sombra del ventilador barre el tapete (corta en «Lucia»);
+// 3. interior/carcel: el cerrojo salta y la corredera se abre en un segundo hasta «walked out»; Lucia aparece en el hueco
+//    (la hoja la tapa por la derecha), echa a andar hacia la carretera, se para, se estira y piensa en la casita con
+//    palmera («the good life»); el vigilante saluda (decorado); tres pájaros cruzan (corta en «Jason»);
+// 4. interior/carcel cámara 'carretera': Jason en su silla plegable con la nevera en el arcén («an easy life»), habla y
+//    se estira; el descapotable rosa arranca («things») y se va sin él; en «harder» la silla se cierra de golpe y cae al
+//    suelo, sorprendido (corta en «The press»);
+// 5. INSERTO, 1933: la mano deja la foto en sepia de la pareja de los años treinta junto a su coche sobre un escritorio de
+//    la época (reloj de bolsillo con segundero, café que humea, periódico sin letras, motas al sol); en «outlaw couple» la
+//    mano lleva la lupa sobre él y se posa con un brillo (corta en «although»);
+// 6. salon/salon cámara 'mesa': la mano trae la foto a la mesita; «?» en «doesn't use that name»; la caja del juego
+//    tiembla en «until today»; la mano da dos golpecitos en el libro («everything anyone knew») y en «story» cae el
+//    candado, cerrado; el gato mueve la cola (corta en «the rest»);
+// 7. INSERTO del libro con candado (de cerca), el candado cerrado: la mano trae una llavecita de acero, la mete y la gira
+//    en «discover»: el arco salta con un rebote, el sol y la palmera de la tapa se encienden y laten, se escapa luz por
+//    el canto de las hojas y una polilla viene a rondarla; en «playing» el mando vibra y se enciende (halo azul, botones
+//    que parpadean, barra de luz), la caja tiembla y saltan palomitas; en «spoil» la llave gira de vuelta, el arco se
+//    cierra de golpe con una chispa, la luz se apaga, la polilla se va y la mano se lleva la llave.
 import * as T from '/atomo/plato/escenas/lf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lf-jason');
@@ -88,9 +96,9 @@ const P2 = a(0.2098), P3 = a(0.4467), P4 = a(0.7887), P5 = b(0) - 0.05, P6 = b(0
 const p1 = (t) => {
   const o = { encuadre: 'playa', camara: 'coche', colorCoche: '#3ab8c8' };
   T.vicecity(R, t, o);
-  const jas = t > a(0.05) && t < a(0.05) + 1.4, luc = t > a(0.085);
-  R.actor(EL.luciaLF, 150, 146, t, { dir: luc ? -1 : 1, dedo: luc && t < a(0.085) + 1.8, sonrisa: true, habla: luc && t < a(0.085) + 1.2 && Math.sin(t * 9) > 0 });
-  R.actor(EL.jasonLF, 176, 146, t, { dir: 1, brazos: jas && t < a(0.05) + 0.7, sonrisa: true, habla: t > a(0.1) && t < a(0.2) && Math.sin(t * 8) > 0.2 });
+  const jas = t > a(0.066) && t < a(0.066) + 1.4, luc = t > a(0.1);
+  R.actor(EL.luciaLF, 150, 146, t, { dir: luc ? -1 : 1, dedo: luc && t < a(0.1) + 1.8, sonrisa: true, habla: luc && t < a(0.1) + 1.2 && Math.sin(t * 9) > 0 });
+  R.actor(EL.jasonLF, 176, 146, t, { dir: 1, brazos: jas && t < a(0.066) + 0.7, sonrisa: true, habla: t > a(0.1) && t < a(0.2) && Math.sin(t * 8) > 0.2 });
   T.vicecityDelante(R, t, o);
   // la gaviota que baja al capó y se va
   const g1 = tramo(t, 0.6, 1.6), g2 = tramo(t, P2 - 1.3, P2 - 0.4);
@@ -160,12 +168,19 @@ const p2 = (t) => {
 };
 // ── 3. la puerta de la cárcel ──
 const p3 = (t) => {
-  const abre = tramo(t, P3 + 0.3, a(0.5));
+  // la corredera: el cerrojo salta y se desliza en un segundo, hasta «walked out»
+  const abre = tramo(t, P3 + 0.15, a(0.52));
   const o = { encuadre: 'carcel', abre };
-  T.interior(R, t, o);
-  const sale = tramo(t, a(0.5) - 0.1, a(0.73)), lx = Math.round(lerp(176, 92, sale));
-  if (abre > 0.55) R.actor(EL.luciaLF, lx, 162, t, { dir: -1, anda: sale > 0 && sale < 1, brazos: t > a(0.73) && t < a(0.73) + 0.9, sonrisa: t > a(0.6) });
-  bocadillo(lx + 4, 126, 34, 22, tramo(t, a(0.66), a(0.69)) - tramo(t, P4 - 0.5, P4 - 0.2), (x0, y0) => casita(x0 + 4, y0 + 5));
+  const g = T.interior(R, t, o);
+  // tres pájaros que cruzan el cielo, lejos del año y de Atom
+  for (let k = 0; k < 3; k++) { const bx = Math.round(lerp(330, -20, tramo(t, P3 + k * 0.4, P4 + k * 0.4))), by = 58 + k * 6 + Math.round(Math.sin(t * 2 + k) * 2), al = Math.sin(t * 14 + k) > 0 ? -1 : 0;
+    R.linea(bx - 3, by + al, bx, by + 1, K); R.linea(bx, by + 1, bx + 3, by + al, K); }
+  // Lucia sale por el hueco (la hoja que se desliza la tapa por la derecha), echa a andar hacia la carretera, se para y se estira
+  const sale = tramo(t, a(0.516), a(0.68)), lx = Math.round(lerp(180, 94, sale)), para = t > a(0.69) && t < a(0.69) + 1.0;
+  if (abre > 0.2) { R.recorte([0, 0, g && g.hueco ? g.hueco[1] - 1 : 214, 179]);
+    R.actor(EL.luciaLF, lx, 162, t, { dir: -1, anda: sale > 0 && sale < 1, brazos: para, sonrisa: t > a(0.6) });
+    R.recorte(null); }
+  bocadillo(lx + 4, 126, 34, 22, tramo(t, a(0.67), a(0.70)) - tramo(t, P4 - 0.35, P4 - 0.15), (x0, y0) => casita(x0 + 4, y0 + 5));
   T.interiorDelante(R, t, o);
 };
 // ── 4. la silla que se cierra ──
@@ -180,21 +195,21 @@ const sillaDelante = (x, y, cierre) => {
   if (cierre > 0.5) rayas(x - 2, y - 3, x + 25, y - 1);
 };
 const p4 = (t) => {
-  const plie = tramo(t, a(0.95), a(0.95) + 0.2), vaCoche = tramo(t, a(0.88), P5);
+  const plie = tramo(t, a(0.965), a(0.965) + 0.2), vaCoche = tramo(t, a(0.88), P5);
   const o = { encuadre: 'carcel', camara: 'carretera', coche: vaCoche > 0 ? vaCoche : 0.001 };
   T.interior(R, t, o);
   // la nevera azul y blanca con su asa y una lata encima
   R.rect(56, 146, 76, 160, K); R.rect(57, 147, 75, 159, hex('#3a8ad8')); R.rect(57, 147, 75, 150, hex('#f4f4f0')); R.rect(61, 143, 71, 144, K); R.pset(61, 145, K); R.pset(71, 145, K); R.rect(57, 158, 75, 159, hex('#2a6aa8'));
   R.rect(64, 139, 67, 146, K); R.rect(65, 140, 66, 145, hex('#e8603a')); R.pset(65, 140, hex('#f8d0b0'));
   sillaAtras(80, 160, plie);
-  const caido = plie > 0.5, salto = t > a(0.95) + 0.2 && t < a(0.95) + 0.6 ? 3 : 0;
+  const caido = plie > 0.5, salto = t > a(0.965) + 0.2 && t < a(0.965) + 0.6 ? 3 : 0;
   // Jason sentado: los pies quedan tapados por el asiento; al plegarse, cae al suelo
   R.actor(EL.jasonLF, 84, caido ? 162 : 151, t, { dir: 1, sonrisa: !caido, sorpresa: caido, salto, habla: t > P4 + 0.3 && t < P4 + 1.6 && Math.sin(t * 8) > 0.3, brazos: !caido && t > P4 + 1.7 && t < a(0.94) });
   sillaDelante(80, 160, plie);
-  if (caido && t < a(0.95) + 1.2) for (const [dx, dy] of [[-4, -6], [28, -8], [-6, 0], [30, -2]]) R.pset(80 + dx, 150 + dy, hex('#fff6c0'));
+  if (caido && t < a(0.965) + 1.2) for (const [dx, dy] of [[-4, -6], [28, -8], [-6, 0], [30, -2]]) R.pset(80 + dx, 150 + dy, hex('#fff6c0'));
   T.interiorDelante(R, t, o);
 };
-// ── 5. la foto en sepia de 1934 ──
+// ── 5. la foto en sepia de 1933 ──
 const escritorio = (t, sinLupa = false) => {
   madera(0, 0, 319, 179, ['#a86a38', '#8e5630', '#784626', '#5e361e', '#3e2212'], 26, 170, 80);
   // el periódico de la época (solo rayas y una foto), a la izquierda
@@ -282,12 +297,13 @@ const p5 = (t) => {
 };
 // ── 6. la mesita: la foto, la tele y el candado ──
 const p6 = (t) => {
-  const o = { encuadre: 'salon', camara: 'mesa', foto: tramo(t, P6 + 0.1, P6 + 1.0), candado: tramo(t, b(0.712), b(0.735)) };
+  const o = { encuadre: 'salon', camara: 'mesa', foto: tramo(t, P6 + 0.1, P6 + 1.0), candado: tramo(t, b(0.712), b(0.735)),
+    sacude: t > b(0.484) && t < b(0.484) + 0.9 ? 1 - tramo(t, b(0.484) + 0.5, b(0.484) + 0.9) : 0 };
   T.salon(R, t, o); T.salonDelante(R, t, o);
   // la mano que trae la foto desde abajo
   const m = tramo(t, P6, P6 + 1.0) * (1 - tramo(t, P6 + 1.3, P6 + 2.0));
   if (m > 0.02) T.brazo(R, 250, 200, 236, Math.round(lerp(200, 150, m)), '#2a5a7a', 1, { codo: [262, 186] });
-  // el «?» sobre la foto cuando se dice que Rockstar no usa ese nombre, y el destello de la tele en «until today»
+  // el «?» sobre la foto cuando se dice que Rockstar no usa ese nombre (la caja tiembla en «until today», en el decorado)
   const q = tramo(t, b(0.37), b(0.39)) - tramo(t, b(0.47), b(0.49)); if (q > 0) R.icono('?', 216, Math.round(118 - q * 6), hex('#f8e070'), K, 2);
   // la mano que da dos golpecitos en el libro («everything anyone knew about their story») antes de que caiga el candado
   const tq = tramo(t, b(0.57), b(0.62)) * (1 - tramo(t, b(0.69), b(0.72))), toc = t > b(0.62) && t < b(0.69) ? Math.round(Math.abs(Math.sin((t - b(0.62)) * 9)) * 3) : 0;
@@ -295,57 +311,99 @@ const p6 = (t) => {
 };
 // ── 7. el libro con el candado ──
 const p7 = (t) => {
+  // los tiempos: la llave llega, entra y gira en «discover», el arco salta; el mando vibra en «playing»; en «spoil» la llave
+  // vuelve a girar y el arco se cierra de golpe; la mano se lleva la llave
+  const DS = b(0.813), PL = b(0.859), SP = b(0.945);
+  const llega = tramo(t, P7 - 0.05, DS - 0.12), mete = tramo(t, DS - 0.12, DS + 0.02);
+  const gira = tramo(t, DS + 0.02, DS + 0.25) - tramo(t, SP - 0.28, SP - 0.06);
+  const salta = tramo(t, DS + 0.25, DS + 0.45), cierra = tramo(t, SP - 0.08, SP + 0.02), abierto = salta * (1 - cierra);
+  const sale = tramo(t, SP + 0.4, SP + 1.0);
+  const vib = t > PL && t < PL + 0.95 ? (Math.floor(t * 30) % 2) : 0, luzMando = tramo(t, PL - 0.05, PL + 0.1) * (1 - tramo(t, PL + 0.9, PL + 1.4));
+  const brillo = abierto * (0.8 + 0.2 * Math.sin(t * 9));
   // la mesa de teca de cerca, con vetas y cercos de vasos
   madera(0, 0, 319, 179, ['#c48450', '#a86a3c', '#8e5630', '#744424', '#5c341c'], 30, 190, 90);
   for (let a2 = 0; a2 < 6.28; a2 += 0.05) { R.pset(Math.round(96 + Math.cos(a2) * 14), Math.round(26 + Math.sin(a2) * 9), hex('#6a3e20')); R.pset(Math.round(250 + Math.cos(a2) * 11), Math.round(166 + Math.sin(a2) * 7), hex('#6a3e20')); }
   // la luz de la tele que parpadea: un reflejo azulado que respira en el canto de arriba de la mesa
   if (Math.sin(t * 7) * Math.sin(t * 2.3) > 0.3) for (let x = 0; x < 320; x += 2) R.pset(x, 1 + ((x >> 1) & 1), hex('#c8a07a'));
-  // la caja del juego (cerrada), el mando de la consola y el bol de palomitas abajo (una salta)
-  T.a_caja(R, 26, 40, t, { s: 2, sombra: true });
-  const vib = t > b(0.807) && t < b(0.87) ? (Math.floor(t * 30) % 2) : 0;
+  // la sombra de las aspas del ventilador del techo, que barre la mesa despacio
+  for (let k = 0; k < 3; k++) { const an = t * 0.9 + k * 2.09; for (let r = 40; r < 150; r += 3) { const x = Math.round(190 + Math.cos(an) * r), y = Math.round(92 + Math.sin(an) * r * 0.55); if (y < 22 && x < 180) continue; for (let w = -2; w <= 2; w++) if (((x + w + y) & 1) === 0) R.pset(x + w, y, hex('#5c341c')); } }
+  // la caja del juego (cerrada), que tiembla con la vibración del mando
+  T.a_caja(R, 26, 40, t, { s: 2, sombra: true, sacude: vib ? 0.5 : 0 });
+  // el mando de la consola: en «playing» vibra, se enciende (botones, barra de luz y un halo azul sobre la mesa)
   const mx = 16 + vib, my = 104;
+  // el halo: la madera de alrededor se tiñe de azul claro, más cerca más fuerte (mezcla sobre lo ya pintado)
+  if (luzMando > 0.05) { const B = R.buf; for (let y = my - 18; y <= my + 40; y++) for (let x = Math.max(0, mx - 18); x <= mx + 60; x++) { const d = Math.hypot((x - mx - 21) / 38, (y - my - 11) / 28); if (d >= 1) continue;
+    const f = luzMando * (1 - d) * 0.75 * (((x + y) & 1) ? 1 : 0.8), c = B[y * 320 + x], r = c & 255, g2 = (c >> 8) & 255, bb = (c >> 16) & 255;
+    B[y * 320 + x] = (0xff000000 | (Math.round(bb + (240 - bb) * f) << 16) | (Math.round(g2 + (226 - g2) * f) << 8) | Math.round(r + (170 - r) * f)) >>> 0; } }
   R.disco(mx + 6, my + 14, 9, K); R.disco(mx + 36, my + 14, 9, K); R.rect(mx + 4, my + 4, mx + 38, my + 18, K);
   R.disco(mx + 6, my + 14, 8, hex('#2a2a36')); R.disco(mx + 36, my + 14, 8, hex('#2a2a36')); R.rect(mx + 5, my + 5, mx + 37, my + 17, hex('#3a3a48')); R.rect(mx + 5, my + 5, mx + 37, my + 6, hex('#5a5a6c'));
   R.rect(mx + 5, my + 10, mx + 11, my + 12, hex('#1a1a22')); R.rect(mx + 7, my + 8, mx + 9, my + 14, hex('#1a1a22'));
-  for (const [dx, dy, c] of [[32, 8, '#e84a5a'], [36, 11, '#4ab0e8'], [28, 11, '#5ad870'], [32, 14, '#f0c040']]) { R.disco(mx + dx, my + dy, 1, hex(c)); }
-  R.rect(mx + 19, my + 9, mx + 23, my + 10, vib || Math.floor(t * 2) % 2 ? hex('#7ae0ff') : hex('#2a6a8a'));
-  if (vib) { R.linea(mx - 4, my + 6, mx - 2, my + 10, hex('#f8e8c0')); R.linea(mx + 46, my + 6, mx + 44, my + 10, hex('#f8e8c0')); }
+  const enc = luzMando > 0.5 && Math.floor(t * 8) % 4;
+  for (const [dx, dy, c, cl, n] of [[32, 8, '#e84a5a', '#ffb0b8', 0], [36, 11, '#4ab0e8', '#c0ecff', 1], [28, 11, '#5ad870', '#c8ffd0', 3], [32, 14, '#f0c040', '#fff0b0', 2]]) { R.disco(mx + dx, my + dy, 1, hex(enc === n ? cl : c)); }
+  R.rect(mx + 17, my + 9, mx + 25, my + 10, luzMando > 0.3 ? hex('#c8f4ff') : Math.floor(t * 2) % 2 ? hex('#7ae0ff') : hex('#2a6a8a'));
+  if (luzMando > 0.3) { R.rect(mx + 16, my + 8, mx + 26, my + 8, hex('#7ae0ff')); R.rect(mx + 16, my + 11, mx + 26, my + 11, hex('#5ab0d8')); }
+  if (vib) { for (const s of [-1, 1]) { const ex = s < 0 ? mx - 4 : mx + 46; R.linea(ex, my + 4, ex + s * 2, my + 9, hex('#f8e8c0')); R.linea(ex + s * 3, my + 12, ex + s * 5, my + 17, hex('#f8e8c0')); } }
+  // el cable del mando, que se va por abajo y tiembla con él
+  for (let k = 0; k < 24; k++) R.pset(mx + 21 + Math.round(Math.sin(k * 0.5 + (vib ? t * 30 : 0)) * 2), my + 19 + k, k % 6 === 5 ? hex('#3a3a48') : K);
+  // el bol de palomitas: con la vibración saltan unas cuantas
   R.disco(66, 190, 32, K); for (let y = 158; y < 180; y++) for (let x = 34; x <= 98; x++) if (Math.hypot(x - 66, y - 190) <= 30) R.pset(x, y, (((x - 34) >> 3) & 1) ? hex('#f8f0e8') : hex('#e85a4a')); R.disco(66, 188, 25, hex('#f8f0d0'));
-  for (let k = 0; k < 16; k++) { const px = Math.round(44 + H(k, 1) * 44), py = Math.round(164 + H(k, 2) * 14); R.disco(px, py, 2, hex('#fffbe8')); R.pset(px + 1, py + 1, hex('#e8c060')); }
-  const sal = tramo(t, P7 + 1.0, P7 + 1.3) - tramo(t, P7 + 1.3, P7 + 1.7); R.disco(70, Math.round(158 - sal * 16), 2, hex('#fffbe8'));
+  for (let k = 0; k < 16; k++) { const ph = (t - PL) * 3.2 + H(k, 5), sal = t > PL && t < PL + 1.1 && k % 3 === 0 ? Math.abs(Math.sin(ph * 3.14)) * (6 + (k % 4) * 3) : 0;
+    const px = Math.round(44 + H(k, 1) * 44), py = Math.round(164 + H(k, 2) * 14 - sal); R.disco(px, py, 2, hex('#fffbe8')); R.pset(px + 1, py + 1, hex('#e8c060')); }
   // el libro viejo de cuero con cantoneras y la ilustración en relieve (sol y palmera, sin letras)
   const bx = 122, by = 40;
   R.rect(bx + 4, by + 6, bx + 170, by + 116, hex('#3a2010'));
   R.rect(bx, by, bx + 164, by + 108, K); R.rect(bx + 1, by + 1, bx + 163, by + 107, hex('#7a3a2a'));
   for (let y = by + 2; y < by + 107; y++) for (let x = bx + 2; x < bx + 163; x++) if (H(x, y, 7) > 0.86) R.pset(x, y, hex('#6a3022')); else if (H(x, y, 8) > 0.95) R.pset(x, y, hex('#8a4a36'));
   R.rect(bx + 1, by + 1, bx + 12, by + 107, hex('#5e2a1e')); for (let y = by + 12; y < by + 100; y += 20) R.rect(bx + 2, y, bx + 11, y + 2, hex('#c89a50'));
-  R.rect(bx + 164, by + 4, bx + 168, by + 104, hex('#f0e4c8')); for (let y = by + 6; y < by + 104; y += 2) R.pset(bx + 166, y, hex('#d8c8a8'));
+  // el canto de las hojas: con el candado abierto se escapa por él una luz dorada
+  R.rect(bx + 164, by + 4, bx + 168, by + 104, brillo > 0.1 ? hex('#fff0b0') : hex('#f0e4c8')); for (let y = by + 6; y < by + 104; y += 2) R.pset(bx + 166, y, brillo > 0.1 ? hex('#f8d870') : hex('#d8c8a8'));
+  if (brillo > 0.1) for (let k = 0; k < 6; k++) { const yy = by + 8 + k * 7, l = Math.round(4 + brillo * (6 + ((k * 5 + Math.floor(t * 6)) % 5))); for (let i = 0; i < l; i += 2) R.pset(bx + 170 + i, yy - (i >> 2), hex('#f8e090')); }
   for (const [qx, qy] of [[bx + 150, by + 1], [bx + 150, by + 93]]) { R.rect(qx, qy, qx + 13, qy + 13, hex('#c8a050')); R.rect(qx + 1, qy + 1, qx + 12, qy + 12, hex('#e0bc68')); R.pset(qx + 6, qy + 6, hex('#8a6a30')); }
-  R.rect(bx + 40, by + 18, bx + 136, by + 84, hex('#c89a50')); R.rect(bx + 42, by + 20, bx + 134, by + 82, hex('#6a2e22'));
-  R.disco(bx + 88, by + 60, 18, hex('#c89a50')); R.disco(bx + 88, by + 60, 16, hex('#6a2e22')); for (let k = 0; k < 4; k++) R.rect(bx + 66, by + 62 + k * 4, bx + 110, by + 62 + k * 4, hex('#c89a50'));
-  R.rect(bx + 108, by + 36, bx + 109, by + 78, hex('#c89a50')); for (const [dx, dy] of [[-10, 4], [10, 4], [-8, 1], [8, 1], [-4, -2], [4, -2]]) R.linea(bx + 108, by + 36, bx + 108 + dx, by + 36 + dy + 4, hex('#c89a50'));
+  // el relieve de la tapa: con el candado abierto, el sol y la palmera se encienden y laten (lo que se descubre jugando)
+  const oro = brillo > 0.1 ? hex('#f8d870') : hex('#c89a50'), oroL = hex('#fff4c0');
+  if (brillo > 0.1) for (let y = by + 22; y <= by + 82; y++) for (let x = bx + 44; x <= bx + 132; x++) { const d = Math.hypot(x - bx - 88, (y - by - 60) * 1.2); if (d > 16 && d < 16 + brillo * 22 && ((x + y) & 1) === 0 && H(x, y, 12) < 0.7 - (d - 16) / 40) R.pset(x, y, hex('#a8583a')); }
+  R.rect(bx + 40, by + 18, bx + 136, by + 84, oro); R.rect(bx + 42, by + 20, bx + 134, by + 82, hex('#6a2e22'));
+  if (brillo > 0.1) for (let y = by + 21; y <= by + 81; y++) for (let x = bx + 43; x <= bx + 133; x++) { const d = Math.hypot(x - bx - 88, (y - by - 60) * 1.2); if (d < 16 + brillo * 24 && ((x + y) & 1) === 0 && H(x, y, 13) < 0.75 - d / 60) R.pset(x, y, hex('#8a3e2a')); }
+  R.disco(bx + 88, by + 60, 18, oro); R.disco(bx + 88, by + 60, 16, brillo > 0.1 ? hex('#8a3e2a') : hex('#6a2e22')); for (let k = 0; k < 4; k++) R.rect(bx + 66, by + 62 + k * 4, bx + 110, by + 62 + k * 4, oro);
+  R.rect(bx + 108, by + 36, bx + 109, by + 78, oro); for (const [dx, dy] of [[-10, 4], [10, 4], [-8, 1], [8, 1], [-4, -2], [4, -2]]) R.linea(bx + 108, by + 36, bx + 108 + dx, by + 36 + dy + 4, oro);
+  if (brillo > 0.1) { for (let k = 0; k < 8; k++) { const an = k * 0.785 + t * 0.6, r0 = 21, r1 = Math.round(21 + brillo * (4 + (k % 2) * 3)); R.linea(Math.round(bx + 88 + Math.cos(an) * r0), Math.round(by + 60 + Math.sin(an) * r0 * 0.83), Math.round(bx + 88 + Math.cos(an) * r1), Math.round(by + 60 + Math.sin(an) * r1 * 0.83), oroL); }
+    R.pset(bx + 82, by + 52, oroL); R.pset(bx + 83, by + 52, oroL); R.pset(bx + 82, by + 53, oroL); R.linea(bx + 70, by + 62, bx + 80, by + 62, oroL); }
   // la correa con la hebilla y el candado grande
   R.rect(bx + 120, by + 48, bx + 172, by + 62, K); R.rect(bx + 121, by + 49, bx + 171, by + 61, hex('#4a2a1c')); for (let x = bx + 122; x < bx + 170; x += 3) R.pset(x, by + 51, hex('#6a4030'));
-  const cierra = tramo(t, b(0.94) - 0.2, b(0.94)), lx = bx + 150, ly = by + 60;
-  // el arco del candado (baja y encaja)
-  const arc = Math.round(lerp(8, 0, cierra));
-  for (let k = 0; k < 2; k++) { R.rect(lx - 9 + k, ly - 18 - arc, lx - 6 + k, ly - 2 - (k ? arc : 0), K); R.rect(lx + 6 + k, ly - 18, lx + 9 + k, ly - 2, K); }
-  R.rect(lx - 8, ly - 18 - arc, lx - 7, ly - 3 - arc, hex('#c8c8d4')); R.rect(lx + 7, ly - 18, lx + 8, ly - 3, hex('#c8c8d4'));
-  for (let a2 = 3.14; a2 <= 6.29; a2 += 0.08) { R.pset(Math.round(lx + Math.cos(a2) * 8), Math.round(ly - 18 - arc + Math.sin(a2) * 7), hex('#c8c8d4')); R.pset(Math.round(lx + Math.cos(a2) * 9), Math.round(ly - 18 - arc + Math.sin(a2) * 8), K); }
+  const lx = bx + 150, ly = by + 60;
+  // el arco: salta hacia arriba con un rebote al abrirse y baja de golpe al cerrarse (la pata corta sale del cuerpo)
+  const arc = Math.round(abierto * 9 + Math.sin(salta * Math.PI) * 4 * (1 - cierra)), az = ly - 18 - arc;
+  R.rect(lx - 9, az, lx - 6, ly - 2 - arc, K); R.rect(lx + 6, az, lx + 9, ly - 2, K);
+  R.rect(lx - 8, az, lx - 7, ly - 3 - arc, hex('#c8c8d4')); R.rect(lx + 7, az, lx + 8, ly - 3, hex('#c8c8d4'));
+  for (let a2 = 3.14; a2 <= 6.29; a2 += 0.08) { R.pset(Math.round(lx + Math.cos(a2) * 8), Math.round(az + Math.sin(a2) * 7), hex('#c8c8d4')); R.pset(Math.round(lx + Math.cos(a2) * 9), Math.round(az + Math.sin(a2) * 8), K); }
+  R.pset(lx - 4, az - 6, hex('#ffffff'));
   R.rect(lx - 13, ly - 4, lx + 13, ly + 22, K); R.rect(lx - 12, ly - 3, lx + 12, ly + 21, hex('#d8a838')); R.rect(lx - 12, ly - 3, lx + 12, ly - 1, hex('#f8d870')); R.rect(lx + 10, ly - 3, lx + 12, ly + 21, hex('#a87820'));
   R.disco(lx, ly + 8, 3, K); R.rect(lx - 1, ly + 8, lx + 1, ly + 14, K);
-  // la mano con la llavecita: entra, la mete y la gira en «spoil»
-  const llega = tramo(t, P7 + 0.4, b(0.9)), sale = tramo(t, b(0.975), E.duracion);
-  if (llega > 0 && sale < 1) {
-    const kx = Math.round(lerp(330, lx + 4, llega - sale)), ky = ly + 10, gira = cierra;
-    R.rect(kx - 6, ky - 1, kx + 2, ky + 1, hex('#e8c860')); R.disco(kx + 6, ky, 4, hex('#e8c860')); R.disco(kx + 6, ky, 2, hex('#8a6a30'));
-    if (gira > 0.5) R.rect(kx - 6, ky - 2, kx - 4, ky + 2, hex('#e8c860'));
-    T.brazo(R, 340, 160, kx + 14, ky + 2, '#2a5a7a', -1, { codo: [326, 136] });
+  // la chispa al saltar y al cerrar
+  for (const [t0, c] of [[DS + 0.3, '#fff6c0'], [SP, '#ffffff']]) if (t > t0 && t < t0 + 0.5) { const u = (t - t0) / 0.5, r = Math.round(14 + u * 10); for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 0.2], [1, 0.2]]) { R.pset(Math.round(lx + dx * r), Math.round(ly - 10 + dy * r), hex(c)); R.pset(Math.round(lx + dx * (r - 2)), Math.round(ly - 10 + dy * (r - 2)), hex('#f8d870')); } }
+  // la mano con la llavecita: entra, la mete, la gira en «discover», la vuelve a girar en «spoil» y se la lleva
+  if (sale < 1) {
+    // la llave de acero (contorno oscuro, para que se lea sobre el latón): la caña entra en el bombín y la cabeza gira
+    const kx = Math.round(lerp(336, lx + 10, llega) - mete * 8 + sale * 60), ky = ly + 10 + Math.round(sale * 20);
+    const rot = Math.abs(Math.cos(gira * Math.PI / 2)), rx = Math.max(1, Math.round(5 * rot));
+    const x0 = mete >= 1 && sale <= 0 ? lx + 1 : kx - 8;
+    R.rect(x0, ky - 2, kx + 3, ky + 2, K); R.rect(x0, ky - 1, kx + 3, ky + 1, hex('#d8dce8')); R.rect(x0, ky - 1, kx + 3, ky - 1, hex('#ffffff'));
+    if (x0 === kx - 8) { R.rect(kx - 8, ky + 2, kx - 6, ky + 4, K); R.pset(kx - 7, ky + 2, hex('#d8dce8')); }
+    T.brazo(R, 342, 162 + Math.round(sale * 20), kx + 17, ky + 3 - Math.round(gira * 2), '#2a5a7a', -1, { codo: [328, 138 + Math.round(sale * 20)] });
+    for (let j = -6; j <= 6; j++) for (let i = -rx - 1; i <= rx + 1; i++) { const e = (i * i) / ((rx + 1) * (rx + 1)) + (j * j) / 36; if (e <= 1) R.pset(kx + 9 + i, ky + j, e > 0.62 || Math.abs(i) > rx ? K : hex('#d8dce8')); }
+    if (rx > 2) { R.disco(kx + 9, ky - 1, 1, K); R.pset(kx + 8 - rx + 1, ky - 3, hex('#ffffff')); } else R.rect(kx + 9, ky - 4, kx + 9, ky + 4, hex('#ffffff'));
   }
-  if (cierra >= 1 && t < b(0.94) + 0.6) for (const [dx, dy] of [[-18, -22], [18, -24], [-20, 2], [20, 0]]) R.pset(lx + dx, ly + dy, hex('#fff6c0'));
+  // una polilla que viene a la luz del libro abierto, ronda el sol y se va cuando se cierra
+  { const ven = tramo(t, DS + 0.4, PL + 0.4), va = tramo(t, SP, SP + 0.8);
+    if (ven > 0 && va < 1) { const an = t * 5, cx = bx + 88 + Math.cos(an) * 26, cy = by + 58 + Math.sin(an) * 14;
+      const x = Math.round(lerp(lerp(60, cx, ven), 120, va)), y = Math.round(lerp(lerp(30, cy, ven), 24, va)), al = Math.sin(t * 30) > 0;
+      R.rect(x - 1, y, x + 1, y + 1, hex('#8a7a64')); if (al) { R.pset(x - 2, y - 1, hex('#e8dcc0')); R.pset(x + 2, y - 1, hex('#e8dcc0')); R.pset(x - 3, y - 1, hex('#d8ccb0')); R.pset(x + 3, y - 1, hex('#d8ccb0')); } else { R.pset(x - 2, y + 1, hex('#d8ccb0')); R.pset(x + 2, y + 1, hex('#d8ccb0')); } } }
 };
 const año = (t) => t >= P5 && t < P6 ? 1933 : 2026;
-const efectos = [[a(0.05), 'claxon'], [P2 + 0.6, 'papel'], [a(0.37), 'papel'], [a(0.5), 'cerrojo'], [a(0.95), 'golpecito'], [a(0.97), 'coche'], [b(0.068), 'papel'], [b(0.21), 'whoosh'], [b(0.733), 'golpecito'], [b(0.81), 'zumbido'], [b(0.94), 'cerrojo']];
+const efectos = [[a(0.066), 'claxon'], [P2 + 0.55, 'papel'], [P2 + 1.6, 'papel'], [a(0.37), 'papel'],
+  [P3 + 0.12, 'cerrojo'], [P3 + 0.3, 'maquina'], [a(0.88), 'arranque'], [a(0.965) + 0.05, 'golpecito'],
+  [b(0.068), 'papel'], [b(0.23), 'brillo'], [b(0.62) + 0.35, 'toc'], [b(0.62) + 0.7, 'toc'], [b(0.733), 'golpecito'],
+  [b(0.813) + 0.3, 'cerrojo'], [b(0.859), 'zumbido'], [b(0.945), 'cerrojo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
 </script>
 </body>

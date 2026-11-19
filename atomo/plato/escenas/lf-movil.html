@@ -13,13 +13,15 @@
 // 1. movil 'feed': el pulgar desliza los vídeos verticales (tienda → piscina → playa) y da un doble toque en «game»;
 // 2. cayos 'cayo' (2.º uso): al ocaso, los turistas del paseo alzan el móvil en vertical en «shot on phones» y, en «scroll», lo bajan y
 //    deslizan; pasa la patinadora; corta en «and one of them»;
-// 3. movil 'causeway': el coche entra con la bailarina en el techo, pequeña; baila en «dancing», gira en «moving car»; doble toque en «exists»;
+// 3. movil 'causeway': el coche entra con la bailarina en el techo, pequeña; baila en «dancing», gira en «moving car»; el pulgar sube y
+//    da el doble toque en «exists»;
 // 4. LOCAL la bahía de Biscayne al ocaso (2017): el puente de Miami (rascacielos, crucero en el puerto) a Miami Beach; un visor vertical con
 //    su punto rojo sigue al coche blanco en «filmed»; chinchetas en «Miami» y «Miami Beach»; pelícano en la baliza del canal, velero delante;
 // 5. LOCAL la mesa de una periodista de videojuegos: el contador de compartidos sube en «spread»; en «trailer's» se enciende el otro
 //    monitor con la versión del tráiler (franjas de cine); en «shot-for-shot» los dos pasan los mismos fotogramas y sale un «=» enorme;
 // 6. LOCAL la entrada de cristal de unas oficinas: la reportera llama al portero en «Why»; en «hasn't said» bajan las persianas y la luz se
 //    pone roja; en «always worked this way» se encienden una a una las cajas de la vitrina;
+//    un vecino llega por la acera y se queda junto al directorio deslizando el móvil; por la calle pasa un coche;
 // 7. vicecity 'playa' + o.espejo (2.º uso de playa): en «exaggerates» entra el espejo de feria; en «laugh at ourselves» los dos se ríen;
 // 8. tienda 'autoservicio' (2.º uso): en «renames» el empleado repinta el cartel de la ciudad (otro dibujo) y en «brands» el letrero del
 //    poste da la vuelta y sale otra marca.
@@ -102,6 +104,10 @@ const p3 = (t) => {
   const baila = t > dancing, b = Math.floor((t - dancing) * 4) % 4;
   R.actor(EL.bailarinaLF, c.techo[0] - 7, c.techo[1], t, { dir: t > gira ? -1 : 1, sonrisa: true, brazos: baila && b % 2 === 0, dedo: baila && b === 1 });
   T.movilDelante(R, t, o);
+  // el pulgar sube desde abajo y da el doble toque del «me gusta» (en «exists»)
+  const entra = tramo(t, like2 - 1.1, like2 - 0.5) - tramo(t, like2 + 0.5, like2 + 1.0);
+  const toque = t > like2 - 0.15 && t < like2 + 0.3 ? Math.round(Math.abs(Math.sin((t - like2) * 18)) * 3) : 0;
+  if (entra > 0.02) { const hy = Math.round(lerp(206, 160 - toque, ease(entra))); T.brazo(R, 132, 206, 140, hy, '#3a7ad0', 1, { codo: [134, Math.round((206 + hy) / 2) + 2] }); }
 };
 
 // ── 4. la bahía de Biscayne al ocaso (2017): el puente de Miami a Miami Beach ──
@@ -354,6 +360,9 @@ const p6 = (t) => {
   const r = R.actor(EL.periodistaLF, x, 160, t, { dir: mira ? -1 : 1, anda: w > 0 && w < 1, sostiene: pulsa ? [221, 136] : señala ? false : true, dedo: señala, triste: mira, sorpresa: t > calla && t < calla + 0.3, sonrisa: señala });
   if (!pulsa && !señala) { const [mx, my] = r.mano; R.rect(mx, my - 6, mx, my, H('#5a5a64')); R.disco(mx, my - 7, 2, K); R.pset(mx - 1, my - 8, H('#8a8a94')); }
   if (t > llama + 0.3 && t < calla + 1.4) { const by = 116 - Math.round(pulso(t, llama + 0.3, 0.4) * 3); caja(x - 2, by - 14, x + 16, by + 4, H('#ffffff')); R.poligono([[x + 4, by + 4], [x + 9, by + 4], [x + 5, by + 8]], K); R.pset(x + 6, by + 5, H('#ffffff')); R.icono('?', x + 2, by - 12, H('#3a6ad8'), H('#a8c0e8'), 2); }
+  // un vecino pasa por la acera mirando el móvil (desliza el dedo), por delante de la fachada
+  { const vu = ease(tramo(t, P6 + 0.2, P6 + 1.8)), vx = Math.round(lerp(-16, 46, vu)), alza = t > calla && t < calla + 0.9;
+    const rv = R.actor(EL.ciudadanoLF, vx, 164, t, { dir: 1, anda: vu > 0 && vu < 1, sostiene: [vx + 10, 161], sorpresa: alza, sonrisa: t > always + 0.4 }); movilMano(rv.mano[0], rv.mano[1], t, 'feed'); }
   // un coche que pasa por la calle, por delante
   const cc = tramo(t, P6 + 3.4, P6 + 5.6); if (cc > 0 && cc < 1) T.f_cocheMovil(R, Math.round(lerp(350, -40, cc)), 178, t, { dir: -1, color: '#3a6ad8' });
 };
@@ -409,7 +418,7 @@ const p8 = (t) => {
 };
 
 const efectos = [[s1, 'whoosh'], [like1, 'golpecito'], [s2, 'whoosh'], [alza, 'bip'], [P3 + 0.2, 'coche'], [like2, 'pop'],
-  [filmed, 'bip'], [pinMiami, 'golpecito'], [trailers, 'bip'], [sfs, 'brillo'], [llama, 'timbre'], [calla, 'cerrojo'], [always, 'interruptor'],
+  [filmed, 'bip'], [P4 + 0.3, 'viento'], [filmed + 0.9, 'claxon'], [spread, 'pop'], [P6 + 4.3, 'coche'], [pinMiami, 'golpecito'], [trailers, 'bip'], [sfs, 'brillo'], [llama, 'timbre'], [calla, 'cerrojo'], [always, 'interruptor'],
   [exag, 'boing'], [renames + 0.1, 'lapiz'], [brands, 'whoosh']];
 const año = (t) => (t < P4 ? 2023 : t < gaming ? 2017 : t < P6 ? 2023 : 2026);
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { cartela: '2017', efectos, año });

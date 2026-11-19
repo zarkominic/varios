@@ -10,29 +10,53 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // LF-HOLA (frase 3), 2026. Un plano: el salón de Atom de noche, con la barra de descarga en la tele. En «I'm Atom» la
-// mano de Atom sube y saluda; en «wondered» la barra avanza un punto; en «Let's find out» la mano pulsa el mando de la
-// mesita y la barra da otro salto.
+// mano de Atom sube por la derecha y saluda; por la ventana pasa un avión con su luz que parpadea y en la lámpara revolotea
+// una polilla; en «wondered» la barra avanza un punto (pitido) y la tele echa un destello; en «Let's find out» la mano
+// coge el mando de la mesita, lo pulsa apuntando a la tele (clic) y la barra da otro salto.
 import * as T from '/atomo/plato/escenas/lf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lf-hola');
 const { tramo, lerp, hex } = R;
 const en = (k, f) => T.momento(M, k, f);
 const H = (f) => en('hola', f);
-const ATOM = H(0.0437), WOND = H(0.588), FIND = H(0.8335), MANGA = '#3a4a8a';
+const ATOM = H(0.0437), WOND = H(0.588), FIND = H(0.8335), MANGA = '#3a4a8a', K = T.C.k;
+// el avión que cruza la ventana de noche (recortado a su hueco): fuselaje oscuro y luces que parpadean
+const avion = (t) => {
+  const u = tramo(t, 0.3, 5.4); if (u <= 0 || u >= 1) return;
+  const x = Math.round(lerp(318, 262, u)), y = Math.round(66 + u * 6);
+  R.recorte([267, 53, 313, 121]);
+  R.linea(x - 4, y, x + 4, y, hex('#2a2a3a')); R.linea(x - 1, y - 1, x + 2, y + 1, hex('#2a2a3a'));
+  if (Math.floor(t * 2.2) % 2) { R.pset(x - 4, y, hex('#ff5a4a')); R.pset(x + 4, y, hex('#5aff8a')); }
+  if (Math.floor(t * 3.1) % 3 === 0) R.pset(x, y - 1, hex('#ffffff'));
+  R.recorte(null);
+};
+// la polilla que revolotea alrededor de la pantalla de la lámpara
+const polilla = (t) => {
+  const x = Math.round(133 + Math.sin(t * 2.3) * 9 + Math.sin(t * 7.1) * 2), y = Math.round(86 + Math.cos(t * 3.1) * 5);
+  const ala = Math.floor(t * 14) % 2;
+  R.pset(x, y, hex('#5a4a3a')); R.pset(x - 1, y - ala, hex('#d8ccb0')); R.pset(x + 1, y - ala, hex('#d8ccb0'));
+};
 const p1 = (t) => {
   const pulsa = tramo(t, FIND - 0.05, FIND + 0.1);
   const o = { encuadre: 'salon', descarga: 11 + (t > WOND ? 1 : 0) + (pulsa >= 1 ? 1 : 0) };
-  T.salon(R, t, o);
+  const g = T.salon(R, t, o) || {};
+  avion(t);
+  polilla(t);
+  // en «wondered» y al pulsar, la tele echa un destello en el borde de su pantalla
+  const [x0, y0, x1, y1] = g.pantalla ?? [153, 49, 247, 101];
+  for (const c of [WOND, FIND + 0.1]) { const d = 1 - tramo(t, c, c + 0.35); if (t > c && d > 0) { const n = Math.round(d * 30);
+    for (let k = 0; k < n; k++) { R.pset(x0 + 2 + k * 3, y0 + 1, hex('#fff6d8')); R.pset(x1 - 2 - k * 3, y1 - 1, hex('#fff6d8')); } } }
   T.salonDelante(R, t, o);
-  // el saludo: el brazo sube por la derecha, la mano se mece y se baja
-  const s = tramo(t, ATOM - 0.4, ATOM + 0.1) * (1 - tramo(t, ATOM + 1.6, ATOM + 2.2));
-  if (s > 0) { const wx = 290 + Math.round(Math.sin(t * 10) * 4 * (s >= 1 ? 1 : 0)), wy = Math.round(lerp(204, 148, s)); T.brazo(R, 316, wy + 50, wx, wy, MANGA, -1); }
+  // el saludo: el brazo sube en diagonal por la derecha, la mano se mece tres veces y baja
+  const s = tramo(t, ATOM - 0.25, ATOM + 0.3) * (1 - tramo(t, ATOM + 1.9, ATOM + 2.5));
+  if (s > 0) { const mece = s >= 1 ? Math.sin((t - ATOM) * 9) : 0, wx = Math.round(286 + mece * 4), wy = Math.round(lerp(200, 140, s) - Math.abs(mece) * 2);
+    T.brazo(R, 330, wy + 46, wx, wy, MANGA, -1, { codo: [314, wy + 22] }); }
   // «Let's find out»: la mano coge el mando de la mesita y lo pulsa apuntando a la tele
   const m = tramo(t, FIND - 0.7, FIND - 0.1) * (1 - tramo(t, E.duracion - 0.6, E.duracion));
   if (m > 0) { const wx = Math.round(lerp(200, 170, m)), wy = Math.round(lerp(200, 164, m) - (t > FIND && t < FIND + 0.15 ? 1 : 0)); T.brazo(R, 214, 214, wx, wy, MANGA, -1, { codo: [218, 192] });
     if (pulsa > 0 && pulsa < 1) for (let k = 1; k < 4; k++) R.pset(wx - 16 - k * 3, wy - 6 - k * 3, hex('#ff6a5a')); }
 };
-T.rodar(E, R, [[0, p1]], { efectos: [[WOND, 'bip'], [FIND, 'interruptor']], año: 2026 });
+T.rodar(E, R, [[0, p1]], { efectos: [[ATOM, 'whoosh'], [WOND, 'bip'], [FIND, 'interruptor'], [FIND + 0.9, 'bip']], año: 2026 });
 </script>
 </body>
 </html>

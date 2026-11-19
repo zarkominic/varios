@@ -10,21 +10,29 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // LF-GANCHO (frases 1–2). Siete planos; la barra dice 2018 hasta el mapa y 2026 desde «Today».
-// 1. (0) la cámara de seguridad del techo de una tienda de gasolinera a las 3:41: un caimán se acerca por fuera, las
-//    puertas automáticas se abren solas en «wanders into» y entra; el dependiente da un respingo y lo señala.
-// 2. («strolls») el pasillo, por la misma cámara: el caimán pasa con las neveras al fondo y se para delante del cajón de
-//    patatas (golpe de la música en «first GTA 6 trailer»); mira, abre la boca «como quien elige» y le cae una bolsa (gag 4).
-// 3. («something») INSERTO: el mapa de papel con Florida; cae la polaroid de la cámara de seguridad; en «really happened»
-//    cae y se clava la chincheta en el condado de Manatee (late); en «Florida» un círculo de lápiz rodea la península;
-//    en «2018», el sello con el 2018.
-// 4. («Today») la mesita del salón de Atom: el calendario de mesa pasa del 18 al 19 en «November 19»; la mano de Atom
-//    abre la caja en «GTA 6 is finally out» (dentro solo la tarjetita del código), la sacude en «two delays» y sale un «?» (gag 1).
-// 5. («It takes place») Ocean Drive de noche, con los neones: la patinadora cruza; un turista llega y hace una foto con
-//    flash en «Florida».
-// 6. («So today») la carretera sobre el mar al atardecer: el turista llega a una señal de cruce de caimanes, la señala en
-//    «alligators» y en «highway over the sea» abre los brazos hacia el puente y sigue.
-// 7. («its strange headlines») Britton Hill: un periódico vuela con el viento; el turista sube el montículo de un paso en
-//    «mountain» y le sale un «?» en «doesn't exist».
+// 1. (0) la cámara de seguridad de la tienda a las 3:41: el dependiente lee una revista (pasa páginas); fuera, tras el
+//    cristal, el caimán se acerca y las puertas automáticas se abren en «wanders into»; entra y baja hacia la góndola;
+//    por el cristal pasa un coche lejano con los faros; en «night» el dependiente da un respingo, se le cae la revista
+//    tras el mostrador y señala al caimán hablando.
+// 2. («strolls») el pasillo, por la misma cámara: al fondo el dependiente friega delante de las neveras; el caimán entra
+//    y se para ante el cajón de patatas en «first GTA 6 trailer»; el dependiente lo ve, salta y se aparta con la fregona
+//    en alto; el caimán abre la boca «como quien elige», le cae una bolsa (gag 4) y la empuja con el morro.
+// 3. («something») INSERTO: el mapa de papel con Florida y la taza que humea en la esquina; cae la polaroid de la cámara;
+//    en «really happened» (el golpe de la música, caiman+9,8) se clava la chincheta en Manatee con dos ondas y la polaroid
+//    da un brinco; sale el hilo rojo; en «Florida» llega un lápiz que traza el círculo y se va; en «2018» el tampón de
+//    madera entra, estampa el 2018 y se va.
+// 4. («Today») la mesita del salón de Atom: el calendario pasa del 18 al 19 en «November 19» (la hoja sale volando); la
+//    mano de Atom abre la caja en «GTA 6 is finally out» (solo la tarjetita del código), la sacude en «two delays» (saltan
+//    cuatro palomitas del bol a la mesa) y sale un «?» (gag 1).
+// 5. («It takes place») Ocean Drive de noche: el chico señala los neones en «Leonida» hablando y la chica se gira a
+//    mirarlos; el turista llega y hace una foto con flash en «Florida» (pitido antes); la chica se sorprende y sonríe; la
+//    patinadora cruza.
+// 6. («So today») la carretera sobre el mar al atardecer: el turista llega a la señal de cruce de caimanes, la señala con
+//    un «!» en «alligators», en «highway over the sea» abre los brazos y un pelícano llega volando y se posa en la señal;
+//    el turista sigue su camino.
+// 7. («its strange headlines») Britton Hill: un periódico y una hoja suelta vuelan con el viento; el excursionista del
+//    panel se gira; el turista sube el montículo de un paso en «mountain» (el excursionista lo señala) y le sale un «?» en «doesn't
+//    exist» mientras él se encoge de hombros.
 import * as T from '/atomo/plato/escenas/lf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lf-gancho');
@@ -51,9 +59,19 @@ const p1 = (t) => {
   // dentro: baja por delante de las cestas y del cartel de suelo mojado y se va hacia la góndola
   const u = tramo(t, PUERTA + 0.3, P2 + 0.3);
   if (u0 >= 1) { const [x, y] = camino([[28, 108], [46, 128], [92, 150], [150, 160]], u); T.a_caiman(R, Math.round(x), Math.round(y), t, { dir: 1, anda: u < 1, s: 1.6 }); }
-  // el dependiente detrás del mostrador: lee algo; en «night» lo ve, da un respingo y lo señala
+  // por el cristal, lejos, un coche que pasa por la carretera con los faros (recortado al hueco)
+  const cu = tramo(t, 1.7, 3.5);
+  if (cu > 0 && cu < 1) { R.recorte([9, 42, 57, 103]); const cx = Math.round(lerp(72, -26, cu));
+    for (let k = 0; k < 4; k++) R.linea(cx - 11 + k * 3, 60 - k, cx - 26 + k * 3, 60 - k, hex('#d8e8b8'));   // el haz de los faros
+    R.linea(cx - 1, 58, cx + 9, 58, hex('#1e2a22')); R.linea(cx - 2, 59, cx + 11, 59, hex('#2a3a30')); R.linea(cx - 2, 60, cx + 11, 60, hex('#2a3a30'));
+    R.pset(cx - 2, 59, hex('#f0f8d0')); R.pset(cx + 11, 60, hex('#a83a2a')); R.pset(cx + 1, 61, K); R.pset(cx + 8, 61, K); R.recorte(null); }
+  // el dependiente detrás del mostrador: lee una revista; en «night» lo ve, da un respingo, se le cae la revista y lo señala
   const ve = A(0.2416), salta = tramo(t, ve, ve + 0.15) * (1 - tramo(t, ve + 0.15, ve + 0.4));
-  R.actor(EL.dependienteLF, 262, 130, t, { dir: -1, sorpresa: t > ve, salto: Math.round(salta * 4), dedo: t > ve + 0.45, habla: t > ve + 0.6 && Math.sin(t * 9) > 0 });
+  const lee = t < ve, hoja = lee && (t % 2.2) > 1.9;   // pasa una página de vez en cuando
+  const dp = R.actor(EL.dependienteLF, 262, 130, t, { dir: -1, sostiene: lee ? [252, 116] : undefined, sorpresa: t > ve, salto: Math.round(salta * 4), dedo: t > ve + 0.45, habla: t > ve + 0.6 && Math.sin(t * 9) > 0 });
+  const rev = (x, y) => { R.rect(x - 4, y - 5, x + 4, y + 4, K); R.rect(x - 3, y - 4, x + 3, y + 3, hex('#d8e0c8')); R.rect(x - 3, y - 4, x + 3, y - 2, hex('#8a9a7a')); R.pset(x - 1, y, hex('#6a7a5a')); R.pset(x + 1, y + 1, hex('#6a7a5a')); R.linea(x, y - 4, x, y + 3, hex('#9aa88a')); };
+  if (lee && dp && dp.mano) { const [mx, my] = dp.mano; rev(mx, my); if (hoja) R.linea(mx + 1, my - 4, mx + 3, my + 2, BL); }
+  else { const c = tramo(t, ve + 0.05, ve + 0.45); if (c < 1) rev(252 - Math.round(c * 3), 116 + Math.round(c * c * 22)); }   // cae tras el mostrador
   T.tiendaDelante(R, t, o);
 };
 // ── 2. El pasillo: el caimán se para delante de las patatas (gag 4) ──
@@ -65,6 +83,14 @@ const p2 = (t) => {
   const elige = t > GOLPE + 0.25 && t < GOLPE + 1.0 ? (Math.sin((t - GOLPE) * 6) > 0.3 ? 0.6 : 0) : 0;
   const cae = tramo(t, GOLPE + 1.05, GOLPE + 1.35), bx = Math.round(lerp(214, 204, cae)), by = Math.round(lerp(124, 164, cae * cae));
   const empuja = tramo(t, GOLPE + 1.6, GOLPE + 2.2);
+  // al fondo, delante de las neveras, el dependiente friega; en «trailer» ve al caimán, da un salto y se aparta con la fregona en alto
+  const ve2 = GOLPE + 0.3, atras = tramo(t, ve2 + 0.5, ve2 + 1.6), dx = Math.round(176 + atras * 16 + (t < ve2 ? Math.sin(t * 3) * 3 : 0));
+  const sal2 = tramo(t, ve2, ve2 + 0.12) * (1 - tramo(t, ve2 + 0.12, ve2 + 0.35));
+  const dq = R.actor(EL.dependienteLF, dx, 141, t, { dir: -1, anda: (t < ve2) || (atras > 0 && atras < 1), sostiene: [dx - 8, 126], sorpresa: t > ve2, salto: Math.round(sal2 * 4) });
+  if (dq && dq.mano) { const [mx, my] = dq.mano, alza = tramo(t, ve2, ve2 + 0.3), fx = Math.round(mx - 5 + (t < ve2 ? Math.sin(t * 6) * 3 : 0)), fy = Math.round(lerp(140, 118, alza));
+    R.linea(mx + 2, my - 6 + Math.round(alza * 2), fx, fy - 1, hex('#8a7a5a')); R.linea(mx + 3, my - 6 + Math.round(alza * 2), fx + 1, fy - 1, hex('#5a4a34'));
+    for (let k = -3; k <= 3; k++) R.linea(fx + k, fy, fx + k + (k % 2), fy + 2, k % 2 ? hex('#c8ccb8') : hex('#9aa08a'));
+    if (t < ve2) R.pset(fx + 4 + Math.round(Math.sin(t * 6)), 140, hex('#d8e4cc')); }   // el brillo de lo fregado
   T.a_caiman(R, x + Math.round(empuja * 6), 168, t, { dir: 1, anda: (u > 0 && u < 1) || (empuja > 0 && empuja < 1), boca: elige || (t > GOLPE + 1.35 && t < GOLPE + 1.6 ? 0.5 : 0), s: 2.2 });
   // la bolsa de patatas que cae del cajón (roja, con su brillo y su pliegue de arriba)
   if (t > GOLPE + 1.0) { const bx2 = bx + Math.round(empuja * 8); R.rect(bx2 - 1, by - 19, bx2 + 14, by, K); R.rect(bx2, by - 18, bx2 + 13, by - 1, hex('#f8e870')); R.rect(bx2, by - 18, bx2 + 13, by - 16, hex('#d83a2a')); R.rect(bx2, by - 3, bx2 + 13, by - 1, hex('#d83a2a'));
@@ -84,11 +110,36 @@ const polaroid = (x, y, t) => {
   R.recorte(null);
   R.linea(x + 4, y + 35, x + 22, y + 35, hex('#c8c4b4')); R.linea(x + 4, y + 37, x + 16, y + 37, hex('#c8c4b4'));
 };
+// la taza de café que humea en la esquina del mapa
+const taza = (x, y, t) => {
+  R.disco(x + 2, y + 2, 7, hex('#7a6a4a')); R.disco(x, y, 7, K); R.disco(x, y, 6, hex('#e8e0cc')); R.disco(x, y, 4, hex('#5a3a22')); R.disco(x - 1, y - 1, 2, hex('#7a4a2a'));
+  R.pset(x - 4, y - 3, BL); R.rect(x + 6, y - 1, x + 9, y + 1, K); R.pset(x + 7, y, hex('#e8e0cc'));
+  for (let k = 0; k < 3; k++) { const u = ((t * 0.6 + k / 3) % 1), yy = Math.round(y - 6 - u * 22), xx = Math.round(x - 2 + k * 2 + Math.sin(t * 2 + k * 2 + u * 5) * 3);
+    if (u < 0.85) { R.pset(xx, yy, hex('#f4f0e4')); if (u < 0.5) R.pset(xx, yy - 1, hex('#e0dccc')); } }
+};
+// el lápiz amarillo con la punta en (x, y), inclinado hacia arriba a la derecha
+const lapiz = (x, y) => {
+  for (let i = 0; i <= 15; i++) { const px = x + Math.round(i * 0.65), py = y - i; R.pset(px - 1, py, K); R.pset(px + 2, py, K);
+    const c = i < 3 ? (i < 1 ? hex('#3a3a3a') : hex('#e8c89a')) : i > 13 ? hex('#e88aa0') : i === 13 ? hex('#b8b8c0') : hex('#f2c818'); R.pset(px, py, c); R.pset(px + 1, py, i > 2 && i < 13 ? hex('#c89a10') : c); }
+  R.pset(x + 2, y + 2, hex('#5a4a34'));
+};
+// el tampón de madera (la goma abajo en y, centrado en x): mango redondo, cuello y base
+const tampon = (x, y) => {
+  R.rect(x - 1, y - 28, x + 47, y + 4, hex('#5a4a34'));   // la sombra
+  R.rect(x - 43, y - 31, x + 43, y, K); R.rect(x - 42, y - 30, x + 42, y - 1, hex('#8a5a2a')); R.rect(x - 42, y - 30, x + 42, y - 28, hex('#b07a3a')); R.rect(x + 36, y - 27, x + 42, y - 4, hex('#6a4220'));
+  R.rect(x - 42, y - 3, x + 42, y - 1, hex('#6a0a12'));
+  for (let k = 0; k < 5; k++) R.linea(x - 38 + k * 3, y - 24 + k * 4, x + 30 - k * 5, y - 24 + k * 4, hex('#7a4a22'));   // las vetas
+  R.rect(x - 6, y - 42, x + 6, y - 31, K); R.rect(x - 5, y - 41, x + 5, y - 32, hex('#6a4a2a')); R.rect(x - 5, y - 41, x - 3, y - 32, hex('#8a6a3a'));
+  R.disco(x, y - 48, 8, K); R.disco(x, y - 48, 7, hex('#a06a32')); R.disco(x - 2, y - 50, 3, hex('#c88a4a')); R.pset(x - 3, y - 51, hex('#f0c080'));
+};
 const p3 = (t) => {
   const P = T.mapa(R, t, { zoom: 5.2, centro: [-83.4, 27.6] });
   const [px, py] = P([-82.40, 27.42]).map(Math.round);
   // la polaroid de la cámara de seguridad cae sobre el golfo
-  const cae = tramo(t, P3 + 0.1, P3 + 0.55), qx = 26, qy = Math.round(lerp(40, 88, cae));
+  // el golpe de «really happened»: la chincheta se clava, salen dos ondas y la polaroid da un brinco
+  const gol = t - REALLY, bote = gol > 0 && gol < 0.35 ? Math.round(Math.sin(gol / 0.35 * Math.PI) * 3) : 0;
+  const cae = tramo(t, P3 + 0.1, P3 + 0.55), qx = 26, qy = Math.round(lerp(40, 88, cae)) - bote;
+  taza(296, 162, t);
   if (cae > 0) polaroid(qx, qy, t);
   // el hilo rojo de la foto a la chincheta
   const hilo = tramo(t, REALLY + 0.1, REALLY + 0.7);
@@ -97,15 +148,29 @@ const p3 = (t) => {
   // en «Florida», el círculo de lápiz que rodea la península
   const circ = tramo(t, FLORIDA - 0.1, FLORIDA + 0.5), [cx, cy] = P([-81.6, 27.6]).map(Math.round);
   for (let a = 0; a < circ * 6.2; a += 0.025) { const x = Math.round(cx + Math.cos(a - 1.4) * 52), y = Math.round(cy + Math.sin(a - 1.4) * 64); R.pset(x, y, hex('#2a3a7a')); R.pset(x + 1, y, hex('#4a5a9a')); }
+  // el lápiz que dibuja el círculo: llega desde abajo a la derecha, lo traza y se va
+  const lv = tramo(t, FLORIDA - 0.6, FLORIDA - 0.1), lf = tramo(t, FLORIDA + 0.55, FLORIDA + 1.0);
+  if (lv > 0 && lf < 1) { const a = circ * 6.2 - 1.4, x0 = cx + Math.cos(-1.4) * 52, y0 = cy + Math.sin(-1.4) * 64;
+    let lx = circ > 0 ? cx + Math.cos(a) * 52 : lerp(330, x0, lv), ly = circ > 0 ? cy + Math.sin(a) * 64 : lerp(120, y0, lv);
+    if (lf > 0) { lx = lerp(lx, 330, lf); ly = lerp(ly, 130, lf); }
+    lapiz(Math.round(lx), Math.round(ly)); }
   // la chincheta cae del cielo del mapa con su sombra y se clava en «really happened»; luego late
-  T.chincheta(R, px, py, t, ROJO, { baja: tramo(t, REALLY - 0.3, REALLY), pulso: t > REALLY + 0.3 });
+  T.chincheta(R, px, py, t, ROJO, { baja: tramo(t, REALLY - 0.3, REALLY), pulso: t > REALLY + 0.6 });
+  if (gol > 0 && gol < 0.5) for (const [d, c] of [[0, BL], [0.15, ROJO]]) { const u = tramo(gol, d, d + 0.35), r = 3 + u * 22;
+    if (u > 0 && u < 1) for (let a = 0; a < 6.28; a += 0.12) R.pset(Math.round(px + Math.cos(a) * r), Math.round(py + Math.sin(a) * r * 0.6), c); }
+  if (gol > 0 && gol < 0.3) for (let k = 0; k < 6; k++) { const a = k * 1.05 + 0.3, r = 5 + gol * 30; R.pset(Math.round(px + Math.cos(a) * r), Math.round(py + Math.sin(a) * r * 0.6), hex('#5a4a34')); }
   // en «2018», el sello rojo del año sobre el Atlántico
-  const s = tramo(t, Y2018 - 0.08, Y2018 + 0.08);
-  if (s > 0) { const x0 = 92, y0 = 158, sh = Math.round((1 - s) * 6);
+  const s = t >= Y2018 ? 1 : 0;
+  if (s > 0) { const x0 = 92, y0 = 158, sh = 0;
     for (const [a, b] of [[x0 - 4 - sh, y0 - 22 - sh], [x0 + 74 + sh, y0 + 6 + sh]]) R.pset(a, b, ROJO);
     R.rect(x0 - 4 - sh, y0 - 22 - sh, x0 + 74 + sh, y0 - 21 - sh, ROJO); R.rect(x0 - 4 - sh, y0 + 5 + sh, x0 + 74 + sh, y0 + 6 + sh, ROJO);
     R.rect(x0 - 4 - sh, y0 - 22 - sh, x0 - 3 - sh, y0 + 6 + sh, ROJO); R.rect(x0 + 73 + sh, y0 - 22 - sh, x0 + 74 + sh, y0 + 6 + sh, ROJO);
     R.numero('2018', x0 + 35, y0, { tam: 16, centro: true, rampa: [hex('#6a0a12'), hex('#a01a22'), hex('#d02a2a'), hex('#f05a4a')] }); }
+  // el tampón de madera baja, estampa el 2018 en el «2018» de la voz y vuelve a subir
+  // (entra desde abajo a la derecha, se coloca encima, baja, sube y se va por donde vino)
+  const ll = tramo(t, Y2018 - 0.75, Y2018 - 0.25), ba = tramo(t, Y2018 - 0.25, Y2018), su = tramo(t, Y2018 + 0.15, Y2018 + 0.35), va = tramo(t, Y2018 + 0.35, Y2018 + 0.85);
+  if (ll > 0 && va < 1) { let sx = lerp(390, 127, ll), sy = lerp(230, 128, ll); sy = lerp(sy, 165, ba * ba); sy = lerp(sy, 132, su); sx = lerp(sx, 390, va * va); sy = lerp(sy, 240, va * va);
+    tampon(Math.round(sx), Math.round(sy)); }
 };
 // ── 4. La mesita del salón: el calendario pasa al 19; la caja solo trae un código (gag 1) ──
 const calendario = (t) => {
@@ -124,6 +189,11 @@ const p4 = (t) => {
   const o = { encuadre: 'salon', camara: 'mesa', abierta: ab, sacude: sac };
   const g = T.salon(R, t, o) || {};
   calendario(t);
+  // con la sacudida tiembla la mesa: saltan cuatro palomitas del bol y caen en la madera, junto al bol
+  const [pbx, pby] = g.palomitas ?? [62, 122];
+  for (let k = 0; k < 4; k++) { const t0 = DELAYS + 0.1 + k * 0.28, u = tramo(t, t0, t0 + 0.5); if (u <= 0) continue;
+    const lx = pbx - 14 + k * 11 + (k % 2 ? 4 : -2), x = Math.round(lerp(pbx - 6 + k * 4, lx, u)), y = Math.round(lerp(pby - 6, pby + 22 + (k % 2) * 3, u) - Math.sin(u * Math.PI) * 16);
+    R.disco(x, y, 2, K); R.pset(x, y, hex('#fff6d8')); R.pset(x - 1, y, hex('#f8e8b0')); R.pset(x + 1, y - 1, hex('#f8e8b0')); R.pset(x, y + 1, hex('#e8b84a')); }
   T.salonDelante(R, t, o);
   // la mano de Atom: entra por abajo, coge la caja por el canto y no la suelta hasta el «?»
   const [mx, my0] = g.manoCaja ?? [164, 126], my = my0 + 14, m = tramo(t, P4 + 0.2, SALE - 0.2) * (1 - tramo(t, TRES + 0.5, P5 - 0.2));
@@ -138,8 +208,9 @@ const p5 = (t) => {
   const o = { encuadre: 'ocean', noche: 1 };
   T.vicecity(R, t, o);
   const pa = tramo(t, P5 + 0.3, P6 - 0.4);
-  R.actor(EL.fanaLF, 196, 158, t, { dir: -1, habla: t < FLA && Math.sin(t * 7) > 0.2, sonrisa: t > FLA });
-  R.actor(EL.fanLF, 180, 158, t, { dir: 1, sonrisa: true, dedo: t > FLA + 0.3 && t < FLA + 1.2 });
+  const LEO = L(0.345);
+  R.actor(EL.fanaLF, 196, 158, t, { dir: t > LEO + 0.3 && t < FLA - 0.4 ? 1 : -1, habla: t < LEO && Math.sin(t * 7) > 0.2, sorpresa: t > FLA && t < FLA + 0.5, sonrisa: t > FLA + 0.5 });
+  R.actor(EL.fanLF, 180, 158, t, { dir: 1, sonrisa: true, dedo: (t > LEO && t < LEO + 1.4) || (t > FLA + 0.5 && t < FLA + 1.2), habla: t > LEO && t < LEO + 1.4 && Math.sin(t * 8) > 0 });
   const tu = tramo(t, P5 + 0.1, FLA - 1.1), tx = Math.round(lerp(-16, 120, tu)), foto = t > FLA - 0.6;
   const tr = R.actor(EL.turistaLF, tx, 160, t, { dir: 1, anda: tu > 0 && tu < 1, sostiene: foto ? true : undefined, sonrisa: t > FLA });
   if (foto && tr && tr.mano) { const [hx1, hy1] = tr.mano; R.rect(hx1 - 2, hy1 - 3, hx1 + 3, hy1 + 1, K); R.rect(hx1 - 1, hy1 - 2, hx1 + 2, hy1, hex('#5a5a66'));
@@ -164,12 +235,16 @@ const p6 = (t) => {
   R.actor(EL.turistaLF, x, 150, t, { dir: 1, anda, dedo: t > GATOR - 0.1 && t < HIGH, sorpresa: t > GATOR - 0.1 && t < GATOR + 0.6, brazos: t > HIGH && t < HIGH + 0.9, sonrisa: t > HIGH });
   const e = tramo(t, GATOR - 0.1, GATOR + 0.15) * (1 - tramo(t, GATOR + 0.9, GATOR + 1.2));
   if (e > 0) { R.disco(x + 8, 116 - Math.round(e * 4), 5, K); R.disco(x + 8, 116 - Math.round(e * 4), 4, BL); R.icono('!', x + 5, 113 - Math.round(e * 4), ROJO, K, 1); }
+  // un pelícano llega volando desde la derecha y se posa en lo alto de la señal cuando el turista abre los brazos
+  const POSA = HIGH + 0.45, pv = tramo(t, HIGH - 1.1, POSA);
+  if (pv > 0 && pv < 1) T.b_pelicano(R, Math.round(lerp(338, 207, pv)), Math.round(lerp(56, 96, pv * pv) - Math.sin(pv * Math.PI) * 6), t, { dir: -1, vuela: true, aleteo: pv > 0.7 || pv < 0.2 });
+  else if (pv >= 1) T.b_pelicano(R, 207, 96 - (t < POSA + 0.15 ? 1 : 0), t, { dir: -1 });
   T.cayosDelante(R, t, o);
 };
 // ── 7. Britton Hill: el periódico que vuela y la montaña que no está ──
-const periodico = (t, u) => {
-  const x = Math.round(lerp(10, 340, u)), y = Math.round(112 + Math.sin(u * 9) * 12 - u * 24), f = Math.floor(t * 8) % 3;
-  const w = [22, 16, 7][f], h = [15, 17, 16][f];
+const periodico = (t, u, e = 1) => {   // e: tamaño (una hoja suelta, más pequeña)
+  const x = Math.round(lerp(10, 340, u)), y = Math.round(112 + Math.sin(u * 9) * 12 - u * 24 + (e < 1 ? 20 : 0)), f = Math.floor(t * 8) % 3;
+  const w = Math.round([22, 16, 7][f] * e), h = Math.round([15, 17, 16][f] * e);
   R.rect(x - 1, y - 1, x + w + 1, y + h + 1, K); R.rect(x, y, x + w, y + h, hex('#e8e4d8'));
   if (w > 8) { R.rect(x + 1, y + 1, x + w - 1, y + 2, hex('#3a3a46')); for (let k = 4; k < h - 1; k += 2) R.linea(x + 1, y + k, x + (k % 4 ? w - 1 : Math.round(w / 2)), y + k, hex('#9a968a')); R.rect(x + w - 5, y + 4, x + w - 1, y + 7, hex('#7a8a6a')); }
   else R.linea(x + 1, y + 1, x + 1, y + h - 1, hex('#9a968a'));
@@ -178,16 +253,23 @@ const p7 = (t) => {
   const o = { encuadre: 'britton' };
   T.interior(R, t, o);
   const v = tramo(t, HEAD - 0.05, HEAD + 2.0); if (v > 0 && v < 1) periodico(t, v);
+  const v2 = tramo(t, HEAD + 0.5, HEAD + 2.3); if (v2 > 0 && v2 < 1) periodico(t + 0.2, v2 * 0.9 + 0.05, 0.6);
   const an = tramo(t, P7 + 0.2, MONTE - 0.05), sube = tramo(t, MONTE - 0.05, MONTE + 0.3);
   const x = Math.round(lerp(-16, 100, an) + sube * 54), suelo = Math.round(160 - sube * 10 - Math.sin(sube * Math.PI) * 6);
   const mira = t > NOEXISTE + 0.6 ? (Math.floor((t - NOEXISTE) * 1.6) % 2 ? -1 : 1) : 1;
   R.actor(EL.turistaLF, x, suelo, t, { dir: mira, anda: an > 0 && an < 1, sorpresa: t > NOEXISTE, brazos: t > MONTE + 0.3 && t < NOEXISTE });
   const q = tramo(t, NOEXISTE, NOEXISTE + 0.2);
   if (q > 0) { const yq = Math.round(lerp(130, 112, q)); R.disco(x + 8, yq, 7, K); R.disco(x + 8, yq, 6, BL); R.icono('?', x + 5, yq - 3, hex('#2a5ac8'), K, 1); }
+  // el excursionista del panel (delante del turista, que pasa por detrás): lee el panel, se gira, señala el montículo en
+  // «mountain» y en «doesn't exist» se encoge de hombros y sonríe
+  const gira = t > P7 + 0.9;
+  R.actor(EL.ciudadanoLF, 52, 167, t, { dir: gira ? 1 : -1, dedo: t > MONTE - 0.2 && t < NOEXISTE, brazos: t > NOEXISTE + 0.2, sonrisa: t > NOEXISTE + 0.2, habla: t > MONTE - 0.2 && t < NOEXISTE && Math.sin(t * 8) > 0 });
   T.interiorDelante(R, t, o);
 };
-const efectos = [[PUERTA, 'puerta'], [A(0.2416), 'aviso'], [GOLPE + 1.35, 'pop'], [P3 + 0.5, 'papel'], [REALLY, 'golpecito'], [FLORIDA, 'lapiz'], [Y2018, 'sello'],
-  [DIEZ9, 'papel'], [SALE + 0.1, 'cerrojo'], [DELAYS + 0.1, 'golpecito'], [TRES, 'pop'], [FLA, 'flash'], [GATOR, 'pop'], [HEAD, 'viento'], [MONTE + 0.25, 'boing'], [NOEXISTE, 'pop']];
+const efectos = [[PUERTA, 'puerta'], [2.0, 'toc'], [A(0.2416), 'aviso'], [A(0.2416) + 0.5, 'papel'], [P2 + 0.9, 'toc'], [GOLPE + 0.3, 'masca'], [GOLPE + 1.35, 'papel'],
+  [P3 + 0.5, 'papel'], [REALLY, 'golpecito'], [FLORIDA, 'lapiz'], [Y2018, 'sello'],
+  [DIEZ9, 'papel'], [SALE + 0.1, 'cerrojo'], [DELAYS + 0.1, 'golpecito'], [TRES, 'pop'], [FLA - 0.5, 'bip'], [FLA, 'flash'],
+  [P6 + 0.4, 'coche'], [GATOR, 'pop'], [HIGH + 0.45, 'toc'], [HEAD, 'viento'], [HEAD + 1.0, 'papel'], [MONTE + 0.25, 'boing'], [NOEXISTE, 'pop']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año: (t) => (t < P4 ? 2018 : 2026) });
 </script>
 </body>

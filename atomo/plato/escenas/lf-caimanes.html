@@ -11,35 +11,39 @@
 <script type="module">
 // LF-CAIMANES (frases 11–14), cartela «2018». Catorce planos:
 // 1. (cartela) la gasolinera de madrugada: una silueta sin cara llega desde lo oscuro con una caja de cartón de la que
-//    asoma una cola; la cámara del alero parpadea; entra por la puerta (2018).
+//    asoma una cola; se para bajo la cámara del alero, que parpadea, y entra por la puerta; al fondo pasa un coche con los
+//    faros y unas polillas rondan la luz (2018).
 // 2. «A convenience store's cameras…»: la tienda de color: la silueta entra, deja la caja junto a la puerta en «leaving»,
 //    sale el caimán pequeño en «small alligator» y la silueta se va; el dependiente se sobresalta.
 // 3. «The animal wandered the aisles…»: el pasillo: el caimán recorre el pasillo, se para ante el cajón de patatas, duda
-//    («?») y coge una bolsa con la boca (gag 4); en «arrived» llega el trampero con la pértiga, lo enlaza y se lo lleva.
+//    («?») y coge una bolsa con la boca (gag 4); en «arrived» llega el trampero con la pértiga, y detrás el dependiente, que
+//    señala el caimán; lo enlaza y se lo llevan.
 // 4. «The culprit… seventeen… prank»: inserto de un banco de garaje: una mano gira la manivela de la caja sorpresa; «17»;
 //    en «prank» salta el caimán de juguete con su muelle.
 // 5. «And years later… linked… trailer»: dos pantallas en un mueble: el monitor gris de la cámara con la grabación de la
 //    tienda; una mano enciende con el mando la tele de al lado en «linked», que da el mismo plano con franjas de cine; «=» y
 //    «?» que parpadean (2023).
 // 6. «a security camera, and an alligator walking into a store»: el tráiler (franjas de cine): la entrada de la tienda
-//    desde dentro; la cámara de la esquina gira y sigue al caimán, que entra por las puertas automáticas hacia nosotros.
+//    desde dentro; la cámara de la esquina gira y sigue al caimán, que entra por las puertas automáticas hacia nosotros; fuera
+//    pasa un coche; el dependiente (cabeza y hombros sobre el mostrador) se sobresalta.
 // 7. «Others tie it to different Florida gators…»: la terraza de un hotel de Miami: caimanes que asoman bajo la mesa,
 //    tras la máquina de refrescos y por los escalones; la patinadora salta uno; el turista hace una foto; «?» en «never said».
 // 8. «It wasn't the only alligator… In 2015…»: el autoservicio de noche: llega el coche a la ventanilla; «2015» (2015).
 // 9. «…tossed… through the drive-thru window»: dentro: el caimán pequeño entra volando por la ventanilla, cae al suelo, y
-//    el empleado salta hacia atrás (sin heridos); al final sonríe aliviado.
-// 10. «Nobody was hurt… a few months later… police»: la pared del cuarto de atrás: visto bueno en el botiquín; el
-//    calendario pasa de octubre de 2015 a febrero de 2016; luces de policía por la ventana; en «2023» las hojas vuelan
-//    hasta marzo de 2023.
+//    el empleado salta hacia atrás (sin heridos); el compañero de la freidora se da la vuelta, se asusta; al final sonríen.
+// 10. «Nobody was hurt… a few months later… police»: la pared del cuarto de atrás: el empleado entra y señala el visto
+//    bueno del botiquín; mira el calendario, que pasa de octubre de 2015 a febrero de 2016; con las luces de policía se
+//    sobresalta y va a mirar por la ventana; en «2023» las hojas vuelan de lado hasta marzo de 2023.
 // 11. «…an eleven-foot alligator burst through a porch screen…»: el porche: la vecina sale con un vaso; el caimán grande
 //    rasga la mosquitera en «burst», corre y se tira a la piscina en «slid»; el flamenco sale volando (2023).
 // 12. «…like the Kool-Aid Man…»: «el anuncio» en una tele vieja: el muro del jardín tiembla dos veces y en «crashes» lo
-//    atraviesa una jarra sin cara ni logo; ladrillos y salpicones; asoma el caimán por el agujero.
+//    atraviesa una jarra sin cara ni logo; ladrillos y salpicones; asoma el caimán por el agujero; el gato del muro da un
+//    bote con el primer golpe y se va por la valla; el aspersor gira.
 // 13. «And the trailer has its own version…»: el agua de la piscina: el caimán con gafas de sol flota donde estaba el
-//    flamenco (gag 7); bajan las franjas de cine; la pértiga lo engancha en «wrangler» y lo saca a rastras (las gafas se
-//    quedan flotando).
+//    flamenco (gag 7); bajan las franjas de cine; el trampero llega por el borde de enfrente, le tiende la pértiga en
+//    «wrangler» y retrocede sacándolo a rastras (las gafas se quedan flotando).
 // 14. «…a different case, from 2019, in Palm Beach Gardens»: el pueblo: el cazador lleva un caimán con el hocico atado
-//    hasta la camioneta, lo sube a la caja y cierra el portón; «2019» (2019).
+//    hasta la camioneta, lo sube a la caja y cierra el portón; «2019»; al final pasa un coche por delante (2019).
 import * as T from '/atomo/plato/escenas/lf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lf-caimanes');
@@ -110,11 +114,20 @@ const p1 = (t) => {
   const o = { encuadre: 'pueblo', camara: 'gasolinera' }, g = T.interior(R, t, o);
   // la cámara del alero, con su luz roja
   R.rect(200, 38, 210, 43, K); R.rect(201, 39, 209, 42, hex('#d8dce4')); R.rect(198, 36, 201, 40, K); R.disco(209, 41, 1, K); if (Math.floor(t * 2) % 2) R.pset(203, 40, hex('#ff3a3a'));
-  const u = T.lerp(0, 1, Math.max(0, Math.min(1, (t - 1.4) / 4.3))), x = Math.round(T.lerp(272, 186, ease(u)));
+  const tt = t < 3.3 ? t : t < 3.9 ? 3.3 : t - 0.6;   // se para medio segundo bajo la cámara
+  const u = T.lerp(0, 1, Math.max(0, Math.min(1, (tt - 1.4) / 3.7))), x = Math.round(T.lerp(272, 186, ease(u)));
   const anda = t > 1.5 && t < 5.7;
   // la puerta se ilumina al abrirse
   if (t > 5.75) tinte(188, 92, 198, g.suelo - 1, hex('#fff0b0'), Math.min(0.55, (t - 5.75) * 1.5));
-  const r = silueta(L.ciudadanoLF, x, g.suelo, t, { dir: -1, anda, sostiene: [x - 4, g.suelo - 13] }, 1);
+  // un coche lejano pasa por la carretera de la derecha con los faros encendidos (recortado a su hueco, tras la valla)
+  const cl = (t - 1.2) / 3.4; if (cl > 0 && cl < 1) { const qx = Math.round(T.lerp(330, 262, cl)); R.recorte([270, 128, 319, 150]);
+    R.poligono([[qx, 140], [qx + 14, 140], [qx + 14, 144], [qx, 144]], hex('#6a7aa0')); R.linea(qx, 140, qx + 14, 140, hex('#9aaad0')); R.poligono([[qx + 3, 137], [qx + 10, 137], [qx + 12, 140], [qx + 2, 140]], hex('#4a5a80'));
+    R.linea(qx + 4, 138, qx + 9, 138, hex('#a8c0e8')); R.pset(qx + 3, 145, K); R.pset(qx + 11, 145, K);
+    R.poligono([[qx - 14, 141], [qx - 1, 142], [qx - 1, 143], [qx - 14, 145]], (x, y) => mez(R.pget(x, y), hex('#fff0b0'), 0.45)); R.pset(qx, 142, hex('#fff6c0')); R.pset(qx + 14, 142, hex('#ff3a3a')); R.recorte(null); }
+  // las polillas que revolotean junto a la luz de la cámara
+  for (let k = 0; k < 4; k++) R.pset(Math.round(205 + Math.sin(t * (3 + k) + k * 2) * (6 + k)), Math.round(48 + Math.cos(t * (4 - k * 0.5) + k) * 4), hex('#e8e0c8'));
+  // la silueta mira un instante a la cámara (se para) y sigue hacia la puerta
+  const r = silueta(L.ciudadanoLF, x, g.suelo, t, { dir: -1, anda: anda && !(t > 3.3 && t < 3.9), sostiene: [x - 4, g.suelo - 13] }, 1);
   cajaCarton(r.mano[0] - 4, r.mano[1] + 7, t, true, 10, 13);
   T.interiorDelante(R, t, o);
 };
@@ -162,6 +175,9 @@ const p3 = (t) => {
     const ho = [Math.round(T.lerp(ra.mano[0] - 8, r.hocico[0] + 2, alarga)), Math.round(T.lerp(ra.mano[1] + 2, r.hocico[1] - 2, alarga))];
     pertiga(ra.mano, ho, t > arrived + 0.55);
   }
+  // el dependiente llega detrás del trampero, señala el caimán y, cuando se lo llevan, los acompaña sonriendo
+  if (t > arrived - 0.5) { const du = ease(Math.max(0, Math.min(1, (t - (arrived - 0.5)) / 1.0))), dx = Math.round(T.lerp(345, 272, du) + lleva * 150);
+    R.actor(L.dependienteLF, dx, 170, t, { dir: lleva > 0 ? 1 : -1, anda: (du > 0 && du < 1) || (lleva > 0 && lleva < 1), dedo: t > arrived + 0.4 && t < took, sonrisa: t > took, habla: t > arrived + 0.4 && t < took && Math.sin(t * 8) > 0 }); }
   T.tiendaDelante(R, t, o);
 };
 // ── 4 · el banco del garaje: la caja sorpresa ─────────────────────────────────────────────────────────────────────
@@ -333,6 +349,12 @@ const p6 = (t) => {
   const ab = ease(Math.max(0, Math.min(1, (t - (walk - 0.55)) / 0.5)));
   R.recorte([110, 40, 210, 121]);
   for (let y = 40; y <= 121; y++) for (let x = 110; x <= 210; x++) R.pset(x, y, NOCHE[y * 320 + x]);
+  // un coche pasa al fondo por la carretera, con los faros, y una polilla ronda la farola
+  { const cu = ((t - P6) / 3.2) % 1, qx = Math.round(T.lerp(96, 228, cu)); R.poligono([[qx, 76], [qx + 12, 76], [qx + 12, 80], [qx, 80]], hex('#5a4a6a')); R.poligono([[qx + 3, 73], [qx + 9, 73], [qx + 10, 76], [qx + 2, 76]], hex('#3a3050'));
+    R.pset(qx + 12, 78, hex('#fff6c0')); R.linea(qx + 13, 78, qx + 22, 79, hex('#c8b890')); R.pset(qx, 78, hex('#ff3a3a')); R.disco(qx + 3, 80, 1, K); R.disco(qx + 10, 80, 1, K);
+    // el surtidor y la farola quedan por delante del coche
+    for (let y = 70; y <= 82; y++) for (const [a, b] of [[124, 150], [186, 196]]) for (let x = a; x <= b; x++) R.pset(x, y, NOCHE[y * 320 + x]); }
+  R.pset(Math.round(191 + Math.sin(t * 5) * 5), Math.round(46 + Math.cos(t * 6.3) * 3), hex('#fff6d0'));
   // el caimán: fuera se acerca; dentro camina hacia nosotros
   const fuera = t < walk, gu = Math.max(0, Math.min(1, (t - P6) / (walk - P6))), du = Math.max(0, Math.min(1, (t - walk + 0.1) / (P7 - walk - 0.2)));
   if (fuera) T.a_caiman(R, Math.round(T.lerp(196, 162, gu)), Math.round(T.lerp(110, 120, gu)), t, { s: 0.9 + gu * 0.3, anda: 1, dir: -1 });
@@ -345,7 +367,7 @@ const p6 = (t) => {
   }
   R.recorte(null);
   // el dependiente detrás del mostrador: se sobresalta
-  R.actor(L.dependienteLF, 262, 118, t, { dir: -1, sorpresa: t > walk + 0.6, salto: t > walk + 0.6 && t < walk + 0.9 ? 2 : 0 });
+  R.actor(L.dependienteLF, 262, 109, t, { dir: -1, sorpresa: t > walk + 0.6, salto: t > walk + 0.6 && t < walk + 0.9 ? 2 : 0, habla: t < walk - 0.3 && Math.sin(t * 2.2) > 0.6, brazos: t > walk + 0.7 && t < walk + 1.3 });
   caja(222, 104, 319, 150, hex('#c8302a'), hex('#e84a3a'), hex('#8a1a1a')); R.rect(222, 102, 319, 106, hex('#4a4a54')); for (let x = 228; x < 319; x += 18) R.rect(x, 112, x + 12, 140, hex('#b02824'));
   if (!fuera) { const s = 1.2 + du * 1.5; T.a_caiman(R, Math.round(T.lerp(158, 148, du)), Math.round(T.lerp(124, 170, du)), t, { s, anda: du < 1 ? 1 : 0, dir: -1, boca: du > 0.9 ? 0.3 : 0 }); }
   // la cámara de la esquina gira hacia el caimán, con su luz roja
@@ -387,7 +409,7 @@ const p8 = (t) => {
   // el empleado en la ventanilla: se asoma con la bolsa cuando llega el coche
   const as = t > shop + 0.6;
   R.recorte([191, 119, 229, 139]);
-  const re = R.actor(L.empleadoLF, 203, 156, t, { dir: 1, habla: as && Math.sin(t * 8) > 0, sostiene: as ? [222, 134] : undefined });
+  const re = R.actor(L.empleadoLF, 203, 156, t, { dir: 1, habla: as && Math.sin(t * 8) > 0, sostiene: as ? [222, 134] : undefined, sonrisa: as, brazos: t > shop + 0.1 && t < shop + 0.6 });
   if (as) { const [mx, my] = re.mano; R.poligono([[mx - 2, my - 6], [mx + 5, my - 6], [mx + 5, my + 2], [mx - 2, my + 2]], hex('#c8945a')); R.linea(mx - 2, my - 6, mx + 5, my - 6, K); }
   R.recorte(null);
   T.tiendaDelante(R, t, o);
@@ -411,6 +433,10 @@ const p9 = (t) => {
   if (t > through - 0.55) { const r = T.a_caiman(R, Math.round(gx), Math.round(gy), t, { s: 1.3, dir: -1, anda: !cae ? 1 : 0, boca: cae && t > through + 0.5 ? 0.35 + 0.1 * Math.sin(t * 3) : 0 });
     if (!cae) for (let k = 1; k < 4; k++) R.linea(Math.round(gx + 16 + k * 4), Math.round(gy - 6 - k * 2), Math.round(gx + 24 + k * 4), Math.round(gy - 8 - k * 2), hex('#f6f6f2'));
     if (cae && t < through + 0.5) for (let k = 0; k < 6; k++) R.pset(Math.round(gx - 12 + k * 5), Math.round(gy + 1 - (k % 2) * 2), hex('#f6f6f2')); }
+  // el compañero de la freidora: sacude la cesta; con el golpe se da la vuelta, se asusta y al final se ríe
+  { const gira = t > through + 0.1, ax = 66, sj2 = t > through + 0.15 && t < through + 0.45 ? 3 : 0;
+    const rf = R.actor(L.empleadoLF, ax, 166, t, { dir: gira ? 1 : -1, sostiene: gira ? undefined : [ax - 12, 146 + Math.round(Math.abs(Math.sin(t * 6)) * 2)], sorpresa: gira && t < through + 1.4, salto: sj2, sonrisa: t > through + 1.4, brazos: gira && t < through + 0.9 });
+    if (!gira) { const [mx, my] = rf.mano; R.linea(mx, my, mx - 6, my - 2, hex('#2a2a30')); R.rect(mx - 12, my - 4, mx - 6, my, K); R.rect(mx - 11, my - 3, mx - 7, my - 1, hex('#f0c030')); } }
   T.tiendaDelante(R, t, o);
 };
 // ── 10 · el cuarto de atrás: el calendario ───────────────────────────────────────────────────────────────────────
@@ -444,7 +470,7 @@ const p10 = (t) => {
   // las luces de la policía por la ventana y sobre la pared
   const pol = t > police - 0.2 && t < y2023 - 0.1, fase = Math.floor(t * 4) % 2;
   if (pol) { const c = fase ? hex('#3a6aff') : hex('#ff3a4a'); for (let y = 56; y <= 100; y++) for (let x = 236; x <= 270; x++) if (R.b4(x, y) < 0.5) R.pset(x, y, mez(hex('#1a1e3a'), c, 0.6));
-    const sx = fase ? 120 : 30; for (let y = 20; y < 112; y++) for (let x = sx; x < sx + 70; x++) if (R.b4(x, y) < 0.25) R.pset(x, y, mez(R.pget(x, y), c, 0.25)); }
+    const sx = fase ? 120 : 30; for (let y = 34; y < 112; y++) for (let x = sx; x < sx + 70; x++) if (R.b4(x, y) < 0.25) R.pset(x, y, mez(R.pget(x, y), c, 0.25)); }
   // la persiana por encima de la luz
   for (let y = 58; y < 100; y += 4) R.rect(236, y, 270, y, hex('#c8ccd0'));
   // el visto bueno en el botiquín en «Nobody was hurt»
@@ -463,10 +489,16 @@ const p10 = (t) => {
   R.rect(cx0 + 4, cy0 + 42, cx1 - 4, cy0 + 54, hex('#d83a3a')); R.numero(String(e[1]), cx0 + 18, cy0 + 52, { color: hex('#f6f6f2'), centro: true }); R.numero(String(e[2]), cx1 - 24, cy0 + 52, { color: hex('#f6f6f2'), centro: true });
   for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) { const x = cx0 + 6 + i * 11, y = cy0 + 58 + j * 10; R.rect(x, y, x + 9, y + 8, hex('#e0d8c4')); R.rect(x + 1, y + 1, x + 8, y + 7, hex('#fbf8ee')); if (i + j * 7 < 9 + (e[1] % 5)) { R.linea(x + 1, y + 1, x + 8, y + 7, hex('#3a3a46')); R.linea(x + 8, y + 1, x + 1, y + 7, hex('#3a3a46')); } }
   // la hoja que se va volando al cambiar
-  if (sig && t > sig[0] - 0.1) { const u = (t - (sig[0] - 0.1)) / 0.1, top = Math.round(T.lerp(cy0, cy0 - 100, u * u)), rot = u * 40;
-    R.poligono([[cx0, top], [cx1, top - rot * 0.3], [cx1 - rot, top + (cy1 - cy0) * (1 - u)], [cx0 + rot * 0.5, top + (cy1 - cy0) * (1 - u)]], hex('#fbf8ee')); R.linea(cx0, top, cx1, Math.round(top - rot * 0.3), hex('#d8d0bc')); }
-  // el empleado cruza al fondo con una bandeja (vida)
-  const wu = Math.max(0, Math.min(1, (t - P10 - 0.6) / 4)); if (wu > 0 && wu < 1) { const ex = Math.round(T.lerp(-16, 330, wu)), re = R.actor(L.empleadoLF, ex, 174, t, { dir: 1, anda: true, sostiene: [ex + 18, 156] }); const [mx, my] = re.mano; R.rect(mx - 6, my - 1, mx + 6, my, hex('#8a9096')); caja(mx - 4, my - 6, mx, my - 1, hex('#f6f6f2'), null, hex('#c8c8c0')); R.rect(mx + 1, my - 4, mx + 5, my - 1, hex('#f0c030')); }
+  for (let k = 1; k < etapas.length; k++) { const u = (t - etapas[k][0]) / 0.35; if (u < 0 || u >= 1) continue; const dx = Math.round(u * 150), top = cy0 + Math.round(u * 26), rot = u * 30, ab = Math.round((cy1 - cy0) * (1 - u * 0.5));
+    // la hoja vieja (la foto, la franja roja y la cuadrícula) se encoge, gira y se va de lado
+    const w = Math.round((cx1 - cx0) * (1 - u * 0.45)), x0 = cx0 + dx, hoja = (x, y) => { const v = (y - top) / Math.max(1, ab); return v < 0.33 ? (v < 0.24 ? hex('#9ad0f0') : hex('#2a8ac0')) : v < 0.45 ? hex('#d83a3a') : ((x - x0) % 11 === 0 || (y - top) % 9 === 0) ? hex('#d8d0bc') : hex('#fbf8ee'); };
+    R.poligono([[x0, top], [x0 + w, top + rot * 0.3], [x0 + w - rot, top + ab], [x0 + rot * 0.5, top + ab - rot * 0.4]], hoja); R.linea(x0, top, x0 + w, Math.round(top + rot * 0.3), hex('#8a8070')); }
+  // el empleado: llega a la puerta, enseña el botiquín intacto en «Nobody was hurt», mira pasar los meses en el calendario,
+  // se sobresalta con las luces de la policía y va a la ventana a mirar
+  const llega = ease(Math.max(0, Math.min(1, (t - P10 - 0.1) / 1.1))), ve = ease(Math.max(0, Math.min(1, (t - (police + 0.35)) / 0.9)));
+  const ex = Math.round(T.lerp(40, 172, llega) + ve * 56), anda = (llega > 0 && llega < 1) || (ve > 0 && ve < 1);
+  const mira = t > few - 0.3 && t < police - 0.1, poli = t > police - 0.1;
+  R.actor(L.empleadoLF, ex, 174, t, { dir: mira ? -1 : 1, anda, dedo: t > Math.max(P10 + 1.2, hurt + 0.3) && t < few - 0.3, sonrisa: t > hurt + 0.3 && t < few, sorpresa: poli && t < police + 0.8, habla: (mira || ve >= 1) && Math.sin(t * 7) > 0, brazos: poli && t < police + 0.35 });
 };
 // ── 11 · el porche con mosquitera ────────────────────────────────────────────────────────────────────────────
 const p11 = (t) => {
@@ -513,6 +545,15 @@ const p12 = (t) => {
   // el muro tiembla dos veces y se agrieta; en «crashes» lo atraviesa la jarra
   const g1 = kool + 0.9, g2 = kool + 1.7, rompe = t > crashes;
   const tiembla = (t > g1 && t < g1 + 0.25) || (t > g2 && t < g2 + 0.25) ? Math.round(Math.sin(t * 80) * 1) : 0;
+  // el aspersor del jardín gira y moja la hierba
+  { const a = t * 2.4, ax = 46, ay = 160; R.rect(ax - 1, ay - 3, ax + 1, ay, hex('#4a4a54')); R.pset(ax, ay - 4, hex('#c8ccd4'));
+    for (let k = 0; k < 9; k++) { const d = 3 + k * 3.2, aa = a + k * 0.06; R.pset(Math.round(ax + Math.cos(aa) * d), Math.round(ay - 5 - Math.sin(k / 8 * Math.PI) * 9 + Math.sin(aa) * d * 0.3), hex(k % 2 ? '#e8f8ff' : '#a8d8f0')); } }
+  // el gato tomando el sol en el muro: con el primer golpe da un bote y se va por la valla
+  { const sg = Math.max(0, Math.min(1, (t - (g1 + 0.05)) / 0.8)), gx = Math.round(T.lerp(206, 270, sg)), gy = Math.round(T.lerp(51, 90, sg) - Math.sin(sg * Math.PI) * 22);
+    if (sg < 1 || t < g1 + 2.4) { const gx2 = sg < 1 ? gx : Math.round(270 + (t - g1 - 0.85) * 60), gy2 = sg < 1 ? gy : 90;
+      if (gx2 < 330) { const pc = hex('#e88a3a'), ps = hex('#b8602a'), cola = sg > 0 && sg < 1 ? -3 : Math.round(Math.sin(t * 2) * 2);
+        R.rect(gx2 - 5, gy2 - 4, gx2 + 3, gy2 - 1, ps); R.rect(gx2 - 5, gy2 - 5, gx2 + 3, gy2 - 3, pc); R.rect(gx2 + 2, gy2 - 8, gx2 + 6, gy2 - 4, pc); R.pset(gx2 + 2, gy2 - 9, pc); R.pset(gx2 + 6, gy2 - 9, pc);
+        R.pset(gx2 + 5, gy2 - 6, K); R.linea(gx2 - 5, gy2 - 4, gx2 - 9, gy2 - 7 + cola, ps); if (sg > 0 && sg < 0.5) { R.pset(gx2 + 3, gy2 - 12, K); R.pset(gx2 + 3, gy2 - 14, K); } } } }
   if (t > g1) { R.linea(160 + tiembla, 100, 148, 86, K); R.linea(160 + tiembla, 100, 176, 90, K); }
   if (t > g2) { R.linea(160, 100, 150, 118, K); R.linea(160, 100, 178, 112, K); R.linea(148, 86, 140, 80, K); }
   if (rompe) {
@@ -547,8 +588,11 @@ const p13 = (t) => {
   const r = T.a_caiman(R, gx, gy, t, { s: 3, agua: tira > 0 ? Math.max(0, 0.45 - tira) : 0.45, anda: tira > 0 && tira < 1 ? 1 : 0, boca: 0 });
   if (tira <= 0.15) gafas(r.ojo);
   // la pértiga entra por la derecha y lo engancha
-  const pu = Math.max(0, Math.min(1, (t - wrangler) / 0.5));
-  if (pu > 0 && gx < 330) { const ho = [Math.round(T.lerp(330, r.hocico[0], pu)), Math.round(T.lerp(70, r.hocico[1] - 1, pu))]; pertiga([340, 64 - tira * 20], ho, t > wrangler + 0.5); }
+  // el trampero llega por el borde de enfrente, tiende la pértiga en «wrangler» y retrocede tirando
+  const pu = Math.max(0, Math.min(1, (t - wrangler) / 0.5)), tu = ease(Math.max(0, Math.min(1, (t - (wtrailer - 0.4)) / 1.3)));
+  const tx = Math.round(Math.max(T.lerp(340, 262, tu), gx + 122)), anda = (tu > 0 && tu < 1) || (tira > 0 && tira < 1);
+  const ra = R.actor(L.tramperoLF, tx, 103, t, { dir: -1, anda, sostiene: [tx - 4, 88], sonrisa: tira > 0.7, habla: tu >= 1 && t < wrangler && Math.sin(t * 7) > 0 });
+  if (pu > 0 && gx < 330) { const ho = [Math.round(T.lerp(ra.mano[0] - 6, r.hocico[0], pu)), Math.round(T.lerp(ra.mano[1] + 4, r.hocico[1] - 1, pu))]; pertiga(ra.mano, ho, t > wrangler + 0.5); }
   T.tiendaDelante(R, t, o);
   if (tira > 0 && tira < 0.6) for (let k = 0; k < 8; k++) R.disco(Math.round(gx - 20 + k * 6), Math.round(112 - Math.abs(Math.sin(t * 8 + k)) * 6), 1, hex('#f6ffff'));
   // las franjas de cine del tráiler bajan
@@ -570,6 +614,8 @@ const p14 = (t) => {
   if (cierra) { R.rect(68, 141, 71, 151, K); R.rect(69, 142, 70, 150, hex('#c8302a')); }
   if (t > P14 + 1.1 && t < P14 + 1.9 && Math.floor(t * 6) % 2) { for (const [dx, dy] of [[0, 0], [3, -2], [3, 2]]) R.linea(108 + dx, 142 + dy, 111 + dx, 141 + dy * 2, K); }
   T.interiorDelante(R, t, o);
+  // un coche pasa por la calle, por delante de todo, cuando la caja ya está cerrada
+  { const cu = Math.max(0, Math.min(1, (t - (P14 + 4.55)) / 1.15)); if (cu > 0 && cu < 1) T.f_cocheMovil(R, Math.round(T.lerp(360, -40, cu)), 179, t, { dir: -1, color: '#e8a040' }); }
   // «2019»
   if (t > y2019) { const u = Math.min(1, (t - y2019) / 0.35); R.numero('2019', 168, Math.round(70 - 8 * u + Math.sin(u * Math.PI) * -3), { tam: 16, centro: true }); }
 };
@@ -579,8 +625,9 @@ const efectos = [[5.75, 'puerta'], [P2 + 0.15, 'puerta'], [leaving, 'golpecito']
   [P4 + 0.3, 'tic'], [prank, 'boing'], [linked, 'bip'], [linked + 0.4, 'brillo'], [walk - 0.55, 'puerta'],
   [different, 'pop'], [gators, 'pop'], [more + 0.9, 'flash'], [never, 'aviso'], [P8 + 0.3, 'coche'], [y2015, 'brillo'],
   [through - 0.5, 'whoosh'], [through + 0.15, 'golpecito'], [hurt, 'brillo'], [few - 0.2, 'papel'], [police, 'aviso'], [y2023, 'papel'],
-  [burst, 'boom'], [slid + 0.3, 'chof'], [slid + 0.5, 'whoosh'], [kool + 0.9, 'toc'], [kool + 1.7, 'toc'], [crashes, 'boom'],
-  [wrangler + 0.5, 'golpecito'], [wrangler + 0.7, 'chof'], [P14 + 1.2, 'guau'], [P14 + 4.3, 'cerrojo'], [y2019, 'brillo']];
+  [burst - 0.05, 'papel'], [burst + 0.1, 'golpecito'], [slid + 0.3, 'chof'], [slid + 0.5, 'whoosh'], [kool + 0.9, 'toc'], [kool + 1.7, 'toc'], [crashes, 'boom'],
+  [wrangler + 0.5, 'golpecito'], [wrangler + 0.7, 'chof'], [P14 + 1.2, 'guau'], [P14 + 4.3, 'cerrojo'], [y2019, 'brillo'],
+  [small + 0.3, 'puerta'], [P4 + 1.2, 'tic'], [kool + 0.95, 'miau'], [wrangler - 0.1, 'whoosh'], [P14 + 4.75, 'coche']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13], [P14, p14]], { cartela: '2018', efectos, año });
 </script>
 </body>
