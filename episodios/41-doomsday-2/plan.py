@@ -29,7 +29,7 @@ E = [
  ('dd-bunker', None, 6, 8, ['bunker', 'porque', 'mascara'],
   ['A: Banner graba un informe ante una cámara; la luz verde llena la sala; Hulk ruge; queda un símbolo verde en el suelo y su taza de café da vueltas.',
    'A y G: el búnker vacío; un interrogante sobre la máscara de Doom; Atom pone el reestreno en su televisor.',
-   'H (viñeta de cómic): un Victor joven (EL) en una fragua de montaña, la máscara al rojo en las tenazas; se la acerca a la cara entre chispas (sin mostrar la cara herida).'],
+   'H (viñeta de cómic): un Victor joven (EL) en un monasterio de montaña; unos monjes sacan la máscara de la fragua y él se la pone sin esperar a que se enfríe, entre vapor (sin mostrar la cara herida).'],
   'suspense', []),
  ('dd-visionquest', None, 9, 10, ['vision', 'ultron'],
   ['B y G: la serie en la televisión de Atom; la montaña de Wundagore derrumbándose (recuerdo de 2022).',
