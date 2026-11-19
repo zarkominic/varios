@@ -23,7 +23,8 @@
 //    madera entra, estampa el 2018 y se va.
 // 4. («Today») la mesita del salón de Atom: el calendario pasa del 18 al 19 en «November 19» (la hoja sale volando); la
 //    mano de Atom abre la caja en «GTA 6 is finally out» (solo la tarjetita del código), la sacude en «two delays» (saltan
-//    cuatro palomitas del bol a la mesa) y sale un «?» (gag 1).
+//    cuatro palomitas del bol de la izquierda, x 10–70, a la mesa delante y a su derecha) y sale un «?» (gag 1); el brazo
+//    entra desde abajo con el hombro justo fuera de cuadro (menos de 45 px a la vista).
 // 5. («It takes place») Ocean Drive de noche: el chico señala los neones en «Leonida» hablando y la chica se gira a
 //    mirarlos; el turista llega y hace una foto con flash en «Florida» (pitido antes); la chica se sorprende y sonríe; la
 //    patinadora cruza.
@@ -189,15 +190,17 @@ const p4 = (t) => {
   const o = { encuadre: 'salon', camara: 'mesa', abierta: ab, sacude: sac };
   const g = T.salon(R, t, o) || {};
   calendario(t);
-  // con la sacudida tiembla la mesa: saltan cuatro palomitas del bol y caen en la madera, junto al bol
-  const [pbx, pby] = g.palomitas ?? [62, 122];
+  // con la sacudida tiembla la mesa: saltan cuatro palomitas de lo alto del bol (centro x 40, y 122; el bol va de x 10 a 70)
+  // y caen en la madera: dos delante del bol (a la izquierda del mando) y dos en el hueco entre el bol y la caja
+  const [pbx, pby] = g.palomitas ?? [40, 122];
+  const CAE = [[-24, 28], [33, 14], [-8, 30], [35, 23]];
   for (let k = 0; k < 4; k++) { const t0 = DELAYS + 0.1 + k * 0.28, u = tramo(t, t0, t0 + 0.5); if (u <= 0) continue;
-    const lx = pbx - 14 + k * 11 + (k % 2 ? 4 : -2), x = Math.round(lerp(pbx - 6 + k * 4, lx, u)), y = Math.round(lerp(pby - 6, pby + 22 + (k % 2) * 3, u) - Math.sin(u * Math.PI) * 16);
+    const x = Math.round(lerp(pbx - 9 + k * 6, pbx + CAE[k][0], u)), y = Math.round(lerp(pby - 10, pby + CAE[k][1], u) - Math.sin(u * Math.PI) * 16);
     R.disco(x, y, 2, K); R.pset(x, y, hex('#fff6d8')); R.pset(x - 1, y, hex('#f8e8b0')); R.pset(x + 1, y - 1, hex('#f8e8b0')); R.pset(x, y + 1, hex('#e8b84a')); }
   T.salonDelante(R, t, o);
   // la mano de Atom: entra por abajo, coge la caja por el canto y no la suelta hasta el «?»
   const [mx, my0] = g.manoCaja ?? [164, 126], my = my0 + 14, m = tramo(t, P4 + 0.2, SALE - 0.2) * (1 - tramo(t, TRES + 0.5, P5 - 0.2));
-  if (m > 0) { const wx = Math.round(lerp(250, mx + 9, m)), wy = Math.round(lerp(230, my, m)); T.brazo(R, wx + 22, wy + 52, wx, wy, MANGA, -1); }
+  if (m > 0) { const wx = Math.round(lerp(250, mx + 9, m)), wy = Math.round(lerp(230, my, m)); T.brazo(R, wx + 14, wy + 42, wx, wy, MANGA, -1); } // hombro justo bajo el borde: se ven menos de 45 px de brazo
   // el «?» que sale de la caja vacía
   const q = tramo(t, TRES, TRES + 0.25);
   if (q > 0) { const [cx] = g.caja ?? [140, 120]; const yq = Math.round(lerp(92, 60, q) - Math.max(0, Math.sin((t - TRES) * 8)) * 2 * (1 - tramo(t, TRES + 0.5, TRES + 1)));
