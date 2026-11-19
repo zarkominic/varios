@@ -19,8 +19,10 @@ const R = conChibi(await crearRoma(document.getElementById('lienzo')));
 const dibujar = (t) => {
   const o = { encuadre: 'naufragio', camara: 'terron', brillo: 1 };
   fondo(R, t, o); fondoDelante(R, t, o);
-  grado(R, { cx: 175, cy: 112, tinte: '#06141c', f: 0.2, desde: 0.45, max: 0.65 });
-  halo(R, 172, 112, 46, 34, '#ffe6a0', 0.36);
+  grado(R, { cx: 175, cy: 112, tinte: '#06141c', f: 0.2, desde: 0.45, max: 0.78 });
+  halo(R, 172, 112, 80, 58, '#ffd27a', 0.32);
+  halo(R, 172, 112, 42, 32, '#ffe6a0', 0.7);
+  halo(R, 172, 114, 20, 16, '#fffbe8', 0.75);
   halo(R, 70, 120, 50, 60, '#9ad0f0', 0.16);
   figura(R, EL.stadiatisAK, 76, 176, t, { dir: 1, sorpresa: true }, 3);
 };
