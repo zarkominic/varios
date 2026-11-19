@@ -11885,3 +11885,124 @@ export const ELENCO_DD = {
     pal: CLARA({ H: '#5a3a20', h: '#7a5434', C: '#1e2846', c: '#141c32', W: '#1e2846', G: '#2a2430', I: '#2a2430', F: '#1e2846', n: '#2a2430', X: '#f2eee2', r: '#c8303a' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_DD);
+
+// ── Ep42 · GTA VI: la Florida real detrás de Leonida. Jason y Lucia, dibujados por nosotros por sus atributos (sin logos
+// ni parecidos forzados); la gente de la Florida real, sin nombres ni caras de cerca; la pareja de los años treinta y
+// los de 1947 y los cincuenta, genéricos.
+Object.assign(TOCADOS, {
+  // la visera sin copa (Q, sombra q): la banda por la frente con el pelo a la vista arriba y el ala corta delante, por
+  // encima de las cejas (el dependiente de la tienda y el golfista)
+  viseraLF: [[
+    '.kQQQQQQQQQQk..',
+    '.kqkkkkkkkkkkkk',
+    '..........kkkk.',
+  ], 2],
+});
+// ── cuerpos ──
+// la camisa estampada de manga corta (C, las flores P y p) abierta sobre la camiseta blanca (W) y los vaqueros: Jason
+const CUERPO_CAMISA_ABIERTA_LF = parche(CUERPO_HAWAIANA_TS, [[5, 0, 'CWWWC'], [6, 1, 'WWW'], [6, 2, 'WWW'], [6, 3, 'WWW'], [6, 4, 'WWW'], [6, 5, 'WWW'], [6, 6, 'WWW'], [4, 2, 'p'], [5, 3, 'P'], [10, 5, 'P']]);
+// la camiseta de tirantes (C): los hombros y los brazos al aire, con el escote redondo
+const CUERPO_TOP_LF = parche(CUERPO_CALLE, [[6, 0, 'SSS'], [3, 1, 'S'], [11, 1, 'S'], [2, 2, 'S'], [12, 2, 'S']]);
+// la de Lucia, metida por dentro de los vaqueros con el cinturón (G)
+const CUERPO_TOP_CINTO_LF = parche(CUERPO_TOP_LF, [[4, 6, 'GGGGGGG']]);
+// los pantalones cortos (F, por encima de la rodilla) con las piernas al aire: se aplica a cualquier cuerpo de calle
+const CORTOS_LF = [[3, 9, 'kSSSkSSSk'], [3, 10, 'kSSSkSSSk']];
+// la bailarina del techo del coche: la camiseta de tirantes y los pantalones cortos (nada más corto)
+const CUERPO_TOP_CORTOS_LF = parche(CUERPO_TOP_LF, CORTOS_LF);
+// la patinadora: camiseta (C), pantalón corto, las rodilleras (X), las botas de patín (n) y las ruedas (o)
+const CUERPO_PATINES_LF = parche(CUERPO_CALLE, [[3, 9, 'kSSSkSSSk'], [3, 10, 'kXXXkXXXk'], [2, 12, 'kokok.kokok']]);
+// el polo (C, cuello W) con el pantalón corto (F) y los calcetines blancos (X): el golfista
+const CUERPO_POLO_CORTOS_LF = parche(CUERPO_POLO_DC, [[3, 9, 'kSSSkSSSk'], [3, 10, 'kXXXkXXXk']]);
+// la camisa de flores (C, P, p) con el pantalón corto: el turista; y con el pirata hasta media pierna: la vecina
+const CUERPO_HAWAIANA_CORTOS_LF = parche(CUERPO_HAWAIANA_TS, CORTOS_LF);
+const CUERPO_BLUSA_FLORES_LF = parche(CUERPO_HAWAIANA_TS, [[5, 0, 'CWSWC'], [3, 10, 'kSSSkSSSk']]);
+// el trampero: la camisa de campo caqui con los guantes de trabajo (X) y el pantalón de bolsillos (los bolsillos f)
+const CUERPO_TRAMPERO_LF = parche(CUERPO_VOLUNTARIO_DU, [[4, 8, 'f'], [10, 8, 'f'], [4, 9, 'f'], [10, 9, 'f']]);
+// el periodista: la camisa remangada con la corbata aflojada (el nudo baja una fila y asoma el cuello, S)
+const CUERPO_AFLOJADA_LF = parche(CUERPO_REMANGADA_AT, [[7, 1, 'S']]);
+// la periodista: la americana (C) sobre la blusa (W) con la cinta de la acreditación (r) y la tarjeta azul clara (X, sin letras)
+const CUERPO_ACREDITACION_LF = parche(CUERPO_CHAQUETA_DC, [[6, 1, 'r.r'], [6, 2, 'r.r'], [6, 3, 'rXr'], [7, 4, 'X']]);
+// el cazador de los cincuenta: la camisa de cuadros (C, p) con el vadeador de goma (V) hasta el pecho, los tirantes y
+// las botas del vadeador (F, n)
+const CUERPO_VADEADOR_LF = parche(CUERPO_CUADROS_AT, [[5, 1, 'V...V'], [5, 2, 'V...V'], [4, 3, 'VVVVVVV'], [4, 4, 'VVVVVVV'], [4, 5, 'VvVVVvV'], [4, 6, 'VVVVVVV']]);
+// ── cabezas ──
+// el pelo oscuro ondulado recogido de Lucia (las ondas h), con la coleta por detrás (coleta): la cara entera
+const CAB_ONDAS_LF = parche(CAB_CORTA_VM, [[4, 1, 'h'], [8, 1, 'h'], [2, 2, 'h'], [10, 2, 'h'], [1, 4, 'h'], [2, 6, 'h']]);
+// ── detalles ──
+// el aro de oro colgando del lóbulo, por debajo de la oreja (no en la mejilla)
+const arosLF = (c) => { c.cab.px(3, 8, hex('#f0c040')); c.cab.px(3, 9, hex('#a87a18')); };
+// el auricular de diadema del autoservicio: el casco sobre la oreja y el micrófono de varilla hasta la comisura, lejos
+// de la boca y de los ojos
+// la barba de pocos días, más clara que barbaDiasCF (aquella, en Jason, parecía una barba entera): solo la mandíbula
+const barbaSuaveLF = (c) => { const v = hex('#d8a07a'); for (const [i, j] of [[4, 10], [5, 10], [6, 11], [7, 11], [8, 11], [9, 11], [10, 10]]) c.cab.px(i, j, v); };
+const diademaLF = (c) => { const n = hex('#2a2430'), z = hex('#8c90a4'); c.cab.px(3, 6, n); c.cab.px(4, 6, n); c.cab.px(3, 7, n); c.cab.px(4, 7, n); c.cab.px(5, 8, z); c.cab.px(6, 9, z); c.cab.px(7, 9, n); };
+// las gafas de sol subidas sobre el pelo (J, el cristal), lejos de los ojos
+const solEnPeloLF = (c) => c.cab.rej(['kJJJkJJJk'], 4, 2, { ...c.pal, J: hex('#2a2430') });
+// los cascos colgados al cuello (la diadema M por delante y los dos auriculares A)
+const cascosCuelloLF = (c) => { const pal = { ...c.pal, ...COLORES({ M: '#2a2430', A: '#c8303a' }) }; c.cuerpo.rej(['kAk.....kAk', 'kAMMMMMMMAk', '.k.......k.'], 2, 0, pal); };
+export const ELENCO_LF = {
+  // Jason: el pelo oscuro corto, la barba de pocos días, la camisa estampada abierta sobre la camiseta blanca y vaqueros
+  jasonLF: { ...B19, cuerpo: CUERPO_CAMISA_ABIERTA_LF, ceja: hex('#2a1c14'), delante: barbaSuaveLF,
+    pal: CLARA({ H: '#2a1c14', h: '#4a3424', C: '#2a5a7a', c: '#1e4460', P: '#e8c860', p: '#d8603a', W: '#f6f6f2', F: '#3a5a8a', n: '#2a2430' }) },
+  // Lucia: el pelo oscuro ondulado recogido en coleta, los aros de oro, la camiseta de tirantes naranja y vaqueros
+  luciaLF: { ...B19, cab: CAB_ONDAS_LF, cuerpo: CUERPO_TOP_CINTO_LF, ceja: hex('#1c1424'), mejillas: [[12, 8]], delante: varios(coleta, arosLF),
+    pal: MORENA({ H: '#2a1c14', h: '#4a3020', C: '#e87a3a', c: '#c05a24', G: '#6a4020', F: '#2e4a7a', n: '#2a2430' }) },
+  // el trampero de la agencia de fauna: gorra caqui, camisa de campo caqui, guantes de cuero y pantalón de bolsillos
+  tramperoLF: { ...B19, cuerpo: CUERPO_TRAMPERO_LF, tocado: 'beisbol', ceja: hex('#5a3a20'),
+    pal: OTO({ H: '#5a3a20', h: '#7a5434', J: '#8a7a4a', j: '#a8986a', C: '#c8b888', c: '#a8986a', o: '#6a5a3a', u: '#a8986a', G: '#4a3424', X: '#8a6a3a', F: '#5a5a3a', f: '#46462c', n: '#3a2a1c' }) },
+  // el dependiente de noche de la tienda: el polo rojo del uniforme con el cuello amarillo, la visera roja, la plaquita
+  dependienteLF: { ...B19, cuerpo: CUERPO_POLO_TIENDA_GT, tocado: 'viseraLF', ceja: hex('#1c1424'),
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#c8303a', c: '#9a2028', W: '#f0c030', o: '#f0c030', X: '#f6f6f2', Q: '#c8303a', q: '#9a2028', F: '#2a2a34', n: '#1c1820' }) },
+  // el empleado del autoservicio: gorra morada, el auricular de diadema y el polo verde azulado del uniforme
+  empleadoLF: { ...B19, cuerpo: CUERPO_POLO_DC, tocado: 'beisbol', ceja: hex('#2a1c14'), delante: diademaLF,
+    pal: CLARA({ H: '#4a3020', h: '#6a4a30', J: '#5a3a8a', j: '#7a5aaa', C: '#2a9a8a', c: '#1e7a6c', W: '#5a3a8a', o: '#f2eee2', F: '#2a2a34', n: '#1c1820' }) },
+  // la vecina de la piscina: media melena corta rubia canosa, las gafas de sol subidas al pelo y la blusa de flores
+  vecinaLF: { ...B19, cab: CAB_CORTA_VM, cuerpo: CUERPO_BLUSA_FLORES_LF, ceja: hex('#9a8a6a'), mejillas: [[12, 8]], delante: solEnPeloLF,
+    pal: CLARA({ H: '#d8c8a0', h: '#b8a880', C: '#f2b8c8', c: '#d898a8', P: '#e84a6a', p: '#4a9a5a', W: '#f6f6f2', F: '#f2eee2', n: '#c8a070' }) },
+  // los periodistas de la redacción: él, la camisa azul claro remangada y la corbata aflojada; ella, americana azul
+  // marino, blusa blanca y la acreditación colgada
+  periodistaLF: { ...B19, cab: CAB_LADO_DC, cuerpo: CUERPO_AFLOJADA_LF, ceja: hex('#3a2a1c'),
+    pal: CLARA({ H: '#4a3424', h: '#6a4c34', C: '#c8d8ec', c: '#a0b4cc', W: '#e8eef6', o: '#8a2a3a', A: '#2a4a9a', F: '#3a3a46', n: '#1c1820' }) },
+  periodista2LF: { ...B19, cab: CAB_MEDIA_TR, cuerpo: CUERPO_ACREDITACION_LF, ceja: hex('#6a2a14'), mejillas: [[12, 8]],
+    pal: CLARA({ H: '#9a3a1e', h: '#c0582c', C: '#1e2a44', c: '#141c30', W: '#f6f6f2', r: '#d8303a', X: '#9ac0e8', F: '#1e2a44', n: '#1c1820' }) },
+  // la funcionaria del archivo público: media melena negra, gafas finas, la rebeca verde, la blusa y la falda
+  archiveraLF: { ...B19, cab: CAB_MEDIA_TR, cuerpo: CUERPO_FALDA_VM, ceja: hex('#1c1424'), mejillas: [[12, 8]], delante: gafasFinasDC,
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#4a7a5a', c: '#3a6048', W: '#f2eee2', F: '#4a4a56', L: '#2a2430' }) },
+  // la bailarina del techo del coche (se ve de lejos): coleta castaña, camiseta de tirantes rosa y pantalón corto turquesa
+  bailarinaLF: { ...B19, cuerpo: CUERPO_TOP_CORTOS_LF, ceja: hex('#5a3a20'), mejillas: [[12, 8]], delante: coleta,
+    pal: CLARA({ H: '#7a4a24', h: '#9a643a', C: '#e83a8a', c: '#b82a6a', F: '#2ab8c8', n: '#f6f6f2' }) },
+  // los fans que dibujan el mapa: él, sudadera roja con los cascos al cuello; ella, sudadera morada y gafas finas (las de
+  // pasta, sobre la piel oscura, parecían un antifaz)
+  fanLF: { ...B19, cab: CAB_LADO_DC, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#4a3020'), delante: cascosCuelloLF,
+    pal: CLARA({ H: '#5a3a20', h: '#7a5434', C: '#c84a3a', c: '#a0382a', X: '#f2eee2', F: '#3a5a8a', n: '#f2eee2' }) },
+  fanaLF: { ...B19, cab: CAB_LARGO, cuerpo: CUERPO_SUDADERA_VM, ceja: hex('#1c1424'), mejillas: [[12, 8]], delante: gafasFinasDC,
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#6a4a9a', c: '#4e3678', X: '#f2eee2', F: '#2a2a34', n: '#f2eee2' }) },
+  // el golfista: la visera blanca, el polo rosa, el pantalón corto caqui y los calcetines blancos
+  golfistaLF: { ...B19, cab: CAB_ENTRADAS, cuerpo: CUERPO_POLO_CORTOS_LF, tocado: 'viseraLF', ceja: hex('#7a7a84'),
+    pal: CLARA({ H: '#9a9aa4', h: '#babac4', C: '#f2a8b8', c: '#d888a0', W: '#f6f6f2', o: '#f6f6f2', Q: '#f6f6f2', q: '#c8c8d2', F: '#c8b888', X: '#f6f6f2', n: '#f6f6f2' }) },
+  // el turista de Ocean Drive: sombrero de paja, camisa de flores azul, pantalón corto, la cámara al cuello y sandalias
+  turistaLF: { ...B19, cuerpo: CUERPO_HAWAIANA_CORTOS_LF, tocado: 'sombreroPaja', ceja: hex('#8a5a30'), mejillas: [[6, 8], [12, 8]], delante: camaraCuelloNX,
+    pal: CLARA({ H: '#a8743c', h: '#c8955a', T: '#e8d090', t: '#c8a860', D: '#3a6ab0', C: '#3a8ad8', c: '#2a6ab0', P: '#f6f6f2', p: '#f0c030', X: '#f6f6f2', F: '#c8b888', n: '#8a5a30' }) },
+  // la patinadora: media melena castaña, camiseta verde fosforito, pantalón corto, rodilleras y patines con ruedas
+  patinadoraLF: { ...B19, cab: CAB_MEDIA_TR, cuerpo: CUERPO_PATINES_LF, ceja: hex('#2a1c14'), mejillas: [[12, 8]],
+    pal: OSCURA({ H: '#2a1c14', h: '#4a3424', C: '#a8f03a', c: '#7ac82a', F: '#2a2a34', X: '#e83a8a', n: '#f6f6f2', o: '#f0c030' }) },
+  // la pareja de forajidos de los años treinta (para una foto en sepia): ella, boina y traje sastre de falda; él,
+  // fedora y traje de tres piezas
+  bonnieLF: { ...B19, cab: CAB_MEDIA_TR, cuerpo: CUERPO_SASTRE, tocado: 'boina', ceja: hex('#8a6a3a'), mejillas: [[12, 8]],
+    pal: CLARA({ H: '#c8a060', h: '#e0bc80', J: '#3a3a46', j: '#5a5a66', C: '#6a5a4a', c: '#54463a', W: '#f2eee2', o: '#2a2430', I: '#3a2a20' }) },
+  clydeLF: { ...B19, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRES_PIEZAS_PR, tocado: 'fedora', ceja: hex('#2a1c14'),
+    pal: CLARA({ H: '#2a1c14', h: '#4a3424', C: '#4a4a52', c: '#3a3a42', W: '#f2eee2', o: '#6a2a2a', V: '#5a5a62', O: '#e8b830', F: '#4a4a52', G: '#1c1820' }) },
+  // la escritora de 1947: sombrero de paja de ala ancha, el pelo blanco, gafas finas y el vestido claro de verano
+  escritoraLF: { ...B19, cab: CAB_CORTA_VM, cuerpo: VESTIDO_LISO, tocado: 'sombreroPaja', ceja: hex('#b8b8c0'), delante: varios(gafasFinasDC, arrugasDC),
+    pal: CLARA({ H: '#e8e8ee', h: '#c8c8d2', T: '#e8d8a0', t: '#c8b478', D: '#5a6a9a', C: '#c8d4e8', c: '#a8b4cc', W: '#f6f6f2', L: '#6a4a30' }) },
+  // el cazador de caimanes de los cincuenta: sombrero de ala, bigote, camisa de cuadros y el vadeador de goma verde
+  cazadorLF: { ...B19, cuerpo: CUERPO_VADEADOR_LF, tocado: 'alaAT', ceja: hex('#3a2a1c'), delante: bigoteTR,
+    pal: OTO({ H: '#3a2a1c', h: '#5a4430', J: '#6a5a3a', j: '#8a7a54', D: '#3a2a1c', C: '#a83a2a', p: '#5a1e14', W: '#c84a3a', V: '#3a4a2a', v: '#2a361e', F: '#3a4a2a', n: '#22281a' }) },
+  // el piloto de la lancha de hélice: barba corta canosa, los cascos protectores naranjas, la camisa de pesca azul clara
+  lancheroLF: { ...B19, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_CAMPO_GZ, tocado: 'cascosTS', ceja: hex('#8a8a94'),
+    pal: OTO({ H: '#9a9aa4', h: '#babac4', M: '#3a3a46', A: '#f08a2a', a: '#f8b060', C: '#a8c8e0', c: '#88a8c4', o: '#f2eee2', u: '#88a8c4', G: '#4a3424', F: '#c8b888', n: '#4a3424' }) },
+  // quien pide un papel en el mostrador del archivo: gorra azul, camiseta verde y vaqueros
+  ciudadanoLF: { ...B19, cuerpo: CUERPO_CALLE, tocado: 'beisbol', ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', J: '#2a4a8a', j: '#3a5aa8', C: '#3a8a4a', c: '#2a6a38', F: '#3a5a8a', n: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_LF);
