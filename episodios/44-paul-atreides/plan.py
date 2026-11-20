@@ -14,7 +14,8 @@ fila por escena: (id, cartela, frase_ini, frase_fin, [marca por frase], [guion v
 import json, os
 
 D = os.path.dirname(os.path.abspath(__file__))
-BANDA = {'tono': 're', 'modo': 'dorico', 'tempo': 68, 'motivo': [0, 7, 5, 3, 2, 3, 5, 0]}
+BANDA = {'tono': 're', 'modo': 'dorico', 'tempo': 68, 'motivo': [0, 7, 5, 3, 2, 3, 5, 0], 'sampleado': True,
+         'paleta': {'solista': 'shehnai', 'color': 'arpa', 'metal': 'trompa', 'aire': 'flauta', 'madera': 'clarinete'}}
 E = [
  ('pa-gancho', None, 1, 2, ['giro', 'imagina'],
   ['A: el desierto al atardecer, dos lunas; una figura con capa en lo alto de una duna; detrás, un mar de estandartes; golpe en «villain».',

@@ -26,6 +26,12 @@
 //   - pastoral (desde el 16): una cita de dominio público tocada por nosotros (banda.cita), con lengüeta y cuerdas.
 //   Sin «banda», todo suena exactamente como antes (La menor y el motivo del 10–12), así que los episodios ya hechos no
 //   cambian. Con «banda», los cuatro ánimos de siempre también van en su tono y con su motivo.
+// - Desde el 44 (20/11/2026, CANON: el usuario lo eligió de oído, «perfecto, nuevo canon», porque «la música suena muy
+//   repetida… siempre es casi igual»): con banda.sampleado = true los tramos los tocan INSTRUMENTOS SAMPLEADOS
+//   (sonido/tramo_sf.py: FluidSynth + FluidR3_GM, licencia MIT; apt-get install fluidsynth fluid-soundfont-gm), con la
+//   paleta del episodio (banda.paleta: solista, color, metal, aire, madera, punteo, teclas…) y un arreglo que cambia en
+//   cada vuelta. El lecho, los golpes, las cartelas, los niveles y el nivelador son los mismos. Sin sampleado, todo suena
+//   como antes.
 // - Todo en el mismo tono (La menor por defecto), para que los cambios de escena casen. Cada capa se normaliza a su nivel (NIVEL, en LUFS desde el 29/10/2026)
 //   y un nivelador frena los picos: la música entera queda unos 4–5 LU por debajo de la voz cuando no habla nadie, y más
 //   baja aún bajo la voz (montar-largo.sh la aparta con la voz como llave).
@@ -179,9 +185,24 @@ const NUEVOS = {
 };
 
 // Una capa por tramo (escenas seguidas con el mismo ánimo), normalizada a su nivel y con fundidos de igual potencia
+// Desde el 44 (20/11/2026, el usuario de oído: «perfecto, nuevo canon»): con banda.sampleado, cada tramo lo tocan
+// instrumentos sampleados (sonido/tramo_sf.py: FluidSynth + FluidR3_GM, licencia MIT) con la paleta del episodio
+// (banda.paleta) y un arreglo que cambia en cada vuelta. Lo demás (lecho, golpes, cartelas, nivelador, niveles) no cambia.
+function tramoSampleado(b, animo, t0, d, semilla) {
+  const os = require('os'), cp = require('child_process');
+  const wav = path.join(os.tmpdir(), `tramo-sf-${process.pid}-${semilla}.wav`);
+  const args = { animo, segundos: d, tonica: TONICA, modo: BANDA.modo || 'menor', tempo: TEMPO, motivo: MOTIVO, paleta: BANDA.paleta || null, semilla, sr: SR };
+  const r = cp.spawnSync(process.env.PYTHON || 'python3', [path.join(__dirname, 'sonido', 'tramo_sf.py'), JSON.stringify(args), wav], { encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`tramo_sf.py (${animo}): ${r.stderr}`);
+  MIX.loadAudio(wav, { at: t0, length: n / SR }).mixInto(b, 1);
+  fs.unlinkSync(wav);
+}
+
 function capa(esc, animo) {
   const t0 = Math.max(0, esc.inicio - FUNDIDO / 2), d = esc.duracion + FUNDIDO, b = new Bus(n), r = rng(esc.inicio * 1000 | 0);
-  if (animo === 'suspense') {
+  if (BANDA.sampleado) {
+    tramoSampleado(b, animo, t0, d, esc.inicio * 1000 | 0);
+  } else if (animo === 'suspense') {
     pad(b, [[33 + T, 0.6], [40 + T, 0.35], [45 + T, 0.2]], t0, d, { cutoff: 450, attack: Math.min(3, d / 3), release: 0.6 });
     // registro medio (La3, Mi4, Si4 tenso), para que el suspense se oiga también en un móvil
     pad(b, [[57 + T, 0.32], [64 + T, 0.22], [71 + T, 0.12]], t0, d, { cutoff: 1500, attack: Math.min(3, d / 3), release: 0.6, seed: 4 });

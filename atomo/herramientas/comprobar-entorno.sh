@@ -16,6 +16,8 @@ pw=$(npm root -g 2>/dev/null)/playwright
 if [ -d "$pw" ] && node -e "require('$pw').chromium.launch().then(b=>b.close())" 2>/dev/null; then ok "playwright + chromium (global)"
 else mal "playwright global con chromium (render, capturas, hojas de revisión)" "npm i -g playwright && npx playwright install --with-deps chromium"; fi
 
+if command -v fluidsynth >/dev/null && [ -f /usr/share/sounds/sf2/FluidR3_GM.sf2 ]; then ok "fluidsynth y FluidR3_GM (la banda sampleada, canon desde el 44)"
+else mal "falta fluidsynth o el banco FluidR3_GM (la banda sampleada)" "apt-get install -y fluidsynth fluid-soundfont-gm"; fi
 if command -v ffmpeg >/dev/null; then
   f=$(ffmpeg -hide_banner -filters 2>/dev/null); e=$(ffmpeg -hide_banner -encoders 2>/dev/null); antes=$falta; falta=0
   for x in rubberband ebur128 xstack drawtext; do grep -q " $x " <<<"$f" || mal "ffmpeg sin el filtro $x" "un ffmpeg completo (paquete ffmpeg de Debian/Ubuntu o el de ffmpeg.org)"; done

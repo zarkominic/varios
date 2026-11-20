@@ -35,6 +35,11 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
     fuertes que otras»;
   - **la voz española «B»:** cada frase entera de una vez y sin estirar con rubberband (`locutar_frases.py`, `ENTERA`):
     partida en las comas y estirada «se entrecorta».
+- **La música con instrumentos sampleados (canon desde el 44, elegido de oído por el usuario el 20/11/2026):** en
+  `plan.py`, `BANDA` lleva `'sampleado': True` y una `'paleta'` propia del episodio (qué instrumento hace de solista, de
+  color, de metal, de aire…; los nombres, en `atomo/herramientas/sonido/tramo_sf.py`). Dos episodios seguidos no
+  repiten solista. Hace falta `fluidsynth` y `fluid-soundfont-gm` (`comprobar-entorno.sh` lo mira). Con los instrumentos
+  sintetizados «siempre es casi igual» (el usuario).
 - **La banda de cada episodio la decide el tema** (desde el 13, por petición del usuario: «la música de fondo se está
   repitiendo de capítulo a capítulo… no todo es suspenso»; «la banda depende del tema que definamos y el guion»). Se
   diseña con el guion (paso 2.4) y se aprueba con él, con su muestra.
