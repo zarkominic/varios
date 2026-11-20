@@ -21,8 +21,10 @@ def _t(cuerpo):
 E['hm-plato'] = ('El plató', '''// HM-PLATO (frases 18–19), Juegos 50 (año 50), sin cartela. Ocho planos, cada uno con Atom de luciérnaga:
 // 1. «private session… murderers… a one»: la sala de los Vigilantes con luz de alarma; Haymitch entra, señala con rabia a
 //    tres Vigilantes, que se asustan; en «one» la pantalla grande pone un 1 y una sola muesca de doce (sello).
-// 2. «without sponsors… clean water… arena»: la tele de cerca: la arena preciosa; un paracaídas con agua baja y se va
-//    hacia arriba (patrocinadores: 0); el lago burbujea violeta y salen la gota y la X.
+// 2. «without sponsors… clean water… arena»: la tele de cerca: la arena preciosa a tres términos (cielo tramado con sol,
+//    nubes a tres velocidades y pájaros; montes nevados, colinas con pinos, árboles, matas y la cornucopia; hierba alta,
+//    flores y mariposas delante); un paracaídas plateado grande con la cantimplora baja y se va hacia arriba con la X
+//    (patrocinadores: 0); el lago grande, con orilla y juncos, burbujea violeta y salen la gota y la X.
 // 3. «interview with Caesar… charming rascal… moonshine» (corta en «In his»): los sillones del plató; Haymitch entra,
 //    se sube de un salto al sillón, cuenta historias y levanta el tarro de licor; Caesar se parte de risa.
 // 4. «Because… the capital really loves… a show» (corta en «Because»): el plató entero: Haymitch al centro, el público
@@ -113,36 +115,126 @@ const p1 = (t) => {
 
 // ── 2. la tele: sin patrocinadores no hay agua ──
 const SPON = @A(6.26), ISNT = @A(7.50), WATER = @A(8.02), ARENA = @A(9.24);
+// azar fijo (sin Math.random): el mismo prado en cada fotograma
+const hz3 = (a, b, s) => { const v = Math.sin(a * 127.1 + b * 311.7 + s * 74.7) * 43758.5453; return v - Math.floor(v); };
+// una nube de tres tonos (sombra abajo, cuerpo y brillo arriba)
+const tvNube = (R, cx, cy, s, [c1, c2, c3]) => {
+  R.disco(cx, cy + 2, 6 * s, c3); R.disco(cx - 7 * s, cy + 2, 4 * s, c3); R.disco(cx + 7 * s, cy + 2, 4.5 * s, c3);
+  R.disco(cx, cy, 5.5 * s, c2); R.disco(cx - 6 * s, cy + 1, 3.6 * s, c2); R.disco(cx + 6 * s, cy + 1, 4 * s, c2);
+  R.disco(cx - 1, cy - 2 * s, 3.8 * s, c1); R.disco(cx + 4 * s, cy - 1 * s, 2.6 * s, c1);
+};
+// un árbol de hoja con tronco, copa de tres tonos que se mece y su sombra en la hierba (pie en x, y; s escala)
+const tvArbol = (R, x, y, s, t, k) => {
+  const m = Math.sin(t * 1.4 + k) * s * 0.8;
+  R.disco(x + 2 * s, y + 1, 5 * s, hex('#3a8a34'));
+  R.poligono([[x - 1 * s, y], [x + 1 * s, y], [x + 0.7 * s, y - 8 * s], [x - 0.7 * s, y - 8 * s]], hex('#5a3a22'));
+  R.linea(x + Math.round(0.5 * s), y - 1, x + Math.round(0.5 * s), y - Math.round(7 * s), hex('#3a2416'));
+  R.disco(x + m, y - 12 * s, 6 * s, hex('#1e5a2a')); R.disco(x - 4 * s + m, y - 9 * s, 4.2 * s, hex('#1e5a2a')); R.disco(x + 4 * s + m, y - 9 * s, 4.5 * s, hex('#1e5a2a'));
+  R.disco(x - 1 * s + m, y - 13 * s, 5 * s, hex('#2e7a34')); R.disco(x - 4 * s + m, y - 10 * s, 3.4 * s, hex('#2e7a34')); R.disco(x + 3 * s + m, y - 10 * s, 3.6 * s, hex('#2e7a34'));
+  R.disco(x - 2 * s + m, y - 15 * s, 2.6 * s, hex('#5aaa48')); R.disco(x - 5 * s + m, y - 11 * s, 1.6 * s, hex('#5aaa48'));
+  if (s > 1.4) { R.pset(Math.round(x + 2 * s + m), Math.round(y - 12 * s), hex('#e83a5a')); R.pset(Math.round(x - 3 * s + m), Math.round(y - 8 * s), hex('#e83a5a')); }   // manzanas
+};
+// una mata redonda con flores
+const tvMata = (R, x, y, s, t, k) => {
+  const m = Math.round(Math.sin(t * 2 + k) * 0.6);
+  R.disco(x + m, y - 2 * s, 3.6 * s, hex('#2a6a2e')); R.disco(x - 3 * s + m, y - 1 * s, 2.6 * s, hex('#2a6a2e')); R.disco(x + 3 * s + m, y - 1 * s, 2.8 * s, hex('#2a6a2e'));
+  R.disco(x - 1 * s + m, y - 3 * s, 2.6 * s, hex('#4a9a3e')); R.disco(x + 2 * s + m, y - 2 * s, 1.6 * s, hex('#4a9a3e')); R.pset(x - 2 + m, y - Math.round(4 * s), hex('#8ad05a'));
+  const fc = [hex('#f4e05a'), hex('#f08ac8'), hex('#ffffff')][k % 3]; R.pset(x - 2 + m, y - 2, fc); R.pset(x + 2 + m, y - Math.round(3 * s), fc); R.pset(x + m, y - 1, fc);
+};
 const tvArena = (R, t, [x0, y0, x1, y1]) => {
-  const hz = y0 + 48;
-  for (let y = y0; y <= hz; y++) { const v = (y - y0) / (hz - y0); for (let x = x0; x <= x1; x++) R.pset(x, y, v < 0.35 ? ((x + y) % 2 ? hex('#5a9ae8') : hex('#6aaaf0')) : v < 0.7 ? ((x + y) % 2 ? hex('#7ab8f0') : hex('#6aaaf0')) : ((x + y) % 3 ? hex('#a8d4f4') : hex('#8ac4f0'))); }
-  [[0.35, 14, [hex('#f6f8fc'), hex('#d8e4f0'), hex('#a8bcd4')]], [0.6, 26, [hex('#eef2f8'), hex('#c8d4e4'), hex('#98acc8')]], [1.0, 8, [hex('#ffffff'), hex('#e0e8f4'), hex('#b0c4dc')]]].forEach(([vel, yy, [c1, c2, c3]], k) => {
-    const cx = x0 + ((k * 61 + t * 6 * vel) % (x1 - x0 + 40)) - 20, cy = y0 + yy;
-    R.disco(cx, cy + 1, 6, c3); R.disco(cx - 5, cy + 1, 4, c3); R.disco(cx, cy, 5.5, c2); R.disco(cx - 5, cy, 3.5, c2); R.disco(cx + 5, cy, 4, c2); R.disco(cx - 1, cy - 2, 3.5, c1); });
-  R.poligono([[x0 + 20, hz], [x0 + 62, y0 + 18], [x0 + 104, hz]], hex('#8a96b8')); R.poligono([[x0 + 54, y0 + 26], [x0 + 62, y0 + 18], [x0 + 70, y0 + 26], [x0 + 62, y0 + 24]], hex('#f6f8fc'));
-  R.poligono([[x0 + 80, hz], [x0 + 118, y0 + 26], [x0 + 160, hz]], hex('#7a86a8'));
-  for (let y = hz; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, (x * 7 + y * 13) % 11 < 2 ? hex('#3e9a3a') : (x + y) % 2 ? hex('#5ab84a') : hex('#52ae44'));
-  for (let i = 0; i < 46; i++) { const fx = x0 + ((i * 37) % (x1 - x0)), fy = hz + 4 + ((i * 23) % (y1 - hz - 6)), sw = Math.round(Math.sin(t * 2 + i) * 1);
-    R.pset(fx + sw, fy - 1, [hex('#f04a6a'), hex('#f0d040'), hex('#ffffff'), hex('#b07ae8')][i % 4]); R.pset(fx, fy, hex('#2e7a2e')); }
-  // la cornucopia dorada al fondo
-  R.poligono([[x0 + 96, hz + 10], [x0 + 112, hz + 4], [x0 + 114, hz + 12]], K.oro); R.linea(x0 + 96, hz + 10, x0 + 114, hz + 12, K.oroS);
-  // el lago: azul; desde «water», violeta con burbujas
-  const lx = x0 + 42, ly = y0 + 80, vio = tramo(t, WATER - 0.2, WATER + 0.5);
-  for (let y = -8; y <= 8; y++) for (let x = -26; x <= 26; x++) { const d = (x / 26) ** 2 + (y / 8) ** 2; if (d > 1) continue;
-    const c = d > 0.8 ? hex('#2a5a8a') : (x + y + Math.floor(t * 4)) % 9 === 0 ? hex('#c8e8ff') : hex('#3a8ad8'); R.pset(lx + x, ly + y, vio > 0 ? mez(c, [150, 60, 200], vio * 0.85) : c); }
-  if (vio > 0) for (let i = 0; i < 9; i++) { const f = (t * 0.9 + i * 0.13) % 1, bx = lx - 20 + i * 5, by = ly + 4 - f * 16; R.disco(bx, by, 1.2, hex('#d8a8ff')); R.pset(bx, by - 1, hex('#ffffff')); }
-  // el paracaídas plateado con la cantimplora: baja y se va otra vez hacia arriba
-  const baja = tramo(t, SPON - 0.3, ISNT), sube = tramo(t, ISNT + 0.1, WATER), py = Math.round(y0 - 20 + 56 * baja - 80 * sube ** 1.6), px = Math.round(x0 + 100 + Math.sin(t * 2) * 3 + 20 * sube);
-  if (baja > 0 && sube < 1) { R.disco(px, py, 9, K.k); R.disco(px, py, 8, hex('#d8dce4')); R.disco(px - 2, py - 2, 4, hex('#f4f6fa')); for (let x = px - 9; x <= px + 9; x++) for (let y = py + 1; y <= py + 10; y++) R.pset(x, y, hex('#5a9ae8'));
-    for (const dx of [-8, -3, 3, 8]) R.linea(px + dx, py, px, py + 11, hex('#e8ecf0')); R.rect(px - 3, py + 11, px + 3, py + 17, K.k); R.rect(px - 2, py + 12, px + 2, py + 16, hex('#a8b0bc')); R.pset(px - 1, py + 13, K.blanco); }
-  if (t > ISNT && t < WATER + 0.3 && Math.floor(t * 6) % 2) R.icono('X', x0 + 112, y0 + 22, hex('#ff3a3a'), K.k, 2);
+  const W = x1 - x0, hz = y0 + 46;
+  // el cielo tramado en cuatro tonos (más claro hacia el horizonte)
+  const cs = [hex('#4a8ae0'), hex('#64a4ee'), hex('#8cc4f4'), hex('#c4e2f8')];
+  for (let y = y0; y <= hz; y++) { const v = (y - y0) / (hz - y0) * 3; for (let x = x0; x <= x1; x++) { const d = ((x & 1) * 2 + (y & 1)) / 4; R.pset(x, y, cs[Math.min(3, Math.floor(v + d * 0.9))]); } }
+  // el sol de la tarde con su halo
+  R.disco(x0 + 34, y0 + 14, 9, hex('#d8ecfa')); R.disco(x0 + 34, y0 + 14, 6, hex('#fff6c8')); R.disco(x0 + 33, y0 + 13, 3, hex('#ffffff'));
+  // nubes a tres velocidades (lejos, lentas y pequeñas; cerca, rápidas y grandes)
+  [[0.25, 10, 0.6, 0], [0.25, 18, 0.55, 1], [0.5, 8, 0.85, 2], [0.5, 24, 0.8, 3], [0.9, 14, 1.15, 4]].forEach(([vel, yy, s, k]) => {
+    const sp = W + 60, cx = x0 - 30 + (((hz3(k, 3, 9) * sp + t * 7 * vel) % sp) + sp) % sp;
+    tvNube(R, Math.round(cx), y0 + yy, s, s > 1 ? [hex('#ffffff'), hex('#e4eef8'), hex('#a8bcd8')] : [hex('#f2f6fc'), hex('#cad8ea'), hex('#9cb0cc')]); });
+  // pájaros que cruzan aleteando (uves de dos píxeles de ala)
+  for (let k = 0; k < 5; k++) { const bx = Math.round(x1 + 10 - ((t * (9 + k * 2) + k * 31) % (W + 30))), by = Math.round(y0 + 8 + k * 5 + Math.sin(t * 1.7 + k) * 2), a = Math.sin(t * 12 + k * 1.3) > 0 ? -1 : 1;
+    R.linea(bx - 2, by + a, bx, by, hex('#2a2a3a')); R.linea(bx, by, bx + 2, by + a, hex('#2a2a3a')); }
+  // los montes del fondo: azulados, con nieve y sus vertientes en sombra
+  R.poligono([[x0 - 4, hz], [x0 + 26, y0 + 26], [x0 + 46, y0 + 32], [x0 + 70, y0 + 16], [x0 + 98, y0 + 30], [x0 + 122, y0 + 20], [x1 + 4, y0 + 34], [x1 + 4, hz]], hex('#8a96c0'));
+  R.poligono([[x0 + 70, y0 + 16], [x0 + 98, y0 + 30], [x0 + 86, hz], [x0 + 72, hz]], hex('#6e7aa6')); R.poligono([[x0 + 122, y0 + 20], [x1 + 4, y0 + 34], [x1 + 4, hz], [x0 + 128, hz]], hex('#6e7aa6'));
+  R.poligono([[x0 + 26, y0 + 26], [x0 + 46, y0 + 32], [x0 + 38, hz], [x0 + 30, hz]], hex('#6e7aa6'));
+  R.poligono([[x0 + 63, y0 + 22], [x0 + 70, y0 + 16], [x0 + 78, y0 + 21], [x0 + 74, y0 + 24], [x0 + 70, y0 + 21], [x0 + 66, y0 + 24]], hex('#f6f8fc'));
+  R.poligono([[x0 + 116, y0 + 24], [x0 + 122, y0 + 20], [x0 + 130, y0 + 24], [x0 + 124, y0 + 26]], hex('#eef2f8')); R.poligono([[x0 + 21, y0 + 29], [x0 + 26, y0 + 26], [x0 + 31, y0 + 29], [x0 + 26, y0 + 30]], hex('#eef2f8'));
+  // las colinas de en medio, verde azulado, con la fila de pinos
+  R.poligono([[x0 - 2, hz + 2], [x0 - 2, hz - 8], [x0 + 30, hz - 12], [x0 + 64, hz - 6], [x0 + 100, hz - 13], [x0 + 130, hz - 8], [x1 + 2, hz - 10], [x1 + 2, hz + 2]], hex('#4a7a6a'));
+  for (let i = 0; i < 30; i++) { const px = x0 + 2 + i * 5 + Math.round(hz3(i, 1, 4) * 3), top = hz - 6 - Math.round(hz3(i, 2, 4) * 5) - (i > 18 ? 3 : 0);
+    R.poligono([[px - 2, hz], [px, top], [px + 2, hz]], (i & 1) ? hex('#2a5a4a') : hex('#336a52')); R.pset(px, top + 1, hex('#5a8a72')); }
+  // el prado: hierba tramada en tres tonos, más oscura y con más mancha cerca
+  for (let y = hz; y <= y1; y++) { const f = (y - hz) / (y1 - hz); for (let x = x0; x <= x1; x++) { const r = hz3(x, y, 5);
+    R.pset(x, y, r < 0.12 + f * 0.18 ? hex('#3e9a3a') : r > 0.93 - f * 0.05 ? hex('#8ad05a') : (y - hz) < 6 ? hex('#6ac050') : hex('#5ab84a')); } }
+  // franjas de sombra de las nubes que corren por el prado
+  for (let k = 0; k < 2; k++) { const sx = x0 + (((t * 8 + k * 80) % (W + 60)) - 30), sy = hz + 14 + k * 18;
+    for (let y = sy; y < sy + 5; y++) for (let x = Math.round(sx); x < sx + 26 - Math.abs(y - sy - 2) * 3; x++) if (((x + y) & 1) === 0) R.pset(x, y, hex('#4aa040')); }
+  // tres términos: árboles pequeños al fondo, matas y árboles en medio, hierba alta y flores grandes delante
+  [[x0 + 14, hz + 3, 0.7], [x0 + 52, hz + 2, 0.6], [x0 + 128, hz + 4, 0.75], [x0 + 140, hz + 3, 0.6]].forEach(([x, y, s], k) => tvArbol(R, x, y, s, t, k));
+  // la cornucopia dorada, grande, en el centro, con sus brillos y las cajas al pie
+  const cx = x0 + 98, cy = hz + 12;
+  R.disco(cx + 2, cy + 6, 9, hex('#3e8a36'));
+  R.poligono([[cx - 12, cy - 6], [cx - 12, cy + 6], [cx + 8, cy + 3], [cx + 14, cy - 3], [cx + 16, cy - 8], [cx + 12, cy - 4]], hex('#b8901c'));
+  R.poligono([[cx - 11, cy - 5], [cx - 11, cy], [cx + 8, cy - 1], [cx + 13, cy - 5]], K.oro);
+  R.disco(cx - 12, cy, 6, hex('#8a6a10')); R.disco(cx - 12, cy, 4.4, hex('#3a2a10'));
+  if (Math.floor(t * 3) % 3 === 0) R.pset(cx + 2, cy - 3, hex('#fff6b0')); else R.pset(cx - 4, cy - 3, hex('#fff6b0'));
+  [[-20, 5, hex('#a07a4a')], [-16, 8, hex('#7a8a9a')], [-24, 8, hex('#c8a060')]].forEach(([dx, dy, c]) => { R.poligono([[cx + dx - 2, cy + dy - 2], [cx + dx + 2, cy + dy - 2], [cx + dx + 2, cy + dy + 1], [cx + dx - 2, cy + dy + 1]], c); R.linea(cx + dx - 2, cy + dy + 1, cx + dx + 2, cy + dy + 1, hex('#3a2a20')); });
+  [[x0 + 8, hz + 22, 1.4], [x0 + 70, hz + 16, 1.1], [x0 + 126, hz + 24, 1.3], [x0 + 140, hz + 36, 1.6]].forEach(([x, y, s], k) => tvMata(R, x, y, s, t, k));
+  tvArbol(R, x0 + 140, hz + 26, 1.6, t, 7);
+  // el lago, grande: azul con su orilla de arena y juncos; desde «water», violeta y burbujeante
+  const lx = x0 + 46, ly = y0 + 78, rx = 36, ry = 11, vio = tramo(t, WATER - 0.2, WATER + 0.5);
+  for (let y = -ry - 2; y <= ry + 2; y++) for (let x = -rx - 3; x <= rx + 3; x++) { const d = (x / (rx + 3)) ** 2 + (y / (ry + 2)) ** 2; if (d > 1) continue;
+    const di = (x / rx) ** 2 + (y / ry) ** 2; let c;
+    if (di > 1) c = (x + y) & 1 ? hex('#c8b070') : hex('#a89050');
+    else { const ola = (x + Math.floor(t * 6) + y * 3) % 11 === 0 && (y & 1) === 0; c = di > 0.82 ? hex('#2a5a8a') : y < -ry * 0.4 ? hex('#5aa0e0') : ola ? hex('#c8e8ff') : hex('#3a84d0');
+      if (vio > 0) c = mez(c, di > 0.82 ? [80, 30, 110] : ola ? [230, 180, 255] : [150, 60, 200], vio * 0.9); }
+    R.pset(lx + x, ly + y, c); }
+  // el reflejo del cielo y los juncos de la orilla
+  R.linea(lx - 20, ly - 6, lx + 6, ly - 6, vio > 0.5 ? hex('#d8a8ff') : hex('#a8d8ff')); R.linea(lx + 12, ly - 4, lx + 22, ly - 4, vio > 0.5 ? hex('#d8a8ff') : hex('#a8d8ff'));
+  for (let i = 0; i < 6; i++) { const jx = lx + rx - 4 + i * 2, jy = ly + 4 - i, m = Math.round(Math.sin(t * 2.2 + i) * 1);
+    R.linea(jx, jy + 4, jx + m, jy - 3, hex('#2e6a2a')); R.pset(jx + m, jy - 3, hex('#6a4a2a')); R.pset(jx + m, jy - 2, hex('#6a4a2a')); }
+  if (vio > 0) for (let i = 0; i < 12; i++) { const f = (t * 0.9 + i * 0.137) % 1, bx = lx - 28 + i * 5 + Math.round(Math.sin(t * 3 + i) * 1), by = ly + 6 - f * 20;
+    if (f > 0.85) continue; R.disco(bx, by, 1.6 + (i % 3) * 0.4, hex('#b070e8')); R.disco(bx, by, 0.9 + (i % 3) * 0.3, hex('#e4c0ff')); R.pset(bx - 1, by - 1, hex('#ffffff')); }
+  // hierba alta y flores grandes delante (primer término), que se mecen
+  const flores = [hex('#e83a5a'), hex('#f4e05a'), hex('#f08ac8'), hex('#ffffff'), hex('#a070e8')];
+  for (let i = 0; i < 70; i++) { const fx = x0 + 2 + Math.round(hz3(i, 7, 2) * (W - 4)), fy = hz + 6 + Math.round(hz3(i, 8, 2) * (y1 - hz - 6));
+    if (((fx - lx) / (rx + 4)) ** 2 + ((fy - ly) / (ry + 3)) ** 2 < 1) continue;
+    const f = (fy - hz) / (y1 - hz), al = 1 + Math.round(f * 4), m = Math.round(Math.sin(t * 2 + i) * f * 1.6);
+    R.linea(fx, fy, fx + m, fy - al, hex('#2e7a2e')); if (f > 0.5) { R.pset(fx - 1, fy - 1, hex('#2e7a2e')); }
+    const c = flores[i % 5]; if (f > 0.6) { R.disco(fx + m, fy - al, 1.4, c); R.pset(fx + m, fy - al, hex('#f8d040')); } else R.pset(fx + m, fy - al, c); }
+  for (let x = x0; x <= x1; x += 2) { const al = 3 + Math.round(hz3(x, 1, 3) * 4), m = Math.round(Math.sin(t * 2.4 + x * 0.2) * 1.2);
+    R.linea(x, y1, x + m, y1 - al, (x & 2) ? hex('#2e7a2e') : hex('#3e9a3a')); }
+  // dos mariposas que revolotean sobre las flores
+  for (let k = 0; k < 2; k++) { const bx = Math.round(x0 + 82 + k * 40 + Math.sin(t * 0.8 + k * 2) * 14), by = Math.round(hz + 30 + Math.sin(t * 1.6 + k) * 6), a = Math.sin(t * 14 + k) > 0 ? 1 : 0;
+    R.pset(bx, by, K.k); R.pset(bx - 1, by - a, hex('#f8a030')); R.pset(bx + 1, by - a, hex('#f8a030')); R.pset(bx - 2, by - a, hex('#f8a030')); R.pset(bx + 2, by - a, hex('#f8a030')); }
+  // el paracaídas plateado con la cantimplora: baja despacio y, sin patrocinadores, se va otra vez hacia arriba (con la X)
+  const baja = tramo(t, SPON - 0.3, ISNT), sube = tramo(t, ISNT + 0.05, WATER + 0.55);
+  const py = Math.round(y0 - 30 + 62 * (1 - (1 - baja) ** 2) - 92 * sube ** 1.5), px = Math.round(x0 + 112 + Math.sin(t * 2) * 4 + 12 * sube), ld = Math.round(Math.sin(t * 2) * 2);
+  if (baja > 0 && sube < 1) {
+    // la cúpula: media luna plateada con sus gajos, el brillo y el borde ondulado
+    const semi = (r) => { const pts = []; for (let i = 0; i <= 16; i++) { const a = Math.PI + Math.PI * i / 16; pts.push([px + Math.cos(a) * r, py + Math.sin(a) * r]); } return pts; };
+    R.poligono(semi(15), K.k); R.poligono(semi(14), hex('#c8ccd8'));
+    for (let k = -2; k <= 2; k++) R.poligono([[px, py - 13], [px + k * 5 - 1.5, py], [px + k * 5 + 1.5, py]], k & 1 ? hex('#eef2f8') : hex('#a0a8b8'));
+    R.disco(px - 5, py - 8, 2.6, hex('#ffffff'));
+    for (let x = -14; x <= 14; x++) R.pset(px + x, py + ((x + 14) % 6 < 3 ? 1 : 0), K.k);
+    for (const dx of [-12, -6, 6, 12]) R.linea(px + dx, py + 1, px + ld, py + 14, hex('#e8ecf0'));
+    // la cantimplora con su tapón y su brillo
+    R.poligono([[px + ld - 4, py + 14], [px + ld + 4, py + 14], [px + ld + 4, py + 24], [px + ld - 4, py + 24]], K.k);
+    R.poligono([[px + ld - 3, py + 15], [px + ld + 3, py + 15], [px + ld + 3, py + 23], [px + ld - 3, py + 23]], hex('#a8b0bc'));
+    R.linea(px + ld - 2, py + 16, px + ld - 2, py + 22, hex('#f0f4f8')); R.linea(px + ld + 2, py + 16, px + ld + 2, py + 22, hex('#6a7484'));
+    R.linea(px + ld - 1, py + 13, px + ld + 1, py + 13, hex('#3a4a6a')); R.icono('gota', px + ld - 1, py + 17, hex('#5ab8f8'), K.k, 1);
+    if (t > ISNT && t < WATER + 0.4 && Math.floor(t * 6) % 2) R.icono('X', px + 14, py + 2, K.rojo, K.k, 2);
+  }
   // el marcador de patrocinadores: un paracaídas pequeño y «0»
-  R.disco(x0 + 9, y0 + 9, 5, K.k); R.disco(x0 + 9, y0 + 9, 4, hex('#d8dce4')); for (let x = x0 + 4; x <= x0 + 14; x++) for (let y = y0 + 10; y <= y0 + 14; y++) R.pset(x, y, hex('#5a9ae8'));
-  R.linea(x0 + 5, y0 + 10, x0 + 9, y0 + 16, K.blanco); R.linea(x0 + 13, y0 + 10, x0 + 9, y0 + 16, K.blanco);
-  R.numero('0', x0 + 22, y0 + 18, { tam: 16, rampa: t > SPON ? undefined : undefined });
-  // sin agua limpia: la gota con la X sobre el lago
-  const gx = lx - 6, gy = ly - 24, ap = tramo(t, WATER + 0.3, WATER + 0.6);
-  if (ap > 0) { R.icono('gota', gx, gy, hex('#8ad8ff'), K.k, 2); if (t > ARENA - 0.2 || Math.floor(t * 5) % 2) R.icono('X', gx + 2, gy + 2, hex('#ff3a3a'), K.k, 2); }
+  R.poligono([[x0 + 3, y0 + 11], [x0 + 5, y0 + 6], [x0 + 10, y0 + 3], [x0 + 15, y0 + 6], [x0 + 17, y0 + 11]], K.k);
+  R.poligono([[x0 + 4, y0 + 10], [x0 + 6, y0 + 6], [x0 + 10, y0 + 4], [x0 + 14, y0 + 6], [x0 + 16, y0 + 10]], hex('#d8dce4')); R.pset(x0 + 8, y0 + 6, hex('#ffffff')); R.pset(x0 + 7, y0 + 7, hex('#ffffff'));
+  R.linea(x0 + 5, y0 + 11, x0 + 10, y0 + 18, K.blanco); R.linea(x0 + 15, y0 + 11, x0 + 10, y0 + 18, K.blanco);
+  R.numero('0', x0 + 24, y0 + 19, { tam: 16 });
+  // sin agua limpia: la gota grande con la X sobre el lago
+  const gx = lx - 6, gy = ly - 30, ap = tramo(t, WATER + 0.3, WATER + 0.6);
+  if (ap > 0) { R.icono('gota', gx, gy, hex('#8ad8ff'), K.k, 3); if (t > ARENA - 0.2 || Math.floor(t * 5) % 2) R.icono('X', gx + 3, gy + 3, K.rojo, K.k, 3); }
 };
 const p2 = (t) => {
   T.interior(R, t, { encuadre: 'tele', camara: 'pantalla', pantalla: tvArena });

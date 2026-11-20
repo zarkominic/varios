@@ -1,7 +1,8 @@
 // Fontanería y decorados del episodio 43 (Haymitch: por qué el que ganó terminó destrozado), canon nuevo del 43 (relato
 // hablado, ATOM EN ESCENA con atom-personaje.js y PAUSAS «fíjate»), al nivel de episodios/ESTANDAR.md: el detalle de
 // siempre. Reutiliza los decorados del 20 (jh-comun.js: distrito, interior, capitolio, arena (la sala de control), real,
-// hoy, con sus Delante) y añade: B el prado del Covey, la casa de Haymitch, la destilería y la casa quemada (prado); D la
+// hoy, con sus Delante; distrito y capitolio pasan por un retoque del 43 más abajo: el porche de 'calle'/'puerta' hasta
+// los bordes y, en el plató, el antepecho de las gradas y la primera fila de espaldas) y añade: B el prado del Covey, la casa de Haymitch, la destilería y la casa quemada (prado); D la
 // arena de los Juegos 50 por dentro (arena50); F el estudio de las pausas y la consulta de los años sesenta (estudio).
 // Personajes: ELENCO_JH y ELENCO_HM (pixel-chibi.js), por sus atributos, SIN logos, letras ni nada de las películas. LA
 // VIOLENCIA NUNCA SE VE (las muertes se cuentan; nada de cuerpos, armas en uso ni sangre). CADA ENCUADRE TRAE DOS CÁMARAS
@@ -76,7 +77,113 @@ export const momento = (M, k, f) => { const a = M(k, 0), b = M(k + '_fin', a + 1
 // relleno provisional (lo sustituye el decorado de verdad): un degradado tramado, para que la página pinte
 const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (y / 180 + h(x >> 2, y >> 2) * 0.15) > 0.55 ? c1 : c0); };
 
-export { distrito, distritoDelante, interior, interiorDelante, capitolio, capitolioDelante, arena, arenaDelante, real, realDelante, hoy, hoyDelante } from '/atomo/plato/escenas/jh-comun.js';
+export { distritoDelante, interior, interiorDelante, capitolioDelante, arena, arenaDelante, real, realDelante, hoy, hoyDelante } from '/atomo/plato/escenas/jh-comun.js';
+import { distrito as jhDistrito, capitolio as jhCapitolio } from '/atomo/plato/escenas/jh-comun.js';
+
+// ── El 12 y el Capitolio del 20, con los retoques del 43 (sin tocar jh-comun.js, que es del 20) ─────────────────────
+// distrito(R, t, o) y capitolio(R, t, o): las MISMAS firmas, opciones y posiciones que los del 20 (jh-comun.js), y
+// devuelven lo mismo. Retoques del 43:
+//   distrito 'calle', cámara 'puerta': el suelo del porche, su canto y la sombra de debajo llegan hasta los dos bordes
+//     del cuadro (en el 20 acababan en x 6 y x 313 y quedaba un hueco negro en x 0–5 y 314–319, y 160–169).
+//   capitolio 'plato', cámara 'general': las gradas de los lados acaban en un antepecho acolchado (x 0–88 y 242–319,
+//     de y 106 hasta el escenario: barandal de oro, capitoné rosa con tachuelas, tira de luces que corren y zócalo), así
+//     el público del fondo queda por encima de y 105, lejos de las cabezas de los de la tarima (y≈120–130); los haces de
+//     los focos lo siguen cruzando. Y delante de todo, abajo (y 160–179, x 0–268), la primera fila del público de
+//     espaldas, a contraluz: chaquetas oscuras con el filo de luz, nucas y pelucas del Capitolio que se mecen y botan
+//     cuando aplauden (o.aplausos); uno de cada cuatro alza una barra de luz; todo por debajo de los pies de la tarima (y 150), sin tapar a nadie. La cámara de la derecha sigue en x 296.
+export function distrito(R, t, o = {}) {
+  const g = jhDistrito(R, t, o);
+  if (o.encuadre === 'calle' && o.camara === 'puerta') {
+    // el porche sigue hasta el borde: se copian las seis columnas vecinas (con su luz y su tinte)
+    const B = R.buf;
+    for (let y = 160; y <= 169; y++) for (let k = 0; k < 6; k++) { B[y * 320 + k] = B[y * 320 + k + 6]; B[y * 320 + 314 + k] = B[y * 320 + 308 + k]; }
+  }
+  return g;
+}
+export function capitolio(R, t, o = {}) {
+  const g = jhCapitolio(R, t, o);
+  if ((o.encuadre ?? 'avenida') === 'plato' && (o.camara ?? 'general') === 'general') hm_platoPublico(R, t, o);
+  return g;
+}
+
+// el canto de arriba del escenario redondo del plató (centro 160, 148; radios 100 × 20) en la columna x
+const hm_escTope = (x) => { const u = (x - 160) / 100; return Math.abs(u) >= 1 ? 999 : Math.round(148 - 20 * Math.sqrt(1 - u * u)); };
+function hm_platoPublico(R, t, o) {
+  const { pset, rect, disco } = R, B = R.buf, ap = o.aplausos ?? 0.6;
+  const oro = hex('#e8b830'), oroL = hex('#fff0a0'), oroS = hex('#a87818'), oroD = hex('#6a4a10');
+  const ac = [hex('#5a1a52'), hex('#6e2466'), hex('#84307a'), hex('#3e1038')];   // capitoné: sombra media, cuerpo, luz, junta
+  const luces = [hex('#a8fff2'), hex('#ff9ed2'), hex('#fff0a0'), hex('#c28cff')];
+  // ─ el antepecho de las gradas, a los dos lados ─
+  for (const [x0, x1] of [[0, 88], [242, 319]]) {
+    for (let x = x0; x <= x1; x++) {
+      const yb = Math.min(140, hm_escTope(x) - 1);
+      for (let y = 106; y <= yb; y++) {
+        let c;
+        if (y === 106) c = oroL; else if (y === 107) c = oro; else if (y === 108) c = oroS; else if (y === 109) c = oroD;
+        else if (y >= 120 && y <= 122) c = y === 121 ? hex('#1a0e2e') : hex('#24143e');
+        else if (y >= yb - 2) c = y === yb ? hex('#120a22') : hex('#2a1646');
+        else {
+          // capitoné: rombos de 10 px con su junta, luz arriba a la izquierda de cada cojín
+          const a = ((x + y * 1.4) % 10 + 10) % 10, b = ((x - y * 1.4) % 10 + 10) % 10;
+          c = a < 1 || b < 1 ? ac[3] : a + b < 7 ? ac[2] : a + b > 13 ? ac[0] : ac[1];
+          if ((x + y) % 2 === 0 && c === ac[1] && h(x >> 1, y >> 1, 91) < 0.12) c = ac[2];
+        }
+        B[y * 320 + x] = c;
+      }
+      // las tachuelas doradas en los cruces del capitoné
+      for (let y = 111; y < yb - 3; y++) if (y < 119 || y > 123) { const a = ((x + y * 1.4) % 10 + 10) % 10, b = ((x - y * 1.4) % 10 + 10) % 10; if (a < 0.7 && b < 0.7) { pset(x, y, oro); if (x + 1 <= x1) pset(x + 1, y, oroL); } }
+      // la tira de luces que corre (hacia el escenario)
+      const ka = x0 === 0 ? x : 319 - x;
+      if (ka % 3 === 0) { const f = (Math.floor(ka / 3) - Math.floor(t * 8)) % 8; pset(x, 121, f === 0 || f === -0 ? hex('#ffffff') : luces[((Math.floor(ka / 3) >> 2) % 4 + 4) % 4]); if (f === 0) { pset(x, 120, b_mez(B[120 * 320 + x], hex('#ffffff'), 0.5)); pset(x, 122, b_mez(B[122 * 320 + x], hex('#ffffff'), 0.5)); } }
+      // los postes de latón del barandal
+      if ((x0 === 0 ? x : 319 - x) % 22 === 10) for (let y = 110; y <= Math.min(yb - 3, 119); y++) pset(x, y, y % 3 ? oroS : oro);
+    }
+    // el brillo que corre por el barandal
+    const xb = Math.round(x0 + ((t * 24) % ((x1 - x0) + 40)) - 20);
+    for (let i = -3; i <= 3; i++) if (xb + i >= x0 && xb + i <= x1) pset(xb + i, 107, b_mez(oro, hex('#ffffff'), 0.7 - Math.abs(i) * 0.18));
+    // manos del público del fondo apoyadas en el barandal, que dan palmas sobre él cuando aplauden
+    for (let i = 0; i < 6; i++) { const mx = x0 + 6 + Math.round(h(i, x0, 92) * (x1 - x0 - 12)), up = ap > 0.5 && Math.sin(t * 8 + i * 2) > 0.4 ? 1 : 0; pset(mx, 105 - up, hex('#e8b890')); pset(mx + 1, 105 - up, hex('#e8b890')); pset(mx, 104 - up, hex('#c89870')); }
+  }
+  // los haces de los focos (los mismos que en el 20) vuelven a cruzar el antepecho
+  [[40, hex('#ff9ed2'), 0], [96, hex('#a8fff2'), 1], [224, hex('#c28cff'), 2], [262, hex('#a8fff2'), 3]].forEach(([x0, col, k]) => {
+    const x1 = 160 + Math.sin(t * 0.6 + k * 1.7) * 70;
+    for (let y = 106; y <= 140; y++) { const u = (y - 23) / 127, cx = x0 + (x1 - x0) * u, m = 1 + 16 * u;
+      for (let x = Math.max(0, Math.round(cx - m)); x <= Math.min(319, Math.round(cx + m)); x++) { if (x > 88 && x < 242) continue; if (y > Math.min(140, hm_escTope(x) - 1)) continue;
+        if (((x + y) & 1) === 0 || Math.abs(x - cx) < m * 0.4) B[y * 320 + x] = b_mez(B[y * 320 + x], col, 0.22 * (1 - Math.abs(x - cx) / (m + 1) * 0.6)); } }
+  });
+  // ─ la primera fila, de espaldas, en primer plano (x 0–268, y 160–179) ─
+  for (let y = 158; y <= 179; y++) for (let x = 0; x < 60; x++) B[y * 320 + x] = (x * 3 + y) % 5 === 0 ? hex('#1e1436') : hex('#140c26');   // la del 20, más pequeña, se borra
+  const PEL = [['#ec5aaa', '#ff9ed2', '#a82e78'], ['#36ccc4', '#a8fff2', '#1a8888'], ['#a8e040', '#e0ff9a', '#5a8a1a'], ['#8a4ad8', '#c28cff', '#5a2a98'],
+    ['#f08a30', '#ffc890', '#a8501a'], ['#f0d040', '#fff4a0', '#a88a10'], ['#f6f4f0', '#ffffff', '#b8b4c8'], ['#3a8ae8', '#9ac8ff', '#1a4a98']].map((p) => p.map(hex));
+  const TRAJE = [hex('#1e0e30'), hex('#2a0e22'), hex('#0e1a2e'), hex('#24123a')], k = hex('#0a0614');
+  for (let i = 0; i < 21; i++) {
+    const x = 6 + i * 12 + Math.round(h(i, 3, 93) * 3), alto = h(i, 4, 93) < 0.4 ? 1 : 0, aplaude = h(i, 5, 93) < ap;
+    const mece = Math.round(Math.sin(t * 2.2 + i * 1.3) * (aplaude ? 1.2 : 0.6)), bote = aplaude && Math.sin(t * 7 + i) > 0.5 ? 1 : 0;
+    const yc = 166 - alto * 2 - bote, cx = x + mece, [pe, peL, peS] = PEL[(i * 5 + 3) % 8], tr = TRAJE[i % 4];
+    // a contraluz: casi siluetas (están más cerca que el escenario), con el filo de la luz de la tarima arriba
+    const ps = b_osc(pe, 0.42), pm = b_osc(pe, 0.62), trL = b_mez(tr, peL, 0.3);
+    // los hombros y la espalda: chaqueta oscura redondeada, con el filo de luz arriba y la costura del centro
+    rect(cx - 7, yc + 4, cx + 7, 179, k); rect(cx - 8, yc + 6, cx + 8, 179, k); rect(cx - 6, yc + 5, cx + 6, 179, tr); rect(cx - 7, yc + 7, cx + 7, 179, tr);
+    for (let xx = cx - 6; xx <= cx + 6; xx++) pset(xx, yc + 5 + (Math.abs(xx - cx) > 4 ? 1 : 0), trL);
+    pset(cx - 7, yc + 7, trL); pset(cx + 7, yc + 7, b_mez(tr, k, 0.3));
+    for (let yy = yc + 9; yy <= 179; yy += 2) pset(cx, yy, b_mez(tr, k, 0.5));
+    // la nuca (piel en sombra) asomando entre el pelo y el cuello de la chaqueta, y las orejas
+    rect(cx - 2, yc + 3, cx + 2, yc + 4, hex('#a87858')); pset(cx, yc + 4, hex('#8a5a40')); pset(cx - 5, yc + 1, hex('#c89870')); pset(cx + 5, yc + 1, hex('#a87858'));
+    // la peluca vista por detrás: oscura, con mechones y el filo de luz de color arriba
+    disco(cx, yc - 1, 5, k); disco(cx, yc - 1, 4, ps); disco(cx - 1, yc - 2, 2, pm);
+    for (let j = -3; j <= 3; j += 2) pset(cx + j, yc + 1 + (Math.abs(j) > 2 ? -1 : 0), pm);
+    for (let j = -3; j <= 3; j++) pset(cx + j, yc - 5 + (Math.abs(j) > 2 ? 1 : 0), j < 1 ? peL : pe);
+    const forma = i % 3;
+    if (forma === 0) { disco(cx, yc - 7, 2, k); pset(cx, yc - 8, pe); pset(cx - 1, yc - 8, peL); pset(cx + 1, yc - 7, pm); }   // moño
+    else if (forma === 1) for (let j = -2; j <= 2; j++) { const yy = yc - 7 - (2 - Math.abs(j)); pset(cx + j, yy, peL); pset(cx + j, yy + 1, pe); }   // cresta
+    else { rect(cx - 5, yc, cx - 5, yc + 5, pm); rect(cx + 5, yc, cx + 5, yc + 5, ps); pset(cx - 5, yc - 1, pe); }   // melena
+    // uno de cada cuatro alza una barra de luz (la mano al hombro) y la mece
+    if (i % 4 === 1) { const an = Math.sin(t * 3 + i) * 0.5, bx = cx + 8, by = yc + 5, lc = luces[i % 4];
+      for (let j = 4; j < 11; j++) for (const d of [-1, 1]) { const px = Math.round(bx + Math.sin(an) * j) + d, py = Math.round(by - Math.cos(an) * j); if (px >= 0 && px < 320 && py >= 0 && py < 180) B[py * 320 + px] = b_mez(B[py * 320 + px], lc, 0.35); }
+      for (let j = 0; j < 11; j++) { const px = Math.round(bx + Math.sin(an) * j), py = Math.round(by - Math.cos(an) * j); pset(px, py, j < 2 ? hex('#e8b890') : j < 3 ? k : lc); }
+      if (Math.floor(t * 4 + i) % 2) pset(Math.round(bx + Math.sin(an) * 10), Math.round(by - Math.cos(an) * 10), hex('#ffffff')); }
+  }
+}
 export * as AT from '/atomo/plato/escenas/atom-personaje.js';
 
 // ── B · El prado del Covey y la casa de Haymitch (Distrito 12, Juegos 50) ─────────────────────────────────────────────

@@ -2,7 +2,8 @@ E = {}
 E['hm-precio'] = ('El precio', '''// HM-PRECIO (frases 28–31), Juegos 50 (año: 50), sin cartela. Trece planos:
 // 1. la casa quemada de lejos, con humo; dos vecinos miran las ruinas; Haymitch llega corriendo y se para en «gone»; los
 //    vecinos se vuelven, ella baja la cabeza y él se le acerca dos pasos;
-// 2. el porche caído de cerca, con pavesas que suben; Haymitch recoge del barro la taza de hojalata («his mother»); una
+// 2. el porche caído de cerca, con pavesas que suben; Haymitch recoge del barro la taza de hojalata del decorado (que
+//    deja de pintarla con o.taza false y pasa a su mano) («his mother»); una
 //    vecina llega con un cubo y baja la cabeza;
 // 3. el despacho de Snow de noche: Snow huele su rosa blanca y sonríe («Snow's deal»); el agente entra y saluda; en «he
 //    didn't die» Snow le empuja la bolsa roja por la mesa, el agente la coge y se va con ella;
@@ -10,7 +11,7 @@ E['hm-precio'] = ('El precio', '''// HM-PRECIO (frases 28–31), Juegos 50 (año
 //    la bolsa roja («a bag reaches»);
 // 5. el Quemador: Lenore Dove canta junto a su guitarra; Haymitch llega y le da la bolsa («gives»);
 // 6. el prado al amanecer: los dos en el tronco, ella apoyada en él («dies in his arms», «asks»); la bolsa roja con su lazo
-//    al doble en la hierba; cuando ella se apoya, una gominola rueda despacio; las ocas quietas; el sol sale;
+//    en la hierba (la del decorado, o.gominolas); cuando ella se apoya, una gominola rueda despacio; las ocas quietas; el sol sale;
 // 7. la plaza de la cosecha al amanecer: un agente pasa ante el escenario; dos chicos suben por el pasillo y se paran a
 //    mirar el sol ya alto en las pantallas («sunrise of the title»); la luz se dora;
 // 8. la Aldea de los Vencedores de noche: Haymitch la cruza, se para a beber de la petaca («drinking») y sigue hasta su
@@ -192,15 +193,15 @@ const p1 = (t) => {   // la casa quemada de lejos; llega corriendo y se para; lo
   T.pradoDelante(R, t, o);
 };
 const p2 = (t) => {   // el porche caído; recoge la taza de hojalata
-  const o = { encuadre: 'quemada', camara: 'cerca', luz: 'tarde' };
-  const g = T.prado(R, t, o), [tx, ty] = g.taza ?? [176, 170];
   const coge = madre;
+  // la taza la pinta el decorado en el barro hasta que él la recoge; desde ahí, o.taza false y la pinta la escena en su mano
+  const o = { encuadre: 'quemada', camara: 'cerca', luz: 'tarde', taza: t <= coge };
+  const g = T.prado(R, t, o), [tx, ty] = g.taza ?? [176, 170];
   pavesas(t, 120, 300, 150);
   // la vecina llega con un cubo de agua (tarde) por la derecha, se para y baja la cabeza cuando él recoge la taza
   const [vx, vv] = anda(t, P2 + 0.3, P2 + 2.6, 336, 268);
   const ve = R.actor(EL.vecina, vx, g.suelo, t, { dir: -1, anda: vv, triste: t > coge, sostiene: [vx - 9, g.suelo - 10] });
   cubo(ve.mano[0], ve.mano[1] + 1);
-  if (t > coge) for (let dy = -13; dy <= 2; dy++) for (let dx = -9; dx <= 10; dx++) R.pset(tx + dx, ty + dy, R.pget(tx + dx - 22, ty + dy));
   const u = tramo(t, P2, coge - 0.2), x = Math.round(lerp(tx - 36, tx - 22, u));
   const alto = tramo(t, coge, coge + 0.5);
   const h = R.actor(EL.haymitch, x, g.suelo, t, { dir: 1, anda: u > 0 && u < 1, triste: true, sostiene: t > coge - 0.3 ? [tx - 2, Math.round(lerp(g.suelo - 4, g.suelo - 14, alto))] : undefined });
@@ -260,19 +261,17 @@ const p5 = (t) => {   // el Quemador: el Covey toca; le da la bolsa a Lenore Dov
   T.distritoDelante(R, t, o);
 };
 const p6 = (t) => {   // el prado al amanecer: ella apoyada en él, la bolsa en la hierba, las ocas quietas, el sol que sale
-  const o = { encuadre: 'prado', luz: 'amanecer', sentados: true, ocasQuietas: true, sol: lerp(0.6, 0.3, tramo(t, P6, P7 + 0.4)) };
+  // la bolsa roja de las gominolas en la hierba la pinta el decorado (o.gominolas: lazo dorado y gominolas desparramadas)
+  const o = { encuadre: 'prado', luz: 'amanecer', sentados: true, ocasQuietas: true, sol: lerp(0.6, 0.3, tramo(t, P6, P7 + 0.4)), gominolas: [64, 176] };
   const g = T.prado(R, t, o);
   const [ax0, ay0] = g.asientos[0], [ax1, ay1] = g.asientos[1];
   const apoya = tramo(t, muere - 0.2, muere + 0.6);
   R.actor(EL.lenore, ax0 + 2 + Math.round(apoya * 5), ay0 + Math.round(apoya * 2), t, { dir: 1, triste: apoya > 0.5, habla: t > pide && t < pide + 1.3 && habla(t), quieto: apoya > 0.9 && !(t > pide && t < pide + 1.3) });
   R.actor(EL.haymitch, ax1, ay1, t, { dir: -1, triste: true, sostiene: apoya > 0.3 ? [ax0 + 12, ay0 - 8] : undefined });
   T.pradoDelante(R, t, o);
-  // la bolsa roja de las gominolas en la hierba, al doble para que se lea (lazo dorado), con tres gominolas caídas;
-  // cuando ella se apoya en él («dies in his arms») la última gominola rueda despacio por la hierba
+  // cuando ella se apoya en él («dies in his arms») una gominola más se escapa de la bolsa y rueda despacio por la hierba
   const rueda = tramo(t, muere - 0.2, muere + 1.0);
-  for (let i = -16; i <= 18; i++) { R.pset(76 + i, 179, hex('#2e4a24')); if (Math.abs(i) < 13) R.pset(76 + i, 178, hex('#3a5a2a')); }   // la sombra en la hierba
-  AT_esc(() => { bolsita(6, 13); for (const [gx, gy] of [[12, 12], [15, 10]]) { R.rect(gx, gy, gx + 1, gy + 1, ROJO); R.pset(gx, gy, ROJOL); } }, 18, 14, 58, 151, 2);
-  { const gx = Math.round(92 + rueda * 9), gy = 172; R.disco(gx, gy, 2, K); R.rect(gx - 1, gy - 1, gx + 1, gy + 1, ROJO); R.pset(gx - 1, gy - 1, ROJOL); }
+  { const gx = Math.round(90 + rueda * 9), gy = 175; R.disco(gx, gy, 2, K); R.rect(gx - 1, gy - 1, gx + 1, gy + 1, ROJO); R.pset(gx - 1, gy - 1, ROJOL); }
   T.AT.luciernaga(R, 124 + Math.sin(t * 0.8) * 4, 128 + Math.sin(t * 1.8) * 2, t, { dir: -1, brillo: 0.5, cara: 'triste' });
 };
 // en las pantallas de la plaza: el sol que sale sobre los montes (la «amanecer» del título)
