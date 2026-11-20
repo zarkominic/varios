@@ -236,6 +236,24 @@ una pasada o detalle no entra.
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
+## Lo que dice el público · exportación del 20/11/2026 (19/10–19/11)
+
+Datos: `episodios/estadisticas/2026-11-20/` (102 vídeos: 31 largos, 71 Shorts). La media y el % visto se sacan de las horas.
+- [Seguro] **5 vídeos hacen el 78 % de las visitas** (62.380 de 79.501): tesoro pirata, pirámides, Doomsday, OVNI y
+  LucasArts. Llegaron casi sin clics en la miniatura (18–93 cada uno) y con picos de 3.000–5.000 al día: [Probable] son
+  los que se promocionaron con anuncios. Entre los cinco, 4 suscriptores.
+- [Seguro] **Lo orgánico es pequeño:** el resto de largos, 20–300 visitas. YouTube sí los enseña (Oak Island 9.456
+  impresiones, Navidad 7.327, Dune 6.192, tradiciones 4.363, King's Quest 4.074), pero el CTR es del 0,8–1,6 %.
+- [Seguro] **El CTR bajó en los recientes:** del 4–5 % (huracanes, LucasArts, tesoro, Nueva York, Acción de Gracias,
+  4 tesoros, todos de octubre) al 1–3 % desde el 6/11. [Supuesto] Puede ser la miniatura, el tema o que YouTube los
+  enseña a público más frío; no se puede separar sin prueba A/B.
+- [Seguro] **Retención de los largos orgánicos: 4–17 % visto, 20–90 s de media** en vídeos de 8–9 min. La gente se va en
+  el primer minuto. Mejores: Roanoke 92 s (17 %), Jumanji 78 s, Oak Island 79 s.
+- [Seguro] **Shorts: 10.929 visitas en 71 Shorts y 6 suscriptores.** Visto: 10–20 % de media (4–10 s de 35–55 s). Los
+  cuatro del 10/11 (Piri Reis, rollo de cobre, Coca-Cola) pasaron de 900; desde el 11/11 casi todos, menos de 100.
+- [Seguro] **Cadencia:** del 9 al 18/11 salió un largo y tres Shorts casi cada día; ningún largo de esa tanda pasó de 300
+  visitas orgánicas.
+
 ## Lo que dice el público · exportaciones del 03/11/2026 (6/10–2/11)
 
 Datos: `episodios/estadisticas/2026-11-03/` (visualizaciones por día) y `2026-11-03b/` (impresiones, CTR, % visto).

@@ -52,8 +52,12 @@ def main():
         extra = ''
         if ricos:
             imp = int(r['Impresiones de la miniatura'] or 0); ctr = float(r['Porcentaje de clics de las miniaturas (%)'] or 0)
-            extra = (f" {r['Visualizaciones interesadas'] or '-':>8} {imp:6d} {ctr:5.2f} {imp * ctr / 100:5.0f}"
-                     f" {r['Porcentaje medio visto (%)'] or '-':>6} {r['Duración media de las visualizaciones'] or '-':>7}")
+            # la exportación de «Contenido» trae solo las horas: la media y el % se sacan de ahí si faltan
+            horas = float(r.get('Tiempo de visualización (horas)') or 0); dur = int(r['Duración'] or 0) or 1
+            media = r.get('Duración media de las visualizaciones') or (f"{round(horas * 3600 / vis)}s" if vis else '-')
+            visto = r.get('Porcentaje medio visto (%)') or (f"{100 * horas * 3600 / vis / dur:.0f}" if vis else '-')
+            extra = (f" {r.get('Visualizaciones interesadas') or '-':>8} {imp:6d} {ctr:5.2f} {imp * ctr / 100:5.0f}"
+                     f" {visto:>6} {media:>7}")
         print(f"{vis:6d} {dias:4d} {vis / dias:6.0f}  {primeros:14} {quedan:>6}{extra} {len(r['Título del vídeo']):4d}  "
               f"{'[Short] ' if corto else ''}{r['Título del vídeo']}")
     if hasta:
