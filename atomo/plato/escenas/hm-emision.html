@@ -21,16 +21,24 @@
 // (las pausas entran con «cuelga» —no hay receta de tape-stop— y salen con el clic, «interruptor», en cada rampa de
 //  AT.pausa; un pop por cada carta que se da la vuelta y por cada «?»)
 // 4. PAUSA: el salón CONGELADO; Atom al doble entra por la derecha y en «ties everything together» saca tres cartas
-//    boca abajo que suben a su sitio y una órbita dorada las ata;
-// 5. PAUSA: las cartas se dan la vuelta en su palabra: la urna con la claqueta «2» («redone reaping»), las dos chicas
-//    iguales («double») y la tele con las tijeras («broadcast»); en «same move», los «=» entre ellas; vuelve el color;
+//    boca abajo: salen pequeñas de detrás de él (se pintan antes que Atom: nunca le tapan la cara) y crecen mientras
+//    suben a su sitio; una órbita dorada las ata y Atom echa a andar hacia la izquierda;
+// 5. PAUSA: las cartas bajan a una fila a media altura (x 96–276, y 70–122) y Atom acaba de cruzar a la izquierda
+//    (x 44); señala cada carta en su palabra, Atom le traza una órbita y se da la vuelta: la urna con la claqueta «2»
+//    («redone reaping»), las dos chicas iguales («double») y la tele con las tijeras («broadcast»); en «same move», los
+//    «=» entre ellas y una órbita que ata la fila; vuelve el color;
 // 6. la mesa de montaje del Capitolio de cerca (fondo local): las tomas del depósito tachadas; un bocadillo con
 //    garabatos se tacha en «words»; en «choose» la mano coge un fotograma del «egoísta» y lo mete en el visor de la
 //    empalmadora; en «people see» el proyector lo echa en la pantallita;
 // 7. PAUSA: el salón congelado otra vez (entra en gris con el fundido); Atom con la lupa repasa las tres cartas y en «real or not real» les sale un «?» encima;
 //    vuelve el color;
-// 8. el museo del Capitolio, el cuadro de cerca: el retrato oficial de Haymitch con la corona; Effie entra, lo admira
-//    y aplaude en «history»; Atom de luciérnaga se entristece en «never was».
+// 8. el museo del Capitolio (fondo local, no la cámara 'cuadro' del decorado, que pone el marco y el aplique en la barra
+//    del año): el retrato oficial de Haymitch al óleo (pinceladas, cielo de amanecer con nubes de tres tonos, el monte
+//    con luz y sombra, el prado con flores, el podio y la cornucopia; Haymitch con la corona en alto a un lado, el brazo
+//    por fuera de la cara) en un marco dorado (y 29–135); el barniz brilla con una franja que barre el lienzo; dos
+//    apliques, la placa, el banco, el arco a la sala de al lado (un capitolino pasa por él) y un agente de paz que vigila;
+//    Effie entra hasta el centro del cordón, se para, lo admira, aplaude en «history» (el agente se vuelve) y sigue
+//    hacia la otra sala; Atom de luciérnaga se entristece en «never was».
 import * as T from '/atomo/plato/escenas/hm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hm-emision');
@@ -384,8 +392,10 @@ const oleo = ([x0, y0, x1, y1]) => {
     R.pset(x, y, c);
   }
   // la cornucopia dorada al pie del monte
-  for (let i = 0; i <= 16; i++) { const r = 0.8 + i * 0.2, X = x0 + 98 + i, Y = hz - 2 - ((16 - i) / 16) ** 2 * 5; R.disco(ri(X), ri(Y), ri(r) + 1, hex('#6a4a10')); }
-  for (let i = 0; i <= 16; i++) { const r = 0.8 + i * 0.2, X = x0 + 98 + i, Y = hz - 2 - ((16 - i) / 16) ** 2 * 5; R.disco(ri(X), ri(Y), ri(r), i % 4 === 0 ? MR.oroS : MR.oro); R.pset(ri(X), ri(Y - r), MR.oroL); }
+  const cy0 = y1 - 12; for (let x = x0 + 104; x <= x0 + 126; x++) for (let y = cy0 + 3; y <= cy0 + 5; y++) if (hs(x, y, 14) < 0.75) tono(x, y, hex('#1e3a1a'), 0.5);
+  for (let i = 0; i <= 16; i++) { const r = 0.8 + i * 0.2, X = x0 + 106 + i, Y = cy0 - ((16 - i) / 16) ** 2 * 5; R.disco(ri(X), ri(Y), ri(r) + 1, hex('#6a4a10')); }
+  for (let i = 0; i <= 16; i++) { const r = 0.8 + i * 0.2, X = x0 + 106 + i, Y = cy0 - ((16 - i) / 16) ** 2 * 5; R.disco(ri(X), ri(Y), ri(r), i % 4 === 0 ? MR.oroS : MR.oro); R.pset(ri(X), ri(Y - r), MR.oroL); }
+  for (const [fx, c] of [[x0 + 122, hex('#e8503a')], [x0 + 125, hex('#ffe060')], [x0 + 123, hex('#8a4ad8')]]) { R.disco(fx, cy0 - 1 + (fx % 2), 1, c); R.pset(fx, cy0 - 2 + (fx % 2), BL); }
   // el podio de oro, con sus dos escalones y su sombra en la hierba
   const pt = y1 - 20;
   for (let x = cx - 34; x <= cx + 34; x++) for (let y = y1 - 5; y <= y1 - 2; y++) if (hs(x, y, 13) < 0.7) tono(x, y, hex('#1e3a1a'), 0.5);
@@ -393,9 +403,9 @@ const oleo = ([x0, y0, x1, y1]) => {
   caja(cx - 24, pt, cx + 24, y1 - 11, MR.oro); caja(cx - 24, pt, cx + 24, pt, MR.oroL); caja(cx + 12, pt + 1, cx + 24, y1 - 11, MR.oroS); caja(cx - 24, pt + 1, cx - 22, y1 - 11, MR.oroM);
   for (let x = cx - 22; x < cx + 12; x += 3) R.pset(x, pt + 5, MR.oroS);
   // el vencedor al doble con la corona en alto: el brazo sube por fuera de la cara y la corona queda por encima
-  pegar(() => { const r = R.actor(EL.haymitch, 4, 30, 0, { dir: 1, sostiene: [34, 0], sonrisa: true }); if (r.mano) corona(r.mano[0] + 1, r.mano[1] - 2, 1); }, 34, 32, cx - 22, pt - 60, 2);
+  pegar(() => { const r = R.actor(EL.haymitch, 4, 30, 0, { dir: 1, sostiene: [34, 17], sonrisa: true }); if (r.mano) corona(r.mano[0] + 4, r.mano[1] - 1, 1); }, 34, 32, cx - 22, pt - 58, 2);
   // el laurel alrededor
-  for (let i = 0; i < 18; i++) { const a = Math.PI * (0.1 + i / 44), X = cx + Math.cos(a) * 60, Y = y0 + 70 - Math.sin(a) * 56;
+  for (let i = 0; i < 18; i++) { const a = Math.PI * (0.06 + i / 70), X = cx + Math.cos(a) * 60, Y = y0 + 70 - Math.sin(a) * 56;
     for (const xx of [X, 2 * cx - X]) { const x = ri(xx), y = ri(Y); caja(x - 2, y - 1, x + 2, y + 1, hex('#2e6a24')); caja(x - 1, y - 1, x + 1, y, hex('#5ab84a')); R.pset(x, y - 2, hex('#2e6a24')); } }
   // el barniz viejo: las esquinas, más oscuras y tostadas
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const u = Math.max(Math.abs((x - cx) / (w / 2)), Math.abs((y - (y0 + y1) / 2) / (h / 2))); if (u > 0.82 && bay(x, y) < (u - 0.82) * 4) tono(x, y, hex('#5a3020'), 0.35); }

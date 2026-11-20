@@ -448,16 +448,24 @@ E['hm-emision'] = ('La emisión', '''// HM-EMISION (frases 26–27), Juegos 50, 
 // (las pausas entran con «cuelga» —no hay receta de tape-stop— y salen con el clic, «interruptor», en cada rampa de
 //  AT.pausa; un pop por cada carta que se da la vuelta y por cada «?»)
 // 4. PAUSA: el salón CONGELADO; Atom al doble entra por la derecha y en «ties everything together» saca tres cartas
-//    boca abajo que suben a su sitio y una órbita dorada las ata;
-// 5. PAUSA: las cartas se dan la vuelta en su palabra: la urna con la claqueta «2» («redone reaping»), las dos chicas
-//    iguales («double») y la tele con las tijeras («broadcast»); en «same move», los «=» entre ellas; vuelve el color;
+//    boca abajo: salen pequeñas de detrás de él (se pintan antes que Atom: nunca le tapan la cara) y crecen mientras
+//    suben a su sitio; una órbita dorada las ata y Atom echa a andar hacia la izquierda;
+// 5. PAUSA: las cartas bajan a una fila a media altura (x 96–276, y 70–122) y Atom acaba de cruzar a la izquierda
+//    (x 44); señala cada carta en su palabra, Atom le traza una órbita y se da la vuelta: la urna con la claqueta «2»
+//    («redone reaping»), las dos chicas iguales («double») y la tele con las tijeras («broadcast»); en «same move», los
+//    «=» entre ellas y una órbita que ata la fila; vuelve el color;
 // 6. la mesa de montaje del Capitolio de cerca (fondo local): las tomas del depósito tachadas; un bocadillo con
 //    garabatos se tacha en «words»; en «choose» la mano coge un fotograma del «egoísta» y lo mete en el visor de la
 //    empalmadora; en «people see» el proyector lo echa en la pantallita;
 // 7. PAUSA: el salón congelado otra vez (entra en gris con el fundido); Atom con la lupa repasa las tres cartas y en «real or not real» les sale un «?» encima;
 //    vuelve el color;
-// 8. el museo del Capitolio, el cuadro de cerca: el retrato oficial de Haymitch con la corona; Effie entra, lo admira
-//    y aplaude en «history»; Atom de luciérnaga se entristece en «never was».''', COMUN + _marcas('hm-emision', r'''
+// 8. el museo del Capitolio (fondo local, no la cámara 'cuadro' del decorado, que pone el marco y el aplique en la barra
+//    del año): el retrato oficial de Haymitch al óleo (pinceladas, cielo de amanecer con nubes de tres tonos, el monte
+//    con luz y sombra, el prado con flores, el podio y la cornucopia; Haymitch con la corona en alto a un lado, el brazo
+//    por fuera de la cara) en un marco dorado (y 29–135); el barniz brilla con una franja que barre el lienzo; dos
+//    apliques, la placa, el banco, el arco a la sala de al lado (un capitolino pasa por él) y un agente de paz que vigila;
+//    Effie entra hasta el centro del cordón, se para, lo admira, aplaude en «history» (el agente se vuelve) y sigue
+//    hacia la otra sala; Atom de luciérnaga se entristece en «never was».''', COMUN + _marcas('hm-emision', r'''
 const Q2 = @4.15, Q3 = @10.98, Q4 = @17.45, Q5 = @21.45, Q6 = @26.9, Q7 = @31.7, Q8 = @36.45;
 const VOZ = ['edita', 'fijate3'].map((k) => [en(k, 0), en(k, 1)]);
 const habla = (t) => VOZ.some(([a, b]) => t > a && t < b) ? 1 : 0;
@@ -582,37 +590,49 @@ const frente = (k) => () => {
     R.linea(6, 23, 13, 20, hex('#5a5a66')); R.linea(6, 20, 13, 23, hex('#5a5a66')); R.rect(4, 19, 5, 20, hex('#c8303a')); R.rect(4, 23, 5, 24, hex('#c8303a'));
   }
 };
-// carta k: volteo 0 (dorso) → 1 (frente); y0: desplazamiento vertical; brillo del filo
-const carta = (k, vu, dy = 0, filo = 0, t = 0, dx = 0) => {
-  const sx = 2 * Math.abs(Math.cos(vu * Math.PI)), w = CW * sx, X = CX[k] + dx + (CW * 2 - w) / 2, Y = CY + dy + ri(Math.sin(t * 2 + k) * 1.5);
+// carta k: volteo 0 (dorso) → 1 (frente); y0: desplazamiento vertical; brillo del filo; s: la escala (2 = al doble),
+// centrada en el hueco de la carta al doble
+const carta = (k, vu, dy = 0, filo = 0, t = 0, dx = 0, s = 2) => {
+  const sx = s * Math.abs(Math.cos(vu * Math.PI)), w = CW * sx, X = CX[k] + dx + (CW * 2 - w) / 2, Y = CY + dy + (CH * 2 - CH * s) / 2 + ri(Math.sin(t * 2 + k) * 1.5);
   if (sx < 0.08) return;
-  pegar(vu < 0.5 ? dorso : frente(k), CW, CH, X, Y, sx, 2);
-  if (filo > 0) for (let x = ri(X) - 1; x <= ri(X + w); x++) { tono(x, Y - 1, ORO, filo); tono(x, Y + CH * 2, ORO, filo); }
+  pegar(vu < 0.5 ? dorso : frente(k), CW, CH, X, Y, sx, s);
+  if (filo > 0) for (let x = ri(X) - 1; x <= ri(X + w); x++) { tono(x, Y - 1, ORO, filo); tono(x, Y + CH * s, ORO, filo); }
 };
 
 // ═══ 4 · PAUSA: Atom entra y saca las tres cartas; una órbita dorada las ata ═══
 const ATA = @19.42, JUNTO = @20.16;
+// la x de Atom en la pausa 3: entra por la derecha hasta el centro (plano 4) y, cerrada la órbita, cruza a la izquierda
+// para presentar la fila de cartas (acaba en el plano 5, antes de «redone»)
+const CRUZA = [JUNTO + 0.6, Q5 + 0.5];
+const xAtom3 = (t) => t < CRUZA[0] ? lerp(336, 168, tramo(t, Q4 + 0.1, Q4 + 1.4)) : lerp(168, 44, tramo(t, CRUZA[0], CRUZA[1]));
 const f1 = (t) => {
   helado(); AT.pausa(R, tramo(t, Q4, Q4 + 0.3));
-  const a = tramo(t, Q4 + 0.1, Q4 + 1.4), x = lerp(336, 168, a);
-  const r = AT.atom(R, x, 172, t, { s: 2, pose: a > 0 && a < 1 ? 'camina' : t > ATA - 0.3 ? 'brazos' : 'quieto', dir: -1, cara: t > JUNTO ? 'sonrisa' : 'normal', habla: habla(t) });
-  for (let k = 0; k < 3; k++) { const u = tramo(t, ATA + k * 0.18, ATA + 0.45 + k * 0.18); if (u <= 0) continue;
-    const e = 1 - (1 - u) ** 3, dy = ri((1 - e) * (r.mano[1] - CY - 30)), dx = ri((1 - e) * (r.mano[0] - 20 - CX[k])); carta(k, 0, dy, 0, t, dx); }
+  const a = tramo(t, Q4 + 0.1, Q4 + 1.4), x = xAtom3(t), cruza = t > CRUZA[0];
+  // las cartas salen de detrás de Atom (de su pecho), pequeñas, y crecen mientras suben a su sitio: se pintan antes que
+  // él, así nunca le tapan la cara
+  for (let k = 0; k < 3; k++) { const u = tramo(t, ATA + k * 0.18, ATA + 0.55 + k * 0.18); if (u <= 0) continue;
+    const e = 1 - (1 - u) ** 3, dy = ri((1 - e) * (140 - CY - CH)), dx = ri((1 - e) * (x - CW - CX[k])); carta(k, 0, dy, 0, t, dx, lerp(0.5, 2, e)); }
+  AT.atom(R, x, 172, t, { s: 2, pose: (a > 0 && a < 1) || cruza ? 'camina' : t > ATA - 0.3 ? 'brazos' : 'quieto', dir: -1, cara: t > JUNTO ? 'sonrisa' : 'normal', habla: habla(t) });
   const o = tramo(t, JUNTO - 0.1, JUNTO + 0.6); if (o > 0) AT.anillo(R, 160, CY + 26, 110, 36, t, o);
 };
 
-// ═══ 5 · PAUSA: las cartas se dan la vuelta en su palabra; en «same move», los «=» ═══
+// ═══ 5 · PAUSA: las cartas bajan a una fila a media altura; Atom, a la izquierda, señala cada una en su palabra y se
+// da la vuelta; en «same move», los «=» y la órbita que ata la fila ═══
 const VOLTEO = [@21.94, @23.58, @24.94], MISMA = @25.9;
+const FX = [96, 166, 236], FY = 70;   // la fila del plano 5 (izquierda y arriba de cada carta, al doble: 40 × 52)
 const f2 = (t) => {
   helado(); AT.pausa(R, 1 - tramo(t, Q6 - 0.42, Q6 - 0.04));
-  const k0 = VOLTEO.filter((v) => t > v - 0.5).length - 1;
-  const objetivo = k0 < 0 ? 160 : CX[k0] + 20;
-  AT.atom(R, 168, 172, t, { s: 2, pose: t > MISMA ? 'brazos' : k0 >= 0 ? 'senala' : 'quieto', dir: objetivo < 168 ? -1 : 1, cara: t > MISMA ? 'sonrisa' : 'normal', habla: habla(t) });
+  const b = tramo(t, Q5, Q5 + 0.3), eb = 1 - (1 - b) ** 3;
   const brilla = tramo(t, MISMA, MISMA + 0.3) * (0.6 + Math.sin(t * 6) * 0.3);
-  for (let k = 0; k < 3; k++) carta(k, tramo(t, VOLTEO[k], VOLTEO[k] + 0.35), 0, brilla, t);
-  AT.anillo(R, 160, CY + 26, 110, 36, t, 1);
+  for (let k = 0; k < 3; k++) carta(k, tramo(t, VOLTEO[k], VOLTEO[k] + 0.35), ri(lerp(0, FY - CY, eb)), brilla, t, ri(lerp(0, FX[k] - CX[k], eb)));
+  // la carta que nombra la voz: Atom le traza una órbita alrededor; en «same move», una sola órbita ata la fila
+  const k0 = VOLTEO.filter((v) => t > v - 0.15).length - 1;
+  if (k0 >= 0 && t < MISMA) AT.anillo(R, FX[k0] + 20, FY + 26, 30, 34, t, tramo(t, VOLTEO[k0] - 0.15, VOLTEO[k0] + 0.35));
+  if (t > MISMA - 0.1) AT.anillo(R, FX[1] + 20, FY + 26, 112, 40, t, tramo(t, MISMA - 0.1, MISMA + 0.5));
   const q = pop(t, MISMA, 0.3);
-  if (q > 0) for (const x of [CX[0] + 46, CX[1] + 46]) { const y = CY + 24 - ri((1 - q) * 6); R.rect(x - 1, y - 1, x + 13, y + 2, K); R.rect(x, y, x + 12, y + 1, ORO); R.rect(x - 1, y + 5, x + 13, y + 8, K); R.rect(x, y + 6, x + 12, y + 7, ORO); }
+  if (q > 0) for (const x of [FX[0] + 48, FX[1] + 48]) { const y = FY + 22 - ri((1 - q) * 6); R.rect(x - 1, y - 1, x + 13, y + 2, K); R.rect(x, y, x + 12, y + 1, ORO); R.rect(x - 1, y + 5, x + 13, y + 8, K); R.rect(x, y + 6, x + 12, y + 7, ORO); }
+  const anda = t < CRUZA[1];
+  AT.atom(R, xAtom3(t), 172, t, { s: 2, pose: anda ? 'camina' : t > MISMA ? 'brazos' : 'senala', dir: anda ? -1 : 1, cara: t > MISMA ? 'sonrisa' : 'normal', habla: habla(t) });
 };
 
 // ═══ 6 · la mesa de montaje de cerca (inserto local): la mano elige el fotograma ═══
@@ -691,31 +711,136 @@ const f4 = (t) => {
     if (q > 0) R.icono('?', CX[k] + 15, CY - 14 - ri((1 - q) * 8) + ri(Math.sin(t * 3 + k)), ORO, K, 2); }
 };
 
-// ═══ 8 · el museo: el retrato oficial de Haymitch; Effie aplaude en «history» ═══
+// ═══ 8 · el museo (fondo local): el retrato oficial de Haymitch al óleo; Effie entra, lo admira y aplaude en «history» ═══
 const HISTORIA = @39.22, NUNCA = @40.8;
-const retrato = (R2, t, [x0, y0, x1, y1]) => {
-  const cx = (x0 + x1) >> 1;
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const a = Math.atan2(y - y1, x - cx), rayo = (Math.floor(a / (Math.PI / 14)) & 1) === 0, f = (y - y0) / (y1 - y0);
-    R.pset(x, y, f > 0.8 ? ((x + y) % 6 === 0 ? hex('#5a3a6a') : hex('#7a4a8a')) : f > 0.66 ? hex('#8a6aa8') : rayo ? hex('#f8d8a0') : hex('#f0b8a8')); }
-  // la montaña y la cornucopia de la arena al fondo
-  for (let x = x0; x <= x1; x++) { const h = 22 - Math.abs(x - cx - 50) * 0.5; for (let y = ri(y0 + (y1 - y0) * 0.66 - h); y < y0 + (y1 - y0) * 0.66; y++) R.pset(x, y, y < y0 + (y1 - y0) * 0.66 - h + 3 ? BL : hex('#9a8ab8')); }
-  // el podio y el vencedor al doble, con la corona en alto
-  caja(cx - 26, y1 - 30, cx + 26, y1 - 18, hex('#f0c040')); caja(cx - 26, y1 - 30, cx + 26, y1 - 29, hex('#fff0a0')); caja(cx - 26, y1 - 19, cx + 26, y1 - 18, hex('#a87a18'));
-  R.recorte(null);
-  pegar(() => { const r = R.actor(EL.haymitch, 4, 30, t, { dir: 1, sostiene: [17, 8], sonrisa: true }); if (r.mano) corona(r.mano[0] + 1, r.mano[1] - 1, 1); }, 26, 32, cx - 26, y1 - 30 - 58, 2);
-  R.recorte([x0, y0, x1, y1]);
+const hs = (x, y, k) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };
+const QM = [90, 36, 228, 128];                 // el lienzo; el marco (7 px) por fuera: x 83–235, y 29–135
+const ARCO = [272, 50, 310, 157], ARC = [291, 69, 19];   // el arco a la sala de al lado: hueco recto y medio punto
+const enArco = (x, y) => x >= ARCO[0] && x <= ARCO[2] && y <= ARCO[3] && (y >= ARC[1] || Math.hypot(x - ARC[0], y - ARC[1]) <= ARC[2]);
+const MR = { r: hex('#f6dae8'), rs: hex('#dab2c8'), rv: hex('#c890b0'), m: hex('#eceef4'), ms: hex('#c6cad8'), md: hex('#9ea2b8'), ml: hex('#ffffff'),
+  oro: hex('#e8b830'), oroL: hex('#fff0a0'), oroM: hex('#f8d460'), oroS: hex('#a87818'), oroD: hex('#6a4a10'), tc: hex('#b01c44'), tcS: hex('#6c0e28'), tcL: hex('#e04066') };
+// el óleo: cielo de amanecer a pinceladas, el sol con sus rayos detrás del vencedor, nubes de tres tonos, colinas lejanas,
+// el monte con su cara de luz y su cara de sombra y la nieve, la cornucopia dorada, el prado con hierba y flores, el podio,
+// Haymitch al doble con la corona en alto (el brazo por fuera de la cara) y el laurel; las esquinas, oscurecidas por el barniz
+const oleo = ([x0, y0, x1, y1]) => {
+  const w = x1 - x0, h = y1 - y0, cx = ri((x0 + x1) / 2), hz = y0 + ri(h * 0.6), sol = [cx, y0 + 34];
+  const CI = ['#d88098', '#e494a2', '#eca8a4', '#f2bca0', '#f8d0a0', '#fce2aa', '#fff2c8'].map(hex);
+  const NU = ['#fff6ec', '#f6d6cc', '#d8a4b4'].map(hex), LO = ['#b8a0c8', '#a08cbc', '#8a78ae'].map(hex);
+  const MO = { l: hex('#d4c2e2'), l2: hex('#bcaad4'), s: hex('#8a76aa'), s2: hex('#6e5c92'), n: hex('#fbf6ff'), ns: hex('#c8c0e2') };
+  const PR = ['#86c05a', '#6aac4a', '#55963e', '#447e34', '#336628'].map(hex), FL = ['#ffe060', '#ffffff', '#ff8ab0', '#ffb040'].map(hex);
+  const nubes = [[x0 + 24, y0 + 13, 17, 5], [x0 + 116, y0 + 9, 19, 5], [x0 + 70, y0 + 22, 11, 4], [x0 + 128, y0 + 30, 9, 3]];
+  const px = ri(x0 + w * 0.8), py = y0 + ri(h * 0.2);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const st = hs(Math.floor((x + (y % 4) * 3) / 5), y, 3);   // la pincelada: trazos tumbados de 5 px
+    let c;
+    if (y < hz) {
+      const dx = x - sol[0], dy = y - sol[1], d = Math.hypot(dx, dy), a = Math.atan2(dy, dx);
+      let f = (y - y0) / (hz - y0) * 5.2 + (st - 0.5) * 1.2;
+      if (d > 13 && (Math.floor((a + 7) / (Math.PI / 12)) & 1) === 0) f += 0.8 * Math.max(0, 1 - d / 120);
+      c = d < 9 ? CI[6] : d < 13 ? (st > 0.4 ? CI[6] : CI[5]) : CI[Math.max(0, Math.min(5, Math.floor(f)))];
+      // las nubes, de tres tonos, con su panza en sombra
+      for (const [nx, ny, rx, ry] of nubes) { const q = ((x - nx) / rx) ** 2 + ((y - ny) / ry) ** 2 - Math.sin(x * 0.7 + nx) * 0.18; if (q < 1) { const v = (y - ny) / ry + (st - 0.5) * 0.6; c = v < -0.35 ? NU[0] : v < 0.35 ? NU[1] : NU[2]; } }
+      // las colinas lejanas
+      const lo = hz - 7 - ri(Math.sin(x * 0.09) * 3 + Math.sin(x * 0.23) * 1.5);
+      if (y >= lo) c = LO[Math.min(2, Math.floor((y - lo) / 3 + st * 0.8))];
+      // el monte: cara de luz a la izquierda (la del sol), de sombra a la derecha; nieve en la cumbre
+      if (y >= py) { const hw = (y - py) / (hz - py) * w * 0.34 + Math.sin(y * 0.9) * 1.2;
+        if (Math.abs(x - px) < hw) { const luz = x < px + Math.sin(y * 0.5) * 2, nieve = y < py + 9 + Math.sin(x * 0.8) * 2, s2 = hs(Math.floor((x - y) / 3), Math.floor((x + y) / 7), 5);
+          c = nieve ? (luz ? MO.n : MO.ns) : luz ? (s2 > 0.5 ? MO.l : MO.l2) : (s2 > 0.5 ? MO.s : MO.s2); } }
+    } else {
+      // el prado: trazos verticales de hierba, más claro lejos; flores a toques
+      const sg = hs(x, Math.floor((y + (x % 3) * 2) / 3), 7), f = (y - hz) / (y1 - hz) * 3.6 + (sg - 0.5) * 1.4;
+      c = PR[Math.max(0, Math.min(4, Math.floor(f)))];
+      const fl = hs(x, y, 9); if (fl < 0.035 && y > hz + 2) c = FL[Math.floor(fl * 114) % 4]; else if (hs(x, y - 1, 9) < 0.035 && y > hz + 3) c = PR[4];
+    }
+    // empaste: algún toque más claro, como el relieve de la pintura
+    if (hs(x, y, 11) < 0.02) c = mez(c, BL, 0.3);
+    R.pset(x, y, c);
+  }
+  // la cornucopia dorada al pie del monte
+  const cy0 = y1 - 12; for (let x = x0 + 104; x <= x0 + 126; x++) for (let y = cy0 + 3; y <= cy0 + 5; y++) if (hs(x, y, 14) < 0.75) tono(x, y, hex('#1e3a1a'), 0.5);
+  for (let i = 0; i <= 16; i++) { const r = 0.8 + i * 0.2, X = x0 + 106 + i, Y = cy0 - ((16 - i) / 16) ** 2 * 5; R.disco(ri(X), ri(Y), ri(r) + 1, hex('#6a4a10')); }
+  for (let i = 0; i <= 16; i++) { const r = 0.8 + i * 0.2, X = x0 + 106 + i, Y = cy0 - ((16 - i) / 16) ** 2 * 5; R.disco(ri(X), ri(Y), ri(r), i % 4 === 0 ? MR.oroS : MR.oro); R.pset(ri(X), ri(Y - r), MR.oroL); }
+  for (const [fx, c] of [[x0 + 122, hex('#e8503a')], [x0 + 125, hex('#ffe060')], [x0 + 123, hex('#8a4ad8')]]) { R.disco(fx, cy0 - 1 + (fx % 2), 1, c); R.pset(fx, cy0 - 2 + (fx % 2), BL); }
+  // el podio de oro, con sus dos escalones y su sombra en la hierba
+  const pt = y1 - 20;
+  for (let x = cx - 34; x <= cx + 34; x++) for (let y = y1 - 5; y <= y1 - 2; y++) if (hs(x, y, 13) < 0.7) tono(x, y, hex('#1e3a1a'), 0.5);
+  caja(cx - 30, y1 - 10, cx + 30, y1 - 4, MR.oroS); caja(cx - 30, y1 - 10, cx + 30, y1 - 10, MR.oroM); caja(cx - 29, y1 - 9, cx + 12, y1 - 6, MR.oro);
+  caja(cx - 24, pt, cx + 24, y1 - 11, MR.oro); caja(cx - 24, pt, cx + 24, pt, MR.oroL); caja(cx + 12, pt + 1, cx + 24, y1 - 11, MR.oroS); caja(cx - 24, pt + 1, cx - 22, y1 - 11, MR.oroM);
+  for (let x = cx - 22; x < cx + 12; x += 3) R.pset(x, pt + 5, MR.oroS);
+  // el vencedor al doble con la corona en alto: el brazo sube por fuera de la cara y la corona queda por encima
+  pegar(() => { const r = R.actor(EL.haymitch, 4, 30, 0, { dir: 1, sostiene: [34, 17], sonrisa: true }); if (r.mano) corona(r.mano[0] + 4, r.mano[1] - 1, 1); }, 34, 32, cx - 22, pt - 58, 2);
   // el laurel alrededor
-  for (let i = 0; i < 18; i++) { const a = Math.PI * (0.08 + i / 44), X = cx + Math.cos(a) * 66, Y = y0 + 74 - Math.sin(a) * 58;
+  for (let i = 0; i < 18; i++) { const a = Math.PI * (0.06 + i / 70), X = cx + Math.cos(a) * 60, Y = y0 + 70 - Math.sin(a) * 56;
     for (const xx of [X, 2 * cx - X]) { const x = ri(xx), y = ri(Y); caja(x - 2, y - 1, x + 2, y + 1, hex('#2e6a24')); caja(x - 1, y - 1, x + 1, y, hex('#5ab84a')); R.pset(x, y - 2, hex('#2e6a24')); } }
-  if (t > NUNCA && t < NUNCA + 0.6) halo(cx + 4, y1 - 92, 10, BL, 0.8 * (1 - tramo(t, NUNCA, NUNCA + 0.6)));
+  // el barniz viejo: las esquinas, más oscuras y tostadas
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const u = Math.max(Math.abs((x - cx) / (w / 2)), Math.abs((y - (y0 + y1) / 2) / (h / 2))); if (u > 0.82 && bay(x, y) < (u - 0.82) * 4) tono(x, y, hex('#5a3020'), 0.35); }
+};
+// el marco dorado: molduras con luz arriba y a la izquierda, sombra abajo y a la derecha, cuentas y rosetas en las esquinas
+const marco = (x0, y0, x1, y1, g) => {
+  const C = [MR.oroD, MR.oroS, MR.oro, MR.oroM, MR.oroL, MR.oro, MR.oroD];
+  for (let i = g; i >= 1; i--) { const c = C[g - i], cs = mez(c, K, 0.3);
+    R.rect(x0 - i, y0 - i, x1 + i, y0 - i, c); R.rect(x0 - i, y0 - i, x0 - i, y1 + i, c); R.rect(x0 - i, y1 + i, x1 + i, y1 + i, cs); R.rect(x1 + i, y0 - i, x1 + i, y1 + i, cs); }
+  for (let x = x0 - g + 2; x <= x1 + g - 2; x += 3) { R.pset(x, y0 - 4, MR.oroL); R.pset(x, y1 + 4, MR.oroS); }
+  for (let y = y0 - g + 2; y <= y1 + g - 2; y += 3) { R.pset(x0 - 4, y, MR.oroL); R.pset(x1 + 4, y, MR.oroS); }
+  for (const [x, y] of [[x0 - 4, y0 - 4], [x1 + 4, y0 - 4], [x0 - 4, y1 + 4], [x1 + 4, y1 + 4]]) { R.disco(x, y, 4, MR.oroD); R.disco(x, y, 3, MR.oro); R.disco(x, y, 1, MR.oroS); R.pset(x - 1, y - 2, MR.oroL); }
+  for (let x = x0; x <= x1; x++) { tono(x, y0, K, 0.4); tono(x, y0 + 1, K, 0.2); } for (let y = y0; y <= y1; y++) { tono(x0, y, K, 0.35); tono(x0 + 1, y, K, 0.15); }
+};
+// el aplique de latón de la pared, con su pantalla y su luz cálida
+const aplique = (x, y) => { R.rect(x - 1, y, x + 1, y + 8, MR.oroS); R.rect(x - 3, y + 8, x + 3, y + 9, MR.oro); R.rect(x - 4, y - 6, x + 4, y - 1, K); R.rect(x - 3, y - 5, x + 3, y - 2, hex('#f4e0b0')); R.rect(x - 3, y - 5, x + 3, y - 5, BL); R.pset(x, y + 10, MR.oroL); halo(x, y - 3, 13, hex('#fff2c8'), 0.5); };
+// el poste de latón del cordón, en (x, suelo)
+const poste = (x, s) => { R.rect(x - 1, s - 14, x + 1, s - 1, MR.oroS); R.rect(x - 1, s - 14, x - 1, s - 1, MR.oroL); R.disco(x, s - 15, 2, MR.oro); R.pset(x - 1, s - 16, MR.oroL); R.rect(x - 4, s - 1, x + 4, s, MR.oroS); R.rect(x - 4, s - 1, x + 4, s - 1, MR.oro); };
+let MUSEO = null;
+const museoFijo = () => {
+  const { pset, rect } = R;
+  // la pared de mármol rosado con vetas; arriba la cornisa (fondo tranquilo bajo el año)
+  for (let y = 0; y < 158; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.05 + y * 0.17 + Math.sin(y * 0.08 + x * 0.03) * 2.4) + hs(x, y, 1) * 0.5; pset(x, y, v > 1.38 ? MR.rv : v > 1.18 ? MR.rs : hs(x >> 2, y >> 2, 2) < 0.5 ? MR.r : hex('#f2d2e2')); }
+  for (let y = 0; y < 9; y++) for (let x = 0; x < 320; x++) pset(x, y, y === 8 ? MR.ms : y < 3 ? MR.m : (x % 6 < 3 ? MR.m : MR.ms));
+  rect(0, 9, 319, 10, MR.oroS); rect(0, 9, 319, 9, MR.oro); for (let x = 2; x < 320; x += 5) pset(x, 9, MR.oroL); for (let x = 0; x < 320; x++) tono(x, 11, MR.rv, 0.5);
+  // la pilastra de la izquierda
+  for (const px of [22]) { rect(px - 8, 11, px + 8, 146, MR.m); rect(px - 8, 11, px - 6, 146, MR.ml); rect(px + 5, 11, px + 8, 146, MR.ms); for (let y = 16; y < 144; y += 5) { pset(px - 2, y, MR.ms); pset(px + 2, y, MR.ms); } rect(px - 10, 11, px + 10, 15, MR.oro); rect(px - 10, 15, px + 10, 15, MR.oroS); }
+  // el arco a la sala de al lado: la pared del fondo, más pálida, con un cuadrito; su zócalo y su damero
+  for (let y = ARCO[1] - ARC[2]; y <= ARCO[3]; y++) for (let x = ARCO[0]; x <= ARCO[2]; x++) { if (!enArco(x, y)) continue;
+    pset(x, y, y > 128 ? (((Math.floor((x - 291) / (6 + (y - 128) * 0.2)) + Math.floor((y - 128) / 4)) & 1) ? hex('#4a3c50') : MR.ms) : y > 120 ? hex('#7a3a5a') : (hs(x >> 1, y >> 1, 4) < 0.15 ? MR.rs : hex('#e8d2dc'))); }
+  rect(278, 76, 304, 98, MR.oroS); rect(280, 78, 302, 96, hex('#3a3060')); for (let x = 281; x < 302; x++) for (let y = 79; y < 96; y++) pset(x, y, y > 90 ? hex('#4a7a3a') : y > 86 - ri(Math.sin(x * 0.5) * 2) ? hex('#6a5a8a') : hex('#e8a890'));
+  for (let y = 50; y <= 157; y++) for (let x = ARCO[0]; x <= ARCO[2]; x++) if (enArco(x, y)) tono(x, y, hex('#3a2040'), 0.12 + (y < 70 ? 0.1 : 0));
+  // la jamba del arco y la clave dorada
+  for (let y = ARCO[1] - ARC[2] - 4; y <= ARCO[3]; y++) for (let x = ARCO[0] - 5; x <= ARCO[2] + 5; x++) { if (enArco(x, y)) continue; const d = y >= ARC[1] ? Math.min(Math.abs(x - ARCO[0]), Math.abs(x - ARCO[2])) : Math.abs(Math.hypot(x - ARC[0], y - ARC[1]) - ARC[2]); if (d <= 4) pset(x, y, d <= 1 ? MR.md : x < ARC[0] && y > ARC[1] ? MR.ml : MR.m); }
+  rect(287, ARC[1] - ARC[2] - 6, 295, ARC[1] - ARC[2] + 1, MR.oroS); rect(288, ARC[1] - ARC[2] - 5, 294, ARC[1] - ARC[2], MR.oro); pset(289, ARC[1] - ARC[2] - 4, MR.oroL);
+  // el zócalo y el suelo de damero en perspectiva, con el reflejo del cuadro
+  for (let x = 0; x < 320; x++) { if (x >= ARCO[0] && x <= ARCO[2]) continue; for (let y = 146; y <= 157; y++) pset(x, y, y < 148 ? (y === 146 ? MR.oroL : MR.oro) : y === 157 ? K : (x % 20 > 2 && x % 20 < 18 && y > 149 && y < 156) ? hex('#a84a70') : hex('#8a3a5a')); }
+  for (let y = 158; y < 180; y++) for (let x = 0; x < 320; x++) { const p = (y - 158) / 22, xr = (x - 160) / (0.8 + p * 0.5) + 160; pset(x, y, (Math.floor(xr / 28) + Math.floor((y - 158) / (5 + p * 4))) % 2 ? hex('#2a2030') : MR.m); }
+  // el cuadro, su marco, la placa (sin letras: dos rayas grabadas) y los apliques
+  marco(QM[0], QM[1], QM[2], QM[3], 7);
+  oleo(QM);
+  rect(144, 139, 176, 143, MR.oroS); rect(145, 139, 175, 142, MR.oro); rect(145, 139, 175, 139, MR.oroL); for (const y of [140, 141]) for (let x = 148; x < (y === 140 ? 172 : 164); x += 1) if (x % 4) pset(x, y, MR.oroS);
+  aplique(64, 56); aplique(254, 56);
+  for (let y = 159; y < 174; y++) for (let x = QM[0]; x <= QM[2]; x += 2) if (R.pget(x, y) === MR.m) { const s = R.pget(x, QM[3] - (y - 158) * 3); if (s) pset(x, y, mez(MR.m, s, 0.3)); }
+  // el banco tapizado de la izquierda
+  rect(20, 160, 60, 166, K); rect(21, 161, 59, 164, MR.tc); rect(21, 161, 59, 161, MR.tcL); for (let i = 25; i <= 55; i += 7) pset(i, 163, MR.tcS); rect(23, 166, 25, 174, MR.oroS); rect(55, 166, 57, 174, MR.oroS); rect(21, 166, 59, 167, hex('#3a1a14'));
 };
 const f5 = (t) => {
-  const o = { encuadre: 'museo', camara: 'cuadro', cual: 1, cuadros: [null, retrato, null] };
-  const g = T.capitolio(R, t, o);
-  const v = tramo(t, Q8 + 0.2, Q8 + 1.4), ex = ri(lerp(-16, g.mirador, v));
-  R.actor(EL.effie, ex, g.suelo, t, { dir: 1, anda: v > 0 && v < 1, brazos: t > HISTORIA && t < HISTORIA + 1.4 && Math.sin(t * 10) > -0.2, sonrisa: t > Q8 + 1.4, habla: t > Q8 + 1.6 && t < HISTORIA - 0.2 && Math.sin(t * 8) > 0 });
-  T.capitolioDelante(R, t, o);
-  AT.luciernaga(R, 286 + Math.sin(t * 1.1) * 4, 128 + Math.sin(t * 2.1) * 3, t, { dir: -1, cara: t > NUNCA ? 'triste' : 'normal', brillo: 0.75 });
+  if (!MUSEO) { const b = R.nuevo(), prev = R.usar(b); museoFijo(); R.usar(prev); MUSEO = b; } R.copiar(MUSEO);
+  // el brillo del barniz: una franja que barre el lienzo despacio a lo largo del plano (y un destello en «history»)
+  const p = lerp(-0.35, 1.35, tramo(t, Q8, Q8 + 5.9)), [x0, y0, x1, y1] = QM, w = x1 - x0, h = y1 - y0;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const u = (x - x0) / w + (y - y0) / h * 0.5 - p, a = Math.abs(u); if (a < 0.05 && bay(x, y) < 0.6 * (1 - a / 0.05)) tono(x, y, BL, 0.4); else if (Math.abs(u + 0.09) < 0.012) tono(x, y, BL, 0.25); }
+  const fl = tramo(t, HISTORIA, HISTORIA + 0.2) * (1 - tramo(t, HISTORIA + 0.5, HISTORIA + 1.2)); if (fl > 0) halo(160, 52, 12, hex('#fff6c0'), 0.8 * fl);
+  // la luz de los apliques que respira
+  for (const ax of [64, 254]) if (Math.sin(t * 7 + ax) > 0.6) tono(ax, 52, BL, 0.5);
+  // por el arco, en la sala de al lado: un capitolino que pasa mirando los cuadros (recortado a su hueco)
+  R.recorte([ARCO[0], ARCO[1], ARCO[2], ARCO[3]]);
+  const vv = tramo(t, Q8 + 0.4, Q8 + 5.4); R.actor(EL.capitolino2, ri(lerp(256, 314, vv)), 154, t, { dir: 1, anda: vv > 0 && vv < 1 });
+  R.recorte(null);
+  // el agente de paz que vigila la sala, junto al arco, al fondo (pegado a la pared); se vuelve hacia Effie al aplauso
+  R.actor(EL.agentePaz, 248, 161, t, { dir: t > HISTORIA - 0.2 ? -1 : 1, sorpresa: t > HISTORIA && t < HISTORIA + 0.7 });
+  // el cordón de terciopelo entre los postes
+  poste(86, 172); poste(232, 172);
+  for (let x = 88; x <= 230; x++) { const u = (x - 86) / 146, yy = ri(158 + Math.sin(u * Math.PI) * 5); R.pset(x, yy, MR.tc); R.pset(x, yy + 1, MR.tcS); if (x % 4 === 0) R.pset(x, yy, MR.tcL); }
+  // Effie: entra hasta el centro del cordón, se para, lo admira, aplaude en «history» y sigue hacia la sala de al lado
+  const v = tramo(t, Q8 + 0.15, Q8 + 1.9), sale = tramo(t, NUNCA + 0.25, Q8 + 6.2), ex = ri(lerp(-18, 150, v) + sale * 44);
+  const anda = (v > 0 && v < 1) || (sale > 0 && sale < 1);
+  R.actor(EL.effie, ex, 177, t, { dir: 1, anda, brazos: t > HISTORIA && t < HISTORIA + 1.3 && Math.sin(t * 12) > -0.2, sorpresa: t > Q8 + 1.9 && t < Q8 + 2.5, sonrisa: t > Q8 + 2.5 });
+  AT.luciernaga(R, 258 + Math.sin(t * 1.1) * 4, 104 + Math.sin(t * 2.1) * 3, t, { dir: -1, cara: t > NUNCA ? 'triste' : t > HISTORIA ? 'sonrisa' : 'normal', brillo: 0.75 });
 };
 
 T.rodar(E, R, [[0, e1], [Q2, e2], [Q3, e3], [Q4, f1], [Q5, f2], [Q6, f3], [Q7, f4], [Q8, f5]], {

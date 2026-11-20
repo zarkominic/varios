@@ -913,27 +913,117 @@ const EB = R.nuevo();
 // la claqueta pequeña (16 × 14), que Atom lleva al doble con AT.escalado; ang: lo abierta que está
 const claquetaMini = (ang, n) => () => { R.rect(1, 5, 16, 15, K); R.rect(2, 6, 15, 14, H('#22242a')); R.rect(2, 9, 15, 9, H('#d8d8d0')); R.numero(String(n), 9, 15, { color: H('#f0e070'), sombra: false });
   for (let u = 0; u <= 15; u++) for (let v = -3; v <= 0; v++) { const x = 1 + u * Math.cos(-ang) - v * Math.sin(-ang), y = 4 + u * Math.sin(-ang) + v * Math.cos(-ang); R.pset(Math.round(x), Math.round(y), v === -3 || v === 0 ? K : Math.floor((u - v) / 3) % 2 ? H('#f2f2ee') : H('#1a1a20')); } };
+// la sala de una casa de distrito, al anochecer (lo fijo, en su búfer): papel pintado gastado, zócalo de tablas, suelo,
+// la ventana con la Veta, el reloj, el cuadro, la lámpara de pie, el perchero y la tele sobre su mueble, al fondo a
+// la izquierda; el sofá va delante, aparte, con la familia de espaldas
+const TV = [28, 52, 113, 93];   // el cristal de la tele
+const fondoSala = () => horno('sala', () => {
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 320; x++) { const r = (x % 16), mot = ((x + 8) % 16 - 8) ** 2 / 2 + ((y % 18) - 9) ** 2 / 4.5 < 3 && ((x + 8) % 16 - 8) ** 2 / 2 + ((y % 18) - 9) ** 2 / 4.5 > 1.2;
+    let c = r < 2 ? H('#9a8a68') : r === 2 ? H('#c8b890') : H('#b4a47e'); if (mot) c = H('#8e7e5c');
+    const luz = Math.max(0, 1 - Math.hypot((x - 296) / 60, (y - 70) / 50)) * 0.35, sombra = Math.min(1, Math.abs(x - 170) / 200) * 0.25 + (y < 10 ? (10 - y) * 0.03 : 0);
+    c = mez(c, H('#3a2e24'), sombra); if (luz > bay(x, y) * 0.4) c = mez(c, H('#f8d890'), luz); if (hh(x >> 3, y >> 3, 31) > 0.93 && bay(x, y) < 0.4) c = mez(c, H('#7a6a4e'), 0.4); R.pset(x, y, c); }
+  // una mancha de humedad
+  for (let y = 4; y < 30; y++) for (let x = 226; x < 250; x++) if (Math.hypot((x - 238) / 12, (y - 12) / 14) < 1 && bay(x, y) < 0.3) R.pset(x, y, H('#8a7a58'));
+  // el zócalo de tablas y el suelo de madera
+  R.rect(0, 108, 319, 110, H('#4a3424')); R.rect(0, 108, 319, 108, H('#8a6a48'));
+  for (let y = 111; y < 128; y++) for (let x = 0; x < 320; x++) R.pset(x, y, x % 12 === 0 ? H('#3a2818') : x % 12 === 1 ? H('#8a6644') : Math.sin(y * 0.7 + (x >> 3) * 1.9) > 0.85 ? H('#5a3e28') : H('#6e4e32'));
+  R.rect(0, 126, 319, 129, H('#3a2818'));
+  for (let y = 130; y < 180; y++) { const k = Math.floor((y - 130) / 7); for (let x = 0; x < 320; x++) { let c = (y - 130) % 7 === 0 ? H('#3a2818') : k % 2 ? H('#7a5638') : H('#6a4a30');
+    if (Math.sin(x * 0.09 + k * 2.7) > 0.86) c = H('#58402a'); if ((x + k * 37) % 61 === 0) c = H('#3a2818'); if (bay(x, y) < 0.05) c = H('#8a6644'); R.pset(x, y, c); } }
+  // la alfombra trenzada, ovalada
+  const TRZ = ['#8a3a2a', '#b8945a', '#5a6a4a', '#a85a3a', '#c8a870', '#6a4a3a', '#9a6a4a'].map(H);
+  for (let y = 142; y < 180; y++) for (let x = 20; x < 300; x++) { const d = Math.hypot((x - 150) / 128, (y - 166) / 22); if (d >= 1) continue; const c = TRZ[Math.floor(d * 7)];
+    R.pset(x, y, d > 0.96 ? H('#3a2818') : (x + y * 2) % 4 === 0 ? mez(c, K, 0.25) : c); }
+  // la ventana del fondo: el cielo del anochecer, la Veta y sus chimeneas (el humo se pinta en vivo)
+  R.rect(160, 22, 218, 92, K); R.rect(161, 23, 217, 91, H('#6a4a30')); R.rect(161, 23, 162, 91, H('#9a7450')); R.rect(216, 23, 217, 91, H('#3a2818'));
+  for (let y = 27; y <= 87; y++) for (let x = 165; x <= 213; x++) { const u = (y - 27) / 60 + (bay(x, y) - 0.5) * 0.08; R.pset(x, y, u < 0.35 ? mez(H('#3a3a6a'), H('#7a5a8a'), u / 0.35) : u < 0.7 ? mez(H('#7a5a8a'), H('#e89a6a'), (u - 0.35) / 0.35) : mez(H('#e89a6a'), H('#f0c88a'), (u - 0.7) / 0.3)); }
+  R.pset(174, 32, H('#ffffff')); R.pset(203, 38, H('#e8e8f8'));
+  for (let x = 165; x <= 213; x++) { const h = 70 + Math.round(4 * Math.sin(x * 0.4)) + ((x >> 3) % 2 ? -4 : 0); for (let y = h; y <= 87; y++) R.pset(x, y, y === h ? H('#4a3a44') : H('#2a2230')); }
+  for (const [x, y] of [[172, 76], [190, 72], [206, 76]]) { R.rect(x, y - 6, x + 2, y, H('#2a2230')); R.pset(x + 4, y + 4, H('#f8c860')); R.pset(x + 5, y + 4, H('#f8c860')); }
+  R.rect(188, 27, 190, 87, H('#5a3e28')); R.rect(165, 56, 213, 57, H('#5a3e28'));
+  R.rect(156, 92, 222, 95, K); R.rect(157, 92, 221, 93, H('#9a7450')); R.rect(157, 94, 221, 94, H('#4a3424'));
+  // la barra y las cortinas de flores
+  R.rect(152, 18, 226, 19, H('#3a2818')); R.disco(152, 18.5, 2, H('#c89a3a')); R.disco(226, 18.5, 2, H('#c89a3a'));
+  for (const [x0, x1] of [[154, 166], [212, 224]]) for (let y = 20; y < 100; y++) for (let x = x0; x <= x1; x++) { const pl = (x - x0) % 4; let c = pl === 0 ? H('#8a4a3a') : pl === 3 ? H('#a85a48') : H('#c87a62'); if ((x * 3 + y * 5) % 23 === 0) c = H('#f0d8a0'); if ((x * 7 + y * 3) % 29 === 0) c = H('#6a8a4a'); R.pset(x, y, c); }
+  // el reloj de la pared (el péndulo se pinta en vivo)
+  R.rect(137, 30, 151, 72, K); R.rect(138, 31, 150, 71, H('#6a4a30')); R.rect(138, 31, 139, 71, H('#9a7450')); R.disco(144, 38, 6, K); R.disco(144, 38, 5, H('#f2ead6'));
+  for (let k = 0; k < 4; k++) R.pset(144 + [0, 4, 0, -4][k], 38 + [-4, 0, 4, 0][k], K); R.linea(144, 38, 144, 35, K); R.linea(144, 38, 147, 39, K);
+  R.rect(140, 46, 148, 69, H('#2a1e18')); R.rect(140, 46, 148, 46, H('#9a7450'));
+  // el cuadro del prado sobre el sofá
+  R.rect(236, 28, 278, 58, K); R.rect(237, 29, 277, 57, H('#a8783a')); R.rect(237, 29, 277, 29, H('#d8a860'));
+  for (let y = 32; y <= 54; y++) for (let x = 240; x <= 274; x++) R.pset(x, y, y < 42 ? mez(H('#9ac0d8'), H('#d8e8e8'), (y - 32) / 10) : y < 46 ? H('#6a8a5a') : (x + y) % 5 === 0 ? H('#e8d870') : H('#5a7a3a'));
+  R.disco(266, 36, 2, H('#f8f0c0')); R.poligono([[240, 44], [252, 38], [262, 44]], H('#7a9a8a'));
+  // la lámpara de pie, a la derecha: pantalla de tela con su luz
+  R.rect(299, 84, 300, 128, K); R.rect(294, 127, 305, 129, K);
+  R.poligono([[290, 84], [309, 84], [305, 68], [294, 68]], K); R.poligono([[291, 83], [308, 83], [304, 69], [295, 69]], H('#f0d8a0')); R.poligono([[291, 83], [296, 83], [297, 69], [295, 69]], H('#fff0c8')); R.rect(291, 82, 308, 83, H('#c89a5a'));
+  // el perchero con un abrigo, a la izquierda
+  R.rect(4, 40, 14, 42, H('#3a2818')); R.rect(8, 42, 10, 46, H('#3a2818'));
+  R.poligono([[2, 46], [16, 46], [18, 96], [0, 96]], K); R.poligono([[3, 47], [15, 47], [17, 95], [1, 95]], H('#5a5a4a')); R.linea(9, 48, 9, 95, H('#3a3a30')); R.rect(3, 47, 4, 95, H('#7a7a64'));
+  // el mueble de la tele y la tele de madera con sus antenas
+  R.rect(18, 98, 124, 124, K); R.rect(19, 99, 123, 123, H('#6a4a30')); R.rect(19, 99, 123, 100, H('#9a7450'));
+  for (const x0 of [22, 72]) { R.rect(x0, 103, x0 + 46, 120, H('#3a2818')); R.rect(x0 + 1, 104, x0 + 45, 119, H('#7a5638')); for (let y = 105; y < 119; y += 3) R.rect(x0 + 3, y, x0 + 43, y, H('#6a4a30')); R.disco(x0 + (x0 < 50 ? 42 : 4), 111, 1, H('#c89a3a')); }
+  R.rect(22, 124, 25, 129, K); R.rect(117, 124, 120, 129, K);
+  R.linea(60, 44, 44, 22, K); R.linea(76, 44, 98, 24, K); R.disco(44, 22, 1.5, H('#c8ccd6')); R.disco(98, 24, 1.5, H('#c8ccd6')); R.rect(62, 42, 74, 46, K); R.rect(63, 43, 73, 45, H('#4a4e5a'));
+  R.rect(22, 46, 120, 98, K); R.rect(23, 47, 119, 97, H('#7a5232')); R.rect(23, 47, 119, 48, H('#a87a4a')); R.rect(118, 47, 119, 97, H('#4a3220'));
+  for (let x = 24; x < 118; x += 5) R.pset(x, 50, H('#5a3c24'));
+  R.rect(TV[0] - 2, TV[1] - 2, TV[2] + 2, TV[3] + 2, H('#2a2024')); R.rect(TV[0] - 1, TV[1] - 1, TV[2] + 1, TV[3] + 1, K);
+  for (let x = 30; x < 92; x += 2) R.rect(x, 94, x, 96, H('#4a3220')); R.disco(100, 95, 1.6, H('#d8c8a0')); R.disco(108, 95, 1.6, H('#d8c8a0'));
+  // la sombra de la tele en la pared
+  for (let y = 46; y < 100; y++) for (let x = 120; x < 126; x++) if (bay(x, y) < 0.5) R.pset(x, y, mez(R.pget(x, y), K, 0.25));
+});
+// el respaldo del sofá, en primer término, por delante de la familia: tela gastada con capitoné, el marco de madera,
+// una manta de ganchillo por encima
+const sofa = () => horno('sofa', () => {
+  for (let y = 161; y < 180; y++) for (let x = 156; x < 320; x++) { const borde = y === 161 || x === 156; let c = borde ? K : y < 165 ? H('#7a5638') : (x + (y >> 2)) % 3 === 0 ? H('#4a5a44') : H('#56684e');
+    if (!borde && y === 162) c = H('#a87a4a'); if (!borde && y >= 165 && x > 312) c = mez(c, K, 0.3); R.pset(x, y, c); }
+  for (let x = 172; x < 318; x += 26) for (let y = 167; y < 180; y += 9) { R.pset(x, y + 2, H('#2e3a2a')); R.pset(x - 1, y + 1, H('#3a4a36')); R.pset(x + 1, y + 3, H('#6a7c60')); R.pset(x - 3, y + 2, H('#4a5a44')); R.pset(x + 3, y + 2, H('#4a5a44')); }
+  for (let x = 160; x < 318; x++) if (bay(x, 165) < 0.5) R.pset(x, 165, H('#3a4a36'));
+  // el brazo del sofá, redondo, en la punta de la izquierda
+  R.disco(160, 166, 7, K); R.disco(160, 166, 6, H('#56684e')); R.disco(158, 164, 3, H('#6a7c60'));
+  // la manta de ganchillo, de cuadros de colores, echada por encima del respaldo
+  const MC = ['#c84a3a', '#e8c060', '#4a7ab0', '#e8e0d0'].map(H);
+  for (let y = 161; y < 180; y++) for (let x = 262; x < 300; x++) { if (y > 174 + Math.sin(x * 0.6) * 2) continue; const q = ((x - 262) >> 2) + ((y - 161) >> 2); R.pset(x, y, (x - 262) % 4 === 0 || (y - 161) % 4 === 0 ? H('#2a2024') : MC[q % 4]); }
+});
+// la tele de la sala: dentro, el escenario de la plaza (lo que ve todo Panem), en su búfer
 const teleFinal = (t, TT, conAtom = true) => {
-  // el escenario de la plaza, en su búfer (lo que ve todo Panem)
   const prev = R.usar(EB);
   const oe = { encuadre: 'plaza', camara: 'escenario', luz: 'dia', urna: 1, pantalla: 'sello' };
   const g = T.distrito(R, t, oe), S = g.suelo;
-  R.actor(EL.maysilee, 101, S, t, { dir: 1 });
-  R.actor(EL.wyattHM, 123, S, t, { dir: 1 });
-  R.actor(EL.louellaHM, 183, S, t, { dir: -1, triste: true });
-  const ua = tramo(t, TT.sube, TT.llega), xh = lerp(250, 213, ease(ua));
+  R.actor(EL.wyattHM, 108, S, t, { dir: 1 });
+  R.actor(EL.maysilee, 127, S, t, { dir: 1 });
+  R.actor(EL.louellaHM, 167, S, t, { dir: -1, triste: true });
+  const ua = tramo(t, TT.sube, TT.llega), xh = lerp(226, 188, ease(ua));
   R.actor(EL.haymitch, Math.round(xh), S, t, { dir: -1, anda: ua > 0 && ua < 1, triste: ua >= 1 });
   const aplaude = t > TT.llega + 0.1;
-  R.actor(EL.drusilla, 146, S, t, { dir: aplaude ? 1 : -1, sonrisa: true, brazos: aplaude && Math.floor(t * 6) % 2 === 0, habla: !aplaude && voz(t) > 0.3 });
-  R.actor(EL.agentePaz, 40, S, t, { dir: 1 });
+  R.actor(EL.drusilla, 147, S, t, { dir: aplaude ? 1 : -1, sonrisa: true, brazos: aplaude && Math.floor(t * 6) % 2 === 0, habla: !aplaude && voz(t) > 0.3 });
   T.distritoDelante(R, t, oe);
   R.usar(prev);
-  const pantalla = (R2, t2, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) { const sy = y - y0 + 46; for (let x = x0; x <= x1; x++) R2.pset(x, y, EB[sy * 320 + (x - x0 + 100)]); } };
-  const o = { encuadre: 'tele', camara: 'pantalla', pantalla };
-  T.interior(R, t, o); T.interiorDelante(R, t, o);
-  // Atom, de luciérnaga, junto a la tele; se va por la derecha justo antes de que entre el Atom grande
+  // la sala
+  R.copiar(fondoSala());
+  // el humo de las chimeneas de la Veta, por la ventana
+  R.recorte([165, 27, 213, 87]); for (const [x, s] of [[173, 0], [207, 0.5]]) for (let k = 0; k < 4; k++) { const f = (t * 0.3 + k / 4 + s) % 1; R.disco(x + f * 6 + Math.sin(f * 5) * 1.5, 68 - f * 30, 1 + f * 2.5, mez(H('#8a7a8a'), H('#c8b0b8'), f)); } R.recorte(null);
+  // el péndulo del reloj
+  { const a = Math.sin(t * 3.1) * 0.35; R.linea(144, 47, 144 + Math.round(Math.sin(a) * 16), 47 + Math.round(Math.cos(a) * 16), H('#c89a3a')); R.disco(144 + Math.sin(a) * 18, 47 + Math.cos(a) * 18, 2, H('#e8c060')); }
+  // la pantalla: la imagen con sus líneas, su viñeta y el reflejo del cristal
+  const [x0, y0, x1, y1] = TV, ox = 124, oy = S - 36, B = R.buf, fl = 0.94 + Math.sin(t * 23) * 0.03;
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const [r, gg, b] = rgb(EB[(y - y0 + oy) * 320 + (x - x0 + ox)]), v = Math.hypot((x - 70.5) / 46, (y - 72.5) / 24), k = (y % 2 ? 0.86 : 1) * fl * (1 - Math.max(0, v - 0.75) * 1.2);
+    B[y * 320 + x] = (0xff000000 | (Math.min(255, Math.round((b * 1.05 + 12) * k)) << 16) | (Math.min(255, Math.round((gg + 6) * k)) << 8) | Math.min(255, Math.round(r * 0.95 * k))) >>> 0; }
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if ((x - x0) + (y - y0) * 0.8 > 60 && (x - x0) + (y - y0) * 0.8 < 66 && bay(x, y) < 0.35) R.pset(x, y, mez(R.pget(x, y), H('#ffffff'), 0.5));
+  // la luz azulada de la tele en la alfombra y el suelo, que parpadea
+  for (let y = 132; y < 180; y += 1) for (let x = 30; x < 150; x++) { const d = Math.hypot((x - 70) / 80, (y - 132) / 40); if (d < 1 && bay(x, y) < (1 - d) * 0.35 * fl) R.pset(x, y, mez(R.pget(x, y), H('#a8c0f0'), 0.35)); }
+  // la luz de la lámpara que tiembla un poco
+  if (Math.sin(t * 13) > 0.7) for (let y = 86; y < 108; y++) for (let x = 284; x < 316; x++) if (bay(x, y) < 0.08) R.pset(x, y, H('#f8e0a0'));
+  // la familia en el sofá, de espaldas, mirando la tele; en «walks up» el pequeño se vuelve hacia su madre y la abuela
+  // asiente cuando Drusilla aplaude
+  const vuelve = t > TT.llega - 0.4 ? -1 : 0;
+  const FAM = [[190, 166, 22, 0.62, 0, 0], [228, 166, 20, 0.11, 0, 0], [260, 170, 15, 0.47, vuelve, vuelve ? 1 : 0], [292, 166, 18, 0.86, 0, aplaude && Math.floor(t * 3) % 2 ? 1 : 0]];
+  for (const [x, y, sz, q, m, sb] of FAM) carita(x, y, sz, q, m, sb, true);
+  // la luz de la tele les perfila el pelo por arriba
+  for (const [x, y, sz, , , sb] of FAM) { const r = Math.max(1.6, sz * 0.36), hy = Math.round(y - sz * 0.95) - sb; for (let i = -Math.ceil(r); i <= 0; i++) if (bay(x + i, hy) < 0.6 * fl) R.pset(x + i, hy - Math.round(Math.sqrt(Math.max(0, r * r - i * i))), H('#a8c0f0')); }
+  { const S2 = sofa(), B2 = R.buf; for (let i = 156 * 320; i < 180 * 320; i++) if (S2[i]) B2[i] = S2[i]; }
+  // Atom, de luciérnaga, junto a la lámpara; se va por la derecha justo antes de que entre el Atom grande
   const ul = tramo(t, TT.sube - 0.6, TT.atom - 0.3);
-  if (conAtom && ul < 1) T.AT.luciernaga(R, lerp(250, 340, ease(ul)), 46 + Math.sin(t * 2.2) * 3, t, { dir: ul > 0 ? 1 : -1, brillo: 0.8, cara: t > TT.llega - 1 ? 'triste' : 'normal' });
+  if (conAtom && ul < 1) T.AT.luciernaga(R, lerp(262, 340, ease(ul)), 100 + Math.sin(t * 2.2) * 3, t, { dir: ul > 0 ? 1 : -1, brillo: 0.8, cara: t > TT.llega - 1 ? 'triste' : 'normal' });
 };
 
 // el plano congelado: la tele de hm-cosecha en su último instante (49,70 s), con los instantes escritos a mano
