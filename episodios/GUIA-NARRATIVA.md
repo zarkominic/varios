@@ -97,7 +97,30 @@
 - la voz se graba por oraciones enteras, sin cortar en las comas (la muestra «B»);
 - en español, todos los nombres propios extranjeros se escriben como se dicen en español de México.
 
-## Títulos
+## Narrar como un relato hablado (desde el 43, aprobado el 20/11/2026 con la prueba de Roanoke)
+
+El usuario: «quiero que narremos diferente… esa es la forma de narrar» (el canal de Farid Dieck, «Relato y Reflexiones»), y
+tras la primera prueba: «sigue pareciendo lo que hacíamos, frases cortas sin hilar». Se aprobó la segunda prueba
+(`atomo/plato/escenas/mf-gancho.html`). Sustituye al tono de cuento en tercera persona:
+- **Atom te habla a ti.** Primera persona («hoy te la quiero contar de otra forma») y segunda («imagina que vuelves…»,
+  «fíjate en esto»). Sin muletillas exageradas («uf», «híjole»).
+- **Párrafos hilados, no frases sueltas.** Cada fila es un párrafo de 1–3 oraciones largas que avanzan con «así que»,
+  «y», «hasta que», «porque», «pero», «mientras»; nada de «Bajas del barco. Tocas una trompeta. Nadie contesta.»: se
+  escribe «…en cuanto la barca toca la arena ya estás tocando una trompeta…, y esperas, y nadie contesta.»
+- **El arranque te mete dentro de la escena:** la primera oración es la promesa del título (15 palabras o menos en
+  inglés); después, la escena en segunda persona y en presente, con detalles concretos, cortada en lo más alto; y solo
+  entonces la revelación («Eso le pasó de verdad a…»). Sin bienvenida, sin resumen y sin lista de lo que viene.
+- **Las paradas «fíjate en esto»:** la historia se para para explicar el porqué real (el ángulo de ASK Atom), breve y
+  sencillo, y lo lleva a la vida de quien escucha. En imagen, cada parada es una PAUSA (GUIA-ESTILO, «Atom en escena»):
+  4–6 por episodio, de 5 a 15 s.
+- **Sembrar y recoger:** uno o dos «guárdate esto» al principio que se recogen al final.
+- **Cierre:** vuelve a la imagen del principio, una reflexión con una frase para recordar, y una pregunta para los
+  comentarios. «Soy Atom, y te explico…» ya no va: Atom se presenta actuando.
+- **La voz:** cada párrafo se locuta DE UNA SOLA VEZ (`guion.json`: `"parrafo_entero": true`), sin silencios dentro del
+  párrafo (`"pausas": {"respiro": 0.2, "parrafo": 0.7, "acto": 1.0}`), el inglés a 0,95 y el español con
+  `mood.valence` 0,4 y `mood.arousal` 0,3 (más contenido, con misterio). Unas 170 palabras por minuto. Música presente
+  cuando calla la voz.
+
 
 - **El tema, o la persona o el nombre más buscado, va delante, y el gancho detrás.** Correcciones del usuario: «el título debe ser más catchy, con de lo que va el canal» (22/10) y «deben ser muy claros de qué hablamos, debe decir Los Griegos o Grecia antigua dentro del título, no solo el catch» (23/10). En el 11: «Elizabeth Holmes and Theranos: The Drop of Blood That Fooled Silicon Valley».
 - **Sin minutos en el título ni en la descripción.** El Halloween prometía 10 minutos y duraba menos de 7 («mencionas que son 10 minutos y en verdad son menos de 7»).

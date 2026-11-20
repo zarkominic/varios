@@ -144,6 +144,10 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
    - Los actos, como `## N · Título`. Cada frase es una fila `| ES | EN |`, en orden.
    - `## Datos`, con las fuentes. Todo lo que va detrás de esta línea no se locuta.
 2. Reglas del texto (`GUIA-NARRATIVA.md`):
+   - **desde el 43, la narración es un relato hablado y Atom actúa en escena** (aprobado el 20/11/2026): lee
+     «Narrar como un relato hablado» en `GUIA-NARRATIVA.md` y «Atom en escena» en `GUIA-ESTILO.md`. Donde lo de abajo
+     choque (la frase «Soy Atom, y te explico…», el cuento en tercera persona, la voz por oraciones, Atom en la esquina),
+     manda lo nuevo. En `hacer_guion.py`: `"parrafo_entero": true`, `"pausas"` y las voces de la guía;
    - un episodio completo de 8:30–9:30, es decir, 1.300–1.400 palabras en inglés;
    - el gancho primero y luego la frase de Atom, desde el 17: «Soy Atom, y te explico eso que siempre te has
      preguntado. Vamos a verlo.» / «I'm Atom, and I explain the things you've always wondered about. Let's find out.»

@@ -79,7 +79,7 @@ function piezas(R) {
     orbitas(cx, cy, t, 8, false, o);
     const paso = anda ? (Math.floor(t * 6) % 2 ? 2 : -2) : 0;
     pierna(cx - 2, cy + 4, suelo, dir, -paso); pierna(cx + 2, cy + 4, suelo, dir, paso);
-    const hx = cx - 4 * dir, hy = cy + 1, fx = cx + 4 * dir, fy = cy + 1;
+    const hx = cx - 4 * dir, hy = cy + 2, fx = cx + 4 * dir, fy = cy + 2;   // los hombros bajo los ojos: el contorno del brazo no toca el ojo (se fundían en un solo negro)
     let m1 = [hx - 2 * dir, hy + 4], m2 = [fx + 2 * dir, fy + 4];
     if (anda) { m1 = [hx - 2 * dir + paso, hy + 4]; m2 = [fx + 2 * dir - paso, fy + 4]; }
     if (pose === 'saluda') m2 = [fx + 3 * dir, fy - 7 + Math.round(Math.sin(t * 9))];

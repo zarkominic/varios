@@ -8,6 +8,23 @@
 - **Kit:** `atomo/plato/kits/pixel-chibi.js`. Incluye el reparto, las caras, los gestos, los bustos del público, las nubes, las gaviotas y los bocadillos.
 - **Inspiración:** pixel art de lucha arcade redibujado en cabezón (el vídeo de referencia que trajo el usuario). Se toma el aspecto, no los personajes.
 
+## Atom en escena (desde el 43, aprobado el 20/11/2026)
+
+Atom ya no vive en la esquina: actúa en el decorado. Pieza común: `atomo/plato/escenas/atom-personaje.js` (hoja de diseño:
+`_atom-cuerpo.html`; prueba aprobada: `mf-gancho.html`).
+- **Aspecto:** el átomo (núcleo amarillo con tres órbitas y sus electrones) con CARA (ojos y boca: normal, sonrisa,
+  sorpresa, triste, guiño; habla con la voz y parpadea), bracitos y piernitas color crema al tamaño de los chibis,
+  guantes blancos y zapatitos rojos. Las órbitas no pasan por delante de la cara. Cuidado con los ojos: que no toquen el
+  contorno ni el de los brazos (se funden en un solo negro).
+- **Tamaños:** luciérnaga (`AT.luciernaga`: flotando, con cara, sin extremidades) cuando acompaña sin robar el plano; a
+  escala de los chibis (`AT.atom`) cuando está en la escena; al doble (`s: 2`) en las pausas y en las revelaciones.
+- **Participa:** camina, señala, sostiene (el farol, la lupa), toca las cosas, reacciona a lo que cuenta la voz; las
+  órbitas rodean las pistas (`AT.anillo`); lo que «se guarda» gira con él como un electrón dorado (`extra: true`).
+- **LA PAUSA** (los «fíjate en esto»): el mundo se congela en gris azulado con el ⏸ (`AT.pausa`) y Atom, a color, entra
+  a explicar; lo que nombra aparece a color, al doble, en su palabra; al terminar, el color vuelve y la historia sigue
+  donde se quedó. 4–6 por episodio.
+- La barra del año y el resto del canon no cambian. La esquina de Atom ya no hace falta dejarla vacía.
+
 ## Personajes
 
 - **Cabezones:** la cabeza ocupa casi la mitad del cuerpo.
