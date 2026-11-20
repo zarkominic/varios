@@ -96,22 +96,25 @@ const camaraTripode = (x, y, dir, t, graba = true) => { x = Math.round(x); y = M
 # congela. TT: los instantes (en hm-cosecha, con en(); en hm-toma, los mismos números escritos).
 TELE = r'''
 const EB = R.nuevo();
+// la claqueta pequeña (16 × 14), que Atom lleva al doble con AT.escalado; ang: lo abierta que está
+const claquetaMini = (ang, n) => () => { R.rect(1, 5, 16, 15, K); R.rect(2, 6, 15, 14, H('#22242a')); R.rect(2, 9, 15, 9, H('#d8d8d0')); R.numero(String(n), 9, 15, { color: H('#f0e070'), sombra: false });
+  for (let u = 0; u <= 15; u++) for (let v = -3; v <= 0; v++) { const x = 1 + u * Math.cos(-ang) - v * Math.sin(-ang), y = 4 + u * Math.sin(-ang) + v * Math.cos(-ang); R.pset(Math.round(x), Math.round(y), v === -3 || v === 0 ? K : Math.floor((u - v) / 3) % 2 ? H('#f2f2ee') : H('#1a1a20')); } };
 const teleFinal = (t, TT, conAtom = true) => {
   // el escenario de la plaza, en su búfer (lo que ve todo Panem)
   const prev = R.usar(EB);
   const oe = { encuadre: 'plaza', camara: 'escenario', luz: 'dia', urna: 1, pantalla: 'sello' };
   const g = T.distrito(R, t, oe), S = g.suelo;
-  R.actor(EL.maysilee, 93, S, t, { dir: 1 });
+  R.actor(EL.maysilee, 101, S, t, { dir: 1 });
   R.actor(EL.wyattHM, 123, S, t, { dir: 1 });
   R.actor(EL.louellaHM, 183, S, t, { dir: -1, triste: true });
-  const ua = tramo(t, TT.sube, TT.llega), xh = lerp(262, 213, ease(ua));
+  const ua = tramo(t, TT.sube, TT.llega), xh = lerp(250, 213, ease(ua));
   R.actor(EL.haymitch, Math.round(xh), S, t, { dir: -1, anda: ua > 0 && ua < 1, triste: ua >= 1 });
   const aplaude = t > TT.llega + 0.1;
   R.actor(EL.drusilla, 146, S, t, { dir: aplaude ? 1 : -1, sonrisa: true, brazos: aplaude && Math.floor(t * 6) % 2 === 0, habla: !aplaude && voz(t) > 0.3 });
   R.actor(EL.agentePaz, 40, S, t, { dir: 1 });
   T.distritoDelante(R, t, oe);
   R.usar(prev);
-  const pantalla = (R2, t2, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) { const sy = y - y0 + 46; for (let x = x0; x <= x1; x++) R2.pset(x, y, EB[sy * 320 + (x - x0 + 86)]); } };
+  const pantalla = (R2, t2, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) { const sy = y - y0 + 46; for (let x = x0; x <= x1; x++) R2.pset(x, y, EB[sy * 320 + (x - x0 + 100)]); } };
   const o = { encuadre: 'tele', camara: 'pantalla', pantalla };
   T.interior(R, t, o); T.interiorDelante(R, t, o);
   // Atom, de luciérnaga, junto a la tele; se va por la derecha justo antes de que entre el Atom grande
@@ -127,14 +130,16 @@ E['hm-cosecha'] = ('La cosecha', '''// HM-COSECHA (frases 10–12), Juegos 50. N
 // 1. la urna de cerca: la mano de la escolta entra, revuelve las papeletas y saca una en «bowl»; Atom se asoma;
 // 2. contraplano desde el escenario: los chicos de cara, la Veta, la alambrada y el bosque; en «Woodbine» todos le
 //    miran; sale al pasillo y en «runs» echa a correr hacia el fondo, de espaldas; dos agentes arrancan; corte;
-// 3. el frontón del Edificio de Justicia: el reloj; en «peacekeepers» las palomas salen volando de la cornisa y la
-//    pantalla de al lado se va a nieve; Atom, triste, se esconde tras el reloj;
+// 3. el frontón del Edificio de Justicia: el reloj salta en «peacekeepers»; en «don't let him» las palomas salen
+//    volando de la cornisa y la
+//    pantalla de al lado se va a nieve; Atom, triste, se esconde tras el reloj (corta antes de ver nada);
 // 4. entre las filas, a ras de suelo: Lenore Dove sale por el pasillo hacia los agentes («goes after»); Haymitch se
 //    pone delante con los brazos abiertos («steps in front»); un agente le señala;
 // 5. el escenario: tres tributos en tres de las cuatro marcas; Drusilla los cuenta (1, 2, 3) en «four tributes» y en
 //    «down to three» sale el «?» sobre la marca vacía; Plutarch, joven, graba tras la barandilla;
 // 6. el borde del escenario: Drusilla y Plutarch con su cámara en el filo miran abajo; en «look at the boy» Drusilla
-//    señala y la órbita de Atom rodea a Haymitch entre los chicos; en «decide he'll do» sonríe; bajan dos agentes;
+//    señala y la órbita de Atom rodea a Haymitch (junto al escenario, delante de Lenore); en «decide he'll do» sonríe
+//    y llega otro agente a por él;
 // 7. la claqueta: el «1» se tacha y sale un «2» en «redoes the reaping»; se cierra de golpe en «take»;
 // 8. el visor de la cámara: la toma 2, el pasillo vacío; en «what happened to Woodbine» la órbita rodea el hueco;
 // 9. la tele de cerca: lo que ve Panem: Haymitch sube solo al escenario («walks up onto the stage») y Drusilla
@@ -190,8 +195,8 @@ const brilloUrna = () => { // los reflejos del cristal, por delante de la mano
 const p1 = (t) => {
   R.copiar(fondoUrna());
   // la guirnalda de banderines de la fachada, que ondea
-  for (let x = 0; x < 320; x++) R.pset(x, Math.round(18 + Math.sin(x / 320 * Math.PI * 2) * 4), H('#4a4a54'));
-  for (let x = 4; x < 316; x += 12) { const y = Math.round(18 + Math.sin(x / 320 * Math.PI * 2) * 4), m = Math.round(Math.sin(t * 3 + x * 0.3) * 1.5); R.poligono([[x, y], [x + 8, y], [x + 4 + m, y + 8]], x % 24 ? H('#9a9ea8') : H('#e8eaf0')); }
+  for (let x = 0; x < 320; x++) R.pset(x, Math.round(25 + Math.sin(x / 320 * Math.PI * 2) * 3), H('#4a4a54'));
+  for (let x = 4; x < 316; x += 12) { const y = Math.round(25 + Math.sin(x / 320 * Math.PI * 2) * 3), m = Math.round(Math.sin(t * 3 + x * 0.3) * 1.5); R.poligono([[x, y], [x + 8, y], [x + 4 + m, y + 8]], x % 24 ? H('#9a9ea8') : H('#e8eaf0')); }
   // los apliques de hierro con su llama que tiembla
   for (const x of [72, 196]) { R.rect(x - 1, 52, x + 1, 60, K); R.rect(x - 4, 44, x + 4, 52, K); R.rect(x - 3, 45, x + 3, 51, Math.sin(t * 9 + x) > 0 ? H('#f0d070') : H('#e8b040')); R.rect(x - 1, 47, x + 1, 50, H('#fff4c0')); R.rect(x - 5, 43, x + 5, 43, H('#3a3a44')); }
   // una paloma en el alféizar de la ventana, que mueve la cabeza
@@ -207,8 +212,9 @@ const p1 = (t) => {
   { const x = Math.round(272 - ((t * 6) % 40)), pic = Math.sin(t * 5) > 0.3 ? 1 : 0; R.rect(x - 4, 166, x + 3, 170, K); R.rect(x - 3, 167, x + 2, 169, H('#8a90a0')); R.rect(x - 5 + 0, 164 + pic, x - 3, 166 + pic, H('#6a7080')); R.pset(x - 6, 166 + pic, H('#e8a040')); R.pset(x + 3, 167, H('#4a5060')); R.pset(x, 171, H('#e86a5a')); R.pset(x - 2, 171, H('#e86a5a')); }
   // la mano de la escolta: entra, se hunde en las papeletas, sale con una
   const en1 = tramo(t, 0.4, 1.6), mete = tramo(t, 2.2, 3.0), saca = tramo(t, «woodbine:3.6», «woodbine:4.4»), va = tramo(t, «woodbine:5.2», «woodbine:6.2»);
-  let wx = lerp(240, 168, ease(en1)), wy = lerp(-10, 30, ease(en1));
-  wy += lerp(0, 44, ease(mete)) - lerp(0, 58, ease(saca)); wx += Math.sin(t * 7) * 2 * mete * (1 - saca) - lerp(0, -40, ease(va)); wy -= lerp(0, 50, ease(va));
+  let wx = lerp(240, 168, ease(en1)), wy = lerp(10, 32, ease(en1));
+
+  wy += lerp(0, 44, ease(mete)) - lerp(0, 36, ease(saca)); wx += Math.sin(t * 7) * 2 * mete * (1 - saca) - lerp(0, -40, ease(va)); wy -= lerp(0, 50, ease(va));
   // las papeletas de arriba se revuelven mientras la mano busca
   if (mete > 0 && saca < 1) for (let k = 0; k < 10; k++) { const a = t * 6 + k * 0.7, x = Math.round(wx - 10 + Math.cos(a) * 8 + k), y = Math.round(64 + Math.sin(a * 1.3) * 3); R.rect(x, y, x + 3, y + 1, H('#f8f2e2')); R.pset(x, y + 2, H('#b8aa8c')); }
   if (en1 > 0) T.brazo(R, wx + 46, wy - 44, wx, wy, '#5a2a7a', -1, { codo: [wx + 30, wy - 16], sombra: false });
@@ -347,8 +353,8 @@ const p3 = (t) => {
   nubes(t, LIM_F, [[28, 44, 2.0], [44, 30, 3.2], [20, 36, 1.2]]);
   pajaro(((t * 14) % 360) - 20, 22 + Math.sin(t) * 2, t, H('#3a3e4a'));
   // la bandera gris del mástil del vértice, que ondea
-  R.rect(150, 0, 151, 16, H('#3a3a44'));
-  for (let x = 0; x < 22; x++) { const y = 2 + Math.round(Math.sin(t * 5 - x * 0.4) * 1.2 * x / 22); for (let j = 0; j < 9; j++) R.pset(152 + x, y + j, j === 0 || j === 8 ? H('#5a5e68') : (x + j) % 5 === 0 ? H('#7a7e88') : H('#9a9ea8')); }
+  R.rect(230, 18, 231, 46, H('#3a3a44')); R.disco(230.5, 18, 1.5, H('#c8a040'));
+  for (let x = 0; x < 22; x++) { const y = 20 + Math.round(Math.sin(t * 5 - x * 0.4) * 1.2 * x / 22); for (let j = 0; j < 9; j++) R.pset(232 + x, y + j, j === 0 || j === 8 ? H('#5a5e68') : (x + j) % 5 === 0 ? H('#7a7e88') : H('#9a9ea8')); }
   // las agujas del reloj (el minutero salta en «peacekeepers»)
   const cx = 150, cy = 56, sal = t > «woodbine:12.34» ? 1 : 0, am = -Math.PI / 2 + (0.6 + sal * 0.105) * Math.PI * 2, ah = -Math.PI / 2 + 0.31 * Math.PI * 2;
   R.linea(cx, cy, cx + Math.round(Math.cos(ah) * 6), cy + Math.round(Math.sin(ah) * 6), K); R.linea(cx, cy, cx + Math.round(Math.cos(am) * 9), cy + Math.round(Math.sin(am) * 9), K); R.disco(cx, cy, 1, H('#8a6420'));
@@ -401,7 +407,7 @@ const fondoB = () => horno('filas', () => {
   for (const x of [104, 216]) { R.rect(x - 7, 56, x + 7, 69, H('#9aaab4')); R.rect(x - 6, 60, x + 6, 68, H('#f0e8d4')); R.rect(x - 8, 55, x + 8, 56, H('#c89a3a')); R.rect(x - 3, 69, x + 3, 70, H('#6a4428')); }
   R.rect(159, 58, 160, 70, K); R.disco(159.5, 57, 1.5, H('#3a3a44'));
   // las dos pantallas grandes sobre sus postes
-  for (const [x0, x1, y0] of [[6, 58, 16], [262, 314, 18]]) { R.rect(x0 - 2, y0 - 2, x1 + 2, y0 + 30, K); R.rect(Math.round((x0 + x1) / 2) - 1, y0 + 30, Math.round((x0 + x1) / 2) + 1, 84, H('#3a3a44')); for (let x = x0 - 2; x <= x1 + 2; x++) LIM_B[x] = Math.min(LIM_B[x], y0 - 2); }
+  for (const [x0, x1, y0] of [[6, 58, 24], [262, 314, 22]]) { R.rect(x0 - 2, y0 - 2, x1 + 2, y0 + 30, K); R.rect(Math.round((x0 + x1) / 2) - 1, y0 + 30, Math.round((x0 + x1) / 2) + 1, 84, H('#3a3a44')); for (let x = x0 - 2; x <= x1 + 2; x++) LIM_B[x] = Math.min(LIM_B[x], y0 - 2); }
   // los adoquines del primer término
   for (let y = 84; y < 180; y++) { const f = (y - 84) / 96, fila = Math.floor(Math.pow(y - 82, 0.85)), ww = 6 + Math.round(f * 16), off = (fila % 2) * Math.round(ww / 2), borde = Math.floor(Math.pow(y + 1 - 82, 0.85)) !== fila;
     for (let x = 0; x < 320; x++) { const q = hh(Math.floor((x + off) / ww), fila, 15); let c = mez(H('#8a8476'), H('#a69e8e'), q); if (borde || (x + off) % ww === 0) c = H('#585448'); else if (bay(x, y) < 0.1) c = mez(c, H('#c8c0b0'), 0.5); R.pset(x, y, c); } }
@@ -415,7 +421,7 @@ const pantallaSello = (t, x0, y0, x1, y1) => { R.rect(x0, y0, x1, y1, H('#1a1e3a
 const p4 = (t) => {
   R.copiar(fondoB());
   nubes(t, LIM_B, [[22, 40, 1.6], [32, 28, 2.6]]);
-  pantallaSello(t, 6, 16, 58, 44); pantallaSello(t + 1, 262, 18, 314, 46);
+  pantallaSello(t, 6, 24, 58, 52); pantallaSello(t + 1, 262, 22, 314, 50);
   // las filas de los chicos, de espaldas, mirando al escenario; giran la cabeza hacia el lío
   const lio = «protege:15.6», mira = (px) => t > lio ? (px < 200 ? 1 : -1) : 0;
   for (const [y, s, sem] of [[96, 6, 31], [104, 7, 32], [114, 8, 33], [126, 10, 34]]) filaCaras(t, 2, 318, y, s, sem, [[150, 172]], (px, yy, i) => (Math.sin(t * 0.9 + i * 1.7 + sem) > 0.2 ? mira(px) : 0), true);
@@ -531,7 +537,7 @@ const p7 = (t) => {
   R.copiar(fondoBorroso());
   // manchas desenfocadas de los chicos que se mueven, y los banderines borrosos que ondean
   for (let k = 0; k < 14; k++) { const x = 8 + k * 23 + Math.sin(t * 0.8 + k) * 2, y = 128 + (k % 3) * 14, r = 4 + (k % 2); R.disco(x, y - r, r, mez(H('#8a8478'), PIEL[k % 3], 0.6)); R.disco(x, y + r + 2, r + 2, mez(H('#8a8478'), ROPA[k % 8], 0.6)); }
-  for (let x = 0; x < 330; x += 24) { const m = Math.round(Math.sin(t * 2.4 + x * 0.2) * 3); R.poligono([[x, 8], [x + 16, 8], [x + 8 + m, 24]], x % 48 ? H('#a8acb6') : H('#c4c8d0')); }
+  for (let x = 0; x < 330; x += 24) { const m = Math.round(Math.sin(t * 2.4 + x * 0.2) * 3); R.poligono([[x, 22], [x + 16, 22], [x + 8 + m, 36]], x % 48 ? H('#a8acb6') : H('#c4c8d0')); }
   // el objetivo de la cámara a la izquierda: aros negros, el cristal con su reflejo
   R.disco(14, 96, 58, K); R.disco(14, 96, 54, H('#2a2a32')); R.disco(14, 96, 46, K); R.disco(14, 96, 40, H('#1a2238'));
   for (let y = 56; y < 136; y++) for (let x = 0; x < 54; x++) { const d = Math.hypot(x - 14, y - 96); if (d < 40 && ((x - 14) - (y - 96)) > 6 && ((x - 14) - (y - 96)) < 18 && bay(x, y) < 0.5) R.pset(x, y, H('#4a6a9a')); if (d > 47 && d < 53 && ((x + y) % 4 === 0)) R.pset(x, y, H('#4a4a56')); }
@@ -617,22 +623,25 @@ const TT = { sube: «toma:46.64», llega: «toma:48.1», atom: «toma:48.9» };
 const p9 = (t) => {
   teleFinal(t, TT);
   // el Atom grande entra por la derecha para la pausa
-  if (t > TT.atom) T.AT.atom(R, lerp(340, 262, tramo(t, TT.atom, E.duracion)), 160, t, { s: 2, pose: 'camina', dir: -1 });
+  if (t > TT.atom) { const r = T.AT.atom(R, lerp(340, 262, tramo(t, TT.atom, E.duracion)), 160, t, { s: 2, pose: 'camina', dir: -1 });
+    T.AT.escalado(R, claquetaMini(0, 2), 18, 16, r.mano[0] - 30, r.mano[1] - 22, 2); }
 };
 
-const efectos = [[«woodbine:3.72», 'papel'], [«woodbine:8.6», 'publico'], [«woodbine:12.3», 'silbato'], [«woodbine:12.5», 'rafaga'], [«protege:17.0», 'whoosh'],
+const efectos = [[«woodbine:3.72», 'papel'], [«woodbine:8.6», 'publico'], [«woodbine:12.3», 'silbato'], [«woodbine:13.1», 'rafaga'], [«protege:17.0», 'whoosh'],
   [«protege:27.05», 'pop'], [«protege:28.3», 'brillo'], [«toma:37.3», 'lapiz'], [«toma:39.82», 'palmada'], [«toma:41.3», 'bip'], [«toma:47.8», 'publico']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9]], { efectos, año: 50 });
 '''))
 
 E['hm-toma'] = ('Toma 2', '''// HM-TOMA (frase 13), LA PAUSA 1 «fíjate en esto». Cinco planos:
 // 1. la tele del último plano de hm-cosecha, CONGELADA en gris azulado; Atom al doble llega con la claqueta, la
-//    cierra (GAG: «toma 2», le pilla el guante) y señala la tele; en «this book» sale a color el libro de Hume (1741);
+//    cierra de golpe en «notice this» (GAG: «toma 2»), guiña, la deja y señala la tele; en «this book» sale a color el
+//    libro de Hume (1741);
 // 2. el estudio de Hume de noche: escribe a la luz de la vela; en «Hume» la órbita le rodea; en «so few» se vuelve a
 //    la ventana y la órbita rodea a los pocos del balcón;
 // 3. la ventana de cerca: la plaza; en «whoever controls» la órbita rodea el balcón; el del centro desenrolla un
 //    pergamino en «story» y la multitud levanta la cabeza en ola;
-// 4. la librería: Atom entra con los tres libros de la saga y los pone en la torre en «saga»; la torre crece en
+// 4. la librería: Atom entra con los tres libros de la saga y los lanza a lo alto de la torre en «saga»; la torre crece en
+
 //    «more urgent every day» y Atom se sorprende;
 // 5. la tele congelada otra vez: Atom con las dos tarjetas a color, «?» en «real» y «!» en «not real»; vuelve el color.''', W(KIT + TELE + r'''
 // el plano congelado: la tele de hm-cosecha en su último instante (49,70 s), con los instantes escritos a mano
@@ -640,9 +649,7 @@ const FZ = 49.70, TTF = { sube: 46.64, llega: 48.1, atom: 48.9 };
 const congelado = () => horno('congelado', () => teleFinal(FZ, TTF, false));
 const P2 = «fijate1:7.04», P3 = «fijate1:11.32», P4 = «fijate1:16.88», P5 = «fijate1:22.24»;
 const pausa = (t, a, b) => T.AT.pausa(R, tramo(t, a, a + 0.3) * (1 - tramo(t, b - 0.3, b)));
-// la claqueta pequeña (16 × 14), que se pinta al doble con AT.escalado; ang: lo abierta que está
-const claquetaMini = (ang, n) => () => { R.rect(1, 5, 16, 15, K); R.rect(2, 6, 15, 14, H('#22242a')); R.rect(2, 9, 15, 9, H('#d8d8d0')); R.numero(String(n), 9, 15, { color: H('#f0e070'), sombra: false });
-  for (let u = 0; u <= 15; u++) for (let v = -3; v <= 0; v++) { const x = 1 + u * Math.cos(-ang) - v * Math.sin(-ang), y = 4 + u * Math.sin(-ang) + v * Math.cos(-ang); R.pset(Math.round(x), Math.round(y), v === -3 || v === 0 ? K : Math.floor((u - v) / 3) % 2 ? H('#f2f2ee') : H('#1a1a20')); } };
+
 // el libro de Hume: piel marrón, cantoneras doradas, una pluma y «1741»
 const libro = () => { R.rect(0, 0, 21, 25, K); R.rect(1, 1, 20, 24, H('#7a3a22')); R.rect(1, 1, 3, 24, H('#5a2814')); R.rect(18, 2, 20, 23, H('#f0e6c8'));
   for (const [x, y] of [[4, 1], [16, 1], [4, 22], [16, 22]]) R.rect(x, y, x + 1, y + 1, H('#e8c040'));
@@ -704,7 +711,7 @@ const p4 = (t) => {
   const torre = 0.35 + (t > pone ? 0.15 : 0) + 0.45 * ease(urge);
   const o = { encuadre: 'libreria', torre }, g = T.real(R, t, o), S = g.suelo ?? 166;
   // la librera sella un libro tras el mostrador
-  R.actor(EL.maysilee, 240, 148, t, { dir: -1, pal: { H: '#6a4426', h: '#8a6040', C: '#3a6a5a', c: '#2a4e42' }, sostiene: [234, 136 - (t > «fijate1:20.4» && t < «fijate1:20.7» ? 3 : 0)] });
+  R.actor(EL.publico, 240, 148, t, { dir: -1, sostiene: [234, 136 - (t > «fijate1:20.4» && t < «fijate1:20.7» ? 3 : 0)] });
   T.realDelante(R, t, o);
   // Atom entra con los tres libros de la saga y los deja en la torre
   const anda = tramo(t, P4, «fijate1:18.9»), x = lerp(92, 128, ease(anda)), atras = tramo(t, «fijate1:20.2», «fijate1:20.9»);
@@ -730,6 +737,7 @@ const p5 = (t) => {
     T.AT.anillo(R, x + 18, y + 22, 26, 30, t, tramo(t, t0 + 0.1, t0 + 0.5)); }
 };
 
-const efectos = [[«fijate1:0.95», 'palmada'], [«fijate1:5.7», 'pop'], [«fijate1:7.0», 'lapiz'], [«fijate1:13.5», 'publico'], [«fijate1:15.0», 'papel'], [«fijate1:19.38», 'golpecito'], [«fijate1:24.18», 'pop'], [«fijate1:24.74», 'brillo']];
-T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 50 });
+const efectos = [[«fijate1:0.95», 'palmada'], [«fijate1:5.7», 'pop'], [«fijate1:7.3», 'lapiz'], [«fijate1:15.0», 'papel'], [«fijate1:15.5», 'publico'], [«fijate1:19.38», 'golpecito'], [«fijate1:24.18», 'pop'], [«fijate1:24.74», 'brillo']];
+// el año: Juegos 50 en la tele congelada; ni Hume (1741) ni la librería de hoy son de los Juegos, así que sin barra
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t >= P2 && t < P5 ? null : 50) });
 '''))
