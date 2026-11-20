@@ -167,6 +167,10 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      funcionaba y la fundadora está en la cárcel»; en el 19, «Iron Man vuelve como el villano»), corta, de 5–7 s, y con
      su propio plano. La ambientación («En septiembre de 2013, en una farmacia de Palo Alto…») va DESPUÉS. En el 11, el
      público orgánico bajó al 55 % a los 11 s y al 17 % a los 48 s, y el giro llegaba entre los 36 y los 48 s.
+     **Confirmado el 20/11/2026 con tres curvas más** (Oak Island, LucasArts, Roanoke): en las tres se fue la mitad entre
+     los 11 y los 20 s, y en las tres la primera frase era ambientación. El Roanoke (ep39) salió así con la regla ya
+     escrita: **antes de presentar el guion, compruébalo**: la primera oración en inglés tiene 15 palabras o menos y
+     contiene la promesa del título (sus palabras clave), y el gancho no lleva lista de «por el camino vas a conocer…».
 3. Cada dato dudoso, márcalo «[comprobar antes de locutar]» y resuélvelo con WebSearch antes del paso 3. Si no se
    confirma, reescribe la frase con lo comprobado. Antes de presentarlo, verifica el guion con **3 agentes escépticos,
    no más** (en el 12, ocho gastaron 1,2 M de tokens y casi todo lo útil salió de tres bloques): uno para la historia y

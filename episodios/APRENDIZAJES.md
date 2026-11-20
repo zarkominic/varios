@@ -236,6 +236,22 @@ una pasada o detalle no entra.
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
+## Lo que dice el público · retención de Oak Island (ep14) y LucasArts (ep16), hasta el 19/11
+
+Datos: `episodios/estadisticas/retencion-ep14/` (solo orgánico, ~210 visualizaciones) y `retencion-ep16/` (orgánico
+~125 y anuncio saltable). Con Roanoke son tres curvas y dicen lo mismo.
+- [Seguro] **La mitad se va entre los 11 y los 20 s.** Oak Island (orgánico): 77 % a los 5 s, 64 % a los 10, 49 % a los
+  20, 28 % al minuto, 16 % a los 2:30 y 10 % al final. LucasArts (orgánico): 84 %, 60 %, 39 %, 26 % al minuto, 17 % a
+  los 1:18 y 7 % al final.
+- [Seguro] **El cuerpo aguanta:** pasado el minuto, Oak Island solo pierde 18 puntos en 7 minutos.
+- [Seguro] **Anuncio y orgánico se van igual** en LucasArts (60 y 56 % a los 10 s; 26 y 24 % al minuto): no es el
+  público del anuncio, es el arranque.
+- [Probable] **Las tres primeras frases son ambientación y la promesa del título llega tarde:** Oak Island empieza «It's
+  a summer day in 1795…» y «why it floods» no está en el gancho; LucasArts empieza en el río de lodo y la «secret rule» del
+  título se pregunta a los 46–56 s, con el 26 % dentro; Roanoke empieza «In August 1590…» y «CROATOAN» llega a los 17 s.
+- Añadido a la skill (paso 2.2): comprobar antes de presentar el guion que la primera oración en inglés tiene 15 palabras
+  o menos con la promesa del título, y que el gancho no lleva lista.
+
 ## Lo que dice el público · retención de Roanoke (ep39, 18–19/11, 32 visualizaciones orgánicas)
 
 Datos: `episodios/estadisticas/retencion-ep39/`. Muestra pequeña: una persona = 3,1 %.
