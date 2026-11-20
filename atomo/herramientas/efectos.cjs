@@ -233,7 +233,55 @@ function carro({ largo = 1.6 } = {}) {
   return out;
 }
 
+
+// ── desde el 43 ──
+// la pausa: una cinta que se frena (un acorde que baja de tono y se apaga en 0,55 s)
+function tapestop() {
+  const L = 0.55, out = buf(L), lp = new OnePole();
+  let ph = [0, 0, 0];
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR, x = t / L, v = Math.pow(1 - x, 1.6);
+    let s = 0;
+    [220, 277, 330].forEach((f, k) => { ph[k] += f * v / SR; s += Math.sin(TAU * ph[k]) + 0.3 * Math.sin(TAU * 2 * ph[k]); });
+    out[i] = lp.lp(s / 3, 0.25 + 0.5 * v) * Math.min(1, t / 0.01) * (1 - x * x);
+  }
+  return out;
+}
+// pasos suaves en tierra: n golpes sordos de ruido grave
+function pasos({ n = 4, ritmo = 0.36 } = {}) {
+  const out = buf(n * ritmo + 0.2), w = rng(11), bp = new SVF();
+  for (let k = 0; k < n; k++) {
+    const i0 = Math.round((k * ritmo + 0.02 * Math.sin(k * 2.3)) * SR), L = Math.round(0.09 * SR), a = k % 2 ? 0.8 : 1;
+    for (let i = 0; i < L && i0 + i < out.length; i++) { const x = i / L; out[i0 + i] += bp.bp(w(), 380 + 120 * (k % 2), 1.4) * Math.exp(-x * 5) * a; }
+  }
+  return out;
+}
+// el graznido de una oca: dos «honk» nasales
+function oca({ n = 2 } = {}) {
+  const out = buf(n * 0.28 + 0.1), bp = new SVF(), bp2 = new SVF(), w = rng(7);
+  let ph = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR, k = Math.floor(t / 0.28), u = (t % 0.28) / 0.2;
+    if (k >= n || u > 1) { out[i] = 0; continue; }
+    ph += (330 + 60 * Math.sin(Math.PI * u) - 40 * k) / SR;
+    const saw = 2 * (ph % 1) - 1, s = bp.bp(saw, 1100, 3) + bp2.bp(saw, 2300, 5) * 0.5 + w() * 0.04;
+    out[i] = s * Math.sin(Math.PI * u) * 1.4;
+  }
+  return out;
+}
+// pájaros que pían a lo lejos: gorjeos cortos que suben
+function pajaros({ n = 4 } = {}) {
+  const out = buf(n * 0.22 + 0.2), r = rng(23);
+  for (let k = 0; k < n; k++) {
+    const i0 = Math.round((k * 0.22 + 0.05 * r()) * SR), L = Math.round(0.08 * SR), f0 = 3200 + 500 * r();
+    let ph = 0;
+    for (let i = 0; i < L && i0 + i < out.length; i++) { const x = i / L; ph += (f0 + 1400 * x) / SR; out[i0 + i] += Math.sin(TAU * ph) * Math.sin(Math.PI * x) * 0.6; }
+  }
+  return out;
+}
+
 const RECETAS = {
+  tapestop, pasos, oca, pajaros,
   campana, carro,
   timbre, puerta, firma, aviso, guau,
   tecleo,
@@ -260,7 +308,8 @@ const NIVEL = { guau: [-30, -0.1], timbre: [-31, -0.3], puerta: [-31, 0.2], firm
   motor: [-36, 0], tecleo: [-33, 0.2], golpecito: [-30, 0.2], sello: [-27, 0.3], miau: [-30, 0.2], boom: [-30, 0], chof: [-30, 0.3], cuelga: [-30, 0], bip: [-33, 0.4], ring: [-30, -0.3], toc: [-30, 0.3], cerrojo: [-29, 0.4], avalancha: [-26, 0], interruptor: [-30, 0], arranque: [-30, 0.4], masca: [-33, 0.1], flash: [-31, -0.3], papel: [-31, 0], brillo: [-30, 0.2], lapiz: [-32, 0.2], palmada: [-28, -0.2], tic: [-34, 0],
   trueno: [-28, 0], rafaga: [-33, 0], lluvia: [-36, 0], ola: [-33, 0],
   publico: [-37, 0], maquina: [-35, 0.2], coche: [-35, 0], viento: [-37, 0],
-  campana: [-33, -0.2], carro: [-34, 0] };
+  campana: [-33, -0.2], carro: [-34, 0],
+  tapestop: [-29, 0], pasos: [-36, 0], oca: [-33, 0.2], pajaros: [-38, -0.2] };
 // nivel de un efecto: el RMS de su tramo de 0,4 s más fuerte (un caza que pasa empieza en silencio y luego ruge)
 const rms = (b) => {
   const n = Math.min(b.length, Math.round(0.4 * SR)), c = new Float64Array(b.length + 1);
@@ -275,7 +324,7 @@ const rms = (b) => {
 // ventanas deja en silencio. Se avisa de cada uno.
 const OCUPADO = Number(arg('--ocupado', 62)) / 100, VENT = 0.5, UMBRAL = 10 ** (-45 / 10);
 const QUITABLES = [['pop', 'tic', 'golpecito', 'brillo', 'papel', 'lapiz', 'whoosh', 'toc', 'bip'],
-  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo', 'viento', 'publico', 'maquina', 'campana', 'carro'], ['trueno', 'motor', 'coche']];
+  ['rafaga', 'ola', 'lluvia', 'vapor', 'burbujas', 'interruptor', 'flash', 'zumbido', 'tecleo', 'viento', 'publico', 'maquina', 'campana', 'carro', 'pasos', 'pajaros'], ['trueno', 'motor', 'coche']];
 const eventos = lista.filter((e) => e[0] < dur).map(([t, nombre, o = {}]) => {
   if (!RECETAS[nombre]) throw new Error(`efecto desconocido: ${nombre}`);
   const [db, pan] = NIVEL[nombre], b = RECETAS[nombre](o), g = 10 ** ((db - rms(b)) / 20);

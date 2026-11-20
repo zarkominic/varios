@@ -149,12 +149,12 @@ const p2 = (t) => {
   // el brazo de Haymitch entra desde abajo con el vaso, lo hunde en la orilla, lo sube; en «poison» el agua se vuelve violeta; en «even the water» lo vuelca
   const veneno = tramo(t, en('arena', 0.385), en('arena', 0.413)), vuelca = tramo(t, en('arena', 0.462), en('arena', 0.477));
   const baja = tramo(t, 5.9, en('arena', 0.282)), sube = tramo(t, en('arena', 0.315), en('arena', 0.352)), aparta = tramo(t, en('arena', 0.484), en('arena', 0.504));
-  let wx = lerp(120, 150, baja), wy = lerp(196, 134, baja); wx = lerp(wx, 142, sube); wy = lerp(wy, 118, sube); wx = lerp(wx, 128, aparta); wy = lerp(wy, 132, aparta);
+  let wx = lerp(120, 150, baja), wy = lerp(200, 138, baja); wx = lerp(wx, 144, sube); wy = lerp(wy, 134, sube); wx = lerp(wx, 130, aparta); wy = lerp(wy, 138, aparta);
   const agua = mez(hex('#8ad8e8'), hex('#a83ad8'), veneno);
   const ani = lin(t, en('arena', 0.277), en('arena', 0.347)); if (ani > 0 && ani < 1) for (let r = 0; r < 3; r++) { const rr = ani * 24 - r * 6; if (rr > 0) for (let a = 0; a < 48; a++) { const x = 160 + Math.cos(a / 48 * 6.28) * rr, y = 132 + Math.sin(a / 48 * 6.28) * rr * 0.3; if (a % 2 && y < 137) tono(x, y, hex('#e8fbff'), 0.8 * (1 - ani)); } }
   if (veneno > 0) for (let k = 0; k < 16; k++) { const u = (t * 0.8 + h(k, 7, 21)) % 1, x = 30 + h(k, 8, 21) * 260, y = 134 - u * 64; if (y > 68) { R.disco(Math.round(x), Math.round(y), 1 + (k % 2), mez(hex('#2a7a86'), hex('#c86ae8'), veneno)); R.pset(Math.round(x) - 1, Math.round(y) - 1, hex('#f0c8ff')); } }
   if (vuelca > 0.5) for (let k = 0; k < 10; k++) { const u = (t * 3 + k / 10) % 1; R.disco(Math.round(wx + 15 + u * 2), Math.round(wy - 3 + u * 16), 1, hex('#b04ae0')); }
-  T.brazo(R, Math.round(wx - 34), 214, Math.round(wx), Math.round(wy), MANGA_H, 1, { sombra: false });
+  T.brazo(R, Math.round(wx - 14), Math.round(wy + 60), Math.round(wx), Math.round(wy), MANGA_H, 1, { sombra: false });   // a la vista, ~46 px como mucho
   vaso(Math.round(wx + 8), Math.round(wy + 2), vuelca, agua);
   if (veneno > 0.2 && vuelca < 0.5) for (let k = 0; k < 3; k++) { const u = (t * 1.5 + k / 3) % 1; R.pset(Math.round(wx + 6 + k * 2), Math.round(wy - 8 - u * 6), hex('#e8a8ff')); }
   const ll = tramo(t, en('arena', 0.390), en('arena', 0.418)), ax = lerp(340, 190, ll) + Math.sin(t * 2) * 3, ay = 90 + Math.sin(t * 2.6) * 3;
@@ -410,7 +410,7 @@ const p13 = (t) => {
   const llega = tramo(t, en('maysilee', 0.277), en('maysilee', 0.302)), suelta = tramo(t, en('maysilee', 0.363), en('maysilee', 0.385)), vaM = tramo(t, en('maysilee', 0.379), en('maysilee', 0.429));
   const ag = t > en('maysilee', 0.302) && t < en('maysilee', 0.363) ? Math.round(Math.sin((t - en('maysilee', 0.302)) * 14) * 2) : 0;
   const baja = tramo(t, en('maysilee', 0.390), en('maysilee', 0.459)), subeP = tramo(t, en('maysilee', 0.470), en('maysilee', 0.522));
-  let hx = lerp(112, 140, llega) - suelta * 6, hy = lerp(200, 140, llega) + ag; hx = lerp(hx, 192, baja); hy = lerp(hy, 160, baja); hx = lerp(hx, 168, subeP); hy = lerp(hy, 128, subeP); const atras = tramo(t, en('maysilee', 0.605), en('maysilee', 0.646)); hx = lerp(hx, 150, atras); hy = lerp(hy, 136, atras); hy += t > en('maysilee', 0.522) && t < en('maysilee', 0.550) ? Math.round(Math.sin(lin(t, en('maysilee', 0.522), en('maysilee', 0.550)) * Math.PI) * 3) : 0;
+  let hx = lerp(112, 140, llega) - suelta * 6, hy = lerp(200, 140, llega) + ag; hx = lerp(hx, 192, baja); hy = lerp(hy, 160, baja); hx = lerp(hx, 168, subeP); hy = lerp(hy, 138, subeP); const atras = tramo(t, en('maysilee', 0.605), en('maysilee', 0.646)); hx = lerp(hx, 150, atras); hy = lerp(hy, 136, atras); hy += t > en('maysilee', 0.522) && t < en('maysilee', 0.550) ? Math.round(Math.sin(lin(t, en('maysilee', 0.522), en('maysilee', 0.550)) * Math.PI) * 3) : 0;
   const mxM = lerp(lerp(196, 166, llega) + suelta * 8, 214, vaM), myM = lerp(lerp(200, 140, llega) + ag, 206, vaM);
   const coge = t > en('maysilee', 0.465);
   if (!coge) pinon(200, 166, 1);
@@ -439,9 +439,9 @@ const p14 = (t) => {
 
 T.rodar(E, R, [[0, p1], [en('arena', 0.226), p2], [en('arena', 0.504), p3], [en('arena', 0.765), p4], [en('polen', -0.000), p5], [en('polen', 0.377), p6], [en('polen', 0.705), p7], [en('deposito', 0.000), p8], [en('deposito', 0.329), p9], [en('deposito', 0.569), p10], [en('deposito', 0.801), p11], [en('maysilee', 0.000), p12], [en('maysilee', 0.277), p13], [en('maysilee', 0.650), p14]], {
   año: 50,
-  efectos: [[en('arena', 0.094), 'brillo'], [en('arena', 0.390), 'burbujas'], [en('arena', 0.465), 'chof'], [en('arena', 0.526), 'vapor'], [en('arena', 0.648), 'brillo'], [en('arena', 0.725), 'pop'], [en('arena', 0.883), 'cerrojo'],
-    [en('polen', 0.170), 'bip'], [en('polen', 0.313), 'interruptor'], [en('polen', 0.598), 'interruptor'], [en('polen', 0.814), 'toc'], [en('polen', 0.912), 'pop'], [en('polen', 0.940), 'pop'],
-    [en('deposito', 0.113), 'golpecito'], [en('deposito', 0.333), 'toc'], [en('deposito', 0.528), 'golpecito'], [en('deposito', 0.609), 'golpecito'], [en('deposito', 0.634), 'flash'], [en('deposito', 0.738), 'boom'], [en('deposito', 0.763), 'ola'],
+  efectos: [[0.3, 'viento', { dur: 4.5 }], [en('arena', 0.094), 'brillo'], [en('arena', 0.390), 'burbujas'], [en('arena', 0.465), 'chof'], [en('arena', 0.526), 'vapor'], [en('arena', 0.648), 'brillo'], [en('arena', 0.725), 'pop'], [en('arena', 0.883), 'cerrojo'],
+    [en('polen', 0.02), 'maquina', { dur: 3 }], [en('polen', 0.170), 'bip'], [en('polen', 0.55), 'vapor'], [en('polen', 0.313), 'interruptor'], [en('polen', 0.598), 'interruptor'], [en('polen', 0.814), 'toc'], [en('polen', 0.912), 'pop'], [en('polen', 0.940), 'pop'],
+    [en('deposito', 0.113), 'golpecito'], [en('deposito', 0.333), 'toc'], [en('deposito', 0.36), 'burbujas', { dur: 3.5 }], [en('deposito', 0.528), 'golpecito'], [en('deposito', 0.609), 'golpecito'], [en('deposito', 0.634), 'flash'], [en('deposito', 0.738), 'boom'], [en('deposito', 0.763), 'ola'],
     [en('deposito', 0.815), 'aviso'], [en('deposito', 0.891), 'maquina'], [en('maysilee', 0.126), 'viento'], [en('maysilee', 0.286), 'palmada'], [en('maysilee', 0.556), 'whoosh'],
     [en('maysilee', 0.724), 'whoosh'], [en('maysilee', 0.761), 'boing'], [en('maysilee', 0.805), 'toc']],
 });

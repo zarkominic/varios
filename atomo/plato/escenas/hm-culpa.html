@@ -10,7 +10,8 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HM-CULPA (frases 32–36), «Por qué bebe», calma. DOS PAUSAS (frases 32 y 35). Veinte planos:
-// PAUSA 1 («fíjate en esto»): 1. el último plano de hm-precio CONGELADO (la sala del mapa, Plutarch) en gris azulado;
+// PAUSA 1 («fíjate en esto»; entra con «cuelga» y sale con el clic, «interruptor»): 1. el último plano de hm-precio
+//   CONGELADO (la sala del mapa, Plutarch señalando el 12 rodeado) en gris azulado;
 //   Atom al doble entra con el reloj de arena, que echa a correr en «fiction»;  2. la consulta de los años sesenta: el
 //   psiquiatra escribe tras el escritorio, entra un paciente, «1960» a color; el psiquiatra se levanta en «Niederland»;
 //   3. el escritorio de cerca: una mano deja fichas una tras otra, todas con la misma gota; en «repeating» laten a la vez;
@@ -25,12 +26,15 @@
 //   pone una tirita en «accident»;  11. la pizarra de cerca: la cama vacía en «illness» y la oficina con sillas que se
 //   vacían en «let go»;  12. el corcho: las tres viñetas clavadas, el hilo rojo y los tres «?» que se encienden en
 //   «question»; «why me / not them».
-// PAUSA 2 («fíjate en esto otro»): 13. el corcho CONGELADO; Atom al doble entra, «1985» a color;  14. el estudio de
-//   noche: el psiquiatra escribe y propone: el bocadillo con la botella y la cara contenta, tachada en «feel good»;
-//   15. el corcho congelado: llueve sobre Atom («hurts») y la botella se le abre en paraguas; el edificio del centro
-//   nacional;  16. un móvil en la librería: diez monigotes, cuatro se encienden en «four in ten»;  17. el corcho
-//   congelado: los diez monigotes a color con la botella y el bote de pastillas; vuelve el color.
-// 18. la tele del salón de cerca: el Haymitch mentor con su petaca; las risas se callan en «isn't a joke»;
+// PAUSA 2 («fíjate en esto otro»; «cuelga» y clic): 13. el corcho CONGELADO; Atom al doble entra ya andando, «1985» a
+//   color;  14. el estudio de noche: Atom entra por la izquierda; el psiquiatra escribe y propone: el bocadillo con la
+//   botella y la cara contenta, tachada en «feel good»;
+//   15. el corcho congelado y oscurecido por la tormenta: llueve sobre Atom («hurts») y la botella se le abre en paraguas
+//   (aclara); el edificio del centro nacional;  16. un móvil en la librería: Atom llega y señala; diez monigotes, cuatro
+//   se encienden en «four in ten»;  17. el corcho congelado, apagado: los diez monigotes a color con la botella y el bote
+//   de pastillas; vuelve el color.
+// 18. la tele del salón de cerca: el Haymitch mentor (al doble, sin primer plano) con su petaca; las risas se callan en
+//   «isn't a joke»;
 // 19. el cuarto de una fan de noche: en la tele, la vela del cumpleaños se apaga en «put out»; ella baja la cabeza y la
 //   luciérnaga se le posa al lado en «if you've ever been the one»;  20. el porche de la Aldea de noche: Haymitch mayor
 //   solo; Atom llega volando, se sienta en la baranda en «has a name» y le pone la mano en el hombro en «talk about».
@@ -202,7 +206,9 @@ const muneco = (x, y, c = TIZA) => { R.disco(ri(x), ri(y - 7), 2, c); R.linea(ri
 
 // ── 1 y 4 · el último plano de hm-precio, congelado (la sala del mapa, Plutarch a la izquierda) ─────────────────────
 const TF = 6.5;
-const mundoPrecio = () => { const o = { encuadre: 'mapa' }; T.capitolio(R, TF, o); R.actor(EL.plutarch, 22, 170, TF, { dir: 1, quieto: true, sonrisa: true }); T.capitolioDelante(R, TF, o); };
+// el mismo final que hm-precio plano 13: Plutarch a la izquierda señalando y el 12 rodeado con su «!»
+const mundoPrecio = () => { const o = { encuadre: 'mapa', trenes: 1 }; const g = T.capitolio(R, TF, o); R.actor(EL.plutarch, 40, 170, TF, { dir: 1, quieto: true, sonrisa: true, dedo: true }); T.capitolioDelante(R, TF, o);
+  const [dx, dy] = g.distritos[11]; AT.anillo(R, dx, dy, 16, 11, TF, 1); R.icono('!', dx - 3, dy - 22); };
 const p1 = (t) => {
   mundoPrecio(); AT.pausa(R, tramo(t, 0, 0.3));
   const x = lerp(346, 236, tramo(t, 0.25, 1.9)), anda = t < 1.9;
@@ -472,7 +478,7 @@ const TF2 = en('nosolo', 1.012);
 const mundoCorcho = () => p12(TF2, true);
 const p13 = (t) => {
   mundoCorcho(); AT.pausa(R, tramo(t, P13, P13 + 0.3));
-  const x = lerp(344, 246, tramo(t, P13 + 0.2, P13 + 1.7)), anda = t < P13 + 1.7;
+  const x = lerp(318, 246, tramo(t, P13, P13 + 1.5)), anda = t < P13 + 1.5;
   AT.atom(R, x, 174, t, { s: 2, dir: -1, pose: anda ? 'camina' : t > en('fijate5', 0.0709) ? 'senala' : 'quieto', cara: t > en('fijate5', 0.0709) ? 'sorpresa' : 'normal', habla: habla(t) });
   const e = pop(t, en('fijate5', 0.0709)); if (e > 0) { const y = ri(lerp(130, 92, e)); halo(140, y - 8, 30, hex('#fff4c0'), 0.6); R.numero('1985', 140, y, { tam: 16, centro: true }); AT.anillo(R, 140, y - 8, 40, 16, t, tramo(t, en('fijate5', 0.085), en('fijate5', 0.1052))); }
 };
@@ -491,11 +497,13 @@ const p14 = (t) => {
   if (b > 0) { const cx = 196, cy = ri(46 + (1 - Math.min(1, b)) * 10); bocadillo(cx, cy, 30, 16); botella(cx - 14, cy + 10, 1);
     if (t > en('fijate5', 0.3269)) { R.linea(cx - 4, cy, cx + 2, cy, K); R.linea(cx + 1, cy - 2, cx + 3, cy, K); R.linea(cx + 1, cy + 2, cx + 3, cy, K); }
     if (t > en('fijate5', 0.3708)) { caraContenta(cx + 16, cy); tacha(cx + 16, cy, 9, tramo(t, en('fijate5', 0.3813), en('fijate5', 0.3974))); } }
-  AT.atom(R, 54, 175, t, { s: 2, dir: 1, pose: t > en('fijate5', 0.2886) ? 'senala' : 'quieto', cara: t > en('fijate5', 0.3833) ? 'guino' : 'normal', habla: habla(t) });
+  const ent14 = tramo(t, P14, P14 + 1.6); AT.atom(R, lerp(-10, 54, ent14), 175, t, { s: 2, dir: 1, pose: ent14 < 1 ? 'camina' : t > en('fijate5', 0.2886) ? 'senala' : 'quieto', cara: t > en('fijate5', 0.3833) ? 'guino' : 'normal', habla: habla(t) });
 };
 // ── 15 · la lluvia y el paraguas ──
 const p15 = (t) => {
   mundoCorcho(); AT.pausa(R, 1);
+  // la tormenta oscurece el mundo congelado mientras llueve (vuelve a aclarar cuando se abre el paraguas)
+  T.tinte(R, 0, 179, [14, 18, 34], 0.55 * tramo(t, en('fijate5', 0.4277), en('fijate5', 0.4559)) * (1 - 0.5 * tramo(t, en('fijate5', 0.5043), en('fijate5', 0.6))));
   const nubeU = tramo(t, en('fijate5', 0.4277), en('fijate5', 0.4559)), abre = tramo(t, en('fijate5', 0.5043), en('fijate5', 0.5285)), llueve = t > en('fijate5', 0.4519);
   const r = AT.atom(R, 170, 174, t, { s: 2, dir: -1, pose: 'sostiene', cara: abre > 0.5 ? (t > en('fijate5', 0.601) ? 'sonrisa' : 'normal') : llueve ? 'triste' : 'normal', habla: habla(t) });
   const [mx, my] = r.mano;
@@ -521,11 +529,13 @@ const p16 = (t) => {
   if (t > en('fijate5', 0.7542)) { const e = pop(t, en('fijate5', 0.7542)); R.numero('4/10', ri((x0 + x1) / 2), ri(y0 + 30 - (1 - Math.min(1, e)) * 6), { centro: true, color: hex('#c05a14'), sombra: false }); }
   R.recorte(null);
   T.realDelante(R, t, o);
-  AT.atom(R, 254, 176, t, { s: 2, dir: -1, pose: 'senala', cara: t > en('fijate5', 0.749) ? 'sorpresa' : 'normal', habla: habla(t) });
+  const ent16 = tramo(t, P16, P16 + 0.7); AT.atom(R, lerp(300, 254, ent16), 176, t, { s: 2, dir: -1, pose: ent16 < 1 ? 'camina' : 'senala', cara: t > en('fijate5', 0.749) ? 'sorpresa' : 'normal', habla: habla(t) });
 };
 // ── 17 · los diez a color, la botella y el bote de pastillas ──
 const p17 = (t) => {
   mundoCorcho(); AT.pausa(R, 1 - tramo(t, P18 - 0.3, P18));
+  // el mundo congelado se apaga y los diez (a color, encima) quedan solos (se aclara otra vez al salir)
+  T.tinte(R, 0, 179, [10, 12, 24], 0.5 * (1 - tramo(t, P18 - 0.5, P18)));
   for (let k = 0; k < 10; k++) { const cx = 26 + k * 19, on = k < 4, e = pop(t, P17 + 0.1 + k * 0.05); if (e <= 0) continue;
     monigote(cx, ri(150 - (1 - Math.min(1, e)) * 8), on ? hex('#f0802a') : hex('#a8b4c4'), on ? hex('#c05a14') : hex('#7a889a')); }
   AT.anillo(R, 54, 140, 40, 18, t, tramo(t, P17 + 0.6, P17 + 1.1));
@@ -547,7 +557,7 @@ const pantalla18 = (R2, t, [x0, y0, x1, y1], es = 2) => {
 };
 const p18 = (t) => {
   const o = { encuadre: 'salon', camara: 'tele', canal: 0 }; const g = T.real(R, t, o);
-  R.recorte(g.pantalla); pantalla18(R, t, g.pantalla, 3); R.recorte(null);
+  R.recorte(g.pantalla); pantalla18(R, t, g.pantalla, 2); R.recorte(null);
   // las risas enlatadas (símbolos que saltan junto a la tele) se callan en «isn't a joke»
   const rie = entre(t, en('botella', 0.1151), en('botella', 0.1966));
   if (rie) for (const [x, y, k] of [[30, 56, 0], [46, 84, 1], [276, 60, 2], [262, 90, 3]]) { const b = Math.abs(Math.sin(t * 9 + k)) * 3; R.icono('!', x, ri(y - b), hex('#ffd84a'), K, 2); }
@@ -584,12 +594,18 @@ const p20 = (t) => {
   else { if (t < llega + 0.5) halo(126, 134, 14, hex('#fff0b0'), 0.7 * (1 - tramo(t, llega, llega + 0.5)));
     AT.atom(R, 126, 144, t, { dir: 1, pose: t > en('botella', 0.9187) ? 'senala' : 'quieto', cara: t > en('botella', 0.9616) ? 'sonrisa' : 'triste', habla: 0 }); }
 };
-const efectos = [[en('fijate4', 0.1136), 'brillo'], [en('fijate4', 0.1624), 'pop'], [en('fijate4', 0.3239), 'tic'], [en('fijate4', 0.392), 'papel'], [en('fijate4', 0.446), 'papel'], [en('fijate4', 0.5023), 'papel'], [en('fijate4', 0.5952), 'brillo'],
+const efectos = [[en('fijate4', 0.1136), 'brillo'], [en('fijate4', 0.1624), 'pop'], [en('fijate4', 0.3239), 'tic'], [en('fijate4', 0.3756), 'papel'], [en('fijate4', 0.3756) + 1.16, 'papel'], [en('fijate4', 0.3756) + 2.32, 'papel'], [en('fijate4', 0.3756) + 3.48, 'papel'], [en('fijate4', 0.5952), 'brillo'],
   [en('fijate4', 0.6882), 'pop'], [en('fijate4', 0.7793), 'toc'], [en('fijate4', 0.937), 'sello'], [en('manual', 0.0283), 'papel'], [en('manual', 0.0955), 'brillo'], [en('manual', 0.2713), 'tecleo'], [en('manual', 0.3592), 'lapiz'],
   [en('manual', 0.4419), 'boing'], [en('manual', 0.5246), 'pop'], [en('manual', 0.7805), 'brillo'], [en('manual', 0.8787), 'masca'], [en('manual', 0.9666), 'brillo'], [en('nosolo', 0.1344), 'bip'], [en('nosolo', 0.2016), 'lapiz'],
   [en('nosolo', 0.322), 'pop'], [en('nosolo', 0.4609), 'lapiz'], [en('nosolo', 0.623), 'lapiz'], [en('nosolo', 0.7411), 'whoosh'], [en('nosolo', 0.7897), 'toc'], [en('nosolo', 0.8499), 'brillo'], [en('fijate5', 0.0709), 'pop'],
   [en('fijate5', 0.1576), 'lapiz'], [en('fijate5', 0.2906), 'pop'], [en('fijate5', 0.3833), 'golpecito'], [en('fijate5', 0.4559), 'lluvia'], [en('fijate5', 0.5043), 'whoosh'], [en('fijate5', 0.601), 'pop'], [en('fijate5', 0.7232), 'brillo'],
-  [en('fijate5', 0.9086), 'pop'], [en('fijate5', 0.9675), 'pop'], [en('botella', 0.1151), 'publico'], [en('botella', 0.46), 'whoosh'], [en('botella', 0.5906), 'brillo'], [en('botella', 0.8101), 'brillo']];
+  [en('fijate5', 0.9086), 'pop'], [en('fijate5', 0.9675), 'pop'], [en('botella', 0.1151), 'publico'], [en('botella', 0.46), 'whoosh'], [en('botella', 0.5906), 'brillo'], [en('botella', 0.8101), 'brillo'],
+  // las dos pausas: entran con un golpe seco que para la imagen («cuelga»: no hay receta de tape-stop) y salen con el clic
+  // («interruptor») en la rampa de AT.pausa; y el ambiente de cada sitio
+  [0.05, 'tapestop'], [P5 - 0.3, 'interruptor'], [P13 + 0.02, 'tapestop'], [P18 - 0.3, 'interruptor'],
+  [P2 + 0.3, 'lapiz'], [P5 + 0.6, 'papel'], [P7 + 0.15, 'publico'],
+  [P9 + 0.15, 'publico'], [P12 + 0.25, 'papel'], [P12 + 1.05, 'papel'], [P14 + 0.1, 'tic'], [en('fijate5', 0.4277), 'trueno'], [P16 + 0.2, 'bip'],
+  [en('fijate5', 0.749), 'pop'], [P17 + 0.1, 'pop'], [P19 + 0.2, 'tic'], [P20 + 0.1, 'viento']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11],
   [P12, (t) => p12(t)], [P13, p13], [P14, p14], [P15, p15], [P16, p16], [P17, p17], [P18, p18], [P19, p19], [P20, p20]],
   { efectos, año: (t) => t >= P20 ? 74 : 50 });

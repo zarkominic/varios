@@ -212,7 +212,7 @@ const q7 = (t) => {
   T.estudioDelante(R, t, o);
 };
 
-const efectos = [[h(0.226), 'burbujas'], [Q2 + 0.5, 'puerta'], [h(0.456), 'toc'], [h(0.778), 'sello'], [Q4 + 0.3, 'zumbido'], [a(0.10), 'aviso'], [a(0.30), 'lapiz'], [a(0.423), 'papel'], [a(0.472), 'interruptor'], [a(0.612), 'whoosh'], [a(0.816), 'toc']];
+const efectos = [[h(0.03), 'puerta'], [0.3, 'viento', { dur: 3.2 }], [h(0.226), 'burbujas'], [Q2 + 0.2, 'carro', { largo: 3.6 }], [Q2 + 0.5, 'puerta'], [h(0.456), 'toc'], [h(0.778), 'sello'], [Q4 + 0.3, 'zumbido'], [Q4 + 2.2, 'tic'], [Q4 + 3.2, 'tic'], [a(0.10), 'aviso'], [a(0.30), 'lapiz'], [a(0.423), 'papel'], [a(0.472), 'interruptor'], [a(0.48), 'publico', { dur: 2 }], [a(0.612), 'whoosh'], [a(0.816), 'toc']];
 const año = (t) => (t < Q4 ? 74 : t < Q5 ? Math.min(74, Math.floor(51 + 23 * tramo(t, Q4 + 0.25, Q5 - 0.35))) : null);
 T.rodar(E, R, [[0, q1], [Q2, q2], [Q3, q3], [Q4, q4], [Q5, q5], [Q6, q6], [Q7, q7]], { efectos, año });
 </script>

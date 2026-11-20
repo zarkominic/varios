@@ -18,15 +18,16 @@
 // 4. la avenida (capitolio avenida/general): el desfile de carros, de lejos; se para en «dies» con el carro negro del 12
 //    en el centro y un sitio vacío bajo una luz; el confeti cae; en «Haymitch» él baja del carro y echa a andar;
 // 5. el balcón (avenida/balcon): la multitud abre un pasillo; Haymitch llega bajo Snow y aplaude despacio en «claps»
-//    (tres palmadas); Snow se inclina y sonríe;  6. el despacho de Snow (día): Snow avisa («clear») y da la vuelta al
-//    reloj de arena en «won't»;  7. la mesa de Snow: del cofre suben la tarjeta de la familia («family») y la de Lenore
+//    (tres palmadas); Snow se inclina y sonríe;  6. el despacho de Snow (día): Haymitch entra a zancadas
+//    hasta la mesa; Snow avisa («clear») y da la vuelta al reloj de arena en «won't»; el agente se adelanta; en «alive»
+//    Haymitch se hunde y da un paso atrás;  7. la mesa de Snow: del cofre suben la tarjeta de la familia («family») y la de Lenore
 //    Dove («Lenore Dove»); bajan y se cierra en «die»;  8. FONDO LOCAL el gimnasio del centro de entrenamiento: Haymitch
 //    y Atom entran; en «Luella's place» dos Vigilantes se apartan y aparece la chica con el vestido de Louella; Atom salta;
 // 9. la sala del mapa (mapa/general): una luz nace en el 11 («another girl»), cruza en «district» empujada por la vara de
 //    un Vigilante, tiembla en «drugged» y ocupa el sitio de Louella en «wearing her name»;  10. INSERTO el tablero de
 //    retratos: la mano quita la tarjeta de Louella, pone la de la doble y la alisa; en «changes it», el sello dorado;
-// 11. el museo (museo/cuadro): el cuadro de los vencedores por distrito; la columna del 12 en gris y «0» en «victor»;
-//    en «borrow two» viajan dos medallas, del 3 y del 4;  12. FONDO LOCAL la sala de los mentores: Wiress y Mags en el
+// 11. el museo (museo/cuadro): Haymitch entra y se para ante el cuadro de los vencedores por distrito; la columna del
+//    12 en gris y «0» en «victor»; en «borrow two» viajan dos medallas, del 3 y del 4, y él da un paso, sorprendido;  12. FONDO LOCAL la sala de los mentores: Wiress y Mags en el
 //    sofá saludan en sus nombres; Effie entra con el perchero y se planta en «Effie Trinket»;  13. INSERTO, GAG: en el
 //    tocador, la mano de Effie le pone tres pelucas a Atom («clothes», «emergency», «stylist»), con su reflejo;
 // 14. FONDO LOCAL la azotea de noche: Beetee dibuja en la servilleta, Haymitch llega; en «plan» se la enseña;
@@ -305,9 +306,12 @@ const p6 = (t) => {
   T.capitolioDelante(R, t, O6);
   const gira = tramo(t, wNo - 0.3, wNo + 0.2);
   T.c_relojArena(R, 206, 128 - Math.round(Math.sin(gira * Math.PI) * 6), 2, t, gira < 1 ? 0.98 : tramo(t, wNo + 0.2, C7 + 3) * 0.9);
-  // Haymitch delante de la mesa, de visita: furioso, luego hundido
-  R.actor(X.haymitch, 70, 168, t, { dir: 1, enfado: t < wViva, triste: t >= wViva });
-  R.actor(X.agentePaz, 262, 168, t, { dir: -1 });
+  // Haymitch entra a zancadas hasta la mesa, furioso; en «alive» se hunde y da un paso atrás
+  const uh = tramo(t, C6 + 0.1, C6 + 1.1), ub = tramo(t, wViva, wViva + 0.6);
+  R.actor(X.haymitch, Math.round(lerp(18, 74, ease(uh)) - ease(ub) * 14), 168, t, { dir: 1, anda: (uh > 0 && uh < 1) || (ub > 0 && ub < 1), enfado: t < wViva, triste: t >= wViva });
+  // el agente se adelanta un paso en «won't» y se queda en guardia junto a él
+  const ug = tramo(t, wNo, wNo + 0.8);
+  R.actor(X.agentePaz, Math.round(lerp(270, 236, ease(ug))), 168, t, { dir: -1, anda: ug > 0 && ug < 1 });
   luc(96 + flota(t), 96 + flota(t, 1), t, { dir: 1, cara: t > wViva ? 'triste' : t > wNo ? 'sorpresa' : 'normal' });
 };
 // ── 7 · LA MESA DE SNOW de cerca: del cofre salen las tarjetas de la familia y de Lenore Dove; se cierra en «die» ─────
@@ -529,7 +533,9 @@ const p11 = (t) => {
   const O11 = { encuadre: 'museo', camara: 'cuadro', cual: 1 };
   O11.cuadros = [null, cuadroVencedores(t), null];
   T.capitolio(R, t, O11);
-  R.actor(X.haymitch, 26, 172, t, { dir: 1, triste: t < wPresta, sorpresa: t > wPresta && t < wOtros + 0.6, sonrisa: t > wOtros + 0.6 });
+  // Haymitch entra en la sala, se para ante el cuadro; en «borrow two» da un paso hacia él, sorprendido
+  const ue = tramo(t, C11 + 0.1, C11 + 1.3), up = tramo(t, wPresta, wPresta + 0.5);
+  R.actor(X.haymitch, Math.round(lerp(-8, 22, ease(ue)) + ease(up) * 10), 172, t, { dir: 1, anda: (ue > 0 && ue < 1) || (up > 0 && up < 1), triste: t < wPresta, sorpresa: t > wPresta && t < wOtros + 0.6, sonrisa: t > wOtros + 0.6 });
   T.capitolioDelante(R, t, O11);
   const u = tramo(t, wPresta, wOtros + 0.4);
   luc(lerp(272, 230, u) + flota(t), lerp(70, 54, u) + flota(t, 1), t, { dir: -1, cara: t < wPresta ? 'triste' : 'sonrisa' });
@@ -796,7 +802,7 @@ const efectos = [
   [w13, 'brillo'], [wVida - 0.6, 'pop'],
   [C4 + 0.3, 'publico'], [wMuere, 'viento'], [wHay, 'golpecito'],
   [C5 + 0.3, 'publico'], [wAplaude, 'palmada'], [wAplaude + 0.62, 'palmada'],
-  [wNo - 0.1, 'golpecito'], [wNo + 0.4, 'tic'],
+  [C6 + 1.1, 'golpecito'], [wNo - 0.1, 'golpecito'], [wNo + 0.4, 'tic'],
   [C7 + 0.35, 'cerrojo'], [wFamilia, 'brillo'], [wLenore, 'brillo'], [wMuera + 0.3, 'cerrojo'],
   [C8 + 0.3, 'zumbido'], [wSiniestro + 0.4, 'aviso'],
   [wOtra, 'bip'], [wDistrito - 0.1, 'whoosh'], [wLleva2, 'brillo'],

@@ -30,7 +30,7 @@ const horno = (k, f) => { if (!BF[k]) { const bb = R.nuevo(), prev = R.usar(bb);
 const VOZ = [[FA(0), FA(1)], [FL(0), FL(1)], [FB(0), FB(1)], [FR(0), FR(1)], [FP(0), FP(1)]];
 const voz = (t) => (VOZ.some(([p, q]) => t > p && t < q) ? 1 : 0);
 const habla = (t, k = 0) => Math.sin(t * 13 + k) > 0;
-const GUARDA = W(75.00);   // Atom se guarda la gominola: desde aquí lleva el electrón dorado (extra) hasta el final
+const GUARDA = en('regalos', 0.7068);   // Atom se guarda la gominola: desde aquí lleva el electrón dorado (extra) hasta el final
 const atom = (x, s, t, o = {}) => T.AT.atom(R, x, s, t, { extra: t >= GUARDA, habla: voz(t), ...o });
 const luc = (x, y, t, o = {}) => T.AT.luciernaga(R, x, y, t, { extra: t >= GUARDA, ...o });
 const PZ = T.PIEZAS_JH, AT_ = R.PAL.ATOM;
@@ -58,107 +58,114 @@ const grisFuera = (cx, cy, r) => { const Bf = R.buf, r2 = r * r, r1 = (r - 7) * 
 // ── 1 · LA VETA AL AMANECER: Haymitch (16) sale de casa; la madre y Sid le despiden ─────────────────────────────────
 const O1 = { encuadre: 'calle', luz: 'amanecer' };
 const p1 = (t) => {
-  const g = T.distrito(R, t, O1), px = g.puerta[0] + 1, y0 = g.porche, sale = W(1.70);
+  const g = T.distrito(R, t, O1), px = g.puerta[0] + 1, y0 = g.porche, sale = en('familia', 0.0340);
   // la madre en la puerta y Sid, que sale detrás y saluda desde el porche
-  if (t > W(2.6)) R.actor(EL.madreHaymitch, px, y0, t, { dir: 1, dedo: t > W(3.2) && t < W(4.8), sonrisa: true });
-  const us = tramo(t, W(3.3), W(3.9)); if (t > W(3.3)) R.actor(EL.hermanoHaymitch, Math.round(px + 16 * us), y0, t, { dir: 1, anda: us > 0 && us < 1, brazos: t > W(4.0), sonrisa: true, salto: t > W(4.0) && Math.sin(t * 9) > 0.6 ? 1 : 0 });
+  if (t > en('familia', 0.0776)) R.actor(EL.madreHaymitch, px, y0, t, { dir: 1, dedo: t > en('familia', 0.1067) && t < en('familia', 0.1843), sonrisa: true });
+  const us = tramo(t, en('familia', 0.1116), en('familia', 0.1407)); if (t > en('familia', 0.1116)) R.actor(EL.hermanoHaymitch, Math.round(px + 16 * us), y0, t, { dir: 1, anda: us > 0 && us < 1, brazos: t > en('familia', 0.1455), sonrisa: true, salto: t > en('familia', 0.1455) && Math.sin(t * 9) > 0.6 ? 1 : 0 });
   // Haymitch baja del porche y echa a andar calle abajo, hacia la mina; al final se vuelve y saluda
-  const u = tramo(t, sale, W(4.75)), hx = Math.round(lerp(px, 74, u)), hy = Math.round(lerp(y0, 162, Math.min(1, u * 1.25)));
+  const u = tramo(t, sale, en('familia', 0.1819)), hx = Math.round(lerp(px, 74, u)), hy = Math.round(lerp(y0, 162, Math.min(1, u * 1.25)));
   if (t > sale - 0.1) R.actor(EL.haymitch, hx, hy, t, { dir: u < 1 ? -1 : 1, anda: u > 0 && u < 1, dedo: u >= 1, sonrisa: u >= 1 });
   // «16»: la edad, sobre su cabeza mientras la voz la dice
-  const e16 = tramo(t, W(1.0), W(1.3)) * (1 - tramo(t, W(3.3), W(3.6))); if (e16 > 0.05 && t > sale - 0.1) R.numero('16', hx + 8, hy - 30 - Math.round(e16 * 3), { centro: true });
+  const e16 = tramo(t, en('familia', 0.0000), en('familia', 0.0146)) * (1 - tramo(t, en('familia', 0.1116), en('familia', 0.1261))); if (e16 > 0.05 && t > sale - 0.1) R.numero('16', hx + 8, hy - 30 - Math.round(e16 * 3), { centro: true });
   T.distritoDelante(R, t, O1);
-  luc(lerp(260, hx + 26, tramo(t, W(1.2), W(4.6))), lerp(78, hy - 34, tramo(t, W(1.2), W(4.6))) + Math.sin(t * 2.6) * 2, t, { dir: -1, cara: t > W(4.4) ? 'sonrisa' : 'normal' });
+  luc(lerp(260, hx + 26, tramo(t, en('familia', 0.0097), en('familia', 0.1746))), lerp(78, hy - 34, tramo(t, en('familia', 0.0097), en('familia', 0.1746))) + Math.sin(t * 2.6) * 2, t, { dir: -1, cara: t > en('familia', 0.1649) ? 'sonrisa' : 'normal' });
 };
 
 // ── 2 · DENTRO DE CASA: la madre viuda sirve el cuenco; Sid (10) salta junto a la peonza ─────────────────────────────
 const O2 = { encuadre: 'casa', luz: 'dia', sentados: true };
 const p2 = (t) => {
   const g = T.prado(R, t, O2), [ax, ay] = g.asientos[0];
-  R.actor(EL.haymitch, ax, ay, t, { dir: 1, sonrisa: t > W(6.6), habla: t > W(6.9) && t < W(7.5) && habla(t) });
+  R.actor(EL.haymitch, ax, ay, t, { dir: 1, sonrisa: t > en('familia', 0.2716), habla: t > en('familia', 0.2862) && t < en('familia', 0.3153) && habla(t) });
   T.pradoDelante(R, t, O2);
-  const dejado = t > W(6.55); if (dejado) { R.rect(188, 139, 198, 143, K); R.rect(189, 140, 197, 142, hex('#c8b49a')); R.rect(190, 139, 196, 139, hex('#f0e6d0')); for (let k = 0; k < 3; k++) P(191 + k * 2 + Math.round(Math.sin(t * 3 + k)), 136 - ((t * 6 + k * 3) % 6), hex('#e8eef4')); }
+  const dejado = t > en('familia', 0.2692); if (dejado) { R.rect(188, 139, 198, 143, K); R.rect(189, 140, 197, 142, hex('#c8b49a')); R.rect(190, 139, 196, 139, hex('#f0e6d0')); for (let k = 0; k < 3; k++) P(191 + k * 2 + Math.round(Math.sin(t * 3 + k)), 136 - ((t * 6 + k * 3) % 6), hex('#e8eef4')); }
   // la madre trae el cuenco de la cocina y lo deja en la mesa («mother»)
-  const um = tramo(t, W(5.45), W(6.45)), mx = Math.round(lerp(58, 206, um));
-  const m = R.actor(EL.madreHaymitch, mx, 170, t, { dir: um < 1 ? 1 : -1, anda: um > 0 && um < 1, sostiene: !dejado ? true : undefined, sonrisa: t > W(6.6), habla: t > W(6.6) && t < W(7.2) && habla(t, 1) });
+  const um = tramo(t, en('familia', 0.2159), en('familia', 0.2644)), mx = Math.round(lerp(58, 206, um));
+  const m = R.actor(EL.madreHaymitch, mx, 170, t, { dir: um < 1 ? 1 : -1, anda: um > 0 && um < 1, sostiene: !dejado ? true : undefined, sonrisa: t > en('familia', 0.2716), habla: t > en('familia', 0.2716) && t < en('familia', 0.3008) && habla(t, 1) });
   if (!dejado) { const [bx, by] = m.mano; R.rect(bx - 4, by - 3, bx + 4, by, K); R.rect(bx - 3, by - 2, bx + 3, by - 1, hex('#c8b49a')); for (let k = 0; k < 2; k++) P(bx - 1 + k * 2, by - 5 - ((t * 6 + k * 3) % 4), hex('#e8eef4')); }
   // Sid baja de la cama corriendo hasta la peonza y salta al oír su nombre; «10» sobre su cabeza
-  const uh = tramo(t, W(7.4), W(8.4)), sx = Math.round(lerp(268, 238, uh)), sy = Math.round(lerp(150, 176, uh));
-  const brinca = t > W(8.58) && t < W(9.4);
-  R.actor(EL.hermanoHaymitch, sx, sy, t, { dir: -1, anda: uh > 0 && uh < 1, sonrisa: t > W(8.5), brazos: brinca, salto: brinca ? Math.round(Math.abs(Math.sin((t - W(8.58)) * 7.5)) * 4) : 0 });
-  const e10 = tramo(t, W(9.5), W(9.75)); if (e10 > 0) R.numero('10', sx + 8, sy - 24 - Math.round(e10 * 3), { centro: true });
-  luc(lerp(150, sx - 12, tramo(t, W(7.6), W(8.7))), lerp(62, sy - 40, tramo(t, W(7.6), W(8.7))) + Math.sin(t * 2.4) * 2, t, { dir: 1, cara: t > W(8.5) ? 'sonrisa' : 'normal' });
+  const uh = tramo(t, en('familia', 0.3105), en('familia', 0.3590)), sx = Math.round(lerp(268, 238, uh)), sy = Math.round(lerp(150, 176, uh));
+  const brinca = t > en('familia', 0.3677) && t < en('familia', 0.4075);
+  R.actor(EL.hermanoHaymitch, sx, sy, t, { dir: -1, anda: uh > 0 && uh < 1, sonrisa: t > en('familia', 0.3638), brazos: brinca, salto: brinca ? Math.round(Math.abs(Math.sin((t - en('familia', 0.3677)) * 7.5)) * 4) : 0 });
+  const e10 = tramo(t, en('familia', 0.4123), en('familia', 0.4244)); if (e10 > 0) R.numero('10', sx + 8, sy - 24 - Math.round(e10 * 3), { centro: true });
+  luc(lerp(150, sx - 12, tramo(t, en('familia', 0.3202), en('familia', 0.3735))), lerp(62, sy - 40, tramo(t, en('familia', 0.3202), en('familia', 0.3735))) + Math.sin(t * 2.4) * 2, t, { dir: 1, cara: t > en('familia', 0.3638) ? 'sonrisa' : 'normal' });
 };
 
 // ── 3 · LA DESTILERÍA DE HATTIE: Haymitch carga una caja de botellas; Hattie destila ─────────────────────────────────
 const p3 = (t) => {
-  const O3 = { encuadre: 'destileria', luz: 'dia', llena: 0.35 + 0.5 * tramo(t, W(10.4), W(15.2)) };
+  const O3 = { encuadre: 'destileria', luz: 'dia', llena: 0.35 + 0.5 * tramo(t, en('familia', 0.4560), en('familia', 0.6888)) };
   T.prado(R, t, O3);
   // las cajas ya cargadas a la izquierda, junto a los sacos
   cajaBotellas(30, 166); cajaBotellas(36, 157);
-  const deja = W(14.55);
+  const deja = en('familia', 0.6573);
   if (t > deja) cajaBotellas(46, 166);
   // Hattie remueve la tina y, al decir la voz «destila», señala la jarra
-  const se = t > W(13.40) && t < W(14.9);
+  const se = t > en('familia', 0.6015) && t < en('familia', 0.6743);
   const h = R.actor(EL.hattieHM, 196, 166, t, { dir: -1, dedo: se, sostiene: se ? undefined : [190, 150 + Math.round(Math.sin(t * 5) * 2)], sonrisa: se, habla: se && habla(t, 2) });
   if (!se) R.linea(h.mano[0], h.mano[1], h.mano[0] - 6, h.mano[1] + 10, hex('#7a5030'));
-  if (t > W(13.45) && t < W(14.6)) for (let k = 0; k < 4; k++) { const v = ((t - W(13.45)) * 1.6 + k / 4) % 1; P(220 + (k % 2) * 3, 154 - v * 14, hex('#ffffff')); }
+  if (t > en('familia', 0.6039) && t < en('familia', 0.6597)) for (let k = 0; k < 4; k++) { const v = ((t - en('familia', 0.6039)) * 1.6 + k / 4) % 1; P(220 + (k % 2) * 3, 154 - v * 14, hex('#ffffff')); }
   // Haymitch coge una caja de las pilas y la lleva hasta los sacos
-  const u = tramo(t, W(10.9), deja), x = Math.round(lerp(236, 52, u));
-  const hm = R.actor(EL.haymitch, x, 166, t, { dir: u > 0 && u < 1 ? -1 : u >= 1 ? 1 : -1, anda: u > 0 && u < 1, sostiene: t > W(10.75) && t < deja ? true : undefined, sonrisa: t > deja + 0.3 });
-  if (t > W(10.75) && t < deja) cajaBotellas(hm.mano[0] - 7, hm.mano[1] + 3);
+  const u = tramo(t, en('familia', 0.4802), deja), x = Math.round(lerp(236, 52, u));
+  const hm = R.actor(EL.haymitch, x, 166, t, { dir: u > 0 && u < 1 ? -1 : u >= 1 ? 1 : -1, anda: u > 0 && u < 1, sostiene: t > en('familia', 0.4730) && t < deja ? true : undefined, sonrisa: t > deja + 0.3 });
+  if (t > en('familia', 0.4730) && t < deja) cajaBotellas(hm.mano[0] - 7, hm.mano[1] + 3);
   T.pradoDelante(R, t, O3);
   // Atom de pie junto a la jarra: se sorprende con «bootleg» y menea la cabeza
-  const no = t > W(14.3) && t < W(15.1);
-  atom(250, 176, t, { dir: no ? (Math.floor(t * 6) % 2 ? 1 : -1) : -1, cara: t > W(13.9) && t < W(14.5) ? 'sorpresa' : no ? 'triste' : 'normal', pose: t > W(13.9) && t < W(14.4) ? 'senala' : 'quieto' });
+  const no = t > en('familia', 0.6452) && t < en('familia', 0.6840);
+  atom(250, 176, t, { dir: no ? (Math.floor(t * 6) % 2 ? 1 : -1) : -1, cara: t > en('familia', 0.6258) && t < en('familia', 0.6549) ? 'sorpresa' : no ? 'triste' : 'normal', pose: t > en('familia', 0.6258) && t < en('familia', 0.6500) ? 'senala' : 'quieto' });
 };
 
 // ── 4 · EL ALAMBIQUE: Haymitch mira la botella llena… y la guarda en la caja: no es para él ────────────────────────
 const p4 = (t) => {
-  const O4 = { encuadre: 'destileria', camara: 'alambique', luz: 'dia', llena: tramo(t, W(15.3), W(21.8)) };
+  const O4 = { encuadre: 'destileria', camara: 'alambique', luz: 'dia', llena: tramo(t, en('familia', 0.6937), en('lenore', -0.0274)) };
   T.prado(R, t, O4);
-  const mira = t > W(16.6) && t < W(18.6), guarda = W(20.85), vuelta = t > W(19.4);
-  const mano = vuelta ? [Math.round(lerp(272, 290, tramo(t, W(19.6), guarda))), Math.round(lerp(150, 160, tramo(t, W(19.6), guarda)))] : mira ? [254, 144 - Math.round(tramo(t, W(16.6), W(17.2)) * 4)] : [256, 154];
+  const mira = t > en('familia', 0.7567) && t < en('familia', 0.8537), guarda = en('familia', 0.9629), vuelta = t > en('familia', 0.8926);
+  const mano = vuelta ? [Math.round(lerp(272, 290, tramo(t, en('familia', 0.9023), guarda))), Math.round(lerp(150, 160, tramo(t, en('familia', 0.9023), guarda)))] : mira ? [254, 144 - Math.round(tramo(t, en('familia', 0.7567), en('familia', 0.7858)) * 4)] : [256, 154];
   cajaBotellas(282, 172); if (t > guarda) { R.rect(297, 158, 298, 163, hex('#b8ccc0')); R.rect(297, 157, 298, 157, hex('#8a5a30')); }
   const hm = R.actor(EL.haymitch, 264, 172, t, { dir: vuelta ? 1 : -1, sostiene: t < guarda ? mano : undefined, triste: mira, sonrisa: t > guarda + 0.3 });
   if (t < guarda) { botella(hm.mano[0], hm.mano[1] + 6); if (mira && Math.floor(t * 4) % 3 === 0) { P(hm.mano[0] - 2, hm.mano[1] - 3, hex('#ffffff')); P(hm.mano[0] - 3, hm.mano[1] - 4, hex('#ffffff')); } }
   T.pradoDelante(R, t, O4);
   // Atom (luciérnaga) a la izquierda: triste con «never let go», niega con «aren't for him»
-  const niega = t > W(20.6) && t < W(21.6);
-  luc(26 + (niega ? Math.round(Math.sin(t * 18) * 2) : 0), 128 + Math.sin(t * 2.2) * 3, t, { dir: niega ? (Math.floor(t * 6) % 2 ? 1 : -1) : 1, cara: t > W(16.6) && t < W(20.5) ? 'triste' : niega ? 'triste' : 'normal' });
+  const niega = t > en('familia', 0.9508) && t < en('familia', 0.9993);
+  luc(26 + (niega ? Math.round(Math.sin(t * 18) * 2) : 0), 128 + Math.sin(t * 2.2) * 3, t, { dir: niega ? (Math.floor(t * 6) % 2 ? 1 : -1) : 1, cara: t > en('familia', 0.7567) && t < en('familia', 0.9459) ? 'triste' : niega ? 'triste' : 'normal' });
 };
 
 // ── 5 · EL DISTRITO GRIS… Y LLEGA LENORE DOVE: el color se abre a su alrededor ─────────────────────────────────────
 const O5 = { encuadre: 'calle', camara: 'puerta', luz: 'dia' };
 const p5 = (t) => {
   T.distrito(R, t, O5);
-  const ul = tramo(t, W(22.9), W(26.2)), lx = Math.round(lerp(326, 176, ul)), lle = ul >= 1;
-  const uh = tramo(t, W(26.8), W(28.0)), hx = Math.round(lerp(104, 144, uh));
-  R.actor(EL.haymitch, hx, 164, t, { dir: 1, anda: uh > 0 && uh < 1, sorpresa: t > W(24.0) && t < W(25.6), sonrisa: t > W(25.6) });
-  R.actor(EL.lenore, lx, 176, t, { dir: -1, anda: ul > 0 && ul < 1, sonrisa: true, dedo: t > W(26.55) && t < W(27.6), habla: t > W(27.6) && t < W(28.3) && habla(t) });
+  const ul = tramo(t, en('lenore', 0.0311), en('lenore', 0.2065)), lx = Math.round(lerp(326, 176, ul)), lle = ul >= 1;
+  const uh = tramo(t, en('lenore', 0.2383), en('lenore', 0.3021)), hx = Math.round(lerp(104, 144, uh));
+  R.actor(EL.haymitch, hx, 164, t, { dir: 1, anda: uh > 0 && uh < 1, sorpresa: t > en('lenore', 0.0895) && t < en('lenore', 0.1746), sonrisa: t > en('lenore', 0.1746) });
+  R.actor(EL.lenore, lx, 176, t, { dir: -1, anda: ul > 0 && ul < 1, sonrisa: true, dedo: t > en('lenore', 0.2251) && t < en('lenore', 0.2809), habla: t > en('lenore', 0.2809) && t < en('lenore', 0.3181) && habla(t) });
   // plumas y pétalos de colores que le giran alrededor
   for (let k = 0; k < 7; k++) { const a = t * 1.7 + k * 0.9, rr = 12 + (k % 3) * 3; P(lx + 7 + Math.cos(a) * rr, 160 + Math.sin(a) * rr * 0.6 - k % 2 * 3, COLNOTA[k % 5]); }
   T.distritoDelante(R, t, O5);
-  atom(262, 146, t, { dir: -1, pose: t > W(25.7) && t < W(26.6) ? 'brazos' : 'quieto', cara: t > W(25.5) ? 'sonrisa' : t > W(24.0) ? 'sorpresa' : 'normal' });
+  atom(262, 146, t, { dir: -1, pose: t > en('lenore', 0.1799) && t < en('lenore', 0.2277) ? 'brazos' : 'quieto', cara: t > en('lenore', 0.1693) ? 'sonrisa' : t > en('lenore', 0.0895) ? 'sorpresa' : 'normal' });
   // todo gris salvo un círculo alrededor de ella, que se abre con «gives everything color»
-  const rr = t < W(24.65) ? 15 : lerp(15, 360, tramo(t, W(24.65), W(26.0)));
+  const rr = t < en('lenore', 0.1241) ? 15 : lerp(15, 360, tramo(t, en('lenore', 0.1241), en('lenore', 0.1958)));
   if (rr < 355) grisFuera(lx + 7, 164, rr);
 };
 
 // ── 6 · EL QUEMADOR: los Covey cantan; un agente de la paz los manda quedarse quietos ─────────────────────────────
 const O6 = { encuadre: 'quemador', luz: 'dia' };
+const ease3 = (u) => u * u * (3 - 2 * u);
 const PRIMO = { H: hex('#5a3a22'), h: hex('#7a5232'), C: hex('#3a7aa8'), c: hex('#2a5a80') };
 const p6 = (t) => {
   T.distrito(R, t, O6);
-  const llega = tramo(t, W(31.95), W(32.75)), ax = Math.round(lerp(-18, 58, llega)), manda = t > W(32.27);
+  const llega = tramo(t, en('lenore', 0.5120), en('lenore', 0.5546)), ax = Math.round(lerp(-18, 58, llega)), manda = t > en('lenore', 0.5290);
+  // al fondo, dos compradores: una vecina con su cesta entra por la izquierda hasta el puesto de las conservas y el
+  // chico que la acompaña señala un tarro; cuando entra el agente se vuelven, asustados, y se quedan quietos
+  { const P0 = en('lenore', 0.3356), uv = tramo(t, P0 + 0.2, P0 + 2.4), vx = lerp(-24, 66, ease3(uv)), an = uv > 0 && uv < 1, vuelve = t > en('lenore', 0.5200);
+    R.actor(EL.tributoChico, Math.round(vx + 16), 141, t, { dir: vuelve ? -1 : 1, anda: an, dedo: !vuelve && uv >= 1 && t < P0 + 3.6, sonrisa: !vuelve, sorpresa: vuelve });
+    const rv = R.actor(EL.vecina, Math.round(vx), 140, t, { dir: vuelve ? -1 : 1, anda: an, sostiene: true, sorpresa: vuelve });
+    if (rv?.mano) { const [mx, my] = rv.mano.map(Math.round); R.rect(mx - 4, my - 1, mx + 4, my + 4, K); R.rect(mx - 3, my, mx + 3, my + 3, hex('#b08850')); R.rect(mx - 3, my + 1, mx + 3, my + 1, hex('#8a6a3a')); P(mx - 1, my - 1, hex('#d84a3a')); P(mx + 1, my - 2, hex('#e8c040')); } }
   // el primo con la guitarra, Lenore que canta y la gente que escucha
-  const pr = R.actor(EL.lenore, 100, 160, t, { dir: 1, pal: PRIMO, sostiene: [114, 146 + (Math.floor(t * 5) % 2)], sonrisa: !manda, sorpresa: manda && t < W(33.2) });
+  const pr = R.actor(EL.lenore, 100, 160, t, { dir: 1, pal: PRIMO, sostiene: [114, 146 + (Math.floor(t * 5) % 2)], sonrisa: !manda, sorpresa: manda && t < en('lenore', 0.5785) });
   PZ.guitarra(R, pr.mano[0] - 1, pr.mano[1] + 9);
-  R.actor(EL.lenore, 122, 160, t, { dir: manda && t > W(32.6) ? -1 : 1, habla: !manda || t > W(33.2) ? habla(t, 1) : false, sonrisa: !manda, salto: !manda && Math.sin(t * 5) > 0.7 ? 1 : 0 });
+  R.actor(EL.lenore, 122, 160, t, { dir: manda && t > en('lenore', 0.5466) ? -1 : 1, habla: !manda || t > en('lenore', 0.5785) ? habla(t, 1) : false, sonrisa: !manda, salto: !manda && Math.sin(t * 5) > 0.7 ? 1 : 0 });
   R.actor(EL.louellaHM, 168, 160, t, { dir: -1, sonrisa: !manda, salto: !manda && Math.sin(t * 5 + 1) > 0.6 ? 1 : 0, sorpresa: manda });
   R.actor(EL.wyattHM, 188, 162, t, { dir: -1, brazos: !manda && Math.sin(t * 2.5) > 0.3, sonrisa: !manda, sorpresa: manda });
   R.actor(EL.hattieHM, 206, 160, t, { dir: -1, sonrisa: !manda, triste: manda });
-  if (!manda || t > W(33.2)) for (let k = 0; k < 4; k++) { const v = (t * 0.5 + k / 4) % 1; nota(132 + k * 5 + Math.sin(v * 8 + k) * 4, 134 - v * 44, COLNOTA[k]); }
+  if (!manda || t > en('lenore', 0.5785)) for (let k = 0; k < 4; k++) { const v = (t * 0.5 + k / 4) % 1; nota(132 + k * 5 + Math.sin(v * 8 + k) * 4, 134 - v * 44, COLNOTA[k]); }
   // el agente entra por la izquierda con «forced» y señala el suelo: de aquí no os movéis
   if (llega > 0) R.actor(EL.agentePaz, ax, 166, t, { dir: 1, anda: llega < 1, dedo: llega >= 1, enfado: llega >= 1 });
   T.distritoDelante(R, t, O6);
@@ -169,32 +176,35 @@ const p6 = (t) => {
 const O7 = { encuadre: 'bosque', camara: 'arbol', luz: 'dia' };
 const p7 = (t) => {
   const g = T.distrito(R, t, O7), [sx, sy] = g.sentada, [rx, ry] = g.rama[1];
-  const mira = t > W(36.0) && t < W(37.0);
+  const mira = t > en('lenore', 0.7273) && t < en('lenore', 0.7804);
   R.actor(EL.lenore, sx, sy, t, { dir: 1, habla: habla(t), sonrisa: true });
-  R.actor(EL.haymitch, 202, 164, t, { dir: mira ? 1 : -1, sonrisa: !mira, sorpresa: mira });
+  const lh = tramo(t, en('lenore', 0.6104) + 0.1, en('lenore', 0.6104) + 1.5);
+  R.actor(EL.haymitch, Math.round(lerp(236, 202, ease3(lh))), 164, t, { dir: mira ? 1 : -1, anda: lh > 0 && lh < 1, sonrisa: !mira, sorpresa: mira });
   // las notas suben de su boca hacia la rama; los sinsajos las repiten y salen hacia el lago
   for (let k = 0; k < 5; k++) { const v = (t * 0.42 + k / 5) % 1; if (v < 0.55) { const w = v / 0.55; nota(lerp(sx + 12, rx - 10, w) + Math.sin(w * 9 + k) * 3, lerp(sy - 22, ry + 6, w), COLNOTA[k]); } else { const w = (v - 0.55) / 0.45; nota(lerp(rx + 2, 300, w), lerp(ry - 2, 58 + k * 6, w) + Math.sin(w * 10) * 3, COLNOTA[k]); } }
   T.distritoDelante(R, t, O7);
   // Atom baila al lado; con «the capital doesn't like» se queda quieto y mira a todas partes
-  atom(246, 164, t, { dir: mira ? (Math.floor(t * 3) % 2 ? 1 : -1) : -1, pose: mira ? 'quieto' : Math.floor(t * 2.5) % 2 ? 'brazos' : 'saluda', cara: mira ? 'sorpresa' : 'sonrisa' });
+  // (baila: un paso a cada lado al compás, brazos arriba y vuelta; después, quieto mirando)
+  const bx = mira ? 0 : Math.round(Math.sin(t * Math.PI * 1.25) * 7), giro = Math.floor(t * 1.25) % 2;
+  atom(254 + bx, 164 - (!mira && Math.abs(Math.sin(t * Math.PI * 2.5)) > 0.8 ? 2 : 0), t, { dir: mira ? (Math.floor(t * 3) % 2 ? 1 : -1) : giro ? 1 : -1, pose: mira ? 'quieto' : Math.floor(t * 2.5) % 3 === 0 ? 'brazos' : Math.floor(t * 2.5) % 3 === 1 ? 'camina' : 'saluda', cara: mira ? 'sorpresa' : 'sonrisa' });
 };
 
 // ── 8 · EL PRADO DEL COVEY: Lenore echa grano a las ocas; una oca persigue a Atom y le roba una órbita (gag) ────────
 const O8 = { encuadre: 'prado', luz: 'dia', ocas: 4 };
 const p8 = (t) => {
   T.prado(R, t, O8);
-  const echa = t > W(37.9) && t < W(40.0);
-  const ln = R.actor(EL.lenore, 112, 162, t, { dir: 1, sostiene: echa ? [130, 148 + Math.round(Math.sin(t * 6) * 2)] : undefined, sonrisa: true, salto: t > W(40.2) && t < W(41.0) && Math.sin(t * 12) > 0 ? 1 : 0, habla: t > W(40.2) && t < W(41.0) && habla(t) });
+  const echa = t > en('lenore', 0.8282) && t < en('lenore', 0.9398);
+  const ln = R.actor(EL.lenore, 112, 162, t, { dir: 1, sostiene: echa ? [130, 148 + Math.round(Math.sin(t * 6) * 2)] : undefined, sonrisa: true, salto: t > en('lenore', 0.9505) && t < en('lenore', 0.9930) && Math.sin(t * 12) > 0 ? 1 : 0, habla: t > en('lenore', 0.9505) && t < en('lenore', 0.9930) && habla(t) });
   if (echa) for (let k = 0; k < 6; k++) { const v = (t * 1.4 + k / 6) % 1; P(ln.mano[0] + 2 + k * 2 + v * 4, ln.mano[1] + 2 + v * v * 16, hex('#f0d070')); }
   // Atom paseando; la oca sale de la derecha corriendo, le pilla y se lleva una órbita en el pico
-  const pilla = W(39.84), huye = tramo(t, pilla + 0.25, W(41.7));
-  const ua = tramo(t, W(38.55), pilla), axx = t < W(38.55) ? lerp(214, 200, tramo(t, W(37.8), W(38.55))) : lerp(200, 150, ua);
-  const ox = t < pilla ? lerp(330, 170, tramo(t, W(38.35), pilla)) : lerp(166, 340, huye);
+  const pilla = en('lenore', 0.9313), huye = tramo(t, pilla + 0.25, en('burdock', -0.0068));
+  const ua = tramo(t, en('lenore', 0.8628), pilla), axx = t < en('lenore', 0.8628) ? lerp(214, 200, tramo(t, en('lenore', 0.8229), en('lenore', 0.8628))) : lerp(200, 150, ua);
+  const ox = t < pilla ? lerp(330, 170, tramo(t, en('lenore', 0.8522), pilla)) : lerp(166, 340, huye);
   const oc = T.a_oca(R, Math.round(ox), 172, t, { dir: t < pilla ? -1 : 1, modo: t < pilla ? 'corre' : huye > 0 ? 'corre' : 'estira', k: 2 });
   if (t > pilla) orbitaSuelta(oc.pico[0] + (huye > 0 ? 6 : 3), oc.pico[1] + 6, t, 1.1);
-  if (t > W(38.35) && (t < pilla || huye > 0)) for (let k = 0; k < 3; k++) { const dd = t < pilla ? 1 : -1, lx0 = Math.round(ox) + dd * (10 + k * 3); R.linea(lx0, 162 + k * 3, lx0 + dd * 6, 162 + k * 3, hex('#ffffff')); }
-  if (t > W(38.55) && t < W(39.5)) R.icono('!', Math.round(axx) - 3, 140, hex('#ffffff'), K, 2);
-  atom(Math.round(axx), 172, t, { dir: -1, pose: t > W(38.55) && t < pilla ? 'camina' : t > pilla + 0.5 ? 'senala' : 'quieto', cara: t > W(38.5) && t < pilla + 0.5 ? 'sorpresa' : t > pilla + 0.5 ? 'triste' : 'normal', ...(t > pilla + 0.5 ? { dir: 1 } : {}) });
+  if (t > en('lenore', 0.8522) && (t < pilla || huye > 0)) for (let k = 0; k < 3; k++) { const dd = t < pilla ? 1 : -1, lx0 = Math.round(ox) + dd * (10 + k * 3); R.linea(lx0, 162 + k * 3, lx0 + dd * 6, 162 + k * 3, hex('#ffffff')); }
+  if (t > en('lenore', 0.8628) && t < en('lenore', 0.9133)) R.icono('!', Math.round(axx) - 3, 140, hex('#ffffff'), K, 2);
+  atom(Math.round(axx), 172, t, { dir: -1, pose: t > en('lenore', 0.8628) && t < pilla ? 'camina' : t > pilla + 0.5 ? 'senala' : 'quieto', cara: t > en('lenore', 0.8601) && t < pilla + 0.5 ? 'sorpresa' : t > pilla + 0.5 ? 'triste' : 'normal', ...(t > pilla + 0.5 ? { dir: 1 } : {}) });
   T.pradoDelante(R, t, O8);
 };
 
@@ -247,18 +257,18 @@ const p9 = (t) => {
   R.halo(236, 80, 12, [hex('#4a3a2a'), hex('#8a6a3a'), hex('#f0c060')], fl); R.rect(233, 74, 239, 84, K); R.rect(234, 75, 238, 83, hex('#ffd070'));
   for (let k = 0; k < 3; k++) { const v = (t * 0.8 + k / 3) % 1; P(140 + k * 22, 67 + v * 82, hex('#9ab0c8')); }
   // Burdock sale de la galería, tiznado, con la lámpara del casco encendida
-  const ub = tramo(t, W(42.1), W(43.0)), bx = Math.round(lerp(158, 146, ub)), by = Math.round(lerp(150, 166, ub));
-  const ux = tramo(t, W(42.85), W(43.4)), hx = Math.round(lerp(78, 120, ux));
-  const choca = t > W(43.35) && t < W(43.9), charla = t > W(44.1);
-  R.actor(EL.haymitch, hx, 168, t, { dir: 1, anda: ux > 0 && ux < 1, sonrisa: t > W(43.0), dedo: choca, habla: charla && Math.floor(t * 1.2) % 2 === 0 && habla(t) });
+  const ub = tramo(t, en('burdock', 0.0138), en('burdock', 0.0602)), bx = Math.round(lerp(158, 146, ub)), by = Math.round(lerp(150, 166, ub));
+  const ux = tramo(t, en('burdock', 0.0525), en('burdock', 0.0808)), hx = Math.round(lerp(78, 120, ux));
+  const choca = t > en('burdock', 0.0783) && t < en('burdock', 0.1066), charla = t > en('burdock', 0.1169);
+  R.actor(EL.haymitch, hx, 168, t, { dir: 1, anda: ux > 0 && ux < 1, sonrisa: t > en('burdock', 0.0602), dedo: choca, habla: charla && Math.floor(t * 1.2) % 2 === 0 && habla(t) });
   // la vagoneta que empuja otro minero raíles abajo
-  const uv = tramo(t, W(44.6), W(47.8)), vx = Math.round(lerp(165, 190, uv)), vy = Math.round(lerp(146, 176, uv * uv));
+  const uv = tramo(t, en('burdock', 0.1427), en('burdock', 0.3076)), vx = Math.round(lerp(165, 190, uv)), vy = Math.round(lerp(146, 176, uv * uv));
   if (uv > 0) { R.actor(EL.burdockHM, vx - 8, vy - 8, t, { dir: 1, anda: uv < 1, pal: { H: hex('#6a4a30'), h: hex('#8a6a48'), C: hex('#7a5a3a'), c: hex('#5a4028'), F: hex('#4a3a2a') } }); R.rect(vx - 2, vy - 16, vx + 22, vy - 4, K); R.rect(vx - 1, vy - 15, vx + 21, vy - 5, hex('#5a5c64')); R.rect(vx - 1, vy - 15, vx + 21, vy - 14, hex('#8a8c94')); for (let i = 0; i < 22; i += 2) { R.pset(vx + i, vy - 17 - (i % 4 ? 1 : 0), hex('#16141a')); R.pset(vx + i + 1, vy - 18, hex('#242228')); } P(vx + 7, vy - 18, hex('#9a98b0')); for (const wx of [vx + 2, vx + 17]) { R.disco(wx, vy - 3, 2, K); P(wx, vy - 3, hex('#8a8c94')); } }
-  const b = R.actor(EL.burdockHM, bx, by, t, { dir: -1, anda: ub > 0 && ub < 1, sonrisa: t > W(43.0), dedo: choca, salto: t > W(44.6) && t < W(45.0) ? 2 : 0, habla: charla && Math.floor(t * 1.2) % 2 === 1 && habla(t, 1) });
+  const b = R.actor(EL.burdockHM, bx, by, t, { dir: -1, anda: ub > 0 && ub < 1, sonrisa: t > en('burdock', 0.0602), dedo: choca, salto: t > en('burdock', 0.1427) && t < en('burdock', 0.1633) ? 2 : 0, habla: charla && Math.floor(t * 1.2) % 2 === 1 && habla(t, 1) });
   // el tizne en la cara y la luz del casco
   const [cx, cy] = b.cabeza; for (const [dx, dy] of [[-3, 7], [-2, 8], [2, 9], [3, 7], [-1, 10]]) P(cx + dx, cy + dy, hex('#4a4048')); R.halo(cx - 4, cy + 1, 4, [hex('#6a5a3a'), hex('#c8a050'), hex('#fff0b0')], 0.8); P(cx - 4, cy + 1, hex('#ffffff'));
   if (choca) { for (let k = 0; k < 4; k++) P(134 + Math.cos(k * 1.6) * 5, 140 + Math.sin(k * 1.6) * 5, hex('#fff0b0')); }
-  luc(254 + Math.sin(t * 1.1) * 5, 100 + Math.sin(t * 2.3) * 3, t, { dir: -1, cara: t > W(43.0) ? 'sonrisa' : 'normal' });
+  luc(254 + Math.sin(t * 1.1) * 5, 100 + Math.sin(t * 2.3) * 3, t, { dir: -1, cara: t > en('burdock', 0.0602) ? 'sonrisa' : 'normal' });
 };
 
 // ── 10 · EL CUARTO DE LÁMPARAS (fondo local): Atom pone el pictograma del arco junto a la ficha de Burdock ─────────
@@ -297,57 +307,57 @@ const p10 = (t) => {
   const lx = 200 + Math.round(Math.sin(t * 1.2) * 3); R.linea(200, 0, lx, 18, K); R.halo(lx, 22, 16, [hex('#9a8a6a'), hex('#c8b080'), hex('#fff0c0')], 0.7); R.rect(lx - 4, 18, lx + 4, 22, K); R.rect(lx - 3, 19, lx + 3, 21, hex('#ffe890'));
   for (let k = 0; k < 10; k++) { const v = (t * 0.07 + k / 10) % 1; P(lx - 20 + hh(k, 31) * 40 + Math.sin(t + k) * 3, 30 + v * 110, hex('#f0e0b8')); }
   // la ficha de Burdock (tiznada) y la tarjeta del arco que Atom clava a su lado con «Everdeen»
-  const fx = 106 + FICHA[0] * 16, fy = 42 + FICHA[1] * 16, clava = W(48.70), brilla = t > W(49.50) && t < W(51.5);
+  const fx = 106 + FICHA[0] * 16, fy = 42 + FICHA[1] * 16, clava = en('burdock', 0.3540), brilla = t > en('burdock', 0.3953) && t < en('burdock', 0.4984);
   if (brilla) R.halo(fx + 13, fy + 8, 16, [hex('#2e463a'), hex('#8a7a3a'), hex('#ffe070')], 0.7 + 0.3 * Math.sin(t * 8));
   R.disco(fx, fy + 6, 3, hex('#8a6a2a')); P(fx + 1, fy + 7, hex('#4a3a2a'));
-  const ua = tramo(t, W(48.15), W(48.55)), ax = Math.round(lerp(262, 222, ua));
-  const at = atom(ax, 150, t, { s: 2, dir: -1, pose: t < clava + 0.25 ? 'sostiene' : t > W(52.0) ? 'brazos' : 'quieto', cara: t > W(49.5) ? 'sonrisa' : 'normal' });
+  const ua = tramo(t, en('burdock', 0.3257), en('burdock', 0.3463)), ax = Math.round(lerp(262, 222, ua));
+  const at = atom(ax, 150, t, { s: 2, dir: -1, pose: t < clava + 0.25 ? 'sostiene' : t > en('burdock', 0.5242) ? 'brazos' : 'quieto', cara: t > en('burdock', 0.3953) ? 'sonrisa' : 'normal' });
   const [kx, ky] = t < clava ? [Math.round(at.mano[0]) - 22, Math.round(at.mano[1]) - 8] : [fx + 7, fy - 1];
   R.rect(kx - 1, ky - 1, kx + 18, ky + 16, K); R.rect(kx, ky, kx + 17, ky + 15, hex('#f6ecd0')); R.rect(kx, ky + 14, kx + 17, ky + 15, hex('#d8c8a0'));
   PZ.arco(R, kx + 6, ky + 14); PZ.flecha(R, kx + 9, ky + 9);
   if (t >= clava) { R.rect(kx + 8, ky - 2, kx + 9, ky, hex('#e84a3a')); P(kx + 8, ky - 2, hex('#ff9a8a')); }
   // Burdock entra, deja su lámpara en la balda y se vuelve a mirar la tarjeta
-  const ub = tramo(t, W(50.1), W(50.9)), bx = Math.round(lerp(-18, 52, ub)), deja = t > W(51.05), mira = t > W(51.5);
-  const b = R.actor(EL.burdockHM, bx, 172, t, { dir: mira ? 1 : -1, anda: ub > 0 && ub < 1, sostiene: ub > 0 && !deja ? (ub < 1 ? true : [50, 150]) : undefined, sorpresa: mira && t < W(52.2), sonrisa: t > W(52.2) });
+  const ub = tramo(t, en('burdock', 0.4262), en('burdock', 0.4674)), bx = Math.round(lerp(-18, 52, ub)), deja = t > en('burdock', 0.4752), mira = t > en('burdock', 0.4984);
+  const b = R.actor(EL.burdockHM, bx, 172, t, { dir: mira ? 1 : -1, anda: ub > 0 && ub < 1, sostiene: ub > 0 && !deja ? (ub < 1 ? true : [50, 150]) : undefined, sorpresa: mira && t < en('burdock', 0.5345), sonrisa: t > en('burdock', 0.5345) });
   if (ub > 0 && !deja) { const [mx, my] = b.mano; R.rect(mx - 3, my - 9, mx + 3, my, K); R.rect(mx - 2, my - 8, mx + 2, my - 1, hex('#5a5c64')); P(mx, my - 7, hex('#ffe070')); }
   if (deja) { R.rect(43, 140, 51, 150, K); R.rect(44, 141, 50, 149, hex('#5a5c64')); P(47, 143, hex('#e84a3a')); }
 };
 
 // ── 11 · HOY, EL CUARTO DE UNA LECTORA: la línea del tiempo, del 74 al 50: «24» ──────────────────────────────────────
-const O11 = (t) => ({ encuadre: 'cuarto', linea: t < W(54.0) ? 2 : t < W(55.0) ? 2 + tramo(t, W(54.6), W(55.0)) : 3, pistas: 0 });
+const O11 = (t) => ({ encuadre: 'cuarto', linea: t < en('burdock', 0.6272) ? 2 : t < en('burdock', 0.6788) ? 2 + tramo(t, en('burdock', 0.6582), en('burdock', 0.6788)) : 3, pistas: 0 });
 const p11 = (t) => {
   const o = O11(t); T.hoy(R, t, o);
   // la lectora con el libro: pasa la página y, con «24», se vuelve a mirar la línea
-  const vuelve = t > W(56.3);
-  const lc = R.actor(EL.chica, 236, 170, t, { dir: vuelve ? -1 : 1, sostiene: vuelve ? undefined : true, sorpresa: vuelve && t < W(57.0), sonrisa: t > W(57.0), dedo: vuelve && t > W(56.6) });
-  if (!vuelve) { const [mx, my] = lc.mano; R.rect(mx - 1, my - 7, mx + 10, my + 1, K); R.rect(mx, my - 6, mx + 4, my, hex('#f6f2e6')); R.rect(mx + 5, my - 6, mx + 9, my, hex('#e8e2d0')); const pg = tramo(t, W(54.4), W(54.9)); if (pg > 0 && pg < 1) R.linea(mx + 5, my - 6, Math.round(mx + 5 - pg * 5), my - 7, hex('#ffffff')); }
+  const vuelve = t > en('burdock', 0.7458);
+  const lc = R.actor(EL.chica, 236, 170, t, { dir: vuelve ? -1 : 1, sostiene: vuelve ? undefined : true, sorpresa: vuelve && t < en('burdock', 0.7819), sonrisa: t > en('burdock', 0.7819), dedo: vuelve && t > en('burdock', 0.7613) });
+  if (!vuelve) { const [mx, my] = lc.mano; R.rect(mx - 1, my - 7, mx + 10, my + 1, K); R.rect(mx, my - 6, mx + 4, my, hex('#f6f2e6')); R.rect(mx + 5, my - 6, mx + 9, my, hex('#e8e2d0')); const pg = tramo(t, en('burdock', 0.6479), en('burdock', 0.6736)); if (pg > 0 && pg < 1) R.linea(mx + 5, my - 6, Math.round(mx + 5 - pg * 5), my - 7, hex('#ffffff')); }
   T.hoyDelante(R, t, o);
   // Atom al doble señala la línea; con «24» el arco salta del 74 al 50
-  atom(38, 170, t, { s: 2, dir: 1, pose: t > W(54.3) ? 'senala' : 'saluda', cara: t > W(56.0) ? 'sorpresa' : 'normal' });
-  const ua = tramo(t, W(56.0), W(56.6));
+  atom(38, 170, t, { s: 2, dir: 1, pose: t > en('burdock', 0.6427) ? 'senala' : 'saluda', cara: t > en('burdock', 0.7303) ? 'sorpresa' : 'normal' });
+  const ua = tramo(t, en('burdock', 0.7303), en('burdock', 0.7613));
   if (ua > 0) { const x0 = 172, x1 = 150, n = Math.round(ua * 24); for (let k = 0; k <= n; k++) { const w = k / 24, x = lerp(x0, x1, w), y = 80 - Math.sin(w * Math.PI) * 9; R.rect(Math.round(x), Math.round(y), Math.round(x) + 1, Math.round(y) + 1, hex('#e84a3a')); } if (ua >= 1) { R.linea(150, 80, 154, 76, hex('#e84a3a')); R.linea(150, 80, 155, 81, hex('#e84a3a')); R.numero('24', 161, 70, { centro: true }); } }
 };
 
 // ── 12 · EL CORCHO: «un padre, una abuela o una historia»: se encienden las tres pistas y el hilo rojo ───────────────
-const O12 = (t) => ({ encuadre: 'cuarto', camara: 'corcho', linea: 3, carnes: tramo(t, W(57.75), W(58.25)), pistas: t < W(57.81) ? 0 : t < W(58.37) ? 1 : t < W(59.57) ? 2 : 3, hilo: tramo(t, W(59.9), W(61.4)) });
+const O12 = (t) => ({ encuadre: 'cuarto', camara: 'corcho', linea: 3, carnes: tramo(t, en('burdock', 0.8206), en('burdock', 0.8463)), pistas: t < en('burdock', 0.8237) ? 0 : t < en('burdock', 0.8525) ? 1 : t < en('burdock', 0.9144) ? 2 : 3, hilo: tramo(t, en('burdock', 0.9314), en('regalos', -0.0287)) });
 const p12 = (t) => {
   const o = O12(t), g = T.hoy(R, t, o);
   T.hoyDelante(R, t, o);
   const k = o.pistas, objetivo = k === 0 ? 100 : g.pistas[k - 1][0];
-  const ax = Math.round(lerp(196, Math.max(110, Math.min(220, objetivo)), tramo(t, W(57.6), W(60.6))));
-  atom(ax, g.mesa, t, { dir: objetivo < ax ? -1 : 1, pose: k > 0 ? 'senala' : 'camina', cara: t > W(60.2) ? 'sorpresa' : k > 0 ? 'sonrisa' : 'normal' });
+  const ax = Math.round(lerp(196, Math.max(110, Math.min(220, objetivo)), tramo(t, en('burdock', 0.8128), en('burdock', 0.9675))));
+  atom(ax, g.mesa, t, { dir: objetivo < ax ? -1 : 1, pose: k > 0 ? 'senala' : 'camina', cara: t > en('burdock', 0.9469) ? 'sorpresa' : k > 0 ? 'sonrisa' : 'normal' });
 };
 
 // ── 13 · EL CUMPLEAÑOS: Lenore le da a Haymitch un paquetito por encima del bollo con la vela ───────────────────────
 const O13 = { encuadre: 'casa', camara: 'mesa', vela: true };
 const p13 = (t) => {
   const g = T.prado(R, t, O13), [vx, vy] = g.vela;
-  const da = tramo(t, W(64.40), W(65.00)), abre = t > W(65.15);
-  R.actor(EL.haymitch, 102, 120, t, { dir: 1, sonrisa: t > W(63.2), sorpresa: abre && t < W(65.9), sostiene: da >= 1 ? [124, 104] : undefined });
-  R.actor(EL.lenore, 202, 120, t, { dir: -1, sonrisa: true, sostiene: da < 1 ? [Math.round(lerp(196, 170, da)), 104] : undefined, habla: t > W(62.0) && t < W(63.6) && habla(t) });
+  const da = tramo(t, en('regalos', 0.1335), en('regalos', 0.1660)), abre = t > en('regalos', 0.1741);
+  R.actor(EL.haymitch, 102, 120, t, { dir: 1, sonrisa: t > en('regalos', 0.0686), sorpresa: abre && t < en('regalos', 0.2146), sostiene: da >= 1 ? [124, 104] : undefined });
+  R.actor(EL.lenore, 202, 120, t, { dir: -1, sonrisa: true, sostiene: da < 1 ? [Math.round(lerp(196, 170, da)), 104] : undefined, habla: t > en('regalos', 0.0037) && t < en('regalos', 0.0903) && habla(t) });
   T.pradoDelante(R, t, O13);
   // la llama crece con «birthday»
-  const cum = tramo(t, W(63.1), W(63.4)) * (1 - tramo(t, W(64.0), W(64.4))); if (cum > 0) R.halo(vx, vy, 10, [hex('#5a4030'), hex('#e8a040'), hex('#fff0b0')], cum);
+  const cum = tramo(t, en('regalos', 0.0632), en('regalos', 0.0794)) * (1 - tramo(t, en('regalos', 0.1119), en('regalos', 0.1335))); if (cum > 0) R.halo(vx, vy, 10, [hex('#5a4030'), hex('#e8a040'), hex('#fff0b0')], cum);
   // el paquete viaja por encima de la vela y se abre: el pedernal
   const px = Math.round(da < 1 ? lerp(186, 126, da) : 126), py = Math.round(da < 1 ? 100 - Math.sin(da * Math.PI) * 14 : 100);
   if (!abre) { R.rect(px - 6, py - 4, px + 6, py + 4, K); R.rect(px - 5, py - 3, px + 5, py + 3, hex('#b8925a')); R.rect(px - 5, py, px + 5, py, hex('#e84a3a')); R.rect(px, py - 3, px, py + 3, hex('#e84a3a')); P(px - 4, py - 3, hex('#d8b47a')); }
@@ -388,13 +398,13 @@ const pedernal = (cx, cy, t, pj, sp) => {
 };
 const p14 = (t) => {
   horno('mesa', fondoMesa);
-  const cx = 92, cy = 112, pj = tramo(t, W(66.9), W(67.2)) * (1 - tramo(t, W(68.0), W(68.4))), sp = tramo(t, W(67.9), W(68.2)) * (1 - tramo(t, W(68.8), W(69.2)));
+  const cx = 92, cy = 112, pj = tramo(t, en('regalos', 0.2687), en('regalos', 0.2849)) * (1 - tramo(t, en('regalos', 0.3282), en('regalos', 0.3498))), sp = tramo(t, en('regalos', 0.3228), en('regalos', 0.3390)) * (1 - tramo(t, en('regalos', 0.3715), en('regalos', 0.3931)));
   pedernal(cx, cy, t, pj, sp);
   // la mano de Haymitch roza el pájaro y se retira antes del golpe
-  const um = tramo(t, W(66.3), W(66.95)) * (1 - tramo(t, W(68.0), W(68.5)));
+  const um = tramo(t, en('regalos', 0.2363), en('regalos', 0.2714)) * (1 - tramo(t, en('regalos', 0.3282), en('regalos', 0.3553)));
   if (um > 0) T.brazo(R, -22, 152, Math.round(lerp(-2, 30, um)), Math.round(lerp(140, 124, um)), '#d8ccb0', 1, { codo: [Math.round(lerp(-10, 6, um)), Math.round(lerp(150, 140, um))] });
   // Atom llega, le da un golpe al pedernal y salta la chispa: le chamusca un electrón
-  const golpe = W(68.65), ua = tramo(t, W(67.3), W(68.3)), ax = Math.round(lerp(290, 150, ua));
+  const golpe = en('regalos', 0.3634), ua = tramo(t, en('regalos', 0.2904), en('regalos', 0.3444)), ax = Math.round(lerp(290, 150, ua));
   const tras = t > golpe;
   const at = atom(ax + (t > golpe && t < golpe + 0.15 ? 3 : 0), 142, t, { s: 2, dir: -1, pose: ua > 0 && ua < 1 ? 'camina' : t > golpe - 0.25 && t < golpe + 0.2 ? 'senala' : 'quieto', cara: tras && t < golpe + 0.9 ? 'sorpresa' : tras ? 'triste' : 'normal' });
   if (t > golpe && t < golpe + 0.7) { const v = (t - golpe) / 0.7, ox = 129, oy = 122; R.halo(ox, oy, Math.round(10 * (1 - v)) + 2, [hex('#8a6a3a'), hex('#f0c040'), hex('#ffffff')], 1 - v); for (let k = 0; k < 12; k++) { const a = k / 12 * 6.28 + 0.3, rr = v * (14 + (k % 3) * 6); P(ox + Math.cos(a) * rr, oy + Math.sin(a) * rr + v * v * 10, k % 2 ? hex('#fff6c0') : hex('#ffb030')); } }
@@ -405,19 +415,19 @@ const p14 = (t) => {
 const O15 = { encuadre: 'quemador', camara: 'puesto', luz: 'dia' };
 const p15 = (t) => {
   T.distrito(R, t, O15);
-  const paga = W(71.30), empuja = tramo(t, W(72.0), W(72.55)), coge = W(72.95), salta = W(74.35);
+  const paga = en('regalos', 0.5067), empuja = tramo(t, en('regalos', 0.5445), en('regalos', 0.5743)), coge = en('regalos', 0.5959), salta = en('regalos', 0.6716);
   // Maysilee, detrás del mostrador: coge la bolsita del estante y la empuja por el mostrador
-  const m = R.actor(EL.maysilee, 196, 145, t, { dir: -1, sostiene: t > W(71.5) && t < W(72.6) ? (t < W(72.0) ? [196, 130] : [Math.round(lerp(186, 150, empuja)), 136]) : undefined, sonrisa: t > W(72.3), habla: t > W(71.4) && t < W(72.0) && habla(t) });
-  const h = R.actor(EL.haymitch, 58, 170, t, { dir: 1, sostiene: t < paga + 0.5 ? [96, 148] : t > coge ? [86, 154] : undefined, sonrisa: t > coge, habla: t > W(72.3) && t < W(72.9) && habla(t, 2) });
+  const m = R.actor(EL.maysilee, 196, 145, t, { dir: -1, sostiene: t > en('regalos', 0.5175) && t < en('regalos', 0.5770) ? (t < en('regalos', 0.5445) ? [196, 130] : [Math.round(lerp(186, 150, empuja)), 136]) : undefined, sonrisa: t > en('regalos', 0.5608), habla: t > en('regalos', 0.5121) && t < en('regalos', 0.5445) && habla(t) });
+  const h = R.actor(EL.haymitch, 58, 170, t, { dir: 1, sostiene: t < paga + 0.5 ? [96, 148] : t > coge ? [86, 154] : undefined, sonrisa: t > coge, habla: t > en('regalos', 0.5608) && t < en('regalos', 0.5932) && habla(t, 2) });
   T.distritoDelante(R, t, O15);
   // la moneda en el mostrador; la bolsita que la chica empuja y Haymitch coge
-  if (t > paga && t < W(72.4)) { R.disco(124, 138, 3, K); R.disco(124, 138, 2, hex('#d8d8e0')); P(123, 137, hex('#ffffff')); }
-  if (t < paga && t > W(70.9)) { R.disco(h.mano[0], h.mano[1] - 3, 3, K); R.disco(h.mano[0], h.mano[1] - 3, 2, hex('#d8d8e0')); }
-  const enMano = t > coge, bx = t < W(72.0) ? (t > W(71.5) ? m.mano[0] : -99) : !enMano ? Math.round(lerp(176, 128, empuja)) : h.mano[0] + 2;
-  const by = t < W(72.0) ? m.mano[1] + 8 : !enMano ? 139 : h.mano[1] + 10;
+  if (t > paga && t < en('regalos', 0.5662)) { R.disco(124, 138, 3, K); R.disco(124, 138, 2, hex('#d8d8e0')); P(123, 137, hex('#ffffff')); }
+  if (t < paga && t > en('regalos', 0.4850)) { R.disco(h.mano[0], h.mano[1] - 3, 3, K); R.disco(h.mano[0], h.mano[1] - 3, 2, hex('#d8d8e0')); }
+  const enMano = t > coge, bx = t < en('regalos', 0.5445) ? (t > en('regalos', 0.5175) ? m.mano[0] : -99) : !enMano ? Math.round(lerp(176, 128, empuja)) : h.mano[0] + 2;
+  const by = t < en('regalos', 0.5445) ? m.mano[1] + 8 : !enMano ? 139 : h.mano[1] + 10;
   if (bx > -50) bolsita(bx, by, 2);
   // Atom en el suelo, junto a Haymitch: con «hold on to those gumdrops» saca una de la bolsa y se la pone en la órbita
-  const ua = tramo(t, W(73.3), W(74.1)), ax = Math.round(lerp(150, 108, ua));
+  const ua = tramo(t, en('regalos', 0.6148), en('regalos', 0.6581)), ax = Math.round(lerp(150, 108, ua));
   const at = atom(ax, 174, t, { dir: -1, pose: ua > 0 && ua < 1 ? 'camina' : t > salta && t < GUARDA ? 'sostiene' : t > GUARDA + 0.3 ? 'saluda' : 'quieto', cara: t > GUARDA ? 'guino' : t > salta ? 'sorpresa' : 'normal' });
   if (t > salta && t < GUARDA) { const v = tramo(t, salta, GUARDA), gx = lerp(bx, at.centro[0] + 8, v), gy = lerp(by - 16, at.centro[1] - 1, v) - Math.sin(v * Math.PI) * 12; gominola(gx, gy, mezcla(GOMI[0], hex('#ffd34a'), v), 2); }
   if (t > GUARDA && t < GUARDA + 0.9) { const v = (t - GUARDA) / 0.9; for (let k = 0; k < 8; k++) { const a = k * 0.785; P(at.centro[0] + Math.cos(a) * (6 + v * 12), at.centro[1] + Math.sin(a) * (4 + v * 8), hex('#fff6c0')); } }
@@ -455,26 +465,26 @@ const p16 = (t) => {
   for (let x = 0; x < 320; x += 2) { const alto = 6 + Math.round(hh(x, 71) * 8), sw = Math.round(Math.sin(t * 2 + x * 0.05) * 2), y0 = 30; const top = x > 16 && x < 50 ? Math.max(y0 - alto, 22) : y0 - alto; R.linea(x, y0, x + sw, top, hh(x, 72) > 0.5 ? hex('#6a9a3a') : hex('#4a7a2a')); if (hh(x, 73) > 0.93 && x > 50) R.disco(x + sw, top, 1, [hex('#f0e040'), hex('#ffffff'), hex('#c86ae0')][x % 3]); }
   { const v = (t * 0.06) % 1, mx = Math.round(30 + v * 60), my = Math.round(150 - v * 30); R.disco(mx, my, 2, K); R.rect(mx - 1, my - 1, mx + 1, my + 1, hex('#e83a3a')); P(mx, my, K); P(mx + 2, my - 1, K); }
   // las gominolas; la mano de Lenore baja y se lleva una
-  const coge = W(77.05), uh = tramo(t, W(76.45), coge) * (1 - tramo(t, coge + 0.35, W(78.1)));
+  const coge = en('regalos', 0.8176), uh = tramo(t, en('regalos', 0.7852), coge) * (1 - tramo(t, coge + 0.35, en('regalos', 0.8744)));
   GOMIS.forEach(([x, y, k], i) => { if (i === 0 && t > coge) return; gominola(x, y, GOMI[k], 2); });
   if (uh > 0) { const wx = Math.round(lerp(214, 200, uh)), wy = Math.round(lerp(-10, 34, uh)); T.brazo(R, 222, -30, wx, wy, '#c8503a', -1, { codo: [Math.round(lerp(226, 222, uh)), Math.round(lerp(-14, 8, uh))] }); if (t > coge) gominola(wx - 12, wy + 8, GOMI[0], 2); }
   // Atom al doble: señala la bolsa, piensa y guiña con «mentioning them»; el electrón dorado brilla
-  const at = atom(238, 150, t, { s: 2, dir: -1, pose: t > W(76.7) && t < W(77.8) ? 'senala' : t > W(78.1) && t < W(79.3) ? 'piensa' : t > W(79.4) ? 'saluda' : 'quieto', cara: t > W(79.4) ? 'guino' : t > W(78.1) ? 'normal' : 'sonrisa' });
+  const at = atom(238, 150, t, { s: 2, dir: -1, pose: t > en('regalos', 0.7987) && t < en('regalos', 0.8582) ? 'senala' : t > en('regalos', 0.8744) && t < en('regalos', 0.9393) ? 'piensa' : t > en('regalos', 0.9447) ? 'saluda' : 'quieto', cara: t > en('regalos', 0.9447) ? 'guino' : t > en('regalos', 0.8744) ? 'normal' : 'sonrisa' });
   const [gx, gy, del] = electron(at.centro, 2, t, true); if (del) { R.halo(Math.round(gx), Math.round(gy), 6, [hex('#8a6a2a'), hex('#f0c040'), hex('#fff6c0')], 0.6 + 0.3 * Math.sin(t * 7)); }
 };
 
 // ── 17 · EN EL PRADO, AL ATARDECER: los dos sentados en el tronco, con las ocas alrededor ───────────────────────────
 const p17 = (t) => {
-  const o = { encuadre: 'prado', camara: 'cerca', luz: 'tarde', sentados: true, sol: lerp(0.55, 0.6, tramo(t, W(81.1), W(86.2))) };
+  const o = { encuadre: 'prado', camara: 'cerca', luz: 'tarde', sentados: true, sol: lerp(0.55, 0.6, tramo(t, en('prado', -0.0010), en('prado', 0.2299))) };
   const g = T.prado(R, t, o), [h1, s1] = g.asientos[1], [h2, s2] = g.asientos[2];
-  const arrima = tramo(t, W(82.1), W(82.9)), cuenta = t > W(85.3);
-  R.actor(EL.haymitch, h1, s1, t, { dir: 1, sonrisa: !cuenta, habla: cuenta && habla(t), dedo: cuenta && t > W(85.7) });
+  const arrima = tramo(t, en('prado', 0.0443), en('prado', 0.0805)), cuenta = t > en('prado', 0.1892);
+  R.actor(EL.haymitch, h1, s1, t, { dir: 1, sonrisa: !cuenta, habla: cuenta && habla(t), dedo: cuenta && t > en('prado', 0.2073) });
   R.actor(EL.lenore, Math.round(lerp(h2 + 6, h2 - 4, arrima)), s2, t, { dir: -1, sonrisa: true });
   T.pradoDelante(R, t, o);
   // dos ocas pasean por delante del tronco; una se estira y grazna con «geese»
-  const ga = t > W(83.4) && t < W(84.3);
-  T.a_oca(R, Math.round(lerp(40, 120, tramo(t, W(81.1), W(86.2)))), 177, t, { dir: 1, modo: ga ? 'estira' : 'camina', k: 1, tn: (c) => mezcla(c, hex('#f0a060'), 0.15) });
-  T.a_oca(R, Math.round(lerp(262, 222, tramo(t, W(82.0), W(84.5)))), 175, t, { dir: -1, modo: t > W(84.5) ? 'pasta' : 'camina', k: 3, tn: (c) => mezcla(c, hex('#f0a060'), 0.15) });
+  const ga = t > en('prado', 0.1031) && t < en('prado', 0.1439);
+  T.a_oca(R, Math.round(lerp(40, 120, tramo(t, en('prado', -0.0010), en('prado', 0.2299)))), 177, t, { dir: 1, modo: ga ? 'estira' : 'camina', k: 1, tn: (c) => mezcla(c, hex('#f0a060'), 0.15) });
+  T.a_oca(R, Math.round(lerp(262, 222, tramo(t, en('prado', 0.0398), en('prado', 0.1529)))), 175, t, { dir: -1, modo: t > en('prado', 0.1529) ? 'pasta' : 'camina', k: 3, tn: (c) => mezcla(c, hex('#f0a060'), 0.15) });
   luc(250 + Math.sin(t * 0.9) * 8, 112 + Math.sin(t * 2) * 3, t, { dir: -1, cara: 'sonrisa', brillo: 0.8 });
 };
 
@@ -483,12 +493,16 @@ const O18 = { encuadre: 'bosque', luz: 'tarde' };
 const p18 = (t) => {
   const g = T.distrito(R, t, O18), [sx, sy, sr] = g.sol ?? [200, 80, 10];
   // la urna de la cosecha se superpone al sol: aparece con «reaping» y late con «sun» y con «tomorrow»
-  const late = tramo(t, W(87.9), W(88.2)) * (1 - tramo(t, W(88.6), W(89.0))) + tramo(t, W(89.05), W(89.35)) * (1 - tramo(t, W(89.8), W(90.3))), u = tramo(t, W(86.3), W(87.1)) * 0.55 + 0.2 * late;
+  const late = tramo(t, en('prado', 0.3069), en('prado', 0.3205)) * (1 - tramo(t, en('prado', 0.3386), en('prado', 0.3567))) + tramo(t, en('prado', 0.3590), en('prado', 0.3725)) * (1 - tramo(t, en('prado', 0.3929), en('prado', 0.4156))), u = tramo(t, en('prado', 0.2344), en('prado', 0.2707)) * 0.55 + 0.2 * late;
   R.halo(Math.round(sx), Math.round(sy), Math.round(sr + 8 + late * 12), [hex('#ee905e'), hex('#fac46c'), hex('#fff2b0')], 0.6 + 0.4 * late); R.disco(Math.round(sx), Math.round(sy), sr, hex('#fff2b0'));
   if (u > 0) { const Bf = R.buf, antes = Bf.slice(), y0 = Math.round(sy + 26); PZ.urna(R, Math.round(sx), y0, { s: 3 }); for (let y = Math.max(0, y0 - 54); y <= Math.min(179, y0); y++) for (let x = Math.max(0, Math.round(sx) - 30); x <= Math.min(319, Math.round(sx) + 30); x++) { const i = y * 320 + x; if (Bf[i] !== antes[i]) Bf[i] = mezcla(antes[i], Bf[i], u); } }
-  const ua = tramo(t, W(86.3), W(87.3)), ax = Math.round(lerp(290, 238, ua));
+  const ua = tramo(t, en('prado', 0.2344), en('prado', 0.2797)), ax = Math.round(lerp(290, 238, ua));
+  // los dos en la orilla, de pie: él señala el sol con «sun» y ella niega con la cabeza con «tomorrow»
+  const senal = t > en('prado', 0.3250) && t < en('prado', 0.3900), niega = t > en('prado', 0.3800) && t < en('prado', 0.4150);
+  R.actor(EL.haymitch, 150, g.suelo, t, { dir: 1, dedo: senal, habla: t < en('prado', 0.4150) && habla(t), triste: t > en('prado', 0.2707) && !senal });
+  R.actor(EL.lenore, 168, g.suelo, t, { dir: niega ? (Math.floor(t * 6) % 2 ? 1 : -1) : t > en('prado', 0.3000) ? -1 : 1, triste: t > en('prado', 0.2707) && !niega, sonrisa: niega });
   T.distritoDelante(R, t, O18);
-  atom(ax, g.suelo, t, { dir: -1, pose: ua > 0 && ua < 1 ? 'camina' : t > W(87.4) ? 'senala' : 'quieto', cara: t > W(86.3) ? 'triste' : 'normal' });
+  atom(ax, g.suelo, t, { dir: -1, pose: ua > 0 && ua < 1 ? 'camina' : t > en('prado', 0.2843) ? 'senala' : 'quieto', cara: t > en('prado', 0.2344) ? 'triste' : 'normal' });
 };
 
 // ── 19 · INSERTO (fondo local): la corteza del tronco de cerca; la mano de Lenore trae la llave y abre el candado ─────
@@ -518,21 +532,23 @@ const llave = (x, y) => { R.disco(x, y, 4, K); R.disco(x, y, 3, hex('#c89a3a'));
 const p19 = (t) => {
   horno('tronco', fondoTronco);
   // el sol que baja detrás del prado desenfocado y las nubes
-  const us = tramo(t, W(90.4), W(97.4)), sy = Math.round(lerp(50, 70, us));
+  const us = tramo(t, en('prado', 0.4201), en('prado', 0.7370)), sy = Math.round(lerp(50, 70, us));
   R.halo(236, sy, 22, [hex('#ee905e'), hex('#fac46c'), hex('#fff2b0')], 0.8); R.disco(236, sy, 10, hex('#fff2b0'));
   { const Bf = R.buf, F = BF.tronco; for (let y = 64; y < 180; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x; if (y >= 72 + Math.round(vn(x / 30, 0, 22) * 14)) Bf[i] = F[i]; } }
   for (const [y, v, w, k] of [[20, 3, 40, 0], [40, 5, 30, 1]]) { const x = ((k * 113 + t * v) % 380) - 40; if (x > 250 && y < 50) continue; for (const [dx, dy, r, c] of [[0, 2, w * 0.3, '#7a4a72'], [0, 0, w * 0.28, '#d6827a'], [-3, -2, w * 0.2, '#fac690']]) { R.disco(Math.round(x + dx), Math.round(y + dy), Math.round(r), hex(c)); R.disco(Math.round(x + dx + w * 0.3), Math.round(y + dy + 2), Math.round(r * 0.7), hex(c)); } }
   // una hormiga que cruza la corteza
   { const v = (t * 0.08) % 1, hx = Math.round(20 + v * 120), hy = 150 + Math.round(Math.sin(v * 9) * 3); R.rect(hx, hy, hx + 4, hy + 1, K); P(hx + 5, hy, K); }
   // la mano de Haymitch, quieta en el tronco; la de Lenore trae la llave y, con «key», abre el candado
-  const clave = W(93.84), lleva = tramo(t, W(91.0), clave - 0.1), abierto = t > clave;
-  T.brazo(R, -26, 150, 26 + (t > W(96.1) ? Math.round(tramo(t, W(96.1), W(96.7)) * 6) : 0), 140, '#d8ccb0', 1, { codo: [-4, 150] });
+  const clave = en('prado', 0.5758), lleva = tramo(t, en('prado', 0.4473), clave - 0.1), abierto = t > clave;
+  // (al principio tamborilea con los dedos; se aparta un poco cuando llega la llave y al final se acerca a la de ella)
+  const apa = tramo(t, en('prado', 0.4473), en('prado', 0.5000)), cerca = tramo(t, en('prado', 0.6782), en('prado', 0.7053)), tam = t < en('prado', 0.4473) && Math.floor(t * 5) % 2 ? 1 : 0;
+  T.brazo(R, -26, 150, Math.round(30 - 12 * ease3(apa) + 22 * ease3(cerca)), 140 - tam + Math.round(4 * apa * (1 - cerca)), '#d8ccb0', 1, { codo: [-4, 150] });
   candado(262, 140, abierto);
   const kx = Math.round(lerp(330, 292, lleva)), ky = Math.round(lerp(122, 140, lleva));
-  if (t > W(90.9)) { llave(kx, ky); T.brazo(R, 346, 128, kx + 10, ky - 2, '#c8503a', -1, { codo: [334, ky + 6] }); }
+  if (t > en('prado', 0.4427)) { llave(kx, ky); T.brazo(R, 346, 128, kx + 10, ky - 2, '#c8503a', -1, { codo: [334, ky + 6] }); }
   if (abierto && t < clave + 0.8) { const v = (t - clave) / 0.8; R.halo(262, 140, Math.round(8 + v * 14), [hex('#a86a3a'), hex('#f0c040'), hex('#fff6c0')], 1 - v); }
   // Atom al doble sobre la corteza: piensa mientras ella contesta, se sorprende con «key», triste con «no proof»
-  atom(176, 158, t, { s: 2, dir: 1, pose: t > clave && t < W(95.2) ? 'senala' : t > W(91.2) && t < W(93.4) ? 'piensa' : 'quieto', cara: t > clave && t < W(95.2) ? 'sorpresa' : t > W(96.2) ? 'triste' : 'normal' });
+  atom(176, 158, t, { s: 2, dir: 1, pose: t > clave && t < en('prado', 0.6374) ? 'senala' : t > en('prado', 0.4563) && t < en('prado', 0.5559) ? 'piensa' : 'quieto', cara: t > clave && t < en('prado', 0.6374) ? 'sorpresa' : t > en('prado', 0.6827) ? 'triste' : 'normal' });
 };
 
 // ── 20 · CONTRALUZ (fondo local): el sol se hunde detrás del bosque; los dos y las ocas en silueta ──────────────────
@@ -552,7 +568,7 @@ const primerTermino = () => {
 };
 const p20 = (t) => {
   horno('cielo20', cieloAtardecer);
-  const us = tramo(t, W(97.6), W(102.5)), sx = 236, sy = Math.round(lerp(108, 146, us)), osc = us * 0.35;
+  const us = tramo(t, en('prado', 0.7461), en('prado', 0.9679)), sx = 236, sy = Math.round(lerp(108, 146, us)), osc = us * 0.35;
   // el sol grande con su halo; nubes de tres tonos a tres velocidades; pájaros
   R.halo(sx, sy, 34, [hex('#e47a5a'), hex('#f6a85a'), hex('#ffe0a0')], 0.9 - us * 0.4); R.disco(sx, sy, 15, hex('#ffe6a0')); R.disco(sx, sy, 13, hex('#fff4c8'));
   for (const [y, v, w, k] of [[30, 2, 46, 0], [52, 4, 34, 1], [72, 6, 28, 2], [26, 3, 22, 3]]) { const x = ((k * 97 + t * v) % 380) - 40; if (x > 250 && y < 50) continue; for (const [dx, dy, r, c] of [[0, 2, w * 0.3, '#5a3a5a'], [0, 0, w * 0.28, '#a85a6a'], [-3, -2, w * 0.2, '#f0a07a']]) { R.disco(Math.round(x + dx), Math.round(y + dy), Math.round(r), hex(c)); R.disco(Math.round(x + dx + w * 0.3), Math.round(y + dy + 2), Math.round(r * 0.7), hex(c)); R.disco(Math.round(x + dx - w * 0.3), Math.round(y + dy + 2), Math.round(r * 0.7), hex(c)); } }
@@ -560,27 +576,34 @@ const p20 = (t) => {
   if (!BF.pt20) { const bb = R.nuevo(), prev = R.usar(bb); primerTermino(); R.usar(prev); BF.pt20 = bb; }
   { const Bf = R.buf, F = BF.pt20, MARCA = 0xff00ff01 >>> 0; for (let i = 0; i < 57600; i++) if (F[i] !== MARCA) Bf[i] = F[i]; }
   // la primera estrella con «always»; luciérnagas que se encienden
-  if (t > W(101.5)) { const b = Math.sin(t * 5) > 0; P(70, 34, b ? hex('#ffffff') : hex('#c8c0e0')); if (b) { P(69, 34, hex('#a898c8')); P(71, 34, hex('#a898c8')); P(70, 33, hex('#a898c8')); P(70, 35, hex('#a898c8')); } }
-  for (let k = 0; k < 8; k++) { const on = Math.sin(t * 2.2 + k * 1.9) > 0.3 && t > W(99.0) + k * 0.25; if (on) { const x = 20 + hh(k, 91) * 280 + Math.sin(t * 0.7 + k) * 6, y = 150 + hh(k, 92) * 24 + Math.sin(t + k) * 3; P(x, y, hex('#fff6a0')); P(x + 1, y, hex('#c8d860')); } }
+  if (t > en('prado', 0.9227)) { const b = Math.sin(t * 5) > 0; P(70, 34, b ? hex('#ffffff') : hex('#c8c0e0')); if (b) { P(69, 34, hex('#a898c8')); P(71, 34, hex('#a898c8')); P(70, 33, hex('#a898c8')); P(70, 35, hex('#a898c8')); } }
+  for (let k = 0; k < 8; k++) { const on = Math.sin(t * 2.2 + k * 1.9) > 0.3 && t > en('prado', 0.8095) + k * 0.25; if (on) { const x = 20 + hh(k, 91) * 280 + Math.sin(t * 0.7 + k) * 6, y = 150 + hh(k, 92) * 24 + Math.sin(t + k) * 3; P(x, y, hex('#fff6a0')); P(x + 1, y, hex('#c8d860')); } }
   // los dos sentados en el tronco de la loma y las ocas que suben en fila: siluetas con el filo de luz hacia el sol
   const ly = loma(150) + 2;
-  silueta(100, ly - 34, 210, ly + 2, () => { R.actor(EL.haymitch, 134, ly, t, { dir: 1 }); R.actor(EL.lenore, 152, ly, t, { dir: -1, habla: t > W(97.5) && t < W(100.2) && habla(t), dedo: t > W(98.0) && t < W(99.6) }); }, hex('#140a18'), hex('#f6a85a'), 1);
-  silueta(0, 100, 319, 179, () => { for (let k = 0; k < 4; k++) { const x = Math.round(((t - W(97.4)) * 8 + 4 + k * 19) % 120); T.a_oca(R, x, loma(x) + 1, t, { dir: 1, modo: 'camina', k }); } }, hex('#140a18'), hex('#e47a5a'), 1);
+  silueta(100, ly - 34, 210, ly + 2, () => { const arr = tramo(t, en('prado', 0.8800), en('prado', 0.9300)); R.actor(EL.haymitch, 134, ly, t, { dir: 1, salto: t > en('prado', 0.7461) && t < en('prado', 0.7600) ? 1 : 0 }); R.actor(EL.lenore, Math.round(152 - 6 * ease3(arr)), ly, t, { dir: -1, habla: t > en('prado', 0.7416) && t < en('prado', 0.8638) && habla(t), dedo: t > en('prado', 0.7642) && t < en('prado', 0.8366) }); }, hex('#140a18'), hex('#f6a85a'), 1);
+  silueta(0, 100, 319, 179, () => { for (let k = 0; k < 4; k++) { const x = Math.round(((t - en('prado', 0.7370)) * 8 + 4 + k * 19) % 120); T.a_oca(R, x, loma(x) + 1, t, { dir: 1, modo: 'camina', k }); } }, hex('#140a18'), hex('#e47a5a'), 1);
   if (osc > 0) for (let i = 0; i < 57600; i += 1) { const x = i % 320, y = (i / 320) | 0; if (tr(x, y, osc * 0.6)) R.buf[i] = mezcla(R.buf[i], hex('#140a20'), 0.35); }
-  luc(276 + Math.sin(t * 1.1) * 5, 84 + Math.sin(t * 2.1) * 3, t, { dir: -1, cara: t > W(100.4) ? 'triste' : 'normal', brillo: 0.9 });
+  luc(276 + Math.sin(t * 1.1) * 5, 84 + Math.sin(t * 2.1) * 3, t, { dir: -1, cara: t > en('prado', 0.8729) ? 'triste' : 'normal', brillo: 0.9 });
 };
 
 // ── la barra del año: Juegos 50 (en el cuarto de hoy, sin barra: la tira y el arco «24» ya lo cuentan) ─────────────
-const año = (t) => (t >= W(53.37) && t < W(61.93) ? null : 50);
+const año = (t) => (t >= en('burdock', 0.5948) && t < en('regalos', -0.0001) ? null : 50);
 const efectos = [
-  [W(1.75), 'puerta'], [W(6.55), 'toc'], [W(8.62), 'boing'], [W(13.5), 'burbujas'], [W(14.6), 'toc'], [W(20.9), 'toc'],
-  [W(25.6), 'brillo'], [W(38.6), 'whoosh'], [W(39.86), 'pop'],
-  [W(43.4), 'palmada'], [W(44.9), 'carro'], [W(48.72), 'pop'], [W(49.55), 'brillo'], [W(51.05), 'toc'],
-  [W(56.05), 'pop'], [W(57.82), 'pop'], [W(59.58), 'brillo'],
-  [W(65.2), 'papel'], [W(68.66), 'flash'], [W(71.32), 'golpecito'], [W(75.0), 'brillo'], [W(76.9), 'papel'],
-  [W(86.32), 'campana'], [W(93.86), 'cerrojo'],
+  [en('familia', 0.0364), 'puerta'], [en('familia', 0.2692), 'toc'], [en('familia', 0.3696), 'boing'], [en('familia', 0.6064), 'burbujas'], [en('familia', 0.6597), 'toc'], [en('familia', 0.9653), 'toc'],
+  [en('lenore', 0.1746), 'brillo'], [en('lenore', 0.8654), 'whoosh'], [en('lenore', 0.9324), 'pop'],
+  [en('burdock', 0.0808), 'palmada'], [en('burdock', 0.1582), 'carro'], [en('burdock', 0.3551), 'pop'], [en('burdock', 0.3979), 'brillo'], [en('burdock', 0.4752), 'toc'],
+  [en('burdock', 0.7329), 'pop'], [en('burdock', 0.8242), 'pop'], [en('burdock', 0.9149), 'brillo'],
+  [en('regalos', 0.1768), 'papel'], [en('regalos', 0.3639), 'flash'], [en('regalos', 0.5078), 'golpecito'], [en('regalos', 0.7068), 'brillo'], [en('regalos', 0.8095), 'papel'],
+  [en('prado', 0.2354), 'campana'], [en('prado', 0.5767), 'cerrojo'],
+  // ambiente ligado a lo que se ve: el viento en los exteriores, el vapor del alambique, el murmullo del Quemador, el
+  // silbato del agente, los sinsajos que repiten las notas de Lenore, la campanilla de la tienda
+  [0.2, 'viento', { dur: 4.4 }], [en('familia', 0.4540) + 0.2, 'viento', { dur: 3 }], [en('familia', 0.7300), 'vapor'],
+  [en('lenore', 0.3356) + 0.15, 'publico', { dur: 2.6 }], [en('lenore', 0.5120), 'silbato'],
+  [en('lenore', 0.6104) + 0.3, 'viento', { dur: 3 }], [en('lenore', 0.6104) + 0.9, 'aldea', { k: 0 }], [en('lenore', 0.6104) + 1.5, 'aldea', { k: 2 }], [en('lenore', 0.6104) + 2.1, 'aldea', { k: 4 }],
+  [en('lenore', 0.8213) + 0.2, 'viento', { dur: 3 }], [en('regalos', 0.4921) + 0.15, 'timbre'],
+  [en('prado', -0.0001) + 0.2, 'viento', { dur: 4 }], [en('prado', 0.7388) + 0.2, 'viento', { dur: 4.5 }],
 ];
-T.rodar(E, R, [[0, p1], [W(5.38), p2], [W(10.36), p3], [W(15.22), p4], [W(22.32), p5], [W(28.63), p6], [W(33.80), p7], [W(37.77), p8], [W(41.83), p9], [W(48.09), p10], [W(53.37), p11], [W(57.71), p12], [W(61.93), p13], [W(66.30), p14], [W(71.03), p15], [W(76.33), p16], [W(81.12), p17], [W(86.18), p18], [W(90.38), p19], [W(97.44), p20]], { efectos, año });
+T.rodar(E, R, [[0, p1], [en('familia', 0.2125), p2], [en('familia', 0.4540), p3], [en('familia', 0.6898), p4], [en('lenore', 0.0003), p5], [en('lenore', 0.3356), p6], [en('lenore', 0.6104), p7], [en('lenore', 0.8213), p8], [en('burdock', -0.0001), p9], [en('burdock', 0.3226), p10], [en('burdock', 0.5948), p11], [en('burdock', 0.8185), p12], [en('regalos', -0.0001), p13], [en('regalos', 0.2363), p14], [en('regalos', 0.4921), p15], [en('regalos', 0.7787), p16], [en('prado', -0.0001), p17], [en('prado', 0.2290), p18], [en('prado', 0.4192), p19], [en('prado', 0.7388), p20]], { efectos, año });
 '''
 
 E['hm-doce'] = ('El chico del 12', '''// HM-DOCE (frases 5–9), Juegos 50, sin cartela; ánimo: ternura. Veinte planos; Atom en cada uno (luciérnaga o de pie):

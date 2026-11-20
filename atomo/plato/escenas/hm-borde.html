@@ -10,18 +10,22 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HM-BORDE (frases 24–25), Juegos 50 (75 en el plano 3), sin cartela; ánimo épico. Ocho planos; PAUSA 2 en 1–4:
+// (sonido de las pausas: entra con «cuelga» —no hay receta de tape-stop— y sale con «interruptor», el clic, en cada
+//  salida de la pausa (rampa de AT.pausa) y en cada vuelta a ella; un pop por cada cosa que sale a color)
 // 1. PAUSA: el borde de lado de hm-arena CONGELADO en gris azulado; Atom sale a color de su luciérnaga, baja a la cima,
 //    rodea con su órbita el piñón («notice this») y, en «idea», el punto del muro donde chocó (los hexágonos a color);
 // 2. PAUSA, el gag: Atom anda hasta el filo y sigue por el aire («¿?»), empuja el muro invisible con la mano (las
 //    ondas de hexágonos a color) y en «weapon» el muro se pone rojo y le devuelve el empujón: vuela hasta la cima;
+//    al final vuelve el color (clic);
 // 3. Juegos 75: el holograma del reloj; Plutarch llega, entiende y toca el filo del campo en «cage works» (el aro se
 //    enciende) y en «no longer… a prisoner» un sinsajo sale volando por encima del campo;
-// 4. PAUSA: el borde congelado otra vez; en «Katniss» sale ella a color al doble, en «aims» monta la flecha, en «arrow»
+// 4. PAUSA: el borde congelado otra vez (entra en gris con el fundido); en «Katniss» sale ella a color al doble, en «aims» monta la flecha, en «arrow»
 //    la flecha con su cable sube y en «sky» se clava en una cúpula de hexágonos que se agrieta con un rayo; vuelve el color;
 // 5. el bosque de la arena, la rama grande: Haymitch arriba; en «birds» una bandada rosa baja de lejos
 //    por el claro del centro y se mete en las copas; él se asusta y en «just for her» se va rama abajo, triste;
-// 6. el borde de lejos, de tarde: Haymitch junto al filo; la chica del 1 llega por la izquierda con el hacha
-//    («a girl from District 1») y en «throws» la levanta sobre la cabeza; corte;
+// 6. el borde de lejos, de tarde: Haymitch junto al filo; la chica del 1 llega por la izquierda («a girl from
+//    District 1»), con las manos vacías (el hacha solo se ve en la maqueta), le señala y en «throws» alza los brazos:
+//    una ráfaga de pétalos cruza y Haymitch se echa atrás; corte;
 // 7. la sala de control: la maqueta holográfica con dos lucecitas, «12» y «1»; el hacha sale de la naranja, la dorada se
 //    aparta en «dodges», el hacha choca con la cúpula en «hits» (destello y ondas), vuelve «the way it came» y la luz
 //    ámbar se apaga; el contador baja de 2 a 1;
@@ -126,7 +130,7 @@ const p1 = (t) => {
 // ═══ 2 · PAUSA, el gag: Atom cruza el vacío, empuja el muro y el muro le devuelve el empujón ═══
 const AIRE = en('fijate2', 0.2831), EMPUJA = en('fijate2', 0.3232), ARMA = en('fijate2', 0.3738);
 const p2 = (t) => {
-  const g = helado(); AT.pausa(R, 1);
+  const g = helado(); AT.pausa(R, 1 - tramo(t, P3 - 0.42, P3 - 0.04));
   let x, y = 121, pose = 'camina', cara = 'normal', dir = 1;
   if (t < AIRE) { x = lerp(58, 166, tramo(t, P2 + 0.1, AIRE)); }
   else if (t < AIRE + 0.5) { x = 166 + (t - AIRE) * 16; pose = 'quieto'; cara = 'sorpresa'; }   // ¡anda por el aire!
@@ -225,11 +229,16 @@ const p6 = (t) => {
   const golpe = tramo(t, en('hacha', 0.2483), en('hacha', 0.2538)) * (1 - tramo(t, en('hacha', 0.2594), en('hacha', 0.3041)));   // el golpe de la música: el muro destella
   if (golpe > 0) panal(232, 319, 20, 176, 270, 100, (t - en('hacha', 0.2483)) * 120, golpe * 0.8, CIAN);
   const v = tramo(t, P6 + 0.2, CHICA + 0.3), sx = ri(lerp(-16, 44, v));
-  const arriba = t > LANZA;
-  const r = R.actor(EL.silkaHM, sx, g.suelo, t, { dir: 1, anda: v > 0 && v < 1, enfado: t > CHICA, sostiene: arriba ? [sx + 10, g.suelo - 34] : true });
-  if (r.mano) hacha(r.mano[0] + (arriba ? 0 : 2), r.mano[1] - (arriba ? 3 : 2), arriba ? -2.2 : -1.2, 1);
-  const h = tramo(t, CHICA, CHICA + 1.2), hx = ri(lerp(168, 182, h));
-  R.actor(EL.haymitch, hx, g.suelo, t, { dir: -1, anda: h > 0 && h < 1, sorpresa: t > CHICA - 0.2, brazos: t > LANZA + 0.1 });
+  // la chica del 1 llega con las manos vacías (el hacha solo se ve en la maqueta): se planta, le señala y en «throws»
+  // levanta los brazos; una ráfaga de pétalos cruza hacia Haymitch, que se echa atrás
+  R.actor(EL.silkaHM, sx, g.suelo, t, { dir: 1, anda: v > 0 && v < 1, enfado: t > CHICA, dedo: t > CHICA + 0.4 && t < LANZA, brazos: t > LANZA && t < LANZA + 0.5 });
+  const rf = tramo(t, LANZA, LANZA + 0.55);
+  if (rf > 0 && rf < 1) for (let i = 0; i < 10; i++) { const s = Math.min(1, rf * 1.4 - i * 0.04); if (s <= 0) continue;
+    const X = lerp(sx + 18, 178, s), Y = g.suelo - 12 - Math.sin(s * Math.PI) * 12 + (i % 5) * 4 - 8, a = 1 - rf;
+    tono(X - 9, Y, BL, 0.35 * a); R.linea(ri(X - 7), ri(Y), ri(X - 2), ri(Y), mez(hex('#ffffff'), hex('#c8e0f0'), 0.3));   // la estela del viento
+    R.rect(ri(X), ri(Y) - 1, ri(X) + 1, ri(Y), i % 3 ? hex('#f07ab0') : hex('#fff0f6')); R.pset(ri(X) + 2, ri(Y), hex('#a83a7a')); }
+  const h = tramo(t, CHICA, CHICA + 1.2), hx = ri(lerp(168, 182, h)) + ri(tramo(t, LANZA + 0.2, LANZA + 0.5) * 6);
+  R.actor(EL.haymitch, hx, g.suelo, t, { dir: -1, anda: h > 0 && h < 1, sorpresa: t > CHICA - 0.2, brazos: t > LANZA + 0.2 });
   T.arena50Delante(R, t, o);
   AT.luciernaga(R, hx - 18 + Math.sin(t * 1.4) * 3, g.suelo - 46 + Math.sin(t * 2.4) * 2, t, { dir: -1, cara: t > CHICA ? 'sorpresa' : 'normal', brillo: 0.8 });
 };
@@ -289,8 +298,8 @@ const p8 = (t) => {
 
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], {
   año: (t) => t >= P3 && t < P4 ? 75 : 50,
-  efectos: [[en('fijate2', 0.1403), 'brillo'], [EMPUJA + 0.05, 'zumbido'], [ARMA, 'boing'], [ARMA + 0.55, 'golpecito'], [JAULA, 'interruptor'], [YANO + 0.1, 'whoosh'],
-    [KAT, 'pop'], [FLECHA + 0.05, 'whoosh'], [CIELO + 0.05, 'trueno'], [PAJAROS, 'viento'], [LANZA + 0.05, 'whoosh'],
+  efectos: [[0.05, 'tapestop'], [en('fijate2', 0.02), 'pop'], [en('fijate2', 0.1403), 'brillo'], [EMPUJA + 0.05, 'zumbido'], [ARMA, 'boing'], [ARMA + 0.55, 'golpecito'], [P3 - 0.3, 'interruptor'],
+    [JAULA, 'interruptor'], [YANO + 0.1, 'whoosh'], [P4 + 0.05, 'tapestop'], [KAT, 'pop'], [P5 - 0.3, 'interruptor'], [FLECHA + 0.05, 'whoosh'], [CIELO + 0.05, 'trueno'], [PAJAROS, 'viento'], [LANZA + 0.05, 'whoosh'],
     [P7 + 0.25, 'whoosh'], [CHOCA, 'boing'], [APAGA, 'interruptor'], [GANA + 0.05, 'publico']],
 });
 </script>

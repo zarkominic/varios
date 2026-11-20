@@ -15,12 +15,15 @@
 //    libro de Hume (1741);
 // 2. el estudio de Hume de noche: escribe a la luz de la vela; en «Hume» la órbita le rodea; en «so few» se vuelve a
 //    la ventana y la órbita rodea a los pocos del balcón;
-// 3. la ventana de cerca: la plaza; en «whoever controls» la órbita rodea el balcón; el del centro desenrolla un
-//    pergamino en «story» y la multitud levanta la cabeza en ola;
-// 4. la librería: Atom entra con los tres libros de la saga y los lanza a lo alto de la torre en «saga»; la torre crece en
+// 3. la ventana de cerca: la plaza; en «govern so many» la multitud agacha la cabeza en ola desde el centro; en «whoever
+//    controls» la órbita rodea el balcón; el del centro desenrolla un pergamino en «story» y la multitud levanta la
+//    cabeza en otra ola;
+// 4. la librería: la librera, tras el mostrador, mira a Atom y sella un libro; Atom entra con los tres libros de la saga
+//    y los lanza a lo alto de la torre en «saga»; la torre crece en
 
-//    «more urgent every day» y Atom se sorprende;
+//    «more urgent every day» y Atom y la librera se sorprenden;
 // 5. la tele congelada otra vez: Atom con las dos tarjetas a color, «?» en «real» y «!» en «not real»; vuelve el color.
+// Sonido de la pausa: un golpe seco al congelarse, un pop por cada objeto que sale a color y un clic al salir.
 import * as T from '/atomo/plato/escenas/hm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hm-toma');
@@ -175,6 +178,13 @@ const p2 = (t) => {
 const p3 = (t) => {
   const o = { encuadre: 'biblioteca', camara: 'ventana' }, g = T.real(R, t, o);
   const [cx0, cy0, cx1, cy1] = g.cristal ?? [56, 22, 262, 150];
+  // en «govern so many» la multitud agacha la cabeza en ola desde el centro (las columnas de la gente bajan 2 px);
+  // en «story» la vuelve a levantar en otra ola; fuera quedan los libros y la vela del alféizar
+  { const baja = tramo(t, en('fijate1', 0.4520), en('fijate1', 0.5000)), alza = tramo(t, en('fijate1', 0.5941), en('fijate1', 0.6525)), B = R.buf;
+    for (const [xa, xb] of [[96, 186], [230, 246]]) for (let x = xa; x <= xb; x++) { const d = Math.abs(x - 160) / 90; if (d >= baja || d < alza) continue;
+      for (let y = 147; y >= 124; y--) B[y * 320 + x] = B[(y - 2) * 320 + x];
+      // las nucas: la gente agachada enseña el pelo, y la ola se lee como una sombra que se abre desde el centro
+      for (let y = 125; y <= 146; y++) if ((x + y) % 2 === 0) B[y * 320 + x] = mez(B[y * 320 + x], H('#2a2024'), 0.45); } }
   R.recorte([cx0, cy0, cx1, cy1]);
   // el del centro desenrolla un pergamino en «story»
   const up = tramo(t, en('fijate1', 0.5804), en('fijate1', 0.6085)); if (up > 0) { const L = Math.round(up * 14); R.rect(156, 82, 164, 82 + L, K); R.rect(157, 82, 163, 82 + L - 1, H('#f4ecd4')); for (let k = 3; k < L; k += 3) R.linea(158, 82 + k, 162, 82 + k, H('#b8aa8c')); R.rect(155, 81, 165, 82, H('#c8a060')); }
@@ -193,7 +203,11 @@ const p4 = (t) => {
   const torre = 0.35 + (t > pone ? 0.15 : 0) + 0.45 * ease(urge);
   const o = { encuadre: 'libreria', torre }, g = T.real(R, t, o), S = g.suelo ?? 166;
   // la librera sella un libro tras el mostrador
-  R.actor(EL.publico, 240, 148, t, { dir: -1, sostiene: [234, 136 - (t > en('fijate1', 0.7966) && t < en('fijate1', 0.8086) ? 3 : 0)] });
+  // (mira a Atom cuando entra; luego sella con su tampón la pila de libros de su izquierda, lejos de su cara)
+  const sella = t > en('fijate1', 0.7966) && t < en('fijate1', 0.8086), mira = t > en('fijate1', 0.7366), coge = t > en('fijate1', 0.7826) && t < en('fijate1', 0.8226);
+  const lib = R.actor(EL.publico, 252, 141, t, { dir: mira ? -1 : 1, sostiene: coge ? [240, 116 + (sella ? 3 : 0)] : false, sorpresa: urge > 0.2, habla: mira && !coge && urge === 0 ? 0.5 : 0 });
+  // el tampón en su mano: mango de madera y goma roja
+  if (coge && lib?.mano) { const [bx, by] = lib.mano; R.rect(bx - 2, by - 5, bx + 2, by + 2, K); R.rect(bx - 1, by - 4, bx + 1, by - 1, H('#7a5030')); R.rect(bx - 1, by, bx + 1, by + 1, H('#c8303a')); }
   T.realDelante(R, t, o);
   // Atom entra con los tres libros de la saga y los deja en la torre
   const anda = tramo(t, P4, en('fijate1', 0.7366)), x = lerp(92, 128, ease(anda)), atras = tramo(t, en('fijate1', 0.7886), en('fijate1', 0.8166));
@@ -219,7 +233,11 @@ const p5 = (t) => {
     T.AT.anillo(R, x + 18, y + 22, 26, 30, t, tramo(t, t0 + 0.1, t0 + 0.5)); }
 };
 
-const efectos = [[en('fijate1', 0.0180), 'palmada'], [en('fijate1', 0.2082), 'pop'], [en('fijate1', 0.2722), 'lapiz'], [en('fijate1', 0.5804), 'papel'], [en('fijate1', 0.6005), 'publico'], [en('fijate1', 0.7558), 'golpecito'], [en('fijate1', 0.9479), 'pop'], [en('fijate1', 0.9703), 'brillo']];
+// la pausa entra con un golpe seco que para la imagen («cuelga»: no hay receta de tape-stop) y sale con un clic
+// («interruptor») justo cuando vuelve el color; un pop por cada objeto que sale a color (el libro, «?» y «!»)
+const efectos = [[0.05, 'tapestop'], [en('fijate1', 0.0180), 'palmada'], [en('fijate1', 0.2082), 'pop'], [en('fijate1', 0.2722), 'lapiz'], [en('fijate1', 0.3483), 'papel'],
+  [en('fijate1', 0.4520), 'publico', { dur: 2.5 }], [en('fijate1', 0.5804), 'papel'], [en('fijate1', 0.6005), 'publico', { dur: 2.5, ola: 1 }],
+  [en('fijate1', 0.7558), 'golpecito'], [en('fijate1', 0.7966), 'sello'], [en('fijate1', 0.8318), 'avalancha'], [en('fijate1', 0.9479), 'pop'], [en('fijate1', 0.9703), 'pop'], [E.duracion - 0.3, 'interruptor']];
 // el año: Juegos 50 en la tele congelada; ni Hume (1741) ni la librería de hoy son de los Juegos, así que sin barra
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: (t) => (t >= P2 && t < P5 ? null : 50) });
 </script>

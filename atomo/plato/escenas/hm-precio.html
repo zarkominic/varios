@@ -10,23 +10,31 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // HM-PRECIO (frases 28–31), Juegos 50 (año: 50), sin cartela. Trece planos:
-// 1. la casa quemada de lejos, con humo y vecinos; Haymitch llega corriendo por la calle de barro y se para («gone»);
-// 2. el porche caído de cerca; Haymitch llega y recoge del barro la taza de hojalata de la familia («his mother»);
-// 3. el despacho de Snow de noche: Snow huele su rosa blanca y sonríe («Snow's deal»); la bolsa roja espera en la mesa;
-// 4. la Veta al atardecer: un agente de la paz cruza la calle y le da la bolsa roja a Haymitch («a bag reaches»);
+// 1. la casa quemada de lejos, con humo; dos vecinos miran las ruinas; Haymitch llega corriendo y se para en «gone»; los
+//    vecinos se vuelven, ella baja la cabeza y él se le acerca dos pasos;
+// 2. el porche caído de cerca, con pavesas que suben; Haymitch recoge del barro la taza de hojalata («his mother»); una
+//    vecina llega con un cubo y baja la cabeza;
+// 3. el despacho de Snow de noche: Snow huele su rosa blanca y sonríe («Snow's deal»); el agente entra y saluda; en «he
+//    didn't die» Snow le empuja la bolsa roja por la mesa, el agente la coge y se va con ella;
+// 4. la Veta al atardecer: Haymitch llega y espera; una vecina con su cubo y un minero cruzan al fondo; el agente le da
+//    la bolsa roja («a bag reaches»);
 // 5. el Quemador: Lenore Dove canta junto a su guitarra; Haymitch llega y le da la bolsa («gives»);
-// 6. el prado al amanecer: los dos en el tronco, ella apoyada en él; la bolsa en la hierba; las ocas quietas; el sol
-//    empieza a salir («dies in his arms», «asks»);
-// 7. la plaza de la cosecha al amanecer, con los chicos en filas: el sol sale en las dos pantallas y la luz se dora
-//    («sun rise», «sunrise»);
-// 8. la Aldea de los Vencedores de noche, vacía: Haymitch la cruza solo con una botella («drinking»);
-// 9. dentro de su casa grande: la mesa con monedas y la silla vacía; abre la primera botella («no one») y Atom se apaga;
-// 10. un porche de la Veta de día: Burdock sale a llamarle y Haymitch pasa de largo por delante («Burdock»);
+// 6. el prado al amanecer: los dos en el tronco, ella apoyada en él («dies in his arms», «asks»); la bolsa roja con su lazo
+//    al doble en la hierba; cuando ella se apoya, una gominola rueda despacio; las ocas quietas; el sol sale;
+// 7. la plaza de la cosecha al amanecer: un agente pasa ante el escenario; dos chicos suben por el pasillo y se paran a
+//    mirar el sol ya alto en las pantallas («sunrise of the title»); la luz se dora;
+// 8. la Aldea de los Vencedores de noche: Haymitch la cruza, se para a beber de la petaca («drinking») y sigue hasta su
+//    puerta; al fondo, un agente hace la ronda con su farol;
+// 9. dentro de su casa grande (fondo local): la mesa con monedas y la silla vacía; en «all the money» una moneda rueda y
+//    cae por el borde y rueda por el suelo, él la mira; abre la primera botella («no one») y Atom se apaga; una polilla ronda el quinqué;
+// 10. un porche de la Veta de día: Burdock sale a llamarle y Haymitch pasa de largo por delante («Burdock»); una niña
+//     salta a la comba al fondo y se para a mirar;
 // 11. la Gira de la Victoria: el escenario con guirnaldas, confeti, urnas vacías y la corona del vencedor en las
 //     pantallas; Haymitch sonríe a la fuerza y saluda («smile»), Effie aplaude, Plutarch filma (flash);
-// 12. la recepción en casa del alcalde: Plutarch deja su cámara en el trípode y le pone la mano en el hombro
-//     («Plutarch, the cameraman»);
-// 13. la sala del mapa: Plutarch mira el mapa de Panem y señala el 12, que se enciende («Panem will need»).
+// 12. la recepción en casa del alcalde: un criado cruza con la bandeja de copas; Plutarch deja su cámara en el trípode y
+//     le pone la mano en el hombro («Plutarch, the cameraman»);
+// 13. la sala del mapa: Plutarch entra por la izquierda, se para junto a la mesa y señala el 12, que se enciende («Panem
+//     will need»). hm-culpa congela este final (mundoPrecio): si cambia, cambia allí también.
 import * as T from '/atomo/plato/escenas/hm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hm-precio');
@@ -40,6 +48,7 @@ const bolsa = b(0.2566), llega = b(0.2908), da = b(0.5034), muere = b(0.6594), p
 const bebe = c(0.3698), dinero = c(0.7483), nadie = c(0.8716), apaga = c(0.9618);
 const burdock = d(0.0798), sonrie = d(0.3225), anima = d(0.5705), plutarch = d(0.6956), panem = d(0.8886), alguien = d(0.934);
 const habla = (t) => Math.sin(t * 9) > -0.2;
+const AT_esc = (f, w, h, X, Y, s) => T.AT.escalado(R, f, w, h, X, Y, s);
 const anda = (t, t0, t1, x0, x1) => { const u = tramo(t, t0, t1); return [Math.round(lerp(x0, x1, u)), u > 0 && u < 1]; };
 const ROJO = hex('#d8343a'), ROJOS = hex('#8a1c24'), ROJOL = hex('#f07a6a'), K = hex('#1c1222');
 // la bolsita de papel rojo de las gominolas (centro abajo en x, y), con el doblez y un brillo
@@ -153,8 +162,19 @@ const p9 = (t) => {   // la primera botella, Atom se apaga
   R.rect(206, 116, 222, 140, hex('#3a2212')); R.rect(208, 118, 220, 122, hex('#5a3a24'));
   const mon = tramo(t, dinero - 0.2, dinero + 0.3);
   const alza = tramo(t, nadie - 0.8, nadie - 0.2), x = 128, suelo = 147;
-  const h = R.actor(EL.haymitch, x, suelo, t, { dir: 1, triste: t > dinero, sostiene: [x + 22, Math.round(lerp(136, 124, alza))] });
+  const h = R.actor(EL.haymitch, x, suelo, t, { dir: 1, sorpresa: t > dinero + 0.3 && t < dinero + 1.4, triste: t > dinero + 1.4, sostiene: [x + 22, Math.round(lerp(136, 124, alza))] });
   mesa9(t, mon);
+  // «all the money in the world»: una moneda resbala de lo alto de una pila, cae por el borde de la mesa al suelo, rueda
+  // por las tablas y se queda de plano; él la mira
+  { const r = tramo(t, dinero, dinero + 1.6); let x, y;
+    if (r < 0.15) { x = lerp(174, 178, r / 0.15); y = lerp(129, 142, r / 0.15); } else if (r < 0.35) { const q = (r - 0.15) / 0.2; x = lerp(178, 184, q); y = lerp(142, 171, q * q); }
+    else { const q = (r - 0.35) / 0.65; x = lerp(184, 222, 1 - (1 - q) * (1 - q)); y = 171 - Math.abs(Math.sin(q * 9)) * 3 * (1 - q); }
+    x = Math.round(x); y = Math.round(y);
+    if (r >= 1) { R.rect(x - 3, y, x + 3, y + 2, K); R.rect(x - 2, y + 1, x + 2, y + 1, hex('#f0c840')); R.pset(x - 1, y + 1, hex('#fff6c0')); }
+    else if (r > 0) { const w = Math.abs(Math.round(Math.cos(t * 14) * 2)); R.rect(x - w - 1, y - 3, x + w + 1, y + 3, K); R.rect(x - w, y - 2, x + w, y + 2, hex('#e8b830')); R.pset(x, y - 2, hex('#fff6c0')); } }
+  // una polilla que ronda el quinqué
+  { const a = t * 3.1, mx = Math.round(108 + Math.cos(a) * 9 + Math.sin(a * 2.3) * 3), my = Math.round(112 + Math.sin(a * 1.4) * 6), al = Math.floor(t * 16) % 2;
+    R.pset(mx, my, hex('#c8b898')); R.pset(mx - 1, my - al, hex('#e8dcc0')); R.pset(mx + 1, my - al, hex('#e8dcc0')); }
   // la botella en la mano: vidrio verde oscuro, etiqueta lisa y el corcho que salta en «no one»
   const [bx, by] = h.mano;
   R.rect(bx - 2, by - 8, bx + 2, by + 4, hex('#1c1222')); R.rect(bx - 1, by - 7, bx + 1, by + 3, hex('#2e5a3a')); R.rect(bx - 1, by - 3, bx + 1, by - 1, hex('#d8c8a0')); R.pset(bx - 1, by - 6, hex('#7aaa8a'));
@@ -168,9 +188,18 @@ const p9 = (t) => {   // la primera botella, Atom se apaga
   const ap = tramo(t, nadie + 0.1, apaga);
   T.AT.luciernaga(R, 172 + Math.sin(t * 0.9) * 3, 112 - Math.round(ap * 6) + Math.sin(t * 2) * 2, t, { dir: -1, brillo: lerp(0.9, 0.03, ap), cara: t > nadie ? 'triste' : 'normal' });
 };
-const p1 = (t) => {   // la casa quemada de lejos; llega corriendo y se para
+// las pavesas que suben de las ruinas: puntos naranjas que se apagan en gris al subir (x0–x1, desde y0)
+const pavesas = (t, x0, x1, y0, n = 18) => { for (let k = 0; k < n; k++) { const f = (t * (0.16 + hh(k, 7) * 0.1) + hh(k, 8)) % 1, x = Math.round(x0 + hh(k, 9) * (x1 - x0) + Math.sin(t * 1.3 + k) * 4 + f * 10), y = Math.round(y0 - f * 70);
+  if (y < 22) continue; R.pset(x, y, hex(f < 0.3 ? '#ffb040' : f < 0.6 ? '#c8602a' : '#6a6068')); if (f < 0.2 && Math.sin(t * 9 + k) > 0) R.pset(x, y - 1, hex('#fff0a0')); } };
+// el cubo de cinc de la vecina, en la mano (x, y)
+const cubo = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x - 3, y, x + 3, y + 7, K); R.rect(x - 2, y + 1, x + 2, y + 6, hex('#9aa0aa')); R.rect(x - 2, y + 1, x - 1, y + 6, hex('#c8ced8')); R.linea(x - 3, y, x, y - 3, K); R.linea(x, y - 3, x + 3, y, K); };
+const p1 = (t) => {   // la casa quemada de lejos; llega corriendo y se para; los vecinos se vuelven
   const o = { encuadre: 'quemada', luz: 'tarde' };
   const g = T.prado(R, t, o);
+  // dos vecinos miran las ruinas; cuando llega («gone») se vuelven; él da dos pasos hacia Haymitch y baja la cabeza
+  const vuelve = t > gone + 0.25, acerca = tramo(t, gone + 1.3, gone + 2.3);
+  R.actor(EL.vecina, 266, g.suelo - 3, t, { dir: vuelve ? -1 : 1, sorpresa: vuelve && t < gone + 0.9, triste: t > gone + 0.9 });
+  R.actor(EL.vecino, Math.round(lerp(250, 236, acerca)), g.suelo, t, { dir: vuelve ? -1 : 1, anda: acerca > 0 && acerca < 1, triste: vuelve, habla: t > gone + 2.4 && t < gone + 3.4 && habla(t) });
   const u = tramo(t, 0.2, gone), x = Math.round(lerp(-18, 112, u));
   const paso = t > gone + 1.2 ? tramo(t, gone + 1.2, gone + 2.4) : 0;   // da dos pasos más, despacio, y se queda
   R.actor(EL.haymitch, x + Math.round(paso * 10), g.suelo, t, { dir: 1, anda: (u > 0 && u < 1) || (paso > 0 && paso < 1), salto: u > 0 && u < 1 && Math.floor(t * 8) % 2 ? 1 : 0, sorpresa: t > gone && t < gone + 1.2, triste: t > gone + 1.2 });
@@ -181,8 +210,13 @@ const p2 = (t) => {   // el porche caído; recoge la taza de hojalata
   const o = { encuadre: 'quemada', camara: 'cerca', luz: 'tarde' };
   const g = T.prado(R, t, o), [tx, ty] = g.taza ?? [176, 170];
   const coge = madre;
+  pavesas(t, 120, 300, 150);
+  // la vecina llega con un cubo de agua (tarde) por la derecha, se para y baja la cabeza cuando él recoge la taza
+  const [vx, vv] = anda(t, P2 + 0.3, P2 + 2.6, 336, 268);
+  const ve = R.actor(EL.vecina, vx, g.suelo, t, { dir: -1, anda: vv, triste: t > coge, sostiene: [vx - 9, g.suelo - 10] });
+  cubo(ve.mano[0], ve.mano[1] + 1);
   if (t > coge) for (let dy = -13; dy <= 2; dy++) for (let dx = -9; dx <= 10; dx++) R.pset(tx + dx, ty + dy, R.pget(tx + dx - 22, ty + dy));
-  const u = tramo(t, P2 + 0.1, coge - 0.4), x = Math.round(lerp(-16, tx - 22, u));
+  const u = tramo(t, P2, coge - 0.2), x = Math.round(lerp(tx - 36, tx - 22, u));
   const alto = tramo(t, coge, coge + 0.5);
   const h = R.actor(EL.haymitch, x, g.suelo, t, { dir: 1, anda: u > 0 && u < 1, triste: true, sostiene: t > coge - 0.3 ? [tx - 2, Math.round(lerp(g.suelo - 4, g.suelo - 14, alto))] : undefined });
   if (t > coge) { const [mx, my] = h.mano; R.rect(mx - 1, my - 5, mx + 5, my + 1, K); R.rect(mx, my - 4, mx + 4, my, hex('#b8bcc8')); R.pset(mx + 1, my - 3, hex('#eef0f8')); R.rect(mx + 5, my - 3, mx + 6, my - 1, hex('#8a8ea0')); }
@@ -195,24 +229,33 @@ const p3 = (t) => {   // el despacho de Snow de noche: la rosa, el trato; la bol
   T.capitolio(R, t, o);
   const huele = tramo(t, snowW - 0.9, snowW - 0.2) - tramo(t, noMurio, noMurio + 0.5);
   const h = R.actor(EL.snow, 160, 133, t, { dir: -1, sonrisa: t > snowW, sostiene: [157, Math.round(lerp(122, 113, huele))] });
-  const [x, va] = anda(t, P3 + 0.4, snowW - 0.2, 334, 248);
-  R.actor(EL.agentePaz, x, 168, t, { dir: -1, anda: va });
+  // el agente entra, saluda en «Snow's deal»; en «he didn't die» Snow le empuja la bolsa por la mesa, el agente la coge y se va
+  const [x0, va] = anda(t, P3, snowW - 0.1, 300, 240), sale = tramo(t, noMurio + 0.75, P4 + 0.1), x = Math.round(x0 + sale * 52);
+  const empuja = tramo(t, noMurio - 0.1, noMurio + 0.3), coge = tramo(t, noMurio + 0.35, noMurio + 0.65);
+  const ag = R.actor(EL.agentePaz, x, 168, t, { dir: sale > 0 ? 1 : -1, anda: va || (sale > 0 && sale < 1), dedo: t > snowW && t < snowW + 0.8, sostiene: t > noMurio + 0.3 ? [x - 8, 150] : undefined });
   T.capitolioDelante(R, t, o);
   T.PIEZAS_JH.rosaBlanca(R, h.mano[0], h.mano[1] + 3, {});
-  const brilla = t > noMurio && Math.sin(t * 8) > 0;
-  bolsita(204, 128); if (brilla) { R.pset(198, 119, hex('#fff0a0')); R.pset(210, 119, hex('#fff0a0')); R.pset(204, 116, hex('#fff0a0')); }
+  const brilla = t > noMurio && Math.sin(t * 8) > 0 && coge < 1;
+  const bxM = lerp(204, 222, empuja), byM = 128;
+  if (coge <= 0) bolsita(bxM, byM); else bolsita(lerp(bxM, ag.mano[0], coge), lerp(byM, ag.mano[1] + 5, coge) - Math.sin(coge * Math.PI) * 5);
+  if (brilla) { const bx = Math.round(bxM); R.pset(bx - 6, 119, hex('#fff0a0')); R.pset(bx + 6, 119, hex('#fff0a0')); R.pset(bx, 116, hex('#fff0a0')); }
   T.AT.luciernaga(R, 56 + Math.sin(t * 1.2) * 4, 96 + Math.sin(t * 2.2) * 2, t, { dir: 1, brillo: 0.5, cara: t > snowW ? 'sorpresa' : 'normal' });
 };
 const p4 = (t) => {   // un agente de la paz cruza la Veta y le da la bolsa roja
   const o = { encuadre: 'calle', luz: 'tarde' };
   const g = T.distrito(R, t, o);
-  const tiene = t > llega, hx = 74;
-  R.actor(EL.haymitch, hx, g.suelo, t, { dir: 1, triste: !tiene || t > llega + 1.4, sorpresa: tiene && t < llega + 1.4, sostiene: tiene ? [hx + 20, g.suelo - 12] : undefined });
+  const tiene = t > llega;
+  // al fondo, una vecina vuelve del pozo con el cubo y un minero (el vecino) cruza hacia la mina
+  const [fx, fv] = anda(t, P4, P5, 300, 150); const fe = R.actor(EL.vecina, fx, g.suelo - 16, t, { dir: -1, anda: fv, sostiene: [fx - 9, g.suelo - 26] }); cubo(fe.mano[0], fe.mano[1] + 1);
+  const [mx, mv] = anda(t, P4 + 1.2, P5 - 0.3, 40, 230); R.actor(EL.vecino, mx, g.suelo - 12, t, { dir: 1, anda: mv });
+  // Haymitch llega por la izquierda, despacio, y espera; la sorpresa cuando le dan la bolsa
+  const [hx, hv] = anda(t, P4 + 0.1, P4 + 1.7, -16, 74);
+  R.actor(EL.haymitch, hx, g.suelo, t, { anda: hv, dir: 1, triste: !tiene || t > llega + 1.4, sorpresa: tiene && t < llega + 1.4, sostiene: tiene ? [hx + 20, g.suelo - 12] : undefined });
   const ida = tramo(t, P4 + 0.5, bolsa - 0.1), vuelta = tramo(t, llega + 1.4, P5 - 0.2);
   const ax = Math.round(lerp(334, hx + 20, ida) + lerp(0, 260, vuelta));
   const ag = R.actor(EL.agentePaz, ax, g.suelo, t, { dir: vuelta > 0 ? 1 : -1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), sostiene: !tiene ? [ax - 6, g.suelo - 12] : undefined });
   if (!tiene) bolsita(ag.mano[0], ag.mano[1] + 5); else bolsita(hx + 22, g.suelo - 7);
-  T.AT.luciernaga(R, 52 + Math.sin(t * 1.4) * 4, 118 + Math.sin(t * 2.6) * 2, t, { dir: 1, brillo: 0.7, cara: tiene ? 'sorpresa' : 'normal' });
+  T.AT.luciernaga(R, 52 + Math.sin(t * 1.4) * 4, 100 + Math.sin(t * 2.6) * 2, t, { dir: 1, brillo: 0.7, cara: tiene ? 'sorpresa' : 'normal' });
   T.distritoDelante(R, t, o);
 };
 // notas de música (símbolos) que suben desde (x, y)
@@ -239,8 +282,12 @@ const p6 = (t) => {   // el prado al amanecer: ella apoyada en él, la bolsa en 
   R.actor(EL.lenore, ax0 + 2 + Math.round(apoya * 5), ay0 + Math.round(apoya * 2), t, { dir: 1, triste: apoya > 0.5, habla: t > pide && t < pide + 1.3 && habla(t), quieto: apoya > 0.9 && !(t > pide && t < pide + 1.3) });
   R.actor(EL.haymitch, ax1, ay1, t, { dir: -1, triste: true, sostiene: apoya > 0.3 ? [ax0 + 12, ay0 - 8] : undefined });
   T.pradoDelante(R, t, o);
-  // la bolsa roja de las gominolas en la hierba, abierta, con tres gominolas caídas
-  bolsita(104, 165); for (const [gx, gy] of [[110, 166], [113, 164], [112, 168]]) { R.rect(gx, gy, gx + 1, gy + 1, ROJO); R.pset(gx, gy, ROJOL); }
+  // la bolsa roja de las gominolas en la hierba, al doble para que se lea (lazo dorado), con tres gominolas caídas;
+  // cuando ella se apoya en él («dies in his arms») la última gominola rueda despacio por la hierba
+  const rueda = tramo(t, muere - 0.2, muere + 1.0);
+  for (let i = -16; i <= 18; i++) { R.pset(76 + i, 179, hex('#2e4a24')); if (Math.abs(i) < 13) R.pset(76 + i, 178, hex('#3a5a2a')); }   // la sombra en la hierba
+  AT_esc(() => { bolsita(6, 13); for (const [gx, gy] of [[12, 12], [15, 10]]) { R.rect(gx, gy, gx + 1, gy + 1, ROJO); R.pset(gx, gy, ROJOL); } }, 18, 14, 58, 151, 2);
+  { const gx = Math.round(92 + rueda * 9), gy = 172; R.disco(gx, gy, 2, K); R.rect(gx - 1, gy - 1, gx + 1, gy + 1, ROJO); R.pset(gx - 1, gy - 1, ROJOL); }
   T.AT.luciernaga(R, 124 + Math.sin(t * 0.8) * 4, 128 + Math.sin(t * 1.8) * 2, t, { dir: -1, brillo: 0.5, cara: 'triste' });
 };
 // en las pantallas de la plaza: el sol que sale sobre los montes (la «amanecer» del título)
@@ -256,6 +303,13 @@ const p7 = (t) => {   // la plaza de la cosecha al amanecer: el sol sale en las 
   const u = tramo(t, sol1 - 0.4, sol2 + 0.6);
   const o = { encuadre: 'plaza', luz: 'amanecer', pantalla: amanece(u) };
   T.distrito(R, t, o);
+  // un agente de la paz pasa por delante del escenario; dos chicos suben por el pasillo a su fila y, con el sol ya alto
+  // en las pantallas («sunrise of the title»), se paran y miran arriba
+  const [ax, av] = anda(t, P7 + 0.2, P8 - 0.2, 70, 250); R.actor(EL.agentePaz, ax, 120, t, { dir: 1, anda: av });
+  for (const [k, dx, d] of [[EL.tributoChico, 150, 0], [EL.tributoChica, 172, 0.5]]) {
+    const v = tramo(t, P7 + 0.1 + d, sol2 - 0.6 + d * 0.4), y = Math.round(lerp(212, 150, v));
+    R.actor(k, dx, y, t, { dir: dx < 160 ? 1 : -1, anda: v > 0 && v < 1, sorpresa: t > sol2 - 0.4 && t < sol2 + 1.0, dedo: k === EL.tributoChico && t > sol2 - 0.2 && t < sol2 + 1.2 });
+  }
   T.tinte(R, 0, 179, [255, 200, 120], 0.16 * u);
   T.distritoDelante(R, t, o);
   T.AT.luciernaga(R, 262 + Math.sin(t * 0.8) * 4, 132 - Math.round(u * 8) + Math.sin(t * 1.8) * 2, t, { dir: -1, brillo: 0.4 + 0.4 * u, cara: u > 0.5 ? 'sorpresa' : 'triste' });
@@ -263,15 +317,24 @@ const p7 = (t) => {   // la plaza de la cosecha al amanecer: el sol sale en las 
 const p8 = (t) => {   // la Aldea vacía de noche: cruza solo con la petaca hacia su casa
   const o = { encuadre: 'aldea', luz: 'noche' };
   const g = T.distrito(R, t, o), pv = g.puertas.vencedor, xd = Math.round((pv[0] + pv[1]) / 2) - 8;
-  const u = tramo(t, P8 + 0.2, c(0.5)), x = Math.round(lerp(18, xd, u));
+  // cruza hasta la fuente, se para y bebe un trago («drinking»), y sigue hasta su puerta
+  const xm = Math.round(lerp(80, xd, 0.75)), u1 = tramo(t, P8 + 0.2, bebe - 0.3), u2 = tramo(t, bebe + 0.85, c(0.5));
+  const x = u2 > 0 ? Math.round(lerp(xm, xd, u2)) : Math.round(lerp(80, xm, u1)), trago = tramo(t, bebe - 0.25, bebe + 0.05) - tramo(t, bebe + 0.6, bebe + 0.85);
   const dentro = t > c(0.53);
-  if (!dentro) { const h = R.actor(EL.haymitch, x, g.suelo, t, { dir: 1, anda: u > 0 && u < 1, triste: true, sostiene: [x + 18, g.suelo - 11] }); T.PIEZAS_JH.petaca(R, h.mano[0], h.mano[1] + 3, {}); }
-  T.AT.luciernaga(R, lerp(4, xd - 12, u) + Math.sin(t * 2) * 2, 128 + Math.sin(t * 2) * 2, t, { dir: 1, brillo: 0.5, cara: 'triste' });
+  // al fondo, un agente de la paz hace la ronda con su farol entre las casas
+  const [rx, rv] = anda(t, P8, P9, 300, 196); const ag = R.actor(EL.agentePaz, rx, g.suelo - 22, t, { dir: -1, anda: rv, sostiene: [rx - 8, g.suelo - 32] });
+  { const [lx, ly] = ag.mano; R.rect(lx - 2, ly, lx + 2, ly + 5, K); R.rect(lx - 1, ly + 1, lx + 1, ly + 4, hex(Math.sin(t * 11) > -0.6 ? '#ffd860' : '#e8a840')); R.pset(lx, ly - 1, K); }
+  if (!dentro) { const h = R.actor(EL.haymitch, x, g.suelo, t, { dir: 1, anda: (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1), triste: true, sostiene: [x + Math.round(lerp(18, 7, trago)), g.suelo - Math.round(lerp(11, 21, trago))] }); T.PIEZAS_JH.petaca(R, h.mano[0], h.mano[1] + 3, {}); }
+  T.AT.luciernaga(R, Math.min(x, xd) - 16 + Math.sin(t * 2) * 2, 128 + Math.sin(t * 2) * 2, t, { dir: 1, brillo: 0.5, cara: t > bebe - 0.2 && t < bebe + 1 ? 'sorpresa' : 'triste' });
   T.distritoDelante(R, t, o);
 };
 const p10 = (t) => {  // Burdock sale a su porche a llamarle; Haymitch pasa de largo por delante
   const o = { encuadre: 'calle', camara: 'puerta', luz: 'dia' };
   const g = T.distrito(R, t, o);
+  // al fondo, una niña de la Veta salta a la comba junto a la casa vecina (se para y mira cuando Burdock llama)
+  { const nx = 262, sal = t < burdock || t > d(0.17) ? Math.max(0, Math.round(Math.abs(Math.sin(t * 6)) * 4)) : 0, cu = Math.sin(t * 6);
+    R.actor(EL.ninaCampo, nx, g.suelo - 2 - sal, t, { dir: -1, brazos: true, sorpresa: t > burdock && t < d(0.17) });
+    const cy = Math.round(g.suelo - 2 - sal + (cu > 0 ? 2 : -26) * Math.abs(cu)); R.linea(nx - 7, g.suelo - 16 - sal, nx, cy, hex('#c8a86a')); R.linea(nx, cy, nx + 7, g.suelo - 16 - sal, hex('#c8a86a')); }
   const [bx, bv] = anda(t, burdock - 0.9, burdock + 0.2, 150, 196);
   const llama = t > burdock - 0.3 && t < d(0.17);
   R.actor(EL.burdockHM, bx, g.suelo, t, { dir: 1, anda: bv, sonrisa: t < burdock + 1, habla: llama && habla(t), dedo: llama, triste: t > d(0.17) });
@@ -309,6 +372,10 @@ const p12 = (t) => {  // la recepción en casa del alcalde: Plutarch le pone la 
   const o = { encuadre: 'alcalde', brillo: tramo(t, P12 + 0.4, P12 + 1.4) - tramo(t, P12 + 2, P12 + 3) };
   const g = T.interior(R, t, o);
   R.actor(EL.haymitch, 202, g.suelo, t, { dir: t < plutarch - 0.4 ? 1 : -1, triste: t < plutarch + 0.6, sonrisa: t > plutarch + 1.6 });
+  // un criado cruza al fondo con la bandeja de copas y se para a ofrecer una
+  { const [cx, cv] = anda(t, P12 + 0.2, P13 - 0.3, 330, 250), cr = R.actor(EL.criado, cx, g.suelo - 4, t, { dir: -1, anda: cv, sostiene: [cx - 9, g.suelo - 17] });
+    const [tx, ty] = cr.mano; R.rect(tx - 6, ty, tx + 6, ty + 1, hex('#c8c8d0')); R.rect(tx - 6, ty + 1, tx + 6, ty + 1, hex('#8a8a96'));
+    for (const dx of [-4, 0, 4]) { R.rect(tx + dx - 1, ty - 4, tx + dx + 1, ty - 2, hex('#f0d880')); R.pset(tx + dx, ty - 1, hex('#e8eef4')); R.pset(tx + dx - 1, ty - 4, hex('#fff6d0')); } }
   // el trípode con la cámara de Plutarch, con su piloto rojo
   for (const lx of [104, 112, 120]) R.linea(112, 142, lx, g.suelo, hex('#2a2430'));
   camarita(110, 140, 1, t);
@@ -320,15 +387,18 @@ const p12 = (t) => {  // la recepción en casa del alcalde: Plutarch le pone la 
 const p13 = (t) => {  // la sala del mapa: Plutarch señala el 12, que se enciende
   const o = { encuadre: 'mapa', trenes: 0.5 + 0.5 * tramo(t, panem, alguien) };
   const g = T.capitolio(R, t, o);
-  const [x, va] = anda(t, P13 + 0.1, P13 + 1.6, 334, 292);
-  R.actor(EL.plutarch, x, 170, t, { dir: -1, anda: va, dedo: t > panem - 0.3, sonrisa: t > alguien });
+  // Plutarch entra por la izquierda, se para junto a la mesa del mapa y señala el 12 en «Panem will need»
+  const [x, va] = anda(t, P13 + 0.1, P13 + 1.8, -14, 40);
+  R.actor(EL.plutarch, x, 170, t, { dir: 1, anda: va, dedo: t > panem - 0.3, sonrisa: t > alguien, habla: t > P13 + 1.8 && t < panem - 0.3 && habla(t) });
   T.capitolioDelante(R, t, o);
   const [dx, dy] = g.distritos[11], u = tramo(t, panem, alguien);
   if (u > 0) { T.AT.anillo(R, dx, dy, 16, 11, t, u); if (Math.sin(t * 7) > 0) R.anillo(dx, dy, Math.round(4 + 3 * u), hex('#fff0a0')); if (t > alguien && Math.sin(t * 6) > 0) R.icono('!', dx - 3, dy - 22); }
   T.AT.luciernaga(R, lerp(250, dx + 16, tramo(t, panem - 0.6, alguien)) + Math.sin(t * 1.4) * 3, lerp(150, dy - 10, tramo(t, panem - 0.6, alguien)) + Math.sin(t * 2) * 2, t, { dir: -1, brillo: 0.8, cara: t > panem ? 'sonrisa' : 'normal' });
 };
-const efectos = [[0.4, 'viento'], [madre, 'golpecito'], [llega, 'papel'], [P5 + 0.3, 'publico'], [da, 'papel'], [P6 + 0.3, 'viento'], [sol1, 'campana'],
-  [P8 + 0.3, 'viento'], [c(0.53), 'puerta'], [dinero, 'brillo'], [nadie, 'pop'], [P11 + 0.2, 'publico'], [sonrie, 'flash'], [panem, 'bip']];
+const efectos = [[0.4, 'viento'], [P2 + 0.2, 'vapor'], [madre, 'golpecito'], [P3 + 0.15, 'tic'], [noMurio - 0.1, 'papel'], [P4 + 0.3, 'viento'], [llega, 'papel'],
+  [P5 + 0.3, 'publico'], [da, 'papel'], [P6 + 0.3, 'viento'], [P7 + 0.2, 'publico'], [sol1, 'campana'], [P8 + 0.3, 'viento'], [bebe, 'burbujas'], [c(0.53), 'puerta'],
+  [P9 + 0.25, 'tic'], [dinero, 'brillo'], [dinero + 0.55, 'golpecito'], [nadie, 'pop'], [burdock - 0.9, 'puerta'], [P11 + 0.2, 'publico'], [sonrie, 'flash'],
+  [P12 + 0.3, 'tic'], [plutarch, 'golpecito'], [P13 + 0.1, 'zumbido'], [panem, 'bip']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13]], { efectos, año: 50 });
 </script>
 </body>

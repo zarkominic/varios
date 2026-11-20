@@ -11,7 +11,8 @@
 <script type="module">
 // HM-CIERRE (frases 37–40), ánimo: cierre. Año 74 (el epílogo, canon del 43) y 50 en el plano 12. Trece planos:
 // 1. la Veta de día: Katniss y Prim de la mano hacia la cosecha, otros chicos detrás; la vecina saluda (corta en «a girl»);
-// 2. INSERTO local: la urna de cristal de cerca; la mano rosa de la escolta revuelve y saca una papeleta en «comes out»;
+// 2. INSERTO local: la urna de cristal de cerca; la mano rosa de la escolta revuelve y saca una papeleta en «comes out»
+//   (la sube hasta delante del muro, donde se lee);
 //   se abre: una prímula dibujada, sin letras; Atom (luciérnaga) se sorprende (corta en «sister»);
 // 3. la plaza de día: Prim sube sola por el pasillo; en «volunteers» Katniss sale de su fila y se pone delante con los
 //   brazos abiertos; las palomas echan a volar; Haymitch levanta la cabeza en el escenario (corta en «anyone»);
@@ -25,16 +26,18 @@
 //   en «incubator»; la mano de Haymitch aparta la botella en «the drunk» y deja el último huevo en «trusted no one»;
 // 8. el prado de cerca, de día: Haymitch en el tronco; un huevo del nido se mueve, Atom salta y se esconde detrás de
 //   él y asoma (gag); Haymitch silba (notas) en «the girl who sang»;
-// 9. el árbol de los sinsajos al amanecer: una pluma baja en «Lenore Dove» y se posa en la mano de Atom en «right»; en
-//   «tomorrow» Atom la levanta hacia el sol y los pájaros vuelan hacia la luz;
+// 9. el árbol de los sinsajos al amanecer: un sinsajo canta en la rama larga; en «Lenore Dove» se sacude y suelta una
+//   pluma, que baja y se posa en la mano de Atom en «right»; en «tomorrow» Atom la levanta hacia el sol y el sinsajo y
+//   otros dos pájaros vuelan hacia la luz;
 // 10. el prado al amanecer: el sol sale en «sun rose»; Haymitch llega con tres ocas en fila; en «kept his promise» Atom
 //   suelta la gominola dorada, que sube y se hace luz;
 // 11. la Veta al amanecer: Katniss con el arco pasa por delante de las casas y Haymitch llega calle abajo; en «a girl
 //   with a bow» se saludan; ella silba las cuatro notas;
 // 12. la casa de Haymitch, de noche, Juegos 50: el chico de 16 junto a la mesa con el bollo; Atom en la mesa le señala
 //   y sale el «1» en «one thing»;
-// 13. el estudio de noche: Atom (al doble) entra, mira a cámara, «?» en «what would you say», y señala abajo, donde suben los
-//   bocadillos de los comentarios en «comments»; guiña.
+// 13. el estudio de noche, cámara de la mesa (no la general, que ya usa hm-culpa 10): Atom (al doble) llega andando por
+//   la mesa, mira a cámara; en la pizarra, junto al chico de 16 y su vela de tiza, se traza un «?» en «what would you
+//   say»; señala abajo, donde suben los bocadillos de los comentarios en «comments»; guiña.
 import * as T from '/atomo/plato/escenas/hm-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('hm-cierre');
@@ -137,7 +140,7 @@ const p2 = (t) => {
   for (let a = 0; a < Math.PI * 2; a += 0.02) { P(cx + Math.cos(a) * 48, boca + Math.sin(a) * 7, a > Math.PI ? hex('#e8f6ff') : hex('#5a7a8a')); }
   // la mano de la escolta: baja, revuelve y saca la papeleta en «comes out»
   const baja = tramo(t, en('prim', 0.1717), en('prim', 0.2227)), sube = tramo(t, en('prim', 0.2561), en('prim', 0.297)), rev = t > en('prim', 0.2227) && t < en('prim', 0.2561) ? Math.sin(t * 14) * 4 : 0;
-  const hx = ri(lerp(lerp(214, 184, baja), 196, sube) + rev), hy = ri(lerp(lerp(-14, 50, baja), 16, sube));
+  const hx = ri(lerp(lerp(214, 184, baja), 196, sube) + rev), hy = ri(lerp(lerp(-14, 50, baja), 30, sube));
   if (baja > 0) {
     T.brazo(R, 226, -40, hx, hy, '#e070b0', -1);
     if (sube > 0.2) {   // la papeleta en los dedos; arriba se abre: una prímula dibujada (sin letras)
@@ -325,12 +328,19 @@ const p8 = (t) => {
 const p9 = (t) => {
   const o = { encuadre: 'bosque', camara: 'arbol', luz: 'amanecer' }; const g = T.distrito(R, t, o);
   const [sx, sy] = g.sol ? g.sol : [250, 120];
+  // el sinsajo posado en la rama larga (al doble, para que se lea): canta (notas) y, en «Lenore Dove», se sacude y suelta la
+  // pluma; en «tomorrow» sale volando hacia el sol con los otros dos
+  { const vu = tramo(t, en('termino', 0.3102), en('termino', 0.3751)), bx = lerp(190, sx - 10, vu), by = lerp(38, sy - 30, vu) - Math.sin(vu * Math.PI) * 14;
+    const sac = t > en('termino', 0.0435) && t < en('termino', 0.0635) ? ri(Math.sin(t * 50) * 0.6) : 0, al = vu > 0 ? Math.floor(t * 10) % 2 : 0, canta = vu <= 0 && Math.sin(t * 7) > 0.3;
+    AT.escalado(R, () => { R.rect(1, 3, 7, 6, K); R.rect(2, 4, 6, 5, hex('#6a6e7c')); R.rect(2, 4, 3, 4, hex('#9a9eac')); P(7, 2, K); P(8, 2, K); P(9, 3, canta ? hex('#e8a040') : K); P(8, 3, hex('#e8a040'));
+      P(7, 3, BL); R.rect(0, al ? 1 : 5, 2, al ? 2 : 6, hex('#e8eef4')); P(0, 6, K); P(4, 7, K); if (vu <= 0) { P(3, 7, hex('#3a2a1a')); P(5, 7, hex('#3a2a1a')); } }, 10, 8, ri(bx - 10 + sac), ri(by - 14), 2);
+    if (vu <= 0) notas(ri(bx + 8), ri(by - 16), t, P9 + 0.2, en('termino', 0.04)); }
   const llega = tramo(t, P9 + 0.1, en('termino', 0.0778)), ax = ri(lerp(262, 158, llega));
   // la pluma blanca baja de la rama en «Lenore Dove» y se posa en la mano en «right»
   const pl = tramo(t, en('termino', 0.0535), en('termino', 0.1075)), levanta = tramo(t, en('termino', 0.2886), en('termino', 0.321));
   const at = atom(ax, 148, t, { dir: -1, pose: llega < 1 ? 'camina' : pl >= 1 ? 'sostiene' : 'quieto', cara: t > en('termino', 0.3048) ? 'sonrisa' : pl >= 1 ? 'normal' : 'sorpresa' });
   let fx, fy;
-  if (pl < 1) { fx = lerp(150, at.mano[0], pl) + Math.sin(pl * 9) * 6 * (1 - pl); fy = lerp(60, at.mano[1] - 3, pl); }
+  if (pl < 1) { fx = lerp(186, at.mano[0], pl) + Math.sin(pl * 9) * 6 * (1 - pl); fy = lerp(36, at.mano[1] - 3, pl); }
   else { fx = at.mano[0] + levanta * 4; fy = at.mano[1] - 3 - levanta * 6; }
   if (t > en('termino', 0.0508)) { const X = ri(fx), Y = ri(fy); halo(X, Y - 3, 9, hex('#fff6d8'), 0.5); for (let k = 0; k < 9; k++) { const x = X - 4 + k, y = Y + 4 - k; R.rect(x - 1, y - 2, x + 1, y + 1, K); } for (let k = 0; k < 9; k++) { const x = X - 4 + k, y = Y + 4 - k; P(x, y - 1, BL); P(x - 1, y, hex('#e8eef4')); P(x + 1, y - 1, hex('#d0dae6')); } R.linea(X - 6, Y + 6, X - 3, Y + 3, hex('#8a7a6a')); }
   // en «tomorrow», los rayos del sol que asoma y los dos pájaros que vuelan hacia él
@@ -386,13 +396,25 @@ const p12 = (t) => {
 // ── 13 · el estudio de noche: Atom mira a cámara y señala los comentarios ──
 const bocadillo = (x, y, w, c) => { x = ri(x); y = ri(y); R.rect(x - 1, y - 1, x + w + 1, y + 13, K); R.rect(x, y, x + w, y + 12, c); R.rect(x, y + 11, x + w, y + 12, mez(c, K, 0.25)); R.poligono([[x + 5, y + 13], [x + 11, y + 13], [x + 4, y + 18]], K); R.poligono([[x + 6, y + 13], [x + 10, y + 13], [x + 5, y + 16]], c);
   for (let k = 0; k < 3; k++) R.rect(x + 6 + k * 6, y + 5, x + 7 + k * 6, y + 6, hex('#3a3a4a')); };
+// la pizarra del estudio (cámara de la mesa): el chico de 16 con su vela dibujados con tiza; en «what would you say» se
+// traza un «?» grande al lado
+const pizarra13 = (R2, t, [x0, y0, x1, y1]) => {
+  const TZ = hex('#eef0e4'), TZ2 = hex('#c8d4c0');
+  const fx = 22, fy = 47; R.disco(fx, fy - 15, 3, TZ); R.disco(fx, fy - 15, 2, hex('#2e4a3c')); R.linea(fx, fy - 12, fx, fy - 5, TZ); R.linea(fx - 4, fy - 9, fx + 4, fy - 9, TZ); R.linea(fx, fy - 5, fx - 3, fy, TZ); R.linea(fx, fy - 5, fx + 3, fy, TZ);
+  R.linea(34, 44, 40, 44, TZ); R.linea(37, 44, 37, 38, TZ); R.pset(37, 36 - (Math.sin(t * 9) > 0 ? 1 : 0), hex('#f8d070')); R.pset(37, 37, hex('#f8d070'));
+  const u = tramo(t, en('pregunta', 0.7166), en('pregunta', 0.7635)), Q = [[52, 32, 56, 28], [56, 28, 63, 28], [63, 28, 67, 32], [67, 32, 67, 36], [67, 36, 60, 40], [60, 40, 60, 43]];
+  for (let k = 0; k < Q.length; k++) { const f = Math.min(1, Math.max(0, u * Q.length - k)); if (f <= 0) break; const [a, b, c, d] = Q[k]; R.linea(a, b, ri(a + (c - a) * f), ri(b + (d - b) * f), TZ); R.linea(a + 1, b, ri(a + 1 + (c - a) * f), ri(b + (d - b) * f), TZ2); }
+  if (u >= 1) { R.pset(60, 46, TZ); R.pset(61, 46, TZ); }
+  for (let k = 0; k < 6; k++) R.pset(x0 + 4 + ((k * 31) % 90), y1 - 2 - (k % 3), TZ2);
+};
 const p13 = (t) => {
-  const o = { encuadre: 'estudio' }; const g = T.estudio(R, t, o);
-  const au = tramo(t, P13 + 0.1, en('pregunta', 0.6791)), ax = ri(lerp(330, 200, au));
+  const o = { encuadre: 'estudio', camara: 'mesa', pizarra: pizarra13 }; const g = T.estudio(R, t, o);
+  // Atom (al doble) llega andando por la mesa, se para en el centro y mira a cámara
+  const au = tramo(t, P13 + 0.1, en('pregunta', 0.6791)), ax = ri(lerp(330, 176, au));
   const pose = au < 1 ? 'camina' : t > en('pregunta', 0.8573) ? 'senala' : t > en('pregunta', 0.7166) ? 'piensa' : 'saluda';
-  atom(ax, 168, t, { dir: -1, pose, cara: t > en('pregunta', 0.9605) ? 'guino' : t > en('pregunta', 0.7166) && t < en('pregunta', 0.8573) ? 'normal' : 'sonrisa', habla: voz(t), s: 2 });
+  atom(ax, g.suelo, t, { dir: au < 1 ? -1 : t > en('pregunta', 0.8573) ? -1 : 1, pose, cara: t > en('pregunta', 0.9605) ? 'guino' : t > en('pregunta', 0.7166) && t < en('pregunta', 0.8573) ? 'normal' : 'sonrisa', habla: voz(t), s: 2 });
   T.estudioDelante(R, t, o);
-  if (t > en('pregunta', 0.7307) && t < en('pregunta', 0.8667)) R.icono('?', ax - 3, 112 - ri(tramo(t, en('pregunta', 0.7307), en('pregunta', 0.7635)) * 4), hex('#ffd34a'));
+  if (t > en('pregunta', 0.7307) && t < en('pregunta', 0.8667)) R.icono('?', ax - 3, 88 - ri(tramo(t, en('pregunta', 0.7307), en('pregunta', 0.7635)) * 4), hex('#ffd34a'));
   // los bocadillos de los comentarios suben por abajo en «comments»
   const cs = [[34, '#ffffff', 0], [78, '#fff3c8', 0.15], [122, '#d8f0ff', 0.3], [250, '#ffe0ec', 0.45]];
   for (const [x, c, d] of cs) { const u = tramo(t, en('pregunta', 0.8855) + d, en('pregunta', 0.9418) + d); if (u <= 0) continue; bocadillo(x, lerp(186, 160 - (x % 3) * 2, u), 28, hex(c)); }
@@ -401,7 +423,12 @@ const p13 = (t) => {
 
 const efectos = [[en('prim', 0.2598), 'papel'], [en('prim', 0.3944), 'publico'], [en('prim', 0.696), 'pop'], [en('prim', 0.8909), 'whoosh'], [en('prim', 0.9605), 'brillo'], [en('huevos', 0.253), 'golpecito'],
   [en('huevos', 0.3563), 'golpecito'], [en('huevos', 0.3796), 'golpecito'], [en('huevos', 0.4096), 'interruptor'], [en('huevos', 0.5429), 'toc'], [en('huevos', 0.6761), 'golpecito'], [en('huevos', 0.8041), 'boing'],
-  [en('termino', 0.1075), 'brillo'], [en('termino', 0.3156), 'whoosh'], [en('termino', 0.7211), 'brillo'], [en('pregunta', 0.4071), 'pop'], [en('pregunta', 0.7354), 'pop'], [en('pregunta', 0.8949), 'pop']];
+  [en('termino', 0.1075), 'brillo'], [en('termino', 0.3156), 'whoosh'], [en('termino', 0.7211), 'brillo'], [en('pregunta', 0.4071), 'pop'], [en('pregunta', 0.7354), 'pop'], [en('pregunta', 0.8949), 'pop'],
+  // el ambiente de cada sitio y los gestos (dentro del presupuesto de uno por segundo)
+  [0.2, 'campana'], [P2 + 0.2, 'publico'], [en('prim', 0.3016), 'papel'], [en('prim', 0.3907) + 0.1, 'rafaga'], [P4 + 0.2, 'golpecito'], [P4 + 0.7, 'publico'],
+  [en('prim', 0.8862), 'whoosh'], [P6 + 0.2, 'viento'], [en('huevos', 0.2097), 'golpecito'], [P8 + 0.1, 'viento'], [P9 + 0.1, 'viento'], [en('termino', 0.3102), 'rafaga'],
+  [P10 + 0.1, 'viento'], [en('termino', 0.4), 'brillo'], [P11 + 0.2, 'viento'], [en('termino', 0.9265), 'golpecito'], [P12 + 0.1, 'tic'], [en('pregunta', 0.2007), 'brillo'],
+  [P13 + 0.2, 'golpecito'], [en('pregunta', 0.7166), 'lapiz']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13]],
   { efectos, año: (t) => t >= P12 && t < P13 ? 50 : 74 });
 </script>

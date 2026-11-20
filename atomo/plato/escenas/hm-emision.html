@@ -18,14 +18,16 @@
 // 3. un salón del 12 de noche: en la tele, el Haymitch «egoísta» escondido que huye solo; los vecinos lo miran; en
 //    «selfish» Burdock se enfada, Hattie baja la cabeza, en «saving himself» el de la tele huye solo y en «district
 //    sees» la niña lo señala y Burdock se va hacia la puerta;
+// (las pausas entran con «cuelga» —no hay receta de tape-stop— y salen con el clic, «interruptor», en cada rampa de
+//  AT.pausa; un pop por cada carta que se da la vuelta y por cada «?»)
 // 4. PAUSA: el salón CONGELADO; Atom al doble entra por la derecha y en «ties everything together» saca tres cartas
 //    boca abajo que suben a su sitio y una órbita dorada las ata;
 // 5. PAUSA: las cartas se dan la vuelta en su palabra: la urna con la claqueta «2» («redone reaping»), las dos chicas
-//    iguales («double») y la tele con las tijeras («broadcast»); en «same move», los «=» entre ellas;
+//    iguales («double») y la tele con las tijeras («broadcast»); en «same move», los «=» entre ellas; vuelve el color;
 // 6. la mesa de montaje del Capitolio de cerca (fondo local): las tomas del depósito tachadas; un bocadillo con
 //    garabatos se tacha en «words»; en «choose» la mano coge un fotograma del «egoísta» y lo mete en el visor de la
 //    empalmadora; en «people see» el proyector lo echa en la pantallita;
-// 7. PAUSA: el salón congelado; Atom con la lupa repasa las tres cartas y en «real or not real» les sale un «?» encima;
+// 7. PAUSA: el salón congelado otra vez (entra en gris con el fundido); Atom con la lupa repasa las tres cartas y en «real or not real» les sale un «?» encima;
 //    vuelve el color;
 // 8. el museo del Capitolio, el cuadro de cerca: el retrato oficial de Haymitch con la corona; Effie entra, lo admira
 //    y aplaude en «history»; Atom de luciérnaga se entristece en «never was».
@@ -236,7 +238,7 @@ const f1 = (t) => {
 // ═══ 5 · PAUSA: las cartas se dan la vuelta en su palabra; en «same move», los «=» ═══
 const VOLTEO = [en('fijate3', 0.1833), en('fijate3', 0.2514), en('fijate3', 0.3078)], MISMA = en('fijate3', 0.3476);
 const f2 = (t) => {
-  helado(); AT.pausa(R, 1);
+  helado(); AT.pausa(R, 1 - tramo(t, Q6 - 0.42, Q6 - 0.04));
   const k0 = VOLTEO.filter((v) => t > v - 0.5).length - 1;
   const objetivo = k0 < 0 ? 160 : CX[k0] + 20;
   AT.atom(R, 168, 172, t, { s: 2, pose: t > MISMA ? 'brazos' : k0 >= 0 ? 'senala' : 'quieto', dir: objetivo < 168 ? -1 : 1, cara: t > MISMA ? 'sonrisa' : 'normal', habla: habla(t) });
@@ -352,9 +354,11 @@ const f5 = (t) => {
 
 T.rodar(E, R, [[0, e1], [Q2, e2], [Q3, e3], [Q4, f1], [Q5, f2], [Q6, f3], [Q7, f4], [Q8, f5]], {
   año: 50,
-  efectos: [[PIENSA + 0.3, 'toc'], [EDITA + 0.3, 'papel'], [BORRA, 'brillo'], [ATA + 0.1, 'papel'], [JUNTO + 0.2, 'brillo'],
-    [VOLTEO[0], 'papel'], [VOLTEO[1], 'papel'], [VOLTEO[2], 'papel'], [MISMA, 'pop'], [PALABRAS, 'lapiz'], [ELIGE + 0.1, 'papel'], [VEN, 'maquina'],
-    [REAL[0], 'pop'], [HISTORIA + 0.05, 'palmada'], [NUNCA + 0.05, 'brillo']],
+  // las pausas: entran con «cuelga» (no hay receta de tape-stop) y salen con el clic («interruptor») en la rampa de AT.pausa
+  efectos: [[0.2, 'motor', { dur: 3.6 }], [PIENSA + 0.3, 'toc'], [Q2 + 0.2, 'maquina', { dur: 2.5 }], [EDITA + 0.3, 'papel'], [BORRA, 'brillo'],
+    [Q4 + 0.05, 'tapestop'], [ATA + 0.1, 'papel'], [JUNTO + 0.2, 'brillo'],
+    [VOLTEO[0], 'pop'], [VOLTEO[1], 'pop'], [VOLTEO[2], 'pop'], [MISMA, 'pop'], [Q6 - 0.3, 'interruptor'], [PALABRAS, 'lapiz'], [ELIGE + 0.1, 'papel'], [VEN, 'maquina'],
+    [Q7 + 0.05, 'tapestop'], [REAL[0], 'pop'], [REAL[1], 'pop'], [REAL[2], 'pop'], [Q8 - 0.3, 'interruptor'], [HISTORIA + 0.05, 'palmada'], [NUNCA + 0.05, 'brillo']],
 });
 </script>
 </body>

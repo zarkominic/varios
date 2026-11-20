@@ -1,10 +1,12 @@
 E = {}
 E['hm-gancho'] = ('Gancho', '''// HM-GANCHO (frases 1–2), Juegos 50 (y 74 en el plano 2). Seis planos; Atom entra por la ventana en el 3:
 // 1. la promesa: el borde de la arena de los Juegos 50 al amanecer, vacío; el muro invisible brilla cada vez más con
-//    «deadliest… history» y un pájaro que vuela hacia el filo se da la vuelta antes de tocarlo;
+//    «deadliest… history»; un pájaro que vuela hacia el filo lo roza (los hexágonos ondulan) y se da la vuelta; ATOM,
+//    de luciérnaga, llega detrás del pájaro, da un respingo y retrocede; con «history», triste; dos mariposas;
 // 2. GOLPE en «took»: la Aldea de los Vencedores de noche; con «took everything» se apagan las ventanas de las casas
-//    vacías y solo queda la del vencedor, con su botella en el alféizar y una sombra que pasa; con «Imagine» el cielo
-//    empieza a clarear (vamos al pasado);
+//    vacías y solo queda la del vencedor, con su botella en el alféizar y una sombra que pasa; dos agentes de la paz
+//    cruzan la Aldea con un farol y el de delante lo alza hacia esa ventana; con «Imagine» Atom (luciérnaga) se asoma
+//    junto a la ventana y se va volando hacia la izquierda (vamos al pasado);
 // 3. la casa de tablas al amanecer: la madre lleva la mirada al bollo con la vela («instead of a cake»), Haymitch se
 //    despereza («wake up») y se acerca serio («reaping day»); Sid juega con la peonza; ATOM, de luciérnaga, entra por la
 //    ventana y se queda junto a la vela;
@@ -18,22 +20,32 @@ const g = (f) => en('gano', f), c = (f) => en('cumple', f);
 const P2 = g(0.673), P3 = c(0.097), P4 = c(0.287), P5 = c(0.516), P6 = c(0.716);
 const K = hex('#1a1424'), ease = (u) => u * u * (3 - 2 * u);
 const voz = (t) => E.energia(t);
+const mezcla = (c1, c2, u) => (0xff000000 | (Math.round(((c1 >> 16) & 255) * (1 - u) + ((c2 >> 16) & 255) * u) << 16) | (Math.round(((c1 >> 8) & 255) * (1 - u) + ((c2 >> 8) & 255) * u) << 8) | Math.round((c1 & 255) * (1 - u) + (c2 & 255) * u)) >>> 0;
 // un pájaro oscuro de 5 px que aletea
 const pajaro = (x, y, t, col) => { x = Math.round(x); y = Math.round(y); const a = Math.floor(t * 9) % 2;
   R.rect(x - 1, y, x + 1, y + 1, col); for (const d of [-1, 1]) { R.pset(x + 2 * d, y - 1 + a * 2, col); R.pset(x + 3 * d, y - 2 + a * 3, col); R.pset(x + 4 * d, y - 2 + a * 4, col); } R.pset(x + 2, y, col); };
 
-// 1 · el borde vacío al amanecer: el muro que brilla
+// 1 · el borde vacío al amanecer: el muro que brilla; el pájaro lo toca y Atom (luciérnaga) se asusta
 const p1 = (t) => {
   const v = Math.min(1, 0.22 + 0.78 * ease(tramo(t, g(0.09), g(0.46))) + 0.06 * Math.sin(t * 4.2));
-  const o = { encuadre: 'borde', luz: 'amanecer', campo: v };
+  // el pájaro vuela hacia el filo, roza el muro (los hexágonos ondulan desde ahí) y vuelve atrás subiendo
+  const u = tramo(t, 0.15, 3.9), TOQ = 0.15 + 0.62 * 3.75;
+  const o = { encuadre: 'borde', luz: 'amanecer', campo: v, ...(t > TOQ - 0.05 ? { toque: [238, 64] } : {}) };
   T.arena50(R, t, o);
-  // el pájaro vuela hacia el filo, frena ante el muro y vuelve atrás subiendo
-  const u = tramo(t, 0.15, 3.9); let bx, by;
+  let bx, by;
   if (u < 0.62) { const w = u / 0.62; bx = lerp(-6, 226, ease(w)); by = 70 + Math.sin(w * 7) * 3 - w * 6; }
   else { const w = (u - 0.62) / 0.38; bx = 226 - 150 * w * w; by = 64 - 36 * w + Math.sin(w * 9) * 2; }
   pajaro(bx, by, t, hex('#2a1e3a'));
   pajaro(lerp(-20, 150, tramo(t, 1.2, 4.1)), 96 + Math.sin(t * 3) * 2, t + 0.3, hex('#4a3a5a'));
+  // dos mariposas que revolotean sobre las flores del prado
+  for (let k = 0; k < 2; k++) { const mx = 60 + k * 70 + Math.sin(t * 0.9 + k * 2) * 18, my = 138 - k * 10 + Math.sin(t * 2.3 + k) * 6, al = Math.floor(t * 10 + k) % 2;
+    const col = k ? hex('#f0c040') : hex('#f07ab8'); R.pset(Math.round(mx), Math.round(my), K); R.pset(Math.round(mx) - 1, Math.round(my) - al, col); R.pset(Math.round(mx) + 1, Math.round(my) - al, col); if (!al) { R.pset(Math.round(mx) - 2, Math.round(my) - 1, col); R.pset(Math.round(mx) + 2, Math.round(my) - 1, col); } }
   T.arena50Delante(R, t, o);
+  // Atom (luciérnaga) llega volando sobre el prado, se acerca al filo detrás del pájaro, da un respingo cuando el muro
+  // ondula y retrocede; con «history» se queda mirando el muro, triste
+  const ua = tramo(t, 0.1, TOQ - 0.1), re = tramo(t, TOQ, TOQ + 0.7);
+  const ax = lerp(-12, 196, ease(ua)) - 52 * ease(re), ay = lerp(128, 92, ease(ua)) + 10 * Math.sin(re * Math.PI) + Math.sin(t * 2.4) * 2;
+  T.AT.luciernaga(R, ax, ay, t, { dir: re > 0 && re < 1 ? -1 : 1, brillo: 0.9, cara: re > 0 && re < 1 ? 'sorpresa' : t > g(0.46) ? 'triste' : 'normal' });
 };
 
 // 2 · GOLPE: la Aldea de noche; se apagan las casas vacías y queda la ventana del vencedor con la botella
@@ -66,6 +78,18 @@ const p2 = (t) => {
     T.AT.luciernaga(R, ax, ay + Math.sin(t * 3) * 2, t, { dir: ua < 0.25 ? 1 : -1, brillo: Math.min(1, ua * 6) * 0.9, cara: ua < 0.3 ? 'triste' : 'normal' }); }
   // la luz de la ventana cae sobre el césped
   for (let y = 104; y <= 132; y++) for (let x = 296; x <= 319; x++) { const w = (y - 102) * 0.45; if (Math.abs(x - 310) < 5 + w && ((x * 5 + y * 3) % (y < 116 ? 3 : 4) === 0)) R.pset(x, y, hex('#a88a4a')); }
+  // la ronda del Capitolio: dos agentes de la paz cruzan la Aldea vacía con un farol; al apagarse las casas, el de
+  // delante levanta el farol hacia la ventana del vencedor y siguen su camino (pintados con la luz de la noche)
+  const ur = tramo(t, P2 + 0.1, P3 - 0.2), alza = t > g(0.80) && t < g(0.93), Bf = R.buf, antes = Bf.slice(), noche = hex('#1c2448');
+  let farol = null;
+  for (let k = 1; k >= 0; k--) { const x = Math.round(lerp(-30, 250, ur) - k * 20), para = alza && k === 0;
+    const r = R.actor(EL.agentePaz, x, 166 + k, t, { dir: 1, anda: ur > 0 && ur < 1 && !alza, sostiene: k === 0 ? (para ? [x + 9, 140] : true) : undefined, dedo: k === 1 && alza });
+    if (k === 0 && r?.mano) farol = r.mano.map(Math.round); }
+  for (let y = 130; y <= 170; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x; if (Bf[i] !== antes[i]) Bf[i] = mezcla(Bf[i], noche, 0.5); }
+  if (farol) { const [mx, my] = farol, fy = my + 1, fl = 0.85 + 0.15 * Math.sin(t * 11);
+    // el halo cálido del farol sobre la hierba y las piernas
+    for (let j = -12; j <= 12; j++) for (let i = -14; i <= 14; i++) { const d = Math.hypot(i, j * 1.3); if (d < 14 * fl && (i + j) % 2 === 0) { const X = mx + i, Y = fy + 4 + j; if (X >= 0 && X < 320 && Y >= 0 && Y < 180) Bf[Y * 320 + X] = mezcla(Bf[Y * 320 + X], hex('#e8b860'), 0.45 * (1 - d / 14)); } }
+    R.rect(mx - 2, fy, mx + 2, fy + 6, K); R.rect(mx - 1, fy + 1, mx + 1, fy + 5, hex('#ffd870')); R.pset(mx, fy + 3, hex('#fff6d0')); R.rect(mx - 2, fy - 1, mx + 2, fy - 1, hex('#4a4a52')); R.pset(mx, fy - 2, K); }
 };
 
 // 3 · la casa al amanecer: el bollo con la vela, Haymitch se despierta y Atom entra por la ventana
@@ -182,7 +206,7 @@ const p6 = (t) => {
       if (x > 274 && y < 46) continue; if (k / 46 < cf) R.pset(Math.round(x), Math.round(y), COL[k % 5]); } }
 };
 
-const efectos = [[0.35, 'viento'], [g(0.12), 'brillo'], [g(0.68), 'interruptor'], [c(0.13), 'brillo'], [c(0.347), 'whoosh'], [P5 + 0.35, 'papel'], [c(0.654), 'bip'], [c(0.81), 'publico'], [c(0.956), 'flash']];
+const efectos = [[0.35, 'viento', { dur: 3.4 }], [g(0.12), 'brillo'], [0.15 + 0.62 * 3.75, 'brillo'], [g(0.68), 'interruptor'], [P2 + 0.3, 'viento', { dur: 3.2 }], [c(0.13), 'brillo'], [c(0.347), 'whoosh'], [P5 + 0.1, 'campana', { lejos: true }], [P5 + 0.35, 'papel'], [c(0.654), 'bip'], [c(0.81), 'publico'], [c(0.956), 'flash']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: (t) => (t >= P2 && t < P3 ? 74 : 50) });
 ''')
 
@@ -384,7 +408,7 @@ const q7 = (t) => {
   T.estudioDelante(R, t, o);
 };
 
-const efectos = [[h(0.226), 'burbujas'], [Q2 + 0.5, 'puerta'], [h(0.456), 'toc'], [h(0.778), 'sello'], [Q4 + 0.3, 'zumbido'], [a(0.10), 'aviso'], [a(0.30), 'lapiz'], [a(0.423), 'papel'], [a(0.472), 'interruptor'], [a(0.612), 'whoosh'], [a(0.816), 'toc']];
+const efectos = [[h(0.03), 'puerta'], [0.3, 'viento', { dur: 3.2 }], [h(0.226), 'burbujas'], [Q2 + 0.2, 'carro', { largo: 3.6 }], [Q2 + 0.5, 'puerta'], [h(0.456), 'toc'], [h(0.778), 'sello'], [Q4 + 0.3, 'zumbido'], [Q4 + 2.2, 'tic'], [Q4 + 3.2, 'tic'], [a(0.10), 'aviso'], [a(0.30), 'lapiz'], [a(0.423), 'papel'], [a(0.472), 'interruptor'], [a(0.48), 'publico', { dur: 2 }], [a(0.612), 'whoosh'], [a(0.816), 'toc']];
 const año = (t) => (t < Q4 ? 74 : t < Q5 ? Math.min(74, Math.floor(51 + 23 * tramo(t, Q4 + 0.25, Q5 - 0.35))) : null);
 T.rodar(E, R, [[0, q1], [Q2, q2], [Q3, q3], [Q4, q4], [Q5, q5], [Q6, q6], [Q7, q7]], { efectos, año });
 ''')
