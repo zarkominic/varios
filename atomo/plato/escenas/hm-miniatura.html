@@ -37,13 +37,17 @@ const palabra = (txt, x, y, s, c, sombra) => {
 const dibujar = (t) => {
   // derecha: el estudio de Atom de noche; izquierda: el prado al atardecer; corte en diagonal
   const b = R.nuevo(), prev = R.usar(b); estudio(R, t, { encuadre: 'estudio', camara: 'mesa' }); R.usar(prev);
-  const o = { encuadre: 'prado', camara: 'cerca', luz: 'tarde', sol: 0.7, gominolas: true };
+  const o = { encuadre: 'prado', camara: 'cerca', luz: 'tarde', sol: 0.7, gominolas: false };   // la bolsa va en su mano, no en el suelo
   prado(R, t, o);
   figura(R, EL.haymitch, 96, 162, t, { dir: 1, sostiene: true }, 2);
-  // la bolsa de gominolas rojas en su mano
-  { const bx = 131, by = 145; R.rect(bx - 1, by - 1, bx + 9, by + 11, hex('#1a1020')); R.rect(bx, by, bx + 8, by + 10, hex('#e8e0d0'));
-    for (const [i, j] of [[2, 3], [5, 2], [3, 6], [6, 6], [2, 8], [5, 8]]) { R.rect(bx + i - 1, by + j, bx + i, by + j + 1, hex('#d0283a')); R.pset(bx + i - 1, by + j, hex('#ff7a80')); }
-    R.rect(bx + 2, by - 3, bx + 6, by - 1, hex('#c8303a')); }
+  // la bolsa de gominolas en su mano: roja, con lazo dorado, como la del decorado (o.gominolas)
+  { const bx = 130, by = 144, RJ = hex('#d0283a'), RO = hex('#8a1424'), BR = hex('#ff6a70'), OR = hex('#f0c040'), K = hex('#1a1020');
+    R.poligono([[bx, by + 3], [bx + 10, by + 3], [bx + 11, by + 13], [bx - 1, by + 13]], K); R.poligono([[bx + 1, by + 4], [bx + 9, by + 4], [bx + 10, by + 12], [bx, by + 12]], RJ);
+    R.rect(bx + 7, by + 5, bx + 9, by + 12, RO); R.rect(bx + 1, by + 5, bx + 2, by + 9, BR);                       // sombra y brillo del celofán
+    R.poligono([[bx + 3, by - 1], [bx + 7, by - 1], [bx + 6, by + 3], [bx + 4, by + 3]], K); R.rect(bx + 4, by, bx + 6, by + 2, RJ);   // el cuello fruncido
+    R.rect(bx + 2, by + 2, bx + 8, by + 3, OR); R.pset(bx + 1, by + 1, OR); R.pset(bx + 9, by + 1, OR); R.pset(bx + 1, by + 4, OR); R.pset(bx + 9, by + 4, OR);   // el lazo
+    if (Math.sin(t * 4) > 0.2) R.pset(bx + 5, by + 2, hex('#fff8d0'));
+    for (const [i, j, c] of [[3, 7, '#f0e070'], [6, 8, '#7ad070'], [4, 10, '#f0a040']]) R.pset(bx + i, by + j, hex(c)); }
   pradoDelante(R, t, o);
   const B = R.buf; for (let y = 0; y < 180; y++) { const xd = 190 + Math.round((180 - y) * 0.28); for (let x = xd; x < 320; x++) B[y * 320 + x] = b[y * 320 + x]; for (let k = -1; k <= 1; k++) R.pset(xd + k, y, hex('#f4f0e4')); }
   grado(R, { cx: 160, cy: 100, tinte: '#0a0612', f: 0.18, desde: 0.5, max: 0.75 });
