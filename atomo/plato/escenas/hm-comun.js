@@ -14,6 +14,8 @@
 import { escena } from '/atomo/plato/escena.js';
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 import { conChibi, ELENCO_CHIBI, PIEZAS_JH, tela } from '/atomo/plato/kits/pixel-chibi.js';
+// el Vigilante de los Juegos: ELENCO_CHIBI.vigilante lo pisa el vigilante de Gävle (ep22)
+export { ELENCO_JH as JH } from '/atomo/plato/kits/pixel-chibi.js';
 import { hex } from '/atomo/plato/kits/pixel-retro.js';
 import { chincheta } from '/atomo/plato/escenas/ov-mapas.js';
 import { mapa } from '/atomo/plato/escenas/fa-comun.js';
