@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Atom con cuerpo · hoja de diseño</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _ATOM-CUERPO · hoja de diseño (para aprobar antes de animar nada): Atom sale de la esquina y actúa en el decorado.
+// Sigue siendo el átomo (núcleo + tres órbitas con sus electrones, sin cara), con bracitos y piernitas al tamaño de los
+// chibis: el núcleo crece hasta hacer de cuerpo, las órbitas giran alrededor, guantes blancos y zapatitos.
+// Fila de arriba (al doble): el Atom de ahora, el nuevo junto a dos chibis para la escala, y sus poses.
+// Fila de abajo: tamaños (luciérnaga, normal, grande) y transformaciones (farol, lupa, reloj de arena, interrogación).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex, PAL } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const A = PAL.ATOM, K = hex('#1a1424'), NAVY = hex('#f4e6c8'), GUANTE = hex('#ffffff'), ZAP = A[6], TAU = Math.PI * 2;   // bracitos y piernitas color crema (se leen sobre cualquier fondo), guantes blancos y zapatitos rojos
+const ps = (x, y, c) => R.pset(Math.round(x), Math.round(y), c);
+
+// las tres órbitas (como R.atomo) alrededor de (cx, cy); front: true dibuja la mitad de delante
+function orbitas(cx, cy, t, Ro, front, o = {}) {
+  const r2 = Ro * 0.345, angs = [0, Math.PI / 3, -Math.PI / 3];
+  angs.forEach((a, i) => {
+    const ca = Math.cos(a), sa = Math.sin(a), n = Math.round(Ro * 8.6);
+    for (let k = 0; k < n; k++) {
+      const p = k / n * TAU; if ((Math.sin(p) > 0) !== front) continue;
+      const ex = Ro * Math.cos(p), ey = r2 * Math.sin(p), X = Math.round(cx + ex * ca - ey * sa), Y = Math.round(cy + ex * sa + ey * ca);
+      if (((X + Y) & 1) === 0) ps(X, Y, o.orbita ?? A[7]);
+    }
+    const p = TAU * (0.9 + i * 0.2) * t + i * 2.1; if ((Math.sin(p) > 0) !== front) return;
+    const ex = Ro * Math.cos(p), ey = r2 * Math.sin(p), X = Math.round(cx + ex * ca - ey * sa), Y = Math.round(cy + ex * sa + ey * ca);
+    ps(X - 1, Y, A[5]); ps(X + 1, Y, A[5]); ps(X, Y - 1, A[5]); ps(X, Y + 1, A[5]); ps(X, Y, A[4]);
+  });
+}
+// el cuerpo: el núcleo grande (bola de 11 px) con su brillo y su sombra
+function bola(cx, cy, rr = 5.5) {
+  for (let y = -7; y <= 7; y++) for (let x = -7; x <= 7; x++) {
+    const d = Math.hypot(x + 0.5, y + 0.5); if (d > rr + 0.6) continue;
+    let c = d > rr - 0.4 ? K : (x + y < -5 ? A[2] : x + y < 1 ? A[1] : x + y < 6 ? A[0] : A[6]);
+    if (d <= rr - 0.4 && (x + y) % 3 === 0 && x + y > -5 && x + y < 6 && ((x ^ y) & 1)) c = x + y < 1 ? A[0] : A[1];   // grano del núcleo
+    ps(cx + x, cy + y, c);
+  }
+  ps(cx - 3, cy - 3, hex('#ffffff')); ps(cx - 2, cy - 3, A[2]);
+}
+// un bracito de (x0, y0) a (x1, y1): línea de 1 px con contorno y un guante blanco de 2 × 2
+function brazo(x0, y0, x1, y1) {
+  const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
+  for (let k = 0; k <= n; k++) { const x = x0 + (x1 - x0) * k / n, y = y0 + (y1 - y0) * k / n; ps(x, y - 1, K); ps(x, y + 1, K); ps(x - 1, y, K); ps(x + 1, y, K); }
+  for (let k = 0; k <= n; k++) ps(x0 + (x1 - x0) * k / n, y0 + (y1 - y0) * k / n, NAVY);
+  const gx = Math.round(x1), gy = Math.round(y1);
+  R.rect(gx - 2, gy - 2, gx + 1, gy + 1, K); R.rect(gx - 1, gy - 1, gx, gy, GUANTE);
+}
+// una piernita desde la cadera (x, y) hasta el suelo, con su zapato hacia dir
+function pierna(x, y, suelo, dir, dx = 0) {
+  for (let j = y; j <= suelo - 2; j++) { const xx = x + Math.round(dx * (j - y) / Math.max(1, suelo - 2 - y)); ps(xx - 1, j, K); ps(xx + 1, j, K); ps(xx, j, NAVY); }
+  const xs = x + dx; R.rect(xs - 1 + (dir < 0 ? -2 : 0), suelo - 2, xs + 1 + (dir > 0 ? 2 : 0), suelo, K);
+  R.rect(xs + (dir < 0 ? -2 : 0), suelo - 1, xs + (dir > 0 ? 2 : 0), suelo - 1, ZAP);
+}
+// ATOM con cuerpo, de pie sobre «suelo», mirando a dir. o.pose: quieto | camina | saluda | senala | sostiene | brazos
+// Devuelve dónde quedan sus manos (para que sostenga cosas).
+function atom(x, suelo, t, o = {}) {
+  const dir = o.dir ?? 1, pose = o.pose ?? 'quieto', bob = pose === 'camina' ? (Math.floor(t * 6) % 2) : Math.sin(t * 2.4) > 0.6 ? 1 : 0;
+  const cy = suelo - 11 - bob, cx = x;
+  orbitas(cx, cy, t, 10.5, false, o);
+  // piernas
+  const paso = pose === 'camina' ? (Math.floor(t * 6) % 2 ? 2 : -2) : 0;
+  pierna(cx - 2, cy + 5, suelo, dir, -paso); pierna(cx + 2, cy + 5, suelo, dir, paso);
+  // brazo de detrás y de delante según la pose
+  const hx = cx - 5 * dir, hy = cy + 1, fx = cx + 5 * dir, fy = cy + 1;
+  let mano1 = [hx - 2 * dir, hy + 4], mano2 = [fx + 2 * dir, fy + 4];
+  if (pose === 'camina') { mano1 = [hx - 2 * dir + paso, hy + 4]; mano2 = [fx + 2 * dir - paso, fy + 4]; }
+  if (pose === 'saluda') mano2 = [fx + 3 * dir, fy - 7 + Math.round(Math.sin(t * 9))];
+  if (pose === 'senala') mano2 = [fx + 6 * dir, fy - 1];
+  if (pose === 'sostiene') { mano1 = [cx + 3 * dir, cy + 4]; mano2 = [fx + 4 * dir, fy + 2]; }
+  if (pose === 'brazos') { mano1 = [hx - 4 * dir, hy - 6]; mano2 = [fx + 4 * dir, fy - 6]; }
+  brazo(hx, hy, ...mano1);
+  bola(cx, cy);
+  brazo(fx, fy, ...mano2);
+  orbitas(cx, cy, t, 10.5, true, o);
+  return { mano: mano2, mano1, centro: [cx, cy] };
+}
+// pinta f() a escala 1 en una esquina tapada, lo lee y lo vuelve a pintar a escala s con la esquina inferior en (X, Y)
+const MARCA = hex('#ff00ff');
+function escalar(f, w, h, X, Y, s) {
+  R.rect(0, 0, w - 1, h - 1, MARCA); f();
+  const px = []; for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const c = R.pget(x, y); if (c !== MARCA) px.push([x, y, c]); }
+  return () => { for (const [x, y, c] of px) R.rect(X + x * s, Y - h * s + y * s, X + x * s + s - 1, Y - h * s + y * s + s - 1, c); };
+}
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const halo = (cx, cy, r, c, f) => { for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) { const g = 1 - Math.hypot(x, y) / r; if (g > 0 && g * g * f * 2 > (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16) ps(cx + x, cy + y, c); } };
+
+// las transformaciones, a escala 1 dentro de una caja de 40 × 34 con el suelo en y = 33
+const S = 33;
+const TR = {
+  farol: (t) => { const r = atom(14, S, t, { pose: 'sostiene' }); const [mx, my] = r.mano; halo(mx + 4, my + 4, 10, hex('#ffd060'), 0.55);
+    R.rect(mx + 1, my - 1, mx + 7, my + 9, K); R.rect(mx + 2, my, mx + 6, my + 8, hex('#3a2a1a')); R.rect(mx + 3, my + 2, mx + 5, my + 7, hex('#ffd060')); ps(mx + 4, my + 4, hex('#fff6d0')); ps(mx + 4, my + 5, hex('#fff6d0'));
+    R.rect(mx + 2, my - 3, mx + 6, my - 2, K); ps(mx + 4, my - 5, K); ps(mx + 3, my - 4, K); ps(mx + 5, my - 4, K); },
+  lupa: (t) => { const r = atom(11, S, t, { pose: 'sostiene' }); const [mx, my] = r.mano;
+    R.linea(mx, my, mx + 4, my - 4, K); R.linea(mx + 1, my, mx + 5, my - 4, hex('#8a5a30'));
+    for (let a = 0; a < 48; a++) { const p = a / 48 * TAU; ps(mx + 10 + Math.cos(p) * 6, my - 10 + Math.sin(p) * 6, K); ps(mx + 10 + Math.cos(p) * 5, my - 10 + Math.sin(p) * 5, A[7]); }
+    for (let y = -4; y <= 4; y++) for (let x = -4; x <= 4; x++) if (Math.hypot(x, y) < 4.3 && ((x + y) & 1)) ps(mx + 10 + x, my - 10 + y, hex('#cfe8ff')); },
+  reloj: (t) => { const cx = 20, top = 4, bot = S; R.rect(cx - 8, top, cx + 8, top + 1, K); R.rect(cx - 8, bot - 1, cx + 8, bot, K); R.rect(cx - 7, top, cx + 7, top, hex('#8a5a30')); R.rect(cx - 7, bot, cx + 7, bot, hex('#8a5a30'));
+    const mid = (top + bot) / 2;
+    for (let y = top + 2; y < bot - 1; y++) { const m = Math.abs(y - mid) / (mid - top - 2), w = Math.round(m * 6) + 1; ps(cx - w - 1, y, K); ps(cx + w + 1, y, K);
+      for (let x = -w; x <= w; x++) ps(cx + x, y, hex('#3a4a6a'));
+      if (y < mid && y > top + 6) for (let x = -w; x <= w; x++) ps(cx + x, y, A[1]);
+      if (y > bot - 7) for (let x = -w; x <= w; x++) ps(cx + x, y, A[0]); }
+    for (let y = Math.round(mid); y < bot - 7; y++) if ((y + Math.floor(t * 8)) % 2) ps(cx, y, A[1]);
+    brazo(cx - 7, mid, cx - 11, mid + 5); brazo(cx + 7, mid, cx + 11, mid + 5); orbitas(cx, mid, t, 12, true); },
+  pregunta: (t) => { const cx = 20, pts = [];
+    for (let k = 0; k <= 34; k++) { const p = Math.PI * 1.1 - k / 34 * Math.PI * 1.55; pts.push([cx + Math.cos(p) * 7, 10 - Math.sin(p) * 7]); }
+    for (let k = 1; k <= 6; k++) pts.push([cx + 1.5 - k * 0.25, 16 + k]);
+    for (const [x, y] of pts) { ps(x - 1, y, K); ps(x + 1, y, K); ps(x, y - 1, K); ps(x, y + 1, K); }
+    for (const [x, y] of pts) ps(x, y, A[7]);
+    const e = pts[Math.floor((t * 12) % pts.length)]; ps(e[0] - 1, e[1], A[5]); ps(e[0] + 1, e[1], A[5]); ps(e[0], e[1], A[4]);
+    brazo(cx - 4, 28, cx - 8, 24); brazo(cx + 4, 28, cx + 8, 24); bola(cx, 28, 3.6); },
+};
+const fondo = (suelos) => {
+  R.rect(0, 0, 319, 179, hex('#2a3046'));
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) ps(x, y, hex('#262b40'));
+  for (const s of suelos) { R.rect(0, s + 1, 319, s + 3, hex('#4a3a2e')); R.rect(0, s + 1, 319, s + 1, hex('#6a5442')); }
+};
+// t < 5: hoja A (el personaje, poses y tamaños); t ≥ 5: hoja B (transformaciones)
+window.__frame = async (t) => {
+  const W = 40, H = 34, L = [], pon = (f, X, Y, s) => L.push(escalar(f, W, H, X, Y, s));
+  if (t < 5) {
+    // fila 1 al doble: el Atom de ahora | dependiente, Atom nuevo, turista | camina, saluda, señala
+    pon(() => R.atomo(20, 17, t, { r: 8.4, orbita: A[7] }), 0, 72, 2);
+    pon(() => R.actor(EL.dependienteLF, 12, S, 0, { quieto: true }), 54, 78, 2);
+    pon(() => atom(20, S, t, { pose: 'quieto' }), 80, 78, 2);
+    pon(() => R.actor(EL.turistaLF, 12, S, 0, { quieto: true, dir: -1 }), 120, 78, 2);
+    pon(() => atom(20, S, t + 0.08, { pose: 'camina' }), 158, 78, 2);
+    pon(() => atom(20, S, t + 0.3, { pose: 'saluda' }), 204, 78, 2);
+    pon(() => atom(16, S, t, { pose: 'senala' }), 252, 78, 2);
+    // fila 2: luciérnaga | chibi y Atom a escala de escena | Atom grande (3×) en una revelación
+    pon(() => { halo(20, 17, 11, A[1], 0.6); R.atomo(20, 17, t, { r: 4.2, orbita: A[7] }); }, 8, 150, 1);
+    pon(() => R.actor(EL.dependienteLF, 12, S, 0, { quieto: true }), 56, 172, 1);
+    pon(() => atom(20, S, t, { pose: 'quieto' }), 70, 172, 1);
+    pon(() => { halo(20, 20, 16, A[1], 0.35); atom(20, S, t, { pose: 'brazos' }); }, 150, 172, 3);
+    for (const p of L) p(); fondo([78, 172]);
+    R.rect(48, 8, 48, 76, hex('#3a4260')); R.rect(120, 96, 120, 170, hex('#3a4260'));
+  } else {
+    // fila 1 al doble: farol, lupa, reloj de arena, interrogación; fila 2: lo mismo a escala de escena, con un chibi
+    ['farol', 'lupa', 'reloj', 'pregunta'].forEach((k, i) => { pon(() => TR[k](t), i * 80, 80, 2); pon(() => R.actor(EL.turistaLF, 12, S, 0, { quieto: true }), 10 + i * 80, 172, 1); pon(() => TR[k](t), 32 + i * 80, 172, 1); });
+    for (const p of L) p(); fondo([80, 172]);
+  }
+  for (const p of L) p();
+  R.presentar();
+};
+window.__listo = true;
+</script>
+</body>
+</html>
