@@ -236,6 +236,21 @@ una pasada o detalle no entra.
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
+## Lo que dice el público · retención de Roanoke (ep39, 18–19/11, 32 visualizaciones orgánicas)
+
+Datos: `episodios/estadisticas/retencion-ep39/`. Muestra pequeña: una persona = 3,1 %.
+- [Seguro] **El 78 % se va en los primeros 27 s:** 75 % a los 5 s, 56 % a los 11 s, 37,5 % a los 16 s, 28 % a los 21 s,
+  22 % a los 27 s. Después, casi plano: 19 % hasta el minuto 2, 16 % hasta la mitad, 6 % al final.
+- [Seguro] **Contra vídeos parecidos de YouTube:** peor en el gancho (−6 a −10 puntos del 1 al 4 %) y mejor en todo lo
+  demás (+1 a +5 desde el 6 %). El cuerpo retiene; lo que falla es el arranque.
+- [Probable] **Por qué:** la primera frase arranca con ambientación («In August 1590, John White finally made it back…»),
+  no con la promesa del título («115 People Vanished and Left One Word»): la mitad se fue antes de oír «CROATOAN» (17 s),
+  justo lo que la regla del 03/11 prohíbe. La segunda frase es un inventario («you'll meet a painter…, a baby…, a
+  fleet…, trees…, archaeologists…») y durante ella se fue otro 15 %. La presentación de Atom (36 s) llega cuando ya solo
+  queda el 19 %.
+- Para los siguientes: la primera oración ES la promesa del título, en menos de 5 s y con su imagen; nada de lista de
+  «por el camino vas a conocer»: como mucho una pregunta que abra el misterio.
+
 ## Lo que dice el público · exportación del 20/11/2026 (19/10–19/11)
 
 Datos: `episodios/estadisticas/2026-11-20/` (102 vídeos: 31 largos, 71 Shorts). La media y el % visto se sacan de las horas.
