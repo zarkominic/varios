@@ -9,12 +9,12 @@ fila por escena: (id, cartela, frase_ini, frase_fin, [marca por frase], [guion v
   enorme y lejana que mueve la arena); personajes por sus atributos. Sin letras (solo números y símbolos).
 - CUIDADO: la violencia nunca se ve (la guerra santa, con mapas y cifras; la quemapiedras, un destello de lejos; las
   muertes se cuentan).
-- BANDA: Re dórico, 68 por minuto, motivo de desierto; cada ánimo se escucha con earshot antes de darlo por bueno.
+- BANDA: Re dórico, 100 por minuto, motivo de desierto; cada ánimo se escucha con earshot antes de darlo por bueno.
 """
 import json, os
 
 D = os.path.dirname(os.path.abspath(__file__))
-BANDA = {'tono': 're', 'modo': 'dorico', 'tempo': 68, 'motivo': [0, 7, 5, 3, 2, 3, 5, 0], 'sampleado': True,
+BANDA = {'tono': 're', 'modo': 'dorico', 'tempo': 100, 'motivo': [0, 7, 5, 3, 2, 3, 5, 0], 'sampleado': True,
          'paleta': {'solista': 'shehnai', 'color': 'arpa', 'metal': 'trompa', 'aire': 'flauta', 'madera': 'clarinete'}}
 E = [
  ('pa-gancho', None, 1, 2, ['giro', 'imagina'],

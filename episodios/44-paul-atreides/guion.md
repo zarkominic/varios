@@ -54,7 +54,7 @@ que *El Mesías* rompe. Cierra con una pregunta.
 
 ## La banda del episodio
 
-**Re dórico, 68 pulsaciones**, motivo [0, 7, 5, 3, 2, 3, 5, 0]: grande y lento, de desierto, con el sexto grado del dórico
+**Re dórico, 100 pulsaciones, con instrumentos sampleados (shehnai solista, arpa, trompa, flauta, clarinete; sin campanitas)**, motivo [0, 7, 5, 3, 2, 3, 5, 0]: grande y lento, de desierto, con el sexto grado del dórico
 que suena a otra parte sin caer en la parodia «oriental»; casi desaparece bajo la voz. Distinta del 42 (Sol mayor) y del
 43 (Mi menor).
 

@@ -33,8 +33,12 @@ GM = {'coro': 52, 'voces': 53, 'cuerdas': 48, 'cuerdas_lentas': 49, 'chelo': 42,
       'pad_calido': 89, 'pad_coro': 91}
 PAL = {'solista': 'oboe', 'color': 'arpa', 'cuerdas': 'cuerdas', 'lentas': 'cuerdas_lentas', 'grave': 'contrabajo',
        'coro': 'coro', 'percusion': 'timbal', 'metal': 'trompa', 'teclas': 'piano', 'punteo': 'guitarra',
-       'brillo': 'celesta', 'madera': 'clarinete', 'aire': 'flauta'}
+       'madera': 'clarinete', 'aire': 'flauta'}
 PAL.update(A.get('paleta') or {})
+# NADA de campanitas (el usuario, 20/11/2026: «no uses el sonidito ese que suena como un tin tin tin»): ni celesta, ni
+# glockenspiel, ni caja de música, ni campanas, ni vibráfono, ni kalimba, ni marimba
+PROHIBIDOS = {'celesta', 'glock', 'caja_musica', 'campanas', 'vibrafono', 'kalimba', 'marimba', 'dulcimer'}
+assert not PROHIBIDOS & set(PAL.values()), f'paleta con campanitas: {PROHIBIDOS & set(PAL.values())}'
 
 def grado(g, o=0):
     q, k = divmod(g, 7)
@@ -120,7 +124,7 @@ def arreglo(animo):
             if v % 2 == 1 or nv == 1:
                 for k in range(6): ar.nota(t + k * d / 6, d / 3, acorde(g, 1)[k % 3] + (12 if k > 2 else 0), 38 + 6 * (k % 3))
         for t, d, g, v in cic[::4]:
-            motivo(P('solista', 75, 80, 100) if v % 2 == 0 else P('brillo', 60, 90, 100), t + d * 0.5, 1 if v % 2 == 0 else 2, 68)
+            motivo(P('solista', 75, 80, 100) if v % 2 == 0 else P('madera', 65, 90, 100), t + d * 0.5, 1 if v % 2 == 0 else 0, 64)
     elif animo == 'aventura':
         cu, pz, ti = P('cuerdas', 95, 64, 50), P('pizz', 90, 40, 40), P('percusion', 100, 64, 40)
         for t, d, g, v in cic:
@@ -146,12 +150,12 @@ def arreglo(animo):
         for t, d, g, v in cic[1::4]:
             motivo(P('solista', 88, 70, 90), t, 1, 84, FIGURAS[1])
     elif animo == 'intriga':
-        pz, ce = P('pizz', 95, 50, 40), P('brillo', 60, 90, 90)
+        pz, ce = P('pizz', 95, 50, 40), P('aire', 65, 90, 90)
         for t, d, g, v in cic:
             for k in range(int(d / (NEGRA / 2))):
                 pz.nota(t + k * NEGRA / 2, NEGRA * 0.25, grado(g, -1) + (7 if k % 2 else 0), 58 + (20 if k % 4 == 0 else 0))
         for i, (t, d, g, v) in enumerate(cic[::2]):
-            motivo(P('madera', 80, 80, 60) if i % 2 == 0 else ce, t + d * 0.5, 0 if i % 2 == 0 else 1, 62 if i % 2 == 0 else 50, FIGURAS[2], mitad=True)
+            motivo(P('madera', 80, 80, 60) if i % 2 == 0 else ce, t + d * 0.5, 0 if i % 2 == 0 else 1, 62 if i % 2 == 0 else 55, FIGURAS[2], mitad=True)
     elif animo == 'suspense':
         ch, cb, ti = P('chelo', 100, 50, 50), P('grave', 95, 64, 40), P('percusion', 100, 64, 40)
         cresc(ch, 0, T, 50, 125); cresc(cb, 0, T, 50, 120)
@@ -196,7 +200,7 @@ def arreglo(animo):
         for t, d, g, v in cic[::4]:
             motivo(P('solista', 85, 75, 85), t + 0.5, 0, 68, FIGURAS[1])
     elif animo in ('curiosidad', 'asombro', 'pastoral'):
-        ma, pz, cu = P('marimba' if animo == 'curiosidad' else 'brillo', 85, 60, 60), P('pizz', 85, 40, 40), P('lentas', 70, 64, 90)
+        ma, pz, cu = P('madera' if animo == 'curiosidad' else 'aire', 85, 60, 60), P('pizz', 85, 40, 40), P('lentas', 70, 64, 90)
         for t, d, g, v in cic:
             for k in range(int(d / (NEGRA / 2))):
                 pz.nota(t + k * NEGRA / 2, NEGRA * 0.3, acorde(g, -1)[k % 3], 60)

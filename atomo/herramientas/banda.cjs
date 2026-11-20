@@ -274,7 +274,7 @@ const cartelas = CARTELAS;
   cartelas.forEach((t, k) => {
     tr.addMono(I.noiseSweep(1.6, 300, 2600, { q: 0.8, pink: true, shape: (x) => x ** 2 * (1 - Math.max(0, x - 0.92) / 0.08), seed: 40 + k }), t - 1.55, 0.5, 0);
     pad(tr, [[57 + T, 0.3], [64 + T, 0.22], [69 + T, 0.16]], t - 1.4, 3.2, { cutoff: 1800, attack: 1.3, release: 1.6, seed: 50 + k });
-    tr.addMono(I.musicBox(81 + T), t + 0.05, 0.6, 0.2); tr.addMono(I.musicBox(76 + T), t + 0.3, 0.4, -0.2);
+    if (!BANDA.sampleado) { tr.addMono(I.musicBox(81 + T), t + 0.05, 0.6, 0.2); tr.addMono(I.musicBox(76 + T), t + 0.3, 0.4, -0.2); }   // con la sampleada, sin campanitas (el usuario, 20/11/2026)
   });
   if (cartelas.length) { const t = cartelas[0]; const g = 10 ** ((NIVEL.transicion - lufs(tr, Math.round((t - 1.5) * SR), Math.round((t + 1.5) * SR))) / 20); tr.mixInto(musica, g); }
 }
