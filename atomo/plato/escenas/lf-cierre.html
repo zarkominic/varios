@@ -21,7 +21,8 @@
 //    «exaggerated» y en «really happened» el espejo se endereza y él asiente (corta en «And you»);
 // 5. movil cámara 'feed': el dedo desliza los vídeos (la tienda del caimán, la piscina, la playa, el puente): «which real
 //    Florida moment…?», un «?»; en «Tell me in the comments», doble toque, corazón y suben los comentarios (corta en «And if»);
-// 6. redaccion/archivo cámara 'cajones' (1997): la mano tira desde arriba de la ficha roja; en «Scotland» sale la banderita
+// 6. redaccion/archivo cámara 'cajones' (1997): la mano tira desde arriba de la ficha roja (brazo corto, casi vertical:
+//    menos de 45 px a la vista); en «Scotland» sale la banderita
 //    (la cruz de San Andrés) y en «with a game» se escribe 1997 (corta en «almost»);
 // 7. salon/mapa general: los fans tachan las seis regiones del mapa; Atom con la mochila y el mando; en el portátil la
 //    barra de descarga llega al 100 % en «GTA» y sale el 100 de oro; los fans lo celebran.
@@ -186,9 +187,10 @@ const p6 = (t) => {
   const fl = tramo(t, b(0.56), b(0.59)); if (fl > 0 && saca > 0.5) saltire(132, fy + 10 - Math.round((1 - fl) * 3));
   const n = tramo(t, b(0.585), b(0.585) + 0.8); if (n > 0 && saca > 0.5) R.numero('1997', 160, fy + 22, { n: Math.ceil(n * 32) });
   T.redaccionDelante(R, t, o);
-  // la mano que tira de la ficha desde arriba (se ve poco brazo) y se va cuando ya se lee
+  // la mano que tira de la ficha desde arriba y se va cuando ya se lee: el hombro justo encima del borde y el brazo casi
+  // vertical, para que se vea poco brazo (menos de 45 px desde el borde hasta la muñeca, como en lf-floridaman p5)
   const m = Math.min(1, saca * 1.2) * (1 - tramo(t, b(0.63), b(0.66)));
-  if (m > 0.02) T.brazo(R, 214, -14, 200, Math.round(lerp(-10, fy + 4, m)), '#2a5a7a', -1, { codo: [222, Math.round(lerp(-12, (fy - 10) / 2, m))] });
+  if (m > 0.02) T.brazo(R, 206, -4, 200, Math.round(lerp(-10, fy + 2, m)), '#2a5a7a', -1, { codo: [211, Math.round(lerp(-8, (fy - 4) / 2, m))] });
 };
 // ── 7. el final: el mapa tachado y la descarga al 100 % ──
 const equis = (x, y, u) => { if (u <= 0) return; const s = 5; const l1 = Math.min(1, u * 2), l2 = Math.max(0, u * 2 - 1);

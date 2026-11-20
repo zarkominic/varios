@@ -36,7 +36,8 @@
 // 12. (LOCAL: la playa al ocaso) «a bit of creative license»: la pintora, ante un horizonte plano, pinta una montaña en su
 //    lienzo en «creative license» y se aparta a admirarla;
 // 13. (LOCAL: la mesa con el mapa) «the hills of Georgia and the Carolinas… Florida has gained a mountain»: en el mapa
-//    salen los montes de Georgia y de las Carolinas y en «gained a mountain» la montaña sube en Florida y cae la chincheta.
+//    salen los montes de Georgia y de las Carolinas sobre la Florida de verdad (llana, sin montaña) y en «gained a
+//    mountain» la montaña de Kalaga crece desde el suelo (o.montana 0→1) y cae la chincheta.
 import * as T from '/atomo/plato/escenas/lf-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lf-interior');
@@ -455,7 +456,8 @@ const f13 = () => capa('f13', () => {
 const p13 = (t) => {
   R.copiar(f13());
   const sube = tramo(t, L(60.6), L(61.95));
-  const m = T.a_mapaLeonida(R, 44, 22, 228, t, { florida: 1 - sube, montana: 1, encendidas: 0 });
+  // la Florida de verdad en todo el plano; en «gained a mountain» la montaña de Kalaga crece sobre el contorno real
+  const m = T.a_mapaLeonida(R, 44, 22, 228, t, { florida: 1, montana: sube, encendidas: 0 });
   // el vapor de la taza
   for (let k = 0; k < 3; k++) { const u = (t * 0.5 + k / 3) % 1; R.pset(Math.round(22 + Math.sin(u * 6 + k) * 3), Math.round(140 - u * 24), u > 0.7 ? hex('#a89888') : hex('#d8d0c4')); }
   // los montes de Georgia y de las Carolinas que salen arriba del mapa

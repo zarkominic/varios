@@ -18,7 +18,9 @@
 //    y en «absurd» la máquina escupe una ráfaga; la tele: el caimán se tacha en «alligators» y sale la balanza en «law»;
 // 4. («Florida») el archivo público con el 119: una vecina recoge su papel y se va contenta; un ciudadano saca número,
 //    el 119 se ilumina y el turno salta en «119»; da su número y la archivera va a buscar su ficha;
-// 5. («Almost») los cajones: una mano saca la ficha roja en «requested» y otra, de otra persona, otra ficha en «anyone»;
+// 5. («Almost») los cajones, con la cámara más baja (el cajón abierto arriba y debajo más archivadores, con una llave que
+//    se mece): una mano baja desde arriba y saca la ficha roja en «requested»; otra, de otra persona (manga roja), baja a
+//    su lado y saca una azul en «anyone» (brazos cortos, entre el año y Atom);
 // 6. («basic») INSERTO en el mostrador: la ficha sale por la ranura de la mampara; se rellenan con pictogramas el
 //    nombre («name»), la edad («age») y la casa («address»); la mano del ciudadano se la lleva;
 // 7. («So») la ventanilla de prensa del edificio, por fuera: pasan dos noches y dos días en «every day»; la archivera pasa
@@ -236,23 +238,75 @@ const p4 = (t) => {
   if (t > T_ENTREGA && t < T_ENTREGA + 0.4) { const nx = Math.round(ra.mano[0]) - 3, ny = Math.round(ra.mano[1]) - 6; caja(nx, ny, nx + 6, ny + 7, H('#ffffff'), H('#8a2020')); }
 };
 
-// ════ 5 · los cajones: dos manos de dos personas distintas sacan dos fichas ════
-const T_SACA = b(0.525), T_ANY = b(0.5699);
+// ════ 5 · los cajones, más arriba en el cuadro: dos manos de dos personas distintas sacan dos fichas ════
+// El decorado 'cajones' se pinta como siempre y luego la cámara baja: la imagen sube S5 px y se corre D5 px a la derecha,
+// para que las fichas queden cerca del borde de arriba (las manos entran por arriba, entre el año y Atom, con no más de
+// ~41 px de brazo a la vista). Lo que queda al descubierto (un cuarto archivador a la izquierda y los cajones de abajo)
+// se pinta aquí con el mismo dibujo del decorado, los rayos de la persiana con su misma fórmula, motas y una llave que
+// se mece en su cerradura.
+const T_SACA = b(0.525), T_ANY = b(0.5699), S5 = 78, D5 = 71;
+const A5 = { a: H('#7e8878'), s: H('#646c5e'), l: H('#9ea896'), d: H('#4a5046'), la: H('#c8a040'), laL: H('#f2d878'), laS: H('#8a6a22'),
+  m: H('#8c929e'), mS: H('#6a707c'), mL: H('#b6bcc6'), mD: H('#4e545e'), et: H('#f2ecd8'), cif: H('#3a3a6a'), pared: H('#5a6650') };
+const DIG5 = { 0: ['###', '#.#', '#.#', '#.#', '###'], 1: ['.#.', '##.', '.#.', '.#.', '###'], 2: ['##.', '..#', '.#.', '#..', '###'], 3: ['##.', '..#', '.#.', '..#', '##.'], 4: ['#.#', '#.#', '###', '..#', '..#'], 5: ['###', '#..', '##.', '..#', '##.'], 6: ['.##', '#..', '###', '#.#', '###'], 7: ['###', '..#', '.#.', '.#.', '.#.'], 8: ['###', '#.#', '###', '#.#', '###'], 9: ['###', '#.#', '###', '..#', '##.'] };
+let CB5 = [0, 0, 319, 179];   // la caja donde se pinta (recorte propio: R.rect no recorta)
+const rr5 = (x0, y0, x1, y1, cc) => { x0 = Math.max(x0, CB5[0]); y0 = Math.max(y0, CB5[1]); x1 = Math.min(x1, CB5[2]); y1 = Math.min(y1, CB5[3]); if (x0 <= x1 && y0 <= y1) R.rect(x0, y0, x1, y1, cc); };
+const ps5 = (x, y, cc) => { if (x >= CB5[0] && x <= CB5[2] && y >= CB5[1] && y <= CB5[3]) R.pset(x, y, cc); };
+const cifras5 = (n, x, y, cc) => { let cx = x; for (const ch of String(n)) { (DIG5[ch] || []).forEach((f, j) => { for (let i = 0; i < 3; i++) if (f[i] === '#') ps5(cx + i, y + j, cc); }); cx += 4; } };
+// un archivador (x0–x1, con sus cajones en ys) pintado solo dentro de la caja [cx0, cy0, cx1, cy1]
+const archivador5 = (x0, x1, ys, nums, caja5) => {
+  CB5 = caja5; const [cx0, cy0, cx1, cy1] = caja5;
+  for (let y = cy0; y <= cy1; y++) for (let x = Math.max(cx0, x0 + 1); x <= Math.min(cx1, x1 - 1); x++) { const v = rn(x, y + S5, 601); R.pset(x, y, v < 0.08 ? A5.s : v > 0.97 ? A5.l : A5.a); }
+  rr5(x0, cy0, x0, cy1, K); rr5(x1, cy0, x1, cy1, K); rr5(x0 + 1, cy0, x0 + 1, cy1, A5.l); rr5(x1 - 2, cy0, x1 - 1, cy1, A5.s);
+  ys.forEach((y, d) => { const xa = x0 + 6, xb = x1 - 6, mx = (xa + xb) >> 1;
+    rr5(xa - 1, y - 1, xb + 1, y + 37, K); rr5(xa, y, xb, y + 36, A5.a); rr5(xa, y, xb, y + 1, A5.l); rr5(xa, y, xa, y + 36, A5.l); rr5(xa, y + 35, xb, y + 36, A5.s); rr5(xb, y, xb, y + 36, A5.s);
+    for (let yy = y + 2; yy < y + 35; yy++) for (let xx = xa + 1; xx < xb; xx++) if (rn(xx, yy, 620) < 0.05) ps5(xx, yy, A5.s);
+    rr5(mx - 14, y + 18, mx + 14, y + 26, K); rr5(mx - 13, y + 19, mx + 13, y + 25, A5.d); rr5(mx - 11, y + 21, mx + 11, y + 23, A5.m); rr5(mx - 11, y + 21, mx + 11, y + 21, A5.mL); rr5(mx - 11, y + 23, mx + 11, y + 23, A5.mS);
+    rr5(mx - 12, y + 5, mx + 12, y + 14, A5.laS); rr5(mx - 11, y + 6, mx + 11, y + 13, A5.la); rr5(mx - 10, y + 7, mx + 10, y + 12, A5.et); rr5(mx - 11, y + 6, mx + 11, y + 6, A5.laL);
+    if (nums[d]) cifras5(nums[d], mx - 8, y + 8, A5.cif); else for (let xx = mx - 7; xx < mx + 6; xx += 2) ps5(xx, y + 10 + (xx % 3 === 0 ? 1 : 0), H('#a8a4b8'));
+    // la cerradura, y abolladuras y arañazos
+    rr5(mx + 19, y + 8, mx + 21, y + 12, K); rr5(mx + 18, y + 9, mx + 22, y + 11, K); ps5(mx + 20, y + 10, A5.laL); ps5(mx + 20, y + 9, A5.laS);
+    for (let k = 0; k < 3; k++) { const ax = xa + 4 + Math.floor(rn(d + x0, k, 602) * (xb - xa - 10)), ay = y + 28 + Math.floor(rn(k, d + x0, 603) * 6); for (let i = 0; i < 4; i++) ps5(ax + i, ay - (i > 2 ? 1 : 0), A5.l); ps5(ax + 1, ay + 1, A5.s); }
+  });
+};
+// los rayos de la persiana del decorado (misma fórmula, en las coordenadas de antes del desplazamiento) y sus motas
+const rayos5 = (t, x0, y0, x1, y1) => { const dx = (t * 3) % 60;
+  for (let y = y0; y <= y1; y++) { const oy = y + S5, base = dx - (oy - 26) * 0.55;
+    for (let x = x0 + ((x0 + y) & 1); x <= x1; x += 2) { const ox = x - D5, s = Math.floor((ox - base) / 60), xa = Math.round(s * 60 + base); if (ox >= xa && ox < xa + 14) R.pset(x, y, mez(R.pget(x, y), H('#fff2cc'), 0.22)); } } };
 const p5 = (t) => {
-  const s = tramo(t, b(0.4704), T_SACA), o = { encuadre: 'archivo', camara: 'cajones', saca: s };
+  const ll = tramo(t, P5 + 0.15, b(0.4704)), s = tramo(t, b(0.4704), T_SACA), sR = ease(s) * 0.28;
+  const o = { encuadre: 'archivo', camara: 'cajones', saca: sR };
   T.redaccion(R, t, o);
-  // la segunda ficha (pestaña azul), que sale en «anyone»: detrás del frente del cajón
-  const s2 = tramo(t, T_ANY - 0.2, T_ANY + 0.6), fy = Math.round(98 - s2 * 34);
-  caja(106, fy + 4, 140, fy + 40, H('#eef2f8'), H('#5a6274')); R.rect(108, fy, 120, fy + 4, H('#3a6ac8')); marco(108, fy, 120, fy + 4, H('#22408a'));
-  for (let yy = fy + 10; yy < fy + 38; yy += 5) R.rect(109, yy, 137, yy, H('#9ab0d0')); pinta(ICO.casa, 126, fy + 26, PG);
+  // la segunda ficha (pestaña azul), la de más delante del cajón: sale en «anyone»; el frente del cajón tapa su parte de abajo
+  const l2 = tramo(t, T_ANY - 0.9, T_ANY - 0.2), s2 = tramo(t, T_ANY - 0.2, T_ANY + 0.6), fy = Math.round(117 - ease(s2) * 24 - 2 * pulso(t, T_ANY + 0.6, 0.5));
+  caja(165, fy + 4, 199, fy + 40, H('#eef2f8'), H('#5a6274')); R.rect(166, fy + 5, 198, fy + 5, H('#ffffff')); R.rect(166, fy, 178, fy + 4, H('#3a6ac8')); marco(166, fy, 178, fy + 4, H('#22408a'));
+  for (let yy = fy + 10; yy < fy + 38; yy += 5) R.rect(168, yy, 186 - (yy % 3) * 3, yy, H('#9ab0d0')); pinta(ICO.casa, 187, fy + 24, PG);
   T.redaccionDelante(R, t, o);
-  // la mano de la archivera (manga verde): llega desde abajo, coge la pestaña roja y sube con ella
-  const ll = tramo(t, P5 + 0.15, b(0.4704)), hy = ll < 1 ? Math.round(lerp(196, 108, ease(ll))) : Math.round(108 - s * 36), hx = ll < 1 ? Math.round(lerp(214, 180, ease(ll))) : 180;
-  const sale1 = tramo(t, T_ANY + 1.2, T_ANY + 2.0), hy1 = Math.round(hy + sale1 * 110);
-  if (sale1 < 1) T.brazo(R, 244, 206, hx, hy1, '#4a7a5a', -1, { codo: [hx + 40, Math.min(196, hy1 + 46)] });
-  // la otra mano (manga roja, la de otra persona) sube por la izquierda y saca la de la pestaña azul
-  const l2 = tramo(t, T_ANY - 0.9, T_ANY - 0.2), h2y = l2 < 1 ? Math.round(lerp(200, 100, ease(l2))) : Math.round(100 - s2 * 34), h2x = 100;
-  if (l2 > 0) T.brazo(R, 60, 206, h2x, h2y, '#b84a3a', 1, { codo: [h2x - 34, Math.min(196, h2y + 46)] });
+  // la cámara baja: todo sube S5 px y se corre D5 px a la derecha
+  { const B = R.buf, src = B.slice(); for (let y = 0; y < 180 - S5; y++) { const k = (y + S5) * 320; B.set(src.subarray(k, k + 320 - D5), y * 320 + D5); } }
+  // lo que queda al descubierto: el cuarto archivador a la izquierda (sus cajones, en otra altura) y los cajones de abajo
+  const yb = 180 - S5;
+  R.rect(70, 0, 70, 179, A5.pared); R.rect(176, 93, 176, 179, A5.pared); R.rect(284, 93, 284, 179, A5.pared);
+  archivador5(-35, 69, [-28, 12, 52, 92, 132, 172], [0, 1948, 1953, 1961, 1968, 1974], [0, 0, 69, 179]);
+  archivador5(71, 175, [78, 118, 158], [1991, 1995, 2001], [71, 78, 165, 179]); archivador5(71, 175, [78, 118, 158], [1991, 1995, 2001], [166, 93, 175, 179]);
+  archivador5(177, 283, [81, 121, 161], [2003, 2007, 2011], [177, 93, 283, 179]);
+  archivador5(285, 390, [64, 104, 144], [0, 2017, 2022], [297, 64, 319, 179]); archivador5(285, 390, [64, 104, 144], [0, 2017, 2022], [285, 93, 296, 179]);
+  CB5 = [0, 0, 319, 179];
+  // la sombra que echa el cajón abierto sobre el de debajo
+  for (let y = 93; y < 101; y++) for (let x = 167 + (y & 1); x < 296; x += 2) luz(x, y, K, 0.34 - (y - 93) * 0.04);
+  // las etiquetas que caen junto a la barra del año: en blanco (fondo tranquilo)
+  R.rect(112, 4, 134, 11, A5.et); R.rect(219, 4, 241, 11, A5.et);
+  rayos5(t, 0, 0, 69, 179); rayos5(t, 71, 78, 175, 179); rayos5(t, 177, 93, 283, 179); rayos5(t, 285, 64, 319, 179); rayos5(t, 112, 4, 134, 11); rayos5(t, 219, 4, 241, 11);
+  for (let k = 0; k < 14; k++) { const u = (t * 0.05 + rn(k, 1, 612)) % 1, x = Math.round(6 + rn(k, 2, 612) * 300 + Math.sin(t * 0.8 + k) * 3), y = Math.round(yb - 6 + u * 80); if (Math.sin(t * 1.6 + k) > -0.3 && y < 180) R.pset(x, y, H('#fffaf0')); }
+  // la llave puesta en la cerradura del cajón 1995, con su llavero que se mece
+  { const kx = 143, ky = 128, a = Math.sin(t * 2.1) * 0.5, ex = Math.round(kx + Math.sin(a) * 9), ey = Math.round(ky + Math.cos(a) * 9);
+    R.rect(kx - 1, ky - 1, kx + 1, ky + 1, A5.laL); R.linea(kx, ky + 1, ex, ey - 2, A5.mD); R.disco(ex, ey, 3, K); R.disco(ex, ey, 2, A5.la); R.pset(ex - 1, ey - 1, A5.laL); R.pset(ex, ey, K);
+    R.rect(ex - 1, ey + 3, ex + 1, ey + 7, K); R.rect(ex, ey + 4, ex, ey + 6, H('#d83a3a')); }
+  // la mano de la archivera (manga verde): baja desde arriba, coge la ficha roja por el canto, junto a la pestaña (que se
+  // sigue viendo), y la sube con ella
+  const hy = ll < 1 ? Math.round(lerp(-14, 33, ease(ll))) : Math.round(33 - sR * 36);
+  T.brazo(R, 204, -22, 209, hy, '#4a7a5a', 1, { sombra: false });
+  // la otra mano (manga roja, la de otra persona) baja a su lado y saca la de la pestaña azul, cogida por el canto
+  if (l2 > 0) { const h2y = l2 < 1 ? Math.round(lerp(-14, fy - S5 + 2, ease(l2))) : fy - S5 + 2; T.brazo(R, 266, -22, 262, h2y, '#b84a3a', -1, { sombra: false }); }
 };
 
 // ════ 6 · INSERTO en el mostrador: la ficha sale por la ranura y se rellena con pictogramas ════

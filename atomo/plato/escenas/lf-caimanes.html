@@ -34,7 +34,7 @@
 // 10. «Nobody was hurt… a few months later… police»: la pared del cuarto de atrás: el empleado entra y señala el visto
 //    bueno del botiquín; mira el calendario, que pasa de octubre de 2015 a febrero de 2016; con las luces de policía se
 //    sobresalta y va a mirar por la ventana; en «2023» las hojas vuelan de lado hasta marzo de 2023.
-// 11. «…an eleven-foot alligator burst through a porch screen…»: el porche: la vecina sale con un vaso; el caimán grande
+// 11. «…an eleven-foot alligator burst through a porch screen…»: el porche: la vecina (sombrero de paja de cinta rosa) sale con un vaso; el caimán grande
 //    rasga la mosquitera en «burst», corre y se tira a la piscina en «slid»; el flamenco sale volando (2023).
 // 12. «…like the Kool-Aid Man…»: «el anuncio» en una tele vieja: el muro del jardín tiembla dos veces y en «crashes» lo
 //    atraviesa una jarra sin cara ni logo; ladrillos y salpicones; asoma el caimán por el agujero; el gato del muro da un
@@ -501,6 +501,9 @@ const p10 = (t) => {
   R.actor(L.empleadoLF, ex, 174, t, { dir: mira ? -1 : 1, anda, dedo: t > Math.max(P10 + 1.2, hurt + 0.3) && t < few - 0.3, sonrisa: t > hurt + 0.3 && t < few, sorpresa: poli && t < police + 0.8, habla: (mira || ve >= 1) && Math.sin(t * 7) > 0, brazos: poli && t < police + 0.35 });
 };
 // ── 11 · el porche con mosquitera ────────────────────────────────────────────────────────────────────────────
+// la vecina con sombrero de paja de cinta rosa: a tamaño de escena el pelo rubio canoso corto se confundía con la piel
+// y parecía calva; el sombrero le da silueta (las gafas de sol subidas al pelo se quitan: quedarían encima del ala)
+const VECINA_SOMBRERO = { ...L.vecinaLF, tocado: 'sombreroPaja', delante: undefined, pal: { ...L.vecinaLF.pal, T: hex('#ecd492'), t: hex('#c8a45e'), D: hex('#e84a6a') } };
 const p11 = (t) => {
   const roto = Math.max(0, Math.min(1, (t - burst + 0.05) / 0.3)), o = { encuadre: 'piscina', roto, flamenco: false };
   const g = T.tienda(R, t, o);
@@ -520,7 +523,7 @@ const p11 = (t) => {
   // la vecina sale con su vaso; se asusta; levanta los brazos con el chapuzón
   const su = ease(Math.max(0, Math.min(1, (t - P11 - 0.5) / 1.6))), vx = Math.round(T.lerp(276, 244, su));
   const asust = t > burst + 0.1, cae = t > burst + 0.4;
-  const rv = R.actor(L.vecinaLF, vx, 160, t, { dir: -1, anda: su > 0 && su < 1, sorpresa: asust, salto: asust && t < burst + 0.4 ? 3 : 0, brazos: t > slid + 0.4 && t < slid + 2, sostiene: !cae ? [vx - 4, 146] : undefined });
+  const rv = R.actor(VECINA_SOMBRERO, vx, 160, t, { dir: -1, anda: su > 0 && su < 1, sorpresa: asust, salto: asust && t < burst + 0.4 ? 3 : 0, brazos: t > slid + 0.4 && t < slid + 2, sostiene: !cae ? [vx - 4, 146] : undefined });
   if (!cae) { const [mx, my] = rv.mano; caja(mx - 2, my - 6, mx + 2, my, hex('#f0a0c0'), hex('#ffffff')); R.pset(mx + 1, my - 8, hex('#2ab070')); }
   else { const u = Math.min(1, (t - burst - 0.4) / 0.4); const y = Math.round(T.lerp(140, 158, u * u)); caja(vx - 6, y - 5, vx - 2, y, hex('#f0a0c0'), hex('#ffffff')); }
   T.tiendaDelante(R, t, o);

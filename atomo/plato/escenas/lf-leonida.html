@@ -19,8 +19,9 @@
 // 4. la playa de Miami (vicecity/playa): el turista llega y en «Miami» hace la foto (flash);
 // 5. la terraza del hotel (ocean 'terraza'): el neón se enciende en «glamour», el camarero corre con la bandeja en
 //    «hustle» y el cliente se queda las dos copas en «greed»;
-// 6. Ocean Drive (ocean general) del ocaso a la noche: la patinadora pasa, los neones se encienden uno a uno en «neon» y
-//    los paseantes se vuelven a mirar los coches en «cars cruising»;
+// 6. Ocean Drive (ocean general) del ocaso a la noche: un descapotable rosa llega, frena junto al bordillo y enciende la
+//    radio (suben notas); los neones se encienden uno a uno en «neon», el coche bota al ritmo y la pareja de la acera se
+//    pone a bailar; en «cars cruising» los paseantes de la derecha se vuelven a mirar los coches y la vecina señala;
 // 7. los Cayos, la carretera sobre el mar (cayos/puente): Atom baja de su esquina y cruza el puente en bici con el
 //    bocadillo en la cesta;
 // 8. a pie de puente (cayos 'barandilla'), gag 2: el pelícano del poste despega, se posa en la cesta (Atom frena en
@@ -267,16 +268,70 @@ const p5 = (t) => {
   T.vicecityDelante(R, t, o);
 };
 
-// ── 6 · Ocean Drive del ocaso a los neones ────────────────────────────────────────────────────────────────────────
+// ── 6 · Ocean Drive del ocaso a los neones: el descapotable de la música ─────────────────────────────────────────
+// el descapotable rosa de cerca (46 px), aparcado junto al bordillo, mirando a la derecha: x = la cola, yb = el asfalto;
+// mueve: las ruedas giran; bote: la carrocería salta al ritmo (0 o 1); musica: la radio encendida (los dos mueven la cabeza)
+const NOTA1 = ['.##.', '.#.#', '.#..', '##..', '##..'], NOTA2 = ['.####', '.#..#', '.#..#', '##.##', '##.##'];
+const nota = (forma, x, y, col) => { x = Math.round(x); y = Math.round(y);
+  for (let j = 0; j < forma.length; j++) for (let i = 0; i < forma[j].length; i++) if (forma[j][i] === '#') for (const [p, q] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.pset(x + i + p, y + j + q, K);
+  for (let j = 0; j < forma.length; j++) for (let i = 0; i < forma[j].length; i++) if (forma[j][i] === '#') R.pset(x + i, y + j, j === 0 || (i === 0 && j === 3) ? BL : col); };
+const descapotable = (x, yb, t, mueve, bote, musica) => {
+  x = Math.round(x); const L = 46, Y = yb - bote;
+  const col = hex('#ff6aa8'), cL = hex('#ffb0d2'), cS = hex('#b8387a'), cr = hex('#e8eaf2'), crS = hex('#9a9cb0');
+  // la sombra en el asfalto
+  for (let i = 2; i < L - 1; i++) { R.pset(x + i, yb, hex('#1e1626')); if (i > 4 && i < L - 4) R.pset(x + i, yb + 1, hex('#2a2032')); }
+  // la carrocería: la aleta de atrás, el lateral con su moldura cromada, el capó largo y el morro
+  const arriba = (i) => i < 3 ? Y - 13 + i : i < 7 ? Y - 11 : i < 31 ? Y - 10 : i < L - 2 ? Y - 9 : Y - 8;
+  for (let i = 0; i <= L; i++) { const y0 = arriba(i), y1 = Y - 3 + (i < 2 || i > L - 2 ? -1 : 0);
+    for (let y = y0; y <= y1; y++) R.pset(x + i, y, y === y0 ? cL : y >= Y - 4 ? cS : (i + y) % 7 === 0 && y === Y - 8 ? cL : col);
+    R.pset(x + i, Y - 6, (i + Math.floor(t * 8)) % 23 === 0 ? BL : cr); R.pset(x + i, Y - 5, crS); }
+  // la puerta (sus juntas y el tirador) y el parachoques cromado
+  for (let y = Y - 9; y <= Y - 4; y++) { R.pset(x + 18, y, cS); R.pset(x + 30, y, cS); } R.linea(x + 27, Y - 8, x + 28, Y - 8, cr);
+  R.linea(x - 1, Y - 4, x + 2, Y - 4, cr); R.linea(x + L - 2, Y - 4, x + L + 1, Y - 4, cr); R.pset(x + L + 1, Y - 5, crS);
+  // el interior: los asientos de cuero blanco con sus costuras, el salpicadero y la radio que brilla con la música
+  for (let i = 7; i <= 29; i++) R.pset(x + i, Y - 11, i % 3 === 0 ? hex('#d8cdb8') : hex('#f4ecdc'));
+  for (const i0 of [8, 19]) for (let y = Y - 15; y <= Y - 11; y++) { R.pset(x + i0, y, hex('#f4ecdc')); R.pset(x + i0 + 1, y, hex('#d8cdb8')); }
+  R.linea(x + 29, Y - 12, x + 31, Y - 12, hex('#5a2a4a')); R.pset(x + 30, Y - 12, musica && Math.floor(t * 4) % 2 ? hex('#7af8ff') : hex('#3ab8c8'));
+  // el parabrisas inclinado con su marco cromado y el brillo que corre
+  for (let j = 0; j < 6; j++) { R.pset(x + 31 + (j >> 1), Y - 11 - j, cr); R.pset(x + 30 + (j >> 1), Y - 11 - j, hex('#bfe4f6')); } R.pset(x + 33, Y - 16, BL);
+  // la pareja de dentro (cabeza y hombros, pequeños): ella con pañuelo y él con gafas; con la música cabecean y ella
+  // levanta el brazo al ritmo
+  const pal = [[x + 24, hex('#2a1a14'), hex('#e8b48a'), hex('#40d0d8'), true], [x + 13, hex('#f0c040'), hex('#c88a5a'), hex('#ffd060'), false]];
+  pal.forEach(([hx, pelo, piel, ropa, gafas], k) => { const c = musica ? (Math.floor(t * 4 + k) % 2) : 0, hy = Y - 17 + c;
+    R.linea(hx - 2, hy + 6, hx + 2, hy + 6, ropa); R.linea(hx - 2, hy + 5, hx + 2, hy + 5, ropa);
+    for (let j = 0; j < 4; j++) R.linea(hx - 1, hy + 1 + j, hx + 2, hy + 1 + j, piel); R.linea(hx - 1, hy, hx + 2, hy, pelo); R.pset(hx - 2, hy + 1, pelo); R.pset(hx - 2, hy + 2, pelo);
+    if (gafas) { R.pset(hx + 1, hy + 2, K); R.pset(hx + 2, hy + 2, K); R.pset(hx + 2, Y - 11, hex('#2a2a2a')); R.pset(hx + 3, Y - 12, hex('#2a2a2a')); }
+    else { R.pset(hx + 2, hy + 2, K); R.pset(hx - 3, hy + 1 + (Math.floor(t * 6) % 2), hex('#ff6aa8')); R.pset(hx - 3, hy + 2, hex('#ff6aa8'));   // el pañuelo al viento
+      if (musica) { const ar = Math.floor(t * 4) % 2; R.linea(hx + 2, hy + 5, hx + 4, hy + 1 - ar, piel); R.pset(hx + 4, hy - ar, piel); } } });
+  // las ruedas con banda blanca y el tapacubos que gira (no botan: botan los muelles)
+  for (const cx of [9, 37]) { const wx = x + cx, wy = yb - 3;
+    for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) { const d = i * i + j * j; if (d <= 11) R.pset(wx + i, wy + j, d >= 7 ? hex('#1a161e') : d >= 3 ? hex('#f2f2f2') : hex('#8a8a96')); }
+    const a = mueve * 7 + cx; R.pset(wx + Math.round(Math.cos(a) * 1.4), wy + Math.round(Math.sin(a) * 1.4), BL); R.pset(wx, wy, hex('#c8c8d4')); }
+  // los faros y los pilotos
+  R.pset(x + L, Y - 7, hex('#fff8d0')); R.pset(x + L - 1, Y - 7, hex('#fff4b0')); R.pset(x, Y - 10, hex('#ff3a4a')); R.pset(x, Y - 9, hex('#ff3a4a'));
+};
 const p6 = (t) => {
   const o = { encuadre: 'ocean', noche: 0.08 + 0.92 * tramo(t, neon - 0.2, neon + 1.1) }; const g = T.vicecity(R, t, o);
-  // la patinadora cruza el paseo
-  const s = tramo(t, P6, P6 + 4.2); R.actor(T.ELENCO_LF.patinadoraLF, Math.round(lerp(-20, 330, s)), g.suelo + 2, t, { dir: 1, anda: true, sonrisa: true });
-  // dos paseantes charlan; en «cars cruising» se vuelven a mirar los coches y el turista señala
+  // el descapotable entra por la izquierda, frena y se para junto al bordillo; la radio se enciende y suelta la música
+  const llega = tramo(t, P6, P6 + 2.2), cu = 1 - (1 - llega) ** 2, cx = lerp(-60, 34, cu), radio = P6 + 2.6, musica = t > radio;
+  const bote = t > neon && t < P7 - 0.3 && Math.floor((t - neon) * 4) % 2 === 0 ? 1 : 0;
+  // la luz de los faros en el asfalto, ya de noche
+  if (o.noche > 0.35) for (let i = 1; i <= 22; i++) for (let j = -Math.floor(i / 5); j <= Math.floor(i / 6); j++) { const xx = Math.round(cx + 47 + i), yy = 143 + j + Math.floor(i / 7); if (h(xx, yy, 3) < (1 - i / 23) * 0.6) R.pset(xx, yy, hex('#fff0c0')); }
+  descapotable(cx, 150, t, cx, bote, musica);
+  // el humo del tubo de escape, al ralentí
+  if (llega > 0.6) for (let k = 0; k < 3; k++) { const u = ((t * 0.7 + k / 3) % 1), px = Math.round(cx - 3 - u * 12), py = Math.round(146 - u * 6); R.disco(px, py, 0.8 + u * 1.4, mez(hex('#d8d0dc'), hex('#8a7a9a'), u)); if (u < 0.5) R.pset(px - 1, py - 1, BL); }
+  // la pareja de la acera: hablan junto a la farola; cuando suena la música se miran y, al encenderse los neones, bailan
+  const baila = t > neon - 0.05, paso = Math.floor((t - neon) * 4) % 2, gira = Math.floor((t - neon) * 2) % 2;
+  R.actor(T.ELENCO_LF.bailarinaLF, 144 + (baila ? paso : 0), g.suelo - (baila && paso ? 1 : 0), t, { dir: baila ? (gira ? 1 : -1) : 1, brazos: baila && paso === 1, sonrisa: musica, habla: !musica && Math.sin(t * 6) > 0 });
+  R.actor(T.ELENCO_LF.ciudadanoLF, 168 - (baila ? paso : 0), g.suelo - (baila && !paso ? 1 : 0), t, { dir: baila ? (gira ? -1 : 1) : -1, dedo: baila && paso === 0, sonrisa: musica, habla: !musica && Math.sin(t * 6 + 2) > 0 });
+  // dos paseantes charlan; en «cars cruising» se vuelven a mirar el descapotable y los coches que pasan y la vecina señala
   const mira = t > cars - 0.1;
-  R.actor(T.ELENCO_LF.vecinaLF, 170, g.suelo, t, { dir: mira ? 1 : -1, habla: !mira && Math.sin(t * 6) > 0, sorpresa: mira && t < look, sonrisa: t > look });
-  R.actor(T.ELENCO_LF.turistaLF, 148, g.suelo, t, { dir: 1, habla: !mira && Math.sin(t * 6 + 2) > 0, dedo: mira && t < look + 0.2, sonrisa: mira });
+  R.actor(T.ELENCO_LF.vecinaLF, 236, g.suelo, t, { dir: mira ? -1 : 1, habla: !mira && Math.sin(t * 6) > 0, dedo: mira && t < look + 0.4, sorpresa: mira && t < look, sonrisa: t > look });
+  R.actor(T.ELENCO_LF.dependienteLF, 258, g.suelo, t, { dir: -1, habla: !mira && Math.sin(t * 6 + 2) > 0, sorpresa: mira && t < look, sonrisa: t > look });
   T.vicecityDelante(R, t, o);
+  // las notas que suben de la radio, meciéndose (por encima de todo, como el «!» de los personajes)
+  if (musica) for (let k = 0; k < 6; k++) { const u = (t - radio) * 0.45 + k / 6; if (u < k / 6) continue; const f = u % 1, nx = cx + 30 + f * 40 + Math.sin(f * 9 + k) * 5, ny = 132 - f * 52;
+    if (f < 0.92) nota(k % 2 ? NOTA2 : NOTA1, nx, ny, hex(['#ff6ad8', '#40e8f8', '#ffd84a'][k % 3])); }
 };
 
 // ── 7 · la carretera sobre el mar: Atom cruza el puente en bici ───────────────────────────────────────────────────
@@ -348,7 +403,7 @@ const p10 = (t) => {
 };
 
 const efectos = [[0.3, 'papel'], [seis + 0.2, 'pop'], [vc, 'brillo'], [kalaga, 'brillo'], [nunca + 0.05, 'pop'], [players + 0.35, 'lapiz'], [shot1, 'tic'], [shot2, 'tic'], [dibujado - 0.15, 'lapiz'],
-  [miami + 0.15, 'flash'], [glamour, 'interruptor'], [greed, 'pop'], [neon, 'interruptor'], [cars + 0.1, 'coche'],
+  [miami + 0.15, 'flash'], [glamour, 'interruptor'], [greed, 'pop'], [P6 + 0.8, 'motor'], [neon, 'interruptor'], [cars + 0.1, 'coche'],
   [islas, 'boing'], [overseas + 0.3, 'whoosh'], [overseas + 1.15, 'pop'], [overseas + 1.6, 'whoosh'], [overseas + 1.9, 'coche'], [keywest + 0.05, 'brillo'], [P10 + 0.9, 'masca'], [peligrosas, 'ola'], [peligrosas + 0.5, 'chof']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10]], { efectos, año: 2026 });
 </script>
