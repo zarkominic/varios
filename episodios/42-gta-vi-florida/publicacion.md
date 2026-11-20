@@ -1,6 +1,6 @@
 # Episodio 42 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 9:02.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, narrada como un cuento, «Atom» escrito «At-um») y
   pista de audio en español (ZONOS3-Mini, voz `Rodrigo` con media emoción, con los nombres propios escritos tal cual),
   las dos con el nivelador por voz.
@@ -46,7 +46,17 @@ What we cover:
 
 Which real Florida moment would you like to run into in the game? Tell me in the comments.
 
-{CAPITULOS_EN}
+Chapters:
+0:00 The alligator in the trailer
+0:41 An invented state
+1:39 The River of Grass
+3:01 The real alligators
+4:19 Florida Man
+5:12 The car roof
+5:56 The mountain that isn't there
+6:59 Jason and Lucia
+7:33 Today
+8:31 The end
 
 Sources: Rockstar Games (rockstargames.com/VI, Newswire) · Game Informer · Gematsu · TechCrunch and Guinness World Records
 (trailer 1) · Forbes (Sensor Tower estimates) · Metacritic · CBS Miami and ABC Action News (Lakewood Ranch, 2018) · CBS
@@ -82,7 +92,17 @@ Lo que contamos:
 
 ¿Qué momento de la Florida real te gustaría encontrarte en el juego? Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+Capítulos:
+0:00 El caimán del tráiler
+0:41 Un estado inventado
+1:39 El río de hierba
+3:01 Los caimanes de verdad
+4:19 Florida Man
+5:12 El techo del coche
+5:56 La montaña que no existe
+6:59 Jason y Lucia
+7:33 Hoy
+8:31 El cierre
 
 Fuentes: Rockstar Games (rockstargames.com/VI, Newswire) · Game Informer · Gematsu · TechCrunch y Guinness World Records
 (tráiler 1) · Forbes (estimaciones de Sensor Tower) · Metacritic · CBS Miami y ABC Action News (Lakewood Ranch, 2018) · CBS
@@ -108,7 +128,10 @@ con voces sintéticas (IA).
 - **Voz sintética:** al subirlo, YouTube Studio pregunta por «contenido alterado o sintético». Las voces son sintéticas
   pero no imitan a nadie real ni muestran hechos inventados; si YouTube lo pide para las voces, márcalo.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  - EN, frase 3: «Atom» puede sonar «adam».
+  - EN, frase 7: «Okeechobee» puede sonar «okikyobi».
+  - ES, frase 12: «seis» (de GTA seis) puede sonar «vi».
+  - ES, frase 14: «Kool-Aid Man» puede sonar «cool aidman».
 
   Siguiendo tu regla, no lo he corregido en el audio: si alguno suena mal, dímelo y lo rehago.
 
