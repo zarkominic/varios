@@ -349,6 +349,12 @@ CUENTO = g.get('narracion') == 'cuento'
 if CUENTO:   # pausas de narración seguida, no de lista: entre párrafos medio segundo, al empezar un acto menos de un segundo
     PAUSA = {'.': 0.5, '?': 0.55, '!': 0.5, ':': 0.45}
     ENTRADA_ACTO = 0.9
+# guion «pausas» (opcional, para probar otro ritmo sin tocar el canon): {'respiro': s entre oraciones de un párrafo,
+# 'parrafo': s tras un párrafo, 'acto': s antes de un acto}
+_pz = g.get('pausas') or {}
+if 'respiro' in _pz: PAUSA_DENTRO['·'] = float(_pz['respiro'])
+if 'parrafo' in _pz: PAUSA = {k: float(_pz['parrafo']) + (0.05 if k == '?' else 0) for k in PAUSA}
+if 'acto' in _pz: ENTRADA_ACTO = float(_pz['acto'])
 
 def frase_voz(texto, l, velocidades):
     """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
