@@ -353,8 +353,8 @@ const O13 = { encuadre: 'casa', camara: 'mesa', vela: true };
 const p13 = (t) => {
   const g = T.prado(R, t, O13), [vx, vy] = g.vela;
   const da = tramo(t, en('regalos', 0.1335), en('regalos', 0.1660)), abre = t > en('regalos', 0.1741);
-  R.actor(EL.haymitch, 102, 120, t, { dir: 1, sonrisa: t > en('regalos', 0.0686), sorpresa: abre && t < en('regalos', 0.2146), sostiene: da >= 1 ? [124, 104] : undefined });
-  R.actor(EL.lenore, 202, 120, t, { dir: -1, sonrisa: true, sostiene: da < 1 ? [Math.round(lerp(196, 170, da)), 104] : undefined, habla: t > en('regalos', 0.0037) && t < en('regalos', 0.0903) && habla(t) });
+  R.actor(EL.haymitch, 102, 116, t, { dir: 1, sonrisa: t > en('regalos', 0.0686), sorpresa: abre && t < en('regalos', 0.2146), sostiene: da >= 1 ? [124, 104] : undefined });
+  R.actor(EL.lenore, 202, 116, t, { dir: -1, sonrisa: true, sostiene: da < 1 ? [Math.round(lerp(196, 170, da)), 104] : undefined, habla: t > en('regalos', 0.0037) && t < en('regalos', 0.0903) && habla(t) });
   T.pradoDelante(R, t, O13);
   // la llama crece con «birthday»
   const cum = tramo(t, en('regalos', 0.0632), en('regalos', 0.0794)) * (1 - tramo(t, en('regalos', 0.1119), en('regalos', 0.1335))); if (cum > 0) R.halo(vx, vy, 10, [hex('#5a4030'), hex('#e8a040'), hex('#fff0b0')], cum);
