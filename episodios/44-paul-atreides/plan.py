@@ -67,7 +67,7 @@ E = [
   ['E: la cueva del sietch de lejos, con una luz cálida; Atom prepara una cuna, se da la vuelta y hay dos (gag).',
    'E: Paul a oscuras; el laberinto de luz se apaga entero.',
    'E: Hayt se detiene; sus ojos de metal brillan; de pronto sonríe como Duncan.',
-   'E: Scytale tiende la mano con una promesa (una silueta de Chani de luz); Paul niega con la cabeza.',
+   'E: Scytale tiende la mano con una promesa (una silueta de Chani de luz); Paul niega con la cabeza; de lejos, la luz de las cunas (sin armas).',
    'A: Paul se aleja solo por las dunas con un bastón; el viento le borra las huellas.',
    'B: el trono vacío; dos cunas; estandartes que siguen ondeando.'],
   'ternura', []),
