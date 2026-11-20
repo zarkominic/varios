@@ -811,3 +811,24 @@ mecanismos, pedir desde el encargo el sitio y el agarre de quien los mueve.
 Pendiente para el próximo: borrar los fotogramas del 41 al empezar; comprobar en el plan de Shorts que el gancho sin la
 presentación de Atom llega a 35 s y, si no, pegarle un párrafo entero; mirar el nivel de voz del episodio nuevo con
 `nivelado.json` (ya se nivela solo).
+
+## Episodio 42 · GTA VI: la Florida real detrás de Leonida (20/11/2026)
+
+- **Título:** el usuario pidió «el título del caimán». «GTA 6's Alligator Was Real» afirma más de lo comprobado (Rockstar
+  no ha confirmado la fuente y Kotaku liga el plano a otro caso de 2013); se usó «GTA 6: The Real Florida Alligators Behind
+  the Trailer» y se le avisó. El gancho dice «algo muy parecido pasó de verdad».
+- **Guion:** 14 arreglos de los tres escépticos (aligátor y caimán, Britton Hill «sobre el nivel del mar», Wendy's sin la
+  acusación, el caso de la piscina del tráiler que es otro, de 2019). El golpe del gancho caía en «trailer»: `caiman+9.8`.
+- **Calidad:** 7 fallos dirigidos en la ronda 0; 43 de 104 planos suspendieron en la revisión completa (el 41: 55 de
+  119); 43 → 2 → 0. 32 agentes, 3,3 M de tokens y 2 h 8 min. **El contenedor se reinició a media pasada:** se hizo commit
+  de lo que había y se reanudó con `resumeFromRunId`; 15 resultados salieron del journal sin repetir.
+- **Mi ojo:** 5 planos (everglades p9, leonida p2 y p6, jason p2 y p7, hoy p8), aguantan.
+- **Sonido:** lf-caimanes con efectos el 33 % del tiempo (marca «poco»); seis efectos sincronizados más → 42 %. Total 48 %.
+- **Miniatura:** el caimán a la altura del mostrador se comía el hocico con `tiendaDelante` (que va encima); bajado y a la
+  izquierda, con «2018» en hueso arriba. A 320 × 180 se lee la boca roja y el ojo.
+- **Disco:** 8,2 GB al render; se borraron las hojas de las pasadas (1,3 GB, regenerables) para pasar de 9 GB.
+- **Voz:** «Atom» «adam» (EN 3), «Okeechobee» «okikyobi» (EN 7), «seis» «vi» (ES 12), «Kool-Aid Man» «cool aidman»
+  (ES 14): a la lista para escuchar.
+
+Pendiente para el próximo: borrar los fotogramas del 42 al empezar; si el contenedor se reinicia en una pasada, commit y
+`resumeFromRunId` (funciona); mirar los efectos por escena antes de la calidad, no después.
