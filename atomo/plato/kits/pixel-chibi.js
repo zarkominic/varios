@@ -12038,3 +12038,65 @@ export const ELENCO_HM = {
     pal: CLARA({ H: '#8a8a90', h: '#aaaab0', C: '#5a5a62', c: '#42424a', W: '#e8e4dc', F: '#42424a', G: '#2a2430' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_HM);
+
+// ── el reparto del 44 (Paul Atreides: por qué el héroe de Dune es el villano). DERECHOS: nada de las películas (ni
+// actores ni vestuario): los personajes van por los atributos del LIBRO, con ropa del desierto NUESTRA (tonos arena,
+// capas, túnicas). Los ojos «azul sobre azul» de los que toman especia, en la paleta (E). La cara siempre a la vista ──
+const OJO_ESPECIA = { E: '#5a8ae8' };
+export const ELENCO_PA = {
+  // Paul a los 15 (el recuerdo de Caladan): pelo negro corto, túnica verde Atreides con el halcón dorado (o) en el pecho
+  paulNino: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#2e6a4a', c: '#22503a', W: '#d8c89a', o: '#e8c060', F: '#2a3a30' }) },
+  // Paul en el desierto (las películas uno y dos, contado): túnica de arena, capa parda, ojos de especia
+  paul: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'), detras: capa(),
+    pal: OLIVA({ ...OJO_ESPECIA, H: '#1c1424', h: '#3a3046', C: '#b89a6a', c: '#8a7048', W: '#d8c89a', Q: '#6a5034', q: '#4a3622', F: '#5a4a34' }) },
+  // Paul emperador, doce años después: túnica negra con ribete dorado, capa negra, ojos de especia, sin corona (solo el
+  // anillo de sello en la mano)
+  paulEmperador: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'), detras: capa(),
+    pal: OLIVA({ ...OJO_ESPECIA, H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1a1620', W: '#e8c060', o: '#e8c060', Q: '#2a2430', q: '#1a1620', F: '#1a1620' }) },
+  // Paul ciego: la misma túnica negra y una venda de tela clara sobre los ojos (sinOjos lo dibuja la escena con la venda)
+  paulCiego: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'), detras: capa(),
+    pal: OLIVA({ E: '#d8ccb0', H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1a1620', W: '#e8c060', Q: '#2a2430', q: '#1a1620', F: '#1a1620' }) },
+  // Chani: rizos rojizos oscuros, túnica de arena con fajín azul Fremen, ojos de especia
+  chani: { ...B20M, cab: CAB_RIZOS, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#4a1e14'),
+    pal: MORENA({ ...OJO_ESPECIA, H: '#6a2a1a', h: '#8a4028', C: '#c8a878', c: '#a08458', W: '#3a6aa8', G: '#3a6aa8', F: '#7a6444' }) },
+  // la princesa Irulan: melena rubia larga, vestido blanco con oro (la hija del emperador)
+  irulan: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO, ceja: hex('#b8903c'),
+    pal: CLARA({ H: '#e8c870', h: '#f6e2a8', C: '#f2eee2', c: '#d8d0bc', W: '#e8c060', L: '#8a7a5a' }) },
+  // Jessica, Bene Gesserit: melena color bronce, túnica negra de la orden
+  jessica: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#6a3a1a'),
+    pal: CLARA({ H: '#9a5a2a', h: '#c07a3a', C: '#2a2430', c: '#1a1620', W: '#4a4458', F: '#1a1620' }) },
+  // el duque Leto: barba negra recortada, uniforme verde Atreides con el halcón dorado
+  leto: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#2e6a4a', c: '#22503a', W: '#e8c060', o: '#e8c060', F: '#22503a' }) },
+  // Alia, la hermana (niña de mirada antigua): pelo cobrizo, túnica negra, ojos de especia
+  alia: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#6a3a1a'),
+    pal: CLARA({ ...OJO_ESPECIA, H: '#9a5a2a', h: '#c07a3a', C: '#2a2430', c: '#1a1620', W: '#2a2430', F: '#1a1620' }) },
+  // Duncan Idaho: rizos negros, chaqueta verde de maestro de armas
+  duncan: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_EUROPEO, ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#3a5a3a', c: '#2a4428', W: '#d8c89a', F: '#2a3a2a' }) },
+  // Hayt, el ghola de Duncan: los mismos rizos, túnica gris lisa y los ojos de METAL (gris acero)
+  hayt: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'),
+    pal: MORENA({ E: '#9aa4b4', H: '#1c1424', h: '#3a3046', C: '#7a7a86', c: '#5a5a66', W: '#9aa4b4', F: '#4a4a56' }) },
+  // Scytale, Danzarín Rostro Tleilaxu: calvo, piel gris pálida, túnica gris oscura (su cara cambia: la escena la tapa con
+  // otro actor)
+  scytale: { ...B20, cab: CAB_CALVO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#8a8a94'),
+    pal: CLARA({ S: '#c8c4c0', s: '#a8a4a0', C: '#4a4a56', c: '#34343e', W: '#7a7a86', F: '#34343e' }) },
+  // Bijaz, el enano Tleilaxu: cuerpo bajito, túnica parda
+  bijaz: { ...B20, cab: CAB_CALVO, cuerpo: CUERPO_ENANO, ceja: hex('#5a4a3a'),
+    pal: CLARA({ S: '#d8b898', s: '#b89878', C: '#6a5034', c: '#4a3622', W: '#8a7a5a', F: '#4a3622' }) },
+  // la Reverenda Madre: mayor, pelo gris recogido, túnica negra de la Bene Gesserit
+  reverendaMadre: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#9a9aa4'),
+    pal: CLARA({ H: '#9a9aa4', h: '#c0c0c8', C: '#1a1620', c: '#0e0c14', W: '#3a3446', F: '#0e0c14' }) },
+  // dos Fremen (el pueblo del desierto) y un sacerdote del culto de Paul (el Qizarate: túnica amarilla de arena)
+  fremen: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'), detras: capa(),
+    pal: MORENA({ ...OJO_ESPECIA, H: '#2a2028', h: '#4a3e4c', C: '#a08458', c: '#7a6440', W: '#3a6aa8', Q: '#7a6440', q: '#5a4830', F: '#5a4830' }) },
+  fremenMujer: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#1c1424'),
+    pal: OSCURA({ ...OJO_ESPECIA, H: '#1c1424', h: '#3a3046', C: '#8a7048', c: '#6a5434', W: '#3a6aa8', F: '#5a4830' }) },
+  sacerdotePA: { ...B20, cab: CAB_CALVO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#2a2028'),
+    pal: MORENA({ ...OJO_ESPECIA, C: '#d8a840', c: '#b08428', W: '#f0d070', F: '#8a6a20' }) },
+  // el emperador Shaddam (solo el recuerdo de la segunda película): pelo rojizo, uniforme gris de los Sardaukar con oro
+  shaddam: { ...B20, cuerpo: CUERPO_EUROPEO, ceja: hex('#8a3a1a'),
+    pal: CLARA({ H: '#9a4a24', h: '#c06a34', C: '#5a5a62', c: '#42424a', W: '#e8c060', o: '#e8c060', F: '#42424a' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_PA);
