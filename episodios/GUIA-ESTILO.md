@@ -24,6 +24,13 @@ Atom ya no vive en la esquina: actúa en el decorado. Pieza común: `atomo/plato
   a explicar; lo que nombra aparece a color, al doble, en su palabra; al terminar, el color vuelve y la historia sigue
   donde se quedó. 4–6 por episodio.
 - La barra del año y el resto del canon no cambian. La esquina de Atom ya no hace falta dejarla vacía.
+- **El detalle y la calidad de las imágenes y las animaciones NO cambian nunca** (el usuario, 20/11/2026: «mantén los
+  detalles y calidad de nuestras imágenes y animaciones siempre»): la narración nueva no rebaja ni un plano; decorados,
+  movimiento y las tres pasadas siguen al nivel del 11 final.
+- **Miniatura desde el 43** (aprobado el 20/11/2026, a partir del canal de Farid Dieck): el personaje en chibi a la
+  izquierda, Atom grande a la derecha con expresión (pensativo, la mano en la barbilla), un corte en diagonal entre los
+  dos, y **de 1 a 3 palabras** grandes en pixel (el nombre de la obra o del personaje, p. ej. «HAYMITCH»). Sustituye a
+  «sin palabras». Lo demás de la miniatura (luz de cine, una idea fuerte que se lea a 320 × 180) se mantiene.
 
 ## Personajes
 

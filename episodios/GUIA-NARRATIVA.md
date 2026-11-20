@@ -120,6 +120,11 @@ tras la primera prueba: «sigue pareciendo lo que hacíamos, frases cortas sin h
   párrafo (`"pausas": {"respiro": 0.2, "parrafo": 0.7, "acto": 1.0}`), el inglés a 0,95 y el español con
   `mood.valence` 0,4 y `mood.arousal` 0,3 (más contenido, con misterio). Unas 170 palabras por minuto. Música presente
   cuando calla la voz.
+- **Duración y destripes** (decidido el 20/11/2026 para el 43): relatos de 12–14 min (unas 2.100–2.300 palabras en
+  inglés); la historia se cuenta entera, con un aviso de destripes a los 10–15 s («si aún no la has visto, guárdate este
+  vídeo para después»), y la violencia nunca se ve.
+- **Títulos al estilo del relato:** una pregunta sobre la persona, con 1–3 palabras clave en mayúsculas, y después la
+  obra (p. ej. «Why Did the WINNER Fall Apart? | Haymitch, Sunrise on the Reaping»). Siempre cierto dentro del vídeo.
 
 
 - **El tema, o la persona o el nombre más buscado, va delante, y el gancho detrás.** Correcciones del usuario: «el título debe ser más catchy, con de lo que va el canal» (22/10) y «deben ser muy claros de qué hablamos, debe decir Los Griegos o Grecia antigua dentro del título, no solo el catch» (23/10). En el 11: «Elizabeth Holmes and Theranos: The Drop of Blood That Fooled Silicon Valley».
