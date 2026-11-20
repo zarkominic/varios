@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep43 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HM-SHORT1-MINIATURA · ep43, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// El gancho: Haymitch a los 16, en el prado al atardecer, con la bolsa roja de gominolas y Lenore Dove a su lado.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/hm-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'prado', camara: 'cerca', luz: 'tarde', sol: 0.7, gominolas: false };
+  T.prado(R, t, o);
+  grado(R, { cx: 160, cy: 120, tinte: '#1a0a14', f: 0.25, desde: 0.35, max: 0.8 });
+  halo(R, 160, 130, 56, 50, '#ffe0a0', 0.32);
+  figura(R, EL.lenore, 186, 166, t, { dir: -1, sonrisa: true }, 2);
+  const fh = figura(R, EL.haymitch, 140, 168, t, { dir: 1, sostiene: true }, 2);
+  // la bolsa roja con lazo dorado, colgando de su mano
+  { const bx = Math.round(fh.mano[0]) - 5, by = Math.round(fh.mano[1]) + 1, RJ = hex('#d0283a'), RO = hex('#8a1424'), BR = hex('#ff6a70'), OR = hex('#f0c040'), K = hex('#1a1020');
+    R.poligono([[bx, by + 3], [bx + 10, by + 3], [bx + 11, by + 13], [bx - 1, by + 13]], K); R.poligono([[bx + 1, by + 4], [bx + 9, by + 4], [bx + 10, by + 12], [bx, by + 12]], RJ);
+    R.rect(bx + 7, by + 5, bx + 9, by + 12, RO); R.rect(bx + 1, by + 5, bx + 2, by + 9, BR);
+    R.poligono([[bx + 3, by - 1], [bx + 7, by - 1], [bx + 6, by + 3], [bx + 4, by + 3]], K); R.rect(bx + 4, by, bx + 6, by + 2, RJ);
+    R.rect(bx + 2, by + 2, bx + 8, by + 3, OR); R.pset(bx + 1, by + 1, OR); R.pset(bx + 9, by + 1, OR); R.pset(bx + 5, by + 2, hex('#fff8d0')); }
+  T.pradoDelante(R, t, o);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

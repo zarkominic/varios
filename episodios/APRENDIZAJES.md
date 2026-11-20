@@ -881,3 +881,37 @@ presentación de Atom llega a 35 s y, si no, pegarle un párrafo entero; mirar e
 
 Pendiente para el próximo: borrar los fotogramas del 42 al empezar; si el contenedor se reinicia en una pasada, commit y
 `resumeFromRunId` (funciona); mirar los efectos por escena antes de la calidad, no después.
+
+## Episodio 43 · Haymitch: Amanecer en la cosecha, el canon nuevo (20/11/2026)
+
+- **Canon nuevo, aprobado por el usuario:** relato hablado a lo Farid Dieck, locutado párrafo a párrafo; Atom en escena,
+  con cara (ya no en la esquina); pausas «fíjate» en gris azulado; miniatura con 1–3 palabras; 12–14 min con aviso de
+  destripes. La sospecha ATOM de `medir-planos --comprobar` y la regla de la «zona de Atom» quedan obsoletas: salen 4–5
+  avisos ATOM y no hay que hacer nada. Un REPITE dentro de una pausa (el mundo congelado) es lo esperado.
+- **El Vigilante:** `ELENCO_CHIBI.vigilante` lo pisaba el vigilante de Gävle del 22 (las uniones posteriores del kit
+  sobrescriben). Solo chocan `vigilante` y `manifestante`. Arreglo: `export { ELENCO_JH as JH }` en hm-comun.js y
+  `T.JH.vigilante` en las escenas. Para el próximo: buscar colisiones de nombres antes de usar `EL.<x>`.
+- **Efectos nuevos** en efectos.cjs: `tapestop` (la entrada de la pausa, en vez de `cuelga`), `pasos({n, ritmo})`,
+  `oca({n})` y `pajaros({n})`. Medidos con earshot: los pasos salen algo brillantes (3,7 kHz).
+- **Calidad:** ronda 0 con 2 fallos dirigidos; 45 de 146 planos suspendieron en la revisión completa; 45 → 0 en la
+  segunda. 21 agentes, 4,5 M de tokens y 2 h 11 min. **Una pasada cambió un decorado que otra escena congela:**
+  hm-cosecha rehízo la sala de la tele y la pausa de hm-toma seguía congelando la copia vieja de `teleFinal`. El agente
+  lo avisó pero no lo tocó («no es mi archivo»). Para el próximo: leer los avisos del workflow buscando «no casa» / «no
+  es mi archivo» antes de dar la pasada por buena.
+- **Miniatura:** tras la pasada de decorados el prado ya pintaba su bolsa de gominolas (`o.gominolas`) y la miniatura
+  llevaba otra en la mano: dos bolsas. Ahora `gominolas: false` y la de la mano es la misma bolsa roja con lazo.
+- **Shorts:** miniatura 3: el hacha a la altura de la cabeza de Haymitch parecía que le golpeaba; subida al destello del
+  campo, lejos de él (la violencia nunca se ve, tampoco insinuada en una miniatura).
+- **Disco:** 12:56 son 23.289 fotogramas y producir.sh pide 12,4 GB. Había 1,4 GB libres: 13 GB eran registros de
+  agentes de pasadas de episodios ya publicados (`~/.claude/projects/…/subagents/workflows`). El usuario aprobó
+  borrarlos (los anteriores al 19/11); también las pruebas del scratchpad, `/tmp/muestra-banda-*` y las cachés de pip y
+  uv. Para el próximo: con episodios de 12–14 min, mirar el disco ANTES de la pasada de calidad.
+- **Títulos:** los del guion pasaban de 60 caracteres y el A/B usaba «everything» (vago para `titulos.py`); se acortaron
+  con el tema delante.
+- **Sonido final:** −14,0/−14,1 LUFS, efectos el 46 % del tiempo, voz 17 dB sobre los efectos; earshot en cuatro tramos:
+  rango de sonoridad 2–3 LU, sin saltos.
+- **Voz:** «geese» «gs» (EN 6 y 38), «reshoot a» (EN 12), «blowgun» (EN 23), «la» «lo» (ES 4), «a» repetida (ES 18): a
+  la lista para escuchar.
+
+Pendiente para el próximo: borrar los fotogramas del 43 al empezar; mirar el disco antes de la calidad; buscar
+colisiones en ELENCO_CHIBI; leer los avisos cruzados del workflow de calidad.

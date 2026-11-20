@@ -1,6 +1,6 @@
 # Episodio 43 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 12:56.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, a 0,95, relato hablado por párrafos) y pista de
   audio en español (ZONOS3-Mini, voz `Rodrigo`, más contenida), las dos con el nivelador por voz.
 - Subtítulos en inglés y en español.
@@ -14,11 +14,11 @@
 
 ## Títulos
 
-- **EN:** Why Did the WINNER Fall Apart? | Haymitch, Sunrise on the Reaping
-- **ES:** ¿Por qué el que GANÓ terminó destrozado? | Haymitch, Amanecer en la cosecha
+- **EN:** Haymitch: Why the Hunger Games WINNER Fell Apart
+- **ES:** Haymitch: por qué el que GANÓ terminó destrozado
 
 **Alternativa para la prueba A/B de YouTube:**
-- EN: He WON the Hunger Games and LOST Everything | Haymitch
+- EN: Haymitch WON the Hunger Games and LOST His Family
 
 La miniatura (canon del 43): Haymitch adolescente en chibi a la izquierda con la bolsa de gominolas, Atom grande y
 pensativo a la derecha, un corte en diagonal, y «HAYMITCH» en pixel grande.
@@ -45,7 +45,15 @@ What we cover:
 If you could tell sixteen-year-old Haymitch one thing, the night before his birthday, what would you say? Tell me in the
 comments.
 
-{CAPITULOS_EN}
+Chapters:
+0:00 The hook
+1:01 The boy from District 12
+2:45 The reaping that wasn't his
+4:01 The Capitol
+6:12 The arena
+8:10 The price
+9:56 Why he drinks
+11:46 The ending
 
 If something in this video touched something personal, you don't have to carry it alone: in the U.S. you can call or
 text 988.
@@ -82,7 +90,15 @@ Lo que contamos:
 Si pudieras decirle una sola cosa al Haymitch de dieciséis años, la noche antes de su cumpleaños, ¿qué le dirías?
 Cuéntamelo en los comentarios.
 
-{CAPITULOS_ES}
+Capítulos:
+0:00 El gancho
+1:01 El chico del 12
+2:45 La cosecha que no era suya
+4:01 El Capitolio
+6:12 La arena
+8:10 El precio
+9:56 Por qué bebe
+11:46 El cierre
 
 Si algo de este vídeo te ha tocado de cerca, no tienes que llevarlo solo: en México, la Línea de la Vida (800 911 2000);
 en España, el 024; en EE. UU., el 988.
@@ -110,10 +126,35 @@ imágenes, arte ni música de las películas: todos los dibujos son propios. La 
 - **Voz sintética:** al subirlo, YouTube Studio pregunta por «contenido alterado o sintético»; márcalo si lo pide por
   las voces.
 - **Para escuchar antes de subir** (lo que marcó el control automático de la voz):
-{AVISOS}
+  - EN, frases 6 y 38: «geese» puede sonar «gs».
+  - EN, frase 12: «reshoot a» puede sonar pegado.
+  - EN, frase 23: «blowgun» puede sonar raro.
+  - ES, frase 4: un «la» puede sonar «lo».
+  - ES, frase 18: una «a» puede sonar repetida.
 
   Siguiendo tu regla, no lo he corregido en el audio: si alguno suena mal, dímelo y lo rehago.
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.25-46.8
+- **EN:** Haymitch Won the Hunger Games, Then Lost His Family #Shorts
+- **ES:** Haymitch ganó los Juegos y perdió a su familia #Shorts
+- **EN:** He won the deadliest Hunger Games in history, and the Capitol took everything he loved. Why did Haymitch become the drunk mentor Katniss meets on the train? The full story is in the linked video. #HungerGames #Haymitch #SunriseOnTheReaping #ASKAtom #Shorts
+- **ES:** Ganó los Juegos del Hambre más mortíferos de la historia, y el Capitolio le quitó todo lo que quería. ¿Por qué Haymitch acabó siendo el mentor borracho que Katniss conoce en el tren? La historia completa, en el vídeo enlazado. #LosJuegosDelHambre #Haymitch #AmanecerEnLaCosecha #ASKAtom #Shorts
+
+### Short 2 · La cosecha que repitieron · tramo 166.6-215.55
+- **EN:** Haymitch: The Reaping the Capitol Reshot #Shorts
+- **ES:** Haymitch: la cosecha que el Capitolio repitió #Shorts
+- **EN:** Haymitch's name never came out of the bowl. So how did he end up in the 50th Hunger Games? And why did the Capitol redo the reaping like a movie take? The full story is in the linked video. #HungerGames #Haymitch #SunriseOnTheReaping #ASKAtom #Shorts
+- **ES:** El nombre de Haymitch nunca salió de la urna. ¿Cómo acabó entonces en los Quincuagésimos Juegos del Hambre? ¿Y por qué el Capitolio repitió la cosecha como una toma de cine? La historia completa, en el vídeo enlazado. #LosJuegosDelHambre #Haymitch #AmanecerEnLaCosecha #ASKAtom #Shorts
+
+### Short 3 · El hacha que volvió · tramo 431.2-450.2 + 471.2-490.0
+- **EN:** Haymitch: The Axe That Came Back #Shorts
+- **ES:** Haymitch: el hacha que volvió #Shorts
+- **EN:** At the edge of the arena there was an invisible force field that threw back anything you hurled at it, and that's how Haymitch won the Hunger Games. The full story is in the linked video. #HungerGames #Haymitch #SunriseOnTheReaping #ASKAtom #Shorts
+- **ES:** En el borde de la arena había un campo de fuerza invisible que devolvía todo lo que le lanzaras, y así ganó Haymitch los Juegos del Hambre. La historia completa, en el vídeo enlazado. #LosJuegosDelHambre #Haymitch #AmanecerEnLaCosecha #ASKAtom #Shorts
+
