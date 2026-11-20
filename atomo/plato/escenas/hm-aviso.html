@@ -142,7 +142,7 @@ const q4 = (t) => {
       else { R.pset(x, y, hex('#1e3048')); } } }
   // Snow señala en «what they did to him»; el vigilante maneja el holograma
   R.actor(EL.snow, 268, 174, t, { dir: -1, dedo: t > h(0.90) && t < h(0.97), sonrisa: t > h(0.97) });
-  R.actor(EL.vigilante, 294, 176, t, { dir: -1, dedo: Math.sin(t * 2.4) > 0.5, habla: Math.sin(t * 9) > 0.6 && t < h(0.95) });
+  R.actor(T.JH.vigilante, 294, 176, t, { dir: -1, dedo: Math.sin(t * 2.4) > 0.5, habla: Math.sin(t * 9) > 0.6 && t < h(0.95) });
   T.AT.luciernaga(R, 34 + Math.sin(t * 0.9) * 6, 130 + Math.sin(t * 2) * 3, t, { dir: 1, brillo: 0.7, cara: t > h(0.93) ? 'triste' : 'normal' });
 };
 

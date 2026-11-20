@@ -158,7 +158,7 @@ const p3 = (t) => {
   if (t > JAULA - 0.3 && t < JAULA + 0.4) { const g2 = tramo(t, JAULA - 0.3, JAULA); for (let i = 0; i <= 20 * g2; i++) tono(lerp(px + 14, cx - rx, i / 20), lerp(g.suelo - 24, cy, i / 20), BL, 0.8); }
   if (t > JAULA - 0.1 && t < JAULA + 0.5) halo(cx - rx, cy, 10, BL, 0.6);
   R.actor(EL.plutarch, px, g.suelo, t, { dir: 1, anda: v > 0 && v < 1, dedo: t > JAULA - 0.3 && t < JAULA + 1.2, habla: t > ENTIENDE + 0.4 && t < JAULA - 0.3 && Math.sin(t * 8) > 0, sonrisa: t > YANO + 0.3 });
-  const w = tramo(t, P3 + 0.8, P3 + 4.4); R.actor(EL.vigilante, ri(lerp(330, 262, w)), g.suelo - 2, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true });
+  const w = tramo(t, P3 + 0.8, P3 + 4.4); R.actor(T.JH.vigilante, ri(lerp(330, 262, w)), g.suelo - 2, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true });
   // el sinsajo: sale de la selva, sube por encima del filo y se va por la izquierda
   const b = tramo(t, YANO, P4 + 0.6);
   if (b > 0 && b < 1) { const bx = b < 0.5 ? lerp(cx + 10, cx - 30, b * 2) : lerp(cx - 30, -12, (b - 0.5) * 2), by = b < 0.5 ? lerp(cy - 4, 42, b * 2) : lerp(42, 28, (b - 0.5) * 2);
@@ -258,7 +258,7 @@ const p7 = (t) => {
   if (t >= CHOCA && t < CHOCA + 1.6) { const s = t - CHOCA; panal(mx0 + 30, mx1 + 14, my0 - 16, my1 + 4, BORDE[0], BORDE[1], s * 36, 1 - s / 1.6, CIAN, 4); if (s < 0.25) halo(BORDE[0], BORDE[1], 16, BL, 0.95); }
   if (p) { if (t < CHOCA || t > VUELVE) for (let k = 1; k < 5; k++) { const tt = t - k * 0.05; tono(p[0] - (t < CHOCA ? 1 : -1) * k * 3, p[1] + Math.sin(tt * 9) * 0.5, hex('#fff0b0'), 0.5 - k * 0.1); } hacha(p[0], p[1], giro, 2, 0.6); }
   // un Vigilante junto al pedestal lo mira; señala la pantalla cuando cambia el contador
-  R.actor(EL.vigilante, g.pedestal[1] + 82, g.suelo, t, { dir: -1, sorpresa: t > CHOCA && t < VUELVE, dedo: t > APAGA + 0.1, habla: t > APAGA + 0.2 && Math.sin(t * 8) > 0 });
+  R.actor(T.JH.vigilante, g.pedestal[1] + 82, g.suelo, t, { dir: -1, sorpresa: t > CHOCA && t < VUELVE, dedo: t > APAGA + 0.1, habla: t > APAGA + 0.2 && Math.sin(t * 8) > 0 });
   T.arenaDelante(R, t, o);
   AT.luciernaga(R, mx0 - 14 + Math.sin(t * 1.2) * 3, my0 + 22 + Math.sin(t * 2.2) * 3, t, { dir: 1, cara: t > CHOCA && t < APAGA ? 'sorpresa' : t > APAGA ? 'triste' : 'normal', brillo: 0.8 });
 };

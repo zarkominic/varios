@@ -212,8 +212,8 @@ const p5 = (t) => {
   // la estela de luz que sube cuando se apaga
   const es = lin(t, en('polen', 0.319), en('polen', 0.376)); if (es > 0 && es < 1) for (let k = 0; k < 6; k++) R.pset(120 + Math.round(Math.sin(k * 2 + t * 3) * 2), 132 - Math.round(es * 26) - k * 3, mez(hex('#ffd34a'), hex('#3a4a6a'), es));
   // dos vigilantes junto a la mesa: el de la izquierda señala la luz al nombrar a Wyatt
-  R.actor(EL.vigilante, 18, 176, t, { dir: 1, dedo: t > en('polen', 0.168) && t < en('polen', 0.262), habla: t > en('polen', 0.168) && t < en('polen', 0.228) && Math.sin(t * 9) > 0 });
-  const vr = R.actor(EL.vigilante, 284, 176, t, { dir: -1, sostiene: true, triste: t > en('polen', 0.319) });
+  R.actor(T.JH.vigilante, 18, 176, t, { dir: 1, dedo: t > en('polen', 0.168) && t < en('polen', 0.262), habla: t > en('polen', 0.168) && t < en('polen', 0.228) && Math.sin(t * 9) > 0 });
+  const vr = R.actor(T.JH.vigilante, 284, 176, t, { dir: -1, sostiene: true, triste: t > en('polen', 0.319) });
   if (vr.mano) { const [qx, qy] = vr.mano; R.rect(qx - 5, qy - 6, qx + 1, qy + 2, K); R.rect(qx - 4, qy - 5, qx, qy + 1, hex('#3ad0c8')); R.pset(qx - 3, qy - 4, hex('#c8fff8')); if (Math.sin(t * 6) > 0) R.pset(qx - 2, qy - 1, hex('#ffd34a')); }
   // Atom rodea la luz con su órbita y se entristece cuando se apaga
   const ax = lerp(250, 132, tramo(t, en('polen', 0.125), en('polen', 0.168))) + Math.sin(t * 1.4) * 3, ay = lerp(70, 104, tramo(t, en('polen', 0.125), en('polen', 0.168))) + Math.sin(t * 2.4) * 2;
@@ -333,8 +333,8 @@ const p11 = (t) => {
   const o = { encuadre: 'control', camara: 'consola', engranajes: eng, pantalla: pantallaAgua };
   T.arena(R, t, o);
   const alarma = t > en('deposito', 0.812) && t < en('deposito', 0.888);
-  R.actor(EL.vigilante, 112, 158, t, { dir: 1, sorpresa: alarma, sonrisa: t > en('deposito', 0.902), brazos: t > en('deposito', 0.902) && t < en('deposito', 0.966), habla: t > en('deposito', 0.972) && Math.sin(t * 8) > 0 });
-  const v2 = tramo(t, en('deposito', 0.926), en('deposito', 1.048)); R.actor(EL.vigilante, Math.round(lerp(330, 196, v2)), 158, t, { dir: -1, anda: v2 > 0 && v2 < 1, sostiene: true });
+  R.actor(T.JH.vigilante, 112, 158, t, { dir: 1, sorpresa: alarma, sonrisa: t > en('deposito', 0.902), brazos: t > en('deposito', 0.902) && t < en('deposito', 0.966), habla: t > en('deposito', 0.972) && Math.sin(t * 8) > 0 });
+  const v2 = tramo(t, en('deposito', 0.926), en('deposito', 1.048)); R.actor(T.JH.vigilante, Math.round(lerp(330, 196, v2)), 158, t, { dir: -1, anda: v2 > 0 && v2 < 1, sostiene: true });
   T.arenaDelante(R, t, o);
   if (alarma && Math.sin(t * 14) > 0) { halo(274, 128, 20, hex('#ff3a3a'), 0.35); R.icono('!', 270, 104, hex('#ff5a5a'), K, 2); }
   AT.luciernaga(R, 104 + Math.sin(t * 1.1) * 4, 92 + Math.sin(t * 2.1) * 3, t, { dir: 1, cara: alarma ? 'sorpresa' : t > en('deposito', 0.897) ? 'triste' : 'normal', brillo: 0.85 });
