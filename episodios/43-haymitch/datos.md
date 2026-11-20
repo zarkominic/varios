@@ -25,7 +25,7 @@ con 3 agentes escépticos antes de locutar.
   en lugar de Woodbine; la cosecha se vuelve a grabar para la emisión [W-n].
 - [Seguro] Louella McCoy (13, su vecina) muere en el desfile; Haymitch lleva su cuerpo hasta Snow y le aplaude; Snow le
   promete una muerte lenta; el Capitolio pone en su lugar a una doble, Lou Lou [W-n]. [Probable] la causa exacta.
-- [Seguro] Mentoras: Wiress y Mags; Effie, escolta y estilista de emergencia; Beetee recluta a Haymitch para sabotear la
+- [Seguro] Mentoras: Wiress y Mags; la escolta es Drusilla; Effie, una joven del Capitolio que les ayuda con la ropa; Beetee recluta a Haymitch para sabotear la
   arena; [Probable] volar el depósito de agua para inundar los ordenadores [W-n].
 - [Seguro] En la arena solo la comida del Capitolio es segura; abren el depósito pero los ordenadores siguen; Maysilee y él,
   aliados; descubren el campo de fuerza; a Maysilee la matan unos mutos-ave; gana cuando el hacha de Silka rebota en el
@@ -44,3 +44,15 @@ con 3 agentes escépticos antes de locutar.
   la extensión al alcohol es posterior, 1997).
 - [Probable] Alrededor de un tercio de las personas con TEPT tienen también un trastorno por consumo de alcohol (Straus
   et al., NIAAA, Alcohol Research: Current Reviews).
+
+## Correcciones de los escépticos (20/11/2026)
+- Lenore Dove en el prado: no hay prueba de que el sol salga mañana (Hume); no «los Juegos tienen 50 años».
+- Snow: un trato (si muere sin dar problemas, su familia y Lenore Dove viven).
+- Effie no es la escolta (es Drusilla). Sesión privada: llama asesinos a los Vigilantes (nota 1); entrevista: pícaro simpático.
+- Wyatt muere antes, protegiendo a la doble; ella cae a la mañana siguiente (polen). Haymitch revienta el depósito solo,
+  con el pedernal de Lenore Dove; Ampert le trae el explosivo y no sobrevive. Maysilee, con cerbatana.
+- Las gominolas envenenadas llegan en una bolsa que prepara Snow. Bebe desde entonces (sin día concreto).
+- Epílogo: Katniss le trae los huevos y Peeta le construye la incubadora.
+- TEPT y alcohol: National Center for PTSD (ptsd.va.gov): más de 4 de cada 10 adultos con TEPT tienen problemas con el
+  alcohol o las drogas. DSM-5: criterios D3 (culparse) y D4 (culpa). Niederland examinó a cientos de supervivientes.
+- «El más mortífero» se sostiene (47 muertos en la arena frente a 23).
