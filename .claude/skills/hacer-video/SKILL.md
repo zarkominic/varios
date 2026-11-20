@@ -35,6 +35,11 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
     fuertes que otras»;
   - **la voz española «B»:** cada frase entera de una vez y sin estirar con rubberband (`locutar_frases.py`, `ENTERA`):
     partida en las comas y estirada «se entrecorta».
+- **El ritmo de la narración (canon desde el 44, el usuario el 20/11/2026: «la narración un 10 % más rápida, y que no
+  haya esas pausas largas de silencio entre escenas; que siga siendo narrada»):** en `hacer_guion.py`, inglés a
+  `velocidad` 1,045, español con `'ritmo': 19.5` (bytes por segundo de ZONOS3) y
+  `'pausas': {'respiro': 0.15, 'parrafo': 0.4, 'acto': 0.5, 'entrada': 0.2, 'salida': 0.25}`. En el 43 cada cambio de
+  escena dejaba 1,2–1,7 s de silencio.
 - **La música con instrumentos sampleados (canon desde el 44, elegido de oído por el usuario el 20/11/2026):** en
   `plan.py`, `BANDA` lleva `'sampleado': True` y una `'paleta'` propia del episodio (qué instrumento hace de solista, de
   color, de metal, de aire…; los nombres, en `atomo/herramientas/sonido/tramo_sf.py`). Dos episodios seguidos no

@@ -170,7 +170,11 @@ def sintetizar(texto, l, vel):
         # mood.arousal a 0,5, elegido de oído por el usuario el 17/11/2026: a 1, la emoción constante se acumula en las
         # oraciones largas y el tono sube hasta el grito; en el 37, 18 de 31 frases). «vel» es el número de toma.
         ctl = sorted(v.get('controles', {}).items())
-        clave = hashlib.sha1(f"z3|{v['voz']}|{ctl}|{v.get('headroom', 3)}|{vel}|{texto}".encode()).hexdigest()[:16]
+        # v['ritmo'] (desde el 44): la velocidad de habla en bytes UTF-8 por segundo (--speaking-rate de ZONOS3); Rodrigo
+        # habla a ~18 por su cuenta, y el usuario la pidió un 10 % más rápida (20/11/2026). Sin ritmo, la clave de la
+        # caché es la de siempre
+        ritmo = f"|r{v['ritmo']}" if v.get('ritmo') else ''
+        clave = hashlib.sha1(f"z3|{v['voz']}|{ctl}|{v.get('headroom', 3)}{ritmo}|{vel}|{texto}".encode()).hexdigest()[:16]
         f = f'{CLIPS}/{l}-{clave}.wav'
         if not os.path.exists(f):
             with tempfile.TemporaryDirectory() as d:
@@ -179,6 +183,8 @@ def sintetizar(texto, l, vel):
                          '--seed', str(1 + int(vel)), '--headroom-db', str(v.get('headroom', 3))]
                 for c, dosis in ctl:
                     orden += ['--control', f'{c}={dosis}']
+                if v.get('ritmo'):
+                    orden += ['--speaking-rate', str(v['ritmo'])]
                 subprocess.run(orden, check=True, capture_output=True)
                 a, sr = sf.read(f'{d}/z.wav')
             sf.write(f, recortar(a_sr(a, sr)), SR)
@@ -355,6 +361,11 @@ _pz = g.get('pausas') or {}
 if 'respiro' in _pz: PAUSA_DENTRO['·'] = float(_pz['respiro'])
 if 'parrafo' in _pz: PAUSA = {k: float(_pz['parrafo']) + (0.05 if k == '?' else 0) for k in PAUSA}
 if 'acto' in _pz: ENTRADA_ACTO = float(_pz['acto'])
+# desde el 44 (el usuario, 20/11/2026: «que no haya esas pausas largas de silencio entre escenas; que siga siendo
+# narrada»): la entrada y la salida de cada escena también se ajustan desde el guion (en el 43 había 1,2–1,7 s de
+# silencio en cada cambio de escena)
+if 'entrada' in _pz: ENTRADA = float(_pz['entrada'])
+if 'salida' in _pz: SALIDA = float(_pz['salida'])
 # guion «parrafo_entero» (opcional, prueba del 20/11/2026): cada párrafo se locuta de una sola vez, sin partirlo en
 # oraciones, para que la entonación siga de una oración a la siguiente como en un relato hablado
 PARRAFO_ENTERO = bool(g.get('parrafo_entero'))

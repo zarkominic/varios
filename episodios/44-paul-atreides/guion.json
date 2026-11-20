@@ -12,16 +12,18 @@
  "narracion": "cuento",
  "parrafo_entero": true,
  "pausas": {
-  "respiro": 0.2,
-  "parrafo": 0.7,
-  "acto": 1.0
+  "respiro": 0.15,
+  "parrafo": 0.4,
+  "acto": 0.5,
+  "entrada": 0.2,
+  "salida": 0.25
  },
  "voces": {
   "en": {
    "motor": "supertonic",
    "voz": "M1",
    "lang": "en",
-   "velocidad": 0.95
+   "velocidad": 1.045
   },
   "es": {
    "motor": "zonos3",
@@ -31,7 +33,8 @@
     "mood.valence": 0.4,
     "mood.arousal": 0.3
    },
-   "headroom": 3
+   "headroom": 3,
+   "ritmo": 19.5
   }
  },
  "lotes": [],
