@@ -151,12 +151,12 @@ guion = {
     # español más contenido (aprobado con la prueba de Roanoke, 20/11/2026)
     'parrafo_entero': True,
     # desde el 44 (el usuario, 20/11/2026): «la narración un 10 % más rápida, y que no haya esas pausas largas de
-    # silencio entre escenas; que siga siendo narrada»: inglés a 1,045 (era 0,95), español a 19,5 bytes/s (Rodrigo va
-    # a ~18 por su cuenta) y pausas cortas, también al entrar y salir de cada escena (en el 43, 1,2–1,7 s)
+    # silencio entre escenas; que siga siendo narrada»: inglés a 1,045 (era 0,95), español a la velocidad que iguala cada frase con la inglesa ('igualar': Rodrigo
+    # va a ~18 bytes/s por su cuenta y acababa antes, dejando 2–5 s de silencio) y pausas cortas, también al entrar y salir de cada escena (en el 43, 1,2–1,7 s)
     'pausas': {'respiro': 0.15, 'parrafo': 0.4, 'acto': 0.5, 'entrada': 0.2, 'salida': 0.25},
     'voces': {'en': {'motor': 'supertonic', 'voz': 'M1', 'lang': 'en', 'velocidad': 1.045},
               'es': {'motor': 'zonos3', 'voz': 'Rodrigo_es_M_1', 'lang': 'es',
-                     'controles': {'mood.valence': 0.4, 'mood.arousal': 0.3}, 'headroom': 3, 'ritmo': 19.5}},
+                     'controles': {'mood.valence': 0.4, 'mood.arousal': 0.3}, 'headroom': 3, 'ritmo': 'igualar'}},
     'lotes': plan.get('lotes', []),
     'escenas': escenas,
 }

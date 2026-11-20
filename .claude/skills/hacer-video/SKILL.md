@@ -37,7 +37,7 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
     partida en las comas y estirada «se entrecorta».
 - **El ritmo de la narración (canon desde el 44, el usuario el 20/11/2026: «la narración un 10 % más rápida, y que no
   haya esas pausas largas de silencio entre escenas; que siga siendo narrada»):** en `hacer_guion.py`, inglés a
-  `velocidad` 1,045, español con `'ritmo': 19.5` (bytes por segundo de ZONOS3) y
+  `velocidad` 1,045, español con `'ritmo': 'igualar'` (cada frase a la velocidad de ZONOS3 que la hace durar lo que la inglesa: con un ritmo fijo el español acababa antes y dejaba 2–5 s de silencio) y
   `'pausas': {'respiro': 0.15, 'parrafo': 0.4, 'acto': 0.5, 'entrada': 0.2, 'salida': 0.25}`. En el 43 cada cambio de
   escena dejaba 1,2–1,7 s de silencio.
 - **La música con instrumentos sampleados (canon desde el 44, elegido de oído por el usuario el 20/11/2026):** en

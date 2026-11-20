@@ -422,6 +422,12 @@ for e in escenas:
         if VOCES[OTRO].get('motor') in TOMAS:
             # ZONOS3 (el español desde el 37) no tiene una velocidad fiable: va a su ritmo, con otra toma si falla, y si
             # dura más que el inglés la frase ocupa lo suyo (el inglés deja silencio detrás, como siempre)
+            # desde el 44, «ritmo»: «igualar»: cada frase española se locuta a la velocidad (bytes UTF-8 por segundo) que
+            # la hace durar lo que la inglesa, entre 15,5 y 21; si no, el español (más corto) dejaba 2–5 s de silencio
+            # detrás de cada frase y no sonaba narrado (el usuario, 20/11/2026)
+            if VOCES[OTRO].get('ritmo_base') == 'igualar' or VOCES[OTRO].get('ritmo') == 'igualar':
+                VOCES[OTRO]['ritmo_base'] = 'igualar'
+                VOCES[OTRO]['ritmo'] = round(float(np.clip(len(texto[OTRO].encode()) / max(1.0, d_p - 0.15), 15.5, 21.0)), 1)
             a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [0, 1, 2])
         else:
             # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
