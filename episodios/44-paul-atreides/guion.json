@@ -1,0 +1,493 @@
+{
+ "serie": "ASK Atom",
+ "numero": 44,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Paul Atreides: Why Dune's Hero Is the Villain",
+  "es": "Paul Atreides: por qué el héroe de Dune es el villano"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "parrafo_entero": true,
+ "pausas": {
+  "respiro": 0.2,
+  "parrafo": 0.7,
+  "acto": 1.0
+ },
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 0.95
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.4,
+    "mood.arousal": 0.3
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "pa-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "giro+2.5"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "giro",
+     "es": "El héroe de Dune no es el héroe: es el villano de su propia historia, y su autor lo escribió así a propósito.",
+     "en": "The hero of Dune isn't the hero: he's the villain of his own story, and his author wrote him that way on purpose.",
+     "visual": "A: el desierto al atardecer, dos lunas; una figura con capa en lo alto de una duna; detrás, un mar de estandartes; golpe en «villain»."
+    },
+    {
+     "n": 2,
+     "marca": "imagina",
+     "es": "Imagina que lo ganas todo: vengas a tu padre, derrotas al emperador, te casas con su hija y medio universo grita tu nombre, y doce años después ese mismo nombre ha servido para una guerra santa que ha costado miles de millones de vidas, y tú lo viste venir desde el principio y no pudiste pararlo.",
+     "en": "Imagine you win everything: you avenge your father, you defeat the emperor, you marry his daughter and half the universe chants your name, and twelve years later that same name has fueled a holy war that has cost billions of lives, and you saw it coming from the very beginning and couldn't stop it.",
+     "visual": "B y A: un mapa de estrellas que se enciende planeta a planeta (la guerra santa, solo luces); Atom de luciérnaga mira asustado."
+    }
+   ]
+  },
+  {
+   "id": "pa-aviso",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "paul",
+     "es": "Ese chico se llama Paul Atreides, y si viste las dos películas de Denis Villeneuve lo conoces: es el muchacho que llega al desierto y se convierte en profeta, y hoy te voy a contar por qué su historia no es la de un héroe, sino una advertencia.",
+     "en": "That young man is Paul Atreides, and if you've seen Denis Villeneuve's two movies you know him: he's the boy who comes to the desert and becomes a prophet, and today I'm going to tell you why his story isn't a hero's story but a warning.",
+     "visual": "A: el joven Paul (atributos: pelo oscuro, destiltraje, capa) camina por la arena; Atom a escala chibi lo sigue."
+    },
+    {
+     "n": 4,
+     "marca": "aviso",
+     "es": "Y antes de seguir, un aviso: te voy a contar entero El Mesías de Dune, el libro en el que se basa Dune: Parte Tres, que llega a los cines a mediados de diciembre, así que si quieres llegar al cine sin saber nada, guárdate este vídeo para después.",
+     "en": "And before we go on, a warning: I'm going to tell you the whole of Dune Messiah, the book Dune: Part Three is based on, which opens on December eighteenth, so if you want to walk into the theater knowing nothing, save this video for later.",
+     "visual": "F: Atom en su estudio levanta el cartel de «destripes» (un ojo tapado) y señala un calendario con «18»."
+    }
+   ]
+  },
+  {
+   "id": "pa-caladan",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "caladan",
+     "es": "Paul nace en Caladan, un planeta de mares, hijo del duque Leto Atreides y de Jessica, que pertenece a la Bene Gesserit, una orden de mujeres que lleva siglos cruzando familias nobles en secreto, como quien cría caballos, para conseguir a un hombre capaz de mirar donde ellas no pueden, incluido el futuro.",
+     "en": "Paul is born on Caladan, a planet of oceans, the son of Duke Leto Atreides and of Jessica, who belongs to the Bene Gesserit, an order of women that has spent centuries secretly breeding noble families, the way you'd breed horses, to produce a man who could look where they cannot, the future included.",
+     "visual": "C: el castillo de piedra sobre el mar con lluvia; el duque, Jessica y el niño en la ventana; Atom de luciérnaga se moja.",
+     "acto": true
+    },
+    {
+     "n": 6,
+     "marca": "arrakis",
+     "es": "El emperador manda a los Atreides a Arrakis, un planeta de arena donde no llueve nunca y donde está la especia, la sustancia más valiosa del universo, pero es una trampa: los Harkonnen, sus enemigos, entran de noche, el duque muere, y Paul y su madre huyen al desierto.",
+     "en": "The emperor sends the Atreides to Arrakis, a planet of sand where it never rains and where the spice is found, the most valuable substance in the universe, but it's a trap: the Harkonnens, their enemies, come in at night, the duke dies, and Paul and his mother flee into the desert.",
+     "visual": "A: la nave aterriza en la arena (forma propia); de noche, luces rojas en el horizonte (sin combate); dos figuras huyen por las dunas."
+    },
+    {
+     "n": 7,
+     "marca": "fremen",
+     "es": "Allí los acogen los Fremen, el pueblo del desierto, y Paul se enamora de Chani, una joven Fremen, pero descubre algo inquietante: los Fremen ya tenían una profecía sobre un salvador venido de fuera, y él encaja en ella como una llave en su cerradura.",
+     "en": "There they're taken in by the Fremen, the people of the desert, and Paul falls in love with Chani, a young Fremen woman, but he discovers something unsettling: the Fremen already had a prophecy about a savior from another world, and he fits it like a key in a lock.",
+     "visual": "A y E: la boca del sietch; Chani en lo alto de una roca; Atom con un destiltraje que gotea (gag); un ratón saltarín le sube a la cabeza (gag)."
+    }
+   ]
+  },
+  {
+   "id": "pa-profecia",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "fijate1",
+     "es": "Y fíjate en esto, porque es la clave de todo: esa profecía no nació en el desierto, la sembraron siglos antes las Bene Gesserit, que van dejando leyendas por los planetas para que, si un día una de ellas necesita ayuda, alguien la reconozca como enviada del cielo, así que el milagro que convierte a Paul en mesías es, en el fondo, una herramienta que alguien plantó a propósito.",
+     "en": "And notice this, because it's the key to everything: that prophecy wasn't born in the desert, the Bene Gesserit planted it centuries earlier, scattering legends across planets so that if one of them ever needs help, someone will recognize her as sent from heaven, so the miracle that turns Paul into a messiah is, deep down, a tool someone planted on purpose.",
+     "visual": "PAUSA: el sietch congelado; Atom (al doble) saca a color un pergamino con un símbolo y un mapa con semillas que caen en muchos planetas."
+    }
+   ]
+  },
+  {
+   "id": "pa-agua",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "agua",
+     "es": "Paul bebe el Agua de Vida, un veneno que casi lo mata, y despierta viendo el futuro con una claridad que nunca había tenido, y lo que ve ya sin dudas es una guerra santa en su nombre que cruzará las estrellas, y aun así decide seguir adelante, porque es la única forma de vencer al emperador.",
+     "en": "Paul drinks the Water of Life, a poison that nearly kills him, and he wakes up seeing the future more clearly than ever, and what he now sees beyond doubt is a holy war in his name that will sweep across the stars, and still he decides to go ahead, because it's the only way to beat the emperor.",
+     "visual": "E: una copa azul brillante; Paul cae dormido; sus ojos se vuelven azules; sobre él, visiones: estandartes y planetas."
+    },
+    {
+     "n": 10,
+     "marca": "trono",
+     "es": "Al final de la segunda película derrota al emperador y exige casarse con su hija, la princesa Irulan, para quedarse con el trono, y Chani, que lo ama, se da la vuelta y se marcha al desierto, porque es la única que entiende en qué se está convirtiendo.",
+     "en": "At the end of the second movie he defeats the emperor and demands to marry his daughter, Princess Irulan, to claim the throne, and Chani, who loves him, turns around and walks off into the desert, because she's the only one who understands what he's becoming.",
+     "visual": "B: el salón del trono: Paul de pie, Irulan a un lado; Chani se da la vuelta y sale al desierto; Atom la mira irse."
+    }
+   ]
+  },
+  {
+   "id": "pa-emperador",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "doce",
+     "es": "El Mesías de Dune empieza doce años después, y Paul ya no es el chico del desierto: es el emperador de un universo entero, vive en una ciudadela enorme en Arrakeen, y miles de peregrinos cruzan el espacio solo para verlo asomarse al balcón.",
+     "en": "Dune Messiah begins twelve years later, and Paul is no longer the boy from the desert: he's the emperor of an entire universe, he lives in a huge citadel in Arrakeen, and thousands of pilgrims cross space just to see him step out onto his balcony.",
+     "visual": "B: la ciudadela por fuera, enorme; el balcón sobre la multitud; Atom saluda y la multitud lo aclama (gag).",
+     "acto": true
+    },
+    {
+     "n": 12,
+     "marca": "chani",
+     "es": "En el libro, Chani no se marcha como en la película: sigue a su lado como su verdadera compañera, mientras Irulan es su esposa solo de nombre, y lo que Chani más desea es darle un hijo, pero pasan los años y el hijo no llega.",
+     "en": "In the book, Chani doesn't walk away like she does in the movie: she stays by his side as his true partner, while Irulan is his wife in name only, and what Chani wants most is to give him a child, but the years go by and the child doesn't come.",
+     "visual": "B: las habitaciones: Chani junto a Paul, Irulan sola al otro lado del pasillo; una cuna vacía en un rincón."
+    },
+    {
+     "n": 13,
+     "marca": "cuenta",
+     "es": "Mientras tanto, la guerra santa que Paul vio en sus visiones ha ocurrido de verdad: los Fremen han llevado su nombre de planeta en planeta, y en el propio libro Paul le hace la cuenta a Hayt: sesenta y un mil millones de muertos, noventa planetas esterilizados y los fieles de cuarenta religiones borrados.",
+     "en": "Meanwhile, the holy war Paul saw in his visions has really happened: the Fremen have carried his name from planet to planet, and in the book Paul does the math for Hayt: sixty-one billion dead, ninety planets sterilized and the followers of forty religions wiped out.",
+     "visual": "B: el mapa de estrellas de la sala: planetas que se apagan uno a uno; un contador con «61» enorme (sin letras)."
+    },
+    {
+     "n": 14,
+     "marca": "leyenda",
+     "es": "Y lo más inquietante es que no puede pararla, porque ya no es suya: aunque Paul se quitara la corona, sus sacerdotes y sus fanáticos seguirían luchando en su nombre, porque la leyenda se ha hecho más grande que el hombre.",
+     "en": "And the most unsettling part is that he can't stop it, because it isn't his anymore: even if Paul gave up the crown, his priests and his fanatics would keep fighting in his name, because the legend has grown bigger than the man.",
+     "visual": "B: Paul se quita la corona; detrás de él, sacerdotes y fanáticos siguen levantando estandartes."
+    }
+   ]
+  },
+  {
+   "id": "pa-etiqueta",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "fijate2",
+     "es": "Y fíjate en esto, porque es lo que Frank Herbert quería que vieras: cuando salió el primer Dune, mucha gente leyó a Paul como un héroe, y Herbert escribió El Mesías para corregirlos; en una entrevista de 1984 dijo que todos los líderes carismáticos de la historia deberían haber llevado una etiqueta en la frente: «Cuidado, puedo ser peligroso para tu salud».",
+     "en": "And notice this, because it's what Frank Herbert wanted you to see: when the first Dune came out, a lot of people read Paul as a hero, and Herbert wrote Messiah to correct them; in a 1984 interview he said that every charismatic leader in history should have come with a label on their forehead: \"Warning, I may be dangerous to your health.\"",
+     "visual": "PAUSA: el balcón congelado; Atom (al doble) le pega en la frente a un busto de líder una etiqueta de aviso (un triángulo con «!»); sale a color una cinta de máquina de escribir «1984».",
+     "es_voz": "Y fíjate en esto, porque es lo que Frank Herbert quería que vieras: cuando salió el primer Dune, mucha gente leyó a Paul como un héroe, y Herbert escribió El Mesías para corregirlos; en una entrevista de mil novecientos ochenta y cuatro dijo que todos los líderes carismáticos de la historia deberían haber llevado una etiqueta en la frente: «Cuidado, puedo ser peligroso para tu salud».",
+     "en_voz": "And notice this, because it's what Frank Herbert wanted you to see: when the first Dune came out, a lot of people read Paul as a hero, and Herbert wrote Messiah to correct them; in a nineteen eighty-four interview he said that every charismatic leader in history should have come with a label on their forehead: \"Warning, I may be dangerous to your health.\""
+    },
+    {
+     "n": 16,
+     "marca": "campbell",
+     "es": "Y no le salió gratis: John W. Campbell, el editor de la revista que había publicado Dune por entregas, rechazó El Mesías, porque quería héroes que ganan y no héroes que se equivocan, y el libro acabó saliendo por entregas en otra revista, en 1969.",
+     "en": "And it cost him: John W. Campbell, the editor of the magazine that had serialized Dune, turned Messiah down, because he wanted heroes who win, not heroes who get it wrong, and the book ended up being serialized in a different magazine, in 1969.",
+     "visual": "F: un despacho editorial de 1969: un editor con gafas devuelve un manuscrito; Atom recoge las hojas; dos revistas con números «1965» y «1969».",
+     "es_voz": "Y no le salió gratis: John W. Campbell, el editor de la revista que había publicado Dune por entregas, rechazó El Mesías, porque quería héroes que ganan y no héroes que se equivocan, y el libro acabó saliendo por entregas en otra revista, en mil novecientos sesenta y nueve.",
+     "en_voz": "And it cost him: John W. Campbell, the editor of the magazine that had serialized Dune, turned Messiah down, because he wanted heroes who win, not heroes who get it wrong, and the book ended up being serialized in a different magazine, in nineteen sixty-nine."
+    }
+   ]
+  },
+  {
+   "id": "pa-conspira",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "grupos",
+     "es": "Contra Paul se juntan los que perdieron poder con él: la Bene Gesserit, que quiere recuperar su linaje; la Cofradía Espacial, cuyos navegantes pilotan las naves plegando el espacio gracias a la especia; y los Tleilaxu, unos científicos que fabrican personas.",
+     "en": "Against Paul, the people who lost power because of him band together: the Bene Gesserit, who want their bloodline back; the Spacing Guild, whose navigators fly the ships by folding space with the help of spice; and the Tleilaxu, scientists who manufacture people.",
+     "visual": "D: la sala secreta: una Reverenda Madre con capa negra, el tanque de especia del navegante (Atom empaña el cristal: gag) y un Tleilaxu bajito.",
+     "acto": true
+    },
+    {
+     "n": 18,
+     "marca": "irulan",
+     "es": "Y con ellos está Irulan, la esposa de nombre, que lleva años poniendo a escondidas un anticonceptivo en la comida de Chani, porque si alguien va a darle un heredero a Paul, quiere ser ella.",
+     "en": "And with them is Irulan, the wife in name only, who has been secretly slipping a contraceptive into Chani's food for years, because if anyone is going to give Paul an heir, she wants it to be her.",
+     "visual": "B: la cocina de la ciudadela: Irulan echa unas gotas en un cuenco; Atom se lleva las manos a la cara."
+    },
+    {
+     "n": 19,
+     "marca": "ghola",
+     "es": "El regalo de los conspiradores es su arma más cruel: le mandan a Paul un ghola, un cuerpo cultivado a partir de las células de un muerto, y el muerto es Duncan Idaho, el maestro de armas que dio la vida por él cuando era un chico, solo que este Duncan tiene ojos de metal, se llama Hayt y no recuerda nada.",
+     "en": "The conspirators' gift is their cruelest weapon: they send Paul a ghola, a body grown from a dead man's cells, and the dead man is Duncan Idaho, the swordmaster who gave his life for him when he was a boy, except this Duncan has metal eyes, goes by Hayt and remembers nothing.",
+     "visual": "D: el laboratorio Tleilaxu: tanques de cultivo con siluetas; en uno, un hombre de pelo rizado con ojos de metal."
+    },
+    {
+     "n": 20,
+     "marca": "hayt",
+     "es": "Paul sabe que ese regalo viene a destruirlo, porque el propio Hayt se lo dice, y aun así se lo queda, porque es lo más parecido que tiene a un amigo de la infancia.",
+     "en": "Paul knows the gift has come to destroy him, because Hayt himself tells him so, and he keeps him anyway, because he's the closest thing he has to a childhood friend.",
+     "visual": "B: Hayt delante del trono; Paul le pone una mano en el hombro; Atom de luciérnaga entre los dos."
+    },
+    {
+     "n": 21,
+     "marca": "scytale",
+     "es": "Entre los conspiradores hay además un Danzarín Rostro, Scytale, un Tleilaxu capaz de cambiar de cara como quien se cambia de camisa, y en la película lo interpreta Robert Pattinson, así que fíjate bien en cada personaje que no parezca quien es.",
+     "en": "Among the conspirators there's also a Face Dancer, Scytale, a Tleilaxu who can change his face the way you'd change a shirt, and in the movie he's played by Robert Pattinson, so keep an eye on every character who doesn't seem to be who they are.",
+     "visual": "D: Scytale cambia de cara: una, otra y por un instante la de Atom (gag); Atom se toca la suya."
+    }
+   ]
+  },
+  {
+   "id": "pa-trampa",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "carcel",
+     "es": "Y aquí está el gran giro de Herbert: ver el futuro no es un superpoder, es una cárcel, porque Paul ve todos los caminos posibles y en casi todos pasa algo horrible, así que no elige el bueno, elige el menos malo, y cada paso que da lo encierra un poco más.",
+     "en": "And here's Herbert's big twist: seeing the future isn't a superpower, it's a prison, because Paul sees every possible path and almost all of them lead somewhere horrible, so he doesn't choose the good one, he chooses the least bad one, and every step he takes locks him in a little more.",
+     "visual": "A: Paul en el centro de un laberinto de caminos de luz sobre la arena; todos se oscurecen menos uno.",
+     "acto": true
+    },
+    {
+     "n": 23,
+     "marca": "fijate3",
+     "es": "Y fíjate en esto, porque pasa también fuera de los libros: en 1948, el sociólogo Robert Merton le puso nombre a la profecía autocumplida, una creencia que, solo por creerse, hace que ocurra lo que anuncia, como un banco sano que quiebra porque corre el rumor de que va a quebrar y todos sacan su dinero a la vez, y eso es Paul: al ver la guerra santa y actuar para esquivarla, la va haciendo real.",
+     "en": "And notice this, because it happens outside of books too: in 1948, the sociologist Robert Merton gave a name to the self-fulfilling prophecy, a belief that, just by being believed, makes what it predicts come true, like a healthy bank that collapses because a rumor says it will and everyone pulls out their money at once, and that's Paul: by seeing the holy war and acting to dodge it, he keeps making it real.",
+     "visual": "PAUSA: el laberinto congelado; Atom (al doble) saca a color un banco con colas de gente y un rumor que corre en bocadillos; un año «1948».",
+     "es_voz": "Y fíjate en esto, porque pasa también fuera de los libros: en mil novecientos cuarenta y ocho, el sociólogo Robert Merton le puso nombre a la profecía autocumplida, una creencia que, solo por creerse, hace que ocurra lo que anuncia, como un banco sano que quiebra porque corre el rumor de que va a quebrar y todos sacan su dinero a la vez, y eso es Paul: al ver la guerra santa y actuar para esquivarla, la va haciendo real.",
+     "en_voz": "And notice this, because it happens outside of books too: in nineteen forty-eight, the sociologist Robert Merton gave a name to the self-fulfilling prophecy, a belief that, just by being believed, makes what it predicts come true, like a healthy bank that collapses because a rumor says it will and everyone pulls out their money at once, and that's Paul: by seeing the holy war and acting to dodge it, he keeps making it real."
+    }
+   ]
+  },
+  {
+   "id": "pa-ciego",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "quemapiedras+1.5"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "embarazo",
+     "es": "Chani, por fin, se queda embarazada, porque empieza una antigua dieta Fremen de fertilidad que vence al anticonceptivo, pero los años de veneno ya la han debilitado y el embarazo avanza demasiado deprisa, y Paul, que lo ve venir, sabe que el parto le costará la vida.",
+     "en": "Chani finally gets pregnant, because she starts an ancient Fremen fertility diet that beats the contraceptive, but years of poison have already weakened her and the pregnancy moves far too fast, and Paul, who sees it coming, knows the birth will cost her her life.",
+     "visual": "B: Chani aparta el cuenco; luego, Chani con una mano en el vientre; Paul de espaldas, mirando por la ventana."
+    },
+    {
+     "n": 25,
+     "marca": "quemapiedras",
+     "es": "Luego llega el atentado: unos Fremen traidores encienden una quemapiedras, un arma atómica que ciega a todo el que está cerca, y Paul pierde los ojos, pero, para asombro de todos, sigue caminando sin tropezar, porque su visión del futuro le enseña dónde está cada cosa.",
+     "en": "Then comes the attack: some traitorous Fremen set off a stone burner, an atomic weapon that blinds everyone nearby, and Paul loses his eyes, but, to everyone's amazement, he keeps walking without stumbling, because his vision of the future shows him where everything is.",
+     "visual": "A: la ciudad de noche; un destello blanco enorme en el horizonte (de lejos); Paul, con un paño en los ojos, camina sin tropezar; Atom le pasa la mano por delante y Paul la esquiva (gag)."
+    },
+    {
+     "n": 26,
+     "marca": "ley",
+     "es": "Entre los Fremen, a los ciegos se les deja en el desierto, pero a Paul nadie se atreve a abandonarlo, porque ve sin ojos, y eso lo convierte todavía más en un dios.",
+     "en": "Among the Fremen, the blind are left in the desert, but no one dares abandon Paul, because he sees without eyes, and that makes him even more of a god.",
+     "visual": "A: un camino de arena que se aleja; las huellas de un bastón; los Fremen se inclinan ante Paul."
+    },
+    {
+     "n": 27,
+     "marca": "alia",
+     "es": "Mientras tanto, su hermana Alia, que nació con los recuerdos de generaciones de mujeres que vivieron antes que ella porque su madre bebió el Agua de Vida estando embarazada de ella, se enamora de Hayt, y Hayt empieza a recordar trozos de una vida que no ha vivido.",
+     "en": "Meanwhile, his sister Alia, who was born with the memories of generations of women who lived before her because their mother drank the Water of Life while pregnant with her, falls in love with Hayt, and Hayt starts remembering pieces of a life he hasn't lived.",
+     "visual": "B: Alia (niña de mirada antigua) junto a Hayt; Hayt se lleva la mano a la frente, recordando."
+    }
+   ]
+  },
+  {
+   "id": "pa-precio",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "parto",
+     "es": "Chani da a luz en el sietch Tabr, la cueva Fremen donde Paul aprendió a vivir en el desierto, y muere en el parto, como él había visto, pero ocurre algo que él no había visto: no nace un bebé, nacen dos, un niño y una niña, Leto y Ghanima.",
+     "en": "Chani gives birth in Sietch Tabr, the Fremen cave where Paul learned to live in the desert, and she dies in childbirth, just as he had seen, but something happens that he hadn't seen: not one baby is born but two, a boy and a girl, Leto and Ghanima.",
+     "visual": "E: la cueva del sietch de lejos, con una luz cálida; Atom prepara una cuna, se da la vuelta y hay dos (gag).",
+     "acto": true
+    },
+    {
+     "n": 29,
+     "marca": "ciego",
+     "es": "Su visión solo le enseñaba a la niña, así que en ese momento Paul entiende que el futuro que lo guiaba se ha terminado, y por primera vez está ciego de verdad.",
+     "en": "His vision had only shown him the girl, so in that moment Paul understands that the future that was guiding him is over, and for the first time he is truly blind.",
+     "visual": "E: Paul a oscuras; el laberinto de luz se apaga entero."
+    },
+    {
+     "n": 30,
+     "marca": "duncan",
+     "es": "Y entonces se descubre la última trampa: Hayt llevaba dentro la orden de matar a Paul, preparada para activarse cuando muriera Chani, pero el golpe es tan grande que rompe el condicionamiento, y de dentro de Hayt sale, entero, el verdadero Duncan Idaho, con todos sus recuerdos.",
+     "en": "And then the last trap is revealed: Hayt had been carrying an order to kill Paul, set to go off when Chani died, but the blow is so great that it breaks the conditioning, and out of Hayt comes, whole, the real Duncan Idaho, with all his memories.",
+     "visual": "E: Hayt se detiene; sus ojos de metal brillan; de pronto sonríe como Duncan."
+    },
+    {
+     "n": 31,
+     "marca": "oferta",
+     "es": "Scytale le hace a Paul la oferta más tentadora del libro: devolverle a Chani en un cuerpo nuevo, como le devolvieron a Duncan; Paul dice que no, Scytale intenta usar a los bebés para obligarlo a renunciar al trono y a su fortuna, y Paul, ciego, lo ve a través de los ojos de su hijo y lo detiene.",
+     "en": "Scytale makes Paul the most tempting offer in the book: Chani back in a new body, the way Duncan was brought back; Paul says no, Scytale tries to use the babies to force him to give up his throne and his fortune, and Paul, blind, sees him through his son's eyes and stops him.",
+     "visual": "E: Scytale tiende la mano con una promesa (una silueta de Chani de luz); Paul niega con la cabeza; de lejos, la luz de las cunas (sin armas)."
+    },
+    {
+     "n": 32,
+     "marca": "desierto",
+     "es": "Y entonces Paul hace lo que manda la ley Fremen para los ciegos: deja el trono y se adentra solo en el desierto, y en este libro nadie vuelve a verlo.",
+     "en": "And then Paul does what Fremen law demands of the blind: he leaves the throne and walks out alone into the desert, and in this book no one ever sees him again.",
+     "visual": "A: Paul se aleja solo por las dunas con un bastón; el viento le borra las huellas."
+    },
+    {
+     "n": 33,
+     "marca": "deja",
+     "es": "Así que el hombre que lo ganó todo termina sin ojos, sin Chani y sin futuro, y lo único que deja es una religión que ya no le pertenece y dos hijos que tendrán que cargar con ella.",
+     "en": "So the man who won everything ends up without his eyes, without Chani and without a future, and all he leaves behind is a religion that no longer belongs to him and two children who will have to carry it.",
+     "visual": "B: el trono vacío; dos cunas; estandartes que siguen ondeando."
+    }
+   ]
+  },
+  {
+   "id": "pa-poder",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 34,
+     "marca": "fijate4",
+     "es": "Y fíjate en esto, porque esta parte no es ficción: en 2009, el médico y exministro británico David Owen y el psiquiatra Jonathan Davidson repasaron la vida de los presidentes de Estados Unidos y los primeros ministros británicos de los últimos cien años y describieron el síndrome de hubris, un cambio de personalidad que aparece en algunos líderes tras un tiempo en el poder, con una confianza desmedida, desprecio por los consejos y la sensación de responder solo ante la historia o ante Dios.",
+     "en": "And notice this, because this part isn't fiction: in 2009, the British physician and former foreign secretary David Owen and the psychiatrist Jonathan Davidson went through the lives of U.S. presidents and British prime ministers from the last hundred years and described hubris syndrome, a personality change that shows up in some leaders after time in power, with outsized confidence, contempt for advice and the feeling of answering only to history or to God.",
+     "visual": "PAUSA en F: Atom (al doble) con un retrato de líder que se infla como un globo; salen a color «2009» y una lista de rasgos con iconos.",
+     "acto": true,
+     "es_voz": "Y fíjate en esto, porque esta parte no es ficción: en dos mil nueve, el médico y exministro británico David Owen y el psiquiatra Jonathan Davidson repasaron la vida de los presidentes de Estados Unidos y los primeros ministros británicos de los últimos cien años y describieron el síndrome de hubris, un cambio de personalidad que aparece en algunos líderes tras un tiempo en el poder, con una confianza desmedida, desprecio por los consejos y la sensación de responder solo ante la historia o ante Dios.",
+     "en_voz": "And notice this, because this part isn't fiction: in two thousand nine, the British physician and former foreign secretary David Owen and the psychiatrist Jonathan Davidson went through the lives of U.S. presidents and British prime ministers from the last hundred years and described hubris syndrome, a personality change that shows up in some leaders after time in power, with outsized confidence, contempt for advice and the feeling of answering only to history or to God."
+    },
+    {
+     "n": 35,
+     "marca": "pelota",
+     "es": "Y hay experimentos que lo miden: en 2014, unos psicólogos canadienses pidieron a unas personas que recordaran un momento en el que tuvieron poder sobre otros, y al ver después a alguien apretar una pelota, su cerebro imitaba menos ese gesto que el de quienes habían recordado sentirse sin poder, como si el poder bajara el volumen de la empatía.",
+     "en": "And there are experiments that measure it: in 2014, a team of Canadian psychologists asked people to recall a time they held power over others, and when they then watched someone squeeze a ball, their brains mirrored that movement less than the brains of people who had recalled feeling powerless, as if power turned down the volume on empathy.",
+     "visual": "F: una mano que aprieta una pelota en una pantalla; Atom aprieta la suya y se le escapa rebotando (gag); un medidor de «empatía» que baja.",
+     "es_voz": "Y hay experimentos que lo miden: en dos mil catorce, unos psicólogos canadienses pidieron a unas personas que recordaran un momento en el que tuvieron poder sobre otros, y al ver después a alguien apretar una pelota, su cerebro imitaba menos ese gesto que el de quienes habían recordado sentirse sin poder, como si el poder bajara el volumen de la empatía.",
+     "en_voz": "And there are experiments that measure it: in twenty fourteen, a team of Canadian psychologists asked people to recall a time they held power over others, and when they then watched someone squeeze a ball, their brains mirrored that movement less than the brains of people who had recalled feeling powerless, as if power turned down the volume on empathy."
+    },
+    {
+     "n": 36,
+     "marca": "herbert",
+     "es": "Pero Herbert va un paso más allá, porque Paul no es un tirano de cuento: no busca hacer daño y aun así su nombre causa un desastre, y ese es el aviso, que el peligro no está solo en el líder, sino en los millones que dejan de pensar porque creen que él piensa por ellos.",
+     "en": "But Herbert goes one step further, because Paul isn't a storybook tyrant: he doesn't set out to do harm and his name causes a disaster anyway, and that's the warning, that the danger isn't only in the leader but in the millions who stop thinking because they believe he's thinking for them.",
+     "visual": "A: Paul en el desierto, pequeño; detrás, una multitud enorme que lo sigue con los ojos cerrados."
+    },
+    {
+     "n": 37,
+     "marca": "errores",
+     "es": "Por eso Herbert escribió que los errores de un líder, o los que se cometen en su nombre, se agrandan con cada persona que lo sigue sin hacerse preguntas, y por eso te contó la historia de un héroe para después enseñarte el precio de creer en él.",
+     "en": "That's why Herbert wrote that a leader's mistakes, or the ones made in his name, are amplified by the numbers who follow him without asking questions, and that's why he told you a hero's story and then showed you the price of believing in one.",
+     "visual": "F: Atom pone una ficha con un líder y, detrás, una fila de fichas que se multiplica."
+    },
+    {
+     "n": 38,
+     "marca": "fijate5",
+     "es": "Y fíjate en esto: en 1949, el mitólogo Joseph Campbell describió el viaje del héroe, el molde de casi todas las aventuras, el del chico que sale de casa, recibe un don y vuelve para salvar a su pueblo, y Dune lo sigue paso a paso hasta el trono, y El Mesías te enseña lo que esas historias nunca cuentan: qué pasa el día después de ganar, y por cierto, el editor que rechazó el libro también se apellidaba Campbell.",
+     "en": "And notice this: in 1949, the mythologist Joseph Campbell described the hero's journey, the mold for almost every adventure, the one about the young man who leaves home, receives a gift and comes back to save his people, and Dune follows it step by step all the way to the throne, and Messiah shows you what those stories never tell: what happens the day after you win, and by the way, the editor who turned the book down was also named Campbell.",
+     "visual": "PAUSA: un camino del héroe en círculo (casa, don, vuelta) sobre la pizarra; Atom añade un tramo nuevo: «después»; dos fichas «Campbell».",
+     "es_voz": "Y fíjate en esto: en mil novecientos cuarenta y nueve, el mitólogo Joseph Campbell describió el viaje del héroe, el molde de casi todas las aventuras, el del chico que sale de casa, recibe un don y vuelve para salvar a su pueblo, y Dune lo sigue paso a paso hasta el trono, y El Mesías te enseña lo que esas historias nunca cuentan: qué pasa el día después de ganar, y por cierto, el editor que rechazó el libro también se apellidaba Campbell.",
+     "en_voz": "And notice this: in nineteen forty-nine, the mythologist Joseph Campbell described the hero's journey, the mold for almost every adventure, the one about the young man who leaves home, receives a gift and comes back to save his people, and Dune follows it step by step all the way to the throne, and Messiah shows you what those stories never tell: what happens the day after you win, and by the way, the editor who turned the book down was also named Campbell."
+    }
+   ]
+  },
+  {
+   "id": "pa-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 39,
+     "marca": "huellas",
+     "es": "En el desierto, el viento borra las huellas de Paul, y en Arrakeen su hermana Alia se queda gobernando, con Duncan a su lado y con los dos bebés, que en los libros que siguen cambiarán el destino de la humanidad.",
+     "en": "Out in the desert, the wind erases Paul's footprints, and in Arrakeen his sister Alia stays on to rule, with Duncan by her side and with the two babies, who in the books that follow will change the fate of humanity.",
+     "visual": "A: el viento borra las huellas; en la ciudadela, Alia y Duncan junto a las dos cunas.",
+     "acto": true
+    },
+    {
+     "n": 40,
+     "marca": "parte3",
+     "es": "Dune: Parte Tres va a cambiar cosas, porque los avances ya muestran un salto de diecisiete años y a una Chani enfrentada a Paul, pero la pregunta de Herbert sigue ahí, y es más incómoda que cualquier gusano de arena: ¿a quién estás dispuesto a seguir sin hacerte preguntas?",
+     "en": "Dune: Part Three is going to change things, because the trailers already show a seventeen-year jump and a Chani who's turned against Paul, but Herbert's question is still there, and it's more uncomfortable than any sandworm: who are you willing to follow without asking questions?",
+     "visual": "A: una silueta enorme y lejana mueve la arena; Atom de luciérnaga, de cara al horizonte."
+    },
+    {
+     "n": 41,
+     "marca": "pregunta",
+     "es": "Y ahora te pregunto yo: si pudieras ver el futuro y todos los caminos fueran malos, ¿elegirías el menos malo, como Paul, o te negarías a elegir? Te leo en los comentarios.",
+     "en": "And now I'm asking you: if you could see the future and every path was bad, would you choose the least bad one, like Paul, or would you refuse to choose? I'll be reading the comments.",
+     "visual": "F: Atom en su estudio mira a cámara y señala los comentarios."
+    }
+   ]
+  }
+ ]
+}
