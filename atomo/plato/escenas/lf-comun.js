@@ -431,7 +431,8 @@ export function evergladesDelante(R, t, o = {}) {
 //     Devuelve suelo 160, libre [20, 280], agua [110, 250, 138, 160], mosquitera [30, 100] (el centro del panel que se
 //     rompe), escalera [236, 138], tumbonas [[6, 174], [50, 174]], mesa [290, 152].
 //     Cámara 'agua': EL AGUA DE CERCA, a ras: el borde de enfrente con su albardilla y la cenefa de mosaico, la terraza con
-//     tumbonas y macetas tras la malla, el agua con ondas, cáusticas, burbujas, una hoja, el foco de la piscina que brilla y
+//     tumbonas y macetas tras la malla, la pared de la casa arriba a la derecha (estuco salmón tramado, pilastra acanalada,
+//     franjas art déco menta, ojo de buey y la sombra de la ceja; suave en el rincón de Atom), el agua con ondas, cáusticas, burbujas, una hoja, el foco de la piscina que brilla y
 //     el flotador de flamenco grande que se mece (o.flamenco false lo quita). tiendaDelante tiñe de agua lo que queda por
 //     debajo de la superficie (y > 112) y pinta las ondas de la línea de flotación. Devuelve suelo 170, libre [0, 0],
 //     agua [0, 320, 110, 180], flamenco [118, 104].
@@ -972,7 +973,8 @@ export function a_mapaLeonida(R, x, y, w, t, o = {}) {
   const M = h_mascaraMapa(w, Math.round(fl * 10) / 10), H = M.h, { pset } = R, P = h_MAPA;
   const ultima = Math.ceil(enc) - 1, late = 0.5 + 0.5 * Math.sin(t * 5);
   // el detalle de la Florida de verdad (ríos, el lago con su orilla, la trama del Everglades, carreteras, pueblos,
-  // relieve y papel): solo en los mapas grandes, se funde con o.florida y no pisa las regiones encendidas
+  // relieve del norte y de la cresta central en hachuras, papel con fibras y granos; el mar con lo somero tramado y crestas
+  // de largo desigual que derivan): solo en los mapas grandes, se funde con o.florida y no pisa las regiones encendidas
   const D = w >= 100 && fl > 0.05 ? h_detalleMapa(M) : null, dfl = fl * 1.25 - 0.2, f3 = Math.floor(t * 3);
   for (let j = 0; j < H; j++) for (let i = 0; i < w; i++) {
     const k = j * w + i, r = M.reg[k], f = M.fl[k], X = x + i, Y = y + j;
@@ -981,10 +983,13 @@ export function a_mapaLeonida(R, x, y, w, t, o = {}) {
       // profundidad y una trama diagonal, y el oleaje en crestas de dos tonos que corren
       const m = M.dm[k], b = h_b4(X, Y); let c;
       if (m <= 1) c = Math.sin(t * 3 + i * 0.7 + j * 0.5) > 0.35 ? P.espuma : P.ola;
-      else if (m <= M.d2) c = m === M.d2 && b < 0.35 ? P.medio : P.somero;
-      else if (m <= M.d4) c = m >= M.d4 - 1 && b < 0.4 ? P.mar : P.medio;
+      // lo somero y lo medio, tramados (arena que se ve bajo el agua, motas que rebrillan), no franjas lisas
+      else if (m <= M.d2) { c = m === M.d2 && b < 0.35 ? P.medio : P.somero; const q = h(i, j, 431); if (q > 0.93) c = P.ola; else if (q < 0.06 || ((i * 3 + j * 5) % 17 === 0 && b < 0.5)) c = P.medio; if (q > 0.985 && Math.sin(t * 4 + i + j) > 0.6) c = P.espuma; }
+      else if (m <= M.d4) { c = m >= M.d4 - 1 && b < 0.4 ? P.mar : P.medio; const q = h(i, j, 432); if (q > 0.94) c = P.somero; else if (q < 0.05 || ((i * 5 - j * 3) % 19 === 0 && b < 0.5)) c = P.mar; }
       else { const v = Math.sin(i * 0.045 + j * 0.03 + 0.7) + Math.sin(j * 0.06 - i * 0.025 + 1.3); c = v > 0.85 + (b - 0.5) * 0.5 ? ((i + j) % 6 === 0 ? P.hondoS : P.hondo) : (i - j) % 9 === 0 && b < 0.5 ? P.hondo : P.mar;
-        if (j % 5 === 2 && (i + Math.floor(t * 3 + j * 1.7)) % 11 < 2) c = P.ola; else if (j % 5 === 3 && (i + Math.floor(t * 3 + (j - 1) * 1.7)) % 11 < 3) c = P.olaS;
+        // el oleaje: crestas de largo desigual (y huecos) que derivan con t, cada fila a su paso, con su sombra debajo
+        const cresta = (jj) => { const q = i + Math.floor(t * (2 + (jj % 3) * 0.8) + jj * 1.7 + h(jj, 2, 433) * 40), sg = Math.floor(q / 11), hs = h(sg, jj, 430); return { r: ((q % 11) + 11) % 11, L: hs < 0.28 ? 0 : 1 + Math.floor(hs * 3.4) }; };
+        if (j % 5 === 2) { const z = cresta(j); if (z.r < z.L) c = z.r === 0 && z.L > 2 ? P.espuma : P.ola; } else if (j % 5 === 3) { const z = cresta(j - 1); if (z.L && z.r >= 1 && z.r <= z.L) c = P.olaS; }
         if (M.grid[k]) c = P.rejilla; }
       if (m > 1 && m <= M.d4 && (j % 4 === 1) && ((i + f3 + j * 2) % 13 < 2)) c = P.ola;
       pset(X, Y, c); continue; }
@@ -4297,7 +4302,7 @@ function h_detalleMapa(M) {
   const EV = [[-81.25, 26.68], [-80.42, 26.68], [-80.36, 25.95], [-80.5, 25.25], [-81.1, 25.12], [-81.75, 25.85], [-81.55, 26.35]].map(([a, b]) => [M.px(a), M.py(b)]);
   const OK = [[-82.5, 30.95], [-82.15, 30.95], [-82.1, 30.6], [-82.45, 30.55]].map(([a, b]) => [M.px(a), M.py(b)]);
   const en = (Q, X, Y) => { let d = false; for (let a = 0, b = Q.length - 1; a < Q.length; b = a++) { const [xa, ya] = Q[a], [xb, yb] = Q[b]; if ((ya > Y) !== (yb > Y) && X < (xb - xa) * (Y - ya) / (yb - ya) + xa) d = !d; } return d; };
-  const C = (v) => hex(v), costaS = C('#e2cc98'), costaS2 = C('#e8d6a6'), evB = C('#d6d8a2'), evV = C('#6a9a5a'), evVL = C('#8ab46a'), evP = C('#a08850'), relS = C('#dcc792'), relL = C('#f8ecc4'), fibra = C('#e4d2a2');
+  const C = (v) => hex(v), costaS = C('#e2cc98'), costaS2 = C('#e8d6a6'), evB = C('#d6d8a2'), evV = C('#6a9a5a'), evVL = C('#8ab46a'), evP = C('#a08850'), relS = C('#d6bf88'), relSS = C('#c4a874'), relL = C('#f8ecc4'), fibra = C('#e4d2a2'), grano = C('#e2cf9c'), motaO = C('#c4a874');
   for (let j = 0; j < H; j++) for (let i = 0; i < w; i++) { const k = j * w + i, r = reg[k];
     if (r === 6) { if (tierra(i + 1, j) || tierra(i - 1, j) || tierra(i, j + 1) || tierra(i, j - 1)) D[k] = P.somero; else if ((tierra(i + 2, j) || tierra(i, j + 2) || tierra(i - 2, j)) && (i + j) & 1) D[k] = P.ola; continue; }
     if (r < 0 || r > 5 || (F[k] & 1)) continue;
@@ -4312,9 +4317,12 @@ function h_detalleMapa(M) {
     if (cerca <= 1) { D[k] = costaS; continue; } if (cerca <= 2 && b4 < 0.5) { D[k] = costaS2; continue; }
     // el relieve suave del norte: lomas que reciben la luz del noroeste (lejos de la montaña)
     if (lat > 29.55 && Math.hypot(i - montx, j - monty) > rm) { const lon = lonDe(i), v = Math.sin(lon * 4.1 + lat * 1.3) + Math.sin(lat * 5.7 - lon * 0.8), dv = Math.cos(lon * 4.1 + lat * 1.3) * 4.1 - Math.cos(lat * 5.7 - lon * 0.8) * 0.8;
-      if (v > 0.4) { if (dv > 1.5 && b4 < 0.45) { D[k] = relS; continue; } if (dv < -1.5 && b4 < 0.35) { D[k] = relL; continue; } } }
-    // las fibras del papel
-    if (h(i >> 2, j, 418) > 0.93 && (i & 3) !== 3) D[k] = fibra;
+      if (v > 0.2) { if (dv > 1.2 && b4 < 0.55) { D[k] = dv > 2.6 && b4 < 0.3 ? relSS : relS; continue; } if (dv < -1.2 && b4 < 0.4) { D[k] = relL; continue; } } }
+    // el relieve de la cresta central (Lake Wales y las lomas de arena): hachuras cortas en diagonal que miran al sureste
+    if (lat > 27.4 && lat < 29.6 && cerca > 4) { const lon = lonDe(i), v = Math.sin(lat * 6.3 + lon * 1.9) + Math.sin(lon * 5.1 - lat * 0.7); if (v > 0.9 && (i + j) % 3 === 0 && b4 < 0.6) { D[k] = relS; continue; } }
+    // el papel: fibras, granos más oscuros y alguna mota clara (como el mapa de farmacias del 11)
+    if (h(i >> 2, j, 418) > 0.93 && (i & 3) !== 3) { D[k] = fibra; continue; }
+    { const q = h(i, j, 419); if (q > 0.9) D[k] = grano; else if (q < 0.022) D[k] = motaO; else if (q > 0.86 && q < 0.875) D[k] = relL; }
   }
   // líneas en grados: ríos de dos tonos, carreteras punteadas en pardo gris y los puntos de las ciudades
   const linea = (L, c1, c2, salto) => { let n = 0; for (let q = 0; q + 1 < L.length; q++) { const [a0, b0] = L[q], [a1, b1] = L[q + 1], x0 = M.px(a0), y0 = M.py(b0), x1 = M.px(a1), y1 = M.py(b1), pasos = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 1.5) + 1;

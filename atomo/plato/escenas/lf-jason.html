@@ -13,9 +13,12 @@
 // 1. vicecity/playa cámara 'coche': Jason al volante y Lucia en su descapotable turquesa junto al mar; él saluda con los
 //    brazos y toca el claxon al nombrarlo, ella se gira, habla y señala el mar al nombrarla; una gaviota baja al capó y se
 //    va (corta en «According»);
-// 2. INSERTO sobre el tapete: la baraja; nuestras dos cartas bajas de corazones a la izquierda; la mano canónica reparte
-//    picas en un montón que crece y crece («the deck is stacked against them»); las dos cartas tiemblan; una salamanquesa
-//    cruza el canto y la sombra del ventilador barre el tapete (corta en «Lucia»);
+// 2. INSERTO sobre el tapete: la baraja; nuestras dos cartas bajas de corazones a la izquierda (asoma el canto de otra
+//    boca abajo); la mano canónica reparte picas en un montón que crece y crece, un poco torcido, con cantos y esquinas
+//    a la vista («the deck is stacked against them»); las dos cartas tiemblan y una ficha que giraba sobre su canto cae
+//    plana; pilas de fichas con un brillo que baja, el resto de la baraja en abanico, cenicero de cristal limpio sobre
+//    corcho, dos dados y monedas que destellan; una salamanquesa cruza el canto y la sombra del ventilador barre el
+//    tapete (corta en «Lucia»);
 // 3. interior/carcel: el cerrojo salta y la corredera se abre en un segundo hasta «walked out»; Lucia aparece en el hueco
 //    (la hoja la tapa por la derecha), echa a andar hacia la carretera, se para, se estira y piensa en la casita con
 //    palmera («the good life»); el vigilante saluda (decorado); tres pájaros cruzan (corta en «Jason»);
@@ -137,14 +140,52 @@ const tapete = (t) => {
   R.disco(40, 40, 5, hex('#c8c8d0')); R.disco(40, 40, 3, hex('#26663f')); R.rect(44, 39, 60, 41, hex('#d8d8e0')); R.rect(54, 41, 56, 43, hex('#d8d8e0')); R.rect(58, 41, 60, 44, hex('#d8d8e0')); R.rect(44, 41, 60, 41, hex('#8a8a96'));
   R.rect(28, 30, 32, 44, hex('#8a5a30')); for (const [dx, dy] of [[-5, -2], [5, -2], [-4, -4], [4, -4], [0, -5]]) R.linea(30, 30, 30 + dx, 30 + dy, hex('#3aba5a'));
   { const sx = -214, sy = 4; R.rect(244 + sx, 128 + sy, 262 + sx, 136 + sy, K); R.rect(268 + sx, 128 + sy, 286 + sx, 136 + sy, K); R.rect(245 + sx, 129 + sy, 261 + sx, 135 + sy, hex('#2a3a5a')); R.rect(269 + sx, 129 + sy, 285 + sx, 135 + sy, hex('#2a3a5a')); R.rect(262 + sx, 130 + sy, 268 + sx, 131 + sy, K); R.pset(247 + sx, 130 + sy, hex('#8ab0e0')); R.pset(271 + sx, 130 + sy, hex('#8ab0e0')); }
+  // el cenicero de cristal (limpio) sobre su posavasos de corcho, dos dados y unas monedas, a la izquierda
+  elipse(24, 104, 16, 8, hex('#10301e')); elipse(22, 101, 16, 8, hex('#6e4a22')); elipse(22, 100, 15, 7, hex('#b0803e'));
+  for (let k = 0; k < 22; k++) R.pset(10 + Math.floor(H(k, 3) * 24), 96 + Math.floor(H(k, 7) * 9), H(k, 9) > 0.5 ? hex('#8a6030') : hex('#c8985a'));
+  elipse(22, 99, 11, 5, K); elipse(22, 99, 10, 4, hex('#9ac8d4')); elipse(22, 100, 7, 2, hex('#4e7e8e')); elipse(22, 99, 6, 1, hex('#6a9aaa'));
+  R.rect(15, 95, 19, 95, hex('#e8f8fc')); R.rect(28, 103, 30, 103, hex('#e8f8fc')); R.rect(11, 98, 12, 99, hex('#3a6070')); R.rect(32, 98, 33, 99, hex('#3a6070'));
+  dado(6, 118, 5); dado(20, 124, 2);
+  moneda(12, 143, t, 0); moneda(24, 146, t, 1.7); moneda(19, 141, t, 3.1);
+  // fichas sueltas cerca de la llave
+  ficha(42, 78, 1, '#2a5aa8', '#1a3a70'); ficha(8, 72, 1, '#c8303a', '#8a1e28');
+  // la sombra del vaso, alargada hacia la izquierda por la lámpara
+  elipse(280, 92, 15, 4, hex('#12361f'));
   // el vaso de limonada con hielo y pajita (las burbujas suben), fuera de la esquina de Atom
   { const vy = 24; R.disco(290, 62 + vy, 13, hex('#163f28')); R.rect(280, 40 + vy, 300, 66 + vy, hex('#f0e890')); R.rect(280, 40 + vy, 281, 66 + vy, hex('#fffbe0')); R.rect(299, 40 + vy, 300, 66 + vy, hex('#c8b850')); R.rect(280, 40 + vy, 300, 42 + vy, hex('#fffbe8'));
   R.rect(284, 44 + vy, 289, 49 + vy, hex('#fbfbf0')); R.rect(291, 47 + vy, 296, 52 + vy, hex('#f0f4f0')); R.linea(294, 30 + vy, 290, 52 + vy, hex('#e84a6a')); R.linea(295, 30 + vy, 291, 52 + vy, hex('#ff8aa0'));
   for (let k = 0; k < 4; k++) { const yy = 64 - ((t * 9 + k * 6) % 22); R.pset(283 + k * 4, Math.round(yy) + vy, hex('#fffbe0')); }
   R.rect(280, 66 + vy, 300, 67 + vy, K); }
 };
-const carta = (x, y, cara, palo, num, ang = 0) => {
-  R.rect(x - 1, y + 2, x + 23, y + 33, hex('#10301e'));
+// elipse rellena (para fichas, monedas, cenicero y sombras)
+const elipse = (cx, cy, rx, ry, c) => { for (let dy = -ry; dy <= ry; dy++) { const w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (dy / (ry + 0.5)) ** 2))); R.rect(cx - w, cy + dy, cx + w, cy + dy, c); } };
+// una pila de n fichas de casino (y: la cara de arriba de la de abajo): canto con rayas blancas, cara con muescas
+const ficha = (x, y, n, col, lado, brillo = -1) => {
+  elipse(x + 2, y + 3, 7, 3, hex('#10301e'));
+  for (let i = 0; i < n; i++) {
+    const yy = y - i * 2;
+    elipse(x, yy, 7, 4, K); elipse(x, yy + 1, 7, 4, K); elipse(x, yy + 1, 6, 3, hex(lado)); elipse(x, yy, 6, 3, hex(col));
+    R.pset(x - 4, yy + 3, hex('#f4f0e2')); R.pset(x, yy + 4, hex('#f4f0e2')); R.pset(x + 4, yy + 3, hex('#f4f0e2'));
+    if (i === brillo) R.rect(x - 2, yy + 3, x + 1, yy + 3, hex('#ffffff'));
+  }
+  const yt = y - (n - 1) * 2;
+  R.pset(x - 5, yt, hex('#f4f0e2')); R.pset(x + 5, yt, hex('#f4f0e2')); R.pset(x - 2, yt - 2, hex('#f4f0e2')); R.pset(x + 2, yt + 2, hex('#f4f0e2'));
+  elipse(x, yt, 3, 1, hex('#f4f0e2')); elipse(x, yt, 2, 0, hex(col)); R.pset(x - 3, yt - 1, hex('#ffffff'));
+};
+// un dado de 9 × 9 con sus puntos (v de 1 a 6)
+const dado = (x, y, v) => {
+  R.rect(x + 1, y + 2, x + 10, y + 10, hex('#10301e')); R.rect(x, y, x + 8, y + 8, K); R.rect(x + 1, y + 1, x + 7, y + 7, hex('#f4f0e8'));
+  R.rect(x + 1, y + 7, x + 7, y + 7, hex('#c8c0b0')); R.rect(x + 7, y + 1, x + 7, y + 7, hex('#c8c0b0')); R.pset(x + 1, y + 1, hex('#ffffff'));
+  const pt = { 1: [[4, 4]], 2: [[2, 2], [6, 6]], 3: [[2, 2], [4, 4], [6, 6]], 4: [[2, 2], [6, 2], [2, 6], [6, 6]], 5: [[2, 2], [6, 2], [4, 4], [2, 6], [6, 6]], 6: [[2, 2], [6, 2], [2, 4], [6, 4], [2, 6], [6, 6]] }[v];
+  for (const [i, j] of pt) R.pset(x + i, y + j, v === 1 ? hex('#c83a3a') : K);
+};
+// una moneda tumbada; el brillo la recorre de vez en cuando
+const moneda = (x, y, t, fase) => {
+  elipse(x + 1, y + 2, 5, 2, hex('#10301e')); elipse(x, y + 1, 5, 3, hex('#7a5a18')); elipse(x, y, 5, 3, hex('#e8c048')); elipse(x, y, 3, 1, hex('#c8a030'));
+  const g = (t * 0.9 + fase) % 4; if (g < 1) R.pset(x - 4 + Math.round(g * 8), y - 1, hex('#fff8d0'));
+};
+const carta = (x, y, cara, palo, num, ang = 0, sombra = true) => {
+  if (sombra) R.rect(x - 1, y + 2, x + 23, y + 33, hex('#10301e'));
   R.rect(x, y, x + 22, y + 31, K); R.rect(x + 1, y + 1, x + 21, y + 30, cara ? hex('#fbf8f0') : hex('#c83a4a'));
   if (!cara) { for (let j = 3; j < 29; j += 3) for (let i = 3; i < 20; i += 3) R.pset(x + i + (j % 2), y + j, hex('#f8d0d0')); R.rect(x + 3, y + 3, x + 19, y + 3, hex('#f8e0e0')); return; }
   R.rect(x + 1, y + 28, x + 21, y + 30, hex('#e4ddcc'));
@@ -156,15 +197,31 @@ const p2 = (t) => {
   tapete(t);
   // nuestras dos cartas bajas, que tiemblan cuando el montón se les viene encima
   const tiembla = t > a(0.37) && t < a(0.37) + 1.2 ? (Math.floor(t * 18) % 2) : 0;
+  // el canto de una segunda carta boca abajo asoma por debajo del 3
+  carta(90, 112, false);
   carta(44 + tiembla, 92, true, 'c', 2); carta(72 - tiembla, 96, true, 'c', 3);
+  // las fichas de la casa, apiladas entre el montón y la baraja (el brillo de la lámpara baja por cada pila)
+  const br = Math.floor((t * 3) % 10);
+  ficha(204, 84, 6, '#c8303a', '#8a1e28', 5 - br); ficha(222, 80, 9, '#2a5aa8', '#1a3a70', 8 - br); ficha(238, 88, 4, '#2a2a34', '#14141a', 3 - br);
+  ficha(212, 100, 3, '#e8b830', '#a87a18', 2 - br); ficha(230, 104, 2, '#c8303a', '#8a1e28');
+  // el resto de la baraja en abanico, boca abajo, bajo las fichas
+  for (let k = 0; k < 4; k++) carta(192 + k * 10, [120, 115, 113, 116][k], false);
+  // una ficha que gira sobre su canto y cae plana cuando el montón se viene encima
+  { const cae = a(0.37) + 0.4, fx = 182, fy = 140;
+    if (t < cae) { const w = Math.max(1, Math.round(Math.abs(Math.cos(t * 7)) * 5)); elipse(fx + 1, fy + 5, 5, 1, hex('#10301e')); R.rect(fx - w - 1, fy - 5, fx + w + 1, fy + 4, K); R.rect(fx - w, fy - 4, fx + w, fy + 3, w > 2 ? hex('#2a8a5a') : hex('#1a5a3a'));
+      if (w > 2) { R.rect(fx - 1, fy - 4, fx + 1, fy - 4, hex('#f4f0e2')); R.rect(fx - 1, fy + 3, fx + 1, fy + 3, hex('#f4f0e2')); R.pset(fx - w + 1, fy - 1, hex('#5aba8a')); } else for (let j = -4; j <= 3; j += 2) R.pset(fx, fy + j, hex('#f4f0e2')); }
+    else { const rb = Math.max(0, 1 - (t - cae) * 2), dy = Math.round(Math.abs(Math.sin((t - cae) * 14)) * 3 * rb); ficha(fx, fy + 3 - dy, 1, '#2a8a5a', '#1a5a3a'); } }
   // la baraja a la derecha (el canto con sus hojas), junto al borde: la mano reparte desde ahí
   const reparto = tramo(t, P2 + 0.3, a(0.37)) * 9, n = Math.min(9, Math.floor(reparto)), fase = reparto - Math.floor(reparto), activo = reparto > 0 && reparto < 9;
   const quedan = 9 - n;
   for (let k = 0; k < 3 + quedan; k++) carta(254, 106 - k, false);
   // el montón de picas que crece en el medio (cada carta resbala por el tapete desde la baraja)
   const valores = [9, 8, 9, 7, 9, 8, 9, 6, 9];
-  for (let k = 0; k < n; k++) carta(140 + ((k * 5) % 3) - 1, 108 - k * 6, true, 'p', valores[k]);
-  if (activo && fase > 0.35) { const u = Math.min(1, (fase - 0.35) / 0.45); carta(Math.round(lerp(250, 140, u)), Math.round(lerp(100, 108 - n * 6, u)) - Math.round(Math.sin(u * 3.14) * 8), u > 0.6, 'p', valores[n]); }
+  // montón en escalera ligera: cada carta cae un poco torcida (1–4 px a un lado) y 2 px más arriba, y asoman cantos y esquinas
+  const desv = [[0, 0], [3, -2], [-2, -4], [4, -5], [-1, -7], [3, -9], [-3, -11], [1, -12], [4, -14], [0, -16]];
+  // (solo la de abajo echa sombra al tapete; las demás dejan ver el canto crema y el filo de la de debajo)
+  for (let k = 0; k < n; k++) { const x = 140 + desv[k][0], y = 110 + desv[k][1]; carta(x, y, true, 'p', valores[k], 0, k === 0); R.rect(x + 1, y + 30, x + 21, y + 30, hex('#b8b0a0')); R.pset(x + 21, y + 1, hex('#ffffff')); }
+  if (activo && fase > 0.35) { const u = Math.min(1, (fase - 0.35) / 0.45), d = desv[n]; carta(Math.round(lerp(250, 140 + d[0], u)), Math.round(lerp(100, 110 + d[1], u)) - Math.round(Math.sin(u * 3.14) * 8), u > 0.6, 'p', valores[n]); }
   // la mano canónica, corta, desde la esquina: coge la carta de arriba y la lanza (un ciclo por carta)
   const tiro = activo ? (fase < 0.35 ? fase / 0.35 : 1 - (fase - 0.35) / 0.65) : 0, sal = tramo(t, a(0.37) + 0.2, a(0.37) + 0.8);
   const mx = Math.round(lerp(282, 262, tiro) + sal * 40), my = Math.round(lerp(104, 96, tiro) + sal * 30);
