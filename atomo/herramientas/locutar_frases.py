@@ -355,12 +355,15 @@ _pz = g.get('pausas') or {}
 if 'respiro' in _pz: PAUSA_DENTRO['·'] = float(_pz['respiro'])
 if 'parrafo' in _pz: PAUSA = {k: float(_pz['parrafo']) + (0.05 if k == '?' else 0) for k in PAUSA}
 if 'acto' in _pz: ENTRADA_ACTO = float(_pz['acto'])
+# guion «parrafo_entero» (opcional, prueba del 20/11/2026): cada párrafo se locuta de una sola vez, sin partirlo en
+# oraciones, para que la entonación siga de una oración a la siguiente como en un relato hablado
+PARRAFO_ENTERO = bool(g.get('parrafo_entero'))
 
 def frase_voz(texto, l, velocidades):
     """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
     partes, oidas, prob, av, vels, t = [], [], [], [], [], 0.0
     cb = VOCES[l].get('motor') == 'chatterbox'
-    for trozo, signo in (cuento(texto) if CUENTO else [(texto, '')] if ENTERA[l] else oraciones(texto) if cb else trozos_voz(texto)):
+    for trozo, signo in ([(texto, '')] if PARRAFO_ENTERO else cuento(texto) if CUENTO else [(texto, '')] if ENTERA[l] else oraciones(texto) if cb else trozos_voz(texto)):
         a, f, vel, p, v = clip_limpio(trozo, l, velocidades)
         oidas += [(w, s + t, x + t) for w, s, x in oir(f, l)]
         prob += p; av += v; vels.append(vel)

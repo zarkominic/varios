@@ -9,10 +9,10 @@
 <body>
 <canvas id="lienzo"></canvas>
 <script type="module">
-// MF-GANCHO · PRUEBA (20/11/2026) de la narración nueva y de Atom en escena, sobre el gancho de Roanoke (57 s, la voz de
-// muestra2). Reutiliza los planos de rk-regreso.html (sus funciones p1–p6 con las marcas del 39, llamadas a otro tiempo)
-// y añade planos propios. Atom ya no está en la esquina: vuela de luciérnaga, camina con su cara, y en la PAUSA el mundo se
-// congela en gris azulado mientras él explica.
+// MF-GANCHO · PRUEBA (20/11/2026) de la narración nueva (párrafos hilados, locutados de una vez) y de Atom en escena, sobre
+// el gancho de Roanoke. Reutiliza los planos de rk-regreso.html (sus funciones p1–p6 con las marcas del 39, llamadas a
+// otro tiempo) y añade planos propios. Atom ya no está en la esquina: vuela de luciérnaga (con cara), camina, y en la
+// PAUSA el mundo se congela en gris azulado mientras él explica.
 // RK-REGRESO (frases 17–19), agosto de 1590. Cartela 1590 y diez planos; golpe «croatoan» en la palabra CROATOAN:
 // 1. de noche, desde el agua: la isla oscura de pinos, los dos barcos fondeados con sus faroles y la luna; la pinaza llega
 //    remando («reached Roanoke») y, en «fire», se enciende un fuego entre los árboles con su humo y su reflejo; White,
@@ -45,8 +45,8 @@
 // 10. la tormenta de lejos: el barco suelto se va mar adentro y la isla se vela con la lluvia («White never returned»).
 import * as T from '/atomo/plato/escenas/rk-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
-const MIA = window.ESCENA ?? { id: 'mf-gancho', duracion: 57.182, fps: 30, voz: [0.5, 56.482],
-  marcas: { m0: 0.5, m0_fin: 5.508, m1: 7.031, m1_fin: 19.633, m2: 20.533, m2_fin: 30.003, m3: 30.903, m3_fin: 39.828, m4: 40.806, m4_fin: 48.941, m5: 49.841, m5_fin: 55.037 } };
+const MIA = window.ESCENA ?? { id: 'mf-gancho', duracion: 81.994, fps: 30, voz: [0.5, 81.294],
+  marcas: { m0: 0.5, m0_fin: 5.329, m1: 7.456, m1_fin: 24.836, m2: 25.536, m2_fin: 43.432, m3: 44.132, m3_fin: 57.465, m4: 58.165, m4_fin: 74.121, m5: 74.821, m5_fin: 81.294 } };
 delete window.ESCENA;   // los planos de rk-regreso leen las marcas del 39
 const { E, R, M } = await T.preparar('rk-regreso');
 window.ESCENA = MIA;
@@ -714,41 +714,45 @@ const efectos = [[A(1.9), 'ola'], [FUEGO, 'brillo'], [TROMPETA, 'silbato'], [CAN
 // ════════════════════════ LA PRUEBA: el gancho de Roanoke con Atom en escena ════════════════════════
 const AT = await import('/atomo/plato/escenas/atom-personaje.js');
 const NM = MIA.marcas, N = (k) => NM[k];
-const Q2 = N('m1'), Q3 = 13.4, Q4 = N('m2'), Q5 = 24.6, Q6 = 27.2, Q7 = N('m3'), Q8 = 35.6, Q9 = N('m4'), Q10 = 49.6, FIN = MIA.duracion;
-const habla = (t) => (t > 0.5 && t < N('m0_fin') + 0.3) || (t > Q2 && t < N('m1_fin')) || (t > Q4 && t < N('m2_fin')) || (t > Q7 && t < N('m3_fin')) || (t > Q9 && t < N('m4_fin')) || (t > N('m5') && t < N('m5_fin')) ? 1 : 0;
+// tiempos de la prueba (con las palabras de la voz: «boat» 13,8, «trumpet» 17,2, «nobody answers» 23,6, «houses» 27,9,
+// «chests» 31,3, «rain» 35,6, «gate» 37,5, «Croatoan» ≈ 42,6, «vanished» 54,9, «sand» 69,9, «map» 71,6, «rings» 72,9)
+const Q2 = N('m1'), Q3 = 15.2, Q3b = 21.6, Q4 = N('m2'), Q5 = 30.9, Q6 = 37.3, Q7 = N('m3'), Q8 = 50.5, Q9 = N('m4'), Q10 = N('m5'), FIN = MIA.duracion;
+const habla = (t) => [['m0', 'm0_fin'], ['m1', 'm1_fin'], ['m2', 'm2_fin'], ['m3', 'm3_fin'], ['m4', 'm4_fin'], ['m5', 'm5_fin']].some(([a, b]) => t > N(a) && t < N(b)) ? 1 : 0;
 const vuelo = (x0, y0, x1, y1, u) => [lerp(x0, x1, ease(Math.max(0, Math.min(1, u)))), lerp(y0, y1, ease(Math.max(0, Math.min(1, u))))];
 
 // 1 · «Imagina que vuelves a casa… Solo una palabra»: el poste en penumbra; la luz empieza a barrer la talla y se queda
 //     en «CRO»; Atom, de luciérnaga, llega volando hasta el poste
 const s1 = (t) => {
-  const o = { encuadre: 'poste', epoca: 1590, luz: 'amanecer', talla: 0.34 * tramo(t, 2.2, 5.0) };
+  const o = { encuadre: 'poste', epoca: 1590, luz: 'amanecer', talla: 0.34 * tramo(t, 2.2, 4.9) };
   T.roanoke(R, t, o); T.roanokeDelante(R, t, o);
-  const [x, y] = vuelo(40, 64, 204, 70, (t - 0.3) / 4.2); AT.luciernaga(R, x, y + Math.sin(t * 2.2) * 2, t);
+  const [x, y] = vuelo(40, 64, 200, 74, (t - 0.3) / 4.2); AT.luciernaga(R, x, y + Math.sin(t * 2.2) * 2, t, { dir: 1, cara: t > 4.9 ? 'sorpresa' : 'normal' });
 };
 // 2 · «Tu hija y tu nieta te esperan en una isla al otro lado del mar»: de noche, la pinaza que llega (rk p1)
-const s2 = (t) => { p1(1.6 + (t - Q2) * 0.8); AT.luciernaga(R, 196 + Math.sin(t * 0.9) * 6, 112 + Math.sin(t * 2.1) * 3, t, { brillo: 0.8 }); };
+const s2 = (t) => { p1(1.6 + (t - Q2) * (5.1 / (Q3 - Q2))); AT.luciernaga(R, 196 + Math.sin(t * 0.9) * 6, 112 + Math.sin(t * 2.1) * 3, t, { brillo: 0.8, dir: 1 }); };
 // 3 · «Bajas del barco, tocas una trompeta, cantas… Y nadie contesta» (rk p2); la luciérnaga se apaga un poco
-const s3 = (t) => { p2(6.73 + (t - Q3) * 0.68); AT.luciernaga(R, 236 + Math.sin(t * 1.1) * 5, 86 + Math.sin(t * 2.3) * 3, t, { brillo: t > 18.9 ? 0.45 : 0.9 }); };
+const s3 = (t) => { p2(6.73 + (t - Q3) * (4.84 / (Q3b - Q3))); AT.luciernaga(R, 236 + Math.sin(t * 1.1) * 5, 86 + Math.sin(t * 2.3) * 3, t, { brillo: 0.9, dir: -1, cara: 'sonrisa' }); };
+// 3b · «…y esperas, y nadie contesta»: White solo en la duna al amanecer (rk p3); la luciérnaga se apaga, triste
+const s3b = (t) => { p3(11.6 + (t - Q3b)); AT.luciernaga(R, 118 + Math.sin(t * 0.8) * 4, 112 + Math.sin(t * 2) * 2, t, { brillo: t > 23.5 ? 0.4 : 0.8, dir: -1, cara: t > 23.5 ? 'triste' : 'normal' }); };
 // 4 · «Las casas ya no están» (rk p4): Atom, a pie, mira a un lado y a otro, triste
-const s4 = (t) => { p4(16.9 + (t - Q4)); AT.atom(R, 252, 171, t, { dir: Math.floor((t - Q4) * 0.9) % 2 ? 1 : -1, cara: 'triste' }); };
+const s4 = (t) => { p4(16.9 + (t - Q4) * 0.9); AT.atom(R, 252, 171, t, { dir: Math.floor((t - Q4) * 0.9) % 2 ? 1 : -1, cara: 'triste' }); };
 // 5 · «Tus baúles desenterrados, tus libros deshechos por la lluvia»: el cerco de 1590 bajo la lluvia
 const s5 = (t) => {
   const o = { encuadre: 'fuerte', epoca: 1590, luz: 'amanecer' }; T.roanoke(R, t, o); T.roanokeDelante(R, t, o);
   for (let k = 0; k < 90; k++) { const x = (hh(k, 1) * 360 + t * 40) % 340 - 10, y = (hh(k, 2) * 200 + t * 160) % 200 - 10; R.linea(Math.round(x), Math.round(y), Math.round(x - 2), Math.round(y + 5), H('#c8d4e4')); }
-  AT.luciernaga(R, 170 + Math.sin(t * 1.3) * 8, 128 + Math.sin(t * 2.4) * 3, t, { brillo: 0.7 });
+  AT.luciernaga(R, 170 + Math.sin(t * 1.3) * 8, 128 + Math.sin(t * 2.4) * 3, t, { brillo: 0.7, dir: -1, cara: 'triste' });
 };
 // 6 · «Y en un poste, alguien talló una palabra: Croatoan» (rk p6, sin llegar a la cruz): Atom se sorprende con White
-const s6 = (t) => { const tv = 26.9 + (t - Q6) * 0.47; p6(tv); AT.atom(R, 104, 172, t, { dir: 1, cara: tv > CROATOAN ? 'sorpresa' : 'normal' }); };
+const s6 = (t) => { const tv = Math.min(28.9, 25.6 + (t - Q6) * 0.44); p6(tv); AT.atom(R, 104, 172, t, { dir: 1, cara: tv > CROATOAN ? 'sorpresa' : 'normal' }); };
 // 7 · «Eso le pasó de verdad a un pintor llamado John White, en agosto de 1590» (rk p3): Atom a su lado, en la duna
-const s7 = (t) => { p3(11.6 + (t - Q7)); AT.atom(R, 116, 152, t, { dir: -1, cara: 'triste' }); };
+const s7 = (t) => { const o = { encuadre: 'fuerte', camara: 'casa', mece: 0.3 }; T.roanoke(R, t, o); T.roanokeDelante(R, t, o); AT.luciernaga(R, 178 + Math.sin(t * 0.7) * 5, 118 + Math.sin(t * 1.9) * 2, t, { brillo: 0.6, dir: 1, cara: 'triste' }); };   // la cuna vacía de los Dare
 // 8 · «Más de cien personas habían desaparecido»: el asentamiento de 1587, con su gente, se deshace en el cerco vacío de
 //     1590 (fundido tramado); al final Atom entra andando desde la derecha
 const fundido = (u) => { if (u <= 0) return; const b = R.nuevo(); const prev = R.usar(b); T.roanoke(R, Q8, { encuadre: 'fuerte', epoca: 1590, luz: 'tarde' }); T.roanokeDelante(R, Q8, { encuadre: 'fuerte', epoca: 1590, luz: 'tarde' }); R.usar(prev);
   const A0 = R.buf; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (u > bay(x, y)) A0[y * 320 + x] = b[y * 320 + x]; };
 const s8 = (t) => {
   const o = { encuadre: 'fuerte', epoca: 1587, luz: 'tarde' }; T.roanoke(R, t, o); T.roanokeDelante(R, t, o);
-  fundido(tramo(t, 37.0, 38.9));
-  if (t > 39.0) AT.atom(R, lerp(340, 262, tramo(t, 39.0, Q9)), 160, t, { s: 2, pose: 'camina', dir: -1 });
+  fundido(tramo(t, 54.6, 56.2));
+  if (t > 56.3) AT.atom(R, lerp(340, 262, tramo(t, 56.3, Q9)), 160, t, { s: 2, pose: 'camina', dir: -1 });
 };
 // 9 · LA PAUSA («Y fíjate en esto… tenemos pistas que John nunca tuvo»): el cerco vacío congelado en gris azulado; Atom,
 //     a color, se acerca, saca la lupa y, una a una, aparecen tres pistas a color (el mapa con la estrellita, el imán con
@@ -767,27 +771,27 @@ const s9 = (t) => {
   const o = { encuadre: 'fuerte', epoca: 1590, luz: 'tarde' }; T.roanoke(R, Q9, o); T.roanokeDelante(R, Q9, o);   // el mundo, quieto
   AT.pausa(R, tramo(t, Q9, Q9 + 0.3) * (1 - tramo(t, Q10 - 0.35, Q10)));
   const x = lerp(262, 214, tramo(t, Q9, Q9 + 1.3)), anda = t < Q9 + 1.3;
-  const pose = anda ? 'camina' : t < 47.4 ? 'sostiene' : 'senala', cara = t < 44.0 ? 'normal' : 'sonrisa';
-  const r = AT.atom(R, x, 160, t, { s: 2, pose, dir: -1, cara, habla: habla(t) && t < 47.4 ? 1 : 0 });
+  const pose = anda ? 'camina' : t < 73.5 ? 'sostiene' : 'senala', cara = t > 62.8 && t < 64.6 ? 'triste' : t < 64.6 ? 'normal' : 'sonrisa';
+  const r = AT.atom(R, x, 160, t, { s: 2, pose, dir: -1, cara, habla: habla(t) });
   if (pose === 'sostiene') AT.lupa(R, r.mano[0], r.mano[1], 2, -1);
   // las tres pistas, a color, que salen de la lupa una a una (con un pop que las agranda y las asienta)
-  const PI = [['mapa', 34, 40, 44.0], ['iman', 84, 30, 45.1], ['anillos', 134, 40, 46.2]];   // al doble, como Atom
+  const PI = [['iman', 34, 40, 69.9], ['mapa', 84, 30, 71.6], ['anillos', 134, 40, 72.9]];   // al doble, como Atom
   for (const [k, ix, iy, t0] of PI) { const u = tramo(t, t0, t0 + 0.35); if (u <= 0) continue;
     const y = iy + Math.round((1 - u) * 24) - Math.round(Math.sin(t * 2 + ix) * 1.5); AT.escalado(R, () => ICONO[k](1, 1), 22, 18, ix, y, 2);
-    if (t > 47.4) AT.anillo(R, ix + 19, y + 16, 26, 20, t, tramo(t, 47.4 + (ix - 34) / 200, 47.9 + (ix - 34) / 200)); }
+    if (t > 73.5) AT.anillo(R, ix + 19, y + 16, 26, 20, t, tramo(t, 73.5 + (ix - 34) / 200, 74.0 + (ix - 34) / 200)); }
 };
 // 10 · «Así que guárdate esa palabra, Croatoan… quizá era la respuesta»: el poste con la talla entera; Atom llega, toca la
 //      palabra, que brilla, y un destello vuela hasta su órbita: se la guarda como un electrón dorado; al final, un guiño
 const s10 = (t) => {
   const o = { encuadre: 'poste', epoca: 1590, luz: 'amanecer', talla: 1 }; const g = T.roanoke(R, t, o); T.roanokeDelante(R, t, o);
-  const x = lerp(110, 200, tramo(t, Q10, Q10 + 1.9)), anda = t < Q10 + 1.9, guarda = t > 53.6;
-  const brilla = tramo(t, 51.9, 52.4) * (1 - tramo(t, 53.4, 53.9));
+  const x = lerp(110, 200, tramo(t, Q10, Q10 + 1.6)), anda = t < Q10 + 1.6, guarda = t > 78.1;
+  const brilla = tramo(t, 76.4, 76.9) * (1 - tramo(t, 77.9, 78.4));
   if (brilla > 0) for (let y = 70; y < 160; y++) for (let xx = 224; xx < 250; xx++) { const g2 = 1 - Math.abs(xx - 236) / 14; if (g2 > 0 && g2 * brilla > bay(xx, y) + 0.25) R.pset(xx, y, mez(R.pget(xx, y), H('#ffe9a0'), 0.5)); }
-  const r = AT.atom(R, x, 166, t, { s: 2, pose: anda ? 'camina' : t < 53.6 ? 'senala' : 'quieto', dir: 1, cara: t > 55.2 ? 'guino' : t > 53.6 ? 'sonrisa' : 'normal', habla: habla(t), extra: guarda });
-  const v = tramo(t, 52.5, 53.6); if (v > 0 && v < 1) { const [cx, cy] = r.centro, px = lerp(236, cx, v), py = lerp(110, cy, v) - Math.sin(v * Math.PI) * 18;
+  const r = AT.atom(R, x, 166, t, { s: 2, pose: anda ? 'camina' : t < 78.1 ? 'senala' : 'quieto', dir: 1, cara: t > 80.1 ? 'guino' : t > 78.1 ? 'sonrisa' : 'normal', habla: habla(t), extra: guarda });
+  const v = tramo(t, 77.0, 78.1); if (v > 0 && v < 1) { const [cx, cy] = r.centro, px = lerp(236, cx, v), py = lerp(110, cy, v) - Math.sin(v * Math.PI) * 18;
     R.rect(Math.round(px) - 1, Math.round(py) - 1, Math.round(px) + 1, Math.round(py) + 1, H('#ffd34a')); R.pset(Math.round(px), Math.round(py), H('#ffffff')); }
 };
-T.rodar(MIA_E(), R, [[0, s1], [Q2, s2], [Q3, s3], [Q4, s4], [Q5, s5], [Q6, s6], [Q7, s7], [Q8, s8], [Q9, s9], [Q10, s10]], { efectos: [], año: (t) => t >= Q8 && t < 38.0 ? 1587 : 1590 });
+T.rodar(MIA_E(), R, [[0, s1], [Q2, s2], [Q3, s3], [Q3b, s3b], [Q4, s4], [Q5, s5], [Q6, s6], [Q7, s7], [Q8, s8], [Q9, s9], [Q10, s10]], { efectos: [], año: (t) => t >= Q8 && t < 55.4 ? 1587 : 1590 });
 function MIA_E() { return { ...E, ...MIA, marca: (k, d = 0) => (typeof NM[k] === 'number' ? NM[k] : d), energia: () => 0, iniciar: (dib, { paso = 0 } = {}) => {
   window.__paso = paso; window.__frame = async (t) => dib(Math.max(0, Math.min(MIA.duracion, t))); window.__listo = true; } }; }
 </script>

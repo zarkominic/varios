@@ -116,11 +116,13 @@ export function atom(R, x, suelo, t, o = {}) {
   const m = (p) => [x + (p[0] - cx) * s, suelo + (p[1] - sy) * s];
   return { mano: m(r.mano), mano1: m(r.mano1), centro: m(r.centro) };
 }
-// pequeño y volando (luciérnaga): el átomo de siempre con un halo que late; sin extremidades
+// pequeño y volando (luciérnaga): solo el núcleo con su cara y sus órbitas, sin extremidades, con un halo que late
+// (el usuario, 20/11/2026: «cuando flota que lleve cara también»). o.cara y o.dir como en atom(); o.brillo 0–1
 export function luciernaga(R, x, y, t, o = {}) {
-  const b = o.brillo ?? 1, B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], r = 9 + Math.sin(t * 3) * 1.2;
-  for (let j = -12; j <= 12; j++) for (let i = -12; i <= 12; i++) { const g = 1 - Math.hypot(i, j) / r; if (g > 0 && g * g * 1.6 * b > (B4[((j & 3) << 2) | (i & 3)] + 0.5) / 16) R.pset(Math.round(x + i), Math.round(y + j), g > 0.6 ? hex('#fff0b0') : A[1]); }
-  R.atomo(Math.round(x), Math.round(y), t, { r: 4.4, orbita: A[7], energia: o.energia ?? 0 });
+  const b = o.brillo ?? 1, B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], r = 12 + Math.sin(t * 3) * 1.2;
+  for (let j = -15; j <= 15; j++) for (let i = -15; i <= 15; i++) { const g = 1 - Math.hypot(i, j) / r; if (g > 0 && g * g * 1.4 * b > (B4[((j & 3) << 2) | (i & 3)] + 0.5) / 16) R.pset(Math.round(x + i), Math.round(y + j), g > 0.6 ? hex('#fff0b0') : A[1]); }
+  const P = piezas(R), X = Math.round(x), Y = Math.round(y);
+  P.orbitas(X, Y, t, 8, false, o); P.bola(X, Y, t, o); P.orbitas(X, Y, t, 8, true, o);
 }
 // LA PAUSA: el mundo congelado en gris azulado (u 0–1 mezcla) y el ⏸ arriba a la izquierda, bajo la barra del año
 export function pausa(R, u = 1, icono = true) {
