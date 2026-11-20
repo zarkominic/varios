@@ -182,7 +182,7 @@ const NUEVOS = {
 function capa(esc, animo) {
   const t0 = Math.max(0, esc.inicio - FUNDIDO / 2), d = esc.duracion + FUNDIDO, b = new Bus(n), r = rng(esc.inicio * 1000 | 0);
   if (animo === 'suspense') {
-    pad(b, [[33 + T, 1], [40 + T, 0.6], [45 + T, 0.35]], t0, d, { cutoff: 450, attack: Math.min(3, d / 3), release: 0.6 });
+    pad(b, [[33 + T, 0.6], [40 + T, 0.35], [45 + T, 0.2]], t0, d, { cutoff: 450, attack: Math.min(3, d / 3), release: 0.6 });
     // registro medio (La3, Mi4, Si4 tenso), para que el suspense se oiga también en un móvil
     pad(b, [[57 + T, 0.32], [64 + T, 0.22], [71 + T, 0.12]], t0, d, { cutoff: 1500, attack: Math.min(3, d / 3), release: 0.6, seed: 4 });
     for (let i = Math.round(t0 * SR), i1 = Math.min(n, Math.round((t0 + d) * SR)); i < i1; i++) {   // crece hasta el final
@@ -195,8 +195,10 @@ function capa(esc, animo) {
     // segunda menor, que se roza y crece, y un pizzicato que insiste: tensión de verdad, sin subir el volumen
     for (let t = t0 + 0.5, k = 0; t < t0 + d - 0.5; t += NEGRA / 4, k++) {
       const crece = 0.3 + 0.7 * Math.min(1, (t - t0) / d), m = (Math.floor(k / 16) % 2 ? 46 : 45) + T;
-      b.addMono(I.strings(m, NEGRA / 4 * 0.9, { attack: 0.01, release: 0.05, bright: 0.55, seed: 40 + (k % 4) }), t, 0.12 * crece, k % 2 ? 0.25 : -0.25);
-      if (k % 8 === 0) b.addMono(I.pizz(33 + T + 12, { seed: 50 }), t, 0.3 * crece, 0);
+      b.addMono(I.strings(m, NEGRA / 4 * 0.9, { attack: 0.01, release: 0.05, bright: 0.7, seed: 40 + (k % 4) }), t, 0.34 * crece, k % 2 ? 0.25 : -0.25);
+      b.addMono(I.strings(m + 12, NEGRA / 4 * 0.9, { attack: 0.01, release: 0.05, bright: 0.8, seed: 44 + (k % 4) }), t, 0.18 * crece, k % 2 ? -0.3 : 0.3);
+      if (k % 8 === 0) b.addMono(I.pizz(33 + T + 12, { seed: 50 }), t, 0.5 * crece, 0);
+      if (k % 16 === 12) b.addMono(I.timpani(33 + T, { decay: 0.5 }), t, 0.35 * crece, 0);
     }
   } else if (animo === 'misterio') {
     pad(b, [[45 + T, 0.6], [52 + T, 0.4], [57 + T, 0.3], [59 + T, 0.18]], t0, d, { cutoff: 900, attack: 2, release: 1.5 });
