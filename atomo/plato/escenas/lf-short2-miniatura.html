@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep42 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LF-SHORT2-MINIATURA · ep42, vertical (x 110–210). Con chibis, sin palabras. «Store cameras caught»: la imagen de la
+// cámara de seguridad (con su marco y su hora), el caimán en el pasillo y el trampero que llega con la pértiga.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { tienda, tiendaDelante, a_caiman } from '/atomo/plato/escenas/lf-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'tienda', camara: 'pasillo' };
+  tienda(R, t, o);
+  grado(R, { cx: 160, cy: 130, tinte: '#06101c', f: 0.28, desde: 0.3, max: 0.85 });
+  halo(R, 160, 160, 60, 20, '#fff2d0', 0.45);
+  a_caiman(R, 142, 172, t, { dir: 1, anda: 0, boca: 0.5, s: 2.6 });
+  figura(R, EL.tramperoLF, 186, 172, t, { dir: -1, sorpresa: true }, 2);
+  tiendaDelante(R, t, { ...o, cctv: 1 });
+  cifra(R, '2018', 160, 22, 16);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
