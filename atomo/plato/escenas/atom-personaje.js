@@ -10,7 +10,7 @@
 //   AT.anillo(R, cx, cy, rx, ry, t, u)                        → una órbita que rodea una pista (u: cuánto se ha trazado)
 //   AT.lupa(R, mx, my, s)                                     → la lupa que sostiene (mx, my: la mano)
 //
-// Poses: quieto | camina | saluda | senala | sostiene | brazos. Caras: normal | sonrisa | sorpresa | triste | guino.
+// Poses: quieto | camina | saluda | senala | sostiene | brazos | piensa. Caras: normal | sonrisa | sorpresa | triste | guino.
 // o.habla (0–1, la energía de la voz): la boca se abre y se cierra. o.s: escala (1 = la de los chibis de la escena).
 // o.extra: un electrón más, dorado (lo que Atom «se guarda»), que gira en su órbita.
 import { hex, PAL } from '/atomo/plato/kits/pixel-retro.js';
@@ -86,6 +86,7 @@ function piezas(R) {
     if (pose === 'senala') m2 = [fx + 6 * dir, fy - 1];
     if (pose === 'sostiene') { m1 = [cx + 3 * dir, cy + 4]; m2 = [fx + 4 * dir, fy + 2]; }
     if (pose === 'brazos') { m1 = [hx - 4 * dir, hy - 6]; m2 = [fx + 4 * dir, fy - 6]; }
+    if (pose === 'piensa') { m1 = [cx + 1 * dir, cy + 5]; m2 = [cx + 3 * dir, cy + 4]; }   // la mano en la barbilla (la miniatura del 43)
     brazo(hx, hy, ...m1);
     bola(cx, cy, t, o);
     brazo(fx, fy, ...m2);
