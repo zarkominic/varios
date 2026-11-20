@@ -165,13 +165,16 @@ const NUEVOS = {
     }
     pad(b, [[TONICA + 12, 0.22], [TONICA + 19, 0.15]], t0, d, { cutoff: 900, attack: 2, release: 2 });
   },
+  // ternura (retocada el 20/11/2026: earshot la oía como «synthwave» por el colchón de sintetizador): guitarra en arpegio,
+  // cuerdas cálidas y suaves en lugar del colchón, y el motivo del episodio en un piano eléctrico lento, a medias
   ternura(b, esc, t0, d, r) {
     const prog = [0, 4, 5, 3];
     compases(esc, t0, d, (c, t) => {
       const k = prog[c % 4], [a1, a3, a5] = acorde(k, 1);
-      [a1 - 12, a5, a1 + 12, a3 + 12, a5, a1 + 12, a3 + 12, a5].forEach((m, j) => b.addMono(I.guitar(m, 1.2, { bright: 0.45, seed: 1 + j }), t + j * NEGRA / 2, j ? 0.3 : 0.4, j % 2 ? 0.2 : -0.2));
+      [a1 - 12, a5, a1 + 12, a3 + 12, a5, a1 + 12, a3 + 12, a5].forEach((m, j) => b.addMono(I.guitar(m, 1.2, { bright: 0.4, seed: 1 + j }), t + j * NEGRA / 2, j ? 0.28 : 0.38, j % 2 ? 0.2 : -0.2));
+      acorde(k, 1).forEach((m, j) => estereo(b, I.strings(m, COMPAS, { attack: 0.9, release: 1.0, bright: 0.35, seed: 30 + j }), t, 0.16));
+      if (c % 2 === 0) MOTIVO.slice(0, 4).forEach((x, j) => b.addMono(I.epiano(TONICA + 24 + x, NEGRA * 1.6, { decay: 1.4 }), t + j * NEGRA, 0.14, 0.15));
     });
-    pad(b, [[TONICA + 12, 0.35], [TONICA + 19, 0.22]], t0, d, { cutoff: 900, attack: 2, release: 2 });
   },
 };
 
@@ -188,6 +191,13 @@ function capa(esc, animo) {
     if (esc.duracion > 7)
       for (let t = esc.inicio + esc.duracion * 0.35, p = 1.15; t < esc.inicio + esc.duracion - 0.8; t += p, p = Math.max(0.7, p * 0.96))
         b.addMono(I.heartbeat(), t, 0.35, 0);
+    // retocado el 20/11/2026 (earshot lo oía «soñador»): un trémolo de cuerdas graves en semicorcheas sobre la tónica y su
+    // segunda menor, que se roza y crece, y un pizzicato que insiste: tensión de verdad, sin subir el volumen
+    for (let t = t0 + 0.5, k = 0; t < t0 + d - 0.5; t += NEGRA / 4, k++) {
+      const crece = 0.3 + 0.7 * Math.min(1, (t - t0) / d), m = (Math.floor(k / 16) % 2 ? 46 : 45) + T;
+      b.addMono(I.strings(m, NEGRA / 4 * 0.9, { attack: 0.01, release: 0.05, bright: 0.55, seed: 40 + (k % 4) }), t, 0.12 * crece, k % 2 ? 0.25 : -0.25);
+      if (k % 8 === 0) b.addMono(I.pizz(33 + T + 12, { seed: 50 }), t, 0.3 * crece, 0);
+    }
   } else if (animo === 'misterio') {
     pad(b, [[45 + T, 0.6], [52 + T, 0.4], [57 + T, 0.3], [59 + T, 0.18]], t0, d, { cutoff: 900, attack: 2, release: 1.5 });
     const motivo = MOTIVO.map((x) => 69 + T + x);

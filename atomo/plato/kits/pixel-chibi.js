@@ -12006,3 +12006,35 @@ export const ELENCO_LF = {
     pal: MORENA({ H: '#1c1424', h: '#3a3046', J: '#2a4a8a', j: '#3a5aa8', C: '#3a8a4a', c: '#2a6a38', F: '#3a5a8a', n: '#2a2430' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_LF);
+
+// ── el reparto del 43 (Haymitch: por qué el que ganó terminó destrozado). Reutiliza el del 20 (ELENCO_JH: haymitch,
+// haymitchViejo, lenore, maysilee, madreHaymitch, hermanoHaymitch, katniss, prim, peeta, snow, plutarch, effie, caesar,
+// drusilla, beetee, wiress, mags, vigilante, agentePaz, hume) y añade los que faltan ──
+export const ELENCO_HM = {
+  // Wyatt Callow (18), el de las apuestas del 12: pelo castaño claro peinado de lado, chaleco marrón sobre camisa clara
+  wyattHM: { ...B20, cuerpo: CUERPO_TIRANTES, ceja: hex('#6a4a2a'),
+    pal: OLIVA({ H: '#8a6a40', h: '#a8885a', C: '#d8ccb0', c: '#b0a488', W: '#7a5a34', G: '#5a3a20', F: '#4a4038', n: '#2a2018' }) },
+  // Louella McCoy (13), la vecina de Haymitch: trenzas castañas, vestido verde claro con delantal blanco
+  louellaHM: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#4a2e1a'), detras: coletas,
+    pal: OLIVA({ H: '#6a4220', h: '#8a5a30', C: '#8ab08a', c: '#6a8a6a', W: '#f2eee2', L: '#2a2018' }) },
+  // la doble («Lou Lou», del Distrito 11): el mismo vestido verde de Louella, pero el pelo negro y la mirada perdida
+  louLouHM: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#1c1424'), detras: coletas,
+    pal: OSCURA({ H: '#1c1424', h: '#3a3046', C: '#8ab08a', c: '#6a8a6a', W: '#f2eee2', L: '#2a2018' }) },
+  // Burdock Everdeen, el mejor amigo de Haymitch: minero, casco con lámpara, mono gris tiznado
+  burdockHM: { ...B20, cuerpo: CUERPO_MANGA, tocado: 'casco', ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#2a2028', h: '#4a3e4c', C: '#5a5a62', c: '#3e3e46', F: '#3e3e46', n: '#2a2018', K: '#2a2a30' }) },
+  // Hattie Meeney, la que destila licor: mayor, moño gris, mantón pardo y delantal manchado
+  hattieHM: { ...B20M, ceja: hex('#7a7a8a'),
+    cuerpo: parche(CUERPO_VESTIDO, [[4, 1, 'uuuuuuu'], [2, 2, 'u.uuuuuuu.u'], [2, 3, 'u..uuuuu..u']]),
+    pal: OLIVA({ H: '#9a9aa4', h: '#babac4', u: '#6a5034', U: '#8a6a48', C: '#4a5a4a', c: '#34423a', W: '#b8a888', L: '#2a2018' }) },
+  // Ampert, el hijo de Beetee (Distrito 3): gafas como su padre, chaqueta técnica gris verdosa
+  ampertHM: { ...B20, tocado: 'gafasClaras', cuerpo: CUERPO_TACTICO, ceja: hex('#1c1424'),
+    pal: MORENA({ E: '#e8ecf4', S: '#b07a58', s: '#86583a', H: '#1c1424', h: '#3a3046', C: '#6a7a72', c: '#4a5650', o: '#4a5650', W: '#6a7a72', G: '#b07a58', I: '#2a2430', F: '#3a3a44', n: '#2a2430' }) },
+  // Silka, la chica del Distrito 1: coleta rubia alta, chaqueta dorada y morada de profesional
+  silkaHM: { ...B20, cuerpo: CUERPO_CAZADORA, ceja: hex('#b8903c'), detras: coletas,
+    pal: CLARA({ H: '#f0d070', h: '#f8e8a8', r: '#c8a030', C: '#7a4a9a', c: '#5a347a', W: '#d8b040', O: '#f0c040', F: '#4a3a5a', n: '#2a2430' }) },
+  // el psiquiatra de los años sesenta (las pausas: William Niederland, por sus atributos): entradas, gafas, traje gris
+  psiquiatraHM: { ...B20, cab: CAB_ENTRADAS, tocado: 'gafas', cuerpo: CUERPO_EUROPEO, ceja: hex('#5a5a5a'),
+    pal: CLARA({ H: '#8a8a90', h: '#aaaab0', C: '#5a5a62', c: '#42424a', W: '#e8e4dc', F: '#42424a', G: '#2a2430' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_HM);
