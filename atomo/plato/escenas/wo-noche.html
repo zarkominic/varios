@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La noche · ep37</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// WO-NOCHE (frase 9), cartela 1977; año 1977. La gran oreja sin nadie, de noche. Tres planos:
+// 1. (cartela) el carro de las bocinas de noche ante el reflector, que ahora lleva paneles con relieve (luz arriba,
+//    sombra abajo), labios de junta, remaches, chorretones, paneles más oscuros, la escalerilla de servicio, una baliza
+//    roja que parpadea y el brillo de la luna que corre panel a panel de izquierda a derecha; en el suelo, charcos que
+//    reflejan el cielo y la lámpara, el cono de la lámpara con polvo y su reflejo. Un mapache entra por la izquierda,
+//    bebe en el charco (ondas), sigue hasta el cable bajo la bocina y lo olfatea; en «a quarter past 11» el piloto del
+//    receptor se enciende de golpe, las dos bocinas vibran (líneas y polvo de las chapas), el cable suelto de la
+//    barandilla da un latigazo y el mapache da un brinco y huye por los raíles (aún se ve al final); murciélagos,
+//    polillas grandes en la lámpara y luciérnagas.
+// 2. («nobody was at the telescope», 7,0) la boca de la impresora: el papel sube línea a línea, solo unos y espacios;
+//    en «logged» un ratón asoma por la botonera, se sienta y mira cómo sale el papel; en «all on its own» se asoma.
+// 3. («and printed it», 13,35) la sala de noche, vacía: EL GAG 3: el papel continuo llena la caja, rebosa, corre por
+//    el suelo hacia la puerta y en «line by line» sale por ella en una ola; el ratón huye delante del papel y se lo
+//    lleva la ola por la puerta; la silla gira sola.
+import * as T from '/atomo/plato/escenas/wo-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('wo-noche');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ease = (u) => Math.max(0, Math.min(1, u)) ** 2 * (3 - 2 * Math.max(0, Math.min(1, u)));
+const hs = (a, b, k = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const bay = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const tono = (cs, f, x, y) => cs[Math.max(0, Math.min(cs.length - 1, Math.floor(f * (cs.length - 1) + bay(x, y))))];
+const mez = (a, b, k) => { let r = 0; for (const sh of [0, 8, 16]) r |= Math.round(((a >>> sh) & 255) * (1 - k) + ((b >>> sh) & 255) * k) << sh; return (r | 0xff000000) >>> 0; };
+// una luz cálida que aclara lo que hay debajo (tramada hacia el borde)
+const luzCalida = (cx, cy, r, c, f = 0.45) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, (y - cy) * 1.4) / r; if (d < 1 && bay(x, y) < 1.2 - d) R.pset(x, y, mez(R.pget(x, y), c, f * (1 - d * 0.6))); } };
+const tranquila = (x, y) => (x >= 274 && y <= 48) || (x >= 16 && x <= 174 && y <= 22);
+// un bocadillo blanco con un icono (?, !) que sale con un saltito
+const globo = (x, y, ic, c, e = 1) => { if (e <= 0) return; const r = Math.round(6 * Math.min(1, e * 1.3)); R.disco(x, y, r + 1, K); R.disco(x, y, r, BL); R.pset(x - 4, y + r + 1, K); R.pset(x - 3, y + r, BL); R.pset(x - 3, y + r + 1, K); if (e > 0.6) R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+// destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } };
+// un murciélago que aletea (5 px de cuerpo)
+const murcielago = (x, y, t, k) => { x = Math.round(x); y = Math.round(y); const ar = Math.sin(t * 22 + k * 2) > 0; const N = hex('#14121c');
+  R.rect(x - 1, y, x + 1, y + 1, N); R.pset(x - 1, y - 1, N); R.pset(x + 1, y - 1, N);
+  if (ar) { R.linea(x - 2, y, x - 5, y - 3, N); R.linea(x + 2, y, x + 5, y - 3, N); R.pset(x - 6, y - 2, N); R.pset(x + 6, y - 2, N); }
+  else { R.linea(x - 2, y + 1, x - 6, y + 2, N); R.linea(x + 2, y + 1, x + 6, y + 2, N); } };
+// una polilla que da vueltas a una luz
+const polilla = (cx, cy, t, k, r = 6) => { const a = t * (5 + k) + k * 2.1, x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a * 1.3) * r * 0.6); R.pset(x, y, hex('#e8dcc0')); if (Math.sin(t * 40 + k) > 0) { R.pset(x - 1, y - 1, hex('#bfb090')); R.pset(x + 1, y - 1, hex('#bfb090')); } };
+// un ratón de campo (8 × 5 px) que anda (fase) o se para y mueve los bigotes; dir 1 mira a la derecha
+const raton = (x, y, dir, fase, anda, t, s = 2) => { x = Math.round(x); y = Math.round(y);
+  const G = hex('#a88060'), GL = hex('#d0a880'), GS = hex('#7a5a40'), P = hex('#f0a0a8');
+  const px = (i, j, c) => { for (let a = 0; a < s; a++) for (let b = 0; b < s; b++) R.pset(x + (i * s + a) * dir, y + (j + 1) * s - 1 - b, c); };
+  for (let i = -4; i <= 3; i++) for (let j = -4; j <= -1; j++) { const d = (i / 4.2) ** 2 + ((j + 2.5) / 2) ** 2; if (d <= 1.25) px(i, j, d > 0.95 ? K : j === -4 ? GL : j === -1 ? GS : G); }
+  px(4, -3, G); px(5, -3, G); px(5, -2, K); px(6, -2, P); px(4, -2, G); px(3, -5, GL); px(2, -5, P);   // hocico, nariz y oreja
+  px(4, -4, K);   // el ojo
+  const b = Math.sin(t * 18) > 0 ? 0 : 1; px(6, -3 - b, hex('#d8d0c0')); px(7, -3 - b, hex('#d8d0c0'));   // bigotes
+  for (let i = 1; i <= 6; i++) px(-4 - i, -2 + Math.round(Math.sin(i * 0.8 + t * 6) * 0.8), P);   // la cola
+  const p = anda ? Math.floor(fase) % 2 : 0; px(-2, 0 - p, GS); px(2, 0 - (1 - p) * (anda ? 1 : 0), GS); };
+
+const tn = (s) => en('noche', (s - 1.5) / 15.607);
+const P2 = tn(7.0), P3 = tn(13.35), CUARTO = tn(5.64), LOGGED = tn(11.03), SOLO = tn(12.43), CONT = tn(15.03), LINEA = tn(16.27);
+// un mapache (dir 1 mira a la derecha): x el centro, y la línea de los pies
+const mapache = (x, y, dir, fase, anda, olfatea, t, s = 2) => { x = Math.round(x); y = Math.round(y);
+  const G = hex('#9a9aa8'), GL = hex('#c4c4d0'), GS = hex('#6a6a78'), N = hex('#1c1c24'), CL = hex('#f0f0f6');
+  const px = (i, j, c) => { for (let a = 0; a < s; a++) for (let b = 0; b < s; b++) R.pset(x + (i * s + a) * dir, y + (j + 1) * s - 1 - b, c); };
+  const p = anda ? Math.floor(fase) % 2 : 0;
+  for (const [i, s] of [[-4, p], [-2, 1 - p], [3, p], [5, 1 - p]]) { const up = anda ? s : 0; px(i, -1 - up, N); px(i, -2 - up, GS); px(i, -3, GS); }
+  for (let i = -7; i <= 6; i++) for (let j = -10; j <= -2; j++) { const d = (i / 7) ** 2 + ((j + 6) / 4) ** 2; if (d <= 1.15) px(i, j, d > 0.9 ? K : j <= -9 ? GL : j >= -3 ? GS : G); }
+  const cola = Math.round(Math.sin(t * 6) * 1.5);   // la cola de anillos
+  for (let i = 1; i <= 7; i++) for (let j = -1; j <= 1; j++) px(-7 - i, -7 + j + Math.round(i * 0.3) + (i > 4 ? cola : 0), j === -1 && i < 7 ? K : (i >> 1) % 2 ? N : GL);
+  const hb = olfatea ? Math.round(Math.abs(Math.sin(t * 14))) + 1 : 0;   // la cabeza que baja al olfatear
+  const hx = 8, hy = -8 + hb;
+  for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) { const d = (i / 3.2) ** 2 + (j / 3) ** 2; if (d <= 1.1) px(hx + i, hy + j, d > 0.85 ? K : G); }
+  for (let i = -2; i <= 3; i++) px(hx + i, hy - 1, N); px(hx, hy - 1, CL); px(hx + 2, hy - 1, CL); px(hx + 1, hy - 1, N); px(hx + 3, hy - 1, N);   // el antifaz
+  for (let i = -2; i <= 3; i++) px(hx + i, hy - 2, CL);
+  px(hx - 2, hy - 4, K); px(hx - 1, hy - 4, GL); px(hx + 2, hy - 4, K); px(hx + 1, hy - 4, GL);   // las orejas
+  px(hx + 4, hy + 1, N); px(hx + 3, hy + 1, CL); px(hx + 3, hy + 2, CL); };
+// ── el reflector de cerca (plano 1): paneles con su relieve, remaches, chorretones, algún panel más oscuro y el brillo
+// de la luna que corre por las chapas. Se calcula una vez (los paneles siguen la rejilla del decorado) y en cada
+// fotograma solo se rehace la banda del brillo. Respeta las bocinas, la barandilla, la caja, el termo y la lámpara.
+const REF = { idx: null, base: null, out: null, p: null, pg: null, riv: null };
+const fueraRef = (x, y) => {
+  for (const [px, py] of [[96, 118], [184, 118]]) { const ca = Math.cos(-0.62), sa = Math.sin(-0.62), dx = x - px, dy = y - py, u = dx * ca + dy * sa, w = -dx * sa + dy * ca;
+    if (u > -16 && u < 62) { const g = 6 + 16 * Math.max(0, Math.min(1, u / 56)); if (w > -g - 9 && w < g + 3) return true; } }
+  for (const [a, b, c, d] of [[62, 108, 94, 112], [238, 108, 264, 112], [62, 108, 66, 118], [260, 108, 264, 118], [224, 109, 256, 118], [256, 92, 274, 112]]) if (x >= a && x <= c && y >= b && y <= d) return true;
+  return false;
+};
+const reflector = (t, pc) => {
+  const B = R.buf;
+  if (!REF.idx) {
+    const idx = [], p = [], pg = [], riv = [];
+    const geo = (x, y) => { const yt = 24 + Math.round(((x - 150) / 170) ** 2 * 8), v2 = (118 - y) / (118 - yt); return [(x - 160) / (22 - v2 * 6) + 20, Math.sqrt(Math.max(0, v2)) * 5 + ((x - 160) / 160) ** 2 * 0.8, yt]; };
+    for (let y = 26; y < 118; y++) for (let x = 0; x < 320; x++) { const [cu, cv, yt] = geo(x, y); if (y < yt + 2 || tranquila(x, y) || fueraRef(x, y)) continue;
+      const [cu1] = geo(x + 1, y), [, cvA] = geo(x, y - 1), pu = Math.floor(cu), pv = Math.floor(cv), fu = cu - pu, fv = cv - pv;
+      // el remache: donde una junta horizontal cruza un cuarto de panel, o una vertical un tercio de fila
+      let r = 0; if ((Math.floor(cv) !== Math.floor(cvA) && Math.floor(cu * 3 + 0.5) !== Math.floor(cu1 * 3 + 0.5)) || (Math.floor(cu) !== Math.floor(cu1) && Math.floor(cv * 2 + 0.5) !== Math.floor(cvA * 2 + 0.5))) r = 1;
+      idx.push(y * 320 + x); p.push(x * 0.55 + y); pg.push(0.55 + hs(pu, pv, 7) * 0.45); riv.push(r); }
+    REF.idx = Int32Array.from(idx); REF.p = Float32Array.from(p); REF.pg = Float32Array.from(pg); REF.riv = Uint8Array.from(riv);
+    REF.base = new Uint32Array(idx.length); REF.out = new Uint32Array(idx.length);
+    const OSC = hex('#141a2a'), CLA = hex('#a8b8d4'), RIV = hex('#9aa8c4'), SOM = hex('#1a1f2c'), OX = hex('#3a2e2a');
+    for (let n = 0; n < idx.length; n++) { const i = idx[n], x = i % 320, y = (i / 320) | 0, [cu, cv] = geo(x, y), pu = Math.floor(cu), pv = Math.floor(cv), fu = cu - pu, fv = cv - pv;
+      let c = B[i]; REF.base[n] = c;
+      const hp = hs(pu, pv, 5);
+      if (hp < 0.2) c = mez(c, OSC, 0.3 + bay(x, y) * 0.06); else if (hp > 0.86) c = mez(c, CLA, 0.08);   // paneles más oscuros (y alguno nuevo)
+      const alm = (0.5 - fv) * 0.16; c = alm > 0 ? mez(c, OSC, alm) : mez(c, CLA, -alm * 0.6);   // el abombado: arriba luz, abajo sombra
+      if (fv > 0.9 && fv < 0.96) c = mez(c, CLA, 0.22); else if (fv > 0.05 && fv < 0.1) c = mez(c, OSC, 0.25);   // el labio de la junta horizontal
+      if (fu > 0.06 && fu < 0.11) c = mez(c, CLA, 0.16); else if (fu > 0.89 && fu < 0.94) c = mez(c, OSC, 0.22);   // y el de la vertical
+      // chorretones de óxido y de rocío bajo algunos remaches
+      const hc = hs(pu, pv, 9), sx = 0.2 + hs(pu, pv, 11) * 0.6; if (hc > 0.55 && Math.abs(fu - sx) < 0.035 && fv > 1 - (0.25 + hc * 0.5)) c = mez(c, hc > 0.8 ? OX : SOM, 0.35 * (fv - 0.3));
+      REF.out[n] = c; }
+    const pos = new Int32Array(57920).fill(-1); for (let n = 0; n < idx.length; n++) pos[idx[n]] = n;
+    for (let n = 0; n < idx.length; n++) if (REF.riv[n]) { REF.out[n] = RIV; { const j = pos[idx[n] + 320]; if (j >= 0 && !REF.riv[j]) REF.out[j] = SOM; } }
+  }
+  const GL = hex('#d6e2f6'), RV = hex('#ffffff');
+  for (let n = 0; n < REF.idx.length; n++) { const i = REF.idx[n]; if (B[i] !== REF.base[n]) continue; let c = REF.out[n];
+    const d = (REF.p[n] - pc) / 15, k = Math.exp(-d * d) * REF.pg[n] * 0.42;   // el brillo de la luna que corre panel a panel
+    if (k > 0.03) c = REF.riv[n] && k > 0.2 ? RV : mez(c, GL, k * (0.8 + bay(i % 320, (i / 320) | 0) * 0.4));
+    B[i] = c; }
+};
+// la escalerilla de servicio pegada al reflector, a la izquierda, con su guarda
+const escalerilla = () => { const N = hex('#1a1e2a'), A = hex('#7a88a4'), L = hex('#b0bcd4');
+  for (const x of [20, 28]) { R.linea(x + 1, 32, x + 1, 117, N); R.linea(x, 32, x, 117, A); R.pset(x, 32, L); }
+  for (let y = 36; y < 117; y += 6) { R.linea(21, y + 1, 27, y + 1, N); R.linea(21, y, 27, y, L); }
+  for (let y = 44; y < 100; y += 14) { R.linea(18, y, 30, y, A); R.linea(17, y + 1, 17, y + 7, A); R.linea(31, y + 1, 31, y + 7, A); } };
+// la baliza roja de aviso en el borde del reflector (lejos de Atom), que parpadea
+const baliza = (t) => { const x = 214, y = 22; R.linea(x, y + 1, x, y + 4, hex('#2a2e3a')); const on = (t * 0.9) % 1 < 0.35;
+  if (on) R.halo(x, y, 5, [hex('#3a1420'), hex('#a82a2a'), hex('#ff6a5a')], 1.1); R.pset(x, y, on ? hex('#ffd0c0') : hex('#6a2020')); };
+// un charco en el suelo de metal: refleja la luna y, si hay, la lámpara; ondas cuando algo lo toca
+const charco = (cx, cy, rx, ry, t, onda, calido) => { const B = R.buf, AG = hex('#070b16'), CI = hex('#4a6290'), BO = hex('#8a9cc0'), CA = hex('#ffd890');
+  for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) { const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 + (hs(x >> 2, y, 13) - 0.5) * 0.3; if (d > 1 || x < 0 || x > 319 || y > 179) continue;
+    const i = y * 320 + x; let c = mez(B[i], AG, 0.72); if (d > 0.72) c = y < cy ? mez(c, BO, 0.5) : mez(c, CI, 0.4);
+    if ((y - cy + Math.round(Math.sin(t * 2 + x * 0.3))) % 2 === 0 && bay(x, y) < 0.25) c = mez(c, CI, 0.5);   // el cielo que tiembla en el agua
+    if (calido && Math.abs(x - calido + Math.round(Math.sin(t * 3 + y) * 1)) < 2) c = mez(c, CA, 0.55 - Math.abs(x - calido) * 0.15);
+    B[i] = c; }
+  if (onda > 0) for (let k = 0; k < 2; k++) { const r = ((onda * 1.6 + k * 0.5) % 1) * rx * 0.8, a = 1 - r / rx; for (let s = 0; s < 24; s++) { const an = s / 24 * Math.PI * 2, x = Math.round(cx + Math.cos(an) * r), y = Math.round(cy + Math.sin(an) * r * ry / rx); if (a > 0.2 && ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 < 0.9) R.pset(x, y, CI); } } };
+// una polilla grande que da vueltas a la lámpara (cuerpo de 2 px y alas que baten), iluminada
+const polillaG = (cx, cy, t, k, r) => { const a = t * (3.2 + k * 0.7) + k * 2.3, x = Math.round(cx + Math.cos(a) * r + Math.sin(t * 9 + k) * 1.5), y = Math.round(cy + Math.sin(a * 1.4) * r * 0.55);
+  const CU = hex('#f2e6c4'), AL = hex('#c8b488'), up = Math.sin(t * 34 + k * 3) > 0;
+  R.pset(x, y, CU); R.pset(x + 1, y, CU);
+  if (up) { R.pset(x - 1, y - 1, AL); R.pset(x + 2, y - 1, AL); R.pset(x - 1, y - 2, CU); R.pset(x + 2, y - 2, CU); } else { R.pset(x - 1, y, AL); R.pset(x + 2, y, AL); R.pset(x - 2, y + 1, AL); R.pset(x + 3, y + 1, AL); } };
+// el cable suelto que cuelga del poste de la barandilla y se mece con el viento, con su clavija
+const cableSuelto = (t, sacude) => { const ax = 62, ay = 112, an = -0.25 + Math.sin(t * 1.4) * 0.3 + Math.sin(t * 3.1) * 0.06 + sacude, L = 22;
+  const ex = ax + Math.sin(an) * L, ey = ay + Math.cos(an) * L, mx = ax + Math.sin(an * 0.5) * L * 0.55 - 6, my = ay + L * 0.6;
+  let px = ax, py = ay; for (let s = 1; s <= 10; s++) { const u = s / 10, x = (1 - u) ** 2 * ax + 2 * u * (1 - u) * mx + u * u * ex, y = (1 - u) ** 2 * ay + 2 * u * (1 - u) * my + u * u * ey;
+    R.linea(Math.round(px) + 1, Math.round(py), Math.round(x) + 1, Math.round(y), hex('#0c0e14')); R.linea(Math.round(px), Math.round(py), Math.round(x), Math.round(y), hex('#4a4a5c')); R.pset(Math.round(px) - 1, Math.round(py), hex('#7a7a90')); px = x; py = y; }
+  R.rect(Math.round(ex) - 1, Math.round(ey), Math.round(ex) + 1, Math.round(ey) + 3, K); R.pset(Math.round(ex), Math.round(ey) + 1, hex('#5a5a6a')); R.pset(Math.round(ex) - 1, Math.round(ey) + 4, hex('#c8a040')); R.pset(Math.round(ex) + 1, Math.round(ey) + 4, hex('#c8a040')); };
+// el cono de la lámpara de pinza hacia el suelo, con motas de polvo, y su reflejo en el metal
+const conoLampara = (t) => { const B = R.buf, CA = hex('#ffe0a0');
+  for (let y = 106; y < 150; y++) { const w = (y - 104) * 0.38; for (let x = Math.floor(266 - w); x <= 266 + w; x++) { if (x < 0 || x > 319) continue; const k = (1 - Math.abs(x - 266) / (w + 1)) * 0.16 * (1 - (y - 106) / 60); if (bay(x, y) < k * 4) B[y * 320 + x] = mez(B[y * 320 + x], CA, k + 0.06); } }
+  for (let y = 132; y < 180; y++) { const x0 = 266 + Math.round(Math.sin(t * 2.6 + y * 0.5) * 1.2), k = 0.4 * (1 - (y - 132) / 52); if (y === 150 || y === 160) continue; for (let x = x0 - 2; x <= x0 + 2; x++) if (bay(x, y) < 0.7 - Math.abs(x - x0) * 0.2) B[y * 320 + x] = mez(B[y * 320 + x], CA, k * (1 - Math.abs(x - x0) * 0.3)); }
+  for (let k = 0; k < 6; k++) { const f = (t * 0.12 + hs(k, 3)) % 1, x = Math.round(266 + (hs(k, 4) - 0.5) * 20 * f + Math.sin(t * 1.5 + k) * 2), y = Math.round(108 + f * 38); R.pset(x, y, hex('#fff2c8')); } };
+// las líneas de vibración a los lados de una bocina (ej: el centro del costado; a: su ángulo)
+const vibra = (cx, cy, a, v, t) => { if (v <= 0) return; const ca = Math.cos(a), sa = Math.sin(a), nx = -sa, ny = ca, j = Math.sin(t * 60) > 0 ? 1 : 0, C = hex('#e8f0ff');
+  for (const sg of [-1, 1]) for (let k = 0; k < 2; k++) { const w = sg * (20 + k * 3 + j), x0 = cx + nx * w - ca * 5, y0 = cy + ny * w - sa * 5; R.linea(Math.round(x0), Math.round(y0), Math.round(x0 + ca * (8 - k * 3) * v), Math.round(y0 + sa * (8 - k * 3) * v), k ? hex('#8aa0c8') : C); } };
+// ── 1 · las bocinas de noche, sin nadie (y un mapache) ───────────────────────────────────────────────────────────
+const p1 = (t) => {
+  const o = { encuadre: 'caseta', camara: 'bocinas', luz: 'noche' };
+  T.oreja(R, t, o);
+  // el reflector con sus chapas, remaches y el brillo de la luna que corre de izquierda a derecha; la escalerilla y la baliza
+  reflector(t, lerp(-30, 330, tramo(t, 1.0, P2 + 0.4)));
+  escalerilla(); baliza(t);
+  // los charcos del suelo de metal: el del mapache (ondas cuando bebe y cuando pisa al huir) y el que refleja la lámpara
+  const bebe = t > 2.35 && t < 3.45, huye = tramo(t, CUARTO + 0.35, P2 + 0.3);
+  charco(92, 175, 12, 3, t, bebe ? (t - 2.35) : t > CUARTO + 0.4 && t < CUARTO + 1.6 ? t - CUARTO : 0, 0);
+  charco(282, 170, 22, 4, t, 0, 266); charco(300, 131, 14, 3, t, 0, 0);
+  conoLampara(t);
+  // murciélagos que cruzan bajo el reflector y polillas grandes en la lámpara
+  for (let k = 0; k < 2; k++) { const u = ((t * 0.11 + k * 0.45) % 1); murcielago(260 - u * 300, 62 - u * 20 + Math.sin(t * 3 + k) * 4, t, k); }
+  for (let k = 0; k < 4; k++) polillaG(265, 100, t, k, 6 + k * 3);
+  // luciérnagas sobre el suelo de metal (y su reflejo)
+  for (let k = 0; k < 9; k++) { const x = Math.round((hs(k, 1) * 320 + t * (4 + k) + Math.sin(t + k) * 6) % 320), y = Math.round(136 + hs(k, 2) * 36 + Math.sin(t * 1.3 + k * 2) * 3), on = Math.sin(t * 3 + k * 1.7) > 0.2;
+    if (on) { R.pset(x, y, hex('#e8ff8a')); R.pset(x + 1, y, hex('#a8d860')); R.pset(x, y - 1, hex('#a8d860')); if (y + 8 < 180) R.pset(x, y + 8, hex('#5a7a4a')); } }
+  // el piloto del receptor de la izquierda: en «a quarter past 11» se enciende de golpe y las dos bocinas vibran un poco
+  const flash = tramo(t, CUARTO, CUARTO + 0.15) * (1 - tramo(t, CUARTO + 0.9, CUARTO + 1.4)), vib = t > CUARTO && t < CUARTO + 1.1 ? 1 - (t - CUARTO) / 1.1 : 0;
+  if (flash > 0) { R.halo(96, 118, 9 * flash, [hex('#5a1a1a'), hex('#c83a2a'), hex('#ff8a5a')], 1.2); R.disco(96, 118, 2, hex('#ffd0a0')); }
+  vibra(119, 102, -0.62, vib, t); vibra(207, 102, -0.62, vib * 0.7, t + 0.3);
+  if (vib > 0) for (let k = 0; k < 6; k++) { const f = 1 - vib, u = 12 + k * 7, bx = (k < 3 ? 96 : 184) + Math.cos(-0.62) * u + 8, by = 118 + Math.sin(-0.62) * u + 12; R.pset(Math.round(bx + hs(k, 8) * 4), Math.round(by + f * f * 30 + hs(k, 9) * 4), hex('#8a94a8')); }   // el polvo que sueltan las chapas
+  // el cable suelto de la barandilla, que se mece (y da un latigazo con la vibración)
+  cableSuelto(t, vib * Math.sin(t * 40) * 0.15);
+  // el mapache: entra por la izquierda, bebe en el charco, sigue hasta el cable y lo olfatea, brinca con la luz y huye a la derecha
+  const e1 = tramo(t, 1.25, 2.35), e2 = tramo(t, 3.45, CUARTO - 1.2);
+  const x = huye > 0 ? lerp(110, 360, huye ** 1.4) : e2 > 0 ? lerp(74, 110, ease(e2)) : lerp(-4, 74, ease(e1)), anda = (e1 > 0 && e1 < 1) || (e2 > 0 && e2 < 1) || huye > 0;
+  const brinco = t > CUARTO + 0.05 && t < CUARTO + 0.4 ? Math.round(Math.sin((t - CUARTO - 0.05) / 0.35 * Math.PI) * 7) : 0;
+  const olf = bebe || (e2 >= 1 && t < CUARTO);
+  mapache(x, 177 - brinco, 1, t * (huye > 0 ? 14 : 7), anda, olf, t);
+  if (brinco > 2) globo(Math.round(x) + 18, 177 - brinco - 34, '!', hex('#d83a2a'), 1);
+  T.orejaDelante(R, t, o);
+};
+// ── 2 · la impresora sola ─────────────────────────────────────────────────────────────────────────────────────────
+const p2 = (t) => {
+  const o = { camara: 'impresora', luz: 'noche', velocidad: 1.1 };
+  T.sala(R, t, o);
+  // una polilla en la luz de la ventana
+  polilla(252, 30, t, 1, 7);
+  // el ratón: asoma por la derecha de la botonera en «logged», anda, se sienta a mirar el papel y se estira en «all on its own»
+  const entra = tramo(t, LOGGED - 0.3, LOGGED + 0.9);
+  if (entra > 0) {
+    const x = lerp(272, 232, ease(entra)), mira = t > SOLO;
+    raton(x, 144 - (mira ? 1 : 0), -1, t * 8, entra < 1, t);
+    if (mira && t < SOLO + 0.8) globo(Math.round(x) - 6, 126, '!', hex('#3a6ac8'), tramo(t, SOLO, SOLO + 0.2));
+  }
+  T.salaDelante(R, t, o);
+};
+// ── 3 · el papel infinito (gag 3) ─────────────────────────────────────────────────────────────────────────────────
+const p3 = (t) => {
+  const papel = Math.min(1, ease(tramo(t, P3 + 0.1, LINEA)) * 0.8 + ease(tramo(t, LINEA, LINEA + 1.0)) * 0.2);
+  const o = { luz: 'noche', papel };
+  const g = T.sala(R, t, o);
+  polilla(116, 105, t, 2, 6);
+  // el ratón huye delante del frente del papel hacia la puerta y la ola se lo lleva
+  const [fx, fy] = g.papel || [196 + papel * 80, 156 - papel * 30];
+  const huye = tramo(t, P3 + 0.6, LINEA);
+  if (t > P3 + 0.3) {
+    if (papel < 0.8) {
+      const x = Math.max(fx + 10, lerp(210, 268, ease(huye))), y = lerp(158, 128, ease(tramo(x, 230, 272)));
+      raton(x, y, 1, t * 16, true, t, 2);
+      if (t > P3 + 0.3 && t < P3 + 1.0) globo(Math.round(x) + 4, Math.round(y) - 16, '!', hex('#d83a2a'), tramo(t, P3 + 0.3, P3 + 0.5));
+    } else {
+      // en la cresta de la ola, por el hueco de la puerta, y se va por el pasillo
+      const v = tramo(t, LINEA - 0.1, LINEA + 1.2);
+      if (v < 1) { R.recorte([256, 66, 294, 125]); const x = lerp(270, 290, v), y = lerp(112, 96, Math.sin(v * Math.PI)) + v * 10; raton(x, y, 1, t * 10, false, t, 2); R.recorte(null); }
+    }
+  }
+  T.salaDelante(R, t, o);
+};
+// efectos (uno por segundo como mucho, cada uno con su acción): el mapache olfatea el cable; el piloto y el brinco; la
+// impresora arranca y traquetea línea a línea; el ratón asoma; el papel cae en la caja; la sala zumba con la impresora
+// y los receptores; la ola de papel por la puerta; el reloj de la pared
+const efectos = [[CUARTO - 1.3, 'masca'], [CUARTO, 'bip'], [CUARTO + 0.05, 'boing'], [P2 + 0.1, 'maquina', { dur: 2.4 }], [P2 + 3.1, 'tecleo', { dur: 1.6 }],
+  [SOLO, 'pop'], [P3 + 0.3, 'papel'], [P3 + 1.2, 'zumbido'], [LINEA, 'whoosh'], [LINEA + 0.6, 'papel'], [LINEA + 1.7, 'tic']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, cartela: '1977', año: 1977 });
+</script>
+</body>
+</html>

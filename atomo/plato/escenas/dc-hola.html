@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-HOLA (frase 3), 2026. Un plano: el archivo de Atom de noche, con la Luna por la ventana; Atom se presenta en la
+// esquina. En «I'm Atom» el gato espía cruza por delante del escritorio y se esconde detrás de una caja de archivo; en
+// «wondered» saca la cabeza con el micrófono en el collar y en «find out» vuelve a esconderse moviendo la cola. Una
+// carpeta resbala del montón de la estantería y la lámpara de pie se mece.
+import * as T from '/atomo/plato/escenas/dc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dc-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const m = (f) => en('hola', f);
+const ATOM = m(0.04), WOND = m(0.55), FIND = m(0.87);
+const { rect, pset, linea, disco } = R;
+const K = hex('#14121a');
+const caja = (x0, y0, w, h, t) => {
+  // la caja de archivo de cartón: ondulado, solapas de arriba, cinta, asidero, etiqueta con el año y la marca roja
+  rect(x0 - 1, y0 - 1, x0 + w + 1, y0 + h, K);
+  for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) {
+    const v = 0.62 + (x % 3 === 0 ? -0.1 : 0) - (y - y0) / h * 0.3 + ((x * 7 + y * 13) % 11 === 0 ? -0.12 : 0) + (x < x0 + 4 ? -0.15 : 0);
+    pset(x, y, v > 0.6 ? hex('#d4b070') : v > 0.45 ? hex('#c49e62') : v > 0.3 ? hex('#a8844c') : hex('#8a6a3a'));
+  }
+  rect(x0, y0, x0 + w - 1, y0 + 5, hex('#b8945a')); rect(x0, y0 + 5, x0 + w - 1, y0 + 5, hex('#6a4a24'));
+  rect(x0 + w / 2 - 3, y0, x0 + w / 2 + 3, y0 + h - 1, hex('#c8b894')); rect(x0 + w / 2 - 3, y0, x0 + w / 2 - 3, y0 + h - 1, hex('#a89874'));
+  rect(x0 + 6, y0 + 12, x0 + 22, y0 + 24, K); rect(x0 + 7, y0 + 13, x0 + 21, y0 + 23, hex('#f0ead8'));
+  R.numero('58', x0 + 14, y0 + 22, { centro: true, color: hex('#3a2a1a'), sombra: false });
+  T.PIEZAS_DC.sello(R, x0 + w - 13, y0 + 28, { tipo: 'marca', s: 2 });
+  rect(x0 + 8, y0 + h - 10, x0 + 20, y0 + h - 6, K); rect(x0 + 9, y0 + h - 9, x0 + 19, y0 + h - 7, hex('#3a2414'));
+  for (let x = x0 - 2; x <= x0 + w + 4; x++) if (x % 2) pset(x, y0 + h, hex('#2a1810'));
+};
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'archivo' });
+  T.hoyDelante(R, t, { encuadre: 'archivo' });
+  // el gato cruza por delante del escritorio, de derecha a izquierda, y se mete detrás de la caja (x 30–86, suelo 176)
+  const g = tramo(t, ATOM - 0.2, ATOM + 1.6);
+  const asoma = tramo(t, WOND - 0.3, WOND) - tramo(t, FIND, FIND + 0.25);
+  if (g < 1) T.gatoEspia(R, Math.round(lerp(300, 66, g)), 178, t, { anda: g > 0, dir: -1, microfono: true, s: 2 });
+  else T.gatoEspia(R, 60, Math.round(176 - asoma * 26), t, { microfono: true, cara: asoma > 0.5 ? 'travieso' : undefined, dir: 1, s: 2 });
+  caja(26, 140, 60, 38, t);
+  if (asoma > 0.8 && t < FIND) R.numero('?', 98, 132, { tam: 8, centro: true });
+};
+const efectos = [[ATOM, 'brillo'], [WOND, 'miau']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

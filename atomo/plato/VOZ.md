@@ -1,6 +1,17 @@
 # La voz de los vídeos largos: qué falló en el episodio 2 y cómo se hará desde el 3
 
-> **Canon desde el episodio 10 (lo que vale hoy):**
+> **Canon desde el episodio 37 (lo que vale hoy; elegido a ciegas por el usuario el 16/11/2026, ver
+> `VOCES-ALTERNATIVAS.md` y las muestras de `voces-prueba/`):**
+> - Inglés: **Supertonic 3** (Supertone, licencia OpenRAIL-M, que obliga a declarar que la voz es sintética), voz `M1`,
+>   velocidad 1,05, 8 pasos. Español: **ZONOS3-Mini** (Zyphra, Apache-2.0), voz `Rodrigo_es_M_1` con `mood.valence` y
+>   `mood.arousal` a 1 y 3 dB de margen. Se fijan en `voces` de `hacer_guion.py` (el bloque está en la skill, paso 3).
+> - Los dos van en CPU y son rápidos (~0,5 s de cálculo por s de audio), **pero de uno en uno**: dos motores a la vez en
+>   los 4 núcleos se estorban y van ~25 veces más lentos.
+> - ZONOS3 no tiene velocidad fiable: cada reintento es otra toma (semilla); el español no se acelera.
+> - `preparar-voz.sh` compila el CLI de ZONOS3 (commit y pesos fijados, md5) y baja Supertonic 3 a `modelos/supertonic3`.
+> - Kokoro sigue instalado para rehacer los episodios hasta el 36.
+>
+> **Canon de los episodios 10 a 36:**
 > - Las dos voces son de Kokoro: en inglés `am_puck` a 0,85 y en español `em_santa` a 0,92. Se fijan en `voces` de
 >   `hacer_guion.py`, y el montaje las iguala a −19 dB RMS (`ESTANDAR.md`).
 > - El español se sintetiza entre 0,85 y 1,10 y se estira como mucho un 10 % (`locutar_frases.py`).

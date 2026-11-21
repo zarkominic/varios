@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep22 Short 3</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-SHORT3-MINIATURA · miniatura vertical del Short 3 del ep22, «Jingle Bells no es de Navidad» (la canción de 1857 que
+// sonó en el espacio en diciembre de 1965). La órbita: la Tierra que se curva abajo, las estrellas y la Vía Láctea; en el
+// centro, la cápsula Gemini 6A (módulo negro y adaptador blanco) con notas musicales doradas que flotan a su alrededor y,
+// debajo, tres cascabeles de trineo de latón en su correa, redibujados a escala grande, que suenan; arriba, el «1965» dorado grande. Todo lo que cuenta
+// va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_NV as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un actor en su búfer, copiado a escala s con su contorno (filo de color c)
+const actorGrande = (def, op, bx, dx, dy, s, filo, borra = []) => {
+  R.usar(pj); pj.fill(VACIO); R.actor(def, 20, 70, 0.5, { quieto: true, ...op }); R.usar(tmp); tmp.fill(VACIO);
+  for (const [x, y] of borra) pj[y * 320 + x] = VACIO;
+  pon(pj, bx[0], bx[1], bx[2], bx[3], dx, dy, s); contorno(tmp, 1, filo); R.usar(null); vuelca(tmp);
+};
+
+// un brillo suave: aclara hacia el color c en un círculo de radio r
+const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
+// una elipse rellena (a resolución de lienzo)
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
+// un trazo grueso de (x0, y0) a (x1, y1), de radio r
+const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
+
+// las notas musicales (corchea y dos corcheas unidas), a escala s, doradas con su contorno oscuro y un filo claro
+const CORCHEA = ['...##...', '...###..', '...#.##.', '...#..##', '...#...#', '...#....', '...#....', '.###....', '####....', '####....', '.##.....'];
+const CORCHEAS = ['....#######', '....#######', '....#.....#', '....#.....#', '....#.....#', '....#.....#', '..###...###', '.####..####', '.####..####', '..##....##.'];
+function nota(forma, x0, y0, s) {
+  R.usar(tmp); tmp.fill(VACIO);
+  const n = forma.length;
+  forma.forEach((f, j) => { for (let i = 0; i < f.length; i++) if (f[i] === '#') R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, j < n * 0.35 ? hex('#fff4c8') : j < n * 0.7 ? hex('#ffd84a') : hex('#e0a020')); });
+  contorno(tmp, 1, K); contorno(tmp, 1, hex('#6a7ad8')); R.usar(null); vuelca(tmp);
+}
+
+// los cascabeles de trineo, redibujados a escala grande (la PIEZAS_NV.cascabeles es de 17 × 9): una correa de cuero
+// curvada con sus remaches y tres cascabeles redondos de latón colgados de su anilla, cada uno con la luz arriba, el
+// reborde del ecuador, la ranura con sus dos agujeros abajo y el brillo; se mecen un poco con t
+const LATON = [hex('#fff4c8'), hex('#ffd84a'), hex('#e0a020'), hex('#a86a10'), hex('#5a3408')];
+function cascabel(cx, cy, r) {
+  R.usar(tmp); tmp.fill(VACIO);
+  for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) {
+    const dx = (x + 0.5 - cx) / r, dy = (y + 0.5 - cy) / r, d = Math.hypot(dx, dy); if (d > 1) continue;
+    const l = -dx * 0.55 - dy * 0.75 + Math.sqrt(Math.max(0, 1 - d * d)) * 0.6;
+    R.pset(x, y, l > 0.75 ? LATON[0] : l > 0.35 ? LATON[1] : l > -0.05 ? LATON[2] : l > -0.45 ? LATON[3] : LATON[4]);
+  }
+  // el reborde del ecuador
+  for (let x = Math.floor(cx - r); x <= cx + r; x++) { const u = (x + 0.5 - cx) / r; if (Math.abs(u) > 0.98) continue; const y = Math.round(cy - 1 + 0); R.pset(x, y, u < -0.2 ? LATON[1] : LATON[3]); R.pset(x, y + 1, LATON[4]); }
+  // la ranura con sus dos agujeros redondos
+  const sy = cy + r * 0.5;
+  R.rect(Math.round(cx - r * 0.42), Math.round(sy), Math.round(cx + r * 0.42), Math.round(sy) + 1, K);
+  elipse(cx - r * 0.45, sy + 1, 1.8, 1.8, K); elipse(cx + r * 0.45, sy + 1, 1.8, 1.8, K);
+  // el brillo
+  elipse(cx - r * 0.38, cy - r * 0.45, r * 0.22, r * 0.16, hex('#ffffff'));
+  // la anilla de arriba
+  for (let a = 0; a < Math.PI * 2; a += 0.1) { const x = Math.round(cx + Math.cos(a) * 2.6), y = Math.round(cy - r - 2 + Math.sin(a) * 2.6); R.pset(x, y, LATON[2]); }
+  contorno(tmp, 1, K); contorno(tmp, 1, hex('#fff4d8')); R.usar(null); vuelca(tmp);
+}
+function cascabeles(t) {
+  // la correa curvada (sonríe hacia abajo) con su costura y sus remaches
+  const xc = 160, y0 = 126, curva = (x) => y0 + ((x - xc) / 46) ** 2 * -6 + 6;
+  R.usar(tmp); tmp.fill(VACIO);
+  for (let x = 112; x <= 208; x++) { const y = Math.round(curva(x)); R.rect(x, y - 3, x, y + 3, hex('#7a4422')); R.pset(x, y - 3, hex('#a8683a')); R.pset(x, y - 2, hex('#a8683a')); R.pset(x, y + 3, hex('#4a2410')); if (x % 3 === 0) { R.pset(x, y - 1, hex('#d8a878')); R.pset(x, y + 1, hex('#d8a878')); } }
+  for (const x of [118, 202]) { const y = Math.round(curva(x)); elipse(x, y, 1.8, 1.8, hex('#ffd84a')); R.pset(x - 1, y - 1, hex('#ffffff')); }
+  contorno(tmp, 1, K); R.usar(null); vuelca(tmp);
+  for (const [k, x] of [[0, 136], [1, 160], [2, 184]]) { const sw = Math.round(Math.sin(t * 7 + k * 2.1) * 1.5); cascabel(x + sw, Math.round(curva(x)) + 15, 10); }
+}
+
+const dibujar = (t) => {
+  // la órbita en diciembre de 1965 (la Gemini 6A del decorado se saca del cuadro: aquí va con su filo, en la columna)
+  T.hoy(R, t, { encuadre: 'espacio', capsula: [-400, -400] });
+  brillo(160, 62, 58, hex('#a0b0ff'), 0.22);
+  R.usar(tmp); tmp.fill(VACIO); T.e_gemini(R, 163, 62, t, 1); contorno(tmp, 1, hex('#c8d8ff')); R.usar(null); vuelca(tmp);
+
+  // las notas musicales que flotan alrededor de la cápsula
+  nota(CORCHEA, 113, 36, 2); nota(CORCHEA, 113, 84, 2); nota(CORCHEAS, 144, 98, 2); nota(CORCHEAS, 184, 88, 2);
+
+  // los cascabeles de trineo, que suenan, con su resplandor dorado y las ondas del sonido a los lados
+  brillo(160, 146, 40, hex('#ffe890'), 0.45);
+  cascabeles(t);
+  for (const lado of [-1, 1]) for (const r of [42, 48]) for (let a = -0.45; a <= 0.45; a += 0.035) { const x = Math.round(160 + lado * Math.cos(a) * r), y = Math.round(148 + Math.sin(a) * r * 0.7); if (x >= 108 && x <= 212) R.pset(x, y, r === 42 ? hex('#fff4c8') : hex('#e0a020')); }
+
+  // arriba, el 1965 dorado sobre su resplandor
+  brillo(160, 18, 44, hex('#fff0a0'), 0.35);
+  R.numero('1965', 160, 31, { tam: 24, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

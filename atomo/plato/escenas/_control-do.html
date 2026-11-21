@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>control</title>
+<style>html, body { margin: 0; height: 100%; background: #000; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head><body><canvas id="lienzo"></canvas>
+<script type="module">
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+window.__frame = async (t) => {
+  R.rect(0, 0, 319, 179, hex('#e8e4dc'));
+  const ks = ['graham', 'conserje', 'aspirante', 'socrates', 'templario', 'faraon', 'peregrino', 'alien'];
+  ks.forEach((k, i) => { if (EL[k]) { R.actor(EL[k], 10 + i * 36, 60, 0, { quieto: true }); R.actor(EL[k], 10 + i * 36, 120, 0, { quieto: true, dedo: true, dir: -1 }); R.actor(EL[k], 10 + i * 36, 170, 0.3, { anda: true, sostiene: true }); } });
+  R.presentar();
+};
+window.__listo = true;
+</script></body></html>

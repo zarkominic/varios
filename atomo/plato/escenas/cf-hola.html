@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep32</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// CF-HOLA (frase 3), sin cartela. Un plano: el estudio de Atom de día, con el hoyo en la maceta y la llavecita recién
+// sacada sobre la mesa. Atom, que ha bajado junto a la maceta, bota en «I'm Atom»; en «explain the things» gira con
+// chispas; en «wondered about» tres «?» salen del hoyo de la maceta; en «Let's find out» la llavecita da un brinco y
+// Atom se lanza al mapa enmarcado de la pared, cuyos doce puntos se encienden.
+import * as T from '/atomo/plato/escenas/cf-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('cf-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), PZ = T.PIEZAS_CF, VAC = 0;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const b4 = (x, y) => (B4[((y | 0) & 3) * 4 + ((x | 0) & 3)] + 0.5) / 16;
+const pal = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const cl = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const ease = (u) => u * u * (3 - 2 * u);
+// degradado tramado entre varios colores (f da 0–1 en cada punto; por omisión, de arriba abajo)
+const grad = (x0, y0, x1, y1, cols, f) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const u = f ? f(x, y) : (y - y0) / Math.max(1, y1 - y0); R.pset(x, y, cols[Math.max(0, Math.min(cols.length - 1, Math.floor(u * (cols.length - 1) + b4(x, y))))]); } };
+// luz: mezcla cada punto con col en la proporción que da f
+const luz = (x0, y0, x1, y1, col, f) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const a = f(x, y); if (a > 0) R.pset(x, y, mez(R.pget(x, y), col, Math.min(1, a))); } };
+// lo fijo de un plano, pintado una vez en una capa (VAC = transparente) y pegado en cada fotograma (f: tinte por punto)
+const CAPAS = {};
+const capa = (k, fn) => { if (!CAPAS[k]) { const b = R.nuevo(); b.fill(VAC); const prev = R.usar(b); fn(); R.usar(prev); CAPAS[k] = b; } return CAPAS[k]; };
+const pegar = (b, f) => { const d = R.buf; for (let i = 0; i < 57600; i++) { const c = b[i]; if (c !== VAC) d[i] = f ? f(c, i) : c; } };
+// una nube de tres tonos (centro x, base y, ancho w)
+const nube = (x, y, w, c) => { const hg = Math.max(3, Math.round(w / 4)); for (let j = 0; j <= hg; j++) for (let i = -w / 2; i <= w / 2; i++) { const e = (i / (w / 2)) ** 2 + ((j - hg) / hg) ** 2 * (Math.abs(i) < w / 4 ? 0.55 : 1.4); if (e <= 1) R.pset(Math.round(x + i), Math.round(y + j - hg), j > hg * 0.7 ? c[2] : (j < hg * 0.35 && i < 0) ? c[0] : c[1]); } };
+// un pájaro pequeño que aletea
+const pajaro = (x, y, t, k, c) => { const a = Math.sin(t * 9 + k * 2) > 0 ? 1 : 0; x = Math.round(x); y = Math.round(y); R.pset(x, y, c); R.pset(x - 1, y - a, c); R.pset(x + 1, y - a, c); R.pset(x - 2, y - 2 * a + 1, c); R.pset(x + 2, y - 2 * a + 1, c); };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+// chispas alrededor de un punto
+const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
+// un terrón que salta de (x0, y0) a (x1, y1) en arco (u de 0 a 1)
+const terron = (x0, y0, x1, y1, u, alto, c, cs) => { if (u <= 0 || u >= 1) return; const x = Math.round(lerp(x0, x1, u)), y = Math.round(lerp(y0, y1, u) - Math.sin(u * Math.PI) * alto); R.rect(x, y, x + 1, y + 1, c); R.pset(x + 1, y + 1, cs); };
+
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila
+const wh = (s) => en('hola', (s - 0.5) / 4.588);
+const atom = wh(0.66), explica = wh(1.5), pregunta = wh(2.98), vamos = wh(4.17);
+const ORO = hex('#ffd860'), OROL = hex('#fff4b8');
+const p1 = (t) => {
+  const o = { encuadre: 'estudio', hoyo: true, llave: false };
+  const g = T.hoy(R, t, o), [mx0, my0, mx1, my1] = g.mapa, [lx, ly] = g.llave, [tx, ty] = g.tierra;
+  // la llavecita sobre la mesa: brilla y, en «Let's find out», da un brinco
+  { const b = tramo(t, vamos, vamos + 0.45), bote = Math.round(Math.sin(b * Math.PI) * 12); R.rect(lx - 6, ly + 1, lx + 6, ly + 1, hex('#6a4424')); PZ.llave(R, lx, ly - bote, {});
+    if (Math.sin(t * 4) > 0.3 || (b > 0 && b < 1)) { R.pset(lx + 2, ly - 9 - bote, BL); R.pset(lx + 3, ly - 10 - bote, BL); R.pset(lx + 1, ly - 10 - bote, BL); R.pset(lx + 2, ly - 11 - bote, BL); } }
+  // los «?» de «wondered about», que salen del hoyo de la maceta
+  if (t > pregunta - 0.05 && t < vamos + 0.35) for (let i = 0; i < 3; i++) { const q = tramo(t, pregunta - 0.05 + i * 0.22, pregunta + 0.4 + i * 0.22); if (q <= 0) continue; R.icono('?', tx - 22 + i * 17, Math.round(ty - 6 - q * (22 + (i & 1) * 9) - Math.sin(t * 4 + i) * 2), ORO, K, 2); }
+  // el mapa de la pared: sus doce puntos se encienden cuando Atom llega
+  const v = tramo(t, vamos + 0.2, E.duracion - 0.25), e = ease(v);
+  if (v > 0.6) for (let k = 0; k < 12; k++) { const x = mx0 + 8 + Math.floor(hh(k, 1, 80) * (mx1 - mx0 - 16)), y = my0 + 8 + Math.floor(hh(k, 2, 80) * (my1 - my0 - 16)); if ((v - 0.6) * 30 > k) { R.pset(x, y, BL); if ((k + Math.floor(t * 6)) % 2) { R.pset(x - 1, y, OROL); R.pset(x + 1, y, OROL); R.pset(x, y - 1, OROL); R.pset(x, y + 1, OROL); } } }
+  T.hoyDelante(R, t, o);
+  // Atom: bota en «I'm Atom», gira en «explain» y en «Let's find out» vuela al mapa de la pared
+  const hx = 118, hy = 102, sal = t > atom - 0.1 && t < explica ? Math.round(Math.abs(Math.sin((t - atom + 0.1) * Math.PI * 2.4)) * 11 * Math.max(0.3, 1 - (t - atom))) : 0;
+  const gira = t > explica && t < explica + 0.9;
+  const ax = lerp(hx, (mx0 + mx1) / 2, e), ay = lerp(hy, (my0 + my1) / 2, e) - sal + Math.sin(t * 2.6) * 2 - Math.sin(v * Math.PI) * 14;
+  if (v > 0 && v < 1) for (let k = 1; k <= 6; k++) { const ee = ease(Math.max(0, v - k * 0.04)); R.pset(Math.round(lerp(hx, (mx0 + mx1) / 2, ee)), Math.round(lerp(hy, (my0 + my1) / 2, ee) - Math.sin(Math.max(0, v - k * 0.04) * Math.PI) * 14), hex('#c8f0ff')); }
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(13, 7, e)) + (sal > 3 ? 1 : 0), e: sal > 0 || v > 0 || gira ? 0.8 : 0.4, vel: gira ? 3 : 1 });
+  if (sal > 2 || gira) chispas(ax, ay, t, 21, 10, hex('#c8f0ff'));
+};
+const efectos = [[atom, 'pop'], [vamos, 'boing']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

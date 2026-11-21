@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep41</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _REPARTO-DD · hoja estática del reparto nuevo del episodio 41 («Doomsday», segunda parte), a escala 1 sobre fondo
+// neutro. Arriba, los nuevos; en la fila de abajo, para comparar, los de ELENCO_DO con los que se pueden confundir.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_DD as EL, ELENCO_DO as DO } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const F1 = ['bannerDD', 'wandaDD', 'ultronDD', 'tommyDD', 'pietroDD', 'russoJoeDD', 'russoAnthonyDD'];
+const F2 = ['doomJovenDD', 'monjeDD', 'sueNegraDD', 'ejecutivoDD', 'padreDD', 'madreDD', 'usAgentDD'];
+const F3 = ['hulk', 'doom', 'sue', 'capitan', 'steve', 'reed'];
+window.__frame = async (t) => {
+  R.rect(0, 0, 319, 179, hex('#e8e4dc'));
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) R.pset(x, y, hex('#dcd6ca'));
+  const q = { quieto: true, parpadea: false };
+  F1.forEach((k, i) => R.actor(EL[k], 14 + i * 44, 58, 0, q));
+  F2.forEach((k, i) => R.actor(EL[k], 14 + i * 44, 116, 0, q));
+  F3.forEach((k, i) => R.actor(DO[k], 14 + i * 44 + (k === 'hulk' ? 3 : 0), 172, 0, q));
+  for (const s of [58, 116, 172]) R.rect(0, s + 1, 319, s + 2, hex('#c8c0b0'));
+  R.presentar();
+};
+window.__listo = true;
+</script>
+</body>
+</html>

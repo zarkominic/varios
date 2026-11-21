@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep26</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AT-HOLA (frase 3), hoy, 2026. Un plano: la mesa del estudio de cerca. Atom salta a saludar en «I'm Atom» junto a la
+// consola vieja y el cajón de cartuchos; en «explain the things» hace flotar un cartucho y lo pincha en la consola; en
+// «wondered about» salen los «?»; en «Let's find out» la tele se enciende con el juego de los fosos y Atom se acerca.
+import * as T from '/atomo/plato/escenas/at-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('at-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#05040a');
+// un cartucho girado (ang en radianes) con centro en (cx, cy): se pinta una vez en un búfer y se rota píxel a píxel
+const CART_CACHE = new Map();
+const cartRot = (cx, cy, ang, color = 'rojo', icono = 'foso', s = 1) => {
+  const k = color + icono + s;
+  if (!CART_CACHE.has(k)) {
+    const b = R.nuevo(), prev = R.usar(b); T.PIEZAS_AT.cartucho(R, 40, 50, { color, icono, s }); R.usar(prev);
+    const px = []; for (let y = 0; y < 60; y++) for (let x = 0; x < 80; x++) { const c = b[y * 320 + x]; if (c) px.push([x - 40, y - 50 + 7.5 * s, c]); }
+    CART_CACHE.set(k, px);
+  }
+  const px = CART_CACHE.get(k), ca = Math.cos(ang), sa = Math.sin(ang);
+  for (const [x, y, c] of px) for (const [dx, dy] of [[0, 0], [0.5, 0], [0, 0.5]]) R.pset(Math.round(cx + (x + dx) * ca - (y + dy) * sa), Math.round(cy + (x + dx) * sa + (y + dy) * ca), c);
+};
+
+const h = (f) => en('hola', f);
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila
+const atom = h(0.035), explica = h(0.218), cosas = h(0.35), pregunta = h(0.5405), vamos = h(0.80), fin = h(0.9);
+const p1 = (t) => {
+  const pincha = tramo(t, explica, pregunta - 0.2), tele = t > vamos;
+  const o = { encuadre: 'estudio', camara: 'mesa', cartuchoPuesto: pincha >= 1 ? 'rojo' : false,
+    pantalla: tele ? undefined : (R2, tt, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R2.pset(x, y, ((x * 7 + y * 13 + Math.floor(tt * 30)) % 17) < 2 ? hex('#3a4a4a') : hex('#141c1e')); } };
+  T.hoy(R, t, o);
+  // la tele se enciende: un destello que se abre desde la raya del centro
+  const enc = tramo(t, vamos, vamos + 0.35);
+  if (enc > 0 && enc < 1) { const hh = Math.round(26 * enc); R.recorte([42, 34, 110, 86]); for (let y = 60 - hh; y <= 60 + hh; y++) R.linea(42, y, 110, y, hex('#e8f4ff')); R.recorte(null); }
+  // el cartucho que flota desde el cajón hasta la ranura de la consola
+  if (pincha > 0 && pincha < 1) {
+    const x = lerp(270, 196, pincha), y = lerp(112, 82, Math.sin(pincha * Math.PI) * 0.9) + pincha * 4;
+    cartRot(x, y, (1 - pincha) * 0.6, 'rojo', 'foso', 2);
+    for (let k = 0; k < 6; k++) { const an = t * 6 + k; R.pset(Math.round(x + Math.cos(an) * 16), Math.round(y + Math.sin(an) * 10), hex('#c8f0ff')); }
+  }
+  // los «?» de lo que siempre te has preguntado
+  if (t > pregunta - 0.2 && t < vamos) for (let i = 0; i < 3; i++) { if (t < pregunta - 0.2 + i * 0.3) continue; R.icono('?', 54 + i * 18, 52 - (i & 1) * 8 - Math.round(Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 2); }
+  // Atom: salta para saludar, guía el cartucho y vuela hacia la tele en «Let's find out»
+  const sal = t > atom && t < explica ? Math.round(Math.abs(Math.sin((t - atom) * Math.PI * 2.2)) * 16) : 0;
+  const lleva = tramo(t, explica - 0.3, explica + 0.2) - tramo(t, pregunta - 0.3, pregunta + 0.2), v = tramo(t, vamos, fin + 0.5);
+  const ax = Math.round(lerp(lerp(162, 236, lleva), 126, v)), ay = Math.round(lerp(lerp(64, 56, lleva), 38, v)) - sal + Math.round(Math.sin(t * 2.6) * 2);
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const g = 1 - Math.hypot(i, j) / 19; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  if (sal > 0 || (v > 0 && v < 1)) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 4, rr = 17 + Math.sin(t * 9) * 2; R.pset(Math.round(ax + Math.cos(an) * rr), Math.round(ay + Math.sin(an) * rr), hex('#c8f0ff')); }
+  R.atomo(ax, ay, t, { r: 14 + (sal > 0 ? 1.5 : 0), orbita: R.PAL.ATOM[7], energia: sal > 0 || (pincha > 0 && pincha < 1) || v > 0 ? 0.7 : 0.3 });
+  T.hoyDelante(R, t, o);
+};
+const efectos = [[atom + 0.05, 'pop'], [explica + 0.1, 'whoosh'], [pregunta - 0.25, 'golpecito'], [vamos, 'interruptor'], [vamos + 0.4, 'brillo']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

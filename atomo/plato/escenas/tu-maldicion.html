@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La maldición · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-MALDICION (frase 9), abril de 1923 → 1939, sin cartela. Cuatro planos, cortados en la palabra inglesa (gag 4):
+// 1. (0) la ventana del hotel de El Cairo, de noche: la paloma picotea en el alféizar junto al telegrama; la lámpara
+//    titila y se APAGA en «died» (sobrio: el cuarto queda azul, sale el reflejo de la luna); la paloma se va volando;
+// 2. («Cairo») el periódico desde arriba: el TITULAR crece en «newspapers
+//    invented» y caen encima las tres copias de otros países, cada una con su pirámide lisa y su «!» (sin ojo);
+// 3. («Curse») la calle: el chaval grita «!» con el periódico en alto justo en «Curse»; un vecino de galabiya llega,
+//    paga con una moneda, lo coge, lo lee y se sorprende y se va; el GATO baja del escalón, salta, da una vuelta y se
+//    sienta encima del periódico del suelo (gag 4), y el chaval lo mira y se ríe;
+// 4. («and died in London») Londres, 1939 (la barra cuenta de 1923 a 1939 al empezar): Carter, ya mayor, llega con su
+//    bastón por la acera mojada, sube los escalones, abre la puerta (luz cálida), mira atrás y entra; la puerta se cierra.
+//    Carter espera en el escalón un paso a la izquierda del buzón dorado (x 140, la cara lejos de la ranura) y al entrar
+//    cruza el hueco; detrás de Atom el ladrillo se templa (bajo contraste) para que la esquina quede tranquila.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-maldicion');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const TU = T.ELENCO_TU;
+const N = Math.round;
+const ease = (u) => (u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u));
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c');
+const wm = (s) => en('maldicion', (s - 0.5) / 16.257);   // instante de la voz (s de escena) → marca
+const P2 = wm(6.14), P3 = wm(9.8), P4 = wm(14.26);
+// el globo del grito (sin letras)
+const globo = (x, y, ic = '!', c = ROJO) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+// el periódico doblado, pequeño (para la mano): papel crema, cabecera negra, la pirámide lisa con su «!» rojo
+const diario = (x, y, dir = 1) => {
+  const x0 = N(x - 5), y0 = N(y - 13);
+  R.rect(x0 - 1, y0 - 1, x0 + 10, y0 + 13, K); R.rect(x0, y0, x0 + 9, y0 + 12, hex('#f0e6cc')); R.rect(x0, y0 + 11, x0 + 9, y0 + 12, hex('#d4c6a4'));
+  R.rect(x0 + 1, y0 + 1, x0 + 8, y0 + 2, hex('#2a2620'));
+  for (let j = 0; j < 4; j++) R.rect(x0 + 1 + j, y0 + 8 - j, x0 + 6 - j, y0 + 8 - j, hex(j === 3 ? '#8a6a3a' : '#c89a52'));
+  R.rect(x0 + 8, y0 + 4, x0 + 8, y0 + 6, ROJO); R.pset(x0 + 8, y0 + 8, ROJO);
+  R.rect(x0 + 1, y0 + 10, x0 + 7, y0 + 10, hex('#9a9080'));
+};
+// la paloma (gris, pico naranja); vuela: alas arriba y abajo
+const paloma = (x, y, d, t, vuela, pica) => {   // a escala 2 (el inserto de la ventana está más cerca que la calle)
+  const P = (i, j, c) => { const xx = N(x + d * i * 2) - (d < 0 ? 1 : 0), yy = N(y + j * 2); R.rect(xx, yy, xx + 1, yy + 1, c); };
+  const G = hex('#eceef4'), GS = hex('#b4b8c8'), GO = hex('#7a7e90');
+  for (let i = -3; i <= 2; i++) { P(i, -4, G); P(i, -3, G); P(i, -2, GS); }
+  P(-4, -4, GO); P(-5, -4, GO); P(-4, -3, GS); P(-1, -3, GS); P(0, -3, GS);
+  const hy = pica ? -3 : -6;
+  P(3, hy, G); P(4, hy, G); P(3, hy + 1, G); P(4, hy + 1, G); P(5, hy + 1, hex('#e08a3a')); R.pset(N(x + d * 8) + (d > 0 ? 1 : -1), N(y + hy * 2), K);
+  if (!pica) P(3, -5, G);
+  if (vuela) { const a = Math.sin(t * 22) > 0; for (let i = -2; i <= 1; i++) { P(i, a ? -6 - (i === -1 ? 1 : 0) : -1, G); P(i, a ? -5 : 0, GS); } }
+  else { P(0, -1, hex('#d86a6a')); P(1, -1, hex('#d86a6a')); }
+};
+
+// 1 · la ventana del hotel: la lámpara se apaga en «died»
+const p1 = (t) => {
+  const tit = t > wm(5.2) && t < wm(5.5) && Math.sin(t * 57) > 0.2 ? 0.45 : 0;
+  const o = { encuadre: 'hotel', camara: 'ventana', apaga: Math.max(tit, ease(tramo(t, wm(5.5), wm(5.8)))) };
+  T.cairo(R, t, o);
+  // la paloma: anda y picotea por el alféizar; al apagarse la luz se va volando hacia la luna
+  const v = tramo(t, wm(5.62), wm(6.12));   // en «died» se asusta y se va volando
+  // (anda hasta el telegrama en «the first story» y lo picotea; en «Lord Carnarvon» se vuelve hacia la luz)
+  if (v <= 0) { const xa = 130 + N(ease(tramo(t, 0.7, 2.0)) * 34 - ease(tramo(t, 3.9, 4.6)) * 12), d = t > 3.9 && t < 4.7 ? -1 : 1, pica = t > 2.1 && t < 3.8 && Math.sin(t * 7) > 0.3; paloma(xa, 150, d, t, false, pica); }
+  else { const xa = lerp(152, 60, v), ya = 150 - Math.sin(v * Math.PI * 0.5) * 92; paloma(xa, ya, -1, t, true, false); }
+  T.cairoDelante(R, t, o);
+};
+
+// 2 · el periódico: el titular crece en «newspapers invented» y caen las copias
+const p2 = (t) => {
+  const o = { encuadre: 'redaccion', camara: 'periodico', titular: ease(tramo(t, wm(7.75), wm(8.7))), copias: tramo(t, wm(8.75), wm(9.65)) };
+  T.cairo(R, t, o); T.cairoDelante(R, t, o);
+};
+
+// 3 · la calle: el grito en «Curse», el vecino compra, el gato se sienta encima (gag 4)
+const GRITO = [[P3, P3 + 0.85], [wm(12.35), wm(12.95)]];
+const SIENTA = wm(13.4);
+const p3 = (t) => {
+  const o = { encuadre: 'calle', camara: 'vendedor', gato: tramo(t, wm(10.5), SIENTA) };
+  T.cairo(R, t, o);
+  // el vecino: llega, paga, coge el periódico, lo lee, se sorprende y se va leyendo
+  const ent = tramo(t, P3 + 0.05, wm(11.0)), sal = tramo(t, wm(12.95), wm(14.4)), paga = tramo(t, wm(11.1), wm(11.45));
+  const bx = N(sal > 0 ? lerp(62, -22, sal) : lerp(-20, 62, ent)), bd = sal > 0 ? -1 : 1, tiene = t > wm(11.55);
+  const bo = { dir: bd, anda: (ent > 0 && ent < 1) || (sal > 0 && sal < 1), sorpresa: t > wm(12.1) && t < wm(12.9), sonrisa: t > wm(11.5) && t < wm(12.05) };
+  if (tiene) bo.sostiene = [bd > 0 ? bx + 16 : bx - 1, 151]; else if (paga > 0 && paga < 1) bo.sostiene = [bx + 17, 149];
+  const b = R.actor(TU.obrero2TU, bx, 166, t, bo);
+  // el chaval: grita con el periódico en alto, vende, y al final mira al gato y se ríe
+  const grita = GRITO.some(([a, z]) => t > a && t < z), vende = t > wm(10.9) && t < wm(11.6), gato = t > SIENTA - 0.1;
+  const vo = { dir: vende ? -1 : 1, habla: grita, sorpresa: gato && t < SIENTA + 0.35, sonrisa: gato && t >= SIENTA + 0.35 };
+  if (grita) vo.sostiene = [vo.dir > 0 ? 113 : 95, 133]; else if (vende) vo.sostiene = [93, 150];
+  const v = R.actor(TU.vendedorTU, 96, 166, t, vo);
+  if (grita) { diario(v.mano[0], v.mano[1] + 2); globo(v.cabeza[0] + 12, v.cabeza[1] - 9); }
+  else if (vende && t > wm(11.25)) diario(v.mano[0], v.mano[1] + 4);
+  if (tiene) diario(b.mano[0], b.mano[1] + 6);
+  // la moneda: del vecino al chaval
+  if (paga > 0 && paga < 1) { const mx = lerp(bx + 17, 92, paga), my = 146 - Math.sin(paga * Math.PI) * 9; R.disco(N(mx), N(my), 1, hex('#e8c050')); R.pset(N(mx) - 1, N(my) - 1, hex('#fff0a0')); }
+  if (gato && t < SIENTA + 1.2) globo(v.cabeza[0] + 12, v.cabeza[1] - 9, '!', hex('#2a6ac8'));
+  T.cairoDelante(R, t, o);
+};
+
+// 4 · Londres, 1939: Carter llega, sube, abre la puerta, mira atrás y entra
+const SUBE = wm(16.3), ABRE = wm(16.62), ENTRA = wm(17.4), CIERRA = wm(17.95);
+const TEMPLE = hex('#6a4a3e');   // el tono del muro templado detrás de Atom
+const p4 = (t) => {
+  const o = { encuadre: 'londres', camara: 'puerta', baston: false, hojas: 0.5, niebla: 0.4 };
+  const g = T.cairo(R, t, o), [dx0, dy0, dx1, dy1] = g.puerta || [142, 106, 192, 158];
+  // detrás de Atom (x 266–319, y 0–47) el ladrillo se templa: cada píxel se acerca a un tono de muro hollinado, con un
+  // fundido suave por la izquierda y por abajo; quedan las hiladas y la niebla, pero sin juntas claras ni piezas oscuras
+  for (let y = 0; y <= 47; y++) for (let x = 262; x < 320; x++) {
+    const a = Math.min(1, (x - 262) / 8) * Math.min(1, (47 - y) / 5) * 0.72; if (a <= 0) continue;
+    const c = R.pget(x, y), m = TEMPLE;
+    R.pset(x, y, ((((c & 0xff) * (1 - a) + (m & 0xff) * a) | 0) | (((((c >> 8) & 0xff) * (1 - a) + ((m >> 8) & 0xff) * a) | 0) << 8) | (((((c >> 16) & 0xff) * (1 - a) + ((m >> 16) & 0xff) * a) | 0) << 16) | (c & 0xff000000)) >>> 0);
+  }
+  const W = dx1 - dx0 + 1, H = dy1 - dy0 + 1, abre = ease(tramo(t, ABRE, ABRE + 0.45)) * (1 - ease(tramo(t, CIERRA, CIERRA + 0.45)));
+  const hoja = new Uint32Array(W * H);
+  for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) hoja[j * W + i] = R.pget(dx0 + i, dy0 + j);
+  // Carter: anda despacio, sube los dos escalones, se para ante la puerta, mira atrás y entra
+  const an = tramo(t, P4, SUBE), su = tramo(t, SUBE, SUBE + 0.32), dentro = tramo(t, ENTRA, ENTRA + 0.5);
+  const cx = N(su > 0 ? lerp(124, 140, su) + dentro * 22 : lerp(6, 124, an)), cs = N(lerp(166, 158, su) - dentro * 2);
+  const mira = t > wm(17.0) && t < ENTRA;
+  const carter = () => R.actor(TU.carterMayorTU, cx, cs, t, { dir: mira ? -1 : 1, anda: (an > 0 && an < 1) || (su > 0 && su < 1) || (dentro > 0 && dentro < 1), sonrisa: mira });
+  const puerta = () => {
+    if (abre <= 0) return;
+    // el recibidor, cálido: papel pintado, la lámpara, la escalera y la alfombra
+    for (let y = dy0; y <= dy1; y++) for (let x = dx0; x <= dx1; x++) {
+      const d = Math.hypot((x - 167) / 30, (y - 118) / 40), k = Math.max(0, 1 - d);
+      let c = y > dy1 - 9 ? ((x + y) % 4 === 0 ? '#5a2a20' : '#7a3a26') : (x % 6 === 0 ? '#8a5a30' : '#a8723a');
+      if (y <= dy1 - 9 && y > 128 && x > 174 && (x - 174) > (y - 128) * 0.8) c = (y % 3 === 0) ? '#4a2a1a' : '#6a4024';
+      R.pset(x, y, k > 0.55 ? hex('#f0c070') : k > 0.25 ? hex(c === '#a8723a' ? '#c88a44' : c) : hex(c));
+    }
+    R.disco(167, 114, 2, hex('#fff0c0')); R.linea(167, dy0, 167, 111, hex('#3a2414'));
+    for (let y = dy1 + 1; y <= dy1 + 7; y++) for (let x = dx0 - 4; x <= dx1 + 10; x++) if ((x + y) % 3 === 0 && Math.abs(x - 170) < 20 + (y - dy1) * 3) R.pset(x, y, hex('#d8a860'));
+  };
+  const leaf = () => {
+    if (abre <= 0) return;
+    const w = Math.max(2, N(W * (1 - 0.86 * abre)));
+    for (let i = 0; i < w; i++) { const si = Math.min(W - 1, Math.floor(i * W / w)); for (let j = 0; j < H; j++) R.pset(dx0 + i, dy0 + j + (i > w * 0.5 ? 0 : 0), hoja[j * W + si]); }
+    R.linea(dx0 + w, dy0, dx0 + w, dy1, K); R.linea(dx0 + w + 1, dy0, dx0 + w + 1, dy1, hex('#2a2a30'));
+  };
+  puerta();
+  if (t >= ENTRA && t < ENTRA + 0.55) { carter(); leaf(); }
+  else if (t < ENTRA) { leaf(); carter(); }
+  else leaf();
+  T.cairoDelante(R, t, o);
+};
+
+const efectos = [[wm(5.55), 'viento'], [wm(7.8), 'maquina'], [wm(8.9), 'papel'], [wm(9.5), 'papel'], [wm(11.3), 'papel'], [SIENTA, 'miau'], [ABRE, 'puerta'], [CIERRA + 0.4, 'cerrojo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => (t < P4 ? 1923 : N(lerp(1923, 1939, ease(tramo(t, P4 + 0.1, P4 + 0.8))))) });
+</script>
+</body>
+</html>

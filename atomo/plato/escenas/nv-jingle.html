@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jingle Bells · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-JINGLE (frase 17), 1857 → 1965, sin cartela. Cuatro planos:
+// 1. la carrera de trineos de 1857 (0 → «It»): dos trineos de caballos entran desde fuera de cuadro y corren por el camino
+//    nevado (carriles 119 y 129, por encima de las cabezas del público); a «Jingle Bells» los cascabeles suenan y salen
+//    notas de los arneses; el público, en los huecos entre los postes de la cerca (ninguno detrás de un poste, suelo 166),
+//    se vuelve a mirarlos y vitorea cuando el trineo ya no tiene detrás;
+// 2. la meta («written in 1857» → «once»): el autor canta su partitura en primer plano y salen notas; el trineo cruza la
+//    meta y rompe la cinta («sleigh races»), la tribuna vitorea, una dama agita el pañuelo y los niños saltan; a
+//    «doesn't mention Christmas» al autor le sale un bocadillo con un abeto tachado (la canción no la nombra).
+//    Desde la escena: los postes de la meta son bajos (banderines a la altura del frente de la grada, nunca sobre el
+//    público), la cinta tensa de rayas va de poste a poste y, rota, cuelga de cada uno y ondea; la nieve del primer
+//    plano lleva huellas que llevan a cada personaje, surcos de un trineo, sombras azules, montoncitos, ramitas, paja,
+//    una manopla perdida, un muñeco de nieve con la bufanda al viento, un trineo de mano varado, brillos que titilan y
+//    ráfagas de nieve que barren el suelo;
+// 3. la Gemini 6A en órbita, 1965 («Even so» → «aboard»): la cápsula se mece sobre la Tierra que gira; a «played from
+//    space» salen notas por la ventanilla y flotan girando en la ingravidez; la Gemini 7 lejos;
+// 4. la cabina («aboard Gemini 6A» → fin): un astronauta saca la armónica diminuta y toca («harmonica»); el otro hace
+//    sonar los cascabeles («a few bells»); las notas flotan y dan vueltas por la cabina; el lápiz atado flota.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-jingle');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const j = (f) => en('jingle', f);
+const P2 = j(0.2530), P3 = j(0.4950), P4 = j(0.7907);
+const jingle = j(0.1313), nunca = j(0.1758), anyo = j(0.2848), carreras = j(0.3556), menciona = j(0.4183), espacio = j(0.6381), desde = j(0.7053), armonica = j(0.8979), cascabeles = j(0.9592);
+const K = T.C.k;
+const lin = (t, a0, a1) => Math.max(0, Math.min(1, (t - a0) / (a1 - a0)));
+const spr = (filas, x, y, pal, s = 1) => filas.forEach((f, jj) => { for (let i = 0; i < f.length; i++) { const c = pal[f[i]]; if (c != null) R.rect(x + i * s, y + jj * s, x + i * s + s - 1, y + jj * s + s - 1, c); } });
+const NOTA = ['...kk..', '...kOk.', '...kOOk', '...kOkk', '...kOk.', '.kkkOk.', 'kOOOOk.', 'kOOOk..', '.kkk...'];
+const NOTA2 = ['..kkkkk', '..kOOOk', '..kOkOk', '..kOkOk', '.kkOkOk', 'kOOkOkk', 'kOkOOk.', '.kkkk..'];
+const notaPal = (c) => ({ k: K, O: hex(c) });
+const COLN = ['#f0c040', '#ffffff', '#e86a6a', '#8ad0ff'];
+// una nota que sale de (x0, y0) en t0 y sube flotando; vida: cuánto dura
+const nota = (t, t0, x0, y0, k, vida = 2.2, vx = 6, vy = -14, s = 1) => {
+  const u = (t - t0) / vida; if (u < 0 || u > 1) return;
+  const x = Math.round(x0 + vx * u * vida + Math.sin(u * 7 + k) * 3), y = Math.round(y0 + vy * u * vida);
+  spr(k % 2 ? NOTA2 : NOTA, x, y, notaPal(COLN[k % 4]), s);
+};
+
+// ── 1. la carrera de 1857
+const p1 = (t) => {
+  const o = { encuadre: 'trineos', carrera: false };
+  T.hoy(R, t, o);
+  // los dos trineos entran desde fuera de cuadro; sus carriles (119 y 129) quedan por encima de las cabezas del público
+  const xa = Math.round(lerp(-6, 392, lin(t, 0, P2 + 0.5))), xb = Math.round(lerp(-24, 360, lin(t, 0, P2 + 0.3)));
+  T.e_trineo(R, xb, 119, t, { dir: 1, color: hex('#2a5aa8'), caballo: hex('#3a2a20') });
+  T.e_trineo(R, xa, 129, t, { dir: 1, color: hex('#c0302a') });
+  // las notas que salen de los cascabeles a «Jingle Bells»
+  for (let k = 0; k < 5; k++) { nota(t, jingle - 0.1 + k * 0.4, xa - 12, 106, k, 1.8, -14, -18, 2); nota(t, jingle + 0.1 + k * 0.4, xb - 12, 92, k + 1, 1.8, -14, -18, 2); }
+  // el público detrás de la cerca, cada uno en un hueco entre postes (postes en x 10 + 52·k): se vuelve con los trineos y
+  // vitorea al pasar, con los brazos arriba solo cuando el trineo rojo no le queda justo detrás
+  const gente = [[EL.senor1857, 18], [EL.dama1857, 40], [EL.ninoVictoriano, 72], [EL.ninaVictoriana, 94], [EL.senor1857, 132], [EL.dama1857, 186], [EL.ninoVictoriano, 230], [EL.ninaVictoriana, 252]];
+  gente.forEach(([d, x], k) => { const c = x + 7, pasa = Math.abs(xa - 20 - c) < 46, detras = xa + 7 > x - 3 && xa - 50 < x + 18, nino = k % 4 >= 2;
+    R.actor(d, x, 166, t, { dir: xa - 20 > c ? 1 : -1, brazos: pasa && !detras && Math.sin(t * 9 + k) > -0.2, sonrisa: true, salto: pasa && nino && !detras ? Math.round(Math.abs(Math.sin(t * 10 + k)) * 2) : 0 }); });
+  T.hoyDelante(R, t, o);
+};
+
+// ── 2. la meta y el autor con su partitura
+const NV = hex('#eef3f8'), NVS = hex('#c4d2e4'), NVD = hex('#9aaccc'), BL = hex('#ffffff'), SOMB = hex('#b4c4de');
+const hs = (a, b) => { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); };
+const TINTA = [hex('#e8e0d0'), hex('#c02030'), hex('#e05050')];
+// quita lo que el decorado pinta en la meta (el poste alto de lejos con su banderín sobre la grada y la cinta) y deja
+// la grada con su público y el camino con su raya de meta; se hace antes de pintar a nadie, sobre el fotograma recién hecho
+const limpiaMeta = () => {
+  const { pget, pset } = R;
+  // la grada de detrás del poste: se copia de la grada 108 px a la izquierda (mismos listones y filas de público, animados);
+  // el pilar de la tribuna (x 180–182) se copia del otro pilar (x 100–102)
+  for (let y = 64; y <= 101; y++) for (let x = 172; x <= 197; x++) pset(x, y, pget(x >= 180 && x <= 182 ? x - 80 : x - 108, y));
+  // la cinta: cada píxel suyo toma el color del suelo de su fila (las roderas son horizontales); luego, la raya de meta otra vez
+  for (let y = 102; y <= 152; y++) for (let x = 168; x <= 195; x++) if (TINTA.includes(pget(x, y))) for (const d of [-4, 4, -5, 5, -6, 6, -8, 8]) { const c = pget(x + d, y); if (!TINTA.includes(c)) { pset(x, y, c); break; } }
+  // la raya de meta pintada en el suelo, más ancha y gastada por los patines (se lee como suelo, no como cinta)
+  for (let y = 112; y <= 145; y++) { const x = 175 + Math.round((y - 112) * 0.6); for (let i = 0; i < 4; i++) { const g = hs(x + i, y); pset(x + i, y, i === 3 ? hex('#a8949c') : g < 0.22 ? hex('#d89aa0') : g < 0.4 ? hex('#a01c28') : hex('#c02838')); } }
+};
+// lo que tapa la nieve del primer plano: el barril, el poste de la campana y la pala del decorado
+const libreNieve = (x, y) => !((x >= 227 && x <= 245 && y <= 163) || (x >= 283 && x <= 300 && y <= 169) || (x >= 18 && x <= 34 && y <= 169));
+// la nieve del primer plano: ondas del viento, surcos del trineo que se fue al cobertizo, huellas, sombras, montoncitos,
+// ramitas, paja, una manopla, una piña, un muñeco de nieve y un trineo de mano; brillos que titilan y ráfagas que barren el suelo
+const nievePrimerPlano = (t, S, quien) => {
+  const { pset, linea, disco, rect } = R;
+  // las ondas que deja el viento (crestas con luz arriba y sombra abajo, tramadas)
+  for (const y0 of [151, 157, 163, 175]) for (let x = 0; x < 320; x++) { const y = y0 + Math.round(Math.sin(x * 0.06 + y0) * 1.5 + Math.sin(x * 0.17 + y0 * 2) * 0.7); if (!libreNieve(x, y)) continue;
+    const r = hs(x >> 1, y0); if (r < 0.8) pset(x, y, NVS); if (r < 0.5) pset(x, y + 1, (x + y) & 1 ? SOMB : NVS); if (r < 0.2) pset(x, y + 2, (x + y) & 1 ? NVS : NV); if (r > 0.25) pset(x, y - 1, BL); }
+  // la sombra azul tramada que se espesa hacia abajo (el primer plano, más cerca y a la sombra de la grada de enfrente)
+  for (let y = 170; y < 180; y++) for (let x = (y & 1); x < 320; x += 2) if (libreNieve(x, y) && hs(x, y) < (y - 168) * 0.06) pset(x, y, NVS);
+  // los surcos del trineo (dos patines) que salieron del camino y cruzan el primer plano
+  for (let x = 0; x < 320; x++) { const y = Math.round(170 + Math.sin(x * 0.012 + 0.6) * 4 + x * 0.012); if (!libreNieve(x, y)) continue;
+    for (const dy of [0, 4]) { pset(x, y + dy - 1, BL); pset(x, y + dy, NVD); pset(x, y + dy + 1, NVS); } if (x % 23 === 5) pset(x, y + 2, NVS); }
+  // las sombras azules (el sol de la tarde, de la izquierda): de cada personaje, del barril, del poste de la campana y de la pala
+  const sombra = (x0, x1, y, alto = 2) => { for (let yy = y; yy <= y + alto; yy++) { const m = (yy - y) / alto, a = Math.round(x0 + (x1 - x0) * 0.15 * m), b = Math.round(x1 - (x1 - x0) * 0.25 * m); for (let x = a; x <= b; x++) if (yy === y || (x + yy) & 1 || yy < y + alto) pset(x, yy, (x + yy) % 3 === 0 ? NVS : SOMB); } };
+  for (const c of quien) sombra(c - 2, c + 14, S - 1);
+  sombra(244, 256, 159, 3); linea(292, 168, 306, 170, SOMB); linea(293, 169, 306, 171, NVS); linea(28, 168, 40, 170, SOMB);
+  // las huellas de botas que llevan a cada uno (pares alternos, con su hoyito de sombra)
+  const huellas = (x0, y0, x1, y1, n) => { for (let i = 0; i <= n; i++) { const u = i / n, x = Math.round(x0 + (x1 - x0) * u + (i & 1 ? 2 : -2) * 0.5), y = Math.round(y0 + (y1 - y0) * u + (i & 1 ? 1 : -1)); if (!libreNieve(x, y)) continue; rect(x, y, x + 2, y + 1, NVD); rect(x + 1, y + 2, x + 3, y + 2, NVS); pset(x + 3, y + 1, NVS); rect(x, y - 1, x + 2, y - 1, BL); } };
+  huellas(0, 177, 50, 170, 9); huellas(96, 179, 134, 171, 7); huellas(208, 149, 216, 167, 6); linea(202, 153, 214, 155, SOMB); linea(202, 154, 213, 156, NVS); huellas(316, 158, 262, 169, 9);
+  // montoncitos de nieve con su luz y su sombra
+  for (const [x, y, r] of [[126, 177, 4], [168, 178, 6], [276, 176, 4], [86, 160, 3], [214, 176, 3]]) { disco(x + 1, y + 1, r, NVS); disco(x, y, r, NV); disco(x - 1, y - 1, Math.max(1, r - 2), BL); linea(x - r, y + 1, x + r, y + 1, NVS); pset(x + r - 1, y, NVS); }
+  // ramitas caídas, paja junto al barril, una manopla roja perdida y una piña
+  for (const [x, y, d] of [[96, 166, 1], [190, 172, -1], [150, 158, 1], [312, 174, -1]]) { linea(x, y, x + 9 * d, y - 2, hex('#5a3a22')); linea(x + 3 * d, y - 1, x + 5 * d, y - 4, hex('#5a3a22')); linea(x + 6 * d, y - 2, x + 9 * d, y - 4, hex('#7a5232')); pset(x + 9 * d, y - 4, BL); pset(x + 5 * d, y - 5, BL); }
+  for (let k = 0; k < 9; k++) { const x = 222 + Math.round(hs(k, 3) * 30), y = 164 + Math.round(hs(k, 4) * 4); linea(x, y, x + 3 + (k % 3), y - 1 + (k & 1), k % 2 ? hex('#d8b860') : hex('#a8844a')); }
+  { const x = 124, y = 171; rect(x, y, x + 3, y + 3, hex('#7a1a1a')); rect(x, y, x + 2, y + 2, hex('#c8302a')); pset(x + 4, y + 1, hex('#c8302a')); rect(x - 1, y + 3, x + 3, y + 4, hex('#f4ecdc')); pset(x + 1, y, hex('#e86a6a')); linea(x + 4, y + 4, x + 8, y + 5, SOMB); }
+  { const x = 268, y = 170; disco(x, y, 2, hex('#6a4428')); for (let j = -1; j <= 1; j++) pset(x + j, y - 1 + Math.abs(j), hex('#9a6c40')); pset(x, y - 2, BL); linea(x + 2, y + 2, x + 6, y + 3, SOMB); }
+  // el muñeco de nieve (sombrero viejo, ojos de carbón, nariz de zanahoria, brazos de rama y la bufanda que ondea)
+  { const x = 104, y = 171, w = Math.sin(t * 5); linea(x + 2, y + 1, x + 16, y + 3, SOMB); linea(x + 3, y + 2, x + 15, y + 4, NVS);
+    for (const [cy, r] of [[y - 5, 6], [y - 14, 4], [y - 21, 3]]) { R.disco(x, cy, r + 1, NVD); R.disco(x, cy, r, NV); R.disco(x - 1, cy - 1, r - 1, BL); for (let i = 0; i <= r; i++) pset(x + r - (i >> 1), cy + i - 1, NVS); }
+    rect(x - 3, y - 25, x + 3, y - 24, hex('#2a2a32')); rect(x - 2, y - 29, x + 2, y - 25, hex('#2a2a32')); rect(x - 2, y - 26, x + 2, y - 26, hex('#7a2a2a'));
+    pset(x - 1, y - 22, K); pset(x + 1, y - 22, K); pset(x + 2, y - 21, hex('#e87a20')); pset(x + 3, y - 21, hex('#c85a10')); for (const dy of [-12, -8, -4]) pset(x, y + dy, hex('#2a2a32'));
+    rect(x - 3, y - 18, x + 3, y - 17, hex('#2a8a4a')); linea(x + 2, y - 17, x + 6 + Math.round(w), y - 14 + Math.round(w), hex('#2a8a4a')); pset(x + 6 + Math.round(w), y - 13 + Math.round(w), hex('#1a6a3a'));
+    linea(x - 4, y - 14, x - 10, y - 18 + Math.round(w * 0.5), hex('#5a3a22')); linea(x - 8, y - 17, x - 9, y - 20, hex('#5a3a22')); linea(x + 4, y - 14, x + 9, y - 17, hex('#5a3a22')); linea(x + 7, y - 16, x + 9, y - 14, hex('#5a3a22')); }
+  // un trineo de mano con su manta de cuadros, varado en la nieve
+  { const x = 232, y = 176; linea(x + 2, y + 2, x + 24, y + 3, SOMB); rect(x + 2, y - 4, x + 18, y - 2, hex('#8a5a32')); rect(x + 2, y - 4, x + 18, y - 4, hex('#b07a48')); for (let i = x + 5; i < x + 18; i += 4) pset(i, y - 3, hex('#5a3a22'));
+    rect(x + 6, y - 6, x + 14, y - 5, hex('#c8302a')); for (let i = x + 6; i <= x + 14; i += 2) pset(i, y - 6, hex('#f0c040')); rect(x + 4, y - 1, x + 4, y, hex('#3a3a42')); rect(x + 16, y - 1, x + 16, y, hex('#3a3a42'));
+    linea(x, y + 1, x + 20, y + 1, hex('#3a3a42')); pset(x - 1, y, hex('#3a3a42')); pset(x - 1, y - 1, hex('#3a3a42')); pset(x, y - 2, hex('#3a3a42')); linea(x - 1, y - 2, x - 6, y - 7, hex('#7a5232')); linea(x + 20, y + 2, x + 24, y + 2, NVS); }
+  // brillos que titilan
+  for (let k = 0; k < 16; k++) { const x = Math.round(hs(k, 7) * 318) + 1, y = 149 + Math.round(hs(k, 8) * 29), b = Math.sin(t * 3.2 + k * 2.1); if (b < 0.75 || !libreNieve(x, y)) continue; pset(x, y, BL); if (b > 0.9) { pset(x - 1, y, hex('#dff0ff')); pset(x + 1, y, hex('#dff0ff')); pset(x, y - 1, hex('#dff0ff')); pset(x, y + 1, hex('#dff0ff')); } }
+  // ráfagas de nieve que barren el suelo hacia la derecha
+  for (let k = 0; k < 5; k++) { const x0 = ((t * (34 + k * 6) + k * 83) % 400) - 40, y = 152 + k * 6 + Math.round(Math.sin(t * 2 + k) * 1.5); for (let i = 0; i < 14; i++) { const x = Math.round(x0 - i), yy = y + (i > 7 ? 1 : 0); if (!libreNieve(x, yy) || hs(i, k + Math.floor(t * 8)) < i / 16) continue; pset(x, yy, i < 4 ? BL : hex('#f6fafe')); } }
+};
+// la cinta de la meta: tensa de poste a poste (rayas rojas y blancas, con su caída), o rota y colgando, ondeando
+const cintaMeta = (t, rota, parte) => {
+  const { pset } = R, A = [177, 103], B = [196, 129];
+  const raya = (i) => (i % 5 < 2 ? hex('#d02030') : hex('#fbf6ea'));
+  // tensa: una banda de dos píxeles de poste a poste (blanca con rayas rojas), con su leve caída
+  if (rota < 0.5) { if (parte !== 'lejos') return; const n = B[1] - A[1]; for (let i = 0; i <= n; i++) { const u = i / n, x = Math.round(A[0] + (B[0] - A[0]) * u - Math.sin(u * Math.PI) * 1.2), y = A[1] + i; pset(x, y, raya(i)); pset(x + 1, y, raya(i)); }
+    return; }
+  // rota: de cada poste sale un cabo que el viento estira hacia la derecha y hace ondear
+  const [P, L] = parte === 'lejos' ? [A, 10] : [[202, B[1]], 13];
+  for (let i = 0; i <= L; i++) { const u = i / L, x = P[0] + i, y = Math.round(P[1] + u * 3 + Math.sin(t * 8 - i * 0.7) * 1.5 * u); pset(x, y, raya(i)); pset(x, y + 1, i % 5 < 2 ? hex('#901818') : hex('#d8d0c4')); }
+};
+// el poste de lejos (bajo: su banderín rojo queda a la altura del frente de madera de la grada, sin tapar al público)
+const posteLejos = (t) => {
+  const { rect, poligono, pset, disco, linea } = R;
+  rect(174, 92, 176, 112, K); rect(175, 93, 175, 112, hex('#e8e2d6')); for (let y = 96; y < 112; y += 6) pset(175, y, hex('#b8b0a4')); disco(175, 91, 1, hex('#f0c040')); pset(175, 90, hex('#fff6c0'));
+  const w = Math.round(Math.sin(t * 4) * 1.5); poligono([[177, 93], [189, 95 + w], [177, 99]], hex('#c02030')); linea(177, 98, 188, 96 + w, hex('#901818')); pset(178, 94, hex('#e86a6a'));
+  rect(171, 111, 179, 113, NV); rect(172, 111, 178, 111, BL);
+};
+// el poste de cerca (delante, x 196–201, en el otro extremo de la raya de meta): rayas rojas y blancas con luz y sombra, la bola dorada, la banderola azul a la altura de
+// la explanada (nunca sobre la grada) y su montón de nieve
+const posteCerca = (t) => {
+  const { rect, poligono, pset, disco, linea } = R;
+  rect(196, 97, 201, 152, K); rect(197, 98, 200, 152, hex('#f4ecdc')); for (let y = 102; y < 152; y += 10) { rect(197, y, 200, y + 4, hex('#c02030')); rect(200, y, 200, y + 4, hex('#901818')); } rect(200, 98, 200, 152, hex('#c8c0b0')); rect(197, 98, 197, 152, BL);
+  disco(198, 95, 2, hex('#c89a30')); disco(198, 95, 1, hex('#f0c040')); pset(197, 94, hex('#fff6c0'));
+  const w = Math.round(Math.sin(t * 4 + 1) * 2); poligono([[202, 98], [221, 102 + w], [202, 108]], K); poligono([[202, 99], [219, 102 + w], [202, 107]], hex('#2a5aa8')); linea(202, 106, 218, 103 + w, hex('#1a3a78')); disco(208, 103, 1, hex('#f0c040'));
+  for (let y = 149; y <= 155; y++) { const a = Math.round(Math.abs(y - 152) * 1.6); rect(191 + a, y, 207 - a, y, y < 151 ? BL : y > 153 ? NVS : NV); }
+};
+// los montones de las esquinas (delante), tramados, con su luz y su sombra
+const montonesEsquina = () => {
+  const { pset } = R;
+  for (const [x0, x1] of [[0, 22], [298, 319]]) for (let y = 165; y <= 179; y++) for (let x = x0; x <= x1; x++) { const top = 165 + Math.abs(x - (x0 + x1) / 2) * 0.55 + Math.sin(x * 0.7) * 0.8; if (y < top) continue;
+    pset(x, y, y < top + 1 ? BL : x > (x0 + x1) / 2 + 4 && (x + y) & 1 ? NVS : y > 175 && (x + y) % 3 === 0 ? NVS : NV); }
+};
+const p2 = (t) => {
+  const cruce = lin(t, carreras - 1.2, carreras + 0.9), rota = lin(t, carreras + 0.25, carreras + 0.5), o = { encuadre: 'trineos', camara: 'meta', cruce: null, cinta: rota };
+  const geo = T.hoy(R, t, o); const S = geo.suelo;
+  limpiaMeta(); posteLejos(t); nievePrimerPlano(t, S, [59, 143, 221, 261]);
+  // la cinta y el trineo que la rompe (el trineo, después de la cinta tensa; los cabos rotos, después del trineo)
+  cintaMeta(t, rota, 'lejos');
+  T.e_trineo(R, Math.round(-70 + cruce * 420), 136, t, { color: hex('#c0302a') });
+  // la dama del pañuelo y los niños de la meta
+  const llega = t > carreras + 0.3;
+  const dm = R.actor(EL.dama1857, 136, S, t, { dir: 1, sostiene: [150, Math.round(S - 26 + (llega ? Math.sin(t * 14) * 3 : 0))], sonrisa: true });
+  { const [hx, hy] = dm.mano, f = llega ? Math.round(Math.sin(t * 14) * 2) : 0; R.poligono([[hx, hy - 1], [hx + 7, hy - 3 + f], [hx + 8, hy + 3 + f], [hx + 1, hy + 4]], K); R.poligono([[hx + 1, hy], [hx + 6, hy - 2 + f], [hx + 7, hy + 2 + f], [hx + 1, hy + 3]], hex('#e83a4a')); }
+  for (const [d, x, k] of [[EL.ninoVictoriano, 214, 0], [EL.ninaVictoriana, 254, 1]]) R.actor(d, x, S, t, { dir: -1, brazos: llega, sonrisa: llega, salto: llega && t < carreras + 2 ? Math.round(Math.abs(Math.sin(t * 9 + k)) * 4) : 0 });
+  // el autor con la partitura: canta (salen notas) y luego el bocadillo del abeto tachado
+  const au = R.actor(EL.senor1857, 52, S, t, { dir: 1, habla: t < carreras + 0.3 && Math.sin(t * 8) > -0.3, sostiene: [68, S - 18 + (t > anyo && t < anyo + 1 ? -3 : 0)], sonrisa: t > carreras, sorpresa: t > menciona && t < menciona + 0.6 });
+  { const [hx, hy] = au.mano; R.rect(hx - 1, hy - 10, hx + 11, hy + 2, K); R.rect(hx, hy - 9, hx + 10, hy + 1, hex('#f2ead6')); for (let y = hy - 8; y < hy; y += 2) R.rect(hx + 1, y, hx + 9, y, hex('#7a6a5a')); for (const [nx, ny] of [[hx + 2, hy - 7], [hx + 5, hy - 4], [hx + 8, hy - 6]]) { R.pset(nx, ny, K); R.pset(nx + 1, ny, K); R.pset(nx + 1, ny - 1, K); R.pset(nx + 1, ny - 2, K); } }
+  for (let k = 0; k < 4; k++) nota(t, P2 + 0.2 + k * 0.5, 64, S - 36, k, 1.6, 6, -16, 2);
+  if (t > menciona) {
+    const u = lin(t, menciona, menciona + 0.25), bx = 30, by = S - 72, w = 30, hh = 26;
+    if (u > 0) { R.rect(bx - 1, by - 1, bx + w + 1, by + hh + 1, K); R.rect(bx, by, bx + w, by + hh, hex('#ffffff')); for (const [cx, cy] of [[bx + 16, by + hh + 4], [bx + 20, by + hh + 9]]) { R.disco(cx, cy, 2, K); R.disco(cx, cy, 1, hex('#ffffff')); }
+      // el abeto con su estrella
+      for (let jj = 0; jj < 16; jj++) { const ww = Math.round(jj * 0.5); R.rect(bx + 15 - ww, by + 5 + jj, bx + 15 + ww, by + 5 + jj, jj % 4 === 3 ? hex('#2a6a3a') : hex('#3a8a4a')); }
+      R.rect(bx + 14, by + 21, bx + 16, by + 23, hex('#6a3a1a')); R.pset(bx + 15, by + 4, hex('#f0c040')); R.pset(bx + 13, by + 12, hex('#e83a4a')); R.pset(bx + 17, by + 16, hex('#f0c040'));
+      if (t > menciona + 0.35) for (let k = -1; k <= 1; k++) { R.linea(bx + 4 + k, by + 3, bx + w - 4 + k, by + hh - 3, hex('#d8202a')); R.linea(bx + w - 4 + k, by + 3, bx + 4 + k, by + hh - 3, hex('#d8202a')); } }
+  }
+  // delante (en lugar de T.hoyDelante, que pinta el poste alto con la banderola sobre la grada): el poste de cerca, el cabo
+  // roto que cuelga de él y los montones de las esquinas
+  posteCerca(t); cintaMeta(t, rota, 'cerca'); montonesEsquina();
+};
+
+// ── 3. la Gemini 6A en órbita
+const p3 = (t) => {
+  const cx = Math.round(168 + Math.sin(t * 0.6) * 3), cy = Math.round(54 + Math.sin(t * 0.9) * 2);
+  const geo = T.hoy(R, t, { encuadre: 'espacio', capsula: [cx, cy] });
+  // las notas salen por la ventanilla y flotan girando (recortadas a la zona libre)
+  R.recorte([96, 26, 272, 104]);
+  for (let k = 0; k < 9; k++) { const t0 = espacio - 0.3 + k * 0.4, u = (t - t0) / 3.4; if (u < 0 || u > 1) continue;
+    const a = -2.6 + (k % 5) * 0.55, x = Math.round(cx - 34 + Math.cos(a) * u * 80 + Math.sin(t * 2 + k) * 4), y = Math.round(cy - 10 + Math.sin(a) * u * 40 + Math.cos(t * 1.7 + k) * 3);
+    spr(k % 2 ? NOTA2 : NOTA, x, y, notaPal(COLN[k % 4]), 2); }
+  R.recorte(null);
+};
+
+// ── 4. la cabina: la armónica y los cascabeles
+const p4 = (t) => {
+  const o = { encuadre: 'espacio', camara: 'cabina' };
+  const geo = T.hoy(R, t, o); const S = geo.suelo, [xa, xb] = geo.actores;
+  const sube = lin(t, P4 + 0.4, armonica - 0.6), toca = t > armonica - 0.6;
+  const a1 = R.actor(EL.astronauta, xa, S, t, { dir: 1, sonrisa: true, salto: toca && Math.sin(t * 9) > 0.4 ? 1 : 0, sostiene: [Math.round(lerp(xa + 16, xa + 12, sube)), Math.round(lerp(S - 14, S - 21, sube))] });
+  { const [hx, hy] = a1.mano; T.PIEZAS_NV.armonica(R, hx + 4, hy + 4 + (toca && Math.sin(t * 12) > 0 ? 1 : 0), { s: 2 }); }
+  const sacude = t > cascabeles - 0.3;
+  const saluda = t > P4 + 0.2 && t < P4 + 1.4;
+  const a2 = R.actor(EL.astronauta2, xb, S, t, { dir: -1, sonrisa: true, dedo: saluda, salto: sacude && Math.sin(t * 9) > 0.4 ? 1 : 0, habla: !sacude && !saluda && t < cascabeles - 1.5 && Math.sin(t * 6) > 0, sostiene: saluda ? false : [xb - 4 + (sacude ? Math.round(Math.sin(t * 22) * 2) : 0), S - 20 + (sacude ? Math.round(Math.cos(t * 22) * 2) : 0)] });
+  if (!saluda) { const [hx, hy] = a2.mano; T.PIEZAS_NV.cascabeles(R, hx - 6, hy + 4, { t: sacude ? t : undefined }); }
+  else T.PIEZAS_NV.cascabeles(R, xb - 14, S - 22 + Math.round(Math.sin(t * 2.2) * 2), {});   // flotan a su lado mientras saluda
+  T.hoyDelante(R, t, o);
+  // las notas en ingravidez: salen de la armónica y de los cascabeles, flotan y dan vueltas
+  for (let k = 0; k < 10; k++) { const t0 = armonica - 0.4 + k * 0.4, u = (t - t0) / 4; if (u < 0 || u > 1) continue;
+    const ox = a1.mano[0] + 8, oy = a1.mano[1] - 4, a = k * 1.9 + t * 0.5, rr = u * 46;
+    const x = Math.round(ox + u * 70 + Math.cos(a) * rr * 0.4), y = Math.round(oy - 6 + Math.sin(a) * rr * 0.5);
+    if (y > 78 && y < 130 && x > 40 && x < 266) spr(k % 2 ? NOTA2 : NOTA, x, y, notaPal(COLN[k % 4]), k % 3 ? 2 : 1); }
+  for (let k = 0; k < 5; k++) { const t0 = cascabeles + k * 0.35, u = (t - t0) / 2.6; if (u < 0 || u > 1) continue;
+    const x = Math.round(a2.mano[0] - 10 - u * 50 + Math.sin(t * 3 + k) * 4), y = Math.round(a2.mano[1] - 8 - u * 24 + Math.cos(t * 2 + k) * 3);
+    if (y > 78 && x > 40) spr(k % 2 ? NOTA : NOTA2, x, y, notaPal(COLN[(k + 2) % 4]), 2); }
+};
+const efectos = [[0.4, 'carro'], [jingle, 'campana'], [jingle + 1.2, 'publico'], [carreras + 0.3, 'publico'], [menciona + 0.3, 'pop'], [P3 + 0.3, 'whoosh'], [espacio, 'brillo'], [armonica - 0.5, 'golpecito'], [cascabeles, 'campana']];
+const año = (t) => (t < P3 ? 1857 : 1965);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

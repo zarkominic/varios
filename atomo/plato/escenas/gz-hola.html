@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep30</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GZ-HOLA (frase 3), hoy, sin cartela. Un plano: el estudio de Atom. Atom baja de su esquina hasta el centro del cuarto y
+// rebota en «I'm Atom»; en «explain» da una vuelta con un destello; en «wondered about» le salen tres «?»; en «Let's find
+// out» va a la mesa, coge la lupa (pegada a su órbita) y la acerca a la pirámide de pisapapeles.
+import * as T from '/atomo/plato/escenas/gz-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gz-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila
+const h1 = (f) => en('hola', f);
+const soy = h1(0.035), explica = h1(0.218), pregunta = h1(0.540), vamos = h1(0.800), fuera = h1(0.903);
+const K = hex('#0c0a12');
+const atomEn = (x, y, t, e = 0.4, r = 12) => {
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const g = 1 - Math.hypot(i, j) / (r + 6); if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(x + i, y + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(x, y, t, { r, orbita: R.PAL.ATOM[7], energia: e });
+};
+const p1 = (t) => {
+  const coge = t > vamos + 0.45, o = { encuadre: 'estudio', lupa: !coge };
+  const g = T.hoy(R, t, o);
+  T.hoyDelante(R, t, o);
+  // el recorrido: baja de la esquina al centro, rebota en «I'm Atom», da la vuelta en «explain», va a la mesa en «Let's find out»
+  const u0 = tramo(t, 0, soy), u1 = tramo(t, vamos, vamos + 0.45), u2 = tramo(t, vamos + 0.5, fuera + 0.4);
+  let x = lerp(297, 136, u0 * (2 - u0)), y = lerp(24, 74, u0 * (2 - u0));
+  const sal = t > soy && t < explica ? Math.round(Math.abs(Math.sin((t - soy) * Math.PI * 2.4)) * 8) : 0;
+  if (t > explica && t < explica + 0.9) { const an = tramo(t, explica, explica + 0.9) * Math.PI * 2; x += Math.sin(an) * 14; y += (1 - Math.cos(an)) * -6; }
+  if (u1 > 0) { x = lerp(136, 232, u1 * u1 * (3 - 2 * u1)); y = lerp(74, 86, u1); }
+  if (u2 > 0) { x = lerp(232, 214, u2); y = lerp(86, 74, u2); }
+  const ax = Math.round(x), ay = Math.round(y - sal + Math.sin(t * 2.6) * 1.5);
+  // el destello de «explain»
+  if (t > explica && t < explica + 0.9) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 5; R.pset(Math.round(ax + Math.cos(an) * 21), Math.round(ay + Math.sin(an) * 21), hex('#c8f0ff')); }
+  atomEn(ax, ay, t, sal > 0 ? 0.7 : 0.4);
+  // la lupa, pegada a la órbita: se inclina hacia la pirámide de pisapapeles
+  if (coge) { const lx = ax - 10 - Math.round(u2 * 4), ly = ay + 6 + Math.round(u2 * 4); T.PIEZAS_GZ.lupa(R, lx, ly + 17, { dir: -1 });
+    if (u2 >= 1) { const b = Math.sin(t * 6) > 0; R.pset(lx - 4, ly + 2, b ? hex('#ffffff') : hex('#c8f0ff')); } }
+  // los «?» de «wondered about», que suben junto a Atom
+  if (t > pregunta - 0.1 && t < vamos + 0.1) for (let i = 0; i < 3; i++) { const t0 = pregunta - 0.1 + i * 0.22; if (t < t0) continue; R.icono('?', 156 + i * 14, Math.round(52 - (i & 1) * 8 - tramo(t, t0, t0 + 0.2) * 4 - Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 2); }
+};
+const efectos = [[soy + 0.05, 'pop'], [explica + 0.1, 'brillo'], [pregunta, 'pop'], [vamos + 0.45, 'golpecito']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cierre · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-CIERRE (frase 30, marca «cierre»), 2026, sin cartela. Sereno y respetuoso. Tres planos:
+// 1. la hoja de las tres casillas: en «Believing», «claiming» y «checking» se enciende cada una (el corazón, el
+//    bocadillo, la lupa) y recibe su número; en «all three fit in this story» una mano con el lápiz las une por debajo
+//    con una sola llave;
+// 2. el escritorio de cerca (el lápiz del borde es el de T.hoyDelante con lupa: false): una mano deja el titular (un papel con un barco y un «!») en «read»; el «!» bota en «has
+//    been found»; otra mano coge la lupa del borde, la pasa por delante de la pecera (agranda al pez, que mira el
+//    barquito) y la pone sobre el titular: en «who has checked it» en el cristal se lee un «?»;
+// 3. el estudio (gag 8), con la pecera pintada aquí algo mayor (radio 31) para que se lea: el pez salta por encima del
+//    borde y cae subido en el barquito de papel, le cae su gorra de capitán y echa a navegar; Atom baja de su esquina
+//    a mirarlo; en «not confirmed» su globo enseña la casilla vacía con su «?». Acaba en calma.
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-cierre');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ORO = hex('#ffd860'), OROL = hex('#fff4b8'), OROS = hex('#b8862a'), ROJO = hex('#d8402c'), ROJOL = hex('#ff7a5a'), PZ = T.PIEZAS_NX;
+const MANGA = '#3e4e74';
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
+// un globo de cómic (sin letras: dentro va un dibujo), centrado en (cx, cy), de medio ancho w y medio alto h, con el rabito hacia abajo en tx
+const globo = (cx, cy, w, h, tx) => {
+  R.rect(cx - w, cy - h + 2, cx + w, cy + h - 2, K); R.rect(cx - w + 2, cy - h, cx + w - 2, cy + h, K); R.rect(cx - w + 1, cy - h + 1, cx + w - 1, cy + h - 1, K);
+  R.rect(cx - w + 1, cy - h + 2, cx + w - 1, cy + h - 2, BL); R.rect(cx - w + 2, cy - h + 1, cx + w - 2, cy + h - 1, BL);
+  R.rect(cx - w + 2, cy + h - 1, cx + w - 2, cy + h - 1, hex('#d8d2c4'));
+  for (let k = 0; k < 5; k++) { R.rect(tx - 4 + k, cy + h + k, tx + 4 - k, cy + h + k, K); if (k < 4) R.rect(tx - 3 + k, cy + h + k - 1, tx + 3 - k, cy + h + k, BL); }
+};
+// LA LUPA de mano: aro dorado de radio r, cristal que AGRANDA ×2 lo que tiene debajo y mango de nogal hacia abajo (dir 1:
+// a la derecha; −1: a la izquierda). pinta(lx, ly, ri): algo que se dibuja dentro del cristal. Devuelve la punta del mango
+const lupa = (lx, ly, r, dir = 1, pinta = null) => {
+  lx = Math.round(lx); ly = Math.round(ly); const ri = r - 3, m0 = Math.round(r * 0.7), L = 19;
+  for (let k = 0; k < L; k++) { const x = lx + dir * (m0 + k), y = ly + m0 + k; R.rect(x - 2, y - 1, x + 2, y + 3, K); }
+  for (let k = 0; k < L - 1; k++) { const x = lx + dir * (m0 + k), y = ly + m0 + k; R.rect(x - 1, y, x + 1, y + 2, k > 4 ? hex('#8a5a30') : hex('#a8acb8')); R.pset(x - dir, y, k > 4 ? hex('#c08a50') : BL); R.pset(x + dir, y + 2, k > 4 ? hex('#5a3a20') : hex('#6a6e7a')); }
+  const buf = [];
+  for (let j = -ri; j <= ri; j++) for (let i = -ri; i <= ri; i++) if (i * i + j * j <= ri * ri) buf.push([i, j, R.pget(lx + Math.round(i / 2), ly + Math.round(j / 2))]);
+  for (const [i, j, c] of buf) R.pset(lx + i, ly + j, mez(c, hex('#d8f0f8'), 0.12));
+  if (pinta) pinta(lx, ly, ri);
+  for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r + 0.4 || d <= ri + 0.2) continue; R.pset(lx + i, ly + j, d > r - 0.7 || d < ri + 1.1 ? K : i + j < -2 ? OROL : i + j > r ? OROS : ORO); }
+  for (let a = 3.5; a < 4.5; a += 0.07) R.pset(Math.round(lx + Math.cos(a) * (ri - 3)), Math.round(ly + Math.sin(a) * (ri - 3)), BL);
+  R.pset(lx + Math.round(ri * 0.45), ly + Math.round(ri * 0.45), hex('#e8f8ff'));
+  return [lx + dir * (m0 + L - 3), ly + m0 + L - 3];
+};
+// la mano que sujeta algo por la punta (hx, hy) y entra por abajo (dir 1: el brazo viene por la derecha)
+const manoAbajo = (hx, hy, dir = 1) => T.brazo(R, hx + dir * 30, 188, hx + dir * 8, hy + 2, MANGA, -dir, { codo: [hx + dir * 26, Math.round((hy + 190) / 2)] });
+
+const w = (s) => en('cierre', (s - 0.5) / 13.259);
+const P2 = w(5.4), P3 = w(10.65);
+const comp0 = R.companero; R.companero = (t, e) => { if (t < P3) comp0(t, e); };   // en el plano 3 Atom baja a la pecera
+
+// ── 1 · creer, decir y comprobar ─────────────────────────────────────────────────────────────────────────────────────
+const C1 = w(0.5), C2 = w(1.12), C3 = w(1.66), TRES = w(2.24), TODOS = w(3.64), HIST = w(4.66);
+const CX = [88, 160, 232];
+const p1 = (t) => {
+  const o = { encuadre: 'lista', camara: 'casillas', luz: tramo(t, C1, C1 + 0.3) + tramo(t, C2, C2 + 0.3) + tramo(t, C3, C3 + 0.3) };
+  T.hoy(R, t, o);
+  // el aro que se abre al encenderse cada una y su número
+  [C1, C2, C3].forEach((c0, k) => { if (t < c0) return; const d = t - c0;
+    if (d < 0.45) { const r = 30 + d * 30; for (let a = 0; a < 20; a++) { const an = a * Math.PI / 10 + k; const x = Math.round(CX[k] + Math.cos(an) * r), y = Math.round(96 + Math.sin(an) * r); if (y > 48 && y < 152) R.pset(x, y, a & 1 ? ORO : BL); } }
+    const n0 = TRES + k * 0.3; if (t >= n0) { const b = t < n0 + 0.25 ? Math.round(Math.sin((t - n0) / 0.25 * Math.PI) * 3) : 0; R.disco(CX[k], 56 - b, 6, K); R.disco(CX[k], 56 - b, 5, hex('#2a2634')); R.numero(String(k + 1), CX[k] + 1, 60 - b, { centro: true }); } });
+  // «all three fit in this story»: la llave a lápiz que las une por debajo, y la mano que la traza
+  const u = tramo(t, TODOS - 0.1, HIST + 0.25), LL = [[58, 137], [58, 143], [160, 143], [160, 148], [160, 143], [262, 143], [262, 137]], LEN = [6, 102, 5, 5, 102, 6], TOT = 226;
+  let rest = u * TOT, px = 58, py = 137;
+  for (let s = 0; s < 6 && u > 0; s++) { const [ax, ay] = LL[s], [bx, by] = LL[s + 1], f = Math.max(0, Math.min(1, rest / LEN[s])); if (f <= 0) break;
+    const ex = Math.round(lerp(ax, bx, f)), ey = Math.round(lerp(ay, by, f)); R.linea(ax, ay, ex, ey, hex('#2a2a38')); R.linea(ax, ay + 1, ex, ey + 1, hex('#2a2a38')); R.linea(ax + 1, ay, ex + 1, ey, hex('#2a2a38')); px = ex; py = ey; rest -= LEN[s]; }
+  T.hoyDelante(R, t, o);
+  const ent = ease(tramo(t, TODOS - 0.75, TODOS - 0.1)), sal = ease(tramo(t, HIST + 0.3, HIST + 0.72));
+  if (ent > 0 && sal < 1) { const tx = px + Math.round(sal * 20), ty = py + Math.round((1 - ent) * 52 + sal * 56) + (u > 0 && u < 1 ? Math.round(Math.sin(t * 30) * 0.6) : 0);
+    for (let i = 0; i <= 20; i++) { const x = Math.round(tx + i * 0.8), y = Math.round(ty + i * 0.75); R.rect(x - 1, y - 1, x + 2, y + 2, K); }
+    for (let i = 1; i <= 20; i++) { const x = Math.round(tx + i * 0.8), y = Math.round(ty + i * 0.75); R.rect(x, y, x + 1, y + 1, i < 4 ? hex('#e8c89a') : i > 17 ? hex('#e88aa0') : hex('#f0c030')); if (i >= 4 && i <= 17) R.pset(x + 1, y, hex('#fff0a0')); }
+    R.pset(tx, ty, K); R.pset(tx + 1, ty + 1, hex('#3a3a48'));
+    manoAbajo(tx + 15, ty + 14, 1); }
+  // las tres laten a la vez al cerrarse la llave
+  if (u >= 1 && t < HIST + 0.8) { const d = (t - HIST - 0.25) / 0.55; for (const cx of CX) for (let a = 0; a < 16; a++) { const an = a * Math.PI / 8; const x = Math.round(cx + Math.cos(an) * (34 + d * 8)), y = Math.round(96 + Math.sin(an) * (34 + d * 8)); if (y > 48 && y < 152) R.pset(x, y, a & 1 ? ORO : BL); } }
+};
+
+// ── 2 · el titular y la lupa: ¿quién lo ha comprobado? ───────────────────────────────────────────────────────────────
+const LEES = w(6.35), HALLADA = w(7.83), SABES = w(8.61), PREG = w(9.15), QUIEN = w(9.55);
+const titular = (x, y, t) => {
+  R.rect(x + 3, y + 3, x + 55, y + 63, hex('#3a2416')); R.rect(x - 1, y - 1, x + 53, y + 61, K); R.rect(x, y, x + 52, y + 60, BL); R.rect(x + 50, y + 2, x + 52, y + 60, hex('#d8d2c4')); R.rect(x, y + 58, x + 52, y + 60, hex('#d8d2c4'));
+  R.rect(x, y, x + 52, y + 4, hex('#2a3a5a')); for (let i = 3; i < 50; i += 3) R.pset(x + i, y + 2, hex('#8aa0c8'));
+  // la foto: un barco sobre el agua
+  R.rect(x + 3, y + 8, x + 31, y + 33, K); R.rect(x + 4, y + 9, x + 30, y + 32, hex('#bfe0f4')); R.rect(x + 4, y + 26, x + 30, y + 32, hex('#3a8ad8'));
+  for (let i = 0; i < 27; i++) if ((i + Math.floor(t * 3)) % 4 < 2) R.pset(x + 4 + i, y + 26 + ((i >> 1) & 1), hex('#bfe6ff'));
+  R.icono('barco', x + 10, y + 12, hex('#6a3e1c'), hex('#3a2010'), 2);
+  // el «!» grande y las rayas del texto
+  const b = t >= HALLADA && t < HALLADA + 0.5 ? Math.round(Math.abs(Math.sin((t - HALLADA) * 13)) * 4 * (1 - (t - HALLADA) / 0.5)) : 0;
+  R.icono('!', x + 37, y + 9 - b, ROJO, hex('#8a2418'), 4);
+  if (t >= HALLADA && t < HALLADA + 0.45) { const d = (t - HALLADA) / 0.45; for (let a = 0; a < 8; a++) { const an = -Math.PI + a * Math.PI / 7; R.pset(Math.round(x + 43 + Math.cos(an) * (9 + d * 8)), Math.round(y + 12 + Math.sin(an) * (9 + d * 8)), ROJO); } }
+  for (let k = 0; k < 6; k++) R.rect(x + 4, y + 38 + k * 4, x + (k === 2 ? 30 : k === 5 ? 22 : 47), y + 38 + k * 4, hex('#a8a6a0'));
+};
+const p2 = (t) => {
+  const o = { encuadre: 'estudio', camara: 'mesa', mira: true, gatoMira: 1 };
+  T.hoy(R, t, o);
+  T.g_barquito(R, 160 + Math.round(Math.sin(t * 0.7) * 6), 109, 21, t, {});
+  // el lápiz del borde lo pinta el decorado (sin su lupa: la de la escena es la que se coge y se mueve); va aquí, antes del
+  // titular y de las manos, para que pasen por encima
+  T.hoyDelante(R, t, { ...o, lupa: false });
+  // el titular: una mano lo deja a la derecha en «read»
+  const TX = 240, TY = 113, ent = ease(tramo(t, P2 + 0.2, LEES - 0.05)), dx = Math.round((1 - ent) * 92), sal = ease(tramo(t, LEES + 0.1, LEES + 0.7));
+  titular(TX + dx, TY, t);
+  if (sal < 1) T.brazo(R, TX + dx + 96 + Math.round(sal * 40), TY + 52, TX + dx + 60 + Math.round(sal * 44), TY + 34, MANGA, -1, { codo: [TX + dx + 82 + Math.round(sal * 40), TY + 38] });
+  // la lupa: en reposo en el borde; una mano la coge, la pasa por delante de la pecera y la pone sobre el «!»
+  const va = tramo(t, SABES - 0.15, PREG + 0.1), e = ease(va), coge = tramo(t, SABES - 0.75, SABES - 0.15);
+  const lx = lerp(44, TX + 41, e), ly = lerp(160, TY + 19, e) - Math.sin(va * Math.PI) * 22 + (va >= 1 ? Math.sin(t * 2.2) * 1.2 : 0);
+  const [hx, hy] = lupa(lx, ly, 17, 1, t >= QUIEN ? (cx, cy, ri) => { const d = t - QUIEN;
+    for (let j = -ri; j <= ri; j++) for (let i = -ri; i <= ri; i++) if (i * i + j * j <= ri * ri) R.pset(cx + i, cy + j, d < 0.12 ? BL : hex('#f6f2ea'));
+    const b = d < 0.4 ? Math.round(Math.sin(d / 0.4 * Math.PI) * 2) : 0; R.icono('?', cx - 7, cy - 11 - b, Math.sin(t * 5) > 0 ? ROJO : ROJOL, hex('#8a2418'), 3); } : null);
+  if (coge > 0) { const sube = Math.round((1 - ease(coge)) * 34); manoAbajo(hx + 1, hy + sube, 1); }
+  if (t >= QUIEN && t < QUIEN + 0.5) { const d = (t - QUIEN) / 0.5; for (let a = 0; a < 14; a++) { const an = a * Math.PI / 7; R.pset(Math.round(lx + Math.cos(an) * (19 + d * 12)), Math.round(ly + Math.sin(an) * (19 + d * 12)), a & 1 ? ORO : BL); } }
+};
+
+// ── 3 · gag 8: el pez capitán ────────────────────────────────────────────────────────────────────────────────────────
+const SALTA = P3 + 0.3, CAE = SALTA + 0.8, BAJA = w(11.38), HONESTA = w(11.46), NOCONF = w(12.84);
+const p3 = (t) => {
+  const o = { encuadre: 'estudio', pecera: false, pez: false };
+  T.hoy(R, t, o);
+  T.hoyDelante(R, t, o);
+  for (let i = -23; i <= 25; i++) if (i & 1) R.pset(152 + i + 3, 131, hex('#3a2416'));
+  const pe = T.g_pecera(R, 152, 130, 31, t, { pez: false }), [wx, wy] = pe.agua, medio = pe.medio;
+  const nav = t >= CAE ? Math.sin((t - CAE) * 1.1) * Math.max(0, medio - 19) : 0, bx = Math.round(wx - 2 + nav), hunde = t >= CAE && t < CAE + 0.25 ? 2 : 0;
+  // el pez: nada bajo el barquito, toma impulso, salta por encima del borde y cae dentro
+  if (t < SALTA) { const q = tramo(t, P3, SALTA); T.g_pez(R, Math.round(wx - 4 - q * 8), Math.round(wy + 12 + q * 8), 5, t, { dir: 1, mira: true }); }
+  else if (t < CAE) { const q = (t - SALTA) / (CAE - SALTA), fx = lerp(wx - 12, bx + 10, q), fy = lerp(wy + 16, wy - 7, q) - Math.sin(q * Math.PI) * 44;
+    T.g_pez(R, Math.round(fx), Math.round(fy), 6, t, { dir: 1 });
+    for (let k = 0; k < 6; k++) { const f = q * 1.4 - k * 0.07; if (f > 0.15 && f < 1) R.pset(Math.round(lerp(wx - 12, bx + 7, f * 0.8) - 3 - k), Math.round(lerp(wy + 16, wy - 7, f * 0.8) - Math.sin(f * 0.8 * Math.PI) * 44 + 5 + k * 2), k & 1 ? hex('#d8f4ff') : hex('#8ad0f0')); } }
+  T.g_barquito(R, bx, wy + hunde, 18, t, { pez: t >= CAE });
+  // la gorra de capitán del pez (blanca, con su visera azul), que le cae justo después
+  if (t >= CAE + 0.15) { const bob = Math.round(Math.sin(t * 2.1) * 1.26), q = tramo(t, CAE + 0.15, CAE + 0.45), fxh = bx + 10 + 4, fyh = wy + hunde - 8 + bob - 4 - 6 - Math.round((1 - q * q) * 26);
+    R.rect(fxh - 3, fyh - 3, fxh + 3, fyh, K); R.rect(fxh - 2, fyh - 2, fxh + 2, fyh - 1, BL); R.rect(fxh - 3, fyh, fxh + 5, fyh, hex('#22386a')); R.pset(fxh, fyh - 2, ORO); }
+  for (const [s0, sx] of [[SALTA + 0.12, wx - 10], [CAE, bx + 5]]) if (t >= s0 && t < s0 + 0.5) { const s = (t - s0) / 0.5; for (let k = 0; k < 12; k++) { const an = Math.PI * (1.08 + 0.84 * k / 11), r = 5 + s * 17; R.pset(Math.round(sx + Math.cos(an) * r), Math.round(wy + Math.sin(an) * r * 1.2 + s * s * 14), k & 1 ? hex('#d8f4ff') : hex('#8ad0f0')); } }
+  // Atom baja de su esquina a mirar la pecera
+  const v = tramo(t, BAJA - 0.35, BAJA + 0.75), pos = (vv) => { const ee = ease(vv); return [lerp(297, 208, ee), lerp(24, 90, ee) - Math.sin(vv * Math.PI) * 8]; };
+  if (v <= 0) comp0(t, E.energia(t));
+  else { const [ax, ay] = pos(v), by = v >= 1 ? Math.sin(t * 2.4) * 2 : 0;
+    if (v < 1) for (let k = 1; k <= 7; k++) { const [qx, qy] = pos(Math.max(0, v - k * 0.04)); R.pset(Math.round(qx), Math.round(qy), hex('#c8f0ff')); if (k % 2) R.pset(Math.round(qx) + 1, Math.round(qy) + 1, BL); }
+    atomAbajo(ax, ay + by, t, { r: Math.round(lerp(10, 12, ease(v))), e: v < 1 ? 0.8 : 0.45 });
+    if (v >= 1 && t < BAJA + 1.2) chispas(ax, ay, t, 21, 10, hex('#c8f0ff'));
+    // «not confirmed»: su globo, con la casilla vacía y su «?»
+    if (t >= NOCONF - 0.05) { const q = ease(tramo(t, NOCONF - 0.05, NOCONF + 0.15)), gx = 236, gy = Math.round(60 - q * 5 + (q >= 1 ? Math.sin(t * 2.4) * 1 : 0));
+      globo(gx, gy, 15, 13, 224); R.rect(gx - 9, gy - 9, gx + 9, gy + 9, K); R.rect(gx - 7, gy - 7, gx + 7, gy + 7, BL); R.rect(gx - 7, gy + 6, gx + 7, gy + 7, hex('#d8d2c4'));
+      if (q >= 1) R.icono('?', gx - 5, gy - 7, Math.sin(t * 4) > 0 ? ROJO : ROJOL, null, 2); } }
+};
+const efectos = [[C1, 'aldea'], [C2, 'aldea'], [C3, 'aldea'], [TODOS, 'lapiz'], [P2 + 0.7, 'papel'], [HALLADA, 'golpecito'], [QUIEN, 'brillo'], [SALTA + 0.1, 'burbujas'], [CAE, 'chof'], [NOCONF, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -3,7 +3,8 @@
 Uso: python locutar_frases.py <guion.json> <salida> <carpeta_modelos> [--solo id1,id2] [--marcas <json>]
 
 Sustituye a locutar_escenas.py + preparar_largo.py desde el episodio 3 (ver atomo/plato/VOZ.md):
-  1. Cada frase de cada idioma es un clip propio (Kokoro). Nunca se corta una locución: las pausas
+  1. Cada frase de cada idioma es un clip propio (desde el 37: Supertonic 3 en inglés y ZONOS3-Mini en español; hasta
+     el 36, Kokoro; el motor lo dice guion.json «voces»). Nunca se corta una locución: las pausas
      solo van entre clips. Se locuta el texto «<idioma>_voz» si existe (cifras escritas como se
      dicen); los subtítulos usan el texto original.
   2. Control de cada clip con Whisper: palabras que faltan, sobran o se repiten, y huecos dentro de
@@ -12,7 +13,8 @@ Sustituye a locutar_escenas.py + preparar_largo.py desde el episodio 3 (ver atom
   3. Alineación por frases. Cada pareja de frases empieza a la vez en las dos pistas.
      - El idioma principal (guion «principal», inglés por defecto) va a su velocidad natural.
      - El otro se sintetiza a una velocidad que lo acerque (entre 0,85 y 1,10, para que siga sonando
-       natural) y luego se estira entero con rubberband, como mucho un 10 % en cada sentido (desde el episodio 4: con un 5 % quedaban frases de casi 1 s de diferencia).
+       natural). Hasta el 15 se partía en las comas y se estiraba con rubberband hasta un 10 %; desde el 16 va entero
+       y sin estirar (ENTERA), porque así sonaba entrecortado.
      - Si aun así es más largo, la frase ocupa lo que dure el más largo y el principal deja silencio
        detrás; si es más corto, el silencio lo deja él. Nunca se acelera una voz hasta que suene con prisa.
   4. Las marcas son el inicio de cada frase (con «_fin» al final de la frase principal), así caen
@@ -45,6 +47,7 @@ PAUSA = {'.': 0.8, '?': 0.9, '!': 0.85, ':': 0.6}   # silencio tras la frase (un
 # comas con 0 s de pausa. Como en el modo por cláusulas de PyKokoro, la frase se locuta en trozos
 # partidos por los signos y la pausa se pone entre clips, así nunca cae dentro de una palabra.
 PAUSA_DENTRO = {',': 0.3, ';': 0.42, ':': 0.42, '—': 0.32, '.': 0.6, '?': 0.65, '!': 0.6}
+PAUSA_DENTRO['·'] = 0.32   # modo cuento: el respiro entre dos oraciones de un mismo párrafo
 RAPIDO, LENTO = 1.10, 0.90                          # cuánto se puede estirar el idioma que se adapta
 VEL_MIN, VEL_MAX = 0.85, 1.10                       # velocidades de síntesis que siguen sonando naturales
 # Pronunciaciones que se corrigen en los fonemas. «Atom» en americano lleva una t blanda (ˈæɾəm) y
@@ -72,6 +75,39 @@ def chatterbox():
         from chatterbox.mtl_tts import ChatterboxMultilingualTTS
         _chatterbox = ChatterboxMultilingualTTS.from_pretrained(device=torch.device('cpu'))
     return _chatterbox
+_supertonic = None
+# Supertonic no deja tocar fonemas: «Atom» sale «Adam» (la t blanda americana, como en Kokoro). Escrito «Ah-tom», Whisper oye
+# «Atom» (probado el 16/11/2026 frente a «Attom», «Atum», «Ahtom» y «At-tom»). Solo cambia lo que se sintetiza; el control
+# compara con el texto original.
+# El 17/11/2026 el usuario eligió de oído «At-um» (muestra C) frente a «Atom», «Ah-tom» (la del 37) y «Attom».
+TEXTO_SUPERTONIC = [(re.compile(r'\bAtom\b'), 'At-um')]
+NIVELADOR_ES = 'dynaudnorm=f=300:g=11:p=0.5:m=4:r=0.1'
+def texto_supertonic(t):
+    for x, y in TEXTO_SUPERTONIC:
+        t = x.sub(y, t)
+    return t
+def supertonic():
+    """Supertonic 3 (Supertone, OpenRAIL-M: la voz hay que declararla sintética), la voz inglesa desde el 37 (M1, elegida a
+    ciegas por el usuario el 16/11/2026). Los pesos los baja preparar-voz.sh a <modelos>/supertonic3."""
+    global _supertonic
+    if _supertonic is None:
+        from supertonic import TTS
+        _supertonic = TTS(model='supertonic-3', model_dir=f'{modelos}/supertonic3', auto_download=False)
+    return _supertonic
+
+# Los motores que no tienen velocidad fiable: cada intento es otra toma (otra semilla), no otra velocidad.
+TOMAS = ('chatterbox', 'zonos3')
+ZONOS3_CLI = os.path.join(os.path.dirname(os.path.abspath(modelos)), 'zonos3/repo/servers/ggml/build/zonos3-cli')
+
+def a_sr(a, sr):
+    """Pasa un clip a SR (24 kHz) con un filtro polifásico (44,1 kHz → 24 kHz es 80/147), sin el aliasing de np.interp."""
+    if sr == SR:
+        return a
+    from math import gcd
+    from scipy.signal import resample_poly
+    k = gcd(SR, sr)
+    return resample_poly(a, SR // k, sr // k)
+
 def kokoro():
     global _kokoro
     if _kokoro is None:
@@ -127,6 +163,50 @@ def sintetizar(texto, l, vel):
             if m.sr != SR:
                 a = np.interp(np.linspace(0, len(a) - 1, int(len(a) * SR / m.sr)), np.arange(len(a)), a)
             sf.write(f, limpiar(a), SR)
+        a, _ = sf.read(f)
+        return a, f
+    if v.get('motor') == 'zonos3':
+        # ZONOS3-Mini (Zyphra, Apache-2.0), la voz española desde el 37: Rodrigo con media emoción (mood.valence y
+        # mood.arousal a 0,5, elegido de oído por el usuario el 17/11/2026: a 1, la emoción constante se acumula en las
+        # oraciones largas y el tono sube hasta el grito; en el 37, 18 de 31 frases). «vel» es el número de toma.
+        ctl = sorted(v.get('controles', {}).items())
+        # v['ritmo'] (desde el 44): la velocidad de habla en bytes UTF-8 por segundo (--speaking-rate de ZONOS3); Rodrigo
+        # habla a ~18 por su cuenta, y el usuario la pidió un 10 % más rápida (20/11/2026). Sin ritmo, la clave de la
+        # caché es la de siempre
+        ritmo = f"|r{v['ritmo']}" if v.get('ritmo') else ''
+        clave = hashlib.sha1(f"z3m|{v['voz']}|{ctl}|{v.get('headroom', 3)}{ritmo}|{vel}|{texto}".encode()).hexdigest()[:16]   # z3m: con --max 1500 (desde el 45)
+        f = f'{CLIPS}/{l}-{clave}.wav'
+        if not os.path.exists(f):
+            with tempfile.TemporaryDirectory() as d:
+                orden = [ZONOS3_CLI, f'{modelos}/zonos3/backbone-ptq.gguf', '--cpu', '--tts', texto, f'{d}/z.wav',
+                         '--speaker-embedding', f"{modelos}/zonos3/voces/{v['voz']}.embedding.npy",
+                         '--seed', str(1 + int(vel)), '--headroom-db', str(v.get('headroom', 3))]
+                for c, dosis in ctl:
+                    orden += ['--control', f'{c}={dosis}']
+                if v.get('ritmo'):
+                    orden += ['--speaking-rate', str(v['ritmo'])]
+                # --max: ZONOS3 genera como mucho 450 tramas (~29 s) por omisión y corta ahí SIN avisar (eos_frame=-1):
+                # así se perdió el «-to» de «a propósito» en el 44 y el final de 13 párrafos en la primera voz del 45.
+                # Con 1500 tramas (~100 s) los párrafos acaban solos; si aun así no llega al final, es un fallo
+                orden += ['--max', '1500']
+                r = subprocess.run(orden, check=True, capture_output=True, text=True)
+                if 'eos_frame=-1' in (r.stderr + r.stdout):
+                    raise RuntimeError(f'ZONOS3 no llegó al final del texto (eos_frame=-1): {texto[:60]}…')
+                a, sr = sf.read(f'{d}/z.wav')
+            sf.write(f, recortar(a_sr(a, sr)), SR)
+        a, _ = sf.read(f)
+        return a, f
+    if v.get('motor') == 'supertonic':
+        # «vel» es la velocidad de Supertonic (1,05 por omisión); la semilla del ruido inicial se fija para que el mismo
+        # texto a la misma velocidad dé siempre el mismo clip
+        clave = hashlib.sha1(f"st3b|{v['voz']}|{v.get('pasos', 8)}|{vel:.3f}|{texto}".encode()).hexdigest()[:16]
+        f = f'{CLIPS}/{l}-{clave}.wav'
+        if not os.path.exists(f):
+            m = supertonic()
+            np.random.seed(int(round(vel * 1000)))
+            a, _ = m.synthesize(texto_supertonic(texto), voice_style=m.get_voice_style(voice_name=v['voz']), lang=v.get('lang', 'en')[:2],
+                                total_steps=v.get('pasos', 8), speed=vel)
+            sf.write(f, recortar(a_sr(np.asarray(a, dtype=np.float64).squeeze(), m.sample_rate)), SR)
         a, _ = sf.read(f)
         return a, f
     clave = hashlib.sha1(f"{v['voz']}|{v['lang']}|{vel:.3f}|{texto}|{FONEMAS[l]}".encode()).hexdigest()[:16]
@@ -217,6 +297,14 @@ def problemas(texto, a, oidas):
             out.append(f"hueco de {largo:.2f} s dentro de «{pal}»")
         elif largo > 0.16:
             avisos.append(f"escuchar «{pal}» (hueco de {largo:.2f} s)")
+    # Final cortado (desde el 45: en el 44, ZONOS3 dijo «a propósi(to)» y nadie lo vio, porque Whisper completa la palabra
+    # por el contexto y misma() la da por buena). Dos señales: la última palabra oída es un trozo más corto de la última
+    # escrita, o el clip acaba en seco (sus últimos 40 ms aún con un 30 % de la energía de la voz; un final limpio da 0,02–0,08). Es fallo: otra toma.
+    if esp and oid and oid[-1] != esp[-1] and len(oid[-1]) <= len(esp[-1]) - 2 and esp[-1].startswith(oid[-1][:max(2, len(oid[-1]) - 1)]):
+        out.append(f"final cortado: «{esp[-1]}» suena «{oid[-1]}»")
+    cola = int(SR * 0.04)
+    if len(a) > 4 * cola and np.sqrt(np.mean(a[-cola:] ** 2)) > 0.3 * np.percentile(rms, 95):
+        out.append('acaba en seco (final cortado)')
     return out, avisos
 
 def clip_limpio(texto, l, velocidades):
@@ -255,16 +343,52 @@ def trozos_voz(texto):
             out[k - 1][0] += ' ' + out[k][0]; out[k - 1][1] = out[k][1]; out.pop(k)
     return [tuple(x) for x in out]
 
+def cuento(texto):
+    """Modo cuento (desde el 21, elegido por el usuario de oído el 05/11/2026, la muestra «B»): la frase (un párrafo) se
+    locuta por oraciones enteras, sin cortar en las comas, con un respiro corto entre una y otra (PAUSA_CUENTO). Partida
+    en las comas, la entonación volvía a empezar en cada trozo y el inglés sonaba «a robot, a frases sueltas»."""
+    p = [x for x in re.split(r'(?<=[.?!])\s+', texto) if x.strip()]
+    junt = []
+    for x in p:   # «J. K. Rowling»: una inicial con punto no cierra oración
+        if junt and re.search(r'(^|\s)[A-ZÁÉÍÓÚ]\.$', junt[-1]):
+            junt[-1] += ' ' + x
+        else:
+            junt.append(x)
+    return [(x, '·' if k + 1 < len(junt) else '') for k, x in enumerate(junt)]
+
 def oraciones(texto):
     """Para Chatterbox, que hace bien sus comas: solo se parte por oraciones (y dos puntos)."""
     p = [x for x in re.split(r'(?<=[.?!:])\s+', texto) if x.strip()]
     return [(x, x[-1] if k + 1 < len(p) else '') for k, x in enumerate(p)]
 
+# Desde el 16 (el usuario, de oído, eligió la «B» el 30/10/2026): el idioma que no es el principal se locuta con la frase
+# entera de una vez y sin estirarla con rubberband. Partida en las comas, la entonación volvía a empezar en cada trozo y
+# se oía entrecortada; estirada, algunas palabras sonaban raras. Si no cabe, se ajusta solo la velocidad de Kokoro.
+ENTERA = {PRINCIPAL: False, OTRO: True}
+CUENTO = g.get('narracion') == 'cuento'
+if CUENTO:   # pausas de narración seguida, no de lista: entre párrafos medio segundo, al empezar un acto menos de un segundo
+    PAUSA = {'.': 0.5, '?': 0.55, '!': 0.5, ':': 0.45}
+    ENTRADA_ACTO = 0.9
+# guion «pausas» (opcional, para probar otro ritmo sin tocar el canon): {'respiro': s entre oraciones de un párrafo,
+# 'parrafo': s tras un párrafo, 'acto': s antes de un acto}
+_pz = g.get('pausas') or {}
+if 'respiro' in _pz: PAUSA_DENTRO['·'] = float(_pz['respiro'])
+if 'parrafo' in _pz: PAUSA = {k: float(_pz['parrafo']) + (0.05 if k == '?' else 0) for k in PAUSA}
+if 'acto' in _pz: ENTRADA_ACTO = float(_pz['acto'])
+# desde el 44 (el usuario, 20/11/2026: «que no haya esas pausas largas de silencio entre escenas; que siga siendo
+# narrada»): la entrada y la salida de cada escena también se ajustan desde el guion (en el 43 había 1,2–1,7 s de
+# silencio en cada cambio de escena)
+if 'entrada' in _pz: ENTRADA = float(_pz['entrada'])
+if 'salida' in _pz: SALIDA = float(_pz['salida'])
+# guion «parrafo_entero» (opcional, prueba del 20/11/2026): cada párrafo se locuta de una sola vez, sin partirlo en
+# oraciones, para que la entonación siga de una oración a la siguiente como en un relato hablado
+PARRAFO_ENTERO = bool(g.get('parrafo_entero'))
+
 def frase_voz(texto, l, velocidades):
     """La frase en trozos limpios unidos con su pausa: (audio, oídas, velocidad, fallos, avisos)."""
     partes, oidas, prob, av, vels, t = [], [], [], [], [], 0.0
     cb = VOCES[l].get('motor') == 'chatterbox'
-    for trozo, signo in (oraciones(texto) if cb else trozos_voz(texto)):
+    for trozo, signo in ([(texto, '')] if PARRAFO_ENTERO else cuento(texto) if CUENTO else [(texto, '')] if ENTERA[l] else oraciones(texto) if cb else trozos_voz(texto)):
         a, f, vel, p, v = clip_limpio(trozo, l, velocidades)
         oidas += [(w, s + t, x + t) for w, s, x in oir(f, l)]
         prob += p; av += v; vels.append(vel)
@@ -306,15 +430,26 @@ for e in escenas:
         if k and f.get('acto'):
             t += ENTRADA_ACTO - pausa_tras(e['frases'][k - 1])
         texto = {l: f.get(f'{l}_voz', f[l]) for l in IDIOMAS}
-        intentos_p = [0, 1, 2, 3] if VOCES[PRINCIPAL].get('motor') == 'chatterbox' else [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05]
+        intentos_p = [0, 1, 2, 3] if VOCES[PRINCIPAL].get('motor') in TOMAS else [v0[PRINCIPAL], v0[PRINCIPAL] - 0.03, v0[PRINCIPAL] + 0.03, v0[PRINCIPAL] + 0.05]
         a_p, oid_p, vel_p, prob_p, av_p = frase_voz(texto[PRINCIPAL], PRINCIPAL, intentos_p)
         d_p = len(a_p) / SR
-        # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
-        a_o = frase_voz(texto[OTRO], OTRO, [v0[OTRO]])[0]
-        r = len(a_o) / SR / d_p
-        vel = v0[OTRO] if 0.95 <= r <= 1.05 else float(np.clip(v0[OTRO] * r / (1.03 if r > 1 else 0.98), VEL_MIN, VEL_MAX))
-        a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
-        tempo = float(np.clip(len(a_o) / SR / d_p, LENTO, RAPIDO))
+        if VOCES[OTRO].get('motor') in TOMAS:
+            # ZONOS3 (el español desde el 37) no tiene una velocidad fiable: va a su ritmo, con otra toma si falla, y si
+            # dura más que el inglés la frase ocupa lo suyo (el inglés deja silencio detrás, como siempre)
+            # desde el 44, «ritmo»: «igualar»: cada frase española se locuta a la velocidad (bytes UTF-8 por segundo) que
+            # la hace durar lo que la inglesa, entre 15,5 y 21; si no, el español (más corto) dejaba 2–5 s de silencio
+            # detrás de cada frase y no sonaba narrado (el usuario, 20/11/2026)
+            if VOCES[OTRO].get('ritmo_base') == 'igualar' or VOCES[OTRO].get('ritmo') == 'igualar':
+                VOCES[OTRO]['ritmo_base'] = 'igualar'
+                VOCES[OTRO]['ritmo'] = round(float(np.clip(len(texto[OTRO].encode()) / max(1.0, d_p - 0.15), 15.5, 21.0)), 1)
+            a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [0, 1, 2])
+        else:
+            # El otro idioma: primero a su velocidad; si queda lejos, a la que lo acerca.
+            a_o = frase_voz(texto[OTRO], OTRO, [v0[OTRO]])[0]
+            r = len(a_o) / SR / d_p
+            vel = v0[OTRO] if 0.95 <= r <= 1.05 else float(np.clip(v0[OTRO] * r / (1.03 if r > 1 else 0.98), VEL_MIN, VEL_MAX))
+            a_o, oid_o, vel_o, prob_o, av_o = frase_voz(texto[OTRO], OTRO, [vel, max(VEL_MIN, vel - 0.04), min(VEL_MAX, vel + 0.04)])
+        tempo = 1.0 if ENTERA[OTRO] else float(np.clip(len(a_o) / SR / d_p, LENTO, RAPIDO))
         oidas = {PRINCIPAL: oid_p, OTRO: [(w, s / tempo, x / tempo) for w, s, x in oid_o]}
         a_o = estirar(a_o, tempo)
         hueco = max(d_p, len(a_o) / SR)
@@ -351,9 +486,21 @@ for e in escenas:
     print(f"{e['id']:18s} {duracion:5.1f} s · {len(e['frases'])} frases", flush=True)
     t_global += duracion
 
+from nivelar_voz import nivelar_idioma
 energia = {}
 for l in IDIOMAS:
     voz = np.concatenate(pistas[l])
+    if VOCES[l].get('motor') == 'zonos3':
+        # ZONOS3 con emoción sube el volumen dentro de las frases largas (el usuario lo oyó en el 37: «siguen habiendo
+        # crecidas de volumen en las frases»). Un nivelador lento (ventana de ~3 s) baja lo que sobresale de la mediana
+        # de 4,8 a 2,2 dB sin aplastar la voz; los silencios entre frases son ceros y no se suben.
+        with tempfile.TemporaryDirectory() as d:
+            sf.write(f'{d}/a.wav', voz, SR)
+            subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f'{d}/a.wav', '-af', NIVELADOR_ES, '-c:a', 'pcm_s16le', f'{d}/b.wav'], check=True)
+            voz, _ = sf.read(f'{d}/b.wav')
+    # Desde el 41: el nivelador por voz (nivelar_voz.py) quita la caída de volumen al final de cada oración y el salto al
+    # empezar la siguiente, en los dos idiomas (el usuario lo oyó en el 39 y el 40).
+    voz = nivelar_idioma(voz, SR, l)
     sf.write(f'{salida}/voz-{l}.wav', voz, SR)
     v = SR // FPS
     nf = int(np.ceil(len(voz) / v))
@@ -361,8 +508,8 @@ for l in IDIOMAS:
     energia[l] = np.clip(en / np.percentile(en[en > 0], 95), 0, 1)
 
 def hms(x):
-    h, r = divmod(x, 3600); m, s = divmod(r, 60)
-    return f"{int(h):02d}:{int(m):02d}:{int(s):02d},{int(round((s % 1) * 1000)):03d}"
+    h, r = divmod(int(round(x * 1000)), 3600000); m, r = divmod(r, 60000); s, ms = divmod(r, 1000)  # en ms enteros: 59,9996 s no da «,1000»
+    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 from subtitulos import trozos   # cortes legibles: en un signo o antes de «que», «y»…, nunca tras «de», «la», «the»…
 
@@ -385,6 +532,7 @@ json.dump({'fps': FPS, 'duracion': round(t_global, 3), 'fotogramas': nf, 'princi
            'palabras': palabras, 'energia': [round(float(x), 3) for x in comun]},
           open(f'{salida}/linea.json', 'w'), ensure_ascii=False)
 json.dump(informe, open(f'{salida}/informe.json', 'w'), ensure_ascii=False, indent=1)
+json.dump({l: [0, 0] for l in IDIOMAS}, open(f'{salida}/nivelado.json', 'w'))   # nivelar_voz.py no la vuelve a nivelar
 if ruta_marcas:
     json.dump({x['id']: {'duracion': x['duracion'], 'marcas': x['marcas'], 'voz': x['voz'], 'fps': FPS, 'frases': x['frases'],
                          **({'cartela': x['cartela']} if 'cartela' in x else {})} for x in lineas},

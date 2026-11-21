@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep39</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _REPARTO-RK · hoja estática del reparto del episodio 39 (Roanoke), a escala 1 y al doble, sobre fondo neutro.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_RK as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const F1 = ['whiteRK', 'raleighRK', 'manteoRK', 'wancheseRK', 'croatoanRK', 'croatoanaRK', 'ninoCroatoanRK', 'eleanorRK', 'ananiasRK', 'colonoRK', 'colonaRK', 'ninoColonoRK'];
+const F2 = ['soldadoRK', 'fernandesRK', 'drakeRK', 'marineroRK', 'lawsonRK', 'arqueologaRK', 'voluntarioRK', 'conservadoraRK'];
+window.__frame = async (t) => {
+  R.rect(0, 0, 319, 179, hex('#e8e4dc'));
+  F1.forEach((k, i) => R.actor(EL[k], 6 + i * 28, 70, 0, { quieto: true, parpadea: false }));
+  F2.forEach((k, i) => R.actor(EL[k], 6 + i * 28, 140, 0, { quieto: true, parpadea: false }));
+  R.rect(0, 71, 319, 72, hex('#c8c0b0')); R.rect(0, 141, 319, 142, hex('#c8c0b0'));
+  R.presentar();
+};
+window.__listo = true;
+</script>
+</body>
+</html>

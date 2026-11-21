@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>De 32 páginas a 100 minutos · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-HISTORIA (frase «alan»), cartela «1995». Cinco planos:
+// 1. un caballete de cerca (vista libre): la mano canónica sola (sin brazo, con su sombra en el papel) dibuja a lápiz
+//    una claqueta mientras el número cuenta de 1 a 14 a la vez que el año de la barra (1981 → 1995) y se retira por
+//    abajo; la claqueta se cierra («14 years»); un «!» rojo («a problem») y el libro fino llega lanzado y queda
+//    clavado con una chincheta: 32 («A 32-page book»);
+// 2. los dos relojes: el guionista señala el de 10 minutos («10 minutes»), se vuelve al de 100 («runs 100») y da un
+//    salto cuando la película le pasa por los pies;
+// 3. el despacho de guionistas: las fichas se van clavando en el corcho («Almost everything had to be invented»), uno
+//    teclea y la otra encesta una bola en la papelera; entra Van Allsburg con una hoja («himself helped») y la lanza al
+//    corcho: es la última ficha («out of it came…»);
+// 4. el salón de la casa en 1969, de lado y en color, con NUESTRO tablero abierto en la alfombra (en perspectiva, lo
+//    pinta la escena): un chico llega, su ficha roja avanza a saltitos («A boy»), la meta de latón se enciende (anillos
+//    tumbados y una columna de luz) y se lo traga en espiral («swallows»); queda una hoja de selva donde estaba él;
+// 5. el calendario arranca 26 hojas, de 1969 a 1995; la caja de la repisa tiembla y lo devuelve ya adulto, con la
+//    misma gorra y barba («26 years later»).
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-historia');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (s) => en('alan', (s - 1.5) / 20.767);   // el segundo de cada palabra inglesa
+const P2 = h(5.96), P3 = h(9.59), P4 = h(15.12), P5 = h(19.66);
+const sua = (u) => u * u * (3 - 2 * u);
+const K = hex('#14121c'), P = T.PIEZAS_JM;
+const hh = (x, y) => { const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return s - Math.floor(s); };
+// un personaje pintado aparte para poder girarlo y encogerlo (el remolino del juego)
+const buf = R.nuevo();
+const enBuf = (el, t, o) => { const prev = R.usar(buf); buf.fill(0); R.actor(el, 20, 70, t, o); R.usar(prev); };
+const girado = (cx, cy, s, ang, halo) => { const c = Math.cos(ang), sn = Math.sin(ang), r = Math.ceil(26 * s);
+  for (const pasada of halo ? [1, 0] : [0]) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const sx = Math.round(27.5 + (dx * c + dy * sn) / s), sy = Math.round(55 + (-dx * sn + dy * c) / s); if (sx < 8 || sx > 47 || sy < 28 || sy > 74) continue; const col = buf[sy * 320 + sx]; if (!col) continue; const X = Math.round(cx) + dx, Y = Math.round(cy) + dy;
+    if (pasada) { for (const [i, j] of [[2, 0], [-2, 0], [0, 2], [0, -2], [1, 1], [-1, 1], [1, -1], [-1, -1]]) R.pset(X + i, Y + j, halo); } else R.pset(X, Y, col); } };
+const ALAN = { J: hex('#e8b830'), j: hex('#f8d860'), C: hex('#d8642a'), c: hex('#b04c1c'), p: hex('#8a3a14'), H: hex('#8a4a22'), h: hex('#a8643a'), F: hex('#3e5a8a') };   // el chico inventado por el cine: gorra amarilla y jersey naranja, de niño y de adulto
+const chispa = (x, y, c) => { R.pset(x, y, hex('#ffffff')); for (const [i, j] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(x + i, y + j, c); };
+
+// 1. el caballete (vista libre): la claqueta a lápiz, 14 años, y el libro fino de 32 páginas
+const GR = hex('#3a3a44'), GR2 = hex('#9a9aa2'), PAPEL = hex('#f2f0e8'), MANGA = '#6a4a34';
+// la mano canónica sola (sin brazo: desde el papel no se llega a ningún borde en 45 px), con su sombra tramada sobre
+// el papel; la sombra se recorta a la hoja del caballete
+const HOJA = [118, 22, 248, 126];
+const sombraMano = (cx, cy, rx, ry) => { const [x0, y0, x1, y1] = HOJA; for (let j = -ry; j <= ry; j++) for (let i = -rx; i <= rx; i++) { const x = cx + i, y = cy + j; if ((x + y) & 1 || (i * i) / (rx * rx) + (j * j) / (ry * ry) > 1 || x < x0 || x > x1 || y < y0 || y > y1) continue; R.pset(x, y, hex('#b4b0a4')); } };
+const manoSola = (wx, wy) => { sombraMano(wx - 1, wy + 7, 8, 3); T.mano(R, wx - 3, wy, -1, MANGA, { sinManga: true }); };
+const p1 = (t) => {
+  const o = { encuadre: 'clase', camara: 'caballete', trazo: 0 };
+  T.taller(R, t, o);
+  const rev = tramo(t, 1.35, h(2.3)), clac = tramo(t, h(2.92), h(3.02)), toma = Math.round(tramo(t, h(1.7), h(2.9)) * 14);
+  // la claqueta, a lápiz: se va dibujando de izquierda a derecha y se cierra con «years»
+  if (rev > 0) { R.recorte([127, 24, Math.round(127 + rev * 53), 92]);
+    for (const y of [56, 57, 84, 85]) R.linea(130, y, 177, y, GR); for (const x of [130, 131, 176, 177]) R.linea(x, 56, x, 85, GR);
+    R.linea(131, 66, 176, 66, GR); R.linea(146, 57, 146, 66, GR); R.linea(161, 57, 161, 66, GR); R.linea(136, 72, 170, 72, GR2); R.linea(136, 76, 162, 76, GR2); R.linea(136, 80, 168, 80, GR2);
+    for (let y = 58; y < 84; y++) for (let x = 170 + ((y >> 1) & 1); x < 176; x += 2) if (y !== 66) R.pset(x, y, GR2);
+    for (const [x, n] of [[138, 1], [153, 1]]) { R.linea(x, 59, x, 63, GR); R.pset(x - 1, 60, GR); }
+    R.pset(167, 59, GR); R.linea(168, 59, 168, 63, GR); R.linea(170, 59, 172, 59, GR); R.linea(172, 59, 172, 63, GR); R.linea(170, 61, 172, 61, GR);   // «14» diminuto en su casilla
+    const an = -(1 - clac) * 0.5 - (clac === 0 ? Math.sin(t * 2) * 0.03 : 0), ux = Math.cos(an), uy = Math.sin(an);
+    for (let d = 0; d <= 47; d += 0.5) for (let q = 0; q <= 6; q += 0.5) { const x = Math.round(130 + ux * d + uy * q), y = Math.round(54 + uy * d - ux * q), borde = d < 1 || d > 46 || q < 1 || q > 5.4; R.pset(x, y, borde || (Math.floor((d + q) / 6) & 1) ? GR : PAPEL); }
+    R.recorte(null); }
+  if (clac > 0 && t < h(3.25)) for (const [i, j] of [[-6, -10], [4, -13], [-12, -3]]) R.linea(176 + i, 50 + j, 176 + Math.round(i * 1.6), 50 + Math.round(j * 1.6), GR);
+  if (toma > 0) R.numero(String(toma), 153, 114 - (toma < 14 && Math.floor(t * 12) % 2 ? 1 : 0), { centro: true, tam: 16 });
+  // «a problem»
+  { const u = tramo(t, h(3.6), h(3.8)); if (u > 0) { const y = 40 - Math.round(Math.sin(u * Math.PI) * 4) + (t < h(4.4) && Math.sin(t * 14) > 0 ? 1 : 0); R.icono('!', 181, y - 12, hex('#d8303a'), hex('#e8b8b0'), 3); } }
+  // el libro fino llega lanzado desde la derecha (con sus rayas de velocidad), rebota en su sitio y una chincheta
+  // lo clava: 32 páginas
+  const trae = tramo(t, h(4.45), h(4.9));
+  if (trae > 0) { const e = 1 - (1 - trae) * (1 - trae), bx = 220 + Math.round((1 - e) * 130) - (trae < 1 ? 0 : Math.round(Math.sin(Math.PI * tramo(t, h(4.9), h(5.05))) * 2)), by = 88;
+    if (trae < 1) for (const [dy, l] of [[-24, 22], [-12, 30], [0, 18]]) { const x0 = bx + 34 + Math.round((1 - e) * 10); R.linea(x0, by + dy, x0 + Math.round(l * (1 - e)), by + dy, GR2); }
+    if (P.libroFino) P.libroFino(R, bx, by, { s: 2 });
+    const pin = tramo(t, h(4.9), h(5.02));
+    if (pin > 0) { const py = by - 35 - Math.round((1 - pin) * 16); R.disco(bx, py, 2.6, K); R.disco(bx, py, 1.7, hex('#d8303a')); R.pset(bx - 1, py - 1, hex('#ff9a9a'));
+      if (pin >= 1 && t < h(5.3)) for (const d of [-1, 1]) R.linea(bx + d * 5, py - 3, bx + d * 8, py - 5, GR);
+      const n = tramo(t, h(4.95), h(5.15)); if (n > 0) R.numero('32', 220, 114 - Math.round(Math.sin(n * Math.PI) * 3), { centro: true, tam: 16 }); } }
+  // la mano que dibuja la claqueta, y se retira
+  { const fuera = tramo(t, h(2.4), h(2.75)) ** 2; if (fuera < 1) { const tx = Math.round(130 + rev * 47 + fuera * 30), ty = Math.round(70 + Math.sin(rev * 16) * 13 + fuera * 150), wx = tx + 18, wy = ty - 7;
+    sombraMano(wx + 4, wy - 8, 9, 2); T.g_lapizGrande(R, tx + 23, ty - 23, tx, ty, { negro: true }); manoSola(wx, wy); } }
+  T.tallerDelante(R, t, o);
+};
+
+// 2. diez minutos frente a cien
+const p2 = (t) => {
+  const o = { encuadre: 'guionistas', camara: 'relojes', diez: tramo(t, h(6.25), h(7.0)), cien: tramo(t, h(8.0), h(9.0)) };
+  const g = T.keene(R, t, o), s = g.suelo ?? 162;
+  const ent = tramo(t, P2, h(6.25)), gx = Math.round(lerp(172, 152, ent));
+  R.actor(EL.guionista1JM, gx, s, t, { dir: t < h(7.45) ? -1 : 1, anda: ent < 1, dedo: t > h(6.3) && t < h(7.3), sorpresa: t > h(8.45), salto: Math.round(Math.sin(Math.PI * tramo(t, h(8.75), h(9.2))) * 8) });
+  T.keeneDelante(R, t, o);
+};
+
+// 3. hubo que inventar casi todo
+const p3 = (t) => {
+  const LANZA = h(14.2), PIN = h(14.55), pin = t >= PIN ? 1 : 0;
+  const o = { encuadre: 'guionistas', fichas: (17 * tramo(t, P3 + 0.2, h(13.3)) + pin) / 18 };
+  const g = T.keene(R, t, o), [[x1, s1], [x2, s2], [x3, s3]] = g.puestos, F = Array.isArray(g.ficha) ? g.ficha : [221, 81];
+  const ve = tramo(t, h(11.6), h(13.4)), vx = Math.round(lerp(306, x3, sua(ve))), llego = ve >= 1, lanzada = t >= LANZA;
+  const V = ve > 0 ? R.actor(EL.vanallsburg, vx, s3, t, { dir: -1, anda: !llego, sonrisa: llego, habla: llego && !lanzada && Math.sin(t * 8) > 0, dedo: lanzada, sostiene: lanzada ? undefined : [vx - 4, s3 - 15] }) : null;
+  const hoja = (x, y) => { R.rect(x - 4, y - 5, x + 4, y + 5, K); R.rect(x - 3, y - 4, x + 3, y + 4, hex('#fbf8ee')); R.rect(x - 1, y - 3, x + 1, y - 2, hex('#a83a34')); R.rect(x - 2, y - 1, x + 2, y + 1, hex('#a83a34')); R.rect(x - 2, y + 2, x - 2, y + 3, hex('#a83a34')); R.rect(x + 2, y + 2, x + 2, y + 3, hex('#a83a34')); };
+  // la bola de papel a la papelera
+  const tira = tramo(t, h(10.3), h(10.85));
+  R.actor(EL.guionista2JM, x2, s2, t, { dir: tira > 0 && t < h(11.5) ? 1 : -1, dedo: tira > 0 && tira < 1, sonrisa: (tira >= 1 && t < h(11.6)) || llego, brazos: pin && Math.floor(t * 6) % 2 === 0 });
+  R.actor(EL.guionista1JM, x1, s1, t, { dir: 1, habla: t < h(11.4) && Math.sin(t * 7) > 0.2, dedo: t > h(12.6) && !pin && Math.floor(t * 1.2) % 2 === 0, sorpresa: pin && t < PIN + 0.4, brazos: pin && Math.floor(t * 6) % 2 === 1 });
+  if (V && !lanzada) { const [mx, my] = V.mano; hoja(mx - 2, my - 4); }
+  if (lanzada && !pin) { const u = tramo(t, LANZA, PIN), [mx, my] = [vx - 6, s3 - 19]; hoja(Math.round(lerp(mx, F[0] + 11, u)), Math.round(lerp(my, F[1] + 8, u) - Math.sin(u * Math.PI) * 14)); }
+  if (pin && t < PIN + 0.5) { const u = (t - PIN) / 0.5; for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4 + 0.3; chispa(Math.round(F[0] + 11 + Math.cos(an) * (6 + u * 14)), Math.round(F[1] + 8 + Math.sin(an) * (5 + u * 10)), hex('#f0c030')); } }
+  T.keeneDelante(R, t, o);
+  if (tira > 0 && tira < 1) { const x = Math.round(lerp(x2 + 15, 268, tira)), y = Math.round(lerp(124, 136, tira) - Math.sin(tira * Math.PI) * 16); R.disco(x, y, 2.4, K); R.disco(x, y, 1.5, hex('#f2efe4')); R.pset(x, y + 1, hex('#b8b4a4')); }
+};
+
+// 4. el juego se traga al chico (1969): el salón de lado, en color, con NUESTRO tablero abierto en la alfombra
+// NUESTRO tablero tumbado en la alfombra, en perspectiva (el diseño de PIEZAS_JM.tablero: madera oscura, el camino
+// de casillas de colores en dos vueltas y la META de latón en el centro)
+const TB = { cx: 128, y0: 146, y1: 171, w0: 96, w1: 126 };
+const TONOS = ['#d8303a', '#eadfc4', '#3a6ab0', '#eadfc4', '#f0c030', '#eadfc4', '#3aa85a', '#eadfc4'].map(hex), TONOS2 = ['#a02028', '#b8ac8c', '#284c84', '#b8ac8c', '#b88a1c', '#b8ac8c', '#247a40', '#b8ac8c'].map(hex);
+// de (u, v) del tablero (0–1) a la pantalla
+const tabV = (v) => v * 0.8 / (1 - 0.2 * v);   // lo de lejos, más apretado
+const tabPunto = (u, v) => { const q = tabV(v), y = lerp(TB.y0, TB.y1, q), w = lerp(TB.w0, TB.w1, q); return [Math.round(TB.cx - w / 2 + u * w), Math.round(y)]; };
+const MADERA = hex('#4a2c18'), MADERA2 = hex('#2e1a0e'), LATON = hex('#e8b830'), LATON2 = hex('#fff6a0'), LATON3 = hex('#a8741c'), ROJO = hex('#d8303a');
+const tablero3d = (t, luz) => {
+  const { cx, y0, y1, w0, w1 } = TB, NI = 19, NJ = 11;
+  // la sombra de contacto en la alfombra (tramada) y el canto de delante
+  for (let y = y1 + 2; y <= y1 + 7; y++) { const w = w1 + 4 - (y - y1 - 4) * 2; for (let x = Math.round(cx - w / 2) + 3; x <= cx + w / 2 + 6; x++) if ((x + y) & 1 || y <= y1 + 5) R.pset(x, y, hex('#3a1014')); }
+  for (let y = y0 - 1; y <= y1 + 4; y++) { const q = Math.min(1, Math.max(0, (y - y0) / (y1 - y0))), w = lerp(w0, w1, q), xa = Math.round(cx - w / 2) - 1, xb = Math.round(cx + w / 2) + 1, v = q / (0.8 + 0.2 * q);
+    for (let x = xa; x <= xb; x++) { let c;
+      if (y > y1) c = y === y1 + 4 || x === xa || x === xb ? K : y === y1 + 1 ? hex('#8a5a32') : (x * 7 + y) % 11 === 0 ? MADERA2 : MADERA;
+      else if (y < y0 || x === xa || x === xb) c = K;
+      else { const u = (x - xa - 1) / Math.max(1, xb - xa - 2), fi = u * NI, fj = v * NJ, ci = Math.min(NI - 1, Math.floor(fi)), cj = Math.min(NJ - 1, Math.floor(fj));
+        const anillo = (a, b) => ci >= a && ci <= NI - 1 - a && cj >= b && cj <= NJ - 1 - b && (ci === a || ci === NI - 1 - a || cj === b || cj === NJ - 1 - b);
+        if (ci === 0 || ci === NI - 1 || cj === 0 || cj === NJ - 1) c = (ci === 0 || ci === NI - 1) && (cj === 0 || cj === NJ - 1) ? LATON3 : hh(ci, y) > 0.7 ? MADERA2 : hex('#5a361c');   // el marco, con cantoneras
+        else if (anillo(1, 1) || (anillo(3, 3) && !(cj === 3 && ci === 3))) { const n = (ci * 3 + cj * 5) % 8, junta = fi - ci < 0.16 || (fj - cj < 0.3 && y > y0 + 6); c = junta ? MADERA2 : fj - cj > 0.7 ? TONOS2[n] : TONOS[n]; }
+        else c = Math.abs(ci - 9) < 3 && cj === 5 ? hex('#4a2c18') : hh(x >> 2, y) > 0.72 ? hex('#2a160c') : hh(x >> 1, cj) > 0.8 ? hex('#4a2c18') : hex('#3a2012'); }   // la madera, con vetas
+      R.pset(x, y, c); } }
+  // las cantoneras de latón del canto y la bisagra
+  for (const d of [-1, 1]) { const x = Math.round(cx + d * (w1 / 2 - 2)); R.rect(x - 2, y1 + 1, x + 2, y1 + 2, LATON); R.rect(x - 2, y1 + 3, x + 2, y1 + 3, LATON3); }
+  R.rect(cx - 1, y1 + 1, cx + 1, y1 + 2, LATON); R.rect(cx - 1, y1 + 3, cx + 1, y1 + 3, LATON3); R.linea(cx, y0, cx, y1, MADERA2);
+  // la META: el sol de latón tumbado, con su estrella roja (nunca verde), que late con «luz»
+  const [gx, gy] = tabPunto(0.5, 0.5), rr = 10 + (luz > 0 && Math.sin(t * 16) > 0 ? 1 : 0);
+  for (let j = -4; j <= 4; j++) for (let i = -rr - 2; i <= rr + 2; i++) { const e = (i * i) / (rr * rr) + (j * j) / 10.5; if (e <= 1.35) R.pset(gx + i, gy + j, e > 1 ? K : e > 0.62 ? (j > 0 ? LATON3 : LATON) : j < 0 && i < 0 ? LATON2 : LATON); }
+  for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4 + 0.39; R.pset(Math.round(gx + Math.cos(an) * (rr + 3)), Math.round(gy + Math.sin(an) * 5), LATON); }
+  R.linea(gx - 6, gy, gx + 6, gy, ROJO); R.linea(gx - 3, gy - 1, gx + 3, gy - 1, ROJO); R.linea(gx - 3, gy + 1, gx + 3, gy + 1, ROJO); R.linea(gx, gy - 2, gx, gy + 2, ROJO); R.linea(gx - 1, gy - 1, gx + 1, gy - 1, ROJO); R.linea(gx - 1, gy + 1, gx + 1, gy + 1, ROJO); R.pset(gx, gy, luz > 0 ? hex('#ffffff') : hex('#ff9a9a'));
+  if (Math.sin(t * 3.1) > 0.75) chispa(gx - 5, gy - 2, LATON2);
+  return [gx, gy];
+};
+// una elipse tumbada en el suelo (los anillos de la meta), a trazos
+const elipse = (cx, cy, rx, col, paso) => { const n = Math.max(12, Math.round(rx * 5)); for (let k = 0; k < n; k++) { if (paso && Math.floor(k / paso) & 1) continue; const an = k / n * Math.PI * 2; R.pset(Math.round(cx + Math.cos(an) * rx), Math.round(cy + Math.sin(an) * rx * 0.3), col); } };
+const p4 = (t) => {
+  const TR = h(17.3), FIN = h(18.5), SUELO = 164, QQ = 0.45;
+  const o = { encuadre: 'salon', color: 1 };
+  T.casaJuego(R, t, o);
+  const entra = tramo(t, P4 + 0.05, h(16.2)), u = tramo(t, TR, FIN), bx = Math.round(lerp(326, 200, sua(entra))), by = SUELO;
+  const luz = tramo(t, h(17.0), TR) * (1 - tramo(t, FIN + 0.5, FIN + 1.2));
+  // la caja del juego, el folleto y los dados, en la alfombra a la derecha
+  if (P.cajaJuego) { for (let i = -18; i <= 20; i++) for (let j = 0; j <= 2; j++) if ((i + j) & 1 || j === 0) R.pset(244 + i, 160 + j, hex('#3a1014')); P.cajaJuego(R, 244, 160); }
+  if (P.instrucciones) P.instrucciones(R, 236, 174); if (P.dados) { for (let i = -9; i <= 10; i++) if (i & 1) R.pset(54 + i, 172, hex('#3a1014')); P.dados(R, 54, 172, { caras: [5, 3] }); }
+  const [gx, gy] = tablero3d(t, luz);
+  // las fichas, de pie en el tablero: la azul espera; la roja la mueve él a saltitos («A boy»)
+  { const av = tramo(t, h(16.45), h(17.2)), paso = Math.min(3, Math.floor(av * 3 + 1e-6)), fr = av * 3 - paso, [ax, ay] = tabPunto(0.13, 0.87), [rx0, ry] = tabPunto(0.22, 0.87);
+    const rx = rx0 + paso * 7 + Math.round((av < 1 ? fr : 0) * 7), salto = av > 0 && av < 1 ? Math.round(Math.sin(fr * Math.PI) * 5) : 0;
+    if (P.ficha) { P.ficha(R, ax, ay, { color: 'azul' }); for (let i = -3; i <= 3; i++) if (i & 1) R.pset(rx + i, ry, K); P.ficha(R, rx, ry - salto, { color: 'rojo' }); } }
+  // la meta se enciende: anillos tumbados en el suelo y una columna de luz que sube
+  if (luz > 0) { for (let k = 0; k < 3; k++) { const r = 12 + ((t * 14 + k * 9) % 27) * (u > 0 ? -1 : 1) + (u > 0 ? 27 : 0); elipse(gx, gy, r, k % 2 ? LATON2 : hex('#f0c030'), 3); }
+    const alto = Math.round(luz * 58); for (let j = 4; j < alto; j++) { const w = 6 + j * 0.16; for (let i = -Math.round(w); i <= Math.round(w); i++) if (hh(gx + i, gy - j + Math.floor(t * 30)) > 0.55 + 0.4 * Math.abs(i) / w + 0.3 * j / 58) R.pset(gx + i, gy - j, (i + j) & 1 ? LATON2 : hex('#f0c030')); } }
+  if (u <= 0) {
+    for (let i = -6; i <= 6; i++) for (let j = -1; j <= 1; j++) if ((i + j) & 1 && Math.abs(i) + Math.abs(j) * 3 < 8) R.pset(bx + 7 + i, by + j, hex('#3a1014'));
+    R.actor(EL.chico1JM, bx, by, t, { pal: ALAN, dir: -1, anda: entra > 0 && entra < 1, dedo: t > h(16.45) && t < h(17.05), sorpresa: t > h(17.05), brazos: t > TR - 0.12 });
+  } else if (u < 1) {
+    enBuf(EL.chico1JM, t, { pal: ALAN, dir: -1, sorpresa: true, brazos: true });
+    // la espiral va tumbada como el suelo (aplastada en vertical) y arranca justo donde estaba él
+    const sx = bx + 7.5, sy = by - 13, d0 = Math.hypot(sx - gx, (sy - gy) / QQ), a0 = Math.atan2((sy - gy) / QQ, sx - gx), pos = (e) => { const r = d0 * (1 - e), an = a0 + e * Math.PI * 2.5; return [gx + Math.cos(an) * r, gy + Math.sin(an) * r * QQ - Math.sin(Math.PI * e) * 10]; };
+    const e = u * u;
+    for (let k = 0; k <= 60; k++) { const ek = e * k / 60, [x, y] = pos(ek), X = Math.round(x), Y = Math.round(y), viejo = (e - ek) > 0.45; if (viejo && k % 2) continue; R.rect(X, Y, X + 1, Y + 1, viejo ? hex('#c8962a') : hex('#f0c030')); if (!viejo) R.pset(X, Y - 1, LATON2); if ((k + Math.floor(t * 16)) % 7 === 0) chispa(X + 2, Y - 2, LATON2); }
+    const [x, y] = pos(e); girado(x, y, (1 + 0.3 * Math.sin(Math.PI * Math.min(1, e * 1.6))) * (1 - 0.8 * e), e * Math.PI * 3, LATON2);
+  }
+  // el fogonazo y la onda; después, una hoja de selva sale de la meta y se posa donde estaba él
+  { const f = tramo(t, FIN, FIN + 0.5); if (f > 0 && f < 1) { elipse(gx, gy, 12 + f * 80, LATON2, 2); elipse(gx, gy, 10 + f * 56, hex('#f0c030'), 4); if (f < 0.3) { R.disco(gx, gy - 2, 8 - f * 18, hex('#ffffff')); for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4; R.linea(gx, gy - 2, Math.round(gx + Math.cos(an) * 18), Math.round(gy - 2 + Math.sin(an) * 12), LATON2); } } }
+    const v = tramo(t, FIN + 0.1, FIN + 0.9); if (v > 0 && P.hojaSelva) { const e = sua(v), x = Math.round(lerp(gx, 207, e) + Math.sin(v * 9) * 5 * (1 - v)), y = Math.round(lerp(gy - 4, SUELO, e) - Math.sin(v * Math.PI) * 34); if (v >= 1) for (let i = -6; i <= 6; i++) if (i & 1) R.pset(207 + i, SUELO, hex('#3a1014')); P.hojaSelva(R, x, y, { t: v < 1 ? t * 3 : t }); }
+    if (t > FIN) for (let k = 0; k < 6; k++) { const an = t * 2 + k * 1.05, r = 20 + Math.sin(t * 3 + k) * 4; if (Math.sin(t * 5 + k * 2) > 0.2 && t < FIN + 1.0) chispa(Math.round(gx + Math.cos(an) * r), Math.round(gy - 6 + Math.sin(an) * r * 0.5), hex('#f0c030')); } }
+  T.casaJuegoDelante(R, t, o);
+};
+
+// 5. veintiséis hojas después
+const U5 = (t) => tramo(t, P5 + 0.15, h(21.5));
+const p5 = (t) => {
+  const u = U5(t);
+  const o = { encuadre: 'calendario', de: 1969, a: 1995, u };
+  T.cine(R, t, o);
+  const SAL = h(21.6), CAE = h(22.4), v = tramo(t, SAL, CAE);
+  // la caja de la repisa tiembla
+  if (t > SAL - 0.7 && t < SAL + 0.2) { const z = Math.floor(t * 18) % 2; for (const d of [-1, 1]) { R.linea(62 + d * (20 + z * 2), 84, 62 + d * (24 + z * 2), 80, K); R.linea(62 + d * (21 + z * 2), 91, 62 + d * (26 + z * 2), 91, K); } chispa(62 + (z ? 6 : -8), 78 - z * 3, hex('#f0c030')); }
+  if (v >= 1) { const dt = t - CAE;
+    R.actor(EL.tecnicoFX2JM, 82, 164, t, { pal: ALAN, dir: 1, sorpresa: dt < 0.6, sonrisa: dt >= 0.6, brazos: dt >= 0.75 && Math.floor(t * 5) % 2 === 0, salto: Math.round(Math.abs(Math.sin(dt * 9)) * 6 * Math.max(0, 1 - dt * 1.8)) });
+    if (P.hojaSelva) { const f = tramo(dt, 0, 1.1), x = Math.round(40 - f * 8 + Math.sin(dt * 6) * 5 * (1 - f)), y = Math.round(lerp(128, 168, f)); if (dt < 0.35) for (let k = 0; k < 6; k++) { const d = (k < 3 ? -1 : 1) * (6 + dt * 40 + (k % 3) * 3); R.disco(Math.round(89 + d), 163 - (k % 3), 1.5, hex('#e4dcc4')); } P.hojaSelva(R, x, y, { t: f < 1 ? t * 3 : 0 }); }
+  } else if (v > 0) {
+    enBuf(EL.tecnicoFX2JM, t, { pal: ALAN, dir: 1, sorpresa: true, brazos: true });
+    const e = sua(v), x = lerp(62, 89.5, e) + Math.sin(Math.PI * e) * 30, y = lerp(88, 151, e) - Math.sin(Math.PI * e) * 26;
+    for (let k = 1; k <= 10; k++) { const vk = v - k * 0.03; if (vk <= 0) break; const ek = sua(vk); chispa(Math.round(lerp(62, 89.5, ek) + Math.sin(Math.PI * ek) * 30), Math.round(lerp(88, 151, ek) - Math.sin(Math.PI * ek) * 26), k % 2 ? hex('#fff6a0') : hex('#3aa85a')); }
+    girado(x, y, 0.2 + 0.8 * e, (1 - e) * Math.PI * 3, hex('#fff6a0'));
+  }
+  if (v > 0 && v < 0.5) { R.anillo(62, 90, 6 + v * 40, hex('#fff6a0'), 2); R.anillo(62, 90, 4 + v * 28, hex('#3aa85a'), 4); }
+  T.cineDelante(R, t, o);
+};
+const año = (t) => t < P2 ? 1981 + Math.round(tramo(t, h(1.7), h(2.9)) * 14) : t < P3 ? 1995 : t < P4 ? 1994 : t < P5 ? 1969 : 1969 + Math.floor(U5(t) * 26 + 1e-6);
+const efectos = [[1.5, 'lapiz'], [h(2.95), 'palmada'], [h(3.7), 'aviso'], [h(4.9), 'golpecito'], [h(6.3), 'tic'], [h(8.1), 'maquina'], [h(8.8), 'boing'], [P3 + 0.3, 'tecleo'], [h(10.6), 'papel'], [h(14.55), 'pop'],
+  [h(16.5), 'toc'], [h(17.3), 'whoosh'], [h(18.5), 'brillo'], [P5 + 0.3, 'papel'], [h(21.6), 'rafaga'], [h(22.4), 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, cartela: '1995', año });
+</script>
+</body>
+</html>

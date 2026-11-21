@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-HOLA (frase 3), sin cartela. Un plano (gag 1): la pared de papel pintado egipcio del estudio, de cerca. En «I'm
+// Atom» Atom baja de su esquina con el estetoscopio puesto (las olivas a los lados); en «explain» da un golpecito en
+// la pared con la mano y apoya la campana; desde el otro lado le devuelven tres toques (la lámina de la barca salta en
+// cada uno) y Atom da un respingo con «!» y luego «?»; en «Let's find out» vuelve de un salto a su esquina.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_TU, K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c'), AZ = hex('#3a6ac8');
+const ease = (u) => u * u * (3 - 2 * u);
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } };
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: 1 });
+};
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+R.companero = () => {};   // Atom baja al plano y al final vuelve a su esquina
+const wh = (s) => en('hola', (s - 0.5) / 4.588);
+const BAJA = wh(0.55), LLEGA = wh(1.45), TOC = wh(1.75), APOYA = wh(2.05), G0 = wh(2.25), G1 = wh(5.5), VUELVE = wh(4.95);
+const toque = (k) => G0 + (G1 - G0) * [0.05, 0.35, 0.65][k];
+const p1 = (t) => {
+  const g = T.hoy(R, t, { encuadre: 'estudio', camara: 'pared', golpe: tramo(t, G0, G1) });
+  const [px, py] = g.punto || [150, 92];
+  // dónde está Atom: en su esquina, baja en «I'm Atom», se arrima a la pared y vuelve en «Let's find out»
+  const AX = px + 10, AY = py - 44, esq = [297, 24];
+  const b = ease(tramo(t, BAJA, LLEGA)), v = ease(tramo(t, VUELVE, E.duracion - 0.2));
+  let ax = lerp(esq[0], AX, b) , ay = lerp(esq[1], AY, b) - Math.sin(b * Math.PI) * 12;
+  if (v > 0) { ax = lerp(AX, esq[0], v); ay = lerp(AY, esq[1], v) - Math.sin(v * Math.PI) * 16; }
+  // respingo en cada toque del otro lado
+  let sal = 0; for (let k = 0; k < 3; k++) { const d = t - toque(k); if (d > 0 && d < 0.4) sal = Math.max(sal, Math.round(Math.sin(d / 0.4 * Math.PI) * (k === 0 ? 7 : 4))); }
+  ay -= sal; if (b > 0 && b < 1 || v > 0) {} else ay += Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6));
+  // el estetoscopio: puesto en Atom (las olivas a los lados); la campana, en la mano, que llama y luego se apoya en la pared
+  const enPared = t > APOYA && v === 0, llama = t > TOC - 0.25 && t < APOYA;
+  let hx = ax - 6, hy = ay + 30;
+  if (b >= 1 && v === 0) { const w = ease(tramo(t, LLEGA - 0.1, TOC - 0.2)); hx = lerp(ax - 6, px + 12, w); hy = lerp(ay + 30, py + 2, w);
+    if (llama) { const d = (t - (TOC - 0.25)) / 0.5; hx = px + 10 + Math.round(Math.max(0, Math.sin(d * Math.PI * 2)) * 4); hy = py + 1; }
+    if (enPared) { hx = px + 15; hy = py + 1; } }
+  const bx = enPared ? px : hx - 13, by = enPared ? py : hy;
+  // el tubo, de las olivas (en Atom) a la campana
+  if (t > BAJA && t < E.duracion - 0.55) {
+    const ox = Math.round(ax), oy = Math.round(ay + 6);
+    R.linea(ox - 15, oy - 6, ox - 6, oy + 6, hex('#9aa0a8')); R.linea(ox + 15, oy - 6, ox + 6, oy + 6, hex('#9aa0a8')); R.linea(ox - 14, oy - 6, ox - 5, oy + 6, hex('#5a606c')); R.linea(ox + 14, oy - 6, ox + 5, oy + 6, hex('#5a606c'));
+    R.disco(ox - 15, oy - 7, 1, K); R.disco(ox + 15, oy - 7, 1, K);
+    const n = 24; let qx = ox, qy = oy + 6; for (let i = 1; i <= n; i++) { const u = i / n, x = lerp(ox, bx + 7, u), y = lerp(oy + 6, by, u) + Math.sin(u * Math.PI) * 10; R.linea(Math.round(qx), Math.round(qy), Math.round(x), Math.round(y), K); R.linea(Math.round(qx) + 1, Math.round(qy), Math.round(x) + 1, Math.round(y), hex('#4a4a56')); qx = x; qy = y; }
+    T.mano(R, Math.round(hx), Math.round(hy), -1, '#5a8ad0', { sinManga: true });
+    // la campana, encima de los dedos: aro oscuro, metal, el disco claro y su brillo
+    const X = Math.round(bx), Y = Math.round(by); R.disco(X, Y, 6, K); R.disco(X, Y, 5, hex('#8a909c')); R.disco(X - 1, Y - 1, 4, hex('#c8ced8')); R.disco(X, Y, 2, hex('#eef2f6')); R.pset(X - 2, Y - 3, BL); R.rect(X + 4, Y - 1, X + 7, Y + 1, K); R.rect(X + 5, Y, X + 7, Y, hex('#8a909c'));
+    if (enPared) for (let k = 0; k < 3; k++) R.pset(X - 7 - k, Y + 5 + k, hex('#a08860'));
+  }
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(10, 13, b) - 3 * v), e: sal > 0 ? 0.9 : 0.4 });
+  for (const [tt, xx, yy] of [[BAJA, 297, 40], [E.duracion - 0.55, ax, ay + 20]]) { const d = (t - tt) / 0.35; if (d > 0 && d < 1) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, q = 4 + d * 10; R.pset(Math.round(xx + Math.cos(an) * q), Math.round(yy + Math.sin(an) * q), BL); } }
+  if (t > toque(0) && t < toque(1) - 0.1) globo(Math.round(ax) + 24, Math.round(ay) - 4, '!', ROJO);
+  if (t > toque(2) && t < VUELVE) globo(Math.round(ax) + 24, Math.round(ay) - 4, '?', AZ);
+  if (llama) destello(px + 2, py - 2, 3);
+  T.hoyDelante(R, t, { encuadre: 'estudio', camara: 'pared' });
+};
+const efectos = [[BAJA, 'pop'], [TOC, 'golpecito'], [toque(0), 'toc'], [toque(1), 'toc'], [toque(2), 'toc']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

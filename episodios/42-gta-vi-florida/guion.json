@@ -1,0 +1,404 @@
+{
+ "serie": "ASK Atom",
+ "numero": 42,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "GTA 6: The Real Florida Alligators Behind the Trailer",
+  "es": "GTA 6: los caimanes reales de Florida detrás del tráiler"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 1.05
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.5,
+    "mood.arousal": 0.5
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "lf-gancho",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "caiman+9.8"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "caiman",
+     "es": "Un caimán entra por la puerta de una tienda de madrugada y se pasea entre las neveras. Sale en el primer tráiler de GTA VI, y algo muy parecido pasó de verdad: en Florida, en 2018.",
+     "en": "An alligator wanders into a convenience store in the middle of the night and strolls past the fridges. It's in the first GTA VI trailer, and something very much like it really happened: in Florida, in 2018.",
+     "visual": "D: la cámara de seguridad de una tienda de madrugada (hora en pantalla); un caimán pequeño entra y se pasea entre las neveras; golpe en «really happened»; un «2018» y un mapa de Florida.",
+     "es_voz": "Un caimán entra por la puerta de una tienda de madrugada y se pasea entre las neveras. Sale en el primer tráiler de GTA seis, y algo muy parecido pasó de verdad: en Florida, en dos mil dieciocho.",
+     "en_voz": "An alligator wanders into a convenience store in the middle of the night and strolls past the fridges. It's in the first G T A Six trailer, and something very much like it really happened: in Florida, in twenty eighteen."
+    },
+    {
+     "n": 2,
+     "marca": "leonida",
+     "es": "Hoy, 19 de noviembre, GTA VI por fin ha salido, después de dos retrasos y casi tres años de tráileres. Pasa en Leonida, un estado inventado que se parece muchísimo a Florida. Así que hoy buscamos la Florida real escondida detrás: sus caimanes, su carretera sobre el mar, sus titulares raros y una montaña que no existe.",
+     "en": "Today, November 19, GTA VI is finally out, after two delays and almost three years of trailers. It takes place in Leonida, a made-up state that looks an awful lot like Florida. So today we're looking for the real Florida hiding behind it: its alligators, its highway over the sea, its strange headlines, and a mountain that doesn't exist.",
+     "visual": "H, A y G: Atom abre la caja de la edición física (solo un código); Ocean Drive con neones; la carretera sobre el mar; Atom con mochila y un mapa de Florida con cuatro iconos: caimán, puente, titular y una montaña con interrogante.",
+     "es_voz": "Hoy, diecinueve de noviembre, GTA seis por fin ha salido, después de dos retrasos y casi tres años de tráileres. Pasa en Leonida, un estado inventado que se parece muchísimo a Florida. Así que hoy buscamos la Florida real escondida detrás: sus caimanes, su carretera sobre el mar, sus titulares raros y una montaña que no existe.",
+     "en_voz": "Today, November nineteenth, G T A Six is finally out, after two delays and almost three years of trailers. It takes place in Leonida, a made-up state that looks an awful lot like Florida. So today we're looking for the real Florida hiding behind it: its alligators, its highway over the sea, its strange headlines, and a mountain that doesn't exist."
+    }
+   ]
+  },
+  {
+   "id": "lf-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "H: Atom saluda en su salón, con la barra de descarga en la tele."
+    }
+   ]
+  },
+  {
+   "id": "lf-leonida",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "mapa",
+     "es": "Rockstar dibujó Leonida con seis regiones: Vice City, los Cayos, Grassrivers, Port Gellhorn, Ambrosia y el parque nacional de Mount Kalaga. Pero nunca ha dicho qué lugar real hay detrás de cada una. Eso lo han ido deduciendo los jugadores, plano a plano, con mapas hechos a mano.",
+     "en": "Rockstar built Leonida out of six regions: Vice City, the Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, and Mount Kalaga National Park. But it has never said which real place sits behind each one. Players have worked that out themselves, shot by shot, with hand-drawn maps.",
+     "visual": "H: un mapa inventado de Leonida con seis regiones que se encienden una a una; fans dibujando mapas a mano con flechas a Florida.",
+     "acto": true
+    },
+    {
+     "n": 5,
+     "marca": "vicecity",
+     "es": "Vice City es la más fácil: es Miami, igual que en el Vice City de 2002. Rockstar la describe como el glamour, el ajetreo y la codicia de América en una sola ciudad. Y lo que se ve encaja: playas, hoteles de colores pastel, neones y coches que van despacio para que los miren.",
+     "en": "Vice City is the easy one: it's Miami, just like in the 2002 Vice City. Rockstar describes it as the glamour, hustle, and greed of America captured in a single city. And what we see fits: beaches, pastel hotels, neon lights, and cars cruising slowly so everyone can look at them.",
+     "visual": "A: Ocean Drive al atardecer: hoteles pastel, neones que se encienden, patinadores, un descapotable que va despacio.",
+     "es_voz": "Vice City es la más fácil: es Miami, igual que en el Vice City de dos mil dos. Rockstar la describe como el glamour, el ajetreo y la codicia de América en una sola ciudad. Y lo que se ve encaja: playas, hoteles de colores pastel, neones y coches que van despacio para que los miren.",
+     "en_voz": "Vice City is the easy one: it's Miami, just like in the two thousand two Vice City. Rockstar describes it as the glamour, hustle, and greed of America captured in a single city. And what we see fits: beaches, pastel hotels, neon lights, and cars cruising slowly so everyone can look at them."
+    },
+    {
+     "n": 6,
+     "marca": "cayos",
+     "es": "Al sur, los Cayos de Leonida son los Cayos de Florida: una hilera de islas unidas por una carretera que va sobre el mar. En la vida real es la Overseas Highway, que salta de isla en isla por decenas de puentes hasta Cayo Hueso. Rockstar dice que allí están algunas de las aguas más bonitas, y más peligrosas, de América.",
+     "en": "Down south, the Leonida Keys are the Florida Keys: a string of islands tied together by a road that runs over the sea. In real life it's the Overseas Highway, which hops from island to island across dozens of bridges all the way to Key West. Rockstar says some of the most beautiful, and most dangerous, waters in America are out there.",
+     "visual": "B: la carretera sobre el mar de isla en isla, puentes largos; Atom en bici; un pelícano le roba el bocadillo; olas bravas al fondo."
+    }
+   ]
+  },
+  {
+   "id": "lf-everglades",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "rio",
+     "es": "Tierra adentro está Grassrivers, el nombre del juego para los Everglades. Y el nombre tiene truco, porque los Everglades no son un pantano quieto: son un río muy ancho y muy poco profundo, que de forma natural baja despacito desde el lago Okeechobee hasta el mar. Por eso, en 1947, una escritora los bautizó como «el río de hierba».",
+     "en": "Inland lies Grassrivers, the game's name for the Everglades. And the name is a clue, because the Everglades aren't a still swamp: they're a very wide, very shallow river that naturally creeps slowly from Lake Okeechobee down to the sea. That's why, in 1947, a writer named them \"the River of Grass.\"",
+     "visual": "C: el río de hierba hasta el horizonte; el agua que corre despacio (flechas de hierba que se inclinan); una lancha de hélice; un libro de 1947.",
+     "acto": true,
+     "es_voz": "Tierra adentro está Grassrivers, el nombre del juego para los Everglades. Y el nombre tiene truco, porque los Everglades no son un pantano quieto: son un río muy ancho y muy poco profundo, que de forma natural baja despacito desde el lago Okeechobee hasta el mar. Por eso, en mil novecientos cuarenta y siete, una escritora los bautizó como «el río de hierba».",
+     "en_voz": "Inland lies Grassrivers, the game's name for the Everglades. And the name is a clue, because the Everglades aren't a still swamp: they're a very wide, very shallow river that naturally creeps slowly from Lake Okeechobee down to the sea. That's why, in nineteen forty-seven, a writer named them \"the River of Grass.\""
+    },
+    {
+     "n": 8,
+     "marca": "caimanes",
+     "es": "Rockstar avisa de que allí los caimanes son solo el principio, que hay depredadores aún más peligrosos. Y solo con los caimanes ya hay de sobra: según la agencia de vida salvaje de Florida, en el estado viven alrededor de un millón trescientos mil, y los hay en sus sesenta y siete condados.",
+     "en": "Rockstar warns that the alligators are only the start, and that there are even deadlier predators out there. And the alligators alone are plenty: according to Florida's wildlife agency, about one point three million of them live in the state, in all sixty-seven of its counties.",
+     "visual": "C: ojos de caimán asomando por todas partes; un contador que sube hasta 1,3 millones; un mapa con 67 condados que se llenan."
+    },
+    {
+     "n": 9,
+     "marca": "cocodrilo",
+     "es": "Y el sur de Florida guarda una rareza: es el único sitio del mundo donde viven juntos aligátores y cocodrilos, porque el caimán de Florida es, en realidad, un aligátor. ¿Cómo se distinguen? El aligátor tiene el hocico ancho, en forma de U; el cocodrilo lo tiene afilado, en forma de V, y con la boca cerrada se le ven también los dientes de abajo.",
+     "en": "And South Florida holds a strange record: it's the only place in the world where American alligators and crocodiles live side by side. How do you tell them apart? The alligator has a wide, U-shaped snout; the crocodile's is pointed, shaped like a V, and even with its mouth closed you can see its lower teeth too.",
+     "visual": "C: un caimán y un cocodrilo en la misma orilla; Atom con las cartulinas U y V; los dientes de abajo del cocodrilo."
+    },
+    {
+     "n": 10,
+     "marca": "recupera",
+     "es": "¿Y por qué hay tantos caimanes? Porque el caimán americano estuvo a punto de desaparecer por la caza, entró en la lista de especies en peligro y, tras años de protección, se recuperó tanto que en 1987 lo dieron por recuperado del todo. Ahora comparte el estado con unos veintitrés millones de personas, y de vez en cuando se cruzan.",
+     "en": "So why are there so many? Because the American alligator was nearly wiped out by hunting, went onto the endangered species list, and after years of protection bounced back so well that in 1987 it was declared fully recovered. Now it shares the state with about twenty-three million people, and every so often, their paths cross.",
+     "visual": "C y H: una gráfica que baja y luego sube; un sello de «1987 recuperado»; un caimán que cruza un campo de golf.",
+     "es_voz": "¿Y por qué hay tantos caimanes? Porque el caimán americano estuvo a punto de desaparecer por la caza, entró en la lista de especies en peligro y, tras años de protección, se recuperó tanto que en mil novecientos ochenta y siete lo dieron por recuperado del todo. Ahora comparte el estado con unos veintitrés millones de personas, y de vez en cuando se cruzan.",
+     "en_voz": "So why are there so many? Because the American alligator was nearly wiped out by hunting, went onto the endangered species list, and after years of protection bounced back so well that in nineteen eighty-seven it was declared fully recovered. Now it shares the state with about twenty-three million people, and every so often, their paths cross."
+    }
+   ]
+  },
+  {
+   "id": "lf-caimanes",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 2018",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "tienda",
+     "es": "Como aquella madrugada de junio de 2018, en Lakewood Ranch, cerca de Sarasota. Las cámaras de una tienda grabaron cómo alguien dejaba un caimán pequeño dentro del local. El animal se paseó por los pasillos hasta que llegó un trampero de la agencia de vida salvaje y se lo llevó.",
+     "en": "Like that early morning in June 2018, in Lakewood Ranch, near Sarasota. A convenience store's cameras caught someone leaving a small alligator inside. The animal wandered the aisles until a trapper from the wildlife agency arrived and took it away.",
+     "visual": "D: la tienda de madrugada por la cámara de seguridad; el caimán por los pasillos; llega el trampero de la agencia con su pértiga y se lo lleva.",
+     "acto": true,
+     "es_voz": "Como aquella madrugada de junio de dos mil dieciocho, en Lakewood Ranch, cerca de Sarasota. Las cámaras de una tienda grabaron cómo alguien dejaba un caimán pequeño dentro del local. El animal se paseó por los pasillos hasta que llegó un trampero de la agencia de vida salvaje y se lo llevó.",
+     "en_voz": "Like that early morning in June twenty eighteen, in Lakewood Ranch, near Sarasota. A convenience store's cameras caught someone leaving a small alligator inside. The animal wandered the aisles until a trapper from the wildlife agency arrived and took it away."
+    },
+    {
+     "n": 12,
+     "marca": "broma",
+     "es": "El responsable resultó ser un chico de diecisiete años, que dijo que era una broma. Y años después, buena parte de la prensa relacionó este caso con un plano del primer tráiler de GTA VI: una cámara de seguridad y un caimán que entra en una tienda. Otros lo ligan a otros caimanes de Florida, porque hay más de uno, y Rockstar nunca ha dicho de dónde lo sacó.",
+     "en": "The culprit turned out to be a seventeen-year-old who said it was a prank. And years later, much of the press linked this case to a shot in the first GTA VI trailer: a security camera and an alligator walking into a store. Others tie it to different Florida gators, because there's more than one, and Rockstar has never said where it came from.",
+     "visual": "D y H: la escena de la cámara junto a una tele que muestra «un tráiler» dibujado por nosotros con el mismo encuadre; un signo igual que parpadea.",
+     "es_voz": "El responsable resultó ser un chico de diecisiete años, que dijo que era una broma. Y años después, buena parte de la prensa relacionó este caso con un plano del primer tráiler de GTA seis: una cámara de seguridad y un caimán que entra en una tienda. Otros lo ligan a otros caimanes de Florida, porque hay más de uno, y Rockstar nunca ha dicho de dónde lo sacó.",
+     "en_voz": "The culprit turned out to be a seventeen-year-old who said it was a prank. And years later, much of the press linked this case to a shot in the first G T A Six trailer: a security camera and an alligator walking into a store. Others tie it to different Florida gators, because there's more than one, and Rockstar has never said where it came from."
+    },
+    {
+     "n": 13,
+     "marca": "wendys",
+     "es": "No fue el único caimán con ganas de compras. En 2015, en Royal Palm Beach, un hombre lanzó un caimán de un metro por la ventanilla del autoservicio de un Wendy's. Nadie salió herido, y unos meses después la policía dio con él.",
+     "en": "It wasn't the only alligator to go shopping. In 2015, in Royal Palm Beach, a man tossed a three-and-a-half-foot alligator through the drive-thru window of a Wendy's. Nobody was hurt, and a few months later the police tracked him down.",
+     "visual": "D: el autoservicio de comida rápida de noche; un caimán pequeño entra por la ventanilla; el empleado salta hacia atrás (sin heridos); un «2015».",
+     "es_voz": "No fue el único caimán con ganas de compras. En dos mil quince, en Royal Palm Beach, un hombre lanzó un caimán de un metro por la ventanilla del autoservicio de un Wendy's. Nadie salió herido, y unos meses después la policía dio con él.",
+     "en_voz": "It wasn't the only alligator to go shopping. In twenty fifteen, in Royal Palm Beach, a man tossed a three-and-a-half-foot alligator through the drive-thru window of a Wendy's. Nobody was hurt, and a few months later the police tracked him down."
+    },
+    {
+     "n": 14,
+     "marca": "piscina",
+     "es": "Y en 2023, en el condado de Volusia, un caimán de más de tres metros rompió la mosquitera de un porche y se metió en la piscina de una casa. La dueña dijo que había entrado como el Kool-Aid Man, la jarra de los anuncios que atraviesa paredes. Y el tráiler tiene su propia versión: un cuidador sacando a rastras un caimán de una piscina, que la prensa relaciona con otro caso, de 2019, en Palm Beach Gardens.",
+     "en": "And in 2023, in Volusia County, an eleven-foot alligator burst through a porch screen and slid into a family's pool. The homeowner said it came in like the Kool-Aid Man, the pitcher from the ads that crashes through walls. And the trailer has its own version: a wrangler dragging an alligator out of a pool, which the press links to a different case, from 2019, in Palm Beach Gardens.",
+     "visual": "D: un porche con mosquitera; el caimán la atraviesa como una jarra de refresco; cae en la piscina y el flotador de flamenco sale volando; un «2023».",
+     "es_voz": "Y en dos mil veintitrés, en el condado de Volusia, un caimán de más de tres metros rompió la mosquitera de un porche y se metió en la piscina de una casa. La dueña dijo que había entrado como el Kool-Aid Man, la jarra de los anuncios que atraviesa paredes. Y el tráiler tiene su propia versión: un cuidador sacando a rastras un caimán de una piscina, que la prensa relaciona con otro caso, de dos mil diecinueve, en Palm Beach Gardens.",
+     "en_voz": "And in twenty twenty-three, in Volusia County, an eleven-foot alligator burst through a porch screen and slid into a family's pool. The homeowner said it came in like the Kool-Aid Man, the pitcher from the ads that crashes through walls. And the trailer has its own version: a wrangler dragging an alligator out of a pool, which the press links to a different case, from twenty nineteen, in Palm Beach Gardens."
+    }
+   ],
+   "cartela": "2018"
+  },
+  {
+   "id": "lf-floridaman",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "titulares",
+     "es": "Todas estas historias tienen algo en común: nos enteramos de ellas. En internet hasta tienen nombre, Florida Man: titulares que empiezan con «un hombre de Florida» y acaban en algo absurdo. Y la explicación no está en los caimanes, sino en una ley.",
+     "en": "All of these stories have one thing in common: we hear about them. The internet even has a name for it, Florida Man: headlines that start with \"Florida man\" and end with something absurd. And the explanation isn't in the alligators, it's in a law.",
+     "visual": "E: una impresora escupe titulares que empiezan por «Florida Man» y llenan el suelo.",
+     "acto": true
+    },
+    {
+     "n": 16,
+     "marca": "ley",
+     "es": "Florida tiene una de las leyes de registros públicos más abiertas del país, el capítulo ciento diecinueve de sus leyes. Casi cualquier papel de la administración lo puede pedir cualquiera, y eso incluye los datos básicos de casi cualquier adulto detenido: el nombre, la edad y la dirección.",
+     "en": "Florida has one of the most open public records laws in the country, Chapter one hundred nineteen of its statutes. Almost any government record can be requested by anyone, and that includes the basic details of almost any adult who's arrested: their name, age, and address.",
+     "visual": "E: el archivo público: cajones, un mostrador; cualquiera pide un papel y se lo dan; un rótulo «119»."
+    },
+    {
+     "n": 17,
+     "marca": "prensa",
+     "es": "Así que a los periodistas les llegan cada día montones de casos con detalles raros, listos para contar. Ojo: hay estudiosos que dicen que otros estados también dan esos datos, y que el resto lo pone la fama de Florida y lo rápido que corren estas historias. La ley abre la puerta; internet hace el resto.",
+     "en": "So every day, reporters get piles of cases with strange details, ready to be told. But careful: some researchers point out that other states release that information too, and that the rest comes down to Florida's reputation and how fast these stories spread. The law opens the door; the internet does the rest.",
+     "visual": "E: periodistas que reciben montones de fichas; un mapa de EE. UU. con otros estados que también encienden; una puerta que se abre y teléfonos que comparten."
+    }
+   ]
+  },
+  {
+   "id": "lf-movil",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 2017",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "verticales",
+     "es": "Y Rockstar ha metido esas redes en el juego. En los tráileres aparecen vídeos verticales grabados con el móvil, como los que vemos cada día, y uno de ellos es una mujer bailando sobre el techo de un coche en marcha.",
+     "en": "And Rockstar has put those feeds inside the game. The trailers are full of vertical videos shot on phones, like the ones we scroll through every day, and one of them shows a woman dancing on the roof of a moving car.",
+     "visual": "F: marcos de móvil en vertical que pasan como en una red social; corazones que suben.",
+     "acto": true
+    },
+    {
+     "n": 19,
+     "marca": "puente",
+     "es": "Ese vídeo también existe. Se grabó en 2017 en el MacArthur Causeway, el puente que une Miami con Miami Beach, y corrió por las redes. La prensa de videojuegos dice que la versión del tráiler es casi una copia plano a plano.",
+     "en": "That video exists too. It was filmed in 2017 on the MacArthur Causeway, the bridge between Miami and Miami Beach, and it spread all over social media. Gaming outlets say the trailer's version is almost a shot-for-shot copy.",
+     "visual": "F: el MacArthur Causeway al atardecer, en vertical: un coche en marcha con una bailarina en el techo (de lejos); el mar y Miami Beach.",
+     "es_voz": "Ese vídeo también existe. Se grabó en dos mil diecisiete en el MacArthur Causeway, el puente que une Miami con Miami Beach, y corrió por las redes. La prensa de videojuegos dice que la versión del tráiler es casi una copia plano a plano.",
+     "en_voz": "That video exists too. It was filmed in twenty seventeen on the MacArthur Causeway, the bridge between Miami and Miami Beach, and it spread all over social media. Gaming outlets say the trailer's version is almost a shot-for-shot copy."
+    },
+    {
+     "n": 20,
+     "marca": "satira",
+     "es": "¿Por qué copia Rockstar la realidad en vez de inventarla? No lo ha explicado, pero la serie siempre ha funcionado así: es una sátira. Exagera lo que reconocemos para que nos riamos de nosotros mismos, y le cambia el nombre a todo, de las ciudades a las marcas.",
+     "en": "Why does Rockstar copy reality instead of making it up? It hasn't said, but the series has always worked this way: it's satire. It exaggerates what we recognize so we laugh at ourselves, and it renames everything, from the cities to the brands.",
+     "visual": "H y A: un espejo de feria que deforma Ocean Drive; carteles con nombres cambiados."
+    }
+   ],
+   "cartela": "2017"
+  },
+  {
+   "id": "lf-interior",
+   "estilo": "pixel",
+   "animo": "pastoral",
+   "golpes": [
+    "kalaga+6.0"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "ambrosia",
+     "es": "Lejos de la costa, Leonida cambia. Ambrosia es, según Rockstar, el corazón de Leonida, con sus valores de siempre, y los fans la comparan con la zona azucarera del lago Okeechobee, con sus campos de caña y su refinería. Port Gellhorn, con su ambiente de cerveza barata y bebidas energéticas de gasolinera, recuerda a las playas algo olvidadas del norte del estado.",
+     "en": "Away from the coast, Leonida changes. Ambrosia, according to Rockstar, is the heart of Leonida, with its old-school values, and fans compare it to the sugar country around Lake Okeechobee, with its cane fields and its refinery. Port Gellhorn, with its cheap beer and truck stop energy drinks, recalls the faded beach towns of the state's north.",
+     "visual": "G: campos de caña con una refinería humeante y el dique del lago Okeechobee; luego un pueblo de playa algo viejo con una gasolinera.",
+     "acto": true
+    },
+    {
+     "n": 22,
+     "marca": "kalaga",
+     "es": "Pero el sitio más curioso es el parque nacional de Mount Kalaga, para cazar, pescar y conducir por el monte. Porque Florida no tiene montañas. Su punto más alto, Britton Hill, está a solo ciento cinco metros sobre el nivel del mar: es el punto más alto más bajo de los cincuenta estados.",
+     "en": "But the oddest place of all is Mount Kalaga National Park, made for hunting, fishing, and off-road trails. Because Florida has no mountains. Its highest point, Britton Hill, sits just three hundred forty-five feet above sea level: the lowest high point of all fifty states.",
+     "visual": "G: Atom con cuerda, piolet y bandera sube a Britton Hill y llega en tres pasos (golpe en «no mountains»); la placa de 345 pies."
+    },
+    {
+     "n": 23,
+     "marca": "plana",
+     "es": "¿Y por qué es tan plana? Porque casi toda Florida es un antiguo fondo marino: una plataforma de roca caliza que el mar fue dejando, capa a capa, y que quedó al aire cuando bajó el nivel del mar, hace poco en tiempo geológico. Así que Mount Kalaga es una licencia de Rockstar, y los fans dicen que se parece más a los montes de Georgia y las Carolinas. En el juego, Florida ha ganado una montaña.",
+     "en": "So why is it so flat? Because most of Florida is an old seabed: a platform of limestone laid down by the sea, layer by layer, and left high and dry when the sea dropped, fairly recently in geological terms. So Mount Kalaga is a bit of creative license, and fans say it looks more like the hills of Georgia and the Carolinas. In the game, Florida has gained a mountain.",
+     "visual": "G: un corte de Florida como capas de roca caliza con conchas; el mar que baja; montes de Georgia al fondo; una montaña que aparece en el mapa de Leonida."
+    }
+   ]
+  },
+  {
+   "id": "lf-jason",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "jason",
+     "es": "En ese estado viven Jason y Lucia, los dos protagonistas. Según Rockstar, siempre han sabido que tienen las cartas en contra. Lucia acaba de salir de la cárcel de Leonida y busca la buena vida que su madre soñaba; Jason quiere una vida fácil, pero todo se le complica.",
+     "en": "That state is home to Jason and Lucia, the two main characters. According to Rockstar, they've always known the deck is stacked against them. Lucia has just walked out of the Leonida Penitentiary, chasing the good life her mother dreamed of; Jason wants an easy life, but things just keep getting harder.",
+     "visual": "A y G: dos siluetas (Jason y Lucia, por sus atributos) en un coche junto al mar; una baraja con las cartas en contra; la puerta de una cárcel que se abre al sol.",
+     "acto": true
+    },
+    {
+     "n": 25,
+     "marca": "bonnie",
+     "es": "La prensa los compara con Bonnie y Clyde, la pareja de los años treinta, aunque Rockstar no usa ese nombre. Y hasta hoy, eso es casi todo lo que se sabía de su historia: lo demás se descubre jugando, y aquí no lo vamos a destripar.",
+     "en": "The press compares them to Bonnie and Clyde, the outlaw couple from the 1930s, although Rockstar doesn't use that name. And until today, that was almost everything anyone knew about their story: the rest you discover by playing, and we won't spoil it here.",
+     "visual": "A: una foto en sepia de una pareja de los años treinta junto a un coche antiguo; un candado sobre un libro: sin destripes.",
+     "en_voz": "The press compares them to Bonnie and Clyde, the outlaw couple from the nineteen thirties, although Rockstar doesn't use that name. And until today, that was almost everything anyone knew about their story: the rest you discover by playing, and we won't spoil it here."
+    }
+   ]
+  },
+  {
+   "id": "lf-hoy",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 2023",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "camino",
+     "es": "El camino hasta hoy ha sido largo. El primer tráiler salió el 5 de diciembre de 2023 y prometía el juego para 2025. Luego se retrasó a mayo de 2026, y después al 19 de noviembre. Rockstar se lo explicó a los fans así: necesitaba esos meses para darle el acabado que ellos ya esperaban y merecían.",
+     "en": "The road to today has been a long one. The first trailer came out on December 5, 2023, and promised the game for 2025. Then it slipped to May 2026, and then to November 19. Rockstar told fans those extra months would let it finish the game with the level of polish you have come to expect and deserve.",
+     "visual": "H: un calendario: diciembre de 2023, 2025 tachado, mayo de 2026 tachado, 19 de noviembre de 2026 con un círculo.",
+     "acto": true,
+     "es_voz": "El camino hasta hoy ha sido largo. El primer tráiler salió el cinco de diciembre de dos mil veintitrés y prometía el juego para dos mil veinticinco. Luego se retrasó a mayo de dos mil veintiséis, y después al diecinueve de noviembre. Rockstar se lo explicó a los fans así: necesitaba esos meses para darle el acabado que ellos ya esperaban y merecían.",
+     "en_voz": "The road to today has been a long one. The first trailer came out on December fifth, twenty twenty-three, and promised the game for twenty twenty-five. Then it slipped to May twenty twenty-six, and then to November nineteenth. Rockstar told fans those extra months would let it finish the game with the level of polish you have come to expect and deserve."
+    },
+    {
+     "n": 27,
+     "marca": "trailer",
+     "es": "Ese primer tráiler tuvo más de noventa millones de visitas en YouTube en veinticuatro horas, un récord para un vídeo que no es de música. Y el juego cuesta setenta y nueve dólares con noventa y nueve; la edición física ni siquiera trae disco, solo un código dentro de la caja.",
+     "en": "That first trailer got more than ninety million YouTube views in twenty-four hours, a record for a video that isn't music. And the game costs seventy-nine ninety-nine; the physical edition doesn't even come with a disc, just a code inside the box.",
+     "visual": "H: un contador de visitas que sube a 90 millones; Atom abre la caja y solo hay un código; la sacude."
+    },
+    {
+     "n": 28,
+     "marca": "notas",
+     "es": "Las críticas llegaron justo antes del estreno, con una media de noventa y nueve sobre cien en Metacritic, empatada con la más alta de la historia de la web. Take-Two aún no ha dado cifras de ventas, pero una empresa de análisis calcula que solo las reservas digitales ya pasaban de mil quinientos millones de dólares. Son estimaciones, no datos oficiales.",
+     "en": "The reviews landed just before launch, with an average of ninety-nine out of a hundred on Metacritic, tied with the highest in the site's history. Take-Two hasn't released sales figures yet, but one analytics firm estimates that digital pre-orders alone topped one and a half billion dollars. Those are estimates, not official numbers.",
+     "visual": "H: la tele con un 99 enorme; Atom lo empuja para que llegue a 100; una gráfica de reservas con «estimación»."
+    }
+   ],
+   "cartela": "2023"
+  },
+  {
+   "id": "lf-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "espejo",
+     "es": "Así que, si lo piensas, Leonida es Florida vista en un espejo de feria: caimanes que entran en las tiendas, una carretera sobre el mar, un río de hierba, titulares raros y hasta una montaña que no está. Y casi todo lo que parece exagerado pasó de verdad.",
+     "en": "So, if you think about it, Leonida is Florida in a funhouse mirror: alligators walking into stores, a highway over the sea, a river of grass, strange headlines, and even a mountain that isn't there. And almost everything that looks exaggerated really happened.",
+     "visual": "A, C, D y G: el espejo de feria muestra un caimán en la tienda, el puente, el río de hierba, la impresora y la montaña que no está.",
+     "acto": true
+    },
+    {
+     "n": 30,
+     "marca": "final",
+     "es": "Y tú, ¿qué momento de la Florida real te gustaría encontrarte en el juego? Cuéntamelo en los comentarios. Y si quieres saber cómo empezó todo, en Escocia y con un juego que casi se cancela, tenemos un vídeo sobre la historia de GTA.",
+     "en": "And you, which real Florida moment would you like to run into in the game? Tell me in the comments. And if you want to know how it all began, in Scotland, with a game that was almost canceled, we have a video on the history of GTA.",
+     "visual": "H: Atom con el mando y la mochila al lado; el mapa de Florida en la pared, con todo tachado; la barra de descarga llega al 100 %."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep21 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-SHORT2-MINIATURA · miniatura vertical del Short 2 del ep21, «La escena de Peeves que se cortó». En la moviola de la
+// sala de montaje, en penumbra: arriba, unas tijeras enormes cortan la tira de película que sale del visor; el trozo
+// cortado cae girando y, debajo, cae Peeves al doble (recto, sin girar: el píxel limpio), con la boca abierta de susto y
+// las rayas de la caída. Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#05060f');
+// copia un recuadro de un búfer (sin lo VACIO) a escala s
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+// copia un recuadro girado (ang) y escalado (s) con su centro en (cx, cy); col: si se da, lo pinta todo de ese color (silueta)
+const ponGiro = (src, sx0, sx1, sy0, sy1, cx, cy, s, ang, col) => {
+  const mx = (sx0 + sx1 + 1) / 2, my = (sy0 + sy1 + 1) / 2, rr = Math.hypot(sx1 - sx0, sy1 - sy0) * s / 2 + 2, ca = Math.cos(ang), sa = Math.sin(ang);
+  for (let y = Math.floor(cy - rr); y <= cy + rr; y++) for (let x = Math.floor(cx - rr); x <= cx + rr; x++) {
+    const dx = x + 0.5 - cx, dy = y + 0.5 - cy, u = (dx * ca + dy * sa) / s + mx, v = (-dx * sa + dy * ca) / s + my;
+    const i = Math.floor(u), j = Math.floor(v); if (i < sx0 || i > sx1 || j < sy0 || j > sy1) continue;
+    const c = src[j * 320 + i]; if (c === VACIO) continue; R.pset(x, y, col ?? c);
+  }
+};
+// pone contorno de tinta alrededor de lo pintado en un búfer VACIO (n pasadas = grosor)
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+
+// ── las tijeras: el eje en (cx, cy), las hojas hacia ang, abiertas abre (rad); lados: qué hojas pinta (-1, 1) ──
+const ACERO = [hex('#ffffff'), hex('#e4eaf2'), hex('#b0bccc'), hex('#6c7888')], MANGO = [hex('#ff7a68'), hex('#e0302a'), hex('#8a1820')];
+function tijeras(cx, cy, ang, abre, L = 64, lados = [-1, 1]) {
+  R.usar(tmp); tmp.fill(VACIO);
+  for (const lado of lados) {
+    const a = ang + lado * abre / 2, ca = Math.cos(a), sa = Math.sin(a);
+    const P = (u, v) => [Math.round(cx + u * ca - v * sa), Math.round(cy + u * sa + v * ca)];
+    // la hoja: el filo recto hacia dentro (v = 0) y el lomo curvo hacia fuera, del eje a la punta
+    for (let u = -6; u <= L; u += 0.35) { const w = u < 0 ? 7 : 8 * Math.pow(1 - u / L, 0.7) + 0.5; for (let v = 0; v <= w; v += 0.35) { const f = v / w; R.pset(...P(u, lado * v), f < 0.22 ? ACERO[0] : f < 0.55 ? ACERO[1] : f < 0.85 ? ACERO[2] : ACERO[3]); } }
+    // el mango: el cuello y el anillo rojo, al otro lado del eje (la misma pieza)
+    for (let u = -20; u <= -5; u += 0.35) for (let v = -3; v <= 3; v += 0.35) R.pset(...P(u, v + lado * 2), v * lado > 1.5 ? MANGO[2] : MANGO[1]);
+    const [hx, hy] = P(-30, lado * 3);
+    for (let j = -13; j <= 13; j++) for (let i = -13; i <= 13; i++) { const d = Math.hypot(i / 1.15, j); if (d <= 11 && d >= 6) R.pset(hx + i, hy + j, (i + j) < -7 ? MANGO[0] : (i + j) > 7 ? MANGO[2] : MANGO[1]); }
+  }
+  if (lados.length > 1 || lados[0] === 1) { R.disco(Math.round(cx), Math.round(cy), 3, ACERO[3]); R.disco(Math.round(cx), Math.round(cy), 2, ACERO[1]); R.pset(Math.round(cx) - 1, Math.round(cy) - 1, ACERO[0]); }
+  contorno(tmp, 1); R.usar(null); vuelca(tmp);
+}
+
+// ── la tira de película: de (x0, y0) a (x1, y1), alto A; fotogramas con un cielo azul pálido ──
+const CELU = hex('#17141f'), AGUJ = hex('#f4efe4'), FOTO = [hex('#8ab4e8'), hex('#5a7ab8')];
+function pelicula(x0, y0, x1, y1, A = 26, fase = 0) {
+  const L = Math.hypot(x1 - x0, y1 - y0), ca = (x1 - x0) / L, sa = (y1 - y0) / L;
+  for (let u = 0; u <= L; u += 0.4) for (let v = -A / 2; v <= A / 2; v += 0.4) {
+    const x = Math.round(x0 + u * ca - v * sa), y = Math.round(y0 + u * sa + v * ca), uu = (u + fase) % 9, borde = Math.abs(v) > A / 2 - 5;
+    let c = CELU;
+    if (borde && Math.abs(v) < A / 2 - 1.5 && uu > 3 && uu < 6.5) c = AGUJ;
+    else if (!borde && ((u + fase) % 24) > 2.5) c = v < 0 ? FOTO[0] : FOTO[1];
+    if (Math.abs(v) > A / 2 - 0.6 || u < 0.6 || u > L - 0.6) c = K;
+    R.pset(x, y, c);
+  }
+}
+
+// el visor de la moviola: la luz cálida del fotograma vacío (la escena que ya no está), sin contador
+const visor = (R, t, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const d = Math.hypot((x - (x0 + x1) / 2) / (x1 - x0), (y - (y0 + y1) / 2) / (y1 - y0)); R.pset(x, y, mezcla(hex('#f4e6c4'), hex('#a8906a'), Math.max(0, 1 - d * 1.6))); } };
+const dibujar = (t) => {
+  // la moviola de cerca, en penumbra (velada hacia el violeta de la noche) para que lo de delante salte
+  T.hoy(R, t, { encuadre: 'montaje', camara: 'moviola', pantalla: visor }); T.hoyDelante(R, t, { encuadre: 'montaje', camara: 'moviola' });
+  for (let k = 0; k < 57600; k++) R.buf[k] = mezcla(hex('#0c0a22'), R.buf[k], 0.45);
+  // un foco suave detrás de las tijeras y de Peeves
+  R.halo(164, 84, 50, [hex('#2a2450'), hex('#3a3470')], 0.6);
+
+  // la tira de película sale del visor por la izquierda y las tijeras la cortan (una hoja detrás y otra delante)
+  tijeras(166, 44, Math.PI / 2 + 0.12, 0.6, 50, [-1]);
+  pelicula(96, 70, 166, 76, 22, 3);
+  tijeras(166, 44, Math.PI / 2 + 0.12, 0.6, 50, [1]);
+  // el trozo cortado cae girado
+  R.usar(pj); pj.fill(VACIO); pelicula(30, 120, 56, 120, 22, 8); R.usar(null);
+  ponGiro(pj, 29, 57, 108, 132, 194, 108, 1, 0.5);
+
+  // Peeves al doble cayendo (recto): las rayas de la caída por encima y él con la boca abierta de susto
+  const PX = 138, PY = 110;
+  for (const [x0, y0, l] of [[144, 92, 12], [154, 86, 16], [168, 90, 12], [178, 96, 8]]) { R.rect(x0, y0, x0, y0 + l, hex('#b8acf0')); R.rect(x0, y0 + l + 2, x0, y0 + l + 3, hex('#b8acf0')); }
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.peeves, 20, 70, 0.5, { dir: 1, quieto: true, opaco: true, sorpresa: true }); R.usar(tmp); tmp.fill(VACIO);
+  pon(pj, 18, 36, 38, 70, PX, PY, 2); contorno(tmp, 1, hex('#f6e6b8')); R.usar(null); vuelca(tmp);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

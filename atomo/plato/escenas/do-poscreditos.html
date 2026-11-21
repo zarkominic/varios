@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>A mitad de los créditos · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-POSCREDITOS (frases 52–53), 2025. Cuatro planos:
+// 1. (latveria cuarto 'general') el cuarto de Franklin; en «four years later» el calendario de la pared pierde tres hojas
+//    y se queda en 4; en «Sue finds» se abre la puerta y Sue entra; en «a stranger» ve a Franklin jugando con un hombre de
+//    capa verde, de espaldas, y se sorprende («!»);
+// 2. (latveria cuarto 'puerta') Sue en el umbral; delante, el desconocido de espaldas junto a Franklin y sus juguetes que
+//    flotan; en «green cloak» la capa ondea con el aire de la puerta; en «metal mask in his hand» levanta la máscara, que brilla;
+// 3. (fondo local, los créditos) la pantalla con los créditos que suben, con caritas; las palomitas buscan: la fila de la
+//    capucha sin cara pasa en «never see his face», en «isn't even listed» su nombre está vacío («?»); en «Kevin Feige» se
+//    enciende la fila de la gorra y las palomitas la señalan;
+// 4. (fondo local, el escenario) Feige con su gorra entra en «The Head of Marvel Studios» y saluda; en «leads directly into»
+//    una flecha dorada va de la máscara de la pantalla al cartel del 2026, que destella en «Doomsday»; flashes del público.
+import * as T from '/atomo/plato/escenas/do-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('do-poscreditos');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const bay = (x, y) => (BY[((y | 0) & 3) * 4 + ((x | 0) & 3)] + 0.5) / 16;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const K = hex('#140e1c'), BLANCO = hex('#ffffff');
+// la esquina de Atom y la barra del año: fondo tranquilo
+const tranquila = (x, y) => (x >= 270 && y <= 48) || (y <= 16 && x >= 16 && x <= 174);
+// polígono con su contorno negro
+const pol = (pts, c) => { R.poligono(pts, K); const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+  R.poligono(pts.map(([x, y]) => { const d = Math.hypot(x - cx, y - cy) || 1; return [x - (x - cx) / d * 1.3, y - (y - cy) / d * 1.3]; }), c); };
+const estrella5 = (cx, cy, r, c) => { const p = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; p.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); } R.poligono(p, c); };
+const chispa = (x, y, t, k, c) => { const f = Math.sin(t * 6 + k * 1.7); if (f > 0.25) { R.pset(x, y, c); if (f > 0.8) { R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+// los juguetes de Franklin: 0 pato, 1 pelota, 2 cubo, 3 cohete, 4 osito
+function juguete(k, x, y, t) {
+  x = Math.round(x); y = Math.round(y);
+  if (k === 0) { R.disco(x, y, 3.4, K); R.disco(x, y, 2.6, hex('#ffd83a')); R.disco(x + 2, y - 3, 2.4, K); R.disco(x + 2, y - 3, 1.6, hex('#ffd83a')); R.pset(x + 2, y - 4, K); R.rect(x + 4, y - 3, x + 5, y - 2, hex('#f08a2a')); R.pset(x - 1, y - 1, hex('#fff6b0')); R.pset(x - 2, y + 1, hex('#e8a820')); }
+  else if (k === 1) { R.disco(x, y, 3.8, K); R.disco(x, y, 3, hex('#e83a3a')); for (let i = -3; i <= 3; i++) R.pset(x + i, y, BLANCO); R.pset(x - 1, y - 2, hex('#ffb0b0')); R.pset(x, y + 2, hex('#a82020')); }
+  else if (k === 2) { R.rect(x - 3, y - 3, x + 3, y + 3, K); R.rect(x - 2, y - 2, x + 2, y + 2, hex('#3a8ae8')); R.rect(x - 2, y - 2, x + 2, y - 2, hex('#8ac0ff')); R.rect(x + 2, y - 1, x + 2, y + 2, hex('#2a5ab0')); R.pset(x, y, hex('#ffd83a')); R.pset(x - 1, y, hex('#ffd83a')); R.pset(x, y - 1, hex('#ffd83a')); }
+  else if (k === 3) { R.rect(x - 2, y - 5, x + 2, y + 4, K); R.rect(x - 1, y - 4, x + 1, y + 3, hex('#f4f4f8')); R.rect(x - 1, y - 4, x + 1, y - 3, hex('#e83a3a')); R.pset(x, y - 5, hex('#e83a3a')); R.rect(x - 3, y + 2, x - 2, y + 4, hex('#e83a3a')); R.rect(x + 2, y + 2, x + 3, y + 4, hex('#e83a3a')); R.pset(x, y, hex('#3ab0a8')); if (Math.floor(t * 12) % 2) R.pset(x, y + 5, hex('#ffb83a')); }
+  else { R.disco(x, y + 2, 3.2, K); R.disco(x, y + 2, 2.4, hex('#b07a40')); R.disco(x, y - 3, 2.8, K); R.disco(x, y - 3, 2, hex('#b07a40')); R.disco(x - 2, y - 5, 1.3, K); R.disco(x + 2, y - 5, 1.3, K); R.pset(x - 2, y - 5, hex('#b07a40')); R.pset(x + 2, y - 5, hex('#b07a40')); R.pset(x - 1, y - 3, K); R.pset(x + 1, y - 3, K); R.pset(x, y - 2, hex('#5a3a1a')); R.pset(x, y + 2, hex('#e8c890')); }
+}
+let jb = null;
+function juguete2(k, x, y, t) {   // el juguete al doble (pixel a pixel), para que se lea a 640 px
+  if (!jb) jb = R.nuevo(); jb.fill(0); const prev = R.usar(jb); juguete(k, 12, 12, t); R.usar(prev);
+  for (let j = 4; j < 20; j++) for (let i = 4; i < 20; i++) { const c = jb[j * 320 + i]; if (!c) continue; const px = Math.round(x + (i - 12) * 2), py = Math.round(y + (j - 12) * 2); R.pset(px, py, c); R.pset(px + 1, py, c); R.pset(px, py + 1, c); R.pset(px + 1, py + 1, c); }
+}
+
+const a = (f) => en('desconocido', f), b = (f) => en('feige', f);
+const C2 = a(0.538), C3 = b(0) - 0.08, C4 = b(0.511);
+const A = { cuatro: a(0.175), sue: a(0.311), franklin: a(0.3564), desconocido: a(0.439), capa: a(0.711), mascara: a(0.865), mano: a(0.943) };
+const B = { cara: b(0.068), downey: b(0.148), listado: b(0.235), kevin: b(0.386), jefe: b(0.5215), marvel: b(0.546), dicho: b(0.697), lleva: b(0.808), doomsday: b(0.925) };
+// el desconocido de espaldas: capucha sin cara y la capa por encima del cuerpo
+const CAB_ESP = ['...kkkkkkkk....', '..kVVVVVVVVk...', '.kVVvVVVVVVVk..', 'kVVVVVVVVVVVVk.', 'kVVVVVVvVVVVVk.', 'kVvVVVVvVVVVVk.', 'kVvVVVVvVVVvVk.', 'kVvVVVVVVVVvVk.',
+  'kVVVVVVVVVVvVk.', 'kVVVVVVVVVVVVk.', '.kVVVVVVVVVVk..', '..kVvVVVVVvk...', '...kkkkkkkk....'];
+const CAPA_ESP = ['..kkkkkkkkkkkk...', '.kQQQQQQQQQQQQk..', '.kQqQQQQQQQQQQk..', 'kQQqQQQQQQqQQQQk.', 'kQqQQQQQQQqQQQQk.', 'kQqQQQQQQQqQQQQk.', 'kQqQQQQQQQqQQQQk.', 'kQqQQQQQQQQqQQQk.',
+  'kQqQQQQQQQQqQQQk.', 'kQqqQQQQQQQqqQQk.', 'kqQqQQQQQQQqqQqk.', '.kkkkkkkkkkkkkk..'];
+let ONDA = 0;
+const doomEsp = { ...EL.doom, cab: CAB_ESP, detras: null, delante: (c) => { c.cuerpo.rej(CAPA_ESP, -1, -1);
+  for (let i = 0; i < 16; i++) { const d = Math.round(Math.sin(c.t * 7 + i * 0.6) * ONDA); if (d > 0) for (let j = 0; j < d; j++) c.cuerpo.px(i, 11 + j, j === d - 1 ? K : hex('#1e5a2a')); } } };
+function desconocido(x, suelo, t, alza) {   // de espaldas, con la máscara de metal en la mano
+  const ob = R.actor(doomEsp, x, suelo, t, { dir: 1, sostiene: [x + 21, Math.round(lerp(suelo - 8, suelo - 17, alza))] });
+  T.e_mascara(R, ob.mano[0] + 2, ob.mano[1] + 4, 1, { brillo: (t * 0.5) % 1 });
+  return ob;
+}
+function calendario(x, y, t) {   // 22 × 30, en la pared: hojas con 1, 2, 3 y 4 que se arrancan
+  R.rect(x - 1, y - 1, x + 22, y + 30, K); R.rect(x, y, x + 21, y + 29, hex('#e8e0d0')); R.rect(x, y, x + 21, y + 6, hex('#e8603a')); R.rect(x, y, x + 21, y, hex('#ff9a6a'));
+  for (const rx of [5, 16]) { R.rect(x + rx, y - 3, x + rx + 1, y + 1, hex('#8a94a8')); }
+  const k = Math.min(3, Math.floor(tramo(t, A.cuatro - 0.1, A.cuatro + 0.75) * 4)); R.numero(String(k + 1), x + 11, y + 26, { tam: 16, centro: true, rampa: undefined });
+  for (let j = y + 8; j < y + 29; j += 4) R.pset(x + 1, j, hex('#c8c0b0'));
+  for (let i = 0; i < 3; i++) { const t0 = A.cuatro - 0.1 + (i + 1) * 0.2125, u = tramo(t, t0, t0 + 0.9); if (u <= 0 || u >= 1) continue;
+    const px = x + 4 + u * 26 * (i % 2 ? -1 : 1), py = y + 10 + u * u * 70, w = Math.round(8 * Math.abs(Math.cos(u * 9))); R.rect(px - w, py - 6, px + w, py + 6, K); if (w > 1) R.rect(px - w + 1, py - 5, px + w - 1, py + 5, hex('#f4ecdc')); if (w > 3) R.numero(String(i + 1), px, py + 4, { centro: true, color: hex('#2a2430') }); }
+}
+const c1 = (t) => {
+  const abre = ease(tramo(t, A.sue - 0.5, A.sue + 0.1));
+  const s = T.latveria(R, t, { encuadre: 'cuarto', camara: 'general', puerta: abre }), su = s.suelo ?? 158;
+  calendario(164, 56, t);
+  // Franklin juega con sus cubos, que flotan; el desconocido de espaldas lo mira
+  ONDA = 0;
+  for (let k = 0; k < 3; k++) { const an = t * 1.2 + k * 2.09; juguete([2, 0, 4][k], 246 + Math.cos(an) * 12, su - 22 + Math.sin(an) * 4 + Math.sin(t * 2 + k) * 2, t); chispa(246 + Math.round(Math.cos(an + 0.4) * 14), su - 18 + Math.round(Math.sin(an) * 4), t, k, hex('#9af0ff')); }
+  desconocido(210, su, t, 0);
+  T.PIEZAS_DO.franklin(R, 242, su + (Math.sin(t * 6) > 0.6 ? -1 : 0));
+  // Sue entra por la puerta
+  if (t > A.sue - 0.1) { const w = ease(tramo(t, A.sue, A.desconocido - 0.1)); const sx = Math.round(lerp(20, 60, w)), sy = Math.round(lerp(131, su, w));
+    R.actor(EL.sue, sx, sy, t, { dir: 1, anda: w > 0 && w < 1, sonrisa: t < A.desconocido - 0.2, sorpresa: t > A.desconocido - 0.2 });
+    if (t > A.desconocido && t < A.desconocido + 0.9) R.icono('!', sx + 4, sy - 40, hex('#ffd860'), K, 1); }
+  T.latveriaDelante(R, t, { encuadre: 'cuarto', camara: 'general', puerta: abre });
+};
+const c2 = (t) => {
+  const s = T.latveria(R, t, { encuadre: 'cuarto', camara: 'puerta', puerta: 0.92 }), su = s.suelo ?? 164;
+  R.actor(EL.sue, 141, 145, t, { dir: -1, sorpresa: true, manos: t > A.mascara && t < A.mano + 0.4 });
+  ONDA = 3 * tramo(t, A.capa - 0.2, A.capa + 0.3) * (1 - tramo(t, A.mascara, A.mascara + 1.2)) + 1;
+  for (let k = 0; k < 6; k++) { const u = ((t * 0.5 + k / 6) % 1); if (t > A.capa - 0.2) R.pset(Math.round(lerp(140, 70, u)), Math.round(150 + Math.sin(u * 9 + k) * 6), mez(hex('#fff4c8'), hex('#5a4a3a'), u)); }
+  for (let k = 0; k < 4; k++) { const an = t * 1.1 + k * 1.57; juguete([1, 3, 2, 0][k], 150 + Math.cos(an) * 16, su - 18 + Math.sin(an) * 5 + Math.sin(t * 2 + k) * 2, t); }
+  T.PIEZAS_DO.franklin(R, 146, su + 4 + (Math.sin(t * 6) > 0.6 ? -1 : 0));
+  const alza = ease(tramo(t, A.mascara - 0.3, A.mascara + 0.3));
+  const ob = desconocido(96, su + 6, t, alza);
+  if (t > A.mano - 0.1 && t < A.mano + 0.7) { const g = tramo(t, A.mano - 0.1, A.mano + 0.7), mx = ob.mano[0] + 2, my = ob.mano[1] + 2; for (let k = 0; k < 4; k++) { const r = 2 + g * 5; R.pset(mx + Math.round(Math.cos(k * 1.57) * r), my + Math.round(Math.sin(k * 1.57) * r), BLANCO); } R.pset(mx, my, BLANCO); }
+  T.latveriaDelante(R, t, { encuadre: 'cuarto', camara: 'puerta', puerta: 0.92 });
+};
+// ── 3. los créditos (fondo local): la sala a oscuras con la pantalla ──
+let bCred = null;
+function fondoCreditos() {
+  if (bCred) return bCred; bCred = R.nuevo(); const prev = R.usar(bCred);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y < 18 ? (bay(x, y) < 0.3 && (x + y) % 7 === 0 ? hex('#1e1a2a') : hex('#16121e')) : hex('#1a1622'));
+  for (let x = 0; x < 320; x += 20) R.rect(x, 0, x, 17, hex('#221e2e'));
+  // el marco de la pantalla y el telón rojo a los lados
+  R.rect(16, 18, 232, 132, K); R.rect(18, 20, 230, 130, hex('#08080e'));
+  for (const [x0, x1] of [[0, 16], [232, 252]]) for (let x = x0; x <= x1; x++) for (let y = 16; y < 140; y++) { const f = Math.sin((x - x0) * 0.9); R.pset(x, y, f > 0.55 ? hex('#c83a4a') : f > -0.2 ? hex('#a8283a') : f > -0.7 ? hex('#7a1a2a') : hex('#4a0e1a')); }
+  for (let x = 0; x <= 252; x++) for (let y = 14; y < 20; y++) { if (x > 16 && x < 232 && y > 17) continue; R.pset(x, y, y === 19 ? hex('#4a0e1a') : (x + y) % 6 < 3 ? hex('#c83a4a') : hex('#a8283a')); }
+  // la pared de la derecha: paneles de madera con vetas, la puerta de salida con su piloto verde y el aplique
+  for (let y = 16; y < 140; y++) for (let x = 253; x < 320; x++) { const v = Math.sin(y * 0.3 + Math.sin(x * 0.7) * 2) > 0.85; R.pset(x, y, (x - 253) % 22 === 0 ? hex('#1a0e0a') : v ? hex('#4a2a1e') : hex('#3a2016')); }
+  R.rect(262, 92, 300, 140, K); R.rect(263, 93, 299, 140, hex('#241a22')); R.rect(264, 118, 298, 120, hex('#8a94a8')); R.rect(264, 118, 298, 118, hex('#c8d0dc'));
+  R.rect(270, 80, 292, 89, K); R.rect(271, 81, 291, 88, hex('#2ad06a'));
+  { const x = 278, y = 81; for (const [i, j] of [[2, 0], [1, 1], [2, 1], [3, 1], [2, 2], [1, 3], [3, 3], [0, 4], [4, 4], [6, 2], [7, 2], [8, 2], [7, 1], [7, 3]]) R.pset(x + i, y + j + 1, BLANCO); }
+  // las filas de butacas
+  for (const [y0, alto, ancho, sep] of [[140, 16, 22, 4], [156, 24, 30, 5]]) { for (let x = -10; x < 330; x += ancho + sep) { const x1 = x + ancho;
+      R.rect(x, y0 + 3, x1, y0 + alto + 10, K); R.disco(x + 4, y0 + 4, 4, K); R.disco(x1 - 4, y0 + 4, 4, K); R.rect(x + 1, y0 + 4, x1 - 1, y0 + alto + 10, hex('#8a1e2e')); R.disco(x + 4, y0 + 4, 3, hex('#8a1e2e')); R.disco(x1 - 4, y0 + 4, 3, hex('#8a1e2e')); R.rect(x + 4, y0 + 1, x1 - 4, y0 + 3, hex('#8a1e2e'));
+      R.rect(x + 3, y0 + 2, x1 - 3, y0 + 2, hex('#c83a4a')); for (let j = y0 + 6; j < y0 + alto + 8; j += 3) R.rect(x + 3, j, x1 - 3, j, hex('#7a1626')); R.rect(x1 - 3, y0 + 4, x1 - 1, y0 + alto + 10, hex('#5a0e1a'));
+      R.rect(x1 + 1, y0 + alto - 4, x1 + sep - 1, y0 + alto + 10, hex('#2a2430')); } }
+  R.usar(prev); return bCred;
+}
+const CARAS = [['#4a3020', '#f6c290', 0], ['#f0d070', '#f6c290', 0], ['#f0c860', '#f6c290', 0], ['#e8823a', '#e8823a', 0], ['#6a3aa8', '#b89ad8', 1], ['#c8d0dc', '#e8eef4', 0], [null, null, 2], ['#f0d070', '#f6c290', 0], [null, null, 3], ['#4a3020', '#f6c290', 0]];
+function cara(k, x, y, t, luz) {
+  const [pelo, piel, tipo] = CARAS[k];
+  for (let j = -1; j <= 9; j++) for (let i = -1; i <= 9; i++) R.pset(x + i, y + j, (i < 0 || j < 0 || i > 8 || j > 8) ? hex('#3a3646') : hex('#20202c'));
+  if (tipo === 2) { for (let j = 1; j <= 8; j++) for (let i = 1; i <= 7; i++) { const e = ((i - 4) / 3.6) ** 2 + ((j - 5) / 4.4) ** 2; if (e < 1) R.pset(x + i, y + j, e > 0.55 ? hex('#2e7a3e') : hex('#0a0a10')); } return; }
+  if (tipo === 3) { for (let i = 2; i <= 6; i++) for (let j = 3; j <= 7; j++) R.pset(x + i, y + j, hex('#f6c290')); for (let i = 1; i <= 7; i++) R.pset(x + i, y + 2, hex('#2a3a6a')); for (let i = 1; i <= 8; i++) R.pset(x + i, y + 3, i > 5 ? hex('#2a3a6a') : hex('#f6c290')); R.pset(x + 3, y + 5, K); R.pset(x + 5, y + 5, K); for (let i = 2; i <= 6; i++) R.pset(x + i, y + 7, hex('#8a8a8a')); return; }
+  for (let i = 2; i <= 6; i++) for (let j = 3; j <= 7; j++) R.pset(x + i, y + j, hex(piel)); for (let i = 1; i <= 7; i++) R.pset(x + i, y + 2, hex(pelo)); R.pset(x + 1, y + 3, hex(pelo)); R.pset(x + 7, y + 3, hex(pelo));
+  if (tipo === 1) { R.pset(x, y + 1, hex(pelo)); R.pset(x + 8, y + 1, hex(pelo)); R.pset(x, y, hex(pelo)); R.pset(x + 8, y, hex(pelo)); }
+  R.pset(x + 3, y + 5, K); R.pset(x + 5, y + 5, K); R.pset(x + 4, y + 7, hex('#c86a5a'));
+}
+const c3 = (t) => {
+  R.copiar(fondoCreditos());
+  // el haz del proyector, por encima de las cabezas, con motas
+  for (let y = 0; y < 136; y++) { const u = y / 136, xa = lerp(238, 60, u), xb = lerp(262, 222, u); for (let x = Math.ceil(xa); x <= xb; x++) if (!tranquila(x, y) && bay(x, y) < 0.1 + 0.05 * Math.sin(t * 2 + y * 0.1)) R.pset(x, y, mez(R.pget(x, y), hex('#e8e0ff'), 0.25)); }
+  // los créditos que suben (recortados a la pantalla)
+  R.recorte([20, 22, 228, 128]);
+  const v = 10, y0 = -20.3 - (t - C3) * v;
+  for (let y = 22; y <= 128; y++) for (let x = 20; x <= 228; x++) { const d = Math.hypot((x - 124) / 1.6, y - 74); if (bay(x, y) < 0.09 * (1 - d / 70) + (h(x, y, Math.floor(t * 12)) > 0.997 ? 1 : 0)) R.pset(x, y, hex('#2a2a3a')); }
+  if (Math.floor(t * 3) % 4 === 0) { const sx = 40 + Math.floor(h(Math.floor(t * 3), 1) * 170); R.linea(sx, 22, sx + 2, 128, hex('#24242e')); }
+  for (let i = 0; i < 10; i++) { const y = Math.round(y0 + i * 20); if (y < 8 || y > 132) continue; const luz = i === 9 && t > B.kevin;
+    const lr = 26 + (i * 17) % 22; for (let x = 116 - lr; x < 116; x++) for (let j = 3; j <= 5; j++) R.pset(x, y + j, hex('#8a8a9e'));
+    cara(i, 120, y, t, luz);
+    if (i === 8) { for (let x = 136; x < 200; x++) if (x % 4 < 2) { R.pset(x, y + 2, hex('#8a8a9a')); R.pset(x, y + 7, hex('#8a8a9a')); } for (const xx of [136, 199]) for (let j = 2; j <= 7; j++) R.pset(xx, y + j, hex('#8a8a9a')); }
+    else for (let x = 136; x < 136 + 40 + (i * 13) % 26; x++) for (let j = 2; j <= 6; j++) R.pset(x, y + j, luz ? (Math.sin(t * 8) > 0 ? hex('#ffd860') : hex('#fff2a0')) : (j === 2 ? BLANCO : hex('#e0e0ea')));
+    if (luz) for (let k = 0; k < 7; k++) chispa(132 + k * 12, y + 1 + (k % 2) * 7, t, k, hex('#fff2a0')); }
+  R.recorte(null);
+  if (t > B.listado) { const y = Math.round(y0 + 8 * 20), e = Math.min(1, (t - B.listado) * 6); R.icono('?', 160, y - 3 - Math.round((1 - e) * 4), hex('#ffd860'), K, 2); }
+  // el público: cabezas a contraluz, y las palomitas, que buscan y se dan la vuelta
+  for (const [x, y] of [[24, 140], [78, 141], [134, 139], [214, 140], [300, 141]]) { R.disco(x, y, 6, hex('#0e0c14')); R.rect(x - 7, y + 4, x + 7, y + 10, hex('#0e0c14')); R.rect(x - 3, y - 6, x + 3, y - 6, hex('#5a5a7a')); }
+  const gira = t > B.listado;
+  T.palomitas(R, 186, 166, t, { espalda: !gira, dir: -1, expresion: gira && t < B.kevin ? 'susto' : 'normal', señala: t > B.kevin + 0.3 ? [150, Math.round(y0 + 9 * 20 + 6)] : undefined });
+  for (let k = 0; k < 6; k++) R.pset(30 + k * 54, 177, Math.sin(t * 2 + k) > 0 ? hex('#ffb83a') : hex('#8a5a1a'));
+};
+// ── 4. el escenario (fondo local): Feige señala la flecha de la máscara al cartel ──
+let bEsc = null;
+function fondoEscenario() {
+  if (bEsc) return bEsc; bEsc = R.nuevo(); const prev = R.usar(bEsc);
+  for (let y = 0; y < 132; y++) for (let x = 0; x < 320; x++) { const f = Math.sin(x * 0.42 + Math.sin(y * 0.03) * 0.6); R.pset(x, y, y < 20 ? hex('#0e1020') : f > 0.6 ? hex('#3a4a8a') : f > 0 ? hex('#2a3670') : f > -0.6 ? hex('#1e2856') : hex('#141c3e')); }
+  for (let x = 0; x < 320; x++) for (let y = 20; y < 26; y++) R.pset(x, y, (x + y) % 8 < 4 ? hex('#4a5aa8') : hex('#3a4a8a'));
+  // la celosía de focos (lejos de Atom)
+  R.rect(0, 20, 262, 20, hex('#5a6070')); R.rect(0, 25, 262, 25, hex('#5a6070')); for (let x = 0; x < 262; x += 6) R.linea(x, 20, x + 5, 25, hex('#5a6070'));
+  // la pantalla grande: marco y dos paneles
+  R.rect(110, 28, 266, 114, K); R.rect(112, 30, 264, 112, hex('#2a2e3e')); R.rect(114, 32, 184, 110, hex('#0e2016')); R.rect(194, 32, 262, 110, hex('#0a0a12'));
+  for (let y = 32; y <= 110; y++) for (let x = 114; x <= 184; x++) if (bay(x, y) < 0.12 + 0.1 * (1 - Math.hypot(x - 149, y - 70) / 50)) R.pset(x, y, hex('#1e4a2e'));
+  // el cartel del 2026: relámpagos verdes, la silueta con capucha y la fecha
+  for (let y = 32; y <= 110; y++) for (let x = 194; x <= 262; x++) if (bay(x, y) < 0.25 * (1 - (y - 32) / 90)) R.pset(x, y, hex('#1a3a22'));
+  for (const [x0, k] of [[204, 1], [250, 2]]) { let x = x0, y = 32; while (y < 70) { const nx = x + (h(y, k) - 0.5) * 8, ny = y + 5; R.linea(x, y, nx, ny, hex('#5aff8a')); x = nx; y = ny; } }
+  R.disco(228, 64, 15, K); R.disco(228, 64, 14, hex('#1e5a2a')); R.rect(214, 64, 242, 96, K); R.rect(215, 64, 241, 96, hex('#1e5a2a')); for (let j = 66; j < 96; j += 4) R.linea(216 + (j % 8), j, 218 + (j % 8), j + 3, hex('#2e7a3e'));
+  R.rect(221, 58, 235, 74, hex('#8c90a4')); R.rect(221, 58, 235, 59, hex('#c8ccd8')); R.rect(223, 63, 226, 64, K); R.rect(230, 63, 233, 64, K); R.rect(227, 64, 229, 69, hex('#6a6e80')); for (let i = 222; i < 235; i += 2) R.pset(i, 71, K);
+  R.numero('2026', 228, 107, { centro: true });
+  // el suelo del escenario: tablas con vetas y su brillo; el borde con luces
+  for (let y = 114; y < 150; y++) for (let x = 0; x < 320; x++) { const tabla = Math.floor((y - 114) / 6), veta = Math.sin(x * 0.08 + tabla * 2 + Math.sin(x * 0.3) * 0.5) > 0.8; R.pset(x, y, (y - 114) % 6 === 5 ? hex('#3a2416') : veta ? hex('#6a4428') : tabla % 2 ? hex('#8a5a34') : hex('#7a4e2c')); }
+  R.rect(0, 150, 319, 154, K); R.rect(0, 151, 319, 152, hex('#2a2430'));
+  for (let y = 155; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, hex('#0e0c14'));
+  R.usar(prev); return bEsc;
+}
+const c4 = (t) => {
+  R.copiar(fondoEscenario());
+  // dos focos que barren el escenario
+  for (const [fx, fase] of [[60, 0], [200, 2]]) { const cx = 150 + Math.sin(t * 0.7 + fase) * 90; R.rect(fx - 3, 26, fx + 3, 31, K); R.rect(fx - 2, 27, fx + 2, 30, hex('#5a6070'));
+    for (let y = 32; y < 150; y++) { const u = (y - 32) / 118, xa = lerp(fx - 2, cx - 26, u), xb = lerp(fx + 2, cx + 26, u); for (let x = Math.ceil(xa); x <= xb; x++) if (!tranquila(x, y) && bay(x, y) < 0.16) R.pset(x, y, mez(R.pget(x, y), hex('#fff4c8'), 0.35)); } }
+  // la máscara en la pantalla, que brilla
+  T.e_mascara(R, 149, 70, 3, { capucha: true, brillo: (t * 0.4) % 1, ojos: 0.5 + 0.5 * Math.sin(t * 3) });
+  // la flecha dorada de la máscara al cartel
+  const fl = tramo(t, B.lleva - 0.1, B.doomsday - 0.1);
+  if (fl > 0) { const P = (u) => [lerp(166, 210, u), 50 - Math.sin(u * Math.PI) * 18]; const n = Math.round(fl * 50);
+    for (let i = 0; i <= n; i++) { const [x, y] = P(i / 50); R.disco(x, y, 2.6, K); } for (let i = 0; i <= n; i++) { const [x, y] = P(i / 50); R.disco(x, y, 1.6, hex('#ffd860')); R.pset(x, y - 1, hex('#fff2a0')); }
+    if (fl > 0.9) { const [x, y] = P(1); R.poligono([[x - 4, y - 7], [x + 6, y + 2], [x - 6, y + 4]], K); R.poligono([[x - 3, y - 5], [x + 4, y + 2], [x - 4, y + 3]], hex('#ffd860')); } }
+  if (t > B.doomsday && t < B.doomsday + 0.8 && Math.floor(t * 10) % 2 === 0) for (let x = 194; x <= 262; x++) { R.pset(x, 32, BLANCO); R.pset(x, 110, BLANCO); }
+  // el atril con su micrófono (sin letras), a la izquierda
+  R.rect(28, 118, 48, 148, K); R.rect(29, 119, 47, 147, hex('#3a3e52')); R.rect(29, 119, 47, 121, hex('#6a7090')); R.rect(31, 124, 45, 140, hex('#2a2e40')); estrella5(38, 131, 4, hex('#8a94b8'));
+  R.linea(44, 118, 50, 110, hex('#9aa4b4')); R.disco(51, 109, 1.6, K); if (Math.floor(t * 2) % 2) R.pset(47, 117, hex('#ff3a3a'));
+  // Feige entra, saluda, habla y señala
+  const w = ease(tramo(t, C4 + 0.05, B.marvel + 0.8)), fx = Math.round(lerp(-14, 70, w));
+  for (let y = 136; y < 150; y++) for (let x = fx - 10; x < fx + 26; x++) { const e = ((x - fx - 7) / 18) ** 2 + ((y - 145) / 5) ** 2; if (e < 1 && bay(x, y) < 0.5) R.pset(x, y, mez(R.pget(x, y), hex('#fff4c8'), 0.4)); }
+  R.actor(EL.feige, fx, 146, t, { dir: 1, anda: w > 0 && w < 1, brazos: w >= 1 && t < B.dicho, habla: t > B.dicho && t < B.lleva && Math.sin(t * 8) > 0, dedo: t > B.lleva - 0.1, sonrisa: true });
+  // el público, a contraluz, con móviles que hacen fotos
+  for (let k = 0; k < 16; k++) { const x = 8 + k * 20 + (k % 2) * 6, y = 166 + (k % 3) * 4 + (Math.sin(t * 3 + k) > 0.8 ? -1 : 0); R.disco(x, y, 6.6, hex('#0a0810')); R.disco(x, y, 6, hex('#262236')); R.rect(x - 8, y + 4, x + 8, 180, hex('#262236')); R.linea(x - 8, y + 4, x - 8, 180, hex('#0a0810')); R.rect(x - 3, y - 6, x + 3, y - 6, hex('#7a7aa8')); R.pset(x - 4, y - 5, hex('#5a5a88')); R.pset(x + 4, y - 5, hex('#5a5a88')); R.rect(x - 7, y + 4, x - 4, y + 4, hex('#5a5a88'));
+    if (k % 3 === 1) { const ph = x + 6, py = y - 12, fl2 = (t > B.doomsday && t < B.doomsday + 1 && h(k, Math.floor(t * 8)) > 0.5) || h(k, Math.floor(t * 2)) > 0.93; R.rect(ph - 1, py, ph + 3, py + 6, K); R.rect(ph, py + 1, ph + 2, py + 5, fl2 ? BLANCO : hex('#4a8ae8')); if (fl2) { R.pset(ph + 1, py - 2, BLANCO); R.pset(ph - 2, py + 3, BLANCO); R.pset(ph + 4, py + 3, BLANCO); } } }
+};
+const efectos = [[A.cuatro, 'papel'], [A.sue - 0.5, 'puerta'], [A.desconocido, 'aviso'], [C2 + 0.4, 'tic'], [A.capa, 'viento'], [A.mascara, 'brillo'],
+  [C3 + 0.3, 'maquina'], [B.listado, 'pop'], [B.kevin, 'brillo'], [C4 + 0.3, 'publico'], [B.lleva, 'whoosh'], [B.doomsday, 'boom'], [B.doomsday + 0.3, 'flash']];
+T.rodar(E, R, [[0, c1], [C2, c2], [C3, c3], [C4, c4]], { efectos, año: 2025 });
+</script>
+</body>
+</html>

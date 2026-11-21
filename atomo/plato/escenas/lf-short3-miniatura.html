@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep42 Short 3</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LF-SHORT3-MINIATURA · ep42, vertical (x 110–210). Con chibis, sin palabras. La «montaña» de Florida: Britton Hill, con
+// la bandera clavada en la cima y una excursionista sorprendida de lo bajita que es.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { interior, interiorDelante } from '/atomo/plato/escenas/lf-comun.js';
+import { figura, grado, halo, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'britton', bandera: 1 };
+  interior(R, t, o);
+  halo(R, 170, 150, 50, 22, '#fff2c0', 0.35);
+  figura(R, EL.turistaLF, 152, 160, t, { dir: 1, sorpresa: true }, 2);
+  interiorDelante(R, t, o);
+  desplazar(R, -24);
+  grado(R, { cx: 165, cy: 120, tinte: null, f: 0, desde: 0.45, max: 0.6 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

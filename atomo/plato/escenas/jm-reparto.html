@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }
+#rotulos { position: fixed; inset: 0; pointer-events: none; font: 600 0.8vw/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; }
+#rotulos span { position: absolute; transform: translateX(-50%); white-space: nowrap; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<div id="rotulos"></div>
+<script type="module">
+// JM-REPARTO · hoja estática del reparto y las piezas del episodio 35 («Jumanji: la palabra que no significa nada»)
+// para aprobarlos, sobre un fondo GRIS MEDIO texturizado. Seis páginas: t en [1, 2) TODO de un vistazo (los 22
+// personajes en dos filas y todas las piezas debajo, a escala 1, el tamaño real de las escenas); [2, 3) y [3, 4) los
+// personajes al doble; [4, 5) y [5, 6) las piezas al doble con sus opciones; [6, 7) poses, volteos y los hermanos en grises.
+// Los rótulos (la clave de cada uno) son HTML encima del lienzo, solo en esta hoja de prueba: en el lienzo no hay letras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_JM as EL, PIEZAS_JM as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const NOMBRES = Object.keys(EL);
+const fondo = hex('#8c8c90'), fondo2 = hex('#84848a'), fondo3 = hex('#94949a'), suelo = hex('#6c6c72'), sombra = hex('#5c5c62');
+const rotulos = document.getElementById('rotulos');
+let lista = [];
+const rotulo = (txt, x, y) => lista.push([txt, x, y]);
+const q = { quieto: true, parpadea: false };
+// una fila de personajes a escala 1
+const fila1 = (nombres, s0, paso = 28, x0 = 8) => {
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => { R.actor(EL[k], x0 + n * paso, s0, 0, q); rotulo(k, x0 + n * paso + 7, s0 + 3.4 + (n % 2) * 2.6); });
+};
+// una fila de personajes a escala 1 y, debajo, cada uno al doble (se copia del lienzo, píxel a píxel)
+const filaReparto = (nombres) => {
+  const paso = 22, s0 = 33;
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => R.actor(EL[k], 4 + n * paso + 3, s0, 0, q));
+  nombres.forEach((k, n) => {
+    const fila = Math.floor(n / 7), col = n % 7, x0 = 4 + n * paso, X = 6 + col * 45, Y = 36 + fila * 71;
+    const copia = [];
+    for (let j = 0; j < 33; j++) for (let i = 0; i < 22; i++) copia.push(R.pget(x0 + i - 1, s0 - 32 + j));
+    R.rect(X, Y + 66, X + 43, Y + 67, suelo);
+    copia.forEach((c, m) => { const i = m % 22, j = Math.floor(m / 22); R.rect(X + i * 2, Y + j * 2, X + i * 2 + 1, Y + j * 2 + 1, c); });
+    rotulo(k, X + 22, Y + 67.6);
+  });
+};
+// filas de piezas: [clave, opciones, rótulo, ancho]
+const filaPiezas = (y, items, x0 = 3, hueco = 3) => {
+  R.rect(0, y + 1, 319, y + 2, suelo);
+  let x = x0;
+  for (const [k, o, n, w] of items) {
+    for (let i = 1; i < w - 1; i++) R.pset(x + i, y + 1, sombra);
+    PZ[k](R, Math.round(x + w / 2), y + 1, o);
+    rotulo(n, x + w / 2, y + 3.4); x += w + hueco;
+  }
+};
+const PAGINAS = [
+  () => {
+    fila1(NOMBRES.slice(0, 11), 30); fila1(NOMBRES.slice(11), 64);
+    filaPiezas(112, [['tablero', {}, 'tablero', 45], ['tablero', { abierto: 0.5 }, 'abierto .5', 45], ['tablero', { abierto: 0 }, 'abierto 0', 45], ['cajaJuego', {}, 'cajaJuego', 33], ['cajaJuego', { polvo: 1 }, 'polvo 1', 33], ['consola', {}, 'consola', 33], ['consola', { encendida: true }, 'encendida', 33], ['libroFino', {}, 'libroFino', 29]], 1, 1);
+    PZ.liana(R, 311, 74, { largo: 30 }); rotulo('liana', 310, 109);
+    filaPiezas(143, [['carpeta', {}, 'carpeta', 29], ['dibujo', { tema: 'salon' }, 'dibujo salon', 31], ['dibujo', { tema: 'seto', perro: true }, 'seto+perro', 31], ['dibujo', { tema: 'tren' }, 'tren', 31], ['guionCine', {}, 'guionCine', 19], ['medalla', {}, 'medalla', 13], ['cartucho', {}, 'cartucho', 17], ['hojaSelva', {}, 'hojaSelva', 17], ['ramo', {}, 'ramo', 17], ['perro', {}, 'perro', 19], ['perro', { sentado: true }, 'sentado', 15], ['zapatoLetrero', {}, 'zapatoLetrero', 25], ['billeteJuguete', {}, 'billete', 21]], 2, 1);
+    filaPiezas(171, [['dados', {}, 'dados', 19], ['dados', { caras: [6, 1] }, '[6,1]', 19], ['ficha', { color: 'rojo' }, 'ficha', 9], ['ficha', { color: 'azul' }, 'azul', 9], ['ficha', { color: 'verde' }, 'verde', 9], ['ficha', { color: 'amarillo' }, 'amar.', 9], ['lapizConte', {}, 'lapizConte', 13], ['brocha', {}, 'brocha', 11], ['botePintura', {}, 'botePintura', 15], ['botePintura', { color: 'azul' }, 'azul', 15], ['esponja', {}, 'esponja', 15], ['vela', { t: 0 }, 'vela', 9], ['corazonVida', {}, 'corazonVida', 11], ['corazonVida', { lleno: false }, 'vacío', 11], ['instrucciones', {}, 'instrucciones', 15]], 4, 6);
+    PZ.instrucciones(R, 305, 150, { rollo: 0.3 }); rotulo('rollo .3', 305, 146);
+  },
+  () => filaReparto(NOMBRES.slice(0, 14)),
+  () => filaReparto(NOMBRES.slice(14)),
+  () => {
+    const s = 2;
+    filaPiezas(84, [['tablero', { s, t: 0.3 }, 'tablero ×2', 90], ['tablero', { s, abierto: 0.75 }, '.75', 90], ['tablero', { s, abierto: 0.25 }, '.25', 90]], 4, 14);
+    filaPiezas(174, [['tablero', { s, abierto: 0 }, 'abierto 0', 90], ['cajaJuego', { s }, 'cajaJuego', 66], ['cajaJuego', { s, polvo: 0.5 }, 'polvo .5', 66], ['cajaJuego', { s, polvo: 1 }, 'polvo 1', 66]], 4, 7);
+    filaPiezas(122, [['perro', { s }, 'perro', 38], ['perro', { s, sentado: true, dir: -1 }, 'sentado ←', 26], ['perro', { s: 3 }, '×3', 54]], 190, 6);
+  },
+  () => {
+    const s = 2;
+    filaPiezas(48, [['dibujo', { s, tema: 'salon', perro: true }, 'salon+perro', 62], ['dibujo', { s, tema: 'seto' }, 'seto', 62], ['dibujo', { s, tema: 'tren', perro: true }, 'tren+perro', 62], ['libroFino', { s }, 'libroFino', 58], ['carpeta', { s }, 'carpeta', 58]], 3, 3);
+    filaPiezas(96, [['consola', { s, encendida: true }, 'consola enc.', 66], ['cartucho', { s }, 'cartucho', 34], ['medalla', { s, t: 0.3 }, 'medalla', 26], ['guionCine', { s, hojas: 3 }, 'guion 3', 38], ['hojaSelva', { s }, 'hojaSelva', 34], ['ramo', { s }, 'ramo', 34], ['zapatoLetrero', { s }, 'zapato', 50], ['zapatoLetrero', { dir: -1 }, '←', 25]], 3, 2);
+    filaPiezas(134, [['dados', { s, caras: [4, 2] }, 'dados [4,2]', 38], ['ficha', { s, color: 'verde' }, 'ficha', 18], ['ficha', { s, color: '#8a4ad0' }, '#hex', 18], ['lapizConte', { s }, 'lapizConte', 26], ['brocha', { s, color: 'blanco' }, 'brocha blanco', 22], ['botePintura', { s, color: 'amarillo' }, 'bote', 30], ['esponja', { s, espuma: true }, 'espuma', 30], ['vela', { s, t: 0.2 }, 'vela', 18], ['vela', { s, apagada: true, t: 0 }, 'apagada', 18], ['corazonVida', { s }, 'corazón', 22], ['corazonVida', { s, lleno: false }, 'vacío', 22], ['billeteJuguete', { s }, 'billete', 42]], 2, 1);
+    filaPiezas(160, [['instrucciones', { s }, 'instrucc.', 30], ['vela', { t: 0.2 }, 't .2', 9], ['vela', { t: 0.35 }, 't .35', 9], ['hojaSelva', { t: 0.3 }, 'hoja t', 17], ['perro', { t: 0.2, dir: -1 }, 'perro ←', 18], ['guionCine', { hojas: 1 }, 'hojas 1', 19]], 2, 6);
+    PZ.instrucciones(R, 180, 138, { rollo: 1, dir: 1 }); rotulo('rollo 1 (abajo)', 180, 134);
+    PZ.instrucciones(R, 200, 142, { rollo: 0.5 }); rotulo('.5', 203, 138);
+    const c = PZ.liana(R, 235, 104, { largo: 70, t: 0 }); R.pset(c.punta[0], c.punta[1], hex('#ff2020')); PZ.liana(R, 260, 104, { largo: 50, s: 1, dir: -1, t: 0.4 }); PZ.liana(R, 290, 104, { largo: 34, s: 2 }); rotulo('liana 70 / 50 ← / 34 ×2', 262, 102);
+  },
+  () => {
+    const y = 34; R.rect(0, y + 1, 319, y + 2, suelo);
+    const poses = [['vanallsburg', { sostiene: true }, 'sostiene'], ['vanallsburg', { dir: -1, sorpresa: true }, '← sorpresa'], ['vanallsburgMayor', { dir: -1, dedo: true }, 'mayor ← dedo'], ['lisa', { dir: -1 }, 'lisa ←'], ['lisa', { sostiene: true }, 'sostiene'], ['lorraine', { dedo: true }, 'lorraine dedo'], ['williams', { brazos: true, salto: 2 }, 'williams salta'], ['williams', { dir: -1, triste: true }, '← triste'],
+      ['criticoJM', { dir: -1 }, 'crítico ←'], ['criticoJM', { dedo: true }, 'dedo'], ['senoraJM', { dir: -1 }, 'señora ←'], ['senoraJM', { dedo: true }, 'dedo'], ['aventureraJM', { dir: -1 }, 'aventurera ←'], ['aventureraJM', { brazos: true }, 'brazos']];
+    poses.forEach(([k, o, n], m) => {
+      const x = 5 + m * 22.5, r = R.actor(EL[k], Math.round(x), y, 0, { ...q, ...o });
+      if (k === 'vanallsburg' && o.sostiene) PZ.lapizConte(R, r.mano[0] + 2, r.mano[1] + 4, {});
+      if (k === 'lisa' && o.sostiene) PZ.carpeta(R, r.mano[0] + 4, r.mano[1] + 10, {});
+      rotulo(n, x + 7, y + 3.4 + (m % 2) * 2.6);
+    });
+    const y2 = 78; R.rect(0, y2 + 1, 319, y2 + 2, suelo);
+    const poses2 = [['guionista1JM', { dir: -1 }, 'guionista1 ←'], ['guionista1JM', { sostiene: true }, 'sostiene'], ['nino2017JM', { dir: -1 }, '2017 ←'], ['nino2017JM', { anda: true }, 'anda'], ['pintorJM', { sostiene: true }, 'pintor sostiene'], ['pintorJM', { dir: -1 }, '←'], ['judyJM', { dir: -1 }, 'judy ←'], ['judyJM', { sorpresa: true }, 'sorpresa'], ['peterJM', { dir: -1, brazos: true }, 'peter ←'], ['chico1JM', { dir: -1 }, 'chico1 ←'], ['chico2JM', { sostiene: true }, 'chico2'], ['nino50JM', { dir: -1 }, 'niño50 ←'], ['tecnicoFX1JM', { dir: -1 }, 'FX1 ←'], ['vecino1JM', { dir: -1 }, 'vecino1 ←']];
+    poses2.forEach(([k, o, n], m) => {
+      const x = 5 + m * 22.5, r = R.actor(EL[k], Math.round(x), y2, 0.1, { ...q, ...o });
+      if (k === 'pintorJM' && o.sostiene) PZ.brocha(R, r.mano[0] + 1, r.mano[1] + 9, { color: 'azul' });
+      if (k === 'guionista1JM' && o.sostiene) PZ.guionCine(R, r.mano[0] + 3, r.mano[1] + 10, {});
+      if (k === 'chico2JM' && o.sostiene) PZ.cajaJuego(R, r.mano[0] + 2, r.mano[1] + 6, {});
+      rotulo(n, x + 7, y2 + 3.4 + (m % 2) * 2.6);
+    });
+    // los hermanos (y los dos chicos) en GRISES, al doble: la escena «a lápiz» del libro
+    const y3 = 112; ['judyJM', 'peterJM', 'chico1JM', 'chico2JM'].forEach((k, n) => R.actor(EL[k], 8 + n * 22, y3, 0, q));
+    PZ.cajaJuego(R, 112, y3 + 1, {}); PZ.perro(R, 140, y3 + 1, {});
+    const copia = [];
+    for (let j = 0; j < 30; j++) for (let i = 0; i < 150; i++) copia.push(R.pget(4 + i, y3 - 28 + j));
+    copia.forEach((c, m) => { const i = m % 150, j = Math.floor(m / 150); const g = Math.round((c & 255) * 0.299 + ((c >> 8) & 255) * 0.587 + ((c >> 16) & 255) * 0.114); const v = (0xff000000 | (g << 16) | (g << 8) | g) >>> 0; R.rect(8 + i * 2, 118 + j * 2, 9 + i * 2, 119 + j * 2, v); });
+    rotulo('en grises ×2: judy · peter · chico1 · chico2 · caja · perro', 160, 176.5);
+  },
+];
+let pagRotulada = -1;
+const dibujar = (t) => {
+  const n = Math.min(PAGINAS.length - 1, Math.max(0, Math.floor(t) - 1));
+  R.rect(0, 0, 319, 179, fondo);
+  for (let y = 0; y < 180; y += 2) for (let x = (y / 2) % 2 ? 1 : 0; x < 320; x += 4) R.pset(x + ((y * 7) % 3), y, (x * 3 + y * 5) % 7 < 3 ? fondo2 : fondo3);
+  lista = []; PAGINAS[n]();
+  if (n !== pagRotulada) {
+    pagRotulada = n; rotulos.textContent = '';
+    for (const [txt, x, y] of lista) { const e = document.createElement('span'); e.textContent = txt; e.style.left = x / 3.2 + '%'; e.style.top = y / 1.8 + '%'; rotulos.appendChild(e); }
+  }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

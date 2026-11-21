@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El pozo de Osiris · ep30</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GZ-OSIRIS (frase 16), hoy → 1999 → 2025. Cuatro planos:
+// 1. A giza/meseta/calzada: dos turistas bajan junto a la cuerda; a «causeway» una luz recorre la calzada de Kefrén y
+//    la turista la señala; a «Sphinx» él se sorprende; la verja del túnel del pozo parpadea. Corta en «lies».
+// 2. A giza/osiris (subsuelo propio de la escena, y ≥ 92): al principio la roca maciza en estratos continuos de lado
+//    a lado; a «Osiris» el corte se abre de arriba abajo con un canto claro y migas; el técnico baja la linterna por
+//    el primer pozo y su luz llena el primer nivel; a «three levels» salen las placas 1, 2 y 3 (niveles altos, con
+//    escaleras, tres sarcófagos de granito grandes con brillo, la isla con el grande y el agua animada); la regla
+//    (x 290) baja hasta «30». Los turistas, asomados, se sorprenden. Corta en «granite».
+// 3. A giza/osiris/fondo (1999): Hawass alumbra el sarcófago de granito con la linterna; caen gotas al agua del
+//    fondo; a «cleared» un trabajador sube la escalera con la cesta de arena. Corta en «1990s».
+// 4. C plano/mataha/regla: la escala, en el código del plano azul de lo que dicen; se abre la lupa y dentro, sin
+//    rejilla ni barrido, el pozo de Osiris en corte REAL (caliza con estratos, escaleras, sarcófagos de granito con
+//    brillo, agua animada, sobre cielo cálido); a «30» corre un marco de puntos alrededor de la lupa y a «not 600» se
+//    encienden los pozos de 650 que dicen los italianos (cian); el técnico señala uno y abre los brazos ante el otro.
+import * as T from '/atomo/plato/escenas/gz-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gz-osiris');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const tono = (P, v, x, y) => P[Math.max(0, Math.min(P.length - 1, Math.floor(v + (BY[(y & 3) * 4 + (x & 3)] + 0.5) / 16)))];
+const rampa = (...c) => c.map((s) => hex(s));
+const K = hex('#16121e');
+const capas = new Map();
+// un fondo fijo se pinta una vez en su búfer y luego se copia (R.usar(prev), nunca R.usar() a secas)
+const capa = (k, f) => { if (!capas.has(k)) { const b = R.nuevo(), prev = R.usar(b); f(); R.usar(prev); capas.set(k, b); } R.copiar(capas.get(k)); };
+const CIELO = rampa('#3a74c4', '#4a84d0', '#5c96dc', '#70a8e6', '#88baee', '#a2ccf2', '#c0dcf6');
+const NUBE = rampa('#9eb0cc', '#d6e2f0', '#ffffff');
+// el cielo tramado dentro de dentro(x, y), de y0 (arriba) a hor (horizonte); nubes de tres tonos a tres velocidades y
+// pájaros; ninguna nube sube por encima de yMin (la barra del año)
+const cielo = (t, x0, y0, x1, y1, hor, dentro, o = {}) => {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (dentro(x, y)) R.pset(x, y, tono(CIELO, 6.4 * (y - y0) / Math.max(1, hor - y0), x, y));
+  const nubes = o.nubes ?? [[0.1, 0.25, 22, 3], [0.55, 0.45, 30, 5], [0.85, 0.15, 16, 8]];
+  for (const [fx, fy, w, v] of nubes) {
+    const W = x1 - x0 + 2 * w + 20, cx = x0 - w - 10 + ((fx * W + t * v) % W), cy = Math.max(o.yMin ?? 0, y0 + fy * (hor - y0));
+    for (const [dx, dy, r] of [[-w * 0.45, 2, w * 0.32], [0, -2, w * 0.42], [w * 0.42, 1, w * 0.3], [w * 0.15, 3, w * 0.36]]) {
+      const ax = cx + dx, ay = cy + dy;
+      for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { if (i * i + j * j > r * r) continue; const x = Math.round(ax + i), y = Math.round(ay + j * 0.55);
+        if (x < x0 || x > x1 || y < y0 || y > y1 || !dentro(x, y)) continue;
+        R.pset(x, y, y > cy + 3 ? NUBE[0] : (j < -r * 0.35 && i < r * 0.3) ? NUBE[2] : tono(NUBE, 1.6 - (y - cy + 4) * 0.08, x, y)); } }
+  }
+  for (let k = 0; k < (o.aves ?? 3); k++) { const x = Math.round(x0 + ((t * (9 + k * 3) + k * 61) % (x1 - x0 + 30)) - 15), y = Math.round(y0 + 6 + k * 7 + Math.sin(t * 1.3 + k) * 3), a = Math.sin(t * 10 + k * 2) > 0 ? 1 : 0;
+    for (const [i, j] of [[-2, -a], [-1, 0], [0, 1], [1, 0], [2, -a]]) if (dentro(x + i, y + j) && x + i >= x0 && x + i <= x1) R.pset(x + i, y + j, hex('#2a3048')); }
+};
+// el año que dice la verdad en cada momento
+const desde = (pares) => (t) => { let a = pares[0][1]; for (const [t0, v] of pares) if (t >= t0) a = v; return a; };
+
+const o = (s) => en('osiris', (s - 0.5) / 20.11);
+const P2 = o(6.82), P3 = o(12.28), P4 = o(18.0);
+const bajo = o(1.5), calzada = o(5.18), esfinge = o(6.30), osiris = o(7.98), tres = o(9.54), treinta = o(11.04);
+const granito = o(12.28), agua = o(13.9), limpia = o(15.58), estudia = o(16.28), t30 = o(18.47), no600 = o(19.63);
+
+// ── 1 · A giza/meseta/calzada ──
+const CAL = { encuadre: 'meseta', camara: 'calzada' };
+const p1 = (t) => {
+  T.giza(R, t, CAL);
+  // a «causeway» una luz blanca baja por la calzada, de Kefrén al templo del valle
+  const lz = tramo(t, calzada - 0.3, esfinge);
+  if (lz > 0 && t < P2 - 0.2) { const n = 60; for (let i = 0; i <= n * lz; i++) { const u = i / n, x = Math.round(lerp(132, 300, u)), y = Math.round(lerp(106, 150, u)); R.rect(x, y - 4, x + 1, y - 3, hex('#ffe060')); R.pset(x, y - 2, hex('#a07020')); if (i % 4 === 0) R.pset(x, y - 5, hex('#fff6c8')); }
+    if (lz >= 1 && Math.floor(t * 4) % 2 === 0) { R.disco(300, 146, 3, K); R.disco(300, 146, 2, hex('#ffe060')); } }
+  // la verja del túnel del pozo: un anillo que late (ahí abajo está)
+  if (t > bajo && Math.floor(t * 3) % 2 === 0) for (let a = 0; a < 28; a++) { const an = a / 28 * Math.PI * 2; if (a % 2) continue; R.pset(Math.round(206 + Math.cos(an) * 12), Math.round(129 + Math.sin(an) * 10), hex('#ffffff')); }
+  // los turistas que bajan por la explanada: ella señala la calzada, él se asombra con la Esfinge
+  const u = tramo(t, 0.2, calzada - 0.2), x1 = Math.round(lerp(-14, 70, u)), x2 = Math.round(lerp(-34, 46, u));
+  R.actor(EL.turista2, x1, 166, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > calzada && t < P2, habla: t > calzada + 0.2 && Math.sin(t * 9) > 0 });
+  R.actor(EL.turista1, x2, 168, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: t > esfinge, brazos: t > esfinge && t < esfinge + 0.6 });
+  // el camellero que pasa por la derecha con su camello, por delante del templo
+  const c = tramo(t, 0, P2), cx = Math.round(lerp(330, 150, c));
+  R.actor(EL.camellero, cx - 6, 166, t, { dir: -1, anda: c > 0 && c < 1 });
+  T.gizaDelante(R, t, CAL);
+};
+
+// ── piezas del corte REAL (planos 2 y 4: lo comprobado se dibuja en piedra, no en el plano azul) ──
+// la caliza en estratos ondulados con capas de marga gris, los huecos tallados con juntas y marcas de cincel, las
+// escaleras de hierro, los sarcófagos de granito rosa con su brillo y el agua del fondo
+const ROC = rampa('#4a3424', '#664a32', '#846446', '#a07e58', '#b8966a', '#caa87a', '#dabc90', '#e8d2aa');
+const MAR = rampa('#4e4a40', '#6a6454', '#867e6a', '#a49a82', '#bcb298');
+const HUE = rampa('#140e10', '#22181a', '#33262a', '#46362f', '#5c4636', '#74583e');
+const GRA = rampa('#341a1e', '#562c30', '#7c4446', '#a05e5a', '#c07c72', '#dca096', '#f4d0c4');
+const AGU = rampa('#163656', '#22507a', '#3474aa', '#5296cc', '#86c2ec', '#d6f0ff');
+const MET = rampa('#26282e', '#44464e', '#6a6c78', '#9c9eac');
+const ARE = rampa('#a8844e', '#c09c64', '#d6b47e', '#e6c896', '#f2dcb0');
+const LUZ = hex('#ffe6a0'), BLA = hex('#fff8e8'), ROJO = hex('#e84a3a'), POL = hex('#e8dcc0');
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+// la roca en (x, y): y0 la superficie, y1 el fondo; esc < 1 aprieta los estratos (para la lupa)
+const roca = (x, y, y0, y1, esc = 1) => {
+  const e = (y - y0) / esc + Math.sin(x * 0.045 / esc + 1.3) * 2.6 + Math.sin(x * 0.13 / esc) * 1.1, b = Math.floor(e / 7), f = e - b * 7;
+  const marga = h(b, 4, 31) < 0.22, P = marga ? MAR : ROC, prof = (y - y0) / (y1 - y0);
+  let v = (marga ? 2.5 : 4.4) + (h(b, 1, 31) - 0.5) * 1.8 - prof * 1.9;
+  if (f < 0.9) v -= 1.5; else if (f < 1.8) v += 0.7;
+  if (h(x >> 1, y, 32) < 0.05) v -= 1; else if (h(x, y >> 1, 33) < 0.04) v += 1;
+  return tono(P, v, x, y);
+};
+// un taller de dibujo sobre un búfer (B) con su máscara de hueco (M), recortado a [cx0, cy0, cx1, cy1]
+const taller = (B, M, cx0, cy0, cx1, cy1) => {
+  const dentro = (x, y) => x >= cx0 && x <= cx1 && y >= cy0 && y <= cy1;
+  const put = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (dentro(x, y)) B[y * 320 + x] = c; };
+  const putR = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (dentro(x, y) && !M[y * 320 + x]) B[y * 320 + x] = c; };   // solo en la roca
+  const lin = (x0, y0, x1, y1, c) => { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1); for (let i = 0; i <= n; i++) put(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, c); };
+  // grietas, guijarros, numulites y nódulos de sílex por toda la roca
+  const detalles = (x0, y0, x1, y1, n, k0) => {
+    for (let k = 0; k < n; k++) { let x = x0 + h(k, 1, k0) * (x1 - x0), y = y0 + h(k, 2, k0) * (y1 - y0); const L = 6 + Math.round(h(k, 3, k0) * 22);
+      for (let i = 0; i < L; i++) { putR(x, y, ROC[0]); putR(x + 1, y, ROC[6]); y++; x += Math.round(h(k, i, k0 + 1) * 2 - 0.9); if (h(k, i, k0 + 2) < 0.08) { putR(x - 1, y, ROC[0]); putR(x - 2, y + 1, ROC[1]); } } }
+    for (let k = 0; k < n * 3; k++) { const x = Math.round(x0 + h(k, 4, k0) * (x1 - x0)), y = Math.round(y0 + 3 + h(k, 5, k0) * (y1 - y0 - 3)), r = h(k, 6, k0) < 0.3 ? 2 : 1, gris = h(k, 7, k0) < 0.3;
+      for (let j = -r; j <= r; j++) for (let i = -r - 1; i <= r + 1; i++) if (i * i * 0.6 + j * j <= r * r + 0.3) putR(x + i, y + j, gris ? (i + j < 0 ? MAR[4] : i + j > 1 ? MAR[1] : MAR[3]) : (i + j < 0 ? ROC[7] : i + j > 1 ? ROC[2] : ROC[5]));
+      putR(x + r + 1, y + 1, ROC[1]); putR(x, y + r + 1, ROC[1]); }
+    for (let k = 0; k < n * 2; k++) { const x = Math.round(x0 + h(k, 8, k0) * (x1 - x0)), y = Math.round(y0 + 4 + h(k, 9, k0) * (y1 - y0 - 4));
+      for (const [i, j] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) putR(x + i, y + j, ROC[6]); putR(x, y, ROC[2]); }
+    for (let k = 0; k < n; k++) { const x = Math.round(x0 + h(k, 10, k0) * (x1 - x0)), y = Math.round(y0 + 8 + h(k, 11, k0) * (y1 - y0 - 8));
+      for (let i = -3; i <= 3; i++) for (let j = -1; j <= 1; j++) if (Math.abs(i) + Math.abs(j) * 2 < 4) putR(x + i, y + j, j < 0 ? MAR[2] : i > 1 ? MAR[0] : MAR[1]); putR(x - 1, y - 1, MAR[4]); }
+  };
+  // un hueco tallado: la pared del fondo con juntas de sillar y marcas de cincel, el techo en sombra, el suelo claro
+  const hueco = (x0, y0, x1, y1) => {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (!dentro(x, y)) continue; const fy = y - y0, fila = fy % 6 === 5, col = (x + (Math.floor(fy / 6) % 2) * 5) % 10 === 0;
+      let v = 1.9 + fy / Math.max(1, y1 - y0) * 1.4; if (fy < 2) v -= 1.1; if (x - x0 < 2) v -= 0.8; if (fila || col) v -= 0.9; else if (h(x, y, 41) < 0.07) v += 1.1;
+      if (y === y1) v = 4.7; else if (y === y1 - 1) v = 3.6;
+      B[y * 320 + x] = tono(HUE, v, x, y); M[y * 320 + x] = 1; }
+    for (let x = x0 - 1; x <= x1 + 1; x++) { putR(x, y0 - 1, ROC[0]); putR(x, y1 + 1, ROC[7]); putR(x, y1 + 2, ROC[5]); }
+    for (let y = y0; y <= y1; y++) { putR(x0 - 1, y, ROC[0]); putR(x1 + 1, y, ROC[1]); putR(x1 + 2, y, ROC[6]); }
+  };
+  const escalera = (x, y0, y1, w = 6) => { for (let y = y0; y <= y1; y++) { put(x, y, MET[2]); put(x + w, y, MET[2]); put(x + 1, y, MET[0]); put(x + w + 1, y, MET[0]); }
+    for (let y = y0 + 1; y < y1; y += 3) { for (let i = 1; i < w; i++) put(x + i, y, MET[3]); put(x + 1, y + 1, MET[0]); } };
+  const sarcos = [];
+  // un sarcófago de granito rosa, cerrado: la tapa más ancha con su canto claro, la caja moteada, la sombra en el suelo
+  const sarco = (x0, yb, w, alto) => { const yt = yb - alto;
+    for (let y = yt; y <= yb; y++) for (let x = x0; x <= x0 + w; x++) { let v = 3.2 - (y - yt) / alto * 0.9; if (x === x0) v += 1.1; if (x >= x0 + w - 1) v -= 1.4; const r = h(x, y, 51);
+      put(x, y, r < 0.12 ? GRA[1] : r > 0.93 ? GRA[6] : r > 0.84 ? GRA[5] : tono(GRA, v, x, y)); }
+    for (let x = x0 - 1; x <= x0 + w + 1; x++) { put(x, yt - 2, GRA[6]); put(x, yt - 1, x > x0 + w - 1 ? GRA[2] : GRA[4]); put(x, yt, GRA[1]); }
+    for (let x = x0 - 1; x <= x0 + w + 2; x++) put(x, yb + 1, HUE[0]);
+    sarcos.push([x0, yt - 2, x0 + w, yb]); };
+  const pilar = (x0, y0, y1, w = 4) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x0 + w; x++) { if (!dentro(x, y)) continue; M[y * 320 + x] = 0; B[y * 320 + x] = x === x0 ? ROC[6] : x === x0 + w ? ROC[1] : tono(ROC, 3.8 + ((y + x) % 5 === 0 ? -1 : 0), x, y); } };
+  return { put, putR, lin, detalles, hueco, escalera, sarco, sarcos, pilar };
+};
+// la luz de una bombilla (o de la linterna) sobre los huecos: solo donde hay hueco y ya se ve (vis)
+const halo = (B, M, vis, bx, by, r, k) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const x = bx + i, y = by + j; if (x < 0 || x > 319 || y < 0 || y > 179) continue; const p = y * 320 + x; if (!M[p] || !vis(x, y)) continue;
+  const d = Math.hypot(i, j * 1.2) / r; if (d < 1 && (BY[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < (1 - d) * 1.3) B[p] = mez(B[p], LUZ, k * (1 - d * 0.6)); } };
+const bombilla = (B, vis, bx, by, t, ver) => { if (!vis(bx, by)) return; const f = 0.75 + 0.25 * Math.sin(t * 13 + bx) * Math.sin(t * 7.3 + by);
+  B[(by - 1) * 320 + bx] = MET[1]; B[(by - 1) * 320 + bx + 1] = MET[0]; B[by * 320 + bx] = f > 0.6 ? BLA : LUZ; B[by * 320 + bx + 1] = LUZ; B[(by + 1) * 320 + bx] = LUZ; B[(by + 1) * 320 + bx + 1] = hex('#e0a850');
+  if (ver) { const mx = Math.round(bx + Math.cos(t * 5 + bx) * 6), my = Math.round(by + 2 + Math.sin(t * 7.7 + bx) * 3); if (vis(mx, my)) B[my * 320 + mx] = POL; } };
+// el agua del fondo: ondas, el reflejo de las bombillas y la espuma junto a la piedra
+const aguaFondo = (B, M, vis, x0, x1, y0, y1, t, luces) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const p = y * 320 + x; if (!M[p] || !vis(x, y)) continue;
+  const w = Math.sin(x * 0.5 - t * 3 + y) + Math.sin(x * 0.17 + t * 1.3); let c = y === y0 ? (w > 1 ? AGU[5] : w > 0 ? AGU[4] : AGU[3]) : tono(AGU, 2.6 - (y - y0) * 0.35 + w * 0.45, x, y);
+  if (!M[p - 1] || !M[p + 1]) c = Math.sin(t * 6 + y + x) > 0 ? AGU[5] : AGU[4];
+  for (const lx of luces) if (Math.abs(x - lx - Math.round(Math.sin(t * 4 + y) * 1)) < 1 && Math.sin(t * 7 + y * 2) > -0.2) c = AGU[5];
+  B[p] = c; } };
+// el brillo que cruza el granito en diagonal
+const brillos = (B, vis, sarcos, t) => sarcos.forEach(([x0, y0, x1, y1], k) => { const per = 2.6, u = ((t + k * 0.9) % per) / per, px = x0 - 8 + u * (x1 - x0 + 16);
+  for (let y = y0 + 3; y < y1; y++) for (let x = x0 + 1; x < x1 - 1; x++) { const d = x - px + (y - y0) * 0.7; if (d >= 0 && d < 2 && vis(x, y)) B[y * 320 + x] = d < 1 ? GRA[6] : GRA[5]; }
+  const cx = Math.round(px), on = cx >= x0 && cx <= x1 && vis(cx, y0); if (on) { B[y0 * 320 + cx] = BLA; if (vis(cx, y0 - 1)) B[(y0 - 1) * 320 + cx] = GRA[6]; } });
+
+// ── 2 · A giza/osiris: el corte de roca que se abre, con los tres niveles y la regla ──
+// el subsuelo es mío entero (y ≥ 92): una sola roca continua de lado a lado. Dos búferes: la roca maciza (antes de
+// abrirse) y el corte con sus huecos; el frente del corte baja con un canto claro roto y su sombra.
+const OSI = { encuadre: 'osiris' };
+const SUP = 92, N1 = [168, 104, 250, 121], N2 = [112, 130, 280, 148], N3 = [92, 155, 236, 173], RX = 290;
+let OS2 = null;
+const corteOsiris = () => {
+  if (OS2) return OS2;
+  const macizo = R.nuevo(), corte = R.nuevo(), M = new Uint8Array(320 * 180);
+  for (let y = SUP; y < 180; y++) for (let x = 0; x < 320; x++) {
+    let c;
+    if (y === SUP) c = ARE[4]; else if (y < SUP + 4) c = tono(ARE, 3.2 - (y - SUP) * 0.6 + (h(x, y, 21) < 0.1 ? -1.2 : 0), x, y);
+    else c = roca(x, y, SUP, 179);
+    if (y >= 158) { c = mez(c, hex('#3a2a1e'), Math.min(0.45, (y - 158) / 30 + 0.1)); if (h(x, y, 22) < 0.012) c = hex('#e8dcc0'); }   // mojada por el agua del subsuelo
+    macizo[y * 320 + x] = c;
+  }
+  const tm = taller(macizo, new Uint8Array(320 * 180), 0, SUP + 4, 319, 179); tm.detalles(0, SUP + 4, 319, 176, 16, 600);
+  for (let x = 0; x < 320; x += 3) macizo[166 * 320 + x] = AGU[4];   // el nivel freático, de lado a lado
+  corte.set(macizo);
+  const T2 = taller(corte, M, 0, SUP, 319, 179);
+  // los huecos: el pozo de la boca, el primer nivel; el segundo pozo, el segundo nivel; el tercero y el nivel del agua
+  T2.hueco(200, SUP + 1, 212, N1[1] - 1); T2.hueco(...N1);
+  T2.hueco(236, N1[3] + 1, 246, N2[1] - 1); T2.hueco(...N2);
+  T2.hueco(146, N2[3] + 1, 156, N3[1] - 1); T2.hueco(...N3);
+  for (let s = 0; s < 5; s++) for (let i = 0; i <= s * 2 + 1; i++) T2.put(200 + i, SUP + 2 + s * 2, ROC[3]);   // los escalones tallados de la boca
+  // el primer nivel: escombro y una cesta junto a la pared
+  for (let k = 0; k < 14; k++) { const x = 172 + Math.round(h(k, 1, 610) * 20), y = N1[3] - 1 - (k % 3 === 0 ? 1 : 0); T2.put(x, y, k % 2 ? ROC[5] : ROC[3]); }
+  for (let y = N1[3] - 6; y < N1[3]; y++) for (let x = 230; x <= 238; x++) T2.put(x, y, (x + y) % 2 ? hex('#a0743c') : hex('#7a5428'));
+  T2.lin(230, N1[3] - 6, 238, N1[3] - 6, hex('#c89858'));
+  // el segundo nivel: cuatro nichos en la pared; en tres, un sarcófago de granito grande
+  for (const nx of [120, 172, 196, 254]) { for (let y = 133; y < N2[3]; y++) for (let x = nx; x <= nx + 20; x++) corte[y * 320 + x] = mez(corte[y * 320 + x], HUE[0], 0.45); T2.lin(nx, 133, nx + 20, 133, ROC[1]); T2.lin(nx - 1, 133, nx - 1, N2[3] - 1, ROC[1]); }
+  T2.sarco(122, N2[3] - 1, 17, 7); T2.sarco(198, N2[3] - 1, 17, 7); T2.sarco(256, N2[3] - 1, 17, 7);
+  // el nivel del agua: la isla con el sarcófago grande, los cuatro pilares
+  for (let y = 165; y <= N3[3]; y++) for (let x = 138; x <= 194; x++) { const i = y * 320 + x; M[i] = 0; corte[i] = y === 165 ? ROC[6] : tono(ROC, 3.6 - (y - 165) * 0.25, x, y); }
+  T2.sarco(150, 164, 30, 6);
+  for (const px of [108, 122, 204, 220]) T2.pilar(px, N3[1], N3[3]);
+  // las escaleras de hierro del segundo y del tercer pozo, y una de mano en la boca
+  T2.escalera(237, N1[3] - 1, N2[1] + 1, 7); T2.escalera(147, N2[3] - 1, N3[1] + 1, 7);
+  // el cable de las bombillas
+  for (const [a, b, c, d] of [[211, SUP + 1, 211, 105], [211, 105, 180, 105], [245, 105, 245, 131], [140, 131, 270, 131], [155, 131, 155, 156], [100, 156, 230, 156]]) T2.lin(a, b, c, d, HUE[4]);
+  return (OS2 = { macizo, corte, M, sarcos: T2.sarcos });
+};
+const p2 = (t) => {
+  const corte = tramo(t, osiris - 0.2, tres - 0.1), regla = tramo(t, tres + 0.5, treinta + 0.1);
+  T.giza(R, t, { ...OSI, corte: 1, regla: 0 });
+  const G = corteOsiris(), B = R.buf, yc = SUP + Math.round(corte * 90);
+  // el frente del corte: lo de arriba ya está abierto, lo de abajo sigue macizo (la misma roca, sin costura)
+  const fr = new Int16Array(320); for (let x = 0; x < 320; x++) fr[x] = corte >= 1 ? 999 : corte <= 0 ? SUP : yc + Math.round(h(x >> 2, 1, 973) * 4 - 2);
+  if (corte >= 1) B.set(G.corte.subarray(SUP * 320), SUP * 320);
+  else for (let y = SUP; y < 180; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x, f = fr[x];
+    B[i] = y < f ? (y >= f - 2 && G.M[i] ? mez(G.corte[i], HUE[0], 0.5) : G.corte[i]) : y === f && corte > 0 ? ROC[7] : y === f + 1 && corte > 0 ? ROC[1] : G.macizo[i]; }
+  const vis = (x, y) => y < fr[x];
+  // las migas que caen del canto mientras se abre
+  if (corte > 0 && corte < 1) for (let k = 0; k < 14; k++) { const x = Math.round(h(k, 1, 620) * 310 + 5), y = fr[x] + 2 + Math.round(((t * 30 + k * 7) % 9)); if (y < 180) B[y * 320 + x] = ROC[6]; }
+  // la vida de dentro: las bombillas con su halo y sus polillas, el agua que se mueve, las gotas, el brillo del granito
+  const luces = [[186, 107], [228, 107], [134, 133], [226, 134], [266, 134], [114, 158], [198, 158]];
+  for (const [bx, by] of luces) halo(B, G.M, vis, bx, by, 13, 0.4 * (0.8 + 0.2 * Math.sin(t * 11 + bx)));
+  aguaFondo(B, G.M, vis, N3[0], N3[2], 166, N3[3] - 1, t, [114, 198]);
+  for (let k = 0; k < 3; k++) { const per = 1.5 + k * 0.4, f = ((t + k * 0.6) % per) / per, gx = [100, 132, 214][k];
+    if (f < 0.55) { const y = Math.round(lerp(N3[1] + 2, 165, f / 0.55)); if (vis(gx, y)) B[y * 320 + gx] = AGU[5]; }
+    else { const r = Math.round((f - 0.55) * 12); for (const s of [-1, 1]) { const x = gx + s * r; if (G.M[166 * 320 + x] && vis(x, 166)) B[166 * 320 + x] = AGU[5]; } } }
+  brillos(B, vis, G.sarcos, t);
+  for (const [bx, by] of luces) bombilla(B, vis, bx, by, t, true);
+  // el técnico baja la linterna con una cuerda por el primer pozo; su luz llena el primer nivel
+  const baja = tramo(t, osiris + 0.2, tres + 0.6), ly = Math.min(Math.round(lerp(90, 114, baja)), Math.max(88, fr[206] - 2));
+  const tec = R.actor(EL.tecnicoEgipcio, 230, 92, t, { dir: -1, sostiene: [226, 78] });
+  const [mx, my] = tec.mano; R.linea(mx, my, 206, 80, hex('#c8b070')); R.linea(206, 80, 206, ly - 14, hex('#c8b070'));
+  const enc = corte > 0.2;
+  if (enc) for (let y = ly + 1; y <= N1[3]; y++) { const w = Math.round((y - ly) * 0.7 + 2); for (let x = 206 - w; x <= 206 + w; x++) { if (x < 0 || x > 319) continue; const i = y * 320 + x; if (!G.M[i] || !vis(x, y)) continue;
+    if ((BY[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < 1.05 - Math.abs(x - 206) / (w + 1) * 0.6) B[i] = mez(B[i], LUZ, 0.6 * (1 - (y - ly) / 30)); } }
+  if (enc) for (let k = 0; k < 6; k++) { const x = Math.round(206 + Math.sin(t * 1.3 + k * 2) * (3 + k)), y = Math.round(ly + 3 + ((t * 4 + k * 3) % 14)); if (y <= N1[3] - 1 && G.M[y * 320 + x] && vis(x, y)) B[y * 320 + x] = BLA; }   // el polvo en el haz
+  T.PIEZAS_GZ.linterna(R, 206, ly, { encendida: enc, abajo: true, haz: false });
+  // los turistas asomados a la barandilla: se sorprenden cuando el suelo se abre
+  R.actor(EL.turista2, 254, 92, t, { dir: -1, sorpresa: t > osiris + 0.3, dedo: t > tres && t < treinta });
+  R.actor(EL.turista1, 274, 92, t, { dir: -1, sorpresa: t > osiris + 0.6, habla: t > treinta && Math.sin(t * 8) > 0 });
+  T.gizaDelante(R, t, OSI);
+  // los niveles, uno a uno, a «three levels»: su número en una placa con la flecha hacia el hueco
+  for (const [k, x, y, ax] of [[0, 158, 116, N1[0] - 2], [1, 102, 143, N2[0] - 2], [2, 82, 168, N3[0] - 2]]) { const a = tramo(t, tres + k * 0.22, tres + k * 0.22 + 0.2); if (a <= 0) continue;
+    const yy = y + Math.round((1 - a) * 4); R.rect(x - 7, yy - 11, x + 7, yy + 2, K); R.rect(x - 6, yy - 10, x + 6, yy + 1, hex('#2a2030')); R.rect(x - 6, yy - 10, x + 6, yy - 10, hex('#4a3e52'));
+    R.numero(String(k + 1), x, yy, { tam: 8, centro: true }); R.linea(x + 8, yy - 4, ax, yy - 4, BLA); R.pset(ax - 1, yy - 5, BLA); R.pset(ax - 1, yy - 3, BLA); }
+  // la regla de cotas, hacia dentro: el tope arriba, las marcas cada tres metros y «30» al fondo
+  if (regla > 0) { const y0 = SUP + 1, y1 = Math.round(y0 + (N3[3] - y0) * regla);
+    R.rect(RX - 1, y0, RX + 1, y1, K); R.rect(RX, y0, RX, y1, BLA); R.rect(RX - 4, y0, RX + 4, y0, BLA);
+    for (let k = 0; k <= 10; k++) { const y = Math.round(y0 + k * (N3[3] - y0) / 10); if (y > y1) break; R.rect(RX - (k % 5 ? 2 : 4), y, RX, y, k % 5 ? BLA : ROJO); }
+    if (regla >= 1) { R.rect(RX - 4, N3[3], RX + 4, N3[3], BLA); R.rect(264, 158, 284, 170, K); R.rect(265, 159, 283, 169, hex('#2a2030')); R.rect(265, 159, 283, 159, hex('#4a3e52'));
+      R.numero('30', 274, 168, { tam: 8, centro: true }); R.linea(RX - 1, N3[3], 285, 166, BLA); } }
+};
+
+// ── 3 · A giza/osiris/fondo (1999): el sarcófago, el agua y la limpieza ──
+const FON = { encuadre: 'osiris', camara: 'fondo' };
+const p3 = (t) => {
+  T.giza(R, t, FON);
+  // Hawass alumbra el sarcófago con la linterna: el haz se abre del puño a la piedra
+  const haw = R.actor(EL.hawass, 84, 160, t, { dir: 1, sostiene: [104, 136], dedo: false, habla: t > estudia && Math.sin(t * 8) > 0 });
+  const [hx, hy] = haw.mano; T.PIEZAS_GZ.linterna(R, hx + 6, hy + 3, { encendida: true, haz: false });
+  const hz = tramo(t, P3 - 0.1, P3 + 0.5);
+  if (hz > 0) { const fx = hx + 14, fy = hy; const ty = Math.round(lerp(150, 120, tramo(t, granito, agua))) ;
+    for (let k = 0; k < 260 * hz; k++) { const u = h(k, 1, 90), w = (h(k, 2, 90) - 0.5) * 2, x = Math.round(lerp(fx, 166, u)), y = Math.round(lerp(fy, ty, u) + w * u * 18); if (x > 126 && x < 204 && y > 104 && y < 142) R.pset(x, y, h(k, 3, 90) < 0.5 ? hex('#ffe4a0') : hex('#c89070')); else R.pset(x, y, hex('#fff2c8')); } }
+  // el trabajador limpia: a «cleared» llega con la cesta de arena y sube por la escalera
+  const anda = tramo(t, P3 + 0.4, limpia), sube = tramo(t, limpia, P4 + 0.6);
+  const wx = Math.round(lerp(6, 38, anda)), wy = Math.round(lerp(160, 110, sube));
+  R.actor(EL.trabajadorEgipcio1888b, wx, wy, t, { dir: 1, anda: (anda > 0 && anda < 1) || (sube > 0 && sube < 1) });
+  // las gotas del techo que caen al agua y abren sus anillos
+  for (let k = 0; k < 3; k++) { const per = 1.6 + k * 0.4, f = ((t - agua + k * 0.5) % per + per) % per, gx = [214, 238, 282][k];
+    if (t < agua - 1) continue;
+    if (f < 0.5) { const y = Math.round(lerp(44, 160, f / 0.5)); R.rect(gx, y, gx, y + 2, hex('#a8d8f8')); }
+    else { const r = Math.round((f - 0.5) * 12); if (r < 14) for (let a = 0; a < 24; a++) { const an = a / 24 * Math.PI * 2; R.pset(Math.round(gx + Math.cos(an) * r), Math.round(164 + Math.sin(an) * r * 0.3), hex('#d8f0ff')); } } }
+  T.gizaDelante(R, t, FON);
+};
+
+// ── 4 · C plano/mataha/regla: 30 contra 650 ──
+const REG = { encuadre: 'mataha', camara: 'regla' };
+// la lupa (x 176–262, y 58–150) con el pozo de Osiris en corte REAL: un cielo cálido, la arena con la barandilla de la
+// boca, la caliza con estratos, grietas y fósiles, los tres niveles con sus escaleras, los sarcófagos de granito rosa y
+// el agua; ni rejilla ni barrido. Se pinta después de T.plano (el holograma ya está hecho) y se recorta a la lupa abierta.
+const LX0 = 176, LY0 = 58, LX1 = 262, LY1 = 150, LS = 64;
+let LU = null;
+const lupaOsiris = () => {
+  if (LU) return LU;
+  const b = R.nuevo(), M = new Uint8Array(320 * 180), CAL = rampa('#e6c08a', '#eecb98', '#f4d8aa', '#f8e2bc', '#fbeacc');
+  for (let y = LY0 + 1; y < LY1; y++) for (let x = LX0 + 1; x < LX1; x++)
+    b[y * 320 + x] = y < LS ? tono(CAL, (y - LY0) * 0.8, x, y) : y === LS ? ARE[4] : y < LS + 3 ? tono(ARE, 3 - (y - LS) * 0.7, x, y) : (() => { let c = roca(x, y, LS, LY1, 0.6); if (y >= 140) c = mez(c, hex('#3a2a1e'), 0.3); return c; })();
+  const L = taller(b, M, LX0 + 1, LY0 + 1, LX1 - 1, LY1 - 1);
+  L.detalles(LX0 + 1, LS + 3, LX1 - 1, LY1 - 2, 6, 640);
+  // la boca con su barandilla y Kefrén lejos, en la arena
+  for (let k = 0; k < 6; k++) for (let x = LX0 + 4 + k * 2; x <= LX0 + 26 - k * 2; x++) L.put(x, LS - 1 - k, k ? (x < LX0 + 15 ? ROC[6] : ROC[4]) : ROC[5]);
+  for (const bx of [205, 222]) { L.lin(bx, LS - 5, bx, LS - 1, MET[1]); L.put(bx, LS - 5, MET[3]); } L.lin(205, LS - 5, 222, LS - 5, MET[2]); L.lin(205, LS - 3, 222, LS - 3, MET[1]);
+  // los huecos: la boca y el primer nivel, el segundo pozo y el segundo nivel, el tercero y el nivel del agua
+  L.hueco(210, LS + 1, 218, 81); L.hueco(196, 82, 236, 93);
+  L.hueco(227, 94, 235, 109); L.hueco(186, 110, 242, 123);
+  L.hueco(188, 124, 195, 133); L.hueco(186, 134, 252, 146);
+  for (let s = 0; s < 6; s++) for (let i = 0; i <= s + 1; i++) L.put(210 + i, LS + 3 + s * 3, ROC[3]);   // los escalones tallados
+  L.escalera(228, 93, 110, 5); L.escalera(189, 122, 134, 5);
+  for (let k = 0; k < 8; k++) L.put(200 + Math.round(h(k, 1, 650) * 22), 92, k % 2 ? ROC[5] : ROC[3]);
+  // el segundo nivel: dos nichos con su sarcófago; el nivel del agua: la isla, el sarcófago grande y dos pilares
+  for (const nx of [197, 211]) { for (let y = 113; y < 123; y++) for (let x = nx; x <= nx + 13; x++) b[y * 320 + x] = mez(b[y * 320 + x], HUE[0], 0.45); L.lin(nx, 113, nx + 13, 113, ROC[1]); }
+  L.sarco(198, 122, 11, 5); L.sarco(212, 122, 11, 5);
+  for (let y = 142; y <= 146; y++) for (let x = 204; x <= 228; x++) { const i = y * 320 + x; M[i] = 0; b[i] = y === 142 ? ROC[6] : tono(ROC, 3.4 - (y - 142) * 0.3, x, y); }
+  L.sarco(208, 141, 16, 5);
+  L.pilar(196, 134, 146, 3); L.pilar(238, 134, 146, 3);
+  for (const [a, c, d, e] of [[217, LS + 1, 217, 83], [217, 83, 234, 83], [234, 83, 234, 111], [192, 111, 234, 111], [192, 111, 192, 135], [192, 135, 248, 135]]) L.lin(a, c, d, e, HUE[4]);
+  // la regla de cotas de la izquierda: la superficie, las marcas cada tres metros y el fondo
+  for (let y = LS; y <= 146; y++) { b[y * 320 + 180] = BLA; b[y * 320 + 181] = ROC[1]; }
+  for (let k = 0; k <= 10; k++) { const y = Math.round(LS + k * (146 - LS) / 10); for (let i = 0; i <= (k % 5 ? 2 : 4); i++) b[y * 320 + 180 + i] = k % 5 ? BLA : ROJO; }
+  return (LU = { b, M, sarcos: L.sarcos });
+};
+const p4 = (t) => {
+  const lupa = tramo(t, P4 - 0.1, t30 - 0.1);
+  T.plano(R, t, { ...REG, lupa });
+  // dentro de la lupa, el pozo de Osiris de piedra (lo real), recortado a lo que ya se ha abierto
+  const a = tramo(t, t30 - 0.1, t30 + 0.3);
+  if (lupa > 0) {
+    const U = lupaOsiris(), B = R.buf, cx1 = Math.min(LX1 - 1, Math.round(LX0 + 86 * lupa) - 1), cy1 = Math.min(LY1 - 1, Math.round(LY0 + 92 * lupa) - 1);
+    for (let y = LY0 + 1; y <= cy1; y++) for (let x = LX0 + 1; x <= cx1; x++) B[y * 320 + x] = U.b[y * 320 + x];
+    const vis = (x, y) => x > LX0 && x <= cx1 && y > LY0 && y <= cy1;
+    // una nube pequeña y un vencejo en el cielo cálido de arriba
+    for (let k = 0; k < 2; k++) { const nx = LX0 + 4 + ((t * (3 + k * 2) + k * 40) % 80), ny = LY0 + 2 + k * 2; for (let i = 0; i < 7 - k * 2; i++) { const x = Math.round(nx + i); if (vis(x, ny) && x < LX1 - 1) B[ny * 320 + x] = BLA; } }
+    { const vx = Math.round(LX1 - 4 - ((t * 14) % 80)), vy = LY0 + 4 + Math.round(Math.sin(t * 2) * 1); for (const [i, j] of [[-1, -(Math.sin(t * 12) > 0 ? 1 : 0)], [0, 0], [1, -(Math.sin(t * 12) > 0 ? 1 : 0)]]) if (vis(vx + i, vy + j)) B[(vy + j) * 320 + vx + i] = hex('#5a4a40'); }
+    const luces = [[222, 84], [204, 112], [244, 136]];
+    for (const [bx, by] of luces) halo(B, U.M, vis, bx, by, 10, 0.4 * (0.8 + 0.2 * Math.sin(t * 11 + bx)));
+    aguaFondo(B, U.M, vis, 187, 251, 142, 145, t, [244]);
+    { const per = 1.4, f = (t % per) / per, gx = 200; if (f < 0.5) { const y = Math.round(lerp(135, 141, f / 0.5)); if (vis(gx, y)) B[y * 320 + gx] = AGU[5]; } else { const r = Math.round((f - 0.5) * 8); for (const s of [-1, 1]) if (vis(gx + s * r, 142) && U.M[142 * 320 + gx + s * r]) B[142 * 320 + gx + s * r] = AGU[5]; } }
+    brillos(B, vis, U.sarcos, t);
+    for (const [bx, by] of luces) bombilla(B, vis, bx, by, t, false);
+  }
+  // a «30», el pozo de Osiris late (lo real): el anillo en la superficie y un marco de puntos que corre alrededor de la lupa
+  if (a > 0) { const rr = Math.round(7 * (0.9 + 0.1 * Math.sin(t * 6))); for (let k = 0; k < 60; k++) { if ((k + Math.floor(t * 8)) % 4 === 0) continue; const an = k / 60 * Math.PI * 2; R.pset(Math.round(150 + Math.cos(an) * rr), Math.round(48 + Math.sin(an) * rr * 0.7), hex('#ffffff')); }
+    const g = 2 + Math.round(Math.sin(t * 6)), x0 = LX0 - 1 - g, y0 = LY0 - 1 - g, x1 = LX1 + 1 + g, y1 = LY1 + 1 + g, per = 2 * (x1 - x0 + y1 - y0), s0 = Math.floor(t * 30);
+    for (let s = 0; s < per; s++) { if ((s + s0) % 6 > 2) continue; const [x, y] = s < x1 - x0 ? [x0 + s, y0] : s < x1 - x0 + y1 - y0 ? [x1, y0 + s - (x1 - x0)] : s < 2 * (x1 - x0) + y1 - y0 ? [x1 - (s - (x1 - x0) - (y1 - y0)), y1] : [x0, y1 - (s - 2 * (x1 - x0) - (y1 - y0))]; R.pset(x, y, (s + s0) % 6 === 1 ? hex('#ffffff') : hex('#ffe6a0')); } }
+  // a «not 600», se encienden los pozos que dicen (magenta) con su llave de cota de arriba abajo
+  const b = tramo(t, no600 - 0.1, no600 + 0.5);
+  if (b > 0) { const y1 = Math.round(lerp(52, 150, b)); for (let y = 52; y <= y1; y++) { if (Math.floor(t * 6) % 2 && y % 2) continue; R.pset(40, y, hex('#ff5ad8')); R.pset(101, y, hex('#ff5ad8')); }
+    R.linea(38, 52, 42, 52, hex('#ff5ad8')); if (b >= 1) R.linea(38, 150, 42, 150, hex('#ff5ad8')); }
+  // las dos cifras, grandes: 30 sobre la lupa (lo real) y, a «not 600», 650 junto a los pozos (lo que dicen)
+  if (a > 0) R.numero('30', 219, Math.round(lerp(58, 50, a)), { tam: 16, centro: true });
+  if (b > 0) R.numero('650', 146, Math.round(lerp(118, 110, b)), { tam: 16, centro: true });
+  // el técnico en la tarima: mira la lupa y la señala; a «not 600» se vuelve hacia los pozos y abre los brazos
+  const gira = t > no600 - 0.2;
+  R.actor(EL.tecnicoEgipcio, 266, 172, t, { dir: gira ? -1 : -1, dedo: t > t30 - 0.1 && t < no600 - 0.2, brazos: gira && t < no600 + 0.9, habla: Math.sin(t * 8) > 0.2 && t > no600 + 0.9 });
+  T.planoDelante(R, t, REG);
+};
+
+const efectos = [[0.4, 'viento'], [calzada, 'brillo'], [esfinge, 'pop'], [osiris, 'whoosh'], [tres, 'golpecito'], [treinta, 'tic'],
+  [granito, 'interruptor'], [agua, 'burbujas'], [limpia, 'golpecito'], [t30, 'brillo'], [no600, 'bip']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: desde([[0, 2026], [P3, 1999], [P4, 2025]]) });
+</script>
+</body>
+</html>

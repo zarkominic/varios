@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maxwell · ep27</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TS-MAXWELL (frase 9), 1987 → 1988. Cuatro planos:
+// 1. «Without a signed contract, Stein sold the rights to Mirrorsoft, a British company»: el despacho alto del magnate
+//    en Londres: Stein y el ejecutivo se dan la mano sobre la alfombra en «sold the rights» (el contrato, sin firmar,
+//    pasa a la mesa); detrás de la mesa, el magnate, grande y con cejas pobladas, firma. Corta en «owned».
+// 2. «owned by the newspaper tycoon Robert Maxwell, and to its American partner Spectrum HoloByte»: la nave de las
+//    rotativas (fondo local): el papel corre por los rodillos, los periódicos salen en cinta; el magnate entra en
+//    «tycoon» y señala orgulloso; en «American partner» una carretilla saca una caja con la banderita de EE. UU.
+// 3. «In 1988, Tetris reached American stores in a box with Red Square and its onion domes on it»: la tienda de
+//    informática de EE. UU.: un cliente entra en «stores», el dependiente enciende el foco del escaparate en «box» y
+//    el cliente señala la caja de la Plaza Roja en «Red Square». Corta en «The first».
+// 4. «The first Soviet video game ever sold in America»: el mostrador de cerca (fondo local): pared de listones con dos
+//    estanterías bajas de cajas (no suben de y 26), reloj de pared con el segundero, carril de focos y un póster pequeño fuera de
+//    la zona de Atom (x 232–262, y 14–46); encimera de laminado con vetas, reflejo, rozaduras, folletos, bloc, alfombrilla
+//    y monedas. La mano del cliente agarra la caja por el canto y la desliza (x 56 → 118), la suelta y se retira; luego
+//    la otra mano deja los billetes en la alfombrilla; la registradora marca el precio y el cajón se abre con su campanilla en «sold».
+import * as T from '/atomo/plato/escenas/ts-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_TS as TS } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('ts-maxwell');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_TS, K = hex('#0c0a12');
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const capa = (() => { const m = {}; return (clave, dibuja) => { if (!m[clave]) { const b = R.nuevo(), prev = R.usar(b); dibuja(); R.usar(prev); m[clave] = b; } R.copiar(m[clave]); }; })();
+// fondo con cielo: pinta el cielo y luego el resto; devuelve la máscara de lo que sigue siendo cielo
+const fondoCielo = (() => { const m = {}; return (clave, cielo, resto) => { let f = m[clave];
+  if (!f) { const a = R.nuevo(), b = R.nuevo(), prev = R.usar(a); cielo(); R.usar(b); R.copiar(a); resto(); R.usar(prev);
+    const mk = new Uint8Array(320 * 180); for (let i = 0; i < mk.length; i++) mk[i] = a[i] === b[i] ? 1 : 0; f = m[clave] = { b, mk }; }
+  R.copiar(f.b); return f.mk; }; })();
+// una nube de tres tonos (luz, medio, sombra) que solo se pinta sobre el cielo de la máscara
+const BOLAS = [[0, 0, 1], [-0.42, 0.12, 0.72], [0.45, 0.14, 0.7], [-0.2, -0.22, 0.72], [0.22, -0.26, 0.62], [0.7, 0.2, 0.45], [-0.72, 0.2, 0.42]];
+const nube = (mk, cx, cy, w, ton) => { const r0 = w / 3.2;
+  for (let y = Math.floor(cy - r0 * 1.7); y <= cy + r0 * 0.55; y++) for (let x = Math.floor(cx - w); x <= cx + w; x++) {
+    if (x < 0 || x > 319 || y < 0 || y > 179 || !mk[y * 320 + x]) continue;
+    let dentro = false, sup = -1; for (const [bx, by, br] of BOLAS) { const dx = x - (cx + bx * w), dy = y - (cy + by * w), r = br * r0; if (dx * dx + dy * dy <= r * r) { dentro = true; sup = Math.max(sup, -dy / r); } }
+    if (!dentro) continue; R.pset(x, y, y > cy + r0 * 0.3 ? ton[2] : sup > 0.45 ? ton[0] : sup > 0.2 && ((x + y) & 1) ? ton[0] : ton[1]); } };
+// un pájaro (gaviota o paloma lejos) que aletea; solo sobre el cielo
+const pajaro = (mk, x, y, t, c) => { x = Math.round(x); y = Math.round(y); const a = Math.floor(t * 6 + x * 0.1) % 2;
+  for (const [dx, dy] of a ? [[-2, -1], [-1, 0], [0, 0], [1, 0], [2, -1]] : [[-2, 1], [-1, 0], [0, 0], [1, 0], [2, 1]]) { const X = x + dx, Y = y + dy; if (X >= 0 && X < 320 && Y >= 0 && Y < 180 && mk[Y * 320 + X]) R.pset(X, Y, c); } };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const tinte = (x, y, c, a) => R.pset(x, y, mez(R.pget(x, y), c, a));
+
+const m = (f) => en('maxwell', f);
+const P2 = m(0.217), P3 = m(0.5246), P4 = m(0.8476);
+const contrato = m(0.03), vende = m(0.079), derechos = m(0.1077), mirror = m(0.131), britanica = m(0.183);
+const magnate = m(0.271), maxwell = m(0.324), socio = m(0.391), spectrum = m(0.436);
+const tetris = m(0.5945), tiendas = m(0.646), caja = m(0.693), plaza = m(0.722), cupulas = m(0.773);
+const sovietico = m(0.865), vendido = m(0.939), america = m(0.969);
+
+// ── 1 · la torre de Londres: el apretón de manos sin contrato firmado ──
+const p1 = (t) => {
+  const o = { encuadre: 'torre' };
+  T.occidente(R, t, o);
+  // Stein llega desde la izquierda y el ejecutivo desde la derecha; se dan la mano en «sold the rights»
+  const ws = tramo(t, 0.1, vende - 0.2), we = tramo(t, 0.3, vende - 0.2);
+  const sx = Math.round(lerp(14, 70, ws)), ex = Math.round(lerp(150, 92, we));
+  const junto = ws >= 1 && we >= 1, sacude = junto && t < derechos + 1.2 ? Math.round(Math.sin(t * 16)) * 2 : 0;
+  const pm = [86, 148 + sacude];
+  R.actor(TS.stein, sx, 164, t, { dir: 1, anda: ws > 0 && ws < 1, sostiene: junto && t < derechos + 1.2 ? pm : false, sonrisa: junto, habla: t > derechos + 1.2 && t < britanica });
+  // el ejecutivo lleva el contrato sin firmar y, tras el apretón, lo deja en la mesa del magnate
+  const lleva = tramo(t, derechos + 1.3, britanica - 0.2), ex2 = Math.round(lerp(ex, 150, lleva));
+  const re = R.actor(TS.ejecutivoMirror, ex2, 164, t, { dir: lleva > 0 && lleva < 1 ? 1 : -1, anda: (we > 0 && we < 1) || (lleva > 0 && lleva < 1), sostiene: junto && t < derechos + 1.2 ? [pm[0] + 1, pm[1]] : true, sonrisa: junto });
+  if (!(junto && t < derechos + 1.2) && lleva < 1) { R.rect(re.mano[0] - 3, re.mano[1] - 5, re.mano[0] + 3, re.mano[1] + 3, K); R.rect(re.mano[0] - 2, re.mano[1] - 4, re.mano[0] + 2, re.mano[1] + 2, hex('#f6f2e6')); }
+  // el magnate detrás de la mesa: habla por teléfono y luego firma
+  const firma = t > britanica - 0.1;
+  const rm = R.actor(TS.maxwell, 220, 144, t, { dir: -1, habla: t < derechos, sostiene: firma ? [246 + Math.round(Math.sin(t * 14) * 2), 136] : false, enfado: t > derechos && t < britanica - 0.1, sonrisa: firma });
+  T.occidenteDelante(R, t, o);
+  // el contrato en la mesa (sin firma hasta que el magnate firma) y la pluma en su mano
+  if (lleva >= 1) { R.poligono([[238, 138], [258, 138], [260, 142], [236, 142]], K); R.poligono([[239, 138], [257, 138], [259, 141], [237, 141]], hex('#f6f2e6')); R.linea(240, 139, 254, 139, hex('#b8b0a0'));
+    if (firma) R.linea(244, 140, 244 + Math.round(tramo(t, britanica - 0.1, britanica + 0.6) * 12), 140, hex('#2a4ac8')); }
+  if (firma) R.linea(rm.mano[0], rm.mano[1], rm.mano[0] + 3, rm.mano[1] - 6, hex('#1a1a22'));
+  if (t > contrato - 0.2 && t < vende) R.icono('X', 236, 118, hex('#ff8a7a'), K, 2);
+};
+
+// ── 2 · la nave de las rotativas (fondo local) ──
+const AC = [hex('#3a3e4a'), hex('#4a4e5a'), hex('#5a6070'), hex('#2a2c36')];
+const VE = [hex('#2e5a46'), hex('#3e6e56'), hex('#5a8a70'), hex('#1e3e30')];
+// el camino del papel por la rotativa: de la bobina, arriba y abajo entre los rodillos, hasta la plegadora
+const CAMINO = [[22, 118], [40, 84], [66, 84], [76, 122], [102, 122], [112, 84], [138, 84], [148, 122], [174, 122], [184, 84], [206, 84], [222, 112]];
+const LARGO = (() => { let L = 0; for (let i = 1; i < CAMINO.length; i++) L += Math.hypot(CAMINO[i][0] - CAMINO[i - 1][0], CAMINO[i][1] - CAMINO[i - 1][1]); return L; })();
+const enCamino = (u) => { let d = u * LARGO; for (let i = 1; i < CAMINO.length; i++) { const [x0, y0] = CAMINO[i - 1], [x1, y1] = CAMINO[i], l = Math.hypot(x1 - x0, y1 - y0); if (d <= l) return [x0 + (x1 - x0) * d / l, y0 + (y1 - y0) * d / l]; d -= l; } return CAMINO[CAMINO.length - 1]; };
+const cieloNave = () => { for (let y = 0; y < 70; y++) for (let x = 0; x < 320; x++) { const u = y / 70 + (h(x, y, 2) - 0.5) * 0.16; R.pset(x, y, u < 0.4 ? hex('#8aa8c8') : u < 0.75 ? hex('#a8c0d8') : hex('#c8d4e0')); } };
+const nave = () => {
+  // por los ventanales: Londres gris (la cúpula, las agujas, los tejados) — se pinta antes que la pared, que deja los huecos
+  R.poligono([[0, 60], [20, 52], [30, 56], [52, 50], [70, 56], [96, 48], [120, 54], [150, 46], [176, 52], [200, 50], [230, 56], [260, 48], [290, 54], [320, 50], [320, 70], [0, 70]], hex('#7a8698'));
+  R.disco(160, 36, 9, hex('#6a7688')); R.rect(151, 36, 169, 48, hex('#6a7688')); R.rect(159, 22, 160, 28, hex('#6a7688')); R.rect(146, 44, 174, 48, hex('#6a7688'));
+  for (const [x, hh] of [[60, 16], [240, 20], [270, 12]]) { R.rect(x, 50 - hh, x + 2, 52, hex('#6a7688')); R.poligono([[x - 1, 50 - hh], [x + 1, 44 - hh], [x + 3, 50 - hh]], hex('#6a7688')); }
+  // la pared de ladrillo, con los tres ventanales de hierro (huecos) y las columnas de acero roblonadas
+  const hueco = (x, y) => y > 8 && y < 58 && ((x > 18 && x < 88) || (x > 118 && x < 188) || (x > 218 && x < 288));
+  for (let y = 0; y < 134; y++) for (let x = 0; x < 320; x++) { if (hueco(x, y)) { if ((x - 18) % 10 === 0 || (y - 8) % 10 === 0) R.pset(x, y, hex('#2a2c36')); continue; }
+    const f = y >> 2, bx = (x + (f % 2) * 6) % 12; R.pset(x, y, y % 4 === 0 || bx === 0 ? hex('#5a3a2e') : h(x >> 2, f, 3) < 0.2 ? hex('#8a4a36') : h(x >> 2, f, 4) < 0.1 ? hex('#6a3a2a') : hex('#7a4232')); }
+  for (const x0 of [18, 118, 218]) { R.rect(x0 - 2, 6, x0 + 72, 8, AC[0]); R.rect(x0 - 2, 58, x0 + 72, 61, hex('#a8a090')); R.rect(x0 - 2, 61, x0 + 72, 61, hex('#6a6458')); }
+  for (const x of [100, 200, 300]) { R.rect(x - 4, 0, x + 4, 134, K); R.rect(x - 3, 0, x + 3, 134, AC[1]); R.rect(x - 1, 0, x + 1, 134, AC[2]); for (let y = 6; y < 134; y += 10) { R.pset(x - 3, y, AC[2]); R.pset(x + 3, y, AC[2]); } }
+  // la pasarela con su barandilla y los tubos con sus llaves de paso
+  R.rect(0, 64, 319, 67, AC[0]); R.rect(0, 64, 319, 64, AC[2]); R.rect(0, 74, 319, 75, AC[2]); for (let x = 2; x < 320; x += 10) R.rect(x, 66, x, 75, AC[2]);
+  for (let x = 0; x < 320; x += 20) { R.linea(x, 67, x + 10, 72, AC[3]); R.linea(x + 10, 72, x + 20, 67, AC[3]); }
+  R.rect(0, 100, 319, 103, hex('#8a6a3a')); R.rect(0, 100, 319, 100, hex('#b8945a')); R.rect(0, 106, 319, 108, hex('#4a6a8a')); R.rect(0, 106, 319, 106, hex('#6a8aaa'));
+  for (const x of [46, 156, 252]) { R.rect(x, 97, x + 5, 104, K); R.rect(x + 1, 98, x + 4, 103, hex('#c8302a')); R.rect(x - 2, 95, x + 7, 96, hex('#c8302a')); }
+  // el cartel de seguridad (el casco y el triángulo, sin letras), el reloj de fichar y el extintor
+  R.rect(232, 78, 252, 96, K); R.rect(233, 79, 251, 95, hex('#e8c020')); R.poligono([[242, 81], [249, 93], [235, 93]], K); R.poligono([[242, 84], [247, 92], [237, 92]], hex('#e8c020')); R.rect(241, 86, 242, 89, K);
+  R.rect(276, 78, 296, 98, K); R.rect(277, 79, 295, 97, hex('#c8c0b0')); R.disco(286, 86, 6, K); R.disco(286, 86, 5, hex('#f6f2e6')); R.rect(280, 93, 292, 95, K);
+  R.rect(306, 110, 312, 128, K); R.rect(307, 111, 311, 127, hex('#c8302a')); R.rect(307, 111, 311, 112, hex('#e8605a'));
+  // el suelo de hormigón: juntas, manchas de tinta, el charco y la franja de peligro amarilla y negra
+  for (let y = 134; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (y - 134) % 15 === 0 || (x + (y - 134)) % 64 === 0 ? hex('#56565e') : h(x >> 1, y >> 1, 5) < 0.07 ? hex('#5e5e66') : hex('#6c6c74'));
+  for (let x = 0; x < 320; x++) for (let y = 152; y < 155; y++) R.pset(x, y, ((x + y) >> 2) % 2 ? hex('#d8b030') : hex('#1a1a22'));
+  for (const [x, y, r] of [[60, 168, 5], [250, 164, 4], [178, 176, 3]]) { R.disco(x, y, r, hex('#3a3a46')); R.pset(x - 1, y - 1, hex('#5a5a6a')); }
+  R.poligono([[120, 170], [150, 168], [158, 173], [124, 176]], hex('#4a5a70')); R.linea(126, 171, 146, 170, hex('#8aa0c0'));
+  // la rotativa: dos cuerpos de hierro verde con su bastidor, los engranajes del costado y la plegadora
+  for (const [x0, x1] of [[30, 90], [102, 162], [174, 216]]) { R.rect(x0, 76, x1, 134, K); R.rect(x0 + 1, 77, x1 - 1, 133, VE[0]); R.rect(x0 + 1, 77, x1 - 1, 79, VE[2]); R.rect(x1 - 4, 77, x1 - 1, 133, VE[3]);
+    for (let y = 82; y < 132; y += 8) { R.pset(x0 + 3, y, VE[2]); R.pset(x1 - 6, y, VE[2]); } R.rect(x0 + 2, 128, x1 - 2, 133, VE[3]); }
+  R.rect(26, 134, 222, 138, K); R.rect(27, 134, 221, 136, AC[1]);
+  R.rect(214, 98, 236, 134, K); R.rect(215, 99, 235, 133, VE[1]); R.rect(215, 99, 235, 101, VE[2]); R.rect(236, 116, 318, 122, K); R.rect(237, 117, 317, 121, AC[2]); for (let x = 240; x < 318; x += 6) R.pset(x, 119, AC[3]);
+  R.rect(244, 122, 248, 152, AC[3]); R.rect(306, 122, 310, 152, AC[3]);
+  // las pilas de periódicos atados (rayas de titulares, sin letras) y el palé de bobinas de papel
+  for (const [x, y, n] of [[252, 150, 4], [280, 150, 3]]) for (let k = 0; k < n; k++) { const yy = y - k * 5; R.rect(x, yy - 5, x + 22, yy, K); R.rect(x + 1, yy - 4, x + 21, yy - 1, hex('#e8e2d0')); R.rect(x + 2, yy - 4, x + 9, yy - 4, hex('#1a1a22')); R.rect(x + 11, yy - 3, x + 19, yy - 3, hex('#8a8478')); R.rect(x + 10, yy - 5, x + 11, yy, hex('#a87a40')); }
+  R.rect(0, 168, 34, 172, hex('#8a6a3a')); for (const [x, y] of [[8, 160], [24, 160], [16, 150]]) { R.disco(x, y, 8, K); R.disco(x, y, 7, hex('#f2ecd8')); R.disco(x, y, 4, hex('#e2dcc8')); R.disco(x, y, 2, AC[0]); }
+};
+const p2 = (t) => {
+  const mk = fondoCielo('nave', cieloNave, nave);
+  // las nubes de Londres que pasan por los ventanales y unas palomas
+  for (let k = 0; k < 4; k++) { const v = [2, 4, 6][k % 3], w = [18, 14, 10][k % 3]; nube(mk, ((k * 97 + t * v) % 380) - 30, 14 + (k * 11) % 26, w, [hex('#eef2f6'), hex('#ccd6e0'), hex('#9aa8b8')]); }
+  for (let k = 0; k < 2; k++) pajaro(mk, ((k * 150 + t * 18) % 360) - 20, 22 + k * 10, t + k, hex('#3a3a46'));
+  // las lámparas industriales que cuelgan y se mecen, con su luz
+  for (const [x, f] of [[60, 0], [160, 1.3], [258, 2.1]]) { const s = Math.round(Math.sin(t * 1.1 + f) * 2); R.linea(x, 0, x + s, 18, K); R.poligono([[x + s - 8, 24], [x + s - 3, 18], [x + s + 3, 18], [x + s + 8, 24]], AC[0]); R.rect(x + s - 8, 24, x + s + 8, 24, AC[3]); R.rect(x + s - 2, 25, x + s + 2, 26, hex('#fff2b0')); }
+  // los rodillos que giran y el papel que corre entre ellos, con la tinta de las páginas
+  for (let i = 1; i < CAMINO.length - 1; i++) { const [x, y] = CAMINO[i], arriba = y < 100; const cy = arriba ? y + 4 : y - 4; R.disco(x, cy, 6, K); R.disco(x, cy, 5, AC[2]); R.disco(x, cy, 3, AC[1]); const a = t * 9 + x; R.linea(x, cy, Math.round(x + Math.cos(a) * 4), Math.round(cy + Math.sin(a) * 4), AC[3]); }
+  for (let i = 1; i < CAMINO.length; i++) { const [x0, y0] = CAMINO[i - 1], [x1, y1] = CAMINO[i]; R.linea(x0, y0, x1, y1, hex('#f2ecd8')); R.linea(x0 + 1, y0, x1 + 1, y1, hex('#d8d2c0')); }
+  for (let k = 0; k < 22; k++) { const [x, y] = enCamino((t * 0.35 + k / 22) % 1); R.pset(Math.round(x), Math.round(y), hex('#1a1a22')); }
+  // los engranajes del costado, que giran
+  for (const [x, y, r] of [[60, 108, 9], [132, 108, 9], [196, 110, 7]]) { R.disco(x, y, r, K); R.disco(x, y, r - 1, hex('#8a8a96')); R.disco(x, y, r - 4, AC[1]);
+    for (let k = 0; k < 8; k++) { const a = t * (r === 7 ? -2 : 2) + k * Math.PI / 4; R.rect(Math.round(x + Math.cos(a) * r) - 1, Math.round(y + Math.sin(a) * r) - 1, Math.round(x + Math.cos(a) * r) + 1, Math.round(y + Math.sin(a) * r) + 1, hex('#8a8a96')); } R.disco(x, y, 1, hex('#e8e0cc')); }
+  // la bobina gira y los periódicos plegados salen por la cinta y caen en la pila
+  { R.disco(16, 116, 13, K); R.disco(16, 116, 12, hex('#f2ecd8')); for (let r = 3; r < 12; r += 3) R.disco(16, 116, r, (r % 2) ? hex('#e2dcc8') : hex('#f2ecd8')); R.disco(16, 116, 2, AC[0]); const a = t * 3; R.linea(16, 116, Math.round(16 + Math.cos(a) * 10), Math.round(116 + Math.sin(a) * 10), hex('#c8c0a8')); }
+  for (let k = 0; k < 4; k++) { const u = (t * 0.45 + k / 4) % 1, x = Math.round(lerp(232, 316, u)); R.rect(x, 111, x + 12, 116, K); R.rect(x + 1, 112, x + 11, 115, hex('#e8e2d0')); R.rect(x + 2, 112, x + 6, 112, hex('#1a1a22')); R.rect(x + 8, 113, x + 10, 114, hex('#c8302a')); }
+  R.linea(286, 86, 286 + Math.round(Math.cos(t * 0.8) * 4), 86 + Math.round(Math.sin(t * 0.8) * 4), K);
+  // un operario cruza la pasarela y otro vigila la rotativa
+  { const x = Math.round(((t * 16) % 380) - 30); R.actor(TS.operario, x, 64, t, { dir: 1, anda: true }); }
+  R.actor(TS.operario, 92, 150, t, { dir: 1, habla: t > P2 + 0.4 && t < P2 + 1.2, sorpresa: t > magnate - 0.2 && t < magnate + 0.4, sonrisa: t > magnate + 0.4 });
+  // el magnate entra en «tycoon», se para en el centro y señala la rotativa, orgulloso
+  const w = tramo(t, P2 + 0.1, magnate + 0.5), mx = Math.round(lerp(-20, 140, w * (2 - w)));
+  const rc = tramo(t, socio - 0.6, socio + 0.5);
+  R.actor(TS.maxwell, mx, 168, t, { dir: rc > 0.6 ? 1 : w >= 1 ? -1 : 1, anda: w > 0 && w < 1, dedo: (t > maxwell - 0.3 && t < socio - 0.3) || (t > spectrum - 0.2 && t < spectrum + 0.8), sonrisa: t > maxwell - 0.3, habla: t > socio && t < spectrum + 1.2 });
+  // la carretilla con la caja para el socio americano (la banderita de EE. UU.) llega por la derecha y se para junto a él
+  if (rc > 0) { const cx = Math.round(lerp(330, 176, rc * (2 - rc)));
+    R.rect(cx - 2, 156, cx + 34, 158, K); R.rect(cx + 34, 140, cx + 36, 172, K); R.disco(cx + 6, 172, 3, K); R.disco(cx + 6, 172, 1, AC[2]); R.disco(cx + 28, 172, 3, K); R.disco(cx + 28, 172, 1, AC[2]); R.rect(cx - 2, 166, cx + 34, 168, AC[0]);
+    R.rect(cx + 2, 134, cx + 32, 166, K); R.rect(cx + 3, 135, cx + 31, 165, hex('#c8964a')); R.rect(cx + 3, 135, cx + 31, 137, hex('#e2b06a')); R.linea(cx + 3, 135, cx + 31, 165, hex('#a87a40')); R.linea(cx + 31, 135, cx + 3, 165, hex('#a87a40'));
+    R.rect(cx + 9, 142, cx + 25, 154, K); for (let j = 0; j < 11; j++) R.rect(cx + 10, 143 + j, cx + 24, 143 + j, j % 2 ? hex('#f6f2ec') : hex('#c8302a')); R.rect(cx + 10, 143, cx + 16, 148, hex('#2a4a9a')); R.pset(cx + 12, 145, hex('#ffffff')); R.pset(cx + 14, 146, hex('#ffffff'));
+    R.actor(TS.operario, cx + 36, 176, t, { dir: -1, anda: rc < 1, sonrisa: rc >= 1, sostiene: [cx + 36, 150] }); }
+};
+
+// ── 3 · la tienda de informática de EE. UU., 1988 ──
+const p3 = (t) => {
+  const o = { encuadre: 'torre', camara: 'tienda' };
+  T.occidente(R, t, o);
+  // el foco del escaparate se enciende sobre la caja en «box»: un haz y destellos
+  const foco = tramo(t, caja - 0.3, caja + 0.1);
+  if (foco > 0) { for (let y = 22; y < 98; y++) for (let x = 20; x < 86; x++) if (Math.abs(x - 52) < (y - 18) * 0.28 && ((x + y) & 1) && h(x, y, 3) < foco * 0.55) tinte(x, y, hex('#fff6c0'), 0.3);
+    for (let k = 0; k < 4; k++) { const a = t * 2 + k * 1.6; R.pset(Math.round(52 + Math.cos(a) * 26), Math.round(70 + Math.sin(a) * 30), hex('#ffffff')); } }
+  // un niño juega en el ordenador de demostración
+  R.actor(TS.publico, 158, 154, t, { dir: 1, habla: Math.sin(t * 1.7) > 0.5, sonrisa: t > tetris });
+  // el dependiente detrás del mostrador: saluda y señala el escaparate en «box»
+  R.actor(TS.tendero, 266, 144, t, { dir: -1, habla: t > tiendas && t < caja - 0.3, dedo: t > caja - 0.3 && t < cupulas, sonrisa: t > cupulas });
+  // el cliente entra por la puerta en «stores», se acerca al escaparate y señala la caja en «Red Square»
+  const w = tramo(t, tetris - 0.4, tiendas + 0.6), w2 = tramo(t, caja - 0.2, plaza);
+  const cx = Math.round(lerp(lerp(108, 150, w), 72, w2)), entra = t > tetris - 0.4;
+  if (entra) R.actor(TS.publica, cx, 166, t, { dir: w2 > 0 ? -1 : 1, anda: (w > 0 && w < 1) || (w2 > 0 && w2 < 1), dedo: t > plaza && t < cupulas + 0.6, sorpresa: t > plaza - 0.1 && t < plaza + 0.4, sonrisa: t > cupulas + 0.2 });
+  T.occidenteDelante(R, t, o);
+  if (t > plaza && t < plaza + 1.2) R.icono('!', cx + 4, 128 - Math.round(tramo(t, plaza, plaza + 0.2) * 5), hex('#ffe890'), K, 2);
+};
+
+// ── 4 · el mostrador de cerca: la primera venta (fondo local) ──
+// una estantería de cajas de programas (sin letras): su balda con la luz del canto, las escuadras, las cajas de pie
+// de varios tamaños, una pila tumbada y las etiquetas de precio; las cajas no suben de y 26
+const estante = (y, sem) => {
+  R.rect(0, y + 4, 230, y + 7, mez(hex('#c8a47a'), K, 0.3)); R.rect(0, y + 8, 230, y + 9, mez(hex('#c8a47a'), K, 0.15));
+  let x = 4, k = 0;
+  while (x < 216) { const c = ['#2a5ac8', '#c8302a', '#e8a020', '#3a8a4a', '#6a3aa8', '#1a7a8a'][Math.floor(h(k, y, sem) * 6)];
+    if (h(k, y, sem + 1) < 0.14 && x < 200) { // la pila tumbada de tres cajas
+      for (let j = 0; j < 3; j++) { const cc = ['#c8302a', '#2a5ac8', '#e8a020'][(j + k) % 3], yy = y - 1 - j * 5; R.rect(x, yy - 4, x + 18, yy, K); R.rect(x + 1, yy - 3, x + 17, yy - 1, hex(cc)); R.rect(x + 1, yy - 3, x + 17, yy - 3, mez(hex(cc), hex('#ffffff'), 0.3)); R.rect(x + 3, yy - 2, x + 8, yy - 2, hex('#f2ecd8')); }
+      x += 21; k++; continue; }
+    const w = 11 + Math.floor(h(k, y, sem + 2) * 4), hh = 16 + Math.floor(h(k, y, sem + 3) * 9);
+    R.rect(x, y - hh, x + w, y - 1, K); R.rect(x + 1, y - hh + 1, x + w - 1, y - 1, hex(c)); R.rect(x + 1, y - hh + 1, x + 1, y - 1, mez(hex(c), hex('#ffffff'), 0.25)); R.rect(x + w - 2, y - hh + 1, x + w - 1, y - 1, mez(hex(c), K, 0.3));
+    R.rect(x + 3, y - hh + 4, x + w - 3, y - hh + 10, hex('#f2ecd8')); R.disco(x + Math.floor(w / 2), y - hh + 7, 2, hex(c)); R.rect(x + 2, y - 5, x + w - 2, y - 4, mez(hex(c), K, 0.4));
+    if (h(k, y, sem + 4) < 0.35) { R.rect(x + 2, y + 1, x + 7, y + 3, hex('#f6f2e6')); R.pset(x + 3, y + 2, hex('#c8302a')); }
+    x += w + 2 + (h(k, y, sem + 5) < 0.2 ? 3 : 0); k++; }
+  R.rect(0, y, 230, y + 3, hex('#5a3a22')); R.rect(0, y, 230, y, hex('#a87a48')); R.rect(0, y + 3, 230, y + 3, hex('#3a2414'));
+  for (const bx of [24, 118, 212]) { R.rect(bx, y + 4, bx + 2, y + 10, hex('#4a4a52')); R.linea(bx + 2, y + 4, bx + 6, y + 4, hex('#4a4a52')); R.pset(bx + 1, y + 8, hex('#8a8a96')); }
+};
+const mostrador = () => {
+  // la pared de listones: cada listón con su tono, sus vetas, algún nudo y la sombra del techo arriba;
+  // la esquina de arriba a la derecha (zona de Atom) queda en listones lisos y tranquilos
+  for (let y = 0; y < 98; y++) for (let x = 0; x < 320; x++) { const l = Math.floor(x / 12), u = x % 12, calma = x >= 262 && y <= 50;
+    let c = u === 0 ? hex('#8a6a4a') : u === 1 ? hex('#d6b68c') : [hex('#c29e74'), hex('#c8a47a'), hex('#ccaa82')][Math.floor(h(l, 7) * 3)];
+    if (!calma && u > 1 && (u * 3 + l + Math.round(Math.sin(y * 0.09 + l * 1.7) * 1.6)) % 5 === 0 && h(x, y >> 3, 11) < 0.7) c = mez(c, hex('#8a6a4a'), 0.35);
+    if (!calma && h(x, y >> 2, 2) < 0.04) c = hex('#b8946a');
+    if (y < 10) c = mez(c, K, (10 - y) * 0.025);
+    R.pset(x, y, c); }
+  for (const [x, y] of [[40, 30], [148, 72], [184, 44], [70, 92]]) { R.disco(x, y, 2, hex('#9a7650')); R.pset(x, y, hex('#6a4a2a')); }
+  // el carril de focos del techo (fuera de la barra del año y de la zona de Atom), con dos focos hacia el mostrador
+  R.rect(176, 1, 262, 3, K); R.rect(176, 1, 262, 1, hex('#5a5a66'));
+  for (const fx of [196, 240]) { R.rect(fx, 3, fx + 1, 6, K); R.poligono([[fx - 4, 6], [fx + 5, 6], [fx + 3, 15], [fx - 6, 13]], K); R.poligono([[fx - 3, 7], [fx + 4, 7], [fx + 2, 14], [fx - 5, 12]], hex('#3a3a44')); R.linea(fx - 3, 7, fx - 5, 12, hex('#6a6a78')); R.linea(fx - 5, 13, fx + 2, 15, hex('#fff2b0')); }
+  // el reloj de pared (sin cifras: solo las marcas de las horas); las agujas las pinta la escena
+  R.disco(215, 20, 8, mez(hex('#c8a47a'), K, 0.3)); R.disco(214, 19, 8, K); R.disco(214, 19, 7, hex('#c8c8d0')); R.disco(214, 19, 6, hex('#f6f2e6'));
+  for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; R.pset(Math.round(214 + Math.cos(a) * 5), Math.round(19 + Math.sin(a) * 5), k % 3 ? hex('#8a8478') : K); }
+  R.linea(209, 14, 211, 13, hex('#ffffff'));
+  // el póster espacial, más pequeño y fuera de la zona de Atom: el planeta, el cohete, su llama y las estrellas
+  R.rect(232, 14, 262, 46, K); R.rect(233, 15, 261, 45, hex('#141a3a')); for (let y = 15; y < 46; y++) if (y > 36) R.linea(233, y, 261, y, hex('#1a2250'));
+  for (let k = 0; k < 12; k++) R.pset(234 + Math.round(h(k, 1) * 26), 16 + Math.round(h(k, 2) * 28), hex('#f2f2ff'));
+  R.disco(242, 36, 6, hex('#c8603a')); R.disco(244, 34, 2, hex('#e8905a')); R.linea(234, 37, 250, 35, hex('#e8b07a'));
+  R.poligono([[254, 18], [258, 25], [250, 25]], hex('#c8c8d0')); R.rect(251, 25, 257, 34, hex('#c8c8d0')); R.rect(256, 25, 257, 34, hex('#8a8a96')); R.pset(254, 28, hex('#2a5ac8'));
+  R.poligono([[251, 34], [257, 34], [259, 38], [249, 38]], hex('#c8302a')); R.poligono([[252, 38], [256, 38], [254, 43]], hex('#e8a020'));
+  R.rect(232, 14, 233, 15, hex('#c8c8d0')); R.rect(261, 14, 262, 15, hex('#c8c8d0'));
+  // las dos estanterías de cajas, más bajas: la de arriba no sube de y 26
+  estante(52, 30); estante(88, 40);
+  // el canto del mostrador de laminado, con su listón cromado y la sombra
+  R.rect(0, 98, 319, 104, hex('#f2ecd8')); R.rect(0, 98, 319, 98, hex('#ffffff')); R.rect(0, 101, 319, 101, hex('#d8d0bc')); R.rect(0, 104, 319, 106, hex('#8a8478'));
+  for (let x = 6; x < 320; x += 23) R.pset(x, 99, hex('#fffbe8'));
+  // la encimera de laminado: vetas finas onduladas, el reflejo alargado de los focos, las motas y el oscurecido hacia delante
+  for (let y = 107; y < 180; y++) { const d = (y - 107) / 73;
+    for (let x = 0; x < 320; x++) { const g = Math.sin(x * 0.045 + y * 0.55 + Math.sin(x * 0.011 + y * 0.17) * 4);
+      let c = g > 0.94 ? hex('#d0c5a8') : g < -0.96 ? hex('#f0e9d8') : g > 0.78 && ((x + y) & 1) ? hex('#d8ceb4') : hex('#e4dcc6');
+      if (h(x >> 1, y >> 1, 9) < 0.035) c = hex('#d2c8ae');
+      const rx = (x - 168) / 78, ry = (y - 117) / 6, r = rx * rx + ry * ry;
+      if (r < 1 && (r < 0.35 || (x + y) & 1)) c = r < 0.35 ? hex('#fbf7ec') : hex('#f4eedf');
+      R.pset(x, y, mez(c, hex('#a89c80'), d * 0.2)); } }
+  // rozaduras y el cerco de una taza
+  for (let k = 0; k < 10; k++) { const x = Math.round(10 + h(k, 3, 5) * 290), y = Math.round(110 + h(k, 4, 5) * 64), l = 4 + Math.round(h(k, 5, 5) * 6); R.linea(x, y, x + l, y + (k % 2), hex('#cfc5aa')); R.pset(x + 1, y - 1, hex('#f6f0e0')); }
+  for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI * 2; if (a % 7 !== 3) R.pset(Math.round(118 + Math.cos(an) * 7), Math.round(174 + Math.sin(an) * 3), hex('#cbbf9c')); }
+  // el cuenco de caramelos y su sombra
+  R.rect(14, 134, 46, 137, mez(hex('#e4dcc6'), K, 0.2));
+  R.disco(30, 122, 14, K); R.disco(30, 122, 13, hex('#b8d8e8')); for (let k = 0; k < 12; k++) R.disco(22 + (k % 5) * 4, 116 + Math.floor(k / 5) * 4, 1, hex(['#c8302a', '#3a8a4a', '#e8a020'][k % 3]));
+  R.rect(16, 122, 44, 136, K); R.rect(17, 122, 43, 135, hex('#a8c8d8')); R.rect(18, 123, 19, 133, hex('#e0f0f8')); R.rect(41, 123, 42, 135, hex('#88a8b8'));
+  // los folletos en abanico (barras y un pictograma de piezas, sin letras)
+  for (let k = 0; k < 3; k++) { const x = 6 + k * 7, y = 164 + (2 - k) * 2, c = ['#2a5ac8', '#c8302a', '#3a8a4a'][k];
+    R.poligono([[x, y], [x + 22, y - 2], [x + 24, y + 14], [x + 2, y + 16]], K); R.poligono([[x + 1, y + 1], [x + 21, y - 1], [x + 23, y + 13], [x + 3, y + 15]], hex('#f6f2e6'));
+    R.linea(x + 2, y + 2, x + 20, y, hex(c)); R.linea(x + 2, y + 3, x + 20, y + 1, hex(c)); R.linea(x + 4, y + 9, x + 14, y + 8, hex('#9a9488')); R.linea(x + 4, y + 11, x + 18, y + 10, hex('#9a9488'));
+    R.rect(x + 15, y + 5, x + 16, y + 6, hex(c)); R.rect(x + 17, y + 5, x + 18, y + 6, hex(c)); R.rect(x + 17, y + 3, x + 18, y + 4, hex(c)); }
+  // el bloc de recibos y el bolígrafo con su cadenita
+  R.rect(56, 164, 96, 179, K); R.rect(57, 165, 95, 179, hex('#f6f2e6')); for (let y = 170; y < 179; y += 3) R.linea(60, y, 92, y, hex('#a8c0d0')); R.rect(57, 165, 95, 167, hex('#c8302a')); R.rect(58, 168, 59, 179, hex('#d8d2c0'));
+  R.linea(98, 172, 122, 164, K); R.linea(98, 173, 122, 165, hex('#2a4ac8')); R.pset(121, 164, hex('#8aa0ff'));
+  for (let i = 0; i < 10; i++) R.pset(122 + i, 164 + Math.round(Math.sin(i * 0.5) * 2) - (i >> 2), i % 2 ? hex('#8a8a96') : hex('#c8c8d0'));
+  // la alfombrilla de goma del cambio (con sus pezones) y unas monedas
+  R.rect(150, 156, 204, 178, K); R.rect(151, 157, 203, 177, hex('#2e3e34')); R.rect(151, 157, 203, 157, hex('#4a5e50'));
+  for (let y = 159; y < 177; y += 3) for (let x = 153 + ((y / 3) & 1); x < 202; x += 3) R.pset(x, y, hex('#42564a'));
+  for (const [x, y] of [[196, 171], [190, 174], [199, 165]]) { R.disco(x, y, 2, K); R.disco(x, y, 2, hex('#c8a040')); R.pset(x - 1, y - 1, hex('#fff0a0')); R.pset(x + 1, y + 1, hex('#8a6a20')); }
+  // la caja registradora beis grande, a la derecha (el visor, las teclas y el cajón los pinta la escena)
+  R.rect(210, 62, 312, 150, K); R.rect(211, 63, 311, 149, hex('#d8cfb8')); R.rect(211, 63, 311, 66, hex('#ece6d4')); R.rect(300, 63, 311, 149, hex('#b8ae96'));
+  for (let y = 68; y < 149; y += 2) if (h(y, 1, 77) < 0.5) R.pset(302 + Math.floor(h(y, 2, 77) * 8), y, hex('#c8bea6'));
+  R.rect(226, 50, 296, 66, K); R.rect(227, 51, 295, 65, hex('#2a2a32')); R.rect(229, 53, 293, 63, hex('#0a1a10'));
+  for (let j = 0; j < 4; j++) for (let i = 0; i < 6; i++) { const x = 218 + i * 13, y = 74 + j * 11; R.rect(x, y, x + 10, y + 8, K); R.rect(x + 1, y + 1, x + 9, y + 6, i > 3 ? hex('#c8302a') : hex('#f2ecd8')); R.rect(x + 1, y + 7, x + 9, y + 7, hex('#8a8478')); }
+  R.rect(298, 88, 316, 92, K); R.rect(312, 72, 316, 92, K); R.disco(314, 70, 4, K); R.disco(314, 70, 3, hex('#c8302a')); R.pset(313, 69, hex('#ff8a7a'));
+};
+const p4 = (t) => {
+  capa('mostrador', mostrador);
+  // el reloj de pared: el segundero corre y el minutero avanza
+  { const a = t * Math.PI / 30 - Math.PI / 2, b = t * Math.PI / 600 + 0.6; R.linea(214, 19, Math.round(214 + Math.cos(b) * 4), Math.round(19 + Math.sin(b) * 4), K); R.linea(214, 19, Math.round(214 + Math.cos(a) * 5), Math.round(19 + Math.sin(a) * 5), hex('#c8302a')); R.pset(214, 19, hex('#3a3a44')); }
+  // las motas de polvo que flotan bajo los focos
+  for (let k = 0; k < 7; k++) { const u = (t * 0.06 + k / 7) % 1, x = Math.round(176 + h(k, 9) * 40 + Math.sin(t * 0.7 + k) * 3), y = Math.round(18 + u * 30); R.pset(x, y, hex('#fff4d0')); }
+  // los caramelos del cuenco brillan
+  { const k = Math.floor(t * 1.5) % 6; R.pset(22 + k * 4, 115, hex('#ffffff')); }
+  // el visor de la caja: las cifras del precio aparecen al teclear y el total parpadea
+  const marca = tramo(t, P4 + 0.6, sovietico + 0.6);
+  if (marca > 0) R.numero(marca < 1 ? String(Math.floor(marca * 39)).padStart(2, '0') + '.95' : '39.95', 261, 62, { centro: true, color: hex('#5aff8a'), sombra: false });
+  if (Math.sin(t * 4) > 0) R.pset(292, 61, hex('#ff5a3a'));
+  // las teclas se hunden al marcar
+  if (marca > 0 && marca < 1) { const k = Math.floor(t * 8) % 24, x = 218 + (k % 6) * 13, y = 74 + Math.floor(k / 6) * 11; R.rect(x + 1, y + 2, x + 9, y + 7, hex('#a8a090')); }
+  // el cajón se abre en «sold», con los billetes y las monedas
+  const cajon = tramo(t, vendido - 0.1, vendido + 0.25);
+  { const y = 150 + Math.round(cajon * 18); R.rect(208, 150, 314, y + 10, K); R.rect(209, y, 313, y + 9, hex('#c8bea6')); R.rect(250, y + 3, 270, y + 5, hex('#8a8478'));
+    if (cajon > 0) { R.rect(212, 151, 310, y - 1, hex('#3a3a42')); for (let k = 0; k < 5; k++) { R.rect(214 + k * 19, 153, 230 + k * 19, Math.max(153, y - 2), hex('#6aa86a')); R.rect(214 + k * 19, 153, 230 + k * 19, 153, hex('#8ac88a')); } } }
+  if (cajon > 0 && t < vendido + 1.0) for (let k = 0; k < 5; k++) { const a = -Math.PI * (0.1 + k * 0.2); R.linea(Math.round(314 + Math.cos(a) * 6), Math.round(66 + Math.sin(a) * 6), Math.round(314 + Math.cos(a) * 11), Math.round(66 + Math.sin(a) * 11), hex('#fff2a0')); }
+  // la banderita de EE. UU. del mostrador ondea
+  R.rect(190, 108, 191, 148, K); for (let i = 0; i < 15; i++) { const o = Math.round(Math.sin(t * 5 - i * 0.5) * 1.2); for (let j = 0; j < 10; j++) R.pset(192 + i, 109 + j + o, i < 6 && j < 5 ? (((i + j) % 2) ? hex('#2a4a9a') : hex('#f6f2ec')) : (j % 2 ? hex('#f6f2ec') : hex('#c8302a'))); }
+  R.rect(186, 146, 196, 150, K); R.rect(187, 146, 195, 146, hex('#5a5a66'));
+  // la caja del juego: la mano del cliente la agarra por el canto izquierdo y la desliza sobre el mostrador en «The first»,
+  // luego la suelta y el brazo se retira
+  const desliza = tramo(t, P4 + 0.1, P4 + 1.1), bx = Math.round(lerp(56, 118, desliza * (2 - desliza)));
+  R.rect(bx - 30, 160, bx + 31, 162, mez(hex('#e4dcc6'), K, 0.25));
+  PZ.cajaJuego(R, bx, 160, { s: 3 });
+  const suelta = tramo(t, P4 + 1.15, P4 + 1.7);
+  if (suelta < 1) { const mx = Math.round(lerp(bx - 36, bx - 70, suelta)), my = Math.round(lerp(142, 196, suelta * suelta));
+    T.brazo(R, mx - 14, my + 54, mx, my, '#c8302a', 1, { codo: [mx - 24, my + 24] }); }
+  // la mano deja los billetes en «sold» sobre la alfombrilla: el brazo canónico entra desde abajo
+  const pg0 = Math.min(P4 + 1.3, vendido - 0.8), paga = tramo(t, pg0, vendido - 0.2) - tramo(t, vendido + 0.7, america + 0.9);
+  const my = Math.round(lerp(196, 160, paga));
+  if (paga > 0) T.brazo(R, 140, 204, 158, my, '#c8302a', 1, { codo: [136, 184] });
+  if (t > vendido - 0.2) { const y = t > vendido + 0.7 ? 162 : my + 2; for (let k = 0; k < 3; k++) { R.rect(158 + k * 3, y - 6 + k, 180 + k * 3, y + 4 + k, K); R.rect(159 + k * 3, y - 5 + k, 179 + k * 3, y + 3 + k, hex('#8ab88a')); R.disco(169 + k * 3, y - 1 + k, 2, hex('#5a8a5a')); } }
+  if (t > america - 0.1 && t < america + 1.2) R.icono('!', 118, 74 - Math.round(tramo(t, america - 0.1, america + 0.15) * 5), hex('#ffe890'), K, 2);
+};
+const año = (t) => t < P3 ? 1987 : 1988;
+const efectos = [[derechos, 'palmada'], [britanica, 'firma'], [magnate, 'maquina'], [socio, 'carro'], [tiendas, 'puerta'], [caja, 'interruptor'], [plaza, 'brillo'], [P4 + 0.6, 'bip'], [vendido, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

@@ -1,0 +1,758 @@
+{
+ "serie": "ASK Atom",
+ "numero": 17,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Templar Treasure, the Holy Grail and the Copper Scroll: Why No One Has Found Them",
+  "es": "El tesoro templario, el Santo Grial y el rollo de cobre: por qué nadie los ha encontrado"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "te-gancho",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "presos"
+   ],
+   "empieza_con": "cartela 1307",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "amanecer",
+     "es": "Es el amanecer del viernes 13 de octubre de 1307, y en toda Francia los soldados del rey llaman a la vez a las puertas de los caballeros templarios.",
+     "en": "It's dawn on Friday, October 13, 1307, and all across France the king's soldiers knock at the same moment on the doors of the Knights Templar.",
+     "visual": "A: París al amanecer, niebla y antorchas; soldados del rey llaman a la vez a la puerta de una casa del Temple; un caballero de manto blanco abre, con cara de sueño.",
+     "es_voz": "Es el amanecer del viernes 13 de octubre de mil trescientos siete, y en toda Francia los soldados del rey llaman a la vez a las puertas de los caballeros templarios.",
+     "en_voz": "It's dawn on Friday, October 13, thirteen oh-seven, and all across France the king's soldiers knock at the same moment on the doors of the Knights Templar."
+    },
+    {
+     "n": 2,
+     "marca": "presos",
+     "es": "Son los monjes guerreros más ricos de Europa, y en un solo día cientos de ellos acaban presos.",
+     "en": "They are the richest warrior monks in Europe, and in a single day hundreds of them end up in chains.",
+     "visual": "A (otra cámara): caballeros detenidos en fila en el patio; un soldado con un rollo sellado; campanas al fondo."
+    },
+    {
+     "n": 3,
+     "marca": "inventario",
+     "es": "En París, los soldados entran en la gran torre del Temple, abren los cofres y hacen inventario de todo.",
+     "en": "In Paris, the soldiers march into the great tower of the Temple, open the chests and make an inventory of everything.",
+     "visual": "A (interior): la gran torre del Temple; soldados abren cofres y un escribano apunta sin parar; los cofres están casi vacíos."
+    }
+   ],
+   "cartela": "1307"
+  },
+  {
+   "id": "te-pregunta",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "tesoro",
+     "es": "Pero el rey busca algo más que caballeros: busca su tesoro, y según la leyenda nunca lo encontró.",
+     "en": "But the king is after more than knights: he wants their treasure, and according to the legend he never found it.",
+     "visual": "A: el rey Felipe IV en su salón, con su libro de cuentas, mira un cofre vacío con fastidio."
+    },
+    {
+     "n": 5,
+     "marca": "cavando",
+     "es": "Setecientos años después seguimos cavando: buscamos el oro de los templarios, el Santo Grial y una lista de escondites grabada en cobre.",
+     "en": "Seven hundred years later, we're still digging: for the Templars' gold, for the Holy Grail, and for a list of hiding places engraved in copper.",
+     "visual": "H: hoy, un buscador de tesoros con su detector de metales pita en un campo junto a un castillo en ruinas… y saca una lata (gag 1)."
+    },
+    {
+     "n": 6,
+     "marca": "cuales",
+     "es": "¿Cuáles de esos tesoros existieron de verdad, y por qué nadie los encuentra?",
+     "en": "So which of these treasures were real, and why can't anyone find them?",
+     "visual": "H (mesa): un mapa con tres marcas: una cruz templaria, una copa y un rollo de metal; un «?» sobre cada una."
+    }
+   ]
+  },
+  {
+   "id": "te-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "H: el buscador saluda a Atom con el casco y la pala; Atom se presenta."
+    }
+   ]
+  },
+  {
+   "id": "te-ultramar",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1120",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "jerusalen",
+     "es": "Hacia 1120, en Jerusalén, un puñado de caballeros promete proteger a los peregrinos que llegan desde Europa por caminos llenos de ladrones.",
+     "en": "Around 1120, in Jerusalem, a handful of knights vow to protect the pilgrims who arrive from Europe along roads full of robbers.",
+     "visual": "B: Jerusalén hacia 1120, murallas doradas al sol; unos pocos caballeros juran ante un altar; peregrinos llegan por un camino de polvo.",
+     "acto": true,
+     "es_voz": "Hacia mil ciento veinte, en Jerusalén, un puñado de caballeros promete proteger a los peregrinos que llegan desde Europa por caminos llenos de ladrones.",
+     "en_voz": "Around eleven twenty, in Jerusalem, a handful of knights vow to protect the pilgrims who arrive from Europe along roads full of robbers."
+    },
+    {
+     "n": 9,
+     "marca": "templo",
+     "es": "El rey de Jerusalén les deja instalarse en la mezquita de al-Aqsa, que los cruzados llamaban el Templo de Salomón, y por eso se les llama los caballeros del Temple.",
+     "en": "The king of Jerusalem lets them settle in the al-Aqsa mosque, which the crusaders called the Temple of Solomon, and that's why they're called the Knights of the Temple.",
+     "visual": "B (otra cámara): la explanada del Templo con su gran cúpula; los caballeros instalan sus caballos en las cuadras.",
+     "en_voz": "The king of Jerusalem lets them settle in the al-Ak-sa mosque, which the crusaders called the Temple of Solomon, and that's why they're called the Knights of the Temple."
+    },
+    {
+     "n": 10,
+     "marca": "sello",
+     "es": "En su sello aparecen dos caballeros en un solo caballo, que suele leerse como un recuerdo de lo pobres que empezaron.",
+     "en": "Their seal shows two knights on a single horse, often read as a reminder of how poor they were at the start.",
+     "visual": "B (cerca): el sello de cera: dos caballeros montados en un solo caballo; el caballo pone cara de cansado."
+    }
+   ],
+   "cartela": "1120"
+  },
+  {
+   "id": "te-banco",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "carta",
+     "es": "Y se les atribuye algo genial: un peregrino deja su dinero en una casa del Temple de su país y se lleva solo una carta.",
+     "en": "And they're credited with something brilliant: a pilgrim leaves his money at a Templar house back home and carries only a letter.",
+     "visual": "A/B: un peregrino deja una bolsa de monedas en el mostrador de una casa del Temple y recibe una carta sellada."
+    },
+    {
+     "n": 12,
+     "marca": "ladron",
+     "es": "Al llegar, otra casa del Temple le devuelve lo suyo, y al ladrón que lo asalte por el camino solo le queda una carta que no puede cobrar.",
+     "en": "When he arrives, another Templar house pays him back, and any robber who stops him on the road gets nothing but a letter he can't cash.",
+     "visual": "B (camino): un ladrón asalta al peregrino, abre la bolsa y solo encuentra la carta; se rasca la cabeza (gag 3); en la otra casa le pagan al peregrino."
+    },
+    {
+     "n": 13,
+     "marca": "banco",
+     "es": "Con donaciones y negocios así, la orden acaba teniendo castillos, tierras, barcos y una especie de banco que presta dinero a los reyes.",
+     "en": "With donations and business like that, the order ends up owning castles, land, ships and a kind of bank that lends money to kings.",
+     "visual": "B: una casa del Temple que es castillo y banco: barcos en el puerto, rebaños, carros con sacos; un rey firma un préstamo."
+    }
+   ]
+  },
+  {
+   "id": "te-rey",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "felipe",
+     "es": "Uno de ellos, Felipe IV de Francia, les debe mucho dinero, y en 1307 da la orden: detenerlos a todos el mismo día.",
+     "en": "One of those kings, Philip IV of France, owes them a fortune, and in 1307 he gives the order: arrest them all on the same day.",
+     "visual": "A: el rey Felipe IV abre su libro de deudas y las páginas no se acaban (gag 2); frunce el ceño.",
+     "es_voz": "Uno de ellos, Felipe cuarto de Francia, les debe mucho dinero, y en mil trescientos siete da la orden: detenerlos a todos el mismo día.",
+     "en_voz": "One of those kings, Philip the Fourth of France, owes them a fortune, and in thirteen oh-seven he gives the order: arrest them all on the same day."
+    },
+    {
+     "n": 15,
+     "marca": "cartas",
+     "es": "Las órdenes secretas salen un mes antes, el 14 de septiembre, para que todos actúen el mismo día y nadie avise a los templarios.",
+     "en": "The secret orders go out a month ahead, on September 14, so everyone strikes on the same day and no one can warn the Templars.",
+     "visual": "A (otra cámara): mensajeros a caballo salen de París el 14 de septiembre con órdenes secretas selladas."
+    }
+   ]
+  },
+  {
+   "id": "te-hoguera",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "papa",
+     "es": "Bajo tortura, muchos confiesan lo que les dicen, y en 1312 el papa disuelve la orden.",
+     "en": "Under torture, many confess to whatever they're told, and in 1312 the pope dissolves the order.",
+     "visual": "A: un salón con un tribunal; un papa con mitra deja caer un sello sobre un pergamino; caballeros cabizbajos.",
+     "es_voz": "Bajo tortura, muchos confiesan lo que les dicen, y en mil trescientos doce el papa disuelve la orden.",
+     "en_voz": "Under torture, many confess to whatever they're told, and in thirteen twelve the pope dissolves the order."
+    },
+    {
+     "n": 17,
+     "marca": "molay",
+     "es": "En 1314, su último maestre, Jacques de Molay, muere en la hoguera en París, y la leyenda cuenta que emplazó al rey y al papa a reunirse con él ante Dios; los dos mueren ese mismo año.",
+     "en": "In 1314, their last grand master, Jacques de Molay, is burned at the stake in Paris, and legend says he summoned the king and the pope to meet him before God; both of them die that same year.",
+     "visual": "A: París al anochecer, de lejos: la isla del Sena con una columna de humo; la gente mira desde la orilla. Sin violencia.",
+     "es_voz": "En mil trescientos catorce, su último maestre, Yac de Molé, muere en la hoguera en París, y la leyenda cuenta que emplazó al rey y al papa a reunirse con él ante Dios; los dos mueren ese mismo año.",
+     "en_voz": "In thirteen fourteen, their last grand master, Zhahk duh Mo-lay, is burned at the stake in Paris, and legend says he summoned the king and the pope to meet him before God; both of them die that same year."
+    }
+   ]
+  },
+  {
+   "id": "te-flota",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "hospitalarios",
+     "es": "¿Y el tesoro? La mayor parte de sus bienes pasó a otra orden de caballeros, la de los hospitalarios.",
+     "en": "And the treasure? Most of their property was handed over to another order of knights, the Hospitallers.",
+     "visual": "A: carros con cofres que pasan de caballeros de cruz roja a caballeros de cruz blanca (los hospitalarios).",
+     "acto": true
+    },
+    {
+     "n": 19,
+     "marca": "galeras",
+     "es": "Pero en 1308 un templario, Jean de Châlons, contó ante los inquisidores que había oído que un hermano había huido con dieciocho galeras.",
+     "en": "But in 1308 a Templar named Jean de Châlons told the inquisitors he had heard that one of the brothers escaped with eighteen galleys.",
+     "visual": "C: un tribunal de 1308; un templario habla y las palabras salen en un bocadillo con dieciocho barcos dibujados.",
+     "es_voz": "Pero en mil trescientos ocho un templario, Yan de Shalón, contó ante los inquisidores que había oído que un hermano había huido con dieciocho galeras.",
+     "en_voz": "But in thirteen oh-eight a Templar named Zhahn duh Shah-lon told the inquisitors he had heard that one of the brothers escaped with eighteen galleys."
+    },
+    {
+     "n": 20,
+     "marca": "oido",
+     "es": "Lo había oído, no lo había visto, y nadie ha encontrado nunca un registro de esos barcos.",
+     "en": "He had heard it, not seen it, and no one has ever found a record of those ships.",
+     "visual": "C: el rumor pasa de boca en boca por un puerto y en cada bocadillo hay más barcos: dos, cinco, dieciocho (gag 4)."
+    }
+   ]
+  },
+  {
+   "id": "te-leyenda",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "rochelle",
+     "es": "Siglos después, alguien le puso puerto a la historia, La Rochelle, y la flota empezó a navegar sola: a Escocia, a Portugal, y hasta a América.",
+     "en": "Centuries later, someone gave the story a port, La Rochelle, and the fleet started sailing on its own: to Scotland, to Portugal, even to America.",
+     "visual": "C: un puerto atlántico de noche con niebla; galeras que se alejan con velas con cruz roja, casi fantasmas.",
+     "es_voz": "Siglos después, alguien le puso puerto a la historia, La Roshél, y la flota empezó a navegar sola: a Escocia, a Portugal, y hasta a América.",
+     "en_voz": "Centuries later, someone gave the story a port, La Ro-shell, and the fleet started sailing on its own: to Scotland, to Portugal, even to America."
+    },
+    {
+     "n": 22,
+     "marca": "oak",
+     "es": "Hay quien la busca incluso en un pozo de Nueva Escocia, Oak Island, del que ya te hablé en otro vídeo.",
+     "en": "Some even look for it in a pit in Nova Scotia, Oak Island, which I told you about in another video.",
+     "visual": "C (mapa): un mapa de papel: la flota dibujada salta a Escocia, a Portugal, a América; una chincheta en Nueva Escocia con un pozo.",
+     "es_voz": "Hay quien la busca incluso en un pozo de Nueva Escocia, Óuk Áilan, del que ya te hablé en otro vídeo."
+    },
+    {
+     "n": 23,
+     "marca": "cruz",
+     "es": "Y cada vez que alguien encuentra una cruz tallada en una piedra vieja, vuelve la pregunta: ¿pasaron por aquí los templarios?",
+     "en": "And every time someone finds a cross carved into an old stone, the question comes back: did the Templars pass through here?",
+     "visual": "H: el buscador limpia una piedra vieja con una cruz tallada y mira a cámara con cara de «¿y si…?»."
+    }
+   ]
+  },
+  {
+   "id": "te-logia",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1717",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "taberna",
+     "es": "Cuatro siglos después, en 1717 según la tradición, en una taberna de Londres, cuatro logias de masones se unen en una gran logia.",
+     "en": "Four centuries later, in 1717 by tradition, in a London tavern, four Masonic lodges come together to form a grand lodge.",
+     "visual": "D: una taberna de Londres en 1717: caballeros con peluca brindan alrededor de una mesa; un letrero con un ganso (sin letras).",
+     "acto": true,
+     "es_voz": "Cuatro siglos después, en mil setecientos diecisiete según la tradición, en una taberna de Londres, cuatro logias de masones se unen en una gran logia.",
+     "en_voz": "Four centuries later, in seventeen seventeen by tradition, in a London tavern, four Masonic lodges come together to form a grand lodge."
+    },
+    {
+     "n": 25,
+     "marca": "canteros",
+     "es": "Los masones venían de las logias de canteros que levantaban catedrales, y ahora eran sociedades de caballeros que se reunían a cenar, a hablar y a hacer obras de caridad.",
+     "en": "Freemasons had grown out of the lodges of stonemasons who built cathedrals, and now they were fraternal societies of gentlemen who met to dine, to talk, and to do charity work.",
+     "visual": "D (otra cámara): canteros medievales con escuadra y compás levantan una catedral; luego, los mismos gestos en un salón con suelo ajedrezado."
+    },
+    {
+     "n": 26,
+     "marca": "ramsay",
+     "es": "En 1736, en París, un masón escocés llamado Andrew Ramsay da un discurso que les busca un origen más noble: los cruzados.",
+     "en": "In 1736, in Paris, a Scottish Mason named Andrew Ramsay gives a speech that looks for a nobler origin for them: the crusaders.",
+     "visual": "D: un salón de París de 1736; un escocés con peluca habla ante masones con mandil; en una nube de pensamiento, cruzados a caballo.",
+     "es_voz": "En mil setecientos treinta y seis, en París, un masón escocés llamado Ándru Rámsei da un discurso que les busca un origen más noble: los cruzados.",
+     "en_voz": "In seventeen thirty-six, in Paris, a Scottish Mason named Andrew Ramsay gives a speech that looks for a nobler origin for them: the crusaders."
+    }
+   ],
+   "cartela": "1717"
+  },
+  {
+   "id": "te-masones",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "alemania",
+     "es": "Unos veinte años después, algunas logias de Alemania van más lejos y dicen que los templarios sobrevivieron en secreto dentro de la masonería.",
+     "en": "About twenty years later, some lodges in Germany go further and claim that the Templars survived in secret inside Freemasonry.",
+     "visual": "D (cerca): una logia alemana a la luz de las velas; un hombre se pone un manto blanco con cruz roja; los demás asienten."
+    },
+    {
+     "n": 28,
+     "marca": "orden",
+     "es": "No hay ningún documento que lo pruebe, pero la idea gustó tanto que todavía hoy existe una orden masónica que se llama Caballeros Templarios.",
+     "en": "There's no document that proves it, but the idea was so popular that a Masonic order called the Knights Templar still exists today.",
+     "visual": "H: un desfile de hoy de una orden masónica con mantos y sombreros de pluma (sin letras); un niño saluda."
+    },
+    {
+     "n": 29,
+     "marca": "secreto",
+     "es": "Así que el tesoro perdido se convirtió también en un secreto perdido, y eso es todavía más difícil de encontrar.",
+     "en": "So the lost treasure became a lost secret too, and that's even harder to find.",
+     "visual": "D: un cofre que se abre y dentro solo hay un sobre con un «?»; el buscador lo mira, confundido."
+    }
+   ]
+  },
+  {
+   "id": "te-perceval",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1190",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "chretien",
+     "es": "El segundo tesoro empezó como un cuento: hacia 1190, un poeta francés, Chrétien de Troyes, escribe la historia de Perceval, un joven caballero que ve pasar un objeto misterioso, un grial.",
+     "en": "The second treasure began as a story: around 1190, a French poet, Chrétien de Troyes, writes the tale of Perceval, a young knight who watches a mysterious object go by, a grail.",
+     "visual": "E: un scriptorium medieval; un poeta escribe a la luz de una vela; en un bocadillo, un joven caballero ve pasar un objeto que brilla.",
+     "acto": true,
+     "es_voz": "El segundo tesoro empezó como un cuento: hacia mil ciento noventa, un poeta francés, Cretién de Truá, escribe la historia de Perceval, un joven caballero que ve pasar un objeto misterioso, un grial.",
+     "en_voz": "The second treasure began as a story: around eleven ninety, a French poet, Kray-tyen duh Trwah, writes the tale of Perceval, a young knight who watches a mysterious object go by, a grail."
+    },
+    {
+     "n": 31,
+     "marca": "sin-terminar",
+     "es": "Chrétien murió sin terminarla, y nunca explicó de dónde venía aquel grial.",
+     "en": "Chrétien died without finishing it, and he never explained where that grail came from.",
+     "visual": "E (cerca): la última hoja del libro, a medio escribir; la pluma se queda quieta; la vela se apaga."
+    },
+    {
+     "n": 32,
+     "marca": "boron",
+     "es": "Otros poetas la continuaron, y otro, Robert de Boron, le dio un origen: era la copa de la Última Cena.",
+     "en": "Other poets carried it on, and another, Robert de Boron, gave it an origin: it was the cup of the Last Supper.",
+     "visual": "E: otro poeta, en otra mesa, escribe su propio libro y dibuja una copa en una cena; la copa brilla.",
+     "es_voz": "Otros poetas la continuaron, y otro, Robér de Borón, le dio un origen: era la copa de la Última Cena.",
+     "en_voz": "Other poets carried it on, and another, Ro-bair duh Bo-ron, gave it an origin: it was the cup of the Last Supper."
+    }
+   ],
+   "cartela": "1190"
+  },
+  {
+   "id": "te-castillo",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 33,
+     "marca": "wolfram",
+     "es": "Y hacia 1210, un poeta alemán, Wolfram von Eschenbach, lo convierte en una piedra y la pone a guardar a unos caballeros que llama templeisen, un nombre que suena mucho a templarios.",
+     "en": "And around 1210, a German poet, Wolfram von Eschenbach, makes it a stone guarded by knights he calls Templeisen, a name that sounds a lot like Templars.",
+     "visual": "E: el castillo del Grial de Wolfram: una piedra luminosa en un altar, guardada por caballeros con manto blanco; una procesión con velas.",
+     "es_voz": "Y hacia mil doscientos diez, un poeta alemán, Vólfram fon Éshenbaj, lo convierte en una piedra y la pone a guardar a unos caballeros que llama témplaisen, un nombre que suena mucho a templarios.",
+     "en_voz": "And around twelve ten, a German poet, Wolfram von Eschenbach, makes it a stone guarded by knights he calls Tem-ply-zen, a name that sounds a lot like Templars."
+    },
+    {
+     "n": 34,
+     "marca": "iglesias",
+     "es": "Desde entonces, decenas de iglesias han dicho tener el Grial, y la más famosa es la catedral de Valencia, en España.",
+     "en": "Since then, dozens of churches have claimed to have the Grail, and the most famous is the cathedral of Valencia, in Spain.",
+     "visual": "E (otra cámara): una fila de copas en un mostrador que dicen ser el Grial; cuando el buscador elige una, aparece otra al final de la fila (gag 5)."
+    }
+   ]
+  },
+  {
+   "id": "te-valencia",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 35,
+     "marca": "agata",
+     "es": "Su copa es de ágata roja, y los expertos la fechan entre dos siglos antes y un siglo después de Cristo; dos papas celebraron misa con ella.",
+     "en": "Its cup is made of red agate, and experts date it to somewhere between two centuries before and one century after Christ; two popes have said Mass with it.",
+     "visual": "E: la capilla de la catedral de Valencia; la copa de ágata roja en su vitrina, con asas de oro y perlas; un papa celebra misa."
+    },
+    {
+     "n": 36,
+     "marca": "cerca",
+     "es": "Que sea antigua no prueba que sea la de la Última Cena, pero es lo más cerca que nadie ha estado de tocar el Grial.",
+     "en": "Being that old doesn't prove it's the cup from the Last Supper, but it's the closest anyone has come to touching the Grail.",
+     "visual": "E (cerca): la copa de ágata de cerca, con la luz que la atraviesa; Atom la mira de lejos, sin tocar."
+    }
+   ]
+  },
+  {
+   "id": "te-sauniere",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1885",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 37,
+     "marca": "llega",
+     "es": "El tercer tesoro tiene autor. En 1885 llega a Rennes-le-Château, un pueblecito en una colina del sur de Francia, un cura pobre llamado Bérenger Saunière.",
+     "en": "The third treasure has an author. In 1885, a poor priest named Bérenger Saunière arrives in Rennes-le-Château, a tiny village on a hill in the south of France.",
+     "visual": "F: Rennes-le-Château en su colina; un cura joven y pobre llega en un carro con su maleta.",
+     "acto": true,
+     "es_voz": "El tercer tesoro tiene autor. En mil ochocientos ochenta y cinco llega a Ren le Sható, un pueblecito en una colina del sur de Francia, un cura pobre llamado Berenyé Soniér.",
+     "en_voz": "The third treasure has an author. In eighteen eighty-five, a poor priest named Bay-ron-zhay So-nyair arrives in Ren luh Shah-toe, a tiny village on a hill in the south of France."
+    },
+    {
+     "n": 38,
+     "marca": "villa",
+     "es": "Unos años después, Saunière restaura la iglesia y se construye una villa, un jardín y una torre de piedra para su biblioteca.",
+     "en": "A few years later, Saunière restores the church and builds himself a villa, a garden, and a stone tower for his library.",
+     "visual": "F (otra cámara): la villa con jardín y la torre de piedra; el cura pasea, satisfecho.",
+     "es_voz": "Unos años después, Soniér restaura la iglesia y se construye una villa, un jardín y una torre de piedra para su biblioteca.",
+     "en_voz": "A few years later, So-nyair restores the church and builds himself a villa, a garden, and a stone tower for his library."
+    },
+    {
+     "n": 39,
+     "marca": "misas",
+     "es": "¿De dónde salía el dinero? Su obispo lo descubrió: cobraba por correo miles de misas que no podía decir, y en 1910 lo castigaron por ello.",
+     "en": "Where did the money come from? His bishop found out: he took payment by mail for thousands of Masses he could never say, and in 1910 he was punished for it.",
+     "visual": "F (cerca): el cura recibe montones de sobres por correo; el obispo, detrás, cuenta los sobres con cara seria.",
+     "es_voz": "¿De dónde salía el dinero? Su obispo lo descubrió: cobraba por correo miles de misas que no podía decir, y en mil novecientos diez lo castigaron por ello.",
+     "en_voz": "Where did the money come from? His bishop found out: he took payment by mail for thousands of Masses he could never say, and in nineteen ten he was punished for it."
+    }
+   ],
+   "cartela": "1885"
+  },
+  {
+   "id": "te-corbu",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 40,
+     "marca": "hotel",
+     "es": "Pero en los años cincuenta, el dueño de un hotel en la antigua villa del cura, Noël Corbu, contó a los periodistas que Saunière había encontrado un tesoro, y los turistas empezaron a llegar.",
+     "en": "But in the 1950s, the owner of a hotel in the priest's old villa, Noël Corbu, told reporters that Saunière had found a treasure, and the tourists started coming.",
+     "visual": "F: el hotel en la villa en los años cincuenta; el dueño habla con periodistas que apuntan; llega un autobús de turistas.",
+     "es_voz": "Pero en los años cincuenta, el dueño de un hotel en la antigua villa del cura, Noél Corbí, contó a los periodistas que Soniér había encontrado un tesoro, y los turistas empezaron a llegar.",
+     "en_voz": "But in the nineteen-fifties, the owner of a hotel in the priest's old villa, No-el Kor-boo, told reporters that So-nyair had found a treasure, and the tourists started coming."
+    },
+    {
+     "n": 41,
+     "marca": "pergaminos",
+     "es": "Luego llegaron unos pergaminos con mensajes secretos, que uno de sus autores reconoció haber falsificado, y una sociedad secreta inventada, el Priorato de Sion.",
+     "en": "Then came some parchments with secret messages, which one of their authors admitted he had forged, and an invented secret society, the Priory of Sion.",
+     "visual": "F (cerca): una mesa con pergaminos llenos de trazos; una mano los mancha de té para que parezcan viejos."
+    }
+   ]
+  },
+  {
+   "id": "te-queso",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 42,
+     "marca": "libros",
+     "es": "De ahí salieron libros que se vendieron por millones, y El código Da Vinci, en 2003.",
+     "en": "That led to books that sold by the millions, and to The Da Vinci Code, in 2003.",
+     "visual": "H: una librería con montañas de libros y una película en un cine; colas de gente.",
+     "es_voz": "De ahí salieron libros que se vendieron por millones, y El código Da Vinchi, en dos mil tres.",
+     "en_voz": "That led to books that sold by the millions, and to The Da Vinci Code, in two thousand three."
+    },
+    {
+     "n": 43,
+     "marca": "prohibido",
+     "es": "Y llegaron tantos buscadores con palas que en 1965 el ayuntamiento tuvo que prohibir cavar en el pueblo.",
+     "en": "And so many treasure hunters arrived with shovels that in 1965 the village council had to ban digging in the village.",
+     "visual": "F: el pueblo lleno de agujeros como un queso; el buscador sale de uno con el casco y el cartel de «prohibido cavar» (pictograma de pala tachada) le cae en la cabeza (gag 6).",
+     "es_voz": "Y llegaron tantos buscadores con palas que en mil novecientos sesenta y cinco el ayuntamiento tuvo que prohibir cavar en el pueblo.",
+     "en_voz": "And so many treasure hunters arrived with shovels that in nineteen sixty-five the village council had to ban digging in the village."
+    }
+   ]
+  },
+  {
+   "id": "te-qumran",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "cartela 1952",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 44,
+     "marca": "cueva",
+     "es": "El cuarto tesoro es el más extraño, porque su mapa es real. En 1952, unos arqueólogos que exploran las cuevas de Qumrán, junto al mar Muerto, encuentran un rollo de cobre partido en dos.",
+     "en": "The fourth treasure is the strangest, because its map is real. In 1952, archaeologists exploring the caves of Qumran, near the Dead Sea, find a copper scroll broken in two.",
+     "visual": "G: las cuevas de Qumrán sobre el mar Muerto, al atardecer; arqueólogos con lámparas sacan de una cueva un rollo verdoso partido en dos.",
+     "acto": true,
+     "es_voz": "El cuarto tesoro es el más extraño, porque su mapa es real. En mil novecientos cincuenta y dos, unos arqueólogos que exploran las cuevas de Qumrán, junto al mar Muerto, encuentran un rollo de cobre partido en dos.",
+     "en_voz": "The fourth treasure is the strangest, because its map is real. In nineteen fifty-two, archaeologists exploring the caves of Koom-rahn, near the Dead Sea, find a copper scroll broken in two."
+    },
+    {
+     "n": 45,
+     "marca": "oxidado",
+     "es": "Lleva casi dos mil años enrollado, y está tan oxidado que no se puede abrir sin romperlo.",
+     "en": "It's been rolled up for almost two thousand years, and it's so corroded it can't be opened without breaking.",
+     "visual": "G (cerca): el rollo de cobre verde y quebradizo en una mesa; una mano los toca y cae un trocito."
+    },
+    {
+     "n": 46,
+     "marca": "sierra",
+     "es": "Así que entre 1955 y 1956, en un taller de Manchester, un ingeniero lo corta con una sierra muy fina en veintitrés tiras.",
+     "en": "So between 1955 and 1956, in a workshop in Manchester, an engineer cuts it with a very fine saw into twenty-three strips.",
+     "visual": "G (taller): un taller de Manchester de 1956; un ingeniero corta el rollo con una sierra muy fina en una máquina; las tiras se ponen en fila.",
+     "es_voz": "Así que entre mil novecientos cincuenta y cinco y mil novecientos cincuenta y seis, en un taller de Mánchester, un ingeniero lo corta con una sierra muy fina en veintitrés tiras.",
+     "en_voz": "So between nineteen fifty-five and nineteen fifty-six, in a workshop in Manchester, an engineer cuts it with a very fine saw into twenty-three strips."
+    }
+   ],
+   "cartela": "1952"
+  },
+  {
+   "id": "te-lista",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "lista"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 47,
+     "marca": "lista",
+     "es": "Y dentro no hay oraciones ni poemas: hay una lista de sesenta y cuatro escondites, casi todos de oro y plata.",
+     "en": "And inside there are no prayers or poems: there's a list of sixty-four hiding places, almost all of them gold and silver.",
+     "visual": "G (cerca): las tiras puestas en orden: renglones de trazos (sin letras) con lingotes y monedas dibujados en el margen."
+    },
+    {
+     "n": 48,
+     "marca": "griego",
+     "es": "Está escrito en un hebreo poco corriente, y en algunas líneas aparecen letras griegas sueltas que nadie ha sabido explicar.",
+     "en": "It's written in an unusual kind of Hebrew, and on some lines there are stray Greek letters that no one has been able to explain.",
+     "visual": "G (cerca, otra luz): una lupa sobre una línea; aparecen letras griegas sueltas como símbolos dorados y un «?»."
+    },
+    {
+     "n": 49,
+     "marca": "toneladas",
+     "es": "Según cómo se lean las medidas, es tanto metal que pesaría toneladas.",
+     "en": "Depending on how you read the measurements, it's so much metal that it would weigh tons.",
+     "visual": "G: una montaña de lingotes y vasijas que crece hasta llenar el plano; una balanza se rompe."
+    }
+   ]
+  },
+  {
+   "id": "te-indicaciones",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 50,
+     "marca": "escalones",
+     "es": "Pero las indicaciones dicen cosas como «bajo los escalones que van hacia el este», y nadie sabe ya qué escalones eran.",
+     "en": "But the directions say things like \"under the steps that lead east,\" and no one knows anymore which steps they meant.",
+     "visual": "G: el buscador en el desierto lee «bajo los escalones que van hacia el este»; mira a su alrededor y hay escalones por todas partes (gag 7)."
+    },
+    {
+     "n": 51,
+     "marca": "museo",
+     "es": "Ninguno de los sesenta y cuatro escondites se ha encontrado, y el rollo, en sus tiras, se guarda hoy en un museo de Amán, en Jordania.",
+     "en": "None of the sixty-four hiding places has ever been found, and the scroll, in its strips, is kept today in a museum in Amman, Jordan.",
+     "visual": "H: el museo de Amán: las tiras del rollo en su vitrina; una niña las mira con la nariz pegada al cristal."
+    }
+   ]
+  },
+  {
+   "id": "te-fenn",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 2010",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 52,
+     "marca": "cofre",
+     "es": "¿Y algún tesoro se encuentra de verdad? En 2010, un anticuario de Nuevo México, Forrest Fenn, escondió un cofre lleno de oro y joyas en las montañas Rocosas.",
+     "en": "So does anyone ever really find a treasure? In 2010, a New Mexico antiques dealer named Forrest Fenn hid a chest full of gold and jewels in the Rocky Mountains.",
+     "visual": "H: las montañas Rocosas; un hombre mayor con sombrero lleva un cofre de bronce por un sendero entre pinos.",
+     "acto": true,
+     "es_voz": "¿Y algún tesoro se encuentra de verdad? En dos mil diez, un anticuario de Nuevo México, Fórest Fen, escondió un cofre lleno de oro y joyas en las montañas Rocosas.",
+     "en_voz": "So does anyone ever really find a treasure? In twenty ten, a New Mexico antiques dealer named Forrest Fenn hid a chest full of gold and jewels in the Rocky Mountains."
+    },
+    {
+     "n": 53,
+     "marca": "poema",
+     "es": "Publicó un poema con pistas, y durante diez años cientos de miles de personas lo buscaron.",
+     "en": "He published a poem full of clues, and for ten years hundreds of thousands of people searched for it.",
+     "visual": "H (mesa): un libro con un poema (renglones sin letras) y cientos de buscadores con mochilas, mapas y prismáticos."
+    },
+    {
+     "n": 54,
+     "marca": "aguas",
+     "es": "La primera pista decía: «empieza donde se detienen las aguas cálidas».",
+     "en": "The first clue said: \"Begin it where warm waters halt.\"",
+     "visual": "H: una fuente termal que humea en la montaña y un río que se enfría; una flecha dibujada en el aire."
+    }
+   ],
+   "cartela": "2010"
+  },
+  {
+   "id": "te-encontrado",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 55,
+     "marca": "encontrado",
+     "es": "En junio de 2020, un estudiante de medicina lo encontró en Wyoming y salió ese mismo día a llevárselo a Fenn.",
+     "en": "In June 2020, a medical student found it in Wyoming and set off that same day to bring it to Fenn.",
+     "visual": "H: un estudiante con mochila encuentra el cofre entre las rocas; el detector del buscador pita por fin por algo de verdad… y el cofre ya tiene dueño (gag 8).",
+     "es_voz": "En junio de dos mil veinte, un estudiante de medicina lo encontró en Uaióming y salió ese mismo día a llevárselo a Fen.",
+     "en_voz": "In June twenty twenty, a medical student found it in Wyoming and set off that same day to bring it to Fenn."
+    },
+    {
+     "n": 56,
+     "marca": "unico",
+     "es": "Es el único tesoro de este vídeo que sabemos que existía, porque quien lo escondió quería que lo encontraran.",
+     "en": "It's the only treasure in this video we know for sure was real, because the man who hid it wanted it to be found.",
+     "visual": "H (otra cámara): el estudiante y el hombre mayor se dan la mano junto al cofre abierto, que brilla."
+    }
+   ]
+  },
+  {
+   "id": "te-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 57,
+     "marca": "papel",
+     "es": "Quizá el verdadero tesoro de los templarios fue aquella carta que valía dinero sin ser dinero: una idea que todavía usamos cada vez que pagamos sin llevar monedas.",
+     "en": "Maybe the Templars' real treasure was that letter worth money without being money: an idea we still use every time we pay without carrying coins.",
+     "visual": "B/H: la carta sellada de los templarios se convierte en un billete y luego en una tarjeta de hoy que paga en una tienda.",
+     "acto": true
+    },
+    {
+     "n": 58,
+     "marca": "escalon",
+     "es": "Y las leyendas siguen vivas porque a todos nos gusta pensar que, bajo algún escalón que va hacia el este, todavía queda algo por encontrar.",
+     "en": "And the legends live on because we all like to think that, under some step that leads east, there's still something left to find.",
+     "visual": "H: el atardecer; el buscador se sienta en un escalón de piedra con su detector; el detector pita bajito."
+    },
+    {
+     "n": 59,
+     "marca": "adios",
+     "es": "¿Qué quieres que te explique ahora?",
+     "en": "What do you want me to explain next?",
+     "visual": "H: el buscador mira al este y sonríe; Atom."
+    }
+   ]
+  }
+ ]
+}

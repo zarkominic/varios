@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep41 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DD-SHORT1-MINIATURA · ep41, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// El gancho: en el búnker de Banner, la luz verde de Doom llena la sala y Hulk, al doble en el centro, es arrastrado por
+// ella sobre el símbolo verde del suelo.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { bunker, bunkerDelante } from '/atomo/plato/escenas/dd-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'bunker', verde: 1, foco: [160, 112], ruge: 0.5 };
+  bunker(R, t, o);
+  halo(R, 160, 168, 40, 9, '#9affc0', 0.6);
+  figura(R, EL.hulk, 163, 172, t, { dir: 1, sorpresa: true }, 3);
+  bunkerDelante(R, t, o);
+  grado(R, { cx: 160, cy: 110, tinte: '#04140a', f: 0.2, desde: 0.45, max: 0.8 });
+  halo(R, 160, 100, 30, 90, '#e0fff0', 0.22);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

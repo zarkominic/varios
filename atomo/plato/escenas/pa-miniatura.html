@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep44 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PA-MINIATURA · ep44, canon de miniatura del 43: el personaje a la izquierda (Paul emperador en la cresta al ocaso,
+// con los brazos en alto y un mar de estandartes fremen detrás: el héroe que se vuelve villano), Atom grande y pensativo
+// a la derecha sobre su estudio, un corte en diagonal entre los dos y «PAUL» en letras de pixel grandes.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { planeta, planetaDelante, estudio } from '/atomo/plato/escenas/pa-comun.js';
+import * as AT from '/atomo/plato/escenas/atom-personaje.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+// letras de pixel (5 × 7) para las 1–3 palabras de la miniatura
+const F = {
+  H: ['#...#', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'], A: ['.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
+  Y: ['#...#', '#...#', '.#.#.', '..#..', '..#..', '..#..', '..#..'], M: ['#...#', '##.##', '#.#.#', '#.#.#', '#...#', '#...#', '#...#'],
+  I: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####'], T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'],
+  C: ['.####', '#....', '#....', '#....', '#....', '#....', '.####'],
+  P: ['####.', '#...#', '#...#', '####.', '#....', '#....', '#....'], U: ['#...#', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+  L: ['#....', '#....', '#....', '#....', '#....', '#....', '#####'],
+};
+// gruesas, con contorno oscuro y sombra dura, como los títulos de las miniaturas de relato
+const palabra = (txt, x, y, s, c, sombra) => {
+  const celdas = []; let cx = x;
+  for (const ch of txt) { const g = F[ch]; for (let j = 0; j < 7; j++) for (let i = 0; i < 5; i++) if (g[j][i] === '#') celdas.push([cx + i * s, y + j * s]); cx += 6 * s; }
+  for (const [px, py] of celdas) R.rect(px - 1 + 3, py - 1 + 3, px + s + 1 + 3, py + s + 1 + 3, sombra);   // sombra
+  for (const [px, py] of celdas) R.rect(px - 2, py - 2, px + s + 1, py + s + 1, hex('#1a1020'));            // contorno
+  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py + s - 1, c);
+  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py, hex('#ffffff'));                         // brillo arriba
+};
+const K = hex('#1a1020');
+// el halcón de los Atreides en el paño (7 × 5 px) y el estandarte fremen, como en pa-gancho
+const HALCON = ['X.....X', 'XX.Hp.X', '.dXXXd.', '..dXd..', '..d.d..'];
+const halconB = (cx, cy) => { for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) { const ch = HALCON[j][i]; if (ch === '.') continue;
+  R.pset(cx - 3 + i, cy - 2 + j, ch === 'd' ? hex('#a8782a') : ch === 'p' ? hex('#e07a30') : ch === 'H' ? hex('#fff0a0') : hex('#f0c848')); } };
+const banderolaG = (x, y, h, t, k) => {
+  const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? hex('#1f4a2c') : hex('#18181e'), cs = k % 2 ? hex('#3a7048') : hex('#3a3a46');
+  R.linea(x, y, x, y - h, hex('#4a3420')); R.pset(x, y - h - 1, hex('#e8c040'));
+  R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
+  R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
+  R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, hex('#c8a030'));
+  halconB(x + 5 + Math.round(v / 2), y - h + 5);
+};
+const hh = (a, b, c = 0) => { const s = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return s - Math.floor(s); };
+const dibujar = (t) => {
+  // derecha: el estudio de Atom de noche; izquierda: el desierto al ocaso; corte en diagonal
+  const b = R.nuevo(), prev = R.usar(b); estudio(R, t, { encuadre: 'estudio', camara: 'mesa' }); R.usar(prev);
+  const o = { encuadre: 'desierto', hora: 'ocaso', t0: 0 };
+  const geo = planeta(R, t, o), hor = (geo && geo.hor) || 92;
+  // el cielo se enrojece sobre el horizonte (la guerra que viene)
+  for (let y = 0; y < hor; y++) { const f = Math.max(0, (y - hor + 70) / 70) ** 1.3 * 0.7; if (f <= 0) continue;
+    for (let x = 0; x < 320; x++) { const c = R.pget(x, y), r = c & 255, g = (c >> 8) & 255, bl = (c >> 16) & 255;
+      R.pset(x, y, (0xff000000 | (Math.round(bl * (1 - f) + 30 * f) << 16) | (Math.round(g * (1 - f) + 40 * f) << 8) | Math.round(r * (1 - f) + 200 * f)) >>> 0); } }
+  // el mar de estandartes fremen por detrás del horizonte
+  R.recorte([0, 0, 319, hor]);
+  for (let fila = 0; fila < 2; fila++) for (let k = 0; k < 11; k++) {
+    const x = Math.round(8 + k * 18 + fila * 9 + hh(k, fila) * 5), y = hor + 3 - fila * 3 - Math.round(hh(k, fila, 2) * 3);
+    R.poligono([[x - 2, y - 7], [x + 2, y - 7], [x + 3, y + 8], [x - 3, y + 8]], K); R.disco(x, y - 9, 2, K);
+    banderolaG(x + 3, y - 4, 18 + (k % 3) * 4 - fila * 3, t, k + fila);
+  }
+  R.recorte(null);
+  // Paul emperador en la cresta, al doble, con los brazos en alto; un halo rojo lo recorta
+  halo(R, 92, 118, 44, 58, '#ff7040', 0.34);
+  const fp = figura(R, EL.paulEmperador, 70, 196, t, { dir: 1, sonrisa: false }, 3);
+  // la corona del emperador, al triple, sobre la cabeza (cada pixel de 3 × 3)
+  if (fp) { const cx = Math.round((fp.x0 + fp.x1) / 2), cy = fp.y0 + 1, P = (x, y, c) => R.rect(cx + x * 3, cy + y * 3, cx + x * 3 + 2, cy + y * 3 + 2, c);
+    for (let y = -5; y <= 1; y++) for (let x = -5; x <= 5; x++) P(x, y, K);
+    for (let y = -2; y <= 0; y++) for (let x = -4; x <= 4; x++) P(x, y, hex('#e8c060'));
+    for (let x = -4; x <= 4; x++) P(x, -2, hex('#fff0a0'));
+    for (const i of [-4, 0, 4]) for (const y of [-4, -3]) { P(i - 1, y, hex('#f0c848')); P(i, y, hex('#f0c848')); }
+    P(0, -1, hex('#5a8ae8')); P(-3, -1, hex('#c83a3a')); P(3, -1, hex('#c83a3a')); }
+  planetaDelante(R, t, o);
+  const B = R.buf; for (let y = 0; y < 180; y++) { const xd = 190 + Math.round((180 - y) * 0.28); for (let x = xd; x < 320; x++) B[y * 320 + x] = b[y * 320 + x]; for (let k = -1; k <= 1; k++) R.pset(xd + k, y, hex('#f4f0e4')); }
+  grado(R, { cx: 160, cy: 100, tinte: '#120608', f: 0.18, desde: 0.5, max: 0.75 });
+  halo(R, 262, 110, 46, 46, '#fff0c0', 0.28);
+  AT.atom(R, 262, 160, t, { s: 4, pose: 'piensa', dir: -1, cara: 'triste' });
+  palabra('PAUL', 12, 14, 5, hex('#f4f0e4'), hex('#2a1a24'));
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

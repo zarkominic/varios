@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Short 3 ep25 · mix</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Miniatura vertical del Short 3 del ep25 (mix): la dibuja vm-short-mini.js; se recorta al centro (x 110–211).
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+import { pintarShortVM } from '/atomo/plato/escenas/vm-short-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+N.listo(() => pintarShortVM(N, { n: 3, mix: true }));
+</script>
+</body>
+</html>

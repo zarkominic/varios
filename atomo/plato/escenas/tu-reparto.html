@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }
+#rotulos { position: fixed; inset: 0; pointer-events: none; font: 600 0.8vw/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; }
+#rotulos span { position: absolute; transform: translateX(-50%); white-space: nowrap; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<div id="rotulos"></div>
+<script type="module">
+// TU-REPARTO · hoja estática del reparto y las piezas del episodio 36 («Tutankamón: los cuartos que nadie ha abierto»)
+// para aprobarlos, sobre un fondo GRIS MEDIO texturizado. Siete páginas: t en [1, 2) TODO de un vistazo (los 22
+// personajes en dos filas y todas las piezas debajo, a escala 1, el tamaño real de las escenas); [2, 3) y [3, 4) los
+// personajes al doble; [4, 5), [5, 6) y [6, 7) las piezas al doble con sus opciones; [7, 8) poses, volteos y los
+// reutilizados de otros episodios junto a los nuevos (para que no se confundan).
+// Los rótulos (la clave de cada uno) son HTML encima del lienzo, solo en esta hoja de prueba: en el lienzo no hay letras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_TU as EL, PIEZAS_TU as PZ, ELENCO_CHIBI } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const NOMBRES = Object.keys(EL);
+const fondo = hex('#8c8c90'), fondo2 = hex('#84848a'), fondo3 = hex('#94949a'), suelo = hex('#6c6c72'), sombra = hex('#5c5c62');
+const rotulos = document.getElementById('rotulos');
+let lista = [];
+const rotulo = (txt, x, y) => lista.push([txt, x, y]);
+const q = { quieto: true, parpadea: false };
+const corto = (k) => k.replace(/TU$/, '');
+// una fila de personajes a escala 1
+const fila1 = (nombres, s0, paso = 28, x0 = 8, el = EL) => {
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => { R.actor(el[k], x0 + n * paso, s0, 0, q); rotulo(corto(k), x0 + n * paso + 7, s0 + 3.4 + (n % 2) * 2.6); });
+};
+// una fila de personajes a escala 1 y, debajo, cada uno al doble (se copia del lienzo, píxel a píxel)
+const filaReparto = (nombres) => {
+  const paso = 22, s0 = 34;
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => R.actor(EL[k], 4 + n * paso + 3, s0, 0, q));
+  nombres.forEach((k, n) => {
+    const fila = Math.floor(n / 7), col = n % 7, x0 = 4 + n * paso, X = 6 + col * 45, Y = 38 + fila * 70;
+    const copia = [];
+    for (let j = 0; j < 33; j++) for (let i = 0; i < 22; i++) copia.push(R.pget(x0 + i - 1, s0 - 32 + j));
+    R.rect(X, Y + 66, X + 43, Y + 67, suelo);
+    copia.forEach((c, m) => { const i = m % 22, j = Math.floor(m / 22); R.rect(X + i * 2, Y + j * 2, X + i * 2 + 1, Y + j * 2 + 1, c); });
+    rotulo(corto(k), X + 22, Y + 67.6);
+  });
+};
+// filas de piezas: [clave, opciones, rótulo, ancho]
+const filaPiezas = (y, items, x0 = 3, hueco = 3) => {
+  R.rect(0, y + 1, 319, y + 2, suelo);
+  let x = x0;
+  for (const [k, o, n, w] of items) {
+    for (let i = 1; i < w - 1; i++) R.pset(x + i, y + 1, sombra);
+    PZ[k](R, Math.round(x + w / 2), y + 1, o);
+    rotulo(n, x + w / 2, y + 3.4); x += w + hueco;
+  }
+};
+const PAGINAS = [
+  () => {
+    fila1(NOMBRES.slice(0, 11), 36); fila1(NOMBRES.slice(11), 72);
+    filaPiezas(122, [['perforadora', { broca: 0.3 }, 'perforadora', 23], ['gravimetro', { aguja: 0.5 }, 'gravímetro', 23], ['radarCarrito', {}, 'radarCarrito', 33], ['radarMano', {}, 'radarMano', 19], ['panelCapilla', {}, 'panelCapilla', 23], ['panelCapilla', { reves: true }, 'revés', 23], ['mascara', {}, 'máscara', 23], ['bustoReina', {}, 'bustoReina', 21], ['sarcofago', {}, 'sarcófago', 39], ['cofre', {}, 'cofre', 27], ['vela', { t: 0 }, 'vela', 11], ['vela', { apagada: true, t: 0 }, 'apagada', 11]], 2, 2);
+    filaPiezas(162, [['planoTumba', {}, 'planoTumba', 45], ['mapaDensidad', {}, 'mapaDensidad', 41], ['periodico', {}, 'periódico', 21], ['telegrama', {}, 'telegrama', 15], ['caja', { agujero: true }, 'caja', 25], ['estetoscopio', {}, 'estetosc.', 19], ['lata', {}, 'lata', 9], ['escarabajo', {}, 'escarabajo', 21], ['murcielago', {}, 'murciélago', 21], ['sello', {}, 'sello', 21], ['linterna', { encendida: true }, 'linterna', 19], ['caja', { abierta: true }, 'abierta', 25]], 2, 2);
+    PZ.cintaTelegrafo(R, 4, 174, { largo: 70 }); rotulo('cintaTelegrafo', 40, 177);
+    PZ.camarita(R, 312, 132, { cable: 22 }); rotulo('camarita', 304, 167);
+  },
+  () => filaReparto(NOMBRES.slice(0, 14)),
+  () => filaReparto(NOMBRES.slice(14)),
+  () => {
+    const s = 2;
+    filaPiezas(84, [['perforadora', { s, broca: 0 }, 'perforadora 0', 46], ['perforadora', { s, broca: 1, t: 0.1 }, 'broca 1', 46], ['gravimetro', { s, aguja: -1 }, 'aguja −1', 46], ['gravimetro', { s, aguja: 0.6 }, 'aguja .6', 46], ['radarCarrito', { s, t: 0.3 }, 'radarCarrito', 66], ['radarMano', { s, t: 0 }, 'radarMano', 38]], 2, 4);
+    filaPiezas(174, [['panelCapilla', { s }, 'panelCapilla', 46], ['panelCapilla', { s, reves: true }, 'reves', 46], ['mascara', { s, t: 0 }, 'máscara (t)', 46], ['bustoReina', { s }, 'bustoReina', 42], ['cofre', { s, cartucho: 'raspado' }, 'cofre raspado', 54], ['vela', { s, t: 0.2 }, 'vela', 22], ['vela', { s, apagada: true, t: 0.2 }, 'apagada', 22]], 2, 4);
+    const p = PZ.perforadora(R, 25, 85, { s: 2, broca: 0 }); R.pset(p.punta[0], p.punta[1], hex('#ff2020'));
+    const p2 = PZ.perforadora(R, 75, 85, { s: 2, broca: 1 }); R.pset(p2.punta[0], p2.punta[1], hex('#ff2020'));
+  },
+  () => {
+    const s = 2;
+    filaPiezas(66, [['sarcofago', { s }, 'sarcófago', 78], ['cofre', { s, cartucho: 'ankh' }, 'cofre ankh', 54], ['cofre', { s, cartucho: 'nuevo' }, 'nuevo', 54], ['periodico', { s, icono: 'ojo' }, 'periódico ojo', 42], ['telegrama', { s }, 'telegrama', 30], ['periodico', { icono: 'excl' }, 'excl', 21], ['periodico', { icono: 'gato' }, 'gato', 21]], 2, 2);
+    filaPiezas(136, [['planoTumba', { s }, 'planoTumba', 90], ['planoTumba', { s, grande: true }, 'grande', 90], ['mapaDensidad', { s }, 'mapaDensidad', 82], ['cofre', { cartucho: false }, 'sin cartucho', 27], ['sello', { roto: true }, 'roto', 21]], 2, 4);
+    filaPiezas(176, [['planoTumba', { pared: true }, 'plano pared', 45], ['mapaDensidad', { tumba: false }, 'mapa sin tumba', 41], ['lata', { tumbada: true }, 'tumbada', 13], ['murcielago', { alas: 0.5 }, 'alas .5', 21], ['murcielago', { alas: 0 }, 'alas 0', 21], ['murcielago', { colgado: true }, 'colgado', 21], ['escarabajo', { paso: 1 }, 'paso 1', 21], ['escarabajo', { paso: 2, dir: -1 }, 'paso 2 ←', 21], ['linterna', {}, 'apagada', 19], ['linterna', { dir: -1, encendida: true }, '←', 19]], 2, 3);
+  },
+  () => {
+    const s = 2;
+    filaPiezas(92, [['bustoReina', { s, vitrina: true }, 'busto vitrina', 58], ['mascara', { s }, 'máscara', 46], ['caja', { s, agujero: true, luz: true }, 'caja agujero luz', 50], ['caja', { s, abierta: true }, 'abierta', 50], ['estetoscopio', { s }, 'estetoscopio', 38], ['lata', { s }, 'lata', 18], ['sello', { s }, 'sello', 42]], 2, 2);
+    filaPiezas(160, [['escarabajo', { s, paso: 0 }, 'escarabajo', 42], ['murcielago', { s, alas: 1 }, 'murciélago', 42], ['murcielago', { s, colgado: true }, 'colgado', 42], ['linterna', { s, encendida: true }, 'linterna', 38], ['sello', { s, roto: true }, 'roto', 42], ['radarMano', { s, dir: -1, t: 0.4 }, 'radar ←', 38], ['vela', { s, t: 0.35 }, 't .35', 22]], 2, 3);
+    const c = PZ.cintaTelegrafo(R, 4, 110, { largo: 120, s: 1, t: 0 }); R.pset(c.punta[0], c.punta[1], hex('#ff2020')); rotulo('cinta 120 (punta roja)', 60, 114);
+    PZ.cintaTelegrafo(R, 316, 120, { largo: 60, s: 2, dir: -1, t: 0.3 }); rotulo('cinta ×2 ←', 260, 127);
+    const k = PZ.camarita(R, 150, 102, { cable: 10, s: 2, t: 0 }); R.pset(k.punta[0], k.punta[1], hex('#ff2020')); rotulo('camarita ×2', 150, 102);
+    PZ.camarita(R, 170, 102, { cable: 30, t: 0.4 }); PZ.camarita(R, 180, 102, { cable: 30, luz: false }); rotulo('t / luz:false', 182, 136);
+  },
+  () => {
+    const y = 36; R.rect(0, y + 1, 319, y + 2, suelo);
+    const poses = [['carterTU', { sostiene: true }, 'carter sostiene'], ['carterTU', { dir: -1, sorpresa: true }, '← sorpresa'], ['carnarvonTU', {}, 'carnarvon'], ['carnarvonTU', { dir: -1, triste: true }, '← triste'], ['carterMayorTU', {}, 'carter 1939'], ['carterMayorTU', { dir: -1, tocado: 'homburgTU' }, '← homburg'], ['reevesTU', { dedo: true }, 'reeves dedo'], ['watanabeTU', { sostiene: true }, 'watanabe'], ['eldamatyTU', { dir: -1, habla: true }, 'eldamaty ←'], ['porcelliTU', { dedo: true }, 'porcelli'], ['natgeoTU', { sostiene: true }, 'natgeo'], ['geofisico1TU', { dir: -1 }, 'geofísico1 ←'], ['geofisica2TU', { sostiene: true }, 'geofísica2'], ['vendedorTU', { dir: -1, habla: true }, 'vendedor ←']];
+    poses.forEach(([k, o, n], m) => {
+      const x = 5 + m * 22.5, r = R.actor(EL[k], Math.round(x), y, 0, { ...q, ...o });
+      if (k === 'carterTU' && o.sostiene) PZ.vela(R, r.mano[0] + 1, r.mano[1] + 3, { t: 0 });
+      if (k === 'watanabeTU') PZ.radarMano(R, r.mano[0] + 4, r.mano[1] + 6, {});
+      if (k === 'natgeoTU') PZ.radarMano(R, r.mano[0] + 4, r.mano[1] + 6, {});
+      if (k === 'geofisica2TU') PZ.linterna(R, r.mano[0] + 6, r.mano[1] + 4, { encendida: true });
+      rotulo(n, x + 7, y + 3.4 + (m % 2) * 2.6);
+    });
+    const y2 = 76; R.rect(0, y2 + 1, 319, y2 + 2, suelo);
+    // los REUTILIZADOS de otros episodios (las claves de ELENCO_CHIBI), al lado de los nuevos que se les parecen
+    const reus = [['hawass', 'hawass (GZ)'], ['ministro2023', 'ministro2023 (GZ)'], ['eldamatyTU', 'eldamaty'], ['reevesTU', 'reeves'], ['turista1', 'turista1'], ['turista2', 'turista2'], ['periodista2025', 'periodista2025'], ['campesino', 'campesino (EG)'], ['obrero1TU', 'obrero1'], ['trabajadorEgipcio1888', 'trabajador 1888'], ['obrero2TU', 'obrero2'], ['faraon', 'faraon (EG)'], ['tutTU', 'tut'], ['akenatonTU', 'akenaton']];
+    reus.forEach(([k, n], m) => { const x = 5 + m * 22.5; R.actor(ELENCO_CHIBI[k], Math.round(x), y2, 0, { ...q }); rotulo(n, x + 7, y2 + 3.4 + (m % 2) * 2.6); });
+    // el escriba sentado y una escena de prueba: Carter con la vela junto a Carnarvon, el gravímetro con los geofísicos
+    const y3 = 150; R.rect(0, y3 + 1, 319, y3 + 2, suelo);
+    R.actor(ELENCO_CHIBI.escriba, 6, y3, 0, q); rotulo('escriba (EG)', 13, y3 + 3.4);
+    const c = R.actor(EL.carterTU, 40, y3, 0, { ...q, sostiene: true }); PZ.vela(R, c.mano[0] + 1, c.mano[1] + 3, { t: 0.2 });
+    R.actor(EL.carnarvonTU, 24, y3, 0, q); rotulo('carnarvon · carter con la vela', 40, y3 + 6);
+    PZ.sello(R, 78, y3 - 10, {}); PZ.panelCapilla(R, 96, y3 + 1, {});
+    R.actor(EL.geofisico1TU, 120, y3, 0, q); PZ.gravimetro(R, 148, y3 + 1, { aguja: 0.2 }); R.actor(EL.geofisica2TU, 160, y3, 0, { ...q, dir: -1 }); rotulo('geofísicos + gravímetro', 148, y3 + 3.4);
+    const p = PZ.perforadora(R, 200, y3 + 1, { broca: 1 }); PZ.camarita(R, 222, y3 - 30, { cable: 14 }); PZ.murcielago(R, 232, y3 - 8, { colgado: true }); rotulo('perforadora · camarita', 210, y3 + 6);
+    R.actor(EL.nefertitiTU, 250, y3, 0, q); R.actor(EL.akenatonTU, 268, y3, 0, { ...q, dir: -1 }); R.actor(EL.tutTU, 290, y3, 0, { ...q, sostiene: true }); rotulo('reina · akenatón · tut', 280, y3 + 3.4);
+  },
+];
+let pagRotulada = -1;
+const dibujar = (t) => {
+  const n = Math.min(PAGINAS.length - 1, Math.max(0, Math.floor(t) - 1));
+  R.rect(0, 0, 319, 179, fondo);
+  for (let y = 0; y < 180; y += 2) for (let x = (y / 2) % 2 ? 1 : 0; x < 320; x += 4) R.pset(x + ((y * 7) % 3), y, (x * 3 + y * 5) % 7 < 3 ? fondo2 : fondo3);
+  lista = []; PAGINAS[n]();
+  if (n !== pagRotulada) {
+    pagRotulada = n; rotulos.textContent = '';
+    for (const [txt, x, y] of lista) { const e = document.createElement('span'); e.textContent = txt; e.style.left = x / 3.2 + '%'; e.style.top = y / 1.8 + '%'; rotulos.appendChild(e); }
+  }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

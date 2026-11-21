@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep29</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PR-GANCHO (frases 1–2), sin cartela. Siete planos:
+// 1. (1513) el pergamino de cerca (vista del sur algo más abierta, sin barcos bajo la barra del año ni en la esquina de
+//    Atom), la costa del sur con su borde y la mesa: una mano lleva la lupa por la costa que se
+//    tuerce; en «Antarctica» la costa se enciende en oro (golpe);  2. (hoy) el globo grande con la Antártida blanca: otra
+//    visitante sube a una escalerilla de biblioteca y en «proof» pasa la mano por la esfera, que da media vuelta; el de la derecha señala el mapa,
+//    le salen «?» en «lost civilization» y la guía explica; en «aliens» baja un platillo de juguete colgado de un hilo (el
+//    visitante y la guía saltan del susto);  3. (1513) el Caribe del pergamino: en «hidden» el trazo de Colón brilla y la carabela de tinta
+//    navega; una mano señala La Española en «lost map»;  4. (1501) la galera: el tío corsario enseña el catalejo al niño
+//    Piri y se ríe en «pirate uncle»; en «sailor captured» un marinero saca por la puerta de popa al prisionero con su
+//    rollo de cartas;  5. (1929) la mesa de la biblioteca de palacio: el pergamino doblado lleno de polvo; un mozo cruza
+//    por detrás con una pila de libros; Edhem sopla el polvo en «forgotten», da un paso y en «palace» lo levanta por el canto 13 px a la luz;  6. (1966) la librería: el profesor levanta su copia del mapa en
+//    «believed», una estudiante que entra se queda boquiabierta en «vanished civilization» y la clienta que hojea un libro
+//    junto al mostrador se vuelve a mirar;  7. (hoy) el estudio de
+//    Atom: en «brain sees things» las nubes de la ventana se vuelven un barco y un pez; Atom va a la mesa, desenrolla el
+//    mapa… y se le enrolla solo de golpe (gag 1).
+import * as T from '/atomo/plato/escenas/pr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('pr-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('antartida', f), c = (f) => en('camino', f);
+const P2 = a(0.3824), P3 = a(0.6652), P4 = c(-0.0074), P5 = c(0.3869), P6 = c(0.5854), P7 = c(0.8315);
+const antartida = a(0.150), prueba = a(0.452), civ = a(0.487), aliens = a(0.612), oculto = a(0.787), mapaC = a(0.866), colon = a(0.947);
+const almirante = c(0.0703), tio = c(0.200), marinero = c(0.267), olvidado = c(0.4797), palacio = c(0.530);
+const cree = c(0.6475), desaparecida = c(0.7240), cerebro = c(0.8823), cosas = c(0.896), noEstan = c(0.9686);
+const abre0 = c(1) + 0.15, abre1 = abre0 + 0.75, cierra0 = abre1 + 0.55, cierra1 = cierra0 + 0.28;
+const K = hex('#0c0a12');
+// el compañero de la esquina se va cuando Atom entra en el estudio (plano 7)
+const comp0 = R.companero; R.companero = (t, e) => { if (t < P7) comp0(t, e); };
+// un rollo de cartas pequeño (para la mano de un chibi): 11 × 5
+const rolloMini = (x, y) => { R.rect(x, y, x + 10, y + 4, K); R.rect(x + 1, y + 1, x + 9, y + 3, hex('#e8d4a4')); R.rect(x + 1, y + 3, x + 9, y + 3, hex('#b89a64')); R.rect(x + 3, y + 1, x + 3, y + 3, hex('#a83224')); R.rect(x + 7, y + 1, x + 7, y + 3, hex('#a83224')); R.pset(x + 2, y + 1, hex('#fff4d8')); };
+// Atom en el plano, con su halo
+const atomEn = (x, y, t, e = 0.4) => {
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const g = 1 - Math.hypot(i, j) / 19; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(x + i, y + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(x, y, t, { r: 13, orbita: R.PAL.ATOM[7], energia: e });
+};
+
+const V0 = { cx: 380, cy: 690, s: 0.75 }, V1 = { cx: 310, cy: 663, s: 0.6 };
+const aV1 = (x, y) => [Math.round(160 + (V0.cx + (x - 160) / V0.s - V1.cx) * V1.s), Math.round(90 + (V0.cy + (y - 90) / V0.s - V1.cy) * V1.s)];
+// 1 · la lupa recorre la costa del sur; en «Antarctica» se enciende
+const p1 = (t) => {
+  // la lupa llega a la curva de la costa justo en «Antarctica», se queda temblando y luego sigue la costa hacia el este
+  const u1 = tramo(t, 0.2, antartida - 0.05), u2 = tramo(t, antartida + 1.0, P2 - 0.1);
+  const parada = t > antartida - 0.1 && t < antartida + 1.0;
+  const lx = Math.round(u2 > 0 ? (u2 < 0.4 ? lerp(92, 140, u2 / 0.4) : lerp(140, 240, (u2 - 0.4) / 0.6)) : lerp(52, 92, u1));
+  const ly = Math.round(u2 > 0 ? (u2 < 0.4 ? lerp(92, 100, u2 / 0.4) : lerp(100, 96, (u2 - 0.4) / 0.6)) : lerp(98, 92, u1)) + (parada ? Math.round(Math.sin(t * 9)) : 0);
+  // la vista del sur algo más abierta y corrida (V1): ningún barco del mapa queda bajo la barra del año, en la esquina de
+  // Atom ni cortado por el borde; el recorrido de la lupa (pensado en la vista de siempre, V0) se pasa a la nueva
+  const [qx, qy] = aV1(lx, ly);
+  const r = T.pergamino(R, t, { vista: 'sur', borde: true, zoom: V1.s, centro: [V1.cx, V1.cy], ilumina: t > antartida ? 'sur' : undefined, lupa: { x: qx, y: qy, r: 22 }, vivo: 0.5 });
+  const m = r.lupa && r.lupa.mango ? r.lupa.mango : [qx + 18, qy + 18];
+  T.brazo(R, m[0] + 28, 200, m[0], m[1], '#3a4a6a', -1);
+  // el golpe: un destello de oro que se abre desde la curva
+  const g = tramo(t, antartida, antartida + 0.6);
+  if (g > 0 && g < 1) for (let q = 0; q < 16; q++) { const an = q * Math.PI / 8, rr = 26 + g * 22; const x = Math.round(qx + Math.cos(an) * rr), y = Math.round(qy + Math.sin(an) * rr * 0.7); R.rect(x, y + 1, x + 1, y + 2, hex('#6a4a1a')); R.rect(x, y, x + 1, y + 1, q & 1 ? hex('#ffd040') : hex('#fff8d0')); }
+};
+
+// la escalerilla de biblioteca del plano 2: el tablero de arriba (y 155) y el peldaño de abajo (y 166), sobre la moqueta
+const escalerilla = (t) => {
+  const N = hex('#5a3a22'), NL = hex('#8a5a32'), NB = hex('#b07a46'), NS = hex('#3a2414');
+  // la sombra en la moqueta
+  for (let y = 173; y <= 177; y++) for (let x = 58 + (y - 173); x <= 98 - (y - 173); x++) if ((x + y) & 1) R.pset(x, y, hex('#1a2234'));
+  // las patas (de atrás, más oscuras; de delante, con su luz)
+  R.rect(66, 157, 69, 175, K); R.rect(67, 158, 68, 175, NS); R.rect(91, 157, 94, 175, K); R.rect(92, 158, 93, 175, NS);
+  R.rect(60, 167, 63, 176, K); R.rect(61, 168, 62, 176, NL); R.rect(87, 158, 90, 176, K); R.rect(88, 159, 89, 176, NL); R.pset(88, 160, NB);
+  // el travesaño y la cruz de refuerzo
+  R.rect(63, 172, 90, 173, K); R.rect(64, 172, 89, 172, N); R.linea(69, 161, 87, 171, K); R.linea(69, 162, 87, 172, NS);
+  // el peldaño de abajo y el tablero de arriba, con su veta, el canto claro y los clavos de latón
+  R.rect(58, 165, 76, 168, K); R.rect(59, 166, 75, 167, NL); R.rect(59, 166, 75, 166, NB); R.pset(63, 167, N); R.pset(70, 167, N); R.pset(60, 166, hex('#e8c060'));
+  R.rect(64, 154, 96, 158, K); R.rect(65, 155, 95, 157, NL); R.rect(65, 155, 95, 155, NB); for (let x = 67; x < 95; x += 5) R.pset(x, 156 + ((x >> 2) & 1), N); R.pset(66, 155, hex('#e8c060')); R.pset(94, 155, hex('#e8c060'));
+  // un brillo que corre por el canto con la luz del aplique
+  const b = 65 + Math.round(((t * 9) % 60)); if (b <= 95) R.pset(b, 155, hex('#e8b880'));
+};
+
+// 2 · el globo con la Antártida blanca, los «?» y el platillo de juguete
+const p2 = (t) => {
+  // el globo gira despacio; el visitante le da un empujón con el dedo al llegar (prueba) y da media vuelta más deprisa
+  const emp = tramo(t, prueba, prueba + 1.6), extra = 40 * (1 - (1 - emp) * (1 - emp));
+  T.hoy(R, t, { encuadre: 'despacho', camara: 'globo', gira: 2 + extra / Math.max(1, t) });
+  const señala = t > prueba - 0.2 && t < aliens - 0.1, susto = t > aliens + 0.05 && t < aliens + 0.7;
+  const sal = susto ? Math.round(Math.abs(Math.sin((t - aliens) * Math.PI * 1.6)) * 6) : 0;
+  // la guía del museo, a la derecha, explica el mapa enmarcado y en «aliens» se lleva un buen susto
+  R.actor(EL.guia, 296, 174, t, { dir: -1, habla: t > P2 + 0.2 && t < civ - 0.2 && Math.sin(t * 7) > 0, dedo: t > civ - 0.3 && t < aliens - 0.1, sorpresa: t > aliens + 0.05, salto: susto ? Math.round(sal * 0.6) : 0 });
+  // la escalerilla de biblioteca junto al globo (nogal, dos peldaños, con su sombra en la moqueta)
+  escalerilla(t);
+  // otra visitante llega por la izquierda al pie de la escalerilla, sube los dos peldaños y en «proof» pasa la mano por la esfera de abajo
+  // arriba: el globo da media vuelta bajo su mano; luego se queda arriba, sonriendo, y mira el platillo en «aliens»
+  const v2 = tramo(t, P2 - 0.9, P2 + 0.05), s1 = tramo(t, P2 + 0.1, P2 + 0.35), s2 = tramo(t, P2 + 0.35, prueba - 0.2);
+  const v2x = Math.round(v2 < 1 ? lerp(20, 50, v2) : s2 > 0 ? lerp(62, 80, s2) : lerp(50, 62, s1));
+  const v2y = Math.round(s2 > 0 ? lerp(166, 155, s2) : lerp(176, 166, s1)) - (s1 > 0 && s1 < 1 ? Math.round(Math.sin(s1 * Math.PI) * 2) : 0) - (s2 > 0 && s2 < 1 ? Math.round(Math.sin(s2 * Math.PI) * 2) : 0);
+  const pu = tramo(t, prueba - 0.15, prueba + 0.55), toca = t > prueba - 0.15 && t < prueba + 0.9;
+  R.actor(EL.visitante2, v2x, v2y, t, { dir: 1, anda: (v2 > 0 && v2 < 1) || (s1 > 0 && s1 < 1) || (s2 > 0 && s2 < 1), sostiene: toca ? [Math.round(lerp(95, 104, pu)), Math.round(lerp(138, 143, pu))] : undefined, sorpresa: t > aliens + 0.1, sonrisa: v2 >= 1 && t < aliens });
+  R.actor(EL.visitante1, 236, 170, t, { dir: -1, dedo: señala, sorpresa: t > aliens, habla: t > P2 + 0.3 && t < prueba - 0.3 && Math.sin(t * 8) > 0, salto: sal });
+  // los «?» que salen de uno en uno en «lost civilization»
+  for (let i = 0; i < 3; i++) { const t0 = civ - 0.1 + i * 0.22; if (t < t0) continue; const s = Math.min(1, (t - t0) / 0.15); R.icono('?', 222 + i * 16, Math.round(126 - i * 9 - s * 4 + Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 3); }
+  // el platillo de juguete que baja colgado de su hilo y se balancea
+  const d = tramo(t, aliens - 0.25, aliens + 0.1), sw = Math.sin((t - aliens) * 5) * Math.exp(-Math.max(0, t - aliens) * 0.8) * 8;
+  if (d > 0) {
+    const px = Math.round(183 + (t > aliens ? sw : 0)), py = Math.round(-14 + d * 84);
+    R.linea(183, 16, px, py - 7, hex('#f4f0e6')); R.linea(184, 16, px + 1, py - 7, hex('#8a8478'));
+    R.disco(px, py - 3, 6, K); R.disco(px, py - 3, 5, hex('#8ad8e8')); R.pset(px - 2, py - 5, hex('#e8fbff')); R.pset(px - 1, py - 6, hex('#e8fbff'));
+    R.rect(px - 14, py - 1, px + 14, py + 4, K); R.rect(px - 15, py, px + 15, py + 3, K); R.rect(px - 13, py, px + 13, py + 1, hex('#c8d0dc')); R.rect(px - 14, py + 1, px + 14, py + 2, hex('#a8b0bc')); R.rect(px - 12, py + 3, px + 12, py + 3, hex('#6a7484'));
+    for (let q = 0; q < 6; q++) R.rect(px - 11 + q * 4, py + 1, px - 10 + q * 4, py + 2, Math.floor(t * 6 + q) % 2 ? hex('#ffe050') : hex('#e83a3a'));
+    R.rect(px - 3, py + 5, px + 3, py + 5, hex('#5a5048'));   // el tornillo del juguete
+  }
+};
+
+// 3 · el Caribe de Colón brilla y la carabela navega; una mano señala La Española
+const p3 = (t) => {
+  const r = T.pergamino(R, t, { vista: 'caribe', vivo: true, ilumina: t > oculto ? 'caribe' : undefined });
+  const e = r.espanola || [150, 90];
+  // desde «hidden»: el trazo de Colón (La Española y Cuba) se rodea de chispas de oro que corren por la costa
+  if (t > oculto) { const on = tramo(t, oculto, oculto + 0.5); for (let q = 0; q < 40 * on; q++) { const an = q / 40 * 6.283 + t * 0.9; const x = Math.round(150 + Math.cos(an) * 22), y = Math.round(82 + Math.sin(an) * 50); R.rect(x, y + 1, x + 1, y + 2, hex('#6a4a1a')); R.rect(x, y, x + 1, y + 1, (q + Math.floor(t * 8)) % 4 ? hex('#ffd040') : hex('#fff8d0')); } }
+  const u = tramo(t, mapaC - 0.4, mapaC + 0.3) - tramo(t, P4 - 0.9, P4 - 0.3);
+  // una mano entra por abajo a la izquierda con un puntero de madera y toca La Española en «lost map»
+  if (u > 0) {
+    const hx = Math.round(lerp(-20, 44, u)), hy = Math.round(lerp(196, 150, u)), tx = Math.round(lerp(hx + 20, e[0] - 8, u)), ty = Math.round(lerp(hy - 8, e[1] + 14, u));
+    R.linea(hx + 6, hy - 1, tx, ty, K); R.linea(hx + 6, hy - 2, tx, ty - 1, hex('#8a5a2a')); R.linea(hx + 6, hy - 3, tx, ty - 2, K); R.linea(hx + 8, hy - 2, Math.round((hx + tx) / 2), Math.round((hy + ty) / 2) - 1, hex('#c8945a'));
+    R.disco(tx, ty - 1, 2, K); R.disco(tx, ty - 1, 1, hex('#e8d4a4'));
+    T.brazo(R, hx - 34, hy + 34, hx, hy, '#5a3a6a', 1);
+  }
+  // en «Columbus» un anillo de oro alrededor de La Española
+  const g = tramo(t, colon, colon + 0.5);
+  if (g > 0 && g < 1) R.recorte(null), [0, 1].forEach((q) => { const rr = 8 + g * 18 + q * 4; for (let an = 0; an < 6.28; an += 0.2) R.pset(Math.round(e[0] + Math.cos(an) * rr * 0.6), Math.round(e[1] + Math.sin(an) * rr), hex('#ffd040')); });
+};
+
+// 4 · la galera: el tío corsario y el niño Piri; sacan al prisionero con su rollo
+const p4 = (t) => {
+  const o = { encuadre: 'galera', hora: 'dia', vela: 'abierta', balanceo: 0.6 };
+  const g = T.mar(R, t, o);
+  const s = g.suelo ?? 150;
+  // el marinero que repara un cabo al fondo, junto al palo
+  R.actor(EL.marineroOtomano2, 150, s - 6, t, { dir: 1, habla: Math.sin(t * 3) > 0.6 });
+  const mira = t > almirante - 0.2, rie = t > tio && t < tio + 1.6;
+  const kx = 56, k = R.actor(EL.kemal, kx, s, t, { dir: 1, sostiene: mira && !rie ? [kx + 22, s - 22] : undefined, brazos: rie, sonrisa: rie || t < almirante, habla: t < almirante && Math.sin(t * 7) > 0 });
+  if (mira && !rie && k && k.mano) T.PIEZAS_PR.catalejo(R, k.mano[0] + 10, k.mano[1] + 3, { abre: tramo(t, almirante - 0.2, almirante + 0.6) });
+  const nx = 84, saltaN = t > tio + 0.1 && t < tio + 0.9 ? Math.round(Math.abs(Math.sin((t - tio) * 8)) * 4) : 0;
+  R.actor(EL.piriNino, nx, s, t, { dir: t > almirante && t < tio + 1.6 ? -1 : 1, sonrisa: t > tio, dedo: t > marinero + 0.3, salto: saltaN, sorpresa: t > marinero + 0.2 && t < marinero + 1 });
+  // el marinero sale por la puerta de popa con el prisionero, que lleva su rollo de cartas
+  const v = tramo(t, marinero - 0.3, P5 - 0.4);
+  if (v > 0) {
+    const mx = Math.round(lerp(282, 172, v)), px = Math.round(lerp(300, 198, tramo(t, marinero, P5 - 0.2)));
+    if (px < 300) { const pr = R.actor(EL.prisionero, px, s, t, { dir: -1, anda: px > 198 && px < 300, triste: true, sostiene: true }); if (pr && pr.mano) rolloMini(pr.mano[0] - 6, pr.mano[1] - 2); }
+    R.actor(EL.marineroOtomano1, mx, s, t, { dir: -1, anda: v < 1, dedo: v >= 1 });
+  }
+  T.marDelante(R, t, o);
+};
+
+// 5 · la mesa de la biblioteca de palacio: el pergamino doblado y polvoriento, en un haz de luz de la celosía
+const p5 = (t) => {
+  const o = { encuadre: 'biblioteca', camara: 'mesa', abre: 0 };
+  T.estambul(R, t, o);
+  const sopla = t > olvidado - 0.2 && t < olvidado + 0.6;
+  const LZ = hex('#fff0c0'), haz = (y0, y1) => { for (let y = y0; y < y1; y++) { const xc = 100 + (y - 40) * 0.55; for (let x = Math.round(xc - 12); x <= xc + 12; x++) if ((x * 7 + y * 13) % 6 === 0 && !(x > 274 && y < 48)) R.pset(x, y, LZ); } };
+  haz(40, 112);
+  // un mozo del museo cruza por detrás con una pila de libros polvorientos y la deja en la balda del fondo
+  const mz = tramo(t, P5 + 0.1, palacio - 0.2), mzx = Math.round(lerp(330, 252, mz));
+  const mo = R.actor(EL.obrero, mzx, 112, t, { dir: -1, anda: mz > 0 && mz < 1, sostiene: mz < 1 ? [mzx - 12, 92] : undefined, sorpresa: t > palacio + 0.2 });
+  if (mz < 1 && mo && mo.mano) for (let k = 0; k < 4; k++) { const bx = mo.mano[0] - 7 + (k & 1), by = mo.mano[1] - 3 - k * 3; R.rect(bx - 1, by - 1, bx + 10, by + 2, K); R.rect(bx, by, bx + 9, by + 1, [hex('#8a2a2a'), hex('#2a4a7a'), hex('#3a6a3a'), hex('#7a5a2a')][k]); R.rect(bx + 1, by, bx + 8, by, hex('#efe2c0')); }
+  R.actor(EL.deissmann, 214, 112, t, { dir: -1, habla: t < olvidado - 0.3 && Math.sin(t * 6) > 0, sorpresa: t > palacio + 0.2, dedo: t > palacio + 0.3 });
+  // Edhem sopla el polvo desde su sitio, rodea un paso hasta el pergamino y en «palace» lo coge por el canto de arriba
+  // y lo levanta 13 px a la luz (la mano canónica del chibi en el canto; el pergamino cuelga de ella)
+  const ac = tramo(t, olvidado + 0.55, palacio - 0.05), ex = Math.round(lerp(132, 146, ac));
+  const sube = Math.round(tramo(t, palacio, palacio + 0.5) * 13);
+  const ed = R.actor(EL.edhem, ex, 112, t, { dir: 1, anda: ac > 0 && ac < 1, habla: sopla, sostiene: ac >= 1 ? [161, 116 - sube] : undefined, sorpresa: t > palacio + 0.5, sonrisa: t > palacio + 0.5 });
+  T.estambulDelante(R, t, o);
+  // la mesa trae su propio pergamino doblado debajo del de la escena: cuando Edhem levanta el de la escena, ese hueco
+  // se rellena con la madera del mismo tablero (las mismas filas, 36 px a la izquierda, con su veta y su luz)
+  if (ed && ed.mano && ac >= 1 && ed.mano[1] + 27 < 142) for (let y = 114; y <= 147; y++) for (let x = 146; x <= 180; x++) R.pset(x, y, R.pget(x - 36, y));
+  // el haz de luz polvoriento que cae en diagonal sobre el pergamino
+  haz(116, 150);
+  for (let q = 0; q < 16; q++) { const u = (t * 0.06 + q * 0.13) % 1, y = Math.round(40 + u * 100), x = Math.round(100 + (y - 40) * 0.55 + Math.sin(t * 0.8 + q) * 8); R.pset(x, y, hex('#fffbe8')); }
+  // el pergamino doblado, grande, con su capa de polvo 
+  // el pergamino: posado (base en y 142) hasta que la mano de Edhem lo alza; entonces su canto de arriba va en la mano
+  let gy = 142; if (ed && ed.mano && ac >= 1) gy = Math.min(142, ed.mano[1] + 27);
+  if (gy < 142) for (let x = 150; x <= 176; x++) if (x & 1) R.pset(x, 142, hex('#3a2414'));   // su sombra en la mesa
+  T.PIEZAS_PR.pergamino(R, 162, gy, { abierto: false, s: 2 });
+  const ida = tramo(t, olvidado - 0.1, olvidado + 0.7);
+  if (ida < 1) {
+    for (let q = 0; q < 70; q++) { const x = 148 + (q * 7) % 29, y = 118 + (q * 11) % 22; if (((q * 37) % 100) / 100 > ida) R.pset(x, y, (q & 1) ? hex('#a89c88') : hex('#c8bca8')); }
+  }
+  if (ida > 0 && ida < 1) for (let q = 0; q < 34; q++) { const an = -0.9 + (q % 9) * 0.2, rr = ida * (26 + (q * 7) % 24); const x = Math.round(166 + Math.cos(an) * rr), y = Math.round(126 - ida * 12 + Math.sin(an) * rr * 0.5 - (q % 3)); R.rect(x, y, x + (q & 1), y + (q & 1), (q % 3) ? hex('#d8cdb8') : hex('#b8ad98')); }
+};
+
+// 6 · la librería de 1966: el profesor levanta su copia del mapa; entra una estudiante
+const p6 = (t) => {
+  const o = { encuadre: 'libreria', vitrina: false };
+  const g = T.america(R, t, o);
+  R.actor(EL.librero, 262, 146, t, { dir: -1, habla: t > desaparecida + 0.4 && Math.sin(t * 6) > 0 });
+  const alza = tramo(t, cree - 0.3, cree + 0.3);
+  const hx = 134, h = R.actor(EL.hapgood, hx, 152, t, { dir: 1, sostiene: [hx + 22, Math.round(lerp(134, 116, alza))], habla: t > P6 + 0.2 && Math.sin(t * 7) > 0, sonrisa: alza >= 1 });
+  T.americaDelante(R, t, o);
+  if (h && h.mano) T.PIEZAS_PR.pergamino(R, h.mano[0] + 14, h.mano[1] + 10, { abierto: true });
+  // la estudiante entra por la puerta, se acerca y se queda boquiabierta
+  const v = tramo(t, P6 + 0.2, desaparecida - 0.3);
+  R.actor(EL.alumna1, Math.round(lerp(2, 72, v)), 176, t, { dir: 1, anda: v > 0 && v < 1, sorpresa: t > desaparecida, salto: t > desaparecida && t < desaparecida + 0.4 ? 3 : 0 });
+  // una clienta hojea un libro delante de la vitrina; se vuelve a mirar el mapa en «vanished civilization»
+  const cl = R.actor(EL.visitante2, 216, 176, t, { dir: t > desaparecida - 0.1 ? -1 : 1, sostiene: t < desaparecida - 0.1 ? [229, 165 + Math.round(Math.sin(t * 1.7))] : undefined, sorpresa: t > desaparecida + 0.1 });
+  if (cl && cl.mano && t < desaparecida - 0.1) { const [bx, by] = cl.mano, pg = Math.floor(t * 1.4) % 2; R.rect(bx - 4, by - 6, bx + 5, by, K); R.rect(bx - 3, by - 5, bx, by - 1, hex('#f4ecd8')); R.rect(bx + 1, by - 5, bx + 4, by - 1, pg ? hex('#e8dcc0') : hex('#f4ecd8')); R.rect(bx - 2, by - 4, bx - 1, by - 4, hex('#8a8478')); R.rect(bx + 2, by - 3, bx + 3, by - 3, hex('#8a8478')); }
+  if (t > desaparecida) R.icono('!', 78, Math.round(136 - Math.min(1, (t - desaparecida) * 6) * 4), hex('#ffe890'), K, 2);
+};
+
+// 7 · el estudio de Atom: las nubes con forma y el mapa que se enrolla solo (gag 1)
+const p7 = (t) => {
+  const abre = tramo(t, abre0, abre1) * (1 - tramo(t, cierra0, cierra1));
+  const o = { encuadre: 'estudio', formas: t > cosas, platillo: true, abre };
+  T.hoy(R, t, o);
+  // Atom mira las nubes por la ventana y luego va a la mesa a abrir el mapa; el golpe del rollo lo lanza hacia atrás
+  const va = tramo(t, noEstan, abre0);
+  const golpe = tramo(t, cierra0, cierra1 + 0.5);
+  let ax = Math.round(lerp(118, 170, va)), ay = Math.round(lerp(58, 86, va) + Math.sin(t * 2.6) * 2);
+  if (golpe > 0) { ax += Math.round(Math.sin(golpe * Math.PI) * 12); ay -= Math.round(Math.sin(golpe * Math.PI) * 16); }
+  const temblor = golpe > 0 && golpe < 0.6 ? Math.round(Math.sin(t * 60) * 2) : 0;
+  atomEn(ax + temblor, ay, t, t > cerebro && t < cosas + 0.8 ? 0.8 : 0.35);
+  if (golpe > 0.1 && golpe < 1) for (let i = 0; i < 2; i++) R.icono(i ? '!' : '?', ax + 16 + i * 10, ay - 22 - i * 4, hex('#ffe890'), K, 2);
+  T.hoyDelante(R, t, o);
+};
+
+const año = (t) => (t < P2 ? 1513 : t < P3 ? 2026 : t < P4 ? 1513 : t < P5 ? 1501 : t < P6 ? 1929 : t < P7 ? 1966 : 2026);
+// efectos (≤ 1 por segundo): el papel y la lupa, el globo que gira, los «?», el platillo que baja, el mar de tinta,
+// el puntero, las olas y el catalejo de la galera, el polvo, la campanilla de la librería, el reloj del estudio
+const efectos = [[0.3, 'papel'], [antartida, 'brillo'], [antartida + 1.2, 'whoosh'],
+  [prueba, 'whoosh'], [civ + 0.35, 'pop'], [aliens - 0.1, 'boing'],
+  [P3 + 0.3, 'ola'], [oculto, 'brillo'], [mapaC + 0.25, 'toc'], [colon, 'brillo'],
+  [P4 + 0.1, 'ola'], [almirante, 'tic'], [tio + 0.05, 'palmada'], [marinero, 'puerta'], [P5 - 1.1, 'ola'],
+  [P5 + 0.3, 'papel'], [olvidado, 'whoosh'], [palacio + 0.1, 'papel'],
+  [P6 + 0.25, 'campana', { lejos: true }], [cree, 'papel'], [desaparecida, 'pop'],
+  [P7 + 0.2, 'tic'], [cosas, 'brillo'], [noEstan - 0.3, 'whoosh'], [abre0, 'papel'], [cierra0, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
+</script>
+</body>
+</html>

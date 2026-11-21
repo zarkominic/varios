@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-HOLA (frases 5–6), hoy (2026). Tres planos:
+// 1. «So how did we get here? Which universes…»: el cuarto del fan de noche; el cubo de palomitas, sentado en el
+//    escritorio, mira el mapa de la pared, donde crecen las ramas y salen las Tierras con número; en «Which universes»
+//    lo señala; el fan entra con su vaso, mira el mapa y se rasca la cabeza («?»); corta en «And what»;
+// 2. el mapa de cerca: las palomitas, de pie delante, señalan las Tierras y cuentan con los dedos lo que hay que saber
+//    («what do you need to know… a thing»: 1, 2, 3, 4); en «I'm Atom» se vuelven hacia la esquina de Atom y lo saludan;
+//    corta en «And I explain»;
+// 3. la estantería de cerca: las palomitas pasan andando y señalan las cinco cajas de película una a una («the things
+//    you've always wondered about»); en «Let's find out» se ponen las gafas de cine, dan un salto de emoción y saludan.
+import * as T from '/atomo/plato/escenas/do-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('do-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], by = (x, y) => BY[(y & 3) * 4 + (x & 3)] / 16;
+const rampa = (lista) => lista.map(hex);
+// degradado tramado por filas (cielos, fondos): v 0–1 de y0 a y1, con la rampa de colores
+const degradado = (x0, y0, x1, y1, ram, k = 0) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+  const v = (y - y0) / Math.max(1, y1 - y0) * (ram.length - 1) + by(x, y) - 0.5 + (hh(x >> 3, y >> 2, k) - 0.5) * 0.5;
+  R.pset(x, y, ram[Math.max(0, Math.min(ram.length - 1, Math.round(v)))]); } };
+// una nube de humo de tres tonos (bolas que se solapan), en (x, y), tamaño s
+const humo = (x, y, s, c0, c1, c2) => { for (const [dx, dy, k] of [[0, 0, 1], [-1.1, 0.2, 0.75], [1.1, 0.25, 0.8], [-0.5, -0.6, 0.7], [0.6, -0.55, 0.65]]) R.disco(x + dx * s, y + dy * s, s * k + 1, c2);
+  for (const [dx, dy, k] of [[0, 0, 1], [-1.1, 0.2, 0.75], [1.1, 0.25, 0.8], [-0.5, -0.6, 0.7], [0.6, -0.55, 0.65]]) R.disco(x + dx * s, y + dy * s - 1, s * k, c1);
+  for (const [dx, dy, k] of [[-0.3, -0.5, 0.55], [0.5, -0.45, 0.45], [-1.1, 0, 0.4]]) R.disco(x + dx * s - 1, y + dy * s - 2, s * k, c0); };
+// lágrimas que caen de los ojos de un chibi (cabeza = la .cabeza que devuelve R.actor)
+const lagrimas = (cab, t, dir = 1) => { for (const ex of [-2, 2]) { const f = ((t * 1.6 + (ex > 0 ? 0.5 : 0)) % 1); const x = cab[0] + ex + (dir > 0 ? 1 : 0), y = Math.round(cab[1] + 7 + f * 7);
+  R.pset(x, y, hex('#8ad8ff')); R.pset(x, y + 1, hex('#4aa8e8')); } };
+
+const a = (f) => en('como', f), b = (f) => en('hola', f);
+const P2 = a(0.627), P3 = b(0.208);
+const AQUI = a(0.117), CUALES = a(0.249), SOBRE = a(0.479), NECESITAS = a(0.702), SABER = a(0.783), NADA = a(0.884);
+const ATOM = b(0), COSAS = b(0.377), SIEMPRE = b(0.482), DESCUBRIR = b(0.821);
+const p1 = (t) => {
+  const m = 0.18 + 0.32 * tramo(t, 0.2, P2), o = { encuadre: 'cuarto', mapa: m };
+  const g = T.hoy(R, t, o);
+  // el fan entra con su vaso y se para delante del mapa, extrañado
+  const w = tramo(t, 0.3, AQUI + 1.0), x = Math.round(lerp(300, 222, w)), duda = t > CUALES - 0.1;
+  const fan = R.actor(EL.fanCuernos, x, 166, t, { dir: -1, anda: w > 0 && w < 1, sostiene: duda ? false : true, dedo: duda && t < SOBRE, sorpresa: t > SOBRE });
+  if (!duda) { const [mx, my] = fan.mano; R.rect(mx - 2, my - 5, mx + 2, my + 1, hex('#1a1014')); R.rect(mx - 1, my - 4, mx + 1, my, hex('#3a8ae8')); R.pset(mx - 1, my - 4, hex('#8ad8ff')); }
+  else if (t < SOBRE + 0.8) { const ic = tramo(t, CUALES - 0.1, CUALES + 0.2); R.icono('?', x + 4, 128 - Math.round(ic * 6), hex('#f8d040'), hex('#1a1014'), 2); }
+  T.hoyDelante(R, t, o);
+  // las palomitas, sentadas en el escritorio: miran el mapa y lo señalan en «Which universes»
+  const se = t > CUALES && t < SOBRE + 0.4;
+  T.palomitas(R, 96, 136, t, { s: 1, dir: 1, señala: se ? [200, 60] : undefined, asiente: t > SOBRE + 0.4, expresion: t > SOBRE + 0.4 ? 'susto' : 'normal' });
+};
+const p2 = (t) => {
+  const m = 0.5 + 0.34 * tramo(t, P2, ATOM), o = { encuadre: 'cuarto', camara: 'mapa', mapa: m };
+  T.hoy(R, t, o);
+  // las palomitas, de pie delante del mapa: señalan y cuentan; en «I'm Atom» se vuelven y saludan
+  const cuenta = t < NECESITAS ? 1 : t < SABER ? 2 : t < NADA ? 3 : 4, vuelve = t > ATOM - 0.15;
+  const w = tramo(t, P2, P2 + 0.8), x = Math.round(lerp(300, 276, w));
+  T.palomitas(R, x, 176, t, { s: 2, dir: vuelve ? 1 : -1, anda: w > 0 && w < 1, cuenta: !vuelve && t > P2 + 0.5 && t < NADA + 0.7 ? cuenta : undefined, señala: !vuelve && t > NADA + 0.7 ? [150, 70] : undefined, saluda: vuelve, expresion: vuelve ? 'emocion' : 'normal' });
+};
+const p3 = (t) => {
+  const o = { encuadre: 'cuarto', camara: 'estanteria' }, g = T.hoy(R, t, o);
+  const w = tramo(t, P3 + 0.1, DESCUBRIR - 0.4), x = Math.round(lerp(34, 206, w));
+  // la caja que tiene delante, a la que señala
+  const cajas = g.cajas ?? [62, 100, 138, 176, 214].map((cx) => [cx, 74]);
+  let objetivo; for (const c of cajas) if (Math.abs(c[0] - x) < 22) objetivo = [c[0], c[1]];
+  const salta = tramo(t, DESCUBRIR, DESCUBRIR + 0.3) - tramo(t, DESCUBRIR + 0.6, DESCUBRIR + 0.9);
+  T.palomitas(R, x, 172, t, { s: 2, dir: 1, anda: w > 0 && w < 1, señala: w > 0 && w < 1 ? objetivo : undefined, gafas: t > DESCUBRIR - 0.2 ? '3d' : false, salta: salta, expresion: t > DESCUBRIR - 0.2 ? 'emocion' : 'normal', saluda: t > DESCUBRIR + 1 });
+  // la caja señalada brilla
+  if (objetivo && w > 0 && w < 1) { const [cx, cy] = objetivo; R.anillo(cx, cy, 20 + Math.round(Math.sin(t * 8)), hex('#f8d040'), 3); }
+};
+const año = 2026;
+const efectos = [[0.4, 'toc'], [CUALES, 'pop'], [NECESITAS, 'tic'], [NADA, 'tic'], [ATOM + 0.1, 'boing'], [COSAS, 'whoosh'], [DESCUBRIR, 'boing']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
+</script>
+</body>
+</html>

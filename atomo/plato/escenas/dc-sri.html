@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Stanford · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-SRI (frase 12), años setenta. Cinco planos:
+// 1. (despacho, mesa) «the fear changed shape»: junto a la Luna y el cohete de juguete (el miedo de antes), una mano deja
+//    caer encima la carpeta del ojo con ondas;
+// 2. (sala del Capitolio) corta en «Word»: en la tarima, un ayudante le susurra al general en el atril y le da la carpeta del
+//    ojo en «Soviets»; en «psychic powers» la levanta ante la sala y sale el bocadillo del ojo; fogonazos;
+// 3. (mapa de EE. UU.) corta en «So»: la ruta del dinero sale de Washington y cruza el país con la bolsa; la chincheta cae
+//    en Stanford, California;
+// 4. (laboratorio del SRI) corta en «where»: Ingo Swann, con los ojos cerrados en el cuarto aislado, dibuja; sueña con una
+//    isla lejana; un científico enchufa el cable del cuarto en la caja del rack y luego señala la onda del osciloscopio; el
+//    otro va con su tablilla del rack al cristal y apunta; el gato espía escucha encima del magnetofón;
+// 5. (el dibujo) corta en «just»: sobre la guía tenue y las coordenadas (49°, 70°), el trazo se pinta solo, sin mano, con
+//    un brillo violeta en la punta: la isla con su torre; el «?» del mapa late y en «remote viewing» se enciende el ojo.
+import * as T from '/atomo/plato/escenas/dc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dc-sri');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const s = (f) => en('sri', f);
+const P2 = s(0.128), P3 = s(0.334), P4 = s(0.577), P5 = s(0.862);
+const cambia = s(0.075), washington = s(0.151), sovieticos = s(0.206), psiquico = s(0.261);
+const cia = s(0.347), paga = s(0.391), stanford = s(0.470), california = s(0.550);
+const ingo = s(0.660), lejos = s(0.744), nunca = s(0.8186), remoto = s(0.962);
+const k = hex('#1a1420');
+
+// ── 1 · la mesa: el miedo cambia de forma ───────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  T.carrera(R, t, { encuadre: 'despachoAF', camara: 'mesa' });
+  // la carpeta del ojo llega en la mano por la derecha y cae sobre la de la Luna en «changed shape»
+  // la carpeta vieja se aparta un poco antes (tiembla) y la del ojo cae de arriba en «changed shape», con un bote
+  const cae = tramo(t, cambia - 0.45, cambia), bote = Math.max(0, Math.sin(tramo(t, cambia, cambia + 0.35) * Math.PI)) * 6;
+  const CP = T.PIEZAS_DC.carpeta;
+  if (CP && cae > 0) {
+    const fy = Math.round(lerp(-50, 160, cae * cae) - bote);
+    if (cae < 1) for (let j = 0; j < 4; j++) R.linea(150 + j * 16, fy - 52 - j * 3, 150 + j * 16, fy - 60 - j * 3, hex('#f8f0d8'));
+    CP(R, 176 + Math.round((1 - cae) * 10), fy, { s: 3, dibujo: 'ojo' });
+  }
+  // el temblor del cohete de juguete cuando cae la carpeta
+  if (t > cambia && t < cambia + 0.5 && Math.floor(t * 20) % 2) R.pset(128, 118, hex('#f8f0d8'));
+  // el polvo que levanta al caer
+  const p = tramo(t, cambia + 0.15, cambia + 0.9);
+  if (p > 0 && p < 1) for (let i = 0; i < 12; i++) { const an = i * 0.52; R.pset(Math.round(176 + Math.cos(an) * (30 + p * 14)), Math.round(158 - Math.abs(Math.sin(an)) * p * 10), hex('#e8dcc0')); }
+};
+
+// un bocadillo grande con un símbolo (escala 2)
+const burbuja = (x, y, ic, c, esc = 2) => {
+  const w = 18, hh = 18; R.rect(x - w / 2 - 2, y - hh, x + w / 2 + 2, y + 1, k); R.rect(x - w / 2 - 1, y - hh + 1, x + w / 2 + 1, y, hex('#fbf8ee'));
+  R.pset(x - w / 2 - 2, y + 2, k); R.pset(x - w / 2 - 3, y + 3, k); R.pset(x - w / 2 - 1, y + 1, hex('#fbf8ee'));
+  R.icono(ic, x - 7, y - hh + 3, c, k, esc);
+};
+// ── 2 · una sala del Capitolio: la noticia ───────────────────────────────────────────────────────────────────────
+const p2 = (t) => {
+  T.guerra(R, t, { encuadre: 'capitolio' });
+  // el general habla en el atril; un ayudante sube a la tarima, le susurra y le da la carpeta del ojo en «Soviets»;
+  // en «psychic powers» el general la levanta ante la sala y salta el bocadillo del ojo
+  const u = tramo(t, P2 + 0.1, washington + 0.6), xa = Math.round(lerp(262, 204, u)), da = t > sovieticos, alza = t > psiquico - 0.3;
+  const susurra = u >= 1 && !da;
+  const g = R.actor(EL.generalAF, 180, 131, t, { dir: susurra ? 1 : -1, habla: (!susurra && !da && Math.sin(t * 6) > 0.2) || (alza && Math.sin(t * 7) > 0), sostiene: da ? (alza ? [174, 98] : [178, 108]) : false, sorpresa: susurra || (da && !alza) });
+  const r = R.actor(EL.ingenieroCIA, xa, 131, t, { dir: -1, anda: u > 0 && u < 1, sostiene: !da ? [xa - 2, 113] : false, habla: susurra && Math.sin(t * 9) > 0, dedo: da && t < psiquico });
+  T.guerraDelante(R, t, { encuadre: 'capitolio' });
+  const CP = T.PIEZAS_DC.carpeta;
+  if (CP) { if (!da) CP(R, r.mano[0] - 2, r.mano[1] + 8, { s: 1, dibujo: 'ojo' }); else CP(R, g.mano[0] - 9, g.mano[1] + 7, { s: 1, dibujo: 'ojo' }); }
+  if (t > psiquico) burbuja(196, Math.round(lerp(92, 84, tramo(t, psiquico, psiquico + 0.25))), 'ojo', hex('#7a4aa8'));
+};
+
+// ── 3 · el mapa: el dinero viaja a California ───────────────────────────────────────────────────────────
+const LUG = { washington: [-77.04, 38.90], sri: [-122.18, 37.45] };
+const p3 = (t) => {
+  const P = T.mapa(R, t, { zona: 'eeuu' });
+  const [wx, wy] = P(LUG.washington), [sx, sy] = P(LUG.sri);
+  T.chincheta(R, Math.round(wx), Math.round(wy), t, T.C.azul ?? hex('#3a6ad8'), { baja: tramo(t, P3 + 0.1, P3 + 0.5) });
+  const pts = [[wx, wy - 4], [(wx + sx) / 2, Math.min(wy, sy) - 34], [sx, sy - 4]].map(([x, y]) => [Math.round(x), Math.round(y)]);
+  // una curva de Bézier en puntos, para la ruta
+  const curva = []; for (let i = 0; i <= 24; i++) { const v = i / 24; curva.push([Math.round((1 - v) ** 2 * pts[0][0] + 2 * v * (1 - v) * pts[1][0] + v * v * pts[2][0]), Math.round((1 - v) ** 2 * pts[0][1] + 2 * v * (1 - v) * pts[1][1] + v * v * pts[2][1])]); }
+  const u = tramo(t, cia, stanford);
+  if (u > 0) R.ruta(curva, u, R.PALA.VERDE ? R.PALA.VERDE[3] : hex('#3a8a3a'));
+  // la bolsa del dinero que viaja por la ruta y rebota al llegar
+  if (u > 0) { const i = Math.min(24, Math.round(u * 24)), [bx, by] = curva[i], bote = u >= 1 ? Math.round(Math.abs(Math.sin((t - stanford) * 9)) * 3 * Math.max(0, 1 - (t - stanford))) : 0;
+    R.icono('bolsa', bx - 7, by - 20 - bote, hex('#c8a040'), k, 2); }
+  T.chincheta(R, Math.round(sx), Math.round(sy), t, hex('#c8282a'), { baja: tramo(t, stanford - 0.2, stanford + 0.25), pulso: t > california });
+  // en «California» se enciende el ojo con ondas sobre la chincheta
+  const e = tramo(t, california - 0.2, california + 0.3);
+  if (e > 0) burbuja(Math.round(sx) + 22, Math.round(sy) - Math.round(lerp(10, 16, e)), 'ojo', hex('#7a4aa8'));
+};
+
+// ── 4 · el laboratorio del SRI: Ingo Swann dibuja con los ojos cerrados ─────────────────────────────────
+const p4 = (t) => {
+  T.psiquicos(R, t, { encuadre: 'sri', sesion: true });
+  const lapiz = Math.sin(t * 9) * 3;
+  R.recorte([58, 58, 158, 118]);
+  const sw = R.actor(EL.swann, 104, 124, t, { dir: 1, parpadea: true, sostiene: [124 + Math.round(lapiz), 110 + Math.round(Math.cos(t * 7))] });
+  R.recorte(null);
+  // los científicos, con su tarea: el de la tablilla deja el rack y va hasta el cristal (llega en «Ingo Swann»), levanta
+  // la vista y la tablilla para mirar dentro en «faraway» y apunta sin parar; el de la barba enchufa el cable del cuarto en la caja
+  // del rack al empezar (se enciende el piloto), se pone bajo el osciloscopio en «Ingo», señala la onda en «faraway» y se sorprende en «never seen»
+  const a2 = tramo(t, ingo - 0.3, ingo + 0.9), x2 = Math.round(lerp(236, 212, a2)), enchufa = t < P4 + 1.6, on = t > P4 + 1.2;
+  // la caja de conexiones al pie del rack, donde el de la barba enchufa el cable del cuarto (con su piloto)
+  R.rect(221, 136, 231, 145, k); R.rect(222, 137, 230, 144, hex('#8a8a7a')); R.rect(222, 137, 230, 137, hex('#b8b8a8')); R.disco(225, 141, 1, k);
+  R.pset(229, 139, on ? (Math.floor(t * 3) % 2 ? hex('#7aff6a') : hex('#3ac83a')) : hex('#2a4a2a'));
+  // el cable que lleva en la mano hasta la caja y que se queda enchufado (por detrás de él, por la moqueta hasta el rack)
+  { const hx = on ? 226 : 229, hy = 142; R.linea(hx, hy + 1, hx - 3, 152, k); R.linea(hx - 3, 152, hx - 8, 157, k); R.linea(hx - 8, 157, hx - 22, 158, k); R.pset(hx, hy, hex('#c8ccd6')); }
+  const a1 = tramo(t, P4 + 0.5, ingo - 0.1), x1 = Math.round(lerp(198, 164, a1)), mira = t > lejos - 0.1 && t < nunca + 0.6;
+  const ap1 = Math.floor(t * 3) % 3 === 0 ? 1 : 0;
+  const cs = R.actor(EL.cientificoSRI, x1, 162, t, { dir: -1, anda: a1 > 0 && a1 < 1, sostiene: a1 > 0 && a1 < 1 ? true : [x1 - 4, (mira ? 137 : 141) + ap1], habla: t > nunca && t < nunca + 0.7 && Math.sin(t * 7) > 0, sorpresa: t > lejos && t < lejos + 0.5 });
+  const s2 = R.actor(EL.cientificoSRI2, x2, 162, t, { dir: -1, anda: a2 > 0 && a2 < 1, sostiene: enchufa ? [225 + (on ? 0 : 2), 141] : undefined, dedo: !enchufa && a2 >= 1 && t > lejos - 0.2 && t < nunca + 0.2, sorpresa: t > nunca && t < nunca + 0.9 });
+  // la tablilla del primero: grande y con más apuntes cuando escribe, pequeña bajo el brazo cuando anda
+  { const [mx, my] = cs.mano; if (a1 <= 0 || a1 >= 1) { R.rect(mx - 8, my - 6, mx, my + 4, k); R.rect(mx - 7, my - 5, mx - 1, my + 3, hex('#f2ecd8')); R.rect(mx - 6, my - 7, mx - 2, my - 6, hex('#8a8a96')); const lin = Math.min(4, 2 + Math.floor(tramo(t, P4, P5) * 3)); for (let j = 0; j < lin; j++) R.linea(mx - 6, my - 4 + j * 2, mx - 2 - (j === lin - 1 ? ap1 * 2 : 0), my - 4 + j * 2, hex('#6a6a7a')); }
+    else { R.rect(mx - 3, my - 5, mx + 3, my + 4, k); R.rect(mx - 2, my - 4, mx + 2, my + 3, hex('#f2ecd8')); R.rect(mx - 1, my - 6, mx + 1, my - 5, hex('#8a8a96')); } }
+  T.gatoEspia(R, 258, 92, t, { cara: t > lejos ? 'travieso' : 'normal' });
+  T.psiquicosDelante(R, t, { encuadre: 'sri', sesion: true });
+  // la nube del pensamiento: una isla lejana con su torre, dentro de la ventana
+  const nb = tramo(t, lejos - 0.4, lejos + 0.3);
+  if (nb > 0) {
+    R.recorte([58, 58, 158, 118]);
+    const cx = 140, cy = 76; R.disco(122, 98, 2, k); R.disco(122, 98, 1, hex('#f8f4ea')); R.disco(129, 92, 3, k); R.disco(129, 92, 2, hex('#f8f4ea'));
+    R.disco(cx, cy, Math.round(16 * nb) + 1, k); R.disco(cx, cy, Math.round(16 * nb), hex('#f8f4ea'));
+    if (nb > 0.8) { R.disco(cx, cy + 3, 13, hex('#6ab0d8')); for (let i = 0; i < 9; i++) R.pset(cx - 11 + i * 3, cy + 9 + (i % 2), hex('#e8f4ff'));
+      R.disco(cx, cy + 6, 6, hex('#c8a860')); R.disco(cx - 2, cy + 4, 3, hex('#5a9a4a'));
+      R.rect(cx + 1, cy - 9, cx + 3, cy + 3, hex('#5a5a6a')); R.rect(cx + 2, cy - 8, cx + 2, cy + 2, hex('#8a8a9a')); if (Math.floor(t * 4) % 2) R.pset(cx + 2, cy - 10, hex('#f8d040')); }
+    R.recorte(null);
+  }
+};
+
+// ── 5 · el dibujo que se hace solo ──────────────────────────────────────────────────────────────────────
+// el boceto tenue que ya está en el papel desde el principio (la guía de la sesión, a lápiz muy suave): los mismos trazos
+// que el dibujo de psiquicos (c_TRAZOS de dc-comun.js, en el mismo orden); se ve solo lo que el trazo bueno aún no ha repasado
+const GUIA = [
+  [[100, 124], [112, 123], [124, 125], [138, 123], [152, 124], [168, 123], [182, 125], [198, 124]],
+  [[110, 124], [118, 116], [126, 110], [134, 100], [142, 90], [148, 86], [154, 90], [160, 98], [170, 106], [182, 114], [194, 124]],
+  [[147, 87], [147, 66], [154, 66], [154, 88]], [[146, 66], [150, 60], [155, 66]], [[149, 72], [152, 72]], [[149, 78], [152, 78]],
+  [[128, 108], [134, 112]], [[132, 102], [139, 108]], [[136, 96], [143, 102]], [[140, 92], [146, 98]],
+  [[106, 134], [109, 131], [112, 134], [115, 131], [118, 134]], [[138, 140], [141, 137], [144, 140], [147, 137], [150, 140]], [[170, 133], [173, 130], [176, 133], [179, 130], [182, 133]],
+  [[112, 58], [114, 53], [119, 51], [123, 53], [127, 50], [133, 52], [135, 57], [130, 59], [112, 59]],
+  [[150, 46], [168, 52], [176, 70], [172, 92], [160, 104], [140, 104], [124, 96], [120, 76], [128, 56], [144, 47], [154, 47]],
+];
+let GUIA_TOT = 0; for (const sg of GUIA) for (let i = 1; i < sg.length; i++) GUIA_TOT += Math.hypot(sg[i][0] - sg[i - 1][0], sg[i][1] - sg[i - 1][1]);
+const p5 = (t) => {
+  // sin mano: el trazo se pinta solo (visión remota); empieza ya con la línea del mar a medias
+  const tr = 0.05 + 0.95 * tramo(t, P5 + 0.1, remoto);
+  const g = T.psiquicos(R, t, { encuadre: 'sri', camara: 'dibujo', trazo: tr, lapiz: false });
+  // la guía tenue, a trazos, solo por delante de lo ya dibujado
+  { let acum = 0; const hecho = GUIA_TOT * tr, gc = hex('#c8c0ae');
+    for (const sg of GUIA) for (let i = 1; i < sg.length; i++) { const [ax, ay] = sg[i - 1], [bx, by] = sg[i], L = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.round(L));
+      for (let u = 0; u <= n; u++) if (u % 4 < 2 && acum + L * u / n > hecho + 1) R.pset(Math.round(ax + (bx - ax) * u / n), Math.round(ay + (by - ay) * u / n), gc);
+      acum += L; } }
+  // las coordenadas apuntadas arriba a la izquierda (solo cifras, con su grado) y la marca de la sesión
+  for (const [txt, y] of [['49', 44], ['70', 54]]) { const w = R.numero(txt, 90, y, { fina: true, color: hex('#5a5a66'), sombra: false }); R.pset(90 + w - 1, y - 6, hex('#5a5a66')); R.pset(90 + w, y - 6, hex('#5a5a66')); R.pset(90 + w - 1, y - 5, hex('#5a5a66')); R.pset(90 + w, y - 5, hex('#5a5a66')); }
+  R.linea(88, 57, 106, 57, hex('#8a8a96'));
+  // la punta del trazo, viva: un brillo violeta que late donde se dibuja y las motas de grafito que suelta
+  if (g && g.punta && tr < 1) { const [px, py] = g.punta.map(Math.round), f = Math.floor(t * 12);
+    const rr = 3 + (f % 3);   // el anillo que late y se abre, de 3 a 5 px
+    for (let i = 0; i < 12; i++) if ((f + i) % 3) { const a = i * Math.PI / 6 + t * 3; R.pset(Math.round(px + Math.cos(a) * rr), Math.round(py + Math.sin(a) * rr), hex(i % 3 ? '#a87ad8' : '#e8dcff')); }
+    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.pset(px + dx, py + dy, hex('#c8a8f0')); R.pset(px, py, hex('#ffffff'));
+    for (let i = 0; i < 3; i++) { const u = (t * 2 + i / 3) % 1; R.pset(px + 2 + i * 2 - Math.round(u * 2), py + 2 + Math.round(u * 3), hex('#8a8a94')); } }
+  const e = tramo(t, remoto - 0.1, remoto + 0.3);
+  if (e > 0) { const cx = 204, cy = 50, r0 = Math.round(8 + e * 4); R.disco(cx, cy, r0 + 1, k); R.disco(cx, cy, r0, hex('#f8f4ea')); R.icono('ojo', cx - 7, cy - 7, hex('#7a4aa8'), k, 2);
+    for (let r = r0 + 3; r < r0 + 3 + e * 9; r += 3) for (let an = 0; an < 6.28; an += 0.22) if ((Math.floor(an * 5) + Math.floor(t * 8)) % 2) R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r), hex('#9a6ac8')); }
+};
+
+const efectos = [[cambia + 0.12, 'papel'], [sovieticos, 'papel'], [psiquico, 'publico'], [cia, 'whoosh'], [stanford, 'toc'], [california, 'brillo'], [P4 + 1.2, 'interruptor'], [lejos, 'pop'], [P5 + 0.2, 'lapiz'], [remoto, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 1972 });
+</script>
+</body>
+</html>

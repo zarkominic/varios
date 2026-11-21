@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Short 2 · ep28</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Short 2 · ep28, con chibis: la dibuja nc-mini-chibi.js (n = 4: Mullins en Seattle, compuesto para el vertical).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { pintarNCchibi } from '/atomo/plato/escenas/nc-mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+window.__frame = async (t) => { pintarNCchibi(R, t, 4); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

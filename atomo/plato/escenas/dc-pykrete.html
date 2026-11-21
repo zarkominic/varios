@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El pykrete · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-PYKRETE (frase 20). Cuatro planos:
+// 1. 1942, el taller frío: el técnico parte de un martillazo el bloque de hielo normal («breaks»); con «mixed the water
+//    with wood pulp» el otro echa el agua y el serrín en el molde, que se llena; Pyke da las instrucciones y un
+//    canadiense trae el saco de serrín (corta en «frozen»);
+// 2. el banco de cerca (inserto): el martillo rebota en el bloque de pykrete («tougher»); con «took far longer to melt»
+//    se enciende la estufa y el hielo normal se derrite en un charco mientras el pykrete apenas suda; con «pykrete» una
+//    mano lo marca con el sello (corta en «The story»); el rincón de arriba a la derecha va enlucido y en sombra suave,
+//    tranquilo detrás de Atom;
+// 3. 1943, el cuarto de baño: Mountbatten, de uniforme blanco, entra con el bloque, lo lanza a la bañera llena (sin
+//    nadie dentro) con «dropping a block» y el bloque flota; en el borde, un puro que humea (corta en «and that»);
+// 4. la sala de reuniones con los altos mandos: un oficial entra, apunta al bloque de la mesa (solo al bloque) y, con
+//    «the bullet bounced», la bala rebota con un «pling»; el gato espía, que miraba, se esconde bajo el mantel y asoma
+//    los ojos (gag 7).
+import * as T from '/atomo/plato/escenas/dc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dc-pykrete');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('pykrete', f);
+const P2 = a(0.198), P3 = a(0.49), P4 = a(0.752);
+const rompe = a(0.035), mezcla = a(0.104), serrin = a(0.149), duro = a(0.275), derrite = a(0.312), pyk = a(0.416), mount = a(0.55), churchill = a(0.612), suelta = a(0.678), dispara = a(0.794), mandos = a(0.878), bala = a(0.926), rebota = a(0.941);
+const k = T.C.k;
+const hh = (i, s = 0) => { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], dith = (x, y) => (B4[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const mez = (c1, c2, u) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * u) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * u) << 8) | Math.round(r1 + ((c2 & 255) - r1) * u)) >>> 0; };
+const suave = (u) => u * u * (3 - 2 * u);
+const destello = (x, y, r, c = hex('#fff6d0')) => { for (let i = 1; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); if (i < r) { R.pset(x + i, y + i, c); R.pset(x - i, y - i, c); R.pset(x + i, y - i, c); R.pset(x - i, y + i, c); } } R.pset(x, y, hex('#ffffff')); };
+// el martillo en la mano: el mango sale del puño con el ángulo ang y la cabeza de acero al final
+const martillo = (x, y, ang, L = 10) => { const ex = Math.round(x + Math.cos(ang) * L), ey = Math.round(y + Math.sin(ang) * L); R.linea(x, y, ex, ey, k); R.linea(x + 1, y, ex + 1, ey, hex('#a8743c'));
+  const px = -Math.sin(ang), py = Math.cos(ang); R.poligono([[ex + px * 4, ey + py * 4], [ex - px * 4, ey - py * 4], [ex - px * 4 + Math.cos(ang) * 3, ey - py * 4 + Math.sin(ang) * 3], [ex + px * 4 + Math.cos(ang) * 3, ey + py * 4 + Math.sin(ang) * 3]].map(([u, v]) => [Math.round(u), Math.round(v)]), hex('#5a6270')); R.pset(Math.round(ex + px * 3), Math.round(ey + py * 3), hex('#c8d0dc')); };
+
+// 1 · el taller frío
+const TALLER = { encuadre: 'tallerHielo' };
+const p1 = (t) => {
+  const molde = 0.08 + 0.92 * tramo(t, mezcla + 0.1, P2 - 0.2), ro = tramo(t, rompe - 0.02, rompe + 0.6);
+  T.hielo(R, t, { ...TALLER, molde, bloques: false });
+  // Pyke explica; el canadiense trae el saco de serrín
+  R.actor(EL.pyke, 92, 160, t, { dir: 1, dedo: t > mezcla - 0.3 && t < serrin + 0.6, habla: t > mezcla - 0.3 && t < serrin + 0.6 && Math.sin(t * 7) > 0, sonrisa: t > P2 - 0.9, sorpresa: t > rompe && t < rompe + 0.5 });
+  const us = tramo(t, 0.15, mezcla - 0.3), xs = Math.round(lerp(-18, 136, us)), lleva = us < 1;
+  const cs = R.actor(EL.ingenieroCA2, xs, 172, t, { dir: 1, anda: us > 0 && us < 1, sostiene: lleva ? true : undefined, sonrisa: !lleva });
+  const saco = (x, y) => { R.rect(x - 6, y - 9, x + 6, y, k); R.rect(x - 5, y - 8, x + 5, y - 1, hex('#b8945a')); R.rect(x - 5, y - 8, x + 5, y - 7, hex('#d8b47a')); R.linea(x - 3, y - 9, x + 3, y - 9, hex('#8a6a3a')); for (let i = 0; i < 5; i++) R.pset(x - 4 + i * 2, y - 4 + (i & 1), hex('#8a6a3a')); };
+  if (lleva) saco(cs.mano[0] + 2, cs.mano[1] + 6); else { saco(160, 173); for (let i = 0; i < 6; i++) R.pset(152 + i * 3, 173 + (i & 1), hex('#c8a46a')); }
+  // detrás del banco: el del martillo y el que echa el agua y el serrín
+  const golpe = t > rompe - 0.05 && t < rompe + 0.5, alza = t > rompe - 0.5 && t <= rompe - 0.05;
+  const m = R.actor(EL.tecnicoBritanico, 238, 158, t, { dir: t > serrin ? 1 : -1, sostiene: t <= serrin ? (golpe ? [229, 137] : [232, 130]) : undefined, sonrisa: t > P2 - 0.8, sorpresa: t > rompe && t < rompe + 0.4 });
+  if (t <= serrin) martillo(m.mano[0], m.mano[1], golpe ? Math.PI * 1.05 : alza ? -Math.PI * 0.62 : -Math.PI * 0.85, 9);
+  const x2 = 204, vierte = t > mezcla - 0.1 && t < serrin - 0.15, echa = t > serrin - 0.05 && t < P2 - 0.3;
+  const w = R.actor(EL.tecnicoBritanico2, x2, 158, t, { dir: -1, sostiene: vierte || echa ? [196, 128] : true });
+  const [hx, hy] = w.mano;
+  if (t < serrin - 0.05) {   // el cubo de agua (se inclina al verter)
+    const inc = vierte ? 2 : 0; R.rect(hx - 4, hy - 1 - inc, hx + 3, hy + 5, k); R.rect(hx - 3, hy - inc, hx + 2, hy + 4, hex('#8a949e')); R.rect(hx - 3, hy - inc, hx + 2, hy - inc, hex('#c8d0d8')); R.linea(hx - 4, hy - 3 - inc, hx + 3, hy - 3, hex('#4a5262'));
+    if (vierte) for (let i = 0; i < 8; i++) R.pset(hx - 4 - (i > 3 ? 1 : 0), hy + 1 + i + Math.round(((t * 20 + i) % 2)), hex('#8ac8e8'));
+  } else if (t < P2 - 0.3) {   // la pala del serrín
+    R.linea(hx, hy, hx - 6, hy + 2, k); R.rect(hx - 9, hy + 1, hx - 5, hy + 3, hex('#6a6e78')); R.rect(hx - 9, hy, hx - 5, hy, hex('#c8a46a'));
+    if (echa) for (let i = 0; i < 7; i++) R.pset(hx - 8 + Math.round(hh(i, Math.floor(t * 10)) * 4), hy + 4 + Math.round(((t * 18 + i * 1.3) % 8)), hex('#c8a46a'));
+  }
+  T.hieloDelante(R, t, { ...TALLER, molde, bloques: false });
+  // los dos bloques encima del banco: el de hielo normal se parte con «breaks»; el de pykrete, al lado
+  T.PIEZAS_DC.bloqueHielo(R, 226, 146, { tipo: 'hielo', roto: ro > 0.5 });
+  if (ro > 0 && ro < 1) for (let i = 0; i < 8; i++) { const an = -Math.PI * (0.1 + 0.8 * hh(i, 91)), d = ro * (8 + hh(i, 92) * 14); R.pset(Math.round(226 + Math.cos(an) * d), Math.round(138 + Math.sin(an) * d + ro * ro * 10), i & 1 ? hex('#ffffff') : hex('#b8e4f4')); }
+  T.PIEZAS_DC.bloqueHielo(R, 284, 146, {});
+  if (t > rompe && t < rompe + 0.35) destello(226, 134, 4);
+};
+
+// 2 · el banco de cerca (inserto con fondo propio): el pykrete a la izquierda (cerca del borde, para que el brazo no
+// cruce la pantalla), el reloj en medio y el hielo normal a la derecha, bajo la estufa de luz que cuelga
+let fBanco = null;
+const fijoBanco = () => {
+  if (!fBanco) { fBanco = R.nuevo(); const prev = R.usar(fBanco);
+    // la pared de ladrillo encalado, con la cal saltada, juntas y escarcha arriba
+    for (let y = 0; y < 100; y++) for (let x = 0; x < 320; x++) { const fila = Math.floor(y / 7), xo = (x + (fila & 1) * 9) % 18, jun = y % 7 === 6 || xo === 17, lad = Math.floor((x + (fila & 1) * 9) / 18) * 31 + fila * 17;
+      let c; if (jun) c = hex('#7a7e86'); else { const pelado = hh(lad, 5) < 0.18; c = pelado ? ((x + y) % 7 === 0 ? hex('#8a4a3a') : hex('#a8624a')) : hh(lad, 6) < 0.3 ? hex('#c4c6ca') : hex('#d6d8dc'); if (y % 7 === 0 && !pelado) c = hex('#e8eaee'); if (xo === 16 && !pelado) c = hex('#aeb2b8'); }
+      const esc = Math.max(0, 1 - y / 22); if (dith(x, y) < esc * 0.7) c = hex('#f4f9ff'); R.pset(x, y, c); }
+    // el rincón de arriba a la derecha, enlucido y en sombra suave (tranquilo detrás de Atom): la cal lisa, con un
+    // degradado de sombra muy suave hacia la esquina, que se funde con el ladrillo por los bordes
+    for (let y = 0; y < 60; y++) for (let x = 256; x < 320; x++) {
+      const w = Math.min(1, Math.max(0, (x - 258) / 16), Math.max(0, (58 - y) / 10)); if (w <= 0) continue;
+      const sombra = Math.min(1, (x - 270) / 50 + (50 - y) / 120), liso = mez(hex('#cfd1d5'), hex('#bcbec4'), Math.max(0, sombra) * (dith(x, y) < 0.5 ? 1 : 0.92));
+      R.pset(x, y, w >= 1 ? liso : mez(R.pget(x, y), liso, w * w)); }
+    // el tablero de herramientas
+    R.rect(12, 22, 92, 76, k); R.rect(13, 23, 91, 75, hex('#a8845a')); for (let y = 27; y < 74; y += 5) for (let x = 17; x < 90; x += 5) R.pset(x, y, hex('#6a4e30'));
+    R.rect(20, 30, 22, 54, k); R.rect(16, 28, 26, 32, hex('#5a6270')); R.linea(34, 28, 34, 64, hex('#4a3a2a')); R.poligono([[36, 30], [54, 30], [54, 38], [36, 34]], hex('#9aa4b4')); for (let x = 38; x < 54; x += 2) R.pset(x, 38, hex('#5a6270'));
+    R.rect(62, 30, 64, 56, hex('#6a4a2a')); R.rect(60, 54, 66, 60, hex('#9aa4b4')); R.linea(74, 32, 82, 60, hex('#5a6270')); R.linea(82, 32, 74, 60, hex('#5a6270')); R.disco(78, 46, 2, hex('#3a3e48'));
+    // el termómetro bajo cero
+    R.rect(104, 22, 112, 74, k); R.rect(105, 23, 111, 73, hex('#f0ece0')); R.rect(107, 26, 109, 68, hex('#c8ccd4')); R.rect(107, 60, 109, 68, hex('#c8282a')); R.disco(108, 69, 3, k); R.disco(108, 69, 2, hex('#c8282a')); for (let y = 28; y < 66; y += 4) R.pset(110, y, k); R.rect(106, 50, 111, 50, hex('#3a6ad8'));
+    // la tubería con carámbanos
+    R.rect(118, 20, 186, 23, k); R.rect(118, 21, 186, 22, hex('#8a949e')); for (let x = 124; x < 184; x += 9) { R.rect(x, 24, x + 1, 24 + (x % 4) + 2, hex('#cfeaf6')); R.pset(x, 26 + (x % 4) + 1, hex('#ffffff')); } R.rect(184, 20, 187, 99, k); R.rect(185, 23, 186, 99, hex('#8a949e'));
+    // la ventana (el hueco se pinta luego) y el calendario de rayas
+    R.rect(196, 16, 256, 76, k); R.rect(198, 18, 254, 74, hex('#d8e4ee'));
+    R.rect(264, 54, 300, 92, k); R.rect(265, 55, 299, 91, hex('#f0ece0')); R.rect(265, 55, 299, 61, hex('#c8282a')); for (let j = 0; j < 4; j++) for (let i = 0; i < 6; i++) R.rect(268 + i * 5, 65 + j * 6, 270 + i * 5, 66 + j * 6, (i + j) % 5 === 0 ? hex('#c8282a') : hex('#8a8a8a'));
+    // el banco: tablones con vetas, nudos, escarcha y serrín
+    for (let y = 100; y < 180; y++) for (let x = 0; x < 320; x++) { const tab = Math.floor((y - 100) / 16), lin = (y - 100) % 16 === 15; let c = lin ? hex('#4a2e18') : ((Math.sin(x * 0.05 + tab * 3 + Math.sin(x * 0.013 + tab) * 4) + Math.sin(y * 0.9 + x * 0.002)) > 1.2 ? hex('#7a4e2a') : hex('#9a6a3e'));
+      if (!lin && dith(x, y) < 0.06) c = hex('#b8885a'); if (!lin && hh(x * 0.37 + y, 3) < 0.012) c = hex('#d8b47a'); R.pset(x, y, c); }
+    for (const [nx, ny] of [[132, 140], [270, 122], [40, 172]]) { R.disco(nx, ny, 3, hex('#5a3418')); R.disco(nx, ny, 1, hex('#3a200e')); }
+    R.rect(0, 98, 319, 100, k); R.rect(0, 100, 319, 101, hex('#c89a6a'));
+    // el cubo de agua (derecha), la regla, el cincel y unos guantes
+    R.rect(288, 116, 316, 152, k); R.rect(289, 117, 315, 151, hex('#8a949e')); R.rect(289, 117, 315, 120, hex('#c8d0d8')); R.rect(291, 121, 313, 124, hex('#9ad0ea')); R.linea(290, 134, 314, 134, hex('#5a6270')); R.linea(290, 116, 302, 106, k); R.linea(302, 106, 314, 116, k);
+    R.rect(100, 170, 200, 174, k); R.rect(101, 171, 199, 173, hex('#e8d890')); for (let x = 104; x < 198; x += 4) R.pset(x, 171, k);
+    R.linea(226, 168, 252, 164, k); R.rect(252, 162, 260, 166, hex('#9aa4b4'));
+    R.poligono([[250, 112], [262, 108], [270, 114], [258, 120]], hex('#6a7a5a')); R.poligono([[254, 112], [262, 110], [266, 114], [258, 116]], hex('#8a9a72'));
+    R.usar(prev); }
+  R.copiar(fBanco);
+};
+const hieloNormal = (x, yb, d, t) => {   // el bloque de hielo normal que se derrite (d 0–1)
+  const w = Math.round(44 - d * 10), h = Math.round(34 * (1 - d * 0.92)), x0 = x - (w >> 1), y0 = yb - h, p = Math.max(2, Math.round(h * 0.25));
+  const rc = 8 + Math.round(d * 40); for (let yy = yb - 2; yy <= yb + 6; yy++) for (let xx = x - rc; xx <= x + rc; xx++) if (((xx - x) / rc) ** 2 + ((yy - yb - 2) / 5) ** 2 < 1) R.pset(xx, yy, (xx + yy) % 5 === 0 ? hex('#d8f0fa') : mez(R.pget(xx, yy), hex('#8ac8e8'), 0.55));
+  if (h < 3) return;
+  R.poligono([[x0 - 1, y0 - 1], [x0 + p - 1, y0 - p - 1], [x0 + w + p, y0 - p - 1], [x0 + w + p, yb - p + 1], [x0 + w, yb + 1], [x0 - 1, yb + 1]], k);
+  R.poligono([[x0, y0], [x0 + p, y0 - p], [x0 + w + p - 1, y0 - p], [x0 + w - 1, y0]], hex('#e8f8fe'));
+  R.poligono([[x0 + w - 1, y0], [x0 + w + p - 1, y0 - p], [x0 + w + p - 1, yb - p], [x0 + w - 1, yb]], hex('#7ab4d4'));
+  R.poligono([[x0, y0], [x0 + w - 1, y0], [x0 + w - 1, yb], [x0, yb]], (xx, yy) => ((xx - yy) % 9 === 0) ? hex('#ffffff') : (yy > yb - 3 ? hex('#9ad0ea') : hex('#bfe6f6')));
+  for (let i = 0; i < 4; i++) { const gx = x0 + 3 + Math.round(hh(i, 71) * (w - 6)), gy = yb - Math.round(((t * 18 + i * 7) % Math.max(4, h))); if (d > 0.02) R.rect(gx, gy, gx, gy + 1, hex('#5ab0d8')); }
+};
+const p2 = (t) => {
+  fijoBanco();
+  // la nieve por la ventana (recortada a su hueco)
+  R.recorte([198, 18, 254, 74]);
+  for (let y = 18; y < 75; y++) for (let x = 198; x < 255; x++) if (y > 60 - Math.round(Math.sin(x * 0.1) * 3)) R.pset(x, y, hex('#f4f8fc')); else if (y > 44 && (x * 7) % 13 < 3) R.pset(x, y, hex('#5a7a6a'));
+  for (let i = 0; i < 26; i++) { const x = 198 + Math.round(((hh(i, 81) * 56 + Math.sin(t + i) * 3) % 56)), y = 18 + Math.round(((hh(i, 82) * 56 + t * 12) % 56)); R.pset(x, y, hex('#ffffff')); }
+  R.recorte(null);
+  R.rect(225, 18, 226, 74, k); R.rect(198, 45, 254, 46, k); R.rect(194, 74, 258, 78, k); R.rect(195, 75, 257, 77, hex('#e8eef4'));
+  // la gota que cae del carámbano
+  { const f = (t * 0.8) % 1; R.pset(151, Math.round(28 + f * f * 70), hex('#bfe6f6')); }
+  // la estufa de luz que cuelga, encendida con «took far longer to melt»
+  const luz = tramo(t, derrite - 0.1, derrite + 0.2), sw = Math.round(Math.sin(t * 1.2) * 1.2), lx = 150 + sw;
+  if (luz > 0) for (let y = 45; y < 168; y++) { const hw = 10 + (y - 45) * 0.78, a0 = 0.22 * luz * (1 - (y - 45) / 160); for (let x = Math.round(lx - hw); x <= Math.round(lx + hw); x++) { const borde = Math.min(1, (hw - Math.abs(x - lx)) / 10); R.pset(x, y, mez(R.pget(x, y), hex('#ffcc70'), a0 * borde)); } }
+  R.linea(150, 0, lx, 30, k); R.poligono([[lx - 14, 42], [lx + 14, 42], [lx + 8, 30], [lx - 8, 30]], k); R.poligono([[lx - 12, 41], [lx + 12, 41], [lx + 7, 31], [lx - 7, 31]], hex('#4a6a4a')); R.linea(lx - 7, 32, lx, 32, hex('#7a9a7a'));
+  R.rect(lx - 6, 42, lx + 6, 44, luz > 0 ? hex('#ffb040') : hex('#8a8a7a')); if (luz > 0) R.rect(lx - 4, 43, lx + 4, 43, hex('#fff0a0'));
+  // el reloj de bolsillo que corre mientras se derriten
+  const rx = 150, ry = 156; R.disco(rx, ry, 11, k); R.disco(rx, ry, 10, hex('#c8a040')); R.disco(rx, ry, 8, hex('#f4f0e4')); R.rect(rx - 1, ry - 14, rx + 1, ry - 11, hex('#c8a040')); R.disco(rx, ry - 15, 2, k);
+  for (let i = 0; i < 12; i++) R.pset(Math.round(rx + Math.cos(i * 0.5236) * 7), Math.round(ry + Math.sin(i * 0.5236) * 7), k);
+  const ang = -Math.PI / 2 + Math.max(0, t - derrite) * 3.4; R.linea(rx, ry, Math.round(rx + Math.cos(ang) * 6), Math.round(ry + Math.sin(ang) * 6), hex('#c8282a')); R.linea(rx, ry, rx, ry - 4, k); R.pset(rx, ry, k);
+  // el pykrete (izquierda) y el hielo normal (derecha) que se derrite en un charco
+  T.PIEZAS_DC.bloqueHielo(R, 58, 150, { s: 3 });
+  if (t > pyk) T.PIEZAS_DC.sello(R, 60, 121, { tipo: 'marca' });
+  const d = tramo(t, derrite + 0.1, derrite + 1.9);
+  hieloNormal(240, 150, d, t);
+  if (luz > 0) for (let i = 0; i < 3; i++) { const yy = 118 + Math.round(((t * 6 + i * 9) % 26)); R.pset(40 + i * 16, yy, hex('#8ac8e8')); }
+  for (let i = 0; i < 5; i++) { const f = (t * 0.6 + i / 5) % 1; if (d > 0.05 && d < 1) R.pset(230 + i * 5 + Math.round(Math.sin(t * 3 + i) * 2), Math.round(140 - d * 26 - f * 22), hex('#f0f8fc')); }
+  // el martillazo que rebota en el pykrete (el brazo entra por la izquierda)
+  const entra = tramo(t, P2 + 0.25, duro - 0.45), sale = tramo(t, duro + 0.5, duro + 1.0);
+  if (entra > 0 && sale < 1) {
+    const golpe = t > duro - 0.08 && t < duro + 0.12, rebote = t >= duro + 0.12;
+    const wx = Math.round(lerp(-14, 24, entra) - sale * 40), wy = Math.round(golpe ? 100 : rebote ? 80 + Math.round(Math.sin((t - duro) * 30) * 2) : lerp(120, 80, entra));
+    T.brazo(R, -26, 120, wx, wy, '#5a5e6a', 1, { codo: [-8, 104] });
+    martillo(wx + 8, wy, golpe ? 0.5 : -1.1, 22);
+    if (t > duro - 0.02 && t < duro + 0.3) { destello(54, 112, 5); for (let i = 0; i < 5; i++) R.pset(60 + i * 3, 106 - i * 2, hex('#ffffff')); }
+  }
+  // con «pykrete», una mano lo marca con el sello (entra por la izquierda, arriba)
+  const us = tramo(t, pyk - 0.55, pyk - 0.05), uv = tramo(t, pyk + 0.25, pyk + 0.75);
+  if (us > 0 && uv < 1) {
+    const baja = t > pyk - 0.05 && uv === 0;
+    const wx = Math.round(lerp(-16, 44, us) - uv * 60), wy = Math.round(lerp(60, baja ? 96 : 88, us) - uv * 20);
+    T.PIEZAS_DC.sello(R, wx + 14, wy + 22, { s: 1.5 });
+    T.brazo(R, -30, 70, wx, wy, '#5a5e6a', 1, { codo: [-10, 74] });
+  }
+};
+
+// 3 · el cuarto de baño: el bloque en la bañera
+const BANO = { encuadre: 'banera' };
+const p3 = (t) => {
+  const lanza = tramo(t, suelta - 0.25, suelta);
+  T.hielo(R, t, { ...BANO, bloque: tramo(t, suelta, suelta + 1.33), bloqueX: 182, bloqueY0: 124 });
+  // el puro en el borde de la bañera, que humea
+  R.rect(118, 133, 128, 135, k); R.rect(119, 134, 127, 134, hex('#7a4a24')); R.pset(119, 134, hex('#ff6a2a'));
+  for (let i = 0; i < 10; i++) { const f = (t * 0.4 + i / 10) % 1; R.pset(Math.round(118 + Math.sin(f * 9 + t) * 3), Math.round(132 - f * 30), mez(hex('#c8ccd0'), hex('#dfeee8'), f)); }
+  // Mountbatten entra con el bloque, lo enseña y lo lanza
+  const ue = tramo(t, P3 + 0.1, mount + 0.2), xm = Math.round(lerp(330, 194, ue));
+  const tiene = t < suelta - 0.25;
+  const m = R.actor(EL.mountbatten, xm, 160, t, { dir: -1, anda: ue > 0 && ue < 1, sostiene: tiene ? (t > churchill ? [188, 140] : true) : undefined, dedo: t > suelta + 0.8, sonrisa: t > suelta + 0.4, habla: t > churchill - 0.4 && t < suelta - 0.6 && Math.sin(t * 7) > 0 });
+  if (tiene) T.PIEZAS_DC.bloqueHielo(R, m.mano[0] - 2, m.mano[1] + 5, {});
+  else if (lanza < 1) T.PIEZAS_DC.bloqueHielo(R, Math.round(lerp(m.mano[0] - 2, 182, lanza)), Math.round(lerp(m.mano[1] + 5, 124, lanza) - Math.sin(Math.PI * lanza) * 6), {});
+};
+
+// 4 · la sala de reuniones: la bala que rebota (gag 7)
+const SALA = { encuadre: 'tallerHielo', camara: 'reunion' };
+const p4 = (t) => {
+  T.hielo(R, t, SALA);
+  const susto = t > rebota && t < rebota + 1.2;
+  // los altos mandos detrás de la mesa
+  R.actor(EL.mountbatten, 216, 150, t, { dir: -1, habla: t < dispara && Math.sin(t * 6) > 0, sorpresa: susto, sonrisa: t > rebota + 1.2, dedo: t > rebota + 1.2 && t < rebota + 2.4 });
+  R.actor(EL.oficialAliado, 254, 150, t, { dir: -1, sorpresa: susto || (t > mandos && t < bala), sonrisa: t > rebota + 1.4 });
+  R.actor(EL.oficialAliado2, 292, 150, t, { dir: -1, sorpresa: susto, triste: t > dispara && t < bala, sonrisa: t > rebota + 1.6 });
+  // el gato espía mira el bloque y, con el «pling», se esconde bajo el mantel
+  const huye = tramo(t, rebota + 0.15, rebota + 0.8), gx = Math.round(lerp(20, 150, huye));
+  if (huye < 1) T.gatoEspia(R, gx, 168 - (huye > 0 && huye < 0.25 ? 3 : 0), t, { anda: huye > 0, cara: t < rebota ? 'travieso' : 'normal', dir: 1 });
+  // el oficial que dispara: entra, apunta al bloque (solo al bloque) y dispara
+  const ue = tramo(t, P4 + 0.2, dispara - 0.2), xo = Math.round(lerp(42, 60, ue)), apunta = t > dispara && t < rebota + 1.0;
+  const o = R.actor(EL.oficialNaval, xo, 174, t, { dir: 1, anda: ue > 0 && ue < 1, sostiene: apunta ? [xo + 24, 150] : undefined, sorpresa: susto, sonrisa: t > rebota + 1.0 });
+  if (apunta) { const [hx, hy] = o.mano; R.rect(hx - 1, hy - 2, hx + 5, hy, k); R.rect(hx, hy - 1, hx + 4, hy - 1, hex('#3a3e48')); R.rect(hx - 1, hy, hx + 1, hy + 3, k); if (t > bala && t < bala + 0.1) destello(hx + 7, hy - 2, 3, hex('#ffd040')); }
+  T.hieloDelante(R, t, SALA);
+  // la bala: de la pistola al bloque y, con «bounced», hacia el techo
+  if (t > bala && t < rebota + 0.6) { const [hx, hy] = o.mano, mx = hx + 6, my = hy - 2, bx = 147, by = 141;
+    let x, y; if (t < rebota) { const u = tramo(t, bala, rebota); x = lerp(mx, bx, u); y = lerp(my, by, u); } else { const u = tramo(t, rebota, rebota + 0.6); x = lerp(bx, 198, u); y = lerp(by, -4, u); }
+    R.rect(Math.round(x) - 1, Math.round(y), Math.round(x) + 1, Math.round(y), hex('#fff0a0')); R.pset(Math.round(x), Math.round(y), hex('#ffffff')); }
+  if (t > rebota && t < rebota + 0.35) destello(149, 140, 5);
+  // los ojos del gato bajo el mantel
+  if (t > rebota + 1.1) { const p = Math.floor((t - rebota) * 1.3) % 3 !== 2; R.rect(150, 172, 160, 175, k); if (p) { R.pset(152, 173, hex('#e8d040')); R.pset(157, 173, hex('#e8d040')); } }
+};
+
+const efectos = [[rompe, 'toc'], [mezcla + 0.05, 'burbujas'], [duro, 'boing'], [derrite, 'interruptor'], [pyk, 'sello'], [mount - 0.9, 'puerta'], [suelta + 0.45, 'chof'], [bala, 'pop'], [rebota, 'brillo'], [rebota + 0.25, 'miau']];
+const año = (t) => t < P3 ? 1942 : 1943;
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

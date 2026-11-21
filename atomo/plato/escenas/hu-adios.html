@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adiós · ep12</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HU-ADIOS (frase 33), 2026. Un plano (3 s): el huracán desde arriba al atardecer, que gira despacio mientras la cámara se
+// acerca un poco. Por los huecos oscuros del mar, las bandas exteriores (dibujadas desde aquí, en una sola pasada): dos
+// brazos de nubes en espiral y calles de cúmulos sueltos que giran, en tres tonos con la cara al sol a la izquierda y su
+// sombra en el agua, relámpagos sueltos (halo rosado y rayo quebrado) y, entre banda y banda, el mar con rayitas de oleaje
+// que brillan (doradas cerca del sol). El P-3 de la NOAA visto desde arriba (unos 21 px: ala con cuatro motores y hélices
+// que giran, cola en T, franja azul, cabina, luces de punta de ala, destello del sol y su sombra en las nubes) llega desde
+// abajo a la izquierda, entra en el ojo en una curva girando con el huracán y acaba dentro, abajo; la gaviota (9 px con
+// contorno, bate las alas) le sigue por fuera y se queda dando vueltas sobre la pared. En «explain next?» sube del ojo un
+// «?» suave que late, con aire (unos 7–8 px) sobre el avión. El ojo es el remate en calma: el reloj del decorado va desfasado
+// para que los fucilazos de la pared caigan al principio y, en el último segundo y medio, solo relampaguee en las bandas
+// exteriores, lejos del avión. Atom, arriba a la derecha.
+import * as T from '/atomo/plato/escenas/hu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hu-adios');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C, K = C.k;
+const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+const suave = (u) => u * u * (3 - 2 * u);
+const entre = (t, a, b) => t >= a && t < b;
+const parp = (t, v = 7) => Math.sin(t * v) > 0;
+const mezcla = (p, q, f) => { const r = p & 255, g = (p >> 8) & 255, bb = (p >> 16) & 255, r2 = q & 255, g2 = (q >> 8) & 255, b2 = (q >> 16) & 255;
+  return (0xff000000 | (Math.round(bb + (b2 - bb) * f) << 16) | (Math.round(g + (g2 - g) * f) << 8) | Math.round(r + (r2 - r) * f)) >>> 0; };
+const ruido = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const umbral = (x, y) => (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+// a ritmo lineal entre puntos [t, valor]
+const tramos = (t, P) => { if (t <= P[0][0]) return P[0][1]; for (let i = 1; i < P.length; i++) if (t <= P[i][0]) return lerp(P[i - 1][1], P[i][1], (t - P[i - 1][0]) / (P[i][0] - P[i - 1][0])); return P[P.length - 1][1]; };
+// tiñe un píxel hacia un color, con trama (a: cuánto)
+const tine = (x, y, c, a) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mezcla(R.pget(x, y), c, a)); };
+// la zona de Atom y la de la barra del año quedan tranquilas
+const tranquilo = (x, y) => (x >= 276 && y <= 46) || (x >= 18 && x <= 172 && y <= 15);
+const PAL = {
+  k: K, W: hex('#f4f4f0'), S: hex('#c4c8d2'), m: hex('#9aa4b4'), M: hex('#d8dee8'), A: hex('#f4cc60'), a: hex('#e0a030'), v: hex('#d8ecf6'),
+  G: hex('#a2aab6'), L: hex('#cdd3dc'), g: hex('#6f7785'), w: hex('#2f3d58'), N: hex('#555d6b'), p: hex('#e2e6ec'), R: hex('#e83a3a'),
+  P: hex('#f29ab8'), Q: hex('#d8628a'), Y: hex('#f6d860'), B: hex('#2a4a8a'),
+};
+// la gaviota del gancho, con contorno para que se vea contra las nubes: alas arriba, alas abajo; y posada (mira a la derecha)
+const GAVIOTA = [
+  ['k.......k', 'kmk...kmk', '.kWk.kWk.', '..kWWWkkk', '...kkk.A.'],
+  ['...kkkkk.', '..kWWWkkk', '.kmWk.kA.', 'kmk......', 'k........'],
+];
+const POSADA = ['......kkk..', '.....kWWWk.', '.....kWkWAA', 'kk..kkWWWk.', 'kkkkmmmWWk.', '.kmmmmmWWk.', '..kkkkkkk..', '....A..A...'];
+const gaviota = (x, y, pose, dir = 1) => R.dibujo(GAVIOTA[pose], Math.round(x) - 4, Math.round(y) - 2, dir, PAL);
+// el WC-130J gris de los cazahuracanes de la Fuerza Aérea, de lejos (24 × 8, el morro a la derecha): ala alta, dos motores
+// de este lado con su hélice borrosa, la deriva alta con la rampa que sube y la baliza roja; dir −1 lo voltea
+const C130 = [
+  '.kk.....................',
+  '.kLk.......kkkkkkkk.....',
+  '.kGLk..kkkkLLLLLLLLkk...',
+  '.kGGLkkGGGGkNNkpkNNkpk..',
+  'kkGGGGGGGGGGGGGGGGGGGwwk',
+  '.kgGGGGGGGGGGGGGGGGGGGGk',
+  '..kkgggggggGGGGgggggggk.',
+  '....kkkkkkkkkkkkkkkkkk..',
+];
+const c130 = (x, y, dir, t, cl = null) => {
+  const px = (X, Y, c) => { if (!cl || cl(X, Y)) R.pset(X, Y, c); };
+  C130.forEach((f, j) => { for (let i = 0; i < f.length; i++) { const c = PAL[f[i]]; if (c == null) continue; px(Math.round(x + (dir > 0 ? i : f.length - 1 - i)), Math.round(y + j), c); } });
+  if ((t * 1.2) % 1 < 0.15) px(Math.round(x + (dir > 0 ? 12 : 11)), Math.round(y), PAL.R);   // la baliza
+};
+// dibuja una figura vista desde arriba, girada (a: ángulo del morro) y escalada (e), con contorno: f(u, v) da el color
+// de cada celda (u hacia el morro, v hacia la derecha) o null; con somb, solo su sombra (tiñe lo de debajo)
+const figura = (f, x, y, a, e, rad, somb = null) => {
+  const ca = Math.cos(a), sa = Math.sin(a), m = Math.ceil(rad * e) + 2;
+  const celda = (X, Y) => { const dx = X - x, dy = Y - y; return f(Math.round((dx * ca + dy * sa) / e), Math.round((dy * ca - dx * sa) / e)); };
+  for (let Y = Math.floor(y - m); Y <= Math.ceil(y + m); Y++) for (let X = Math.floor(x - m); X <= Math.ceil(x + m); X++) {
+    if (X < 0 || X > 319 || Y < 0 || Y > 179) continue;
+    const c = celda(X, Y);
+    if (somb) { if (c != null) tine(X, Y, somb[0], somb[1]); continue; }
+    if (c != null) R.pset(X, Y, c);
+    else if (celda(X + 1, Y) != null || celda(X - 1, Y) != null || celda(X, Y + 1) != null || celda(X, Y - 1) != null) R.pset(X, Y, mezcla(R.pget(X, Y), hex('#1a1426'), 0.8));
+  }
+};
+// el P-3 Orion de la NOAA visto desde arriba (unos 21 px de envergadura): fuselaje blanco con la franja azul a los lados,
+// la cabina, el ala baja con sus cuatro motores y las hélices borrosas que giran, la cola en T con la deriva azul y las
+// luces de punta de ala (roja a la izquierda, verde a la derecha); la luz del atardecer viene de la izquierda de la
+// pantalla, así que el costado que mira hacia allí brilla y el otro queda en sombra
+const P3 = { W: hex('#fff4e8'), w: hex('#e6dcd8'), S: hex('#b8b4c8'), s: hex('#8e8aa6'), B: hex('#2a4a9a'), b: hex('#1c3270'), V: hex('#20283e'),
+  m: hex('#8a8ea0'), n: hex('#4a4e60'), h: hex('#d8d4e4'), R: hex('#ff4040'), G: hex('#50f070'), O: hex('#ffd8a0') };
+const avionArriba = (x, y, a, t, e = 1) => {
+  const sa = Math.sin(a), gira = Math.floor(t * 24) & 1, luz = Math.floor(t * 1.6) % 2 === 0;
+  // el lado (signo de v) que mira a la luz: el eje v en pantalla es (−sen a, cos a) y la luz llega de x negativas
+  const lado = (v) => (v === 0 ? 0 : Math.sign(v) * sa > 0 ? 1 : -1);
+  const f = (u, v) => {
+    const av = Math.abs(v);
+    // las hélices, delante de cada motor: un disco borroso que parpadea
+    for (const ev of [4, 7]) if (u === 4 && Math.abs(av - ev) <= 1 && ((av + gira) & 1)) return P3.h;
+    // los motores (góndolas) sobresalen por delante del ala
+    if ((av === 4 || av === 7) && u >= 1 && u <= 3) return u === 3 ? P3.n : P3.m;
+    // el fuselaje: morro redondeado, la cabina y la franja azul
+    if (u >= -9 && u <= 9 && av <= 1 && !(u === 9 && av === 1)) {
+      if (u === 7 && av <= 1) return P3.V;
+      if (av === 1 && u >= -7 && u <= 6) return lado(v) > 0 ? P3.B : P3.b;
+      if (u === -9) return P3.S;
+      return v === 0 ? (u > 2 ? P3.W : P3.w) : lado(v) > 0 ? P3.W : P3.S;
+    }
+    // el ala: ancha en la raíz y afilada en la punta; borde de ataque iluminado
+    if (av >= 2 && av <= 10) {
+      const ba = 2 - Math.floor((av - 2) * 0.15), bs = -1 + Math.floor((av - 2) * 0.12);
+      if (u <= ba && u >= bs) {
+        if (av === 10) return v < 0 ? (luz ? P3.R : P3.s) : (luz ? P3.G : P3.s);
+        return u === ba ? P3.W : lado(v) > 0 ? P3.w : P3.S;
+      }
+    }
+    // la cola en T: el plano horizontal y la deriva (vista de canto, azul)
+    if (u >= -9 && u <= -8 && av <= 4) return av === 4 ? P3.b : u === -8 ? P3.w : P3.S;
+    if (u >= -10 && u <= -6 && v === 0) return P3.B;
+    return null;
+  };
+  figura(f, x, y, a, e, 11);
+  // el sol rasante arranca un destello del fuselaje de vez en cuando
+  const g = (t * 0.9) % 1.6; if (g < 0.25) destello(Math.round(x + Math.cos(a) * 3 * e), Math.round(y + Math.sin(a) * 3 * e), g < 0.12 ? 2 : 1, P3.O);
+};
+const avionSombra = (x, y, a, e, al) => figura((u, v) => { const av = Math.abs(v); return (u >= -9 && u <= 9 && av <= 1) || (av >= 2 && av <= 10 && u <= 2 - Math.floor((av - 2) * 0.15) && u >= -1 + Math.floor((av - 2) * 0.12)) || ((av === 4 || av === 7) && u >= 1 && u <= 3) || (u >= -9 && u <= -8 && av <= 4) ? 1 : null; }, x, y, a, e, 11, [hex('#140c22'), al]);
+// el personal de tierra de la NOAA: mono azul o chaleco naranja, con los cascos de protección de los oídos
+const MONO = { C: hex('#3a5a8a'), c: hex('#2a4468'), W: hex('#3a5a8a'), F: hex('#2e4a74'), M: hex('#3a3e4a'), o: hex('#e8e4dc') };
+const CHALECO = { C: hex('#f08a2a'), c: hex('#c8641a'), W: hex('#f08a2a'), F: hex('#3a3e4a'), M: hex('#3a3e4a'), o: hex('#f6d860') };
+// la tableta en la mano (x, s: el suelo del personaje)
+const tableta = (x, s, dir) => { const bx = dir > 0 ? x + 11 : x - 5; R.rect(bx, s - 13, bx + 5, s - 8, K); R.rect(bx + 1, s - 12, bx + 4, s - 9, hex('#4ab8e8')); R.pset(bx + 1, s - 12, C.blanco); };
+// un destello de cuatro puntas (r: largo)
+const destello = (x, y, r, c = C.blanco) => { for (let i = 1; i <= r; i++) { for (const [dx, dy] of [[i, 0], [-i, 0], [0, i], [0, -i]]) R.pset(x + dx, y + dy, i === r ? mezcla(c, C.blanco, 0.5) : c); } R.pset(x, y, C.blanco); };
+
+const a = (f) => en('adios', f);
+const explica = a(0.417), siguiente = a(0.592);
+const DESFASE = -1.85;                                                    // el reloj del decorado (ver plano)
+// el avioncito entra en el ojo en una curva: gira alrededor del centro mientras se acerca (u 0–1 del camino); al final
+// cruza la pared y queda dentro del ojo, abajo (el «?» sale arriba)
+const camino = (G, u, rmin = 0) => { const th = 2.5 - 1.25 * u, r = Math.max(rmin, G.r * (6.0 - 5.6 * u)); return [G.x + Math.cos(th) * r, G.y + Math.sin(th) * r]; };
+// la gaviota de toda la escena, vista desde arriba (9 px con el contorno): cuerpo blanco, manto gris, puntas negras y el
+// pico amarillo; bate las alas (abiertas en cruz, o recogidas hacia atrás, más cortas)
+const GV = { W: hex('#fff4ea'), m: hex('#a8a4bc'), k: hex('#2a2234'), A: hex('#f4c040'), S: hex('#d8d0dc') };
+const gaviotaArriba = (x, y, a, t) => {
+  const abierta = Math.sin(t * 13) > 0;
+  const f = (u, v) => {
+    const av = Math.abs(v);
+    if (v === 0 && u === 3) return GV.A;
+    if (v === 0 && u >= -2 && u <= 2) return u === 2 ? GV.W : GV.S;
+    if (u === -3 && av <= 1) return GV.S;
+    if (abierta) { if (u === 0 && av >= 1 && av <= 3) return av === 3 ? GV.k : GV.m; }
+    else if ((av === 1 && u === 0) || (av === 2 && u === -1)) return av === 2 ? GV.k : GV.m;
+    return null;
+  };
+  figura(f, x, y, a, 1, 4);
+};
+const gaviotaSombra = (x, y, a, t) => { const abierta = Math.sin(t * 13) > 0;
+  figura((u, v) => (v === 0 && u >= -3 && u <= 3) || (abierta ? u === 0 && Math.abs(v) <= 3 : (u === 0 && Math.abs(v) === 1) || (u === -1 && Math.abs(v) === 2)) ? 1 : null, x, y, a, 1, 4, [hex('#140c22'), 0.4]); };
+
+// ruido suave (valor interpolado) para las nubes de las bandas exteriores
+const vr = (x, y, k) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const a0 = ruido(xi, yi, k), a1 = ruido(xi + 1, yi, k), b0 = ruido(xi, yi + 1, k), b1 = ruido(xi + 1, yi + 1, k);
+  return a0 + (a1 - a0) * sx + (b0 - a0) * sy + (a0 - a1 - b0 + b1) * sx * sy; };
+// las nubes del atardecer en tres tonos (sombra, cuerpo, cara al sol) y el filo deshilachado
+const NB = ['#2e2440', '#46324e', '#5e3e60', '#7e4e6e', '#a86474', '#d07e78', '#f09c7e', '#ffbe90'].map(hex), FINA = hex('#5a4064');
+const MAR_CLARO = hex('#4a4c84'), MAR_ORO = hex('#f0a06c');
+// las bandas exteriores: brazos de nubes en espiral que giran (más deprisa los de dentro) por los huecos oscuros del mar,
+// con su luz desde la izquierda y su sombra sobre el agua; entre brazo y brazo, el mar con el oleaje que brilla
+const bandas = (t, G, RS) => {
+  const B = R.buf, cand = [];
+  const den = (x, y) => {
+    const dx = x + 0.5 - G.x, dy = G.y - y - 0.5, rp = Math.hypot(dx, dy) / RS + 1e-6, th = Math.atan2(dy, dx);
+    const w = 0.4 / (1 + 3.2 * rp), sg = th - w * t + 1.9 * Math.log(rp), ca = Math.cos(w * t), sa = Math.sin(w * t);
+    const px = dx * ca + dy * sa, py = dy * ca - dx * sa;
+    const n = 0.5 * vr(px / 6, py / 6, 1) + 0.32 * vr(px / 3, py / 3, 2) + 0.18 * vr(px / 1.5, py / 1.5, 3);
+    // dos brazos finos en los huecos de las bandas del decorado, a trozos (calles de cúmulos con mar entre medias)
+    const brazo = (0.5 + 0.5 * Math.cos(2 * sg + Math.PI + 0.9 * Math.sin(5 * sg + 7 * rp))) ** 2 * (0.6 + 0.4 * Math.sin(3 * sg - 11 * rp + 1));
+    const lejos = Math.min(1, Math.max(0, (rp - 0.16) / 0.12));
+    // y cúmulos sueltos en calles finas por el mar abierto (el aire que entra)
+    const calle = ((0.5 + 0.5 * Math.cos(7 * sg + 3 * (n - 0.5))) ** 2) * Math.max(0, vr(px / 3.6, py / 3.6, 5) - 0.6) * 5.5;
+    return lejos * Math.max(brazo * 0.85 + (n - 0.5) * 1.1 + 0.12, calle * (0.85 + 0.3 * n));
+  };
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const i = y * 320 + x, c = B[i], r = c & 255, b = (c >> 16) & 255;
+    if (b - r < 24 || r + b > 190) continue;                                     // solo el mar oscuro que deja el decorado
+    const q = Math.max(0, 1 - Math.hypot(Math.max(0, 262 - x), Math.max(0, y - 54)) / 22, 1 - Math.hypot(Math.max(0, 14 - x, x - 176) * 1.2, Math.max(0, y - 18)) / (16 + 10 * ruido(x >> 3, 0, 8)));
+    const d = den(x, y) * (1 - q), d2 = den(x - 3, y) * (1 - q), u = umbral(x, y);
+    if (d > 0.5 + (u - 0.5) * 0.06) {                                            // la nube: tres tonos y el filo al sol
+      const lt = Math.max(-1, Math.min(1, (d - d2) * 7)), v = 1.7 + Math.min(2.6, (d - 0.5) * 6) + lt * 1.5 + (u - 0.5) * 0.9;
+      B[i] = NB[Math.max(0, Math.min(7, Math.round(v)))];
+      if (d > 0.68 && q === 0 && (x * 7 + y * 13) % 11 === 0) cand.push(i);
+      continue;
+    }
+    if (d > 0.45 + (u - 0.5) * 0.06) { B[i] = FINA; continue; }
+    if (d2 > 0.5) { B[i] = mezcla(c, hex('#06040e'), 0.45); continue; }          // la sombra de la nube en el agua
+    // el oleaje: rayitas que brillan y se mueven; doradas cerca del sol (a la izquierda), lilas lejos
+    if (q < 0.5 && (y % 3) === 0) { const o = ruido(Math.floor((x + t * 6 + y * 1.7) / 4), y, 9); if (o > 0.86) B[i] = mezcla(c, x < 140 ? MAR_ORO : MAR_CLARO, x < 140 ? 0.25 + 0.3 * (1 - x / 140) : 0.35); }
+  }
+  // relámpagos sueltos en las bandas exteriores: el halo rosado que enciende la nube y el rayo quebrado
+  if (cand.length) for (let k = Math.floor(t / 0.42) - 1; k <= Math.floor(t / 0.42); k++) {
+    const uu = t - k * 0.42 - ruido(k, 3, 5) * 0.2; if (uu < 0 || uu > 0.18 || (uu > 0.05 && uu < 0.08)) continue;
+    const j = cand[Math.floor(ruido(k, 7, 5) * cand.length)], fx = j % 320, fy = (j / 320) | 0, it = uu < 0.05 ? 0.75 : 0.4;
+    for (let y = fy - 8; y <= fy + 8; y++) for (let x = fx - 9; x <= fx + 9; x++) { const qq = 1 - Math.hypot(x - fx, (y - fy) * 1.2) / 9; if (qq > 0 && umbral(x, y) < qq * 1.3) tine(x, y, hex('#ffb0dc'), it * qq + 0.15); }
+    if (uu < 0.05) { let X = fx - 3, Y = fy - 4; for (let s = 0; s < 11; s++) { R.pset(X + 1, Y, hex('#b03a8a')); R.pset(X, Y, C.blanco); X += ruido(k, s, 6) < 0.5 ? 1 : -1; Y += 1; if (s === 5) R.pset(X - 2, Y, C.blanco); } }
+  }
+};
+const plano = (t) => {
+  const zoom = 1.35 + 0.3 * suave(lin(t, 0, E.duracion)), o = { vista: 'arriba', tarde: true, zoom };
+  // el decorado va 1,85 s por detrás: así sus fucilazos de la pared del ojo caen al principio, con el avión aún fuera, y
+  // en el último segundo y medio la pared y el ojo quedan en calma (solo relampaguea en las bandas, lejos del avión)
+  T.ojo(R, t + DESFASE, o);
+  const G = T.b_ojoArribaGeo(o);
+  bandas(t, G, 150 * zoom);
+  // el avioncito: llega desde abajo a la izquierda y entra en el ojo girando con el huracán, con el morro hacia donde va;
+  // al cruzar la pared baja hacia la calma (se ve algo más pequeño y su sombra cae más lejos, en el fondo del pozo); la
+  // gaviota le sigue un poco por detrás y por fuera
+  { const u = suave(lin(t, 0, E.duracion - 0.15)), [x, y] = camino(G, u), [x2, y2] = camino(G, Math.min(1, u + 0.02)), an = Math.atan2(y2 - y, x2 - x);
+    const baja = suave(lin(u, 0.7, 1)), e = 1, sx = 5 + 4 * baja, sy = 2 + 2 * baja, al = 0.42 - 0.2 * baja;
+    const ug = lin(t - 0.35, 0, E.duracion - 0.15) * 1.1, [gx0, gy0] = camino(G, ug, G.r * 1.9), [gx1, gy1] = camino(G, ug + 0.02, G.r * 1.9), ag = Math.atan2(gy1 - gy0, gx1 - gx0) + Math.sin(t * 2.3) * 0.25;
+    const gx = gx0 - Math.sin(ag) * 13 + Math.sin(t * 2.3) * 1.5, gy = gy0 + Math.cos(ag) * 13;
+    avionSombra(x + sx, y + sy, an, e, al); gaviotaSombra(gx + 4, gy + 2, ag, t);
+    avionArriba(x, y, an, t, e);
+    gaviotaArriba(gx, gy, ag, t); }
+  // el «?» que sube del ojo, suave (tramado al aparecer), y late
+  if (t > siguiente - 0.15) { const e = lin(t, siguiente - 0.15, siguiente + 0.45), y = Math.round(G.y - 20 - e * 4 + Math.sin(t * 3) * 1), x = Math.round(G.x - 5);
+    const antes = []; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) antes.push(R.pget(x - 6 + i, y - 4 + j));
+    R.numero('?', x + 5, y + 16, { tam: 16, centro: true, color: hex('#fff2d0') });
+    let n = 0; for (let j = 0; j < 24; j++) for (let i = 0; i < 22; i++) { const X = x - 6 + i, Y = y - 4 + j, v = antes[n++]; if (umbral(X, Y) > e) R.pset(X, Y, v); } }
+};
+const efectos = [[0.3, 'whoosh'], [siguiente, 'brillo']];
+T.rodar(E, R, [[0, plano]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

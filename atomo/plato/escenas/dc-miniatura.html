@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-MINIATURA · la miniatura del episodio 24 (se captura en t = 1), en el estilo noir aprobado (25–35 años): pixel art de cine negro, sin chibis ni
+// mascotas. Un despacho a oscuras en 1958: por la ventana, la Luna enorme y detallada con una mira roja encima; de
+// espaldas, la silueta de un oficial con gabardina y sombrero que la mira, recortada con el filo azul de la luz de luna;
+// las sombras de la persiana cruzan la escena; delante, bajo el flexo, el expediente abierto con las líneas tachadas en
+// negro y el sello rojo. Grano de película y viñeta. Sin palabras: solo «1958».
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, hh, tinte, poligono } = N;
+
+const dibujar = () => {
+  // 1 · el cielo de noche por la ventana y la Luna grande con la mira roja, fina y seria
+  N.cielo({ cx: 214, cy: 74 });
+  N.luna({ x: 214, y: 74, r: 62, mira: { dx: 8, dy: -6, r: 30, brazo: 82 } });
+  // 2 · el marco de la ventana y la pared en sombra (la ventana ocupa x 120–316, y 0–140)
+  const PARED = hex('#0c0e16'), PARED2 = hex('#141826'), MARCO = hex('#1a1c26');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const fuera = x < 122 || y > 138; if (fuera) set(x, y, (hh(x >> 2, y >> 1, 11) > 0.6 ? PARED2 : PARED)); }
+  for (let y = 0; y < 140; y++) { for (let x = 118; x < 124; x++) set(x, y, MARCO); for (let x = 216; x < 220; x++) set(x, y, MARCO); }
+  for (let x = 118; x < W; x++) for (let y = 136; y < 142; y++) set(x, y, MARCO);
+  for (let x = 124; x < W; x++) for (let y = 66; y < 69; y++) set(x, y, MARCO);
+  // 3 · las sombras de la persiana: bandas oscuras en diagonal sobre todo (la luz de luna entra por la ventana)
+  N.persiana({ dentro: (x, y) => x >= 122 && y <= 138 });
+  // 4 · la silueta del oficial de espaldas, recortada con el filo azul de la luna (a la derecha y en el ala)
+  N.hombre({ x: 88, base: 180, s: 1 });
+  N.filo({ x0: 41, x1: 134, y0: 36, y1: H, lado: 'der', yClaro: 70 });
+  N.filoSup({ x0: 89, x1: 109, y0: 48, y1: 72 });
+  // el humo del cigarrillo que sube por delante de la ventana
+  N.humo({ x: 108, y: 64 });
+  // 5 · la mesa delante, con el flexo y el expediente: charco de luz ámbar
+  const MESA = hex('#1e1410'), MESA2 = hex('#2c1e16');
+  poligono([[140, 150], [320, 146], [320, 180], [128, 180]], (x, y) => (hh(x >> 3, y, 2) > 0.5 ? MESA2 : MESA));
+  for (let y = 140; y < H; y++) for (let x = 140; x < W; x++) { const d = Math.hypot((x - 250) / 70, (y - 162) / 22); if (d < 1) tinte(x, y, N.AMBAR, 0.6 * (1 - d) ** 1.2); }
+  N.expediente();
+  // el flexo: brazo y pantalla en contraluz, con la bombilla
+  for (let y = 100; y < 148; y++) set(312, y, hex('#1a1a20'));
+  poligono([[296, 96], [318, 92], [320, 104], [300, 108]], hex('#14161c'));
+  for (let x = 298; x < 318; x++) set(x, 107, N.AMBAR2);
+  // 6 · el año, sobrio: blanco hueso, arriba a la izquierda, con sombra dura
+  N.cifra('1958', 58, 26);
+  // 7 · grano de película y viñeta
+  N.granoVineta();
+};
+N.listo(dibujar);
+</script>
+</body>
+</html>

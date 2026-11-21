@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep44</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PA-GANCHO (frases 1–2). Año 0 hasta «twelve years later», luego 12. Cinco planos; golpe en «villain» (giro+2.5):
+// 1. el desierto al ocaso (general): Paul sube a la cresta de la duna de delante y se para; en «villain» asoma detrás,
+//    por el horizonte, un mar de estandartes (siluetas con banderolas verde y negro con el halcón de oro) y el cielo se enrojece un instante;
+//    en «his own story» Paul alza los brazos hacia ellos; en «his author» baja del cielo una pluma de escribir (el autor,
+//    como objeto) y Paul la mira sorprendido; en «wrote him» la pluma escribe en la arena un trazo de tinta que va hacia
+//    los estandartes; en «that way» Paul señala el trazo; en «on purpose» la pluma pone el punto final y se va, y Paul
+//    echa a andar por el camino escrito; Atom (luciérnaga) se asusta con el golpe y luego sigue a la pluma;
+// 2. el salón del trono (día): Shaddam en el trono, enfadado; Paul entra por la alfombra; en «father» señala arriba el
+//    estandarte; en «defeat» entran dos Fremen por los lados (él trae una banderola y la planta en «emperor»; ella
+//    señala al trono); Shaddam se levanta sorprendido y se va, triste, por la tarima hasta perderse tras la columna;
+//    Paul sube dos peldaños;
+// 3. el balcón sobre la multitud (Paul e Irulan al doble, en primer término del balcón, a propósito: más cerca de la
+//    cámara que la balaustrada): Paul entra por la izquierda e Irulan por la derecha y se encuentran («daughter»,
+//    sonríen); en «chants your name» la plaza entera alza los brazos, Paul también, Irulan señala a la gente, un
+//    sacerdote agita una banderola y suben pétalos; en «twelve years» Paul baja los brazos y deja de sonreír;
+// 4. el planeta desde el espacio, doce años después: en «later» se enciende una luz en la cara de noche y se extiende
+//    por todo el planeta («holy war»); luego salen del planeta estelas de luz hacia los demás planetas del mapa de
+//    estrellas, que se encienden de rojo uno a uno («billions of lives»); Atom luciérnaga se asusta y se aparta, triste;
+// 5. de noche, en la repisa de roca (Paul emperador al doble, en el primer término de la repisa): mira el desierto; en
+//    «saw it coming» se sorprende, señala y en la arena se abre un árbol de caminos dorados (la visión); en «couldn't
+//    stop it» los caminos se vuelven rojos, él baja el brazo, triste, se da la vuelta y se aparta del borde; la loma de
+//    arena avanza a lo lejos; Atom luciérnaga, triste, a su lado.
+import * as T from '/atomo/plato/escenas/pa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('pa-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const g = (f) => en('giro', f), m = (f) => en('imagina', f);
+const P2 = m(0), P3 = m(0.2814), P4 = m(0.5006), P5 = m(0.789);
+const GOLPE = g(0) + 2.5, villain = g(0.367);
+const AUTOR = g(0.6372), ESCRIBE = g(0.7345), ASI = g(0.823), PUNTO = g(0.9292);
+const K = hex('#17151d'), ease = (u) => u * u * (3 - 2 * u), cl = (u) => Math.max(0, Math.min(1, u));
+const hh = (a, b, k = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const voz = (t) => E.energia ? E.energia(t) : 0;
+// el halcón de los Atreides en una banderola (7×5 px, dos tonos de oro y el pico): alas abiertas en V con las puntas de
+// las plumas, cabeza con su pico entre ellas, cuerpo y cola en abanico; no es una letra
+const HALCON = ['X.....X', 'XX.Hp.X', '.dXXXd.', '..dXd..', '..d.d..'];
+const halconB = (cx, cy) => {
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) {
+    const ch = HALCON[j][i]; if (ch === '.') continue;
+    R.pset(cx - 3 + i, cy - 2 + j, ch === 'd' ? hex('#a8782a') : ch === 'p' ? hex('#e07a30') : ch === 'H' ? hex('#fff0a0') : hex('#f0c848'));
+  }
+};
+const banderolaG = (x, y, h, t, k, halcon = false) => {
+  const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? hex('#1f4a2c') : hex('#18181e'), cs = k % 2 ? hex('#3a7048') : hex('#3a3a46');
+  R.linea(x, y, x, y - h, hex('#4a3420')); R.pset(x, y - h - 1, hex('#e8c040'));
+  R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
+  R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
+  R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, hex('#c8a030'));
+  const cx = x + 5 + Math.round(v / 2), cy = y - h + 4; if (halcon) { halconB(cx, cy + 1); return; } R.pset(cx, cy, hex('#f0c848')); R.pset(cx - 1, cy - 1, hex('#f0c848')); R.pset(cx + 1, cy - 1, hex('#f0c848')); R.pset(cx, cy + 1, hex('#c89a30'));
+};
+// la pluma de escribir del autor (un objeto, no una persona): (x, y) = la punta; cañón hacia arriba a la derecha,
+// barbas de luz y de sombra con sus rayas, plumín de metal con su brillo y una gota de tinta
+const pluma = (x, y, t) => {
+  x = Math.round(x); y = Math.round(y);
+  const ux = 0.5, uy = -0.87, nx = 0.87, ny = 0.5, L = 28;
+  for (let s = 5; s <= L; s += 0.5) {
+    const w = Math.sin(Math.PI * (s - 4) / (L - 3)) * 5 + 0.6, mece = Math.sin(t * 5 + s * 0.3) * 0.4 * (s / L);
+    for (let d = -w; d <= w; d += 0.5) {
+      const px = Math.round(x + ux * s + nx * (d + mece)), py = Math.round(y + uy * s + ny * (d + mece));
+      const borde = Math.abs(d) > w - 0.7, raya = Math.round(s) % 3 === 0 && Math.abs(d) > 1.2;
+      R.pset(px, py, borde ? K : raya ? hex('#b0a488') : d < 0 ? hex('#fbf6e8') : hex('#d8ccb0'));
+    }
+  }
+  R.linea(x + 2, y - 3, Math.round(x + ux * (L + 2)), Math.round(y + uy * (L + 2)), hex('#9a8a62'));
+  R.linea(x, y, x + 2, y - 4, hex('#3a3a46')); R.linea(x + 1, y, x + 3, y - 4, hex('#6a6a7a')); R.pset(x + 2, y - 3, hex('#c8c8d8'));
+  R.pset(x, y + 1, hex('#2a1a14'));
+};
+// el trazo de tinta que escribe la pluma en la arena (hacia los estandartes)
+const TRAZO = (u) => [158 + u * 94, 162 + Math.sin(u * 9) * 3 + u * 2];
+// 1 · el desierto al ocaso: Paul en la cresta; en «villain», el mar de estandartes; luego, la pluma del autor
+const p1 = (t) => {
+  const o = { encuadre: 'desierto', hora: 'ocaso', t0: 0 };
+  const geo = T.planeta(R, t, o);
+  const hor = geo?.hor ?? 92;
+  // el mar de estandartes sube por detrás del horizonte (recortado a él)
+  const sube = ease(tramo(t, villain - 0.3, villain + 0.45));
+  if (sube > 0) {
+    R.recorte([0, 0, 319, hor]);
+    for (let y = hor - 10; y <= hor; y++) for (let x = 90 + (y & 1); x < 316; x += 2) if (((x >> 1) + y) % 3 === 0) R.pset(x, y, hex('#c8603a'));
+    for (let fila = 0; fila < 2; fila++) for (let k = 0; k < 13; k++) {
+      const x = Math.round(104 + k * 16 + fila * 8 + hh(k, fila) * 4), ret = (hh(k, fila, 3) * 0.25 + fila * 0.1);
+      const u = cl((sube - ret) / (1 - ret)); if (u <= 0) continue;
+      const y = Math.round(hor + 3 - fila * 1 + (1 - u) * 26 - Math.max(0, Math.sin(t * 2 + k) * 0.6));
+      R.poligono([[x - 2, y - 7], [x + 2, y - 7], [x + 3, y + 8], [x - 3, y + 8]], K); R.disco(x, y - 9, 2, K); R.pset(x - 1, y - 10, hex('#4a3020')); R.linea(x + 2, y - 6, x + 2, y + 4, hex('#3a2a20'));
+      banderolaG(x + 3, y - 4, 22 + (k % 3) * 4 - fila * 5, t, k + fila, true);
+    }
+    R.recorte(null);
+  }
+  // el trazo de tinta, hasta donde ha llegado la pluma (en la arena, delante de los pies de Paul)
+  const wu = ease(tramo(t, ESCRIBE - 0.05, PUNTO - 0.15));
+  if (wu > 0) {
+    for (let u = 0; u <= wu; u += 0.004) { const [x, y] = TRAZO(u).map(Math.round); R.pset(x, y + 1, hex('#6a4a2a')); R.pset(x, y, hex('#2a1a14')); R.pset(x + 1, y, hex('#2a1a14')); }
+    for (let u = 0.02; u <= wu; u += 0.11) { const [x, y] = TRAZO(u).map(Math.round); R.pset(x, y, hex('#7a6a8a')); }   // brillo de la tinta fresca
+  }
+  const [fx, fy] = TRAZO(1).map(Math.round);
+  if (t > PUNTO) { R.disco(fx + 6, fy, 2, hex('#2a1a14')); R.pset(fx + 5, fy - 1, hex('#7a6a8a')); }
+  // Paul sube a la cresta y se para; alza los brazos en «his own story»; mira la pluma, señala el trazo y lo sigue
+  const u = ease(tramo(t, 0.2, villain - 0.1)), sigue = ease(tramo(t, PUNTO + 0.12, PUNTO + 0.62));
+  const px = Math.round(lerp(64, 132, u) + sigue * 18);
+  const alza = t > g(0.45) && t < AUTOR - 0.05;
+  const mira = t > AUTOR && t < ESCRIBE + 0.3;
+  R.actor(T.PA.paul, px, 150, t, { dir: 1, anda: (u > 0 && u < 1) || (sigue > 0 && sigue < 1), brazos: alza, dedo: t > ASI - 0.05 && t < PUNTO, sorpresa: (t > villain && t < villain + 0.6) || mira });
+  // Atom luciérnaga: se asusta con el golpe y retrocede; luego sigue a la pluma con la mirada
+  const sp = tramo(t, villain, villain + 0.7), va = ease(tramo(t, ESCRIBE, PUNTO));
+  const ax = lerp(lerp(210, 238, ease(sp)), 226, va) + Math.sin(t * 1.1) * 4, ay = lerp(lerp(118, 108, sp), 128, va) + Math.sin(t * 2.3) * 3;
+  T.AT.luciernaga(R, ax, ay, t, { dir: -1, brillo: 0.85, cara: t > AUTOR - 0.1 && t < PUNTO ? 'sorpresa' : t > villain && t < g(0.68) - 0.6 ? 'sorpresa' : t > villain ? 'triste' : 'normal' });
+  T.planetaDelante(R, t, o);
+  // la pluma: baja del cielo, escribe, pone el punto y se va por arriba
+  if (t > AUTOR - 0.05 && t < P2) {
+    const [x0, y0] = TRAZO(0), baja = ease(tramo(t, AUTOR - 0.05, ESCRIBE - 0.05)), vete = ease(tramo(t, PUNTO + 0.1, PUNTO + 0.7));
+    let x, y;
+    if (t < ESCRIBE - 0.05) { x = lerp(206, x0, baja); y = lerp(-6, y0, baja) - Math.sin(baja * Math.PI) * 10; }
+    else if (t < PUNTO - 0.15) { [x, y] = TRAZO(wu); y -= Math.abs(Math.sin(t * 13)) * 1.2; }
+    else if (t < PUNTO + 0.1) { const d = tramo(t, PUNTO - 0.15, PUNTO); x = lerp(fx, fx + 6, d); y = fy - 3 + (d >= 1 ? 3 : -Math.sin(d * Math.PI) * 4); }
+    else { x = lerp(fx + 6, 236, vete); y = lerp(fy, -40, vete); }
+    if (y > 120) { const sx = Math.round(x + 4), sy = Math.round(Math.max(y + 3, 158)); for (let i = -6; i <= 6; i++) if ((i + sx) % 2 === 0) R.pset(sx + i, sy + 4, hex('#a8582a')); }
+    pluma(x, y, t);
+  }
+  // el golpe: el cielo se enrojece un instante
+  const fl = tramo(t, GOLPE - 0.25, GOLPE) * (1 - tramo(t, GOLPE, GOLPE + 0.9));
+  if (fl > 0) T.tinte(R, 0, 179, [190, 40, 30], 0.28 * fl);
+};
+// 2 · el salón del trono (día): Paul llega por la alfombra; entran los Fremen; Shaddam se levanta y se va
+const p2 = (t) => {
+  const o = { encuadre: 'trono', luz: 'dia' };
+  T.ciudadela(R, t, o);
+  const DEFEAT = m(0.1739), EMP = m(0.2241), SE_VA = m(0.2025);
+  // Shaddam: enfadado en el trono; en «defeat» se sorprende; se levanta y se va por la tarima hasta perderse tras la
+  // columna de la derecha (recortado a ella)
+  const sale = ease(tramo(t, SE_VA + 0.05, P3 - 0.25));
+  const sx = Math.round(lerp(153, 236, sale));
+  R.recorte([0, 0, 226, 179]);
+  R.actor(T.PA.shaddam, sx, 122, t, { dir: 1, anda: sale > 0 && sale < 1, sorpresa: t > DEFEAT && t < SE_VA + 0.3, triste: t > SE_VA + 0.3, enfado: t > m(0.10) && t < DEFEAT });
+  R.recorte(null);
+  // los dos Fremen entran por los lados en «defeat»: él con la banderola, que planta en «emperor»; ella señala al trono
+  const fa = ease(tramo(t, DEFEAT - 0.25, EMP - 0.05)), fxa = Math.round(lerp(-32, 22, fa)), planta = t > EMP;
+  const ra = R.actor(T.PA.fremen, fxa, 150, t, { dir: 1, anda: fa > 0 && fa < 1, sostiene: planta ? undefined : true });
+  if (!planta && ra?.mano) { const [mx, my] = ra.mano.map(Math.round); banderolaG(mx, my + 6, 30, t, 1); }
+  if (planta) banderolaG(40, 150, 34, t, 1);
+  const fb = ease(tramo(t, DEFEAT - 0.1, EMP + 0.2)), fxb = Math.round(lerp(338, 262, fb));
+  R.actor(T.PA.fremenMujer, fxb, 150, t, { dir: -1, anda: fb > 0 && fb < 1, dedo: t > EMP + 0.25 && t < P3 - 0.3, enfado: t > EMP + 0.25 && t < P3 - 0.3 });
+  // Paul entra por la alfombra, señala el estandarte en «father» y sube dos peldaños de la tarima
+  const u = ease(tramo(t, P2 + 0.1, m(0.115))), px = Math.round(lerp(72, 138, u));
+  const sube = tramo(t, SE_VA + 0.55, P3 - 0.12), s1 = ease(cl(sube * 2)), s2 = ease(cl(sube * 2 - 1));
+  R.actor(T.PA.paul, Math.round(px + s1 * 3 + s2 * 3), Math.round(150 - s1 * 14 - s2 * 7), t, { dir: 1, anda: (u > 0 && u < 1) || (sube > 0 && sube < 1), dedo: t > m(0.135) && t < m(0.19), sonrisa: t > SE_VA + 0.3 });
+  T.AT.luciernaga(R, 104 + Math.sin(t * 0.9) * 4, 100 + Math.sin(t * 2.1) * 3, t, { dir: -1, brillo: 0.8, cara: t > DEFEAT ? 'sorpresa' : 'normal' });
+  T.ciudadelaDelante(R, t, o);
+};
+// 3 · el balcón: la boda y la multitud que corea (Paul e Irulan al doble, en el primer término del balcón)
+const PETALOS = [hex('#d84a3a'), hex('#f0c040'), hex('#f4ecd8'), hex('#3a8a4a')];
+const p3 = (t) => {
+  const CORO = m(0.4047), corea = (tt) => ease(tramo(tt, CORO - 0.1, CORO + 0.4));
+  const o = { encuadre: 'balcon', aclaman: corea };
+  T.ciudadela(R, t, o);
+  const c = corea(t);
+  // pétalos que suben de la plaza cuando corean (por detrás de los del balcón; fuera de la zona de Atom y del año)
+  if (c > 0) for (let k = 0; k < 70; k++) {
+    if (k > 70 * c) break;
+    const vel = 10 + hh(k, 2) * 12, y = Math.round(104 - ((t - CORO) * vel + hh(k, 3) * 30) % 80), x = Math.round(36 + hh(k, 1) * 236 + Math.sin(t * 1.7 + k) * 5);
+    if (y < 24 || (x > 272 && y < 48)) continue;
+    const col = PETALOS[k % 4], gira = Math.sin(t * 6 + k) > 0; R.rect(x, y, x + 2, y + 1, col); R.pset(gira ? x : x + 2, y + 2, K); R.pset(gira ? x + 2 : x, y - 1, hex('#fff8e8'));
+  }
+  // el sacerdote del culto, al fondo junto a la balaustrada: agita una banderola cuando corean
+  const rs = R.actor(T.PA.sacerdotePA, 216, 132, t, { dir: -1, sostiene: c > 0.3 ? true : undefined, sonrisa: c > 0.3, habla: c > 0.3 && Math.sin(t * 7) > 0 });
+  if (c > 0.3 && rs?.mano) { const [mx, my] = rs.mano.map(Math.round); banderolaG(mx + Math.round(Math.sin(t * 6) * 2), my + 5, 22, t, 0); }
+  // Paul e Irulan, al doble: entran, se encuentran y sonríen; corean con la plaza; en «twelve» Paul se pone serio
+  const u = ease(tramo(t, P3 + 0.05, m(0.33))), w = ease(tramo(t, P3 + 0.1, m(0.335)));
+  const lp = Math.round(lerp(4, 28, u)), li = Math.round(lerp(92, 56, w)), DOCE = m(0.4783);
+  T.AT.escalado(R, () => {
+    R.actor(T.PA.paul, lp, 33, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: u >= 1 && t < DOCE, brazos: c > 0.4 && t < DOCE - 0.1, triste: t > DOCE + 0.1 });
+    R.actor(T.PA.irulan, li, 33, t, { dir: -1, anda: w > 0 && w < 1, sonrisa: w >= 1, dedo: c > 0.4 && t < DOCE + 0.2 });
+  }, 112, 36, 60, 96, 2);
+  T.AT.luciernaga(R, 124 + Math.sin(t * 1.2) * 6, 40 + Math.sin(t * 2.5) * 3, t, { dir: -1, brillo: 0.8, cara: t > DOCE + 0.1 ? 'triste' : c > 0.3 ? 'sonrisa' : 'normal' });
+  T.ciudadelaDelante(R, t, o);
+};
+// 4 · el planeta desde el espacio: la guerra santa, solo luces (el planeta del decorado: centro 150,100, radio 58)
+const LUCES = Array.from({ length: 90 }, (_, k) => ({ lon: hh(k, 1, 7) * 6.283, lat: (hh(k, 2, 7) - 0.5) * 2.6 }));
+const SEM = { lon: 0.35, lat: 0.2 };
+for (const L of LUCES) { const d = Math.acos(Math.max(-1, Math.min(1, Math.sin(L.lat) * Math.sin(SEM.lat) + Math.cos(L.lat) * Math.cos(SEM.lat) * Math.cos(L.lon - SEM.lon)))); L.d = d / Math.PI; }
+const MUNDOS = [[40, 46, 3, '#8a9ab0'], [66, 140, 4, '#a07850'], [28, 98, 2, '#90a888'], [236, 60, 3, '#b0a070'], [262, 132, 4, '#7a88a8'], [292, 88, 2, '#a89090'], [222, 160, 2, '#9a9a80'], [92, 34, 2, '#88a0a0'], [214, 34, 2, '#a08aa0'], [300, 160, 3, '#90a070'], [16, 150, 3, '#a09080'], [250, 104, 2, '#8a8aa0']];
+const p4 = (t) => {
+  const giro = 0.03 * (t - P4);
+  T.planeta(R, t, { encuadre: 'orbita', t0: P4, giro });
+  const cx = 150, cy = 100, rr = 56, prog = tramo(t, m(0.5313), m(0.70)) ** 1.3;
+  for (const L of LUCES) {
+    const a = L.lon + giro * 1, z = Math.cos(L.lat) * Math.cos(a); if (z < 0.08) continue;
+    const on = cl((prog - L.d * 0.95) * 6); if (on <= 0) continue;
+    const x = Math.round(cx + rr * Math.cos(L.lat) * Math.sin(a)), y = Math.round(cy - rr * Math.sin(L.lat));
+    const tw = Math.sin(t * 9 + L.lon * 20) > 0;
+    if (on > 0.5) { for (const [dx, dy] of [[-1, 0], [-1, 1], [2, 0], [2, 1], [0, -1], [1, -1], [0, 2], [1, 2]]) R.pset(x + dx, y + dy, hex('#a83222')); if (tw && on > 0.8) for (const [dx, dy] of [[-2, 0], [3, 1], [1, -2], [0, 3]]) R.pset(x + dx, y + dy, hex('#6a1a16')); }
+    R.rect(x, y, x + 1, y + 1, on > 0.6 ? (tw ? hex('#ffe08a') : hex('#ffb050')) : hex('#e05a30'));
+    if (on > 0.8 && tw) R.pset(x, y, hex('#fff6d0'));
+  }
+  // de Arrakis salen estelas de luz hacia los otros planetas, que se encienden uno a uno al llegarles
+  const q = tramo(t, m(0.63), m(0.79)) * (MUNDOS.length + 2);
+  MUNDOS.forEach(([x, y, r, c], k) => {
+    const lleg = cl((q - k) / 1.2), on = cl((q - k - 1.2) * 1.5);   // el planeta se enciende cuando le llega la estela
+    if (lleg > 0 && lleg < 1) {
+      const an = Math.atan2(y - cy, x - cx), sx = cx + Math.cos(an) * 60, sy = cy + Math.sin(an) * 60;
+      const hx = lerp(sx, x, lleg), hy = lerp(sy, y, lleg), n = Math.max(1, Math.round(Math.hypot(hx - sx, hy - sy)));
+      for (let i = 0; i <= n; i++) { const v = i / n; if (v < 0.4 && (i & 1)) continue; R.pset(Math.round(lerp(sx, hx, v)), Math.round(lerp(sy, hy, v)), v > 0.85 ? hex('#ffe08a') : v > 0.5 ? hex('#e8603a') : hex('#8a2a20')); }
+      R.disco(Math.round(hx), Math.round(hy), 1, hex('#fff0b0'));
+    }
+    R.disco(x, y, r + 1, K); R.disco(x, y, r, hex(c)); R.pset(x - 1, y - 1, hex('#e8e8f0'));
+    if (on > 0) { const pr = r + 2 + Math.round(on * 2) + (Math.floor(t * 4 + k) % 2);
+      for (let i = 0; i < 24; i++) { const an = i / 24 * 6.283; R.pset(Math.round(x + Math.cos(an) * pr), Math.round(y + Math.sin(an) * pr), on > 0.5 ? hex('#e84a2a') : hex('#8a2a20')); }
+      R.disco(x, y, Math.max(1, r - 1), hex('#e86a30')); R.pset(x, y, hex('#ffd070')); }
+  });
+  // Atom luciérnaga: mira, se asusta con la guerra santa y se aparta, triste, con los millones de vidas
+  const ret = ease(tramo(t, m(0.6365), m(0.70)));
+  const ax = lerp(232, 250, ret) + Math.sin(t * 0.8) * 4, ay = lerp(146, 154, ret) + Math.sin(t * 2) * 3;
+  T.AT.luciernaga(R, ax, ay, t, { dir: -1, brillo: lerp(0.9, 0.6, ret), cara: t > m(0.7124) ? 'triste' : t > m(0.6365) ? 'sorpresa' : 'normal' });
+};
+// 5 · la repisa de roca, de noche: la visión de los caminos que no puede parar (Paul emperador al doble)
+const RAMAS = (() => { const L = []; const rama = (x, y, an, len, n) => { const x1 = x + Math.cos(an) * len, y1 = y + Math.sin(an) * len * 0.5; L.push([x, y, x1, y1, n]); if (n < 4) { rama(x1, y1, an - 0.45, len * 0.75, n + 1); rama(x1, y1, an + 0.4, len * 0.72, n + 1); } }; rama(160, 120, -0.05, 30, 0); return L; })();
+const p5 = (t) => {
+  const o = { encuadre: 'desierto', camara: 'roca', hora: 'noche', silueta: 1, t0: P5 };
+  T.planeta(R, t, o);
+  const ve = tramo(t, m(0.8218), m(0.89)), roj = tramo(t, m(0.9434), m(0.98));
+  if (ve > 0) {
+    R.recorte([150, 66, 270, 128]);
+    for (const [x0, y0, x1, y1, n] of RAMAS) {
+      const u = cl(ve * 5 - n); if (u <= 0) continue;
+      const xe = Math.round(lerp(x0, x1, u)), ye = Math.round(lerp(y0, y1, u));
+      const c = roj > 0.5 ? hex('#8a2a2a') : (Math.floor(t * 6 + n) % 3 ? hex('#ffd060') : hex('#fff0b0'));
+      R.linea(Math.round(x0), Math.round(y0), xe, ye, c); R.linea(Math.round(x0), Math.round(y0) + 1, xe, ye + 1, roj > 0.5 ? hex('#4a1a20') : hex('#a87020'));
+    }
+    R.recorte(null);
+  }
+  const alza = t > m(0.835) && t < m(0.9434);
+  const vuelta = t > m(0.97), aparta = ease(tramo(t, m(0.975), m(0.975) + 0.55));
+  T.AT.escalado(R, () => R.actor(T.PA.paulEmperador, Math.round(8 - aparta * 5), 31, t, { dir: vuelta ? -1 : 1, anda: aparta > 0 && aparta < 1, dedo: alza, triste: t > m(0.9434), sorpresa: t > m(0.8218) && t < m(0.845) }), 30, 34, 66, 69, 2);
+  T.AT.luciernaga(R, 44 + Math.sin(t * 1.1) * 4, 90 + Math.sin(t * 2.2) * 3, t, { dir: 1, brillo: 0.7, cara: t > m(0.9434) ? 'triste' : t > m(0.8218) ? 'sorpresa' : 'normal' });
+  T.planetaDelante(R, t, o);
+};
+const efectos = [[0.3, 'viento', { dur: 2.2 }], [GOLPE, 'boom'], [AUTOR, 'whoosh'], [ESCRIBE, 'lapiz'], [PUNTO, 'toc'], [m(0.2241), 'golpecito'], [m(0.41), 'publico', { dur: 2.2 }], [m(0.5313), 'brillo'], [m(0.6365), 'trueno'], [m(0.825), 'brillo'], [m(0.95), 'viento', { dur: 1.6 }]];
+const año = (t) => (t < P4 ? 0 : 12);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
+</script>
+</body>
+</html>

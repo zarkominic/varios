@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Adiós · ep14</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// OI-ADIOS (frase 48), 1795. Un plano: la orilla de la isla al atardecer; la polea se balancea en la rama del roble;
+// el muchacho ha varado la barca y sube por la arena tirando del cabo, dejando huellas; en «next?» se para, se vuelve y
+// saluda; un cangrejo cruza la arena por delante y la espuma lame la popa de la barca.
+import * as T from '/atomo/plato/escenas/oi-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('oi-adios');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const H = (s) => hex(s), K = hex('#1c1222');
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { a = Math.max(0, Math.min(1, a)); const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], by4 = (x, y) => (BAY[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+// rampa tramada: v de 0 a 1 sobre una lista de colores
+const rampa = (cols, v, x, y) => { const f = Math.max(0, Math.min(cols.length - 1.001, v * (cols.length - 1))), i = Math.floor(f); return by4(x, y) < f - i ? cols[i + 1] : cols[i]; };
+// ruido de valor suave
+const vn = (x, y, k = 0) => { const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const a = hh(xi, yi, k), b = hh(xi + 1, yi, k), c = hh(xi, yi + 1, k), d = hh(xi + 1, yi + 1, k); return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy; };
+// fondo fijo en un búfer (se pinta una vez y se copia en cada fotograma; R.usar(prev), nunca R.usar() a secas)
+const FIJO = {};
+const fijo = (clave, dibuja) => { if (!FIJO[clave]) { const b = R.nuevo(), prev = R.usar(b); dibuja(); R.usar(prev); FIJO[clave] = b; } R.copiar(FIJO[clave]); };
+// zonas tranquilas: la de Atom y la barra del año
+const tranquila = (x, y) => (x > 262 && y < 54) || (x > 14 && x < 176 && y < 18);
+// nube de tres tonos (sombra, cuerpo, luz)
+const nube = (cx, cy, w, c3) => { const b = [[0, 0, .32], [-.32, .07, .23], [.31, .06, .25], [-.12, -.12, .25], [.15, -.09, .22], [.5, .12, .14], [-.5, .12, .13]];
+  for (const [dx, dy, r] of b) R.disco(Math.round(cx + dx * w), Math.round(cy + dy * w + 2), Math.round(r * w), c3[0]);
+  for (const [dx, dy, r] of b) R.disco(Math.round(cx + dx * w), Math.round(cy + dy * w), Math.round(r * w), c3[1]);
+  for (const [dx, dy, r] of b) if (dy <= 0.07) R.disco(Math.round(cx + dx * w - 1), Math.round(cy + dy * w - 2), Math.round(r * w * .7), c3[2]); };
+// gaviotas en vuelo (una «v» que aletea); no entran en las zonas tranquilas
+const aves = (t, lista, c) => { for (const [x0, y0, v, k] of lista) { const x = Math.round(((x0 + t * v) % 360 + 360) % 360 - 20), y = Math.round(y0 + 3 * Math.sin(t * 0.7 + k)); if (tranquila(x, y) || tranquila(x + 2, y - 2)) continue; const a = Math.sin(t * 8 + k) > 0;
+  R.pset(x, y, c); R.pset(x - 1, y - (a ? 1 : 0), c); R.pset(x + 1, y - (a ? 1 : 0), c); R.pset(x - 2, y - (a ? 2 : 0), c); R.pset(x + 2, y - (a ? 2 : 0), c); } };
+// barca de remos de perfil: x = popa, yW = línea del agua, L largo, H alto de la borda; d = 1 la proa a la derecha.
+// mar: color del agua (para la obra viva). Devuelve la borda en el centro.
+const barca = (x, yW, L, Hb, d, mar, o = {}) => {
+  const X = (u) => Math.round(d > 0 ? x + u : x + L - u), KK = H('#2a1c14'), M = H(o.casco ?? '#8a5a34'), ML = H(o.cascoL ?? '#b07c4c'), MS = H(o.cascoS ?? '#5e3a20'), BO = H(o.borda ?? '#c89a64');
+  const top = (u) => yW - Hb - Math.round(Hb * 0.32 * ((2 * u / L - 1) ** 2)) - (u > L * 0.85 ? Math.round((u - L * 0.85) / (L * 0.15) * Hb * 0.2) : 0);
+  const bot = (u) => { const b = yW + Math.max(1, Math.round(Hb * 0.18)), r = Hb * 0.7; return u > L - r ? Math.round(top(u) + (b - top(u)) * Math.max(0, (L - u) / r)) : u < Hb * 0.25 ? Math.round(top(u) + (b - top(u)) * Math.max(0.6, u / (Hb * 0.25))) : b; };
+  for (let u = 0; u <= L; u++) { const y0 = top(u), y1 = bot(u), xx = X(u);
+    for (let y = y0; y <= y1; y++) { const j = (y - y0) / Math.max(1, yW - y0); let c = y === y0 || y === y1 || u === 0 || u === L ? KK : y <= y0 + Math.max(1, Math.round(Hb * 0.12)) ? BO : (Math.round(j * 3 * 10) % 10 === 0 && j > 0.2) ? MS : j < 0.45 ? ML : M;
+      if (c !== KK && hh(u, y, 9) < 0.08) c = MS; if (y > yW && c !== KK && mar != null) c = mez(c, mar, 0.55); R.pset(xx, y, c); } }
+  return top(L / 2);
+};
+// un remo de perfil que bate (f fase): el pivote en la borda y la pala que entra en el agua
+const remo = (px, py, yW, largo, f, d, c = '#c8a070') => { const bx = Math.round(px - d * (largo * 0.25) + d * largo * 0.55 * Math.cos(f)), by = Math.round(yW + 1 + 3 * Math.sin(f)), hx = Math.round(px + (px - bx) * 0.4), hy = Math.round(py - 3 - (by - py) * 0.25);
+  R.linea(hx, hy, bx, by, H('#3a2818')); R.linea(hx, hy - 1, bx, by - 1, H(c)); R.disco(bx, by, 2, H('#7a5430')); R.pset(bx - 1, by - 1, H(c));
+  return { bx, by, hx, hy, dentro: Math.sin(f) > 0 }; };
+// placa con un número (para que se lea sobre un fondo con detalle)
+const placa = (txt, cx, cy, borde = '#e8c060') => { const w = txt.length * 4 + 3; R.rect(cx - w - 1, cy - 6, cx + w + 1, cy + 5, K); R.rect(cx - w, cy - 5, cx + w, cy + 4, H('#2a2026')); R.rect(cx - w, cy - 5, cx + w, cy - 5, H(borde)); R.numero(txt, cx, cy + 3, { centro: true }); };
+
+const a = (f) => en('adios', f), NEXT = a(0.594);
+const p1 = (t) => {
+  const g = T.isla1795(R, t, { encuadre: 'orilla', atardecer: true, marea: 0.3 });
+  // la barca varada en la arena, con los remos dentro
+  const bx = 186, yW = 162;
+  R.linea(bx + 6, yW - 9, bx + 40, yW - 12, H('#3a2818')); R.linea(bx + 8, yW - 10, bx + 38, yW - 13, H('#c8a070'));
+  for (let k = 0; k < 16; k++) { const xx = 214 + k * 2, yy = 158 - k; R.pset(xx, yy, H('#9a7a5e')); R.pset(xx + 1, yy, H('#b89a78')); }   // el surco de la quilla hasta el agua
+  barca(bx, yW, 46, 7, -1, null);
+  R.rect(242, 166, 249, 172, H('#2a1c14')); R.rect(243, 167, 248, 171, H('#8a6a44')); R.rect(243, 169, 248, 169, H('#5e4228')); R.rect(243, 167, 248, 167, H('#b08a5a'));   // el cubo de madera
+  for (let k = 0; k < 3; k++) R.disco(232 + k, 172, 4 - k, k % 2 ? H('#c8a878') : H('#8a6a4a'));   // el rollo de cabo
+  for (const [sx, sy] of [[150, 158], [168, 174], [210, 176], [126, 166]]) { R.pset(sx, sy, H('#f8f0e8')); R.pset(sx + 1, sy, H('#e8c8c0')); R.pset(sx, sy + 1, H('#b8988a')); }   // conchas
+  for (let i = -2; i < 50; i += 2) { const sh = Math.round(Math.sin(t * 2 + i * 0.3)); R.pset(bx + i, yW + 2 + (i & 2 ? 1 : 0), H('#8a6a5a')); if (i > 30 && Math.sin(t * 1.8) > 0.3 && hh(i, Math.floor(t * 5), 1) < 0.5) R.pset(bx + i + sh, yW + 1, H('#f8e8d8')); }
+  // el muchacho sube por la arena tirando del cabo; en «next?» se vuelve y saluda
+  const u = tramo(t, 0.05, NEXT - 0.1), x = Math.round(lerp(176, 132, ease(u))), vuelve = t > NEXT;
+  for (let k = 0; k < 6; k++) { const fx = 182 - k * 8; if (fx > x + 12) { R.pset(fx, 166 + (k & 1) * 2, H('#a8846a')); R.pset(fx + 1, 166 + (k & 1) * 2, H('#8a6a52')); } }
+  R.actor(EL.mcginnis, x, 168, t, { dir: vuelve ? 1 : -1, anda: u > 0 && u < 1, sonrisa: true, dedo: vuelve });
+  if (!vuelve) { R.linea(x + 2, 160, bx + 2, yW - 7, H('#6a5030')); R.linea(x + 2, 159, bx + 2, yW - 8, H('#c8a878')); }
+  else R.linea(bx + 2, yW - 7, bx - 8, 167, H('#c8a878'));
+  // el cangrejo cruza la arena por delante
+  T.cangrejo(R, Math.round(lerp(118, 158, tramo(t, 0.4, 2.8))), 176, t, { dir: 1, anda: t > 0.4 && t < 2.8 });
+  T.a_islaDelante(R, t, { encuadre: 'orilla', atardecer: true });
+};
+T.rodar(E, R, [[0, p1]], { efectos: [[0.3, 'ola']], año: 1795 });
+</script>
+</body>
+</html>

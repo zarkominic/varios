@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El saludo de tres dedos · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-SALUDO (frase 50), lo real, sin barra (las cifras 2014 y 2021 salen como números). Dos planos:
+// 1. la plaza: una manifestante en el hueco del centro levanta la mano de tres dedos en «three finger salute» y otras
+//    manos se levantan detrás; «2014» en el cielo; en «banned» un agente con casco levanta la mano (no) desde las vallas;
+//    la manifestante no la baja (corta en «And people»);
+// 2. contraluz desde abajo: la multitud sigue levantando la mano («anyway»); en «2021» el sol baja, cambia la luz, «2021»,
+//    y la ola de manos llega hasta el final.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-saludo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K8 = { k: hex('#1c1222'), piel: hex('#f6c290'), pielS: hex('#c88a5a'), blanco: hex('#ffffff'), oro: hex('#f0c040'), oroS: hex('#a87a18'),
+  verde: hex('#4a9a3a'), verdeL: hex('#7ac85a'), verdeS: hex('#2e6a24'), crema: hex('#f4eedc'), gris: hex('#8a8a96'), rojo: hex('#c8303a') };
+// la mano de tres dedos encima de la mano del chibi (hx, hy): tres dedos de 1 px con su contorno
+const tresDedos = (hx, hy, piel = K8.piel) => {
+  R.rect(hx - 3, hy - 7, hx + 3, hy - 2, K8.k);
+  for (const fx of [-2, 0, 2]) R.rect(hx + fx, hy - 6, hx + fx, hy - 2, piel);
+  R.pset(hx - 2, hy - 6, K8.blanco);
+};
+// una rana (x, y = pie, en el centro) a o.s (2 por omisión) que salta (o.salto 0–1) e infla el saco (o.croa)
+const RANA = ['..kk...kk..', '.kwek.kwek.', '.kGGkkkGGk.', 'kGLGGGGGLGk', 'kGgGGGGGgGk', 'kGGGGkGGGGk', '.kgGGGGGgk.', 'kGGkkkkkGGk', 'kkk.....kkk'];
+const rana = (x, y, t, o = {}) => {
+  const s = o.s ?? 2, w = RANA[0].length, x0 = Math.round(x - w * s / 2), y0 = Math.round(y - Math.sin(Math.max(0, Math.min(1, o.salto ?? 0)) * Math.PI) * 12 - RANA.length * s);
+  const pal = { k: K8.k, w: K8.blanco, e: K8.k, G: K8.verde, g: K8.verdeS, L: K8.verdeL };
+  RANA.forEach((f, j) => { for (let i = 0; i < w; i++) { const c = pal[f[i]]; if (c != null) R.rect(x0 + i * s, y0 + j * s, x0 + i * s + s - 1, y0 + j * s + s - 1, c); } });
+  if (o.croa) { const cx = x0 + Math.round(w * s / 2), cy = y0 + 6 * s + 2; R.disco(cx, cy, 2 * s + 1, K8.k); R.disco(cx, cy, 2 * s, hex('#e8e0a8')); R.pset(cx - 1, cy - 1, K8.blanco); }
+};
+
+const a = (f) => en('saludo', f);
+const P2 = a(0.518), SALUTE = a(0.018), Y14 = a(0.228), BANNED = a(0.424), KEPT = a(0.554), Y21 = a(0.734), SHOWED = a(0.862);
+const p1 = (t) => {
+  const manos = 0.05 + 0.5 * tramo(t, SALUTE + 0.3, BANNED - 0.4);
+  const g = T.real(R, t, { encuadre: 'protesta', manos });
+  // la manifestante del centro: llega, levanta la mano de tres dedos y no la baja
+  const u = tramo(t, 0, SALUTE), x = Math.round(lerp(122, 146, u)), arriba = t > SALUTE;
+  const m = R.actor(EL.manifestante, x, g.suelo, t, { dir: 1, anda: u > 0 && u < 1, sostiene: arriba ? [x + 16, g.suelo - 34] : null, enfado: t > BANNED && t < BANNED + 0.8 });
+  if (arriba) tresDedos(m.mano[0], m.mano[1]);
+  // un vecino a su lado la imita en «screen»
+  const v = t > a(0.132);
+  const n = R.actor(EL.estudiante, 176, g.suelo - 2, t, { dir: -1, sostiene: v ? [168, g.suelo - 36] : null, sorpresa: t > SALUTE && t < a(0.132) });
+  if (v) tresDedos(n.mano[0], n.mano[1]);
+  // tres agentes con casco ante las vallas: miran; en «banned» el del centro levanta la mano (no)
+  const no = t > BANNED - 0.1 && t < P2 - 0.2;
+  for (const [ax, k] of [[118, 0], [153, 1], [190, 2]]) R.actor(EL.agenteCasco, ax, 121, t, { dir: k === 0 ? 1 : k === 2 ? -1 : 1, dedo: k === 1 && no, enfado: k === 1 && no });
+  if (no) R.icono('X', 155, 78, hex('#e84a4a'), K8.k, 2);
+  const y14 = tramo(t, Y14 - 0.1, Y14 + 0.4); if (y14 > 0) R.numero('2014', 200, Math.round(lerp(54, 46, y14)), { tam: 12, centro: true });
+  T.realDelante(R, t, { encuadre: 'protesta', manos });
+};
+const p2 = (t) => {
+  const manos = 0.45 + 0.3 * tramo(t, KEPT, a(0.62)) + 0.25 * tramo(t, Y21 + 0.2, SHOWED + 0.4);
+  const g = T.real(R, t, { encuadre: 'protesta', camara: 'manos', manos });
+  // en 2021 cambia la luz: el atardecer se enrojece
+  const l = tramo(t, Y21 - 0.3, Y21 + 0.5); if (l > 0) T.tinte(R, 0, 179, [200, 70, 90], 0.22 * l);
+  const y21 = tramo(t, Y21 - 0.1, Y21 + 0.4); if (y21 > 0) R.numero('2021', 200, Math.round(lerp(60, 50, y21)), { tam: 12, centro: true });
+};
+const efectos = [[SALUTE + 0.1, 'palmada'], [Y14, 'pop'], [BANNED, 'silbato'], [KEPT, 'publico'], [Y21, 'pop'], [SHOWED, 'publico']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos });
+</script>
+</body>
+</html>

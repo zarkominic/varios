@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep37 · miniatura del Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// WO-SHORT2-MINIATURA · ep37, vertical: todo lo que cuenta en la columna central (x 110–210), que es lo que queda en 9:16.
+// «Unos días después»: Ehman, al doble, en la mesa de su cocina por la noche, con el listado y cara de sorpresa.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import * as T from '/atomo/plato/escenas/wo-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'mesa', luz: 'noche', rodea: 1, wow: 1 };
+  const g = T.listado(R, t, o);
+  T.listadoDelante(R, t, o);
+  halo(R, 162, 92, 48, 50, '#fff0c8', 0.3);                     // la lámpara sobre el papel
+  T.piezaListado(R, 108, 28, { s: 1, rodea: 1, wow: 1, resalta: 1, sombra: true, recorte: [116, 50, 208, 130] });
+  figura(R, EL.ehmanWO, g.ehman[0], g.ehman[1] + 46, t, { dir: 1, sorpresa: true }, 2);
+  grado(R, { tinte: '#0a1838', f: 0.18, desde: 0.55, max: 0.6 });
+  halo(R, 160, 80, 70, 70, '#fff0c8', 0.22);
+  cifra(R, '1977', 132, 16, 14);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

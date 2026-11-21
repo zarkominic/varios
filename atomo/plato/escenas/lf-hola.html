@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep42</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LF-HOLA (frase 3), 2026. Un plano: el salón de Atom de noche, con la barra de descarga en la tele. En «I'm Atom» la
+// mano de Atom sube por la derecha y saluda; por la ventana pasa un avión con su luz que parpadea y en la lámpara revolotea
+// una polilla; en «wondered» la barra avanza un punto (pitido) y la tele echa un destello; en «Let's find out» la mano
+// coge el mando de la mesita, lo pulsa apuntando a la tele (clic) y la barra da otro salto. La alfombra se repinta desde la
+// escena: orla oscura con greca crema, campo de rombos en dos tonos con su punto coral, trama de pelo, la luz cálida de la
+// lámpara y la fría de la tele que titila (y se aviva con cada destello), la sombra de la mesita y la del brazo del sofá;
+// encima, las zapatillas de andar por casa y el mando de la consola con su luz que late, y dos palomitas caídas.
+import * as T from '/atomo/plato/escenas/lf-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('lf-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const H = (f) => en('hola', f);
+const ATOM = H(0.0437), WOND = H(0.588), FIND = H(0.8335), MANGA = '#3a4a8a', K = T.C.k;
+// el avión que cruza la ventana de noche (recortado a su hueco): fuselaje oscuro y luces que parpadean
+const avion = (t) => {
+  const u = tramo(t, 0.3, 5.4); if (u <= 0 || u >= 1) return;
+  const x = Math.round(lerp(318, 262, u)), y = Math.round(66 + u * 6);
+  R.recorte([267, 53, 313, 121]);
+  R.linea(x - 4, y, x + 4, y, hex('#2a2a3a')); R.linea(x - 1, y - 1, x + 2, y + 1, hex('#2a2a3a'));
+  if (Math.floor(t * 2.2) % 2) { R.pset(x - 4, y, hex('#ff5a4a')); R.pset(x + 4, y, hex('#5aff8a')); }
+  if (Math.floor(t * 3.1) % 3 === 0) R.pset(x, y - 1, hex('#ffffff'));
+  R.recorte(null);
+};
+// la alfombra repintada sobre la del decorado (el mismo trapecio: y 140–179, de x 70–262 arriba a x 36–292 abajo): la
+// orla oscura con la greca crema, el campo de rombos en perspectiva, el pelo, la luz de la lámpara y de la tele y las sombras
+const mez = (a, b, f) => { let r = 0xff000000; for (const s of [0, 8, 16]) { const p = (a >>> s) & 255, q = (b >>> s) & 255; r |= Math.round(p + (q - p) * f) << s; } return r >>> 0; };
+const ruido = (x, y, k) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const AL = { S: hex('#14565a'), D: hex('#186060'), M: hex('#2a8a8a'), L: hex('#5ab8b0'), B: hex('#f0d8a8'), co: hex('#d8785a'), coS: hex('#a85844'), N: hex('#0a2e32'),
+  calida: hex('#ffe0a0'), fria: hex('#8ab8ff') };
+const GRECA = ['XXXX.X', '...X.X', 'XX.X.X', 'X..XXX'];
+const alfombra = (t) => {
+  let fl = 0; for (const c of [WOND, FIND + 0.1]) if (t > c) fl = Math.max(fl, 1 - tramo(t, c, c + 0.5));
+  const tele = 0.17 + 0.04 * Math.sin(t * 7.3) * Math.sin(t * 2.1) + fl * 0.22;
+  for (let y = 140; y < 180; y++) {
+    const v = (y - 140) / 39, xL = 70 - 34 * v, xR = 262 + 30 * v, dT = y - 140;
+    for (let x = Math.max(103, Math.ceil(xL)); x <= Math.floor(xR); x++) {
+      const dL = x - xL, dR = xR - x, d = Math.min(dL, dR, dT);
+      let c;
+      if (d < 1.2) c = AL.S;
+      else if (d < 2.2) c = AL.M;
+      else if (d < 6.2) { const j = Math.min(3, Math.floor(d - 2.2)), i = dT <= Math.min(dL, dR) ? x : y; c = GRECA[j][((i % 6) + 6) % 6] === 'X' ? AL.B : AL.S; }
+      else if (d < 7.2) c = AL.M;
+      else if (d < 8.2) c = mez(AL.B, AL.M, 0.35);
+      else {
+        // el campo: rombos en perspectiva (más pequeños al fondo), relleno oscuro con el punto coral y la red clara
+        const u = (x - xL) / (xR - xL), a = u * 15, b = v * 5.5 + 0.25, fa = a - Math.floor(a), fb = b - Math.floor(b), dd = Math.abs(fa - 0.5) + Math.abs(fb - 0.5);
+        c = dd < 0.1 ? AL.co : dd < 0.15 ? AL.coS : dd < 0.34 ? AL.D : dd > 0.43 ? AL.L : AL.M;
+      }
+      // el pelo: motas oscuras y claras y una veta suave en la dirección del pelo
+      const n = ruido(x, y, 3); if (n > 0.9) c = mez(c, AL.N, 0.3); else if (n < 0.07) c = mez(c, AL.L, 0.25);
+      if (ruido(x >> 1, y, 4) > 0.82) c = mez(c, AL.N, 0.1);
+      // la luz: el cerco cálido de la lámpara (izquierda, al fondo) y la luz fría de la tele que titila
+      const lc = Math.max(0, 0.26 - Math.hypot(x - 133, (y - 140) * 2) / 220), lt = Math.max(0, 1 - Math.hypot(x - 200, (y - 140) * 2.2) / 95) * tele;
+      if (lc > 0) c = mez(c, AL.calida, lc); if (lt > 0) c = mez(c, AL.fria, lt);
+      // la penumbra hacia delante, la sombra de la mesita (debajo y corrida a la derecha) y la del brazo del sofá
+      let sm = v * 0.14;
+      if (y >= 168) { const a0 = 110 + (y - 168) * 0.4, a1 = 222 + (y - 168) * 0.6; if (x > a0 && x < a1) { const e = Math.min(x - a0, a1 - x); sm += e > 2 ? (y > 169 && x > 123 && x < 206 ? 0.68 : 0.45) : (ruido(x, y, 5) < 0.5 ? 0.3 : 0.12); } }
+      if (y >= 146) { const s1 = 104 + (y - 146) * 0.22 + 5; if (x < s1) sm += 0.42 * Math.min(1, (s1 - x) / 6) * ((x + y) % 2 || x < s1 - 3 ? 1 : 0.6); }
+      R.pset(x, y, mez(c, AL.N, Math.min(0.78, sm)));
+    }
+  }
+};
+// un óvalo relleno (para las zapatillas y el mando de la consola)
+const ovalo = (cx, cy, rx, ry, c) => { for (let j = -Math.ceil(ry); j <= Math.ceil(ry); j++) for (let i = -Math.ceil(rx); i <= Math.ceil(rx); i++) if ((i / rx) ** 2 + (j / ry) ** 2 <= 1) R.pset(cx + i, cy + j, c); };
+// en la alfombra: las zapatillas de casa (azul Atom con forro crema y pompón), el mando de la consola con su luz que late
+// y dos palomitas que se cayeron del bol
+const cosasSuelo = (t) => {
+  const Z = hex('#3a4a8a'), ZL = hex('#5a6ab0'), ZS = hex('#28305e'), F = hex('#f0e6c8'), FS = hex('#c8b890');
+  for (const [cx, cy, ad] of [[234, 172, 0], [246, 175, 1]]) {
+    for (let i = -6; i <= 6; i++) for (let j = 1; j <= 3; j++) if (Math.abs(i) < 6 - j) R.pset(cx + i + 1, cy + 2 + j, mez(R.pget(cx + i + 1, cy + 2 + j), AL.N, 0.45));
+    ovalo(cx, cy, 7, 3.2, K); ovalo(cx, cy, 6, 2.3, Z);
+    for (let i = 0; i <= 4; i++) R.pset(cx + i, cy - 2 + (i > 3 ? 1 : 0), ZL); R.pset(cx + 1, cy - 1, ZL); for (let i = -4; i <= 4; i++) R.pset(cx + i, cy + 2, ZS);
+    // la boca con el forro crema (atrás, a la izquierda) y el pompón en la punta
+    ovalo(cx - 3, cy - (ad ? 0 : 1), 3, 1.4, K); ovalo(cx - 3, cy - (ad ? 0 : 1), 2.2, 0.8, F); R.pset(cx - 5, cy - (ad ? 0 : 1), FS);
+    R.pset(cx + 5, cy - 1, F); R.pset(cx + 6, cy - 1, F); R.pset(cx + 5, cy, FS);
+  }
+  // el mando de la consola: cuerpo gris oscuro con las dos asas, la cruceta, los botones de colores y la luz que late
+  const gx = 252, gy = 152, G = hex('#3a3a46'), GL = hex('#5a5a6a');
+  ovalo(gx - 4, gy + 2, 3, 2.4, K); ovalo(gx + 4, gy + 2, 3, 2.4, K); R.rect(gx - 6, gy - 2, gx + 6, gy + 2, K);
+  ovalo(gx - 4, gy + 2, 2, 1.5, G); ovalo(gx + 4, gy + 2, 2, 1.5, G); R.rect(gx - 5, gy - 1, gx + 5, gy + 1, G); R.linea(gx - 5, gy - 1, gx + 5, gy - 1, GL);
+  R.pset(gx - 4, gy, hex('#c8c8d0')); R.pset(gx - 3, gy - 1, hex('#c8c8d0')); R.pset(gx - 3, gy + 1, hex('#c8c8d0')); R.pset(gx - 2, gy, hex('#c8c8d0'));
+  R.pset(gx + 3, gy, hex('#e84a4a')); R.pset(gx + 4, gy - 1, hex('#4ac84a')); R.pset(gx + 5, gy, hex('#4a8ae8')); R.pset(gx + 4, gy + 1, hex('#e8c84a'));
+  const late = 0.5 + 0.5 * Math.sin(t * 3); R.pset(gx, gy - 1, mez(hex('#1a3a6a'), hex('#8ad8ff'), late)); if (late > 0.8) R.pset(gx, gy - 2, mez(R.pget(gx, gy - 2), hex('#8ad8ff'), 0.5));
+  for (let i = -5; i <= 7; i++) R.pset(gx + i, gy + 4 + (Math.abs(i) > 4 ? 0 : 1), mez(R.pget(gx + i, gy + 4 + (Math.abs(i) > 4 ? 0 : 1)), AL.N, 0.4));
+  // dos palomitas caídas junto a la mesita
+  for (const [px, py] of [[224, 166], [228, 169]]) { R.disco(px, py, 1, hex('#fff4d0')); R.pset(px, py + 1, hex('#e8c87a')); R.pset(px + 1, py + 1, mez(R.pget(px + 1, py + 1), AL.N, 0.4)); }
+};
+// la polilla que revolotea alrededor de la pantalla de la lámpara
+const polilla = (t) => {
+  const x = Math.round(133 + Math.sin(t * 2.3) * 9 + Math.sin(t * 7.1) * 2), y = Math.round(86 + Math.cos(t * 3.1) * 5);
+  const ala = Math.floor(t * 14) % 2;
+  R.pset(x, y, hex('#5a4a3a')); R.pset(x - 1, y - ala, hex('#d8ccb0')); R.pset(x + 1, y - ala, hex('#d8ccb0'));
+};
+const p1 = (t) => {
+  const pulsa = tramo(t, FIND - 0.05, FIND + 0.1);
+  const o = { encuadre: 'salon', descarga: 11 + (t > WOND ? 1 : 0) + (pulsa >= 1 ? 1 : 0) };
+  const g = T.salon(R, t, o) || {};
+  alfombra(t);
+  cosasSuelo(t);
+  avion(t);
+  polilla(t);
+  // en «wondered» y al pulsar, la tele echa un destello en el borde de su pantalla
+  const [x0, y0, x1, y1] = g.pantalla ?? [153, 49, 247, 101];
+  for (const c of [WOND, FIND + 0.1]) { const d = 1 - tramo(t, c, c + 0.35); if (t > c && d > 0) { const n = Math.round(d * 30);
+    for (let k = 0; k < n; k++) { R.pset(x0 + 2 + k * 3, y0 + 1, hex('#fff6d8')); R.pset(x1 - 2 - k * 3, y1 - 1, hex('#fff6d8')); } } }
+  T.salonDelante(R, t, o);
+  // el saludo: el brazo sube en diagonal por la derecha, la mano se mece tres veces y baja
+  const s = tramo(t, ATOM - 0.25, ATOM + 0.3) * (1 - tramo(t, ATOM + 1.9, ATOM + 2.5));
+  if (s > 0) { const mece = s >= 1 ? Math.sin((t - ATOM) * 9) : 0, wx = Math.round(286 + mece * 4), wy = Math.round(lerp(200, 140, s) - Math.abs(mece) * 2);
+    T.brazo(R, 330, wy + 46, wx, wy, MANGA, -1, { codo: [314, wy + 22] }); }
+  // «Let's find out»: la mano coge el mando de la mesita y lo pulsa apuntando a la tele
+  const m = tramo(t, FIND - 0.7, FIND - 0.1) * (1 - tramo(t, E.duracion - 0.6, E.duracion));
+  if (m > 0) { const wx = Math.round(lerp(200, 170, m)), wy = Math.round(lerp(200, 164, m) - (t > FIND && t < FIND + 0.15 ? 1 : 0)); T.brazo(R, 214, 214, wx, wy, MANGA, -1, { codo: [218, 192] });
+    if (pulsa > 0 && pulsa < 1) for (let k = 1; k < 4; k++) R.pset(wx - 16 - k * 3, wy - 6 - k * 3, hex('#ff6a5a')); }
+};
+T.rodar(E, R, [[0, p1]], { efectos: [[ATOM, 'whoosh'], [WOND, 'bip'], [FIND, 'interruptor'], [FIND + 0.9, 'bip']], año: 2026 });
+</script>
+</body>
+</html>

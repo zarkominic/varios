@@ -1,0 +1,864 @@
+{
+ "serie": "ASK Atom",
+ "numero": 20,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Haymitch's Games: What to Know Before Sunrise on the Reaping",
+  "es": "Los Juegos de Haymitch: lo que hay que saber antes de Amanecer en la cosecha"
+ },
+ "principal": "en",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.85
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.92
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "jh-gancho",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [
+    "antes"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "antes",
+     "es": "Antes de Katniss, otro chico del Distrito 12 le ganó al Capitolio en sus propios Juegos… y el Capitolio se lo hizo pagar.",
+     "en": "Before Katniss, another kid from District 12 beat the Capitol at its own Games… and the Capitol made him pay for it.",
+     "visual": "A: la plaza del Distrito 12 al amanecer, con el escenario de la cosecha y la pantalla del Capitolio; un chico de pelo oscuro (Haymitch joven) planta cara; en «beat the Capitol» la pantalla gigante chisporrotea y se apaga; en «made him pay» la sombra de una rosa blanca cae sobre él.",
+     "es_voz": "Antes de Cátnis, otro chico del Distrito doce le ganó al Capitolio en sus propios Juegos… y el Capitolio se lo hizo pagar.",
+     "en_voz": "Before Katniss, another kid from District Twelve beat the Capitol at its own Games… and the Capitol made him pay for it."
+    },
+    {
+     "n": 2,
+     "marca": "haymitch",
+     "es": "Ese chico es Haymitch, el mentor borracho de la primera película, y su historia llega a los cines el 19 de noviembre en México y el 20 en Estados Unidos, con Los Juegos del Hambre: Amanecer en la cosecha.",
+     "en": "That kid is Haymitch, the drunk mentor from the first movie, and his story hits theaters on November 20 in The Hunger Games: Sunrise on the Reaping.",
+     "visual": "E: el cine; Atom y el pan con ojos en sus butacas; en la pantalla, un sinsajo dorado y la silueta de Haymitch adulto con una petaca; en «November 20» un calendario con 11·20 dorado.",
+     "es_voz": "Ese chico es Jéimich, el mentor borracho de la primera película, y su historia llega a los cines el diecinueve de noviembre en México y el veinte en Estados Unidos, con Los Juegos del Hambre: Amanecer en la cosecha.",
+     "en_voz": "That kid is Haymitch, the drunk mentor from the first movie, and his story hits theaters on November twentieth in The Hunger Games: Sunrise on the Reaping."
+    }
+   ]
+  },
+  {
+   "id": "jh-peligro",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "peligro",
+     "es": "Es la historia de los Juegos más peligrosos que se han celebrado nunca, con el doble de tributos, y será la película más larga de toda la saga.",
+     "en": "It's the story of the most dangerous Games ever held, with twice the usual tributes, and it will be the longest movie in the whole saga.",
+     "visual": "C: la sala de control de los Vigilantes; la maqueta de la arena se llena de 48 lucecitas, el doble que de costumbre; un vigilante cuenta con los dedos y se le acaban; un reloj de película marca 2:38."
+    },
+    {
+     "n": 4,
+     "marca": "preguntas",
+     "es": "¿Qué tienes que recordar, quién es quién, y qué pistas dejaron las películas anteriores para que no se te escape nada?",
+     "en": "So what do you need to remember, who's who, and which clues did the earlier movies leave so you don't miss a thing?",
+     "visual": "E (cuarto de fan): un tablero de corcho con hilo rojo: un broche, un apellido, una flecha y tres interrogaciones que se encienden una a una."
+    }
+   ]
+  },
+  {
+   "id": "jh-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "E (cine, otra cámara): Atom saluda; el pan con ojos se esconde tras la butaca al oír «Games»."
+    }
+   ]
+  },
+  {
+   "id": "jh-panem",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 74",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "panem",
+     "es": "Panem es lo que queda de Norteamérica después de un desastre: una capital rica y llena de colores, el Capitolio, rodeada de distritos pobres que trabajan para ella.",
+     "en": "Panem is what's left of North America after a disaster: a rich, colorful capital, the Capitol, surrounded by poor districts that work for it.",
+     "visual": "B y A: un mapa de Panem: el Capitolio de colores en las montañas y los doce distritos grises alrededor; trenes de mercancías que suben hacia la capital cargados de carbón, trigo y peces.",
+     "acto": true
+    },
+    {
+     "n": 7,
+     "marca": "castigo",
+     "es": "Hace mucho, los distritos se rebelaron y perdieron, y como castigo, cada año cada distrito entrega un chico y una chica, los tributos, para los Juegos del Hambre.",
+     "en": "Long ago the districts rebelled and lost, and as punishment, every year each district hands over one boy and one girl, the tributes, for the Hunger Games.",
+     "visual": "A: la plaza del Distrito 12 el día de la cosecha; una urna de cristal con papeletas; los chicos en fila por edades; el pan con ojos se esconde dentro de la urna (gag 2)."
+    }
+   ],
+   "cartela": "74"
+  },
+  {
+   "id": "jh-katniss",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "concurso",
+     "es": "Los Juegos se emiten por televisión como un concurso: veinticuatro jóvenes en una arena, y solo uno vuelve a casa.",
+     "en": "The Games are broadcast like a TV show: twenty-four young people in an arena, and only one goes home.",
+     "visual": "B: el plató del Capitolio; una pantalla enorme con 24 retratos en cuadritos; público con pelucas aplaude; un cartel de audiencia sube."
+    },
+    {
+     "n": 9,
+     "marca": "voluntaria",
+     "es": "En los Juegos número setenta y cuatro, Katniss Everdeen se ofrece voluntaria para salvar a su hermana, y con Peeta desafía las reglas del Capitolio delante de todo el país.",
+     "en": "In the seventy-fourth Games, Katniss Everdeen volunteers to save her sister, and with Peeta she defies the Capitol's rules in front of the whole country.",
+     "visual": "A: Katniss (trenza, chaqueta) da un paso al frente y levanta la mano; detrás, su hermana pequeña; Peeta a su lado; los dos levantan las manos juntas en el carro de fuego.",
+     "es_voz": "En los Juegos número setenta y cuatro, Cátnis Éverdin se ofrece voluntaria para salvar a su hermana, y con Píta desafía las reglas del Capitolio delante de todo el país."
+    }
+   ]
+  },
+  {
+   "id": "jh-mentor",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "mentor",
+     "es": "Su mentor, el único ganador vivo del Distrito 12, es Haymitch: borracho, cínico y mucho más listo de lo que parece.",
+     "en": "Her mentor, District 12's only living victor, is Haymitch: drunk, cynical, and much smarter than he looks.",
+     "visual": "A (el tren): Haymitch adulto, despeinado, con una petaca, cae del sofá del vagón; luego se incorpora con una mirada lista.",
+     "es_voz": "Su mentor, el único ganador vivo del Distrito doce, es Jéimich: borracho, cínico y mucho más listo de lo que parece.",
+     "en_voz": "Her mentor, District Twelve's only living victor, is Haymitch: drunk, cynical, and much smarter than he looks."
+    },
+    {
+     "n": 11,
+     "marca": "aldea",
+     "es": "El ganador recibe una casa para siempre en la Aldea de los Vencedores, pero cada año tiene que volver a los Juegos, ahora como mentor.",
+     "en": "The winner gets a house in the Victors' Village for life, but every year has to go back to the Games, this time as a mentor.",
+     "visual": "A (la Aldea de los Vencedores): casas grandes y vacías; Haymitch sale a buscar el periódico con gansos alrededor; un calendario del Capitolio que se repite."
+    }
+   ]
+  },
+  {
+   "id": "jh-despues",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "llamas",
+     "es": "Después vienen En llamas, con los Juegos número setenta y cinco, y Sinsajo, la rebelión que acaba con el presidente Snow.",
+     "en": "Then come Catching Fire, with the seventy-fifth Games, and Mockingjay, the rebellion that brings down President Snow.",
+     "visual": "B: tres cuadros en la pared de un museo del Capitolio: una arena con un reloj, un sinsajo en llamas y el palacio de Snow con las ventanas apagadas.",
+     "es_voz": "Después vienen En llamas, con los Juegos número setenta y cinco, y Sinsajo, la rebelión que acaba con el presidente Snóu."
+    }
+   ]
+  },
+  {
+   "id": "jh-balada",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 10",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "orden",
+     "es": "Pero la saga no se estrenó en orden: en el calendario de Panem, las películas van de atrás hacia delante.",
+     "en": "But the saga didn't come out in order: on Panem's calendar, the movies run backwards.",
+     "visual": "E (cuarto de fan): cinco libros en una estantería que el pan con ojos reordena; una línea de tiempo con las marcas 10, 50, 74, 75.",
+     "acto": true
+    },
+    {
+     "n": 14,
+     "marca": "balada",
+     "es": "Lo más antiguo es Balada de pájaros cantores y serpientes, de 2023: los Juegos número diez, con Snow de joven y Lucy Gray, la chica que cantaba.",
+     "en": "The oldest story is The Ballad of Songbirds and Snakes, from 2023: the tenth Games, with a young Snow and Lucy Gray, the girl who sang.",
+     "visual": "A (otra luz, antigua): un escenario de madera viejo; una chica con un vestido de colores canta con una guitarra; un joven rubio y elegante (Snow joven) la mira desde las gradas.",
+     "es_voz": "Lo más antiguo es Balada de pájaros cantores y serpientes, de dos mil veintitrés: los Juegos número diez, con Snóu de joven y Lúsi Grei, la chica que cantaba.",
+     "en_voz": "The oldest story is The Ballad of Songbirds and Snakes, from twenty twenty-three: the tenth Games, with a young Snow and Lucy Gray, the girl who sang."
+    }
+   ],
+   "cartela": "10"
+  },
+  {
+   "id": "jh-cincuenta",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 50",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "cincuenta",
+     "es": "Cuarenta años después llegan los Juegos número cincuenta, los de Haymitch, que son los de esta película nueva.",
+     "en": "Forty years later come the fiftieth Games, Haymitch's, which are the ones in this new movie.",
+     "visual": "A: la misma plaza, ya con la urna de cristal; un chico de pelo oscuro y una chica rubia se miran; el contador «50» en la pantalla.",
+     "es_voz": "Cuarenta años después llegan los Juegos número cincuenta, los de Jéimich, que son los de esta película nueva."
+    },
+    {
+     "n": 16,
+     "marca": "katniss",
+     "es": "Y veinticuatro años más tarde, los de Katniss, los que viste primero, en 2012.",
+     "en": "And twenty-four years after that, Katniss's Games, the ones you saw first, back in 2012.",
+     "visual": "E (cine): la línea de tiempo se ilumina hasta el 74; en la pantalla, la trenza y el broche de Katniss.",
+     "es_voz": "Y veinticuatro años más tarde, los de Cátnis, los que viste primero, en dos mil doce.",
+     "en_voz": "And twenty-four years after that, Katniss's Games, the ones you saw first, back in twenty twelve."
+    },
+    {
+     "n": 17,
+     "marca": "medio",
+     "es": "Así que Amanecer en la cosecha va justo en medio: después de Snow y antes de Katniss, y explica a los dos.",
+     "en": "So Sunrise on the Reaping sits right in the middle: after Snow and before Katniss, and it explains both.",
+     "visual": "C: la línea de tiempo en la pared de la sala de control: Snow a la izquierda, Katniss a la derecha y Haymitch en medio, con una lupa que se posa sobre él.",
+     "es_voz": "Así que Amanecer en la cosecha va justo en medio: después de Snóu y antes de Cátnis, y explica a los dos."
+    }
+   ],
+   "cartela": "50"
+  },
+  {
+   "id": "jh-vasallaje",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "vasallaje",
+     "es": "Cada veinticinco años, el Capitolio celebra un Vasallaje: unos Juegos especiales, con una regla nueva, para recordar a los distritos que perdieron.",
+     "en": "Every twenty-five years, the Capitol holds a Quarter Quell: special Games with a new twist, to remind the districts that they lost.",
+     "visual": "B: el despacho de Snow; un cofre con tarjetas sobre las que pone «25», «50», «75»; Snow abre la del 50 con guantes blancos.",
+     "acto": true
+    },
+    {
+     "n": 19,
+     "marca": "doble",
+     "es": "En los Juegos número cincuenta, el segundo Vasallaje, la regla fue el doble de tributos: cuarenta y ocho en lugar de veinticuatro.",
+     "en": "For the fiftieth Games, the second Quarter Quell, the twist was double the tributes: forty-eight instead of twenty-four.",
+     "visual": "C: la maqueta de la arena se llena: 48 lucecitas en lugar de 24; los vigilantes se miran; el contador marca 48."
+    }
+   ]
+  },
+  {
+   "id": "jh-cosecha",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "cosecha",
+     "es": "La película empieza la mañana de la cosecha, cuando a Haymitch lo separan de su familia y de la chica a la que quiere.",
+     "en": "The movie begins on the morning of the reaping, when Haymitch is torn away from his family and the girl he loves.",
+     "visual": "A (el amanecer): Haymitch se despide en la puerta de su casa de una chica de pelo oscuro con plumas de colores (Lenore Dove) y de su madre y su hermano; un agente de la paz le hace señas.",
+     "es_voz": "La película empieza la mañana de la cosecha, cuando a Jéimich lo separan de su familia y de la chica a la que quiere."
+    },
+    {
+     "n": 21,
+     "marca": "cuatro",
+     "es": "Y como son cuarenta y ocho, el Distrito 12 no manda dos tributos, sino cuatro: dos chicos y dos chicas.",
+     "en": "And since there are forty-eight, District 12 doesn't send two tributes, but four: two boys and two girls.",
+     "visual": "A (la plaza): la urna del 12 se desborda de papeletas (gag 2); suben al escenario cuatro chicos: dos chicos y dos chicas; el pan con ojos sale nadando entre papeletas.",
+     "es_voz": "Y como son cuarenta y ocho, el Distrito doce no manda dos tributos, sino cuatro: dos chicos y dos chicas.",
+     "en_voz": "And since there are forty-eight, District Twelve doesn't send two tributes, but four: two boys and two girls."
+    }
+   ]
+  },
+  {
+   "id": "jh-grabacion",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [
+    "campo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "contaron",
+     "es": "Y aquí viene lo que mucha gente no sabe: cómo terminaron esos Juegos ya nos lo contaron hace años, en En llamas.",
+     "en": "And here's what a lot of people don't know: how those Games ended was already revealed years ago, in Catching Fire.",
+     "visual": "A (casa de los vencedores, de noche): Katniss sentada ante una tele vieja con una cinta; en la pantalla, una arena preciosa de flores."
+    },
+    {
+     "n": 23,
+     "marca": "campo",
+     "es": "En el libro, Katniss ve la grabación: Haymitch gana gracias al campo de fuerza que rodea la arena, un borde invisible que devuelve todo lo que se le lanza.",
+     "en": "In the book, Katniss watches the tape: Haymitch wins thanks to the force field around the arena, an invisible edge that throws back anything you hurl at it.",
+     "visual": "C: la maqueta de la arena: en el borde, una pared invisible que brilla al recibir un golpe y devuelve una piedra que rebota; un vigilante se queda boquiabierto.",
+     "es_voz": "En el libro, Cátnis ve la grabación: Jéimich gana gracias al campo de fuerza que rodea la arena, un borde invisible que devuelve todo lo que se le lanza."
+    }
+   ]
+  },
+  {
+   "id": "jh-arma",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "arma",
+     "es": "Usó el arma del Capitolio contra el Capitolio, y eso el presidente Snow no se lo perdonó.",
+     "en": "He turned the Capitol's own weapon against the Capitol, and President Snow never forgave him.",
+     "visual": "B: el despacho de Snow; Snow aprieta una rosa blanca hasta deshojarla mientras en una pantalla Haymitch gana.",
+     "es_voz": "Usó el arma del Capitolio contra el Capitolio, y eso el presidente Snóu no se lo perdonó."
+    },
+    {
+     "n": 25,
+     "marca": "ojo",
+     "es": "Y desde entonces, el Capitolio no le quitó el ojo de encima: había dejado en ridículo a Snow delante de todo Panem.",
+     "en": "And from then on, the Capitol never took its eyes off him: he'd made Snow look like a fool in front of all of Panem.",
+     "visual": "B (otra cámara): un ojo del Capitolio (una cámara) sigue a Haymitch por la plaza del 12; en el plató, el público se ríe de Snow y Snow sonríe sin ganas.",
+     "es_voz": "Y desde entonces, el Capitolio no le quitó el ojo de encima: había dejado en ridículo a Snóu delante de todo Panem."
+    },
+    {
+     "n": 26,
+     "marca": "bebe",
+     "es": "Por eso bebe, por eso no se fía de nadie, y por eso, cuando llega Katniss, sabe exactamente lo que le espera.",
+     "en": "That's why he drinks, why he trusts no one, and why, when Katniss shows up, he knows exactly what's waiting for her.",
+     "visual": "A (el tren): Haymitch adulto sirve una copa; mira por la ventana a Katniss y Peeta; deja la copa sin beber.",
+     "es_voz": "Por eso bebe, por eso no se fía de nadie, y por eso, cuando llega Cátnis, sabe exactamente lo que le espera."
+    }
+   ]
+  },
+  {
+   "id": "jh-reparto",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "zada",
+     "es": "Al Haymitch joven lo interpreta Joseph Zada, y a Lenore Dove, la chica a la que quiere, Whitney Peak.",
+     "en": "Young Haymitch is played by Joseph Zada, and Lenore Dove, the girl he loves, by Whitney Peak.",
+     "visual": "B (el plató de presentación): un foco ilumina a Haymitch joven (pelo oscuro, camisa remangada) y, a su lado, a Lenore Dove (plumas de colores en el pelo, collar); en la pantalla de fondo, sus siluetas.",
+     "acto": true,
+     "es_voz": "Al Jéimich joven lo interpreta Yósef Sáda, y a Lenór Dov, la chica a la que quiere, Uítni Pik."
+    },
+    {
+     "n": 28,
+     "marca": "grace",
+     "es": "Mckenna Grace es Maysilee Donner, otra de los tributos del Distrito 12, una chica del pueblo que no se parece en nada a él.",
+     "en": "Mckenna Grace is Maysilee Donner, another District 12 tribute, a town girl who's nothing like him.",
+     "visual": "B: Maysilee Donner (rubia, coletas, vestido del pueblo) cruzada de brazos al otro lado; entre los dos, un hueco; un pájaro rosa de caramelo pasa volando.",
+     "es_voz": "Makéna Greis es Méisili Dóner, otra de los tributos del Distrito doce, una chica del pueblo que no se parece en nada a él.",
+     "en_voz": "Mckenna Grace is May-sih-lee Donner, another District Twelve tribute, a town girl who's nothing like him."
+    }
+   ]
+  },
+  {
+   "id": "jh-capitolio",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "snow",
+     "es": "Ralph Fiennes es el presidente Snow, ya en el poder y con sus rosas blancas; Jesse Plemons es Plutarch, y Elle Fanning es Effie Trinket de joven.",
+     "en": "Ralph Fiennes is President Snow, already in power, with his white roses; Jesse Plemons is Plutarch, and Elle Fanning is a young Effie Trinket.",
+     "visual": "B (el invernadero): Snow (pelo blanco, traje, rosa blanca) entre rosales; el pan estornuda (gag 4); Plutarch, con traje oscuro, toma notas; Effie joven se coloca la peluca rosa y un pájaro anida en ella (gag 3).",
+     "es_voz": "Réif Fáins es el presidente Snóu, ya en el poder y con sus rosas blancas; Yési Plémons es Plútark, y El Fáning es Éfi Trínket de joven.",
+     "en_voz": "Rafe Fines is President Snow, already in power, with his white roses; Jesse Plemons is Plutarch, and Elle Fanning is a young Effie Trinket."
+    },
+    {
+     "n": 30,
+     "marca": "plutarch",
+     "es": "Ojo con Plutarch: en En llamas era el Vigilante Jefe que, en secreto, trabajaba para la rebelión.",
+     "en": "Keep an eye on Plutarch: in Catching Fire, he was the Head Gamemaker secretly working for the rebellion.",
+     "visual": "C: Plutarch en la sala de control; gira un dial y en una pantalla aparece, por un instante, un sinsajo; lo tapa enseguida con la mano.",
+     "es_voz": "Ojo con Plútark: en En llamas era el Vigilante Jefe que, en secreto, trabajaba para la rebelión."
+    }
+   ]
+  },
+  {
+   "id": "jh-plato",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 31,
+     "marca": "caesar",
+     "es": "Kieran Culkin hace de Caesar Flickerman, el presentador de las entrevistas, y Glenn Close es Drusilla, la escolta del Distrito 12 de entonces.",
+     "en": "Kieran Culkin plays Caesar Flickerman, the interview host, and Glenn Close is Drusilla, District 12's escort at the time.",
+     "visual": "B (el plató de las entrevistas): Caesar (pelo de color, sonrisa enorme, micrófono) entrevista a un tributo; Drusilla, la escolta, con un vestido rígido y un abanico.",
+     "es_voz": "Kíran Cálkin hace de Síser Flíkerman, el presentador de las entrevistas, y Glen Clóus es Drusila, la escolta del Distrito doce de entonces.",
+     "en_voz": "Kieran Culkin plays Caesar Flickerman, the interview host, and Glenn Close is Drusilla, District Twelve's escort at the time."
+    },
+    {
+     "n": 32,
+     "marca": "ganadores",
+     "es": "Y vuelven tres ganadores que ya conoces de En llamas, veinticinco años más jóvenes: Beetee, Wiress y Mags.",
+     "en": "And three victors you already know from Catching Fire come back, twenty-five years younger: Beetee, Wiress, and Mags.",
+     "visual": "B (otra cámara): tres sillas de ganadores: Beetee con gafas y un cable, Wiress con una aguja de tejer y Mags con un anzuelo; un rótulo de «25 años antes» como reloj que gira hacia atrás.",
+     "es_voz": "Y vuelven tres ganadores que ya conoces de En llamas, veinticinco años más jóvenes: Bíti, Uáires y Mags.",
+     "en_voz": "And three victors you already know from Catching Fire come back, twenty-five years younger: Bee-tee, Why-ress, and Mags."
+    }
+   ]
+  },
+  {
+   "id": "jh-vuelven",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 33,
+     "marca": "lawrence",
+     "es": "La sorpresa la confirmó Jennifer Lawrence en octubre: ella, Josh Hutcherson y Woody Harrelson también vuelven.",
+     "en": "The surprise was confirmed by Jennifer Lawrence in October: she, Josh Hutcherson, and Woody Harrelson are coming back too.",
+     "visual": "E (cine): en la pantalla, tres siluetas que se encienden: la trenza de Katniss, el pan de Peeta y la petaca de Haymitch; el pan con ojos salta en la butaca.",
+     "es_voz": "La sorpresa la confirmó Yénifer Lórens en octubre: ella, Yosh Jácherson y Úudi Járelson también vuelven."
+    }
+   ]
+  },
+  {
+   "id": "jh-broche",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 34,
+     "marca": "pistas",
+     "es": "Ahora, las pistas que las películas anteriores dejaron a la vista.",
+     "en": "Now, the clues the earlier movies left in plain sight.",
+     "visual": "E (cuarto de fan): el tablero de corcho; se enciende la primera chincheta: un broche dorado.",
+     "acto": true
+    },
+    {
+     "n": 35,
+     "marca": "broche",
+     "es": "La primera es el broche del sinsajo: en la película de 2012, a Katniss se lo regalan en un mercado, pero en el libro el broche tiene dueña.",
+     "en": "The first is the mockingjay pin: in the 2012 movie, Katniss is given it at a market, but in the book, the pin has an owner.",
+     "visual": "A (el Quemador): un puesto de mercado; una vendedora le da el broche a Katniss; corte a un libro abierto con el broche dibujado y un «?» sobre él.",
+     "es_voz": "La primera es el broche del sinsajo: en la película de dos mil doce, a Cátnis se lo regalan en un mercado, pero en el libro el broche tiene dueña.",
+     "en_voz": "The first is the mockingjay pin: in the twenty twelve movie, Katniss is given it at a market, but in the book, the pin has an owner."
+    }
+   ]
+  },
+  {
+   "id": "jh-madge",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "simbolo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 36,
+     "marca": "madge",
+     "es": "Se lo regala su amiga Madge, y antes había sido de su tía: Maysilee Donner, la compañera de Haymitch en sus Juegos.",
+     "en": "Her friend Madge gives it to her, and before that it belonged to Madge's aunt: Maysilee Donner, Haymitch's partner in his Games.",
+     "visual": "A (la casa del alcalde): Madge (rubia, vestido blanco) le prende el broche a Katniss; en una foto antigua de la pared, Maysilee con el mismo broche.",
+     "es_voz": "Se lo regala su amiga Mach, y antes había sido de su tía: Méisili Dóner, la compañera de Jéimich en sus Juegos.",
+     "en_voz": "Her friend Madge gives it to her, and before that it belonged to Madge's aunt: May-sih-lee Donner, Haymitch's partner in his Games."
+    },
+    {
+     "n": 37,
+     "marca": "simbolo",
+     "es": "Es decir: el símbolo de la rebelión de Katniss viene de los Juegos de Haymitch.",
+     "en": "In other words, the symbol of Katniss's rebellion comes from Haymitch's Games.",
+     "visual": "B: el broche pasa de mano en mano en una cadena de manos desde los Juegos 50 a los 74; el pan intenta cogerlo y un charlajo se lo lleva (gag 5); al final, el sinsajo en una pancarta de la rebelión.",
+     "es_voz": "Es decir: el símbolo de la rebelión de Cátnis viene de los Juegos de Jéimich."
+    }
+   ]
+  },
+  {
+   "id": "jh-cancion",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 38,
+     "marca": "baird",
+     "es": "La segunda está en un apellido: Lenore Dove se apellida Baird, como Lucy Gray, la cantante de la Balada.",
+     "en": "The second is in a last name: Lenore Dove's surname is Baird, like Lucy Gray, the singer from the Ballad.",
+     "visual": "E (cuarto de fan): dos carnés con el apellido «Baird» se colocan uno junto al otro con un hilo rojo.",
+     "es_voz": "La segunda está en un apellido: Lenór Dov se apellida Berd, como Lúsi Grei, la cantante de la Balada."
+    },
+    {
+     "n": 39,
+     "marca": "arbol",
+     "es": "Lucy Gray escribió El árbol del ahorcado, la canción que Katniss canta en Sinsajo, así que esa canción viajó más de sesenta años hasta llegar a ella.",
+     "en": "Lucy Gray wrote The Hanging Tree, the song Katniss sings in Mockingjay, so that song traveled more than sixty years to reach her.",
+     "visual": "A (el bosque): un árbol viejo junto a un lago al atardecer; unas notas de música pasan de una guitarra antigua a la voz de una chica con trenza; los sinsajos repiten la melodía.",
+     "es_voz": "Lúsi Grei escribió El árbol del ahorcado, la canción que Cátnis canta en Sinsajo, así que esa canción viajó más de sesenta años hasta llegar a ella."
+    }
+   ]
+  },
+  {
+   "id": "jh-flecha",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "enemigo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 40,
+     "marca": "enemigo",
+     "es": "La tercera es una frase: en En llamas, Haymitch le dice a Katniss «recuerda quién es el verdadero enemigo», y al final ella dispara su flecha contra el campo de fuerza.",
+     "en": "The third is a line: in Catching Fire, Haymitch tells Katniss, \"remember who the real enemy is,\" and in the end she fires her arrow at the force field.",
+     "visual": "A (el tren): Haymitch adulto le dice algo al oído a Katniss; ella asiente seria.",
+     "es_voz": "La tercera es una frase: en En llamas, Jéimich le dice a Cátnis «recuerda quién es el verdadero enemigo», y al final ella dispara su flecha contra el campo de fuerza."
+    },
+    {
+     "n": 41,
+     "marca": "punto",
+     "es": "Es el mismo punto débil que salvó a Haymitch veinticinco años antes.",
+     "en": "It's the same weak spot that saved Haymitch twenty-five years earlier.",
+     "visual": "C: la maqueta de la arena con su cúpula; una flecha con un cable vuela hacia el borde brillante; el campo de fuerza se resquebraja como un cristal, en el mismo punto donde 25 años antes rebotó la piedra de Haymitch.",
+     "es_voz": "Es el mismo punto débil que salvó a Jéimich veinticinco años antes."
+    }
+   ]
+  },
+  {
+   "id": "jh-reloj",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 42,
+     "marca": "reloj",
+     "es": "Y en En llamas, Wiress fue quien dio la pista de que la arena era un reloj: tic, tac.",
+     "en": "And in Catching Fire, Wiress was the one who gave away that the arena was a clock: tick, tock.",
+     "visual": "C: la arena vista desde arriba es un reloj de doce sectores; Wiress señala con su aguja: tic, tac; las manecillas avanzan.",
+     "es_voz": "Y en En llamas, Uáires fue quien dio la pista de que la arena era un reloj: tic, tac.",
+     "en_voz": "And in Catching Fire, Why-ress was the one who gave away that the arena was a clock: tick, tock."
+    },
+    {
+     "n": 43,
+     "marca": "maquina",
+     "es": "Y en el tráiler, Wiress lo resume: la arena es una máquina, pero todas las máquinas se pueden romper.",
+     "en": "And in the trailer, Wiress sums it up: the arena is a machine, but all machines can be broken.",
+     "visual": "C (otra cámara): la sala de control: Wiress joven con un destornillador; en la pantalla, engranajes; una pieza salta y los engranajes se paran.",
+     "es_voz": "Y en el tráiler, Uáires lo resume: la arena es una máquina, pero todas las máquinas se pueden romper.",
+     "en_voz": "And in the trailer, Why-ress sums it up: the arena is a machine, but all machines can be broken."
+    }
+   ]
+  },
+  {
+   "id": "jh-canal",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 44,
+     "marca": "real",
+     "es": "Y ahora, lo que hay de verdad detrás de Panem.",
+     "en": "And now, what's real behind Panem.",
+     "visual": "D: una cortina se descorre y deja ver el mundo real: el pan con ojos se quita el disfraz de Panem.",
+     "acto": true
+    },
+    {
+     "n": 45,
+     "marca": "canal",
+     "es": "Suzanne Collins tuvo la idea cambiando de canal: en uno había un reality y en otro, imágenes reales de la guerra de Irak, y las dos cosas se le mezclaron.",
+     "en": "Suzanne Collins got the idea flipping channels: one had a reality show, the other had real footage of the Iraq War, and the two blurred together.",
+     "visual": "D (el salón): una mujer en un sofá cambia de canal; en la tele alterna un concurso con focos y un desierto con humo y soldados lejanos; el mando se queda sin pilas entre los dos canales (gag 6).",
+     "es_voz": "Susán Cólins tuvo la idea cambiando de canal: en uno había un riáliti y en otro, imágenes reales de la guerra de Irak, y las dos cosas se le mezclaron."
+    }
+   ]
+  },
+  {
+   "id": "jh-minotauro",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 46,
+     "marca": "teseo",
+     "es": "También se inspiró en un mito griego: Atenas tenía que enviar chicos y chicas a Creta, al laberinto del Minotauro, hasta que Teseo se ofreció a ir.",
+     "en": "She also drew on a Greek myth: Athens had to send young men and women to Crete, into the Minotaur's labyrinth, until Theseus volunteered to go.",
+     "visual": "D (Creta): un laberinto de piedra visto desde arriba; un barco de vela negra llega con chicos y chicas; un joven con espada da un paso al frente."
+    },
+    {
+     "n": 47,
+     "marca": "pan",
+     "es": "El nombre de Panem viene del latín panem et circenses, pan y circo: dar comida y espectáculo para que la gente no proteste, y en el libro de Sinsajo lo explica Plutarch.",
+     "en": "The name Panem comes from the Latin \"panem et circenses,\" bread and circuses: give people food and a show so they don't protest, and Plutarch explains it in the Mockingjay book.",
+     "visual": "D (el circo romano): las gradas llenas; un emperador reparte panes desde el palco; el pan con ojos se esconde de la multitud.",
+     "es_voz": "El nombre de Panem viene del latín panem et circenses, pan y circo: dar comida y espectáculo para que la gente no proteste, y en el libro de Sinsajo lo explica Plútark.",
+     "en_voz": "The name Panem comes from the Latin \"pah-nem et sir-sen-sees,\" bread and circuses: give people food and a show so they don't protest, and Plutarch explains it in the Mockingjay book."
+    }
+   ]
+  },
+  {
+   "id": "jh-hume",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 48,
+     "marca": "hume",
+     "es": "Para el libro nuevo, Collins citó al filósofo David Hume y su pregunta: por qué los muchos se dejan gobernar tan fácilmente por los pocos.",
+     "en": "For the new book, Collins pointed to the philosopher David Hume and his question: why the many are so easily governed by the few.",
+     "visual": "D (una biblioteca del siglo XVIII): un filósofo con peluca blanca escribe a la luz de una vela; en la ventana, una multitud de figuritas y, en un balcón, tres figuras que las dirigen.",
+     "es_voz": "Para el libro nuevo, Collins citó al filósofo Déivid Jium y su pregunta: por qué los muchos se dejan gobernar tan fácilmente por los pocos."
+    }
+   ]
+  },
+  {
+   "id": "jh-sinsonte",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 49,
+     "marca": "sinsonte",
+     "es": "El sinsajo es inventado, pero su mitad real, el sinsonte, existe: un pájaro de América que puede aprender unos doscientos cantos, y hasta imita ranas y máquinas.",
+     "en": "The mockingjay is made up, but its real half, the mockingbird, exists: an American bird that can learn around two hundred songs, and even imitates frogs and machines.",
+     "visual": "D (el bosque): un sinsonte gris en una rama imita una alarma de coche, una rana y, al final, la voz de Atom (gag 7); Atom se gira sorprendido."
+    }
+   ]
+  },
+  {
+   "id": "jh-saludo",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 50,
+     "marca": "saludo",
+     "es": "Y el saludo de tres dedos salió de la pantalla: en 2014, en Tailandia, los militares lo prohibieron y aun así la gente lo siguió haciendo; y en 2021 volvió a verse en Myanmar.",
+     "en": "And the three-finger salute left the screen: in 2014, Thailand's military banned it, and people kept doing it anyway; and in 2021, it showed up again in Myanmar.",
+     "visual": "D (una plaza con pancartas sin letras): manos que se levantan con tres dedos; unos agentes con casco miran; más manos se levantan.",
+     "es_voz": "Y el saludo de tres dedos salió de la pantalla: en dos mil catorce, en Tailandia, los militares lo prohibieron y aun así la gente lo siguió haciendo; y en dos mil veintiuno volvió a verse en Mianmar.",
+     "en_voz": "And the three-finger salute left the screen: in twenty fourteen, Thailand's military banned it, and people kept doing it anyway; and in twenty twenty-one, it showed up again in Myanmar."
+    }
+   ]
+  },
+  {
+   "id": "jh-libros",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 51,
+     "marca": "libros",
+     "es": "Los cinco libros han vendido más de cien millones de ejemplares, y el primer tráiler de esta película se vio ciento nueve millones de veces en un solo día.",
+     "en": "The five books have sold more than one hundred million copies, and this movie's first trailer was watched one hundred and nine million times in a single day.",
+     "visual": "D (una librería): una torre de libros que crece hasta el techo; un contador de reproducciones sube a 109 millones en una pantalla de móvil."
+    },
+    {
+     "n": 52,
+     "marca": "semana",
+     "es": "Y el libro nuevo vendió más de un millón y medio de ejemplares en inglés en su primera semana; solo en Estados Unidos, el doble que la Balada.",
+     "en": "And the new book sold more than one and a half million English-language copies in its first week; in the US alone, that was double what the Ballad sold.",
+     "visual": "D (otra cámara): una cola de lectores que da la vuelta a la manzana; una caja de libros nuevos se vacía; un gráfico de barras: el libro nuevo, el doble de alto que la Balada."
+    }
+   ]
+  },
+  {
+   "id": "jh-maraton",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 53,
+     "marca": "tarde",
+     "es": "Si solo tienes una tarde, ve Los Juegos del Hambre y En llamas: ahí están Haymitch, el campo de fuerza y los ganadores que vuelven.",
+     "en": "If you only have one evening, watch The Hunger Games and Catching Fire: that's where you'll find Haymitch, the force field, and the returning victors.",
+     "visual": "E (cuarto de fan): Atom y el pan en el sofá con una manta; en la tele, dos portadas sin letras (un sinsajo y una llama); un reloj de pared marca la tarde.",
+     "acto": true,
+     "es_voz": "Si solo tienes una tarde, ve Los Juegos del Hambre y En llamas: ahí están Jéimich, el campo de fuerza y los ganadores que vuelven."
+    },
+    {
+     "n": 54,
+     "marca": "otra",
+     "es": "Si tienes otra, añade Balada de pájaros cantores y serpientes, por Snow y por la canción.",
+     "en": "If you have another, add The Ballad of Songbirds and Snakes, for Snow and for the song.",
+     "visual": "E (otra cámara): ya de noche; la tercera portada (una serpiente y un pájaro); el pan se ha comido la mitad de sí mismo (gag 8).",
+     "es_voz": "Si tienes otra, añade Balada de pájaros cantores y serpientes, por Snóu y por la canción."
+    }
+   ]
+  },
+  {
+   "id": "jh-lista",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 55,
+     "marca": "sinsajo",
+     "es": "Si te queda tiempo, Sinsajo: ahí ves en qué acaban Haymitch, Plutarch y Snow.",
+     "en": "If you still have time, Mockingjay: that's where you'll see how things end for Haymitch, Plutarch, and Snow.",
+     "visual": "E (cuarto de fan): la estantería con las cajas de las películas en orden; Atom marca una lista con un lápiz.",
+     "es_voz": "Si te queda tiempo, Sinsajo: ahí ves en qué acaban Jéimich, Plútark y Snóu."
+    },
+    {
+     "n": 56,
+     "marca": "libro",
+     "es": "Y el libro nuevo, mejor después de la película: ahí está todo lo que hoy no te he contado.",
+     "en": "And save the new book for after the movie: that's where everything I didn't tell you today is waiting.",
+     "visual": "E (cine, de día): un libro cerrado con un lazo y una nota «después» sobre una butaca; las luces del cine se encienden."
+    }
+   ]
+  },
+  {
+   "id": "jh-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 57,
+     "marca": "costo",
+     "es": "Haymitch sobrevivió a los Juegos más peligrosos de Panem; Amanecer en la cosecha cuenta lo que le costó.",
+     "en": "Haymitch survived the most dangerous Games in Panem's history; Sunrise on the Reaping is about what it cost him.",
+     "visual": "A (la plaza, al amanecer): Haymitch joven de espaldas mira el escenario vacío; el broche brilla en el suelo.",
+     "acto": true,
+     "es_voz": "Jéimich sobrevivió a los Juegos más peligrosos de Panem; Amanecer en la cosecha cuenta lo que le costó."
+    },
+    {
+     "n": 58,
+     "marca": "borracho",
+     "es": "Y la próxima vez que lo veas borracho en el Distrito 12, ya sabrás por qué.",
+     "en": "And the next time you see him drunk in District 12, you'll know why.",
+     "visual": "A (la Aldea de los Vencedores): Haymitch adulto en su porche con la petaca; da de comer a los gansos y sonríe a medias.",
+     "es_voz": "Y la próxima vez que lo veas borracho en el Distrito doce, ya sabrás por qué.",
+     "en_voz": "And the next time you see him drunk in District Twelve, you'll know why."
+    },
+    {
+     "n": 59,
+     "marca": "distrito",
+     "es": "¿Y tú, de qué distrito serías? Cuéntamelo en los comentarios.",
+     "en": "And you, which district would you be from? Tell me in the comments.",
+     "visual": "E (cuarto de fan): un mapa de los doce distritos con chinchetas de colores que se van clavando; el pan señala el 12."
+    },
+    {
+     "n": 60,
+     "marca": "pan",
+     "es": "Yo, mientras tanto, voy a esconder a este pan, que cada vez que oye «cosecha» se pone a temblar.",
+     "en": "Meanwhile, I'm hiding this bread, because every time it hears the word \"reaping,\" it starts shaking.",
+     "visual": "E (cine): Atom."
+    }
+   ]
+  }
+ ]
+}

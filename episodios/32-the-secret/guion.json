@@ -1,0 +1,519 @@
+{
+ "serie": "ASK Atom",
+ "numero": 32,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Secret: 9 Treasure Boxes Still Buried Since 1982",
+  "es": "The Secret: 9 cofres siguen enterrados desde 1982"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.92
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.95
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "cf-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "cofres"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "cofres",
+     "es": "En 1982 salió un libro con las pistas de doce cofres enterrados en doce ciudades de Norteamérica. Más de cuarenta años después solo han aparecido tres, y el único que sabía dónde están los demás se llevó el secreto.",
+     "en": "In 1982, a book came out with the clues to twelve treasure boxes buried in twelve cities across North America. More than forty years later, only three have been found, and the one man who knew where the rest are took the secret with him.",
+     "visual": "F: un mapa de Norteamérica con doce puntos que se encienden y nueve que se apagan (golpe); una pala que cava en un parque de noche; un cofrecito de cerámica y una llave; un libro abierto con un cuadro y un poema.",
+     "es_voz": "En mil novecientos ochenta y dos salió un libro con las pistas de doce cofres enterrados en doce ciudades de Norteamérica. Más de cuarenta años después solo han aparecido tres, y el único que sabía dónde están los demás se llevó el secreto.",
+     "en_voz": "In nineteen eighty-two, a book came out with the clues to twelve treasure boxes buried in twelve cities across North America. More than forty years later, only three have been found, and the one man who knew where the rest are took the secret with him."
+    },
+    {
+     "n": 2,
+     "marca": "camino",
+     "es": "Por el camino vas a conocer a un editor con una pala, a unos muchachos en un parque de Chicago, a un abogado que cavó en un jardín griego y a una familia cuyo tesoro encontró, por casualidad, una excavadora.",
+     "en": "Along the way, you'll meet a publisher with a shovel, a group of teenagers in a Chicago park, a lawyer who dug in a Greek garden, and a family whose treasure was found, by accident, by an excavator.",
+     "visual": "A, C, D y E: un editor con una pala; unos chavales en un parque de Chicago; un abogado cavando en un jardín griego; una excavadora que levanta trozos de cerámica; en el estudio, Atom cava en su maceta con una pala de juguete y saca una llavecita (gag 1).",
+     "es_voz": "Por el camino vas a conocer a un editor con una pala, a unos muchachos en un parque de Chicágo, a un abogado que cavó en un jardín griego y a una familia cuyo tesoro encontró, por casualidad, una excavadora."
+    }
+   ]
+  },
+  {
+   "id": "cf-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "F: Atom saluda en su estudio, con la maceta y la llavecita en la mesa."
+    }
+   ]
+  },
+  {
+   "id": "cf-preiss",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "preiss",
+     "es": "Todo empezó en Nueva York con Byron Preiss, un editor de libros ilustrados al que le encantaban la fantasía, los cómics y la ciencia ficción. Unos años antes, en Inglaterra, un libro ilustrado llamado Masquerade había puesto a miles de personas a cavar en busca de una liebre de oro. Y Preiss quiso probar algo todavía más grande.",
+     "en": "It all began in New York with Byron Preiss, a publisher of illustrated books who loved fantasy, comics and science fiction. A few years earlier, in England, an illustrated book called Masquerade had sent thousands of people digging for a golden hare. And Preiss wanted to try something even bigger.",
+     "visual": "A (Nueva York): la editorial de Preiss (barba, gafas) con mesas de dibujo, cómics y libros ilustrados; un periódico inglés con una liebre de oro (Masquerade, sin portada real).",
+     "acto": true,
+     "es_voz": "Todo empezó en Nueva York con Báiron Práis, un editor de libros ilustrados al que le encantaban la fantasía, los cómics y la ciencia ficción. Unos años antes, en Inglaterra, un libro ilustrado llamado Mascaréid había puesto a miles de personas a cavar en busca de una liebre de oro. Y Práis quiso probar algo todavía más grande.",
+     "en_voz": "It all began in New York with Byron Price, a publisher of illustrated books who loved fantasy, comics and science fiction. A few years earlier, in England, an illustrated book called Masquerade had sent thousands of people digging for a golden hare. And Price wanted to try something even bigger."
+    },
+    {
+     "n": 5,
+     "marca": "libro",
+     "es": "Así que trabajó con dos escritores y un pintor, John Jude Palencar, y a finales de 1982 la editorial Bantam publicó The Secret: A Treasure Hunt. Tenía doce cuadros y doce poemas cortos. Si emparejabas cada cuadro con su poema, el cuadro te decía la ciudad y el poema, el lugar exacto.",
+     "en": "So he worked with two writers and a painter, John Jude Palencar, and at the end of 1982, the publisher Bantam released The Secret: A Treasure Hunt. It had twelve paintings and twelve short poems. If you matched each painting with the right poem, the painting told you the city, and the poem told you the exact spot.",
+     "visual": "A: Preiss con dos escritores y un pintor ante caballetes; doce cuadros de fantasía (nuestros, de lejos) y doce hojas con versos; un dedo empareja un cuadro con un verso: el cuadro enseña una ciudad y el verso un punto.",
+     "es_voz": "Así que trabajó con dos escritores y un pintor, Yon Yud Palencár, y a finales de mil novecientos ochenta y dos la editorial Bántam publicó De Síkret: a Tréshur Jant. Tenía doce cuadros y doce poemas cortos. Si emparejabas cada cuadro con su poema, el cuadro te decía la ciudad y el poema, el lugar exacto.",
+     "en_voz": "So he worked with two writers and a painter, John Jude Palencar, and at the end of nineteen eighty-two, the publisher Bantam released The Secret: A Treasure Hunt. It had twelve paintings and twelve short poems. If you matched each painting with the right poem, the painting told you the city, and the poem told you the exact spot."
+    }
+   ]
+  },
+  {
+   "id": "cf-cuento",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "hadas",
+     "es": "Dentro había un cuento de hadas. Hace mucho tiempo, decía, la Gente Bella del Viejo Mundo, duendes, hadas y dragones, huyó de los hombres hacia el Nuevo Mundo con sus piedras preciosas. Y luego desapareció, y escondió sus doce tesoros.",
+     "en": "The story inside was a fairy tale. Long ago, it said, the Fair People of the Old World, goblins, fairies and dragons, fled from mankind to the New World with their precious stones. Then they vanished, and hid their twelve treasures.",
+     "visual": "B: un bosque antiguo de cuento; duendes, hadas y dragones huyen de los hombres en un barco con sus piedras preciosas que brillan; la orilla del Nuevo Mundo; desaparecen y esconden doce tesoros."
+    },
+    {
+     "n": 7,
+     "marca": "llave",
+     "es": "En la vida real, el tesoro era un cofrecito de cerámica dentro de una caja de plástico transparente, y dentro había una llave, también de cerámica. Si la encontrabas, se la mandabas por correo a Preiss, y él te enviaba una piedra preciosa de verdad, de unos mil dólares, que guardaba en una caja de seguridad en Nueva York.",
+     "en": "In real life, the treasure was a little ceramic box sealed inside a clear plastic case, and inside it was a key, also made of ceramic. If you found it, you mailed the key to Preiss, and he sent you a real gemstone worth about a thousand dollars, which he kept in a safe deposit box in New York.",
+     "visual": "A: un cofrecito de cerámica dentro de una caja de plástico transparente; dentro, una llave de cerámica; un sobre por correo; una caja de seguridad en un banco de Nueva York con doce piedras de colores.",
+     "es_voz": "En la vida real, el tesoro era un cofrecito de cerámica dentro de una caja de plástico transparente, y dentro había una llave, también de cerámica. Si la encontrabas, se la mandabas por correo a Práis, y él te enviaba una piedra preciosa de verdad, de unos mil dólares, que guardaba en una caja de seguridad en Nueva York.",
+     "en_voz": "In real life, the treasure was a little ceramic box sealed inside a clear plastic case, and inside it was a key, also made of ceramic. If you found it, you mailed the key to Price, and he sent you a real gemstone worth about a thousand dollars, which he kept in a safe deposit box in New York."
+    }
+   ]
+  },
+  {
+   "id": "cf-pala",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "cartela 1981",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "pala",
+     "es": "Y aquí viene lo que parece inventado. En 1981, el año antes de que saliera el libro, Preiss recorrió el país y enterró los cofres él mismo, a no más de un metro largo de profundidad, en parques y jardines públicos. Según la revista de su universidad, Stanford, llevaba una pala de casi dos metros.",
+     "en": "And here's the part that sounds made up. In 1981, the year before the book came out, Preiss crisscrossed the country and buried the boxes himself, no more than about three and a half feet down, in parks and public gardens. According to Stanford's alumni magazine, he carried a six-foot shovel.",
+     "visual": "A y F (1981): Preiss con una pala más alta que él que no cabe en el coche (gag 2); carreteras por el mapa; parques y jardines públicos al anochecer.",
+     "acto": true,
+     "es_voz": "Y aquí viene lo que parece inventado. En mil novecientos ochenta y uno, el año antes de que saliera el libro, Práis recorrió el país y enterró los cofres él mismo, a no más de un metro largo de profundidad, en parques y jardines públicos. Según la revista de su universidad, Stánford, llevaba una pala de casi dos metros.",
+     "en_voz": "And here's the part that sounds made up. In nineteen eighty-one, the year before the book came out, Price crisscrossed the country and buried the boxes himself, no more than about three and a half feet down, in parks and public gardens. According to Stanford's alumni magazine, he carried a six-foot shovel."
+    },
+    {
+     "n": 9,
+     "marca": "nadie",
+     "es": "No apuntó los sitios en ninguna parte. Solo los sabía él. Y lo que más le preocupaba no era que nadie los encontrara, sino lo contrario: que los acertijos se resolvieran demasiado rápido.",
+     "en": "He didn't write the spots down anywhere. Only he knew them. And his biggest worry wasn't that nobody would find them. It was the opposite: that the puzzles would be solved too quickly.",
+     "visual": "A: Preiss en su mesa, sin apuntar nada; una libreta en blanco; un reloj de arena: el miedo a que lo resuelvan demasiado rápido."
+    }
+   ],
+   "cartela": "1981"
+  },
+  {
+   "id": "cf-cartas",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "cartas",
+     "es": "No hacía falta preocuparse. En pocos meses, unas setecientas personas le escribieron para decirle que sabían dónde estaban los cofres. Casi ninguna acertó.",
+     "en": "He didn't need to worry. Within a few months, some seven hundred people had written to tell him they knew where the boxes were. Almost none of them did.",
+     "visual": "A (1982–1983): montañas de cartas que llegan a la editorial; Preiss las lee y niega con la cabeza."
+    }
+   ]
+  },
+  {
+   "id": "cf-chicago",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [
+    "hoyo"
+   ],
+   "empieza_con": "cartela 1983",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "torre",
+     "es": "El primer cofre apareció en Chicago en el verano de 1983, y lo encontró un grupo de adolescentes. En su cuadro vieron una torre que se parecía a la vieja torre del agua de la ciudad, si no le hacías caso a los molinos, y unas letras que llevaban a dos compositores en la fachada de una sala de conciertos y a una estatua de Lincoln.",
+     "en": "The first box appeared in Chicago in the summer of 1983, and it was found by a group of teenagers. In their painting, they spotted a tower that looked like the city's old Water Tower, if you ignored the windmills, and letters that led to two composers on the front of a concert hall, and to a statue of Lincoln.",
+     "visual": "C (Chicago, verano de 1983): unos adolescentes con el libro; la torre antigua del agua; una sala de conciertos con dos nombres de compositores (iconos de notas) y una estatua de Lincoln.",
+     "acto": true,
+     "es_voz": "El primer cofre apareció en Chicágo en el verano de mil novecientos ochenta y tres, y lo encontró un grupo de adolescentes. En su cuadro vieron una torre que se parecía a la vieja torre del agua de la ciudad, si no le hacías caso a los molinos, y unas letras que llevaban a dos compositores en la fachada de una sala de conciertos y a una estatua de Línkon.",
+     "en_voz": "The first box appeared in Chicago in the summer of nineteen eighty-three, and it was found by a group of teenagers. In their painting, they spotted a tower that looked like the city's old Water Tower, if you ignored the windmills, and letters that led to two composers on the front of a concert hall, and to a statue of Lincoln."
+    },
+    {
+     "n": 12,
+     "marca": "hoyo",
+     "es": "Eso los llevó a Grant Park. Cavaron unos seis hoyos y no encontraron nada, así que le pidieron una pista a Preiss, que, según contó uno de ellos, les mandó una foto de tierra recién apisonada. A medio metro de profundidad, uno lanzó la pala contra la pared, de pura rabia… y ahí estaba la caja.",
+     "en": "That led them to Grant Park. They dug about six holes and found nothing, so they asked Preiss for a hint, and, as one of them later told it, he sent back a photo of freshly packed dirt. A foot and a half down, one of them threw his shovel at the wall in frustration… and there was the box.",
+     "visual": "C: Grant Park con seis hoyos; les llega una foto… de tierra, y la giran del revés (gag 3); uno lanza la pala contra la pared del hoyo y suena «clonk»: la caja (gag 4) (golpe).",
+     "es_voz": "Eso los llevó a Grant Park. Cavaron unos seis hoyos y no encontraron nada, así que le pidieron una pista a Práis, que, según contó uno de ellos, les mandó una foto de tierra recién apisonada. A medio metro de profundidad, uno lanzó la pala contra la pared, de pura rabia… y ahí estaba la caja.",
+     "en_voz": "That led them to Grant Park. They dug about six holes and found nothing, so they asked Price for a hint, and, as one of them later told it, he sent back a photo of freshly packed dirt. A foot and a half down, one of them threw his shovel at the wall in frustration… and there was the box."
+    }
+   ],
+   "cartela": "1983"
+  },
+  {
+   "id": "cf-esmeralda",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "esmeralda",
+     "es": "El premio fue una esmeralda. Les había costado meses de búsqueda, y la búsqueda acababa de empezar. Pero el siguiente cofre tardó veintiún años en aparecer.",
+     "en": "The prize was an emerald. It had taken them months of searching, and the hunt had only just begun. But the next box would take twenty-one years to appear.",
+     "visual": "C y A: una esmeralda que brilla en una mano; un calendario que pasa hojas: veintiún años."
+    }
+   ]
+  },
+  {
+   "id": "cf-zinn",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "zinn",
+     "es": "Durante esos años, miles de personas siguieron buscando, con mapas, bibliotecas y, más tarde, internet. En 1997, un abogado de Nueva Jersey llamado Brian Zinn llegó a llamar a Preiss para pedirle las soluciones. Preiss le contestó que la búsqueda seguía en pie.",
+     "en": "Over those years, thousands of people kept searching, with maps, libraries and, later, the internet. In 1997, a New Jersey lawyer named Brian Zinn even called Preiss to ask for the answers. Preiss told him the hunt was still on.",
+     "visual": "A y F (1997): gente buscando con mapas, bibliotecas y luego ordenadores; un abogado (Zinn: traje, gafas) al teléfono con Preiss.",
+     "acto": true,
+     "es_voz": "Durante esos años, miles de personas siguieron buscando, con mapas, bibliotecas y, más tarde, internet. En mil novecientos noventa y siete, un abogado de Nueva Jersey llamado Bráian Zin llegó a llamar a Práis para pedirle las soluciones. Práis le contestó que la búsqueda seguía en pie.",
+     "en_voz": "Over those years, thousands of people kept searching, with maps, libraries and, later, the internet. In nineteen ninety-seven, a New Jersey lawyer named Brian Zinn even called Price to ask for the answers. Price told him the hunt was still on."
+    }
+   ]
+  },
+  {
+   "id": "cf-cleveland",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 2004",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "pilar",
+     "es": "Así que Zinn siguió. Uno de los poemas nombraba a tres griegos antiguos, Sócrates, Píndaro y Apeles, y él encontró esos mismos nombres grabados en un muro del Jardín Cultural Griego de Cleveland. En mayo de 2004, con permiso del jardinero, él y su amigo y compañero de bufete Andy Abrams se pusieron a cavar.",
+     "en": "So Zinn kept going. One of the poems named three ancient Greeks, Socrates, Pindar and Apelles, and he found those same names carved on a wall in the Greek Cultural Garden in Cleveland. In May 2004, with permission from the gardener, he and his friend and fellow lawyer Andy Abrams started digging.",
+     "visual": "D (Cleveland, 2004): el jardín griego con columnas; un muro con tres nombres grabados (sin letras legibles: tres medallones); Zinn y su amigo (Abrams) con palas y el jardinero con varillas de sondeo.",
+     "es_voz": "Así que Zin siguió. Uno de los poemas nombraba a tres griegos antiguos, Sócrates, Píndaro y Apeles, y él encontró esos mismos nombres grabados en un muro del Jardín Cultural Griego de Clívland. En mayo de dos mil cuatro, con permiso del jardinero, él y su amigo y compañero de bufete Andi Éibrams se pusieron a cavar.",
+     "en_voz": "So Zinn kept going. One of the poems named three ancient Greeks, Socrates, Pindar and Apellees, and he found those same names carved on a wall in the Greek Cultural Garden in Cleveland. In May two thousand four, with permission from the gardener, he and his friend and fellow lawyer Andy Abrams started digging."
+    },
+    {
+     "n": 16,
+     "marca": "jardin",
+     "es": "Zinn cavó solo durante horas y no encontró nada. Entonces su amigo contó las piedras al revés, sondeó el otro extremo y sacó un trozo de plástico, a menos de medio metro. Había aparecido el segundo cofre, y esta vez el premio fue una aguamarina.",
+     "en": "Zinn dug alone for hours and found nothing. Then his friend counted the stones the other way, probed the far end, and pulled up a piece of plastic, just a foot and a half down. The second box had appeared, and this time the prize was an aquamarine.",
+     "visual": "D: Zinn cava solo durante horas sin suerte; su amigo cuenta las piedras del muro al revés, sondea el otro extremo y saca un trozo de plástico; una aguamarina.",
+     "es_voz": "Zin cavó solo durante horas y no encontró nada. Entonces su amigo contó las piedras al revés, sondeó el otro extremo y sacó un trozo de plástico, a menos de medio metro. Había aparecido el segundo cofre, y esta vez el premio fue una aguamarina."
+    }
+   ],
+   "cartela": "2004"
+  },
+  {
+   "id": "cf-bonos",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "bonos",
+     "es": "Y cuando Zinn fue a cobrar, según contó la revista de Stanford, Preiss abrió su caja de seguridad y se encontró algo que había olvidado: veinticinco mil dólares en bonos de ahorro. El hombre de los acertijos tenía su propio tesoro perdido.",
+     "en": "And when Zinn went to collect it, according to Stanford's magazine, Preiss opened his safe deposit box and found something he had forgotten about: twenty-five thousand dollars in savings bonds. The puzzle maker had a lost treasure of his own.",
+     "visual": "A: la cámara de cajas de seguridad; Preiss abre la suya y salen volando bonos de ahorro olvidados (gag 5).",
+     "es_voz": "Y cuando Zin fue a cobrar, según contó la revista de Stánford, Práis abrió su caja de seguridad y se encontró algo que había olvidado: veinticinco mil dólares en bonos de ahorro. El hombre de los acertijos tenía su propio tesoro perdido.",
+     "en_voz": "And when Zinn went to collect it, according to Stanford's magazine, Price opened his safe deposit box and found something he had forgotten about: twenty-five thousand dollars in savings bonds. The puzzle maker had a lost treasure of his own."
+    }
+   ]
+  },
+  {
+   "id": "cf-adios",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "adios",
+     "es": "Al año siguiente, en 2005, Byron Preiss murió en un accidente de tráfico en Long Island, a los cincuenta y dos años. Y los sitios de los nueve cofres que faltaban, que nunca había apuntado, se fueron con él.",
+     "en": "The next year, in 2005, Byron Preiss died in a car accident on Long Island, at fifty-two. And the locations of the nine remaining boxes, which he had never written down, were gone with him.",
+     "visual": "A (2005): la editorial vacía al atardecer (Long Island se nombra, no se enseña); la libreta en blanco en la mesa; un mapa con nueve puntos que se apagan (con respeto: sin el accidente).",
+     "acto": true,
+     "es_voz": "Al año siguiente, en dos mil cinco, Báiron Práis murió en un accidente de tráfico en Long Áiland, a los cincuenta y dos años. Y los sitios de los nueve cofres que faltaban, que nunca había apuntado, se fueron con él.",
+     "en_voz": "The next year, in two thousand five, Byron Price died in a car accident on Long Island, at fifty-two. And the locations of the nine remaining boxes, which he had never written down, were gone with him."
+    },
+    {
+     "n": 19,
+     "marca": "familia",
+     "es": "Su empresa quebró pocos meses después. Pero su familia guardó las piedras preciosas y decidió respetar las reglas: quien encuentre un cofre recibirá su piedra.",
+     "en": "His company went bankrupt a few months later. But his family kept the gemstones, and decided to honor the rules: whoever finds a box will get their stone.",
+     "visual": "A: cajas de mudanza; la familia (la viuda y dos hijas) guarda la caja de las piedras y la cierra con cuidado."
+    }
+   ]
+  },
+  {
+   "id": "cf-tele",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "tele",
+     "es": "Durante años fue una afición de unos pocos. Hasta que, en 2018, el programa de televisión Expedition Unknown le dedicó un episodio, y los ejemplares usados del viejo libro llegaron a anunciarse por más de mil dólares. De repente, mucha más gente estaba cavando.",
+     "en": "For years, it was a hobby for a few. Then, in 2018, the TV show Expedition Unknown dedicated an episode to it, and used copies of the old book were listed for more than a thousand dollars. Suddenly, a lot more people were digging.",
+     "visual": "F (2018): un televisor con un programa de aventuras (genérico); un libro viejo en una subasta en línea cuyo precio sube a más de mil; mucha gente con palas.",
+     "es_voz": "Durante años fue una afición de unos pocos. Hasta que, en dos mil dieciocho, el programa de televisión Expedíshon Annóun le dedicó un episodio, y los ejemplares usados del viejo libro llegaron a anunciarse por más de mil dólares. De repente, mucha más gente estaba cavando.",
+     "en_voz": "For years, it was a hobby for a few. Then, in twenty eighteen, the TV show Expedition Unknown dedicated an episode to it, and used copies of the old book were listed for more than a thousand dollars. Suddenly, a lot more people were digging."
+    }
+   ]
+  },
+  {
+   "id": "cf-boston",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 2019",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "krupat",
+     "es": "El tercer cofre apareció en Boston, y la historia es casi una comedia. Jason Krupat, un diseñador de juegos, creía que estaba bajo la base del bateador del campo de sóftbol del parque Langone, en el barrio del North End. Pero en 2019 estaban reformando el parque.",
+     "en": "The third box was found in Boston, and the story is almost a comedy. Jason Krupat, a game designer, believed it was under home plate of the softball field in Langone Park, in the North End. But in 2019, the park was being rebuilt.",
+     "visual": "E (Boston, 2019): el parque del North End en obras, vallas, el campo de sóftbol con su base; Krupat (gafas, sudadera) mira desde la valla.",
+     "acto": true,
+     "es_voz": "El tercer cofre apareció en Boston, y la historia es casi una comedia. Yéison Crúpat, un diseñador de juegos, creía que estaba bajo la base del bateador del campo de sóftbol del parque Langóne, en el barrio del Norz End. Pero en dos mil diecinueve estaban reformando el parque.",
+     "en_voz": "The third box was found in Boston, and the story is almost a comedy. Jason Krupat, a game designer, believed it was under home plate of the softball field in Langone Park, in the North End. But in twenty nineteen, the park was being rebuilt."
+    },
+    {
+     "n": 22,
+     "marca": "pistas",
+     "es": "Sus pistas venían de dos sitios. El poema nombraba a dos historiadores griegos, Tucídides y Jenofonte, cuyos nombres están grabados en la fachada de la Biblioteca Pública de Boston, y hablaba de una hora y un día que recuerdan a Paul Revere, el jinete de la Revolución. Todo apuntaba al North End, al otro lado de la ciudad.",
+     "en": "His clues came from two places. The poem named two Greek historians, Thucydides and Xenophon, whose names are carved on the front of the Boston Public Library, and it mentioned an hour and a day that recall Paul Revere, the rider of the Revolution. It all pointed to the North End, across town.",
+     "visual": "E y F: una biblioteca con dos nombres grabados (medallones sin letras); un farol y una campana: Paul Revere; una flecha al North End.",
+     "es_voz": "Sus pistas venían de dos sitios. El poema nombraba a dos historiadores griegos, Tucídides y Jenofonte, cuyos nombres están grabados en la fachada de la Biblioteca Pública de Boston, y hablaba de una hora y un día que recuerdan a Pol Revír, el jinete de la Revolución. Todo apuntaba al Norz End, al otro lado de la ciudad."
+    }
+   ],
+   "cartela": "2019"
+  },
+  {
+   "id": "cf-excavadora",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [
+    "excavadora"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "excavadora",
+     "es": "Así que Krupat escribió a la constructora y le pidió que le avisaran si alguna vez desenterraban algo raro. Y en octubre de 2019, la excavadora de un operario rompió unos trozos de plástico y de cerámica. La empresa avisó a Krupat.",
+     "en": "So Krupat wrote to the construction company and asked them to let him know if they ever dug up anything strange. And in October 2019, an excavator operator broke through pieces of plastic and ceramic. The company got in touch with Krupat.",
+     "visual": "E: Krupat escribe un correo; la excavadora de un operario rompe trozos de plástico y cerámica (golpe); la cuchara levanta el cofre roto como un premio de feria (gag 6); suena el teléfono de Krupat.",
+     "es_voz": "Así que Crúpat escribió a la constructora y le pidió que le avisaran si alguna vez desenterraban algo raro. Y en octubre de dos mil diecinueve, la excavadora de un operario rompió unos trozos de plástico y de cerámica. La empresa avisó a Crúpat.",
+     "en_voz": "So Krupat wrote to the construction company and asked them to let him know if they ever dug up anything strange. And in October twenty nineteen, an excavator operator broke through pieces of plastic and ceramic. The company got in touch with Krupat."
+    }
+   ]
+  },
+  {
+   "id": "cf-peridoto",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "reloj",
+     "es": "Él reconoció un dibujo de reloj de sol, el mismo que llevaban pintado los otros dos cofres. Con el equipo de Expedition Unknown volvieron a cavar, y encontraron más trozos, y la llave. El cofre salió roto, pero era de verdad.",
+     "en": "He recognized a sundial design, the same one painted on the other two boxes. With the Expedition Unknown team, they dug again and found more pieces, and the key. The box came out broken, but it was real.",
+     "visual": "E: un trozo de cerámica con un reloj de sol pintado; el equipo de la tele cava otra vez y aparece la llave.",
+     "es_voz": "Él reconoció un dibujo de reloj de sol, el mismo que llevaban pintado los otros dos cofres. Con el equipo de Expedíshon Annóun volvieron a cavar, y encontraron más trozos, y la llave. El cofre salió roto, pero era de verdad."
+    },
+    {
+     "n": 25,
+     "marca": "peridoto",
+     "es": "Krupat había buscado con su mujer y sus dos hijos. En una ceremonia en Brooklyn, la viuda y las hijas de Preiss les entregaron el premio: un peridoto. Y allí estaban también los que encontraron los cofres de Chicago y de Cleveland.",
+     "en": "Krupat had searched with his wife and their two kids. At a ceremony in Brooklyn, Preiss's widow and daughters gave the family the prize: a peridot. And the finders of the Chicago and Cleveland boxes were there too.",
+     "visual": "E (Brooklyn): una sala con la familia Krupat (los padres y dos niños); la viuda y las hijas de Preiss les dan un peridoto; los hallazgos de Chicago y Cleveland sonríen.",
+     "es_voz": "Crúpat había buscado con su mujer y sus dos hijos. En una ceremonia en Brúclin, la viuda y las hijas de Práis les entregaron el premio: un peridoto. Y allí estaban también los que encontraron los cofres de Chicágo y de Clívland.",
+     "en_voz": "Krupat had searched with his wife and their two kids. At a ceremony in Brooklyn, Price's widow and daughters gave the family the prize: a peridot. And the finders of the Chicago and Cleveland boxes were there too."
+    }
+   ]
+  },
+  {
+   "id": "cf-nueve",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "nueve",
+     "es": "Quedan nueve. La mayoría de los buscadores coincide en varias ciudades: Nueva York, Houston, Milwaukee, San Agustín, Nueva Orleans, Montreal y la isla de Roanoke, en Carolina del Norte. Charleston también, aunque el sitio exacto se discute, y San Francisco sigue siendo un misterio.",
+     "en": "That leaves nine. Most hunters agree on several of the cities: New York, Houston, Milwaukee, St. Augustine, New Orleans, Montreal, and Roanoke Island, in North Carolina. Charleston too, although the exact spot is disputed, and San Francisco is still a mystery.",
+     "visual": "F: el mapa de Norteamérica con nueve interrogantes que saltan como palomitas (gag 7): Nueva York, Houston, Milwaukee, San Agustín, Nueva Orleans, Montreal, la isla de Roanoke, Charleston y San Francisco.",
+     "acto": true,
+     "es_voz": "Quedan nueve. La mayoría de los buscadores coincide en varias ciudades: Nueva York, Jiúston, Miluóqui, San Agustín, Nueva Orleans, Montreal y la isla de Róanok, en Carolina del Norte. Chárleston también, aunque el sitio exacto se discute, y San Francisco sigue siendo un misterio.",
+     "en_voz": "That leaves nine. Most hunters agree on several of the cities: New York, Houston, Milwaukee, Saint Augustine, New Orleans, Montreal, and Roanoke Island, in North Carolina. Charleston too, although the exact spot is disputed, and San Francisco is still a mystery."
+    }
+   ]
+  },
+  {
+   "id": "cf-permisos",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 27,
+     "marca": "permisos",
+     "es": "Pero hoy, acertar con el sitio no es el único problema. En muchos de esos parques hace falta un permiso para cavar, y no siempre lo dan. En 2018, el Servicio de Parques Nacionales dejó claro que buscar uno en terreno federal va contra varias leyes.",
+     "en": "But today, finding the right spot isn't the only problem. Many of those parks require a permit to dig, and they don't always grant one. In 2018, the National Park Service made it clear that searching for one on federal land breaks several laws.",
+     "visual": "F: un parque con una señal de no excavar (icono, sin letras); un guarda de parques; un mazo y una ley (iconos).",
+     "es_voz": "Pero hoy, acertar con el sitio no es el único problema. En muchos de esos parques hace falta un permiso para cavar, y no siempre lo dan. En dos mil dieciocho, el Servicio de Parques Nacionales dejó claro que buscar uno en terreno federal va contra varias leyes.",
+     "en_voz": "But today, finding the right spot isn't the only problem. Many of those parks require a permit to dig, and they don't always grant one. In twenty eighteen, the National Park Service made it clear that searching for one on federal land breaks several laws."
+    },
+    {
+     "n": 28,
+     "marca": "charleston",
+     "es": "En diciembre de 2025, un buscador de la zona de Charleston dijo estar seguro de que el cofre estaba en Patriots Point, y hasta ofreció un cheque en blanco por cavar. No le sirvió de nada. Y puede que algunos cofres ya no aparezcan nunca: los parques cambian, se construye encima, y en Nueva Orleans, el huracán de 2005 cambió muchas cosas.",
+     "en": "In December 2025, a hunter near Charleston said he was sure the box was at Patriots Point, and even offered a blank check to dig. It got him nowhere. And some boxes may never be found at all: parks change, things get built on top, and in New Orleans, the hurricane of 2005 changed a lot.",
+     "visual": "F (2025): un buscador en Charleston ante un muelle con un barco museo, con un cheque en blanco; un teléfono que no suena; un parque que cambia con edificios y una tormenta que pasa.",
+     "es_voz": "En diciembre de dos mil veinticinco, un buscador de la zona de Chárleston dijo estar seguro de que el cofre estaba en Péitriots Póint, y hasta ofreció un cheque en blanco por cavar. No le sirvió de nada. Y puede que algunos cofres ya no aparezcan nunca: los parques cambian, se construye encima, y en Nueva Orleans, el huracán de dos mil cinco cambió muchas cosas.",
+     "en_voz": "In December twenty twenty-five, a hunter near Charleston said he was sure the box was at Patriots Point, and even offered a blank check to dig. It got him nowhere. And some boxes may never be found at all: parks change, things get built on top, and in New Orleans, the hurricane of two thousand five changed a lot."
+    }
+   ]
+  },
+  {
+   "id": "cf-porque",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "porque",
+     "es": "Entonces, ¿por qué dura ya más de cuarenta años? Porque The Secret no va solo de piedras de mil dólares. Va de leer un cuadro, un poema y una ciudad a la vez, y de la idea de que, bajo un parque por el que has paseado, puede haber una cajita con una llave dentro.",
+     "en": "So why has it lasted more than forty years? Because The Secret isn't just about stones worth a thousand dollars. It's about reading a painting, a poem and a city all at once, and about the idea that somewhere under a park you've walked through, there might be a little box with a key inside.",
+     "visual": "F: un cuadro, un poema y una ciudad que se superponen; un parque con gente paseando y, debajo, en corte, una cajita con una llave.",
+     "acto": true,
+     "es_voz": "Entonces, ¿por qué dura ya más de cuarenta años? Porque De Síkret no va solo de piedras de mil dólares. Va de leer un cuadro, un poema y una ciudad a la vez, y de la idea de que, bajo un parque por el que has paseado, puede haber una cajita con una llave dentro."
+    }
+   ]
+  },
+  {
+   "id": "cf-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "cierre",
+     "es": "Byron Preiss no quería que sus acertijos se resolvieran demasiado rápido. Lo consiguió: nueve cofres siguen esperando. Y el próximo puede encontrarlo alguien con una credencial de la biblioteca, buen ojo… o una excavadora.",
+     "en": "Byron Preiss didn't want his puzzles solved too quickly. He got his wish: nine boxes are still waiting. And the next one might be found by someone with a library card, a sharp eye… or an excavator.",
+     "visual": "F (el estudio de Atom): Atom entierra su propio cofrecito en la maceta… y luego no recuerda dónde (gag 8).",
+     "es_voz": "Báiron Práis no quería que sus acertijos se resolvieran demasiado rápido. Lo consiguió: nueve cofres siguen esperando. Y el próximo puede encontrarlo alguien con una credencial de la biblioteca, buen ojo… o una excavadora.",
+     "en_voz": "Byron Price didn't want his puzzles solved too quickly. He got his wish: nine boxes are still waiting. And the next one might be found by someone with a library card, a sharp eye… or an excavator."
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,267 @@
+E = {}
+
+E['tu-agujero'] = ('El agujero', '''// TU-AGUJERO (frases 23–24), 2026, sin cartela. Seis planos:
+// 1. la cumbre: el técnico sube con un tramo de varilla, la técnica arranca la perforadora en «drill»; la broca baja con
+//    polvo y sale la cota del ancho, «3"», en «three inches wide» (corta en «hillside»);
+// 2. el corte de cerca: la broca baja por x 200 y llega a la mancha en «strongest spot» (destello); en «a few yards
+//    north of the chamber» la flecha corre por la regla desde la pared pintada hasta el agujero (corta en «and lower»);
+// 3. dentro del agujero (gag 7): la camarita baja en «lower a tiny camera», su luz barre el hueco en «If there's a room»,
+//    gira a la derecha en «rock or rubble» y el murciélago abre un ojo en «too»: «!» sobre la camarita y «?» sobre él (corta en «So»);
+// 4. dentro de la réplica: un operario entra con el mazo y lo levanta en «knock down the wall»; el guarda llega y lo para
+//    con el dedo y la X en «Because»; el mazo baja; una turista señala la pared en «most famous painted wall» y un brillo
+//    la recorre (corta en «plaster»);
+// 5. la cola de la tumba al sol: «3300» sobre la boca en «3,300 years»; el aliento de la cola sube y entra; en «breath»
+//    una turista resopla una nube grande y dentro de la boca sale la mancha en el yeso; en «hunch» el guarda dice que no
+//    con el dedo (corta en «A small hole»);
+// 6. el plano de la tumba: la mano con el lápiz rojo pone el punto del agujero al norte, fuera de la cámara pintada, en
+//    «hole», lo rodea, traza la cota hasta la pared en «far from the paintings» (la cámara pintada se enciende) y lo
+//    vuelve a rodear en «risk»; la mano se va.''', r'''
+const a = (f) => en('agujero', f), b = (f) => en('pared', f);
+const P2 = a(0.369), P3 = a(0.6335), P4 = b(0), P5 = b(0.3426), P6 = b(0.7591);
+const N = Math.round, K = hex('#141018'), BL = hex('#f8f4ec'), ROJO = hex('#d8342a'), ORO = hex('#ffd860');
+const suave = (u) => u * u * (3 - 2 * u);
+// el mazo (nuestro): el mango de madera desde la mano hasta la cabeza de hierro; ang en radianes (0 = hacia delante)
+const mazo = (hx, hy, ang, dir) => {
+  const L = 18, ex = hx + Math.cos(ang) * L * dir, ey = hy + Math.sin(ang) * L;
+  for (const [d, c] of [[1, K], [0, hex('#a8763c')]]) for (let i = 0; i <= L; i++) { const x = hx + (ex - hx) * i / L, y = hy + (ey - hy) * i / L; R.rect(N(x) - d, N(y) - d, N(x) + d, N(y) + d, c); }
+  for (let i = 2; i < L; i += 4) R.pset(N(hx + (ex - hx) * i / L), N(hy + (ey - hy) * i / L), hex('#7a5228'));
+  const px = -Math.sin(ang) * dir, py = Math.cos(ang), ux = Math.cos(ang) * dir, uy = Math.sin(ang);
+  const P = (s, u) => [N(ex + px * s + ux * u), N(ey + py * s + uy * u)];
+  R.poligono([P(-7, -1), P(7, -1), P(7, 6), P(-7, 6)], K); R.poligono([P(-6, 0), P(6, 0), P(6, 5), P(-6, 5)], hex('#6a7078'));
+  R.linea(...P(-6, 0), ...P(6, 0), hex('#c8d0d8')); R.linea(...P(-6, 5), ...P(6, 5), hex('#3a4048'));
+};
+// el globito con un icono encima de alguien
+const globo = (x, y, ic, col) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 4, y + 7, K); R.pset(x - 5, y + 8, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - 2, y - 3, col, null); };
+
+// 1 · la cumbre: la varilla, el arranque, la broca que baja y la cota del ancho
+const ARR = a(0.146), ANCHO = a(0.241), CIMA = a(0.335);
+const p1 = (t) => {
+  const o = { encuadre: 'perforadora', broca: suave(tramo(t, ARR, P2 + 0.3)) * 0.9 };
+  const g = T.ladera(R, t, o);
+  // el técnico llega con un tramo de varilla al hombro y lo deja junto a la plataforma
+  const u = tramo(t, 0.2, 2.6), xt = N(lerp(-18, 84, suave(u))), deja = tramo(t, 2.7, 3.1);
+  const rt = R.actor(EL.tecnico, xt, 146, t, { dir: 1, anda: u > 0 && u < 1, sostiene: deja < 1 ? [xt + 18, 128 + N(deja * 8)] : undefined, dedo: t > CIMA - 0.3 && t < CIMA + 0.5, sonrisa: t > ARR + 0.4 });
+  if (deja < 1) { const [mx, my] = rt.mano; R.rect(mx - 22, my - 2, mx + 6, my - 1, K); R.rect(mx - 21, my - 2, mx + 5, my - 2, hex('#b8c0c8')); R.rect(mx - 21, my - 1, mx + 5, my - 1, hex('#6a7480')); }
+  else { R.rect(70, 145, 100, 146, K); R.rect(71, 144, 99, 144, hex('#b8c0c8')); }
+  // la técnica, en los mandos: pulsa en «drill» y mira la broca
+  const pulsa = t > ARR - 0.2 && t < ARR + 0.4;
+  const rk = R.actor(EL.tecnica, 112, 146, t, { dir: 1, sostiene: [128, 128], sorpresa: pulsa, habla: t > 0.9 && t < 2.6 && Math.sin(t * 9) > 0, sonrisa: t > ARR + 0.6 });
+  { const [mx, my] = rk.mano; R.rect(mx - 1, my - 6, mx + 6, my + 1, K); R.rect(mx, my - 5, mx + 5, my, hex('#2a3a4a')); const on = t > ARR; R.rect(mx + 1, my - 4, mx + 4, my - 1, on ? hex('#5ad8a8') : hex('#3a5a6a')); if (on && Math.floor(t * 4) % 2) R.pset(mx + 2, my - 3, BL); }
+  T.laderaDelante(R, t, o);
+  // la cota del ancho de la broca, en «three inches wide»: dos flechitas a los lados de la punta y el 3"
+  const c = tramo(t, ANCHO - 0.1, ANCHO + 0.3);
+  if (c > 0 && g.punta) { const [px, py] = g.punta, w = N(4 + 8 * c);
+    R.linea(px - w, py + 6, px + w, py + 6, ROJO); R.linea(px - w, py + 4, px - w, py + 8, ROJO); R.linea(px + w, py + 4, px + w, py + 8, ROJO);
+    R.pset(px - w + 1, py + 5, ROJO); R.pset(px - w + 1, py + 7, ROJO); R.pset(px + w - 1, py + 5, ROJO); R.pset(px + w - 1, py + 7, ROJO);
+    if (c >= 1) { R.rect(px + 12, py - 4, px + 30, py + 9, K); R.rect(px + 13, py - 3, px + 29, py + 8, BL); R.numero('3"', px + 22, py + 6, { centro: true, color: ROJO, sombra: false }); } }
+};
+
+// 2 · el corte de cerca: la broca baja hasta la mancha; la flecha por la regla, de la pared al agujero
+const FUERTE = a(0.4417), NORTE = a(0.553), CAMARA = a(0.591);
+const p2 = (t) => {
+  const br = suave(tramo(t, P2 + 0.15, FUERTE + 0.15));
+  T.ladera(R, t, { encuadre: 'corte', camara: 'mancha', broca: br, camarita: 0 });
+  // las piedrecitas que caen por el agujero mientras la broca baja
+  if (br > 0 && br < 1) for (let k = 0; k < 5; k++) { const f = (t * 1.8 + k * 0.21) % 1, y = N(f * 64 * br); R.pset(199 + (k % 3), y, hex('#e8d8b0')); }
+  // al llegar a la mancha más fuerte: el destello y la onda en la mancha
+  const d = tramo(t, FUERTE + 0.1, FUERTE + 0.9);
+  if (d > 0 && d < 1) { const r = 6 + d * 30; for (let k = 0; k < 40; k++) { const an = k / 40 * 6.283; if (k % 2) R.pset(N(200 + Math.cos(an) * r), N(70 + Math.sin(an) * r * 0.8), hex('#f0e0ff')); }
+    if (d < 0.4) { R.disco(200, 66, 3, BL); R.pset(200, 60, BL); R.pset(200, 72, BL); R.pset(194, 66, BL); R.pset(206, 66, BL); } }
+  if (t > FUERTE + 0.2 && t < P3 - 0.3) globo(214, 56 + N(Math.sin(t * 5)), '!', ROJO);
+  // «a few yards north of the chamber»: la cámara pintada se enciende y la flecha corre por la regla hasta el agujero
+  const cam = tramo(t, CAMARA - 0.1, CAMARA + 0.3), fl = tramo(t, NORTE - 0.6, NORTE + 0.4);
+  if (cam > 0 && Math.floor(t * 4) % 2) { R.rect(40, 24, 41, 179, ORO); }
+  if (fl > 0) { const x = N(lerp(48, 194, suave(fl)));
+    R.rect(48, 47, x, 50, K); R.rect(48, 48, x, 49, ORO);
+    for (let i = 0; i < 6; i++) { R.rect(x - 6 + i, 43 + i, x - 6 + i, 54 - i, K); if (i > 0 && i < 5) R.rect(x - 6 + i, 44 + i, x - 6 + i, 53 - i, ORO); } }
+  // «the strongest spot»: el borde de la mancha fuerte, a rayas, que late
+  const mf = tramo(t, FUERTE - 0.3, FUERTE + 0.2);
+  if (mf > 0) { const pul = Math.sin(t * 5) > 0 ? 1 : 0; for (let k = 0; k < 120; k++) { const an = k / 120 * 6.283; if ((k + N(t * 8)) % 4 < 2) R.pset(N(244 + Math.cos(an) * (62 + pul) * Math.min(1, mf * 2)), N(118 + Math.sin(an) * (46 + pul) * Math.min(1, mf * 2)), hex('#f4e8ff')); } }
+};
+
+// 3 · dentro del agujero: la camarita baja, barre el hueco, gira y se encuentra con el murciélago (gag 7)
+const CAMARITA = a(0.69), CUARTO = a(0.798), ROCA = a(0.893), TOO = a(0.973);
+const p3 = (t) => {
+  const amago = 0.3 * (suave(tramo(t, CUARTO - 0.2, CUARTO + 0.4)) - suave(tramo(t, CUARTO + 0.9, ROCA - 0.3)));
+  const baja = suave(tramo(t, P3 + 0.1, CAMARITA + 0.5)), gira = Math.max(amago, suave(tramo(t, ROCA - 0.2, ROCA + 0.7))), ojo = tramo(t, TOO - 0.1, TOO + 0.2);
+  const g = T.ladera(R, t, { encuadre: 'perforadora', camara: 'camarita', baja, gira, murcielago: ojo });
+  // «If there's a room, they'll see it»: la luz de la camarita deja ver motas de polvo que flotan en el hueco
+  const ve = tramo(t, CUARTO - 0.2, CUARTO + 0.6);
+  if (ve > 0) for (let k = 0; k < 14; k++) { const x = N(140 + ((k * 37 + t * 6) % 120)), y = N(150 + Math.sin(t * 1.3 + k) * 8 + (k % 4) * 6); if (x > 150 + 80 * (1 - ve) || k % 3) R.pset(x, y, hex('#a8a090')); }
+  // el murciélago abre un ojo… y la camarita da un respingo: «!»
+  const sal = tramo(t, TOO, TOO + 0.25);
+  if (sal > 0) { const [lx, ly] = g.luz || [200, 142]; globo(lx - 18, ly - 26 - N(Math.sin(sal * 3.14) * 3), '!', ROJO); }
+  // …y el murciélago también mira: su globo con la «?»
+  if (t > TOO + 0.35) globo(282, 112 + N(Math.sin(t * 3) * 1.5), '?', hex('#3a6ac8'));
+};
+
+// 4 · dentro de la réplica: el mazo que sube y se para
+const KNOCK = b(0.041), BECAUSE = b(0.151), FAMOSA = b(0.189), PINTADA = b(0.226), EGIPTO = b(0.298);
+const p4 = (t) => {
+  const o = { encuadre: 'replica', camara: 'dentro' };
+  T.escaneo(R, t, o);
+  // el brillo que recorre la pared pintada en «most famous painted wall»
+  const br = tramo(t, PINTADA - 0.3, EGIPTO + 0.2);
+  if (br > 0 && br < 1) { const x0 = N(lerp(10, 250, br)); R.recorte([26, 30, 232, 132]); for (let y = 30; y <= 132; y++) for (let i = 0; i < 6; i++) { const x = x0 + i + N((132 - y) * 0.4); if ((x + y) % 2 === 0) R.pset(x, y, hex('#fff4c8')); } R.recorte(null); }
+  // el operario entra con el mazo, lo levanta en «knock down» y, parado, lo baja
+  const u = tramo(t, P4, KNOCK - 0.05), xo = N(lerp(28, 58, suave(u)));
+  const sube = suave(tramo(t, KNOCK - 0.1, KNOCK + 0.5)), bajaM = suave(tramo(t, BECAUSE + 0.4, BECAUSE + 1.2)), alto = sube * (1 - bajaM);
+  const tiembla = t > KNOCK + 0.5 && t < BECAUSE + 0.4 ? N(Math.sin(t * 30)) : 0;
+  const ro = R.actor(EL.tecnico, xo, 168, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [xo + 16 + N(alto * -4), N(lerp(150, 132, alto))], sorpresa: t > BECAUSE && t < BECAUSE + 1.4, triste: t > BECAUSE + 1.4 });
+  { const [mx, my] = ro.mano; mazo(mx, my, lerp(0.9, -1.55, alto) + tiembla * 0.04, 1); }
+  // el guarda llega desde la vitrina y lo para: dedo y X
+  const v = tramo(t, KNOCK + 0.3, BECAUSE - 0.1), xg = N(lerp(200, 100, suave(v)));
+  const para = t > BECAUSE - 0.1 && t < BECAUSE + 1.6;
+  R.actor(EL.guarda, xg, 168, t, { dir: v > 0 ? -1 : 1, anda: v > 0 && v < 1, dedo: para, enfado: para, habla: para && Math.sin(t * 9) > 0 });
+  if (para) globo(xg + 6, 122, 'X', ROJO);
+  if (t > KNOCK + 0.2 && t < BECAUSE - 0.2) globo(xg + 8, 124, '!', ROJO);
+  // dos turistas: se asustan con el mazo y luego una señala la pared (la más famosa)
+  const asusta = t > KNOCK + 0.1 && t < BECAUSE + 0.4;
+  R.actor(EL.turista1, 158, 168, t, { dir: -1, sorpresa: asusta, dedo: t > FAMOSA && t < EGIPTO + 0.6, sonrisa: t > FAMOSA, habla: t > FAMOSA + 0.2 && t < EGIPTO && Math.sin(t * 8) > 0 });
+  const r2 = R.actor(EL.turista2, 186, 168, t, { dir: -1, sorpresa: asusta, sostiene: t > PINTADA ? [176, 140] : undefined, sonrisa: t > PINTADA });
+  if (t > PINTADA) { const [mx, my] = r2.mano; R.rect(mx - 3, my - 8, mx + 1, my, K); R.rect(mx - 2, my - 7, mx, my - 1, hex('#3a4a6a')); if (t > EGIPTO && t < EGIPTO + 0.2) R.disco(mx - 1, my - 5, 4, BL); }
+  T.escaneoDelante(R, t, o);
+};
+
+// 5 · la cola: el aliento que entra en la tumba y mancha el yeso
+const MIL = b(0.362), FRAGIL = b(0.4886), ALIENTO = b(0.5856), HUNCH = b(0.673);
+const COLA = [EL.turista1, EL.chica, EL.senor30, EL.sudadera, EL.senora30];
+const p5 = (t) => {
+  const o = { encuadre: 'entrada', camara: 'cola', aliento: lerp(0.25, 1, tramo(t, P5, ALIENTO)) };
+  T.valle(R, t, o);
+  // la mancha que crece en el yeso de dentro de la boca
+  const m = tramo(t, ALIENTO, HUNCH + 0.5);
+  if (m > 0) { R.recorte([262, 52, 319, 150]); for (let k = 0; k < 90 * m; k++) { const x = 266 + ((k * 23) % 48), y = 64 + ((k * 41) % 70); R.disco(x, y, 1 + (k % 3 === 0 ? 1 : 0), hex(k % 2 ? '#6a7a5a' : '#5a6a50')); } R.recorte(null); }
+  // la cola: cinco turistas al sol; las bocas a la altura del aliento
+  COLA.forEach((d, k) => {
+    const x = 39 + k * 36;
+    const op = { dir: 1 };
+    if (k === 0) op.sostiene = [x + 15, 140 + N(Math.sin(t * 10) * 2)];          // se abanica
+    if (k === 1) { op.dedo = t > MIL - 0.1 && t < FRAGIL; op.sorpresa = t > MIL && t < MIL + 0.8; }
+    if (k === 2) { op.habla = t > ALIENTO - 0.4 && t < ALIENTO + 0.6; op.triste = t > ALIENTO + 1.2; }
+    if (k === 3) op.sostiene = t > P5 + 1 && t < FRAGIL + 0.5 ? [x + 13, 144] : undefined;   // bebe agua
+    if (k === 4) { op.dir = t > HUNCH - 0.2 ? -1 : 1; op.sonrisa = t < ALIENTO; }
+    const r = R.actor(d, x, 166, t, op);
+    if (k === 0) { const [mx, my] = r.mano; R.poligono([[mx, my], [mx + 7, my - 7], [mx + 9, my - 3]], hex('#e8c848')); R.linea(mx, my, mx + 7, my - 7, hex('#a8862a')); }
+    if (k === 3 && op.sostiene) { const [mx, my] = r.mano; R.rect(mx - 1, my - 9, mx + 1, my - 1, hex('#bfe4f4')); R.rect(mx - 1, my - 10, mx + 1, my - 10, hex('#3a6ac8')); }
+  });
+  // en «breath» la del sombrero resopla y una nube grande va hacia la boca
+  const nb = tramo(t, ALIENTO - 0.2, ALIENTO + 1.6);
+  if (nb > 0 && nb < 1) { const x = N(lerp(123, 270, nb * nb)), y = N(lerp(150, 112, nb)), r = 3 + nb * 6;
+    for (const [dx, dy, rr, cc] of [[0, 1, r, '#c8d4e0'], [-r * 0.7, 0, r * 0.7, '#e4ecf4'], [r * 0.6, -0.5, r * 0.75, '#e4ecf4'], [0, -0.5, r * 0.8, '#f4f8fc']]) R.disco(N(x + dx), N(y + dy), rr, hex(cc)); }
+  // el guarda, junto a la boca: en «You don't break it on a hunch» dice que no con el dedo
+  const no = t > HUNCH - 0.1;
+  R.actor(EL.guarda, 222, 166, t, { dir: no ? (Math.floor(t * 5) % 2 ? -1 : 1) : -1, dedo: no, enfado: no });
+  if (no) globo(232, 122, 'X', ROJO);
+  // los años del yeso, sobre la boca
+  const n = tramo(t, MIL - 0.1, MIL + 0.3);
+  if (n > 0) { const sac = t > FRAGIL && t < FRAGIL + 0.6 ? N(Math.sin(t * 40)) : 0; R.rect(266 + sac, 58, 312 + sac, 72, K); R.rect(267 + sac, 59, 311 + sac, 71, hex('#f4ead0')); R.numero('3300', 289 + sac, 69, { centro: true, color: hex('#8a3a1a'), sombra: false, n: N(n * 40) }); }
+  T.valleDelante(R, t, o);
+};
+
+// 6 · el plano: el agujero pequeño, lejos de las pinturas
+const HOLE = b(0.7808), LEJOS = b(0.80), PINTURAS = b(0.8405), RIESGO = b(0.969);
+const HX = 74, HY = 52;
+const p6 = (t) => {
+  const o = { encuadre: 'plano', contar: 0, comparar: 0 };
+  T.tumba(R, t, o);
+  // la cámara pintada se enciende en «paintings»: el borde dorado que late
+  const pin = tramo(t, PINTURAS - 0.2, PINTURAS + 0.2);
+  if (pin > 0 && Math.sin(t * 6) > -0.3) { for (const [x0, y0, x1, y1] of [[46, 70, 98, 70], [46, 102, 98, 102], [46, 70, 46, 102], [98, 70, 98, 102]]) R.linea(x0, y0, x1, y1, hex('#f0b030')); }
+  // el punto rojo y su circulito; la cota hasta la pared norte
+  const pun = tramo(t, HOLE - 0.15, HOLE + 0.1), circ = tramo(t, HOLE + 0.1, LEJOS + 0.3), cota = tramo(t, LEJOS + 0.2, PINTURAS + 0.2), otra = tramo(t, RIESGO - 1.2, RIESGO - 0.2);
+  if (pun > 0) { R.disco(HX, HY, 2, ROJO); R.pset(HX - 1, HY - 1, hex('#ff8a7a')); }
+  if (circ > 0) for (let k = 0; k < 40 * circ; k++) { const an = -1.6 + k / 40 * 6.283; R.pset(N(HX + Math.cos(an) * 6), N(HY + Math.sin(an) * 6), ROJO); }
+  if (otra > 0) for (let k = 0; k < 48 * otra; k++) { const an = -1.6 + k / 48 * 6.283; R.pset(N(HX + Math.cos(an) * 8), N(HY + Math.sin(an) * 8), ROJO); }
+  if (cota > 0) { const y = N(lerp(59, 69, cota)); for (let yy = 59; yy <= y; yy += 2) R.pset(HX, yy, ROJO); R.linea(HX - 2, 61, HX, 59, ROJO); R.linea(HX + 2, 61, HX, 59, ROJO);
+    if (cota >= 1) { R.linea(HX - 2, 67, HX, 69, ROJO); R.linea(HX + 2, 67, HX, 69, ROJO); R.linea(HX - 4, 70, HX + 4, 70, ROJO); } }
+  // la mano con el lápiz rojo entra desde la izquierda por arriba, pinta, rodea, traza la cota, vuelve a rodear y se va
+  const entra = suave(tramo(t, P6 - 0.8, HOLE - 0.2)), sale = suave(tramo(t, RIESGO + 0.3, E.duracion - 0.3));
+  let tx = HX, ty = HY;
+  if (circ > 0 && circ < 1) { const an = -1.6 + circ * 6.283; tx = HX + Math.cos(an) * 6; ty = HY + Math.sin(an) * 6; }
+  else if (cota > 0 && cota < 1) { tx = HX; ty = lerp(59, 69, cota); }
+  else if (cota >= 1 && otra === 0) { tx = HX + 2; ty = 70; }
+  if (otra > 0 && otra < 1) { const an = -1.6 + otra * 6.283; tx = HX + Math.cos(an) * 8; ty = HY + Math.sin(an) * 8; }
+  const vis = entra * (1 - sale);
+  if (vis > 0) {
+    const ox = (1 - vis) * -70, oy = (1 - vis) * -20, px = tx + ox, py = ty + oy;
+    // el lápiz: la punta en (px, py), sube hacia arriba a la izquierda, a la mano
+    R.linea(N(px), N(py), N(px - 7), N(py - 7), K); R.linea(N(px - 1), N(py - 1), N(px - 7), N(py - 8), hex('#d84a2a')); R.linea(N(px), N(py - 1), N(px - 6), N(py - 7), hex('#a02a1a')); R.pset(N(px), N(py), ROJO);
+    T.brazo(R, N(-18 + ox), N(30 + oy), N(px - 18), N(py - 6), '#5a7aa8', 1, { codo: [N((px - 34 + ox) / 2 + 6), N(Math.min(py - 6, 40 + oy))] });
+  }
+};
+
+const efectos = [[ARR, 'arranque'], [P2 + 0.3, 'maquina'], [FUERTE + 0.15, 'brillo'], 
+  [P3 + 0.3, 'motor'], [CAMARITA + 0.4, 'bip'], [ROCA, 'whoosh'], [TOO + 0.05, 'boing'],
+  [KNOCK + 0.1, 'whoosh'], [BECAUSE, 'silbato'], [PINTADA, 'brillo'], [EGIPTO + 0.05, 'flash'],
+  [MIL, 'pop'], [ALIENTO, 'vapor'], [HUNCH, 'toc'],
+  [HOLE, 'lapiz'], [LEJOS + 0.3, 'lapiz'], [RIESGO - 0.8, 'lapiz']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
+''')
+
+E['tu-permiso'] = ('El permiso', '''// TU-PERMISO (frase 25), 2026, sin cartela. Dos planos:
+// 1. el calendario de pared del despacho oficial (noviembre de 2026): en «permit» y «Supreme Council» el sello de su
+//    balda se ilumina con una «?», pero no baja; la mano con el lápiz rojo tacha los días uno a uno hacia el 20 rodeado;
+//    en «if it came through» la mano se para y da golpecitos en el último día y la «?» vuelve al sello (corta en «work»);
+// 2. el Valle de los Reyes en 2026: la perforadora espera en su terraza con la lona y la cinta; abajo, un técnico del
+//    equipo espera en la sombra: mira el reloj en «November 2026», da vueltas, mira el móvil; dos turistas pasan y
+//    fotografían la máquina; en «no decision has been announced» el técnico se encoge de hombros y sale la «?».''', r'''
+const p = (f) => en('permiso', f);
+const P2 = p(0.5207), CONSEJO = p(0.153), EQUIPO = p(0.347), CAME = p(0.459), NOV = p(0.606), MEDIO = p(0.795), NADA = p(0.867), ANUNCIO = p(0.95);
+const N = Math.round, K = hex('#141018'), BL = hex('#f8f4ec'), ROJO = hex('#d8342a'), ORO = hex('#ffd860');
+const suave = (u) => u * u * (3 - 2 * u);
+const globo = (x, y, ic, col) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 4, y + 7, K); R.pset(x - 5, y + 8, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - 2, y - 3, col, null); };
+
+// 1 · el calendario: los días que pasan y el sello que no baja
+const D0 = 6.98 / 19;   // ya están tachados los seis primeros días
+const p1 = (t) => {
+  // la mano tacha desde 0,6 s hasta «if it came through», se para y señala; luego tacha el último antes del corte
+  const pausa = 0, golpea = t > CAME - 0.4 ? N(Math.abs(Math.sin(t * 7)) * 2) : 0;
+  const prog = tramo(t, 0.6, CAME - 0.5);
+  const dias = lerp(D0, 1, prog);
+  const g = T.ladera(R, t, { encuadre: 'permiso', camara: 'calendario', dias, hoy: 20 });
+  // el sello en su balda: en «permit» y «Supreme Council» brilla y sale la «?»; no baja
+  const s = tramo(t, 0.3, 0.7) - tramo(t, EQUIPO - 0.3, EQUIPO) + tramo(t, CAME - 0.3, CAME);
+  if (s > 0) { globo(268, 86 + N(Math.sin(t * 3) * 1.5), '?', hex('#3a6ac8'));
+    if (t > CONSEJO - 0.2 && t < CONSEJO + 0.8) { const k = (t - CONSEJO) * 4; for (const [dx, dy] of [[-10, 0], [10, 0], [0, -10], [0, 14]]) R.pset(266 + N(dx * (0.6 + k * 0.1)), 116 + N(dy * (0.6 + k * 0.1)), ORO); } }
+  // la punta del lápiz: al final del trazo del día que se está tachando
+  const di = dias * 19, hasta = Math.floor(di + 1e-6), frac = di - hasta;
+  const d = Math.min(19, Math.max(1, frac > 0 ? hasta : hasta)), k = d - 1, cx = 66 + (k % 7) * 22, cy = 64 + Math.floor(k / 7) * 20;
+  const nn = dias < 1 ? Math.min(1, frac * 3 + 0.4) : 1, ii = 3 + 15 * nn;
+  let tx = cx + ii, ty = cy + 2 + ii * 0.9;
+  if (pausa > 0) { tx = lerp(tx, 238, suave(pausa)); ty = lerp(ty, 116, suave(pausa)); }   // señala el sello
+  const entra = suave(tramo(t, 0.1, 0.7)), oy = (1 - entra) * 90;
+  ty += oy - golpea;
+  // el lápiz rojo (punta en tx, ty) y el brazo que entra desde abajo a la derecha
+  R.linea(N(tx), N(ty), N(tx + 7), N(ty + 7), K); R.linea(N(tx + 1), N(ty), N(tx + 7), N(ty + 6), hex('#d84a2a')); R.linea(N(tx), N(ty + 1), N(tx + 6), N(ty + 7), hex('#a02a1a')); R.pset(N(tx), N(ty), ROJO);
+  T.brazo(R, N(tx + 70), N(ty + 80), N(tx + 20), N(ty + 10), '#e8e0d0', -1, { codo: [N(tx + 54), N(ty + 36)] });
+  return g;
+};
+
+// 2 · el valle en 2026: la perforadora que espera; el técnico que espera abajo
+const p2 = (t) => {
+  const o = { encuadre: 'valle', epoca: 2026, luz: 'dia' };
+  T.valle(R, t, o);
+  // la nevera y la caja del equipo, en la arena de la derecha
+  R.rect(272, 147, 294, 157, K); R.rect(273, 148, 293, 156, hex('#3a7ac8')); R.rect(273, 148, 293, 149, hex('#8ab8e8')); R.rect(279, 146, 287, 147, K); R.rect(274, 156, 293, 157, hex('#c8a870'));
+  // el técnico del equipo: mira el reloj, da unas vueltas, mira el móvil y se encoge de hombros
+  const ronda = tramo(t, NOV + 0.4, MEDIO), xt = N(246 + Math.sin(ronda * Math.PI * 2) * 12);
+  const reloj = t > NOV - 0.5 && t < NOV + 0.4, movil = t > MEDIO && t < NADA, hombros = t > NADA && t < ANUNCIO + 0.6;
+  const dirT = ronda > 0 && ronda < 1 ? (Math.cos(ronda * Math.PI * 2) > 0 ? 1 : -1) : -1;
+  const r = R.actor(EL.tecnico, xt, 156, t, { dir: dirT, anda: ronda > 0 && ronda < 1, sostiene: reloj ? [xt + (dirT > 0 ? 13 : 2), 140] : movil ? [xt + (dirT > 0 ? 15 : 0), 138] : undefined, brazos: hombros, triste: hombros || movil });
+  if (movil) { const [mx, my] = r.mano; R.rect(mx - 1, my - 7, mx + 3, my, K); R.rect(mx, my - 6, mx + 2, my - 1, hex('#5a8ad8')); }
+  if (reloj) globo(xt + 8, 112, 'reloj', hex('#3a3a44'));
+  if (t > NADA + 0.2) globo(xt + 8, 112, '?', hex('#3a6ac8'));
+  // dos turistas que bajan por el asfalto hacia delante; en «mid-November» se paran y fotografían la máquina
+  const foto = t > MEDIO - 0.3 && t < NADA, uu = tramo(t, P2 + 0.2, MEDIO - 0.3) * 0.55 + tramo(t, NADA, ANUNCIO + 0.8) * 0.45, u = (uu > 0 && uu < 1) ? 0.5 : uu;
+  const x1 = N(lerp(198, 140, uu)), s1 = N(lerp(150, 176, uu));
+  R.actor(EL.turista2, x1 - 20, s1 + 4, t, { dir: foto ? 1 : -1, anda: u > 0 && u < 1 && !foto, sonrisa: true, dedo: t > NOV && t < MEDIO - 0.3 });
+  const rt = R.actor(EL.turista1, x1, s1, t, { dir: foto ? 1 : -1, anda: u > 0 && u < 1 && !foto, sostiene: foto ? [x1 + 16, s1 - 22] : undefined, sonrisa: true });
+  if (foto) { const [mx, my] = rt.mano; R.rect(mx - 2, my - 5, mx + 5, my, K); R.rect(mx - 1, my - 4, mx + 4, my - 1, hex('#3a3a44')); R.pset(mx + 3, my - 3, hex('#8ad8f8')); if (t > MEDIO + 0.3 && t < MEDIO + 0.45) R.disco(mx + 6, my - 3, 5, BL); }
+  T.valleDelante(R, t, o);
+};
+
+const efectos = [[0.7, 'lapiz'], [CONSEJO, 'brillo'], [2.9, 'lapiz'], [EQUIPO, 'lapiz'], [CAME, 'toc'],
+  [NOV - 0.3, 'tic'], [MEDIO + 0.3, 'flash'], [NADA + 0.2, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2]], { efectos, año: 2026 });
+''')

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Capitolio · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-CAPITOLIO (frases 29–30), Juegos 50. Tres planos:
+// 1. el invernadero: Snow entra por el camino de grava, coge una rosa blanca y la huele («already in power»); el pan con
+//    ojos, escondido junto al arriate, estornuda (gag 4) y vuelan los pétalos; en «white roses» Snow lo mira y el pan se
+//    esconde;
+// 2. (corte en «Jesse») los rosales de cerca: Plutarch escribe en su libreta; en «Plutarch» levanta la vista; entra Effie
+//    joven y, en «Effie», se coloca la peluca rosa: un pájaro baja y hace nido en ella (gag 3); Plutarch lo apunta;
+// 3. (corte en «Keep») la consola de los Vigilantes: un ojo-cámara del techo se gira hacia Plutarch («keep an eye»); en
+//    «Catching Fire» la pantalla se llena de llamas; en «head gamemaker» gira el dial y en «secretly» sale un sinsajo en el
+//    monitor; el vigilante sentado se gira y, en «rebellion», Plutarch vuelve el dial y sonríe como si nada.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-capitolio');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const mez = (c1, c2, k) => { let r = 0; for (const s of [0, 8, 16]) r |= Math.round(((c1 >>> s) & 255) * (1 - k) + ((c2 >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const hh = (a, b, c = 0) => { let n = Math.imul(a | 0, 374761393) ^ Math.imul(b | 0, 668265263) ^ Math.imul(c | 0, 1274126177); n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const rr = (x0, y0, x1, y1, c) => { for (let y = Math.round(y0); y <= Math.round(y1); y++) for (let x = Math.round(x0); x <= Math.round(x1); x++) R.pset(x, y, c); };
+const aclara = (x, y, k, col = 0xffffffff) => { const c = R.pget(x, y); if (c) R.pset(x, y, mez(c, col, k)); };
+const K0 = hex('#14101c');
+R.ICONOS.corazon = ['.##.##.', '#######', '#######', '.#####.', '..###..', '...#...'];
+R.ICONOS.nota = ['..##', '..#.', '..#.', '..#.', '###.', '###.'];
+// un cono de luz desde arriba (foco): aclara lo que ya está pintado
+const foco = (xc, y0, y1, w0, w1, k = 0.28, col = hex('#fff6d8')) => { for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) { const u = (y - y0) / Math.max(1, y1 - y0), w = w0 + (w1 - w0) * u; for (let x = Math.round(xc - w); x <= Math.round(xc + w); x++) aclara(x, y, Math.abs(x - xc) > w - 1.5 ? k * 0.45 : k, col); } };
+// charco de luz en el suelo
+const charco = (xc, yc, rx, ry, k = 0.3, col = hex('#fff6d8')) => { for (let y = Math.round(yc - ry); y <= Math.round(yc + ry); y++) for (let x = Math.round(xc - rx); x <= Math.round(xc + rx); x++) { const u = (x - xc) / rx, v = (y - yc) / ry, d = u * u + v * v; if (d <= 1) aclara(x, y, d > 0.7 ? k * 0.5 : k, col); } };
+// un pájaro pequeño que vuela (alas arriba y abajo); col, colS, pico
+const pajarito = (x, y, t, dir, col, colS, pico = hex('#f0b030'), aleteo = true) => {
+  x = Math.round(x); y = Math.round(y); const ala = aleteo ? Math.floor(t * 12) % 2 : 1, X = (i) => x + dir * i;
+  for (let i = -3; i <= 3; i++) for (let j = -2; j <= 2; j++) if (i * i / 10 + j * j / 4 <= 1) R.pset(X(i), y + j, j > 0 ? colS : col);
+  for (let i = -4; i <= 4; i++) for (let j = -3; j <= 3; j++) if (i * i / 16 + j * j / 7 <= 1 && !(i * i / 10 + j * j / 4 <= 0.6)) { const c = R.pget(X(i), y + j); if (c !== col && c !== colS) R.pset(X(i), y + j, K0); }
+  R.pset(X(2), y - 1, K0); R.pset(X(4), y, pico); R.pset(X(5), y, pico); R.pset(X(-4), y - 1, colS); R.pset(X(-5), y - 2, colS);
+  if (ala) { R.linea(X(-1), y - 1, X(-3), y - 5, K0); R.linea(X(0), y - 1, X(-2), y - 5, colS); R.pset(X(-1), y - 4, col); }
+  else { R.linea(X(-1), y + 1, X(-3), y + 4, K0); R.linea(X(0), y + 1, X(-2), y + 4, colS); }
+};
+// confeti que cae (fuera de la barra del año y de la esquina de Atom)
+const confeti = (t, n, x0, x1, y0, y1, semilla = 1, desde = 0) => { if (t < desde) return; const cols = [hex('#ff5aa8'), hex('#3ad0c8'), hex('#ffd84a'), hex('#a86aff'), hex('#8ae04a'), hex('#ffffff')];
+  for (let i = 0; i < n; i++) { const vel = 18 + hh(i, 2, semilla) * 22, x = Math.round(x0 + hh(i, 1, semilla) * (x1 - x0) + Math.sin(t * 3 + i) * 3), y = Math.round(y0 + ((hh(i, 3, semilla) * (y1 - y0) + (t - desde) * vel) % (y1 - y0)));
+    if (y < 16 || (x > 274 && y < 48)) continue; const c = cols[i % 6]; R.pset(x, y, c); if (Math.floor(t * 8 + i) % 2) R.pset(x + 1, y, mez(c, K0, 0.3)); else R.pset(x, y + 1, mez(c, K0, 0.3)); } };
+
+const s = (f) => en('snow', f), p = (f) => en('plutarch', f);
+const P2 = s(0.562), P3 = p(0);
+const SNOW = s(0.082), PODER = s(0.229), ROSAS = s(0.377), PLUT = s(0.664), ELLE = s(0.771), EFFIE = s(0.896);
+const OJO = p(0.043), FIRE = p(0.288), HEAD = p(0.545), SECRET = p(0.707), REBEL = p(0.894);
+const BLANCA = hex('#f8f8f4');
+// ── plano 1: el invernadero ──
+const p1 = (t) => {
+  T.capitolio(R, t, { encuadre: 'invernadero' });
+  const u1 = tramo(t, 0.2, SNOW + 0.2), u2 = tramo(t, SNOW + 0.8, PODER - 0.3);
+  const x = Math.round(u1 < 1 ? lerp(112, 150, u1) : lerp(150, 180, u2));
+  const coge = t > PODER - 0.3, huele = t > PODER + 0.1 && t < 3.6, estornudo = 3.56;
+  const susto = t > estornudo && t < estornudo + 0.6;
+  const sn = R.actor(EL.snow, x, 160, t, { dir: 1, anda: (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1), sostiene: coge ? (huele ? [x + 11, 140] : [x + 18, 146]) : undefined, sonrisa: huele || t > ROSAS + 0.8, sorpresa: susto, enfado: t > estornudo + 0.6 && t < ROSAS + 0.8 });
+  if (coge) { const [mx, my] = sn.mano, pierde = tramo(t, estornudo, estornudo + 0.2);
+    R.linea(mx, my, mx, my + 5, hex('#3a7a3a')); T.PIEZAS_JH.rosaBlanca(R, mx, my + 1, { s: 1 });
+    // los pétalos que se lleva el estornudo
+    if (pierde > 0) for (let i = 0; i < 7; i++) { const f = tramo(t, estornudo, estornudo + 1.6 + i * 0.1); if (f >= 1) continue; R.pset(Math.round(mx - f * (30 + i * 9) + Math.sin(t * 6 + i) * 2), Math.round(my - 4 - Math.sin(f * 3) * 12 + f * 24 + i), i % 2 ? BLANCA : hex('#e8e0e8')); } }
+  // el pan, escondido en el arriate: coge aire, estornuda una nube de harina y se esconde
+  const ex = t < 2.6 ? 'normal' : t < 3.95 ? 'estornudo' : t < ROSAS + 0.2 ? 'susto' : 'normal';
+  T.pan(R, 228, 162, t, { dir: -1, expresion: ex, esconde: tramo(t, ROSAS + 0.3, ROSAS + 0.7) });
+  if (t > estornudo && t < estornudo + 1) { const f = tramo(t, estornudo, estornudo + 1); for (let i = 0; i < 14; i++) { const an = Math.PI * (0.8 + hh(i, 1, 4) * 0.5); R.pset(Math.round(222 + Math.cos(an) * f * (14 + i)), Math.round(156 + Math.sin(an) * f * (6 + i * 0.6)), mez(hex('#fff8e8'), hex('#8ac06a'), f)); } }
+  if (susto) R.icono('!', x + 6, 120, hex('#ffffff'), K0, 1);
+};
+// ── plano 2: los rosales de cerca ──
+const libreta = (mx, my, t, rapido) => { rr(mx - 2, my - 7, mx + 5, my + 1, K0); rr(mx - 1, my - 6, mx + 4, my, hex('#f4ecd8')); for (let j = -5; j <= -1; j += 2) R.linea(mx, my + j, mx + 3, my + j, hex('#9aa0b8'));
+  const f = Math.floor(t * (rapido ? 14 : 6)) % 4; R.linea(mx + 2 + f % 2, my - 3 - f, mx + 6, my - 9 - f, hex('#e8b830')); R.pset(mx + 1 + f % 2, my - 2 - f, K0); };
+const nido = (x, y, t) => { for (let i = -6; i <= 6; i++) { const yy = y + Math.round(Math.abs(i) * 0.25); R.pset(x + i, yy, i % 3 ? hex('#8a5a2a') : hex('#c8945a')); R.pset(x + i, yy + 1, hex('#6a3e1a')); if (i % 2) R.pset(x + i, yy - 1, hex('#a8743a')); }
+  R.linea(x - 7, y - 1, x - 4, y + 1, hex('#c8945a')); R.linea(x + 7, y - 2, x + 4, y + 1, hex('#8a5a2a')); };
+const p2 = (t) => {
+  T.capitolio(R, t, { encuadre: 'invernadero', camara: 'rosas' });
+  const mira = t > PLUT - 0.1 && t < PLUT + 0.9, xp = 124;
+  const pl = R.actor(EL.plutarch, xp, 162, t, { dir: mira ? 1 : 1, sostiene: [xp + 17, 146], sorpresa: mira && t < PLUT + 0.4, sonrisa: t > EFFIE + 0.9 });
+  libreta(pl.mano[0], pl.mano[1], t, t > EFFIE + 0.7);
+  if (mira) R.icono('?', xp + 2, 118, hex('#ffffff'), K0, 1);
+  const llega = tramo(t, ELLE - 0.4, EFFIE - 0.2), xe = Math.round(lerp(220, 176, llega));
+  const ajusta = t > EFFIE - 0.15 && t < EFFIE + 0.9;
+  const ef = R.actor(EL.effie, xe, 162, t, { dir: -1, anda: llega > 0 && llega < 1, sostiene: ajusta ? [xe + 8, 124] : undefined, sonrisa: t < EFFIE + 0.9, sorpresa: t > EFFIE + 0.95 });
+  // el pájaro baja del cristal y anida en la peluca
+  const [cx, cy] = ef.cabeza, top = cy - 8, b = tramo(t, EFFIE + 0.05, EFFIE + 0.75);
+  if (b > 0) { if (b >= 1) nido(cx - 1, top + 1, t);
+    const bx = lerp(262, cx, b), by = lerp(40, top - 3, b) - Math.sin(b * Math.PI) * 10; pajarito(bx, b >= 1 ? top - 2 : by, t, -1, hex('#5ab0e8'), hex('#2a70b0'), hex('#f0b030'), b < 1);
+    if (b >= 1 && Math.floor(t * 4) % 2) { R.pset(cx - 7, top - 4, hex('#ffffff')); R.pset(cx - 8, top - 5, hex('#ffffff')); } }
+  if (t > EFFIE + 0.95 && t < EFFIE + 1.6) R.icono('!', xe + 4, top - 14, hex('#ffffff'), K0, 1);
+  T.capitolioDelante(R, t, { encuadre: 'invernadero', camara: 'rosas' });
+};
+// ── plano 3: la consola ──
+const llamas = (R_, t, [x0, y0, x1, y1]) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const u = (y1 - y) / (y1 - y0), v = Math.sin(x * 0.35 + t * 9) * 0.12 + Math.sin(x * 0.13 - t * 5) * 0.1 + hh(x, Math.floor(t * 12), 9) * 0.12;
+  const k = u - v; R.pset(x, y, k < 0.25 ? hex('#fff0a0') : k < 0.45 ? hex('#ffb030') : k < 0.65 ? hex('#e8501a') : k < 0.8 ? hex('#8a1a10') : hex('#2a0a10')); } };
+const ojoCamara = (t, mira) => { const x = 236, y = 18; R.linea(x, 0, x, y - 5, hex('#4a4e60')); rr(x - 5, y - 6, x + 5, y - 4, hex('#2a2e3a'));
+  for (let j = -4; j <= 4; j++) for (let i = -5; i <= 5; i++) if (i * i / 25 + j * j / 16 <= 1 && j >= -3) R.pset(x + i, y + j, j < 0 ? hex('#5a6278') : hex('#3a4052'));
+  const ang = lerp(0.6, 2.4, mira), lx = Math.round(x + Math.cos(ang) * 3), ly = Math.round(y + Math.sin(ang) * 2.4);
+  R.disco(lx, ly, 2, K0); R.pset(lx, ly, Math.floor(t * 3) % 2 ? hex('#ff3a3a') : hex('#a81a1a')); R.pset(lx - 1, ly - 1, hex('#ffffff')); };
+const p3 = (t) => {
+  const dial = t < HEAD ? 0.2 : t < REBEL - 0.3 ? 0.2 + 0.7 * tramo(t, HEAD, HEAD + 0.5) : 0.9 - 0.7 * tramo(t, REBEL - 0.3, REBEL);
+  const sinsajo = tramo(t, SECRET - 0.1, SECRET + 0.3) * (1 - tramo(t, REBEL - 0.2, REBEL + 0.05));
+  const fuego = t > FIRE - 0.1 && t < HEAD - 0.1;
+  T.arena(R, t, { encuadre: 'control', camara: 'consola', dial, sinsajo, ...(fuego ? { pantalla: llamas } : {}) });
+  ojoCamara(t, tramo(t, OJO, OJO + 0.6));
+  // el vigilante sentado teclea; se gira al ver el sinsajo
+  const giro = t > SECRET + 0.3 && t < REBEL + 0.2;
+  R.actor(EL.vigilante, 62, 158, t, { dir: giro ? 1 : 1, habla: false, sorpresa: giro, dedo: giro && t > SECRET + 0.6 });
+  const xp = 150, sueloP = 152, opera = (t > HEAD - 0.2 && t < HEAD + 0.6) || (t > REBEL - 0.4 && t < REBEL + 0.1);
+  R.actor(EL.plutarch, xp, sueloP, t, { dir: t > OJO + 0.3 && t < FIRE - 0.2 ? -1 : 1, dedo: opera, sonrisa: t > REBEL - 0.05 || (t > OJO + 0.4 && t < FIRE), sorpresa: t > SECRET && t < SECRET + 0.4 });
+  T.arenaDelante(R, t, { encuadre: 'control', camara: 'consola', dial, sinsajo });
+  if (t > SECRET && t < REBEL) R.icono('!', 72, 116, hex('#ffd84a'), K0, 1);
+};
+const efectos = [[0.3, 'puerta'], [PODER, 'brillo'], [3.56, 'whoosh'], [ROSAS + 0.35, 'pop'], [PLUT, 'lapiz'], [EFFIE + 0.6, 'pop'], [OJO + 0.1, 'zumbido'], [FIRE, 'flash'], [HEAD + 0.05, 'interruptor'], [SECRET, 'brillo'], [REBEL - 0.25, 'interruptor']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 50 });
+</script>
+</body>
+</html>

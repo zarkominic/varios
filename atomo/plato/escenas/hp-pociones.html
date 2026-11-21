@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El acertijo de las pociones · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-POCIONES (frase 21), 1992 en la barra, sin cartela. Tres planos:
+// 1. la sala subterránea: Harry y Hermione cruzan el fuego negro de la izquierda; en «stone» la piedra roja reluce un
+//    instante tras el fuego morado; en «test» los dos fuegos se avivan y se asustan; en «skipped completely» Hermione va
+//    hacia la mesa del acertijo y Harry la sigue; corta en «A riddle»;
+// 2. la mesa de cerca: Hermione lee el pergamino; en «seven» salen los números del 1 al 7 sobre las botellas; en «without
+//    a wand» deja la varita en la mesa (con su «X»); piensa (la luz va de botella en botella) y en «logic» señala la
+//    pequeña, que brilla; Harry sonríe; corta en «Oh»;
+// 3. la sala del espejo: Harry entra por la izquierda y se para delante del espejo, centrado con el marco (x 154), a
+//    mirarlo; su reflejo entra en el cristal con él, a su misma x y escala, vuelto hacia él; en «green eyes» un destello
+//    verde en los ojos del reflejo (no en Harry) y en «mother» llega por detrás del reflejo, en el espejo, una mujer
+//    pelirroja que le pone la mano en el hombro; Harry y el reflejo sonríen.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-pociones');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const PZ = T.PIEZAS_HP, K = hex('#14111a');
+const mix = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+// un halo de luz tramado alrededor de (x, y): aclara hacia col en la proporción a, que cae hacia el borde
+const halo = (x, y, r, col, a) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j); if (d > r) continue; const X = Math.round(x + i), Y = Math.round(y + j); if (X < 0 || X > 319 || Y < 0 || Y > 179) continue; R.pset(X, Y, mix(R.pget(X, Y), col, a * (1 - d / r))); } };
+// un destello en cruz que parpadea
+const brilla = (x, y, t, col = hex('#fff6c8'), r = 2) => { x = Math.round(x); y = Math.round(y); if (Math.sin(t * 9 + x) > -0.2) { for (let i = 1; i <= r; i++) { R.pset(x, y - i, col); R.pset(x, y + i, col); R.pset(x - i, y, col); R.pset(x + i, y, col); } R.pset(x, y, hex('#ffffff')); } };
+// sube y baja suave: 0 → 1 → 0 entre a y b
+const campana = (t, a, b) => { const u = tramo(t, a, b); return u > 0 && u < 1 ? Math.sin(u * Math.PI) : 0; };
+// un salto corto que empieza en t0
+const brinco = (t, t0, d = 0.45, h = 6) => (t > t0 && t < t0 + d ? Math.round(Math.sin((t - t0) / d * Math.PI) * h) : 0);
+
+const a = (f) => en('acertijo', f);
+const P2 = a(0.298), P3 = a(0.734);
+const PIEDRA = a(0.111), PRUEBA = a(0.162), SALTA = a(0.214), ACERTIJO = a(0.311), SIETE = a(0.340), SNAPE = a(0.452), HERM = a(0.498), RESUELVE = a(0.529), VARITA = a(0.595), NADA = a(0.641), LOGICA = a(0.676);
+const DETALLE = a(0.799), HARRY = a(0.875), VERDES = a(0.908), MADRE = a(0.974);
+const MORADO = hex('#b04ae8'), NEGRO = hex('#3a2a4a');
+// lenguas de fuego que se avivan (x0..x1, base y, alto h)
+const llamas = (x0, x1, y, h, t, c1, c2) => { for (let x = x0; x <= x1; x += 2) { const hh = h * (0.6 + 0.4 * Math.abs(Math.sin(t * 7 + x * 0.7))); for (let j = 0; j < hh; j++) { const w = Math.sin(t * 9 + j * 0.4 + x) * 1.2; R.pset(Math.round(x + w), y - j, j > hh * 0.6 ? c2 : c1); } } };
+
+// 1 · la sala del fuego: entran, la prueba se enciende, van a la mesa
+const p1 = (t) => {
+  const o = { encuadre: 'pociones' };
+  T.exterior(R, t, o);
+  // la piedra roja reluce tras el fuego morado en «stone»
+  const pa = campana(t, PIEDRA - 0.2, PIEDRA + 1.0);
+  if (pa > 0) { halo(270, 104, 18, hex('#ff4a4a'), 0.45 * pa); PZ.piedra(R, 270, 110, { brillo: true, t }); }
+  // los dos fuegos se avivan en «test»
+  const av = campana(t, PRUEBA - 0.1, PRUEBA + 1.6);
+  if (av > 0) { llamas(28, 72, 150, 70 * av, t, NEGRO, hex('#6a4a8a')); llamas(248, 292, 150, 70 * av, t, hex('#7a2ab8'), hex('#e8b0ff')); halo(270, 110, 30, MORADO, 0.25 * av); }
+  // Harry y Hermione salen del fuego negro y van a la mesa; Hermione se pone detrás, junto al pergamino
+  const e = tramo(t, 0.2, 1.6), hx = Math.round(lerp(34, 76, e)), mx = Math.round(lerp(26, 52, e));
+  const va = tramo(t, SALTA, SALTA + 1.2), mxv = Math.round(lerp(mx, 112, va)), suM = Math.round(lerp(168, 148, tramo(t, SALTA + 0.7, SALTA + 1.2)));
+  const vh = tramo(t, SALTA + 0.5, SALTA + 1.6), hxv = Math.round(lerp(hx, 82, vh));
+  const asusta = t > PRUEBA && t < PRUEBA + 0.9;
+  R.actor(EL.hermione, mxv, suM, t, { dir: 1, anda: (e > 0 && e < 1) || (va > 0 && va < 1), sorpresa: asusta, dedo: t > SALTA - 0.6 && t < SALTA, habla: va >= 1 && Math.sin(t * 8) > 0 });
+  R.actor(EL.harry, hxv, 168, t, { dir: 1, anda: (e > 0 && e < 1) || (vh > 0 && vh < 1), sorpresa: asusta || (pa > 0.4 && t < PRUEBA), salto: brinco(t, PRUEBA, 0.4, 5) });
+  T.exteriorDelante(R, t, o);
+  // el acertijo despierta: el pergamino brilla y sube un «?» dorado sobre las botellas
+  const ac = tramo(t, PRUEBA, PRUEBA + 0.6);
+  if (ac > 0) { halo(123, 146, 16, hex('#fff2b0'), 0.35 + 0.15 * Math.sin(t * 6)); const y = Math.round(lerp(132, 104, ac) + Math.sin(t * 3) * 2); halo(180, y + 6, 12, hex('#fff2b0'), 0.3); R.icono('?', 175, y, hex('#ffd84a'), K, 3); }
+};
+
+// 2 · la mesa: los siete números, la varita en la mesa y la pequeña que brilla
+const p2 = (t) => {
+  const piensa = tramo(t, NADA - 0.3, LOGICA), ciclo = [0, 6, 4, 1, 5, 2];
+  const el = t > LOGICA ? 2 : piensa > 0 ? ciclo[Math.min(5, Math.floor(piensa * 6))] : undefined;
+  const o = { encuadre: 'pociones', camara: 'mesa', elegida: el };
+  T.exterior(R, t, o);
+  // Hermione lee el pergamino (cabeza y hombros sobre la mesa), con la varita en la mano hasta «without a wand»
+  const deja = tramo(t, VARITA - 0.4, VARITA + 0.1), tiene = deja < 1;
+  const hr = R.actor(EL.hermione, 52, 142, t, { dir: 1, sostiene: tiene ? [Math.round(lerp(70, 78, deja)), Math.round(lerp(122, 134, deja))] : false, dedo: t > LOGICA - 0.1, habla: t > ACERTIJO && t < SIETE + 1.4 && Math.sin(t * 8) > 0, sonrisa: t > LOGICA + 0.4 });
+  if (tiene) PZ.varita(R, hr.mano[0] + 3, hr.mano[1] + 2, { t });
+  R.actor(EL.harry, 94, 142, t, { dir: 1, sorpresa: t > LOGICA && t < LOGICA + 0.6, sonrisa: t > LOGICA + 0.6, habla: t > HERM && t < RESUELVE && Math.sin(t * 7) > 0.3 });
+  // el pergamino se mece con el aire del fuego
+  // los números del 1 al 7 sobre las botellas, uno detrás de otro
+  const B = [[128, 150, 46], [152, 148, 50], [172, 150, 26], [194, 148, 46], [220, 150, 40], [244, 148, 50], [270, 150, 42]];
+  B.forEach(([x, , hh], k) => { const t0 = SIETE + k * 0.16, e = tramo(t, t0, t0 + 0.2), f = 1 - tramo(t, SNAPE + 0.6, SNAPE + 1.0); if (e > 0 && f > 0) { const y = Math.round(lerp(150 - hh, 150 - hh - 8, e)); R.numero(String(k + 1), x, y, { centro: true }); } });
+  // la luz del pensamiento: la botella que mira se ilumina un poco (el decorado la hace brillar)
+  if (t > LOGICA) { const g = campana(t, LOGICA, LOGICA + 1.2); halo(172, 138, 26, hex('#d8fff0'), 0.45 * g + 0.25); for (let k = 0; k < 10; k++) { const an = k / 10 * Math.PI * 2 + t * 2, rr = 15 + g * 5; R.pset(Math.round(172 + Math.cos(an) * rr), Math.round(138 + Math.sin(an) * rr * 1.2), hex('#ffffff')); } for (const [dx, dy] of [[-12, -30], [12, -22], [-4, -40]]) brilla(172 + dx, 150 + dy, t); }
+  // la duda: «?» sobre Hermione mientras piensa
+  if (piensa > 0 && t < LOGICA) R.bocadillo(66, 110, { icono: '?' });
+  T.exteriorDelante(R, t, o);
+  // la varita, dejada sobre la mesa, con su «X»: la resuelve sin magia
+  if (!tiene) { PZ.varita(R, 78, 141, { t, dir: -1 }); const x = campana(t, VARITA, VARITA + 1.6); if (x > 0.1) { halo(77, 122, 9, hex('#ffffff'), 0.3); R.icono('X', 71, 114, hex('#e84a3a'), K, 2); } }
+};
+
+// 3 · el espejo: el reflejo, el destello verde y la madre
+// Harry entra desde la izquierda y se para delante del espejo, centrado con el marco (cristal 132–188): su x en cada t
+const harryX = (t) => Math.round(lerp(-16, 154, tramo(t, P3 + 0.1, DETALLE)));
+const reflejo = (t) => (R2, tt, [x0, y0, x1, y1]) => {
+  const pie = y1 - 4, rx = harryX(t), anda = t > P3 + 0.1 && t < DETALLE;
+  // la madre llega por detrás del reflejo (más arriba = más al fondo) y le pone la mano en el hombro
+  const m = tramo(t, MADRE - 0.6, MADRE + 0.3);
+  if (m > 0) { const mx = Math.round(lerp(x1 + 4, rx + 8, m)); halo(mx + 7, pie - 18, 14, hex('#fff0d0'), 0.25 * m); R.actor(EL.vecina, mx, pie - 3, t, { dir: -1, pal: { H: hex('#c0401a'), h: hex('#e0602a'), C: hex('#5a7a4a'), c: hex('#3e5a34') }, sonrisa: true, sostiene: m >= 1 ? [rx + 6, pie - 16] : false }); }
+  // el reflejo de Harry: su misma x y su misma escala, mirando hacia él (al revés); entra en el cristal con él
+  if (rx > x0 - 16) R.actor(EL.harry, rx, pie, t, { dir: -1, anda, sorpresa: t > VERDES - 0.1 && t < VERDES + 0.7, sonrisa: t > MADRE });
+  // el destello verde en los ojos del reflejo
+  const v = campana(t, VERDES - 0.1, VERDES + 1.3);
+  if (v > 0) { halo(rx + 5, pie - 19, 12, hex('#5aff7a'), 0.6 * v); for (let k = 0; k < 4; k++) { const an = k * Math.PI / 2 + tt * 2; R.pset(Math.round(rx + 4 + Math.cos(an) * (6 + 3 * v)), Math.round(pie - 19 + Math.sin(an) * (6 + 3 * v)), hex('#b8ffc8')); } brilla(rx + 13, pie - 26, tt, hex('#9affb0'), 3); }
+};
+const p3 = (t) => {
+  const o = { encuadre: 'espejo', reflejo: reflejo(t) };
+  T.hogwarts(R, t, o);
+  // Harry, delante del espejo y mirándolo; señala el reflejo antes del destello
+  const x = harryX(t);
+  R.actor(EL.harry, x, 166, t, { dir: 1, anda: t > P3 + 0.1 && t < DETALLE, sorpresa: t > VERDES - 0.1 && t < VERDES + 0.7, sonrisa: t > MADRE, dedo: t > HARRY && t < VERDES - 0.1 });
+  T.hogwartsDelante(R, t, o);
+};
+
+const efectos = [[0.4, 'whoosh'], [PIEDRA, 'brillo'], [PRUEBA, 'whoosh'], [ACERTIJO, 'papel'], [SIETE, 'burbujas'], [VARITA, 'golpecito'], [LOGICA, 'brillo'],
+  [P3 + 0.3, 'whoosh'], [VERDES, 'brillo'], [MADRE, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1992 });
+</script>
+</body>
+</html>
