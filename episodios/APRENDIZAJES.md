@@ -940,5 +940,15 @@ colisiones en ELENCO_CHIBI; leer los avisos cruzados del workflow de calidad.
   **no regenerar esos módulos con `--pisar`** sin pasar antes los cambios al módulo.
 - **Shorts:** el gancho, la etiqueta de Herbert y la trampa de ver el futuro (39–43 s).
 
+- **Final cortado en español (lo oyó el usuario tras la entrega):** en la primera frase, «a propósito» suena «a
+  propósi»: ZONOS3 se comió la última sílaba. [Supuesto] pasa con el ritmo `igualar` en el tope (21 bytes/s): la frase
+  española no cabe en lo que dura la inglesa y el motor corta. El control de la voz no lo vio, porque Whisper completa la
+  palabra por el contexto y `misma()` la da por buena. El usuario prefirió no rehacer el 44 («déjalo»), pero hay que
+  tenerlo en cuenta en el 45.
+
 Pendiente para el próximo: borrar los fotogramas del 44 al empezar; mirar los subtítulos españoles con el ritmo nuevo
-antes del control; si se toca el 44, sincronizar escenas1/4/5.py con sus html antes de regenerar.
+antes del control; si se toca el 44, sincronizar escenas1/4/5.py con sus html antes de regenerar. **Finales cortados en
+español (regla del usuario para el 45):** antes de locutar, probar con ZONOS3 la frase 1 del 44 a 21, 19 y 17 bytes/s para
+saber si es el ritmo; añadir a `problemas()` un control del final de cada clip (la última palabra que oye Whisper tiene que
+coincidir entera, y el clip no puede acabar en seco con energía alta en sus últimos 40 ms); si falla, otra toma y luego
+menos ritmo. Escuchar o medir el final de cada frase española antes de entregar, empezando por el gancho.
