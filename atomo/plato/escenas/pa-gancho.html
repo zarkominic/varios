@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep44</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PA-GANCHO (frases 1–2). Año 0 hasta «twelve years later», luego 12. Cinco planos; golpe en «villain» (giro+2.5):
+// 1. el desierto al ocaso (general): Paul sube a la cresta de la duna de delante y se para; en «villain» asoma detrás,
+//    por el horizonte, un mar de estandartes (siluetas con banderolas verde y negro) y el cielo se enrojece un instante;
+//    en «his own story» Paul alza los brazos hacia ellos; Atom (luciérnaga) se sorprende y se aparta;
+// 2. el salón del trono (día): Shaddam en el trono; Paul entra por la alfombra; en «father» señala el estandarte del
+//    halcón; en «defeat the Emperor» Shaddam se levanta sorprendido y se va por la plataforma, triste; Paul sube un paso;
+// 3. el balcón sobre la multitud: Paul entra por la izquierda e Irulan por la derecha y se encuentran («marry his
+//    daughter», sonríen); en «chants your name» la plaza entera alza los brazos y Paul también;
+// 4. el planeta desde el espacio, doce años después: en «later» se enciende una luz en la cara de noche y se extiende
+//    por todo el planeta («holy war»); luego, alrededor, los demás planetas del mapa de estrellas se encienden de rojo uno
+//    a uno («billions of lives»); Atom luciérnaga, asustado;
+// 5. de noche, en la repisa de roca: Paul emperador mira el desierto; en «saw it coming» señala y en la arena se abre un
+//    árbol de caminos dorados (la visión); en «couldn't stop it» los caminos se vuelven rojos, él baja el brazo, triste,
+//    y se da la vuelta; la loma de arena avanza a lo lejos.
+import * as T from '/atomo/plato/escenas/pa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('pa-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const g = (f) => en('giro', f), m = (f) => en('imagina', f);
+const P2 = m(0), P3 = m(0.2814), P4 = m(0.5006), P5 = m(0.789);
+const GOLPE = g(0) + 2.5, villain = g(0.367);
+const K = hex('#17151d'), ease = (u) => u * u * (3 - 2 * u), cl = (u) => Math.max(0, Math.min(1, u));
+const hh = (a, b, k = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const voz = (t) => E.energia ? E.energia(t) : 0;
+// banderola de los Fremen (sin letras): mástil, paño verde oscuro o negro con el halcón como un punto de oro
+const banderola = (x, y, h, t, k, ver) => {
+  const v = Math.round(Math.sin(t * 3 + k) * 1.2);
+  R.linea(x, y, x, y - h, hex('#3a2a1c'));
+  const c = k % 2 ? hex('#1f3a26') : hex('#1a1a20'), cs = k % 2 ? hex('#2e5a38') : hex('#34343e');
+  R.poligono([[x + 1, y - h], [x + 8 + v, y - h + 1], [x + 7 + v, y - h + 6], [x + 1, y - h + 6]], c);
+  R.linea(x + 1, y - h, x + 7 + v, y - h + 1, cs); R.linea(x + 1, y - h + 6, x + 7 + v, y - h + 6, hex('#e8c040'));
+  if (ver) { R.pset(x + 4, y - h + 3, hex('#e8c040')); R.pset(x + 3, y - h + 2, hex('#e8c040')); R.pset(x + 5, y - h + 2, hex('#e8c040')); }
+};
+const banderolaG = (x, y, h, t, k) => {
+  const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? hex('#1f4a2c') : hex('#18181e'), cs = k % 2 ? hex('#3a7048') : hex('#3a3a46');
+  R.linea(x, y, x, y - h, hex('#4a3420')); R.pset(x, y - h - 1, hex('#e8c040'));
+  R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
+  R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
+  R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, hex('#c8a030'));
+  const cx = x + 5 + Math.round(v / 2), cy = y - h + 4; R.pset(cx, cy, hex('#f0c848')); R.pset(cx - 1, cy - 1, hex('#f0c848')); R.pset(cx + 1, cy - 1, hex('#f0c848')); R.pset(cx, cy + 1, hex('#c89a30'));
+};
+// 1 · el desierto al ocaso: Paul en la cresta; en «villain», el mar de estandartes por el horizonte
+const p1 = (t) => {
+  const o = { encuadre: 'desierto', hora: 'ocaso', t0: 0 };
+  const geo = T.planeta(R, t, o);
+  const hor = geo?.hor ?? 92;
+  // el mar de estandartes sube por detrás del horizonte (recortado a él)
+  const sube = ease(tramo(t, villain - 0.3, villain + 0.45));
+  if (sube > 0) {
+    R.recorte([0, 0, 319, hor]);
+    // un resplandor rojizo detrás, a ras del horizonte
+    for (let y = hor - 10; y <= hor; y++) for (let x = 90 + (y & 1); x < 316; x += 2) if (((x >> 1) + y) % 3 === 0) R.pset(x, y, hex('#c8603a'));
+    for (let fila = 0; fila < 2; fila++) for (let k = 0; k < 13; k++) {
+      const x = Math.round(104 + k * 16 + fila * 8 + hh(k, fila) * 4), ret = (hh(k, fila, 3) * 0.25 + fila * 0.1);
+      const u = cl((sube - ret) / (1 - ret)); if (u <= 0) continue;
+      const y = Math.round(hor + 3 - fila * 1 + (1 - u) * 26 - Math.max(0, Math.sin(t * 2 + k) * 0.6));
+      R.poligono([[x - 2, y - 7], [x + 2, y - 7], [x + 3, y + 8], [x - 3, y + 8]], K); R.disco(x, y - 9, 2, K); R.pset(x - 1, y - 10, hex('#4a3020')); R.linea(x + 2, y - 6, x + 2, y + 4, hex('#3a2a20'));
+      banderolaG(x + 3, y - 4, 22 + (k % 3) * 4 - fila * 5, t, k + fila);
+    }
+    R.recorte(null);
+  }
+  // Paul sube a la cresta y se para; en «his own story» alza los brazos
+  const u = ease(tramo(t, 0.2, villain - 0.1)), px = Math.round(lerp(64, 132, u));
+  const alza = t > g(0.45) && t < g(0.78);
+  R.actor(T.PA.paul, px, 150, t, { dir: 1, anda: u > 0 && u < 1, brazos: alza, sorpresa: t > villain && t < villain + 0.6 });
+  // Atom luciérnaga: se asusta con el golpe y retrocede
+  const sp = tramo(t, villain, villain + 0.7);
+  const ax = lerp(210, 238, ease(sp)) + Math.sin(t * 1.1) * 4, ay = lerp(118, 108, sp) + Math.sin(t * 2.3) * 3;
+  T.AT.luciernaga(R, ax, ay, t, { dir: -1, brillo: 0.85, cara: t > villain && t < g(0.68) ? 'sorpresa' : t > g(0.68) ? 'triste' : 'normal' });
+  T.planetaDelante(R, t, o);
+  // el golpe: el cielo se enrojece un instante
+  const fl = tramo(t, GOLPE - 0.25, GOLPE) * (1 - tramo(t, GOLPE, GOLPE + 0.9));
+  if (fl > 0) T.tinte(R, 0, 179, [190, 40, 30], 0.28 * fl);
+};
+// 2 · el salón del trono (día): Shaddam se levanta y se va; Paul llega por la alfombra
+const p2 = (t) => {
+  const o = { encuadre: 'trono', luz: 'dia' };
+  T.ciudadela(R, t, o);
+  const sale = ease(tramo(t, m(0.2025), m(0.2025) + 1.2));
+  const sx = Math.round(lerp(153, 190, sale));
+  R.actor(T.PA.shaddam, sx, 122, t, { dir: 1, anda: sale > 0 && sale < 1, sorpresa: t > m(0.2025) - 0.1 && t < m(0.2025) + 0.5, triste: t > m(0.2025) + 0.5, enfado: t < m(0.2) && t > m(0.115) });
+  const u = ease(tramo(t, P2 + 0.1, m(0.115))), px = Math.round(lerp(72, 138, u));
+  const sube = ease(tramo(t, m(0.2354), P3 - 0.05));
+  R.actor(T.PA.paul, Math.round(px + sube * 18), Math.round(150 - sube * 7), t, { dir: 1, anda: (u > 0 && u < 1) || (sube > 0 && sube < 1), dedo: t > m(0.135) && t < m(0.2), sonrisa: t > m(0.25) });
+  T.AT.luciernaga(R, 264 + Math.sin(t * 0.9) * 4, 132 + Math.sin(t * 2.1) * 3, t, { dir: -1, brillo: 0.8, cara: t > m(0.2025) ? 'sorpresa' : 'normal' });
+  T.ciudadelaDelante(R, t, o);
+};
+// 3 · el balcón: la boda y la multitud que corea
+const p3 = (t) => {
+  const corea = (tt) => ease(tramo(tt, m(0.405), m(0.45)));
+  const o = { encuadre: 'balcon', aclaman: corea };
+  T.ciudadela(R, t, o);
+  const u = ease(tramo(t, P3 + 0.05, m(0.30))), w = ease(tramo(t, P3 + 0.1, m(0.305)));
+  const px = Math.round(lerp(116, 140, u)), ix = Math.round(lerp(194, 170, w));
+  const c = corea(t);
+  R.actor(T.PA.paul, px, 132, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: u >= 1, brazos: c > 0.4 });
+  R.actor(T.PA.irulan, ix, 132, t, { dir: -1, anda: w > 0 && w < 1, sonrisa: w >= 1, dedo: c > 0.4 && c < 0.95 });
+  T.AT.luciernaga(R, 124 + Math.sin(t * 1.2) * 6, 36 + Math.sin(t * 2.5) * 3, t, { dir: -1, brillo: 0.8, cara: c > 0.3 ? 'sonrisa' : 'normal' });
+  T.ciudadelaDelante(R, t, o);
+};
+// 4 · el planeta desde el espacio: la guerra santa, solo luces
+const LUCES = Array.from({ length: 90 }, (_, k) => ({ lon: hh(k, 1, 7) * 6.283, lat: (hh(k, 2, 7) - 0.5) * 2.6 }));
+const SEM = { lon: 0.35, lat: 0.2 };
+for (const L of LUCES) { const d = Math.acos(Math.max(-1, Math.min(1, Math.sin(L.lat) * Math.sin(SEM.lat) + Math.cos(L.lat) * Math.cos(SEM.lat) * Math.cos(L.lon - SEM.lon)))); L.d = d / Math.PI; }
+const MUNDOS = [[40, 46, 3, '#8a9ab0'], [66, 140, 4, '#a07850'], [28, 98, 2, '#90a888'], [236, 60, 3, '#b0a070'], [262, 132, 4, '#7a88a8'], [292, 88, 2, '#a89090'], [222, 160, 2, '#9a9a80'], [92, 34, 2, '#88a0a0'], [214, 34, 2, '#a08aa0'], [300, 160, 3, '#90a070'], [16, 150, 3, '#a09080'], [250, 104, 2, '#8a8aa0']];
+const p4 = (t) => {
+  const giro = 0.03 * (t - P4);
+  T.planeta(R, t, { encuadre: 'orbita', t0: P4, giro });
+  const cx = 150, cy = 100, rr = 56, prog = tramo(t, m(0.5313), m(0.70)) ** 1.3;
+  for (const L of LUCES) {
+    const a = L.lon + giro * 1, z = Math.cos(L.lat) * Math.cos(a); if (z < 0.08) continue;
+    const on = cl((prog - L.d * 0.95) * 6); if (on <= 0) continue;
+    const x = Math.round(cx + rr * Math.cos(L.lat) * Math.sin(a)), y = Math.round(cy - rr * Math.sin(L.lat));
+    const tw = Math.sin(t * 9 + L.lon * 20) > 0;
+    if (on > 0.5) { for (const [dx, dy] of [[-1, 0], [-1, 1], [2, 0], [2, 1], [0, -1], [1, -1], [0, 2], [1, 2]]) R.pset(x + dx, y + dy, hex('#a83222')); if (tw && on > 0.8) for (const [dx, dy] of [[-2, 0], [3, 1], [1, -2], [0, 3]]) R.pset(x + dx, y + dy, hex('#6a1a16')); }
+    R.rect(x, y, x + 1, y + 1, on > 0.6 ? (tw ? hex('#ffe08a') : hex('#ffb050')) : hex('#e05a30'));
+    if (on > 0.8 && tw) R.pset(x, y, hex('#fff6d0'));
+  }
+  // los otros planetas del mapa de estrellas se encienden uno a uno
+  const q = tramo(t, m(0.66), m(0.775));
+  MUNDOS.forEach(([x, y, r, c], k) => {
+    const on = cl((q * MUNDOS.length - k) * 1.5);
+    R.disco(x, y, r + 1, K); R.disco(x, y, r, hex(c)); R.pset(x - 1, y - 1, hex('#e8e8f0'));
+    if (on > 0) { const pr = r + 2 + Math.round(on * 2) + (Math.floor(t * 4 + k) % 2);
+      for (let i = 0; i < 24; i++) { const an = i / 24 * 6.283; R.pset(Math.round(x + Math.cos(an) * pr), Math.round(y + Math.sin(an) * pr), on > 0.5 ? hex('#e84a2a') : hex('#8a2a20')); }
+      R.disco(x, y, Math.max(1, r - 1), hex('#e86a30')); R.pset(x, y, hex('#ffd070')); }
+  });
+  const ax = 238 + Math.sin(t * 0.8) * 4, ay = 150 + Math.sin(t * 2) * 3;
+  T.AT.luciernaga(R, ax, ay, t, { dir: -1, brillo: 0.85, cara: t > m(0.7176) ? 'triste' : t > m(0.6365) ? 'sorpresa' : 'normal' });
+};
+// 5 · la repisa de roca, de noche: la visión de los caminos que no puede parar
+const RAMAS = (() => { const L = []; const rama = (x, y, an, len, n) => { const x1 = x + Math.cos(an) * len, y1 = y + Math.sin(an) * len * 0.5; L.push([x, y, x1, y1, n]); if (n < 4) { rama(x1, y1, an - 0.45, len * 0.75, n + 1); rama(x1, y1, an + 0.4, len * 0.72, n + 1); } }; rama(160, 120, -0.05, 30, 0); return L; })();
+const p5 = (t) => {
+  const o = { encuadre: 'desierto', camara: 'roca', hora: 'noche', silueta: 1, t0: P5 };
+  T.planeta(R, t, o);
+  const ve = tramo(t, m(0.8218), m(0.89)), roj = tramo(t, m(0.9434), m(0.98));
+  if (ve > 0) {
+    R.recorte([150, 66, 270, 128]);
+    for (const [x0, y0, x1, y1, n] of RAMAS) {
+      const u = cl(ve * 5 - n); if (u <= 0) continue;
+      const xe = Math.round(lerp(x0, x1, u)), ye = Math.round(lerp(y0, y1, u));
+      const c = roj > 0.5 ? hex('#8a2a2a') : (Math.floor(t * 6 + n) % 3 ? hex('#ffd060') : hex('#fff0b0'));
+      R.linea(Math.round(x0), Math.round(y0), xe, ye, c); R.linea(Math.round(x0), Math.round(y0) + 1, xe, ye + 1, roj > 0.5 ? hex('#4a1a20') : hex('#a87020'));
+    }
+    R.recorte(null);
+  }
+  const alza = t > m(0.835) && t < m(0.9434);
+  const vuelta = t > m(0.97);
+  R.actor(T.PA.paulEmperador, 104, 131, t, { dir: vuelta ? -1 : 1, dedo: alza, triste: t > m(0.9434), sorpresa: t > m(0.8218) && t < m(0.84) });
+  T.AT.luciernaga(R, 72 + Math.sin(t * 1.1) * 4, 96 + Math.sin(t * 2.2) * 3, t, { dir: 1, brillo: 0.7, cara: t > m(0.9434) ? 'triste' : 'normal' });
+  T.planetaDelante(R, t, o);
+};
+const efectos = [[0.3, 'viento', { dur: 2.2 }], [GOLPE, 'boom'], [m(0.2025), 'golpecito'], [m(0.41), 'publico', { dur: 2.2 }], [m(0.5313), 'brillo'], [m(0.6365), 'trueno'], [m(0.825), 'brillo'], [m(0.95), 'viento', { dur: 1.6 }]];
+const año = (t) => (t < P4 ? 0 : 12);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año });
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Aviso · ep44</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PA-AVISO (frases 3–4). Año 0 (el joven Paul), 12 (el emperador), y el estudio sin año. Seis planos:
+// 1. el desierto de día, a ras del llano: el joven Paul camina por la cresta y Atom (chibi) lo sigue; en «Paul
+//    Atreides» Atom se para y lo señala; en «you know him» Paul se vuelve y Atom saluda; la loma cruza el llano;
+// 2. el laberinto de luz visto desde arriba: Paul llega al centro («comes to the desert») y, en «prophet», alza los
+//    brazos y los caminos se encienden uno a uno;
+// 3. los aposentos, de noche: Paul emperador va del diván a la ventana y mira la ciudad («his story»); Irulan se asoma
+//    por la puerta; en «warning» él se vuelve, triste;
+// 4. el globo del escritorio de Atom: Atom (al doble) levanta el cartel del ojo tapado en «a warning»; en «Dune
+//    Messiah» el globo de la Tierra se vuelve de arena;
+// 5. el estudio entero: Atom va a la pizarra; en «Part 3» sale un «3» de tiza y en «December 18th» la hoja de
+//    calendario con el «18», que rodea con un círculo;
+// 6. la mesa de cerca: Atom camina («walk into the theater»), se tapa los ojos con el cartel en «knowing nothing», lo
+//    deja sobre el libro en «save this video» y guiña en «later».
+import * as T from '/atomo/plato/escenas/pa-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('pa-aviso');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const p = (f) => en('paul', f), a = (f) => en('aviso', f);
+const Q2 = p(0.4097), Q3 = p(0.7018), Q4 = a(0), Q5 = a(0.3239), Q6 = a(0.6665);
+const K = hex('#17151d'), ease = (u) => u * u * (3 - 2 * u), cl = (u) => Math.max(0, Math.min(1, u));
+const voz = (t) => E.energia ? E.energia(t) : 0;
+const TIZA = hex('#eef0e4');
+// el cartel del ojo tapado (sin letras): tarjeta blanca con borde, un ojo con pestañas y una venda oscura encima
+const cartel = (x0, y0, w, hh) => {
+  R.rect(x0, y0, x0 + w, y0 + hh, K); R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + hh - 1, hex('#fbf6e8')); R.rect(x0 + 1, y0 + hh - 2, x0 + w - 1, y0 + hh - 1, hex('#e0d6bc'));
+  const cx = x0 + Math.round(w / 2), cy = y0 + Math.round(hh / 2) + 1, rx = Math.round(w * 0.34), ry = Math.max(2, Math.round(hh * 0.24));
+  for (let y = -ry; y <= ry; y++) for (let x = -rx; x <= rx; x++) { const e = (x / rx) ** 2 + (y / ry) ** 2; if (e <= 1) R.pset(cx + x, cy + y, e > 0.62 ? K : hex('#ffffff')); }
+  R.disco(cx, cy, Math.max(1, ry - 1), hex('#3a7ad8')); R.pset(cx, cy, K);
+  for (let k = -2; k <= 2; k++) R.linea(cx + k * Math.round(rx / 2.5), cy - ry - 1, cx + k * Math.round(rx / 2.2), cy - ry - 3, K);
+  const bh = Math.max(2, Math.round(hh * 0.18)); R.rect(x0 + 2, cy - Math.floor(bh / 2), x0 + w - 2, cy + Math.ceil(bh / 2) - 1, hex('#2a2a36'));
+  R.rect(x0 + 2, cy - Math.floor(bh / 2), x0 + w - 2, cy - Math.floor(bh / 2), hex('#4a4a5a'));
+  R.linea(x0 + w - 3, cy + 1, x0 + w - 1, cy + 4, hex('#2a2a36')); R.linea(x0 + w - 4, cy + 1, x0 + w - 5, cy + 4, hex('#2a2a36'));
+};
+// el libro (nuestro, sin letras): tapas color arena con un halcón dorado de punto y un ojo azul
+const libro = (x, y, w, h) => {
+  R.rect(x, y, x + w, y + h, K); R.rect(x + 1, y + 1, x + w - 1, y + h - 2, hex('#c8a060')); R.rect(x + 1, y + h - 2, x + w - 1, y + h - 1, hex('#efe6d0'));
+  R.rect(x + 1, y + 1, x + 2, y + h - 2, hex('#8a6430')); R.rect(x + 3, y + 1, x + w - 1, y + 2, hex('#dcb878'));
+  const cx = x + Math.round(w / 2) + 1, cy = y + Math.round(h / 2) - 1;
+  R.disco(cx, cy, Math.round(h / 4), hex('#8a5a26')); R.disco(cx, cy, Math.max(1, Math.round(h / 4) - 1), hex('#3a6ad8')); R.pset(cx, cy, hex('#a8d8ff'));
+  R.linea(x + 4, y + h - 5, x + w - 3, y + h - 5, hex('#a8803e'));
+  R.rect(x + 1, y + 1, x + 4, y + h - 2, hex('#7a4a1c')); R.linea(x + 2, y + 3, x + 2, y + h - 4, hex('#c89a50')); R.pset(x + 3, y + 5, hex('#e8c040')); R.pset(x + 3, y + h - 6, hex('#e8c040'));
+  for (let i = 0; i < 2; i++) R.linea(x + 5, y + h - 1 + 0, x + w - 1, y + h - 1, hex('#d8ccb0'));
+  R.rect(x + 3, y + h, x + w + 1, y + h + 1, hex('#3a2414'));
+};
+// 1 · el desierto de día: Paul camina y Atom lo sigue
+const q1 = (t) => {
+  const o = { encuadre: 'desierto', hora: 'dia', silueta: 1, t0: 0 };
+  T.planeta(R, t, o);
+  const u = tramo(t, 0, p(0.35)), px = Math.round(lerp(56, 214, ease(u)));
+  const vuelve = t > p(0.3589);
+  R.actor(T.PA.paul, px, 150, t, { dir: vuelve ? -1 : 1, anda: u > 0 && u < 1, sonrisa: vuelve });
+  const para = t > p(0.0654) && t < p(0.19);
+  const ua = tramo(t, 0, p(0.0654)), ub = tramo(t, p(0.19), p(0.34));
+  const ax = Math.round(lerp(14, 60, ease(ua)) + lerp(0, 90, ease(ub)));
+  T.AT.atom(R, ax, 152, t, { dir: 1, pose: (ua > 0 && ua < 1) || (ub > 0 && ub < 1) ? 'camina' : para ? 'senala' : vuelve ? 'saluda' : 'quieto', cara: vuelve ? 'sonrisa' : para ? 'sorpresa' : 'normal', habla: voz(t) });
+  T.planetaDelante(R, t, o);
+};
+// 2 · el laberinto de luz desde arriba: el profeta
+const q2 = (t) => {
+  const enc = ease(tramo(t, p(0.53), p(0.66)));
+  const o = { encuadre: 'laberinto', camara: 'alto', apagados: 0.85 * (1 - enc) };
+  T.sietch(R, t, o);
+  const u = ease(tramo(t, Q2 + 0.05, p(0.53))), px = Math.round(lerp(96, 160, u));
+  const pro = t > p(0.5768);
+  R.actor(T.PA.paul, px, 166, t, { dir: 1, anda: u > 0 && u < 1, brazos: pro && t < p(0.68), sorpresa: pro && t < p(0.62) });
+  const an = t * 1.3, va = ease(tramo(t, p(0.53), p(0.6)));
+  T.AT.luciernaga(R, lerp(160 + Math.cos(an) * 42, 52 + Math.sin(t) * 3, va), lerp(112 + Math.sin(an) * 16, 150 + Math.sin(t * 2) * 2, va), t, { dir: Math.cos(an + 1.57) > 0 ? 1 : -1, brillo: 0.9, cara: pro ? 'sorpresa' : 'normal' });
+  T.sietchDelante(R, t, o);
+};
+// 3 · los aposentos de noche: el emperador a solas
+const q3 = (t) => {
+  const o = { encuadre: 'aposentos' };
+  T.ciudadela(R, t, o);
+  const asoma = ease(tramo(t, p(0.80), p(0.84))) * (1 - ease(tramo(t, p(0.965), p(0.995))));
+  R.actor(T.PA.irulan, Math.round(lerp(262, 256, asoma)), 150, t, { dir: -1, sorpresa: t > p(0.9575) && t < p(0.99) });
+  const u = ease(tramo(t, Q3 + 0.1, p(0.86))), px = Math.round(lerp(76, 148, u));
+  const vuelta = t > p(0.9575);
+  R.actor(T.PA.paulEmperador, px, 150, t, { dir: vuelta ? -1 : 1, anda: u > 0 && u < 1, triste: vuelta, habla: 0 });
+  T.AT.luciernaga(R, 177 + Math.sin(t * 1.2) * 3, 112 + Math.sin(t * 2.4) * 3, t, { dir: -1, brillo: 0.75, cara: vuelta ? 'triste' : 'normal' });
+  T.ciudadelaDelante(R, t, o);
+};
+// 4 · el globo del escritorio: el cartel en «a warning»; la Tierra se vuelve de arena
+const q4 = (t) => {
+  const are = ease(tramo(t, a(0.2111), a(0.2562) + 0.4));
+  const o = { encuadre: 'orbita', camara: 'globo', arena: are, t0: Q4 };
+  const geo = T.planeta(R, t, o);
+  const alza = ease(tramo(t, a(0.075), a(0.095)));
+  const mira = t > a(0.2111);
+  const r = T.AT.atom(R, 252, 132, t, { s: 2, dir: -1, pose: alza > 0 ? 'sostiene' : 'quieto', cara: mira ? 'sorpresa' : 'normal', habla: voz(t) });
+  if (alza > 0 && r?.mano) { const [mx, my] = r.mano.map(Math.round); const cy0 = Math.round(my - 40 + (1 - alza) * 16);
+    R.rect(mx, cy0 + 22, mx + 1, my, hex('#7a5230')); cartel(mx - 22, cy0, 32, 23); }
+  T.planetaDelante(R, t, o);
+};
+// 5 · el estudio entero: el «3» y la hoja del calendario con el «18» en la pizarra
+const q5 = (t) => {
+  const tres = a(0.4198), dic = a(0.5727), ocho = a(0.589);
+  const pizarra = (R, t, [x0, y0, x1, y1]) => {
+    const u3 = tramo(t, tres - 0.1, tres + 0.3);
+    if (u3 > 0) R.numero('3', x0 + 20, y0 + 30, { tam: 16, color: TIZA, contorno: false, sombra: false, n: Math.ceil(u3 * 16) });
+    const uc = tramo(t, dic - 0.2, dic + 0.3);
+    if (uc > 0) { const cx0 = x0 + Math.round((x1 - x0) * 0.48), cy0 = y0 + 6, w = 34, h = Math.round(34 * ease(uc));
+      for (let y = cy0; y <= cy0 + h; y++) { R.linea(cx0, y, cx0 + w, y, y < cy0 + 8 ? hex('#c84a3a') : hex('#f4efe2')); }
+      R.linea(cx0, cy0, cx0 + w, cy0, K); R.linea(cx0, cy0 + h, cx0 + w, cy0 + h, K); R.linea(cx0, cy0, cx0, cy0 + h, K); R.linea(cx0 + w, cy0, cx0 + w, cy0 + h, K);
+      for (const dx of [8, 26]) { R.linea(cx0 + dx, cy0 - 2, cx0 + dx, cy0 + 2, hex('#8a8a90')); }
+      if (uc >= 1) R.numero('18', cx0 + 17, cy0 + 29, { tam: 16, centro: true, color: K, contorno: false, sombra: false, n: t > ocho ? Infinity : 8 });
+      const ur = tramo(t, ocho + 0.2, ocho + 0.9);
+      if (ur > 0) for (let i = 0; i <= 48 * ur; i++) { const an = -1.6 + i / 48 * 6.4; R.pset(Math.round(cx0 + 17 + Math.cos(an) * 22), Math.round(cy0 + 20 + Math.sin(an) * 17), TIZA); R.pset(Math.round(cx0 + 17 + Math.cos(an) * 23), Math.round(cy0 + 20 + Math.sin(an) * 18), TIZA); }
+    }
+  };
+  const o = { pizarra };
+  const ge = T.estudio(R, t, o);
+  const u = ease(tramo(t, Q5 + 0.1, tres - 0.3));
+  const x = Math.round(lerp(74, 118, u));
+  const senala = (t > tres - 0.2 && t < tres + 0.8) || t > dic - 0.2;
+  T.AT.atom(R, x, 166, t, { s: 2, dir: 1, pose: u > 0 && u < 1 ? 'camina' : senala ? 'senala' : 'quieto', cara: t > ocho ? 'sonrisa' : 'normal', habla: voz(t) });
+  T.estudioDelante(R, t, o);
+};
+// 6 · la mesa de cerca: Atom se tapa los ojos con el cartel y lo deja sobre el libro
+const q6 = (t) => {
+  const o = { camara: 'mesa', sin: ['lupa'] };
+  const ge = T.estudio(R, t, o);
+  libro(172, 134, 48, 18);
+  const anda = tramo(t, a(0.7067), a(0.7624)), x = Math.round(lerp(120, 146, ease(anda)));
+  const tapa = t > a(0.7842);
+  const d = ease(tramo(t, a(0.8758), a(0.8758) + 0.4)), deja = d >= 1;
+  const r = T.AT.atom(R, x, 156, t, { s: 2, dir: 1, pose: anda > 0 && anda < 1 ? 'camina' : !deja ? 'sostiene' : t > a(0.94) ? 'senala' : 'quieto', cara: t > a(0.9632) ? 'guino' : deja ? 'sonrisa' : 'normal', habla: voz(t) });
+  if (!deja && r?.mano) { const [mx, my] = r.mano.map(Math.round); const sube = tapa ? ease(tramo(t, a(0.7842), a(0.7842) + 0.25)) : 0;
+    const [fx, fy] = (r.centro ?? [mx - 10, my - 16]).map(Math.round);
+    let cy0 = lerp(my - 14, fy - 10, sube), cx0 = lerp(mx - 8, fx - 14, sube);
+    cx0 = lerp(cx0, 181, d); cy0 = lerp(cy0, 115, d);
+    if (!tapa) R.rect(mx, my - 2, mx + 1, my, hex('#7a5230'));
+    cartel(Math.round(cx0), Math.round(cy0), 30, 21); }
+  if (deja) cartel(181, 115, 30, 21);
+};
+const efectos = [[0.3, 'viento', { dur: 2.6 }], [p(0.5768), 'brillo'], [a(0.092), 'aviso'], [a(0.2111), 'vapor'], [a(0.4198), 'lapiz'], [a(0.5727), 'papel'], [a(0.589) + 0.2, 'lapiz'], [a(0.7842), 'papel'], [a(0.8758), 'toc']];
+const año = (t) => (t < Q3 ? 0 : t < Q4 ? 12 : null);
+T.rodar(E, R, [[0, q1], [Q2, q2], [Q3, q3], [Q4, q4], [Q5, q5], [Q6, q6]], { efectos, año });
+</script>
+</body>
+</html>
