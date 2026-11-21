@@ -915,3 +915,30 @@ Pendiente para el próximo: borrar los fotogramas del 42 al empezar; si el conte
 
 Pendiente para el próximo: borrar los fotogramas del 43 al empezar; mirar el disco antes de la calidad; buscar
 colisiones en ELENCO_CHIBI; leer los avisos cruzados del workflow de calidad.
+
+## Episodio 44 · Paul Atreides: por qué el héroe de Dune es el villano (21/11/2026)
+
+- **Música nueva, canon desde el 44 (aprobado por el usuario de oído):** instrumentos sampleados con FluidSynth y
+  FluidR3_GM (`atomo/herramientas/sonido/tramo_sf.py`, con `BANDA.sampleado` y `BANDA.paleta`), una paleta por episodio
+  y nunca el mismo solista dos episodios seguidos; nada que suene a campanita (celesta, glockenspiel, caja de música,
+  campanas, vibráfono, kalimba, marimba, dulcémele: un assert lo impide). **Fallo encontrado:** el MIDI no llevaba
+  tempo y sonaba a 120 bpm; los tramos largos acababan antes y dejaban escenas 8 dB más bajas. Se arregló la base de los
+  ticks y se le dijo al usuario que la muestra que aprobó sonaba demasiado rápida. Medido en el episodio: 4,7 dB entre la
+  escena más baja y la más alta, sin caídas.
+- **Ritmo de la narración, canon desde el 44** («un 10 % más rápido y sin pausas largas entre escenas»): inglés a 1.045,
+  pausas cortas (respiro 0,15, párrafo 0,4, acto 0,5) y español con `ritmo: 'igualar'` (la velocidad de cada frase se
+  ajusta a la duración de la inglesa, entre 15,5 y 21 bytes/s). El episodio pasó de 12:24 a 10:59. En español quedan
+  silencios de hasta 3,1 s (mediana 1,5) donde la velocidad toca el tope.
+- **Subtítulos:** con la voz más rápida, 3 subtítulos españoles pasaron de 20 caracteres/s; se arreglaron moviendo sus
+  tiempos unas décimas hacia los huecos de al lado. Para el próximo: mirarlo antes del control final.
+- **Reparto:** `sacerdote` ya existía en ELENCO_CHIBI; el nuevo se llama `sacerdotePA` (sí se buscaron colisiones).
+- **Decorados:** la pasada encontró y arregló un sepia que se desbordaba (las velas salían turquesa: faltaba
+  `Math.min(255, …)`), un cuenco tapado con parche (ahora `o.sinCuenco`) y una cuna que asomaba en el año 0.
+- **Calidad:** 129 planos, 43 suspensos en la revisión completa → 2 al final (la «Y» de oro en las banderolas, que se
+  arregló a mano poniendo el halcón por defecto). 27 agentes, 4,8 M de tokens, 1 h 46 min. **Ojo:** tres agentes
+  editaron el html directamente (pa-gancho, pa-conspira, pa-trampa) y sus módulos `escenas1/4/5.py` ya no coinciden:
+  **no regenerar esos módulos con `--pisar`** sin pasar antes los cambios al módulo.
+- **Shorts:** el gancho, la etiqueta de Herbert y la trampa de ver el futuro (39–43 s).
+
+Pendiente para el próximo: borrar los fotogramas del 44 al empezar; mirar los subtítulos españoles con el ritmo nuevo
+antes del control; si se toca el 44, sincronizar escenas1/4/5.py con sus html antes de regenerar.

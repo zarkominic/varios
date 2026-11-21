@@ -1,6 +1,6 @@
 # Episodio 44 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 10:59.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, al ritmo nuevo del 44: un 10 % más rápido y sin
   silencios largos entre escenas) y pista de audio en español (ZONOS3-Mini, voz `Rodrigo`, con el ritmo igualado frase a
   frase al inglés).
@@ -51,7 +51,14 @@ What we cover:
 If you could see the future and it all went wrong anyway, would you still look? Tell me in the comments.
 
 Chapters:
-{CAPITULOS_EN}
+0:00 The hook
+0:54 What you've already seen
+2:40 The emperor
+4:22 The conspiracy
+5:31 The trap
+7:10 The price
+8:30 Why power changes people
+10:17 The ending
 
 Sources: Frank Herbert, Dune Messiah (Galaxy, July–November 1969; Putnam, 1969) and his introduction to Eye (1985) ·
 UPI, «Leader of the Dunes» (6/12/1984) · Variety and Deadline on Dune: Part Three · R. K. Merton, The Antioch Review
@@ -87,7 +94,14 @@ Lo que contamos:
 Si pudieras ver el futuro y aun así todo saliera mal, ¿seguirías mirando? Cuéntamelo en los comentarios.
 
 Capítulos:
-{CAPITULOS_ES}
+0:00 El gancho
+0:54 Lo que ya viste
+2:40 El emperador
+4:22 La conspiración
+5:31 La trampa
+7:10 El precio
+8:30 Por qué el poder cambia
+10:17 El cierre
 
 Fuentes: Frank Herbert, *El Mesías de Dune* (Galaxy, julio–noviembre de 1969; Putnam, 1969) y su introducción a *Eye*
 (1985) · UPI, «Leader of the Dunes» (6/12/1984) · Variety y Deadline sobre *Dune: Parte Tres* · R. K. Merton, *The
@@ -105,6 +119,41 @@ sintéticas (IA).
 - **EN:** `Paul Atreides, Dune Messiah, Dune Part Three, Dune 3, Dune Messiah explained, Paul Atreides villain, Frank Herbert, Chani, Alia Atreides, Duncan Idaho, Hayt, Scytale, Princess Irulan, Leto II, hero's journey, hubris syndrome, Denis Villeneuve, ASK Atom`
 - **ES:** `Paul Atreides, El Mesías de Dune, Dune Parte Tres, Dune 3, El Mesías de Dune explicado, Paul Atreides villano, Frank Herbert, Chani, Alia Atreides, Duncan Idaho, Hayt, Scytale, princesa Irulan, Leto II, viaje del héroe, síndrome de hubris, Denis Villeneuve, ASK Atom`
 
+## Shorts
+
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado (56 % de la pantalla), cada uno con la voz
+en inglés como pista principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del
+vídeo largo y enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.0-39.5
+- **EN:** Paul Atreides: Dune's Hero Is the VILLAIN #Shorts
+- **ES:** Paul Atreides: el héroe de Dune es el VILLANO #Shorts
+- **EN:** He avenged his father, defeated the emperor and half the universe chanted his name. Twelve years later, that name had fueled a holy war he saw coming and couldn't stop. The full story of Dune Messiah is in the linked video. #Dune #DuneMessiah #PaulAtreides #ASKAtom #Shorts
+- **ES:** Vengó a su padre, derrotó al emperador y medio universo coreaba su nombre. Doce años después, ese nombre había encendido una guerra santa que vio venir y no pudo parar. La historia entera de El Mesías de Dune, en el vídeo enlazado. #Dune #ElMesiasDeDune #PaulAtreides #ASKAtom #Shorts
+
+### Short 2 · La etiqueta de Herbert · tramo 222.3-262.9
+- **EN:** Frank Herbert's Warning About Paul Atreides #Shorts
+- **ES:** Frank Herbert y su aviso sobre Paul Atreides #Shorts
+- **EN:** In 1984, Frank Herbert said every charismatic leader should come with a label on their forehead: "Warning, I may be dangerous to your health." And the editor who serialized Dune turned the sequel down. The full story is in the linked video. #Dune #DuneMessiah #FrankHerbert #ASKAtom #Shorts
+- **ES:** En 1984, Frank Herbert dijo que todo líder carismático debería llevar una etiqueta en la frente: «Cuidado, puedo ser peligroso para tu salud». Y el editor que publicó Dune rechazó la continuación. La historia completa, en el vídeo enlazado. #Dune #ElMesiasDeDune #FrankHerbert #ASKAtom #Shorts
+
+### Short 3 · La trampa de ver el futuro · tramo 332.1-374.6
+- **EN:** Paul Atreides: Seeing the Future Is a Trap #Shorts
+- **ES:** Paul Atreides: ver el futuro es una trampa #Shorts
+- **EN:** Seeing the future isn't a superpower, it's a prison: Paul sees every path, and almost all of them are horrible. And in 1948 a sociologist named what happens next: the self-fulfilling prophecy. The full story is in the linked video. #Dune #DuneMessiah #PaulAtreides #ASKAtom #Shorts
+- **ES:** Ver el futuro no es un superpoder, es una cárcel: Paul ve todos los caminos y casi todos son horribles. Y en 1948 un sociólogo le puso nombre a lo que pasa después: la profecía autocumplida. La historia completa, en el vídeo enlazado. #Dune #ElMesiasDeDune #PaulAtreides #ASKAtom #Shorts
+
 ## Avisos
 
-{AVISOS}
+**Para escuchar** (pronunciaciones dudosas que marcó el control de la voz; no se relocutan sin tu oído):
+- EN, frase 5: «Leto Atreides» puede sonar «letoetrides».
+- EN, frase 21: «Scytale» puede sonar «saitel».
+- EN, frase 24: un hueco antes de «Knows».
+- ES, frase 9: «ve ya» puede sonar «bella».
+- ES, frase 17: «contra Paul» puede sonar «contrapol».
+- ES, frase 28: puede faltar una «a»; «sietch» puede sonar «siege» y «nacen», «nace en».
+- ES, frase 30: «Duncan Idaho» puede sonar «danga y dajo».
+- ES, frase 31: «Scytale» puede sonar «zaital».
+- ES, frase 39: «Paul» puede sonar «pol».
+
+**Silencios en español:** con el ritmo nuevo, la mediana entre escenas es de 1,5 s, pero queda alguno de hasta 3,1 s.
