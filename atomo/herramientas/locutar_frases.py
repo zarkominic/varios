@@ -174,7 +174,7 @@ def sintetizar(texto, l, vel):
         # habla a ~18 por su cuenta, y el usuario la pidió un 10 % más rápida (20/11/2026). Sin ritmo, la clave de la
         # caché es la de siempre
         ritmo = f"|r{v['ritmo']}" if v.get('ritmo') else ''
-        clave = hashlib.sha1(f"z3|{v['voz']}|{ctl}|{v.get('headroom', 3)}{ritmo}|{vel}|{texto}".encode()).hexdigest()[:16]
+        clave = hashlib.sha1(f"z3m|{v['voz']}|{ctl}|{v.get('headroom', 3)}{ritmo}|{vel}|{texto}".encode()).hexdigest()[:16]   # z3m: con --max 1500 (desde el 45)
         f = f'{CLIPS}/{l}-{clave}.wav'
         if not os.path.exists(f):
             with tempfile.TemporaryDirectory() as d:
@@ -185,7 +185,13 @@ def sintetizar(texto, l, vel):
                     orden += ['--control', f'{c}={dosis}']
                 if v.get('ritmo'):
                     orden += ['--speaking-rate', str(v['ritmo'])]
-                subprocess.run(orden, check=True, capture_output=True)
+                # --max: ZONOS3 genera como mucho 450 tramas (~29 s) por omisión y corta ahí SIN avisar (eos_frame=-1):
+                # así se perdió el «-to» de «a propósito» en el 44 y el final de 13 párrafos en la primera voz del 45.
+                # Con 1500 tramas (~100 s) los párrafos acaban solos; si aun así no llega al final, es un fallo
+                orden += ['--max', '1500']
+                r = subprocess.run(orden, check=True, capture_output=True, text=True)
+                if 'eos_frame=-1' in (r.stderr + r.stdout):
+                    raise RuntimeError(f'ZONOS3 no llegó al final del texto (eos_frame=-1): {texto[:60]}…')
                 a, sr = sf.read(f'{d}/z.wav')
             sf.write(f, recortar(a_sr(a, sr)), SR)
         a, _ = sf.read(f)
