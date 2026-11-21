@@ -214,7 +214,7 @@ const cuenco = (x, y, lleno, t) => { R.poligono([[x - 11, y], [x + 12, y], [x + 
   else { for (let i = -8; i <= 9; i++) { const hh = ri(2 + Math.sin(i * 0.5) * 1.2); for (let j = 0; j < hh; j++) R.pset(x + i, y - j, j === hh - 1 ? H('#a85a2a') : H('#7a3a1a')); } for (const i of [-6, -1, 4, 8]) R.pset(x + i, y - 2, H('#6aa040'));
     for (let k = 0; k < 4; k++) { const u = (t * 0.6 + k / 4) % 1; R.pset(ri(x - 3 + k * 2 + Math.sin(u * 6 + k) * 2), ri(y - 3 - u * 12), u < 0.5 ? H('#f0e8d8') : H('#b8b0a0')); } } };
 const q1 = (t) => {
-  const o = { encuadre: 'aposentos', camara: 'cocina' };
+  const o = { encuadre: 'aposentos', camara: 'cocina', sinCuenco: true };
   const g = T.ciudadela(R, t, o);
   // Chani detrás de la mesa: mira el cuenco, lo aparta, recibe el nuevo y come
   const empuja = t > STARTS - 0.3 && t < STARTS + 0.5, come = t > DIET + 0.6;
@@ -222,11 +222,8 @@ const q1 = (t) => {
   // la Fremen entra con el cuenco de la dieta, lo deja y se queda
   const ue = tramo(t, STARTS - 0.4, DIET - 0.1), fx = lerp(290, 196, ease(ue)), lleva = t < DIET + 0.1;
   const rf = R.actor(PA.fremenMujer, fx, 150, t, { dir: -1, anda: ue > 0 && ue < 1, sostiene: lleva ? true : undefined, sonrisa: t > DIET, habla: t > DIET + 0.2 && t < BEATS && Math.sin(t * 8) > 0 });
-  const snap = []; for (let y = 128; y <= 139; y++) for (let x = 168; x <= 197; x++) snap.push(R.pget(x, y));
+  // la mesa sin su cuenco (o.sinCuenco): el cuenco de Irulan se pinta aparte, para poder apartarlo
   T.ciudadelaDelante(R, t, o);
-  // el cuenco de la mesa se pinta aparte (para poder apartarlo): se borra el de la mesa y se rehace el tablero
-  let i = 0; for (let y = 128; y <= 139; y++) for (let x = 168; x <= 197; x++) R.pset(x, y, snap[i++]);
-  for (let y = 140; y <= 143; y++) for (let x = 168; x <= 197; x++) R.pset(x, y, R.pget(x - 36, y));
   const bx = lerp(182, 199, ease(tramo(t, STARTS - 0.1, STARTS + 0.4)));
   cuenco(ri(bx), 135, 'agua', t);
   if (t > BEATS) { const u = pop(t, BEATS, 0.3); R.icono('X', ri(bx) - 6, 112 - ri(u * 4), H('#e83a2a'), K, 2); }

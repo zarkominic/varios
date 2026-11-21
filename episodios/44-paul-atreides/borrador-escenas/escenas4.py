@@ -95,7 +95,7 @@ const capturaActor = (def, t, o = {}) => { const B = R.buf, Wd = 40, Hd = 44, co
 const sepia = (a = 0.55) => { const B = R.buf; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const i = y * 320 + x, c = B[i], r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255, l = 0.3 * r + 0.59 * g + 0.11 * b;
   const v = Math.hypot((x - 160) / 190, (y - 90) / 120), o = v > 0.8 && b4(x, y) < (v - 0.8) * 2.2 ? 0.55 : 1;
   const rr = (l * 1.05 + 28) * o, gg = (l * 0.9 + 14) * o, bb = (l * 0.68) * o;
-  B[i] = (0xff000000 | (Math.round(b + (bb - b) * a) << 16) | (Math.round(g + (gg - g) * a) << 8) | Math.round(r + (rr - r) * a)) >>> 0; } };
+  B[i] = (0xff000000 | (Math.min(255, Math.round(b + (bb - b) * a)) << 16) | (Math.min(255, Math.round(g + (gg - g) * a)) << 8) | Math.min(255, Math.round(r + (rr - r) * a))) >>> 0; } };
 // el estandarte de los Fremen (verde o negro, con el halcón de oro como un punto)
 const banderolaG = (x, y, h, t, k) => {
   const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? H('#1f4a2c') : H('#18181e'), cs = k % 2 ? H('#3a7048') : H('#3a3a46');
