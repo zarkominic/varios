@@ -989,6 +989,9 @@ inglesa: medirlos y decírselo.
 - **Contenedor reiniciado:** se perdieron build/, la caché de la voz y el entorno; reinstalado (FluidSynth con
   apt-get update) en ~15 min.
 
+- **Entrega:** a 19 min, el mp4 (crf 18) pesa 413 MB y el chat solo acepta 400. Copia de entrega desde los fotogramas
+  con `-tune animation -crf 19` y el audio copiado: 384 MB, sin pérdida visible (`ep45-entrega.mp4`).
+
 Pendiente para el próximo: borrar los fotogramas del 45 al empezar; en el canon de las escenas, la lista de decorados de
 otros episodios prohibidos; escépticos que separen web y memoria; revisar si el usuario quiere rehacer párrafos cortados
 del 44.
