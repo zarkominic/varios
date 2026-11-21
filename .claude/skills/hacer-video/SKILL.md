@@ -28,7 +28,8 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
   `banda.cjs`, narración del 10 y del 11. No se cambia sin preguntar.
 - **El sonido que eligió el usuario de oído (30/10/2026, con el 16), también canon:**
   - **la mezcla «B»** en `montar-largo.sh`: la música 9 dB por debajo de su nivel de `banda.cjs`, con un hueco a la voz
-    (−5 dB en 2,5 kHz) y casi fuera cuando habla el narrador; los efectos 6 dB más bajos y también apartados por la voz;
+    (−5 dB en 2,5 kHz) y apartada cuando habla el narrador (desde el 45, ratio 2,5: la música +3,7 dB bajo la voz, elegido
+    de oído por el usuario el 21/11/2026, «la música está muy baja mientras habla Atom»; los silencios, igual); los efectos 6 dB más bajos y también apartados por la voz;
     un limitador a −6 dBFS antes de loudnorm. Llegó tras dos quejas («molesta escuchar al narrador», «los sfx están muy
     fuertes»);
   - **los ánimos igualados por LUFS** en `banda.cjs` (`ANIMO`) con un nivelador de picos: «hay melodías que suenan más

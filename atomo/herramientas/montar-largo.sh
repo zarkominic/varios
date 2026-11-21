@@ -44,7 +44,9 @@ MUS="volume=0.2[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attac
 # Y el 30/10, otra vez: «la música aún molesta y los sfx están muy fuertes». Con cuatro muestras del 16, el usuario eligió
 # la «B»: la música 9 dB más baja que su nivel de banda.cjs y casi desaparece bajo la voz (umbral 0,02, razón 10); los
 # efectos, 6 dB más bajos y también apartados por la voz (umbral 0,05, razón 3). Es el estándar desde el 16.
-[ -f "$D/musica-banda.json" ] && MUS="equalizer=f=2500:t=q:w=0.8:g=-5,volume=-9dB[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=10:attack=15:release=700"
+# desde el 45 (el usuario, 21/11/2026, de oído, con muestras en inglés y en español: «la música está muy baja mientras
+# habla Atom; cuando hay silencio está bien»): ratio 2,5 en vez de 10, la música +3,7 dB bajo la voz y los silencios igual
+[ -f "$D/musica-banda.json" ] && MUS="equalizer=f=2500:t=q:w=0.8:g=-5,volume=-9dB[mus];[mus][llave]sidechaincompress=threshold=0.02:ratio=2.5:attack=15:release=700"
 EFXF="volume=-6dB[efx0];[efx0][llave2]sidechaincompress=threshold=0.05:ratio=3:attack=10:release=300"
 EFX=()
 [ -f "$D/efectos.wav" ] && EFX=(-i "$D/efectos.wav")
