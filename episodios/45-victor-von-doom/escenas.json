@@ -28,18 +28,20 @@
    "estilo": "pixel",
    "cartela": null,
    "frase_ini": 1,
-   "frase_fin": 2,
+   "frase_fin": 3,
    "marcas": [
     "giro",
+    "nieve",
     "doom"
    ],
    "guion_visual": [
-    "A: la montaña nevada de noche; un niño pequeño con abrigo mira una luz roja lejana entre las rocas; golpe en «hell».",
-    "A: el castillo sobre la ciudad; en lo alto, una figura con armadura gris, capa verde y máscara de hierro; Atom de luciérnaga la mira."
+    "A: la montaña nevada de noche; un niño pequeño con abrigo mira una luz roja lejana entre las rocas; golpe en «mother».",
+    "A: la tormenta: un hombre lleva a un niño en brazos; antorchas lejanas; se para, se quita el abrigo y lo envuelve; Atom de luciérnaga tirita.",
+    "A: el castillo sobre la ciudad; en lo alto, una figura con armadura gris, capa verde y máscara de hierro; Atom la mira."
    ],
    "animo": "misterio",
    "golpes": [
-    "giro+3"
+    "giro+2"
    ],
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -49,13 +51,13 @@
    "id": "vd-aviso",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 3,
-   "frase_fin": 3,
+   "frase_ini": 4,
+   "frase_fin": 4,
    "marcas": [
     "aviso"
    ],
    "guion_visual": [
-    "F: Atom en su estudio alza el cartel de destripes (un ojo tapado) y señala un calendario con «18»."
+    "F: Atom en su estudio alza el cartel de destripes (un ojo tapado), señala un calendario con «18» y cuelga un abrigo pequeño en el perchero («guárdate esto»)."
    ],
    "animo": "misterio",
    "golpes": [],
@@ -67,21 +69,21 @@
    "id": "vd-nieve",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 4,
-   "frase_fin": 8,
+   "frase_ini": 5,
+   "frase_fin": 9,
    "marcas": [
-    "campamento",
-    "mefisto",
+    "madre",
     "baron",
     "abrigo",
-    "baul"
+    "baul",
+    "promesa"
    ],
    "guion_visual": [
-    "A: el campamento romaní en la montaña: carromatos, hogueras, un curandero atiende a un niño; una mujer con chal mira el fuego; Atom tirita con una bufanda larguísima (gag).",
-    "A: la mujer con chal a solas; una luz roja con forma de mano se le acerca (Mefisto, sin cara); la luz se apaga; un bebé en una cuna.",
-    "A: el castillo del barón; el curandero junto a una cama (de lejos); el barón señala; de noche, un hombre huye con un niño en brazos por la nieve.",
-    "A: la tormenta; el padre envuelve al niño con su abrigo; amanece; un hombre mayor (Boris) llega con un farol.",
-    "A: un carromato de noche; el niño abre un baúl a la luz de una vela; libros con símbolos; Atom abre otro y le sale una nube de polvo (gag)."
+    "A: el campamento romaní: carromatos, hogueras; una mujer con chal mira el fuego; una luz roja con forma de mano se le acerca (Mefisto, sin cara) y se apaga; una cuna; Atom tirita con una bufanda larguísima (gag).",
+    "A: el castillo del barón: el curandero cruza la puerta; de noche, junto a una cama (de lejos), una vela que se consume; el barón señala.",
+    "A: la tormenta; el padre envuelve al niño con su abrigo; amanece; el abrigo sobre la nieve.",
+    "A: un carromato de noche; un hombre mayor (Boris) arropa al niño; luego el niño abre un baúl a la luz de una vela; libros con símbolos; Atom abre otro y le sale una nube de polvo (gag).",
+    "A: el niño en la colina mira el castillo del barón con los puños apretados; detrás, una luz roja lejana."
    ],
    "animo": "ternura",
    "golpes": [],
@@ -93,17 +95,15 @@
    "id": "vd-beca",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 9,
+   "frase_ini": 10,
    "frase_fin": 11,
    "marcas": [
-    "leyenda",
     "beca",
     "reed"
    ],
    "guion_visual": [
-    "A: el joven Victor con inventos caseros hace caer a dos soldados en la nieve; los niños del campamento lo miran admirados.",
-    "A: el camino del pueblo; Victor se despide de Boris y de Valeria (pelo largo, chal); un barco en el mar.",
-    "B: el campus; un grandullón simpático (Ben) saluda; un chico delgado con pelo castaño (Reed) le tiende la mano; Victor se da la vuelta."
+    "A y B: el joven Victor con inventos de chatarra hace caer a dos soldados en la nieve; se despide de Boris y de Valeria (pelo largo, chal); un barco en el mar.",
+    "B: el campus; un chico delgado de pelo castaño (Reed) le tiende la mano; Victor se da la vuelta."
    ],
    "animo": "aventura",
    "golpes": [],
@@ -124,12 +124,12 @@
    ],
    "guion_visual": [
     "B: el laboratorio de noche: la máquina con antenas; Reed mira la pizarra y señala un número; Atom intenta corregirlo y la tiza se le parte (gag).",
-    "B: Victor señala la puerta; Reed sale; Victor baja la palanca; destello blanco y humo (golpe), sin heridas a la vista.",
-    "B: el pasillo de la universidad; Victor con una venda en la mejilla se va con su maleta; mira atrás, a Reed, con rabia."
+    "B: Victor señala la puerta; Reed sale; Victor baja la palanca; destello blanco y humo (golpe), sin heridas a la vista; una maleta en el pasillo.",
+    "B: el pasillo; Victor, con una venda en la mejilla, mira atrás a Reed con rabia."
    ],
    "animo": "suspense",
    "golpes": [
-    "explota+9"
+    "explota+3"
    ],
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -145,7 +145,7 @@
     "fijate1"
    ],
    "guion_visual": [
-    "PAUSA: el pasillo congelado; Atom (al doble) saca a color una balanza: en un plato, una medalla («mío»); en el otro, un dedo que señala hacia fuera; «266» y «2004»."
+    "PAUSA: el pasillo congelado; Atom (al doble) saca a color una balanza: en un plato, una medalla; en el otro, un dedo que señala fuera; «266» y «2004»."
    ],
    "animo": "suspense",
    "golpes": [],
@@ -196,18 +196,14 @@
    "estilo": "pixel",
    "cartela": null,
    "frase_ini": 19,
-   "frase_fin": 22,
+   "frase_fin": 20,
    "marcas": [
     "trono",
-    "gobierna",
-    "cuatro",
     "valeria"
    ],
    "guion_visual": [
-    "A: Doom entra en la sala del trono de Latveria y se sienta; los estandartes verdes se despliegan.",
-    "A: la plaza de la ciudad: mercado lleno, niños jugando; robots con la cara de Doom en las ventanas se giran a la vez cuando Atom saluda (gag).",
-    "A: una pantalla en el castillo con cuatro siluetas azules con un «4»; Doom aprieta el puño; «1962».",
-    "A: una luz verde y una figura con chal que se desvanece en el aire (el sacrificio, solo luz, de lejos); Doom de espaldas; «2003»."
+    "A: Doom entra en la sala del trono y se sienta; la plaza: mercado lleno, niños jugando; robots con su cara en las ventanas se giran a la vez cuando Atom saluda (gag).",
+    "A: una pantalla con cuatro siluetas azules con un «4» y «1962»; luego una luz verde y una figura con chal que se desvanece en el aire (el sacrificio, solo luz, de lejos); Doom de espaldas; «2003»."
    ],
    "animo": "epico",
    "golpes": [],
@@ -219,8 +215,8 @@
    "id": "vd-malo",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 23,
-   "frase_fin": 23,
+   "frase_ini": 21,
+   "frase_fin": 21,
    "marcas": [
     "fijate3"
    ],
@@ -237,15 +233,15 @@
    "id": "vd-sanjuan",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 24,
-   "frase_fin": 25,
+   "frase_ini": 22,
+   "frase_fin": 23,
    "marcas": [
     "noche",
     "mignola"
    ],
    "guion_visual": [
-    "D: la noche de San Juan: un camino de luz entre rocas rojas; Doom avanza solo hacia una puerta enorme.",
-    "D: Doom y un hechicero con capa roja (Strange, por atributos) juntos ante la puerta; una luz blanca con forma de mujer sube hacia arriba; «1989»."
+    "D: la noche de San Juan: un camino de luz entre rocas rojas; Doom avanza solo hacia una puerta enorme; vuelve con las manos vacías.",
+    "D: Doom y un hechicero con capa roja (por atributos) ante la puerta; una luz blanca con forma de mujer sube; «1989»."
    ],
    "animo": "ternura",
    "golpes": [],
@@ -257,8 +253,8 @@
    "id": "vd-duelo",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 26,
-   "frase_fin": 26,
+   "frase_ini": 24,
+   "frase_fin": 24,
    "marcas": [
     "fijate4"
    ],
@@ -275,8 +271,8 @@
    "id": "vd-dios",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 27,
-   "frase_fin": 29,
+   "frase_ini": 25,
+   "frase_fin": 27,
    "marcas": [
     "battleworld",
     "pregunta",
@@ -284,8 +280,8 @@
    ],
    "guion_visual": [
     "E: Battleworld, el planeta cosido con trozos de mundos; Doom en un trono enorme con un halo; Atom se sienta en el trono y no le llegan los pies (gag).",
-    "E: Reed (pelo con canas en las sienes) ante el trono; un «?» de luz entre los dos; Doom baja la cabeza.",
-    "E: Reed (de espaldas) alza la mano con luz; Doom se quita la máscara de espaldas a cámara y se ríe (hombros que se agitan); Atom se quita su máscara pequeña y se ríe con él (gag)."
+    "E: Reed (canas en las sienes) ante el trono; un «?» de luz entre los dos; Doom baja la cabeza.",
+    "E: Reed alza la mano con luz; Doom se quita la máscara de espaldas a cámara y se ríe (hombros que se agitan); Atom se quita su máscara pequeña y se ríe con él (gag)."
    ],
    "animo": "asombro",
    "golpes": [],
@@ -294,20 +290,18 @@
    "produccion": ""
   },
   {
-   "id": "vd-emperador",
+   "id": "vd-nina",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 30,
-   "frase_fin": 32,
+   "frase_ini": 28,
+   "frase_fin": 29,
    "marcas": [
-    "hechicero",
-    "nina",
-    "testamento"
+    "mundo",
+    "tribunal"
    ],
    "guion_visual": [
-    "E: Doom con una capa de hechicero y un ojo de luz; el globo terráqueo con banderas verdes; «2024» y «2025».",
-    "E: una luz cálida sobre una niña de pelo rubio dormida (sin heridas); Doom arrodillado ante una figura enorme y cósmica (el Tribunal, por atributos).",
-    "E: la niña abre los ojos; Doom se vuelve polvo de luz; Atom lee el testamento y el pergamino se desenrolla hasta el suelo (gag)."
+    "E: el globo con banderas verdes; «2025»; un destello verde lejano en una batalla (sin heridas); una luz cálida sobre una niña rubia dormida.",
+    "E: Doom arrodillado ante una figura enorme y cósmica (el Tribunal, por atributos); la niña abre los ojos; Doom se vuelve polvo de luz; Atom lee el testamento y el pergamino se desenrolla hasta el suelo (gag)."
    ],
    "animo": "intriga",
    "golpes": [],
@@ -319,8 +313,8 @@
    "id": "vd-redencion",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 33,
-   "frase_fin": 33,
+   "frase_ini": 30,
+   "frase_fin": 30,
    "marcas": [
     "fijate5"
    ],
@@ -337,17 +331,17 @@
    "id": "vd-cierre",
    "estilo": "pixel",
    "cartela": null,
-   "frase_ini": 34,
-   "frase_fin": 36,
+   "frase_ini": 31,
+   "frase_fin": 33,
    "marcas": [
     "infierno",
-    "cine",
+    "abrigo2",
     "pregunta"
    ],
    "guion_visual": [
-    "D: Doom en el infierno: rompe contratos que arden en el aire; un trono rojo vacío; una luz verde sube libre.",
-    "A: la montaña nevada del principio; el niño con el abrigo mira la luz; un cine con «18».",
-    "F: Atom en su estudio mira a cámara y señala los comentarios."
+    "D: Doom en el infierno: rompe contratos que arden en el aire; un trono rojo; una luz verde sube libre.",
+    "A: la montaña nevada del principio; el padre y el niño con el abrigo, de lejos; luego un cine con «18».",
+    "F: Atom en su estudio descuelga el abrigo pequeño, mira a cámara y señala los comentarios."
    ],
    "animo": "cierre",
    "golpes": [],

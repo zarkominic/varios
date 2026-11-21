@@ -43,7 +43,7 @@
    "estilo": "pixel",
    "animo": "misterio",
    "golpes": [
-    "giro+3"
+    "giro+2"
    ],
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -52,16 +52,23 @@
     {
      "n": 1,
      "marca": "giro",
-     "es": "El villano más temido de Marvel empezó siendo un niño que solo quería sacar a su madre del infierno, y casi todo lo que hizo después, lo bueno y lo imperdonable, nació de esa promesa.",
-     "en": "Marvel's most feared villain started out as a little boy who only wanted to get his mother out of hell, and almost everything he did afterward, the good and the unforgivable, grew out of that promise.",
-     "visual": "A: la montaña nevada de noche; un niño pequeño con abrigo mira una luz roja lejana entre las rocas; golpe en «hell»."
+     "es": "El villano más temido de Marvel empezó siendo un niño que quería salvar a su madre.",
+     "en": "Marvel's most feared villain began as a boy who wanted to save his mother.",
+     "visual": "A: la montaña nevada de noche; un niño pequeño con abrigo mira una luz roja lejana entre las rocas; golpe en «mother»."
     },
     {
      "n": 2,
+     "marca": "nieve",
+     "es": "Imagina que eres muy pequeño y que es de noche en la montaña. La nieve te llega a las rodillas, el viento no te deja abrir los ojos, y tu padre te lleva en brazos porque unos hombres os buscan con antorchas. No sabes por qué huís; solo sabes que tu padre tiembla, y que de pronto se para, se quita el abrigo y te envuelve con él, despacio, como si tuviera todo el tiempo del mundo.",
+     "en": "Imagine you're very small and it's night on the mountain. The snow comes up to your knees, the wind won't let you open your eyes, and your father is carrying you in his arms because some men are out looking for you with torches. You don't know why you're running; all you know is that your father is shaking, and that suddenly he stops, takes off his coat and wraps you in it, slowly, as if he had all the time in the world.",
+     "visual": "A: la tormenta: un hombre lleva a un niño en brazos; antorchas lejanas; se para, se quita el abrigo y lo envuelve; Atom de luciérnaga tirita."
+    },
+    {
+     "n": 3,
      "marca": "doom",
-     "es": "Se llama Victor von Doom, y el dieciocho de diciembre vuelve a los cines con la cara de Robert Downey Jr. en Vengadores: Doomsday, pero en los cómics lleva más de sesenta años escondido detrás de una máscara de hierro, y hoy quiero contarte su vida como la vería él, desde dentro de esa máscara.",
-     "en": "His name is Victor von Doom, and on December eighteenth he returns to theaters with Robert Downey Jr.'s face in Avengers: Doomsday, but in the comics he has spent more than sixty years hiding behind an iron mask, and today I want to tell you his life the way he would see it, from inside that mask.",
-     "visual": "A: el castillo sobre la ciudad; en lo alto, una figura con armadura gris, capa verde y máscara de hierro; Atom de luciérnaga la mira."
+     "es": "Ese niño se llama Victor von Doom, y esa noche, y todo lo que vino después, lo convirtió en el hombre de la máscara de hierro que el dieciocho de diciembre vuelve a los cines con la cara de Robert Downey Jr. en Vengadores: Doomsday. Hoy te quiero contar su vida tal como la vivió él, desde dentro de esa máscara.",
+     "en": "That boy's name is Victor von Doom, and that night, and everything that came after it, turned him into the man in the iron mask who returns to theaters on December eighteenth with Robert Downey Jr.'s face in Avengers: Doomsday. Today I want to tell you his life the way he lived it, from inside that mask.",
+     "visual": "A: el castillo sobre la ciudad; en lo alto, una figura con armadura gris, capa verde y máscara de hierro; Atom la mira."
     }
    ]
   },
@@ -75,11 +82,11 @@
    "produccion": "",
    "frases": [
     {
-     "n": 3,
+     "n": 4,
      "marca": "aviso",
-     "es": "Un aviso antes de empezar: te voy a contar su historia entera en los cómics, hasta lo último que ha pasado este año, así que si prefieres descubrirla tú, guarda este vídeo para más tarde.",
-     "en": "One warning before we begin: I'm going to tell you his whole story in the comics, right up to what happened this year, so if you'd rather discover it yourself, save this video for later.",
-     "visual": "F: Atom en su estudio alza el cartel de destripes (un ojo tapado) y señala un calendario con «18»."
+     "es": "Te aviso de que te voy a contar su historia entera en los cómics, hasta lo último que ha pasado este año, así que, si prefieres descubrirla tú, guárdate este vídeo para después. Y guárdate también esto, porque lo vamos a necesitar al final: el abrigo de su padre.",
+     "en": "A warning: I'm going to tell you his whole story in the comics, right up to what happened this year, so if you'd rather discover it yourself, save this video for later. And save this too, because we're going to need it at the end: his father's coat.",
+     "visual": "F: Atom en su estudio alza el cartel de destripes (un ojo tapado), señala un calendario con «18» y cuelga un abrigo pequeño en el perchero («guárdate esto»)."
     }
    ]
   },
@@ -93,40 +100,40 @@
    "produccion": "",
    "frases": [
     {
-     "n": 4,
-     "marca": "campamento",
-     "es": "Imagina un campamento romaní en las montañas de Latveria, un país pequeño y frío del este de Europa que solo existe en los cómics. Allí nace Victor, hijo de Werner, un curandero al que todo el mundo acude cuando alguien enferma, y de Cynthia, una mujer de la que la gente habla en voz baja, porque dicen que es bruja.",
-     "en": "Picture a Romani camp in the mountains of Latveria, a small, cold country in Eastern Europe that only exists in the comics. That's where Victor is born, the son of Werner, a healer everyone turns to when someone falls ill, and of Cynthia, a woman people only talk about in whispers, because they say she's a witch.",
-     "visual": "A: el campamento romaní en la montaña: carromatos, hogueras, un curandero atiende a un niño; una mujer con chal mira el fuego; Atom tirita con una bufanda larguísima (gag).",
-     "acto": true
-    },
-    {
      "n": 5,
-     "marca": "mefisto",
-     "es": "Cynthia quería proteger a su gente del barón que gobernaba aquellas tierras y que los trataba como a animales, y para conseguir poder hizo un trato con un demonio llamado Mefisto. El trato salió mal, como salen todos los tratos con Mefisto, y Cynthia murió cuando Victor era todavía muy pequeño, antes de que pudiera guardar un solo recuerdo de su cara.",
-     "en": "Cynthia wanted to protect her people from the baron who ruled those lands and treated them like animals, and to gain power she made a deal with a demon named Mephisto. The deal went wrong, the way every deal with Mephisto does, and Cynthia died when Victor was still very small, before he could keep a single memory of her face.",
-     "visual": "A: la mujer con chal a solas; una luz roja con forma de mano se le acerca (Mefisto, sin cara); la luz se apaga; un bebé en una cuna."
+     "marca": "madre",
+     "es": "Para entender esa noche hay que ir un poco más atrás, a un campamento romaní en las montañas de Latveria, un país pequeño y frío que solo existe en los cómics. Allí nace Victor, y de su madre, Cynthia, no llega a guardar ni un solo recuerdo. En el campamento hablaban de ella en voz baja, porque decían que era bruja, y lo era: quería proteger a los suyos de un barón que los trataba como a animales, y para tener poder hizo un trato con un demonio llamado Mefisto. Los tratos con Mefisto siempre salen mal, y ese también: Cynthia murió cuando su hijo era todavía muy pequeño, y su alma se quedó en el infierno.",
+     "en": "To understand that night we have to go back a little, to a Romani camp in the mountains of Latveria, a small, cold country that only exists in the comics. That's where Victor is born, and of his mother, Cynthia, he never keeps a single memory. In the camp they spoke of her in whispers, because they said she was a witch, and she was: she wanted to protect her people from a baron who treated them like animals, and to gain power she made a deal with a demon named Mephisto. Deals with Mephisto always go wrong, and that one did too: Cynthia died when her son was still very small, and her soul stayed in hell.",
+     "visual": "A: el campamento romaní: carromatos, hogueras; una mujer con chal mira el fuego; una luz roja con forma de mano se le acerca (Mefisto, sin cara) y se apaga; una cuna; Atom tirita con una bufanda larguísima (gag).",
+     "acto": true
     },
     {
      "n": 6,
      "marca": "baron",
-     "es": "Unos años después, la mujer del barón cae enferma y el barón obliga a Werner a curarla, y Werner lo intenta todo, de verdad, pero la enfermedad ya está demasiado avanzada, así que cuando ella muere el barón, en vez de llorarla, lo acusa de haberla matado, y esa misma noche Werner coge a su hijo en brazos y huye por la montaña en medio de una tormenta de nieve.",
-     "en": "A few years later, the baron's wife falls ill and the baron forces Werner to cure her, and Werner tries everything, truly, but the illness is already too far along, so when she dies the baron, instead of mourning her, accuses him of killing her, and that same night Werner takes his son in his arms and flees across the mountain in the middle of a snowstorm.",
-     "visual": "A: el castillo del barón; el curandero junto a una cama (de lejos); el barón señala; de noche, un hombre huye con un niño en brazos por la nieve."
+     "es": "Unos años después, la mujer del barón se pone muy enferma, y el hombre que despreciaba a los romaníes tiene que mandar a buscar al curandero del campamento, que es Werner, el padre de Victor. Imagina lo que siente Werner al cruzar la puerta de ese castillo: sabe que, si la salva, nadie se lo va a agradecer, y que, si no la salva, la culpa será suya. Y aun así se queda a su lado noche tras noche, porque para él un enfermo es un enfermo, sea quien sea. Pero llega tarde, y cuando ella muere, el barón no ve a un médico que lo intentó todo: ve a alguien a quien culpar.",
+     "en": "A few years later, the baron's wife falls gravely ill, and the man who despised the Romani has to send for the camp's healer, who is Werner, Victor's father. Imagine what Werner feels as he walks through the door of that castle: he knows that if he saves her, no one will thank him, and that if he doesn't, the blame will be his. And still he stays by her side night after night, because to him a sick person is a sick person, whoever they are. But he's too late, and when she dies, the baron doesn't see a doctor who tried everything: he sees someone to blame.",
+     "visual": "A: el castillo del barón: el curandero cruza la puerta; de noche, junto a una cama (de lejos), una vela que se consume; el barón señala."
     },
     {
      "n": 7,
      "marca": "abrigo",
-     "es": "Y aquí está la primera imagen que Victor no olvidará nunca, la que lo va a acompañar toda la vida: su padre, ya sin fuerzas, se quita el abrigo y lo envuelve con él para que no se congele, y cuando amanece el niño sigue vivo y su padre no. Lo encuentra Boris, un viejo amigo de la familia, que desde ese día lo cría como si fuera su propio hijo.",
-     "en": "And here's the first image Victor will never forget, the one that will stay with him his whole life: his father, his strength gone, takes off his coat and wraps him in it so he won't freeze, and when the sun comes up the boy is still alive and his father isn't. Boris, an old friend of the family, finds him, and from that day on raises him as if he were his own son.",
-     "visual": "A: la tormenta; el padre envuelve al niño con su abrigo; amanece; un hombre mayor (Boris) llega con un farol."
+     "es": "Werner entiende enseguida lo que eso significa, coge a su hijo y sale a la montaña en plena tormenta, y el resto ya lo conoces: el abrigo, el frío y un amanecer en el que el niño sigue vivo y su padre no. Victor es demasiado pequeño para entenderlo todo, pero aprende esa noche algo que ya no va a olvidar, y es que a la gente buena se la puede castigar justamente por intentarlo.",
+     "en": "Werner understands at once what that means, so he takes his son and heads out onto the mountain in the middle of the storm, and you already know the rest: the coat, the cold and a dawn in which the boy is still alive and his father isn't. Victor is too young to understand all of it, but that night he learns something he'll never forget, which is that good people can be punished precisely for trying.",
+     "visual": "A: la tormenta; el padre envuelve al niño con su abrigo; amanece; el abrigo sobre la nieve."
     },
     {
      "n": 8,
      "marca": "baul",
-     "es": "Pasan los años y, entre las cosas de su madre, Victor encuentra un baúl lleno de libros de magia, y lo abre solo, de noche, a la luz de una vela, y poco a poco va entendiendo quién era ella y adónde se la llevaron. Y ese niño, que ya no tiene a nadie, se hace dos promesas que van a marcar el resto de su vida: vengarse de los que destrozaron a su familia, y algún día, como sea, liberar a su madre.",
-     "en": "The years go by, and among his mother's things Victor finds a trunk full of books of magic, and he opens it alone, at night, by candlelight, and little by little he comes to understand who she was and where she was taken. And that boy, who no longer has anyone, makes himself two promises that will shape the rest of his life: to take revenge on the people who destroyed his family, and someday, whatever it takes, to set his mother free.",
-     "visual": "A: un carromato de noche; el niño abre un baúl a la luz de una vela; libros con símbolos; Atom abre otro y le sale una nube de polvo (gag)."
+     "es": "Lo encuentra Boris, un amigo de la familia, que lo cría desde entonces como a un hijo, y unos años después, entre las cosas de su madre, Victor encuentra un baúl. Imagínatelo abriéndolo solo, de noche, a la luz de una vela, pasando las páginas de unos libros de magia escritos con la letra de una madre a la que no recuerda, y entendiendo, poco a poco, quién era ella y dónde está ahora.",
+     "en": "He's found by Boris, a friend of the family, who raises him from then on like a son, and a few years later, among his mother's things, Victor finds a trunk. Picture him opening it alone, at night, by candlelight, turning the pages of books of magic written in the handwriting of a mother he doesn't remember, and understanding, little by little, who she was and where she is now.",
+     "visual": "A: un carromato de noche; un hombre mayor (Boris) arropa al niño; luego el niño abre un baúl a la luz de una vela; libros con símbolos; Atom abre otro y le sale una nube de polvo (gag)."
+    },
+    {
+     "n": 9,
+     "marca": "promesa",
+     "es": "Esa noche, ese niño se hace dos promesas. La primera es vengarse de los que destrozaron a su familia, y la segunda, más grande y más imposible, es sacar a su madre del infierno, cueste lo que cueste. Y fíjate bien en esas tres palabras del final, porque Victor las va a cumplir al pie de la letra.",
+     "en": "That night, that boy makes himself two promises. The first is to take revenge on the people who destroyed his family, and the second, bigger and more impossible, is to get his mother out of hell, whatever it costs. And pay close attention to those last three words, because Victor is going to keep them to the letter.",
+     "visual": "A: el niño en la colina mira el castillo del barón con los puños apretados; detrás, una luz roja lejana."
     }
    ]
   },
@@ -140,26 +147,19 @@
    "produccion": "",
    "frases": [
     {
-     "n": 9,
-     "marca": "leyenda",
-     "es": "Victor crece deprisa, y crece con rabia, porque cada injusticia que ve le recuerda a su padre en la nieve, así que mezcla la magia de su madre con los inventos que construye con lo que encuentra, y con ellos les complica la vida a los soldados del barón, que nunca consiguen atraparlo, hasta que para los suyos acaba siendo casi una leyenda: el chico al que el barón no puede tocar.",
-     "en": "Victor grows up fast, and he grows up angry, because every injustice he sees reminds him of his father in the snow, so he mixes his mother's magic with inventions he builds out of whatever he can find, and he uses them to make life miserable for the baron's soldiers, who never manage to catch him, until to his own people he becomes almost a legend: the boy the baron can't touch.",
-     "visual": "A: el joven Victor con inventos caseros hace caer a dos soldados en la nieve; los niños del campamento lo miran admirados.",
-     "acto": true
-    },
-    {
      "n": 10,
      "marca": "beca",
-     "es": "Su fama llega tan lejos que una universidad de Estados Unidos le ofrece una beca. Victor se despide de Boris y de Valeria, una chica del pueblo que lo quiere de verdad, y cruza el océano convencido de que allí, con laboratorios de verdad, por fin podrá cumplir su promesa.",
-     "en": "His fame travels so far that a university in the United States offers him a scholarship. Victor says goodbye to Boris and to Valeria, a girl from the village who truly loves him, and crosses the ocean convinced that there, with real laboratories, he'll finally be able to keep his promise.",
-     "visual": "A: el camino del pueblo; Victor se despide de Boris y de Valeria (pelo largo, chal); un barco en el mar."
+     "es": "Victor crece con rabia, y con una inteligencia que asusta, porque mezcla la magia de su madre con los inventos que construye con chatarra, y los soldados del barón acaban temiendo a aquel muchacho al que no hay manera de atrapar. Su fama cruza el océano, y una universidad de Estados Unidos le ofrece una beca, así que se despide de Boris y de Valeria, una chica del pueblo que lo quiere de verdad, y se marcha convencido de que allí, con laboratorios de verdad, encontrará por fin la forma de llegar hasta su madre.",
+     "en": "Victor grows up angry, and with an intelligence that's frightening, because he mixes his mother's magic with inventions he builds out of scrap, and the baron's soldiers end up fearing that young man nobody can catch. His fame crosses the ocean, and a university in the United States offers him a scholarship, so he says goodbye to Boris and to Valeria, a girl from the village who truly loves him, and leaves convinced that there, with real laboratories, he'll finally find a way to reach his mother.",
+     "visual": "A y B: el joven Victor con inventos de chatarra hace caer a dos soldados en la nieve; se despide de Boris y de Valeria (pelo largo, chal); un barco en el mar.",
+     "acto": true
     },
     {
      "n": 11,
      "marca": "reed",
-     "es": "Allí conoce a dos compañeros que van a cambiarle la vida: uno es Ben Grimm, un grandullón simpático que años después se convertirá en la Cosa, y el otro es Reed Richards, tan brillante como él, que le tiende la mano y le propone compartir habitación. Pero Victor lo rechaza, porque para él en el mundo solo cabe un genio, y no piensa compartir ese puesto con nadie.",
-     "en": "There he meets two classmates who are going to change his life: one is Ben Grimm, a big, friendly guy who years later will become the Thing, and the other is Reed Richards, every bit as brilliant as he is, who holds out his hand and offers to share a room. But Victor turns him down, because as far as he's concerned there's room for only one genius in the world, and he has no intention of sharing that title with anyone.",
-     "visual": "B: el campus; un grandullón simpático (Ben) saluda; un chico delgado con pelo castaño (Reed) le tiende la mano; Victor se da la vuelta."
+     "es": "Allí conoce a Reed Richards, un chico tan brillante como él, que le tiende la mano y le propone compartir habitación, y Victor se la rechaza. No porque Reed le caiga mal, sino porque ha crecido creyendo que todo lo que tiene se lo ha ganado solo, contra todos, y no sabe qué hacer con alguien que le ofrece algo sin pedirle nada a cambio. Para él, en el mundo solo cabe un genio.",
+     "en": "There he meets Reed Richards, a boy every bit as brilliant as he is, who holds out his hand and offers to share a room, and Victor turns him down. Not because he dislikes Reed, but because he grew up believing that everything he has, he earned alone, against everyone, and he doesn't know what to do with someone who offers him something without asking for anything in return. As far as he's concerned, there's room for only one genius in the world.",
+     "visual": "B: el campus; un chico delgado de pelo castaño (Reed) le tiende la mano; Victor se da la vuelta."
     }
    ]
   },
@@ -168,7 +168,7 @@
    "estilo": "pixel",
    "animo": "suspense",
    "golpes": [
-    "explota+9"
+    "explota+3"
    ],
    "empieza_con": "corte desde la escena anterior",
    "termina_con": "",
@@ -177,24 +177,24 @@
     {
      "n": 12,
      "marca": "maquina",
-     "es": "En secreto, Victor construye una máquina para comunicarse con el otro lado, con el lugar donde cree que está su madre, y una noche Reed pasa por allí, echa un vistazo a sus cálculos y le avisa, sin ninguna mala intención, de que hay un error, de que si la enciende puede pasar algo terrible.",
-     "en": "In secret, Victor builds a machine to reach the other side, the place where he believes his mother is, and one night Reed stops by, glances at his calculations and warns him, without any malice at all, that there's a mistake, that if he turns it on something terrible could happen.",
+     "es": "Victor pasa las noches construyendo en secreto una máquina para hablar con el otro lado, con el lugar donde cree que está su madre, y una de esas noches Reed echa un vistazo a sus cálculos y le dice, con toda la buena intención, que hay un error, que si la enciende puede pasar algo terrible. Piensa en lo que oye Victor en ese momento: no oye un aviso, oye a alguien que le dice que no es tan bueno como cree, justo en lo único que de verdad le importa.",
+     "en": "Victor spends his nights secretly building a machine to talk to the other side, to the place where he believes his mother is, and one of those nights Reed glances at his calculations and tells him, with the best of intentions, that there's a mistake, that if he turns it on something terrible could happen. Think about what Victor hears in that moment: he doesn't hear a warning, he hears someone telling him he isn't as good as he thinks, in the one thing he truly cares about.",
      "visual": "B: el laboratorio de noche: la máquina con antenas; Reed mira la pizarra y señala un número; Atom intenta corregirlo y la tiza se le parte (gag).",
      "acto": true
     },
     {
      "n": 13,
      "marca": "explota",
-     "es": "Y Victor lo echa de allí, porque que otro chico venga a corregirle a él, después de todo lo que ha perdido, es más de lo que su orgullo puede soportar, así que, en cuanto se queda solo, enciende la máquina, y la máquina explota.",
-     "en": "And Victor throws him out, because having another kid come along to correct him, after everything he's lost, is more than his pride can stand, so as soon as he's alone, he turns on the machine, and the machine explodes.",
-     "visual": "B: Victor señala la puerta; Reed sale; Victor baja la palanca; destello blanco y humo (golpe), sin heridas a la vista."
+     "es": "Así que lo echa de allí, espera a quedarse solo y enciende la máquina, que le explota delante, y cuando despierta tiene una cicatriz en la cara y la universidad lo ha expulsado. Pero lo que más le duele no es eso, sino que la puerta hacia su madre, la única que había conseguido abrir, se ha vuelto a cerrar.",
+     "en": "So he sends him away, waits until he's alone and turns on the machine, which explodes in front of him, and when he wakes up he has a scar on his face and the university has expelled him. But that isn't what hurts the most; what hurts is that the door to his mother, the only one he'd ever managed to open, has closed again.",
+     "visual": "B: Victor señala la puerta; Reed sale; Victor baja la palanca; destello blanco y humo (golpe), sin heridas a la vista; una maleta en el pasillo."
     },
     {
      "n": 14,
      "marca": "culpa",
-     "es": "Cuando despierta tiene una cicatriz en la cara, la universidad lo ha expulsado y la puerta hacia su madre se ha cerrado, y desde ese día Victor se cuenta a sí mismo una versión de lo que pasó que ya no va a cambiar nunca: que la culpa no fue de sus cálculos, sino de Reed Richards, que le saboteó la máquina por envidia.",
-     "en": "When he wakes up he has a scar on his face, the university has expelled him and the door to his mother has closed, and from that day on Victor tells himself a version of what happened that will never change: that the fault wasn't in his calculations, but in Reed Richards, who sabotaged his machine out of envy.",
-     "visual": "B: el pasillo de la universidad; Victor con una venda en la mejilla se va con su maleta; mira atrás, a Reed, con rabia."
+     "es": "Y aquí Victor toma la decisión que va a marcar el resto de su vida, aunque él no lo sepa todavía: decide que la culpa no fue suya, sino de Reed, que le saboteó la máquina por envidia. Es más fácil vivir con un enemigo que con un error, y Victor va a vivir con ese enemigo durante más de sesenta años.",
+     "en": "And here Victor makes the decision that will shape the rest of his life, even if he doesn't know it yet: he decides the fault wasn't his, but Reed's, who sabotaged his machine out of envy. It's easier to live with an enemy than with a mistake, and Victor is going to live with that enemy for more than sixty years.",
+     "visual": "B: el pasillo; Victor, con una venda en la mejilla, mira atrás a Reed con rabia."
     }
    ]
   },
@@ -210,11 +210,11 @@
     {
      "n": 15,
      "marca": "fijate1",
-     "es": "Y fíjate en esto, porque a todos nos pasa un poco: los psicólogos lo llaman sesgo de autoservicio. Cuando algo nos sale bien, sentimos que es mérito nuestro, y cuando sale mal, buscamos la causa fuera; un análisis de 2004 que reunió más de doscientos sesenta estudios lo encontró una y otra vez, en niños, en adultos y en mayores. Victor solo lo llevó al extremo, porque antes que admitir un error prefirió inventarse un enemigo para toda la vida.",
-     "en": "And notice this, because it happens to all of us a little: psychologists call it the self-serving bias. When something goes well, we feel it's our own doing, and when it goes wrong, we look for the cause outside ourselves; a 2004 analysis that pulled together more than two hundred sixty studies found it again and again, in children, in adults and in older people. Victor just took it to the extreme, because rather than admit a mistake, he chose to invent an enemy for life.",
-     "visual": "PAUSA: el pasillo congelado; Atom (al doble) saca a color una balanza: en un plato, una medalla («mío»); en el otro, un dedo que señala hacia fuera; «266» y «2004».",
-     "es_voz": "Y fíjate en esto, porque a todos nos pasa un poco: los psicólogos lo llaman sesgo de autoservicio. Cuando algo nos sale bien, sentimos que es mérito nuestro, y cuando sale mal, buscamos la causa fuera; un análisis de dos mil cuatro que reunió más de doscientos sesenta estudios lo encontró una y otra vez, en niños, en adultos y en mayores. Victor solo lo llevó al extremo, porque antes que admitir un error prefirió inventarse un enemigo para toda la vida.",
-     "en_voz": "And notice this, because it happens to all of us a little: psychologists call it the self-serving bias. When something goes well, we feel it's our own doing, and when it goes wrong, we look for the cause outside ourselves; a two thousand four analysis that pulled together more than two hundred sixty studies found it again and again, in children, in adults and in older people. Victor just took it to the extreme, because rather than admit a mistake, he chose to invent an enemy for life."
+     "es": "Y fíjate en esto, porque a todos nos pasa un poco. Los psicólogos lo llaman sesgo de autoservicio: cuando algo nos sale bien, sentimos que es mérito nuestro, y cuando nos sale mal, buscamos la causa fuera, en otra persona o en la mala suerte. Un análisis de 2004 que reunió más de doscientos sesenta estudios lo encontró una y otra vez, en niños, en adultos y en mayores. Victor no inventó nada raro; solo llevó al extremo algo muy humano, hasta el punto de preferir un enemigo para toda la vida antes que admitir un solo error.",
+     "en": "And notice this, because it happens to all of us a little. Psychologists call it the self-serving bias: when something goes well, we feel it's our own doing, and when it goes wrong, we look for the cause outside ourselves, in another person or in bad luck. A 2004 analysis that pulled together more than two hundred sixty studies found it again and again, in children, in adults and in older people. Victor didn't invent anything strange; he just took something very human to the extreme, to the point of preferring an enemy for life over admitting a single mistake.",
+     "visual": "PAUSA: el pasillo congelado; Atom (al doble) saca a color una balanza: en un plato, una medalla; en el otro, un dedo que señala fuera; «266» y «2004».",
+     "es_voz": "Y fíjate en esto, porque a todos nos pasa un poco. Los psicólogos lo llaman sesgo de autoservicio: cuando algo nos sale bien, sentimos que es mérito nuestro, y cuando nos sale mal, buscamos la causa fuera, en otra persona o en la mala suerte. Un análisis de dos mil cuatro que reunió más de doscientos sesenta estudios lo encontró una y otra vez, en niños, en adultos y en mayores. Victor no inventó nada raro; solo llevó al extremo algo muy humano, hasta el punto de preferir un enemigo para toda la vida antes que admitir un solo error.",
+     "en_voz": "And notice this, because it happens to all of us a little. Psychologists call it the self-serving bias: when something goes well, we feel it's our own doing, and when it goes wrong, we look for the cause outside ourselves, in another person or in bad luck. A two thousand four analysis that pulled together more than two hundred sixty studies found it again and again, in children, in adults and in older people. Victor didn't invent anything strange; he just took something very human to the extreme, to the point of preferring an enemy for life over admitting a single mistake."
     }
    ]
   },
@@ -230,16 +230,16 @@
     {
      "n": 16,
      "marca": "tibet",
-     "es": "Victor vaga por el mundo sin rumbo hasta que se desploma en las montañas del Tíbet, donde unos monjes lo recogen y lo cuidan, y allí aprende todo lo que ellos saben y, con su ayuda, se forja una armadura, y lo último que hace es una máscara de hierro para taparse la cara.",
-     "en": "Victor wanders the world with nowhere to go until he collapses in the mountains of Tibet, where some monks take him in and look after him, and there he learns everything they know and, with their help, forges himself a suit of armor, and the last thing he makes is an iron mask to cover his face.",
+     "es": "Expulsado y sin rumbo, Victor vaga por el mundo hasta que se desploma en la nieve del Tíbet, otra vez la nieve, y unos monjes lo recogen y lo cuidan. Allí aprende todo lo que ellos saben, y con su ayuda se forja una armadura, y al final una máscara de hierro para esconder la cicatriz.",
+     "en": "Expelled and adrift, Victor wanders the world until he collapses in the snow of Tibet, the snow again, and some monks take him in and look after him. There he learns everything they know, and with their help he forges a suit of armor, and finally an iron mask to hide the scar.",
      "visual": "C: las montañas del Tíbet; Victor cae en la nieve; dos monjes con túnicas lo levantan; el monasterio con banderas.",
      "acto": true
     },
     {
      "n": 17,
      "marca": "ardiendo",
-     "es": "Y aquí viene el detalle más triste de toda su historia, porque en la versión que más se ha contado no espera a que el metal se enfríe: se pone la máscara todavía ardiendo, y la cicatriz del accidente se convierte en una cara destrozada que casi nadie volverá a ver. Y lo curioso es que Jack Kirby, el que lo dibujó primero, lo imaginaba al revés, con una cicatriz tan pequeña que apenas se notaba, pero que Victor no soportaba, porque no se perdonaba verse imperfecto.",
-     "en": "And here comes the saddest detail in his whole story, because in the version told most often he doesn't wait for the metal to cool: he puts the mask on while it's still burning hot, and the scar from the accident becomes a ruined face that almost no one will ever see again. And the curious thing is that Jack Kirby, who drew him first, imagined it the other way around, with a scar so small you could barely notice it, but one Victor couldn't stand, because he couldn't forgive himself for looking imperfect.",
+     "es": "Y aquí viene el detalle más triste de su historia, porque en la versión que más se ha contado no espera a que el metal se enfríe, se pone la máscara todavía ardiendo, y la cicatriz se convierte en una cara destrozada que casi nadie volverá a ver. Lo curioso es que Jack Kirby, el que lo dibujó primero, lo imaginaba de otra manera, con una cicatriz tan pequeña que apenas se notaba, pero que Victor no podía soportar, porque no se perdonaba verse imperfecto.",
+     "en": "And here comes the saddest detail in his story, because in the version told most often he doesn't wait for the metal to cool, he puts the mask on while it's still burning hot, and the scar becomes a ruined face that almost no one will ever see again. The curious thing is that Jack Kirby, who drew him first, imagined it differently, with a scar so small you could barely notice it, but one Victor couldn't bear, because he couldn't forgive himself for looking imperfect.",
      "visual": "C: la forja: la máscara de hierro al rojo; Victor la sostiene y se la pone (sin ver la cara); vapor; Atom se prueba una máscara pequeña y solo ve con un ojo (gag)."
     }
    ]
@@ -256,11 +256,11 @@
     {
      "n": 18,
      "marca": "fijate2",
-     "es": "Y fíjate en esto: en el año 2000, unos psicólogos de la Universidad Cornell pidieron a unos estudiantes que entraran en una sala donde esperaban otros estudiantes con una camiseta que les daba vergüenza, y luego les preguntaron cuántos se habían fijado. Y aunque ellos calcularon que la mitad, en realidad no llegaba ni a uno de cada cuatro. Lo llamaron el efecto foco: creemos que los demás miran nuestros defectos mucho más de lo que los miran. Y el Victor de Kirby vivió toda su vida bajo ese foco, hasta taparse la cara para siempre por algo que quizá nadie habría mirado.",
-     "en": "And notice this: in 2000, psychologists at Cornell University asked students to walk into a room where other students were waiting, wearing a T-shirt that embarrassed them, and then asked them how many of them had noticed. And although they guessed about half, in reality it was fewer than one in four. They called it the spotlight effect: we believe other people notice our flaws far more than they actually do. And Kirby's Victor lived his whole life under that spotlight, until he covered his face forever over something perhaps no one would have looked at.",
+     "es": "Y fíjate en esto. En el año 2000, unos psicólogos de la Universidad Cornell pidieron a unos estudiantes que entraran en una sala donde esperaban otros estudiantes llevando una camiseta que les daba vergüenza, y luego les preguntaron cuántos se habían fijado en ella. Ellos calcularon que la mitad, y en realidad no llegaba ni a uno de cada cuatro. Lo llamaron el efecto foco, porque vamos por la vida sintiendo que un foco ilumina nuestros defectos, cuando los demás casi no los miran. Y el Victor de Kirby vivió siempre bajo ese foco, hasta taparse la cara para siempre por algo que quizá nadie habría mirado.",
+     "en": "And notice this. In 2000, psychologists at Cornell University asked students to walk into a room where other students were waiting, wearing a T-shirt that embarrassed them, and then asked them how many people had noticed it. They guessed about half, and in reality it was fewer than one in four. They called it the spotlight effect, because we go through life feeling that a spotlight is shining on our flaws, when other people barely look at them. And Kirby's Victor always lived under that spotlight, until he covered his face forever over something perhaps no one would have looked at.",
      "visual": "PAUSA: la forja congelada; Atom (al doble) saca a color un foco de teatro que ilumina a un chibi con una camiseta; a su alrededor, pocas caras lo miran; «2000», «50 %» y «23 %».",
-     "es_voz": "Y fíjate en esto: en el año dos mil, unos psicólogos de la Universidad Cornell pidieron a unos estudiantes que entraran en una sala donde esperaban otros estudiantes con una camiseta que les daba vergüenza, y luego les preguntaron cuántos se habían fijado. Y aunque ellos calcularon que la mitad, en realidad no llegaba ni a uno de cada cuatro. Lo llamaron el efecto foco: creemos que los demás miran nuestros defectos mucho más de lo que los miran. Y el Victor de Kirby vivió toda su vida bajo ese foco, hasta taparse la cara para siempre por algo que quizá nadie habría mirado.",
-     "en_voz": "And notice this: in two thousand, psychologists at Cornell University asked students to walk into a room where other students were waiting, wearing a T-shirt that embarrassed them, and then asked them how many of them had noticed. And although they guessed about half, in reality it was fewer than one in four. They called it the spotlight effect: we believe other people notice our flaws far more than they actually do. And Kirby's Victor lived his whole life under that spotlight, until he covered his face forever over something perhaps no one would have looked at."
+     "es_voz": "Y fíjate en esto. En el año dos mil, unos psicólogos de la Universidad Cornell pidieron a unos estudiantes que entraran en una sala donde esperaban otros estudiantes llevando una camiseta que les daba vergüenza, y luego les preguntaron cuántos se habían fijado en ella. Ellos calcularon que la mitad, y en realidad no llegaba ni a uno de cada cuatro. Lo llamaron el efecto foco, porque vamos por la vida sintiendo que un foco ilumina nuestros defectos, cuando los demás casi no los miran. Y el Victor de Kirby vivió siempre bajo ese foco, hasta taparse la cara para siempre por algo que quizá nadie habría mirado.",
+     "en_voz": "And notice this. In two thousand, psychologists at Cornell University asked students to walk into a room where other students were waiting, wearing a T-shirt that embarrassed them, and then asked them how many people had noticed it. They guessed about half, and in reality it was fewer than one in four. They called it the spotlight effect, because we go through life feeling that a spotlight is shining on our flaws, when other people barely look at them. And Kirby's Victor always lived under that spotlight, until he covered his face forever over something perhaps no one would have looked at."
     }
    ]
   },
@@ -276,35 +276,19 @@
     {
      "n": 19,
      "marca": "trono",
-     "es": "Con la armadura puesta y un nombre nuevo, el de Doctor Doom, Victor vuelve a casa, derroca al rey de Latveria y se sienta en su trono, y lo primero que hace es cumplir la mitad de su promesa, la de que nadie volverá a tratar a su pueblo como trataron a su padre.",
-     "en": "With the armor on and a new name, Doctor Doom, Victor goes home, overthrows the king of Latveria and takes his throne, and the first thing he does is keep half of his promise, the one that says no one will ever again treat his people the way they treated his father.",
-     "visual": "A: Doom entra en la sala del trono de Latveria y se sienta; los estandartes verdes se despliegan.",
+     "es": "Con la armadura puesta y un nombre nuevo, Doctor Doom, vuelve a Latveria, derroca al rey y se sienta en su trono, y aquí viene lo más incómodo de su historia, porque gobierna bien. En su país no hay hambre ni crimen, y mucha gente lo quiere de verdad, porque él cumple lo que aquel niño se prometió en la nieve, que nadie volverá a tratar a su pueblo como trataron a su padre. Eso sí, nadie puede llevarle la contraria, y sus robots, con su misma cara de hierro, vigilan cada calle.",
+     "en": "With the armor on and a new name, Doctor Doom, he returns to Latveria, overthrows the king and takes his throne, and here comes the most uncomfortable part of his story, because he rules well. In his country there's no hunger and no crime, and many people truly love him, because he keeps the promise that boy made in the snow, that no one will ever again treat his people the way they treated his father. Then again, no one is allowed to disagree with him, and his robots, wearing the same iron face he does, watch every street.",
+     "visual": "A: Doom entra en la sala del trono y se sienta; la plaza: mercado lleno, niños jugando; robots con su cara en las ventanas se giran a la vez cuando Atom saluda (gag).",
      "acto": true
     },
     {
      "n": 20,
-     "marca": "gobierna",
-     "es": "Y lo más incómodo de Doom es que, a su manera, gobierna bien, porque en la Latveria de los cómics no hay hambre, ni pobreza, ni crimen, y mucha gente lo quiere de verdad; pero nadie puede llevarle la contraria, y él vigila cada calle a través de los ojos de sus robots, que llevan su misma cara de hierro.",
-     "en": "And the most uncomfortable thing about Doom is that, in his own way, he rules well, because in the Latveria of the comics there's no hunger, no poverty, no crime, and many people truly love him; but no one is allowed to disagree with him, and he watches every street through the eyes of his robots, which wear the same iron face he does.",
-     "visual": "A: la plaza de la ciudad: mercado lleno, niños jugando; robots con la cara de Doom en las ventanas se giran a la vez cuando Atom saluda (gag)."
-    },
-    {
-     "n": 21,
-     "marca": "cuatro",
-     "es": "Fuera de su país, el mundo lo conoce por otra cosa. En 1962, Stan Lee y Jack Kirby lo presentan en el número cinco de Los Cuatro Fantásticos como el gran enemigo del grupo, y detrás está siempre el mismo nombre: Reed Richards. Doom pasará décadas intentando demostrar que es mejor que él, y perdiendo una y otra vez por algún detalle que no había previsto.",
-     "en": "Outside his own country, the world knows him for something else. In 1962, Stan Lee and Jack Kirby introduce him in issue five of The Fantastic Four as the team's greatest enemy, and behind it there's always the same name: Reed Richards. Doom will spend decades trying to prove he's better than him, and losing, again and again, over some detail he hadn't seen coming.",
-     "visual": "A: una pantalla en el castillo con cuatro siluetas azules con un «4»; Doom aprieta el puño; «1962».",
-     "es_voz": "Fuera de su país, el mundo lo conoce por otra cosa. En mil novecientos sesenta y dos, Stan Lee y Jack Kirby lo presentan en el número cinco de Los Cuatro Fantásticos como el gran enemigo del grupo, y detrás está siempre el mismo nombre: Reed Richards. Doom pasará décadas intentando demostrar que es mejor que él, y perdiendo una y otra vez por algún detalle que no había previsto.",
-     "en_voz": "Outside his own country, the world knows him for something else. In nineteen sixty-two, Stan Lee and Jack Kirby introduce him in issue five of The Fantastic Four as the team's greatest enemy, and behind it there's always the same name: Reed Richards. Doom will spend decades trying to prove he's better than him, and losing, again and again, over some detail he hadn't seen coming."
-    },
-    {
-     "n": 22,
      "marca": "valeria",
-     "es": "Y su ambición tiene un precio que sí es imperdonable: en 2003, Doom necesita más poder del que la ciencia le puede dar, y para conseguirlo sacrifica a Valeria, la chica que lo quiso cuando él no era nadie, de modo que ese día el niño que quería salvar a su madre de un pacto con un demonio hace su propio pacto, y entrega a alguien que lo amaba a cambio de poder.",
-     "en": "And his ambition comes with a price that truly is unforgivable: in 2003, Doom needs more power than science can give him, and to get it he sacrifices Valeria, the girl who loved him when he was nobody, so that on that day the boy who wanted to save his mother from a deal with a demon makes a deal of his own, and gives up someone who loved him in exchange for power.",
-     "visual": "A: una luz verde y una figura con chal que se desvanece en el aire (el sacrificio, solo luz, de lejos); Doom de espaldas; «2003».",
-     "es_voz": "Y su ambición tiene un precio que sí es imperdonable: en dos mil tres, Doom necesita más poder del que la ciencia le puede dar, y para conseguirlo sacrifica a Valeria, la chica que lo quiso cuando él no era nadie, de modo que ese día el niño que quería salvar a su madre de un pacto con un demonio hace su propio pacto, y entrega a alguien que lo amaba a cambio de poder.",
-     "en_voz": "And his ambition comes with a price that truly is unforgivable: in two thousand three, Doom needs more power than science can give him, and to get it he sacrifices Valeria, the girl who loved him when he was nobody, so that on that day the boy who wanted to save his mother from a deal with a demon makes a deal of his own, and gives up someone who loved him in exchange for power."
+     "es": "Para el resto del mundo, desde que Stan Lee y Jack Kirby lo presentaron en 1962, Doom es el gran enemigo de los Cuatro Fantásticos, y detrás de cada plan suyo hay siempre el mismo nombre, Reed Richards, el chico que tenía razón. Pero un día Doom cruza una línea que ya no tiene vuelta, porque en 2003 necesita más poder del que la ciencia le puede dar, y para conseguirlo sacrifica a Valeria, la chica del pueblo que lo quiso cuando él no era nadie. Piénsalo un momento: el niño que juró sacar a su madre de un pacto con un demonio acaba haciendo su propio pacto, y pagando con alguien que lo amaba.",
+     "en": "To the rest of the world, ever since Stan Lee and Jack Kirby introduced him in 1962, Doom is the Fantastic Four's greatest enemy, and behind every one of his plans there's always the same name, Reed Richards, the boy who was right. But one day Doom crosses a line there's no coming back from, because in 2003 he needs more power than science can give him, and to get it he sacrifices Valeria, the girl from the village who loved him when he was nobody. Think about that for a moment: the boy who swore to free his mother from a deal with a demon ends up making a deal of his own, and paying with someone who loved him.",
+     "visual": "A: una pantalla con cuatro siluetas azules con un «4» y «1962»; luego una luz verde y una figura con chal que se desvanece en el aire (el sacrificio, solo luz, de lejos); Doom de espaldas; «2003».",
+     "es_voz": "Para el resto del mundo, desde que Stan Lee y Jack Kirby lo presentaron en mil novecientos sesenta y dos, Doom es el gran enemigo de los Cuatro Fantásticos, y detrás de cada plan suyo hay siempre el mismo nombre, Reed Richards, el chico que tenía razón. Pero un día Doom cruza una línea que ya no tiene vuelta, porque en dos mil tres necesita más poder del que la ciencia le puede dar, y para conseguirlo sacrifica a Valeria, la chica del pueblo que lo quiso cuando él no era nadie. Piénsalo un momento: el niño que juró sacar a su madre de un pacto con un demonio acaba haciendo su propio pacto, y pagando con alguien que lo amaba.",
+     "en_voz": "To the rest of the world, ever since Stan Lee and Jack Kirby introduced him in nineteen sixty-two, Doom is the Fantastic Four's greatest enemy, and behind every one of his plans there's always the same name, Reed Richards, the boy who was right. But one day Doom crosses a line there's no coming back from, because in two thousand three he needs more power than science can give him, and to get it he sacrifices Valeria, the girl from the village who loved him when he was nobody. Think about that for a moment: the boy who swore to free his mother from a deal with a demon ends up making a deal of his own, and paying with someone who loved him."
     }
    ]
   },
@@ -318,10 +302,10 @@
    "produccion": "",
    "frases": [
     {
-     "n": 23,
+     "n": 21,
      "marca": "fijate3",
-     "es": "Y fíjate en esto, porque es la llave para entenderlo: el psicólogo Roy Baumeister pasó años estudiando lo que cuentan quienes han hecho daño de verdad, y descubrió que casi nadie se ve a sí mismo como el malo de la historia, porque casi todos tienen una razón que, para ellos, lo justifica. Y Doom tampoco se ve como un villano: se ve como el único que se atreve a hacer lo que hay que hacer.",
-     "en": "And notice this, because it's the key to understanding him: the psychologist Roy Baumeister spent years studying the stories told by people who had done real harm, and he found that almost nobody sees themselves as the bad guy in the story, because almost everyone has a reason that, to them, justifies it. And Doom doesn't see himself as a villain either: he sees himself as the only one with the nerve to do what has to be done.",
+     "es": "Y fíjate en esto, porque es la llave para entenderlo. El psicólogo Roy Baumeister pasó años estudiando lo que cuentan quienes han hecho daño de verdad, y descubrió que casi nadie se ve a sí mismo como el malo de la historia, porque casi todos tienen una razón que, para ellos, lo justifica. Doom tampoco se ve como un villano; se ve como el único que se atreve a hacer lo que hay que hacer, y eso es justamente lo que lo hace tan peligroso.",
+     "en": "And notice this, because it's the key to understanding him. The psychologist Roy Baumeister spent years studying the stories told by people who had done real harm, and he found that almost nobody sees themselves as the bad guy in the story, because almost everyone has a reason that, to them, justifies it. Doom doesn't see himself as a villain either; he sees himself as the only one with the nerve to do what has to be done, and that's exactly what makes him so dangerous.",
      "visual": "PAUSA: el trono congelado; Atom (al doble) saca a color un espejo: dentro, el villano se ve con capa de héroe."
     }
    ]
@@ -336,21 +320,21 @@
    "produccion": "",
    "frases": [
     {
-     "n": 24,
+     "n": 22,
      "marca": "noche",
-     "es": "Pero hay una noche al año que Doom no comparte con nadie: cada año, en la noche de San Juan, se abre un camino hasta el reino de Mefisto, y Doom lo cruza solo para luchar por el alma de su madre, y cada año, por mucho que lo intente, pierde.",
-     "en": "But there's one night a year Doom shares with no one: every year, on Midsummer's Eve, a path opens into Mephisto's realm, and Doom crosses it alone to fight for his mother's soul, and every year, however hard he tries, he loses.",
-     "visual": "D: la noche de San Juan: un camino de luz entre rocas rojas; Doom avanza solo hacia una puerta enorme.",
+     "es": "Pero hay una noche al año en que el dictador vuelve a ser aquel niño, porque cada noche de San Juan se abre un camino hasta el reino de Mefisto, y Doom lo cruza solo, sin robots y sin ejército, para pelear por el alma de su madre. Y cada año vuelve con las manos vacías, y al año siguiente lo intenta otra vez.",
+     "en": "But there's one night a year when the dictator becomes that boy again, because every Midsummer's Eve a path opens into Mephisto's realm, and Doom crosses it alone, with no robots and no army, to fight for his mother's soul. And every year he comes back empty-handed, and the next year he tries again.",
+     "visual": "D: la noche de San Juan: un camino de luz entre rocas rojas; Doom avanza solo hacia una puerta enorme; vuelve con las manos vacías.",
      "acto": true
     },
     {
-     "n": 25,
+     "n": 23,
      "marca": "mignola",
-     "es": "En 1989, un cómic dibujado por Mike Mignola cuenta la noche en que todo cambia, porque Doom pierde contra el Doctor Strange un torneo de magia, pero se gana a cambio un favor que Strange no le puede negar, y lo cobra pidiéndole que bajen juntos al infierno, y esta vez el gran tramposo pierde, de modo que el alma de su madre por fin queda libre y sube al cielo.",
-     "en": "In 1989, a comic drawn by Mike Mignola tells the story of the night everything changes, because Doom loses a sorcery tournament to Doctor Strange, but wins in return a favor Strange can't refuse him, and he calls it in by asking him to descend into hell together, and this time the great trickster loses, so that his mother's soul is finally free and rises to heaven.",
-     "visual": "D: Doom y un hechicero con capa roja (Strange, por atributos) juntos ante la puerta; una luz blanca con forma de mujer sube hacia arriba; «1989».",
-     "es_voz": "En mil novecientos ochenta y nueve, un cómic dibujado por Mike Mignola cuenta la noche en que todo cambia, porque Doom pierde contra el Doctor Strange un torneo de magia, pero se gana a cambio un favor que Strange no le puede negar, y lo cobra pidiéndole que bajen juntos al infierno, y esta vez el gran tramposo pierde, de modo que el alma de su madre por fin queda libre y sube al cielo.",
-     "en_voz": "In nineteen eighty-nine, a comic drawn by Mike Mignola tells the story of the night everything changes, because Doom loses a sorcery tournament to Doctor Strange, but wins in return a favor Strange can't refuse him, and he calls it in by asking him to descend into hell together, and this time the great trickster loses, so that his mother's soul is finally free and rises to heaven."
+     "es": "Hasta que en 1989, en un cómic dibujado por Mike Mignola, consigue que el Doctor Strange, que le debe un favor, baje con él al infierno, y esa vez el gran tramposo pierde. El alma de Cynthia queda libre por fin y sube al cielo, después de toda una vida de su hijo buscándola.",
+     "en": "Until in 1989, in a comic drawn by Mike Mignola, he gets Doctor Strange, who owes him a favor, to go down into hell with him, and this time the great trickster loses. Cynthia's soul is finally free and rises to heaven, after a whole lifetime of her son searching for her.",
+     "visual": "D: Doom y un hechicero con capa roja (por atributos) ante la puerta; una luz blanca con forma de mujer sube; «1989».",
+     "es_voz": "Hasta que en mil novecientos ochenta y nueve, en un cómic dibujado por Mike Mignola, consigue que el Doctor Strange, que le debe un favor, baje con él al infierno, y esa vez el gran tramposo pierde. El alma de Cynthia queda libre por fin y sube al cielo, después de toda una vida de su hijo buscándola.",
+     "en_voz": "Until in nineteen eighty-nine, in a comic drawn by Mike Mignola, he gets Doctor Strange, who owes him a favor, to go down into hell with him, and this time the great trickster loses. Cynthia's soul is finally free and rises to heaven, after a whole lifetime of her son searching for her."
     }
    ]
   },
@@ -364,13 +348,13 @@
    "produccion": "",
    "frases": [
     {
-     "n": 26,
+     "n": 24,
      "marca": "fijate4",
-     "es": "Y fíjate en esto: desde 2022, el manual de los psiquiatras incluye el trastorno de duelo prolongado, que es cuando alguien, pasado más de un año, sigue sin poder dejar ir a la persona que perdió, y toda su vida gira alrededor de esa ausencia. Victor vivió así casi siempre, y lo que más impresiona es que, cuando por fin libera a su madre, él no se libera: sigue llevando la máscara.",
-     "en": "And notice this: since 2022, the psychiatrists' manual has included prolonged grief disorder, which is when someone, more than a year later, still can't let go of the person they lost, and their whole life revolves around that absence. Victor lived that way almost all the time, and the most striking thing is that, when he finally frees his mother, he doesn't free himself: he keeps wearing the mask.",
+     "es": "Y fíjate en esto. Desde 2022, el manual de los psiquiatras incluye el trastorno de duelo prolongado, que es cuando alguien, pasado más de un año, sigue sin poder dejar ir a la persona que perdió, y su vida entera gira alrededor de esa ausencia. Victor vivió así casi siempre, y lo que más impresiona es que, cuando por fin libera a su madre, él no se libera, porque sigue llevando la máscara.",
+     "en": "And notice this. Since 2022, the psychiatrists' manual has included prolonged grief disorder, which is when someone, more than a year later, still can't let go of the person they lost, and their whole life revolves around that absence. Victor lived that way almost all the time, and the most striking thing is that, when he finally frees his mother, he doesn't free himself, because he keeps wearing the mask.",
      "visual": "PAUSA: el infierno congelado; Atom (al doble) saca a color un reloj de arena que no corre y una silla vacía junto a una ventana; «2022».",
-     "es_voz": "Y fíjate en esto: desde dos mil veintidós, el manual de los psiquiatras incluye el trastorno de duelo prolongado, que es cuando alguien, pasado más de un año, sigue sin poder dejar ir a la persona que perdió, y toda su vida gira alrededor de esa ausencia. Victor vivió así casi siempre, y lo que más impresiona es que, cuando por fin libera a su madre, él no se libera: sigue llevando la máscara.",
-     "en_voz": "And notice this: since twenty twenty-two, the psychiatrists' manual has included prolonged grief disorder, which is when someone, more than a year later, still can't let go of the person they lost, and their whole life revolves around that absence. Victor lived that way almost all the time, and the most striking thing is that, when he finally frees his mother, he doesn't free himself: he keeps wearing the mask."
+     "es_voz": "Y fíjate en esto. Desde dos mil veintidós, el manual de los psiquiatras incluye el trastorno de duelo prolongado, que es cuando alguien, pasado más de un año, sigue sin poder dejar ir a la persona que perdió, y su vida entera gira alrededor de esa ausencia. Victor vivió así casi siempre, y lo que más impresiona es que, cuando por fin libera a su madre, él no se libera, porque sigue llevando la máscara.",
+     "en_voz": "And notice this. Since twenty twenty-two, the psychiatrists' manual has included prolonged grief disorder, which is when someone, more than a year later, still can't let go of the person they lost, and their whole life revolves around that absence. Victor lived that way almost all the time, and the most striking thing is that, when he finally frees his mother, he doesn't free himself, because he keeps wearing the mask."
     }
    ]
   },
@@ -384,33 +368,33 @@
    "produccion": "",
    "frases": [
     {
-     "n": 27,
+     "n": 25,
      "marca": "battleworld",
-     "es": "En 2015 llega su mayor victoria: los universos chocan entre sí y desaparecen, y Doom roba el poder de unos seres casi infinitos, recoge los pedazos que quedan y los cose en un solo planeta, Battleworld, donde gobierna como un dios, por fin el más grande, y por fin sin nadie que le lleve la contraria.",
-     "en": "In 2015 comes his greatest victory: the universes crash into each other and disappear, and Doom steals the power of nearly infinite beings, gathers the pieces that are left and stitches them into a single planet, Battleworld, where he rules as a god, at last the greatest, and at last with no one to contradict him.",
+     "es": "Años después, en 2015, llega el día en que Doom lo consigue todo, porque los universos se destruyen unos a otros y él roba el poder de unos seres casi infinitos, recoge los pedazos que quedan y los cose en un solo planeta, donde gobierna como un dios. Imagina lo que es eso para él: por fin el más grande, y por fin sin nadie que le lleve la contraria.",
+     "en": "Years later, in 2015, comes the day Doom gets everything, because the universes destroy one another and he steals the power of nearly infinite beings, gathers the pieces that are left and stitches them into a single planet, where he rules as a god. Imagine what that means to him: at last the greatest, and at last with no one to contradict him.",
      "visual": "E: Battleworld, el planeta cosido con trozos de mundos; Doom en un trono enorme con un halo; Atom se sienta en el trono y no le llegan los pies (gag).",
      "acto": true,
-     "es_voz": "En dos mil quince llega su mayor victoria: los universos chocan entre sí y desaparecen, y Doom roba el poder de unos seres casi infinitos, recoge los pedazos que quedan y los cose en un solo planeta, Battleworld, donde gobierna como un dios, por fin el más grande, y por fin sin nadie que le lleve la contraria.",
-     "en_voz": "In twenty fifteen comes his greatest victory: the universes crash into each other and disappear, and Doom steals the power of nearly infinite beings, gathers the pieces that are left and stitches them into a single planet, Battleworld, where he rules as a god, at last the greatest, and at last with no one to contradict him."
+     "es_voz": "Años después, en dos mil quince, llega el día en que Doom lo consigue todo, porque los universos se destruyen unos a otros y él roba el poder de unos seres casi infinitos, recoge los pedazos que quedan y los cose en un solo planeta, donde gobierna como un dios. Imagina lo que es eso para él: por fin el más grande, y por fin sin nadie que le lleve la contraria.",
+     "en_voz": "Years later, in twenty fifteen, comes the day Doom gets everything, because the universes destroy one another and he steals the power of nearly infinite beings, gathers the pieces that are left and stitches them into a single planet, where he rules as a god. Imagine what that means to him: at last the greatest, and at last with no one to contradict him."
     },
     {
-     "n": 28,
+     "n": 26,
      "marca": "pregunta",
-     "es": "Pero al final de Secret Wars, Reed Richards consigue llegar hasta él y le hace una sola pregunta: si él, Reed, hubiera tenido ese poder, ¿lo habría hecho mejor? Y Doom, el dios, el hombre que nunca ha admitido un error, le contesta que sí.",
-     "en": "But at the end of Secret Wars, Reed Richards manages to reach him and asks him a single question: if he, Reed, had had that power, would he have done better? And Doom, the god, the man who has never admitted a mistake, tells him yes.",
-     "visual": "E: Reed (pelo con canas en las sienes) ante el trono; un «?» de luz entre los dos; Doom baja la cabeza."
+     "es": "Y es entonces, al final de Secret Wars, cuando Reed Richards consigue llegar hasta él y le hace la pregunta que Doom llevaba toda la vida evitando: si él, Reed, hubiera tenido ese poder, ¿lo habría hecho mejor? Y Doom, el dios, el hombre que nunca ha admitido un error, le contesta que sí.",
+     "en": "And it's then, at the end of Secret Wars, that Reed Richards manages to reach him and asks him the question Doom had spent his whole life avoiding: if he, Reed, had had that power, would he have done better? And Doom, the god, the man who has never admitted a mistake, tells him yes.",
+     "visual": "E: Reed (canas en las sienes) ante el trono; un «?» de luz entre los dos; Doom baja la cabeza."
     },
     {
-     "n": 29,
+     "n": 27,
      "marca": "risa",
-     "es": "Después de esa respuesta pierde el poder, y es Reed, su peor enemigo, quien le cura la cara, así que Doom se quita la máscara, se ve sin cicatrices, como habría sido si nada hubiera pasado, y se ríe de alegría, y durante un tiempo intenta ser un héroe, hasta el punto de ponerse la armadura de Iron Man; pero la máscara de hierro siempre acaba volviendo.",
-     "en": "After that answer he loses his power, and it's Reed, his worst enemy, who heals his face, so Doom takes off his mask, sees himself without scars, the way he would have looked if none of it had happened, and laughs with joy, and for a while he tries to be a hero, to the point of putting on Iron Man's armor; but the iron mask always comes back.",
-     "visual": "E: Reed (de espaldas) alza la mano con luz; Doom se quita la máscara de espaldas a cámara y se ríe (hombros que se agitan); Atom se quita su máscara pequeña y se ríe con él (gag)."
+     "es": "Con esa palabra lo pierde todo, y es Reed, su peor enemigo, quien le cura la cara. Doom se quita la máscara, se ve sin cicatrices por primera vez desde aquella explosión, y se ríe de alegría, como si por un momento volviera a ser el chico que llegó a América con una beca. Pero las heridas de dentro no se curan con un milagro, y la máscara de hierro acaba volviendo.",
+     "en": "With that word he loses everything, and it's Reed, his worst enemy, who heals his face. Doom takes off his mask, sees himself without scars for the first time since that explosion, and laughs with joy, as if for a moment he were once again the young man who came to America on a scholarship. But the wounds on the inside aren't healed by a miracle, and the iron mask comes back.",
+     "visual": "E: Reed alza la mano con luz; Doom se quita la máscara de espaldas a cámara y se ríe (hombros que se agitan); Atom se quita su máscara pequeña y se ríe con él (gag)."
     }
    ]
   },
   {
-   "id": "vd-emperador",
+   "id": "vd-nina",
    "estilo": "pixel",
    "animo": "intriga",
    "golpes": [],
@@ -419,28 +403,21 @@
    "produccion": "",
    "frases": [
     {
-     "n": 30,
-     "marca": "hechicero",
-     "es": "En 2024 se convierte en el Hechicero Supremo, el mago más poderoso de la Tierra, el título que su madre nunca alcanzó. Y en 2025, en One World Under Doom, hace lo que siempre había soñado: se proclama emperador del mundo entero, y durante unos meses el planeta vive bajo su mando, porque prohíbe la guerra y les da médico y escuela gratis a todos, aunque no todo el mundo quiere su regalo.",
-     "en": "In 2024 he becomes the Sorcerer Supreme, the most powerful magician on Earth, a title his mother never reached. And in 2025, in One World Under Doom, he does what he'd always dreamed of: he declares himself emperor of the whole world, and for a few months the planet lives under his rule, because he outlaws war and gives everyone free doctors and schooling, though not everyone wants his gift.",
-     "visual": "E: Doom con una capa de hechicero y un ojo de luz; el globo terráqueo con banderas verdes; «2024» y «2025».",
+     "n": 28,
+     "marca": "mundo",
+     "es": "En 2025, en One World Under Doom, Doom se proclama emperador del mundo entero, prohíbe la guerra y les da médico y escuela gratis a todos, aunque no todo el mundo quiere su regalo. Y en una de las batallas por ese mundo perfecto, él mismo hace estallar su armadura y alcanza a una niña, Valeria Richards, la hija de Reed y de Sue, a la que Doom ayudó a nacer años atrás y a la que puso el nombre de su primer amor.",
+     "en": "In 2025, in One World Under Doom, Doom declares himself emperor of the whole world, outlaws war and gives everyone free doctors and schooling, though not everyone wants his gift. And in one of the battles for that perfect world, he himself blows up his own armor and it strikes a little girl, Valeria Richards, Reed and Sue's daughter, whom Doom helped bring into the world years earlier and named after his first love.",
+     "visual": "E: el globo con banderas verdes; «2025»; un destello verde lejano en una batalla (sin heridas); una luz cálida sobre una niña rubia dormida.",
      "acto": true,
-     "es_voz": "En dos mil veinticuatro se convierte en el Hechicero Supremo, el mago más poderoso de la Tierra, el título que su madre nunca alcanzó. Y en dos mil veinticinco, en One World Under Doom, hace lo que siempre había soñado: se proclama emperador del mundo entero, y durante unos meses el planeta vive bajo su mando, porque prohíbe la guerra y les da médico y escuela gratis a todos, aunque no todo el mundo quiere su regalo.",
-     "en_voz": "In twenty twenty-four he becomes the Sorcerer Supreme, the most powerful magician on Earth, a title his mother never reached. And in twenty twenty-five, in One World Under Doom, he does what he'd always dreamed of: he declares himself emperor of the whole world, and for a few months the planet lives under his rule, because he outlaws war and gives everyone free doctors and schooling, though not everyone wants his gift."
+     "es_voz": "En dos mil veinticinco, en One World Under Doom, Doom se proclama emperador del mundo entero, prohíbe la guerra y les da médico y escuela gratis a todos, aunque no todo el mundo quiere su regalo. Y en una de las batallas por ese mundo perfecto, él mismo hace estallar su armadura y alcanza a una niña, Valeria Richards, la hija de Reed y de Sue, a la que Doom ayudó a nacer años atrás y a la que puso el nombre de su primer amor.",
+     "en_voz": "In twenty twenty-five, in One World Under Doom, Doom declares himself emperor of the whole world, outlaws war and gives everyone free doctors and schooling, though not everyone wants his gift. And in one of the battles for that perfect world, he himself blows up his own armor and it strikes a little girl, Valeria Richards, Reed and Sue's daughter, whom Doom helped bring into the world years earlier and named after his first love."
     },
     {
-     "n": 31,
-     "marca": "nina",
-     "es": "Pero en ese mundo perfecto muere una niña, y muere por culpa de Doom, en una batalla en la que él mismo hace estallar su armadura: es Valeria Richards, la hija de Reed y de Sue, a la que Doom ayudó a nacer años atrás y a la que puso el nombre de su primer amor, la misma mujer a la que después sacrificaría. Y entonces Doom hace lo que nadie esperaba: le ofrece al Tribunal Viviente, el juez del universo, su propia vida a cambio de la de ella.",
-     "en": "But in that perfect world a little girl dies, and it's Doom's fault, in a battle where he blows up his own armor: she's Valeria Richards, Reed and Sue's daughter, whom Doom helped bring into the world years earlier and named after his first love, the very woman he would later sacrifice. And then Doom does what no one expected: he offers the Living Tribunal, the judge of the universe, his own life in exchange for hers.",
-     "visual": "E: una luz cálida sobre una niña de pelo rubio dormida (sin heridas); Doom arrodillado ante una figura enorme y cósmica (el Tribunal, por atributos)."
-    },
-    {
-     "n": 32,
-     "marca": "testamento",
-     "es": "Valeria vuelve a abrir los ojos mientras Doom se desvanece, y en su testamento se lo deja todo a ella, de modo que el hombre que se pasó la vida intentando salvar a su madre del infierno termina salvando a la hija de su peor enemigo.",
-     "en": "Valeria opens her eyes again as Doom fades away, and in his will he leaves everything to her, so the man who spent his life trying to save his mother from hell ends up saving his worst enemy's daughter.",
-     "visual": "E: la niña abre los ojos; Doom se vuelve polvo de luz; Atom lee el testamento y el pergamino se desenrolla hasta el suelo (gag)."
+     "n": 29,
+     "marca": "tribunal",
+     "es": "Y ahí, frente a esa niña, Doom hace algo que nadie esperaba de él, porque se presenta ante el Tribunal Viviente, el juez del universo, y le ofrece su propia vida a cambio de la de ella. Valeria vuelve a abrir los ojos mientras él se desvanece, y en su testamento se lo deja todo a ella, de modo que el hombre que pasó la vida intentando salvar a su madre acaba salvando a la hija de su peor enemigo.",
+     "en": "And there, in front of that girl, Doom does something no one expected of him, because he goes before the Living Tribunal, the judge of the universe, and offers his own life in exchange for hers. Valeria opens her eyes again as he fades away, and in his will he leaves everything to her, so the man who spent his life trying to save his mother ends up saving his worst enemy's daughter.",
+     "visual": "E: Doom arrodillado ante una figura enorme y cósmica (el Tribunal, por atributos); la niña abre los ojos; Doom se vuelve polvo de luz; Atom lee el testamento y el pergamino se desenrolla hasta el suelo (gag)."
     }
    ]
   },
@@ -454,10 +431,10 @@
    "produccion": "",
    "frases": [
     {
-     "n": 33,
+     "n": 30,
      "marca": "fijate5",
-     "es": "Y fíjate en esto: el psicólogo Dan McAdams lleva décadas estudiando cómo cuenta la gente su propia vida, y encontró que muchas personas la ordenan como una historia de redención, en la que lo peor que les pasó acaba llevando a algo bueno, y que quienes la cuentan así suelen vivir con más sentido. Puede que el último acto de Doom fuera eso: el capítulo que le faltaba a su historia.",
-     "en": "And notice this: the psychologist Dan McAdams has spent decades studying how people tell their own lives, and he found that many of them shape them as redemption stories, where the worst thing that happened to them ends up leading to something good, and that people who tell their lives that way tend to live with a greater sense of meaning. Maybe Doom's last act was exactly that: the chapter his story was missing.",
+     "es": "Y fíjate en esto. El psicólogo Dan McAdams lleva décadas estudiando cómo cuenta la gente su propia vida, y encontró que muchas personas la ordenan como una historia de redención, en la que lo peor que les pasó acaba llevando a algo bueno, y que quienes la cuentan así suelen vivir con más sentido. Puede que el último acto de Doom fuera eso, el capítulo que le faltaba a su historia.",
+     "en": "And notice this. The psychologist Dan McAdams has spent decades studying how people tell their own lives, and he found that many of them shape them as redemption stories, where the worst thing that happened to them ends up leading to something good, and that people who tell their lives that way tend to live with a greater sense of meaning. Maybe Doom's last act was exactly that, the chapter his story was missing.",
      "visual": "PAUSA: la luz congelada; Atom (al doble) saca a color un libro abierto con una línea que baja y luego sube."
     }
    ]
@@ -472,26 +449,26 @@
    "produccion": "",
    "frases": [
     {
-     "n": 34,
+     "n": 31,
      "marca": "infierno",
-     "es": "Pero en los cómics nadie se queda muerto mucho tiempo, y en junio de este año Doom volvió, y volvió al sitio más simbólico posible: al infierno, al reino de Mefisto, el demonio que se llevó a su madre, para hacerle la guerra desde dentro. Y en octubre la ganó, porque Mefisto, para salvarse, tuvo que entregarle su trono, y lo primero que hizo Doom fue romper todos sus contratos y liberar el alma de Valeria, la mujer a la que un día sacrificó.",
-     "en": "But in the comics nobody stays dead for long, and in June of this year Doom came back, and he came back to the most symbolic place possible: to hell, to the realm of Mephisto, the demon who took his mother, to wage war on him from the inside. And in October he won it, because Mephisto, to save himself, had to hand him his throne, and the first thing Doom did was tear up all of his contracts and set free the soul of Valeria, the woman he once sacrificed.",
-     "visual": "D: Doom en el infierno: rompe contratos que arden en el aire; un trono rojo vacío; una luz verde sube libre.",
+     "es": "Pero en los cómics nadie se queda muerto mucho tiempo, y en junio de este año Doom despertó en el sitio más simbólico posible, el infierno, el reino de Mefisto, el mismo demonio que se llevó a su madre. Le hizo la guerra desde dentro, y en octubre la ganó, porque Mefisto, para salvarse, tuvo que entregarle su trono, y lo primero que hizo Doom fue romper todos sus contratos y liberar el alma de Valeria, la mujer a la que un día sacrificó.",
+     "en": "But in the comics nobody stays dead for long, and in June of this year Doom woke up in the most symbolic place possible, hell, the realm of Mephisto, the same demon who took his mother. He waged war on him from the inside, and in October he won it, because Mephisto, to save himself, had to hand over his throne, and the first thing Doom did was tear up all of his contracts and set free the soul of Valeria, the woman he once sacrificed.",
+     "visual": "D: Doom en el infierno: rompe contratos que arden en el aire; un trono rojo; una luz verde sube libre.",
      "acto": true
     },
     {
-     "n": 35,
-     "marca": "cine",
-     "es": "Así que hoy, el niño que quería sacar a su madre del infierno es el rey del infierno, y el dieciocho de diciembre llega al cine otra versión de él, con otra cara. Pero si algo nos enseñan los cómics es que Doom nunca fue un monstruo que nació malo: fue un niño en la nieve que no pudo salvar a su padre, y que nunca aprendió a perdonarse.",
-     "en": "So today, the boy who wanted to get his mother out of hell is the king of hell, and on December eighteenth another version of him hits theaters, with another face. But if the comics teach us anything, it's that Doom was never a monster born evil: he was a boy in the snow who couldn't save his father, and who never learned to forgive himself.",
-     "visual": "A: la montaña nevada del principio; el niño con el abrigo mira la luz; un cine con «18»."
+     "n": 32,
+     "marca": "abrigo2",
+     "es": "¿Te acuerdas del abrigo? Porque yo creo que toda esta historia está ahí. Un padre que, en la peor noche de su vida, le dio a su hijo lo único que le quedaba, y un hijo que se pasó la vida intentando hacer lo mismo por alguien, aunque muchas veces fuera de la forma equivocada. Hoy, el niño que quería sacar a su madre del infierno es el rey del infierno, y el dieciocho de diciembre llega al cine con otra cara.",
+     "en": "Do you remember the coat? Because I think this whole story is right there. A father who, on the worst night of his life, gave his son the only thing he had left, and a son who spent his life trying to do the same for someone, even if he so often did it the wrong way. Today, the boy who wanted to get his mother out of hell is the king of hell, and on December eighteenth he arrives in theaters with another face.",
+     "visual": "A: la montaña nevada del principio; el padre y el niño con el abrigo, de lejos; luego un cine con «18»."
     },
     {
-     "n": 36,
+     "n": 33,
      "marca": "pregunta",
      "es": "Y ahora te pregunto yo: si pudieras recuperar a alguien que perdiste, pero el precio fuera convertirte en otra persona, ¿lo harías? Te leo en los comentarios.",
      "en": "And now I'm asking you: if you could get back someone you'd lost, but the price was becoming someone else, would you do it? I'll be reading the comments.",
-     "visual": "F: Atom en su estudio mira a cámara y señala los comentarios."
+     "visual": "F: Atom en su estudio descuelga el abrigo pequeño, mira a cámara y señala los comentarios."
     }
    ]
   }
