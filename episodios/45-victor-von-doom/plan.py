@@ -16,7 +16,7 @@ import json, os
 
 D = os.path.dirname(os.path.abspath(__file__))
 BANDA = {'tono': 'sol', 'modo': 'menor', 'tempo': 84, 'motivo': [0, 3, 7, 8, 7, 3, 2, 0], 'sampleado': True,
-         'paleta': {'solista': 'violin', 'color': 'guitarra', 'metal': 'trompa', 'aire': 'flauta', 'madera': 'corno_ingles'}}
+         'paleta': {'solista': 'violin', 'punteo': 'guitarra', 'metal': 'trompa', 'aire': 'flauta', 'madera': 'corno_ingles'}}
 E = [
  ('vd-gancho', None, 1, 3, ['giro', 'nieve', 'doom'],
   ['A: la montaña nevada de noche; un niño pequeño con abrigo mira una luz roja lejana entre las rocas; golpe en «mother».',

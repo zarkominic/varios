@@ -45,8 +45,10 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
 - **La música con instrumentos sampleados (canon desde el 44, elegido de oído por el usuario el 20/11/2026):** en
   `plan.py`, `BANDA` lleva `'sampleado': True` y una `'paleta'` propia del episodio (qué instrumento hace de solista, de
   color, de metal, de aire…; los nombres, en `atomo/herramientas/sonido/tramo_sf.py`). Dos episodios seguidos no
-  repiten solista. **Nada de campanitas** (el usuario: «no uses el sonidito ese que suena como un tin tin tin»): ni
-  celesta, ni glockenspiel, ni caja de música, ni campanas, ni vibráfono, ni marimba (`tramo_sf.py` lo rechaza). Hace falta `fluidsynth` y `fluid-soundfont-gm` (`comprobar-entorno.sh` lo mira). Con los instrumentos
+  repiten solista. **El «tin tin tin» es siempre una celesta** (el usuario, 20/11/2026: «no uses el sonidito ese que
+  suena como un tin tin tin», y 21/11/2026: «cuando tengas sonidos con tin tin tin, usa celesta como instrumento»): los
+  arpegios agudos (el papel «color») los toca la celesta, fijo en `tramo_sf.py`; el resto de campanitas sigue prohibido
+  (glockenspiel, caja de música, campanas, vibráfono, kalimba, marimba: `tramo_sf.py` lo rechaza). Hace falta `fluidsynth` y `fluid-soundfont-gm` (`comprobar-entorno.sh` lo mira). Con los instrumentos
   sintetizados «siempre es casi igual» (el usuario).
 - **La banda de cada episodio la decide el tema** (desde el 13, por petición del usuario: «la música de fondo se está
   repitiendo de capítulo a capítulo… no todo es suspenso»; «la banda depende del tema que definamos y el guion»). Se

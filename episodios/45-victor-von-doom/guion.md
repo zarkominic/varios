@@ -57,7 +57,7 @@ con una pregunta.
 ## La banda del episodio
 
 **Sol menor, 84 pulsaciones, con instrumentos sampleados (violín solista, guitarra, trompa, flauta y corno inglés; coro
-en lo épico; sin campanitas)**, motivo [0, 3, 7, 8, 7, 3, 2, 0]: lento y de Europa del Este, con la sexta menor que suena
+en lo épico; la celesta en los arpegios agudos, el único «tin tin»)**, motivo [0, 3, 7, 8, 7, 3, 2, 0]: lento y de Europa del Este, con la sexta menor que suena
 a pena y a cuento antiguo. Distinta del 43 (Mi menor) y del 44 (Re dórico, con shehnai solista).
 
 | **Acto** | **Ánimo** | **Por qué** |

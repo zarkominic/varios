@@ -35,9 +35,11 @@ PAL = {'solista': 'oboe', 'color': 'arpa', 'cuerdas': 'cuerdas', 'lentas': 'cuer
        'coro': 'coro', 'percusion': 'timbal', 'metal': 'trompa', 'teclas': 'piano', 'punteo': 'guitarra',
        'madera': 'clarinete', 'aire': 'flauta'}
 PAL.update(A.get('paleta') or {})
-# NADA de campanitas (el usuario, 20/11/2026: «no uses el sonidito ese que suena como un tin tin tin»): ni celesta, ni
-# glockenspiel, ni caja de música, ni campanas, ni vibráfono, ni kalimba, ni marimba
-PROHIBIDOS = {'celesta', 'glock', 'caja_musica', 'campanas', 'vibrafono', 'kalimba', 'marimba', 'dulcimer'}
+# Los arpegios agudos («color», en misterio y cierre) son el «tin tin tin»: el 20/11/2026 el usuario pidió quitar ese
+# sonido y el 21/11/2026 precisó que, cuando lo haya, sea una CELESTA. Así que «color» es siempre la celesta, y el resto
+# de campanitas sigue prohibido: ni glockenspiel, ni caja de música, ni campanas, ni vibráfono, ni kalimba, ni marimba
+PAL['color'] = 'celesta'
+PROHIBIDOS = {'glock', 'caja_musica', 'campanas', 'vibrafono', 'kalimba', 'marimba', 'dulcimer'}
 assert not PROHIBIDOS & set(PAL.values()), f'paleta con campanitas: {PROHIBIDOS & set(PAL.values())}'
 
 def grado(g, o=0):
