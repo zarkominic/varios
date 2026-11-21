@@ -293,11 +293,11 @@ def problemas(texto, a, oidas):
             avisos.append(f"escuchar «{pal}» (hueco de {largo:.2f} s)")
     # Final cortado (desde el 45: en el 44, ZONOS3 dijo «a propósi(to)» y nadie lo vio, porque Whisper completa la palabra
     # por el contexto y misma() la da por buena). Dos señales: la última palabra oída es un trozo más corto de la última
-    # escrita, o el clip acaba en seco (sus últimos 40 ms aún con la mitad de la energía de la voz). Es fallo: otra toma.
+    # escrita, o el clip acaba en seco (sus últimos 40 ms aún con un 30 % de la energía de la voz; un final limpio da 0,02–0,08). Es fallo: otra toma.
     if esp and oid and oid[-1] != esp[-1] and len(oid[-1]) <= len(esp[-1]) - 2 and esp[-1].startswith(oid[-1][:max(2, len(oid[-1]) - 1)]):
         out.append(f"final cortado: «{esp[-1]}» suena «{oid[-1]}»")
     cola = int(SR * 0.04)
-    if len(a) > 4 * cola and np.sqrt(np.mean(a[-cola:] ** 2)) > 0.5 * np.percentile(rms, 95):
+    if len(a) > 4 * cola and np.sqrt(np.mean(a[-cola:] ** 2)) > 0.3 * np.percentile(rms, 95):
         out.append('acaba en seco (final cortado)')
     return out, avisos
 
