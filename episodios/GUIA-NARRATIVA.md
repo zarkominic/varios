@@ -120,6 +120,16 @@ tras la primera prueba: «sigue pareciendo lo que hacíamos, frases cortas sin h
   párrafo (`"pausas": {"respiro": 0.2, "parrafo": 0.7, "acto": 1.0}`), el inglés a 0,95 y el español con
   `mood.valence` 0,4 y `mood.arousal` 0,3 (más contenido, con misterio). Unas 170 palabras por minuto. Música presente
   cuando calla la voz.
+- **Humanizado, sin afirmaciones cortas (regla del usuario, 21/11/2026, tras el 44):** «sigo escuchando frases cortas,
+  afirmaciones rápidas… “Él es así. Su madre también. Cien veces ganó, diez perdió.” Parecen de robot, humanízalo; no
+  perdamos la idea de una locución tipo cuento, con pausas explicativas». Por eso:
+  - nada de oraciones de 3–8 palabras seguidas («Victor lo echa. Enciende la máquina. La máquina explota.»): se unen con
+    el porqué («…porque su orgullo no lo soporta, así que, en cuanto se queda solo, enciende la máquina…»);
+  - cada dato lleva su emoción o su razón al lado (qué sintió, por qué lo hizo, qué significa), y menos datos por párrafo;
+  - nada de cifras en serie ni de balances («ganó tantas, perdió tantas»): una cifra por idea, y contada;
+  - las pausas «fíjate» explican despacio, como quien piensa en voz alta, y vuelven a la historia;
+  - revisa el guion entero buscando oraciones de menos de 10 palabras antes de presentarlo: cada una tiene que estar ahí
+    por algo (un remate, como mucho una por acto).
 - **Duración y destripes** (decidido el 20/11/2026 para el 43): relatos de 12–14 min (unas 2.100–2.300 palabras en
   inglés); la historia se cuenta entera, con un aviso de destripes a los 10–15 s («si aún no la has visto, guárdate este
   vídeo para después»), y la violencia nunca se ve.
