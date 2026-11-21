@@ -12100,3 +12100,59 @@ export const ELENCO_PA = {
     pal: CLARA({ H: '#9a4a24', h: '#c06a34', C: '#5a5a62', c: '#42424a', W: '#e8c060', o: '#e8c060', F: '#42424a' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_PA);
+// ── Episodio 45 · Victor von Doom (la vida de Victor contada desde dentro). Por sus atributos, sin nada de los cómics:
+// Latveria romaní (chales, abrigos de lana, colores tierra), la universidad de Estados Unidos, Camelot y Wakanda.
+// Doom, Reed, Sue, Johnny, la Cosa, Iron Man, Strange, el monje (monjeDD) y el joven Doom con capucha (doomJovenDD) ya
+// están en ELENCO_CHIBI; aquí van los demás, con el sufijo VD donde el nombre podría chocar.
+export const ELENCO_VD = {
+  // Victor niño (la noche de la tormenta): pelo negro, abrigo de lana pardo con el cuello subido
+  victorNinoVD: { ...B20N, cuerpo: CUERPO_NINO, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#6a4a30', c: '#4e3420', F: '#3a3030', n: '#2a2018' }) },
+  // Victor de muchacho en el campamento: pelo negro, camisa clara y chaleco verde oscuro, botas
+  victorChicoVD: { ...B20, cuerpo: CUERPO_EUROPEO, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#2e5a3a', c: '#1e4028', W: '#e8e0cc', o: '#c8a040', F: '#3a3436', n: '#2a2018' }) },
+  // Victor estudiante en Estados Unidos: pelo negro peinado hacia atrás, chaqueta verde botella, camisa blanca
+  victorJovenVD: { ...B20, cuerpo: CUERPO_EUROPEO, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#2e2838', C: '#24503a', c: '#183a28', W: '#f2eee2', o: '#c8a040', F: '#2a2a34', n: '#1c1424' }) },
+  // Werner, el curandero: barba castaña, abrigo de lana pardo con bufanda roja (el abrigo que le da a su hijo)
+  wernerVD: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_ABRIGO_NV, ceja: hex('#3a2418'),
+    pal: OLIVA({ H: '#4a2e1c', h: '#6a4630', C: '#6a4a30', c: '#4e3420', u: '#a8302a', o: '#c8a040', F: '#3a3030', n: '#2a2018' }) },
+  // Cynthia, la madre: melena negra larga, vestido granate y chal morado con flecos dorados
+  cynthiaVD: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#6a1e3a', c: '#4a142a', W: '#5a2a7a', L: '#c8a040' }) },
+  // el barón: barba gris recortada, levita azul de oficial con charreteras doradas
+  baronVD: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#8a8a94'),
+    pal: CLARA({ H: '#9a9aa4', h: '#c8c8d0', C: '#2a3a6a', c: '#1c284a', W: '#e8c060', o: '#e8c060', F: '#1c1c28', n: '#14121a' }) },
+  // la baronesa: melena rubia recogida, vestido azul pálido (de lejos, en la cama)
+  baronesaVD: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#a8843c'),
+    pal: CLARA({ H: '#d8b860', h: '#f0d890', C: '#a8c0d8', c: '#7a94b0', W: '#f2eee2', L: '#8a7a5a' }) },
+  // soldado del barón: casaca gris con cinturón negro, gorro de piel
+  soldadoVD: { ...B20, cuerpo: CUERPO_EUROPEO, ceja: hex('#3a2418'), tocado: 'gorraPlana',
+    pal: CLARA({ H: '#3a2a20', h: '#5a4230', C: '#5a5e66', c: '#3e424a', W: '#2a2430', o: '#a8a8b0', F: '#2a2a30', n: '#14121a' }) },
+  // Boris: calvo con barba blanca, chaleco marrón sobre camisa clara, el amigo de la familia
+  borisVD: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#c8c4bc'),
+    pal: OLIVA({ H: '#d8d4cc', h: '#f2eee2', C: '#6a4a2a', c: '#4e341c', W: '#e8e0cc', o: '#c8a040', F: '#3a3436', n: '#2a2018' }) },
+  // Valeria, la chica del pueblo (el primer amor): melena castaña, vestido verde y chal mostaza
+  valeriaVD: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#5a3418'),
+    pal: CLARA({ H: '#6a3a1c', h: '#8a5430', C: '#3a6a4a', c: '#2a5038', W: '#d8a840', L: '#8a6a3a' }) },
+  // romaní del campamento: él, bigote y chaleco rojo; ella, pañuelo y falda de colores
+  romaniVD: { ...B20, cuerpo: CUERPO_EUROPEO, ceja: hex('#1c1424'), bigote: true,
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#a8302a', c: '#7a2020', W: '#e8e0cc', o: '#c8a040', F: '#3a3030', n: '#2a2018' }) },
+  romaniMujerVD: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#2a6a8a', c: '#1e4e66', W: '#d8a840', L: '#7a2a3a' }) },
+  // Reed de estudiante: pelo castaño, jersey azul de la universidad, sin canas todavía
+  reedJovenVD: { ...B20, cuerpo: CUERPO_EUROPEO, ceja: hex('#4a3020'),
+    pal: CLARA({ H: '#6a4830', h: '#8a6440', C: '#3a5ac8', c: '#2a4498', W: '#f2eee2', o: '#f2eee2', F: '#3a3a44', n: '#1c1424' }) },
+  // Morgana: melena negra muy larga, vestido morado con ribete verde
+  morganaVD: { ...B20M, cuerpo: CUERPO_VESTIDO, ceja: hex('#1c1424'),
+    pal: CLARA({ H: '#14111a', h: '#2e2838', C: '#4a2a7a', c: '#341c5a', W: '#2e7a3e', L: '#2e7a3e' }) },
+  // el rey Arturo: barba rubia, túnica roja con la cruz dorada (la corona la pinta la escena)
+  arturoVD: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_EUROPEO, ceja: hex('#a8843c'),
+    pal: CLARA({ H: '#c8a050', h: '#e8c878', C: '#a8302a', c: '#7a2020', W: '#e8c060', o: '#e8c060', F: '#3a3436', n: '#2a2018' }) },
+  // Valeria Richards niña: melena rubia, vestido azul de los Cuatro Fantásticos
+  valeriaNinaVD: { ...B20N, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#a8843c'),
+    pal: CLARA({ H: '#f0d070', h: '#f8e4a0', C: '#3a5ac8', c: '#2a4498', W: '#f2eee2', F: '#2a4498' }) },
+  // Pantera Negra (T'Challa): el traje negro con el collar plateado (el mismo dibujo que shuri, con nombre propio)
+  panteraVD: ELENCO_CHIBI.shuri,
+};
+Object.assign(ELENCO_CHIBI, ELENCO_VD);
