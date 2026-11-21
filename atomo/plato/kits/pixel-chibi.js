@@ -12152,6 +12152,14 @@ export const ELENCO_VD = {
   // Valeria Richards niña: melena rubia, vestido azul de los Cuatro Fantásticos
   valeriaNinaVD: { ...B20N, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#a8843c'),
     pal: CLARA({ H: '#f0d070', h: '#f8e4a0', C: '#3a5ac8', c: '#2a4498', W: '#f2eee2', F: '#2a4498' }) },
+  // la Mole (la Cosa en España): más ancha y maciza que «cosa» (el usuario, 21/11/2026: «la Mole se ve muy flaca»): el
+  // mismo cuerpo de roca con el torso y los brazos más anchos y las piernas como columnas (se duplican columnas)
+  moleVD: { ...ELENCO_CHIBI.cosa, dxCuerpo: -5, brazoCol: 20,
+    cuerpo: ELENCO_CHIBI.cosa.cuerpo.map((f, j) => {
+      const d = (s, i, n = 1) => s.slice(0, i) + s[i].repeat(n + 1) + s.slice(i + 1);
+      if (j < 18) return d(d(d(f, 18, 1), 10, 2), 2, 1);   // brazo derecho, torso y brazo izquierdo: +4 columnas
+      return d(d(d(f, 14, 1), 8, 1), 10, 2);               // las piernas: +1 cada una y la separación
+    }) },
   // Pantera Negra (T'Challa): el traje negro con el collar plateado (el mismo dibujo que shuri, con nombre propio)
   panteraVD: ELENCO_CHIBI.shuri,
 };
