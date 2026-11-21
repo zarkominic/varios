@@ -20,7 +20,8 @@
 //    en «least bad» se apagan las ramas que quedaban; Paul echa a andar y a cada paso («every step… locks») cae detrás
 //    de él una verja de luz; Atom luciérnaga lo sigue y choca con la verja;  (corta en «And notice»)
 // 4. PAUSA: el camino CONGELADO en gris azulado; Atom al doble sale de su luz, señala a Paul («notice this») y lo rodea
-//    con su órbita; saca a color un libro que cierra y aparta («outside of books»); en «1948» salta el número;
+//    con su órbita; saca a color un libro, lo sostiene por el canto, lo cierra y lo deja en el suelo a su derecha
+//    («outside of books»: entero, con su sombra y un soplo de polvo); en «1948» salta el número;
 // 5. PAUSA: la jaula CONGELADA, Atom a la derecha: un sociólogo de 1948 a color con su pizarrita; en «gave a name»
 //    escribe y en «self-fulfilling prophecy» la flecha que se muerde la cola se cierra (la órbita la rodea);
 // 6. PAUSA: el laberinto desde arriba CONGELADO: tres vecinos a color; en «belief» al primero le sale un bocadillo con
@@ -355,8 +356,16 @@ const p4 = (t) => {
   if (t > NOTICE + 0.1) AT.anillo(R, px, py - 12, 16, 18, t, tramo(t, NOTICE + 0.1, NOTICE + 0.7));
   if (t < P4 + 0.6) { const v = tramo(t, P4, P4 + 0.6); lucie(lerp(60, 70, v), lerp(60, 120, v), t, { dir: 1, cara: 'sorpresa' }); return; }
   const ub = tramo(t, BOOKS - 1.0, BOOKS - 0.6), cierra = t > BOOKS - 0.1, aparta = tramo(t, BOOKS + 0.2, N48 - 0.3);
-  const r = atomG(70, 160, t, { s: 2, pose: t < NOTICE + 1.0 ? 'senala' : ub > 0 && aparta < 1 ? 'sostiene' : t > N48 ? 'brazos' : 'quieto', dir: 1, cara: t > N48 ? 'sonrisa' : t > BOOKS ? 'guino' : 'normal', habla: voz(t) });
-  if (ub > 0) { const bx = lerp(r.mano[0] - 10, 18, ease(aparta)), by = lerp(r.mano[1] - 30, 150, ease(aparta)) + flota(t); AT.escalado(R, libro(cierra ? 0 : 1), 22, 16, ri(bx), ri(by), 2); }
+  // el libro va ANTES que Atom, para que la mano y el brazo queden por delante del canto: la mano de «sostiene» a escala 2
+  // con los pies en (70, 160) cae en (86, 148 − 2·bote) (atom1: mano = (cx + 8, cy + 4), cy = suelo − 10 − bote).
+  // Lo sostiene con la mano en el canto izquierdo y, en «outside of books», lo deja en el suelo a su derecha (x 98–129 del
+  // libro cerrado, base en y 159), con su sombra y un soplo de polvo al tocar el suelo: entero dentro del cuadro y sin flotar.
+  if (ub > 0) { const bote = Math.sin(t * 2.4) > 0.6 ? 1 : 0, u = ease(aparta), hx = 86, hy = 148 - 2 * bote;
+    const bx = ri(lerp(hx - 8, 92, u)), by = ri(lerp(hy - 28, 128, u) - Math.sin(u * Math.PI) * 4);
+    if (u > 0.5) { const sx = bx + 6, sw = 32; for (let i = 0; i < sw; i++) R.pset(sx + i, 160, H('#1c2230')); R.linea(sx + 2, 161, sx + sw - 3, 161, H('#252c3c')); }
+    AT.escalado(R, libro(cierra ? 0 : 1), 22, 16, bx, by, 2);
+    const pf = tramo(t, N48 - 0.3, N48 + 0.3); if (pf > 0 && pf < 1) for (let k = 0; k < 6; k++) { const d = 4 + pf * 10; R.pset(ri(bx + 22 + (k < 3 ? -1 : 1) * (14 + d + k % 3 * 3)), ri(158 - pf * 4 - k % 3), H('#8a92a4')); } }
+  atomG(70, 160, t, { s: 2, pose: t < NOTICE + 1.0 ? 'senala' : ub > 0 && aparta < 1 ? 'sostiene' : t > N48 ? 'brazos' : 'quieto', dir: 1, cara: t > N48 ? 'sonrisa' : t > BOOKS ? 'guino' : 'normal', habla: voz(t) });
   const un = pop(t, N48 - 0.1, 0.35); if (un > 0) { const y = 92 - ri(un * 8) + flota(t, 2); R.numero('1948', 110, y, { tam: 16, centro: true }); if (t > N48 + 0.3) AT.anillo(R, 110, y - 8, 40, 16, t, tramo(t, N48 + 0.3, N48 + 1.0)); }
 };
 

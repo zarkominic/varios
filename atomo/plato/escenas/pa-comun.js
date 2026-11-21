@@ -102,7 +102,9 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     de bronce con plantas del desierto (x 262–318, y 142–179).
 //     Cámara 'multitud': a ras de la plaza, entre los peregrinos, mirando arriba a la fachada enorme de la ciudadela
 //     (gradas de sillares, ventanas apuntadas, dos estandartes gigantes, torres de viento) con el balcón lejano en el
-//     centro (x 160, pies y 46; o.figura true por omisión: una figura diminuta que saluda); la multitud del medio en
+//     centro (x 160, pies y 46; o.figura true por omisión: una figura diminuta que saluda; la puerta del balcón asoma
+//     como pabellón hasta y 23, x 148–172); la grada de arriba es baja (cornisa en y 28, almenas solo en x 72–108 y
+//     208–244), así que bajo la cifra del año (x 140–154, y 12–20) queda cielo vivo; la multitud del medio en
 //     filas (y 108–150) y, en ciudadelaDelante, cabezas y espaldas de primer término (y 148–179) con brazos que se alzan.
 //   'aposentos': LAS HABITACIONES DE PAUL Y CHANI, de noche: muros de sillares a la luz de la lámpara de aceite que cuelga
 //     (x 120, llama en y 44) y tiembla, vigas de palmera, el mapa estelar grande en marco de bronce (x 22–112, y 26–92;
@@ -965,9 +967,10 @@ function a_fachadaFijo(R) {
   // las torres de viento de los lados, más lejos: sillares, rendijas para el aire y su remate
   for (const [x0, x1, top] of [[0, 30, 34], [290, 320, 60]]) { a_sillares(R, x0, top, x1, 150, [a_P.pM, a_P.pS, a_P.pS, a_P.pD, a_P.pJ], { alto: 5, ancho: 10, k: 101 + x0 });
     rect(x0, top - 4, x1, top, a_P.pM); rect(x0, top - 4, x1, top - 4, a_P.pL); for (let x = x0 + 3; x < x1 - 2; x += 5) { rect(x, top + 3, x + 1, top + 13, a_P.pK); pset(x, top + 3, a_P.pD); } }
-  // la fachada enorme, en tres gradas que se estrechan hacia arriba (la vemos desde abajo), con su sombra bajo cada cornisa
-  const GR = [[18, 302, 88, 150, 7, 16], [42, 278, 46, 88, 6, 14], [74, 246, 26, 46, 5, 12]];
-  for (const [x0, x1, y0, y1, al, an] of GR) {
+  // la fachada enorme, en tres gradas que se estrechan hacia arriba (la vemos desde abajo), con su sombra bajo cada cornisa;
+  // la grada de arriba, baja (cornisa en y 28): bajo la cifra del año (x 140–154, y 12–20) queda cielo limpio
+  const GR = [[18, 302, 88, 150, 7, 16], [42, 278, 46, 88, 6, 14], [74, 246, 32, 46, 5, 12]];
+  for (const [x0, x1, y0, y1, al, an] of GR) { const arriba = y0 === GR[2][2];
     a_sillares(R, x0, y0, x1, y1, [a_P.pL, a_P.p, a_P.pM, a_P.pS, a_P.pJ], { alto: al, ancho: an, k: 102 + y0 });
     // pilastras: franjas salientes con su luz a la izquierda y su sombra a la derecha
     for (let px = x0 + 14; px < x1 - 10; px += 38) { rect(px, y0, px + 5, y1, a_P.p); rect(px, y0, px, y1, a_P.pL); rect(px + 5, y0, px + 6, y1, a_P.pS); for (let y = y0 + 3; y < y1; y += 9) { pset(px + 2, y, a_P.bz); pset(px + 3, y, a_P.bzL); } }
@@ -975,20 +978,25 @@ function a_fachadaFijo(R) {
     for (let y = y0 + 1; y < y0 + 6; y++) for (let x = x0; x <= x1; x++) if ((x + y) % 2 === 0 || y < y0 + 3) a_tinte(R, x, y, 0.32, a_P.sD);
     rect(x0, y0, x0, y1, a_P.pL); rect(x1, y0, x1, y1, a_P.pS);
     // las almenas escalonadas del remate de cada grada
-    for (let x = x0 - 2; x < x1; x += 8) { if (y0 < 30 && x > 116 && x < 200) continue;   // la grada de arriba, sin almenas bajo la cifra del año
+    for (let x = x0 - 2; x < x1; x += 8) { if (arriba && x > 108 && x < 208) continue;   // la grada de arriba, sin almenas bajo la cifra del año ni sobre el balcón
       rect(x, y0 - 8, x + 4, y0 - 4, a_K); rect(x + 1, y0 - 7, x + 3, y0 - 4, a_P.pM); pset(x + 1, y0 - 7, a_P.pL); rect(x + 2, y0 - 10, x + 2, y0 - 8, a_K); }
   }
   // las filas de ventanas apuntadas, con celosía y alféizar
   const vent = (cx, yb, a, al) => { for (let y = yb - al - 2; y <= yb; y++) for (let x = cx - a - 2; x <= cx + a + 2; x++) { if (a_enArco(x, y, cx, yb - al + a, a, yb)) pset(x, y, a_hueco(x, y, 3) && y < yb - 3 ? a_P.pS : a_P.sD); else if (a_enArco(x, y, cx, yb - al + a, a + 1, yb)) pset(x, y, x < cx ? a_P.pL : a_P.pD); } rect(cx - a - 2, yb + 1, cx + a + 2, yb + 2, a_P.pL); rect(cx - a - 2, yb + 2, cx + a + 2, yb + 2, a_P.pD); };
   for (let x = 30; x < 296; x += 19) if (Math.abs(x - 160) > 36) vent(x, 126, 4, 22);
   for (let x = 56; x < 270; x += 16) if (Math.abs(x - 160) > 40) vent(x, 80, 3, 16);
-  for (let x = 86; x < 240; x += 14) if (Math.abs(x - 160) > 20) vent(x, 42, 2, 9);
+  // en la grada de arriba, tan baja, un friso de saeteras con su dintel y, entre ellas, rosetas de bronce
+  for (let x = 84; x < 240; x += 12) { if (Math.abs(x - 160) < 18) continue; rect(x - 1, 35, x + 1, 41, a_P.pD); rect(x, 36, x, 40, a_P.sD); pset(x - 1, 35, a_P.pL); rect(x - 2, 34, x + 2, 34, a_P.pL); rect(x - 1, 41, x + 1, 41, a_P.pL);
+    if (Math.abs(x + 6 - 160) > 18 && x + 6 < 240) { pset(x + 6, 37, a_P.bz); pset(x + 6, 38, a_P.bzS); pset(x + 5, 37, a_P.bzL); pset(x + 7, 38, a_P.pS); } }
   // la gran puerta apuntada del pie: hojas de bronce con clavos, el marco tallado
   for (let y = 80; y <= 150; y++) for (let x = 128; x <= 192; x++) { if (a_enArco(x, y, 160, 118, 22, 150)) pset(x, y, Math.abs(x - 160) < 1 ? a_P.bzD : ((x - 140) % 7 === 0 && y % 6 === 3) ? a_P.bzL : (y - 96) % 18 === 0 ? a_P.bzS : x < 160 ? (x < 146 ? a_P.bzL : a_P.bz) : a_P.bzS); else if (a_enArco(x, y, 160, 118, 25, 150)) pset(x, y, (x + y) % 3 ? a_P.pL : a_P.bz); else if (a_enArco(x, y, 160, 118, 27, 150)) pset(x, y, a_P.pD); }
   R.sprite(a_HALCON, 156, 94, { '#': a_P.bzL, '.': null });
-  // el balcón: puerta en arco con la lámpara dentro, saliente sobre ménsulas (la balaustrada se pinta delante de la figura)
-  for (let y = 22; y <= 46; y++) for (let x = 144; x <= 176; x++) { if (a_enArco(x, y, 160, 34, 9, 46)) pset(x, y, y > 34 ? a_P.sD : (x + y) % 2 ? a_P.sS : a_P.sD); else if (a_enArco(x, y, 160, 34, 12, 46)) pset(x, y, x < 160 ? a_P.pL : a_P.pS); }
-  for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) if (Math.hypot(i, j) < 6 && (i + j) % 2 === 0) a_tinte(R, 160 + i, 34 + j, 0.35, a_P.fu);
+  // el balcón: puerta en arco con la lámpara dentro, saliente sobre ménsulas (la balaustrada se pinta delante de la figura);
+  // el arco asoma sobre la cornisa baja como un pabellón, con su guardapolvo y la clave de bronce (tope en y 24, a la
+  // derecha de la cifra del año)
+  for (let y = 23; y <= 46; y++) for (let x = 144; x <= 176; x++) { if (a_enArco(x, y, 160, 37, 9, 46)) pset(x, y, y > 37 ? a_P.sD : (x + y) % 2 ? a_P.sS : a_P.sD); else if (a_enArco(x, y, 160, 37, 11, 46)) pset(x, y, x < 160 ? a_P.pL : a_P.pS); else if (a_enArco(x, y, 160, 37, 12, 46)) pset(x, y, a_K); }
+  rect(159, 25, 161, 27, a_K); pset(160, 26, a_P.bzL); pset(159, 26, a_P.bz); pset(161, 26, a_P.bzS);
+  for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) if (Math.hypot(i, j) < 6 && (i + j) % 2 === 0) a_tinte(R, 160 + i, 37 + j, 0.35, a_P.fu);
   rect(122, 46, 198, 51, a_K); rect(123, 47, 197, 48, a_P.pL); rect(123, 49, 197, 51, a_P.pS);
   for (let x = 126; x < 196; x += 7) { poligono([[x, 51], [x + 5, 51], [x + 3, 60]], a_K); poligono([[x + 1, 51], [x + 4, 51], [x + 3, 58]], (px) => (px < x + 3 ? a_P.pL : a_P.pM)); }
   for (let y = 52; y < 64; y++) for (let x = 124; x < 198; x++) if ((x + y) % 2 === 0) a_tinte(R, x, y, 0.25, a_P.sD);
@@ -1001,7 +1009,7 @@ function a_fachadaFijo(R) {
 function a_fachada(R, t, o) {
   const a = a_aclaman(o, t), figura = o.figura ?? true;
   a_capa(R, 'fachada', () => a_fachadaFijo(R));
-  const m = a_mascara('fachada', 92, (x, y) => { if (x >= 15 && x <= 305 && y >= 80) return false; if (x >= 39 && x <= 281 && y >= 38) return false; if (x >= 71 && x <= 249 && y >= 14) return false; if (x <= 30 && y >= 29) return false; if (x >= 290 && y >= 55) return false; return true; });
+  const m = a_mascara('fachada', 92, (x, y) => { if (x >= 15 && x <= 305 && y >= 80) return false; if (x >= 39 && x <= 281 && y >= 38) return false; if (x >= 71 && x <= 249 && y >= 28) return false; if (y >= 22 && ((x >= 71 && x <= 108) || (x >= 208 && x <= 249))) return false; if (x >= 147 && x <= 173 && y >= 24) return false; if (x <= 30 && y >= 29) return false; if (x >= 290 && y >= 55) return false; return true; });
   a_cieloVivo(R, t, m, 4, 70);
   // los estandartes gigantes que cuelgan de la fachada y se mecen, y los dos pequeños junto al balcón
   a_estandarte(R, 82, 92, 22, 46, t, { simbolo: 'halcon', fase: 0.2, amp: 1.4 }); a_estandarte(R, 216, 92, 22, 46, t, { simbolo: 'corona', negro: true, fase: 1.4, amp: 1.4 });

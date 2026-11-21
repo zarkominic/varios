@@ -19,12 +19,16 @@
 //    echa el aliento en el cristal y dibuja una carita en el vaho;  (corta en «and the Tleilaxu»)
 // 4. el laboratorio tleilaxu: Bijaz cruza la nave y alza un frasco con una figurita en «manufacture people»; Scytale
 //    lo señala; técnicos al fondo;  (corta en «And with them»)
-// 5. la cocina de la ciudadela: Irulan entra, mira a los lados en «secretly» y echa tres gotas en el cuenco en
-//    «slipping»; Atom, junto a los cántaros, se lleva las manos a la cara;  (corta en «into»)
+// 5. la cocina de la ciudadela: Irulan entra y pasa por detrás de la mesa un paso al fondo (se ve de cintura para
+//    arriba sobre el tablero), mira a los lados en «secretly», saca un frasquito azul y en «slipping» lo tumba sobre el
+//    cuenco: tres gotas grandes caen, salpican, abren ondas y tiñen el agua de azul; Atom, junto a los cántaros, se
+//    lleva las manos a la cara;  (corta en «into»)
 // 6. el cuenco de cerca: por la ventanita pasan los días y las noches, en la pared se tachan los años; la mano de
 //    Irulan vuelve a echar gotas; en «heir» el vapor dibuja una cuna y en «her» le cae encima una corona;  (corta en «The»)
-// 7. el banco tleilaxu: la mano de Bijaz ata un lazo rojo al frasco en «gift» (el regalo); la luz se vuelve roja en
-//    «cruelest»; en «ghola» brilla una célula que se divide y crece hasta una figurita dormida en «cells»;  (corta en «And the dead man»)
+// 7. el banco tleilaxu (suelo de baldosas en perspectiva y, delante, el banco de madera con microscopio, placas, pinzas,
+//    libreta y gradilla): la mano de Bijaz ata un lazo rojo al frasco en «gift» (el regalo); en «cruelest» salta la
+//    alarma de la pared, su haz gira y la sala entera se tiñe de rojo hasta antes de «ghola»; en «ghola» brilla una
+//    célula que se divide y crece hasta una figurita chibi dormida de lado (cabeza clara, rodillas recogidas, respira), en «cells»;  (corta en «And the dead man»)
 // 8. RECUERDO (sepia) en la sala de Caladan: Duncan enseña el mapa a Paul niño; en «gave his life» se pone delante del
 //    chico con los brazos abiertos y se desvanece; Paul se queda solo y triste en «boy»;  (corta en «Except»)
 // 9. los tanques de cerca: el del centro es Hayt; sus ojos de metal destellan en «metal eyes»; Bijaz da golpecitos en
@@ -34,8 +38,10 @@
 // 11. RECUERDO en el paseo de Caladan (sin lluvia): Paul niño y Duncan ríen; en «childhood friend» Duncan lo aúpa;  (corta en «Among»)
 // 12. el vestidor de Scytale: ante el espejo cambia de cara y de túnica en «change his face» (una, otra) y GAG: un
 //    instante tiene la cara de Atom; en «shirt», otra; Atom se toca la suya;  (corta en «and in the movie»)
-// 13. la galería de la corte: cinco personajes en fila; Atom pasa con la lupa; en «doesn't seem to be» el Fremen del
-//    final parpadea con la cara gris de Scytale y Atom da un salto.
+// 13. la galería de la corte: cinco personajes en fila, vivos (Irulan y Hayt charlan, Alia bebe de su copa, el sacerdote
+//    le explica algo con el dedo al Fremen, que asiente); Atom pasa con la lupa y cada uno se vuelve y se sorprende; en
+//    «in the movie» Atom piensa una tira de película en un bocadillo; en «doesn't seem to be» el Fremen del final
+//    parpadea con la cara gris de Scytale y Atom da un salto.
 import * as T from '/atomo/plato/escenas/pa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('pa-conspira');
@@ -224,15 +230,37 @@ const c4 = (t) => {
 const GOTAS = [SLIP - 0.1, SLIP + 0.25, SLIP + 0.6];
 const c5 = (t) => {
   const o = { encuadre: 'aposentos', camara: 'cocina' }; T.ciudadela(R, t, o);
-  const u = tramo(t, C5 + 0.1, C5 + 1.8), xi = ri(lerp(100, 156, ease(u))), mira = t > SECRET - 0.6 && t < SECRET + 0.2, vial = t > SECRET + 0.2;
-  const r = R.actor(PA.irulan, xi, 150, t, { dir: mira ? (Math.sin(t * 6) > 0 ? -1 : 1) : 1, anda: u > 0 && u < 1, sostiene: vial ? [179, 124] : undefined, sonrisa: t > GOTAS[2] + 0.3 });
+  // Irulan entra por la izquierda y pasa por DETRÁS de la mesa, un paso más al fondo (los pies, tapados por el tablero,
+  // suben de 150 a 142): así se ve de cintura para arriba sobre el tablero (y 140) y no solo la cabeza
+  const u = tramo(t, C5 + 0.1, C5 + 1.8), xi = ri(lerp(96, 156, ease(u))), mira = t > SECRET - 0.6 && t < SECRET + 0.2, vial = t > SECRET + 0.2;
+  const pie = ri(lerp(150, 142, cl((xi - 108) / 14)));
+  const vierte = t > GOTAS[0] - 0.35 && t < GOTAS[2] + 0.45;
+  const r = R.actor(PA.irulan, xi, pie, t, { dir: mira ? (Math.sin(t * 6) > 0 ? -1 : 1) : 1, anda: u > 0 && u < 1, sostiene: vial ? (vierte ? [178, 124] : [178, 128]) : undefined, sonrisa: t > GOTAS[2] + 0.3 });
   // Atom junto a los cántaros: se lleva las manos a la cara en «contraceptive»
   atomG(250, 150, t, { dir: -1, pose: t > CONTRA - 0.2 ? 'brazos' : 'quieto', cara: t > SLIP ? 'sorpresa' : 'normal' });
   T.ciudadelaDelante(R, t, o);
-  if (vial) { const [mx, my] = r.mano; R.rect(mx - 2, my - 6, mx + 1, my, K); R.rect(mx - 1, my - 5, mx, my - 1, H('#8ad8ff')); R.pset(mx - 1, my - 7, H('#c8a060')); }
-  for (const g0 of GOTAS) { const s = tramo(t, g0, g0 + 0.3); if (s > 0 && s < 1) { const y = ri(lerp(126, 134, s)); R.rect(180, y, 181, y + 1, H('#8ad8ff')); R.rect(180, y + 2, 181, y + 2, H('#3a8ac8')); }
-    if (s >= 1 && t < g0 + 0.6) { R.pset(178, 133, H('#8ad8ff')); R.pset(184, 133, H('#8ad8ff')); R.pset(177, 132, H('#bfe8ff')); R.pset(185, 132, H('#bfe8ff')); } }
-  if (t > SLIP - 0.5) AT.anillo(R, 178, 128, 16, 12, t, tramo(t, SLIP - 0.5, SLIP + 0.1));
+  // el agua del cuenco se tiñe de azul poco a poco con cada gota (sobre la franja de agua del decorado, x 173–192, y 136)
+  const tinte = cl(tramo(t, GOTAS[0] + 0.25, GOTAS[2] + 0.9));
+  if (tinte > 0) for (let x = 173; x <= 192; x++) { const c = mez(H('#5a9ac0'), H('#8ad8ff'), 0.5 + 0.5 * Math.sin(x * 0.7 + t * 3)); if (b4(x, 136) < tinte * 0.85) R.pset(x, 136, c); }
+  // el frasquito, grande y claro, lejos de la cara: derecho junto al pecho mientras lo saca; tumbado sobre el cuenco,
+  // con la boca hacia abajo, mientras vierte; de la boca caen las tres gotas
+  let gx = 186, gy = 129;
+  if (vial) { const [mx, my] = r.mano;
+    if (!vierte) { R.rect(mx + 1, my - 10, mx + 5, my + 1, K); R.rect(mx + 2, my - 9, mx + 4, my, H('#8ad8ff')); R.rect(mx + 2, my - 9, mx + 2, my, H('#e8f8ff')); R.rect(mx + 2, my - 12, mx + 4, my - 11, K); R.pset(mx + 3, my - 12, H('#c8a060')); R.pset(mx + 3, my - 11, H('#a87a40')); }
+    else { R.rect(mx + 1, my - 3, mx + 8, my + 1, K); R.rect(mx + 2, my - 2, mx + 7, my, H('#8ad8ff')); R.rect(mx + 2, my - 2, mx + 7, my - 2, H('#e8f8ff')); R.rect(mx + 2, my, mx + 7, my, H('#3a8ac8'));
+      R.rect(mx + 9, my - 1, mx + 11, my + 2, K); R.pset(mx + 10, my, H('#8ad8ff')); R.pset(mx + 10, my + 1, H('#3a8ac8'));
+      gx = mx + 10; gy = my + 3;
+      // la gota que se forma en la boca antes de caer
+      for (const g0 of GOTAS) { const f = tramo(t, g0 - 0.25, g0); if (f > 0 && f < 1) { R.pset(gx, gy, f > 0.5 ? H('#bfe8ff') : H('#3a8ac8')); R.pset(gx - 1, gy, K); R.pset(gx + 1, gy, K); } } } }
+  // las tres gotas: caen de la boca del frasco al agua (y 135), con su perfil oscuro y su brillo; al llegar, la
+  // salpicadura (dos chispas que saltan) y una onda que se abre en el agua
+  for (const g0 of GOTAS) { const s = tramo(t, g0, g0 + 0.25);
+    if (s > 0 && s < 1) { const y = ri(lerp(gy, 133, s * s)); R.rect(gx - 1, y - 1, gx + 1, y + 2, K); R.rect(gx, y, gx, y + 1, H('#8ad8ff')); R.pset(gx, y, H('#ffffff')); }
+    const w = tramo(t, g0 + 0.25, g0 + 0.9);
+    if (w > 0 && w < 1) { const a = ri(2 + w * 7), hy = ri(-4 * Math.sin(w * Math.PI * 2.2));
+      if (w < 0.45) { R.pset(gx - 2 - ri(w * 6), 133 + hy, H('#bfe8ff')); R.pset(gx + 2 + ri(w * 4), 133 + hy, H('#bfe8ff')); R.pset(gx, 134 - ri(w * 8), H('#ffffff')); }
+      for (let x = gx - a; x <= gx + a; x++) if (x >= 173 && x <= 192 && Math.abs(x - gx) >= a - 1) R.pset(x, 136, mez(H('#ffffff'), H('#3a8ac8'), w)); } }
+  if (t > SLIP - 0.5) AT.anillo(R, 185, 128, 13, 10, t, tramo(t, SLIP - 0.5, SLIP + 0.1));
 };
 
 // ── 6 · el cuenco de cerca: pasan los años ──────────────────────────────────────────────────────────────────────────
@@ -301,23 +329,55 @@ const fondoBanco = () => {
   for (let i = 0; i < 6; i++) { const x = 18 + i * 17; R.rect(x - 6, 40, x + 6, 59, K); R.rect(x - 5, 41, x + 5, 58, H('#4ac080')); R.rect(x - 5, 41, x + 5, 44, H('#8ae0b0')); R.rect(x - 6, 37, x + 6, 40, H('#5a5a64')); R.disco(x, 51, 3, H('#1e5a3a')); R.pset(x + 2, 54, H('#1e5a3a')); R.pset(x - 4, 43, H('#e8fff0')); }
   // el monitor con la doble hélice (a la derecha)
   R.rect(232, 48, 300, 100, K); R.rect(233, 49, 299, 99, H('#3a3a44')); R.rect(237, 53, 295, 92, H('#0e1a16'));
-  // el banco de acero con remaches y rayas
-  for (let y = 120; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#c8ccd8', '#a8acb8', '#8a8e9a', '#5a5e6a']), 1.1 + (y - 120) * 0.02 + ns(x * 0.05, y * 0.3) * 0.5 + (h2(x, y) > 0.985 ? 1 : 0), x, y));
-  R.rect(0, 118, 319, 121, K); R.rect(0, 119, 319, 120, H('#e8ecf4'));
-  for (let x = 6; x < 320; x += 26) { R.pset(x, 126, H('#4a4e5a')); R.pset(x + 1, 125, H('#f0f4fc')); }
-  // el microscopio a la izquierda y la gradilla de tubos a la derecha, las placas apiladas
-  R.rect(30, 150, 66, 156, K); R.rect(31, 151, 65, 155, H('#3a3a44')); R.rect(44, 100, 52, 150, K); R.rect(45, 101, 51, 149, H('#e8e4dc')); R.rect(36, 96, 50, 104, K); R.rect(37, 97, 49, 103, H('#2a2a34')); R.rect(38, 120, 62, 124, K); R.rect(39, 121, 61, 123, H('#5a5a64'));
-  R.rect(244, 138, 304, 156, K); R.rect(245, 139, 303, 155, H('#8a5a34')); for (let i = 0; i < 6; i++) { const x = 249 + i * 9; R.rect(x, 112, x + 5, 146, K); R.rect(x + 1, 113, x + 4, 145, H('#e8f4f0')); R.rect(x + 1, 128 + (i * 5) % 12, x + 4, 145, H(['#e83a3a', '#5ad88a', '#e8c040'][i % 3])); }
-  for (let i = 0; i < 3; i++) { R.rect(80, 160 - i * 4, 110, 163 - i * 4, K); R.rect(81, 161 - i * 4, 109, 162 - i * 4, H('#d8f0e8')); }
-  // el pie del frasco grande en el centro
-  R.rect(126, 140, 194, 150, K); R.rect(127, 141, 193, 149, H('#4a4e5a')); R.rect(127, 141, 193, 142, H('#a8acb8')); for (let x = 132; x < 190; x += 10) R.pset(x, 146, H('#5ad88a'));
+  // el suelo de baldosas en perspectiva (fondo): juntas que se abren hacia delante, brillo de la lámpara y el reflejo verde del frasco
+  const BAL = pal(['#c8d4d0', '#a8b8b2', '#8a9a96', '#6a7a76', '#4a5856']);
+  for (let y = 121; y < 150; y++) { const d = (y - 121) / 29, fila = Math.floor(Math.pow(d, 0.7) * 5), ant = Math.floor(Math.pow((y - 122) / 29, 0.7) * 5), w = 13 + d * 12;
+    for (let x = 0; x < 320; x++) { const u = (x - 160) / w, col = Math.floor(u), fu = u - col;
+      let v = 1.3 + (h2(col, fila, 81) - 0.5) * 0.7 + ns(x * 0.12, y * 0.3) * 0.5 + (1 - d) * 0.6 - Math.max(0, 1 - Math.hypot((x - 206) / 60, (y - 140) / 10)) * 1.1;
+      if (fila !== ant && y > 122) v = 4.2; else if (fu < 0.04 * (1 + d)) v = 3.6;
+      if (x > 134 && x < 187 && y > 128 && v < 3.5 && b4(x, y) < 0.35) { R.pset(x, y, mez(rmp(BAL, v, x, y), H('#4ad08a'), 0.35)); continue; }
+      if (h2(x, y, 82) > 0.992) v = 0;
+      R.pset(x, y, rmp(BAL, Math.min(v, 4.4), x, y)); } }
+  R.rect(0, 118, 319, 120, K); R.rect(0, 119, 319, 119, H('#3a5a4c'));
+  // la rejilla del desagüe
+  R.rect(92, 136, 118, 140, K); for (let x = 93; x < 118; x += 2) R.linea(x, 137, x, 139, H('#8a9a96'));
+  // el pie del frasco grande en el centro, sobre las baldosas, con su sombra
+  for (let x = 120; x < 202; x++) for (let y = 146; y < 150; y++) if (b4(x, y) < 0.6) sombrea(x, y, 0.45);
+  R.rect(126, 140, 194, 147, K); R.rect(127, 141, 193, 146, H('#4a4e5a')); R.rect(127, 141, 193, 141, H('#a8acb8')); for (let x = 132; x < 190; x += 10) R.pset(x, 144, H('#5ad88a'));
+  // EL BANCO DE TRABAJO (primer plano): tablero de madera con vetas, canto con luz y el frente con cajones y tiradores
+  madera(0, 150, 319, 168, pal(['#c89a6a', '#a87a4a', '#8a5e34', '#6a4426', '#3a2414']), { alto: 6, k: 91, luz: (x, y) => (y - 150) * 0.03 - Math.max(0, 1 - Math.hypot((x - 200) / 110, (y - 152) / 14)) * 0.7 });
+  R.rect(0, 149, 319, 149, K); R.rect(0, 169, 319, 171, H('#e0b888')); R.rect(0, 171, 319, 171, H('#8a5e34')); R.rect(0, 172, 319, 172, K);
+  for (let y = 173; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#6a4426', '#4a2e18', '#2a1a0c']), 0.8 + ns(x * 0.2, y * 0.5) * 0.7 + (y - 173) * 0.1, x, y));
+  for (const x0 of [12, 92, 172, 252]) { R.rect(x0, 174, x0 + 56, 174, K); R.rect(x0, 174, x0, 179, K); R.rect(x0 + 56, 174, x0 + 56, 179, K); R.rect(x0 + 1, 175, x0 + 55, 175, H('#8a5e34'));
+    R.rect(x0 + 23, 176, x0 + 33, 178, K); R.rect(x0 + 24, 176, x0 + 32, 177, H('#c8a040')); R.pset(x0 + 25, 176, H('#fff0a0')); }
+  // lo que hay sobre el banco, cada cosa con su sombra hacia la derecha (la luz viene de la lámpara)
+  const sombraBanco = (x0, x1, y) => { for (let x = x0; x <= x1; x++) for (let yy = y; yy < y + 3; yy++) if (b4(x, yy) < 0.7) sombrea(x, yy, 0.4); };
+  // el microscopio, con su espejito, la platina y una placa encima
+  sombraBanco(28, 70, 160); R.rect(26, 154, 62, 161, K); R.rect(27, 155, 61, 160, H('#2e2e38')); R.rect(27, 155, 61, 155, H('#6a6a78'));
+  R.rect(46, 104, 54, 155, K); R.rect(47, 105, 53, 154, H('#e8e4dc')); R.rect(52, 105, 53, 154, H('#a8a49c')); R.rect(47, 105, 47, 154, H('#ffffff'));
+  R.rect(34, 98, 52, 108, K); R.rect(35, 99, 51, 107, H('#2a2a34')); R.rect(35, 99, 51, 99, H('#5a5a68')); R.rect(30, 108, 38, 122, K); R.rect(31, 109, 37, 121, H('#3a3a44')); R.pset(32, 110, H('#8a8a98'));
+  R.rect(28, 124, 58, 128, K); R.rect(29, 125, 57, 127, H('#5a5a64')); R.rect(36, 123, 50, 124, H('#d8f0e8')); R.rect(36, 139, 46, 141, K); R.rect(37, 140, 45, 140, H('#8a8a98')); R.disco(34, 140, 3, K); R.disco(34, 140, 2, H('#c8d8e8')); R.pset(33, 139, H('#ffffff'));
+  // las placas de cultivo apiladas, con sus colonias de colores
+  sombraBanco(76, 112, 165); for (let i = 0; i < 3; i++) { const y = 162 - i * 3; for (let x = 76; x <= 108; x++) for (let yy = y - 2; yy <= y + 2; yy++) { const e = Math.hypot((x - 92) / 16, (yy - y) / 2.4); if (e < 1) R.pset(x, yy, e > 0.82 ? K : yy < y ? H('#e8f4f0') : H('#b8d0c8')); } }
+  for (const [x, c] of [[86, '#e8c040'], [92, '#e85a8a'], [98, '#5ad88a']]) R.pset(x, 155, H(c));
+  // las pinzas y la pipeta tumbadas
+  sombraBanco(118, 146, 165); R.linea(118, 166, 140, 160, K); R.linea(118, 167, 141, 162, K); R.linea(119, 165, 139, 160, H('#d8dce8')); R.linea(119, 166, 140, 162, H('#a8acb8'));
+  R.linea(122, 158, 150, 155, K); R.linea(122, 157, 150, 154, H('#e8f4f0')); R.rect(148, 152, 152, 156, K); R.rect(149, 153, 151, 155, H('#e83a5a'));
+  // la libreta (rayas, sin letras) y el lápiz
+  sombraBanco(196, 232, 166); R.rect(196, 154, 230, 166, K); R.rect(197, 155, 229, 165, H('#e8e0c8')); R.rect(213, 155, 213, 165, H('#a89a7a'));
+  for (let y = 157; y < 165; y += 2) { R.linea(199, y, 199 + 8 + ri(h2(y, 1, 93) * 5), y, H('#5a6a8a')); R.linea(216, y, 216 + 6 + ri(h2(y, 2, 93) * 7), y, H('#5a6a8a')); }
+  R.linea(220, 168, 236, 160, K); R.linea(221, 168, 236, 161, H('#e8c040')); R.pset(236, 160, H('#3a2a20'));
+  // la gradilla de tubos de colores a la derecha
+  sombraBanco(244, 310, 162); R.rect(244, 146, 304, 160, K); R.rect(245, 147, 303, 159, H('#8a5a34')); R.rect(245, 147, 303, 148, H('#c8905a'));
+  for (let i = 0; i < 6; i++) { const x = 249 + i * 9; R.rect(x, 118, x + 5, 150, K); R.rect(x + 1, 119, x + 4, 149, H('#e8f4f0')); R.rect(x + 1, 130 + (i * 5) % 12, x + 4, 149, H(['#e83a3a', '#5ad88a', '#e8c040'][i % 3])); R.pset(x + 1, 121, H('#ffffff')); }
 };
 const c7 = (t) => {
   fijo('banco', fondoBanco);
-  const rojo = t > CRUEL - 0.1 && t < CRUEL + 0.9 && Math.sin(t * 18) > -0.3;
+  // «cruelest»: salta la alarma (la sala se tiñe de rojo y la luz gira) y se calma antes de «ghola»
+  const alarma = ease(tramo(t, CRUEL - 0.15, CRUEL + 0.2)) * (1 - ease(tramo(t, GHOLA - 0.6, GHOLA - 0.15))), rojo = alarma > 0.5;
   // la lámpara de techo que se mece y su cono
   const lx = ri(206 + Math.sin(t * 1.1) * 3); R.linea(206, 0, lx, 8, K); R.rect(lx - 8, 8, lx + 8, 12, K); R.rect(lx - 7, 9, lx + 7, 11, H('#5a5a64'));
-  for (let y = 13; y < 138; y++) for (let x = lx - (y - 12) * 0.5; x < lx + (y - 12) * 0.5; x++) if (b4(ri(x), y) < 0.12) aclara(ri(x), y, rojo ? H('#ff4a3a') : H('#f0fff4'), 0.5);
+  for (let y = 13; y < 150; y++) for (let x = lx - (y - 12) * 0.5; x < lx + (y - 12) * 0.5; x++) if (b4(ri(x), y) < 0.12) aclara(ri(x), y, rojo ? H('#ff4a3a') : H('#f0fff4'), 0.5);
   // el monitor con la onda y la hélice que gira
   for (let x = 238; x < 295; x++) { const y = 66 + ri(Math.sin(x * 0.35 + t * 5) * 5 * Math.sin(x * 0.05)); R.pset(x, y, H('#5ad88a')); }
   for (let k = 0; k < 10; k++) { const y = 74 + k * 1.7, a = k * 0.7 + t * 3; R.pset(ri(266 + Math.sin(a) * 10), ri(y), H('#8ae0ff')); R.pset(ri(266 - Math.sin(a) * 10), ri(y), H('#ff8ad8')); }
@@ -325,13 +385,42 @@ const c7 = (t) => {
   for (let y = 54; y < 140; y++) for (let x = 132; x < 189; x++) { const top = y < 70 ? Math.hypot(x - 160, y - 70) > 28 : false; if (top) continue;
     R.pset(x, y, rmp(rojo ? pal(['#f08a7a', '#c84a3a', '#8a2a24']) : pal(['#9af0c0', '#5ad08a', '#2a9a64']), 0.8 + Math.abs(x - 160) / 22 + (y - 54) * 0.008, x, y)); }
   for (let k = 0; k < 8; k++) { const s = (t * 0.5 + k / 8) % 1, x = 140 + (k * 7) % 40 + ri(Math.sin(t * 2 + k) * 2), y = ri(136 - s * 76); R.pset(x, y, H('#e8fff0')); }
-  const n = t < GHOLA ? 0 : t < BODY ? 1 : t < BODY + 0.45 ? 2 : t < BODY + 0.9 ? 4 : t < CELLS - 0.2 ? 8 : -1, gl = tramo(t, GHOLA - 0.2, GHOLA + 0.4);
+  const n = t < GHOLA ? 0 : t < BODY ? 1 : t < BODY + 0.45 ? 2 : t < BODY + 0.9 ? 4 : t < CELLS - 0.35 ? 8 : -1, gl = tramo(t, GHOLA - 0.2, GHOLA + 0.4);
   if (gl > 0) R.halo(160, 100, 12 + Math.sin(t * 5) * 2, [H('#c8ffe0'), H('#8af0b0'), H('#5ad08a')], 0.8 * gl);
   if (n > 0) { const P = { 1: [[0, 0]], 2: [[-3, 0], [3, 0]], 4: [[-3, -3], [3, -3], [-3, 3], [3, 3]], 8: [[-5, -3], [0, -4], [5, -3], [-5, 3], [0, 4], [5, 3], [-2, 0], [2, 0]] }[n], r = n === 1 ? 5 : n === 2 ? 4 : 3;
     for (const [dx, dy] of P) { R.disco(160 + dx, 100 + dy, r, H('#1e6a44')); R.disco(160 + dx, 100 + dy, r - 1, H('#e8fff0')); R.pset(160 + dx, 100 + dy, H('#5ad08a')); } }
-  if (n === -1) { const s = 0.6 + 0.4 * tramo(t, CELLS - 0.2, CELLS + 0.6);
-    // la figurita dormida, acurrucada (solo la silueta)
-    R.disco(ri(160 - 6 * s), ri(92), ri(5 * s), H('#1e5a3a')); R.disco(ri(160 + 2 * s), ri(102), ri(8 * s), H('#1e5a3a')); R.disco(ri(160 + 6 * s), ri(112), ri(5 * s), H('#1e5a3a')); R.pset(ri(160 - 6 * s) - 1, 90, H('#5ad08a')); }
+  // «cells»: el racimo de células se recoge y de él sale la figurita dormida (en medio segundo, para que se vea entera
+  // antes del corte en «And the dead man»)
+  const sale = ease(tramo(t, CELLS - 0.35, CELLS + 0.1));
+  if (n === -1 && sale < 1) for (const [dx, dy] of [[-5, -3], [0, -4], [5, -3], [-5, 3], [0, 4], [5, 3], [-2, 0], [2, 0]]) { const x = ri(160 + dx * (1 - sale) - 10 * sale), y = ri(100 + dy * (1 - sale)), r = Math.max(1, ri(3 * (1 - sale)));
+    R.disco(x, y, r, H('#1e6a44')); if (r > 1) R.disco(x, y, r - 1, H('#e8fff0')); }
+  if (n === -1) {
+    // la figurita dormida, chibi y tumbada de lado (15×10 px, a la izquierda del lazo): cabeza clara a la izquierda con
+    // su mechón oscuro arriba (no tapa la cara), el ojo cerrado, la manita bajo la barbilla, la espalda arriba y las
+    // rodillas recogidas hacia el pecho; tres tonos de piel y un filo claro de 1 px que la separa del líquido verde.
+    // Respira: el cuerpo sube y baja 1 px, y de la boca sale una burbujita de vez en cuando.
+    const FIG = [
+      '..OOOOO........',
+      '.OhhhhhO.......',
+      'OhLLLhhMOOOOO..',
+      'OLLLLLLMLLLLLOO',
+      'OLDDLLLMLLLLLMO',
+      'OLLLLLMSLLLLLMO',
+      '.OLaaLOLLLLLMMO',
+      '..OOaLLLLMMMMSO',
+      '...OLLLLLLMMSO.',
+      '....OOOOOOOOO..'];
+    const COL = { O: H('#f0fff6'), L: H('#f8dcc4'), M: H('#e0b090'), S: H('#b87e66'), D: H('#5a3428'), h: H('#5a3a2a'), a: H('#e8c0a0') };
+    const fx = 143, fy = 95, resp = Math.sin(t * 2.4) > 0;
+    R.halo(150, 100, 6 + 8 * sale, [H('#d8ffe8'), H('#9af0c0'), H('#6ad89a')], 0.6 * sale);
+    conAlfa(sale, () => { for (let j = 0; j < FIG.length; j++) for (let i = 0; i < FIG[j].length; i++) { const c = FIG[j][i]; if (c === '.') continue;
+      R.pset(fx + i, fy + j, COL[c]); }
+      // al tomar aire la espalda sube 1 px (el filo se levanta y debajo queda piel)
+      if (resp) for (let i = 8; i <= 12; i++) { R.pset(fx + i, fy + 1, COL.O); R.pset(fx + i, fy + 2, COL.L); }
+      // las mejillas sonrosadas y el brillo de la cabeza
+      R.pset(fx + 4, fy + 5, H('#f0a090')); R.pset(fx + 2, fy + 2, H('#fff4e8')); }, [fx - 1, fy - 2, fx + 16, fy + 11]);
+    // la burbujita que suelta al respirar
+    const bb = (t * 0.7) % 1; if (sale >= 1 && bb < 0.6) R.pset(fx - 1 + ri(Math.sin(t * 6)), ri(fy + 5 - bb * 30), H('#e8fff0')); }
   // el cristal: reflejos y el filo
   for (let y = 56; y < 140; y++) { R.pset(131, y, K); R.pset(189, y, K); if (y > 74 && y < 126) R.pset(137, y, H('#f0fff8')); }
   for (let a = 0; a < 90; a++) { const p = Math.PI + a / 90 * Math.PI; R.pset(ri(160 + Math.cos(p) * 29), ri(70 + Math.sin(p) * 29), K); }
@@ -344,7 +433,21 @@ const c7 = (t) => {
     R.linea(156, 40, 150, 52, H('#d82a3a')); R.linea(164, 40, 170, 52, H('#a81a2a')); }
   const ve = ease(tramo(t, C7, GIFT - 0.4)), va = ease(tramo(t, GIFT + 0.2, GIFT + 0.9)), hx = 176, hy = ri(lerp(lerp(-30, 38, ve), -34, va));
   if (hy > -24) { T.brazo(R, hx + 30, hy - 44, hx, hy, '#6a5034', -1, { codo: [hx + 26, hy - 16] }); if (lz < 1) { R.poligono([[hx - 12, hy], [hx - 4, hy - 5], [hx - 4, hy + 5]], H('#e84a5a')); R.disco(hx - 12, hy, 2, H('#ff6a7a')); } }
-  lucie(286 + Math.sin(t * 1.3) * 3, 120 + Math.sin(t * 2) * 2, t, { dir: -1, brillo: 0.75, cara: n === -1 ? 'sorpresa' : t > GIFT ? 'normal' : 'sonrisa' });
+  // la lámpara de alarma de la pared (bajo las tuberías): apagada, un cristal rojo oscuro; en «cruelest» gira su haz y lo tiñe todo
+  R.rect(205, 38, 219, 41, K); R.rect(206, 39, 218, 40, H('#5a5a64')); R.disco(212, 45, 6, K); R.rect(206, 45, 218, 47, K);
+  const gira = t * 7, fr = Math.cos(gira);
+  R.disco(212, 45, 5, alarma > 0.05 ? H(fr > 0 ? '#ff6a4a' : '#c82a1a') : H('#6a1e1a')); R.rect(207, 45, 217, 46, H('#3a3a44')); R.pset(210 + ri(fr * 2), 42, alarma > 0.05 ? H('#fff0d0') : H('#c86a5a'));
+  if (alarma > 0.05) {
+    const ang = gira % (Math.PI * 2), dx = Math.cos(ang), dy = Math.sin(ang) * 0.35 + 0.25;
+    for (let k = 0; k < 140; k++) for (let w = -1 - k * 0.18; w <= 1 + k * 0.18; w++) { const x = ri(212 + dx * k - dy * w), y = ri(45 + dy * k + dx * w * 0.35); if (b4(x & 3, y & 3) < 0.5 * alarma * (1 - k / 140)) aclara(x, y, H('#ff5a3a'), 0.55); }
+    R.halo(212, 45, 12 + Math.sin(t * 14) * 2, [H('#fff0d0'), H('#ff8a5a'), H('#e8402a')], 0.9 * alarma);
+    // la sala entera, teñida de rojo según su luz (un recorrido de la pantalla)
+    const B = R.buf, a = 0.32 * alarma * (0.8 + 0.2 * Math.sin(t * 14));
+    for (let i = 0; i < 320 * 180; i++) { const c = B[i], r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255, l = (0.3 * r + 0.59 * g + 0.11 * b) / 255;
+      const tr = Math.min(255, 255 * (0.3 + l)), tg = 60 * l, tb = 40 * l;
+      B[i] = (0xff000000 | (Math.round(b + (tb - b) * a) << 16) | (Math.round(g + (tg - g) * a) << 8) | Math.round(r + (tr - r) * a)) >>> 0; }
+  }
+  lucie(286 + Math.sin(t * 1.3) * 3, 120 + Math.sin(t * 2) * 2, t, { dir: -1, brillo: 0.75, cara: alarma > 0.3 ? 'sorpresa' : n === -1 ? 'sorpresa' : t > GIFT ? 'normal' : 'sonrisa' });
 };
 
 // ── 8 · el recuerdo de Duncan en Caladan ─────────────────────────────────────────────────────────────────────────────
@@ -475,18 +578,32 @@ const c13 = (t) => {
   for (const x of [110, 210]) { const f = Math.sin(t * 11 + x) * 0.5 + 0.5; R.rect(x - 1, 122, x + 1, 132, K); R.rect(x - 3, 118, x + 3, 122, H('#5a3a20')); R.halo(x, 112, 9 + f * 2, [H('#ffe8a0'), H('#ffb050'), H('#e87030')], 0.7); R.disco(x, 114 - ri(f), 2, H('#fff4c0')); }
   // un halcón que cruza por el arco del centro
   const hx = ri(lerp(130, 192, ((t - C13) / 3) % 1)), hy = 60 + ri(Math.sin(t * 2) * 3); R.recorte([138, 40, 182, 122]); const al = Math.sin(t * 9) > 0; R.linea(hx - 4, hy - (al ? 2 : -1), hx, hy, H('#3a2a20')); R.linea(hx, hy, hx + 4, hy - (al ? 2 : -1), H('#3a2a20')); R.recorte(null);
-  const ax = lerp(4, 236, tramo(t, C13 + 0.2, SEEM - 0.2)), salta = t > SEEM;
-  // la fila: el del final es el Danzarín (parpadea a la cara gris de Scytale en «doesn't seem to be»)
+  const ax = lerp(16, 236, tramo(t, C13 + 0.2, SEEM - 0.2)), salta = t > SEEM;
+  // la fila viva: Irulan y Hayt charlan, Alia bebe de su copa, el sacerdote le explica algo con el dedo al Fremen, que
+  // asiente sonriendo; cuando Atom se acerca con la lupa, cada uno se vuelve hacia él y se sorprende; luego vuelve a lo suyo
+  const charla = Math.sin(t * 1.7) > 0, sorbo = (t - C13) % 2.6 > 1.7;
   for (const [def, x] of FILA) { let d = def; if (x === 228 && t > SEEM && t < SEEM + 0.9 && !(t > SEEM + 0.15 && t < SEEM + 0.25)) d = PA.scytale;
-    const mirado = Math.abs(ax + 10 - (x + 7)) < 10;
-    R.actor(d, x, 152, t, { dir: ax > x ? 1 : -1, sorpresa: mirado && x !== 228, sonrisa: x === 228 && t < SEEM }); }
+    const cerca = Math.abs(ax + 10 - (x + 7)) < 16, mirado = Math.abs(ax + 10 - (x + 7)) < 10, haPasado = ax > x + 12;
+    const o = { dir: 1, sorpresa: mirado && x !== 228 };
+    if (x === 36) { o.dir = cerca ? (ax > x ? 1 : -1) : 1; o.habla = !cerca && charla; }
+    if (x === 84) { o.dir = cerca ? (ax > x ? 1 : -1) : -1; o.habla = !cerca && !charla; }
+    if (x === 132) { o.dir = cerca ? (ax > x ? 1 : -1) : haPasado ? 1 : -1; o.sostiene = sorbo && !cerca ? [x + 13, 138] : true; }
+    if (x === 180) { o.dir = cerca ? (ax > x ? 1 : -1) : 1; o.dedo = !cerca && Math.sin(t * 2.3) > -0.2; o.habla = !cerca; }
+    if (x === 228) { o.dir = cerca ? (ax > x ? 1 : -1) : -1; o.sonrisa = t < SEEM; o.salto = !cerca && t < SEEM - 0.6 && Math.sin(t * 6) > 0.85 ? 1 : 0; }
+    const r = R.actor(d, x, 152, t, o);
+    if (x === 132) { const [mx, my] = r.mano; R.rect(mx - 2, my - 5, mx + 2, my - 1, K); R.rect(mx - 1, my - 4, mx + 1, my - 2, H('#e8c040')); R.pset(mx - 1, my - 4, H('#fff0a0')); R.rect(mx, my, mx, my + 1, K); R.rect(mx - 1, my + 2, mx + 1, my + 2, K); } }
   const r = atomG(ax, 166, t, { dir: 1, pose: 'sostiene', cara: salta ? 'sorpresa' : 'normal', salto: 0 });
   AT.lupa(R, r.mano[0], r.mano[1], 1, 1);
   if (salta) { const y = ri(lerp(130, 118, tramo(t, SEEM, SEEM + 0.3))); R.icono('!', ri(ax) + 2, y, H('#ffe066'), K, 2); }
-  // «in the movie»: un rollo de película (sin caras) gira un momento sobre Atom
-  const rp = tramo(t, MOVIE - 0.3, MOVIE + 0.2) * (1 - tramo(t, MOVIE + 1.4, MOVIE + 1.8));
-  if (rp > 0) { const cx = ri(Math.max(ax + 8, 30)), cy = 112 - ri(rp * 6);
-    for (let i = 0; i < 18; i++) { const x = cx + 6 + i, y = cy + 4 + ri(i * 0.3); R.pset(x, y, K); R.pset(x, y + 1, i % 3 ? H('#3a3a44') : H('#e8e4dc')); R.pset(x, y + 2, H('#3a3a44')); R.pset(x, y + 3, K); } R.disco(cx, cy, 8, K); R.disco(cx, cy, 7, H('#a8acb8')); for (let a = 0; a < 5; a++) { const p = a / 5 * Math.PI * 2 + t * 4; R.disco(cx + ri(Math.cos(p) * 4), cy + ri(Math.sin(p) * 4), 1, K); } R.disco(cx, cy, 1, K); }
+  // «in the movie»: Atom lo piensa en un bocadillo de pensamiento con una tira de película (sin caras), unido a su cabeza
+  const rp = tramo(t, MOVIE - 0.3, MOVIE + 0.2) * (1 - tramo(t, MOVIE + 1.6, MOVIE + 2));
+  if (rp > 0) { const hx = ri(r.centro[0]), hy = ri(r.centro[1]), bx = hx + 10, by = hy - 38 - ri(rp * 2);
+    R.disco(hx + 5, hy - 12, 1, K); R.pset(hx + 5, hy - 12, H('#f4f0e8')); R.disco(hx + 8, hy - 19, 2, K); R.disco(hx + 8, hy - 19, 1, H('#f4f0e8')); R.disco(hx + 10, hy - 25, 2, K); R.disco(hx + 10, hy - 25, 1, H('#f4f0e8'));
+    R.rect(bx - 15, by - 8, bx + 15, by + 8, K); R.rect(bx - 14, by - 9, bx + 14, by + 9, K); R.rect(bx - 14, by - 7, bx + 14, by + 7, H('#f4f0e8')); R.rect(bx - 13, by - 8, bx + 13, by + 8, H('#f4f0e8'));
+    R.rect(bx - 13, by + 6, bx + 13, by + 8, H('#d8d0c0'));
+    R.rect(bx - 11, by - 5, bx + 11, by + 5, K);
+    for (let i = 0; i < 3; i++) { const fx = bx - 9 + i * 7 - ri((t * 6) % 7); if (fx > bx - 11 && fx + 5 < bx + 11) R.rect(fx, by - 2, fx + 5, by + 2, H(['#e8a060', '#8ac8e8', '#e8d070'][i])); }
+    for (let x = bx - 10; x <= bx + 10; x += 3) { const xx = x + ((ri(t * 6)) % 3); if (xx <= bx + 10) { R.pset(xx, by - 4, H('#e8e4dc')); R.pset(xx, by + 4, H('#e8e4dc')); } } }
 };
 
 const efectos = [[0.4, 'cerrojo'], [BAND, 'zumbido'], [BACK, 'brillo'], [FOLD, 'whoosh'], [SPICE - 1.5, 'vapor'], [SPICE - 0.4, 'lapiz'],

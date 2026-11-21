@@ -32,7 +32,8 @@
 //    llega a saltos, se sienta a mirar y huye a su madriguera; dos aves carroñeras dan vueltas y se van en «sandworm»;
 //    un remolino de arena cruza el llano y se deshace cuando la loma se hincha;
 // 7. fondo propio, la procesión a contraluz: una fila de siluetas sigue un estandarte por la cresta delante del sol
-//    enorme; Atom, abajo, echa a andar detrás de ellas; en
+//    enorme; Atom, abajo, en la ladera de delante (perfil curvo que nace del borde, con rizaduras y matas), echa a
+//    andar detrás de ellas; en
 //    «keep following» se para y las señala, en «without asking» abre los brazos, sorprendido, y en «questions» se queda
 //    pensando, con un «?»;
 // 8. el estudio de Atom (estudio general, de noche): Atom entra, en «asking you» saluda a cámara; en «see the future» la
@@ -477,8 +478,14 @@ const fondo7 = () => {
   // la cresta de la procesión: duna oscura con el filo encendido y rizaduras
   for (let x = 0; x < 320; x++) { const yr = ri(yR7(x)); for (let y = yr; y < 180; y++) { let c = y === yr ? hex('#ffc070') : y === yr + 1 ? hex('#c86a48') : rmp(pal(['#1a0a18', '#260e1e', '#341426', '#441c2e']), 2.4 - (y - yr) * 0.05 + Math.sin(x * 0.09 + (y - yr) * 0.7) * 0.6 + (ns(x * 0.2, y * 0.2) - 0.5) * 0.5, x, y); R.pset(x, y, c); } }
   // la duna de delante, abajo a la derecha, donde está Atom
-  for (let x = 160; x < 320; x++) { const yf = ri(160 - (x - 160) * 0.08 + Math.sin(x * 0.05) * 2); for (let y = yf; y < 180; y++) R.pset(x, y, y === yf ? hex('#d88a58') : rmp(pal(['#2a1220', '#3a1a28', '#4e2432', '#6a3038']), 2.6 - (y - yf) * 0.08 + Math.sin(x * 0.12 + (y - yf) * 0.8) * 0.5 + (x - 160) * 0.004, x, y)); }
-  for (let k = 0; k < 10; k++) { const x = ri(180 + h2(k, 71) * 130), y = ri(166 + h2(k, 72) * 12); R.pset(x, y, hex('#1a0a14')); R.pset(x + 1, y, hex('#8a4a40')); }
+  //    (perfil curvo: nace por debajo del borde a la izquierda y sube en curva suave, sin borde vertical; el filo de luz
+  //    se enciende poco a poco al subir, con rizaduras en diagonal, granos brillantes y matas)
+  const yF7 = (x) => { const b = 160 - (x - 160) * 0.08 + Math.sin(x * 0.05) * 2, s = cl((x - 96) / 104), e = s * s * (3 - 2 * s); return 184 + (b - 184) * e + Math.sin(x * 0.11) * 1.2 * e; };
+  for (let x = 96; x < 320; x++) { const yf = ri(yF7(x)), luz = cl((180 - yf) / 14);
+    for (let y = Math.max(yf, 0); y < 180; y++) { const d = y - yf, riz = Math.sin(x * 0.16 - d * 0.9 + Math.sin(x * 0.03) * 2) > 0.82 ? 0.7 : 0;
+      R.pset(x, y, d === 0 ? mez(hex('#5a2a34'), hex('#d88a58'), luz) : d === 1 ? mez(hex('#3a1a28'), hex('#8a4a40'), luz) : rmp(pal(['#2a1220', '#3a1a28', '#4e2432', '#6a3038']), 2.6 - d * 0.08 + Math.sin(x * 0.12 + d * 0.8) * 0.5 + (x - 160) * 0.004 - (1 - luz) * 0.6 + riz + (ns(x * 0.25, y * 0.25) - 0.5) * 0.5, x, y)); } }
+  for (let k = 0; k < 16; k++) { const x = ri(130 + h2(k, 71) * 185), y = ri(Math.max(yF7(x) + 4, 164) + h2(k, 72) * 12); if (y > 178) continue; R.pset(x, y, hex('#1a0a14')); R.pset(x + 1, y, hex('#8a4a40')); }
+  for (const [bx, n] of [[150, 6], [198, 7], [286, 6]]) { const by = ri(yF7(bx)) + 2; for (let k = 0; k < n; k++) { const a = -Math.PI / 2 + (k - n / 2) * 0.32, L = 4 + (k % 3) * 2; const ex = ri(bx + Math.cos(a) * L), ey = ri(by + Math.sin(a) * L); R.linea(bx, by, ex, ey, hex('#1a0a14')); R.pset(ex, ey, hex('#e8945a')); } R.linea(bx - 3, by + 1, bx + 3, by + 1, hex('#1a0a14')); }
   // en primer término, a la izquierda: una peña y matojos secos a contraluz con su filo
   for (let x = 0; x < 120; x++) { const yt = ri(150 + Math.max(0, x - 40) * 0.35 - Math.max(0, 40 - x) * 0.25 + Math.sin(x * 0.5) * 1.5 + (h2(x >> 2, 8) > 0.7 ? 1 : 0)); for (let y = yt; y < 180; y++) R.pset(x, y, y === yt ? hex('#e8945a') : y === yt + 1 ? hex('#6a2a34') : rmp(pal(['#12060e', '#1c0a16', '#28101e']), 1.2 + Math.sin(y * 0.6 + x * 0.1) * 0.5 + (ns(x * 0.3, y * 0.3) - 0.5) * 0.8, x, y)); }
   for (const [bx, by, n] of [[26, 150, 9], [92, 158, 7], [300, 158, 8]]) for (let k = 0; k < n; k++) { const a = -Math.PI / 2 + (k - n / 2) * 0.3, L = 7 + (k % 3) * 4; const ex = ri(bx + Math.cos(a) * L), ey = ri(by + Math.sin(a) * L); R.linea(bx, by, ex, ey, hex('#12060e')); R.pset(ex, ey, hex('#ffb868')); }

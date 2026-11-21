@@ -230,14 +230,21 @@ T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año
 
 # ── pa-aviso (frases 3–4) ────────────────────────────────────────────────────────────────────────────────────────────
 E['pa-aviso'] = ('Aviso', '''// PA-AVISO (frases 3–4). Año 0 (el joven Paul), 12 (el emperador), y el estudio sin año. Seis planos:
-// 1. el desierto de día, a ras del llano: el joven Paul camina por la cresta y Atom (chibi) lo sigue; en «Paul
-//    Atreides» Atom se para y lo señala; en «you know him» Paul se vuelve y Atom saluda; la loma cruza el llano;
-// 2. el laberinto de luz visto desde arriba: Paul llega al centro («comes to the desert») y, en «prophet», alza los
-//    brazos y los caminos se encienden uno a uno;
+// 1. el desierto de día con la cámara a ras del suelo (el decorado del día volteado y bajado 26 px: cielo grande y
+//    vivo con nubes de polvo de tres tonos a tres velocidades y un halcón que planea, la luna enorme saliendo por el
+//    horizonte a la IZQUIERDA y el sol a la derecha, al revés que en pa-gancho p1): el joven Paul entra por la derecha
+//    y camina por el llano hacia la luna, Atom (chibi) lo sigue; en «Paul Atreides» Atom se para y lo señala; en «you
+//    know him» Paul se vuelve y Atom saluda; los dos en el tercio derecho; la loma cruza el llano y la arena vuela por
+//    delante de los pies;
+// 2. el laberinto de luz visto desde arriba: sobre la arena de noche, dunas en media luna en tres tonos (cara al
+//    viento a la luna, cresta clara, cara de sotavento en sombra) con rizaduras, peñas con su sombra larga, arena que
+//    vuela de las crestas, un ratón del desierto que salta abajo a la derecha y las huellas de Paul desde el borde;
+//    Paul llega al centro («comes to the desert») y, en «prophet», alza los brazos y los caminos se encienden uno a uno;
 // 3. los aposentos, de noche: Paul emperador va del diván a la ventana y mira la ciudad («his story»); Irulan se asoma
 //    por la puerta; en «warning» él se vuelve, triste;
-// 4. el globo del escritorio de Atom: Atom (al doble) levanta el cartel del ojo tapado en «a warning»; en «Dune
-//    Messiah» el globo de la Tierra se vuelve de arena;
+// 4. el globo del escritorio de Atom: el cartel del ojo tapado está plantado en la mesa con su palo; en «a warning»
+//    Atom (al doble) lo coge por el palo y lo alza junto al globo (el cartel va con su mano); en «Dune Messiah» el
+//    globo de la Tierra se vuelve de arena;
 // 5. el estudio entero: Atom va a la pizarra; en «Part 3» sale un «3» de tiza y en «December 18th» la hoja de
 //    calendario con el «18», que rodea con un círculo;
 // 6. la mesa de cerca: Atom camina («walk into the theater»), se tapa los ojos con el cartel en «knowing nothing», lo
@@ -269,25 +276,132 @@ const libro = (x, y, w, h) => {
   for (let i = 0; i < 2; i++) R.linea(x + 5, y + h - 1 + 0, x + w - 1, y + h - 1, hex('#d8ccb0'));
   R.rect(x + 3, y + h, x + w + 1, y + h + 1, hex('#3a2414'));
 };
-// 1 · el desierto de día: Paul camina y Atom lo sigue
+// mezcla dos colores (0xAABBGGRR): a = 0 deja c, a = 1 da d
+const mezC = (c, d, a) => {
+  const r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255;
+  return (0xff000000 | (Math.round(b + (((d >> 16) & 255) - b) * a) << 16) | (Math.round(g + (((d >> 8) & 255) - g) * a) << 8) | Math.round(r + ((d & 255) - r) * a)) >>> 0;
+};
+const tibio = (c) => (c & 255) > ((c >> 16) & 255) + 8;   // el oro de los caminos y su halo
+// 1 · el desierto de día con la cámara a ras del suelo: el decorado del día VOLTEADO (la luna enorme sale por la
+// izquierda y el sol queda a la derecha) y BAJADO 26 px (el horizonte en y 130: un cielo grande); las 26 filas que
+// faltan arriba salen de estirar las 26 primeras del cielo tramado (y 0–51 ← 0–25). Un recorrido de pantalla.
+const VOLT = new Uint32Array(320 * 180);
+const voltea = () => {
+  const B = R.buf; VOLT.set(B);
+  for (let y = 0; y < 180; y++) { const sy = y < 52 ? y >> 1 : y - 26, d = y * 320, so = sy * 320 + 319; for (let x = 0; x < 320; x++) B[d + x] = VOLT[so - x]; }
+};
+// nubes de polvo alto en tres tonos (sombra abajo, luz arriba a la derecha, que es donde queda el sol), borde tramado
+const NUBP = [hex('#b48288'), hex('#dcb0a4'), hex('#f2d4bc'), hex('#fff6e4')];
+const nubePolvo = (cx, cy, w) => {
+  const hh = Math.max(3, Math.round(w * 0.15));
+  for (let y = -hh; y <= hh; y++) for (let x = -Math.round(w / 2); x <= Math.round(w / 2); x++) {
+    const X = Math.round(cx + x), Y = cy + y; if (X < 0 || X > 319 || Y < 24 || (X >= 270 && Y < 50)) continue;
+    const e = (x / (w / 2)) ** 2 + (y / hh) ** 2 * (y < 0 ? 1 + Math.sin(x * 0.3 + cy) * 0.35 : 1.6); if (e > 1) continue;
+    if (e > 0.72 && ((X + Y) & 1)) continue;
+    R.pset(X, Y, NUBP[y > hh * 0.35 ? 0 : y > 0 ? 1 : (y < -hh * 0.35 && x > -w * 0.05) ? 3 : 2]);
+  }
+};
 const q1 = (t) => {
   const o = { encuadre: 'desierto', hora: 'dia', silueta: 1, t0: 0 };
-  T.planeta(R, t, o);
-  const u = tramo(t, 0, p(0.35)), px = Math.round(lerp(56, 214, ease(u)));
+  T.planeta(R, t, o); T.planetaDelante(R, t, o);
+  voltea();
+  // el cielo vivo: nubes de polvo en tres alturas a tres velocidades (las altas, lentas y grandes) (el viento va a la izquierda, como la arena) y el halcón
+  for (const [x0, y, w, v] of [[40, 34, 70, 0.7], [250, 40, 46, 0.7], [140, 60, 58, 1.4], [330, 66, 40, 1.4], [70, 86, 34, 2.4], [230, 98, 26, 2.4]]) nubePolvo(((x0 - t * v) % 420 + 420) % 420 - 50, y, w);
+  T.halcon(R, t, 176, 46, 26);
+  // el joven Paul entra por la derecha y camina hacia la luna; Atom lo sigue por detrás (los dos, en el tercio derecho)
+  const u = tramo(t, 0, p(0.35)), px = Math.round(lerp(292, 214, ease(u)));
   const vuelve = t > p(0.3589);
-  R.actor(T.PA.paul, px, 150, t, { dir: vuelve ? -1 : 1, anda: u > 0 && u < 1, sonrisa: vuelve });
+  R.actor(T.PA.paul, px, 171, t, { dir: vuelve ? 1 : -1, anda: u > 0 && u < 1, sonrisa: vuelve });
   const para = t > p(0.0654) && t < p(0.19);
   const ua = tramo(t, 0, p(0.0654)), ub = tramo(t, p(0.19), p(0.34));
-  const ax = Math.round(lerp(14, 60, ease(ua)) + lerp(0, 90, ease(ub)));
-  T.AT.atom(R, ax, 152, t, { dir: 1, pose: (ua > 0 && ua < 1) || (ub > 0 && ub < 1) ? 'camina' : para ? 'senala' : vuelve ? 'saluda' : 'quieto', cara: vuelve ? 'sonrisa' : para ? 'sorpresa' : 'normal', habla: voz(t) });
-  T.planetaDelante(R, t, o);
+  const ax = Math.round(lerp(338, 306, ease(ua)) - lerp(0, 52, ease(ub)));
+  T.AT.atom(R, ax, 174, t, { dir: -1, pose: (ua > 0 && ua < 1) || (ub > 0 && ub < 1) ? 'camina' : para ? 'senala' : vuelve ? 'saluda' : 'quieto', cara: vuelve ? 'sonrisa' : para ? 'sorpresa' : 'normal', habla: voz(t) });
+  // la arena que el viento arrastra a ras del suelo, por delante de los pies (hacia la izquierda)
+  for (let k = 0; k < 11; k++) {
+    const v = 46 + ((k * 37) % 23) * 2, x = 330 - ((k * 71 + t * v) % 390), y = 166 + ((k * 13) % 13), L = 3 + (k % 5);
+    for (let i = 0; i <= L; i++) { const X = Math.round(x + i); R.pset(X, y, mezC(R.pget(X, y), hex('#fff2d8'), 0.75 - i / L * 0.5)); }
+  }
 };
-// 2 · el laberinto de luz desde arriba: el profeta
+// 2 · el laberinto de luz desde arriba: el profeta. Sobre la arena del decorado se SUMA un relieve fijo (dunas en
+// media luna: la cara al viento mira a la luna y se aclara hacia la cresta, la cresta brilla y la cara de sotavento
+// cae en sombra; donde las dunas se allanan, rizaduras), en tres tonos con trama de Bayer; no toca el oro de los
+// caminos (el árbol sigue siendo lo que más brilla). Un recorrido de pantalla; el campo se calcula una vez.
+let RELIEVE = null;
+const relieve = () => {
+  if (RELIEVE) return RELIEVE;
+  const F = new Int16Array(320 * 180), cres = [], BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const s = x * 0.6 + y * 0.8 + Math.sin(x * 0.045 - y * 0.03) * 12 + Math.sin(y * 0.07 + 1) * 5, ph = ((s / 44) % 1 + 1) % 1;
+    const A = Math.min(1, Math.max(0, Math.sin(x * 0.021 - y * 0.017 + Math.sin(s * 0.02)) * 0.6 + 0.6));
+    let v = ph < 0.7 ? -0.2 + ph / 0.7 * 0.9 : ph < 0.735 ? 1.3 : -1 + (ph - 0.735) / 0.265 * 0.6;
+    v = v * A + Math.sin(x * 0.55 + y * 0.22 + Math.sin(y * 0.09 + x * 0.02) * 2.4) * (0.16 + 0.16 * (1 - A));
+    let d = Math.max(-3, Math.min(4, Math.round(v * 3 + BAY[(y & 3) * 4 + (x & 3)] / 16 - 0.5))) * 9;
+    if (x >= 268 && y < 50) d = Math.round(d * 0.5);   // la zona de Atom, tranquila
+    F[y * 320 + x] = d;
+    if (ph >= 0.7 && ph < 0.735 && A > 0.75 && (x * 7 + y * 13) % 29 === 0 && y > 24 && !(x >= 262 && y < 54)) cres.push([x, y]);
+  }
+  return (RELIEVE = { F, cres });
+};
+const cl8 = (v) => (v < 0 ? 0 : v > 255 ? 255 : v | 0);
+const aplicaRelieve = () => {
+  const { F } = relieve(), B = R.buf;
+  for (let i = 0; i < 57600; i++) {
+    const c = B[i], r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255, d = F[i];
+    if (!d || r > b + 8) continue;
+    const k = r > b - 6 ? 0.4 : 1;
+    B[i] = (0xff000000 | (cl8(b + d * k) << 16) | (cl8(g + d * 0.9 * k) << 8) | cl8(r + d * 0.8 * k)) >>> 0;
+  }
+};
+// una peña vista desde arriba: su sombra larga hacia abajo a la derecha (la luna está arriba a la izquierda) y la
+// roca en cuatro tonos con su contorno
+const PEN = [hex('#14121c'), hex('#2a2838'), hex('#424056'), hex('#64607c'), hex('#928eaa')];
+const pena = (cx, cy, r) => {
+  for (let y = cy - r; y <= cy + r * 2; y++) for (let x = cx - r; x <= cx + r * 3; x++) {
+    const e = ((x - cx - r * 1.3) / (r * 1.9)) ** 2 + ((y - cy - r * 0.7) / (r * 0.85)) ** 2; if (e < 1 && !tibio(R.pget(x, y))) R.pset(x, y, mezC(R.pget(x, y), hex('#05050a'), e > 0.8 ? 0.35 : 0.6));
+  }
+  for (let y = cy - r; y <= cy + r; y++) for (let x = cx - r; x <= cx + r; x++) {
+    const dx = x - cx, dy = y - cy, e = (dx / r) ** 2 + (dy / (r * 0.8)) ** 2 + Math.sin(Math.atan2(dy, dx) * 4 + cx) * 0.12; if (e > 1) continue;
+    const l = -(dx + dy) / r * 1.3 + (1 - e) * 0.8 + (((x * 7 + y * 11) % 5) === 0 ? -0.7 : 0);
+    R.pset(x, y, e > 0.8 ? PEN[0] : PEN[Math.max(1, Math.min(4, Math.round(2 + l)))]);
+  }
+};
+// las huellas de Paul: del borde de abajo a la izquierda hasta donde está (un hoyito oscuro con su labio a la luna)
+const huellas = (hasta) => {
+  const pts = []; for (let k = 0; k <= 30; k++) { const u = k / 30; pts.push([lerp(-6, 96, u), lerp(182, 168, u) + Math.sin(u * 3.1) * -5]); }
+  for (let x = 98; x <= hasta; x += 2) pts.push([x, 168]);
+  let acum = 0;
+  for (let k = 1; k < pts.length; k++) {
+    const [x0, y0] = pts[k - 1], [x1, y1] = pts[k], l = Math.hypot(x1 - x0, y1 - y0); acum += l;
+    if (acum < 4.5) continue; acum = 0;
+    const lado = (k >> 1) % 2 ? 1 : -1, nx = -(y1 - y0) / l, ny = (x1 - x0) / l, X = Math.round(x1 + nx * lado * 1.5), Y = Math.round(y1 + ny * lado * 1.5);
+    if (tibio(R.pget(X, Y))) continue;
+    for (const [dx, dy, c, al] of [[0, 0, '#04040a', 0.8], [1, 0, '#04040a', 0.7], [0, 1, '#04040a', 0.55], [1, 1, '#04040a', 0.4], [0, -1, '#9aa0c8', 0.5], [1, -1, '#9aa0c8', 0.35]]) R.pset(X + dx, Y + dy, mezC(R.pget(X + dx, Y + dy), hex(c), al));
+  }
+};
+// el ratón del desierto (muad'dib): salta de derecha a izquierda por abajo, con su sombra
+const raton = (x, y, t) => {
+  const f = (t * 2.2) % 1, alto = Math.round(Math.sin(f * Math.PI) * 5), X = Math.round(x), Y = Math.round(y) - alto;
+  for (let i = -2; i <= 3; i++) R.pset(X + i, Math.round(y) + 2, mezC(R.pget(X + i, Math.round(y) + 2), hex('#05050a'), 0.55));
+  R.rect(X - 1, Y - 2, X + 2, Y, hex('#2a2018')); R.rect(X, Y - 2, X + 2, Y - 1, hex('#a88660')); R.pset(X + 1, Y - 2, hex('#d8bc90'));
+  R.pset(X - 2, Y - 2, hex('#2a2018')); R.pset(X - 2, Y - 3, hex('#c8a878')); R.pset(X - 3, Y - 2, hex('#1a1010'));   // la cabeza, la oreja y el hocico
+  R.linea(X + 3, Y - 1, X + 6, Y - 3 + (f < 0.5 ? 0 : 1), hex('#8a6a48')); R.pset(X + 7, Y - 3, hex('#e8d8b0'));   // la cola larga con su borla
+  if (alto < 2) { R.pset(X - 1, Y + 1, hex('#2a2018')); R.pset(X + 2, Y + 1, hex('#2a2018')); }
+};
 const q2 = (t) => {
   const enc = ease(tramo(t, p(0.53), p(0.66)));
   const o = { encuadre: 'laberinto', camara: 'alto', apagados: 0.85 * (1 - enc) };
   T.sietch(R, t, o);
+  aplicaRelieve();
+  for (const [cx, cy, r] of [[30, 150, 8], [62, 172, 4], [292, 146, 7], [308, 122, 5]]) pena(cx, cy, r);
+  // la arena que el viento levanta de las crestas (hacia abajo a la derecha), tenue
+  const { cres } = relieve();
+  for (let k = 0; k < cres.length; k += 3) {
+    const [cx, cy] = cres[k], f = (t * 0.55 + k * 0.37) % 1;
+    for (let i = 0; i < 5; i++) { const X = Math.round(cx + f * 16 + i * 1.6), Y = Math.round(cy + f * 8 + i * 0.6 + Math.sin(f * 6 + i)); const c = R.pget(X, Y); if (!tibio(c)) R.pset(X, Y, mezC(c, hex('#a4acd4'), (1 - f) * 0.55 * (1 - i / 5))); }
+  }
   const u = ease(tramo(t, Q2 + 0.05, p(0.53))), px = Math.round(lerp(96, 160, u));
+  huellas(px - 6);
+  raton(lerp(334, 232, tramo(t, Q2 + 0.3, Q3)), 172, t);
   const pro = t > p(0.5768);
   R.actor(T.PA.paul, px, 166, t, { dir: 1, anda: u > 0 && u < 1, brazos: pro && t < p(0.68), sorpresa: pro && t < p(0.62) });
   const an = t * 1.3, va = ease(tramo(t, p(0.53), p(0.6)));
@@ -306,16 +420,28 @@ const q3 = (t) => {
   T.AT.luciernaga(R, 177 + Math.sin(t * 1.2) * 3, 112 + Math.sin(t * 2.4) * 3, t, { dir: -1, brillo: 0.75, cara: vuelta ? 'triste' : 'normal' });
   T.ciudadelaDelante(R, t, o);
 };
-// 4 · el globo del escritorio: el cartel en «a warning»; la Tierra se vuelve de arena
+// 4 · el globo del escritorio: el cartel en «a warning»; la Tierra se vuelve de arena. El cartel está plantado en
+// la mesa con su palo (x 205–237); en «a warning» Atom lo coge por el palo y lo alza a su lado, por debajo de la
+// lámina y lejos de su cara (borde derecho ≤ 237): el palo acaba en su guante y el cartel sube y baja con él.
+const palo = (x0, y0, x1, y1) => {
+  R.linea(x0 - 1, y0, x1 - 1, y1, K); R.linea(x0 + 1, y0, x1 + 1, y1, K); R.linea(x0, y0 + 1, x1, y1 + 1, K);
+  R.linea(x0, y0, x1, y1, hex('#b08050')); R.linea(x0, y0, Math.round((x0 + x1) / 2), Math.round((y0 + y1) / 2), hex('#dcae74'));
+};
 const q4 = (t) => {
   const are = ease(tramo(t, a(0.2111), a(0.2562) + 0.4));
   const o = { encuadre: 'orbita', camara: 'globo', arena: are, t0: Q4 };
   const geo = T.planeta(R, t, o);
   const alza = ease(tramo(t, a(0.075), a(0.095)));
   const mira = t > a(0.2111);
-  const r = T.AT.atom(R, 252, 132, t, { s: 2, dir: -1, pose: alza > 0 ? 'sostiene' : 'quieto', cara: mira ? 'sorpresa' : 'normal', habla: voz(t) });
-  if (alza > 0 && r?.mano) { const [mx, my] = r.mano.map(Math.round); const cy0 = Math.round(my - 40 + (1 - alza) * 16);
-    R.rect(mx, cy0 + 22, mx + 1, my, hex('#7a5230')); cartel(mx - 22, cy0, 32, 23); }
+  // la mano de «sostiene» al doble, de cara a la izquierda (la misma cuenta que atom-personaje.js: 236, 120 − 2·bote)
+  const bote = Math.sin(t * 2.4) > 0.6 ? 1 : 0, mx = 236, my = 120 - 2 * bote;
+  const x0 = Math.round(lerp(205, mx - 31, alza)), y0 = Math.round(lerp(99, my - 34, alza) - Math.sin(alza * Math.PI) * 3);
+  const bx = x0 + 16, by = y0 + 23;
+  // la sombra del cartel en la mesa (se aleja y se aclara al alzarlo)
+  for (let x = -12; x <= 12; x++) { const X = bx + x + Math.round(alza * 6), Y = 133 + Math.round(alza * 2); if (Math.abs(x) < 12 - alza * 6) R.pset(X, Y, mezC(R.pget(X, Y), hex('#2a1608'), 0.4 * (1 - alza * 0.6))); }
+  if (alza > 0) palo(bx, by, mx, my); else palo(bx, by, bx, 132);
+  cartel(x0, y0, 32, 23);
+  T.AT.atom(R, 252, 132, t, { s: 2, dir: -1, pose: alza > 0 ? 'sostiene' : 'quieto', cara: mira ? 'sorpresa' : 'normal', habla: voz(t) });
   T.planetaDelante(R, t, o);
 };
 // 5 · el estudio entero: el «3» y la hoja del calendario con el «18» en la pizarra

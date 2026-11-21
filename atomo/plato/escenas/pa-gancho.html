@@ -11,7 +11,7 @@
 <script type="module">
 // PA-GANCHO (frases 1–2). Año 0 hasta «twelve years later», luego 12. Cinco planos; golpe en «villain» (giro+2.5):
 // 1. el desierto al ocaso (general): Paul sube a la cresta de la duna de delante y se para; en «villain» asoma detrás,
-//    por el horizonte, un mar de estandartes (siluetas con banderolas verde y negro) y el cielo se enrojece un instante;
+//    por el horizonte, un mar de estandartes (siluetas con banderolas verde y negro con el halcón de oro) y el cielo se enrojece un instante;
 //    en «his own story» Paul alza los brazos hacia ellos; en «his author» baja del cielo una pluma de escribir (el autor,
 //    como objeto) y Paul la mira sorprendido; en «wrote him» la pluma escribe en la arena un trazo de tinta que va hacia
 //    los estandartes; en «that way» Paul señala el trazo; en «on purpose» la pluma pone el punto final y se va, y Paul
@@ -43,13 +43,22 @@ const AUTOR = g(0.6372), ESCRIBE = g(0.7345), ASI = g(0.823), PUNTO = g(0.9292);
 const K = hex('#17151d'), ease = (u) => u * u * (3 - 2 * u), cl = (u) => Math.max(0, Math.min(1, u));
 const hh = (a, b, k = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
 const voz = (t) => E.energia ? E.energia(t) : 0;
-const banderolaG = (x, y, h, t, k) => {
+// el halcón de los Atreides en una banderola (7×5 px, dos tonos de oro y el pico): alas abiertas en V con las puntas de
+// las plumas, cabeza con su pico entre ellas, cuerpo y cola en abanico; no es una letra
+const HALCON = ['X.....X', 'XX.Hp.X', '.dXXXd.', '..dXd..', '..d.d..'];
+const halconB = (cx, cy) => {
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) {
+    const ch = HALCON[j][i]; if (ch === '.') continue;
+    R.pset(cx - 3 + i, cy - 2 + j, ch === 'd' ? hex('#a8782a') : ch === 'p' ? hex('#e07a30') : ch === 'H' ? hex('#fff0a0') : hex('#f0c848'));
+  }
+};
+const banderolaG = (x, y, h, t, k, halcon = false) => {
   const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? hex('#1f4a2c') : hex('#18181e'), cs = k % 2 ? hex('#3a7048') : hex('#3a3a46');
   R.linea(x, y, x, y - h, hex('#4a3420')); R.pset(x, y - h - 1, hex('#e8c040'));
   R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
   R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
   R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, hex('#c8a030'));
-  const cx = x + 5 + Math.round(v / 2), cy = y - h + 4; R.pset(cx, cy, hex('#f0c848')); R.pset(cx - 1, cy - 1, hex('#f0c848')); R.pset(cx + 1, cy - 1, hex('#f0c848')); R.pset(cx, cy + 1, hex('#c89a30'));
+  const cx = x + 5 + Math.round(v / 2), cy = y - h + 4; if (halcon) { halconB(cx, cy + 1); return; } R.pset(cx, cy, hex('#f0c848')); R.pset(cx - 1, cy - 1, hex('#f0c848')); R.pset(cx + 1, cy - 1, hex('#f0c848')); R.pset(cx, cy + 1, hex('#c89a30'));
 };
 // la pluma de escribir del autor (un objeto, no una persona): (x, y) = la punta; cañón hacia arriba a la derecha,
 // barbas de luz y de sombra con sus rayas, plumín de metal con su brillo y una gota de tinta
@@ -85,7 +94,7 @@ const p1 = (t) => {
       const u = cl((sube - ret) / (1 - ret)); if (u <= 0) continue;
       const y = Math.round(hor + 3 - fila * 1 + (1 - u) * 26 - Math.max(0, Math.sin(t * 2 + k) * 0.6));
       R.poligono([[x - 2, y - 7], [x + 2, y - 7], [x + 3, y + 8], [x - 3, y + 8]], K); R.disco(x, y - 9, 2, K); R.pset(x - 1, y - 10, hex('#4a3020')); R.linea(x + 2, y - 6, x + 2, y + 4, hex('#3a2a20'));
-      banderolaG(x + 3, y - 4, 22 + (k % 3) * 4 - fila * 5, t, k + fila);
+      banderolaG(x + 3, y - 4, 22 + (k % 3) * 4 - fila * 5, t, k + fila, true);
     }
     R.recorte(null);
   }

@@ -102,14 +102,22 @@ const sepia = (a = 0.55) => { const B = R.buf; for (let y = 0; y < 180; y++) for
   const v = Math.hypot((x - 160) / 190, (y - 90) / 120), o = v > 0.8 && b4(x, y) < (v - 0.8) * 2.2 ? 0.55 : 1;
   const rr = (l * 1.05 + 28) * o, gg = (l * 0.9 + 14) * o, bb = (l * 0.68) * o;
   B[i] = (0xff000000 | (Math.min(255, Math.round(b + (bb - b) * a)) << 16) | (Math.min(255, Math.round(g + (gg - g) * a)) << 8) | Math.min(255, Math.round(r + (rr - r) * a))) >>> 0; } };
-// el estandarte de los Fremen (verde o negro, con el halcón de oro como un punto)
+// el halcón de los Atreides en el paño (7 × 5 px), no una letra
+const HALCON = ['X.....X', 'XX.Hp.X', '.dXXXd.', '..dXd..', '..d.d..'];
+const halconB = (cx, cy) => {
+  for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) {
+    const ch = HALCON[j][i]; if (ch === '.') continue;
+    R.pset(cx - 3 + i, cy - 2 + j, ch === 'd' ? hex('#a8782a') : ch === 'p' ? hex('#e07a30') : ch === 'H' ? hex('#fff0a0') : hex('#f0c848'));
+  }
+};
+// el estandarte de los Fremen (verde o negro, con el halcón de oro)
 const banderolaG = (x, y, h, t, k) => {
   const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? H('#1f4a2c') : H('#18181e'), cs = k % 2 ? H('#3a7048') : H('#3a3a46');
   R.linea(x, y, x, y - h, H('#4a3420')); R.pset(x, y - h - 1, H('#e8c040'));
   R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
   R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
   R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, H('#c8a030'));
-  const cx = x + 5 + Math.round(v / 2), cy = y - h + 4; R.pset(cx, cy, H('#f0c848')); R.pset(cx - 1, cy - 1, H('#f0c848')); R.pset(cx + 1, cy - 1, H('#f0c848')); R.pset(cx, cy + 1, H('#c89a30'));
+  const cx = x + 5 + Math.round(v / 2), cy = y - h + 4; halconB(cx, cy + 1);
 };
 const pausa = (t, a, b) => AT.pausa(R, tramo(t, a, a + 0.3) * (1 - tramo(t, b - 0.3, b)));
 const flota = (t, k = 0) => Math.round(Math.sin(t * 2.4 + k) * 1.5);

@@ -29,7 +29,8 @@
 //    «turns».
 // 7. la boca del sietch al ocaso (sala/entrada): Chani se aleja por la arena hacia el sol dejando huellas; Atom la mira
 //    irse desde la repisa, triste; en «what he's becoming» se dibuja en el cielo, en polvo, la silueta enorme de un
-//    hombre con corona.
+//    hombre con corona: relleno de polvo oscuro en tres tonos que se arremolina, borde claro del lado del sol, cabeza,
+//    cuello, hombros, brazos abiertos con sus manos y un manto que se funde con las dunas; la corona de oro encima.
 import * as T from '/atomo/plato/escenas/pa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('pa-agua');
@@ -380,16 +381,48 @@ const T_COMPR = en('trono', 0.8893), T_SERA = en('trono', 0.9442);
 const p7 = (t) => {
   const o = { encuadre: 'sala', camara: 'entrada' };
   const geo = T.sietch(R, t, o);
-  // la silueta enorme de un hombre con corona, en polvo, sobre el cielo del ocaso
+  // la silueta enorme de un hombre con corona, en polvo oscuro sobre el cielo del ocaso: cabeza, cuello, hombros,
+  // brazos abiertos hacia abajo con sus manos y un manto que se funde con las dunas; borde claro del lado del sol,
+  // la corona de oro encima; el polvo se arremolina (ns con t) y unas motas se le escapan a la derecha
   const sil = tramo(t, T_SERA - 1.2, T_SERA + 0.6);
-  if (sil > 0) for (let y = 4; y < 100; y++) for (let x = 40; x < 150; x++) {
-    const cab = Math.hypot(x - 92, (y - 45) * 1.05) < 15, hom = ((x - 92) / 46) ** 2 + ((y - 96) / 38) ** 2 < 1 && y > 58, cue = Math.abs(x - 92) < 9 && y > 54 && y < 62;
-    const co = y >= 22 && y <= 31 && Math.abs(x - 92) <= 13 && (y > 27 || [-11, -5, 0, 5, 11].some((d) => Math.abs(x - 92 - d) <= 1));
-    const dentro = (cab || hom || cue) && !co;
-    if (dentro) { const borde = !(Math.hypot(x - 92, (y - 45) * 1.05) < 13 || (((x - 92) / 44) ** 2 + ((y - 96) / 36) ** 2 < 1 && y > 60) || (Math.abs(x - 92) < 7 && y > 52 && y < 64));
-      const n = ns(x * 0.15 + t * 0.4, y * 0.15 - t * 0.2);
-      if (b4(x, y) < sil * (borde ? 0.95 : 0.5) + n * 0.15) aclara(x, y, borde ? hex('#f8c890') : hex('#d88a60'), borde ? 0.75 : 0.4); }
-    if (co && b4(x, y) < sil * 0.9) R.pset(x, y, (x + y) % 3 ? hex('#e8c060') : hex('#fff0a0'));
+  if (sil > 0) {
+    const SX = 92, POL = pal(['#2a1430', '#3e1c36', '#56263c', '#70343e']);
+    // el brazo: hombro → codo → muñeca, con la manga ancha que se estrecha, y la mano abierta al final
+    const seg = (x, y, ax, ay, bx, by) => { const vx = bx - ax, vy = by - ay, u = cl(((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy));
+      return [Math.hypot(x - ax - vx * u, y - ay - vy * u), u]; };
+    const brz = (x, y, s) => { const [d1, u1] = seg(x, y, SX + s * 26, 61, SX + s * 37, 74), [d2, u2] = seg(x, y, SX + s * 37, 74, SX + s * 43, 88);
+      return d1 < 6 - u1 * 0.8 || d2 < 5.2 - u2 * 1.4 || Math.hypot(x - SX - s * 44, y - 91) < 3.4 || Math.hypot(x - SX - s * 46.5, y - 89) < 1.6; };
+    const msk = (x, y) => { const dx = x - SX;
+      if (((dx) / 10) ** 2 + ((y - 40) / 11) ** 2 < 1) return true;                    // cabeza
+      if (Math.abs(dx) < 5 && y > 48 && y < 58) return true;                            // cuello
+      if (y >= 54 && y < 66 && (dx / 30) ** 2 + ((y - 66) / 11) ** 2 < 1) return true;  // hombros redondos
+      if (y >= 66 && y < 104 && Math.abs(dx) < (y < 80 ? 30 - (y - 66) * 0.55 : 22.3 + (y - 80) * 0.45)) return true; // pecho y manto
+      return brz(x, y, -1) || brz(x, y, 1); };
+    const fade = (y) => cl((104 - y) / 16);
+    for (let y = 26; y < 104; y++) for (let x = 36; x < 150; x++) {
+      if (!msk(x, y)) continue;
+      const n = ns(x * 0.16 + t * 0.5, y * 0.16 - t * 0.25), aparece = b4(x, y) < sil * 1.1 - 0.1 + n * 0.25;
+      if (!aparece) continue;
+      const a = fade(y) * Math.min(1, sil * 1.4);
+      const borde = !msk(x - 1, y) || !msk(x + 1, y) || !msk(x, y - 1) || !msk(x, y + 1);
+      if (borde) { const sol = !msk(x - 1, y) || !msk(x, y - 1); aclara(x, y, sol ? hex('#f8c890') : hex('#c87a68'), a * (sol ? 0.9 : 0.7)); continue; }
+      // el polvo en tres tonos: más claro a la izquierda (el sol), más oscuro dentro y abajo
+      const v = 1.1 + n * 2.0 + ns(x * 0.5, y * 0.5 + t) * 0.5 + (SX - x) * 0.012 - (y - 40) * 0.006 + (x < SX - 20 && y > 64 ? 0.4 : 0);
+      aclara(x, y, rmp(POL, v, x, y), a * 0.88);
+    }
+    // la corona de oro, apoyada en la cabeza: banda con piedra roja y cinco puntas
+    const cv = cl(sil * 1.6 - 0.4);
+    if (cv > 0) for (let Y = 20; Y <= 33; Y++) for (let x = SX - 11; x <= SX + 11; x++) {
+      const y = Y - 2, dx = x - SX, banda = y >= 27 && Math.abs(dx) <= 10;
+      const punta = y < 27 && [-9, -4.5, 0, 4.5, 9].some((d) => Math.abs(dx - d) <= (y - (d === 0 ? 18 : Math.abs(d) > 5 ? 21 : 19.5)) * 0.32);
+      if (!(banda || punta) || b4(x, Y) > cv) continue;
+      const ext = !(banda || punta) ? 0 : (y === 31 || (banda && Math.abs(dx) === 10));
+      R.pset(x, Y, ext ? hex('#7a4a1a') : (x + y) % 4 === 0 ? hex('#fff0a0') : y < 24 ? hex('#f0c848') : hex('#c8962e'));
+    }
+    if (cv > 0.5) { R.rect(SX - 1, 30, SX + 1, 31, hex('#c83a3a')); R.pset(SX - 1, 30, hex('#ff8a7a')); for (const d of [-9, 0, 9]) if (Math.sin(t * 5 + d) > 0.6) R.pset(SX + d, d === 0 ? 21 : 24, hex('#fffbe0')); }
+    // motas de polvo que el viento arranca del hombro y del brazo derechos
+    for (let k = 0; k < 14; k++) { const f = (t * 0.35 + k * 0.137) % 1, mx = SX + 20 + k * 2 + f * 44, my = 56 + (k * 7) % 30 - f * 10 + Math.sin(t * 2 + k) * 2;
+      if (sil > 0.6 && my > 15) aclara(ri(mx), ri(my), k % 3 ? hex('#56263c') : hex('#f8c890'), (1 - f) * 0.8 * sil); }
   }
   // Chani se da la vuelta y se aleja por la arena hacia el sol; deja huellas
   const u = tramo(t, C6 + 0.2, en('trono', 0.9963)), cx = lerp(214, 40, u);
