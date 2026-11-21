@@ -35,11 +35,13 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
     fuertes que otras»;
   - **la voz española «B»:** cada frase entera de una vez y sin estirar con rubberband (`locutar_frases.py`, `ENTERA`):
     partida en las comas y estirada «se entrecorta».
-- **El ritmo de la narración (canon desde el 44, el usuario el 20/11/2026: «la narración un 10 % más rápida, y que no
-  haya esas pausas largas de silencio entre escenas; que siga siendo narrada»):** en `hacer_guion.py`, inglés a
-  `velocidad` 1,045, español con `'ritmo': 'igualar'` (cada frase a la velocidad de ZONOS3 que la hace durar lo que la inglesa: con un ritmo fijo el español acababa antes y dejaba 2–5 s de silencio) y
-  `'pausas': {'respiro': 0.15, 'parrafo': 0.4, 'acto': 0.5, 'entrada': 0.2, 'salida': 0.25}`. En el 43 cada cambio de
-  escena dejaba 1,2–1,7 s de silencio.
+- **El ritmo de la narración (canon desde el 45, el usuario el 21/11/2026: «reduce la velocidad a como estaba antes, en
+  ambos idiomas»):** en `hacer_guion.py`, inglés a `velocidad` 0,95 y español sin `ritmo` (ZONOS3 a su velocidad natural,
+  ~18 bytes/s), como en el 43. En el 44 se probó inglés a 1,045 y español con `'ritmo': 'igualar'` (hasta 21 bytes/s), y
+  ZONOS3 se comió el final de alguna frase («a propósi(to)» en el gancho, lo oyó el usuario). Las pausas cortas del 44
+  se quedan (el usuario las pidió aparte: «que no haya esas pausas largas de silencio entre escenas»):
+  `'pausas': {'respiro': 0.15, 'parrafo': 0.4, 'acto': 0.5, 'entrada': 0.2, 'salida': 0.25}`. Aun así, revisa el final
+  de cada frase española (un clip que acaba en seco, o una última palabra que Whisper no oye entera) antes de entregar.
 - **La música con instrumentos sampleados (canon desde el 44, elegido de oído por el usuario el 20/11/2026):** en
   `plan.py`, `BANDA` lleva `'sampleado': True` y una `'paleta'` propia del episodio (qué instrumento hace de solista, de
   color, de metal, de aire…; los nombres, en `atomo/herramientas/sonido/tramo_sf.py`). Dos episodios seguidos no

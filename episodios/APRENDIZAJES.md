@@ -952,3 +952,8 @@ español (regla del usuario para el 45):** antes de locutar, probar con ZONOS3 l
 saber si es el ritmo; añadir a `problemas()` un control del final de cada clip (la última palabra que oye Whisper tiene que
 coincidir entera, y el clip no puede acabar en seco con energía alta en sus últimos 40 ms); si falla, otra toma y luego
 menos ritmo. Escuchar o medir el final de cada frase española antes de entregar, empezando por el gancho.
+
+**Cambio de canon (el usuario, 21/11/2026, tras el final cortado):** «reduce la velocidad a como estaba antes, en ambos
+idiomas»: desde el 45, inglés a 0,95 y español sin `ritmo` (su velocidad natural), como en el 43. Las pausas cortas del 44
+se mantienen. Con el español más lento pueden volver huecos de silencio donde la frase española sea más corta que la
+inglesa: medirlos y decírselo.
