@@ -14,11 +14,14 @@
 //    saca a color una llave dorada;
 // 2. la mesa del estudio: en «spent years» los cuadernos de historias se apilan uno tras otro; en «real harm» Atom abre
 //    el de arriba: el jarrón roto;
-// 3. el teatrillo de títeres: el malo del sombrero se señala a sí mismo («?») y niega; en «bad guy» señala al héroe y el
-//    héroe lo señala a él;
+// 3. el teatrillo de marionetas (chibis colgados de sus hilos, que se mecen): el malo de chistera entra andando, alza el
+//    dedo hacia sí («?») y niega; en «bad guy» señala al héroe (la pose del dedo) y el héroe lo señala a él; las nubes
+//    de cartón del telón se mecen en sus hilos; la pared, de papel pintado adamascado con zócalo de cuarterones;
 // 4. la pizarra del estudio: Atom dibuja a uno con su bocadillo y su razón (el corazón); en «justifies» el «✓» enorme;
-// 5. el espejo de cerca sobre el mundo congelado: dentro, a color, Doom con capa roja de héroe; en «only one» alza los
-//    brazos y el sol se abre detrás;
+// 5. el espejo de cerca sobre el mundo congelado: dentro, a color, un paisaje heroico (sol con rayos, nubes, pájaros,
+//    la sierra y un castillo con banderolas, la colina con flores) con Doom a tamaño chibi y capa roja en la cima y la
+//    gente pequeña (bustos) delante; en «villain» destella; en «only one» alza los brazos, el sol se abre y el público lo
+//    aclama con banderitas y pétalos;
 // 6. el ventanal congelado otra vez: Atom le pone delante el espejo pequeño; en «dangerous», «!»; vuelve el color.
 // Sonido: un golpe seco al congelarse y un clic al salir; un pop por cada cuaderno.
 import * as T from '/atomo/plato/escenas/vd-comun.js';
@@ -260,9 +263,21 @@ const p2 = (t) => {
 // ── 3 · el teatrillo de títeres: ¿quién es el malo? ─────────────────────────────────────────────────────────────
 const fondoTeatro = () => horno('teatro', () => {
   // la pared de la sala, papel pintado de rayas granate y una guirnalda de bombillas
-  for (let y = 0; y < 150; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (x % 12) < 6 ? H('#5a2a34') : H('#4a2230'));
-  for (let x = 0; x < 320; x++) R.pset(x, 140 + Math.round(Math.sin(x * 0.05) * 0), H('#3a1a20'));
-  R.rect(0, 140, 319, 150, H('#3a1a20')); R.rect(0, 140, 319, 141, H('#6a3a30'));
+  // papel adamascado: rayas anchas con un rombo floreado en cada una, más oscuro hacia el techo y con manchas de humedad
+  for (let y = 0; y < 128; y++) for (let x = 0; x < 320; x++) { const ancha = (x % 12) < 6; let c = ancha ? H('#5a2a34') : H('#4a2230');
+    const dx = Math.abs((x % 12) - 2.5), dy = Math.abs(((y + (Math.floor(x / 12) % 2) * 7) % 14) - 6);
+    if (ancha && dx + dy * 0.7 <= 2.4 && dx + dy * 0.7 > 1.2) c = H('#6e3440'); else if (ancha && dx + dy * 0.7 <= 0.8) c = H('#7a3c46');
+    if (!ancha && (y % 14) === 3 && (x % 12) === 9) c = H('#5a2a34');
+    if ((x % 12) === 6 || (x % 12) === 0) c = mez(c, H('#2a0e16'), 0.35);
+    const os = cl((40 - y) / 40) * 0.55; if (os > bay(x, y)) c = mez(c, H('#1a0810'), 0.4);
+    if (hh(Math.floor(x / 5), Math.floor(y / 5), 4) > 0.97) c = mez(c, H('#3a1a20'), 0.3);
+    R.pset(x, y, c); }
+  // la moldura del techo
+  for (let x = 0; x < 320; x++) { R.pset(x, 0, H('#2a1218')); R.pset(x, 1, H('#8a5a3a')); R.pset(x, 2, x % 4 === 0 ? H('#5a3020') : H('#b07a4a')); R.pset(x, 3, H('#3a1a20')); }
+  // el zócalo de cuarterones de madera, con su luz arriba y su rodapié
+  tablasV(0, 130, 319, 149, [H('#7a4a2e'), H('#5a3420'), H('#2e1a10')], 8, 5);
+  for (let k = 0; k < 14; k++) { const x0 = k * 24 + 2, x1 = x0 + 19; for (let x = x0; x <= x1; x++) { R.pset(x, 133, H('#2e1a10')); R.pset(x, 134, H('#8a5a38')); R.pset(x, 146, H('#9a6a44')); } for (let y = 133; y <= 146; y++) { R.pset(x0, y, H('#2e1a10')); R.pset(x0 + 1, y, H('#8a5a38')); R.pset(x1, y, H('#9a6a44')); } }
+  for (let x = 0; x < 320; x++) { R.pset(x, 148, H('#2a1610')); R.pset(x, 149, H('#1a0c08')); }
   // cuadros con marco dorado (un barco y un faro, sin letras) y apliques con su luz
   for (const [x, y, k] of [[18, 56, 0], [254, 60, 1]]) { R.rect(x, y, x + 46, y + 34, K); R.rect(x + 1, y + 1, x + 45, y + 33, H('#c8982e')); R.rect(x + 4, y + 4, x + 42, y + 30, H('#7ab0d8')); R.rect(x + 4, y + 22, x + 42, y + 30, H('#2e5a9a'));
     if (k === 0) { R.poligono([[x + 12, y + 22], [x + 34, y + 22], [x + 30, y + 26], [x + 16, y + 26]], H('#6a3a20')); R.poligono([[x + 22, y + 8], [x + 22, y + 21], [x + 31, y + 21]], H('#f0ecdc')); }
@@ -284,31 +299,35 @@ const fondoTeatro = () => horno('teatro', () => {
   // el suelo de tablas
   tablas(0, 150, 319, 179, [H('#8a5a34'), H('#6a4024'), H('#3a2010')], 6, 11);
 });
-const titere = (x, y, tipo, t, o = {}) => { x = Math.round(x); y = Math.round(y);
-  const ropa = tipo === 'malo' ? [H('#3a2a4a'), H('#2a1a36')] : [H('#3a6ac8'), H('#2a4a98')];
-  R.recorte([0, 0, 319, 112]);
-  R.rect(x - 7, y - 14, x + 7, y + 20, K); R.rect(x - 6, y - 13, x + 6, y + 20, ropa[0]); R.rect(x + 3, y - 13, x + 6, y + 20, ropa[1]);
-  if (tipo === 'bueno') { R.rect(x - 8, y - 12, x - 7, y + 14, H('#f0c040')); R.pset(x, y - 6, H('#f0c040')); R.pset(x - 1, y - 5, H('#f0c040')); R.pset(x + 1, y - 5, H('#f0c040')); }
-  R.disco(x, y - 20, 7, K); R.disco(x, y - 20, 6, H('#f0c8a0')); R.pset(x - 2 * (o.dir ?? 1), y - 21, K); R.pset(x + 2 * (o.dir ?? 1), y - 21, K); R.pset(x - 3, y - 18, H('#e8a088')); R.pset(x + 3, y - 18, H('#e8a088'));
-  if (tipo === 'malo') { R.rect(x - 7, y - 30, x + 7, y - 27, K); R.rect(x - 4, y - 36, x + 4, y - 27, K); R.rect(x - 3, y - 35, x + 3, y - 29, H('#2a2a3a')); R.rect(x - 3, y - 30, x + 3, y - 30, H('#c83a3a'));
-    R.linea(x - 4, y - 16, x - 1, y - 17, K); R.linea(x + 1, y - 17, x + 4, y - 16, K); R.pset(x - 4, y - 15, K); R.pset(x + 4, y - 15, K); }
-  else { R.rect(x - 6, y - 27, x + 6, y - 25, H('#e8b040')); R.pset(x - 1, y - 16, K); R.pset(x, y - 15, K); R.pset(x + 1, y - 16, K); }
-  // el brazo que señala (un muñón de tela con la manita)
-  if (o.senala) { const d = o.senala, bx = x + d * 7; R.rect(Math.min(bx, bx + d * 7), y - 6, Math.max(bx, bx + d * 7), y - 3, K); R.rect(Math.min(bx, bx + d * 6), y - 5, Math.max(bx, bx + d * 6), y - 4, ropa[0]); R.disco(bx + d * 8, y - 5, 2, H('#f0c8a0')); R.pset(bx + d * 11, y - 6, H('#f0c8a0')); R.pset(bx + d * 10, y - 6, H('#f0c8a0')); }
-  R.recorte(null); };
+// una marioneta: un chibi del reparto (con su paleta de títere) colgado de tres hilos que bajan de la bambalina
+const PAL_MALO = { C: H('#3a2a4a'), c: H('#2a1a36'), W: H('#3a2a4a'), F: H('#1c1424'), o: H('#c83a3a'), J: H('#2a2a3a'), H: H('#1c1424'), h: H('#3a3046') };
+const marioneta = (x, suelo, tipo, t, o = {}) => { x = Math.round(x);
+  const def = tipo === 'malo' ? EL.motero : EL.graham, mece = Math.sin(t * 2.2 + x) * 1.5;
+  R.recorte([86, 56, 234, 113]);
+  // los hilos: a la cabeza y a los dos hombros, desde la cruceta escondida tras la bambalina
+  const hilo = H('#f4ecd8'), hiloS = H('#c8bca4');
+  for (const [hx, hy] of [[x + 7, suelo - 25], [x + 2, suelo - 14], [x + 12, suelo - 14]]) { const sx = hx + mece; for (let y = 56; y < hy; y++) { const xx = Math.round(sx + (hx - sx) * (y - 56) / Math.max(1, hy - 56)); R.pset(xx, y, (y & 1) ? hilo : hiloS); } }
+  const a = R.actor(def, x, suelo, t, { dir: o.dir ?? 1, anda: o.anda, dedo: o.dedo, pal: tipo === 'malo' ? PAL_MALO : undefined, tocado: tipo === 'malo' ? 'chistera' : undefined, bigote: tipo === 'malo', sonrisa: tipo === 'bueno', sorpresa: o.sorpresa, enfado: o.enfado });
+  R.recorte(null); return a; };
 const p3 = (t) => {
   R.copiar(fondoTeatro());
   const nadie = en('fijate3', 0.3958), malo = en('fijate3', 0.4460), cuento = en('fijate3', 0.4776);
   // la guirnalda de bombillas que titilan
   for (let k = 0; k < 22; k++) { const x = k * 15 + 4, y = 8 + Math.round(Math.abs(Math.sin(k * 0.6)) * 8); if (x > 270 && y < 46) continue; if (x > 18 && x < 172 && y < 22) continue; R.pset(x, y - 2, K); R.disco(x, y, 1.5, Math.sin(t * 3 + k) > 0 ? H('#f8e080') : H('#c8a040')); }
-  // los títeres: el malo entra, se señala a sí mismo («?»), niega; en «bad guy» señala al héroe y el héroe lo señala a él
-  const e = tramo(t, P3, P3 + 0.7), mx = lerp(96, 136, e), my = 104 + Math.round(Math.abs(Math.sin(t * 6)) * (e < 1 ? 2 : 0)), niega = t > nadie && t < malo - 0.2 ? Math.round(Math.sin(t * 14) * 2) : 0;
-  const hx = 184, hy = 104 + Math.round(Math.sin(t * 2) * 1);
-  titere(hx, hy, 'bueno', t, { dir: -1, senala: t > cuento - 0.4 ? -1 : 0 });
-  titere(mx + niega, my, 'malo', t, { dir: t > malo - 0.2 ? 1 : -1, senala: t > malo - 0.2 ? 1 : 0 });
-  if (t > nadie - 0.6 && t < malo - 0.2) R.bocadillo(Math.round(mx), 58, { icono: '?' });
-  if (t > malo && t < malo + 1.2) R.bocadillo(Math.round(mx) + 4, 58, { icono: '!' });
-  if (t > cuento && t < cuento + 1.2) R.bocadillo(hx - 4, 58, { icono: '!' });
+  // las nubes de cartón pintado del telón de fondo, colgadas de sus hilos, se mecen
+  const NUBC = [H('#ffffff'), H('#e0e8f0'), H('#b8c8d8')];
+  for (const [nx, ny, w, f] of [[110, 62, 22, 0], [150, 58, 18, 1.7], [176, 70, 16, 3.1]]) { const dx = Math.round(Math.sin(t * 1.3 + f) * 2); for (let y = 56; y < ny - 3; y++) R.pset(nx + 10 + dx, y, H('#a89c84')); nube(nx + dx, ny, w, NUBC, [104, 56, 215, 100]); }
+  // las marionetas (chibis colgados de sus hilos): el malo entra andando, alza el dedo hacia sí («?») y niega; en «bad guy»
+  // señala al héroe y el héroe lo señala a él
+  const e = tramo(t, P3, P3 + 1.2), mx = lerp(104, 146, e), niega = t > nadie && t < malo - 0.2 ? Math.round(Math.sin(t * 14) * 1.5) : 0;
+  const hx = 184;
+  marioneta(hx, 112, 'bueno', t, { dir: -1, dedo: t > cuento - 0.2, sorpresa: t > malo && t < cuento - 0.2 });
+  marioneta(mx + niega, 112, 'malo', t, { anda: e > 0 && e < 1, dir: t > malo - 0.2 ? 1 : t > nadie - 0.4 ? -1 : 1, dedo: t > nadie - 0.4 && t < malo - 0.6 || t > malo - 0.2, enfado: t > cuento });
+  // el canto del proscenio por delante de los pies
+  R.rect(99, 113, 221, 116, H('#8a5a32')); for (let x = 99; x <= 221; x++) { R.pset(x, 113, H('#c8945a')); if ((x * 7) % 23 === 0) R.pset(x, 115, H('#6a4024')); }
+  if (t > nadie - 0.6 && t < malo - 0.2) R.bocadillo(Math.round(mx) + 7, 66, { icono: '?' });
+  if (t > malo && t < malo + 1.2) R.bocadillo(Math.round(mx) + 10, 66, { icono: '!' });
+  if (t > cuento && t < cuento + 1.2) R.bocadillo(hx + 4, 66, { icono: '!' });
   // el público: cabecitas a contraluz que se giran de uno a otro; Atom entre ellos, en la fila de delante
   for (let k = 0; k < 8; k++) { if (k === 5) continue; const x = 20 + k * 38, y = 172 + (k % 2) * 3, b = Math.round(Math.sin(t * 2 + k) * 0.6); R.disco(x, y - 8 + b, 7, H('#1a1014')); R.rect(x - 10, y - 2 + b, x + 10, y + 12, H('#1a1014')); if (k % 3 === 0) { R.disco(x - 5, y - 13 + b, 3, H('#1a1014')); R.disco(x + 5, y - 13 + b, 3, H('#1a1014')); } }
   T.AT.atom(R, 212, 178, t, { dir: -1, pose: t > malo ? 'brazos' : 'quieto', cara: t > malo ? 'sorpresa' : 'sonrisa', habla: voz(t) * 0.5 });
@@ -348,14 +367,38 @@ const p5 = (t) => {
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - 160) / 170, (y - 92) / 110); if (d > 0.55 && (d - 0.55) * 1.6 > bay(x, y)) R.pset(x, y, mez(R.pget(x, y), H('#0e1018'), 0.45)); }
   const villano = en('fijate3', 0.7415), solo = en('fijate3', 0.8159);
   const CX = 160, CY = 88, RX = 46, RY = 64, rev = tramo(t, P5 + 0.1, P5 + 0.9);
-  // dentro del espejo: el cielo a color con el sol que se abre y sus rayos, una colina y la gente que aclama
-  const sol = 0.6 + 0.4 * tramo(t, solo - 0.2, solo + 0.6);
-  for (let y = CY - RY; y <= CY + RY; y++) for (let x = CX - RX; x <= CX + RX; x++) { const e = ((x - CX) / RX) ** 2 + ((y - CY) / RY) ** 2; if (e > 1) continue; if ((y - (CY - RY)) / (2 * RY) > rev) continue;
-    const a = Math.atan2(y - 70, x - CX), rayo = Math.sin(a * 10 + t * 0.8) > 0.4; let c = mez(H('#4a8ad8'), H('#f8e0a0'), cl(1 - Math.hypot(x - CX, y - 70) / 70)); if (rayo && Math.hypot(x - CX, y - 70) < 70 * sol) c = mez(c, H('#fff4c0'), 0.35);
-    if (y > CY + 30 - Math.sin(x * 0.08) * 3) c = (x + y) % 7 === 0 ? H('#4a9a4a') : H('#5ab05a'); R.pset(x, y, c); }
-  if (rev >= 1) { luz(CX, 70, 24 * sol, 24 * sol, H('#fff8d0'), 0.6); for (let k = 0; k < 9; k++) { const x = CX - 36 + k * 9, y = CY + 44 + (k % 2) * 3, b = t > solo ? Math.round(Math.abs(Math.sin(t * 8 + k)) * 2) : 0; R.disco(x, y - b, 3, H('#3a2a4a')); R.rect(x - 3, y + 2 - b, x + 3, y + 10, H('#3a2a4a')); if (t > solo) { R.linea(x - 3, y - b, x - 5, y - 6 - b, H('#3a2a4a')); R.linea(x + 3, y - b, x + 5, y - 6 - b, H('#3a2a4a')); } }
-    // Doom con capa roja de héroe, a escala doble; destella en «villain»; en «only one» alza los brazos
-    T.AT.escalado(R, () => R.actor(EL.doom, 8, 30, t, { dir: 1, brazos: t > solo, pal: { Q: H('#d83a3a'), q: H('#9a2028') } }), 32, 32, CX - 30, CY - 34, 2);
+  // dentro del espejo, en su búfer: un paisaje heroico a color; luego se copia al óvalo (lo que se ve por el cristal)
+  const sol = 0.6 + 0.4 * tramo(t, solo - 0.2, solo + 0.6), aclama = t > solo;
+  const IN = horno('espejoIn', () => {}), prev = R.usar(IN);
+  const X0 = CX - RX, X1 = CX + RX, Y0 = CY - RY, Y1 = CY + RY, SY = 58;
+  const loma = (x) => CY + 24 + Math.round(((x - CX) / RX) ** 2 * 16 + Math.sin(x * 0.21) * 1.2);
+  for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) { const r = Math.hypot(x - CX, y - SY), a = Math.atan2(y - SY, x - CX);
+    let c = (y - Y0) / 70 + (r < 60 ? 0 : 0) > bay(x, y) * 0.9 + 0.35 ? H('#8ab8e8') : H('#5a94d8'); const cal = cl(1 - r / 66); if (cal > bay(x, y)) c = mez(c, H('#f8e0a0'), cal * 0.9);
+    if (Math.sin(a * 10 + t * 0.8) > 0.45 && r < 72 * sol && r > 10) c = mez(c, H('#fff4c0'), 0.4); R.pset(x, y, c); }
+  R.disco(CX, SY, 8 + Math.round(2 * sol), H('#fff0b0')); R.disco(CX, SY, 6 + Math.round(2 * sol), H('#fffae0'));
+  pasan(t, [[0, 40, 22, 4], [150, 50, 16, 7], [260, 34, 14, 10]], NUB, [X0, Y0, X1, Y1]);
+  for (let k = 0; k < 3; k++) pajaro(X0 + ((t * 9 + k * 31) % (2 * RX)), 44 + k * 6 + Math.sin(t * 2 + k) * 2, t, H('#3a3a5a'));
+  // la sierra lejana con nieve y, en su ladera, un castillo con banderolas verdes que ondean
+  for (let x = X0; x <= X1; x++) { const top = 92 + Math.round(Math.abs(Math.sin(x * 0.07)) * -10 + Math.sin(x * 0.19) * 3); for (let y = top; y <= 112; y++) R.pset(x, y, y < top + 3 && top < 88 ? H('#e8eef8') : (x + y) % 5 === 0 ? H('#6a7ab0') : H('#7a8ac0')); }
+  for (const [tx, th] of [[184, 14], [192, 10], [176, 9]]) { R.rect(tx - 2, 100 - th, tx + 2, 101, H('#5a6488')); R.rect(tx - 2, 100 - th, tx - 1, 101, H('#7a84a8')); R.poligono([[tx - 3, 100 - th], [tx, 95 - th], [tx + 3, 100 - th]], H('#3a4468')); const o = Math.floor(t * 4 + tx) % 2; R.linea(tx, 95 - th, tx, 92 - th, K); R.pset(tx + 1, 92 - th, H('#2e8a3e')); R.pset(tx + 2, 92 - th + o, H('#2e8a3e')); R.pset(tx + 3, 93 - th, H('#2e8a3e')); }
+  R.rect(176, 96, 192, 101, H('#5a6488')); for (let x = 176; x <= 192; x += 3) R.pset(x, 95, H('#5a6488'));
+  // la colina: hierba con matas, flores que se mecen y su sombra a la derecha
+  for (let x = X0; x <= X1; x++) { const top = loma(x); for (let y = top; y <= Y1; y++) { let c = (x * 3 + y * 7) % 11 === 0 ? H('#3a8a3a') : (y - top) < 2 ? H('#7ac85a') : H('#5ab04a'); if (x > CX + 10 && (x - CX - 10) / 30 > bay(x, y)) c = mez(c, H('#2e6a3a'), 0.35); R.pset(x, y, c); } }
+  for (let k = 0; k < 14; k++) { const fx = X0 + 6 + k * 6.3, fy = loma(fx) + 3 + (k % 3) * 4, w = Math.round(Math.sin(t * 3 + k)); R.pset(Math.round(fx), fy, H('#3a8a3a')); R.pset(Math.round(fx) + w, fy - 1, [H('#f8e060'), H('#f07a9a'), H('#ffffff')][k % 3]); }
+  // Doom, chibi, en la cima con capa roja de héroe; en «only one» alza los brazos
+  R.actor(EL.doom, CX - 7, loma(CX), t, { dir: 1, brazos: aclama, pal: { Q: H('#d83a3a'), q: H('#9a2028') } });
+  // pétalos que caen cuando lo aclaman
+  if (aclama) for (let k = 0; k < 14; k++) { const f = ((t - solo) * 0.5 + k / 14) % 1, px = X0 + 10 + ((k * 37) % (2 * RX - 20)) + Math.sin(t * 3 + k) * 3, py = Y0 + 30 + f * 100; R.pset(Math.round(px), Math.round(py), [H('#f8e060'), H('#f07a9a'), H('#ffffff')][k % 3]); }
+  // la gente pequeña delante (bustos), que mira y en «only one» salta, se ríe y agita banderitas
+  const ROPA = [[H('#c83a3a'), H('#8a2a2a')], [H('#3a6ac8'), H('#2a4a98')], [H('#e8b040'), H('#b08020')], [H('#4a9a5a'), H('#2e6a3a')], [H('#8a5ac8'), H('#5a3a98')]], TIPOS = ['rizos', 'calvo', 'mujer', 'peluca', 'marinero'];
+  for (let fila = 0; fila < 2; fila++) for (let k = 0; k < 9; k++) { const bx = X0 + 6 + k * 10 + fila * 5, by = 128 + fila * 9 - (aclama ? Math.round(Math.abs(Math.sin(t * 7 + k * 1.3 + fila)) * 2) : 0), i = (k + fila * 2) % 5;
+    if (Math.abs(bx + 4 - CX) / RX > 0.92 - fila * 0.04) continue;
+    if (aclama && (k + fila) % 3 === 0) { const w = Math.floor(t * 6 + k) % 2; R.linea(bx + 8, by + 3, bx + 9, by - 6, H('#6a4a2a')); R.rect(bx + 10, by - 6 + w, bx + 13, by - 4 + w, (k % 2) ? H('#2e8a3e') : H('#d83a3a')); }
+    R.busto(TIPOS[i], { C: ROPA[i][0], c: ROPA[i][1] }, bx, by, t, { rie: aclama }); }
+  R.usar(prev);
+  // el óvalo: lo de dentro, revelado de arriba abajo
+  for (let y = Y0; y <= Y1; y++) { if ((y - Y0) / (2 * RY) > rev) break; for (let x = X0; x <= X1; x++) if (((x - CX) / RX) ** 2 + ((y - CY) / RY) ** 2 <= 1) R.pset(x, y, IN[y * 320 + x]); }
+  if (rev >= 1) { luz(CX, SY, 22 * sol, 22 * sol, H('#fff8d0'), 0.35);
     if (t > villano && t < villano + 0.6) { const v = (t - villano) / 0.6; for (const [dx, dy] of [[-22, -30], [24, -20], [-18, 10]]) { const s = Math.round(3 * Math.sin(v * Math.PI)); R.linea(CX + dx - s, CY + dy, CX + dx + s, CY + dy, H('#ffffff')); R.linea(CX + dx, CY + dy - s, CX + dx, CY + dy + s, H('#ffffff')); } } }
   // el brillo del cristal y el marco dorado tallado
   for (let k = 0; k < 6; k++) ps(CX - 30 + k * 2, CY - 40 + k * 3, H('#ffffff'));

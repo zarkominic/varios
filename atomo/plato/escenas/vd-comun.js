@@ -111,7 +111,8 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     pie) desde una loma nevada en primer término (suelo y 150, libre x 20–200) con un árbol seco (x 33) y rocas.
 //     Cámara 'alcoba': dentro, una alcoba de piedra con un tapiz azul del ciervo, la puerta de roble entreabierta con la
 //     luz del pasillo (x 40–80, y 82–150), una ventana ojival con la nieve (x 100–124, y 34–88), un aguamanil, la cama
-//     con dosel y cortinas azules (x 150–250; la enferma, de lejos, solo un bulto bajo la colcha, colcha en y 124), un
+//     con dosel y cortinas azules (x 150–250; la enferma acostada: el bulto que respira bajo la colcha, x 166–226, y la
+//     cabeza en la almohada de perfil, ojos cerrados, x 222–238, y 110–122; colcha en y 124), un
 //     candelabro de tres velas en la mesilla (x 252–268) y otra en el alféizar que se consumen (o.velas 0–1: más bajas,
 //     la luz más débil), un sillón (x 272–306) y una alfombra. Suelo y 150; el curandero junto a la cama (x 120–150) y el
 //     barón en la puerta (x 40–80).
@@ -121,7 +122,7 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     encendidas, chimeneas con humo, una torre de reloj (x 262–274) y una cúpula (x 44), faroles y gente pequeña con
 //     farol en la calle de delante (suelo y 170, libre x 20–300); la luna en x 62, y 36.
 //     Cámara 'balcon': el balcón de la torre alta de cerca, de noche, para Doom AL DOBLE: la torre de sillares grandes con
-//     sus esquinas, matacanes, almenas nevadas y carámbanos; el ventanal ojival emplomado (x 140–180, y 64–135) con la luz
+//     sus esquinas, matacanes, almenas nevadas (desde y 24: la barra del año, sobre cielo) y carámbanos; el ventanal ojival emplomado (x 140–180, y 64–135) con la luz
 //     verde (o.ventanal 0–1: de apagado a encendido; por defecto 1); dos estandartes verdes con el aro, dos antorchas
 //     (x 113 y 207); el suelo de losas (y 136–143) con su canto y cinco ménsulas; detrás, dos torres de tejado verde,
 //     la muralla con un guardia de hierro, los montes y la ciudad de abajo con luces y humo; luna (76, 36), estrellas,
@@ -341,9 +342,12 @@ export function tibetDelante(R, t, o = {}) {
 //     abajo en llamas verdes y se deshacen en chispas de luz; 1 ya no queda ninguno). o.almas 0–1: luces verdes que suben
 //     libres desde el suelo (cuántas). o.alma 0–1: una luz verde con forma de mujer que sube desde el trono (Valeria).
 //     Suelo y 152, libre x 30–280 (el trono en el centro: los de pie, a sus lados, x 30–110 y 210–280).
-//     Cámara 'contratos': de cerca: pared con un gran anillo de símbolos que brilla (centro x 196, y 72), una columna
-//     raíz a cada lado, canal de lava y suelo de obsidiana (y 138–180) que refleja la luz verde; cinco pergaminos grandes
-//     (x 96–290, y 30–130) con o.contratos y o.almas como arriba. Suelo y 152, libre x 20–90 (Doom con los brazos arriba).
+//     Cámara 'contratos': DE CERCA: pared de bloques grandes de roca volcánica con juntas de lava que laten, EL GRAN
+//     ANILLO de símbolos descentrado a la derecha (centro x 214, y 80, r 66; con o.almas se enciende entero y gira), un
+//     zócalo (y 142–146) y el suelo de obsidiana (y 147–180, sin canal) con una grieta de lava en diagonal a la derecha;
+//     seis pergaminos grandes (x 105–285, y 30–142; el primero, el que arde antes, en x 118, y 62) con o.contratos;
+//     o.almas llena el cuadro de luces verdes. Raíces grandes de primer término (x 0–18 y 284–320, desde y 50) en
+//     infiernoDelante. Suelo y 152, libre x 20–90 (Doom con los brazos arriba).
 // Devuelve { encuadre, camara, suelo, libre, puerta?, cerradura?, alma?, trono?, asiento?, contratos? } (contratos: los
 // rectángulos [x0, y0, x1, y1] de los pergaminos que aún no han ardido). Llama a infiernoDelante después de los actores.
 export function infierno(R, t, o = {}) {
@@ -354,7 +358,7 @@ export function infierno(R, t, o = {}) {
 // Lo que va DELANTE de los personajes (una sola vez, después de R.actor): en el camino, las rocas de las esquinas de
 // abajo con su filo de luz y brasas grandes que suben; en el trono general, dos braseros de pie en las esquinas
 // (x 4–28 y 292–316, y 100–180) y, con o.sentado (por defecto o.rey), el frente del asiento y los brazos del trono
-// (x 128–192, y 104–140) para que Doom se lea sentado; en 'contratos', chispas verdes de primer término. Mismas o.
+// (x 128–192, y 104–140) para que Doom se lea sentado; en 'contratos', las dos raíces grandes de primer término y chispas verdes. Mismas o.
 export function infiernoDelante(R, t, o = {}) {
   const enc = o.encuadre ?? 'camino', cam = o.camara ?? 'general';
   if (enc === 'trono') {
@@ -363,7 +367,7 @@ export function infiernoDelante(R, t, o = {}) {
       if (o.sentado ?? o.rey) d_tronoFrente(R, K);
       d_brasero(R, t, 16, 124, K, 1); d_brasero(R, t, 304, 124, K, 2);
       d_ceniza(R, t, 10, 0, 320, 60, 180, 31, true, K);
-    } else d_ceniza(R, t, 12, 90, 320, 40, 180, 37, true, K, true);
+    } else { d_raicesDelante(R, t, K); d_ceniza(R, t, 12, 90, 320, 40, 180, 37, true, K, true); }
     return {};
   }
   const P = D_ROJO, K = (n, i) => P[n][i];
@@ -373,11 +377,31 @@ export function infiernoDelante(R, t, o = {}) {
   d_ceniza(R, t, 9, 0, 320, 40, 180, 41, true, K);
   return {};
 }
+// las dos raíces grandes de primer término de la cámara 'contratos': a la izquierda, una que baja del techo pegada al
+// borde (x 0–18; quien entra por la izquierda sale de detrás de ella) y, a la derecha, una gruesa que entra por el borde
+// (desde y 50, por debajo de la zona de Atom) y se curva hasta el suelo (x 284–320); filo de luz hacia el anillo,
+// corteza con surcos, raicillas colgantes y una gota de luz que baja por cada una
+function d_raicesDelante(R, t, K) {
+  const raiz = (cxF, rF, y0, lado, sem) => {
+    for (let y = y0; y < 180; y++) { const c = cxF(y), r = rF(y);
+      for (let x = Math.floor(c - r); x <= Math.ceil(c + r); x++) { if (x < 0 || x > 319) continue; const u = (x + 0.5 - c) / r; if (Math.abs(u) > 1) continue;
+        const l = u * lado; let v = l > 0.6 ? 4 : l > 0.15 ? 3 : l > -0.5 ? 2 : 1;
+        if (((y + Math.round(u * 5) + sem) % 7 === 0) && Math.abs(u) < 0.8) v -= 1; if (h(x, y >> 1, sem) > 0.9) v -= 1; if (Math.abs(u) > 0.9) v = 0;
+        R.pset(x, y, l > 0.85 ? K('lava', 1, x, y) : K('roca', Math.max(0, Math.min(5, v)), x, y)); } }
+    const yG = y0 + 10 + ((t * 16 + sem * 13) % (170 - y0)), xG = Math.round(cxF(yG) + lado * rF(yG) * 0.55);
+    R.disco(xG + 0.5, Math.round(yG) + 0.5, 1.3, K('lava', 4, xG, yG)); R.pset(xG, Math.round(yG) - 2, K('lava', 2, xG, yG));
+  };
+  raiz((y) => 6 + Math.sin(y * 0.05 + 1) * 3, (y) => 8 + (y > 160 ? (y - 160) * 0.5 : 0), 0, 1, 79);
+  raiz((y) => 300 + 34 * Math.max(0, (92 - y) / 42) ** 2 + Math.sin(y * 0.06) * 4, (y) => 9 + (y - 50) / 130 * 5 + (y > 164 ? (y - 164) * 0.6 : 0), 50, -1, 80);
+  // raicillas que cuelgan de la raíz derecha y se mecen
+  for (let k = 0; k < 3; k++) { const y0 = 70 + k * 22, x0 = 300 + 34 * Math.max(0, (92 - y0) / 42) ** 2 - 10, L = 14 + k * 5;
+    for (let j = 0; j < L; j++) { const x = Math.round(x0 - j * 0.3 + Math.sin(t * 1.2 + k + j * 0.2) * j * 0.08); R.pset(x, y0 + j, K('roca', j < L - 3 ? 2 : 3, x, y0 + j)); } }
+}
 // ── E · Battleworld ─────────────────────────────────────────────────────────────────────────────────────────────────
 // Todo NUESTRO (ni la arquitectura ni las figuras de los cómics): un planeta de retales, una sala de oro, un juez de luz.
 // o.encuadre:
 //   'planeta' (cámara 'general'): BATTLEWORLD DESDE EL MIRADOR: el espacio tramado (nebulosas violeta y azul, estrellas
-//     que titilan, una estrella fugaz de vez en cuando) y EL PLANETA COSIDO (centro x 160, y 72, r 52) que gira despacio:
+//     que titilan, una estrella fugaz de vez en cuando) y EL PLANETA COSIDO (centro x 160, y 82, r 48: el halo, por debajo de y 20) que gira despacio:
 //     retales de desierto con dunas, hielo con grietas, selva, ciudades (con luces en el lado de noche), mar con olas y
 //     brillo, volcán con vetas, praderas en parcelas, cristal violeta y montañas nevadas, unidos por COSTURAS DE LUZ
 //     DORADA que laten, nubes finas que pasan y un halo de atmósfera. A los lados, LOS RESTOS DE OTROS DOS PLANETAS que
@@ -1190,8 +1214,7 @@ function a_lvAlcoba(R, t, o) {
     rect(152, 124, 248, 140, a_K); for (let y = 124; y < 140; y++) for (let x = 153; x < 248; x++) pset(x, y, y < 128 ? P.blanco : (x + y) % 6 === 0 ? P.azulS : (x >> 3) % 2 ? P.azul : hex('#3a5aa8')); for (let x = 153; x < 248; x += 2) pset(x, 140, P.oro);
     rect(152, 140, 248, 146, hex('#4a2a14')); rect(152, 146, 248, 150, a_K);
     rect(222, 116, 244, 124, a_K); rect(223, 117, 243, 123, P.blanco); rect(223, 122, 243, 123, hex('#c8ccd8'));
-    for (let i = 0; i < 60; i++) { const x = 168 + i, yy = 124 - Math.round(Math.sin(i / 59 * Math.PI) * 5 + (i > 40 ? 1 : 0)); for (let y = yy; y < 125; y++) pset(x, y, y === yy ? hex('#5a7ac8') : (x + y) % 6 === 0 ? P.azulS : hex('#3a5aa8')); }
-    for (let j = 0; j < 3; j++) for (let i = 0; i < 5; i++) pset(226 + i, 117 + j, hex('#d8b860'));   // el pelo rubio en la almohada (de lejos)
+    // (la enferma, su bulto bajo la colcha y su cabeza en la almohada se pintan en cada fotograma: respira)
     // la mesilla, el sillón y la alfombra
     rect(252, 112, 270, 114, a_K); rect(253, 112, 269, 113, hex('#6a4024')); rect(254, 114, 268, 150, a_K); rect(255, 115, 267, 149, hex('#5a3418')); rect(257, 118, 265, 128, hex('#6a4024')); pset(261, 123, P.oro);
     rect(272, 108, 306, 150, a_K); rect(274, 110, 304, 128, hex('#7a2a3a')); for (let x = 276; x < 304; x += 6) pset(x, 118, hex('#d8a040')); rect(272, 128, 306, 136, hex('#8a3a4a')); rect(272, 128, 306, 128, hex('#a84a5a')); rect(272, 120, 276, 150, hex('#5a3418')); rect(302, 120, 306, 150, hex('#5a3418')); rect(273, 136, 305, 150, hex('#4a2a14'));
@@ -1212,6 +1235,27 @@ function a_lvAlcoba(R, t, o) {
     VC.forEach(([x, y], k) => { const a = alto + (k === 1 ? 2 : 0), top = y - a; rect(x - 1, top, x + 1, y - 1, hex('#ece4cc')); pset(x + 1, top + 1, hex('#c8bc9c')); if (vel > 0.3) pset(x - 1, top + 2, hex('#ffffff')); const f = Math.sin(t * 9 + k * 2); pset(x, top - 1, a_P.fuego1); pset(x, top - 2, a_P.fuegoL); if (f > -0.3) pset(x + (f > 0.6 ? 1 : 0), top - 3, a_P.fuego2); });
     const [wx, wy] = VV, a = Math.round(8 - vel * 6); rect(wx - 3, wy - 1, wx + 3, wy - 1, P.oro); rect(wx - 1, wy - 1 - a, wx + 1, wy - 2, hex('#ece4cc')); pset(wx, wy - 2 - a, a_P.fuego1); pset(wx, wy - 3 - a, a_P.fuegoL); if (Math.sin(t * 11) > 0) pset(wx, wy - 4 - a, a_P.fuego2);
     a_luz(R, 260, 104 - alto, 80, a_P.luzC, (0.2 + 0.03 * Math.sin(t * 9)) * luz, 60); a_luz(R, wx, wy - a - 3, 26, a_P.luzC, 0.2 * luz, 22); }
+  // LA BARONESA ENFERMA: el bulto bajo la colcha (pies, piernas, cadera y pecho, que sube y baja al respirar), con su
+  // filo de luz de las velas, sus pliegues y su sombra; el embozo blanco doblado y la cabeza en la almohada (el pelo
+  // rubio extendido hacia la cabecera, la cara pálida de perfil hacia la habitación, los ojos cerrados)
+  { const { pset } = R, re = 0.5 + 0.5 * Math.sin(t * 1.5), PERF = [[166, 0], [168, 3], [172, 5], [176, 4], [180, 3.5], [192, 4], [200, 5.5], [206, 7.5], [212, 8], [218, 8.5], [223, 8], [226, 3]];
+    const alt = (x) => { for (let k = 1; k < PERF.length; k++) if (x <= PERF[k][0]) { const [x0, a0] = PERF[k - 1], [x1, a1] = PERF[k], f = (x - x0) / (x1 - x0); return a0 + (a1 - a0) * (f * f * (3 - 2 * f)); } return 0; };
+    const BO = hex('#1a2450'), CL = hex('#6a8ad8'), CM = hex('#3a5aa8'), CS = hex('#24408a');
+    for (let x = 166; x <= 226; x++) { const a = alt(x) + (x > 200 ? re * 1.2 * Math.min(1, (x - 200) / 8) : 0), top = Math.round(124 - a); if (top >= 124) continue;
+      for (let y = top; y <= 124; y++) { const d = y - top; let c = d === 0 ? BO : d === 1 ? (x < 214 ? CL : hex('#8aa4e8')) : d < 3 ? hex('#4a6ac0') : (x + y * 2) % 9 === 0 ? CS : CM;
+        if (d > 1 && ((x === 179 || x === 199) || (x - y) % 13 === 0 && d > 2)) c = CS; if (d > 2 && y > 121) c = a_mez(c, a_K, 0.25); pset(x, y, c); } }
+    // el embozo blanco doblado sobre el pecho, con su sombra, y la cenefa dorada
+    for (let x = 212; x <= 224; x++) { const top = Math.round(124 - alt(x) - re * 1.2); pset(x, top, BO); pset(x, top + 1, P.blanco); pset(x, top + 2, P.blanco); pset(x, top + 3, hex('#c8ccd8')); if (x % 2) pset(x, top + 4, P.oro); }
+    // la cabeza en la almohada (centro x 229, y 116): el pelo detrás y hacia la cabecera, la cara delante y libre
+    const PE = hex('#d8b860'), PL = hex('#f0d890'), PS = hex('#a8883a'), PIEL = hex('#ecd6c8'), PIS = hex('#c8a898'), OJ = hex('#6a4a4a');
+    for (let j = -6; j <= 5; j++) for (let i = -4; i <= 9; i++) { const dd = Math.hypot(i - 1.5, j * 1.15); if (dd > 6.2 || 116 + j > 123) continue; pset(229 + i, 116 + j, dd > 5.3 ? PS : (i + j) % 5 === 0 ? PL : i > 4 && j > 1 ? PS : PE); }
+    for (let i = 0; i < 9; i++) pset(233 + i, 121 + (i % 3 === 0 ? 0 : 1), i % 2 ? PE : PS);   // mechones sobre la almohada
+    for (let j = -3; j <= 3; j++) for (let i = -4; i <= 1; i++) { if (Math.hypot(i + 1.2, j * 1.05) > 3.4) continue; pset(227 + i, 117 + j, i === -4 || j === 3 ? PIS : PIEL); }
+    pset(223, 117, PIEL); pset(224, 116, PIEL);                                   // la nariz
+    pset(225, 116, OJ); pset(226, 116, OJ); pset(225, 115, PIS);                   // el ojo cerrado y la ceja
+    pset(225, 119, hex('#c88a8a')); pset(226, 118, hex('#e0b4a8'));               // la boca y la mejilla
+    pset(229, 113, PL); pset(230, 112, PL); pset(231, 113, PL);                    // el brillo de las velas en el pelo
+    a_luz(R, 214, 118, 30, a_P.luzC, 0.12 + 0.03 * Math.sin(t * 9), 20); }
   // las motas en la luz de la puerta
   for (let k = 0; k < 8; k++) { const x = Math.round(48 + h(k, 1, 146) * 30 + Math.sin(t * 0.5 + k) * 3), y = Math.round(90 + ((h(k, 2, 146) * 56 - t * 2) % 56 + 56) % 56); if (Math.sin(t * 2 + k) > 0) R.pset(x, y, hex('#ffe0b0')); }
   return { suelo: 150, libre: [30, 150], cama: { x0: 150, x1: 250, y: 124 }, puerta: { x0: 40, x1: 80, y0: 80, y1: 150 }, ventana: [100, 34, 124, 88], velas: VC.map(([x, y]) => [x, y - alto]) };
@@ -3343,18 +3387,42 @@ function d_suelo(R, P, y0, brillos, charcos = []) {
 function d_tronoFondo(R, P, cam, b) {
   const K = (n, i) => P[n][i], marcaT = new Uint8Array(320 * 180);
   if (cam === 'contratos') {
-    const vetas = d_pared(R, P, 132, 196, 72);
-    // el gran anillo de símbolos tallado en la pared
-    for (let y = 12; y <= 132; y++) for (let x = 136; x <= 256; x++) { const d = Math.hypot(x + 0.5 - 196, y + 0.5 - 72);
-      if (d > 57) continue; if (d > 55) R.pset(x, y, P.roca[0]); else if (d > 47) R.pset(x, y, d > 54 ? P.piedra[5] : d < 48 ? P.piedra[0] : R.tone(P.piedra, 2.2 + R.vnoise(x * 0.3, y * 0.3) * 0.8, x, y)); else if (Math.abs(d - 30) < 0.8) R.pset(x, y, P.lava[1]); else if (Math.abs(d - 31.4) < 0.5) R.pset(x, y, P.piedra[4]); }
-    for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2, x = Math.round(196 + Math.cos(an) * 51), y = Math.round(72 + Math.sin(an) * 51), f = k % 3;
-      if (f === 0) for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) { if (Math.abs(i) + Math.abs(j) === 2) R.pset(x + i, y + j, P.lava[1]); }
-      else if (f === 1) { R.disco(x + 0.5, y + 0.5, 2, P.lava[1]); R.pset(x, y, P.piedra[1]); }
-      else for (let j = 0; j <= 3; j++) for (let i = -j; i <= j; i += Math.max(1, j * 2)) R.pset(x + i, y - 2 + j, P.lava[1]); }
-    for (let k = 0; k < 8; k++) { const an = k / 8 * Math.PI * 2; R.linea(Math.round(196 + Math.cos(an) * 10), Math.round(72 + Math.sin(an) * 10), Math.round(196 + Math.cos(an) * 29), Math.round(72 + Math.sin(an) * 29), P.roca[0]); }
-    d_raiz(R, P, 20, 40, 1, 136); d_raiz(R, P, 304, 34, -1, 136);
-    d_canal(R, P, 132, 137);
-    d_suelo(R, P, 139, [[196, 70], [60, 30]], [[120, 166, 12], [262, 160, 10]]);
+    // DE CERCA: la pared es de bloques grandes de roca volcánica (bisel de luz arriba a la izquierda, sombra abajo a la
+    // derecha, grano y grietas), con juntas que son vetas de lava; el resplandor del anillo la aclara
+    const vetas = [], CX = 214, CY = 80, RO = 66;
+    for (let y = 0; y <= 141; y++) { const fila = Math.floor((y + 6) / 24), ly = (y + 6) % 24;
+      for (let x = 0; x < 320; x++) { const desf = fila * 19 + Math.floor(h(fila, 7, 70) * 20), col = Math.floor((x + desf) / 44), lx = (x + desf) % 44;
+        const brillo = Math.max(0, 1 - Math.hypot(x - CX, (y - CY) * 1.1) / 150) * 1.5 - Math.max(0, (40 - y) / 40) * 0.9;
+        let v = 1.0 + brillo + R.vnoise(x * 0.12, y * 0.12) * 0.9 - 0.3 + (h(col, fila, 71) - 0.5) * 0.5;
+        if (lx < 3 || ly < 3) v += 0.9; else if (lx > 40 || ly > 20) v -= 0.8;
+        if (h(x >> 1, y >> 1, 72) > 0.93) v -= 0.7; if (h(x, y, 73) > 0.985) v += 0.9;
+        let c = R.tone(P.roca, v, x, y);
+        if (lx < 1 || ly < 1) c = h(col, fila, 74) > 0.55 ? P.lava[0] : P.roca[0];
+        R.pset(x, y, c); } }
+    // las juntas encendidas laten (cada junta de lava es una veta) y unas grietas que bajan por los bloques
+    for (let fila = 0; fila < 7; fila++) { const desf = fila * 19 + Math.floor(h(fila, 7, 70) * 20), y = fila * 24 - 6; if (y < 0 || y > 141) continue;
+      for (let col = 0; col < 9; col++) { if (h(col, fila, 74) <= 0.55) continue; const px = []; for (let x = col * 44 - desf; x < col * 44 - desf + 44; x++) if (x >= 0 && x < 320) px.push([x, y]); if (px.length) vetas.push(px); } }
+    for (let k = 0; k < 7; k++) { let x = 10 + h(k, 75) * 300, y = 20 + h(k, 76) * 60; const px = [];
+      for (let i = 0; i < 40 && y < 140; i++) { y += 1; x += (h(k, i, 77) - 0.5) * 2.2; const X = Math.round(x), Y = Math.round(y); R.pset(X - 1, Y, P.roca[0]); R.pset(X, Y, P.lava[0]); R.pset(X + 1, Y, P.roca[4]); px.push([X, Y]); }
+      vetas.push(px); }
+    // EL GRAN ANILLO de símbolos, más grande y a la derecha (centro x 214, y 80, r 66): corona de piedra, banda tallada,
+    // dieciséis símbolos grandes, el aro de lava y los radios
+    for (let y = CY - RO; y <= CY + RO; y++) for (let x = CX - RO; x <= CX + RO; x++) { const d = Math.hypot(x + 0.5 - CX, y + 0.5 - CY);
+      if (d > RO || y < 0 || y > 145 || x > 319) continue;
+      if (d > RO - 2) R.pset(x, y, P.roca[0]); else if (d > RO - 13) R.pset(x, y, d > RO - 3 ? P.piedra[5] : d < RO - 12 ? P.piedra[0] : R.tone(P.piedra, 2.2 + R.vnoise(x * 0.25, y * 0.25) * 0.9 + (x < CX && y < CY ? 0.5 : 0), x, y));
+      else if (Math.abs(d - 36) < 1) R.pset(x, y, P.lava[1]); else if (Math.abs(d - 38) < 0.6) R.pset(x, y, P.piedra[4]); else if (d < 34) R.pset(x, y, R.tone(P.obsid, 1.0 + (1 - d / 34) * 1.4 + R.vnoise(x * 0.2, y * 0.2) * 0.5, x, y)); }
+    for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2, x = Math.round(CX + Math.cos(an) * (RO - 7)), y = Math.round(CY + Math.sin(an) * (RO - 7)), f = k % 3;
+      if (f === 0) for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) { if (Math.abs(i) + Math.abs(j) === 3 || (i === 0 && j === 0)) R.pset(x + i, y + j, P.lava[1]); }
+      else if (f === 1) { R.disco(x + 0.5, y + 0.5, 3, P.lava[1]); R.disco(x + 0.5, y + 0.5, 1.4, P.piedra[1]); }
+      else for (let j = 0; j <= 5; j++) for (let i = -j; i <= j; i += Math.max(1, j * 2)) R.pset(x + i, y - 3 + j, P.lava[1]); }
+    for (let k = 0; k < 8; k++) { const an = k / 8 * Math.PI * 2; R.linea(Math.round(CX + Math.cos(an) * 12), Math.round(CY + Math.sin(an) * 12), Math.round(CX + Math.cos(an) * 34), Math.round(CY + Math.sin(an) * 34), P.lava[0]); }
+    // el zócalo donde la pared toca el suelo (y 142–146)
+    for (let y = 142; y <= 146; y++) for (let x = 0; x < 320; x++) R.pset(x, y, y === 142 ? P.piedra[4] : y === 146 ? P.roca[0] : (x + (y > 144 ? 11 : 0)) % 22 === 0 ? P.piedra[0] : R.tone(P.piedra, 2.4 - (y - 142) * 0.3 + R.vnoise(x * 0.3, y) * 0.5, x, y));
+    // el suelo de obsidiana más bajo y cerca (sin canal): refleja el anillo; una grieta de lava en diagonal a la derecha
+    d_suelo(R, P, 147, [[214, 56], [60, 22]], []);
+    { let x = 318, y = 147; const px = []; while (y < 180) { const w = 1 + Math.round((y - 147) / 14); for (let i = -w - 1; i <= w + 1; i++) R.pset(x + i, y, Math.abs(i) > w ? P.roca[0] : R.tone(P.lava, 3.8 - Math.abs(i) / (w + 0.5) * 2, x + i, y)); px.push([x, y]);
+      y += 1; x += h(y, 3, 78) > 0.3 ? -2 : 0; }
+      vetas.push(px); }
     return { vetas, caidas: [] };
   }
   const vetas = d_pared(R, P, 126, 160, 74);
@@ -3386,23 +3454,30 @@ function d_salaTrono(R, t, o, cam) {
   const F = FR, libre = (x, y) => !F.marcaT || !F.marcaT[y * 320 + x];
   // las vetas que laten y la lava que corre por las cascadas y el canal
   F.vetas.forEach((px, k) => { const l = 0.5 + 0.5 * Math.sin(t * 1.8 + k * 1.3); for (const [x, y] of px) if (libre(x, y)) R.pset(x, y, K('lava', l > 0.7 ? 3 : l > 0.35 ? 2 : 1, x, y)); });
-  const cy0 = cam === 'contratos' ? 132 : 127, cy1 = cam === 'contratos' ? 137 : 133;
-  for (let x = 0; x < 320; x++) { if ((x - Math.floor(t * 20)) % 11 >= 3) continue; const y = Math.round((cy0 + cy1) / 2 + Math.sin(x * 0.4 + t) * 1.5); if (libre(x, y)) R.pset(x, y, K('lava', 5, x, y)); }
+  const cy0 = cam === 'contratos' ? 140 : 127, cy1 = cam === 'contratos' ? 145 : 133;
+  if (cam !== 'contratos') for (let x = 0; x < 320; x++) { if ((x - Math.floor(t * 20)) % 11 >= 3) continue; const y = Math.round((cy0 + cy1) / 2 + Math.sin(x * 0.4 + t) * 1.5); if (libre(x, y)) R.pset(x, y, K('lava', 5, x, y)); }
   for (const [cx, y0] of F.caidas) for (let y = y0; y <= cy0; y++) if ((y - Math.floor(t * 30)) % 6 < 2 && libre(cx, y)) R.pset(cx, y, K('lava', 5, cx, y));
   // burbujas que revientan en los charcos de lava del suelo
-  for (const [cx, cy, rx, k] of cam === 'contratos' ? [[120, 166, 12, 0], [262, 160, 10, 1]] : [[62, 168, 13, 0], [258, 164, 11, 1]]) {
+  for (const [cx, cy, rx, k] of cam === 'contratos' ? [[284, 165, 3, 0], [262, 176, 4, 1]] : [[62, 168, 13, 0], [258, 164, 11, 1]]) {
     const ph = (t * 0.8 + k * 0.5) % 1, bx = cx + Math.round((h(Math.floor(t * 0.8 + k * 0.5), k, 9) - 0.5) * rx), r = ph < 0.7 ? ph / 0.7 * 2 : 0;
     if (ph < 0.7) R.anillo(bx + 0.5, cy + 0.5, Math.max(0.8, r), K('lava', 5, bx, cy)); else for (const [i, j] of [[-2, -2], [2, -3], [0, -4]]) R.pset(bx + i, cy + j - Math.round((ph - 0.7) * 10), K('lava', 4, bx, cy));
   }
-  c_infiernoSuelo(R, t, K, cy1 + 2, cam === 'contratos' ? [[196, 34], [60, 18]] : [[160, 30], [58, 8], [262, 8], [112, 6], [208, 6]], libre);
+  c_infiernoSuelo(R, t, K, cy1 + 2, cam === 'contratos' ? [[214, 40], [60, 18]] : [[160, 30], [58, 8], [262, 8], [112, 6], [208, 6]], libre);
+  // en 'contratos', el reflejo del anillo que tiembla en la obsidiana pulida (bajo el anillo, x 166–262)
+  if (cam === 'contratos') for (let y = 148; y < 180; y++) { const sx = Math.round(Math.sin(t * 2.2 + y * 0.7) * 1.5), f = 1 - (y - 148) / 44;
+    for (let x = 166; x <= 262; x++) { const d = Math.abs(x - 214), aro = Math.abs(d - 44 * (0.6 + 0.4 * (y - 148) / 32)) < 3 ? 0.5 : 0, g = (Math.max(0, 1 - d / 52) * 0.95 + aro) * f * (0.75 + 0.25 * Math.sin(y * 0.9 - t * 3));
+      if ((y & 1 || d < 20) && g > R.b4(x, y) + 0.05) R.pset(x + sx, y, d_mez(R.pget(x + sx, y), K('lava', aro ? 3 : 2, x, y), 0.55)); } }
   // murciélagos junto al techo
   for (let k = 0; k < 2; k++) d_murcielago(R, 50 + ((t * 10 + k * 110) % 200), 30 + k * 8 + Math.sin(t * 1.1 + k) * 4, t + k * 0.4, K('roca', 0, 100, 30));
   let trono = null, asiento = null;
   if (cam === 'contratos') {
     // el anillo de la pared: los símbolos se encienden uno tras otro
-    for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2, x = Math.round(196 + Math.cos(an) * 51), y = Math.round(72 + Math.sin(an) * 51), on = (Math.floor(t * 4) - k + 64) % 16 < 3;
-      if (on) for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if (Math.hypot(i, j) < 3.2 && R.b4(x + i, y + j) < 0.6) R.pset(x + i, y + j, d_mez(R.pget(x + i, y + j), K('lava', 4, x, y), 0.5)); }
-    for (let a = 0; a < 60; a++) { const an = a / 60 * Math.PI * 2 - t * 0.3; if (a % 3) continue; const x = Math.round(196 + Math.cos(an) * 30), y = Math.round(72 + Math.sin(an) * 30); R.pset(x, y, K('lava', 3, x, y)); }
+    // (con o.almas, todo el anillo se enciende a la vez y el aro de dentro gira más deprisa)
+    const lleno = Math.max(0, Math.min(1, o.almas ?? 0));
+    for (let k = 0; k < 16; k++) { const an = k / 16 * Math.PI * 2, x = Math.round(214 + Math.cos(an) * 59), y = Math.round(80 + Math.sin(an) * 59), on = (Math.floor(t * 4) - k + 64) % 16 < 3 || lleno > 0.25 + (k % 4) * 0.15;
+      if (on) for (let j = -4; j <= 4; j++) for (let i = -4; i <= 4; i++) if (Math.hypot(i, j) < 4.2 && R.b4(x + i, y + j) < 0.6) R.pset(x + i, y + j, d_mez(R.pget(x + i, y + j), K('lava', 4, x, y), 0.5)); }
+    for (let a = 0; a < 72; a++) { const an = a / 72 * Math.PI * 2 - t * (0.3 + lleno * 0.9); if (a % 3) continue; const x = Math.round(214 + Math.cos(an) * 36), y = Math.round(80 + Math.sin(an) * 36); R.pset(x, y, K('lava', 3, x, y)); R.pset(x, y + 1, K('lava', 2, x, y)); }
+    if (lleno > 0) for (let y = 46; y <= 114; y++) for (let x = 180; x <= 248; x++) { const g = (1 - Math.hypot(x - 214, y - 80) / 34) * lleno; if (g > 0 && g > R.b4(x, y) + 0.2) R.pset(x, y, d_mez(R.pget(x, y), D_ALMA[1], 0.35)); }
   } else {
     // el rosetón: rayos de fuego que giran detrás del trono
     for (let k = 0; k < 12; k++) { const an = k / 12 * Math.PI * 2 + t * 0.35; for (let r = 8; r < 35; r++) { const x = Math.round(160 + Math.cos(an) * r), y = Math.round(74 + Math.sin(an) * r); if (!libre(x, y)) continue; if ((r + Math.floor(t * 10)) % 5 === 0) continue; R.pset(x, y, K('lava', r < 16 ? 1 : r < 26 ? 2 : 1, x, y)); } }
@@ -3417,14 +3492,14 @@ function d_salaTrono(R, t, o, cam) {
   // los contratos que arden, las almas y el alma que sube
   const conts = [];
   if (o.contratos != null) {
-    const L = cam === 'contratos' ? [[118, 62, 26, 34], [166, 48, 30, 40], [218, 66, 28, 36], [264, 96, 24, 32], [148, 110, 24, 30], [206, 118, 22, 28]]
+    const L = cam === 'contratos' ? [[118, 62, 26, 34], [170, 50, 30, 40], [228, 56, 32, 42], [268, 100, 34, 46], [150, 110, 28, 36], [214, 118, 36, 48]]
       : [[70, 64, 10, 13], [100, 44, 10, 13], [222, 46, 10, 13], [252, 70, 10, 13], [92, 100, 10, 13], [232, 102, 10, 13], [274, 90, 9, 12]];
     L.forEach(([x, y, w, a], i) => { const q = d_qContrato(o.contratos, i, L.length), cx = x + Math.sin(t * 0.7 + i * 1.9) * 2, cy = y + Math.sin(t * 1.1 + i * 2.3) * 2.5;
       if (cam === 'contratos' && q > 0 && q < 1.1) for (let yy = 150; yy < 176; yy++) for (let xx = Math.round(cx - w * 0.7); xx <= Math.round(cx + w * 0.7); xx++) { const g = 1 - Math.hypot((xx - cx) / (w * 0.7), (yy - 162) / 13); if (g > 0 && g > R.b4(xx, yy) + 0.25) R.pset(xx, yy, d_mez(R.pget(xx, yy), D_ALMA[1], 0.3)); }
       const r = d_contrato(R, Math.round(cx), Math.round(cy), w, a, q, t, i + 1); if (r) conts.push(r); });
   }
-  if (o.almas > 0) d_almas(R, t, Math.round(o.almas * 16), cam === 'contratos' ? 90 : 36, cam === 'contratos' ? 300 : 284, 22, 150, 5);
-  const al = d_almaSube(R, t, o.alma, o.almaX ?? (cam === 'contratos' ? 196 : 160), cam === 'contratos' ? 96 : 100, 22, D_ALMA);
+  if (o.almas > 0) { if (cam === 'contratos') { d_almas(R, t, Math.round(o.almas * 34), 24, 276, 48, 172, 5); d_almas(R, t, Math.round(o.almas * 20), 60, 270, 22, 120, 8); } else d_almas(R, t, Math.round(o.almas * 16), 36, 284, 22, 150, 5); }
+  const al = d_almaSube(R, t, o.alma, o.almaX ?? (cam === 'contratos' ? 214 : 160), cam === 'contratos' ? 96 : 100, 22, D_ALMA);
   d_ceniza(R, t, 34, 0, 320, 24, 180, 17, false, K);
   return { encuadre: 'trono', camara: cam, suelo: 152, libre: cam === 'contratos' ? [20, 90] : [30, 280], trono, asiento, contratos: conts, alma: al };
 }
@@ -3606,7 +3681,7 @@ function e_centinela(R, x, suelo, t, dir = 1, capa = E_BW.verde) {
 
 // el mirador y el planeta
 function e_vistaPlaneta(R, t, o) {
-  const mir = o.mirador !== false, giro = o.giro ?? t * 0.07, P = mir ? [160, 72, 52] : [160, 90, 60];
+  const mir = o.mirador !== false, giro = o.giro ?? t * 0.07, P = mir ? [160, 82, 48] : [160, 90, 60];   // con mirador, el halo empieza en y ≥ 20 (la barra del año, sobre cielo)
   e_capa(R, 'bw-espacio', () => e_espacio(R, 0));
   e_titilan(R, t, 46, [0, 0, 319, mir ? 124 : 179], 1); e_fugaz(R, t, 7.3, [0, 16, 300, 110], 2);
   // un planeta lejano y una luna
@@ -4150,16 +4225,17 @@ function a_balconFondo(R, luz) {
     for (const [a, b] of [[56, 92], [228, 248]]) { a_sillares(R, a, 153, b, 179, SL, 4, 7, 179 + a); rect(a, 152, b, 153, a_mez(P.pL, P.c3, 0.3)); for (let x = a + 1; x < b - 2; x += 6) { rect(x - 1, 146, x + 3, 152, a_K); rect(x, 147, x + 2, 152, a_mez(P.pS, P.c3, 0.3)); rect(x, 147, x + 2, 147, P.nvS); } }
     // la torre alta, de cerca: sillares grandes, la sombra que se ahonda hacia la derecha, las esquinas de piedra clara,
     // los matacanes, el parapeto y las almenas con nieve; carámbanos
-    a_sillares(R, 92, 36, 228, 179, S, 7, 14, 181);
-    for (let y = 36; y < 180; y++) for (let x = 176; x <= 228; x++) if (a_um(x, y) < (x - 176) / 80) B[y * 320 + x] = a_mez(B[y * 320 + x], a_K, 0.28);
-    for (let y = 36, i = 0; y < 180; y += 7, i++) { const L = i % 2 ? 7 : 12; rect(92, y, 92 + L, y + 5, P.pL); rect(92, y + 6, 92 + L, y + 6, P.pJ); rect(92 + L, y, 92 + L, y + 6, P.pJ); if (h(i, 0, 189) < 0.5) pset(94, y + 2, P.p);
+    a_sillares(R, 92, 44, 228, 179, S, 7, 14, 181);
+    for (let y = 44; y < 180; y++) for (let x = 176; x <= 228; x++) if (a_um(x, y) < (x - 176) / 80) B[y * 320 + x] = a_mez(B[y * 320 + x], a_K, 0.28);
+    for (let y = 44, i = 0; y < 180; y += 7, i++) { const L = i % 2 ? 7 : 12; rect(92, y, 92 + L, y + 5, P.pL); rect(92, y + 6, 92 + L, y + 6, P.pJ); rect(92 + L, y, 92 + L, y + 6, P.pJ); if (h(i, 0, 189) < 0.5) pset(94, y + 2, P.p);
       rect(228 - L, y, 228, y + 5, a_mez(P.pS, a_K, 0.2)); rect(228 - L, y + 6, 228, y + 6, a_K); rect(228 - L, y, 228 - L, y + 6, P.pJ); }
-    rect(91, 36, 91, 179, a_K); rect(229, 36, 229, 179, a_K);
-    a_sillares(R, 88, 24, 232, 31, S, 4, 9, 190); rect(87, 23, 233, 23, a_K); rect(87, 31, 233, 31, a_K);
-    for (let x = 90; x < 230; x += 8) { rect(x, 32, x + 4, 36, a_K); rect(x + 1, 32, x + 3, 35, P.pS); pset(x + 1, 32, P.pL); rect(x + 5, 32, x + 7, 35, hex('#0c0c14')); }
-    for (let x = 88; x < 232; x += 13) { rect(x, 16, x + 8, 23, a_K); rect(x + 1, 17, x + 7, 23, P.p); rect(x + 1, 17, x + 2, 23, P.pL); rect(x + 6, 18, x + 7, 23, P.pS); for (let i = 0; i <= 8; i++) pset(x + i, 16 - (i > 1 && i < 7 && h(x, i, 191) < 0.6 ? 1 : 0), i === 0 || i === 8 ? P.nvS : P.nvL); }
-    for (let x = 88; x < 232; x++) if (h(x, 0, 192) < 0.4) pset(x, 22, h(x, 1, 192) < 0.5 ? P.nvL : P.nv);
-    for (let x = 89; x < 232; x += 3) if (h(x, 2, 192) < 0.4) { const L = 1 + Math.round(h(x, 3, 192) * 4); for (let j = 1; j <= L; j++) pset(x, 31 + j, j < L ? P.nvS : P.nvL); }
+    rect(91, 44, 91, 179, a_K); rect(229, 44, 229, 179, a_K);
+    a_sillares(R, 88, 32, 232, 39, S, 4, 9, 190); rect(87, 31, 233, 31, a_K); rect(87, 39, 233, 39, a_K);
+    for (let x = 90; x < 230; x += 8) { rect(x, 40, x + 4, 44, a_K); rect(x + 1, 40, x + 3, 43, P.pS); pset(x + 1, 40, P.pL); rect(x + 5, 40, x + 7, 43, hex('#0c0c14')); }
+    // las almenas empiezan en y 24 (bajo las cifras del año, que llegan a y ≈ 20)
+    for (let x = 88; x < 232; x += 13) { rect(x, 24, x + 8, 31, a_K); rect(x + 1, 25, x + 7, 31, P.p); rect(x + 1, 25, x + 2, 31, P.pL); rect(x + 6, 26, x + 7, 31, P.pS); for (let i = 0; i <= 8; i++) pset(x + i, 24 - (i > 1 && i < 7 && h(x, i, 191) < 0.6 ? 1 : 0), i === 0 || i === 8 ? P.nvS : P.nvL); }
+    for (let x = 88; x < 232; x++) if (h(x, 0, 192) < 0.4) pset(x, 30, h(x, 1, 192) < 0.5 ? P.nvL : P.nv);
+    for (let x = 89; x < 232; x += 3) if (h(x, 2, 192) < 0.4) { const L = 1 + Math.round(h(x, 3, 192) * 4); for (let j = 1; j <= L; j++) pset(x, 39 + j, j < L ? P.nvS : P.nvL); }
     // la luz del ventanal en la pared de alrededor
     if (luz) { a_luz(R, 160, 100, 62, P.verdeL, 0.22, 60); a_luz(R, 160, 140, 64, P.vL, 0.25, 12); }
     // el ventanal ojival (x 140–180, y 64–135): el marco de dovelas, el vidrio emplomado (encendido: la luz verde que

@@ -20,15 +20,20 @@
 // 4. (corta en «and it strikes») la repisa con el retrato de la familia: la luz verde entra por la ventana, la vela se
 //    apaga; en «Valeria» la órbita rodea a la niña del retrato; en «Reed» y «Sue», a cada uno; Atom señala;
 // 5. (corta en «the baby») el recuerdo, en sepia (2002): el cuarto del bebé; Doom alarga la mano sobre la cuna y caen
-//    chispas verdes en «had saved»; en «first love» una figura de luz verde con chal se asoma a la ventana;
+//    chispas verdes en «had saved»; en «first love» una figura de luz verde con chal se asoma a la ventana (papel de
+//    rayas con contraste, friso de cuarterones, cómodas y cuna con vetas, tiradores y sombras, la puerta cerrada de
+//    cuarterones; nadie entra);
 // 6. (corta en «And there») la alcoba de la niña, de noche: la niña dormida en la luz cálida de la lámpara; Doom entra
 //    por la puerta y se para junto a la cama; en «no one expected» Atom «!»; Doom posa la mano en la manta;
-// 7. (corta en «because») el espacio del juez: Doom entra y se arrodilla en «living tribunal»; en «judge of the
-//    universe» se encienden las tres caras;
-// 8. (corta en «and offers») la ofrenda: Doom arrodillado en su roca de luz; en «his own life» una llama verde le sale
-//    del pecho y sube a las caras del juez; en «for hers» una luz cálida baja a la camilla de la niña;
-// 9. (corta en «Valeria opens») el juez otra vez, con luz de alba: la niña abre los ojos y alza la cabeza; en «fades
-//    away» Doom se deshace en polvo de luz;
+// 7. (corta en «because») el espacio del juez (el decorado, 12 px más abajo para que la cabeza no toque el año): Doom
+//    entra y se arrodilla en «living tribunal»; en «judge of the universe» se encienden las tres caras;
+// 8. (corta en «and offers») la ofrenda, en el vacío con nebulosas rosa y turquesa, estrellas en cruz que parpadean,
+//    polvo que deriva y una estrella fugaz: Doom arrodillado en su roca de luz (estratos, luz de oro arriba, sombra
+//    abajo, cristales, piedrecitas que caen); en «his own life» una llama verde le sale del pecho y sube a las caras del
+//    juez; en «for hers» una luz cálida baja a la camilla de la niña;
+// 9. (corta en «Valeria opens») otra cámara, baja y junto a la camilla, al alba: del juez solo el bajo del manto con
+//    la galaxia que gira; la niña, delante, abre los ojos y se incorpora en la cama; Doom, al fondo a la derecha, se
+//    deshace en «fades away» en polvo de luz que sube a la galaxia;
 // 10. (corta en «and in his will») el escritorio de Doom, con la máscara en su soporte: GAG, Atom rompe el sello del
 //    testamento y el pergamino se desenrolla, cae de la mesa y rueda por el suelo; dentro, el castillo → la niña;
 // 11. (corta en «trying») la alcoba al alba: Reed y Sue abrazan a la niña despierta; por la ventana suben una luz verde
@@ -472,7 +477,12 @@ const p4 = (t) => {
 
 // ── 5 · el recuerdo en sepia: el cuarto del bebé (2002) ────────────────────────────────────────────────────────────
 const cuna = () => horno('cuna', () => {
-  papel(0, 0, 319, 120, H('#d8c0a0'), H('#c8b090'), H('#e8d4b8'), 6);
+  // el papel de rayas con más contraste (en sepia se lee la luz y la sombra); la esquina de Atom, más suave
+  papel(0, 0, 319, 120, H('#d8c0a0'), H('#b49670'), H('#f4e0c0'), 6);
+  papel(272, 0, 319, 48, H('#d0b898'), H('#c4aa88'), H('#d8c0a0'), 6);
+  // el friso de madera bajo la moldura (y 96–117): cuarterones con vetas, luz arriba y sombra abajo
+  tablas(0, 96, 319, 117, [H('#c89868'), H('#a87a50'), H('#6a4a30')], 22, 4); R.rect(0, 94, 319, 96, H('#6a4a30')); R.rect(0, 94, 319, 94, H('#e8c898'));
+  for (let x = 6; x < 320; x += 30) { R.rect(x, 100, x + 22, 113, H('#6a4a30')); R.rect(x + 1, 101, x + 22, 101, H('#e0b888')); R.rect(x + 1, 101, x + 1, 113, H('#d8ae80')); R.rect(x + 2, 112, x + 22, 112, H('#7a5434')); }
   for (let k = 0; k < 18; k++) { const x = 10 + (k * 37) % 300, y = 20 + (k * 23) % 80; if (x > 270 && y < 48) continue; ps(x, y, H('#f0e0a0')); ps(x - 1, y, H('#e8d098')); ps(x + 1, y, H('#e8d098')); ps(x, y - 1, H('#e8d098')); ps(x, y + 1, H('#e8d098')); }
   R.rect(0, 118, 319, 121, H('#a88a6a')); tablas(0, 122, 319, 179, [H('#c89868'), H('#a87a50'), H('#6a4a30')], 8, 7);
   // la ventana con la nieve de noche
@@ -484,10 +494,25 @@ const cuna = () => horno('cuna', () => {
   R.rect(161, 109, 164, 151, H('#e0c8a8')); R.rect(226, 109, 229, 151, H('#e0c8a8')); R.rect(165, 126, 225, 136, H('#f8f4ec')); R.rect(165, 136, 225, 140, H('#e8b8c8'));
   for (let x = 168; x < 224; x += 5) R.rect(x, 110, x + 1, 126, H('#e0c8a8')); R.rect(161, 109, 229, 111, H('#f8ecd8')); R.rect(165, 140, 225, 142, H('#c8a888'));
   for (const x of [162, 226]) R.rect(x, 152, x + 2, 156, K);
+  // la cuna con detalle: el pie tallado con vetas, un corazón calado, los pomos torneados de las esquinas, la colcha de
+  // lunares y la sombra en el suelo
+  for (let y = 143; y <= 150; y++) for (let x = 165; x <= 225; x++) { const g = Math.sin(x * 0.11 + Math.sin(y * 0.7) * 1.5); R.pset(x, y, g > 0.8 ? H('#d8c0a0') : g < -0.85 ? H('#f8f0e0') : H('#e8d8c0')); }
+  R.rect(165, 143, 225, 143, H('#c8a888')); R.rect(165, 150, 225, 150, H('#b8987a')); corazon(195, 146, 3, H('#c89878'));
+  for (const x of [162, 227]) { R.disco(x + 1, 106, 3, K); R.disco(x + 1, 106, 2.2, H('#f0e0c8')); ps(x, 105, H('#ffffff')); R.rect(x - 1, 109, x - 1, 151, H('#b8987a')); }
+  for (let x = 168; x < 224; x += 5) R.rect(x + 1, 111, x + 1, 125, H('#b8987a'));
+  for (let y = 137; y <= 139; y++) for (let x = 166; x <= 224; x++) if ((x + (y % 2) * 3) % 6 === 0) ps(x, y, H('#fff4f8'));
+  for (let x = 152; x <= 238; x++) { const d = Math.abs(x - 195) / 43; for (let y = 157; y <= 160; y++) if (bay(x, y) < 0.6 - d * 0.4 - (y - 157) * 0.12) ps(x, y, H('#5a3a24')); }
+  // las sombras de las cómodas en el suelo
   // la mecedora y la cómoda con la lamparita
-  R.rect(256, 92, 300, 140, K); R.rect(257, 93, 299, 139, H('#c8a070')); for (let y = 98; y < 136; y += 8) R.rect(258, y, 298, y + 1, H('#a87a50')); R.disco(270, 116, 1.4, H('#e8c060')); R.disco(286, 116, 1.4, H('#e8c060'));
+  R.rect(256, 92, 300, 140, K); tablas(257, 93, 299, 139, [H('#e8c898'), H('#c8a070'), H('#8a6440')], 8, 13); R.rect(257, 93, 299, 95, H('#e8c898'));
+  for (let y = 98; y < 136; y += 8) { R.rect(258, y, 298, y + 1, H('#7a5434')); R.rect(258, y + 2, 298, y + 2, H('#e0b888')); }
+  for (const x of [270, 280]) for (let y = 101; y < 136; y += 8) { R.disco(x, y + 2, 1.6, K); R.disco(x, y + 2, 1, H('#e8c060')); }
+  R.rect(258, 140, 260, 144, K); for (let x = 252; x <= 300; x++) for (let y = 141; y <= 144; y++) if (bay(x, y) < 0.45 - (y - 141) * 0.1) ps(x, y, H('#5a3a24'));
   R.rect(270, 76, 276, 92, K); R.rect(271, 77, 275, 92, H('#e8d8b8')); R.poligono([[264, 78], [282, 78], [278, 66], [268, 66]], H('#f0d898'));
-  R.rect(102, 102, 132, 152, K); R.rect(103, 103, 131, 151, H('#c8a070')); R.rect(103, 103, 131, 105, H('#e8c898')); for (const y of [112, 126, 140]) { R.rect(105, y, 129, y + 10, H('#b88a5a')); R.disco(117, y + 5, 1.2, H('#e8c060')); }
+  R.rect(102, 102, 132, 152, K); tablas(103, 103, 131, 151, [H('#e8c898'), H('#c8a070'), H('#8a6440')], 7, 11); R.rect(103, 103, 131, 105, H('#e8c898')); R.rect(103, 103, 103, 151, H('#e0b888'));
+  for (const y of [112, 126, 140]) { R.rect(105, y, 129, y + 10, K); tablas(106, y + 1, 128, y + 9, [H('#d8a878'), H('#b88a5a'), H('#7a5434')], 12, y); R.rect(106, y + 1, 128, y + 1, H('#e0b888')); R.rect(106, y + 10, 129, y + 10, H('#5a3a24'));
+    R.rect(113, y + 4, 121, y + 6, K); R.rect(114, y + 4, 120, y + 5, H('#e8c060')); ps(114, y + 4, H('#fff0b0')); }
+  R.rect(103, 152, 106, 155, K); R.rect(128, 152, 131, 155, K); for (let x = 98; x <= 138; x++) for (let y = 153; y <= 156; y++) if (bay(x, y) < 0.45 - (y - 153) * 0.1) ps(x, y, H('#5a3a24'));
   R.disco(110, 96, 5, H('#e8b0b8')); R.disco(110, 90, 4, H('#e8b0b8')); ps(109, 90, K); ps(111, 90, K);
   // la guirnalda de banderitas, los cuadros de la cigüeña y la luna, y la balda con peluches
   for (let x = 92; x <= 252; x++) { const y = Math.round(24 + 10 * Math.sin((x - 92) / 160 * Math.PI)); ps(x, y, H('#8a6a4a')); if ((x - 92) % 12 === 0 && x < 250) { const c = [H('#e8a0b0'), H('#a8c8e8'), H('#f0d890'), H('#b8e0b0')][((x - 92) / 12) % 4]; R.poligono([[x, y + 1], [x + 8, y + 1], [x + 4, y + 9]], c); R.linea(x, y + 1, x + 4, y + 9, H('#8a6a4a')); } }
@@ -495,7 +520,18 @@ const cuna = () => horno('cuna', () => {
   R.rect(236, 50, 256, 70, K); R.rect(237, 51, 255, 69, H('#a8865a')); R.rect(239, 53, 253, 67, H('#2a3462')); R.disco(246, 60, 4, H('#f8e8a0')); R.disco(248, 59, 3.4, H('#2a3462')); ps(242, 56, H('#ffffff'));
   R.rect(196, 84, 232, 86, K); R.rect(197, 84, 231, 85, H('#a8865a')); R.disco(204, 79, 4, H('#e8c0a0')); R.disco(204, 74, 3, H('#e8c0a0')); R.disco(222, 80, 4, H('#a8d0b0')); R.disco(222, 75, 3, H('#a8d0b0')); R.rect(212, 76, 216, 84, H('#e8a0a0'));
   // la puerta entreabierta de la derecha
-  R.rect(286, 60, 319, 152, K); R.rect(287, 61, 319, 151, H('#e8d4b0')); R.rect(300, 62, 319, 150, H('#f8e8c8'));
+  // (cerrada y en penumbra: nadie entra) con su marco moldurado, la hoja de cuarterones con vetas, el pomo y la rendija
+  // oscura del pasillo
+  R.rect(284, 56, 319, 154, K); R.rect(285, 57, 319, 153, H('#a87a50')); R.rect(285, 57, 319, 58, H('#e0b888')); R.rect(285, 57, 286, 153, H('#d0a070'));
+  R.rect(289, 61, 319, 153, H('#2a1a10')); for (let y = 62; y <= 152; y++) if (y % 9 === 0) ps(290, y, H('#4a3020'));
+  for (let y = 62; y <= 152; y++) for (let x = 292; x <= 319; x++) { const g = Math.sin(y * 0.06 + x * 0.9 + Math.sin(y * 0.013 + x * 0.3) * 3); R.pset(x, y, g > 0.85 ? H('#9a6a44') : g < -0.9 ? H('#d8a878') : H('#b88a5a')); }
+  R.rect(292, 62, 292, 152, H('#e0b888')); R.rect(291, 62, 291, 152, K);
+  for (const [y0, y1] of [[68, 100], [108, 146]]) { R.rect(296, y0, 316, y1, H('#7a5434')); R.rect(297, y0 + 1, 316, y1 - 1, H('#c8986a')); R.rect(297, y0 + 1, 316, y0 + 1, H('#e8c090')); R.rect(297, y0 + 1, 297, y1 - 1, H('#e0b080')); R.rect(298, y1 - 1, 316, y1 - 1, H('#8a6440'));
+    for (let y = y0 + 3; y < y1 - 2; y += 4) ps(300 + (y * 7) % 13, y, H('#a87a50')); }
+  R.disco(295, 104, 2.6, K); R.disco(295, 104, 1.8, H('#e8c060')); ps(294, 103, H('#fff0b0')); R.rect(294, 107, 296, 109, H('#6a4a30'));
+  for (let x = 286; x <= 319; x++) for (let y = 154; y <= 158; y++) if (bay(x, y) < 0.5 - (y - 154) * 0.1) ps(x, y, H('#4a3020'));
+  // la luz cálida de la lamparita en la pared y la penumbra de las esquinas de arriba
+  luz(273, 74, 60, 44, H('#fff4d8'), 0.35); luz(0, 0, 90, 60, H('#5a4030'), 0.35); luz(200, -10, 70, 30, H('#6a4a34'), 0.2);
 });
 const sepia = () => { const B = R.buf; for (let i = 0; i < 57600; i++) { const c = B[i], l = lum(c) / 255; B[i] = mez(mez(H('#3a2414'), H('#fcecc8'), l), c, 0.32); } };
 const p5 = (t) => {
@@ -513,8 +549,6 @@ const p5 = (t) => {
   // Doom junto a la cuna alarga la mano sobre el bebé en «had saved»
   const alarga = t > salvo - 0.6 && t < amor + 0.2, mira = t > nombre + 0.2;
   const rd = R.actor(EL.doom, 142, 156, t, { dir: mira ? -1 : 1, sostiene: alarga && !mira ? [182, 112] : undefined });
-  // Reed asoma en la puerta y sonríe al ver al bebé a salvo
-  if (t > salvo + 0.6) R.actor(EL.reed, 292, 152, t, { dir: -1, sonrisa: true });
   sepia();
   // (a color) las chispas verdes que caen sobre la cuna y el brillo cálido del bebé
   if (alarga && !mira) { luz(rd.mano[0], rd.mano[1] + 10, 14, 14, H('#8affb0'), 0.35); for (let k = 0; k < 16; k++) { const f = (t * 0.9 + k / 16) % 1; R.disco(rd.mano[0] + Math.sin(k * 2 + t) * 8, rd.mano[1] + 2 + f * 20, f < 0.5 ? 1.2 : 0.8, f < 0.5 ? H('#8affb0') : H('#3ad870')); } }
@@ -552,34 +586,73 @@ const p6 = (t) => {
 };
 
 // ── 7 · el espacio del juez: Doom se arrodilla ────────────────────────────────────────────────────────────────────
+// el decorado del juez se pinta en un búfer y se pega 12 px más abajo, para que el filo de la cabeza quede por debajo
+// de la barra del año (empieza en y ≈ 28); las 24 filas de arriba estiran al doble el cielo liso de las filas 0–11 (las
+// estrellas, solo en las filas pares, para que no salgan dobles)
+const BW = R.nuevo(), BAJA = 12;
+const juezBajo = (t, o) => { const prev = R.usar(BW); const g = T.battleworld(R, t, o); R.usar(prev); const B = R.buf;
+  for (let y = 2 * BAJA; y < 180; y++) { const sy = y - BAJA; B.set(BW.subarray(sy * 320, sy * 320 + 320), y * 320); }
+  for (let y = 0; y < 2 * BAJA; y++) { const sy = y >> 1; for (let x = 0; x < 320; x++) { let c = BW[sy * 320 + x]; if ((y & 1) && lum(c) > 120) c = BW[sy * 320 + (x > 1 ? x - 2 : x + 2)]; B[y * 320 + x] = c; } } return g; };
+// lo de delante del juez (el polvo), también 12 px más abajo
+const juezDelante = (t, o) => { aparte(() => T.battleworldDelante(R, t, o)); const B = R.buf;
+  for (let y = BAJA; y < 180; y++) for (let x = 0; x < 320; x++) { const c = TMP[(y - BAJA) * 320 + x]; if (c !== MK) B[y * 320 + x] = c; } };
 const p7 = (t) => {
   const tribunal = en('tribunal', 0.2492), juez = en('tribunal', 0.3043);
   const o = { encuadre: 'tribunal', camara: 'general' };
-  T.battleworld(R, t, o);
+  juezBajo(t, o);
   // las tres caras se encienden en «the judge of the universe»
-  const ca = tramo(t, juez - 0.2, juez + 0.8); if (ca > 0) { luz(160, 50, 40, 28, H('#fff0b0'), 0.55 * ca); luz(139, 52, 14, 14, H('#e8eeff'), 0.4 * ca); }
+  const ca = tramo(t, juez - 0.2, juez + 0.8); if (ca > 0) { luz(160, 62, 40, 28, H('#fff0b0'), 0.55 * ca); luz(139, 64, 14, 14, H('#e8eeff'), 0.4 * ca); }
   const a = tramo(t, P7 + 0.1, tribunal - 0.1), x = Math.round(lerp(8, 98, ease(a)));
-  if (t < tribunal) R.actor(EL.doom, x, 152, t, { dir: 1, anda: a > 0 && a < 1 });
-  else { luz(106, 140, 18, 18, H('#c8ffd8'), 0.3); arrodillado(EL.doom, 98, 152, t, { dir: 1 }); }
-  T.AT.luciernaga(R, 246 + Math.sin(t * 1.2) * 3, 116 + Math.sin(t * 2) * 2, t, { dir: -1, brillo: 0.7, cara: t > juez ? 'sorpresa' : 'normal' });
-  T.battleworldDelante(R, t, o);
+  if (t < tribunal) R.actor(EL.doom, x, 164, t, { dir: 1, anda: a > 0 && a < 1 });
+  else { luz(106, 152, 18, 18, H('#c8ffd8'), 0.3); arrodillado(EL.doom, 98, 164, t, { dir: 1 }); }
+  T.AT.luciernaga(R, 246 + Math.sin(t * 1.2) * 3, 128 + Math.sin(t * 2) * 2, t, { dir: -1, brillo: 0.7, cara: t > juez ? 'sorpresa' : 'normal' });
+  juezDelante(t, o);
 };
 
 // ── 8 · la ofrenda: la llama verde sube al juez y la luz cálida baja a la niña ──────────────────────────────────────
 const vacio = () => horno('vacio', () => {
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const n = Math.sin(x * 0.02 + Math.sin(y * 0.03) * 2) + Math.sin(y * 0.025 + x * 0.007) * 0.8, u = (n + 2) / 4;
     R.pset(x, y, u > 0.62 + (bay(x, y) - 0.5) * 0.15 ? H('#3a2a6a') : u > 0.45 + (bay(x, y) - 0.5) * 0.15 ? H('#241c4a') : u > 0.3 ? H('#181434') : H('#100c24')); }
-  for (let k = 0; k < 120; k++) { const x = Math.round(hh(k, 1, 2) * 319), y = Math.round(hh(k, 2, 2) * 179); if ((x >= 18 && x <= 172 && y <= 21) || (x >= 276 && y <= 46)) continue; ps(x, y, k % 5 ? H('#8a8ab0') : H('#ffffff')); }
-  // las dos rocas de luz: la de Doom (izquierda) y la de la camilla (derecha)
-  for (const [cx, cy, w] of [[86, 160, 46], [244, 152, 40]]) { R.poligono([[cx - w, cy], [cx + w, cy], [cx + w * 0.6, cy + 14], [cx, cy + 22], [cx - w * 0.6, cy + 14]], (x, y) => (y - cy) < 2 ? H('#f8e8b0') : hh(x >> 1, y >> 1, 3) > 0.7 ? H('#8a7aa8') : H('#6a5a8a'));
-    R.linea(cx - w, cy, cx + w, cy, H('#fff4c8')); for (let i = -w; i < w; i += 6) ps(cx + i, cy + 4 + Math.abs(i) % 5, H('#c8b8e8')); }
+  // las nebulosas tramadas: una rosa a la izquierda, una turquesa a la derecha y otra violeta abajo, con vetas de polvo
+  // oscuro y un núcleo claro (fuera de la barra del año y de la esquina de Atom)
+  const B = R.buf;
+  for (const [cx, cy, rx, ry, c1, c2, k] of [[58, 78, 62, 44, H('#a8507a'), H('#f0a0c0'), 1], [258, 100, 56, 46, H('#2a7a8a'), H('#8ae0e0'), 2], [170, 150, 70, 22, H('#5a3a9a'), H('#b8a0f0'), 3]])
+    for (let y = Math.max(16, cy - ry); y <= Math.min(179, cy + ry); y++) for (let x = Math.max(0, cx - rx); x <= Math.min(319, cx + rx); x++) { if (x > 270 && y < 50) continue;
+      const d = Math.hypot((x - cx) / rx, (y - cy) / ry); if (d >= 1) continue; const w = Math.sin(x * 0.09 + Math.sin(y * 0.11 + k) * 2.4) * 0.5 + Math.sin(y * 0.07 - x * 0.03 + k * 2) * 0.5, g = (1 - d) * (0.7 + 0.5 * w), i = y * 320 + x, b = bay(x, y);
+      if (w < -0.72 && d < 0.8) B[i] = mez(B[i], H('#08060f'), 0.55); else if (g > 0.55 + b * 0.3) B[i] = mez(B[i], c2, 0.4); else if (g > 0.18 + b * 0.3) B[i] = mez(B[i], c1, 0.35); }
+  for (let k = 0; k < 160; k++) { const x = Math.round(hh(k, 1, 2) * 319), y = Math.round(hh(k, 2, 2) * 179); if ((x >= 18 && x <= 172 && y <= 21) || (x >= 276 && y <= 46)) continue; ps(x, y, k % 5 ? H('#8a8ab0') : H('#ffffff')); }
+  // una galaxia lejana pequeña, ladeada, abajo a la derecha
+  for (let k = 0; k < 60; k++) for (let b = 0; b < 2; b++) { const an = k * 0.12 + b * Math.PI, r = k * 0.16; ps(300 + Math.cos(an) * r * 1.6, 150 + Math.sin(an) * r * 0.5, k < 15 ? H('#f8e8c8') : H('#8a7ab0')); }
+  // las dos rocas de luz: la de Doom (izquierda) y la de la camilla (derecha), con estratos, luz de oro por arriba,
+  // sombra por debajo, grietas y cristales
+  for (const [cx, cy, w] of [[86, 160, 46], [244, 152, 40]]) {
+    const pts = [[cx - w, cy], [cx + w, cy], [cx + w * 0.8, cy + 7], [cx + w * 0.55, cy + 14], [cx + w * 0.2, cy + 19], [cx, cy + 22], [cx - w * 0.3, cy + 18], [cx - w * 0.6, cy + 14], [cx - w * 0.85, cy + 6]];
+    R.poligono(pts.map(([x, y]) => [x + (Math.sign(x - cx) || 0), y + 1]), K);
+    R.poligono(pts, (x, y) => { const dy = y - cy, e = Math.floor((dy + Math.sin(x * 0.21) * 1.4 + Math.sin(x * 0.05) * 2) / 3), sh = dy / 22 + (x - cx) / w * 0.25;
+      let c = e % 2 ? H('#7a6a9a') : H('#6a5a8a'); if (dy < 2) c = H('#f8e8b0'); else if (dy < 4) c = H('#c8b0d8');
+      if (sh > 0.45 + bay(x, y) * 0.3) c = mez(c, H('#241a3a'), 0.5); else if (sh < 0.05 && dy >= 4) c = mez(c, H('#b8a8d8'), 0.3);
+      if (hh(x >> 1, y >> 1, 3) > 0.86) c = mez(c, H('#2a2040'), 0.4); return c; });
+    R.linea(cx - w, cy, cx + w, cy, H('#fff4c8'));
+    for (let i = -w + 4; i < w - 4; i += 9) { const gx = cx + i, gy = cy + 5 + Math.abs(i * 7) % 6; R.linea(gx, gy, gx + 2, gy + 4, H('#2a2040')); ps(gx + 1, gy, H('#c8b8e8')); }
+    for (const [i, j] of [[-0.7, 0], [0.5, 0], [0.1, 0]]) { const x = Math.round(cx + i * w), y = cy - 1; R.poligono([[x - 2, y + 1], [x, y - 4], [x + 2, y + 1]], H('#8affd8')); ps(x, y - 3, H('#ffffff')); ps(x - 1, y, H('#3ab8a0')); }
+  }
 });
+// las piedrecitas que caen de la panza de las rocas y se apagan
+const piedrecitas = (t) => { for (const [cx, cy, w, k0] of [[86, 160, 46, 0], [244, 152, 40, 5]]) for (let k = 0; k < 5; k++) { const f = (t * 0.45 + hh(k, k0, 8)) % 1, x = Math.round(cx + (hh(k, k0, 9) - 0.5) * w * 1.1), y = Math.round(cy + 16 + f * 30);
+  if (y > 179 || f > 0.85) continue; R.rect(x, y, x + 1, y + 1, f < 0.5 ? H('#7a6a9a') : H('#4a3a6a')); ps(x, y, H('#c8b8e8')); } };
 const p8 = (t) => {
   const vida = en('tribunal', 0.3905), suya = en('tribunal', 0.4526);
   R.copiar(vacio());
   estrellas(30, 0, 0, 319, 179, t, 11);
+  // estrellas grandes en cruz que parpadean (de varios tamaños), polvo de nebulosa que deriva y una estrella fugaz
+  for (const [x, y, r, k] of [[22, 40, 3, 0], [64, 112, 2, 1], [286, 70, 3, 2], [230, 30, 2, 3], [300, 128, 2, 4], [118, 140, 2, 5], [30, 150, 3, 6]]) { const b = Math.sin(t * (1.3 + k * 0.4) + k * 2), L = Math.round(r * (0.6 + 0.4 * b));
+    if (b < -0.7) continue; ps(x, y, H('#ffffff')); for (let i = 1; i <= L; i++) { const c = i === L ? H('#8a8ab0') : H('#e8e8ff'); ps(x + i, y, c); ps(x - i, y, c); ps(x, y + i, c); ps(x, y - i, c); } }
+  for (const [y0, v, n, c, k] of [[90, 4, 34, H('#c88ab8'), 1], [120, 7, 28, H('#8ad0d8'), 2], [60, 2.5, 30, H('#8a7ab0'), 3]]) { const x0 = ((t * v + k * 130) % 380) - 30;
+    for (let j = 0; j < n; j++) { const x = x0 + (hh(j, k, 12) - 0.5) * 50, y = y0 + (hh(j, k, 13) - 0.5) * 14 + Math.sin(t + j) * 1.2; if (!(x > 270 && y < 50) && hh(j, k, 14) > 0.3) ps(x, y, c); } }
+  { const f = (t * 0.22) % 1; if (f < 0.18) { const x = 210 + f * 300, y = 18 + f * 60; for (let i = 0; i < 8; i++) ps(x - i * 2, y - i * 0.4, i < 2 ? H('#ffffff') : H('#8a8ab0')); } }
+  piedrecitas(t);
   // las tres caras del juez, arriba: la dorada, la plateada y la de sombra, con rayos que giran
-  for (let k = 0; k < 16; k++) { const a = t * 0.15 + k * Math.PI / 8, r0 = 26, r1 = 52 + (k % 2) * 12; R.linea(Math.round(160 + Math.cos(a) * r0), Math.round(56 + Math.sin(a) * r0 * 0.7), Math.round(160 + Math.cos(a) * r1), Math.round(56 + Math.sin(a) * r1 * 0.7), k % 2 ? H('#5a4a8a') : H('#8a7ab0')); }
+  for (let k = 0; k < 16; k++) { const a = t * 0.15 + k * Math.PI / 8, r0 = 26, r1 = 52 + (k % 2) * 12, ye = 56 + Math.sin(a) * r1 * 0.7, f = ye < 24 ? (56 - 24) / (56 - ye) : 1; R.linea(Math.round(160 + Math.cos(a) * r0), Math.round(56 + Math.sin(a) * r0 * 0.7), Math.round(160 + Math.cos(a) * r1 * f), Math.round(56 + Math.sin(a) * r1 * 0.7 * f), k % 2 ? H('#5a4a8a') : H('#8a7ab0')); }
   for (const [x, y, r, c, c2] of [[122, 62, 14, H('#c8d0e8'), H('#8a94b8')], [198, 62, 14, H('#3a3458'), H('#241e3a')], [160, 54, 20, H('#ffe8a0'), H('#e8b850')]]) {
     R.disco(x, y, r + 1.5, K); R.disco(x, y, r, c2); R.disco(x - 2, y - 2, r * 0.8, c);
     ps(x - r * 0.35, y - 1, K); ps(x + r * 0.35, y - 1, K); R.linea(Math.round(x - r * 0.25), Math.round(y + r * 0.4), Math.round(x + r * 0.25), Math.round(y + r * 0.4), mez(c2, K, 0.5)); }
@@ -603,17 +676,65 @@ const p8 = (t) => {
   for (let k = 0; k < 16; k++) { const f = (t * 0.12 + hh(k, 5)) % 1; ps(20 + hh(k, 6) * 280, 30 + f * 140, f > 0.5 ? H('#c8b8e8') : H('#fff0c0')); }
 };
 
-// ── 9 · el juez con luz de alba: la niña despierta y Doom se deshace en luz ──────────────────────────────────────────
+// ── 9 · al alba, junto a la camilla: la niña se incorpora y Doom, al fondo, se deshace en luz ──────────────────────────
+// otra cámara: baja y cerca de la camilla. Del juez solo se ve el bajo del manto, cortado arriba a la izquierda, con la
+// galaxia del pecho que gira; el cielo del alba con nebulosas y nubes rosas; el suelo de luz en perspectiva con ondas
+const DENTRO9 = (x, y) => { const borde = 232 - y * 0.32 - (y > 60 ? (y - 60) * 0.9 : 0), bajo = 88 + Math.sin(x * 0.07) * 3 + Math.sin(x * 0.19) * 1.5 + (x / 232) * -10; return x < borde && y < bajo; };
+const alba = () => horno('alba', () => {
+  rampa(0, 0, 319, 124, [H('#1c1638'), H('#2e1e52'), H('#4a2a64'), H('#7a3a6a'), H('#b85a6a'), H('#e8946a'), H('#f8c888')]);
+  // las nebulosas tramadas del alba (rosa y turquesa) y las vetas de polvo oscuro
+  for (let y = 30; y <= 120; y++) for (let x = 0; x < 320; x++) { if (x > 270 && y < 50) continue; const n = Math.sin(x * 0.031 + Math.sin(y * 0.05) * 2.2) + Math.sin(y * 0.043 - x * 0.012) * 0.9 + Math.sin((x + y) * 0.02) * 0.5, b = bay(x, y), i = y * 320 + x, B = R.buf;
+    if (n > 1.25 + b * 0.5) B[i] = mez(B[i], H('#f0a0a8'), 0.35); else if (n < -1.45 - b * 0.4) B[i] = mez(B[i], H('#4a8a9a'), 0.3); }
+  // islotes lejanos de roca de luz en el horizonte (el término del fondo)
+  for (const [cx, cy, w] of [[30, 112, 16], [196, 108, 10], [292, 114, 20]]) { R.poligono([[cx - w, cy], [cx + w, cy], [cx + w * 0.5, cy + 5], [cx, cy + 9], [cx - w * 0.5, cy + 5]], (x, y) => y - cy < 1 ? H('#ffe0b0') : (y + x) % 3 ? H('#8a5a7a') : H('#6a4a6a')); }
+  // el suelo de luz: cristal pálido junto al horizonte, más violeta delante, con juntas en perspectiva
+  for (let y = 124; y < 180; y++) { const z = (y - 122) / 58; for (let x = 0; x < 320; x++) { const u = (x - 150) / (z * 20 + 0.5), v = 34 / (y - 120); let c = mez(H('#f8d8b8'), H('#5a3a7a'), z * 1.1 + (bay(x, y) - 0.5) * 0.12);
+    if (Math.abs(u - Math.round(u)) < 0.04 / z + 0.01) c = mez(c, H('#fff0d0'), 0.35); if (Math.abs(v * 6 - Math.round(v * 6)) < 0.12) c = mez(c, H('#2a1a4a'), 0.2); if (hh(x >> 1, y >> 1, 4) > 0.97) c = mez(c, H('#ffffff'), 0.4); R.pset(x, y, c); } }
+  R.linea(0, 124, 319, 124, H('#fff0c8'));
+  // el bajo del manto del juez, cortado arriba a la izquierda: cielo estrellado de dentro y su filo de luz
+  const B = R.buf; for (let y = 0; y < 100; y++) for (let x = 0; x < 240; x++) { if (!DENTRO9(x, y)) continue; const n = Math.sin(x * 0.05 + y * 0.03) + Math.sin(y * 0.09 - x * 0.02) * 0.6;
+    B[y * 320 + x] = n > 0.9 + bay(x, y) * 0.4 ? H('#2a1e52') : n > 0.1 + bay(x, y) * 0.3 ? H('#1a1438') : H('#120c2a'); if (hh(x, y, 21) > 0.992) B[y * 320 + x] = H('#c8c8ff'); }
+  for (let y = 0; y < 100; y++) for (let x = 1; x < 240; x++) { if (DENTRO9(x - 1, y) && !DENTRO9(x, y)) { ps(x, y, H('#ffe8b0')); ps(x + 1, y, mez(H('#ffe8b0'), B[y * 320 + x + 1], 0.5)); } if (DENTRO9(x, y) && !DENTRO9(x, y + 1)) { ps(x, y + 1, H('#ffe8b0')); ps(x, y, H('#c8a0e0')); } }
+});
 const p9 = (t) => {
   const abre = en('tribunal', 0.5458), ojos = en('tribunal', 0.5714), se = en('tribunal', 0.6180);
-  const o = { encuadre: 'tribunal', camara: 'general', despierta: ease(tramo(t, abre, ojos + 0.3)), desvanece: tramo(t, se - 0.3, P10 - 0.2) };
-  T.battleworld(R, t, o);
-  T.tinte(R, 0, 179, [255, 200, 140], 0.3); luz(150, 130, 150, 70, H('#fff0c0'), 0.3 * o.despierta);
-  arrodillado(EL.doom, 98, 152, t, { dir: 1, u: o.desvanece });
-  if (o.despierta > 0.8) luz(147, 132, 14, 10, H('#ffe8b0'), 0.4);
-  if (t > abre) T.AT.anillo(R, 150, 134, 16, 9, t, tramo(t, abre, abre + 0.5));
-  T.AT.luciernaga(R, 236 + Math.sin(t * 1.2) * 3, 112 + Math.sin(t * 2) * 2, t, { dir: t > se ? -1 : -1, brillo: 0.8, cara: t > se ? 'triste' : t > ojos ? 'sonrisa' : 'normal' });
-  T.battleworldDelante(R, t, o);
+  const despierta = ease(tramo(t, abre, ojos + 0.3)), sienta = ease(tramo(t, ojos, ojos + 0.7)), u = tramo(t, se - 0.3, P10 - 0.2);
+  R.copiar(alba());
+  // nubes rosas de tres tonos a tres velocidades y estrellas que se apagan con el alba
+  const NR = [H('#ffe0c8'), H('#e8a098'), H('#a8607a')];
+  for (const [y0, v, w, k] of [[64, 3, 40, 0], [82, 5, 30, 1], [100, 8, 46, 2], [94, 4, 26, 3]]) { const x = ((k * 97 + t * v) % 400) - 60; if (x > 210) nube(x, y0, w, NR); else nube(x + 230, y0 + 4, w * 0.8, NR); }
+  estrellas(18, 240, 48, 319, 90, t, 17); estrellas(40, 0, 0, 220, 84, t, 13, [H('#ffffff'), H('#c8c8ff'), H('#ffe8b0')]);
+  // la galaxia del pecho del juez, que gira, y el haz cálido que baja a la camilla
+  const gx = 120, gy = 50; for (let k = 0; k < 120; k++) for (let b = 0; b < 2; b++) { const rr = k * 0.2, an = k * 0.09 + b * Math.PI + t * 0.25, x = gx + Math.cos(an) * rr * 1.5, y = gy + Math.sin(an) * rr * 0.7;
+    if (DENTRO9(Math.round(x), Math.round(y))) ps(x, y, k < 30 ? H('#fff0c0') : k < 70 ? H('#c8a8f0') : H('#6a5aa8')); }
+  luz(gx, gy, 16, 9, H('#ffe8b0'), 0.55 + Math.sin(t * 2) * 0.05);
+  cono(gx + 6, gy + 6, 150, 4, 34 + 8 * despierta, H('#ffe8b0'), 0.18 + 0.18 * despierta);
+  // las ondas de luz que salen de la camilla por el suelo
+  for (let k = 0; k < 4; k++) { const r = (t * 14 + k * 22) % 88, al = 1 - r / 88; for (let q = 0; q < 90; q++) { const an = q / 90 * Math.PI * 2, x = 128 + Math.cos(an) * r * 1.6, y = 160 + Math.sin(an) * r * 0.24; if (y > 126 && al > bay(Math.round(x), Math.round(y))) ps(x, y, H('#fff4d8')); } }
+  // Doom, al fondo y de lado, arrodillado en el suelo de luz; en «fades away» se deshace en polvo que sube a la galaxia
+  luz(246, 129, 16, 4, H('#ffe8a0'), 0.3);
+  arrodillado(EL.doom, 238, 128, t, { dir: -1, u });
+  if (u > 0) for (let k = 0; k < 40; k++) { if (hh(k, 5) > u * 1.3) continue; const f = (t * 0.3 + hh(k, 4)) % 1, x = lerp(246, gx + 10, f) + Math.sin(t * 2 + k) * 4, y = lerp(116, gy + 4, f) + Math.sin(f * Math.PI) * -12 + (hh(k, 6) - 0.5) * 10;
+    if (f < 0.9) ps(x, y, f < 0.5 ? H('#ffe8a0') : H('#fff8e0')); }
+  // la camilla de luz, de cerca, que flota y respira
+  const fl = Math.round(Math.sin(t * 1.3)), cy = 148 + fl;
+  luz(128, cy + 12, 52, 8, H('#2a1a4a'), 0.35); luz(128, cy + 4, 56, 12, H('#ffe8c0'), 0.3 + 0.15 * despierta);
+  R.poligono([[78, cy], [178, cy], [172, cy + 8], [84, cy + 8]], (x, y) => y - cy < 2 ? H('#fff4d0') : (x + y * 2) % 11 === 0 ? H('#f8f0ff') : y - cy < 5 ? H('#d8c0f0') : H('#a890d0'));
+  R.linea(78, cy, 178, cy, K); R.linea(84, cy + 8, 172, cy + 8, H('#6a5a9a')); for (let k = 0; k < 6; k++) { const f = (t * 0.5 + k / 6) % 1; ps(90 + k * 16, cy + 10 + f * 12, f < 0.6 ? H('#fff0c0') : H('#c8b0e8')); }
+  // la niña: dormida, abre los ojos en «opens her eyes» y se incorpora en la cama, a la luz
+  const nx = 96;
+  if (sienta < 0.5) nenaCama(nx, cy - 1, t, despierta, '#3a5ac8');
+  else { R.rect(nx - 1, cy - 14, nx + 9, cy - 1, K); R.rect(nx, cy - 13, nx + 8, cy - 2, H('#f4f0e8')); R.rect(nx + 6, cy - 13, nx + 8, cy - 2, H('#d8d0c4'));
+    aparte(() => R.actor(VD.valeriaNinaVD, nx + 4, cy + 6, t, { dir: 1, sonrisa: true }));
+    const sube = Math.round((1 - (sienta - 0.5) * 2) * 6), Bf = R.buf; for (let y = 0; y < 180; y++) for (let x = nx - 4; x < nx + 30; x++) { const c = TMP[y * 320 + x]; if (c === MK) continue; const Y = y + sube; if (Y < cy - 6) Bf[Y * 320 + x] = c; }
+    const M = H('#3a5ac8'), my = cy - 7; R.rect(nx + 3, my, nx + 44, cy + 3, K); R.rect(nx + 4, my + 1, nx + 43, cy + 2, M); R.rect(nx + 4, my + 1, nx + 43, my + 2, mez(M, H('#ffffff'), 0.3));
+    for (const fx of [16, 26, 36]) R.linea(nx + fx, my + 3, nx + fx + 2, cy + 1, mez(M, K, 0.35)); }
+  if (despierta > 0.8) luz(nx + 8, cy - 14, 14, 10, H('#ffe8b0'), 0.35);
+  if (t > abre) T.AT.anillo(R, nx + 9, cy - 12, 15, 10, t, tramo(t, abre, abre + 0.5));
+  // Atom luciérnaga junto a la camilla: sonríe cuando abre los ojos y se entristece cuando Doom se va
+  T.AT.luciernaga(R, 196 + Math.sin(t * 1.2) * 3, 122 + Math.sin(t * 2) * 2, t, { dir: t > se ? 1 : -1, brillo: 0.8, cara: t > se ? 'triste' : t > ojos ? 'sonrisa' : 'normal' });
+  // motas de oro que flotan por delante
+  for (let k = 0; k < 18; k++) { const f = (t * 0.08 + hh(k, 7)) % 1, x = 10 + hh(k, 8) * 300 + Math.sin(t + k) * 3, y = 170 - f * 120; if (!(x > 270 && y < 50)) ps(x, y, k % 3 ? H('#ffe8a0') : H('#ffffff')); }
 };
 
 // ── 10 · GAG: el testamento ───────────────────────────────────────────────────────────────────────────────────────

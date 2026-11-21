@@ -17,7 +17,8 @@
 // 3. la consulta: Atom tropieza con la alfombra y se le caen los libros en «goes wrong»; señala fuera en «outside», al
 //    psiquiatra en «another person» y al gato negro que cruza en «bad luck»;
 // 4. la biblioteca: el informe «2004» en «2004»; en «pulled together» los estudios vuelan a la mesa y el contador
-//    llega a «266» en «studies»; Atom mira con la lupa;
+//    llega a «266» en «studies»; Atom mira con la lupa; la bibliotecaria, cabeza, hombros y brazos sobre el canto de
+//    la mesa, cruza por detrás llevando dos estudios y se para junto a las pilas;
 // 5. el parque: en «children», «adults» y «older people», cada grupo echa la culpa al de al lado y sale su balanza;
 // 6. el campus: la gente con su balanza pequeña; Victor llega en «Victor» y en «extreme» la suya crece y se vuelca;
 // 7. el pasillo congelado otra vez: la balanza al extremo en «enemy for life»; Atom rodea a Victor; vuelve el color.
@@ -207,10 +208,14 @@ const biblio = () => horno('biblio', () => {
 const p4 = (t) => {
   R.copiar(biblio());
   const dosmil = en('fijate1', 0.4627), juntos = en('fijate1', 0.5046), cifra = en('fijate1', 0.5418), estudios = en('fijate1', 0.5623);
+  // la bibliotecaria pasa por detrás de la mesa llevando dos estudios a las pilas: asoman la cabeza, los hombros y
+  // los brazos con los libros; el canto de la mesa le tapa la cintura (se repinta el canto sobre ella)
+  const ub = ease(tramo(t, P4 + 0.3, estudios)), bx = Math.round(lerp(100, 152, ub));   // se para junto a las pilas
+  const bib = R.actor(EL.bibliotecaria, bx, 129, t, { dir: 1, anda: true, sostiene: true });
+  if (bib?.mano) { const [mx, my] = bib.mano; R.rect(mx - 4, my - 5, mx + 4, my + 1, K); R.rect(mx - 3, my - 4, mx + 3, my - 3, H('#8a2a2a')); R.rect(mx - 3, my - 2, mx + 3, my, H('#2a4a7a')); R.rect(mx - 3, my - 4, mx - 3, my, H('#f2eee2')); R.pset(mx + 2, my - 4, H('#c86a6a')); }
+  R.rect(bx - 12, 122, bx + 12, 128, K); R.rect(bx - 12, 123, bx + 12, 126, H('#7a4a2a')); R.rect(bx - 12, 123, bx + 12, 123, H('#a8784a'));
   for (const lx of [64, 262]) luz(lx, 120, 34, 10, H('#fff0b0'), 0.55);
   for (let k = 0; k < 12; k++) { const f = (t * 0.04 + hh(k, 1, 131)) % 1; R.pset(Math.round(128 + hh(k, 2, 131) * 64 + Math.sin(t + k) * 3), Math.round(110 - f * 76), H('#fff8e0')); }
-  // la bibliotecaria pasa por detrás de la mesa con un libro
-  const ub = tramo(t, P4, P5); R.actor(EL.bibliotecaria, Math.round(lerp(90, 250, ub)), 140, t, { dir: 1, anda: true, sostiene: true });
   R.rect(10, 128, 310, 150, H('#3a2414')); R.rect(10, 128, 310, 129, K); for (let x = 14; x < 310; x += 12) R.rect(x, 131, x + 8, 146, H('#4a2e1a'));
   // el informe de 2004 de pie sobre la mesa
   const ui = tramo(t, dosmil - 0.25, dosmil + 0.1); if (ui > 0) { const y = 122 - Math.round(ease(ui) * 34); R.rect(90, y, 138, y + 34, K); R.rect(91, y + 1, 137, y + 33, H('#2a4a7a')); R.rect(91, y + 1, 94, y + 33, H('#1c3458')); R.rect(96, y + 6, 134, y + 18, H('#f2eee2')); R.numero('2004', 115, y + 16, { color: H('#2a4a7a'), sombra: false, centro: true }); for (let k = 0; k < 3; k++) R.rect(100, y + 22 + k * 3, 130, y + 22 + k * 3, H('#8aa0c8')); }

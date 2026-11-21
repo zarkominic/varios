@@ -14,7 +14,8 @@
 //    ventana y en «psychologist» saca a color el libro abierto; la órbita lo rodea en «McAdams»;
 // 2. (corta en «has spent») el despacho de las entrevistas: la grabadora gira; el calendario pasa de 1985 a 2001 en
 //    «decades»; una mujer cuenta su vida (bocadillo con dibujos que cambian) y otros esperan en el banco;
-// 3. (corta en «and he found») la mesa de las fichas, de cerca: llegan más fichas en «many»; la mano del investigador
+// 3. (corta en «and he found») la mesa de las fichas, de cerca (la barra del año y su número quedan sobre madera
+//    sola: la ficha de arriba va a la derecha del número y por debajo de y 16); llegan más fichas en «many»; la mano
 //    dibuja en la ficha grande una línea que baja y sube en «redemption stories»;
 // 4. (corta en «where the worst») el valle: la línea hecha camino; una chica baja al valle bajo la lluvia en «worst thing»
 //    y sube a la loma en «something good», donde sale el sol y florecen las matas;
@@ -316,7 +317,7 @@ const q3 = (t) => {
   // la taza humea
   for (let k = 0; k < 5; k++) { const f = (t * 0.5 + k / 5) % 1; ps(266 + Math.sin(f * 6 + k) * 3, 124 - f * 22, mez(H('#f8f4ec'), H('#b88a5a'), f)); }
   // las fichas que llegan en «many of them» (cada una ya con su línea que baja y sube)
-  const F = [[16, 18, 1], [92, 6, 1], [190, 14, 0], [24, 92, 1], [210, 100, 1], [120, 136, 0], [196, 140, 1]];
+  const F = [[16, 18, 1], [132, 16, 1], [190, 14, 0], [24, 92, 1], [210, 100, 1], [120, 136, 0], [196, 140, 1]];
   F.forEach(([x, y, l], k) => { const u = k < 2 ? 1 : ease(tramo(t, muchas - 0.3 + k * 0.12, muchas + 0.2 + k * 0.12)); if (u <= 0) return; const dx = x < 160 ? -80 : 80; ficha(Math.round(x + dx * (1 - u)), y, 46, 32, l, k); });
   // la ficha grande del centro y la línea que dibuja la mano: baja y sube en «redemption stories»
   const X0 = 104, Y0 = 44; ficha(X0, Y0, 112, 76, false, 0);

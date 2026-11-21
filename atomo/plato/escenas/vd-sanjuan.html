@@ -28,8 +28,9 @@
 // 8. «But it's she» la puerta: se abre y sale la luz con forma de mujer; en «refuses» niega y alza la mano; el alma
 //    de Strange vuelve a él;
 // 9. «to suffer in her place» la pared de los contratos: ella se lleva la mano al pecho; en «free» arde su contrato;
-// 10. «and rises to heaven» el abismo: la luz sube y sale a las estrellas; Doom alza la mano y la baja en «searching»
-//    (vd-duelo lo congela).
+// 10. «and rises to heaven» el abismo: la luz sube por el centro de la grieta y, a media altura, se deshace en chispas
+//    que se apagan entre las estrellas (nada entra en la barra del año); se enciende una estrella en la grieta; Doom
+//    alza la mano y la baja en «searching» (vd-duelo lo congela).
 // Sonido: aldea y brillo; trueno al abrirse; pasos; puerta; coche; toc; zumbido de la mano; cerrojo; brillo al arder.
 import * as T from '/atomo/plato/escenas/vd-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -147,15 +148,27 @@ const abismo = (t, TT, o = {}) => {
   // murciélagos que salen por la grieta, una piedra que cae
   for (let k = 0; k < 3; k++) { const ph = (t * 0.22 + k * 0.33) % 1; pajaro(150 + k * 14 + Math.sin(t + k) * 8, 120 - ph * 120, t + k, H('#1a0a10')); }
   { const ph = (t * 0.5) % 1; ps(222 - ph * 4, 60 + ph * 90, H('#5a2a24')); ps(223 - ph * 4, 60 + ph * 90, H('#3a1418')); }
-  // la luz de Cynthia sube desde la repisa hasta la grieta
-  const s = ease(cl((t - TT.sube) / 4.6)), y = lerp(148, 34, s), x = 154 + Math.sin(t * 1.3) * 3 * s;
-  if (!o.sinLuz && t > TT.sube - 0.2) { luz(160, y - 14, 70, 60, H('#f4e8ff'), 0.28 * cl((t - TT.sube + 0.2) / 0.6)); figuraLuz(VD.cynthiaVD, x, y, t, { brazos: true }, cl((t - TT.sube + 0.2) / 0.5)); }
+  // la luz de Cynthia sube desde la repisa por el centro de la grieta; a media altura (pies en y≈76, nunca por encima
+  // de y 40) se deshace en chispas que suben y se apagan entre las estrellas antes de y 18: nada entra en la barra
+  const s = ease(cl((t - TT.sube) / 3.6)), y = lerp(148, 76, s), x = 154 + Math.sin(t * 1.3) * 3 * s;
+  const fin = cl((t - TT.sube - 3.0) / 1.2), fe = cl((t - TT.sube + 0.2) / 0.5) * (1 - fin);
+  if (!o.sinLuz && t > TT.sube - 0.2) {
+    luz(x + 7, y - 16, 52, Math.min(40, y - 36), H('#f4e8ff'), 0.28 * cl((t - TT.sube + 0.2) / 0.6) * (1 - 0.6 * fin));
+    figuraLuz(VD.cynthiaVD, x, y, t, { brazos: true }, fe);
+    // al deshacerse: chispas que salen de su figura y suben a la noche, apagándose (de y 66 a y 20 como mucho)
+    if (fin > 0) for (let i = 0; i < 22; i++) {
+      const d = cl(fin * 1.25 - hh(i, 21) * 0.35), X = Math.round(x + 7 + (hh(i, 22) - 0.5) * 22 + Math.sin(t * 2.4 + i) * 2 * d), Y = Math.round(y - 4 - hh(i, 23) * 22 - d * (16 + hh(i, 24) * 14));
+      if (d <= 0 || d >= 1 || Y < 20) continue;
+      const a = 1 - d; if (a > bay(X, Y) * 0.8) { R.pset(X, Y, a > 0.55 ? LUZB[3] : LUZB[1]); if (a > 0.7) luz(X, Y, 3, 3, H('#eef2ff'), 0.5 * a); }
+    }
+  }
   // Doom y Strange en la repisa: Doom alza la mano hacia ella; en «searching» la baja
   const alza = t > TT.sube + 0.25 && t < TT.busca;
   R.actor(EL.strange, 186, 152, t, { dir: -1, sorpresa: t > TT.sube && t < TT.sube + 1.2 });
   R.actor(EL.doom, 116, 152, t, { dir: 1, dedo: alza });
   // la primera estrella que se enciende arriba cuando ella sale
-  const e = cl((t - TT.sube - 4.4) / 0.6); if (e > 0) { luz(160, 18, 14, 10, H('#ffffff'), 0.6 * e); R.rect(159, 14, 161, 22, H('#ffffff')); R.rect(156, 17, 164, 19, H('#ffffff')); }
+  // (en la grieta, por debajo de la barra del año: el brillo va de y 22 a y 42)
+  const e = cl((t - TT.sube - 3.7) / 0.6); if (e > 0) { const ex = 161, ey = 32; luz(ex, ey, 12, 10, H('#ffffff'), 0.6 * e); if (e > 0.3) { R.rect(ex - 1, ey - 4, ex + 1, ey + 4, H('#ffffff')); R.rect(ex - 4, ey - 1, ex + 4, ey + 1, H('#ffffff')); } else ps(ex, ey, H('#ffffff')); }
 };
 
 const P2 = en('noche', 0.2050), P3 = en('noche', 0.4257), P4 = en('noche', 0.7411), P5 = en('mignola', -0.0072), P6 = en('mignola', 0.1419), P7 = en('mignola', 0.2942), P8 = en('mignola', 0.5194), P9 = en('mignola', 0.6749), P10 = en('mignola', 0.8399);

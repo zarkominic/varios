@@ -13,7 +13,8 @@
 // 1. «Years later, in 2015» el cielo de las dos Tierras: sobre la ciudad en ruinas baja otra Tierra; Doom entra por la
 //    almena y en «everything» alza los brazos con chispas verdes;
 // 2. «because the universes destroy» el espacio: las dos Tierras chocan en «destroy» (destello, anillo, trozos); en
-//    «steals the power» los seres de luz del fondo vierten su luz en Doom, que crece en su roca; se apagan en «beings»;
+//    «steals the power» los seres de luz del fondo (capucha y manto con pliegues, núcleo que late, halo tramado) vierten
+//    su luz en Doom con hilos y chispas que caen hacia él, que crece en su roca; en «beings» se deshacen en chispas;
 // 3. «gathers the pieces» el planeta cosido (battleworld planeta sin mirador): los retales vuelan hacia él; en
 //    «stitches» Doom tira de hilos de oro y la costura brilla; Atom luciérnaga se sorprende;
 // 4. «where he rules as a god» el país de retales: la procesión con banderas verdes sube hacia la estatua de oro; en
@@ -22,10 +23,12 @@
 //    las piernas sin llegar al escabel; en «no one to contradict» mira a los lados: nadie;
 // 6. «And it's then» el mirador (planeta/general): se abre un portal azul; en «Reed» sale Reed y anda hacia Doom, que se
 //    vuelve en «reach»;
-// 7. «and it's Doom who asks» el trono (planeta/trono): Doom sentado con su halo, Reed al pie; en «asks» nace el «?» de
-//    luz y baja hasta quedar entre los dos; en «avoiding» Doom aparta la mirada;
-// 8. «Whether Reed, with that power» inserto: el brazo del trono con la esfera del poder; el brazo de Reed entra; la
-//    esfera vuela a su mano y en «better» se cura (un mundo entero, sin costuras);
+// 7. «and it's Doom who asks» el trono (planeta/trono): Doom sentado con su halo, mirando a Reed, que avanza hacia la
+//    escalinata; en «asks» nace el «?» de luz sobre Doom y baja en curva hasta quedar entre los dos (x 116, y 102); en
+//    «avoiding» Doom se vuelve y baja la cabeza, y Reed sube hasta el pie del primer escalón (x 122, suelo 154);
+// 8. «Whether Reed, with that power» inserto: el brazo del trono con la esfera del poder, ventanales con nebulosa y
+//    estrellas que titilan, un haz de luz con polvo y el zócalo tallado (friso de grecas, tres paneles con medallón) que
+//    recoge el brillo de la esfera; el brazo de Reed entra; la esfera vuela a su mano y en «better» se cura;
 // 9. «Reed tells him yes» el rosetón con el planeta: Reed asiente en «yes», señala en «knows it»; en «the God» Doom
 //    alza los brazos con un destello; en «never admitted» le da la espalda y se aleja;
 // 10. «falls silent» la sala de lejos: Doom en su trono; en «admits» baja la cabeza y el halo se deshace en chispas, y
@@ -219,13 +222,40 @@ const espacio2 = () => horno('e2', () => {
   for (let i = 0; i < 120; i++) { const x = Math.round(hh(i, 1, 13) * 319), y = Math.round(hh(i, 2, 13) * 179); if (libre(x, y)) R.pset(x, y, hh(i, 3, 13) > 0.8 ? H('#ffffff') : H('#7a80b0')); }
 });
 const SERES = [[30, 96], [64, 66], [256, 62], [292, 98], [214, 40], [106, 42]];
+// un ser de luz (≈ 20 × 46): cabeza con capucha, manto acampanado con pliegues que ondean, núcleo que late y halo
+// tramado alrededor de la cabeza. ap 0–1 aparece (trama); des 0–1 se deshace de arriba abajo en chispas que caen
+const ser = (x, y, t, i, ap, des) => { x = Math.round(x); y = Math.round(y);
+  const late = 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7), vivo = 1 - des;
+  const CL = [H('#ffffff'), H('#eae4ff'), H('#c8bcf4'), H('#9a88d8'), H('#5e4aa0')];
+  if (vivo > 0) luz(x, y - 2, 18 + late * 4, 32, H('#d8ccff'), (0.28 + 0.14 * late) * ap * vivo);
+  // halo tramado que late alrededor de la cabeza
+  for (let k = 0; k < 40; k++) { const p = k / 40 * 6.28 + t * 0.6, r = 8 + late * 1.5, X = Math.round(x + Math.cos(p) * r), Y = Math.round(y - 17 + Math.sin(p) * r * 0.8);
+    if (ap * vivo > bay(X, Y) * 1.2 && (k + Math.floor(t * 6)) % 3 !== 0) ps(X, Y, k % 2 ? CL[1] : H('#fff0a0')); }
+  for (let j = -23; j <= 24; j++) {
+    let w, cab = j < -11;
+    if (cab) { const d = (j + 17) / 6.5; if (Math.abs(d) > 1) continue; w = Math.round(5.5 * Math.sqrt(1 - d * d)); }
+    else { const hem = 22 + Math.round(Math.sin(t * 3 + i + (j & 3)) * 1.5); if (j > hem) continue; w = Math.round((j < -6 ? 4 + (j + 11) * 0.6 : 6.5 + (j + 6) * 0.16 + (j > -2 && j < 6 ? 1.2 : 0)) + Math.sin(t * 2 + j * 0.3 + i) * 0.6); }
+    const quita = (j + 23) / 47;
+    for (let k = -w; k <= w; k++) { const X = x + k, Y = y + j; if (ap <= bay(X, Y)) continue;
+      // se deshace: desaparece de arriba abajo con trama; el borde suelta chispas
+      const resto = quita - (des * 1.3 - 0.15); if (resto < 0) { if (resto > -0.08 && hh(X, Y + Math.floor(t * 8), 5) > 0.7) ps(X + Math.sin(t * 5 + k) * 2, Y + (-resto) * 40, H('#fff0a0')); continue; }
+      if (resto < 0.3 && bay(X, Y) > resto / 0.3) { if (hh(X, Y + Math.floor(t * 10), 6) > 0.86) ps(X + Math.sin(t * 4 + j) * 1.5, Y + (0.3 - resto) * 12, H('#fff6d0')); continue; }
+      const u = (k + w) / Math.max(1, 2 * w), borde = Math.abs(k) === w;
+      let c = u < 0.3 ? CL[0] : u < 0.62 ? CL[1] : u < 0.85 ? CL[2] : CL[3];
+      if (cab && Math.abs(k) < 3 && j > -20 && j < -13) c = j < -18 ? CL[2] : CL[3];          // el hueco de la capucha, sin cara
+      else if (!cab && !borde && (k + 40 + Math.round(Math.sin(t * 2 + j * 0.15) * 1)) % 4 === 0 && j > -6) c = u < 0.5 ? CL[2] : CL[3];   // pliegues del manto
+      if (borde) c = j > 18 ? CL[3] : CL[4];
+      if (j === -11 && Math.abs(k) <= 5) c = CL[3];                                          // el cuello de la capucha
+      ps(X, Y, c); } }
+  // el núcleo: una luz cálida en el pecho que late
+  if (vivo > 0.15) { const r = 1 + Math.round(late * 1.4); for (let a = -r; a <= r; a++) for (let b = -r; b <= r; b++) if (a * a + b * b <= r * r + 1) ps(x + a, y - 4 + b, a * a + b * b < 2 ? H('#ffffff') : H('#fff0a0')); }
+};
 const p2 = (t) => {
   R.copiar(espacio2()); estrellas(0, 0, 319, 179, 30, 17, t);
   const tc = en('battleworld', 0.2349), ap = lin(t, en('battleworld', 0.2967), en('battleworld', 0.3173)), roba = en('battleworld', 0.3362), gasta = lin(t, roba, en('battleworld', 0.4162));
-  // los seres de luz, altos y sin rasgos, al fondo
-  if (ap > 0) for (const [i, [x, y]] of SERES.entries()) { const br = ap * (1 - gasta * 0.75), c = mez(H('#7a7a9a'), H('#f8f4ff'), br), cS = mez(H('#4a4a6a'), H('#c8c0f0'), br);
-    luz(x, y, 16, 30, H('#e8e0ff'), 0.4 * br);
-    for (let j = -22; j <= 22; j++) { const w = Math.round(7 * Math.sqrt(1 - (j / 23) ** 2) * (j < -14 ? 0.7 : 1)); for (let k = -w; k <= w; k++) if (ap > bay(x + k, y + j)) R.pset(x + k, y + j + Math.round(Math.sin(t * 1.5 + i) * 1.5), k > w * 0.4 ? cS : c); } }
+  // los seres de luz al fondo: figuras con capucha y manto, sin rasgos, un núcleo que late y un halo tramado; en
+  // «steals the power» les caen chispas hacia Doom y en «beings» se deshacen en chispas (de arriba abajo), sin grises
+  if (ap > 0) for (const [i, [x, y]] of SERES.entries()) ser(x, y + Math.round(Math.sin(t * 1.5 + i) * 1.5), t, i, ap, gasta);
   // las dos Tierras se acercan y chocan en «destroy»
   const a = lin(t, P2, tc), r0 = 30;
   if (t < tc + 0.1) { esfera(lerp(96, 131, a), 74, r0, t * 0.2, 'tierra', { k: 1 }); esfera(lerp(226, 189, a), 74, r0, -t * 0.2 + 2, 'tierra', { k: 7 }); }
@@ -239,6 +269,11 @@ const p2 = (t) => {
   // los hilos de luz van de los seres a las manos de Doom
   const fl = lin(t, roba - 0.2, roba + 0.3) * (1 - lin(t, en('battleworld', 0.4038), en('battleworld', 0.4327)));
   if (fl > 0) for (const [i, [x, y]] of SERES.entries()) for (let k = 0; k < 12; k++) { const u = (t * 1.3 + k / 12 + i * 0.07) % 1, X = lerp(x, 160, u) + Math.sin(u * 9 + i) * 4 * (1 - u), Y = lerp(y, 128, u); if (fl > bay(Math.round(X), Math.round(Y))) { ps(X, Y, H('#fff0a0')); ps(X + 1, Y, H('#f4c860')); } }
+  // las chispas de los seres caen hacia Doom (mientras roba y mientras se deshacen)
+  const cae = lin(t, roba - 0.3, roba + 0.2) * (1 - lin(t, en('battleworld', 0.4162), en('battleworld', 0.4162) + 0.5));
+  if (cae > 0) for (const [i, [x, y]] of SERES.entries()) for (let k = 0; k < 7; k++) { const u = (t * (0.55 + hh(k, 1, 40 + i) * 0.4) + hh(k, 2, 40 + i)) % 1, d = 1 - u,
+      X = lerp(x + (hh(k, 3, 40 + i) - 0.5) * 16, 160, u * u) + Math.sin(u * 7 + k) * 3 * d, Y = lerp(y + 4, 136, u) + u * (1 - u) * 18;
+    if (!libre(X, Y) || cae < bay(Math.round(X), Math.round(Y)) * 0.9) continue; ps(X, Y, u < 0.5 ? H('#ffffff') : H('#fff0a0')); if (k % 3 === 0) ps(X, Y - 1, H('#c8b8ff')); }
   // la roca que flota, con raíces y cascotes; Doom en ella
   R.poligono([[118, 154], [204, 152], [194, 164], [176, 172], [150, 176], [128, 166]], (X, Y) => Y < 156 ? H('#8a7a9a') : vn(X * 0.2, Y * 0.3, 4) > 0.55 ? H('#4a3e5a') : H('#5e5070')); R.linea(118, 154, 204, 152, H('#b8a8c8'));
   for (const [x, l] of [[140, 8], [162, 12], [184, 6]]) for (let j = 0; j < l; j++) ps(x + Math.sin(j * 0.7 + t) * 1, 168 + j, H('#3a2e4a'));
@@ -388,27 +423,68 @@ const p6 = (t) => {
 const p7 = (t) => {
   const asks = en('pregunta', 0.2700), evita = en('pregunta', 0.3839), o = { encuadre: 'planeta', camara: 'trono', halo: 1 - 0.5 * lin(t, evita, evita + 0.4) * (0.5 + 0.5 * Math.sin(t * 20)) };
   T.battleworld(R, t, o);
-  const habla = t > en('pregunta', 0.2498) && t < evita, aparta = t > evita && t < evita + 0.9;
-  R.actor(EL.doom, 153, 116, t, { dir: aparta ? -1 : 1, habla: habla && voz(t) > 0.3, dedo: t > asks && t < asks + 0.8 });
-  R.actor(EL.reed, 116, 166, t, { dir: 1, sorpresa: t > asks + 0.3 && t < asks + 1.6, triste: t > en('pregunta', 0.3388) });
+  // Doom mira a Reed mientras pregunta; en «avoiding» le da el perfil (se vuelve) y baja la cabeza
+  const habla = t > en('pregunta', 0.2498) && t < evita, aparta = t > evita, baja = lin(t, evita + 0.1, evita + 0.5) > 0.5 ? 2 : lin(t, evita, evita + 0.3) > 0.5 ? 1 : 0;
+  asiente(EL.doom, 153, 116, t, { dir: aparta ? 1 : -1, habla: habla && voz(t) > 0.3, dedo: t > asks && t < asks + 0.8 }, baja);
+  // Reed avanza hacia la escalinata (se para en «asks»); cuando Doom se aparta, sube hasta el pie del primer escalón
+  const w1 = lin(t, P7, asks - 0.1), w2 = lin(t, evita + 0.3, evita + 1.5), anda = (w1 > 0 && w1 < 1) || (w2 > 0 && w2 < 1);
+  const rx = Math.round(lerp(lerp(74, 104, ease(w1)), 122, ease(w2))), ry = Math.round(lerp(lerp(170, 164, ease(w1)), 154, ease(w2)));
+  R.actor(EL.reed, rx, ry, t, { dir: 1, anda, sorpresa: t > asks + 0.3 && t < asks + 1.6, triste: t > en('pregunta', 0.3388) });
   T.battleworldDelante(R, t, o);
-  // el «?» de luz nace junto a Doom y baja hasta quedar entre los dos
-  const q = lin(t, asks - 0.1, asks + 1.4), a = lin(t, asks - 0.1, asks + 0.3);
-  if (a > 0) { const x = lerp(140, 96, ease(q)), y = lerp(70, 54, ease(q)) + Math.sin(t * 2.5) * 2; pregunta(x, y, t, a, 4); }
+  // el «?» de luz nace sobre la cabeza de Doom y baja en curva hasta quedar entre los dos, sobre la escalinata
+  const q = ease(lin(t, asks - 0.1, asks + 1.6)), a = lin(t, asks - 0.1, asks + 0.3);
+  if (a > 0) { const x = lerp(150, 116, q), y = lerp(66, 102, q) - Math.sin(q * 3.14) * 8 + Math.sin(t * 2.5) * 1.5;
+    if (q > 0.05 && q < 0.98) for (let k = 1; k < 6; k++) { const qq = Math.max(0, q - k * 0.04); ps(lerp(150, 116, qq) + 7, lerp(66, 102, qq) - Math.sin(qq * 3.14) * 8 + 10, k < 3 ? H('#fff0a0') : ORO[2]); }
+    pregunta(x, y, t, a, 3); }
   for (let i = 0; i < 8; i++) { const ph = (t * 0.25 + hh(i, 1, 77)) % 1; ps(60 + hh(i, 2, 77) * 200, 150 - ph * 100, ORO[0]); }
 };
 
 // ── 8 · inserto: la esfera del poder pasa a la mano de Reed ──────────────────────────────────────────────────────
 const sala8 = () => horno('s8', () => {
-  bloques(0, 0, 319, 179, [H('#8a6a34'), H('#6e5226'), H('#4a3416')], 8, 30, 14);
-  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (bay(x, y) < 0.5) R.pset(x, y, mez(R.pget(x, y), H('#5a4020'), 0.5));
+  bloques(0, 0, 319, 179, [H('#a8844a'), H('#6e5226'), H('#3a2810')], 8, 30, 14);
+  // los sillares de abajo, nítidos: bisel de luz arriba a la izquierda, sombra abajo, desconchones y vetas
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const fila = Math.floor(y / 14), jy = y % 14, jx = (x + (fila % 2 ? 15 : 0)) % 30;
+    if (y < 112) { if (bay(x, y) < 0.5) R.pset(x, y, mez(R.pget(x, y), H('#5a4020'), 0.5)); continue; }
+    if (jy === 1 || jx === 1) R.pset(x, y, H('#c09a58')); else if (jy === 12 || jx === 28) R.pset(x, y, H('#4a3416'));
+    else if (jy > 1 && jy < 12 && jx > 1 && jx < 28) { const v = vn(x * 0.15, y * 0.4, fila * 3 + Math.floor((x + (fila % 2 ? 15 : 0)) / 30)); if (v > 0.68) R.pset(x, y, H('#806030')); else if (v < 0.22 && bay(x, y) < 0.5) R.pset(x, y, H('#5e4420')); if (hh(x, y, 81) > 0.985) R.pset(x, y, H('#3a2810')); } }
   rampa(0, 0, 319, 16, [H('#2a1a0a'), H('#4a3418')]);
   // columnas desenfocadas, ventanales al espacio y el resplandor del árbol al fondo
   for (const [x, w] of [[30, 26], [118, 18], [214, 18], [288, 24]]) for (let y = 0; y < 180; y++) for (let i = 0; i < w; i++) { const u = i / w; if (bay(x + i, y) < 0.85) R.pset(x + i, y, u < 0.3 ? H('#a88040') : u < 0.7 ? H('#8a6430') : H('#5a3e1c')); }
-  for (const x0 of [62, 152, 240]) { for (let y = 24; y < 110; y++) for (let x = x0; x < x0 + 40; x++) { if (y < 44 && Math.hypot(x - x0 - 20, y - 44) > 20) continue; R.pset(x, y, bay(x, y) < 0.15 ? H('#c8c0f0') : H('#1a1440')); } }
+  // ventanales al espacio: una nebulosa violeta y turquesa tramada, estrellas de tres tamaños y el marco de oro
+  for (const [n, x0] of [62, 152, 240].entries()) { for (let y = 24; y < 110; y++) for (let x = x0; x < x0 + 40; x++) { if (y < 44 && Math.hypot(x - x0 - 20, y - 44) > 20) continue;
+      const nb = vn(x * 0.07, y * 0.06, 50 + n) * 0.65 + vn(x * 0.2, y * 0.18, 60 + n) * 0.35, f = cl((nb - 0.45) * 3);
+      let c = mez(H('#100c30'), H('#1a1440'), y / 110); if (f > bay(x, y)) c = nb > 0.7 ? H('#6a4ab0') : nb > 0.6 ? H('#3e2a7a') : n === 1 ? H('#1e4a6a') : H('#2a1e5a');
+      if (nb > 0.78 && bay(x, y) < 0.5) c = H('#a88ae0');
+      const e = hh(x, y, 70 + n); if (e > 0.982) c = e > 0.994 ? H('#ffffff') : e > 0.988 ? H('#c8c0f0') : H('#7a78b0'); R.pset(x, y, c); }
+    for (let k = 0; k < 3; k++) { const sx = x0 + 6 + Math.round(hh(k, 1, 90 + n) * 28), sy = 40 + Math.round(hh(k, 2, 90 + n) * 60); R.pset(sx, sy, H('#ffffff')); R.pset(sx - 1, sy, H('#a8a0e0')); R.pset(sx + 1, sy, H('#a8a0e0')); R.pset(sx, sy - 1, H('#a8a0e0')); R.pset(sx, sy + 1, H('#a8a0e0')); }
+    for (let y = 24; y < 111; y++) for (const x of [x0 - 1, x0 + 40]) R.pset(x, y, x < x0 ? ORO[2] : ORO[4]);
+    for (let k = 0; k < 64; k++) { const p = Math.PI + k / 63 * Math.PI; R.pset(Math.round(x0 + 20 + Math.cos(p) * 21), Math.round(44 + Math.sin(p) * 21), ORO[2]); }
+    R.rect(x0 - 3, 110, x0 + 42, 112, ORO[3]); R.rect(x0 - 3, 110, x0 + 42, 110, ORO[1]); }
   luz(172, 60, 40, 46, H('#fff0b0'), 0.35);
   // tapices verdes entre los ventanales, con el aro de oro
   for (const x0 of [108, 196]) { for (let y = 30; y < 100; y++) for (let x = x0; x < x0 + 30; x++) R.pset(x, y, x === x0 || x === x0 + 29 || y > 96 ? ORO[3] : (x + y) % 6 === 0 ? VERDE[3] : VERDE[2]); for (let k = 0; k < 40; k++) { const p = k / 40 * 6.28; ps(x0 + 15 + Math.cos(p) * 8, 58 + Math.sin(p) * 8, ORO[1]); } for (let x = x0; x < x0 + 30; x += 3) R.linea(x, 100, x, 103, ORO[2]); }
+  // abajo a la derecha, el zócalo tallado: un friso de grecas, tres paneles con medallón de rayos y rosetas, y el plinto
+  for (let y = 120; y < 128; y++) for (let x = 124; x < 320; x++) { const q = (x - 124) % 10, r = y - 120; let c = ORO[3];
+    if (r === 0) c = ORO[0]; else if (r === 7) c = ORO[5]; else if ((r === 2 && q < 7) || (r === 5 && q > 2) || (q === 0 && r > 1 && r < 6) || (q === 6 && r > 1 && r < 5) || (q === 3 && r > 2 && r < 6)) c = ORO[1]; else if (bay(x, y) < 0.3) c = ORO[4]; R.pset(x, y, c); }
+  for (const x0 of [130, 192, 254]) { const x1 = x0 + 56, y0 = 132, y1 = 170, cx = x0 + 28, cy = 151;
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const b = Math.min(x - x0, y - y0, x1 - x, y1 - y); let c;
+      if (b < 3) c = (x - x0 < 3 && x - x0 <= y1 - y) || (y - y0 < 3 && y - y0 <= x1 - x) ? (b === 0 ? ORO[0] : ORO[1]) : (b === 0 ? ORO[5] : ORO[4]);
+      else if (b === 3) c = (x - x0 === 3 || y - y0 === 3) ? H('#3a2810') : ORO[2];
+      else { const v = vn(x * 0.12, y * 0.2, x0); c = v > 0.62 ? H('#8a6834') : v < 0.3 ? H('#5a401c') : H('#6e5226'); if (hh(x, y, x0) > 0.97) c = H('#4a3416'); }
+      R.pset(x, y, c); }
+    // el medallón en relieve: aro de oro con bisel y doce rayos; rosetas en las esquinas
+    for (let y = cy - 14; y <= cy + 14; y++) for (let x = cx - 14; x <= cx + 14; x++) { const d = Math.hypot(x - cx, y - cy), an = Math.atan2(y - cy, x - cx); let c = null;
+      if (d < 14 && d >= 11.5) c = (x - cx) + (y - cy) < 0 ? ORO[1] : ORO[3];
+      else if (d < 11.5 && d > 4 && Math.abs(((an / 6.283 * 12) % 1 + 1) % 1 - 0.5) > 0.36) c = (x - cx) + (y - cy) < 0 ? ORO[2] : ORO[4];
+      else if (d <= 4) c = d < 2.5 ? (x < cx ? H('#7ae09a') : H('#2e8a4a')) : ORO[2];
+      if (c !== null) R.pset(x, y, c); }
+    R.pset(cx - 1, cy - 1, H('#ffffff'));
+    for (const [rx, ry] of [[x0 + 8, y0 + 8], [x1 - 8, y0 + 8], [x0 + 8, y1 - 8], [x1 - 8, y1 - 8]]) { R.disco(rx, ry, 2, ORO[3]); R.pset(rx - 1, ry - 1, ORO[0]); R.pset(rx, ry, ORO[2]); } }
+  for (let y = 128; y < 132; y++) for (let x = 124; x < 320; x++) R.pset(x, y, bay(x, y) < 0.4 ? H('#4a3416') : H('#5e4420'));
+  for (let y = 171; y < 180; y++) for (let x = 124; x < 320; x++) R.pset(x, y, y === 171 ? ORO[1] : y === 172 ? ORO[3] : (x + y * 2) % 22 === 0 ? ORO[5] : bay(x, y) < 0.35 ? ORO[4] : H('#5a3e18'));
+  for (let y = 132; y < 171; y++) for (const x of [187, 188, 249, 250, 311, 312]) R.pset(x, y, x % 2 ? H('#4a3416') : H('#806030'));
+  // el haz de luz que baja en diagonal desde una tronera alta (tramado), con el polvo que se pinta en cada fotograma
+  for (let y = 16; y < 180; y++) for (let x = 0; x < 320; x++) { const u = x - 104 - y * 0.62; if (u < 0 || u > 34) continue; const e = Math.min(u, 34 - u) / 8; if (bay(x, y) < Math.min(1, e) * 0.7) R.pset(x, y, mez(R.pget(x, y), H('#fff0c0'), 0.3)); }
   esquina(H('#5a4020'));
   // el brazo del trono en primer término: voluta, bolas y una copa de oro
   R.poligono([[0, 120], [118, 112], [124, 118], [124, 180], [0, 180]], (X, Y) => Y < 118 ? ORO[1] : (X + Y) % 9 === 0 ? ORO[3] : X < 30 ? ORO[2] : ORO[3]);
@@ -421,6 +497,12 @@ const sala8 = () => horno('s8', () => {
 const p8 = (t) => {
   R.copiar(sala8());
   for (let i = 0; i < 10; i++) { const ph = (t * 0.12 + hh(i, 1, 88)) % 1; ps(130 + hh(i, 2, 88) * 160, 170 - ph * 160, ORO[1]); }
+  // el polvo que flota dentro del haz, y estrellas que titilan en los ventanales
+  for (let i = 0; i < 22; i++) { const y = 20 + ((hh(i, 1, 89) * 160 + t * (3 + hh(i, 2, 89) * 4)) % 160), x = 104 + y * 0.62 + 4 + hh(i, 3, 89) * 26 + Math.sin(t * 0.9 + i) * 2;
+    if (y > 112 && x < 124) continue; if (Math.sin(t * 2 + i * 1.3) > -0.4) ps(x, y, i % 3 ? H('#fff4c8') : ORO[1]); }
+  for (const [n, x0] of [62, 152, 240].entries()) for (let k = 0; k < 4; k++) { const sx = x0 + 4 + Math.round(hh(k, 3, 95 + n) * 32), sy = 46 + Math.round(hh(k, 4, 95 + n) * 60); if (Math.sin(t * (2 + k) + n * 2 + k) > 0.55) { ps(sx, sy, H('#ffffff')); ps(sx - 1, sy, H('#c8c0f0')); ps(sx + 1, sy, H('#c8c0f0')); } }
+  // una estrella fugaz cruza el ventanal de la derecha
+  { const ph = (t * 0.35) % 1; if (ph < 0.3) { const u = ph / 0.3; for (let k = 0; k < 6; k++) { const X = 274 - u * 30 + k, Y = 50 + u * 24 - k * 0.8; if (X >= 240 && X < 280 && Y > 44) ps(X, Y, k === 0 ? H('#ffffff') : H('#a8a0e0')); } } }
   for (const x of [150, 238]) { llama(x, 110, t, 1.3, x); luz(x, 106, 16, 14, H('#f8c060'), 0.3); R.rect(x - 3, 110, x + 3, 112, ORO[2]); R.rect(x - 1, 112, x + 1, 118, ORO[3]); }
   const entra = lin(t, en('pregunta', 0.4354) - 0.2, en('pregunta', 0.4354) + 0.6), vuela = lin(t, en('pregunta', 0.4835), en('pregunta', 0.5223)), mejor = en('pregunta', 0.5375), cura = lin(t, mejor - 0.1, mejor + 0.6);
   // el brazo de Reed entra desde abajo a la derecha, con la palma hacia arriba
@@ -429,6 +511,9 @@ const p8 = (t) => {
   // la esfera del poder sube de la copa y vuela en arco a la mano
   const e = ease(vuela), ox = lerp(96, hx - 6, e), oy = lerp(74, hy - 17, e) - Math.sin(e * 3.14) * 30 + Math.sin(t * 3) * 1.5;
   luz(ox, oy, 26, 26, cura > 0 ? H('#b8f0ff') : H('#fff0a0'), 0.45 + 0.3 * cura);
+  // su brillo se refleja en la pared: en el filo del friso y en los biseles de los paneles más cercanos
+  { const gc = cura > 0.5 ? H('#d8f8ff') : H('#fff6d0'); luz(ox + 6, Math.min(176, oy + 40), 46, 26, cura > 0 ? H('#9ad8f0') : H('#f8d888'), 0.16);
+    for (let x = 124; x < 320; x++) { const d = Math.abs(x - ox) / 60; if (d >= 1) continue; for (const y of [120, 132, 171]) if (bay(x, y) < (1 - d) * 0.9) ps(x, y, gc); } }
   esfera(ox, oy, 14, t * 0.8, 'cosido', { cura, late: Math.sin(t * 6) > 0 ? 1 : 0, atm: cura > 0.3 });
   if (cura > 0) for (let k = 0; k < 10; k++) { const p = k / 10 * 6.28 + t * 2, r = 17 + cura * 6; if (cura < 1 || Math.sin(t * 5 + k) > 0) ps(ox + Math.cos(p) * r, oy + Math.sin(p) * r, H('#ffffff')); }
   // del lado de Doom queda la copa vacía y, al final, el «?»
