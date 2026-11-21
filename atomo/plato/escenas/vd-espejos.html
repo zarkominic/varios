@@ -116,6 +116,18 @@ const humo = (cx, cy, u, c = H('#8a8a92')) => { if (u <= 0 || u >= 1) return; fo
 
 // la sala de los enemigos con la pantalla roja: la mano de Mefisto en la grande, Strange en la de arriba a la derecha y la
 // tira de abajo en rojo; Doom delante; TT: { ini, roja, str, gira } (instantes de la escena)
+// la gente de la sala (detrás de la mesa, que los tapa de cintura para abajo): un técnico a la izquierda y una técnica a la
+// derecha en sus puestos, y un dron de mantenimiento que cruza la sala; o: { mira (instante en que alzan la vista),
+// baja (instante en que bajan la cabeza), dron: [t0, t1] }
+const salaGente = (t, o) => {
+  const mira = t > o.mira, baja = o.baja !== undefined && t > o.baja;
+  ac(EL.tecnico, 84, 147, t, { dir: baja ? -1 : 1, habla: !mira && Math.sin(t * 5) > 0.5, sorpresa: mira && t < o.mira + 0.6, triste: baja });
+  ac(EL.tecnica, 236, 147, t, { dir: baja ? 1 : -1, dedo: mira && !baja && t < o.mira + 1.4 && t > o.mira + 0.6, sonrisa: false, triste: baja });
+  const u = tramo(t, o.dron[0], o.dron[1]); if (u > 0 && u < 1) { const dx = Math.round(lerp(-14, 334, u)), dy = 124 + Math.round(Math.sin(t * 3.4) * 2);
+    R.rect(dx - 5, dy, dx + 5, dy + 4, K); R.rect(dx - 4, dy + 1, dx + 4, dy + 3, H('#5a6a5e')); R.rect(dx - 4, dy + 1, dx + 4, dy + 1, H('#8aa08e'));
+    R.linea(dx - 7, dy - 1, dx - 2, dy - 1, H('#a8b0bc')); R.linea(dx + 2, dy - 1, dx + 7, dy - 1, H('#a8b0bc')); R.pset(dx, dy + 4, Math.sin(t * 8) > 0 ? H('#4af07a') : H('#1a5a2a'));
+    for (let k = 0; k < 3; k++) R.pset(dx - 6 - k * 3, dy + 2 + (k % 2), mez(H('#8af0a8'), K, k / 3)); }
+};
 const salaFinal = (t, TT) => {
   const ons = [0, 5].concat(t > TT.str ? [3] : []), o = { encuadre: 'trono', camara: 'enemigos', pantallas: ons }; const g = T.latveria(R, t, o);
   const [P0, , , P3, P4, P5] = g.pantallas, roja = tramo(t, TT.roja, TT.roja + 0.8);
@@ -133,7 +145,9 @@ const salaFinal = (t, TT) => {
   // la tira de abajo: la onda roja que late
   R.recorte([P5.x0 + 1, P5.y0 + 1, P5.x1 - 1, P5.y1 - 1]); R.rect(P5.x0 + 1, P5.y0 + 1, P5.x1 - 1, P5.y1 - 1, H('#200608'));
   for (let x = P5.x0 + 1; x <= P5.x1 - 1; x++) R.pset(x, Math.round(113 + Math.sin(x * 0.4 - t * 5) * 3 * (0.4 + roja * 0.6)), H('#ff4a2a')); R.recorte(null);
-  // Doom mira la roja y, en «went down with him», aparta la mirada y se va hacia la izquierda
+  // Doom mira la roja y, en «went down with him», aparta la mirada y se va hacia la izquierda; los técnicos alzan la vista
+  // cuando la grande se pone roja y bajan la cabeza con él
+  salaGente(t, { mira: TT.roja, baja: TT.gira, dron: [TT.ini + 0.6, TT.ini + 4.6] });
   T.latveriaDelante(R, t, o);
   // el resplandor rojo en el filo de la mesa y en el suelo; Doom, delante de la mesa, se da la vuelta y se va
   if (roja > 0) for (let x = 60; x <= 260; x += 2) R.pset(x, 146, mez(R.pget(x, 146), H('#ff5a3a'), 0.5 * roja));

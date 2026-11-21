@@ -28,8 +28,9 @@
 //    esfera vuela a su mano y en «better» se cura (un mundo entero, sin costuras);
 // 9. «Reed tells him yes» el rosetón con el planeta: Reed asiente en «yes», señala en «knows it»; en «the God» Doom
 //    alza los brazos con un destello; en «never admitted» le da la espalda y se aleja;
-// 10. «falls silent» la sala de lejos: Doom en su trono; en «admits» baja la cabeza y el halo se deshace en chispas;
-//    en «loses everything» los braseros se apagan de atrás adelante y la sala se enfría;
+// 10. «falls silent» la sala de lejos: Doom en su trono; en «admits» baja la cabeza y el halo se deshace en chispas, y
+//    los dos guardias se sorprenden; en «right» se dan la vuelta y se van por detrás de las columnas; en «loses
+//    everything» los braseros se apagan de atrás adelante y la sala se enfría;
 // 11. «it's Reed, his worst enemy» el árbol de luz: Doom con la cabeza baja; Reed alza la mano; en «heals» los anillos
 //    de luz van a su cara y la máscara se ilumina;
 // 12. «Doom takes off his mask» el espejo de oro: Doom de espaldas se lleva las manos a la cara y en «mask» se la quita
@@ -494,8 +495,19 @@ const p10 = (t) => {
   R.copiar(sala10());
   const admite = en('pregunta', 0.9626), pierde = en('risa', 0.0353), frio = lin(t, pierde, pierde + 1.2);
   // los braseros de los lados se apagan de atrás adelante en «loses everything»
-  for (const [k, [d]] of BRAS10.entries()) { const x = lerp(30, 118, d), y = Math.round(lerp(178, 104, d)), s = lerp(1.5, 0.6, d), on = 1 - lin(t, pierde + k * 0.3, pierde + k * 0.3 + 0.2);
-    brasero(x, y, t, on, s, k); brasero(320 - x, y, t, on, s, k + 5); }
+  const bras = (k) => { const d = BRAS10[k][0], x = lerp(30, 118, d), y = Math.round(lerp(178, 104, d)), s = lerp(1.5, 0.6, d), on = 1 - lin(t, pierde + k * 0.3, pierde + k * 0.3 + 0.2);
+    brasero(x, y, t, on, s, k); brasero(320 - x, y, t, on, s, k + 5); };
+  bras(0);
+  // los dos guardias de la sala: firmes mirando al trono; en «admits» se sorprenden, en «right» se dan la vuelta y se
+  // van por la derecha, y la sala se queda vacía cuando lo pierde todo (pasan entre el brasero del fondo y los de
+  // delante, que se pintan después y los tapan)
+  // se pintan aparte y solo se ponen a la izquierda de la columna de delante (x 256): se van por detrás de ella
+  aparte(() => { for (const [i, x0, su, re] of [[0, 214, 131, 0.5], [1, 234, 140, 0.85]]) {
+    const va = lin(t, admite + re, admite + re + 1.8), x = Math.round(lerp(x0, x0 + 64, va)), duda = t > admite && t < admite + re;
+    if (va < 1) R.actor(VD.soldadoVD, x, su, t, { dir: va > 0 || (duda && i === 1) ? 1 : -1, anda: va > 0 && va < 1, sorpresa: duda && i === 0 });
+  } });
+  { const B = R.buf; for (let y = 96; y < 146; y++) for (let x = 190; x < 256; x++) { const c = TMP[y * 320 + x]; if (c !== MK) B[y * 320 + x] = c; } }
+  bras(1); bras(2);
   // Doom en su trono; en «admits» baja la cabeza; el halo se deshace en chispas que caen
   if (t < admite) { const a = 1 - 0.3 * lin(t, P10, admite); for (let k = 0; k < 50; k++) { const p = k / 50 * 6.28; ps(160 + Math.cos(p) * 10, 70 + Math.sin(p) * 10, a > bay(k, 3) ? ORO[0] : ORO[2]); }
     for (let k = 0; k < 8; k++) { const p = k / 8 * 6.28 + t * 0.6; ps(160 + Math.cos(p) * 13, 70 + Math.sin(p) * 13, ORO[1]); } luz(160, 70, 16, 16, H('#fff0b0'), 0.4 * a); }
@@ -663,9 +675,13 @@ const p14 = (t) => {
   tenir(H('#2a3048'), 0.35 * lin(t, herida + 0.2, herida + 1.2));
 };
 
-const efectos = [[en('battleworld', 0.0041), 'rafaga'], [en('battleworld', 0.1574), 'brillo'], [en('battleworld', 0.2349), 'boom'], [en('battleworld', 0.3362), 'zumbido'], [en('battleworld', 0.5233), 'brillo'], [en('battleworld', 0.6766), 'campana'],
-  [en('battleworld', 0.8447), 'boing'], [en('pregunta', 0.0899), 'whoosh'], [en('pregunta', 0.2700), 'brillo'], [en('pregunta', 0.5375), 'brillo'], [en('risa', 0.0369), 'viento'], [en('risa', 0.1737), 'brillo'],
-  [en('risa', 0.2856), 'cerrojo'], [en('risa', 0.5287), 'pop'], [en('risa', 0.8245), 'viento'], [en('risa', 0.9525), 'whoosh'], [en('risa', 0.9725), 'cerrojo']];
+const efectos = [[en('battleworld', 0.0041), 'rafaga'], [en('battleworld', 0.0330), 'pasos'], [en('battleworld', 0.1574), 'brillo'], [en('battleworld', 0.2349), 'boom'], [en('battleworld', 0.2678), 'rafaga'], [en('battleworld', 0.3362), 'zumbido'],
+  [en('battleworld', 0.4492), 'zumbido'], [en('battleworld', 0.5233), 'brillo'], [en('battleworld', 0.5728), 'tic'], [en('battleworld', 0.6222), 'pasos'], [en('battleworld', 0.6766), 'campana'],
+  [en('battleworld', 0.8221), 'whoosh'], [en('battleworld', 0.8447), 'boing'], [en('battleworld', 0.9457), 'tic'], [en('pregunta', 0.0899), 'whoosh'], [en('pregunta', 0.1068), 'zumbido'], [en('pregunta', 0.1448), 'pasos'],
+  [en('pregunta', 0.2700), 'brillo'], [en('pregunta', 0.2861), 'zumbido'], [en('pregunta', 0.4274), 'zumbido'], [en('pregunta', 0.4780), 'whoosh'], [en('pregunta', 0.5375), 'brillo'],
+  [en('pregunta', 0.7564), 'flash'], [en('pregunta', 0.8323), 'pasos'], [en('pregunta', 0.9631), 'brillo'], [en('risa', 0.0369), 'viento'], [en('pregunta', 0.9884), 'pasos'], [en('risa', 0.1289), 'zumbido'], [en('risa', 0.1737), 'brillo'],
+  [en('risa', 0.2856), 'cerrojo'], [en('risa', 0.3248), 'campana'], [en('risa', 0.4607), 'flash'], [en('risa', 0.5087), 'golpecito'], [en('risa', 0.5287), 'pop'], [en('risa', 0.6486), 'ola'],
+  [en('risa', 0.8125), 'viento'], [en('risa', 0.9285), 'zumbido'], [en('risa', 0.9525), 'whoosh'], [en('risa', 0.9725), 'cerrojo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13], [P14, p14]],
   { efectos, año: (t) => (t >= Y2015 ? 2015 : null) });
 </script>

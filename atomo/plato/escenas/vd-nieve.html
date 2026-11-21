@@ -657,11 +657,29 @@ const p33 = (t) => { libroBG();
   T.AT.atom(R, 148, 160, t, { pose: t > en('promesa', 0.8065) && t < en('promesa', 0.8765) ? 'senala' : t > en('promesa', 0.9418) ? 'brazos' : 'quieto', dir: -1, cara: t > en('promesa', 0.9464) ? 'sorpresa' : 'normal', habla: t > en('promesa', 0.7972) && t < en('promesa', 0.8485) ? 1 : 0 });
   if (t > en('promesa', 0.8205)) R.numero('3', 96, Math.round(lerp(140, 132, tramo(t, en('promesa', 0.8205), en('promesa', 0.8391)))), { tam: 16, centro: true }); };
 
-const efectos = [[en('madre', 0.0022), 'pasos'], [en('madre', 0.0825), 'golpecito'], [en('madre', 0.1405), 'viento'], [en('madre', 0.1718), 'whoosh'], [en('madre', 0.4573), 'papel'], [en('madre', 0.5042), 'brillo'], [en('madre', 0.6023), 'pasos'], [en('madre', 0.6403), 'oca'],
-  [en('madre', 0.6983), 'brillo'], [en('madre', 0.7585), 'chof'], [en('madre', 0.7920), 'zumbido'], [en('madre', 0.8656), 'sello'], [en('madre', 0.9682), 'brillo'], [en('baron', 0.1228), 'pasos'], [en('baron', 0.1465), 'carro'], [en('baron', 0.3515), 'puerta'], [en('baron', 0.4277), 'pop'],
-  [en('baron', 0.5354), 'golpecito'], [en('baron', 0.6300), 'tic'], [en('baron', 0.8612), 'campana'], [en('baron', 0.9558), 'pasos'], [en('abrigo', 0.0248), 'puerta'], [en('abrigo', 0.1428), 'rafaga'], [en('abrigo', 0.1942), 'trueno'], [en('abrigo', 0.2911), 'whoosh'], [en('abrigo', 0.4121), 'pasos'],
-  [en('abrigo', 0.8085), 'pajaros'], [en('abrigo', 0.9114), 'pasos'], [en('baul', 0.3161), 'papel'], [en('baul', 0.3812), 'cerrojo'], [en('baul', 0.4829), 'chof'], [en('baul', 0.6537), 'papel'], [en('baul', 0.9792), 'zumbido'], [en('promesa', 0.0414), 'pajaros'],
-  [en('promesa', 0.1767), 'pop'], [en('promesa', 0.3680), 'pop'], [en('promesa', 0.4519), 'cerrojo'], [en('promesa', 0.6152), 'viento'], [en('promesa', 0.8205), 'pop'], [en('promesa', 0.9464), 'golpecito']];
+// efectos (pasada de movimiento): el viento y la ventisca en los exteriores de nieve, la hoguera y la estufa que crepitan
+// (tic), los pasos en la nieve, la manta y las páginas (papel), el dedo que sigue las líneas (lapiz), el farol de Boris
+// llega con sus pasos y la campana de la torre; todos en el gesto que ya pasa en el plano
+const efectos = [[en('madre', 0.0022), 'pasos'], [en('madre', 0.0825), 'golpecito'], [en('madre', 0.1405), 'viento'], [en('madre', 0.1718), 'whoosh'],
+  [en('madre', 0.2331), 'pasos', { n: 3 }], [en('madre', 0.2677), 'tic'], [en('madre', 0.2878), 'pasos', { n: 3 }],
+  [en('madre', 0.3302), 'viento', { dur: 3 }], [en('madre', 0.3726), 'tic'], [en('madre', 0.4194), 'tic'],
+  [en('madre', 0.4573), 'papel'], [en('madre', 0.5042), 'brillo'], [en('madre', 0.5376), 'viento', { dur: 2.5 }], [en('madre', 0.6023), 'pasos'], [en('madre', 0.6403), 'oca'],
+  [en('madre', 0.6670), 'tic'], [en('madre', 0.6983), 'brillo'], [en('madre', 0.7340), 'tic'], [en('madre', 0.7585), 'chof'], [en('madre', 0.7920), 'zumbido'], [en('madre', 0.8656), 'sello'],
+  [en('madre', 0.8901), 'viento', { dur: 3 }], [en('madre', 0.9303), 'tic'], [en('madre', 0.9682), 'brillo'],
+  [en('baron', 0.0125), 'pasos', { n: 5, ritmo: 0.45 }], [en('baron', 0.1228), 'pasos'], [en('baron', 0.1465), 'carro'], [en('baron', 0.1649), 'puerta'], [en('baron', 0.2385), 'pasos'],
+  [en('baron', 0.2805), 'pasos', { n: 5 }], [en('baron', 0.3515), 'puerta'], [en('baron', 0.4277), 'pop'], [en('baron', 0.4671), 'viento', { dur: 2.5 }], [en('baron', 0.5354), 'golpecito'],
+  [en('baron', 0.5932), 'tic'], [en('baron', 0.6300), 'tic'], [en('baron', 0.6720), 'tic'], [en('baron', 0.7430), 'viento', { dur: 3.5 }], [en('baron', 0.8612), 'campana'],
+  [en('baron', 0.9059), 'tic'], [en('baron', 0.9558), 'pasos'], [en('abrigo', 0.0248), 'puerta'], [en('abrigo', 0.0429), 'pasos', { n: 4 }], [en('abrigo', 0.0853), 'viento', { dur: 2.5 }],
+  [en('abrigo', 0.1428), 'rafaga'], [en('abrigo', 0.1579), 'pasos', { n: 6, ritmo: 0.45 }], [en('abrigo', 0.1942), 'trueno'], [en('abrigo', 0.2245), 'viento', { dur: 3 }],
+  [en('abrigo', 0.2911), 'whoosh'], [en('abrigo', 0.3274), 'chof'], [en('abrigo', 0.3516), 'viento', { dur: 2 }],
+  [en('abrigo', 0.4121), 'pasos'], [en('abrigo', 0.4484), 'viento', { dur: 2 }], [en('abrigo', 0.4968), 'pasos', { n: 4 }],
+  [en('abrigo', 0.5785), 'viento', { dur: 2 }], [en('abrigo', 0.6814), 'pasos', { n: 6 }], [en('abrigo', 0.7752), 'viento', { dur: 3 }], [en('abrigo', 0.8085), 'pajaros'],
+  [en('abrigo', 0.8902), 'puerta'], [en('abrigo', 0.9114), 'pasos'], [en('abrigo', 0.9447), 'pasos', { n: 3 }],
+  [en('baul', 0.0070), 'tic'], [en('baul', 0.0395), 'papel'], [en('baul', 0.1127), 'tic'], [en('baul', 0.1819), 'pasos', { n: 4 }], [en('baul', 0.3161), 'papel'], [en('baul', 0.3812), 'cerrojo'],
+  [en('baul', 0.4137), 'pasos', { n: 3 }], [en('baul', 0.4829), 'chof'], [en('baul', 0.5561), 'papel'], [en('baul', 0.6537), 'papel'], [en('baul', 0.6944), 'lapiz'],
+  [en('baul', 0.8043), 'rafaga'], [en('baul', 0.9792), 'zumbido'], [en('promesa', 0.0041), 'pasos', { n: 5 }], [en('promesa', 0.0414), 'pajaros'], [en('promesa', 0.1021), 'viento', { dur: 2 }],
+  [en('promesa', 0.1767), 'pop'], [en('promesa', 0.3680), 'pop'], [en('promesa', 0.4519), 'cerrojo'], [en('promesa', 0.5126), 'rafaga'], [en('promesa', 0.6152), 'viento'], [en('promesa', 0.7319), 'pasos', { n: 4 }],
+  [en('promesa', 0.8158), 'lapiz'], [en('promesa', 0.8205), 'pop'], [en('promesa', 0.9464), 'golpecito']];
 T.rodar(E, R, [[0, p1], [en('madre', 0.1361), p2], [en('madre', 0.2298), p3], [en('madre', 0.3257), p4], [en('madre', 0.4506), p5], [en('madre', 0.5332), p6], [en('madre', 0.6603), p7], [en('madre', 0.7808), p8], [en('madre', 0.8857), p9],
   [en('madre', 1.0061), p10], [en('baron', 0.1412), p11], [en('baron', 0.2753), p12], [en('baron', 0.3961), p13], [en('baron', 0.5748), p14], [en('baron', 0.7351), p15], [en('baron', 0.8823), p16],
   [en('baron', 1.0084), p17], [en('abrigo', 0.1367), p18], [en('abrigo', 0.2820), p19], [en('abrigo', 0.3970), p20], [en('abrigo', 0.5694), p21], [en('abrigo', 0.7692), p22], [en('abrigo', 0.8811), p23],

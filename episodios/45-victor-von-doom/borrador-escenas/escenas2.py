@@ -662,11 +662,29 @@ const p33 = (t) => { libroBG();
   T.AT.atom(R, 148, 160, t, { pose: t > @159.9 && t < @161.4 ? 'senala' : t > @162.8 ? 'brazos' : 'quieto', dir: -1, cara: t > @162.9 ? 'sorpresa' : 'normal', habla: t > @159.7 && t < @160.8 ? 1 : 0 });
   if (t > @160.2) R.numero('3', 96, Math.round(lerp(140, 132, tramo(t, @160.2, @160.6))), { tam: 16, centro: true }); };
 
-const efectos = [[@0.6, 'pasos'], [@4.2, 'golpecito'], [@6.8, 'viento'], [@8.2, 'whoosh'], [@21.0, 'papel'], [@23.1, 'brillo'], [@27.5, 'pasos'], [@29.2, 'oca'],
-  [@31.8, 'brillo'], [@34.5, 'chof'], [@36.0, 'zumbido'], [@39.3, 'sello'], [@43.9, 'brillo'], [@50.4, 'pasos'], [@51.3, 'carro'], [@59.1, 'puerta'], [@62.0, 'pop'],
-  [@66.1, 'golpecito'], [@69.7, 'tic'], [@78.5, 'campana'], [@82.1, 'pasos'], [@85.0, 'puerta'], [@88.9, 'rafaga'], [@90.6, 'trueno'], [@93.8, 'whoosh'], [@97.8, 'pasos'],
-  [@110.9, 'pajaros'], [@114.3, 'pasos'], [@125.4, 'papel'], [@127.0, 'cerrojo'], [@129.5, 'chof'], [@133.7, 'papel'], [@141.7, 'zumbido'], [@143.5, 'pajaros'],
-  [@146.4, 'pop'], [@150.5, 'pop'], [@152.3, 'cerrojo'], [@155.8, 'viento'], [@160.2, 'pop'], [@162.9, 'golpecito']];
+// efectos (pasada de movimiento): el viento y la ventisca en los exteriores de nieve, la hoguera y la estufa que crepitan
+// (tic), los pasos en la nieve, la manta y las páginas (papel), el dedo que sigue las líneas (lapiz), el farol de Boris
+// llega con sus pasos y la campana de la torre; todos en el gesto que ya pasa en el plano
+const efectos = [[@0.6, 'pasos'], [@4.2, 'golpecito'], [@6.8, 'viento'], [@8.2, 'whoosh'],
+  [@10.95, 'pasos', { n: 3 }], [@12.5, 'tic'], [@13.4, 'pasos', { n: 3 }],
+  [@15.3, 'viento', { dur: 3 }], [@17.2, 'tic'], [@19.3, 'tic'],
+  [@21.0, 'papel'], [@23.1, 'brillo'], [@24.6, 'viento', { dur: 2.5 }], [@27.5, 'pasos'], [@29.2, 'oca'],
+  [@30.4, 'tic'], [@31.8, 'brillo'], [@33.4, 'tic'], [@34.5, 'chof'], [@36.0, 'zumbido'], [@39.3, 'sello'],
+  [@40.4, 'viento', { dur: 3 }], [@42.2, 'tic'], [@43.9, 'brillo'],
+  [@46.2, 'pasos', { n: 5, ritmo: 0.45 }], [@50.4, 'pasos'], [@51.3, 'carro'], [@52.0, 'puerta'], [@54.8, 'pasos'],
+  [@56.4, 'pasos', { n: 5 }], [@59.1, 'puerta'], [@62.0, 'pop'], [@63.5, 'viento', { dur: 2.5 }], [@66.1, 'golpecito'],
+  [@68.3, 'tic'], [@69.7, 'tic'], [@71.3, 'tic'], [@74.0, 'viento', { dur: 3.5 }], [@78.5, 'campana'],
+  [@80.2, 'tic'], [@82.1, 'pasos'], [@85.0, 'puerta'], [@85.6, 'pasos', { n: 4 }], [@87.0, 'viento', { dur: 2.5 }],
+  [@88.9, 'rafaga'], [@89.4, 'pasos', { n: 6, ritmo: 0.45 }], [@90.6, 'trueno'], [@91.6, 'viento', { dur: 3 }],
+  [@93.8, 'whoosh'], [@95.0, 'chof'], [@95.8, 'viento', { dur: 2 }],
+  [@97.8, 'pasos'], [@99.0, 'viento', { dur: 2 }], [@100.6, 'pasos', { n: 4 }],
+  [@103.3, 'viento', { dur: 2 }], [@106.7, 'pasos', { n: 6 }], [@109.8, 'viento', { dur: 3 }], [@110.9, 'pajaros'],
+  [@113.6, 'puerta'], [@114.3, 'pasos'], [@115.4, 'pasos', { n: 3 }],
+  [@117.8, 'tic'], [@118.6, 'papel'], [@120.4, 'tic'], [@122.1, 'pasos', { n: 4 }], [@125.4, 'papel'], [@127.0, 'cerrojo'],
+  [@127.8, 'pasos', { n: 3 }], [@129.5, 'chof'], [@131.3, 'papel'], [@133.7, 'papel'], [@134.7, 'lapiz'],
+  [@137.4, 'rafaga'], [@141.7, 'zumbido'], [@142.7, 'pasos', { n: 5 }], [@143.5, 'pajaros'], [@144.8, 'viento', { dur: 2 }],
+  [@146.4, 'pop'], [@150.5, 'pop'], [@152.3, 'cerrojo'], [@153.6, 'rafaga'], [@155.8, 'viento'], [@158.3, 'pasos', { n: 4 }],
+  [@160.1, 'lapiz'], [@160.2, 'pop'], [@162.9, 'golpecito']];
 T.rodar(E, R, [[0, p1], [@6.6, p2], [@10.8, p3], [@15.1, p4], [@20.7, p5], [@24.4, p6], [@30.1, p7], [@35.5, p8], [@40.2, p9],
   [@45.6, p10], [@51.1, p11], [@56.2, p12], [@60.8, p13], [@67.6, p14], [@73.7, p15], [@79.3, p16],
   [@84.1, p17], [@88.7, p18], [@93.5, p19], [@97.3, p20], [@103.0, p21], [@109.6, p22], [@113.3, p23],

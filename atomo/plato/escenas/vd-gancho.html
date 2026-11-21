@@ -11,7 +11,7 @@
 <script type="module">
 // VD-GANCHO (frases 1–3), sin año en la infancia y 2026 en los planos de hoy. Diez planos:
 // 1. de noche, el niño sube a la loma nevada frente al castillo y mira una luz roja entre las rocas; en «mother» la luz
-//    estalla y él alarga la mano;
+//    estalla y él alarga la mano; un aldeano con farol baja del pueblo y se para a mirar; dos cuervos salen volando;
 // 2. la tormenta: el padre cruza la nieve, que le llega a las rodillas, con el niño en brazos; tropieza en «knees»;
 //    Atom de luciérnaga tirita junto a las rocas;
 // 3. el pinar en la ventisca (fondo local): el padre avanza contra el viento, la bufanda le ondea; el niño esconde la
@@ -19,14 +19,17 @@
 // 4. la puerta del castillo: salen los soldados con antorchas y un perro; en «torches» las antorchas se avivan y en
 //    «running» el primero señala hacia el monte;
 // 5. la tormenta con las antorchas en la loma: el padre tiembla («shaking») y en «stops» se para y se vuelve;
-// 6. el hueco entre las rocas: deja al niño, se quita el abrigo («takes off his coat») y lo envuelve despacio
-//    («wraps», «slowly»); baja una luz pálida;
+// 6. el hueco entre las rocas, los dos AL DOBLE (el abrazo es la imagen central): el padre da el último paso, deja
+//    al niño, se quita el abrigo («takes off his coat»), se arrodilla y lo envuelve despacio («wraps», «slowly»); el
+//    vaho de los dos; baja una luz pálida y se sonríen;
 // 7. el camino al amanecer (fondo local): el niño echa a andar y crece detrás de cada roca y cada pino: muchacho en
 //    «Victor von Doom», joven en «everything that came after»;
-// 8. la ciudad de Doom de noche: en «iron mask» Doom sale al balcón (los vecinos se apartan); en «December 18th» Atom
+// 8. la ciudad de Doom de noche: el ventanal se enciende y en «iron mask» Doom sale al balcón, oscuro contra la luz
+//    verde, con la capa al viento (los vecinos se apartan); en «December 18th» Atom
 //    levanta una hoja de calendario con el 18;
-// 9. un cine: la cuenta atrás en la pantalla y en «face» la máscara de hierro; en «Doomsday» se le encienden los ojos;
-// 10. la sala del trono: Atom sube hacia Doom y lo señala («his life»); en «from inside that mask» la máscara se cierra
+// 9. un cine: la cuenta atrás en la pantalla y en «face» la máscara de hierro (las palomitas de la fila de delante
+//    saltan); en «Doomsday» se le encienden los ojos y su luz verde baña al público;
+// 10. la sala del trono: Atom, al doble, sube por la alfombra hacia Doom y lo señala («his life»); en «from inside that mask» la máscara se cierra
 //    sobre la pantalla y por sus rendijas se ve el campamento donde empezó todo.
 import * as T from '/atomo/plato/escenas/vd-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -57,8 +60,8 @@ const nene = (mx, my, dir, tapado = false) => {
 };
 // la nieve hasta las rodillas alrededor de quien camina (x es la esquina del sprite de 15 px) y su surco detrás
 // (los colores salen de la nieve del propio decorado, unos píxeles más abajo: así el montón no es un recuadro blanco)
-const hondo = (x, suelo, dir, t, surco = 0, alto = 7) => {
-  const base = R.pget(Math.round(x + 7), suelo + 4) || NVM, luzN = mezcla(base, hex('#ffffff'), 0.35), somb = mezcla(base, hex('#1a2238'), 0.25);
+const hondo = (x, suelo, dir, t, surco = 0, alto = 7, col = 0) => {
+  const base = col || R.pget(Math.round(x + 7), suelo + 4) || NVM, luzN = mezcla(base, hex('#ffffff'), 0.35), somb = mezcla(base, hex('#1a2238'), 0.25);
   for (let k = 1; k <= surco; k++) { const sx = Math.round(x + 7 - dir * (8 + k * 6)); R.rect(sx - 3, suelo - 1, sx + 3, suelo, somb); R.linea(sx - 3, suelo - 2, sx + 3, suelo - 2, luzN); }
   for (let i = -3; i <= 18; i++) { const top = suelo - alto + Math.round(Math.abs(i - 7) / 3) + (H(i + Math.floor(x), 3) > 0.7 ? 1 : 0), xx = Math.round(x + i);
     for (let y = top; y <= suelo + 1; y++) R.pset(xx, y, y === top ? luzN : y > suelo - 2 && (i < 0 || i > 15) ? somb : (H(xx, y) > 0.86 ? somb : base)); }
@@ -83,6 +86,18 @@ const antorcha = (mx, my, t, k = 0, viva = 1) => {
 const copos = (t, n, v, dx, c, tam = 1, k = 0) => { for (let i = 0; i < n; i++) { const x = ((H(i, k) * 360 + t * dx + Math.sin(t * 1.3 + i) * 3) % 340 + 340) % 340 - 10, y = ((H(i, k + 1) * 200 + t * v) % 196) - 8;
   R.pset(Math.round(x), Math.round(y), c); if (tam > 1) { R.pset(Math.round(x) + 1, Math.round(y), c); R.pset(Math.round(x), Math.round(y) + 1, NVS); } } };
 
+// un grupo dibujado al doble: dibuja() pinta en un búfer aparte (en coordenadas locales, recuadro lx0..lx1, ly0..ly1)
+// y se copia a (x0, y0) con cada píxel de 2 × 2; lo vacío (0) deja ver el decorado
+const BUFG = R.nuevo();
+const alDoble = (dibuja, lx0, ly0, lx1, ly1, x0, y0) => {
+  R.recorte(null); const prev = R.usar(BUFG); BUFG.fill(0); const out = dibuja(); R.recorte(null); R.usar(prev);
+  for (let j = ly0; j <= ly1; j++) for (let i = lx0; i <= lx1; i++) { const c = BUFG[j * 320 + i]; if (!c) continue; const px = x0 + (i - lx0) * 2, py = y0 + (j - ly0) * 2;
+    R.pset(px, py, c); R.pset(px + 1, py, c); R.pset(px, py + 1, c); R.pset(px + 1, py + 1, c); }
+  return out;
+};
+// un farol de mano (mx, my: la mano), con su asa, el cristal encendido y su luz cálida
+const farol = (mx, my, t) => { luz(mx, my + 4, 10, hex('#ffb050'), 0.4 + 0.1 * Math.sin(t * 9)); R.pset(mx, my, K); R.rect(mx - 2, my + 1, mx + 2, my + 7, K); R.rect(mx - 1, my + 2, mx + 1, my + 6, hex('#ffd070')); R.pset(mx, my + 3, hex('#fff4c0')); R.rect(mx - 2, my + 1, mx + 2, my + 1, hex('#3a3a44')); };
+
 // ── 1 · la loma frente al castillo: el niño y la luz roja ───────────────────────────────────────────────────────────
 const p1 = (t) => {
   const o = { encuadre: 'baron', lejos: true };
@@ -98,6 +113,14 @@ const p1 = (t) => {
   const u = tramo(t, 0.3, g(0.5)), x = Math.round(lerp(52, 100, ease(u)));
   R.actor(T.VD.victorNinoVD, x, 150 - Math.round(u * 2), t, { dir: 1, anda: u > 0 && u < 1, dedo: t > g(0.79) && t < madre + 0.9, sorpresa: t > madre, quieto: false });
   for (let k = 0; k < 4; k++) { const fx = Math.round(lerp(52, 100, ease(Math.min(u, k / 4)))) + 6; if (fx < x) { R.pset(fx, 150, NVS); R.pset(fx + 2, 151, NVS); } }
+  // un aldeano con su farol baja del pueblo por la nieve, a la derecha, y se para a mirar el destello
+  const ua = tramo(t, 0.2, madre - 0.2), vx = Math.round(lerp(334, 236, ua)), mira = t > madre;
+  const rv = R.actor(T.VD.romaniVD, vx, 150, t, { dir: -1, anda: ua > 0 && ua < 1, sostiene: [vx - 1, 136], sorpresa: mira });
+  if (rv?.mano) farol(rv.mano[0], rv.mano[1], t);
+  // dos cuervos en el árbol seco que salen volando con el destello
+  for (let k = 0; k < 2; k++) { const v = tramo(t, madre + 0.05 + k * 0.15, madre + 2.2), bx = Math.round(30 + k * 7 - v * 40 - k * v * 12), by = Math.round(118 + k * 4 - v * 70 + Math.sin(v * 9) * 3), ala = v > 0 && Math.sin(t * 22 + k) > 0;
+    if (bx < -4 || by < 22) continue; R.rect(bx - 1, by, bx + 1, by + 1, K); R.pset(bx - 2, by + (v > 0 ? 0 : 1), K); R.pset(bx + 2, by, hex('#5a4a3a'));
+    if (v > 0) { R.pset(bx - 1, by - (ala ? 2 : -2), K); R.pset(bx + 1, by - (ala ? 2 : -2), K); R.pset(bx, by - (ala ? 1 : -1), K); } }
   T.latveriaDelante(R, t, o);
   copos(t, 70, 16, -6, NV, 1, 3); copos(t, 18, 26, -10, NV, 2, 9);
 };
@@ -266,33 +289,48 @@ const p5 = (t) => {
 const p6 = (t) => {
   const o = { encuadre: 'tormenta', camara: 'abrigo', amanecer: 0.15 * tramo(t, despacio, P7) };
   T.latveria(R, t, o);
-  const entra = tramo(t, P6, P6 + 0.5), deja = t > P6 + 0.5, sinAbrigo = t > quita, rodilla = tramo(t, quita + 0.3, envuelve);
-  const x = Math.round(lerp(198, 132, ease(entra))), suelo = 152 + Math.round(rodilla * 6);
-  const pal = sinAbrigo ? { C: hex('#c8b890'), c: hex('#9a8a6a'), u: hex('#b8a880') } : undefined;
-  // el niño, de pie en la nieve, que tirita hasta que el abrigo lo envuelve
-  const wrap = tramo(t, envuelve, despacio + 1.2), nx = 160 + (wrap < 1 && deja && Math.floor(t * 18) % 2 ? 1 : 0);
-  if (deja) { const rn = R.actor(T.VD.victorNinoVD, nx, 152, t, { dir: -1, triste: wrap < 1, sonrisa: wrap >= 1 && t > despacio + 1.6 });
-    // el abrigo grande del padre se cierra alrededor del niño, de un lado al otro: hombros redondos, el cuello subido
-    // con la bufanda roja, los pliegues y el bajo que arrastra por la nieve
-    if (wrap > 0) { const hx = rn.cabeza[0], hy = rn.cabeza[1] + 5, xl = hx - 12, xr = Math.round(xl + 25 * wrap);
-      R.recorte([xl, 0, xr, 179]);
-      const pts = [[hx - 5, hy + 6], [hx - 9, hy + 10], [hx - 10, 146], [hx - 12, 153], [hx + 12, 153], [hx + 10, 146], [hx + 9, hy + 10], [hx + 5, hy + 6]];
-      R.poligono(pts, K); R.poligono(pts.map(([x, y]) => [x + (x < hx ? 1 : -1), y + (y > 150 ? -1 : 1)]), ABR);
-      R.poligono([[hx - 8, hy + 11], [hx - 3, hy + 11], [hx - 5, 151], [hx - 10, 151]], hex('#7a5a3a'));
-      for (const dx of [-2, 3, 7]) R.linea(hx + dx, hy + 14, hx + dx + (dx > 0 ? 1 : -1), 150, ABRS);
-      R.linea(hx, hy + 11, hx + 1, 151, K); for (const yy of [hy + 15, hy + 21]) R.pset(hx + 2, yy, hex('#c8a040'));
-      R.rect(hx - 7, hy + 7, hx + 7, hy + 9, K); R.rect(hx - 6, hy + 7, hx + 6, hy + 8, BUF); R.rect(hx - 6, hy + 8, hx + 6, hy + 8, hex('#7a1e1a')); R.rect(hx + 4, hy + 9, hx + 6, hy + 16, BUF); R.pset(hx + 5, hy + 16, hex('#7a1e1a'));
-      R.linea(hx - 12, 153, hx + 12, 153, NVS);
-      R.recorte(null); } }
-  const tiene = !sinAbrigo ? null : t < envuelve ? [x + 15, 136] : null;
-  const r = R.actor(T.VD.wernerVD, x, suelo, t, { dir: 1, anda: entra > 0 && entra < 1, pal, sostiene: !deja ? [x + 13, 139] : tiene ? tiene : t > envuelve ? [x + 16, suelo - 15] : undefined, triste: t < despacio + 1, sonrisa: t > despacio + 1.6 });
-  if (!deja && r?.mano) nene(r.mano[0], r.mano[1], 1, true);
-  if (tiene && r?.mano) { const [mx, my] = r.mano; R.poligono([[mx - 3, my], [mx + 3, my], [mx + 5, my + 14], [mx - 4, my + 14]], K); R.poligono([[mx - 2, my + 1], [mx + 2, my + 1], [mx + 4, my + 13], [mx - 3, my + 13]], ABR); R.linea(mx - 2, my + 1, mx + 2, my + 1, BUF); R.linea(mx, my + 3, mx + 1, my + 12, ABRS); }
-  if (rodilla > 0) hondo(x, suelo, 1, t, 0, 3 + Math.round(rodilla * 6));
+  // el abrazo es la imagen central del episodio: los dos, al doble, llenan el hueco entre las rocas (x 120–200). Se
+  // dibujan en un búfer en coordenadas locales (suelo LS) y se copian a 2 × 2: local (0, 0) → pantalla (118, 75)
+  // (el color de la nieve del hueco se toma del decorado, para que los montones al doble no salgan más blancos)
+  const LS = 40, lzv = tramo(t, despacio, despacio + 1.5), nieveH = R.pget(160, 160);
+  const ar = tramo(t, P6, P6 + 0.7), rp = tramo(t, P6 + 0.7, P6 + 1.1);
+  alDoble(() => {
+    // el padre da el último paso dentro del hueco, se agacha y deja al niño en la nieve; se quita el abrigo, se
+    // arrodilla y se lo cierra alrededor despacio; luego lo rodea con el brazo y le sonríe
+    const deja = t > P6 + 0.8, sinAbrigo = t > quita, rodilla = Math.max(rp * 0.4, tramo(t, quita + 0.3, envuelve));
+    const x = Math.round(lerp(12, 4, ease(ar))), suelo = LS + Math.round(rodilla * 6);
+    const pal = sinAbrigo ? { C: hex('#c8b890'), c: hex('#9a8a6a'), u: hex('#b8a880') } : undefined;
+    // el niño, de pie en la nieve, que tirita hasta que el abrigo lo envuelve
+    const wrap = tramo(t, envuelve, despacio + 1.2), nx = 22 + (wrap < 1 && deja && Math.floor(t * 18) % 2 ? 1 : 0);
+    if (deja) { const rn = R.actor(T.VD.victorNinoVD, nx, LS, t, { dir: -1, triste: wrap < 1, sonrisa: wrap >= 1 && t > despacio + 1.6, sorpresa: t > quita && t < envuelve });
+      // el vaho del niño, que tiembla de frío (se acaba cuando lo envuelve)
+      if (wrap < 1) for (let k = 0; k < 2; k++) { const f = (t * 1.3 + k / 2) % 1; R.pset(Math.round(rn.cabeza[0] - 3 - f * 5), Math.round(rn.cabeza[1] + 8 - f * 3), f < 0.5 ? NV : NVS); }
+      // el abrigo grande del padre se cierra alrededor del niño, de un lado al otro: hombros redondos, el cuello subido
+      // con la bufanda roja, los pliegues y el bajo que arrastra por la nieve
+      if (wrap > 0) { const hx = rn.cabeza[0], hy = rn.cabeza[1] + 5, xl = hx - 12, xr = Math.round(xl + 25 * wrap);
+        R.recorte([xl, 0, xr, 179]);
+        const pts = [[hx - 5, hy + 6], [hx - 9, hy + 10], [hx - 10, LS - 6], [hx - 12, LS + 1], [hx + 12, LS + 1], [hx + 10, LS - 6], [hx + 9, hy + 10], [hx + 5, hy + 6]];
+        R.poligono(pts, K); R.poligono(pts.map(([x2, y]) => [x2 + (x2 < hx ? 1 : -1), y + (y > LS - 2 ? -1 : 1)]), ABR);
+        R.poligono([[hx - 8, hy + 11], [hx - 3, hy + 11], [hx - 5, LS - 1], [hx - 10, LS - 1]], hex('#7a5a3a'));
+        for (const dx of [-2, 3, 7]) R.linea(hx + dx, hy + 14, hx + dx + (dx > 0 ? 1 : -1), LS - 2, ABRS);
+        R.linea(hx, hy + 11, hx + 1, LS - 1, K); for (const yy of [hy + 15, hy + 21]) R.pset(hx + 2, yy, hex('#c8a040'));
+        R.rect(hx - 7, hy + 7, hx + 7, hy + 9, K); R.rect(hx - 6, hy + 7, hx + 6, hy + 8, BUF); R.rect(hx - 6, hy + 8, hx + 6, hy + 8, hex('#7a1e1a')); R.rect(hx + 4, hy + 9, hx + 6, hy + 16, BUF); R.pset(hx + 5, hy + 16, hex('#7a1e1a'));
+        R.linea(hx - 12, LS + 1, hx + 12, LS + 1, NVS);
+        R.recorte(null); }
+      hondo(nx, LS, -1, t, 0, 3, nieveH); }
+    const tiene = !sinAbrigo ? null : t < envuelve ? [x + 15, LS - 16] : null;
+    const r = R.actor(T.VD.wernerVD, x, suelo, t, { dir: 1, anda: ar > 0 && ar < 1, pal, sostiene: !deja ? [x + 13, LS - 13 + Math.round(rp * 4)] : tiene ? tiene : t > envuelve ? [x + 16, suelo - 15] : undefined, triste: t < despacio + 1, sonrisa: t > despacio + 1.6, quieto: false });
+    if (!deja && r?.mano) nene(r.mano[0], r.mano[1], 1, true);
+    if (tiene && r?.mano) { const [mx, my] = r.mano; R.poligono([[mx - 3, my], [mx + 3, my], [mx + 5, my + 14], [mx - 4, my + 14]], K); R.poligono([[mx - 2, my + 1], [mx + 2, my + 1], [mx + 4, my + 13], [mx - 3, my + 13]], ABR); R.linea(mx - 2, my + 1, mx + 2, my + 1, BUF); R.linea(mx, my + 3, mx + 1, my + 12, ABRS); }
+    // el vaho del padre, más fuerte cuando ya está en camisa y tiembla
+    for (let k = 0; k < 2; k++) { const f = (t * 1.1 + k / 2 + 0.3) % 1; R.pset(Math.round(r.cabeza[0] + 12 + f * 5), Math.round(r.cabeza[1] + 8 - f * 3), f < 0.5 ? NV : NVS); }
+    hondo(x, suelo, 1, t, 0, 3 + Math.round(rodilla * 6), nieveH);
+    return r;
+  }, 0, 0, 44, 52, 118, 75);
   // la luz pálida que baja sobre los dos cuando el abrigo ya lo envuelve
-  const lz = tramo(t, despacio, despacio + 1.5); if (lz > 0) luz(160, 132, 34, hex('#ffe8c0'), 0.35 * lz);
+  if (lzv > 0) luz(160, 128, 40, hex('#ffe8c0'), 0.35 * lzv);
   T.latveriaDelante(R, t, o);
-  T.AT.luciernaga(R, 92 + Math.sin(t * 0.7) * 3, 96 + Math.sin(t * 1.9) * 3, t, { dir: 1, brillo: 0.5 + lz * 0.3, cara: lz > 0.5 ? 'sonrisa' : 'triste' });
+  T.AT.luciernaga(R, 92 + Math.sin(t * 0.7) * 3, 96 + Math.sin(t * 1.9) * 3, t, { dir: 1, brillo: 0.5 + lzv * 0.3, cara: lzv > 0.5 ? 'sonrisa' : 'triste' });
 };
 
 // ── 7 · el camino al amanecer (fondo local): el niño crece mientras camina ─────────────────────────────────────────
@@ -359,9 +397,14 @@ const p8 = (t) => {
   const gd = T.latveria(R, t, o);
   const bx = gd.balcon ? Math.round((gd.balcon.x0 + gd.balcon.x1) / 2) : 160, byy = gd.balcon?.y ?? 60;
   const sale = tramo(t, mascaraV - 0.8, mascaraV), fl = tramo(t, mascaraV - 0.1, mascaraV + 0.2) * (1 - tramo(t, mascaraV + 0.8, mascaraV + 1.6));
-  if (fl > 0) luz(bx, byy - 10, 20, hex('#a8ffb0'), 0.5 * fl);
+  // el ventanal se enciende cuando va a salir: Doom se recorta, oscuro, contra la luz verde (así se lee de lejos)
+  const enc = tramo(t, mascaraV - 1.2, mascaraV - 0.6);
+  if (enc > 0) { luz(bx, byy - 12, 16, hex('#c8ffd0'), 0.55 * enc + 0.25 * fl); luz(bx, byy - 8, 30, hex('#5ae87a'), 0.25 * enc); }
+  if (fl > 0) luz(bx, byy - 10, 24, hex('#a8ffb0'), 0.5 * fl);
   if (sale > 0) { const x = Math.round(bx - 7), y = Math.round(lerp(byy + 8, byy, ease(sale)));
-    const r = R.actor(EL.doom, x, y, t, { dir: 1, dedo: t > dieciocho - 0.6 && t < dieciocho + 1.2 });
+    // la capa verde que el viento abre a su espalda
+    for (let k = 0; k < 6; k++) { const cy2 = y - 12 + k * 2, ex = Math.round(4 + k * 0.6 + Math.sin(t * 7 - k * 0.8) * 1.5); R.linea(x + 2 - ex, cy2, x + 3, cy2, k % 2 ? hex('#1e5a2e') : hex('#2a7a3e')); R.pset(x + 2 - ex, cy2, K); }
+    const r = R.actor(EL.doom, x, y, t, { dir: 1, dedo: t > dieciocho - 0.6 && t < dieciocho + 1.2, enfado: t > mascaraV });
     if (t > mascaraV && Math.floor(t * 3) % 4 !== 0) { R.pset(r.cabeza[0] + 1, r.cabeza[1] + 6, hex('#a8ffb0')); R.pset(r.cabeza[0] + 4, r.cabeza[1] + 6, hex('#a8ffb0')); }
     R.rect(bx - 12, byy, bx + 12, byy + 2, K); R.rect(bx - 11, byy, bx + 11, byy + 1, hex('#5a5a66')); for (let k = -10; k <= 10; k += 4) R.rect(bx + k, byy - 6, bx + k + 1, byy, hex('#3a3a44')); R.rect(bx - 12, byy - 7, bx + 12, byy - 6, hex('#3a3a44')); }
   // dos vecinos en la calle miran arriba y se apartan cuando sale
@@ -396,6 +439,16 @@ const p9 = (t) => {
   R.recorte(null);
   T.AT.luciernaga(R, Math.round(lerp(250, 214, tramo(t, P9, P10))), Math.round(132 + Math.sin(t * 2.1) * 3), t, { dir: -1, brillo: 0.7, cara: t > cara ? 'sorpresa' : 'normal' });
   T.salasDelante(R, t, o);
+  // la luz de la pantalla sobre las cabezas: cálida y parpadeante en la cuenta atrás, fría y verde con la máscara
+  const pc = t < cara - 0.15 ? (Math.floor(t * 6) % 2 ? 0.16 : 0.1) : 0.12 + 0.18 * tramo(t, doomsday - 0.1, doomsday + 0.3);
+  luz(cx, 150, 70, t < cara - 0.15 ? hex('#e8dcb8') : hex('#8affa8'), pc);
+  // un cubo de palomitas en la fila de delante: con la máscara da un respingo y las palomitas saltan
+  const sx = 96, sy = 166, bote = tramo(t, cara, cara + 1.1);
+  R.poligono([[sx - 5, sy - 9], [sx + 5, sy - 9], [sx + 4, sy + 2], [sx - 4, sy + 2]], K); R.poligono([[sx - 4, sy - 8], [sx + 4, sy - 8], [sx + 3, sy + 1], [sx - 3, sy + 1]], hex('#f4ece0'));
+  for (const dx of [-2, 1]) R.linea(sx + dx, sy - 8, sx + dx, sy + 1, hex('#c83a2a'));
+  for (let k = 0; k < 7; k++) R.disco(sx - 4 + k * 1.4, sy - 10 - (k % 2), 1, (k % 3) ? hex('#fff4c8') : hex('#f0d070'));
+  if (bote > 0 && bote < 1) for (let k = 0; k < 9; k++) { const vx2 = (H(k, 61) - 0.5) * 30, vy = 26 + H(k, 62) * 16, f = bote * 1.1, px = Math.round(sx + vx2 * f), py = Math.round(sy - 10 - vy * f + 40 * f * f);
+    if (py < sy + 4) { R.pset(px, py, hex('#fff4c8')); R.pset(px + 1, py, hex('#f0d070')); } }
 };
 
 // ── 10 · la sala del trono y, por dentro, la máscara ──────────────────────────────────────────────────────────────
@@ -405,8 +458,8 @@ const p10 = (t) => {
     const o = { encuadre: 'trono' };
     const gt = T.latveria(R, t, o);
     R.actor(EL.doom, 153, 124, t, { dir: -1, dedo: t > vida + 0.6 && t < dentro - 0.2 });
-    const ua = tramo(t, P10 + 0.1, vida), ax = Math.round(lerp(64, 124, ease(ua)));
-    T.AT.atom(R, ax, 156, t, { dir: 1, pose: ua > 0 && ua < 1 ? 'camina' : t > vida && t < dentro - 0.3 ? 'senala' : 'quieto', cara: t > vida + 0.6 ? 'sorpresa' : 'normal', habla: voz(t) });
+    const ua = tramo(t, P10 + 0.1, vida), ax = Math.round(lerp(58, 112, ease(ua)));
+    T.AT.atom(R, ax, 172, t, { s: 2, dir: 1, pose: ua > 0 && ua < 1 ? 'camina' : t > vida && t < dentro - 0.3 ? 'senala' : 'quieto', cara: t > vida + 0.6 ? 'sorpresa' : 'normal', habla: voz(t) });
     T.latveriaDelante(R, t, o);
   } else {
     const o = { encuadre: 'campamento' };
@@ -433,7 +486,7 @@ const p10 = (t) => {
 
 const efectos = [[madre, 'trueno'], [P2 + 0.2, 'viento'], [rodillas, 'pasos'], [P3 + 0.1, 'rafaga'], [P4 + 0.2, 'cerrojo'], [n(0.45), 'guau'], [antorchasV, 'whoosh'],
   [P5 + 0.1, 'viento'], [para, 'pasos'], [envuelve, 'whoosh'], [despacio + 0.4, 'brillo'], [P7 + 0.3, 'pajaros'], [mascaraV, 'trueno'], [dieciocho, 'campana'],
-  [P9 + 0.1, 'tic'], [P9 + 0.6, 'tic'], [P9 + 1.1, 'tic'], [cara, 'brillo'], [doomsday, 'zumbido'], [dentro + 0.85, 'cerrojo']];
+  [P9 + 0.1, 'tic'], [P9 + 0.6, 'tic'], [P9 + 1.1, 'tic'], [cara, 'brillo'], [cara + 0.1, 'pop'], [doomsday, 'zumbido'], [dentro + 0.85, 'cerrojo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10]], { efectos, año: (t) => (t >= P8 ? 2026 : null) });
 </script>
 </body>

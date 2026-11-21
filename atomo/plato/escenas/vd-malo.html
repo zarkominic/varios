@@ -120,7 +120,7 @@ const DOOM_ESP = [
   '...kkkkk.kkkkk...'];
 const PAL_ESP = { k: K, V: H('#2e7a3e'), v: H('#1e5a2a'), Z: H('#a8acbc'), z: H('#6a6e80'), C: H('#2a6a38'), c: H('#1a4a26'), b: H('#4a4e5e') };
 const doomEspaldas = (x, suelo, t, o = {}) => { x = Math.round(x); const y0 = Math.round(suelo - 27 + (o.baja ?? 0) * 0), resp = Math.sin(t * 2.2) > 0.8 ? 1 : 0;
-  R.dibujo(DOOM_ESP.slice(0, 11), x, y0 + resp + (o.baja ? 1 : 0), 1, PAL_ESP); R.dibujo(DOOM_ESP.slice(11), x, y0 + 11, 1, PAL_ESP);
+  R.dibujo(DOOM_ESP.slice(0, 11), x, y0 + resp + Math.round((o.baja || 0) * 2), 1, PAL_ESP); R.dibujo(DOOM_ESP.slice(11), x, y0 + 11, 1, PAL_ESP);
   // el bajo de la capa ondea
   for (let i = 1; i < 16; i++) { const w = Math.sin(t * 3 + i * 0.7) * (o.viento ?? 0.6); if (w > 0.3) R.pset(x + i, y0 + 23, PAL_ESP.c); if (w > 0.7) R.pset(x + i, y0 + 24, K); } };
 
@@ -171,15 +171,47 @@ const ventanalFinal = (t, TT) => {
     R.disco(180, 112, 1.5 + verde, mez(H('#20243a'), H('#c8ffd8'), verde)); }
   // el haz de luna que entra y cae sobre el suelo
   for (let y = 143; y < 180; y++) for (let x = 110; x < 212; x++) { const k = (y - 143) / 37, xa = 116 + k * 22, xb = 204 + k * 30; if (x < xa || x > xb) continue; if (0.18 > bay(x, y) * 0.9) R.pset(x, y, mez(R.pget(x, y), H('#a8b8e8'), 0.22)); }
-  // los braseros encendidos
-  for (const [bx, s] of [[86, 1], [236, 2]]) { luz(bx, 124, 30, 26, H('#f0a050'), 0.3); for (let k = -2; k <= 2; k++) llama(bx + k * 3, 132, t, 1.6, s * 3 + k); }
-  // Doom de espaldas mira por el ventanal; en «paying» baja la cabeza
-  doomEspaldas(152, 170, t, { baja: t > TT.paga ? 1 : 0, viento: 0.5 + 0.4 * Math.sin(t * 0.7) });
+  // TT.sale→TT.llega: Doom deja el trono y cruza la sala hasta el ventanal («ends up making»); en «deal» (TT.trato) el
+  // sello rojo le late en el guantelete y se refleja en el cristal; en «paying» (TT.paga) baja la cabeza y los braseros
+  // bajan; en «loved him» (TT.apaga) la luz verde se apaga y entra una ráfaga (capa, llamas, nieve). Una criada echa un
+  // leño al brasero de la derecha (TT.leño) y se aparta; el guardia del trono le sigue con la mirada.
+  const trato = tramo(t, TT.trato - 0.15, TT.trato + 0.25) * (1 - tramo(t, TT.paga + 0.2, TT.paga + 1.1)), late = trato * (0.75 + 0.25 * Math.sin(t * 9));
+  const rafaga = tramo(t, TT.apaga - 0.15, TT.apaga + 0.35) * (1 - tramo(t, TT.apaga + 1.4, TT.apaga + 2.6));
+  const baja = tramo(t, TT.paga - 0.1, TT.paga + 0.5), aviva = tramo(t, TT.leño, TT.leño + 0.3) * (1 - tramo(t, TT.leño + 0.8, TT.leño + 2.2));
+  // la nieve que cae fuera, recortada al hueco del ventanal; con la ráfaga se tumba
+  for (let k = 0; k < 30; k++) { const u = (t * (0.07 + hh(k, 4, 1) * 0.05) + hh(k, 5, 1)) % 1, x = 116 + ((hh(k, 6, 1) * 88 + Math.sin(t * 1.3 + k) * 2 + u * 10 + rafaga * u * 40) % 89), y = 14 + u * 122;
+    if (dentro(Math.round(x), Math.round(y))) ps(x, y, hh(k, 7, 1) > 0.5 ? H('#e8ecff') : H('#a8acd0')); }
+  // un murciélago cruza el ventanal (recortado a su hueco)
+  { const u = tramo(t, TT.paga + 0.2, TT.paga + 1.8); if (u > 0 && u < 1) { const mx = Math.round(lerp(210, 108, u)), my = Math.round(62 + Math.sin(u * 9) * 5), a = Math.floor(t * 12) % 2;
+    for (const [dx, dy] of [[0, 0], [1, 0], [-1, -1 + a * 2], [2, -1 + a * 2], [-2, -2 + a * 3], [3, -2 + a * 3], [0, 1]]) if (dentro(mx + dx, my + dy)) R.pset(mx + dx, my + dy, H('#0e0e1a')); } }
+  // el halo de la luz verde de la colina, para que se lea; crece un instante en «someone» y se va con ella
+  { const verde = (1 - tramo(t, TT.apaga - 1.2, TT.apaga + 0.4)) * (1 + 0.5 * tramo(t, TT.apaga - 0.6, TT.apaga - 0.3)); if (verde > 0.02) { luz(180, 108, 16 * verde, 13 * verde, H('#6ae890'), 0.45 * Math.min(1, verde)); luz(180, 112, 6 * verde, 4 * verde, H('#d8ffe0'), 0.6 * Math.min(1, verde)); } }
+  // el reflejo rojo del sello en el cristal
+  if (trato > 0.02) { for (let y = 96; y < 130; y++) for (let x = 150; x < 176; x++) { const d = Math.hypot((x - 163) / 12, (y - 113) / 16); if (d < 1 && dentro(x, y) && (1 - d) * late > bay(x, y) * 0.8) R.pset(x, y, mez(R.pget(x, y), H('#c83a3a'), 0.45)); }
+    // el aro del sello, en el cristal
+    for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2, x = Math.round(163 + Math.cos(a) * 5 * late), y = Math.round(113 + Math.sin(a) * 5 * late); if (dentro(x, y)) R.pset(x, y, H('#ff6a5a')); } }
+  // los braseros encendidos: bajan en «paying», el de la derecha se aviva con el leño; chispas y humo que suben
+  for (const [bx, s] of [[86, 1], [236, 2]]) { const f = (1 - 0.3 * baja) * (1 + (s === 2 ? 0.6 * aviva : 0)) * (1 + 0.15 * rafaga);
+    luz(bx, 124, 30 * f, 26 * f, H('#f0a050'), 0.3); for (let k = -2; k <= 2; k++) llama(bx + k * 3 - Math.round(rafaga * 2), 132, t, 1.6 * f, s * 3 + k);
+    for (let k = 0; k < 4; k++) { const u = (t * 0.55 + k * 0.25 + s * 0.13) % 1; ps(bx + Math.sin(t * 2 + k * 2) * 3 - rafaga * u * 10, 126 - u * 34, u < 0.5 ? H('#f8d070') : H('#c86a30')); }
+    for (let k = 0; k < 3; k++) { const u = (t * 0.18 + k / 3 + s * 0.2) % 1; ps(bx + Math.sin(t * 0.9 + k * 2.1) * (2 + u * 5) - rafaga * u * 12, 112 - u * 40, u < 0.5 ? H('#4a4a58') : H('#3e3e4c')); } }
+  // el guardia del trono, con su alabarda: respira; sigue a Doom con la mirada y en «paying» aparta la vista
+  { const g = R.actor(T.VD.soldadoVD, 44, 172, t, { dir: t > TT.paga && t < TT.apaga + 0.1 ? -1 : 1, sostiene: [53, 158] }); const [hx, hy] = g.mano;
+    R.linea(hx, hy + 12, hx, hy - 22, H('#3a2a1a')); R.linea(hx + 1, hy + 12, hx + 1, hy - 22, H('#5a4028')); R.rect(hx - 1, hy - 26, hx + 2, hy - 23, K); R.pset(hx, hy - 25, H('#c8ccd8')); R.pset(hx + 1, hy - 25, H('#a8acbc')); R.linea(hx + 2, hy - 24, hx + 5, hy - 21, H('#a8acbc')); R.linea(hx + 2, hy - 23, hx + 4, hy - 19, H('#6a6e80')); }
+  // la criada entra por la derecha con un leño, lo echa al brasero en TT.leño y se aparta a esperar con la cabeza baja
+  { const ent = ease(tramo(t, TT.sale - 0.1, TT.leño - 0.35)), sal = ease(tramo(t, TT.leño + 0.4, TT.leño + 1.3)), con = t < TT.leño;
+    const cx = Math.round(lerp(330, 248, ent) + sal * 22), r = R.actor(EL.vecina, cx, 162, t, { dir: sal > 0 && sal < 1 ? 1 : -1, anda: (ent > 0 && ent < 1) || (sal > 0 && sal < 1), sostiene: con ? (ent < 1 ? true : [242, 140]) : undefined });
+    if (con && r.mano) { const [lx, ly] = r.mano; R.rect(lx - 4, ly - 2, lx + 3, ly + 1, K); R.rect(lx - 3, ly - 1, lx + 2, ly, H('#7a5232')); R.pset(lx - 3, ly - 1, H('#c8a070')); R.pset(lx + 1, ly, H('#4a3020')); } }
+  // Doom deja el trono y cruza hasta el ventanal; al llegar queda de espaldas, mirando fuera
+  if (t < TT.llega) { const u = ease(tramo(t, TT.sale, TT.llega)); R.actor(EL.doom, Math.round(lerp(94, 153, u)), 170, t, { dir: 1, anda: u > 0 && u < 1 }); }
+  else doomEspaldas(152, 170, t, { baja, viento: 0.5 + 0.4 * Math.sin(t * 0.7) + rafaga * 1.2 });
+  // el sello rojo late en el guantelete derecho
+  if (trato > 0.02 && t >= TT.llega) { luz(167, 157, 13 * late, 11 * late, H('#e84a3a'), 0.55); ps(167, 157, H('#ffd0c0')); ps(166, 157, H('#ff6a5a')); ps(167, 158, H('#ff6a5a')); ps(168, 157, H('#c83a3a')); }
   // motas de polvo en el haz de luna
   for (let k = 0; k < 10; k++) { const u = (t * 0.05 + k * 0.1) % 1; ps(124 + hh(k, 1, 7) * 80 + Math.sin(t + k) * 3, 150 - u * 80, H('#c8d0f0')); }
 };
 
-const TT = { apaga: 79.62, paga: 78.36 };
+const TT = { apaga: 79.62, paga: 78.36, sale: 75.56, llega: 76.95, trato: 77.00, leño: 77.65 };
 const P2 = en('fijate3', 0.1381), P3 = en('fijate3', 0.3581), P4 = en('fijate3', 0.5049), P5 = en('fijate3', 0.6913), P6 = en('fijate3', 0.8567);
 // el plano congelado: el último instante de vd-rey (80,40 s)
 const congelado = () => horno('congelado', () => ventanalFinal(80.40, TT));

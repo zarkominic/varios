@@ -108,6 +108,10 @@ const pasilloFinal = (t, TT) => {
     for (let y = 138; y < 180; y++) { const s = (y - 138) * 0.55; for (let x = Math.round(291 - s); x <= Math.round(290 + w + s * 0.3); x++) if ((1 - (y - 138) / 46) * ab * 0.5 > bay(x, y) * 0.8) R.pset(x, y, mez(R.pget(x, y), H('#f0c870'), 0.35)); } }
   // Reed sale de su cuarto y alarga la mano
   const rs = tramo(t, TT.sale, TT.sale + 0.8); if (ab > 0.6) R.actor(REED, Math.round(lerp(296, 268, ease(rs))), 152, t, { dir: -1, anda: rs > 0 && rs < 1, dedo: t > TT.llama, triste: t > TT.mira + 0.4 });
+  // vida: un estudiante con sudadera vuelve de las duchas con la toalla al hombro, bosteza y sale por la izquierda
+  { const ue = tramo(t, TT.ini, TT.ini + 2.8); if (ue < 1) { const ex = Math.round(lerp(132, -16, ue));
+    const re = R.actor(EL.sudadera, ex, 148, t, { dir: -1, anda: true, sostiene: [ex + 2, 132], sorpresa: t > TT.ini + 0.6 && t < TT.ini + 1.2 });
+    if (re?.mano) { const [mx, my] = re.mano.map(Math.round); R.rect(mx - 3, my - 3, mx + 1, my + 6, K); R.rect(mx - 2, my - 2, mx, my + 5, H('#f0f0f4')); R.pset(mx - 2, my + 1, H('#c83a3a')); R.pset(mx - 1, my + 1, H('#c83a3a')); R.pset(mx, my + 1, H('#c83a3a')); } } }
   // Victor cruza con la maleta, se para y se vuelve
   const u = tramo(t, TT.ini + 0.1, TT.para), x = Math.round(lerp(236, 150, ease(u))), vuelve = t > TT.mira, dir = vuelve ? 1 : -1;
   const r = R.actor(VIC, x, 152, t, { dir, anda: u > 0 && u < 1, sostiene: dir > 0 ? [x + 13, 141] : [x + 1, 141], enfado: vuelve, salto: vuelve && t < TT.mira + 0.15 ? 1 : 0 });
@@ -127,7 +131,7 @@ E['vd-maquina'] = ('La máquina', '''// VD-MAQUINA (frases 12–14), sin año (e
 // 2. la mesa de planos de cerca: el plano del aro, el retrato de su madre; la mano aprieta un tornillo y en «mother»
 //    endereza el retrato, que brilla;
 // 3. la pizarra: Victor escribe; Reed entra en «Reed», mira los cálculos, le habla en «tells him» y en «mistake» señala
-//    el 0.8, que queda rodeado de tiza roja;
+//    el 0.8, que queda rodeado de tiza roja; al fondo, una técnica saca un matraz del armario, lo agita y se va;
 // 4. la consola de cerca: la mano de Reed da golpecitos en el reloj; en «turns it on» la aguja sube al rojo y en
 //    «terrible» se enciende el piloto; la mano de Victor agarra la palanca, como quien protege lo suyo;
 // 5. la pizarra de cerca (GAG): Atom coge una tiza para arreglar el 0.8 y en «warning» la tiza se le parte;
@@ -142,8 +146,9 @@ E['vd-maquina'] = ('La máquina', '''// VD-MAQUINA (frases 12–14), sin año (e
 // 11. su cuarto: mete el retrato en la maleta en «decision», la cierra de golpe en «shape» y mira a la ventana de Reed;
 // 12. la pizarra en rojo, lo que Victor se cuenta: Reed entra a escondidas y en «sabotaged» le cambia el número;
 // 13. el anuario sobre la manta: la mano rodea con lápiz rojo la foto de Reed en «enemy»;
-// 14. el pasillo de noche: Victor se va con la maleta; Reed sale de la 216 y le llama; Victor se vuelve con rabia
-//     (este último plano es el que congela vd-culpa).''', _en('vd-maquina', COMUN + r'''
+// 14. el pasillo de noche: un estudiante con la toalla al hombro sale por la izquierda; Victor se va con la maleta;
+//     Reed sale de la 216 y le llama; Victor se vuelve con rabia (este último plano es el que congela vd-culpa).
+// Sonido: la máquina que zumba y carga, la tiza, la palanca, el estallido, la maleta, los papeles y los pasos (~56 % del tiempo).''', _en('vd-maquina', COMUN + r'''
 const TT = ''' + TT14 + r''';
 const P2 = @T(5.48), P3 = @T(9.66), P4 = @T(16.20), P5 = @T(20.98), P6 = @T(25.56), P7 = @T(32.07), P8 = @T(39.03), P9 = @T(45.05), P10 = @T(49.77), P11 = @T(53.76), P12 = @T(59.18), P13 = @T(64.90), P14 = @T(69.44);
 
@@ -280,6 +285,13 @@ const p3 = (t) => {
   const rr = R.actor(REED, rx, 150, t, { dir: 1, anda: u > 0 && u < 1, sostiene: t < senala ? true : undefined, dedo: t >= senala, sorpresa: t > mira && t < dice, habla, sonrisa: t > dice && t < senala });
   if (t < senala && rr?.mano) { const [mx, my] = rr.mano; R.rect(mx - 3, my - 4, mx + 3, my + 1, K); R.rect(mx - 2, my - 3, mx + 2, my - 2, H('#c83a3a')); R.rect(mx - 2, my - 1, mx + 2, my, H('#3a6ac8')); }
   if (t > mira && t < dice) R.bocadillo(rx + 8, 116, { icono: '?' });
+  // vida: una técnica entra por la derecha, saca un matraz del armario, lo agita mirándolo al trasluz y se va en «mistake»
+  { const ue = tramo(t, P3 + 0.2, P3 + 1.6), us = tramo(t, error - 0.9, error + 0.5), tx = Math.round(lerp(lerp(336, 288, ease(ue)), 336, ease(us)));
+    const tiene = t > P3 + 2.0, ag = tiene && us === 0 ? Math.round(Math.sin(t * 9) * 1.5) : 0;
+    const rt = R.actor(EL.tecnica, tx, 149, t, { dir: us > 0 || ue < 1 ? (us > 0 ? 1 : -1) : 1, anda: (ue > 0 && ue < 1) || (us > 0 && us < 1), sostiene: tiene ? [tx + 11, 141 + ag] : undefined, sonrisa: tiene && t > P3 + 3.2 });
+    if (tiene && rt?.mano) { const [mx, my] = rt.mano.map(Math.round); // el matraz cuelga del cuello, bajo el puño
+      R.rect(mx - 1, my - 1, mx + 1, my + 2, K); R.rect(mx - 2, my + 2, mx + 2, my + 8, K); R.rect(mx - 1, my + 3, mx + 1, my + 4, H('#d8eef0')); R.rect(mx - 1, my + 5, mx + 1, my + 7, H('#5ac85a')); R.pset(mx, my + 5, H('#a8f0a8'));
+      if (Math.sin(t * 6) > 0.3) R.pset(mx + 3, my - 1 - Math.round((t * 6) % 3), H('#c8f0c8')); } }
   T.universidadDelante(R, t, o);
 };
 
@@ -756,7 +768,13 @@ const efectos = [[@T(3.10), 'interruptor'], [@T(4.42), 'zumbido'], [@T(6.0), 'go
   [@T(9.40), 'puerta'], [@T(15.10), 'lapiz'], [@T(17.30), 'golpecito'], [@T(18.70), 'aviso'], [@T(19.40), 'cerrojo'],
   [@T(21.82), 'tic'], [@T(24.12), 'chof'], [@T(30.36), 'whoosh'], [@T(33.70), 'puerta'], [@T(34.20), 'interruptor'], [@T(34.50), 'zumbido'],
   [@T(35.07), 'boom'], [@T(36.20), 'avalancha'], [@T(42.30), 'pasos'], [@T(43.19), 'sello'], [@T(47.43), 'papel'], [@T(48.43), 'brillo'],
-  [@T(52.13), 'cerrojo'], [@T(55.42), 'cerrojo'], [@T(62.48), 'lapiz'], [@T(67.30), 'lapiz'], [@T(70.16), 'puerta']];
+  [@T(52.13), 'cerrojo'], [@T(55.42), 'cerrojo'], [@T(62.48), 'lapiz'], [@T(67.30), 'lapiz'], [@T(70.16), 'puerta'],
+  // la máquina que zumba y carga, la tiza, los pasos, la maleta y los papeles (densidad como en el 11)
+  [@T(0.60), 'pasos'], [@T(5.00), 'maquina'], [@T(6.90), 'toc'], [@T(9.90), 'pasos'], [@T(11.00), 'lapiz'], [@T(13.62), 'toc'],
+  [@T(16.40), 'zumbido'], [@T(17.56), 'bip'], [@T(22.40), 'lapiz'], [@T(25.80), 'zumbido'], [@T(29.58), 'brillo'],
+  [@T(32.50), 'pasos'], [@T(34.70), 'maquina'], [@T(39.20), 'pajaros'], [@T(42.90), 'papel'], [@T(46.13), 'toc'],
+  [@T(49.90), 'zumbido'], [@T(50.77), 'brillo'], [@T(54.00), 'pasos'], [@T(54.62), 'papel'], [@T(60.40), 'pasos'],
+  [@T(65.20), 'papel'], [@T(69.60), 'pasos']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13], [P14, p14]], { efectos, año: null });
 '''))
 
@@ -772,7 +790,8 @@ E['vd-culpa'] = ('Fíjate: la culpa', '''// VD-CULPA (frase 15), LA PAUSA «fíj
 // 5. el parque: en «children», «adults» y «older people», cada grupo echa la culpa al de al lado y sale su balanza;
 // 6. el campus: la gente con su balanza pequeña; Victor llega en «Victor» y en «extreme» la suya crece y se vuelca;
 // 7. el pasillo congelado otra vez: la balanza al extremo en «enemy for life»; Atom rodea a Victor; vuelve el color.
-// Sonido: un golpe seco al congelarse y un clic al salir; un pop por cada balanza.''', _en('vd-culpa', COMUN + r'''
+// Sonido: un golpe seco al congelarse y un clic al salir; un pop por cada balanza; los pasos de Atom, el reloj, la máquina
+// de escribir del psiquiatra, el perro y los pájaros del parque y el viento del campus (algún efecto suena el ~60 % del tiempo).''', _en('vd-culpa', COMUN + r'''
 const TT = ''' + TT14 + r''';
 const P2 = @T(7.10), P3 = @T(11.26), P4 = @T(18.30), P5 = @T(24.64), P6 = @T(30.90), P7 = @T(37.58);
 // el plano congelado: el último instante de vd-maquina (73,75 s)
@@ -959,6 +978,10 @@ const p7 = (t) => {
 
 const efectos = [[0.05, 'tapestop'], [@T(5.62), 'pop'], [@T(8.70), 'campana'], [@T(11.98), 'chof'], [@T(15.62), 'tic'], [@T(17.24), 'miau'],
   [@T(19.62), 'pop'], [@T(21.38), 'papel'], [@T(23.80), 'brillo'], [@T(26.96), 'pop'], [@T(28.08), 'pop'], [@T(29.16), 'pop'],
-  [@T(36.60), 'golpecito'], [@T(37.62), 'tapestop'], [@T(38.70), 'golpecito'], [E.duracion - 0.3, 'interruptor']];
+  [@T(36.60), 'golpecito'], [@T(37.62), 'tapestop'], [@T(38.70), 'golpecito'], [E.duracion - 0.3, 'interruptor'],
+  // los pasos de Atom, la balanza que aparece, el reloj, la máquina de escribir, el perro, el viento del campus
+  [@T(0.40), 'pasos'], [@T(5.30), 'whoosh'], [@T(7.40), 'tic'], [@T(10.20), 'brillo'], [@T(11.50), 'pasos'], [@T(12.20), 'papel'],
+  [@T(13.00), 'tecleo'], [@T(21.60), 'whoosh'], [@T(22.94), 'tic'], [@T(24.90), 'pajaros'], [@T(25.90), 'guau'],
+  [@T(31.10), 'viento'], [@T(31.60), 'pasos'], [@T(35.38), 'pop'], [@T(39.88), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año: null });
 '''))

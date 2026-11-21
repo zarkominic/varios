@@ -21,7 +21,8 @@
 // 5. el parque: en «children», «adults» y «older people», cada grupo echa la culpa al de al lado y sale su balanza;
 // 6. el campus: la gente con su balanza pequeña; Victor llega en «Victor» y en «extreme» la suya crece y se vuelca;
 // 7. el pasillo congelado otra vez: la balanza al extremo en «enemy for life»; Atom rodea a Victor; vuelve el color.
-// Sonido: un golpe seco al congelarse y un clic al salir; un pop por cada balanza.
+// Sonido: un golpe seco al congelarse y un clic al salir; un pop por cada balanza; los pasos de Atom, el reloj, la máquina
+// de escribir del psiquiatra, el perro y los pájaros del parque y el viento del campus (algún efecto suena el ~60 % del tiempo).
 import * as T from '/atomo/plato/escenas/vd-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('vd-culpa');
@@ -106,6 +107,10 @@ const pasilloFinal = (t, TT) => {
     for (let y = 138; y < 180; y++) { const s = (y - 138) * 0.55; for (let x = Math.round(291 - s); x <= Math.round(290 + w + s * 0.3); x++) if ((1 - (y - 138) / 46) * ab * 0.5 > bay(x, y) * 0.8) R.pset(x, y, mez(R.pget(x, y), H('#f0c870'), 0.35)); } }
   // Reed sale de su cuarto y alarga la mano
   const rs = tramo(t, TT.sale, TT.sale + 0.8); if (ab > 0.6) R.actor(REED, Math.round(lerp(296, 268, ease(rs))), 152, t, { dir: -1, anda: rs > 0 && rs < 1, dedo: t > TT.llama, triste: t > TT.mira + 0.4 });
+  // vida: un estudiante con sudadera vuelve de las duchas con la toalla al hombro, bosteza y sale por la izquierda
+  { const ue = tramo(t, TT.ini, TT.ini + 2.8); if (ue < 1) { const ex = Math.round(lerp(132, -16, ue));
+    const re = R.actor(EL.sudadera, ex, 148, t, { dir: -1, anda: true, sostiene: [ex + 2, 132], sorpresa: t > TT.ini + 0.6 && t < TT.ini + 1.2 });
+    if (re?.mano) { const [mx, my] = re.mano.map(Math.round); R.rect(mx - 3, my - 3, mx + 1, my + 6, K); R.rect(mx - 2, my - 2, mx, my + 5, H('#f0f0f4')); R.pset(mx - 2, my + 1, H('#c83a3a')); R.pset(mx - 1, my + 1, H('#c83a3a')); R.pset(mx, my + 1, H('#c83a3a')); } } }
   // Victor cruza con la maleta, se para y se vuelve
   const u = tramo(t, TT.ini + 0.1, TT.para), x = Math.round(lerp(236, 150, ease(u))), vuelve = t > TT.mira, dir = vuelve ? 1 : -1;
   const r = R.actor(VIC, x, 152, t, { dir, anda: u > 0 && u < 1, sostiene: dir > 0 ? [x + 13, 141] : [x + 1, 141], enfado: vuelve, salto: vuelve && t < TT.mira + 0.15 ? 1 : 0 });
@@ -300,7 +305,11 @@ const p7 = (t) => {
 
 const efectos = [[0.05, 'tapestop'], [en('fijate1', 0.1291), 'pop'], [en('fijate1', 0.2025), 'campana'], [en('fijate1', 0.2806), 'chof'], [en('fijate1', 0.3674), 'tic'], [en('fijate1', 0.4060), 'miau'],
   [en('fijate1', 0.4627), 'pop'], [en('fijate1', 0.5046), 'papel'], [en('fijate1', 0.5623), 'brillo'], [en('fijate1', 0.6375), 'pop'], [en('fijate1', 0.6642), 'pop'], [en('fijate1', 0.6900), 'pop'],
-  [en('fijate1', 0.8672), 'golpecito'], [en('fijate1', 0.8915), 'tapestop'], [en('fijate1', 0.9172), 'golpecito'], [E.duracion - 0.3, 'interruptor']];
+  [en('fijate1', 0.8672), 'golpecito'], [en('fijate1', 0.8915), 'tapestop'], [en('fijate1', 0.9172), 'golpecito'], [E.duracion - 0.3, 'interruptor'],
+  // los pasos de Atom, la balanza que aparece, el reloj, la máquina de escribir, el perro, el viento del campus
+  [en('fijate1', 0.0048), 'pasos'], [en('fijate1', 0.1215), 'whoosh'], [en('fijate1', 0.1715), 'tic'], [en('fijate1', 0.2382), 'brillo'], [en('fijate1', 0.2692), 'pasos'], [en('fijate1', 0.2859), 'papel'],
+  [en('fijate1', 0.3050), 'tecleo'], [en('fijate1', 0.5098), 'whoosh'], [en('fijate1', 0.5418), 'tic'], [en('fijate1', 0.5885), 'pajaros'], [en('fijate1', 0.6123), 'guau'],
+  [en('fijate1', 0.7362), 'viento'], [en('fijate1', 0.7481), 'pasos'], [en('fijate1', 0.8381), 'pop'], [en('fijate1', 0.9453), 'brillo']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año: null });
 </script>
 </body>
