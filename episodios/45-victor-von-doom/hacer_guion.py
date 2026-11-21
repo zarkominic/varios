@@ -105,7 +105,9 @@ PREVIO = {
 # Desde el 37, en español los nombres extranjeros van TAL CUAL (regla del 16/11/2026).
 PRONUNCIA = {
     'en': [],
-    'es': [],
+    # validadas con ZONOS3 y Whisper el 21/11/2026 (frase «Hoy te hablo de …»): tal cual salían «Doomstay», «Berner»,
+    # «Sacred Words» y «la adveria»; escritas así se oyen bien. Los demás nombres se oyen bien tal cual.
+    'es': [('Doomsday', 'Dúmsdei'), ('Werner', 'Vérner'), ('Secret Wars', 'Sícret Uórs'), ('Latveria', 'Lat veria')],
 }
 
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
