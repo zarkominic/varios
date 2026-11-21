@@ -745,9 +745,38 @@ const p15 = (t) => {
   if (t > @carry@) for (const [x, c] of [[118, AZ[4]], [202, ORO[6]]]) { const u = ((t - @carry@) * 1.5) % 1; R.pset(x, ri(150 - u * 10), c); R.pset(x - 1, ri(151 - u * 10), c); }
   lucie(160 + Math.sin(t * 1.0) * 6, 146 + flota(t), t, { dir: 1, cara: t > @twoch@ ? 'sonrisa' : 'triste', brillo: 0.8 });
 };
-const efectos = [[0.9, 'viento'], [@hadnt@, 'brillo'], [P3 + 0.75, 'papel'], [@two@, 'pop'], [@over@ - 0.5, 'tapestop'],
-  [@order@, 'sello'], [@breaks@, 'golpecito'], [@cond@, 'brillo'], [@duncan@, 'brillo'], [@chanib@, 'burbujas'],
-  [@stops@, 'whoosh'], [@throne2@, 'toc'], [P13 + 0.3, 'viento'], [@eyes@ - 0.3, 'rafaga'], [@relig@ - 0.4, 'pasos'], [@twoch@, 'brillo']];
+// efectos: cada uno con su acción (el viento y la arena fuera, la luz de las cunas, los pasos y el bastón, el laberinto que se apaga)
+const efectos = [
+  // 1 sietch de noche: el viento y los pasos de la Fremen del cántaro; en «gives birth» la luz se aviva
+  [0.3, 'viento', { dur: 3 }], [@gives@, 'brillo'], [1.6, 'pasos', { n: 5, ritmo: 0.5 }],
+  // 2 la puerta: sale la nodriza en «dies»; la luz vuelve en «But»; Paul levanta la cabeza en «hadn't seen»
+  [@dies@ + 0.2, 'puerta'], [@but@ + 0.2, 'aldea', { k: 1 }], [@hadnt@, 'brillo'],
+  // 3 el gag de las cunas: la mantita, la segunda cuna en «two», las luces en «boy» y «girl»
+  [P3 + 0.75, 'papel'], [@two@, 'pop'], [@boy@, 'aldea', { k: 2 }], [@girl@, 'aldea', { k: 4 }],
+  // 4 el halo de la niña se aviva; la mano toca la cuna del niño y el halo se rompe
+  [@girl2@ - 0.2, 'aldea', { k: 7 }], [@under@ - 0.15, 'golpecito'], [@under@ + 0.1, 'flash'],
+  // 5 las venas de luz zumban y se apagan hasta «over»; en «truly blind» el último chasquido
+  [P5 + 0.15, 'zumbido'], [@over@ - 0.5, 'tapestop'], [@truly@ - 0.1, 'interruptor'],
+  // 6 Bijaz cruza con el sello; en «order» se lo mete a Hayt; la X roja
+  [P6 + 0.25, 'pasos', { n: 4, ritmo: 0.38 }], [@order@, 'sello'], [@kill@, 'aviso'],
+  // 7 la lámpara de Chani se apaga y humea; la chispa corre; el sello tiembla, se raja y se parte
+  [@died@, 'vapor'], [@blow@, 'zumbido'], [@breaks@, 'golpecito'], [@cond@, 'brillo'],
+  // 8 la terraza al alba: viento; sale Duncan; suben las tres burbujas de recuerdos
+  [P8 + 0.1, 'viento', { dur: 2.2 }], [@duncan@, 'brillo'], [@mems@ - 0.6, 'burbujas'],
+  // 9 la Chani de luz se forma; el Duncan verde
+  [@chanib@, 'burbujas'], [@brought@, 'brillo'],
+  // 10 Paul niega; Scytale va hacia las cunas; la corona y el oro
+  [@babies@ - 0.1, 'pasos', { n: 3, ritmo: 0.36 }], [@throne@, 'brillo'], [@fortune@, 'tic'],
+  // 11 Scytale se acerca; destellos en la cuna en «son's eyes»; Paul alza la mano y la sombra recula
+  [P11 + 0.3, 'pasos', { n: 3, ritmo: 0.5 }], [@sons@, 'aldea', { k: 3 }], [@stops@, 'whoosh'],
+  // 12 la grieta al amanecer: la corona en la repisa, el bastón en «blind», la corona brilla y Paul echa a andar
+  [P12 + 0.1, 'viento', { dur: 2.2 }], [P12 + 0.9, 'toc'], [@blind3@, 'golpecito'], [@leaves@, 'brillo'], [@throne2@ + 0.3, 'pasos', { n: 3, ritmo: 0.55 }],
+  // 13 las dunas: viento que borra las huellas; el bastón en la arena; en «no one» la calima se lo lleva
+  [P13 + 0.3, 'viento', { dur: 2.5 }], [@noone@ - 0.2, 'rafaga'],
+  // 14 la arena de cerca: el viento borra los tres signos
+  [@eyes@ - 0.3, 'rafaga'], [@chani3@ - 0.3, 'rafaga'], [@future@ - 0.3, 'viento', { dur: 1.4 }],
+  // 15 el trono vacío: entran los sacerdotes y se inclinan; las cunas se avivan
+  [@relig@ - 0.4, 'pasos'], [@belongs@ + 0.1, 'papel'], [@twoch@, 'brillo'], [@carry@, 'aldea', { k: 5 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13], [P14, p14], [P15, p15]], { efectos, año: 12 });
 '''
 

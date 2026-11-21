@@ -765,9 +765,38 @@ const p15 = (t) => {
   if (t > en('deja', 0.9467)) for (const [x, c] of [[118, AZ[4]], [202, ORO[6]]]) { const u = ((t - en('deja', 0.9467)) * 1.5) % 1; R.pset(x, ri(150 - u * 10), c); R.pset(x - 1, ri(151 - u * 10), c); }
   lucie(160 + Math.sin(t * 1.0) * 6, 146 + flota(t), t, { dir: 1, cara: t > en('deja', 0.8109) ? 'sonrisa' : 'triste', brillo: 0.8 });
 };
-const efectos = [[0.9, 'viento'], [en('parto', 0.6362), 'brillo'], [P3 + 0.75, 'papel'], [en('parto', 0.7764), 'pop'], [en('ciego', 0.6688) - 0.5, 'tapestop'],
-  [en('duncan', 0.2250), 'sello'], [en('duncan', 0.5694), 'golpecito'], [en('duncan', 0.6042), 'brillo'], [en('duncan', 0.8055), 'brillo'], [en('oferta', 0.1881), 'burbujas'],
-  [en('oferta', 0.9511), 'whoosh'], [en('desierto', 0.4266), 'toc'], [P13 + 0.3, 'viento'], [en('deja', 0.2026) - 0.3, 'rafaga'], [en('deja', 0.5918) - 0.4, 'pasos'], [en('deja', 0.8109), 'brillo']];
+// efectos: cada uno con su acción (el viento y la arena fuera, la luz de las cunas, los pasos y el bastón, el laberinto que se apaga)
+const efectos = [
+  // 1 sietch de noche: el viento y los pasos de la Fremen del cántaro; en «gives birth» la luz se aviva
+  [0.3, 'viento', { dur: 3 }], [en('parto', 0.0182), 'brillo'], [1.6, 'pasos', { n: 5, ritmo: 0.5 }],
+  // 2 la puerta: sale la nodriza en «dies»; la luz vuelve en «But»; Paul levanta la cabeza en «hadn't seen»
+  [en('parto', 0.3558) + 0.2, 'puerta'], [en('parto', 0.5362) + 0.2, 'aldea', { k: 1 }], [en('parto', 0.6362), 'brillo'],
+  // 3 el gag de las cunas: la mantita, la segunda cuna en «two», las luces en «boy» y «girl»
+  [P3 + 0.75, 'papel'], [en('parto', 0.7764), 'pop'], [en('parto', 0.8258), 'aldea', { k: 2 }], [en('parto', 0.8595), 'aldea', { k: 4 }],
+  // 4 el halo de la niña se aviva; la mano toca la cuna del niño y el halo se rompe
+  [en('ciego', 0.1532) - 0.2, 'aldea', { k: 7 }], [en('ciego', 0.3726) - 0.15, 'golpecito'], [en('ciego', 0.3726) + 0.1, 'flash'],
+  // 5 las venas de luz zumban y se apagan hasta «over»; en «truly blind» el último chasquido
+  [P5 + 0.15, 'zumbido'], [en('ciego', 0.6688) - 0.5, 'tapestop'], [en('ciego', 0.9101) - 0.1, 'interruptor'],
+  // 6 Bijaz cruza con el sello; en «order» se lo mete a Hayt; la X roja
+  [P6 + 0.25, 'pasos', { n: 4, ritmo: 0.38 }], [en('duncan', 0.2250), 'sello'], [en('duncan', 0.2500), 'aviso'],
+  // 7 la lámpara de Chani se apaga y humea; la chispa corre; el sello tiembla, se raja y se parte
+  [en('duncan', 0.4125), 'vapor'], [en('duncan', 0.4833), 'zumbido'], [en('duncan', 0.5694), 'golpecito'], [en('duncan', 0.6042), 'brillo'],
+  // 8 la terraza al alba: viento; sale Duncan; suben las tres burbujas de recuerdos
+  [P8 + 0.1, 'viento', { dur: 2.2 }], [en('duncan', 0.8055), 'brillo'], [en('duncan', 0.9513) - 0.6, 'burbujas'],
+  // 9 la Chani de luz se forma; el Duncan verde
+  [en('oferta', 0.1881), 'burbujas'], [en('oferta', 0.3136), 'brillo'],
+  // 10 Paul niega; Scytale va hacia las cunas; la corona y el oro
+  [en('oferta', 0.5734) - 0.1, 'pasos', { n: 3, ritmo: 0.36 }], [en('oferta', 0.6675), 'brillo'], [en('oferta', 0.7102), 'tic'],
+  // 11 Scytale se acerca; destellos en la cuna en «son's eyes»; Paul alza la mano y la sombra recula
+  [P11 + 0.3, 'pasos', { n: 3, ritmo: 0.5 }], [en('oferta', 0.8997), 'aldea', { k: 3 }], [en('oferta', 0.9511), 'whoosh'],
+  // 12 la grieta al amanecer: la corona en la repisa, el bastón en «blind», la corona brilla y Paul echa a andar
+  [P12 + 0.1, 'viento', { dur: 2.2 }], [P12 + 0.9, 'toc'], [en('desierto', 0.2731), 'golpecito'], [en('desierto', 0.3719), 'brillo'], [en('desierto', 0.4266) + 0.3, 'pasos', { n: 3, ritmo: 0.55 }],
+  // 13 las dunas: viento que borra las huellas; el bastón en la arena; en «no one» la calima se lo lleva
+  [P13 + 0.3, 'viento', { dur: 2.5 }], [en('desierto', 0.8030) - 0.2, 'rafaga'],
+  // 14 la arena de cerca: el viento borra los tres signos
+  [en('deja', 0.2026) - 0.3, 'rafaga'], [en('deja', 0.2958) - 0.3, 'rafaga'], [en('deja', 0.3874) - 0.3, 'viento', { dur: 1.4 }],
+  // 15 el trono vacío: entran los sacerdotes y se inclinan; las cunas se avivan
+  [en('deja', 0.5918) - 0.4, 'pasos'], [en('deja', 0.6948) + 0.1, 'papel'], [en('deja', 0.8109), 'brillo'], [en('deja', 0.9467), 'aldea', { k: 5 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13], [P14, p14], [P15, p15]], { efectos, año: 12 });
 </script>
 </body>

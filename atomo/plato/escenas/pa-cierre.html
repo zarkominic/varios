@@ -19,21 +19,27 @@
 // 3. fondo propio, la alcoba de las cunas (el rincón de la cuna vacía de pa-emperador, ahora de noche y con dos cunas):
 //    Alia entra y mece una cuna en «babies», Duncan mece la otra; en «books» brillan los dos libros del estante junto a
 //    Atom; en «fate of humanity» suben de las cunas chispas doradas que se abren por el techo como estrellas;
+//    (vida: dos polillas dan vueltas a la lámpara de aceite)
 // 4. la fachada del cine en 2026, con nieve (du-comun salas 'sala'): en «Dune» se encienden las lunas de la
 //    marquesina una a una hasta tres en «Part 3»; Atom llega por la acera, las señala y en «change things» alza los
 //    brazos; se pone a la cola;
 // 5. dentro, desde las butacas (du-comun salas 'butacas'): en la pantalla, el tráiler: los soles y las lunas pasan cada
-//    vez más deprisa y el contador sube hasta 17 en «17-year jump»; un destello y Paul y Chani en la duna; en «turned
-//    against» Chani se enfada y le señala, Paul se sorprende; Atom (luciérnaga) en el patio se asusta;
+//    vez más deprisa (arrancan tras el fundido) y el contador, en 0 desde el principio, sube hasta 17 en «17-year jump»; un destello y Paul y Chani en la duna; en «turned
+//    against» Chani se enfada y le señala, Paul se sorprende; Atom (luciérnaga) en el patio se asusta; el destello y el rojo
+//    alumbran al público, las palomitas de un cubo saltan del susto y el polvo flota en el haz del proyector;
 // 6. el llano de día (planeta desierto, otra luz: tarde): Atom luciérnaga llega y mira el horizonte; en «question» le
 //    sale un «?»; la loma enorme cruza el llano y en «sandworm» se hincha y levanta arena; Atom se echa atrás; un ratón
-//    huye a su madriguera;
+//    llega a saltos, se sienta a mirar y huye a su madriguera; dos aves carroñeras dan vueltas y se van en «sandworm»;
+//    un remolino de arena cruza el llano y se deshace cuando la loma se hincha;
 // 7. fondo propio, la procesión a contraluz: una fila de siluetas sigue un estandarte por la cresta delante del sol
-//    enorme; Atom, de pie abajo, las mira pasar y en «without asking questions» se vuelve con un «?»;
+//    enorme; Atom, abajo, echa a andar detrás de ellas; en
+//    «keep following» se para y las señala, en «without asking» abre los brazos, sorprendido, y en «questions» se queda
+//    pensando, con un «?»;
 // 8. el estudio de Atom (estudio general, de noche): Atom entra, en «asking you» saluda a cámara; en «see the future» la
-//    tiza dibuja los caminos en la pizarra; en «every path was bad» les pone una X roja a todos; en «least bad» rodea
+//    tiza dibuja los caminos en la pizarra; un trocito de tiza va dibujando con su polvillo; en «every path was bad» les pone una X roja a todos; en «least bad» rodea
 //    uno de amarillo y lo señala;
-// 9. inserto propio, la mesa de Atom de noche: en el portátil, Paul (en «like Paul») y la X (en «refuse to choose»);
+// 9. inserto propio, la mesa de Atom de noche (la taza humea a la izquierda): en el portátil, Paul, con su venda, echa a
+//    andar por su camino en «like Paul» y se para cabizbajo; la X se enciende en «refuse to choose»;
 //    en «comments» salen los comentarios de la pantalla, Atom mira a cámara y los señala, sonriendo.
 import * as T from '/atomo/plato/escenas/pa-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -331,6 +337,9 @@ const p3 = (t) => {
     if (Math.sin(t * 8) > 0) { R.pset(261, 76, hex('#fff6d0')); R.pset(267, 77, hex('#fff6d0')); } }
   // los móviles de halcones sobre las cunas
   movil(100, t, 0); movil(170, t, 2);
+  // dos polillas que dan vueltas a la lámpara de aceite
+  for (let k = 0; k < 2; k++) { const a = t * (3.1 + k * 1.3) + k * 2, x = ri(240 + Math.cos(a) * (9 + k * 4) + Math.sin(t * 7 + k) * 1.5), y = ri(38 + Math.sin(a * 1.3) * (6 + k * 2));
+    const al = Math.sin(t * 30 + k) > 0; R.pset(x, y, hex('#d8c8a0')); R.pset(x - 1, y - (al ? 1 : 0), hex('#b8a880')); R.pset(x + 1, y - (al ? 1 : 0), hex('#b8a880')); }
   // Alia entra y mece la suya en «babies»; Duncan mece la otra
   const ua = ease(tramo(t, P3 + 0.05, BEBES - 0.05)), xa = ri(lerp(30, 58, ua));
   const arriba = t > DESTINO - 0.05;
@@ -376,14 +385,14 @@ const p5 = (t) => {
   R.recorte([x0, y0, x1, y1]);
   if (t < corte) {
     // los días y las noches que pasan cada vez más deprisa (los años) y el contador hasta 17
-    const vel = 0.6 + tramo(t, DIECISIETE - 0.4, SALTO) * 7, fase = (t - P5) * vel + (t > SALTO ? (t - SALTO) * 4 : 0);
+    const vel = 0.6 + tramo(t, DIECISIETE - 0.4, SALTO) * 7, fase = (Math.max(t, P5 + 0.4) - P5 - 0.4) * vel + (t > SALTO ? (t - SALTO) * 4 : 0);
     const dia = 0.5 + 0.5 * Math.cos(fase * Math.PI * 2);
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = mez(mez(hex('#3a3a6a'), hex('#f0a868'), dia), hex('#f8d8a0'), dia * (y - y0) / (y1 - y0) * 0.5); R.pset(x, y, b4(x, y) < 0.5 ? c : mez(c, K, 0.08)); }
     const a = fase * Math.PI * 2, sx = ri(151 + Math.sin(a) * 100), sy = ri(96 - Math.cos(a) * 60), mx = ri(151 - Math.sin(a) * 100), my = ri(96 + Math.cos(a) * 60);
     R.disco(sx, sy, 7, hex('#fff0a0')); R.disco(mx, my, 5, hex('#e8e4f0')); R.disco(mx + 2, my - 1, 4, mez(hex('#3a3a6a'), hex('#f0a868'), dia));
     for (let x = x0; x <= x1; x++) { const yd = ri(86 + Math.sin(x * 0.05) * 5 + Math.sin(x * 0.13) * 2); for (let y = yd; y <= y1; y++) R.pset(x, y, rmp(DUNA5, 2.6 - (y - yd) * 0.05 + Math.sin(x * 0.2 - y * 0.6) * 0.6 - (1 - dia) * 1.8, x, y)); }
     const n = Math.min(17, Math.floor(tramo(t, DIECISIETE - 0.1, SALTO - 0.05) * 17.99));
-    if (t > DIECISIETE - 0.2) { R.rect(122, 46, 180, 82, K); R.rect(123, 47, 179, 81, hex('#f4ecd8')); R.rect(123, 47, 179, 53, hex('#c83a2a')); R.numero(String(n), 152, 78, { tam: 16, centro: true }); }
+    { R.rect(122, 46, 180, 82, K); R.rect(123, 47, 179, 81, hex('#f4ecd8')); R.rect(123, 47, 179, 53, hex('#c83a2a')); R.numero(String(n), 152, 78, { tam: 16, centro: true }); }
     // un reloj de arena que da vueltas
     { const gx = 92, gy = 66, ang = fase * 1.5; for (let k = -6; k <= 6; k++) { const w = Math.abs(k) * 0.9 + 1, c = Math.cos(ang), s = Math.sin(ang); R.linea(ri(gx - w * c - k * s), ri(gy - w * s + k * c), ri(gx + w * c - k * s), ri(gy + w * s + k * c), Math.abs(k) > 4 ? hex('#f0d090') : hex('#a8d0e8')); } }
   } else {
@@ -401,7 +410,19 @@ const p5 = (t) => {
     const fl = 1 - tramo(t, corte, corte + 0.25); if (fl > 0) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (b4(x, y) < fl) R.pset(x, y, hex('#fff8e8'));
   }
   R.recorte(null);
+  // el polvo que flota en el haz del proyector, delante de la pantalla (recortado a ella)
+  R.recorte([x0, y0, x1, y1]);
+  for (let k = 0; k < 26; k++) { const f = (t * (0.05 + h2(k, 91) * 0.06) + h2(k, 92)) % 1, x = x0 + 6 + h2(k, 93) * (x1 - x0 - 12) + Math.sin(t * 0.7 + k) * 4, y = y1 - 4 - f * (y1 - y0 - 8);
+    if (Math.sin(t * 3 + k * 1.9) > -0.3) aclara(ri(x), ri(y), hex('#fff4dc'), 0.55); }
+  R.recorte(null);
   salasDelante(R, t, o);
+  // la luz de la pantalla sobre el público: el destello del corte y el rojo de «turned against»
+  { const fl = (1 - tramo(t, corte, corte + 0.45)) * (t > corte ? 1 : 0), rj = tramo(t, CONTRA - 0.1, CONTRA + 0.2) * (1 - tramo(t, CONTRA + 0.4, CONTRA + 1.1));
+    if (fl > 0.02 || rj > 0.02) { const col = fl >= rj ? hex('#fff0d0') : hex('#ff7a60'), a = Math.max(fl, rj);
+      for (let y = 112; y < 180; y++) for (let x = 0; x < 320; x++) if (b4(x, y) < a * 0.45 * (1 - (y - 112) / 110)) aclara(x, y, col, 0.4); } }
+  // el susto: las palomitas de un cubo de la fila de Atom saltan en «turned against» y caen
+  { const u = tramo(t, CONTRA - 0.05, CONTRA + 0.9); if (u > 0 && u < 1) for (let k = 0; k < 9; k++) { const vx = (h2(k, 95) - 0.5) * 34, vy = 26 + h2(k, 96) * 18, s = u * 1.1;
+      const x = 214 + vx * s, y = 150 - vy * s + 60 * s * s; if (y < 158) { R.rect(ri(x), ri(y), ri(x) + 1, ri(y) + 1, hex('#fff4d0')); R.pset(ri(x) + 1, ri(y) + 1, hex('#d8b060')); } } }
   // Atom en el patio de butacas, entre las cabezas: se asusta cuando Chani se vuelve contra Paul
   lucie(232 + Math.sin(t * 1.3) * 3, 128 + Math.sin(t * 2.2) * 2 - (t > CONTRA && t < CONTRA + 0.5 ? 5 : 0), t, { dir: -1, brillo: 0.6, cara: t > CONTRA - 0.1 ? 'sorpresa' : t > SALTO ? 'sorpresa' : 'normal' });
 };
@@ -416,7 +437,20 @@ const p6 = (t) => {
   const lm = g?.loma;
   if (lm && gusa > 0) for (let k = 0; k < 90; k++) { const f = ((t * 1.5 + k * 0.073) % 1), x = lm.x - lm.len * 0.45 + h2(k, 61) * lm.len * 0.9 + f * 12, y = lm.y - lm.alto - f * 30 * gusa + Math.sin(f * 7 + k) * 2; if (f < 0.9) { R.pset(ri(x), ri(y), f < 0.5 ? hex('#fff0c8') : hex('#d8b07a')); if (k % 3 === 0 && f < 0.6) R.pset(ri(x) + 1, ri(y), hex('#f0d0a0')); } }
   // un ratón huye a su madriguera cuando la loma se acerca
-  { const u = tramo(t, GUSANO - 0.9, GUSANO + 0.2); const x = lerp(222, 262, u), sal = u > 0 && u < 1 ? Math.abs(Math.sin(u * Math.PI * 3)) * 5 : 0; if (u < 1) raton(x, 151 - sal, t, 1); R.disco(266, 152, 2, hex('#5a3a1a')); }
+  { const u0 = tramo(t, P6 + 0.2, P6 + 1.3), u = tramo(t, GUSANO - 0.9, GUSANO + 0.2), x = lerp(lerp(190, 222, u0), 262, u);
+    const sal = (u > 0 && u < 1 ? Math.abs(Math.sin(u * Math.PI * 3)) * 5 : 0) + (u0 > 0 && u0 < 1 ? Math.abs(Math.sin(u0 * Math.PI * 3)) * 4 : 0) + (u0 >= 1 && u <= 0 && Math.sin(t * 5) > 0.6 ? 1 : 0);
+    R.disco(266, 152, 2, hex('#5a3a1a')); R.linea(263, 153, 269, 153, hex('#c89a62'));
+    if (u < 1) raton(x, 151 - sal, t, u0 >= 1 && u <= 0 && Math.sin(t * 0.9) < -0.2 ? -1 : 1); }
+  // dos aves carroñeras que dan vueltas sobre el llano; en «sandworm» se asustan y se van
+  { const vete = tramo(t, GUSANO - 0.3, GUSANO + 1.2);
+    for (let k = 0; k < 2; k++) { const a = t * 0.9 + k * Math.PI, x = 170 + Math.cos(a) * 26 + vete * 90 * (k ? 1.1 : 0.8) - vete * 40, y = 58 + Math.sin(a) * 7 - vete * 30 - k * 4;
+      if (x < 2 || x > 316 || (x > 272 && y < 50)) continue; const X = ri(x), Y = ri(y), al = Math.sin(t * (vete > 0 ? 14 : 4) + k * 2) > 0 ? -1 : 1;
+      R.pset(X, Y, hex('#3a2418')); R.pset(X + 1, Y, hex('#3a2418')); R.linea(X - 3, Y + al, X, Y, hex('#4a2c1c')); R.linea(X + 1, Y, X + 4, Y + al, hex('#4a2c1c')); R.pset(X - 4, Y + al * 2, hex('#4a2c1c')); R.pset(X + 5, Y + al * 2, hex('#4a2c1c')); } }
+  // un remolino de arena que cruza el llano y se deshace cuando la loma se hincha
+  { const xr = 160 - (t - P6) * 6, dsh = tramo(t, GUSANO - 0.4, GUSANO + 0.6), yb = 146;
+    if (dsh < 1) for (let k = 0; k < 70; k++) { const f = k / 70, h = f * 26, r = 1.5 + f * 5 + dsh * 6, a = t * 9 + k * 0.9, x = xr + Math.cos(a) * r + Math.sin(t * 2 + f * 3) * 2 * f, y = yb - h + Math.sin(a) * r * 0.25 + dsh * h * 0.5;
+      if (h2(k, ri(t * 6)) < dsh) continue; R.pset(ri(x), ri(y), Math.sin(a) > 0.3 ? hex('#fff0cc') : Math.sin(a) > -0.3 ? hex('#d0a06a') : hex('#9a6a40')); }
+    if (dsh < 1) for (let i = -5; i <= 5; i++) if (b4(ri(xr) + i, yb + 1) < 0.5) sombrea(ri(xr) + i, yb + 1, 0.25); }
   // Atom llega, mira el horizonte; en «question» le sale el «?»; en «sandworm» se echa atrás
   const ll = ease(tramo(t, P6, PREGUNTA - 0.15)), atras = ease(tramo(t, GUSANO - 0.2, GUSANO + 0.35));
   const ax = lerp(20, 104, ll) - atras * 16, ay = 124 + Math.sin(t * 2.1) * 2.5 - atras * 4;
@@ -472,8 +506,9 @@ const p7 = (t) => {
   const av = (t - P7) * 9;
   for (let k = 0; k < 11; k++) { const x = 236 + av - k * 23; if (x < -10 || x > 330) continue; silueta(x, yR7(x) + 1, t, k, k === 0); }
   // Atom, abajo, los mira pasar; en «without asking questions» se vuelve con un «?»
-  const vuelve = t > SIN - 0.1;
-  const r = AT.atom(R, 250, 174, t, { pose: vuelve ? (t > PREGUNTAS - 0.2 ? 'piensa' : 'quieto') : t > SEGUIR - 0.1 ? 'senala' : 'quieto', dir: vuelve ? 1 : -1, s: 2, cara: vuelve ? 'sorpresa' : 'normal' });
+  const vuelve = t > SIN - 0.1, sigue = ease(tramo(t, P7 + 0.2, SEGUIR - 0.25)), anda7 = sigue > 0 && sigue < 1;
+  const pose7 = anda7 ? 'camina' : t > PREGUNTAS - 0.2 ? 'piensa' : vuelve ? 'brazos' : t > SEGUIR - 0.25 ? 'senala' : 'quieto';
+  const r = AT.atom(R, lerp(226, 250, sigue), 174, t, { pose: pose7, dir: anda7 || vuelve ? 1 : -1, s: 2, habla: voz(t), cara: t > PREGUNTAS - 0.2 ? 'triste' : vuelve ? 'sorpresa' : 'normal' });
   if (t > PREGUNTAS - 0.1) bocata(268, 132 - tramo(t, PREGUNTAS - 0.1, PREGUNTAS + 0.15) * 4, '?');
   // la arena que el viento arranca de la cresta, a contraluz
   for (let k = 0; k < 18; k++) { const f = (t * 1.2 + k * 0.131) % 1, x0 = (k * 41) % 320, x = x0 + f * 24, y = yR7(x0) - f * 6; if (f < 0.85) R.pset(ri(x), ri(y), hex('#ffd890')); }
@@ -489,6 +524,10 @@ const pizarra8 = (R, t, [x0, y0, x1, y1]) => {
   const segs = [...RAMAS8.map(([a, b]) => [NODOS[a], NODOS[b]]), ...FINALES.map(([a, e]) => [NODOS[a], e])];
   segs.forEach(([[ax, ay], [bx, by]], k) => { const u = cl(dib * segs.length - k * 0.8); if (u <= 0) return; const ex = ax + (bx - ax) * u, ey = ay + (by - ay) * u; R.linea(ax, ay, ri(ex), ri(ey), tiza); R.linea(ax, ay - 1, ri(ex), ri(ey) - 1, tiza); R.linea(ax, ay + 1, ri(ex), ri(ey) + 1, hex('#9aa89a')); });
   if (dib > 0) { R.disco(124, 84, 2, tiza); }
+  if (dib > 0 && dib < 1) { const k = Math.min(segs.length - 1, Math.floor(dib * segs.length / 0.8 * 0.8 + 0.0001)), j = segs.findIndex((_, i) => { const u = cl(dib * segs.length - i * 0.8); return u > 0 && u < 1; });
+    const [[ax, ay], [bx, by]] = segs[j >= 0 ? j : k], u = j >= 0 ? cl(dib * segs.length - j * 0.8) : 1, tx = ri(ax + (bx - ax) * u), ty = ri(ay + (by - ay) * u);
+    R.rect(tx, ty - 5, tx + 2, ty - 1, hex('#5a5a50')); R.rect(tx, ty - 5, tx + 1, ty - 1, hex('#f8f8f0')); R.pset(tx + 1, ty - 1, hex('#c8ccc0'));
+    for (let q = 0; q < 4; q++) { const f = (t * 3 + q * 0.25) % 1; R.pset(ri(tx - 2 + q + Math.sin(t * 9 + q)), ri(ty + 1 + f * 6), hex('#c8d0c4')); } }
   // en «every path was bad», una X roja en cada final
   FINALES.forEach(([, [ex, ey]], k) => { const u = tramo(t, MALO - 0.1 + k * 0.1, MALO + 0.1 + k * 0.1); if (u <= 0) return; const s = 3; const rj = hex('#f07060');
     for (const o of [0, 1]) { R.linea(ex - s + o, ey - s, ex - s + o + ri(2 * s * Math.min(1, u * 2)), ey - s + ri(2 * s * Math.min(1, u * 2)), rj); if (u > 0.5) R.linea(ex + s + o, ey - s, ex + s + o - ri(2 * s * (u - 0.5) * 2), ey - s + ri(2 * s * (u - 0.5) * 2), rj); } });
@@ -558,8 +597,9 @@ const p9 = (t) => {
     for (let y = 70; y < 172; y++) for (let x = 0; x < 160; x++) { const u = (y - 70) / 100, a = 50 - 40 * u, b = 56 + 60 * u; if (x > a && x < b && b4(x, y) < 0.16 * f) aclara(x, y, hex('#ffe8b0'), 0.35); }
     R.rect(28, 108, 54, 112, K); R.rect(29, 108, 53, 111, hex('#b08a3a')); }
   // la taza que humea
-  { R.rect(232, 146, 246, 162, K); R.rect(233, 147, 245, 161, hex('#d8d0c0')); R.rect(233, 147, 235, 161, hex('#f4f0e6')); R.disco(249, 153, 4, K); R.disco(249, 153, 2, hex('#2e1a10')); R.rect(234, 147, 244, 149, hex('#4a2a14'));
-    for (let k = 0; k < 6; k++) { const f = (t * 0.6 + k / 6) % 1, x = 239 + Math.sin(f * 9 + k) * 3, y = 144 - f * 26; if (b4(ri(x), ri(y)) < 0.6 * (1 - f)) R.pset(ri(x), ri(y), hex('#e8e0d0')); } }
+  { R.rect(46, 150, 60, 166, K); R.rect(47, 151, 59, 165, hex('#d8d0c0')); R.rect(47, 151, 49, 165, hex('#f4f0e6')); R.disco(44, 157, 4, K); R.disco(44, 157, 2, hex('#2e1a10')); R.rect(48, 151, 58, 153, hex('#4a2a14'));
+    for (let i = 44; i < 64; i++) if (b4(i, 167) < 0.5) sombrea(i, 167, 0.3);
+    for (let k = 0; k < 6; k++) { const f = (t * 0.6 + k / 6) % 1, x = 53 + Math.sin(f * 9 + k) * 3, y = 148 - f * 26; if (b4(ri(x), ri(y)) < 0.6 * (1 - f)) R.pset(ri(x), ri(y), hex('#e8e0d0')); } }
   // el portátil: la base en perspectiva y la pantalla
   R.poligono([[78, 168], [206, 168], [218, 180], [66, 180]], K); R.poligono([[80, 169], [204, 169], [215, 179], [69, 179]], hex('#8a8e98'));
   for (let j = 0; j < 3; j++) for (let i = 0; i < 12; i++) R.rect(86 + i * 10 + j * 2, 171 + j * 3, 92 + i * 10 + j * 2, 172 + j * 3, hex('#4a4e58'));
@@ -576,8 +616,11 @@ const p9 = (t) => {
     // Paul con la venda, de pie en un camino que se aleja
     for (let y = 118; y <= 149; y++) { const w = (y - 116) * 0.55; for (let x = ri(117 - w); x <= ri(117 + w); x++) R.pset(x, y, b4(x, y) < 0.5 ? hex('#a8844a') : hex('#8a6a3a')); }
     for (let x = 97; x <= 137; x++) R.pset(x, 117, hex('#4a5470'));
-    R.actor(PA.paulCiego, 110, 146, t, { dir: 1, triste: a1 > 0 });
-    R.rect(116, 125, 124, 126, hex('#e8e0d0'));
+    { const ua = ease(tramo(t, COMOPAUL - 0.1, NEGARTE - 0.2)), px = ri(lerp(106, 114, ua)), py = ri(lerp(147, 141, ua)), anda = ua > 0 && ua < 1;
+      const r = R.actor(PA.paulCiego, px, py, t, { dir: 1, anda, triste: a2 > 0 });
+      const [cx, cy] = r.cabeza, VD = pal(['#8a7e66', '#d8ccb0', '#f2ead6']), yv = cy + 4;
+      for (let i = -6; i <= 6; i++) { R.pset(cx + 3 + i, yv, VD[1]); R.pset(cx + 3 + i, yv + 1, VD[2]); R.pset(cx + 3 + i, yv + 2, VD[0]); }
+      const ond = ri(Math.sin(t * 6)); R.pset(cx - 4, yv + 1, VD[1]); R.pset(cx - 5, yv + 2 + ond, VD[1]); R.pset(cx - 6, yv + 3 + ond, VD[0]); }
     // la X grande de negarse
     { const c = a2 > 0 ? hex('#f07060') : hex('#8a90a8'); for (let k = -10; k <= 10; k++) { R.rect(167 + k, 124 + k, 168 + k, 125 + k, c); R.rect(167 + k, 124 - k, 168 + k, 125 - k, c); } }
   } else {
