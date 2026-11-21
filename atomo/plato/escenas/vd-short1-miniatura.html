@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep45 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// VD-SHORT1-MINIATURA · ep45, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// La noche en la nieve: el padre junto al niño, entre las rocas, con la luz pálida.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/vd-comun.js';
+import * as AT from '/atomo/plato/escenas/atom-personaje.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+// letras de pixel (5 × 7) para las 1–3 palabras de la miniatura
+const F = {
+  H: ['#...#', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'], A: ['.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
+  Y: ['#...#', '#...#', '.#.#.', '..#..', '..#..', '..#..', '..#..'], M: ['#...#', '##.##', '#.#.#', '#.#.#', '#...#', '#...#', '#...#'],
+  I: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####'], T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'],
+  C: ['.####', '#....', '#....', '#....', '#....', '#....', '.####'],
+  P: ['####.', '#...#', '#...#', '####.', '#....', '#....', '#....'], U: ['#...#', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+  L: ['#....', '#....', '#....', '#....', '#....', '#....', '#####'],
+  D: ['####.', '#...#', '#...#', '#...#', '#...#', '#...#', '####.'], O: ['.###.', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+};
+// gruesas, con contorno oscuro y sombra dura, como los títulos de las miniaturas de relato
+const palabra = (txt, x, y, s, c, sombra) => {
+  const celdas = []; let cx = x;
+  for (const ch of txt) { const g = F[ch]; for (let j = 0; j < 7; j++) for (let i = 0; i < 5; i++) if (g[j][i] === '#') celdas.push([cx + i * s, y + j * s]); cx += 6 * s; }
+  for (const [px, py] of celdas) R.rect(px - 1 + 3, py - 1 + 3, px + s + 1 + 3, py + s + 1 + 3, sombra);   // sombra
+  for (const [px, py] of celdas) R.rect(px - 2, py - 2, px + s + 1, py + s + 1, hex('#1a1020'));            // contorno
+  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py + s - 1, c);
+  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py, hex('#ffffff'));                         // brillo arriba
+};
+const K = hex('#1a1020');
+// el halcón de los Atreides en el paño (7 × 5 px) y el estandarte fremen, como en pa-gancho
+const HALCON = ['X.....X', 'XX.Hp.X', '.dXXXd.', '..dXd..', '..d.d..'];
+const halconB = (cx, cy) => { for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) { const ch = HALCON[j][i]; if (ch === '.') continue;
+  R.pset(cx - 3 + i, cy - 2 + j, ch === 'd' ? hex('#a8782a') : ch === 'p' ? hex('#e07a30') : ch === 'H' ? hex('#fff0a0') : hex('#f0c848')); } };
+const banderolaG = (x, y, h, t, k) => {
+  const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? hex('#1f4a2c') : hex('#18181e'), cs = k % 2 ? hex('#3a7048') : hex('#3a3a46');
+  R.linea(x, y, x, y - h, hex('#4a3420')); R.pset(x, y - h - 1, hex('#e8c040'));
+  R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
+  R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
+  R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, hex('#c8a030'));
+  halconB(x + 5 + Math.round(v / 2), y - h + 5);
+};
+const hh = (a, b, c = 0) => { const s = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return s - Math.floor(s); };
+const dibujar = (t) => {
+  const o = { encuadre: 'tormenta', camara: 'abrigo' };
+  T.latveria(R, t, o);
+  halo(R, 160, 130, 46, 50, '#ffe0a0', 0.35);
+  figura(R, EL.wernerVD, 146, 168, t, { dir: 1 }, 3);
+  figura(R, EL.victorNinoVD, 178, 168, t, { dir: -1, triste: true }, 2);
+  T.latveriaDelante(R, t, o);
+  grado(R, { cx: 160, cy: 120, tinte: '#060a14', f: 0.22, desde: 0.4, max: 0.8 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

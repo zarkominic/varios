@@ -957,3 +957,38 @@ menos ritmo. Escuchar o medir el final de cada frase española antes de entregar
 idiomas»: desde el 45, inglés a 0,95 y español sin `ritmo` (su velocidad natural), como en el 43. Las pausas cortas del 44
 se mantienen. Con el español más lento pueden volver huecos de silencio donde la frase española sea más corta que la
 inglesa: medirlos y decírselo.
+
+## Episodio 45 · Victor von Doom: el villano que solo quería recuperar a su madre (21/11/2026)
+
+- **La causa del final cortado (el «propósi(to)» del 44):** ZONOS3 genera como mucho 450 tramas (~29 s) por omisión y
+  corta ahí SIN avisar (eos_frame=-1). En la primera voz del 45 se perdió el final de 13 de 39 párrafos españoles. Arreglo
+  en `locutar_frases.py`: `--max 1500` y error si no hay EOS; clave de caché nueva (z3m). El control nuevo del final
+  (última palabra entera y cola sin energía) se queda. [Probable] el 44 publicado tiene más párrafos largos cortados.
+- **Narración (el usuario, tres rondas):** «frases cortas, afirmaciones rápidas… parecen de robot». No era la longitud de
+  las oraciones sino ENCADENAR HECHOS (seis en una oración, aunque vayan con «y» y «así que»). Un momento por párrafo,
+  contado desde dentro, a lo Farid; regla en GUIA-NARRATIVA. Episodios más largos: 19:16 con el acto de los enemigos
+  (pedido por el usuario «por más que se alargue»).
+- **Ritmo:** vuelta a la velocidad del 43 en los dos idiomas (inglés 0,95, español sin ritmo forzado), pedido por el
+  usuario tras el final cortado. Con el arreglo de --max, el ritmo no era la causa.
+- **Verificación con la web, no de memoria** (el usuario: «las comprobaciones que salgan de la web, valida bien todo»):
+  al validar en la web salieron 5 detalles que los agentes habían dado por buenos de memoria (la habitación de Reed,
+  Boris, Triumph and Torment —Cynthia se niega—, quién pregunta en Secret Wars, Doomquest). Pide a los escépticos que
+  digan qué comprobaron en la web y qué de memoria, y valida lo segundo.
+- **Pronunciación española:** probadas con ZONOS3 + Whisper en una frase de prueba; solo se reescriben las que fallan
+  tal cual (Doomsday, Werner, Secret Wars, Latveria). Escritas «a la mexicana», otras (Víctor fon Dum, Téser) se oían peor.
+- **Nombres de México:** «la Mole» (no «la Cosa»), «la Antorcha Humana», «la Mujer Invisible». La Mole con cuerpo ancho
+  (moleVD): la de antes se veía flaca.
+- **Música:** el «tin tin tin» es siempre una celesta (papel «color»); la mezcla, ratio 2,5: la música +3,7 dB bajo la voz
+  (elegida de oído, muestras en inglés y en español). 1–3 dB no se distinguen de oído: las muestras, con diferencias de
+  3–9 dB.
+- **Decorados de episodios de películas:** el borrador de escenas usó decorados de do-comun.js (el laboratorio retro y el
+  consejo de héroes de las películas); la calidad los cambió. Para el próximo: decir en el canon qué decorados de otros
+  episodios están prohibidos.
+- **Calidad:** 221 planos, 88 suspensos → 0. 35 agentes, 6,7 M de tokens, 2 h 49 min. Muchos agentes editaron el html: los
+  módulos de borrador ya no coinciden con las escenas; NO regenerar con --pisar sin pasar los cambios.
+- **Contenedor reiniciado:** se perdieron build/, la caché de la voz y el entorno; reinstalado (FluidSynth con
+  apt-get update) en ~15 min.
+
+Pendiente para el próximo: borrar los fotogramas del 45 al empezar; en el canon de las escenas, la lista de decorados de
+otros episodios prohibidos; escépticos que separen web y memoria; revisar si el usuario quiere rehacer párrafos cortados
+del 44.

@@ -1,6 +1,6 @@
 # Episodio 45 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 19:16.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, a 0,95, la velocidad de antes) y pista de audio en
   español (ZONOS3-Mini, voz `Rodrigo`, a su velocidad natural, sin cortes: desde el 45, `--max 1500`).
 - Subtítulos en inglés y en español.
@@ -51,7 +51,17 @@ If you could get back someone you'd lost, but the price was becoming someone els
 comments.
 
 Chapters:
-{CAPITULOS_EN}
+0:00 The hook
+1:10 The snow
+3:54 The smartest boy
+5:01 The machine
+6:57 The mask
+8:28 The king
+10:21 His enemies
+14:05 Midsummer's Eve
+15:25 The god
+16:40 The girl
+18:08 The ending
 
 Sources: Fantastic Four #5 (1962) and Fantastic Four Annual #2 (1964), Stan Lee and Jack Kirby · Books of Doom (Ed
 Brubaker, 2005–06) · Fantastic Four #278 (John Byrne, 1985) · Iron Man #149–150, Doomquest (1981) · Doctor Strange and
@@ -95,7 +105,17 @@ Si pudieras recuperar a alguien que perdiste, pero el precio fuera convertirte e
 en los comentarios.
 
 Capítulos:
-{CAPITULOS_ES}
+0:00 El gancho
+1:10 La nieve
+3:54 El chico más listo
+5:01 La máquina
+6:57 La máscara
+8:28 El rey
+10:21 Sus enemigos
+14:05 La noche de San Juan
+15:25 El dios
+16:40 La niña
+18:08 El cierre
 
 Fuentes: las mismas que en la descripción en inglés.
 
@@ -112,8 +132,35 @@ sintéticas (IA).
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, cada uno con la voz en inglés como pista principal, su pista en
+español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del vídeo largo y enlázalo en cada uno.
+
+### Short 1 · El gancho · tramo 0.0-53.1
+- **EN:** Doctor Doom Was a Boy Who Wanted to Save His Mother #Shorts
+- **ES:** Doctor Doom fue un niño que quería salvar a su madre #Shorts
+- **EN:** Before he was Marvel's most feared villain, Victor von Doom was a little boy in the snow, and his father had just given him his coat. The whole story is in the linked video. #DoctorDoom #AvengersDoomsday #Marvel #ASKAtom #Shorts
+- **ES:** Antes de ser el villano más temido de Marvel, Victor von Doom fue un niño en la nieve, y su padre acababa de darle su abrigo. La historia entera, en el vídeo enlazado. #DoctorDoom #VengadoresDoomsday #Marvel #ASKAtom #Shorts
+
+### Short 2 · La máscara · tramo 417.7-466.8
+- **EN:** Doctor Doom Put On His Mask While It Was Still Burning #Shorts
+- **ES:** Doctor Doom se puso la máscara todavía ardiendo #Shorts
+- **EN:** In the version told most often, Victor von Doom didn't wait for the iron to cool. And Jack Kirby imagined the scar he was hiding as almost invisible. The whole story is in the linked video. #DoctorDoom #Marvel #JackKirby #ASKAtom #Shorts
+- **ES:** En la versión más contada, Victor von Doom no esperó a que el hierro se enfriara. Y Jack Kirby imaginaba casi invisible la cicatriz que escondía. La historia entera, en el vídeo enlazado. #DoctorDoom #Marvel #JackKirby #ASKAtom #Shorts
+
+### Short 3 · La noche de San Juan · tramo 845.9-897.4
+- **EN:** Doctor Doom Went to Hell Every Year for His Mother #Shorts
+- **ES:** Doctor Doom bajaba al infierno cada año por su madre #Shorts
+- **EN:** Every Midsummer's Eve, Doctor Doom crossed into Mephisto's realm to fight for his mother's soul, and every year he lost, until 1989. The whole story is in the linked video. #DoctorDoom #DoctorStrange #Marvel #ASKAtom #Shorts
+- **ES:** Cada noche de San Juan, Doctor Doom cruzaba al reino de Mefisto para luchar por el alma de su madre, y cada año perdía, hasta 1989. La historia entera, en el vídeo enlazado. #DoctorDoom #DoctorStrange #Marvel #ASKAtom #Shorts
 
 ## Avisos
 
-{AVISOS}
+**Para escuchar** (dudosas del control de la voz; no se relocutan sin tu oído):
+- EN, frase 11: «alone» puede sonar «a loan».
+- EN, frase 15: «bias» puede sonar «by us».
+- ES, frases 5 y 17: puede faltar una «a».
+- ES, frase 13: «lo echa de allí» puede sonar «echaré».
+- ES, frase 20: «Stan Lee» suena «Stanley»; y «Sue» (frase 23) suena «su».
+
+**Duración:** 19:16, más que el canon de 12–14 min: la reescritura a lo Farid y el acto de los enemigos (lo pidió el
+usuario: «por más que se alargue»).
