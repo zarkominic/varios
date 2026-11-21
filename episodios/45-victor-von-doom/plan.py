@@ -1,7 +1,7 @@
 """Reparto del episodio 45 (Victor von Doom: el villano que solo quería recuperar a su madre) en escenas (escribe
 escenas.json). Una fila por escena: (id, cartela, frase_ini, frase_fin, [marca por frase], [guion visual por frase],
 ánimo, golpes).
-- Canon del 43: relato hablado, ATOM EN ESCENA y 5 PAUSAS «fíjate» (frases 15, 18, 21, 24 y 30: el mundo en gris azulado,
+- Canon del 43: relato hablado, ATOM EN ESCENA y 6 PAUSAS «fíjate» (frases 15, 18, 21, 27, 30 y 36: el mundo en gris azulado,
   Atom a color explica).
 - Narración humanizada (regla del 21/11/2026): párrafos que fluyen, sin afirmaciones cortas.
 - Decorados: A Latveria, B la universidad, C el Tíbet, D el reino de Mefisto y E Battleworld (nuevos, vd-comun.js) y F
@@ -59,26 +59,36 @@ E = [
  ('vd-malo', None, 21, 21, ['fijate3'],
   ['PAUSA: el trono congelado; Atom (al doble) saca a color un espejo: dentro, el villano se ve con capa de héroe.'],
   'epico', []),
- ('vd-sanjuan', None, 22, 23, ['noche', 'mignola'],
+  ('vd-enemigos', None, 22, 26, ['espejo', 'familia', 'ironman', 'pantera', 'mefisto'],
+  ['A: la sala de los enemigos en el castillo de Doom: pantallas en la pared; en la mayor, Reed (pelo castaño, uniforme azul); Doom de espaldas, mirándolo; al lado de Reed, siluetas de una familia.',
+   'A: en las pantallas, los cuatro de azul con un «4»: un grandullón de roca naranja que se ríe, un chico en llamas que habla sin parar y una mujer rubia; Doom acerca la mano a la de ella.',
+   'A: una pantalla muestra un castillo medieval (Camelot) con un caballero de armadura roja y dorada (por atributos) junto a un rey con corona; Doom con una hechicera de capa morada; «1981».',
+   'A: una pantalla con una ciudad de torres de cristal en la selva y un rey de traje negro con orejas de felino (por atributos); un brillo de metal azul que se apaga; «2010».',
+   'A: la última pantalla, roja, con una mano de luz (Mefisto, sin cara); al lado, un hechicero de capa roja; Doom aparta la mirada.'],
+  'intriga', []),
+ ('vd-espejos', None, 27, 27, ['fijate6'],
+  ['PAUSA: la sala congelada; Atom (al doble) saca a color dos micrófonos: con uno canta un desconocido y Atom sonríe; con el otro canta un compañero y a Atom le sale una nube; «1988».'],
+  'intriga', []),
+('vd-sanjuan', None, 28, 29, ['noche', 'mignola'],
   ['D: la noche de San Juan: un camino de luz entre rocas rojas; Doom avanza solo hacia una puerta enorme; vuelve con las manos vacías.',
    'D: Doom y un hechicero con capa roja (por atributos) ante la puerta; una luz blanca con forma de mujer sube; «1989».'],
   'ternura', []),
- ('vd-duelo', None, 24, 24, ['fijate4'],
+ ('vd-duelo', None, 30, 30, ['fijate4'],
   ['PAUSA: el infierno congelado; Atom (al doble) saca a color un reloj de arena que no corre y una silla vacía junto a una ventana; «2022».'],
   'ternura', []),
- ('vd-dios', None, 25, 27, ['battleworld', 'pregunta', 'risa'],
+ ('vd-dios', None, 31, 33, ['battleworld', 'pregunta', 'risa'],
   ['E: Battleworld, el planeta cosido con trozos de mundos; Doom en un trono enorme con un halo; Atom se sienta en el trono y no le llegan los pies (gag).',
    'E: Reed (canas en las sienes) ante el trono; un «?» de luz entre los dos; Doom baja la cabeza.',
    'E: Reed alza la mano con luz; Doom se quita la máscara de espaldas a cámara y se ríe (hombros que se agitan); Atom se quita su máscara pequeña y se ríe con él (gag).'],
   'asombro', []),
- ('vd-nina', None, 28, 29, ['mundo', 'tribunal'],
+ ('vd-nina', None, 34, 35, ['mundo', 'tribunal'],
   ['E: el globo con banderas verdes; «2025»; un destello verde lejano en una batalla (sin heridas); una luz cálida sobre una niña rubia dormida.',
    'E: Doom arrodillado ante una figura enorme y cósmica (el Tribunal, por atributos); la niña abre los ojos; Doom se vuelve polvo de luz; Atom lee el testamento y el pergamino se desenrolla hasta el suelo (gag).'],
   'intriga', []),
- ('vd-redencion', None, 30, 30, ['fijate5'],
+ ('vd-redencion', None, 36, 36, ['fijate5'],
   ['PAUSA: la luz congelada; Atom (al doble) saca a color un libro abierto con una línea que baja y luego sube.'],
   'calma', []),
- ('vd-cierre', None, 31, 33, ['infierno', 'abrigo2', 'pregunta'],
+ ('vd-cierre', None, 37, 39, ['infierno', 'abrigo2', 'pregunta'],
   ['D: Doom en el infierno: rompe contratos que arden en el aire; un trono rojo; una luz verde sube libre.',
    'A: la montaña nevada del principio; el padre y el niño con el abrigo, de lejos; luego un cine con «18».',
    'F: Atom en su estudio descuelga el abrigo pequeño, mira a cámara y señala los comentarios.'],
@@ -93,6 +103,6 @@ for id_, cartela, a, b, marcas, vis, animo, golpes in E:
                     'empieza_con': 'cartela ' + cartela if cartela else 'corte desde la escena anterior',
                     'termina_con': '', 'produccion': ''})
 assert [e['frase_ini'] for e in escenas][1:] == [e['frase_fin'] + 1 for e in escenas][:-1]
-assert escenas[-1]['frase_fin'] == 33
+assert escenas[-1]['frase_fin'] == 39
 json.dump({'banda': BANDA, 'escenas': escenas, 'lotes': []}, open(f'{D}/escenas.json', 'w'), ensure_ascii=False, indent=1)
 print(len(escenas), 'escenas')
