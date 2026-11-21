@@ -123,6 +123,12 @@ tras la primera prueba: «sigue pareciendo lo que hacíamos, frases cortas sin h
 - **Humanizado, sin afirmaciones cortas (regla del usuario, 21/11/2026, tras el 44):** «sigo escuchando frases cortas,
   afirmaciones rápidas… “Él es así. Su madre también. Cien veces ganó, diez perdió.” Parecen de robot, humanízalo; no
   perdamos la idea de una locución tipo cuento, con pausas explicativas». Por eso:
+  - **lo que de verdad suena a robot es encadenar hechos** (el usuario señaló esto en el 45: «la mujer del barón cae
+    enferma y el barón obliga a Werner a curarla, y Werner lo intenta todo… así que cuando ella muere el barón… lo
+    acusa… a esto me refiero, frases cortas»): seis hechos en una oración, aunque vayan unidos con «y» y «así que», se
+    oyen como un parte de noticias. Un momento por párrafo, y dentro de él lo que la persona ve, siente y piensa
+    («Imagina lo que siente Werner al cruzar la puerta de ese castillo…»), como Farid. Si algo no cabe así, se quita
+    de la historia (se avisa al usuario), no se comprime;
   - nada de oraciones de 3–8 palabras seguidas («Victor lo echa. Enciende la máquina. La máquina explota.»): se unen con
     el porqué («…porque su orgullo no lo soporta, así que, en cuanto se queda solo, enciende la máquina…»);
   - cada dato lleva su emoción o su razón al lado (qué sintió, por qué lo hizo, qué significa), y menos datos por párrafo;
