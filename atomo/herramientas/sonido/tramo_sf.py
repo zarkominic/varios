@@ -58,6 +58,7 @@ class Pista:
     def __init__(self, prog, canal, vol, pan, rev):
         self.canal, self.ev = canal, [(0, bytes([0xC0 | canal, prog])), (0, bytes([0xB0 | canal, 7, vol])),
                                       (0, bytes([0xB0 | canal, 10, pan])), (0, bytes([0xB0 | canal, 91, rev]))]
+        self.vol, self.pan, self.rev, self.notas, self.ccs = vol, pan, rev, [], []
     def tick(self, t):
         # los tiempos van en segundos y el MIDI no lleva indicación de tempo, así que FluidSynth lo toca a 120 por minuto
         # (una negra = 0,5 s): con TPQ / NEGRA todo sonaba más rápido y los tramos largos se acababan antes (20/11/2026)
@@ -68,8 +69,10 @@ class Pista:
         dur = min(dur, T + 1.5 - t)
         a = self.tick(t); b = max(a + 1, self.tick(t + dur))
         self.ev += [(a, bytes([0x90 | self.canal, n, max(1, min(127, int(vel)))])), (b, bytes([0x80 | self.canal, n, 0]))]
+        self.notas.append((t, dur, n, max(1, min(127, int(vel)))))
     def cc(self, t, num, val):
         self.ev.append((self.tick(t), bytes([0xB0 | self.canal, num, max(0, min(127, int(val)))])))
+        self.ccs.append((t, num, max(0, min(127, int(val)))))
     def datos(self):
         out, ult = bytearray(), 0
         for tick, b in sorted(self.ev, key=lambda e: (e[0], (e[1][0] & 0xF0) == 0x90)):
@@ -86,6 +89,7 @@ def P(papel, vol=100, pan=64, rev=70):
     nombre = PAL.get(papel, papel)
     if nombre not in pistas:
         pistas[nombre] = Pista(GM[nombre], libres.pop(0), vol, pan, rev)
+        pistas[nombre].nombre = nombre
     return pistas[nombre]
 
 def cresc(p, t0, t1, v0, v1, pasos=24):
@@ -213,11 +217,38 @@ def arreglo(animo):
         return arreglo('misterio')
 
 arreglo(A['animo'])
+
+def midi(ruta, lista):
+    with open(ruta, 'wb') as f:
+        f.write(b'MThd' + struct.pack('>IHHH', 6, 1, len(lista), TPQ))
+        for p in lista:
+            f.write(p.datos())
+
+# banda.biblioteca = 'real' (prueba del 22/11/2026, sin aprobar como canon): la misma partitura, tocada con instrumentos
+# grabados de verdad (VSCO 2 CE, VCSL, Karoryfer y FreePats, CC0; piano Salamander, CC BY 3.0) con el sampler de
+# Lemo-Opuscar (MIT). Lo que esas bibliotecas no tienen (celesta, coro, flauta de pan, shehnai…) sigue en FluidR3.
+# Cada pista sale al mismo nivel (RMS) que su versión FluidR3, para no mover la mezcla que ya aprobó el usuario.
+LEMO = os.environ.get('ASK_ATOM_LEMO', os.path.expanduser('~/.cache/ask-atom/lemo-opuscar'))
+if A.get('biblioteca') == 'real':
+    if not os.path.exists(os.path.join(LEMO, 'core/audio/instruments/index.json')):
+        raise SystemExit(f'falta la biblioteca de instrumentos en {LEMO} (sh tools/fetch.sh instruments all)')
+    with tempfile.TemporaryDirectory() as tmp:
+        trabajo = []
+        for k, p in enumerate(pistas.values()):
+            mid, wav = os.path.join(tmp, f'{k}.mid'), os.path.join(tmp, f'{k}.wav')
+            midi(mid, [p])
+            subprocess.run(['fluidsynth', '-ni', '-g', '0.6', '-r', '48000', '-F', wav, SF2, mid],
+                           check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            trabajo.append({'nombre': p.nombre, 'vol': p.vol, 'pan': p.pan, 'rev': p.rev, 'notas': p.notas,
+                            'ccs': p.ccs, 'fluid': wav})
+        js = os.path.join(tmp, 'pistas.json')
+        json.dump({'segundos': T, 'pistas': trabajo, 'sr': A.get('sr', 48000)}, open(js, 'w'))
+        subprocess.run([os.path.join(LEMO, '.venv/bin/python'), os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        'tramo_real.py'), LEMO, js, SALIDA], check=True)
+    sys.exit(0)
+
 with tempfile.TemporaryDirectory() as tmp:
     mid = os.path.join(tmp, 'tramo.mid')
-    with open(mid, 'wb') as f:
-        f.write(b'MThd' + struct.pack('>IHHH', 6, 1, len(pistas), TPQ))
-        for p in pistas.values():
-            f.write(p.datos())
+    midi(mid, list(pistas.values()))
     subprocess.run(['fluidsynth', '-ni', '-g', '0.6', '-r', str(A.get('sr', 48000)), '-F', SALIDA, SF2, mid],
                    check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

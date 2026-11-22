@@ -191,7 +191,7 @@ const NUEVOS = {
 function tramoSampleado(b, animo, t0, d, semilla) {
   const os = require('os'), cp = require('child_process');
   const wav = path.join(os.tmpdir(), `tramo-sf-${process.pid}-${semilla}.wav`);
-  const args = { animo, segundos: d, tonica: TONICA, modo: BANDA.modo || 'menor', tempo: TEMPO, motivo: MOTIVO, paleta: BANDA.paleta || null, semilla, sr: SR };
+  const args = { animo, segundos: d, tonica: TONICA, modo: BANDA.modo || 'menor', tempo: TEMPO, motivo: MOTIVO, paleta: BANDA.paleta || null, biblioteca: BANDA.biblioteca || null, semilla, sr: SR };
   const r = cp.spawnSync(process.env.PYTHON || 'python3', [path.join(__dirname, 'sonido', 'tramo_sf.py'), JSON.stringify(args), wav], { encoding: 'utf8' });
   if (r.status !== 0) throw new Error(`tramo_sf.py (${animo}): ${r.stderr}`);
   MIX.loadAudio(wav, { at: t0, length: n / SR }).mixInto(b, 1);
