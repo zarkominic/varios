@@ -1,6 +1,6 @@
 """Reparto del episodio 46 (Leto II: el hijo de Paul que eligió convertirse en monstruo para salvarnos) en escenas (escribe
 escenas.json). Una fila por escena: (id, cartela, frase_ini, frase_fin, [marcas], [guion visual], ánimo, golpes).
-- Canon del 43 y del 45: relato a lo Farid humanizado, ATOM EN ESCENA y 5 PAUSAS «fíjate» (frases 8, 15, 18, 22 y 26).
+- Canon del 43 y del 45: relato a lo Farid humanizado, ATOM EN ESCENA y 5 PAUSAS «fíjate» (frases 8, 15, 19, 23 y 27).
 - Decorados: A el planeta de arena (du-comun.js), B la ciudadela (pa-comun.js, del 44), C Jacurutu y el trance, D el
   imperio de Leto 3.500 años después y E el puente (nuevos, lt-comun.js), F el estudio de las pausas (hm-comun.js).
 - DERECHOS: nada de las películas; Leto gusano, diseño propio por el libro. Violencia nunca vista. Sin letras.
@@ -41,30 +41,31 @@ E = [
  ('lt-futuro', None, 15, 15, ['fijate2'],
   ['PAUSA: la arena congelada; Atom (al doble) saca a color una balanza: una moneda hoy contra un cofre lejano; y un planeta con un reloj.'],
   'asombro', []),
- ('lt-precio', None, 16, 17, ['padre', 'alia2'],
-  ['B: el predicador ciego y Leto frente a frente; el predicador toca la cara de su hijo; luego, entre la multitud, un destello y el predicador ya no está (sin violencia).',
+ ('lt-precio', None, 16, 18, ['padre', 'multitud', 'alia2'],
+  ['A: de noche, junto al fuego en el desierto, el predicador ciego y Leto; el predicador toca la cara de su hijo.',
+   'B: la plaza de Arrakeen llena; el predicador habla; un destello entre la multitud y el predicador ya no está (sin violencia); Leto solo.',
    'B: Leto avanza al trono; Alia se levanta; una luz se apaga (de lejos); Leto, un niño, se sienta en el trono enorme.'],
   'suspense', ['padre+20']),
- ('lt-tranvia', None, 18, 18, ['fijate3'],
+ ('lt-tranvia', None, 19, 19, ['fijate3'],
   ['PAUSA: el trono congelado; Atom (al doble) saca a color unas vías de tranvía con una palanca y un puentecito.'],
   'suspense', []),
- ('lt-dios', None, 19, 21, ['siglos', 'paz', 'diario'],
+ ('lt-dios', None, 20, 22, ['siglos', 'paz', 'diario'],
   ['D: Arrakis verde: bosques, ríos y lluvia; a Atom le cae una gota y se asombra (gag); al fondo, el Sareer, el último desierto.',
    'D: la Ciudadela del dios emperador; las guardianas con capa en filas; Leto gusano en su carro; Duncan a su lado.',
    'D: de noche, Leto escribe; un diario gordísimo; Atom intenta levantarlo y no puede (gag).'],
   'epico', []),
- ('lt-soledad', None, 22, 22, ['fijate4'],
+ ('lt-soledad', None, 23, 23, ['fijate4'],
   ['PAUSA: la noche congelada; Atom (al doble) saca a color una silla sola en una mesa larga y un grupo de amigos al otro lado; «2015».'],
   'calma', []),
- ('lt-puente', None, 23, 25, ['siona', 'hwi', 'cae'],
+ ('lt-puente', None, 24, 26, ['siona', 'hwi', 'cae'],
   ['D: el Sareer; Siona, joven y decidida, con un diario robado bajo el brazo; Leto la mira desde lejos.',
    'E: la boda: Hwi Noree con velo junto al carro; Atom con una pajarita torcida (gag); la procesión sale al puente.',
    'E: el puente se rompe en el centro (de lejos, polvo); el carro cae al río; salpicadura; luego, el río tranquilo con manchas de arena que se dispersan.'],
   'intriga', ['cae+4']),
- ('lt-reactancia', None, 26, 26, ['fijate5'],
+ ('lt-reactancia', None, 27, 27, ['fijate5'],
   ['PAUSA: el río congelado; Atom (al doble) saca a color un cartel de «prohibido» y un pájaro que sale de una jaula abierta; «1966».'],
   'intriga', []),
- ('lt-cierre', None, 27, 29, ['dispersion', 'recuerdas', 'pregunta'],
+ ('lt-cierre', None, 28, 30, ['dispersion', 'recuerdas', 'pregunta'],
   ['D y A: miles de truchas de arena con perlas de luz; el bosque se vuelve desierto; luego, naves diminutas que salen hacia las estrellas en todas direcciones.',
    'E: el puente del principio, vacío, al atardecer; un niño pelirrojo de nueve años en la orilla.',
    'F: Atom en su estudio borra el puente de la pizarra, mira a cámara y señala los comentarios.'],
@@ -79,6 +80,6 @@ for id_, cartela, a, b, marcas, vis, animo, golpes in E:
                     'empieza_con': 'cartela ' + cartela if cartela else 'corte desde la escena anterior',
                     'termina_con': '', 'produccion': ''})
 assert [e['frase_ini'] for e in escenas][1:] == [e['frase_fin'] + 1 for e in escenas][:-1]
-assert escenas[-1]['frase_fin'] == 29
+assert escenas[-1]['frase_fin'] == 30
 json.dump({'banda': BANDA, 'escenas': escenas, 'lotes': []}, open(f'{D}/escenas.json', 'w'), ensure_ascii=False, indent=1)
 print(len(escenas), 'escenas')
