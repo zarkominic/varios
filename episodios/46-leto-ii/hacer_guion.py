@@ -104,8 +104,12 @@ PREVIO = {
 }
 # Desde el 37, en español los nombres extranjeros van TAL CUAL (regla del 16/11/2026).
 PRONUNCIA = {
-    'en': [],
-    'es': [],
+    # «II» lo leería letra a letra: se dice como en el libro, «the Second» / «Segundo».
+    'en': [('Leto II', 'Leto the Second')],
+    # validadas con ZONOS3 y Whisper el 22/11/2026 (frase «Hoy te hablo de …»): tal cual salían «Leto sedondos» e
+    # «Ijuinore»; escritas así se oyen bien. Los demás (Paul Atreides, Ghanima, Sietch Tabr, Muad'Dib, Arrakeen, Gurney,
+    # Harkonnen, Sareer, Duncan Idaho, Siona, Herbert, Holt-Lunstad, Brehm, Dune) se oyen mejor tal cual que reescritos.
+    'es': [('Leto II', 'Leto Segundo'), ('Hwi Noree', 'Juí Norí')],
 }
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
 # Desde la v5 van solo en el campo `pausas` de cada escena de escenas.json (los números de aquí eran los de la v4
