@@ -109,7 +109,7 @@ PRONUNCIA = {
     # validadas con ZONOS3 y Whisper el 22/11/2026 (frase «Hoy te hablo de …»): tal cual salían «Leto sedondos» e
     # «Ijuinore»; escritas así se oyen bien. Los demás (Paul Atreides, Ghanima, Sietch Tabr, Muad'Dib, Arrakeen, Gurney,
     # Harkonnen, Sareer, Duncan Idaho, Siona, Herbert, Holt-Lunstad, Brehm, Dune) se oyen mejor tal cual que reescritos.
-    'es': [('Leto II', 'Leto Segundo'), ('Hwi Noree', 'Juí Norí')],
+    'es': [('Leto II', 'Leto Segundo'), ('Hwi Noree', 'Juí Norí'), ('Hwi', 'Juí')],
 }
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
 # Desde la v5 van solo en el campo `pausas` de cada escena de escenas.json (los números de aquí eran los de la v4

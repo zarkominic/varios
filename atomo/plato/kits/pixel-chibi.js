@@ -12164,3 +12164,60 @@ export const ELENCO_VD = {
   panteraVD: ELENCO_CHIBI.shuri,
 };
 Object.assign(ELENCO_CHIBI, ELENCO_VD);
+
+// ── Episodio 46 · Leto II (Hijos de Dune y Dios emperador de Dune). DERECHOS: nada de las películas (ni actores ni
+// vestuario): por los atributos del LIBRO, con la ropa del desierto NUESTRA del 44 (tonos arena, capas, túnicas). Reutiliza
+// ELENCO_PA (jessica, duncan, fremen, fremenMujer, sacerdotePA). Leto gusano NO es un chibi: lo dibuja lt-comun.js ──
+const PIEL_TRUCHA = { C: '#4a4440', c: '#36302c', o: '#6a5e50', G: '#36302c', p: '#2a2622', L: '#2a2622' };
+// la piel de truchas de arena: le cubre brazos y manos (la S de las manos pasa a membrana) con manchas (p); la cara, a la vista
+const CUERPO_TRUCHA_LT = parche(CUERPO_NINO, [[1, 3, 'kck'], [11, 3, 'kck'], [1, 4, 'kck'], [11, 4, 'kck'],
+  [4, 7, 'ccc'], [8, 7, 'ccc'], [5, 1, 'p'], [9, 2, 'p'], [6, 4, 'p'], [9, 5, 'p'], [5, 6, 'p'], [9, 7, 'p']]);
+export const ELENCO_LT = {
+  // Leto a los nueve años: pelo rojo (como su abuela Jessica), túnica de arena fremen con fajín azul, ojos de especia
+  letoNinoLT: { ...B20N, cuerpo: CUERPO_NINO, ceja: hex('#7a2a14'),
+    pal: CLARA({ ...OJO_ESPECIA, H: '#b04a24', h: '#d0683a', C: '#c8a878', c: '#a08458', W: '#3a6aa8', F: '#7a6444', n: '#4a3622' }) },
+  // Ghanima, su gemela: el mismo pelo rojo, largo; la misma túnica de arena con el fajín azul
+  ghanimaLT: { ...B20N, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#7a2a14'),
+    pal: CLARA({ ...OJO_ESPECIA, H: '#b04a24', h: '#d0683a', C: '#c8a878', c: '#a08458', W: '#3a6aa8', F: '#7a6444', L: '#4a3622' }) },
+  // Leto con la piel de truchas de arena (después del trance): la membrana gris oscura, moteada, hasta el cuello
+  letoPielLT: { ...B20N, cuerpo: CUERPO_TRUCHA_LT, ceja: hex('#7a2a14'),
+    pal: CLARA({ ...OJO_ESPECIA, H: '#b04a24', h: '#d0683a', ...PIEL_TRUCHA, F: '#36302c', n: '#2a2622' }) },
+  // Alia adulta, regente (veintitantos): melena cobriza, túnica negra con ribete dorado de la corte, ojos de especia
+  aliaLT: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#6a3a1a'),
+    pal: CLARA({ ...OJO_ESPECIA, H: '#9a5a2a', h: '#c07a3a', C: '#2a2430', c: '#1a1620', W: '#e8c060', o: '#e8c060', G: '#e8c060', F: '#1a1620', L: '#1a1620' }) },
+  // el predicador ciego (Paul, veinte años después): barba con canas, una tira de tela clara sobre los ojos (E), túnica
+  // fremen gastada y capa remendada
+  predicadorLT: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#5a5a5a'), detras: capa(),
+    pal: OLIVA({ E: '#d8ccb0', H: '#4a4448', h: '#7a7478', C: '#8a7454', c: '#6a5638', W: '#5a4a34', o: '#6a5638', G: '#5a4a34', Q: '#5a4630', q: '#3e3020', F: '#4a3a28' }) },
+  // el muchacho que lo guía (Assan Tariq): fremen joven, pelo negro, túnica de arena con el fajín azul
+  guiaLT: { ...B20N, cuerpo: CUERPO_NINO, ceja: hex('#1c1424'),
+    pal: MORENA({ ...OJO_ESPECIA, H: '#1c1424', h: '#3a3046', C: '#a08458', c: '#7a6440', W: '#3a6aa8', F: '#5a4830', n: '#3a2c20' }) },
+  // Gurney Halleck, ya mayor: rubio ralo con entradas, la cicatriz morada de la enredadera en la mejilla (la pinta la
+  // escena), capa del desierto y túnica parda
+  gurneyLT: { ...B20, cab: CAB_ENTRADAS, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#b8a060'), detras: capa(),
+    pal: CLARA({ H: '#c8b070', h: '#e0cc90', C: '#7a6444', c: '#5a4830', W: '#3a6aa8', o: '#5a4830', G: '#3a6aa8', Q: '#6a5034', q: '#4a3622', F: '#4a3622' }) },
+  // Jessica, ya abuela: la melena color bronce con hebras grises, la túnica negra de la orden
+  jessicaMayorLT: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#7a5a3a'),
+    pal: CLARA({ H: '#8a6a4a', h: '#b8a8a0', C: '#2a2430', c: '#1a1620', W: '#4a4458', o: '#4a4458', G: '#4a4458', F: '#1a1620', L: '#1a1620' }) },
+  // Duncan Idaho en el imperio de Leto (uno de sus gholas): los rizos negros de siempre, uniforme verde oscuro de la
+  // guardia con el halcón dorado
+  duncanLT: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_EUROPEO, ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#2e4a36', c: '#1e3426', W: '#e8c060', o: '#e8c060', F: '#1e3426' }) },
+  // Siona, 3.500 años después: joven rebelde, pelo oscuro corto, ropa práctica verde oliva con cinturón y botas
+  sionaLT: { ...B20M, cab: CAB_CORTA_VM, cuerpo: CUERPO_TACTICO, ceja: hex('#2a1e18'),
+    pal: MORENA({ H: '#2a1e18', h: '#4a3a30', C: '#5a6a3a', c: '#424e2a', o: '#424e2a', W: '#5a6a3a', G: '#3a2c20', I: '#3a2c20', F: '#3a3a2a', n: '#2a2018' }) },
+  // Hwi Noree, embajadora de Ix: melena oscura larga, vestido azul pálido con plata (el velo de la boda: la escena)
+  hwiLT: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO, ceja: hex('#2a1e18'),
+    pal: CLARA({ H: '#2a1e18', h: '#4a3a30', C: '#a8c0d8', c: '#88a0bc', W: '#d8dce8', L: '#6a7a8a' }) },
+  // una Habladora de Pez (la guardia de Leto): pelo corto, uniforme gris azulado con capa y cinturón
+  habladoraLT: { ...B20M, cab: CAB_CORTA_VM, cuerpo: CUERPO_TACTICO, ceja: hex('#1c1424'), detras: capa(),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#4a5a6a', c: '#34424e', o: '#34424e', W: '#4a5a6a', G: '#2a2430', I: '#2a2430', Q: '#5a3a4a', q: '#3e2834', F: '#34424e', n: '#2a2430' }) },
+  habladora2LT: { ...B20M, cab: CAB_CORTO, cuerpo: CUERPO_TACTICO, ceja: hex('#3a2a1c'), detras: capa(),
+    pal: MORENA({ H: '#3a2a1c', h: '#5a4430', C: '#4a5a6a', c: '#34424e', o: '#34424e', W: '#4a5a6a', G: '#2a2430', I: '#2a2430', Q: '#5a3a4a', q: '#3e2834', F: '#34424e', n: '#2a2430' }) },
+  // una persona corriente del imperio de Leto («imagina ser…»): túnica sencilla de lino y capa corta parda
+  ciudadanoLT: { ...B20, cuerpo: CUERPO_TUNICA_LARGA, ceja: hex('#3a2a1c'),
+    pal: OLIVA({ H: '#3a2a1c', h: '#5a4430', C: '#c8bca0', c: '#a89c80', W: '#7a6a50', o: '#a89c80', G: '#7a6a50', F: '#7a6a50' }) },
+  ciudadanaLT: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_VESTIDO, ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#b8a07a', c: '#98805a', W: '#7a6a50', L: '#4a3a28' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_LT);
