@@ -995,3 +995,18 @@ inglesa: medirlos y decírselo.
 Pendiente para el próximo: borrar los fotogramas del 45 al empezar; en el canon de las escenas, la lista de decorados de
 otros episodios prohibidos; escépticos que separen web y memoria; revisar si el usuario quiere rehacer párrafos cortados
 del 44.
+
+## Episodio 46 · Leto II (en producción, 22/11/2026)
+
+- **Música con instrumentos grabados** [Seguro]: el usuario comparó A (FluidR3) y B (VSCO 2 CE, VCSL, Karoryfer y
+  Salamander, con el sampler de Lemo-Opuscar) y eligió B: «me gusta la nueva música». Misma partitura y mismo nivel por
+  ánimo (a menos de 1,5 dB), solo cambia el timbre; la celesta y la flauta de pan siguen en FluidR3 (no hay grabaciones
+  libres). Canon desde el 46.
+- **Nombres en español** [Seguro]: con ZONOS y Whisper, solo «Leto II» (salía «Leto sedondos») y «Hwi Noree»
+  («Ijuinore») necesitaron reescritura. Reescribir a la mexicana empeoró «Paul Atreides» («Pola Traides»), «Harkonnen»
+  («jar con en»), «Sareer» («salir») y «Duncan Idaho»: se dejan tal cual. Igual que en el 45, se reescribe solo lo que
+  falla.
+- **Narración** [Seguro]: al meter las correcciones de los agentes volví a encadenar hechos en seis párrafos; el usuario
+  lo preguntó («¿estás siguiendo nuestros nuevos cánones?»). Repasar cada párrafo corregido con la regla «un momento por
+  párrafo» ANTES de enseñarlo.
+

@@ -51,6 +51,16 @@ ahorrar tiempo bajarlo por ninguna circunstancia».
   arpegios agudos (el papel «color») los toca la celesta, fijo en `tramo_sf.py`; el resto de campanitas sigue prohibido
   (glockenspiel, caja de música, campanas, vibráfono, kalimba, marimba: `tramo_sf.py` lo rechaza). Hace falta `fluidsynth` y `fluid-soundfont-gm` (`comprobar-entorno.sh` lo mira). Con los instrumentos
   sintetizados «siempre es casi igual» (el usuario).
+- **Los instrumentos, grabados de verdad (canon desde el 46, elegido de oído por el usuario el 22/11/2026: «me gusta la
+  nueva música», tras comparar A y B):** `BANDA` lleva también `'biblioteca': 'real'`. La partitura es la misma de
+  `tramo_sf.py`, pero cada pista la toca `sonido/tramo_real.py` con el sampler de Lemo-Opuscar (código MIT) y sus
+  bibliotecas (VSCO 2 CE, VCSL, Karoryfer y FreePats, CC0; el piano Salamander, CC BY 3.0) al mismo nivel que su versión
+  FluidR3. Lo que no existe grabado con licencia libre (la celesta, la flauta de pan, el coro, el shehnai…) sigue en
+  FluidR3. La biblioteca vive en `~/.cache/ask-atom/lemo-opuscar` (1,4 GB, fuera del repositorio): en un contenedor
+  nuevo, `git clone --depth 1 https://github.com/lemomo-ai/lemo-opuscar ~/.cache/ask-atom/lemo-opuscar`, después
+  `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` y `sh tools/fetch.sh instruments all` dentro de
+  ella. **Si el episodio usa el piano**, la descripción lleva el crédito: «Piano: "Salamander Grand Piano V3" by
+  Alexander Holm, CC BY 3.0». Sus guías (los .md) son CC BY-NC: se usan sus ideas, nunca se copian al repositorio.
 - **La banda de cada episodio la decide el tema** (desde el 13, por petición del usuario: «la música de fondo se está
   repitiendo de capítulo a capítulo… no todo es suspenso»; «la banda depende del tema que definamos y el guion»). Se
   diseña con el guion (paso 2.4) y se aprueba con él, con su muestra.

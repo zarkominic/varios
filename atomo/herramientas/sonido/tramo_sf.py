@@ -224,7 +224,7 @@ def midi(ruta, lista):
         for p in lista:
             f.write(p.datos())
 
-# banda.biblioteca = 'real' (prueba del 22/11/2026, sin aprobar como canon): la misma partitura, tocada con instrumentos
+# banda.biblioteca = 'real' (canon desde el 46: el usuario, de oído, el 22/11/2026: «me gusta la nueva música»): la misma partitura, tocada con instrumentos
 # grabados de verdad (VSCO 2 CE, VCSL, Karoryfer y FreePats, CC0; piano Salamander, CC BY 3.0) con el sampler de
 # Lemo-Opuscar (MIT). Lo que esas bibliotecas no tienen (celesta, coro, flauta de pan, shehnai…) sigue en FluidR3.
 # Cada pista sale al mismo nivel (RMS) que su versión FluidR3, para no mover la mezcla que ya aprobó el usuario.

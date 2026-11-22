@@ -9,7 +9,7 @@ escenas.json). Una fila por escena: (id, cartela, frase_ini, frase_fin, [marcas]
 import json, os
 
 D = os.path.dirname(os.path.abspath(__file__))
-BANDA = {'tono': 'fa', 'modo': 'lidio', 'tempo': 72, 'motivo': [0, 4, 6, 7, 6, 4, 2, 0], 'sampleado': True,
+BANDA = {'tono': 'fa', 'modo': 'lidio', 'tempo': 72, 'motivo': [0, 4, 6, 7, 6, 4, 2, 0], 'sampleado': True, 'biblioteca': 'real',
          'paleta': {'solista': 'flauta_pan', 'metal': 'trompa', 'madera': 'fagot', 'aire': 'oboe'}}
 E = [
  ('lt-gancho', None, 1, 3, ['giro', 'puente', 'leto'],
