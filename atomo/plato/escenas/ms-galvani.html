@@ -10,16 +10,21 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // MS-GALVANI (frase 18), LA PAUSA «fíjate» de Galvani. Cinco planos sobre planos congelados de ms-juego (las mismas
-// funciones de plano, idénticas):
+// funciones de plano, idénticas; el cuarto, con el grabado colgado de un clavo bajo la esquina de Atom):
 // 1. el cuarto congelado (p12): Atom al doble entra, niega en «poets' fantasy» («X»), «1780» en «1780s»;
-// 2. el salón congelado (p10): Atom saca la mesa de Galvani (T.pausa 'galvani'), chispa en «spark»; gag: en «legs
-//    twitch» toca el cable, la rana de juguete salta y Atom salta también;
-// 3. el vestíbulo congelado (p9): Atom llega a su sitio y la tarjeta del mapa sube desde abajo: chinchetas en Bolonia («Aldini»), París y Londres, y el coche de
-//    posta por la ruta («toured Europe»);
+// 2. los retratos de sus padres congelados (p7, Mary recién entrada por la izquierda; otro cuarto, no el salón): Atom
+//    saca la mesa de Galvani (T.pausa 'galvani') con una vela encendida delante del retrato de la madre; en «discovered»
+//    señala la pila, que se carga disco a disco; en «spark» la chispa corre por el cable hasta la rana; gag: en «legs
+//    twitch» la rana de juguete salta y Atom salta también; se ríe junto a la mesa;
+// 3. el vestíbulo congelado (p9): Atom llega a su sitio y la tarjeta del mapa de Europa sube desde abajo (mapa antiguo:
+//    mar con trama, líneas de costa y ondas, tierra con la costa sombreada, montes, ríos, fronteras punteadas, bosques,
+//    rosa de los vientos, marco graduado; dos veleros que navegan): chinchetas en Bolonia («Aldini»), París y Londres, y
+//    el coche de posta con su caballo («toured Europe»), que cruza el canal en paquebote;
 // 4. la galería congelada (p8): la tarjeta del teatro: la máquina eléctrica y el público de espaldas; fogonazo en «even»,
 //    «!» en «body» (nada se ve en la mesa);
-// 5. la mesilla congelada (p11): la botella de Leyden: la chispa crece en «electricity» y se vuelve corazón en «spark of
-//    life».
+// 5. la mesilla congelada (p11): la botella de Leyden grande de pie en el suelo (vidrio, estaño, tapa, varilla, bola y
+//    cadena); Atom llega, la piensa, en «electricity» le acerca la mano, la chispa le salta a los dedos y da un respingo;
+//    en «spark of life» la chispa sube y se vuelve un corazón.
 import * as T from '/atomo/plato/escenas/ms-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ms-galvani');
@@ -658,6 +663,14 @@ const SUENO = (t) => cl(0.3 * ease(tramo(t, TJ.THE, TJ.BEGINNING + 0.2)) + 0.15 
 const p12 = (t) => {
   const s = SUENO(t), o = { encuadre: 'cuarto', sueno: s, vela: 0.55 };
   T.lago(R, t, o);
+  // el grabado del lago cuelga de un clavo POR DEBAJO de la esquina de Atom (y 48), no de la moldura: se borra el cordel
+  // largo que subía hasta y 19 con el papel de rayas de al lado (el mismo dibujo, diez píxeles más allá) y se pintan el
+  // clavo de cabeza de latón y los dos cordeles cortos hasta las anillas del marco (y 56)
+  { const cc = R.pget(298, 19);
+    for (let y = 20; y <= 55; y++) { const u = (y - 19) / 37;
+      for (const [xa, d] of [[298 - 6 * u, -1], [298 + 6 * u, 1]]) for (let dx = -1; dx <= 1; dx++) { const x = ri(xa) + dx; R.pset(x, y, R.pget(x + d * 10, y)); } }
+    R.linea(298, 49, 292, 56, cc); R.linea(298, 49, 304, 56, cc);
+    R.rect(297, 47, 299, 48, K); R.pset(297, 47, LATON[2]); R.pset(298, 47, LATON[3]); R.pset(298, 49, K); }
   R.recorte([0, 0, 319, 114]); R.actor(MS.maryMS, 244, 123, t, { dir: -1, sorpresa: t > TJ.YELLOW, parpadea: t < TJ.PALE && Math.sin(t * 2) > 0.9 }); R.recorte(null);
   T.lagoDelante(R, t, { ...o, manta: true });
   const esc = t > TJ.YELLOW;
@@ -673,6 +686,8 @@ const fz10 = () => capa('fz10', () => p10(TJ.BODY - 0.3));
 const fz9 = () => capa('fz9', () => p9(TJ.PERCY - 0.3));
 const fz8 = () => capa('fz8', () => p8(TJ.ENGLAND));
 const fz11 = () => capa('fz11', () => p11(TJ.BED + 0.6));
+// los retratos de sus padres (p7) con Mary que acaba de entrar por la izquierda (x ≈ 42), con su hoja
+const fz7 = () => capa('fz7', () => p7(lerp(TJ.MARY2 - 0.1, TJ.DAUGHTER + 0.3, 0.38)));
 const congela = (b) => { R.copiar(b()); AT.pausa(R, 1); };
 const anio = (txt, x, y, u) => { if (u <= 0) return; R.numero(txt, x, y - ri((1 - ease(u)) * 6), { centro: true, tam: 16 }); };
 // una tarjeta de papel que sale flotando (el marco de los insertos de la pausa)
@@ -686,17 +701,56 @@ const q1 = (t) => {
   if (niega) globo(x - 4, 132, 'X', 1, hex('#b83a3a'));
   anio('1780', 118, 70, tramo(t, TG.N1780 - 0.1, TG.N1780 + 0.3)); if (t > TG.N1780) AT.anillo(R, 118, 62, 42, 16, t, tramo(t, TG.N1780, TG.N1780 + 0.8));
 };
-// ── 2 · el salón congelado: Atom saca la mesa de Galvani (pila, cables, la rana de juguete); chispa en «spark»;
-//      gag: en «twitch» Atom toca el cable, la rana salta y Atom salta también ──
+// ── 2 · los retratos congelados (p7: otro cuarto de la casa, no el salón de p2 y p10): Atom saca la mesa de Galvani (pila, cables, la rana de juguete, una vela en su palmatoria);
+//      en «Galvani discovered» se acerca y señala la pila, que se carga disco a disco (brillo azul y chasquidos); en
+//      «spark» la chispa corre por el cable rojo hasta la rana; en «dead frog» la rana chisporrotea quieta; en «legs
+//      twitch» la rana salta y Atom salta también («!»); luego Atom se ríe junto a la mesa, la pila aún encendida.
+//      Vida: la llama de la vela y su halo cálido sobre el salón congelado, motas doradas que suben en su luz, el humo
+//      de la chispa, burbujas en el frasco ──
+const VELA = pal('#5a4018', '#e8dcc0', '#fff4dc', '#ffd060', '#fff8c0');
 const q2 = (t) => {
-  congela(fz10);
+  congela(fz7);
+  const GX = 214;   // el centro de la mesa (delante del retrato de la madre y de la consola)
   const sale = tramo(t, TG.THE, TG.THE + 0.5), y = ri(170 + (1 - ease(sale)) * 40 + (sale >= 1 ? flota(t) : 0));
   const salto = tramo(t, TG.LEGS - 0.05, TG.LEGS + 0.75), brinca = tramo(t, TG.LEGS + 0.05, TG.LEGS + 0.6);
-  const r = T.pausa(R, 196, y, t, { cual: 'galvani', salto });
-  if (t > TG.SPARK - 0.05 && t < TG.SPARK + 0.5) chispa(170, y - 46, 184, y - 34, t, 1 - tramo(t, TG.SPARK, TG.SPARK + 0.5));
+  const carga = tramo(t, TG.DISCOVERED, TG.SPARK - 0.1), corre = tramo(t, TG.SPARK, TG.SPARK + 0.5), llegada = t > TG.SPARK + 0.5 ? 1 - tramo(t, TG.LEGS + 0.2, TG.AND) : 0;
+  const descarga = carga * (1 - tramo(t, TG.SPARK, TG.SPARK + 0.6) * 0.5) * (1 - tramo(t, TG.LEGS, TG.LEGS + 0.5) * 0.3);
+  // la vela en su palmatoria, detrás de los cables: su halo cálido sobre el salón congelado y las motas que suben en su luz
+  const vx = GX - 6, vb = y - 28, fl = Math.sin(t * 9) * 0.6 + Math.sin(t * 23) * 0.4;
+  halo(vx, vb - 20, 44 + ri(fl), hex('#ffc878'), 0.32);
+  for (let k = 0; k < 9; k++) { const u = (t * (0.12 + hh(k, 1, 31) * 0.1) + hh(k, 2, 31)) % 1, mx = vx + (hh(k, 3, 31) - 0.5) * 50 + Math.sin(t * 1.3 + k) * 3, my = vb - 6 - u * 70;
+    if (Math.sin(u * Math.PI) > 0.25) tine(mx, my, hex('#ffe8a8'), 0.4 + 0.4 * Math.sin(u * Math.PI)); }
+  R.rect(vx - 4, vb - 2, vx + 4, vb, K); R.rect(vx - 3, vb - 2, vx + 3, vb - 1, LATON[2]); R.pset(vx - 3, vb - 2, LATON[3]); R.rect(vx - 1, vb - 4, vx + 1, vb - 3, LATON[1]);
+  R.rect(vx - 2, vb - 16, vx + 2, vb - 4, K); R.rect(vx - 1, vb - 15, vx + 1, vb - 5, VELA[1]); R.rect(vx - 1, vb - 15, vx - 1, vb - 5, VELA[2]); R.pset(vx + 1, vb - 14, VELA[0]);
+  R.pset(vx, vb - 17, K);
+  { const fy = vb - 18, al = 4 + ri(fl * 1.2), dx = Math.sin(t * 5) > 0.7 ? 1 : 0; R.disco(vx, fy - 1, 2, VELA[3]); R.linea(vx, fy, vx + dx, fy - al, VELA[3]); R.pset(vx, fy - 1, VELA[4]); R.pset(vx, fy - 2, VELA[4]); }
+  const r = T.pausa(R, GX, y, t, { cual: 'galvani', salto });
+  // la pila se carga: los discos de cobre se encienden de abajo arriba, con su brillo azul y chasquidos entre las varillas
+  const px = GX - 32, nd = Math.floor(carga * 6.99);
+  if (carga > 0) { halo(px, y - 52, 38, hex('#a8d0ff'), 0.7 * descarga * (0.8 + 0.2 * Math.sin(t * 17)));
+    for (let i = 0; i < nd; i++) { const b = y + 2 * (-17 - i * 3), lu = descarga * (0.8 + 0.2 * Math.sin(t * 13 + i)); if (lu <= 0.05) continue;
+      for (let xx = px - 6; xx <= px + 7; xx++) { tine(xx, b, hex('#fff0c8'), Math.min(0.95, 1.1 * lu)); tine(xx, b + 1, hex('#ffb060'), 0.8 * lu); tine(xx, b - 2, hex('#c8e4ff'), 0.6 * lu); } }
+    // las varillas de vidrio se iluminan de azul hasta donde llega la carga
+    for (const vx2 of [px - 10, px + 10]) for (let yy = y - 34 - nd * 6; yy <= y - 32; yy++) tine(vx2, yy, hex('#d8ecff'), 0.75 * descarga);
+    if (descarga > 0.2 && Math.floor(t * 9) % 3 === 0) { const i = Math.floor(hh(ri(t * 9), 1, 7) * Math.max(1, nd)), b = y + 2 * (-17 - i * 3) - 1, sx = hh(ri(t * 9), 2, 7) > 0.5 ? px + 10 : px - 10;
+      chispa(sx, b, sx + (sx > px ? 5 : -5), b - 6, t, 0.3 * descarga); } }
+  // la chispa corre por el cable rojo, del borne de arriba hasta la rana (la misma curva que el cable de la pieza)
+  if (corre > 0 && corre < 1) { const P = (u) => [GX + 2 * (-11 + 17 * u), y + 2 * (-36 + 19 * u - Math.sin(u * Math.PI) * 6)];
+    for (let k = 3; k >= 0; k--) { const [a, b] = P(Math.max(0, corre - k * 0.05)); if (k === 0) { halo(a, b, 12, hex('#e0f0ff'), 0.8); R.disco(ri(a), ri(b), 2, hex('#a8d0ff')); R.pset(ri(a), ri(b), hex('#ffffff')); } else tine(a, b, hex('#ffffff'), 0.9 - k * 0.2); } }
+  // al llegar, la rana chisporrotea quieta («dead frog») y suelta un hilo de humo que sube y se deshace
+  const [rnx, rny] = r?.rana ?? [GX + 20, y - 40];
+  if (llegada > 0) { if (t < TG.SPARK + 0.9) chispa(rnx - 8, rny + 2, rnx + 6, rny - 6, t, 1 - tramo(t, TG.SPARK + 0.5, TG.SPARK + 0.9));
+    else if (Math.floor(t * 12) % 4 === 0 && t < TG.LEGS + 0.8) chispa(rnx - 4, rny + 4, rnx + 4, rny - 2, t, 0.3);
+    for (let k = 0; k < 7; k++) { const u = ((t - TG.SPARK - 0.5) * 0.5 + k / 7) % 1; if (u < 0) continue; tine(rnx - 6 + Math.sin(u * 7 + k) * 3 + u * 6, rny + 6 - u * 44, hex('#c8ccd8'), 0.55 * (1 - u) * llegada); } }
+  // las burbujas del frasco azul
+  for (let k = 0; k < 3; k++) { const u = (t * 0.9 + k / 3) % 1; R.pset(GX + 41 + ((k * 2) % 4), ri(y - 16 - u * 6), hex('#e8f8ff')); }
+  // Atom se acerca a señalar la pila, toca el cable en «legs», salta con la rana, se ríe y vuelve a su sitio
+  const va = tramo(t, TG.GALVANI - 0.1, TG.DISCOVERED + 0.3), vuelve = 0;
+  const ax = ri(lerp(86, 118, ease(va))), anda = va > 0 && va < 1, rie = t > TG.LEGS + 0.65;
   const toca = t > TG.LEGS - 0.4 && t < TG.LEGS + 0.2;
-  atomG(toca ? 112 : 86, 176 - ri(Math.sin(brinca * Math.PI) * 16), t, { pose: toca ? 'senala' : t > TG.GALVANI && t < TG.DEAD ? 'senala' : 'quieto', dir: 1, cara: brinca > 0 && brinca < 1 ? 'sorpresa' : t > TG.TWITCH + 0.6 ? 'sonrisa' : 'normal' });
-  if (brinca > 0 && brinca < 1) { globo(96, 82, '!', 1, hex('#c83a3a')); }
+  atomG(ax, 176 - ri(Math.sin(brinca * Math.PI) * 16), t, { pose: anda ? 'camina' : rie ? (Math.floor(t * 5) % 2 ? 'brazos' : 'quieto') : toca || (t > TG.DISCOVERED + 0.3 && t < TG.DEAD) ? 'senala' : 'quieto', dir: vuelve > 0 && vuelve < 1 ? -1 : 1,
+    cara: brinca > 0 && brinca < 1 ? 'sorpresa' : t > TG.LEGS + 0.6 ? 'sonrisa' : corre > 0 && t < TG.LEGS ? 'sorpresa' : 'normal' });
+  if (brinca > 0 && brinca < 1) { globo(ax + 10, 82, '!', 1, hex('#c83a3a')); }
 };
 // ── 3 · el vestíbulo congelado: Aldini recorre Europa: la tarjeta del mapa, las chinchetas de Bolonia, París y Londres y
 //      el coche de posta que va de una a otra ──
@@ -708,25 +762,135 @@ const GB = [[-5.7, 50], [-3, 50.6], [1.4, 51.2], [1.7, 52.7], [0.2, 53.5], [-0.5
 const IRL = [[-6, 52], [-6, 53.5], [-5.5, 55.2], [-8, 55.2], [-10, 54], [-10, 51.6], [-8, 51.6]];
 const ESCAN = [[5, 59], [7, 58], [8.5, 58.2], [10.5, 59.2], [11.2, 58.5], [12.5, 56.3], [14.3, 55.5], [16.3, 56.6], [18.5, 59.5], [21, 61], [5, 61]];
 const SIC = [[12.4, 38.1], [15.6, 38.3], [15, 36.7]], CER = [[8.6, 41.5], [9.6, 41.2], [9.8, 39], [8.4, 39], [8.2, 40.9]];
+// el mapa de Europa de la tarjeta, al nivel del de th-farmacias: se pinta una vez (sin desplazar) en un búfer y se pega
+// cada fotograma con el desplazamiento de la tarjeta. Mar con su trama, las líneas de agua que siguen la costa y las
+// ondas de buril en el mar abierto; tierra de papel viejo con su tono que no es parejo, la costa sombreada por dentro y
+// su filete oscuro; los ríos azules, las fronteras punteadas, los montes con luz y sombra (Alpes nevados, Pirineos,
+// Apeninos, Macizo Central, Cárpatos, las Highlands y los de Noruega), bosques de arbolitos, el lago de Ginebra y la rosa
+// de los vientos en el Atlántico; alrededor, el marco graduado de los mapas antiguos
+const MX0 = 116, MY0 = 38, MX1 = 266, MY1 = 128, MW = MX1 - MX0 + 1, MH = MY1 - MY0 + 1;
+const PM = ([lo, la]) => [ri(MX0 + (lo + 11) / 32 * (MX1 - MX0)), ri(MY0 + (60 - la) / 25 * (MY1 - MY0))];
+const MAR = pal('#24506c', '#2e5e7c', '#3a6c8a', '#4c7e9a', '#6a98b0', '#9cc0cc'), TIE = pal('#8a6c44', '#a88a5c', '#bea070', '#d0b484', '#dec698', '#ecdab0');
+const RIOS = [[[-1.6, 51.7], [-0.9, 51.5], [-0.1, 51.5], [0.6, 51.5]], [[4.7, 47.6], [3.9, 48.4], [2.4, 48.85], [1.5, 49.1], [0.3, 49.45]],
+  [[4.0, 45.2], [3.1, 46.9], [2.4, 47.4], [1.0, 47.4], [-0.5, 47.4], [-2.1, 47.3]], [[8.2, 46.5], [6.9, 46.4], [5.8, 45.9], [4.8, 45.7], [4.8, 44.8], [4.6, 43.8]],
+  [[9.5, 47.5], [7.6, 47.6], [7.8, 48.6], [8.4, 49.3], [8.1, 50.0], [7.4, 50.5], [6.9, 51.0], [6.3, 51.8], [5.0, 51.9], [4.3, 51.95]],
+  [[8.5, 48.0], [10.0, 48.4], [12.0, 49.0], [13.5, 48.6], [16.4, 48.2], [18.9, 47.8], [19.0, 46.4], [20.3, 45.3], [21, 44.9]],
+  [[7.3, 44.7], [7.7, 45.1], [9.1, 45.1], [10.4, 45.0], [11.8, 45.0], [12.3, 44.95]], [[14.5, 50.5], [12.6, 51.6], [11.8, 52.1], [10.0, 53.5], [8.9, 53.9]],
+  [[-4, 43], [-2, 42.4], [-0.9, 41.6], [0.8, 40.7]], [[-2, 40.5], [-4, 39.9], [-6.5, 39.6], [-9.1, 38.7]], [[16.5, 50.5], [17.5, 51.5], [18.5, 53.2], [18.8, 54.3]]];
+const FRONTERAS = [[[-1.8, 43.4], [0, 42.8], [1.7, 42.5], [3.2, 42.4]], [[7.5, 43.8], [6.9, 44.4], [7.0, 45.9], [6.1, 46.2], [7.5, 47.6], [8.2, 48.9], [6.4, 49.5], [4.9, 50.1], [2.5, 51.1]],
+  [[-8.9, 41.9], [-6.5, 41.6], [-6.9, 40.2], [-7.4, 39.5], [-7.0, 38.2], [-7.4, 37.2]], [[7.0, 45.9], [8.5, 46.1], [10.4, 46.6], [12.2, 47.0], [13.7, 46.5], [13.7, 45.6]],
+  [[9.6, 47.5], [12.9, 47.7], [13.8, 48.7], [12.1, 50.3], [14.8, 50.9], [14.6, 52.5], [14.2, 53.9]], [[6.0, 50.8], [6.8, 52.2], [7.2, 53.3]], [[16.9, 48.6], [19, 49.4], [21, 49.2]]];
+const MONTES = [[6.4, 45.6, 1], [7.4, 46.0, 1], [8.4, 46.4, 1], [9.6, 46.5, 1], [10.8, 46.9, 1], [12.0, 47.1, 1], [13.2, 47.0, 1], [7.9, 45.4, 1], [10.0, 47.4, 0],
+  [-1.0, 43.0, 1], [0.4, 42.7, 1], [1.8, 42.6, 0], [10.4, 44.1, 0], [11.8, 43.5, 0], [13.2, 42.6, 0], [14.6, 41.6, 0], [2.8, 45.3, 0], [3.4, 44.6, 0],
+  [19.4, 49.0, 0], [20.8, 48.6, 0], [-4.6, 57.1, 0], [-5.4, 57.9, 0], [7.4, 59.6, 0], [-4.4, 40.8, 0], [-3.2, 37.2, 1], [6.2, 46.9, 0], [14.6, 46.2, 0]];
+const BOSQUES = [[8.2, 48.2], [5.6, 50.1], [10.6, 50.6], [12.8, 49.4], [9.4, 52.4], [2.6, 48.4], [0.4, 46.6], [-1.0, 44.4], [16.0, 47.0], [11.4, 52.8], [15.4, 51.2], [-3.4, 52.6], [-1.6, 53.8]];
+let MAPA_TIERRA = null;
+const mapaEuropa = () => capa('mapaEuropa', () => {
+  // la máscara de tierra (polígonos en un color marca) y las dos distancias: de la tierra al mar y del mar a la tierra
+  const MARCA = hex('#ff00ff'), tierra = new Uint8Array(MW * MH);
+  R.rect(MX0, MY0, MX1, MY1, hex('#000000'));
+  R.recorte([MX0, MY0, MX1, MY1]); for (const pol of [EUR, GB, IRL, ESCAN, SIC, CER]) R.poligono(pol.map(PM), MARCA);
+  { const [a, b] = PM([5.9, 46.45]); R.disco(a, b, 1, hex('#000000')); } R.recorte(null);
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) tierra[y * MW + x] = R.pget(MX0 + x, MY0 + y) === MARCA ? 1 : 0;
+  MAPA_TIERRA = tierra;
+  const dist = (de) => { const d = new Float32Array(MW * MH); for (let i = 0; i < d.length; i++) d[i] = tierra[i] === de ? 99 : 0;
+    const v = (x, y) => (x < 0 || y < 0 || x >= MW || y >= MH ? 99 : d[y * MW + x]);
+    for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { const i = y * MW + x; if (d[i]) d[i] = Math.min(d[i], v(x - 1, y) + 1, v(x, y - 1) + 1, v(x - 1, y - 1) + 1.41, v(x + 1, y - 1) + 1.41); }
+    for (let y = MH - 1; y >= 0; y--) for (let x = MW - 1; x >= 0; x--) { const i = y * MW + x; if (d[i]) d[i] = Math.min(d[i], v(x + 1, y) + 1, v(x, y + 1) + 1, v(x + 1, y + 1) + 1.41, v(x - 1, y + 1) + 1.41); }
+    return d; };
+  const dT = dist(1), dM = dist(0);
+  for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { const i = y * MW + x, X = MX0 + x, Y = MY0 + y; let c;
+    if (tierra[i]) { const e = dT[i];
+      let v = 3.3 + (hh(X >> 3, Y >> 3, 81) - 0.5) * 0.9 + (hh(X >> 1, Y >> 1, 82) - 0.5) * 0.5 - (Y - MY0) / MH * 0.3;
+      if (e < 4) v -= (4 - e) * 0.45;   // la costa sombreada por dentro
+      c = e < 1.5 ? TIE[0] : hh(X, Y, 83) < 0.05 ? TIE[1] : tono(TIE, v, X, Y);
+    } else { const e = dM[i];
+      let v = 2.6 - Math.min(10, e) * 0.08 + (hh(X >> 2, Y >> 1, 84) - 0.5) * 0.6;
+      c = tono(MAR, v, X, Y);
+      if (Math.abs(e - 2) < 0.5 || (Math.abs(e - 4.5) < 0.5 && (X + Y) % 3) || (Math.abs(e - 7) < 0.5 && (X + Y) % 4 === 0)) c = MAR[4];   // las líneas de agua de la costa
+      else if (e > 8 && (Y + ri(Math.sin(X * 0.7 + Y) * 1.2)) % 6 === 0 && hh(X >> 3, Y, 85) > 0.4) c = MAR[3];   // las ondas de buril
+      else if (hh(X, Y >> 1, 86) < 0.04) c = MAR[0]; }
+    R.pset(X, Y, c); }
+  R.recorte([MX0 + 3, MY0 + 3, MX1 - 3, MY1 - 3]);
+  // los bosques: arbolitos de copa verde con su sombra
+  for (const [lo, la] of BOSQUES) { const [a, b] = PM([lo, la]); for (let k = 0; k < 5; k++) { const x = a + ri((hh(k, 1, ri(lo * 10)) - 0.5) * 9), y = b + ri((hh(k, 2, ri(la * 10)) - 0.5) * 5);
+    if (!tierra[(y - MY0) * MW + (x - MX0)]) continue; R.pset(x + 1, y + 1, TIE[0]); R.pset(x, y, hex('#4a6a34')); R.pset(x - 1, y, hex('#5a7a3e')); R.pset(x, y - 1, hex('#6e8c48')); R.pset(x, y + 1, hex('#3a2a18')); } }
+  // los ríos (azul, más claros en su curso alto) y los lagos
+  for (const rio of RIOS) { const pts = rio.map(PM); for (let i = 1; i < pts.length; i++) R.linea(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], i < 2 ? hex('#5a8ab0') : hex('#3a6a98')); }
+  for (const [lo, la, r] of [[6.5, 46.4, 2], [9.4, 47.6, 1], [8.8, 46.0, 1]]) { const [a, b] = PM([lo, la]); R.disco(a, b, r, hex('#3a6a98')); R.pset(a - 1, b, hex('#8ab4cc')); }
+  // las fronteras punteadas (granate)
+  for (const fr of FRONTERAS) { const pts = fr.map(PM); let n = 0;
+    for (let i = 1; i < pts.length; i++) { const [a, b] = pts[i - 1], [c, d] = pts[i], L = Math.max(1, ri(Math.hypot(c - a, d - b)));
+      for (let j = 0; j < L; j++, n++) if (n % 3 === 0) { const x = ri(lerp(a, c, j / L)), y = ri(lerp(b, d, j / L)); if (tierra[(y - MY0) * MW + (x - MX0)]) R.pset(x, y, hex('#8a3a4a')); } } }
+  // los montes: una ladera con luz (izquierda) y otra en sombra, el filo oscuro y la nieve en los altos
+  for (const [lo, la, alto] of MONTES) { const [a, b] = PM([lo, la]), h = alto ? 4 : 3;
+    for (let j = 0; j < h; j++) for (let i = -j; i <= j; i++) R.pset(a + i, b - h + 1 + j, i < 0 ? TIE[5] : i === 0 ? TIE[3] : TIE[1]);
+    for (let j = 0; j < h; j++) { R.pset(a + j + 1, b - h + 1 + j, TIE[0]); }
+    R.linea(a - h, b + 1, a + h, b + 1, TIE[1]);
+    if (alto) { R.pset(a, b - h + 1, hex('#ffffff')); R.pset(a - 1, b - h + 2, hex('#f4f4f4')); } }
+  // la rosa de los vientos en el Atlántico: el círculo, las cuatro puntas (la del norte, roja) y la flor de lis
+  { const [a, b] = PM([-9.4, 47.2]); for (let k = 0; k < 24; k++) { const g = k / 24 * Math.PI * 2; if (k % 2) R.pset(ri(a + Math.cos(g) * 5), ri(b + Math.sin(g) * 5), MAR[5]); }
+    R.linea(a, b - 7, a, b + 6, MAR[5]); R.linea(a - 6, b, a + 6, b, MAR[5]); R.linea(a, b - 7, a, b - 2, hex('#c83a3a')); R.pset(a - 1, b - 5, hex('#c83a3a')); R.pset(a + 1, b - 5, hex('#c83a3a'));
+    R.pset(a, b, hex('#fff4d8')); R.pset(a - 2, b - 2, MAR[4]); R.pset(a + 2, b + 2, MAR[4]); R.pset(a + 2, b - 2, MAR[4]); R.pset(a - 2, b + 2, MAR[4]); }
+  R.recorte(null);
+  // el marco graduado: un filete oscuro y la regla de grados en blanco y negro alternos
+  R.rect(MX0, MY0, MX1, MY0 + 2, PAPEL[3]); R.rect(MX0, MY1 - 2, MX1, MY1, PAPEL[3]); R.rect(MX0, MY0, MX0 + 2, MY1, PAPEL[3]); R.rect(MX1 - 2, MY0, MX1, MY1, PAPEL[3]);
+  for (let x = MX0 + 1; x <= MX1 - 1; x++) { const c = Math.floor((x - MX0) / 6) % 2 ? K : PAPEL[4]; R.pset(x, MY0 + 1, c); R.pset(x, MY1 - 1, c); }
+  for (let y = MY0 + 1; y <= MY1 - 1; y++) { const c = Math.floor((y - MY0) / 6) % 2 ? K : PAPEL[4]; R.pset(MX0 + 1, y, c); R.pset(MX1 - 1, y, c); }
+  R.rect(MX0, MY0, MX1, MY0, hex('#5a4a30')); R.rect(MX0, MY1, MX1, MY1, hex('#5a4a30')); R.rect(MX0, MY0, MX0, MY1, hex('#5a4a30')); R.rect(MX1, MY0, MX1, MY1, hex('#5a4a30'));
+  R.rect(MX0 + 2, MY0 + 2, MX1 - 2, MY0 + 2, hex('#5a4a30')); R.rect(MX0 + 2, MY1 - 2, MX1 - 2, MY1 - 2, hex('#5a4a30')); R.rect(MX0 + 2, MY0 + 2, MX0 + 2, MY1 - 2, hex('#5a4a30')); R.rect(MX1 - 2, MY0 + 2, MX1 - 2, MY1 - 2, hex('#5a4a30'));
+});
+const enTierra = (x, y) => { const i = (y - MY0) * MW + (x - MX0); return !!(MAPA_TIERRA && x >= MX0 && x <= MX1 && y >= MY0 && y <= MY1 && MAPA_TIERRA[i]); };
+// el coche de posta (unos 24 px: el caballo al trote con sus patas, las varas, la caja con su ventanilla y el filete de
+// latón, el baúl en el techo, las dos ruedas con sus radios que giran y el polvo detrás); en el mar, el paquebote del canal
+const posta = (x, y, d, t, mar) => { x = ri(x); y = ri(y);
+  if (mar) { const b = ri(Math.sin(t * 5) * 0.8);
+    for (let i = 0; i < 6; i++) tine(x - d * (8 + i * 2), y + 1 + (i % 2), hex('#ffffff'), 0.5 - i * 0.07);   // la estela
+    R.poligono([[x - 7, y - 3 + b], [x + 7, y - 3 + b], [x + 5, y + 1 + b], [x - 5, y + 1 + b]], K); R.rect(x - 5, y - 2 + b, x + 5, y + b, hex('#6a3a1e')); R.rect(x - 5, y - 2 + b, x + 5, y - 2 + b, hex('#a86a34'));
+    R.rect(x, y - 14 + b, x, y - 3 + b, K); R.poligono([[x - 1, y - 13 + b], [x - 1, y - 4 + b], [x - 8 * d + (d > 0 ? 0 : 0), y - 4 + b]], hex('#f4ecd8')); R.poligono([[x + 1, y - 12 + b], [x + 1, y - 5 + b], [x + 6, y - 5 + b]], hex('#e4d8bc'));
+    R.pset(x, y - 15 + b, hex('#c83a3a')); R.pset(x + 1, y - 15 + b, hex('#c83a3a')); return; }
+  const g = Math.floor(t * 10) % 2, bote = g ? 0 : -1;
+  for (let i = -12; i <= 12; i++) tine(x + i, y + 1, K, 0.35);   // la sombra en el papel
+  for (let k = 0; k < 3; k++) { const u = (t * 2 + k / 3) % 1; tine(x - d * (14 + u * 6), y - 1 - u * 3, PAPEL[3], 0.6 * (1 - u)); }   // el polvo
+  // el caballo, delante en la dirección de la marcha
+  const hx = x + d * 11;
+  R.rect(hx - 3, y - 7 + bote, hx + 3, y - 4 + bote, K); R.rect(hx - 2, y - 6 + bote, hx + 2, y - 5 + bote, hex('#7a4a28')); R.pset(hx - 2 * d, y - 6 + bote, hex('#a06a3a'));
+  R.rect(hx + d * 3, y - 10 + bote, hx + d * 5, y - 6 + bote, K); R.pset(hx + d * 4, y - 9 + bote, hex('#7a4a28')); R.pset(hx + d * 4, y - 8 + bote, hex('#7a4a28')); R.pset(hx + d * 6, y - 8 + bote, K);   // cuello y cabeza
+  R.pset(hx - d * 4, y - 6 + bote, K); R.pset(hx - d * 5, y - 5 + bote, K);   // la cola
+  for (const [px, f] of [[hx - 2, 0], [hx + 2, 1]]) { const a = (g + f) % 2 ? 1 : -1; R.linea(px, y - 4 + bote, px + a, y, K); }   // las patas al trote
+  R.linea(x + d * 6, y - 5, hx - d * 2, y - 5 + bote, NOGAL[1]);   // las varas
+  // la caja del coche: verde botella con filete de latón, la ventanilla con su brillo y la puerta
+  R.rect(x - 7, y - 12, x + 7, y - 3, K); R.rect(x - 6, y - 11, x + 6, y - 4, hex('#2e5a3a')); R.rect(x - 6, y - 11, x + 6, y - 11, hex('#4e8a5a')); R.rect(x - 6, y - 5, x + 6, y - 5, LATON[2]);
+  R.rect(x - 4, y - 10, x - 1, y - 7, K); R.rect(x - 3, y - 9, x - 2, y - 8, hex('#c8e0e8')); R.pset(x - 3, y - 9, hex('#ffffff')); R.rect(x + 1, y - 10, x + 4, y - 6, hex('#1e3e2a')); R.pset(x + 3, y - 8, LATON[3]);
+  R.rect(x - 5, y - 15, x + 4, y - 13, K); R.rect(x - 4, y - 14, x + 3, y - 13, hex('#6a3a1e')); R.rect(x - 4, y - 14, x + 3, y - 14, hex('#a86a34'));   // el baúl del techo
+  R.pset(x + 6 * d, y - 12, LATON[3]);   // el farol
+  // las ruedas: la grande detrás y la pequeña delante, con los radios que giran
+  for (const [wx, r] of [[x - d * 5, 3], [x + d * 5, 2]]) { R.disco(wx, y - 1, r, K); R.disco(wx, y - 1, r - 1, hex('#a86a34')); R.pset(wx, y - 1, K);
+    const a = -t * 9 * d / r; R.pset(ri(wx + Math.cos(a) * (r - 1)), ri(y - 1 + Math.sin(a) * (r - 1)), K); R.pset(ri(wx - Math.cos(a) * (r - 1)), ri(y - 1 - Math.sin(a) * (r - 1)), K); } };
 const q3 = (t) => {
   congela(fz9);
   // la tarjeta del mapa sube desde abajo, fuera de cuadro, cuando ya ha pasado el fundido (sin restos en el corte)
   const sale = tramo(t, TG.AND + 0.2, TG.AND + 0.9), x0 = 112, y0 = 34, x1 = 270, y1 = 132;
   const dy = tarjeta(x0, y0, x1, y1, sale, 156);
-  const P = ([lo, la]) => [ri(x0 + 4 + (lo + 11) / 32 * (x1 - x0 - 8)), ri(y0 + 4 + dy + (60 - la) / 25 * (y1 - y0 - 8))];
-  R.recorte([x0 + 4, y0 + 4 + dy, x1 - 4, y1 - 4 + dy]);
-  for (let y = y0 + 4 + dy; y <= y1 - 4 + dy; y++) for (let x = x0 + 4; x <= x1 - 4; x++) R.pset(x, y, tono(pal('#7a9aa8', '#8aaab4', '#9ab8c0'), 1 + hh(x >> 2, y >> 1, 71) * 0.8 + ((x + y * 2) % 9 === 0 ? 0.8 : 0), x, y));
-  for (const pol of [EUR, GB, IRL, ESCAN, SIC, CER]) { const pts = pol.map(P); R.poligono(pts.map(([a, b]) => [a + 1, b + 1]), hex('#5a6a5a')); R.poligono(pts, hex('#e4d4a8')); for (let i = 0; i < pts.length; i++) { const [a, b] = pts[i], [c, d] = pts[(i + 1) % pts.length]; R.linea(a, b, c, d, hex('#8a7450')); } }
+  // el mapa pintado una vez, pegado con el desplazamiento de la tarjeta
+  { const b = mapaEuropa(), D = R.buf; for (let y = MY0; y <= MY1; y++) { const yy = y + dy; if (yy < 0 || yy > 179) continue; for (let x = MX0; x <= MX1; x++) D[yy * 320 + x] = b[y * 320 + x]; } }
+  const P = (p) => { const [a, b] = PM(p); return [a, b + dy]; };
+  // la vida del mapa: brillos que corren por el mar, un velero que cruza el Atlántico y otro en el mar del Norte
+  R.recorte([MX0 + 3, MY0 + 3 + dy, MX1 - 3, MY1 - 3 + dy]);
+  for (let k = 0; k < 14; k++) { const x = MX0 + 4 + ri(hh(k, 1, 87) * (MW - 8)), y = MY0 + 4 + ri(hh(k, 2, 87) * (MH - 8)), f = Math.sin(t * 2.4 + k * 1.7);
+    if (f > 0.55 && !enTierra(x, y) && !enTierra(x + 2, y)) { R.linea(x, y + dy, x + 2, y + dy, MAR[5]); R.pset(x + 1, y - 1 + dy, MAR[4]); } }
+  for (const [lo0, la0, lo1, la1, v, k] of [[-10.5, 50.2, -5.5, 45.6, 0.05, 0], [3.4, 56.4, 7.6, 54.6, 0.04, 1]]) { const u = (t * v + k * 0.4) % 1, [a, b] = P([lerp(lo0, lo1, u), lerp(la0, la1, u)]), bb = ri(Math.sin(t * 4 + k) * 0.6);
+    R.linea(a - 3, b + 1, a - 6, b + 2, MAR[5]); R.poligono([[a - 3, b + bb], [a + 3, b + bb], [a + 2, b + 2 + bb], [a - 2, b + 2 + bb]], NOGAL[1]); R.linea(a, b - 5 + bb, a, b + bb, K); R.poligono([[a + 1, b - 5 + bb], [a + 1, b - 1 + bb], [a + 4, b - 1 + bb]], PAPEL[4]); R.pset(a, b - 6 + bb, hex('#c83a3a')); }
   R.recorte(null);
-  // la ruta: Bolonia → París → Londres, punteada, y el coche de posta que la recorre
+  // la ruta: Bolonia → París → Londres, punteada en rojo con su filete oscuro, y el coche de posta que la recorre
   const B = P(LUG.bolonia), Pa = P(LUG.paris), L = P(LUG.londres), u = tramo(t, TG.TOURED, TG.DEMOS + 0.4);
-  const tramoRuta = (a, b, v) => { if (v <= 0) return; const n = ri(Math.hypot(b[0] - a[0], b[1] - a[1])); for (let i = 0; i <= n * Math.min(1, v); i += 3) R.pset(ri(lerp(a[0], b[0], i / n)), ri(lerp(a[1], b[1], i / n)), hex('#b82a2a')); };
+  const tramoRuta = (a, b, v) => { if (v <= 0) return; const n = ri(Math.hypot(b[0] - a[0], b[1] - a[1])); for (let i = 0; i <= n * Math.min(1, v); i += 3) { const x = ri(lerp(a[0], b[0], i / n)), y = ri(lerp(a[1], b[1], i / n)); R.pset(x, y + 1, hex('#5a2018')); R.pset(x, y, hex('#d83a2a')); R.pset(x + 1, y, hex('#d83a2a')); } };
   tramoRuta(B, Pa, u * 2); tramoRuta(Pa, L, u * 2 - 1);
-  if (u > 0 && u < 1) { const [cx, cy] = u < 0.5 ? [lerp(B[0], Pa[0], u * 2), lerp(B[1], Pa[1], u * 2)] : [lerp(Pa[0], L[0], u * 2 - 1), lerp(Pa[1], L[1], u * 2 - 1)];
-    const X = ri(cx), Y = ri(cy) - 3; R.rect(X - 4, Y - 4, X + 4, Y + 1, K); R.rect(X - 3, Y - 3, X + 3, Y, hex('#2e4a3a')); R.disco(X - 3, Y + 2, 1, K); R.disco(X + 3, Y + 2, 1, K); }
   T.chincheta(R, B[0], B[1], t, hex('#e83a3a'), { baja: tramo(t, TG.ALDINI - 0.1, TG.ALDINI + 0.3) });
   if (t > TG.EUROPE - 0.4) T.chincheta(R, Pa[0], Pa[1], t, hex('#3a6ae8'), { baja: tramo(t, TG.EUROPE - 0.4, TG.EUROPE) });
   if (t > TG.PUBLIC - 0.2) T.chincheta(R, L[0], L[1], t, hex('#3ac85a'), { baja: tramo(t, TG.PUBLIC - 0.2, TG.PUBLIC + 0.2) });
+  if (u > 0 && u < 1) { const [a, b] = u < 0.5 ? [B, Pa] : [Pa, L], v = u < 0.5 ? u * 2 : u * 2 - 1, cx = lerp(a[0], b[0], v), cy = lerp(a[1], b[1], v);
+    posta(cx, cy, b[0] < a[0] ? -1 : 1, t, !enTierra(ri(cx), ri(cy) - dy)); }
   // Atom llega desde donde lo dejó el plano 2 (x 86) a su sitio junto a la tarjeta (sin salto en el fundido)
   const llega = tramo(t, TG.AND, TG.AND + 0.8);
   atomG(ri(lerp(86, 64, ease(llega))), 176, t, { pose: llega < 1 ? 'camina' : t > TG.TOURED ? 'senala' : 'sostiene', dir: llega < 1 ? -1 : 1, cara: t > TG.PUBLIC ? 'sonrisa' : 'normal' });
@@ -757,21 +921,56 @@ const q4 = (t) => {
   if (t > TG.BODY) for (const [k, hx] of [[0, 150], [1, 208], [2, 244]]) globo(hx, y0 + 70 + dy, '!', tramo(t, TG.BODY + k * 0.12, TG.BODY + k * 0.12 + 0.25), hex('#c83a3a'));
   atomG(62, 176, t, { pose: t > TG.EVEN && t < TG.CRIMINAL ? 'brazos' : 'senala', dir: 1, cara: t > TG.EVEN && t < TG.CRIMINAL ? 'sorpresa' : t > TG.CRIMINAL ? 'triste' : 'normal' });
 };
-// ── 5 · la mesilla congelada: Atom sostiene la botella de Leyden; en «electricity» la chispa crece y en «spark of life»
-//      se vuelve un corazón que late ──
+// la botella de Leyden grande, de pie en el suelo (x centro, yb la base; c la carga 0–1): el frasco de vidrio que deja
+// ver el cuarto (velo celeste con su brillo a la izquierda, el canto en sombra a la derecha y el reflejo de la boca), el
+// forro de estaño por fuera hasta la mitad (con sus arrugas y su luz), la tapa de madera con vetas, la varilla de latón
+// con su bola brillante y, por dentro, la cadena que baja hasta el estaño. Devuelve la bola [x, y]
+const leydenG = (x, yb, t, c = 0) => { x = ri(x); yb = ri(yb); const w = 13, h = 38, ym = yb - 18;
+  for (let i = -w - 3; i <= w + 3; i++) { tine(x + i + 2, yb + 1, K, 0.4); if (Math.abs(i) < w) tine(x + i + 2, yb + 2, K, 0.25); }   // la sombra en el suelo
+  // el vidrio: deja ver lo de detrás con un velo celeste, más denso en los cantos
+  for (let y = yb - h; y <= yb; y++) for (let i = -w; i <= w; i++) { const borde = Math.abs(i) >= w - 1 || y >= yb - 1; tine(x + i, y, hex('#a8d4e4'), borde ? 0.8 : 0.4 + (i > w - 5 ? 0.2 : 0)); }
+  // la cadena por dentro: eslabones alternos desde la tapa hasta el fondo del estaño, que se mecen un poco
+  for (let k = 0; k < 11; k++) { const yy = yb - h + 3 + k * 2, xx = x + ri(Math.sin(t * 1.5 + k * 0.4) * (k / 11) * 1.5); R.pset(xx, yy, k % 2 ? LATON[1] : LATON[3]); }
+  // el forro de estaño por fuera, de la base a la mitad: bandas de luz a la izquierda y sombra a la derecha, arrugas
+  for (let y = ym; y <= yb - 1; y++) for (let i = -w + 1; i <= w - 1; i++) { const v = 2.6 - (i + w) / (2 * w) * 1.8 + (hh(x + i, y >> 1, 91) - 0.5) * 0.5 + (i === -w + 3 ? 1 : 0);
+    R.pset(x + i, y, tono(pal('#4a525e', '#6a7480', '#8e98a4', '#b4bcc6', '#dce2ea'), v, x + i, y)); }
+  for (let i = -w + 1; i <= w - 1; i++) R.pset(x + i, ym, hh(i, 1, 92) < 0.5 ? pal('#dce2ea')[0] : pal('#8e98a4')[0]);   // el filo recortado del estaño
+  // el contorno del frasco y los hombros redondeados
+  R.rect(x - w - 1, yb - h, x - w - 1, yb, K); R.rect(x + w + 1, yb - h, x + w + 1, yb, K); R.rect(x - w, yb + 1, x + w, yb + 1, K);
+  R.rect(x - w + 2, yb - h + 6, x - w + 2, ym - 3, hex('#ffffff')); R.rect(x - w + 3, yb - h + 8, x - w + 3, yb - h + 14, hex('#e8f6fc'));   // el brillo del vidrio
+  R.pset(x - w + 2, ym + 4, hex('#ffffff')); R.pset(x - w + 2, ym + 5, hex('#ffffff'));   // y su reflejo sobre el estaño
+  // la tapa de madera (un poco más ancha), con sus vetas y el canto claro
+  R.rect(x - w - 2, yb - h - 4, x + w + 2, yb - h, K); R.rect(x - w - 1, yb - h - 3, x + w + 1, yb - h - 1, NOGAL[3]); R.rect(x - w - 1, yb - h - 3, x + w + 1, yb - h - 3, NOGAL[5]);
+  for (let i = -w; i <= w; i += 4) R.pset(x + i, yb - h - 2, NOGAL[2]); R.rect(x - w - 1, yb - h - 1, x + w + 1, yb - h - 1, NOGAL[1]);
+  // la varilla de latón y la bola, que brilla más con la carga
+  R.rect(x - 1, yb - h - 18, x + 1, yb - h - 4, K); R.rect(x, yb - h - 17, x, yb - h - 4, LATON[3]);
+  const bx = x, by = yb - h - 21; R.disco(bx, by, 4, K); R.disco(bx, by, 3, LATON[2]); R.disco(bx - 1, by - 1, 2, LATON[3]); R.pset(bx - 1, by - 2, hex('#ffffff'));
+  if (c > 0) { halo(bx, by, 16, hex('#a8d0ff'), 0.55 * c * (0.75 + 0.25 * Math.sin(t * 19)));
+    if (Math.floor(t * 11) % 3 === 0) { const a = hh(ri(t * 11), 1, 93) * 6.28; R.linea(bx + ri(Math.cos(a) * 4), by + ri(Math.sin(a) * 4), bx + ri(Math.cos(a) * 8), by + ri(Math.sin(a) * 8), hex('#e0f0ff')); } }
+  return [bx, by]; };
+// ── 5 · la mesilla congelada: la botella de Leyden de pie en el suelo junto a la cama; Atom llega andando, la mira con la
+//      mano en la barbilla («convinced»), en «electricity» acerca la mano a la bola, salta la chispa a sus dedos y da un
+//      respingo hacia atrás («!»); en «spark of life» la chispa sube de la bola y se vuelve un corazón que late ──
 const q5 = (t) => {
   congela(fz11);
-  const crece = tramo(t, TG.ELECTRICITY - 0.1, TG.ELECTRICITY + 0.5), cor = tramo(t, TG.SPARK2 - 0.1, TG.SPARK2 + 0.3);
-  const ra = atomG(84, 176, t, { pose: 'sostiene', dir: 1, cara: cor > 0 ? 'sonrisa' : t > TG.CONVINCED ? 'sorpresa' : 'normal' });
-  const [mx, my] = ra?.mano ?? [110, 140], bx = ri(mx + 34), by = ri(my + 10) + flota(t);
-  const [kx, ky] = leyden(bx, by, 3);
-  if (cor <= 0) { const b = 0.4 + crece * 0.6, w = 8 + crece * 12; chispa(kx, ky - 2, kx - w, ky - 14 - crece * 12, t, b); chispa(kx, ky - 2, kx + w, ky - 16 - crece * 12, t + 0.5, b); if (crece > 0.5) chispa(kx, ky - 2, kx, ky - 22 - crece * 10, t + 1, b); }
-  else { const lat = 1 + (Math.sin(t * 8) > 0.6 ? 0.15 : 0), s = ri(3 * ease(cor) * lat) || 1, hx = kx - 5 * s, hy = ky - 22 - 4 * s;
-    halo(kx, hy + 2 * s, 34, hex('#ff8aa0'), 0.5 * cor);
+  const carga = tramo(t, TG.PLENTY, TG.ELECTRICITY), cor = tramo(t, TG.SPARK2 - 0.1, TG.SPARK2 + 0.3);
+  const [kx, ky] = leydenG(150, 176, t, carga * (1 - 0.6 * tramo(t, TG.ELECTRICITY, TG.ELECTRICITY + 0.3)) + cor);
+  // Atom: llega andando, piensa, acerca la mano, la chispa le salta a los dedos y da un respingo; luego sonríe
+  const anda = tramo(t, TG.PLENTY + 0.1, TG.CONVINCED - 0.2), acerca = tramo(t, TG.ELECTRICITY - 0.45, TG.ELECTRICITY), salto = tramo(t, TG.ELECTRICITY + 0.02, TG.ELECTRICITY + 0.55);
+  const ax = ri(lerp(66, 112, ease(anda)) + ease(acerca) * 8 - ease(Math.min(1, salto * 1.6)) * 12), ay = 176 - ri(Math.sin(salto * Math.PI) * 10);
+  const pose = anda > 0 && anda < 1 ? 'camina' : salto > 0 && salto < 1 ? 'brazos' : t > TG.ELECTRICITY - 0.45 && t < TG.ELECTRICITY + 0.02 ? 'senala' : cor > 0 ? 'brazos' : t > TG.CONVINCED - 0.1 && t < TG.ELECTRICITY - 0.45 ? 'piensa' : 'quieto';
+  const ra = atomG(ax, ay, t, { pose, dir: 1, cara: salto > 0 && salto < 1 ? 'sorpresa' : cor > 0 ? 'sonrisa' : t > TG.ELECTRICITY ? 'sorpresa' : 'normal' });
+  // la chispa salta de la bola a la mano en «electricity»
+  if (t > TG.ELECTRICITY - 0.05 && t < TG.ELECTRICITY + 0.3) { const [mx, my] = ra?.mano ?? [ax + 14, ay - 26]; chispa(kx - 3, ky, mx + 2, my, t, 1 - tramo(t, TG.ELECTRICITY + 0.1, TG.ELECTRICITY + 0.3)); halo(mx, my, 10, hex('#ffffff'), 0.6); }
+  if (salto > 0.05 && salto < 1) globo(ax - 2, ay - 56, '!', 1, hex('#c83a3a'));
+  // en «spark of life» la chispa sube de la bola y se vuelve un corazón que late
+  if (cor > 0) { const sube = ease(Math.min(1, cor * 2)), lat = 1 + (Math.sin(t * 8) > 0.6 ? 0.15 : 0), s = ri(3 * ease(cor) * lat) || 1, hx = kx - 3 * s, hy = ri(ky - 12 - sube * 14) - 7 * s;
+    if (cor < 0.6) chispa(kx, ky - 4, kx, hy + 4 * s, t, 1 - cor);
+    halo(kx, hy + 3 * s, 34, hex('#ff8aa0'), 0.5 * cor);
     ['.kk.kk.', 'kcckcck', 'kcccccl', 'kccccck', '.kccck.', '..kck..', '...k...'].forEach((f, j) => [...f].forEach((ch, i) => { if (ch === '.') return; R.rect(hx + i * s, hy + j * s, hx + i * s + s - 1, hy + j * s + s - 1, ch === 'k' ? K : ch === 'l' ? hex('#ffb8c8') : hex('#e8506a')); }));
-    for (let k = 0; k < 6; k++) { const a = t * 2 + k * 1.05; R.pset(ri(kx + Math.cos(a) * 20), ri(hy + 8 + Math.sin(a) * 12), hex('#ffe0e8')); } }
+    for (let k = 0; k < 6; k++) { const a = t * 2 + k * 1.05; R.pset(ri(kx + Math.cos(a) * 20), ri(hy + 10 + Math.sin(a) * 12), hex('#ffe0e8')); } }
 };
-const efectos = [[0.35, 'pasos'], [TG.BECAUSE + 0.1, 'golpecito'], [TG.N1780, 'pop'], [TG.THE + 0.1, 'whoosh'], [TG.SPARK, 'interruptor'], [TG.LEGS, 'boing'], [TG.TWITCH + 0.15, 'boing'],
+const efectos = [[0.35, 'pasos'], [TG.BECAUSE + 0.1, 'golpecito'], [TG.N1780, 'pop'], [TG.THE + 0.1, 'whoosh'], [TG.DISCOVERED + 0.4, 'zumbido'], [TG.SPARK, 'interruptor'], [TG.LEGS, 'boing'], [TG.TWITCH + 0.15, 'boing'],
   [TG.AND + 0.1, 'papel'], [TG.ALDINI, 'golpecito'], [TG.TOURED + 0.2, 'carro'], [TG.PUBLIC - 0.1, 'golpecito'], [TG.ON, 'papel'], [TG.ANIMALS, 'zumbido'], [TG.EVEN, 'flash'], [TG.BODY + 0.1, 'publico'],
   [TG.ELECTRICITY, 'zumbido'], [TG.SPARK2, 'brillo']];
 T.rodar(E, R, [[0, q1], [TG.THE, q2], [TG.AND, q3], [TG.ON, q4], [TG.PLENTY, q5]], { efectos, año: (t) => t < TG.N1780 - 0.1 ? 1816 : t < TG.AND ? 1780 : 1803 });

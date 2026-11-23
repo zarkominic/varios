@@ -13,7 +13,8 @@
 // funciones de plano, idénticas):
 // 1. la ventana congelada (p9): Atom al doble entra; «1815» en «1815»; el globo con la chincheta en «Indonesia»;
 // 2. el lago congelado (p4): Atom saca el volcán (T.pausa 'volcan' sin globo), que estalla en «blew apart»; «!» en «record»;
-// 3. el Jura congelado (p2): el volcán y el globo con la banda de nube; ceniza en «ash»; la órbita en «planet's»;
+// 3. el Jura congelado (p2): el globo grande en el centro, en su peana; el volcán pequeño en el borde izquierdo; en «ash»
+//    su penacho llega al globo y una banda de ceniza de tres grises lo rodea; en «planet's» se cierra y el globo se agrisa;
 // 4. la salita congelada (p8): el termómetro grande baja en «dropped»; «-0.5» en «half a degree»; la hoja «12» en «year»;
 // 5. el prado congelado (p6): «1816»; el maizal nevado (T.pausa 'volcan' con o.nieve) en «snowed»; copos; Atom tirita;
 //    «X» en «harvests failed»;
@@ -781,13 +782,84 @@ const q2 = (t) => {
   if (t > TV.BLEW) AT.anillo(R, 196, 108, 48, 30, t, tramo(t, TV.BLEW, TV.BLEW + 1.2));
   if (t > TV.RECORD) { const u = tramo(t, TV.RECORD, TV.RECORD + 0.3); R.icono('!', 244, ri(70 - u * 6), hex('#ffe080'), undefined, 3); }
 };
-// ── 3 · el Jura congelado: el volcán y el globo con la banda de nube; en «planet's» la órbita rodea el globo ──
+// ── 3 · el Jura congelado: el GLOBO grande en el centro (en su peana de latón y nogal); el volcán, pequeño en el borde
+//    izquierdo; en «ash» su penacho cruza el cuadro hasta el globo y una banda de ceniza de tres grises (con bocanadas de
+//    azufre) lo va rodeando; en «planet's» la banda se cierra, el sol palidece y el globo entero se agrisa ──
+const GB = { x: 158, y: 92, r: 40, rx: 56, ry: 14, incl: 7 };
+const OCE = pal('#102a4a', '#1a3e66', '#285a8a', '#3a78aa', '#5a9ac8'), TIE = pal('#1e3a1e', '#2e5428', '#46703a', '#6a8e4a', '#94ae66'),
+  ARE = pal('#5a4a2a', '#7a6438', '#9a824a', '#b8a060'), HIE = pal('#8a9aaa', '#b4c2ce', '#dce6ee', '#ffffff');
+const CEN = [pal('#3e3e48', '#6e6e7a', '#9c9ca6'), pal('#4a4a52', '#82828c', '#b4b4be'), pal('#4e4a36', '#8e8656', '#c4ba7a')];   // ceniza oscura, clara y el azufre
+const LAT = pal('#6a4a1a', '#a8782a', '#d8a840', '#f8e08a'), NOG = pal('#2a160c', '#4a2a16', '#6a3e22', '#8a5634');
+// una bocanada de ceniza en tres tonos (cols: sombra, cuerpo, luz), r el radio
+const bocanada = (x, y, r, cols, osc = 0) => { x = ri(x); y = ri(y); r = Math.max(1, ri(r)); const c = osc > 0 ? cols.map((q) => mez(q, K, osc)) : cols;
+  R.disco(x, y + 1, r, K); R.disco(x, y, r, c[0]); R.disco(x - 1, y - 1, Math.max(1, r - 1), c[1]); if (r > 2) R.disco(x - ri(r * 0.35), y - ri(r * 0.4), Math.max(1, ri(r * 0.4)), c[2]); };
+// el punto de la banda: a, el ángulo (sin(a) > 0: por delante del globo)
+const bandaP = (a) => [GB.x + Math.cos(a) * GB.rx, GB.y + Math.sin(a) * GB.ry - Math.cos(a) * GB.incl];
+// la bola del mundo: mar en cinco azules, tierras que pasan al girar, casquetes, nubecitas y el terminador; gris 0–1, el velo de ceniza
+const bola = (t, gris, luzS) => { const { x: GX, y: GY, r: GR } = GB, rot = t * 0.32, r2 = GR * GR, r1 = (GR - 1) * (GR - 1);
+  for (let j = -GR; j <= GR; j++) for (let i = -GR; i <= GR; i++) { const d2 = i * i + j * j; if (d2 > r2) continue; const x = GX + i, y = GY + j;
+    if (d2 > r1) { R.pset(x, y, K); continue; }
+    const nx = i / GR, ny = j / GR, nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny)), lat = Math.asin(ny), lon = Math.atan2(nx, nz) + rot;
+    const luz = cl((-0.55 * nx - 0.45 * ny + 0.7 * nz) * luzS + 0.12);
+    const n = Math.sin(lon * 2 + 0.6) * Math.cos(lat * 2.1) + Math.sin(lon * 3.7 + lat * 2.6) * 0.55 + Math.sin(lon * 7.3 - lat * 5.2) * 0.22;
+    const polo = Math.abs(lat) > 1.12 + Math.sin(lon * 5) * 0.08, nubeG = Math.sin(lon * 4 + t * 0.5 + lat * 9) * Math.sin(lat * 6 - lon * 2) > 0.62;
+    let c;
+    if (polo) c = tono(HIE, luz * 3.4, x, y);
+    else if (n > 0.55) c = tono(n > 0.95 && Math.abs(lat) < 0.5 ? ARE : TIE, luz * (n > 0.95 ? 3.3 : 4.2) + (n > 0.62 ? 0 : -0.6), x, y);
+    else c = tono(OCE, luz * 4.4 + (n > 0.42 ? 0.5 : 0), x, y);
+    if (nubeG && !polo && luz > 0.15) c = mez(c, HIE[2], 0.75);
+    if (d2 > (GR - 3) * (GR - 3) && nx < 0.1 && ny < 0.3) c = mez(c, hex('#a8d8ff'), 0.45);   // la atmósfera iluminada
+    if (gris > 0) { const g = gris * (0.55 + hh(i >> 1, j >> 1, 47) * 0.35 + Math.sin(lon * 6 + t) * 0.1); if (g > BAY[y & 3][x & 3] / 22) c = mez(c, CEN[0][1], Math.min(0.8, g)); }
+    R.pset(x, y, c); }
+  // Indonesia (cerca del ecuador, un poco al sur): una brasa que parpadea cuando pasa por delante
+  const li = 2.2 - rot, la = 0.12; if (Math.cos(li) > 0.15) { const px = ri(GX + Math.sin(li) * Math.cos(la) * GR), py = ri(GY + Math.sin(la) * GR), on = Math.sin(t * 9) > -0.3;
+    R.pset(px, py, on ? hex('#ffb040') : hex('#e85a1a')); R.pset(px + 1, py, hex('#e85a1a')); R.pset(px, py - 1, on ? hex('#fff0a0') : hex('#ffb040')); }
+  // el brillo del barniz arriba a la izquierda
+  R.disco(GX - 17, GY - 18, 3, mez(hex('#d8f0ff'), CEN[0][1], gris * 0.7)); R.pset(GX - 19, GY - 20, hex('#ffffff')); R.linea(GX - 24, GY - 10, GX - 22, GY - 16, mez(hex('#8ac0f0'), CEN[0][1], gris * 0.7));
+};
+// la peana: el meridiano de latón (por detrás, arriba y abajo del globo), el pie torneado y la base de nogal en el suelo
+const peana = (t, delante) => { const { x: GX, y: GY, r: GR } = GB, RM = GR + 4;
+  if (!delante) { for (let k = 0; k <= 90; k++) { const a = -Math.PI / 2 + k / 90 * Math.PI, x = GX + Math.cos(a) * RM, y = GY + Math.sin(a) * RM;   // el meridiano: medio aro a la derecha
+      R.disco(ri(x), ri(y), 2, K); }
+    for (let k = 0; k <= 90; k++) { const a = -Math.PI / 2 + k / 90 * Math.PI, x = ri(GX + Math.cos(a) * RM), y = ri(GY + Math.sin(a) * RM);
+      R.pset(x, y, k % 9 === 0 ? LAT[0] : LAT[2]); R.pset(x - 1, y, LAT[3]); R.pset(x + 1, y, LAT[1]); }
+    return; }
+  // los ejes de los polos (por delante), el pie y la base
+  for (const s of [-1, 1]) { const y = GY + s * (GR + 1); R.rect(GX - 1, y - 2, GX + 3, y + 2, K); R.rect(GX, y - 1, GX + 2, y + 1, LAT[2]); R.pset(GX, y - 1, LAT[3]); }
+  const y0 = GY + RM + 2; R.rect(GX - 2, y0, GX + 4, y0 + 22, K); R.rect(GX - 1, y0, GX + 3, y0 + 22, LAT[1]); R.rect(GX - 1, y0, GX, y0 + 22, LAT[3]); R.rect(GX + 3, y0, GX + 3, y0 + 22, LAT[0]);
+  for (const yy of [y0 + 6, y0 + 14]) { R.rect(GX - 4, yy, GX + 6, yy + 2, K); R.rect(GX - 3, yy, GX + 5, yy + 1, LAT[2]); R.pset(GX - 3, yy, LAT[3]); }
+  const yb = y0 + 23; R.poligono([[GX - 24, yb + 7], [GX - 16, yb], [GX + 18, yb], [GX + 26, yb + 7]], K);
+  for (let y = yb + 1; y <= yb + 6; y++) for (let x = GX - 22 + (yb + 6 - y); x <= GX + 24 - (yb + 6 - y); x++) R.pset(x, y, y === yb + 1 ? NOG[3] : Math.sin(x * 0.6 + y * 1.7 + hh(x >> 2, 3, 5) * 3) > 0.7 ? NOG[0] : x < GX - 10 ? NOG[3] : x > GX + 14 ? NOG[1] : NOG[2]);
+  R.rect(GX - 24, yb + 7, GX + 26, yb + 8, K); for (let x = GX - 27; x <= GX + 29; x++) if ((x & 1) === 0) tine(x, yb + 9, K, 0.45);
+};
+// la banda de ceniza alrededor del globo: p 0–1, cuánto ha dado la vuelta (desde el borde izquierdo, primero por delante y luego por detrás)
+const banda = (t, p, delante) => { if (p <= 0) return; const N = 42;
+  for (let k = 0; k < N; k++) { const f = k / N; if (f > p) break; const a = Math.PI - f * Math.PI * 2 + Math.sin(t * 0.8 + k) * 0.04, z = Math.sin(a);
+    if ((z > 0) !== delante) continue; const [x, y] = bandaP(a), cab = cl((p - f) * 8), dy = Math.sin(t * 1.3 + k * 1.7) * 1.5;
+    bocanada(x + Math.cos(t * 0.9 + k) * 1.2, y + dy, (4.5 + hh(k, 1, 33) * 3 + (delante ? 1.5 : 0)) * (0.4 + 0.6 * cab), CEN[k % 5 === 2 ? 2 : k & 1], delante ? 0 : 0.3);
+    if (delante && k % 3 === 0) R.pset(ri(x + 2), ri(y - 3 + dy), CEN[1][2]); } };
+// el penacho del volcán al globo: bocanadas que viajan por una curva desde el cráter hasta el borde izquierdo de la banda
+const penacho = (t, p, x0, y0) => { if (p <= 0) return; const [x2, y2] = bandaP(Math.PI), cx = 54, cy = 44, M = 16;
+  for (let k = 0; k < M; k++) { const u = (k / M + t * 0.22) % 1; if (u > p) continue; const w = 1 - u, X = w * w * x0 + 2 * w * u * cx + u * u * x2, Y = w * w * y0 + 2 * w * u * cy + u * u * y2;
+    bocanada(X + Math.sin(t * 1.4 + k * 2) * 2, Y + Math.cos(t * 1.1 + k) * 1.5, 2.5 + u * 3.5 + hh(k, 2, 34) * 1.5, CEN[k % 4 === 1 ? 2 : (k + 1) & 1]);
+    if (k % 3 === 0 && u < 0.5) R.pset(ri(X + 4), ri(Y + 3), Math.sin(t * 13 + k) > 0 ? hex('#ffb040') : hex('#e85a1a')); } };
 const q3 = (t) => {
   congela(fz2);
-  const ra = atomG(46, 176, t, { pose: t > TV.SKY ? 'senala' : 'piensa', dir: 1, cara: t > TV.PLANET ? 'sorpresa' : 'normal' });
-  T.pausa(R, 176, 166 + flota(t), t - TV.Q3 + 2, { cual: 'volcan' });
-  if (t > TV.ASH) for (let k = 0; k < 6; k++) { const u = ((t - TV.ASH) * 0.5 + k / 6) % 1; R.disco(ri(150 + u * 70 + Math.sin(u * 7 + k) * 6), ri(80 - u * 40), 2 + ri(u * 2), mez(hex('#8a8a92'), hex('#c8c8d0'), u)); }
-  if (t > TV.PLANET) AT.anillo(R, 200, 120, 34, 30, t, tramo(t, TV.PLANET, TV.PLANET + 1));
+  const pAsh = ease(tramo(t, TV.ASH - 0.15, TV.ASH + 0.9)), pB = ease(tramo(t, TV.ASH + 0.1, TV.PLANET + 0.15)), gris = 0.7 * ease(tramo(t, TV.PLANET - 0.1, TV.PLANET + 1.3));
+  // el sol de la tarde, arriba a la izquierda (lejos del año), que palidece cuando la ceniza cubre el cielo
+  const sx = 70, sy = 40, solC = mez(hex('#ffd860'), hex('#a8a8b0'), gris * 1.4), r = 7 + ri(Math.sin(t * 3) * 0.6);
+  halo(sx, sy, 20, solC, 0.5 * (1 - gris));
+  for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + t * 0.4; R.linea(ri(sx + Math.cos(a) * (r + 3)), ri(sy + Math.sin(a) * (r + 3)), ri(sx + Math.cos(a) * (r + 6)), ri(sy + Math.sin(a) * (r + 6)), solC); }
+  R.disco(sx, sy, r + 1, K); R.disco(sx, sy, r, solC); R.disco(sx - 2, sy - 2, 3, mez(hex('#fff6c0'), hex('#c8c8d0'), gris * 1.4));
+  // el volcán, pequeño y medio fuera de cuadro a la izquierda
+  T.pausa(R, 22, 170, t - TV.Q3 + 2, { cual: 'volcan', globo: false });
+  penacho(t, pAsh, 22, 124);
+  // el globo: lo de detrás (el meridiano y la banda de atrás), la bola, y lo de delante (ejes, pie y la banda que pasa por delante)
+  peana(t, false); banda(t, pB, false); bola(t, gris, 1 - gris * 0.45); peana(t, true); banda(t, pB, true);
+  // Atom, a la derecha, mira el globo; en «sky» lo señala y en «planet's» se sorprende
+  atomG(262, 176, t, { pose: t > TV.SKY ? 'senala' : 'piensa', dir: -1, cara: t > TV.PLANET ? 'sorpresa' : 'normal' });
+  // en «planet's», al cerrarse la banda, un destello frío recorre el globo
+  const fl = tramo(t, TV.PLANET, TV.PLANET + 0.6); if (fl > 0 && fl < 1) halo(GB.x, GB.y, GB.r + 14, hex('#d8e4f0'), 0.5 * Math.sin(fl * Math.PI));
 };
 // ── 4 · la salita congelada: el termómetro grande; en «half a degree» baja el mercurio y sale el «-0.5»; en «year» el «12» ──
 const q4 = (t) => {

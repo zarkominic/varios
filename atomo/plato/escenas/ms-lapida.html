@@ -27,19 +27,24 @@
 //    peina la hierba y lleva vilanos, una mariquita sube por el canto;  (corta en «tracing»)
 // 8. la lápida de cerca: el dedo sigue el renglón, que se dora en «name». GAG: Atom, cabeza abajo, intenta leerla al
 //    revés y da la vuelta;  (corta en «which was also»)
-// 9. entre las lápidas: la niña lee; un petirrojo salta hasta ella; en «least alone» sale el sol;  (corta en «At home»)
+// 9. entre las lápidas: la niña lee y pasa hojas; un petirrojo salta hasta ella; en «among» cierra el libro y acaricia la
+//    lápida; en «least alone» sale el sol; caen hojas y pasa un paseante tras el muro;  (corta en «At home»)
 // 10. el comedor: la criada pasa con la bandeja y la niña se aparta de un salto en «in the way»;  (corta en «the philosopher»)
 // 11. el estudio de Godwin: en «remarries» entra la madrastra; un corazón; en «never manages» ella y la niña se
 //    miran con el ceño fruncido;  (corta en «and in that house»)
-// 12. la biblioteca con visitas: un caballero saluda en «famous visitors»; la niña corre a su rincón;  (corta en «quiet»)
+// 12. la otra pared de la biblioteca: un caballero entra por la puerta doble y saluda en «famous visitors»; la niña corre a
+//    su rincón de la ventana y se sube al poyo a leer;  (corta en «quiet»)
 // 13. el salón de atrás: los mayores hablan (matraz en «science», balanza en «politics»); la niña asoma tras el biombo
 //    con el dedo en los labios;  (corta en «and poetry»)
 // 14. debajo de la mesa del té: la hoja de versos del poeta cae hasta la niña; el gato se mete con ella;  (corta en «And one day»)
 // 15. la casa de día (1812): Percy llega, lanza el sombrero en «rebellious», llama y saluda a Godwin;  (corta en «Percy»)
-// 16. el recibidor en 1814: Mary baja la escalera; «21» sobre Percy, un anillo en «wife», «16» sobre ella;  (corta en «Imagine»)
+// 16. el rellano de arriba en 1814: Mary sale de su cuarto; Percy sube la escalera; «21» sobre él, un anillo en «wife», «16»
+//    sobre ella;  (corta en «Imagine»)
 // 17. el cementerio al atardecer: Percy la encuentra junto a la tumba; sonríen en «herself»;  (corta en «and when»)
-// 18. la buhardilla antes del alba: Mary hace la bolsa; el calendario pasa a «7» en «July»; apaga la vela;  (corta en «she leaves»)
-// 19. la calle de madrugada: sale con la bolsa, sube al carruaje con Percy y se van («to France»).
+// 18. la puerta de la buhardilla antes del alba: Mary hace la bolsa sobre el baúl; el calendario pasa a «7» en «July»; apaga la
+//    vela y sale por la puerta de tablones;  (corta en «she leaves»)
+// 19. la calle de madrugada: sale con la bolsa; Percy, en la acera tras el coche, la sube al techo; pasan por detrás del coche y
+//    se van («to France»). El coche y el caballo se pintan en la escena, por delante de la gente.
 import * as T from '/atomo/plato/escenas/ms-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('ms-lapida');
@@ -875,6 +880,361 @@ const atomAlReves = (X, Y, t, o, s = 2, reves = true) => { const B = R.buf, copi
   const px = []; for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) { const c = B[y * 320 + x]; if (c !== MK) px.push([x, y, c]); }
   B.set(copia); for (const [x, y, c] of px) { const yy = reves ? Hh - 1 - y : y; for (let a = 0; a < s; a++) for (let b = 0; b < s; b++) ps(X + x * s + a, Y + yy * s + b, c); } };
 
+// ── PIEZAS NUEVAS DE LA PASADA DE CALIDAD (planos 12, 16, 18 y 19) ──
+// figurita lejana (x, suelo, alto, t): levita y chistera, o vestido y cofia (o.dama); o.anda, o.dir, o.color. Solo pset,
+// así que respeta R.recorte
+const PIEL = H('#e0b090');
+const figurita = (x, suelo, al, t, o = {}) => { const c = o.color ?? H('#2a2a34'), cS = mez(c, K, 0.45), cL = mez(c, H('#ffffff'), 0.22), dir = o.dir ?? 1, cab = suelo - al, paso = o.anda ? Math.floor(t * 5 + (o.k ?? 0)) % 2 : 0; x = ri(x);
+  if (o.dama) { for (let y = cab + 4; y < suelo; y++) { const w = 1 + Math.floor((y - cab - 4) / 4); for (let i = -w; i <= w; i++) ps(x + i, y, i === -w ? cL : i === w ? cS : c); } ps(x - 2 + paso, suelo, K); }
+  else { for (let y = cab + 4; y < suelo - 3; y++) for (let i = -2; i <= 2; i++) ps(x + i, y, i === -2 ? cL : i === 2 ? cS : c);
+    for (let j = 1; j <= 3; j++) { ps(x - 1 - paso, suelo - j, cS); ps(x + 1 + paso, suelo - j, cS); } ps(x - 1 - paso, suelo, K); ps(x + 1 + paso, suelo, K); }
+  ps(x - 1, cab + 1, PIEL); ps(x, cab + 1, PIEL); ps(x + 1, cab + 1, PIEL); ps(x, cab + 2, PIEL); ps(x + dir, cab + 2, mez(PIEL, K, 0.3)); ps(x, cab + 3, BLANCO);
+  if (o.dama) { for (let i = -2; i <= 2; i++) ps(x + i, cab, BLANCO); ps(x - 2, cab + 1, BLANCO); }
+  else { for (let i = -2; i <= 2; i++) ps(x + i, cab, K); for (let j = 1; j <= 3; j++) for (let i = -1; i <= 1; i++) ps(x + i, cab - j, K); }
+  if (o.ramo) { ps(x + 3 * dir, cab + 6, H('#3a6a2a')); ps(x + 3 * dir, cab + 5, H('#e85a6a')); ps(x + 4 * dir, cab + 4, H('#f8e8f0')); }
+};
+// relleno de un polígono en una máscara (W × Hh con esquina X0, Y0)
+const mascara = (X0, Y0, W, Hh) => { const m = new Uint8Array(W * Hh);
+  const pon = (px, py) => { px -= X0; py -= Y0; if (px >= 0 && px < W && py >= 0 && py < Hh) m[py * W + px] = 1; };
+  const elip = (cx, cy, rx, ry) => { for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++) for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) pon(x, y); };
+  const poli = (pts) => { let y0 = Infinity, y1 = -Infinity; for (const [, py] of pts) { y0 = Math.min(y0, py); y1 = Math.max(y1, py); }
+    for (let y = Math.floor(y0); y <= Math.ceil(y1); y++) { const xs = []; for (let i = 0; i < pts.length; i++) { const [ax, ay] = pts[i], [bx, by] = pts[(i + 1) % pts.length], yc = y + 0.5; if ((ay <= yc && by > yc) || (by <= yc && ay > yc)) xs.push(ax + (yc - ay) / (by - ay) * (bx - ax)); }
+      xs.sort((a, b) => a - b); for (let k = 0; k + 1 < xs.length; k += 2) for (let x = Math.round(xs[k]); x < Math.round(xs[k + 1]); x++) pon(x, y); } };
+  const en = (x, y) => { x -= X0; y -= Y0; return x >= 0 && x < W && y >= 0 && y < Hh && m[y * W + x] === 1; };
+  return { m, pon, elip, poli, en };
+};
+
+// ── P19 · EL CABALLO (bayo de cabos negros, mira a la izquierda; x: el morro, s: el suelo): cuerpo modelado con luz arriba y
+// sombra en la barriga, cuello arqueado, cabeza con oreja, ojo, ollar y lucero; crin y copete que el aire mueve, cola que se
+// mece; patas con rodilla, corvejón, menudillo negro y casco; collera con sus horcates de latón, sillín, barriguera,
+// anteojeras y riendas. marcha: anda (patas alternas y la cabeza que cabecea); quieto, cabecea, mueve la oreja y la cola
+const CAB = pal(['#1a100a', '#2a1a10', '#3e2816', '#56381e', '#704a28', '#8a5e34', '#a47444']);
+const caballo = (x, s, t, marcha) => {
+  x = ri(x); const paso = marcha ? t * 7 : 0, hb = marcha ? Math.round(Math.sin(t * 7) * 0.8) : (Math.sin(t * 1.3) > 0.6 ? 1 : 0);
+  // las patas: [x del encuentro, fase, trasera]; las de lejos primero, más oscuras
+  const pata = (px, f, tras, lejos) => { const d = marcha ? Math.sin(paso + f) * 2.6 : 0, alza = marcha ? Math.max(0, Math.cos(paso + f)) * 2 : 0;
+    const top = [px, s - 17], rod = tras ? [px + 2 + d * 0.3, s - 9 - alza * 0.5] : [px + d * 0.5, s - 9 - alza * 0.5], men = [px + d + (tras ? 0 : 0), s - 3 - alza];
+    const cS = lejos ? CAB[1] : CAB[3], cL = lejos ? CAB[2] : CAB[4];
+    for (let i = 0; i <= 8; i++) { const u = i / 8, xx = lerp(top[0], rod[0], u), yy = lerp(top[1], rod[1], u); ps(xx - 1, yy, K); ps(xx, yy, cL); ps(xx + 1, yy, cS); ps(xx + 2, yy, K); }
+    for (let i = 0; i <= 6; i++) { const u = i / 6, xx = lerp(rod[0], men[0], u), yy = lerp(rod[1], men[1], u); ps(xx - 1, yy, K); ps(xx, yy, lejos ? CAB[0] : CAB[1]); ps(xx + 1, yy, K); }
+    ps(men[0], men[1] + 1, CAB[0]); ps(men[0] + 1, men[1] + 1, K); ps(men[0] - 1, men[1] + 1, K);
+    R.rect(ri(men[0]) - 1, ri(men[1]) + 2, ri(men[0]) + 2, ri(men[1]) + 3, H('#1a1612')); ps(men[0] - 1, men[1] + 2, H('#4a4440'));
+  };
+  pata(x + 14, Math.PI, false, true); pata(x + 33, 0, true, true);
+  // la silueta del cuerpo en una máscara, sombreada pixel a pixel
+  const M = mascara(x - 8, s - 44, 56, 30), { elip, poli, en: dentroM } = M;
+  elip(x + 22, s - 21, 12, 6.5); elip(x + 12, s - 21, 5.5, 7); elip(x + 32, s - 22, 6.5, 7);
+  poli([[x + 7, s - 36 + hb], [x + 11, s - 35 + hb], [x + 19, s - 26], [x + 17, s - 17], [x + 9, s - 18], [x + 5, s - 29 + hb]]);
+  poli([[x + 3, s - 39 + hb], [x + 9, s - 37 + hb], [x + 9, s - 32 + hb], [x + 2, s - 26 + hb], [x - 3, s - 26 + hb], [x - 4, s - 29 + hb], [x, s - 35 + hb]]);
+  const oreja = Math.sin(t * 0.9) > 0.8 ? 1 : 0; poli([[x + 5 + oreja, s - 42 + hb], [x + 8, s - 38 + hb], [x + 5, s - 38 + hb]]);
+  for (let y = s - 44; y < s - 14; y++) for (let xx = x - 8; xx < x + 48; xx++) { if (!dentroM(xx, y)) continue;
+    if (!dentroM(xx - 1, y) || !dentroM(xx + 1, y) || !dentroM(xx, y - 1) || !dentroM(xx, y + 1)) { ps(xx, y, K); continue; }
+    let v = 3.3 - (y - (s - 30)) / 14 * 1.4;
+    if (!dentroM(xx, y - 2)) v += 1.6; else if (!dentroM(xx, y - 3)) v += 0.7;
+    if (!dentroM(xx, y + 2)) v -= 1.3;
+    v += Math.max(0, 1 - Math.hypot(xx - (x + 31), y - (s - 25)) / 6) * 1.1 + Math.max(0, 1 - Math.hypot(xx - (x + 12), y - (s - 24)) / 5) * 0.9;
+    if (xx > x + 16 && xx < x + 27 && y > s - 19) v -= 0.8;                 // la barriga
+    if (xx < x + 1 && y > s - 31 + hb) v -= 1.6;                            // el morro, negro
+    if (Math.abs(xx - (x + 25)) < 1 && y > s - 25) v -= 0.6;                // el pliegue del ijar
+    ps(xx, y, rmp(CAB, v, xx, y)); }
+  // el lucero, el ojo con su brillo, el ollar y la boca
+  ps(x + 3, s - 35 + hb, BLANCO); ps(x + 2, s - 34 + hb, CREMA); ps(x + 4, s - 33 + hb, K); ps(x + 5, s - 33 + hb, K); ps(x + 4, s - 34 + hb, H('#c8b8a0'));
+  ps(x - 3, s - 28 + hb, K); ps(x - 2, s - 26 + hb, CAB[0]); ps(x - 1, s - 26 + hb, CAB[0]);
+  // la crin a lo largo del cuello y el copete, que el aire mueve
+  for (let i = 0; i < 13; i++) { const u = i / 12, mx = lerp(x + 7, x + 18, u), my = lerp(s - 37 + hb, s - 26, u), w = Math.sin(t * 3 + i * 0.8) > 0.2 ? 1 : 0;
+    ps(mx, my, K); ps(mx + 1, my + 1, CAB[0]); ps(mx - 1 + w, my - 1, CAB[1]); if (i % 3 === 0) ps(mx - 2 + w, my, CAB[0]); }
+  ps(x + 3, s - 38 + hb, CAB[0]); ps(x + 2, s - 37 + hb, CAB[1]);
+  // la cola, en mechones que se mecen
+  for (let j = 0; j < 15; j++) { const sw = Math.sin(t * 1.7 + j * 0.25) * j * 0.18, cx = x + 39 + j * 0.25 + sw, cy = s - 25 + j;
+    ps(cx, cy, K); ps(cx + 1, cy, CAB[1]); if (j > 3) ps(cx - 1, cy, CAB[0]); if (j > 8) ps(cx + 2, cy, CAB[0]); }
+  // el arnés: la collera con los horcates de latón, el sillín con su anilla, la barriguera, las anteojeras y la cabezada
+  for (let i = 0; i <= 10; i++) { const u = i / 10, cx = lerp(x + 9, x + 16, u), cy = lerp(s - 32 + hb * (1 - u), s - 18, u); ps(cx, cy, H('#141010')); ps(cx + 1, cy, H('#2a2018')); ps(cx + 2, cy, H('#141010')); }
+  ps(x + 12, s - 34 + hb, ORO[4]); ps(x + 11, s - 33 + hb, ORO[2]);
+  R.rect(x + 21, s - 29, x + 26, s - 27, H('#141010')); ps(x + 22, s - 29, H('#3a2a1e')); ps(x + 23, s - 30, ORO[3]); ps(x + 24, s - 31, ORO[4]);
+  for (let y = s - 26; y < s - 15; y++) ps(x + 23, y, H('#1a1410'));
+  for (let i = 0; i < 9; i++) ps(x - 2 + i, s - 31 + hb + (i > 5 ? 1 : 0), H('#141010')); R.rect(x + 4, s - 35 + hb, x + 6, s - 32 + hb, H('#141010')); ps(x + 4, s - 35 + hb, ORO[3]);
+  // el vaho que sale del ollar
+  { const u = (t * 0.7) % 1; if (u < 0.6) for (let i = 0; i < 5; i++) { const vx = x - 5 - u * 10 - i, vy = s - 28 + hb - u * 4 + (i % 2); if (h2(i, Math.floor(t * 4), 33) < 0.75 - u) aclara(vx, vy, H('#dde0e6'), 0.6); } }
+  // las patas de cerca
+  pata(x + 11, 0, false, false); pata(x + 30, Math.PI, true, false);
+};
+
+// ── P19 · EL COCHE (caja lacada x+40…x+90, ruedas en el suelo s): ventanillas que reflejan el alba, puerta con su tirador,
+// el baúl en el techo (y o.bolsa: la bolsa de Mary al lado), el farol que tiembla, el pescante con el cochero y su látigo,
+// las varas al caballo y las ruedas con radios que giran ──
+const coche = (x, s, t, marcha, cl, o = {}) => {
+  x = ri(x); const paso = marcha ? t * 6 : 0, caja = H('#1e2a2a'), cajaL = H('#3a4a48'), cajaS = H('#121a1a'), alba = mez(H('#1e2234'), H('#c89aa0'), cl * 0.5);
+  for (let i = x - 4; i < x + 94; i++) for (let j = 0; j < 3; j++) sombrea(i, s + j, 0.4);
+  // las varas que unen el caballo al coche (por detrás del caballo)
+  R.linea(x + 18, s - 17, x + 44, s - 14, K); R.linea(x + 18, s - 18, x + 44, s - 15, H('#5a4430'));
+  caballo(x, s, t, marcha);
+  // las riendas del morro a las manos del cochero
+  const bx = x + 40; R.linea(x + 1, s - 30, bx - 6, s - 34, H('#2a2018'));
+  // la caja: panel lacado con su filete, ventanillas, la puerta con el tirador
+  R.rect(bx, s - 40, bx + 50, s - 10, K); relleno(bx + 1, s - 39, bx + 49, s - 11, pal(['#121a1a', '#1a2424', '#1e2a2a', '#283636', '#3a4a48']), (xx, y) => 2.2 + (y < s - 37 ? 1.6 : y > s - 13 ? -1.4 : 0) + (ns(xx * 0.2, y * 0.2) - 0.5) * 0.5 + (xx - bx < 3 ? 0.8 : 0));
+  for (let xx = bx + 2; xx < bx + 49; xx++) ps(xx, s - 24, ORO[1]);
+  R.rect(bx + 18, s - 36, bx + 30, s - 13, K); R.rect(bx + 19, s - 35, bx + 29, s - 14, H('#24302e')); R.rect(bx + 20, s - 34, bx + 28, s - 25, alba); ps(bx + 21, s - 33, H('#8a8aa0')); ps(bx + 22, s - 32, H('#8a8aa0')); R.disco(bx + 27, s - 20, 1, ORO[3]);
+  for (const wx of [bx + 4, bx + 36]) { R.rect(wx, s - 34, wx + 10, s - 25, alba); ps(wx + 1, s - 33, H('#9a9ab0')); ps(wx + 2, s - 32, H('#9a9ab0')); R.rect(wx, s - 22, wx + 10, s - 14, cajaS); for (let xx = wx; xx <= wx + 10; xx++) ps(xx, s - 22, cajaL); }
+  R.rect(bx - 2, s - 42, bx + 52, s - 40, K); for (let xx = bx - 2; xx <= bx + 52; xx++) ps(xx, s - 42, H('#3a3a40'));
+  R.rect(bx + 8, s - 49, bx + 40, s - 43, K); relleno(bx + 9, s - 48, bx + 39, s - 43, pal(['#3a2414', '#5a3a22', '#7a5a3a']), (xx, y) => 1.2 + (y === s - 48 ? 1 : 0) + (ns(xx * 0.4, y) - 0.5) * 0.6);
+  for (const xx of [bx + 14, bx + 34]) R.rect(xx, s - 48, xx, s - 43, H('#7a6838'));
+  if (o.bolsa) { const gx = bx + 2, gy = s - 43; R.rect(gx, gy - 6, gx + 8, gy, K); R.rect(gx + 1, gy - 5, gx + 7, gy - 1, H('#6a3a2a')); for (let i = 1; i < 8; i += 2) ps(gx + i, gy - 3, H('#c89a4a')); R.linea(gx + 2, gy - 6, gx + 4, gy - 8, H('#3a2414')); R.linea(gx + 4, gy - 8, gx + 6, gy - 6, H('#3a2414')); }
+  // el pescante y el cochero con su látigo
+  R.rect(bx - 8, s - 30, bx, s - 28, K); R.rect(bx - 6, s - 28, bx - 5, s - 16, K);
+  figurita(bx - 4, s - 30, 13, t, { color: H('#3a3440'), dir: -1 }); R.linea(bx - 8, s - 38, bx - 22, s - 52 + ri(Math.sin(t * 1.5) * 2), H('#2a2018'));
+  // el farol del coche
+  R.rect(bx - 2, s - 36, bx + 2, s - 30, K); R.rect(bx - 1, s - 35, bx + 1, s - 31, mez(H('#f0b858'), H('#fff0b0'), 0.5 + 0.5 * Math.sin(t * 9))); luz(bx, s - 33, 9, H('#ffd890'), 0.3);
+  // las ruedas: la delantera pequeña y la trasera grande, con sus radios que giran
+  for (const [wx, r] of [[bx + 8, 8], [bx + 40, 10]]) { const wy = s - r; R.disco(wx, wy, r, K); R.disco(wx, wy, r - 1, H('#5a3a22')); R.disco(wx, wy, r - 2, K);
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + paso * 0.5; R.linea(wx, wy, ri(wx + Math.cos(a) * (r - 2)), ri(wy + Math.sin(a) * (r - 2)), H('#8a6a4a')); }
+    R.disco(wx, wy, 2, H('#7a5a3a')); ps(wx, wy, ORO[3]); ps(wx - r + 1, wy - 2, H('#8a6a4a')); }
+};
+
+// una bolsa de viaje de tapiz (x centro, y de abajo; ab: la boca abierta 0–1)
+const bolsaViaje = (x, y, ab = 0, w = 11) => { x = ri(x); y = ri(y); const hh = ri(w * 0.7);
+  R.rect(x - w, y - hh, x + w, y, K); relleno(x - w + 1, y - hh + 1, x + w - 1, y - 1, pal(['#3a1a1a', '#5a2a22', '#7a3a2a', '#9a5a32']), (xx, yy) => 2 + ((xx + yy * 2) % 6 < 2 ? 1 : 0) + ((xx - yy * 2) % 7 === 0 ? -1 : 0) - (yy - y + hh) / hh * 0.8 + (xx - x + w < 2 ? 0.8 : 0));
+  for (let xx = x - w + 2; xx < x + w - 1; xx += 4) ps(xx, y - ri(hh / 2), H('#c89a4a'));
+  if (ab > 0.05) { const a = ri(ab * 3); R.rect(x - w + 2, y - hh - a, x + w - 2, y - hh + 1, H('#1a0e0a')); R.linea(x - w + 1, y - hh, x - w + 3, y - hh - a, H('#7a5a3a')); R.linea(x + w - 1, y - hh, x + w - 3, y - hh - a, H('#7a5a3a')); }
+  else { R.rect(x - w + 1, y - hh, x + w - 1, y - hh, H('#7a5a3a')); ps(x, y - hh + 1, ORO[3]); ps(x, y - hh, ORO[4]); }
+  R.linea(x - 4, y - hh - 1, x - 2, y - hh - 5, H('#3a2414')); R.linea(x - 2, y - hh - 5, x + 2, y - hh - 5, H('#3a2414')); R.linea(x + 2, y - hh - 5, x + 4, y - hh - 1, H('#3a2414'));
+};
+
+// ── I · LA OTRA PARED DE LA BIBLIOTECA (P12): el rincón de Mary, un poyo bajo la ventana entre dos librerías (x 0–118,
+// asiento en y 126); la puerta doble abierta al recibidor por la que entran las visitas (hueco x 142–194, y 48–143) con sus
+// hojas plegadas; la librería grande con su escalera de mano, el busto y la urna encima (x 216–319, desde y 54); el globo
+// terráqueo que gira (x 298); parquet, alfombra azul y un montón de libros en el suelo. Suelo y 150. ──
+const POYO = 126, HUECO = [142, 48, 194, 143];
+const poyoFrente = (soloFrente = false) => {
+  if (!soloFrente) relleno(22, POYO - 4, 96, POYO, TELA_R, (x, y) => 2.4 + (y === POYO - 4 ? 1.4 : 0) + (ns(x * 0.3, y) - 0.5) * 0.6 - (x - 22) / 74 * 0.5);
+  if (!soloFrente) for (let x = 32; x < 92; x += 10) { ps(x, POYO - 2, TELA_R[0]); ps(x + 1, POYO - 3, TELA_R[4]); }
+  relleno(20, POYO + 1, 98, 143, CAOBA, (x, y) => 2.6 + (ns(x * 0.25, y * 0.1) - 0.5) * 0.8 + (y === POYO + 1 ? 1.8 : 0) - (x - 20) / 78 * 0.6 + (((x - 24) % 25 === 0 || y === POYO + 4 || y === 140) ? -1.4 : ((x - 24) % 25 === 1 || y === POYO + 5) ? 0.9 : 0));
+};
+const rincon = (t) => {
+  fijo('rincon', () => {
+    R.rect(0, 0, 319, 179, K);
+    papel(0, 8, 215, 112, VERDE, 13, { base: 2.5 });
+    friso(0, 215, 112, 141, CAOBA, 30, 4);
+    // encima de la librería grande: el yeso verde liso con la luz suave del techo (la esquina de Atom, tranquila)
+    relleno(216, 8, 319, 50, pal(['#24362c', '#2a3e32', '#304638', '#364e3e', '#3e5846']), (x, y) => 1.8 + (ns(x * 0.04, y * 0.05) - 0.5) * 0.5 - (y - 8) / 42 * 0.8 + Math.max(0, 1 - Math.abs(x - 268) / 60) * 0.9);
+    R.rect(0, 0, 319, 7, YESO[5]); for (let x = 0; x < 320; x++) { ps(x, 0, YESO[3]); ps(x, 7, YESO[2]); ps(x, 8, mez(R.pget(x, 8), K, 0.35)); if (x % 5 < 3) { ps(x, 4, YESO[6]); ps(x, 5, YESO[4]); } }
+    // el rincón: las dos librerías estrechas y el derrame de la ventana, en sombra, con su arco
+    libreria(0, 20, 20, 141, 21, 18); libreria(98, 20, 118, 141, 22, 18);
+    relleno(20, 20, 98, 141, pal(['#22322a', '#2a3a30', '#33463a', '#3c5244', '#4a6050']), (x, y) => 2 + (ns(x * 0.1, y * 0.06) - 0.5) * 0.6 + (x < 30 ? -1 : x > 88 ? -0.7 : 0.4) - (y < 30 ? 0.6 : 0));
+    for (let x = 20; x <= 98; x++) { const yy = 20 + ri(12 - Math.sqrt(Math.max(0, 1 - ((x - 59) / 39) ** 2)) * 12); for (let y = 20; y < yy; y++) ps(x, y, rmp(CAOBA, 2.4 - (y - 20) * 0.1, x, y)); ps(x, yy, CAOBA[5]); ps(x, yy + 1, CAOBA[1]); }
+    // los cojines de los extremos del poyo
+    for (const [cx, k] of [[28, 0], [90, 1]]) caja(cx - 6, POYO - 14, cx + 6, POYO - 4, (x, y) => { const d = ((x - cx) / 6.5) ** 2 + ((y - POYO + 9) / 5.5) ** 2; if (d > 1) return; R.pset(x, y, rmp(k ? TELA_V : pal(['#5a4a1a', '#7a6428', '#9a8238', '#baa04a', '#d8c070']), 3.4 - d * 2 - (y - POYO + 14) * 0.12 + ((x + y) % 4 === 0 ? 0.6 : 0), x, y)); });
+    poyoFrente();
+    // la puerta doble: el recibidor al fondo (papel rosa, friso, losas, la consola con el jarrón, la escalera que sube)
+    const [h0, hy0, h1, hy1] = HUECO;
+    R.rect(h0 - 10, hy0 - 12, h1 + 10, hy1, YESO[4]);
+    for (let y = hy0 - 6; y <= hy1; y++) { for (const x0 of [h0 - 9, h1 + 2]) for (let i = 0; i < 7; i++) ps(x0 + i, y, i === 0 ? YESO[6] : i === 6 ? YESO[2] : (i % 2 ? YESO[5] : YESO[3])); }
+    R.rect(h0 - 13, hy0 - 15, h1 + 13, hy0 - 11, YESO[5]); for (let x = h0 - 13; x <= h1 + 13; x++) { ps(x, hy0 - 15, YESO[6]); ps(x, hy0 - 11, YESO[2]); ps(x, hy0 - 10, mez(R.pget(x, hy0 - 10), K, 0.4)); }
+    papel(h0, hy0, h1, 122, ROSA, 7, { base: 2.3 });
+    relleno(h0, 118, h1, 130, ROBLE, (x, y) => 2.4 + (ns(x * 0.3, y * 0.2) - 0.5) + (y === 118 ? 1.6 : y === 130 ? -1.4 : 0) + ((x - h0) % 16 === 0 ? -1 : 0));
+    caja(h0, 131, h1, hy1, (x, y) => { const u = (x + (y - 131) * 1.5) / 8, v2 = (x - (y - 131) * 1.5) / 8, n = (Math.floor(u) + Math.floor(v2)) & 1; R.pset(x, y, n ? rmp(MARMOL, 2.6 + (y - 131) / 12, x, y) : rmp(pal(['#1a1a20', '#26262e', '#34343c']), 1 + (ns(x * 0.3, y * 0.3) - 0.5), x, y)); });
+    // la escalera del recibidor que sube por el fondo, a la derecha del hueco
+    for (let x = 172; x <= h1; x++) { const top = 130 - (x - 172) * 0.9; for (let y = ri(top); y <= 130; y++) ps(x, y, y < top + 2 ? ROBLE[5] : rmp(ROBLE, 2 - (y - top) * 0.04, x, y)); if ((x - 172) % 5 === 0) R.linea(x, ri(top) - 12, x, ri(top), CAOBA[4]); ps(x, ri(top) - 13, CAOBA[5]); }
+    { const x = 156; R.rect(x - 10, 106, x + 10, 108, CAOBA[4]); R.rect(x - 9, 109, x - 8, 129, CAOBA[2]); R.rect(x + 8, 109, x + 9, 129, CAOBA[2]); R.rect(x - 3, 94, x + 3, 105, H('#2a4a7a')); R.rect(x - 2, 95, x - 1, 104, H('#5a8ac0'));
+      for (let i = 0; i < 7; i++) R.disco(ri(x - 6 + h2(i, 1, 3) * 12), ri(86 + h2(i, 2, 3) * 8), 1.4, [H('#e85a6a'), H('#f8e8f0'), H('#e8c040')][i % 3]);
+      cuadro(x - 11, 58, x + 11, 80, (a, b, c, d) => paisaje(a, b, c, d, 9)); }
+    caja(h0, hy0, h1, hy1, (x, y) => sombrea(x, y, 0.1 + (y < hy0 + 8 ? 0.2 : 0)));
+    // las dos hojas de la puerta, plegadas contra la pared, con sus cuarterones
+    const hoja = (xa, xb, ya, yb) => { R.poligono([[xa, ya], [xb, yb], [xb, 147 - (yb - hy0)], [xa, 147 - (ya - hy0) + 2]], CAOBA[1]);
+      for (let x = Math.min(xa, xb); x <= Math.max(xa, xb); x++) { const u = (x - xa) / (xb - xa), y0 = lerp(ya, yb, u) + 2, y1 = lerp(147 - (ya - hy0) + 2, 147 - (yb - hy0), u) - 2; for (let y = ri(y0); y <= ri(y1); y++) { const fy = (y - y0) / (y1 - y0); ps(x, y, rmp(CAOBA, 2.4 + (ns(x * 0.3, y * 0.08) - 0.5) * 0.6 + ((fy > 0.06 && fy < 0.44) || (fy > 0.54 && fy < 0.94) ? (Math.abs(u - 0.5) < 0.32 ? 0.5 : -0.6) : 0), x, y)); } } };
+    hoja(122, 134, hy0 - 4, hy0); hoja(214, 202, hy0 - 4, hy0); R.disco(132, 100, 1, ORO[3]); R.disco(204, 100, 1, ORO[3]);
+    // la librería grande, con su cornisa, y encima el busto de mármol y una urna
+    libreria(216, 54, 319, 143, 23, 18);
+    R.rect(214, 50, 319, 54, CAOBA[4]); for (let x = 214; x < 320; x++) { ps(x, 50, CAOBA[5]); ps(x, 54, CAOBA[1]); if (x % 4 === 0) ps(x, 52, CAOBA[2]); }
+    { const x = 236; R.rect(x - 6, 46, x + 6, 49, MARMOL[2]); R.rect(x - 3, 43, x + 3, 45, MARMOL[1]); caja(x - 7, 30, x + 7, 43, (xx, y) => { const cab2 = ((xx - x) / 4.5) ** 2 + ((y - 33) / 4.5) ** 2 < 1, hom = y > 37 && Math.abs(xx - x) < 7 - (43 - y) * 0.3; if (cab2 || hom) R.pset(xx, y, rmp(MARMOL, 3.2 - (xx - x) * 0.25 - (y - 30) * 0.05, xx, y)); }); ps(x - 2, 33, MARMOL[0]); ps(x - 3, 35, MARMOL[1]); }
+    { const x = 262; R.rect(x - 2, 47, x + 2, 49, ORO[1]); caja(x - 6, 36, x + 6, 47, (xx, y) => { const d = ((xx - x) / 5.5) ** 2 + ((y - 41) / 5) ** 2; if (d < 1) R.pset(xx, y, rmp(pal(['#1e3a4a', '#2a5466', '#3a7088', '#5a90a8']), 3 - d * 2 - (xx - x) * 0.2, xx, y)); }); R.rect(x - 3, 34, x + 3, 35, ORO[2]); ps(x - 3, 40, ORO[3]); ps(x + 3, 40, ORO[3]); }
+    // la escalera de mano apoyada en la librería
+    for (const [xa, xb] of [[246, 256], [256, 266]]) for (let y = 58; y <= 150; y++) { const x = ri(lerp(xa, xb, (y - 58) / 92)); ps(x, y, CAOBA[4]); ps(x + 1, y, CAOBA[2]); }
+    for (let y = 66; y < 148; y += 10) { const u = (y - 58) / 92; R.linea(ri(lerp(247, 257, u)), y, ri(lerp(256, 266, u)), y, CAOBA[5]); R.linea(ri(lerp(247, 257, u)), y + 1, ri(lerp(256, 266, u)), y + 1, CAOBA[1]); }
+    // el parquet y la alfombra azul con su medallón; el montón de libros en el suelo
+    tarima(143, ROBLE, 8);
+    for (let x = 0; x < 320; x++) { ps(x, 143, K); ps(x, 144, mez(R.pget(x, 144), K, 0.5)); ps(x, 145, mez(R.pget(x, 145), K, 0.25)); }
+    alfombra(108, 152, 272, 171, 12, ['#1e2a4a', '#2a4a6a', '#7a1e22', '#d8b060', '#e8dcc0']);
+    for (let i = 0; i < 6; i++) { const y = 176 - i * 3, x = 124 + ri(h2(i, 1, 9) * 4) - 2, c = LIBROS[i * 3 % LIBROS.length]; R.rect(x, y - 2, x + 16 - (i % 2) * 3, y, K); R.rect(x + 1, y - 2, x + 15 - (i % 2) * 3, y - 1, c); for (let xx = x + 1; xx < x + 15 - (i % 2) * 3; xx++) ps(xx, y - 2, mez(c, H('#ffffff'), 0.25)); ps(x + 14 - (i % 2) * 3, y - 1, CREMA); }
+    // el sol de la tarde que entra por la ventana y cae en diagonal sobre el poyo y el suelo
+    for (let y = 120; y < 179; y++) for (let x = 0; x < 320; x++) { const xx = x - (y - 120) * 1.1; if (xx > 30 && xx < 86 && (ri(xx) - 30) % 19 < 17) aclara(x, y, H('#ffe8b0'), 0.18 * (1 - (y - 120) / 70)); }
+  });
+  // la ventana: el cielo de la tarde, los tejados y las chimeneas que humean, palomas
+  ventana(30, 32, 88, 114, (tt, a, b, c, d) => {
+    caja(a, b, c, d, (x, y) => R.pset(x, y, rmp(pal(['#7a8ea8', '#90a2b8', '#a8b6c6', '#c4ccd4', '#dcdcd4']), 0.8 + (y - b) / (d - b) * 3.4 + (ns(x * 0.06 + tt * 0.08, y * 0.1) - 0.5) * 1.2, x, y)));
+    for (let x = a; x <= c; x++) { const top = 84 + ri(h2(x >> 3, 2, 12) * 10) - (x % 8 < 2 ? 3 : 0); for (let y = top; y <= d; y++) R.pset(x, y, rmp(pal(['#3a3236', '#4a4044', '#5a4e50', '#6a5e5c']), 1.6 + (y - top) * 0.03 + (ns(x * 0.3, y * 0.3) - 0.5), x, y)); }
+    for (const [cx, k] of [[44, 0], [70, 1]]) { R.rect(cx - 2, 76, cx + 2, 86, LADR[3]); ps(cx - 2, 76, LADR[5]); for (let i = 0; i < 7; i++) { const f = ((tt * 0.25 + i / 7 + k * 0.3) % 1); aclara(cx + f * 10 + Math.sin(tt + i) * 2, 74 - f * 30, H('#d8d8dc'), 0.55 * (1 - f)); } }
+    for (let i = 0; i < 3; i++) { const x = a + ((tt * 9 + i * 23) % (c - a)), y = b + 10 + i * 9 + Math.sin(tt * 2 + i) * 2, al = Math.sin(tt * 11 + i) > 0; ps(x, y, K); ps(x - 1, y - (al ? 1 : 0), K); ps(x + 1, y - (al ? 1 : 0), K); }
+  }, t, { cols: 3, filas: 4, repisa: false, marco: CREMA });
+  // la vida del recibidor (recortada al hueco): la criada que cruza al fondo con su cofia y la llama de la consola
+  R.recorte([HUECO[0], HUECO[1], HUECO[2], HUECO[3]]);
+  { const u = ((t + 3) % 9) / 9; if (u < 0.6) figurita(lerp(140, 200, u / 0.6), 131, 15, t, { dama: true, anda: true, dir: 1, color: H('#3a3a5a') }); }
+  R.recorte(null);
+  // el globo terráqueo: el pie de caoba, el meridiano de latón y la esfera que gira despacio
+  { const x = 298, cy = 118, r = 11; R.linea(x - 8, 150, x, 132, CAOBA[3]); R.linea(x + 8, 150, x, 132, CAOBA[2]); R.linea(x, 150, x, 132, CAOBA[4]); R.rect(x - 1, 128, x + 1, 134, CAOBA[4]);
+    caja(x - r, cy - r, x + r, cy + r, (xx, y) => { const dx = (xx + 0.5 - x) / r, dy = (y + 0.5 - cy) / r, d = dx * dx + dy * dy; if (d > 1) return; const lon = Math.asin(Math.max(-1, Math.min(1, dx / Math.sqrt(Math.max(0.01, 1 - dy * dy))))) + t * 0.4, tierra = ns(lon * 2.6 + 9, dy * 3 + 4) > 0.55;
+      R.pset(xx, y, rmp(tierra ? pal(['#6a5a2a', '#8a7a3a', '#b0a058', '#d0c47a']) : pal(['#1a3a4a', '#2a5468', '#3a7088', '#5a8ca0']), 2.6 - dx * 1.2 - dy * 0.8 - d * 0.8, xx, y)); });
+    for (let a = -1.2; a <= 1.2; a += 0.06) { ps(x + Math.sin(a) * (r + 1.5), cy - Math.cos(a) * (r + 1.5), ORO[3]); ps(x - Math.sin(a) * (r + 1.5), cy + Math.cos(a) * (r + 1.5), ORO[2]); }
+    R.linea(x - r - 2, cy, x + r + 2, cy, ORO[1]); ps(x - 4, cy - 6, H('#c8e0f0')); }
+  // motas de polvo que flotan en el rayo de sol
+  for (let i = 0; i < 10; i++) { const f = (t * 0.06 + h2(i, 1, 14)) % 1, x = 40 + h2(i, 2, 14) * 60 + f * 30, y = 118 + Math.sin(t * 0.8 + i) * 4 + h2(i, 3, 14) * 40; aclara(x, y, H('#fff4d0'), 0.6); }
+};
+// el gato del poyo (duerme; levanta la cabeza cuando llega la niña)
+const gatoPoyo = (t, alerta) => { gatito(86, POYO - 4, t, { c: H('#c87a3a'), dir: -1, duerme: !alerta }); };
+
+// ── J · EL RELLANO DE ARRIBA (P16, 1814): la escalera que llega desde abajo a la izquierda (huella ESCR(x), pasamanos y
+// balaustres por delante de quien sube, el pilar en x 132), la ventana alta del hueco de la escalera (x 66–112, y 30–100) y el
+// farol colgado (x 30), la marina en la pared del rellano (x 140–186), la puerta del cuarto de Mary (x 198–228, y 62–143) que
+// se abre, la consola con el espejo y la vela (x 236–268), la pared del fondo en sombra con la puerta del estudio (x 272–319).
+// Suelo del rellano y 150. ──
+const ESCR = (x) => 150 + Math.max(0, (134 - x) * 0.5);
+const PUERTA_M = [198, 62, 228, 143];
+const rellano = (t, ab) => {
+  fijo('rellano', () => {
+    R.rect(0, 0, 319, 179, K);
+    papel(0, 8, 271, 179, ROSA, 9, { base: 2.7 });
+    // la pared del fondo, de lado y en sombra: yeso rosa liso, tranquilo
+    relleno(272, 8, 319, 143, pal(['#3a2224', '#44282a', '#4e2e30', '#583436', '#623a3a']), (x, y) => 2 + (ns(x * 0.05, y * 0.04) - 0.5) * 0.5 - (x - 272) / 48 * 0.8 + (y > 120 ? -0.4 : 0));
+    for (let y = 8; y < 144; y++) { ps(272, y, ROSA[0]); ps(273, y, mez(R.pget(273, y), K, 0.3)); }
+    R.rect(0, 0, 319, 7, YESO[5]); for (let x = 0; x < 320; x++) { ps(x, 0, YESO[3]); ps(x, 7, YESO[2]); ps(x, 8, mez(R.pget(x, 8), K, 0.35)); if (x % 6 < 2) ps(x, 3, YESO[6]); }
+    // el friso del rellano y, en el hueco de la escalera, el friso inclinado que sigue a los peldaños
+    friso(134, 271, 112, 141, ROBLE, 34, 6);
+    for (let x = 0; x < 134; x++) { const yt = ri(ESCR(x) - 30); for (let y = yt; y < 180; y++) ps(x, y, y === yt ? ROBLE[5] : y === yt + 1 ? ROBLE[4] : rmp(ROBLE, 2.2 + (ns(x * 0.25, y * 0.06) - 0.5) + ((x % 34) < 1 ? -1 : 0), x, y)); }
+    // los peldaños de perfil (huella clara, tabica en sombra) y la zanca
+    for (let x = 40; x < 134; x++) { const n = Math.ceil((134 - x) / 9), yT = 150 + n * 4.5; for (let y = ri(yT); y < 180; y++) ps(x, y, y < yT + 2 ? ROBLE[5] : y < yT + 4 ? ROBLE[3] : rmp(ROBLE, 1.4 + (ns(x * 0.2, y * 0.1) - 0.5), x, y)); if ((134 - x) % 9 === 0) for (let y = ri(yT) - 4; y < ri(yT); y++) ps(x, y, ROBLE[1]); }
+    for (let x = 40; x < 134; x++) { const n = Math.ceil((134 - x) / 9); for (let y = ri(150 + n * 4.5) + 1; y < ri(150 + n * 4.5) + 4; y++) if (x % 9 > 2 && x % 9 < 7) ps(x, y, TELA_R[2 + (y & 1)]); }
+    // el suelo del rellano y la alfombra larga de pasillo
+    tarima(143, ROBLE, 11, 134, 319, 179);
+    for (let x = 134; x < 320; x++) { ps(x, 143, K); ps(x, 144, mez(R.pget(x, 144), K, 0.4)); }
+    for (let y = 152; y <= 166; y++) for (let x = 140; x < 320; x++) { const bo = Math.min(y - 152, 166 - y); R.pset(x, y, bo < 1 ? H('#d8b060') : bo < 3 ? TELA_V[1] : ((x + y * 2) % 12 < 2 ? H('#d8b060') : (x - y * 2) % 16 < 2 ? TELA_R[3] : TELA_V[3])); }
+    // la marina con su barco en la pared del rellano
+    cuadro(140, 40, 186, 74, (a, b, c, d) => caja(a, b, c, d, (x, y) => { const v = (y - b) / (d - b); R.pset(x, y, v < 0.55 ? rmp(pal(['#8a98a8', '#a8b4bc', '#c8ccc4', '#e0d8c0']), 0.6 + v * 5 + (ns(x * 0.3, y * 0.4) - 0.5), x, y) : rmp(pal(['#1e3448', '#2a4a60', '#3a6078', '#5a7e90']), 2.4 - (v - 0.55) * 3 + (Math.sin(x * 0.8 + y * 2) > 0.7 ? 1 : 0), x, y)); }));
+    R.poligono([[158, 60], [172, 60], [170, 63], [160, 63]], H('#3a2414')); R.linea(165, 46, 165, 60, K); R.poligono([[166, 47], [172, 57], [166, 57]], CREMA); R.poligono([[164, 49], [159, 57], [164, 57]], BLANCO);
+    // el marco de la puerta del cuarto de Mary
+    const [d0, dy0, d1, dy1] = PUERTA_M; R.rect(d0 - 5, dy0 - 6, d1 + 5, dy1, YESO[5]); for (let y = dy0 - 6; y <= dy1; y++) { ps(d0 - 5, y, YESO[6]); ps(d0 - 1, y, YESO[2]); ps(d1 + 1, y, YESO[6]); ps(d1 + 5, y, YESO[2]); }
+    R.rect(d0 - 7, dy0 - 9, d1 + 7, dy0 - 6, YESO[6]); for (let x = d0 - 7; x <= d1 + 7; x++) ps(x, dy0 - 5, mez(R.pget(x, dy0 - 5), K, 0.3));
+    // la consola de media luna con el espejo ovalado encima
+    { const x = 252; R.rect(x - 15, 116, x + 15, 119, CAOBA[4]); for (let xx = x - 15; xx <= x + 15; xx++) ps(xx, 116, CAOBA[5]); R.rect(x - 13, 120, x + 13, 124, CAOBA[2]); ps(x, 122, ORO[3]); R.rect(x - 12, 125, x - 11, 143, CAOBA[2]); R.rect(x + 11, 125, x + 12, 143, CAOBA[2]); R.rect(x - 11, 139, x + 11, 139, CAOBA[3]);
+      caja(x - 12, 64, x + 12, 102, (xx, y) => { const d = ((xx - x) / 12) ** 2 + ((y - 83) / 19) ** 2; if (d > 1) return; R.pset(xx, y, d > 0.78 ? rmp(ORO, 3 - (y - 64) * 0.05, xx, y) : rmp(pal(['#4a3a3c', '#6a5a5a', '#8a7a78', '#b0a8a0']), 1.4 + (xx - x) * -0.06 + (y - 64) * 0.02 + (Math.abs((xx - x) + (y - 83) * 0.6) < 2 ? 1.6 : 0), xx, y)); });
+      R.rect(x + 2, 108, x + 7, 115, H('#e8e0d0')); R.rect(x + 3, 109, x + 4, 114, BLANCO); for (let i = 0; i < 5; i++) R.disco(ri(x + 1 + h2(i, 1, 5) * 8), ri(102 + h2(i, 2, 5) * 6), 1.3, [H('#e8c040'), H('#e85a6a'), H('#f8e8f0')][i % 3]); }
+    // la puerta del estudio de Godwin, cerrada, en la pared en sombra
+    R.rect(282, 60, 314, 143, H('#2a1a14')); relleno(285, 64, 311, 143, CAOBA, (x, y) => 1.2 + (ns(x * 0.2, y * 0.06) - 0.5) * 0.6 + (((x - 285) % 13 < 1) || ((y - 64) % 26 < 1) ? -0.8 : 0)); R.disco(288, 106, 1, ORO[2]);
+    // la ventana alta (el marco; lo de fuera va encima) y las sombras del hueco de la escalera
+    caja(0, 8, 133, 179, (x, y) => { if (x < 40) sombrea(x, y, 0.25 * (1 - x / 40)); });
+    // la sombra del pasamanos en la pared, inclinada
+    for (let x = 0; x < 134; x++) { const y = ri(ESCR(x) - 40); for (let j = 0; j < 2; j++) sombrea(x, y + j, 0.3); }
+  });
+  // la ventana alta del hueco de la escalera: cielo de la mañana, nubes, tejados y vencejos
+  ventana(66, 30, 112, 100, (tt, a, b, c, d) => {
+    caja(a, b, c, d, (x, y) => R.pset(x, y, rmp(pal(['#5a82b0', '#7096c0', '#8aaccc', '#a8c2d8', '#cad8e2']), 0.6 + (y - b) / (d - b) * 3.6, x, y)));
+    [[0.4, H('#c8d2dc'), H('#f0f2f4'), b + 12], [0.9, H('#b0bccb'), H('#e4e8ec'), b + 30]].forEach(([vel, c0, c1, yc], i) => { for (let y = yc - 6; y <= yc + 6; y++) for (let x = a; x <= c; x++) { const v = ns((x + tt * vel * 3 + i * 50) * 0.08, y * 0.18 + i * 5) - 0.55 - Math.abs(y - yc) / 16; if (v > 0 && v * 7 > b4(x, y)) R.pset(x, y, v > 0.1 ? c1 : c0); } });
+    for (let x = a; x <= c; x++) { const top = 80 + ri(h2(x >> 3, 4, 13) * 8) - (x % 8 < 2 ? 3 : 0); for (let y = top; y <= d; y++) R.pset(x, y, rmp(pal(['#4a4248', '#5a5258', '#6a6266', '#7a7274']), 1.6 + (ns(x * 0.3, y * 0.3) - 0.5), x, y)); }
+    for (let i = 0; i < 3; i++) { const x = a + ((tt * 12 + i * 17) % (c - a)), y = b + 16 + i * 8 + Math.sin(tt * 2 + i) * 3, al = Math.sin(tt * 12 + i) > 0; R.pset(ri(x), ri(y), K); R.pset(ri(x) - 1, ri(y) - (al ? 1 : 0), K); R.pset(ri(x) + 1, ri(y) - (al ? 1 : 0), K); }
+  }, t, { cols: 2, filas: 4, marco: CREMA });
+  // la luz de la ventana que cae en el hueco de la escalera
+  for (let y = 104; y < 179; y++) for (let x = 60; x < 134; x++) { const xx = x - (y - 104) * 0.5; if (xx > 66 && xx < 112 && ((ri(xx) - 66) % 23) < 21 && y < ESCR(x)) aclara(x, y, H('#fff0d0'), 0.12); }
+  // el farol del hueco de la escalera, colgado de su cadena, que se mece un poco
+  { const sw = Math.sin(t * 1.1) * 2, lx = 30 + sw; R.linea(30, 8, ri(lx), 58, H('#2a2420')); for (let y = 10; y < 58; y += 3) ps(lerp(30, lx, (y - 8) / 50), y, H('#5a5048'));
+    R.rect(ri(lx) - 5, 58, ri(lx) + 5, 60, ORO[1]); R.rect(ri(lx) - 4, 61, ri(lx) + 4, 72, H('#2a2420')); R.rect(ri(lx) - 3, 62, ri(lx) + 3, 71, H('#d8d0b8')); R.rect(ri(lx) - 1, 62, ri(lx) - 1, 71, H('#f8f4e8')); ps(ri(lx), 68, LLAMA[3]); ps(ri(lx), 67, LLAMA[4]); R.rect(ri(lx) - 5, 73, ri(lx) + 5, 74, ORO[1]); ps(ri(lx), 75, ORO[2]); }
+  // la vela de la consola
+  vela(244, 115, t, { alta: 7, halo: 14, fuerza: 0.25 });
+  // la puerta del cuarto de Mary: dentro, la luz de su ventana; la hoja se abre hacia dentro
+  const [d0, dy0, d1, dy1] = PUERTA_M;
+  relleno(d0, dy0, d1, dy1, pal(['#3a2a28', '#5a4440', '#7a625a', '#a08a78', '#c8b49c']), (x, y) => 1.2 + (x - d0) / (d1 - d0) * 2.2 + (y > 128 ? -0.8 : 0) + (ns(x * 0.2, y * 0.1) - 0.5) * 0.6);
+  for (let y = dy0 + 6; y < dy0 + 30; y++) for (let x = d1 - 12; x < d1 - 2; x++) R.pset(x, y, (x - d1 + 12) % 5 < 1 || (y - dy0 - 6) % 8 < 1 ? H('#e8dcc0') : rmp(pal(['#a8c0d8', '#c8d8e4', '#e8eef0']), 0.6 + (y - dy0 - 6) * 0.08, x, y));
+  R.rect(d0 + 3, dy0 + 26, d0 + 9, dy0 + 34, ORO[1]); R.rect(d0 + 4, dy0 + 27, d0 + 8, dy0 + 33, H('#6a8a6a'));
+  R.rect(d0 + 4, dy0 + 48, d0 + 6, dy1 - 4, CAOBA[3]); R.disco(d0 + 5, dy0 + 47, 2, CAOBA[4]); relleno(d0 + 7, dy0 + 58, d1 - 2, dy0 + 70, pal(['#8a7a9a', '#a898b4', '#c8bcd0', '#e4dcea']), (x, y) => 2.4 + ((x + y) % 6 < 2 ? 0.8 : 0) - (y - dy0 - 58) * 0.12);
+  for (let i = 0; i < 20; i++) for (let j = 0; j < 8; j++) aclara(d1 - 2 - j - i * 0.4, dy0 + 20 + i * 3, H('#fff0c8'), 0.25);
+  const w = ri((d1 - d0) * (1 - ab * 0.82));
+  relleno(d0, dy0, d0 + w, dy1, CAOBA, (x, y) => 2.4 + (ns(x * 0.25, y * 0.06) - 0.5) * 0.6 + (ab > 0.1 ? -0.6 : 0) + ((((x - d0) / Math.max(1, w)) % 0.5 < 0.08 || (y - dy0) % 27 < 2) ? -1 : 0));
+  for (let y = dy0; y <= dy1; y++) ps(d0 + w, y, CAOBA[5]); R.disco(d0 + w - 3, 104, 1, ORO[3]); ps(d0 + w - 3, 103, ORO[4]);
+  return { suelo: 150 };
+};
+// lo de delante en el rellano: el pasamanos y los balaustres de la escalera, y el pilar con su bola (tapan las piernas de quien sube)
+const rellanoDelante = () => {
+  for (let x = 0; x <= 132; x += 6) { const yb = ri(ESCR(x)), yt = ri(ESCR(x) - 15); for (let y = yt; y <= Math.min(179, yb); y++) { ps(x, y, CAOBA[3]); ps(x + 1, y, CAOBA[1]); } ps(x, ri((yt + yb) / 2), CAOBA[5]); ps(x + 1, ri((yt + yb) / 2), CAOBA[4]); }
+  for (let x = 0; x <= 132; x++) { const y = ri(ESCR(x) - 16); ps(x, y - 1, CAOBA[5]); ps(x, y, CAOBA[4]); ps(x, y + 1, CAOBA[2]); ps(x, y + 2, CAOBA[1]); }
+  R.rect(129, 126, 135, 152, CAOBA[3]); R.rect(129, 126, 130, 152, CAOBA[5]); R.rect(134, 126, 135, 152, CAOBA[1]); R.rect(128, 124, 136, 126, CAOBA[4]); R.disco(132, 120, 3.5, CAOBA[4]); ps(131, 118, CAOBA[5]); ps(130, 119, H('#d8a878'));
+};
+
+// ── K · LA PUERTA DE LA BUHARDILLA (P18, 1814): el otro rincón del cuarto de Mary. El techo baja en pendiente a la izquierda,
+// con sus cabios y una lumbrera en el faldón (x 20–56) que clarea al alba; la mesita de escribir debajo (x 24–74) con el
+// tintero, las cartas y el espejito; la percha con el chal y el sombrero (x 166–192), la balda con la vela (x 190), la puerta
+// de tablones (x 204–240, y 60–143) que da a la escalera; el calendario en su clavo (x 252–272); el armario ropero con la
+// puerta entornada (x 278–319, desde y 54). En primer término, el baúl con la bolsa de viaje (x 104–156). Suelo y 148. ──
+const TECHO = (x) => 78 - x * 0.5, PUERTA_B = [204, 60, 240, 143], BAUL = [104, 150, 156, 170];
+const puertaBuh = (t, alba, abre) => {
+  fijo('puertaBuh', () => {
+    R.rect(0, 0, 319, 179, K);
+    relleno(0, 0, 319, 143, YESO, (x, y) => { let v = 3.4 + (ns(x * 0.05, y * 0.07) - 0.5) * 1.1 + (h2(x >> 1, y >> 1, 5) > 0.95 ? -0.7 : 0); if (x < 272 || y > 50) { if (ns(x * 0.03 + 4, y * 0.05) > 0.7) v -= 0.8; if (ns(x * 0.02 + 9, y * 0.03) > 0.75) v -= 0.6; } return v - (y > 120 ? (y - 120) * 0.03 : 0); });
+    // un desconchón con el enlistonado y grietas
+    caja(120, 92, 146, 104, (x, y) => { const d = ((x - 133) / 13) ** 2 + ((y - 98) / 6) ** 2; if (d > 1 + (h2(x, y, 7) - 0.5) * 0.5) return; R.pset(x, y, (y - 92) % 3 === 0 ? YESO[0] : (x + y) % 9 < 5 ? ROBLE[2] : LADR[3]); });
+    for (const [x, y] of [[96, 70], [250, 112], [160, 40]]) { R.linea(x, y, x + 6, y + 5, YESO[0]); R.linea(x + 6, y + 5, x + 4, y + 11, YESO[0]); R.linea(x + 6, y + 5, x + 11, y + 7, YESO[1]); }
+    // el faldón del tejado en pendiente: el entablado oscuro (tablas paralelas al alero, con juntas y nudos), en sombra
+    // hacia arriba, el alero con su viga y los cabios gruesos que bajan hasta él
+    for (let x = 0; x < 160; x++) { const yb = TECHO(x); for (let y = 0; y <= yb; y++) { const dd = (yb - y) * 0.894, tab = Math.floor(dd / 6), jx = (x + h2(tab, 1, 15) * 40) % 44;
+      let v = 2.2 + (ns(x * 0.05 + tab * 3, dd * 0.5) - 0.5) * 0.9 - dd * 0.012 + (h2(tab, 2, 15) - 0.5) * 0.6; if (dd % 6 < 1) v = 0.5; if (jx < 1) v -= 0.9; if (h2(x >> 1, tab, 16) > 0.985) v = 0.8;
+      ps(x, y, rmp(ROBLE, v, x, y)); } }
+    for (let x = 0; x < 160; x++) { const yb = ri(TECHO(x)); ps(x, yb - 2, ROBLE[4]); ps(x, yb - 1, ROBLE[3]); ps(x, yb, ROBLE[2]); ps(x, yb + 1, ROBLE[0]); for (let j = 2; j < 6; j++) sombrea(x, yb + j, 0.35 - j * 0.05); }
+    for (const x0 of [6, 76, 132]) { const yb = ri(TECHO(x0)); for (let y = 0; y <= yb + 1; y++) for (let i = 0; i < 6; i++) ps(x0 + i, y, rmp(ROBLE, (i === 0 ? 4.6 : i === 5 ? 0.4 : 3 - i * 0.35) + (ns(x0 + i, y * 0.2) - 0.5) * 0.7, x0 + i, y)); }
+    R.rect(156, 0, 319, 5, ROBLE[2]); for (let x = 156; x < 320; x++) { ps(x, 5, ROBLE[0]); ps(x, 1, ROBLE[3]); if (x % 23 === 0) ps(x, 3, K); }
+    // el rodapié y el suelo de tablas
+    R.rect(0, 141, 319, 144, ROBLE[1]); for (let x = 0; x < 320; x++) ps(x, 141, ROBLE[3]);
+    tarima(145, ROBLE, 14);
+    // la esterilla de trapo a rayas delante de la puerta
+    caja(188, 150, 258, 158, (x, y) => { const bo = Math.min(x - 188, 258 - x, y - 150, 158 - y); R.pset(x, y, bo < 1 ? H('#6a5a3a') : [TELA_A[2], H('#a89a72'), TELA_R[2], H('#8a7a5a'), TELA_V[3]][Math.floor((x - 188) / 5) % 5]); });
+    for (let x = 188; x <= 258; x += 2) ps(x, 159, H('#8a7a5a'));
+    // la mesita de escribir bajo la lumbrera: el tintero con la pluma, las cartas atadas, el espejito y la silla
+    { R.rect(24, 116, 74, 119, ROBLE[4]); for (let x = 24; x <= 74; x++) ps(x, 116, ROBLE[5]); R.rect(26, 120, 72, 124, ROBLE[2]); ps(49, 122, ORO[3]); R.rect(27, 125, 28, 143, ROBLE[2]); R.rect(70, 125, 71, 143, ROBLE[2]);
+      R.rect(32, 111, 36, 115, K); ps(33, 111, H('#3a3a5a')); for (let i = 0; i < 9; i++) ps(36 + i * 0.5, 110 - i, i > 2 ? CREMA : K);
+      for (let i = 0; i < 4; i++) { R.rect(42, 113 - i * 1, 54, 113 - i * 1, i % 2 ? CREMA : BLANCO); } R.linea(48, 110, 48, 114, H('#a82a2a'));
+      R.rect(60, 104, 66, 115, ORO[1]); R.rect(61, 105, 65, 113, H('#8a98a8')); ps(62, 106, H('#e0e8f0')); R.rect(62, 114, 64, 115, ORO[2]);
+      silla(86, 143, -1, ROBLE, TELA_A); }
+    // la percha de pared con el chal de cuadros y el sombrero de paja
+    { R.rect(164, 66, 194, 68, ROBLE[3]); for (let x = 164; x <= 194; x++) ps(x, 66, ROBLE[5]); for (const x of [170, 186]) { ps(x, 69, K); ps(x, 70, K); }
+      caja(162, 70, 178, 104, (x, y) => { const w = 4 + (y - 70) * 0.18; if (Math.abs(x - 170) > w) return; R.pset(x, y, ((x >> 1) + (y >> 1)) % 3 === 0 ? H('#2a3a6a') : ((x + y) % 5 === 0 ? H('#e8c040') : rmp(TELA_R, 2.4 - (x - 170) * 0.15, x, y))); });
+      for (let x = 163; x <= 177; x += 2) R.linea(x, 104, x, 107, TELA_R[1]);
+      caja(178, 70, 194, 84, (x, y) => { const d = ((x - 186) / 8) ** 2 + ((y - 80) / 3) ** 2, cop = ((x - 186) / 5) ** 2 + ((y - 74) / 5) ** 2; if (d < 1 || (cop < 1 && y < 80)) R.pset(x, y, rmp(pal(['#8a6a2a', '#b08a3a', '#d0aa5a', '#e8cc7a']), 2.6 - (y - 70) * 0.08 + ((x + y) % 3 === 0 ? -0.5 : 0), x, y)); });
+      R.linea(180, 78, 192, 78, H('#5a7aa8')); R.linea(190, 79, 192, 86, H('#5a7aa8')); }
+    // la balda de la vela, junto a la puerta
+    R.rect(184, 114, 198, 115, ROBLE[4]); for (let x = 184; x <= 198; x++) ps(x, 114, ROBLE[5]); R.linea(186, 116, 190, 122, ROBLE[2]);
+    // el marco de la puerta de tablones y, dentro, la escalera que baja en penumbra
+    { const [p0, py0, p1, py1] = PUERTA_B; R.rect(p0 - 4, py0 - 4, p1 + 4, py1, ROBLE[2]); for (let y = py0 - 4; y <= py1; y++) { ps(p0 - 4, y, ROBLE[4]); ps(p1 + 4, y, ROBLE[0]); ps(p0 - 1, y, ROBLE[0]); }
+      for (let x = p0 - 4; x <= p1 + 4; x++) { ps(x, py0 - 4, ROBLE[4]); ps(x, py0 - 1, ROBLE[0]); }
+      relleno(p0, py0, p1, py1, pal(['#0e0a0c', '#16100e', '#201814', '#2e221a']), (x, y) => 0.6 + (y - py0) / (py1 - py0) * 1.4 + ((y - py0) % 9 < 2 && y > py0 + 30 ? 1.2 : 0) - (x - p0) * 0.02);
+      for (let y = py0 + 34; y < py1; y += 9) for (let x = p0 + 2; x < p1 - 2; x++) if (x < p0 + (y - py0) * 0.4) ps(x, y, H('#4a3a2a')); }
+    // el calendario colgado de su clavo
+    R.linea(262, 68, 255, 72, H('#5a5a60')); R.linea(262, 68, 269, 72, H('#5a5a60')); ps(262, 67, K);
+    // el armario ropero con su cornisa (la puerta de la izquierda, entornada, deja ver los vestidos)
+    { R.rect(276, 50, 319, 54, ROBLE[4]); for (let x = 276; x < 320; x++) { ps(x, 50, ROBLE[5]); ps(x, 54, ROBLE[1]); } relleno(278, 55, 319, 143, ROBLE, (x, y) => 2.2 + (ns(x * 0.25, y * 0.05) - 0.5) * 0.9 + (x === 298 ? -1.4 : 0) + (((x - 278) % 20 < 1 || (y - 55) % 44 < 1) ? -0.9 : ((x - 278) % 20 === 1 ? 0.8 : 0)));
+      R.rect(279, 58, 296, 138, H('#1a1210')); for (const [x, c] of [[282, TELA_A[3]], [287, H('#e8dcc0')], [292, TELA_V[3]]]) { R.rect(x - 2, 62, x + 2, 130, c); for (let y = 62; y < 130; y += 3) ps(x - 2, y, mez(c, K, 0.3)); ps(x, 60, H('#8a8a90')); }
+      R.poligono([[278, 56], [270, 60], [270, 140], [278, 142]], ROBLE[2]); for (let y = 60; y < 140; y++) ps(270, y, ROBLE[4]); R.disco(273, 100, 1, ORO[3]); R.disco(301, 100, 1, ORO[3]);
+      R.rect(276, 140, 319, 143, ROBLE[1]); }
+    // el baúl de primer término: madera con flejes de hierro, tachuelas y la cerradura de latón
+    { const [b0, by0, b1, by1] = BAUL; R.rect(b0, by0, b1, by1, K); relleno(b0 + 1, by0 + 1, b1 - 1, by1 - 1, pal(['#2a1a10', '#3e2a18', '#56381e', '#6e4a28', '#86603a']), (x, y) => 2.4 + (ns(x * 0.3, y * 0.1) - 0.5) * 0.8 + (y < by0 + 3 ? 1.2 : 0) - (y - by0) * 0.04);
+      for (const x of [b0 + 8, b1 - 8]) for (let y = by0 + 1; y < by1; y++) { ps(x, y, H('#3a3a40')); ps(x + 1, y, H('#5a5a64')); if (y % 3 === 0) ps(x + 1, y, H('#8a8a94')); }
+      for (let x = b0 + 1; x < b1; x++) { ps(x, by0 + 5, H('#3a3a40')); if (x % 4 === 0) ps(x, by0 + 5, H('#8a8a94')); }
+      R.rect(ri((b0 + b1) / 2) - 2, by0 + 6, ri((b0 + b1) / 2) + 2, by0 + 10, ORO[2]); ps(ri((b0 + b1) / 2), by0 + 8, K); R.rect(b0 + 14, by0 + 9, b0 + 22, by0 + 14, H('#c8b890')); R.rect(b0 + 15, by0 + 10, b0 + 21, by0 + 10, H('#a82a2a'));
+      for (let x = b0 - 2; x <= b1 + 2; x++) for (let j = 1; j < 4; j++) sombrea(x + 2, by1 + j, 0.35); }
+  });
+  // la lumbrera: el cielo que clarea (azul de noche → rosa del alba), las nubes que corren, la última estrella que se apaga
+  R.recorte([20, 20, 56, 66]);
+  caja(20, 20, 56, 66, (x, y) => { const yb = TECHO(x); if (y > yb - 4 || y < yb - 22) return; const v = (y - (yb - 22)) / 18; R.pset(x, y, rmp(pal(['#141a34', '#24284a', '#4a3a5a', '#8a5a6a', '#d08a7a', '#f0b890']), 0.6 + alba * 3.2 + v * 1.4 + (ns(x * 0.2 + t * 0.3, y * 0.3) - 0.5) * 0.6, x, y)); });
+  for (let i = 0; i < 2; i++) for (let x = 20; x <= 56; x++) { const yb = TECHO(x), yc = yb - 16 + i * 7, v = ns((x + t * (2 + i) * 1.5) * 0.12 + i * 9, i * 3) - 0.5; if (v > 0) { R.pset(x, ri(yc), alba > 0.4 ? H('#f0a8a0') : H('#4a4a6a')); if (v > 0.15) R.pset(x, ri(yc) + 1, alba > 0.4 ? H('#c87888') : H('#3a3a58')); } }
+  if (alba < 0.85) { const sx = 46, sy = ri(TECHO(46) - 16), a = 1 - alba; R.pset(sx, sy, mez(H('#8a8aa8'), H('#ffffff'), a)); if (Math.sin(t * 5) > 0) { R.pset(sx - 1, sy, mez(H('#6a6a8a'), H('#e8e8ff'), a * 0.6)); R.pset(sx + 1, sy, mez(H('#6a6a8a'), H('#e8e8ff'), a * 0.6)); } }
+  R.recorte(null);
+  for (let x = 20; x <= 56; x++) { const yb = ri(TECHO(x)); ps(x, yb - 23, ROBLE[1]); ps(x, yb - 3, ROBLE[1]); ps(x, yb - 13, ROBLE[2]); } for (const x of [20, 38, 56]) { const yb = ri(TECHO(x)); for (let y = yb - 23; y <= yb - 3; y++) ps(x, y, ROBLE[2]); }
+  // el haz de la lumbrera sobre la pared y el suelo, que crece con el alba
+  for (let y = 70; y < 179; y++) for (let x = 20; x < 200; x++) { const xx = x - (y - 70) * 0.55; if (xx > 22 && xx < 54 && (ri(xx) % 18) < 16) aclara(x, y, alba > 0.5 ? H('#f0c0a8') : H('#8a9ac8'), 0.06 + alba * 0.12); }
+  // el armario: los vestidos que se mecen con la corriente
+  for (let i = 0; i < 3; i++) ps(282 + i * 5 + Math.sin(t * 1.5 + i) * 0.8, 131, mez(R.pget(282 + i * 5, 131), K, 0.4));
+  // la puerta de tablones: se abre hacia la escalera (la hoja gira sobre la jamba derecha y se ve de canto)
+  const [p0, py0, p1, py1] = PUERTA_B, w = ri((p1 - p0) * (1 - abre * 0.85));
+  relleno(p1 - w, py0, p1, py1, pal(['#2a1a10', '#3e2a18', '#56381e', '#6e4a28', '#86603a']), (x, y) => 2.3 + (ns(x * 0.3, y * 0.05) - 0.5) * 0.9 + (((x - (p1 - w)) % Math.max(3, ri(w / 4))) < 1 ? -1.2 : 0) - abre * 0.6);
+  for (const y of [py0 + 12, py1 - 14]) for (let x = p1 - w; x <= p1; x++) { ps(x, y, H('#2a2a30')); ps(x, y + 1, H('#4a4a54')); }
+  if (w > 6) { R.rect(p1 - w + 3, 100, p1 - w + 6, 101, H('#3a3a40')); ps(p1 - w + 3, 99, H('#8a8a94')); }
+  for (let y = py0; y <= py1; y++) ps(p1 - w, y, mez(R.pget(p1 - w, y), H('#ffffff'), 0.15));
+};
+
 // ── P1 · La casa de noche (1797): la comadrona llega con su farol, la puerta se abre; en «born» se enciende la
 // ventana de arriba y alguien alza los brazos; pasa el sereno con su farol ──
 const p1 = (t) => {
@@ -1064,20 +1424,30 @@ const p8 = (t) => {
   T.londresDelante(R, t, oo);
 };
 
-// ── P9 · Entre las lápidas (otro sitio del cementerio): la niña lee detrás de la tumba de cajón; un petirrojo salta por
-// la piedra hasta su lado; en «least alone» el sol se abre paso y ella sonríe y lo mira ──
+// ── P9 · Entre las lápidas (otro sitio del cementerio): la niña lee y pasa las hojas; el petirrojo salta hasta ella; en
+// «among» cierra el libro, lo deja en la hierba, se acerca a la lápida y la acaricia; en «least alone» sale el sol y sonríe;
+// caen hojas del roble y un paseante con chistera pasa por detrás del muro ──
 const p9 = (t) => {
   const sol = ease(tramo(t, TG.FELT - 0.4, TG.ALONE + 0.4));
   entreLapidas(t, sol);
-  const pag = Math.floor((t - TG.P9) / 1.6) % 2;
+  // un paseante con chistera pasa por la calle, detrás del muro: solo asoma por encima de la albardilla
+  R.recorte([120, 0, 319, 88]); figurita(lerp(122, 270, tramo(t, TG.P9, TG.P10)), 99, 17, t, { anda: true, dir: 1, color: H('#2a2a34') }); R.recorte(null);
   lapidaP(170, 152, 24, 40, 61, { tipo: 0, incl: 1 });
-  const r = R.actor(MS.maryNinaMS, 150, 154, t, { dir: t > TG.AMONG + 0.6 ? 1 : -1, sostiene: true, sonrisa: t > TG.FELT, sorpresa: t > TG.AMONG + 0.4 && t < TG.AMONG + 0.9 });
-  librito(r.mano[0], r.mano[1] + 2, H('#6a1c1c'), true);
+  // lee y pasa las hojas; en «among» cierra el libro, lo deja junto a la piedra, se acerca y la acaricia; en «felt» sonríe
+  const va = tramo(t, TG.AMONG + 0.1, TG.AMONG + 0.8), toca = t > TG.AMONG + 0.8, x = ri(lerp(148, 154, ease(va)));
+  const r = R.actor(MS.maryNinaMS, x, 154, t, { dir: va > 0 ? 1 : -1, anda: va > 0 && va < 1, sostiene: toca ? [161, ri(136 + Math.sin(t * 2.6) * 2)] : true, sonrisa: t > TG.FELT, sorpresa: t > TG.MOTHERS + 0.3 && t < TG.MOTHERS + 0.8 });
+  if (va <= 0) { librito(r.mano[0], r.mano[1] + 2, H('#6a1c1c'), true);
+    const f = ((t - TG.P9) / 1.3) % 1; if (f < 0.35) { const u = f / 0.35, px = r.mano[0] + 3 - u * 6, py = r.mano[1] - 1 - Math.sin(u * Math.PI) * 4; R.linea(r.mano[0], r.mano[1], ri(px), ri(py), BLANCO); ps(px, py + 1, CREMA); } }
+  else if (va <= 0.5) librito(r.mano[0], r.mano[1] + 2, H('#6a1c1c'));
+  if (va > 0.5) { R.rect(139, 152, 146, 154, K); R.rect(140, 152, 145, 153, H('#6a1c1c')); ps(140, 152, H('#9a3a3a')); ps(145, 154, CREMA); }
   entreLapidasDelante(t);
   // el petirrojo salta por la tumba hacia ella
   const p = tramo(t, TG.MOTHERS, TG.AMONG + 0.5), px = lerp(204, 176, p), py = (p < 0.5 ? 140 : 100) - Math.abs(Math.sin(p * Math.PI * 4)) * 5 - (p > 0.45 && p < 0.55 ? 20 : 0);
   { const X = ri(px), Y = ri(py) + 12; R.rect(X - 3, Y - 5, X + 3, Y, K); R.rect(X - 2, Y - 4, X + 3, Y - 1, H('#7a5a3a')); R.rect(X - 2, Y - 3, X, Y - 1, H('#ec6a2a')); R.rect(X - 4, Y - 6, X - 1, Y - 3, K); R.rect(X - 3, Y - 5, X - 1, Y - 4, H('#7a5a3a')); ps(X - 3, Y - 5, H('#ec6a2a')); ps(X - 2, Y - 5, K); ps(X - 5, Y - 4, ORO[2]); R.rect(X + 4, Y - 4, X + 5, Y - 2, H('#4a3420')); ps(X - 1, Y + 1, K); ps(X + 1, Y + 1, K); }
-  if (t > TG.ALONE) { const h = tramo(t, TG.ALONE, TG.ALONE + 0.6); if (h < 1) icCorazon(172, ri(114 - h * 8), H('#e85a6a')); }
+  // las hojas del roble que caen girando con el viento
+  for (let i = 0; i < 8; i++) { const f = ((t - TG.P9) * 0.2 + h2(i, 1, 47)) % 1, xx = 62 + h2(i, 2, 47) * 54 + f * 70 + Math.sin(t * 2.4 + i * 1.7) * 5, yy = 82 + f * 92, c = [H('#e8902a'), H('#c8601e'), H('#f0b840')][i % 3], g = Math.sin(t * 5 + i) > 0;
+    if (yy > 170) continue; ps(xx, yy, c); ps(xx + (g ? 1 : -1), yy, mez(c, K, 0.3)); ps(xx, yy + 1, mez(c, K, 0.2)); if (g) ps(xx + 1, yy - 1, c); }
+  if (t > TG.ALONE) { const h = tramo(t, TG.ALONE, TG.ALONE + 0.6); if (h < 1) icCorazon(158, ri(110 - h * 8), H('#e85a6a')); }
 };
 
 // ── P10 · El comedor: la criada pasa deprisa con la bandeja; la niña, en medio, da un salto y se aparta a la pared en
@@ -1113,17 +1483,23 @@ const p11 = (t) => {
   const n = tramo(t, TG.NEVER + 0.3, TG.ALONG + 0.3); if (n > 0) { globo2(236, 72, icNube, n); }
 };
 
-// ── P12 · La biblioteca llena de visitas: por la puerta del salón entran caballeros; uno cruza por delante y saluda con
-// la chistera en «famous visitors»; la niña corre a su taburete del rincón y se queda allí en «corner» ──
+// ── P12 · La otra pared de la biblioteca, llena de visitas: por la puerta doble entra un caballero que saluda con el
+// sombrero en «famous visitors», la dama detrás, y Godwin los recibe; la niña, que hojeaba un libro junto a la escalera de
+// mano, corre a su rincón de la ventana, se sube al poyo («sitting in her corner») y lee; el gato levanta la cabeza ──
 const p12 = (t) => {
-  const oo = { cuna: false, visitas: true }; T.londres(R, t, oo);
-  const v = tramo(t, TG.P12 + 0.1, TG.VISITORS + 0.6), vx = lerp(214, 92, ease(v));
-  R.actor(MS.damaMS, 196, 150, t, { dir: -1, habla: parp(t, 7) && t < TG.GIRL3, sonrisa: t > TG.VISITORS });
-  R.actor(MS.caballeroMS, ri(vx), 150, t, { dir: v < 1 ? -1 : 1, anda: v > 0 && v < 1, brazos: t > TG.VISITORS && t < TG.VISITORS + 0.7, sonrisa: true });
-  R.actor(MS.godwinMS, 128, 150, t, { dir: 1, habla: t > TG.VISITORS + 0.6 && parp(t, 8), sonrisa: true, dedo: t > TG.BOOKS - 0.2 && t < TG.BOOKS + 0.6 });
-  const n = tramo(t, TG.GIRL3 - 0.4, TG.SITTINGC + 0.2), nx = lerp(40, 268, ease(n));
-  R.actor(MS.maryNinaMS, ri(nx), n >= 1 ? 147 : 150, t, { dir: n < 1 ? 1 : -1, anda: n > 0 && n < 1, triste: n >= 1 });
-  T.londresDelante(R, t, oo);
+  rincon(t);
+  // el caballero entra por la puerta doble y saluda con el sombrero en «famous visitors»; la dama le sigue; Godwin los recibe
+  const v = tramo(t, TG.P12, TG.VISITORS - 0.2), vx = lerp(178, 150, ease(v)), d = tramo(t, TG.VISITORS - 0.6, TG.GIRL3), dx = lerp(186, 174, ease(d));
+  R.actor(MS.damaMS, ri(dx), 148, t, { dir: -1, anda: d > 0 && d < 1, habla: parp(t, 7) && t > TG.GIRL3 && t < TG.CORNER, sonrisa: t > TG.VISITORS });
+  R.actor(MS.caballeroMS, ri(vx), 150, t, { dir: -1, anda: v > 0 && v < 1, brazos: t > TG.VISITORS - 0.1 && t < TG.VISITORS + 0.6, sonrisa: true, habla: t > TG.SITTINGC && parp(t, 8) });
+  R.actor(MS.godwinMS, 126, 151, t, { dir: 1, habla: t > TG.VISITORS + 0.6 && t < TG.SITTINGC && parp(t, 8), sonrisa: true, dedo: t > TG.BOOKS - 0.2 && t < TG.BOOKS + 0.6 });
+  // la niña, que hojeaba un libro junto a la escalera de mano, corre a su rincón, se sube al poyo y se pone a leer
+  const n = tramo(t, TG.GIRL3 - 0.5, TG.SITTINGC - 0.1), nx = lerp(232, 62, ease(n)), sube = tramo(t, TG.SITTINGC - 0.1, TG.SITTINGC + 0.25), sentada = sube > 0.5;
+  const ny = n < 1 ? (n > 0 ? 156 : 152) : lerp(156, POYO + 6, ease(sube)) - Math.sin(sube * Math.PI) * 5;
+  gatoPoyo(t, t > TG.SITTINGC);
+  const r = R.actor(MS.maryNinaMS, ri(nx), ri(ny), t, { dir: n > 0 && n < 1 ? -1 : n >= 1 ? 1 : -1, anda: n > 0 && n < 1, sostiene: true, sonrisa: t > TG.CORNER, sorpresa: t > TG.VISITORS && t < TG.GIRL3 - 0.4 });
+  librito(r.mano[0], r.mano[1] + 2, H('#2a4a24'), n <= 0 || sube >= 1);
+  if (sentada) poyoFrente(true);
 };
 
 // ── P13 · El salón de atrás: los mayores hablan junto a la chimenea (globos: un matraz en «science», la balanza en
@@ -1183,18 +1559,23 @@ const p15 = (t) => {
   gatito(ri(lerp(70, 46, tramo(t, TG.P15, TG.ADMIRES))), 156, t, { anda: t < TG.ADMIRES, dir: -1, c: H('#b08a5a') });
 };
 
-// ── P16 · El recibidor en 1814 (de día, con flores): Mary, ya de dieciséis, baja la escalera; Percy espera junto a la
-// jamba con las marcas de cuando era niña; «21» sobre él y un anillito en «has a wife»; «16» sobre ella; se miran ──
+// ── P16 · El rellano de arriba en 1814 (de día): Mary abre la puerta de su cuarto y sale con un libro; Percy sube la
+// escalera por detrás de los balaustres y llega al rellano: «21» sobre él y un anillito en «has a wife»; «16» sobre ella; él le
+// tiende su libro ──
 const p16 = (t) => {
-  const { X } = recibidor(t, 96, true);
-  marcasJamba(X, [128, 124, 120, 116, 112, 106], null, 1);
-  const b = tramo(t, TG.P16, TG.T16 - 0.4), wx = lerp(392, 250, ease(b)), my = ri(ESC(wx));
-  R.actor(MS.maryMS, ri(X(wx)), my, t, { dir: -1, anda: b > 0 && b < 1, sonrisa: t > TG.T16 + 0.3, sorpresa: t > TG.T21 && t < TG.T21 + 0.5 });
-  R.actor(MS.percyMS, ri(X(150)), 150, t, { dir: 1, sonrisa: true, habla: t > TG.T16 + 0.6 && parp(t, 8), dedo: t > TG.T21 - 0.2 && t < TG.T21 + 0.6, sostiene: t > TG.T16 + 0.2 ? [X(150) + 16, 126] : false });
-  if (t > TG.T16 + 0.2) librito(X(150) + 16, 128, H('#1c3a5a'));
-  const n1 = tramo(t, TG.T21 - 0.1, TG.T21 + 0.2); if (n1 > 0) R.numero('21', X(150) + 8, ri(116 - n1 * 6), { tam: 8, centro: true });
-  const an = tramo(t, TG.WIFE - 0.1, TG.WIFE + 0.2) * (1 - tramo(t, TG.T16 - 0.2, TG.T16)); if (an > 0) { const ax = X(150) + 24, ay = 100; R.disco(ax, ay, 3.5, ORO[3]); R.disco(ax, ay, 2, H('#e8dcc0')); ps(ax, ay - 4, H('#c8e8ff')); ps(ax - 1, ay - 4, H('#ffffff')); }
-  const n2 = tramo(t, TG.T16 - 0.1, TG.T16 + 0.2); if (n2 > 0) R.numero('16', ri(X(wx)) + 8, ri(my - 34 - n2 * 6), { tam: 8, centro: true });
+  // Mary abre la puerta de su cuarto y sale con un libro; Percy sube la escalera, llega al rellano («21») y le tiende el suyo
+  const ab = ease(tramo(t, TG.P16 + 0.2, TG.P16 + 0.9));
+  rellano(t, ab);
+  const s = tramo(t, TG.P16, TG.T21 - 0.15), px = lerp(72, 150, ease(s) * 0.85 + s * 0.15), py = ESCR(px);
+  const m = tramo(t, TG.P16 + 0.8, TG.WIFE), mx = lerp(214, 184, ease(m));
+  const rp = R.actor(MS.percyMS, ri(px), ri(py), t, { dir: 1, anda: s > 0 && s < 1, sonrisa: true, habla: t > TG.T16 + 0.6 && parp(t, 8), dedo: t > TG.T21 - 0.1 && t < TG.T21 + 0.6, sostiene: t > TG.T16 + 0.1 ? [ri(px) + 14, 128] : t < TG.T21 - 0.1 });
+  if (t > TG.T16 + 0.1 || t < TG.T21 - 0.1) librito(rp.mano ? rp.mano[0] : ri(px) + 14, (rp.mano ? rp.mano[1] : 128) + 2, H('#1c3a5a'));
+  rellanoDelante();
+  const rm = R.actor(MS.maryMS, ri(mx), 150, t, { dir: -1, anda: m > 0 && m < 1, sostiene: true, sonrisa: t > TG.T16 + 0.3, sorpresa: t > TG.T21 && t < TG.T21 + 0.5 });
+  librito(rm.mano[0], rm.mano[1] + 2, H('#6a1c1c'));
+  const n1 = tramo(t, TG.T21 - 0.1, TG.T21 + 0.2); if (n1 > 0) R.numero('21', ri(px), ri(py - 36 - n1 * 6), { tam: 8, centro: true });
+  const an = tramo(t, TG.WIFE - 0.1, TG.WIFE + 0.2) * (1 - tramo(t, TG.T16 - 0.2, TG.T16)); if (an > 0) { const ax = ri(px) + 16, ay = ri(py - 44); R.disco(ax, ay, 3.5, ORO[3]); R.disco(ax, ay, 2, H('#e8dcc0')); ps(ax, ay - 4, H('#c8e8ff')); ps(ax - 1, ay - 4, H('#ffffff')); }
+  const n2 = tramo(t, TG.T16 - 0.1, TG.T16 + 0.2); if (n2 > 0) R.numero('16', ri(mx), ri(150 - 36 - n2 * 6), { tam: 8, centro: true });
 };
 
 // ── P17 · El cementerio al atardecer: Mary lee junto a la lápida de su madre; Percy llega entre las tumbas y se para; en
@@ -1210,38 +1591,58 @@ const p17 = (t) => {
   const h = tramo(t, TG.HERSELF, TG.HERSELF + 1.0); if (h > 0 && h < 1) icCorazon(186, ri(112 - h * 10), H('#f87a7a'));
 };
 
-// ── P18 · La buhardilla antes del alba (1814): Mary, de dieciséis, mete un libro en la bolsa de viaje; en «dawn» la
-// ventana empieza a clarear; en «July» pasa la hoja del calendario de la cómoda («7»); apaga la vela y se va ──
+// ── P18 · La puerta de la buhardilla antes del alba (1814): Mary mete el libro en la bolsa de viaje, que está sobre el baúl;
+// en «dawn» la lumbrera clarea y ella cierra la bolsa; en «July» señala el calendario, cae la hoja y sale el «7»; coge la
+// bolsa, apaga de un soplo la vela de la balda, abre la puerta de tablones y se va; la puerta se cierra tras ella ──
 const p18 = (t) => {
-  const { X } = buhardilla(t, 0, 1);
-  // la bolsa de viaje en la cama
-  const bx = X(140); R.rect(bx - 10, 104, bx + 10, 116, H('#5a3a24')); R.rect(bx - 10, 104, bx + 10, 106, H('#7a5434')); R.linea(bx - 6, 104, bx - 4, 98, H('#3a2414')); R.linea(bx + 6, 104, bx + 4, 98, H('#3a2414')); R.linea(bx - 4, 98, bx + 4, 98, H('#3a2414')); ps(bx, 108, ORO[3]);
-  const mete = tramo(t, TG.P18 + 0.3, TG.DAWN), sale = tramo(t, TG.JULY + 0.9, TG.P19 - 0.1);
-  const mx = lerp(lerp(160, 154, mete), 28, ease(sale));
-  const r = R.actor(MS.maryMS, ri(X(mx)), 150, t, { dir: sale > 0 ? -1 : -1, anda: (sale > 0 && sale < 1), sostiene: mete < 1 ? [bx + 4, lerp(122, 106, mete)] : false, dedo: t > TG.JULY - 0.2 && t < TG.JULY + 0.4, sorpresa: t > TG.DAWN && t < TG.DAWN + 0.4 });
-  if (mete < 1) librito(bx + 4, ri(lerp(124, 108, mete)), H('#6a1c1c'));
-  // la vela sobre la mesilla: se apaga cuando se va
-  vela(X(190), 128, t, { alta: 5, halo: 28, fuerza: 0.4, apagada: t > TG.JULY + 0.8 }); R.rect(X(184), 128, X(196), 130, ROBLE[4]); R.rect(X(189), 131, X(191), 150, ROBLE[2]);
-  // el calendario: en «July» cae la hoja y aparece el «7»
-  const cx0 = 236, cy0 = 76, fl = tramo(t, TG.JULY - 0.2, TG.JULY + 0.3);
-  R.rect(cx0, cy0, cx0 + 22, cy0 + 26, K); R.rect(cx0 + 1, cy0 + 1, cx0 + 21, cy0 + 25, BLANCO); R.rect(cx0 + 1, cy0 + 1, cx0 + 21, cy0 + 6, H('#a82a2a')); R.numero(fl > 0.5 ? '7' : '6', cx0 + 11, cy0 + 21, { centro: true });
-  if (fl > 0 && fl < 1) { const fy = cy0 + 6 + fl * 40, fx = cx0 + 4 + Math.sin(fl * 8) * 6; R.rect(ri(fx), ri(fy), ri(fx) + 14, ri(fy) + 10, BLANCO); R.rect(ri(fx), ri(fy), ri(fx) + 14, ri(fy) + 1, H('#c8c0b0')); }
-  R.linea(cx0 + 11, cy0 - 4, cx0 + 4, cy0, H('#5a5a60')); R.linea(cx0 + 11, cy0 - 4, cx0 + 18, cy0, H('#5a5a60'));
-  // la madrugada que entra: un tinte azul rosado que crece
-  const a = tramo(t, TG.DAWN - 0.3, TG.P19); if (a > 0) luz(X(229), 76, 70, H('#e8b0a0'), 0.25 * a);
+  const alba = ease(tramo(t, TG.DAWN - 0.5, TG.P19)), abre = ease(tramo(t, TG.JULY + 1.0, TG.JULY + 1.25)) * (1 - ease(tramo(t, TG.JULY + 1.6, TG.JULY + 1.9)));
+  puertaBuh(t, alba, abre);
+  // el calendario: en «July» cae la hoja del «6» y queda el «7»
+  const cx0 = 252, cy0 = 72, fl = tramo(t, TG.JULY - 0.2, TG.JULY + 0.3);
+  R.rect(cx0, cy0, cx0 + 20, cy0 + 24, K); R.rect(cx0 + 1, cy0 + 1, cx0 + 19, cy0 + 23, BLANCO); R.rect(cx0 + 1, cy0 + 1, cx0 + 19, cy0 + 6, H('#a82a2a')); for (let x = cx0 + 3; x < cx0 + 18; x += 3) ps(x, cy0 + 3, H('#e8c0b0'));
+  R.numero(fl > 0.5 ? '7' : '6', cx0 + 10, cy0 + 20, { centro: true }); for (let y = cy0 + 2; y < cy0 + 23; y++) ps(cx0 + 19, y, H('#c8c0b0'));
+  if (fl > 0 && fl < 1) { const fy = cy0 + 6 + fl * 50, fx = cx0 + 2 + Math.sin(fl * 8) * 7; R.rect(ri(fx), ri(fy), ri(fx) + 14, ri(fy) + 10, BLANCO); R.rect(ri(fx), ri(fy), ri(fx) + 14, ri(fy), H('#c8c0b0')); }
+  // la vela de la balda: se apaga de un soplo cuando Mary pasa
+  vela(191, 113, t, { alta: 6, halo: 30, fuerza: 0.42 * (1 - alba * 0.4), apagada: t > TG.JULY + 0.9 });
+  // Mary: mete el libro, cierra la bolsa, señala, la coge y se va por la puerta
+  const [b0, by0, b1] = BAUL, bx = ri((b0 + b1) / 2), mete = tramo(t, TG.P18 + 0.2, TG.DAWN - 0.3), cierra = tramo(t, TG.DAWN - 0.2, TG.DAWN + 0.3), coge = t > TG.JULY + 0.4;
+  const va = tramo(t, TG.JULY + 0.4, TG.JULY + 0.9), sale = tramo(t, TG.JULY + 1.15, TG.JULY + 1.55);
+  const mx = sale > 0 ? lerp(186, 222, ease(sale)) : lerp(bx, 186, ease(va)), my = sale > 0 ? lerp(148, 143, sale) : 148;
+  const fuera = t > TG.JULY + 1.75;
+  let rm = null;
+  if (!fuera) rm = R.actor(MS.maryMS, ri(mx), ri(my), t, { dir: t > TG.JULY - 0.4 ? 1 : -1, anda: (va > 0 && va < 1) || (sale > 0 && sale < 1), sostiene: coge ? true : t < TG.DAWN + 0.3 ? [bx + 2, ri(lerp(128, 138, mete))] : false, dedo: t > TG.JULY - 0.3 && t < TG.JULY + 0.4, sorpresa: t > TG.DAWN && t < TG.DAWN + 0.4, sonrisa: t > TG.JULY + 0.4 });
+  if (!coge) { bolsaViaje(bx, by0, 1 - ease(cierra)); if (mete < 1) librito(bx + 2, ri(lerp(130, 142, mete)), H('#6a1c1c')); }
+  else if (rm) bolsaViaje(rm.mano[0], rm.mano[1] + 8, 0, 7);
+  // el soplo que apaga la vela
+  { const u = tramo(t, TG.JULY + 0.85, TG.JULY + 1.1); if (u > 0 && u < 1) for (let i = 0; i < 4; i++) aclara(ri(mx) + 6 + u * 6 + i, 118 - i * 0.5, H('#e8eef8'), 0.5 * (1 - u)); }
+  // la puerta, cuando se cierra, tapa a Mary en el hueco (se repinta encima)
+  if (abre > 0 && sale >= 1 && !fuera) { const [p0, py0, p1, py1] = PUERTA_B, w = ri((p1 - p0) * (1 - abre * 0.85)); relleno(p1 - w, py0, p1, py1, pal(['#2a1a10', '#3e2a18', '#56381e', '#6e4a28', '#86603a']), (x, y) => 2.3 + (ns(x * 0.3, y * 0.05) - 0.5) * 0.9 + (((x - (p1 - w)) % Math.max(3, ri(w / 4))) < 1 ? -1.2 : 0) - abre * 0.6); }
+  // un ratón que asoma junto al armario
+  { const f = (t * 0.45) % 4; if (f < 1.5) { const s2 = ri(Math.sin(Math.min(1, f) * Math.PI) * 4), x = 272; R.rect(x - s2, 145, x - s2 + 3, 147, H('#6a6070')); ps(x - s2 - 1, 146, H('#6a6070')); ps(x - s2, 144, H('#8a8090')); ps(x - s2 - 1, 145, K); } }
 };
 
-// ── P19 · La calle de madrugada (julio de 1814): sale Mary con su bolsa por la puerta y corre al carruaje donde
-// espera Percy; suben los dos en «run away» y el carruaje se va hacia la izquierda («to France») ──
+// ── P19 · La calle de madrugada (julio de 1814): Mary sale por su puerta con la bolsa y llega a la acera, donde Percy espera
+// detrás de la línea del coche; él sube la bolsa al techo en «fit»; en «run away» pasan por detrás del coche y suben, y el
+// coche se va hacia la izquierda («to France»). El coche y el caballo se pintan aquí, después de la gente ──
 const p19 = (t) => {
-  const va = tramo(t, TG.HIM - 0.2, TG.FIN + 0.2), X0 = lerp(108, -150, ease(va) * 0.7 + va * 0.3);
-  const oo = { encuadre: 'calle', clarea: lerp(0.3, 0.55, tramo(t, TG.P19, TG.FIN)), carruaje: ri(X0), marcha: va > 0 };
+  const va = tramo(t, TG.HIM - 0.2, TG.FIN + 0.2), X0 = ri(lerp(108, -150, ease(va) * 0.7 + va * 0.3)), cla = lerp(0.3, 0.55, tramo(t, TG.P19, TG.FIN));
+  const oo = { encuadre: 'calle', clarea: cla, carruaje: false };
   T.londres(R, t, oo);
-  const u = tramo(t, TG.LEAVES - 0.1, TG.RUN - 0.3), mx = lerp(214, 178, ease(u)), my = u < 0.3 ? lerp(137, 150, u / 0.3) : 150;
-  const sube = t > TG.RUN - 0.1;
-  if (!sube) { const r = R.actor(MS.maryMS, ri(mx), ri(my), t, { dir: -1, anda: u > 0 && u < 1, sostiene: true, sorpresa: t < TG.LEAVES + 0.3 });
-    const [hx, hy] = r.mano; R.rect(hx - 4, hy, hx + 3, hy + 6, H('#5a3a24')); R.rect(hx - 4, hy, hx + 3, hy + 1, H('#7a5434')); R.linea(hx - 2, hy, hx, hy - 3, H('#3a2414')); }
-  if (t < TG.RUN + 0.3) R.actor(MS.percyMS, ri(X0 + 64), 150, t, { dir: 1, brazos: t > TG.FIT && t < TG.RUN - 0.2, sonrisa: true, dedo: t > TG.LEAVES + 0.4 && t < TG.FIT });
+  const u = tramo(t, TG.LEAVES - 0.1, TG.FIT - 0.8), mx0 = lerp(214, 224, ease(u)), my0 = u < 0.4 ? lerp(137, 143, u / 0.4) : 143;
+  const entra = tramo(t, TG.RUN - 0.2, TG.RUN + 0.5), dentro2 = entra >= 1;
+  const mx = lerp(mx0, 178, ease(entra)), pxx = lerp(206, 170, ease(entra));
+  const pasa = tramo(t, TG.FIT - 0.7, TG.FIT - 0.3), sube = tramo(t, TG.FIT - 0.3, TG.FIT + 0.4);
+  let bolsa = null;
+  if (!dentro2) {
+    const rm = R.actor(MS.maryMS, ri(mx), ri(my0), t, { dir: entra > 0 ? -1 : -1, anda: (u > 0 && u < 1) || (entra > 0 && entra < 1), sostiene: pasa < 1 ? true : false, sorpresa: t < TG.LEAVES + 0.3, sonrisa: t > TG.FIT });
+    const rp = R.actor(MS.percyMS, ri(pxx), 143, t, { dir: entra > 0 ? -1 : 1, anda: entra > 0 && entra < 1, brazos: sube > 0 && sube < 1, sostiene: pasa > 0 && sube <= 0 ? [214, 126] : false, sonrisa: true, dedo: t > TG.LEAVES + 0.4 && t < TG.FIT - 0.8 });
+    if (pasa <= 0) bolsa = [rm.mano[0], rm.mano[1] + 7]; else if (pasa < 1) bolsa = [lerp(rm.mano[0], 214, ease(pasa)), lerp(rm.mano[1] + 7, 133, ease(pasa))];
+    else if (sube <= 0) bolsa = [214, 133];
+    if (bolsa) bolsaViaje(bolsa[0], bolsa[1], 0, 6);
+  }
+  coche(X0, 150, t, va > 0, cla, { bolsa: sube >= 1 });
+  // la bolsa en el aire, de las manos de Percy al techo del coche (por encima de la caja)
+  if (sube > 0 && sube < 1) bolsaViaje(lerp(214, X0 + 46, ease(sube)), lerp(122, 107, ease(sube)) - Math.sin(sube * Math.PI) * 14, 0, 6);
   T.londresDelante(R, t, oo);
 };
 

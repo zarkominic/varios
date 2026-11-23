@@ -20,8 +20,9 @@
 // 6. la sala de espera (fondo local): la enfermera abre en «doctor»; dos cruces en «less often», cinco en «trivial things»;
 // 7. la consulta: del cuaderno sube el nudo («pain»), las palabras le dan forma («shape»): una cajita de luz que Atom coge
 //    en «hold»;
-// 8. el estudio de Mary en Londres (fondo local, ventana): escribe; crecen los montones en «novels», «travel books» y
-//    «biographies»;
+// 8. el estudio de Mary en Londres (fondo local, ventana): sentada a la mesa bajo la lámpara, la pluma corre por la hoja
+//    renglón a renglón y las hojas acabadas se apilan; a su lado crecen los montones en «novels», «travel books» y
+//    «biographies» (ella sonríe a cada uno);
 // 9. El último hombre (fondo local): ruinas al anochecer; llega alguien y se queda solo en «alone»; los cuervos se van en
 //    «empty world»;
 // 10. el estudio junto a la chimenea: mira el retrato de Percy («how she felt»); entra su hijo con un barquito («while»),
@@ -499,11 +500,11 @@ const estudioV = () => capa('estV', () => {
   // el globo terráqueo en su pie, la silla y el cesto de papeles
   R.rect(286, 142, 300, 150, MAD[1]); R.rect(292, 128, 294, 142, MAD[2]); R.disco(293, 120, 10, MAD[0]); R.disco(293, 120, 9, hex('#7a9aa8'));
   for (const [x, y, r] of [[289, 116, 4], [297, 122, 3], [291, 125, 2]]) R.disco(x, y, r, hex('#b8a870')); R.linea(283, 120, 303, 120, ORO_S); R.disco(290, 117, 2, hex('#a8c4cc'));
-  R.rect(126, 120, 140, 123, MAD[2]); R.rect(126, 96, 128, 150, MAD[1]); R.rect(138, 120, 140, 150, MAD[1]); R.rect(126, 98, 128, 120, MAD[2]); for (let y = 100; y < 118; y += 5) R.rect(127, y, 127, y + 2, MAD[3]);
-  R.rect(252, 134, 266, 150, hex('#6a5a3a')); for (let x = 253; x < 266; x += 3) R.rect(x, 135, x + 1, 149, hex('#8a7a50')); R.disco(256, 132, 3, hex('#f4f0e4')); R.disco(262, 131, 3, hex('#e8e0cc'));
+  // el cesto de papeles, a la derecha del escritorio (la silla de Mary la pinta el plano, detrás de la mesa)
+  R.rect(302, 134, 316, 150, hex('#6a5a3a')); for (let x = 303; x < 316; x += 3) R.rect(x, 135, x + 1, 149, hex('#8a7a50')); R.rect(302, 134, 316, 135, hex('#9a8a60')); R.disco(306, 132, 3, hex('#f4f0e4')); R.disco(312, 131, 3, hex('#e8e0cc')); R.rect(303, 150, 316, 151, hex('#2a1a10'));
 });
 // los montones de libros publicados: [x, base de tomos, color, icono]
-const MONTON = [[62, 3, '#9a2a2a', 'pluma'], [86, 3, '#2a5a8a', 'globo'], [110, 2, '#3a7a3a', 'retrato']];
+const MONTON = [[86, 3, '#9a2a2a', 'pluma'], [110, 3, '#2a5a8a', 'globo'], [134, 2, '#3a7a3a', 'retrato']];
 const tomoTapa = (x, yb, w, c, ic) => { R.rect(x, yb - 6, x + w, yb, K); R.rect(x + 1, yb - 5, x + w - 1, yb - 1, hex(c)); R.rect(x + 1, yb - 5, x + w - 1, yb - 5, mez(hex(c), hex('#ffffff'), 0.3)); R.rect(x + w - 3, yb - 5, x + w - 1, yb - 1, hex('#efe6d0')); R.rect(x + w - 3, yb - 3, x + w - 1, yb - 3, hex('#c8bea6'));
   const cx = x + ri(w / 2) - 2, cy = yb - 3; if (ic === 'globo') { R.disco(cx, cy, 2, ORO); R.pset(cx, cy, hex(c)); } else if (ic === 'retrato') { R.rect(cx - 2, cy - 2, cx + 2, cy + 1, ORO); R.rect(cx - 1, cy - 1, cx + 1, cy, hex('#e8c8a0')); } else { R.linea(cx - 3, cy + 1, cx + 3, cy - 2, ORO); R.pset(cx + 3, cy - 2, hex('#ffffff')); } };
 const q8 = (t) => {
@@ -511,22 +512,46 @@ const q8 = (t) => {
   porHueco(184, 26, 244, 96, () => vistaLondres(184, 26, 244, 96, t, 0.85, 7), 0, VENT1.barras); VENT1.pinta();
   cortina(170, 18, 182, 124, t, CORT, 0); cortina(246, 18, 258, 124, t, CORT, 2);
   relojP(80, 34, 7, t, 1 / 60);
-  // el escritorio junto a la ventana con sus cosas
-  R.rect(160, 112, 272, 117, MAD[1]); R.rect(160, 112, 272, 112, MAD[3]); R.rect(162, 118, 270, 126, MAD[2]); R.rect(162, 126, 270, 126, MAD[0]); for (const kx of [190, 240]) { R.rect(kx, 121, kx + 3, 122, ORO); }
-  for (const lx of [164, 266]) { R.rect(lx, 127, lx + 3, 150, MAD[1]); R.rect(lx, 136, lx + 3, 137, MAD[3]); }
-  fardo(232, 111, 18, 6, hex('#2a2a2a'), 3); R.rect(212, 105, 220, 111, K); R.rect(213, 106, 219, 110, hex('#2a2430')); R.linea(218, 106, 226, 94, hex('#f4f0e6')); R.linea(219, 106, 227, 95, hex('#d8d0c0'));
-  tomo(254, 111, 14, 6, hex('#5a2a2a')); tomo(255, 105, 12, 5, hex('#2a3a5a')); R.rect(200, 98, 208, 111, ORO_S); R.rect(201, 99, 207, 110, hex('#3a2a2a')); R.disco(204, 102, 2, hex('#e8c8a0')); R.rect(202, 105, 206, 109, hex('#5a3a2a'));
-  // los montones crecen en «novels», «travel books» y «biographies»
+  // los montones de libros, en el suelo a su lado: el tomo nuevo se desliza encima en «novels», «travel books» y «biographies»
   const tiempos = [W.NOVELS, W.TRAVEL + 0.1, W.BIOG];
-  MONTON.forEach(([mx, n, c, ic], k) => { for (let j = 0; j < n; j++) tomoTapa(mx - (j % 2), 150 - j * 7, 20, ['#6a2a2a', '#2a3a5a', '#2a4a2a'][k], ic);
-    const u = tramo(t, tiempos[k] - 0.15, tiempos[k] + 0.2); if (u > 0) { const yb = ri(150 - n * 7 - (1 - u) * 26); tomoTapa(mx + 1, yb, 20, c, ic); if (u > 0.9 && t < tiempos[k] + 0.6) { for (let s = 0; s < 5; s++) tine(mx - 3 + s * 6, 151 - n * 7 + ri(hh(s, k) * 3), hex('#e8dcc0'), 0.7); halo(mx + 10, 146 - n * 7, 12, hex('#fff0c0'), 0.4); } } });
+  MONTON.forEach(([mx, n, c, ic], k) => { R.rect(mx - 2, 150, mx + 22, 151, hex('#2a1a10')); for (let j = 0; j < n; j++) tomoTapa(mx - (j % 2), 150 - j * 7, 20, ['#6a2a2a', '#2a3a5a', '#2a4a2a'][k], ic);
+    const u = tramo(t, tiempos[k] - 0.15, tiempos[k] + 0.2); if (u > 0) { const yb = 150 - n * 7 - (u < 0.85 ? 1 : 0); tomoTapa(mx + 1 + ri((1 - u) * (1 - u) * 16), yb, 20, c, ic); if (u > 0.9 && t < tiempos[k] + 0.6) { for (let s = 0; s < 5; s++) tine(mx - 3 + s * 6, 151 - n * 7 + ri(hh(s, k) * 3), hex('#e8dcc0'), 0.7); halo(mx + 10, 146 - n * 7, 12, hex('#fff0c0'), 0.4); } } });
+  // la silla de Mary, detrás de la mesa: respaldo de barrotes con su copete tallado
+  for (const px of [177, 201]) { R.rect(px, 90, px + 2, 104, MAD[1]); R.rect(px, 90, px, 104, MAD[3]); R.rect(px + 2, 90, px + 2, 104, MAD[0]); R.disco(px + 1, 89, 2, MAD[2]); R.pset(px, 88, MAD[3]); }
+  R.rect(178, 91, 202, 94, MAD[2]); R.rect(178, 91, 202, 91, MAD[3]); R.rect(178, 94, 202, 94, MAD[0]); for (let x = 181; x < 200; x += 4) R.rect(x, 95, x + 1, 104, MAD[1]);
+  // Mary sentada detrás de la mesa: asoman cabeza y hombros; la pluma corre por la hoja renglón a renglón
+  const prog = tramo(t, W.E1 + 0.2, W.E2 - 0.25) * 3.6, hoja = Math.min(3, Math.floor(prog)), fr = prog >= 3.6 ? 1 : prog - hoja;
+  const renglon = Math.min(2, Math.floor(fr * 3)), fil = Math.min(1, fr * 3 - renglon), PX = 197, PY = [107, 109, 111];
+  const mira = tiempos.some((tk) => t > tk - 0.05 && t < tk + 0.55);
+  const ob = { dir: 1, sostiene: [PX + ri(fil * 15) + ri(Math.sin(t * 13) * 0.6), PY[renglon]], habla: 0, sonrisa: mira };
+  R.recorte([0, 0, 319, 103]); const r = R.actor(MS.maryLutoMS, 188, 112, t, ob); R.recorte(null);
+  // el tablero en perspectiva (y 104–113) con su veta, y lo que hay encima
+  for (let y = 104; y <= 113; y++) { const e = ri((y - 104) * 0.45); for (let x = 160 - e; x <= 272 + e; x++) R.pset(x, y, tono(MAD, 2.2 + hh(x >> 3, y, 81) * 0.4 + (Math.sin(x * 0.07 + y * 0.6 + Math.sin(x * 0.015) * 4) > 0.8 ? -0.7 : 0) - (y < 106 ? 0.5 : 0), x, y)); }
+  R.rect(160, 104, 272, 104, MAD[0]);
+  // la lámpara de aceite: pie de latón, depósito, tubo de cristal y la llama que tiembla
+  R.rect(163, 108, 173, 110, ORO_S); R.rect(165, 106, 171, 107, ORO); R.rect(166, 101, 170, 105, hex('#6a8a6a')); R.rect(166, 101, 166, 105, hex('#8aaa8a')); R.rect(167, 90, 169, 100, hex('#e8eef0')); R.rect(169, 90, 169, 100, hex('#b8c4c8'));
+  const fl = ri(Math.sin(t * 11) * 0.8 + Math.sin(t * 7.3) * 0.5); R.rect(168, 95 + fl, 168, 98, hex('#ffd870')); R.pset(168, 94 + fl, hex('#fff4c0'));
+  // la hoja que escribe (en perspectiva) con sus renglones de tinta; las acabadas se apilan a la derecha
+  R.poligono([[195, 105], [213, 105], [215, 112], [194, 112]], hex('#f4f0e2')); R.rect(194, 112, 215, 112, hex('#c8bea6'));
+  for (let k = 0; k < 3; k++) { const L = k < renglon ? 15 : k === renglon ? ri(fil * 15) : 0; for (let x = PX; x < PX + L; x++) if ((x * 7 + k * 3) % 5) R.pset(x, PY[k] - ((x + k) % 3 === 0 ? 1 : 0), TINTA); }
+  for (let j = 0; j < 2 + hoja; j++) R.rect(226 + (j % 2), 110 - j, 240 + (j % 2), 110 - j, j % 2 ? hex('#e8e0cc') : hex('#f4f0e2')); R.rect(226, 111, 241, 111, hex('#8a6a4a'));
+  // el tintero de cristal, el fardo de cartas y el retratito de Percy
+  R.rect(216, 106, 222, 111, K); R.rect(217, 107, 221, 110, hex('#2a2430')); R.rect(218, 105, 220, 106, hex('#6a6a80')); R.pset(218, 108, hex('#8a8aa0'));
+  fardo(244, 111, 16, 5, hex('#2a2a2a'), 3); R.rect(262, 97, 270, 110, ORO_S); R.rect(263, 98, 269, 109, hex('#3a2a2a')); R.disco(266, 101, 2, hex('#e8c8a0')); R.rect(264, 104, 268, 108, hex('#5a3a2a')); R.rect(264, 110, 270, 111, MAD[0]);
+  // la mano asoma sobre la hoja (la pluma, en la punta, con el temblor de escribir)
+  R.recorte([192, 103, 218, 113]); R.actor(MS.maryLutoMS, 188, 112, t, ob); R.recorte(null);
+  if (r.mano) pluma(r.mano[0], r.mano[1], t, !mira);
+  // la luz cálida de la lámpara sobre ella y la mesa
+  halo(168, 97, 30, hex('#ffe0a0'), 0.28); halo(168, 96, 7, hex('#fff4c0'), 0.55); for (let x = 176; x < 214; x++) tine(x, 105 + (x & 1), hex('#ffe8b0'), 0.25 * (1 - (x - 176) / 38));
+  // el frente del escritorio (por delante): dos cajoneras con tiradores y el hueco de las rodillas en sombra
+  for (let y = 114; y <= 150; y++) for (let x = 158; x <= 274; x++) R.pset(x, y, tono(MAD, 1.5 + hh(x >> 3, y >> 1, 82) * 0.5 + (Math.sin(x * 0.13 + y * 0.04) > 0.86 ? -0.6 : 0), x, y));
+  R.rect(158, 114, 274, 115, MAD[3]); R.rect(158, 116, 274, 116, MAD[0]);
+  R.rect(201, 118, 231, 146, MAD[0]); for (let y = 119; y < 146; y++) for (let x = 202; x < 231; x++) R.pset(x, y, tono(MAD, 0.35 + hh(x >> 2, y >> 2, 83) * 0.3 + (y < 122 ? -0.2 : 0), x, y));
+  for (const [a, b] of [[161, 198], [234, 271]]) for (const [c0, c1] of [[119, 127], [129, 137], [139, 146]]) { R.rect(a, c0, b, c1, MAD[0]); R.rect(a + 1, c0 + 1, b - 1, c1 - 1, MAD[2]); R.rect(a + 1, c0 + 1, b - 1, c0 + 1, MAD[3]);
+    const m = ri((a + b) / 2), my = ri((c0 + c1) / 2); R.rect(m - 3, my, m + 3, my + 1, ORO); R.pset(m - 3, my - 1, ORO_S); R.pset(m + 3, my - 1, ORO_S); R.pset(m, my - 2, hex('#2a1a10')); }
+  R.rect(156, 147, 276, 150, MAD[1]); R.rect(156, 147, 276, 147, MAD[3]); R.rect(156, 151, 276, 152, hex('#2a1a10'));
+  for (let y = 117; y < 150; y++) tine(272 + (y & 1), y, hex('#ffe0a0'), 0.15);
   gatoD(226, 166, t);
-  // Mary escribe de pie junto a la mesa; se vuelve hacia los montones mientras se nombran
-  const vuelta = t > W.WRITES - 0.1 && t < W.E2 - 0.5, hojas = Math.floor(tramo(t, W.E1, W.WRITES) * 4);
-  for (let j = 0; j < hojas; j++) R.rect(240 + j, 110 - j, 252 + j, 110 - j, hex('#f4f0e2'));
-  R.rect(164, 110, 178, 111, hex('#f4f0e2')); for (let x = 166; x < 166 + ri(tramo(t, W.E1, W.E2) * 10); x += 2) R.pset(x, 110, TINTA);
-  const r = R.actor(MS.maryLutoMS, 144, 150, t, { dir: vuelta ? -1 : 1, sostiene: vuelta ? undefined : [168 + ri(Math.sin(t * 8) * 1.5), 110], dedo: vuelta, habla: 0, sonrisa: vuelta && t > W.TRAVEL });
-  if (!vuelta && r.mano) pluma(r.mano[0], r.mano[1], t);
 };
 // ── 9 · El último hombre (fondo local): una ciudad en ruinas al anochecer, vacía; llega alguien y se queda solo; los cuervos se van ──
 const RUINA = pal('#4a3a3e', '#6a5452', '#8a6e64', '#b08a74'), RUINA_L = hex('#e0a878');

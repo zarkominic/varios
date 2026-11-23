@@ -1,6 +1,7 @@
 // Fontanería y decorados del episodio 47 (Mary Shelley: la chica de dieciocho años que inventó a Frankenstein), con el
 // canon del 43 (relato hablado, ATOM EN ESCENA con atom-personaje.js y PAUSAS «fíjate» en gris azulado), al nivel de
-// episodios/ESTANDAR.md: el detalle de siempre. Reutiliza F el estudio de las pausas del 43 (hm-comun.js: estudio) y
+// episodios/ESTANDAR.md: el detalle de siempre. Reutiliza F el estudio de las pausas del 43 (hm-comun.js: estudio; en la
+// consulta, la esquina de Atom se cambia por un panel liso con moldura: f_esquinaConsulta) y
 // añade: A Londres 1797–1814 (londres), B el lago de Ginebra en 1816 (lago), C el mundo del libro (libro), D Londres
 // 1818–1823 (ciudad) y E Italia 1818–1822 (italia), y las piezas de las pausas (pausa).
 // DERECHOS: NADA de las películas de Frankenstein (ni la cabeza plana, ni los tornillos, ni la piel verde, ni el
@@ -26,8 +27,48 @@ import { a_cifras } from '/atomo/plato/escenas/do-comun.js';
 import * as AT from '/atomo/plato/escenas/atom-personaje.js';
 
 export { primerT, cielo, arbol, bandada, viento, gato, mano, brazo, silla, visto, tinte, monitorGrande, halcon, fugaz, motas, chincheta, tela, mapa, ELENCO_CHIBI, a_cifras, AT };
-// F · el estudio de las pausas (del 43): se usa tal cual
-export { estudio, estudioDelante } from '/atomo/plato/escenas/hm-comun.js';
+// F · el estudio de las pausas (del 43): se usa tal cual, salvo la esquina de Atom de la consulta (f_esquinaConsulta)
+import { estudio as f_estudio43, estudioDelante } from '/atomo/plato/escenas/hm-comun.js';
+export { estudioDelante };
+// el mismo estudio del 43 (mismas opciones y la misma geometría de vuelta); en la consulta (cámaras 'general' y
+// 'escritorio'), la esquina de Atom (x 278–318, y 4–44) pasa de los rombos a un panel de pared tranquila con su moldura
+export function estudio(R, t, o = {}) {
+  const g = f_estudio43(R, t, o);
+  if (o.encuadre === 'consulta') f_esquinaConsulta(R, t, (o.camara || 'general') === 'escritorio');
+  return g;
+}
+// el panel liso enmarcado de la consulta (sale por el borde derecho): yeso pintado del oliva del papel, tramado suave,
+// más claro hacia la ventana (izquierda) y en sombra hacia el rincón; la moldura de nogal con su filete de luz y la
+// sombra que proyecta el travesaño de arriba. Cámara general: x 272–319, y 15–50 (encima del potus y del archivador,
+// que empiezan en y 54); escritorio: x 268–319, y 3–44 (encima del friso, en y 48). Un vaivén lentísimo de la luz de la
+// tarde (t) para que la pared no esté muerta.
+const F_PAR = ['#5a5032', '#6e6440', '#80744a', '#908456', '#a09462', '#b0a470'].map((c) => hex(c));
+const F_MOL = { d: hex('#2e1a10'), s: hex('#4a2a18'), n: hex('#6a4026'), l: hex('#8e5a34'), b: hex('#b07a44') };
+const f_b4 = (x, y) => ([0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const f_r = (x, y, k) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+function f_esquinaConsulta(R, t, cerca) {
+  const [x0, y0, y1] = cerca ? [268, 3, 44] : [272, 15, 50], x1 = 319, ml = 3;
+  const sol = 0.12 * Math.sin(t * 0.35);   // la luz de la tarde que sube y baja muy despacio
+  // el yeso: degradado de la ventana al rincón, la sombra del travesaño y del lado izquierdo, y grano tramado
+  for (let y = y0 + ml; y <= y1 - ml; y++) for (let x = x0 + ml; x <= x1; x++) {
+    const u = (x - x0) / (x1 - x0), v = (y - y0) / (y1 - y0);
+    let L = 3.6 - u * 1.5 + v * 0.25 + sol + (f_r(x >> 2, y >> 2, 47) - 0.5) * 0.35 + (f_r(x, y, 48) - 0.5) * 0.25;
+    if (y - y0 - ml < 3) L -= (3 - (y - y0 - ml)) * 0.35;   // sombra del travesaño
+    if (x - x0 - ml < 2) L -= (2 - (x - x0 - ml)) * 0.3;     // sombra del larguero
+    const i = Math.max(0, Math.min(F_PAR.length - 2, Math.floor(L))), f = L - Math.floor(L);
+    R.pset(x, y, F_PAR[f > f_b4(x, y) ? Math.min(F_PAR.length - 1, i + 1) : i]);
+  }
+  // alguna mancha de humedad muy tenue junto al rincón y una grieta fina de pintura
+  for (let k = 0; k < 9; k++) { const x = x1 - 3 - Math.round(f_r(k, 1, 49) * 14), y = y0 + 8 + Math.round(f_r(k, 2, 49) * (y1 - y0 - 16)); R.pset(x, y, F_PAR[1]); }
+  { let x = x1 - 9, y = y0 + ml + 2; for (let j = 0; j < 9; j++) { R.pset(x, y, F_PAR[1]); x += f_r(j, 3, 49) > 0.6 ? 1 : 0; y++; } }
+  // la moldura: travesaño de arriba, de abajo y larguero izquierdo (sale por el borde derecho)
+  R.rect(x0, y0, x1, y0 + ml - 1, F_MOL.n); R.rect(x0, y0, x1, y0, F_MOL.d); R.rect(x0 + 1, y0 + 1, x1, y0 + 1, F_MOL.b); R.rect(x0 + 1, y0 + ml - 1, x1, y0 + ml - 1, F_MOL.s);
+  R.rect(x0, y1 - ml + 1, x1, y1, F_MOL.n); R.rect(x0 + 1, y1 - ml + 1, x1, y1 - ml + 1, F_MOL.l); R.rect(x0, y1, x1, y1, F_MOL.d);
+  R.rect(x0, y0, x0 + ml - 1, y1, F_MOL.n); R.rect(x0, y0, x0, y1, F_MOL.d); R.rect(x0 + 1, y0 + 1, x0 + 1, y1 - 1, F_MOL.b); R.rect(x0 + ml - 1, y0 + ml - 1, x0 + ml - 1, y1 - ml + 1, F_MOL.s);
+  // la sombra que deja el panel en el papel de debajo
+  for (let x = x0 + 1; x <= x1; x++) { const c = R.pget(x, y1 + 1); R.pset(x, y1 + 1, f_mez(c, F_MOL.d, 0.35)); }
+}
+const f_mez = (c, d, a) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - a) + ((d >>> s) & 255) * a); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
 
 const pal = (o) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, hex(v)]));
 export const C = {
