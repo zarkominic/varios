@@ -12221,3 +12221,101 @@ export const ELENCO_LT = {
     pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#b8a07a', c: '#98805a', W: '#7a6a50', L: '#4a3a28' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_LT);
+
+// ── Episodio 47 · Mary Shelley (la chica de dieciocho años que inventó a Frankenstein). La moda de la Regencia inglesa
+// (1797–1831): vestidos de talle alto con la cinta bajo el pecho, levitas con corbatín blanco. La criatura, por lo que
+// dice el LIBRO (alta, pelo negro largo, piel amarillenta, ojos acuosos): NADA de las películas (ni cabeza plana, ni
+// tornillos, ni piel verde). Sin nada morboso ──
+const CUERPO_REGENCIA_MS = [
+  '....kkWWWkk....',
+  '..kkCCCCCCCkk..',
+  '.kCkGGGGGGGkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCCCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCCk...',
+  '...kCCCCCCck...',
+  '...kkkkkkkkk...',
+  '....kLk.kLk....',
+];
+// la levita de la Regencia con el corbatín blanco (W) al cuello
+const CUERPO_LEVITA_MS = parche(CUERPO_LEVITA, [[6, 0, 'WWW'], [6, 1, 'WWW'], [7, 2, 'W']]);
+// la criatura: más alta que nadie (17 filas), un abrigo viejo y raído (C) con el bajo deshilachado, los pies descalzos
+const CUERPO_CRIATURA_MS = [
+  '....kkCCCkk....',
+  '..kkCCCCCCCkk..',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCcCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kCkCCCcCCCkCk.',
+  '.kCkCCCCCCCkCk.',
+  '.kSkCCCcCCCkSk.',
+  '..kkCCCCCCCkk..',
+  '...kCcCCCcCk...',
+  '...kcCkCkCck...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '...kFFFkFFFk...',
+  '..kSSSk.kSSSk..',
+  '..kkkkk.kkkkk..',
+];
+export const ELENCO_MS = {
+  // Mary niña (la de la lápida): pelo cobrizo claro, vestidito gris azulado
+  maryNinaMS: { ...B20N, cab: CAB_LARGO, cuerpo: CUERPO_NINA, ceja: hex('#8a5a30'),
+    pal: CLARA({ H: '#b07a4a', h: '#d09a64', C: '#6a7a9a', c: '#52607e', W: '#f2eee2', L: '#2a2018' }) },
+  // Mary joven (16–20): el mismo pelo cobrizo, vestido de talle alto azul oscuro con la cinta crema
+  maryMS: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_REGENCIA_MS, ceja: hex('#8a5a30'),
+    pal: CLARA({ H: '#a8703e', h: '#c8905a', C: '#3a4a7a', c: '#2a3660', G: '#f0e4c8', W: '#f2eee2', L: '#2a2018' }) },
+  // Mary de luto (desde 1822) y mayor (1831): vestido negro de talle alto, el pelo un poco más oscuro
+  maryLutoMS: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_REGENCIA_MS, ceja: hex('#6a4a2a'),
+    pal: CLARA({ H: '#8a5a32', h: '#a8784a', C: '#22202a', c: '#16141c', G: '#4a4658', W: '#d8d4cc', L: '#16141c' }) },
+  // Percy Bysshe Shelley: rizos castaños revueltos, levita marrón abierta con el cuello blanco
+  percyMS: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#7a5232', h: '#9a7048', C: '#6a4a30', c: '#4e3420', o: '#c8a040', W: '#f2eee2', L: '#2a2018' }) },
+  // William Godwin, el padre: entradas y pelo gris, levita negra con corbatín
+  godwinMS: { ...B20, cab: CAB_ENTRADAS, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#7a7a84'),
+    pal: CLARA({ H: '#9a9aa4', h: '#babac4', C: '#24222a', c: '#18161e', o: '#8a8a94', W: '#f2eee2', L: '#18161e' }) },
+  // la madrastra (Mary Jane Clairmont): pelo oscuro recogido con cofia, vestido de talle alto pardo
+  madrastraMS: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_REGENCIA_MS, tocado: 'cofia', ceja: hex('#2a1e18'),
+    pal: CLARA({ H: '#3a2a20', h: '#5a4430', C: '#6a4a3a', c: '#4e3428', G: '#c8a878', W: '#f2eee2', L: '#2a2018' }) },
+  // Claire Clairmont, la hermanastra: rizos negros, vestido de talle alto granate
+  claireMS: { ...B20M, cab: CAB_RIZOS, cuerpo: CUERPO_REGENCIA_MS, ceja: hex('#1c1424'),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#8a2a3a', c: '#6a1e2a', G: '#f0e4c8', W: '#f2eee2', L: '#2a2018' }) },
+  // Lord Byron: rizos negros, levita negra con el cuello blanco abierto y capa
+  byronMS: { ...B20, cab: CAB_RIZOS, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#14111a'), detras: capa(),
+    pal: CLARA({ H: '#1c1424', h: '#3a3046', C: '#2a2430', c: '#1a1620', o: '#c8a040', W: '#f2eee2', Q: '#3a2a4a', q: '#24182e', L: '#14111a' }) },
+  // John Polidori, el médico de Byron: pelo negro corto, levita verde botella
+  polidoriMS: { ...B20, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#2e4a36', c: '#1e3426', o: '#c8a040', W: '#f2eee2', L: '#14111a' }) },
+  // Victor Frankenstein (el estudiante pálido del sueño): pelo oscuro, muy pálido, levita azul noche
+  victorMS: { ...B20, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#2a1e18'),
+    pal: CLARA({ S: '#f0dcc8', s: '#d0b8a0', H: '#2a1e18', h: '#4a3a30', C: '#2a3450', c: '#1c2438', o: '#8a8a94', W: '#f2eee2', L: '#14111a' }) },
+  // la criatura, por el libro: alta, pelo negro largo y liso, piel amarillenta, ojos acuosos, abrigo viejo y raído
+  criaturaMS: { ...B20, cab: CAB_LARGO, cuerpo: CUERPO_CRIATURA_MS, altoCuerpo: 17, ceja: hex('#14111a'),
+    pal: CLARA({ S: '#d8c88a', s: '#b0a060', E: '#e8e0a8', H: '#14111a', h: '#2a2430', C: '#5a4a3a', c: '#3e3228', F: '#4a4038', L: '#2a2018' }) },
+  // la familia de la cabaña (los De Lacey): el anciano ciego de pelo blanco, Felix, Agatha y Safie
+  ancianoMS: { ...B20, cab: CAB_ENTRADAS, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#c8c8d0'),
+    pal: CLARA({ E: '#d8d4cc', H: '#e8e8ee', h: '#ffffff', C: '#6a5a44', c: '#4e4230', o: '#8a7a5a', W: '#e8e0d0', L: '#2a2018' }) },
+  felixMS: { ...B20, cuerpo: CUERPO_MANGA, ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#6a4220', h: '#8a5a30', C: '#7a6a4a', c: '#5a4c34', F: '#4a4038', L: '#2a2018' }) },
+  agathaMS: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_REGENCIA_MS, ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#6a4220', h: '#8a5a30', C: '#7a8a6a', c: '#5a6a4e', G: '#e8dcc0', W: '#f2eee2', L: '#2a2018' }) },
+  safieMS: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_REGENCIA_MS, ceja: hex('#1c1424'),
+    pal: MORENA({ H: '#1c1424', h: '#3a3046', C: '#c86a3a', c: '#a04e28', G: '#e8c060', W: '#f2eee2', L: '#2a2018' }) },
+  // Edward Williams, el amigo de Percy: pelo castaño claro, chaqueta corta azul de navegar
+  edwardMS: { ...B20, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#6a4a2a'),
+    pal: CLARA({ H: '#8a6a40', h: '#a8885a', C: '#2a4a7a', c: '#1e3660', o: '#e8e0d0', W: '#f2eee2', L: '#2a2018' }) },
+  // Percy Florence, el hijo que sobrevivió: niño de pelo castaño, chaqueta corta
+  percyNinoMS: { ...B20N, cuerpo: CUERPO_NINO, ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#7a5232', h: '#9a7048', C: '#3a5a7a', c: '#2a4460', F: '#e8e0d0', n: '#2a2018' }) },
+  // el público de Londres (1818–1823): un caballero con chistera y una dama con cofia
+  caballeroMS: { ...B20, cuerpo: CUERPO_LEVITA_MS, tocado: 'chistera', ceja: hex('#3a2a1c'),
+    pal: OLIVA({ H: '#3a2a1c', h: '#5a4430', C: '#4a3a5a', c: '#34283e', o: '#c8a040', W: '#f2eee2', L: '#14111a' }) },
+  damaMS: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_REGENCIA_MS, tocado: 'cofia', ceja: hex('#6a4a2a'),
+    pal: CLARA({ H: '#8a6a40', h: '#a8885a', C: '#c8a0a8', c: '#a8808a', G: '#f0e4c8', W: '#f2eee2', L: '#2a2018' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_MS);
