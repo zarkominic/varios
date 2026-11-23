@@ -16,13 +16,14 @@
 //    maletín y un llavero; en «too soon» suena un despertador; el psiquiatra alza la vista;  (corta en «Looking»)
 // 3. el escritorio del psiquiatra: su mano pone tres fichas: cama y tazón («sick parent»), cuna («younger siblings»),
 //    casa y escoba («household»);  (corta en «Many»)
-// 4. la repisa CONGELADA: los gemelos a color; estrella en «responsible» y en «capable»; en «price» Atom saca la
-//    balanza: pesan más las estrellas que la pelota;  (corta en «because»)
+// 4. la repisa CONGELADA: los gemelos a color; estrella en «responsible» (Leto alza la mano) y en «capable» (Ghanima);
+//    en «price» Atom saca la balanza: pesan más las estrellas que la pelota, y los dos se vuelven a mirarla, tristes;  (corta en «because»)
 // 5. la boca del sietch CONGELADA: dos niños juegan a la pelota; en «skip» rebota hacia los gemelos, que pasan de largo,
 //    y en «never comes back» se va rodando;  (corta en «Leto and Ghanima»)
 // 6. la sala CONGELADA: los gemelos vuelven a color uno a uno; en «extreme» la mochila se hace gigante; Atom los rodea
 //    en «two children»; en «just children», dos pompas con sus juguetes; vuelve el color.
-// Sonido: el golpe de la pausa y el clic al salir; un pop por cada cosa que sale; papel, timbre, brillo.
+// Sonido: el golpe de la pausa y el clic al salir; un pop por cada cosa que sale; papel, timbre, brillo; pasos, el tic
+// del reloj de la consulta, la balanza (toc), los botes de la pelota y las pompas.
 import * as T from '/atomo/plato/escenas/lt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lt-nino');
@@ -627,8 +628,9 @@ const q3 = (t) => {
 // ── 4 · la repisa congelada: los gemelos a color, con sus estrellas; en «price», la balanza ──
 const q4 = (t) => {
   R.copiar(fzRepisa()); AT.pausa(R, 1);
-  R.actor(LT.letoNinoLT, 118, REP_SUELO, t, { dir: 1, sonrisa: t > TN.RESP && t < TN.PRICE });
-  R.actor(LT.ghanimaLT, 138, REP_SUELO, t, { dir: -1, sonrisa: t > TN.CAPABLE && t < TN.PRICE, triste: t > TN.PRICE + 0.3 });
+  // cada uno alza la mano cuando le sale su estrella; en «price» miran la balanza y se ponen tristes
+  R.actor(LT.letoNinoLT, 118, REP_SUELO, t, { dir: 1, sonrisa: t > TN.RESP && t < TN.PRICE, dedo: t > TN.RESP + 0.1 && t < TN.CAPABLE, triste: t > TN.PRICE + 0.5 });
+  R.actor(LT.ghanimaLT, 138, REP_SUELO, t, { dir: t > TN.PRICE ? 1 : -1, sonrisa: t > TN.CAPABLE && t < TN.PRICE, dedo: t > TN.CAPABLE + 0.1 && t < TN.PRICE - 0.2, triste: t > TN.PRICE + 0.3 });
   const e1 = tramo(t, TN.RESP - 0.1, TN.RESP + 0.3), e2 = tramo(t, TN.CAPABLE - 0.1, TN.CAPABLE + 0.3);
   if (e1 > 0) estrella(125, ri(104 - e1 * 8 + flota(t)), 2); if (e2 > 0) estrella(146, ri(104 - e2 * 8 + flota(t, 1)), 2);
   // «price»: Atom saca una balanza; en un plato las estrellas, en el otro una pelota (el juego): gana el peso de las estrellas
@@ -673,7 +675,13 @@ const q6 = (t) => {
 };
 const efectos = [[0.05, 'tapestop'], [TN.NOTICE + 0.4, 'pasos'], [TN.PARENT, 'pop'], [TN.ADULT - 0.2, 'golpecito'], [TN.ADULT + 0.4, 'golpecito'],
   [TN.TOO, 'ring'], [TN.SICK, 'papel'], [TN.YOUNGER, 'papel'], [TN.HOUSE, 'papel'], [TN.RESP, 'brillo'], [TN.CAPABLE, 'brillo'],
-  [TN.PRICE, 'pop'], [TN.SKIP, 'boing'], [TN.NEVER + 0.3, 'whoosh'], [TN.EXTREME, 'pop'], [TN.TWOC, 'brillo'], [E.duracion - 0.35, 'interruptor']];
+  [TN.PRICE, 'pop'], [TN.SKIP, 'boing'], [TN.NEVER + 0.3, 'whoosh'], [TN.EXTREME, 'pop'], [TN.TWOC, 'brillo'], [E.duracion - 0.35, 'interruptor'],
+  // los que se ven y no sonaban: el anillo de Atom, los pasos del niño, el péndulo del reloj, la balanza que cae, la
+  // pelota que bota y las pompas
+  [TN.NOTICE + 0.4, 'whoosh'], [TN.PARENT + 0.35, 'brillo'], [TN.Q2 + 0.3, 'pasos', { n: 4, ritmo: 0.42 }], [TN.Q2 + 0.2, 'tic'],
+  [TN.Q3 + 0.15, 'tic'], [TN.HOUSE + 0.6, 'tic'], [TN.PRICE + 0.35, 'toc'],
+  ...[1, 2, 3].map((k) => TN.Q5 + k / 2.4).filter((x) => x < TN.SKIP - 0.15).map((x) => [x, 'toc']), [TN.NEVER + 0.9, 'toc'],
+  [TN.Q6 + 0.1, 'brillo'], [TN.JUST - 0.1, 'pop'], [TN.JUST + 0.1, 'pop']];
 T.rodar(E, R, [[0, q1], [TN.Q2, q2], [TN.Q3, q3], [TN.Q4, q4], [TN.Q5, q5], [TN.Q6, q6]], { efectos, año: null });
 </script>
 </body>

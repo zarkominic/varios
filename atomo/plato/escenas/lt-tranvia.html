@@ -11,7 +11,8 @@
 <script type="module">
 // LT-TRANVIA (frase 19), LA PAUSA «fíjate» del dilema del tranvía, sin año. Ocho planos sobre lt-precio congelado:
 // 1. el trono congelado (p14): Atom al doble entra; «?» en «dilemma»;
-// 2. la escalinata congelada (p8): «1967»; en «trolley» saca T.pausa 'tranvia'; cinco muñequitos en la recta en «five»;
+// (en todos, el polvo congelado del aire centellea y se aparta al paso de Atom)
+// 2. la escalinata congelada (p8): Atom entra y da un saltito en «1967»; en «trolley» saca T.pausa 'tranvia'; cinco muñequitos en la recta en «five»;
 // 3. el salón congelado (p9): en «switch» tira de la palanca; UN muñequito en la rama de arriba en «only one»;
 // 4. la plaza congelada (p7): «Would you?»; en «say yes» la multitud alza las manos, de color;
 // 5. la lumbre congelada (p2): el puentecito; en «push someone yourself» Atom pone las manos tras el muñeco grande;
@@ -674,11 +675,16 @@ const cinco = (v, a) => { for (let k = 0; k < 5; k++) { const [x, y] = v.cinco(k
 // el «=» y las cifras de las cuentas
 const igual = (x, y, c = H('#ffe080')) => { R.rect(x - 5, y - 4, x + 5, y - 3, K); R.rect(x - 5, y + 1, x + 5, y + 2, K); R.rect(x - 4, y - 4, x + 4, y - 4, c); R.rect(x - 4, y + 1, x + 4, y + 1, c); };
 
+// el polvo del mundo congelado: motas quietas en el aire que centellean; las que roza Atom al pasar se apartan y giran
+const motasP = (t, ax, ay, k0 = 0) => { for (let k = 0; k < 22; k++) { let x = 12 + h2(k, 1, k0) * 250, y = 40 + h2(k, 2, k0) * 120; const dx = x - ax, dy = y - ay, d = Math.hypot(dx, dy);
+  if (d < 26) { const e = (26 - d) / 26; x += dx / (d + 0.1) * e * 10 + Math.cos(t * 4 + k) * e * 3; y += dy / (d + 0.1) * e * 8 + Math.sin(t * 4 + k) * e * 3; }
+  if (tranquilo(ri(x), ri(y))) continue; const g = Math.sin(t * 1.6 + k * 2.3); mezP(x, y, H('#e8f0ff'), g > 0.7 ? 0.8 : 0.35); if (g > 0.9) { mezP(x - 1, y, H('#e8f0ff'), 0.4); mezP(x + 1, y, H('#e8f0ff'), 0.4); } } };
 // ── 1 · el trono congelado: Atom (al doble) entra; «?» en «dilemma» ──
 const q1 = (t) => {
   if (!fz.p14) { const b = R.nuevo(), prev = R.usar(b); ph14(73.4, { quieto: true }); R.usar(prev); fz.p14 = b; }
   R.copiar(fz.p14); AT.pausa(R, tramo(t, 0, 0.35));
   const anda = tramo(t, 0.4, 1.8), x = lerp(344, 236, ease(anda));
+  motasP(t, x, 156, 1);
   atomG(x, 176, t, { pose: anda < 1 ? 'camina' : t > en('fijate3', 0.0493) ? 'piensa' : 'saluda', dir: -1, cara: t > en('fijate3', 0.0521) ? 'sorpresa' : 'sonrisa' });
   if (t > en('fijate3', 0.0521) && t < en('fijate3', 0.1288)) { const b = flota(t); R.icono('?', 220, 96 + b, H('#ffe080'), K, 2); }
   const ua = tramo(t, en('fijate3', 0.0932), en('fijate3', 0.1206)); if (ua > 0) AT.anillo(R, 160, 112, 30, 24, t, ua);
@@ -688,13 +694,16 @@ const q2 = (t) => {
   cong('p8', () => ph8(42.0, { quieto: true }));
   const n = tramo(t, en('fijate3', 0.1425), en('fijate3', 0.1535)); if (n > 0) { R.numero('1967', 86, ri(64 - n * 4), { tam: 16, centro: true }); AT.anillo(R, 86, 54, 38, 16, t, tramo(t, en('fijate3', 0.1535), en('fijate3', 0.1809))); }
   const saca = ease(tramo(t, en('fijate3', 0.2220), en('fijate3', 0.2384)));
-  atomG(56, 176, t, { pose: saca > 0 ? 'senala' : 'saluda', dir: 1, cara: t > en('fijate3', 0.2631) ? 'sorpresa' : 'sonrisa' });
+  const ent = tramo(t, en('fijate3', 0.1315), en('fijate3', 0.1315) + 1.0), ax = lerp(20, 56, ease(ent)), sj = t - en('fijate3', 0.1452), salto = sj > 0 && sj < 0.45 ? ri(Math.sin(sj / 0.45 * Math.PI) * 8) : 0;
+  motasP(t, ax, 156, 2);
+  atomG(ax, 176 - salto, t, { pose: ent < 1 ? 'camina' : saca > 0 ? 'senala' : salto ? 'brazos' : 'saluda', dir: 1, cara: t > en('fijate3', 0.2631) ? 'sorpresa' : 'sonrisa' });
   if (saca > 0) { const p = tranvia(176, ri(166 + (1 - saca) * 40), t, { s: 2, palanca: 1 }), v = vias(p, 2);
     cinco(v, (k) => tramo(t, en('fijate3', 0.2686) + k * 0.12, en('fijate3', 0.2740) + k * 0.12)); if (t > en('fijate3', 0.2795)) R.numero('5', v.cinco(2)[0], v.cinco(2)[1] - 22, { centro: true }); }
 };
 // ── 3 · el salón congelado: en «switch» Atom tira de la palanca; la rama de arriba, con UN muñequito, en «only one» ──
 const q3 = (t) => {
   cong('p9', () => ph9(48.0, { quieto: true }));
+  motasP(t, 300, 150, 3);
   const sw = ease(tramo(t, en('fijate3', 0.3179), en('fijate3', 0.3316))), p = tranvia(140, 150, t, { s: 2, palanca: lerp(1, -1, sw) }), v = vias(p, 2);
   cinco(v, 1);
   const uno = tramo(t, en('fijate3', 0.3672), en('fijate3', 0.3782)); muneco(v.uno[0], v.uno[1], H('#e86a2a'), uno);
@@ -706,6 +715,7 @@ const q3 = (t) => {
 // ── 4 · la plaza congelada: «Would you?»; en «say yes» la mayoría de la multitud se enciende de color ──
 const q4 = (t) => {
   cong('p7', () => ph7(33.0, { quieto: true }));
+  motasP(t, 260, 156, 4);
   const si = tramo(t, en('fijate3', 0.4549), en('fijate3', 0.4796));
   if (si > 0) for (let k = 0; k < 90; k++) { if (h2(k, 1, 77) > si * 1.1) continue; const x = 10 + h2(k, 2, 77) * 300, y = 114 + h2(k, 3, 77) * 50; if (h2(k, 4, 77) < 0.12) continue;
     const bx = ri(x), by = ri(y - Math.abs(Math.sin(t * 6 + k)) * 2); R.rect(bx, by - 5, bx, by, H('#f0c8a0')); ps(bx, by - 6, H('#ffe080')); ps(bx - 1, by - 5, H('#f0c8a0')); ps(bx + 1, by - 5, H('#f0c8a0')); }
@@ -715,6 +725,7 @@ const q4 = (t) => {
 // ── 5 · la lumbre congelada: el puentecito; para salvar a los cinco, empujar con tus manos al de la barandilla ──
 const q5 = (t) => {
   cong('p2', () => ph2(9.0, { quieto: true, sinBrillo: true }));
+  motasP(t, 240, 140, 5);
   const p = tranvia(130, 170, t, { s: 2, palanca: 1 }), [X0, Y0] = p.caja, v = vias(p, 2);
   cinco(v, 1);
   // en el puentecito, un señor (a color) mira el tranvía; Atom, detrás, alarga las manos en «push someone yourself»… y duda
@@ -727,6 +738,7 @@ const q5 = (t) => {
 // ── 6 · la pared congelada: Atom da un salto atrás en «pull back»; las cuentas: 5 y 1 = 5 y 1 ──
 const q6 = (t) => {
   cong('p5', () => ph5(24.0, { quieto: true }));
+  motasP(t, 220, 156, 6);
   const s = t - en('fijate3', 0.6549), salto = s > 0 && s < 0.6 ? ri(Math.sin(s / 0.6 * Math.PI) * 16) : 0, atras = ease(cl(s / 0.6));
   atomG(lerp(200, 250, atras), 176 - salto, t, { pose: s > 0 && s < 0.8 ? 'brazos' : t > en('fijate3', 0.7015) ? 'senala' : 'sostiene', dir: -1, cara: s > 0 && s < 1.2 ? 'sorpresa' : 'normal' });
   const c1 = tramo(t, en('fijate3', 0.7043), en('fijate3', 0.7152)), c2 = tramo(t, en('fijate3', 0.7234), en('fijate3', 0.7344));
@@ -738,6 +750,7 @@ const q6 = (t) => {
 // ── 7 · la torre congelada: Leto, a color, acepta empujar; 1… y en «billions», miles de millones ──
 const q7 = (t) => {
   cong('p12', () => ph12(63.0, { quieto: true }));
+  motasP(t, 270, 156, 7);
   const p = tranvia(110, 168, t, { s: 1.6, palanca: -1 });
   const em = ease(tramo(t, en('fijate3', 0.7755), en('fijate3', 0.7947)));
   R.actor(LT.letoPielLT, 172, 168, t, { dir: -1, sostiene: em > 0 ? [ri(170 - em * 4), 154] : undefined, triste: t > en('fijate3', 0.7947), sonrisa: t < en('fijate3', 0.7728) });
@@ -750,6 +763,7 @@ const q7 = (t) => {
 // ── 8 · el desierto congelado: el tranvía de juguete se va por la vía larga; los años cuentan; la humanidad sigue ──
 const q8 = (t) => {
   cong('p1', () => ph1(4.0, { quieto: true }));
+  motasP(t, 40, 156, 8);
   const anos = tramo(t, en('fijate3', 0.8851), en('fijate3', 0.9153)); if (anos > 0) R.numero(String(Math.round(anos * 3500)), 214, 84, { tam: 16, centro: true });
   // la vía larga que se pierde en las dunas, con sus traviesas
   for (let x = 0; x < 320; x++) { const y = 168 - x * 0.06; ps(x, y, H('#c8c8d0')); ps(x, y + 3, H('#c8c8d0')); if (x % 5 === 0) R.rect(x, ri(y) - 1, x + 1, ri(y) + 4, H('#8a6a44')); }
@@ -759,7 +773,7 @@ const q8 = (t) => {
   const hu = tramo(t, en('fijate3', 0.9454), en('fijate3', 0.9783)); if (hu > 0) for (let k = 0; k < 70; k++) { if (h2(k, 1, 13) > hu) continue; const x = h2(k, 2, 13) * 316, y = 96 + h2(k, 3, 13) * 46; if (!tranquilo(ri(x), ri(y))) { ps(x, y, H('#ffe080')); mezP(x + 1, y, H('#ffb040'), 0.6); } }
   atomG(40, 176, t, { pose: hu > 0 ? 'senala' : 'quieto', dir: 1, cara: hu > 0 ? 'sonrisa' : 'triste' });
 };
-const efectos = [[0.6, 'pasos'], [en('fijate3', 0.0521), 'pop'], [en('fijate3', 0.1452), 'brillo'], [en('fijate3', 0.2247), 'pop'], [en('fijate3', 0.2686), 'aldea', { k: 0 }], [en('fijate3', 0.3179), 'interruptor'], [en('fijate3', 0.3727), 'campana'], [en('fijate3', 0.4110), 'pop'],
+const efectos = [[0.6, 'pasos'], [en('fijate3', 0.1315) + 0.1, 'pasos', { n: 3 }], [en('fijate3', 0.0521), 'pop'], [en('fijate3', 0.1452), 'brillo'], [en('fijate3', 0.2247), 'pop'], [en('fijate3', 0.2686), 'aldea', { k: 0 }], [en('fijate3', 0.3179), 'interruptor'], [en('fijate3', 0.3727), 'campana'], [en('fijate3', 0.4110), 'pop'],
   [en('fijate3', 0.4604), 'publico'], [en('fijate3', 0.5782), 'golpecito'], [en('fijate3', 0.6577), 'boing'], [en('fijate3', 0.7262), 'brillo'], [en('fijate3', 0.7783), 'golpecito'], [en('fijate3', 0.8550), 'aldea', { k: 2 }], [en('fijate3', 0.8879), 'carro'], [en('fijate3', 0.9509), 'brillo']];
 T.rodar(E, R, [[0, q1], [en('fijate3', 0.1315), q2], [en('fijate3', 0.2987), q3], [en('fijate3', 0.4110), q4], [en('fijate3', 0.5207), q5], [en('fijate3', 0.6248), q6], [en('fijate3', 0.7563), q7], [en('fijate3', 0.8851), q8]], { efectos, año: null });
 </script>

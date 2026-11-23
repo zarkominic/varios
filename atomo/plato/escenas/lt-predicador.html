@@ -20,9 +20,9 @@
 // 4 «and no one dares» ciudadela balcon/general: dos sacerdotes cuchichean; uno señala el corro de la plaza (el predicador
 //   diminuto), el otro duda («?» en «who»); en «known the prophet» se vuelven al busto del profeta, que brilla.
 // 5 «Meanwhile» fondo local 'salusa': la muralla del castillo Corrino de noche, con tormenta; Wensicia llega, señala la
-//   estrellita anaranjada en «Arrakis»; rayo y trueno en «overthrew»; el guardia se vuelve.
+//   estrellita anaranjada en «Arrakis»; el guardia hace la ronda hasta su puesto; rayo y trueno en «overthrew»; se vuelve.
 // 6 «the Corrinos» fondo local 'salon': sube al estrado y, en «throne», arranca la funda: el trono de oro brilla entre el
-//   polvo; su hijo se sorprende y sonríe.
+//   polvo; su hijo se sorprende, sonríe y se acerca al trono.
 // 7 «and to them» inserto 'mapa': la mesa con el mapa de Arrakis; la mano morada toca a los dos peones pelirrojos en
 //   «children» y deja a su lado dos tigres de juguete en «standing in the way»; los peones Corrino avanzan.
 // 8 «So one night» fondo local 'jaula' (de noche): el embozado tira del cerrojo en «released», la puerta cae y salen los
@@ -511,7 +511,9 @@ const salusaVivo = (t, rayoU) => {
 const p5 = (t) => {
   R.copiar(salusaFijo()); const ru = (t - en('tigres', 0.1373)) / 0.9; salusaVivo(t, ru);
   // un guardia gris en la muralla, que se vuelve con el trueno
-  R.actor(PA.fremen, 40, 158, t, { dir: ru > 0.1 ? 1 : -1, pal: pp(SARD), sorpresa: ru > 0 && ru < 1 });
+  // (hace la ronda por el adarve hasta su puesto; con el trueno se para y se vuelve)
+  const gu = ease(cl((t - en('tigres', 0.004)) / 2.6)), gx = ri(lerp(66, 40, gu));
+  R.actor(PA.fremen, gx, 158, t, { dir: ru > 0.1 ? 1 : -1, anda: gu > 0 && gu < 1 && ru < 0, pal: pp(SARD), sorpresa: ru > 0 && ru < 1 });
   // Wensicia llega por el adarve, se para y señala la estrellita anaranjada (Arrakis); con el trueno se vuelve al castillo
   const u = ease(cl((t - en('tigres', 0.0041)) / (en('tigres', 0.0400) - en('tigres', 0.0041)))), x = ri(lerp(262, 150, u)), anda = u > 0 && u < 1;
   const senala = t > en('tigres', 0.0417) && t < en('tigres', 0.1049), vuelta = t > en('tigres', 0.1151);
@@ -576,7 +578,7 @@ const p6 = (t) => {
   const u = ease(cl((t - en('tigres', 0.1834)) / (en('tigres', 0.2415) - en('tigres', 0.1834)))), wx = ri(lerp(262, 190, u));
   const agarra = t > en('tigres', 0.2637) && t < en('tigres', 0.3132), mano = agarra ? [ri(CX + 18 + dx * 0.9), ri(BASE - 34 + dy)] : undefined;
   R.actor(EL.ciudadanaLT, wx + (agarra ? ri(dx * 0.5) : t >= en('tigres', 0.3132) ? 35 : 0), t > en('tigres', 0.2415) ? 124 : ri(lerp(150, 124, cl((t - en('tigres', 0.2210)) / 0.6))), t, { dir: -1, anda: u > 0 && u < 1 || (t > en('tigres', 0.2876) && t < en('tigres', 0.3132)), pal: pp(CORR), sostiene: mano, sonrisa: t > en('tigres', 0.3132), habla: t > en('tigres', 0.2415) && t < en('tigres', 0.2654) && voz2(t) });
-  R.actor(EL.ciudadanoLT, 96, 152, t, { dir: 1, pal: pp(FARAD), sorpresa: t > en('tigres', 0.3132) && t < en('tigres', 0.3337), sonrisa: t > en('tigres', 0.3337), triste: t < en('tigres', 0.2312) });
+  const hj = ease(cl((t - en('tigres', 0.3200)) / 1.3)); R.actor(EL.ciudadanoLT, ri(96 + hj * 26), 152, t, { dir: 1, anda: hj > 0 && hj < 1, pal: pp(FARAD), sorpresa: t > en('tigres', 0.3132) && t < en('tigres', 0.3337), sonrisa: t > en('tigres', 0.3337), triste: t < en('tigres', 0.2312) });
 };
 
 // ═══ E · 'mesa': la mesa de los Corrino de cerca: un mapa de Arrakis con figuritas (inserto) ═══
@@ -822,7 +824,8 @@ T.rodar(E, R, [[0, p1], [en('predicador', 0.2303), p2], [en('predicador', 0.5151
   año: 21,
   efectos: [[en('predicador', 0.0096), 'pasos'], [en('predicador', 0.1266), 'pajaros'], [en('predicador', 0.2628), 'publico'], [en('predicador', 0.6976), 'golpecito'], [en('predicador', 0.9532), 'brillo'], [en('tigres', 0.1373), 'trueno'], [en('tigres', 0.2893), 'whoosh'], [en('tigres', 0.3149), 'brillo'],
     [en('tigres', 0.3815), 'toc'], [en('tigres', 0.4617), 'golpecito'], [en('tigres', 0.5454), 'cerrojo'], [en('tigres', 0.7913), 'brillo'], [en('tigres', 0.8630), 'boing'], [en('tigres', 0.8869), 'miau'], [en('tigres', 0.9245), 'pasos'], [en('finge', 0.2544), 'viento'], [en('finge', 0.3793), 'papel'],
-    [en('finge', 0.4730), 'campana'], [en('finge', 0.5615), 'brillo'], [en('finge', 0.7228), 'viento']],
+    [en('finge', 0.4730), 'campana'], [en('finge', 0.5615), 'brillo'], [en('finge', 0.7228), 'viento'],
+    [en('predicador', 0.5250), 'publico'], [en('tigres', 0.0150), 'lluvia'], [en('tigres', 0.0700), 'viento'], [en('tigres', 0.5200), 'viento'], [en('tigres', 0.6850), 'rafaga'], [en('finge', 0.0150), 'pasos'], [en('finge', 0.4500), 'burbujas']],
 });
 </script>
 </body>

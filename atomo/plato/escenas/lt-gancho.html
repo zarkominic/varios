@@ -11,7 +11,9 @@
 <script type="module">
 // LT-GANCHO (frases 1–3), sin año. Doce planos, cortados en la voz inglesa:
 // 1. (0) el puente de la boda de lado y de lejos: la procesión avanza con el carro; en el mirador una pareja lo señala y
-//    en «monster» los ojos del gusano destellan, la onda sacude el aire, los pájaros huyen del puente y la pareja se asusta;
+//    en «monster» (EL GOLPE del gancho) la cámara se echa encima de la cara del gusano (1 → 1,8 en 0,15 s), el ocaso se
+//    apaga hacia el violeta, los ojos destellan, la onda sacude el aire, todo tiembla, los pájaros huyen del puente y la
+//    pareja salta con dos «!»; campanas de boda al empezar;
 // 2. («Picture») el río desde la orilla por la mañana, el puente altísimo; un pescador y su hija; ella señala el puente en
 //    «high bridge»; pica un pez en «river»; en «wedding day» se sueltan palomas y caen guirnaldas de flores;
 // 3. («with people») sobre el tablero: la gente asomada a los pretiles saluda, la procesión viene de frente; una niña corre
@@ -19,16 +21,18 @@
 // 4. («In the middle») de lado y de cerca: el carro enorme entra rodando entre Habladoras y se planta en el centro en
 //    «enormous cart»; la gente del pretil de atrás saluda al pasar; en «alive» el gusano mira a la gente y luego a nosotros;
 // 5. («3,500») la nave de la Ciudadela: el gusano en su estrado; el «3500» sube como un contador hasta «years»; un
-//    peregrino sube por la alfombra y se queda boquiabierto en «enormous body»;
+//    peregrino sube por la alfombra y se queda boquiabierto en «enormous body»; una Habladora entra con un cuenco de
+//    incienso y alza los brazos en «years»; el guardia de la izquierda se vuelve;
 // 6. («Bigger») desde el agua, bajo el arco: el gusano asoma sobre la balaustrada; un guardia llega a su lado y le llega
-//    por la cintura; en «human face» la cara nos mira y en «looks down» baja los ojos al agua;
+//    por la cintura; una trucha salta bajo el arco; en «human face» la cara nos mira y en «looks down» baja los ojos;
 // 7. («the water») el agua de cerca: su cara reflejada al doble, temblando; las manitas en el pretil; caen pétalos y se
 //    abren círculos; en «frightens» las manchas oscuras (truchas) pasan por debajo y el reflejo se rompe;
 // 8. («That being») el desierto de día: dos niños pelirrojos de la mano bajan por la duna; Atom luciérnaga llega; en
-//    «Paul Atreides' son» Leto se para y señala el horizonte;
+//    «Paul Atreides' son» Leto se para y señala el horizonte; un tóptero cruza el cielo a lo lejos;
 // 9. («one of the twins») el cuarto de las cunas: en «twins» aparece la segunda cuna con un destello; la fremen mece las dos;
+//    un fremen entra por la cortina, se sorprende y sonríe;
 // 10. («the movie») el globo de escritorio: una mano deja una entrada de cine con el «18» en «December 18th» y el globo se
-//    vuelve de arena en «already see him»;
+//    vuelve de arena en «already see him»; una polilla ronda la lámpara;
 // 11. («Today») la boca de Jacurutu al ocaso: Leto camina hacia la entrada, se para en el umbral en «what comes after» y se
 //    vuelve a mirarnos en «no movie»; Atom luciérnaga alumbra la entrada;
 // 12. («how that child») desde la roca: Leto llega al borde; en «came to be this» la loma enorme se mueve bajo la arena; en
@@ -108,7 +112,20 @@ const p1 = (t) => {
   // la onda del golpe: dos anillos claros que se abren desde la cara y un temblor de cámara
   if (golpe > 0 && golpe < 1) { const [fx, fy] = lg.cara; for (const rr of [golpe * 70, golpe * 70 - 14]) if (rr > 2) for (let a = 0; a < 120; a++) { const an = a / 120 * Math.PI * 2, x = Math.round(fx + Math.cos(an) * rr), y = Math.round(fy + Math.sin(an) * rr * 0.6); R.pset(x, y, mez(R.pget(x, y), hex('#d8f4ff'), 0.85 * (1 - golpe))); }
     if (golpe < 0.3) R.disco(fx, fy - 1, 5, mez(R.pget(fx, fy), hex('#e8faff'), 0.6)); }
-  const tb = tramo(t, monster, monster + 0.4); if (tb > 0 && tb < 1) { const dx = Math.round(Math.sin(t * 90) * 2 * (1 - tb)), D = R.buf, C0 = D.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) D[y * 320 + x] = C0[y * 320 + Math.max(0, Math.min(319, x - dx))]; }
+  // el susto: dos «!» saltan sobre la pareja del mirador
+  if (susto) { const sb = Math.round(Math.abs(Math.sin((t - monster) * 9)) * 2); R.icono('!', 20, 134 - sb, hex('#ffe080'), K, 2); R.icono('!', 40, 132 - sb, hex('#ffe080'), K, 2); }
+  // EL GOLPE de «monster» (el gancho): la cámara se echa encima de la cara (de 1 a 1,8 en 0,15 s y vuelve en 0,9 s),
+  // tiembla y el ocaso se apaga un instante hacia el violeta; todo en un solo recorrido de la pantalla
+  const zi = ease(tramo(t, monster - 0.04, monster + 0.12)) * (1 - ease(tramo(t, monster + 0.55, monster + 1.45)));
+  const tb = tramo(t, monster, monster + 0.5), osc = zi * 0.55;
+  if (zi > 0.001 || (tb > 0 && tb < 1)) {
+    const z = 1 + 0.8 * zi, [fx, fy] = lg.cara, dx = tb > 0 && tb < 1 ? Math.round(Math.sin(t * 90) * 3 * (1 - tb)) : 0;
+    const ox = Math.max(0, Math.min(320 - 320 / z, fx - 160 / z)), oy = Math.max(0, Math.min(180 - 180 / z, fy - 90 / z));
+    const D = R.buf, C0 = D.slice(), V = hex('#2a1438');
+    for (let y = 0; y < 180; y++) { const sy = Math.min(179, Math.floor(oy + y / z)) * 320;
+      for (let x = 0; x < 320; x++) { const c = C0[sy + Math.max(0, Math.min(319, Math.floor(ox + (x - dx) / z)))];
+        D[y * 320 + x] = osc > 0.02 ? mez(c, V, osc * (0.35 + 0.65 * Math.min(1, Math.hypot(x - 160, y - 90) / 150))) : c; } }
+  }
 };
 
 // 2 · el río desde la orilla, por la mañana: el puente altísimo; palomas y guirnaldas en «wedding day»
@@ -226,6 +243,13 @@ const p5 = (t) => {
   const v = tramo(t, P5 + 0.2, cuerpo - 0.2), px = Math.round(lerp(150, 154, v)), py = Math.round(lerp(182, 160, ease(v)));
   T.letoGusano(R, cx, cy, t, { s: gi.carroS ?? 0.75, mira: t > cuerpo ? [px, py - 20] : [160, 170] });
   R.actor(EL.ciudadanoLT, px, py, t, { dir: 1, anda: v > 0 && v < 1, sorpresa: t > cuerpo && t < gusano + 0.8, triste: t > gusano + 0.8 });
+  // una Habladora entra por la puerta de la derecha con un cuenco de incienso, se planta y alza los brazos en «years»;
+  // el guardia de la izquierda se vuelve a mirar al peregrino en «enormous body»
+  const vh = tramo(t, P5 + 0.3, anos - 0.4), hx = Math.round(lerp(312, 236, ease(vh)));
+  const rh = R.actor(EL.habladoraLT, hx, 168, t, { dir: -1, anda: vh > 0 && vh < 1, brazos: t > anos && t < anos + 1.2, sostiene: vh < 1 || t > anos + 1.2 ? true : undefined, sonrisa: t > anos });
+  if (rh?.mano && (vh < 1 || t > anos + 1.2)) { const [mx, my] = rh.mano.map(Math.round); R.rect(mx - 2, my - 1, mx + 2, my + 1, K); R.rect(mx - 1, my - 1, mx + 1, my, hex('#c8963a'));
+    for (let k = 0; k < 6; k++) { const u = ((t * 0.8 + k / 6) % 1); R.pset(Math.round(mx + Math.sin(t * 2 + k) * 2 * u), Math.round(my - 2 - u * 14), mez(R.pget(Math.round(mx), Math.round(my - 2 - u * 14)), hex('#e8e0f0'), 0.6 - u * 0.5)); } }
+  R.actor(EL.fremen, 40, 170, t, { dir: t > cuerpo - 0.2 ? 1 : -1, sorpresa: t > cuerpo && t < cuerpo + 0.7 });
   T.imperioDelante(R, t, o);
   // el contador de años: sube desde «3» y se queda en 3500 en «years»
   const c = tramo(t, tres, anos - 0.3), n = Math.round(3500 * ease(c) / 50) * 50;
@@ -285,6 +309,10 @@ const p6 = (t) => {
   const lg = T.letoGusano(R, 140, 100, t, { s: 1, sombra: false, mira: t > mira ? [180, 180] : t > cara ? [184, 120] : [gx, 80] });
   R.actor(EL.habladoraLT, gx, 97, t, { dir: -1, anda: v > 0 && v < 1, sorpresa: t > hombre && t < cara + 0.6 });
   pegar(piedraArco(), 86, 179);
+  // una trucha de río salta bajo el arco en «bigger than any man» y vuelve al agua con su salpicadura
+  { const u = tramo(t, hombre - 0.5, hombre + 0.3); if (u > 0 && u < 1) { const x = Math.round(lerp(200, 214, u)), y = Math.round(157 - Math.sin(u * Math.PI) * 12);
+      R.rect(x - 2, y - 1, x + 2, y + 1, hex('#5a6a7a')); R.pset(x + 3, y, hex('#5a6a7a')); R.pset(x - 3, y - 1, hex('#3a4a5a')); R.pset(x - 3, y + 1, hex('#3a4a5a')); R.pset(x + 1, y - 1, hex('#c8d8e8')); }
+    const w = tramo(t, hombre + 0.3, hombre + 1.1); if (w > 0 && w < 1) for (let a = 0; a < 20; a++) { const an = a / 20 * Math.PI * 2, rr = 2 + w * 9; R.pset(Math.round(214 + Math.cos(an) * rr), Math.round(157 + Math.sin(an) * rr * 0.3), mez(R.pget(Math.round(214 + Math.cos(an) * rr), Math.round(157 + Math.sin(an) * rr * 0.3)), hex('#d8ecf8'), 0.8 - w * 0.6)); } }
   // pétalos que caen de la balaustrada al agua y la bandera del asta
   petalos(t, 20, 104, 300, 160, 16, 6);
   R.linea(52, 86, 52, 48, hex('#4a3020')); R.linea(53, 86, 53, 48, hex('#7a5030'));
@@ -327,6 +355,11 @@ const p7 = (t) => {
 
 // 8 · el desierto de día: dos niños pelirrojos de la mano; Atom luciérnaga los mira
 const leto = l(0.0409), hijo = l(0.1162);
+// un tóptero pequeño (diseño nuestro: cabina de cristal, cuerpo de libélula y dos pares de alas que baten), de lado
+const toptero = (x, y, t) => { x = Math.round(x); y = Math.round(y); const B = hex('#6a6070'), L = hex('#a8a0b0'), a = Math.sin(t * 40) > 0;
+  R.rect(x - 6, y, x + 4, y + 2, K); R.rect(x - 5, y, x + 3, y + 1, B); R.rect(x - 5, y, x + 3, y, L); R.rect(x + 4, y - 1, x + 7, y + 2, K); R.rect(x + 5, y, x + 6, y + 1, hex('#8ad0f0'));
+  R.linea(x - 6, y + 1, x - 13, y, K); R.pset(x - 13, y - 1, B); R.linea(x - 3, y + 3, x - 5, y + 5, K); R.linea(x + 2, y + 3, x + 4, y + 5, K);
+  for (const ax of [x - 3, x + 1]) { if (a) { R.linea(ax, y - 1, ax - 4, y - 5, hex('#d8d4e0')); R.linea(ax, y - 1, ax + 3, y - 5, hex('#d8d4e0')); } else { R.linea(ax, y - 1, ax - 5, y - 2, hex('#b8b4c4')); R.linea(ax, y - 1, ax + 4, y - 2, hex('#b8b4c4')); } } };
 const p8 = (t) => {
   const o = { encuadre: 'desierto', hora: 'dia', t0: P8 };
   T.planeta(R, t, o);
@@ -337,6 +370,9 @@ const p8 = (t) => {
   R.actor(EL.ghanimaLT, x - 14, 150, t, { dir: 1, anda, sostiene: [x - 4, 141], sonrisa: t > leto });
   R.actor(EL.letoNinoLT, x, 150, t, { dir: 1, anda, dedo: t > hijo, sonrisa: t > leto && t < hijo });
   T.planetaDelante(R, t, o);
+  // un tóptero cruza el cielo lejos, de derecha a izquierda, y la sombra corre por la arena (Ghanima lo mira)
+  { const u = tramo(t, P8 + 0.3, P9 - 0.2), tx = lerp(250, -20, u), ty = 62 + Math.sin(t * 1.5) * 2; toptero(tx, ty, t);
+    const sx = Math.round(tx + 30); for (let i = -6; i <= 6; i++) { const yy = 112 + Math.round(Math.abs(i) / 4); R.pset(sx + i, yy, mez(R.pget(sx + i, yy), hex('#8a5a30'), 0.35)); } }
   const w = tramo(t, P8 + 0.6, leto + 0.4);
   T.AT.luciernaga(R, Math.round(lerp(300, 196, ease(w)) + Math.sin(t * 0.9) * 4), Math.round(lerp(70, 116, ease(w)) + Math.sin(t * 2.2) * 3), t, { dir: -1, brillo: 0.6, cara: t > hijo ? 'sonrisa' : 'normal' });
 };
@@ -350,6 +386,9 @@ const p9 = (t) => {
   const v = tramo(t, gemelos + 0.9, gemelos + 2.2), fx = Math.round(lerp(140, 228, ease(v)));
   R.actor(EL.fremenMujer, fx, 150, t, { dir: v > 0 && v < 1 ? 1 : v >= 1 ? -1 : 1, anda: v > 0 && v < 1, sorpresa: t > gemelos && t < gemelos + 0.9, sonrisa: t > gemelos + 0.9,
     sostiene: v === 0 ? [fx + 12, 140 + Math.round(Math.sin(t * 3) * 2)] : v >= 1 && t < libro ? [fx - 14, 140 + Math.round(Math.sin(t * 3) * 2)] : undefined });
+  // un fremen entra por la cortina de la izquierda, se sorprende al ver dos cunas y sonríe
+  { const u = tramo(t, gemelos + 0.4, gemelos + 1.6), gx = Math.round(lerp(-12, 62, ease(u)));
+    R.actor(EL.fremen, gx, 150, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: u >= 1 && t < gemelos + 2.2, sonrisa: t > gemelos + 2.2, habla: t > libro && Math.sin(t * 8) > 0.2 }); }
   T.sietchDelante(R, t, o);
 };
 
@@ -366,6 +405,9 @@ const p10 = (t) => {
   if (!deja) { entrada(tx, ty); T.brazo(R, Math.round(tx + 70), 150, tx + 22, ty + 4, '#3a5a8a', -1, { codo: [tx + 48, ty + 22] }); }
   else { entrada(238, 120); if (va < 1) T.brazo(R, 330, 150, Math.round(lerp(262, 340, va)), Math.round(lerp(124, 140, va)), '#3a5a8a', -1, { codo: [Math.round(lerp(300, 360, va)), 142] }); }
   T.planetaDelante(R, t, o);
+  // una polilla da vueltas a la lámpara de banquero (debajo de la zona de Atom)
+  { const a = t * 3.1, mx = Math.round(268 + Math.cos(a) * 9), my = Math.round(64 + Math.sin(a * 1.7) * 5), ab = Math.sin(t * 30) > 0;
+    R.pset(mx, my, hex('#d8c8a8')); R.pset(mx - 1, my - (ab ? 1 : 0), hex('#f0e4c8')); R.pset(mx + 1, my - (ab ? 1 : 0), hex('#f0e4c8')); }
 };
 
 // 11 · la boca de Jacurutu al ocaso: «what comes after»
@@ -393,9 +435,12 @@ const p12 = (t) => {
   T.AT.luciernaga(R, Math.round(x + 30 + Math.sin(t * 1.1) * 4), Math.round(104 + Math.sin(t * 2) * 3), t, { dir: -1, brillo: 0.8, cara: t > esto && t < elige ? 'sorpresa' : t > elige ? 'triste' : 'normal' });
 };
 
-const efectos = [[monster, 'boom'], [monster + 0.1, 'pajaros'], [rio2, 'chof'], [boda2 + 0.05, 'pajaros'], [raila - 0.6, 'publico', { dur: 3 }],
-  [P4 + 0.1, 'carro', { largo: 2.6 }], [anos - 0.3, 'brillo'], [P6 + 0.2, 'pasos'], [agua7, 'chof'], [miedo, 'burbujas'],
-  [P8 + 0.2, 'viento', { dur: 3.5 }], [gemelos, 'brillo'], [dic + 0.5, 'papel'], [ve, 'whoosh'], [P11 + 0.3, 'pasos'], [esto - 0.4, 'avalancha']];
+const efectos = [[0.15, 'campana', { lejos: true }], [son, 'publico', { dur: 1.6 }], [monster - 0.05, 'boom'], [monster + 0.1, 'pajaros'], [monster + 0.2, 'whoosh'],
+  [rio2, 'chof'], [boda2, 'campana'], [boda2 + 0.05, 'pajaros'], [P3 + 0.3, 'pasos', { n: 6, ritmo: 0.2 }], [raila - 0.6, 'publico', { dur: 3 }], [lento + 0.1, 'whoosh'],
+  [P4 + 0.1, 'carro', { largo: 2.6 }], [enorme + 0.4, 'publico', { dur: 2.4, ola: 1 }], [vivo, 'brillo'],
+  [anos - 0.3, 'brillo'], [anos, 'campana', { lejos: true }], [P6 + 0.2, 'pasos'], [hombre + 0.3, 'chof'], [P7 + 0.2, 'ola'], [agua7, 'chof'], [miedo, 'burbujas'],
+  [P8 + 0.2, 'viento', { dur: 3.5 }], [P8 + 0.5, 'zumbido'], [gemelos, 'brillo'], [gemelos + 0.5, 'pasos', { n: 4 }], [P10 + 0.2, 'tic'], [P10 + 1.2, 'tic'], [dic + 0.5, 'papel'], [ve, 'whoosh'],
+  [P11 + 0.3, 'pasos'], [esto - 0.4, 'avalancha']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12]], { efectos });
 </script>
 </body>

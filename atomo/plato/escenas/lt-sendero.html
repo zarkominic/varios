@@ -20,7 +20,8 @@
 // 6. («father ever did») el mirador de la visión (fondo local): el rayo del padre (fantasma) muere en la niebla; el del hijo se
 //    abre en ramas en «every path»; en «end the same way» las puntas se vuelven grises;
 // 7. («with humanity») un futuro de cerca (fondo local): la ciudad se para en «stagnant» y se deshace en «extinct»;
-// 8. («Only one») el trance (trance/general): se apagan hasta uno; en «golden path» se vuelve de oro; en «walking» Leto anda;
+// 8. («Only one») el trance (trance/general): todos encendidos; se apagan UNO A UNO (cada vez más despacio) y la cuenta
+//    baja hasta 1; el dorado asoma tenue y crece en «golden path»; Leto se sorprende, sonríe y en «walking» anda;
 // 9. («rule») el imperio de la visión (fondo local): el gusano en su carro; 0 → 3500 años; en «hard» todos se postran;
 // 10. («forever») el salvador de piedra (fondo local): se agrieta en «never again», cae en «savior» y la gente se va;
 // 11. («father refused») el cruce (fondo local): el padre se da la vuelta y se va; Leto llega y en «decides» sube por el oro;
@@ -347,13 +348,25 @@ const p7 = (t) => {
 };
 
 // ══ 8 · EL TRANCE (trance/general): los hilos se apagan hasta que solo queda uno; en «golden path» se vuelve dorado ══
+let NHILOS = 70;
 const p8 = (t, o = {}) => {
-  const ap = 0.35 + 0.65 * ease(tramo(t, TS.P8, TS.ONE + 0.5)), dor = ease(tramo(t, TS.GOLD - 0.6, TS.GOLD + 1.2));
+  // se apagan UNO A UNO: deprisa al principio (los de fuera) y cada vez más despacio, hasta que en «escapes» queda uno;
+  // el dorado asoma tenue al quedar solo y crece en «Golden Path»
+  // (cuántos quedan: de todos a 12 de golpe y luego de uno en uno; ap es la o.apaga del decorado que deja esos encendidos)
+  const T12 = TS.ONE + 0.2, quedan = t < T12 ? lerp(NHILOS, 12, ease(tramo(t, TS.P8 + 0.05, T12))) : lerp(12, 0, tramo(t, T12, TS.GOLD - 0.1));
+  const ap = cl((NHILOS - quedan + 1.5) / (NHILOS + 2), 0, 1);
+  const dor = 0.18 * ease(tramo(t, TS.ONE + 0.6, TS.GOLD - 0.3)) + 0.82 * ease(tramo(t, TS.GOLD - 0.3, TS.GOLD + 1.6));
   const O = { encuadre: 'trance', apaga: ap, dorado: dor }; const g = T.jacurutu(R, t, O);
+  // la cuenta de los futuros que quedan encendidos (baja de uno en uno y el último se vuelve de oro)
+  if (g) NHILOS = g.total;
+  if (g) { const n = Math.max(1, g.encendidos), late = t > TS.GOLD - 0.3 ? 1 + 0.4 * Math.max(0, Math.sin((t - TS.GOLD) * 6)) * (1 - tramo(t, TS.GOLD, TS.GOLD + 1.2)) : 0;
+    R.numero(String(n), 52, 52 + (late > 1 ? -1 : 0), { tam: 16, centro: true, color: n === 1 ? H('#ffd870') : mez(H('#8ad0ff'), H('#6a7090'), ap) });
+    // una chispa gris que cae del número cada vez que se apaga uno
+    for (let k = 0; k < 4; k++) { const f = ((t * 1.6 + k / 4) % 1); if (n > 1 && ap > 0.02) mezP(52 + (hh(k, ri(t * 1.6), 81) - 0.5) * 18, 62 + f * 14, H('#7a84a8'), 0.7 * (1 - f)); } }
   // Leto, pequeño en el origen, mira cómo se apagan; en «golden path» sonríe; en «walking it» echa a andar por el hilo de oro
   const uw = tramo(t, TS.WALK, TS.WALK + 1.6), pts = g?.dorado || [[160, 170], [158, 160], [156, 150]], i = uw * 2.2, i0 = Math.min(pts.length - 2, Math.floor(i)), f = i - i0;
   const [lx, ly] = [lerp(pts[i0][0], pts[i0 + 1][0], f), lerp(pts[i0][1], pts[i0 + 1][1], f)];
-  if (!o.sinLeto) R.actor(LT.letoNinoLT, ri(lx) - 8, ri(ly), t, { dir: 1, anda: uw > 0 && uw < 1, sorpresa: t > TS.ONE && t < TS.GOLD, sonrisa: t > TS.GOLD + 0.3 && uw === 0, dedo: t > TS.GOLD && t < TS.WALK });
+  if (!o.sinLeto) R.actor(LT.letoNinoLT, ri(lx) - 8, ri(ly), t, { dir: 1, anda: uw > 0 && uw < 1, sorpresa: t > TS.P8 + 0.3 && t < TS.GOLD, sonrisa: t > TS.GOLD + 0.3 && uw === 0, dedo: t > TS.GOLD && t < TS.WALK });
   T.jacurutuDelante(R, t, O);
 };
 
@@ -552,7 +565,7 @@ const p15 = (t, o = {}) => {
 };
 
 const efectos = [[0.3, 'viento'], [TS.CAPT, 'whoosh'], [TS.LAW, 'pasos'], [TS.GURNEY, 'pasos'], [TS.P3 + 0.8, 'toc'], [TS.TEST, 'golpecito'], [TS.JESS, 'zumbido'],
-  [TS.SWALLOW, 'burbujas'], [TS.SPICE + 0.1, 'brillo'], [TS.TRANCE, 'whoosh'], [TS.EVERY, 'aldea', { k: 0 }], [TS.EVERY + 0.4, 'aldea', { k: 2 }], [TS.EVERY + 0.8, 'aldea', { k: 4 }],
+  [TS.SWALLOW, 'burbujas'], [TS.P5 + 0.3, 'zumbido'], [TS.P8 + 0.1, 'zumbido'], [TS.ONE + 0.9, 'tic'], [TS.ONE + 1.5, 'tic'], [TS.P9 + 0.2, 'publico'], [TS.P10 + 0.2, 'publico'], [TS.P12 + 0.2, 'viento'], [TS.P13 + 0.3, 'pajaros'], [TS.SPICE + 0.1, 'brillo'], [TS.TRANCE, 'whoosh'], [TS.EVERY, 'aldea', { k: 0 }], [TS.EVERY + 0.4, 'aldea', { k: 2 }], [TS.EVERY + 0.8, 'aldea', { k: 4 }],
   [TS.STAG, 'tic'], [TS.EXT, 'avalancha'], [TS.ONE, 'interruptor'], [TS.GOLD, 'campana'], [TS.HARD, 'boom'], [TS.SAVIOR, 'avalancha'], [TS.DECIDES, 'brillo'],
   [TS.TROUT, 'pop'], [TS.LIVING, 'brillo'], [TS.LIVING + 0.5, 'boing'], [TS.INVIN - 0.3, 'whoosh'], [TS.FASTER, 'rafaga'], [TS.WORM, 'trueno']];
 T.rodar(E, R, [[0, p1], [TS.P2, p2], [TS.P3, p3], [TS.P4, p4], [TS.P5, p5], [TS.P6, p6], [TS.P7, p7], [TS.P8, p8], [TS.P9, p9], [TS.P10, p10], [TS.P11, p11], [TS.P12, p12], [TS.P13, p13], [TS.P14, p14], [TS.P15, p15]], { efectos });

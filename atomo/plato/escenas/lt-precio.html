@@ -11,7 +11,7 @@
 <script type="module">
 // LT-PRECIO (frases 16–18: «padre», «multitud», «alia2»), año 21, sin cartela. Catorce planos, cortados en la voz inglesa:
 // 1 (0) desierto/general de noche: Leto llega por la cresta; el guía trae al ciego; se cruzan en «crosses paths»; a lo
-//   lejos, la lumbre del campamento;
+//   lejos, la lumbre del campamento; un ratón canguro cruza a saltos y se yergue en el sobresalto; una estrella fugaz;
 // 2 («and he recognizes») la lumbre de cerca (fondo local): Leto se para en seco «!»; el guía echa una rama; en «father,
 //   Paul» asoma de luz el padre joven sobre el ciego; en «sand» una ráfaga levanta la arena;
 // 3 («Imagine») la lumbre de lejos bajo el cielo enorme (fondo local): lucecitas de conversación; Atom, luciérnaga, baja
@@ -20,7 +20,8 @@
 //   confiesa; en «golden path» las chispas se ordenan en un arco de oro;
 // 5 («but couldn't») la pared de roca (fondo local): sus sombras gigantes; el padre le toca la cara en «couldn't bear»;
 //   en «become» la sombra del niño es la de un gusano enorme;
-// 6 («They return») desierto/general al ocaso: los tres caminan hacia Arrakeen, que se enciende en «Arrakeen»;
+// 6 («They return») desierto/general al ocaso: los tres caminan hacia Arrakeen, que se enciende en «Arrakeen»; polvo de
+//   los pies; una bandada vuelve a la ciudad; un lagarto se esconde a su paso;
 // 7 («crowd») ciudadela balcon/multitud (2.ª vez, a la derecha): el predicador en el brocal; capuchas oscuras en «Alia's
 //   men»; en «killed» un destello entre la gente y ya no está; la venda cae; Leto tiende la mano al brocal vacío;
 // 8 («when he had found him») la escalinata (fondo local): Leto coge el bastón; los últimos se van en «no one left»;
@@ -192,6 +193,11 @@ const ph1 = (t, o = {}) => {
   R.actor(LT.guiaLT, gx, 150, t, { dir: -1, anda: ug > 0 && ug < 1, dedo: t > en('padre', 0.1456) && t < en('padre', 0.1829), sorpresa: t > en('padre', 0.1157) && t < en('padre', 0.1456), quieto: o.quieto });
   // huellas que deja Leto en la cresta
   for (let k = 0; k < 12; k++) { const x = lx - 6 - k * 7; if (x > 0) { ps(x, 151 + (k & 1), H('#2a2448')); ps(x + 1, 151 + (k & 1), H('#2a2448')); } }
+  // un ratón canguro (muad'dib) cruza a saltos por delante; en el sobresalto de Leto se para en seco y se yergue, y sigue
+  { const pa = t > en('padre', 0.1083) && t < en('padre', 0.1531), u = Math.max(0, t - 0.8) - (t > en('padre', 0.1083) ? Math.min(t, en('padre', 0.1531)) - en('padre', 0.1083) : 0);
+    const rx = 330 - u * 30, salto = pa ? 0 : Math.abs(Math.sin(u * 6.5)) * 6; if (rx > -10) { sombraSuelo(ri(rx), 167, 3, 1, 0.4); raton(rx, 166 - salto - (pa ? 2 : 0), t, -1); } }
+  // una estrella fugaz cruza el cielo cuando se cruzan los caminos
+  { const f = (t - 3.4) / 0.7; if (f > 0 && f < 1) for (let i = 0; i < 10; i++) { const g = f - i * 0.02; if (g < 0) continue; mezP(196 - g * 70, 34 + g * 22, H('#fff4d0'), 0.9 * (1 - i / 10) * (1 - f * 0.5)); } }
   T.planetaDelante(R, t, O1);
 };
 
@@ -374,6 +380,12 @@ const ph6 = (t, o = {}) => {
   predicador(pxx, 150, t, { dir: 1, anda: true, sostiene: [pxx + 16, 136], sonrisa: t > en('multitud', 0.0687) });
   R.actor(LT.guiaLT, gx, 150, t, { dir: 1, anda: true, dedo: t > en('multitud', 0.0440) && t < en('multitud', 0.1180) });
   for (let k = 0; k < 9; k++) { const x = lx - 8 - k * 6, y = 151 + (k & 1); if (x > 0) R.rect(x, y, x + 1, y, H('#a8603a')); }
+  // el polvo que levantan los pies al andar, que se queda atrás y se deshace
+  for (const fx of [lx, pxx, gx]) for (let k = 0; k < 4; k++) { const f = (t * 1.7 + k / 4 + fx * 0.01) % 1; mezP(fx - 3 - f * 14, 149 - f * 5 + Math.sin(k + t) , H('#f0c890'), 0.55 * (1 - f)); mezP(fx - 4 - f * 14, 150 - f * 5, H('#f0c890'), 0.35 * (1 - f)); }
+  // una bandada vuelve a la ciudad al caer la tarde, cada vez más pequeña
+  for (let k = 0; k < 5; k++) { const f = Math.min(1, Math.max(0, (t - en('multitud', 0.0008) - k * 0.35) / 5.5)); if (f <= 0 || f >= 1) continue; pajaro(lerp(-10 - k * 8, 236, f), lerp(96 + (k % 3) * 6, 62, f) + Math.sin(t * 3 + k) * 2, t, H('#3a1e3a'), k * 1.7); }
+  // un lagarto que estaba al sol se mete corriendo en su roca cuando pasan
+  { const u = cl((t - en('multitud', 0.0008) - 1.6) / 0.9), x = ri(lerp(236, 268, ease(u))), y = 156; if (u < 1) { R.rect(x - 3, y - 1, x + 2, y, H('#6a4a2a')); ps(x + 3, y - 1, H('#8a6a3a')); ps(x + 3, y - 2, K); for (let i = 1; i <= 4; i++) ps(x - 3 - i, y - (i & 1) * (u > 0 ? 1 : 0), H('#5a3e24')); ps(x - 1, y + 1, H('#5a3e24')); ps(x + 1, y + 1, H('#5a3e24')); } }
   T.planetaDelante(R, t, O6);
 };
 

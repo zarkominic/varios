@@ -10,14 +10,20 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // LT-SOLEDAD (frase 23), LA PAUSA «fíjate» de la soledad, sin año. Siete planos sobre los congelados de lt-dios:
-// 1. la ventana congelada (p16): Atom al doble entra y señala; en «2015» el año;
-// 2. el diario congelado (p13): vuelan hojas de estudios y se apilan; «70» en «dozens»;
+// (en todos, el polvo congelado del aire centellea y se aparta al paso de Atom)
+// 1. la ventana congelada (p16): Atom al doble entra y señala; en «2015» el cartel del año baja colgado y se balancea; aplaude;
+// 2. el diario congelado (p13): vuelan hojas de estudios y se apilan; Atom caza una al vuelo, la mira y la echa al montón;
+//    «70» en «dozens»;
 // 3. las cubas congeladas (p12): filas de gente diminuta, «3000000» en «million»; en «loneliness» Atom saca la mesa;
-// 4. la esquina congelada (p9): T.pausa 'mesa' grande; flecha roja que sube en «risk», reloj en «early», «!»;
-// 5. la calle congelada (p6): la silla sola «=» la torre de dulces; el «!» crece en «far more»;
-// 6. la Ciudadela congelada (p10): los amigos de la mesa ríen en «company»; el gusano recobra el color en «Leto»; corona
+// 4. la esquina congelada (p9): T.pausa 'mesa' grande; flecha roja que sube en «risk»; baja un reloj de bolsillo cuya
+//    aguja corre en «early»; «!»;
+// 5. la calle congelada (p6): la silla sola «=» la torre de dulces, que cae piso a piso y se enciende la vela; el «!»
+//    crece en «far more»;
+// 6. la Ciudadela congelada (p10): los amigos de la mesa ríen en «company»; el gusano recobra el color en «Leto», respira
+//    y habla; corona
 //    en «power»;
-// 7. el Sareer congelado (p5): el gusano a color, «3000», un aro vacío en «no one», «?» en «understand».
+// 7. el Sareer congelado (p5): el gusano a color, «3000»; Atom se acerca unos pasos y se para; un aro vacío en «no one»,
+//    «?» en «understand» (Atom pensativo).
 import * as T from '/atomo/plato/escenas/lt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('lt-soledad');
@@ -199,6 +205,8 @@ const p2 = (t, o = {}) => {
   const oo = { encuadre: 'ciudadela', camara: 'audiencia' }; const d = T.imperio(R, t, oo); const [cx, cy] = d.carro ?? [248, 140];
   const ua = tramo(t, W.P2 + 0.05, W.ENORM + 0.9), ax = lerp(30, 136, ease(ua));
   const lg = T.letoGusano(R, cx, cy, t, { s: 1, dir: -1, mira: t > W.ENORM + 0.3 ? [ax + 4, 132] : [120, 150], habla: t > W.HANDS + 0.5 && Math.sin(t * 9) > 0 });
+  // una Habladora de guardia entra por detrás con su vara, se cuadra junto a la columna y, en «face», mira a Atom
+  { const ug = tramo(t, W.P2 + 0.3, W.P2 + 2.6), gx = lerp(-8, 104, ease(ug)); T.d2_habladora(R, gx, 146, t, { alto: 13, dir: ug < 1 ? 1 : t > W.FACE ? -1 : 0, anda: ug > 0 && ug < 1, baston: true, fase: 2 }); }
   if (!o.sinAtom) atom(ax, 152, t, { s: 1.6, dir: 1, pose: ua > 0 && ua < 1 ? 'camina' : t > W.FACE - 0.3 ? 'senala' : 'quieto', cara: t > W.ENORM + 0.2 && t < W.FACE ? 'sorpresa' : t >= W.FACE ? 'sonrisa' : 'normal', habla: 0 });
   if (!o.sinAtom && t > W.ENORM + 0.2 && t < W.FACE - 0.2) R.icono('!', ri(ax) + 6, 108 + flota(t), H('#ffe060'), true, 2);
   T.imperioDelante(R, t, oo);
@@ -281,6 +289,12 @@ const p5 = (t, o = {}) => {
   const rec = tramo(t, W.REMEMBER - 0.3, W.REMEMBER + 0.5), va = tramo(t, W.BE - 0.6, W.BE + 0.6);
   T.letoGusano(R, cx, ly, t, { s: 0.5, dir: -1, giro: cx / 4, mira: rec > 0 ? [cx - 40, ly - 12] : (d.sol ?? [118, 76]) });
   if (rec > 0 && !o.sinNino) fantasma(LT.letoNinoLT, cx - 52 - ri(va * 10), ly + 1, t, { dir: 1, sonrisa: true, anda: va > 0 }, 0.75 * rec * (1 - va), H('#ffd890'), 0.5);
+  // el viento del último desierto: regueros de arena que barren las dunas y un penacho que se levanta de la cresta
+  for (let k = 0; k < 26; k++) { const v = 40 + hh(k, 3) * 50, x = 330 - ((t * v + hh(k, 4) * 400) % 360), y = 118 + hh(k, 5) * 58 + Math.sin(t * 2 + k) * 2;
+    for (let i = 0; i < 6; i++) mezP(x + i * 2, y + i * 0.3, H('#fff0c8'), 0.8 - i * 0.12); }
+  for (let k = 0; k < 14; k++) { const f = (t * 0.7 + k / 14) % 1; mezP(lx + 34 - f * 46, ly - 10 - f * 16 + Math.sin(f * 9 + k) * 2, H('#f8d8a0'), 0.55 * (1 - f)); }
+  // dos aves del desierto planean en círculo sobre él
+  for (let k = 0; k < 2; k++) { const a = t * 0.8 + k * 3.1; pajaro(cx - 10 + Math.cos(a) * 34, 66 + Math.sin(a) * 9 + k * 6, t, H('#3a2430'), k * 2); }
   T.imperioDelante(R, t, oo);
 };
 
@@ -526,7 +540,11 @@ const p10 = (t, o = {}) => {
   // los peregrinos en la alfombra, de pie y luego postrados
   for (let fila = 0; fila < 3; fila++) for (let k = 0; k < 6 - fila; k++) { const y = 140 + fila * 7, x = 132 + k * 11 + fila * 5 - (fila === 2 ? 2 : 0), t0 = W.WORSHIP + (fila * 6 + k) * 0.06;
     devoto(x, y, [H('#c8a878'), H('#8a6a9a'), H('#7a9a8a'), H('#c87a5a')][(k + fila) % 4], tramo(t, t0, t0 + 0.2) > 0.5 && !(t > W.PEACE && t < W.PEACE + 0.8 && (k + fila) % 3 === 0) ? 1 : 0); }
-  T.letoGusano(R, cx, cy, t, { s: 1, dir: -1, mira: t > W.YET ? [150, 176] : [160, 150], habla: t > W.GOD - 0.2 && t < W.GOD + 0.8 && Math.sin(t * 9) > 0 });
+  // habla a los peregrinos mientras se postran (en «worship… god»), mira a Duncan cuando Duncan le habla en «peace»
+  T.letoGusano(R, cx, cy, t, { s: 1, dir: -1, mira: t > W.YET ? [150, 176] : t > W.PEACE + 0.3 && t < W.PEACE + 1.3 ? [cx - 70, cy - 10] : [160, 150], habla: ((t > W.WORSHIP + 0.5 && t < W.GOD + 0.9) || (t > W.PEACE + 1.3 && t < W.PEACE + 2.1)) && Math.sin(t * 9) > -0.3 });
+  // dos Habladoras de ronda llegan por los lados, delante de las filas, se cuadran y giran la cabeza hacia él en «god»
+  for (const [x0, x1, d, f] of [[-10, 50, 1, 1], [330, 270, -1, 4]]) { const u = tramo(t, W.P10 + 0.2 + f * 0.1, W.P10 + 2.6 + f * 0.1), x = lerp(x0, x1, ease(u));
+    T.d2_habladora(R, x, 170, t, { alto: 13, dir: u < 1 ? d : (t > W.GOD - 0.2 && t < W.PEACE ? 0 : d), anda: u > 0 && u < 1, baston: true, fase: f, mira: t > W.YET && d < 0 }); }
   // Duncan a su lado, junto a la cara
   R.actor(LT.duncanLT, cx - 70, cy + 6, t, { dir: 1, habla: t > W.PEACE + 0.4 && t < W.PEACE + 1.2 });
   // palomas que entran por el ventanal en «peace»
@@ -754,7 +772,14 @@ const p15 = (t, o = {}) => {
 const p16 = (t, o = {}) => {
   const oo = { encuadre: 'diario', camara: 'ventana' }; const d = T.imperio(R, t, oo); const [cx, cy] = d.carro ?? [246, 148];
   const asiente = t > W.RIGHT && t < W.RIGHT + 0.6 ? 2 : 0;
-  T.letoGusano(R, cx, cy, t, { s: 1, dir: d.carroDir ?? -1, mira: t > W.SHARE ? [200, 178] : t > W.NOONE ? [306, 120] : [112, 40 + asiente * 6], habla: t > W.RIGHT - 0.2 && t < W.RIGHT + 0.4 && Math.sin(t * 9) > 0 });
+  // dicta a la máquina hasta «right» (la boca se mueve), asiente; en «no one» se calla y se vuelve a la sala vacía
+  const dicta = (t > W.P16 && t < W.RIGHT + 0.4) || (t > W.NOONE - 0.5 && t < W.NOONE - 0.1);
+  T.letoGusano(R, cx, cy, t, { s: 1, dir: d.carroDir ?? -1, mira: t > W.SHARE ? [200, 178] : t > W.NOONE ? [306, 120] : [112, 40 + asiente * 6], habla: dicta && Math.sin(t * 9) > -0.2 });
+  // la tira de papel del diario sale de la máquina mientras dicta, cae y se enrosca en las losas
+  { const L = ri(10 + cl((Math.min(t, W.RIGHT + 0.4) - W.P16) / 1.2, 0, 1) * 14 + cl((Math.min(t, W.NOONE - 0.1) - W.NOONE + 0.5) / 0.4, 0, 1) * 4);
+    for (let i = 0; i < L; i++) { const y = 134 + Math.min(i, 13), x = 45 + (i > 13 ? (i - 13) * 1.5 : Math.sin(i * 0.5 + t * (dicta ? 6 : 0)) * 0.6);
+      R.pset(ri(x), ri(y), i % 4 === 2 ? H('#b8b0a0') : H('#f0e8d8')); R.pset(ri(x) + 1, ri(y), H('#c8c0b0')); }
+    if (dicta && Math.sin(t * 14) > 0) R.pset(44, 133, H('#6ae88a')); }
   T.imperioDelante(R, t, oo);
   // la polilla junto al aplique; en «no one» se va volando
   const va = tramo(t, W.NOONE, W.NOONE + 2), px = 296 + Math.cos(t * 5) * 5 * (1 - va) - va * 120, py = 70 + Math.sin(t * 7) * 4 - va * 10;
@@ -782,6 +807,14 @@ const mesa = (x, y, t, s = 2) => T.pausa(R, x, y, t, { cual: 'mesa', s });
 const cartelNum = (txt, cx, y, t, t0, ancho) => { const b = ri(Math.sin(tramo(t, t0, t0 + 0.4) * Math.PI) * 3), w = ancho ?? txt.length * 8 + 10;
   R.halo(cx, y - 8 - b, w * 0.7, [H('#3a3a4a'), H('#ffe8a0')], 0.35); R.rect(cx - w, y - 22 - b, cx + w, y + 4 - b, K); R.rect(cx - w + 1, y - 21 - b, cx + w - 1, y + 3 - b, H('#2a1a2e'));
   R.rect(cx - w + 1, y - 21 - b, cx + w - 1, y - 21 - b, H('#c8963a')); R.rect(cx - w + 1, y + 3 - b, cx + w - 1, y + 3 - b, H('#7a5a2a')); R.numero(txt, cx, y - b, { tam: 16, centro: true }); };
+// el polvo del mundo congelado: motas quietas en el aire que centellean; las que roza Atom al pasar se apartan y giran
+const motasP = (t, ax, ay, k0 = 0) => { for (let k = 0; k < 22; k++) { let x = 12 + hh(k, 1, k0) * 250, y = 40 + hh(k, 2, k0) * 120; const dx = x - ax, dy = y - ay, d = Math.hypot(dx, dy);
+  if (d < 26) { const e = (26 - d) / 26; x += dx / (d + 0.1) * e * 10 + Math.cos(t * 4 + k) * e * 3; y += dy / (d + 0.1) * e * 8 + Math.sin(t * 4 + k) * e * 3; }
+  if (!libreAtom(x, y)) continue; const g = Math.sin(t * 1.6 + k * 2.3); mezP(x, y, H('#e8f0ff'), g > 0.7 ? 0.8 : 0.35); if (g > 0.9) { mezP(x - 1, y, H('#e8f0ff'), 0.4); mezP(x + 1, y, H('#e8f0ff'), 0.4); } } };
+// un reloj de bolsillo de latón con la aguja que corre (el tiempo que se acorta)
+const relojP = (x, y, t, v) => { x = ri(x); y = ri(y); R.disco(x, y, 9, K); R.disco(x, y, 8, H('#c8963a')); R.disco(x, y, 7, H('#fbf3dc')); R.rect(x - 1, y - 12, x + 1, y - 9, H('#c8963a')); R.pset(x, y - 13, K);
+  for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; R.pset(ri(x + Math.cos(a) * 6), ri(y + Math.sin(a) * 6), H('#7a5a2a')); }
+  const a = -Math.PI / 2 + t * v; R.linea(x, y, ri(x + Math.cos(a) * 5), ri(y + Math.sin(a) * 5), H('#d83a3a')); R.linea(x, y, x + 3, y, K); R.pset(x, y, K); R.pset(x - 3, y - 3, H('#ffffff')); };
 // una hoja de estudio (sin letras: rayas y una gráfica)
 const hoja = (x, y, k) => { x = ri(x); y = ri(y); R.rect(x, y, x + 13, y + 9, H('#5a5a6a')); R.rect(x + 1, y + 1, x + 12, y + 8, H('#fbf6e8')); R.linea(x + 2, y + 3, x + 10, y + 3, H('#a8a8b8')); R.linea(x + 2, y + 5, x + 8, y + 5, H('#a8a8b8'));
   R.rect(x + 9, y + 6 - (k % 3), x + 10, y + 7, [H('#d84a4a'), H('#3a8ad8'), H('#4ab06a')][k % 3]); };
@@ -790,8 +823,13 @@ const hoja = (x, y, k) => { x = ri(x); y = ri(y); R.rect(x, y, x + 13, y + 9, H(
 const q1 = (t) => {
   R.copiar(fz16()); AT.pausa(R, tramo(t, 0, 0.35));
   const an = tramo(t, 0.2, 1.6), x = lerp(-30, 92, ease(an));
-  atomG(x, 176, t, { dir: 1, pose: an < 1 ? 'camina' : t > WS.Y2015 - 0.3 ? 'senala' : 'quieto', cara: t > WS.Y2015 ? 'sonrisa' : 'normal' });
-  if (t > WS.Y2015 - 0.1) { cartelNum('2015', 150, 66, t, WS.Y2015); AT.anillo(R, 150, 58, 46, 20, t, tramo(t, WS.Y2015, WS.Y2015 + 0.8)); }
+  motasP(t, x, 156);
+  // en «notice» tira de un cordel invisible y el cartel del año baja colgado, se balancea y se queda
+  const ba = ease(tramo(t, WS.Y2015 - 0.5, WS.Y2015)), sw = Math.sin((t - WS.Y2015) * 6) * 5 * Math.max(0, 1 - (t - WS.Y2015) / 1.6) * (t > WS.Y2015 ? 1 : 0);
+  atomG(x, 176, t, { dir: 1, pose: an < 1 ? 'camina' : t > WS.Y2015 + 1.4 ? 'brazos' : t > WS.Y2015 - 0.7 ? 'senala' : 'quieto', cara: t > WS.Y2015 ? 'sonrisa' : 'normal' });
+  if (ba > 0) { const cy = ri(lerp(-30, 66, ba)), cx = ri(150 + sw);
+    for (const ox of [-30, 30]) R.linea(150 + ox * 0.6, 22, cx + ox, cy - 22, H('#a89870'));
+    cartelNum('2015', cx, cy, t, WS.Y2015); if (t > WS.Y2015) AT.anillo(R, cx, cy - 8, 46, 20, t, tramo(t, WS.Y2015, WS.Y2015 + 0.8)); }
 };
 // ── 2 · el diario congelado: vuelan hojas de estudios y se apilan; en «dozens», el «70» ──
 const q2 = (t) => {
@@ -799,12 +837,19 @@ const q2 = (t) => {
   const n = 16;
   for (let k = 0; k < n; k++) { const t0 = WS.JULIANNE + k * 0.2, u = tramo(t, t0, t0 + 0.6); if (u <= 0) continue; const de = k % 2 ? [330, 30 + k * 4] : [-20, 50 + k * 3], a = [168 + (k % 3) - 1, 162 - k * 3];
     hoja(lerp(de[0], a[0], ease(u)), lerp(de[1], a[1], ease(u)) - Math.sin(u * Math.PI) * 20, k); }
-  atomG(260, 178, t, { dir: -1, pose: t > WS.DOZENS - 0.3 ? 'senala' : 'brazos', cara: t > WS.DOZENS ? 'sonrisa' : 'sorpresa' });
+  motasP(t, 160, 120, 2);
+  // la última hoja se desvía hacia Atom: la caza al vuelo, la mira y, en «dozens», señala el montón
+  const ca = tramo(t, WS.TEAM - 0.2, WS.TEAM + 0.5), tiene = t > WS.TEAM + 0.5 && t < WS.DOZENS - 0.3;
+  const a = atomG(260, 178, t, { dir: -1, pose: tiene ? 'sostiene' : t > WS.DOZENS - 0.3 ? 'senala' : 'brazos', cara: tiene ? 'normal' : t > WS.DOZENS ? 'sonrisa' : 'sorpresa' });
+  if (ca > 0 && ca < 1) hoja(lerp(-20, 236, ease(ca)), lerp(40, 140, ease(ca)) - Math.sin(ca * Math.PI) * 18, 1);
+  else if (tiene && a?.mano) hoja(a.mano[0] - 10, a.mano[1] - 7, 1);
+  else if (t >= WS.DOZENS - 0.3) { const u = tramo(t, WS.DOZENS - 0.3, WS.DOZENS + 0.2); if (u < 1) hoja(lerp(232, 168, u), lerp(130, 108, u) - Math.sin(u * Math.PI) * 14, 1); else hoja(168, 108, 1); }
   if (t > WS.DOZENS - 0.1) cartelNum('70', 176, 80, t, WS.DOZENS);
 };
 // ── 3 · las cubas congeladas: más de tres millones de personas (filas de gentecilla); en «loneliness» Atom saca la mesa ──
 const q3 = (t) => {
   congela(fz12);
+  motasP(t, 250, 160, 3);
   const COL = pal('#d86a4a', '#4a8ad8', '#e8c040', '#5ab06a', '#b86ad8', '#e88aa0');
   // la gente: entra a oleadas y, en «loneliness», se aparta a los lados para dejar sitio a la mesa
   const ap = ease(tramo(t, WS.LONELY - 0.4, WS.LONELY + 0.5));
@@ -820,7 +865,8 @@ const q4 = (t) => {
   congela(fz9);
   const m = mesa(128, 172, t, 2), [px, py] = m?.punto ?? [80, 140];
   const sube = tramo(t, WS.RISK - 0.2, WS.DYING); if (sube > 0) { const x = px - 18, y0 = py + 8, y1 = ri(y0 - 34 * ease(sube)); for (let y = y1; y <= y0; y++) { R.rect(x - 1, y, x + 1, y, H('#e83a3a')); } R.poligono([[x - 5, y1 + 1], [x, y1 - 6], [x + 5, y1 + 1]], H('#e83a3a')); R.pset(x - 1, y1, H('#ff8a7a')); }
-  if (t > WS.EARLY - 0.1) { R.icono('reloj', px - 30, py - 44 + flota(t), H('#ffe080'), true, 2); }
+  motasP(t, 268, 160, 4);
+  { const u = tramo(t, WS.DYING - 0.4, WS.EARLY), v = t < WS.EARLY ? 0.6 : 0.6 + Math.min(6, (t - WS.EARLY) * 4); if (u > 0) relojP(px - 30, lerp(80, py - 44, ease(u)) + flota(t), t, v); }
   if (t > WS.DYING) R.icono('!', px + 6, py - 40 + flota(t, 1), H('#e83a3a'), true, 2);
   atomG(268, 178, t, { dir: -1, pose: t > WS.RISK && t < WS.MUCH ? 'senala' : 'piensa', cara: t > WS.RISK ? 'triste' : 'normal' });
 };
@@ -832,9 +878,10 @@ const q5 = (t) => {
 
   const to = tramo(t, WS.OBESITY - 1.6, WS.OBESITY - 0.9); if (to > 0) { const x = 206, y = ri(170 - 0 + (1 - ease(to)) * 30);
     R.rect(x - 16, y - 2, x + 16, y, H('#e8e0d0')); R.rect(x - 14, y, x + 14, y + 1, H('#a89888'));
-    for (let k = 0; k < 5; k++) { const yy = y - 4 - k * 6; R.rect(x - 11, yy - 4, x + 11, yy, [H('#c87a3a'), H('#f0c8d8'), H('#8a5a2a'), H('#f0d070'), H('#d86a8a')][k]); R.rect(x - 11, yy - 4, x + 11, yy - 4, H('#ffffff')); R.pset(x - 6 + k * 3, yy - 2, H('#ffffff')); }
-    R.rect(x - 1, y - 38, x + 1, y - 32, H('#d84a4a')); R.pset(x, y - 39, H('#ffe060'));
+    for (let k = 0; k < 5; k++) { const uk = tramo(t, WS.OBESITY - 1.6 + k * 0.28, WS.OBESITY - 1.4 + k * 0.28); if (uk <= 0) continue; const yy = y - 4 - k * 6 - ri((1 - ease(uk)) * 30); R.rect(x - 11, yy - 4, x + 11, yy, [H('#c87a3a'), H('#f0c8d8'), H('#8a5a2a'), H('#f0d070'), H('#d86a8a')][k]); R.rect(x - 11, yy - 4, x + 11, yy - 4, H('#ffffff')); R.pset(x - 6 + k * 3, yy - 2, H('#ffffff')); }
+    if (t > WS.OBESITY - 0.2) { R.rect(x - 1, y - 38, x + 1, y - 32, H('#d84a4a')); R.pset(x, y - 39 - (Math.sin(t * 12) > 0 ? 1 : 0), H('#ffe060')); R.pset(x, y - 40, H('#fff8c0')); }
     const g = 1 + tramo(t, WS.FAR - 0.2, WS.FAR + 0.3); R.icono('!', x + 20, y - 48 + flota(t), H('#ffe060'), true, ri(g)); }
+  motasP(t, 286, 160, 5);
   if (t > WS.WORRY) R.icono('!', px - 2, py - 36 + flota(t, 2), H('#ffe060'), true, 1);
   atomG(286, 178, t, { dir: -1, pose: t > WS.OBESITY ? 'senala' : 'piensa', cara: t > WS.OBESITY ? 'sorpresa' : 'normal' });
 };
@@ -842,9 +889,10 @@ const q5 = (t) => {
 //    color; en «power» una corona y un halo de oro ──
 const q6 = (t) => {
   congela(fz10);
+  motasP(t, 274, 160, 6);
   const sa = tramo(t, WS.Q6 + 0.1, WS.Q6 + 0.6); if (sa > 0) mesa(86, ri(178 + (1 - ease(sa)) * 30), t, 1.4);
   const co = tramo(t, WS.LETO - 0.2, WS.LETO + 0.5); if (co > 0) { if (t > WS.POWER - 0.1) R.halo(176, 92, 60, [H('#4a4a5a'), H('#ffd860')], 0.45 * tramo(t, WS.POWER - 0.1, WS.POWER + 0.5));
-    const lg = T.letoGusano(R, 160, 124, t, { s: 1, dir: -1, mira: [280, 150] }); if (t > WS.POWER) { const c = lg?.cara ?? [119, 75]; R.icono('corona', c[0] - 3, c[1] - 30 + flota(t), H('#ffd040'), true, 2); } }
+    const lg = T.letoGusano(R, 160, 124, t, { s: 1, dir: -1, mira: t > WS.POWER + 0.6 ? [86, 160] : [280, 150], habla: t > WS.LETO + 0.5 && t < WS.POWER + 0.6 && Math.sin(t * 9) > -0.2 }); if (t > WS.POWER) { const c = lg?.cara ?? [119, 75]; R.icono('corona', c[0] - 3, c[1] - 30 + flota(t), H('#ffd040'), true, 2); } }
   atomG(274, 178, t, { dir: -1, pose: t > WS.LETO - 0.2 ? 'senala' : 'quieto', cara: t > WS.COMPANY && t < WS.LETO ? 'sonrisa' : 'normal' });
 };
 // ── 7 · el Sareer congelado: el gusano pequeño a color; «3000» años; en «no one» un aro vacío a su alrededor; Atom triste ──
@@ -854,10 +902,17 @@ const q7 = (t) => {
   if (t > WS.Y3000 - 0.1) cartelNum('3000', 222, 72, t, WS.Y3000);
   const ua = tramo(t, WS.NOONE - 0.2, WS.NOONE + 0.9); if (ua > 0) AT.anillo(R, 192, 120, 46, 18, t, ua);
   if (t > WS.UNDERSTAND) R.icono('?', 214, 98 + flota(t), H('#ffe080'), true, 2);
-  atomG(70, 178, t, { dir: 1, pose: t < WS.NOONE ? 'senala' : 'quieto', cara: t > WS.NOONE ? 'triste' : 'normal' });
+  motasP(t, 90, 150, 7);
+  const pa = tramo(t, WS.Y3000 + 0.3, WS.NOONE - 0.3), axx = lerp(52, 112, ease(pa));
+  atomG(axx, 178, t, { dir: 1, pose: pa > 0 && pa < 1 ? 'camina' : t < WS.NOONE ? 'senala' : t > WS.UNDERSTAND ? 'piensa' : 'quieto', cara: t > WS.NOONE ? 'triste' : 'normal' });
 };
-const efectos = [[0.3, 'pasos'], [WS.Y2015, 'pop'], [WS.PULLED, 'papel'], [WS.DOZENS, 'pop'], [WS.MILLION, 'aldea', { k: 1 }], [WS.LONELY, 'pop'],
-  [WS.RISK, 'aviso'], [WS.OBESITY - 1.2, 'pop'], [WS.COMPANY, 'palmada'], [WS.LETO, 'brillo'], [WS.Y3000, 'tic']];
+const efectos = [[0.3, 'pasos', { n: 5 }], [WS.Y2015 - 0.5, 'whoosh'], [WS.Y2015, 'golpecito'], [WS.Y2015 + 1.4, 'palmada'],
+  [WS.JULIANNE + 0.1, 'papel'], [WS.PULLED, 'papel'], [WS.TEAM + 0.45, 'papel'], [WS.STUDIES - 0.3, 'papel'], [WS.DOZENS, 'pop'],
+  [WS.MORE, 'aldea', { k: 1 }], [WS.LONELY - 0.2, 'whoosh'], [WS.ISOLATION, 'golpecito'],
+  [WS.RISK, 'aviso'], [WS.DYING, 'tic'], [WS.EARLY, 'tic'], [WS.EARLY + 0.5, 'tic'], [WS.EARLY + 1.0, 'tic'], [WS.EARLY + 1.5, 'tic'],
+  [WS.Q5 + 0.2, 'pop'], [WS.OBESITY - 1.6, 'golpecito'], [WS.OBESITY - 1.04, 'golpecito'], [WS.OBESITY - 0.48, 'golpecito'], [WS.OBESITY - 0.2, 'brillo'],
+  [WS.COMPANY, 'palmada'], [WS.COMPANY + 0.3, 'publico', { dur: 1.6 }], [WS.LETO, 'brillo'], [WS.POWER, 'campana', { lejos: true }],
+  [WS.Q7 + 0.1, 'viento', { dur: 4.5 }], [WS.Y3000, 'tic'], [WS.Y3000 + 0.4, 'pasos', { n: 4 }], [WS.NOONE, 'brillo']];
 T.rodar(E, R, [[0, q1], [WS.Q2, q2], [WS.Q3, q3], [WS.Q4, q4], [WS.Q5, q5], [WS.Q6, q6], [WS.Q7, q7]], { efectos });
 </script>
 </body>

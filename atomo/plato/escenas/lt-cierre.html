@@ -16,7 +16,9 @@
 //    llega, se asombra; cientos de truchas pequeñas se van en todas direcciones;
 // 3. dispersion/general: el bosque se vuelve desierto en «Arrakis back into a desert»; dos fremen saltan en «free»;
 // 4. dispersion/estrellas: las naves salen en todas direcciones; un vecino despega en «every direction»;
-// 5. la carta de estrellas (inserto): los puntos huyen de la lupa del enemigo y del dedo del profeta («?», «?»);
+// 5. la carta de estrellas (inserto): la estrella del centro late y estalla en puntos que se van hacia el borde; los
+//    puntos huyen de la lupa del enemigo y del dedo del profeta («?», «?»); en «find all of it» la lupa cae a la mesa y
+//    las manos se retiran vacías;
 // 6. rio/vacio: el puente vacío; Leto niño en la orilla tira una piedra al agua en «fell»;
 // 7. la peña al ocaso (fondo local): su sombra larga se vuelve gusano en «monster»; «9»; la caravana de familias en «we»;
 // 8. el sendero dorado (fondo local): Paul se asusta y se va en «afraid»; su hijo se asusta y echa a andar en «walked»;
@@ -311,9 +313,10 @@ const p4 = (t) => {
   AT.luciernaga(R, ri(axx), ri(ayy), t, { dir: mira, brillo: 0.9, cara: t > EVERY - 0.2 && t < EVERY + 0.5 ? 'sorpresa' : 'sonrisa' });
 };
 
-// ══ 5 · inserto 'la carta de estrellas en la mesa': los puntos de luz se esparcen desde la estrella del centro hasta el
-//    borde; en «enemy» entra una mano con una lupa y los puntos huyen de ella («?»); en «prophet», el dedo de otra mano
-//    tampoco atrapa ninguno («?»); en «find all of it» la carta se llena de puntos y las manos se retiran ══
+// ══ 5 · inserto 'la carta de estrellas en la mesa': la estrella del centro late y estalla (fogonazo y anillo); los puntos
+//    salen disparados con su estela hacia el borde y se siguen abriendo; en «enemy» entra una mano con una lupa que los
+//    persigue y huyen («?»); en «prophet», el dedo de otra mano pica y tampoco atrapa ninguno («?»); en «find all of it» la
+//    carta se llena, el enemigo suelta la lupa (cae a la mesa y rebota) y las dos manos se retiran vacías ══
 const MAD = pal('#1e100a', '#2e180e', '#422214', '#58301c', '#704026', '#8a5432', '#a86a40');
 const PERG = pal('#6a4a2e', '#8a6844', '#a8865a', '#c4a272', '#dcbc8c', '#ecd2a4');
 const CIEL5 = pal('#0a0e22', '#10162e', '#18203c', '#22304e', '#2e4062');
@@ -351,22 +354,39 @@ const p5 = (t) => {
   // la llama de la vela y su luz que tiembla
   const fl = Math.sin(t * 13) * 0.5 + Math.sin(t * 7.3) * 0.5; bola(46, 56, 9, H('#ffc860'), 0.12 + fl * 0.03);
   for (let j = 0; j < 7; j++) { const w2 = j < 2 ? 1 : j < 5 ? 2 : 1; for (let i = -w2; i <= w2; i++) ps(46 + i + (j > 4 ? ri(fl) : 0), 60 - j, j < 2 ? H('#ffffff') : j < 4 ? H('#ffe070') : H('#ff9a3a')); } ps(46, 61, H('#2a1a0a'));
-  // las manos: el enemigo con su lupa (por la derecha) y el profeta con su dedo (por la izquierda)
-  const e1 = tr(t, ENEMY - 0.4, ENEMY + 0.2) - tr(t, AGAIN - 0.6, AGAIN + 0.2), e2 = tr(t, PROPHET - 0.4, PROPHET + 0.2) - tr(t, AGAIN - 0.5, AGAIN + 0.3);
-  const h1 = [lerp(300, 216 + Math.sin(t * 1.7) * 10, e1), lerp(220, 148 + Math.cos(t * 1.3) * 6, e1)], h2 = [lerp(40, 110 + Math.sin(t * 1.4 + 1) * 8, e2), lerp(220, 150 + Math.sin(t * 2.1) * 5, e2)];
-  const lente = [h1[0] - 18, h1[1] - 18];
-  // los puntos de luz: se esparcen desde el centro; huyen de la lupa y del dedo
-  const g = tr(t, P5 + 0.05, AGAIN - 0.4), mas = tramo(t, FIND - 0.3, FIND + 0.6);
-  for (const p of P5D) { if (p.k > 90 + mas * 60) continue; let r = p.d * (0.08 + 0.92 * Math.min(1, g * p.v * 1.4)), an = p.a + t * 0.02;
+  // la estrella del centro (Arrakis) late al principio y en «scatters» estalla: los puntos salen disparados hacia el
+  // borde con su estela; luego siguen abriéndose despacio y la estrella se apaga
+  const bur = tramo(t, P5 + 0.35, P5 + 1.7), bE = 1 - (1 - bur) ** 3, lento = tramo(t, P5 + 1.7, AGAIN);
+  // las manos: el enemigo con su lupa (por la derecha) y el profeta con su dedo (por la izquierda); en «find all of it»
+  // el enemigo suelta la lupa sobre la mesa (cae y rebota) y las dos manos se retiran vacías
+  const e1 = tr(t, ENEMY - 0.4, ENEMY + 0.2) - tr(t, FIND + 0.45, FIND + 1.2), e2 = tr(t, PROPHET - 0.4, PROPHET + 0.2) - tr(t, FIND + 0.2, FIND + 1.0);
+  // la lupa persigue un corro de puntos (va a donde estaban hace un momento) y el dedo pica a uno que se escapa
+  const caza = (t - ENEMY) * 0.9, h1 = [lerp(310, 206 + Math.sin(caza) * 16 + Math.sin(caza * 2.3) * 5, e1), lerp(226, 146 + Math.cos(caza * 1.3) * 10, e1)];
+  const pica = t > PROPHET + 0.3 ? Math.max(0, Math.sin((t - PROPHET - 0.3) * 6)) ** 3 * 4 : 0;
+  const h2 = [lerp(30, 112 + Math.sin(t * 1.4 + 1) * 8 + pica, e2), lerp(226, 150 + Math.sin(t * 2.1) * 4 - pica * 0.6, e2)];
+  const suelta = FIND + 0.25, cae = tramo(t, suelta, suelta + 0.45), enMano = t < suelta;
+  const lente = enMano ? [h1[0] - 18, h1[1] - 18] : [-99, -99];
+  const g = 0.05 + 0.6 * bE + 0.35 * lento, mas = tramo(t, FIND - 0.3, FIND + 0.6);
+  for (const p of P5D) { if (p.k > 90 + mas * 60) continue; const r = p.d * Math.min(1, g * (0.7 + p.v * 0.45)), an = p.a + t * 0.02;
     let x = C5[0] + Math.cos(an) * r, y = C5[1] + Math.sin(an) * r;
-    for (const [hx, hy, on] of [[lente[0], lente[1], e1], [h2[0] + 6, h2[1] - 4, e2]]) if (on > 0.5) { const dx = x - hx, dy = y - hy, d = Math.hypot(dx, dy); if (d < 16) { x += dx / (d + 0.1) * (16 - d); y += dy / (d + 0.1) * (16 - d); } }
-    if (Math.hypot(x - C5[0], y - C5[1]) > R5 - 1) continue; const b = 0.6 + 0.4 * Math.sin(t * 4 + p.k);
+    for (const [hx, hy, on] of [[lente[0], lente[1], e1], [h2[0] + 6, h2[1] - 4, e2]]) if (on > 0.5) { const dx = x - hx, dy = y - hy, d = Math.hypot(dx, dy); if (d < 18) { x += dx / (d + 0.1) * (18 - d); y += dy / (d + 0.1) * (18 - d); } }
+    if (Math.hypot(x - C5[0], y - C5[1]) > R5 - 2 || r < 3) continue; const b = 0.6 + 0.4 * Math.sin(t * 4 + p.k);
+    // la estela mientras salen disparados (hacia el centro, dentro de la carta)
+    if (bur > 0 && bur < 1) for (let i = 1; i < 5; i++) { const q = r - i * 2.2 * (1 - bur); if (q > 3) mezP(C5[0] + Math.cos(an) * q, C5[1] + Math.sin(an) * q, p.c, 0.5 - i * 0.1); }
     ps(x, y, mez(CIEL5[2], p.c, b)); if (p.k % 5 === 0) { mezP(x + 1, y, p.c, 0.4 * b); mezP(x - 1, y, p.c, 0.4 * b); mezP(x, y - 1, p.c, 0.4 * b); mezP(x, y + 1, p.c, 0.4 * b); } }
-  // la estrella del centro (Arrakis) se apaga a medida que se van
-  R.disco(C5[0], C5[1], 3, mez(H('#e88a3a'), CIEL5[2], g * 0.6)); ps(C5[0] - 1, C5[1] - 1, H('#fff0a0'));
-  if (e1 > 0) { AT.lupa(R, h1[0] - 4, h1[1] - 2, 2, -1); T.brazo(R, 254, 196, h1[0], h1[1], '#5a1e24', -1, { codo: [240, 178] }); }
+  // la estrella del centro: late antes del estallido, da un fogonazo con su anillo y se apaga
+  const lat = bur <= 0 ? 0.5 + 0.5 * Math.sin(t * 9) : 0, fog = Math.sin(tramo(t, P5 + 0.3, P5 + 0.9) * Math.PI), apaga = Math.min(1, bE * 0.5 + lento * 0.5);
+  bola(C5[0], C5[1], 6 + ri(lat * 2 + fog * 4), H('#ffd890'), (0.35 + lat * 0.25 + fog * 0.5) * (1 - apaga * 0.8));
+  R.disco(C5[0], C5[1], 3, mez(H('#e88a3a'), CIEL5[2], apaga * 0.7)); ps(C5[0] - 1, C5[1] - 1, mez(H('#fff0a0'), CIEL5[2], apaga * 0.6));
+  if (fog > 0) for (let a = 0; a < 90; a++) { const an = a / 90 * 6.283, rr = 4 + tramo(t, P5 + 0.3, P5 + 0.9) * 30; mezP(C5[0] + Math.cos(an) * rr, C5[1] + Math.sin(an) * rr, H('#fff0c0'), fog * 0.6); }
+  // la lupa: en la mano, cayendo o tirada en la mesa (con su sombra)
+  const LX = 270, LY = 176;
+  if (!enMano) { const lx = lerp(h1[0] - 4, LX, ease(cae)), ly = lerp(h1[1] - 2, LY, cae * cae) - (cae >= 1 ? Math.max(0, Math.sin((t - suelta - 0.45) * 14)) * 2 * Math.max(0, 1 - (t - suelta - 0.45) * 3) : 0);
+    if (cae >= 1) for (let i = -10; i <= 6; i++) mezP(LX - 18 + i, LY - 6, H('#120806'), 0.35);
+    AT.lupa(R, ri(lx), ri(ly), 2, -1); }
+  if (e1 > 0) { if (enMano) AT.lupa(R, h1[0] - 4, h1[1] - 2, 2, -1); T.brazo(R, 254, 196, h1[0], h1[1], '#5a1e24', -1, { codo: [240, 178] }); }
   if (e2 > 0) T.brazo(R, 74, 198, h2[0], h2[1], '#6a5030', 1, { codo: [88, 178] });
-  if (t > ENEMY + 0.9 && e1 > 0.9) R.icono('?', ri(h1[0] - 8), ri(h1[1] - 52), H('#e84a4a'), H('#1a0a0a'), 2);
+  if (t > ENEMY + 0.9 && e1 > 0.9 && enMano) R.icono('?', ri(h1[0] - 8), ri(h1[1] - 52), H('#e84a4a'), H('#1a0a0a'), 2);
   if (t > PROPHET + 1.2 && e2 > 0.9) R.icono('?', ri(h2[0] + 2), ri(h2[1] - 30), H('#f0c050'), H('#1a0a0a'), 2);
 };
 
@@ -573,7 +593,7 @@ const efectos = [[0.2, 'ola'], [DIES, 'brillo'], [APART - 0.2, 'pasos'],
   [P2 + 0.3, 'pasos'], [PEARL, 'brillo'],
   [TURN - 0.2, 'viento'], [FREE, 'palmada'],
   [EVERY - 0.1, 'jet'], [PLACES - 1, 'whoosh'],
-  [ENEMY - 0.3, 'papel'], [PROPHET - 0.3, 'papel'], [PROPHET + 1.2, 'pop'], [FIND, 'brillo'],
+  [P5 + 0.35, 'brillo'], [ENEMY - 0.3, 'papel'], [PROPHET - 0.3, 'papel'], [PROPHET + 1.2, 'pop'], [FIND + 0.7, 'golpecito'],
   [P6 + 0.2, 'pasos'], [FELL, 'chof'],
   [P7 + 0.2, 'viento'], [NINE, 'pop'], [WE, 'pasos'],
   [P8 + 0.2, 'pasos'], [AFRAID, 'tapestop'], [WALKED, 'brillo'],

@@ -11,9 +11,11 @@
 <script type="module">
 // LT-REACTANCIA (frase 27), LA PAUSA «fíjate» de la reactancia, sin año. Seis planos sobre los congelados de lt-puente:
 // 1. el río congelado (p14): Atom al doble entra y señala; en «lesson» el anillo y el gusanito de oro;
-// 2. la audiencia congelada (p6): «1966» en «1966»; en «reactance» Atom saca la jaula (T.pausa 'jaula');
-// 3. el Sareer congelado (p4): la jaula grande; la señal late en «freedom»; el pájaro empuja la puerta en «more»: «!»;
-// 4. el tablero congelado (p9): en «pushes us» el pájaro sale y vuela; Atom lo saluda en «win it back»;
+// 2. la audiencia congelada (p6): Atom llega andando; «1966» en «1966»; se rasca la barbilla en «psychologist»; en
+//    «reactance» la jaula sube del suelo con un zumbido y se posa;
+// 3. el Sareer congelado (p4): la jaula grande; la señal late en «freedom»; el pájaro da dos topetazos a la puerta en
+//    «more» («!») y la sigue empujando;
+// 4. el tablero congelado (p9): en «pushes us» salta el cerrojo y el pájaro sale y vuela; Atom lo saluda en «win it back»;
 // 5. la maqueta congelada (p1): Leto a color en «knew it»; figuritas que se inclinan en «obey» («X») y alzan el puño en
 //    «hate obedience»;
 // 6. el arco congelado (p8): en «died» los pájaros de colores salen hacia el cielo; en «stars» naves diminutas.
@@ -786,13 +788,17 @@ const q2 = (t) => {
   if (t > WR.Y1966 - 0.1) cartelNum('1966', 96, 64, t, WR.Y1966);
   const sa = tramo(t, WR.REACT - 0.5, WR.REACT + 0.2);
   if (sa > 0) jaula(196, 176 + (1 - ease(sa)) * 70, t, 0, 1.6);
-  atomG(284, 178, t, { dir: -1, pose: sa > 0 && sa < 1 ? 'sostiene' : t > WR.Y1966 && t < WR.REACT - 0.6 ? 'senala' : 'quieto', cara: t > WR.REACT ? 'sonrisa' : 'normal' });
+  // Atom llega andando desde la derecha; señala el año, se lleva la mano a la barbilla en «psychologist» y saca la jaula
+  const ll = tramo(t, WR.R2 + 0.05, WR.R2 + 1.0);
+  atomG(lerp(336, 284, ease(ll)), 178, t, { dir: -1, pose: ll < 1 ? 'camina' : sa > 0 && sa < 1 ? 'sostiene' : t > WR.PSYCH - 0.2 && t < WR.REACT - 0.6 ? 'piensa' : t > WR.Y1966 && t < WR.REACT - 0.6 ? 'senala' : 'quieto', cara: t > WR.REACT ? 'sonrisa' : 'normal' });
 };
 // ── 3 · el Sareer congelado (Siona con el diario): la jaula grande; en «freedom» la señal de prohibido late; en «more»
 //    el pájaro empuja la puerta: «!» ──
 const q3 = (t) => {
   congela(fz4);
-  const emp = t > WR.MORE - 0.3 ? 0.06 + Math.abs(Math.sin(t * 9)) * 0.06 : Math.abs(Math.sin(t * 3)) * 0.02;
+  // el pájaro da dos topetazos a la puerta (en «more» y justo después) y luego la sigue empujando
+  const top = (t0) => Math.exp(-(((t - t0) / 0.09) ** 2)) * 0.14;
+  const emp = (t > WR.MORE + 0.5 ? 0.05 + Math.abs(Math.sin(t * 9)) * 0.05 : Math.abs(Math.sin(t * 3)) * 0.02) + top(WR.MORE - 0.3) + top(WR.MORE + 0.3);
   const j = jaula(116, 176, t, emp, 2);
   if (t > WR.FREEDOM && t < WR.MORE) { const c = j?.caja ?? [56, 84, 176, 176]; if (Math.floor(t * 4) % 2) AT.anillo(R, c[0] + 24, c[1] + 26, 24, 24, t, 1); }
   if (t > WR.MORE) R.icono('!', 146, 62 + flota(t), H('#ffe060'), K, 3);
@@ -833,8 +839,13 @@ const q6 = (t) => {
   if (u > 0) jaula(70, 178, t, 1, 1.2);
   atomG(268, 178, t, { dir: -1, pose: t > WR.EVERYONE ? 'saluda' : 'quieto', cara: t > WR.DIED ? 'sonrisa' : 'normal' });
 };
-const efectosR = [[0.3, 'pasos'], [WR.LESSON, 'brillo'], [WR.Y1966, 'pop'], [WR.REACT, 'pop'], [WR.FREEDOM, 'aviso'], [WR.MORE, 'golpecito'],
-  [WR.PUSHES + 0.3, 'pajaros'], [WR.KNEW, 'brillo'], [WR.OBEY, 'tic'], [WR.HATE, 'palmada'], [WR.DIED + 0.2, 'pajaros'], [WR.RUN, 'whoosh']];
+// densidad medida con efectos.cjs: ~54 % del tiempo (antes 33 %); el «tapestop» abre la pausa como en las otras «fíjate»
+const efectosR = [[0.05, 'tapestop'], [WR.LESSON, 'brillo'],
+  [WR.R2 + 0.2, 'pasos'], [WR.Y1966, 'pop'], [WR.REACT - 0.5, 'zumbido'], [WR.REACT + 0.2, 'golpecito'],
+  [WR.FREEDOM, 'aviso'], [WR.MORE - 0.3, 'toc'], [WR.MORE + 0.3, 'toc'],
+  [WR.PUSHES - 0.1, 'cerrojo'], [WR.PUSHES + 0.3, 'pajaros'],
+  [WR.KNEW, 'brillo'], [WR.OBEY, 'tic'], [WR.HATE, 'palmada'], [WR.HATE + 0.15, 'publico', { dur: 1.2 }],
+  [WR.DIED - 0.3, 'pajaros'], [WR.RUN, 'whoosh'], [WR.STARS, 'aldea', { k: 4 }]];
 T.rodar(E, R, [[0, q1], [WR.R2, q2], [WR.R3, q3], [WR.R4, q4], [WR.R5, q5], [WR.R6, q6]], { efectos: efectosR });
 </script>
 </body>

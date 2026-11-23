@@ -25,13 +25,15 @@
 // 8. el pasillo: las voces se agolpan en la puerta; «!» en «advice», corona en «tempt»; Leto dice que no y entra;
 //    (corta en «and every day»)
 // 9. la cocina de día: Ghanima come dátiles; Leto cierra los ojos en «decide», alza la mano en «in charge» y las luces
-//    se ponen en fila; sonríe en «mind»;  (corta en «His father»)
+//    se ponen en fila; sonríe en «mind»; la cocinera remueve la olla que humea, se vuelve a mirarle y sonríe;
+//    (corta en «His father»)
 // 10. recuerdo (sepia): el padre ciego se aleja por las dunas; una estrella se enciende en «mother» y se apaga; bajan
 //    dos chispitas;  (corta en «and the one ruling»)
 // 11. el balcón: Alia sale con los gemelos y saluda en «aunt Alia»; lucecitas en los tres en «born just like them»;
 //    (corta en «And that's»)
 // 12. los aposentos de noche: Alia se coge la cabeza en «lost»; su sombra se hincha en «terrible voice»;  (corta en «the voice»)
-// 13. la tarima: la sombra gorda sube tras el trono en «Baron»; Alia aparta la cara en «protecting them»;  (corta en «rules»)
+// 13. la tarima: una sirvienta entra con una tea y enciende el brasero; la sombra gorda sube tras el trono en «Baron» y
+//    la sirvienta se vuelve asustada; Alia aparta la cara en «protecting them»;  (corta en «rules»)
 // 14. la mesa de los decretos: la mano sella en «rules» y «name»; la sombra se arrastra en «little by little»; el
 //    último sello sale oscuro en «someone else»;  (corta en «The twins»)
 // 15. el salón del trono: los gemelos entran y miran a Alia con la sombra; se miran en «themselves»; sus reflejos se
@@ -498,6 +500,14 @@ const p9 = (t) => {
   const oo = { encuadre: 'aposentos', camara: 'cocina' }; T.ciudadela(R, t, oo);
   // Ghanima, detrás de la mesa, coge dátiles del cuenco y se los come
   const r = R.actor(LT.ghanimaLT, 150, 150, t, { dir: -1, sostiene: Math.sin(t * 1.5) > 0 ? [146, 136] : true, habla: Math.sin(t * 1.5) < -0.5 && Math.sin(t * 9) > 0 });
+  // la cocinera, junto a las tinajas, remueve la olla que humea; se vuelve a mirar a Leto en «in charge» y sonríe en «mind»
+  { const vu = t > TG.CHARGE - 0.1 && t < TG.MIND + 1, rc = R.actor(PA.fremenMujer, 262, 166, t, { dir: -1, sostiene: vu ? undefined : [250 + Math.round(Math.cos(t * 4) * 2), 150 + Math.round(Math.sin(t * 4))], sorpresa: t > TG.CHARGE && t < TG.MIND, sonrisa: t > TG.MIND });
+    // la olla de cobre sobre su trébede, con las brasas debajo y el vapor que sube
+    R.linea(242, 164, 245, 158, K); R.linea(254, 164, 251, 158, K); for (let k = 0; k < 4; k++) R.pset(244 + k * 3, 163, Math.sin(t * 9 + k * 2) > 0 ? H('#ff8a30') : H('#c83a1a'));
+    R.disco(248, 155, 7, K); R.disco(248, 155, 6, H('#a8582a')); R.disco(246, 153, 3, H('#d88a4a')); R.pset(245, 152, H('#f8c890')); R.rect(240, 149, 256, 150, K); R.rect(241, 149, 255, 149, H('#e0a060'));
+    R.pset(239, 152, K); R.pset(257, 152, K);
+    for (let k = 0; k < 8; k++) { const u = ((t * 0.6 + k / 8) % 1), x = 244 + (k % 4) * 3 + Math.sin(t * 2 + k) * 2 * u, y = 147 - u * 24; aclara(x, y, H('#ffffff'), 0.8 * (1 - u)); aclara(x + 1, y, H('#ffffff'), 0.5 * (1 - u)); }
+    if (rc?.mano && !vu) R.linea(ri(rc.mano[0]), ri(rc.mano[1]), ri(rc.mano[0]) - 3, ri(rc.mano[1]) + 6, H('#a8783a')); }
   T.ciudadelaDelante(R, t, oo);
   if (r && r.mano) { R.rect(r.mano[0] - 1, r.mano[1] - 2, r.mano[0] + 1, r.mano[1], K); R.pset(r.mano[0], r.mano[1] - 1, H('#6a2a14')); }
   // Leto, delante de la mesa: las voces le rodean; en «decide» cierra los ojos; en «in charge» alza la mano y las voces
@@ -544,6 +554,10 @@ const p13 = (t, o = {}) => {
   const u = tramo(t, TG.PROTECT - 0.4, TG.PROTECT + 0.3);
   R.actor(LT.letoNinoLT, ri(140 + u * 12), 150, t, { dir: 1, anda: u > 0 && u < 1, triste: t > TG.PROTECT + 0.4 });
   R.actor(LT.ghanimaLT, 118, 150, t, { dir: 1, sorpresa: t > TG.BARON && t < TG.BARON + 0.8 });
+  // una sirvienta entra por la izquierda con una tea, enciende el brasero y, en «Baron», se vuelve asustada hacia el trono
+  { const u = tramo(t, TG.P13 + 0.1, TG.BARON - 0.7), x = ri(lerp(-14, 44, ease(u))), enc = t > TG.BARON - 0.6 && t < TG.BARON;
+    const rs = R.actor(PA.fremenMujer, x, 158, t, { dir: t > TG.BARON ? 1 : -1, anda: u > 0 && u < 1, sostiene: t < TG.BARON ? (enc ? [30, 140] : true) : undefined, sorpresa: t > TG.BARON && t < TG.BARON + 1, triste: t > TG.BARON + 1 });
+    if (rs?.mano && t < TG.BARON) { const [mx, my] = rs.mano.map(ri); R.linea(mx, my, mx - 2, my - 6, H('#6a4a2a')); R.pset(mx - 2, my - 7, Math.sin(t * 20) > 0 ? H('#ffd060') : H('#ff8a30')); R.pset(mx - 2, my - 8, H('#fff0a0')); } }
   T.ciudadelaDelante(R, t, oo);
 };
 const p15 = (t, o = {}) => {
@@ -569,7 +583,7 @@ const p5r = (t) => p5(t), p6r = (t) => p6(t), p7r = (t) => p7(t), p10r = (t) => 
 const efectos = [[TG.NINE + 0.1, 'brillo'], [TG.SIETCH, 'pop'], [TG.TWO - 0.2, 'pasos'], [TG.CHILDREN + 0.6, 'viento'],
   [TG.SOMETHING, 'brillo'], [TG.BORN + 0.2, 'pop'], [TG.THOUSANDS, 'brillo'], [TG.VOICES, 'campana'], [TG.WARS, 'whoosh'],
   [TG.LOVES + 0.1, 'pop'], [TG.NINE2 + 0.6, 'tic'], [TG.NINE2 + 1.4, 'tic'], [TG.NINE2 + 2.2, 'tic'], [TG.THOUS2, 'boing'],
-  [TG.QUIET, 'whoosh'], [TG.DEAD, 'viento'], [TG.ADVICE, 'pop'], [TG.TEMPT, 'brillo'], [TG.CHARGE, 'brillo'],
+  [TG.QUIET, 'whoosh'], [TG.P9 + 0.2, 'vapor'], [TG.P13 + 0.2, 'pasos', { n: 3 }], [TG.DEAD, 'viento'], [TG.ADVICE, 'pop'], [TG.TEMPT, 'brillo'], [TG.CHARGE, 'brillo'],
   [TG.P10 + 0.2, 'viento'], [TG.MOTHER, 'campana'], [TG.AUNT, 'publico'], [TG.LOST, 'golpecito'], [TG.TERRIBLE, 'trueno'],
   [TG.BARON, 'zumbido'], [TG.P14 + 0.35, 'sello'], [TG.NAME, 'sello'], [TG.SOMEONE, 'sello'], [TG.P15 + 0.4, 'pasos'], [TG.MIRROR, 'tapestop']];
 T.rodar(E, R, [[0, p1], [TG.P2, p2], [TG.P3, p3], [TG.P4, p4], [TG.P5, p5r], [TG.P6, p6r], [TG.P7, p7r], [TG.P8, p8], [TG.P9, p9],

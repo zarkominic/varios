@@ -29,7 +29,8 @@
 // 9. («the wedding day») el tablero de lado (fondo local del gancho p4): el carro avanza despacio con Hwi y el
 //    tamborilero delante; se para en el centro; en «worm god» el gusano nos mira;
 // 10. (justo antes de «In the middle») el puente de lejos (boda/general): llega al centro; en «bring it down» se rompe
-//    (polvo, piedras, temblor); el carro cae y salpica en «river»; Siona da la señal en el mirador y baja la cabeza;
+//    (chasquido de luz, polvo, piedras, temblor) y las palomas del pretil salen en bandada; el carro cae y golpea el agua
+//    en «river» (salpicadura y temblor de arriba abajo); Siona da la señal en el mirador y baja la cabeza;
 // 11. («we with it») bajo el agua (fondo local): burbujas; el carro baja al lecho y los peces huyen; los ojos a la luz
 //    en «key»; en «water destroys» se despegan las primeras truchas;
 // 12. («the sand trout skin») la superficie desde arriba (fondo local): las manchas suben y se abren en corro; en
@@ -606,8 +607,18 @@ const p10 = (t) => {
   R.actor(T.LT.sionaLT, 12, 166, t, { dir: 1, dedo: sen, sorpresa: susto, triste: t > W.FALLS2 + 0.6, enfado: t < W.CONSP - 0.2 });
   R.actor(T.PA.fremen, 30, 166, t, { dir: 1, sorpresa: susto, salto: t > W.DOWN + 0.3 && t < W.DOWN + 0.55 ? 2 : 0, brazos: t > W.DOWN + 0.6 && t < W.DOWN + 1.4 });
   T.puenteDelante(R, t, o);
-  // el temblor de cámara cuando el puente se rompe
-  const tb = tramo(t, W.DOWN + 0.2, W.DOWN + 0.8); if (tb > 0 && tb < 1) { const dx = Math.round(Math.sin(t * 90) * 2 * (1 - tb)), D = R.buf, C0 = D.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) D[y * 320 + x] = C0[y * 320 + Math.max(0, Math.min(319, x - dx))]; }
+  // el chasquido de la rotura: un destello blanco con rayos cortos en el centro del puente
+  const ch = tramo(t, W.DOWN - 0.05, W.DOWN + 0.35); if (ch > 0 && ch < 1) { const a = 1 - ch;
+    bola(160, 94, 4 + ri(ch * 8), H('#fff4d8'), a * 0.8);
+    for (let k = 0; k < 8; k++) { const an = k / 8 * Math.PI * 2 + 0.3, r0 = 4 + ch * 6, r1 = r0 + 6 + ch * 10; for (let i = r0; i < r1; i++) mezP(160 + Math.cos(an) * i, 94 + Math.sin(an) * i * 0.7, H('#fff8e8'), a * (1 - (i - r0) / (r1 - r0))); } }
+  // las palomas del pretil salen en bandada hacia el cielo al romperse (por debajo de la barra del año y lejos de Atom)
+  for (let k = 0; k < 12; k++) { const t0 = W.DOWN + 0.05 + k * 0.06, v = tramo(t, t0, t0 + 2.6); if (v <= 0 || v >= 1) continue;
+    const x = lerp(152 + (k - 6) * 3, 160 + (k - 5.5) * 26 + Math.sin(k) * 10, ease(v)), y = lerp(88, 30 + (k % 3) * 9, Math.sqrt(v)) + Math.sin(v * 8 + k) * 2;
+    if (y < 24 || !libreAtom(x, y)) continue; pajaro(x, y, t, H('#e8e0e8'), k); pajaro(x + 1, y + 1, t, K, k); }
+  // el temblor de cámara: de lado cuando el puente se rompe y, más fuerte y de arriba abajo, cuando el carro golpea el agua
+  const tb = tramo(t, W.DOWN + 0.2, W.DOWN + 0.8), tg = tramo(t, W.RIVER2 - 0.02, W.RIVER2 + 0.5);
+  const dx = tb > 0 && tb < 1 ? Math.round(Math.sin(t * 90) * 2 * (1 - tb)) : 0, dy = tg > 0 && tg < 1 ? Math.round(Math.sin(t * 70) * 3 * (1 - tg)) : 0;
+  if (dx || dy) { const D = R.buf, C0 = D.slice(); for (let y = 0; y < 180; y++) { const yy = Math.max(0, Math.min(179, y - dy)) * 320; for (let x = 0; x < 320; x++) D[y * 320 + x] = C0[yy + Math.max(0, Math.min(319, x - dx))]; } }
 };
 // ── 11 · bajo el agua (fondo local): entramos con él; burbujas; el carro baja hasta el lecho y los peces huyen; en
 //    «key» los ojos suben hacia la luz; en «water destroys» las primeras truchas se despegan de su piel ──
@@ -775,7 +786,7 @@ const efectos = [
   [W.P7 + 0.7, 'pop'], [W.P7 + 1.9, 'boing'], [W.MARRY, 'campana'], [W.MARRY + 0.2, 'publico', { dur: 2 }],
   [W.HIGH, 'pajaros'], [W.RIVER, 'chof'],
   [W.P9, 'carro', { largo: 3.2 }], [W.PROC, 'publico', { dur: 2.5 }],
-  [W.DOWN, 'avalancha'], [W.DOWN + 0.3, 'pajaros'], [W.RIVER2, 'chof'],
+  [W.DOWN, 'avalancha'], [W.DOWN + 0.3, 'pajaros'], [W.RIVER2 - 0.03, 'boom'], [W.RIVER2, 'chof'],
   [W.P11, 'burbujas'], [W.P11 + 1.5, 'golpecito'], [W.WATER, 'burbujas'],
   [W.P12 + 0.2, 'ola'], [W.APART, 'brillo'],
   [W.Y3500 - 0.2, 'pajaros'], [W.VULN, 'brillo'],

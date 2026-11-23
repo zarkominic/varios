@@ -10,12 +10,13 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // LT-FUTURO (frase 15), LA PAUSA «fíjate» del descuento temporal, sin año. Siete planos:
-// 1. la sombra congelada (p15): Atom al doble entra y señala; «?» en «why no one else»;
-// 2. el desierto congelado (p12): Atom saca la balanza (T.pausa 'balanza') en «temporal discounting»;
+// (en todos: el polvo suspendido en el aire congelado destella por turnos)
+// 1. la sombra congelada (p15): Atom al doble entra y señala; «?» en «why no one else»; al final se encoge de hombros;
+// 2. el desierto congelado (p12): Atom entra andando y saca la balanza en «temporal discounting»; la balanza se mece;
 // 3. las dunas congeladas (p1): la balanza grande; destella la moneda en «today»; el cofre lejano en «big one»;
 // 4. la carrera congelada (p14): la nubecita del «100» lejos; Atom se encoge de hombros y se duerme en «at night»;
 // 5. la ciudad congelada (p7): se le escapa la moneda en «save»; T.pausa 'planeta' con su reloj en «planet»;
-// 6. el cruce congelado (p11): Leto a color; asoman de luz los que no han nacido en «people who haven't been born»;
+// 6. el cruce congelado (p11): Atom entra andando; Leto a color; asoman de luz los que no han nacido en «people who haven't been born»;
 // 7. el trance dorado congelado (p8): la balanza; los de luz suben al plato y en «weigh more» lo hunden.
 import * as T from '/atomo/plato/escenas/lt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -551,6 +552,9 @@ const fz7 = () => horno('fz7', () => p7(TS.STAG - 0.2));
 const fz11 = () => horno('fz11', () => p11(TS.DECIDES + 0.4, { sinLeto: true }));
 const fz8 = () => horno('fz8', () => p8(TS.GOLD + 1.8, { sinLeto: true }));
 const congela = (b) => { R.copiar(b()); AT.pausa(R, 1); };
+// el polvo suspendido en el aire congelado: granos quietos que destellan por turnos (la vida de la pausa)
+const polvo = (t, k = 0, c = H('#e8f0ff')) => { for (let i = 0; i < 34; i++) { const x = ri(hh(i, 1, k + 90) * 319), y = ri(34 + hh(i, 2, k + 90) * 136); if (!libreAtom(x, y)) continue;
+  const b = Math.sin(t * (1.1 + hh(i, 3, k + 90) * 2.2) + i * 1.7); mezP(x, y, c, 0.25 + 0.3 * Math.max(0, b)); if (b > 0.88) { mezP(x - 1, y, c, 0.45); mezP(x + 1, y, c, 0.45); mezP(x, y - 1, c, 0.45); mezP(x, y + 1, c, 0.45); } } };
 const balanza = (x, y, t, o) => T.pausa(R, x, y, t, { cual: 'balanza', ...o });
 let RESTO = null, RESTO3 = null;
 const restoY3 = () => { if (RESTO3 == null) { const b = R.nuevo(), prev = R.usar(b); RESTO3 = balanza(160, 168, 0, { s: 1.5, inclina: 0 }).punto[1]; R.usar(prev); } return RESTO3; };
@@ -560,20 +564,25 @@ const restoY = () => { if (RESTO == null) { const b = R.nuevo(), prev = R.usar(b
 const q1 = (t) => {
   R.copiar(fz15()); AT.pausa(R, tramo(t, 0, 0.35));
   const anda = tramo(t, 0.4, 1.8), x = lerp(344, 236, ease(anda));
-  atomG(x, 176, t, { pose: anda < 1 ? 'camina' : t > TF.WHY - 0.3 ? 'senala' : 'quieto', dir: -1, cara: t > TF.WHY ? 'sorpresa' : 'normal' });
+  polvo(t, 1);
+  const enc = t > TF.Q2 - 1.6;   // al final se vuelve a nosotros y se encoge de hombros: «¿por qué nadie más?»
+  atomG(x, 176, t, { pose: anda < 1 ? 'camina' : enc ? 'brazos' : t > TF.WHY - 0.3 ? 'senala' : 'quieto', dir: enc ? 1 : -1, cara: enc ? 'triste' : t > TF.WHY ? 'sorpresa' : 'normal' });
   if (t > TF.WHY + 0.2 && t < TF.Q2 - 0.4) { const b = flota(t); R.icono('?', 98, 104 + b, H('#ffe080')); R.icono('?', 112, 98 - b, H('#ffe080')); }
   const ua = tramo(t, TF.WHY, TF.WHY + 0.8); if (ua > 0) AT.anillo(R, 80, 142, 22, 16, t, ua);
 };
 // ── 2 · el desierto congelado: Atom saca la balanza en «temporal discounting» ──
 const q2 = (t) => {
   congela(fz12);
-  const saca = tramo(t, TF.DISC - 0.3, TF.DISC + 0.3);
-  const r = atomG(96, 176, t, { pose: saca > 0 ? 'sostiene' : 'piensa', dir: 1, cara: saca > 0 ? 'sonrisa' : 'normal' });
-  if (saca > 0) { const b = balanza(196, ri(150 + (1 - ease(saca)) * 30 + flota(t)), t, { s: 1, inclina: 0.6 }); AT.anillo(R, 196, 128, 40, 30, t, tramo(t, TF.DISC + 0.3, TF.DISC + 1.4)); }
+  polvo(t, 2);
+  const saca = tramo(t, TF.DISC - 0.3, TF.DISC + 0.3), anda = tramo(t, TF.Q2 + 0.05, TF.DISC - 0.35), ax = lerp(40, 96, ease(anda));
+  const r = atomG(ri(ax), 176, t, { pose: anda > 0 && anda < 1 ? 'camina' : saca > 0 ? 'sostiene' : 'piensa', dir: 1, cara: saca > 0 ? 'sonrisa' : 'normal' });
+  // la balanza: al salir se mece (el plato de hoy y el de mañana buscan el equilibrio) y se queda inclinada hacia hoy
+  const vaiven = Math.sin((t - TF.DISC) * 4.5) * 0.5 * Math.exp(-Math.max(0, t - TF.DISC) * 0.9);
+  if (saca > 0) { const b = balanza(196, ri(150 + (1 - ease(saca)) * 30 + flota(t)), t, { s: 1, inclina: 0.6 + vaiven }); AT.anillo(R, 196, 128, 40, 30, t, tramo(t, TF.DISC + 0.3, TF.DISC + 1.4)); }
 };
 // ── 3 · la balanza grande sobre las dunas congeladas: la moneda de «today» pesa; el cofre de «big one», lejos y pálido ──
 const q3 = (t) => {
-  congela(fz1);
+  congela(fz1); polvo(t, 3);
   const inc = 0.3 + 0.5 * ease(tramo(t, TF.TODAY - 0.2, TF.TODAY + 0.5)) + Math.sin(t * 2) * 0.05;
   const b = balanza(160, 168, t, { s: 1.5, inclina: inc });
   const dest = tramo(t, TF.TODAY, TF.TODAY + 0.8); if (dest > 0 && dest < 1) { const [px, py] = b.punto; for (let k = 0; k < 8; k++) { const an = k / 8 * Math.PI * 2; R.linea(ri(px + Math.cos(an) * 5), ri(py + Math.sin(an) * 5), ri(px + Math.cos(an) * (8 + dest * 8)), ri(py + Math.sin(an) * (8 + dest * 8)), H('#fff4b0')); } }
@@ -586,7 +595,7 @@ const q3 = (t) => {
 };
 // ── 4 · la carrera congelada: la amenaza de dentro de 100 años, una nubecita lejana; Atom bosteza y se duerme ──
 const q4 = (t) => {
-  congela(fz14);
+  congela(fz14); polvo(t, 4);
   const un = tramo(t, TF.THREAT - 0.3, TF.THREAT + 0.4), nx = 236, ny = 92 + flota(t);
   if (un > 0) { const s = ease(un), ny2 = ny - 10; for (const [dx, dy, r, c] of [[0, 0, 9, '#3a3a50'], [-10, 3, 7, '#4a4a60'], [10, 3, 7, '#2e2e42'], [-4, -4, 6, '#5a5a72'], [5, -3, 6, '#4a4a62']]) { R.disco(nx + dx, ny2 + dy, ri((r + 1) * s), K); R.disco(nx + dx, ny2 + dy, ri(r * s), H(c)); }
     if (un >= 1) { for (let k = 0; k < 8; k++) { const f = (t * 1.5 + k / 8) % 1; R.linea(nx - 10 + k * 3, ny2 + 8 + ri(f * 14), nx - 11 + k * 3, ny2 + 10 + ri(f * 14), H('#8ab0e0')); }
@@ -598,7 +607,7 @@ const q4 = (t) => {
 };
 // ── 5 · la ciudad congelada: en «save» se le escapa la moneda a Atom; en «planet» sale el planeta con su reloj ──
 const q5 = (t) => {
-  congela(fz7);
+  congela(fz7); polvo(t, 5);
   const us = tramo(t, TF.SAVE - 0.2, TF.SAVE + 0.6), up = tramo(t, TF.PLANET - 0.6, TF.PLANET);
   const r = atomG(48, 176, t, { pose: us > 0 && us < 1 ? 'sostiene' : up > 0 ? 'senala' : 'piensa', dir: 1, cara: us > 0 && us < 1 ? 'sorpresa' : 'normal' });
   if (us > 0 && us < 1) { const [mx, my] = r.mano; const x = mx + us * 30, y = my - Math.sin(us * Math.PI) * 18 + us * us * 40; R.disco(ri(x), ri(y), 4, K); R.disco(ri(x), ri(y), 3, H('#f0c040')); R.pset(ri(x) - 1, ri(y) - 1, H('#fff4b0')); }
@@ -606,15 +615,16 @@ const q5 = (t) => {
 };
 // ── 6 · el cruce congelado: Leto a color; tras él asoman, de luz, los que aún no han nacido ──
 const q6 = (t) => {
-  congela(fz11);
+  congela(fz11); polvo(t, 6, H('#ffe8b0'));
   R.actor(LT.letoNinoLT, 128, 150, t, { dir: 1, sonrisa: t > TF.OPP + 0.3, dedo: t > TF.PEOPLE && t < TF.BORN + 0.4 });
   for (let k = 0; k < 9; k++) { const t0 = TF.PEOPLE + k * 0.14, u = tramo(t, t0, t0 + 0.4); if (u <= 0) continue; const fila = k % 2, x = 170 + Math.floor(k / 2) * 30 + fila * 15, y = 150 - fila * 18 + flota(t, k) - ri((1 - u) * 8);
     R.halo(x, y - 10, 12, [H('#3a3020'), H('#a88a3a')], 0.5 * u); fantasma([LT.ciudadanoLT, LT.ciudadanaLT, LT.ghanimaLT][k % 3], x - 8, y, t, { dir: -1, sonrisa: true }, 0.9 * u, H('#ffd860'), 0.85); }
-  atomG(60, 176, t, { pose: t > TF.OPP ? 'senala' : 'quieto', dir: 1, cara: 'sonrisa' });
+  const anda6 = tramo(t, TF.Q6 + 0.05, TF.OPP - 0.1);
+  atomG(ri(lerp(32, 60, ease(anda6))), 176, t, { pose: anda6 > 0 && anda6 < 1 ? 'camina' : t > TF.OPP ? 'senala' : 'piensa', dir: 1, cara: 'sonrisa' });
 };
 // ── 7 · la balanza otra vez, sobre el trance dorado congelado: en «weigh more» bajan los que no han nacido ──
 const q7 = (t) => {
-  congela(fz8);
+  congela(fz8); polvo(t, 7, H('#ffe8b0'));
   const inc = lerp(0.6, -0.8, ease(tramo(t, TF.WEIGH - 0.3, TF.WEIGH + 0.6))) + Math.sin(t * 2) * 0.04;
   const b = balanza(150, 176, t, { s: 1.8, inclina: inc });
   const [cx0, cy0] = b.punto, px = 300 - cx0, py = 2 * restoY() - cy0;
@@ -625,7 +635,8 @@ const q7 = (t) => {
   atomG(286, 178, t, { pose: t > TF.WEIGH ? 'senala' : 'piensa', dir: -1, cara: t > TF.WEIGH ? 'sorpresa' : 'normal' });
 };
 const efectos = [[0.5, 'pasos'], [TF.WHY, 'pop'], [TF.DISC, 'pop'], [TF.TODAY, 'brillo'], [TF.BIG, 'campana'], [TF.THREAT, 'trueno'], [TF.NIGHT, 'tic'],
-  [TF.SAVE, 'chof'], [TF.PLANET - 0.3, 'pop'], [TF.PEOPLE, 'aldea', { k: 0 }], [TF.PEOPLE + 0.5, 'aldea', { k: 2 }], [TF.SCALE, 'pop'], [TF.WEIGH, 'golpecito']];
+  [TF.SAVE, 'chof'], [TF.PLANET - 0.3, 'pop'], [TF.PEOPLE, 'aldea', { k: 0 }], [TF.PEOPLE + 0.5, 'aldea', { k: 2 }], [TF.SCALE, 'pop'], [TF.WEIGH, 'golpecito'],
+  [TF.Q2 + 0.1, 'pasos'], [TF.Q3 + 0.2, 'zumbido'], [TF.PLANET + 0.2, 'tic'], [TF.PLANET + 0.7, 'tic'], [TF.PLANET + 1.2, 'tic'], [TF.Q6 + 0.1, 'pasos'], [TF.BORN, 'brillo'], [TF.Q7 + 0.2, 'zumbido']];
 T.rodar(E, R, [[0, q1], [TF.Q2, q2], [TF.Q3, q3], [TF.Q4, q4], [TF.Q5, q5], [TF.Q6, q6], [TF.Q7, q7]], { efectos });
 </script>
 </body>

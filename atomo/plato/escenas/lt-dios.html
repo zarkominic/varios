@@ -12,13 +12,14 @@
 // LT-DIOS (frases 20–22: «siglos», «paz», «diario»), año 3521 (22 hasta «years»). Dieciséis planos, cortados en la voz inglesa:
 // 1. (0) el valle que reverdece (fondo local): el sol cruza deprisa, el contador sube a 3500 en «years»; en «barely human»
 //    un remolino de arena se lleva a Leto niño y queda el gusano en su carro;
-// 2. («he's») la audiencia (ciudadela/audiencia): Atom entra, se asombra en «enormous»; aros en «face» y en «hands»;
+// 2. («he's») la audiencia (ciudadela/audiencia): Atom entra, se asombra en «enormous»; aros en «face» y en «hands»; una
+//    Habladora de guardia entra con su vara, se cuadra junto a la columna y mira a Atom;
 // 3. («who gets around») el camino del bosque (fondo local): el carro rueda con dos Habladoras; en «spice» la de delante
 //    le alza un cuenco y come;
 // 4. («Arrakis has changed») Arrakis verde (verde/general): Atom señala el río en «rivers»; GAG: en «rain» la gota del
 //    alero le cae en la cabeza, salta, «!»;
 // 5. («is one piece») el Sareer (verde/sareer): el gusano pequeño cruza la cresta, se para en «Sareer»; en «remember» el
-//    niño que fue, de luz, a su lado;
+//    niño que fue, de luz, a su lado; el viento barre regueros de arena y levanta un penacho; dos aves planean en círculo;
 // 6. («Now imagine») la calle de casas iguales (fondo local): en «imagine» se abre la puerta y sale el vecino; saluda a la
 //    vecina que barre; en «empire» el estandarte;
 // 7. («There are no wars») el puerto cerrado (fondo local): un pájaro se posa en el cañón en «wars»; en «travel» la
@@ -26,8 +27,8 @@
 // 8. («because he keeps») el almacén (fondo local): la cámara se cierra en «keeps all»; en «drop» cae UNA gota en la taza;
 // 9. («and on every corner») la esquina (fondo local): sale una Habladora en «corner», asoman más en «army of women» y
 //    alzan la vara en «fish-speakers»; el vecino suda y acelera;
-// 10. («who worship him») la Ciudadela (ciudadela/general): los peregrinos se postran en «worship»; palomas en «peace»;
-//     Duncan al lado; el vecino de delante se ahoga en «breathe»;
+// 10. («who worship him») la Ciudadela (ciudadela/general): los peregrinos se postran en «worship» y él les habla hasta
+//     «god»; dos Habladoras de ronda llegan por los lados, se cuadran y le miran; palomas en «peace»; Duncan al lado le habla; el vecino de delante se ahoga en «breathe»;
 // 11. («At his side») la terraza (fondo local): Duncan llega a su lado en «Duncan Idaho»; en «father's old friend» Paul,
 //     de luz, junto a él;
 // 12. («whom he brings») las cubas 17, 18, 19 (fondo local): sale Duncan en «life»; brillan las otras en «copy» y
@@ -39,7 +40,8 @@
 // 15. («but someone») la ciudad al anochecer (fondo local): el gusano asomado al balcón alto de la torre; en «everyone
 //     hates him» los vecinos se dan la vuelta y se cierran las contraventanas;
 
-// 16. («knows that he's right») la ventana (diario/ventana): asiente en «right», se vuelve a la sala vacía en «no one»,
+// 16. («knows that he's right») la ventana (diario/ventana): dicta a la máquina (la tira de papel sale y se enrosca en las
+//     losas), asiente en «right», se vuelve a la sala vacía en «no one»,
 //     baja la mirada en «share». (lo congela lt-soledad)
 import * as T from '/atomo/plato/escenas/lt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -221,6 +223,8 @@ const p2 = (t, o = {}) => {
   const oo = { encuadre: 'ciudadela', camara: 'audiencia' }; const d = T.imperio(R, t, oo); const [cx, cy] = d.carro ?? [248, 140];
   const ua = tramo(t, W.P2 + 0.05, W.ENORM + 0.9), ax = lerp(30, 136, ease(ua));
   const lg = T.letoGusano(R, cx, cy, t, { s: 1, dir: -1, mira: t > W.ENORM + 0.3 ? [ax + 4, 132] : [120, 150], habla: t > W.HANDS + 0.5 && Math.sin(t * 9) > 0 });
+  // una Habladora de guardia entra por detrás con su vara, se cuadra junto a la columna y, en «face», mira a Atom
+  { const ug = tramo(t, W.P2 + 0.3, W.P2 + 2.6), gx = lerp(-8, 104, ease(ug)); T.d2_habladora(R, gx, 146, t, { alto: 13, dir: ug < 1 ? 1 : t > W.FACE ? -1 : 0, anda: ug > 0 && ug < 1, baston: true, fase: 2 }); }
   if (!o.sinAtom) atom(ax, 152, t, { s: 1.6, dir: 1, pose: ua > 0 && ua < 1 ? 'camina' : t > W.FACE - 0.3 ? 'senala' : 'quieto', cara: t > W.ENORM + 0.2 && t < W.FACE ? 'sorpresa' : t >= W.FACE ? 'sonrisa' : 'normal', habla: 0 });
   if (!o.sinAtom && t > W.ENORM + 0.2 && t < W.FACE - 0.2) R.icono('!', ri(ax) + 6, 108 + flota(t), H('#ffe060'), true, 2);
   T.imperioDelante(R, t, oo);
@@ -303,6 +307,12 @@ const p5 = (t, o = {}) => {
   const rec = tramo(t, W.REMEMBER - 0.3, W.REMEMBER + 0.5), va = tramo(t, W.BE - 0.6, W.BE + 0.6);
   T.letoGusano(R, cx, ly, t, { s: 0.5, dir: -1, giro: cx / 4, mira: rec > 0 ? [cx - 40, ly - 12] : (d.sol ?? [118, 76]) });
   if (rec > 0 && !o.sinNino) fantasma(LT.letoNinoLT, cx - 52 - ri(va * 10), ly + 1, t, { dir: 1, sonrisa: true, anda: va > 0 }, 0.75 * rec * (1 - va), H('#ffd890'), 0.5);
+  // el viento del último desierto: regueros de arena que barren las dunas y un penacho que se levanta de la cresta
+  for (let k = 0; k < 26; k++) { const v = 40 + hh(k, 3) * 50, x = 330 - ((t * v + hh(k, 4) * 400) % 360), y = 118 + hh(k, 5) * 58 + Math.sin(t * 2 + k) * 2;
+    for (let i = 0; i < 6; i++) mezP(x + i * 2, y + i * 0.3, H('#fff0c8'), 0.8 - i * 0.12); }
+  for (let k = 0; k < 14; k++) { const f = (t * 0.7 + k / 14) % 1; mezP(lx + 34 - f * 46, ly - 10 - f * 16 + Math.sin(f * 9 + k) * 2, H('#f8d8a0'), 0.55 * (1 - f)); }
+  // dos aves del desierto planean en círculo sobre él
+  for (let k = 0; k < 2; k++) { const a = t * 0.8 + k * 3.1; pajaro(cx - 10 + Math.cos(a) * 34, 66 + Math.sin(a) * 9 + k * 6, t, H('#3a2430'), k * 2); }
   T.imperioDelante(R, t, oo);
 };
 
@@ -548,7 +558,11 @@ const p10 = (t, o = {}) => {
   // los peregrinos en la alfombra, de pie y luego postrados
   for (let fila = 0; fila < 3; fila++) for (let k = 0; k < 6 - fila; k++) { const y = 140 + fila * 7, x = 132 + k * 11 + fila * 5 - (fila === 2 ? 2 : 0), t0 = W.WORSHIP + (fila * 6 + k) * 0.06;
     devoto(x, y, [H('#c8a878'), H('#8a6a9a'), H('#7a9a8a'), H('#c87a5a')][(k + fila) % 4], tramo(t, t0, t0 + 0.2) > 0.5 && !(t > W.PEACE && t < W.PEACE + 0.8 && (k + fila) % 3 === 0) ? 1 : 0); }
-  T.letoGusano(R, cx, cy, t, { s: 1, dir: -1, mira: t > W.YET ? [150, 176] : [160, 150], habla: t > W.GOD - 0.2 && t < W.GOD + 0.8 && Math.sin(t * 9) > 0 });
+  // habla a los peregrinos mientras se postran (en «worship… god»), mira a Duncan cuando Duncan le habla en «peace»
+  T.letoGusano(R, cx, cy, t, { s: 1, dir: -1, mira: t > W.YET ? [150, 176] : t > W.PEACE + 0.3 && t < W.PEACE + 1.3 ? [cx - 70, cy - 10] : [160, 150], habla: ((t > W.WORSHIP + 0.5 && t < W.GOD + 0.9) || (t > W.PEACE + 1.3 && t < W.PEACE + 2.1)) && Math.sin(t * 9) > -0.3 });
+  // dos Habladoras de ronda llegan por los lados, delante de las filas, se cuadran y giran la cabeza hacia él en «god»
+  for (const [x0, x1, d, f] of [[-10, 50, 1, 1], [330, 270, -1, 4]]) { const u = tramo(t, W.P10 + 0.2 + f * 0.1, W.P10 + 2.6 + f * 0.1), x = lerp(x0, x1, ease(u));
+    T.d2_habladora(R, x, 170, t, { alto: 13, dir: u < 1 ? d : (t > W.GOD - 0.2 && t < W.PEACE ? 0 : d), anda: u > 0 && u < 1, baston: true, fase: f, mira: t > W.YET && d < 0 }); }
   // Duncan a su lado, junto a la cara
   R.actor(LT.duncanLT, cx - 70, cy + 6, t, { dir: 1, habla: t > W.PEACE + 0.4 && t < W.PEACE + 1.2 });
   // palomas que entran por el ventanal en «peace»
@@ -776,7 +790,14 @@ const p15 = (t, o = {}) => {
 const p16 = (t, o = {}) => {
   const oo = { encuadre: 'diario', camara: 'ventana' }; const d = T.imperio(R, t, oo); const [cx, cy] = d.carro ?? [246, 148];
   const asiente = t > W.RIGHT && t < W.RIGHT + 0.6 ? 2 : 0;
-  T.letoGusano(R, cx, cy, t, { s: 1, dir: d.carroDir ?? -1, mira: t > W.SHARE ? [200, 178] : t > W.NOONE ? [306, 120] : [112, 40 + asiente * 6], habla: t > W.RIGHT - 0.2 && t < W.RIGHT + 0.4 && Math.sin(t * 9) > 0 });
+  // dicta a la máquina hasta «right» (la boca se mueve), asiente; en «no one» se calla y se vuelve a la sala vacía
+  const dicta = (t > W.P16 && t < W.RIGHT + 0.4) || (t > W.NOONE - 0.5 && t < W.NOONE - 0.1);
+  T.letoGusano(R, cx, cy, t, { s: 1, dir: d.carroDir ?? -1, mira: t > W.SHARE ? [200, 178] : t > W.NOONE ? [306, 120] : [112, 40 + asiente * 6], habla: dicta && Math.sin(t * 9) > -0.2 });
+  // la tira de papel del diario sale de la máquina mientras dicta, cae y se enrosca en las losas
+  { const L = ri(10 + cl((Math.min(t, W.RIGHT + 0.4) - W.P16) / 1.2, 0, 1) * 14 + cl((Math.min(t, W.NOONE - 0.1) - W.NOONE + 0.5) / 0.4, 0, 1) * 4);
+    for (let i = 0; i < L; i++) { const y = 134 + Math.min(i, 13), x = 45 + (i > 13 ? (i - 13) * 1.5 : Math.sin(i * 0.5 + t * (dicta ? 6 : 0)) * 0.6);
+      R.pset(ri(x), ri(y), i % 4 === 2 ? H('#b8b0a0') : H('#f0e8d8')); R.pset(ri(x) + 1, ri(y), H('#c8c0b0')); }
+    if (dicta && Math.sin(t * 14) > 0) R.pset(44, 133, H('#6ae88a')); }
   T.imperioDelante(R, t, oo);
   // la polilla junto al aplique; en «no one» se va volando
   const va = tramo(t, W.NOONE, W.NOONE + 2), px = 296 + Math.cos(t * 5) * 5 * (1 - va) - va * 120, py = 70 + Math.sin(t * 7) * 4 - va * 10;
