@@ -39,6 +39,18 @@ const palmatoria = (R, [hx, hy]) => { hx = Math.round(hx); hy = Math.round(hy);
   R.rect(hx - 3, hy + 1, hx + 3, hy + 1, hex('#8a6420')); R.rect(hx - 2, hy, hx + 2, hy, hex('#c89a40')); R.pset(hx + 3, hy, hex('#8a6420'));
   R.rect(hx - 1, hy - 6, hx, hy - 1, hex('#f0e8d0')); R.pset(hx, hy - 5, hex('#c8bea6')); R.pset(hx - 1, hy - 3, hex('#fffbe8'));
   R.pset(hx, hy - 7, K); R.pset(hx, hy - 8, hex('#fff4c0')); R.pset(hx - 1, hy - 8, hex('#ffb040')); R.pset(hx, hy - 9, hex('#ffd870')); };
+// la barbilla de Mary, limpia y a la luz de la vela (solo en la miniatura: el chibi canónico no se toca). Al triple, el
+// contorno negro de la mandíbula, la boca pegada al perfil y el hueco bajo el pelo se leían como barba: la boca pasa a
+// un punto rosado, la barbilla se redondea, el pelo baja por el lado de la nuca y el contorno de abajo se vuelve castaño
+// cálido, como lo ve la llama
+const caraLimpia = (R) => {
+  const piel = hex('#f6c290'), pelo = hex('#a8703e'), boca = hex('#b0584a'), filo = hex('#7a4630');
+  const sombra = hex('#d8986a');
+  R.pset(69, 74, piel); R.pset(70, 74, piel); R.pset(71, 74, boca); R.pset(72, 74, filo);
+  R.pset(64, 74, pelo); R.pset(64, 75, pelo); R.pset(65, 75, pelo); R.pset(71, 75, sombra); R.pset(72, 75, filo);
+  R.pset(64, 76, hex('#8a5a32')); R.pset(65, 76, hex('#8a5a32')); for (let x = 66; x <= 71; x++) R.pset(x, 76, sombra);
+  R.pset(69, 73, hex('#f8d0a8')); R.pset(70, 72, hex('#f8d0a8'));   // la luz de la vela en la mejilla
+};
 // dos ojos amarillos y acuosos en lo oscuro (como los de ms-cierre, plano 6), un poco más grandes para que se lean
 const ojos = (ox, oy, sep, t) => {
   halo(R, ox + sep / 2, oy, 36, 18, '#c89a20', 0.5);
@@ -60,7 +72,7 @@ const dibujar = (t) => {
   // en lo oscuro, entre las matas del jardín, los dos ojos amarillos que la miran
   ojos(OX, OY, 22, t);
   // Mary sola junto a la ventana, con la palmatoria alzada hacia el cristal
-  const m = figura(R, MS.maryMS, MX, 178, t, { dir: 1, sostiene: [78, 72], cosa: palmatoria }, 3);
+  const m = figura(R, MS.maryMS, MX, 178, t, { dir: 1, sostiene: [78, 72], cosa: (R, mano) => { caraLimpia(R); palmatoria(R, mano); } }, 3);
   lagoDelante(R, t, o);
   // la vela es la única luz del cuarto: todo lo demás cae a la penumbra (los ojos siguen brillando)
   const [lx, ly] = m && m.mano ? [m.mano[0] + 1, m.mano[1] - 25] : [MX + 40, 110];
