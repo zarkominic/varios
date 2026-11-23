@@ -17,11 +17,15 @@
 // 3. dispersion/general: el bosque se vuelve desierto en «Arrakis back into a desert»; dos fremen saltan en «free»;
 // 4. dispersion/estrellas: las naves salen en todas direcciones; un vecino despega en «every direction»;
 // 5. la carta de estrellas (inserto): la estrella del centro late y estalla en puntos que se van hacia el borde; los
-//    puntos huyen de la lupa del enemigo y del dedo del profeta («?», «?»); en «find all of it» la lupa cae a la mesa y
-//    las manos se retiran vacías;
+//    puntos huyen de la lupa del enemigo (con el mango entero del puño al aro) y del dedo del profeta («?», «?»); en
+//    «find all of it» la lupa cae a la mesa y las manos se retiran vacías;
 // 6. rio/vacio: el puente vacío; Leto niño en la orilla tira una piedra al agua en «fell»;
-// 7. la peña al ocaso (fondo local): su sombra larga se vuelve gusano en «monster»; «9»; la caravana de familias en «we»;
-// 8. el sendero dorado (fondo local): Paul se asusta y se va en «afraid»; su hijo se asusta y echa a andar en «walked»;
+// 7. la peña al ocaso (fondo local; arena con ondas, piedras, huesos y matojos que se mecen): su sombra larga se vuelve
+//    gusano en «monster»; «9»; una caravana de familias chibi con fardos y un burro cruza por delante, dejando huellas, y
+//    en «we» Leto la señala;
+// 8. el sendero dorado (fondo local; Vía Láctea, nubes de noche, dunas en tres términos con ondas de luna, matojos,
+//    huellas de Paul, un lagarto, un chotacabras y murciélagos): Paul se asusta y se va en «afraid»; su hijo se asusta y
+//    echa a andar en «walked»;
 // 9. estudio/general: Atom borra el puente de la pizarra con un borrador en un palo;
 // 10. estudio/mesa: siete peones le dan la espalda en «hate»; el contador sube a 3500 en «thousands of years»;
 // 11. la pizarra de cerca (fondo local, 2.ª vez): el Atom de tiza se vuelve gusano en «yourself»; «?»; la flecha hacia
@@ -365,7 +369,7 @@ const p5 = (t) => {
   const pica = t > PROPHET + 0.3 ? Math.max(0, Math.sin((t - PROPHET - 0.3) * 6)) ** 3 * 4 : 0;
   const h2 = [lerp(30, 112 + Math.sin(t * 1.4 + 1) * 8 + pica, e2), lerp(226, 150 + Math.sin(t * 2.1) * 4 - pica * 0.6, e2)];
   const suelta = FIND + 0.25, cae = tramo(t, suelta, suelta + 0.45), enMano = t < suelta;
-  const lente = enMano ? [h1[0] - 18, h1[1] - 18] : [-99, -99];
+  const lente = enMano ? [h1[0] - 26, h1[1] - 19] : [-99, -99];
   const g = 0.05 + 0.6 * bE + 0.35 * lento, mas = tramo(t, FIND - 0.3, FIND + 0.6);
   for (const p of P5D) { if (p.k > 90 + mas * 60) continue; const r = p.d * Math.min(1, g * (0.7 + p.v * 0.45)), an = p.a + t * 0.02;
     let x = C5[0] + Math.cos(an) * r, y = C5[1] + Math.sin(an) * r;
@@ -381,10 +385,16 @@ const p5 = (t) => {
   if (fog > 0) for (let a = 0; a < 90; a++) { const an = a / 90 * 6.283, rr = 4 + tramo(t, P5 + 0.3, P5 + 0.9) * 30; mezP(C5[0] + Math.cos(an) * rr, C5[1] + Math.sin(an) * rr, H('#fff0c0'), fog * 0.6); }
   // la lupa: en la mano, cayendo o tirada en la mesa (con su sombra)
   const LX = 270, LY = 176;
-  if (!enMano) { const lx = lerp(h1[0] - 4, LX, ease(cae)), ly = lerp(h1[1] - 2, LY, cae * cae) - (cae >= 1 ? Math.max(0, Math.sin((t - suelta - 0.45) * 14)) * 2 * Math.max(0, 1 - (t - suelta - 0.45) * 3) : 0);
+  // la lupa con el mango entero, del puño al aro: AT.lupa deja 8 px de mango y un hueco hasta el aro, y la mano canónica
+  // tapaba ese poco (el cristal parecía flotar sobre el puño). Se alarga el mango por dentro del puño (la mano, que se
+  // pinta después, lo agarra) y hasta el aro; (mx, my) = donde sale de los dedos; el cristal queda en (mx − 18, my − 18)
+  const lupaM = (mx, my) => { mx = ri(mx); my = ri(my); AT.lupa(R, mx, my, 2, -1);
+    for (const [w, c] of [[-1, K], [3, K], [0, H('#6a4020')], [1, H('#8a5a30')], [2, H('#b07a40')]]) R.linea(mx + 6 + w, my + 6, mx - 9 + w, my - 9, c);
+    R.linea(mx - 2, my - 3, mx - 6, my - 7, H('#d8a860')); };
+  if (!enMano) { const lx = lerp(h1[0] - 8, LX, ease(cae)), ly = lerp(h1[1] - 1, LY, cae * cae) - (cae >= 1 ? Math.max(0, Math.sin((t - suelta - 0.45) * 14)) * 2 * Math.max(0, 1 - (t - suelta - 0.45) * 3) : 0);
     if (cae >= 1) for (let i = -10; i <= 6; i++) mezP(LX - 18 + i, LY - 6, H('#120806'), 0.35);
-    AT.lupa(R, ri(lx), ri(ly), 2, -1); }
-  if (e1 > 0) { if (enMano) AT.lupa(R, h1[0] - 4, h1[1] - 2, 2, -1); T.brazo(R, 254, 196, h1[0], h1[1], '#5a1e24', -1, { codo: [240, 178] }); }
+    lupaM(lx, ly); }
+  if (e1 > 0) { if (enMano) lupaM(h1[0] - 8, h1[1] - 1); T.brazo(R, 254, 196, h1[0], h1[1], '#5a1e24', -1, { codo: [240, 178] }); }
   if (e2 > 0) T.brazo(R, 74, 198, h2[0], h2[1], '#6a5030', 1, { codo: [88, 178] });
   if (t > ENEMY + 0.9 && e1 > 0.9 && enMano) R.icono('?', ri(h1[0] - 8), ri(h1[1] - 52), H('#e84a4a'), H('#1a0a0a'), 2);
   if (t > PROPHET + 1.2 && e2 > 0.9) R.icono('?', ri(h2[0] + 2), ri(h2[1] - 30), H('#f0c050'), H('#1a0a0a'), 2);
@@ -414,15 +424,43 @@ const ARE7 = pal('#4a2a30', '#6a3a38', '#8e5040', '#b06a4a', '#cc8656', '#e4a468
 const ROC7 = pal('#2a1620', '#46242a', '#663634', '#884c3e', '#a8664a', '#c8845a', '#e0a46e');
 const fondo7 = () => horno('f7', () => {
   pintaCielo(CIE7.slice().reverse().reverse(), 0, 104, [44, 100, 12], 7);
-  pintaCapa({ y: 100, amp: 4, f: 0.03, ph: 0.6, v: 2.2, luz: 1, k: 71, cols: pal('#5a2a4a', '#7a3a52', '#9a4c5a', '#b86462') }, 0, 116);
-  pintaCapa({ y: 112, amp: 5, f: 0.02, ph: 2.2, v: 2.6, luz: 1.2, k: 72, cols: pal('#6a3240', '#8a4448', '#aa5a50', '#c87458', '#e08e62') }, 0, 126);
+  // cada capa baja hasta el borde (la siguiente la tapa): así no queda ningún hueco sin pintar entre dos crestas
+  pintaCapa({ y: 100, amp: 4, f: 0.03, ph: 0.6, v: 2.2, luz: 1, k: 71, cols: pal('#5a2a4a', '#7a3a52', '#9a4c5a', '#b86462') }, 0, 180);
+  pintaCapa({ y: 112, amp: 5, f: 0.02, ph: 2.2, v: 2.6, luz: 1.2, k: 72, cols: pal('#6a3240', '#8a4448', '#aa5a50', '#c87458', '#e08e62') }, 0, 180);
   pintaCapa({ y: 124, amp: 2, f: 0.015, ph: 1.4, v: 3.4, luz: 1.4, k: 73, cols: ARE7, cae: -0.03 }, 0, 180);
+  // las ondas del viento en la arena del llano: cada onda, un filo de luz (de cara al sol, a la izquierda) y su sombra
+  // debajo; más juntas y finas a lo lejos, más anchas y separadas cerca
+  for (let k = 0; k < 15; k++) { const yb = 129 + k * 2.6 + k * k * 0.12, am = 0.8 + k * 0.12;
+    for (let x = 0; x < 320; x++) { if (hh(x >> 3, k, 75) < 0.18) continue; const y = ri(yb + Math.sin(x * (0.06 - k * 0.002) + k * 1.7) * am * 1.6 + Math.sin(x * 0.17 + k) * 0.6);
+      if (y > 178) continue; mezP(x, y, H('#ffe0a8'), 0.45 - k * 0.012); mezP(x, y + 1, H('#7a3e38'), 0.3); if (k > 8) mezP(x, y + 2, H('#7a3e38'), 0.15); } }
+  // dunas pequeñas a media distancia, con su cara de sombra
+  for (const [cx, cy, w] of [[200, 128, 30], [284, 131, 24], [160, 133, 18]]) for (let i = -w; i <= w; i++) { const hgt = ri(4 * Math.cos(i / w * Math.PI / 2) ** 2 * (w / 24));
+    for (let j = 0; j <= hgt; j++) mezP(cx + i, cy - j, i > w * 0.15 ? H('#7a4038') : H('#f8c890'), i > w * 0.15 ? 0.35 : 0.3); if (hgt > 0) mezP(cx + i, cy - hgt - 1, H('#fff0c8'), i <= w * 0.15 ? 0.5 : 0.2); }
   // la peña de la izquierda donde sube Leto
   roca(92, 140, 44, 26, ROC7, 3); roca(54, 156, 22, 16, ROC7, 6); roca(128, 154, 18, 12, ROC7, 8);
   for (let x = 54; x < 132; x++) { const y = ri(116 + Math.abs(x - 92) * 0.12 + Math.sin(x * 0.3) * 0.8); R.pset(x, y, H('#ffc890')); R.pset(x, y + 1, H('#d89068')); }
-  // matojos secos y huesos de una cresta lejana
-  for (const [x, y] of [[176, 170], [236, 152], [300, 174], [150, 136]]) for (let i = -3; i <= 3; i++) R.linea(x + i, y, x + i * 2, y - 4 - (i & 1) * 2, i & 1 ? H('#5a3a2a') : H('#8a6040'));
+  // piedras sueltas por el llano, con su sombra larga hacia la derecha (el sol está bajo a la izquierda)
+  for (const [x, y, rx, k] of [[172, 150, 4, 1], [222, 166, 5, 2], [262, 141, 3, 3], [304, 160, 4, 4], [196, 137, 2, 5], [244, 176, 6, 6], [150, 168, 3, 7], [290, 132, 2, 8]]) {
+    for (let i = 0; i < rx * 3; i++) for (let j = -1; j <= 1; j++) mezP(x + rx + i, y + j + ri(i * 0.12), H('#4a2030'), 0.4 * (1 - i / (rx * 3)));
+    roca(x, y, rx, Math.max(2, ri(rx * 0.7)), ROC7, k); }
+  // unos huesos blanqueados de un animal, medio enterrados
+  for (let i = 0; i < 4; i++) { R.linea(270 + i * 3, 171, 272 + i * 3, 167, H('#e8dcc0')); R.pset(272 + i * 3, 166, H('#fff6e0')); } R.linea(268, 171, 282, 171, H('#c8b898'));
 });
+// un matojo seco que se mece con el viento
+const matojo = (x, y, t, k = 0, s = 1) => { const sw = Math.sin(t * 2.6 + k) * 1.2 + Math.sin(t * 6.1 + k * 2) * 0.4;
+  for (let i = -3; i <= 3; i++) { const L = (4 + (i & 1) * 2 + (i === 0 ? 2 : 0)) * s; R.linea(ri(x + i), ri(y), ri(x + i * 2 + sw * L / 6), ri(y - L), i & 1 ? H('#5a3a2a') : H('#8a6040')); ps(x + i * 2 + sw * L / 6, y - L, H('#d8b070')); }
+  R.linea(ri(x - 4), ri(y + 1), ri(x + 4), ri(y + 1), H('#5a2e2a')); };
+// un fardo de tela atado (lo que lleva una familia)
+const fardo = (x, y, c, k = 0) => { x = ri(x); y = ri(y); R.rect(x - 4, y - 4, x + 4, y + 2, K); R.rect(x - 3, y - 3, x + 3, y + 1, c); R.rect(x - 3, y - 3, x - 2, y - 2, mez(c, H('#ffffff'), 0.3));
+  R.rect(x + 2, y, x + 3, y + 1, mez(c, K, 0.35)); R.pset(x, y - 4, H('#e8c890')); R.pset(x - 1, y - 5, H('#e8c890')); R.pset(x + 1, y - 5, H('#e8c890')); R.linea(x - 3, y - 1, x + 3, y - 1, mez(c, K, 0.25)); };
+// el burro de carga de la caravana, con sus alforjas; anda hacia la izquierda (pie: y)
+const burro = (x, y, t, anda = true) => { x = ri(x); y = ri(y); const p = anda ? Math.floor(t * 8) % 2 : 0, G = H('#8a7a70'), GS = H('#5a4a48'), GL = H('#b8a89a');
+  for (const [lx, f] of [[-6, p], [-3, 1 - p], [4, p], [7, 1 - p]]) R.rect(x + lx, y - 6, x + lx + 1, y - f, K), R.rect(x + lx, y - 6, x + lx, y - 1 - f, GS);
+  R.rect(x - 8, y - 13, x + 9, y - 6, K); R.rect(x - 7, y - 12, x + 8, y - 7, G); R.rect(x - 7, y - 12, x + 8, y - 11, GL); R.rect(x - 7, y - 8, x + 8, y - 7, GS);
+  R.rect(x - 13, y - 17, x - 7, y - 11, K); R.rect(x - 12, y - 16, x - 8, y - 12, G); R.pset(x - 12, y - 12, H('#2a2020')); R.pset(x - 10, y - 15, K);
+  R.rect(x - 10, y - 21 + (p & 1 ? 0 : 1), x - 9, y - 17, K); R.pset(x - 10, y - 20 + (p & 1 ? 0 : 1), GL); R.pset(x + 9, y - 11, K); R.linea(x + 10, y - 11, x + 11, y - 7 + p, H('#3a2a26'));
+  // las alforjas a rayas y un hato encima
+  R.rect(x - 4, y - 17, x + 6, y - 9, K); R.rect(x - 3, y - 16, x + 5, y - 10, H('#a84a30')); for (let i = -3; i <= 5; i += 3) R.linea(x + i, y - 16, x + i, y - 10, H('#e8b050')); fardo(x + 1, y - 18, H('#4a6a8a')); };
 const sombraLarga = (t, m) => {
   const A = [104, 118], B = [298, 160], L = Math.hypot(B[0] - A[0], B[1] - A[1]), ux = (B[0] - A[0]) / L, uy = (B[1] - A[1]) / L, nx = -uy, ny = ux;
   for (let i = 0; i <= L; i += 0.5) { const s = i / L, nino = s < 0.84 ? 2.2 + (s < 0.5 ? 0.6 : 0) : 4 * Math.sqrt(Math.max(0, 1 - ((s - 0.92) / 0.08) ** 2));
@@ -438,14 +476,28 @@ const p7 = (t) => {
   // el viento levanta arena de la cresta
   for (let k = 0; k < 24; k++) { const f = (t * 0.8 + hh(k, 1, 74)) % 1; mezP(130 + f * 120 + hh(k, 2, 74) * 20, 120 - f * 6 + hh(k, 3, 74) * 6, H('#fde0b0'), 0.5 * (1 - f)); }
   const m = tr(t, MONSTER - 0.4, MONSTER + 0.7); sombraLarga(t, m);
-  // la caravana de familias que cruza el llano en «so that we wouldn't have to»
-  for (let k = 0; k < 7; k++) { const x = 40 + (t - P7) * 20 - k * 16, y = 172 - (k % 2) * 3, bob = Math.floor(t * 6 + k) % 2;
-    if (x < -6 || x > 330) continue; const cols = [H('#3a5a8a'), H('#8a3a3a'), H('#4a7a4a'), H('#8a6a3a')]; if (k === 3) { devoto(x, y - bob, H('#c87a3a'), 0, H('#f0c8a0')); continue; }
-    devoto(x, y - bob, cols[k % 4], 0, H('#e8c0a0')); if (k % 3 === 0) { R.rect(ri(x) + 2, ri(y) - 9 - bob, ri(x) + 5, ri(y) - 5 - bob, H('#5a3a20')); R.pset(ri(x) + 3, ri(y) - 9 - bob, H('#a8804a')); } }
+  // matojos que se mecen con el viento (detrás de la caravana)
+  for (const [x, y, k, sc] of [[176, 158, 1, 1], [236, 150, 2, 0.9], [300, 170, 3, 1.2], [150, 140, 4, 0.8], [208, 172, 5, 1.1], [268, 146, 6, 0.8], [190, 146, 7, 0.7]]) matojo(x, y, t, k, sc);
+  // la caravana de familias (a escala, por delante de la peña) que cruza el llano de derecha a izquierda, con fardos y
+  // un burro de carga; deja sus huellas en la arena y en «so that we wouldn't have to» pasa bajo Leto
+  const CAR = [[0, LT.guiaLT, 0], [17, LT.ciudadanaLT, H('#8a3a3a')], [46, null, 0], [66, LT.ciudadanoLT, H('#4a6a3a')], [84, LT.habladoraLT, H('#3a5a8a')], [102, LT.ciudadanoLT, 0]];
+  const xc = 250 - (t - P7) * 26, SC = 176;
+  // las huellas: dos filas de pisadas detrás de la cabeza de la caravana, más claras cuanto más antiguas
+  for (let x = Math.max(0, ri(xc) + 8); x < 320; x += 4) { const vi = Math.max(0, 1 - (x - xc) / 260), y = SC + 1 + ((x >> 2) & 1);
+    mezP(x, y, H('#6a3a30'), 0.45 * vi + 0.1); mezP(x + 1, y, H('#6a3a30'), 0.3 * vi + 0.06); mezP(x, y - 1, H('#fff0c8'), 0.25 * vi); }
+  for (let k = CAR.length - 1; k >= 0; k--) { const [dx, def, fc] = CAR[k], x = xc + dx; if (x < -20 || x > 340) continue;
+    sombraSuelo(x + 6, SC, 8, 2, 0.35);
+    if (!def) { burro(x + 4, SC, t); continue; }
+    // el fardo a la espalda (detrás del cuerpo), o en la mano
+    if (fc && k % 2 === 0) fardo(x + 12, SC - 16 + (Math.floor(t * 8 + k) & 1), fc, k);
+    const r = R.actor(def, x, SC, t, { dir: -1, anda: true, sostiene: fc && k % 2 === 1 ? true : undefined, sonrisa: t > WE });
+    if (fc && k % 2 === 1 && r?.mano) fardo(r.mano[0], r.mano[1] + 2, fc, k); }
   // Leto sube a la peña, mira al sol en «chosen», a su sombra en «nine» y sonríe a la caravana en «we»
   const sb = tramo(t, P7 + 0.1, CHOSEN - 0.1), x = lerp(76, 98, ease(sb)), suelo = lerp(121, 117, sb);
   const mira = t > CHOSEN && t < NINE - 0.2 ? -1 : 1;
   R.actor(T.LT.letoNinoLT, x, suelo, t, { dir: mira, anda: sb > 0 && sb < 1, sonrisa: t > WE, dedo: t > WE + 0.2, triste: t > MONSTER && t < WE });
+  // arena que el viento arrastra a ras del llano, por delante de todo
+  for (let k = 0; k < 18; k++) { const f = (t * 0.9 + hh(k, 4, 76)) % 1, y = 150 + hh(k, 5, 76) * 28; mezP(f * 340 - 10, y - Math.sin(f * 9 + k) * 1.5, H('#ffe8c0'), 0.45 * Math.sin(f * Math.PI)); }
   if (t > NINE - 0.1) { const u = tramo(t, NINE - 0.1, NINE + 0.25); R.numero('9', 186, ri(82 - Math.sin(u * Math.PI) * 6), { tam: 24, centro: true, color: H('#fff0b0') }); }
 };
 
@@ -461,10 +513,24 @@ const senda = (s) => { const n = SEN.length - 1, f = s * n, i = Math.min(n - 1, 
 const ORO = pal('#5a3a10', '#8a5a18', '#b88424', '#e0aa3a', '#f8d060', '#fff0a8');
 const fondo8 = () => horno('f8', () => {
   pintaCielo(CIE8, 0, 110, null, 8);
+  // la Vía Láctea: una banda tramada de polvo de estrellas, con su veta oscura en medio
+  //    (sube de abajo a la izquierda hacia arriba y se apaga antes de la esquina de Atom y de la franja del año)
+  for (let y = 22; y < 104; y++) for (let x = 0; x < 320; x++) { if (!libreAtom(x, y)) continue; const d = (y - (92 - x * 0.2 + Math.sin(x * 0.02) * 6)) / 13, n = hh(x, y, 88);
+    const a = Math.exp(-d * d) * (0.6 + 0.4 * Math.sin(x * 0.07 + y * 0.11) * Math.cos(x * 0.031)) * Math.min(1, (250 - x) / 50, (y - 22) / 14) - (Math.abs(d + 0.1) < 0.1 ? 0.25 : 0);
+    if (a > 0.06 && n < a * 0.6) mezP(x, y, (x + y) & 1 ? H('#2e3c6e') : H('#46568c'), 0.25 + a * 0.3); if (a > 0.35 && hh(x, y, 89) < 0.035) mezP(x, y, H('#e8ecff'), 0.6); }
   for (let k = 0; k < 500; k++) { const u = hh(k, 1, 81), x = ri(u * 320), y = ri(20 + u * 60 + (hh(k, 2, 81) - 0.5) * 30); if (y > 104 || !libreAtom(x, y)) continue; mezP(x, y, H('#8a96c8'), 0.25 + hh(k, 3, 81) * 0.3); }
-  pintaCapa({ y: 100, amp: 5, f: 0.03, ph: 0.3, v: 1.8, luz: 1, k: 82, cols: DUN8[0] }, 0, 120);
-  pintaCapa({ y: 116, amp: 8, f: 0.022, ph: 1.6, v: 2, luz: 1.2, k: 83, cols: DUN8[1] }, 0, 140);
+  // cada capa baja hasta el borde (la siguiente la tapa): entre dos crestas quedaba una franja sin pintar, por la que se
+  // veían restos de fotogramas anteriores (las «líneas doradas» del horizonte, que eran los brillos del sendero)
+  pintaCapa({ y: 100, amp: 5, f: 0.03, ph: 0.3, v: 1.8, luz: 1, k: 82, cols: DUN8[0] }, 0, 180);
+  pintaCapa({ y: 116, amp: 8, f: 0.022, ph: 1.6, v: 2, luz: 1.2, k: 83, cols: DUN8[1] }, 0, 180);
   pintaCapa({ y: 142, amp: 6, f: 0.016, ph: 2.6, v: 2.6, luz: 1.4, k: 84, cols: DUN8[2], cae: -0.02 }, 0, 180);
+  // la luz de la luna en las dunas: ondas de viento con su filo plateado y su sombra, más finas a lo lejos
+  for (let k = 0; k < 22; k++) { const yb = 104 + k * 3.1 + k * k * 0.03, am = 0.6 + k * 0.08;
+    for (let x = 0; x < 320; x++) { if (hh(x >> 3, k, 90) < 0.22) continue; const y = ri(yb + Math.sin(x * (0.05 - k * 0.001) + k * 2.3) * am * 2 + Math.sin(x * 0.19 + k) * 0.6);
+      if (y > 178 || y < 102) continue; mezP(x, y, H('#7a8cc0'), 0.32 - k * 0.006); mezP(x, y + 1, H('#04060e'), 0.3); } }
+  // la cara en sombra de las dunas del medio, al otro lado de la luna
+  for (let x = 0; x < 320; x++) { const c = { y: 116, amp: 8, f: 0.022, ph: 1.6 }, y0 = Math.ceil(crestaY(c, x)), sl = crestaY(c, x + 1.5) - crestaY(c, x - 1.5);
+    if (sl < -0.25) for (let j = 1; j < 10; j++) if (((x + j) & 1) === 0) mezP(x, y0 + j, H('#04060e'), 0.3 * (1 - j / 10)); }
   // el sendero: losas de oro con juntas, que se estrechan hacia el horizonte
   for (let s = 0; s <= 1; s += 0.0015) { const [x, y] = senda(s), wd = 16 * (1 - s) ** 1.1 + 1; for (let j = -wd; j <= wd; j += 0.5) { const px = ri(x + j), py = ri(y + j * 0.12); if (py < 0 || py > 179) continue;
     const fila = Math.floor(s * 60), junta = (Math.abs(s * 60 - fila) < 0.06) || (((j + 400 + (fila & 1) * 4) % 8) < 0.5 && wd > 6); let v = 3.2 - Math.abs(j) / wd * 1.4 + (hh(fila, ri(j / 4), 85) - 0.5) * 0.8;
@@ -473,18 +539,39 @@ const fondo8 = () => horno('f8', () => {
   const ROC8 = pal('#0e1020', '#1a1e34', '#2a3048', '#3c4460', '#566080');
   for (let k = 0; k < 260; k++) { const x = ri(hh(k, 1, 87) * 320), y = ri(118 + hh(k, 2, 87) * 62), L = 3 + ri(hh(k, 3, 87) * 7); let lejos = false; for (let s = 0; s <= 0.5; s += 0.05) { const [sx, sy] = senda(s); if (Math.abs(sx - x) < 24 * (1 - s) + 6 && Math.abs(sy - y) < 8) lejos = true; } if (lejos) continue;
     for (let i = 0; i < L; i++) mezP(x + i, y - (i > L / 2 ? 1 : 0), H('#4a5a8a'), 0.45); }
-  for (const [x, y] of [[30, 176], [292, 176], [140, 124], [286, 132], [12, 128]]) for (let i = -4; i <= 4; i++) { R.linea(x + i, y, x + i * 2, y - 5 - (i & 1) * 3, i & 1 ? H('#1a2030') : H('#2e3a50')); ps(x + i * 2, y - 6 - (i & 1) * 3, H('#5a6a8a')); }
   roca(64, 166, 9, 7, ROC8, 2); roca(66, 156, 6, 5, ROC8, 4); roca(65, 149, 4, 3, ROC8, 6); roca(260, 160, 14, 8, ROC8, 8); roca(14, 150, 10, 6, ROC8, 9);
+  // piedras pequeñas con su brillo de luna, en los tres términos
+  for (const [x, y, r, k] of [[110, 128, 2, 1], [292, 124, 2, 2], [36, 136, 3, 3], [226, 148, 3, 4], [304, 150, 4, 5], [150, 176, 4, 6], [96, 146, 2, 7]]) { sombraSuelo(x + 2, y + 2, r + 2, 1, 0.4); roca(x, y, r, Math.max(2, r - 1), ROC8, k); }
 });
+// un matojo nocturno que se mece (con la punta plateada por la luna)
+const matojo8 = (x, y, t, k = 0, s = 1) => { const sw = Math.sin(t * 2 + k) * 1.1 + Math.sin(t * 5.3 + k) * 0.3;
+  for (let i = -4; i <= 4; i++) { const L = (5 + (i & 1) * 3) * s; R.linea(ri(x + i), ri(y), ri(x + i * 2 + sw * L / 7), ri(y - L), i & 1 ? H('#1a2030') : H('#2e3a50')); ps(x + i * 2 + sw * L / 7, y - L - 1, H('#6a7aa0')); } };
+const NUB8 = [pal('#0c1022', '#1a2240', '#3a4a78'), pal('#10142a', '#202a4a', '#4a5a8c'), pal('#0e1226', '#1c2644', '#56689a')];
 const p8 = (t) => {
   R.copiar(fondo8());
   estrellas(t, 70, 104, 8);
+  // nubes de noche en tres tonos (sombra, cuerpo y el canto que ilumina la luna), a tres velocidades
+  nubes(t, [[20, 34, 54, 1.2], [150, 46, 40, 2.1], [250, 70, 60, 0.8], [80, 66, 46, 1.7], [200, 88, 36, 2.8], [330, 82, 50, 1.4]], NUB8, 8);
   // la luna creciente y una estrella fugaz
   R.disco(232, 52, 7, H('#f4f0d8')); R.disco(235, 50, 6, CIE8[1]); for (let r = 9; r < 15; r += 2) bola(231, 53, r, H('#c8d0ff'), 0.04);
   const fz = (t * 0.22) % 1; if (fz < 0.12) { const u = fz / 0.12; for (let i = 0; i < 10; i++) mezP(60 + u * 110 - i * 2, 40 + u * 24 - i * 0.5, H('#ffffff'), 0.8 - i * 0.07); }
   // el brillo que corre por el sendero hacia el horizonte
   for (let q = 0; q < 4; q++) { const s = ((t * 0.12 + q / 4) % 1), [x, y] = senda(s), wd = 16 * (1 - s) ** 1.1 + 1, a = 0.35 + tramo(t, WALKED, WALKED + 0.5) * 0.3; for (let j = -wd; j <= wd; j++) mezP(x + j, y + j * 0.12, H('#fff6c0'), a * (1 - Math.abs(j) / wd)); }
   for (let k = 0; k < 18; k++) { const s = (hh(k, 1, 86) + t * 0.03) % 1, [x, y] = senda(s); const b = Math.sin(t * 4 + k * 2); if (b > 0.3) mezP(x + (hh(k, 2, 86) - 0.5) * 20 * (1 - s), y - 3 - b * 3, H('#ffe890'), 0.7 * b); }
+  // un chotacabras que cruza el cielo planeando y dos murciélagos que revolotean
+  { const f = ((t - P8) * 0.13) % 1, x = 300 - f * 340, y = 74 + Math.sin(f * 7) * 6; pajaro(x, y, t * 0.45, H('#04050c')); pajaro(x + 1, y + 1, t * 0.45, H('#2a3458')); }
+  for (let k = 0; k < 2; k++) { const a = t * (2.2 + k * 0.5) + k * 2; pajaro(150 + k * 40 + Math.sin(a) * 18, 58 + Math.sin(a * 2.3) * 6, t * 1.8 + k, H('#05060e'), k); }
+  // los matojos que se mecen
+  for (const [x, y, k, sc] of [[30, 176, 1, 1.1], [292, 176, 2, 1.1], [140, 124, 3, 0.7], [286, 132, 4, 0.7], [12, 128, 5, 0.6], [236, 168, 6, 0.9], [90, 150, 7, 0.8], [178, 116, 8, 0.5]]) matojo8(x, y, t, k, sc);
+  // las huellas de Paul en la arena, hasta donde ha llegado
+  { const ll0 = tramo(t, P8 + 0.1, PATH - 0.3), hasta = t > AFRAID ? 104 : lerp(20, 104, ease(ll0));
+    for (let x = 0; x < hasta - 6; x += 5) { const y = 171 + ((x / 5) & 1); mezP(x, y, H('#04060e'), 0.5); mezP(x + 1, y, H('#04060e'), 0.4); mezP(x, y - 1, H('#5a6a9a'), 0.3); } }
+  // un lagarto que corre a ratos por la duna de enfrente, se para y levanta la cabeza
+  { const f = (t - P8) * 0.55, seg = Math.floor(f), u = f - seg, cor = u < 0.35, x = 300 - (seg + ease(Math.min(1, u / 0.35))) * 16, y = 166, pa = cor ? Math.floor(t * 14) & 1 : 0, cab = !cor && Math.sin(t * 7) > 0 ? 1 : 0;
+    if (x > 196) { const LZ = H('#7a86a8'), LS = H('#3a4466'); R.rect(ri(x) - 4, y - 2, ri(x) + 3, y, K); R.rect(ri(x) - 3, y - 2, ri(x) + 2, y - 1, LZ); R.pset(ri(x) - 3, y - 2, H('#aab4d0'));
+      R.rect(ri(x) - 7, y - 2 - cab, ri(x) - 4, y - 1 - cab, K); R.pset(ri(x) - 6, y - 2 - cab, H('#c8d8ff'));
+      R.linea(ri(x) + 3, y - 1, ri(x) + 6, y - 1 + (pa ? 1 : 0), LS); R.linea(ri(x) + 6, y - 1 + (pa ? 1 : 0), ri(x) + 9, y - 2, LS);
+      for (const [lx, d] of [[-3, pa], [1, 1 - pa]]) { R.pset(ri(x) + lx, y + 1, LS); R.pset(ri(x) + lx + (d ? 1 : -1), y + 1, LS); } } }
   // un jerbo que salta por la duna de enfrente
   const jf = ((t - P8) * 0.3) % 1, jx = 300 - jf * 120, jy = 140 - Math.abs(Math.sin(jf * Math.PI * 6)) * 6; if (jf < 0.95) { R.rect(ri(jx), ri(jy) - 2, ri(jx) + 2, ri(jy), H('#c8a880')); ps(jx - 1, jy - 2, H('#e8d0a8')); R.linea(ri(jx) + 3, ri(jy) - 1, ri(jx) + 7, ri(jy) - 3, H('#a8885a')); ps(jx - 1, jy - 3, H('#1a1010')); }
   // Paul ciego: llega, «ve» el sendero, se asusta y se vuelve

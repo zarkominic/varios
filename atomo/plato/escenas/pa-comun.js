@@ -89,7 +89,7 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     luna azul por la celosía y antorchas en las columnas (x 50 y 270, y 70) que tiemblan.
 //     Cámara 'tarima': la tarima de cerca y de lado: el trono a la derecha (asiento x 213–243, y 127: el sentado,
 //     R.actor(x 221, pies 134)), el respaldo alto con el halcón de bronce, la escalinata (peldaños x 190–206; plataforma
-//     y 135 desde x 206), una columna a la izquierda (x 6–34), el muro con dos celosías altas y sus haces, y abajo una
+//     y 135 desde x 206), media columna pegada al borde izquierdo (fuste x 0–15: bajo el año, x 20–45, solo muro tranquilo), el muro con dos celosías altas y sus haces, y abajo una
 //     arquería por la que se ve una galería donde pasan sacerdotes pequeños con estandartes. Para un actor sentado y
 //     otro de pie delante (suelo 150, x 60–188). Delante: el pebetero de bronce con humo (x 10–38, abajo); otro pebetero arde en la plataforma (x 300).
 //   'balcon': EL BALCÓN SOBRE LA MULTITUD: desde la logia, detrás de los que se asoman: el suelo del balcón (pies en
@@ -98,7 +98,7 @@ const provisional = (R, t, c0, c1) => { for (let y = 0; y < 180; y++) for (let x
 //     banderolas), la avenida, la ciudad de arenisca con cúpulas y torres de viento, las murallas de roca y el desierto
 //     hasta el horizonte (y 46); cielo de tarde tramado con nubes de polvo de tres tonos a tres velocidades, dos lunas
 //     pálidas (x 196, y 30 y x 226, y 22) y halcones. o.aclaman 0–1 (o una función de t): la multitud alza los brazos y
-//     salta (para el gag de Atom). Delante: la columna y la cortina de la logia a la izquierda (x 0–26) y dos tinajas
+//     salta (para el gag de Atom). Delante: la columna de la logia a la izquierda (x 0–18) y su cortina (x 19–31, colgada de una barra de bronce en y 24–26: bajo el año no hay nada) y dos tinajas
 //     de bronce con plantas del desierto (x 262–318, y 142–179).
 //     Cámara 'multitud': a ras de la plaza, entre los peregrinos, mirando arriba a la fachada enorme de la ciudadela
 //     (gradas de sillares, ventanas apuntadas, dos estandartes gigantes, torres de viento) con el balcón lejano en el
@@ -781,14 +781,16 @@ function a_tarimaFijo(R, noche, vacio) {
   if (vacio) { R.sprite(a_CORONA, 225, 118, { '#': a_P.bzL, '.': null }); rect(225, 121, 231, 121, a_P.bzS); pset(228, 119, a_P.tap1); }
   // detrás del trono: el gran paño verde con el halcón, y el pebetero de la plataforma
   // la columna de la izquierda: fuste acanalado, anillos de bronce, basa
-  for (let y = 0; y < 158; y++) for (let x = 6; x <= 34; x++) { const u = (x - 6) / 28, fl = (u * 7) % 1; pset(x, y, u < 0.05 || u > 0.95 ? a_K : fl < 0.18 ? a_P.pS : u < 0.3 ? a_P.pL : u < 0.7 ? a_P.p : a_P.pM); }
-  for (const yy of [40, 100]) { rect(4, yy, 36, yy + 3, a_P.bz); rect(4, yy, 36, yy, a_P.bzL); rect(4, yy + 3, 36, yy + 3, a_P.bzS); }
-  for (const [y0, y1] of [[14, 36], [112, 146]]) for (let y = y0; y <= y1; y++) for (let x = 8; x <= 32; x++) { const u = (x - 6) / 28, z = Math.abs(((y - y0) % 8) - 4) === Math.abs((x % 8) - 4); if (z) pset(x, y, u < 0.3 ? a_P.bzL : u < 0.7 ? a_P.bz : a_P.bzS); }
-  for (let y = 0; y < 150; y++) for (let x = 35; x < 35 + 10 + Math.round(y * 0.03); x++) if ((x + y) % 2 === 0 || x < 40) a_tinte(R, x, y, 0.22, a_P.sD);
-  rect(2, 146, 38, 152, a_K); rect(3, 147, 37, 151, a_P.pM); rect(3, 147, 37, 147, a_P.pL); rect(0, 152, 40, 158, a_K); rect(1, 153, 39, 157, a_P.pS); rect(1, 153, 39, 153, a_P.p);
+  //   (corrida al borde: fuste en x −14…15, para que bajo el año, x 20–45, quede la pared de sillares tranquila)
+  const CX = -20;
+  for (let y = 0; y < 158; y++) for (let x = 0; x <= 34 + CX; x++) { const u = (x - 6 - CX) / 28, fl = (u * 7) % 1; pset(x, y, u < 0.05 || u > 0.95 ? a_K : fl < 0.18 ? a_P.pS : u < 0.3 ? a_P.pL : u < 0.7 ? a_P.p : a_P.pM); }
+  for (const yy of [40, 100]) { rect(0, yy, 36 + CX, yy + 3, a_P.bz); rect(0, yy, 36 + CX, yy, a_P.bzL); rect(0, yy + 3, 36 + CX, yy + 3, a_P.bzS); }
+  for (const [y0, y1] of [[14, 36], [112, 146]]) for (let y = y0; y <= y1; y++) for (let x = 0; x <= 32 + CX; x++) { const u = (x - 6 - CX) / 28, z = Math.abs(((y - y0) % 8) - 4) === Math.abs(((x - CX) % 8) - 4); if (z) pset(x, y, u < 0.3 ? a_P.bzL : u < 0.7 ? a_P.bz : a_P.bzS); }
+  for (let y = 24; y < 150; y++) for (let x = 35 + CX; x < 35 + CX + 10 + Math.round(y * 0.03); x++) if ((x + y) % 2 === 0 || x < 40 + CX) a_tinte(R, x, y, 0.22 * Math.min(1, (y - 24) / 10), a_P.sD);
+  rect(0, 146, 38 + CX, 152, a_K); rect(0, 147, 37 + CX, 151, a_P.pM); rect(0, 147, 37 + CX, 147, a_P.pL); rect(0, 152, 40 + CX, 158, a_K); rect(0, 153, 39 + CX, 157, a_P.pS); rect(0, 153, 39 + CX, 153, a_P.p);
   // los reflejos en las losas pulidas: la columna, los arcos oscuros de la galería y el trono
   for (let y = 159; y < 180; y++) for (let x = 0; x < 189; x++) { if ((x + y) % 2) continue; const u = (y - 159) / 21;
-    if (x >= 6 && x <= 34 && u < a_b4(x, y) + 0.4) a_tinte(R, x, y, 0.25, x < 16 ? a_P.pL : a_P.pS);
+    if (x <= 14 && u < a_b4(x, y) + 0.4) a_tinte(R, x, y, 0.25, x < 0 ? a_P.pL : a_P.pS);
     for (const ax of [96, 150, 204]) if (Math.abs(x - ax) < 12 - u * 6 && y < 172) a_tinte(R, x, y, 0.12, a_P.sD); }
   // el haz de luz de la celosía de la derecha, que baja hasta el suelo delante del trono
   const haz = (x0, y0, x1, y1, an) => a_luzTramada(R, Math.min(x0, x1) - an * 2, y0, Math.max(x0, x1) + an * 2, y1, (x, y) => { const u = (y - y0) / (y1 - y0), xc = x0 + (x1 - x0) * u, w = an * (0.6 + u * 0.8), d = Math.abs(x - xc) / w; return d < 1 ? (1 - d) * 0.9 : 0; }, noche ? a_P.agL : a_P.luz, noche ? 0.13 : 0.22);
@@ -947,8 +949,12 @@ function a_logia(R, t) {
   const { rect, pset, linea, poligono } = R;
   for (let y = 0; y < 180; y++) for (let x = 0; x <= 18; x++) { const u = x / 18; pset(x, y, x === 18 ? a_K : u < 0.3 ? a_P.sM : u < 0.7 ? a_P.sS : a_P.sD); }
   for (const yy of [60, 128]) { rect(0, yy, 20, yy + 3, a_P.bzS); rect(0, yy, 20, yy, a_P.bz); }
-  // la cortina verde recogida, que el aire de la tarde mueve
-  for (let y = 0; y < 150; y++) { const recog = y > 70 && y < 86 ? 3 : 0, w = y < 70 ? 5 + Math.round(y * 0.05) : y < 86 ? 3 : 6 - Math.round((y - 86) * 0.03), d = Math.round(Math.sin(t * 1.4 + y * 0.07) * (y > 86 ? 1.5 : 0.6));
+  // la barra de bronce de la que cuelga la cortina, clavada a la columna por debajo de la zona del año (y 24–26: encima,
+  // solo la columna en x ≤ 18 y el cielo tranquilo)
+  rect(12, 24, 29, 26, a_K); rect(13, 25, 28, 25, a_P.bz); rect(13, 24, 28, 24, a_P.bzL); rect(29, 23, 31, 27, a_K); rect(30, 24, 30, 26, a_P.bzL);
+  for (let x = 20; x <= 27; x += 3) { pset(x, 27, a_P.bzS); pset(x, 28, a_P.bz); }
+  // la cortina verde recogida, que el aire de la tarde mueve (desde la barra: y ≥ 28)
+  for (let y = 28; y < 150; y++) { const recog = y > 70 && y < 86 ? 3 : 0, w = y < 70 ? 5 + Math.round(y * 0.05) : y < 86 ? 3 : 6 - Math.round((y - 86) * 0.03), d = Math.round(Math.sin(t * 1.4 + y * 0.07) * (y > 86 ? 1.5 : 0.6));
     for (let i = 0; i <= w; i++) pset(19 + i + d - recog, y, i === w ? a_K : (i + Math.floor(y / 9)) % 3 === 0 ? a_P.vdS : i < 2 ? a_P.vdL : a_P.vd); }
   rect(18, 76, 26, 79, a_P.bz); rect(18, 76, 26, 76, a_P.bzL); pset(24, 81, a_P.bzL); pset(24, 82, a_P.bz);
   // las tinajas de bronce con plantas del desierto (hojas duras que se mecen)

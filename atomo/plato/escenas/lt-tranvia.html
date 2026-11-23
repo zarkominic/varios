@@ -16,8 +16,11 @@
 // 3. el salón congelado (p9): en «switch» tira de la palanca; UN muñequito en la rama de arriba en «only one»;
 // 4. la plaza congelada (p7): «Would you?»; en «say yes» la multitud alza las manos, de color;
 // 5. la lumbre congelada (p2): el puentecito; en «push someone yourself» Atom pone las manos tras el muñeco grande;
-// 6. la pared congelada (p5): salta atrás en «pull back»; las cuentas 5 1 = 5 1 en «exactly the same»;
-// 7. la torre congelada (p12): Leto a color empuja en «agrees to push»; 1… y en «billions» miles de muñequitos;
+// 6. la pared congelada (p5, sin sombras): la roca con nichos y candiles, antorchas, grietas con luz, tapiz y cántaros; cinco vecinos
+//    a color van a empujar al muñeco grande y en «pull back» se echan atrás, con Atom; las cuentas 5 1 = 5 1 en «exactly the same»
+//    y los vecinos las miran y señalan;
+// 7. la torre congelada (p12): la ciudadela con volumen (bloques de sillería con cara a la luna y lado en sombra, cúpulas,
+//    torres de viento, ventanas con alféizar, bruma entre filas); Leto a color empuja en «agrees to push»; 1… y en «billions» miles de muñequitos;
 // 8. el desierto congelado (p1): el tranvía se va por la vía larga; 0→3500 en «thousands of years»; lucecitas en «humanity».
 import * as T from '/atomo/plato/escenas/lt-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -313,7 +316,7 @@ const paredRoca = () => horno('pared-roca', () => {
   baston(60, 168, 96, 172); manta(266, 170, H('#5a3a6a'), H('#c8a040')); cantaro(30, 166);
 });
 const ph5 = (t, o = {}) => {
-  R.copiar(paredRoca());
+  R.copiar(paredRoca()); if (o.antes) o.antes();
   const F = [158, 170], kz = 3.0;
   // las máscaras de los dos (y la del gusano) para proyectar sus sombras en la pared
   const tocar = cl((t - 25.0) / 0.6) * cl((27.6 - t) / 0.3), px = 140, lx = 164, suelo = 164;
@@ -321,7 +324,7 @@ const ph5 = (t, o = {}) => {
   const opL = { dir: -1, sonrisa: tocar > 0.6, triste: t > 23.2 && tocar < 0.6, quieto: o.quieto };
   enTMP(() => { R.actor(LT.predicadorLT, px, suelo, t, opP); R.actor(LT.letoPielLT, lx, suelo, t, opL); });
   const gus = ease(cl((t - 26.5) / 1.0)), fl = 0.97 + 0.03 * Math.sin(t * 11);
-  for (let y = 0; y < 152; y++) for (let x = 0; x < 320; x++) {
+  if (!o.sinSombras) for (let y = 0; y < 152; y++) for (let x = 0; x < 320; x++) {
     if (tranquilo(x, y)) continue;
     const sx = ri(F[0] + (x - F[0]) / (kz * fl)), sy = ri(F[1] + (y - F[1]) / (kz * fl)); let s = sx >= 0 && sx < 320 && sy >= 0 && sy < 180 && TMP[sy * 320 + sx] ? 1 : 0;
     // en «become» la sombra del niño se vuelve la de un gusano enorme que sube por la roca, con anillos y la boca redonda
@@ -735,21 +738,100 @@ const q5 = (t) => {
   if (duda) R.icono('!', X0 + 112, Y0 + 2 + flota(t), H('#ff6a4a'), K, 2);
   if (t > en('fijate3', 0.5316)) R.numero('5', v.cinco(2)[0], v.cinco(2)[1] - 22, { centro: true });
 };
-// ── 6 · la pared congelada: Atom da un salto atrás en «pull back»; las cuentas: 5 y 1 = 5 y 1 ──
+// ── 6 · la pared congelada: la roca vivida (nichos con candiles, antorchas, grietas con luz, tapiz, cántaros); cinco vecinos a color
+//    se acercan a empujar al muñeco grande y en «pull back» se echan atrás, como Atom; luego las cuentas: 5 y 1 = 5 y 1 ──
+const llama = (x, y, h = 6) => { for (let j = 0; j < h; j++) { const w = Math.max(0, Math.round((1 - j / h) * 2.2 - (j < 1 ? 0.6 : 0))); for (let i = -w; i <= w; i++) ps(x + i, y - j, FUEGO[Math.min(5, Math.floor(j / h * 3 + Math.abs(i) * 1.2))]); } ps(x, y - h, FUEGO[3]); };
+const resplandor = (x, y, r, a) => { for (let yy = -r; yy <= r; yy++) for (let xx = -r; xx <= r; xx++) { const d = Math.hypot(xx, yy * 1.2) / r; if (d < 1 && !tranquilo(ri(x + xx), ri(y + yy))) mezP(x + xx, y + yy, H('#ffb060'), a * (1 - d) * (1 - d)); } };
+const paredDetalle = () => {
+  // los nichos tallados en la roca (arco de medio punto, borde que pilla la lumbre, poyete): uno con candil y otro con cántaros
+  const nicho = (x0, x1, y0, y1) => { const cx = (x0 + x1) / 2, r = (x1 - x0) / 2;
+    for (let y = y0 - 1; y <= y1 + 1; y++) for (let x = x0 - 1; x <= x1 + 1; x++) { const ya = y0 + r - Math.sqrt(Math.max(0, r * r - (x - cx) * (x - cx))), borde = y < ya + 1 || x <= x0 || x >= x1 || y >= y1;
+      if (y < ya - 1) continue; const d = (y - ya) / (y1 - y0);
+      R.pset(x, y, borde ? (x < cx ? H('#d8a07a') : H('#563634')) : rmp(pal(['#563634', '#3a2628', '#261a20', '#140c12']), 2.6 - d * 1.6 + (x > cx + r * 0.4 ? 0.8 : 0), x, y)); }
+    R.rect(x0 - 2, y1 + 1, x1 + 2, y1 + 2, H('#c8906a')); R.rect(x0 - 2, y1 + 3, x1 + 2, y1 + 3, H('#3a2628')); for (let x = x0 - 2; x <= x1 + 2; x += 3) ps(x, y1 + 2, H('#966450')); };
+  nicho(20, 38, 86, 112);
+  R.disco(29, 110, 3, K); R.rect(25, 109, 33, 111, H('#8a4a30')); R.rect(25, 109, 30, 109, H('#c88a5a')); ps(34, 109, H('#8a4a30')); llama(32, 107, 6); resplandor(30, 104, 14, 0.6);
+  nicho(272, 298, 100, 128); cantaro(280, 128); cantaro(291, 128); R.disco(286, 126, 2, H('#8a4a30')); ps(285, 125, H('#c88a5a'));
+  // dos antorchas en sus argollas de hierro, con la mancha de hollín encima
+  for (const [x, y] of [[88, 116], [196, 96]]) { for (let j = 1; j < 18; j++) for (let i = -3; i <= 3; i++) sombrea(x + i + Math.sin(j * 0.5) * 0.6, y - 8 - j, 0.32 * (1 - j / 18) * (1 - Math.abs(i) / 4));
+    R.rect(x - 3, y + 6, x + 3, y + 7, K); R.rect(x - 2, y + 6, x + 2, y + 6, H('#7a7a8a')); R.linea(x, y + 7, x, y + 10, K);
+    R.linea(x - 1, y + 12, x + 1, y - 1, K); R.linea(x, y + 12, x + 2, y - 1, H('#8a6a44')); R.rect(x, y - 2, x + 3, y, H('#5a3a2a'));
+    llama(x + 1, y - 3, 8); resplandor(x + 1, y - 5, 18, 0.55); }
+  // grietas por donde se cuela luz de la otra galería
+  for (const [pts, k] of [[[[62, 24], [58, 31], [63, 38], [59, 46], [64, 52]], 1], [[[116, 120], [120, 128], [117, 136], [124, 146], [122, 152]], 2], [[[58, 128], [64, 134], [62, 142], [68, 150]], 3]]) {
+    for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; R.linea(a[0], a[1], b[0], b[1], K); R.linea(a[0] + 1, a[1], b[0] + 1, b[1], H('#ffd890'));
+      for (let u = 0; u <= 1; u += 0.1) { const x = lerp(a[0], b[0], u), y = lerp(a[1], b[1], u); for (const dx of [-2, -1, 2, 3]) mezP(x + dx, y, H('#ffb060'), 0.28 / Math.abs(dx - 0.5)); } } }
+  // el tapiz fremen colgado de una vara con dos clavijas: franjas, rombos, pliegues y flecos
+  R.rect(246, 47, 276, 48, K); R.linea(246, 46, 276, 46, H('#8a6a44')); for (const x of [248, 274]) { R.disco(x, 47, 2, K); ps(x, 46, H('#c8a070')); }
+  for (let y = 49; y < 86; y++) for (let x = 250; x < 273; x++) { const sag = Math.sin((x - 250) / 23 * Math.PI) * 1.5; if (y > 84 + sag) continue; const yy = y - 49, b = Math.floor(yy / 6);
+    let c = b % 3 === 0 ? H('#a83a2e') : b % 3 === 1 ? H('#d8a040') : H('#2e3a6a'); const dz = Math.abs((x - 261)) + Math.abs((yy % 12) - 6); if (dz === 4) c = H('#f0e0c0'); else if (dz < 2) c = H('#1a1424');
+    const pl = Math.sin((x - 250) * 0.9); R.pset(x, y, pl > 0.6 ? mez(c, H('#ffffff'), 0.18) : pl < -0.6 ? mez(c, K, 0.35) : c); }
+  for (let x = 251; x < 273; x += 2) R.linea(x, ri(85 + Math.sin((x - 250) / 23 * Math.PI) * 1.5), x, ri(89 + Math.sin((x - 250) / 23 * Math.PI) * 1.5), H('#d8c8a0'));
+  // un rollo de cuerda en una clavija y un odre colgado
+  R.disco(181, 104, 5, K); R.disco(181, 104, 4, H('#a8885a')); R.disco(181, 104, 2, H('#6a5438')); for (let a = 0; a < 6; a++) ps(181 + Math.cos(a) * 3, 104 + Math.sin(a) * 3, H('#c8a878')); R.rect(180, 98, 182, 99, K);
+  R.linea(210, 120, 210, 124, K); R.disco(210, 130, 5, K); R.disco(210, 130, 4, H('#7a4a2a')); R.disco(209, 129, 1, H('#b8784a'));
+};
+// de atrás adelante (por su suelo), para que nadie se pinte encima del que tiene delante
+const VECINOS = [[PA.fremenMujer, 30, 171, 1], [EL.ciudadanaLT, 64, 172, 3], [PA.fremen, 14, 177, 0], [EL.ciudadanoLT, 48, 178, 2], [PA.fremen, 84, 177, 4]];
 const q6 = (t) => {
-  cong('p5', () => ph5(24.0, { quieto: true }));
+  cong('p5b', () => ph5(24.0, { quieto: true, sinSombras: true, antes: paredDetalle }));
   motasP(t, 220, 156, 6);
   const s = t - en('fijate3', 0.6549), salto = s > 0 && s < 0.6 ? ri(Math.sin(s / 0.6 * Math.PI) * 16) : 0, atras = ease(cl(s / 0.6));
-  atomG(lerp(200, 250, atras), 176 - salto, t, { pose: s > 0 && s < 0.8 ? 'brazos' : t > en('fijate3', 0.7015) ? 'senala' : 'sostiene', dir: -1, cara: s > 0 && s < 1.2 ? 'sorpresa' : 'normal' });
   const c1 = tramo(t, en('fijate3', 0.7043), en('fijate3', 0.7152)), c2 = tramo(t, en('fijate3', 0.7234), en('fijate3', 0.7344));
+  // el muñeco grande (a quien habría que empujar) sobre su cajón: tiembla cuando el de delante va a tocarlo
+  const t0 = en('fijate3', 0.6248), va = ease(tramo(t, t0 + 0.1, en('fijate3', 0.6549) - 0.1)), roza = va > 0.8 && s < 0;
+  R.rect(106, 160, 126, 170, K); R.rect(107, 161, 125, 169, H('#8a6a44')); R.rect(107, 161, 125, 161, H('#c8a070')); for (let x = 110; x < 125; x += 5) R.rect(x, 163, x, 168, H('#5a4028')); R.rect(107, 170, 127, 171, H('#3a2628'));
+  muneco(116, 160, H('#e86a2a'), 1, roza ? ri(Math.abs(Math.sin(t * 18))) : 0);
+  // los cinco vecinos a color: se acercan, el de delante alarga la mano… y en «pull back» todos se echan atrás; en las cuentas miran y señalan
+  VECINOS.forEach(([def, x0, su, k]) => { const at = ease(cl((s - k * 0.07) / 0.5)), x = ri(x0 + va * 8 - at * 12), mov = (va > 0 && va < 1) || (at > 0 && at < 1);
+    const mano = k === 4 && va > 0.5 && s < 0 ? [ri(lerp(x + 14, 108, cl((va - 0.5) * 2))), 156] : undefined;
+    R.actor(def, x, su, t, { dir: 1, anda: mov, sostiene: mano, sorpresa: s > 0 && s < 1.4, triste: s > 1.4 && !c2, dedo: c2 > 0 && (k & 1) === 0, sonrisa: s < 0 }); });
+  atomG(lerp(200, 250, atras), 176 - salto, t, { pose: s > 0 && s < 0.8 ? 'brazos' : t > en('fijate3', 0.7015) ? 'senala' : 'sostiene', dir: -1, cara: s > 0 && s < 1.2 ? 'sorpresa' : 'normal' });
   // a la izquierda, la palanca (cambiar la vía); a la derecha, la mano (empujar): las mismas cuentas, 5 y 1
   if (c1 > 0) { R.linea(52, 70, 60, 58, K); R.linea(53, 70, 61, 58, H('#a8a8b8')); R.disco(61, 57, 3, K); R.disco(61, 57, 2, H('#e83a2e')); R.rect(48, 70, 58, 72, H('#6a6a78'));
     R.numero('5', 84, 72, { tam: 16, centro: true }); R.numero('1', 110, 72, { tam: 16, centro: true }); }
   if (c2 > 0) { igual(140, 64); R.icono('mano', 170, 58, H('#f0c8a0'), K, 2); R.numero('5', 200, 72, { tam: 16, centro: true }); R.numero('1', 226, 72, { tam: 16, centro: true }); AT.anillo(R, 140, 64, 104, 22, t, tramo(t, en('fijate3', 0.7344), en('fijate3', 0.7536))); }
 };
 // ── 7 · la torre congelada: Leto, a color, acepta empujar; 1… y en «billions», miles de millones ──
+// la ciudadela con volumen sobre la silueta lisa de torreLejos: sillería con cara a la luna (izquierda) y lado en sombra,
+// almenas, cúpulas, torres de viento, ventanas con alféizar (unas encendidas), bruma entre la fila de atrás y la de delante
+const ciudadVolumen = () => {
+  const CIU = pal(['#8a7aa6', '#6e6090', '#564a7a', '#423a64', '#302a50', '#221e3c', '#16122a']), NIEBLA = H('#4a4676');
+  const bloque = (x0, x1, top, bot, lejos, k, o = {}) => { const sw = Math.max(3, ri((x1 - x0) * 0.22));
+    for (let y = top; y < bot; y++) for (let x = x0; x <= x1; x++) { const almena = o.almenas && y < top + 4 && ((x - x0) % 8) >= 5; if (almena) continue;
+      const dy = y - top, lado = x > x1 - sw, hil = Math.floor(dy / 5), junta = dy % 5 === 0 || (x + hil * 4 + k) % 9 === 0;
+      let v = (lado ? 3.7 : 2.0) + (ns(x * 0.25 + k, y * 0.3) - 0.5) * 0.7 + dy * 0.012 + (junta ? 0.55 : 0) + (x === x0 ? -0.9 : 0) + (dy < 1 || (o.almenas && dy < 5 && dy > 3) ? -1.0 : 0) + (dy === 1 ? 0.8 : 0);
+      if (h2(x, y, k) > 0.96) v += 0.6; let c = rmp(CIU, v, x, y); if (lejos) c = mez(c, NIEBLA, lejos); R.pset(x, y, c); }
+    // ventanas en hileras: arco arriba, alféizar claro; unas pocas encendidas con su resplandor
+    if (o.ventanas !== false) for (let y = top + 7; y < bot - 6; y += 9) for (let x = x0 + 3; x < x1 - sw - 2; x += 7) { const n = h2(x, y, k + 3);
+      if (n < 0.25) continue; const luz = n > 0.72, c = luz ? H('#e8a048') : H('#120e20');
+      R.rect(x, y, x + 1, y + 3, c); ps(x, y - 1, luz ? H('#c87a30') : H('#120e20')); if (luz) { ps(x, y + 1, H('#ffd070')); for (const [dx, dy] of [[-1, 1], [2, 1], [0, -2], [1, -2], [-1, 3], [2, 3]]) mezP(x + dx, y + dy, H('#e8a048'), 0.3); }
+      R.rect(x - 1, y + 4, x + 2, y + 4, lejos ? mez(CIU[1], NIEBLA, lejos) : CIU[1]); } };
+  const cupula = (cx, base, r, lejos, k) => { for (let y = base - r; y <= base; y++) for (let x = cx - r; x <= cx + r; x++) { const nx = (x - cx) / r, ny = (y - base) / r; if (nx * nx + ny * ny > 1) continue;
+      const l = -0.7 * nx - 0.7 * ny * 0.6; let v = 3.6 - l * 2.4 + (((x - cx + 40) % 5) === 0 ? 0.5 : 0) + (ns(x * 0.3 + k, y * 0.3) - 0.5) * 0.5; let c = rmp(CIU, v, x, y); if (lejos) c = mez(c, NIEBLA, lejos); R.pset(x, y, c); }
+    R.rect(cx, base - r - 5, cx, base - r - 1, CIU[4]); ps(cx, base - r - 6, CIU[1]); R.rect(cx - r - 1, base, cx + r + 1, base + 1, CIU[5]); R.rect(cx - r - 1, base, cx, base, CIU[1]); };
+  const viento = (x0, top, bot, lejos, k) => { bloque(x0, x0 + 7, top, bot, lejos, k, { ventanas: false }); for (let y = top + 3; y < top + 13; y++) for (const dx of [2, 5]) ps(x0 + dx, y, H('#0e0a18'));
+    R.rect(x0 - 1, top - 2, x0 + 8, top - 1, lejos ? mez(CIU[3], NIEBLA, lejos) : CIU[3]); R.rect(x0 - 1, top - 2, x0 + 3, top - 2, CIU[1]); };
+  // fila de atrás (con bruma): la muralla almenada, el torreón central con su cúpula y la torre alta
+  bloque(90, 240, 72, 150, 0.35, 1, { almenas: true });
+  bloque(132, 168, 62, 150, 0.3, 2, { almenas: true }); cupula(150, 62, 12, 0.3, 2);
+  bloque(194, 212, 46, 150, 0.25, 3, { ventanas: false }); for (let y = 70; y < 140; y += 12) { R.rect(197, y, 198, y + 3, H('#120e20')); R.rect(196, y + 4, 199, y + 4, CIU[2]); }
+  cupula(203, 46, 9, 0.2, 3); R.rect(192, 64, 214, 66, CIU[5]); R.rect(192, 64, 214, 64, CIU[2]); for (let x = 193; x < 214; x += 3) ps(x, 67, CIU[5]);
+  viento(112, 66, 74, 0.35, 4); viento(226, 60, 74, 0.35, 5);
+  // la bruma entre las dos filas, que sube del barrio bajo
+  for (let y = 96; y < 150; y++) for (let x = 60; x < 270; x++) { const a = (y - 96) / 54 * 0.35 * (0.7 + 0.3 * ns(x * 0.04, y * 0.12)); if (a > b4(x, y) * 0.5) mezP(x, y, NIEBLA, a * 0.6); }
+  // fila de delante (nítida): casas con azotea a los lados, una cúpula, otra torre de viento, y el barrio bajo
+  bloque(58, 84, 92, 150, 0, 6); viento(66, 80, 92, 0, 7);
+  bloque(78, 102, 106, 150, 0, 8, { almenas: true });
+  bloque(240, 268, 92, 150, 0, 9); cupula(256, 92, 8, 0, 9);
+  bloque(226, 248, 104, 150, 0, 10, { almenas: true });
+  bloque(104, 128, 116, 150, 0, 11); bloque(166, 190, 118, 150, 0, 12, { almenas: true }); bloque(208, 228, 112, 150, 0, 13);
+  // escaleras exteriores y toldos en el barrio bajo
+  for (let i = 0; i < 10; i++) { R.rect(130 + i * 3, 148 - i * 3, 132 + i * 3, 148 - i * 3, CIU[1]); R.rect(130 + i * 3, 149 - i * 3, 132 + i * 3, 149 - i * 3, CIU[5]); }
+  for (const [x, c] of [[108, '#6a3a4a'], [212, '#3a4a5a']]) for (let i = 0; i < 12; i++) { R.linea(x + i, 128 + (i & 1), x + i, 131, mez(H(c), NIEBLA, 0.3)); ps(x + i, 128 + (i & 1), H('#8a7aa6')); }
+};
 const q7 = (t) => {
-  cong('p12', () => ph12(63.0, { quieto: true }));
+  cong('p12', () => { const tl = torreLejos(); if (!tl.vol) { const prev = R.usar(tl); ciudadVolumen(); R.usar(prev); tl.vol = 1; } ph12(63.0, { quieto: true }); });
   motasP(t, 270, 156, 7);
   const p = tranvia(110, 168, t, { s: 1.6, palanca: -1 });
   const em = ease(tramo(t, en('fijate3', 0.7755), en('fijate3', 0.7947)));

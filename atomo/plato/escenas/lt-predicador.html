@@ -19,21 +19,29 @@
 //   en «fear» y una madre retrocede con su niña; en «lie» la estatuilla grande se tambalea y cae.
 // 4 «and no one dares» ciudadela balcon/general: dos sacerdotes cuchichean; uno señala el corro de la plaza (el predicador
 //   diminuto), el otro duda («?» en «who»); en «known the prophet» se vuelven al busto del profeta, que brilla.
-// 5 «Meanwhile» fondo local 'salusa': la muralla del castillo Corrino de noche, con tormenta; Wensicia llega, señala la
-//   estrellita anaranjada en «Arrakis»; el guardia hace la ronda hasta su puesto; rayo y trueno en «overthrew»; se vuelve.
+// 5 «Meanwhile» fondo local 'salusa': la muralla del castillo Corrino de noche, con tormenta; el adarve con grietas, verdín,
+//   canalillo, charcos con ondas de lluvia, brasero y hachón encendidos, argolla con cadena y el bordillo de delante;
+//   Wensicia llega, señala la estrellita anaranjada en «Arrakis»; el guardia hace la ronda con su lanza hacia ella; rayo
+//   y trueno en «overthrew» (ella se vuelve al castillo, él da un respingo); en «the Corrinos» los dos van hacia el castillo.
 // 6 «the Corrinos» fondo local 'salon': sube al estrado y, en «throne», arranca la funda: el trono de oro brilla entre el
-//   polvo; su hijo se sorprende, sonríe y se acerca al trono.
-// 7 «and to them» inserto 'mapa': la mesa con el mapa de Arrakis; la mano morada toca a los dos peones pelirrojos en
+//   polvo; su hijo da un respingo («!»), sonríe y camina hasta el estrado (x 98→136) con el oro reflejado en la cara.
+// 7 «and to them» inserto 'mapa': la mesa con el mapa de Arrakis (el tapiz del león a la derecha, x 192–252, fuera de
+//   la barra del año); la mano morada toca a los dos peones pelirrojos en
 //   «children» y deja a su lado dos tigres de juguete en «standing in the way»; los peones Corrino avanzan.
 // 8 «So one night» fondo local 'jaula' (de noche): el embozado tira del cerrojo en «released», la puerta cae y salen los
-//   tigres en «tigers»; una luz del sietch se enciende a lo lejos en «sietch».
+//   tigres en «tigers», de uno en uno (dentro van recortados al hueco y en la sombra de la jaula; salen por la boca, por
+//   encima de la puerta caída, y caminan sigilosos hacia el sietch); una luz del sietch se enciende en «sietch».
 // 9 «but Leto» planeta desierto/roca de noche: en la repisa, Leto señala los tigres de abajo en «seen it coming»; en
 //   «a thousand lives» se alzan detrás los antepasados de luz.
-// 10 «learn to expect» planeta desierto/general de noche: los tigres acechan junto a una roca (nunca atacan); el matojo se
-//   mueve en «expect the worst», Atom salta del susto… y es el gatito (gag); los gemelos huyen corriendo en «escape».
+// 10 «learn to expect» fondo local 'acecho' (a ras de arena junto a la roca grande, sin luna; lejos, la meseta del sietch):
+//   los tigres avanzan agachados junto a la roca y se paran en seco al salir el gatito (nunca atacan); el matojo se mueve
+//   en «expect the worst», Atom salta del susto… y es el gatito (gag); los gemelos, escondidos tras un pedrusco, huyen
+//   corriendo hacia el sietch en «escape».
 // 11 «And then Leto» ciudadela aposentos de noche: Leto entra y le cuenta el plan a Ghanima; las voces le rodean en
 //   «a thousand lives»; ella se sorprende en «could do».
-// 12 «He decides» inserto 'huellas' (la arena al amanecer): huellas de tigre; la mano de Leto suelta su capa rota en «dead».
+// 12 «He decides» inserto 'huellas' (la arena al amanecer): huellas de tigre; la mano de Leto, dentro del cuadro desde el
+//   principio, sostiene su capa parda (pliegues en abanico, ribete azul, zarpazos), la baja y la suelta en «dead»: cae y
+//   queda tirada con su capucha y su sombra en la arena.
 // 13 «His sister» sietch cuarto/puerta: Ghanima se hipnotiza con el anillo de agua; el recuerdo de Leto se deshace en
 //   «forget»; en «grieve» baja el anillo y llora.
 // 14 «and Leto walks off» planeta desierto/general al ocaso: Ghanima llora sola delante; Leto, figurita, se aleja hacia el
@@ -480,9 +488,24 @@ const salusaFijo = () => horno('salusa', () => {
     else { const z = y - 146; v = 1.8 + ((x + (Math.floor(z / 5) & 1) * 9) % 18 === 0 ? 1 : 0) + (z % 5 === 0 ? 1 : 0) + (ns(x * 0.1, y * 0.2) - 0.5) * 0.8; if (ns(x * 0.05 + 3, y * 0.15) > 0.72) v = -1; }
     R.pset(x, y, v < 0 ? rmp(pal(['#5a5478', '#3e3a58', '#2a2840']), (ns(x * 0.3, y) * 2), x, y) : rmp(pal(['#7a7088', '#5e566e', '#463e56', '#322c40', '#221e2e']), v, x, y)); }
   for (let x = 0; x < 320; x++) { if (x % 26 < 16) { R.pset(x, 126, H('#8a809a')); } R.pset(x, 132, H('#8a809a')); R.pset(x, 145, H('#1a1622')); }
-  // un brasero apagado y cadenas
-  R.rect(20, 150, 34, 154, H('#2a2430')); R.rect(18, 146, 36, 150, H('#4a4458')); R.rect(18, 146, 36, 146, H('#7a7090'));
+  // el adarve de cerca: grietas entre losas, musgo y verdín en las juntas junto al parapeto, el canalillo del agua al pie
+  for (let k = 0; k < 16; k++) { let x = 8 + h2(k, 1, 71) * 300, y = 150 + h2(k, 2, 71) * 20; for (let j = 0; j < 6 + (k % 4); j++) { x += (h2(k, j, 72) - 0.5) * 3; y += 1; sombrea(x, y, 0.45); if (j & 1) aclara(x + 1, y, H('#8a809a'), 0.3); } }
+  for (let x = 0; x < 320; x++) { R.pset(x, 146, H('#14121c')); R.pset(x, 147, rmp(pal(['#3a3a58', '#2a2a44', '#1e1e30']), 1 + b4(x, 147), x, 147)); if (h2(x, 1, 73) > 0.7) R.pset(x, 145 - (x & 1), rmp(pal(['#4a5a3e', '#3a4a32', '#2a3826']), h2(x, 2, 73) * 2.5, x, 145)); }
+  for (let k = 0; k < 30; k++) { const x = ri(h2(k, 1, 74) * 318), y = ri(148 + h2(k, 2, 74) * 24); if ((x % 18) < 2 || (y - 146) % 5 === 0) { R.pset(x, y, H('#3e4a34')); R.pset(x + 1, y, H('#4e5a3e')); } }
+  // el bordillo de delante: losas grandes de remate, mojadas, con el filo de luz arriba y su junta
+  for (let y = 172; y < 180; y++) for (let x = 0; x < 320; x++) { let v = 1.4 + (y - 172) * 0.3 + (ns(x * 0.15, y * 0.4) - 0.5) * 0.8 + (x % 34 < 1 ? 1.4 : 0); if (y === 172) v = 0.2; if (y === 173) v -= 0.6;
+    R.pset(x, y, rmp(pal(['#9a90b0', '#7a7090', '#5e566e', '#463e56', '#322c40', '#221e2e']), v, x, y)); }
+  // la argolla de hierro con su cadena tirada y un haz de paja mojada
+  R.disco(160, 168, 3, K); R.disco(160, 168, 2, H('#4a4458')); R.pset(160, 168, H('#2a2430')); R.pset(159, 166, H('#8a8498'));
+  for (let i = 0; i < 9; i++) { const X = 163 + i * 3, Y = 168 + ri(Math.sin(i * 0.9) * 1.5); R.rect(X, Y, X + 1, Y, H('#5a5468')); R.pset(X, Y - 1, H('#8a8498')); }
+  for (let k = 0; k < 14; k++) R.linea(46 + k, 166 + (k & 1), 52 + k * 1.3, 162 + (k % 3), k & 1 ? H('#8a7a4a') : H('#6a5a3a'));
+  // el brasero del rincón, con sus patas
+  R.rect(20, 150, 34, 154, H('#2a2430')); R.rect(18, 146, 36, 150, H('#4a4458')); R.rect(18, 146, 36, 146, H('#7a7090')); R.rect(20, 154, 21, 158, H('#2a2430')); R.rect(33, 154, 34, 158, H('#2a2430'));
+  // el hachón de pie junto al parapeto (la llama la pinta lo vivo)
+  R.rect(129, 128, 131, 147, H('#3a2a1a')); R.rect(126, 145, 134, 147, H('#2a2430')); R.rect(127, 126, 133, 128, H('#5a4a3a'));
 });
+// dónde hay charcos en el adarve (para las ondas de la lluvia)
+const SAL_CHARCOS = []; for (let y = 150; y < 171; y += 3) for (let x = 4; x < 316; x += 5) if (ns(x * 0.05 + 3, y * 0.15) > 0.74) SAL_CHARCOS.push([x, y]);
 const salusaVivo = (t, rayoU) => {
   // nubes de tormenta de tres tonos que corren
   const capas = [[3, H('#2a2240'), H('#4a3e62'), 0.04, 28], [6, H('#221a34'), H('#3e3456'), 0.05, 52], [10, H('#1a1428'), H('#342a48'), 0.07, 74]];
@@ -504,18 +527,30 @@ const salusaVivo = (t, rayoU) => {
   for (const x of [96, 214]) for (let j = 0; j < 10; j++) { const X = x + ri(Math.sin(t * 6 + j) * 1.5), Y = 162 + j * 1.5; if ((R.pget(X, ri(Y)) & 0xff) < 0x70) aclara(X, Y, H('#e8803a'), 0.5 - j * 0.04); }
   for (const [x0, y0, w, h] of [[276, 150, 22, 16], [298, 154, 20, 12], [284, 138, 16, 12]]) { R.rect(x0, y0, x0 + w, y0 + h, K); R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + h - 1, H('#5a4a3a')); R.rect(x0 + 1, y0 + 1, x0 + w - 1, y0 + 1, H('#7a6a54')); R.linea(x0 + 1, y0 + 1, x0 + w - 1, y0 + h - 1, H('#3a2e24')); R.linea(x0 + w - 1, y0 + 1, x0 + 1, y0 + h - 1, H('#3a2e24')); }
   R.disco(262, 166, 8, K); R.disco(262, 166, 7, H('#6a4a2a')); R.rect(255, 162, 269, 163, H('#8a8a94')); R.rect(255, 169, 269, 170, H('#8a8a94')); R.pset(259, 160, H('#a8784a'));
+  // el brasero y el hachón encendidos, que el viento agita, y su luz en las losas
+  for (const [x, y, r] of [[27, 143, 4], [130, 122, 3]]) { const w = ri(Math.sin(t * 5 + x) * 1.2), f = Math.sin(t * 13 + x) > 0;
+    R.halo(x, y + 2, 16, [H('#3e3044'), H('#5a3e44'), H('#7a5040')], 0.8); R.disco(x + w, y, r, H('#e8602a')); R.disco(x + w, y + 1, r - 1, H('#ffb040')); R.pset(x + w, y - r - (f ? 1 : 0), H('#ffd060')); R.pset(x + w * 2, y - r - 2, H('#e8602a'));
+    for (let i = 0; i < 3; i++) { const g = (t * 1.2 + i * 0.33) % 1; aclara(x + Math.sin(t * 3 + i) * 2, y - r - 2 - g * 10, H('#ffb040'), 0.8 * (1 - g)); } }
+  // el agua que corre por el canalillo y las ondas de la lluvia en los charcos
+  for (let x = 0; x < 320; x += 2) if (Math.sin(x * 0.4 - t * 9) > 0.7) aclara(x, 147, H('#9a96c8'), 0.6);
+  for (let i = 0; i < 14; i++) { const ph = (t * 1.6 + h2(i, 1, 77)) % 1, [cx, cy] = SAL_CHARCOS[(Math.floor(t * 1.6 + h2(i, 1, 77)) * 7 + i * 13) % SAL_CHARCOS.length] || [0, 0], r = 1 + ph * 4;
+    for (let a = 0; a < 12; a++) { const p = a / 12 * 6.283; aclara(cx + Math.cos(p) * r, cy + Math.sin(p) * r * 0.4, H('#b8b4e0'), 0.5 * (1 - ph)); } }
   rayo(118, 0, 104, rayoU, 3);
   lluvia(t, 0, 0, 319, 179, 90, SAL_SUELO);
 };
 // ── p5 · «Meanwhile, far from Arrakis, the family of the emperor Paul overthrew, the Corrinos» ──
 const p5 = (t) => {
   R.copiar(salusaFijo()); const ru = (t - en('tigres', 0.1373)) / 0.9; salusaVivo(t, ru);
-  // un guardia gris en la muralla, que se vuelve con el trueno
-  // (hace la ronda por el adarve hasta su puesto; con el trueno se para y se vuelve)
-  const gu = ease(cl((t - en('tigres', 0.004)) / 2.6)), gx = ri(lerp(66, 40, gu));
-  R.actor(PA.fremen, gx, 158, t, { dir: ru > 0.1 ? 1 : -1, anda: gu > 0 && gu < 1 && ru < 0, pal: pp(SARD), sorpresa: ru > 0 && ru < 1 });
-  // Wensicia llega por el adarve, se para y señala la estrellita anaranjada (Arrakis); con el trueno se vuelve al castillo
-  const u = ease(cl((t - en('tigres', 0.0041)) / (en('tigres', 0.0400) - en('tigres', 0.0041)))), x = ri(lerp(262, 150, u)), anda = u > 0 && u < 1;
+  // el guardia gris hace la ronda por el adarve con su lanza hacia ella; con el trueno se sobresalta, y en «the Corrinos»
+  // la sigue hacia el castillo
+  const gu = ease(cl((t - en('tigres', 0.004)) / (en('tigres', 0.070) - en('tigres', 0.004)))), gv = ease(cl((t - en('tigres', 0.1460)) / (en('tigres', 0.1760) - en('tigres', 0.1460))));
+  const gx = ri(lerp(26, 100, gu) + gv * 40), ganda = (gu > 0 && gu < 1) || (gv > 0 && gv < 1);
+  const gua = R.actor(PA.fremen, gx, 158, t, { dir: 1, anda: ganda, pal: pp(SARD), sorpresa: ru > 0 && ru < 1, salto: ru > 0 && ru < 0.25 ? 2 : 0, sostiene: [gx + 13, 146] });
+  { const [mx, my] = gua.mano; R.linea(mx, my - 20, mx, 158, K); R.linea(mx + 1, my - 20, mx + 1, 157, H('#6a4a2a')); R.poligono([[mx - 1, my - 21], [mx + 2, my - 21], [mx + 1, my - 26]], H('#c8c8d8')); R.pset(mx, my - 23, H('#ffffff')); R.pset(mx - 1, my - 19, H('#8a2a2a')); R.pset(mx + 2, my - 19, H('#8a2a2a')); }
+  // Wensicia llega por el adarve, se para y señala la estrellita anaranjada (Arrakis); con «overthrew» se vuelve al
+  // castillo enfadada, y en «the Corrinos» echa a andar hacia él
+  const u = ease(cl((t - en('tigres', 0.0041)) / (en('tigres', 0.0400) - en('tigres', 0.0041)))), w2 = ease(cl((t - en('tigres', 0.1440)) / (en('tigres', 0.1760) - en('tigres', 0.1440))));
+  const x = ri(lerp(236, 176, u) + w2 * 34), anda = (u > 0 && u < 1) || (w2 > 0 && w2 < 1);
   const senala = t > en('tigres', 0.0417) && t < en('tigres', 0.1049), vuelta = t > en('tigres', 0.1151);
   R.actor(EL.ciudadanaLT, x, 158, t, { dir: vuelta ? 1 : -1, anda, dedo: senala, pal: pp(CORR), enfado: vuelta, habla: t > en('tigres', 0.1424) && voz2(t) });
   // la capa morada que le cae por detrás y la diadema
@@ -578,14 +613,21 @@ const p6 = (t) => {
   const u = ease(cl((t - en('tigres', 0.1834)) / (en('tigres', 0.2415) - en('tigres', 0.1834)))), wx = ri(lerp(262, 190, u));
   const agarra = t > en('tigres', 0.2637) && t < en('tigres', 0.3132), mano = agarra ? [ri(CX + 18 + dx * 0.9), ri(BASE - 34 + dy)] : undefined;
   R.actor(EL.ciudadanaLT, wx + (agarra ? ri(dx * 0.5) : t >= en('tigres', 0.3132) ? 35 : 0), t > en('tigres', 0.2415) ? 124 : ri(lerp(150, 124, cl((t - en('tigres', 0.2210)) / 0.6))), t, { dir: -1, anda: u > 0 && u < 1 || (t > en('tigres', 0.2876) && t < en('tigres', 0.3132)), pal: pp(CORR), sostiene: mano, sonrisa: t > en('tigres', 0.3132), habla: t > en('tigres', 0.2415) && t < en('tigres', 0.2654) && voz2(t) });
-  const hj = ease(cl((t - en('tigres', 0.3200)) / 1.3)); R.actor(EL.ciudadanoLT, ri(96 + hj * 26), 152, t, { dir: 1, anda: hj > 0 && hj < 1, pal: pp(FARAD), sorpresa: t > en('tigres', 0.3132) && t < en('tigres', 0.3337), sonrisa: t > en('tigres', 0.3337), triste: t < en('tigres', 0.2312) });
+  // su hijo, abajo: cuando se descubre el trono da un respingo y camina hacia el estrado, mirando arriba, al oro
+  const rs = t - en('tigres', 0.3000), hj = ease(cl((t - en('tigres', 0.3080)) / (en('tigres', 0.3400) - en('tigres', 0.3080)))), hx = ri(98 + hj * 38);
+  const brinco = rs > 0 && rs < 0.35 ? ri(Math.sin(rs / 0.35 * Math.PI) * 4) : hj >= 1 ? (Math.sin(t * 6) > 0.6 ? 1 : 0) : 0;
+  const hijo = R.actor(EL.ciudadanoLT, hx, 152, t, { dir: 1, anda: hj > 0 && hj < 1, pal: pp(FARAD), salto: brinco, sorpresa: rs > 0 && rs < 0.5, sonrisa: rs >= 0.5, triste: t < en('tigres', 0.2312) });
+  if (rs > 0 && rs < 0.5) R.icono('!', hx + 9, 118 - brinco, H('#ffd060'), K, 1);
+  // el reflejo del oro en su cara, cuando ya mira el trono de cerca
+  if (rs > 0.3) { const [cx, cy] = hijo.cabeza; for (let i = -3; i <= 3; i++) aclara(cx + i, cy + 6, H('#ffe080'), 0.25 * (1 - Math.abs(i) / 4)); }
 };
 
 // ═══ E · 'mesa': la mesa de los Corrino de cerca: un mapa de Arrakis con figuritas (inserto) ═══
 const mesaFijo = () => horno('mesa', () => {
   for (let y = 0; y < 66; y++) for (let x = 0; x < 320; x++) { const d = (Math.abs(((x + 4) % 12) - 6) + Math.abs((y % 14) - 7)); R.pset(x, y, rmp(MORADO, 2.6 + (d === 6 ? 0.9 : 0) + (ns(x * 0.05, y * 0.05) - 0.5) * 0.6 + (y < 12 ? 0.6 : 0), x, y)); }
   // tapiz con el león, entre la pared y la mesa
-  R.rect(110, 4, 170, 58, H('#a8782a')); R.rect(112, 6, 168, 56, MORADO[2]); for (let x = 112; x <= 168; x++) { R.pset(x, 6, MORADO[1]); if (x % 4 === 0) R.pset(x, 57, H('#e8c060')); } for (let k = 0; k < 4; k++) leon(124 + (k % 2) * 32, 20 + (k >> 1) * 22, H('#e8c060'));
+  // (a la derecha, fuera de la barra del año y lejos de la zona de Atom)
+  R.rect(192, 4, 252, 58, H('#a8782a')); R.rect(194, 6, 250, 56, MORADO[2]); for (let x = 194; x <= 250; x++) { R.pset(x, 6, MORADO[1]); if (x % 4 === 0) R.pset(x, 57, H('#e8c060')); } for (let k = 0; k < 4; k++) leon(206 + (k % 2) * 32, 20 + (k >> 1) * 22, H('#e8c060'));
   // el tablero de madera oscura con vetas
   for (let y = 66; y < 180; y++) for (let x = 0; x < 320; x++) { const v = 1.6 + Math.sin(x * 0.04 + ns(x * 0.02, y * 0.15) * 8) * 0.6 + (y < 70 ? -1 : 0) + (ns(x * 0.3, y * 0.05) - 0.5) * 0.5; R.pset(x, y, rmp(pal(['#8a5a3a', '#6a4228', '#4e301c', '#361f12']), v, x, y)); }
   R.rect(0, 66, 319, 67, H('#a8784a'));
@@ -654,12 +696,27 @@ const p8 = (t) => {
   // las luces del sietch, una que se enciende en «sietch»
   for (const [x, y, k] of [[244, 86, 0], [262, 82, 1], [282, 88, 2], [298, 84, 3]]) R.pset(x, y, Math.sin(t * 2 + k) > -0.7 ? H('#ffb050') : H('#8a5a3a'));
   if (t > en('tigres', 0.6376)) { R.rect(270, 90, 272, 93, H('#ffd070')); R.halo(271, 91, 6, [H('#3a2a3a'), H('#6a4a3a')], 0.8); }
-  // la jaula: fondo, los tigres (dentro hasta que se abre) y los barrotes
+  // la jaula: el fondo oscuro, los tigres de dentro (recortados al hueco y en la sombra de la jaula), el marco y la puerta
   const [x0, y0, x1, y1] = JAULA; R.rect(x0, y0, x1, y1, H('#14101a'));
+  for (let y = y0 + 1; y < y1; y += 3) for (let x = x0 + 1; x < x1; x++) if (h2(x, y, 82) > 0.8) R.pset(x, y, H('#1e1826'));   // paja en el fondo
   const abre = ease(cl((t - en('tigres', 0.5437)) / 0.45)), sal = cl((t - en('tigres', 0.5659)) / (en('tigres', 0.6649) - en('tigres', 0.5659)));
-  if (abre <= 0) { for (const [ex, ey] of [[150, 136], [138, 132]]) if ((t + ex) % 2.3 > 0.15) { R.pset(ex, ey, H('#c8ff7a')); R.pset(ex + 3, ey, H('#c8ff7a')); } }
-  else T.tigres(R, 152, 150, t, { dir: 1, anda: sal * 0.98 + 0.02 });
+  // cada tigre, de uno en uno: (dentro) espera → (el segundo) se adelanta a la boca → sale por delante, por encima de la
+  // puerta caída → camina sigiloso hacia el sietch. Devuelve [x, y, se mueve, está fuera]
+  const SJ = 0.7, YF = 164;
+  const tigreJ8 = (k) => { const v = k ? (sal - 0.36) / 0.64 : sal / 0.6, X1 = k ? 206 : 262;
+    if (v <= 0) return k ? [138, 143, false, false] : [143, 147, false, false];
+    let w = v; if (k) { if (v < 0.15) { const e = ease(v / 0.15); return [ri(lerp(138, 143, e)), ri(lerp(143, 147, e)), true, false]; } w = (v - 0.15) / 0.85; }
+    if (w < 0.3) { const e = ease(w / 0.3), y = ri(lerp(147, YF, e)); return [ri(lerp(143, 148, e)), y, true, y > y1]; }
+    const e = cl((w - 0.3) / 0.7); return [ri(lerp(148, X1, ease(e))), YF, e < 1, true]; };
+  const T8 = [tigreJ8(1), tigreJ8(0)], ojos = [];
+  R.recorte([x0 + 1, y0 + 1, x1 - 1, y1]);
+  for (const [tx, ty, mv, fuera] of T8) if (!fuera) { const r = T.tigres(R, tx, ty, t, { dir: 1, s: SJ, uno: true, paso: mv }); ojos.push(...r.cabezas); }
+  R.recorte(null);
+  // la sombra de dentro de la jaula: cerrada, solo se ven los ojos; abierta, la luna entra un poco
+  const osc = 0.75 - abre * 0.35; for (let y = y0 + 1; y <= y1; y++) for (let x = x0 + 1; x < x1; x++) if (b4(x, y) < 0.9) sombrea(x, y, osc);
+  for (const [nx, ny] of ojos) if ((t + nx) % 2.3 > 0.15) { const ex = nx - ri(4.8 * SJ), ey = ny - ri(2.4 * SJ); R.pset(ex, ey, H('#c8ff7a')); R.pset(ex - 2, ey, H('#c8ff7a')); }
   R.rect(x0 - 2, y0 - 3, x1 + 2, y0, H('#4a4458')); R.rect(x0 - 2, y0 - 3, x1 + 2, y0 - 3, H('#8a809a')); R.rect(x0 - 2, y0, x0, y1, H('#4a4458')); R.rect(x1, y0, x1 + 2, y1, H('#2a2632'));
+  for (const yy of [y0 + 10, y0 + 24]) { R.pset(x0 - 1, yy, H('#8a809a')); R.pset(x1 + 1, yy, H('#4a4458')); }   // remaches
   leon(ri((x0 + x1) / 2), y0 - 6, H('#c8962e'));
   // la puerta de barrotes, que cae hacia delante como una rampa
   const ang = abre * 1.45; for (let i = 0; i <= 8; i++) { const bx = x0 + 3 + i * 6, top = [bx, y1 - (y1 - y0) * Math.cos(ang)], dz = (y1 - y0) * Math.sin(ang) * 0.35; R.linea(bx, y1, ri(top[0]), ri(top[1] + dz), H('#8a8498')); R.linea(bx + 1, y1, ri(top[0] + 1), ri(top[1] + dz), H('#3a3448')); }
@@ -668,6 +725,10 @@ const p8 = (t) => {
   const hu = ease(cl((t - en('tigres', 0.5522)) / 1.6)), axg = ri(lerp(182, 300, hu));
   R.actor(PA.fremen, axg, 152, t, { dir: hu > 0 ? 1 : -1, anda: hu > 0 && hu < 1, sostiene: t < en('tigres', 0.5488) ? [172, 132] : undefined, pal: pp(SARD), sorpresa: hu > 0 && hu < 0.4 });
   if (abre > 0 && abre < 1) for (let i = 0; i < 10; i++) aclara(x0 + h2(i, 1, 81) * 50, y1 - h2(i, 2, 81) * 6, H('#c8b8d8'), 0.6);
+  // los que ya han salido, por delante de la jaula y de la puerta caída (el primero por delante del segundo)
+  for (const [tx, ty, mv, fuera] of T8) if (fuera) T.tigres(R, tx, ty, t, { dir: 1, s: SJ, uno: true, paso: mv });
+  // la arena que levantan al salir
+  for (const [tx, ty, mv, fuera] of T8) if (fuera && mv) for (let i = 0; i < 5; i++) aclara(tx - 18 - i * 3, ty - 1 - ((t * 9 + i) % 3), H('#9a8cb8'), 0.45 - i * 0.07);
   T.planetaDelante(R, t, { encuadre: 'desierto', hora: 'noche' });
 };
 
@@ -687,27 +748,62 @@ const p9 = (t) => {
   T.planetaDelante(R, t, O9);
 };
 
-// ── p10 · «learn to expect the worst, and the two of them manage to escape» (planeta desierto/general de noche, junto a una roca) ──
-const O10 = { encuadre: 'desierto', hora: 'noche' };
-const p10 = (t) => {
-  T.planeta(R, t, O10);
-  // la roca grande junto a la que acechan
-  roca([[22, 150], [28, 124], [44, 104], [62, 98], [86, 104], [100, 122], [106, 150]], (x, y) => (x > 80 ? 1.2 : 0) + (y > 140 ? 0.6 : 0), 5);
-  for (let x = 22; x < 108; x++) R.pset(x, 150, ROCA[5]);
-  // el matojo que se mueve (de ahí sale el gatito) y Atom, que salta del susto
-  const sale = t > en('tigres', 0.8613), sx = 176;
-  T.tigres(R, 92, 152, t, { dir: 1, anda: ease(cl((t - en('tigres', 0.9279)) / 1.4)) * 0.25, gatito: sale ? [ri(lerp(sx, sx - 10, cl((t - en('tigres', 0.8613)) / 0.5))), 152] : false });
-  const mueve = t > en('tigres', 0.8459) && t < en('tigres', 0.8630); for (let k = 0; k < 7; k++) { const a = -2.2 + k * 0.5 + (mueve ? Math.sin(t * 30 + k) * 0.25 : Math.sin(t * 2 + k) * 0.05); R.linea(sx + 4, 152, ri(sx + 4 + Math.cos(a) * 9), ri(152 + Math.sin(a) * 9), k & 1 ? H('#5a5a3a') : H('#7a7a4a')); }
-  const s = t - en('tigres', 0.8613), salto = s > 0 && s < 0.7 ? ri(Math.sin(s / 0.7 * Math.PI) * 14) : 0;
-  T.AT.atom(R, 214, 152 - salto, t, { dir: -1, pose: s > 0 && s < 0.9 ? 'brazos' : s >= 0.9 ? 'senala' : 'quieto', cara: s < 0 ? 'normal' : s < 1.0 ? 'sorpresa' : 'sonrisa' });
-  if (s > 0 && s < 1.0) R.icono('!', 211, 108 - salto, H('#ff6a4a'), K, 2);
-  // los gemelos huyen corriendo por delante, lejos del hocico, hacia el sietch
-  const hu = cl((t - en('tigres', 0.9193)) / (en('tigres', 1.0064) - en('tigres', 0.9193)));
-  for (const [dx, def] of [[0, LT.letoNinoLT], [-16, LT.ghanimaLT]]) { const x = ri(lerp(160 + dx, 370 + dx, hu)); if (hu > 0 && x < 340) R.actor(def, x, 164, t, { dir: 1, anda: true, sorpresa: true }); }
-  if (hu > 0 && hu < 1) for (let i = 0; i < 8; i++) aclara(lerp(150, 360, hu) - 24 - i * 4, 163 - h2(i, 1, 90) * 4, H('#9a8cb8'), 0.5 - i * 0.05);
-  T.planetaDelante(R, t, O10);
+// ═══ I · 'acecho': a ras de arena junto a la roca grande, de noche (fondo local: otra cámara que la repisa del plano 9,
+// sin luna ni planeta; a la derecha, lejos, la meseta del sietch con sus luces) ═══
+const ACE_TOP = [[0, 46], [10, 36], [26, 29], [44, 31], [58, 41], [70, 39], [84, 51], [96, 73], [104, 97], [112, 124], [122, 146], [128, 156]];
+const aceTop = (x) => { for (let i = 1; i < ACE_TOP.length; i++) { const [xa, ya] = ACE_TOP[i - 1], [xb, yb] = ACE_TOP[i]; if (x <= xb) return ya + (yb - ya) * (x - xa) / (xb - xa); } return 999; };
+const acechoFijo = () => horno('acecho', () => {
+  cieloNoche(118, 7, { via: 26 });
+  // la meseta del sietch, lejos a la derecha, y las dunas en cuatro términos hasta la arena de delante
+  R.poligono([[178, 118], [190, 102], [206, 97], [244, 95], [262, 100], [284, 97], [302, 103], [320, 101], [320, 118]], (x, y) => rmp(ROCA, 3.7 + (y - 95) * 0.03 + (ns(x * 0.2, y * 0.3) - 0.5) * 0.9 + (x < 200 ? -0.7 : 0) + (y % 4 === 0 ? 0.4 : 0), x, y));
+  dunasNoche([[110, 2, 0.9, 3.0], [120, 4, 2.2, 2.3], [134, 5, 3.7, 1.6], [152, 3, 5.0, 0.9]]);
+  // la roca grande a la izquierda, alta vista desde abajo: estratos, grietas, el filo de luz de las estrellas a la derecha
+  roca([[0, 158], ...ACE_TOP, [0, 158]], (x, y) => (x < 34 ? 1.1 : x < 60 ? 0.5 : 0) + (y > 140 ? 0.6 : 0), 7);
+  for (let y = 30; y < 158; y++) { let xe = 0; for (let x = 0; x < 132; x++) if (y >= aceTop(x)) xe = x; if (xe > 0) { aclara(xe, y, H('#b8a8c8'), 0.45); aclara(xe - 1, y, H('#9a88b0'), 0.25); } }
+  for (let x = 2; x < 128; x++) { const yt = ri(aceTop(x)); if (yt < 158) { aclara(x, yt, H('#c8b8d8'), 0.5); aclara(x, yt + 1, H('#a898c0'), 0.25); } }
+  for (const [ax, ay, bx, by] of [[20, 60, 34, 96], [46, 52, 40, 88], [70, 70, 84, 112], [30, 110, 52, 140], [86, 96, 92, 128]]) { let px = ax, py = ay; const n = by - ay; for (let j = 0; j < n; j++) { px += (bx - ax) / n + (h2(ax, j, 85) - 0.5) * 1.4; py++; sombrea(px, py, 0.55); aclara(px + 1, py, H('#9a7a78'), 0.3); } }
+  for (const [x, y] of [[38, 100], [64, 132], [90, 120]]) { R.rect(x - 5, y, x + 5, y + 1, ROCA[4]); R.rect(x - 5, y - 1, x + 5, y - 1, ROCA[1]); }   // repisas
+  for (const [x, y] of [[40, 99], [64, 131]]) for (let k = 0; k < 4; k++) R.linea(x - 2 + k, y, x - 4 + k * 2, y - 4 - (k & 1) * 2, k & 1 ? H('#5a5a3a') : H('#6a6a44'));   // matas en las grietas
+  // el pie de la roca: cascotes y su sombra en la arena
+  for (let x = 0; x < 150; x++) for (let j = 0; j < 4; j++) if (x > 120 || j > 1) sombrea(x, 156 + j, 0.3 - j * 0.06);
+  for (let k = 0; k < 10; k++) { const x = ri(100 + h2(k, 1, 86) * 46), y = ri(152 + h2(k, 2, 86) * 6), r = 1 + ri(h2(k, 3, 86) * 2); R.disco(x, y + 1, r, ROCA[5]); R.disco(x, y, r, ROCA[2]); R.pset(x - 1, y - r + 1, ROCA[0]); }
+  // primer término: piedras, matojos secos y las huellas de los tigres que se acercan por la arena
+  for (const [x, y, r] of [[18, 172, 5], [88, 176, 4], [196, 174, 3], [244, 178, 6], [306, 170, 4]]) { for (let i = -r - 2; i <= r + 3; i++) sombrea(x + i, y + 2, 0.35); R.disco(x, y, r, ROCA[4]); R.disco(x - 1, y - 1, r - 1, ROCA[2]); R.disco(x - 2, y - 2, Math.max(1, r - 3), ROCA[1]); R.pset(x - 2, y - r + 1, ROCA[0]); }
+  for (let k = 0; k < 9; k++) { const x = ri(-6 + k * 15 + (k & 1) * 4), y = ri(170 - k * 1.6 + (k & 1) * 4); R.disco(x, y, 2, DUNA[4]); R.pset(x, y, DUNA[5]); for (const dx of [-2, 0, 2]) R.pset(x + dx, y - 3, DUNA[4]); }
+  for (let y = 159; y < 180; y++) for (let x = 0; x < 320; x++) if (h2(x, y, 87) > 0.985) R.pset(x, y, h2(x, y, 88) > 0.5 ? DUNA[0] : DUNA[4]);
+});
+const ACE_MATAS = [[132, 178], [268, 176], [292, 166], [58, 179]];
+const acechoVivo = (t) => {
+  cieloVivo(t, 118, 7, { n0: 30, n1: 50, n2: 76, m: (x, y) => x <= 130 && y >= aceTop(x) - 1 || (x >= 178 && y >= 96 && y >= 118 - (x - 178) * 2) });
+  // las luces del sietch, que titilan; una lechuza que cruza; la arena que vuela a ras de suelo
+  for (const [x, y, k] of [[214, 103, 0], [236, 101, 1], [268, 104, 2], [296, 106, 3]]) R.pset(x, y, Math.sin(t * 2 + k * 1.7) > -0.6 ? H('#ffb050') : H('#8a5a3a'));
+  { const f = ((t * 0.07) % 1), x = ri(150 + f * 220), y = ri(64 + Math.sin(t * 1.3) * 6), a = Math.sin(t * 9) > 0; if (!tranquilo(x, y)) { R.pset(x, y, H('#3a3444')); R.pset(x - 1, y - (a ? 1 : -1), H('#4a4458')); R.pset(x + 1, y - (a ? 1 : -1), H('#4a4458')); R.pset(x - 2, y - (a ? 2 : -1), H('#4a4458')); R.pset(x + 2, y - (a ? 2 : -1), H('#4a4458')); } }
+  for (let i = 0; i < 30; i++) { const x = ((h2(i, 1, 89) * 360 + t * (26 + h2(i, 2, 89) * 30)) % 360) - 20, y = 150 + h2(i, 3, 89) * 28 + Math.sin(t * 3 + i) * 1.5; aclara(x, y, H('#b8acd8'), 0.45); }
+  // matojos que se mecen con el viento
+  for (const [mx, my] of ACE_MATAS) for (let k = 0; k < 7; k++) { const a = -2.4 + k * 0.45 + Math.sin(t * 2.2 + k + mx) * 0.12; R.linea(mx, my, ri(mx + Math.cos(a) * 8), ri(my + Math.sin(a) * 8), k & 1 ? H('#4a4a32') : H('#6a6a44')); }
 };
-
+// el pedrusco donde se esconden los gemelos (se pinta después de ellos: los tapa de hombros para abajo)
+const pedrusco = () => { roca([[128, 168], [131, 161], [140, 156], [154, 154], [168, 156], [177, 161], [180, 168]], (x, y) => (x > 168 ? 1 : 0) + (y > 163 ? 0.5 : 0), 9);
+  for (let x = 140; x < 170; x++) aclara(x, ri(154 + Math.abs(x - 154) * 0.12), H('#c8b8d8'), 0.45); for (let i = -2; i <= 52; i++) sombrea(128 + i, 168, 0.35); };
+// ── p10 · «learn to expect the worst, and the two of them manage to escape» (fondo local 'acecho': a ras de arena junto a la roca) ──
+const p10 = (t) => {
+  R.copiar(acechoFijo()); acechoVivo(t);
+  // los tigres avanzan agachados junto a la roca; se paran en seco cuando sale el gatito, y luego siguen, despacio
+  const sale = t > en('tigres', 0.8613), sx = 198;
+  const an = 0.45 * ease(cl((t - en('tigres', 0.8435)) / 0.9)) + 0.3 * ease(cl((t - en('tigres', 0.9279)) / 1.6)), mv = (t < en('tigres', 0.8435) + 0.9 && t > en('tigres', 0.8435)) || (t > en('tigres', 0.9279) && t < en('tigres', 0.9279) + 1.6);
+  T.tigres(R, 50, 161, t, { dir: 1, anda: an, paso: mv, gatito: sale ? [ri(lerp(sx, sx - 12, cl((t - en('tigres', 0.8613)) / 0.5))), 160] : false });
+  // el matojo que se mueve (de ahí sale el gatito)
+  const mueve = t > en('tigres', 0.8459) && t < en('tigres', 0.8630); for (let k = 0; k < 8; k++) { const a = -2.3 + k * 0.45 + (mueve ? Math.sin(t * 30 + k) * 0.25 : Math.sin(t * 2 + k) * 0.06); R.linea(sx + 4, 160, ri(sx + 4 + Math.cos(a) * 10), ri(160 + Math.sin(a) * 10), k & 1 ? H('#5a5a3a') : H('#7a7a4a')); }
+  // Atom, que salta del susto… y es el gatito
+  const s = t - en('tigres', 0.8613), salto = s > 0 && s < 0.7 ? ri(Math.sin(s / 0.7 * Math.PI) * 14) : 0;
+  T.AT.atom(R, 236, 160 - salto, t, { dir: -1, pose: s > 0 && s < 0.9 ? 'brazos' : s >= 0.9 ? 'senala' : 'quieto', cara: s < 0 ? 'normal' : s < 1.0 ? 'sorpresa' : 'sonrisa' });
+  if (s > 0 && s < 1.0) R.icono('!', 233, 116 - salto, H('#ff6a4a'), K, 2);
+  // los gemelos, escondidos detrás del pedrusco (asoman cabeza y hombros), miran a los tigres; en «escape» huyen hacia el sietch
+  const hu = cl((t - en('tigres', 0.9193)) / (en('tigres', 1.0064) - en('tigres', 0.9193)));
+  for (const [x0, def] of [[156, LT.letoNinoLT], [140, LT.ghanimaLT]]) { const x = ri(lerp(x0, x0 + 230, hu)); if (x < 340) R.actor(def, x, 162, t, { dir: hu > 0 ? 1 : -1, anda: hu > 0, sorpresa: hu > 0 || s > 0 && s < 1, triste: hu <= 0 && s <= 0 }); }
+  pedrusco();
+  if (hu > 0 && hu < 1) for (let i = 0; i < 8; i++) aclara(lerp(156, 386, hu) - 10 - i * 4, 161 - h2(i, 1, 90) * 4, H('#9a8cb8'), 0.5 - i * 0.05);
+};
 
 // ══════════════ frase 3: Leto se finge muerto y se va al desierto ══════════════
 // ── p11 · «And then Leto does something only someone with a thousand lives inside could do» (ciudadela aposentos, de noche) ──
@@ -742,15 +838,35 @@ const huellasFijo = () => horno('huellas', () => {
   for (let k = 0; k < 7; k++) zarpa(ri(40 + k * 36), ri(178 - k * 9 + (k & 1) * 8), 2.1 - k * 0.15);
   for (let k = 0; k < 12; k++) { const u = k / 12, x = ri(lerp(244, 180, u) + (k & 1) * 6), y = ri(lerp(146, 64, Math.pow(u, 0.8))), s = 2 - u * 1.4; R.disco(x, y, Math.max(1, ri(2 * s)), SAND[4]); R.disco(x, y - ri(3 * s), Math.max(1, ri(1.4 * s)), SAND[4]); R.pset(x, y, SAND[5]); }
 });
-// la capa de Leto, tirada: un bulto de tela de arena con el fajín azul y un desgarrón
-const capaSuelo = (x, y, u = 1) => { const w = ri(lerp(9, 24, u)), h = ri(lerp(22, 15, u));
-  R.poligono([[x - w - 1, y + 1], [x - w + 3, y - h - 1], [x + 2, y - h - 2], [x + w + 1, y - h + 2], [x + w + 2, y + 1]], K);
-  R.poligono([[x - w, y], [x - w + 3, y - h], [x + 2, y - h - 1], [x + w, y - h + 2], [x + w + 1, y]], (xx, yy) => rmp(pal(['#e0c8a0', '#c8a878', '#a08458', '#7a6444']), 1 + Math.sin(xx * 0.9 + yy * 0.3) * 0.9, xx, yy));
-  R.linea(x - w + 2, y - ri(h * 0.4), x + w - 1, y - ri(h * 0.5), H('#3a6aa8')); R.linea(x - w + 2, y - ri(h * 0.4) + 1, x + w - 1, y - ri(h * 0.5) + 1, H('#2a4a7a'));
-  for (let i = 0; i < 4; i++) R.pset(x + w - 2 - i, y - 1 - (i & 1), SAND[2]);   // el desgarrón
-  if (u >= 1) for (const d of [-6, -2, 2]) R.linea(x + d, y - h + 2, x + d + 5, y - 2, H('#5a4632'));   // tres zarpazos en la tela
-  if (u >= 1) for (const [dx, dy] of [[-w + 4, -h + 1], [w - 6, -h + 3]]) { R.rect(x + dx, y + dy, x + dx + 4, y + dy + 2, H('#a08458')); R.rect(x + dx, y + dy, x + dx + 4, y + dy, H('#e0c8a0')); }   // pliegues
-  R.linea(x + w - 1, y - 2, x + w + 4, y - 4, H('#a08458')); R.linea(x + w + 4, y - 4, x + w + 6, y - 3, H('#a08458')); };
+// la capa de Leto: una tela parda (más oscura que la arena, para que se lea) con pliegues blandos, el ribete azul en el
+// borde, la capucha y tres desgarrones de zarpa. Colgada (de la pinza de la mano, en hx, hy) o tirada en la arena.
+const CAPA = pal(['#c8aa82', '#a8865e', '#86664a', '#644a36', '#463224']);
+const capaColgada = (hx, hy, t) => { const sw = Math.sin(t * 2.2) * 1.8, B = hy + 40;
+  const pts = [[hx - 3, hy], [hx + 3, hy], [hx + 9, hy + 14], [hx + 14 + sw, B - 4], [hx + 9 + sw, B], [hx + 3 + sw, B - 3], [hx - 3 + sw, B + 1], [hx - 9 + sw, B - 2], [hx - 14 + sw, B - 3], [hx - 9, hy + 14]];
+  R.poligono(pts.map(([x, y]) => [x + Math.sign(x - hx) * 1, y + (y > hy ? 1 : -1)]), K);
+  // pliegues que bajan desde la pinza (en abanico, no rayas paralelas) y la sombra del lado de la derecha
+  R.poligono(pts, (x, y) => { const a = Math.atan2(x - hx - sw * (y - hy) / 40, y - hy + 4); return rmp(CAPA, 1.2 + Math.sin(a * 9) * 0.8 + (x - hx) * 0.06 + (y - hy) * 0.012, x, y); });
+  for (let i = -12; i <= 12; i++) { const x = ri(hx + i + sw), y = ri(B - 3 + Math.abs(Math.sin(i * 0.9)) * 2); if (y > hy + 20) { R.pset(x, y, H('#3a6aa8')); R.pset(x, y - 1, H('#5a8ac8')); } }   // el ribete azul del bajo
+  for (const d of [-5, -1, 3]) { R.linea(ri(hx + d + sw * 0.5), hy + 20, ri(hx + d + 4 + sw * 0.6), hy + 28, SAND[1]); R.linea(ri(hx + d + 1 + sw * 0.5), hy + 20, ri(hx + d + 5 + sw * 0.6), hy + 28, CAPA[4]); }   // los zarpazos (asoma la luz)
+  R.pset(hx, hy + 1, CAPA[4]); R.pset(hx - 1, hy + 2, CAPA[3]); };
+const capaSuelo = (x, y, u = 1) => { const w = ri(lerp(12, 24, u)), h = ri(lerp(24, 13, u));
+  // la sombra en la arena, por delante y a la derecha (el sol sale por la izquierda)
+  if (u > 0.4) for (let j = -1; j <= 4; j++) for (let i = -w - 3; i <= w + 8; i++) { const e = ((i - 3) / (w + 6)) ** 2 + (j / 4) ** 2; if (e < 1) sombrea(x + i, y + j, 0.42 * (1 - e) * u); }
+  // la tela arrugada: un contorno de bultos, no un rectángulo
+  const pts = [[x - w, y], [x - w - 3, y - ri(h * 0.3)], [x - w + 1, y - h + 2], [x - w + 7, y - h - 1], [x - 4, y - h + 4], [x + 3, y - h + 1], [x + 10, y - h + 5], [x + w - 1, y - h + 3], [x + w + 3, y - ri(h * 0.35)], [x + w + 1, y], [x + 8, y + 2], [x - 2, y + 1], [x - 10, y + 2]];
+  R.poligono(pts.map(([px, py]) => [px + Math.sign(px - x), py + (py < y - 1 ? -1 : 1)]), K);
+  R.poligono(pts, (xx, yy) => { const r = Math.hypot((xx - x + 4) * 0.5, yy - y + h * 0.4); return rmp(CAPA, 0.9 + Math.sin(r * 0.9 + Math.atan2(yy - y, xx - x) * 3) * 0.7 + (yy - y + h) / (h + 1) * 1.1, xx, yy); });
+  // la capucha caída a la izquierda: un bulto con su luz arriba y su sombra debajo
+  for (let i = -4; i <= 4; i++) { const X = x - w + 5 + i, Y = y - h + 3 + ri(i * i * 0.15); aclara(X, Y, H('#e8d0a8'), 0.5); sombrea(X + 1, Y + 4 - ri(Math.abs(i) * 0.4), 0.35); }
+  // la punta doblada a la derecha enseña el forro, más claro
+  R.poligono([[x + w - 10, y - h + 4], [x + w + 1, y - h + 3], [x + w - 1, y - 4]], K); R.poligono([[x + w - 9, y - h + 5], [x + w, y - h + 4], [x + w - 2, y - 5]], (xx, yy) => rmp(pal(['#e8d4b0', '#d0b890', '#b89c74']), (yy - y + h) * 0.25, xx, yy));
+  // pliegues: arrugas curvas que salen del centro
+  for (const [a0, l] of [[-2.6, 9], [-1.9, 7], [-0.9, 8], [-0.3, 6]]) for (let q = 2; q < l; q++) { const px = x - 2 + Math.cos(a0 + q * 0.05) * q * 1.6, py = y - h * 0.45 + Math.sin(a0) * q * 0.45; sombrea(px, py, 0.4); aclara(px, py - 1, H('#e0c8a0'), 0.35); }
+  // el ribete azul por el borde de abajo, que sigue los bultos
+  for (let i = -w + 1; i < w; i++) { const yy = y - 1 + (i > 4 ? 1 : 0) + (i < -8 ? 1 : 0); R.pset(x + i, yy, H('#3a6aa8')); if (i & 1) R.pset(x + i, yy - 1, H('#5a8ac8')); }
+  if (u >= 1) { for (const d of [-1, 4, 9]) { R.linea(x + d, y - h + 5, x + d + 3, y - 4, SAND[1]); R.linea(x + d + 1, y - h + 5, x + d + 4, y - 4, CAPA[4]); }   // tres zarpazos por los que asoma la arena
+    for (const [dx, dy] of [[w + 7, -2], [w + 11, 1], [-w - 7, 1]]) { R.pset(x + dx, y + dy, CAPA[2]); R.pset(x + dx + 1, y + dy, CAPA[1]); R.pset(x + dx, y + dy + 1, CAPA[3]); }   // jirones sueltos
+    for (let k = 0; k < 10; k++) R.pset(x - w + ri(h2(k, 1, 97) * w * 2), y - ri(h2(k, 2, 97) * 3), SAND[1]); } };   // arena que le ha caído encima
 // ── p12 · «He decides the world must believe he's dead» ──
 const p12 = (t) => {
   R.copiar(huellasFijo());
@@ -761,12 +877,14 @@ const p12 = (t) => {
   for (let i = 0; i < 40; i++) { const f = (t * (0.5 + h2(i, 1, 95) * 0.6) + h2(i, 2, 95)) % 1, x = -10 + f * 340, y = 70 + h2(i, 3, 95) * 106 + Math.sin(t * 4 + i) * 2; aclara(x, y, H('#fff0d0'), 0.6); aclara(x - 1, y, H('#fff0d0'), 0.3); }
   // un escarabajo que cruza
   const bx = ri(120 + ((t - en('finge', 0.2440)) * 6)), by = 140 + ri(Math.sin(t) * 2); R.rect(bx - 2, by - 1, bx + 2, by + 1, K); R.pset(bx - 1, by - 1, H('#5a6a8a')); R.pset(bx + 3, by, K); if (Math.sin(t * 14) > 0) { R.pset(bx - 2, by + 2, K); R.pset(bx + 2, by - 2, K); } else { R.pset(bx - 2, by - 2, K); R.pset(bx + 2, by + 2, K); }
-  // la mano de Leto (manga de arena) entra con la capa colgando y la suelta en «dead»; la capa cae y queda tirada
-  const a = ease(cl((t - en('finge', 0.2544)) / 0.9)), suelta = en('finge', 0.3767), c = ease(cl((t - suelta - 0.45) / 0.7));
-  const wx = ri(lerp(340, 284, a) + c * 60), wy = ri(lerp(100, 104, a));
-  const cae = cl((t - suelta) / 0.4), cx = 268, cy = 156;
-  if (cae <= 0 && a > 0) { const hx = wx - 8; R.linea(hx, wy + 2, hx, wy + 6, H('#a08458')); R.poligono([[hx - 10, wy + 5], [hx + 8, wy + 5], [hx + 12, wy + 38], [hx + 5, wy + 44], [hx - 3, wy + 40], [hx - 13, wy + 43]], (xx, yy) => rmp(pal(['#e0c8a0', '#c8a878', '#a08458', '#7a6444']), 1 + Math.sin(xx * 1.3 + Math.sin(t * 3) * 2) * 0.9 + (yy - wy) * 0.02, xx, yy)); R.linea(hx - 11, wy + 20, hx + 10, wy + 20, H('#3a6aa8')); R.linea(hx - 11, wy + 21, hx + 10, wy + 21, H('#2a4a7a')); for (let i = 0; i < 5; i++) R.pset(hx + 8 - i * 4, wy + 42 + (i & 1), H('#7a6444')); }
-  else if (cae > 0 && cae < 1) { const y = lerp(wy + 30, cy - 4, cae * cae); capaSuelo(ri(lerp(wx - 8, cx, cae)), ri(y), cae * 0.6); }
+  // la mano de Leto (manga de arena) asoma con la capa colgando (dentro del cuadro desde el principio), la baja un poco
+  // y la suelta en «dead»; la capa cae y queda tirada junto a las huellas
+  const a = ease(cl((t - en('finge', 0.2440)) / 0.6)), suelta = en('finge', 0.3767), c = ease(cl((t - suelta - 0.45) / 0.7));
+  const baja = ease(cl((t - en('finge', 0.2700)) / (suelta - en('finge', 0.2700))));
+  const wx = ri(lerp(300, 286, a) + c * 60), wy = ri(lerp(92, 98, a) + baja * 8);
+  const cae = cl((t - suelta) / 0.4), cx = 262, cy = 158;
+  if (cae <= 0 && a > 0) capaColgada(wx - 8, wy + 4, t);
+  else if (cae > 0 && cae < 1) { const y = lerp(wy + 34, cy, cae * cae); capaSuelo(ri(lerp(wx - 8, cx, cae)), ri(y), cae * 0.6); }
   if (cae >= 1) { capaSuelo(cx, cy, 1); const p = cl((t - suelta - 0.4) / 0.8); if (p < 1) for (let i = 0; i < 12; i++) aclara(cx - 18 + i * 3, cy - 2 - p * 6 - h2(i, 1, 96) * 4, H('#f8e0b0'), 0.7 * (1 - p)); }
   if (a > 0 && c < 1) T.brazo(R, 334, 98, wx, wy, '#c8a878', -1, { codo: [ri(lerp(330, 318, a)), 92] });
 };

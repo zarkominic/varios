@@ -14,14 +14,16 @@
 //    this» y saca a color la mochila (T.pausa 'mochila') en «parentification»;  (corta en «when»)
 // 2. la consulta (a color): el niño de la mochila cruza la alfombra; en «adult responsibilities» le caen encima un
 //    maletín y un llavero; en «too soon» suena un despertador; el psiquiatra alza la vista;  (corta en «Looking»)
-// 3. el escritorio del psiquiatra: su mano pone tres fichas: cama y tazón («sick parent»), cuna («younger siblings»),
-//    casa y escoba («household»);  (corta en «Many»)
+// 3. el escritorio del psiquiatra: su mano pone tres fichas sobre el vade (x ≥ 106, detrás de la taza y los papeles
+//    no pasa nada): cama y tazón («sick parent»), cuna («younger siblings»), casa y escoba («household»);  (corta en «Many»)
 // 4. la repisa CONGELADA: los gemelos a color; estrella en «responsible» (Leto alza la mano) y en «capable» (Ghanima);
-//    en «price» Atom saca la balanza: pesan más las estrellas que la pelota, y los dos se vuelven a mirarla, tristes;  (corta en «because»)
+//    en «price» una balanza de latón cae sobre la repisa (base en el suelo, y 146) y las dos estrellas vuelan a su plato:
+//    pesan más que la pelota, el brazo se inclina y los dos se vuelven a mirarla, tristes; Atom la señala;  (corta en «because»)
 // 5. la boca del sietch CONGELADA: dos niños juegan a la pelota; en «skip» rebota hacia los gemelos, que pasan de largo,
 //    y en «never comes back» se va rodando;  (corta en «Leto and Ghanima»)
 // 6. la sala CONGELADA: los gemelos vuelven a color uno a uno; en «extreme» la mochila se hace gigante; Atom los rodea
-//    en «two children»; en «just children», dos pompas con sus juguetes; vuelve el color.
+//    en «two children»; en «just children», dos pompas grandes suben a los lados (fuera de la mochila y de las caras):
+//    la de Leto con una pelota de gajos, la de Ghanima con una peonza que gira; vuelve el color.
 // Sonido: el golpe de la pausa y el clic al salir; un pop por cada cosa que sale; papel, timbre, brillo; pasos, el tic
 // del reloj de la consulta, la balanza (toc), los botes de la pelota y las pompas.
 import * as T from '/atomo/plato/escenas/lt-comun.js';
@@ -585,6 +587,20 @@ const ESTRELLA = ['...#...', '..###..', '#######', '.#####.', '..###..', '.##.##
 const estrella = (x, y, s = 1) => { for (let j = -1; j <= 7; j++) for (let i = -1; i <= 7; i++) { const on = (jj, ii) => ESTRELLA[jj] && ESTRELLA[jj][ii] === '#'; if (!on(j, i) && (on(j - 1, i) || on(j + 1, i) || on(j, i - 1) || on(j, i + 1))) R.rect(x + (i - 3) * s, y + (j - 3) * s, x + (i - 3) * s + s - 1, y + (j - 3) * s + s - 1, K); }
   for (let j = 0; j < 7; j++) for (let i = 0; i < 7; i++) if (ESTRELLA[j][i] === '#') R.rect(x + (i - 3) * s, y + (j - 3) * s, x + (i - 3) * s + s - 1, y + (j - 3) * s + s - 1, j < 3 ? H('#fff0a0') : (i + j) % 4 ? H('#f0c040') : H('#c89020')); };
 
+// la pompa de jabón (aro claro, interior que deja ver el fondo, reflejo) y los dos juguetes que caben dentro
+const pompa = (cx, cy, r) => { for (let y = -r - 1; y <= r + 1; y++) for (let x = -r - 1; x <= r + 1; x++) { const d = Math.sqrt(x * x + y * y);
+    if (d <= r - 1.2) aclara(cx + x, cy + y, H('#cfe8ff'), 0.22 + (y < 0 ? 0.08 : 0)); else if (d <= r) aclara(cx + x, cy + y, (x + y) < 0 ? H('#f4fbff') : H('#b8d0ff'), 0.85); else if (d <= r + 1) sombrea(cx + x, cy + y, 0.5); }
+  aclara(cx - ri(r * 0.5), cy - ri(r * 0.55), H('#ffffff'), 1); aclara(cx - ri(r * 0.5) + 1, cy - ri(r * 0.55), H('#ffffff'), 0.8); aclara(cx - ri(r * 0.5), cy - ri(r * 0.55) + 1, H('#ffffff'), 0.8); };
+const pelotaG = (cx, cy, t) => { const g = [H('#e84a3a'), H('#f4f0e0'), H('#3a8ac8'), H('#f4f0e0'), H('#f0c040'), H('#f4f0e0')], gi = t * 1.5;
+  R.disco(cx, cy, 7, K); for (let y = -6; y <= 6; y++) for (let x = -6; x <= 6; x++) if (x * x + y * y <= 38) { const a = Math.atan2(y, x * 1.6) / (2 * Math.PI) + 0.5 + gi;
+    R.pset(cx + x, cy + y, g[Math.floor(a * 6) % 6]); }
+  R.disco(cx, cy, 1, H('#f4f0e0')); R.pset(cx - 3, cy - 4, H('#ffffff')); R.pset(cx - 2, cy - 4, H('#ffffff')); };
+const peonza = (cx, cy, t) => { const f = Math.floor(t * 12) % 3, cs = [H('#c83a3a'), H('#f0c040'), H('#3aa85a')];
+  R.poligono([[cx - 8, cy - 2], [cx + 8, cy - 2], [cx, cy + 8]], K); R.poligono([[cx - 7, cy - 2], [cx + 7, cy - 2], [cx, cy + 7]], cs[f]);
+  R.poligono([[cx - 4, cy], [cx + 4, cy], [cx, cy + 5]], cs[(f + 1) % 3]); R.rect(cx - 8, cy - 4, cx + 8, cy - 2, K); R.rect(cx - 7, cy - 3, cx + 7, cy - 3, cs[(f + 2) % 3]);
+  for (let i = -6; i <= 6; i += 3) R.pset(cx + i + (f % 3), cy - 1, H('#fff8e0'));
+  R.rect(cx - 1, cy - 8, cx + 1, cy - 4, K); R.pset(cx, cy - 7, H('#e8c060')); R.pset(cx, cy - 6, H('#c8982a')); R.pset(cx, cy - 5, H('#c8982a')); R.pset(cx, cy + 8, K); R.pset(cx - 6, cy - 3, H('#ffffff')); };
+
 // ── 1 · el trono congelado: Atom entra, señala a los gemelos y saca la mochila ──
 const q1 = (t) => {
   R.copiar(fzTrono()); pausa(t, 0, 99);
@@ -615,13 +631,13 @@ const q2 = (t) => {
 // ── 3 · el escritorio del psiquiatra: su mano pone tres fichas, una por cada carga ──
 const q3 = (t) => {
   const oo = { encuadre: 'consulta', camara: 'escritorio' }; const g = T.estudio(R, t, oo);
-  const marcas = [TN.SICK, TN.YOUNGER, TN.HOUSE], pos = [[78, 128], [124, 136], [170, 128]];
-  pos.forEach(([x, y], k) => { const u = ease(tramo(t, marcas[k] - 0.45, marcas[k])); if (u > 0) ficha(ri(lerp(x - 60, x, u)), ri(lerp(y + 50, y, u)), k); });
+  const marcas = [TN.SICK, TN.YOUNGER, TN.HOUSE], pos = [[108, 124], [150, 132], [190, 126]];
+  pos.forEach(([x, y], k) => { const u = ease(tramo(t, marcas[k] - 0.45, marcas[k])); if (u > 0) ficha(ri(lerp(x - 14, x, u)), ri(lerp(y + 56, y, u)), k); });
   // la mano (con su brazo de tweed) lleva cada ficha a su sitio y se va
   let k = marcas.findIndex((m) => t < m + 0.25); if (k < 0) k = 3;
-  if (k < 3) { const u = ease(tramo(t, marcas[k] - 0.45, marcas[k])), [fx, fy] = pos[k], wx = ri(lerp(fx - 60, fx, u)) + 4, wy = ri(lerp(fy + 50, fy, u)) + 14;
-    T.brazo(R, wx - 22, 198, wx, wy, '#6a5a44', 1, { codo: [wx - 32, Math.min(188, wy + 24)] }); }
-  else { const v = tramo(t, TN.HOUSE + 0.25, TN.HOUSE + 1); if (v < 1) { const wx = ri(lerp(178, 196, v)), wy = ri(lerp(146, 200, v)); T.brazo(R, wx - 22, 198, wx, wy, '#6a5a44', 1, { codo: [wx - 32, Math.min(190, wy + 24)] }); } }
+  if (k < 3) { const u = ease(tramo(t, marcas[k] - 0.45, marcas[k])), [fx, fy] = pos[k], wx = ri(lerp(fx - 14, fx, u)) + 4, wy = ri(lerp(fy + 56, fy, u)) + 14;
+    T.brazo(R, wx - 6, 198, wx, wy, '#6a5a44', 1, { codo: [wx - 16, Math.min(188, wy + 26)] }); }
+  else { const v = tramo(t, TN.HOUSE + 0.25, TN.HOUSE + 1); if (v < 1) { const wx = ri(lerp(194, 210, v)), wy = ri(lerp(144, 200, v)); T.brazo(R, wx - 6, 198, wx, wy, '#6a5a44', 1, { codo: [wx - 16, Math.min(190, wy + 26)] }); } }
   // Atom, pequeño junto a la máquina de escribir, se señala la cabeza (lo piensa)
   atomG(268, 164, t, { s: 1, pose: t > TN.HOUSE ? 'piensa' : 'senala', dir: -1, cara: t > TN.HOUSE + 0.5 ? 'triste' : 'normal' });
 };
@@ -632,16 +648,26 @@ const q4 = (t) => {
   R.actor(LT.letoNinoLT, 118, REP_SUELO, t, { dir: 1, sonrisa: t > TN.RESP && t < TN.PRICE, dedo: t > TN.RESP + 0.1 && t < TN.CAPABLE, triste: t > TN.PRICE + 0.5 });
   R.actor(LT.ghanimaLT, 138, REP_SUELO, t, { dir: t > TN.PRICE ? 1 : -1, sonrisa: t > TN.CAPABLE && t < TN.PRICE, dedo: t > TN.CAPABLE + 0.1 && t < TN.PRICE - 0.2, triste: t > TN.PRICE + 0.3 });
   const e1 = tramo(t, TN.RESP - 0.1, TN.RESP + 0.3), e2 = tramo(t, TN.CAPABLE - 0.1, TN.CAPABLE + 0.3);
-  if (e1 > 0) estrella(125, ri(104 - e1 * 8 + flota(t)), 2); if (e2 > 0) estrella(146, ri(104 - e2 * 8 + flota(t, 1)), 2);
-  // «price»: Atom saca una balanza; en un plato las estrellas, en el otro una pelota (el juego): gana el peso de las estrellas
-  const ub = tramo(t, TN.PRICE - 0.3, TN.PRICE + 0.2), r = atomG(232, 174, t, { pose: ub > 0 ? 'sostiene' : t > TN.RESP ? 'senala' : 'quieto', dir: -1, cara: ub > 0 ? 'triste' : 'sonrisa' });
-  if (ub > 0) { const inc = ri(tramo(t, TN.PRICE + 0.2, TN.Q5 - 0.4) * 8), bx = 206, by = ri(86 + flota(t, 2) + (1 - ease(ub)) * 20);
-    // la balanza de latón: el pie, el brazo que se inclina y dos platos colgados
-    R.rect(bx - 2, by, bx + 2, by + 26, K); R.rect(bx - 1, by + 1, bx + 1, by + 25, H('#c8982a')); R.rect(bx - 9, by + 25, bx + 9, by + 29, K); R.rect(bx - 8, by + 26, bx + 8, by + 28, H('#e8c060'));
+  // «price»: una balanza de latón cae sobre la repisa (la base posada en el suelo de la repisa) y las dos estrellas vuelan
+  // a su plato izquierdo; en el derecho, la pelota (el juego): gana el peso de las estrellas
+  const ub = tramo(t, TN.PRICE - 0.1, TN.PRICE + 0.3), bx = 196, suelo = REP_SUELO, by = suelo - 29 - ri((1 - ease(ub)) * 14);
+  const vu = ease(tramo(t, TN.PRICE + 0.3, TN.PRICE + 0.9)), inc = ri(ease(tramo(t, TN.PRICE + 0.8, TN.PRICE + 1.6)) * 7 + Math.sin(t * 3) * 0.6 * vu);
+  const pl = [bx - 22, by + inc], pr = [bx + 22, by - inc];
+  const est = (x0, e, k, dx) => { if (e <= 0) return; const x = lerp(x0, pl[0] + dx, vu), y = lerp(104 - e * 8 + flota(t, k), pl[1] + 9, vu); estrella(ri(x), ri(y), vu > 0.7 ? 1 : 2); };
+  if (ub > 0) {
+    // sombra en la repisa, pie, base, el brazo que se inclina y dos platos colgados
+    for (let x = bx - 12; x <= bx + 12; x++) sombrea(x, suelo + 1, 0.45 * ub), sombrea(x, suelo + 2, 0.25 * ub);
+    R.rect(bx - 2, by, bx + 2, by + 26, K); R.rect(bx - 1, by + 1, bx + 1, by + 25, H('#c8982a')); R.pset(bx - 1, by + 4, H('#fff0a0')); R.pset(bx - 1, by + 12, H('#fff0a0'));
+    R.rect(bx - 10, by + 24, bx + 10, by + 29, K); R.rect(bx - 9, by + 25, bx + 9, by + 28, H('#c8982a')); R.rect(bx - 9, by + 25, bx + 9, by + 25, H('#fff0a0')); R.rect(bx - 6, by + 22, bx + 6, by + 24, K); R.rect(bx - 5, by + 23, bx + 5, by + 23, H('#e8c060'));
     for (let w = -1; w <= 1; w++) R.linea(bx - 22, by + inc + w, bx + 22, by - inc + w, w ? K : H('#e8c060')); R.disco(bx, by, 3, K); R.disco(bx, by, 2, H('#fff0a0'));
-    for (const [px, py] of [[bx - 22, by + inc], [bx + 22, by - inc]]) { R.linea(px, py, px - 7, py + 14, H('#a8a090')); R.linea(px, py, px + 7, py + 14, H('#a8a090')); R.rect(px - 9, py + 14, px + 9, py + 16, K); R.rect(px - 8, py + 14, px + 8, py + 15, H('#e8c060')); }
-    estrella(bx - 26, by + inc + 9); estrella(bx - 18, by + inc + 9);
-    R.disco(bx + 22, by - inc + 9, 5, K); R.disco(bx + 22, by - inc + 9, 4, H('#3a8ac8')); R.rect(bx + 18, by - inc + 9, bx + 26, by - inc + 9, H('#f0e0b0')); R.pset(bx + 20, by - inc + 7, H('#ffffff')); }
+    for (const [px, py] of [pl, pr]) { R.linea(px, py, px - 7, py + 14, H('#a8a090')); R.linea(px, py, px + 7, py + 14, H('#a8a090')); R.rect(px - 9, py + 14, px + 9, py + 16, K); R.rect(px - 8, py + 14, px + 8, py + 15, H('#e8c060')); R.pset(px - 6, py + 14, H('#fff0a0')); }
+    R.disco(pr[0], pr[1] + 9, 5, K); R.disco(pr[0], pr[1] + 9, 4, H('#3a8ac8')); R.rect(pr[0] - 4, pr[1] + 9, pr[0] + 4, pr[1] + 9, H('#f0e0b0')); R.pset(pr[0] - 2, pr[1] + 7, H('#ffffff'));
+    // el polvo al posarse
+    const up = tramo(t, TN.PRICE + 0.3, TN.PRICE + 0.8); if (up > 0 && up < 1) for (const d of [-1, 1]) for (let k = 0; k < 3; k++) aclara(bx + d * (12 + up * 8 + k * 2), suelo - 1 - k % 2 - up * 2, H('#c8c0d8'), 0.6 * (1 - up));
+  }
+  est(125, e1, 0, -4); est(146, e2, 1, 4);
+  // Atom, abajo a la derecha, señala las estrellas y después la balanza
+  atomG(256, 174, t, { pose: ub > 0 ? 'senala' : t > TN.RESP ? 'senala' : 'quieto', dir: -1, cara: ub > 0 ? 'triste' : 'sonrisa' });
 };
 // ── 5 · la boca congelada: niños fremen juegan a la pelota; los gemelos pasan de largo y la pelota se va ──
 const q5 = (t) => {
@@ -670,7 +696,9 @@ const q6 = (t) => {
   const ua = tramo(t, TN.TWOC - 0.2, TN.TWOC + 0.8); if (ua > 0) AT.anillo(R, 165, 144, 30, 16, t, ua);
   // en «just children», a los dos les sale una pompa con un juguete (la peonza y el pájaro de madera)
   const uj = tramo(t, TN.JUST - 0.2, TN.JUST + 0.3);
-  if (uj > 0) for (const [cx, col] of [[140, H('#3a8ac8')], [190, H('#c87a3a')]]) { const y = ri(104 - uj * 6 + flota(t, cx)); R.disco(cx, y, 7, K); R.disco(cx, y, 6, H('#e8f4ff')); R.disco(cx, y, 3, col); R.pset(cx - 3, y - 3, H('#ffffff')); }
+  // (a los lados, fuera de la mochila y de las caras: la pelota de gajos sale de Leto, la peonza de Ghanima)
+  if (uj > 0) [[146, 110, 0], [170, 234, 1]].forEach(([x0, x1, k]) => { const u = ease(uj), cx = ri(lerp(x0, x1, u)), cy = ri(lerp(132, 98, u) + flota(t, k * 3)), r = ri(4 + u * 8);
+    pompa(cx, cy, r); if (u > 0.6) (k ? peonza : pelotaG)(cx, cy + 1, t); });
   atomG(lerp(60, 70, tramo(t, TN.Q6, TN.Q6 + 0.8)), 176, t, { pose: t > TN.TWOC - 0.2 && t < TN.JUST ? 'senala' : t > TN.JUST ? 'saluda' : 'brazos', dir: 1, cara: t > TN.JUST ? 'sonrisa' : t > TN.EXTREME ? 'sorpresa' : 'normal' });
 };
 const efectos = [[0.05, 'tapestop'], [TN.NOTICE + 0.4, 'pasos'], [TN.PARENT, 'pop'], [TN.ADULT - 0.2, 'golpecito'], [TN.ADULT + 0.4, 'golpecito'],

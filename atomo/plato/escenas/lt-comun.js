@@ -520,8 +520,12 @@ export function truchas(R, t, o = {}) {
 //     vaso solo delante); en el derecho TRES AMIGOS chibi detrás de la mesa que se ríen (botan, abren la boca, chispas
 //     de risa), con platos y vasos.
 //   'jaula' [120 × 92]: una señal redonda de PROHIBIDO en su poste (aro rojo y barra cruzada sobre un pajarito gris,
-//     sin letras) y una JAULA dorada con la puerta abierta de la que sale un PÁJARO amarillo y azul batiendo las alas;
-//     o.vuela 0–1: su vuelo, de la puerta hacia arriba a la derecha (por omisión, en bucle de 6 s).
+//     sin letras) y una JAULA dorada con un PÁJARO amarillo y azul. o.vuela 0–1 cuenta toda la historia: 0, la puerta
+//     CERRADA con su cerrojo y el pájaro DENTRO, columpiándose; 0–0.16, empuja la puerta desde dentro (el valor es la
+//     fuerza: topetazos, la puerta y el cerrojo tiemblan); 0.18, salta el cerrojo (vuela arriba y cae, con chispa) y la
+//     puerta se abre girando hacia fuera; 0.20–0.26, el pájaro sale y se posa en ella; 0.26–1, vuela arriba a la
+//     derecha batiendo las alas (por omisión, todo en bucle de 6 s). o.cerrada true: siempre cerrada, con o.empuja 0–1
+//     como fuerza del empuje.
 // Devuelve { caja: [x0, y0, x1, y1] (lo que ocupa en pantalla), punto: [x, y] (lo que señala Atom: la casita, la
 // moneda, el reloj, la palanca, la silla, el pájaro) }.
 export function pausa(R, x, y, t, o = {}) {
@@ -3720,28 +3724,65 @@ const p_PAUSA = {
     return { punto: [6, 18], despues: (q) => { for (let k = 0; k < 4; k++) { const f = (t * 1.2 + k / 4) % 1, sx = 38 + k * 6 + Math.round(Math.sin(k * 3 + t * 3) * 2), sy = Math.round(7 - f * 7); if (f < 0.7) { q(sx, sy, c.amarillo); if (f < 0.35) { q(sx + 1, sy - 1, c.oroL); q(sx - 1, sy - 1, c.oroL); } } } } };
   } },
   jaula: { w: 60, h: 46, dibuja(L, t, o) {
-    const c = p_P, f = Math.max(0, Math.min(1, o.vuela ?? Math.min(1, (t % 6) / 4)));
+    const c = p_P, f = o.cerrada ? 0 : Math.max(0, Math.min(1, o.vuela ?? Math.min(1, (t % 6) / 4)));
+    const cl1 = (v) => Math.max(0, Math.min(1, v));
+    // las fases: cerrada (f < 0.18; empuje p), salta el cerrojo y se abre la puerta (0.18–0.26), vuelo (g 0–1)
+    const p = o.cerrada ? cl1(o.empuja ?? 0) : cl1(f / 0.16), th = cl1((f - 0.185) / 0.05), sale = cl1((f - 0.2) / 0.06), g = cl1((f - 0.26) / 0.74), abierta = f >= 0.18;
     // la señal de prohibido en su poste: aro rojo, fondo blanco, el pajarito gris y la barra cruzada
     L.r(10, 22, 12, 45, c.grisS); L.r(10, 22, 10, 45, c.grisL); L.r(7, 44, 15, 45, c.grisS);
     L.e(11, 12, 10.5, 10.5, c.rojo); L.e(11, 12, 8, 8, c.blanco); L.e(10, 11, 7.5, 7.5, (x, y) => ((x + y) % 7 === 0 ? c.mantel : c.blanco));
     L.e(11, 13, 3, 2, c.gris); L.p(14, 12, c.gris); L.p(15, 12, c.grisS); L.p(8, 12, c.gris); L.l(9, 11, 11, 9, c.grisL); L.p(13, 12, c.negro);
     for (let k = -1; k <= 1; k++) L.l(5 + k, 6, 17 + k, 18, c.rojo); L.l(4, 7, 9, 12, c.rojoL);
     L.e(11, 12, 10.5, 10.5, (x, y) => { const dd = Math.hypot(x - 11, y - 12); return dd > 8.2 ? (x + y < 21 ? c.rojoL : c.rojoS) : L.g[y * L.w + x] || c.blanco; });
-    // la jaula dorada: bandeja, barrotes, cúpula y gancho
+    // la jaula dorada: bandeja y, si está cerrada, el pájaro DENTRO (sobre el columpio o empujando la puerta), detrás
+    // de los barrotes
     L.r(30, 40, 52, 44, c.latonS); L.r(30, 40, 52, 40, c.latonL); L.r(32, 45, 50, 45, c.latonS);
+    const sw = Math.sin(t * 2) * 1.5, aleteo = (!abierta && p > 0.08) || (abierta && (sale > 0 || g > 0.02)) ? Math.sin(t * 16) > 0 : false;
+    const pajaroEn = (B, ox, oy, borde = false) => { const e = (x, y, rx, ry, col) => B.e(x + ox, y + oy, rx, ry, col), q1 = (x, y, col) => B.p(x + ox, y + oy, col), r = (a, b, cc, d, col) => B.r(a + ox, b + oy, cc + ox, d + oy, col), l = (a, b, cc, d, col) => B.l(a + ox, b + oy, cc + ox, d + oy, col);
+      // dentro de la jaula, un contorno oscuro para que se lea contra el latón
+      if (borde) { e(4, 4, 4, 3, c.negro); e(6.5, 2.6, 2.8, 2.8, c.negro); r(-1, 3, 1, 6, c.negro); }
+      e(4, 4, 3, 2, c.amarillo); e(6.5, 2.6, 1.8, 1.8, c.amarillo); q1(7, 2, c.negro); q1(8.5, 3, c.naranja); q1(9, 3, c.naranja);
+      r(0, 4, 1, 4, c.azul); r(0, 5, 0, 5, c.azulS); l(5, 5, 4, 6, c.naranja);
+      if (aleteo) { r(2, 0, 4, 1, c.azul); q1(3, 2, c.azulS); } else { r(2, 4, 5, 5, c.azul); q1(3, 6, c.azulS); } };
+    // dentro: posado en el columpio (p = 0); al empujar deja el columpio y da topetazos contra la puerta (x 46–52)
+    const ad = Math.min(1, p * 4), golpe = p > 0.5 ? Math.round((p - 0.5) * 4) : 0;
+    const ix = Math.round((35 + sw) * (1 - ad) + 34 * ad + golpe), iy = Math.round(25 - ad + (ad > 0 ? Math.sin(t * 9) * 0.6 : 0));
+    if (!abierta || sale <= 0) pajaroEn(L, ix, iy, true);
+    // barrotes, cúpula y gancho (por delante del pájaro de dentro)
     for (let x = 31; x <= 51; x += 3) { const top = 22 - Math.sqrt(Math.max(0, 100 - (x - 41) ** 2)) * 0.9; L.l(x, top, x, 39, x < 41 ? c.latonL : c.laton); }
     for (let k = 0; k <= 40; k++) { const x = 30 + k * 0.55; L.p(x, 22 - Math.sqrt(Math.max(0, 121 - (x - 41) ** 2)) * 0.9, c.laton); }
     L.r(30, 30, 52, 30, c.laton); L.e(41, 11, 1.6, 1.6, c.laton); L.p(41, 10, c.latonL);
-    // la puerta abierta (girada hacia fuera) y el columpio que se mece
-    L.r(52, 26, 52, 37, c.latonS); for (let k = 0; k <= 3; k++) L.l(53 + k * 1.6, 26 - k * 0.4, 53 + k * 1.6, 37 - k * 0.4, c.laton); L.l(53, 26, 58, 24.8, c.laton); L.l(53, 37, 58, 35.8, c.laton);
-    const sw = Math.sin(t * 2) * 1.5; L.l(38, 20, 38 + sw, 30, c.latonS); L.l(44, 20, 44 + sw, 30, c.latonS); L.r(38 + sw, 31, 44 + sw, 31, c.maderaS);
-    // el pájaro: posado en la puerta (f = 0) y luego volando arriba a la derecha
-    const bx = 55 + f * 14 + Math.sin(f * 7) * 2 * f, by = 23 - f * 34 + Math.sin(t * 9) * f, aleteo = f > 0.02 ? Math.sin(t * 16) > 0 : false;
-    const pajaro = { w: 9, h: 7, dibuja(B) { B.e(4, 4, 3, 2, c.amarillo); B.e(6.5, 2.6, 1.8, 1.8, c.amarillo); B.p(7, 2, c.negro); B.p(8.5, 3, c.naranja); B.p(9, 3, c.naranja);
-      B.r(0, 4, 1, 4, c.azul); B.r(0, 5, 0, 5, c.azulS); B.l(5, 5, 4, 6, c.naranja);
-      if (aleteo) { B.r(2, 0, 4, 1, c.azul); B.p(3, 2, c.azulS); } else { B.r(2, 4, 5, 5, c.azul); B.p(3, 6, c.azulS); } } };
-    return { punto: [bx + 4, by + 3], despues: (q, spr) => { spr(pajaro, bx, by);
-      if (f > 0.1) for (let k = 1; k <= 3; k++) { const ff = Math.max(0, f - k * 0.05); q(Math.round(55 + ff * 14 + 2), Math.round(26 - ff * 34 + 3), k === 1 ? c.grisL : c.mantelS); } } };
+    L.r(52, 26, 52, 37, c.latonS);
+    // el columpio que se mece
+    L.l(38, 20, 38 + sw, 30, c.latonS); L.l(44, 20, 44 + sw, 30, c.latonS); L.r(38 + sw, 31, 44 + sw, 31, c.maderaS);
+    if (th <= 0) {
+      // la puerta CERRADA, de frente (bisagra en x 52): marco, tres barrotes y el cerrojo a su izquierda; tiembla con
+      // cada topetazo
+      const dx = p > 0.45 ? Math.round(Math.sin(t * 38) * Math.min(1, p)) : 0, cy = 32 + (p > 0.3 ? Math.round(Math.sin(t * 31)) : 0);
+      L.r(46 + dx, 24, 52, 25, c.latonS); L.r(46 + dx, 24, 52, 24, c.latonL); L.r(46 + dx, 38, 52, 39, c.latonS); L.r(46 + dx, 24, 46 + dx, 39, c.latonL); L.r(52, 24, 52, 39, c.latonS);
+      for (const bx of [48, 50]) L.r(bx + dx, 26, bx + dx, 37, bx < 50 ? c.latonL : c.laton);
+      L.r(46 + dx, 31, 52, 31, c.laton); L.p(52, 27, c.oroL); L.p(52, 35, c.oroL);
+      // el cerrojo: pasador de latón con su pomo, de la puerta al barrote de al lado
+      L.r(42, cy - 1, 47 + dx, cy + 1, c.latonS); L.r(42, cy - 1, 46 + dx, cy - 1, c.oroL); L.e(42, cy, 1.4, 1.4, c.oro); L.p(42, cy - 1, c.oroL);
+    } else {
+      // la puerta que se abre girando hacia fuera (de frente a de canto y luego abierta a la derecha)
+      const ex = 52 - 7 * Math.cos(th * Math.PI), sube = th * 1.2;
+      for (let k = 0; k <= 3; k++) { const x = 52 + (ex - 52) * (k + 0.5) / 3.5; L.l(x, 26 - sube * k / 3, x, 37 - sube * k / 3, k % 2 ? c.laton : c.latonL); }
+      L.l(52, 26, ex, 26 - sube, c.laton); L.l(52, 37, ex, 37 - sube, c.laton); L.l(52, 31.5, ex, 31.5 - sube, c.latonS);
+    }
+    // el pájaro fuera: sale por la puerta, se posa en ella y luego vuela arriba a la derecha
+    const px0 = 55 + g * 14 + Math.sin(g * 7) * 2 * g, py0 = 23 - g * 34 + Math.sin(t * 9) * g;
+    const bx = abierta && sale > 0 ? (sale < 1 ? 40 + (55 - 40) * sale : px0) : ix, by = abierta && sale > 0 ? (sale < 1 ? 24 - Math.sin(sale * Math.PI) * 3 - sale : py0) : iy;
+    const pajaro = { w: 10, h: 7, dibuja(B) { pajaroEn(B, 0, 0); } };
+    return { punto: [bx + 4, by + 3], despues: (q, spr) => {
+      if (abierta && sale > 0) spr(pajaro, bx, by);
+      // el topetazo: dos rayitas de golpe junto a la puerta
+      if (!abierta && p > 0.6) { q(54, 27, c.blanco); q(55, 26, c.oroL); q(54, 35, c.blanco); q(55, 36, c.oroL); q(45, 20, c.oroL); q(47, 19, c.blanco); q(49, 21, c.oroL); }
+      // el cerrojo que salta (arriba a la izquierda, y cae) con su chispa
+      const k = cl1((f - 0.18) / 0.14);
+      if (k > 0 && k < 1) { const lx = Math.round(43 - k * 12), ly = Math.round(32 - k * 14 + k * k * 22); q(lx, ly, c.latonL); q(lx + 1, ly, c.latonS); q(lx - 1, ly, c.laton);
+        if (k < 0.35) for (const [sx, sy] of [[44, 29], [41, 30], [46, 34], [40, 34]]) q(sx, sy, k < 0.18 ? c.blanco : c.oroL); }
+      if (g > 0.1) for (let j = 1; j <= 3; j++) { const ff = Math.max(0, g - j * 0.05); q(Math.round(55 + ff * 14 + 2), Math.round(26 - ff * 34 + 3), j === 1 ? c.grisL : c.mantelS); } } };
   } },
 };
 // un tigre de tigres() con su luz y su vida: lo pinta p_tigre (mismos argumentos, misma posición) y luego, solo donde
