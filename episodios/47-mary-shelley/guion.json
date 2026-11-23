@@ -1,0 +1,473 @@
+{
+ "serie": "ASK Atom",
+ "numero": 47,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Mary Shelley: The 18-Year-Old Girl Who Invented Frankenstein",
+  "es": "Mary Shelley: la chica de 18 años que inventó a Frankenstein"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "parrafo_entero": true,
+ "pausas": {
+  "respiro": 0.15,
+  "parrafo": 0.4,
+  "acto": 0.5,
+  "entrada": 0.2,
+  "salida": 0.25
+ },
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 0.95
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.4,
+    "mood.arousal": 0.3
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "ms-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "giro+2"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "giro",
+     "es": "Frankenstein lo escribió una chica de dieciocho años, el verano en que no salió el sol.",
+     "en": "Frankenstein was written by an eighteen-year-old girl, in the summer the sun never came out.",
+     "visual": "B: el cuarto de Mary de noche con la lluvia en los cristales; golpe en «Frankenstein»."
+    },
+    {
+     "n": 2,
+     "marca": "noche",
+     "es": "Imagina una noche de junio de 1816, en una casa junto a un lago de Suiza, con la lluvia golpeando los cristales y todos dormidos menos ella. Mary cierra los ojos y, en la oscuridad, ve a un estudiante pálido arrodillado junto a algo que ha construido con sus propias manos, y ve cómo ese algo, muy despacio, abre los ojos.",
+     "en": "Picture a night in June 1816, in a house by a lake in Switzerland, with the rain beating on the windows and everyone asleep but her. Mary closes her eyes and, in the dark, she sees a pale student kneeling beside something he has built with his own hands, and she watches that something, very slowly, open its eyes.",
+     "visual": "B: la casa junto al lago bajo la tormenta; dentro, Mary en la cama con los ojos cerrados; sobre ella, como un sueño, la silueta de un estudiante arrodillado junto a una mesa y unos ojos que se abren.",
+     "es_voz": "Imagina una noche de junio de mil ochocientos dieciséis, en una casa junto a un lago de Suiza, con la lluvia golpeando los cristales y todos dormidos menos ella. Mary cierra los ojos y, en la oscuridad, ve a un estudiante pálido arrodillado junto a algo que ha construido con sus propias manos, y ve cómo ese algo, muy despacio, abre los ojos.",
+     "en_voz": "Picture a night in June eighteen sixteen, in a house by a lake in Switzerland, with the rain beating on the windows and everyone asleep but her. Mary closes her eyes and, in the dark, she sees a pale student kneeling beside something he has built with his own hands, and she watches that something, very slowly, open its eyes."
+    },
+    {
+     "n": 3,
+     "marca": "mary",
+     "es": "Esa chica se llamaba Mary Shelley, y aquella noche nació el monstruo más famoso de la historia, el de cientos de películas, el que el primero de enero de 2027 pasa a ser de todos en su versión de cine de 1931. Pero casi nadie conoce la historia de quien lo imaginó, y es más triste y más valiente que la del propio monstruo.",
+     "en": "That girl was Mary Shelley, and that night the most famous monster in history was born, the one from hundreds of movies, the one whose 1931 film version belongs to everyone starting January first, 2027. But almost nobody knows the story of the person who imagined him, and it's sadder and braver than the monster's own.",
+     "visual": "B y F: Mary al despertar; Atom de luciérnaga junto a la vela; un calendario con el 1 de enero.",
+     "es_voz": "Esa chica se llamaba Mary Shelley, y aquella noche nació el monstruo más famoso de la historia, el de cientos de películas, el que el primero de enero de dos mil veintisiete pasa a ser de todos en su versión de cine de mil novecientos treinta y uno. Pero casi nadie conoce la historia de quien lo imaginó, y es más triste y más valiente que la del propio monstruo.",
+     "en_voz": "That girl was Mary Shelley, and that night the most famous monster in history was born, the one from hundreds of movies, the one whose nineteen thirty-one film version belongs to everyone starting January first, twenty twenty-seven. But almost nobody knows the story of the person who imagined him, and it's sadder and braver than the monster's own."
+    }
+   ]
+  },
+  {
+   "id": "ms-aviso",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "dentro",
+     "es": "Así que hoy te la voy a contar desde dentro, como la vivió ella. Y guárdate esa imagen de los ojos que se abren en la oscuridad, porque al final vamos a volver a ella.",
+     "en": "So today I'm going to tell it to you from the inside, the way she lived it. And hold on to that image of the eyes opening in the dark, because at the end we're coming back to it.",
+     "visual": "F: Atom en su estudio abre un libro viejo y dibuja en la pizarra dos ojos que se abren («guárdate esto»)."
+    }
+   ]
+  },
+  {
+   "id": "ms-lapida",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 1797",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "nace",
+     "es": "Mary nace en Londres en 1797, y once días después su madre muere. Su madre era Mary Wollstonecraft, una de las primeras mujeres que escribió que las niñas merecían la misma educación que los niños, y su hija crece con su nombre, con su retrato en la pared y con la sensación de haber llegado al mundo a cambio de otra vida.",
+     "en": "Mary is born in London in 1797, and eleven days later her mother dies. Her mother was Mary Wollstonecraft, one of the first women to write that girls deserved the same education as boys, and her daughter grows up with her name, with her portrait on the wall and with the feeling of having come into the world in exchange for another life.",
+     "visual": "A: Londres en 1797; la casa de los Godwin; una cuna y un retrato de mujer en la pared.",
+     "acto": true,
+     "es_voz": "Mary nace en Londres en mil setecientos noventa y siete, y once días después su madre muere. Su madre era Mary Wollstonecraft, una de las primeras mujeres que escribió que las niñas merecían la misma educación que los niños, y su hija crece con su nombre, con su retrato en la pared y con la sensación de haber llegado al mundo a cambio de otra vida.",
+     "en_voz": "Mary is born in London in seventeen ninety-seven, and eleven days later her mother dies. Her mother was Mary Wollstonecraft, one of the first women to write that girls deserved the same education as boys, and her daughter grows up with her name, with her portrait on the wall and with the feeling of having come into the world in exchange for another life."
+    },
+    {
+     "n": 6,
+     "marca": "tumba",
+     "es": "Imagina a esa niña sentada en un cementerio de Londres, el de St Pancras, junto a la tumba de su madre, con un libro en las rodillas. Dicen que allí aprendió a leer, siguiendo con el dedo las letras del nombre de su madre en la piedra, y que entre las lápidas era donde se sentía acompañada. [comprobar antes de locutar]",
+     "en": "Picture that little girl sitting in a London churchyard, St Pancras, beside her mother's grave, with a book on her knees. It's said she learned to read there, tracing the letters of her mother's name on the stone with her finger, and that among the gravestones was where she felt least alone.",
+     "visual": "A: el cementerio de St Pancras; Mary niña con un libro junto a la lápida, sigue las letras con el dedo; gag: Atom intenta leer la lápida al revés."
+    },
+    {
+     "n": 7,
+     "marca": "casa",
+     "es": "En casa no lo tiene fácil. Su padre, el filósofo William Godwin, vuelve a casarse con una mujer con la que Mary no se entiende, y en esa casa llena de libros y de visitas famosas, la niña aprende a quedarse callada en un rincón, escuchando a los mayores hablar de ciencia, de política y de poesía.",
+     "en": "Home isn't easy. Her father, the philosopher William Godwin, remarries a woman Mary doesn't get along with, and in that house full of books and famous visitors, the girl learns to sit quietly in a corner, listening to the grown-ups talk about science, politics and poetry.",
+     "visual": "A: la biblioteca de los Godwin llena de visitas; Mary callada en un rincón, escuchando."
+    },
+    {
+     "n": 8,
+     "marca": "percy",
+     "es": "Y un día, entre esas visitas, aparece un poeta joven y rebelde que admira a su padre: Percy Bysshe Shelley. Él tiene veintiún años y está casado; ella, dieciséis. Empiezan a verse a escondidas junto a la tumba de su madre, y una madrugada de julio de 1814 se escapan juntos a Francia.",
+     "en": "And one day, among those visitors, a young, rebellious poet appears who admires her father: Percy Bysshe Shelley. He's twenty-one and married; she's sixteen. They start meeting in secret by her mother's grave, and before dawn one morning in July 1814, they run away together to France.",
+     "visual": "A: Percy y Mary junto a la tumba; luego, una calle de Londres de madrugada y un carruaje que se va.",
+     "es_voz": "Y un día, entre esas visitas, aparece un poeta joven y rebelde que admira a su padre: Percy Bysshe Shelley. Él tiene veintiún años y está casado; ella, dieciséis. Empiezan a verse a escondidas junto a la tumba de su madre, y una madrugada de julio de mil ochocientos catorce se escapan juntos a Francia.",
+     "en_voz": "And one day, among those visitors, a young, rebellious poet appears who admires her father: Percy Bysshe Shelley. He's twenty-one and married; she's sixteen. They start meeting in secret by her mother's grave, and before dawn one morning in July eighteen fourteen, they run away together to France."
+    }
+   ],
+   "cartela": "1797"
+  },
+  {
+   "id": "ms-bebe",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1815",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "vuelven",
+     "es": "Cuando vuelven a Londres, no tienen dinero y casi todos les han dado la espalda, empezando por su padre, que se niega a verla. Y en febrero de 1815, con diecisiete años, Mary da a luz a una niña que nace antes de tiempo, tan pequeña que nadie cree que vaya a vivir.",
+     "en": "When they come back to London, they have no money and almost everyone has turned their back on them, starting with her father, who refuses to see her. And in February 1815, at seventeen, Mary gives birth to a baby girl who comes too early, so tiny that no one thinks she'll live.",
+     "visual": "A: un cuarto pobre de alquiler en Londres; Mary con una cuna pequeña.",
+     "acto": true,
+     "es_voz": "Cuando vuelven a Londres, no tienen dinero y casi todos les han dado la espalda, empezando por su padre, que se niega a verla. Y en febrero de mil ochocientos quince, con diecisiete años, Mary da a luz a una niña que nace antes de tiempo, tan pequeña que nadie cree que vaya a vivir.",
+     "en_voz": "When they come back to London, they have no money and almost everyone has turned their back on them, starting with her father, who refuses to see her. And in February eighteen fifteen, at seventeen, Mary gives birth to a baby girl who comes too early, so tiny that no one thinks she'll live."
+    },
+    {
+     "n": 10,
+     "marca": "diario",
+     "es": "La niña vive casi dos semanas. Y unos días después de perderla, Mary escribe en su diario un sueño: que su bebé solo estaba fría, que la frotaban junto al fuego, y que volvía a vivir. Y en la línea de abajo escribe: «Me despierto y no hay bebé».",
+     "en": "The baby lives almost two weeks. And a few days after losing her, Mary writes a dream in her journal: that her little baby had only been cold, that they rubbed her by the fire, and that she lived again. And on the line below she writes: \"Awake and find no baby.\"",
+     "visual": "A: de noche, Mary escribe en su diario junto a la chimenea; la cuna vacía (sin nada morboso)."
+    }
+   ],
+   "cartela": "1815"
+  },
+  {
+   "id": "ms-suenos",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "fijate1",
+     "es": "Y fíjate en esto, porque nos pasa a casi todos. Cuando perdemos a alguien, es muy común soñar con esa persona: en un estudio con familiares de pacientes de cuidados paliativos, casi seis de cada diez lo contaban, y para muchos esos sueños eran un consuelo. Mary soñó que devolvía la vida a su hija, y ese sueño no la iba a abandonar.",
+     "en": "And notice this, because it happens to almost all of us. When we lose someone, it's very common to dream about them: in a study of relatives of hospice patients, almost six in ten reported it, and for many those dreams were a comfort. Mary dreamed she brought her daughter back to life, and that dream was never going to leave her.",
+     "visual": "PAUSA: el diario congelado; Atom (al doble) saca a color una nube de sueño con una figura que abraza a otra; «58»."
+    }
+   ]
+  },
+  {
+   "id": "ms-lago",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1816",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "suiza",
+     "es": "Al año siguiente nace su hijo William, y con él, con Percy y con su hermanastra Claire viajan a Suiza, al lago de Ginebra, donde se ha instalado el poeta más famoso de su tiempo, Lord Byron, en una mansión llamada Villa Diodati. Mary tiene dieciocho años y todo un verano por delante.",
+     "en": "The next year her son William is born, and with him, with Percy and with her stepsister Claire, she travels to Switzerland, to Lake Geneva, where the most famous poet of the day, Lord Byron, has settled into a mansion called the Villa Diodati. Mary is eighteen, with a whole summer ahead of her.",
+     "visual": "B: el lago de Ginebra; Villa Diodati en la colina y la casita de al lado; un barco; las montañas.",
+     "acto": true
+    },
+    {
+     "n": 13,
+     "marca": "lluvia",
+     "es": "Pero ese verano no llega. Llueve casi todos los días, en junio hace frío, y las tormentas sobre el lago son tan fuertes que no se puede salir. Nadie en aquella casa lo sabe, pero la culpa la tiene un volcán al otro lado del mundo.",
+     "en": "But that summer never comes. It rains almost every day, June is cold, and the storms over the lake are so fierce that no one can go outside. Nobody in that house knows it, but the culprit is a volcano on the other side of the world.",
+     "visual": "B: la tormenta sobre el lago en junio; gag: a Atom se le da la vuelta el paraguas."
+    }
+   ],
+   "cartela": "1816"
+  },
+  {
+   "id": "ms-volcan",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "fijate2",
+     "es": "Y fíjate en esto. En abril de 1815, en Indonesia, el monte Tambora estalló en la erupción más potente de la que hay registro, y lanzó tanta ceniza y tanto azufre al cielo que la temperatura media del planeta bajó medio grado durante meses. En 1816 nevó en junio en Nueva Inglaterra, se perdieron cosechas en medio mundo, y aquel año se quedó con un nombre: el año sin verano.",
+     "en": "And notice this. In April 1815, in Indonesia, Mount Tambora blew apart in the most powerful eruption on record, and it threw so much ash and sulfur into the sky that the planet's average temperature dropped by about half a degree for months. In 1816 it snowed in June in New England, harvests failed across half the world, and that year got a name: the year without a summer.",
+     "visual": "PAUSA: la tormenta congelada; Atom (al doble) saca a color un volcán que estalla y una nube que da la vuelta al globo; nieve sobre un campo de maíz; «1815», «1816».",
+     "es_voz": "Y fíjate en esto. En abril de mil ochocientos quince, en Indonesia, el monte Tambora estalló en la erupción más potente de la que hay registro, y lanzó tanta ceniza y tanto azufre al cielo que la temperatura media del planeta bajó medio grado durante meses. En mil ochocientos dieciséis nevó en junio en Nueva Inglaterra, se perdieron cosechas en medio mundo, y aquel año se quedó con un nombre: el año sin verano.",
+     "en_voz": "And notice this. In April eighteen fifteen, in Indonesia, Mount Tambora blew apart in the most powerful eruption on record, and it threw so much ash and sulfur into the sky that the planet's average temperature dropped by about half a degree for months. In eighteen sixteen it snowed in June in New England, harvests failed across half the world, and that year got a name: the year without a summer."
+    }
+   ]
+  },
+  {
+   "id": "ms-juego",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "sueno+3"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "juego",
+     "es": "Así que, encerrados en la casa a la luz de las velas, leen en voz alta historias de fantasmas, y una noche Byron les propone un juego: que cada uno escriba su propia historia de miedo. Los demás empiezan enseguida. Mary no.",
+     "en": "So, shut up in the house by candlelight, they read ghost stories aloud, and one night Byron suggests a game: each of them will write a ghost story of their own. The others start right away. Mary doesn't.",
+     "visual": "B: el salón de Villa Diodati a la luz de las velas; Byron propone el juego; todos escriben; gag: Atom escribe y le sale un fantasma con sábana."
+    },
+    {
+     "n": 16,
+     "marca": "nada",
+     "es": "Imagina despertarte cada mañana y que te pregunten si ya tienes tu historia, y tener que decir que no, un día y otro. Mary, la hija de dos escritores famosos, rodeada de los poetas más brillantes de Inglaterra, se siente la única que no es capaz.",
+     "en": "Imagine waking up every morning to be asked whether you've thought of your story yet, and having to say no, day after day. Mary, the daughter of two famous writers, surrounded by the most brilliant poets in England, feels like the only one who can't do it.",
+     "visual": "B: por la mañana, en la mesa del desayuno, todos con sus hojas y Mary con la suya en blanco."
+    },
+    {
+     "n": 17,
+     "marca": "sueno",
+     "es": "Por las noches escucha en silencio a Byron y a Percy hablar de si se podría devolver la vida a un cuerpo con electricidad. Y una de esas noches, ya en la cama y sin poder dormir, ve la imagen del principio: el estudiante pálido, la cosa que ha construido, y los ojos que se abren.",
+     "en": "At night she listens in silence as Byron and Percy talk about whether electricity could bring a body back to life. And one of those nights, lying in bed and unable to sleep, she sees the image from the beginning: the pale student, the thing he has built, and the eyes that open.",
+     "visual": "B: de noche, Byron y Percy hablan junto a la chimenea; Mary en la cama sin dormir; la imagen del principio otra vez; gag: Atom apaga la vela y se enciende otra."
+    }
+   ]
+  },
+  {
+   "id": "ms-galvani",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "fijate3",
+     "es": "Y fíjate en esto, porque no era una locura de poetas. En la década de 1780, el médico italiano Luigi Galvani descubrió que una chispa hacía moverse las patas de una rana muerta, y su sobrino recorrió Europa repitiendo el experimento en público, con animales y hasta con personas que acababan de morir. Mucha gente salía de aquellas demostraciones convencida de que la electricidad era la chispa de la vida.",
+     "en": "And notice this, because it wasn't just poets' fantasy. In the 1780s, the Italian doctor Luigi Galvani discovered that a spark could make a dead frog's legs twitch, and his nephew toured Europe repeating the experiment in public, on animals and even on people who had just died. Plenty of people walked out of those demonstrations convinced that electricity was the spark of life.",
+     "visual": "PAUSA: el cuarto congelado; Atom (al doble) saca a color una mesa de laboratorio antiguo con una pila, cables y una rana de juguete que salta (gag: Atom salta también); «1780».",
+     "es_voz": "Y fíjate en esto, porque no era una locura de poetas. En la década de mil setecientos ochenta, el médico italiano Luigi Galvani descubrió que una chispa hacía moverse las patas de una rana muerta, y su sobrino recorrió Europa repitiendo el experimento en público, con animales y hasta con personas que acababan de morir. Mucha gente salía de aquellas demostraciones convencida de que la electricidad era la chispa de la vida."
+    }
+   ]
+  },
+  {
+   "id": "ms-criatura",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "novela",
+     "es": "A la mañana siguiente, Mary anuncia que ya tiene su historia. Iba a ser un cuento de pocas páginas, pero Percy la anima a alargarlo, y durante casi un año, entre viajes y mudanzas, Mary convierte aquel sueño en una novela.",
+     "en": "The next morning, Mary announces that she has her story. It was going to be a tale of a few pages, but Percy encourages her to make it longer, and for almost a year, between journeys and moves, Mary turns that dream into a novel.",
+     "visual": "B: Mary escribe a la luz del día en un cuaderno; Percy lee por encima de su hombro."
+    },
+    {
+     "n": 20,
+     "marca": "libro",
+     "es": "Y aquí está lo que casi nadie sabe, porque las películas lo cambiaron. En el libro, la criatura no gruñe: aprende a hablar ella sola, escondida junto a una cabaña, escuchando a una familia a través de una grieta en la pared, y aprende a leer, y acaba hablando mejor que muchas personas. Ni siquiera tiene nombre: Frankenstein es el apellido de quien la hizo, Victor.",
+     "en": "And here's what almost nobody knows, because the movies changed it. In the book, the creature doesn't grunt: it learns to speak on its own, hiding next to a cottage, listening to a family through a crack in the wall, and it learns to read, and ends up speaking better than many people. It doesn't even have a name: Frankenstein is the surname of the man who made it, Victor.",
+     "visual": "C: la cabaña en el bosque con la familia dentro; la criatura (por el libro: alta, pelo negro largo, piel amarillenta) escondida tras la pared, escuchando; aprende a leer.",
+     "acto": true
+    },
+    {
+     "n": 21,
+     "marca": "imagina",
+     "es": "Ahora imagina ser esa criatura. Abres los ojos por primera vez, buscas a quien te hizo, y él huye de ti horrorizado. Cada persona que te ve grita o te echa a pedradas, y tú solo querías que alguien te mirara sin miedo. Por eso, cuando por fin encuentra a Victor, le dice que era bueno, y que fue la desgracia la que lo convirtió en un monstruo.",
+     "en": "Now imagine being that creature. You open your eyes for the first time, you look for the one who made you, and he runs from you in horror. Every person who sees you screams or drives you off with stones, and all you wanted was for someone to look at you without fear. That's why, when it finally finds Victor, it tells him it was good, and that it was misery that turned it into a monster.",
+     "visual": "C: la buhardilla de Victor; la criatura abre los ojos; Victor huye; luego, en el bosque, la gente grita y la criatura se esconde (nada violento)."
+    }
+   ]
+  },
+  {
+   "id": "ms-rechazo",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "fijate4",
+     "es": "Y fíjate en esto, porque Mary lo intuyó doscientos años antes que la ciencia. En 2003, unos psicólogos de California dejaron a unos voluntarios fuera de un sencillo juego de pasarse una pelota en una pantalla, y vieron que en su cerebro se activaban zonas parecidas a las del dolor físico. El rechazo no es una forma de hablar: duele de verdad, y quien solo recibe rechazo acaba devolviéndolo.",
+     "en": "And notice this, because Mary sensed it two hundred years before science did. In 2003, psychologists in California left volunteers out of a simple game of tossing a ball on a screen, and saw parts of their brains light up much like they do with physical pain. Rejection isn't just a figure of speech: it really hurts, and those who receive nothing but rejection end up giving it back.",
+     "visual": "PAUSA: el bosque congelado; Atom (al doble) saca a color una pantalla antigua con tres figuras que se pasan una pelota y dejan fuera a una; un corazón agrietado; «2003».",
+     "es_voz": "Y fíjate en esto, porque Mary lo intuyó doscientos años antes que la ciencia. En dos mil tres, unos psicólogos de California dejaron a unos voluntarios fuera de un sencillo juego de pasarse una pelota en una pantalla, y vieron que en su cerebro se activaban zonas parecidas a las del dolor físico. El rechazo no es una forma de hablar: duele de verdad, y quien solo recibe rechazo acaba devolviéndolo.",
+     "en_voz": "And notice this, because Mary sensed it two hundred years before science did. In two thousand three, psychologists in California left volunteers out of a simple game of tossing a ball on a screen, and saw parts of their brains light up much like they do with physical pain. Rejection isn't just a figure of speech: it really hurts, and those who receive nothing but rejection end up giving it back."
+    }
+   ]
+  },
+  {
+   "id": "ms-libro",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1818",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "victor",
+     "es": "Y Victor no es el héroe de esta historia. Es alguien que crea una vida y la abandona en cuanto la ve, y la criatura, sola y rechazada, acaba haciendo daño a todos los que él quiere. Mary, que creció sin madre y acababa de perder una hija, escribió el libro desde los dos lados: el de quien crea algo y no sabe cuidarlo, y el de quien llega al mundo sin que nadie quiera cuidarlo.",
+     "en": "And Victor isn't the hero of this story. He's someone who creates a life and abandons it the moment he sees it, and the creature, alone and rejected, ends up hurting everyone he loves. Mary, who grew up without a mother and had just lost a daughter, wrote the book from both sides: the side of someone who creates something and doesn't know how to care for it, and the side of someone who arrives in the world with no one willing to care for them.",
+     "visual": "C: el hielo del Ártico; Victor y la criatura lejos uno del otro (el final del libro, sin violencia)."
+    },
+    {
+     "n": 24,
+     "marca": "enero",
+     "es": "El primero de enero de 1818 sale a la venta *Frankenstein o el moderno Prometeo*, en tres tomitos y solo quinientos ejemplares, sin el nombre de su autora. Mary tiene veinte años, y muchos lectores dan por hecho que lo ha escrito un hombre, seguramente su marido.",
+     "en": "On January first, 1818, *Frankenstein; or, The Modern Prometheus* goes on sale, in three small volumes and just five hundred copies, without its author's name. Mary is twenty, and many readers assume it was written by a man, most likely her husband.",
+     "visual": "D: una imprenta de 1818; tres tomos pequeños; un escaparate de librería; gag: a Atom se le caen los tres tomos.",
+     "acto": true,
+     "es_voz": "El primero de enero de mil ochocientos dieciocho sale a la venta *Frankenstein o el moderno Prometeo*, en tres tomitos y solo quinientos ejemplares, sin el nombre de su autora. Mary tiene veinte años, y muchos lectores dan por hecho que lo ha escrito un hombre, seguramente su marido.",
+     "en_voz": "On January first, eighteen eighteen, *Frankenstein; or, The Modern Prometheus* goes on sale, in three small volumes and just five hundred copies, without its author's name. Mary is twenty, and many readers assume it was written by a man, most likely her husband."
+    },
+    {
+     "n": 25,
+     "marca": "teatro",
+     "es": "Cinco años después, en Londres, una obra de teatro basada en su libro llena cada noche, y Mary va a verla. En el programa, el monstruo no tiene nombre: en su lugar solo hay una raya. A Mary le hace mucha gracia, y le escribe a una amiga que, para su sorpresa, se ha encontrado famosa.",
+     "en": "Five years later, in London, a play based on her book sells out night after night, and Mary goes to see it. In the playbill, the monster has no name: in its place there's just a dash. Mary finds it hilarious, and writes to a friend that, to her surprise, she has found herself famous.",
+     "visual": "D: un teatro de Londres lleno; Mary en un palco; gag: Atom busca el nombre en el programa y solo hay una raya."
+    }
+   ],
+   "cartela": "1818"
+  },
+  {
+   "id": "ms-precio",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [
+    "mar+6"
+   ],
+   "empieza_con": "cartela 1818",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "italia",
+     "es": "Pero mientras su criatura se hace famosa, la vida de Mary se va quedando vacía. En Italia pierde a su hija Clara, de un año, y meses después a su hijo William, de tres. De todos sus hijos, solo uno, Percy Florence, llegará a hacerse mayor.",
+     "en": "But while her creature becomes famous, Mary's life is emptying out. In Italy she loses her daughter Clara, just one year old, and months later her son William, who was three. Of all her children, only one, Percy Florence, will live to grow up.",
+     "visual": "E: Italia; la casa blanca junto al mar; Mary con su hijo pequeño; dos cunas vacías (sin nada morboso).",
+     "acto": true
+    },
+    {
+     "n": 27,
+     "marca": "mar",
+     "es": "Y en julio de 1822, Percy sale a navegar con un amigo en su pequeño barco, una tormenta los sorprende en el mar, y no vuelven. Mary tiene veinticuatro años, está sola en un país que no es el suyo, con un niño de dos años, y tiene que vivir de lo que escriba.",
+     "en": "And in July 1822, Percy sets out to sail with a friend in his little boat, a storm catches them at sea, and they never come back. Mary is twenty-four, alone in a country that isn't hers, with a two-year-old boy, and she has to live on whatever she can write.",
+     "visual": "E: el mar en tormenta, de lejos; un barquito de vela que se pierde; luego, Mary sola en la playa con su hijo de la mano.",
+     "es_voz": "Y en julio de mil ochocientos veintidós, Percy sale a navegar con un amigo en su pequeño barco, una tormenta los sorprende en el mar, y no vuelven. Mary tiene veinticuatro años, está sola en un país que no es el suyo, con un niño de dos años, y tiene que vivir de lo que escriba.",
+     "en_voz": "And in July eighteen twenty-two, Percy sets out to sail with a friend in his little boat, a storm catches them at sea, and they never come back. Mary is twenty-four, alone in a country that isn't hers, with a two-year-old boy, and she has to live on whatever she can write."
+    }
+   ],
+   "cartela": "1818"
+  },
+  {
+   "id": "ms-escribir",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "fijate5",
+     "es": "Y fíjate en esto. En 1986, el psicólogo James Pennebaker pidió a unos estudiantes que escribieran cuatro días seguidos, quince minutos al día, sobre lo peor que les había pasado. Al principio se sentían peor, pero en los meses siguientes fueron menos veces al médico que los que habían escrito sobre cosas sin importancia. Poner el dolor en palabras le da una forma, y una forma se puede sostener.",
+     "en": "And notice this. In 1986, the psychologist James Pennebaker asked students to write for four days in a row, fifteen minutes a day, about the worst thing that had ever happened to them. At first they felt worse, but over the following months they went to the doctor less often than those who had written about trivial things. Putting pain into words gives it a shape, and a shape is something you can hold.",
+     "visual": "PAUSA: la playa congelada; Atom (al doble) saca a color un cuaderno que se escribe solo y una caja de la que sale luz; «1986».",
+     "es_voz": "Y fíjate en esto. En mil novecientos ochenta y seis, el psicólogo James Pennebaker pidió a unos estudiantes que escribieran cuatro días seguidos, quince minutos al día, sobre lo peor que les había pasado. Al principio se sentían peor, pero en los meses siguientes fueron menos veces al médico que los que habían escrito sobre cosas sin importancia. Poner el dolor en palabras le da una forma, y una forma se puede sostener.",
+     "en_voz": "And notice this. In nineteen eighty-six, the psychologist James Pennebaker asked students to write for four days in a row, fifteen minutes a day, about the worst thing that had ever happened to them. At first they felt worse, but over the following months they went to the doctor less often than those who had written about trivial things. Putting pain into words gives it a shape, and a shape is something you can hold."
+    },
+    {
+     "n": 29,
+     "marca": "escribe",
+     "es": "Y Mary escribe. Escribe novelas, viajes, biografías, y una novela, *El último hombre*, sobre alguien que se queda solo en un mundo vacío, que es exactamente como se sentía ella. Saca adelante a su hijo, cuida la obra de Percy, y nunca deja de escribir.",
+     "en": "And Mary writes. She writes novels, travel books, biographies, and a novel, *The Last Man*, about someone left alone in an empty world, which is exactly how she felt. She raises her son, looks after Percy's work, and never stops writing.",
+     "visual": "E: Mary escribe junto a la ventana, años después; montones de libros; su hijo ya mayor; la vida vuelve a la casa."
+    }
+   ]
+  },
+  {
+   "id": "ms-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "cartela 1831",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "1831",
+     "es": "En 1831, Mary revisa *Frankenstein* para una edición nueva y le añade una introducción en la que cuenta por fin cómo nació: el verano de lluvia, el juego de las historias de miedo y la noche en que vio aquellos ojos abrirse. Y al final se despide de su libro con cariño: lo llama «mi horrible criatura» y le desea que siga adelante y prospere.",
+     "en": "In 1831, Mary revises *Frankenstein* for a new edition and adds an introduction where she finally tells how it was born: the summer of rain, the ghost-story game and the night she saw those eyes open. And at the end she says goodbye to her book with affection: she calls it \"my hideous progeny\" and bids it go forth and prosper.",
+     "visual": "D: Mary, mayor, firma la nueva edición; despide al libro con una sonrisa.",
+     "acto": true,
+     "es_voz": "En mil ochocientos treinta y uno, Mary revisa *Frankenstein* para una edición nueva y le añade una introducción en la que cuenta por fin cómo nació: el verano de lluvia, el juego de las historias de miedo y la noche en que vio aquellos ojos abrirse. Y al final se despide de su libro con cariño: lo llama «mi horrible criatura» y le desea que siga adelante y prospere.",
+     "en_voz": "In eighteen thirty-one, Mary revises *Frankenstein* for a new edition and adds an introduction where she finally tells how it was born: the summer of rain, the ghost-story game and the night she saw those eyes open. And at the end she says goodbye to her book with affection: she calls it \"my hideous progeny\" and bids it go forth and prosper."
+    },
+    {
+     "n": 31,
+     "marca": "recuerdas",
+     "es": "¿Te acuerdas de los ojos que se abrían en la oscuridad? Aquella noche, una chica de dieciocho años que había perdido a su madre y a su hija imaginó a alguien que volvía a la vida y a quien nadie quería. Y doscientos años después, esa criatura sigue viva, mucho más viva que todos los que dudaron de que la hubiera escrito ella.",
+     "en": "Do you remember the eyes opening in the dark? That night, an eighteen-year-old girl who had lost her mother and her daughter imagined someone who came back to life and whom no one wanted. And two hundred years later, that creature is still alive, far more alive than everyone who doubted she had written it.",
+     "visual": "B: la noche del principio en el cuarto junto al lago, ya sin tormenta; los ojos que se abren, ahora con luz cálida; luego, mil libros en mil idiomas."
+    },
+    {
+     "n": 32,
+     "marca": "pregunta",
+     "es": "Y ahora te pregunto yo: si tu peor noche pudiera convertirse en algo que durara doscientos años, ¿te atreverías a escribirla? Te leo en los comentarios.",
+     "en": "And now I'll ask you: if your worst night could become something that lasted two hundred years, would you dare to write it down? I'll read you in the comments.",
+     "visual": "F: Atom en su estudio cierra el libro, mira a cámara y señala los comentarios."
+    }
+   ],
+   "cartela": "1831"
+  }
+ ]
+}
