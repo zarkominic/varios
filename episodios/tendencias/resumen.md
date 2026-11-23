@@ -1,6 +1,6 @@
 # Búsquedas en tendencia en EE. UU.
 
-Registro diario del RSS de Google Trends (7 días: 2026-10-26 → 2026-11-19; 80 búsquedas distintas).
+Registro diario del RSS de Google Trends (8 días: 2026-10-26 → 2026-11-23; 90 búsquedas distintas).
 Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 
 | Días | Tráfico máx. | Búsqueda | Noticia que la explica |
@@ -40,6 +40,7 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 1.000 | fema nationwide emergency test date | [FEMA and FCC Schedule 2026 Nationwide Test of the Emergency Alert System for November 17](https://www.hstoday.us/subject-matter-areas/emergency-preparedness/fema-and-fcc-schedule-2026-nationwide-test-of-the-emergency-alert-system-for-november-17/) (Homeland Security Today) |
 | 1 | 1.000 | college basketball rankings | [Michigan State up to No. 2 in AP men's poll behind Florida](https://www.espn.com/mens-college-basketball/story/_/id/50503030/michigan-state-no-2-ap-men-poll-florida) (ESPN) |
 | 1 | 1.000 | drew mestemaker | [Drew Mestemaker injury status revealed for Oklahoma State football game vs Arizona State](https://sports.yahoo.com/articles/drew-mestemaker-injury-status-revealed-035043730.html) (Yahoo Sports) |
+| 1 | 1.000 | iran war hormuz | [Iranian attacks in the Strait of Hormuz are at the highest levels since the conflict began](https://www.cnn.com/2026/11/22/middleeast/hormuz-attacks-highest-levels-iran-war-intl) (CNN) |
 | 1 | 500 | matthew perry | [“The One About Matthew Perry” Docuseries Comes to Netflix](https://www.nytimes.com/2026/10/26/arts/television/matthew-perry-netflix-documentary.html) (The New York Times) |
 | 1 | 500 | santos vs palmeiras | [Santos x Palmeiras: onde assistir ao vivo. horário e escalações](https://ge.globo.com/sp/santos-e-regiao/futebol/brasileirao-serie-a/noticia/2026/10/28/santos-x-palmeiras-onde-assistir-ao-vivo-horario-e-escalacoes.ghtml) (ge) |
 | 1 | 500 | jaydon blue | [Eagles sign RB Jaydon Blue to the active roster. add three to the practice squad](https://www.philadelphiaeagles.com/news/eagles-sign-rb-jaydon-blue-to-the-active-roster-add-three-to-the-practice-squad-dameon-pierce) (Philadelphia Eagles) |
@@ -67,6 +68,8 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 500 | nasa voyager 1 | [After 49 Years. Voyager 1 Is a Mind-Blowing One Light-Day From Earth](https://www.nytimes.com/2026/11/18/science/nasa-voyager-1-earth-light-day.html) (The New York Times) |
 | 1 | 500 | corey ruiz | [Prosecutor declines to charge a White police officer who fatally shot a Black man in Wisconsin](https://www.cnn.com/2026/11/19/us/madison-police-shooting) (CNN) |
 | 1 | 500 | hyundai elantra | [View Exterior Photos of the 2027 Hyundai Elantra](https://www.caranddriver.com/photos/a74470042/2027-hyundai-elantra-revealed-exterior-gallery/) (Car and Driver) |
+| 1 | 500 | gta6 chapter 3 | [How Long Is Chapter 3 in GTA 6? All Missables and Mission List](https://www.vice.com/en/article/gta-6-chapter-3-length-missions-missables/) (VICE) |
+| 1 | 500 | crwd stock | [CrowdStrike to Buy Zscaler in $43.9 Billion Stock Swap](https://www.wsj.com/business/deals/crowdstrike-to-buy-zscaler-in-43-9-billion-stock-swap-4c926031) (WSJ) |
 | 1 | 200 | world | [Russia to stage World Weightlifting Championships. first major hosting since full-scale Ukraine invasion](https://www.nytimes.com/athletic/7726237/2026/10/26/russia-world-championship-olympic-moscow/) (The New York Times) |
 | 1 | 200 | racing sausages world series milwaukee | [Column: Sausage race controversy erupts as Fox Sports ignores Milwaukee’s finest tradition during World Series](https://www.chicagotribune.com/2026/10/26/world-series-milwaukee-brewers-sausage-race/) (Chicago Tribune) |
 | 1 | 200 | vegemite | [Murderer’s bid to eat Vegemite in Australian prison rejected by judge](https://www.cnn.com/2026/10/26/australia/prisoner-vegemite-rejected-judge-scli-intl) (CNN) |
@@ -83,5 +86,12 @@ Generado por `atomo/herramientas/tendencias.py`; no se edita a mano.
 | 1 | 200 | alexei pergande | [Alexei Pergande discusses sudden social media fame. potential with Jake Paul and MVP](https://mmajunkie.usatoday.com/story/sports/pfl/2026/11/13/pfl-mvp-alexei-pergande-social-media-jake-paul-dubai/92762907007/) (MMA Junkie) |
 | 1 | 200 | john summit tour bus | [Musician tour bus involved in deadly crash in Marion County](https://www.wcjb.com/2026/11/16/musician-tour-bus-involved-deadly-crash-marion-county/) (WCJB) |
 | 1 | 200 | puka nacua news | [Rams rumors: ESPN insider opens door to shocking Puka Nacua free agency gambit](https://sports.yahoo.com/articles/rams-rumors-espn-insider-opens-170340411.html) (Yahoo Sports) |
+| 1 | 200 | bernie sanders | [Hakeem Jeffries outlines healthcare areas where Democrats "can explore coming together" with Trump](https://www.cbsnews.com/news/hakeem-jeffries-trump-democrats-healthcare/) (CBS News) |
+| 1 | 200 | strands hint today | [NYT Strands Hints for November 23. 2026](https://www.nytimes.com/2026/11/22/crosswords/strands-sidekick-995.html) (The New York Times) |
 | 1 | 100 | rockstar | [New GTA VI Footage Looks So Stunning Fans Can’t Believe It](https://rockstarintel.com/new-gta-vi-footage-looks-so-stunning-fans-cant-believe-it/) (RockstarINTEL) |
 | 1 | 100 | jennifer aniston | [Jennifer Aniston Says ‘The Rachel’ Was Anything But Effortless](https://www.elle.com/beauty/hair/a74347544/jennifer-aniston-hair-routine-lolavie-hairspray/) (ELLE) |
+| 1 | 100 | mstr stock | [MSTR Stock Jumps In Premarket As Bitcoin Reclaims $61K After Brutal Nasdaq Sell-Off](https://finance.yahoo.com/markets/crypto/articles/mstr-stock-jumps-premarket-bitcoin-094438906.html) (Yahoo Finance) |
+| 1 | 100 | victoria broderick | [Indiana Election Results](https://www.nytimes.com/interactive/2026/11/03/us/elections/results-indiana.html) (The New York Times) |
+| 1 | 100 | india | [India Pledges $1.61 Billion to Nepal as China Courts Kathmandu](https://www.bloomberg.com/news/articles/2026-11-23/india-pledges-1-61-billion-to-nepal-as-china-courts-kathmandu) (Bloomberg.com) |
+| 1 | 100 | orcl stock | [Larry Ellison No Longer Among World’s 10 Richest Billionaires As Oracle Stock Plummets](https://www.forbes.com/sites/antoniopequenoiv/2026/11/20/larry-ellison-falls-out-of-top-10-billionaire-ranking-as-oracle-stock-hits-34-month-low/) (Forbes) |
+| 1 | 100 | smci stock | [Super Micro Computer. Inc. (SMCI) is Attracting Investor Attention: Here is What You Should Know](https://finance.yahoo.com/markets/stocks/articles/super-micro-computer-inc-smci-130005275.html) (Yahoo Finance) |
