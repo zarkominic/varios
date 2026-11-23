@@ -225,6 +225,11 @@ Todo se ejecuta desde la raíz del repositorio, salvo lo que diga `cd atomo`.
      `python3 atomo/herramientas/muestra-banda.py episodios/<carpeta>/escenas.json <SC>/muestra-banda.mp3`
      (unos 12 s por ánimo, en el orden del episodio) y envíala con SendUserFile junto al guion. Yo no oigo: el que
      aprueba cómo suena es el usuario.
+4b. **Revisión del canon de narración, SIEMPRE antes de presentarlo** (regla del usuario, 23/11/2026: «siempre haz
+   esta revisión antes de proponer un guion»): `python3 atomo/herramientas/frases-cortas.py episodios/<carpeta>/guion.md`
+   tiene que salir con 0 oraciones cortas fuera del canon, y además se relee cada párrafo buscando hechos encadenados
+   («nace…, y viajan…, y alquila…»): cada párrafo, un momento contado desde dentro. Se repite después de meter las
+   correcciones de los escépticos (en el 46 y en el 47 volvieron las frases cortas justo al corregir datos).
 5. **Preséntalo en el chat**, en este orden:
    1. lo incómodo, primero;
    2. el commit, las frases, las palabras en inglés y la duración estimada [Probable];

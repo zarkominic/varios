@@ -164,3 +164,12 @@ tras la primera prueba: «sigue pareciendo lo que hacíamos, frases cortas sin h
 | **papel** / **isométrico** | Las versiones con la paleta del canal | `kits/papel-adulta.js`, `kits/isometrico-adulta.js` |
 
 Cualquier estilo del muestrario se pide por su número (`estilos/NN-*.html`): «estilo 17 tal cual» significa copiarlo sin adaptarlo a la paleta ni al Atom del canal.
+
+## Antes de presentar un guion (regla del 23/11/2026)
+
+Siempre, y otra vez después de meter las correcciones de los escépticos: `python3 atomo/herramientas/frases-cortas.py
+episodios/<carpeta>/guion.md` (0 oraciones de 9 palabras o menos fuera del canon: la entrada de las pausas, la pregunta
+que recoge la imagen y el cierre) y una relectura buscando hechos encadenados. En el 47 la v2 tenía trece oraciones cortas
+(«Los demás empiezan enseguida. Mary no.», «Y Mary escribe.») y el usuario lo pidió: «valida que no estemos usando las
+frases cortas».
+
