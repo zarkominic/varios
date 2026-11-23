@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep47 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MS-SHORT2-MINIATURA · ep47, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// La criatura del LIBRO (alta, piel amarillenta, pelo negro largo, ojos acuosos; nada de las películas), escondida junto
+// a la cabaña de los De Lacey al caer la tarde: se pega a la grieta del cobertizo, por la que sale la luz cálida del
+// fuego y las voces de la familia, con un libro abierto en la mano (aprende a hablar y a leer escuchando).
+// El decorado es el de ms-comun.js (libro, encuadre 'cabana', cámara 'general'), ampliado al doble alrededor de la grieta
+// para que el píxel del decorado y el del chibi (al doble) sean el mismo.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { libro, libroDelante, MS } from '/atomo/plato/escenas/ms-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const K = hex('#1a1020');
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
+// el libro abierto en la mano (búfer de la figura, escala 1): tapas de cuero, dos páginas con renglones
+const libroAbierto = (R, [hx, hy]) => { hx = Math.round(hx); hy = Math.round(hy);
+  R.rect(hx - 7, hy - 6, hx + 7, hy + 1, K); R.rect(hx - 6, hy, hx + 6, hy, hex('#7a4426'));
+  R.rect(hx - 6, hy - 5, hx - 1, hy - 1, hex('#f8f0dc')); R.rect(hx + 1, hy - 5, hx + 6, hy - 1, hex('#ece0c4')); R.rect(hx, hy - 5, hx, hy, hex('#a8885a'));
+  R.rect(hx - 6, hy - 1, hx - 1, hy - 1, hex('#e0d2b4')); R.rect(hx + 1, hy - 1, hx + 6, hy - 1, hex('#d4c4a2'));
+  for (const [y, a] of [[hy - 4, 5], [hy - 2, 4]]) { R.rect(hx - a, y, hx - 2, y, hex('#c4b494')); R.rect(hx + 2, y, hx + a, y, hex('#b8a888')); } };
+// zoom entero (z) del búfer b alrededor de (sx, sy) del decorado, que cae en (X0, Y0) de la pantalla
+const Z = 3, SX = 238, SY = 128, X0 = 184, Y0 = 104;
+const aPantalla = (x, y) => [X0 + (x - SX) * Z, Y0 + (y - SY) * Z];
+let fondo = null;
+const dibujar = (t) => {
+  if (!fondo) fondo = R.nuevo();
+  const o = { encuadre: 'cabana', camara: 'general' };
+  const prev = R.usar(fondo); libro(R, t, o); libroDelante(R, t, o); R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const sx = Math.max(0, Math.min(319, Math.floor(SX + (x - X0) / Z))), sy = Math.max(0, Math.min(179, Math.floor(SY + (y - Y0) / Z))); B[y * 320 + x] = fondo[sy * 320 + sx]; }
+  // cae la tarde: todo pasa a un azul frío de anochecer
+  const TARDE = hex('#121830');
+  for (let i = 0; i < B.length; i++) B[i] = mezcla(B[i], TARDE, 0.42);
+  // la grieta (la misma línea quebrada del decorado), encendida por el fuego de dentro
+  const [gc, gy] = aPantalla(238, 128);
+  halo(R, gc, gy, 70, 90, '#ff8a30', 0.55);
+  for (let y = 110; y <= 141; y++) { const x = 238 + Math.round(Math.sin(y * 0.5) * 1.4 + (y > 128 ? -1 : 0)), w = y < 118 || y > 138 || y % 7 === 3 ? 0 : 1;
+    const [Xl] = aPantalla(x - w - 1, y), [Xr, Y] = aPantalla(x + w + 1, y); R.rect(Xl, Y, Xl + Z - 1, Y + Z - 1, K); R.rect(Xr, Y, Xr + Z - 1, Y + Z - 1, hex('#2a2018'));
+    for (let i = -w; i <= w; i++) { const [X] = aPantalla(x + i, y), c = y < 113 || y > 139 ? hex('#c87a30') : i === 0 ? (Math.sin(y * 1.3) > 0.4 ? hex('#fffbe0') : hex('#fff0b0')) : hex('#f0b050'); R.rect(X, Y, X + Z - 1, Y + Z - 1, c); } }
+  // la luz que sale de la grieta y se abre en abanico por el suelo y la pared
+  for (let y = gy - 50; y < 180; y++) for (let x = 100; x < gc + 40; x++) { const dx = x - gc, dy = y - gy; const d = Math.hypot(dx / 70, dy / 70); if (d > 1 || ((x + y) & 1)) continue; B[y * 320 + x] = mezcla(B[y * 320 + x], hex('#ffb060'), 0.14 * (1 - d)); }
+  // la criatura, de perfil y pegada a la grieta, con el libro abierto en la mano
+  const [cx, cy] = aPantalla(222, 150);
+  const r = figura(R, MS.criaturaMS, cx, cy, t, { dir: 1, sostiene: [72, 80], cosa: libroAbierto }, 3);
+  halo(R, gc - 8, gy - 4, 34, 46, '#ffb060', 0.35);
+  halo(R, gc, gy, 7, 30, '#fff4d0', 0.45);
+  // un filo frío de luna por la espalda, que la recorta del fondo
+  if (r) halo(R, r.x0 + 4, (r.y0 + r.y1) / 2, 14, 50, '#6a7ab8', 0.25);
+  grado(R, { cx: 160, cy: 100, rx: 80, ry: 120, tinte: '#0a0c1e', f: 0.1, desde: 0.55, max: 0.75 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
