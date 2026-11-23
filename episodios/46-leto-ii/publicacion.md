@@ -1,6 +1,6 @@
 # Episodio 46 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 12:57.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, a 0,95) y pista de audio en español (ZONOS3-Mini,
   voz `Rodrigo`, a su velocidad natural).
 - Subtítulos en inglés y en español.
@@ -54,7 +54,14 @@ If you could save all of humanity, but everyone would hate you for thousands of 
 would you do it? Tell me in the comments.
 
 Chapters:
-{CAPITULOS_EN}
+0:00 The hook
+1:16 The twins
+3:12 The preacher
+4:23 The Golden Path
+6:23 The price
+8:14 The God Emperor
+10:11 The bridge
+12:02 The ending
 
 Sources: Frank Herbert, Children of Dune (Berkley/Putnam, 1976) and God Emperor of Dune (Putnam, 1981) · Variety and
 Deadline on Dune: Part Three · G. J. Jurkovic, Lost Childhoods: The Plight of the Parentified Child (1997) · L. M. Hooper
@@ -95,7 +102,14 @@ Si pudieras salvar a la humanidad entera, pero a cambio de que todos te odiaran 
 tú, ¿lo harías? Cuéntamelo en los comentarios.
 
 Capítulos:
-{CAPITULOS_ES}
+0:00 El gancho
+1:16 Los gemelos
+3:12 El predicador
+4:23 El Sendero de Oro
+6:23 El precio
+8:14 El dios emperador
+10:11 El puente
+12:02 El cierre
 
 Fuentes: las mismas que en la descripción en inglés.
 
@@ -115,8 +129,39 @@ sintéticas (IA).
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado, cada uno con la voz en inglés como pista
+principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del vídeo largo y
+enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.0-42.9
+- **EN:** Paul Atreides' Son Chose to Become a Monster #Shorts
+- **ES:** El hijo de Paul Atreides eligió convertirse en monstruo #Shorts
+- **EN:** A very high bridge, a wedding day, and on an enormous cart something that has been alive for 3,500 years: a sandworm with a human face. That's Leto II, Paul Atreides' son. The whole story is in the linked video. #Dune #DunePartThree #LetoII #ASKAtom #Shorts
+- **ES:** Un puente altísimo, un día de boda y, en un carro enorme, algo que lleva 3.500 años vivo: un gusano de arena con cara humana. Es Leto II, el hijo de Paul Atreides. La historia entera, en el vídeo enlazado. #Dune #DuneParteTres #LetoII #ASKAtom #Shorts
+
+### Short 2 · El Sendero de Oro · tramo 279.1-321.8
+- **EN:** Dune: The Golden Path Leto II Chose at 9 #Shorts
+- **ES:** Dune: el Sendero de Oro que Leto II eligió con 9 años #Shorts
+- **EN:** In a spice trance strong enough to kill a man, a nine-year-old boy sees every future, and almost all of them end with humanity extinct. Only one path escapes. The whole story is in the linked video. #Dune #ChildrenOfDune #LetoII #ASKAtom #Shorts
+- **ES:** En un trance de especia capaz de matar a un hombre, un niño de nueve años ve todos los futuros, y casi todos acaban con la humanidad extinguida. Solo un camino se salva. La historia entera, en el vídeo enlazado. #Dune #HijosDeDune #LetoII #ASKAtom #Shorts
+
+### Short 3 · El puente · tramo 639.1-694.2
+- **EN:** Leto II: Why Water Was the God Emperor's End #Shorts
+- **ES:** Leto II: por qué el agua fue el final del dios emperador #Shorts
+- **EN:** He fell in love with a woman his enemies designed for him, and knew it. On their wedding day, the bridge came down over the river, and water is the one thing a sandworm can't survive. The whole story is in the linked video. #Dune #GodEmperorOfDune #LetoII #ASKAtom #Shorts
+- **ES:** Se enamoró de una mujer que sus enemigos habían diseñado para él, y lo sabía. El día de la boda, el puente cayó sobre el río, y el agua es lo único que un gusano de arena no resiste. La historia entera, en el vídeo enlazado. #Dune #DiosEmperadorDeDune #LetoII #ASKAtom #Shorts
 
 ## Avisos
 
-{AVISOS}
+**Para escuchar** (dudosas del control de la voz; no se relocutan sin tu oído):
+- EN, frases 5, 12 y 25 (1:17, 4:23, 10:39): «Leto» puede sonar «Lido».
+- EN, frase 18 (7:08): «ceasing» puede sonar «seizing».
+- EN, frase 15 (5:46): un hueco corto antes de «keeps».
+- EN, frase 26 (11:05): «Hwi» suena «we» (se pronuncia así: «juí»).
+- ES, frase 5 (1:17): «Sietch Tabr» puede sonar «siege tower».
+- ES, frase 6 (1:46): «darlos a luz» puede sonar «dar los alus».
+- ES, frase 14 (5:21): un hueco corto dentro de «porque».
+- ES, frases 17 y 28 (6:51, 12:02): «Arrakeen» puede sonar «Raquín» y «Arrakis», «a raquiz».
+- ES, frases 21 y 24 (8:42, 10:12): puede sobrar un «el» y una «a».
+
+**Duración:** 12:57, dentro del canon de 12–14 min.

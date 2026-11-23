@@ -1010,3 +1010,12 @@ del 44.
   lo preguntó («¿estás siguiendo nuestros nuevos cánones?»). Repasar cada párrafo corregido con la regla «un momento por
   párrafo» ANTES de enseñarlo.
 
+- **Producción** [Seguro]: 12:57, −14,0/−14,2 LUFS, efectos el 52 % del tiempo, 201/206 subtítulos sin fallos. Calidad:
+  148 planos, 56 suspensos en la primera revisión, todos pulidos en tres rondas.
+- **Pausas que copian la escena anterior** [Seguro]: la pasada de calidad pule la escena y deja vieja la copia de la
+  pausa (en el 46, lt-tranvia saltaba en el corte: guardias, suelo y alfombra distintos). Después de la calidad,
+  comparar el último fotograma de cada escena con el primero de su pausa (cortes46/corte.mjs) y volver a copiar lo que
+  haya cambiado.
+- **Miniatura** [Seguro]: a 320 × 180 la cara de Leto gusano no se leía con s 1,45; con s 1,9, sí.
+- **Pendiente para el próximo:** que el encargo de la pasada de calidad incluya volver a copiar en la pausa los planos
+  que pula de la escena que esta congela.
