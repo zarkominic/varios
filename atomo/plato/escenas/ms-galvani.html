@@ -449,6 +449,13 @@ const p6 = (t) => {
   // los días: rayitas que se van sumando en la jamba de la puerta de Mary
   for (let k = 0; k < n; k++) R.rect(76, 70 + k * 5, 81, 71 + k * 5, hex('#3a2a1a'));
 };
+// una pluma de oro (la de «writers»): el cañón en (x, y) hacia (x + dx, y + dy), con su barba en dos tonos y el filo claro
+const plumaOro = (x, y, dx, dy) => { const n = Math.max(1, ri(Math.hypot(dx, dy)));
+  for (let i = 0; i <= n; i++) { const u = i / n, px = ri(x + dx * u), py = ri(y + dy * u), w = u < 0.2 ? 0 : ri(Math.sin((u - 0.2) / 0.8 * Math.PI) * 3.4);
+    for (let j = -w - 1; j <= w + 1; j++) R.pset(px + j, py, K); }
+  for (let i = 0; i <= n; i++) { const u = i / n, px = ri(x + dx * u), py = ri(y + dy * u), w = u < 0.2 ? 0 : ri(Math.sin((u - 0.2) / 0.8 * Math.PI) * 3.4);
+    for (let j = -w; j <= w; j++) R.pset(px + j, py, j === 0 ? LATON[4] : j < 0 ? LATON[3] : LATON[2]); if (w > 1 && i % 3 === 0) R.pset(px + w, py, LATON[1]); }
+  R.pset(ri(x), ri(y), LATON[0]); R.pset(ri(x) - 1, ri(y) + 1, K); };
 
 // ═══ 7 · los retratos de sus padres: Mary llega con su hoja en blanco y mira a uno y a otro; plumas de oro en «writers» ═══
 const P7_FONDO = () => {
@@ -485,7 +492,8 @@ const p7 = (t) => {
   if (rm?.mano) { const [hx, hy] = rm.mano; R.rect(hx - 4, hy - 6, hx + 4, hy + 4, K); R.rect(hx - 3, hy - 5, hx + 3, hy + 3, hex('#fffdf6')); }
   // en «writers» brilla una pluma de oro sobre cada retrato
   const b = tramo(t, TJ.WRITERS, TJ.WRITERS + 0.3);
-  if (b > 0) for (const x of [92, 212]) { halo(x, 22, 14, hex('#ffe080'), 0.5 * b); R.icono('pluma', x - 3 + 0, ri(24 - b * 4), hex('#ffd34a'), K); for (let k = 0; k < 4; k++) { const a = t * 3 + k * 1.57; R.pset(ri(x + Math.cos(a) * 9), ri(20 + Math.sin(a) * 6), hex('#fff0b0')); } }
+  if (b > 0) for (const x of [76, 228]) { const y = ri(52 - b * 6); halo(x, y, 14, hex('#ffe080'), 0.55 * b); plumaOro(x - 4, y + 6, 9, -13);
+    for (let k = 0; k < 5; k++) { const a = t * 3 + k * 1.26; R.pset(ri(x + Math.cos(a) * 10), ri(y + Math.sin(a) * 7), hex('#fff0b0')); } }
 };
 
 // ═══ 8 · la galería de Diodati con la lluvia: Byron y Percy declaman sus páginas; brillo en «brilliant poets»;
@@ -542,47 +550,88 @@ const p8 = (t) => {
     for (let k = 0; k < 5; k++) { const dx = 264 + k * 4, dy = ny + 6 + ri(((t * 30 + k * 7) % 14)); if (dy < my - 26) { R.pset(dx, dy, hex('#8ab0e0')); R.pset(dx, dy + 1, hex('#6a90c8')); } } }
 };
 
-// ═══ 9 · el vestíbulo de noche: Mary baja la escalera con su vela y escucha por la puerta entornada (dedo en los labios);
-//        dentro, las sombras de Byron y Percy que hablan ═══
+// ═══ 9 · el vestíbulo de noche: Mary baja de verdad la escalera con su vela, cruza hasta la cuña de luz, se para y se asoma
+//        a la puerta entornada; dentro, las sombras de Byron y Percy gesticulan al hablar; el rayo sale en un globo ═══
 const ESC = (k) => [136 - k * 11, 150 - k * 8];   // el borde del peldaño k (x, y de su huella)
+// un aplique de pared de latón (la vela se pinta encima en p9)
+const aplique = (x, y) => { R.rect(x - 3, y - 2, x + 3, y + 9, K); R.rect(x - 2, y - 1, x + 2, y + 8, LATON[1]); R.rect(x - 2, y - 1, x - 1, y + 8, LATON[2]); R.pset(x - 1, y, LATON[4]);
+  R.linea(x, y + 6, x + 1, y + 12, K); R.linea(x + 1, y + 12, x, y + 2 - 0, K); R.rect(x - 4, y + 1, x + 4, y + 2, K); R.rect(x - 3, y + 1, x + 3, y + 1, LATON[2]); };
 const P9_FONDO = () => {
-  for (let y = 0; y <= 150; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(AZUL_N, 1.5 + ((x % 14) < 7 ? 0.35 : 0) - y / 300 + hh(x >> 1, y >> 1, 51) * 0.3 + (x > 266 && y < 52 ? -0.5 : 0), x, y));
-  R.rect(0, 0, 319, 5, NOGAL[0]); R.rect(0, 6, 319, 6, NOGAL[2]);
+  // papel pintado de damasco azul marino, más claro alrededor de los dos apliques
+  damasco(0, 7, 319, 111, AZUL_N, 51, (x, y) => 0.9 * Math.max(0, 1 - Math.hypot(x - 164, (y - 70) * 1.2) / 54) + 0.9 * Math.max(0, 1 - Math.hypot(x - 247, (y - 72) * 1.2) / 44) - 0.35);
+  R.rect(0, 0, 319, 5, NOGAL[0]); R.rect(0, 6, 319, 6, NOGAL[2]); R.rect(0, 7, 319, 7, NOGAL[4]); for (let x = 2; x < 320; x += 6) R.rect(x, 3, x + 2, 5, NOGAL[2]);
+  R.rect(0, 16, 319, 16, hex('#3a4868')); R.rect(0, 17, 319, 17, AZUL_N[0]);   // la moldura de colgar cuadros
   zocalo(0, 112, 319, 150, pal('#120a06', '#1a0e08', '#24140c', '#30200e', '#3e2a16', '#4a3420'), 38, 52);
   tarima(151, 179, pal('#120a06', '#1c120a', '#28180e', '#342014', '#402a1a'), 6, 53);
+  // el retrato del abuelo sobre la escalera (cordel corto a la moldura) y el paisajito junto al aplique
+  R.linea(93, 17, 86, 24, K); R.linea(93, 17, 100, 24, K); R.pset(93, 17, LATON[3]);
+  for (let y = 26; y <= 58; y++) for (let x = 76; x <= 110; x++) { const d = Math.hypot(x - 93, y - 40) / 22; R.pset(x, y, tono(pal('#140c08', '#22160e', '#342214', '#4a321c'), 2.2 - d * 2 + hh(x >> 1, y >> 1, 56) * 0.5, x, y)); }
+  R.poligono([[82, 58], [86, 48], [100, 48], [104, 58]], hex('#141418')); R.rect(91, 47, 95, 50, hex('#e8e0d0'));
+  R.disco(93, 40, 6, hex('#3a2a20')); R.disco(93, 41, 5, hex('#b08a6a')); R.rect(89, 35, 97, 37, hex('#d8d4cc')); R.disco(91, 41, 0, K); R.pset(91, 41, K); R.pset(95, 41, K); R.pset(92, 44, hex('#7a5a4a')); R.pset(94, 44, hex('#7a5a4a'));
+  marco(76, 26, 110, 58, 3);
+  R.linea(161, 17, 156, 28, K); R.linea(161, 17, 166, 28, K);
+  cuadroLago(150, 28, 172, 46, 8);
+  // los dos apliques: entre la escalera y la puerta, y entre la puerta y el perchero
+  aplique(164, 78); aplique(247, 80);
+  // la consolita del vestíbulo con la bandeja de las cartas y el candelero apagado
+  R.rect(150, 124, 180, 127, K); madera(151, 125, 179, 126, NOGAL, 57, true, 2.4); R.rect(151, 124, 179, 124, NOGAL[5]);
+  for (const lx of [153, 177]) { R.rect(lx - 1, 128, lx + 1, 150, K); R.rect(lx, 128, lx, 149, NOGAL[3]); } R.rect(153, 140, 177, 141, NOGAL[1]);
+  R.rect(156, 121, 168, 123, K); R.rect(157, 121, 167, 122, LATON[2]); for (let k = 0; k < 3; k++) R.rect(158 + k * 3, 119 - k, 162 + k * 3, 121 - k, PAPEL[3 - (k & 1)]);
+  R.rect(172, 112, 174, 123, K); R.rect(173, 113, 173, 122, hex('#e8e0cc')); R.rect(170, 122, 176, 123, LATON[2]);
   // la escalera: peldaños con su huella y su tabica, la zanca y el pasamanos con barrotes
-  for (let k = 11; k >= 0; k--) { const [x, y] = ESC(k); R.rect(0, y - 8, x, y, hex('#1c120a')); R.rect(0, y - 8, x, y - 7, hex('#4a3420')); R.rect(x - 1, y - 8, x, y, hex('#120a06')); R.rect(0, y - 6, x - 2, y, tono(pal('#1c120a', '#24180e'), 1, x, y)); }
+  for (let k = 11; k >= 0; k--) { const [x, y] = ESC(k); R.rect(0, y - 8, x, y, hex('#1c120a')); R.rect(0, y - 8, x, y - 7, hex('#4a3420')); R.rect(x - 1, y - 8, x, y, hex('#120a06')); R.rect(0, y - 6, x - 2, y, tono(pal('#1c120a', '#24180e'), 1, x, y)); for (let i = 4; i < x - 3; i += 13) R.pset(i, y - 3, hex('#2a1c10')); }
   for (let k = 0; k <= 11; k++) { const [x, y] = ESC(k); R.rect(x - 6, y - 30, x - 5, y - 8, hex('#3a2a1a')); R.pset(x - 6, y - 30, hex('#6a4a2a')); }
   { const [x0, y0] = ESC(0), [x1, y1] = ESC(11); for (let d = 0; d < 3; d++) R.linea(x0 - 5, y0 - 31 + d, x1 - 5, y1 - 31 + d, d === 0 ? hex('#8a5a30') : hex('#4a2c18')); }
   R.rect(138, 104, 146, 152, K); R.rect(139, 105, 145, 151, NOGAL[3]); R.rect(137, 100, 147, 104, NOGAL[4]); R.disco(142, 98, 3, NOGAL[4]);
   // el ventanuco de la escalera con la luna entre nubes (hueco 34–58 × 22–50)
   R.rect(30, 18, 62, 54, hex('#2a3448')); R.rect(32, 20, 60, 52, hex('#0a0e18'));
   // la puerta del salón, entornada (marco y la hoja abierta hacia nosotros)
-  R.rect(182, 56, 236, 150, K); R.rect(184, 58, 234, 150, NOGAL[3]); R.rect(188, 62, 230, 150, K);
+  R.rect(182, 56, 236, 150, K); R.rect(184, 58, 234, 150, NOGAL[3]); R.rect(188, 62, 230, 150, K); R.rect(182, 52, 238, 56, NOGAL[4]); R.rect(182, 52, 238, 52, NOGAL[5]);
   R.poligono([[214, 62], [238, 54], [238, 160], [214, 150]], K); R.poligono([[215, 63], [237, 56], [237, 158], [215, 149]], NOGAL[2]); for (const [a, b] of [[70, 98], [106, 140]]) R.poligono([[218, a], [234, a - 4], [234, b - 2], [218, b]], NOGAL[1]); R.disco(218, 104, 2, LATON[2]);
   // el perchero con abrigos, sombreros y el paraguas
   R.rect(270, 64, 274, 150, K); R.rect(271, 64, 273, 150, NOGAL[3]); R.rect(262, 62, 282, 66, NOGAL[4]);
-  R.poligono([[262, 68], [272, 66], [276, 112], [258, 112]], hex('#2a2a3a')); R.poligono([[272, 66], [284, 68], [288, 108], [274, 108]], hex('#3a2a20')); R.rect(258, 56, 270, 62, K); R.rect(256, 61, 272, 62, K);
+  R.poligono([[262, 68], [272, 66], [276, 112], [258, 112]], hex('#2a2a3a')); R.poligono([[272, 66], [284, 68], [288, 108], [274, 108]], hex('#3a2a20'));
+  for (let k = 0; k < 4; k++) { R.linea(264 + k * 3, 72, 262 + k * 3, 110, hex('#22222e')); R.linea(276 + k * 3, 72, 278 + k * 3, 106, hex('#2e2018')); }
+  R.rect(258, 56, 270, 62, K); R.rect(256, 61, 272, 62, K); R.rect(259, 59, 269, 59, hex('#3a2a20'));
   R.linea(282, 120, 290, 150, hex('#1a1a24')); R.poligono([[284, 118], [294, 140], [288, 148], [280, 124]], hex('#2a2a36'));
 };
 const p9 = (t) => {
   R.copiar(capa('p9', P9_FONDO));
   ventana(34, 22, 58, 50, () => { for (let y = 22; y <= 50; y++) for (let x = 34; x <= 58; x++) R.pset(x, y, tono(CIE_N, 1 + (y - 22) / 14 + hh(x >> 2, y >> 2, 54) * 0.4, x, y)); R.disco(46, 32, 4, hex('#e8ecf0')); nubes(t, 22, 48, NUB_N, 55, 1.4); }, 0, t, 54);
-  // el hueco de la puerta: el fuego del salón y las sombras de los dos que hablan
+  // las velas de los apliques y su luz sobre el papel
+  vela(165, 79, 6, t, 31, { sinPie: true }); vela(248, 81, 6, t, 32, { sinPie: true });
+  luzVela(165, 70, 30, 0.3, t, 31); luzVela(248, 72, 26, 0.28, t, 32);
+  // el hueco de la puerta: el fuego del salón y las sombras de los dos que hablan (gesticulan por turnos)
   const fu = 0.85 + Math.sin(t * 9) * 0.1 + Math.sin(t * 23) * 0.05;
+  const hb = t > TJ.BYRON2 - 0.1 && t < TJ.PERCY + 0.1 ? 1 : 0.2, hp = t > TJ.PERCY - 0.05 ? 1 : 0.2;
+  const ab = -1.1 + Math.sin(t * 6.5) * 0.7 * hb, ap = Math.PI + 0.9 - Math.sin(t * 7.5 + 1) * 0.6 * hp;
+  const lb = ri(Math.sin(t * 3.2) * 1.5 * hb), lp = ri(Math.sin(t * 3.7 + 2) * 1.5 * hp), cb = ri(Math.abs(Math.sin(t * 8)) * hb), cp = ri(Math.abs(Math.sin(t * 9)) * hp);
+  const SB = hex('#2a1208'), SP = hex('#3a1a0c');
   porHueco(189, 63, 213, 149, () => { for (let y = 63; y <= 149; y++) for (let x = 189; x <= 213; x++) R.pset(x, y, tono(pal('#5a2a10', '#a8521e', '#e88a3a', '#ffb860'), 1.2 + fu * 1.4 - (y - 63) / 140 + hh(x >> 1, y >> 2, ri(t * 8)) * 0.3, x, y));
-    const ga = t > TJ.BYRON2 && t < TJ.PERCY + 0.2 ? Math.sin(t * 8) * 3 : 0, gp = t > TJ.PERCY ? Math.sin(t * 9) * 3 : 0;
-    R.disco(196, 84, 6, hex('#2a1208')); R.rect(190, 90, 202, 149, hex('#2a1208')); R.linea(200, 96, 206, ri(90 - ga), hex('#2a1208')); R.linea(201, 96, 207, ri(90 - ga), hex('#2a1208'));
-    R.disco(212, 88, 6, hex('#3a1a0c')); R.rect(206, 94, 216, 149, hex('#3a1a0c')); R.linea(206, 100, 200, ri(96 - gp), hex('#3a1a0c')); });
-  // la cuña de luz en el suelo y en la escalera
-  for (let y = 150; y <= 179; y++) { const u = (y - 150) / 30, a = ri(189 - u * 60), b = ri(213 - u * 20); for (let x = a; x <= b; x++) tine(x, y, CALIDA, 0.32 * fu * (1 - u * 0.4)); }
-  // Mary baja tres peldaños de puntillas (de 5 a 2), se para y escucha con el dedo en los labios
-  const u = tramo(t, TJ.NIGHT - 0.1, TJ.LISTENS + 0.1), kf = lerp(5, 2, u), k0 = Math.floor(kf), [ex, ey] = ESC(Math.round(kf));
-  const mx = ri(lerp(ESC(5)[0], ESC(2)[0], u)) - 4, ms = ey, escucha = t > TJ.LISTENS;
-  const rm = R.actor(MS.maryMS, mx, ms, t, { dir: 1, anda: u > 0 && u < 1, dedo: escucha && t < TJ.BYRON2, sostiene: escucha && t < TJ.BYRON2 ? undefined : [mx + 8, ms - 12], sorpresa: t > TJ.PERCY + 0.2 });
-  if (!(escucha && t < TJ.BYRON2)) { const vx = mx + 8, vy = ms - 12; vela(vx, vy, 6, t, 11); luzVela(vx, vy - 8, 40, 0.38, t, 11); } else luzVela(mx, ms - 20, 30, 0.2, t, 11);
-  // el gato en el peldaño de abajo levanta la cabeza
-  { const [gx, gy] = ESC(0), x = gx - 18, mira = t > TJ.BYRON2; R.disco(x, gy - 4, 5, K); R.disco(x, gy - 4, 4, hex('#2a2a30')); R.disco(x + 5, gy - 7 - (mira ? 2 : 0), 3, K); R.disco(x + 5, gy - 7 - (mira ? 2 : 0), 2, hex('#2a2a30')); R.pset(x + 6, gy - 8 - (mira ? 2 : 0), hex('#e8d040')); R.pset(x + 4, gy - 10 - (mira ? 2 : 0), hex('#2a2a30')); }
+    // Byron (izquierda): la cabeza que asiente, el cuerpo que se inclina y el brazo que corta el aire
+    R.disco(196 + lb, 84 - cb, 6, SB); R.poligono([[189, 149], [190 + lb, 92], [203 + lb, 92], [204, 149]], SB);
+    for (let d = 0; d < 3; d++) R.linea(200 + lb, 96 + d, ri(200 + lb + Math.cos(ab) * 13), ri(96 + d + Math.sin(ab) * 13), SB); R.disco(ri(200 + lb + Math.cos(ab) * 13), ri(97 + Math.sin(ab) * 13), 2, SB);
+    // Percy (derecha): más cerca del fuego, levanta la mano hacia Byron cuando le toca
+    R.disco(212 + lp, 88 - cp, 6, SP); R.poligono([[205, 149], [206 + lp, 96], [218 + lp, 96], [219, 149]], SP);
+    for (let d = 0; d < 3; d++) R.linea(207 + lp, 100 + d, ri(207 + lp + Math.cos(ap) * 13), ri(100 + d + Math.sin(ap) * 13), SP); R.disco(ri(207 + lp + Math.cos(ap) * 13), ri(101 + Math.sin(ap) * 13), 2, SP); });
+  // la cuña de luz en el suelo, con las dos sombras alargadas que se mueven con ellos
+  for (let y = 150; y <= 179; y++) { const u = (y - 150) / 30, a = ri(189 - u * 60), b = ri(213 - u * 20); for (let x = a; x <= b; x++) tine(x, y, CALIDA, 0.32 * fu * (1 - u * 0.4));
+    const sb = lerp(194, 160, u) + lb * u * 3, sp = lerp(210, 186, u) + lp * u * 3; for (const [c, w] of [[sb, 2 + u * 5], [sp, 2 + u * 4]]) for (let x = ri(c - w); x <= ri(c + w); x++) tine(x, y, K, 0.3); }
+  // Mary baja de puntillas la escalera (de 9 a 0), cruza hasta la cuña de luz, se para y se asoma; se sobresalta en «Percy»
+  const baja = tramo(t, TJ.NIGHT - 0.12, TJ.SILENCE + 0.25), kf = lerp(9, 0, baja), cruza = ease(tramo(t, TJ.SILENCE + 0.3, TJ.BYRON2 - 0.05));
+  const asoma = ease(tramo(t, TJ.BYRON2, TJ.BYRON2 + 0.5)) - ease(tramo(t, TJ.PERCY + 0.15, TJ.PERCY + 0.45)) * 0.6;
+  let mx, ms;
+  if (cruza <= 0) { mx = ri(lerp(ESC(9)[0], ESC(0)[0], baja)) - 6; ms = ESC(Math.round(kf))[1] - (baja > 0 && baja < 1 && (kf % 1) > 0.5 ? 1 : 0); }
+  else { mx = ri(lerp(ESC(0)[0] - 6, 158, cruza)); ms = ri(lerp(ESC(0)[1], 164, cruza)); }
+  mx += ri(asoma * 6);
+  const anda = (baja > 0 && baja < 1) || (cruza > 0 && cruza < 1);
+  const vx = mx + 15, vy = ms - 12;
+  R.actor(MS.maryMS, mx, ms, t, { dir: 1, anda, sostiene: [vx, vy], sorpresa: t > TJ.PERCY + 0.2, triste: false });
+  if (cruza > 0.8) sombraPie(mx + 7, ms + 1, 6);
+  vela(vx, vy, 6, t, 11); luzVela(vx, vy - 8, 40, 0.38, t, 11);
+  // el gato en el peldaño de abajo levanta la cabeza al pasar Mary
+  { const [gx, gy] = ESC(0), x = gx - 18, mira = t > TJ.SILENCE; R.disco(x, gy - 4, 5, K); R.disco(x, gy - 4, 4, hex('#2a2a30')); R.disco(x + 5, gy - 7 - (mira ? 2 : 0), 3, K); R.disco(x + 5, gy - 7 - (mira ? 2 : 0), 2, hex('#2a2a30')); R.pset(x + 6, gy - 8 - (mira ? 2 : 0), hex('#e8d040')); R.pset(x + 4, gy - 10 - (mira ? 2 : 0), hex('#2a2a30'));
+    R.linea(x - 5, gy - 2, x - 8, gy - 4 - ri(Math.sin(t * 3) * 2), hex('#2a2a30')); }
   // la idea que sale por la puerta: «rayo» (la electricidad) en «whether»
   globo(204, 52, 'rayo', tramo(t, TJ.PERCY + 0.5, TJ.PERCY + 0.8), hex('#d8a020'));
 };
@@ -663,14 +712,10 @@ const SUENO = (t) => cl(0.3 * ease(tramo(t, TJ.THE, TJ.BEGINNING + 0.2)) + 0.15 
 const p12 = (t) => {
   const s = SUENO(t), o = { encuadre: 'cuarto', sueno: s, vela: 0.55 };
   T.lago(R, t, o);
-  // el grabado del lago cuelga de un clavo POR DEBAJO de la esquina de Atom (y 48), no de la moldura: se borra el cordel
-  // largo que subía hasta y 19 con el papel de rayas de al lado (el mismo dibujo, diez píxeles más allá) y se pintan el
-  // clavo de cabeza de latón y los dos cordeles cortos hasta las anillas del marco (y 56)
-  { const cc = R.pget(298, 19);
-    for (let y = 20; y <= 55; y++) { const u = (y - 19) / 37;
-      for (const [xa, d] of [[298 - 6 * u, -1], [298 + 6 * u, 1]]) for (let dx = -1; dx <= 1; dx++) { const x = ri(xa) + dx; R.pset(x, y, R.pget(x + d * 10, y)); } }
-    R.linea(298, 49, 292, 56, cc); R.linea(298, 49, 304, 56, cc);
-    R.rect(297, 47, 299, 48, K); R.pset(297, 47, LATON[2]); R.pset(298, 47, LATON[3]); R.pset(298, 49, K); }
+  // el grabado de la derecha cuelga de un clavo con un cordel corto (el del decorado subía hasta la moldura, por la zona
+  // de Atom): se repinta el papel de rayas encima y se pone el clavo
+  { const PR = [hex('#262c44'), hex('#1e2238'), hex('#303856')]; for (let y = 20; y <= 55; y++) for (let x = 290; x <= 306; x++) { const s = x % 10; R.pset(x, y, s < 1 ? PR[1] : s === 5 && (y >> 2) % 3 === 0 ? PR[2] : hh(x, y, 921) < 0.04 ? PR[1] : PR[0]); }
+    R.linea(298, 49, 292, 56, hex('#16101a')); R.linea(298, 49, 304, 56, hex('#16101a')); R.pset(298, 48, hex('#8a7a5a')); R.pset(298, 49, hex('#4a3e30')); }
   R.recorte([0, 0, 319, 114]); R.actor(MS.maryMS, 244, 123, t, { dir: -1, sorpresa: t > TJ.YELLOW, parpadea: t < TJ.PALE && Math.sin(t * 2) > 0.9 }); R.recorte(null);
   T.lagoDelante(R, t, { ...o, manta: true });
   const esc = t > TJ.YELLOW;

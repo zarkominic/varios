@@ -427,9 +427,14 @@ const P6F = () => capa('p6f', () => {
   for (let k = 0; k < 40; k++) { const x = 122 + ri(hh(k, 1, 610) * 196), y = 28 + ri(hh(k, 2, 610) * 120); if (Math.abs(x - 154) < 14) continue; R.pset(x, y, hex('#3a4a2a')); R.pset(x + 1, y, hex('#4a5e32')); }
   for (const [x, y, w] of [[198, 140, 18], [214, 144, 16], [204, 130, 14]]) { R.disco(x + 8, y, ri(w / 2), K); for (let j = -ri(w / 2) + 1; j < ri(w / 2); j++) for (let i = -ri(w / 2) + 1; i < ri(w / 2); i++) if (Math.hypot(i, j) < w / 2 - 1) R.pset(x + 8 + i, y + j, tono(pal('#4a3e2a', '#6a5a3e', '#857250'), 1.2 + (i < 0 ? 0.8 : 0) + hh(i, j, 611) * 0.5, x + 8 + i, y + j)); R.linea(x + 4, y - ri(w / 2) + 2, x + 12, y - ri(w / 2) + 2, hex('#3a2e1e')); }
   R.disco(244, 132, 14, K); R.disco(244, 132, 12, hex('#5a4228')); R.disco(244, 132, 10, hex('#2a2016')); R.disco(244, 132, 3, hex('#6a4a2a')); for (let k = 0; k < 6; k++) { if (k === 2) continue; const a = k / 6 * Math.PI * 2; R.linea(244, 132, ri(244 + Math.cos(a) * 10), ri(132 + Math.sin(a) * 10), hex('#6a4a2a')); }
-  for (const x of [288, 302]) R.linea(x + 8, 40, x, 150, K); for (const x of [289, 303]) R.linea(x + 8, 40, x, 150, hex('#7a5a38')); for (let y = 50; y < 150; y += 12) { const d = (150 - y) / 110 * 8; R.linea(ri(289 + d), y, ri(303 + d), y, hex('#6a4a2a')); }
-  // la telaraña del rincón
-  for (let k = 0; k < 5; k++) R.linea(300, 27, 300 + 18 - k * 4, 27 + k * 4, hex('#5a5a62')); for (let r = 6; r < 18; r += 5) R.linea(300 + r, 27, 300, 27 + r, hex('#4a4a52'));
+  // el pajar de tablas (x 262–319, y 48–55) sobre dos ménsulas, con la paja que asoma; la escalera de mano llega a su canto
+  for (let y = 56; y < 66; y++) for (let x = 262; x < 320; x++) if (((x + y) & 1) === 0 && hh(x, y, 612) < 0.9 - (y - 56) * 0.09) R.pset(x, y, PIEDRA6[0]);
+  for (let k = 0; k < 30; k++) { const x = 262 + ri(hh(k, 1, 613) * 57), y = 57 + ri(hh(k, 2, 613) * 2); R.linea(x, y, x + ri((hh(k, 3, 613) - 0.5) * 4), y + 2 + ri(hh(k, 5, 613) * 4), hh(k, 4, 613) > 0.5 ? hex('#8a7a3a') : hex('#6a5a2a')); }
+  tablas(262, 48, 319, 55, TABLA_G, 4, 614, false, false); R.rect(262, 47, 319, 47, K); R.rect(262, 56, 319, 56, K); R.rect(261, 47, 261, 56, K);
+  for (const x of [270, 312]) { R.rect(x, 57, x + 3, 60, K); R.linea(x + 1, 60, x + 1, 68, K); R.linea(x + 2, 60, x + 2, 67, hex('#5a4a3a')); R.linea(x + 1, 68, x - 5, 57, K); }
+  for (const x of [288, 302]) R.linea(x + 7, 50, x, 150, K); for (const x of [289, 303]) R.linea(x + 7, 50, x, 150, hex('#7a5a38')); for (let y = 58; y < 150; y += 12) { const d = (150 - y) / 100 * 7; R.linea(ri(289 + d), y, ri(303 + d), y, hex('#6a4a2a')); }
+  // la telaraña del rincón de la izquierda, entre el cabrio y las tablas
+  for (let k = 0; k < 5; k++) R.linea(1, 27, 1 + 18 - k * 4, 27 + k * 4, hex('#6a6a72')); for (let r = 6; r < 18; r += 5) R.linea(1 + r, 27, 1, 27 + r, hex('#5a5a62'));
 });
 // la grieta (zigzag de x ≈ 150–157, y 90–150) y lo que se ve por ella: la luz del fuego y las cabezas de la familia
 const GRIETA6 = (y) => 152 + ri(Math.sin(y * 0.35) * 2 + Math.sin(y * 0.11) * 1.5);
@@ -596,9 +601,60 @@ const p9 = (t) => {
 };
 
 // ═══ 10 · el rellano de la escalera: la criatura sale por la puerta, lo busca con la mano; Victor huye escaleras abajo ═════
+// lo que se añade al rellano (sobre el decorado): el papel pintado de rayas con su flor, un cuadro torcido, el aplique
+// con su vela, una carta de la luna, el estante con los matraces de Victor y la sierra y la cuerda colgadas
+const ZOC10 = (x) => x < 160 ? 118 : 118 + (x - 160) * 6 / 14;
+const P10W = () => capa('p10w', () => {
+  for (let y = 18; y < 150; y++) for (let x = 104; x < 320; x++) { if (y >= ZOC10(x) - 1) continue; if (x > 212 && x < 272 && y > 30 && y < 95) continue; if (x > 268 && y < 50) continue; if (x > 120 && x < 136 && y > 80 && y < 100) continue; if (x < 126 && y > 52 && y < 72) continue;
+    const xs = x % 12, ys = (y + (Math.floor(x / 12) % 2) * 7) % 14, luz = y > 96 && x > 186 - (y - 96) * 0.5 && x < 262;
+    if (xs === 0) R.pset(x, y, luz ? hex('#2a3256') : hex('#10121e'));
+    else if (xs === 1 && (y & 1)) R.pset(x, y, hex('#1e2236'));
+    else if (xs === 6 && (ys === 6 || ys === 8)) R.pset(x, y, luz ? hex('#56608a') : hex('#343a58'));
+    else if (ys === 7 && (xs === 5 || xs === 7)) R.pset(x, y, luz ? hex('#56608a') : hex('#343a58'));
+    else if (xs === 6 && ys === 7) R.pset(x, y, hex('#6a4a50')); }
+  // el cuadro torcido: un lago de noche con montes, en un marco dorado colgado de un clavo
+  { const cx = 162, cy = 62, a = 0.13, ca = Math.cos(a), sa = Math.sin(a);
+    R.linea(162, 44, 150, 53, hex('#6a6a72')); R.linea(162, 44, 175, 55, hex('#6a6a72')); R.pset(162, 43, hex('#c8c8d0'));
+    for (let y = cy - 14; y <= cy + 14; y++) for (let x = cx - 18; x <= cx + 18; x++) { const u = (x - cx) * ca + (y - cy) * sa, v = -(x - cx) * sa + (y - cy) * ca;
+      if (Math.abs(u) > 15 || Math.abs(v) > 10) continue;
+      let c; if (Math.abs(u) > 14 || Math.abs(v) > 9) c = K; else if (Math.abs(u) > 12 || Math.abs(v) > 7) c = (u < -12 || v < -7) ? hex('#d8b050') : hex('#8a6a28');
+      else { const mo = v > -1 - Math.abs(Math.sin(u * 0.35)) * 4; c = v > 3 ? (Math.sin(u * 1.3 + v * 2) > 0.6 ? hex('#5a6a9a') : hex('#24305a')) : mo ? hex('#1a2234') : hex('#2e3e6a'); if (Math.hypot(u - 7, v + 4) < 1.6) c = hex('#f0e8c0'); }
+      R.pset(x, y, c); }
+    for (let x = cx - 14; x <= cx + 16; x++) if (((x + cy) & 1) === 0) R.pset(x, ri(cy + 12 + (x - cx) * 0.13), hex('#0c0e18')); }
+  // el aplique de latón de la pared (la vela y su llama, en cada fotograma)
+  R.rect(198, 74, 206, 76, K); R.rect(199, 74, 205, 75, hex('#c8a040')); R.linea(202, 76, 202, 82, hex('#8a6a28')); R.rect(200, 82, 204, 84, hex('#a8842a')); R.rect(201, 66, 203, 73, hex('#f4ecd8')); R.pset(201, 66, hex('#ffffff'));
+  for (let y = 67; y < 73; y++) if (y % 3 === 0) R.pset(204, y, hex('#e8dcc0'));
+  // la carta de las fases de la luna, clavada en la pared (x 276–312, y 54–90)
+  R.rect(276, 54, 312, 90, K); for (let y = 55; y < 90; y++) for (let x = 277; x < 312; x++) R.pset(x, y, tono(pal('#6a5e46', '#7e7054', '#928464'), 1 + hh(x >> 1, y >> 1, 1001) * 1.2 - (x > 308 || y > 86 ? 0.8 : 0), x, y));
+  for (let k = 0; k < 8; k++) { const x = 283 + (k % 4) * 8, y = 64 + Math.floor(k / 4) * 14, f = k / 8; R.disco(x, y, 3, hex('#2a2a3a')); for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if (Math.hypot(i, j) < 3 && Math.cos((i / 3 + 1) * Math.PI / 2 + f * Math.PI * 2) > 0) R.pset(x + i, y + j, hex('#e8e0c0')); }
+  R.disco(294, 84, 1, hex('#c8a040')); R.linea(279, 77, 309, 77, hex('#5a4e38')); for (const [x, y] of [[277, 55], [311, 55], [277, 89], [311, 89]]) R.pset(x, y, hex('#c8c8d0'));
+  // el estante de los matraces y los libros (x 270–318, y 104)
+  for (let y = 107; y < 113; y++) for (let x = 270; x < 319; x++) if (((x + y) & 1) === 0) R.pset(x, y, hex('#0c0e18'));
+  R.rect(270, 104, 318, 106, K); R.rect(271, 104, 317, 104, hex('#7a5a38')); R.rect(271, 105, 317, 105, hex('#4a3220'));
+  for (const x of [276, 310]) { R.linea(x, 107, x, 113, K); R.linea(x, 113, x + 5, 107, K); }
+  R.disco(279, 98, 5, K); R.disco(279, 98, 4, hex('#4a6a5a')); R.rect(278, 88, 280, 93, K); R.pset(279, 89, hex('#8aa0a0')); R.rect(277, 87, 281, 87, hex('#8a6a3a'));
+  for (let y = 98; y < 103; y++) for (let x = 275; x < 284; x++) if (Math.hypot(x - 279, y - 98) < 4) R.pset(x, y, hex('#3ac06a')); R.pset(277, 95, hex('#d0f0e0'));
+  R.rect(288, 86, 294, 103, K); R.rect(289, 87, 293, 103, hex('#3a4a5a')); R.rect(289, 93, 293, 103, hex('#c8862a')); R.rect(289, 87, 289, 103, hex('#9ab0c0'));
+  R.rect(298, 94, 306, 103, K); R.rect(299, 95, 305, 103, hex('#7a6a8a')); R.rect(298, 92, 306, 94, hex('#6a4a2a')); R.rect(300, 98, 304, 101, hex('#d8d0b8'));
+  R.rect(309, 99, 318, 103, K); R.rect(310, 100, 317, 102, hex('#6a2a2a')); R.rect(309, 95, 317, 98, K); R.rect(310, 96, 316, 97, hex('#2a4a5a'));
+  // la sierra y el rollo de cuerda, colgados de clavos junto a la ventana
+  R.pset(196, 98, hex('#c8c8d0')); R.poligono([[190, 101], [212, 104], [212, 110], [190, 105]], hex('#8a929e')); R.linea(190, 101, 212, 104, hex('#c8d0dc'));
+  for (let x = 191; x < 212; x += 2) R.pset(x, ri(105 + (x - 190) * 0.23), K); R.rect(212, 102, 216, 111, K); R.rect(213, 103, 215, 110, hex('#6a4428'));
+  R.disco(198, 122, 7, K); R.disco(198, 122, 6, hex('#8a7a52')); R.disco(198, 122, 3, K); R.disco(198, 122, 2, hex('#2a2016')); for (let k = 0; k < 9; k++) { const a = k / 9 * Math.PI * 2; R.pset(ri(198 + Math.cos(a) * 4.5), ri(122 + Math.sin(a) * 4.5), hex('#b0a070')); } R.linea(198, 114, 198, 111, K);
+});
 const p10 = (t) => {
   const o = { encuadre: 'buhardilla', camara: 'escalera' };
   const g = T.libro(R, t, o);
+  pegar(P10W());
+  // la vela del aplique, que tiembla, y su luz en el papel
+  { const fl = 0.85 + Math.sin(t * 10) * 0.1, m = ri(Math.sin(t * 7) * 0.6); halo(202, 63, 16, hex('#ffb060'), 0.35 * fl);
+    R.pset(202 + m, 62, hex('#ffe070')); R.pset(202 + m, 63, hex('#fff4c0')); R.pset(202, 64, hex('#ffc040')); R.pset(202 + m, 61, hex('#ff8a2a')); R.pset(202, 65, K); }
+  // los matraces que borbotean
+  for (let k = 0; k < 4; k++) { const u = (t * 0.9 + k / 4) % 1; R.pset(276 + (k % 3) * 2, ri(101 - u * 6), hex('#c0ffd8')); if (u > 0.5) R.pset(291, ri(102 - (u - 0.5) * 16), hex('#ffe0a0')); }
+  // con el relámpago, la sombra de la barandilla se estira en la pared
+  if ((t % 7.7) > 4.4 && (t % 7.7) < 4.62 && Math.sin(t * 55) > -0.2) {
+    for (let x = 140; x < 300; x++) { const y = ri(96 + (x - 160) * 6 / 14); if (y < ZOC10(x) - 1 && y > 18 && !(x > 214 && x < 270 && y < 94)) { tine(x, y, hex('#06080e'), 0.6); tine(x, y + 1, hex('#06080e'), 0.6); } }
+    for (let k = 0; k < 10; k++) { const xb = 150 + k * 14; for (let j = 0; j < 30; j++) { const x = ri(xb - j * 0.4), y = ri(98 + (xb - 160) * 6 / 14 + j); if (y < ZOC10(x) - 1 && !(x > 214 && x < 270 && y < 94)) tine(x, y, hex('#06080e'), 0.5); } } }
   // LA CRIATURA sale de la buhardilla y alarga la mano hacia él; en «horror» la baja, triste
   const cs = tramo(t, TC.LOOK, TC.MADE2 + 0.3), cx = ri(lerp(50, 74, ease(cs)));
   R.actor(MS.criaturaMS, cx, 150, t, { dir: 1, anda: cs > 0 && cs < 1, dedo: t > TC.MADE2 - 0.2 && t < TC.HORROR + 0.3, triste: t > TC.HORROR });

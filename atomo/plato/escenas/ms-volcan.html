@@ -473,7 +473,21 @@ const p5 = (t) => {
   // BYRON sale al balcón en «mansion» y en «Villa Diodati» abre los brazos; Polidori asoma detrás con un catalejo
   const sb = tramo(t, TL.MANSION - 0.4, TL.MANSION + 0.5), bx = ri(lerp(194, 214, ease(sb)));
   if (sb > 0) R.actor(MS.byronMS, bx, VILLA.p0 - 2, t, { dir: -1, anda: sb < 1, brazos: t > TL.VILLA && t < TL.VILLA + 1.4, dedo: t > TL.HILL, sonrisa: t > TL.VILLA });
-  if (t > TL.VILLA + 0.6) { const rp = R.actor(MS.polidoriMS, 192, VILLA.p0 - 2, t, { dir: -1, sostiene: [186, VILLA.p0 - 16] }); R.rect(176, VILLA.p0 - 18, 188, VILLA.p0 - 16, K); R.rect(177, VILLA.p0 - 17, 187, VILLA.p0 - 17, hex('#c8a040')); }
+  if (t > TL.VILLA + 0.6) {
+    // Polidori se lleva el catalejo al ojo y barre el lago (a la izquierda, lejos de Byron): ocular, aro de latón, tubo de
+    // dos tramos y el objetivo con su brillo; la mano lo sujeta por el tramo del ojo
+    const sube = ease(tramo(t, TL.VILLA + 0.6, TL.VILLA + 1.1)), oy = ri(lerp(VILLA.p0 - 14, VILLA.p0 - 19, sube)), ox = 191;
+    const pend = lerp(-0.05, 0.2, sube) + Math.sin(t * 0.9) * 0.06 * sube, LT = pal('#6a4a1a', '#c8a040', '#f0d080'), CU = hex('#4a2e1a');
+    const rp = R.actor(MS.polidoriMS, 192, VILLA.p0 - 2, t, { dir: -1, sostiene: [ox - 4, oy + 2] }), piel = R.pget(rp.mano[0], rp.mano[1]);
+    const Y = (u) => oy - u * pend;
+    for (let u = 0; u <= 14; u++) { const x = ox - u, y = ri(Y(u)), g = u < 5 ? 1 : u < 13 ? 2 : 3;   // grosor: ocular fino, tubo, objetivo
+      for (let j = -g; j <= g; j++) R.pset(x, y + j, Math.abs(j) === g ? K : u < 5 ? (j < 0 ? LT[2] : LT[1]) : j < 0 ? LT[2] : j === 0 ? LT[1] : CU); }
+    for (const u of [5, 6]) for (let j = -2; j <= 2; j++) R.pset(ox - u, ri(Y(u)) + j, Math.abs(j) === 2 ? K : LT[2]);   // el aro de latón entre tramos
+    for (let j = -2; j <= 2; j++) R.pset(ox - 15, ri(Y(15)) + j, K);
+    for (let j = -2; j <= 2; j++) R.pset(ox - 14, ri(Y(14)) + j, Math.abs(j) === 2 ? K : hex('#8ab0c8'));   // la lente
+    if (Math.sin(t * 2.3) > 0.2) R.pset(ox - 14, ri(Y(14)) - 1, hex('#ffffff'));   // el brillo de la lente, que va y viene
+    R.pset(rp.mano[0], rp.mano[1] - 2, piel); R.pset(rp.mano[0] - 1, rp.mano[1] - 2, piel);   // los dedos que abrazan el tubo
+  }
   // la barandilla del balcón por delante de ellos
   for (let x = VILLA.x0 - 3; x <= VILLA.x1 + 3; x += 3) R.rect(x, VILLA.p0 - 10, x, VILLA.p0 - 1, K); R.rect(VILLA.x0 - 4, VILLA.p0 - 11, VILLA.x1 + 4, VILLA.p0 - 10, K); R.rect(VILLA.x0 - 4, VILLA.p0 - 11, VILLA.x1 + 4, VILLA.p0 - 11, hex('#5a5a62'));
   // el viñador con su azada (vida)
@@ -729,6 +743,13 @@ const paraguas = (x, y, vuelta, t) => {   // x, y: la mano; vuelta 0–1: el vie
   if (v > 0.5) { for (const i of [-w, -ri(w / 2), ri(w / 2), w]) R.linea(x, cy + 1, x + i, ri(borde(i)) + 1, hex('#c8c8d0')); R.linea(x + w, ri(borde(w)), x + w + 4, ri(borde(w)) - 3, hex('#c8c8d0')); }
   else R.pset(x, ri(borde(0)) - 1, K);
 };
+// un personaje de espaldas: la cabeza toda de pelo (la piel de la cara se vuelve pelo, con mechones claros) y sin cara
+const ESP = new Map();
+const deEspaldas = (def, x, suelo, t, o = {}) => {
+  if (!ESP.has(def)) ESP.set(def, { ...def, sinCara: true, cab: def.cab.map((f, j) => { const a = f.indexOf('k'), b = f.lastIndexOf('k'); if (a < 0) return f;
+    return [...f].map((ch, i) => i > a && i < b && ch !== 'h' ? (j > 2 && (i + j) % 5 === 0 ? 'h' : 'H') : ch).join(''); }) });
+  return R.actor(ESP.get(def), x, suelo, t, { dir: 1, ...o });
+};
 const p9 = (t) => {
   const r0 = T.lago(R, t, { ...OV, rayo: [TL.VOLCANO, TL.P9 + 0.7] });
   // FUERA (se ve por el cristal, con el vaho): Atom llega con su paraguas; en «knows» la ráfaga se lo da la vuelta
@@ -740,11 +761,23 @@ const p9 = (t) => {
     paraguas(ra.mano[0], ra.mano[1] + 1, vu, t);
     if (sopla) for (let k = 0; k < 5; k++) { const u = ((t - TL.KNOWS) * 2 + k / 5) % 1; R.linea(ri(ax + 40 - u * 60), 96 + k * 6, ri(ax + 30 - u * 60), 96 + k * 6, hex('#c8d4e0')); }
   }, 0.28, muntin);
-  // DENTRO: Mary con William y Claire, de lado, mirando fuera; en el relámpago se sobresaltan; Claire se ríe del paraguas
-  const susto = t > TL.VOLCANO && t < TL.VOLCANO + 0.8;
-  const rm = R.actor(MS.maryMS, 96, 166, t, { dir: 1, sostiene: true, sorpresa: susto, triste: !susto });
-  bebe(rm.mano[0], rm.mano[1], t);
-  R.actor(MS.claireMS, 204, 166, t, { dir: -1, sorpresa: susto || (t > TL.KNOWS && t < TL.KNOWS + 0.5), sonrisa: t > TL.KNOWS + 0.5 && t < TL.VOLCANO, dedo: t > TL.KNOWS + 0.3 && t < TL.KNOWS + 1.4 });
+  // DENTRO: Mary (con William) y Claire van a la ventana y, de espaldas, miran el cielo que no se aclara: Mary acuna al
+  // niño (que asoma por su hombro) y Claire apoya la mano en el cristal; tras «knows» Claire se vuelve de perfil y se ríe del
+  // paraguas de Atom; en el relámpago de «volcano» las dos se apartan de la ventana y se vuelven, sobresaltadas
+  const susto = t > TL.VOLCANO, va = ease(tramo(t, TL.P9 + 0.05, TL.P9 + 1.0)), aparta = ease(tramo(t, TL.VOLCANO, TL.VOLCANO + 0.5));
+  const mx = ri(lerp(86, 104, va) - aparta * 10), cx9 = ri(lerp(234, 204, va) + aparta * 10), anda = va > 0 && va < 1;
+  if (!anda && !susto) {   // MARY de espaldas, meciéndose: el niño asoma por su hombro y la mira a ella y a la lluvia
+    const mece = ri(Math.sin(t * 2.4) * 1);
+    deEspaldas(MS.maryMS, mx + mece, 166, t);
+    // William por encima del hombro derecho: la mantilla sobre el hombro, la cofia y la carita que mira a la sala
+    const bx = mx + mece + 13, by = 151 - (Math.sin(t * 2.4 + 1) > 0.3 ? 1 : 0), L = hex('#f4efe2'), LS = hex('#c8c0ae'), PI = hex('#f6c8a0');
+    R.rect(bx - 3, by + 3, bx + 4, by + 7, K); R.rect(bx - 2, by + 4, bx + 3, by + 6, L); R.linea(bx - 2, by + 6, bx + 3, by + 6, LS);
+    R.rect(bx - 1, by - 1, bx + 4, by + 4, K); R.rect(bx, by, bx + 3, by + 3, PI); R.rect(bx, by - 1, bx + 3, by - 1, L); R.pset(bx - 1, by, L); R.pset(bx + 4, by, L);
+    R.pset(bx + 1, by + 1, (t * 0.9) % 2.4 < 0.12 ? PI : K); R.pset(bx + 3, by + 1, (t * 0.9) % 2.4 < 0.12 ? PI : K); R.pset(bx + 2, by + 3, hex('#d88a7a'));
+  } else { const rm = R.actor(MS.maryMS, mx, 166, t, { dir: susto ? -1 : 1, anda: anda || (aparta > 0 && aparta < 1), sostiene: true, sorpresa: susto && t < TL.VOLCANO + 1.2, triste: !susto }); bebe(rm.mano[0], rm.mano[1], t); }
+  const rie = t > TL.KNOWS + 0.6 && t < TL.VOLCANO;
+  if (!anda && !susto && !rie) deEspaldas(MS.claireMS, cx9, 166, t, { dedo: t > TL.P9 + 1.2 });   // la mano en el cristal
+  else R.actor(MS.claireMS, cx9, 166, t, { dir: susto ? 1 : -1, anda: anda || (aparta > 0 && aparta < 1), sorpresa: susto && t < TL.VOLCANO + 1.2, sonrisa: rie && t > TL.KNOWS + 0.9, habla: rie && Math.sin(t * 9) > 0, dedo: rie && t < TL.KNOWS + 1.8 });
   T.lagoDelante(R, t, OV);
 };
 
