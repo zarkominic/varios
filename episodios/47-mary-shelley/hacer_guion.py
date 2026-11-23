@@ -105,7 +105,10 @@ PREVIO = {
 # Desde el 37, en español los nombres extranjeros van TAL CUAL (regla del 16/11/2026).
 PRONUNCIA = {
     'en': [],
-    'es': [],
+    # validadas con ZONOS3 y Whisper el 23/11/2026 (frase «Hoy te hablo de …»): tal cual salía «Percy by Shelly»;
+    # escrito así se oye la «bish». Los demás (Mary Shelley, Wollstonecraft, Godwin, St Pancras, Byron, Diodati, Claire,
+    # Galvani, Aldini, Frankenstein, Edward Williams, Pennebaker) se oyen mejor tal cual que reescritos.
+    'es': [('Percy Bysshe Shelley', 'Percy Bish Shelley')],
 }
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
 # Desde la v5 van solo en el campo `pausas` de cada escena de escenas.json (los números de aquí eran los de la v4
