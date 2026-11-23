@@ -17,8 +17,9 @@
 //    de estación;
 // 3. («Between journeys») la mudanza (fondo local): baúles; la ventana pasa por el lago, los Alpes, el Canal, Bath y Marlow;
 //    Percy entra con un cajón; en «novel» Mary alza el manuscrito atado con cinta roja y él aplaude;
-// 4. («And here's») dentro de la cabaña (cabana/dentro): el anciano toca, Agatha hila, Felix enseña a Safie con el libro;
-//    en «changed» el ojo amarillo en la grieta;
+// 4. («And here's») dentro de la cabaña (cabana/dentro): Felix coge el libro de la mesa y se lo lleva a Safie, que lo abre
+//    en «nobody»; él señala y ella repite; la rueca de Agatha gira; el anciano toca; en «changed» el ojo en la grieta: la
+//    llama de la vela se tumba, la rueda se para, el anciano deja de tocar, un ratón huye bajo la mesa y Felix se vuelve;
 // 5. («In the book») la cabaña por fuera (cabana/general): la criatura llega y se pega a la grieta; el cuervo grazna en
 //    «grunt» y ella se sobresalta; en «learns to speak» mueve los labios con las voces; Agatha sale a la ropa;
 // 6. («hiding») dentro del cobertizo (fondo local): la criatura entra y escucha por la grieta encendida; sonríe en «family»;
@@ -370,23 +371,53 @@ const p3 = (t) => {
     for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2 + t * 2, rr = 10 + ri(Math.sin(t * 6 + k) * 2); if ((k + Math.floor(t * 6)) % 2) { const sx = ri(hx - 1 + Math.cos(a) * rr), sy = ri(y - 4 + Math.sin(a) * rr); R.pset(sx, sy, hex('#fff4b0')); R.pset(sx + 1, sy, hex('#ffe070')); R.pset(sx, sy + 1, hex('#ffe070')); } } }
 };
 
-// ═══ 4 · dentro de la cabaña, de noche: la familia; Felix enseña a Safie con el libro; en «changed» el ojo en la grieta ═══
+// ═══ 4 · dentro de la cabaña, de noche: Felix coge el libro de la mesa y se lo lleva a Safie, que lo abre; él señala las
+// palabras y ella las repite; Agatha hila (la rueda gira); el anciano toca; en «changed» el ojo en la grieta: la corriente
+// tumba la llama de la vela, la rueda se para, un ratón huye de la grieta a esconderse bajo la mesa y Safie y Felix miran ═══
+// el ratón que corre por el suelo (local: 7 × 4 px, con su cola)
+const raton = (x, y, t, dir, corre) => { x = ri(x); y = ri(y); const p = corre ? (Math.floor(t * 16) & 1) : 0;
+  R.rect(x - 3, y - 3, x + 2, y - 1, hex('#4a3e3a')); R.rect(x - 2, y - 4, x + 1, y - 4, hex('#6a5a52')); R.pset(x + 3 * dir, y - 3, hex('#4a3e3a')); R.pset(x + 4 * dir, y - 2, hex('#e8a0a0'));
+  R.pset(x + 2 * dir, y - 5, hex('#c89090')); R.pset(x + 2 * dir, y - 3, K); R.linea(x - 3 * dir, y - 2, x - 7 * dir, y - 3 - p, hex('#8a6a62'));
+  R.pset(x - 2 + p, y, K); R.pset(x + 1 - p, y, K); };
 const p4 = (t) => {
   const o = { encuadre: 'cabana', camara: 'dentro', ojo: t > TC.CHANGED };
   T.libro(R, t, o);
   if (o.ojo) { const u = tramo(t, TC.CHANGED, TC.CHANGED + 0.4); halo(21, 104, ri(6 + u * 6), hex('#ffe060'), 0.55 * u); }
-  // el anciano toca la guitarra junto al hogar (notas que suben)
-  const ra = R.actor(MS.ancianoMS, 262, 158, t, { dir: -1, sostiene: true, sonrisa: true });
-  { const [hx, hy] = ra.mano, m = Math.sin(t * 10) > 0 ? 1 : 0; R.disco(hx + 2, hy + 3, 4, K); R.disco(hx + 2, hy + 3, 3, hex('#b8783a')); R.disco(hx + 2, hy + 3, 1, K); R.linea(hx - 1, hy, hx - 12, hy - 7, K); R.linea(hx - 1, hy - 1, hx - 11, hy - 7, hex('#7a4a22')); R.rect(hx - 14, hy - 9, hx - 11, hy - 7, K); R.pset(hx + 2, hy + 3 + m, hex('#e8e0c8'));
-    for (let k = 0; k < 3; k++) { const u = (t * 0.45 + k / 3) % 1; nota(hx - 6 + Math.sin(u * 6 + k) * 5, hy - 10 - u * 26, mez(hex('#ffe8a0'), hex('#c89a5a'), u)); } }
-  // Agatha hila en la rueca
-  R.actor(MS.agathaMS, 186, 156, t, { dir: -1, sostiene: [178, 134], sonrisa: Math.sin(t * 0.7) > 0 });
-  // Safie con el libro abierto; Felix señala las palabras; ella las repite
-  const abre = t > TC.P4 + 0.35;
-  const rs = R.actor(MS.safieMS, 132, 158, t, { dir: -1, sostiene: true, habla: t > TC.NOBODY + 0.4 && t < TC.CHANGED && Math.sin(t * 8) > -0.2, sonrisa: t > TC.CHANGED, sorpresa: t > TC.CHANGED + 0.6 && t < TC.CHANGED + 1.1 });
-  { const [hx, hy] = rs.mano; if (abre) { R.rect(hx - 9, hy - 3, hx + 5, hy + 2, K); R.rect(hx - 8, hy - 2, hx - 2, hy + 1, hex('#f4ecd8')); R.rect(hx - 1, hy - 2, hx + 4, hy + 1, hex('#ece2c8')); R.rect(hx - 7, hy - 1, hx - 3, hy - 1, hex('#5a5060')); R.rect(hx, hy - 1, hx + 3, hy - 1, hex('#5a5060')); R.rect(hx, hy + 1, hx + 3, hy + 1, hex('#5a5060')); }
+  // la rueca de Agatha GIRA: tapamos los radios fijos del decorado con la pared de al lado (x − 30, misma luz de fuego) y
+  // pintamos la rueda que gira; en «changed» se frena y se para
+  const frena = tramo(t, TC.CHANGED + 0.1, TC.CHANGED + 0.9), ang = (t - TC.P4) * 5.5 - frena * frena * 1.2;
+  { const cx = 168, cy = 128, r = 13;
+    for (let y = cy - r + 2; y <= cy + r - 2; y++) for (let x = cx - r + 2; x <= cx + r - 2; x++) if ((x - cx) ** 2 + (y - cy) ** 2 <= (r - 2) ** 2) R.pset(x, y, R.pget(x - 30, y));
+    for (let k = 0; k < 8; k++) { const a = ang * (1 - frena * 0.6) + k * 0.785; R.linea(cx, cy, ri(cx + Math.cos(a) * (r - 2)), ri(cy + Math.sin(a) * (r - 2)), hex('#8a5a32')); R.linea(cx, cy, ri(cx + Math.cos(a + 0.12) * (r - 3)), ri(cy + Math.sin(a + 0.12) * (r - 3)), hex('#5a3a1e')); }
+    const ab = ang * (1 - frena * 0.6); R.pset(ri(cx + Math.cos(ab) * r), ri(cy + Math.sin(ab) * r), hex('#e8c080')); R.pset(ri(cx + Math.cos(ab + 3.14) * r), ri(cy + Math.sin(ab + 3.14) * r), hex('#e8c080'));
+    R.disco(cx, cy, 1.6, hex('#3a2412')); R.pset(cx, cy, hex('#c8904a'));
+    // el hilo que corre de la lana a la rueda, temblando mientras gira
+    if (frena < 1) for (let i = 0; i <= 10; i++) R.pset(ri(lerp(181, cx + 2, i / 10)), ri(lerp(124, cy - r + 1, i / 10) + Math.sin(t * 30 + i) * 0.5 * (1 - frena)), hex('#f0e8d8')); }
+  // una vela en la mesa (entre los libros y el pan): la llama baila y en «changed» la corriente de la grieta la tumba hacia la derecha
+  { const vx = 75, vy = 114, sopla = tramo(t, TC.CHANGED - 0.05, TC.CHANGED + 0.3) * (1 - tramo(t, TC.CHANGED + 1.0, TC.CHANGED + 1.6)), osc = Math.sin(t * 9) * 0.6;
+    R.rect(vx - 1, vy, vx + 1, vy + 8, hex('#e8dcc0')); R.pset(vx - 1, vy, hex('#fff4e0')); R.pset(vx + 1, vy + 2, hex('#c8b898')); R.rect(vx - 2, vy + 8, vx + 2, vy + 9, hex('#8a6a3a')); R.pset(vx - 2, vy + 8, hex('#c8a060'));
+    const lx = vx + ri(osc + sopla * 4), ly = vy - 3 + ri(sopla * 1.5); halo(lx, ly, 10 - ri(sopla * 4), hex('#ffd070'), 0.35 - sopla * 0.15);
+    R.linea(vx, vy - 1, lx, ly, hex('#ffb040')); R.pset(lx, ly - 1, hex('#fff4c0')); R.pset(lx, ly, hex('#ffe080')); if (sopla > 0.3) R.pset(lx + 1, ly, hex('#ff9030')); }
+  // el anciano toca la guitarra junto al hogar (notas que suben; en «changed» deja de tocar un momento)
+  const para = t > TC.CHANGED + 0.2 && t < TC.CHANGED + 1.1;
+  const ra = R.actor(MS.ancianoMS, 262, 158, t, { dir: -1, sostiene: true, sonrisa: !para });
+  { const [hx, hy] = ra.mano, m = !para && Math.sin(t * 10) > 0 ? 1 : 0; R.disco(hx + 2, hy + 3, 4, K); R.disco(hx + 2, hy + 3, 3, hex('#b8783a')); R.disco(hx + 2, hy + 3, 1, K); R.linea(hx - 1, hy, hx - 12, hy - 7, K); R.linea(hx - 1, hy - 1, hx - 11, hy - 7, hex('#7a4a22')); R.rect(hx - 14, hy - 9, hx - 11, hy - 7, K); R.pset(hx + 2, hy + 3 + m, hex('#e8e0c8'));
+    for (let k = 0; k < 3; k++) { const u = (t * 0.45 + k / 3) % 1; if (para && u < 0.5) continue; nota(hx - 6 + Math.sin(u * 6 + k) * 5, hy - 10 - u * 26, mez(hex('#ffe8a0'), hex('#c89a5a'), u)); } }
+  // Agatha hila en la rueca (la mano en la lana; sonríe mientras la rueda gira)
+  R.actor(MS.agathaMS, 186, 156, t, { dir: -1, sostiene: [178, 134], sonrisa: frena < 0.5 && Math.sin(t * 0.9) > -0.3, habla: t > TC.MOVIES - 0.6 && t < TC.CHANGED && Math.sin(t * 7) > 0.3 });
+  // Felix coge el libro de la mesa (x 74), cruza hasta Safie (x 108) y se lo da; ella lo abre en «nobody»
+  const lleva = tramo(t, TC.P4 + 0.15, TC.P4 + 1.15), da = t > TC.P4 + 1.25, abre = t > TC.P4 + 1.45;
+  const fx = ri(lerp(74, 108, ease(lleva))), mira = t > TC.CHANGED + 0.5;
+  const rf = R.actor(MS.felixMS, fx, 158, t, { dir: mira ? -1 : 1, anda: lleva > 0 && lleva < 1, sostiene: !da, dedo: abre && t > TC.NOBODY - 0.2 && t < TC.CHANGED + 0.4 && !mira,
+    habla: abre && t < TC.MOVIES + 0.4 && Math.sin(t * 9) > 0, sorpresa: mira && t < TC.CHANGED + 1.0 });
+  if (!da) { const [hx, hy] = rf.mano; R.rect(hx - 3, hy - 3, hx + 4, hy + 2, K); R.rect(hx - 2, hy - 2, hx + 3, hy + 1, hex('#6a2a2a')); R.rect(hx - 2, hy - 2, hx - 2, hy + 1, hex('#8a4a3a')); }
+  // Safie espera (respira, mira a Felix), recibe el libro, lo abre y repite las palabras; en «changed» se sorprende
+  const rs = R.actor(MS.safieMS, 132, 158, t, { dir: -1, sostiene: da, sonrisa: (t > TC.P4 + 0.6 && t < TC.P4 + 1.6) || t > TC.CHANGED + 1.2,
+    habla: abre && t > TC.NOBODY + 0.4 && t < TC.CHANGED && Math.sin(t * 8) > -0.2, sorpresa: t > TC.CHANGED + 0.4 && t < TC.CHANGED + 1.2 });
+  if (da) { const [hx, hy] = rs.mano; if (abre) { R.rect(hx - 9, hy - 3, hx + 5, hy + 2, K); R.rect(hx - 8, hy - 2, hx - 2, hy + 1, hex('#f4ecd8')); R.rect(hx - 1, hy - 2, hx + 4, hy + 1, hex('#ece2c8')); R.rect(hx - 7, hy - 1, hx - 3, hy - 1, hex('#5a5060')); R.rect(hx, hy - 1, hx + 3, hy - 1, hex('#5a5060')); R.rect(hx, hy + 1, hx + 3, hy + 1, hex('#5a5060')); }
     else { R.rect(hx - 6, hy - 3, hx + 2, hy + 2, K); R.rect(hx - 5, hy - 2, hx + 1, hy + 1, hex('#6a2a2a')); } }
-  R.actor(MS.felixMS, 108, 158, t, { dir: 1, dedo: t > TC.NOBODY - 0.2 && t < TC.CHANGED + 0.6, habla: t > TC.P4 + 0.6 && t < TC.NOBODY + 0.5 && Math.sin(t * 9) > 0, sonrisa: t > TC.CHANGED + 0.6 });
+  // en «changed» un ratón sale disparado de debajo de la grieta y se esconde bajo la mesa
+  { const u = tramo(t, TC.CHANGED + 0.05, TC.CHANGED + 0.8); if (u > 0 && u < 1) raton(lerp(26, 70, u), 152, t, 1, true); }
   T.libroDelante(R, t, o);
 };
 
@@ -813,7 +844,7 @@ const p13 = (t) => {
 const efectos = [[0.6, 'pasos'], [TC.ANNOUNCES, 'pop'], [TC.STORY + 0.05, 'papel'],
   [TC.ENCOURAGES + 0.05, 'golpecito'], [TC.LONGER, 'papel'], [TC.ALMOST, 'papel'],
   [TC.JOURNEYS, 'carro'], [TC.NOVEL, 'brillo'],
-  [TC.P4 + 0.35, 'papel'], [TC.CHANGED, 'tic'],
+  [TC.P4 + 0.2, 'pasos'], [TC.P4 + 1.45, 'papel'], [TC.CHANGED, 'tic'],
   [TC.P5 + 0.2, 'pasos'], [TC.GRUNT, 'pajaros'],
   [TC.P6 + 0.15, 'viento'], [TC.CRACK, 'brillo'],
   [TC.READ, 'papel'], [TC.PEOPLE, 'pajaros'],

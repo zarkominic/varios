@@ -22,7 +22,9 @@
 //    (corta en «Picture»)
 // 6. el cementerio de St Pancras: la niña llega con su libro y se queda junto a la lápida; la campana en «Pancras»;
 //    (corta en «grave»)
-// 7. inserto: el libro sobre sus rodillas; pasa la página en «knees»; cae una hoja;  (corta en «tracing»)
+// 7. inserto: posa el libro en el regazo en «book» y lo aliza; en «knees» pasa la página entera (aparece el barquito);
+//    una hoja de roble cae girando y se posa en «said»; la mano la sujeta; la luz entre las ramas se mueve, el viento
+//    peina la hierba y lleva vilanos, una mariquita sube por el canto;  (corta en «tracing»)
 // 8. la lápida de cerca: el dedo sigue el renglón, que se dora en «name». GAG: Atom, cabeza abajo, intenta leerla al
 //    revés y da la vuelta;  (corta en «which was also»)
 // 9. entre las lápidas: la niña lee; un petirrojo salta hasta ella; en «least alone» sale el sol;  (corta en «At home»)
@@ -614,7 +616,7 @@ const buhardilla = (t, ox, luzC) => {
 
 // ── F · EL LIBRO SOBRE LAS RODILLAS (inserto): la falda de muselina, la hierba, la sombra de la lápida ──
 const FALDA = pal(['#2a3256', '#36406a', '#46527e', '#5a6892', '#7080a8', '#8a98bc']);
-const rodillas = (t, hoja) => {
+const rodillas = (t, hoja, dy = 0) => {
   fijo('rodillas', () => {
     // la hierba de alrededor, con margaritas y tréboles, a la sombra de la lápida arriba a la izquierda
     cesped(0, 0, 319, 179, 0, 7, { luz: (x, y) => -Math.max(0, (110 - x - y * 0.9) / 80) * 1.8 });
@@ -633,20 +635,47 @@ const rodillas = (t, hoja) => {
       R.pset(x, y, bo < 1 ? FALDA[0] : c); });
     for (let x = 30; x < 290; x++) sombrea(x, ri(arriba(x)) - 1, 0.3);
   });
-  // el libro abierto: dos páginas con un grabado (un pájaro en una rama) y renglones de rayitas
-  const bx0 = 76, bx1 = 244, by0 = 64, by1 = 156, mid = 160;
+  // el libro abierto (sube y baja 1 px con la respiración: dy): antes de pasar la página, a la izquierda el grabado del
+  // pájaro en la rama y a la derecha el texto con la capitular roja; después, a la izquierda el texto del dorso y a la
+  // derecha el grabado nuevo (el barquito bajo la luna)
+  const bx0 = 76, bx1 = 244, by0 = 64 + dy, by1 = 156 + dy, mid = 160, ink = H('#3a2e22'), PAP = pal(['#a89878', '#c8b896', '#e0d4b4', '#f0e8d0']);
   for (let y = by0 + 2; y <= by1 + 3; y++) for (let x = bx0 + 2; x <= bx1 + 4; x++) sombrea(x + 3, y + 3, 0.22);
   R.rect(bx0 - 3, by0 - 2, bx1 + 3, by1 + 3, H('#5a1c1c')); for (let x = bx0 - 3; x <= bx1 + 3; x++) { ps(x, by1 + 3, H('#3a0e0e')); ps(x, by0 - 2, H('#7a2a2a')); } for (let y = by0; y <= by1; y += 3) { ps(bx0 - 2, y, H('#e0d4b4')); ps(bx1 + 2, y, H('#e0d4b4')); }
-  caja(bx0, by0, bx1, by1, (x, y) => { const d = Math.abs(x - mid); R.pset(x, y, rmp(pal(['#a89878', '#c8b896', '#e0d4b4', '#f0e8d0']), 3.2 - Math.max(0, 1 - d / 12) * 1.8 + (ns(x * 0.2, y * 0.2) - 0.5) * 0.4, x, y)); });
+  caja(bx0, by0, bx1, by1, (x, y) => { const d = Math.abs(x - mid); R.pset(x, y, rmp(PAP, 3.2 - Math.max(0, 1 - d / 12) * 1.8 + (ns(x * 0.2, y * 0.2) - 0.5) * 0.4, x, y)); });
   for (let y = by0; y <= by1; y++) ps(mid, y, H('#8a7a5a'));
-  { const ox = 86, oy = 72, ink = H('#3a2e22'); R.linea(ox + 4, oy + 50, ox + 62, oy + 30, ink); R.linea(ox + 4, oy + 51, ox + 62, oy + 31, ink); R.linea(ox + 36, oy + 40, ox + 48, oy + 22, ink); for (let i = 0; i < 7; i++) { R.disco(ox + 12 + i * 7, oy + 46 - i * 2.5 + (i % 2) * 5, 2.4, ink); }
+  const renglones = (xa, xb, ya, k) => { for (let y = ya; y < by1 - 4; y += 5) for (let x = xa; x < xb; x++) if (h2(x >> 1, y - dy, k) > 0.35) ps(x, y, H('#5a4e40')); };
+  const pajaro = () => { const ox = 86, oy = 72 + dy; R.linea(ox + 4, oy + 50, ox + 62, oy + 30, ink); R.linea(ox + 4, oy + 51, ox + 62, oy + 31, ink); R.linea(ox + 36, oy + 40, ox + 48, oy + 22, ink); for (let i = 0; i < 7; i++) { R.disco(ox + 12 + i * 7, oy + 46 - i * 2.5 + (i % 2) * 5, 2.4, ink); }
     R.disco(ox + 30, oy + 30, 7, ink); R.disco(ox + 30, oy + 30, 6, H('#e0d4b4')); R.disco(ox + 37, oy + 24, 4, ink); R.disco(ox + 37, oy + 24, 3, H('#e0d4b4')); ps(ox + 38, oy + 23, ink); R.linea(ox + 41, oy + 24, ox + 44, oy + 25, ink); R.linea(ox + 22, oy + 33, ox + 14, oy + 38, ink); R.linea(ox + 22, oy + 32, ox + 14, oy + 37, ink); for (let i = 0; i < 4; i++) ps(ox + 26 + i * 2, oy + 29 + (i % 2), ink);
-    for (let y = oy + 60; y < by1 - 4; y += 5) for (let x = ox + 2; x < mid - 6; x++) if (h2(x >> 1, y, 3) > 0.35) ps(x, y, H('#5a4e40')); }
-  { R.rect(168, 72, 186, 90, H('#8a2a2a')); R.rect(170, 74, 184, 88, H('#e0d4b4')); R.disco(177, 81, 4, H('#8a2a2a')); ps(177, 81, ORO[3]); ps(176, 80, ORO[4]);
-    for (let y = 74; y < by1 - 4; y += 5) for (let x = y < 92 ? 190 : 168; x < bx1 - 6; x++) if (h2(x >> 1, y, 4) > 0.3) ps(x, y, H('#5a4e40')); }
-  // la página que pasa (hoja 0–1): se levanta de la derecha, cruza y cae a la izquierda
-  if (hoja > 0 && hoja < 1) { const a = hoja * Math.PI, ex = mid + Math.cos(a) * (bx1 - mid), lift = Math.sin(a) * 18;
-    R.poligono([[mid, by0], [ex, by0 - lift], [ex, by1 - lift * 0.6], [mid, by1]], (x, y) => rmp(pal(['#a89878', '#d8ccac', '#f4ecd8']), 1.4 + Math.cos(a) * 0.6 + (x === ri(ex) ? -1 : 0), x, y)); R.linea(mid, by0, ri(ex), ri(by0 - lift), H('#8a7a5a')); }
+    renglones(ox + 2, mid - 6, oy + 60, 3); };
+  const textoDer = () => { R.rect(168, 72 + dy, 186, 90 + dy, H('#8a2a2a')); R.rect(170, 74 + dy, 184, 88 + dy, H('#e0d4b4')); R.disco(177, 81 + dy, 4, H('#8a2a2a')); ps(177, 81 + dy, ORO[3]); ps(176, 80 + dy, ORO[4]);
+    for (let y = 74 + dy; y < by1 - 4; y += 5) for (let x = y < 92 + dy ? 190 : 168; x < bx1 - 6; x++) if (h2(x >> 1, y - dy, 4) > 0.3) ps(x, y, H('#5a4e40')); };
+  const textoIzq = () => { R.rect(84, 72 + dy, 98, 86 + dy, H('#2a4a6a')); R.rect(86, 74 + dy, 96, 84 + dy, H('#e0d4b4')); R.disco(91, 79 + dy, 3, H('#2a4a6a')); ps(91, 79 + dy, ORO[3]);
+    for (let y = 74 + dy; y < by1 - 4; y += 5) for (let x = y < 88 + dy ? 102 : 84; x < mid - 6; x++) if (h2(x >> 1, y - dy, 6) > 0.3) ps(x, y, H('#5a4e40')); };
+  const barco = () => { const ox = 172, oy = 70 + dy;
+    // la luna con su halo de rayitas, las olas, el casco, el mástil y las velas
+    R.disco(ox + 54, oy + 10, 5, ink); R.disco(ox + 54, oy + 10, 4, H('#e8dcb8')); R.disco(ox + 56, oy + 9, 4, H('#e0d4b4')); for (let k = 0; k < 8; k++) { const a = k * 0.785; ps(ox + 54 + Math.cos(a) * 8, oy + 10 + Math.sin(a) * 8, H('#7a6a50')); }
+    for (let w = 0; w < 4; w++) for (let x = ox + 2; x < ox + 66; x++) if (((x + w * 3) % 8) < 5) ps(x, oy + 40 + w * 4 + ri(Math.sin((x + w * 5) * 0.5)), w < 2 ? ink : H('#6a5a44'));
+    R.poligono([[ox + 16, oy + 36], [ox + 50, oy + 36], [ox + 44, oy + 42], [ox + 22, oy + 42]], ink); R.linea(ox + 33, oy + 8, ox + 33, oy + 36, ink);
+    R.poligono([[ox + 34, oy + 10], [ox + 48, oy + 32], [ox + 34, oy + 32]], ink); R.poligono([[ox + 35, oy + 13], [ox + 45, oy + 31], [ox + 35, oy + 31]], H('#e8dcc0'));
+    R.poligono([[ox + 32, oy + 14], [ox + 22, oy + 32], [ox + 32, oy + 32]], ink); R.poligono([[ox + 31, oy + 17], [ox + 24, oy + 31], [ox + 31, oy + 31]], H('#e8dcc0')); ps(ox + 33, oy + 7, H('#b82a2a')); ps(ox + 34, oy + 7, H('#b82a2a'));
+    renglones(ox - 4, bx1 - 6, oy + 54, 8); };
+  // la página que pasa (hoja 0–1): debajo, la página nueva ya a la derecha; la que gira se levanta de la derecha, cruza
+  // con su dorso y cae a la izquierda
+  if (hoja <= 0) { pajaro(); textoDer(); }
+  else if (hoja >= 1) { textoIzq(); barco(); }
+  else { pajaro(); barco();
+    const a = hoja * Math.PI, ex = mid + Math.cos(a) * (bx1 - mid), lift = Math.sin(a) * 34, frente = ex > mid;
+    // la sombra que la hoja levantada echa sobre la página de debajo
+    const sx = frente ? 1 : -1; for (let y = by0; y <= by1; y++) for (let k = 0; k < 14; k++) { const x = ri(ex) + sx * k + sx; if (x > bx0 && x < bx1 && x !== mid) sombrea(x, y + 2, 0.45 * (1 - k / 14) * Math.sin(a)); }
+    const comba = Math.sin(a) * 6, ya = (x) => { const u = (x - mid) / (ex - mid || 1); return lerp(by0, by0 - lift, u) - Math.sin(u * Math.PI) * comba; }, yb = (x) => { const u = (x - mid) / (ex - mid || 1); return lerp(by1, by1 - lift * 0.6, u) - Math.sin(u * Math.PI) * comba; };
+    const pts = []; for (let k = 0; k <= 12; k++) { const x = lerp(mid, ex, k / 12); pts.push([x, ya(x)]); } for (let k = 12; k >= 0; k--) { const x = lerp(mid, ex, k / 12); pts.push([x, yb(x)]); }
+    R.poligono(pts, (x, y) => { const u = Math.abs((x - mid) / (ex - mid || 1)), v = (y - ya(x)) / Math.max(1, yb(x) - ya(x));
+      // los renglones de la hoja que gira, comprimidos con la perspectiva; más oscura hacia el lomo y en el borde
+      const py = ri(v * (by1 - by0)), px = ri(u * (bx1 - mid)), linea = py > 8 && py < by1 - by0 - 4 && py % 5 === 0 && px > 4 && px < bx1 - mid - 6 && h2(px >> 1, py, frente ? 4 : 6) > 0.3;
+      if (linea && Math.abs(Math.cos(a)) > 0.25) return H('#6a5e4c');
+      return rmp(PAP, (frente ? 3.0 : 2.4) - (1 - u) * 1.3 + (u > 0.6 && u < 0.85 ? 0.5 : 0) + (u > 0.96 ? -1.2 : 0), x, y); });
+    for (let k = 0; k < 12; k++) { const [x0, y0] = pts[k], [x1, y1] = pts[k + 1]; R.linea(ri(x0), ri(y0), ri(x1), ri(y1), H('#7a6a4a')); const [x2, y2] = pts[25 - k], [x3, y3] = pts[24 - k]; R.linea(ri(x2), ri(y2), ri(x3), ri(y3), H('#8a7a5a')); }
+    R.linea(ri(ex), ri(ya(ex)), ri(ex), ri(yb(ex)), H('#6a5a40')); }
   return { bx0, bx1, by0, by1, mid };
 };
 
@@ -964,20 +993,51 @@ const p6 = (t) => {
   T.londresDelante(R, t, oo);
 };
 
-// ── P7 · El libro sobre las rodillas (inserto): las manos de la niña sujetan el libro; en «knees» pasa la página; una
-// hoja de otoño cae y se posa en la página; una mariquita sube por el canto ──
+// ── P7 · El libro sobre las rodillas (inserto): la niña posa el libro en el regazo en «book» y lo aliza con la mano;
+// en «knees» levanta la esquina y pasa la página entera (la hoja cruza con su sombra y aparece el grabado del barquito);
+// una hoja de roble cae dando vueltas, con su sombra que se le acerca, y se posa en la página en «said»; la mano la sujeta.
+// Vida: la luz que entra entre las ramas se mueve sobre todo el plano, el viento peina la hierba y lleva vilanos, una
+// mariquita sube por el canto ──
+// la hoja de roble (local): 13 × 8 px con sus lóbulos, el nervio y el rabito; gira sobre su eje (ancho = |cos|)
+const hojaRoble = (cx, cy, rot, ancho) => { const ca = Math.cos(rot), sa = Math.sin(rot), w = Math.max(0.2, Math.abs(ancho)), env = ancho < 0;
+  for (let i = -10; i <= 10; i++) { const half = (5.2 * Math.sqrt(Math.max(0, 1 - (i / 10.6) ** 2)) + ((i + 12) % 4 === 0 ? 1.5 : 0)) * w;
+    for (let j = -Math.ceil(half); j <= Math.ceil(half); j++) { if (Math.abs(j) > half) continue; const x = cx + i * ca - j * sa, y = cy + i * sa + j * ca;
+      ps(x, y, j === 0 && w > 0.4 ? H('#7a3a12') : env ? (j < 0 ? H('#b86a24') : H('#9a5418')) : Math.abs(j) > half - 1 ? H('#a85a1c') : j < 0 ? H('#f0b450') : H('#d88a30')); } }
+  for (let k = 11; k <= 14; k++) ps(cx + k * ca, cy + k * sa, H('#6a3410')); for (const j of [-3, 3]) for (let i = -6; i <= 6; i += 4) ps(cx + i * ca - j * sa * w * 0.5 + 1, cy + i * sa + j * ca * w * 0.5, H('#9a4a18')); };
 const p7 = (t) => {
-  const hoja = tramo(t, TG.KNEES - 0.2, TG.KNEES + 0.5);
-  const { bx0, bx1, by0, by1, mid } = rodillas(t, hoja);
-  // la hoja que cae y se posa en la página de la izquierda
-  const f = tramo(t, TG.KNEES + 0.6, TG.SAID + 0.2); if (f > 0) { const hx = lerp(40, 128, f) + Math.sin(f * 9) * 10 * (1 - f), hy = lerp(-6, 118, ease(f)); for (let j = -3; j <= 3; j++) for (let i = -4; i <= 4; i++) { if (Math.abs(i) / 4.5 + Math.abs(j) / 3.5 > 1) continue; ps(hx + i, hy + j, j === 0 ? H('#8a4418') : i < 0 ? H('#ecb050') : H('#d88a30')); } ps(hx + 5, hy + 1, H('#6a3410')); ps(hx + 6, hy + 2, H('#6a3410')); }
-  // la mariquita sube por el canto derecho del libro
-  const m = (t * 6) % 90; const my = by1 - m; if (my > by0) { R.disco(bx1 + 3, my, 1.6, H('#c82a2a')); ps(bx1 + 3, my - 2, K); ps(bx1 + 2, my, K); }
-  // las manos: la izquierda sujeta la esquina de abajo; la derecha levanta la esquina de la página en «knees» (la
-  // página sigue sola) y vuelve a sujetar
+  const posa = ease(tramo(t, TG.P7 - 0.2, TG.BOOK + 0.1)), dy = ri(-9 * (1 - posa) + Math.sin(t * 1.7) * 0.7);
+  const hoja = ease(tramo(t, TG.KNEES - 0.45, TG.KNEES + 1.15));
+  const { bx0, bx1, by0, by1, mid } = rodillas(t, hoja, dy);
+  // el viento peina la hierba que se ve alrededor de la falda (briznas que se doblan con las rachas)
+  const racha = 0.6 + Math.max(0, Math.sin(t * 0.9 - 1)) ** 2 * 2.2;
+  const arriba = (x) => 64 - 20 * Math.exp(-(((x - 100) / 46) ** 2)) - 20 * Math.exp(-(((x - 220) / 46) ** 2)), lado = (y) => 40 - (y - 50) * 0.16;
+  for (let i = 0; i < 170; i++) { const x = ri(h2(i, 11) * 319), y = ri(4 + h2(i, 12) * 175); if (tranquilo(x, y - 5) || (x < 72 && y < 26)) continue;
+    if (y > arriba(x) - 2 && x > lado(y) - 2 && x < 322 - lado(y)) continue; const hgt = 3 + ri(h2(i, 13) * 3), sw = Math.sin(t * 2.4 + x * 0.09 + i) * 0.8 + racha * (0.7 + h2(i, 14) * 0.6);
+    for (let k = 0; k <= hgt; k++) ps(x + sw * (k / hgt) ** 1.5, y - k, k === hgt ? HIERBA[6] : k > hgt / 2 ? HIERBA[5] : HIERBA[4]); }
+  // los vilanos que el viento lleva por la hierba de arriba
+  for (let k = 0; k < 4; k++) { const u = (t * 0.07 + k * 0.27) % 1, vx = -10 + u * 340, vy = 30 + k * 9 + Math.sin(t * 2 + k * 2) * 4; if (!tranquilo(ri(vx), ri(vy))) { ps(vx, vy, BLANCO); ps(vx - 1, vy, H('#d8d4c8')); ps(vx + 1, vy - 1, H('#d8d4c8')); ps(vx, vy - 1, H('#ffffff')); } }
+  // la mariquita sube por el canto derecho del libro (se para cuando pasa la hoja)
+  const m = (t * 6) % 90; const my = by1 - m; if (my > by0) { R.disco(bx1 + 3, my, 1.6, H('#c82a2a')); ps(bx1 + 3, my - 2, K); ps(bx1 + 2, my, K); ps(bx1 + 4, my + 1, K); }
+  // la hoja de roble: cae dando vueltas desde arriba a la derecha (de «knees» a «said»), con su sombra que se le junta, y
+  // se posa en la página del barquito; una racha la mueve un poco y la mano se acerca a guardarla
+  const f = tramo(t, TG.KNEES + 0.55, TG.SAID), lx0 = 212, ly0 = 128 + dy;
+  let lx = lx0, ly = ly0, rot = 0.5, an = 1;
+  if (f < 1) { lx = lerp(268, lx0, f) + Math.sin(f * 7) * 18 * (1 - f); ly = lerp(-10, ly0, f); rot = 0.5 + Math.sin(f * 9) * 0.9 * (1 - f); an = Math.cos(f * 13) * (1 - f) + f; }
+  else { const g = tramo(t, TG.SAID + 0.5, TG.SAID + 0.9); lx += ri(g * 3); rot = 0.5 - g * 0.25; }
+  if (f > 0) { const alt = 1 - f; for (let j = -5; j <= 5; j++) for (let i = -10; i <= 10; i++) if ((i / 10) ** 2 + (j / 5) ** 2 < 1) sombrea(lx + i + alt * 18, ly + j + alt * 26 + 2, 0.35 * (0.4 + 0.6 * f)); hojaRoble(lx, ly, rot, an); }
+  // las manos: la izquierda sujeta la esquina de abajo; la derecha alisa la página, levanta la esquina en «knees» y
+  // acompaña la hoja hasta el lomo, vuelve y, cuando se posa la hoja de roble, la sujeta con la palma
   T.brazo(R, bx0 - 22, 198, bx0 + 4, by1 + 2, MANGA_NINA, 1);
-  const lev = Math.sin(Math.PI * tramo(t, TG.KNEES - 0.5, TG.KNEES + 0.4)), hx = bx1 - 6 - lev * 14, hy = by1 + 2 - lev * 16;
+  const alisa = tramo(t, TG.BOOK + 0.1, TG.KNEES - 0.4), lev = tramo(t, TG.KNEES - 0.6, TG.KNEES - 0.35), acomp = hoja < 0.45 ? hoja / 0.45 : 1, vuelve = tramo(t, TG.KNEES + 0.25, TG.KNEES + 0.8), sujeta = ease(tramo(t, TG.SAID + 0.6, TG.SAID + 1.2));
+  let hx = bx1 - 6 - Math.sin(alisa * Math.PI) * 30, hy = by1 + 2 - Math.sin(alisa * Math.PI) * 18;
+  if (lev > 0 && vuelve < 1) { const a = acomp * 0.45 * Math.PI, ex = mid + Math.cos(a) * (bx1 - mid), lift = Math.sin(a) * 34 + Math.sin(a) * 6; const tx = lerp(bx1 - 6, ex - 4, acomp), ty = lerp(by1 + 2 - lev * 6, by1 - lift * 0.6 - 2, acomp); hx = lerp(hx, tx, ease(lev)); hy = lerp(hy, ty, ease(lev)); }
+  if (vuelve > 0) { const a = 0.45 * Math.PI, ex = mid + Math.cos(a) * (bx1 - mid); hx = lerp(ex - 4, bx1 - 6, ease(vuelve)); hy = lerp(by1 - Math.sin(a) * 40 * 0.6 - 2, by1 + 2, ease(vuelve)); }
+  if (sujeta > 0) { hx = lerp(hx, lx + 16, sujeta); hy = lerp(hy, ly + 12, sujeta); }
   T.brazo(R, bx1 + 26, 198, ri(hx), ri(hy), MANGA_NINA, -1);
+  // la luz que entra entre las ramas del árbol: manchas de sol y de sombra que se mecen sobre todo (una pasada)
+  const mx = Math.sin(t * 0.7) * 0.5 + t * 0.05, my2 = Math.cos(t * 0.5) * 0.3;
+  caja(0, 0, 319, 179, (x, y) => { if (tranquilo(x, y)) return; const n = ns(x * 0.028 + mx, y * 0.04 + my2);
+    if (n > 0.58) { if ((n - 0.58) * 6 > b4(x, y)) R.pset(x, y, mez(R.pget(x, y), H('#ffe8a0'), 0.22)); } else if (n < 0.34 && (0.34 - n) * 6 > b4(x, y) && (x < bx0 - 4 || x > bx1 + 4 || y < by0 - 4 || y > by1 + 4)) R.pset(x, y, mez(R.pget(x, y), H('#1a2418'), 0.14)); });
 };
 
 // ── P8 · La lápida de cerca: la mano de la niña sigue el renglón con el dedo (de «tracing» a «name»); el renglón se

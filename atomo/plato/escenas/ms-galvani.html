@@ -14,7 +14,7 @@
 // 1. el cuarto congelado (p12): Atom al doble entra, niega en «poets' fantasy» («X»), «1780» en «1780s»;
 // 2. el salón congelado (p10): Atom saca la mesa de Galvani (T.pausa 'galvani'), chispa en «spark»; gag: en «legs
 //    twitch» toca el cable, la rana de juguete salta y Atom salta también;
-// 3. el vestíbulo congelado (p9): la tarjeta del mapa: chinchetas en Bolonia («Aldini»), París y Londres, y el coche de
+// 3. el vestíbulo congelado (p9): Atom llega a su sitio y la tarjeta del mapa sube desde abajo: chinchetas en Bolonia («Aldini»), París y Londres, y el coche de
 //    posta por la ruta («toured Europe»);
 // 4. la galería congelada (p8): la tarjeta del teatro: la máquina eléctrica y el público de espaldas; fogonazo en «even»,
 //    «!» en «body» (nada se ve en la mesa);
@@ -676,7 +676,7 @@ const fz11 = () => capa('fz11', () => p11(TJ.BED + 0.6));
 const congela = (b) => { R.copiar(b()); AT.pausa(R, 1); };
 const anio = (txt, x, y, u) => { if (u <= 0) return; R.numero(txt, x, y - ri((1 - ease(u)) * 6), { centro: true, tam: 16 }); };
 // una tarjeta de papel que sale flotando (el marco de los insertos de la pausa)
-const tarjeta = (x0, y0, x1, y1, u) => { const dy = ri((1 - ease(u)) * 24); for (let y = y0 + 3; y <= y1 + 3; y++) for (let x = x0 + 3; x <= x1 + 3; x++) tine(x, y + dy, K, 0.35);
+const tarjeta = (x0, y0, x1, y1, u, alto = 24) => { const dy = ri((1 - ease(u)) * alto); for (let y = y0 + 3; y <= y1 + 3; y++) for (let x = x0 + 3; x <= x1 + 3; x++) tine(x, y + dy, K, 0.35);
   R.rect(x0 - 1, y0 - 1 + dy, x1 + 1, y1 + 1 + dy, K); R.rect(x0, y0 + dy, x1, y1 + dy, PAPEL[2]); R.rect(x0 + 2, y0 + 2 + dy, x1 - 2, y1 - 2 + dy, PAPEL[1]); return dy; };
 // ── 1 · el cuarto congelado (la visión con los ojos): Atom al doble entra, niega con la cabeza en «fantasy», «1780» ──
 const q1 = (t) => {
@@ -710,8 +710,9 @@ const ESCAN = [[5, 59], [7, 58], [8.5, 58.2], [10.5, 59.2], [11.2, 58.5], [12.5,
 const SIC = [[12.4, 38.1], [15.6, 38.3], [15, 36.7]], CER = [[8.6, 41.5], [9.6, 41.2], [9.8, 39], [8.4, 39], [8.2, 40.9]];
 const q3 = (t) => {
   congela(fz9);
-  const sale = tramo(t, TG.AND, TG.AND + 0.5), x0 = 112, y0 = 34, x1 = 270, y1 = 132;
-  const dy = tarjeta(x0, y0, x1, y1, sale);
+  // la tarjeta del mapa sube desde abajo, fuera de cuadro, cuando ya ha pasado el fundido (sin restos en el corte)
+  const sale = tramo(t, TG.AND + 0.2, TG.AND + 0.9), x0 = 112, y0 = 34, x1 = 270, y1 = 132;
+  const dy = tarjeta(x0, y0, x1, y1, sale, 156);
   const P = ([lo, la]) => [ri(x0 + 4 + (lo + 11) / 32 * (x1 - x0 - 8)), ri(y0 + 4 + dy + (60 - la) / 25 * (y1 - y0 - 8))];
   R.recorte([x0 + 4, y0 + 4 + dy, x1 - 4, y1 - 4 + dy]);
   for (let y = y0 + 4 + dy; y <= y1 - 4 + dy; y++) for (let x = x0 + 4; x <= x1 - 4; x++) R.pset(x, y, tono(pal('#7a9aa8', '#8aaab4', '#9ab8c0'), 1 + hh(x >> 2, y >> 1, 71) * 0.8 + ((x + y * 2) % 9 === 0 ? 0.8 : 0), x, y));
@@ -726,7 +727,9 @@ const q3 = (t) => {
   T.chincheta(R, B[0], B[1], t, hex('#e83a3a'), { baja: tramo(t, TG.ALDINI - 0.1, TG.ALDINI + 0.3) });
   if (t > TG.EUROPE - 0.4) T.chincheta(R, Pa[0], Pa[1], t, hex('#3a6ae8'), { baja: tramo(t, TG.EUROPE - 0.4, TG.EUROPE) });
   if (t > TG.PUBLIC - 0.2) T.chincheta(R, L[0], L[1], t, hex('#3ac85a'), { baja: tramo(t, TG.PUBLIC - 0.2, TG.PUBLIC + 0.2) });
-  atomG(64, 176, t, { pose: t > TG.TOURED ? 'senala' : 'sostiene', dir: 1, cara: t > TG.PUBLIC ? 'sonrisa' : 'normal' });
+  // Atom llega desde donde lo dejó el plano 2 (x 86) a su sitio junto a la tarjeta (sin salto en el fundido)
+  const llega = tramo(t, TG.AND, TG.AND + 0.8);
+  atomG(ri(lerp(86, 64, ease(llega))), 176, t, { pose: llega < 1 ? 'camina' : t > TG.TOURED ? 'senala' : 'sostiene', dir: llega < 1 ? -1 : 1, cara: t > TG.PUBLIC ? 'sonrisa' : 'normal' });
 };
 // ── 4 · la galería congelada: la tarjeta del teatro de las demostraciones (la máquina eléctrica, el público de espaldas);
 //      en «even» el fogonazo y el público se echa atrás («!»); nada se ve en la mesa: solo la luz ──

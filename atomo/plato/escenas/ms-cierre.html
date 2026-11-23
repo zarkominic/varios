@@ -21,8 +21,9 @@
 // 5. el cruce de caminos a la salida de Londres (fondo local): el carretero alza un tomo en «Hideous Progeny» (los
 //    ojitos parpadean); en «bids» abre la caja y en «go forth» los libros salen volando por los tres caminos; brillan en
 //    «prosper»; la niña salta;
-// 6. el cuarto del lago en luz cálida: los ojos de la visión en «eyes»; Mary con dieciocho años («18»), sonríe; Atom
-//    luciérnaga;
+// 6. la ventana de la casita en la noche de tormenta: Mary llega con su palmatoria; fuera, en lo oscuro, se abren dos
+//    ojos amarillos en «eyes» (parpadean) y ella se sobresalta; el relámpago de «that night» los borra; se vuelve, le
+//    sale «18» en «eighteen» y sonríe y alza la vela en «girl»; Atom luciérnaga ronda;
 // 7. la vela y las sombras (fondo local): brilla el retrato de la madre en «mother», el sonajero en «daughter»; la sombra
 //    de alguien aparece en «imagined someone» y se levanta en «came back to life»; la mano joven escribe;
 // 8. el lago al amanecer: Felix cierra la puerta en «no one wanted»; la criatura se aparta a la orilla; sale el sol en
@@ -440,13 +441,42 @@ const q25 = (t) => {
   R.actor(EL.ninaVictoriana, 88, 166, t, { dir: 1, sorpresa: alza, sonrisa: t > W.GO, brazos: t > W.PROSPER - 0.2, salto: t > W.PROSPER - 0.2 ? ri(Math.abs(Math.sin(t * 7)) * 3) : 0 });
   const perro = ri(Math.sin(t * 8) * (t > W.GO ? 1 : 0)); R.rect(66, 158 - perro, 78, 163 - perro, hex('#c8a070')); R.disco(79, 156 - perro, 3, hex('#c8a070')); R.pset(80, 155 - perro, K); R.rect(68, 164, 69, 167, hex('#a88050')); R.rect(75, 164, 76, 167, hex('#a88050')); R.linea(66, 159 - perro, 62, 155 - perro + ri(Math.sin(t * 12) * 2), hex('#c8a070'));
 };
-// ── 6 · el cuarto del lago, la noche del principio recordada en luz cálida: los ojos en «eyes»; «18» en «18-year-old» ──
+// ── 6 · la ventana de la casita en la noche de tormenta (la del principio, recordada): fuera, en lo oscuro, se abren
+// dos ojos amarillos en «eyes»; el relámpago de «that night» los borra; Mary, con dieciocho años («18»), sonríe ──
+const OV6 = { encuadre: 'lago', camara: 'ventana', tormenta: 1 };
+// los parteluces de la ventana (lo de fuera no se pinta encima)
+const parteluz = (x, y) => (x >= 130 && x <= 134) || (x >= 186 && x <= 190) || (y >= 50 && y <= 54) || (y >= 82 && y <= 88) || (y >= 114 && y <= 118);
 const q26 = (t) => {
-  const o = { encuadre: 'cuarto', sueno: lerp(0.6, 1, tramo(t, W.C6, W.EYES + 0.05)), calido: true, vela: 0.4 }; T.lago(R, t, o);
-  const llega = tramo(t, W.C6, W.EYES - 0.2), r = R.actor(MS.maryMS, ri(lerp(92, 112, llega)), 150, t, { dir: 1, anda: llega > 0 && llega < 1, sonrisa: t > W.EYES + 0.5, sorpresa: t > W.EYES - 0.2 && t < W.EYES + 0.5, salto: ri(Math.max(0, Math.sin(tramo(t, W.GIRL - 0.1, W.GIRL + 0.4) * Math.PI)) * 3) });
-  T.lagoDelante(R, t, o);
-  AT.luciernaga(R, 272 + Math.sin(t * 1.7) * 8, 92 + Math.cos(t * 2.1) * 5, t, { brillo: 0.8, dir: -1 });
-  const u = tramo(t, W.N18 - 0.1, W.N18 + 0.3); anio('18', 120, 104, u); if (t > W.N18) AT.anillo(R, 120, 96, 16, 10, t, tramo(t, W.N18, W.N18 + 0.6));
+  const r0 = T.lago(R, t, { ...OV6, rayo: [W.NIGHT2 - 0.1] }), fl = r0?.rayo ?? 0;
+  // es de noche: la casa en penumbra azul y, fuera, más oscuro aún (el relámpago lo aclara todo un instante)
+  velo(hex('#0c1020'), 0.38 * (1 - fl));
+  for (let y = 24; y <= 143; y++) for (let x = 78; x <= 242; x++) if (!parteluz(x, y)) { const i = y * 320 + x; R.buf[i] = mez(R.buf[i], hex('#080a14'), 0.4 * (1 - fl)); }
+  halo(236, 134, 26, hex('#ffc880'), 0.32);   // la vela del alféizar alumbra cristal y pared
+  // FUERA, por el cristal: en la orilla oscura se abren dos ojos amarillos y acuosos en «eyes», parpadean, miran a Mary
+  // y se apagan con el relámpago
+  const abre = tramo(t, W.EYES - 0.15, W.EYES + 0.25), cierra = tramo(t, W.NIGHT2 - 0.15, W.NIGHT2 + 0.05), ojo = abre * (1 - cierra), parp = Math.abs(t - (W.DARK + 0.25)) < 0.07;
+  const ox = ri(104 + tramo(t, W.EYES, W.NIGHT2) * 4), oy = 104;
+  if (ojo > 0) halo(ox + 7, oy, 20, hex('#d8b030'), 0.4 * ojo);   // su luz amarilla en el cristal empañado
+  if (ojo > 0) porHueco(78, 24, 242, 143, () => {
+    for (const dx of [0, 14]) { const al = parp ? 0 : Math.max(0, ri(ojo * 2));
+      for (let i = -4; i <= 4; i++) for (let j = -al; j <= al; j++) if (Math.abs(i) / 4 + Math.abs(j) / (al + 0.5) <= 1.05) R.pset(ox + dx + i, oy + j, Math.abs(j) === al && al > 0 ? hex('#b08010') : hex('#f8e050'));
+      if (al === 0) for (let i = -4; i <= 4; i++) R.pset(ox + dx + i, oy, hex('#b08010'));
+      if (al > 0) { R.rect(ox + dx + 1, oy - 1, ox + dx + 1, oy + 1, K); R.pset(ox + dx - 2, oy - 1, hex('#fffbe0')); R.pset(ox + dx + 3, oy + al + 1, hex('#a8c8e8')); R.pset(ox + dx + 3, oy + al + 2, hex('#7a98c0')); } }   // la pupila, el brillo y la lágrima de agua
+  }, 0, parteluz);
+  // DENTRO: Mary llega a la ventana con su palmatoria; en «eyes» se sobresalta; tras el relámpago se vuelve hacia
+  // nosotros, en «18» le sale su edad y en «girl» sonríe y alza la vela
+  const llega = ease(tramo(t, W.C6, W.EYES - 0.1)), x = ri(lerp(74, 132, llega)), vuelve = t > W.NIGHT2 + 0.2, alza = ease(tramo(t, W.GIRL - 0.2, W.GIRL + 0.3));
+  const susto = t > W.EYES - 0.1 && t < W.NIGHT2 + 0.4;
+  const r = R.actor(MS.maryMS, x, 166, t, { dir: vuelve ? -1 : 1, anda: llega > 0 && llega < 1, sorpresa: susto, sonrisa: t > W.GIRL - 0.1, salto: ri(Math.max(0, Math.sin(tramo(t, W.GIRL - 0.1, W.GIRL + 0.4) * Math.PI)) * 2),
+    sostiene: vuelve ? [x - 12, 148 - ri(alza * 6)] : [x + 14, 148 - ri(susto ? 4 : 0)] });
+  if (r.mano) { const [hx, hy] = r.mano.map(ri), f = Math.sin(t * 13) * 0.6;
+    R.rect(hx - 3, hy + 1, hx + 3, hy + 1, hex('#8a6420')); R.rect(hx - 2, hy, hx + 2, hy, hex('#c89a40'));   // la palmatoria de latón
+    R.rect(hx - 1, hy - 6, hx, hy - 1, hex('#f0e8d0')); R.pset(hx, hy - 5, hex('#c8bea6'));
+    R.pset(hx, hy - 7, K); R.pset(hx + (f > 0.3 ? 1 : 0), hy - 9, hex('#ffd870')); R.pset(hx, hy - 8, hex('#fff4c0')); R.pset(hx - 1, hy - 8, hex('#ffb040'));
+    halo(hx, hy - 8, 20 + ri(f * 2), hex('#ffd890'), 0.4); }
+  T.lagoDelante(R, t, OV6);
+  AT.luciernaga(R, 262 + Math.sin(t * 1.7) * 6, 96 + Math.cos(t * 2.1) * 5, t, { brillo: 0.8, dir: -1, cara: susto ? 'sorpresa' : 'normal' });
+  const u = tramo(t, W.N18 - 0.1, W.N18 + 0.3); anio('18', x, 120, u); if (t > W.N18) AT.anillo(R, x, 112, 16, 10, t, tramo(t, W.N18, W.N18 + 0.6));
 };
 // ── 7 · la vela y las sombras (fondo local): el retrato de la madre («mother»), el sonajero («daughter»); en la pared, la sombra de alguien que se levanta («came back to life») ──
 const PAPEL_C = pal('#4a3428', '#5e4232', '#72523e', '#86644a');
@@ -596,7 +626,7 @@ const q31 = (t) => {
 };
 const efectos = [[0.3, 'papel'], [W.REVISES, 'lapiz'], [W.FRANK, 'lapiz'], [W.EDITION, 'golpecito'], [W.INTRO, 'papel'], [W.HOW, 'interruptor'], [W.BORN, 'brillo'],
   [W.SUMMER, 'lluvia'], [W.GHOST - 0.15, 'toc'], [W.NIGHT - 0.1, 'toc'], [W.STIR, 'boom'], [W.GOODBYE, 'papel'], [W.BOOK + 0.1, 'carro'], [W.AFFECTION, 'brillo'],
-  [W.C5 + 0.3, 'pajaros'], [W.HIDEOUS, 'brillo'], [W.BIDS, 'toc'], [W.GO, 'whoosh'], [W.PROSPER, 'brillo'], [W.EYES, 'brillo'], [W.N18, 'pop'], [W.MOTHER, 'brillo'], [W.CAME, 'whoosh'],
+  [W.C5 + 0.3, 'pajaros'], [W.HIDEOUS, 'brillo'], [W.BIDS, 'toc'], [W.GO, 'whoosh'], [W.PROSPER, 'brillo'], [W.C6 + 0.1, 'pasos'], [W.EYES, 'brillo'], [W.NIGHT2 - 0.1, 'trueno'], [W.N18, 'pop'], [W.MOTHER, 'brillo'], [W.CAME, 'whoosh'],
   [W.NOONE, 'puerta'], [W.C8 + 0.2, 'pajaros'], [W.N200, 'campana'], [W.ALIVE, 'brillo'], [W.FAR, 'whoosh'], [W.WRITTEN, 'pop'], [W.NOW, 'golpecito'], [W.WORST, 'trueno'],
   [W.BECOME, 'brillo'], [W.N200B, 'pop'], [W.WRITE, 'lapiz'], [W.COMMENTS, 'pop']];
 const año = (t) => t < W.C6 ? 1831 : t < W.N200 - 0.1 ? 1816 : t < W.C9 ? 2016 : 2026;
