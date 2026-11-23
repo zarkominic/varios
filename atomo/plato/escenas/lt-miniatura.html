@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep46 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LT-MINIATURA · ep46, canon de miniatura del 43: a la izquierda, en el puente de la boda al atardecer, LETO GUSANO
+// grande en su carro y a su lado, pequeño, el niño pelirrojo de nueve años que fue (el que lo eligió); Atom grande y
+// pensativo a la derecha; corte en diagonal y «LETO» en pixel grande.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { puente, puenteDelante, letoGusano, estudio } from '/atomo/plato/escenas/lt-comun.js';
+import * as AT from '/atomo/plato/escenas/atom-personaje.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+// letras de pixel (5 × 7) para las 1–3 palabras de la miniatura
+const F = {
+  H: ['#...#', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'], A: ['.###.', '#...#', '#...#', '#####', '#...#', '#...#', '#...#'],
+  Y: ['#...#', '#...#', '.#.#.', '..#..', '..#..', '..#..', '..#..'], M: ['#...#', '##.##', '#.#.#', '#.#.#', '#...#', '#...#', '#...#'],
+  I: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '#####'], T: ['#####', '..#..', '..#..', '..#..', '..#..', '..#..', '..#..'],
+  C: ['.####', '#....', '#....', '#....', '#....', '#....', '.####'],
+  P: ['####.', '#...#', '#...#', '####.', '#....', '#....', '#....'], U: ['#...#', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+  E: ['#####', '#....', '#....', '####.', '#....', '#....', '#####'],
+  L: ['#....', '#....', '#....', '#....', '#....', '#....', '#####'],
+  D: ['####.', '#...#', '#...#', '#...#', '#...#', '#...#', '####.'], O: ['.###.', '#...#', '#...#', '#...#', '#...#', '#...#', '.###.'],
+};
+// gruesas, con contorno oscuro y sombra dura, como los títulos de las miniaturas de relato
+const palabra = (txt, x, y, s, c, sombra) => {
+  const celdas = []; let cx = x;
+  for (const ch of txt) { const g = F[ch]; for (let j = 0; j < 7; j++) for (let i = 0; i < 5; i++) if (g[j][i] === '#') celdas.push([cx + i * s, y + j * s]); cx += 6 * s; }
+  for (const [px, py] of celdas) R.rect(px - 1 + 3, py - 1 + 3, px + s + 1 + 3, py + s + 1 + 3, sombra);   // sombra
+  for (const [px, py] of celdas) R.rect(px - 2, py - 2, px + s + 1, py + s + 1, hex('#1a1020'));            // contorno
+  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py + s - 1, c);
+  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py, hex('#ffffff'));                         // brillo arriba
+};
+const K = hex('#1a1020');
+// el halcón de los Atreides en el paño (7 × 5 px) y el estandarte fremen, como en pa-gancho
+const HALCON = ['X.....X', 'XX.Hp.X', '.dXXXd.', '..dXd..', '..d.d..'];
+const halconB = (cx, cy) => { for (let j = 0; j < 5; j++) for (let i = 0; i < 7; i++) { const ch = HALCON[j][i]; if (ch === '.') continue;
+  R.pset(cx - 3 + i, cy - 2 + j, ch === 'd' ? hex('#a8782a') : ch === 'p' ? hex('#e07a30') : ch === 'H' ? hex('#fff0a0') : hex('#f0c848')); } };
+const banderolaG = (x, y, h, t, k) => {
+  const v = Math.round(Math.sin(t * 2.6 + k) * 1.5), c = k % 2 ? hex('#1f4a2c') : hex('#18181e'), cs = k % 2 ? hex('#3a7048') : hex('#3a3a46');
+  R.linea(x, y, x, y - h, hex('#4a3420')); R.pset(x, y - h - 1, hex('#e8c040'));
+  R.poligono([[x + 1, y - h], [x + 11 + v, y - h + 1], [x + 10 + v, y - h + 9], [x + 1, y - h + 9]], K);
+  R.poligono([[x + 1, y - h + 1], [x + 10 + v, y - h + 2], [x + 9 + v, y - h + 8], [x + 1, y - h + 8]], c);
+  R.linea(x + 1, y - h + 1, x + 9 + v, y - h + 2, cs); R.linea(x + 1, y - h + 8, x + 9 + v, y - h + 8, hex('#c8a030'));
+  halconB(x + 5 + Math.round(v / 2), y - h + 5);
+};
+const hh = (a, b, c = 0) => { const s = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return s - Math.floor(s); };
+const dibujar = (t) => {
+  const b = R.nuevo(), prev = R.usar(b); estudio(R, t, { encuadre: 'estudio', camara: 'mesa' }); R.usar(prev);
+  const o = { encuadre: 'boda', camara: 'tablero' };
+  puente(R, t, o);
+  // Leto gusano grande en su carro, con la luz dorada del ocaso; a su lado, el niño que fue
+  halo(R, 120, 96, 60, 50, '#ffd890', 0.24);
+  letoGusano(R, 70, 172, t, { s: 1.9, dir: 1, mira: [160, 130] });
+  halo(R, 176, 152, 20, 24, '#ffe0a0', 0.4);
+  figura(R, EL.letoNinoLT, 168, 178, t, { dir: -1 }, 2);
+  puenteDelante(R, t, o);
+  const B = R.buf; for (let y = 0; y < 180; y++) { const xd = 190 + Math.round((180 - y) * 0.28); for (let x = xd; x < 320; x++) B[y * 320 + x] = b[y * 320 + x]; for (let k = -1; k <= 1; k++) R.pset(xd + k, y, hex('#f4f0e4')); }
+  grado(R, { cx: 160, cy: 100, tinte: '#060a14', f: 0.2, desde: 0.5, max: 0.75 });
+  halo(R, 262, 110, 46, 46, '#fff0c0', 0.28);
+  AT.atom(R, 262, 160, t, { s: 4, pose: 'piensa', dir: -1, cara: 'triste' });
+  palabra('LETO', 12, 14, 5, hex('#f4f0e4'), hex('#3a2030'));
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
