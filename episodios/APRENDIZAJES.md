@@ -1019,3 +1019,22 @@ del 44.
 - **Miniatura** [Seguro]: a 320 × 180 la cara de Leto gusano no se leía con s 1,45; con s 1,9, sí.
 - **Pendiente para el próximo:** que el encargo de la pasada de calidad incluya volver a copiar en la pausa los planos
   que pula de la escena que esta congela.
+
+## Episodio 47 · Mary Shelley: la chica de 18 años que inventó a Frankenstein (23/11/2026)
+
+- **Frases cortas** [Seguro]: desde el 47, antes de enseñar un guion (y otra vez tras las correcciones de los
+  escépticos) se pasa `atomo/herramientas/frases-cortas.py` y se relee buscando hechos encadenados (regla del usuario:
+  «siempre haz esta revision antes de proponer un guion»).
+- **Producción** [Seguro]: 12:11, −14,1/−14,3 LUFS, efectos el 54 % del tiempo, 192/190 subtítulos sin fallos.
+  Calidad: 140 planos, 40 suspensos en la primera revisión, todos pulidos en tres rondas; 0 sospechas en --comprobar.
+- **Pausas** [Seguro]: tras la calidad, 4 de las 5 pausas tenían copias viejas; un agente las comparó por tokens (acorn)
+  y las volvió a copiar. Además, cuatro congelaban un fotograma antes del último real (FIN − 1/30): ahora congelan el
+  último fotograma real de su escena (en lago → volcán saltaba la lluvia). La de ms-escribir nunca fue copia literal de
+  ms-precio (eran «parecidas»): solo la regla de copias literales evita el salto.
+- **Miniaturas** [Seguro]: Mary al triple (al doble no se leía a 320 × 180); a 3× los píxeles negros de boca y barbilla
+  del chibi femenino forman una «barba»: se repintan en la miniatura (`caraLimpia`), sin tocar el kit.
+- **Shorts** [Seguro]: el español no corta las frases en los mismos sitios que el inglés: el corte de un Short tiene que
+  caer en un fin de frase de los DOS SRT (en el 47 el primero dejaba media frase española). Lo seguro es el fin de
+  párrafo, donde las dos voces vuelven a alinearse.
+- **Pendiente para el próximo:** que `short.py` avise si el corte cae a mitad de una frase del SRT español; que el
+  encargo de la calidad incluya re-copiar las pausas.

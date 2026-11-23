@@ -130,13 +130,13 @@ Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrad
 principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del vídeo largo y
 enlázalo en cada uno («Vídeo relacionado»).
 
-### Short 1 · El gancho · tramo 0.0-50.2
+### Short 1 · El gancho · tramo 0.0-58.9
 - **EN:** Frankenstein Was Begun by an 18-Year-Old Girl #Shorts
 - **ES:** Frankenstein lo empezó una chica de 18 años #Shorts
 - **EN:** A night in June 1816, a house by a lake in Switzerland, and an eighteen-year-old girl who closes her eyes and sees something begin to stir. That was the night Frankenstein was born. The whole story is in the linked video. #MaryShelley #Frankenstein #History #ASKAtom #Shorts
 - **ES:** Una noche de junio de 1816, una casa junto a un lago de Suiza y una chica de dieciocho años que cierra los ojos y ve cómo algo empieza a moverse. Aquella noche nació Frankenstein. La historia entera, en el vídeo enlazado. #MaryShelley #Frankenstein #Historia #ASKAtom #Shorts
 
-### Short 2 · La criatura del libro · tramo 414.2-466.6
+### Short 2 · La criatura del libro · tramo 414.2-466.35
 - **EN:** Frankenstein's Creature in the Book Learns to Read #Shorts
 - **ES:** La criatura de Frankenstein en el libro aprende a leer #Shorts
 - **EN:** In the book, the creature doesn't grunt: it teaches itself to speak and read by listening to a family through a crack in the wall, and it doesn't even have a name. The movies changed it. The whole story is in the linked video. #Frankenstein #MaryShelley #Books #ASKAtom #Shorts
