@@ -1,6 +1,6 @@
 # Episodio 47 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 12:11.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, a 0,95) y pista de audio en español (ZONOS3-Mini,
   voz `Rodrigo`, a su velocidad natural).
 - Subtítulos en inglés y en español.
@@ -51,7 +51,14 @@ If your worst night could become something that lasted two hundred years, would 
 the comments.
 
 Chapters:
-{CAPITULOS_EN}
+0:00 The night of the eyes
+1:09 The girl at the grave
+2:51 The dream
+3:59 The summer without sun
+6:38 The creature
+8:15 The book with no name
+9:28 The price
+11:13 The ending
 
 Sources: Mary Shelley, Frankenstein; or, The Modern Prometheus (1818) and the introduction to the 1831 edition · The
 Journals of Mary Shelley, 1814–1844 (ed. Feldman & Scott-Kilvert) · F. A. Marshall, The Life and Letters of Mary
@@ -93,7 +100,14 @@ Si tu peor noche pudiera convertirse en algo que durara doscientos años, ¿te a
 comentarios.
 
 Capítulos:
-{CAPITULOS_ES}
+0:00 La noche de los ojos
+1:09 La niña de la lápida
+2:51 El sueño
+3:59 El verano sin sol
+6:38 La criatura
+8:15 El libro sin nombre
+9:28 El precio
+11:13 El cierre
 
 Fuentes: las mismas que en la descripción en inglés.
 
@@ -112,8 +126,39 @@ ninguna película: todos los dibujos son propios. La narración está hecha con 
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado, cada uno con la voz en inglés como pista
+principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del vídeo largo y
+enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.0-50.2
+- **EN:** Frankenstein Was Begun by an 18-Year-Old Girl #Shorts
+- **ES:** Frankenstein lo empezó una chica de 18 años #Shorts
+- **EN:** A night in June 1816, a house by a lake in Switzerland, and an eighteen-year-old girl who closes her eyes and sees something begin to stir. That was the night Frankenstein was born. The whole story is in the linked video. #MaryShelley #Frankenstein #History #ASKAtom #Shorts
+- **ES:** Una noche de junio de 1816, una casa junto a un lago de Suiza y una chica de dieciocho años que cierra los ojos y ve cómo algo empieza a moverse. Aquella noche nació Frankenstein. La historia entera, en el vídeo enlazado. #MaryShelley #Frankenstein #Historia #ASKAtom #Shorts
+
+### Short 2 · La criatura del libro · tramo 414.2-466.6
+- **EN:** Frankenstein's Creature in the Book Learns to Read #Shorts
+- **ES:** La criatura de Frankenstein en el libro aprende a leer #Shorts
+- **EN:** In the book, the creature doesn't grunt: it teaches itself to speak and read by listening to a family through a crack in the wall, and it doesn't even have a name. The movies changed it. The whole story is in the linked video. #Frankenstein #MaryShelley #Books #ASKAtom #Shorts
+- **ES:** En el libro, la criatura no gruñe: aprende sola a hablar y a leer escuchando a una familia por una grieta de la pared, y ni siquiera tiene nombre. Las películas lo cambiaron. La historia entera, en el vídeo enlazado. #Frankenstein #MaryShelley #Libros #ASKAtom #Shorts
+
+### Short 3 · El libro sin nombre · tramo 528.3-569.2
+- **EN:** Frankenstein 1818: 500 Copies and No Author's Name #Shorts
+- **ES:** Frankenstein, 1818: 500 ejemplares sin nombre de autora #Shorts
+- **EN:** Frankenstein came out in 1818 in just five hundred copies, with no author's name, and readers assumed a man wrote it. Five years later, on a theatre playbill, the monster's name was just a dash. The whole story is in the linked video. #Frankenstein #MaryShelley #History #ASKAtom #Shorts
+- **ES:** *Frankenstein* salió en 1818 en solo quinientos ejemplares, sin el nombre de su autora, y los lectores dieron por hecho que lo había escrito un hombre. Cinco años después, en un programa de teatro, el nombre del monstruo era solo una raya. La historia entera, en el vídeo enlazado. #Frankenstein #MaryShelley #Historia #ASKAtom #Shorts
 
 ## Avisos
 
-{AVISOS}
+**Para escuchar** (dudosas del control de la voz; no se relocutan sin tu oído):
+- EN y ES, frase 8 (2:22): «Percy Bysshe Shelley» puede sonar «Beshisheli» en inglés, y en español «Bish» puede comerse.
+- ES, frase 6 (1:36): «St Pancras» puede sonar «Saint Pancras».
+- ES, frase 12 (4:01): «hermanastra» puede sonar «hermana astra».
+- ES, frase 14 (4:48): «azufre» puede sonar «a sufre».
+- ES, frase 19 (6:39): «Iba a ser» puede sonar «y va a ser».
+- ES, frase 21 (7:20): puede sobrar una «a».
+
+**Dominio público:** comprobar a mediados de diciembre en la lista de Duke que *Frankenstein* (1931) entra el 1/1/2027.
+El vídeo lo dice en el gancho (0:42); si no estuviera, hay que avisar antes de publicar.
+
+**Duración:** 12:11, dentro del canon de 12–14 min.
