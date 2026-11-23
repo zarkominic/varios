@@ -726,7 +726,7 @@ const flota = (t, k = 0) => ri(Math.sin(t * 2.2 + k) * 1.5);
 const atomG = (x, s, t, o = {}) => AT.atom(R, x, s, t, { s: 2, habla: voz(t), ...o });
 const FIN_JUEGO = 54.812;
 // los congelados de ms-juego (un instante fijo de cada plano, pintado una vez)
-const fz12 = () => capa('fz12', () => p12(FIN_JUEGO - 1 / 30));
+const fz12 = () => capa('fz12', () => p12(54.8) /* último fotograma real de ms-juego */);
 const fz10 = () => capa('fz10', () => p10(TJ.BODY - 0.3));
 const fz9 = () => capa('fz9', () => p9(TJ.PERCY - 0.3));
 const fz8 = () => capa('fz8', () => p8(TJ.ENGLAND));

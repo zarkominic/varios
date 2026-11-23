@@ -855,7 +855,7 @@ const p13 = (t) => {
 const flota = (t, k = 0) => ri(Math.sin(t * 2.2 + k) * 1.5);
 const atomG = (x, s, t, o = {}) => AT.atom(R, x, s, t, { s: 2, habla: voz(t), ...o });
 // los congelados de ms-criatura (un instante fijo de cada plano, pintado una vez)
-const fz13 = () => capa('fz13', () => p13(FIN_C - 1 / 30));
+const fz13 = () => capa('fz13', () => p13(67.4) /* último fotograma real de ms-criatura */);
 const fz11 = () => capa('fz11', () => p11(TC.STONES + 0.45));
 const fz12 = () => capa('fz12', () => p12(TC.P12 + 0.8));
 const fz6 = () => capa('fz6', () => p6(TC.FAMILY + 0.3));

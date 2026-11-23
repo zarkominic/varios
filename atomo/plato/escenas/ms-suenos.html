@@ -602,7 +602,7 @@ const P8 = (t) => {
 };
 
 // ── la PAUSA: el mundo de ms-bebe congelado (las mismas P6, P7 y P8) y Atom al doble ──
-const TF8 = 44.62, TF7 = 37.78, TF6 = 33.6;
+const TF8 = 44.633, TF7 = 37.78, TF6 = 33.6;
 const VOZ = [[TS.NOTICE - 0.14, TS.US + 0.3], [TS.WHEN, TS.LOSE + 0.6], [TS.LOSE + 0.9, TS.IN - 0.4], [TS.IN, TS.REPORTED + 0.5], [TS.AND, TS.COMFORT + 0.5], [TS.MARY, TS.LIFE + 0.4], [TS.LIFE + 0.7, TS.HER + 0.4]];
 const habla = (t) => VOZ.some(([a, b]) => t > a && t < b) ? 1 : 0;
 const pop = (t, a, d = 0.3) => { const u = Math.max(0, Math.min(1, (t - a) / d)); return u <= 0 ? 0 : u < 1 ? 1 - Math.pow(1 - u, 3) * Math.cos(u * 7) : 1; };
