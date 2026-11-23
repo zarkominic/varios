@@ -59,6 +59,11 @@ export function girder(x0, x1, y, o = {}) {
   // rivet rows at the ends (connection angles) + every so often along the web
   const rivRow = xx => { for (let k = 0; k < 3; k++) shape(ell(xx, y + d * .35 + k * d * .16, 3.2, 3.2, 8), { fill: P.light, lw: S.lw * .3 }); };
   if (o.rivets !== false) { rivRow(x0 + 16); rivRow(x0 + 30); rivRow(x1 - 16); rivRow(x1 - 30); }
+  // web stiffeners with their rivets, and a row of rivet heads along the top flange
+  if (o.rivets !== false && d >= 40) {
+    for (let x = x0 + 150; x < x1 - 100; x += 210) { stroke([[x, y + fl + 2], [x, y + d - fl - 2]], S.lw * .35, { line: P.ink, boil: .2 }); stroke([[x + 4, y + fl + 3], [x + 4, y + d - fl - 3]], S.lw * .25, { line: P.light, boil: .2 }); shape(ell(x - 8, y + d * .5, 2.6, 2.6, 6), { fill: P.light, lw: S.lw * .25, boil: .2 }); shape(ell(x + 12, y + d * .5, 2.6, 2.6, 6), { fill: P.light, lw: S.lw * .25, boil: .2 }); }
+    for (let x = x0 + 60; x < x1 - 40; x += 70) shape(ell(x, y + fl * .5, 2.2, 1.8, 6), { fill: P.pale, stroke: false, boil: 0, alpha: .8 });
+  }
   if (o.label) { push(); translate((x0 + x1) / 2, y + d / 2); numeral(o.label, 0, 0, d * .5, { col: P.white, w: .14 }); pop(); }
 }
 // a vertical column (front view) from y0 (top) to y1, splices at o.splice [y...]
@@ -68,6 +73,7 @@ export function column(x, y0, y1, o = {}) {
   stroke([[x - w * .3, y0 + 4], [x - w * .3, y1 - 4]], S.lw * .4, { line: P.ink });
   stroke([[x + w * .3, y0 + 4], [x + w * .3, y1 - 4]], S.lw * .4, { line: P.ink });
   stroke([[x - w * .4, y0 + 8], [x - w * .4, y1 - 8]], S.lw * .3, { line: P.light, boil: .3 });
+  for (let yy = y0 + 40; yy < y1 - 10; yy += 64) for (const s_ of [-1, 1]) shape(ell(x + s_ * w * .3, yy, 2.4, 2.4, 6), { fill: s_ < 0 ? P.light : P.mid, stroke: false, boil: 0 });
   if (o.cap !== false) shape(rect(x - w * .62, y0 - 8, w * 1.24, 12), { fill: P.dark, lw: S.lw * .6 });
   for (const sy of o.splice || []) {
     shape(rect(x - w * .7, sy - 34, w * 1.4, 68), { fill: P.mid, lw: S.lw * .6 });
@@ -78,7 +84,11 @@ export function column(x, y0, y1, o = {}) {
 export function planks(x0, x1, y, o = {}) {
   const h = o.h || 16;
   shape(rect(x0, y - h, x1 - x0, h), { fill: P.light, lw: S.lw * .7, shade: () => shape(rect(x0 - 2, y - h * .35, x1 - x0 + 4, h), { fill: P.mid, stroke: false, boil: 0, alpha: .7 }) });
-  for (let x = x0 + 70 + (o.ph || 0); x < x1 - 20; x += 96) stroke([[x, y - h + 2], [x + 3, y - 2]], S.lw * .4, { line: P.dmid });
+  for (let x = x0 + 70 + (o.ph || 0), i = 0; x < x1 - 20; x += 96, i++) {
+    stroke([[x, y - h + 2], [x + 3, y - 2]], S.lw * .4, { line: P.dmid });
+    if (hash(i * 3.7 + (o.ph || 0)) > .6) shape(rect(x + 3, y - h + 1, 93, h - 2), { fill: P.pale, stroke: false, boil: 0, alpha: .55 });
+    shape(ell(x + 10, y - h * .5, 1.6, 1.6, 5), { fill: P.dark, stroke: false, boil: 0 }); shape(ell(x - 10, y - h * .5, 1.6, 1.6, 5), { fill: P.dark, stroke: false, boil: 0 });
+  }
 }
 // little rails on a deck (for the rail cart)
 export function rails(x0, x1, y) { stroke([[x0, y - 3], [x1, y - 3]], S.lw * .9, { line: P.dark, boil: .3 }); for (let x = x0 + 10; x < x1; x += 34) shape(rect(x, y - 6, 18, 6), { fill: P.dmid, lw: S.lw * .3, boil: .3 }); }
@@ -97,13 +107,22 @@ export function derrick(mx, my, mt, ang, L, drop, swing = 0, o = {}) {
   const tip = [mx + Math.cos(ang) * L, my + Math.sin(ang) * L];
   // back guys off the mast top
   stroke([[mx, mt], [mx + 900, mt + 1400]], S.lw * .3, { line: P.dmid, boil: .3 });   // the back guy runs off to the right
+  stroke([[mx, mt], [mx - 1100, mt + 1500]], S.lw * .25, { line: P.dmid, boil: .3 });                   // two more guys
+  stroke([[mx, mt], [mx + 420, mt + 1600]], S.lw * .25, { line: P.dmid, boil: .3 });
+  // the bull wheel at the foot (it turns the derrick) + the hoist line running down the mast
+  const bw = (o.t || 0) * .4 + ang;
+  shape(ell(mx, my - 26, 40, 12, 20), { fill: P.dmid, lw: S.lw * .5 });
+  for (let i = 0; i < 6; i++) { const a = bw + i / 6 * TAU; stroke([[mx, my - 26], [mx + Math.cos(a) * 36, my - 26 + Math.sin(a) * 10]], S.lw * .25, { line: P.dark }); }
+  stroke([[mx + 12, mt + 10], [mx + 12, my - 30]], S.lw * .3, { line: P.ink, boil: .2 });
   lattice([mx, my], [mx, mt], 34, { lw: .7 });
   shape(rect(mx - 26, mt - 14, 52, 16), { fill: P.dark, lw: S.lw * .5 });
   if (o.flag !== false) { const fw = Math.sin((o.t || 0) * 9) * 8; stroke([[mx, mt - 14], [mx, mt - 70]], S.lw * .5); shape(spline([[mx, mt - 70], [mx + 50, mt - 62 + fw], [mx + 84, mt - 58 - fw * .5], [mx, mt - 44]], true, 5), { fill: P.white, lw: S.lw * .5 }); }
   // topping lift: mast top → boom tip
   stroke([[mx, mt], tip], S.lw * .45, { line: P.dark });
   lattice([mx, my], tip, 26, { lw: .6 });
-  shape(ell(tip[0], tip[1], 10, 10, 12), { fill: P.mid, lw: S.lw * .5 });
+  // sheaves at the boom tip and the mast top (they turn with the hook's swing)
+  for (const [sx, sy, r] of [[tip[0], tip[1], 14], [mx, mt + 4, 12]]) { shape(ell(sx, sy, r, r, 14), { fill: P.mid, lw: S.lw * .5 }); const a = swing * 6 + (o.t || 0) * .8; stroke([[sx - Math.cos(a) * r * .8, sy - Math.sin(a) * r * .8], [sx + Math.cos(a) * r * .8, sy + Math.sin(a) * r * .8]], S.lw * .3, { line: P.dark }); shape(ell(sx, sy, 3, 3, 6), { fill: P.dark, stroke: false, boil: 0 }); }
+  stroke([[mx + 6, mt + 10], [tip[0] + 6, tip[1] + 6]], S.lw * .25, { line: P.ink, boil: .2 });            // the fall line back along the boom
   shape(ell(mx, my, 16, 16, 14), { fill: P.dark, lw: S.lw * .6 });
   const hx = tip[0] + Math.sin(swing) * drop, hy = tip[1] + Math.cos(swing) * drop;
   stroke([tip, [hx, hy]], S.lw * .5, { line: P.ink, boil: .3 });
@@ -140,6 +159,9 @@ export function forge(x, y, k, o = {}) {
     shape(ell(bx, by, r, r * .7, 10), { fill: heat * fl > .45 ? P.white : P.pale, lw: S.lw * .35, line: P.dark });
   }
   glow(0, -158, 70, .9 * heat);
+  // embers drifting up off the coals
+  for (let i = 0; i < 6; i++) { const p = ((t * .7 + i / 6 + hash(i * 9.1)) % 1), ex = (hash(i * 4.4) - .5) * 120 + Math.sin(t * 3 + i) * 14 + p * 30, ey = -165 - p * 150;
+    shape(ell(ex, ey, 3.2 * (1 - p * .6), 3.2 * (1 - p * .6), 6), { fill: P.white, stroke: false, boil: 0, alpha: heat * (1 - p) }); }
   pop();
 }
 // a rivet: shank pointing +x from the head (local), heat 0..1 (white-hot → steel grey)
@@ -260,7 +282,16 @@ export function truck(x, y, k = 1, o = {}) {
   stroke([[-96, -172], [-80, -150]], S.lw * .5);
   // cab
   shape(spline([[30, -96], [30, -240], [44, -268], [150, -270], [162, -250], [164, -96]], true, 4), { fill: P.mid, lw: S.lw * .9, shade: () => shape(rect(120, -280, 60, 200), { fill: P.dmid, stroke: false, boil: 0, alpha: .6 }) });
-  shape(rr(52, -252, 92, 70, 8), { fill: P.light, lw: S.lw * .7, shade: () => shape([[52, -252], [96, -252], [52, -200]], { fill: P.white, stroke: false, boil: 0, alpha: .6 }) });
+  const dv = o.driver;
+  shape(rr(52, -252, 92, 70, 8), { fill: P.light, lw: S.lw * .7, shade: () => {
+    if (dv) truckDriver(dv);
+    shape([[52, -252], [96, -252], [52, -200]], { fill: P.white, stroke: false, boil: 0, alpha: dv ? .28 : .6 });
+  } });
+  if (dv) {   // cigar smoke slipping out of the cab and trailing back
+    const [cx, cy] = dv.cig || [70, -196];
+    for (let i = 0; i < 3; i++) { const p = ((dv.t || 0) * .8 + i / 3) % 1; if (p < .06) continue;
+      shape(ell(cx + p * (24 + 70 * (dv.wind || 0)) + Math.sin(p * 7 + i) * 5, cy - p * 74, 4 + 9 * p, 3.5 + 7 * p, 12), { fill: P.paper, stroke: false, alpha: .8 * (1 - p) }); }
+  }
   // the keystone emblem on the door (a plain keystone shape)
   push(); translate(98, -136); scale(1 + (o.emblem || 0) * .3);
   shape([[-22, -24], [22, -24], [14, 22], [-14, 22]], { fill: P.white, lw: S.lw * .7 });
@@ -271,6 +302,40 @@ export function truck(x, y, k = 1, o = {}) {
   shape(rect(170, -300, 14, 70), { fill: P.dark, lw: S.lw * .5 });
   pop();
   pop();
+}
+// the truck's driver, drawn inside the cab window (clipped by it), in truck-local coords. Our own man: round head, a
+// flat cap, a bulb nose, a fat cigar stub. o.lean (forward, 0..1), o.jolt (brake overlap, ±), o.look (−1 ahead … +1 back
+// over his shoulder), o.tip (cap tip 0..1), o.bob (px). Writes o.cig = the cigar tip (for the smoke).
+function truckDriver(o) {
+  const lean = o.lean || 0, jolt = o.jolt || 0, look = clamp(o.look ?? -1, -1, 1), tip = o.tip || 0, f = look;
+  const hx = 102 - lean * 12 - jolt * 14, hy = -208 + (o.bob || 0) + lean * 4, K = 1.25;
+  // the wheel (edge-on) and his near hand on it
+  stroke(ell(60, -178, 6, 18, 12), S.lw * .5, { line: P.ink });
+  // shoulders
+  shape(spline([[hx - 40, -160], [hx - 34, -186], [hx - 2, -194], [hx + 30, -188], [hx + 40, -160]], true, 4), { fill: P.dark, lw: S.lw * .5 });
+  const sh = [hx + f * 18, -184];
+  const handW = [60, -184 + (o.bob || 0) * .5], handC = [hx + f * 24, hy - 30 - tip * 8];
+  const hand = tip > .02 ? [lerp(handW[0], handC[0], Math.min(1, tip * 2)), lerp(handW[1], handC[1], Math.min(1, tip * 2))] : handW;
+  const arm = () => { stroke(quad(sh, [(sh[0] + hand[0]) / 2, Math.max(sh[1], hand[1]) + 10], hand, 8), S.lw * .9, { line: P.ink }); shape(ell(hand[0], hand[1], 10, 9, 10), { fill: P.white, lw: S.lw * .45 }); };
+  if (tip <= .02) arm();   // on the wheel: behind his head
+  push(); translate(hx, hy); rotate(-.22 * lean - .3 * jolt + .08 * Math.max(0, f)); scale(K);
+  shape(ell(-f * 14, 3, 5, 7, 10), { fill: P.pale, lw: S.lw * .35 });                    // ear (on the far side of where he looks)
+  shape(ell(0, 0, 19, 20, 18), { fill: P.pale, lw: S.lw * .55 });                        // head
+  shape(ell(f * 9, 0, 3.4, 5, 8), { fill: P.ink, stroke: false, boil: 0 });                // eye
+  stroke([[f * 4, -7 - 2 * tip], [f * 13, -8 - 4 * tip]], S.lw * .35, { line: P.ink });             // brow (lifts on the tip)
+  shape(ell(f * 19, 6, 7, 6, 10), { fill: P.light, lw: S.lw * .4 });                    // bulb nose
+  stroke([[f * 6, 15], [f * 12, 14]], S.lw * .3, { line: P.ink });                           // mouth
+  shape([[f * 10, 13], [f * 27, 15], [f * 27, 20], [f * 10, 18]], { fill: P.dmid, lw: S.lw * .35 });   // cigar stub
+  shape(ell(f * 28, 17.5, 2.6, 3, 8), { fill: P.white, stroke: false, boil: 0 });
+  push(); translate(-f * 6 * tip, -11 - tip * 9); rotate(-.6 * tip * (f >= 0 ? 1 : -1));            // the flat cap
+  shape(spline([[-21, 2], [-19, -10], [0, -15], [19, -10], [22, 2]], true, 4), { fill: P.dark, lw: S.lw * .5 });
+  shape(ell(f * 20, 1, 5 + 9 * Math.abs(f), 3.4, 10), { fill: P.ink, lw: S.lw * .3 });       // brim, to where he looks
+  pop();
+  pop();
+  // the near arm: hand on the wheel, or up to the cap on the tip
+  if (tip > .02) arm();
+  const r = -.22 * lean - .3 * jolt + .08 * Math.max(0, f), cx = f * 29 * K, cy = 17.5 * K;
+  o.cig = [hx + cx * Math.cos(r) - cy * Math.sin(r), hy + cx * Math.sin(r) + cy * Math.cos(r)];
 }
 // a small 1930 sedan facing dir (−1 = driving left); origin = the road under the middle
 export function car(x, y, k = 1, o = {}) {
@@ -298,6 +363,15 @@ export function cloud(x, y, k, o = {}) {
   shape(ell(-4, 22, 130, 28, 24), { fill: o.fill || P.paper, stroke: false, boil: 0 });
   stroke(quad([-80, 30], [0, 44], [90, 26]), S.lw * .7);
   stroke(arc(-30, -10, 30, 22, Math.PI * 1.1, Math.PI * 1.6, 6), S.lw * .4, { line: P.light });
+  pop();
+}
+// a small far-off airship (a plain blimp: envelope, fins, gondola), drifting; origin = its centre
+export function blimp(x, y, k, t = 0, dir = 1) {
+  push(); translate(x, y + Math.sin(t * .8) * 4); scale(k * dir, k);
+  shape(ell(0, 0, 110, 30, 28), { fill: P.pale, lw: S.lw * .5, shade: () => shape(rect(-120, 8, 240, 30), { fill: P.light, stroke: false, boil: 0 }) });
+  for (const s_ of [-1, 1]) shape([[-86, s_ * 10], [-124, s_ * 34], [-112, s_ * 4]], { fill: P.light, lw: S.lw * .45 });
+  stroke([[-60, -27], [-60, 27]], S.lw * .2, { line: P.mid }); stroke([[20, -29], [20, 29]], S.lw * .2, { line: P.mid });
+  shape(rr(-18, 28, 40, 12, 4), { fill: P.dmid, lw: S.lw * .4 });
   pop();
 }
 // a distant bird (a tiny "v"), flap phase f
@@ -328,8 +402,16 @@ export function plane(x, y, k, o = {}) {
 export function calPage(x, y, k, rot, sy, num) {
   push(); translate(x, y); rotate(rot); scale(k, k * sy);
   shape(rr(-40, -54, 80, 108, 4), { fill: P.white, lw: S.lw * .6 });
-  shape(rect(-34, -48, 68, 20), { fill: P.dark, stroke: false, boil: .3 });
-  if (num) numeral(num, 0, 12, 40, { w: .15 });
+  // front face only: the dark header + the day number, and only while the page is face-up and roughly upright
+  // (so no mirrored, squashed or upside-down digit ever reads as a letter); the back is blank paper
+  const up = Math.cos(rot);
+  if (sy > 0) {
+    shape(rect(-34, -48, 68, 20), { fill: P.dark, stroke: false, boil: .3 });
+    if (num && sy > .35 && up > .45) numeral(num, 0, 12, 40, { w: .15 });
+  } else {
+    shape(rect(-30, -10, 60, 4), { fill: P.light, stroke: false, boil: .3 });
+    shape(rect(-30, 6, 44, 4), { fill: P.light, stroke: false, boil: .3 });
+  }
   pop();
 }
 // a big knife switch on a wall panel: origin = panel centre; lever 0 (open) .. 1 (closed); the handle sits at

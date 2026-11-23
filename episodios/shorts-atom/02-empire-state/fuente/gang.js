@@ -3,7 +3,8 @@
 // Four distinct silhouettes so they read at a glance (all human, no animal ears, no famous look-alikes):
 //   heater  "Coal"   — short and round, flat cap worn sideways, bulb nose, soot on the cheeks, neckerchief; works the forge
 //   catcher "Stretch"— a string bean with a long neck, knit watch cap with a pompom, long nose, freckles, striped jersey
-//   bucker  "Brick"  — a box of a man, no neck, striped railroad cap, big walrus moustache, bib overalls
+//   bucker  "Brick"  — a box of a man, no neck, striped railroad cap, a thin curled handlebar moustache, stubble,
+//                        an undershirt and a heavy leather bucker's apron tied at the waist
 //   riveter "Buzz"   — pear-shaped, wiry hair sticking out, goggles pushed up on the forehead, a gap-toothed grin
 // Character-local coordinates: origin = the ground between the feet, y down.
 import * as T from '/styles/rubber-hose/demo/toon.js';
@@ -43,12 +44,19 @@ function body(kind) {
     shape(rect(-9, -306, 18, 26), { fill: P.white, lw: S.lw * .7 });       // the long neck
   } else if (kind === 'bucker') {
     shape(rr(-78, -206, 156, 134, 34), { fill: P.white, lw: S.lw, shade: () => {
-      shape(rect(-90, -136, 180, 70), { fill: P.dmid, stroke: false, boil: 0 });
-      shape(rr(-40, -176, 80, 50, 6), { fill: P.dmid, stroke: false, boil: 0 });
-      for (const s of [-1, 1]) { stroke([[s * 34, -174], [s * 56, -206]], S.lw * 1.1, { line: P.dmid }); shape(ell(s * 30, -168, 5, 5, 8), { fill: P.light, stroke: false, boil: 0 }); }
-      stroke([[-30, -150], [30, -150]], S.lw * .4, { line: P.dark });
+      shape(rect(-90, -112, 180, 50), { fill: P.dark, stroke: false, boil: 0 });                  // trousers under the apron
+      stroke(arc(0, -206, 30, 16, Math.PI * .1, Math.PI * .9, 10), S.lw * .5, { line: P.mid });  // the undershirt's neckline
       shape(rect(40, -210, 60, 150), { fill: P.ink, stroke: false, boil: 0, alpha: .22 });
     } });
+    // the leather apron: from the waist tie down past the knees, scuffed, a stitched hem, the tie ends at the side
+    shape(spline([[-62, -142], [62, -142], [70, -40], [40, -30], [0, -34], [-40, -30], [-70, -40]], true, 6), { fill: P.dmid, lw: S.lw * .9, shade: () => {
+      shape(rect(26, -150, 60, 130), { fill: P.dark, stroke: false, boil: 0, alpha: .5 });
+      for (const [x, y] of [[-30, -110], [12, -88], [-12, -64]]) stroke([[x, y], [x + 14, y + 4]], S.lw * .3, { line: P.mid, boil: .4 });
+    } });
+    for (let x = -56; x <= 56; x += 14) stroke([[x, -46 + Math.abs(x) * .1], [x + 7, -46 + Math.abs(x + 7) * .1]], S.lw * .3, { line: P.light, boil: .2 });
+    shape(rr(-66, -150, 132, 12, 5), { fill: P.dark, lw: S.lw * .6 });
+    stroke(spline([[-64, -144], [-82, -130], [-78, -108]], false, 5), S.lw * .55, { line: P.dark });
+    stroke(spline([[-64, -144], [-90, -138], [-94, -118]], false, 5), S.lw * .55, { line: P.dark });
   } else {
     const pts = spline([[-28, -236], [28, -236], [52, -172], [62, -122], [40, -94], [0, -90], [-40, -94], [-62, -122], [-52, -172]], true, 6);
     shape(pts, { fill: P.mid, lw: S.lw, shade: () => {
@@ -97,8 +105,9 @@ function headOf(kind, p) {
   const M = p.mouth || { type: 'smile' };
   mouth(hx, K.mouthY, M.w || K.mw, M.type, M);
   if (kind === 'riveter' && (M.type === 'grin' || M.type === 'smile' || !M.type)) shape(rect(hx - 3, K.mouthY - 2, 6, 8), { fill: P.ink, stroke: false, boil: 0, alpha: M.type === 'grin' ? 1 : 0 });
-  if (kind === 'bucker') {   // the walrus moustache over the mouth
-    shape(spline([[hx - 34, hy + 18], [hx - 18, hy + 4], [hx, hy + 8], [hx + 18, hy + 4], [hx + 34, hy + 18], [hx + 20, hy + 22], [hx, hy + 16], [hx - 20, hy + 22]], true, 5), { fill: P.dark, lw: S.lw * .7 });
+  if (kind === 'bucker') {   // a thin handlebar moustache, the tips curled up, and stubble on the jaw
+    for (const sx of [-1, 1]) stroke(spline([[hx, hy + 9], [hx + sx * 14, hy + 8], [hx + sx * 26, hy + 6], [hx + sx * 31, hy - 2], [hx + sx * 26, hy - 6]], false, 6), S.lw * 1.25, { line: P.ink });
+    for (let i = 0; i < 14; i++) { const a = Math.PI * (.12 + .76 * i / 13), r = 30 + (i % 2) * 4; shape(ell(hx + Math.cos(a) * r, hy + 6 + Math.sin(a) * r * .75, 1.6, 1.6, 5), { fill: P.mid, stroke: false, boil: .2 }); }
   }
   // hats
   push(); translate(hx, hy - 30 - hl); rotate(hr); translate(-hx, -(hy - 30));

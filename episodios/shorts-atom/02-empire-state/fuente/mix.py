@@ -189,7 +189,8 @@ fx(flutter(.5, 16), 4.28, .25, .4); fx(coo(), 4.1, .25, .5); fx(coo(), 5.5, .2, 
 for i in range(10): fx(X.click(1.3), 5.4 + i * .055, .12, .1)             # derrick winch ratchet
 fx(X.creak(), 5.4, .3, .1); fx(X.clack(.7), 5.95, .3, .1); add(FX, S.note('xylophone', 'Bb6', .25, .4), 5.97, .15, .2)
 fx(X.whoosh(1.4), 6.35, .45); fx(flutter(1.9, 22), 6.5, .3, .2)
-for i, c in enumerate([7.6, 8.2, 8.8]): fx(tonk(), c, .3, -.1 + i * .1)
+for i, c in enumerate([7.95, 8.75, 9.4]): fx(tonk(), c, .3, -.1 + i * .1)      # the search walk: a tonk on each arrival
+for c in (7.7, 8.45, 9.2): fx(tonk(), c, .18, 0)                                # and a softer one mid-stride
 fx(X.creak(), 8.0, .2, .1)
 fx(flutter(.6, 16), 9.0, .25, -.3); fx(X.pop(), 9.6, .25, -.3); fx(coo(), 9.85, .25, -.3)
 fx(slide(500, 1500, .3), 9.95, .18); add(FX, S.note('xylophone', 'F6', .3, .4), 10.25, .15)
@@ -198,6 +199,14 @@ s = CUTS[0]
 fx(X.whoosh(.4), s, .35, .5); fx(squeal(.22), s + .38, .08, .4)
 add(FX, S.note('xylophone', 'D6', .3, .45), s + .5, .2, .4)
 fx(engine(1.9, 14), s, .2, -.5)
+# the hoarding gate: yanked open on «nowhere», bangs on the boards, a beam scrapes out, slammed on «store», bulges
+fx(X.creak(), s + 1.9, .3, -.3); fx(X.thump(.7, 80), s + 2.08, .35, -.4); fx(X.clack(.8), s + 2.08, .25, -.4)
+fx(lp(rng.standard_normal(int(.25 * SR)), 500), s + 2.26, .2, -.2)
+fx(lp(rng.standard_normal(int(.15 * SR)), 500), s + 2.8, .18, -.2)
+fx(X.thump(1, 70), s + 3.06, .45, -.3); fx(clang(220, .4), s + 3.06, .25, -.3)
+for c in (3.28, 3.58): fx(X.thump(.5, 90), s + c, .25, -.3)
+fx(boing(260, .45), s + 3.35, .22, -.4)
+fx(boing(200, .4), s + 6.95, .25, 0); fx(X.thump(.6, 100), s + 7.28, .3, 0)       # Atom hops onto the bundle
 fx(engine(.85, 16), s + 2.15, .3, .4); fx(horn(), s + 2.45, .3, 0); fx(boing(220, .5), s + 2.47, .3, .4); fx(X.whoosh(.5), s + 2.3, .25)
 fx(engine(3.8, 9), s + 4.15, .45, .3); fx(squeal(.45), s + 4.95, .12, -.1); fx(X.thump(.8, 60), s + 5.3, .45); fx(X.whoosh(.4), s + 5.2, .2)
 add(FX, S.note('xylophone', 'Bb6', .3, .45), s + 5.52, .18, -.2)
@@ -205,6 +214,7 @@ for c in (6.14, 6.55): fx(X.pop(), s + c, .3, -.1); fx(boing(300, .35), s + c, .
 fx(flutter(1.3, 16), s + 5.6, .25, .3); fx(X.pop(), s + 6.9, .2)
 for i in range(12): fx(X.clack(1.6), s + 6.6 + i * .055, .14, 0)            # chain running down
 fx(clang(700, .5), s + 7.3, .35); fx(X.creak(), s + 7.4, .35); fx(slide(300, 1200, .7), s + 7.4, .15)
+for i in range(6): fx(X.clack(1.0), s + 8.36 + i * .07, .14, .4 - i * .05)          # the cart rolls in on «right»
 fx(clang(300, 1.2), s + 9.02, .5, .1); fx(X.thump(1, 70), s + 9.02, .4); fx(X.click(1.5), s + 9.04, .3, .4)
 for i in range(6): fx(X.clack(.9), s + 9.27 + i * .075, .18, .3 + i * .1)
 fx(lp(rng.standard_normal(int(.45 * SR)), 300), s + 9.25, .25, .5)
@@ -213,9 +223,9 @@ s = S3
 for i, c in enumerate([1.12, 1.45, 1.78, 2.08]): fx(X.pop(), s + c, .25, -.3 + i * .25); add(FX, S.note('xylophone', ['Bb5', 'D6', 'F6', 'Bb6'][i], .25, .45), s + c, .18, -.3 + i * .25)
 for i in range(5): fx(X.clack(1.1 + i * .05), s + 2.3 + i * .05, .2, 0)        # the chain clinks
 fx(hiss(.5), s + 2.95, .2, -.5); fx(crackle(.6), s + 2.95, .25, -.5)
-fx(X.whoosh(.4), s + 3.5, .4, -.3); fx(slide(500, 1500, .62), s + 3.55, .2, -.2)
-add(FX, S.note('xylophone', 'F6', .4, .5), s + 4.2, .2, -.1); fx(X.ding(), s + 4.22, .12, -.1)
-fx(slide(1500, 600, .95), s + 4.57, .18, -.2)
+fx(X.whoosh(.4), s + 3.5, .4, -.3); fx(slide(500, 1500, .9), s + 3.55, .2, -.2)          # the toss: one arc, apex at 4.45
+add(FX, S.note('xylophone', 'F6', .4, .5), s + 4.45, .2, -.1); fx(X.ding(), s + 4.47, .12, -.1)
+fx(slide(1500, 600, 1.05), s + 4.47, .18, -.2)
 fx(clang(520, 1.0), s + 5.52, .55, -.3); fx(hiss(.6), s + 5.55, .25, -.3); fx(X.thump(.6, 90), s + 5.52, .3, -.3)
 fx(X.click(1.4), s + 6.5, .2, -.2); fx(slide(400, 700, .45), s + 6.6, .1, -.1)
 fx(hiss(.5), s + 7.1, .35, 0); fx(X.clack(1.1), s + 7.1, .3, 0)
@@ -227,7 +237,7 @@ fx(flutter(.95, 16), s + 9.6, .25, .5); fx(X.pop(), s + 10.55, .3); fx(boing(170
 s = S4
 for i, p in enumerate(POPS4): fx(clang(300 + i * 25, .35), s + p, .25, -.1); fx(X.click(1.2), s + p + .02, .2, -.2)
 for p in POPS4[:7]: fx(flutter(.22, 18), s + p, .12)
-fx(slide(300, 1400, .45), s + 4.0, .2); add(FX, S.note('xylophone', 'Bb6', .4, .5), s + 4.45, .2)
+fx(slide(300, 1400, .45), s + 4.0, .2); fx(X.thump(.6, 100), s + 4.75, .3, .3)   # Atom zips off the top; lands on the roof add(FX, S.note('xylophone', 'Bb6', .4, .5), s + 4.45, .2)
 fx(drone(2.8), s + 4.4, .14, -.4)
 fx(X.creak(), s + 6.45, .3, .3); fx(clang(160, .6), SW, .55, .3); fx(X.thump(1, 55), SW, .55, .3); fx(crackle(.5), SW, .35, .3)
 fx(slide(80, 300, .6), SW + .05, .2); fx(hum(5.2), SW + .05, .16, 0); fx(flutter(.5, 20), SW + .05, .15, -.2)
