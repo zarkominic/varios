@@ -68,13 +68,15 @@ const dibujar = (t) => {
   // la noche, más cerrada que en la escena: todo cae a lo oscuro salvo el cielo con la luna
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = mez(B[y * 320 + x], NOCHE, 0.28 + 0.22 * (y / 180));
   // el montón de tierra del hoyo y la pala clavada
-  for (let y = 140; y <= 160; y++) for (let x = 226; x <= 290; x++) { const d = Math.hypot((x - 258) / 32, (y - 160) / 18); if (d < 1) B[y * 320 + x] = [hex('#2a1a0e'), hex('#3e2614'), hex('#5a3a1e')][Math.min(2, Math.round((1 - d) * 2.4 * h(x >> 1, y >> 1, 11) + 0.3))]; }
   pala(262, 146);
+  for (let y = 140; y <= 160; y++) for (let x = 226; x <= 290; x++) { const d = Math.hypot((x - 258) / 32, (y - 160) / 18); if (d < 1) B[y * 320 + x] = [hex('#2a1a0e'), hex('#3e2614'), hex('#5a3a1e')][Math.min(2, Math.round((1 - d) * 2.4 * h(x >> 1, y >> 1, 11) + 0.3))]; }
   // el farol en el suelo junto al cofre: la única luz cálida
   const f = T.d_farol(R, 148, 128, t, { escala: 2, luz: 1 });
   const c = cofre(196, 164, t);
   // el buscador, al triple, boquiabierto, con la hoja de números alzada en la mano
-  const b = figura(R, T.BL.buscadorBL, 62, 178, t, { dir: 1, sorpresa: true, sostiene: [76, 66], cosa: (R, mano) => T.d_hoja(R, mano[0] + 4, mano[1] - 7, { escala: 0.5, n: 1 }) }, 3);
+  const b = figura(R, T.BL.buscadorBL, 62, 178, t, { dir: 1, sorpresa: true, sostiene: [76, 66] }, 3);
+  // la hoja de números, a escala 2 (sus cifras se leen) y sujeta por la mano
+  if (b && b.mano) T.d_hoja(R, b.mano[0] + 16, b.mano[1] - 33, { escala: 2, n: 1, t: 0.3, brillo: 0.3 });
   T.bedfordDelante(R, t, o);
   // luz de cine: el oro y el farol encienden la escena; el borde frío de la luna recorta al buscador
   const [lx, ly] = f && f.luz ? f.luz : [150, 140];

@@ -21,6 +21,8 @@ export function palabra(R, txt, x, y, s, c, sombra, o = {}) {
   for (const [px, py] of celdas) R.rect(px - 1 + d, py - 1 + d, px + s + d, py + s + d, sombra);   // sombra dura
   for (const [px, py] of celdas) R.rect(px - 2, py - 2, px + s + 1, py + s + 1, K);              // contorno
   for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py + s - 1, c);
-  for (const [px, py] of celdas) R.rect(px, py, px + s - 1, py, hex('#ffffff'));               // brillo arriba
+  const hay = new Set(celdas.map(([px, py]) => px + ',' + py));
+  for (const [px, py] of celdas) if (!hay.has(px + ',' + (py - s))) R.rect(px, py, px + s - 1, py, hex('#ffffff'));   // brillo solo en el canto de arriba de cada trazo
+  for (const [px, py] of celdas) if (!hay.has(px + ',' + (py + s))) R.rect(px, py + s - 1, px + s - 1, py + s - 1, o.bajo ? hex(o.bajo) : c);
   return cx - x - s;
 }

@@ -29,15 +29,16 @@ const dibujar = (t) => {
   T.estudio(R, t, { encuadre: 'estudio', camara: 'mesa' });
   for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) b[y * 320 + x] = mez(b[y * 320 + x], hex('#0a0814'), 0.25);
   halo(R, 262, 96, 64, 70, '#ffe0a0', 0.25);
-  T.d_hoja(R, 232, 100, { escala: 2, n: 1, t, oscura: 0.15 });
-  T.d_hoja(R, 266, 92, { escala: 2, n: 2, t, brillo: 0.8, descifrada: 1 });
-  T.d_hoja(R, 300, 100, { escala: 2, n: 3, t, oscura: 0.15 });
+  T.d_hoja(R, 246, 102, { escala: 2, n: 1, t, oscura: 0.15 });
+  T.d_hoja(R, 274, 94, { escala: 2, n: 2, t, brillo: 0.8, descifrada: 1 });
+  T.d_hoja(R, 296, 104, { escala: 2, n: 3, t, oscura: 0.15 });
   R.usar(prev);
   // la mitad izquierda: el bosque de Bedford de noche, con la hoja en el suelo bajo el haz de la luna
   const o = { encuadre: 'bosque', noche: true, hoja: true };
   T.bedford(R, t, o);
   desplazar(R, -40);
-  const m = figura(R, T.BL.bealeOesteBL, 64, 160, t, { dir: 1, sostiene: [80, 72], cosa: (R, mano) => { T.d_farol(R, mano[0], mano[1], t, { luz: 0.8 }); } }, 2);
+  const m = figura(R, T.BL.bealeOesteBL, 64, 160, t, { dir: 1, sostiene: [80, 72] }, 2);
+  if (m && m.mano) T.d_farol(R, m.mano[0], m.mano[1], t, { luz: 0.8, escala: 2 });   // fuera del búfer de la figura: su luz tiñe el decorado
   T.bedfordDelante(R, t, o);
   const B = R.buf;
   pala(R, [40, 140]);

@@ -9,8 +9,8 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // BL-MINIATURA-B · ep48, prueba de miniaturas SIN ATOM y con texto en inglés (aprobada por el usuario el 25/11/2026).
-// Estilo nuevo, de cerca: en el cuarto del amigo de noche, dos manos (las canónicas, con su brazo) sostienen la hoja 1 de
-// Beale grande; la vela está detrás del papel y su luz lo atraviesa, y a través del papel se transparenta el oro (el
+// Estilo nuevo, de cerca: en el cuarto del amigo de noche, dos manos (las canónicas, con su brazo) sostienen la hoja 2 de
+// Beale grande (la única descifrada); la vela está detrás del papel y su luz lo atraviesa, y a través del papel se transparenta el oro (el
 // contorno de ollas, monedas y lingotes, como una filigrana dorada) con destellos que asoman por los cantos. A la
 // izquierda, «1 OF 3» y «SOLVED» (de las tres hojas, solo se descifró una). Sin Atom.
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
@@ -41,7 +41,7 @@ const dibujar = (t) => {
   halo(R, 238, 92, 78, 78, '#ffb850', 0.5);
   halo(R, 238, 92, 46, 54, '#ffe0a0', 0.45);
   // LA HOJA 1 grande, a contraluz
-  const SX = 238, SY = 90, s = 4, hoja = T.d_hoja(R, SX, SY, { escala: s, n: 1, t: 0.3 });
+  const SX = 238, SY = 90, s = 4, hoja = T.d_hoja(R, SX, SY, { escala: s, n: 2, t: 0.3 });
   const [x0, y0, x1, y1] = hoja.caja;
   // el papel a contraluz: más claro y cálido en el centro (la vela detrás), con las fibras
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = B[y * 320 + x], d = Math.hypot((x - SX) / (x1 - x0), (y - SY - 8) / (y1 - y0));
@@ -49,14 +49,18 @@ const dibujar = (t) => {
   // el oro que se transparenta: filigrana dorada bajo los números (los números siguen encima, en tinta)
   for (let y = y0 + 2; y <= y1 - 2; y++) for (let x = x0 + 2; x <= x1 - 2; x++) { const m = tesoro((x - x0) / (x1 - x0), (y - y0) / (y1 - y0)); if (m <= 0) continue;
     const c = B[y * 320 + x], tinta = ((c >>> 16) & 255) < 90 && ((c >>> 8) & 255) < 90; if (tinta) continue;
-    B[y * 320 + x] = mez(c, ORO[2 + Math.round(m * 2 + (h(x >> 1, y >> 1, 9) - 0.5))], 0.32 * m + 0.06 * Math.sin(t * 2 + x * 0.1)); }
+    B[y * 320 + x] = mez(c, ORO[2 + Math.round(m * 2 + (h(x >> 1, y >> 1, 9) - 0.5))], 0.55 * m + 0.06 * Math.sin(t * 2 + x * 0.1)); }
+  // el contorno de la filigrana, en oro oscuro, para que se lean las ollas, el montón y los lingotes
+  for (let y = y0 + 3; y <= y1 - 3; y++) for (let x = x0 + 3; x <= x1 - 3; x++) { const U = (xx) => (xx - x0) / (x1 - x0), V = (yy) => (yy - y0) / (y1 - y0), m = tesoro(U(x), V(y)) > 0;
+    if (!m) continue; if (tesoro(U(x - 1), V(y)) > 0 && tesoro(U(x + 1), V(y)) > 0 && tesoro(U(x), V(y - 1)) > 0 && tesoro(U(x), V(y + 1)) > 0) continue;
+    const c = B[y * 320 + x]; if (((c >>> 16) & 255) < 90 && ((c >>> 8) & 255) < 90) continue; B[y * 320 + x] = mez(c, ORO[1], 0.6); }
   // destellos de oro que asoman por los cantos y en el centro
   for (let k = 0; k < 7; k++) { const f = Math.sin(t * 3 + k * 1.9); if (f < 0.1) continue; const [x, y] = [[x0 + 6, y1 - 14], [x1 - 8, y1 - 26], [SX - 18, y1 - 40], [SX + 16, y1 - 44], [x0 + 18, y1 - 6], [x1 - 4, y0 + 40], [SX, SY + 10]][k], n = 2 + Math.round(f * 4);
     for (let j = -n; j <= n; j++) { R.pset(x + j, y, Math.abs(j) < 2 ? ORO[5] : ORO[4]); R.pset(x, y + j, Math.abs(j) < 2 ? ORO[5] : ORO[4]); } R.pset(x, y, hex('#ffffff')); }
   halo(R, SX, y1 - 30, 50, 26, '#ffc840', 0.16);
   // las dos manos que la sostienen por los cantos (brazos canónicos desde abajo, levita oscura)
-  T.brazo(R, x0 - 30, 196, x0 + 2, y1 - 34, '#3a2e3a', 1, { codo: [x0 - 22, y1 + 8] });
-  T.brazo(R, x1 + 32, 196, x1 - 2, y1 - 30, '#3a2e3a', -1, { codo: [x1 + 24, y1 + 10] });
+  T.brazo(R, x0 - 6, 200, x0 + 1, y1 - 6, '#3a2e3a', 1, { codo: [x0 - 10, y1 + 18] });
+  T.brazo(R, x1 + 8, 200, x1 - 1, y1 - 8, '#3a2e3a', -1, { codo: [x1 + 12, y1 + 16] });
   grado(R, { cx: 220, cy: 96, tinte: '#0a0610', f: 0.1, desde: 0.5, max: 0.72 });
   // el texto a la izquierda, en dos líneas: «1 OF 3» grande y «SOLVED»
   palabra(R, '1 OF 3', 12, 34, 5, hex('#ffe470'), hex('#3a1c08'));
