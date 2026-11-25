@@ -13,12 +13,14 @@
 // Atom al doble, a color.
 // 1 · La taberna congelada (el último instante de bl-oeste): Atom entra, saca el folleto en «pamphlet» y lo abre en
 //   «numbers». Corta en «It talks».
-// 2 · La tienda congelada: el 2921 cuenta sobre el montón en «2,921»; en «gold» brillan los lingotes. Corta en «somewhere».
+// 2 · La tienda congelada (con la lona tramada, la piel en su bastidor, pieles de castor, camisa con flecos y la puerta
+//   con sus faldones y la luna): el 2921 cuenta sobre el montón en «2,921»; en «gold» brillan los lingotes. Corta en «somewhere».
 // 3 · La mina congelada: «1000» y «1300»; en «depending» una pesa pequeña y una grande; Atom duda y se encoge en «use».
-// 4 · La recua congelada: la pila de plata y el «5100»; en «that gold alone» la plata se aparta y queda el oro.
+// 4 · La recua congelada: la pila de plata y el «5100», por encima de los sombreros; en «that gold alone» la plata se aparta y queda el oro.
 // 5 · El barranco congelado: «$100000000», los ceros salen en «hundred million dollars»; caen monedas.
 // 6 · La mesa congelada: GAG DE LA OLLA (Atom tira, se le estiran los brazos y la olla ni se mueve; suelta en «idea») y en
-//   «weighs» la balanza: la olla contra el coche, equilibrada en «small car», con el 2921.
+//   «weighs» la balanza (más arriba, en y 160): la olla contra el coche, equilibrada en «small car», con el 2921; Atom se
+//   queda a su izquierda (x 150), sin el platillo en la cara.
 // 7 · Virginia congelada: en «sitting in iron pots» aparecen las ollas a color; en «Virginia forest» la órbita y vuelve el color.
 import * as T from '/atomo/plato/escenas/bl-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -768,9 +770,107 @@ const S1 = (t) => {
     luz(fx, fy, 40, H('#fff4c0'), 0.3); T.d_folleto(R, fx, fy, { escala: 2, abierto: ab, brillo: t > TS.SMALL ? 1 : 0, t }); }
   if (t > TS.SMALL - 0.05) AT.anillo(R, x - 64, 104, 40, 30, t, tramo(t, TS.SMALL - 0.05, TS.SMALL + 0.5));
 };
+// ── S2 · la tienda congelada: el fotograma de P9 se guarda una vez en un búfer (está congelado) con lo que le añade la
+// pausa: la trama de la lona con sus pliegues, la piel de búfalo clavada en su bastidor (se lee: patas, cuello, cola,
+// lazadas y dibujo pintado), dos pieles de castor en sus aros, la sartén colgada, la camisa de ante con flecos en la
+// cuerda, la bolsa de balas con el cuerno de pólvora, el lazo enrollado y la puerta con sus faldones recogidos y
+// cosidos, la luna, los montes y una hoguera lejana fuera ──
+const BS2 = R.nuevo(); let hechoS2 = false;
+const enPuerta = (x, y) => y < 150 && y > 52 && Math.abs(x - 276) < (y - 52) * 24 / 98;
+// el tono de la lona de fondo en (x, y), con la misma fórmula y la misma penumbra que fondoTI
+const lonaEn = (x, y) => { const lado = x < 80 ? (80 - x) / 80 : x > 240 ? (x - 240) / 80 : 0, arr = Math.sin(x * 0.18 + y * 0.05) * 0.25;
+  const c = rmp(TI.lona, 3.1 - lado * 1.6 - Math.abs(y - 70) / 140 + arr + (h2(x >> 1, y >> 1, 60) - 0.5) * 0.35, x, y), d = Math.hypot((x - 166) / 190, (y - 60) / 150);
+  return d > 0.45 ? mez(c, H('#1e140e'), Math.min(0.55, (d - 0.45) * 1.1)) : c; };
+const PIEL = pal(['#4a301c', '#7a5634', '#a8804e', '#ccaa74', '#e8d4a4']);
+const tiendaS2 = () => {
+  if (hechoS2) return; hechoS2 = true; const prev = R.usar(BS2);
+  P9(TF9);
+  // la trama de la lona: hilos de trama cada 3 filas, de urdimbre cada 4 columnas, nudos sueltos y pliegues que caen de
+  // la cumbrera; solo en la lona (fuera de la puerta y de los objetos)
+  const FUERA = [[154, 0, 178, 62], [156, 0, 164, 150], [132, 96, 186, 180], [262, 88, 320, 180], [140, 14, 160, 29], [174, 8, 189, 36], [106, 10, 140, 36], [242, 106, 262, 152]];
+  for (let y = 0; y < 122; y++) for (let x = 0; x < 320; x++) {
+    if (enPuerta(x, y) || FUERA.some(([a, b, c, d]) => x >= a && x <= c && y >= b && y <= d)) continue;
+    const pl = Math.sin((x - 80) * 0.273 + Math.sin(y * 0.07) * 0.8) * (y < 64 ? 0.05 : 0.09) * Math.min(1, y / 40);
+    let d = pl + (y % 3 === 0 ? -0.07 : 0) + (x % 4 === 0 ? -0.04 : 0) + (h2(x, y, 70) > 0.94 ? 0.12 : 0) + (h2(x >> 2, y, 71) > 0.97 ? -0.1 : 0);
+    if (d !== 0) R.pset(x, y, mez(R.pget(x, y), d > 0 ? H('#f4e4c4') : H('#1e140e'), Math.min(0.4, Math.abs(d)))); }
+  // las costuras de los paños con su pespunte (rayitas claras sobre la costura oscura)
+  for (const xc of [126, 172, 218]) for (let y = 66; y < 122; y += 3) { if (xc === 172 && y > 96) break; R.pset(xc + 1, y, H('#d8c4a0')); R.pset(xc - 1, y + 1, H('#3a2a1e')); }
+  // dos manchas de agua con su cerco
+  for (const [cx, cy, rx, ry] of [[228, 104, 9, 5], [96, 104, 7, 4]]) for (let y = -ry - 1; y <= ry + 1; y++) for (let x = -rx - 1; x <= rx + 1; x++) {
+    const d = Math.hypot(x / rx, y / ry) + Math.sin(Math.atan2(y, x) * 4) * 0.08; if (d < 0.95) tine(cx + x, cy + y, H('#3a2a1e'), 0.12); else if (d < 1.1) tine(cx + x, cy + y, H('#2a1a10'), 0.3); }
+  // LA PIEL DE BÚFALO en su bastidor de varas: primero se repinta la lona del hueco (borra la mancha de antes)
+  for (let y = 58; y <= 123; y++) for (let x = 4; x <= 74; x++) if (!(x < 35 && y > 116)) R.pset(x, y, lonaEn(x, y));
+  const vara = (x0, y0, x1, y1) => { R.linea(x0, y0, x1, y1, H('#2a1a10')); R.linea(x0 + (x0 === x1 ? 1 : 0), y0 + (y0 === y1 ? 1 : 0), x1 + (x0 === x1 ? 1 : 0), y1 + (y0 === y1 ? 1 : 0), H('#7a5232'));
+    R.linea(x0 + (x0 === x1 ? 2 : 0), y0 + (y0 === y1 ? 2 : 0), x1 + (x0 === x1 ? 2 : 0), y1 + (y0 === y1 ? 2 : 0), H('#4a3220')); };
+  vara(6, 60, 73, 60); vara(7, 57, 7, 116); vara(69, 57, 69, 122); for (const [a, b] of [[6, 119], [26, 119]]) { R.linea(a, b, b === 119 && a === 6 ? 10 : 73, b, H('#2a1a10')); }
+  R.linea(26, 120, 73, 120, H('#7a5232')); R.linea(26, 121, 73, 121, H('#4a3220'));
+  for (const [x, y] of [[8, 61], [70, 61], [70, 120]]) { R.linea(x - 2, y - 2, x + 2, y + 2, H('#d8c08a')); R.linea(x - 2, y + 2, x + 2, y - 2, H('#d8c08a')); }
+  // la silueta de la piel: cuerpo, cuatro patas abiertas hacia las esquinas, el cuello arriba y la cola abajo
+  const dentro = (x, y) => { const u = (x - 39) / 22, v = (y - 89) / 21; if (u * u + v * v < 1) return true;
+    for (const [px, py] of [[16, 70], [62, 70], [17, 110], [61, 110]]) { const ax = 39 + (px - 39) * 0.55, ay = 89 + (py - 89) * 0.55, L = Math.hypot(px - ax, py - ay), q = ((x - ax) * (px - ax) + (y - ay) * (py - ay)) / (L * L);
+      if (q > 0 && q < 1 && Math.hypot(x - (ax + (px - ax) * q), y - (ay + (py - ay) * q)) < 5 - q * 2.5) return true; }
+    if (y < 72 && y > 63 && Math.abs(x - 39) < 7 - (72 - y) * 0.3) return true; if (y > 108 && y < 116 && Math.abs(x - 39) < 2) return true; return false; };
+  for (let y = 62; y < 117; y++) for (let x = 10; x < 68; x++) { if (!dentro(x, y)) continue;
+    const borde = !dentro(x - 1, y) || !dentro(x + 1, y) || !dentro(x, y - 1) || !dentro(x, y + 1), borde2 = !dentro(x - 2, y) || !dentro(x + 2, y) || !dentro(x, y - 2) || !dentro(x, y + 2);
+    R.pset(x, y, borde ? PIEL[0] : borde2 ? (h2(x, y, 72) > 0.5 ? CUERO[1] : CUERO[0]) : rmp(PIEL, 2.9 - (y - 62) / 50 - (x - 20) / 90 + (h2(x >> 1, y >> 1, 73) - 0.5) * 0.7, x, y)); }
+  // el dibujo pintado: un sol de anillos y una cenefa de triángulos (rojo almagre y negro de carbón)
+  for (let a = 0; a < 48; a++) { const p = a / 48 * Math.PI * 2; R.pset(ri(39 + Math.cos(p) * 8), ri(88 + Math.sin(p) * 7), H('#8a2a1a')); if (a % 3 === 0) R.pset(ri(39 + Math.cos(p) * 11), ri(88 + Math.sin(p) * 10), H('#2a1a10')); }
+  R.disco(39, 88, 3, H('#a83a22')); R.pset(38, 87, H('#d86a40'));
+  for (let k = 0; k < 6; k++) { const x = 25 + k * 5; R.linea(x, 104, x + 2, 101, H('#2a1a10')); R.linea(x + 2, 101, x + 4, 104, H('#2a1a10')); R.pset(x + 2, 103, H('#8a2a1a')); }
+  // las lazadas de cuero crudo de la piel al bastidor
+  for (const [a, b, c, d] of [[16, 70, 8, 62], [62, 70, 69, 62], [17, 110, 8, 114], [61, 110, 69, 118], [39, 64, 39, 61], [18, 86, 8, 86], [60, 86, 69, 86], [26, 72, 20, 61], [52, 72, 58, 61], [27, 106, 8, 104], [51, 106, 69, 106]]) R.linea(a, b, c, d, H('#c8b07a'));
+  // la sartén y el cucharón colgados de un clavo en el faldón de la izquierda
+  R.linea(52, 26, 52, 36, H('#3a3a42')); R.disco(52, 25, 1, H('#2a1a10'));
+  for (let y = -6; y <= 6; y++) for (let x = -7; x <= 7; x++) { const d = Math.hypot(x / 7, y / 6); if (d < 1) R.pset(52 + x, 44 + y, d > 0.8 ? HIE[0] : d > 0.65 ? HIE[3] : x + y < -3 ? HIE[2] : HIE[1]); }
+  R.pset(49, 41, HIE[4]); R.pset(50, 41, HIE[3]);
+  R.linea(64, 28, 66, 46, HIE[0]); R.linea(65, 28, 67, 46, HIE[3]); R.disco(67, 48, 2, HIE[0]); R.pset(66, 47, HIE[4]);
+  // dos pieles de castor (el pelo oscuro, con su brillo) en sus aros de sauce claros, colgadas de clavos
+  for (const [cx, cy, r] of [[92, 66, 10], [116, 76, 8]]) { R.linea(cx, cy - r - 4, cx, cy - r, H('#3a2414')); R.disco(cx, cy - r - 5, 1, H('#2a1a10'));
+    for (let y = -r - 1; y <= r + 1; y++) for (let x = -r - 1; x <= r + 1; x++) { const d = Math.hypot(x, y);
+      if (d > r + 0.5) continue; R.pset(cx + x, cy + y, d > r - 0.5 ? H('#c8a868') : d > r - 1.5 ? H('#6a4a2a') : d > r - 3 ? (h2(x, y, 74) > 0.5 ? CUERO[1] : CUERO[0]) : rmp(CUERO, 1.5 - (x + y) / (r * 1.6) + (h2(x, y, 75) - 0.5) * 0.8, cx + x, cy + y)); }
+    for (let a = 0; a < 12; a++) { const p = a / 12 * Math.PI * 2; R.linea(ri(cx + Math.cos(p) * (r - 3)), ri(cy + Math.sin(p) * (r - 3)), ri(cx + Math.cos(p) * (r - 1)), ri(cy + Math.sin(p) * (r - 1)), H('#d8c08a')); } }
+  // la cuerda de tender de la cumbrera al faldón, con la camisa de ante con flecos
+  R.linea(188, 24, 246, 46, H('#8a6a44')); R.linea(188, 25, 246, 47, H('#4a3220'));
+  { const cx = 214, cy = 35; for (let y = 0; y < 24; y++) for (let x = -14; x <= 14; x++) {
+      const manga = y < 12 && Math.abs(x) > 6 && Math.abs(x) < 14 - y * 0.2, cuerpo = Math.abs(x) <= 7 - (y < 3 ? 0 : 0) && y < 22;
+      if (!manga && !cuerpo) continue; const b = (manga ? Math.abs(x) >= 13 - y * 0.2 : Math.abs(x) === 7) || y === 0 || (cuerpo && y === 21) || (manga && y === 11);
+      R.pset(cx + x, cy + y, b ? H('#4a3018') : rmp(PIEL, 2.4 - x / 14 - y / 40 + (h2(x, y, 76) - 0.5) * 0.4, cx + x, cy + y)); }
+    for (let x = -7; x <= 7; x += 2) { R.linea(cx + x, cy + 22, cx + x, cy + 25 + (x & 2 ? 1 : 0), H('#6a4a2a')); }
+    for (const s0 of [-1, 1]) for (let y = 3; y < 12; y += 2) R.linea(cx + s0 * (13 - y * 0.2), cy + y, cx + s0 * (15 - y * 0.2), cy + y + 1, H('#6a4a2a'));
+    R.linea(cx - 3, cy, cx, cy + 4, H('#4a3018')); R.linea(cx + 3, cy, cx, cy + 4, H('#4a3018')); for (let y = 8; y < 20; y += 4) { R.pset(cx - 4, y + cy, H('#8a2a1a')); R.pset(cx + 4, y + cy, H('#2a5a8a')); }
+    R.rect(cx - 9, cy - 2, cx - 8, cy + 1, H('#c8b07a')); R.rect(cx + 8, cy - 2, cx + 9, cy + 1, H('#c8b07a')); }
+  // la bolsa de balas y el cuerno de pólvora colgados de una estaca, con su correa
+  R.disco(233, 62, 1, H('#2a1a10')); R.linea(233, 62, 226, 76, H('#4a3018')); R.linea(233, 62, 240, 74, H('#4a3018'));
+  for (let y = 76; y < 90; y++) for (let x = 222; x < 234; x++) R.pset(x, y, x === 222 || x === 233 || y === 89 ? CUERO[0] : y < 81 ? (y === 80 ? CUERO[0] : CUERO[3]) : rmp(CUERO, 2.2 - (x - 222) / 14 + (h2(x, y, 77) - 0.5) * 0.5, x, y));
+  for (let x = 223; x < 233; x += 2) R.linea(x, 90, x, 92, CUERO[1]); R.pset(228, 82, H('#c8c8d0'));
+  for (let k = 0; k <= 14; k++) { const u = k / 14, x = ri(lerp(238, 250, u)), y = ri(74 + Math.sin(u * Math.PI) * 6 + u * 4), w = ri(3 - u * 2);
+    for (let j = -w; j <= w; j++) R.pset(x, y + j, Math.abs(j) === w ? H('#5a4a30') : j < 0 ? H('#f0e4c4') : H('#c8b890')); }
+  R.rect(236, 72, 238, 76, H('#5a3a22')); R.pset(251, 79, HIE[0]);
+  // el lazo de cuerda enrollado en su clavo
+  for (let r = 8; r >= 4; r -= 2) for (let a = 0; a < 44; a++) { const p = a / 44 * Math.PI * 2; R.pset(ri(206 + Math.cos(p) * r * 0.8), ri(84 + Math.sin(p) * r), a % 4 < 2 ? H('#f0d498') : H('#2a1a10')); }
+  R.disco(206, 75, 1, H('#2a1a10')); R.linea(204, 92, 202, 100, H('#c8a868'));
+  // LA PUERTA: la noche de fuera (luna en cuarto, montes y una hoguera lejana con su luz), recortada al hueco
+  R.recorte([254, 52, 299, 150]);
+  for (let y = 70; y < 96; y++) for (let x = 268; x < 292; x++) if (enPuerta(x, y)) { const d = Math.hypot(x - 279, y - 80); if (d < 12) tine(x, y, H('#5a6a9a'), 0.25 * (1 - d / 12)); }
+  for (let y = -4; y <= 4; y++) for (let x = -4; x <= 4; x++) if (Math.hypot(x, y) < 4.3 && Math.hypot(x - 2, y - 1) > 3.6 && enPuerta(279 + x, 80 + y)) R.pset(279 + x, 80 + y, x < -2 ? H('#fff8e0') : H('#e8e4c8'));
+  for (let x = 254; x < 300; x++) { const yy = ri(136 + Math.sin(x * 0.4) * 2 + Math.sin(x * 0.13) * 2); for (let y = yy; y < 150; y++) if (enPuerta(x, y)) R.pset(x, y, y === yy ? H('#2e3a5a') : TI.noche[0]); }
+  for (let y = 132; y < 148; y++) for (let x = 262; x < 280; x++) { const d = Math.hypot(x - 270, (y - 141) * 1.4); if (d < 9 && enPuerta(x, y)) tine(x, y, H('#ff9040'), 0.45 * (1 - d / 9)); }
+  for (const [x, y, c] of [[270, 140, '#ffe080'], [269, 141, '#ff9040'], [271, 141, '#ff9040'], [270, 141, '#fff4c0'], [270, 139, '#ffb050'], [268, 142, '#5a2a14'], [272, 142, '#5a2a14']]) if (enPuerta(x, y)) R.pset(x, y, H(c));
+  for (const x of [256, 262, 284, 290, 294]) for (let j = 0; j < 3; j++) if (enPuerta(x + (j & 1), 149 - j)) R.pset(x + (j & 1), 149 - j, H('#1a2238'));
+  R.recorte(null);
+  // los faldones de la puerta, recogidos a los lados y atados, con el dobladillo cosido y sus pliegues
+  const izq = [[275, 55], [259, 150], [238, 150]], der = [[277, 55], [296, 124], [303, 124]];
+  for (const [P, s0] of [[izq, -1], [der, 1]]) { R.poligono(P, TI.lona[3]);
+    for (let k = 1; k < 5; k++) { const u = k / 5; R.linea(P[0][0], P[0][1], ri(lerp(P[1][0], P[2][0], u)), P[1][1], k % 2 ? TI.lona[1] : TI.lona[4]); }
+    R.linea(P[0][0], P[0][1], P[2][0], P[2][1], TI.lona[0]); R.linea(P[0][0] + s0, P[0][1] + 2, P[2][0] - s0, P[2][1], TI.lona[4]); }
+  for (let y = 56; y < 150; y += 3) { const xl = ri(276 - (y - 52) * 24 / 98); R.pset(xl - 2, y, H('#f0e0c0')); if (y < 124) { const xr = ri(276 + (y - 52) * 24 / 98); R.pset(xr + 2, y, H('#f0e0c0')); } }
+  R.linea(251, 112, 238, 108, H('#c8b07a')); R.disco(237, 108, 1, H('#2a1a10')); R.rect(248, 110, 252, 114, H('#7a5a32')); R.pset(249, 111, H('#c8a868'));
+  R.linea(291, 102, 302, 98, H('#c8b07a')); R.disco(303, 98, 1, H('#2a1a10'));
+  R.usar(prev);
+};
 // ── S2 · la tienda congelada: sobre el montón sale el 2921 a color, que cuenta; en «gold» brillan los lingotes ──
 const S2 = (t) => {
-  P9(TF9); AT.pausa(R, 1);
+  tiendaS2(); R.buf.set(BS2); AT.pausa(R, 1);
   const c = tramo(t, TS.N2921 - 0.1, TS.POUNDS - 0.2);
   cuenta(2921, c, 158, 76);
   const g = pop(t, TS.GOLD - 0.15, 0.35);
@@ -790,14 +890,15 @@ const S3 = (t) => {
   const mira = t > TS.POUND - 0.1 && t < TS.USE ? (Math.sin((t - TS.POUND) * 9) > 0 ? 1 : -1) : -1;
   AT.atom(R, 160, 178, t, { s: 2, dir: mira, pose: t > TS.USE - 0.05 ? 'brazos' : t > TS.DEPENDING ? 'piensa' : t > TS.THOUSAND - 0.2 ? 'senala' : 'quieto', cara: t > TS.USE ? 'guino' : 'normal', habla: habla(t) });
 };
-// ── S4 · la recua congelada: la pila de lingotes de plata y el «5100»; en «that gold alone» la plata se aparta y queda el oro ──
+// ── S4 · la recua congelada: la pila de lingotes de plata y el «5100»; en «that gold alone» la plata se aparta y queda el oro.
+// Los lingotes van por encima de los sombreros de los jinetes (abajo en y 98; las copas llegan a y ≈ 104) ──
 const S4 = (t) => {
   P11(TF11); AT.pausa(R, 1);
   const p = pop(t, TS.N5100 - 0.1, 0.4), fuera = tramo(t, TS.AND2, TS.AND2 + 0.5);
-  if (p > 0) { const ox = ri(lerp(0, 200, ease(fuera))); for (let k = 0; k < 6; k++) { const px = 118 + (k % 3) * 22 + (k > 2 ? 11 : 0) + ox, py = ri(124 - (k > 2 ? 9 : 0) - 10 * (1 - Math.min(1, p))); lingote(px, py, 2, PLATA); }
-    if (fuera < 1) cuenta(5100, tramo(t, TS.N5100, TS.SILVER - 0.6), 140 + ox, 92); if (t > TS.SILVER - 0.1 && t < TS.SILVER + 0.8) destello(150 + ox, 108, 5, PLATA[4]); }
+  if (p > 0) { const ox = ri(lerp(0, 200, ease(fuera))); for (let k = 0; k < 6; k++) { const px = 118 + (k % 3) * 22 + (k > 2 ? 11 : 0) + ox, py = ri(98 - (k > 2 ? 9 : 0) - 10 * (1 - Math.min(1, p))); lingote(px, py, 2, PLATA); }
+    if (fuera < 1) cuenta(5100, tramo(t, TS.N5100, TS.SILVER - 0.6), 140 + ox, 68); if (t > TS.SILVER - 0.1 && t < TS.SILVER + 0.8) destello(150 + ox, 84, 5, PLATA[4]); }
   const g = pop(t, TS.ALONE - 0.3, 0.35);
-  if (g > 0) { luz(140, 112, 40, H('#ffe080'), 0.4); for (let k = 0; k < 3; k++) lingote(124 + k * 16, ri(124 - 8 * (1 - Math.min(1, g))), 2, ORO); lingote(132, 116, 2, ORO); lingote(148, 116, 2, ORO); AT.anillo(R, 140, 116, 38, 16, t, tramo(t, TS.ALONE, TS.ALONE + 0.5)); }
+  if (g > 0) { luz(140, 88, 40, H('#ffe080'), 0.4); for (let k = 0; k < 3; k++) lingote(124 + k * 16, ri(98 - 8 * (1 - Math.min(1, g))), 2, ORO); lingote(132, 90, 2, ORO); lingote(148, 90, 2, ORO); AT.anillo(R, 140, 91, 38, 16, t, tramo(t, TS.ALONE, TS.ALONE + 0.5)); }
   AT.atom(R, 262, 178, t, { s: 2, dir: -1, pose: fuera > 0 && fuera < 1 ? 'sostiene' : t > TS.ALONE ? 'senala' : t > TS.N5100 ? 'brazos' : 'quieto', cara: t > TS.ALONE ? 'sonrisa' : 'sorpresa', habla: habla(t) });
 };
 // ── S5 · el barranco congelado al atardecer: «$100000000», los ceros salen uno a uno; caen monedas a color ──
@@ -811,14 +912,15 @@ const S5 = (t) => {
   AT.atom(R, 64, 178, t, { s: 2, dir: 1, pose: t > TS.MILLION ? 'brazos' : t > TS.TODAYS ? 'senala' : 'quieto', cara: t > TS.MILLION - 0.1 ? 'sorpresa' : 'normal', habla: habla(t) });
 };
 // ── S6 · la mesa congelada: EL GAG DE LA OLLA (Atom tira y se le estiran los brazos; la olla ni se mueve) y, en «weighs»,
-// la balanza: la olla de oro contra el coche, que se equilibra en «small car» y saca el 2921 ──
+// la balanza: la olla de oro contra el coche, que se equilibra en «small car» y saca el 2921. La balanza sube a y 160 y
+// Atom se queda en x 150, a la izquierda del platillo (que, inclinado, baja como mucho a y ≈ 135): nada le pasa por la cara ──
 const S6 = (t) => {
   P12(TF12); AT.pausa(R, 1);
   const OX = 104, OB = 158;
   const tira = tramo(t, TS.TO + 0.15, TS.IDEA + 0.1), suelta = t > TS.IDEA + 0.35, cae = tramo(t, TS.IDEA + 0.35, TS.IDEA + 0.6);
   const tiemb = tira > 0 && !suelta ? ri(Math.sin(t * 40)) : 0;
   const sube = suelta ? lerp(30, 0, cae) - (cae >= 1 ? ri(Math.abs(Math.sin((t - TS.IDEA - 0.6) * 9)) * 4 * Math.max(0, 1 - (t - TS.IDEA - 0.6) * 2)) : 0) : 30 * ease(tira);
-  const va = tramo(t, TS.WEIGHS - 0.3, TS.WEIGHS + 0.3), ax = lerp(OX, 176, ease(va)), ay = lerp(128 - sube, 176, ease(va)), detras = va < 0.5;
+  const va = tramo(t, TS.WEIGHS - 0.3, TS.WEIGHS + 0.3), ax = lerp(OX, 150, ease(va)), ay = lerp(128 - sube, 176, ease(va)), detras = va < 0.5;
   const pinta = () => AT.atom(R, ax, ay, t, { s: 2, dir: 1, pose: va > 0 && va < 1 ? 'camina' : va >= 1 ? 'senala' : tira > 0 && !suelta ? 'sostiene' : 'quieto', cara: tira > 0.5 && !suelta ? 'triste' : suelta && va <= 0 ? 'sorpresa' : 'sonrisa', habla: habla(t) });
   const a = detras ? pinta() : null;
   const o = olla(OX + tiemb, OB, t, { s: 3, k: 9, asaArriba: 0.15 });
@@ -828,7 +930,7 @@ const S6 = (t) => {
   if (!detras) pinta();
   // la balanza, en «weighs»: sube del suelo de la mesa y se equilibra en «small car»
   const b = pop(t, TS.WEIGHS - 0.1, 0.4);
-  if (b > 0) { const by = ri(176 + 12 * (1 - Math.min(1, b))); luz(238, by - 50, 60, H('#fff4c0'), 0.3); T.pausa(R, 238, by, t, { cual: 'balanza', peso: tramo(t, TS.WEIGHS + 0.3, TS.CAR) }); }
+  if (b > 0) { const by = ri(160 + 10 * (1 - Math.min(1, b))); luz(238, by - 50, 60, H('#fff4c0'), 0.3); T.pausa(R, 238, by, t, { cual: 'balanza', peso: tramo(t, TS.WEIGHS + 0.3, TS.CAR) }); }
 };
 // ── S7 · Virginia congelada: «iron pots in a Virginia forest»: las ollas aparecen a color bajo el cornejo; vuelve el color ──
 const S7 = (t) => {

@@ -16,20 +16,22 @@
 //   salen monedas en «share out the treasure», se entristece en «happens»; un viajero toca la campanilla. Corta en «and that this».
 // 3 · El mostrador de cerca: la mano deja el montón y lo abre en abanico en «three sheets»; brillan en «code»; en
 //   «where the vault is» sale el mapa encima de la primera. Corta en «the second».
-// 4 · El escritorio de Morriss desde arriba (fondo local): las tres hojas con su dibujo; el dedo va de una a otra: la
-//   olla en «what's inside», las treinta siluetas en «thirty men», las familias en «families». Corta en «Morriss reads».
+// 4 · El escritorio de Morriss desde arriba (fondo local): las tres hojas con su dibujo; la mano (T.brazo, ~30 px desde
+//   abajo) se posa en el pie de cada hoja: la 2 con la olla en «what's inside», la 3 en «thirty men» y se adelanta en
+//   «families». Corta en «Morriss reads».
 // 5 · El despacho de noche (lynchburg·despacho·noche): Morriss lee de pie; el corazón en «heart in his throat»; en
 //   «spends years» va y viene mientras vuela el calendario 1845 → 1862. Corta en «lamplight».
-// 6 · La lámpara de cerca (fondo local): la hoja tiembla a la luz; «?» en «can't get» y «X» en «word». Corta en «So, in 1862».
+// 6 · La lámpara de cerca (fondo local): la hoja tiembla a la luz, cogida por el pie (brazo de ~42 px); «?» en «can't get» y «X» en «word». Corta en «So, in 1862».
 // 7 · La calle en 1862 (lynchburg·calle·soldados): Morriss con bastón; desfilan los soldados con su tambor (sin armas);
 //   se para en «a year from his death». Corta en «with Virginia».
 // 8 · El mapa de Virginia: la chincheta en Lynchburg, el contorno en «Virginia» y las banderitas de las batallas de
 //   1861–62 desde «battleground». Corta en «he hands».
-// 9 · El porche (lynchburg·calle·puerta): llega el amigo; Morriss le pasa la caja en «hands the box»; el índice en
-//   «promise». Corta en «if he ever».
-// 10 · Las manos y la caja de cerca (fondo local): suben las cifras en «cracks the numbers»; palmaditas en «carry out»;
-//   los tres dibujos en «what Beale wanted»; el amigo se la lleva. Corta en «never says».
-// 11 · El folleto de 1885 (fondo local): el dedo se para en el hueco del nombre en «gap»; la silueta sin cara; la «?»
+// 9 · El porche (lynchburg·calle·puerta): llega el amigo; Morriss le pasa el cofrecito (14 × 9, a la cintura, en .mano
+//   de R.actor) en «hands the box»; el índice en «promise». Corta en «if he ever».
+// 10 · Las manos y la caja de cerca (fondo local; caja baja, fondo en y 158): Morriss coge el asa izquierda y el amigo
+//   la derecha; suben las cifras en «cracks the numbers»; palmaditas en el costado en «carry out»; los tres dibujos en
+//   «what Beale wanted»; la izquierda del amigo entra por debajo, Morriss suelta y el amigo se la lleva con las dos. Corta en «never says».
+// 11 · El folleto de 1885 (fondo local, bajo en la mesa: centro y 134; brazo de ~40 px): el dedo se para en el hueco del nombre en «gap»; la silueta sin cara; la «?»
 //   crece en «matters more».
 import * as T from '/atomo/plato/escenas/bl-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -481,8 +483,10 @@ function hj4(t) {
   vineta(220, 58, 52, 38, tramo(t, TH.THIRD - 0.1, TH.THIRD + 0.5), t, (x, y) => dibSiluetas(x, y, Math.floor(tramo(t, TH.THIRD + 0.3, TH.MEN + 0.4) * 30.99), Math.floor(tramo(t, TH.FAMILIES, TH.FAMILIES + 1.2) * 12.99)));
   // el dedo de Morriss que va de hoja en hoja
   const a = ease(tramo(t, TH.P4 - 0.2, TH.SECOND + 0.2)), b = ease(tramo(t, TH.THIRD - 0.3, TH.THIRD + 0.2)), c = ease(tramo(t, TH.FAMILIES + 1.2, TH.P5 - 0.2));
-  const wx = lerp(lerp(lerp(118, 142, a), 202, b), 210, c), wy = lerp(lerp(lerp(205, 164, a), 166, b), 214, c);
-  T.brazo(R, wx + 8, wy + 50, wx, wy, MANGA_M, 1, { codo: [wx + 16, wy + 24] });
+  //   (la mano se posa sobre el pie de cada hoja, encima del papel; el brazo entra en diagonal desde abajo: ~30 px a la vista)
+  const fam = ease(tramo(t, TH.FAMILIES - 0.2, TH.FAMILIES + 0.4)) * (1 - c), toca = t > TH.SECOND && t < TH.P5 - 0.6 ? Math.max(0, Math.sin(t * 5)) * 1.2 : 0;
+  const wx = lerp(lerp(lerp(124, 146, a), 206, b), 214, c) + fam * 4, wy = lerp(lerp(lerp(206, 152, a), 153, b), 210, c) - fam * 3 + toca;
+  T.brazo(R, ri(wx - 12), ri(wy + 46), ri(wx), ri(wy), MANGA_M, 1, { codo: [ri(wx - 4), ri(wy + 24)] });
 }
 
 // 5 · EL DESPACHO DE NOCHE (1845→1862): Morriss lee de pie junto al escritorio; en «heart in his throat» le late el
@@ -529,7 +533,7 @@ function hj6(t) {
   const acerca = ease(tramo(t, TH.P6 + 0.2, TH.P6 + 1.2)), tiembla = Math.sin(t * 17) > 0.6 ? 1 : 0;
   const hx = ri(lerp(190, 160, acerca)), hy = ri(98 + baja * 18 + tiembla);
   T.d_hoja(R, hx, hy, { n: 1, escala: 3, t, brillo: 0.15 * acerca });
-  T.brazo(R, hx + 44, hy + 92, hx + 30, hy + 38, MANGA_M, -1, { codo: [hx + 54, hy + 64] });
+  T.brazo(R, hx + 44, hy + 88, hx + 28, hy + 42, MANGA_M, -1, { codo: [hx + 38, hy + 60] });   // coge el pie de la hoja: ~42 px a la vista
   const q = pop(t, TH.CANT, 0.35); if (q > 0) R.icono('?', hx + 38, ri(hy - 52 - q * 4), hex('#f0a030'), K, 4);
   const x = pop(t, TH.WORD, 0.25); if (x > 0) { const s = x >= 1 ? 8 : 9; R.icono('X', ri(hx - 2.5 * s), ri(hy - 2.5 * s), ROJO, K, s); }
   // las agujas del reloj, que corren (los años)
@@ -574,19 +578,34 @@ function hj8(t) {
 // 9 · EL PORCHE DE LA POSADA: el amigo joven (sombrero de copa) llega por la acera; Morriss le espera en la puerta y
 //     en «hands the box» le pasa la caja; en «promise» Morriss levanta el índice y el amigo asiente.
 const O9 = { encuadre: 'calle', camara: 'puerta', nieve: false };
+// el cofre de hierro a la escala de los chibis (14 × 9; x: centro, y: fondo): chapa con picaduras, dos flejes, la tapa
+// abombada con su brillo, el candado dorado y la anilla del lado (el d_caja de los insertos es demasiado grande aquí)
+function cofrecito(x, y, t) {
+  x = ri(x); y = ri(y); const x0 = x - 7, x1 = x + 6, y0 = y - 8;
+  R.rect(x0, y0 + 2, x1, y, K);
+  for (let j = y0 + 3; j < y; j++) for (let i = x0 + 1; i < x1; i++) { const r = h2(i, j, 91); ps(i, j, i === x0 + 4 || i === x1 - 4 ? HIERRO[1] : r > 0.85 ? HIERRO[1] : r < 0.12 ? HIERRO[4] : (j === y - 1 ? HIERRO[1] : HIERRO[2])); }
+  for (let i = x0 + 1; i < x1; i++) { ps(i, y0, K); ps(i, y0 + 1, i < x - 2 ? HIERRO[4] : HIERRO[3]); } ps(x0, y0 + 1, K); ps(x1, y0 + 1, K);
+  lin(x0 + 1, y0 + 3, x1 - 1, y0 + 3, HIERRO[0]);
+  ps(x0 + 2, y0 + 5, hex('#8a4a28')); ps(x1 - 2, y - 2, hex('#8a4a28'));
+  R.rect(x - 1, y0 + 3, x, y0 + 5, ORO[2]); ps(x - 1, y0 + 3, ORO[3]); ps(x, y0 + 5, ORO[1]);
+  if (Math.sin(t * 2.3) > 0.7) ps(x0 + 3, y0 + 1, BLANCO[5]);
+  ps(x1 + 1, y0 + 4, HIERRO[3]); ps(x1 + 1, y0 + 5, HIERRO[1]);
+}
 function hj9(t) {
   T.lynchburg(R, t, O9);
   const v = tramo(t, TH.P9 - 0.3, TH.HANDS), ax = ri(lerp(36, 104, ease(v))), pasa = ease(tramo(t, TH.HANDS + 0.05, TH.BOX + 0.35));
-  const am = R.actor(EL.amigoBL, ax, 150, t, { dir: 1, anda: v > 0 && v < 1, sostiene: pasa > 0 ? [ax + 18, 134] : false, tocado: 'capotain', habla: t > TH.PROMISE + 0.4 && t < TH.P10 && parp(t, 9) });
-  const mo = R.actor(EL.morrissViejoBL, 138, 150, t, { dir: -1, sostiene: pasa < 1 ? [124, 132] : false, dedo: pasa >= 1 && t > TH.PROMISE - 0.2 && t < TH.PROMISE + 1.1, sonrisa: t > TH.PROMISE + 1.1 });
+  // el cofre va a la altura de la cintura, en la mano de delante, por debajo de las caras
+  const am = R.actor(EL.amigoBL, ax, 150, t, { dir: 1, anda: v > 0 && v < 1, sostiene: pasa > 0 ? [ax + 20, 144] : false, tocado: 'capotain', habla: t > TH.PROMISE + 0.4 && t < TH.P10 && parp(t, 9) });
+  const mo = R.actor(EL.morrissViejoBL, 138, 150, t, { dir: -1, sostiene: pasa < 1 ? [122, 144] : false, dedo: pasa >= 1 && t > TH.PROMISE - 0.2 && t < TH.PROMISE + 1.1, sonrisa: t > TH.PROMISE + 1.1 });
   T.lynchburgDelante(R, t, O9);
   const m0 = mo.mano, m1 = am.mano ?? m0, cx = lerp(m0[0], pasa > 0 ? m1[0] : m0[0], pasa), cy = lerp(m0[1], pasa > 0 ? m1[1] : m0[1], pasa);
-  T.d_caja(R, ri(cx), ri(cy + 5 - Math.sin(pasa * Math.PI) * 6), { t }); if (pasa > 0 && pasa < 1) R.halo(ri(cx), ri(cy - 2), 12, [VELA, VELAL], 0.35);
+  if (pasa > 0 && pasa < 1) R.halo(ri(cx), ri(cy), 10, [VELA, VELAL], 0.3);
+  cofrecito(cx, cy + 5, t);
 }
 
 // 10 · LAS MANOS Y LA CAJA, DE CERCA (en el umbral): las dos manos sujetan la caja; en «cracks the numbers» la tapa se
-//     entreabre y suben las cifras (71, 194, 38…); en «carry out» se cierra y Morriss da dos palmaditas; en «what Beale
-//     wanted» brillan encima los tres dibujos; al final el amigo se la lleva.
+//     entreabre y suben las cifras (71, 194, 38…); en «carry out» se cierra y Morriss da dos palmaditas en el costado; en
+//     «what Beale wanted» brillan encima los tres dibujos; al final el amigo la coge también por debajo y se la lleva.
 function porcheFondo() {
   ladrillos(0, 0, 214, 179);
   // el marco de la puerta y, dentro, el zaguán encendido con la escalera y el perchero
@@ -613,20 +632,25 @@ function hj10(t) {
   luz(fx, fy, 80, VELA, 0.32 + Math.sin(t * 9) * 0.02); polilla(fx, fy, t, 12, 4);
   for (let k = 0; k < 8; k++) { const u = (t * 0.15 + k / 8) % 1; ps(ri(40 + k * 22 + Math.sin(t + k) * 5), ri(40 + u * 110), hex('#ffe8b0')); }
   const tapa = Math.min(tramo(t, TH.CRACKS - 0.1, TH.CRACKS + 0.4), 1 - tramo(t, TH.CARRY - 0.2, TH.CARRY + 0.3)) * 0.4;
-  const lleva = ease(tramo(t, TH.WANTED + 1.0, TH.P11 - 0.1)), bx = ri(140 + lleva * 70), by = ri(140 - lleva * 4);
+  // la caja va baja (fondo en y 158) para que los brazos entren desde abajo con 25–40 px a la vista
+  const lleva = ease(tramo(t, TH.WANTED + 1.0, TH.P11 - 0.1)), bx = ri(140 + lleva * 70), by = ri(158 - lleva * 3 + Math.sin(lleva * Math.PI * 4) * lleva);
   const g = T.d_caja(R, bx, by, { escala: 4, t, abierta: tapa });
-  // las cifras que suben de la caja entreabierta
-  CIFRAS.forEach((c, k) => { const u = tramo(t, TH.CRACKS + 0.2 + k * 0.22, TH.CRACKS + 1.8 + k * 0.22); if (u > 0 && u < 1) R.numero(c, ri(bx - 60 + k * 24 + Math.sin(u * 6 + k) * 3), ri(by - 56 - u * 44 - (k % 2) * 8), { tam: 8, centro: true, color: u < 0.7 ? ORO[3] : ORO[2] }); });
-  // la mano de Morriss (izquierda): sujeta el asa; en «carry out» da dos palmaditas en la tapa; al final baja
-  const [a0, a1] = g.asas, pal1 = tramo(t, TH.CARRY + 0.3, TH.CARRY + 0.6), bajaM = ease(tramo(t, TH.WANTED + 1.0, TH.P11 - 0.4));
-  const pat = t > TH.CARRY + 0.6 && t < TH.WANTED + 0.9 ? Math.abs(Math.sin((t - TH.CARRY) * 9)) * 4 : 0;
-  const mx = lerp(lerp(a0[0] - 12, bx - 22, pal1), 60, bajaM), my = lerp(lerp(a0[1], by - 64 - pat, pal1), 214, bajaM);
-  T.brazo(R, mx - 12, my + 40, mx, my, '#b8ae9c', 1, { codo: [mx - 20, my + 18] });
-  // la mano del amigo (derecha), con la manga gris de la levita
-  T.brazo(R, a1[0] + 22, a1[1] + 42, a1[0] + 12, a1[1], MANGA_A, -1, { codo: [a1[0] + 30, a1[1] + 18] });
+  // la mano de Morriss (izquierda): sujeta el asa; en «carry out» da dos palmaditas en el costado de la caja, junto al
+  // asa; al final la suelta y baja (antes, la izquierda del amigo ya está debajo de la caja)
+  const [a0, a1] = g.asas, bajaM = ease(tramo(t, TH.WANTED + 1.0, TH.P11 - 0.4));
+  const pat = t > TH.CARRY + 0.3 && t < TH.WANTED + 0.6 ? Math.abs(Math.sin((t - TH.CARRY - 0.3) * 9)) * 5 : 0;
+  if (bajaM < 1) { const mx = lerp(a0[0] - 10 + pat * 0.6, a0[0] - 30, bajaM), my = lerp(a0[1] - pat, 214, bajaM);
+    T.brazo(R, ri(mx - 14), ri(my + 46), ri(mx), ri(my), '#b8ae9c', 1, { codo: [ri(mx - 10), ri(my + 22)] }); }
+  // las manos del amigo, con la manga gris de la levita: la derecha coge el asa; la izquierda entra por debajo del
+  // canto izquierdo antes de que Morriss suelte, y entre las dos se la llevan
+  T.brazo(R, a1[0] + 26, a1[1] + 46, a1[0] + 12, a1[1], MANGA_A, -1, { codo: [a1[0] + 22, a1[1] + 22] });
+  const ent = ease(tramo(t, TH.WANTED + 0.3, TH.WANTED + 0.95));
+  if (ent > 0) { const lx = bx - 40, ly = ri(lerp(212, by + 2, ent)); T.brazo(R, lx - 10, ly + 44, lx, ly, MANGA_A, 1, { codo: [lx - 6, ly + 20] }); }
   // lo que Beale quería: los tres dibujos encima
   const w = tramo(t, TH.BEALE2 - 0.2, TH.BEALE2 + 0.5);
   if (w > 0) { vineta(84, 46, 40, 30, w, t, (x, y, a) => dibMapa(x, y, a, t)); vineta(140, 40, 40, 30, w, t, (x, y, a) => dibOlla(x, y + 2, a, t)); vineta(196, 46, 40, 30, w, t, (x, y) => dibSiluetas(x, y + 2, 30, 0)); }
+  // las cifras que suben de la caja entreabierta (por delante de los dibujos, que aparecen mientras suben)
+  CIFRAS.forEach((c, k) => { const u = tramo(t, TH.CRACKS + 0.2 + k * 0.22, TH.CRACKS + 1.8 + k * 0.22); if (u > 0 && u < 1) R.numero(c, ri(bx - 60 + k * 24 + Math.sin(u * 6 + k) * 3), ri(by - 56 - u * 44 - (k % 2) * 8), { tam: 8, centro: true, color: u < 0.7 ? ORO[3] : ORO[2] }); });
 }
 
 // 11 · EL FOLLETO DE 1885 SOBRE LA MESA (de día): un dedo recorre el prólogo y en «gap» se para donde tendría que estar
@@ -652,8 +676,9 @@ function hj11(t) {
   caja(0, 0, 319, 179, (x, y) => { const d = (x - y * 0.8) - 40 - Math.sin(t * 0.3) * 6; if (d > 0 && d < 70 && b4(x, y) < 0.3 && !tranq(x, y)) aclara(x, y, hex('#fff4d0'), 0.22); });
   for (let k = 0; k < 10; k++) { const u = (t * 0.07 + h2(k, 1, 82)) % 1; ps(ri(70 + u * 90 + h2(k, 2, 82) * 50), ri(20 + u * 120), hex('#fff8e0')); }
   for (let k = 0; k < 3; k++) { const u = (t * 0.4 + k / 3) % 1; bocanada(276 + Math.sin(u * 6 + k) * 3, 124 - u * 26, u, 3, BLANCO[5]); }
-  const g = T.d_folleto(R, 160, 104, { escala: 3, abierto: 1, t });
-  const [px0, py0, px1] = g.izquierda, gy = 104, gx0 = px0 + 18, gx1 = gx0 + 26;
+  // el folleto va bajo en la mesa (centro en y 134) para que el brazo que señala entre desde abajo con ~40 px a la vista
+  const FY = 134, g = T.d_folleto(R, 160, FY, { escala: 3, abierto: 1, t });
+  const [px0, py0, px1] = g.izquierda, gy = FY, gx0 = px0 + 18, gx1 = gx0 + 26;
   // el hueco del nombre: un trozo en blanco del renglón, con el recuadro naranja de trazos que corre
   R.rect(gx0, gy - 3, gx1, gy + 3, PAPEL[4]);
   const hu = tramo(t, TH.GAP - 0.2, TH.GAP + 0.3);
@@ -663,8 +688,8 @@ function hj11(t) {
   if (qa > 0) { const s = grande > 0 ? 3 : 2; R.icono('?', ri((gx0 + gx1) / 2 - 2.5 * s), ri(gy - 12 - 7 * s - qa * 2), hex('#f08a20'), K, s); }
   // el dedo que recorre el renglón y se para en el hueco
   const d = ease(tramo(t, TH.P11 + 0.2, TH.GAP - 0.1)), se = tramo(t, TH.MATTERS + 0.4, TH.SEEMS + 0.6);
-  const wx = lerp(px0 - 12, gx0 - 16, d) - se * 30, wy = gy + 8 + se * 40;
-  T.brazo(R, wx - 26, wy + 62, wx, wy, '#6a5a48', 1, { codo: [wx - 30, wy + 30] });
+  const wx = lerp(px0 - 6, gx0 - 14, d) - se * 24, wy = gy + 6 + se * 40;
+  T.brazo(R, ri(wx - 14), ri(wy + 50), ri(wx), ri(wy), '#6a5a48', 1, { codo: [ri(wx - 12), ri(wy + 24)] });
   // el amigo sin nombre, arriba: una silueta con la «?» en la cara
   const sa = tramo(t, TH.CALLED - 0.6, TH.CALLED + 0.2);
   if (sa > 0) { vineta(70, 44, 30, 40, sa, t, (x, y) => siluetaAmigo(x, y + 4, 1)); }

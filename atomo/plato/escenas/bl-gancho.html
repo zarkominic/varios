@@ -28,13 +28,17 @@
 // 7. («And the most») la caja de hierro de cerca, con el candado roto: la tapa se abre y suben las tres hojas; en «three
 //    pages» se encienden por turno; en «cracked» la del medio estalla en luz y Atom luciérnaga se sorprende;
 // 8. («with a key») una biblioteca de día (fondo local): una lectora pasa la página, el bibliotecario empuja el carrito;
-//    en «key» brilla una llave dorada junto a un rollo del estante; en «Declaration» Atom lo saca y lo desenrolla («1776»);
+//    la llave dorada y el rollo descansan en la cuarta balda del estante derecho; en «key» la llave brilla en su sitio;
+//    en «Declaration» el rollo pasa de la balda a la mano de Atom y lo desenrolla («1776»);
 // 9. («And what it reveals») la mesa de lectura de cerca (fondo local): la Declaración desenrollada y las tres hojas; la
-//    mano canónica señala la del medio, que se ilumina y, desde «inventory», se vuelve lingotes, monedas, joyas y ollas;
+//    mano canónica (brazo corto, entra por el hueco entre la hoja 2 y la 3) apoya los dedos en el pie de la del medio, que
+//    se ilumina y, desde «inventory», se vuelve lingotes, monedas, joyas y ollas, con un toquecito en cada una; la
+//    librería del fondo llega hasta x 276 y bajo la esquina de Atom cuelga un grabadito enmarcado;
 // 10. («The other two», 1898) la sesión de los Hart: el médium mueve las manos sobre la bola; en «where» Clayton alza la
 //    hoja 1 («?» y un árbol) y en «for whom» George alza la 3 («?» y gente);
 // 11. («have gone», 1934) la mesa del SIS: sube un «140» en «hundred and forty»; el lápiz canónico prueba en la hoja 1 y
-//    luego en la 3, y en «not even» lo suelta;
+//    luego se desliza a la 3 (la mano queda en el cuero bajo la hoja, el lápiz sube a los renglones; brazo corto), y en
+//    «not even» lo suelta y el brazo se retira;
 // 12. («best code breakers») el aula del SIS: Friedman en la pizarra, dos descifradores en los pupitres y un tercero que
 //    pasa con papeles; en «managing to read them» uno levanta los brazos, otro se hunde y Friedman se encoge («?»).
 import * as T from '/atomo/plato/escenas/bl-comun.js';
@@ -418,19 +422,34 @@ const p8 = (t) => {
   R.actor(T.BL.wardBL, cx + 22, 166, t, { dir: -1, anda: t > P8 + 0.5 && t < declaration + 1.2 });
   for (let y = 146; y <= 160; y++) for (let x = cx - 6; x <= cx + 18; x++) R.pset(x, y, y === 146 || y === 153 || y === 160 ? hex('#3a2214') : x === cx - 6 || x === cx + 18 ? hex('#52321e') : (y < 153 ? hex(LOMOS[(x >> 2) % 8]) : hex(LOMOS[((x >> 2) + 3) % 8])));
   for (const wx of [cx - 3, cx + 15]) { R.disco(wx, 163, 2, K); R.pset(wx, 163, hex('#8a8a8a')); } R.linea(cx + 18, 146, cx + 22, 142, hex('#52321e'));
-  // en «key» brilla una llave junto al rollo del estante; en «Declaration» Atom saca el rollo y lo desenrolla
-  const rx = 224, ry = 64, saca = t > declaration - 0.2;
-  if (!saca) { rollo(rx, ry - 6, 0, t); }
-  const bk = tramo(t, key - 0.15, key + 0.3); if (t > key - 0.15 && !saca) { llave(rx - 34, ry - 22 + Math.round(Math.sin(t * 3) * 2), 2); halo(rx - 20, ry - 22, 22, hex('#ffe070'), 0.5 * bk); chispas(rx - 20, ry - 22, t, 6, 16, ORO[3], 8); }
+  // en la cuarta balda del estante derecho (borde y 120), por delante de los lomos: el rollo de la Declaración tumbado
+  // y una llave dorada apoyada de pie contra los libros. En «key» la llave brilla en su sitio (halo y destello fijos);
+  // en «Declaration» Atom alarga la mano, el rollo pasa de la balda a su mano y lo desenrolla («1776»)
+  const rx = 212, ry = 114, kx = 232, ky = 111, saca = t > declaration - 0.25;
+  // la sombrita de la llave y del rollo sobre la balda
+  for (let x = rx - 8; x <= kx + 24; x++) if (x < rx + 10 || x > kx - 6) tine(x, 119, K, 0.35);
+  llave(kx, ky, 2);
+  const bk = tramo(t, key - 0.15, key + 0.3) * (1 - 0.6 * tramo(t, declaration + 0.6, declaration + 1.4));
+  if (bk > 0) { halo(kx + 10, ky + 1, 20, hex('#ffe070'), 0.5 * bk); const d = Math.round(2 + 2 * Math.abs(Math.sin(t * 5)) * bk), gx = kx - 3, gy = ky - 4;
+    R.pset(gx, gy, hex('#ffffff')); for (let i = 1; i <= d; i++) { tine(gx - i, gy, ORO[3], 1 - i / (d + 1)); tine(gx + i, gy, ORO[3], 1 - i / (d + 1)); tine(gx, gy - i, ORO[3], 1 - i / (d + 1)); tine(gx, gy + i, ORO[3], 1 - i / (d + 1)); }
+    if (Math.sin(t * 4 + 1) > 0.3) { R.pset(kx + 22, ky + 2, hex('#ffffff')); tine(kx + 21, ky + 2, ORO[3], 0.7); tine(kx + 23, ky + 2, ORO[3], 0.7); } }
   const sube = ease(tramo(t, P8 + 0.2, key - 0.3)), ax = Math.round(lerp(320, 238, sube));
   const r = T.AT.atom(R, ax, 150, t, { dir: -1, pose: sube > 0 && sube < 1 ? 'camina' : saca ? 'sostiene' : t > key - 0.2 ? 'senala' : 'quieto', cara: saca ? 'sonrisa' : t > key ? 'sorpresa' : 'normal', habla: voz(t) });
-  if (saca && r && r.mano) { const [mx, my] = r.mano.map(Math.round); const u = tramo(t, declaration, declaration + 0.8); rollo(mx - 4, my - 8, u, t); if (u > 0.8) R.numero('1776', mx - 4, my - 12, { centro: true, rampa: ORO }); }
+  const m = ease(tramo(t, declaration - 0.25, declaration + 0.15));
+  if (!saca || !r || !r.mano) rollo(rx, ry, 0, t);
+  else { const [mx, my] = r.mano.map(Math.round); const u = tramo(t, declaration + 0.15, declaration + 0.95);
+    rollo(lerp(rx, mx - 4, m), lerp(ry, my - 8, m) - Math.round(Math.sin(m * Math.PI) * 6), m < 1 ? 0 : u, t); if (u > 0.8) R.numero('1776', mx - 4, my - 12, { centro: true, rampa: ORO }); }
 };
 
 // ── 9 · la mesa de lectura de cerca (fondo local): la hoja del medio se descifra ────────────────────────────────────
 const LECTURA = () => capa('lectura', () => {
   for (let y = 0; y < 70; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(pal('#5a4a3a', '#6a5a48', '#7e6c56', '#928064'), 1.4 + hh(x >> 2, y >> 2) * 0.5, x, y));
-  estante(-4, 4, 244, 66, 2, 21);
+  estante(-4, 4, 276, 66, 2, 21);
+  // bajo la esquina de Atom (que queda de yeso), un grabadito enmarcado de un paisaje con colinas y su clavo
+  R.rect(286, 46, 312, 66, K); R.rect(287, 47, 311, 65, hex('#c89a40')); R.rect(287, 47, 311, 47, hex('#f0c060')); R.rect(289, 49, 309, 63, hex('#3a2214'));
+  for (let y = 50; y <= 62; y++) for (let x = 290; x <= 308; x++) { const c = 58 - Math.round(Math.sin((x - 290) * 0.35) * 3) - (x > 300 ? 2 : 0); R.pset(x, y, y < c ? tono(pal('#b8a888', '#d8c8a0', '#ece0bc'), 1.4 + hh(x, y, 5) * 0.8, x, y) : tono(pal('#5a5a3a', '#7a7a4a', '#9a9058'), 1 + (y - c) * 0.2 + hh(x, y, 6) * 0.6, x, y)); }
+  R.pset(299, 44, K); R.linea(292, 46, 299, 44, hex('#5a4a38')); R.linea(306, 46, 299, 44, hex('#5a4a38'));
+  for (let x = 286; x <= 313; x++) tine(x + 1, 67, K, 0.3); for (let y = 47; y <= 67; y++) tine(313, y, K, 0.3);
   // la mesa de caoba con su cuero verde y el filete dorado
   for (let y = 70; y < 180; y++) for (let x = 0; x < 320; x++) { const veta = Math.sin(x * 0.04 + Math.sin(y * 0.11) * 2 + y * 0.03) * 0.5;
     R.pset(x, y, y === 70 ? K : y < 75 ? tono(pal('#3a1a10', '#5a2a18', '#7a3a22'), 2 - (y - 70) * 0.3, x, y) : tono(pal('#2a120a', '#3e1c10', '#542816', '#6a341c'), 1.5 + veta + hh(x >> 2, y) * 0.3, x, y)); }
@@ -464,10 +483,12 @@ const p9 = (t) => {
   if (br > 0) halo(200, 120, 48, hex('#ffe070'), 0.35 * br);
   const H = T.d_hoja(R, 200, 120, { n: 2, escala: 2, t, brillo: br, descifrada: des }) || {};
   for (const [tt, f] of [[goldB, 0.25], [silverB, 0.45], [jewels, 0.65], [pots, 0.9]]) { const u = cl(1 - Math.abs(t - tt - 0.15) / 0.4); if (u > 0) chispas(200, 92 + f * 56, t, 5, 14, ORO[3], Math.round(f * 10)); }
-  // la mano canónica señala la fila que se está descifrando
-  const fy = Math.round(lerp(98, 146, des)), fx = 226 + Math.round(Math.sin(t * 5) * (des > 0 && des < 1 ? 1 : 0));
-  const entra = ease(tramo(t, P9 + 0.1, reveals + 0.3));
-  T.brazo(R, 300, 214, Math.round(lerp(330, fx, entra)), Math.round(lerp(200, fy, entra)), '#3a4a7a', -1, { codo: [Math.round(lerp(330, 270, entra)), Math.round(lerp(210, 176, entra))] });
+  // la mano canónica entra de abajo por el hueco entre la hoja 2 y la 3 (sin cruzar la 3), apoya los dedos en el pie de
+  // la del medio y da un toquecito en cada cosa que aparece (oro, plata, joyas, ollas); el brazo, corto y doblado
+  const entra = ease(tramo(t, P9 + 0.1, reveals + 0.3)), dx = Math.round((1 - entra) * 30), dy = Math.round((1 - entra) * 46);
+  let toc = 0; for (const tt of [reveals, goldB, silverB, jewels, pots]) toc = Math.max(toc, cl(1 - Math.abs(t - tt - 0.1) / 0.12));
+  const wy = 151 + Math.round(toc * 2) + dy, wx = 221 + dx;
+  T.brazo(R, 250 + dx, 188 + dy, wx, wy, '#3a4a7a', -1, { codo: [235 + dx, 165 + dy] });
 };
 
 // ── 10 · la sesión de los Hart (1898): dónde y para quién ──────────────────────────────────────────────────────────
@@ -501,15 +522,18 @@ const p11 = (t) => {
   // «140» sube en «hundred and forty»
   const u = tramo(t, hundred - 0.1, years), dec = t > noteven + 0.3 ? cl(1 - (t - noteven - 0.3) / 0.6) : 1;
   if (u > 0 && dec > 0) { const y = Math.round(lerp(60, 44, ease(u))); halo(160, y - 8, 30, hex('#ffe070'), 0.3 * u * dec); R.numero('140', 160, y, { centro: true, tam: 16, rampa: ORO }); }
-  // el lápiz en la mano canónica: prueba en la hoja 1, luego en la 3, y en «not even» lo suelta
-  const k = t < (hundred + years) / 2 + 0.6 ? 0 : 2, [hx, hy] = H[k], tg = t > noteven - 0.1;
-  const garab = !tg && t > P11 + 0.4;
-  const wx = hx + 4 + (garab ? Math.round(Math.sin(t * 18) * 4) : 0), wy = hy + 18 + (garab ? Math.round(Math.sin(t * 7) * 4) : 0);
-  const sal = ease(tramo(t, noteven + 0.2, noteven + 0.9));
-  const X1 = Math.round(lerp(wx + 8, wx + 40, sal)), Y1 = Math.round(lerp(wy + 8, 210, sal));
-  if (tg) { const fall = tramo(t, noteven - 0.1, noteven + 0.4), lx = hx + 10, ly = Math.round(hy + 26 + fall * 14); R.linea(lx, ly, lx + 10, ly - 3, hex('#e8c040')); R.linea(lx, ly + 1, lx + 10, ly - 2, hex('#a88020')); R.pset(lx, ly, hex('#3a3a3a')); }
-  T.brazo(R, X1 + 22, 200, X1, Y1, '#4a5a4a', -1, { codo: [X1 + 30, Y1 + 30] });
-  if (!tg) for (let i = 0; i < 13; i++) { const px = X1 - 7 + i, py = Y1 - 7 + Math.round(i * 0.5); R.pset(px, py, i < 2 ? hex('#3a3a3a') : i < 11 ? hex('#e8c040') : hex('#e88aa0')); R.pset(px, py + 1, i < 2 ? hex('#3a3a3a') : i < 11 ? hex('#a88020') : hex('#c86a80')); }
+  // el lápiz en la mano canónica: la mano queda en el cuero, por debajo de la hoja, y el lápiz sube de los dedos hasta
+  // los últimos renglones; prueba en la hoja 1, se desliza a la 3, y en «not even» lo suelta y el brazo se retira
+  const tc = (hundred + years) / 2 + 0.6, mv = ease(tramo(t, tc - 0.35, tc + 0.25)), tg = t > noteven - 0.1;
+  const hx = lerp(H[0][0], H[2][0], mv), hy = lerp(H[0][1], H[2][1], mv);
+  const garab = !tg && t > P11 + 0.5 && (mv === 0 || mv === 1);
+  const wx = Math.round(hx + 4 + (garab ? Math.sin(t * 18) * 4 : 0)), wy = Math.round(hy + 22 + (garab ? Math.sin(t * 7) * 2 : 0));
+  const sal = ease(tramo(t, noteven + 0.2, noteven + 0.9)), ent = 1 - ease(tramo(t, P11, P11 + 0.45));
+  const X1 = Math.round(wx + 13 + sal * 20), Y1 = Math.round(wy + 16 + Math.max(sal, ent) * 50);
+  if (tg) { const fall = tramo(t, noteven - 0.1, noteven + 0.4), lx = Math.round(hx + 6), ly = Math.round(hy + 34 + fall * 8); R.linea(lx, ly, lx + 12, ly - 2, hex('#e8c040')); R.linea(lx, ly + 1, lx + 12, ly - 1, hex('#a88020')); R.pset(lx, ly, hex('#3a3a3a')); R.pset(lx + 12, ly - 2, hex('#e88aa0')); for (let i = 0; i <= 12; i++) tine(lx + i + 1, ly + 2, K, 0.3); }
+  // el lápiz (debajo de los dedos): punta de grafito arriba, cuerpo amarillo con su filo y la goma bajo la mano
+  if (!tg) for (let i = 0; i < 15; i++) { const px = X1 - 13 + Math.round(i * 0.2), py = Y1 - 16 + i; R.pset(px, py, i < 2 ? hex('#3a3a3a') : i < 3 ? hex('#d8b890') : i < 13 ? hex('#e8c040') : hex('#e88aa0')); R.pset(px + 1, py, i < 2 ? hex('#5a5a5a') : i < 3 ? hex('#b89870') : i < 13 ? hex('#a88020') : hex('#c86a80')); tine(px + 2, py + 1, K, 0.3); }
+  T.brazo(R, X1 + 18, 192 + Math.round(sal * 20), X1, Y1, '#4a5a4a', -1, { codo: [X1 + 8, Math.min(Y1 + 20, 200)] });
   // tachones que deja en las hojas 1 y 3
   for (const [kk, t0] of [[0, P11 + 0.8], [2, (hundred + years) / 2 + 1.2]]) if (t > t0) { const [qx, qy] = H[kk]; R.linea(qx - 12, qy + 14, qx + 12, qy + 22, hex('#c83a2a')); R.linea(qx - 12, qy + 22, qx + 12, qy + 14, hex('#c83a2a')); }
 };

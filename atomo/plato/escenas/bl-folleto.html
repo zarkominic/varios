@@ -12,7 +12,7 @@
 // BL-FOLLETO (frase 18), 1885, cartela «1885». Cuatro planos cortados en la voz inglesa:
 // 1 · La prensa de cerca (fondo local): la platina baja en «pamphlet» y deja impresa la cubierta amarilla, que brilla en
 //   «born»; la mano del impresor la saca en «Beale Papers» y la pone en la pila. Corta en «printed».
-// 2 · La fachada de la imprenta (fondo local, calle de Lynchburg): pasa un carro por delante; Ward, en la puerta, alza
+// 2 · La fachada de la imprenta (fondo local, calle de Lynchburg; el rótulo verde lleva tres folletos en abanico): pasa un carro por delante; Ward, en la puerta, alza
 //   un folleto en «Ward»; un vecino le paga la moneda en «fifty cents» («50») y se va leyendo. Corta en «according».
 // 3 · La imprenta (cuarto·imprenta, humo): Ward lo cuenta en «according to Ward»; la prensa se para, sale humo de la
 //   puerta de atrás en «fire» y los folletos colgados se ennegrecen y caen; el impresor y Ward salen con los fardos (sin
@@ -517,9 +517,18 @@ function f2Fondo() {
   // la fachada de ladrillo con su cornisa
   ladrillos(0, 30, 319, 142, {});
   caja(0, 28, 319, 33, (x, y) => R.pset(x, y, rmp(PIEDRA, y === 28 ? 5 : 3 - (y - 28) * 0.4 + (x % 8 === 0 ? -1 : 0), x, y)));
-  // el rótulo de madera (sin letras: el dibujo de una prensa y de un libro)
+  // el rótulo de madera (sin letras: tres folletos en abanico)
   caja(56, 36, 204, 52, (x, y) => R.pset(x, y, rmp(VERDE, 2.6 + (y === 36 || y === 52 ? 1.6 : 0) + (h2(x >> 2, y, 162) - 0.5) * 0.4, x, y))); marco(56, 36, 204, 52, LATON[2]);
-  R.rect(118, 39, 132, 49, LATON[3]); R.rect(120, 41, 130, 43, VERDE[1]); lin(125, 43, 125, 49, VERDE[1]); R.rect(140, 40, 150, 49, LATON[3]); lin(145, 40, 145, 49, VERDE[1]);
+  // el pictograma: tres folletos amarillos en abanico, con sus rayas de texto (sin trazos que parezcan letras)
+  const FOLL = pal(['#5a3e10', '#a07a28', '#d0a238', '#e8c048', '#f6dc7a']);
+  for (const [cx, an] of [[119, -0.32], [141, 0.32], [130, 0]]) { const co = Math.cos(an), si = Math.sin(an);
+    for (let y = 38; y <= 51; y++) for (let x = cx - 9; x <= cx + 9; x++) { const dx = x - cx, dy = y - 44.5, u = dx * co + dy * si, v = -dx * si + dy * co;
+      // la sombra de cada hoja, abajo a la derecha
+      if (Math.abs(u - 1) <= 4.6 && Math.abs(v - 1) <= 5.6 && !(Math.abs(u) <= 4.6 && Math.abs(v) <= 5.6) && y <= 51) ps(x, y, VERDE[0]);
+      if (Math.abs(u) > 4.6 || Math.abs(v) > 5.6 || y < 38 || y > 50) continue;
+      const borde = Math.abs(u) > 3.7 || Math.abs(v) > 4.7, raya = !borde && Math.abs(u) < 3 && (Math.abs(v + 2.5) < 0.5 || Math.abs(v) < 0.5 || Math.abs(v - 2.5) < 0.5);
+      ps(x, y, borde ? FOLL[0] : raya ? FOLL[1] : rmp(FOLL, 3.2 - u * 0.18 - v * 0.08, x, y)); }
+    if (!an) { ps(cx - 3, 40, FOLL[4]); ps(cx - 2, 40, FOLL[4]); } }
   for (const x of [72, 188]) { R.disco(x, 44, 3, LATON[3]); ps(x, 44, VERDE[1]); }
   // el escaparate: marco, cristal y lo de dentro (los folletos amarillos en filas)
   caja(58, 62, 170, 130, (x, y) => R.pset(x, y, rmp(pal(['#1a1a22', '#24242e', '#30303a', '#3c3c48']), 1.4 + (y - 62) / 68 + (h2(x >> 2, y >> 2, 163) - 0.5) * 0.4, x, y)));

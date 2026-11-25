@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep48 · short 1 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// BL-SHORT1-MINIATURA · ep48, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras, sin Atom.
+// El gancho («the only map is numbers»): el bosque de Bedford bajo la luna; en el suelo, la hoja vieja de números en su
+// haz de luna; un buscador chibi al triple, de rodillas junto a ella con su farol, la mira boquiabierto.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/bl-comun.js';
+import { figura, grado, halo, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const mez = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const dibujar = (t) => {
+  const o = { encuadre: 'bosque', noche: true };
+  T.bedford(R, t, o);
+  desplazar(R, -50);   // la luna (x 226) baja a la columna central (x 176)
+  const B = R.buf, NOCHE = hex('#04060e');
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = mez(B[y * 320 + x], NOCHE, 0.25 + 0.2 * (y / 180));
+  // el haz de luna que baja hasta la hoja
+  for (let y = 40; y < 168; y++) { const w = 6 + (y - 40) * 0.16; for (let x = Math.round(176 - w); x <= 176 + w; x++) B[y * 320 + x] = mez(B[y * 320 + x], hex('#c8d4f0'), 0.16 * (1 - Math.abs(x - 176) / (w + 1))); }
+  const hoja = T.d_hoja(R, 180, 146, { escala: 2, n: 1, t, brillo: 0.5 });
+  // el buscador, al triple, agachado a la izquierda de la hoja, con su farol
+  const b = figura(R, T.BL.buscadorBL, 128, 182, t, { dir: 1, sorpresa: true, sostiene: [74, 78], cosa: (R, mano) => T.d_farol(R, mano[0], mano[1], t, { luz: 0.9 }) }, 3);
+  T.bedfordDelante(R, t, o);
+  halo(R, 180, 146, 40, 34, '#e8ecff', 0.25);
+  if (b && b.mano) halo(R, b.mano[0], b.mano[1] + 20, 40, 40, '#ffc870', 0.35);
+  grado(R, { cx: 160, cy: 110, rx: 80, ry: 120, tinte: '#060a14', f: 0.15, desde: 0.55, max: 0.8 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

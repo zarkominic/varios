@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep48 · miniatura C</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// BL-MINIATURA-C · ep48, la de REFERENCIA de la prueba (aprobada por el usuario el 25/11/2026): la composición de siempre
+// (la del 43–47: escena a la izquierda, corte en diagonal, el año en blanco hueso y un chibi al doble) pero SIN ATOM: en
+// su sitio, a la derecha del corte, el estudio con las tres hojas de números (la segunda, la descifrada, encendida). A la
+// izquierda, el bosque de Bedford bajo la luna: Beale, chibi al doble, con su farol y la pala, junto a la hoja vieja de
+// números en el suelo. «BEALE» en pixel grande y «1820».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/bl-comun.js';
+import { figura, grado, halo, desplazar, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+import { palabra } from '/atomo/plato/escenas/bl-mini-letras.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const mez = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const pala = (R, [hx, hy]) => { hx = Math.round(hx); hy = Math.round(hy); R.linea(hx, hy - 6, hx + 6, hy + 16, hex('#5a3a1a')); R.linea(hx + 1, hy - 6, hx + 7, hy + 16, hex('#8a5a2e'));
+  R.poligono([[hx + 4, hy + 16], [hx + 10, hy + 15], [hx + 11, hy + 21], [hx + 6, hy + 22]], hex('#6a6e76')); R.pset(hx + 5, hy + 16, hex('#a8acb4')); };
+const dibujar = (t) => {
+  // la mitad derecha: el estudio de las pausas con las tres hojas en la pizarra
+  const b = R.nuevo(), prev = R.usar(b);
+  T.estudio(R, t, { encuadre: 'estudio', camara: 'mesa' });
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) b[y * 320 + x] = mez(b[y * 320 + x], hex('#0a0814'), 0.25);
+  halo(R, 262, 96, 64, 70, '#ffe0a0', 0.25);
+  T.d_hoja(R, 232, 100, { escala: 2, n: 1, t, oscura: 0.15 });
+  T.d_hoja(R, 266, 92, { escala: 2, n: 2, t, brillo: 0.8, descifrada: 1 });
+  T.d_hoja(R, 300, 100, { escala: 2, n: 3, t, oscura: 0.15 });
+  R.usar(prev);
+  // la mitad izquierda: el bosque de Bedford de noche, con la hoja en el suelo bajo el haz de la luna
+  const o = { encuadre: 'bosque', noche: true, hoja: true };
+  T.bedford(R, t, o);
+  desplazar(R, -40);
+  const m = figura(R, T.BL.bealeOesteBL, 64, 160, t, { dir: 1, sostiene: [80, 72], cosa: (R, mano) => { T.d_farol(R, mano[0], mano[1], t, { luz: 0.8 }); } }, 2);
+  T.bedfordDelante(R, t, o);
+  const B = R.buf;
+  pala(R, [40, 140]);
+  if (m && m.mano) { halo(R, m.mano[0], m.mano[1] + 14, 40, 36, '#ffc870', 0.35); }
+  halo(R, 34, 120, 18, 40, '#7a8ac8', 0.2);
+  // el corte en diagonal con su filo blanco hueso
+  for (let y = 0; y < 180; y++) { const xd = 196 + Math.round((180 - y) * 0.28); for (let x = xd; x < 320; x++) B[y * 320 + x] = b[y * 320 + x]; for (let k = -1; k <= 1; k++) R.pset(xd + k, y, hex('#f4f0e4')); }
+  grado(R, { cx: 160, cy: 100, tinte: '#060a14', f: 0.18, desde: 0.55, max: 0.7 });
+  palabra(R, 'BEALE', 12, 14, 5, hex('#f4f0e4'), hex('#2a1a30'));
+  cifra(R, '1820', 262, 26, 24);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

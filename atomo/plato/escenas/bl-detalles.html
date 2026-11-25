@@ -12,17 +12,19 @@
 // bl-detalles (frase 28, PAUSA «fíjate»): planos de bl-nickell congelados en gris azulado y Atom al doble.
 // 1 · El teatrillo congelado (P13): Atom entra y lo rodea con su órbita en «trap». Corta en «In 1983».
 // 2 · 1983, la consulta (estudio 'consulta' a color): una psicóloga reparte el cuestionario; el voluntario duda y marca.
-//   Corta en «showed».
+//   Atom mira desde la alfombra a la izquierda (x 36) para no tapar a la psicóloga, que vuelve a x 150. Corta en «showed».
 // 3 · El estudio de Nickell congelado (P12): Atom saca el termómetro verde de «parece»; cuatro pegatinas de detalle
-//   vuelan del folleto y lo suben. Corta en «even though».
-// 4 · La galería congelada (P11): el termómetro rojo «de verdad» baja 1/2, 1/4, 1/8, 1/16. Corta en «and the pamphlet».
+//   vuelan del folleto en arco alto por encima de la cifra, se apilan a su derecha y lo suben. Corta en «even though».
+// 4 · La galería congelada (P11): el termómetro rojo «de verdad» (x 282) baja 1/2, 1/4, 1/8, 1/16, 1/32; la fracción va a
+//   la izquierda de su tubo, entre las pegatinas (x 229) y el tubo. Corta en «and the pamphlet».
 // 5 · El corcho congelado (P5): Atom abre el folleto y cae el primer bloque, «1014». Corta en «six feet».
 // 6 · La estampida congelada (P4): Atom sostiene el folleto abierto; caen «6» y el «4» sale volando de su página. Corta
 //   en «Each of those».
 // 7 · El archivo congelado (P8): del folleto vuelan tres bloques más; la torre sube hasta arriba y brilla firme en «real»,
-//   Atom suelta el folleto y abre los brazos. Corta en «even though».
+//   Atom suelta el folleto y abre los brazos. Corta en «even though». (P8 deja la esquina derecha de pared, con un plano
+//   enmarcado por debajo de la zona de Atom.)
 // 8 · El mostrador congelado (P10): la torre se tambalea, sale «1983» y Atom corre a sujetarla; en «perfect» el remate
-//   rojo salta, le rebota en la cabeza (estrellitas) y cae al suelo.
+//   rojo salta, le rebota en la cabeza (estrellitas) y cae al suelo. (En P10 solo asoma el antebrazo desde abajo.)
 // (En todos los planos congelados flotan motas doradas: el mundo quieto, el polvo de Atom vivo.)
 import * as T from '/atomo/plato/escenas/bl-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -464,12 +466,22 @@ const P8 = (t) => {
     for (let y = 0; y < 120; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#4a4a44', '#5e5e56', '#72726a', '#868678']), 1.8 + (h2(x >> 2, y >> 2, 71) - 0.5) * 0.5 - y / 260, x, y));
     R.rect(0, 0, 319, 7, H('#3a3a36')); for (const x0 of [30, 186]) { R.rect(x0, 7, x0 + 80, 10, H('#a8a89c')); R.rect(x0 + 2, 8, x0 + 78, 9, H('#f4f4ec')); }
     // tres cuerpos de estanterías llenas de libros de registro con su tejuelo y su cifra
-    for (const [x0, x1] of [[0, 98], [108, 210], [220, 319]]) { R.rect(x0, 14, x1, 118, H('#2a1a10'));
+    for (const [x0, x1] of [[0, 98], [108, 210], [220, 270]]) { R.rect(x0, 14, x1, 118, H('#2a1a10'));
       for (let b = 0; b < 5; b++) { const y = 18 + b * 20; R.rect(x0, y + 17, x1, y + 19, MAD[3]); R.rect(x0, y + 17, x1, y + 17, MAD[4]);
         for (let x = x0 + 3; x < x1 - 4;) { const w = 6 + ri(h2(x, b, 72) * 3), hh = 13 + ri(h2(x, b, 73) * 3), c = pal(['#5a2a1e', '#3a2a1a', '#2a3a2a', '#4a3220', '#2a2a3a', '#6a4a2a'])[ri(h2(x, b, 74) * 5)];
           R.rect(x, y + 17 - hh, x + w - 1, y + 16, c); R.rect(x, y + 17 - hh, x, y + 16, mez(c, BLA, 0.2)); R.rect(x + w - 1, y + 17 - hh, x + w - 1, y + 16, mez(c, K, 0.4));
           R.rect(x + 1, y + 20 - hh, x + w - 2, y + 23 - hh, H('#d8c8a0')); ps(x + 2, y + 21 - hh, H('#4a3a2a')); ps(x + w - 3, y + 22 - hh, H('#4a3a2a'));
           R.rect(x + 1, y + 13, x + w - 2, y + 13, H('#c8a048')); x += w + (h2(x, b, 75) > 0.85 ? 4 : 1); } } }
+    // la esquina de la derecha queda de pared (fondo tranquilo tras Atom): el canto de la estantería con su sombra,
+    // un plano del condado enmarcado bajo la zona de Atom y el zócalo de madera
+    for (let y = 14; y < 118; y++) for (let x = 271; x < 276; x++) tine(x, y, K, 0.35 - (x - 271) * 0.06);
+    R.rect(270, 14, 271, 118, H('#1a100a'));
+    R.rect(282, 56, 314, 86, K); R.rect(283, 57, 313, 85, MAD[3]); R.rect(283, 57, 313, 57, MAD[4]); R.rect(285, 59, 311, 83, H('#d8ccaa'));
+    for (let y = 60; y < 83; y++) for (let x = 286; x < 311; x++) if (h2(x >> 2, y >> 2, 81) > 0.55) ps(x, y, H('#b8c89a'));
+    R.linea(287, 80, 296, 70, H('#5a7ab0')); R.linea(296, 70, 300, 72, H('#5a7ab0')); R.linea(300, 72, 309, 62, H('#5a7ab0'));
+    for (const [qx, qy] of [[290, 64], [303, 78], [295, 81]]) { R.rect(qx, qy, qx + 2, qy + 1, H('#a84a32')); }
+    R.disco(305, 66, 1, ROJ); for (let x = 283; x < 314; x++) tine(x, 87, K, 0.3);
+    R.rect(276, 100, 319, 118, MAD[1]); R.rect(276, 100, 319, 100, MAD[3]); for (let x = 278; x < 319; x += 9) R.rect(x, 102, x, 117, MAD[0]);
     // la escalera de biblioteca apoyada en su barra
     R.rect(0, 12, 319, 13, H('#8a8a80')); R.linea(196, 12, 208, 118, H('#5a3a1e')); R.linea(206, 12, 218, 118, H('#5a3a1e')); for (let y = 22; y < 118; y += 12) R.linea(197 + (y - 12) * 0.113, y, 207 + (y - 12) * 0.113, y, H('#7a5a32'));
     // el suelo de linóleo con brillos
@@ -553,7 +565,7 @@ const P10 = (t) => {
   let fy = 196, fxp = 70; for (let i = 0; i < 4; i++) { const u = ease(tramo(t, tt[i] - 0.45, tt[i])); if (u > 0) { fy = i === 0 ? lerp(196, filas[0], u) : lerp(filas[i - 1], filas[i], u); fxp = i === 0 ? lerp(70, 104, u) : 104; } }
   const toque = t > TB.Y1820 && t < TB.Y1820 + 0.25 ? 1 : 0;
   T.lynchburgDelante(R, t, O10);
-  if (fy < 190) T.brazo(R, fxp - 34, 206, fxp - 4 + toque, fy + 3, TWEED, 1, { codo: [fxp - 36, fy + 38] });
+  if (fy < 190) T.brazo(R, fxp - 18, 224, fxp - 4 + toque, fy + 3, TWEED, 1, { codo: [fxp - 14, 190] });
   if (t > TB.Y1820) { globo(150, 112, '?', pop(t, TB.Y1820, 0.3), ROJ, 2); }
 };
 
@@ -657,12 +669,13 @@ const altoT = (t) => (ease(tramo(t, TS.N1014 - 0.25, TS.N1014 + 0.15)) + ease(tr
   + ease(tramo(t, TS.OF - 0.2, TS.OF + 0.15)) + ease(tramo(t, TS.DETAILS2 - 0.2, TS.DETAILS2 + 0.15)) + ease(tramo(t, TS.MAKES - 0.2, TS.MAKES + 0.15)) + ease(tramo(t, TS.STORY - 0.2, TS.STORY + 0.15))) / 7;
 const torre = (t) => { const a = altoT(t); if (a <= 0) return null; return T.pausa(R, TX, TY, t, { cual: 'torre', alto: a, tiembla: ease(tramo(t, TS.ONE, TS.ONE + 1.0)) * (t > TS.TRUE ? 1 : 0.6), numero: t > TS.ONE + 0.2 ? true : false }); };
 // los dos termómetros: «parece» (verde, sube con cada detalle) y «de verdad» (rojo, baja)
-const termo = (x, nivel, col, colS, texto, u) => { if (u <= 0) return; const y1 = 158, y0 = ri(lerp(158, 64, Math.min(1, u)));
+const termo = (x, nivel, col, colS, texto, u, izq = false) => { if (u <= 0) return; const y1 = 158, y0 = ri(lerp(158, 64, Math.min(1, u)));
   R.rect(x - 7, y0 - 1, x + 7, y1 + 1, K); R.rect(x - 6, y0, x + 6, y1, H('#e8eef0')); R.rect(x - 6, y0, x - 5, y1, BLA);
   const top = ri(lerp(y1 - 2, y0 + 3, nivel)); R.rect(x - 4, top, x + 4, y1 - 2, col); R.rect(x - 4, top, x - 3, y1 - 2, mez(col, BLA, 0.4)); R.rect(x + 3, top, x + 4, y1 - 2, colS);
   for (let y = y0 + 6; y < y1; y += 8) R.rect(x + 3, y, x + 6, y, H('#8a9aa0'));
   R.disco(x, y1 + 6, 8, K); R.disco(x, y1 + 6, 7, col); ps(x - 3, y1 + 3, mez(col, BLA, 0.5));
-  if (u >= 1) R.numero(texto, x, top - 6, { centro: true, color: col }); };
+  if (u >= 1) { if (izq) { const w = R.numero(texto, 0, -40, { n: 0 }); R.numero(texto, x - 11 - w, Math.max(y0 + 10, top + 4), { color: col }); }
+    else R.numero(texto, x, top - 6, { centro: true, color: col }); } };
 const S1 = (t) => {
   P13(TF.P13); AT.pausa(R, tramo(t, 0, 0.3)); if (t > 0.4) motasP(t, 1);
   const u = tramo(t, 0.25, 1.7), x = lerp(-40, 48, ease(u)), anda = u > 0 && u < 1;
@@ -683,7 +696,7 @@ const S2 = (t) => {
   if (t > TS.AMOS + 0.2) { const hx = dx + 14, hy = dy - 18; R.rect(hx - 5, hy - 7, hx + 5, hy + 6, K); R.rect(hx - 4, hy - 6, hx + 4, hy + 5, BLA); for (let i = 0; i < 4; i++) R.rect(hx - 3, hy - 4 + i * 3, hx + 3 - (i % 2) * 2, hy - 4 + i * 3, H('#8a8aa0'));
     if (t > TS.DANIEL + 0.7) { R.linea(hx - 2, hy + 1, hx, hy + 3, H('#2a8a3a')); R.linea(hx, hy + 3, hx + 3, hy - 2, H('#2a8a3a')); } }
   if (t > TS.DANIEL && t < TS.DANIEL + 0.9) globo(dx + 2, dy - 30, '?', pop(t, TS.DANIEL, 0.25), ROJ, 1);
-  AT.atom(R, 150, 180, t, { s: 2, dir: -1, pose: t > TS.PSYCH && t < TS.DANIEL ? 'senala' : 'brazos', cara: 'normal', habla: habla(t) });
+  AT.atom(R, 36, 180, t, { s: 2, dir: 1, pose: t > TS.PSYCH && t < TS.DANIEL ? 'senala' : 'brazos', cara: 'normal', habla: habla(t) });
 };
 // ── S3 · el estudio de Nickell congelado: Atom saca a color el termómetro de «parece»: sube con cada detalle ──
 const ICD = (x, y, k) => { // las pegatinas de detalle: un lingote, una pala, un «6» y un «4»
@@ -697,7 +710,10 @@ const S3 = (t) => {
   termo(150, lvl, H('#3ac85a'), H('#1a7a32'), ri(lvl * 100) + '%', u);
   const a = AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: t > TS.SHOWED + 0.3 ? 'sostiene' : 'senala', cara: n >= 3 ? 'sonrisa' : 'normal', habla: habla(t) });
   if (t > TS.SHOWED + 0.3 && a.mano) T.d_folleto(R, a.mano[0] + 6, a.mano[1] - 4, { escala: 1, t });
-  k.forEach((a0, i) => { const v = tramo(t, a0 - 0.45, a0); if (v > 0 && v < 1) { const sx = lerp(a.mano[0] + 8, 150, ease(v)), sy = lerp(a.mano[1] - 10, 100 - i * 6, ease(v)) - Math.sin(v * Math.PI) * 20; ICD(ri(sx), ri(sy), i); } });
+  // cada pegatina vuela en arco alto (curva con control arriba a la derecha del tubo) y baja casi en vertical a su hueco:
+  // así pasa por encima de la cifra del termómetro y nunca se pisan
+  k.forEach((a0, i) => { const v = tramo(t, a0 - 0.45, a0); if (v > 0 && v < 1) { const e = ease(v), x0 = a.mano[0] + 8, y0 = a.mano[1] - 10, x1 = 172, y1 = 150 - i * 16, cx = 180, cy = -30;
+    const sx = (1 - e) * (1 - e) * x0 + 2 * e * (1 - e) * cx + e * e * x1, sy = (1 - e) * (1 - e) * y0 + 2 * e * (1 - e) * cy + e * e * y1; ICD(ri(sx), ri(sy), i); } });
   if (n > 0) for (let i = 0; i < n; i++) ICD(172, 150 - i * 16, i);
 };
 // ── S4 · la galería congelada: aparece el termómetro rojo, «de verdad», que baja con cada detalle añadido ──
@@ -705,8 +721,8 @@ const S4 = (t) => {
   P11(TF.P11); AT.pausa(R, 1); motasP(t, 4);
   termo(214, 0.9, H('#3ac85a'), H('#1a7a32'), '90%', 1);
   const k = [TS.EVERY, TS.ADDED, TS.DETAIL, TS.LESS], n = k.filter((a) => t > a).length, fr = ['1/2', '1/4', '1/8', '1/16', '1/32'][n], lvl = 0.5 / Math.pow(2, n);
-  termo(254, lvl, H('#e83a2a'), H('#8a1a14'), fr, pop(t, TS.EVEN, 0.4));
-  for (let i = 0; i < 4; i++) ICD(234, 150 - i * 16, i);
+  termo(282, lvl, H('#e83a2a'), H('#8a1a14'), fr, pop(t, TS.EVEN, 0.4), true);
+  for (let i = 0; i < 4; i++) ICD(229, 150 - i * 16, i);
   AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: t > TS.EVERY && t < TS.LESS + 0.6 ? 'senala' : 'quieto', cara: t > TS.LESS ? 'sorpresa' : 'normal', habla: habla(t) });
 };
 // ── S5 · el corcho congelado: Atom abre el folleto y de su página sale el primer bloque de la torre, «1014» ──

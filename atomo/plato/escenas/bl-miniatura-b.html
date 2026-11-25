@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep48 · miniatura B</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// BL-MINIATURA-B · ep48, prueba de miniaturas SIN ATOM y con texto en inglés (aprobada por el usuario el 25/11/2026).
+// Estilo nuevo, de cerca: en el cuarto del amigo de noche, dos manos (las canónicas, con su brazo) sostienen la hoja 1 de
+// Beale grande; la vela está detrás del papel y su luz lo atraviesa, y a través del papel se transparenta el oro (el
+// contorno de ollas, monedas y lingotes, como una filigrana dorada) con destellos que asoman por los cantos. A la
+// izquierda, «1 OF 3» y «SOLVED» (de las tres hojas, solo se descifró una). Sin Atom.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/bl-comun.js';
+import { grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+import { palabra, ancho } from '/atomo/plato/escenas/bl-mini-letras.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const mez = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const ORO = ['#6a4410', '#a87820', '#d8a830', '#f0c840', '#ffe470', '#fff8d0'].map(hex);
+// la filigrana del tesoro que se transparenta: una máscara (x, y) → 0–1 dentro de la hoja (dos ollas llenas, un
+// montón de monedas y tres lingotes), en coordenadas relativas a la hoja (u, v de 0 a 1)
+const tesoro = (u, v) => {
+  const olla = (cu, cv, r) => { const du = (u - cu) / r, dv = (v - cv) / (r * 0.62); const cuerpo = du * du + dv * dv < 1 && v > cv - r * 0.3; const boca = Math.abs(v - (cv - r * 0.36)) < 0.012 && Math.abs(du) < 0.85; const oro = v < cv - r * 0.3 && v > cv - r * 0.62 && (du * du) + ((v - cv + r * 0.3) / (r * 0.34)) ** 2 < 1; return cuerpo ? 0.55 : boca ? 0.9 : oro ? 1 : 0; };
+  let m = Math.max(olla(0.3, 0.72, 0.2), olla(0.7, 0.75, 0.17));
+  const mont = 0.92 - 0.12 * Math.cos((u - 0.5) * 2.4); if (v > mont && v < 0.97) m = Math.max(m, 0.8 * (h(Math.round(u * 40), Math.round(v * 60), 5) > 0.3 ? 1 : 0.6));
+  for (const [lu, lv] of [[0.42, 0.52], [0.58, 0.5], [0.5, 0.44]]) if (Math.abs(u - lu) < 0.09 && Math.abs(v - lv) < 0.03) m = Math.max(m, 0.95);
+  return m;
+};
+const dibujar = (t) => {
+  T.cuarto(R, t, { camara: 'mesa', vela: 0.35 });
+  const B = R.buf, NOCHE = hex('#05040a');
+  // la penumbra del cuarto: solo queda la luz de la vela (detrás de la hoja)
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot((x - 250) / 1.2, y - 96); B[y * 320 + x] = mez(B[y * 320 + x], NOCHE, Math.min(0.78, 0.3 + Math.max(0, (d - 30) / 200))); }
+  // la luz de la vela que se cuela por detrás del papel
+  halo(R, 238, 92, 78, 78, '#ffb850', 0.5);
+  halo(R, 238, 92, 46, 54, '#ffe0a0', 0.45);
+  // LA HOJA 1 grande, a contraluz
+  const SX = 238, SY = 90, s = 4, hoja = T.d_hoja(R, SX, SY, { escala: s, n: 1, t: 0.3 });
+  const [x0, y0, x1, y1] = hoja.caja;
+  // el papel a contraluz: más claro y cálido en el centro (la vela detrás), con las fibras
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = B[y * 320 + x], d = Math.hypot((x - SX) / (x1 - x0), (y - SY - 8) / (y1 - y0));
+    B[y * 320 + x] = mez(c, hex('#fff0c0'), Math.max(0, 0.32 - d * 0.5)); }
+  // el oro que se transparenta: filigrana dorada bajo los números (los números siguen encima, en tinta)
+  for (let y = y0 + 2; y <= y1 - 2; y++) for (let x = x0 + 2; x <= x1 - 2; x++) { const m = tesoro((x - x0) / (x1 - x0), (y - y0) / (y1 - y0)); if (m <= 0) continue;
+    const c = B[y * 320 + x], tinta = ((c >>> 16) & 255) < 90 && ((c >>> 8) & 255) < 90; if (tinta) continue;
+    B[y * 320 + x] = mez(c, ORO[2 + Math.round(m * 2 + (h(x >> 1, y >> 1, 9) - 0.5))], 0.32 * m + 0.06 * Math.sin(t * 2 + x * 0.1)); }
+  // destellos de oro que asoman por los cantos y en el centro
+  for (let k = 0; k < 7; k++) { const f = Math.sin(t * 3 + k * 1.9); if (f < 0.1) continue; const [x, y] = [[x0 + 6, y1 - 14], [x1 - 8, y1 - 26], [SX - 18, y1 - 40], [SX + 16, y1 - 44], [x0 + 18, y1 - 6], [x1 - 4, y0 + 40], [SX, SY + 10]][k], n = 2 + Math.round(f * 4);
+    for (let j = -n; j <= n; j++) { R.pset(x + j, y, Math.abs(j) < 2 ? ORO[5] : ORO[4]); R.pset(x, y + j, Math.abs(j) < 2 ? ORO[5] : ORO[4]); } R.pset(x, y, hex('#ffffff')); }
+  halo(R, SX, y1 - 30, 50, 26, '#ffc840', 0.16);
+  // las dos manos que la sostienen por los cantos (brazos canónicos desde abajo, levita oscura)
+  T.brazo(R, x0 - 30, 196, x0 + 2, y1 - 34, '#3a2e3a', 1, { codo: [x0 - 22, y1 + 8] });
+  T.brazo(R, x1 + 32, 196, x1 - 2, y1 - 30, '#3a2e3a', -1, { codo: [x1 + 24, y1 + 10] });
+  grado(R, { cx: 220, cy: 96, tinte: '#0a0610', f: 0.1, desde: 0.5, max: 0.72 });
+  // el texto a la izquierda, en dos líneas: «1 OF 3» grande y «SOLVED»
+  palabra(R, '1 OF 3', 12, 34, 5, hex('#ffe470'), hex('#3a1c08'));
+  palabra(R, 'SOLVED', 12, 84, 4, hex('#f4f0e4'), hex('#2a1810'));
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

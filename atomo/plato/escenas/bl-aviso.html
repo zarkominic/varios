@@ -17,6 +17,7 @@
 // 3. («And hold on») la pizarra de cerca (fondo local), con las tres hojas clavadas: Atom, flotando, traza con la pluma
 //    una gran interrogación desde «question»; en «Who really wrote» la remata con su punto y en «numbers» la
 //    interrogación se enciende y Atom guiña.
+//    Las cuentas viejas de tiza del fondo quedan fuera de la zona de Atom y de bajo la barra del año (solo polvo en esas esquinas).
 import * as T from '/atomo/plato/escenas/bl-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('bl-aviso');
@@ -143,7 +144,10 @@ const PIZ = () => capa('piz', () => {
     R.pset(x, y, m ? (x === 6 || x === 314 || y === 10 || y === 156 ? K : tono(pal('#3a2214', '#52321e', '#6c4428', '#8a5a36'), 2 + (y < 14 || x < 10 ? 1 : 0) + Math.sin((x + y) * 0.3) * 0.3, x, y))
       : tono(pal('#1a2a22', '#22342a', '#2a3e32', '#34483a'), 1.5 + hh(x >> 3, y >> 2) * 0.7 + Math.sin(x * 0.05 + y * 0.02) * 0.3, x, y)); }
   for (let k = 0; k < 6; k++) { const cx = 30 + hh(k, 1) * 260, cy = 30 + hh(k, 2) * 100; for (let i = 0; i < 40; i++) tine(cx + i, cy + Math.sin(i * 0.3) * 6 + (i % 5), hex('#8a9a90'), 0.12); }
-  for (const [s_, x, y] of [['1701', 60, 140], ['89', 120, 34], ['76', 270, 140], ['1629', 296, 40], ['48', 180, 142], ['317', 30, 36]]) R.numero(s_, x, y, { centro: true, color: hex('#3c5044'), sombra: false });
+  // cuentas viejas de tiza, fuera de la zona de Atom (arriba a la derecha) y de bajo la barra del año (arriba a la izquierda)
+  for (const [s_, x, y] of [['1701', 60, 140], ['89', 120, 34], ['76', 270, 140], ['1629', 290, 74], ['48', 180, 142], ['317', 118, 140]]) R.numero(s_, x, y, { centro: true, color: hex('#3c5044'), sombra: false });
+  // esas dos esquinas de arriba quedan solo con polvo de borrador
+  for (const [cx, cy] of [[22, 24], [282, 24]]) for (let i = 0; i < 30; i++) for (let k = 0; k < 3; k++) tine(cx + i, cy + k * 4 + Math.sin(i * 0.4 + k) * 2, hex('#8a9a90'), 0.1);
   // la repisa con tizas y el borrador
   for (let y = 156; y <= 164; y++) for (let x = 2; x <= 318; x++) R.pset(x, y, y === 156 ? hex('#a8743a') : y === 164 ? K : tono(pal('#3a2214', '#52321e', '#6c4428'), 2 - (y - 156) * 0.2, x, y));
   R.rect(40, 151, 56, 155, hex('#f4f4ee')); R.rect(62, 152, 70, 155, hex('#e8b0b0')); R.rect(268, 148, 298, 155, hex('#6a4a2a')); R.rect(268, 153, 298, 155, hex('#c8c8c0'));

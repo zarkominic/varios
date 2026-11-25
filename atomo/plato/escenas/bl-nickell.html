@@ -15,19 +15,23 @@
 //   y «!». Corta en «and noticed».
 // 3 · El escritorio desde arriba (fondo local): el lápiz rojo rodea tres palabras («words», «English»)
 //   y en «1822» se enciende la fecha. Corta en «like».
-// 4 · El escritorio a ras de tablero (fondo local): en «stampede» salen búfalos de la palabra y cruzan la mesa; la taza
-//   salpica y el calendario salta de 1822 a 1830 en «1830s». Corta en «And when».
+// 4 · El escritorio a ras de tablero (fondo local): en «stampede» salen bisontes de perfil (giba, cuerno, cuatro patas)
+//   de la palabra y cruzan la mesa en fila escalonada por dos carriles; la taza salpica y el calendario salta de 1822 a
+//   1830 en «1830s». Pared con diploma, aplique de gas, perchero con bufanda y repisa con globo que gira. Corta en «And when».
 // 5 · El corcho de cerca (fondo local): la mano tiende dos hilos rojos entre las frases gemelas de la carta y del folleto
-//   («compared», «the rest of the pamphlet»). Corta en «with its long».
+//   («compared», «the rest of the pamphlet»), en los renglones bajos: el antebrazo sube desde abajo (≤ 44 px). Corta en
+//   «with its long».
 // 6 · La pared a la luz de la vela (fondo local): dos recortables con bocadillos de renglones largos y la misma manía
-//   roja («habits»); en «two voices» la mano los junta y en «one» queda una sola sombra. Corta en «that of Ward».
-// 7 · La mesa del estudio de Atom (estudio 'mesa', 1885): la silueta gira y sale Ward, que firma la cubierta del folleto
-//   en «put his name». Corta en «Add to that».
-// 8 · El archivo (fondo local): Nickell trae el libro de registros y lo deja caer en la mesa (golpe, registros+2); en
+//   roja («habits»); en «two voices» la mano (antebrazo corto desde abajo) los junta y en «one» queda una sola sombra.
+//   Pared de tablas con vetas, cornisa y candelabro que tiembla; mesa con papeles, lacre, gafas y tintero. Corta en «that of Ward».
+// 7 · La mesa de Ward a ras de tablero (fondo local, 1885, de noche): lámpara de aceite, tintero, folletos atados y pliegos
+//   colgados al fondo; la silueta gira y sale Ward, que firma la cubierta en «put his name». Corta en «Add to that».
+// 8 · El archivo (fondo local; el cuerpo de la derecha es bajo y deja pared y reloj arriba): Nickell trae el libro de registros y lo deja caer en la mesa (golpe, registros+2); en
 //   «Morriss» lo señala y en «doesn't show up», «?». Corta en «Washington».
 // 9 · El lector de microfilm (fondo local): las filas corren y se paran en 1823 (la llave de Morriss); en «at the
-//   earliest» se tachan las de antes. Corta en «pamphlet says».
-// 10 · El mostrador del hotel (lynchburg 'posada' · 'mostrador', registro, 1820): el dedo baja por las filas y en «1820»
+//   earliest» se tachan las de antes. Pared con zócalo, baldas de cajas y bobinas; escritorio con fichero, café que humea,
+//   flexo; la mano en la manivela baja (antebrazo corto desde abajo). Corta en «pamphlet says».
+// 10 · El mostrador del hotel (lynchburg 'posada' · 'mostrador', registro, 1820): la mano sola (sin manga) baja por las filas y en «1820»
 //   toca el hueco vacío, «?». Corta en «and that Nickell».
 // 11 · La galería de retratos (fondo local): Nickell con la lupa; cruces rojas en «found» y «no»; en «Beale» su retrato se
 //   recorta en silueta de papel y en «Virginia» cuelga de una chincheta. Corta en «for the story».
@@ -123,12 +127,30 @@ const SIL = (lx, ly, x, y, gorro) => { const dx = lx - x, dy = ly - y, ax = Math
   if (Math.hypot(dx - 0.6, dy + 16) < 3.5 || (dy > -16 && dy < -14 && dx > 2 && dx < 4.6)) return true;
   if (gorro === 'copa') return (dy >= -26 && dy < -19 && ax < 3) || (dy === -19 && ax < 5.5);
   return (dy >= -22 && dy < -19 && ax < 3.6 - (dy < -21 ? 1 : 0)) || (dy === -19 && ax < 5.2); };
-// un búfalo pequeño corriendo hacia la derecha (13 × 9), con dos posturas de patas
-const BUF = ['.....kk......', '....kHHk.w...', '.kkkHHHHHkw..', 'kMMMMHHHHHHk.', 'kMMMMMHHHHHHk', 'kMMMMMMHHHoHk', '.kMMMMMMkHHHk', '.k.k...k.k.k.', 'k...k.k...k..'];
-const BUF2 = ['.k.k...k.k.k.', '..k.k...k.k..'];
-const bufalo = (x, y, t, k, s = 2) => { const f = Math.floor(t * 12 + k) % 2, P = { k: H('#1c120c'), H: H('#3e2618'), M: H('#7e5636'), w: H('#f0e6cc'), o: H('#ffe8a0') }, F = f ? BUF.slice(0, 7).concat(BUF2) : BUF, X = ri(x), Y = ri(y);
-  F.forEach((fila, j) => { for (let i = 0; i < fila.length; i++) { const c = P[fila[i]]; if (c == null) continue; R.rect(X + i * s, Y + j * s, X + i * s + s - 1, Y + j * s + s - 1, c); } });
-  if (s > 1) { R.rect(X + 2 * s, Y + 3 * s, X + 4 * s, Y + 3 * s, H('#a07a52')); R.rect(X + 5 * s, Y + 1 * s, X + 7 * s, Y + 1 * s, H('#6a4a30')); } };
+// un bisonte de perfil corriendo a la derecha (pies en (x, y), unos 33 × 21): la giba oscura y lanuda sobre los hombros,
+// la grupa más clara que baja hacia la cola con borla, la cabeza baja con barba, el cuerno claro curvado y el ojo; cuatro
+// patas separadas que galopan con dos posturas (recogidas y abiertas)
+const elipse = (cx, cy, rx, ry, c) => { for (let dy = -Math.ceil(ry); dy <= ry; dy++) { const w = rx * Math.sqrt(Math.max(0, 1 - (dy / ry) * (dy / ry))); for (let dx = -Math.floor(w); dx <= w; dx++) ps(cx + dx, cy + dy, c); } };
+const bisonte = (x, y, t, k) => {
+  const f = Math.floor(t * 10 + k * 0.7) % 2, X = ri(x), Y = ri(y) - f, M = H('#7e5636'), ML = H('#a07a52'), MS = H('#5e3e26'), Hd = H('#3a2416'), HL = H('#5c3c26'), CU = H('#f0e6cc');
+  // las patas (por detrás del cuerpo): traseras y delanteras, con su pezuña oscura
+  const pat = f ? [[-12, -4], [-8, 1], [2, -3], [6, 3]] : [[-13, 1], [-9, -2], [1, 2], [5, -1]];
+  pat.forEach(([bx, dx], i) => { const x0 = X + bx, x1 = x0 + dx, yb = Y + f; R.linea(x0 - 1, Y - 8, x1 - 1, yb - 1, K); R.linea(x0 + 2, Y - 8, x1 + 2, yb - 1, K); R.linea(x0, Y - 8, x1, yb - 1, i % 2 ? MS : M); R.linea(x0 + 1, Y - 8, x1 + 1, yb - 1, i % 2 ? Hd : MS); ps(x1, yb, K); ps(x1 + 1, yb, K); });
+  // la cola con su borla
+  R.linea(X - 17, Y - 15, X - 20, Y - 10, K); R.linea(X - 16, Y - 15, X - 19, Y - 10, MS); R.disco(X - 20, Y - 9, 1, Hd);
+  // el contorno: grupa, giba y cabeza un píxel más grandes en negro
+  elipse(X - 7, Y - 12, 10, 6.5, K); R.disco(X + 2, Y - 13, 9, K); R.disco(X + 10, Y - 8, 5, K);
+  // la grupa (más clara, con su luz arriba y la tripa en sombra)
+  elipse(X - 7, Y - 12, 9, 5.5, M); for (let i = -6; i <= 4; i++) ps(X - 7 + i, Y - 17, ML); for (let i = -6; i <= 5; i++) ps(X - 7 + i, Y - 8, MS);
+  // la giba y los hombros de lana oscura, con mechones
+  R.disco(X + 2, Y - 13, 8, Hd); for (let i = 0; i < 9; i++) { const a = -2.6 + i * 0.32; ps(X + 2 + Math.cos(a) * 6, Y - 13 + Math.sin(a) * 6, HL); }
+  for (let i = 0; i < 5; i++) ps(X - 2 + i * 2, Y - 10 + (i % 2), HL);
+  // la cabeza baja con la barba, el morro, el ojo y el cuerno curvado hacia arriba
+  R.disco(X + 10, Y - 8, 4, Hd); R.rect(X + 12, Y - 7, X + 14, Y - 5, HL); ps(X + 14, Y - 6, K);
+  R.rect(X + 8, Y - 4, X + 11, Y - 2, Hd); ps(X + 9, Y - 1, K); ps(X + 11, Y - 2, K);
+  ps(X + 11, Y - 9, CU); ps(X + 12, Y - 9, K);
+  ps(X + 9, Y - 12, CU); ps(X + 10, Y - 13, CU); ps(X + 11, Y - 14, CU); ps(X + 12, Y - 14, BLA); ps(X + 8, Y - 12, K); ps(X + 12, Y - 15, K);
+};
 
 // ── P1 · el campus de noche en 1982: se enciende la ventana de Nickell; pasa un coche y una corredora ──
 const NOCHE = pal(['#10142c', '#161c3a', '#1e2448', '#282c56', '#363464', '#4a3e6e', '#5e4a74']);
@@ -325,11 +347,30 @@ const P4 = (t) => {
     R.rect(0, 150, 319, 153, MAD[4]); R.rect(0, 150, 319, 150, H('#c89a62')); madera(0, 154, 319, 179, MAD, 12, 46); R.rect(130, 162, 190, 166, MAD[0]); R.rect(156, 163, 164, 164, H('#c8a048'));
     // el atril con la carta de pie
     R.linea(30, 132, 46, 84, MAD[0]); R.linea(31, 132, 47, 84, MAD[3]); R.rect(24, 120, 92, 124, MAD[1]); R.rect(24, 120, 92, 120, MAD[4]);
+    // la pared de la derecha: el friso de madera, el diploma enmarcado con su lacre, el aplique de gas con su tulipa y el
+    // perchero con el sombrero (la esquina de arriba a la derecha queda como papel tranquilo)
+    R.rect(112, 96, 319, 100, H('#3a2416')); R.rect(112, 96, 319, 96, H('#7a5232')); R.rect(112, 100, 319, 100, H('#1a120c'));
+    R.rect(218, 16, 254, 44, H('#2a1a10')); R.rect(219, 17, 253, 43, H('#8a6a3a')); R.rect(219, 17, 253, 17, H('#c89a5a')); R.rect(222, 20, 250, 40, H('#2a1a10')); papel(223, 21, 249, 39, 47);
+    for (let i = 0; i < 4; i++) R.rect(228 - (i === 0 ? 2 : 0), 24 + i * 4, 244 + (i === 0 ? 2 : 0), 24 + i * 4, H('#6a5a4a')); R.disco(245, 36, 2, H('#a8222a')); ps(244, 35, H('#e0606a')); R.linea(243, 38, 241, 42, H('#c8302a')); sombraR(218, 16, 254, 44, 2, 0.3);
+    R.rect(262, 56, 268, 60, H('#8a6a2a')); R.rect(264, 50, 266, 56, H('#c8a048')); R.rect(260, 60, 270, 62, H('#c8a048')); R.rect(262, 40, 268, 50, H('#d8d0b0')); R.rect(262, 40, 262, 50, BLA); R.rect(261, 39, 269, 40, H('#a89060'));
+    // la repisa bajo el mapa con sus escuadras, tres libros tumbados y un tintero de cristal (el globo va aparte: gira)
+    R.rect(152, 84, 214, 86, H('#3a2416')); R.rect(152, 84, 214, 84, H('#9a6a42')); for (const x of [158, 208]) R.poligono([[x - 1, 87], [x + 1, 87], [x + 1, 92], [x - 1, 89]], H('#2a1a10'));
+    for (let i = 0; i < 3; i++) { const c = pal(['#5a1e1e', '#1e3a5a', '#6a4a1a'])[i]; R.rect(160 + i, 80 - i * 3, 178 - i * 2, 83 - i * 3, c); R.rect(160 + i, 80 - i * 3, 178 - i * 2, 80 - i * 3, mez(c, BLA, 0.3)); }
+    R.rect(182, 78, 188, 83, H('#2a3a4a')); R.rect(183, 79, 187, 83, H('#4a6a8a')); ps(184, 80, BLA); R.rect(184, 76, 186, 77, K);
+    R.rect(124, 26, 128, 30, H('#c8a048')); R.linea(126, 30, 132, 34, H('#8a6a2a'));
+    R.rect(118, 34, 140, 36, H('#1e1a1c')); R.rect(122, 26, 136, 34, H('#2a2428')); R.rect(122, 31, 136, 32, H('#6a2a1e')); R.rect(123, 27, 124, 30, H('#4a4048'));
     // el cubilete de lápices
     R.rect(206, 106, 220, 132, K); R.rect(207, 107, 219, 132, H('#2a4a6a')); R.rect(207, 107, 208, 132, H('#4a6a8a'));
   });
   // la luz del flexo (fuera de cuadro, arriba) en un óvalo sobre el tablero
   for (let y = 106; y < 150; y++) for (let x = 40; x < 300; x++) { const d = Math.hypot((x - 168) / 130, (y - 130) / 26); if (d < 1) tine(x, y, H('#ffd890'), 0.28 * (1 - d)); }
+  // la llama del aplique (tiembla) con su halo en la pared, y la bufanda colgada del perchero que se mece con la corriente
+  { const fl = Math.sin(t * 11) * 0.5 + Math.sin(t * 6.3) * 0.5; R.halo(265, 46, 10 + fl, pal(['#c8a050', '#ffe0a0']), 0.35); R.rect(264, 43 + ri(fl), 266, 48, H('#ffd070')); ps(265, 42 + ri(fl), BLA); }
+  { const sw = Math.sin(t * 1.7) * 1.5; for (let y = 37; y < 66; y++) { const dx = ri(sw * (y - 37) / 29); R.rect(127 + dx, y, 131 + dx, y, (y >> 2) % 2 ? H('#a83a2a') : H('#e0c070')); ps(126 + dx, y, K); ps(132 + dx, y, K); } R.rect(126 + ri(sw), 66, 132 + ri(sw), 67, K); }
+  // el globo terráqueo de la repisa, que gira despacio sobre su pie de latón
+  { R.rect(198, 81, 206, 83, H('#c8a048')); R.rect(201, 78, 203, 81, H('#8a6a2a')); R.disco(202, 71, 7, K); R.disco(202, 71, 6, H('#3a6a9a'));
+    for (let k = 0; k < 3; k++) { const ph = (t * 0.8 + k * 2.1) % (Math.PI * 2), cx = 202 + Math.cos(ph) * 4; if (Math.sin(ph) > -0.2) { R.disco(ri(cx), 69 + k * 2, 2, H('#6a9a4a')); ps(ri(cx) - 1, 68 + k * 2, H('#9ac06a')); } }
+    for (let y = 65; y <= 77; y++) for (let x = 196; x <= 208; x++) if (Math.hypot(x - 202, y - 71) < 6.5 && x > 204) tine(x, y, K, 0.3); ps(199, 67, BLA); R.linea(194, 71, 202, 63, H('#c8a048')); }
   // la carta en el atril con la palabra rodeada en rojo
   const C = carta(34, 54, 54, 66, 7, { paso: 5 }); const [w0, w1, wy] = C.fil[4][1];
   const ox = (w0 + w1) / 2, br = pop(t, TB.STAMPEDE, 0.3);
@@ -348,12 +389,14 @@ const P4 = (t) => {
   for (let i = 0; i < 4; i++) R.rect(kx + 9, 106 + i * 3, kx + 53, 106 + i * 3, H('#d8d0c0'));
   if (vuelta < 1) R.numero('1822', kx + 31, 102, { tam: 16, centro: true });
   if (vuelta > 0) { R.numero('1830', kx + 31, 102, { tam: 16, centro: true }); if (vuelta < 1) { const hh = ri(40 * (1 - vuelta)); R.rect(kx + 5, 80, kx + 57, 80 + hh, BLA); R.rect(kx + 5, 80 + hh, kx + 57, 81 + hh, H('#b8b0a0')); } else if (t < TB.Y1830 + 0.8) destello(kx + 60, 84, 3, AMA); }
-  // la estampida: los búfalos saltan de la palabra, caen al tablero y corren por tres carriles, levantando polvo
-  for (let k = 0; k < 8; k++) { const t0 = TB.STAMPEDE + 0.05 + k * 0.24, u = t - t0; if (u < 0) continue;
-    const lane = 130 + (k % 3) * 8, jx = Math.min(1, u / 0.45), x = jx < 1 ? lerp(ox - 6, 96, jx) : 96 + (u - 0.45) * (64 + (k % 3) * 8), y = jx < 1 ? lerp(wy - 4, lane, jx) - Math.sin(jx * Math.PI) * 14 : lane + (Math.floor(t * 12 + k) % 2);
-    if (x > 330) continue;
-    if (jx >= 1) for (let d = 1; d < 5; d++) { const dx = x - d * 7, r = 2.5 + d * 1.2; tineR(dx - r, lane + 4 - r, dx + r, lane + 5, H('#e8d0a0'), 0.4 / d); }
-    bufalo(x - 4, y - 18, t, k); }
+  // la estampida: los bisontes saltan de la palabra, caen al tablero y corren en fila escalonada por dos carriles (el de
+  // atrás, pies en y 139, se pinta antes; el de delante, y 149), separados para que no se monten unos en otros
+  const BIS = []; for (let k = 0; k < 7; k++) { const t0 = TB.STAMPEDE + 0.05 + k * 0.5, u = t - t0; if (u < 0) continue;
+    const lane = k % 2 ? 149 : 139, jx = Math.min(1, u / 0.45), x = jx < 1 ? lerp(ox - 4, 100, jx) : 100 + (u - 0.45) * 84, y = jx < 1 ? lerp(wy + 10, lane, jx) - Math.sin(jx * Math.PI) * 16 : lane;
+    if (x > 345) continue; BIS.push([lane, x, y, k, jx]); }
+  BIS.sort((p, q) => p[0] - q[0] || p[3] - q[3]);
+  for (const [lane, x, y, k, jx] of BIS) { if (jx >= 1) for (let d = 1; d < 5; d++) { const dx = x - 16 - d * 7, r = 2.5 + d * 1.2; tineR(dx - r, lane - r, dx + r, lane + 1, H('#e8d0a0'), 0.4 / d); }
+    bisonte(x, y, t, k); }
 };
 
 // ── P5 · el corcho de cerca: la carta y la página del folleto; la mano tiende hilos rojos entre sus frases gemelas ──
@@ -378,7 +421,7 @@ const P5 = (t) => {
   const pin = (x, y, c) => { R.disco(x + 1, y + 2, 2, H('#3a2414')); R.disco(x, y, 2, c); ps(x - 1, y - 1, BLA); };
   pin(53, 60, ROJ); pin(185, 66, H('#3a6ac8'));
   // las frases gemelas y los hilos rojos que la mano tiende entre ellas (dos hilos: «compared» y «the rest of the pamphlet»)
-  const pares = [[C.fil[8][1], F.fil[12][1], TB.COMPARED - 0.5, TB.COMPARED + 0.9], [C.fil[10][2], F.fil[17][2], TB.REST - 0.6, TB.PAMPH1 + 0.4]];
+  const pares = [[C.fil[9][1], F.fil[15][1], TB.COMPARED - 0.5, TB.COMPARED + 0.9], [C.fil[11][1], F.fil[18][2], TB.REST - 0.6, TB.PAMPH1 + 0.4]];
   let mano = [140, 196], lleva = false;
   pares.forEach(([a, b, t0, t1], i) => { const A = [(a[0] + a[1]) / 2, a[2]], B = [(b[0] + b[1]) / 2, b[2]], u = tramo(t, t0, t1);
     if (u <= 0) { if (i === 0 || t > pares[i - 1][3] + 0.1) mano = i === 0 ? [lerp(140, A[0], ease(tramo(t, TB.AND2, t0))), lerp(196, A[1], ease(tramo(t, TB.AND2, t0)))] : [lerp(pares[0][1][0], A[0], ease(tramo(t, pares[0][3], t0))), lerp(pares[0][1][2] + 30, A[1], ease(tramo(t, pares[0][3], t0)))]; return; }
@@ -392,28 +435,47 @@ const P5 = (t) => {
   // la mosca de la luz que pasea por el corcho y la nota que tiembla con el aire
   ps(60 + ((t * 9) % 180), 160 - Math.abs(Math.sin(t * 0.7)) * 12, K);
   const nt = Math.sin(t * 5) > 0.7 ? 1 : 0; R.rect(228, 98 - nt, 252, 116, H('#f4b0c8')); R.rect(228, 98 - nt, 252, 99 - nt, H('#d890a8')); cifras('1820', 232, 105, H('#6a2a3a'));
-  // la mano canónica con el brazo desde abajo (lleva el cabo del hilo)
-  const [mx, my] = mano; if (my < 190) T.brazo(R, mx + 14, 200, mx - 3, my + 3, TWEED, -1, { codo: [mx + 20, my + 24] });
+  // la mano canónica con el antebrazo que entra casi en vertical desde abajo (el codo queda fuera de cuadro): las frases
+  // gemelas están en los renglones bajos (y 135–156), así que nunca se ven más de ~44 px de manga
+  const [mx, my] = mano; if (my < 190) T.brazo(R, mx + 16, 222, mx - 3, my + 3, TWEED, -1, { codo: [mx + 7, 192] });
 };
 
 // ── P6 · la pared a la luz de la vela: dos recortables con sus bocadillos de garabatos; la mano los junta en una sola sombra ──
 const P6 = (t) => {
   capa('p6', () => {
-    for (let y = 0; y < 120; y++) for (let x = 0; x < 320; x++) { const st = (x % 16) < 2; let v = 1.6 + (st ? -0.4 : 0) + (h2(x >> 2, y >> 2, 61) - 0.5) * 0.4; if ((x % 16) === 8 && (y % 14) === 6) v += 0.8; R.pset(x, y, rmp(pal(['#3a2a22', '#5a4030', '#74543c', '#8e6a4a']), v, x, y)); }
+    // la pared: cornisa con dentículos arriba y tablas verticales de nogal con vetas, juntas y clavos
+    const PW = pal(['#2e2018', '#4a3426', '#5e4430', '#74543c', '#8e6a4a']);
+    for (let y = 0; y < 88; y++) for (let x = 0; x < 320; x++) { const tb = Math.floor(x / 20), fx = x % 20, of = h2(tb, 6, 64) * 300;
+      let v = 2 + Math.sin((y + of) * 0.08 + Math.sin((y + of) * 0.021 + tb * 1.9) * 2.4 + fx * 0.35) * 0.5 + (h2(x >> 1, y >> 2, 61) - 0.5) * 0.4;
+      if (fx === 0) v = 0.4; else if (fx === 1) v += 0.6; else if (fx === 19) v -= 0.4; if (((y + ri(of)) % 61) === 0 && fx > 4 && fx < 16) v -= 0.8;
+      R.pset(x, y, rmp(PW, v, x, y)); }
+    for (let x = 10; x < 320; x += 20) for (const y of [10, 82]) { ps(x, y, H('#1a120c')); ps(x - 1, y - 1, H('#a88a5a')); }
+    R.rect(0, 0, 319, 6, MAD[1]); R.rect(0, 6, 319, 7, MAD[0]); for (let x = 0; x < 320; x += 6) R.rect(x, 2, x + 3, 5, MAD[3]); R.rect(0, 0, 319, 0, MAD[4]);
     R.rect(0, 20, 319, 22, MAD[1]); R.rect(0, 20, 319, 20, MAD[3]);
-    R.rect(14, 34, 48, 60, H('#6a4a1a')); R.rect(16, 36, 46, 58, H('#e8e0c8')); R.disco(31, 51, 3, ROJ); for (let i = 0; i < 3; i++) R.rect(20, 40 + i * 3, 42, 40 + i * 3, H('#8a8070'));
-    R.rect(258, 56, 286, 80, H('#5a3a1a')); R.rect(260, 58, 284, 78, H('#8ab0c8')); R.rect(260, 72, 284, 78, H('#3a6a8a')); R.poligono([[270, 70], [272, 60], [278, 70]], BLA); R.linea(272, 60, 272, 71, H('#3a2a1a')); R.rect(266, 71, 280, 72, H('#6a3a1a'));
+    R.rect(14, 34, 48, 60, H('#6a4a1a')); R.rect(16, 36, 46, 58, H('#e8e0c8')); R.disco(31, 51, 3, ROJ); for (let i = 0; i < 3; i++) R.rect(20, 40 + i * 3, 42, 40 + i * 3, H('#8a8070')); sombraR(14, 34, 48, 60, 2, 0.3);
+    R.rect(258, 56, 286, 80, H('#5a3a1a')); R.rect(260, 58, 284, 78, H('#8ab0c8')); R.rect(260, 72, 284, 78, H('#3a6a8a')); R.poligono([[270, 70], [272, 60], [278, 70]], BLA); R.linea(272, 60, 272, 71, H('#3a2a1a')); R.rect(266, 71, 280, 72, H('#6a3a1a')); sombraR(258, 56, 286, 80, 2, 0.3);
+    // el candelabro de pared de dos brazos (la llama va aparte, porque tiembla)
+    R.rect(302, 58, 306, 74, H('#8a6a2a')); R.rect(303, 58, 303, 74, H('#e8c060')); R.linea(304, 70, 296, 66, H('#c8a048')); R.linea(304, 70, 314, 66, H('#c8a048'));
+    for (const x of [296, 314]) { R.rect(x - 2, 64, x + 2, 66, H('#c8a048')); R.rect(x - 1, 56, x + 1, 63, H('#f0e8d0')); ps(x - 1, 56, BLA); }
+    // el friso de cuarterones con sus molduras
     R.rect(0, 88, 319, 90, MAD[2]); R.rect(0, 88, 319, 88, MAD[4]); for (let x = 0; x < 320; x++) for (let y = 91; y < 120; y++) R.pset(x, y, rmp(MAD, 1.6 + ((x % 30) < 1 ? -0.8 : (x % 30) === 1 ? 0.8 : 0) + (h2(x >> 2, y, 63) - 0.5) * 0.5, x, y));
-    // el tablero del escritorio, el canto y el frente con su cajón
-    for (let y = 120; y < 150; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(MAD, 2 + (y - 120) / 30 + Math.sin(x * 0.04 + Math.sin(x * 0.01 + y * 0.2) * 2) * 0.5, x, y));
+    for (let x0 = 4; x0 < 320; x0 += 30) { R.rect(x0, 95, x0 + 21, 95, MAD[4]); R.rect(x0, 95, x0, 115, MAD[4]); R.rect(x0, 115, x0 + 21, 115, MAD[0]); R.rect(x0 + 21, 95, x0 + 21, 115, MAD[0]); }
+    // el tablero del escritorio con tres tablas, sus juntas, un nudo y el canto; el frente con su cajón
+    for (let y = 120; y < 150; y++) for (let x = 0; x < 320; x++) { let v = 2 + (y - 120) / 30 + Math.sin(x * 0.04 + Math.sin(x * 0.01 + y * 0.2) * 2) * 0.5 + (h2(x >> 2, y, 65) - 0.5) * 0.3; if (y === 130 || y === 140) v = 0.6; if (y === 131 || y === 141) v += 0.6; const nd = Math.hypot((x - 230) / 2.2, y - 145); if (nd < 3) v -= 1 - nd / 3; R.pset(x, y, rmp(MAD, v, x, y)); }
     R.rect(0, 150, 319, 152, MAD[4]); madera(0, 153, 319, 179, MAD, 13, 62); R.rect(120, 160, 200, 175, MAD[0]); R.rect(121, 161, 199, 174, MAD[2]); R.rect(152, 166, 168, 168, H('#c8a048'));
-    // libros apilados y el tintero
+    // libros apilados, papeles sueltos con renglones, la barra de lacre con su sello, las gafas y el tintero con la pluma
     for (let i = 0; i < 4; i++) { const c = pal(['#5a1e1e', '#1e3a5a', '#3a4a1e', '#6a4a1a'])[i]; R.rect(8 + i, 128 - i * 6, 46 - i * 2, 133 - i * 6, c); R.rect(8 + i, 128 - i * 6, 46 - i * 2, 128 - i * 6, mez(c, BLA, 0.3)); }
-    R.rect(262, 124, 274, 136, K); R.rect(263, 125, 273, 136, H('#2a3a5a')); R.linea(268, 124, 282, 104, H('#e8e0d0'));
+    R.poligono([[50, 140], [86, 137], [88, 148], [52, 150]], H('#2a1e14')); R.poligono([[50, 139], [86, 136], [88, 147], [52, 149]], H('#e8dcc0')); for (let i = 0; i < 3; i++) renglon(56, 140 + i * 3, 82, H('#6a5a4a'), 90 + i);
+    R.poligono([[216, 124], [252, 126], [250, 133], [214, 131]], H('#d8ccb0')); for (let i = 0; i < 2; i++) renglon(220, 127 + i * 3, 246, H('#7a6a5a'), 95 + i);
+    R.rect(286, 130, 302, 132, H('#a8222a')); R.rect(286, 130, 302, 130, H('#e0606a')); R.disco(306, 140, 3, H('#c8a048')); R.disco(306, 140, 2, H('#a8222a'));
+    for (const x of [284, 296]) { R.disco(x, 144, 4, K); R.disco(x, 144, 3, H('#8a7a6a')); ps(x - 1, 143, BLA); } R.linea(288, 144, 292, 144, K); R.linea(280, 143, 274, 141, K);
+    R.rect(262, 124, 274, 136, K); R.rect(263, 125, 273, 136, H('#2a3a5a')); ps(265, 126, H('#6a8ac8')); R.linea(268, 124, 282, 104, H('#e8e0d0')); R.linea(270, 120, 280, 106, H('#c8c0b0'));
   });
   const fl = Math.sin(t * 13) * 0.6 + Math.sin(t * 7.3) * 0.4, L = [160 + fl * 0.6, 160], m = 2.0 + fl * 0.03, ES = 1.5;
   // la luz cálida de la vela sobre la pared
   for (let y = 0; y < 150; y += 1) for (let x = 0; x < 320; x += 1) { const d = Math.hypot(x - L[0], (y - L[1]) * 0.8); if (d < 170) tine(x, y, H('#ffcc80'), 0.22 * (1 - d / 170)); }
+  // las llamas del candelabro de pared, que tiemblan, con su halo
+  for (const [x, k] of [[296, 0], [314, 1]]) { const f2 = Math.sin(t * 12 + k * 2) * 0.6; R.halo(x, 52, 8 + f2, pal(['#c88a40', '#ffe0a0']), 0.4); R.rect(x, 51 + ri(f2), x, 55, H('#ffd070')); ps(x, 50 + ri(f2), BLA); }
   // los dos recortables: Beale (con su chistera) a la izquierda y la voz del folleto (con bombín) a la derecha
   const u = tramo(t, TB.TWO, TB.ONE), xa = lerp(112, 160, ease(u)), xb = lerp(214, 172, ease(u)), hecho = t > TB.ONE;
   const forma = (lx, ly, x, y, gorro) => { const dx = lx - x, dy = ly - y, ax = Math.abs(dx); if (dy < -26 || dy > 0) return false;
@@ -445,25 +507,72 @@ const P6 = (t) => {
   R.rect(155, 162, 165, 180, H('#f0e8d0')); R.rect(155, 162, 156, 180, BLA); R.rect(164, 162, 165, 180, H('#c8c0a8')); R.rect(150, 176, 170, 179, H('#c8a048'));
   R.halo(160, 156, 9, pal(['#e8a040', '#ffd070', '#fff0b0']), 0.9); R.rect(159, 153 + ri(fl), 161, 160, H('#ffd070')); ps(160, 152 + ri(fl), BLA); ps(160, 161, K);
   // la mano canónica entra por la izquierda y empuja el recortable de Beale hasta juntarlo con el otro
-  if (u > 0 && t < TB.ONE + 0.7) { const back = t > TB.ONE ? ease(tramo(t, TB.ONE, TB.ONE + 0.7)) : 0, hx = lerp(xa - 24, -24, back), hy = 128; T.brazo(R, hx - 34, 150, hx, hy, TWEED, 1, { codo: [hx - 18, hy + 10] }); }
-  else if (t < TB.TWO) { const v = ease(tramo(t, TB.TWO - 0.8, TB.TWO)), hx = lerp(-24, 88, v); if (v > 0) T.brazo(R, hx - 34, 150, hx, 128, TWEED, 1, { codo: [hx - 18, 138] }); }
+  // (pul.) el antebrazo sube casi en vertical desde el borde de abajo, con el codo fuera de cuadro (≤ 42 px de manga), y
+  // la mano empuja el pie de madera del recortable; en «one» baja y se va por abajo
+  const br = (hx, hy) => T.brazo(R, hx - 16, 224, hx, hy, TWEED, 1, { codo: [hx - 8, 192] });
+  if (u > 0 && t < TB.ONE + 0.7) { const back = t > TB.ONE ? ease(tramo(t, TB.ONE, TB.ONE + 0.7)) : 0; br(ri(xa - 22 - back * 10), ri(lerp(138, 205, back))); }
+  else if (t < TB.TWO) { const v = ease(tramo(t, TB.TWO - 0.8, TB.TWO)); if (v > 0) br(90, ri(lerp(205, 138, v))); }
 };
 
-// ── P7 · la mesa del estudio de Atom: la silueta única se vuelve Ward, que firma la cubierta del folleto ──
-const O7 = { camara: 'mesa' };
+// ── P7 · (pul.) la mesa de Ward en 1885, a ras de tablero y de noche (fondo local, NO el estudio de Atom: ese encuadre ya
+//    lo usa bl-azar): al fondo, desenfocadas, las baldas de la imprenta con sus luces; en la mesa, la lámpara de aceite, el
+//    tintero, el montón de folletos atados y el folleto de pie en su atril. La silueta de cartulina gira y sale Ward, que
+//    firma la cubierta en «put his name» ──
 const P7 = (t) => {
-  T.estudio(R, t, O7);
-  const fx = 190, f = T.d_folleto(R, fx, 116, { escala: 3, t, brillo: t > TB.NAME + 0.6 ? 0.5 + 0.5 * Math.sin(t * 4) : 0 });
+  capa('p7', () => {
+    // la pared del fondo, en penumbra cálida, más oscura arriba (la esquina de Atom queda lisa de tono, solo con su grano)
+    for (let y = 0; y < 112; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#140c0a', '#1e1410', '#2a1c16', '#38261c', '#48321f']), 1.2 + y / 80 + (h2(x >> 2, y >> 2, 91) - 0.5) * 0.35 - Math.abs(x - 120) / 400, x, y));
+    // las baldas de la imprenta desenfocadas: lomos y cajas de tipos sin contorno, mezclados con la pared
+    for (const [x0, x1] of [[0, 112], [196, 268]]) for (let b = 0; b < 4; b++) { const y = 20 + b * 22; R.rect(x0, y + 18, x1, y + 20, H('#4a3424'));
+      for (let x = x0 + 2; x < x1 - 4;) { const w = 5 + ri(h2(x, b, 92) * 5), hh = 10 + ri(h2(x, b, 93) * 6), c = pal(['#5a2a1e', '#2a3a4a', '#4a4a2a', '#6a4a2a', '#3a2a3a'])[ri(h2(x, b, 94) * 4)];
+        for (let yy = y + 18 - hh; yy < y + 18; yy++) for (let xx = x; xx < x + w; xx++) R.pset(xx, yy, mez(R.pget(xx, yy), c, xx === x || yy === y + 18 - hh ? 0.35 : 0.55)); x += w + 1 + ri(h2(x, b, 95) * 2); } }
+    // a la derecha, desenfocado, un pliego de prueba enmarcado (barras y un grabado, sin letras) bajo la esquina de Atom
+    for (let y = 54; y < 100; y++) for (let x = 282; x < 316; x++) { const e = Math.min(x - 282, y - 54, 315 - x, 99 - y); const c = e < 3 ? H('#4a3020') : ((y - 60) % 6 < 2 && x > 287 && x < 311 && y < 76) ? H('#5a4a3a') : (y > 78 && y < 94 && x > 290 && x < 308) ? H('#7a5a3a') : H('#b8a682'); R.pset(x, y, mez(R.pget(x, y), c, 0.55)); }
+    // el borde de atrás de la mesa
+    R.rect(0, 110, 319, 112, H('#1a100a'));
+    // el tablero de nogal en perspectiva: las tablas corren hacia el fondo (punto de fuga arriba, en el centro)
+    for (let y = 113; y < 180; y++) for (let x = 0; x < 320; x++) { const d = y - 40, u = (x - 160) / d * 7, tb = Math.floor(u), fu = u - tb;
+      let v = 1.6 + (y - 113) / 60 + Math.sin(y * 0.5 / (d / 60) + h2(tb, 0, 96) * 40 + Math.sin(u * 3) * 2) * 0.35 + (h2(x >> 1, y, 97) - 0.5) * 0.3;
+      if (fu < 0.04) v = 0.4; else if (fu < 0.1) v += 0.5; R.pset(x, y, rmp(MAD, v, x, y)); }
+    // el montón de folletos atados con cordel (a la derecha) y el sello con su cajita de lacre
+    for (let i = 0; i < 6; i++) { const y = 150 - i * 4, dx = ri(h2(i, 1, 98) * 4 - 2); R.rect(250 + dx, y - 4, 302 + dx, y, K); R.rect(251 + dx, y - 3, 301 + dx, y - 1, i % 2 ? H('#d8b850') : H('#e8c860')); R.rect(251 + dx, y - 1, 301 + dx, y - 1, H('#a88a3a')); }
+    R.rect(274, 125, 276, 150, H('#c8b090')); R.rect(250, 137, 302, 138, H('#c8b090')); R.rect(272, 122, 278, 125, H('#c8b090'));
+    R.rect(232, 156, 244, 164, K); R.rect(233, 157, 243, 163, H('#5a2a1e')); R.rect(233, 157, 243, 157, H('#8a4a32')); R.rect(236, 148, 240, 156, H('#6a4a2a')); R.disco(238, 147, 3, H('#3a2416'));
+    // unas monedas y las gafas plegadas delante
+    for (const [x, y] of [[210, 170], [216, 172], [206, 174]]) { R.disco(x, y, 3, K); R.disco(x, y, 2, H('#c8a048')); ps(x - 1, y - 1, H('#f0e080')); }
+    for (const x of [100, 112]) { R.disco(x, 168, 4, K); R.disco(x, 168, 3, H('#6a6458')); ps(x - 1, 167, BLA); } R.linea(104, 168, 108, 168, K); R.linea(96, 167, 90, 172, K);
+    // el tintero de cristal con la pluma de ave
+    R.rect(78, 140, 94, 152, K); R.rect(79, 141, 93, 152, H('#2a3a5a')); R.rect(80, 142, 82, 150, H('#6a8ac8')); R.rect(82, 137, 90, 140, K); R.rect(83, 138, 89, 139, H('#3a3a40'));
+    R.linea(86, 138, 104, 104, H('#e8e0d0')); for (let i = 0; i < 12; i++) R.linea(100 - i * 0.6, 112 - i * 1.6 + 6, 104 - i * 0.6 + 4, 106 - i * 1.6 + 6, i % 2 ? H('#d8d0c0') : BLA);
+    // el atril del folleto (las patas asoman por detrás)
+    R.linea(176, 160, 196, 74, H('#3a2416')); R.linea(212, 160, 196, 74, H('#3a2416')); R.rect(166, 156, 222, 160, MAD[1]); R.rect(166, 156, 222, 156, MAD[4]);
+  });
+  // la lámpara de aceite (izquierda): su luz que tiembla sobre la mesa y el fondo, el tubo de cristal y la llama
+  const fl = Math.sin(t * 9) * 0.5 + Math.sin(t * 5.3) * 0.5;
+  for (let y = 60; y < 180; y++) for (let x = 0; x < 230; x++) { const d = Math.hypot((x - 44) / 1.3, y - 120); if (d < 150) tine(x, y, H('#ffcc80'), (0.2 + fl * 0.02) * (1 - d / 150)); }
+  R.rect(30, 148, 58, 154, K); R.rect(31, 149, 57, 153, H('#a8822a')); R.rect(31, 149, 57, 149, H('#e8c060')); R.rect(36, 136, 52, 148, K); R.rect(37, 137, 51, 148, H('#7a6a5a')); R.rect(37, 137, 39, 148, H('#a89880'));
+  R.rect(40, 108, 48, 136, K); for (let y = 109; y < 136; y++) for (let x = 41; x < 48; x++) tine(x, y, H('#f8f0d8'), 0.35); R.rect(41, 109, 41, 135, BLA);
+  R.halo(44, 122, 16 + fl * 2, pal(['#e8a040', '#ffd070', '#fff0b0']), 0.85); R.rect(43, 118 + ri(fl), 45, 128, H('#ffd070')); ps(44, 117 + ri(fl), BLA); ps(44, 129, H('#e86a2a'));
+  // la polilla que ronda la lámpara y las motas en la luz; dos bokeh del fondo que laten
+  const mx = 44 + Math.cos(t * 2.1) * 22, my = 104 + Math.sin(t * 3.3) * 10; ps(mx, my, H('#d8c8a8')); ps(mx - 1, my - Math.sign(Math.sin(t * 30)), H('#a89880')); ps(mx + 1, my - Math.sign(Math.sin(t * 30)), H('#a89880'));
+  motas(10, 70, 110, 150, t, 10);
+  for (const [x, y, k] of [[150, 64, 0], [240, 96, 1], [124, 92, 2]]) R.halo(x, y, 6 + Math.sin(t * 1.3 + k) * 1.5, pal(['#8a5a2a', '#e8b060']), 0.5);
+  // los pliegos recién impresos colgados a secar de un cordel, al fondo y desenfocados, que se mecen con el aire
+  R.linea(118, 16, 272, 18, H('#4a3a2a'));
+  for (let k = 0; k < 6; k++) { const x0 = 124 + k * 25, sw = Math.sin(t * 1.4 + k * 0.9) * 1.2; ps(x0 + 9, 16, H('#8a7a5a'));
+    for (let y = 17; y < 40; y++) { const dx = ri(sw * (y - 17) / 23); for (let x = x0; x < x0 + 18; x++) { const lin = (y - 21) % 4 === 0 && y < 36 && x > x0 + 2 && x < x0 + 15; tine(x + dx, y, lin ? H('#6a5a48') : H('#d8c8a8'), lin ? 0.5 : 0.55); } } }
+  // el folleto de pie en su atril
+  const fx = 194, f = T.d_folleto(R, fx, 116, { escala: 3, t, brillo: t > TB.NAME + 0.6 ? 0.5 + 0.5 * Math.sin(t * 4) : 0 });
   // la firma de Ward: un rasgo de tinta que crece en la cubierta, abajo (sin letras)
   const fu = tramo(t, TB.PUT, TB.NAME + 0.5), sx0 = fx - 18, sy = 140;
   if (fu > 0) { const n = ri(36 * fu); for (let i = 0; i < n; i++) { const yy = sy + Math.round(Math.sin(i * 0.9) * 2 + (i % 7 === 3 ? -2 : 0)); ps(sx0 + i, yy, TIN); ps(sx0 + i, yy + 1, mez(TIN, H('#e8c860'), 0.4)); } if (fu >= 1) { R.linea(sx0, sy + 4, sx0 + 34, sy + 4, TIN); } }
   // la peana redonda y la figurita: primero la silueta negra de cartulina; en «Ward» gira y sale Ward a color
-  const bx = 132; R.rect(bx - 10, 148, bx + 10, 151, MAD[0]); R.rect(bx - 10, 148, bx + 10, 148, MAD[4]); R.rect(bx - 9, 149, bx + 9, 150, MAD[2]);
-  const giro = tramo(t, TB.WARD - 0.25, TB.WARD + 0.2), anda = tramo(t, TB.MAN, TB.PUT - 0.05), wx = ri(lerp(bx - 7, 150, ease(anda)));
+  const bx = 132; R.rect(bx - 10, 148, bx + 10, 151, MAD[0]); R.rect(bx - 10, 148, bx + 10, 148, MAD[4]); R.rect(bx - 9, 149, bx + 9, 150, MAD[2]); for (let x = bx - 10; x <= bx + 12; x++) tine(x + 2, 152, K, 0.35);
+  const giro = tramo(t, TB.WARD - 0.25, TB.WARD + 0.2), anda = tramo(t, TB.MAN, TB.PUT - 0.05), wx = ri(lerp(bx - 7, 154, ease(anda)));
   if (giro < 0.5) { const sc = 1 - giro * 2; for (let y = 120; y < 148; y++) for (let x = bx - 8; x <= bx + 8; x++) { const dx = (x - bx) / Math.max(0.08, sc), dy = 148 - y;
       if ((dy < 14 && Math.abs(dx) < 4 + (14 - dy) * 0.25) || Math.hypot(dx, dy - 17) < 4 || (dy >= 21 && dy < 25 && Math.abs(dx) < 3.4) || (dy === 21 && Math.abs(dx) < 5.5)) R.pset(x, y, Math.abs(dx) > 3 ? H('#3a3438') : H('#1a1618')); } }
   else { const a = R.actor(BL.wardBL, wx, 148, t, { dir: 1, anda: anda > 0 && anda < 1, sostiene: t > TB.PUT - 0.1 && t < TB.PAMPH2 ? [sx0 + ri(36 * fu), sy - 1] : undefined, sonrisa: t > TB.PAMPH2 - 0.2, brazos: t > TB.PAMPH2 + 0.3 && t < TB.PAMPH2 + 1.0 });
-    if (a && a.mano && t > TB.PUT - 0.1 && t < TB.PAMPH2) { const [mx, my] = a.mano; R.linea(mx, my, mx - 3, my - 9, H('#f0f0e8')); R.linea(mx - 1, my - 1, mx - 4, my - 8, H('#c8c0b0')); ps(mx + 1, my + 1, TIN); } }
+    if (a && a.mano && t > TB.PUT - 0.1 && t < TB.PAMPH2) { const [mx2, my2] = a.mano; R.linea(mx2, my2, mx2 - 3, my2 - 9, H('#f0f0e8')); R.linea(mx2 - 1, my2 - 1, mx2 - 4, my2 - 8, H('#c8c0b0')); ps(mx2 + 1, my2 + 1, TIN); } }
   if (giro > 0 && giro < 1) { R.halo(bx, 134, 16, pal(['#e8a040', '#ffe080', '#fff8d0']), 1 - Math.abs(giro - 0.5) * 2); }
   if (t > TB.WARD && t < TB.WARD + 0.8) for (let k = 0; k < 5; k++) destello(ri(bx + Math.cos(k * 1.3 + t * 3) * 16), ri(132 + Math.sin(k * 1.3 + t * 3) * 14), 2, AMA);
 };
@@ -474,8 +583,10 @@ const P8 = (t) => {
     for (let y = 0; y < 120; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#4a4a44', '#5e5e56', '#72726a', '#868678']), 1.8 + (h2(x >> 2, y >> 2, 71) - 0.5) * 0.5 - y / 260, x, y));
     R.rect(0, 0, 319, 7, H('#3a3a36')); for (const x0 of [30, 186]) { R.rect(x0, 7, x0 + 80, 10, H('#a8a89c')); R.rect(x0 + 2, 8, x0 + 78, 9, H('#f4f4ec')); }
     // tres cuerpos de estanterías llenas de libros de registro con su tejuelo y su cifra
-    for (const [x0, x1] of [[0, 98], [108, 210], [220, 319]]) { R.rect(x0, 14, x1, 118, H('#2a1a10'));
-      for (let b = 0; b < 5; b++) { const y = 18 + b * 20; R.rect(x0, y + 17, x1, y + 19, MAD[3]); R.rect(x0, y + 17, x1, y + 17, MAD[4]);
+    // (pul.) el cuerpo de la derecha es más bajo (empieza en y 54, con su cornisa): arriba a la derecha queda la pared
+    for (const [x0, x1, b0] of [[0, 98, 0], [108, 210, 0], [220, 319, 2]]) { R.rect(x0, 14 + b0 * 20, x1, 118, H('#2a1a10'));
+      if (b0) { R.rect(x0 - 2, 50, x1, 54, MAD[2]); R.rect(x0 - 2, 50, x1, 50, MAD[4]); R.rect(x0 - 2, 54, x1, 54, MAD[0]); for (let x = x0; x < x1; x += 5) ps(x, 52, MAD[0]); }
+      for (let b = b0; b < 5; b++) { const y = 18 + b * 20; R.rect(x0, y + 17, x1, y + 19, MAD[3]); R.rect(x0, y + 17, x1, y + 17, MAD[4]);
         for (let x = x0 + 3; x < x1 - 4;) { const w = 6 + ri(h2(x, b, 72) * 3), hh = 13 + ri(h2(x, b, 73) * 3), c = pal(['#5a2a1e', '#3a2a1a', '#2a3a2a', '#4a3220', '#2a2a3a', '#6a4a2a'])[ri(h2(x, b, 74) * 5)];
           R.rect(x, y + 17 - hh, x + w - 1, y + 16, c); R.rect(x, y + 17 - hh, x, y + 16, mez(c, BLA, 0.2)); R.rect(x + w - 1, y + 17 - hh, x + w - 1, y + 16, mez(c, K, 0.4));
           R.rect(x + 1, y + 20 - hh, x + w - 2, y + 23 - hh, H('#d8c8a0')); ps(x + 2, y + 21 - hh, H('#4a3a2a')); ps(x + w - 3, y + 22 - hh, H('#4a3a2a'));
@@ -489,6 +600,9 @@ const P8 = (t) => {
     R.rect(232, 112, 300, 150, K); R.rect(233, 113, 299, 150, MAD[2]); R.rect(233, 113, 299, 114, MAD[4]);
     for (let j = 0; j < 4; j++) for (let i = 0; i < 6; i++) { const x = 236 + i * 11, y = 117 + j * 8; R.rect(x, y, x + 8, y + 6, MAD[3]); R.rect(x, y, x + 8, y, MAD[4]); R.rect(x + 3, y + 3, x + 5, y + 4, H('#c8a048')); R.rect(x + 2, y + 1, x + 6, y + 2, H('#e8dcc0')); }
   });
+  // el reloj de pared sobre el cuerpo bajo (fuera del rincón de Atom), con el segundero que avanza a saltos
+  { const cx = 248, cy = 32; R.disco(cx, cy, 11, K); R.disco(cx, cy, 10, H('#6a4a2a')); R.disco(cx, cy, 8, H('#f0ead8')); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; ps(ri(cx + Math.cos(a) * 7), ri(cy + Math.sin(a) * 7), H('#4a3a2a')); }
+    const sg = Math.floor(t) / 60 * Math.PI * 2 - Math.PI / 2; R.linea(cx, cy, cx + 4, cy - 2, K); R.linea(cx, cy, cx - 1, cy - 5, K); R.linea(cx, cy, ri(cx + Math.cos(sg) * 6), ri(cy + Math.sin(sg) * 6), ROJ); ps(cx, cy, H('#c8a048')); ps(cx - 4, cy - 5, BLA); }
   // un fluorescente que parpadea y las motas de polvo
   if (Math.sin(t * 23) * Math.sin(t * 3.7) > 0.6) R.rect(188, 8, 264, 9, H('#8a8a80'));
   motas(20, 20, 300, 150, t, 18, H('#f0e8c8'));
@@ -516,10 +630,24 @@ const P8 = (t) => {
 // ── P9 · el lector de microfilm (cámara de cerca): las filas del registro corren y se paran en 1823, la de Morriss ──
 const P9 = (t) => {
   capa('p9', () => {
-    for (let y = 0; y < 140; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#5a6a5a', '#6e7e6c', '#82927e', '#96a690']), 1.8 + (h2(x >> 2, y >> 2, 81) - 0.5) * 0.4 + ((x % 40) < 2 ? -0.6 : 0), x, y));
-    R.rect(272, 52, 312, 104, H('#c8b8a0')); R.rect(274, 54, 310, 102, H('#e8dcc8')); for (let i = 0; i < 6; i++) R.rect(278, 60 + i * 7, 306 - (i % 3) * 6, 61 + i * 7, H('#7a8aa0'));
-    for (let y = 140; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#6a5a48', '#82705a', '#9a866c', '#b09a7e']), 2 + (y - 140) / 40 + (h2(x >> 3, y, 82) - 0.5) * 0.3, x, y));
-    R.rect(0, 140, 319, 141, H('#c8b498'));
+    // la pared: yeso verde con manchas y desconchones, la moldura y el zócalo de cuarterones
+    for (let y = 0; y < 96; y++) for (let x = 0; x < 320; x++) { let v = 1.9 + (h2(x >> 2, y >> 2, 81) - 0.5) * 0.4 + (h2(x >> 4, y >> 4, 84) - 0.5) * 0.5 - y / 300; const m = h2(x >> 3, y >> 3, 85); if (m > 0.93) v -= 0.6; R.pset(x, y, rmp(pal(['#4e5e50', '#62725f', '#768672', '#8a9a84']), v, x, y)); }
+    R.rect(0, 96, 319, 99, H('#5a4a36')); R.rect(0, 96, 319, 96, H('#9a8a6a')); R.rect(0, 99, 319, 99, H('#2a2218'));
+    for (let y = 100; y < 140; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(pal(['#3e4a40', '#4e5c50', '#5e6c5e', '#6e7c6c']), 1.6 + (h2(x >> 2, y, 86) - 0.5) * 0.4 + ((x % 40) === 0 ? -1 : (x % 40) === 1 ? 0.8 : 0), x, y));
+    for (let x0 = 4; x0 < 320; x0 += 40) { R.rect(x0, 106, x0 + 31, 106, H('#7e8c7a')); R.rect(x0, 106, x0, 132, H('#7e8c7a')); R.rect(x0, 132, x0 + 31, 132, H('#2e382e')); R.rect(x0 + 31, 106, x0 + 31, 132, H('#2e382e')); }
+    // el aviso de la pared (barras, sin letras) con sus chinchetas
+    R.rect(272, 52, 312, 92, H('#c8b8a0')); R.rect(274, 54, 310, 90, H('#e8dcc8')); for (let i = 0; i < 5; i++) R.rect(278, 60 + i * 6, 306 - (i % 3) * 6, 61 + i * 6, H('#7a8aa0')); sombraR(272, 52, 312, 92, 2, 0.3); R.disco(276, 55, 1, ROJ); R.disco(308, 55, 1, ROJ);
+    // la balda de la izquierda con cajas de microfilm (con su bobina y su año) y la de abajo con bobinas sueltas
+    for (const yb of [64, 92]) { R.rect(0, yb, 46, yb + 2, H('#5a3a22')); R.rect(0, yb, 46, yb, H('#9a6a42')); R.poligono([[38, yb + 3], [42, yb + 3], [42, yb + 8]], H('#3a2a1a')); }
+    for (let i = 0; i < 3; i++) { const x = 2 + i * 15, c = pal(['#d8d0b8', '#c8c0a0', '#e0d8c0'])[i]; R.rect(x, 48 + (i % 2) * 2, x + 13, 63, K); R.rect(x + 1, 49 + (i % 2) * 2, x + 12, 63, c); R.disco(x + 7, 56 + (i % 2), 3, H('#6a5a48')); R.disco(x + 7, 56 + (i % 2), 1, c); }
+    for (let i = 0; i < 3; i++) { const x = 8 + i * 13; R.disco(x, 86, 6, K); R.disco(x, 86, 5, H('#4a4a52')); R.disco(x, 86, 2, H('#8a8a94')); ps(x - 2, 83, H('#b8b8c0')); }
+    // el escritorio de roble (vetas, tablas, canto claro)
+    madera(0, 140, 319, 179, pal(['#4a3420', '#644a30', '#7e603e', '#9a7a52', '#b8966a']), 10, 87); R.rect(0, 140, 319, 141, H('#d8c098'));
+    // el fichero de tarjetas a la izquierda (con el tirador de latón y las fichas que asoman)
+    R.rect(2, 142, 44, 162, K); R.rect(3, 143, 43, 162, H('#6a4a2e')); R.rect(3, 143, 43, 144, H('#9a7048')); R.rect(18, 150, 28, 154, H('#c8a048')); R.rect(20, 151, 26, 152, H('#f0e0a0'));
+    for (let i = 0; i < 7; i++) { const x = 6 + i * 5; R.rect(x, 136 + (i % 3), x + 3, 142, i === 3 ? H('#f0b0b0') : H('#f0ead8')); }
+    // la nota amarilla y un lápiz delante
+    R.poligono([[14, 166], [40, 163], [42, 178], [16, 180]], H('#f0e070')); for (let i = 0; i < 3; i++) R.linea(18, 168 + i * 3, 38, 166 + i * 3, H('#a8a050')); R.linea(50, 172, 72, 166, H('#e8c040')); ps(72, 166, K); ps(50, 172, H('#f0a0a0'));
     // el cuerpo beige de la máquina, la capucha de la pantalla, la bandeja del rollo y los mandos
     R.rect(48, 22, 262, 152, K); R.rect(50, 24, 260, 150, H('#c8bca0')); R.rect(50, 24, 260, 26, H('#e4dac0')); R.rect(258, 26, 260, 150, H('#9a8e74'));
     R.rect(66, 30, 244, 124, H('#3a3630')); R.rect(70, 34, 240, 120, H('#1a1a1c'));
@@ -527,8 +655,11 @@ const P9 = (t) => {
     for (const x of [72, 88]) { R.disco(x, 137, 4, K); R.disco(x, 137, 3, H('#4a4a4a')); ps(x - 1, 135, H('#9a9a9a')); }
     R.rect(110, 133, 200, 141, H('#4a463e')); R.rect(112, 135, 198, 139, H('#2a2622'));
     R.rect(214, 134, 222, 140, H('#3a8a3a')); ps(216, 136, H('#8af08a'));
-    // el café en su vaso de papel y el bloc
-    R.rect(276, 126, 290, 146, K); R.rect(277, 127, 289, 146, H('#f0ece0')); R.rect(277, 132, 289, 136, H('#c84a3a')); R.rect(18, 150, 44, 170, H('#f0e070')); for (let i = 0; i < 4; i++) R.rect(20, 154 + i * 4, 42, 154 + i * 4, H('#a8a050'));
+    // el café en su vaso de papel y dos cajas de bobinas apiladas delante, a la derecha
+    R.rect(298, 136, 312, 156, K); R.rect(299, 137, 311, 156, H('#f0ece0')); R.rect(299, 142, 311, 146, H('#c84a3a')); R.rect(299, 137, 311, 138, H('#4a2a14'));
+    for (let i = 0; i < 2; i++) { const y = 170 - i * 10, x = 290 + i * 3; R.rect(x, y - 9, x + 28, y, K); R.rect(x + 1, y - 8, x + 27, y, i ? H('#d8d0b8') : H('#c8bca0')); R.rect(x + 1, y - 8, x + 27, y - 8, BLA); cifras(i ? '1823' : '1820', x + 6, y - 6, H('#5a4a3a')); }
+    // el flexo de pared (a la derecha) que alumbra el escritorio
+    R.rect(314, 96, 319, 102, K); R.linea(316, 100, 300, 108, H('#3a3a3a')); R.linea(316, 101, 300, 109, H('#5a5a5a')); R.poligono([[292, 106], [306, 106], [304, 116], [294, 116]], H('#2a5a3a')); R.linea(294, 116, 304, 116, H('#fff0b0'));
   });
   // la pantalla: la hoja del registro (filas con su año y su nombre a pluma) que sube hasta dejar 1823 en el centro
   const sc = ease(tramo(t, TB.WASH + 0.05, TB.Y1823)), off = lerp(0, 60, sc) + (t < TB.Y1823 ? Math.sin(t * 40) * 0.3 : 0);
@@ -549,9 +680,14 @@ const P9 = (t) => {
   for (const x of [126, 184]) { const a = t * (t < TB.Y1823 ? 14 : 0.4); R.disco(x, 137, 6, K); R.disco(x, 137, 5, H('#5a5a60')); R.disco(x, 137, 2, H('#2a2a2e')); for (let k = 0; k < 3; k++) { const b = a + k * 2.09; R.linea(x, 137, ri(x + Math.cos(b) * 4), ri(137 + Math.sin(b) * 4), H('#9a9aa4')); } }
   R.linea(132, 137, 178, 137, H('#3a3226'));
   // la mano canónica en la manivela de la derecha (da vueltas mientras corre la película)
-  const g = t < TB.Y1823 ? t * 9 : TB.Y1823 * 9, hx = 270 + Math.cos(g) * 4, hy = 120 + Math.sin(g) * 4;
-  R.rect(260, 116, 268, 124, K); R.rect(261, 117, 267, 123, H('#6a6a6a')); R.linea(264, 120, ri(hx), ri(hy), H('#3a3a3a'));
-  T.brazo(R, hx + 24, 200, hx + 2, hy + 3, TWEED, -1, { codo: [hx + 30, hy + 36] });
+  // la luz del flexo sobre el escritorio y el vapor del café
+  for (let y = 116; y < 180; y++) { const w = (y - 116) * 0.55 + 6; for (let x = ri(299 - w); x <= 299 + w; x++) tine(x, y, H('#fff0b0'), 0.12 * (1 - (y - 116) / 80)); }
+  for (let k = 0; k < 6; k++) { const u = ((t * 0.35 + k / 6) % 1); tine(305 + Math.sin(u * 8 + k) * 3, 134 - u * 30, BLA, 0.6 * (1 - u)); tine(306 + Math.sin(u * 8 + k) * 3, 134 - u * 30, BLA, 0.4 * (1 - u)); }
+  // (pul.) la manivela va abajo, en el costado de la máquina (y 140): el antebrazo sube casi en vertical desde el borde de
+  // abajo con el codo fuera de cuadro (≤ 40 px de manga) y la mano da vueltas mientras corre la película
+  const g = t < TB.Y1823 ? t * 9 : TB.Y1823 * 9, hx = 270 + Math.cos(g) * 4, hy = 140 + Math.sin(g) * 4;
+  R.rect(259, 136, 267, 144, K); R.rect(260, 137, 266, 143, H('#6a6a6a')); R.linea(263, 140, ri(hx), ri(hy), H('#3a3a3a')); R.disco(ri(hx), ri(hy), 1, H('#8a8a8a'));
+  T.brazo(R, hx + 16, 224, hx + 2, hy + 3, TWEED, -1, { codo: [hx + 9, 192] });
 };
 
 // ── P10 · el mostrador del hotel Washington (cámara 'mostrador', 1820): el dedo baja por las filas y no encuentra a Beale ──
@@ -563,7 +699,9 @@ const P10 = (t) => {
   let fy = 196, fxp = 70; for (let i = 0; i < 4; i++) { const u = ease(tramo(t, tt[i] - 0.45, tt[i])); if (u > 0) { fy = i === 0 ? lerp(196, filas[0], u) : lerp(filas[i - 1], filas[i], u); fxp = i === 0 ? lerp(70, 104, u) : 104; } }
   const toque = t > TB.Y1820 && t < TB.Y1820 + 0.25 ? 1 : 0;
   T.lynchburgDelante(R, t, O10);
-  if (fy < 190) T.brazo(R, fxp - 34, 206, fxp - 4 + toque, fy + 3, TWEED, 1, { codo: [fxp - 36, fy + 38] });
+  // (pul.) el libro está alto (renglones y 111–135): no cabe un brazo de ≤ 45 px, así que solo la mano canónica con su
+  // puño, que sube desde el borde de abajo y baja por las filas con el índice; su sombra cae en la página
+  if (fy < 190) { const hx = fxp - 4 + toque, hy = fy + 3; tineR(hx + 1, hy + 2, hx + 13, hy + 6, K, 0.25); T.mano(R, hx, hy, 1, TWEED, { sinManga: true }); }
   if (t > TB.Y1820) { globo(150, 112, '?', pop(t, TB.Y1820, 0.3), ROJ, 2); }
 };
 
