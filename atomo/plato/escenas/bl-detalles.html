@@ -17,9 +17,13 @@
 //   vuelan del folleto y lo suben. Corta en «even though».
 // 4 · La galería congelada (P11): el termómetro rojo «de verdad» baja 1/2, 1/4, 1/8, 1/16. Corta en «and the pamphlet».
 // 5 · El corcho congelado (P5): Atom abre el folleto y cae el primer bloque, «1014». Corta en «six feet».
-// 6 · La estampida congelada (P4): bloques «6» y «4». Corta en «Each of those».
-// 7 · El archivo congelado (P8): la torre sube hasta arriba y brilla firme en «real». Corta en «even though».
-// 8 · El mostrador congelado (P10): la torre se tambalea, sale «1983» y Atom corre a sujetarla.
+// 6 · La estampida congelada (P4): Atom sostiene el folleto abierto; caen «6» y el «4» sale volando de su página. Corta
+//   en «Each of those».
+// 7 · El archivo congelado (P8): del folleto vuelan tres bloques más; la torre sube hasta arriba y brilla firme en «real»,
+//   Atom suelta el folleto y abre los brazos. Corta en «even though».
+// 8 · El mostrador congelado (P10): la torre se tambalea, sale «1983» y Atom corre a sujetarla; en «perfect» el remate
+//   rojo salta, le rebota en la cabeza (estrellitas) y cae al suelo.
+// (En todos los planos congelados flotan motas doradas: el mundo quieto, el polvo de Atom vivo.)
 import * as T from '/atomo/plato/escenas/bl-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('bl-detalles');
@@ -636,6 +640,19 @@ const TF = { P13: 67.9, P12: 62.45, P11: 55.98, P5: 25.06, P4: 20.46, P8: 41.22,
 const VOZ = [[TS.NOTICE - 0.12, TS.FALL + 0.35], [TS.IN, TS.SHOWED + 0.5], [TS.SHOWED + 0.5, TS.LIKELY + 0.6], [TS.EVEN, TS.LESS + 0.5], [TS.AND, TS.FOUR + 1.3], [TS.EACH, TS.REAL + 0.6], [TS.EVEN2, TS.TRUE + 0.4], [TS.THOSE, TS.PERFECT + 1.0]];
 const habla = (t) => VOZ.some(([a, b]) => t > a && t < b) ? 1 : 0;
 const TX = 196, TY = 160;            // la torre (centro de la base)
+// las motas doradas de la pausa: el mundo está quieto, pero el polvo de Atom flota y parpadea (fuera de su zona y del año)
+const motasP = (t, k0) => { for (let k = 0; k < 18; k++) { const v = 2.5 + h2(k, k0, 9) * 4, x = 26 + h2(k, k0, 3) * 244 + Math.sin(t * 0.8 + k * 1.3) * 5,
+  y = 28 + ((h2(k, k0, 5) * 140 - t * v) % 140 + 140) % 140, tw = Math.sin(t * 2.6 + k * 1.9);
+  if (tw > -0.2) { ps(x, y, tw > 0.7 ? H('#fff8d0') : H('#e0c070')); if (tw > 0.92) { ps(x + 1, y, H('#e0c070')); ps(x - 1, y, H('#e0c070')); ps(x, y - 1, H('#e0c070')); ps(x, y + 1, H('#e0c070')); } } } };
+// un halo suave (cx, cy, radio) y una sombra tramada en el suelo
+const luz = (cx, cy, r, c, a) => { for (let y = ri(cy - r); y <= ri(cy + r); y++) for (let x = ri(cx - r); x <= ri(cx + r); x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && ((x + y) & 1) === 0) tine(x, y, c, Math.min(0.8, (1 - d) * (1 - d) * a * 2)); } };
+const sombraS = (cx, cy, w, a = 0.35) => { for (let i = -w; i <= w; i++) { const k = 1 - (i / (w + 1)) ** 2; tine(cx + i, cy, K, a * k); if (Math.abs(i) < w * 0.7) tine(cx + i, cy + 1, K, a * 0.6 * k); } };
+// un bloque de la torre que sale volando del folleto (x0, y0) y llega encima de la torre (arriba) justo antes de su marca t0
+const BLQ = { 1014: H('#c89a5a'), 6: H('#3a6ad8'), 4: H('#d83a2a'), v: H('#3ac85a'), a: H('#f0c040') };
+const vuela = (t, t0, col, x0, y0, arriba) => { const v = tramo(t, t0 - 0.7, t0 - 0.25); if (v <= 0 || v >= 1) return;
+  const x = ri(lerp(x0, TX, ease(v))), y = ri(lerp(y0, (arriba ? arriba[1] : TY - 40) - 34, ease(v)) - Math.sin(v * Math.PI) * 22), w = 10;
+  luz(x, y, 12, H('#fff0a0'), 0.25); R.rect(x - w - 1, y - 4, x + w + 1, y + 4, K); R.rect(x - w, y - 3, x + w, y + 3, col); R.rect(x - w, y - 3, x + w, y - 3, mez(col, BLA, 0.4));
+  for (let k = 0; k < 3; k++) ps(x - w - 3 - k * 3, y + Math.sin(t * 20 + k) * 2, AMA); };
 const altoT = (t) => (ease(tramo(t, TS.N1014 - 0.25, TS.N1014 + 0.15)) + ease(tramo(t, TS.SIX - 0.25, TS.SIX + 0.15)) + ease(tramo(t, TS.FOUR - 0.25, TS.FOUR + 0.15))
   + ease(tramo(t, TS.OF - 0.2, TS.OF + 0.15)) + ease(tramo(t, TS.DETAILS2 - 0.2, TS.DETAILS2 + 0.15)) + ease(tramo(t, TS.MAKES - 0.2, TS.MAKES + 0.15)) + ease(tramo(t, TS.STORY - 0.2, TS.STORY + 0.15))) / 7;
 const torre = (t) => { const a = altoT(t); if (a <= 0) return null; return T.pausa(R, TX, TY, t, { cual: 'torre', alto: a, tiembla: ease(tramo(t, TS.ONE, TS.ONE + 1.0)) * (t > TS.TRUE ? 1 : 0.6), numero: t > TS.ONE + 0.2 ? true : false }); };
@@ -647,7 +664,7 @@ const termo = (x, nivel, col, colS, texto, u) => { if (u <= 0) return; const y1 
   R.disco(x, y1 + 6, 8, K); R.disco(x, y1 + 6, 7, col); ps(x - 3, y1 + 3, mez(col, BLA, 0.5));
   if (u >= 1) R.numero(texto, x, top - 6, { centro: true, color: col }); };
 const S1 = (t) => {
-  P13(TF.P13); AT.pausa(R, tramo(t, 0, 0.3));
+  P13(TF.P13); AT.pausa(R, tramo(t, 0, 0.3)); if (t > 0.4) motasP(t, 1);
   const u = tramo(t, 0.25, 1.7), x = lerp(-40, 48, ease(u)), anda = u > 0 && u < 1;
   if (t > TS.TRAP) AT.anillo(R, 160, 112, 70, 56, t, tramo(t, TS.TRAP, TS.TRAP + 0.6));
   AT.atom(R, x, 178, t, { s: 2, dir: 1, pose: anda ? 'camina' : t > TS.TRAP - 0.2 && t < TS.FALL + 0.6 ? 'senala' : 'quieto', cara: t > TS.FALL ? 'sorpresa' : 'normal', habla: habla(t) });
@@ -674,7 +691,7 @@ const ICD = (x, y, k) => { // las pegatinas de detalle: un lingote, una pala, un
   else if (k === 1) { R.linea(x - 4, y + 4, x + 3, y - 3, H('#7a5232')); R.disco(x + 3, y - 3, 2, H('#8a8a94')); }
   else R.numero(k === 2 ? '6' : '4', x, y + 4, { centro: true, color: H('#f0c040') }); };
 const S3 = (t) => {
-  P12(TF.P12); AT.pausa(R, 1);
+  P12(TF.P12); AT.pausa(R, 1); motasP(t, 3);
   const k = [TS.MORE, TS.DETAILS, TS.SEEMS, TS.LIKELY], n = k.filter((a) => t > a).length, lvl = 0.3 + 0.15 * n + 0.07 * Math.sin(t * 3) * (n === 4 ? 0.3 : 0);
   const u = pop(t, TS.SHOWED + 0.1, 0.4);
   termo(150, lvl, H('#3ac85a'), H('#1a7a32'), ri(lvl * 100) + '%', u);
@@ -685,7 +702,7 @@ const S3 = (t) => {
 };
 // ── S4 · la galería congelada: aparece el termómetro rojo, «de verdad», que baja con cada detalle añadido ──
 const S4 = (t) => {
-  P11(TF.P11); AT.pausa(R, 1);
+  P11(TF.P11); AT.pausa(R, 1); motasP(t, 4);
   termo(214, 0.9, H('#3ac85a'), H('#1a7a32'), '90%', 1);
   const k = [TS.EVERY, TS.ADDED, TS.DETAIL, TS.LESS], n = k.filter((a) => t > a).length, fr = ['1/2', '1/4', '1/8', '1/16', '1/32'][n], lvl = 0.5 / Math.pow(2, n);
   termo(254, lvl, H('#e83a2a'), H('#8a1a14'), fr, pop(t, TS.EVEN, 0.4));
@@ -694,7 +711,7 @@ const S4 = (t) => {
 };
 // ── S5 · el corcho congelado: Atom abre el folleto y de su página sale el primer bloque de la torre, «1014» ──
 const S5 = (t) => {
-  P5(TF.P5); AT.pausa(R, 1);
+  P5(TF.P5); AT.pausa(R, 1); motasP(t, 5);
   const a = AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: t < TS.N1014 + 0.4 ? 'sostiene' : 'senala', cara: t > TS.EXACT ? 'sonrisa' : 'normal', habla: habla(t) });
   const ab = ease(tramo(t, TS.PAMPH - 0.2, TS.PAMPH + 0.6)), f = T.d_folleto(R, a.mano[0] + 42, a.mano[1] - 22, { escala: 2, abierto: ab, t, brillo: t > TS.EXACT && t < TS.N1014 ? 0.6 : 0 });
   if (t > TS.EXACT && t < TS.N1014) for (let k = 0; k < 3; k++) destello(ri(a.mano[0] + 50 + k * 9), ri(a.mano[1] - 46 - Math.sin(t * 5 + k) * 3), 2, AMA);
@@ -704,30 +721,50 @@ const S5 = (t) => {
 };
 // ── S6 · el escritorio de la estampida congelado: «six feet» y «four miles»: dos bloques más ──
 const S6 = (t) => {
-  P4(TF.P4); AT.pausa(R, 1);
-  torre(t);
+  P4(TF.P4); AT.pausa(R, 1); motasP(t, 6);
+  const r = torre(t);
   const ul = t > TS.FOUR ? '4' : t > TS.SIX ? '6' : null;
   if (ul) R.numero(ul, 136, 80 - ri(pop(t, ul === '4' ? TS.FOUR : TS.SIX, 0.3) * 4), { centro: true, tam: 16 });
-  AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: (t > TS.SIX - 0.3 && t < TS.SIX + 0.5) || (t > TS.FOUR - 0.3 && t < TS.FOUR + 0.5) ? 'senala' : 'sostiene', cara: 'normal', habla: habla(t) });
+  const se = (t > TS.SIX + 0.05 && t < TS.SIX + 0.6) || (t > TS.FOUR + 0.05 && t < TS.FOUR + 0.6);
+  const a = AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: se ? 'senala' : 'sostiene', cara: t > TS.FOUR ? 'sonrisa' : 'normal', habla: habla(t) });
+  // el folleto abierto en la mano: de su página salen el «6» y el «4» hacia la torre
+  if (!se && a.mano) T.d_folleto(R, a.mano[0] + 22, a.mano[1] - 6, { escala: 1, abierto: 1, t });
+  vuela(t, TS.FOUR, BLQ[4], a.mano[0] + 26, a.mano[1] - 14, r && r.arriba);
 };
 // ── S7 · el archivo congelado: la torre sube hasta arriba y brilla firme («more real») ──
 const S7 = (t) => {
-  P8(TF.P8); AT.pausa(R, 1);
+  P8(TF.P8); AT.pausa(R, 1); motasP(t, 7);
   const r = torre(t);
   if (t > TS.REAL && r) for (let k = 0; k < 4; k++) if (Math.sin(t * 5 + k * 1.7) > 0.2) destello(TX - 22 + k * 15, ri(r.arriba[1] + 10 + k * 16), 2, AMA);
-  AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: t > TS.REAL - 0.3 ? 'brazos' : 'senala', cara: t > TS.REAL - 0.3 ? 'sonrisa' : 'normal', habla: habla(t) });
+  // Atom sostiene el folleto y de él salen cuatro bloques más, uno por palabra; en «real» lo suelta y abre los brazos
+  const lleva = t < TS.STORY + 0.15;
+  const a = AT.atom(R, 66, 176, t, { s: 2, dir: 1, pose: t > TS.REAL - 0.3 ? 'brazos' : lleva ? 'sostiene' : 'senala', cara: t > TS.REAL - 0.3 ? 'sonrisa' : 'normal', habla: habla(t) });
+  if (lleva && a.mano) T.d_folleto(R, a.mano[0] + 22, a.mano[1] - 6, { escala: 1, abierto: 1, t });
+  for (const [t0, c] of [[TS.DETAILS2, BLQ.a], [TS.MAKES, BLQ[4]], [TS.STORY, BLQ[4]]]) vuela(t, t0, c, a.mano[0] + 26, a.mano[1] - 14, r && r.arriba);
 };
 // ── S8 · el mostrador congelado (el hueco de 1820): la torre se tambalea, sale el «1983» y Atom la sujeta ──
 const S8 = (t) => {
-  P10(TF.P10); AT.pausa(R, 1);
-  torre(t);
-  const suj = t > TS.THOSE - 0.3;
-  AT.atom(R, suj ? lerp(66, 152, ease(tramo(t, TS.THOSE - 0.3, TS.THOSE + 0.5))) : 66, 176, t, { s: 2, dir: 1, pose: suj ? 'sostiene' : t > TS.ONE ? 'senala' : 'quieto', cara: t > TS.PERFECT ? 'triste' : t > TS.ONE + 0.3 ? 'sorpresa' : 'normal', habla: habla(t) });
+  P10(TF.P10); AT.pausa(R, 1); motasP(t, 8);
+  // el gag: Atom corre a sujetarla y, en «perfect», el remate rojo de arriba salta, le rebota en la cabeza y cae al suelo
+  const G0 = TS.PERFECT - 0.15, salta = t > G0;
+  const r = salta ? T.pausa(R, TX, TY, t, { cual: 'torre', alto: 6 / 7, tiembla: 0.35, numero: true }) : torre(t);
+  const suj = t > TS.THOSE - 0.3, ax = suj ? lerp(66, 152, ease(tramo(t, TS.THOSE - 0.3, TS.THOSE + 0.5))) : 66;
+  const a = AT.atom(R, ax, 176, t, { s: 2, dir: 1, pose: suj ? 'sostiene' : t > TS.ONE ? 'senala' : 'quieto', cara: t > G0 + 0.45 ? 'triste' : t > TS.ONE + 0.3 ? 'sorpresa' : 'normal', habla: habla(t) });
+  if (salta && r) { const [x0, y0] = r.arriba, cx = a.centro[0], cy = a.centro[1] - 22, u1 = tramo(t, G0, G0 + 0.45), u2 = tramo(t, G0 + 0.45, G0 + 1.1);
+    let x, y; if (u1 < 1) { x = lerp(x0, cx, u1); y = lerp(y0 - 6, cy, u1 * u1) - Math.sin(u1 * Math.PI) * 26; } else { x = lerp(cx, cx - 30, u2); y = lerp(cy, 170, u2 * u2) - Math.sin(u2 * Math.PI) * 18; }
+    const X = ri(x), Y = ri(y); if (u2 >= 1) sombraS(X, 174, 7, 0.35);
+    R.rect(X - 7, Y - 5, X + 7, Y + 4, K); R.rect(X - 6, Y - 4, X + 6, Y + 3, H('#d83a2a')); R.rect(X - 6, Y - 4, X + 6, Y - 4, H('#f07a6a')); R.rect(X + 5, Y - 3, X + 6, Y + 3, H('#8a1a14'));
+    R.disco(X, Y - 7, 2, K); ps(X, Y - 7, AMA);
+    if (u1 >= 1 && u2 < 0.5) for (let k = 0; k < 3; k++) destello(ri(cx - 10 + k * 10), ri(cy - 6 - Math.abs(Math.sin(t * 9 + k)) * 3), 2, AMA); }
 };
 
 T.rodar(E, R, [[0, S1], [TS.IN, S2], [TS.SHOWED, S3], [TS.EVEN, S4], [TS.AND, S5], [TS.SIX, S6], [TS.EACH, S7], [TS.EVEN2, S8]], {
-  efectos: [[TS.TRAP, 'brillo'], [TS.AMOS, 'papel'], [TS.DETAILS, 'pop'], [TS.LIKELY, 'pop'], [TS.EVERY, 'tic'], [TS.LESS, 'tic'], [TS.PAMPH, 'papel'],
-    [TS.N1014, 'toc'], [TS.SIX, 'toc'], [TS.FOUR, 'toc'], [TS.MAKES, 'toc'], [TS.REAL, 'brillo'], [TS.ONE + 0.1, 'boing'], [TS.TRUE, 'boing']],
+  efectos: [[0.3, 'pasos'], [TS.TRAP, 'brillo'], [TS.IN + 0.2, 'pasos'], [TS.AMOS, 'papel'], [TS.DANIEL + 0.7, 'lapiz'],
+    [TS.SHOWED + 0.15, 'pop'], [TS.DETAILS, 'pop'], [TS.SEEMS, 'burbujas'], [TS.LIKELY, 'pop'],
+    [TS.EVEN + 0.05, 'pop'], [TS.EVERY, 'tic'], [TS.DETAIL, 'tic'], [TS.LESS, 'tic'],
+    [TS.PAMPH, 'papel'], [TS.EXACT, 'brillo'], [TS.N1014, 'toc'], [TS.SIX, 'toc'], [TS.FOUR - 0.6, 'whoosh'], [TS.FOUR, 'toc'],
+    [TS.DETAILS2, 'toc'], [TS.MAKES, 'toc'], [TS.STORY, 'toc'], [TS.REAL, 'brillo'],
+    [TS.ONE + 0.1, 'boing'], [TS.TRUE, 'boing'], [TS.THOSE - 0.3, 'pasos'], [TS.PERFECT - 0.15, 'boing'], [TS.PERFECT + 0.3, 'golpecito'], [TS.PERFECT + 0.9, 'toc']],
   año: (t) => (t < TS.IN ? 1982 : 1983) });
 </script>
 </body>

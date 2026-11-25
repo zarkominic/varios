@@ -15,8 +15,10 @@
 // 3. inserto, el escritorio del amigo de noche: la hoja de la clave entra en el sobre, lacre en «sealed», «6·1832»;  (corta tras «June 1832»)
 // 4. el porche (GAG): Atom vigila el buzón mientras el calendario vuela de 1822 a 1832; abre en «June 1832»: vacío;
 //    el cartero pasa de largo en «comes and goes»;  (corta en «and Morriss»)
-// 5. la salita, la ventana (1832): Morriss espera con el reloj de bolsillo; un jinete pasa de largo («Beale never
-//    shows up again»);  (corta en «And still»)
+// 5. la salita, la ventana (1832): Morriss cruza hasta la ventana con el reloj de bolsillo («waiting»); en «envelope»
+//    pasa un cartero por el camino y no para («never shows up»); en «just as Beale» un jinete galopa y tampoco para;
+//    Morriss vuelve cabizbajo hacia el sillón; Atom espera junto a la librería y se encoge de hombros; péndulo, nubes,
+//    pájaros;  (corta en «And still»)
 // 6. la salita, la chimenea: el calendario vuela de 1832 a 1845, «13», Morriss encanece;  (corta en «because»)
 // 7. inserto, el escritorio de noche: la mano vieja levanta el martillo sobre el candado, duda y lo baja;  (corta antes de «he finally»)
 // 8. la salita de noche: Morriss viejo rompe el candado en «open» (golpe, chispas);  (corta en «Inside»)
@@ -358,10 +360,12 @@ function salitaVentana(t, o = {}) {
   fijo('salV', salitaVentanaFondo);
   ventana(102, 26, 206, 108, (a, b, c, d) => {
     if (!FIJOS.salVfuera) horno('salVfuera', () => { R.recorte([a, b, c, d]); paisaje(a, b, c, d, { nieve: false }); caja(a, d - 18, c, d, (x, y) => ps(x, y, rmp(BARRO, 3 + (h2(x >> 1, y, 2) - 0.5) * 0.8 + (Math.abs(y - d + 9) < 2 ? 0.8 : 0), x, y))); R.recorte(null); });
+    R.recorte([a, b, c, d]);   // el horno de arriba quita el recorte en su primer fotograma
     const B = FIJOS.salVfuera; for (let y = b; y <= d; y++) for (let x = a; x <= c; x++) R.pset(x, y, B[y * 320 + x]);
     // árboles de otoño que pierden las hojas
     for (const [tx, ty] of [[118, 92], [190, 90]]) { lin(tx, ty, tx, ty - 22, NOGAL[1]); for (let k = 0; k < 30; k++) { const an = h2(k, tx, 2) * 6.28, r = h2(k, tx, 3) * 10; R.disco(ri(tx + Math.cos(an) * r), ri(ty - 26 + Math.sin(an) * r * 0.8), 2, [hex('#c86a24'), hex('#e09a30'), hex('#a84a1e')][k % 3]); } }
     for (let k = 0; k < 10; k++) { const u = (t * 0.25 + k / 10) % 1; ps(a + (h2(k, 1, 6) * (c - a) + Math.sin(t * 2 + k) * 6 + u * 20) % (c - a), b + u * (d - b), [hex('#e09a30'), hex('#c86a24')][k % 2]); }
+    if (o.fuera) o.fuera(a, b, c, d);
     // el jinete que pasa por el camino sin pararse
     if (o.jinete != null && o.jinete > 0 && o.jinete < 1) { const jx = lerp(a - 20, c + 20, o.jinete); R.actor(EL.vecino, ri(jx) - 2, d - 16, t, { dir: 1, quieto: true }); T.b_mula(R, ri(jx), d - 4, t, { dir: 1, mula: false, carga: false, color: 'tordo', anda: true });
       for (let k = 1; k < 5; k++) ps(jx - 14 - k * 3, d - 5 - (k & 1), mez(BARRO[4], 0xffffffff, 0.3)); }
@@ -568,21 +572,66 @@ function c4(t) {
   T.lynchburgDelante(R, t, { encuadre: 'calle', camara: 'puerta', nieve: false });
 }
 
-// 5. LA SALITA, LA VENTANA (otoño de 1832): Morriss espera junto a la ventana («left waiting»), mira el camino; un
-//    jinete pasa de largo en «Beale never shows up again» y Morriss baja la cabeza.
+// 5. LA SALITA, LA VENTANA (otoño de 1832): Morriss cruza la salita con el reloj de bolsillo abierto y se planta ante la
+//    ventana («left waiting»); el reloj de pared bate el péndulo; en «envelope» pasa un cartero por el camino y Morriss
+//    da un saltito (bocadillo del sobre)… pero sigue de largo en «never shows up»; en «just as Beale» un jinete galopa por
+//    el camino, Morriss se asoma, y el jinete tampoco para («again»): Morriss baja la cabeza y vuelve hacia el sillón.
+//    Atom, junto a la librería, espera con él y se encoge de hombros al final; el gato del sillón se despierta con el galope.
+// el reloj de pared (regulador) con el péndulo que bate; a la escala de la salita
+function relojPared(x, y, t) {
+  relleno(x, y, x + 16, y + 46, NOGAL, (xx, yy) => 2.4 + (xx === x || yy === y ? 1.6 : 0) + (xx === x + 16 || yy === y + 46 ? -1.4 : 0) + Math.sin(yy * 0.7 + xx * 0.2) * 0.25);
+  relleno(x - 2, y - 3, x + 18, y, NOGAL, (xx, yy) => (yy === y - 3 ? 4.4 : 3)); relleno(x + 1, y + 47, x + 15, y + 49, NOGAL, (xx, yy) => (yy === y + 49 ? 0.6 : 3));
+  // la esfera con las cifras en puntos y las agujas
+  R.disco(x + 8, y + 10, 6, LATON[2]); R.disco(x + 8, y + 10, 5, PAPEL[5]);
+  for (let k = 0; k < 12; k++) { const a = k / 12 * 6.283; ps(x + 8 + Math.cos(a) * 4, y + 10 + Math.sin(a) * 4, k % 3 ? PAPEL[2] : TINTA); }
+  const am = t * 0.9, ah = t * 0.075; lin(x + 8, y + 10, x + 8 + Math.cos(am - 1.57) * 4, y + 10 + Math.sin(am - 1.57) * 4, TINTA); lin(x + 8, y + 10, x + 8 + Math.cos(ah) * 2.5, y + 10 + Math.sin(ah) * 2.5, TINTA);
+  // la caja del péndulo con cristal y el péndulo de latón
+  relleno(x + 3, y + 19, x + 13, y + 43, NOGAL, (xx, yy) => 0.8 + (h2(xx, yy >> 1, 4) - 0.5) * 0.5);
+  const an = Math.sin(t * 3.4) * 0.32, px = x + 8 + Math.sin(an) * 18, py = y + 20 + Math.cos(an) * 18;
+  lin(x + 8, y + 20, px, py, LATON[2]); R.disco(ri(px), ri(py), 2, LATON[3]); ps(px - 1, py - 1, LATON[4]);
+  caja(x + 3, y + 19, x + 13, y + 43, (xx, yy) => { if ((xx - yy + 400) % 9 === 0) aclara(xx, yy, 0xffffffff, 0.18); });
+  sombraCaja(x + 17, y + 2, x + 18, y + 48, 0.35);
+}
 function c5(t) {
   const jin = tramo(t, TG.JUST - 0.4, TG.AGAIN + 0.2);
-  salitaVentana(t, { jinete: jin });
-  const vuelve = t > TG.AGAIN - 0.2, asoma = t > TG.BEALE - 0.6 && t < TG.AGAIN - 0.2;
+  // el cartero del camino: aparece en «envelope» y pasa de largo en «never shows up»
+  const car = tramo(t, TG.ENVEL2 - 0.5, TG.JUST - 0.2);
+  // nubes de tres tonos a tres velocidades y una bandada que cruza por la ventana; el cartero por el camino
+  const fuera = (a, b, c, d) => {
+    const CN = [hex('#f4f2ec'), hex('#d8dce4'), hex('#aeb6c4')];
+    for (let k = 0; k < 5; k++) { const v = 2 + k % 3 * 2, w = c - a + 50, x = a - 25 + ((h2(k, 4, 9) * w + t * v) % w), y = b + 6 + (k * 7) % 22;
+      R.disco(ri(x), ri(y + 2), 5, CN[2]); R.disco(ri(x - 5), ri(y + 1), 4, CN[1]); R.disco(ri(x + 5), ri(y + 1), 4, CN[1]); R.disco(ri(x), ri(y), 4, CN[0]); R.disco(ri(x - 3), ri(y - 2), 3, CN[0]); }
+    for (let k = 0; k < 5; k++) { const u = ((t - TG.P5) * 0.16 + k * 0.035) % 1.3, bx = c + 6 - u * (c - a + 30), by = b + 14 + k * 2 + Math.sin(u * 9 + k) * 2, al = Math.sin(t * 14 + k) > 0 ? -1 : 1;
+      ps(bx, by, NOCHE[1]); ps(bx - 1, by + al, NOCHE[1]); ps(bx + 1, by + al, NOCHE[1]); }
+    if (car > 0 && car < 1) { const cx = lerp(a - 12, c + 12, car); const s = R.actor(EL.carteroBL, ri(cx), d - 4, t, { dir: 1, anda: true, sostiene: [ri(cx) + 12, d - 14] });
+      relleno(s.mano[0] - 2, s.mano[1], s.mano[0] + 4, s.mano[1] + 7, pal(['#4a3a24', '#6a5434', '#8a7046']), (x) => 1.5 + (x < s.mano[0] ? 0.6 : 0)); }
+  };
+  salitaVentana(t, { jinete: jin, fuera });
+  relojPared(54, 38, t);
+  // el haz de sol que entra por la ventana con motas de polvo
+  for (let k = 0; k < 14; k++) { const u = (t * 0.07 + h2(k, 7, 1)) % 1, x = 120 + h2(k, 3, 2) * 70 + u * 18, y = 112 + u * 40 + Math.sin(t + k) * 2; if (Math.sin(t * 1.7 + k * 2) > -0.2) aclara(x, y, VELAL, 0.6); }
   // el velador junto a la ventana con la bandeja de las cartas, vacía
   relleno(80, 128, 104, 131, NOGAL, (x, y) => (y === 128 ? 4.2 : 2)); lin(92, 131, 92, 154, NOGAL[2]); lin(86, 154, 98, 154, NOGAL[1]);
-  relleno(84, 124, 100, 127, LATON, (x, y) => (y === 124 ? 3.6 : 2)); 
-  const sm = R.actor(EL.morrissBL, ri(lerp(118, 132, tramo(t, TG.P5, TG.P5 + 0.8))), 156, t, { dir: vuelve ? -1 : 1, anda: t < TG.P5 + 0.8, salto: asoma && jin > 0.2 && jin < 0.5 ? 1 : 0, sorpresa: asoma && jin < 0.55, triste: (t > TG.NEVER && t < TG.BEALE - 0.6) || jin >= 0.55, sostiene: t < TG.NEVER ? [96, 134] : false });
-  // el reloj de bolsillo que mira mientras espera
-  if (t < TG.NEVER) { R.disco(sm.mano[0], sm.mano[1] - 1, 2, LATON[3]); ps(sm.mano[0], sm.mano[1] - 1, BLANCO[5]); lin(sm.mano[0], sm.mano[1] - 3, sm.mano[0] - 3, sm.mano[1] - 7, LATON[2]); }
-  // el gato que duerme en el sillón
+  relleno(84, 124, 100, 127, LATON, (x, y) => (y === 124 ? 3.6 : 2));
+  // Morriss: cruza hasta la ventana; espera; dos esperanzas (cartero y jinete) y vuelve hacia el sillón cabizbajo
+  const ida = ease(tramo(t, TG.P5 + 0.1, TG.WAITING - 0.05)), vuelta = ease(tramo(t, TG.AGAIN - 0.1, TG.P6 - 0.1));
+  const mx = vuelta > 0 ? lerp(146, 108, vuelta) : lerp(46, 146, ida);
+  const esperaCar = car > 0.15 && car < 0.55, esperaJin = jin > 0.08 && jin < 0.6, pena = (car >= 0.55 && t < TG.JUST - 0.3) || jin >= 0.6;
+  const golpe = !esperaCar && !esperaJin && t > TG.WAITING && t < TG.ENVEL2 - 0.4 && (t * 4) % 1 < 0.5;   // da golpecitos con el pie
+  const reloj = t < TG.ENVEL2 - 0.3 || (t > TG.NEVER + 0.2 && t < TG.JUST - 0.4);
+  const sm = R.actor(EL.morrissBL, ri(mx), 156, t, { dir: vuelta > 0 ? -1 : 1, anda: (ida > 0 && ida < 1) || (vuelta > 0 && vuelta < 1), salto: (esperaCar && car < 0.3) || (esperaJin && jin < 0.3) ? 2 : golpe ? 1 : 0,
+    sorpresa: esperaCar || esperaJin, triste: pena, sostiene: reloj ? [ri(mx) + 12, 136] : false });
+  // el reloj de bolsillo abierto que mira mientras espera (con su cadena)
+  if (reloj) { const [hx, hy] = sm.mano; R.disco(hx, hy - 2, 3, LATON[2]); R.disco(hx, hy - 2, 2, PAPEL[5]); lin(hx, hy - 2, hx + Math.cos(t * 2) * 2, hy - 2 + Math.sin(t * 2) * 2, TINTA); R.disco(hx, hy - 6, 2, LATON[3]); ps(hx, hy - 6, PAPEL[5]);
+    lin(hx - 1, hy, ri(mx) + 6, 142, LATON[3]); }
+  // el gato del sillón: se despierta con el galope (orejas y ojos los pone T.gato; aquí, la cola que se agita)
   T.gato(R, 52, 102, t, { dir: -1 });
-  bocad(92, 116, '?', tramo(t, TG.ENVEL2 - 0.2, TG.ENVEL2 + 0.1) * (t < TG.NEVER + 0.6 ? 1 : 0));
+  if (jin > 0.1 && jin < 0.9) { bocad(52, 84, '!', 1); }
+  // Atom junto a la librería: espera con su propio reloj, señala la ventana con cada esperanza y se encoge de hombros
+  AT.atom(R, 252, 156, t, { dir: -1, pose: esperaCar || esperaJin ? 'senala' : t > TG.AGAIN - 0.1 ? 'brazos' : 'piensa', cara: pena || t > TG.AGAIN - 0.1 ? 'triste' : esperaCar || esperaJin ? 'sorpresa' : 'normal' });
+  // los bocadillos: el sobre que espera; el «?» cuando pasa el cartero de largo
+  if (t > TG.ENVEL2 - 0.2 && t < TG.NEVER + 0.1) R.bocadillo(ri(mx) + 8, 124, { icono: 'sobre' });
+  bocad(ri(mx) + 8, 124, '?', t > TG.NEVER + 0.15 && t < TG.JUST - 0.4 ? 1 : 0);
 }
 
 // 6. LA SALITA, LA CHIMENEA (1832 → 1845): «Morriss waits thirteen more years»: el calendario de la repisa vuela de

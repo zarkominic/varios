@@ -19,8 +19,9 @@
 // 4 · El estudio de su casa de noche (fondo local): con las hojas en sus ratos libres; vuelan las agujas y el almanaque
 //   (1941 → 1946) en «years»; se estira en «free time»; alza una hoja en «sheets». Corta en «And when».
 // 5 · La carta (fondo local, desde arriba): la estilográfica escribe la confesión y firma en «could». Corta en «had to».
-// 6 · La papelera (fondo local): cae una bola de papel; en «beaten» las tres hojas bajan sobre la papelera… y en
-//   «instead of forgetting them» se las lleva; el perro duerme junto al radiador. Corta en «he put».
+// 6 · La papelera (fondo local): la última bola de papel rebota en el borde y cae dentro («confess»); la mano baja las
+//   tres hojas y en «beaten» se le escurren; el perro levanta la cabeza; en «instead of forgetting them» la mano las
+//   agarra de golpe («!») y se las lleva, y el perro mueve la cola; péndulo, sombra de ramas, vapor. Corta en «he put».
 // 7 · El aula (buscadores sis): Friedman reparte las hojas al alumno en «training» y a la alumna en «students».
 // 8 · El calendario de pared (fondo local): la mano estampa un cofre en lunes, miércoles y viernes; brillan en «real».
 // 9 · El taco del escritorio (fondo local, de noche y con lluvia): martes, jueves y sábado sale el cofre tachado; la
@@ -368,8 +369,36 @@ const F5 = (t) => {
   T.brazo(R, wx + 34, 206, wx, wy, GRIS, -1, { codo: [wx + 38, wy + 26] });
 };
 
-// ── F6 · la papelera (fondo local): una bola de papel cae dentro; en «beaten» baja la mano con las tres hojas sobre la
-// papelera… y en «instead of forgetting them» se las vuelve a llevar; el perro duerme junto al radiador ──
+// ── F6 · la papelera (fondo local): «had to confess himself beaten»: una última bola de papel rebota en el borde y cae
+// dentro; baja la mano con las tres hojas sobre la papelera y en «beaten» las suelta un poco (se le escurren); el perro
+// levanta la cabeza; en «instead of forgetting them» la mano las vuelve a agarrar de golpe («!»), las alza y se las lleva
+// hacia la puerta mientras el perro mueve la cola. Detrás: el reloj de pared con su péndulo, la sombra de las ramas que
+// se mece en la pared, el vapor del radiador y las motas en el haz de sol ──
+// el perro dormido junto al radiador, con luz y sombra; o.alza (0–1) levanta la cabeza, o.cola agita la cola
+const PERRO = pal(['#3a200e', '#5a3418', '#7a4a24', '#9a6234', '#b87c48', '#d49a64']);
+const perroF6 = (t, alza, cola) => {
+  const res = Math.sin(t * 1.8) > 0 && alza < 0.2 ? 1 : 0, cx = 262, cy = 164 - res;
+  // el cuerpo: luz de la ventana arriba a la izquierda, sombra abajo; la barriga más clara
+  for (let j = -9; j <= 9; j++) for (let i = -24; i <= 24; i++) { const d = (i / 24) ** 2 + (j / 9) ** 2; if (d > 1) continue;
+    const v = d > 0.86 ? 0 : 3.2 - j * 0.16 - i * 0.02 + (j > 4 ? -1 : 0) + (h2(i >> 1, j, 3) - 0.5) * 0.6 + Math.sin(i * 0.5 + j) * 0.15; ps(cx + i, cy + j, rmp(PERRO, v, cx + i, cy + j)); }
+  for (let i = -16; i <= 10; i += 2) ps(cx + i, cy - 6 + Math.abs(i) / 8, PERRO[5]);   // el brillo del lomo
+  // las patas de delante, dobladas
+  for (const dx of [-26, -20]) { for (let i = 0; i < 9; i++) { ps(cx + dx + i, cy + 7, PERRO[3]); ps(cx + dx + i, cy + 8, PERRO[1]); } ps(cx + dx, cy + 7, PERRO[0]); }
+  // la cola: lenta mientras duerme; deprisa con o.cola
+  const ca = cola ? Math.sin(t * 22) * 5 : Math.sin(t * 2) * 2;
+  for (let k = 0; k < 10; k++) { const x = cx + 23 + k, y = cy + 2 - k * 0.5 + ca * k / 10; ps(x, y, PERRO[2]); ps(x, y + 1, PERRO[1]); }
+  // la cabeza: levanta y mira hacia la papelera con o.alza
+  const hx = ri(cx - 26 + alza * 1), hy = ri(cy - 2 - alza * 9);
+  for (let j = -7; j <= 7; j++) for (let i = -8; i <= 8; i++) { const d = (i / 8) ** 2 + (j / 7) ** 2; if (d > 1) continue; ps(hx + i, hy + j, rmp(PERRO, d > 0.8 ? 0.6 : 3.6 - j * 0.2 - i * 0.04, hx + i, hy + j)); }
+  for (let j = -3; j <= 3; j++) for (let i = -7; i <= 0; i++) if ((i / 7) ** 2 + (j / 3.5) ** 2 <= 1) ps(hx - 6 + i, hy + 2 + j, rmp(PERRO, j === -3 ? 5 : 4 - j * 0.3, hx + i, hy + j));   // el hocico
+  ps(hx - 13, hy + 1, K); ps(hx - 12, hy + 1, K); ps(hx - 13, hy, H('#6a6a70'));   // la trufa
+  if (alza > 0.4) { ps(hx - 3, hy - 2, K); ps(hx - 2, hy - 2, K); ps(hx - 3, hy - 3, H('#ffffff')); } else R.linea(hx - 4, hy - 1, hx - 1, hy - 1, PERRO[0]);
+  // la oreja caída (se alza un poco con la cabeza) y el collar rojo con su chapa
+  const oy = ri(alza * -3); for (let j = 0; j < 9; j++) for (let i = 0; i < 4 - (j > 6 ? 1 : 0); i++) ps(hx + 1 + i + (j > 4 ? 1 : 0), hy - 5 + j + oy, rmp(PERRO, 1.2 + (i === 0 ? 0.8 : 0), hx + i, hy + j));
+  for (let j = -3; j <= 4; j++) { ps(hx + 7, hy + j + 1, H('#b83228')); ps(hx + 8, hy + j + 1, H('#7a1c16')); } R.disco(hx + 7, hy + 6, 1, H('#e0b850'));
+  // la sombra en el suelo
+  for (let i = -28; i <= 30; i++) { tine(cx + i, cy + 10, K, 0.3 * (1 - Math.abs(i) / 32)); tine(cx + i, cy + 11, K, 0.15); }
+};
 const F6 = (t) => {
   fijo('f6', () => {
     yeso(0, 0, 319, 66, pal(['#8a8070', '#a89e8a', '#c0b6a0', '#d4ccb6', '#e6dfcc']), 29);
@@ -377,29 +406,45 @@ const F6 = (t) => {
     vetas(0, 122, 319, 179, ROB, 13, 7); rr(0, 122, 319, 122, K);
     // el costado del escritorio a la izquierda (con su moldura y la pata)
     rr(0, 30, 92, 152, K); vetas(0, 31, 91, 151, WAL, 14, 40, true); rr(6, 40, 84, 140, WAL[1]); vetas(8, 42, 82, 138, WAL, 15, 32, true); rr(0, 28, 96, 33, WAL[4]); rr(0, 33, 96, 34, K);
-    // el radiador de hierro con su llave
-    for (let x = 226; x < 304; x++) { const fin = (x - 226) % 6; for (let y = 84; y < 124; y++) ps(x, y, fin === 0 ? K : rmp(pal(['#4a4e58', '#6a7080', '#8a92a2', '#aab2c0']), (fin === 1 ? 3 : fin < 4 ? 2 : 1) + (y < 87 ? 1 : 0), x, y)); }
-    rr(226, 122, 304, 124, K); rr(300, 80, 306, 86, K); rr(301, 81, 305, 85, H('#c8a040'));
+    // un diploma enmarcado (sin letras: el sello y unas rayas) y el almanaque de pared con su cuadrícula
+    rr(110, 28, 140, 56, K); rr(111, 29, 139, 55, H('#7a5428')); rr(113, 31, 137, 53, H('#efe6cc')); for (let y = 35; y < 48; y += 3) rr(117, y, 117 + 12 + (y * 7) % 8, y, H('#a89e8a')); R.disco(131, 48, 3, H('#b83228')); ps(130, 47, H('#e05a3c'));
+    for (let y = 28; y < 57; y++) tine(141, y, K, 0.3); for (let x = 111; x < 141; x++) tine(x, 57, K, 0.2);
+    rr(196, 30, 216, 58, K); rr(197, 31, 215, 57, H('#f4eedc')); rr(197, 31, 215, 36, H('#b83228')); rr(205, 28, 207, 31, K);
+    for (let j = 0; j < 4; j++) for (let i = 0; i < 5; i++) { const c = (i + j * 5) % 7 === 6 ? H('#e05a3c') : H('#8a8070'); ps(199 + i * 3.5, 40 + j * 4, c); ps(200 + i * 3.5, 40 + j * 4, c); }
+    for (let x = 197; x < 216; x++) tine(x, 58, K, 0.25); for (let y = 31; y < 58; y++) tine(216, y, K, 0.25);
     // la luz de la ventana en el suelo y en la pared
     for (let y = 40; y < 180; y++) for (let x = 0; x < 320; x++) { const u = x - 150 - (y - 40) * 0.7; if (u > 0 && u < 60 && (x + y) % 3 === 0) tine(x, y, H('#fff4c0'), 0.18); }
   });
+  // la sombra de las ramas de fuera que se mece en la pared (dentro del haz de sol)
+  for (let k = 0; k < 3; k++) { const sx = 188 + k * 14 + Math.sin(t * 1.1 + k) * 3, sy = 18 + k * 8; R.linea(ri(sx), sy, ri(sx + 12 + Math.sin(t * 1.3 + k) * 2), sy + 10, mez(H('#c0b6a0'), K, 0.25)); for (let j = 0; j < 4; j++) tine(sx + 4 + j * 3, sy + 3 + j * 2 + Math.sin(t * 2 + j) , K, 0.2); }
+  // el reloj de pared redondo con el péndulo (fuera de la zona de Atom)
+  { const x = 238, y = 22; R.disco(x, y, 9, K); R.disco(x, y, 8, H('#7a5428')); R.disco(x, y, 6, H('#f4eedc')); for (let k = 0; k < 12; k++) { const a = k / 12 * 6.283; ps(x + Math.cos(a) * 5, y + Math.sin(a) * 5, k % 3 ? H('#a89e8a') : K); }
+    R.linea(x, y, ri(x + Math.cos(t * 0.6 - 1.57) * 5), ri(y + Math.sin(t * 0.6 - 1.57) * 5), K); R.linea(x, y, x + 3, y - 1, K);
+    rr(x - 4, y + 9, x + 4, y + 36, K); rr(x - 3, y + 10, x + 3, y + 35, H('#5a3c1e')); const an = Math.sin(t * 3.6) * 0.3; R.linea(x, y + 11, ri(x + Math.sin(an) * 20), ri(y + 11 + Math.cos(an) * 20), H('#c8a040')); R.disco(ri(x + Math.sin(an) * 20), ri(y + 11 + Math.cos(an) * 20), 2, H('#e0b850')); }
   for (let k = 0; k < 5; k++) { const u = (t * 0.25 + k / 5) % 1; tine(303 + Math.sin(u * 6 + k) * 3, 80 - u * 34, H('#f0f0f4'), 0.5 * (1 - u)); }
   for (let k = 0; k < 8; k++) { const x = 160 + ((k * 37 + t * 4) % 70), y = 60 + ((k * 23 + t * 3) % 100); if (Math.sin(t * 2 + k) > 0) ps(x + (y - 60) * 0.7, y, H('#fff8d0')); }
-  // el perro dormido: respira, mueve una oreja y la cola
-  const res = Math.sin(t * 1.8) > 0 ? 1 : 0; elipse(258, 164 - res, 22, 8, K); elipse(258, 164 - res, 21, 7, H('#a86a3a')); elipse(254, 160 - res, 14, 3, H('#c88a52'));
-  R.disco(236, 162, 7, K); R.disco(236, 162, 6, H('#a86a3a')); rr(229, 164, 233, 167, H('#c88a52')); ps(229, 164, K); ps(235, 160, K);
-  const oj = (t % 2.3) < 0.2 ? -2 : 0; rr(239, 156 + oj, 243, 163, H('#6a3a1a')); const co = ri(Math.sin(t * 3) * 3); R.linea(279, 164, 286, 160 + co, H('#a86a3a')); R.linea(279, 165, 286, 161 + co, K);
-  // la papelera de mimbre con bolas de papel
-  for (let y = 112; y < 172; y++) { const w = ri(30 - (y - 112) * 0.12); for (let x = 160 - w; x <= 160 + w; x++) ps(x, y, x === 160 - w || x === 160 + w || y === 171 ? K : ((x + (Math.floor(y / 3) % 2) * 3) % 6 < 3 ? H('#c89a5a') : H('#9a6e3a'))); }
+  // el radiador de hierro con su llave (por frame, para que el perro quede delante)
+  for (let x = 226; x < 304; x++) { const fin = (x - 226) % 6; for (let y = 84; y < 124; y++) ps(x, y, fin === 0 ? K : rmp(pal(['#4a4e58', '#6a7080', '#8a92a2', '#aab2c0']), (fin === 1 ? 3 : fin < 4 ? 2 : 1) + (y < 87 ? 1 : 0), x, y)); }
+  rr(226, 122, 304, 124, K); rr(300, 80, 306, 86, K); rr(301, 81, 305, 85, H('#c8a040'));
+  // el perro: levanta la cabeza en «beaten»; mueve la cola cuando la mano recupera las hojas
+  perroF6(t, ease(tramo(t, TF.BEATEN - 0.2, TF.BEATEN + 0.2)), t > TF.INSTEAD + 0.1);
+  // la papelera de mimbre con bolas de papel (las bolas se asientan con el golpe de la última)
+  const ub = tramo(t, TF.HAD - 0.25, TF.CONFESS + 0.25), bote = tramo(t, TF.CONFESS + 0.25, TF.CONFESS + 0.6);
+  const sac = bote > 0 && bote < 1 ? ri(Math.sin(bote * 9) * 1.5 * (1 - bote)) : 0;
+  for (let y = 112; y < 172; y++) { const w = ri(30 - (y - 112) * 0.12); for (let x = 160 - w; x <= 160 + w; x++) ps(x, y, x === 160 - w || x === 160 + w || y === 171 ? K : ((x + (Math.floor(y / 3) % 2) * 3) % 6 < 3 ? H('#c89a5a') : H('#9a6e3a'))); tine(160 - w + 1, y, K, 0.35); tine(160 + w - 1, y, K, 0.25); }
+  for (const [bx, by] of [[150, 108], [168, 107], [160, 104]]) { R.disco(bx, by + sac, 6, K); R.disco(bx, by + sac, 5, H('#ece6d4')); ps(bx - 2, by - 1 + sac, H('#c8c0a8')); ps(bx + 1, by + 1 + sac, H('#c8c0a8')); }
   for (let x = 129; x <= 191; x++) { ps(x, 111, K); ps(x, 112, H('#e0b878')); ps(x, 113, H('#7a5428')); }
-  for (const [bx, by] of [[150, 108], [168, 107], [160, 104]]) { R.disco(bx, by, 6, K); R.disco(bx, by, 5, H('#ece6d4')); ps(bx - 2, by - 1, H('#c8c0a8')); ps(bx + 1, by + 1, H('#c8c0a8')); }
-  // la bola de papel que entra (un intento más que no sirve)
-  const ub = tramo(t, TF.HAD + 0.05, TF.CONFESS + 0.5); if (ub > 0 && ub < 1) { const x = lerp(-6, 176, ub), y = 30 + 80 * ub * ub - Math.sin(ub * Math.PI) * 30; R.disco(ri(x), ri(y), 4, K); R.disco(ri(x), ri(y), 3, H('#ece6d4')); }
-  // la mano con las tres hojas: baja sobre la papelera, duda y se las lleva
-  const baja = ease(tramo(t, TF.HAD + 0.3, TF.BEATEN)), duda = t > TF.BEATEN && t < TF.INSTEAD ? ri(Math.sin(t * 10) * 1.5) : 0, va = ease(tramo(t, TF.INSTEAD - 0.1, TF.FORGETTING + 0.5));
-  const wx = ri(lerp(174, 290, va)) + duda, wy = ri(lerp(lerp(-30, 46, baja), -40, va));
-  for (const [dx, dy, n] of [[-12, 3, 3], [-8, 1, 2], [-4, 0, 1]]) T.d_hoja(R, wx + dx, wy + 17 + dy, { n, t });
+  // la última bola: llega en arco desde el escritorio, pega en el borde y cae dentro
+  if (ub > 0 && ub < 1) { const x = lerp(96, 186, ub), y = 40 + 70 * ub * ub - Math.sin(ub * Math.PI) * 26; R.disco(ri(x), ri(y), 4, K); R.disco(ri(x), ri(y), 3, H('#ece6d4')); ps(x - 1, y - 1, H('#c8c0a8')); }
+  else if (bote > 0 && bote < 1) { const x = lerp(186, 172, bote), y = 106 - Math.sin(bote * Math.PI) * 12 + bote * 4; R.disco(ri(x), ri(y), 4, K); R.disco(ri(x), ri(y), 3, H('#ece6d4')); ps(x - 1, y - 1, H('#c8c0a8')); }
+  // la mano con las tres hojas: baja sobre la papelera, se le escurren en «beaten», las agarra de golpe y se las lleva
+  const baja = ease(tramo(t, TF.HAD + 0.15, TF.BEATEN - 0.1)), escurre = ease(tramo(t, TF.BEATEN - 0.1, TF.INSTEAD - 0.05)), coge = t > TF.INSTEAD - 0.05;
+  const va = ease(tramo(t, TF.FORGETTING - 0.05, TF.HE_PUT - 0.1)), tiembla = t > TF.BEATEN - 0.1 && !coge ? ri(Math.sin(t * 11) * 1.2) : 0;
+  const wx = ri(lerp(176, 232, va)) + tiembla, wy = ri(lerp(lerp(-52, 44, baja), -72, va) - (coge ? ease(tramo(t, TF.INSTEAD - 0.05, TF.INSTEAD + 0.15)) * 8 : 0));
+  const caida = coge ? 0 : ri(escurre * 9);
+  for (const [dx, dy, n] of [[-12, 3, 3], [-8, 1, 2], [-4, 0, 1]]) T.d_hoja(R, wx + dx - ri(escurre * (n - 1) * 2), wy + 17 + dy + ri(caida * (4 - n) / 3), { n, t });
   T.brazo(R, wx + 22, wy - 46, wx, wy, GRIS, -1, { codo: [wx + 28, wy - 20] });
+  const ex = pop(t, TF.INSTEAD - 0.05, 0.3); if (ex > 0 && t < TF.FORGETTING + 0.3) R.icono('!', wx - 34, ri(wy + 8 - 4 * Math.min(1, ex)), H('#ff8a5a'), K, 2);
 };
 
 // ── F7 · el aula del servicio (buscadores sis): Friedman reparte las hojas a sus alumnos en «training» y «students» ──
@@ -623,7 +668,7 @@ const F13 = (t) => {
 const año = (t) => t < TF.AND_WHOSE ? 1930 : t < TF.SPENT ? 1940 : t < TF.AND_WHEN ? 1941 + Math.floor(5.99 * tramo(t, TF.YEARS - 0.2, TF.SHEETS - 0.4)) : t < TF.AND_YET ? 1946 : 1970;
 const efectos = [[TF.EVEN + 0.2, 'lapiz'], [TF.CRACKED, 'brillo'], [TF.TRAP, 'toc'], [TF.BECAUSE + 0.2, 'pasos'], [TF.SERVICE + 0.4, 'coche'],
   [TF.AND_WHOSE + 0.2, 'tecleo'], [TF.BROKE, 'cerrojo'], [TF.YEARS, 'tic'], [TF.SHEETS, 'papel'], [TF.AND_WHEN + 0.3, 'lapiz'], [TF.COULD + 0.2, 'firma'],
-  [TF.HAD + 0.2, 'papel'], [TF.TRAINING, 'papel'], [TF.STUDENTS, 'papel'], [TF.MONDAYS, 'sello'], [TF.WEDNESDAYS, 'sello'], [TF.FRIDAYS, 'sello'], [TF.REAL2, 'brillo'],
+  [TF.CONFESS + 0.25, 'toc'], [TF.INSTEAD, 'papel'], [TF.FORGETTING + 0.35, 'guau'], [TF.TRAINING, 'papel'], [TF.STUDENTS, 'papel'], [TF.MONDAYS, 'sello'], [TF.WEDNESDAYS, 'sello'], [TF.FRIDAYS, 'sello'], [TF.REAL2, 'brillo'],
   [TF.AND_TUE + 0.7, 'papel'], [TF.THURSDAYS - 0.25, 'papel'], [TF.SATURDAYS - 0.2, 'papel'], [TF.HOAX, 'boing'], [TF.LIKE + 0.8, 'golpecito'], [TF.BET, 'golpecito'],
   [TF.AND_YET + 0.4, 'tecleo'], [TF.FED, 'maquina'], [TF.POWERFUL, 'brillo'], [TF.AND_ANN + 0.2, 'maquina'], [TF.ONE, 'pop'], [TF.THREE, 'pop'], [TF.DOODLES, 'boing'], [TF.MESSAGE, 'brillo']];
 T.rodar(E, R, [[0, F1], [TF.BECAUSE, F2], [TF.AND_WHOSE, F3], [TF.SPENT, F4], [TF.AND_WHEN, F5], [TF.HAD, F6], [TF.HE_PUT, F7], [TF.FRIEDMAN2, F8],
