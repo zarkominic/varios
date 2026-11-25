@@ -107,8 +107,13 @@ PREVIO = {
 # Desde el 37, en español los nombres extranjeros van TAL CUAL (regla del 16/11/2026).
 PRONUNCIA = {
     'en': [],
-    # se rellena tras la prueba de nombres con ZONOS3 y Whisper (25/11/2026)
-    'es': [],
+    # validadas con ZONOS3 y Whisper el 25/11/2026 (frase «Hoy te hablo de …»): tal cual salían «WooFords», «Montval»,
+    # «Myelin Parsons» y «Gwen»; escritas así se oyen bien. Los demás (Beale, Morriss, Lynchburg, Bedford, James B. Ward,
+    # The Beale Papers, Hart, Goose Creek, Friedman, Hammer, Sperry, RAND, Gillogly, Nickell, Tversky, Kahneman,
+    # Cambridge, stampede) se oyen mejor tal cual. La tira de Gillogly, deletreada en español.
+    'es': [('a, b, f, d, e, f, g, h, i, i, j, k, l, m, m, n, o, h, p, p',
+            'a, be, efe, de, e, efe, ge, hache, i, i, jota, ka, ele, eme, eme, ene, o, hache, pe, pe'),
+           ("Buford's", 'Biúfords'), ('Montvale', 'Móntveil'), ('Marilyn Parsons', 'Márilin Pársons'), ('«When»', '«Uen»')],
 }
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
 # Desde la v5 van solo en el campo `pausas` de cada escena de escenas.json (los números de aquí eran los de la v4
