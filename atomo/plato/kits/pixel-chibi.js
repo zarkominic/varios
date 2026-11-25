@@ -12319,3 +12319,78 @@ export const ELENCO_MS = {
     pal: CLARA({ H: '#8a6a40', h: '#a8885a', C: '#c8a0a8', c: '#a8808a', G: '#f0e4c8', W: '#f2eee2', L: '#2a2018' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_MS);
+
+// ── Episodio 48 · El tesoro de Beale (bl) ─────────────────────────────────────────────────────────────────────────
+export const ELENCO_BL = {
+  // Thomas J. Beale (1820, en Lynchburg): alto, pelo y ojos negros, tez morena (así lo describe Morriss), levita negra
+  bealeBL: { ...B20, cuerpo: CUERPO_LEVITA_MS, altoCuerpo: 14, ceja: hex('#14111a'),
+    pal: OLIVA({ S: '#d0a07a', s: '#a87850', H: '#14111a', h: '#2e2836', C: '#24222a', c: '#18161e', o: '#c8a040', W: '#f2eee2', L: '#14111a' }) },
+  // Beale en el oeste (1817–1821): el mismo, con chaqueta de cazador de ante y sombrero de ala ancha
+  bealeOesteBL: { ...B20, cuerpo: CUERPO_TRAMPERO_LF, altoCuerpo: 14, tocado: 'vaquero', ceja: hex('#14111a'),
+    pal: OLIVA({ S: '#d0a07a', s: '#a87850', H: '#14111a', h: '#2e2836', C: '#a07a4e', c: '#7a5a36', V: '#5a4028', v: '#3e2c1c', F: '#4a4038', L: '#2a2018' }) },
+  // los cazadores de la partida de Beale: camisa de cuadros y chaleco de piel, sombrero gastado
+  cazadorBL: { ...B20, cuerpo: CUERPO_TRAMPERO_LF, tocado: 'vaquero', ceja: hex('#5a3a20'), bigote: true,
+    pal: CLARA({ H: '#6a4422', h: '#8a5e34', C: '#8a4a3a', c: '#6a3428', V: '#7a6a4a', v: '#5a4c34', F: '#4a4038', L: '#2a2018' }) },
+  cazador2BL: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_TRAMPERO_LF, tocado: 'gorra', ceja: hex('#8a6a40'),
+    pal: CLARA({ H: '#a8885a', h: '#c8a878', C: '#5a6a4a', c: '#424e36', V: '#8a6a48', v: '#6a4e30', F: '#3e3a34', L: '#2a2018' }) },
+  // Robert Morriss, el posadero (1820): de mediana edad, entradas castañas, chaleco granate y camisa blanca
+  morrissBL: { ...B20, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHALECO_NV, ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#6a4a2a', h: '#8a6a40', C: '#7a2a32', c: '#5a1e24', V: '#f2eee2', v: '#d0ccc0', o: '#c8a040', F: '#3a3440', L: '#2a2018' }) },
+  // Morriss mayor (1845–1862): el mismo chaleco, pelo blanco y algo encorvado
+  morrissViejoBL: { ...B20, cab: CAB_ENTRADAS, cuerpo: CUERPO_CHALECO_NV, altoCuerpo: 12, ceja: hex('#c8c8d0'),
+    pal: CLARA({ H: '#e0e0e8', h: '#f8f8ff', C: '#5a2a32', c: '#3e1e24', V: '#f2eee2', v: '#d0ccc0', o: '#a08a50', F: '#3a3440', L: '#2a2018' }) },
+  // el amigo sin nombre (1862): joven, pelo castaño, levita gris; en 1885, mayor y cansado (amigoMayorBL)
+  amigoBL: { ...B20, cuerpo: CUERPO_LEVITA_MS, ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#5a3a1e', h: '#7a5430', C: '#5a5a62', c: '#42424a', o: '#8a8a94', W: '#f2eee2', L: '#2a2018' }) },
+  amigoMayorBL: { ...B20, cab: CAB_ENTRADAS, cuerpo: CUERPO_ARRUGADO, ceja: hex('#9a9aa4'),
+    pal: CLARA({ H: '#9a9aa4', h: '#babac4', C: '#5a5a62', c: '#42424a', W: '#d8d4cc', F: '#3a3a44', L: '#2a2018' }) },
+  // la familia del amigo (1885): su mujer, con vestido pardo y chal
+  mujerAmigoBL: { ...B20M, ceja: hex('#4a2e1a'), tocado: 'cofia',
+    pal: CLARA({ H: '#5a3a1e', h: '#7a5430', C: '#6a5a4a', c: '#4e4236', W: '#d8d0c0', L: '#2a2018' }) },
+  // James B. Ward (1885), el agente que publica el folleto: bigote, traje oscuro de tres piezas y bombín
+  wardBL: { ...B20, cuerpo: CUERPO_TRES_PIEZAS_PR, tocado: 'bombin', bigote: true, ceja: hex('#2a1e18'),
+    pal: CLARA({ H: '#2a1e18', h: '#4a3628', C: '#2e2e3a', c: '#20202a', o: '#c8a040', W: '#f2eee2', F: '#24242e', L: '#16141c' }) },
+  // el impresor de Lynchburg (1885): mandil manchado de tinta y manguitos
+  impresorBL: { ...B20, cuerpo: CUERPO_MANDIL, tocado: 'gorra', ceja: hex('#3a2418'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#d8d0c0', c: '#b0a898', W: '#2a2a34', F: '#3a3440', L: '#2a2018' }) },
+  // un cartero y unos soldados de 1862 (sin armas a la vista)
+  carteroBL: { ...B20, cuerpo: CUERPO_LEVITA_MS, tocado: 'capotain', ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#6a4422', h: '#8a5e34', C: '#3a4a6a', c: '#2a3650', o: '#c8a040', W: '#f2eee2', L: '#2a2018' }) },
+  soldadoBL: { ...B20, cuerpo: CUERPO_SOLDADO_NV, tocado: 'kepi', ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#5a3a1e', h: '#7a5430', C: '#7a7a82', c: '#5a5a62', o: '#c8a040', F: '#4a4a52', L: '#2a2018' }) },
+  // los hermanos Hart (1898): Clayton, el que no se rinde (bigote, chaleco y tirantes, bombín) y George, el escéptico (gorra)
+  claytonBL: { ...B20, cuerpo: CUERPO_TIRANTES, tocado: 'bombin', bigote: true, ceja: hex('#3a2418'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#d8ccb0', c: '#b0a488', W: '#5a4a3a', G: '#3a2e24', F: '#3e3a44', n: '#2a2018' }) },
+  georgeBL: { ...B20, cuerpo: CUERPO_TIRANTES, tocado: 'gorra', ceja: hex('#6a4a2a'),
+    pal: CLARA({ H: '#7a5a34', h: '#9a7848', C: '#c8d0d8', c: '#a0a8b0', W: '#4a5a6a', G: '#34424e', F: '#3e3a44', n: '#2a2018' }) },
+  // el médium hipnotizado (1898): un hombre delgado de frac, pelo engominado y ojos cerrados
+  mediumBL: { ...B20, cab: CAB_ENGOMINADO, cuerpo: CUERPO_FRAC, ceja: hex('#14111a'),
+    pal: CLARA({ H: '#14111a', h: '#2e2836', C: '#1c1a22', c: '#121016', o: '#c8c8d0', W: '#f2eee2', L: '#14111a' }) },
+  // William Friedman (años treinta): delgado, pelo oscuro peinado hacia atrás, bigotito, pajarita, traje gris claro
+  friedmanBL: { ...B20, cab: CAB_ENGOMINADO, cuerpo: CUERPO_TRAJE_DC, bigote: true, ceja: hex('#2a1e18'),
+    pal: CLARA({ H: '#2a1e18', h: '#4a3628', C: '#8a8a92', c: '#6a6a72', o: '#2a2430', W: '#f2eee2', F: '#6a6a72', L: '#16141c' }) },
+  // los alumnos del servicio de descifrado: uniforme caqui del ejército de los años treinta
+  alumnoBL: { ...B20, cuerpo: CUERPO_OFICIAL_DC, ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#6a4422', h: '#8a5e34', C: '#8a7a54', c: '#6a5c3e', o: '#c8a040', W: '#e8dcc0', F: '#6a5c3e', L: '#2a2018' }) },
+  alumna2BL: { ...B20M, cuerpo: CUERPO_OFICIAL_DC, ceja: hex('#2a1e18'),
+    pal: CLARA({ H: '#2a1e18', h: '#4a3628', C: '#8a7a54', c: '#6a5c3e', o: '#c8a040', W: '#e8dcc0', F: '#6a5c3e', L: '#2a2018' }) },
+  // Carl Hammer (1970): gafas de pasta, entradas, corbata ancha, traje marrón de los setenta
+  hammerBL: { ...B20, cab: CAB_ENTRADAS, tocado: 'gafasClaras', cuerpo: CUERPO_CORBATA_ANCHA_DC, ceja: hex('#5a5a5a'),
+    pal: CLARA({ E: '#e8ecf4', H: '#7a7a80', h: '#9a9aa0', C: '#6a4a30', c: '#4e3420', o: '#c87a3a', W: '#f2eee2', F: '#4e3420', L: '#2a2018' }) },
+  // Jim Gillogly (1980): barba castaña, gafas, jersey verde de punto
+  gilloglyBL: { ...B20, cab: CAB_BARBA_CORTA_DC, tocado: 'gafasClaras', cuerpo: CUERPO_JERSEY_CF, ceja: hex('#5a3a20'),
+    pal: CLARA({ E: '#e8ecf4', H: '#6a4422', h: '#8a5e34', C: '#4a6a4a', c: '#34503a', W: '#e8e0d0', F: '#3a3a44', L: '#2a2018' }) },
+  // Joe Nickell (1982): bigote, pelo castaño, chaqueta de tweed y lupa
+  nickellBL: { ...B20, cuerpo: CUERPO_TWEED_VM, bigote: true, ceja: hex('#4a2e1a'),
+    pal: CLARA({ H: '#5a3a1e', h: '#7a5430', C: '#8a7458', c: '#6a5840', o: '#c8a040', W: '#f2eee2', F: '#4a4038', L: '#2a2018' }) },
+  // Marilyn Parsons (1983): pelo rizado castaño, rebeca azul de los ochenta
+  parsonsBL: { ...B20M, cab: CAB_RIZOS, cuerpo: CUERPO_REBECA, ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#7a5232', h: '#9a7048', C: '#5a7aa8', c: '#425e8a', W: '#f2eee2', F: '#3a3a44', L: '#2a2018' }) },
+  // el sheriff del condado (1983): uniforme pardo y sombrero de ala ancha
+  sheriffBL: { ...B20, cuerpo: CUERPO_VIGILANTE_NV, tocado: 'vaquero', bigote: true, ceja: hex('#3a2418'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#a08a5a', c: '#7a6a44', o: '#e8c040', V: '#6a5034', v: '#4e3a24', F: '#5a4c34', L: '#2a2018' }) },
+  // el aficionado de hoy con detector: gorra de béisbol, chaleco de bolsillos y botas
+  buscadorBL: { ...B20, cuerpo: CUERPO_BUSCADOR, tocado: 'beisbol', ceja: hex('#5a3a20'),
+    pal: OLIVA({ H: '#6a4422', h: '#8a5e34', C: '#6a7a4a', c: '#4e5a36', o: '#c86a3a', W: '#d8ccb0', F: '#4a4a52', L: '#2a2018' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_BL);
