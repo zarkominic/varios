@@ -236,6 +236,23 @@ una pasada o detalle no entra.
   5 personajes lleven siempre dos filas.
 - Siguiente tema: los archivos OVNI del gobierno.
 
+## Lo que dice el público · exportación completa del 25/11/2026 (toda la vida del canal)
+
+Datos: `episodios/estadisticas/2026-11-25/` (137 vídeos, tráfico por fuente y por vídeo, público, 11 curvas, `resumen.md`).
+- [Seguro] **El canal orgánico casi no existe:** el 78,9 % de las 88.679 visualizaciones son anuncios. Los largos sin
+  anuncio suman unas 4.500 visualizaciones en 39 vídeos (~115 cada uno).
+- [Seguro] **Los suscriptores no son público:** 981 de los 1.017 ganados vienen de «Otra categoría» (la campaña); los
+  vídeos ganaron 36. Las notificaciones trajeron 43 visualizaciones en total.
+- [Seguro] **El público del anuncio no es el del canal:** 77 % México, 54 % mujeres, 13 % de más de 65, y el 91 % lo ve
+  con la pista en inglés (30 % con subtítulos en español). EE. UU., el mercado, es el 5,7 %, con 0:55 de media.
+- [Seguro] **El anuncio saltable retiene por encima de lo habitual** (+11 a +60 a los 30 s); el discovery y el orgánico,
+  por debajo casi siempre (orgánico a los 30 s: −16 a −87; a la mitad, mezclado: Leto II +50, Paul +20, el resto
+  negativo). Corrige la lectura de Roanoke («el cuerpo retiene mejor»): con más curvas, no se sostiene en general.
+- [Seguro] **CTR orgánico hundido en las franquicias:** Doctor Doom 0,69 %, Doomsday 2 0,71 %, Paul 0,76 %, Dune 0,78 %,
+  Haymitch 0,83 %, con 5.500–10.000 impresiones. Los mejores CTR fueron de octubre (tesoro, Acción de Gracias, Nueva
+  York, huracanes: 4,2–4,8 %).
+- [Seguro] **Shorts:** «se quedaron viendo» 24 %; 98 Shorts, 6 suscriptores.
+
 ## Lo que dice el público · retención de Oak Island (ep14) y LucasArts (ep16), hasta el 19/11
 
 Datos: `episodios/estadisticas/retencion-ep14/` (solo orgánico, ~210 visualizaciones) y `retencion-ep16/` (orgánico
