@@ -20,8 +20,11 @@
 (El aprobado con el guion, «Is the BEALE Treasure Real? | A Fortune Hidden in Three Pages of Numbers», tiene 73
 caracteres y la regla del canal es de 60 como mucho: se acorta sin cambiar la idea.)
 
-**Alternativa para la prueba A/B de títulos:**
-- EN: The Treasure Map Made of Numbers: Only 1 Page Was Solved
+**Prueba de títulos y miniaturas («Probar y comparar», cada título con su miniatura):**
+- **A** (`ep48-miniatura.jpg`, «ONLY NUMBERS»): Is the Beale Treasure Real? A Fortune Hidden in Numbers
+- **B** (`ep48-miniatura-b.jpg`, «1 OF 3 SOLVED»): The Treasure Map Made of Numbers: Only 1 Page Was Solved
+- **C** (`ep48-miniatura-c.jpg`, «BEALE 1820»): Beale's Gold: The Virginia Treasure No One Has Found
+  (ES, si hace falta: El oro de Beale: el tesoro de Virginia que nadie encontró)
 
 ## Prueba de miniaturas (A/B/C en «Probar y comparar» de YouTube Studio)
 
