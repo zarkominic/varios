@@ -1055,3 +1055,24 @@ del 44.
   párrafo, donde las dos voces vuelven a alinearse.
 - **Pendiente para el próximo:** que `short.py` avise si el corte cae a mitad de una frase del SRT español; que el
   encargo de la calidad incluya re-copiar las pausas.
+
+## Episodio 48 · El tesoro de Beale: una fortuna escondida en tres páginas de números (25/11/2026)
+
+- **Producción** [Seguro]: 15:36 (por encima de los 12–14 del canon: el guion de 31 párrafos y ~2.400 palabras se
+  estimó en 14), −14,0/−14,2 LUFS, efectos el 49 % del tiempo, 238/242 subtítulos sin fallos, peor caída de la música
+  en una cartela 6,4 dB. Calidad: 176 planos, 81 suspensos en la primera revisión, aprobada en tres rondas (40 agentes,
+  ~7 M de tokens, 2 h 15 min); 0 sospechas en --comprobar.
+- **Pausas, otra vez** [Seguro]: el pendiente del 47 no se aplicó y volvió a pasar: tres pausas no arrancaban en el
+  último fotograma de su escena (Gillogly → azar 28 % de píxeles distintos, Friedman → casi 3 %, cuarto → cifrado
+  1,3 %), porque la pasada pule la escena y no su copia en la pausa (o al revés). Se arregló copiando el bloque
+  compartido TAL CUAL, por marcadores de texto, y midiendo la costura: captura del último fotograma de la escena y del
+  primero de la pausa, y % de píxeles con diferencia > 40 (0–0,2 % = bien).
+- **Miniaturas sin Atom** [Seguro]: prueba A/B/C aprobada por el usuario: A «ONLY NUMBERS» (cofre y buscador), B «1 OF 3
+  SOLVED» (la hoja 2 a contraluz con el oro), C la de referencia sin Atom. Letras en `bl-mini-letras.js`. Dos trampas:
+  pintar algo con luz (d_farol) dentro de `op.cosa` de `figura` deja puntos negros (su resplandor tiñe el color «vacío»
+  del búfer): se pinta fuera, en la mano devuelta; y una hoja a escala 0,5 escalada ×3 es una mancha: mejor d_hoja a
+  escala 2 en pantalla, en la mano.
+- **Título** [Seguro]: el aprobado tenía 73 caracteres; hay que pasar `titulos.py` ANTES de presentar el guion.
+- **Pendiente para el próximo:** (1) meter en el workflow de la calidad una comprobación automática de costuras de las
+  pausas (o que las pausas importen el bloque compartido en vez de copiarlo); (2) apuntar el resultado de la prueba de
+  miniaturas cuando YouTube la dé por cerrada; (3) `titulos.py` con el guion.
