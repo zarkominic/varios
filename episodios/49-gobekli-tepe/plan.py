@@ -20,7 +20,7 @@ E = [
   ['B: al amanecer, una fila de cazadores con pieles tira de cuerdas y un pilar en T gigante se levanta; golpe en «Stonehenge»; al lado, en pequeño, la silueta de Stonehenge que se queda diminuta.',
    'B: de cerca, el cazador (tú) tirando de la cuerda de cuero con otros; el pilar con brazos, manos sobre el vientre y un zorro tallado; sin metal, sin ruedas.',
    'A y E: el cerro de hoy con su gran cubierta blanca; luego una pantalla de móvil con vídeos de «civilización perdida» (iconos: un ojo, una pirámide, un cometa) que se desliza.'],
-  'asombro', ['promesa+3']),
+  'asombro', ['promesa+3.66']),
  ('gb-aviso', None, 4, 4, ['pregunta'],
   ['F: Atom en su estudio coloca en la pizarra un pilar en T de juguete y una gran interrogación con una tiza («guárdate esta pregunta»).'],
   'asombro', []),
