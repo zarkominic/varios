@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep49 · miniatura F</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GB-MINIATURA-F · ep49, opción nueva: NO ESTÁ SOLO. Karahan Tepe, la sala tallada en la roca con sus pilares que brotan
+// del suelo y la cabeza humana de la pared; en primer plano, el pilar en T con cara de 2025; una arqueóloga chibi al
+// doble lo mira. «NOT ALONE» en hueso. Lo cumple el vídeo: el acto 6 («Las colinas de piedra»).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/gb-comun.js';
+import { figura, grado, halo, desplazar, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+import { palabra, ancho } from '/atomo/plato/escenas/gb-mini-letras.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const HUESO = hex('#f4f0e4'), SOMBRA = hex('#2a1a30');
+const dibujar = (t) => {
+  const o = { encuadre: 'karahan', cara: true };
+  T.hoy(R, t, o);
+  halo(R, 270, 84, 50, 40, '#ffe0a0', 0.3);
+  halo(R, 88, 54, 30, 24, '#ffe0a0', 0.25);
+  figura(R, T.GB.arqueologaGB, 196, 176, t, { dir: 1, sorpresa: true }, 2);
+  T.hoyDelante(R, t, o);
+  grado(R, { cx: 200, cy: 100, tinte: '#060a14', f: 0.16, desde: 0.5, max: 0.7 });
+  palabra(R, 'NOT', 12, 112, 5, HUESO, SOMBRA);
+  palabra(R, 'ALONE', 12, 146, 4, HUESO, SOMBRA);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

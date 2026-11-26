@@ -25,6 +25,14 @@
 izquierda, el recinto al alba con el pilar en T de pie, Stonehenge diminuto a su lado y un cazador chibi al doble con
 los brazos en alto; a la derecha del corte, el cerro de hoy con su gran cubierta blanca. «OLDER» y «6000».
 
+**Opciones nuevas de miniatura** (pedidas el 26/11/2026; letras en `gb-mini-letras.js`):
+- **D · `ep49-miniatura-d.jpg` «11600 YEARS»:** el pilar central de cerca, con su zorro, sus brazos y sus manos, al alba,
+  y un cazador chibi a su pie que lo mira boquiabierto. Va con el título principal.
+- **E · `ep49-miniatura-e.jpg` «BURIED?»:** el corte de tierra de un recinto con sus capas y el pilar inclinado y
+  apuntalado bajo la lluvia; Klaus Schmidt lo señala. Va con el título B («Was It Buried on Purpose?»).
+- **F · `ep49-miniatura-f.jpg` «NOT ALONE»:** Karahan Tepe, la sala tallada en la roca con la cabeza de la pared y el
+  pilar en T con cara de 2025; una arqueóloga lo mira. Va con el título principal.
+
 ## Descripción (EN)
 
 Eleven thousand six hundred years ago, on a bare hill in southeastern Turkey, hunters with no metal, no wheels and no

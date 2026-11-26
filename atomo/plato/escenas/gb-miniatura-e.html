@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep49 · miniatura E</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GB-MINIATURA-E · ep49, opción nueva: ¿ENTERRADO? El perfil de tierra de un recinto con sus capas y el pilar en T
+// inclinado y apuntalado, bajo la lluvia de siglos; Klaus Schmidt, chibi al doble, lo señala sorprendido.
+// «BURIED?» en hueso. Lo cumple el vídeo: el acto 5 («Enterrado») responde a esa pregunta.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/gb-comun.js';
+import { figura, grado, halo, desplazar, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+import { palabra, ancho } from '/atomo/plato/escenas/gb-mini-letras.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const HUESO = hex('#f4f0e4'), SOMBRA = hex('#2a1a30');
+const dibujar = (t) => {
+  const o = { encuadre: 'excavacion', camara: 'corte', lluvia: 0.5 };
+  T.colina(R, t, o);
+  halo(R, 246, 100, 50, 60, '#ffe0a0', 0.25);
+  figura(R, T.GB.schmidtGB, 120, 178, t, { dir: 1, sorpresa: true, dedo: true }, 2);
+  T.colinaDelante(R, t, o);
+  grado(R, { cx: 160, cy: 100, tinte: '#060a14', f: 0.18, desde: 0.5, max: 0.7 });
+  palabra(R, 'BURIED?', 160 - (ancho('BURIED?', 5) >> 1), 10, 5, HUESO, SOMBRA);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
