@@ -1,0 +1,462 @@
+{
+ "serie": "ASK Atom",
+ "numero": 49,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Göbekli Tepe: Built 6,000 Years Before Stonehenge",
+  "es": "Göbekli Tepe: construido 6.000 años antes que Stonehenge"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "parrafo_entero": true,
+ "pausas": {
+  "respiro": 0.15,
+  "parrafo": 0.4,
+  "acto": 0.5,
+  "entrada": 0.2,
+  "salida": 0.25
+ },
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 0.95
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.4,
+    "mood.arousal": 0.3
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "gb-gancho",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "promesa+3"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "promesa",
+     "es": "Unos cazadores que no sabían cultivar levantaron piedras gigantes talladas seis mil años antes que Stonehenge.",
+     "en": "Hunters who had never farmed raised giant carved stones six thousand years before Stonehenge.",
+     "visual": "B: al amanecer, una fila de cazadores con pieles tira de cuerdas y un pilar en T gigante se levanta; golpe en «Stonehenge»; al lado, en pequeño, la silueta de Stonehenge que se queda diminuta."
+    },
+    {
+     "n": 2,
+     "marca": "cazador",
+     "es": "Imagina que eres un cazador de hace once mil seiscientos años, en una colina pelada del sudeste de Turquía, y que tiras de una cuerda de cuero junto a otras treinta personas mientras una piedra en forma de T, más alta que dos hombres y más pesada que un coche, se levanta poco a poco sobre su base. No tienes metal, ni ruedas, ni animales de tiro, ni una aldea a la que volver, y aun así esa piedra tiene brazos tallados, unas manos que se juntan sobre el vientre y un zorro que parece saltar por su costado.",
+     "en": "Picture yourself as a hunter eleven thousand six hundred years ago, on a bare hill in southeastern Turkey, pulling on a leather rope beside thirty other people while a T-shaped stone, taller than two men and heavier than a car, rises little by little onto its base. You have no metal, no wheels, no draft animals and no village to go home to, and yet that stone has carved arms, hands that meet over its belly, and a fox that seems to leap down its side.",
+     "visual": "B: de cerca, el cazador (tú) tirando de la cuerda de cuero con otros; el pilar con brazos, manos sobre el vientre y un zorro tallado; sin metal, sin ruedas."
+    },
+    {
+     "n": 3,
+     "marca": "internet",
+     "es": "Ese lugar existe, se llama Göbekli Tepe, y es más antiguo que las pirámides, que la escritura y que la rueda, y hasta que el primer campo de trigo sembrado a propósito. Por eso hoy en internet se cuenta que lo construyó una civilización perdida, o que lo enterraron a propósito unas manos que sabían muy bien lo que estaban escondiendo.",
+     "en": "That place is real, it's called Göbekli Tepe, and it's older than the pyramids, older than writing and the wheel, and older even than the first field of wheat planted on purpose. That's why the internet now says it was built by a lost civilization, or buried on purpose by hands that knew exactly what they were hiding.",
+     "visual": "A y E: el cerro de hoy con su gran cubierta blanca; luego una pantalla de móvil con vídeos de «civilización perdida» (iconos: un ojo, una pirámide, un cometa) que se desliza."
+    }
+   ]
+  },
+  {
+   "id": "gb-aviso",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "pregunta",
+     "es": "Así que hoy te voy a contar lo que dicen de verdad esas piedras, como lo vivieron quienes las tuvieron delante, desde el arqueólogo que pasó de largo hasta el que no se pudo ir nunca. Y guárdate esta pregunta para el final, porque vamos a volver a ella: ¿por qué unos cazadores que ni siquiera tenían una aldea iban a levantar algo así?",
+     "en": "So today I'm going to tell you what those stones really say, the way it was lived by the people who stood in front of them, from the archaeologist who walked right past to the one who could never leave. And hold on to this question for the end, because we're coming back to it: why would hunters who didn't even have a village build something like this?",
+     "visual": "F: Atom en su estudio coloca en la pizarra un pilar en T de juguete y una gran interrogación con una tiza («guárdate esta pregunta»)."
+    }
+   ]
+  },
+  {
+   "id": "gb-1963",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1963",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "prospeccion",
+     "es": "Imagina que es 1963 y que formas parte de un equipo de las universidades de Estambul y de Chicago que recorre los campos de Şanlıurfa apuntando cada montículo, cada pedazo de sílex, cada loma que parece tener algo debajo. Llegas a un cerro redondeado con un moral solitario en lo alto, ves losas de caliza rotas asomando entre la tierra arada y piensas, con toda la lógica del mundo, que son lápidas de un cementerio medieval, así que lo anotas en tu cuaderno y sigues tu camino.",
+     "en": "Picture yourself in 1963, part of a team from the universities of Istanbul and Chicago walking the fields of Şanlıurfa and noting every mound, every flint chip, every rise that seems to hide something underneath. You reach a rounded hill with a single mulberry tree on top, you see broken limestone slabs poking out of the plowed earth, and you think, with perfect logic, that they're gravestones from a medieval cemetery, so you write it down in your notebook and move on.",
+     "visual": "A y D: 1963, un jeep y tres prospectores con sombrero recorren el cerro pelado con el moral solitario; uno apunta en su cuaderno mirando losas rotas (cree que son lápidas); la tienda de campo al pie.",
+     "acto": true,
+     "es_voz": "Imagina que es mil novecientos sesenta y tres y que formas parte de un equipo de las universidades de Estambul y de Chicágo que recorre los campos de Şanlıurfa apuntando cada montículo, cada pedazo de sílex, cada loma que parece tener algo debajo. Llegas a un cerro redondeado con un moral solitario en lo alto, ves losas de caliza rotas asomando entre la tierra arada y piensas, con toda la lógica del mundo, que son lápidas de un cementerio medieval, así que lo anotas en tu cuaderno y sigues tu camino.",
+     "en_voz": "Picture yourself in nineteen sixty-three, part of a team from the universities of Istanbul and Chicago walking the fields of Şanlıurfa and noting every mound, every flint chip, every rise that seems to hide something underneath. You reach a rounded hill with a single mulberry tree on top, you see broken limestone slabs poking out of the plowed earth, and you think, with perfect logic, that they're gravestones from a medieval cemetery, so you write it down in your notebook and move on."
+    },
+    {
+     "n": 6,
+     "marca": "campesinos",
+     "es": "Y durante treinta años nadie le vuelve a dar importancia, mientras los campesinos de la zona siguen arando alrededor de esas piedras que estorban, las apartan con paciencia y, de vez en cuando, las rompen para poder sembrar. La colina se queda con su nombre de siempre, Göbekli Tepe, que en turco quiere decir algo así como «el cerro del ombligo», como si el paisaje supiera que ahí había algo en el centro de todo.",
+     "en": "And for thirty years nobody gives it another thought, while local farmers keep plowing around those stones that get in the way, pushing them aside with patience and, now and then, breaking them so they can sow. The hill keeps its old name, Göbekli Tepe, which in Turkish means something like \"potbelly hill,\" as if the landscape knew there was something at the center of it all.",
+     "visual": "A: los años pasan (el moral crece, las estaciones cambian); un campesino ara con su tractor alrededor de las piedras y aparta una; gag: Atom ayuda a empujar una losa y el que resbala es él."
+    }
+   ],
+   "cartela": "1963"
+  },
+  {
+   "id": "gb-schmidt",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1994",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "schmidt",
+     "es": "Hasta que en 1994 llega un arqueólogo alemán, Klaus Schmidt, que venía de excavar un poblado cercano donde había aprendido a reconocer unos pilares en forma de T, y al ver aquellas losas comprende que no son lápidas, sino las cabezas de pilares enormes enterrados en el cerro. Años después contaría que lo supo en el primer minuto, y que entendió que, si no se marchaba en ese mismo momento, pasaría allí el resto de su vida.",
+     "en": "Until, in 1994, a German archaeologist named Klaus Schmidt arrives, fresh from digging a nearby village where he'd learned to recognize T-shaped pillars, and when he sees those slabs he understands they aren't gravestones but the tops of huge pillars buried in the hill. Years later he'd say he knew it in the first minute, and that he realized that if he didn't walk away right then, he'd spend the rest of his life there.",
+     "visual": "A: 1994, Klaus Schmidt (chibi, barba, sombrero de ala) sube al cerro, se agacha ante una losa, aparta la tierra y ve que es la cabeza de un pilar en T; se queda quieto; en un globo, el pilar entero bajo tierra.",
+     "es_voz": "Hasta que en mil novecientos noventa y cuatro llega un arqueólogo alemán, Klaus Schmidt, que venía de excavar un poblado cercano donde había aprendido a reconocer unos pilares en forma de T, y al ver aquellas losas comprende que no son lápidas, sino las cabezas de pilares enormes enterrados en el cerro. Años después contaría que lo supo en el primer minuto, y que entendió que, si no se marchaba en ese mismo momento, pasaría allí el resto de su vida.",
+     "en_voz": "Until, in nineteen ninety-four, a German archaeologist named Klaus Schmidt arrives, fresh from digging a nearby village where he'd learned to recognize T-shaped pillars, and when he sees those slabs he understands they aren't gravestones but the tops of huge pillars buried in the hill. Years later he'd say he knew it in the first minute, and that he realized that if he didn't walk away right then, he'd spend the rest of his life there."
+    }
+   ],
+   "cartela": "1994"
+  },
+  {
+   "id": "gb-pilares",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "cartela 1995",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "circulos",
+     "es": "Y no se marchó, así que a partir de 1995 su equipo empieza a quitar tierra y aparecen, uno tras otro, círculos de pilares unidos por muros de piedra, cada uno con dos pilares más grandes en el centro, mirándose como dos personas que conversan. Los pilares centrales más grandes miden cinco metros y medio y pesan entre ocho y diez toneladas, y fueron tallados en una sola pieza con herramientas de sílex, golpe a golpe, durante quién sabe cuántos días.",
+     "en": "And he didn't walk away, so from 1995 on his team starts removing earth, and one after another they find circles of pillars joined by stone walls, each with two larger pillars in the middle, facing each other like two people in conversation. The biggest central pillars stand five and a half meters tall and weigh between eight and ten tons, and they were carved in a single piece with flint tools, blow by blow, over who knows how many days.",
+     "visual": "A y D: la excavación crece año a año (andamios, tamices, carretillas, trabajadores); aparecen los círculos de pilares con los dos centrales que se miran.",
+     "acto": true,
+     "es_voz": "Y no se marchó, así que a partir de mil novecientos noventa y cinco su equipo empieza a quitar tierra y aparecen, uno tras otro, círculos de pilares unidos por muros de piedra, cada uno con dos pilares más grandes en el centro, mirándose como dos personas que conversan. Los pilares centrales más grandes miden cinco metros y medio y pesan entre ocho y diez toneladas, y fueron tallados en una sola pieza con herramientas de sílex, golpe a golpe, durante quién sabe cuántos días.",
+     "en_voz": "And he didn't walk away, so from nineteen ninety-five on his team starts removing earth, and one after another they find circles of pillars joined by stone walls, each with two larger pillars in the middle, facing each other like two people in conversation. The biggest central pillars stand five and a half meters tall and weigh between eight and ten tons, and they were carved in a single piece with flint tools, blow by blow, over who knows how many days."
+    },
+    {
+     "n": 9,
+     "marca": "personas",
+     "es": "Pero lo que de verdad le pone la piel de gallina a quien los excava es darse cuenta de que esos pilares son personas, porque tienen brazos que bajan por los costados, manos de dedos largos que se juntan sobre el vientre, cinturones y algo parecido a un taparrabos de piel de zorro. No tienen cara, como si quienes los hicieron no quisieran decir quiénes eran, o como si todo el mundo, entonces, ya lo supiera.",
+     "en": "But what truly gives goosebumps to anyone digging them up is realizing those pillars are people, because they have arms running down their sides, long-fingered hands meeting over the belly, belts, and something like a loincloth of fox fur. They have no faces, as if their makers didn't want to say who they were, or as if everyone, back then, already knew.",
+     "visual": "B: de cerca, el pilar central con los brazos, las manos de dedos largos sobre el vientre, el cinturón y el taparrabos de zorro; gag: Atom imita la pose del zorro y se le queda torcida."
+    },
+    {
+     "n": 10,
+     "marca": "zoo",
+     "es": "Y alrededor de esas figuras sin rostro hay un zoológico entero tallado en relieve, con zorros que enseñan los dientes, jabalíes, serpientes que bajan en fila, escorpiones, grullas y buitres, pero ni una espiga de trigo, ni una oveja, ni una vaca. Es el mundo de quienes viven de lo que cazan y recogen, contado en piedra por gente que conocía a esos animales tan de cerca como tú conoces a los vecinos de tu calle.",
+     "en": "And around those faceless figures there's an entire zoo carved in relief, with foxes baring their teeth, wild boars, snakes slithering down in rows, scorpions, cranes and vultures, but not a single ear of wheat, not a sheep, not a cow. It's the world of people who live on what they hunt and gather, told in stone by people who knew those animals as closely as you know the neighbors on your street.",
+     "visual": "B: recorrido por los relieves: zorros, jabalíes, serpientes en fila, escorpiones, grullas y buitres; ni trigo ni ovejas (iconos tachados)."
+    }
+   ],
+   "cartela": "1995"
+  },
+  {
+   "id": "gb-peso",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "fijate1",
+     "es": "Y fíjate en esto, porque es lo primero que todo el mundo se pregunta. Una piedra de diez toneladas se puede mover sin ruedas ni metal si tienes palancas de madera, cuerdas, troncos para hacerla rodar y, sobre todo, mucha gente que tira al mismo tiempo, y a solo unos cientos de metros, en la cantera de caliza, todavía está tumbado un pilar sin terminar de siete metros, que habría pesado unas cincuenta toneladas y que nadie sabe por qué se quedó allí. Lo difícil no era la física, sino convencer a decenas de familias que vivían de cazar para que dejaran de hacerlo durante semanas y se pusieran a tirar de una cuerda.",
+     "en": "And notice this, because it's the first thing everyone wonders. A ten-ton stone can be moved without wheels or metal if you have wooden levers, ropes, logs to roll it on and, above all, lots of people pulling at the same time, and just a few hundred meters away, in the limestone quarry, an unfinished pillar seven meters long still lies there, one that would have weighed some fifty tons, and nobody knows why it was left behind. The hard part wasn't the physics, it was convincing dozens of families who lived by hunting to stop for weeks and start pulling on a rope.",
+     "visual": "PAUSA: el recinto congelado; Atom (al doble) saca a color un pilar sobre troncos con palancas y una fila de gente que tira; «10 t»; gag: Atom llega con una carretilla y se le cae la rueda (la rueda llegará seis mil años después); luego la cantera con el pilar de 7 m tumbado."
+    }
+   ]
+  },
+  {
+   "id": "gb-fechas",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "carbon",
+     "es": "Y entonces llega la pregunta que lo cambia todo, porque Schmidt manda a analizar restos de carbón y de hueso de la tierra que rodea los pilares, y las fechas salen tan antiguas que al principio cuesta creerlas: los primeros recintos se levantaron hacia el 9500 antes de Cristo. Eso es unos seis mil años antes que Stonehenge y unos siete mil antes que las pirámides de Guiza, en una época en la que, según los libros de texto, nadie en el mundo sabía todavía cultivar.",
+     "en": "And then comes the question that changes everything, because Schmidt sends charcoal and bone from the earth around the pillars for analysis, and the dates come back so old they're hard to believe at first: the first enclosures went up around 9500 BC. That's roughly six thousand years before Stonehenge and some seven thousand before the pyramids of Giza, at a time when, according to the textbooks, nobody in the world knew how to farm yet.",
+     "visual": "D: el laboratorio: una muestra de carbón entra en una máquina; sale el número «9500»; una línea del tiempo con Stonehenge y las pirámides que se alejan a la derecha.",
+     "acto": true,
+     "es_voz": "Y entonces llega la pregunta que lo cambia todo, porque Schmidt manda a analizar restos de carbón y de hueso de la tierra que rodea los pilares, y las fechas salen tan antiguas que al principio cuesta creerlas: los primeros recintos se levantaron hacia el nueve mil quinientos antes de Cristo. Eso es unos seis mil años antes que Stonehenge y unos siete mil antes que las pirámides de Guiza, en una época en la que, según los libros de texto, nadie en el mundo sabía todavía cultivar.",
+     "en_voz": "And then comes the question that changes everything, because Schmidt sends charcoal and bone from the earth around the pillars for analysis, and the dates come back so old they're hard to believe at first: the first enclosures went up around ninety-five hundred B.C.. That's roughly six thousand years before Stonehenge and some seven thousand before the pyramids of Giza, at a time when, according to the textbooks, nobody in the world knew how to farm yet."
+    }
+   ]
+  },
+  {
+   "id": "gb-carbono",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "fijate2",
+     "es": "Y fíjate en cómo se sabe eso, porque no es magia. Todo lo que está vivo absorbe un poco de carbono 14, un carbono que se va deshaciendo muy despacio, y cuando el ser vivo muere deja de absorberlo, así que cada cinco mil setecientos años le queda más o menos la mitad del que tenía. Midiendo cuánto le queda a un trozo de carbón de una hoguera, sabes cuánto hace que se quemó, como un reloj de arena que empezó a correr el día que se apagó el fuego.",
+     "en": "And notice how we know that, because it isn't magic. Everything alive takes in a little carbon 14, a kind of carbon that breaks down very slowly, and when the living thing dies it stops taking it in, so every five thousand seven hundred years or so it has about half of what it had. By measuring how much is left in a piece of charcoal from a campfire, you know how long ago it burned, like an hourglass that started running the day the fire went out.",
+     "visual": "PAUSA: el laboratorio congelado; Atom (al doble) saca un reloj de arena y una tarta: gag: parte la tarta por la mitad, y otra vez, y otra, hasta una miga («5730»)."
+    }
+   ]
+  },
+  {
+   "id": "gb-cazadores",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "huesos",
+     "es": "Y los huesos que salen de la tierra cuentan lo mismo, porque son de gacelas, de uros y de jabalíes salvajes, sin un solo animal domesticado, y las semillas son de cereales silvestres que la gente recogía en la estepa. Quienes levantaron Göbekli Tepe eran cazadores y recolectores, y Schmidt lo resumió con una frase que dio la vuelta al mundo: primero vino el templo, y después la ciudad.",
+     "en": "And the bones coming out of the earth tell the same story, because they belong to gazelles, aurochs and wild boars, with not a single domesticated animal, and the seeds are wild cereals people gathered on the steppe. The people who raised Göbekli Tepe were hunter-gatherers, and Schmidt summed it up in a phrase that went around the world: first came the temple, then the city.",
+     "visual": "C: la estepa hace 11.600 años: gacelas, uros y jabalíes; cazadores al acecho; mujeres que recogen espigas silvestres con hoces de sílex."
+    },
+    {
+     "n": 15,
+     "marca": "trigo",
+     "es": "Y hay un detalle que hace la historia todavía más redonda, porque a unos pocos días de camino se alzan los montes Karacadağ, y en 1997 un estudio de ADN rastreó el origen del trigo escanda, uno de los primeros cereales domesticados del mundo, precisamente hasta esas laderas. Es como si la agricultura hubiera nacido justo al lado de las piedras, en el mismo paisaje y en la misma época en que alguien necesitaba alimentar a cientos de personas que tiraban de cuerdas.",
+     "en": "And there's a detail that makes the story even more striking, because a few days' walk away rise the Karacadağ mountains, and in 1997 a DNA study traced the origin of einkorn, one of the first domesticated cereals in the world, to exactly those slopes. It's as if farming had been born right next to the stones, in the same landscape and the same era when someone needed to feed hundreds of people pulling on ropes.",
+     "visual": "C: los montes Karacadağ al fondo, volcánicos y oscuros; el trigo silvestre que se mece; una línea punteada que une las laderas con el cerro de los pilares.",
+     "es_voz": "Y hay un detalle que hace la historia todavía más redonda, porque a unos pocos días de camino se alzan los montes Karacadağ, y en mil novecientos noventa y siete un estudio de ADN rastreó el origen del trigo escanda, uno de los primeros cereales domesticados del mundo, precisamente hasta esas laderas. Es como si la agricultura hubiera nacido justo al lado de las piedras, en el mismo paisaje y en la misma época en que alguien necesitaba alimentar a cientos de personas que tiraban de cuerdas.",
+     "en_voz": "And there's a detail that makes the story even more striking, because a few days' walk away rise the Karacadağ mountains, and in nineteen ninety-seven a DNA study traced the origin of einkorn, one of the first domesticated cereals in the world, to exactly those slopes. It's as if farming had been born right next to the stones, in the same landscape and the same era when someone needed to feed hundreds of people pulling on ropes."
+    }
+   ]
+  },
+  {
+   "id": "gb-banquete",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "fijate3",
+     "es": "Y fíjate en esto, porque aquí está la idea más bonita de todas. Para que cien personas trabajen semanas en algo que no se come, alguien tiene que darles de comer, así que en Göbekli Tepe aparecen piedras de moler por cientos y grandes recipientes de piedra donde quizá se preparaban papillas o hasta algo parecido a la cerveza. Es posible que la necesidad de alimentar esos banquetes empujara a la gente a cuidar el trigo silvestre, a sembrarlo cerca, y sin saberlo, a cambiar para siempre la forma de vivir de la humanidad.",
+     "en": "And notice this, because here's the most beautiful idea of all. For a hundred people to work for weeks on something you can't eat, someone has to feed them, so at Göbekli Tepe grinding stones turn up by the hundreds, along with large stone vessels where porridge, or even something like beer, may have been made. It's possible that the need to feed those feasts pushed people to tend wild wheat, to plant it nearby, and, without knowing it, to change the way humanity lived forever.",
+     "visual": "PAUSA: el banquete congelado junto a los pilares; Atom (al doble) saca a color piedras de moler, un gran cuenco de piedra con papilla y unas espigas que se convierten en un campo sembrado; gag: Atom prueba la papilla y pone cara de que le falta sal."
+    }
+   ]
+  },
+  {
+   "id": "gb-tele",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "cartela 2022",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "serie",
+     "es": "Pero una historia así es demasiado buena para dejarla en manos de los arqueólogos, y en 2022 una serie de televisión muy vista defendió que Göbekli Tepe lo construyeron los supervivientes de una gran civilización perdida de la Edad de Hielo, que habrían enseñado a los cazadores a tallar y a construir. Y en las redes circulan vídeos que hablan de doce culturas antiguas con la misma historia escondida y de unas autoridades que no quieren que la sepas.",
+     "en": "But a story like this is too good to leave to archaeologists, and in 2022 a widely watched television series argued that Göbekli Tepe was built by survivors of a great lost civilization from the Ice Age, who supposedly taught the hunters to carve and to build. And social media is full of videos about twelve ancient cultures sharing the same hidden story and about authorities who don't want you to know it.",
+     "visual": "E: un salón con una tele grande (sin marcas) que emite un documental de «civilización perdida»: un barco, hielo, una ciudad que se hunde; un espectador chibi en el sofá con palomitas.",
+     "acto": true,
+     "es_voz": "Pero una historia así es demasiado buena para dejarla en manos de los arqueólogos, y en dos mil veintidós una serie de televisión muy vista defendió que Göbekli Tepe lo construyeron los supervivientes de una gran civilización perdida de la Edad de Hielo, que habrían enseñado a los cazadores a tallar y a construir. Y en las redes circulan vídeos que hablan de doce culturas antiguas con la misma historia escondida y de unas autoridades que no quieren que la sepas.",
+     "en_voz": "But a story like this is too good to leave to archaeologists, and in twenty twenty-two a widely watched television series argued that Göbekli Tepe was built by survivors of a great lost civilization from the Ice Age, who supposedly taught the hunters to carve and to build. And social media is full of videos about twelve ancient cultures sharing the same hidden story and about authorities who don't want you to know it."
+    },
+    {
+     "n": 18,
+     "marca": "buitre",
+     "es": "Una de las piezas favoritas de esas teorías es el pilar cuarenta y tres, la llamada piedra del buitre, donde un grupo de investigadores creyó ver en 2017 un mapa del cielo que recordaba el choque de un cometa hacia el 10.950 antes de Cristo. Otros especialistas respondieron que para leer ese mapa hay que elegir qué animales cuentan como constelaciones y cuáles no, y que con esa libertad casi cualquier piedra acaba contando lo que uno ya buscaba.",
+     "en": "One of those theories' favorite pieces is pillar forty-three, the so-called Vulture Stone, where a group of researchers thought they saw, in 2017, a star map recalling a comet strike around 10,950 BC. Other specialists answered that to read that map you have to choose which animals count as constellations and which don't, and that with that much freedom almost any stone ends up saying what you were already looking for.",
+     "visual": "E: el pilar 43 de cerca: el buitre, el escorpión, las aves; unas líneas de constelaciones que se dibujan encima y un cometa que cae; luego se borran.",
+     "es_voz": "Una de las piezas favoritas de esas teorías es el pilar cuarenta y tres, la llamada piedra del buitre, donde un grupo de investigadores creyó ver en dos mil diecisiete un mapa del cielo que recordaba el choque de un cometa hacia el diez mil novecientos cincuenta antes de Cristo. Otros especialistas respondieron que para leer ese mapa hay que elegir qué animales cuentan como constelaciones y cuáles no, y que con esa libertad casi cualquier piedra acaba contando lo que uno ya buscaba.",
+     "en_voz": "One of those theories' favorite pieces is pillar forty-three, the so-called Vulture Stone, where a group of researchers thought they saw, in twenty seventeen, a star map recalling a comet strike around ten thousand nine hundred fifty B.C.. Other specialists answered that to read that map you have to choose which animals count as constellations and which don't, and that with that much freedom almost any stone ends up saying what you were already looking for."
+    },
+    {
+     "n": 19,
+     "marca": "basura",
+     "es": "Y lo más curioso es que en ninguna parte de la colina aparece lo que dejaría una civilización avanzada, ni metal, ni escritura, ni herramientas que no sean de piedra, ni un solo animal o planta que no viviera ya en esa estepa. Lo que sí aparece, por miles, son puntas de flecha de sílex, piedras de moler y huesos de gacela, la basura de cada día de unos cazadores de los que, hasta hace poco, nadie esperaba algo así.",
+     "en": "And the strangest part is that nowhere on the hill does anything turn up that an advanced civilization would leave behind, no metal, no writing, no tools that aren't stone, not one animal or plant that didn't already live on that steppe. What does turn up, by the thousands, are flint arrowheads, grinding stones and gazelle bones, the everyday trash of hunters from whom, until recently, nobody expected anything like this.",
+     "visual": "D: una mesa de la excavación llena de puntas de flecha de sílex, piedras de moler y huesos de gacela, con sus etiquetas de números; una arqueóloga las ordena."
+    }
+   ],
+   "cartela": "2022"
+  },
+  {
+   "id": "gb-patrones",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "fijate4",
+     "es": "Y fíjate en esto, porque nos pasa a todos. Nuestro cerebro está hecho para encontrar patrones, una cara en un enchufe o un animal en una nube, porque durante miles de años confundir una sombra con un león era más seguro que lo contrario, y por eso, una vez que alguien te enseña un patrón, ya no puedes dejar de verlo. Eso no lo convierte en falso, pero sí obliga a preguntar cuántas piedras se miraron antes de encontrar la que encajaba.",
+     "en": "And notice this, because it happens to all of us. Our brain is built to find patterns, a face in a power outlet or an animal in a cloud, because for thousands of years mistaking a shadow for a lion was safer than the opposite, and that's why, once someone shows you a pattern, you can't stop seeing it. That doesn't make it false, but it does force you to ask how many stones were looked at before finding the one that fit.",
+     "visual": "PAUSA: el salón congelado; Atom (al doble) señala un enchufe que parece una cara y una nube que parece un animal; gag: la nube se convierte en un buitre, luego en un cometa y al final se parece a Atom."
+    }
+   ]
+  },
+  {
+   "id": "gb-relleno",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [
+    "capas+4"
+   ],
+   "empieza_con": "cartela 2014",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "sospecha",
+     "es": "Y ahora vamos con la sospecha más repetida de todas, la de que Göbekli Tepe fue enterrado a propósito por manos que sabían lo que escondían. La idea no salió de internet, sino del propio Schmidt, que al ver los recintos llenos de tierra hasta arriba pensó que, cuando dejaron de usarlos, sus constructores los habían rellenado en una especie de ceremonia de despedida.",
+     "en": "And now let's take on the most repeated suspicion of all, that Göbekli Tepe was buried on purpose by hands that knew what they were hiding. The idea didn't come from the internet but from Schmidt himself, who, seeing the enclosures filled with earth to the top, thought that when the builders stopped using them, they'd filled them in as a kind of farewell ceremony.",
+     "visual": "A: los recintos llenos de tierra hasta arriba; Schmidt imagina gente que echa tierra en una ceremonia (en un globo).",
+     "acto": true
+    },
+    {
+     "n": 22,
+     "marca": "capas",
+     "es": "Pero Schmidt murió en 2014, y quienes siguieron excavando empezaron a fijarse en cómo estaba colocada esa tierra, capa a capa, y vieron algo que no encajaba con un entierro de una sola vez. El relleno no es igual en todas partes, trae restos de distintas épocas mezclados como los que arrastra la lluvia, y todo apunta a que buena parte bajó de las laderas durante siglos, mientras la gente seguía viviendo, reparando muros y apuntalando pilares que se inclinaban.",
+     "en": "But Schmidt died in 2014, and those who kept digging began looking closely at how that earth was laid down, layer by layer, and they saw something that didn't fit a single burial. The fill isn't the same everywhere, it holds debris from different periods mixed together like the kind rain carries down, and everything suggests much of it slid from the slopes over centuries, while people went on living there, repairing walls and propping up pillars that had begun to lean.",
+     "visual": "A: un corte de la tierra con sus capas de colores; gotas de lluvia y barro que bajan de la ladera durante siglos (el tiempo corre); golpe en la revelación; gente que apuntala un pilar inclinado.",
+     "es_voz": "Pero Schmidt murió en dos mil catorce, y quienes siguieron excavando empezaron a fijarse en cómo estaba colocada esa tierra, capa a capa, y vieron algo que no encajaba con un entierro de una sola vez. El relleno no es igual en todas partes, trae restos de distintas épocas mezclados como los que arrastra la lluvia, y todo apunta a que buena parte bajó de las laderas durante siglos, mientras la gente seguía viviendo, reparando muros y apuntalando pilares que se inclinaban.",
+     "en_voz": "But Schmidt died in twenty fourteen, and those who kept digging began looking closely at how that earth was laid down, layer by layer, and they saw something that didn't fit a single burial. The fill isn't the same everywhere, it holds debris from different periods mixed together like the kind rain carries down, and everything suggests much of it slid from the slopes over centuries, while people went on living there, repairing walls and propping up pillars that had begun to lean."
+    },
+    {
+     "n": 23,
+     "marca": "casas",
+     "es": "Porque esa es la otra sorpresa, que en Göbekli Tepe también se vivía, y en agosto de 2026 los arqueólogos abrieron una zona nueva al norte del cerro y encontraron edificios rectangulares, con menos pilares, que podrían haber sido casas. Y un mes después llegaron los primeros enterramientos intactos del lugar, de hace unos diez mil años, que explican por fin los cientos de huesos sueltos que aparecían por todas partes: muchos venían de tumbas de lo alto del cerro y los fue bajando la tierra, con la lluvia y los corrimientos, igual que el relleno de los recintos.",
+     "en": "Because that's the other surprise: people also lived at Göbekli Tepe, and in August 2026 archaeologists opened a new area north of the hill and found rectangular buildings, with fewer pillars, that may have been homes. And a month later came the site's first intact burials, about ten thousand years old, which finally explain the hundreds of loose bones that kept turning up everywhere: many came from graves higher on the hill and were carried down by the earth itself, with rain and landslides, just like the fill of the enclosures.",
+     "visual": "A y D: 2026: la zona nueva al norte con edificios rectangulares (casas); un equipo de excavación con cuadrícula, etiquetas y cajas; gag: Atom limpia una losa con una brocha y desentierra su propio bocadillo.",
+     "es_voz": "Porque esa es la otra sorpresa, que en Göbekli Tepe también se vivía, y en agosto de dos mil veintiséis los arqueólogos abrieron una zona nueva al norte del cerro y encontraron edificios rectangulares, con menos pilares, que podrían haber sido casas. Y un mes después llegaron los primeros enterramientos intactos del lugar, de hace unos diez mil años, que explican por fin los cientos de huesos sueltos que aparecían por todas partes: muchos venían de tumbas de lo alto del cerro y los fue bajando la tierra, con la lluvia y los corrimientos, igual que el relleno de los recintos.",
+     "en_voz": "Because that's the other surprise: people also lived at Göbekli Tepe, and in August twenty twenty-six archaeologists opened a new area north of the hill and found rectangular buildings, with fewer pillars, that may have been homes. And a month later came the site's first intact burials, about ten thousand years old, which finally explain the hundreds of loose bones that kept turning up everywhere: many came from graves higher on the hill and were carried down by the earth itself, with rain and landslides, just like the fill of the enclosures."
+    }
+   ],
+   "cartela": "2014"
+  },
+  {
+   "id": "gb-intencion",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "fijate5",
+     "es": "Y fíjate en esto, porque explica por qué la versión de internet resulta tan atractiva. Una historia con alguien que esconde algo a propósito nos satisface mucho más que una historia de lluvia, barro y siglos, porque nuestra mente prefiere encontrar una intención detrás de las cosas, aunque muchas veces el mundo funcione sin ninguna. Así que, cuando una explicación suena demasiado a película, vale la pena preguntarse si la estamos creyendo porque es verdad o porque es mejor historia.",
+     "en": "And notice this, because it explains why the internet version is so appealing. A story with someone deliberately hiding something satisfies us far more than a story of rain, mud and centuries, because our minds prefer to find an intention behind things, even though the world often works without one. So when an explanation sounds too much like a movie, it's worth asking whether we believe it because it's true or because it's a better story.",
+     "visual": "PAUSA: el corte de tierra congelado; Atom (al doble) saca dos libros: uno con una portada de película (una mano que entierra algo) y otro con una nube de lluvia; la balanza se inclina hacia la película aunque la lluvia pesa más."
+    }
+   ]
+  },
+  {
+   "id": "gb-colinas",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 2025",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "estatua",
+     "es": "¿Quiere decir eso que Göbekli Tepe ya no tiene misterio? Nada de eso, porque en septiembre de 2025, restaurando un muro entre dos de los grandes recintos, apareció dentro de la pared una estatua de una persona de tamaño natural, tumbada boca arriba y rota, puesta allí a propósito, quizá como una ofrenda. Es la primera vez que algo así sale en Göbekli Tepe, y nadie sabe todavía qué quería decir quien la colocó.",
+     "en": "Does that mean Göbekli Tepe has no mystery left? Not at all, because in September 2025, while restoring a wall between two of the great enclosures, a life-size statue of a person turned up inside the wall, lying on its back and broken, placed there on purpose, perhaps as an offering. It's the first time anything like it has appeared at Göbekli Tepe, and nobody knows yet what the person who placed it meant to say.",
+     "visual": "A: 2025, restauradores en un muro entre dos recintos; de la pared asoma una estatua humana de piedra tumbada boca arriba; todos se quedan mirando.",
+     "acto": true,
+     "es_voz": "¿Quiere decir eso que Göbekli Tepe ya no tiene misterio? Nada de eso, porque en septiembre de dos mil veinticinco, restaurando un muro entre dos de los grandes recintos, apareció dentro de la pared una estatua de una persona de tamaño natural, tumbada boca arriba y rota, puesta allí a propósito, quizá como una ofrenda. Es la primera vez que algo así sale en Göbekli Tepe, y nadie sabe todavía qué quería decir quien la colocó.",
+     "en_voz": "Does that mean Göbekli Tepe has no mystery left? Not at all, because in September twenty twenty-five, while restoring a wall between two of the great enclosures, a life-size statue of a person turned up inside the wall, lying on its back and broken, placed there on purpose, perhaps as an offering. It's the first time anything like it has appeared at Göbekli Tepe, and nobody knows yet what the person who placed it meant to say."
+    },
+    {
+     "n": 26,
+     "marca": "karahan",
+     "es": "Y lo más emocionante es que Göbekli Tepe ya no está solo, porque en las colinas de alrededor han aparecido más de una docena de lugares parecidos, que los arqueólogos llaman Taş Tepeler, las colinas de piedra. En uno de ellos, Karahan Tepe, hay una sala tallada en la roca viva de la que salen pilares como si brotaran del suelo, vigilados por una cabeza humana esculpida en la pared, y en 2025 apareció allí el primer pilar en forma de T con una cara tallada, como si aquellos gigantes sin rostro por fin nos miraran.",
+     "en": "And the most exciting part is that Göbekli Tepe is no longer alone, because on the surrounding hills more than a dozen similar places have appeared, which archaeologists call Taş Tepeler, the Stone Hills. At one of them, Karahan Tepe, there's a hall carved into the living rock with pillars rising as if they grew from the ground, watched over by a human head sculpted into the wall, and in 2025 the first T-shaped pillar with a carved face turned up there, as if those faceless giants were finally looking back at us.",
+     "visual": "E: Karahan Tepe: la sala tallada en la roca con los pilares que brotan del suelo y la cabeza humana en la pared; el pilar en T con cara; un mapa de las colinas de Taş Tepeler que se encienden una a una.",
+     "es_voz": "Y lo más emocionante es que Göbekli Tepe ya no está solo, porque en las colinas de alrededor han aparecido más de una docena de lugares parecidos, que los arqueólogos llaman Taş Tepeler, las colinas de piedra. En uno de ellos, Karahan Tepe, hay una sala tallada en la roca viva de la que salen pilares como si brotaran del suelo, vigilados por una cabeza humana esculpida en la pared, y en dos mil veinticinco apareció allí el primer pilar en forma de T con una cara tallada, como si aquellos gigantes sin rostro por fin nos miraran.",
+     "en_voz": "And the most exciting part is that Göbekli Tepe is no longer alone, because on the surrounding hills more than a dozen similar places have appeared, which archaeologists call Taş Tepeler, the Stone Hills. At one of them, Karahan Tepe, there's a hall carved into the living rock with pillars rising as if they grew from the ground, watched over by a human head sculpted into the wall, and in twenty twenty-five the first T-shaped pillar with a carved face turned up there, as if those faceless giants were finally looking back at us."
+    },
+    {
+     "n": 27,
+     "marca": "leopardo",
+     "es": "Y los hallazgos no paran, porque en agosto de 2026 salió en Karahan Tepe la figura de una persona sentada sobre un leopardo, y en una cámara llena de tierra roja apareció un cuenco de piedra con tres figuritas dentro, un zorro, un jabalí y un buitre, los mismos animales de los pilares. Y en la cercana Sayburç, una pared tallada cuenta una escena con un hombre entre dos leopardos y otro frente a un toro, la historia contada en imágenes más antigua que se conoce. Es todo un mundo que estaba ahí debajo, esperando, y que apenas estamos empezando a leer.",
+     "en": "And the finds keep coming, because in August 2026 a figure of a person seated on a leopard turned up at Karahan Tepe, and in a chamber filled with red earth a stone bowl appeared with three little figurines inside, a fox, a boar and a vulture, the same animals carved on the pillars. And at nearby Sayburç, a carved wall tells a scene with a man between two leopards and another facing a bull, the oldest story told in pictures that we know of. It's a whole world that was lying down there, waiting, and that we're only beginning to read.",
+     "visual": "E: la figura de una persona sentada sobre un leopardo; el cuenco de piedra con tres figuritas (zorro, jabalí, buitre); el relieve de Sayburç (un hombre entre dos leopardos y otro frente a un toro).",
+     "es_voz": "Y los hallazgos no paran, porque en agosto de dos mil veintiséis salió en Karahan Tepe la figura de una persona sentada sobre un leopardo, y en una cámara llena de tierra roja apareció un cuenco de piedra con tres figuritas dentro, un zorro, un jabalí y un buitre, los mismos animales de los pilares. Y en la cercana Sayburç, una pared tallada cuenta una escena con un hombre entre dos leopardos y otro frente a un toro, la historia contada en imágenes más antigua que se conoce. Es todo un mundo que estaba ahí debajo, esperando, y que apenas estamos empezando a leer.",
+     "en_voz": "And the finds keep coming, because in August twenty twenty-six a figure of a person seated on a leopard turned up at Karahan Tepe, and in a chamber filled with red earth a stone bowl appeared with three little figurines inside, a fox, a boar and a vulture, the same animals carved on the pillars. And at nearby Sayburç, a carved wall tells a scene with a man between two leopards and another facing a bull, the oldest story told in pictures that we know of. It's a whole world that was lying down there, waiting, and that we're only beginning to read."
+    }
+   ],
+   "cartela": "2025"
+  },
+  {
+   "id": "gb-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "pregunta",
+     "es": "Ahora vuelve a la pregunta que te pedí que guardaras: ¿por qué unos cazadores que ni siquiera tenían una aldea iban a levantar algo así? Quizá la respuesta sea al revés de lo que pensamos, y no construyeron Göbekli Tepe porque ya vivieran juntos, sino que empezaron a vivir juntos porque necesitaban construirlo, y para eso hubo que alimentar a mucha gente, quedarse, sembrar y, poco a poco, dejar de ser nómadas.",
+     "en": "Now go back to the question I asked you to hold on to: why would hunters who didn't even have a village build something like this? Maybe the answer is the opposite of what we think, and they didn't build Göbekli Tepe because they already lived together, but started living together because they needed to build it, and for that they had to feed many people, stay put, plant, and little by little, stop being nomads.",
+     "visual": "B y C: vuelta al principio: la fila que tira de la cuerda; el pilar ya de pie; alrededor nacen chozas, campos de trigo y humo de hogares (la aldea que nace del templo).",
+     "acto": true
+    },
+    {
+     "n": 29,
+     "marca": "comentarios",
+     "es": "A veces lo que nos cambia no es lo que encontramos, sino lo que decidimos levantar entre todos. Y tú, si pudieras tocar uno de esos pilares, ¿crees que verías el trabajo de unos cazadores que se pusieron de acuerdo, o sigues pensando que alguien vino antes a enseñarles? Cuéntamelo en los comentarios, porque tengo mucha curiosidad por saber qué piensas.",
+     "en": "Sometimes what changes us isn't what we find, but what we decide to raise together. And you, if you could touch one of those pillars, do you think you'd see the work of hunters who learned to agree, or do you still think someone came before to teach them? Tell me in the comments, because I'm really curious what you think.",
+     "visual": "F: Atom en su estudio pone su pilar de juguete junto a una espiga, mira a cámara y señala los comentarios."
+    }
+   ]
+  }
+ ]
+}
