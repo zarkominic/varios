@@ -12394,3 +12394,58 @@ export const ELENCO_BL = {
     pal: OLIVA({ H: '#6a4422', h: '#8a5e34', C: '#6a7a4a', c: '#4e5a36', o: '#c86a3a', W: '#d8ccb0', F: '#4a4a52', L: '#2a2018' }) },
 };
 Object.assign(ELENCO_CHIBI, ELENCO_BL);
+
+// ── Episodio 49 · Göbekli Tepe (gb) ──────────────────────────────────────────────────────────────────────────────
+// la túnica de pieles de los cazadores de hace 11.600 años: piel curtida (C/c) con el borde de pelo (M/m) en el cuello
+// y abajo, un cinto de cuero (G), los brazos y las piernas al aire (S/s) y los pies envueltos en cuero (L)
+const CUERPO_PIELES_GB = [
+  '...kkMMMMMkk...',
+  '..kSkMMmMMkSk..',
+  '.kSkCCCcCCCkSk.',
+  '.kSkCcCCCcCkSk.',
+  '.kSkCCCCCCCkSk.',
+  '.kskGGGGGGGksk.',
+  '..kkCCcCCcCkk..',
+  '...kCCCCCCCk...',
+  '...kMmMMmMMk...',
+  '...kkkkkkkkk...',
+  '....kSk.kSk....',
+  '....kLk.kLk....',
+  '...kLLk.kLLk...',
+];
+// la cazadora: la misma piel, con el pelo largo
+export const ELENCO_GB = {
+  // los cazadores de Göbekli Tepe (hace 11.600 años): pelo largo o recogido, barba, pieles; varias pieles de piel
+  cazadorGB: { ...B20, cab: CAB_MELENA_H, cuerpo: CUERPO_PIELES_GB, ceja: hex('#2a1e18'),
+    pal: OLIVA({ H: '#2a1e18', h: '#4a3628', C: '#9a6a3e', c: '#7a5030', M: '#c8b090', m: '#a89070', G: '#4a2e1a', L: '#5a3a20' }) },
+  cazador2GB: { ...B20, cab: CAB_BARBA, cuerpo: CUERPO_PIELES_GB, ceja: hex('#3a2418'),
+    pal: MORENA({ H: '#3a2418', h: '#5a3a24', C: '#8a5a34', c: '#6a4226', M: '#d8c8a8', m: '#b8a888', G: '#3a2418', L: '#4a3020' }) },
+  cazadoraGB: { ...B20M, cab: CAB_LARGO, cuerpo: CUERPO_PIELES_GB, ceja: hex('#1c1424'),
+    pal: OLIVA({ H: '#1c1424', h: '#3a3046', C: '#a8784a', c: '#86583a', M: '#e0d0b0', m: '#c0b090', G: '#5a3a20', L: '#5a3a20' }) },
+  cazadora2GB: { ...B20M, cab: CAB_MELENA_H, cuerpo: CUERPO_PIELES_GB, ceja: hex('#5a3a20'),
+    pal: MORENA({ H: '#5a3a20', h: '#7a5430', C: '#7a5a3a', c: '#5e4430', M: '#c8b898', m: '#a89878', G: '#3a2418', L: '#4a3020' }) },
+  ninoGB: { ...B20N, cuerpo: CUERPO_NINO, ceja: hex('#2a1e18'),
+    pal: OLIVA({ H: '#2a1e18', h: '#4a3628', C: '#9a6a3e', c: '#7a5030', F: '#7a5030', n: '#5a3a20' }) },
+  // los prospectores de 1963 (universidades de Estambul y Chicago): camisa caqui, sombrero de ala o gorra
+  prospectorGB: { ...B20, cuerpo: CUERPO_EXPLORADOR_CF, tocado: 'fedora', ceja: hex('#3a2418'),
+    pal: CLARA({ H: '#3a2418', h: '#5a3a24', C: '#b8a878', c: '#968a5e', o: '#7a6a44', u: '#a83a2a', F: '#5a5040', L: '#3a2a1c' }) },
+  prospectora2GB: { ...B20M, cab: CAB_CORTA_VM, cuerpo: CUERPO_EXPLORADORA_JM, tocado: 'panuelo', ceja: hex('#2a1e18'),
+    pal: OLIVA({ H: '#2a1e18', h: '#4a3628', C: '#e8dcc0', c: '#c8bca0', V: '#8a7a54', v: '#6a5c3e', o: '#5a4c34', X: '#e8e0d0', F: '#6a5c3e', L: '#3a2a1c' }) },
+  // el campesino de Şanlıurfa (1963–1994): bigote, gorra plana, chaleco de lana y pantalón ancho
+  campesinoGB: { ...B20, cuerpo: CUERPO_CHALECO_NV, tocado: 'gorraPlana', bigote: true, ceja: hex('#2a1e18'),
+    pal: MORENA({ H: '#2a1e18', h: '#4a3628', C: '#5a4a3a', c: '#3e3228', V: '#d8d0c0', v: '#b0a898', o: '#8a7a5a', F: '#4a4a52', L: '#2a2018' }) },
+  // Klaus Schmidt (1994–2014): barba, sombrero de ala, camisa de campo azul claro y chaleco de muchos bolsillos
+  schmidtGB: { ...B20, cab: CAB_BARBA_CORTA_DC, cuerpo: CUERPO_EXPLORADOR_CF, tocado: 'fedora', ceja: hex('#6a5a4a'),
+    pal: CLARA({ H: '#8a7a6a', h: '#a89888', C: '#a8b8c8', c: '#8898a8', o: '#6a5a44', u: '#5a6a7a', F: '#5a5040', L: '#3a2a1c' }) },
+  // los arqueólogos de hoy: camiseta, gorra o sombrero de sol, y la del laboratorio con bata
+  arqueologaGB: { ...B20M, cab: CAB_RIZOS, cuerpo: CUERPO_EXPLORADORA_JM, tocado: 'sombreroPaja', ceja: hex('#3a2418'),
+    pal: OLIVA({ H: '#3a2418', h: '#5a3a24', C: '#d86a4a', c: '#b04e34', V: '#8a7a54', v: '#6a5c3e', o: '#5a4c34', X: '#e8e0d0', F: '#6a5c3e', L: '#3a2a1c' }) },
+  arqueologoGB: { ...B20, cuerpo: CUERPO_EXPLORADOR_CF, tocado: 'beisbol', ceja: hex('#2a1e18'),
+    pal: MORENA({ H: '#2a1e18', h: '#4a3628', C: '#5a7a9a', c: '#425e7a', o: '#c86a3a', u: '#e8c040', F: '#4a4a52', L: '#2a2018' }) },
+  laboratorioGB: { ...B20M, cab: CAB_CORTA_VM, cuerpo: CUERPO_BATA_DC, tocado: 'gafasClaras', ceja: hex('#5a3a20'),
+    pal: CLARA({ E: '#e8ecf4', H: '#7a5232', h: '#9a7048', C: '#f2f2ee', c: '#d0d0cc', W: '#5a7aa8', F: '#3a3a44', L: '#2a2018' }) },
+  // el espectador del sofá (2022): sudadera y gorro de lana
+  espectadorGB: { ...B20, cuerpo: CUERPO_MANGA, tocado: 'gorroLana', ceja: hex('#5a3a20'),
+    pal: CLARA({ H: '#6a4422', h: '#8a5e34', C: '#5a8a6a', c: '#426a50', o: '#c8a040', F: '#3a3a44', L: '#2a2018' }) },
+};
+Object.assign(ELENCO_CHIBI, ELENCO_GB);
