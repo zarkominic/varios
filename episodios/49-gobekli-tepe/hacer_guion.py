@@ -105,7 +105,10 @@ PREVIO = {
 # Desde el 37, en español los nombres extranjeros van TAL CUAL salvo los que el usuario elija de oído (regla del 16/11/2026).
 PRONUNCIA = {
     'en': [],
-    'es': [('Chicago', 'Chicágo')],
+    # elegidas por defecto con la muestra de ZONOS3 y Whisper del 26/11/2026 (el usuario aprobó sin elegir): «Sayburç»
+    # sonaba «Cyborgs» en las dos grafías, así que en español se dice «otro poblado cercano»
+    'es': [('Chicago', 'Chicágo'), ('Göbekli Tepe', 'Gobekli Tepe'), ('Şanlıurfa', 'Sanliurfa'), ('Karahan Tepe', 'Karajan Tépe'),
+           ('Taş Tepeler', 'Tash Tepelér'), ('la cercana Sayburç', 'otro poblado cercano')],
 }
 # Silencio tras las revelaciones grandes (s), para que se asienten; el resto, la pausa de locutar_frases.py.
 # Desde la v5 van solo en el campo `pausas` de cada escena de escenas.json (los números de aquí eran los de la v4
