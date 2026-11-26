@@ -1076,3 +1076,21 @@ del 44.
 - **Pendiente para el próximo:** (1) meter en el workflow de la calidad una comprobación automática de costuras de las
   pausas (o que las pausas importen el bloque compartido en vez de copiarlo); (2) apuntar el resultado de la prueba de
   miniaturas cuando YouTube la dé por cerrada; (3) `titulos.py` con el guion.
+
+## Episodio 49 · Göbekli Tepe: construido 6.000 años antes que Stonehenge (26/11/2026)
+
+- **Producción** [Seguro]: 14:14 (por encima de los 12–13 estimados), −14,1/−14,1 LUFS, efectos el 49 % del tiempo,
+  221/232 subtítulos sin fallos (uno español de 0,96 s se juntó a mano con el anterior), peor caída de la música en una
+  cartela 7,4 dB (cerca del tope de 7,5). Calidad: 164 planos, 79 suspensos en la primera revisión, tres rondas (35
+  agentes, ~6,2 M de tokens, 2 h 24 min); quedó uno sin aprobar y se arregló a mano. 0 sospechas en --comprobar.
+- **Pausas: el pendiente del 48 funcionó** [Seguro]: las costuras se midieron con `costura49.mjs` (último fotograma de
+  la escena contra el primero de la pausa) después de cada pasada y se pasaron como encargo a la de calidad: al final,
+  0–23 px de 57.600 en las cinco. Sigue sin estar dentro del workflow: hay que adaptarlo a mano cada episodio.
+- **Escala de la gente en interiores** [Seguro]: el laboratorio de 1997 (gb-cazadores, plano 9) suspendió las tres rondas
+  por lo mismo: chibis de 25 px con encimeras de su misma altura delante («gente enana metida en el mueble»). Bajar la
+  encimera a la cintura dejaba una franja de gente bajo una pared enorme. Lo que funciona (como el laboratorio del
+  carbono de gb-fechas): la encimera AL FONDO contra la pared (base y ≈ 140) y un suelo en perspectiva delante, con la
+  gente de pie y de cuerpo entero (pies y ≈ 166). Conviene ponerlo en la guía de estilo para cualquier interior.
+- **Pendiente para el próximo:** (1) meter `costura<ep>.mjs` en el workflow de la calidad (lee las parejas de pausas de
+  `plan.py`); (2) la regla de interiores de arriba, en `GUIA-ESTILO.md`; (3) el resultado de la prueba de miniaturas
+  del 48, que decide si las del 49 en adelante llevan texto.

@@ -1,6 +1,6 @@
 # Episodio 49 · Material para publicar
 
-**Duración:** {DURACION}.
+**Duración:** 14:14.
 - Un solo vídeo: audio principal en inglés (Supertonic 3, voz `M1`, a 0,95) y pista de audio en español (ZONOS3-Mini,
   voz `Rodrigo`).
 - Subtítulos en inglés y en español.
@@ -51,7 +51,14 @@ If you could touch one of those pillars, would you see the work of hunters who l
 someone came before to teach them? Tell me in the comments.
 
 Chapters:
-{CAPITULOS_EN}
+0:00 Before Stonehenge
+1:25 The hill of broken slabs
+3:00 The stone giants
+5:02 Before the fields
+7:35 What TV says
+9:37 Buried
+11:41 The Stone Hills
+13:25 The ending
 
 Sources: German Archaeological Institute (DAI), "The Tepe Telegrams" · K. Schmidt, Göbekli Tepe: A Stone Age Sanctuary
 in South-Eastern Anatolia (2012) · Smithsonian Magazine, "Göbekli Tepe: The World's First Temple?" (2008) · M. Heun et
@@ -95,7 +102,14 @@ Si pudieras tocar uno de esos pilares, ¿verías la obra de unos cazadores que a
 pensando que alguien vino antes a enseñarles? Cuéntamelo en los comentarios.
 
 Capítulos:
-{CAPITULOS_ES}
+0:00 Antes que Stonehenge
+1:25 La colina de las losas rotas
+3:00 Los gigantes de piedra
+5:02 Antes que los campos
+7:35 Lo que dice la tele
+9:37 Enterrado
+11:41 Las colinas de piedra
+13:25 El cierre
 
 Fuentes: las mismas que en la descripción en inglés.
 
@@ -113,10 +127,40 @@ sintéticas (IA).
 
 ## Shorts
 
-{SHORTS}
+Tres Shorts verticales (1080×1920) sacados del vídeo, con la imagen en cuadrado, cada uno con la voz en inglés como pista
+principal, su pista en español (`-es.m4a`) y los subtítulos en los dos idiomas. Súbelos después del vídeo largo y
+enlázalo en cada uno («Vídeo relacionado»).
+
+### Short 1 · El gancho · tramo 0.0-36.79
+- **EN:** Hunters Built This 6,000 Years Before Stonehenge #Shorts
+- **ES:** Cazadores levantaron esto 6.000 años antes que Stonehenge #Shorts
+- **EN:** No metal, no wheels, no village: eleven thousand six hundred years ago, hunters in Turkey raised T-shaped stones heavier than a car, carved with arms, hands and a leaping fox. The whole story is in the linked video. #GobekliTepe #Archaeology #ASKAtom #Shorts
+- **ES:** Sin metal, sin ruedas y sin aldea: hace once mil seiscientos años, unos cazadores de Turquía levantaron piedras en forma de T más pesadas que un coche, talladas con brazos, manos y un zorro que salta. La historia entera, en el vídeo enlazado. #GobekliTepe #Arqueología #ASKAtom #Shorts
+
+### Short 2 · Diez toneladas sin ruedas · tramo 265.71-302.41
+- **EN:** How Do You Move 10 Tons With No Wheels? #Shorts
+- **ES:** ¿Cómo se mueven 10 toneladas sin ruedas? #Shorts
+- **EN:** Levers, ropes, logs and lots of people pulling at once. And a few hundred meters away, an unfinished 50-ton pillar still lies in the quarry. The hard part wasn't the physics. The whole story is in the linked video. #GobekliTepe #History #ASKAtom #Shorts
+- **ES:** Palancas, cuerdas, troncos y mucha gente tirando a la vez. Y a unos cientos de metros, un pilar sin terminar de cincuenta toneladas sigue en la cantera. Lo difícil no era la física. La historia entera, en el vídeo enlazado. #GobekliTepe #Historia #ASKAtom #Shorts
+
+### Short 3 · ¿Lo enterraron a propósito? · tramo 578.48-634.50
+- **EN:** Was Göbekli Tepe Buried on Purpose? #Shorts
+- **ES:** ¿Enterraron Göbekli Tepe a propósito? #Shorts
+- **EN:** The idea didn't start on the internet: it was Klaus Schmidt's. But when later teams studied the earth layer by layer, it looked like the slopes had filled the enclosures over centuries. The whole story is in the linked video. #GobekliTepe #Archaeology #ASKAtom #Shorts
+- **ES:** La idea no nació en internet: era de Klaus Schmidt. Pero cuando los equipos siguientes estudiaron la tierra capa a capa, parecía que las laderas habían llenado los recintos durante siglos. La historia entera, en el vídeo enlazado. #GobekliTepe #Arqueología #ASKAtom #Shorts
 
 ## Avisos
 
-{AVISOS}
+**Para escuchar** (dudosas del control de la voz):
+- EN, frase 10 (3:57) y frase 14 (6:03): «aurochs» puede sonar «orcs» o «air rocks».
+- EN, frase 16 (7:03): «tepe» puede sonar «tipi».
+- EN, frase 19 (8:39): «arrowheads» puede sonar «arrow eds»; ES, la misma frase: puede faltar un «en».
+- EN, frase 23 (10:35): un hueco de 0,36 s dentro de «opened»; ES, la misma frase: «Göbekli Tepe» puede sonar pegado.
+- ES, frase 28 (13:26): «Göbekli» puede sonar «gobek y».
+
+**Duración:** 14:14, por encima de los 12–14 min del canon del 43–48 (el guion apuntaba a 12–13). Los capítulos ayudan a
+navegarlo.
+
+**Subtítulo corregido a mano:** en el español (7:22), «a sembrarlo cerca,» duraba 0,96 s y se juntó con el anterior.
 
 **Voz sintética:** al subirlo, si YouTube lo pide para voces, marca en Studio el aviso de contenido alterado o sintético.
