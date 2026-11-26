@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep49 · short 1 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GB-SHORT2-MINIATURA · ep49, vertical (columna central x 110–210). Con chibis, sin palabras, sin Atom.
+// «Diez toneladas sin ruedas»: el pilar tumbado sobre troncos y la fila que tira; una cazadora al triple, en el centro,
+// tira de la cuerda apretando los dientes.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/gb-comun.js';
+import { figura, grado, halo, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const mez = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const K = hex('#1a1424');
+const tine = (x, y, c, a) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, a)); };
+const dibujar = (t) => {
+  const o = { encuadre: 'cantera', camara: 'troncos', avance: 0.6 };
+  const g = T.neolitico(R, t, o) || {};
+  desplazar(R, DX);
+  halo(R, 160, 90, 60, 50, '#ffe0a0', 0.2);
+  const m = figura(R, T.GB.cazadoraGB, 132, 184, t, { dir: 1, enfado: true, sostiene: [150, 116] }, 3);
+  T.neoliticoDelante(R, t, o);
+  grado(R, { cx: 160, cy: 110, rx: 80, ry: 120, tinte: '#060a14', f: 0.12, desde: 0.55, max: 0.75 });
+};
+const DX = 30;
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>
