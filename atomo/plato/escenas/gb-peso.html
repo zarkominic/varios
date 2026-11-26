@@ -13,8 +13,10 @@
 // doble, a color.
 // 1 · La cantera congelada (el último instante de gb-pilares): Atom entra, rodea el pilar tumbado y duda («?» en «wonders»).
 // 2 · El pilar medido, congelado: los troncos a color con el «10»; GAG DE LA CARRETILLA: Atom llega empujándola y en
-//   «wheels» se le cae la rueda; palancas, cuerdas y troncos se marcan en su palabra.  3 · Los dos centrales congelados:
-//   la fila tira a la vez y Atom tira del cabo; el pilar avanza en cada tirón.  4 · Lo alto del cerro congelado: la ruta
+//   «wheels» se le cae la rueda; palancas, cuerdas y troncos se marcan en su palabra.  3 · Otra cámara: el pilar entra en
+//   diagonal desde el fondo sobre los troncos y la cuerda baja en curva a una fila de seis que viene hacia la cámara;
+//   Atom cuenta «1, 2, 3» y en «at the same time» tiran a la vez: cuatro tirones de 9 px, los troncos ruedan, uno deja un
+//   tronco ante la cabeza y el de la cola recoge el que queda libre.  4 · Lo alto del cerro congelado: la ruta
 //   a color hasta la cantera («a few hundred meters away»), que sale en un círculo en «quarry».  5 · El tallista
 //   congelado: el pilar tumbado vuelve a color, la cinta de Atom y el «7» en «seven meters», cinco pesas y el «50».
 // 6 · La cabeza congelada: «?» en «nobody knows why»; en «physics» la palanca a color levanta la piedra sola, y la marca
@@ -889,14 +891,156 @@ const Q2f = (t) => {
   if (t > en('fijate1', 0.1765) && t < en('fijate1', 0.2207)) R.icono('!', cX - 64, ri(112 - 3 * pop(t, en('fijate1', 0.1765), 0.15)), H('#fff4c0'), K, 2);
   void r;
 };
-// ── Q3 · los dos centrales congelados: los troncos con mucha gente que tira a la vez; Atom tira del cabo ──
+// ── Q3 · LOS QUE TIRAN, EN DIAGONAL (otra cámara que la del 2): el fondo de los dos centrales congelado y vacío; a color,
+// el pilar en T entra en diagonal desde el fondo (tapa, costado y testa a la vista) sobre seis troncos y la cuerda sale
+// de su cuello y baja en curva hasta una fila de seis cazadores que viene hacia la cámara. Atom cuenta «1, 2, 3» en
+// «above all, lots of people» y en «pulling at the same time» los seis tiran a la vez: cuatro tirones de 9 px (36 en
+// total), los troncos ruedan a la mitad y giran, salta el polvo. Delante, uno deja un tronco ante la cabeza y vuelve a
+// por otro; detrás, el de la cola recoge el tronco que queda libre y lo lleva hacia delante ──
+const Q3O = [34, 116], QA = [0.9, 0.4], QB = [0.62, -0.45];   // (la cámara baja 36 px: más suelo)
+const Q3SH = 36, LF = 76, LC = 94, WF = 18, H0 = 8, H1 = 20;   // fuste, cabeza, ancho, alto de los troncos y de la tapa   // la esquina de la cola en el suelo, el eje y el fondo
+const qp = (u, v, h = 0) => [Q3O[0] + u * QA[0] + v * QB[0], Q3O[1] + u * QA[1] + v * QB[1] - h];
+const QDET = QA[0] * QB[1] - QA[1] * QB[0];
+const qInv = (x, y, h = 0) => { const dx = x - Q3O[0], dy = y - Q3O[1] + h; return [(dx * QB[1] - dy * QB[0]) / QDET, (QA[0] * dy - QA[1] * dx) / QDET]; };
+const TIERRA3 = RAM('#5a3c26', '#7a5636', '#98704a', '#b48c62', '#ccaa80', '#e0c49c');
+const CORTEZA = RAM('#3a2416', '#5a3a22', '#7a5230', '#96683e'), MADERA = RAM('#a87a48', '#c89c66', '#e0bc88', '#f0d6a8');
+const CUERDA = [H('#7a5a30'), H('#c8a868'), H('#e8d098')];
+// el camino de tierra apisonada (a color): una banda a lo largo del eje que, delante, se abre a la derecha bajo la fila
+const q3Suelo = (d) => {
+  for (let y = 105; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const [u, v] = qInv(x, y), ondu = (hh(Math.floor(u / 4), 0, 177) - 0.5) * 3 + Math.sin(u * 0.13) * 1.5;
+    const lejos = 30 - v + ondu, cerca = v + 34 + ondu * 1.4, der = x > 110 ? y - (136 + 6 * Math.max(0, 1 - (x - 110) / 40) + Math.sin(x * 0.07) * 2 + (hh(x >> 2, 1, 178) - 0.5) * 2) : -9;
+    const dentro = Math.min(Math.max(Math.min(lejos, cerca), der), y - 105);
+    if (dentro < 0) continue;
+    let val = 2.4 + (hh(x >> 1, y, 170) - 0.5) * 0.9 + (y - 105) / 60;
+    if (v > -8 && v < 26 && u < 150) { const f = ((u % 10) + 10) % 10; if (f < 1.1) val -= 1.2; else if (f < 2) val += 0.5; }   // las rodadas de los troncos
+    if (Math.abs(v - 9) < 1 && u < d + 4) val -= 0.6;                                                                        // el surco que deja el pilar
+    if (hh(x, y, 171) < 0.025) val += 1.6; else if (hh(x, y, 172) < 0.02) val -= 1.4;                                      // piedrecitas y hoyos
+    if (u > d - 2 && u < d + LC + 1 && v > -5 && v < 23) val -= 1.4;                                                          // la sombra bajo el pilar
+    let c = rampa(TIERRA3, val, x, y);
+    if (dentro < 3 && dentro / 3 < di(x, y)) c = mez(R.pget(x, y), c, 0.5);                                               // el borde se funde con el suelo gris
+    R.pset(x, y, c);
+  }
+  // pisadas de la fila, tiras de corteza y astillas
+  for (let k = 0; k < 26; k++) { const x = ri(120 + hh(k, 1, 173) * 170), y = ri(142 + hh(k, 2, 173) * 36); R.pset(x, y, TIERRA3[0]); R.pset(x + 1, y, TIERRA3[1]); if (k % 3 === 0) { R.pset(x + 3, y - 1, CORTEZA[2]); R.pset(x + 4, y - 1, CORTEZA[1]); } }
+};
+// un tronco tumbado de través (a lo largo del fondo): f(du, v, h) da la pantalla; ang, el giro de la raya de la testa
+const tronco3 = (f, ang, v0 = -7, v1 = 25, r0 = 4) => {
+  for (let s = 0; s <= 18; s++) { const fi = Math.PI - s * (Math.PI * 1.5 / 18), du = r0 * Math.cos(fi), h = r0 + r0 * Math.sin(fi);
+    const [xa, ya] = f(du, v0, h), [xb, yb] = f(du, v1, h), val = 1.5 + Math.sin(fi) * 1.4 - (fi < 0 ? 0.8 : 0);
+    R.linea(ri(xa), ri(ya), ri(xb), ri(yb), rampa(CORTEZA, val, ri(xa), ri(ya))); }
+  for (let q = 0; q < 4; q++) { const vv = v0 + 4 + q * (v1 - v0 - 6) / 3, [xa, ya] = f(0.5, vv, r0 * 1.85); R.pset(ri(xa), ri(ya), CORTEZA[0]); R.pset(ri(xa) + 1, ri(ya), CORTEZA[3]); }
+  const [x1, y1] = f(0, v1, r0 * 2.1), [x0, y0] = f(-r0, v1, r0); R.linea(ri(x0), ri(y0), ri(x1), ri(y1), K);
+  // la testa de delante: corteza, madera clara con su anillo y la raya que gira al rodar
+  for (let dh = -r0 - 0.2; dh <= r0 + 0.2; dh += 0.5) for (let du = -r0 - 0.2; du <= r0 + 0.2; du += 0.5) { const r = Math.hypot(du, dh) * 3 / r0; if (r > 3.3) continue;
+    const [x, y] = f(du, v0, r0 + dh), X = ri(x), Y = ri(y), a = Math.atan2(dh, du), dang = Math.abs(((a - ang) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI);
+    R.pset(X, Y, r > 2.8 ? K : r > 2.1 ? CORTEZA[1] : (dang < 0.35 && r > 0.5) ? CORTEZA[1] : Math.abs(r - 1.3) < 0.35 ? MADERA[0] : (du - dh < 0 ? MADERA[3] : MADERA[2])); }
+};
+// una caja vista en diagonal (tapa, costado de delante y testa): col(cara, a, b, x, y)
+const caja3 = (u0, u1, v0, v1, h0, h1, col) => {
+  const pts = []; for (const u of [u0, u1]) for (const v of [v0, v1]) for (const h of [h0, h1]) pts.push(qp(u, v, h));
+  const x0 = Math.max(0, Math.floor(Math.min(...pts.map((p) => p[0])))), x1 = Math.min(319, Math.ceil(Math.max(...pts.map((p) => p[0]))));
+  const y0 = Math.max(0, Math.floor(Math.min(...pts.map((p) => p[1])))), y1 = Math.min(179, Math.ceil(Math.max(...pts.map((p) => p[1]))));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    const [u, v] = qInv(x + 0.5, y + 0.5, h1);
+    if (u >= u0 && u < u1 && v >= v0 && v < v1) { R.pset(x, y, col('tapa', u, v, x, y)); continue; }
+    const uL = (x + 0.5 - Q3O[0] - v0 * QB[0]) / QA[0], hL = Q3O[1] + uL * QA[1] + v0 * QB[1] - (y + 0.5);
+    if (uL >= u0 && uL < u1 && hL >= h0 && hL < h1) { R.pset(x, y, col('lado', uL, hL, x, y)); continue; }
+    const vT = (x + 0.5 - Q3O[0] - u1 * QA[0]) / QB[0], hT = Q3O[1] + u1 * QA[1] + vT * QB[1] - (y + 0.5);
+    if (vT >= v0 && vT < v1 && hT >= h0 && hT < h1) R.pset(x, y, col('testa', vT, hT, x, y));
+  }
+  // el contorno de lo que se ve
+  const L = (a, b) => R.linea(ri(a[0]), ri(a[1]), ri(b[0]), ri(b[1]), K);
+  L(qp(u0, v0, h1), qp(u0, v1, h1)); L(qp(u0, v1, h1), qp(u1, v1, h1)); L(qp(u1, v1, h1), qp(u1, v1, h0)); L(qp(u1, v1, h0), qp(u1, v0, h0));
+  L(qp(u1, v0, h0), qp(u0, v0, h0)); L(qp(u0, v0, h0), qp(u0, v0, h1));
+};
+// la caliza del pilar: tapa con luz (arriba a la izquierda), costado en media luz y testa en sombra; vetas y desconchones
+const calQ3 = (base) => (cara, a, b, x, y) => { let v = base + (cara === 'tapa' ? 0.9 : cara === 'lado' ? 0 : -1.0) + (hh(x, y, 175) - 0.5) * 0.7;
+  if (Math.sin(a * 0.4 + Math.sin(b * 0.8) * 1.4) > 0.93) v -= 0.8; if (hh(x >> 1, y >> 1, 176) > 0.93) v -= 0.9;
+  if (cara === 'lado' && b > H1 - 1.2) v += 0.6; if (cara === 'tapa' && b < 1.2) v += 0.5; return rampa(CALR, v, x, y); };
+// los relieves de la tapa del fuste (el brazo con la mano de dedos largos, el cinturón y un zorro), en coordenadas (u, v)
+const ZORRO3 = ['.......##', 'XXXXXXX#.', '.XXXXXXX.', '.X.X.X.X.'];
+const relievesQ3 = (d) => {
+  const T3 = (u, v, c) => { const [x, y] = qp(d + u, v, H1); R.pset(ri(x), ri(y), c); };
+  for (let u = 14; u <= 75; u += 0.5) { T3(u, 13, CALR[5]); T3(u, 14, CALR[4]); T3(u, 15, CALR[4]); T3(u, 16, CALR[2]); }   // el brazo
+  for (let q = 0; q < 4; q++) for (let u = 6; u <= 14; u += 0.5) { T3(u, 5 + q * 2.4, CALR[5]); T3(u, 6 + q * 2.4, CALR[2]); }   // los dedos largos
+  for (let v = 0.5; v < WF; v += 0.5) { T3(3, v, CALR[5]); T3(4, v, CALR[4]); T3(5, v, CALR[2]); }        // el cinturón
+  ZORRO3.forEach((fila, q) => { for (let k = 0; k < fila.length; k++) if (fila[k] !== '.') for (const e of [0, 0.7]) { T3(34 + k * 2 + e, 3 + q * 1.6, q === 0 ? CALR[5] : CALR[4]); T3(35 + k * 2 + e, 4.2 + q * 1.6, CALR[1]); } });
+};
 const Q3f = (t) => {
-  p3(TF3); AT.pausa(R, 1);
-  const tir = [en('fijate1', 0.3475), en('fijate1', 0.3630), en('fijate1', 0.3779), en('fijate1', 0.3917)], av = 0.25 + 0.75 * Math.min(1, tir.filter((a) => t > a).length / 4 + (t > tir[0] ? 0 : 0));
-  const r = T.pausa(R, 150, 172, t, { cual: 'troncos', numero: false, avance: av });
-  const [cx, cy] = r.cuerda, a = AT.atom(R, 286, 178, t, { s: 2, dir: -1, pose: 'sostiene', cara: t > en('fijate1', 0.3613) ? 'sonrisa' : 'normal', habla: habla(t) });
-  const [mx, my] = a.mano; R.linea(cx, cy, ri(mx), ri(my), K); R.linea(cx, cy - 1, ri(mx), ri(my) - 1, H('#c8a868'));
-  for (const q of tir) { const f = tramo(t, q, q + 0.4); if (f > 0 && f < 1) for (let k = 0; k < 6; k++) R.pset(ri(90 + k * 18 + f * 6), ri(170 - f * 6 - (k % 2) * 2), H('#e8dcc0')); }
+  // el fondo de los dos centrales con la cámara 36 px más abajo (sin la gente del plano: aquí la escena es el
+  // transporte); el suelo de cal sigue hasta abajo
+  R.copiar(p3fijo().subarray(Q3SH * 320));
+  for (let y = 180 - Q3SH; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rampa(RAM('#8a7c62', '#a8987a', '#c4b494', '#dcceb0', '#ece2ca'), 2.6 + (y + Q3SH - 141) / 60 + (hh(x >> 1, (y + Q3SH) >> 1, 45) - 0.5) * 0.9 + (hh(x, y + Q3SH, 46) < 0.05 ? -1.2 : 0), x, y));
+  guijarros(0, 150, 60, 179, 7, 52, [P_TIERRA[1]]); guijarros(262, 150, 319, 179, 6, 53, [P_TIERRA[1]]);
+  mata(6, 179, TF3, 8); mata(14, 178, TF3, 6); mata(314, 179, TF3, 7);
+  AT.pausa(R, 1);
+  const tir = [en('fijate1', 0.3475), en('fijate1', 0.3630), en('fijate1', 0.3779), en('fijate1', 0.3917)];
+  const d = tir.reduce((s, q) => s + 9 * ease(tramo(t, q, q + 0.32)), 0), tira = tir.some((q) => t > q - 0.05 && t < q + 0.4);
+  q3Suelo(d);
+  // los troncos: los de debajo ruedan a la mitad de lo que avanza el pilar; el de la cola queda libre al segundo tirón;
+  // el que trae el de delante (en 106) se queda quieto hasta que la cabeza le llega
+  const libre = d >= 16, tB = tramo(t, en('fijate1', 0.3311), en('fijate1', 0.3380));
+  const tA = [en('fijate1', 0.3680), en('fijate1', 0.3760), en('fijate1', 0.3830)];
+  const logs = [];
+  if (t < tA[1]) logs.push(libre ? 16 : 8 + d / 2);
+  for (const g of [27, 46, 65, 84]) logs.push(g + d / 2);
+  if (tB >= 1) logs.push(106 + Math.max(0, d + LC - 106) / 2);
+  const rodar = (u) => -u / 4;
+  const enSuelo = (u) => (du, v, h) => qp(u + du, v, h);
+  for (const u of logs) if (u <= d + LC + 2) tronco3(enSuelo(u), rodar(u));
+  // los troncos de repuesto apilados abajo a la izquierda (tres y dos encima), con su sombra
+  { const pila = (X, Y) => (du, v, h) => [X + du * QA[0] + v * QB[0], Y + du * QA[1] + v * QB[1] - h];
+    for (let x = 4; x < 70; x++) for (let y = 168; y < 180; y++) if (hh(x, y, 179) < 0.5 + (y - 168) / 30) R.pset(x, y, mez(R.pget(x, y), K, 0.25));
+    for (const [X, Y, h] of [[10, 174, 0], [21, 178, 0], [32, 182, 0], [15, 169, 7], [26, 173, 7]]) tronco3((du, v, hz) => pila(X, Y)(du, v * 0.8, hz + h), 0.6 + X * 0.3, -6, 20, 4); }
+  // el pilar: el fuste y la cabeza de la T (más ancha), en alto sobre los troncos
+  caja3(d, d + LF, 0, WF, H0, H1, calQ3(2.6));
+  relievesQ3(d);
+  caja3(d + LF, d + LC, -5, WF + 5, H0, H1, calQ3(2.7));
+  { const [x, y] = qp(d + LF + 3, 3, H1), [x2, y2] = qp(d + LC - 2, 3, H1); R.linea(ri(x), ri(y), ri(x2), ri(y2), CALR[2]); }   // la arista de la cabeza, tallada
+  for (const u of logs) if (u > d + LC + 2) tronco3(enSuelo(u), rodar(u));
+  // la cuerda: tres vueltas al cuello (sobre la tapa y el costado) y el tramo tenso por el costado de la cabeza
+  for (let q = 0; q < 3; q++) { const uu = d + LF - 6 + q * 1.8; for (let v = 0; v <= WF; v += 0.5) { const [x, y] = qp(uu, v, H1 + 0.4); R.pset(ri(x), ri(y), CUERDA[(q + ri(v)) % 2 + 1]); }
+    for (let h = H0; h <= H1; h += 0.5) { const [x, y] = qp(uu, -0.3, h); R.pset(ri(x), ri(y), CUERDA[(q + ri(h)) % 2 ? 1 : 0]); } }
+  { const [a, b] = qp(d + LF - 3, -0.4, 14), [c, e] = qp(d + LC + 1, -5.6, 14); R.linea(ri(a), ri(b), ri(c), ri(e), CUERDA[1]); R.linea(ri(a), ri(b) + 1, ri(c), ri(e) + 1, K); }
+  const ancla = qp(d + LC + 1, -5.6, 14);
+  // la fila: seis cazadores que vienen hacia la cámara en diagonal; cada tirón los lleva 9 px adelante (los del fondo
+  // bajan con el eje y los de delante van a lo ancho, con la curva de la cuerda)
+  const quien = [GB.cazadorGB, GB.cazadoraGB, GB.cazador2GB, GB.cazadora2GB, GB.cazadorGB, GB.cazadora2GB];
+  const BASE = [[134, 146], [153, 152], [172, 158], [191, 164], [210, 170], [229, 176]];
+  const pies = BASE.map(([x, y], i) => [ri(x + d * 0.9 - (tira ? 1 : 0)), ri(y + d * 0.4 * (1 - i / 5) * (1 - i / 6))]);
+  const manos = pies.map(([x, y], i) => [x + 13 + (tira ? 1 : 0), y - 11 + (i % 2)]);
+  // la cuerda va por detrás de los cuerpos: del cuello a la primera mano y de mano en mano, y el cabo enrollado al final
+  const pts = [ancla, ...manos.map(([x, y]) => [x, y + 1])];
+  for (let k = 0; k < pts.length - 1; k++) { const [a, b] = pts[k], [c, e] = pts[k + 1], n = Math.ceil(Math.hypot(c - a, e - b)), comba = tira ? 0 : 1.2;
+    for (let s = 0; s <= n; s++) { const f = s / n, x = ri(a + (c - a) * f), y = ri(b + (e - b) * f + Math.sin(f * Math.PI) * comba);
+      R.pset(x, y + 1, K); R.pset(x, y, CUERDA[((x + Math.floor(t * 6)) & 1) ? 1 : 2]); R.pset(x, y - 1, K); } }
+  { const [hx, hy] = manos[5], cx = hx + 9, cy = 177; R.linea(hx, hy + 1, cx - 2, cy - 1, CUERDA[1]); R.linea(hx + 1, hy + 2, cx - 1, cy, K);
+    for (const [rx, c] of [[5, K], [4, CUERDA[0]], [3, CUERDA[1]], [2, CUERDA[2]], [1, CUERDA[0]]]) for (let a = 0; a < 6.3; a += 0.15) R.pset(ri(cx + Math.cos(a) * rx), ri(cy + Math.sin(a) * rx * 0.45), c); }
+  // el de delante: trae un tronco, lo deja ante la cabeza y vuelve a por otro
+  const uB = t < en('fijate1', 0.3311) ? lerp(58, 100, ease(tramo(t, en('fijate1', 0.2990), en('fijate1', 0.3311)))) : lerp(100, 62, tramo(t, en('fijate1', 0.3425), en('fijate1', 0.4088)));
+  const [bx, by] = qp(uB, -22), vaB = t > en('fijate1', 0.3400);
+  const baja = tB > 0 && tB < 1 ? tB : 0;
+  const rB = R.actor(GB.cazador2GB, ri(bx) - 6, ri(by), t, { dir: vaB ? -1 : 1, anda: (t < en('fijate1', 0.3300)) || (vaB && t > en('fijate1', 0.3425)), sostiene: tB < 1 ? [ri(bx) + 8, ri(by) - 13 + ri(baja * 8)] : undefined, sonrisa: vaB });
+  const enMano = (mx, my) => (du, v, h) => [mx + du * QA[0] + (v - 8) * QB[0] * 0.8, my + 1 + du * QA[1] + (v - 8) * QB[1] * 0.8 - (h - 3)];
+  if (tB < 1 && rB.mano) tronco3(enMano(...rB.mano), 0.5, -4, 20, 3);
+  // el de la cola: espera, va al tronco libre, lo levanta y echa a andar con él hacia delante
+  const uA = t < tA[0] ? -6 : t < tA[1] ? lerp(-6, 6, tramo(t, tA[0], tA[1])) : t < tA[2] ? 6 : lerp(6, 30, tramo(t, tA[2], en('fijate1', 0.4088)));
+  const [ax, ay] = qp(uA, -20), lleva = t >= tA[1];
+  const sube = t < tA[1] ? 0 : tramo(t, tA[1], tA[2]);
+  const rA = R.actor(GB.cazadorGB, ri(ax) - 6, ri(ay), t, { dir: 1, anda: (t > tA[0] && t < tA[1]) || t > tA[2], sostiene: lleva ? [ri(ax) + 8, ri(ay) - 4 - ri(sube * 9)] : undefined, sonrisa: lleva });
+  if (lleva && rA.mano) tronco3(enMano(...rA.mano), rodar(16), -4, 20, 3);
+  // la fila, del fondo hacia delante, con cara de esfuerzo en cada tirón
+  pies.forEach(([x, y], i) => { R.actor(quien[i], x, y, t + i * 0.37, { dir: 1, anda: tira, enfado: tira, sostiene: manos[i] }); });
+  // el polvo de cada tirón: en los pies de la fila y en los troncos
+  for (const q of tir) { const f = tramo(t, q, q + 0.45); if (f <= 0 || f >= 1) continue;
+    pies.forEach(([x, y]) => { for (let j = 0; j < 3; j++) R.pset(ri(x - 2 - f * (4 + j * 3)), ri(y - f * (3 + j) + f * f * 4), mez(TIERRA3[4], H('#f4ecd8'), 0.4)); });
+    for (const u of logs) if (u > d && u < d + LC) { const [x, y] = qp(u, -8, 0); for (let j = 0; j < 3; j++) R.pset(ri(x - f * (3 + j * 2)), ri(y - f * (2 + j * 2)), TIERRA3[5]); } }
+  // Atom cuenta «1, 2, 3» y con cada tirón levanta los brazos
+  const cuenta = [en('fijate1', 0.3144), en('fijate1', 0.3268), en('fijate1', 0.3393)];
+  const cont = cuenta.filter((a) => t > a).length;
+  AT.atom(R, 298, 178, t, { s: 2, dir: -1, pose: tira ? 'brazos' : cont > 0 && t < tir[0] ? 'senala' : 'quieto', cara: t > tir[0] ? 'sonrisa' : 'normal', habla: habla(t) });
+  cuenta.forEach((a, k) => { if (t > a && t < tir[0] + 0.5) R.numero(String(k + 1), 186 + k * 30, ri(96 - k * 4 - 4 * pop(t, a, 0.15)), { tam: 16, centro: true }); });
 };
 // ── Q4 · lo alto del cerro congelado: la ruta a color hasta la cantera, «a few hundred meters away» ──
 const insetCantera = (cx, cy, r, u) => { if (u <= 0) return; const rr = ri(r * ease(u));

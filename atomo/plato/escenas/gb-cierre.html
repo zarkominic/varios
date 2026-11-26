@@ -10,7 +10,7 @@
 <canvas id="lienzo"></canvas>
 <script type="module">
 // GB-CIERRE (frases 28–29). Diez planos cortados en la voz inglesa; vuelve a la imagen del principio y la aldea nace del templo:
-// 1. (0, «Now go back») el recinto al alba, como en el gancho: los cinco tiran de las cuerdas, el pilar sube a tirones y
+// 1. (0, «Now go back») el recinto del gancho, ahora al atardecer (la vuelta al principio, al final del día): los cinco tiran de las cuerdas, el pilar sube a tirones y
 //    cae de pie en «hold on to» (polvo, «boom»); la «?» dorada del principio vuelve en «question»; Atom entra y la señala;
 // 2. («Why would hunters») la cantera al atardecer: una familia de paso, con la tienda a cuestas; en «village» la burbuja
 //    de la choza se tacha; en «build something like this» él clava la lanza y señala el pilar, que se enciende, y sale
@@ -29,9 +29,13 @@
 // 7. («Sometimes what changes us») a contraluz del ocaso: la fila tira, el pilar sube a tirones y cae de pie en «raise
 //    together»; todos levantan los brazos, rayos de sol;
 // 8. («And you, if you could touch», 2026) el pilar de cerca con el zorro: tu mano lo toca en «touch» y la luz se
-//    extiende; en «work of hunters» se encienden las marcas del cincel y las manos de quienes lo hicieron; laten en «agree»;
-// 9. («Or do you still think») de noche junto al fuego: el adulto talla un zorro y el niño lo imita; en «someone came
-//    before» asoma una figura encapuchada de luz con su báculo; en «teach them» sale la «?» y se deshace;
+//    extiende; en «work of hunters» se enciende la línea del cincel y, una a una, las marcas de cincel de quienes lo
+//    hicieron por todo el muro (tres tajos dorados con su destello; sin manos dibujadas); laten en «agree»;
+// 9. («Or do you still think») de noche junto al fuego: el adulto talla un zorro y el niño lo imita; el cerro lleva las
+//    terrazas de piedra de los recintos, el sendero con sus antorchas, matas y piedras con filo de luna y de lumbre, una
+//    charca con la luna temblando y bruma que pasa; en «someone came before» asoma un viajero de luz (un chibi corriente
+//    hecho de puntos azules, con su hatillo, sin capucha ni ojos); en «teach them» alza una piedrecita que brilla, sale
+//    la «?» y se deshace;
 // 10. («Tell me in the comments», 2026) el estudio: Atom deja el pilar de juguete junto a la espiga, la pizarra con la
 //    respuesta (pilar → aldea); en «comments» señala los bocadillos que suben; guiña en «curious».
 import * as T from '/atomo/plato/escenas/gb-comun.js';
@@ -182,11 +186,11 @@ const aparte = (x0, y0, x1, y1, dibuja, tinte) => { if (!BA) BA = R.nuevo(); BA.
   for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) { const i = y * 320 + x, v = BA[i]; if (v >>> 24) P[i] = tinte(v, x, y, BA, i, P[i]); } return r; };
 const CAZ = [T.GB.cazadorGB, T.GB.cazador2GB, T.GB.cazadoraGB, T.GB.cazador2GB, T.GB.cazadora2GB, T.GB.cazadorGB];
 
-// ── 1 · («Now go back») el recinto al alba, como al principio: la fila tira y el pilar cae de pie en «hold on to» ─────
+// ── 1 · («Now go back») el recinto del principio, al atardecer: la fila tira y el pilar cae de pie en «hold on to» ─────
 const q1 = (t) => {
   const u = tramo(t, 0.1, W.TO - 0.35), paso = Math.min(3, Math.floor(u * 4));
   const lev = t < W.TO - 0.35 ? 0.6 + 0.3 * (paso + ease(cl((u * 4 - paso) * 1.7))) / 4 : 0.9 + 0.1 * tramo(t, W.TO - 0.35, W.TO) ** 2;
-  const o = { levantar: lev };
+  const o = { levantar: lev, atardecer: true };
   const g = T.recinto(R, t, o) || {};
   const viva = t >= W.TO;
   [24, 42, 60, 78, 96].forEach((x0, k) => { const x = ri(x0 - lev * 10 + (!viva && Math.floor(t * 4 + k) % 2 ? 1 : 0)), xh = x - 1, yh = g.enCuerda ? g.enCuerda(k % 2, xh) : 140;
@@ -576,11 +580,12 @@ const MURO8 = () => capa('muro8', () => {
   for (let j = -6; j <= 6; j++) for (let i = -8; i <= 8; i++) if ((i / 8) ** 2 + ((j + 2) / 7) ** 2 < 1 && j > -4) R.pset(102 + i, 146 + j, tono(PAJA, 2 + ((i + 20) % 3 === 0 ? -0.9 : 0) - i / 8, i, j));
   R.rect(222, 146, 230, 149, hex('#8a5a3a')); R.rect(222, 146, 230, 146, hex('#c08a5a'));
 });
-const huella = (x, y, c, cs) => { x = ri(x); y = ri(y);
-  for (let j = -3; j <= 3; j++) for (let i = -3; i <= 3; i++) if ((i / 3.4) ** 2 + (j / 3.6) ** 2 < 1) R.pset(x + i, y + j, (i + j) & 1 ? c : cs);
-  for (const [dx, L] of [[-3, 4], [-1, 5], [1, 5], [3, 4]]) for (let k = 1; k <= L; k++) R.pset(x + dx, y - 3 - k, k % 2 ? c : cs);
-  for (let k = 1; k <= 3; k++) R.pset(x - 3 - k, y - 1 + (k > 2 ? -1 : 0), c); };
-const HUELLAS = [[134, 110], [186, 96], [140, 150], [182, 142], [74, 92], [246, 86], [96, 126], [226, 120], [62, 136], [252, 140], [118, 70], [204, 66]];
+// una marca de cincel encendida: tres tajos paralelos en diagonal (fondo oscuro, filo de luz) y un destello de cuatro puntas que late
+const marca = (x, y, c, cs, k, t) => { x = ri(x); y = ri(y); const d = k % 2 ? 1 : -1;
+  for (let m = -1; m <= 1; m++) for (let q = 0; q < 5; q++) { const px = x + m * 3 + d * (q - 2), py = y + q - 2 + m; R.pset(px, py, cs); R.pset(px - d, py, c); }
+  const L = 2 + ri(Math.sin(t * 5 + k * 1.7) + 1), sx = x + d * 5, sy = y - 5;
+  R.linea(sx - L, sy, sx + L, sy, c); R.linea(sx, sy - L, sx, sy + L, c); R.pset(sx, sy, hex('#fffbe8')); };
+const MARCAS = [[134, 110], [186, 96], [140, 150], [182, 142], [74, 92], [246, 86], [96, 126], [226, 120], [62, 136], [252, 140], [118, 70], [204, 66]];
 const q8 = (t) => {
   R.copiar(MURO8());
   cielo3(t, 4, 26, pal('#6a3a6e', '#c87a7e', '#ffc890'), 8, 5);
@@ -591,11 +596,11 @@ const q8 = (t) => {
   const toca = t > W.TOUCH - 0.05;
   const g = T.d_pilar(R, 160, 204, { escala: 2.8, luz: 1, relieves: ['zorro', 'jabali'], sombra: false, sem: 7, brillo: toca ? 'zorro' : undefined, t }) || {};
   const mn = g.manos || [160, 140];
-  // en «work of hunters» se encienden las marcas del cincel y, una a una, las manos de quienes lo levantaron; en «agree» laten todas
+  // en «work of hunters» se enciende la línea del cincel del pilar y, una a una, las marcas de cincel de quienes lo levantaron; en «agree» laten todas
   const ag = tramo(t, W.AGREE - 0.1, W.AGREE + 0.3) * cl(1 - (t - W.AGREE - 0.8) / 0.6);
   const um = tramo(t, W.WORK - 0.1, W.WORK + 0.5);
   if (um > 0) for (let k = 0; k < 14; k++) { if (k / 14 > um) break; const x = k % 2 ? 136 + (k % 4) : 182 - (k % 4), y = 74 + k * 7; R.linea(x, y, x + 2, y - 2, ORO[3]); tine(x + 1, y, ORO[2], 0.5); }
-  HUELLAS.forEach(([x, y], k) => { const a = W.HUNTERS2 - 0.1 + k * 0.08; if (t < a) return; const s = tramo(t, a, a + 0.2); halo(x + 6, y + 6, 10, ORO[2], 0.3 * s + 0.4 * ag); huella(x + 6, y + 8 - ri((1 - s) * 4), ag > 0.1 ? ORO[3] : ORO[2], ag > 0.1 ? hex('#fff6c0') : ORO[1]); });
+  MARCAS.forEach(([x, y], k) => { const a = W.HUNTERS2 - 0.1 + k * 0.08; if (t < a) return; const s = tramo(t, a, a + 0.2); halo(x + 6, y + 6, 9, ORO[2], 0.3 * s + 0.4 * ag); if (s > 0.3) marca(x + 6, y + 6, ag > 0.1 ? hex('#fff6c0') : ORO[3], ag > 0.1 ? ORO[2] : ORO[0], k, t); else tine(x + 6, y + 6, ORO[3], 0.8); });
   if (ag > 0) chispas(160, 110, t, 10, 80, ORO[3], 9);
   // tu mano entra por abajo a la derecha y toca las manos talladas en «touch»; se aparta al final
   const keys = [[P8, 250, 200], [W.TOUCH - 0.5, mn[0] + 24, mn[1] + 18], [W.TOUCH, mn[0] + 14, mn[1] + 6], [P9 - 0.6, mn[0] + 14, mn[1] + 6], [P9, 260, 200]];
@@ -605,6 +610,11 @@ const q8 = (t) => {
 };
 
 // ── 9 · («Or do you still think») de noche junto al fuego: el adulto enseña al niño a tallar; asoma «alguien de antes» ─
+// el cerro (su silueta), el sendero de la lumbre al recinto y las piedras del suelo de la derecha, que el plano reaviva con la lumbre
+const topo9 = (x) => { const d = (x - 262) / 74; return 108 - (Math.abs(d) < 1 ? 24 * Math.sqrt(1 - d * d) : 0) - Math.sin(x * 0.04) * 2; };
+const senda9 = (s) => [172 + 64 * s + Math.sin(s * 5) * 10, 170 - 72 * s];
+const libre9 = (x, y) => !((x > 194 && x < 244 && y < 154) || (x > 24 && x < 100 && y < 160) || (x > 126 && x < 174 && y > 156) || (x > 272 && y > 144 && y < 160) || (x > 246 && x < 290 && y > 164));
+const ROCAS9 = []; for (let k = 0; k < 36; k++) { const x = ri(186 + hh(k, 1, 104) * 124), y = ri(96 + hh(k, 2, 104) * 80); if (libre9(x, y) && y > topo9(x) + 4) ROCAS9.push([x, y, 1 + ri(hh(k, 3, 104) * 2.5)]); }
 const SKY9 = pal('#070a1a', '#0c1026', '#121834', '#1a2242', '#24304e', '#30405a');
 const NOCHE = () => capa('noche', () => {
   pintaCielo(0, 110, SKY9, 160, 110, 10, 91);
@@ -618,6 +628,14 @@ const NOCHE = () => capa('noche', () => {
     for (let y = top; y < 180; y++) R.pset(x, y, y === top ? hex('#3a4468') : tono(pal('#0a0c16', '#10141e', '#161c28', '#1e2432'), 2.4 - (y - top) / 40 + hh(x >> 1, y >> 1, 94) * 0.6, x, y)); }
   for (const x of [232, 246, 262, 276, 290]) { R.rect(x, 78, x + 1, 86, hex('#2a3048')); R.rect(x - 2, 76, x + 3, 78, hex('#3a4260')); }
   for (let x = 222; x < 302; x++) { const y = ri(86 - Math.sin((x - 222) / 80 * 3.14) * 1); R.pset(x, y, hex('#2a3048')); R.pset(x, y + 1, hex('#1e2436')); }
+  // las terrazas de piedra seca de los recintos en la ladera, con el filo que coge la luna
+  for (const [cx, cy, rx, ry, sm] of [[238, 97, 20, 4, 1], [282, 96, 22, 5, 2], [258, 105, 42, 6, 3], [302, 107, 16, 4, 4]])
+    for (let a = 0.15; a < 3.0; a += 0.1) { const x = ri(cx + Math.cos(a) * rx), y = ri(cy + Math.sin(a) * ry); if (x < 0 || x > 314 || y < topo9(x) + 2) continue; const w = 2 + ri(hh(x, y, 101) * 2);
+      R.rect(x, y, x + w, y + 1, hex('#1e2436')); R.rect(x, y, x + w, y, hh(x, sm, 102) < 0.7 ? hex('#3e4a70') : hex('#2c3452')); R.pset(x + w, y + 1, hex('#0a0c16')); }
+  // el sendero que sube de la lumbre al recinto, pisado y algo más claro, con sus guijarros y los postes de las antorchas
+  for (let q = 0; q <= 1; q += 0.004) { const [x, y] = senda9(q), w = 4 - q * 3; for (let i = -w; i <= w; i++) { const X = ri(x + i), Y = ri(y); if (hh(X, Y, 103) < 0.55) R.pset(X, Y, mez(R.pget(X, Y), hex('#3a4462'), 0.4 + (1 - q) * 0.1)); } }
+  for (let k = 0; k < 24; k++) { const [x, y] = senda9(hh(k, 1, 108)); R.pset(ri(x + (hh(k, 2, 108) - 0.5) * 8), ri(y), hex('#4a5478')); }
+  for (const q of [0.64, 0.88]) { const [x, y] = senda9(q); R.linea(ri(x) + 5, ri(y), ri(x) + 5, ri(y) - 8, hex('#2a1e1e')); R.pset(ri(x) + 4, ri(y), hex('#06070c')); }
   // árboles negros
   for (const [x, y, r] of [[40, 104, 5], [92, 108, 4], [176, 106, 4]]) { R.linea(x, y, x, y + r + 4, hex('#05060c')); R.disco(x, y, r, hex('#06080e')); R.pset(x - 1, y - r, hex('#2a3250')); }
   // las piedras de la lumbre y la roca del búho
@@ -628,20 +646,23 @@ const NOCHE = () => capa('noche', () => {
   for (let y = 120; y < 180; y++) for (let x = 0; x < 320; x++) { const v = R.pget(x, y); if (hh(x, y, 99) < 0.06) R.pset(x, y, mez(v, hex('#2a3048'), 0.5)); }
   for (let k = 0; k < 90; k++) { const x = ri(hh(k, 1, 100) * 320), y = ri(122 + hh(k, 2, 100) * 58); for (let f = 0; f < 3; f++) R.linea(x + f, y, x + f + (f - 1), y - 2 - (f % 2) * 2, hex('#1a2030')); }
   for (let k = 0; k < 4; k++) { const y = 172 - k; R.linea(250, y, 286, y - 3, MADERA[0]); R.pset(286, y - 3, MADERA[2]); }
+  // la charca de la derecha, que refleja el cielo
+  for (let j = -5; j <= 5; j++) for (let i = -20; i <= 18; i++) { const e = (i / 20) ** 2 + (j / 5) ** 2; if (e < 1) R.pset(296 + i, 152 + j, e > 0.72 ? (j < 0 ? hex('#2c3654') : hex('#0a0c16')) : tono(pal('#0a1024', '#121a34', '#1c2848', '#26345a'), 1.4 - j / 5 + hh(i >> 1, j, 107) * 0.6, i, j)); }
+  // piedras sueltas con el filo de luna arriba y su sombra, y matas de hierba con las puntas plateadas
+  for (const [x, y, r] of ROCAS9) { for (let j = -r; j <= 0; j++) for (let i = -r - 1; i <= r + 1; i++) if ((i / (r + 1.5)) ** 2 + (j / (r + 0.5)) ** 2 < 1)
+      R.pset(x + i, y + j, j === -r ? hex('#46527a') : tono(pal('#0c0e18', '#161a26', '#20263a'), 1.6 + j / r - i / (r + 1) * 0.5 + hh(x + i, y + j, 105) * 0.4, x + i, y + j));
+    R.linea(x - r - 1, y + 1, x + r + 2, y + 1, hex('#06070c')); }
+  for (let k = 0; k < 190; k++) { const x = ri(178 + hh(k, 1, 106) * 136), y = ri(88 + hh(k, 2, 106) * 92); if (!libre9(x, y) || y < topo9(x) + 3) continue; const h = 2 + ri(hh(k, 3, 106) * 2 + Math.max(0, y - 100) / 30);
+    for (let f = -1; f <= 1; f++) { R.linea(x + f, y, x + f * 2, y - h + Math.abs(f), hex('#1a2032')); R.pset(x + f * 2, y - h + Math.abs(f), hh(k, f + 5, 106) < 0.5 ? hex('#3e4a70') : hex('#2c3654')); } }
   for (let j = -8; j <= 8; j++) for (let i = -14; i <= 14; i++) if ((i / 14) ** 2 + (j / 8) ** 2 < 1) R.pset(30 + i, 150 + j, tono(pal('#0e0e18', '#1a1a26', '#2a2a3a'), 1.6 - j / 8 + hh(i, j, 95) * 0.5, i, j));
 });
 // la luz de la lumbre sobre la gente: lo que está lejos del fuego se hunde en el azul de la noche
 const tinteNoche = (v, x, y) => { const d = Math.hypot(x - 150, (y - 160) * 1.3) / 120, a = cl(d * 0.95); const c = mez(v, hex('#ffb070'), 0.18 * (1 - a)); return mez(c, hex('#0c1230'), 0.15 + a * 0.6); };
-// el que vino antes (lo que se dice en internet): una figura encapuchada de puntos de luz, con su báculo y una estrella
-const fantasma = (x, y, a, t, alza) => { if (a <= 0) return; const C = hex('#a8c0f0'), H = 58;
-  for (let j = 0; j < H; j++) { const yy = y - H + j, w = j < 14 ? 3 + j * 0.5 : 9 + (j - 14) * 0.18; for (let i = -ri(w); i <= ri(w); i++) { if (((x + i + yy + Math.floor(t * 8)) & 1) || hh(x + i, yy, 96) > a) continue;
-    const borde = Math.abs(i) >= ri(w) - 1 || j < 2; R.pset(x + i, yy, mez(R.pget(x + i, yy), borde ? hex('#e0ecff') : C, borde ? 0.7 * a : 0.35 * a)); } }
-  for (let j = 4; j < 12; j++) for (let i = -2; i <= 2; i++) R.pset(x + i, y - H + j, mez(R.pget(x + i, y - H + j), hex('#04060e'), 0.7 * a));
-  if (a > 0.6) { R.pset(x - 1, y - H + 8, hex('#e8f4ff')); R.pset(x + 1, y - H + 8, hex('#e8f4ff')); }
-  const bx = x + 12, by = y, ang = alza * 0.5, tx = ri(bx - Math.sin(ang) * 62), ty = ri(by - Math.cos(ang) * 62);
-  for (let i = 0; i <= 62; i += 1) { const px = ri(lerp(bx, tx, i / 62)), py = ri(lerp(by, ty, i / 62)); if (hh(px, py, 97) < a) R.pset(px, py, mez(R.pget(px, py), hex('#d8e4ff'), 0.7 * a)); }
-  halo(tx, ty, 10, hex('#e8f0ff'), 0.5 * a); if (a > 0.3) { const L = 2 + ri(Math.sin(t * 6) + 1); R.linea(tx - L, ty, tx + L, ty, hex('#fff8e0')); R.linea(tx, ty - L - 1, tx, ty + L + 1, hex('#fff8e0')); R.pset(tx, ty, BLANCO); }
-};
+// el que vino antes (lo que se dice en internet): un viajero corriente hecho de puntos de luz azul, sin capucha ni ojos que brillen;
+// el sprite se pinta aparte y aquí se vuelve luz: el contorno claro, el cuerpo en trama que corre con t y algo transparente
+const luz9 = (a, t) => (v, x, y, B, i, old) => { if (hh(x, y, 96) > a) return old;
+  const borde = !(B[i - 1] >>> 24) || !(B[i + 1] >>> 24) || !(B[i - 320] >>> 24) || !(B[i + 320] >>> 24), l = ((v & 255) + ((v >>> 8) & 255) + ((v >>> 16) & 255)) / 765;
+  if (borde) return mez(old, hex('#e0ecff'), 0.75 * a); if ((x + y + Math.floor(t * 8)) & 1) return mez(old, hex('#6a80c0'), 0.3 * a); return mez(old, mez(hex('#4a5c9a'), hex('#d8e6ff'), l), 0.6 * a); };
 const q9 = (t) => {
   R.copiar(NOCHE());
   for (let k = 0; k < 18; k++) { const x = ri(hh(k, 5, 98) * 320), y = ri(hh(k, 6, 98) * 90); if ((x > 272 && y < 48) || (x < 174 && y < 22)) continue; if (Math.sin(t * (2 + k % 3) + k) > 0.6) { R.pset(x, y, BLANCO); R.pset(x - 1, y, hex('#6a78a8')); R.pset(x + 1, y, hex('#6a78a8')); } }
@@ -655,10 +676,22 @@ const q9 = (t) => {
   // el búho de la roca parpadea y gira la cabeza
   { const x = 28, y = 138, gi = Math.sin(t * 0.8) > 0.3 ? 1 : 0, pa = (t % 3.1) < 0.15; R.disco(x, y, 4, hex('#4a3a2e')); R.disco(x, y - 5, 3, hex('#5a4836')); R.pset(x - 3, y - 8, hex('#5a4836')); R.pset(x + 3, y - 8, hex('#5a4836'));
     if (!pa) { R.pset(x - 1 + gi, y - 5, hex('#ffd040')); R.pset(x + 1 + gi, y - 5, hex('#ffd040')); } R.pset(x + gi, y - 4, hex('#c88a3a')); R.pset(x - 1, y - 1, hex('#8a7a5a')); R.pset(x + 1, y + 1, hex('#8a7a5a')); }
-  // el que vino antes asoma en «someone came before», alza el báculo en «teach them» y se deshace
-  const fa = tramo(t, W.SOMEONE - 0.1, W.CAME + 0.2) * cl(1 - (t - W.TEACH - 0.9) / 0.7);
-  fantasma(256, 160, fa, t, tramo(t, W.BEFORE, W.TEACH));
-  if (t > W.TEACH && t < P10) { const s = tramo(t, W.TEACH, W.TEACH + 0.25); R.icono('?', 240, ri(80 - s * 6), ORO[3], K, 4); halo(250, 92, 18, ORO[2], 0.25 * s); }
+  // las antorchas del sendero, la lumbre que tiembla en el filo de las piedras cercanas y la luna que tiembla en la charca
+  for (const q of [0.64, 0.88]) { const [x0, y0] = senda9(q), x = ri(x0) + 5, y = ri(y0) - 9, f = Math.sin(t * 10 + q * 7); halo(x, y, 7, hex('#ffa040'), 0.35 + f * 0.05); R.pset(x, y + 1, hex('#ffd060')); R.pset(x, y, hex('#ffb040')); if (f > -0.2) R.pset(x, y - 1, hex('#ff8030')); }
+  const fl = 0.5 + 0.5 * Math.sin(t * 7) * Math.sin(t * 3.1);
+  for (const [x, y, r] of ROCAS9) { const d = Math.hypot(x - 150, y - 166); if (d < 90) for (let i = -r; i <= 0; i++) tine(x + i, y - r, hex('#ff9a50'), (0.25 + 0.35 * fl) * (1 - d / 90)); }
+  for (let k = 0; k < 5; k++) { const x = ri(292 + Math.sin(t * 1.3 + k * 2) * 3 - k), y = 149 + k * 1.6, L = 1 + ri((Math.sin(t * 2.4 + k) + 1) * 1.5); R.linea(x - L, ri(y), x + L, ri(y), k % 2 ? hex('#8a96c0') : hex('#d8dcec')); }
+  for (let i = -18; i <= -10; i++) tine(296 + i, 149, hex('#ff9a50'), 0.2 * fl);
+  // bruma baja que cruza la estepa despacio, y una liebre que cruza la ladera a saltos
+  for (let k = 0; k < 5; k++) { const x0 = ((t * (3 + k) + k * 83) % 420) - 60, y = 112 + k * 4; for (let i = 0; i < 56; i += 2) tine(x0 + i + (k & 1), y + (i % 6 === 0 ? 1 : 0), hex('#3a466a'), 0.22 * Math.sin(i / 56 * 3.14)); }
+  { const u = tramo(t, P9, P10), x = ri(190 + u * 60), y = ri(topo9(190 + u * 60) + 8 - Math.abs(Math.sin(t * 6)) * 3), sx = x + 1;
+    R.rect(x, y, x + 4, y + 2, hex('#2a2a3a')); R.pset(sx + 4, y - 1, hex('#2a2a3a')); R.pset(sx + 4, y - 2, hex('#3e4a70')); R.pset(x - 1, y, hex('#4a5478')); R.linea(x, y, x + 3, y, hex('#3e4a70')); }
+  // el viajero de luz asoma en «someone came before», alza en «teach them» una piedrecita que brilla y se deshace
+  const fa = tramo(t, W.SOMEONE - 0.1, W.CAME + 0.2) * cl(1 - (t - W.TEACH - 0.9) / 0.7), alza = t > W.BEFORE + 0.2;
+  if (fa > 0) { halo(254, 158, 20, hex('#a8c0f0'), 0.25 * fa);
+    const vj = aparte(232, 120, 280, 170, () => R.actor(T.GB.cazador2GB, 254, 160, t, { dir: -1, sostiene: alza ? [ri(244 - 2 * tramo(t, W.BEFORE, W.TEACH)), ri(146 - 6 * tramo(t, W.BEFORE, W.TEACH))] : false }), luz9(fa, t));
+    if (alza) { const s = tramo(t, W.BEFORE + 0.2, W.TEACH), [px, py] = vj && vj.mano ? [vj.mano[0], vj.mano[1] - 2] : [242, 140]; halo(px, py, 9, hex('#e8f0ff'), 0.5 * fa * s); const L = 1 + ri((Math.sin(t * 6) + 1) * s); R.linea(px - L, py, px + L, py, hex('#fff8e0')); R.linea(px, py - L, px, py + L, hex('#fff8e0')); R.pset(px, py, BLANCO); } }
+  if (t > W.TEACH && t < P10) { const s = tramo(t, W.TEACH, W.TEACH + 0.25); R.icono('?', 248, ri(104 - s * 6), ORO[3], K, 4); halo(258, 116, 18, ORO[2], 0.25 * s); }
   // el adulto talla un zorro en una piedrecita y el niño lo imita; al asomar la figura los dos se vuelven
   const mira = t > W.CAME, gk = (t * 2.2) % 1;
   aparte(80, 120, 220, 179, () => {

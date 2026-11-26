@@ -18,7 +18,8 @@
 //    camino que pasa de largo y el imán del prospector de 1963 lo recorre hasta salirse en «walked right past»; luego
 //    traza otro hasta la cima y el imán de Schmidt (1994) se para arriba en «never leave»: tienda y corazón de tiza;
 // 4. («And hold on») el estudio entero: Atom en la pizarra dibuja una gran «?» desde «hold» hasta «end»; en «coming back
-//    to it» se vuelve, la señala y guiña; el pilar de juguete en la mesa;
+//    to it» se vuelve, la señala y guiña; a su izquierda, el boceto de tiza del recinto (pilar en T
+//    en tres cuartos con caras rellenas, otro detrás, muro y un cazador); el pilar de juguete en la mesa;
 // 5. («Why») la piedra del buitre de hoy: Atom al pie piensa en un cazador («hunters») y en una choza que se tacha
 //    («village»); en «build something like this» señala el pilar, el buitre se enciende y sale una gran «?».
 import * as T from '/atomo/plato/escenas/gb-comun.js';
@@ -203,9 +204,32 @@ const SIG = (() => { const p = [], cx = 166, cy = 50; for (let i = 0; i <= 30; i
 const q4 = (t) => {
   const u = tramo(t, hold, endW), luz = t > coming ? 1 : 0;
   const pizarra = (R, t, [x0, y0, x1, y1]) => {
-    // el pilar de tiza pequeño a la izquierda
-    const TZ = hex('#e8eee4'); R.linea(124, 44, 140, 44, TZ); R.linea(124, 45, 140, 45, TZ); R.linea(130, 46, 130, 80, TZ); R.linea(134, 46, 134, 80, TZ); R.linea(126, 81, 138, 81, TZ);
-    for (let k = 0; k < 4; k++) R.pset(132, 52 + k * 6, hex('#b8c4b8'));
+    // el boceto de tiza del recinto a la izquierda: un pilar en T en tres cuartos con las caras rellenas de tiza
+    // (frente claro, canto rayado en sombra), brazos y cinturón en relieve y un zorro; detrás otro pilar más
+    // pequeño, el arco del muro de piedras y un cazador de tiza al pie para la escala. No es una letra: es un dibujo.
+    const TZ = hex('#e8eee4'), TS = hex('#a8b4a8'), TM = hex('#c8d0c0');
+    const cara = (x0, y0, x1, y1, c, al) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (((x + y) & 1) === 0 || hh(x, y, 7) < 0.25) tine(x, y, c, al); };
+    // el pilar del fondo, pequeño y apagado, entre el grande y la «?»
+    cara(142, 54, 147, 57, TM, 0.35); cara(144, 58, 146, 76, TM, 0.3); R.linea(142, 54, 147, 54, TM); R.linea(142, 54, 142, 57, TM); R.linea(142, 57, 147, 57, TM);
+    R.linea(144, 58, 144, 76, TS); R.linea(146, 58, 146, 76, TS); R.linea(148, 53, 148, 56, TS);
+    // el arco del muro de piedras, detrás de los pies
+    for (let k = 0; k < 7; k++) { const x = 117 + k * 5, y = 77 - Math.round(Math.sin(k / 6 * Math.PI) * 3); R.linea(x, y, x + 3, y, TS); R.linea(x, y + 2, x + 3, y + 2, TS); }
+    // el pilar grande: cabeza ancha que vuela hacia la izquierda, con su tapa y su canto
+    cara(121, 45, 139, 52, TZ, 0.4); cara(140, 44, 142, 50, TS, 0.55); cara(122, 43, 141, 44, TZ, 0.25);
+    R.linea(121, 45, 139, 45, TZ); R.linea(121, 45, 121, 52, TZ); R.linea(121, 52, 128, 52, TZ); R.linea(136, 52, 139, 52, TZ);
+    R.linea(123, 42, 142, 42, TM); R.linea(121, 45, 123, 42, TM); R.linea(139, 45, 142, 42, TM); R.linea(142, 42, 142, 49, TS); R.linea(139, 52, 142, 49, TS);
+    // el fuste, más estrecho, con su cara en sombra a la derecha
+    cara(129, 53, 135, 81, TZ, 0.35); cara(136, 52, 138, 80, TS, 0.6);
+    R.linea(128, 52, 128, 82, TZ); R.linea(136, 52, 136, 82, TZ); R.linea(138, 50, 138, 80, TS);
+    // relieves: los brazos bajan por los lados y las manos se juntan sobre el cinturón; un zorro en el pecho
+    R.linea(129, 56, 129, 68, TM); R.linea(129, 68, 131, 71, TM); R.linea(135, 56, 135, 68, TM); R.linea(135, 68, 133, 71, TM);
+    R.linea(128, 73, 136, 73, TZ); R.pset(132, 75, TM); R.pset(132, 76, TM);
+    R.linea(130, 61, 134, 61, TM); R.pset(134, 60, TM); R.pset(135, 59, TM); R.pset(130, 62, TM); R.pset(133, 62, TM); R.pset(129, 60, TM);
+    // la tierra rayada donde se hunden y el cazador de tiza al pie, mirando arriba al pilar, para la escala
+    R.linea(116, 83, 126, 82, TM); R.linea(126, 82, 140, 83, TZ); R.linea(140, 83, 151, 81, TM);
+    for (let k = 0; k < 7; k++) R.linea(117 + k * 5, 86 + (k % 3), 119 + k * 5, 85 + (k % 3), TS);
+    R.disco(120, 69, 1, TZ); R.pset(121, 68, TM); R.linea(120, 71, 120, 77, TZ); R.linea(120, 77, 118, 81, TZ); R.linea(120, 77, 122, 81, TZ);
+    R.linea(120, 72, 123, 70, TZ); R.linea(120, 72, 118, 75, TZ); R.linea(117, 72, 117, 81, TM);   // brazo que señala arriba y su lanza
     const n = Math.round(u * (SIG.length - 1)), C = luz ? ORO[3] : TZ, C2 = luz ? ORO[2] : hex('#c8d0c0');
     for (let i = 1; i <= n; i++) { const [a, b] = SIG[i - 1], [c, d] = SIG[i]; for (let w = -1; w <= 1; w++) R.linea(Math.round(a + w), Math.round(b), Math.round(c + w), Math.round(d), w ? C2 : C); }
     if (u >= 1) R.disco(166, 84, 2, C);

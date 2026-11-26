@@ -15,17 +15,25 @@
 // 1 · La colina congelada entera: ⏸ (el gris y la viñeta entran en 0,35 s; la costura con gb-relleno es el mismo
 //   fotograma); Atom entra, señala el lóbulo de tierra en «notice this»; en «internet» saca un móvil con
 //   una película y en «appealing» le salen corazones. Corta en «A story».
-// 2 · Congelado al doble, la lona y la ladera: la BALANZA (película contra lluvia); en «deliberately hiding» Atom señala la
-//   película y en «satisfies us far more» la balanza se inclina hacia ella. Corta en «a story of rain».
-// 3 · Congelado al doble, el recinto: una nube a color llueve sobre Atom; el paraguas plegado se abre de golpe en «rain» y
-//   las gotas rebotan en la tela; en «mud» el barro le salpica; en «centuries» sale el reloj y cuenta de 100 a 1000
-//   años mientras Atom se aparta del charco. Corta en «find».
-// 4 · Congelado al doble, la ladera: una piedra a color rueda sola; en «intention» Atom sale con la lupa a buscar quién la
-//   empuja, mira detrás en «behind» y en «without one» no hay nadie: «X» y brazos arriba. Corta en «So».
-// 5 · Congelado al triple, las capas de la ladera con su rastro de etiquetas: Atom con la claqueta; en «movie» la cierra (destellos) y le sale la tira
-//   de película. Entra andando con la claqueta abierta. Corta en «whether».
-// 6 · Congelado al doble, las capas y la roca: la balanza otra vez, inclinada a la película; en «true» Atom señala el libro
-//   de la lluvia, que brilla y pesa más; en «better story» señala la película y guiña.
+// 2 · Congelado al doble, la ladera, la lona y la zanja con su pilar (encuadre bajo y a la derecha: ni las estacas ni la
+//   arqueóloga entran, que al doble saldrían ampliadas; la barra del año, cielo con lluvia, y la zona de Atom, cielo y
+//   lona): la BALANZA (película contra lluvia); en «deliberately hiding» Atom señala la película y en «satisfies us far more» la
+//   balanza se inclina hacia ella. Corta en «a story of rain».
+// Los planos 3–6 son composiciones propias a escala 1: un decorado del episodio pintado una vez en un instante fijo,
+// pasado a gris azulado (congela) y, encima, Atom y sus cosas a color.
+// 3 · Un recinto a medio hacer (recinto 'construccion'): tres nubes a color llueven sobre todo; el paraguas se abre de
+//   golpe en «rain»; en «mud» entra una ola de barro de la izquierda que le salpica; en «centuries» el reloj cuenta de
+//   100 a 1000 años y el barro sube capa a capa (charcos con ondas, una marca por capa) llevándose a Atom hacia arriba.
+//   Corta en «find».
+// 4 · La cantera de caliza (neolitico 'cantera'): una piedra a color se suelta del filo del bancal y rueda sola, bancal
+//   abajo, hasta el llano; en «intention» Atom entra por la derecha con la lupa y el «?», en «behind» se acerca y barre
+//   con la lupa el filo de donde salió, y en «without one» no hay nadie: «X» allí arriba y brazos arriba. Corta en «So».
+// 5 · El salón de noche (hoy 'salon'): Atom en medio con la claqueta abierta desde el primer instante; en «movie» la
+//   cierra (destellos) y la tira de película sale de ella, cruza el cuadro por la alfombra y la derecha y entra en la
+//   tele, que se enciende a color. Corta en «whether».
+// 6 · La casa de la excavación (arqueologos 'casa'): la balanza a la izquierda sobre la mesa, inclinada a la película, y
+//   Atom a la derecha junto al libro de la lluvia; en «true» lo señala, brilla y la balanza baja hacia él; en «better
+//   story» vuelve a la película y Atom guiña.
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gb-intencion');
@@ -881,71 +889,148 @@ const q1 = (t) => {
   if (t > WI.NOTICE && t < WI.INTERNET - 0.2) destello(252, 128, 3 + ri(Math.sin(t * 9)));
 };
 // ── 2 · la lona y la ladera, al doble: la balanza; se inclina hacia la película ─────────────────────────────────
+//    (el encuadre, x 112–272 · y 74–164 del fotograma, deja fuera las estacas y a la arqueóloga, que al doble saldría
+//    ampliada: se ven el cielo con lluvia, la ladera con sus piedras, la lona y la zanja con el pilar)
 const q2 = (t) => {
-  vista(0, 40, 2); AT.pausa(R, 1); viñeta();
+  vista(112, 74, 2); AT.pausa(R, 1); viñeta();
   const p = pop(t, WI.A + 0.15, 0.4), peso = ease(tramo(t, WI.SATISFIES - 0.1, WI.MORE + 0.3));
   if (p > 0) balanza(200, 170, t, peso);
   AT.atom(R, 70, 178, t, { s: 2, dir: 1, pose: t > WI.DELIBERATELY - 0.1 && t < WI.SATISFIES ? 'senala' : t > WI.FAR ? 'brazos' : 'quieto', cara: t > WI.FAR ? 'sorpresa' : 'normal', habla: habla(t) });
   if (t > WI.DELIBERATELY && t < WI.SATISFIES) destello(146, 90, 3);
 };
-// ── 3 · el recinto, al doble: la nube de lluvia a color, el paraguas, el barro y el reloj de los siglos ──────────
+// los fondos congelados propios de los planos 3–6: el decorado del episodio pintado UNA vez en un instante fijo, pasado
+// a gris azulado con su viñeta y el ⏸, y guardado; cada fotograma lo copia entero (un recorrido) y encima va el color
+const QUIETO = {};
+const congela = (k, f) => { if (QUIETO[k]) { R.buf.set(QUIETO[k]); return; } f(); AT.pausa(R, 1); viñeta(); QUIETO[k] = R.buf.slice(); };
+// el barro a capas que sube desde el suelo (h px; frente: hasta dónde ha llegado la ola de la izquierda): cada capa
+// fija en su sitio (las nuevas se apilan encima), con su veta oscura, guijarros, el filo mojado que brilla y charcos
+const BARRO = [pal(['#3e2814', '#54361c', '#6a4626', '#80582e']), pal(['#6a361c', '#824426', '#9a5430', '#b0663c']), pal(['#5e4a2c', '#765e38', '#8e7244', '#a48654']), pal(['#4a2e1a', '#603c22', '#764c2c', '#8c5e36'])];
+const SUP3 = (x, h) => 180 - h + Math.sin(x * 0.06 + 1) * 1.2 + Math.sin(x * 0.17) * 0.6;
+const barro = (t, h, frente = 400) => {
+  if (h <= 0.5) return;
+  for (let x = 0; x < 320; x++) { if (x > frente) break; const lab = x > frente - 14 ? (frente - x) / 14 : 1, ys = ri(180 - (180 - SUP3(x, h)) * Math.sqrt(lab));
+    for (let y = Math.max(0, ys); y < 180; y++) { const d = y - ys, u = 180 - y + Math.sin(x * 0.05) * 1.4, cap = Math.floor(u / 2.6), CC = BARRO[((cap % 4) + 4) % 4];
+      let v = 1.6 + (h2(x >> 1, y, 401) - 0.5) * 1.3 + (u % 2.6 < 0.6 ? -1 : 0);
+      if (d === 0) v = 3.4; else if (d === 1) v = 2.8;
+      R.pset(x, y, rmp(CC, v, x, y));
+      if (d > 2 && h2(x, cap, 402) > 0.93 && (y & 1)) R.pset(x, y, H('#c8b89a')); } }
+  // los charcos del filo: azules, con las ondas de las gotas que caen
+  for (const [cx, k] of [[34, 0], [118, 1], [268, 2]]) { if (cx > frente - 10) continue; const cy = ri(SUP3(cx, h)) + 1;
+    for (let i = -9; i <= 9; i++) { const e = 1 - (i / 10) ** 2; ps(cx + i, cy, e > 0.6 ? H('#5a86b8') : H('#3e6290')); if (e > 0.5) ps(cx + i, cy - 1 + (Math.abs(i) > 6 ? 1 : 0), H('#9ac8ff')); }
+    const o = (t * 1.3 + k * 0.37) % 1, r = 2 + o * 7; ps(cx - r, cy, H('#d8ecff')); ps(cx + r, cy, H('#d8ecff')); if (o < 0.5) ps(cx, cy - 1, H('#ffffff')); }
+};
+// ── 3 · un recinto a medio hacer, congelado: una nube a color llueve sobre Atom; el paraguas se abre en «rain», el barro
+//    entra en «mud» y le salpica, y en «centuries» el reloj cuenta de 100 a 1000 años mientras el barro sube capa a capa
+//    y se lo lleva hacia arriba, paraguas en mano ─────────────────────────────────────────────────────────────────
 const q3 = (t) => {
-  vista(150, 86, 2); AT.pausa(R, 1); viñeta();
-  const nx = 206, ny = 46; nube(nx, ny, 50, pal(['#c8d0e0', '#98a4bc', '#6a7896'])); nube(nx + 40, ny + 6, 32, pal(['#d0d8e6', '#a0acc4', '#727e9a']));
-  for (let k = 0; k < 40; k++) { const x = nx - 30 + h2(k, 1, 7) * 90, y = ny + 14 + (h2(k, 2, 7) * 130 + t * 150) % 130; R.linea(ri(x), ri(y), ri(x - 1), ri(y + 5), H('#9ac8ff')); }
-  const aparta = ease(tramo(t, WI.CENTURIES + 0.5, WI.CENTURIES + 1.5));
-  const a = AT.atom(R, ri(lerp(196, 222, aparta)), 178 - (aparta > 0 && aparta < 1 ? ri(Math.abs(Math.sin(t * 12)) * 2) : 0), t, { s: 2, dir: -1, pose: 'sostiene', cara: t > WI.MUD && t < WI.CENTURIES + 0.3 ? 'triste' : t > WI.CENTURIES + 0.3 ? 'sonrisa' : 'normal', habla: habla(t) });
-  const [mx, my] = a.mano, ab = cl(pop(t, WI.RAIN - 0.25, 0.35)), RX = 4 + ri(26 * ab), RY = 22;
+  congela('q3', () => T.recinto(R, 7.3, { encuadre: 'construccion' }));
+  // las nubes de lluvia a color, a tres alturas y velocidades
+  const dx = Math.sin(t * 0.7) * 3;
+  nube(70 + dx * 0.5, 42, 40, pal(['#c4ccdc', '#949eb6', '#687490'])); nube(196 + dx, 40, 58, pal(['#c8d0e0', '#98a4bc', '#6a7896'])); nube(240 - dx * 0.7, 50, 34, pal(['#d0d8e6', '#a0acc4', '#727e9a']));
+  const n = t > WI.CENTURIES ? Math.max(100, Math.round(tramo(t, WI.CENTURIES, WI.CENTURIES + 1.4) * 10) * 100) : 0;
+  const ola = tramo(t, WI.MUD - 0.35, WI.MUD + 0.25), hB = t < WI.MUD - 0.35 ? 0 : 6 + (n ? (n / 100 - 1) * 2.3 : 0), frente = lerp(-14, 340, ola);
+  // la lluvia sobre todo el recinto: gotas inclinadas que caen hasta el barro (o el suelo) y salpican
+  const AX = 196, sube = Math.max(0, hB - 2), ay = ri(Math.min(178, 180 - sube));
+  const ab = cl(pop(t, WI.RAIN - 0.25, 0.35));
+  for (let k = 0; k < 70; k++) { const x0 = 40 + h2(k, 1, 7) * 232, sp = 120 + h2(k, 3, 7) * 50, y = 58 + (h2(k, 2, 7) * 130 + t * sp) % 124, x = x0 - (y - 58) * 0.12;
+    const suelo = hB > 0 && x < frente ? SUP3(x, hB) : 176;
+    if (ab > 0.5 && Math.abs(x - (AX - 14)) < 30 && y > ay - 120) continue;
+    if (y > suelo - 1) { if (y < suelo + 5) { ps(x - 1, suelo - 1, H('#cfe6ff')); ps(x + 1, suelo - 1, H('#cfe6ff')); ps(x, suelo - 2, H('#ffffff')); } continue; }
+    R.linea(ri(x), ri(y), ri(x - 1), ri(y + 5), H('#9ac8ff')); ps(x, y, H('#d8ecff')); }
+  barro(t, hB, frente);
+  const a = AT.atom(R, AX, ay, t, { s: 2, dir: -1, pose: 'sostiene', cara: t > WI.MUD && t < WI.CENTURIES + 0.3 ? 'triste' : t > WI.CENTURIES + 0.3 ? 'sonrisa' : 'normal', habla: habla(t) });
+  const [mx, my] = a.mano, RX = 4 + ri(26 * ab), RY = 22;
   R.linea(ri(mx), ri(my), ri(mx), ri(my) - 50, K); R.linea(ri(mx) + 1, ri(my), ri(mx) + 1, ri(my) - 50, H('#3a2a4a'));
   // el paraguas, plegado hasta «rain»; ahí se abre de golpe (las varillas se separan) y las gotas rebotan en la tela
   for (let j = -RY; j <= 0; j++) for (let i = -RX; i <= RX; i++) { const e = (i / RX) ** 2 + (j / RY) ** 2; if (e > 1 || (ab < 0.5 && j > -RY * (1 - ab))) continue; ps(mx + i, my - 50 + j, e > 0.86 ? K : (Math.floor((i + RX) / Math.max(2, RX / 3)) % 2 ? H('#e83a3a') : H('#f4f0e4'))); }
-  if (ab >= 1) for (let k = 0; k < 4; k++) { const u = (t * 3 + k * 0.27) % 1, bx = ri(mx - 24 + k * 15), by = ri(my - 52 - Math.sin(u * Math.PI) * 4); if (u < 0.5) { ps(bx - 1, by, H('#9ac8ff')); ps(bx + 1, by - 1, H('#9ac8ff')); } }
-  const mxB = mx - (ri(lerp(196, 222, aparta)) - 196);   // el charco se queda donde cayó aunque Atom se aparte
-  if (t > WI.MUD) { const v = tramo(t, WI.MUD, WI.MUD + 0.5); for (let k = 0; k < 9; k++) { const an = -Math.PI * (0.1 + k * 0.1); R.disco(ri(mxB - 20 + Math.cos(an) * v * 30), ri(176 + Math.sin(an) * v * 20 + v * v * 10), 2, H('#6a4a2a')); } for (let k = 0; k < 4; k++) R.disco(ri(mxB - 10 + k * 7), 176, 3, H('#5a3a22')); }
-  if (t > WI.CENTURIES) { const p = pop(t, WI.CENTURIES, 0.3), n = Math.round(tramo(t, WI.CENTURIES, WI.CENTURIES + 1.4) * 10) * 100; R.icono('reloj', 80, ri(96 - p * 6), H('#ffd34a'), K, 4); R.numero(String(Math.max(100, n)), 94, ri(132 - p * 4), { centro: true }); }
+  if (ab >= 1) { for (let i = -RX + 2; i < RX - 1; i += 9) ps(mx + i, my - 50 - ri(RY * Math.sqrt(1 - (i / RX) ** 2)) + 2, H('#ffffff'));
+    for (let k = 0; k < 4; k++) { const u = (t * 3 + k * 0.27) % 1, bx = ri(mx - 24 + k * 15), by = ri(my - 52 - Math.sin(u * Math.PI) * 4); if (u < 0.5) { ps(bx - 1, by, H('#9ac8ff')); ps(bx + 1, by - 1, H('#9ac8ff')); } }
+    for (const sx of [-RX, RX]) { const u = (t * 2.2 + (sx > 0 ? 0.5 : 0)) % 1; ps(mx + sx, my - 50 + ri(u * 40), H('#9ac8ff')); } }
+  // «mud»: la ola de barro le salpica (los pegotes vuelan y caen)
+  if (t > WI.MUD - 0.1 && t < WI.MUD + 0.9) { const v = tramo(t, WI.MUD - 0.1, WI.MUD + 0.9); for (let k = 0; k < 9; k++) { const an = -Math.PI * (0.15 + k * 0.08);
+    R.disco(ri(AX - 6 + Math.cos(an) * v * 34), ri(ay - 4 + Math.sin(an) * v * 30 + v * v * 34), 2 - (k & 1), H('#6a4a2a')); } }
+  if (t > WI.MUD) for (const [i, j] of [[-6, -20], [4, -12], [-2, -30], [7, -26]]) { ps(AX + i, ay + j, H('#6a4a2a')); ps(AX + i + 1, ay + j, H('#5a3a22')); }
+  // «centuries»: el reloj con los años, y una marca por capa a la derecha del barro
+  if (n) { const p = pop(t, WI.CENTURIES, 0.3); R.icono('reloj', 64, ri(78 - p * 6), H('#ffd34a'), K, 4); R.numero(String(n), 78, ri(114 - p * 4), { centro: true });
+    for (let k = 0; k < n / 100; k++) { const y = ri(178 - 6 - k * 2.3); R.linea(302, y, 308, y, K); ps(303, y, H('#ffd34a')); } }
 };
-// ── 4 · la ladera, al doble: la piedra que rueda sola; Atom busca con la lupa quién la empuja ───────────────────
-const Y4 = (X) => (SUP19(60 + X / 2) - 30) * 2;
+// ── 4 · la cantera de caliza, congelada: una piedra a color se suelta del bancal y rueda sola hasta el llano; en
+//    «intention» Atom llega con la lupa a ver quién la empujó, en «behind» sube a mirar al bancal y en «without one»
+//    no hay nadie: «X» arriba y brazos arriba ────────────────────────────────────────────────────────────────────
+const RUTA4 = [[34, 74], [50, 76], [56, 98], [70, 102], [76, 126], [80, 154], [140, 160], [206, 163]];
+const ruta4 = (u) => { const n = RUTA4.length - 1, f = Math.min(n - 1e-6, Math.max(0, u) * n), i = Math.floor(f), w = f - i, [x0, y0] = RUTA4[i], [x1, y1] = RUTA4[i + 1];
+  const salto = (y1 > y0 + 10) ? -Math.sin(w * Math.PI) * 4 : -Math.abs(Math.sin(w * Math.PI * 2)) * 2; return [lerp(x0, x1, w), lerp(y0, y1, w * w) + salto]; };
 const q4 = (t) => {
-  vista(60, 30, 2); AT.pausa(R, 1); viñeta();
-  const r = ease(tramo(t, WI.FIND - 0.2, WI.THINGS + 0.4)), sx = lerp(20, 210, r), sy = Y4(sx) - 9, rot = r * 12;
-  R.disco(ri(sx) + 2, ri(sy) + 2, 10, mez(H('#2a2a34'), K, 0.3)); R.disco(ri(sx), ri(sy), 10, K); R.disco(ri(sx), ri(sy), 9, H('#a89880')); R.disco(ri(sx - 3), ri(sy - 3), 4, H('#c8bca0'));
-  for (let k = 0; k < 3; k++) { const an = rot + k * 2.1; R.linea(ri(sx), ri(sy), ri(sx + Math.cos(an) * 7), ri(sy + Math.sin(an) * 7), H('#7a6a58')); }
-  if (r > 0 && r < 1) for (let k = 1; k < 5; k++) { const bx = lerp(20, 210, Math.max(0, r - k * 0.04)); tine(bx, Y4(bx) - 2, H('#d8c8a0'), 0.5 - k * 0.1); }
-  const ax = ri(lerp(-40, 150, ease(tramo(t, WI.INTENTION - 0.3, WI.BEHIND + 0.4)))), mira = t > WI.BEHIND && t < WI.WITHOUT;
-  const a = AT.atom(R, ax, ri(Math.min(178, Y4(ax + 10) + 2)), t, { s: 2, dir: 1, pose: t > WI.WITHOUT ? 'brazos' : 'sostiene', cara: t > WI.WITHOUT ? 'sorpresa' : mira ? 'normal' : 'sonrisa', habla: habla(t) });
-  if (t <= WI.WITHOUT) AT.lupa(R, a.mano[0], a.mano[1], 2, 1);
-  if (t > WI.INTENTION && t < WI.BEHIND) R.bocadillo(ri(a.centro[0]), ri(a.centro[1] - 40), { icono: '?' });
-  if (t > WI.WITHOUT) { const p = pop(t, WI.WITHOUT, 0.25); R.icono('X', ri(sx) - 10, ri(sy - 40 - p * 4), H('#e83a3a'), K, 4); }
+  congela('q4', () => T.neolitico(R, 7.3, { encuadre: 'cantera' }));
+  const r = tramo(t, WI.FIND - 0.1, WI.THINGS + 0.5), [sx, sy0] = ruta4(ease(r)), RP = ri(lerp(4, 10, cl((sy0 - 74) / 80))), sy = sy0 - RP + 1, rot = ease(r) * 14;
+  // el polvo y las piedrecitas que levanta al bajar
+  if (r > 0 && r < 1) for (let k = 1; k < 7; k++) { const [bx, by] = ruta4(Math.max(0, ease(r) - k * 0.025)); tine(bx + Math.sin(k * 3 + t * 5) * 3, by - 4 - k, H('#e8dcc0'), 0.5 - k * 0.06); if (k < 3) ps(bx - 6 + k * 4, by - 2 - k, H('#c8b898')); }
+  if (r >= 1) for (let k = 0; k < 4; k++) { const v = ((t - (WI.THINGS + 0.5)) * 0.6 + k * 0.25) % 1; tine(sx - 12 + k * 8, sy + 6 - v * 10, H('#e8dcc0'), 0.4 * (1 - v)); }
+  // el hueco de donde salió, en el filo del bancal de arriba, a color (con dos piedrecitas que aún caen)
+  if (r > 0) { R.disco(34, 72, 4, H('#3a2e22')); R.disco(33, 71, 2, H('#241a12')); for (let k = 0; k < 2; k++) { const u = ((t - WI.FIND) * 0.9 + k * 0.5) % 1; ps(38 + k * 3, 76 + u * 24, H('#c8b898')); } }
+  sombraS(ri(sx), ri(sy0) + 1, RP, 0.4);
+  R.disco(ri(sx), ri(sy), RP, K); R.disco(ri(sx), ri(sy), RP - 1, H('#b8a888')); R.disco(ri(sx + RP * 0.2), ri(sy + RP * 0.2), ri(RP * 0.7), H('#a08e70')); R.disco(ri(sx - RP * 0.3), ri(sy - RP * 0.3), ri(RP * 0.4), H('#d8ccb0')); ps(sx - RP * 0.4, sy - RP * 0.5, H('#ffffff'));
+  for (let k = 0; k < 3; k++) { const an = rot + k * 2.1; R.linea(ri(sx), ri(sy), ri(sx + Math.cos(an) * RP * 0.7), ri(sy + Math.sin(an) * RP * 0.7), H('#7a6a58')); }
+  const ent = ease(tramo(t, WI.INTENTION - 0.3, WI.INTENTION + 0.7)), vuelta = ease(tramo(t, WI.BEHIND - 0.05, WI.WITHOUT - 0.3));
+  const ax = ri(lerp(lerp(350, 246, ent), 150, vuelta)), anda = (ent > 0 && ent < 1) || (vuelta > 0 && vuelta < 1), mira = t > WI.BEHIND && t < WI.WITHOUT;
+  const a = AT.atom(R, ax, 178 - (anda ? ri(Math.abs(Math.sin(t * 12)) * 2) : 0), t, { s: 2, dir: -1, pose: t > WI.WITHOUT ? 'brazos' : 'sostiene', cara: t > WI.WITHOUT ? 'sorpresa' : mira ? 'normal' : 'sonrisa', habla: habla(t) });
+  if (t <= WI.WITHOUT) { const [lx, ly] = AT.lupa(R, a.mano[0], a.mano[1], 2, -1); if (Math.sin(t * 5) > 0.3) ps(lx - 3, ly - 3, H('#ffffff')); }
+  if (t > WI.INTENTION && t < WI.WITHOUT) R.bocadillo(ri(a.centro[0]), ri(a.centro[1] - 40), { icono: '?' });
+  // «behind»: la mirada de la lupa barre el filo del bancal de donde salió la piedra, y allí no hay nadie
+  if (mira && t > WI.BEHIND + 0.2) { const [lx, ly] = [a.mano[0] - 18, a.mano[1] - 18], tx = 34 + Math.sin(t * 3) * 14, ty = 70;
+    for (let q = 0; q < 60; q++) { const u = q / 60, x = lerp(lx, tx, u), y = lerp(ly, ty, u), w = 1 + u * 8; for (let i = -w; i <= w; i += 2) tine(x + i * 0.4, y + i, H('#fff8d0'), 0.22); }
+    R.disco(ri(tx), ty, 9, H('#fff8d0')); R.disco(ri(tx), ty, 7, mez(H('#fff8d0'), H('#d8c8a0'), 0.4)); }
+  if (t > WI.WITHOUT) { const p = pop(t, WI.WITHOUT, 0.25); R.icono('X', 28, ri(46 - p * 4), H('#e83a3a'), K, 4); }
 };
-// ── 5 · el cielo y la cubierta, al doble: la claqueta de la película ────────────────────────────────────────────
+// ── 5 · el salón de noche, congelado: Atom con la claqueta en medio; en «movie» la cierra (destellos) y la tira de
+//    película sale de ella, cruza el cuadro y se mete en la tele, que se enciende a color ────────────────────────
+const TIRA5 = (u, X, Y) => { const p0 = [X + 46, Y + 8], c1 = [300, 178], c2 = [312, 70], p1 = [232, 82], v = 1 - u;
+  return [v * v * v * p0[0] + 3 * v * v * u * c1[0] + 3 * v * u * u * c2[0] + u * u * u * p1[0], v * v * v * p0[1] + 3 * v * v * u * c1[1] + 3 * v * u * u * c2[1] + u * u * u * p1[1]]; };
 const q5 = (t) => {
-  vista(126, 92, 3); AT.pausa(R, 1); viñeta();
-  const en5 = ease(tramo(t, WI.SO2 + 0.05, WI.SO2 + 1.2));
-  const a = AT.atom(R, ri(lerp(-40, 110, en5)), 178 - (en5 > 0 && en5 < 1 ? ri(Math.abs(Math.sin(t * 12)) * 2) : 0), t, { s: 2, dir: 1, pose: 'sostiene', cara: t > WI.MOVIE ? 'guino' : 'normal', habla: habla(t) });
+  congela('q5', () => { T.hoy(R, 7.3, { encuadre: 'salon', programa: 2 }); T.hoyDelante(R, 7.3, { encuadre: 'salon', programa: 2 }); });
+  const v = t > WI.MOVIE ? tramo(t, WI.MOVIE, WI.MOVIE + 1.4) : 0;
+  // la tele se enciende a color cuando la tira llega: un proyector que parpadea, recortado a la pantalla
+  if (v > 0.6) { const on = tramo(v, 0.6, 1), fl = 0.75 + 0.25 * Math.sin(t * 23) * Math.sin(t * 7);
+    for (let y = 55; y < 110; y++) for (let x = 175; x < 286; x++) { const d = Math.hypot((x - 230) / 56, (y - 82) / 28); tine(x, y, d < 0.5 ? H('#fff0c0') : H('#e8903a'), on * fl * (0.55 - d * 0.25)); }
+    R.icono('camara', 222, 74, H('#ffd34a'), K, 2); }
+  const en5 = ease(tramo(t, WI.SO2 + 0.05, WI.SO2 + 0.9));
+  const a = AT.atom(R, ri(lerp(92, 118, en5)), 178 - (en5 > 0 && en5 < 1 ? ri(Math.abs(Math.sin(t * 12)) * 2) : 0), t, { s: 2, dir: 1, pose: 'sostiene', cara: t > WI.MOVIE ? 'guino' : 'normal', habla: habla(t) });
   const [mx, my] = a.mano, X = ri(mx) + 4, Y = ri(my) - 14, cierra = tramo(t, WI.MOVIE - 0.25, WI.MOVIE), an = lerp(-0.6, 0, cierra);
+  // la tira: de la claqueta baja por el suelo, sube por la derecha y entra en la tele; cada fotograma con su escena
+  if (v > 0) { const L = v; for (let k = 0; k < 24; k++) { const u = k / 23; if (u > L) break; const [fx, fy] = TIRA5(u, X, Y), [gx, gy] = TIRA5(Math.min(1, u + 0.02), X, Y), an2 = Math.atan2(gy - fy, gx - fx);
+      const w = u > 0.85 ? 4 : 6, ox = -Math.sin(an2), oy = Math.cos(an2), cx = ri(fx + Math.sin(k * 0.9 + t * 3) * (1 - u) * 2), cy = ri(fy);
+      rr(cx - w - 1, cy - w - 1, cx + w + 1, cy + w + 1, K); rr(cx - w, cy - w, cx + w, cy + w, H('#2a2a2e'));
+      rr(cx - w + 2, cy - w + 2, cx + w - 2, cy + w - 2, k % 3 === 0 ? H('#e8b060') : k % 3 === 1 ? H('#c87a3a') : H('#7aa8d8'));
+      if (w > 4) { if (k % 3 === 2) { ps(cx, cy - 1, H('#fff0c0')); ps(cx + 1, cy, H('#fff0c0')); } else { rr(cx - 1, cy, cx + 1, cy + 2, H('#3a2a1a')); ps(cx, cy - 1, H('#3a2a1a')); } }
+      for (let q = -w + 1; q <= w - 1; q += 3) { ps(cx + q, cy - w, H('#c8c8d0')); ps(cx + q, cy + w, H('#c8c8d0')); } } }
   rr(X - 1, Y - 1, X + 41, Y + 27, K); rr(X, Y, X + 40, Y + 26, H('#2a2a2e')); for (let k = 0; k < 3; k++) R.linea(X + 4, Y + 8 + k * 6, X + 36, Y + 8 + k * 6, H('#9a9aa4'));
+  rr(X, Y, X + 40, Y, H('#4a4a52'));
   const P = (d, h) => [X + Math.cos(an) * d - Math.sin(an) * h, Y - 1 + Math.sin(an) * d + Math.cos(an) * h];
   R.poligono([P(0, -7), P(42, -7), P(42, 0), P(0, 0)], K); R.poligono([P(1, -6), P(41, -6), P(41, -1), P(1, -1)], H('#f4f0e4'));
   for (let k = 0; k < 5; k++) R.poligono([P(2 + k * 8, -6), P(6 + k * 8, -6), P(4 + k * 8, -1), P(0 + k * 8, -1)], H('#2a2a2e'));
-  if (t > WI.MOVIE) { const v = tramo(t, WI.MOVIE, WI.MOVIE + 1.2); destello(X + 46, Y - 12, 5); destello(X - 8, Y - 18, 3);
-    const n = Math.floor(v * 12); for (let k = 0; k < n; k++) { const fx = X + 48 + k * 11, fy = Y + 20 - k * 6 + ri(Math.sin(k * 0.9 + t * 2) * 3); rr(fx - 6, fy - 8, fx + 5, fy + 8, K); rr(fx - 5, fy - 7, fx + 4, fy + 7, H('#2a2a2e'));
-      rr(fx - 3, fy - 4, fx + 2, fy + 4, k % 2 ? H('#e8b060') : H('#c87a3a')); ps(fx - 1, fy, H('#3a2a1a')); ps(fx - 5, fy - 6, H('#c8c8d0')); ps(fx - 5, fy + 6, H('#c8c8d0')); ps(fx + 4, fy - 6, H('#c8c8d0')); ps(fx + 4, fy + 6, H('#c8c8d0')); } }
+  if (t > WI.MOVIE && t < WI.MOVIE + 0.8) { destello(X + 44, Y - 10, 5); destello(X - 6, Y - 14, 3); }
 };
-// ── 6 · las capas y la roca, al doble: la balanza se queda con la película aunque la lluvia pesa más ────────────
+// ── 6 · la casa de la excavación, congelada: la balanza a la izquierda sobre la mesa y Atom a la derecha, junto al libro
+//    de la lluvia; en «true» lo señala, brilla y la balanza baja hacia él; en «better story» vuelve a la película y guiña
+const BX6 = 108, BY6 = 150;
 const q6 = (t) => {
-  vista(80, 90, 2); AT.pausa(R, 1); viñeta();
-  const g = balanza(204, 170, t, 1);
+  congela('q6', () => { T.arqueologos(R, 7.3, { encuadre: 'casa', anos: 2026 }); T.arqueologosDelante(R, 7.3, { encuadre: 'casa', anos: 2026 }); });
   const verdad = t > WI.TRUE - 0.1 && t < WI.BETTER - 0.1, mejor = t > WI.BETTER - 0.1;
-  AT.atom(R, 74, 178, t, { s: 2, dir: 1, pose: verdad || mejor ? 'senala' : 'quieto', cara: mejor ? 'guino' : 'normal', habla: habla(t) });
-  if (verdad && g.libros) { const [x, y] = g.libros[1]; destello(x, y - 6, 4 + ri(Math.sin(t * 10))); R.icono('!', x - 2, y - 30, H('#ffd34a'), K, 2); }
-  if (mejor && g.libros) { const [x, y] = g.libros[0]; destello(x, y - 6, 4); }
+  const peso = 1 - ease(tramo(t, WI.TRUE - 0.1, WI.TRUE + 0.45)) + ease(tramo(t, WI.BETTER - 0.1, WI.BETTER + 0.45));
+  // dónde caen los dos libros (la misma cuenta que la balanza, a escala 2)
+  const th = -0.1 + peso * 0.38, lib = [[BX6 - 54 * Math.cos(th), BY6 + 2 * (-46 + 27 * Math.sin(th) + 24) - 20], [BX6 + 54 * Math.cos(th), BY6 + 2 * (-46 - 27 * Math.sin(th) + 24) - 20]];
+  if (verdad) R.halo(ri(lib[1][0]), ri(lib[1][1]), 30, [H('#5a8ac8'), H('#9ac8ff'), H('#e0f0ff')], 1.1 + 0.15 * Math.sin(t * 8));
+  balanza(BX6, BY6, t, peso);
+  if (verdad) { const [x, y] = lib[1]; destello(x - 12, y - 16, 3 + ri(Math.sin(t * 10))); destello(x + 14, y + 4, 2); R.icono('!', ri(x) - 4, ri(y) - 34 - ri(pop(t, WI.TRUE, 0.3) * 3), H('#ffd34a'), K, 2);
+    for (let k = 0; k < 3; k++) { const u = (t * 2 + k / 3) % 1; R.linea(ri(x - 10 + k * 10), ri(y + 26 + u * 8), ri(x - 10 + k * 10), ri(y + 29 + u * 8), H('#9ac8ff')); } }
+  if (mejor) { const [x, y] = lib[0]; destello(x, y - 18, 4); }
+  AT.atom(R, 200, 178, t, { s: 2, dir: -1, pose: verdad || mejor ? 'senala' : 'quieto', cara: mejor ? 'guino' : verdad ? 'sorpresa' : 'normal', habla: habla(t) });
 };
 const efectos = [[0.05, 'tapestop'], [WI.APPEALING, 'brillo'], [WI.A + 0.15, 'pop'], [WI.SATISFIES, 'golpecito'], [WI.RAIN, 'lluvia'], [WI.MUD, 'chof'], [WI.CENTURIES, 'tic'],
   [WI.FIND, 'carro'], [WI.WITHOUT, 'boing'], [WI.MOVIE, 'palmada'], [WI.TRUE, 'brillo'],
   // los pasos de Atom, el móvil, el paraguas que se abre, el reloj que cuenta, la lupa y la tira de película
-  [0.4, 'pasos'], [WI.INTERNET - 0.2, 'bip'], [WI.RAIN - 0.25, 'whoosh'], [WI.CENTURIES + 0.5, 'pasos'], [WI.INTENTION - 0.3, 'pasos'],
-  [WI.BEHIND, 'tic'], [WI.SO2 + 0.05, 'pasos'], [WI.MOVIE + 0.3, 'papel'], [WI.BETTER, 'pop']];
+  [0.4, 'pasos'], [WI.INTERNET - 0.2, 'bip'], [WI.RAIN - 0.25, 'whoosh'], [WI.INTENTION - 0.3, 'pasos'], [WI.BEHIND - 0.05, 'pasos'],
+  [WI.SO2 + 0.05, 'pasos'], [WI.MOVIE + 0.3, 'papel'], [WI.BETTER, 'pop']];
 T.rodar(E, R, [[0, q1], [WI.A, q2], [WI.A2, q3], [WI.FIND, q4], [WI.SO2, q5], [WI.WHETHER, q6]], { efectos, año: 2026 });
 </script>
 </body>

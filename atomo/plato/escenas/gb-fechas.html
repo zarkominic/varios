@@ -22,9 +22,12 @@
 // 4 · FONDO LOCAL «la línea del tiempo, de cerca» (−9500): la regla de madera de los años sobre la estepa; dos cazadores
 //   levantan un pilar en T junto al hito del 9500 («went up»); al quedar de pie sale el «9500» grande («9500») y la cazadora y el
 //   niño lo celebran en «BC». Gacelas, nubes, pájaros. Corta en «That's».
-// 5 · FONDO LOCAL «la línea del tiempo, de lejos»: toda la regla de 9500 a 2000; Stonehenge sale del pilar y se aleja a la
-//   derecha hasta el 3000 mientras la flecha cuenta «6000» («Stonehenge»); luego las pirámides hasta su sitio con «7000»
-//   («Giza»); el niño corre detrás y se queda sin aliento. Corta en «at a time».
+// 5 · FONDO LOCAL «la cinta de los años al atardecer» (otro decorado que el 4): sol poniente bajo a la izquierda, cielo violeta
+//   y naranja con estratos a tres velocidades y una bandada de grullas, tres cordales de colinas y la regla hecha cinta de tela
+//   clavada con estacas sobre el lomo, de 9500 a 2000; el círculo de pilares al principio y el fuego del campamento con su humo.
+//   Stonehenge sale del círculo y recorre la cinta hasta el 3000 mientras un arco de luz cuenta «6000» («Stonehenge»); luego las
+//   pirámides, con su arco más alto, «7000» («Giza»); el cazador señala desde el fuego y el niño corre ladera abajo hasta
+//   quedarse sin aliento. Corta en «at a time».
 // 6 · EL LABORATORIO (1998): la máquina acaba, «9500» en la pantalla y en grande; la técnica abre el libro de texto (la espiga
 //   «después») en «textbooks», el arqueólogo señala en «farming» y los dos se encogen de hombros con el «?» en «born yet».
 import * as T from '/atomo/plato/escenas/gb-comun.js';
@@ -376,63 +379,141 @@ const p4 = (t) => {
   for (let k = 0; k < 28; k++) { const x = 4 + k * 11.5 + (k % 3) * 2, h = 7 + (k % 4) * 2, w = Math.sin(t * 2.2 + k * 0.7) * 2; for (let j = 0; j < h; j++) { const xx = x + w * (j / h) ** 2; ps(xx, 179 - j, j > h - 3 ? H('#ddca80') : (k & 1) ? H('#9a8a48') : H('#b8a456')); ps(xx + 2, 179 - j * 0.7, H('#86783e')); } }
 };
 
-// ── 5 · la línea del tiempo, de lejos: de 9500 a 2000 (fondo local) ─────────────────────────────────────────────────
+// ── 5 · la cinta de los años al atardecer, sobre las colinas (fondo local) ───────────────────────────────────────────
+// Otro decorado que el 4: sol poniente a la izquierda, cielo violeta y naranja con estratos, tres cordales de colinas, y la
+// regla convertida en una cinta de tela clavada con estacas que sigue el lomo de la colina de 9500 a 2000.
 let BG5 = null;
 const X5 = (año) => 26 + (9500 - año) / 26.5;
+const SOLX = 104, SOLY = 80, FX = 82, FY = 166;
+const gF = (x) => 106 + Math.sin(x * 0.018 + 0.5) * 5 + Math.sin(x * 0.047 + 2) * 2;   // lomo de la colina de la cinta
+const yC = (x) => gF(x) + 16;                                                            // centro de la cinta
+const a2 = (x) => 90 + Math.sin(x * 0.022 + 1) * 6 + Math.sin(x * 0.07) * 2;           // el cordal del medio
 // Stonehenge en pequeño (al doble): el círculo de trilitos de arenisca gris con sus dinteles y la hierba
 const piedraSH = (x, y) => { x = ri(x); y = ri(y);
-  for (let i = -16; i <= 16; i++) { ps(x + i, y + 1, H('#4a6a30')); ps(x + i, y, h2(i, 0, 50) > 0.5 ? H('#6a8a40') : H('#5a7a38')); }
+  for (let i = -16; i <= 16; i++) { ps(x + i, y + 1, H('#3e4a24')); ps(x + i, y, h2(i, 0, 50) > 0.5 ? H('#5e6a30') : H('#4e5a2a')); }
   for (const [dx, dy, al, w] of [[-14, -2, 14, 2], [-8, -4, 17, 2], [-2, -5, 18, 2], [4, -5, 18, 2], [10, -4, 17, 2], [15, -2, 13, 2], [-10, 2, 13, 3], [8, 2, 13, 3]]) {
-    rr(x + dx - 1, y + dy - al - 1, x + dx + w, y + dy, K); rr(x + dx, y + dy - al, x + dx + w - 1, y + dy - 1, H('#a8a8a0')); rr(x + dx, y + dy - al, x + dx, y + dy - 1, H('#c8c8c0')); ps(x + dx + w - 1, y + dy - 2, H('#7a7a74')); }
-  for (const [a, b, yy] of [[-15, -6, -18], [-9, 1, -22], [3, 13, -22], [9, 17, -17]]) { rr(x + a - 1, y + yy - 2, x + b + 1, y + yy + 1, K); rr(x + a, y + yy - 1, x + b, y + yy, H('#b8b8b0')); rr(x + a, y + yy - 1, x + b, y + yy - 1, H('#d8d8d0')); } };
-// las tres pirámides de Guiza (al doble), con su cara en sombra
+    rr(x + dx - 1, y + dy - al - 1, x + dx + w, y + dy, K); rr(x + dx, y + dy - al, x + dx + w - 1, y + dy - 1, H('#a89890')); rr(x + dx, y + dy - al, x + dx, y + dy - 1, H('#f0c088')); ps(x + dx + w - 1, y + dy - 2, H('#6a5a64')); }
+  for (const [a, b, yy] of [[-15, -6, -18], [-9, 1, -22], [3, 13, -22], [9, 17, -17]]) { rr(x + a - 1, y + yy - 2, x + b + 1, y + yy + 1, K); rr(x + a, y + yy - 1, x + b, y + yy, H('#b0a098')); rr(x + a, y + yy - 1, x + b, y + yy - 1, H('#f4c890')); } };
+// las tres pirámides de Guiza (al doble): la cara del poniente encendida y la otra en sombra violeta
 const piramides = (x, y) => { x = ri(x); y = ri(y);
-  for (let i = -24; i <= 24; i++) ps(x + i, y + 1, H('#c8a870'));
-  for (const [dx, w] of [[-12, 12], [3, 17], [17, 9]]) { for (let j = 0; j <= w; j++) { R.linea(x + dx - j, y - w + j, x + dx, y - w + j, ((j >> 1) & 1) ? H('#e8c878') : H('#f0d488')); R.linea(x + dx + 1, y - w + j, x + dx + j, y - w + j, H('#b8904a')); }
+  for (let i = -24; i <= 24; i++) ps(x + i, y + 1, H('#a07850'));
+  for (const [dx, w] of [[-12, 12], [3, 17], [17, 9]]) { for (let j = 0; j <= w; j++) { R.linea(x + dx - j, y - w + j, x + dx, y - w + j, ((j >> 1) & 1) ? H('#f0b870') : H('#f8cc84')); R.linea(x + dx + 1, y - w + j, x + dx + j, y - w + j, H('#8a5a5a')); }
     R.linea(x + dx - w - 1, y + 1, x + dx, y - w - 1, K); R.linea(x + dx + 1, y - w - 1, x + dx + w + 1, y + 1, K); } };
+// un estrato de atardecer: largo y plano, la panza encendida de naranja, el cuerpo malva y el lomo violeta
+const estrato = (cx, cy, w, h, cs) => {
+  for (let y = ri(cy - h); y <= ri(cy + h); y++) { if (y < 0 || y > 179) continue; const v = (y - cy) / h;
+    for (let x = ri(cx - w); x <= ri(cx + w); x++) { if (x < 0 || x > 319) continue; const u = (x - cx) / w, e = u * u + v * v * (1 + 0.6 * Math.sin(x * 0.21 + cx * 0.05));
+      if (e > 1 || (e > 0.82 && b4(x, y) < (e - 0.82) * 5)) continue; R.pset(x, y, v > 0.35 ? cs[0] : v > -0.25 + b4(x, y) * 0.3 ? cs[1] : cs[2]); } } };
 const fondo5 = () => {
   if (!BG5) {
     BG5 = R.nuevo(); const prev = R.usar(BG5);
-    const CT = pal(['#5a8ccc', '#6c9cd4', '#88b0dc', '#a6c4e2', '#c6d8e4', '#e2e4d8', '#f0e4c4']);
-    for (let y = 0; y < 66; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(CT, y / 66 * 6.3, x, y));
-    for (let x = 0; x < 320; x++) { const a = 52 + Math.round(Math.sin(x * 0.015) * 5 + Math.sin(x * 0.06 + 2) * 2); for (let y = a; y < 68; y++) R.pset(x, y, rmp(pal(['#8a96b0', '#9ca6bc', '#b2b8c6']), 2 - (y - a) * 0.06 + (h2(x, y, 30) - 0.5), x, y)); }
-    for (let y = 66; y < 180; y++) for (let x = 0; x < 320; x++) { const v = 4.4 - (y - 66) / 114 * 2.2 + (h2(x, y, 31) - 0.5) * 1.1 + Math.sin(x * 0.05 - y * 0.25) * 0.3; R.pset(x, y, rmp(ESTEPA, v, x, y)); }
-    // un río que serpentea por la llanura lejana y unos sotos
-    for (let x = 0; x < 320; x++) { const y = 74 + Math.round(Math.sin(x * 0.03) * 3); R.pset(x, y, H('#8ab0d0')); R.pset(x, y + 1, H('#6a90b8')); if (h2(x, 0, 32) > 0.7) R.pset(x, y - 1, H('#c8dcea')); }
-    for (let k = 0; k < 14; k++) { const x = Math.floor(h2(k, 1, 33) * 320), y = 70 + Math.floor(h2(k, 2, 33) * 8); R.rect(x, y - 3, x + 4, y, H('#4e6a38')); R.pset(x + 1, y - 3, H('#6a8a48')); }
-    for (let k = 0; k < 300; k++) { const y = 80 + Math.floor(h2(k, 1, 34) * 100), x = Math.floor(h2(k, 2, 34) * 320); if (y > 112 && y < 128) continue; const n = 1 + Math.floor((y - 80) / 30); for (let q = 0; q < n; q++) R.linea(x + q, y, x + q, y - 1 - (q & 1), q & 1 ? ESTEPA[1] : ESTEPA[0]); }
-    // la regla larga, con las cifras de los milenios debajo
-    R.rect(0, 114, 319, 124, K); for (let y = 115; y < 124; y++) for (let x = 0; x < 320; x++) R.pset(x, y, rmp(MAD, 2.6 + (y === 115 ? 1.6 : 0) - (y > 121 ? 1.2 : 0) + Math.sin(x * 0.11 + y) * 0.4, x, y));
-    for (let a = 9500; a >= 1700; a -= 100) { const x = ri(X5(a)); if (x > 319) continue; R.rect(x, 115, x, a % 1000 ? 116 : 119, H('#e8d8a8')); }
-    for (let a = 9000; a >= 2000; a -= 1000) { const x = ri(X5(a)); R.numero(String(a), x, 134 + ((a / 1000) & 1) * 9, { centro: true, fina: true }); }
-    // las piedras de Göbekli al principio de la regla: un círculo de pilares en T, en pequeño, con su muro
-    for (let x = 4; x < 52; x++) for (let y = 104; y < 113; y++) R.pset(x, y, rmp(PIEDRA, 2 + (h2(x >> 1, y >> 1, 35) - 0.5) * 2 - (y === 112 ? 1 : 0), x, y));
-    for (const [dx, s] of [[-14, 0.55], [14, 0.55], [-7, 0.62], [7, 0.62], [0, 0.8]]) T.d_pilar(R, X5(9500) + dx, 112 - (s > 0.7 ? 0 : 2), { escala: s, sombra: false, brazos: s > 0.7 });
+    // el cielo del poniente: violeta arriba, malva, rosa, naranja y oro junto al sol; más claro cuanto más cerca del sol
+    const CT = pal(['#2a2350', '#3a2a60', '#52306c', '#743a70', '#9c446c', '#c45666', '#e0705a', '#f09450', '#f8bc64', '#fcdc94']);
+    for (let y = 0; y < 96; y++) for (let x = 0; x < 320; x++) { const d = Math.hypot(x - SOLX, (y - SOLY) * 1.8);
+      R.pset(x, y, rmp(CT, y / 88 * 7.2 + Math.max(0, 1 - d / 120) * 2.4 + Math.sin(y * 0.55 + x * 0.012) * 0.18, x, y)); }
+    // el sol, grande y bajo, que se esconde tras el cordal lejano
+    for (let y = SOLY - 14; y <= SOLY + 14; y++) for (let x = SOLX - 14; x <= SOLX + 14; x++) { const d = Math.hypot(x - SOLX, y - SOLY);
+      if (d < 12) R.pset(x, y, d < 8 ? H('#fff8d8') : d < 10.5 ? H('#ffe8a0') : H('#ffd070')); else if (d < 14) tine(x, y, H('#ffe8a0'), 0.35); }
+    // el cordal lejano, violeta y brumoso, con el borde encendido junto al sol
+    for (let x = 0; x < 320; x++) { const a = Math.round(78 + Math.sin(x * 0.012 + 2) * 4 + Math.sin(x * 0.05) * 2 + h2(x >> 2, 0, 40) * 1.5), cerca = Math.max(0, 1 - Math.abs(x - SOLX) / 70);
+      for (let y = a; y < 100; y++) R.pset(x, y, rmp(pal(['#4a3060', '#5a3a6a', '#6c4676', '#805282', '#9a6488']), 2.2 + cerca * 1.2 - (y - a) * 0.05 + (h2(x, y, 41) - 0.5) * 0.8 + (y === a ? 1.5 : 0), x, y)); }
+    // el cordal del medio, pardo malva, con el filo de luz naranja y arbolillos en silueta
+    for (let x = 0; x < 320; x++) { const a = Math.round(a2(x));
+      for (let y = a; y < 124; y++) R.pset(x, y, rmp(pal(['#3a2438', '#4a2e40', '#5c3a48', '#704852', '#8a5a58']), 2.4 - (y - a) * 0.06 + (h2(x, y, 42) - 0.5) * 1 + Math.sin(x * 0.3 + y * 0.9) * 0.25, x, y));
+      if (x < 230) { R.pset(x, a, H('#e08858')); if (h2(x, 1, 42) > 0.4) R.pset(x, a + 1, H('#b06a58')); } }
+    for (const x of [150, 158, 196, 236, 244]) { const a = Math.round(a2(x)); rr(x, a - 4, x, a, H('#2a1a28')); for (let j = -3; j <= 2; j++) for (let i = -4; i <= 4; i++) if ((i / 4.5) ** 2 + (j / 3) ** 2 < 1) R.pset(x + i, a - 7 + j, j < -1 && i < 0 ? H('#5a3a40') : H('#2e1e2c')); }
+    // la colina de la cinta: hierba seca con luz rasante, el filo del lomo encendido y las sombras a la derecha
+    const PR = pal(['#2e2420', '#3e3024', '#54402a', '#6c5230', '#886636', '#a47a3e', '#c08e48']);
+    for (let x = 0; x < 320; x++) { const a = Math.round(gF(x)), cae = gF(x + 2) - gF(x - 2);
+      for (let y = a; y < 180; y++) { const p = y - a; R.pset(x, y, rmp(PR, 4.6 - p / 74 * 2.6 - cae * 0.35 + (h2(x, y, 43) - 0.5) * 1.1 + Math.sin(x * 0.07 - y * 0.3) * 0.3 + (p < 2 ? 1.6 : 0) + (h2(x >> 3, y >> 2, 44) > 0.8 ? -0.8 : 0), x, y)); } }
+    // matas y briznas con la punta de oro, piedras con su cara iluminada (más grandes cuanto más cerca)
+    for (let k = 0; k < 320; k++) { const x = Math.floor(h2(k, 2, 45) * 320), a = gF(x), y = Math.floor(a + 2 + h2(k, 1, 45) ** 0.8 * (178 - a)); if (Math.abs(y - yC(x)) < 7) continue;
+      const s = (y - a) / 70, n = 1 + Math.floor(s * 4); for (let q = 0; q < n; q++) { const hh = 1 + Math.floor(s * 4 * h2(k, q, 46)); R.linea(x + q, y, x + q + (q & 1), y - hh, q & 1 ? PR[2] : PR[1]); ps(x + q + (q & 1), y - hh, H('#e8a858')); } }
+    for (let k = 0; k < 26; k++) { const x = Math.floor(h2(k, 4, 47) * 320), a = gF(x), y = Math.floor(a + 4 + h2(k, 3, 47) * (172 - a)), s = 1 + Math.floor((y - a) / 26); if (Math.abs(y - yC(x)) < 9) continue;
+      R.rect(x, y, x + s * 2, y + s, K); R.rect(x, y, x + s * 2 - 1, y + s - 1, H('#7a5a50')); R.rect(x, y, x, y + s - 1, H('#f0a868')); for (let i = 1; i < 10; i++) tine(x + s * 2 + i, y + s, K, 0.3 * (1 - i / 10)); }
+    // la cinta de los años: tela cruda clavada al suelo, que sube y baja con el lomo; muescas rojas cada siglo
+    const CI = pal(['#7a5a48', '#a8886a', '#d0b48c', '#ecd4a8', '#fff0cc']);
+    for (let x = 0; x < 320; x++) { const c = Math.round(yC(x));
+      for (let i = 1; i < 4; i++) tine(x + i, c + 4 + (i >> 1), K, 0.22);
+      ps(x, c - 4, K); ps(x, c + 4, K);
+      for (let j = -3; j <= 3; j++) R.pset(x, c + j, rmp(CI, 2.4 + (j === -3 ? 1.4 : 0) - (j >= 2 ? 1.1 : 0) + Math.sin(x * 0.6 + j) * 0.25 + (x < 160 ? 0.3 : 0) + ((x % 9) === 0 ? -0.6 : 0), x, c + j)); }
+    for (let a = 9500; a >= 1700; a -= 100) { const x = ri(X5(a)); if (x > 319) continue; const c = ri(yC(x)); R.linea(x, c - 3, x, a % 1000 ? c - 2 : c + 1, H('#a8342a')); }
+    for (let a = 9000; a >= 2000; a -= 1000) { const x = ri(X5(a)), c = ri(yC(x));
+      rr(x - 1, c + 4, x + 1, c + 7, K); rr(x, c + 4, x, c + 6, H('#a06a3a')); R.numero(String(a), x, c + 10 + ((a / 1000) & 1) * 8, { centro: true, fina: true }); }
+    // las piedras de Göbekli al principio de la cinta: su muro de piedra seca y el círculo de pilares en T
+    for (let x = 4; x < 52; x++) { const b = ri(yC(x)) - 5; for (let y = b - 8; y <= b; y++) R.pset(x, y, rmp(PIEDRA, 2.2 + (h2(x >> 1, y >> 1, 48) - 0.5) * 2 - (y === b ? 1 : 0) + (x < 20 ? 0.6 : 0), x, y)); }
+    const x9 = X5(9500);
+    for (const [dx, s] of [[-14, 0.55], [14, 0.55], [-7, 0.62], [7, 0.62], [0, 0.8]]) T.d_pilar(R, x9 + dx, ri(yC(x9 + dx)) - 5 - (s > 0.7 ? 0 : 2), { escala: s, sombra: s > 0.7, largoSombra: 1.6, brazos: s > 0.7, luz: 0.6 });
+    // la senda de tierra pisada que sale del campamento ladera abajo, con guijarros y huellas
+    for (let x = 40; x < 320; x++) { const c = 172 + Math.sin(x * 0.03 + 1) * 3 + (x - 40) * 0.01, w = 3 + Math.sin(x * 0.11) * 0.8;
+      for (let y = Math.round(c - w); y <= Math.round(c + w); y++) R.pset(x, y, rmp(pal(['#5a4030', '#7a5a3e', '#9a7448', '#b88c56', '#d4a466']), 2.6 - (y - c) * 0.3 + (h2(x, y, 51) - 0.5) * 1.2 + (x < 160 ? 0.4 : 0), x, y));
+      if (h2(x, 2, 51) > 0.86) { ps(x, Math.round(c - w) + 2 + (x & 1), H('#4a3424')); ps(x + 1, Math.round(c - w) + 2 + (x & 1), H('#e8b878')); }
+      if (x % 14 === 0) { ps(x, Math.round(c) - 1, H('#6a4a32')); ps(x + 1, Math.round(c) - 1, H('#6a4a32')); ps(x + 7, Math.round(c) + 1, H('#6a4a32')); } }
+    // un peñasco a la derecha, con la cara del poniente encendida y la sombra violeta
+    for (let y = 146; y < 166; y++) for (let x = 268; x < 320; x++) { const e = ((x - 296) / 26) ** 2 + ((y - 166) / 20) ** 2; if (e > 1 + Math.sin(x * 0.4) * 0.06) continue;
+      R.pset(x, y, rmp(pal(['#3a2a34', '#54403e', '#74584a', '#9a7456', '#c89a68', '#ecc088']), 2.2 + (x < 290 ? 2 : 0) - (y - 146) * 0.04 + (h2(x >> 1, y >> 1, 52) - 0.5) * 1.4 + ((x + y * 2) % 11 === 0 ? -1 : 0), x, y)); }
+    for (let x = 268; x < 320; x++) { tine(x, 166, K, 0.3); tine(x, 167, K, 0.15); }
+    // el campamento de abajo a la izquierda: el chozo de varas con la piel tendida, las lanzas clavadas y el cesto
+    for (let y = 150; y < 177; y++) { const w = Math.round((y - 150) * 0.55); for (let x = 20 - w; x <= 20 + w; x++) R.pset(x, y, rmp(pal(['#3a2418', '#5a3a24', '#7a5232', '#9a6a3e', '#c08a50']), 2.4 + (x < 20 ? 0.9 : -0.6) + Math.sin(x * 0.9 + y * 0.2) * 0.3 + (h2(x, y, 49) - 0.5) * 0.8 + ((y % 6) === 0 ? -0.8 : 0), x, y)); }
+    for (let y = 168; y < 177; y++) for (let x = 18; x <= 22; x++) R.pset(x, y, H('#1e140e'));
+    for (const [x0, x1] of [[12, 22], [28, 18], [16, 24]]) R.linea(x0, 146, x1, 152, H('#4a2c18'));
+    for (const [x, l] of [[36, 26], [39, 22]]) { R.linea(x, 176, x + 2, 176 - l, H('#5a3a20')); ps(x + 2, 175 - l, H('#c8c0b0')); ps(x + 2, 174 - l, H('#e8e0d0')); for (let i = 1; i < 12; i++) tine(x + i, 176, K, 0.3 * (1 - i / 12)); }
+    rr(6, 170, 12, 176, K); rr(7, 171, 11, 175, H('#a07a48')); for (let x = 7; x <= 11; x += 2) R.linea(x, 171, x, 175, H('#7a5a30')); ps(7, 171, H('#e0b070'));
+    // el fuego: el cerco de piedras y la leña (las llamas y el humo, vivos, en el plano)
+    for (const [dx, dy] of [[-6, 0], [-4, 2], [0, 3], [4, 2], [6, 0]]) { rr(FX + dx - 1, FY + dy - 1, FX + dx + 1, FY + dy, K); ps(FX + dx - 1, FY + dy - 1, H('#f0a070')); }
+    R.linea(FX - 6, FY + 1, FX + 6, FY - 3, H('#4a2a18')); R.linea(FX - 6, FY - 3, FX + 6, FY + 1, H('#5a3420'));
+    for (let i = -12; i <= 12; i++) for (let j = -4; j <= 4; j++) if ((i / 12) ** 2 + (j / 4) ** 2 < 1) tine(FX + i, FY + j, H('#ffb050'), 0.18);
+    // matas oscuras con el filo encendido
+    for (const [x, y, s] of [[132, 166, 1], [246, 170, 1.2], [300, 160, 0.8], [196, 150, 0.7]]) for (let j = -5; j <= 0; j++) for (let i = -9; i <= 9; i++) { const e = (i / (9 * s)) ** 2 + ((j + 0.5) / (5 * s)) ** 2;
+      if (e < 1 && b4(x + i, y + j) < 1.2 - e) R.pset(x + i, y + j, e > 0.6 && i < 0 ? H('#c07a40') : h2(i, j, 50 + x) > 0.6 ? H('#4a4024') : H('#2e2a1a')); }
     R.usar(prev);
   }
   R.buf.set(BG5);
 };
+// un arco de luz que salta de las piedras de Göbekli al monumento, con su punta (u0 = hasta dónde está dibujado)
+const arco = (xa, ya, xb, yb, h, c) => {
+  const P = (u) => [lerp(xa, xb, u), lerp(ya, yb, u) - h * 4 * u * (1 - u)];
+  for (let u = 0; u <= 1; u += 0.004) { const [x, y] = P(u); ps(x, y - 1, K); ps(x, y + 2, K); }
+  for (let u = 0; u <= 1; u += 0.004) { const [x, y] = P(u); ps(x, y, c); ps(x, y + 1, H('#a06a18')); }
+  const [x1, y1] = P(1), [x0, y0] = P(0.97), dx = x1 - x0, dy = y1 - y0, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
+  for (let k = 1; k < 5; k++) { ps(x1 - ux * k - uy * k, y1 - uy * k + ux * k, c); ps(x1 - ux * k + uy * k, y1 - uy * k - ux * k, c); }
+  ps(x1, y1, H('#ffffff'));
+  return P(0.5);
+};
 const p5 = (t) => {
   fondo5();
-  for (const [k, v, y, w, cs] of [[0, 3, 18, 40, pal(['#a6b8d0', '#dae2ec', '#fafbfc'])], [1, 5, 32, 26, pal(['#b0c0d6', '#e0e6ee', '#ffffff'])], [2, 8, 10, 18, pal(['#b8c8da', '#e6ecf2', '#ffffff'])]]) nube(((t * v + k * 150) % 420) - 50, y, w, cs);
-  for (let k = 0; k < 3; k++) pajaro(((t * (14 + k * 3) + k * 110) % 360) - 20, 22 + k * 7, t, H('#3a3a44'), k);
+  // el sol que late y los estratos que pasan a tres velocidades
+  for (let k = 0; k < 24; k++) { const a = k / 24 * Math.PI * 2 + t * 0.15, r = 15 + 2 * Math.sin(t * 2 + k); if (SOLY + Math.sin(a) * r < 78) tine(SOLX + Math.cos(a) * r, SOLY + Math.sin(a) * r, H('#ffe8a0'), 0.4); }
+  for (const [k, v, y, w, h, cs] of [[0, 2, 24, 54, 4, pal(['#f0905a', '#a8506e', '#5a3468'])], [1, 3.5, 44, 40, 3, pal(['#ffb868', '#d06a6a', '#86406e'])], [2, 6, 62, 30, 2.5, pal(['#ffd890', '#f09060', '#c45a66'])]])
+    estrato(((t * v + k * 130) % 440) - 60, y, w, h, cs);
+  // la bandada de grullas en uve, en silueta contra el poniente
+  for (let k = 0; k < 7; k++) { const j = k - 3; pajaro(((t * 9 + 40) % 380) - 30 - Math.abs(j) * 6, 54 + j * 2.4 * Math.sign(j) + Math.sin(t * 1.2) * 1.5, t, H('#2a1626'), k); }
+  // gacelas que pastan por el cordal del medio
+  for (let k = 0; k < 3; k++) { const gx = 166 + k * 14 + Math.sin(t * 0.3 + k) * 4 + t * 0.8; gacela(gx, a2(gx) + 3, t, k & 1 ? -1 : 1, k); }
+  // el fuego del campamento con sus llamas y el humo que sube y se lo lleva el viento
+  for (let k = 0; k < 8; k++) { const u = (t * 0.35 + k / 8) % 1, r = 1 + u * 3; for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++) if (i * i + j * j <= r * r) tine(FX + u * 30 + Math.sin(t + k) * 2 + i, FY - 6 - u * 40 + j, H('#8a7488'), 0.4 * (1 - u)); }
+  for (let k = 0; k < 9; k++) { const fx = FX - 4 + (k % 5) * 2, fh = 3 + ((Math.floor(t * 12) + k * 3) % 4); R.linea(fx, FY - 1, fx + (k & 1), FY - 1 - fh, k < 5 ? H('#f0702a') : H('#ffd050')); }
+  for (let k = 0; k < 3; k++) { const u = (t * 0.9 + k / 3) % 1; ps(FX - 2 + k * 3 + Math.sin(t * 5 + k) * 2, FY - 6 - u * 16, H('#ffc040')); }
   const x9 = ri(X5(9500));
-  R.numero('9500', x9 + 2, 50, { centro: true, color: H('#ffe070') });
-  // Stonehenge sale del círculo y se aleja hasta el 3000 con la flecha que cuenta hasta 6000; luego las pirámides, 7000
-  const uS = ease(tramo(t, W.N6 - 0.1, W.STONEHENGE + 0.25)), sx = lerp(x9 + 30, X5(3000), uS);
-  const uP = ease(tramo(t, W.N7 - 0.1, W.GIZA + 0.25)), px = lerp(x9 + 30, X5(2560), uP);
-  const flecha = (x0, x1, y) => { x0 = ri(x0); x1 = ri(x1); R.linea(x0, y - 1, x1, y - 1, K); R.linea(x0, y, x1, y, H('#ffe070')); R.linea(x0, y + 1, x1, y + 1, H('#a07818')); R.linea(x0, y + 2, x1, y + 2, K); for (let k = 1; k < 4; k++) { ps(x1 - k, y - k, H('#ffe070')); ps(x1 - k, y + k, H('#ffe070')); } ps(x0, y - 2, K); ps(x0, y + 3, K); };
-  if (uP > 0) { rr(ri(px) - 1, 78, ri(px) + 1, 114, K); rr(ri(px), 79, ri(px), 113, H('#a08060')); flecha(x9 + 22, px - 26, 66); R.numero(String(Math.round(7000 * uP / 100) * 100), ri((x9 + 22 + px - 26) / 2), 62, { centro: true }); piramides(px, 78); }
-  if (uS > 0) { rr(ri(sx) - 1, 102, ri(sx) + 1, 114, K); rr(ri(sx), 103, ri(sx), 113, H('#a08060')); flecha(x9 + 22, sx - 20, 92); R.numero(String(Math.round(6000 * uS / 100) * 100), ri((x9 + 22 + sx - 20) / 2), 88, { centro: true }); piedraSH(sx, 102); }
-  if (uS >= 1 && t < W.STONEHENGE + 0.9) destello(sx + 14, 78, 3);
-  if (uP >= 1 && t < W.GIZA + 0.9) destello(px + 16, 56, 3);
-  // el cazador junto a sus piedras, que hace visera y mira lejos; el niño corre detrás de Stonehenge y se cansa
-  R.actor(EL.cazador2GB, 6, 148, t, { dir: 1, dedo: t > W.N6 && t < W.PYRAMIDS, sorpresa: t > W.GIZA, sonrisa: t < W.N6 });
-  const corre = tramo(t, W.N6, W.N6 + 2.6), nx = ri(lerp(30, 150, corre)), cansado = corre >= 1;
-  R.actor(EL.ninoGB, nx, 170, t, { dir: 1, anda: corre > 0 && !cansado, triste: cansado, salto: corre > 0 && !cansado ? (Math.floor(t * 8) & 1) : 0 });
-  if (cansado && t < W.N7 + 1.6) for (let k = 0; k < 3; k++) { const u = (t * 1.4 + k / 3) % 1; tine(nx + 15 + u * 6, 150 - u * 8, H('#ffffff'), 0.7 * (1 - u)); }
-  // gacelas que cruzan corriendo por delante
-  for (let k = 0; k < 3; k++) gacela(((t * 38 + k * 30) % 420) - 60, 160 + k * 5, t, 1, k, true);
+  R.numero('9500', x9 + 2, 46, { centro: true, color: H('#ffe070') });
+  // Stonehenge sale del círculo y recorre la cinta hasta el 3000 con el arco que cuenta hasta 6000; luego las pirámides, 7000
+  const uS = ease(tramo(t, W.N6 - 0.1, W.STONEHENGE + 0.25)), sx = lerp(x9 + 30, X5(3000), uS), sy = yC(sx) - 5;
+  const uP = ease(tramo(t, W.N7 - 0.1, W.GIZA + 0.25)), px = lerp(x9 + 30, X5(2560), uP), py = yC(px) - 13 - 13 * uP;
+  if (uP > 0) { for (let y = ri(py) + 2; y < ri(yC(px)) - 4; y += 2) ps(ri(px), y, H('#ffe070'));
+    piramides(px, py); const m = arco(x9 + 8, 60, px, py - 20, 30 * uP + 4, H('#ffe070')); R.numero(String(Math.round(7000 * uP / 100) * 100), ri(m[0]), ri(m[1]) - 10, { centro: true }); }
+  if (uS > 0) { piedraSH(sx, sy); const m = arco(x9 + 8, 64, sx, sy - 26, 8 * uS + 3, H('#fff0a0')); R.numero(String(Math.round(6000 * uS / 100) * 100), ri(m[0]), ri(m[1]) - 10, { centro: true }); }
+  if (uS >= 1 && t < W.STONEHENGE + 0.9) destello(sx + 14, sy - 26, 3);
+  if (uP >= 1 && t < W.GIZA + 0.9) destello(px + 16, py - 20, 3);
+  // el cazador junto al fuego, que señala lejos y se sorprende con Guiza; el niño corre por la ladera detrás de Stonehenge y se cansa
+  const sombraL = (x, y, l) => { for (let i = 2; i < l; i++) { tine(x + i, y, K, 0.35 * (1 - i / l)); tine(x + i, y + 1, K, 0.2 * (1 - i / l)); } };
+  sombraL(44, 176, 26);
+  R.actor(EL.cazador2GB, 44, 176, t, { dir: 1, dedo: t > W.N6 && t < W.PYRAMIDS, sorpresa: t > W.GIZA, sonrisa: t < W.N6 });
+  const corre = tramo(t, W.N6, W.N6 + 2.6), nx = ri(lerp(100, 210, corre)), ny = ri(173 + Math.sin(nx * 0.03 + 1) * 3), cansado = corre >= 1;
+  sombraL(nx, ny, 22);
+  R.actor(EL.ninoGB, nx, ny, t, { dir: 1, anda: corre > 0 && !cansado, triste: cansado, salto: corre > 0 && !cansado ? (Math.floor(t * 8) & 1) : 0 });
+  if (cansado && t < W.N7 + 1.6) for (let k = 0; k < 3; k++) { const u = (t * 1.4 + k / 3) % 1; tine(nx + 15 + u * 6, ny - 20 - u * 8, H('#ffffff'), 0.7 * (1 - u)); }
+  // la hierba de delante, a contraluz, que se mece con el viento
+  for (let k = 0; k < 30; k++) { const x = 3 + k * 11 + (k % 3) * 2, h = 6 + (k % 4) * 2, w = Math.sin(t * 2.2 + k * 0.7) * 2; for (let j = 0; j < h; j++) { const xx = x + w * (j / h) ** 2; ps(xx, 179 - j, j > h - 3 ? H('#f0a858') : (k & 1) ? H('#3a2c20') : H('#4e3a26')); ps(xx + 2, 179 - j * 0.7, H('#2a2018')); } }
 };
 
 // ── 6 · el laboratorio ──────────────────────────────────────────────────────────────────────────────────────────────

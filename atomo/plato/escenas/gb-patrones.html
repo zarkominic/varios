@@ -21,8 +21,10 @@
 // 3 · Congelada de cerca (la estantería y la mesa del fondo): Atom a la derecha señala la nube, que se rodea y es un
 //   conejo en «animal in a cloud»; luego da dos pasos hacia el reloj de arena y, brazos arriba, lo hace girar en
 //   «thousands» (la arena cae antes y después). Corta en «shadow».
-// 4 · Congelada de cerca (la ventana con el gato): la sombra del gato se hace un león enorme en la pared en «shadow»;
-//   Atom da un salto en «lion» y se ríe en «safer»; la sombra vuelve a ser un gato. Corta en «once».
+// 4 · Congelada muy de cerca y baja (zoom ×3: el alféizar con el gato a color y la pared de ladrillo a su izquierda,
+//   sin el mapa ni la tele del plano 2): Atom se acerca con su farol a mirar al gato; la luz cálida tiembla en la pared
+//   y, cuanto más se acerca, más crece la sombra, que se vuelve un león enorme en «lion»; Atom salta, se ríe en «safer»,
+//   se aparta en «the opposite» y la sombra vuelve a ser un gato, que bosteza. Corta en «once».
 // 5 · Congelada de cerca (los dibujos de pilares): la nube se vuelve buitre en «pattern» y cometa en «can't stop»;
 //   Atom da un saltito de sorpresa en cada cambio y entre uno y otro se acerca a la nube. Corta en «That».
 // 6 · Congelada de cerca (la mesa de las bandejas): la nube se vuelve Atom en «false» y Atom guiña; en «how many
@@ -175,23 +177,81 @@ const q3 = (t) => {
   AT.atom(R, ax3, 178, t, { s: 2, dir: -1, pose: va > 0 && va < 1 ? 'camina' : gira ? 'brazos' : t > W.ANIMAL - 0.2 && t < W.BECAUSE2 ? 'senala' : t > W.THOUSANDS ? 'piensa' : 'quieto', cara: gira ? 'sorpresa' : t > W.CLOUD ? 'sonrisa' : 'normal', habla: habla(t) });
   if (gira) destello(gx + 14, gy - 16, 2 + ri(Math.sin(t * 12)));
 };
-// ── 4 · de cerca, la ventana con el gato: la sombra del león ───────────────────────────────────────────────────
+// ── 4 · muy de cerca, el alféizar con el gato: el farol de Atom y la sombra del león ───────────────────────────────────────────────────
 const leon = (cx, cy, s, a) => { if (a <= 0) return; // la silueta de un león de perfil (melena, hocico, orejas), tramada como sombra
   const dentro = (x, y) => { const dx = (x - cx) / s, dy = (y - cy) / s, ang = Math.atan2(dy, dx), mel = 15 + (Math.abs(Math.sin(ang * 7)) > 0.6 ? 5 : 0);
     if (dx > 2 && Math.hypot(dx - 6, dy + 2) < 8) return !(Math.hypot(dx - 8, dy + 5) < 1.5);   // la cara (con el ojo)
     return Math.hypot(dx, dy) < mel || (dx > 8 && dx < 18 && dy > 0 && dy < 7) || (dx > -44 && dx < -4 && dy > 4 && dy < 20) || (Math.abs(dx + 38) < 3 && dy > 16 && dy < 32) || (Math.abs(dx + 12) < 3 && dy > 16 && dy < 32)
       || (dx < -42 && dx > -56 && Math.abs(dy - 8 + (dx + 42) * 0.6) < 1.5) || Math.hypot(dx + 58, dy - 16) < 4; };
   llena(cx - 52 * s, cy - 18 * s, cx + 24 * s, cy + 32 * s, (x, y) => dentro(x, y) && b4(x, y) < a * 0.95 ? mez(R.buf[y * 320 + x], H('#06080f'), 0.72) : undefined); };
+// el gato del alféizar, sentado de perfil mirando a la derecha (a color, lo único vivo del alféizar): pecho crema,
+// rayas, el lado de la luz más claro, la cola que barre el alféizar, parpadeo y un bostezo en o.bosteza
+const gatoP = (cx, base, t, o = {}) => {
+  const NA = H('#e8903a'), RA = H('#b85a22'), LU = H('#ffbe6a'), CR = H('#f4e6c8'), RS = H('#e88a9a');
+  // la cola (por detrás del cuerpo): sale de la grupa y barre el alféizar
+  const sw = Math.sin(t * 2.4) * 0.5 + 0.5;
+  for (let k = 0; k <= 14; k++) { const u = k / 14, x = cx - 8 - u * 14, y = base - 1 - Math.sin(u * Math.PI * 0.9) * (3 + sw * 5) - u * u * sw * 4;
+    R.disco(ri(x), ri(y), 2, K); }
+  for (let k = 0; k <= 14; k++) { const u = k / 14, x = cx - 8 - u * 14, y = base - 1 - Math.sin(u * Math.PI * 0.9) * (3 + sw * 5) - u * u * sw * 4;
+    R.disco(ri(x), ri(y), 1, k > 11 ? RA : (k & 3) === 1 ? RA : NA); }
+  // la grupa y el cuerpo (pera), con rayas en el lomo y el lado derecho iluminado por el farol
+  const piel = (x, y, d, cx0) => d > 0.78 ? K : x > cx0 + 4 && y > base - 20 && y < base - 5 ? CR : x > cx0 + 2 ? LU : ((y + (x >> 1)) % 4 === 0 && x < cx0 + 1) ? RA : NA;
+  ovalo(cx - 3, base - 5, 8, 5, (x, y, d) => piel(x, y, d, cx - 3));
+  ovalo(cx, base - 11, 7, 10, (x, y, d) => piel(x, y, d, cx));
+  // las patas delanteras y sus dedos
+  rr(cx + 2, base - 4, cx + 7, base, K); rr(cx + 3, base - 4, cx + 6, base - 1, CR); ps(cx + 4, base - 1, H('#c8b090')); ps(cx + 6, base - 1, H('#c8b090'));
+  // la cabeza con las orejas (por dentro rosas), el ojo verde y el hocico
+  for (const ex of [cx + 1, cx + 7]) { R.poligono([[ex - 1, base - 25], [ex + 2, base - 31], [ex + 4, base - 25]], K); R.poligono([[ex, base - 25], [ex + 2, base - 29], [ex + 3, base - 25]], NA); ps(ex + 2, base - 27, RS); }
+  ovalo(cx + 5, base - 21, 7, 5, (x, y, d) => d > 0.75 ? K : x > cx + 8 && y > base - 21 ? CR : x > cx + 7 ? LU : (x === cx + 1 || x === cx + 3) && y < base - 22 ? RA : NA);
+  const parpa = (t % 3.1) < 0.14 || o.bosteza;
+  if (parpa) { ps(cx + 8, base - 22, K); ps(cx + 9, base - 22, K); } else { ps(cx + 8, base - 23, H('#7ac84a')); ps(cx + 9, base - 23, H('#7ac84a')); ps(cx + 8, base - 22, H('#7ac84a')); ps(cx + 9, base - 22, K); }
+  ps(cx + 12, base - 20, RS); ps(cx + 11, base - 19, K);
+  if (o.bosteza) { rr(cx + 9, base - 18, cx + 12, base - 17, K); ps(cx + 10, base - 18, RS); ps(cx + 11, base - 18, RS); }
+  // los bigotes
+  R.linea(cx + 12, base - 19, cx + 17, base - 20, H('#fff4e0')); R.linea(cx + 12, base - 18, cx + 17, base - 17, H('#fff4e0'));
+};
+// la sombra del gato (sentado, de perfil), tramada como la del león
+const gatoSombra = (cx, cy, s, a) => { if (a <= 0) return;
+  const dentro = (x, y) => { const dx = (x - cx) / s, dy = (y - cy) / s;
+    return ((dx / 7) ** 2 + ((dy + 11) / 10) ** 2 < 1) || (((dx + 3) / 8) ** 2 + ((dy + 5) / 5) ** 2 < 1) || (((dx - 5) / 7) ** 2 + ((dy + 21) / 5) ** 2 < 1)
+      || (dy < -24 && dy > -31 && (Math.abs(dx - 3) < (dy + 31) * 0.4 || Math.abs(dx - 9) < (dy + 31) * 0.4)) || (dx < -8 && dx > -22 && Math.abs(dy + 3 + (dx + 8) * 0.5) < 1.6); };
+  llena(cx - 24 * s, cy - 32 * s, cx + 14 * s, cy + 2 * s, (x, y) => dentro(x, y) && b4(x, y) < a * 0.95 ? mez(R.buf[y * 320 + x], H('#06080f'), 0.72) : undefined); };
+// el farol de Atom (a color), colgado de la punta de una vara que sostiene en la mano (mx, my) y adelanta hacia dir:
+// la vara, el asa, el tejadillo y el cristal con la llama que tiembla; devuelve dónde está la llama
+const farol = (hx, hy, t, dir = -1) => { hx = ri(hx); hy = ri(hy); const fl = Math.sin(t * 17) * 0.5 + Math.sin(t * 7.3) * 0.5;
+  const mx = hx + 12 * dir, my = hy - 20 + ri(Math.sin(t * 2.1) * 1);
+  R.linea(hx, hy + 1, mx, my + 1, K); R.linea(hx + 1, hy, mx + 1, my, K); R.linea(hx, hy, mx, my, H('#9a6a3a')); ps(mx, my, H('#5a3a1a'));
+  R.linea(mx, my, mx - 2, my + 3, K); R.linea(mx, my, mx + 2, my + 3, K);
+  rr(mx - 4, my + 3, mx + 4, my + 5, K); rr(mx - 3, my + 4, mx + 3, my + 4, H('#3a5a6a'));
+  rr(mx - 4, my + 6, mx + 4, my + 15, K); rr(mx - 3, my + 7, mx + 3, my + 14, H('#ffe08a'));
+  rr(mx - 1, my + 9 - (fl > 0.3 ? 1 : 0), mx + 1, my + 13, H('#ff9a2a')); ps(mx, my + 10, H('#fffbe8')); ps(mx, my + 11, H('#fffbe8'));
+  ps(mx - 3, my + 7, H('#fffbe8')); rr(mx - 4, my + 16, mx + 4, my + 17, K); rr(mx - 3, my + 16, mx + 3, my + 16, H('#3a5a6a'));
+  return [mx, my + 11]; };
 const q4 = (t) => {
-  vista(160, 14, 2); pausa(1);
-  // la luz del farol de Atom entra por la ventana; el gato (a color) proyecta su sombra de león en la pared
-  const crece = tramo(t, W.SHADOW - 0.1, W.LION - 0.1) * (1 - tramo(t, W.OPPOSITE, W.OPPOSITE + 0.8)), s = lerp(0.6, 2.0, crece);
-  leon(lerp(88, 74, crece), lerp(120, 78, crece), s, cl(crece * 1.4));
-  // el gato del alféizar, a color, que mueve la cola
-  const gx = 112, gy = 140; ovalo(gx, gy, 14, 6, (x, y, d) => d > 0.75 ? K : (x + y) % 5 === 0 ? H('#c86a2a') : H('#e8903a')); rr(gx + 10, gy - 12, gx + 22, gy - 1, K); rr(gx + 11, gy - 11, gx + 21, gy - 2, H('#e8903a')); ps(gx + 11, gy - 13, K); ps(gx + 20, gy - 13, K); ps(gx + 14, gy - 8, K); ps(gx + 18, gy - 8, K);
-  R.linea(gx - 14, gy + 2, gx - 22, gy - 6 + ri(Math.sin(t * 3) * 3), K); R.linea(gx - 14, gy + 1, gx - 22, gy - 7 + ri(Math.sin(t * 3) * 3), H('#e8903a'));
-  const salta = t > W.LION - 0.05 && t < W.LION + 0.5;
-  AT.atom(R, 232, 178 - (salta ? ri(Math.sin((t - W.LION) / 0.55 * Math.PI) * 14) : 0), t, { s: 2, dir: -1, pose: salta ? 'brazos' : t > W.OPPOSITE ? 'brazos' : t > W.SAFER ? 'senala' : 'quieto', cara: salta ? 'sorpresa' : t > W.SAFER ? 'sonrisa' : 'normal', habla: habla(t) });
+  vista(168, 46, 3); pausa(1);
+  // Atom se acerca con el farol a mirar al gato (cuanto más cerca, más crece la sombra), salta en «lion», se ríe en
+  // «safer» y, en «the opposite», se aparta: la sombra vuelve a ser un gato
+  const va = ease(tramo(t, W.SHADOW + 0.15, W.LION - 0.08)), vuelve = ease(tramo(t, W.OPPOSITE - 0.1, W.AND + 0.2));
+  const ax = ri(lerp(lerp(262, 196, va), 258, vuelve)), anda = (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1);
+  const crece = cl((262 - ax) / 66);
+  // la luz cálida del farol en la pared (tiembla con la llama); se calcula antes que Atom, con la mano aproximada
+  const dir = vuelve > 0 && vuelve < 1 ? 1 : -1;
+  const lx = ax + 28 * dir, ly = 150, fl = 0.85 + Math.sin(t * 17) * 0.08 + Math.sin(t * 7.3) * 0.07;
+  llena(0, 0, 319, 179, (x, y) => { const d = Math.hypot((x - lx) * 0.8, y - ly), a = (1 - d / 190) * 0.3 * fl; return a > b4(x, y) * 0.05 + 0.02 ? mez(R.buf[y * 320 + x], H('#ffc46a'), a) : undefined; });
+  // la sombra: el gato de verdad al principio y al final; en medio, el león enorme que trepa por la pared y la ventana
+  const cx = 120, base = 108;
+  gatoSombra(cx - 82 - crece * 10, base - 6 - crece * 6, 1.25 + crece * 0.4, cl(1 - crece * 1.8));
+  leon(lerp(46, 104, crece), lerp(92, 64, crece), lerp(0.8, 2.0, crece), cl((crece - 0.4) * 2.5));
+  // el gato, en el alféizar; bosteza al final, cuando todo se ha calmado
+  gatoP(cx, base, t, { bosteza: t > W.AND + 0.5 && t < W.AND + 1.3 });
+  // motas de polvo que brillan en el haz del farol
+  for (let k = 0; k < 22; k++) { const u = (h2(k, 7) + t * (0.05 + h2(k, 8) * 0.06)) % 1, x = lerp(lx, cx - 10 + h2(k, 9) * 40, u), y = lerp(ly, base - 30 + h2(k, 3) * 40, u) + Math.sin(t * 1.7 + k) * 3;
+    if (Math.sin(t * 2.3 + k * 1.9) > -0.2) { ps(x, y, h2(k, 5) > 0.5 ? H('#fff0b8') : H('#ffd27a')); if (h2(k, 6) > 0.7) ps(x + 1, y, H('#ffe6a0')); } }
+  const salta = t > W.LION - 0.05 && t < W.LION + 0.5, rie = t > W.SAFER - 0.05 && t < W.OPPOSITE - 0.1;
+  const sy = salta ? ri(Math.sin((t - W.LION) / 0.55 * Math.PI) * 14) : rie ? ri(Math.abs(Math.sin(t * 9)) * 2) : 0;
+  const a = AT.atom(R, ax, 178 - sy, t, { s: 2, dir, pose: 'sostiene', cara: salta ? 'sorpresa' : rie || t > W.AND ? 'sonrisa' : 'normal', habla: habla(t) });
+  farol(a.mano[0], a.mano[1] + (salta ? -3 : 0), t, dir);
+  if (salta) R.bocadillo(ax, 178 - sy - 46, { icono: '!' });
 };
 // ── 5 · de cerca, los dibujos de pilares: la nube se vuelve buitre y luego cometa ──────────────────────────────
 const q5 = (t) => {

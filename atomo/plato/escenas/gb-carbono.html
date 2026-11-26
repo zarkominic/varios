@@ -17,15 +17,18 @@
 //   Corta en «Everything».
 // 2 · Congelado, de cerca, la ventana y el banco: Atom entra por la derecha y señala; el arbolito y la gacela de madera,
 //   a color, respiran motas verdes con su «14» (chispazo verde al absorberlas); en «carbon-14» Atom coge una y sale el «14»
-//   grande; en «breaks down very slowly» la mota parpadea y se apaga. Corta en «and when».
+//   grande; en «breaks down very slowly» la mota parpadea y se apaga (las motas nunca entran en la esquina de Atom).
+//   Corta en «and when».
 // 3 · Congelado, de cerca, el tanque: Atom mira el arbolito, que se marchita en «dies» (cara triste); las motas rebotan
 //   con su «X»; va andando hacia el reloj y la tarta, que caen en «so every»; el cuchillo la parte en «5,700» y sale «5730».
-// 4 · Congelado, la campana: la tarta al triple; en «half» Atom señala la mitad y en «what it had» se dibuja de puntos la
-//   que falta; en «measuring» saca la lupa y se acerca a medir la arena del reloj; otro corte, y en «left» otro.
+// 4 · Congelado, la campana: la tarta al triple en el centro, sobre un carrito de acero (frascos en la balda de abajo);
+//   el reloj pequeño en una balda de la pared, a la izquierda; Atom entra por la derecha, en «half» señala la mitad y en
+//   «what it had» se dibuja de puntos la que falta; en «measuring» saca la lupa y mira lo que queda; otro corte en «left».
 // 5 · Congelado y a oscuras, el pupitre: una hoguera a color con brasas que suben; Atom alza un trozo de carbón en
 //   «charcoal», se acerca al fuego en «campfire» y en «how long ago» lo lanza al aire y lo recoge; la tarta se parte.
-// 6 · Congelado, el pupitre y el termo: Atom señala el reloj; en «started running» va andando hasta el plato; la hoguera se
-//   apaga en «the fire went out» (humo); el último corte deja una miga, que Atom coge y se come (migajas).
+// 6 · Congelado, el pupitre y el termo: a la derecha la hoguera y el reloj a su lado (lleno, quieto); a la izquierda el
+//   plato en un cajón de madera. Atom señala el reloj; en «started running» va andando hasta el plato; la hoguera se apaga
+//   en «the fire went out» (humo) y el reloj empieza a correr; el último corte deja una miga, que Atom coge y se come.
 // La zona de Atom (arriba a la derecha) se funde con su tono medio en los planos de cerca (calma()).
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -177,6 +180,47 @@ const mota = (x, y, t, k, a = 1) => { x = ri(x); y = ri(y); const l = Math.sin(t
   if (a > 0.5) R.numero('14', x + 5, y - 3, { fina: true, color: H('#c8ffd8') }); };
 // el reloj de arena y la tarta (T.pausa 'reloj'), con la sombra y el «5730»
 const reloj = (x, y, t, mitades, s = 2, numero) => T.pausa(R, x, y, t, { cual: 'reloj', mitades, s, numero });
+// el reloj solo o la tarta sola: la misma receta recortada a su mitad (R.recorte), para ponerlos en sitios distintos.
+// cx: el centro del reloj o del plato; by: la base
+const relojSolo = (cx, by, t, mitades, s = 2) => { const x = ri(cx + 18 * s); R.recorte([0, 0, x - 7 * s, 179]);
+  const r = T.pausa(R, x, by, t, { cual: 'reloj', mitades, s, numero: false }); R.recorte(null); return r; };
+const tartaSola = (cx, by, t, mitades, s = 2) => { const x = ri(cx - 16 * s); R.recorte([x - 5 * s, 0, 319, 179]);
+  const r = T.pausa(R, x, by, t, { cual: 'reloj', mitades, s, numero: false }); R.recorte(null); return r; };
+// una tabla de madera con vetas (de x0 a x1, de y0 a y1), con el canto claro arriba y la sombra abajo
+const tabla = (x0, y0, x1, y1, k = 0) => { rr(x0 - 1, y0 - 1, x1 + 1, y1 + 1, K); const MAD = pal(['#5a3a22', '#7a5232', '#9a6a3e', '#b8844c']);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const v = 2 - (y - y0) / Math.max(1, y1 - y0) * 1.4 + Math.sin(x * 0.21 + y * 1.7 + k + Math.sin(x * 0.05 + k) * 2) * 0.55 + (h2(x >> 2, y, k) > 0.93 ? -1 : 0);
+    R.pset(x, y, y === y0 ? MAD[3] : y === y1 ? MAD[0] : rmp(MAD, v, x, y)); } };
+// el carrito de laboratorio de acero (plano 4): tablero, balda de abajo con frascos y cajas, patas y ruedas
+const carrito = (x0, y0, x1, t) => { const AC = pal(['#3a4250', '#5a6474', '#7e8a9a', '#a8b4c2', '#d8e2ec']), yb = 160, ys = 172;
+  sombraS((x0 + x1) / 2, 178, (x1 - x0) / 2 + 6, 0.45);
+  for (const px of [x0 + 4, x1 - 4]) { rr(px - 2, y0 + 6, px + 2, ys, K); rr(px - 1, y0 + 7, px + 1, ys - 1, AC[2]); rr(px - 1, y0 + 7, px - 1, ys - 1, AC[3]);
+    R.disco(px, ys + 3, 3, K); R.disco(px, ys + 3, 2, AC[1]); ps(px - 1, ys + 2, AC[3]); }
+  // la balda de abajo, con dos frascos de colores, una caja de portaobjetos y un rollo de papel
+  rr(x0 + 2, yb, x1 - 2, yb + 3, K); for (let x = x0 + 3; x <= x1 - 3; x++) { ps(x, yb + 1, AC[3]); ps(x, yb + 2, (x & 3) ? AC[2] : AC[1]); }
+  const fr = (x, c, cL, hh) => { rr(x - 4, yb - hh - 1, x + 4, yb - 1, K); rr(x - 3, yb - hh, x + 3, yb - 2, H('#c8dce8')); rr(x - 3, yb - hh * 0.6, x + 3, yb - 2, c); ps(x - 2, yb - hh + 1, H('#ffffff')); rr(x - 2, yb - hh * 0.6, x - 2, yb - 3, cL);
+    rr(x - 2, yb - hh - 3, x + 2, yb - hh - 1, K); rr(x - 1, yb - hh - 2, x + 1, yb - hh - 2, H('#6a4a2a')); };
+  fr(x0 + 18, H('#3a9a6a'), H('#7ad8a0'), 12); fr(x0 + 30, H('#c8503a'), H('#f0906a'), 9);
+  rr(x1 - 44, yb - 7, x1 - 20, yb - 1, K); rr(x1 - 43, yb - 6, x1 - 21, yb - 2, H('#4a6aa0')); for (let x = x1 - 42; x < x1 - 21; x += 3) ps(x, yb - 4, H('#8aaad8'));
+  R.disco(x1 - 12, yb - 5, 4, K); R.disco(x1 - 12, yb - 5, 3, H('#e8e4d8')); ps(x1 - 12, yb - 5, H('#8a8478'));
+  // el tablero, de acero cepillado: luz arriba, vetas finas, remaches y el canto en sombra
+  rr(x0 - 1, y0 - 1, x1 + 1, y0 + 7, K);
+  for (let y = y0; y <= y0 + 6; y++) for (let x = x0; x <= x1; x++) { const v = y === y0 ? 4 : y >= y0 + 5 ? 1 : 2.6 + Math.sin(x * 0.9 + y * 3.1) * 0.35 + (h2(x >> 3, y, 7) - 0.5) * 0.6 - (x - x0) / (x1 - x0) * 0.5;
+    R.pset(x, y, rmp(AC, v, x, y)); }
+  for (const px of [x0 + 4, x1 - 4, (x0 + x1) >> 1]) { ps(px, y0 + 5, AC[4]); ps(px + 1, y0 + 6, K); }
+  const brillo = ri(x0 + ((t * 18) % (x1 - x0 + 40)) - 20); for (let q = 0; q < 6; q++) if (brillo + q > x0 && brillo + q < x1) ps(brillo + q, y0 + 1, AC[4]);   // el reflejo que corre por el canto
+};
+// la balda de pared (plano 4), con sus escuadras de hierro, un frasco y un bote de lápices
+const balda = (x0, x1, y, t) => { for (const px of [x0 + 8, x1 - 8]) { R.poligono([[px - 2, y + 4], [px + 2, y + 4], [px + 2, y + 16], [px - 2, y + 8]], K); R.linea(px - 1, y + 5, px + 1, y + 13, H('#5a5a66')); ps(px, y + 6, H('#9a9aa8')); }
+  for (let x = x0; x <= x1; x++) tine(x, y + 6, H('#10141e'), 0.45), tine(x, y + 7, H('#10141e'), 0.25);
+  tabla(x0, y, x1, y + 4, 3);
+  rr(x1 - 20, y - 15, x1 - 10, y - 1, K); rr(x1 - 19, y - 14, x1 - 11, y - 2, H('#c8dce8')); rr(x1 - 19, y - 8, x1 - 11, y - 2, H('#e8b83a')); rr(x1 - 18, y - 8, x1 - 18, y - 3, H('#ffe07a')); ps(x1 - 18, y - 13, H('#ffffff'));
+  if (Math.sin(t * 3) > 0.3) ps(x1 - 14, y - 6 - ri((t * 6) % 5), H('#fff4c8'));   // una burbuja que sube en el frasco
+  rr(x1 - 7, y - 10, x1 - 1, y - 1, K); rr(x1 - 6, y - 9, x1 - 2, y - 2, H('#4a7ab8')); for (const [d, c] of [[-5, '#e84a3a'], [-4, '#ffd04a'], [-3, '#4ad87a']]) R.linea(x1 + d, y - 10, x1 + d + 1, y - 15, H(c)); };
+// el cajón de madera (plano 6), de tablas clavadas con sus esquineros, sobre el que está el plato
+const cajon = (x0, y0, x1, y1) => { sombraS((x0 + x1) / 2, y1 + 1, (x1 - x0) / 2 + 5, 0.45);
+  for (let k = 0, y = y0; y < y1; k++, y += 7) tabla(x0, y, x1, Math.min(y1, y + 5), k * 3.7);
+  for (const px of [x0, x1 - 4]) tabla(px, y0, px + 4, y1, 9);
+  for (let y = y0 + 3; y < y1; y += 7) for (const px of [x0 + 2, x1 - 2]) { ps(px, y, H('#c8ccd4')); ps(px, y + 1, K); } };
 // la hoguera a color: piedras, leños y llamas (b 0–1: de llama viva a brasa y humo)
 const hoguera = (x, y, t, b = 1) => { x = ri(x); y = ri(y);
   for (let k = 0; k < 9; k++) { const a = k / 9 * Math.PI * 2, px = x + Math.cos(a) * 16, py = y + Math.sin(a) * 5; rr(px - 3, py - 2, px + 3, py + 2, K); rr(px - 2, py - 1, px + 2, py + 1, H('#8a8478')); ps(px - 1, py - 1, H('#b8b2a4')); }
@@ -214,7 +258,8 @@ const p2 = (t) => {
   // las motas bajan del aire hacia las hojas y hacia el hocico de la gacela
   const entra = tramo(t, W.TAKES - 0.3, W.TAKES + 0.4);
   if (entra > 0) for (let k = 0; k < 8; k++) { const u = (t * 0.32 + k / 8) % 1, haciaG = k & 1, tx = haciaG ? GX + 18 : AX + ((k * 7) % 24) - 12, ty = haciaG ? 140 : 132 + (k % 3) * 4;
-    const sx = 40 + k * 34, sy = 26 + (k % 3) * 8; if (u < 0.9) mota(lerp(sx, tx, u) + Math.sin(u * 9 + k) * 4, lerp(sy, ty, u), t, k, u < 0.6 ? 1 : 0);
+    const sx = 36 + k * 29, sy = 26 + (k % 3) * 8, mx = lerp(sx, tx, u) + Math.sin(u * 9 + k) * 4, my = lerp(sy, ty, u);
+    if (u < 0.9) { if (mx < 252 || my > 52) mota(mx, my, t, k, u < 0.6 ? 1 : 0); }   // nunca entra en la esquina de Atom (x 278–318, y 4–44), ni con su «14»
     else if (u < 0.97) destello(tx, ty, 2, H('#c8ffd8')); }   // la absorbe: un chispazo verde en la hoja o en el hocico
   // Atom coge una mota y la enseña: el «14» grande; en «breaks down very slowly» parpadea y se apaga despacio
   // Atom entra por la derecha y en «alive» señala el arbolito
@@ -243,18 +288,25 @@ const p3 = (t) => {
   const a = AT.atom(R, ax, 178, t, { s: 2, dir: t > W.STOPS + 0.45 ? 1 : -1, pose: va > 0 && va < 1 ? 'camina' : t > W.SO - 0.1 && t < W.N5 ? 'brazos' : t >= W.N5 ? 'senala' : t < W.DIES ? 'senala' : 'piensa', cara: seco > 0.3 && t < W.SO ? 'triste' : mit > 0.9 ? 'sonrisa' : 'normal', habla: habla(t) });
 };
 
-// ── 4 · la campana y la fuente de iones, de cerca: la tarta al triple, la mitad, y otro corte, y otro ──────────────────
+// ── 4 · la campana y la fuente de iones, de cerca: la tarta al triple en el carrito, el reloj en la balda ────────────
 const p4 = (t) => {
-  vista(0, 84, 2); pausa(1); viñeta();
+  vista(0, 84, 2); pausa(1); viñeta(); calma(0.6);
+  // el reloj, pequeño, en la balda de la pared (a la izquierda), con la arena que sigue cayendo
+  balda(22, 102, 112, t); relojSolo(54, 112, t, 1 + 0.4 * tramo(t, P4, P5), 2);
+  // la tarta, grande, en el centro, sobre el carrito de acero; «5730» arriba a su derecha
+  carrito(98, 142, 232, t);
   const mit = 1 + tramo(t, W.MEASURING, W.MEASURING + 1.0) + tramo(t, W.LEFT + 0.1, W.CHARCOAL - 0.05);
-  const r = reloj(196, 176, t, mit, 3, true);
+  const r = tartaSola(165, 146, t, mit, 3);
+  const g5 = pop(t, P4 + 0.2, 0.35); if (g5 > 0) R.numero('5730', 240, ri(58 - (1 - g5) * 8), { centro: true, tam: 16 });
   // en «what it had» se dibuja de puntos la tarta entera que había
   if (t > W.WHAT - 0.1 && t < W.BY) { const [cx, cy] = r.tarta, n = 64; for (let k = 0; k < n; k++) { if ((k + Math.floor(t * 10)) % 3) continue; const a = k / n * Math.PI * 2; ps(cx + Math.cos(a) * 46, cy + 6 + Math.sin(a) * 21, H('#ffe070')); } }
   const s1 = t > W.HALF - 0.1 && t < W.MEASURING;
-  // en «measuring» Atom saca la lupa y se acerca a medir la arena que le queda al reloj; en «left» se sorprende
-  const va = tramo(t, W.MEASURING - 0.1, W.MEASURING + 0.7), ax = ri(lerp(52, 88, ease(va)));
-  const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: s1 ? 'senala' : va > 0 && va < 1 ? 'camina' : va >= 1 ? 'sostiene' : 'piensa', cara: t > W.LEFT ? 'sorpresa' : 'normal', habla: habla(t) });
-  if (va >= 1) { const ly = Math.sin(t * 2.2) * 1.5; AT.lupa(R, a.mano[0], a.mano[1] + ly, 2, 1); }
+  // Atom entra por la derecha y en «half» señala la mitad; en «measuring» saca la lupa y se acerca a mirar lo que queda
+  // de tarta; en «left» se sorprende con el otro corte
+  const llega = tramo(t, P4 + 0.05, P4 + 0.95), va = tramo(t, W.MEASURING - 0.1, W.MEASURING + 0.6);
+  const ax = ri(lerp(352, 268, ease(llega)) - 14 * ease(va));
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: -1, pose: llega < 1 ? 'camina' : s1 ? 'senala' : va > 0 && va < 1 ? 'camina' : va >= 1 ? 'sostiene' : 'piensa', cara: t > W.LEFT ? 'sorpresa' : 'normal', habla: habla(t) });
+  if (va >= 1) { const ly = Math.sin(t * 2.2) * 1.5; AT.lupa(R, a.mano[0], a.mano[1] + ly, 2, -1); }
   if (s1 && t > W.HALF) { const g = pop(t, W.HALF, 0.3); R.numero('1', ri(r.tarta[0] - 6), ri(r.tarta[1] - 30 - g * 4), { tam: 16, centro: true }); R.linea(ri(r.tarta[0]) - 3, ri(r.tarta[1]) - 22, ri(r.tarta[0]) + 9, ri(r.tarta[1]) - 22, H('#ffe070')); R.numero('2', ri(r.tarta[0] + 4), ri(r.tarta[1] - 6), { tam: 16, centro: true }); }
 };
 
@@ -276,22 +328,27 @@ const p5 = (t) => {
   viñeta(0.4);
 };
 
-// ── 6 · el pupitre y el termo, de cerca: la hoguera se apaga, el reloj corre; la última miga ───────────────────────────
+// ── 6 · el pupitre y el termo, de cerca: el reloj junto a la hoguera arranca cuando se apaga; la última miga, en el cajón ─
 const p6 = (t) => {
   vista(160, 88, 2); pausa(1); viñeta();
+  // a la izquierda, el plato con lo que queda de tarta sobre un cajón de madera
+  cajon(26, 152, 98, 176);
+  const r = tartaSola(62, 154, t, 4 + tramo(t, W.STARTED - 0.2, W.FIRE), 2);
+  // a la derecha, la hoguera y, a su lado, el reloj con «5730» encima: espera lleno y empieza a correr cuando el fuego se apaga
   const b = 1 - ease(tramo(t, W.FIRE - 0.2, W.OUT + 0.3));
-  if (b > 0.1) luzHoguera(64, 160, 70, 0.6 * b);
-  hoguera(64, 172, t, b); brasas(64, 172, t, 6, b * 0.9);
-  const mit = 4 + tramo(t, W.STARTED - 0.2, W.FIRE);
-  const r = reloj(214, 172, t, mit, 2, true);
-  if (t > W.HOURGLASS && t < W.HOURGLASS + 1.0 && Math.floor(t * 8) % 2) destello(r.reloj[0] + 10, r.reloj[1] - 20, 3);
-  // Atom señala el reloj, en «started running» va andando hasta el plato y en «went out» coge la miga y se la come
-  const va = tramo(t, W.STARTED - 0.15, W.FIRE + 0.1), ax = ri(lerp(128, 216, ease(va)));
+  if (b > 0.1) luzHoguera(190, 160, 70, 0.6 * b);
+  hoguera(190, 172, t, b); brasas(190, 172, t, 6, b * 0.9);
+  const rl = relojSolo(240, 172, t, 1.2 * ease(tramo(t, W.OUT - 0.1, W.OUT + 2.2)), 2);
+  R.numero('5730', 240, 74, { centro: true, tam: 16 });   // la cifra del reloj: cada 5730 años, la mitad
+  if (t > W.HOURGLASS && t < W.HOURGLASS + 1.0 && Math.floor(t * 8) % 2) destello(rl.reloj[0] + 10, rl.reloj[1] - 20, 3);
+  if (t > W.OUT && t < W.OUT + 0.8 && Math.floor(t * 8) % 2) destello(rl.reloj[0] - 10, rl.reloj[1] + 2, 2);   // ¡ya corre!
+  // Atom señala el reloj junto al fuego; en «started running» va andando hasta el plato y en «went out» coge la miga y se la come
+  const va = tramo(t, W.STARTED - 0.15, W.FIRE + 0.1), ax = ri(lerp(150, 120, ease(va))), ida = t > W.STARTED - 0.15;
   const coge = tramo(t, W.OUT - 0.05, W.OUT + 0.3), boca = tramo(t, W.OUT + 0.3, W.OUT + 0.6), come = t > W.OUT + 0.6;
-  const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: t < W.HOURGLASS ? 'senala' : va > 0 && va < 1 ? 'camina' : coge > 0 && !come ? 'sostiene' : come ? 'brazos' : 'piensa', cara: come ? 'sonrisa' : t > W.FIRE ? 'sorpresa' : 'normal', habla: come && t < W.OUT + 1.6 ? (Math.floor(t * 8) & 1) : habla(t) });
-  if (coge > 0 && !come) { const mx = coge < 1 ? lerp(r.tarta[0] - 6, a.mano[0], coge) : lerp(a.mano[0], a.centro[0] + 2, boca), my = coge < 1 ? lerp(r.tarta[1] + 4, a.mano[1] - 2, coge) - Math.sin(coge * Math.PI) * 6 : lerp(a.mano[1] - 2, a.centro[1] + 4, boca);
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: ida ? -1 : 1, pose: !ida ? 'senala' : va < 1 ? 'camina' : coge > 0 && !come ? 'sostiene' : come ? 'brazos' : 'piensa', cara: come ? 'sonrisa' : t > W.FIRE ? 'sorpresa' : 'normal', habla: come && t < W.OUT + 1.6 ? (Math.floor(t * 8) & 1) : habla(t) });
+  if (coge > 0 && !come) { const mx = coge < 1 ? lerp(r.tarta[0] + 6, a.mano[0], coge) : lerp(a.mano[0], a.centro[0] - 2, boca), my = coge < 1 ? lerp(r.tarta[1] + 4, a.mano[1] - 2, coge) - Math.sin(coge * Math.PI) * 6 : lerp(a.mano[1] - 2, a.centro[1] + 4, boca);
     rr(mx - 2, my - 2, mx + 2, my + 2, K); rr(mx - 1, my - 1, mx + 1, my + 1, H('#e8c080')); ps(mx - 1, my - 1, H('#ff5a6a')); }
-  if (come && t < W.OUT + 1.2) for (let k = 0; k < 3; k++) { const v = (t - W.OUT - 0.6) * 1.6 + k * 0.15; if (v < 1) ps(a.centro[0] + 6 + k * 2, a.centro[1] + 8 + v * 22, H('#e8c080')); }   // las migajas que caen
+  if (come && t < W.OUT + 1.2) for (let k = 0; k < 3; k++) { const v = (t - W.OUT - 0.6) * 1.6 + k * 0.15; if (v < 1) ps(a.centro[0] - 6 - k * 2, a.centro[1] + 8 + v * 22, H('#e8c080')); }   // las migajas que caen
 };
 
 const efectos = [[0.05, 'tapestop'], [0.5, 'pasos'], [W.BECAUSE + 0.1, 'brillo'], [W.MAGIC + 0.08, 'chof'], [W.MAGIC + 0.6, 'whoosh'], [P2 + 0.1, 'pasos'], [W.TAKES, 'brillo'], [W.N14, 'pop'], [W.SLOWLY + 0.3, 'tic'],

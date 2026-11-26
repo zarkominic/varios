@@ -13,17 +13,24 @@
 // copiado literal, en su último instante) y Atom al doble, a color, con sus objetos. GAG DE LA PAPILLA SIN SAL. Seis planos:
 // 1 · el banquete congelado entero (el gris entra en 0,35 s desde el color): Atom entra y abre los brazos en «beautiful».
 //   Corta en «For».
-// 2 · de cerca el muro con los pilares: «100» en «hundred»; una fila de gente a color llega andando por lo alto del muro y
-//   se pone a alzar piedras; el sol sale y se pone en «weeks»; Atom muerde una lasca de caliza en «can't eat» (X) y en
-//   «feed them» se pone triste con un bocadillo de cuenco vacío. Corta en «so».
-// 3 · de cerca las molineras: Atom entra por la derecha; la piedra de moler a color en «grinding stones», que muele; por
-//   miles, filas de piedras diminutas y el número que cuenta hasta 1000. Corta en «along».
+// 2 · de cerca el muro con los pilares (fondo fijo con más detalle: la loma tramada con árboles sueltos en la cresta,
+//   matas, peñas, una senda y gacelas; nubes de tres tonos y grullas, todo congelado): «100» en «hundred»; una fila de
+//   obreros a color llega andando POR LO ALTO DEL MURO (los pies en su hilada), pasa por detrás de los pilares y se
+//   reparte por los huecos, donde alzan y asientan sus piedras; el sol sale y se pone entre dos pilares en «weeks»; Atom
+//   muerde una lasca de caliza en «can't eat» (X) y en «feed them» se pone triste con un bocadillo de cuenco vacío.
+//   Corta en «so».
+// 3 · de cerca las molineras (el banquete congelado SIN los personajes, para no ampliarlos): Atom entra por la derecha;
+//   la piedra de moler a color en «grinding stones», que muele; por miles, filas de piedras diminutas y el número que
+//   cuenta hasta 1000. Corta en «along».
 // 4 · de cerca el cuenco: Atom se acerca en «porridge», la papilla burbujea, espuma en «beer» con su «?»; GAG: Atom la
 //   prueba en «may», le falta sal (bocadillo con salero) y da dos saltitos sacudiendo el salero sobre el cuenco. Corta en «It's».
-// 5 · de cerca la cesta: Atom entra por la izquierda; el objeto de la pausa a color; en «feasts» una fila de cuencos que
-//   humean; en «tend wild wheat» Atom coge un manojo de espigas. Corta en «to plant».
-// 6 · el banquete de lejos: en «plant it nearby» Atom echa el grano a puñados andando y nace el campo sembrado; en
-//   «change … forever» nacen casitas de adobe con su humo; Atom saluda y guiña.
+// 5 · de cerca la cesta (también sin los personajes): Atom entra por la izquierda; el objeto de la pausa a color; en
+//   «feasts» una fila de cuencos que humean; en «tend wild wheat» Atom coge un manojo de espigas. Corta en «to plant».
+// 6 · otro recorte: los pilares de la izquierda y el cielo (nubes y grullas congeladas) y, en primer término, un CAMPO A
+//   COLOR que nace donde cae el grano: en «plant it nearby» Atom cruza echando puñados y la tierra se ara en surcos y
+//   brota a su paso (una senda sin sembrar en diagonal; dos gorriones le siguen picoteando); el campo se extiende, y en
+//   «change … forever» madura en espigas doradas, los gorriones salen volando y al fondo nacen casitas de adobe con su
+//   humo; Atom saluda y guiña.
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gb-banquete');
@@ -187,10 +194,20 @@ const P2 = W.FOR, P3 = W.SO, P4 = W.ALONG, P5 = W.ITS, P6 = W.TO5;
 const TROZOS = [[0, 0.105], [0.155, 0.31], [0.333, 0.44], [0.451, 0.63], [0.667, 0.81], [0.828, 1]];
 const habla = (t) => TROZOS.some(([a, b]) => t > en('fijate3', a) && t < en('fijate3', b)) ? (Math.sin(t * 15) > -0.2 ? 1 : 0) : 0;
 const AT = T.AT;
-let FZ = null;
+let FZ = null, FZ2 = null;
 const congelado = () => { if (!FZ) { banqPlano(TF, enC); FZ = R.buf.slice(); } };
-const vista = (x0, y0, z) => { congelado(); const B = R.buf; if (z === 1) { B.set(FZ); return; }
-  for (let y = 0; y < 180; y++) { const sy = (y0 + Math.floor(y / z)) * 320; for (let x = 0; x < 320; x++) B[y * 320 + x] = FZ[sy + x0 + Math.floor(x / z)]; } };
+// el mismo instante congelado SIN los personajes (para las vistas de cerca: al doble, un chibi saldría en primer plano)
+const banqSinGente = (t) => {
+  T.recinto(R, t, { encuadre: 'banquete' });
+  piel(118, 172, 16, H('#a87a4a'), H('#8a5a32')); piel(232, 170, 13, H('#c8a070'), H('#9a7448'));
+  for (const [x, y, r] of [[60, 160, 2], [256, 162, 2], [96, 176, 1], [206, 177, 1], [150, 158, 1]]) guijarro(x, y, r, pal(['#4a3a2a', '#8a7a62', '#b0a088', '#e0d4bc']));
+  rr(244, 176, 252, 177, K); rr(245, 175, 251, 175, H('#efe6cc')); ps(244, 174, H('#efe6cc')); ps(252, 174, H('#efe6cc'));
+  cuenquito(132, 170); cuenquito(222, 168); T.d_cuenco(R, 182, 172, { lleno: 1, t, cuchara: true }); rollo(70, 166);
+  T.recintoDelante(R, t, { encuadre: 'banquete' });
+};
+const congeladoSin = () => { if (!FZ2) { banqSinGente(TF); FZ2 = R.buf.slice(); } };
+const vista = (x0, y0, z, sinGente = false) => { congelado(); if (sinGente) congeladoSin(); const B = R.buf, F = sinGente ? FZ2 : FZ; if (z === 1) { B.set(F); return; }
+  for (let y = 0; y < 180; y++) { const sy = (y0 + Math.floor(y / z)) * 320; for (let x = 0; x < 320; x++) B[y * 320 + x] = F[sy + x0 + Math.floor(x / z)]; } };
 const viñeta = (a = 0.3) => { if (a <= 0) return; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.74 && b4(x, y) < (d - 0.74) * 3) tine(x, y, H('#10141e'), a); } };
 const pausa = (u = 1) => AT.pausa(R, u);
 const salero = (x, y, ang) => { x = ri(x); y = ri(y); rr(x - 3, y - 9, x + 3, y, K); rr(x - 2, y - 8, x + 2, y - 1, H('#f8f8f4')); rr(x - 2, y - 8, x - 1, y - 1, H('#ffffff')); rr(x - 3, y - 11, x + 3, y - 9, K); rr(x - 2, y - 10, x + 2, y - 10, H('#c8ccd0')); ps(x - 1, y - 10, K); ps(x + 1, y - 10, K); };
@@ -205,19 +222,82 @@ const p1 = (t) => {
   viñeta(0.22 * uP);
 };
 
-// ── 2 · de cerca, el muro con los pilares: cien personas, semanas de trabajo en algo que no se come ─────────────────
+// ── 2 · de cerca, el muro con los pilares: el fondo fijo con su detalle y la fila de obreros ─────────────────────────
+// en la vista (96, 18) al doble: lo alto del muro (donde pisan), los fustes de los tres pilares y los huecos de entre ellos
+const P2MURO = 152, P2PIL = [[63, 104], [147, 188], [249, 285]], P2TAPA = [[54, 114, 42, 62], [137, 198, 42, 62], [243, 290, 56, 76]];
+const P2SITIO = [108, 119, 130, 141, 193, 204, 215, 226, 237, 292];
+const libreP2 = (x, y) => { for (const [a, b] of P2PIL) if (x >= a - 1 && x <= b + 1 && y >= 40) return false; for (const [a, b, c, d] of P2TAPA) if (x >= a - 1 && x <= b + 1 && y >= c - 1 && y <= d + 1) return false; return true; };
+// un color del mundo congelado (el gris azulado de la pausa) a partir de su luminancia
+const gp = (l) => { l = Math.max(0, Math.min(255, l)); return (0xff000000 | (ri(l * 0.62 + 30) << 16) | (ri(l * 0.55 + 22) << 8) | ri(l * 0.5 + 18)) >>> 0; };
+const fondoP2 = () => capa('p2', () => {
+  vista(96, 18, 2); pausa(1);
+  const B = R.buf, i0 = (x, y) => y * 320 + x;
+  // la loma lisa de detrás del muro (el color que más se repite entre los pilares) se vuelve monte: hierba seca tramada,
+  // más clara y brumosa arriba, matas, peñas con su luz, una senda y gacelas congeladas
+  const cuenta = new Map(); for (let y = 126; y < P2MURO; y++) for (let x = 0; x < 320; x++) if (libreP2(x, y)) { const c = B[i0(x, y)]; cuenta.set(c, (cuenta.get(c) || 0) + 1); }
+  let lom = 0, mx = 0; for (const [c, v] of cuenta) if (v > mx) { mx = v; lom = c; }
+  const l0 = ((lom & 255) - 18) / 0.5, top = new Int16Array(320).fill(P2MURO);
+  for (let x = 0; x < 320; x++) for (let y = 96; y < P2MURO; y++) if (B[i0(x, y)] === lom && libreP2(x, y)) { top[x] = y; break; }
+  for (let x = 0; x < 320; x++) for (let y = top[x]; y < P2MURO; y++) { if (!libreP2(x, y) || B[i0(x, y)] !== lom) continue;
+    const v = (y - top[x]) / Math.max(1, P2MURO - top[x]); let l = l0 + 16 * (1 - v) * (1 - v) - 3;
+    const nn = h2(x >> 1, y, 5); if (nn > 0.9) l += 14; else if (nn < 0.1) l -= 12;
+    if (h2(x, y >> 1, 6) > 0.82 && (x + y) % 3 === 0) l += 9;                                   // briznas de hierba seca
+    const sd = 136 + Math.sin(x * 0.045) * 6; if (Math.abs(y - sd) < 1.2 && x % 5 !== 0) l += 18;  // la senda
+    B[i0(x, y)] = gp(6 * Math.floor(l / 6 + b4(x, y))); }
+  const pL = (x, y, l) => { x = ri(x); y = ri(y); if (x >= 0 && x < 320 && y >= 0 && y < P2MURO && libreP2(x, y)) B[i0(x, y)] = gp(l); };
+  // árboles sueltos (almendros y alfóncigos silvestres) en la cresta, recortados contra el cielo
+  for (const x of [8, 24, 120, 138, 203, 241, 300, 314]) { const y = top[x] + 1; for (let j = 0; j < 4; j++) pL(x, y - j, l0 - 22);
+    for (let dy = -4; dy <= 4; dy++) for (let dx = -5; dx <= 5; dx++) if ((dx * dx) / 25 + (dy * dy) / 12 < 1 && h2(x + dx, dy, 7) > 0.12) pL(x + dx, y - 7 + dy, dy < -1 && dx < 1 ? l0 - 6 : l0 - 20); }
+  // matas y peñas por la loma
+  for (let k = 0; k < 26; k++) { const x = ri(h2(k, 1, 8) * 319), y = ri(top[x] + 5 + h2(k, 2, 8) * (P2MURO - top[x] - 8)); if (y >= P2MURO - 2) continue;
+    if (k % 3) { for (let dx = -2; dx <= 2; dx++) for (let dy = 0; dy < 3 - Math.abs(dx); dy++) pL(x + dx, y - dy, l0 - 16 + dy * 6); pL(x - 1, y - 2, l0 + 4); }
+    else { for (let dx = -3; dx <= 3; dx++) for (let dy = -2; dy <= 0; dy++) if (Math.abs(dx) < 3 || dy === 0) pL(x + dx, y + dy, dy === -2 || dx < -1 ? l0 + 26 : dx > 1 ? l0 - 14 : l0 + 12); pL(x + 4, y, l0 - 22); pL(x + 3, y + 1, l0 - 22); } }
+  // gacelas que pastan en la loma, congeladas a media zancada
+  for (const [x, y] of [[206, 140], [216, 143], [229, 139], [298, 141]]) { const c = l0 + 30; for (let dx = 0; dx < 5; dx++) pL(x + dx, y, c); for (let dx = 0; dx < 4; dx++) pL(x + dx, y + 1, c - 8);
+    pL(x, y + 2, l0 - 14); pL(x + 4, y + 2, l0 - 14); pL(x + 1, y + 3, l0 - 14); pL(x + 4, y + 3, l0 - 14); pL(x + 5, y - 1, c); pL(x + 6, y - 2, c); pL(x + 6, y - 3, l0 - 16); pL(x + 7, y - 4, l0 - 16); }
+  // el cielo entre los pilares: nubes de tres tonos y una bandada de grullas, todo detenido
+  const cs = [gp(l0 + 52), gp(l0 + 74), gp(l0 + 96)];
+  for (const [cx, cy, w] of [[126, 82, 16], [222, 84, 20], [28, 88, 22], [302, 92, 14]]) { const x0 = ri(cx - w * 0.65), x1 = ri(cx + w * 0.65), y0 = ri(cy - w * 0.48), y1 = ri(cy + w * 0.36);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (!libreP2(x, y) || y >= top[x] - 1) continue; let d = 9; for (const [a, b, r] of BOLLOS) { const q = ((x - cx - a * w) ** 2 + ((y - cy - b * w) * 1.5) ** 2) / (r * w) ** 2; if (q < d) d = q; }
+      if (d > 1 || (d > 0.8 && b4(x, y) < (d - 0.8) * 5)) continue; const v = (y - (cy - w * 0.3)) / (w * 0.5) + (d > 0.7 ? 0.25 : 0); B[i0(x, y)] = v > 0.82 ? cs[0] : v > 0.42 + b4(x, y) * 0.2 ? cs[1] : cs[2]; } }
+  for (const [x, y] of [[118, 70], [124, 73], [130, 70], [12, 66], [18, 69]]) { pL(x, y, l0 - 20); pL(x - 1, y - 1, l0 - 20); pL(x + 1, y - 1, l0 - 20); pL(x - 2, y - 1, l0 - 10); pL(x + 2, y - 1, l0 - 10); }
+  viñeta();
+});
+// un obrero de la fila (a color, ~15 px): pies en yf; anda con su piedra al hombro o, en su sitio, la alza (q 0 abajo, 1 a
+// media altura, 2 sobre la cabeza); su sombra en lo alto del muro
+const TUN = ['#8a5a34', '#7a6a3a', '#9a4a2a', '#6a5a4a', '#a8743a'];
+const obrero = (x, yf, k, t, anda, q) => {
+  const pie = anda ? Math.floor(t * 8 + k) % 2 : 0, y = yf - (anda && pie ? 1 : 0), piel = H(k % 3 ? '#c88a52' : '#a86a3a'), tun = H(TUN[k % 5]), dir = anda ? 1 : (k % 2 ? -1 : 1);
+  sombraS(x, yf, 4, 0.45);
+  // piernas (zancada al andar) y pies
+  rr(x - 2, y - 4, x - 1, y - 1, K); rr(x + 1, y - 4, x + 2, y - 1, K); ps(x - 1 - pie, y - 1, K); ps(x + 2 + (1 - pie) * (anda ? 1 : 0), y - 1, K);
+  ps(x - 1, y - 3, piel); ps(x + 1, y - 3, piel);
+  // la túnica de piel con su cinturón y su luz
+  rr(x - 3, y - 9, x + 3, y - 4, K); rr(x - 2, y - 8, x + 2, y - 5, tun); ps(x - 2, y - 8, mez(tun, H('#ffffff'), 0.3)); rr(x - 2, y - 6, x + 2, y - 6, H('#3a2414'));
+  // la cabeza: cara, pelo largo atado atrás (nunca sobre la cara) y el ojo hacia donde mira
+  R.disco(x, y - 12, 3, K); R.disco(x, y - 12, 2, piel); rr(x - 2, y - 14, x + 2, y - 14, H('#2a1a10')); ps(x - 2 * dir, y - 13, H('#2a1a10')); ps(x - 3 * dir, y - 12, H('#2a1a10'));
+  ps(x + dir, y - 12, K); ps(x + 2 * dir, y - 11, mez(piel, K, 0.3));
+  // los brazos y la piedra de caliza
+  const piedra = (px, py) => { rr(px - 3, py - 2, px + 3, py + 2, K); rr(px - 2, py - 1, px + 2, py + 1, H('#d8ceb4')); rr(px - 2, py - 1, px + 1, py - 1, H('#f4ecd8')); ps(px + 2, py + 1, H('#9a8e74')); };
+  if (q < 0) { ps(x + 3, y - 8, piel); ps(x + 3, y - 9, piel); piedra(x + 3, y - 15); }
+  else if (q === 2) { ps(x - 3, y - 10, piel); ps(x + 3, y - 10, piel); ps(x - 3, y - 12, piel); ps(x + 3, y - 12, piel); ps(x - 3, y - 14, piel); ps(x + 3, y - 14, piel); piedra(x, y - 18); destello(x + 5, y - 21, 1); }
+  else if (q === 1) { ps(x - 3, y - 8, piel); ps(x + 3, y - 8, piel); ps(x - 3, y - 10, piel); ps(x + 3, y - 10, piel); piedra(x, y - 11); }
+  else { ps(x - 3, y - 7, piel); ps(x + 3, y - 7, piel); piedra(x + 4 * dir, y - 3); }
+};
 const p2 = (t) => {
-  vista(96, 18, 2); pausa(1); viñeta();
-  const n = pop(t, W.HUNDRED, 0.35); if (n > 0) R.numero('100', 150, ri(60 - n * 6), { tam: 16, centro: true });
-  // la fila de gente (a color) llega andando por lo alto del muro hasta su sitio y se pone a trabajar: alza su piedra
-  if (t > W.PEOPLE - 0.1) for (let k = 0; k < 10; k++) { const fin = 106 + k * 9, xa = -8 + (t - W.PEOPLE) * 95 - (9 - k) * 9; if (xa < -6) continue;
-    const llega = xa >= fin, x = ri(Math.min(fin, xa)), y = 82 - (llega ? 0 : Math.floor(t * 8 + k) % 2), alza = llega && Math.sin(t * 4 + k * 1.3) > 0.2;
-    R.disco(x, y, 3, K); R.disco(x, y, 2, H('#c88a52')); rr(x - 2, y + 2, x + 2, y + 8, K); rr(x - 1, y + 3, x + 1, y + 7, H(k & 1 ? '#8a5a34' : '#7a6a3a'));
-    if (!llega) { ps(x - 1, y + 9, K); ps(x + 1, y + 9 - (Math.floor(t * 8 + k) % 2), K); }
-    const py = alza ? y - 7 : y + 1; rr(x + 2, py - 1, x + 5, py + 2, K); rr(x + 3, py, x + 4, py + 1, H('#d8ceb4')); if (alza) ps(x + 2, y - 3, H('#c88a52')); }
-  // «semanas»: el sol que sale y se pone varias veces sobre el muro
+  fondoP2();
+  const n = pop(t, W.HUNDRED, 0.35);
+  // «semanas»: el sol que sale y se pone varias veces entre el segundo pilar y el tercero (lejos de la esquina de Atom)
   const sem = tramo(t, W.WEEKS - 0.2, W.SOMETHING + 0.2);
-  if (sem > 0 && sem < 1) { const a = sem * Math.PI * 3, sx = 260 + Math.cos(a) * 30, sy = 40 - Math.abs(Math.sin(a)) * 20; R.disco(ri(sx), ri(sy), 5, H('#ffd040')); R.disco(ri(sx) - 1, ri(sy) - 1, 2, H('#fffbe0')); }
+  if (sem > 0 && sem < 1) { const a = sem * Math.PI * 3, sx = 219 + Math.cos(a) * 24, sy = 46 - Math.abs(Math.sin(a)) * 22; R.disco(ri(sx), ri(sy), 6, H('#ffb030')); R.disco(ri(sx), ri(sy), 5, H('#ffd040')); R.disco(ri(sx) - 1, ri(sy) - 1, 2, H('#fffbe0')); }
+  // la fila de gente (a color) llega andando POR LO ALTO DEL MURO, pasa por detrás de los pilares y se reparte por los
+  // huecos de entre ellos; allí cada uno alza su piedra y la asienta en la hilada (unos arriba y otros abajo, a destiempo)
+  if (t > W.PEOPLE - 0.1) for (let k = 0; k < 10; k++) { const fin = P2SITIO[k], xa = -10 + (t - W.PEOPLE) * 95 - (9 - k) * 11; if (xa < -8) continue;
+    const llega = xa >= fin, x = ri(Math.min(fin, xa)), fase = Math.sin(t * 3.2 + k * 1.7);
+    obrero(x, P2MURO, k, t, !llega, llega ? (fase > 0.3 ? 2 : fase > -0.2 ? 1 : 0) : -1); }
+  // los fustes vuelven a pintarse encima: la fila pasa por detrás de los pilares
+  const B = R.buf, F = CAPAS.p2; for (const [x0, x1] of P2PIL) for (let y = P2MURO - 22; y < P2MURO; y++) for (let x = x0; x <= x1; x++) B[y * 320 + x] = F[y * 320 + x];
+  if (n > 0) R.numero('100', 150, ri(60 - n * 6), { tam: 16, centro: true });
   // Atom muerde una lasca de caliza en «can't eat» (¡crac!) y pone cara de que eso no se come; en «feed them» se frota la tripa
   const coge = t > W.SOMETHING - 0.3 && t < W.THEM, muerde = t > W.CANT && t < W.SOMEONE;
   const a = AT.atom(R, 60, 178, t, { s: 2, dir: 1, pose: coge ? 'sostiene' : t < W.SOMETHING - 0.3 ? 'senala' : 'piensa', cara: muerde ? 'sorpresa' : t > W.SOMEONE ? 'triste' : 'sonrisa', habla: habla(t) });
@@ -229,7 +309,7 @@ const p2 = (t) => {
 
 // ── 3 · de cerca, las molineras: la piedra de moler a color, y luego por miles ──────────────────────────────────────
 const p3 = (t) => {
-  vista(0, 64, 2); pausa(1); viñeta();
+  vista(0, 64, 2, true); pausa(1); viñeta();
   const aq = pop(t, W.GRINDING - 0.1, 0.35);
   if (aq > 0) { const m = T.d_moler(R, 150, 166, { escala: 2, moliendo: true, t, harina: true, espigas: true }); if (aq < 1) destello(150, 120, 4); }
   // por miles: filas de piedras de moler diminutas que aparecen hasta el fondo, y el número que cuenta
@@ -265,7 +345,7 @@ const p4 = (t) => {
 
 // ── 5 · de cerca, la cesta de espigas: alimentar los banquetes empujó a cuidar el trigo silvestre ───────────────────
 const p5 = (t) => {
-  vista(160, 84, 2); pausa(1); viñeta();
+  vista(160, 84, 2, true); pausa(1); viñeta();
   const ob = pop(t, W.ITS + 0.1, 0.35);
   if (ob > 0) T.pausa(R, 196, 172, t, { cual: 'banquete', s: 2, campo: 0 });
   // en «feasts» un rayo de comida: cuenquitos que suben como una fila (los banquetes) y en «tend wild wheat» Atom coge espigas
@@ -276,19 +356,63 @@ const p5 = (t) => {
   if (coge) { for (let k = -2; k <= 2; k++) espiga(a.mano[0] + k * 3, a.mano[1] + 6, 26 + Math.abs(k) * -2, k * 1.2 + Math.sin(t * 2 + k) * 0.8, ESP, 2); if (t < W.WHEAT + 0.5) destello(a.mano[0] + 4, a.mano[1] - 26, 3); }
 };
 
-// ── 6 · el banquete de lejos: las espigas se convierten en un campo sembrado al lado; para siempre ──────────────────
+// ── 6 · los pilares y el cielo, con el campo sembrado que nace a color en primer término; para siempre ──────────────
+// las filas del campo (y de cada surco, de atrás adelante: la perspectiva) y la tierra arada en cinco tonos
+const SURCO = [139, 142, 146, 151, 157, 164, 172, 181], TIE = pal(['#3a2212', '#5a3820', '#7a5030', '#9a6a40', '#bc8c58']);
+const VERDE = pal(['#2a5a20', '#4a8a30', '#7ab848']);
+// el cielo congelado de este recorte, con más detalle: nubes de tres tonos entre los pilares, una bandada de grullas
+// detenida y la loma de la izquierda tramada (fuera de los pilares, de la barra del año y de la esquina de Atom)
+const P6PIL = [[50, 99, 74], [146, 195, 64], [245, 307, 50]];
+const libreP6 = (x, y) => { for (const [a, b, c] of P6PIL) if (x >= a - 1 && x <= b + 1 && y >= c - 1) return false; return !(x >= 272 && y < 48) && !(x >= 16 && x <= 174 && y < 22); };
+const cieloP6 = () => {
+  const B = R.buf, l0 = ((B[90 * 320 + 120] & 255) - 18) / 0.5, cs = [gp(l0 + 18), gp(l0 + 36), gp(l0 + 54)];
+  for (const [cx, cy, w] of [[40, 44, 26], [122, 40, 18], [212, 36, 22], [118, 92, 14], [226, 82, 16], [24, 94, 12]]) { const x0 = ri(cx - w * 0.65), x1 = ri(cx + w * 0.65), y0 = ri(cy - w * 0.48), y1 = ri(cy + w * 0.36);
+    for (let y = Math.max(0, y0); y <= y1; y++) for (let x = Math.max(0, x0); x <= x1; x++) { if (!libreP6(x, y)) continue; let d = 9; for (const [a, b, r] of BOLLOS) { const q = ((x - cx - a * w) ** 2 + ((y - cy - b * w) * 1.5) ** 2) / (r * w) ** 2; if (q < d) d = q; }
+      if (d > 1 || (d > 0.8 && b4(x, y) < (d - 0.8) * 5)) continue; const v = (y - (cy - w * 0.3)) / (w * 0.5) + (d > 0.7 ? 0.25 : 0); B[y * 320 + x] = v > 0.82 ? cs[0] : v > 0.42 + b4(x, y) * 0.2 ? cs[1] : cs[2]; } }
+  const pL = (x, y, l) => { if (libreP6(x, y)) B[y * 320 + x] = gp(l); };
+  for (const [x, y] of [[176, 54], [183, 58], [190, 54], [197, 60], [110, 66], [116, 69]]) { pL(x, y, l0 - 26); pL(x - 1, y - 1, l0 - 26); pL(x + 1, y - 1, l0 - 26); pL(x - 2, y - 1, l0 - 14); pL(x + 2, y - 1, l0 - 14); }
+  // la loma de abajo a la izquierda y entre pilares: hierba tramada, matas y peñas (solo sobre su color liso)
+  const lom = B[134 * 320 + 20], ll = ((lom & 255) - 18) / 0.5;
+  for (let y = 118; y < 140; y++) for (let x = 0; x < 320; x++) { if (B[y * 320 + x] !== lom || !libreP6(x, y)) continue; let l = ll + (h2(x >> 1, y, 41) > 0.86 ? 14 : h2(x, y, 42) < 0.1 ? -12 : 0) + (h2(x, y >> 1, 43) > 0.8 && (x + y) % 3 === 0 ? 9 : 0);
+    B[y * 320 + x] = gp(6 * Math.floor(l / 6 + b4(x, y))); }
+};
+const PARD = pal(['#3a2a1a', '#7a5a3a', '#a8865a', '#d8c098']);
 const p6 = (t) => {
-  vista(64, 40, 2); pausa(1); viñeta(0.25);
-  const campo = ease(tramo(t, W.PLANT - 0.1, W.KNOWING + 0.4));
-  T.pausa(R, 176, 170, t, { cual: 'banquete', s: 2, campo });
-  // «change the way humanity lived forever»: tras el campo nacen casitas de adobe con su humo
-  for (let k = 0; k < 3; k++) { const c = pop(t, W.CHANGE + k * 0.3, 0.3); if (c > 0) { const x = 262 + k * 24, y = 166 - (k % 2) * 6; casita(x, ri(lerp(y - 20, y, Math.min(1, c))), 10, 12 + (k % 2) * 3, k); if (t > W.FOREVER) humo(x + 5, y - 22, t, 3, 14, 0.4); } }
-  if (t > W.HUMANITY && t < W.FOREVER + 0.8) destello(176, 104, 4);
-  // «plant it nearby»: Atom echa el grano a puñados mientras anda hacia el campo, que va naciendo donde cae
-  const siembra = tramo(t, W.PLANT - 0.2, W.KNOWING), ax = ri(lerp(46, 88, siembra));
+  capa('p6', () => { vista(0, 14, 2, true); pausa(1); cieloP6(); viñeta(0.25); });
+  // «plant it nearby»: Atom cruza echando el grano a puñados; donde cae, la tierra se ara y brota (el frente f va por
+  // delante de Atom; luego el campo se extiende hacia los dos lados) y en «change … forever» las espigas maduran
+  const siembra = tramo(t, W.PLANT - 0.2, W.KNOWING + 0.4), ax = ri(lerp(30, 150, ease(siembra)));
+  const ext = ease(tramo(t, W.KNOWING, W.CHANGE + 0.4)), f = siembra > 0 ? ax + 50 + ext * 220 : -99, bk = lerp(30, -60, ext);
+  const madura = ease(tramo(t, W.CHANGE - 0.2, W.FOREVER + 0.2));
+  const gcol = new Float32Array(320); for (let x = 0; x < 320; x++) gcol[x] = cl((f - x) / 40) * cl((x - bk) / 40 + (siembra >= 1 ? 1 : 0));
+  const senda = (y) => 222 - (y - SURCO[0]) * 1.6, ancho = (y) => 3 + (y - SURCO[0]) * 0.22;
+  // la tierra: cada surco con su loma iluminada por el sol de la tarde y su fondo en sombra, terrones y piedrecitas
+  for (let y = SURCO[0]; y < 180; y++) { let r = 0; while (r < SURCO.length - 2 && y >= SURCO[r + 1]) r++; const u = (y - SURCO[r]) / (SURCO[r + 1] - SURCO[r]);
+    for (let x = 0; x < 320; x++) { const g = gcol[x]; if (g <= 0 || g * 1.5 - h2(x, y, 31) * 0.5 <= 0) continue;
+      let v = 3.4 - u * 2.6 - (r === 0 ? 0 : 0) + (1 - r / 7) * 0.5; const n = h2(x, y, 32); if (n > 0.93) v -= 1.2; else if (n < 0.05) v += 1; if (Math.abs(x - senda(y)) < ancho(y)) v = 3.2 + n * 0.8 - u * 0.6;
+      let c = rmp(TIE, v, x, y); if (y === SURCO[0]) c = TIE[0]; if (h2(x, y, 33) > 0.992) c = H('#d8d0bc'); R.pset(x, y, c); } }
+  // casitas de adobe que nacen al fondo del campo, con su humo (detrás de las espigas)
+  for (let k = 0; k < 4; k++) { const c = pop(t, W.CHANGE + k * 0.25, 0.3); if (c > 0) { const x = 206 + k * 26, y = 141 - (k % 2) * 2; casita(x, ri(lerp(y - 20, y, Math.min(1, c))), 10 + (k % 2) * 2, 12 + (k % 2) * 3, k); if (t > W.FOREVER - 0.4) humo(x + 5, y - 20, t + k * 0.4, 4, 18, 0.7); } }
+  // las matas en macollas (tres tallos en abanico) que dejan ver el surco entre ellas: brote verde que sube y, al madurar,
+  // espiga dorada con sus barbas; se mecen con el viento. Una senda sin sembrar cruza el campo en diagonal
+  for (let r = 0; r < SURCO.length - 1; r++) { const yb = SURCO[r] + 1 + ri((SURCO[r + 1] - SURCO[r]) * 0.35), paso = 3 + ri(r * 1.6), alto = 3 + r * 2.4;
+    for (let x0 = (r * 3) % paso; x0 < 320; x0 += paso) { const x = x0 + ri((h2(x0, r, 37) - 0.5) * paso * 0.5); if (x < 0 || x > 319 || Math.abs(x - senda(yb)) < ancho(yb) + 2) continue;
+      const g = gcol[x], gr = cl((g - 0.25 - h2(x, r, 34) * 0.25) / 0.5); if (gr <= 0) continue;
+      const oro = madura > h2(x, r, 36) * 0.85 + 0.08 && gr > 0.9, tallos = r < 2 ? 1 : 3;
+      for (let m = 0; m < tallos; m++) { const lado = tallos === 1 ? 0 : m - 1, hh = Math.max(1, ri(alto * gr * (0.75 + h2(x + m, r, 35) * 0.35) * (lado ? 0.85 : 1))), sw = Math.sin(t * 2.2 + x * 0.3 + r) * hh / 9 + lado * hh * 0.18;
+        for (let q = 0; q < hh; q++) { const xx = x + lado + sw * (q / hh), c = oro ? (q < hh * 0.5 ? ESP[1] : ESP[2]) : VERDE[q === hh - 1 ? 2 : q < hh * 0.4 ? 0 : 1]; ps(xx, yb - q, c); }
+        if (r >= 3 && hh > 4) ps(x + lado * 2 + sw * 0.5, yb - ri(hh * 0.45), oro ? ESP[2] : VERDE[2]);
+        if (oro && r >= 2) { const ex = x + lado + sw, ey = yb - hh; ps(ex, ey, ESP[3]); ps(ex, ey - 1, ESP[3]); ps(ex, ey - 2, ESP[4]); if (r >= 4) { ps(ex - 1, ey - 1, ESP[2]); ps(ex + 1, ey - 2, ESP[3]); ps(ex - 1, ey - 4, ESP[4]); ps(ex + 1, ey - 4, ESP[4]); ps(ex, ey - 3, ESP[3]); } } } } }
+  // dos gorriones (a color) que siguen al sembrador picoteando el grano y en «change» salen volando
+  for (let k = 0; k < 2; k++) { const vu = tramo(t, W.CHANGE + k * 0.2, W.CHANGE + 1.4 + k * 0.2); if (siembra <= 0 || vu >= 1) continue;
+    const bx = ri(ax - 18 - k * 14 + (vu > 0 ? vu * 120 : 0)), by = ri((vu > 0 ? 170 - vu * 90 - Math.sin(vu * 9) * 3 : 172 - k * 4) - (vu === 0 && Math.sin(t * 9 + k * 2) > 0.6 ? 2 : 0)), pica = vu === 0 && Math.sin(t * 7 + k * 3) > 0.3;
+    rr(bx - 2, by - 2, bx + 2, by + 1, K); rr(bx - 1, by - 1, bx + 1, by, PARD[1]); ps(bx - 1, by - 1, PARD[3]); ps(bx + 3, by + (pica ? 1 : -1), K); ps(bx + 2, by + (pica ? 0 : -2), PARD[2]); ps(bx + 4, by + (pica ? 1 : -1), H('#e8b040'));
+    if (vu > 0) { const al = Math.floor(t * 12 + k) % 2; ps(bx - 1, by - 3 - al, K); ps(bx, by - 3 - al, PARD[2]); ps(bx + 1, by - 3 - al, K); } else { ps(bx - 1, by + 2, K); ps(bx + 1, by + 2, K); ps(bx - 3, by - 1, PARD[0]); } }
+  if (t > W.HUMANITY && t < W.FOREVER + 0.8) destello(160, 128, 4);
   const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: siembra > 0 && siembra < 1 ? 'camina' : t < W.PLANT ? 'sostiene' : t < W.CHANGE ? 'senala' : t < W.FOREVER ? 'brazos' : 'saluda', cara: t > W.FOREVER ? 'guino' : 'sonrisa', habla: habla(t) });
   if (t < W.PLANT - 0.2) for (let k = -1; k <= 1; k++) espiga(a.mano[0] + k * 3, a.mano[1] + 6, 20, k * 1.2 + Math.sin(t * 2 + k) * 0.6, ESP, 2);
-  if (siembra > 0 && siembra < 1) for (let k = 0; k < 7; k++) { const v = (t * 1.8 + k / 7) % 1, gx = lerp(a.mano[0] + 2, 122 + k * 12, v), gy = lerp(a.mano[1] - 2, 160 + (k % 2) * 4, v) - Math.sin(v * Math.PI) * 18; ps(gx, gy, H('#f0c860')); ps(gx + 1, gy, H('#a87a30')); }
+  // el grano vuela a puñados desde su mano hasta el surco, por delante de él
+  if (siembra > 0 && siembra < 1) for (let k = 0; k < 9; k++) { const v = (t * 1.8 + k / 9) % 1, gx = lerp(a.mano[0] + 2, ax + 14 + k * 5, v), gy = lerp(a.mano[1] - 2, 146 + (k % 3) * 5, v) - Math.sin(v * Math.PI) * 18; ps(gx, gy, H('#f0c860')); ps(gx + 1, gy, H('#a87a30')); }
 };
 
 const efectos = [[0.15, 'tapestop'], [0.6, 'pasos'], [W.BEAUTIFUL, 'brillo'], [W.PEOPLE + 0.3, 'pasos'],

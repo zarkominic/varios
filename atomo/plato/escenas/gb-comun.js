@@ -22,6 +22,7 @@ import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 import { conChibi, ELENCO_CHIBI, tela } from '/atomo/plato/kits/pixel-chibi.js';
 // el reparto del 49 por su nombre (ELENCO_CHIBI lo pisan las uniones posteriores)
 export { ELENCO_GB as GB } from '/atomo/plato/kits/pixel-chibi.js';
+import { ELENCO_GB } from '/atomo/plato/kits/pixel-chibi.js';
 import { hex } from '/atomo/plato/kits/pixel-retro.js';
 import { chincheta } from '/atomo/plato/escenas/ov-mapas.js';
 import { mapa } from '/atomo/plato/escenas/fa-comun.js';
@@ -271,15 +272,20 @@ export function recintoDelante(R, t, o = {}) {
 //     de sílex por el suelo, bloques ya cortados (x 16–40 y 254–286, y 113–127), una palanca apoyada en la zanja, una
 //     cesta de lascas (x ≈ 36), un odre (x ≈ 266) y otra palanca tumbada; una lagartija cruza la roca. Dos buitres dan
 //     vueltas. Suelo y 150, libre x 20–80 y 236–300 (y delante del pilar, que queda detrás de los pies).
-//     Cámara 'troncos': EL TRANSPORTE: un pilar en T tumbado (84 px, la cabeza delante a la derecha, y 99–118) que
-//     avanza sobre troncos por un camino de tierra clara (y 104–131); los troncos ruedan a la mitad de su velocidad y el que sale por
-//     detrás vuelve a ponerse delante; dos filas de gente (7 y 7, figuras de 11 px) tiran de dos cuerdas a la vez, a
-//     golpes (cada 1,3 s el tirón, con polvo), dos empujan con palancas por detrás, unos niños y mayores miran desde la
-//     ladera (pies y ≈ 92), y al fondo a la derecha el cerro con los recintos a medio hacer (x 214–320, cima y ≈ 58);
-//     delante, estepa con calvas de caliza, matas, un rollo de cuerda, una cesta y un odre (y 132–180). o.avance 0–1
-//     mueve el pilar de izquierda a derecha (si no se da, avanza solo despacio con t). Suelo y 150, libre x 20–300.
+//     Cámara 'troncos': EL TRANSPORTE, DE CERCA: un pilar en T tumbado boca arriba sobre troncos (la cabeza a la
+//     derecha, x punta = 70 + 116·avance, cara de arriba y 101–129, fuste y 110–124, el pie fuera del cuadro por la
+//     izquierda), con su relieve (los brazos que bajan por los costados, las manos que se juntan, el cinturón y la piel
+//     de zorro) y dos cuerdas atadas a la cabeza; avanza 6 px a cada tirón (cada 1,3 s); los troncos atravesados ruedan a
+//     la mitad de su velocidad (asoman por detrás y por delante del pilar); DOS FILAS DE CHIBIS (R.actor: 4 atrás, pies
+//     y 132; 5 delante, pies y 150, desde la punta + 10 hasta la punta + ~95) tiran con la cuerda en la mano, dan un paso
+//     y aprietan los dientes con cada tirón; uno trae en brazos el tronco que sale por detrás y lo pone delante de la
+//     cabeza (pies y 160, x < punta − 20; ciclo de 6,5 s). Camino de tierra roja (y 98–152) con surcos y pisadas; unos
+//     niños y mayores miran desde la ladera (pies y ≈ 92), al fondo a la derecha el cerro con los recintos a medio hacer
+//     (x 214–320, cima y ≈ 58); delante, estepa con calvas de caliza, matas, un rollo de cuerda, una cesta y un odre
+//     (y 152–180). o.avance 0–1 mueve el pilar (si no se da, avanza solo con t, 6 px por tirón). Suelo y 150.
 // Devuelve { suelo, horizonte, ... }: 'estepa' .cerro, .monte; 'trigo' .camino; 'cantera' .pilar [x0, y0, x1, y1],
-// .raja [x, y], .cabeza [x, y]; 'troncos' .pilar [x0, y0, x1, y1], .cuerda [x, y] (donde acaban las filas).
+// .raja [x, y], .cabeza [x, y]; 'troncos' .pilar [x0, y0, x1, y1] (x0 ≥ 0), .cuerda [x, y] (la mano del último de la
+// fila de delante), .tiron 0–1.
 // o.gacela (en cualquier encuadre): true | { x, y, pose, dir, k } | una lista: LA GACELA GRANDE a la escala de los
 //   personajes (≈17 × 19 px con los cuernos), por detrás de ellos: x el centro del cuerpo, y la línea de las pezuñas
 //   (por omisión 250, 150), pose 'mira' | 'pasta' | 'anda' | 'corre', dir (por omisión −1, mira a la izquierda).
@@ -328,13 +334,15 @@ export function neoliticoDelante(R, t, o = {}) {
 //   'casa': LA CASA DE LA EXCAVACIÓN (por dentro), una casa de piedra de Urfa: muros de sillares de caliza con juntas,
 //     techo de vigas y cañizo, suelo de losas con un kilim; a la izquierda la ESTANTERÍA METÁLICA de cajas numeradas y
 //     cajas azules con piedras (x 2–66); los DIBUJOS DE PILARES clavados (un pilar en T con sus brazos, el zorro, una
-//     planta; x 76–142, y 22–60) y el MAPA DE LA COLINA con los cuatro recintos (x 148–190, y 22–62); la VENTANA (hueco
+//     planta y una FOTO de un pilar de tres cuartos en su recinto con una visitante, x 126–142, y 45–60; todos en
+//     x 76–142, y 22–60) y el MAPA DE LA COLINA con los cuatro recintos (x 148–190, y 22–62); la VENTANA (hueco
 //     x 203–247, y 29–77) con postigos, un geranio y un gato que duerme en el alféizar; fuera, el cerro con la CUBIERTA
 //     BLANCA (o.anos ≥ 2017) o con las catas y los andamios, trabajadores diminutos, nubes y pájaros; el haz de sol que
 //     entra con su polvo; la MESA DEL FONDO (tablero y 99–102, x 76–192) con el flexo encendido, bandejas, papeles y un
 //     ventilador que gira la cabeza, cubos de goma, sacos con etiqueta y un tamiz debajo; dos tamices colgados (x ~262–280,
 //     y 50–90), el reloj de pared (x 300, y 58), el escritorio con el ORDENADOR (x 270–319, y 70–103): un monitor de tubo
-//     (o.anos < 2006) o una pantalla plana, que dibuja un pilar; el ventilador de techo (x 232) y una salamanquesa.
+//     (o.anos < 2006) o una pantalla plana, que dibuja en alambre el modelo 3D de un pilar (cabeza en bloque, brazos,
+//     cinturón) con su barra de carga; el ventilador de techo (x 232) y una salamanquesa.
 //     o.anos (1995–2026; por omisión 2022). La MESA DE DELANTE la pinta arqueologosDelante (después de los actores).
 //   'laboratorio': EL LABORATORIO DEL CARBONO 14: paredes de paneles blancos, techo con plafones, la VENTANA con persiana
 //     (x 66–104, y 24–60: árboles, un edificio, nubes, alguien en bici), la CAMPANA DE GASES (x 2–46) con un vaso que hierve
@@ -396,7 +404,8 @@ export function arqueologosDelante(R, t, o = {}) {
 //     (iconos: el ojo en la pirámide, la pirámide con su rayo, el cometa; corazones y contadores con números), sujeto por
 //     una mano canónica a la izquierda y otro brazo canónico cuyo dedo los va pasando. Suelo y 150; libre de pie x 160–280.
 //   'buitre': LA PIEDRA DEL BUITRE (pilar 43) de cerca, dentro de su recinto: el muro de piedra seca a hiladas detrás, la
-//     membrana blanca de la cubierta arriba, la pasarela del otro lado con visitantes pequeños que pasan, matas que se mecen en las juntas, una lagartija
+//     membrana blanca de la cubierta arriba (y 0–19), la pasarela del otro lado (y 20–36, por debajo de la barra del
+//     año) con visitantes pequeños que pasan solo por x 52–86 y 238–272, matas que se mecen en las juntas, una lagartija
 //     que sube por el muro de la derecha (x 244–266, y 84–132), la telaraña (232, 62), la etiqueta «7» (35–45, 46–53), la lona que
 //     ondea, un rayo de sol con motas, una golondrina. El pilar (cabeza x 90–232, y 24–58; fuste x 106–216, y 58–150) es
 //     de caliza con vetas, grietas y desconchones, y sus relieves salen con luz rasante: arriba tres «bolsos» con un ave,
@@ -3145,36 +3154,36 @@ function c_troncosFijo(R, P, hora) {
     R.poligono([[x - w, y + 2], [x - w + 2, y - 2], [x + w * 0.4, y - 3], [x + w, y + 2]], (xx, yy) => c_ram([P.z2, P.z3, P.z4, P.z5], 0.8 - (xx - x + w) / (2 * w) * 0.5 + (h(xx, yy, 166) - 0.5) * 0.3, xx, yy)); R.linea(x - w, y + 2, x + w, y + 2, P.z1); }
   for (const [x, b, s, tp] of [[30, 84, 4, 0], [118, 82, 3, 1], [176, 85, 3, 0]]) c_arbolito(R, P, x, b, s, tp, 170 + x);
   // el camino de tierra pisada con las rodadas transversales de los troncos
-  for (let y = 100; y < 134; y++) for (let x = 0; x < 320; x++) { const b0 = 104 + Math.sin(x * 0.04) * 1.2, b1 = 131 + Math.sin(x * 0.05 + 1) * 1.5; if (y < b0 || y > b1) continue;
+  for (let y = 94; y < 156; y++) for (let x = 0; x < 320; x++) { const b0 = 98 + Math.sin(x * 0.04) * 1.2, b1 = 152 + Math.sin(x * 0.05 + 1) * 1.5; if (y < b0 || y > b1) continue;
     let l = 0.58 - (y - b0) * 0.006 + (h(x, y, 167) - 0.5) * 0.2 + Math.sin(x * 0.08 + y * 0.4) * 0.05; if ((x + Math.round(y * 0.2)) % 18 < 2) l -= 0.15; if (y < b0 + 1) l -= 0.25; if (y > b1 - 1) l -= 0.12;
-    B[y * 320 + x] = h(x, y, 173) < 0.06 ? P.r3 : c_ram([P.z2, P.z3, P.z4, P.z5], l + 0.1 + (h(x >> 3, y >> 2, 179) - 0.5) * 0.25, x, y); }
+    B[y * 320 + x] = h(x, y, 173) < 0.05 ? P.z4 : c_ram([P.r1, P.r2, P.r3, P.r4, P.r5], l + 0.05 + (h(x >> 3, y >> 2, 179) - 0.5) * 0.25, x, y); }
   // las huellas del arrastre: dos surcos largos que dejaron otros pilares (sombra arriba, canto de luz abajo), las
   // pisadas de los que tiran, tiras de corteza y astillas de los troncos, y la tierra suelta que levantan
-  for (const ys of [109, 123]) for (let x = 0; x < 320; x++) { if (h(x >> 3, ys, 180) < 0.12) continue;
+  for (const ys of [101, 144]) for (let x = 0; x < 320; x++) { if (h(x >> 3, ys, 180) < 0.12) continue;
     const y = Math.round(ys + Math.sin(x * 0.04) * 1.2 + Math.sin(x * 0.013 + ys) * 1.5);
-    B[y * 320 + x] = P.z1; B[(y + 1) * 320 + x] = c_um(x, y) < 0.5 ? P.z2 : P.z1; B[(y + 2) * 320 + x] = P.z5; }
-  for (let k = 0; k < 90; k++) { const x = Math.round(h(k, 1, 181) * 317), y = Math.round(106 + h(k, 2, 181) * 23); B[y * 320 + x] = P.z1; B[y * 320 + x + 1] = P.z2; B[(y - 1) * 320 + x + 1] = P.z5; }
-  for (let k = 0; k < 16; k++) { const x = Math.round(h(k, 1, 182) * 306), y = Math.round(107 + h(k, 2, 182) * 22), l = 3 + Math.round(h(k, 3, 182) * 4), dy = k % 3 - 1;
+    B[y * 320 + x] = P.r0; B[(y + 1) * 320 + x] = c_um(x, y) < 0.5 ? P.r1 : P.r0; B[(y + 2) * 320 + x] = P.r5; }
+  for (let k = 0; k < 150; k++) { const x = Math.round(h(k, 1, 181) * 317), y = Math.round(100 + h(k, 2, 181) * 50); B[y * 320 + x] = P.r0; B[y * 320 + x + 1] = P.r1; B[(y - 1) * 320 + x + 1] = P.r5; }
+  for (let k = 0; k < 26; k++) { const x = Math.round(h(k, 1, 182) * 306), y = Math.round(100 + h(k, 2, 182) * 50), l = 3 + Math.round(h(k, 3, 182) * 4), dy = k % 3 - 1;
     R.linea(x, y + 1, x + l, y + 1 + dy, P.z1); R.linea(x, y, x + l, y + dy, k % 2 ? P.maderaL : P.madera); R.pset(x + l, y + dy, P.maderaS); }
   // los bordes del camino: piedras que se apartaron al pasar y matas
-  for (let k = 0; k < 46; k++) { const arriba = k % 2 === 0, x = Math.round(h(k, 1, 183) * 320), y = Math.round(arriba ? 103 + Math.sin(x * 0.04) * 1.2 : 132 + Math.sin(x * 0.05 + 1) * 1.5), r = 0.8 + h(k, 2, 183) * 1.4;
+  for (let k = 0; k < 46; k++) { const arriba = k % 2 === 0, x = Math.round(h(k, 1, 183) * 320), y = Math.round(arriba ? 97 + Math.sin(x * 0.04) * 1.2 : 153 + Math.sin(x * 0.05 + 1) * 1.5), r = 0.8 + h(k, 2, 183) * 1.4;
     if (k % 4 === 1) { for (let j = 0; j < 5; j++) R.linea(x + j, y, x + j - 1 + (j % 2) * 2, y - 2 - (j % 3), j % 2 ? P.e1 : P.e3); continue; }
     R.disco(x + 1, y + 1, r, P.z1); R.disco(x, y, r, (xx, yy, d) => (d < 0.5 && xx <= x ? P.z6 : P.z4)); }
   // la estepa de delante (donde van los personajes), con hierba, piedras y lascas
-  for (let y = 126; y < 180; y++) for (let x = 0; x < 320; x++) { const b1 = 131 + Math.sin(x * 0.05 + 1) * 1.5; if (y <= b1) continue;
-    let l = 0.58 + (h(x >> 1, y >> 1, 168) - 0.5) * 0.3 - (y - 132) * 0.004; if (h(x, y >> 1, 169) < 0.13) l -= 0.32;
+  for (let y = 148; y < 180; y++) for (let x = 0; x < 320; x++) { const b1 = 152 + Math.sin(x * 0.05 + 1) * 1.5; if (y <= b1) continue;
+    let l = 0.58 + (h(x >> 1, y >> 1, 168) - 0.5) * 0.3 - (y - 153) * 0.006; if (h(x, y >> 1, 169) < 0.13) l -= 0.32;
     // manchas de hierba aún verde en las hondonadas y de hierba seca en los altos, a trozos grandes
     const verde = Math.sin(x * 0.03 + Math.sin(y * 0.08) * 2) + Math.sin(x * 0.011 - y * 0.05) * 0.8 + (h(x >> 3, y >> 2, 184) - 0.5) * 0.5;
     B[y * 320 + x] = verde > 0.95 + (c_um(x, y) - 0.5) * 0.5 ? c_ram([P.v0, P.v1, P.v2, P.v3], l, x, y) : c_ram([P.e0, P.e1, P.e2, P.e3, P.e4], l + (verde < -1 ? 0.12 : 0), x, y); }
-  for (let k = 0; k < 22; k++) { const x = Math.round(h(k, 1, 170) * 316), y = Math.round(132 + h(k, 2, 170) * 46), r = 1 + h(k, 3, 170) * 1.5; R.disco(x + 1, y + 1, r, P.e0); R.disco(x, y, r, (xx, yy, d) => (d < 0.5 && xx <= x ? P.z5 : P.z3)); }
+  for (let k = 0; k < 22; k++) { const x = Math.round(h(k, 1, 170) * 316), y = Math.round(155 + h(k, 2, 170) * 23), r = 1 + h(k, 3, 170) * 1.5; R.disco(x + 1, y + 1, r, P.e0); R.disco(x, y, r, (xx, yy, d) => (d < 0.5 && xx <= x ? P.z5 : P.z3)); }
   // calvas de caliza en la hierba, matas oscuras y florecillas
-  for (let k = 0; k < 9; k++) { const cx = 20 + h(k, 1, 174) * 280, cy = 142 + h(k, 2, 174) * 34, w = 8 + h(k, 3, 174) * 12;
+  for (let k = 0; k < 9; k++) { const cx = 20 + h(k, 1, 174) * 280, cy = 159 + h(k, 2, 174) * 18, w = 8 + h(k, 3, 174) * 12;
     R.poligono([[cx - w, cy], [cx - w * 0.6, cy - 3], [cx + w * 0.5, cy - 3.5], [cx + w, cy + 1], [cx + w * 0.3, cy + 3], [cx - w * 0.7, cy + 2.5]], (x, y) => c_ram([P.z2, P.z3, P.z4, P.z5], 0.7 - (y - cy + 3) / 7 * 0.35 + (h(x, y, 175) - 0.5) * 0.35, x, y)); }
-  for (let k = 0; k < 30; k++) { const x = Math.round(h(k, 1, 176) * 318), y = Math.round(138 + h(k, 2, 176) * 40); R.disco(x, y, 1.6, (xx, yy, dd) => (dd < 0.5 ? P.v1 : P.v0)); if (k % 3 === 0) { R.pset(x + 2, y - 2, P.flor); R.pset(x - 2, y - 1, P.fuegoL); } }
+  for (let k = 0; k < 30; k++) { const x = Math.round(h(k, 1, 176) * 318), y = Math.round(157 + h(k, 2, 176) * 22); R.disco(x, y, 1.6, (xx, yy, dd) => (dd < 0.5 ? P.v1 : P.v0)); if (k % 3 === 0) { R.pset(x + 2, y - 2, P.flor); R.pset(x - 2, y - 1, P.fuegoL); } }
   // un rollo de cuerda, una cesta con comida y un odre, junto al camino
-  R.disco(108, 139, 4, (x, y, dd) => (Math.round(dd * 6) % 2 ? P.cuerdaS : P.cuerda)); R.pset(108, 139, P.maderaS);
-  R.poligono([[194, 137], [206, 137], [204, 144], [196, 144]], (x, y) => ((x + y) % 3 === 0 ? P.cestaS : P.cesta)); R.linea(194, 137, 206, 137, P.cestaS); R.disco(198, 136, 1.5, P.r4); R.disco(202, 136, 1.5, P.e3);
-  R.disco(214, 141, 3, (x, y, dd) => (dd < 0.5 && x < 214 ? P.cueroL : P.cuero)); R.rect(213, 137, 215, 138, P.cuero);
+  R.disco(112, 171, 4, (x, y, dd) => (Math.round(dd * 6) % 2 ? P.cuerdaS : P.cuerda)); R.pset(112, 171, P.maderaS);
+  R.poligono([[186, 169], [198, 169], [196, 176], [188, 176]], (x, y) => ((x + y) % 3 === 0 ? P.cestaS : P.cesta)); R.linea(186, 169, 198, 169, P.cestaS); R.disco(190, 168, 1.5, P.r4); R.disco(194, 168, 1.5, P.e3);
+  R.disco(208, 174, 3, (x, y, dd) => (dd < 0.5 && x < 208 ? P.cueroL : P.cuero)); R.rect(207, 170, 209, 171, P.cuero);
   // troncos de repuesto apilados junto al camino, a la izquierda
   for (const [x, y] of [[8, 96], [16, 96], [12, 92]]) { R.rect(x - 14, y - 2, x, y + 2, P.madera); R.rect(x - 14, y - 2, x, y - 2, P.maderaL); R.disco(x, y, 2.5, P.maderaL); R.pset(x, y, P.maderaS); }
   // un campamento pequeño en la ladera de la izquierda: dos chozas de ramas con su piel tendida
@@ -3182,63 +3191,109 @@ function c_troncosFijo(R, P, hora) {
     R.linea(cx, cb - 7, cx - 1, cb - 9, P.maderaS); R.linea(cx, cb - 7, cx + 1, cb - 9, P.maderaS); R.rect(cx - 1, cb - 2, cx + 1, cb, P.k); }
   R.rect(92, 87, 96, 89, P.pL); R.linea(91, 86, 97, 86, P.maderaS);
   // matorrales grandes, con luz arriba a la izquierda y su sombra
-  for (const [mx, my, r] of [[262, 146, 7], [272, 148, 5], [24, 140, 5], [150, 176, 6]]) { for (let i = -r - 1; i <= r + 3; i++) { const xx = Math.round(mx + i + 2); if (xx >= 0 && xx < 320 && c_um(xx, my) < 0.8) B[my * 320 + xx] = c_mezcla(B[my * 320 + xx], P.k, 0.35); }
+  for (const [mx, my, r] of [[264, 165, 7], [276, 168, 5], [18, 159, 5], [150, 178, 6]]) { for (let i = -r - 1; i <= r + 3; i++) { const xx = Math.round(mx + i + 2); if (xx >= 0 && xx < 320 && c_um(xx, my) < 0.8) B[my * 320 + xx] = c_mezcla(B[my * 320 + xx], P.k, 0.35); }
     R.disco(mx, my - r * 0.7, r, (xx, yy, d) => c_ram([P.h0, P.h1, P.h2, P.h3], 0.85 - d * 0.45 - (yy - my + r) / (r * 4) - (xx - mx) / (r * 5) + (h(xx, yy, 185) - 0.5) * 0.45, xx, yy)); }
   // una rama seca caída, gris de sol, con su sombra
   R.linea(44, 171, 86, 166, P.e0); R.linea(44, 170, 86, 165, P.z3); R.linea(46, 169, 84, 164, P.z5); R.linea(60, 168, 66, 161, P.z3); R.linea(74, 166, 79, 160, P.z4); R.pset(79, 159, P.z5);
   // amapolas y cardos: manchas de color en la hierba
-  for (let k = 0; k < 26; k++) { const g = k % 3, cx = [118, 226, 300][g] + (h(k, 1, 186) - 0.5) * 26, cy = [168, 160, 176][g] + (h(k, 2, 186) - 0.5) * 10, x = Math.round(cx), y = Math.round(cy);
+  for (let k = 0; k < 26; k++) { const g = k % 3, cx = [118, 226, 300][g] + (h(k, 1, 186) - 0.5) * 26, cy = [170, 164, 176][g] + (h(k, 2, 186) - 0.5) * 10, x = Math.round(cx), y = Math.round(cy);
     R.linea(x, y, x, y - 3, P.v0); R.pset(x, y - 4, P.amapola); R.pset(x + 1, y - 4, P.amapolaS); R.pset(x, y - 5, P.amapolaL); }
-  for (const [x, y] of [[40, 152], [196, 172], [244, 166], [312, 150]]) { R.linea(x, y, x, y - 6, P.v0); R.linea(x - 2, y - 3, x + 2, y - 4, P.v1);
+  for (const [x, y] of [[40, 162], [176, 178], [244, 168], [312, 159]]) { R.linea(x, y, x, y - 6, P.v0); R.linea(x - 2, y - 3, x + 2, y - 4, P.v1);
     R.rect(x - 1, y - 8, x + 1, y - 7, P.cardo); R.pset(x, y - 9, P.cardoL); R.pset(x - 1, y - 6, P.v1); R.pset(x + 1, y - 6, P.v1); }
 }
 function c_troncos(R, t, o, hora, P) {
   R.copiar(c_capa(R, 'troncos|' + hora, () => c_troncosFijo(R, P, hora)));
   c_nubes(R, t, hora, 66, [[20, 34, 42, 0.8, 31], [160, 28, 50, 0.55, 32], [250, 52, 22, 1.5, 33, true], [90, 58, 18, 2.0, 34, true], [320, 44, 28, 1.1, 35], [200, 62, 14, 2.6, 36, true]]);
   c_humo(R, P, 283, 62, t, 16); c_humo(R, P, 80, 82, t + 1.4, 12, 4); c_bandada(R, P, t + 3, 48, 18);
-  // las sombras de las nubes que corren por la estepa y por el camino
-  c_sombraNube(R, P, t, 40, 156, 46, 9, 4.5, 133, 179); c_sombraNube(R, P, t, 260, 92, 34, 5, 3.2, 80, 104);
+  // las sombras de las nubes que corren por la estepa y por la ladera
+  c_sombraNube(R, P, t, 40, 166, 46, 8, 4.5, 154, 179); c_sombraNube(R, P, t, 260, 90, 34, 5, 3.2, 80, 98);
   // gacelas lejanas en la ladera, que pastan y levantan la cabeza
-  for (let k = 0; k < 3; k++) { const x = 190 + k * 9 + Math.round(Math.sin(t * 0.1 + k) * 3); c_gacela(R, P, x, 96 + (k % 2), t, k === 1 ? 1 : -1, Math.sin(t * 0.7 + k * 2) > 0.3 ? 'mira' : 'pasta', k); }
+  for (let k = 0; k < 3; k++) { const x = 190 + k * 9 + Math.round(Math.sin(t * 0.1 + k) * 3); c_gacela(R, P, x, 92 + (k % 2), t, k === 1 ? 1 : -1, Math.sin(t * 0.7 + k * 2) > 0.3 ? 'mira' : 'pasta', k); }
   c_cernicalo(R, P, t, 120, 58);
-  for (let k = 0; k < 3; k++) c_mariposa(R, P, t, [120, 228, 300][k], [160, 152, 168][k], k);
+  for (let k = 0; k < 3; k++) c_mariposa(R, P, t, [120, 228, 300][k], [162, 156, 170][k], k);
   // la hierba de delante, que se mueve con el viento
-  for (let k = 0; k < 60; k++) { const x = Math.round(h(k, 1, 177) * 320), y = 136 + Math.round(h(k, 2, 177) * 44), a = 2 + h(k, 3, 177) * 3 + (y - 136) * 0.06, w = Math.sin(t * 1.8 + x * 0.05) * 1.3;
+  for (let k = 0; k < 60; k++) { const x = Math.round(h(k, 1, 177) * 320), y = 156 + Math.round(h(k, 2, 177) * 24), a = 2 + h(k, 3, 177) * 3 + (y - 156) * 0.08, w = Math.sin(t * 1.8 + x * 0.05) * 1.3;
     R.linea(x, y, Math.round(x + w), Math.round(y - a), k % 2 ? P.e1 : P.e3); R.linea(x + 1, y, Math.round(x + 1 + w * 0.6), Math.round(y - a * 0.7), P.e2); }
-  // el tirón: todos a la vez cada 1,3 s; el pilar avanza a golpes (o con o.avance)
-  const per = 1.3, ph = (t % per) / per, tiron = ph < 0.35 ? Math.sin(ph / 0.35 * Math.PI) : 0;
-  const av = o.avance ?? c_lim((Math.floor(t / per) + Math.min(1, ph / 0.35)) * 0.012), d = av * 116, X0 = Math.round(16 + d), L = 84;
-  const yT = 99, yM = 105, yS = 111, yL = 118;   // arriba de la cabeza, arriba del fuste, cara de delante, troncos
+  // el tirón: todos a la vez cada 1,3 s y el pilar avanza 6 px a cada golpe (con o.avance, donde diga la escena)
+  const per = 1.3, ph = (t % per) / per, tiron = ph < 0.35 ? Math.sin(ph / 0.35 * Math.PI) : 0, golpe = Math.min(1, ph / 0.35);
+  const dAt = (tt) => { const f = ((tt % per) / per) / 0.35; return o.avance != null ? c_lim(o.avance) * 116 : ((((Math.floor(tt / per) + Math.min(1, f)) * 6 - 30) % 90) + 90) % 90; }, d = dAt(t);
+  const xH = Math.round(70 + d), LH = 32, s0 = xH - LH, LS = 150, xF = s0 - LS;   // la punta de la cabeza, el cuello, el pie
+  const yC0 = 101, yC1 = 129, yF0 = 110, yF1 = 124, gC = 7, gF = 6;   // la cara de arriba (cabeza y fuste) y el grueso
   // los que miran desde la ladera
   const mir = [[46, 92, 0], [55, 93, 1], [63, 91, 2], [150, 94, 3], [159, 93, 4]];
   mir.forEach(([x, y, k]) => { const m = c_fig(R, P, x, y, { pose: k % 2 ? 'mira' : 'quieto', dir: 1, k, fase: 0 }); if (tiron > 0.6 && k === 2) R.pset(m.mano[0], m.mano[1] - 3, P.p1); });
-  // los troncos que esperan delante, en el camino
-  const tronco = (x, y, ang) => { R.rect(x - 2, y - 7, x + 2, y - 3, P.madera); R.disco(x, y - 5, 3.2, (xx, yy, dd) => (dd > 0.75 ? P.maderaS : dd > 0.4 ? P.maderaL : P.cuerda));
-    R.linea(Math.round(x + Math.cos(ang) * 2.4), Math.round(y - 5 + Math.sin(ang) * 2.4), Math.round(x - Math.cos(ang) * 2.4), Math.round(y - 5 - Math.sin(ang) * 2.4), P.maderaS); };
-  for (const x of [X0 + L + 30, X0 + L + 48, X0 + L + 66]) if (x < 330) tronco(x, yL + 8, 0.3);
-  // las dos filas de los que tiran (la de atrás antes que el pilar, la de delante después)
-  const filas = (yF, desf, kf) => { const pts = []; for (let i = 0; i < 7; i++) { const x = X0 + L + 10 + i * 9 + desf, m = c_fig(R, P, x - tiron * 1.5, yF, { pose: 'tira', dir: 1, k: kf + i, fase: (t * 0.8 + i * 0.13) % 1 }); pts.push(m.mano); } return pts; };
-  const ropaAt = filas(yS + 1, 4, 0);
-  const cuerda = (pts, y0) => { let [px, py] = [X0 + L - 2, y0]; for (const [mx, my] of pts) { R.linea(px, py - 1, mx, my - 1, P.cuerda); R.linea(px, py, mx, my, P.maderaL); R.linea(px, py + 1, mx, my + 1, P.maderaS); [px, py] = [mx, my]; } R.linea(px, py, px + 6, py + 4, P.cuerda); };
-  cuerda(ropaAt, yM + 2);
-  // los troncos bajo el pilar: ruedan a la mitad de su velocidad; el que sale por detrás reaparece delante
-  for (let i = 0; i < 5; i++) { const rel = ((((i * 17 - d / 2) % 85) + 85) % 85) - 4, x = X0 + rel; if (rel < -3 || rel > L + 3) continue; tronco(x, yL + 8, -(x / 3.2)); }
-  // el pilar: la cara de arriba (fuste y cabeza en T, más ancha), la de delante en sombra y el canto de luz
-  const pilarL = (x, y) => c_ram([P.z2, P.z3, P.z4, P.z5, P.z6], 0.75 + (h(x - X0, y, 171) - 0.5) * 0.3 - (x - X0) / L * 0.1, x, y);
-  R.poligono([[X0 - 1, yM - 1], [X0 + L - 19, yM - 1], [X0 + L - 19, yT - 1], [X0 + L + 1, yT - 1], [X0 + L + 1, yL + 1], [X0 - 1, yL + 1]], P.z0);
-  R.poligono([[X0, yM], [X0 + L - 20, yM], [X0 + L - 20, yT], [X0 + L, yT], [X0 + L, yS], [X0, yS]], pilarL);
-  R.poligono([[X0, yS], [X0 + L, yS], [X0 + L, yL], [X0, yL]], (x, y) => c_ram([P.z0, P.z1, P.z2, P.z3], 0.6 - (y - yS) / 7 * 0.35 + (h(x - X0, y >> 1, 172) - 0.5) * 0.25, x, y));
-  R.linea(X0, yM, X0 + L - 21, yM, P.z6); R.linea(X0 + L - 20, yT, X0 + L - 1, yT, P.z6); R.linea(X0 + L - 20, yT, X0 + L - 20, yM, P.z3); R.linea(X0 + L - 19, yT + 1, X0 + L - 19, yM - 1, P.z5); R.linea(X0, yS, X0 + L, yS, P.z5); R.linea(X0 + L, yT, X0 + L, yL, P.z1); R.linea(X0, yL, X0 + L, yL, P.z0);
-  // la cuerda atada a la cabeza
-  R.linea(X0 + L - 4, yT, X0 + L - 4, yL, P.cuerdaS); R.linea(X0 + L - 3, yT, X0 + L - 3, yL, P.cuerda);
-  // las palancas de detrás: dos que empujan hacia abajo, a la vez que el tirón
-  for (let i = 0; i < 2; i++) { const bx = X0 - 2 + i * 6, yb = yL + 2, px = X0 - 16 + i * 6, py = yS - 10 + Math.round(tiron * 4);
-    R.linea(bx, yb, px, py, P.madera); R.linea(bx, yb - 1, px, py - 1, P.maderaL); c_fig(R, P, px - 3, yL + 9 + i, { pose: 'palanca', dir: 1, k: 6 + i, fase: tiron }); }
+  // LOS TRONCOS bajo el pilar, atravesados: ruedan a la mitad de su velocidad (respecto al pilar van hacia atrás). De
+  // cada uno se ve la punta de atrás asomando por detrás del pilar y la de delante, con sus anillos, que gira
+  const troncos = []; for (let i = 0; i < 8; i++) { const rel = ((i * 24 + 10 - d / 2) % 192 + 192) % 192, x = Math.round(xH + 4 - rel); if (x > -8 && x < xH + 6) troncos.push(x); }
+  const bajoC = (x) => x > s0 - 2;   // bajo la cabeza (más ancha) o bajo el fuste
+  for (const x of troncos) { const yb = bajoC(x) ? yC0 - 3 : yF0 - 4; R.rect(x - 2, yb, x + 2, yb + 6, P.maderaS); R.rect(x - 2, yb, x + 1, yb + 5, P.madera); R.disco(x, yb, 2.4, (xx, yy, dd) => (dd > 0.7 ? P.maderaS : P.cuerdaS)); R.pset(x, yb, P.maderaS); }
+  // el pilar en T tumbado boca arriba: la cara de arriba (caliza con vetas, desconchones y líquenes), el canto de
+  // delante en sombra; la cabeza, más ancha que el fuste, con el resalte del cuello
+  const cara = (x, y, x0) => c_ram([P.z2, P.z3, P.z4, P.z5, P.z6], 0.72 + (h(x, y, 171) - 0.5) * 0.22 + (h(x >> 2, y >> 1, 187) - 0.5) * 0.18 - (y - yC0) * 0.006 + (x - x0) * 0.0006 + Math.sin((x - xH) * 0.19 + y * 0.6) * 0.04, x, y);
+  const canto = (x, y, y0) => c_ram([P.z0, P.z1, P.z2, P.z3], 0.62 - (y - y0) / gC * 0.4 + (h(x, y >> 1, 172) - 0.5) * 0.25, x, y);
+  // el contorno oscuro y la sombra que deja en el camino
+  for (let x = Math.max(0, xF); x <= Math.min(319, xH + 3); x++) { const yb = (x > s0 ? yC1 + gC : yF1 + gF) + 1; for (let y = yb; y <= yb + 2; y++) R.pset(x, y, c_mezcla(R.pget(x, y), P.k, 0.45 - (y - yb) * 0.12)); }
+  R.poligono([[xF - 2, yF0 - 2], [s0 - 2, yF0 - 2], [s0 - 2, yC0 - 2], [xH + 2, yC0 - 2], [xH + 2, yC1 + gC + 2], [s0 - 2, yC1 + gC + 2], [s0 - 2, yF1 + gF + 2], [xF - 2, yF1 + gF + 2]], P.k);
+  R.poligono([[xF - 1, yF0 - 1], [s0 - 1, yF0 - 1], [s0 - 1, yC0 - 1], [xH + 1, yC0 - 1], [xH + 1, yC1 + gC + 1], [s0 - 1, yC1 + gC + 1], [s0 - 1, yF1 + gF + 1], [xF - 1, yF1 + gF + 1]], P.z0);
+  R.poligono([[xF, yF0], [s0, yF0], [s0, yF1], [xF, yF1]], (x, y) => cara(x, y, xF));
+  R.poligono([[s0, yC0], [xH, yC0], [xH, yC1], [s0, yC1]], (x, y) => cara(x, y, s0));
+  R.poligono([[xF, yF1 + 1], [s0, yF1 + 1], [s0, yF1 + gF], [xF, yF1 + gF]], (x, y) => canto(x, y, yF1));
+  R.poligono([[s0, yC1 + 1], [xH, yC1 + 1], [xH, yC1 + gC], [s0, yC1 + gC]], (x, y) => canto(x, y, yC1));
+  // la cara del cuello (el escalón de la cabeza sobre el fuste), en sombra, y los filos de luz
+  R.rect(s0 - 1, yC0 + 1, s0, yF0 - 1, P.z1); R.rect(s0 - 1, yF1 + 1, s0, yC1, P.z2);
+  R.linea(xF, yF0, s0 - 2, yF0, P.z6); R.linea(s0, yC0, xH - 1, yC0, P.z6); R.linea(xF, yF1, s0 - 2, yF1, P.z5); R.linea(s0 + 1, yC1, xH - 1, yC1, P.z5);
+  R.linea(xH, yC0, xH, yC1 + gC, P.z1); R.linea(xH - 1, yC0 + 1, xH - 1, yC1, P.z4);
+  R.linea(xF, yF1 + gF, s0, yF1 + gF, P.z0); R.linea(s0, yC1 + gC, xH, yC1 + gC, P.z0);
+  // las vetas, los desconchones y los líquenes de la caliza
+  for (let k = 0; k < 12; k++) { const x = Math.round(xF + 6 + h(k, 1, 188) * (LS + LH - 12)), y = Math.round((x > s0 ? yC0 + 2 : yF0 + 2) + h(k, 2, 188) * (x > s0 ? 18 : 8)), l = 3 + Math.round(h(k, 3, 188) * 5);
+    if (k % 3 === 0) { R.pset(x, y, P.z2); R.pset(x + 1, y, P.z1); R.pset(x, y + 1, P.z3); } else if (k % 3 === 1) R.linea(x, y, x + l, y + (k % 2), P.z3); else { R.pset(x, y, hex('#a8a86a')); R.pset(x + 1, y + 1, hex('#8a9a5a')); } }
+  // EL RELIEVE (lo que dice que es un pilar y no una losa): los brazos bajan del cuello por los dos costados del fuste,
+  // se doblan en el codo y las manos de dedos largos se juntan sobre el vientre; debajo, el cinturón con sus hebillas
+  // y la piel de zorro que cuelga. Cada trazo con su filo de luz (arriba) y su sombra (abajo)
+  const rel = (pts) => { for (let i = 0; i < pts.length - 1; i++) { const [a, b] = pts[i], [c, e] = pts[i + 1]; R.linea(a, b + 2, c, e + 2, P.z2); R.linea(a, b + 1, c, e + 1, P.z0); R.linea(a, b, c, e, P.z6); R.linea(a, b - 1, c, e - 1, P.z5); } };
+  const yM = (yF0 + yF1) >> 1;
+  rel([[s0 - 2, yF0 + 2], [s0 - 30, yF0 + 2], [s0 - 38, yM - 1]]); rel([[s0 - 2, yF1 - 3], [s0 - 30, yF1 - 3], [s0 - 38, yM + 1]]);
+  R.linea(s0 - 3, yF0 + 3, s0 - 29, yF0 + 3, P.z5); R.linea(s0 - 3, yF1 - 2, s0 - 29, yF1 - 2, P.z3);
+  for (let j = -2; j <= 2; j++) { R.linea(s0 - 38, yM + j, s0 - 44, yM + j, j % 2 ? P.z6 : P.z2); }   // los dedos que se tocan
+  R.pset(s0 - 45, yM - 2, P.z1); R.pset(s0 - 45, yM + 2, P.z1);
+  R.rect(s0 - 50, yF0 + 1, s0 - 48, yF1 - 1, P.z6); R.rect(s0 - 47, yF0 + 1, s0 - 47, yF1 - 1, P.z1); R.pset(s0 - 49, yM - 2, P.z2); R.pset(s0 - 49, yM + 2, P.z2);
+  R.poligono([[s0 - 51, yM - 3], [s0 - 64, yM - 1], [s0 - 70, yM], [s0 - 64, yM + 1], [s0 - 51, yM + 3]], (x, y) => ((x + y) % 3 ? P.z5 : P.z3)); R.linea(s0 - 51, yM + 3, s0 - 66, yM + 1, P.z1); R.pset(s0 - 70, yM, P.z1);
+  // la cabeza: el bisel de la cara de arriba
+  R.linea(s0 + 3, yC0 + 3, xH - 4, yC0 + 3, P.z5); R.linea(xH - 4, yC0 + 3, xH - 4, yC1 - 3, P.z3); R.linea(s0 + 3, yC1 - 3, xH - 4, yC1 - 3, P.z3);
+  // las cuerdas de cuero atadas a la cabeza: dos vueltas con su nudo, y los dos ramales que salen hacia delante
+  for (const xc of [xH - 9, xH - 6]) { R.linea(xc, yC0 - 1, xc, yC1 + gC, P.cuerdaS); R.linea(xc + 1, yC0 - 1, xc + 1, yC1 + gC, P.cuerda); }
+  R.rect(xH - 9, yC0 + 9, xH - 5, yC0 + 11, P.cuerdaS); R.pset(xH - 7, yC0 + 10, P.cuerda);
+  // los troncos de delante: la punta que asoma con sus anillos y una raya que gira al rodar
+  for (const x of troncos) { const yf = (bajoC(x) ? yC1 + gC : yF1 + gF) + 4, ang = -(xH + (d / 2)) / 3.4 + x * 0.0;
+    R.rect(x - 3, yf - 4, x + 3, yf, P.madera); R.linea(x - 3, yf - 4, x - 3, yf, P.maderaS);
+    R.disco(x, yf, 3.6, (xx, yy, dd) => (dd > 0.82 ? P.maderaS : dd > 0.5 ? P.maderaL : (Math.round(dd * 6) % 2 ? P.cuerdaS : P.cuerda)));
+    R.linea(Math.round(x + Math.cos(ang) * 2.6), Math.round(yf + Math.sin(ang) * 2.6), Math.round(x - Math.cos(ang) * 2.6), Math.round(yf - Math.sin(ang) * 2.6), P.maderaS); }
   // el polvo de los troncos con cada tirón
-  if (tiron > 0) for (let i = 0; i < 3; i++) c_soplo(R, P, X0 + 10 + i * 34, yL + 6, ph / 0.35, 3, P.polvo);
-  const ropaDe = filas(yL + 10, 0, 7);
-  cuerda(ropaDe, yS + 4);
-  return { suelo: 150, horizonte: 66, pilar: [X0, yT, X0 + L, yL], cabeza: [X0 + L, yT], cuerda: ropaDe[ropaDe.length - 1], tiron, avance: av, cerro: [286, 60] };
+  if (tiron > 0) for (let i = 0; i < 3; i++) c_soplo(R, P, xH - 14 - i * 40, yC1 + gC + 6, ph / 0.35, 3, P.polvo);
+  // LAS DOS FILAS DE LOS QUE TIRAN (chibis de verdad, de espaldas al pilar, la cuerda en la mano): cinco atrás y cinco
+  // delante; con cada tirón dan un paso, aprietan los dientes y levantan polvo con los pies
+  const quien = ELENCO_GB ? [ELENCO_GB.cazadorGB, ELENCO_GB.cazadoraGB, ELENCO_GB.cazador2GB, ELENCO_GB.cazadora2GB] : [];
+  const fila = (suelo, x0, kf, n) => { const manos = []; for (let i = 0; i < n; i++) { const x = xH + x0 + i * 16 + (i % 2), yC = suelo - 13;
+      if (R.actor) { const r = R.actor(quien[(i + kf) % 4], x, suelo, t + i * 0.37, { dir: 1, anda: tiron > 0.15, enfado: tiron > 0.3, sostiene: [x + 19, yC + 6 + (i % 2)] }); manos.push(r.mano); }
+      else manos.push(c_fig(R, P, x + 6, suelo, { pose: 'tira', dir: 1, k: kf + i, fase: (t * 0.8 + i * 0.13) % 1 }).mano);
+      if (tiron > 0.2) c_soplo(R, P, x + 4, suelo, ph / 0.35, 2, P.polvo); }
+    return manos; };
+  const soga = (x0, y0, pts) => { let [px, py] = [x0, y0]; for (const [mx, my] of pts) { const n = Math.max(2, Math.round(Math.hypot(mx - px, my - py)));
+      for (let s = 0; s <= n; s++) { const u = s / n, x = Math.round(px + (mx - px) * u), y = Math.round(py + (my - py) * u + Math.sin(u * Math.PI) * (1 - tiron) * 1.5); R.pset(x, y - 1, P.cuerda); R.pset(x, y, P.maderaS); } [px, py] = [mx, my]; } };
+  const atras = fila(132, 22, 1, 4); soga(xH + 1, yC0 + 7, atras);
+  const delante = fila(150, 10, 0, 5); soga(xH + 1, yC1 + 4, delante);
+  // EL DEL TRONCO: uno coge el tronco que ha salido por detrás, lo trae al hombro y lo pone delante de la cabeza
+  { const per2 = 6.5, u = (t % per2) / per2, xd = Math.min(xH - 22, 150), xa = Math.round(u < 0.55 ? -18 + (xd + 18) * (u / 0.55) : u < 0.68 ? xd : xd - (xd + 22) * ((u - 0.68) / 0.32));
+    const lleva = u < 0.6, suelta = u >= 0.6, def = ELENCO_GB ? ELENCO_GB.cazador2GB : null, anda = u < 0.55 || u > 0.68;
+    // el tronco puesto se queda quieto en el camino hasta que la cabeza le pasa por encima
+    if (suelta) { const tp = Math.floor(t / per2) * per2 + 0.6 * per2, xl = Math.round(70 + dAt(tp)) + 6, yf = yC1 + gC + 4; if (xl > xH - 3) { R.rect(xl - 3, yf - 5, xl + 3, yf, P.madera); R.linea(xl - 3, yf - 5, xl - 3, yf, P.maderaS); R.disco(xl, yf, 3.6, (xx, yy, dd) => (dd > 0.82 ? P.maderaS : dd > 0.5 ? P.maderaL : (Math.round(dd * 6) % 2 ? P.cuerdaS : P.cuerda))); } }
+    if (R.actor && def) { const r = R.actor(def, xa, 160, t, { dir: u < 0.68 ? 1 : -1, anda, sostiene: lleva ? [xa + 14, 160 - 13 + 2] : undefined, sonrisa: suelta && u < 0.7 });
+      // el tronco en brazos, por delante del cuerpo: corteza con su luz y su sombra y la punta con los anillos
+      if (lleva) { const [mx, my] = r.mano, x0 = mx - 13, y0 = my + 2, x1 = mx + 4, y1 = my - 2;
+        for (let w = -3; w <= 3; w++) R.linea(x0, y0 + w, x1, y1 + w, Math.abs(w) === 3 ? P.k : w === -2 ? P.maderaL : w > 0 ? P.maderaS : P.madera);
+        for (let k = 0; k < 3; k++) R.pset(x0 + 3 + k * 5, y0 - (k + 1) + (k % 2), P.maderaS);
+        R.disco(x1, y1, 3.6, (xx, yy, dd) => (dd > 0.86 ? P.k : dd > 0.6 ? P.maderaL : (Math.round(dd * 6) % 2 ? P.cuerdaS : P.cuerda))); R.pset(x1, y1, P.maderaS); } } }
+  return { suelo: 150, horizonte: 66, pilar: [Math.max(0, xF), yC0, xH, yC1 + gC + 4], cabeza: [xH, yC0], cuerda: delante[delante.length - 1], tiron, avance: d / 116, cerro: [286, 60] };
 }
 // la paleta de los arqueólogos (tienda, casa y laboratorio)
 const DP = pal({
@@ -3610,7 +3665,13 @@ function d_casaFijo(R, anos) {
   hoja(124, 24, 142, 42, C.verdeL);
   for (let x = 126; x < 141; x += 4) linea(x, 26, x, 40, hex('#d8d0c0')); for (let y = 27; y < 41; y += 4) linea(125, y, 141, y, hex('#d8d0c0'));
   for (let a = 0; a < 6.3; a += 0.45) pset(Math.round(133 + Math.cos(a) * 6), Math.round(33 + Math.sin(a) * 5), P.lapiz); rect(132, 32, 132, 35, P.lapiz); rect(135, 32, 135, 35, P.lapiz);
-  hoja(126, 45, 142, 60, C.amarillo); rect(128, 47, 140, 57, hex('#6a5a4a')); rect(128, 53, 140, 57, hex('#8a6a4a')); rect(133, 48, 135, 55, C.caliza); rect(131, 48, 137, 49, C.calizaL);
+  hoja(126, 45, 142, 60, C.amarillo);
+  // la foto: un pilar de verdad visto de tres cuartos dentro de su recinto, a pleno sol (la cabeza con su cara de arriba
+  // clara, su vuelo y su sombra, el fuste con el brazo en relieve y el cinturón), el muro de piedra seca detrás, el
+  // horizonte, una nube y una visitante a su lado que da la escala; nada de una T plana
+  { const FC = { s: '#c8dcec', S: '#a8c4dc', c: '#f4f8fc', P: '#ece0c4', p: '#d8c8a4', q: '#a8946e', Q: '#7a6a4e', h: '#9a7a56', H: '#7a5c40', w: '#a8987c', W: '#8a7a60', g: '#8a9a5a', r: '#c84a3a', f: '#d8a070', o: '#4a3a2a' };
+    ['ssssssssccsss', 'sssPPPPPPcSSS', 'SSSQppppppqSS', 'SSSQqqqqqqQhh', 'hhhhPpqQhhhhh', 'wWwwPpqQwWwQQ', 'WwwWPqqQwfWQQ', 'wwWwPpqQwrwqQ', 'gHhhQQQQhrhhg', 'hghHPpqQHohgh', 'HhHhooooohHhH']
+      .forEach((fila, j) => [...fila].forEach((ch, i) => pset(128 + i, 47 + j, hex(FC[ch])))); }
   // EL MAPA DE LA COLINA con curvas de nivel, la cuadrícula y los cuatro recintos (anillos de pilares)
   rect(147, 21, 191, 63, P.marco); rect(148, 22, 190, 62, P.mapaP); rect(148, 22, 190, 22, P.marcoL);
   for (let x = 152; x < 190; x += 6) for (let y = 23; y < 62; y += 2) pset(x, y, hex('#e0d4b0'));
@@ -3701,11 +3762,18 @@ function d_casaVida(R, t, anos) {
     if (g < -0.3) { R.poligono([[119, 50], [121, 50], [121, 46]], P.papelS); R.pset(121, 50, P.muroS); } }
   // el polvo que flota en el haz de sol
   for (let k = 0; k < 16; k++) { const u = (t * 0.03 + h(k, 1, 48)) % 1, v = h(k, 2, 48), y = Math.round(90 + u * 54), x = Math.round(203 - (y - 86) * 0.95 + v * 40 + Math.sin(t * 0.7 + k) * 2); if (Math.floor(t * 2 + k) % 4) R.pset(x, y, hex('#fff6dc')); }
-  // la pantalla: dibuja un pilar en T línea a línea; en el monitor de tubo, con sus líneas de barrido
+  // la pantalla: dibuja el modelo de un pilar línea a línea; en el monitor de tubo, con sus líneas de barrido
   { const plana = anos >= 2006, [x0, y0, x1, y1] = plana ? [278, 72, 312, 92] : [283, 76, 303, 92];
     R.rect(x0, y0, x1, y1, plana ? hex('#1c3a5a') : hex('#14322a')); const tinta = plana ? hex('#9ad0f0') : hex('#7ae0a0'), cx = (x0 + x1) >> 1, u = (t * 0.25) % 1;
-    const tramos = [[cx - 6, y0 + 3, cx + 6, y0 + 3], [cx + 6, y0 + 3, cx + 6, y0 + 6], [cx + 6, y0 + 6, cx + 3, y0 + 6], [cx + 3, y0 + 6, cx + 3, y1 - 2], [cx + 3, y1 - 2, cx - 3, y1 - 2], [cx - 3, y1 - 2, cx - 3, y0 + 6], [cx - 3, y0 + 6, cx - 6, y0 + 6], [cx - 6, y0 + 6, cx - 6, y0 + 3]];
-    const n = Math.floor(u * 10); tramos.slice(0, n).forEach(([a, b, c, d]) => R.linea(a, b, c, d, tinta));
+    // el modelo en 3D del pilar, de tres cuartos, en alambre: la cabeza como un bloque (cara de delante, cara de arriba y
+    // costado), el fuste con su costado, los brazos que bajan y se doblan hasta las manos, el cinturón; debajo, la barra
+    // de carga que se llena mientras se dibuja
+    const hb = plana ? 7 : 5, ys = y1 - 3, tramos = [[cx - 7, y0 + 3, cx + 4, y0 + 3], [cx + 4, y0 + 3, cx + 4, y0 + hb], [cx + 4, y0 + hb, cx - 7, y0 + hb], [cx - 7, y0 + hb, cx - 7, y0 + 3],
+      [cx - 7, y0 + 3, cx - 5, y0 + 1], [cx - 5, y0 + 1, cx + 7, y0 + 1], [cx + 7, y0 + 1, cx + 4, y0 + 3], [cx + 7, y0 + 1, cx + 7, y0 + hb - 2], [cx + 7, y0 + hb - 2, cx + 4, y0 + hb],
+      [cx - 4, y0 + hb, cx - 4, ys], [cx + 1, y0 + hb, cx + 1, ys], [cx - 4, ys, cx + 1, ys], [cx + 1, ys, cx + 3, ys - 2], [cx + 3, ys - 2, cx + 3, y0 + hb + 1],
+      [cx - 3, y0 + hb + 2, cx - 3, ys - 4], [cx - 3, ys - 4, cx - 1, ys - 3], [cx, y0 + hb + 2, cx, ys - 4], [cx - 4, ys - 2, cx + 1, ys - 2]];
+    const n = Math.min(tramos.length, Math.floor(u * 1.25 * tramos.length)); tramos.slice(0, n).forEach(([a, b, c, d]) => R.linea(a, b, c, d, tinta));
+    if (n < tramos.length) R.rect(x0 + 2, y1 - 1, x0 + 2 + Math.round((x1 - x0 - 4) * n / tramos.length), y1 - 1, tinta);
     for (let x = x0 + 2; x < x1; x += 5) R.pset(x, y1 - 1, plana ? hex('#3a6a9a') : hex('#2a5a3a'));
     if (!plana) for (let y = y0; y <= y1; y += 2) R.linea(x0, y, x1, y, (a) => d_mezcla(R.pget(a, y), C.k, 0.3));
     R.pset(x0 + 1 + Math.floor(t * 9) % (x1 - x0 - 2), y0 + 1, C.blanco); }
@@ -4352,13 +4420,14 @@ function e_muroSeco(R, x0, y0, x1, y1, k, oscuro = 0) {
 function e_buitreFijo(R) {
   const { rect, pset, disco, poligono, linea } = R, B = R.buf;
   // la membrana blanca de la cubierta, con sus costuras curvas y una viga
-  for (let y = 0; y < 14; y++) for (let x = 0; x < 320; x++) { const s = Math.sin(x * 0.045) * 4 + y; B[y * 320 + x] = e_grad(s / 18 + 0.1, [hex('#d8d6cc'), hex('#c4c2b8'), hex('#aeaca2')], x, y); if (((x + 40) % 64) < 1 || Math.abs(y - 6 - Math.sin(x * 0.045) * 3) < 0.5) B[y * 320 + x] = hex('#bab8ae'); }
-  linea(180, 0, 250, 13, hex('#8a8e96')); linea(181, 0, 251, 13, hex('#6a6e76'));
-  // la pasarela del otro lado: la pared de tierra a la sombra, el tablado y la barandilla (los visitantes, en cada fotograma)
-  for (let y = 14; y < 30; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = e_grad((y - 14) / 16 + (h(x >> 1, y, 946) - 0.5) * 0.3, [hex('#8a7a62'), hex('#7a6850'), hex('#5e4e3a')], x, y);
-  rect(0, 25, 319, 27, hex('#8a6a48')); rect(0, 25, 319, 25, hex('#a8885e')); for (let x = 0; x < 320; x += 7) pset(x, 26, hex('#5a4430')); rect(0, 28, 319, 29, hex('#3a2e22'));
+  for (let y = 0; y < 20; y++) for (let x = 0; x < 320; x++) { const s = Math.sin(x * 0.045) * 4 + y * 0.7; B[y * 320 + x] = e_grad(s / 18 + 0.1, [hex('#d8d6cc'), hex('#c4c2b8'), hex('#aeaca2')], x, y); if (((x + 40) % 64) < 1 || Math.abs(y - 6 - Math.sin(x * 0.045) * 3) < 0.5) B[y * 320 + x] = hex('#bab8ae'); }
+  linea(180, 0, 250, 19, hex('#8a8e96')); linea(181, 0, 251, 19, hex('#6a6e76'));
+  // la pasarela del otro lado (por debajo de y 20, lejos de la barra del año): la pared de tierra a la sombra, el
+  // tablado y la barandilla (los visitantes, en cada fotograma)
+  for (let y = 20; y < 36; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = e_grad((y - 20) / 16 + (h(x >> 1, y, 946) - 0.5) * 0.3, [hex('#8a7a62'), hex('#7a6850'), hex('#5e4e3a')], x, y);
+  rect(0, 31, 319, 33, hex('#8a6a48')); rect(0, 31, 319, 31, hex('#a8885e')); for (let x = 0; x < 320; x += 7) pset(x, 32, hex('#5a4430')); rect(0, 34, 319, 35, hex('#3a2e22'));
   // el muro del recinto, detrás del pilar
-  e_muroSeco(R, 0, 30, 319, 150, 0, 0.05);
+  e_muroSeco(R, 0, 36, 319, 150, 0, 0.05);
   // el rayo de sol que entra por un hueco de la cubierta
   for (let y = 0; y < 150; y++) { const x0 = 20 + y * 0.55; for (let x = Math.round(x0); x < x0 + 34; x++) if (x < 320 && e_bayer(x, y) < 0.5) B[y * 320 + x] = e_mez(B[y * 320 + x], hex('#fff4d8'), 0.14); }
   // el suelo excavado: tierra con piedrecitas
@@ -4426,12 +4495,12 @@ function e_buitre(R, t, o) {
   const { rect, pset, linea, disco } = R, B = R.buf;
   // los visitantes que pasan por la pasarela del otro lado (por detrás de la barandilla y del pilar)
   for (let k = 0; k < 5; k++) { const v = 6 + (k % 3) * 2, dir = k % 2 ? -1 : 1, x = Math.round(((t * v + k * 70) % 380) - 30), px = dir > 0 ? x : 320 - x;
-    if ((px > 86 && px < 236) || px > 270) continue; const col = [hex('#c84a3a'), hex('#3a6ab8'), hex('#e8c040'), hex('#4a8a5a'), hex('#e8e0d0')][k], pa = Math.floor(t * 5 + k) % 2;
-    disco(px, 17, 1, hex('#d8a070')); rect(px - 1, 19, px + 1, 22, col); pset(px - 1 + pa, 23, hex('#2a2a3a')); pset(px + 1 - pa, 23, hex('#2a2a3a')); pset(px - 1, 24, hex('#2a2a3a')); pset(px + 1, 24, hex('#2a2a3a')); }
-  for (const yb of [18, 21]) for (let x = 0; x < 320; x++) if (x < 89 || x > 233) pset(x, yb, hex('#6a5038'));
-  for (let x = 2; x < 320; x += 12) if (x < 89 || x > 233) rect(x, 18, x, 25, hex('#5a4430'));
+    if (!((px > 52 && px < 86) || (px > 238 && px < 272))) continue; const col = [hex('#c84a3a'), hex('#3a6ab8'), hex('#e8c040'), hex('#4a8a5a'), hex('#e8e0d0')][k], pa = Math.floor(t * 5 + k) % 2;
+    disco(px, 23, 1, hex('#d8a070')); rect(px - 1, 25, px + 1, 28, col); pset(px - 1 + pa, 29, hex('#2a2a3a')); pset(px + 1 - pa, 29, hex('#2a2a3a')); pset(px - 1, 30, hex('#2a2a3a')); pset(px + 1, 30, hex('#2a2a3a')); }
+  for (const yb of [24, 27]) for (let x = 0; x < 320; x++) if (x < 89 || x > 233) pset(x, yb, hex('#6a5038'));
+  for (let x = 2; x < 320; x += 12) if (x < 89 || x > 233) rect(x, 24, x, 31, hex('#5a4430'));
   // la lona azul en lo alto del muro, que ondea
-  for (let x = 0; x < 44; x++) { const y0 = 30 + Math.round(Math.sin(x * 0.3 - t * 4) * (x / 22)); for (let y = y0; y < y0 + 4 + (x > 30 ? Math.round(Math.sin(x - t * 6)) : 0); y++) pset(x, y, ((x + Math.floor(t * 4)) % 6) < 3 ? hex('#4a7ac8') : hex('#3a62a8')); }
+  for (let x = 0; x < 44; x++) { const y0 = 36 + Math.round(Math.sin(x * 0.3 - t * 4) * (x / 22)); for (let y = y0; y < y0 + 4 + (x > 30 ? Math.round(Math.sin(x - t * 6)) : 0); y++) pset(x, y, ((x + Math.floor(t * 4)) % 6) < 3 ? hex('#4a7ac8') : hex('#3a62a8')); }
   // una golondrina bajo la cubierta y el foco que tiembla
   { const u = (t * 0.22) % 1, gx = Math.round(180 + u * 90), gy = Math.round(9 + Math.sin(u * 12) * 2), ala = Math.floor(t * 8) % 2; if (gx < 270) { pset(gx, gy, C.k); pset(gx - 1, gy - ala, C.k); pset(gx + 1, gy - ala, C.k); pset(gx - 2, gy - 1 + ala, C.k); pset(gx + 2, gy - 1 + ala, C.k); } }
   if (Math.sin(t * 23) > 0.85) rect(301, 103, 311, 109, hex('#f0e0a0'));
@@ -4676,7 +4745,13 @@ function e_mapaFijo(R) {
   poligono([[291, 53], [301, 53], [300, 56], [292, 56]], hex('#e8a060')); linea(292, 54, 292, 70, hex('#f8d0a0')); pset(296, 51, hex('#f0e8e0'));
   rect(278, 88, 316, 130, C.k); rect(279, 89, 315, 129, hex('#f2ecd8')); rect(296, 89, 297, 129, hex('#c8c0a8'));
   for (let y = 93; y < 128; y += 4) { linea(281, y, 294, y, hex('#c8d0e0')); linea(299, y, 313, y, hex('#c8d0e0')); }
-  rect(283, 96, 291, 98, hex('#5a5a6a')); rect(286, 98, 288, 110, hex('#5a5a6a')); for (let y = 100; y < 112; y += 3) linea(301, y, 301 + (y % 9), y, hex('#5a5a6a'));
+  // el boceto a lápiz de la página izquierda: el perfil del cerro con el moral en lo alto, sombreado a rayas, y una
+  // lasca de sílex debajo (nada que se lea como letra); a la derecha, renglones de notas
+  { const L = hex('#5a5a6a'), l = hex('#8a8a9a'), cerro = (x) => Math.round(113 - 8 * Math.exp(-Math.pow((x - 288) / 5.5, 2)));
+    for (let x = 281; x <= 294; x++) { pset(x, cerro(x), L); for (let y = cerro(x) + 2; y < 114; y += 2) if ((x + y) % 4 === 0) pset(x, y, l); }
+    linea(281, 114, 294, 114, l); linea(288, 104, 288, 100, L); disco(288, 98, 2, L); pset(287, 97, hex('#f2ecd8')); pset(286, 99, l); pset(290, 99, l);
+    poligono([[284, 119], [289, 117], [292, 120], [287, 123]], l); linea(284, 119, 289, 117, L); linea(289, 117, 292, 120, L); pset(288, 120, L); pset(286, 121, L); }
+  for (let y = 100; y < 112; y += 3) linea(301, y, 301 + (y % 9), y, hex('#5a5a6a'));
   linea(282, 136, 312, 124, C.k); linea(282, 137, 312, 125, hex('#e8b830')); pset(312, 124, hex('#f0a0a0')); pset(282, 137, hex('#3a3a3a'));
   poligono([[280, 168], [292, 150], [298, 156], [286, 172]], C.k); poligono([[282, 167], [292, 152], [296, 156], [286, 170]], hex('#a8aeb6')); linea(283, 166, 292, 153, hex('#e0e4ea'));
   linea(296, 155, 312, 143, hex('#6a4426')); linea(297, 156, 313, 144, hex('#8a5a32')); linea(296, 156, 312, 144, hex('#4a2e18'));
