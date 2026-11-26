@@ -877,7 +877,14 @@ const p15 = (t) => {
 
 // ── la barra del año: 1995 → la excavación crece hasta 2012; los planos de hace 11.600 años, −9500; bajo la cubierta, 2018 ──
 const año = (t) => t < P2 ? 1995 : t < P3 ? 1995 + Math.round(22 * anos2(t)) : t < P5 ? 2012 : t < P6 ? -9500 : t < P8 ? 2012 : t < P9 ? -9500 : t < P10 ? 2012 : t < P11 ? -9500 : t < P14 ? 2018 : -9500;
-const efectos = [[0.5, 'pasos'], [en('circulos', 0.0713), 'toc'], [en('circulos', 0.1406), 'golpecito'], [en('circulos', 0.1602), 'chof'],
+// los golpes del tallista del plano 15 caen cuando el percutor baja (gol = (t·1,8) mod 1 pasa por 0,5)
+const golpe15 = (a) => (Math.ceil(a * 1.8 - 0.5) + 0.5) / 1.8;
+const efectos = [[0.5, 'pasos'], [en('circulos', 0.0491) + 0.1, 'carro', { largo: 3 }], [P2 + 0.4, 'carro', { largo: 2.4 }], [P2 + 3.2, 'pajaros', { n: 3 }],
+  [P3 + 0.3, 'pasos', { n: 3 }], [en('circulos', 0.8500), 'golpecito'], [en('circulos', 0.9254), 'viento', { dur: 2.6 }],
+  [P6 + 0.4, 'viento', { dur: 2.4 }], [en('personas', 0.0600), 'papel'], [en('personas', 0.1300), 'papel'], [en('personas', 0.4022), 'brillo'],
+  [P9 + 0.6, 'pajaros', { n: 3 }], [en('zoo', 0.0421), 'aldea', { k: 1 }], [en('zoo', 0.0737), 'aldea', { k: 2 }], [en('zoo', 0.0982), 'aldea', { k: 3 }],
+  [P11 + 0.2, 'pasos', { n: 4 }], [en('zoo', 0.3830), 'lapiz'], [en('zoo', 0.4139), 'papel'], [P13 + 0.5, 'pajaros', { n: 2 }], [en('zoo', 0.5822), 'pop'],
+  [P14 + 1.6, 'pajaros', { n: 3 }], [en('zoo', 0.7471), 'golpecito'], [golpe15(P15 + 0.9), 'golpecito'], [golpe15(P15 + 1.9), 'golpecito'], [P15 + 0.3, 'viento', { dur: 3 }], [en('circulos', 0.0713), 'toc'], [en('circulos', 0.1406), 'golpecito'], [en('circulos', 0.1602), 'chof'],
   [en('circulos', 0.1929), 'whoosh'], [en('circulos', 0.2551), 'brillo'],
   [en('circulos', 0.3702), 'pop'], [en('circulos', 0.4447), 'flash'],
   [en('circulos', 0.5788), 'pasos'], [en('circulos', 0.6311), 'tic'], [en('circulos', 0.6442), 'pop'], [en('circulos', 0.7325), 'toc'], [en('circulos', 0.7554), 'toc'],
@@ -886,7 +893,7 @@ const efectos = [[0.5, 'pasos'], [en('circulos', 0.0713), 'toc'], [en('circulos'
   [en('personas', 0.2485), 'interruptor'],
   [en('personas', 0.4577), 'pasos'], [en('personas', 0.6072), 'whoosh'], [en('personas', 0.6371), 'boing'],
   [en('personas', 0.7242), 'brillo'], [en('personas', 0.8190), 'pop'],
-  [en('personas', 0.8933), 'pasos'], [en('zoo', 0.0210), 'brillo'],
+  [en('personas', 0.8933), 'pasos'], [en('zoo', 0.0210), 'aldea', { k: 0 }],
   [en('zoo', 0.1515), 'flash'], [en('zoo', 0.2609), 'flash'],
   [en('zoo', 0.3402), 'lapiz'], [en('zoo', 0.4349), 'lapiz'],
   [en('zoo', 0.5296), 'pop'], [en('zoo', 0.5717), 'pop'],

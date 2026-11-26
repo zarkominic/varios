@@ -28,7 +28,8 @@
 // 8 · FONDO LOCAL «la zanja entera»: la arqueóloga alza la tarjeta parda «1» contra el perfil; «X» en «fit»; el arqueólogo
 //   con la lupa cuenta «6» en «burial». Corta en «The fill».
 // 9 · FONDO LOCAL «la criba desde arriba»: los terrones se deshacen; salen punta, carbón, cuenta, piedra quemada, concha y
-//   lasca con su etiqueta de época en «different periods»; en «mixed together» se barajan. Corta en «like».
+//   lasca con su etiqueta de época en «different periods»; en «mixed together» se barajan. Nada se mueve detrás de Atom
+//   (ni terrones ni la hormiga del marco). Corta en «like».
 // 10 · colina·excavacion·corte (2.º uso, lluvia 0→1): siglos de lluvia (−9000 → −8300); una cruza con la piel en la cabeza en
 //   «rain», otro saca barro en «slid». Corta en «While».
 // 11 · FONDO LOCAL «el muro por fuera»: el hueco se llena piedra a piedra («repairing», «walls»); una enluce. Corta en «and».
@@ -38,13 +39,15 @@
 //   lagartija. Corta en «and in August».
 // 14 · FONDO LOCAL «el día que se abre la zona nueva» (2026): estacas y cordel; la flecha dorada del cerro al norte en
 //   «north». Corta en «and found».
-// 15 · FONDO LOCAL «la casa rectangular de cerca»: el metro recorre sus lados en «rectangular»; «1» en «fewer pillars»; la
-//   casa se reconstruye en fantasma en «homes». Corta en «And a month».
+// 15 · FONDO LOCAL «la casa rectangular de cerca»: el arqueólogo da vueltas a la manivela y el metro recorre sus lados en
+//   «rectangular»; la arqueóloga llega por abajo con su tablilla y señala el pilar único («1») en «fewer pillars»; la casa se
+//   reconstruye en fantasma en «homes» y los dos se asombran. Corta en «And a month».
 // 16 · arqueologos·laboratorio (2.º uso): la caja «1» con su lona azul; la máquina corre; «10000» en «10,000». Corta en «which».
 // 17 · colina·norte (1.er uso): banderitas con números en «hundreds… everywhere»; GAG: Atom limpia la losa con la brocha y
 //   desentierra su bocadillo en «turning up», y se lo come. Corta en «Many».
-// 18 · FONDO LOCAL «la lona en la ladera»: la arqueóloga señala cuesta abajo en «carried down»; empieza a llover; la piedrecita
-//   con su etiqueta rueda hacia la cubierta. Corta en «by».
+// 18 · FONDO LOCAL «la lona en la ladera»: el arqueólogo sube la ladera con el cubo de hallazgos; empieza a llover; la
+//   arqueóloga señala cuesta abajo en «carried down» y él se vuelve a mirar; la piedrecita con su etiqueta rueda hacia la
+//   cubierta y él da un salto cuando le pasa. Corta en «by».
 // 19 · FONDO LOCAL «la colina en sección»: lluvia en «rain», el lóbulo de tierra con etiquetas baja en «landslides» y se mete en
 //   el recinto; su relleno brilla en «fill». gb-intencion congela este plano.
 import * as T from '/atomo/plato/escenas/gb-comun.js';
@@ -529,11 +532,11 @@ const p9 = (t) => {
     if (q === 'lasca') { R.poligono([[x - 8, y + 3], [x, y - 6], [x + 9, y + 2], [x + 2, y + 6]], K); R.poligono([[x - 7, y + 2], [x, y - 5], [x + 8, y + 2], [x + 2, y + 5]], H('#8a8a96')); ps(x, y - 3, H('#c8c8d4')); }
     if (t > W.DIFFERENT + k * 0.08) { const p = pop(t, W.DIFFERENT + k * 0.08, 0.25); const tx = x + 12, ty = y - 14 + ri((1 - p) * 4); R.linea(x + 4, y - 4, tx + 2, ty + 7, H('#f4f0e4')); rr(tx - 1, ty - 1, tx + 9, ty + 9, K); rr(tx, ty, tx + 8, ty + 8, H(col)); R.numero(String(n), tx + 5, ty + 8, { centro: true, color: H('#ffffff') }); } });
   // los terrones que se deshacen al cribar (cada uno pierde migas que caen por la malla)
-  for (let n = 0; n < 34; n++) { const x0 = 24 + h2(n, 1, 95) * 272, y0 = 20 + h2(n, 2, 95) * 140, r0 = 3 + h2(n, 3, 95) * 6, r = r0 * (1 - cl((t - W.THE7 - h2(n, 4, 95) * 1.5) / 3.5)); if (r < 1) continue;
+  for (let n = 0; n < 34; n++) { const x0 = 24 + h2(n, 1, 95) * 272, y0 = 20 + h2(n, 2, 95) * 140, r0 = 3 + h2(n, 3, 95) * 6, r = r0 * (1 - cl((t - W.THE7 - h2(n, 4, 95) * 1.5) / 3.5)); if (r < 1 || (x0 + r0 > 266 && y0 - r0 < 52)) continue;
     const x = ri(x0 + dx), y = ri(y0 + dy); R.disco(x + 1, y + 1, ri(r), K); R.disco(x, y, ri(r), H('#7a5030')); R.disco(x - 1, y - 1, Math.max(1, ri(r * 0.5)), H('#9a6a40')); }
   // la sombra de la cabeza del que criba, que entra y sale por la izquierda, y una hormiga en el marco
   const sx = 40 + Math.sin(t * 0.8) * 20; for (let j = -24; j <= 24; j++) for (let i = -20; i <= 20; i++) if ((i / 20) ** 2 + (j / 24) ** 2 < 1 && b4(ri(sx + i), 150 + j) < 0.5) tine(sx + i, 150 + j, K, 0.25);
-  const hx = ((t * 18) % 300) + 10; rr(hx, 3 + dy, hx + 3, 4 + dy, K); ps(hx + 4, 3 + dy, K);
+  const hx = ((t * 18) % 250) + 10; rr(hx, 3 + dy, hx + 3, 4 + dy, K); ps(hx + 4, 3 + dy, K);   // la hormiga no llega a la zona de Atom
 };
 
 // ── 10 · el perfil del recinto bajo siglos de lluvia (colina · excavacion · corte, 2.º uso): el barro baja de la ladera ──
@@ -741,8 +744,14 @@ const p15 = (t) => {
   let pts = []; for (let k = 0; k < 4; k++) { const u = cl(L - k); if (u <= 0) break; const [x0, y0] = C15[k], [x1, y1] = C15[(k + 1) % 4]; pts.push([lerp(x0, x1, u), lerp(y0, y1, u), x0, y0]); }
   pts.forEach(([x, y, x0, y0]) => { R.linea(ri(x0), ri(y0) - 10, ri(x), ri(y) - 10, H('#a88010')); R.linea(ri(x0), ri(y0) - 11, ri(x), ri(y) - 11, H('#ffd34a')); });
   if (m >= 1 && t < W.FEWER) for (const [x, y] of C15) destello(x, y - 11, 2 + ri(Math.sin(t * 9))); 
-  const xa = 20, a = R.actor(EL.arqueologoGB, xa, 168, t, { dir: 1, sostiene: [xa + 22, 140], sonrisa: t > W.HOMES, sorpresa: t > W.HOMES - 0.2 && t < W.HOMES + 0.5 });
+  const gira = m > 0 && m < 1, manv = gira ? ri(Math.sin(t * 16) * 2) : 0;
+  const xa = 20, a = R.actor(EL.arqueologoGB, xa, 168, t, { dir: 1, sostiene: [xa + 22, 140 + manv], sonrisa: t > W.HOMES, sorpresa: t > W.HOMES - 0.2 && t < W.HOMES + 0.5, habla: t > W.AND7 + 0.2 && t < W.FOUND });
   rr(a.mano[0] - 2, a.mano[1] - 3, a.mano[0] + 4, a.mano[1] + 3, K); rr(a.mano[0] - 1, a.mano[1] - 2, a.mano[0] + 3, a.mano[1] + 2, H('#e8c020'));
+  if (gira) { R.linea(a.mano[0] + 1, a.mano[1], a.mano[0] + 1 + ri(Math.cos(t * 16) * 3), a.mano[1] + ri(Math.sin(t * 16) * 3), K); }
+  // la arqueóloga llega por abajo con su tablilla, señala el pilar único en «fewer pillars» y se asombra con la casa en «homes»
+  const vb = ease(tramo(t, W.AND7 + 0.1, W.AND7 + 1.7)), xb = ri(lerp(338, 252, vb)), apunta = t > W.FEWER - 0.15 && t < W.MAY;
+  const b = R.actor(EL.arqueologaGB, xb, 174, t, { dir: -1, anda: vb > 0 && vb < 1, sostiene: apunta ? undefined : [xb - 4, 160], dedo: apunta, sorpresa: t > W.HOMES - 0.1 && t < W.HOMES + 0.6, sonrisa: t > W.HOMES + 0.6, habla: t > W.BUILDINGS && t < W.FEWER });
+  if (!apunta) { const [mx, my] = b.mano; rr(mx - 5, my - 7, mx + 2, my + 3, K); rr(mx - 4, my - 6, mx + 1, my + 2, H('#f4efe2')); rr(mx - 4, my - 6, mx + 1, my - 5, H('#8a5a34')); }
   // «fewer pillars»: el pilar pequeño, uno solo, con su «1»
   if (t > W.FEWER) { const p = pop(t, W.FEWER, 0.3); R.numero('1', 180, ri(46 - p * 4), { centro: true, tam: 16 }); }
   // «homes»: la casa se reconstruye en fantasma (muros que suben, el techo de cañas, la puerta, el humo del hogar)
@@ -816,6 +825,11 @@ const p18 = (t) => {
   for (let k = 0; k < 4; k++) { const u = (t * 0.5 + k * 0.25) % 1, x = 40 + u * 110; for (let j = 0; j < 26; j++) ps(x - j * 0.2, SUELO18(x) + 8 + j, H('#6a9ad8')); }
   // la arqueóloga junto a la lona señala cuesta abajo en «carried down»
   const s = R.actor(EL.arqueologaGB, 176, ri(SUELO18(184) + 20), t, { dir: 1, dedo: t > W.CARRIED - 0.3, habla: t < W.HILL2 + 0.3, sorpresa: t > W.DOWN3 - 0.1 });
+  // el compañero sube la ladera con el cubo de hallazgos, se para, mira cuesta abajo y da un salto cuando pasa la piedrecita
+  const vs = ease(tramo(t, W.MANY + 0.1, W.HILL2 + 0.2)), xs = ri(lerp(338, 236, vs)), salta = t > W.DOWN3 - 0.05 && t < W.DOWN3 + 0.4;
+  const c = R.actor(EL.arqueologoGB, xs, ri(SUELO18(xs) + 20) - (salta ? ri(Math.sin((t - W.DOWN3 + 0.05) / 0.45 * Math.PI) * 6) : 0), t,
+    { dir: t > W.CARRIED - 0.1 ? 1 : -1, anda: vs > 0 && vs < 1, sostiene: [xs + (t > W.CARRIED - 0.1 ? 6 : -6), ri(SUELO18(xs) + 8)], sorpresa: salta, habla: t > W.HILL2 + 0.3 && t < W.CARRIED - 0.2 });
+  { const [mx, my] = c.mano; rr(mx - 4, my, mx + 4, my + 7, K); rr(mx - 3, my + 1, mx + 3, my + 6, H('#3a7ac8')); rr(mx - 3, my + 1, mx + 3, my + 1, H('#6aa0e8')); ps(mx - 1, my, H('#c8bca0')); ps(mx + 1, my - 1, H('#9a8a6a')); R.linea(mx - 4, my, mx, my - 3, K); R.linea(mx, my - 3, mx + 4, my, K); }
   // las primeras gotas
   const ll = tramo(t, W.HILL2 - 0.6, W.HILL2 + 1.4); for (let k = 0; k < 60 * ll; k++) { const x = (h2(k, 1, 185) * 340 + t * 30) % 330 - 5, y = (h2(k, 2, 185) * 200 + t * 220) % 190 - 10; R.linea(ri(x), ri(y), ri(x - 1), ri(y + 4), H('#c8d4e8')); }
   // la piedrecita con su etiqueta que se suelta de debajo de la lona y rueda ladera abajo, con su rastro
@@ -888,7 +902,12 @@ const efectos = [[W.SUSPICION, 'golpecito'], [W.BURIED + 0.1, 'avalancha'], [W.I
   [W.AND2, 'papel'], [W.GOLPE, 'interruptor'], [W.LAYER, 'golpecito'], [W.LAYER2, 'golpecito'], [W.FIT, 'boing'], [W.DIFFERENT, 'pop'],
   [W.RAIN, 'lluvia'], [W.SLID, 'chof'], [W.REPAIRING, 'toc'], [W.WALLS + 0.1, 'toc'], [W.UP, 'toc'], [W.UP + 0.65, 'toc'],
   [W.BECAUSE + 0.2, 'aldea'], [W.SURPRISE, 'pop'], [W.OPENED, 'golpecito'], [W.NORTH, 'brillo'], [W.HOMES, 'brillo'], [W.MONTH + 0.6, 'maquina'], [W.N10, 'bip'],
-  [W.TURNING, 'pop'], [W.EVERYWHERE2, 'masca'], [W.HILL2, 'lluvia'], [W.LANDSLIDES, 'avalancha'], [W.FILL2, 'brillo']];
+  [W.TURNING, 'pop'], [W.EVERYWHERE2, 'masca'], [W.HILL2, 'lluvia'], [W.LANDSLIDES, 'avalancha'], [W.FILL2, 'brillo'],
+  // pasos de quien entra, hojas del calendario, la tarjeta, la criba, la cinta métrica, el cubo y el salto
+  [W.THAT, 'pasos'], [W.HIDING + 0.3, 'pasos'], [W.BUT - 0.35, 'pasos'], [W.WHO, 'pasos'], [W.STOPPED + 0.6, 'lapiz'],
+  [W.KEPT, 'papel'], [W.DIGGING + 0.3, 'papel'], [W.AND3 + 0.4, 'papel'], [W.BURIAL, 'pop'], [W.HOLDS, 'carro'], [W.CENTURIES, 'tic'],
+  [W.LIVED, 'pasos'], [W.ARCHAEOLOGISTS, 'pasos'], [W.AND7 + 0.1, 'pasos'], [W.FOUND - 0.3, 'whoosh'], [W.FEWER, 'pop'],
+  [W.HUNDREDS, 'pop'], [W.MANY + 0.1, 'pasos'], [W.DOWN3, 'boing']];
 T.rodar(E, R, [[0, p1], [W.THAT, p2], [W.THE2, p3], [W.WHO, p4], [W.STOPPED, p5], [W.BUT2, p6], [W.GOLPE, p7], [W.AND3, p8], [W.THE7, p9], [W.LIKE, p10],
   [W.WHILE, p11], [W.AND5, p12], [W.BECAUSE, p13], [W.AND6, p14], [W.AND7, p15], [W.AND8, p16], [W.WHICH, p17], [W.MANY, p18], [W.DOWN3, p19]], { efectos, cartela: '2014', año });
 </script>

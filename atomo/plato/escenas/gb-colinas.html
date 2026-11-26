@@ -16,7 +16,8 @@
 // 4. −9500, al atardecer: dos cazadores meten la estatua en la base del muro («set into its base»); la ofrenda;
 // 5. el muro de lejos, de día: la foto cenital desde la escalera, el jalón y el «1» en «first time»;
 // 6. de noche, la lámpara de obra: el arqueólogo se rasca la cabeza; el globo con quien la puso y su «?»;
-// 7. la llanura al atardecer: Göbekli Tepe solo; en «no longer alone» se encienden las lomas; el pastorcillo señala;
+// 7. la llanura al atardecer: Göbekli Tepe solo; en «no longer alone» se encienden las lomas; el pastorcillo señala
+//    (cabras y pájaros; el cielo detrás de Atom va en degradado continuo);
 // 8. otra colina excavándose: catas, la camioneta, banderitas en las lomas y el «10+» en «ten»;
 // 9. hoy·karahan·mapa: se encienden las doce colinas de Taş Tepeler; la mano clava la última en «Stone Hills»;
 // 10. hoy·karahan: ella baja por la escalera a la sala tallada; él señala los pilares;
@@ -26,10 +27,13 @@
 // 14. agosto de 2026: llega la camioneta y las cajas de hallazgos pasan de mano en mano al montón;
 // 15. la figura sentada sobre el leopardo sale de la tierra roja; flash en «leopard»;
 // 16. 2025: el cuenco de clorita en la mesa del laboratorio; salen el zorro, el jabalí y el buitre, cada uno en su palabra;
-// 17. la sala en corte: los mismos animales brillan en el pilar; la bolsa de tierra roja sellada bajo el banco;
+// 17. la sala en corte: los mismos animales brillan en el pilar; en «had appeared» él camina al corte y lo señala; ella
+//    llega con la bolsa de muestra, la alza en «sealed» y se asombra en «red earth»; la bolsa sellada late bajo el banco;
 // 18. Sayburç (2021): la calle del pueblo; en «tells» suben la lona y asoma la pared tallada;
 // 19. el relieve en la sala oscura: la linterna va del hombre entre leopardos al del toro;
-// 20. el museo: las vitrinas con el leopardo, las figuritas y la estatua; el relieve y su «11000»;
+// 20. el museo: la guía da un paso y señala el relieve en «oldest»; la luz lo «lee» de izquierda a derecha en «stories»;
+//    el señor llega tras la vitrina y se asombra; el chaval entra y se pega al cristal; la visitante dispara el flash en
+//    «stone»; la cámara de seguridad gira, la pantalla pasa fotos y el reflejo resbala por el suelo;
 // 21. el mundo enterrado bajo las colinas: lo que espera late y, en «read», la lámpara enciende la estatua.
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
@@ -456,8 +460,14 @@ const p6 = (t) => {
 // ── 7 · la llanura de Harrán al atardecer: Göbekli Tepe solo… y en «alone» se encienden las otras colinas ─────────
 const CI_OCASO = pal(['#3a4a7a', '#566898', '#8a88a8', '#d8a08a', '#f2c08c', '#f8d8a4']);
 const LOMAS = [[22, 85], [56, 87], [88, 88], [118, 89], [206, 87], [234, 85], [262, 88], [292, 86], [312, 88]];
+// detrás de Atom el cielo va en degradado continuo (el tramado violeta→rosa daba bordes fuertes en su rincón); el borde
+// del rincón se funde con el tramado del resto para que no se vea el cambio
+const cieloCalmo = (y0, y1, ramp, x0 = 232, yb = 62) => { for (let y = 0; y <= yb; y++) for (let x = x0; x < 320; x++) {
+  const w = Math.min(1, (x - x0) / 40, (yb - y) / 16); if (b4(x, y) >= w) continue;
+  const v = (y - y0) / (y1 - y0 + 1) * (ramp.length - 0.2), l = Math.max(0, Math.min(ramp.length - 1, Math.floor(v)));
+  R.pset(x, y, mez(ramp[l], ramp[Math.min(ramp.length - 1, l + 1)], Math.max(0, Math.min(1, v - l)))); } };
 const fondo7 = () => fijo('p7', () => {
-  cielo(0, 92, CI_OCASO);
+  cielo(0, 92, CI_OCASO); cieloCalmo(0, 92, CI_OCASO);
   R.disco(252, 90, 9, H('#ffe0a0')); R.disco(252, 90, 7, H('#fff4d0'));
   for (let x = 0; x < 320; x++) { let yy = 92; for (const [lx, ly] of LOMAS) yy = Math.min(yy, ly + ((x - lx) / 9) ** 2); yy = ri(yy); for (let y = yy; y <= 94; y++) R.pset(x, y, rmp(pal(['#4a4a6a', '#5a5878', '#6a6684']), 1.5 - (y - yy) / 6, x, y)); }
   // los campos en franjas que se acercan (rastrojo dorado, tierra arada, verde) con lindes y pistacheros
@@ -796,7 +806,14 @@ const p17 = (t) => {
   if (t > W.SEALED - 0.05) { const on = Math.floor(t * 4) % 2; for (let k = 0; k < 48; k++) { if ((k + Math.floor(t * 6)) % 3 === 0) continue; const a = k / 48 * Math.PI * 2; ps(231 + Math.cos(a) * 44, 159 + Math.sin(a) * 19, on ? H('#ffd84a') : H('#f0a020')); } }
   if (t > W.RED - 0.05) manchaLuz(231, 160, 40, 15, H('#ff8a4a'), 0.22 * (0.7 + Math.sin(t * 5) * 0.3));
   if (t > W.BENEATH) { const g = pop(t, W.BENEATH, 0.3); destello(231, 148, ri(1 + g * 2)); }
-  const o = R.actor(EL.arqueologoGB, 128, 172, t, { dir: t < W.HAD ? -1 : 1, dedo: true, habla: Math.sin(t * 8) > 0.3, sonrisa: t > W.BENCH });
+  motasEn(t, 186, 140, 276, 176, 8, H('#ffd0a0'), 17);
+  // él explica el pilar y, en «had appeared», camina hasta el corte y lo señala
+  const ua = tramo(t, W.HAD - 0.1, W.POCKET + 0.1), xa = ri(lerp(128, 150, ease(ua)));
+  R.actor(EL.arqueologoGB, xa, 172, t, { dir: t < W.HAD - 0.1 ? -1 : 1, anda: ua > 0 && ua < 1, dedo: !(ua > 0 && ua < 1), habla: Math.sin(t * 8) > 0.3, sonrisa: t > W.BENCH });
+  // ella llega por la derecha con la bolsa de muestra; la alza en «sealed» y se asombra en «red earth»
+  const ub = tramo(t, P17 + 0.1, P17 + 1.3), xb = ri(lerp(336, 298, ub)), alza = ease(tramo(t, W.SEALED - 0.2, W.SEALED + 0.25));
+  const b = R.actor(EL.arqueologaGB, xb, 172, t, { dir: -1, anda: ub > 0 && ub < 1, sostiene: [xb - 3, ri(160 - alza * 8)], sorpresa: t > W.RED && t < W.BENEATH + 0.3, sonrisa: t > W.BENEATH + 0.3 });
+  { const [mx, my] = b.mano; rr(mx - 4, my - 1, mx + 2, my + 7, K); rr(mx - 3, my, mx + 1, my + 6, H('#f2f0ea')); rr(mx - 3, my + 3, mx + 1, my + 6, H('#c86a4a')); rr(mx - 3, my, mx + 1, my, H('#e83a3a')); ps(mx - 2, my + 4, H('#e8905a')); }
 };
 // ── 18 · Sayburç (2021): la calle del pueblo; en «tells» suben la lona de la casa y asoma la pared tallada ──────────
 const CASA = pal(['#8a7a60', '#a8967a', '#c4b094', '#d8c8aa', '#e8dcc2']);
@@ -888,16 +905,41 @@ const vitrinaBaja = () => {
   R.linea(108, 134, 212, 134, H('#c8dce8')); R.linea(108, 134, 108, 150, H('#a8bccc')); R.linea(212, 134, 212, 150, H('#a8bccc'));
   for (let k = 0; k < 4; k++) R.linea(116 + k * 26, 149, 128 + k * 26, 136, H('#e8f4fa'));
 };
+// la cámara de seguridad de la pared: gira despacio de un lado a otro y su piloto rojo parpadea
+const camaraSeg = (x, y, t) => {
+  const g = Math.sin(t * 0.9), dx = ri(g * 2);
+  rr(x - 1, y - 5, x + 1, y - 1, K); rr(x, y - 4, x, y - 2, H('#8a9098')); rr(x - 3, y - 6, x + 3, y - 5, H('#3a3a40'));
+  rr(x - 5 + dx, y - 1, x + 5 + dx, y + 4, K); rr(x - 4 + dx, y, x + 4 + dx, y + 3, H('#d8dce2')); rr(x - 4 + dx, y + 3, x + 4 + dx, y + 3, H('#9aa0a8'));
+  const lx = g > 0 ? x + 6 + dx : x - 6 + dx; rr(lx - 1, y, lx + 1, y + 3, K); ps(lx, y + 1, H('#5a7aa8'));
+  ps(x + 3 + dx, y, Math.floor(t * 2) % 2 ? H('#ff3a2a') : H('#5a1a1a'));
+};
 const p20 = (t) => {
   fondo20();
   for (const [x, w] of [[48, 22], [160, 50], [271, 24]]) haz(x, 19, x, x === 160 ? 96 : 120, 3, w, H('#fff4d0'), 0.08);
+  camaraSeg(198, 24, t);
+  // la pantalla de la izquierda pasa sus fotos: la casilla encendida avanza y se recuadra
+  { const k = Math.floor((t - P20) * 1.8) % 4, x = 26 + k * 14; R.linea(x - 1, 59, x + 7, 59, H('#fff4c0')); R.linea(x - 1, 65, x + 7, 65, H('#fff4c0')); R.linea(x - 1, 59, x - 1, 65, H('#fff4c0')); R.linea(x + 7, 59, x + 7, 65, H('#fff4c0')); }
+  // en «stories» la luz «lee» el relieve de izquierda a derecha: del hombre entre leopardos al del toro
+  const lee = tramo(t, W.STORIES - 0.05, W.KNOW + 0.1);
+  if (lee > 0 && lee < 1) { const cx = lerp(108, 212, ease(lee)), a = Math.sin(lee * Math.PI); manchaLuz(cx, 68, 15, 22, H('#fff4c0'), 0.32 * a); if (Math.floor(t * 10) % 3 === 0) destello(cx + 4, 56 + ri(Math.sin(t * 7) * 6), 1); }
   const g = pop(t, W.OLDEST, 0.3); if (g > 0 && t < W.OLDEST + 1) destello(176, 100, ri(1 + g * 2));
-  // la guía señala el relieve; un señor mira; otro visitante cruza por delante
-  R.actor(EL.arqueologaGB, 86, 150, t, { dir: 1, dedo: t > P20 + 0.3, habla: Math.sin(t * 8) > 0 });
-  R.actor(EL.campesinoGB, 128, 146, t, { dir: 1, sonrisa: t > W.STONE3 });
+  // el reflejo de los focos resbala por el suelo pulido
+  for (let k = 0; k < 3; k++) { const x = ri(((t - P20) * 22 + k * 110) % 340 - 10); for (let i = 0; i < 10; i++) tine(x + i, 173 + k * 2 + (i >> 2), H('#fff4d0'), 0.16); }
+  // la guía da un paso, habla al señor y en «oldest» señala el relieve; sonríe en «know»
+  const ug = tramo(t, P20, P20 + 0.7), xg = ri(lerp(78, 88, ug));
+  R.actor(EL.arqueologaGB, xg, 150, t, { dir: 1, anda: ug > 0 && ug < 1, dedo: t > W.OLDEST - 0.15 && t < W.CARVED5 + 0.4, habla: t < W.KNOW && Math.sin(t * 9) > 0.2, sonrisa: t > W.KNOW });
+  // el señor llega por detrás de la vitrina, mira a la guía y se asombra mirando el relieve
+  const uc = tramo(t, P20, P20 + 1.3), xc = ri(lerp(108, 132, ease(uc)));
+  R.actor(EL.campesinoGB, xc, 146, t, { dir: uc < 1 || t > W.OLDEST ? 1 : -1, anda: uc > 0 && uc < 1, sorpresa: t > W.STORIES && t < W.STONE3, sonrisa: t > W.STONE3 });
   vitrinaBaja();
-  const u = tramo(t, P20, P21 + 0.2), xv = ri(lerp(330, 214, u));
-  R.actor(EL.espectadorGB, xv, 176, t, { dir: -1, anda: u < 1, sorpresa: u >= 1 });
+  // el chaval entra por la derecha, se pega al cristal de la estatua y se vuelve a la guía en «know»
+  const u = tramo(t, P20 + 0.2, W.STONE3), xv = ri(lerp(334, 216, u));
+  R.actor(EL.espectadorGB, xv, 176, t, { dir: -1, anda: u > 0 && u < 1, sorpresa: u >= 1 && t < W.KNOW, sonrisa: t > W.KNOW, habla: t > W.KNOW && Math.sin(t * 10) > 0 });
+  if (u >= 1 && t < W.KNOW) for (let i = 0; i < 3; i++) tine(213, 160 + i, H('#e8f4fa'), 0.6);   // el vaho en el cristal
+  // la visitante de la derecha sube la cámara en «carved» y dispara en «stone» (flash)
+  const sube = ease(tramo(t, W.CARVED5 - 0.2, W.CARVED5 + 0.3)), fv = R.actor(EL.prospectora2GB, 284, 178, t, { dir: -1, sostiene: [ri(280 - sube * 2), ri(170 - sube * 6)] });
+  const [mx, my] = fv.mano; rr(mx - 5, my - 2, mx, my + 2, K); rr(mx - 4, my - 1, mx - 1, my + 1, H('#3a3a40')); ps(mx - 5, my, H('#8ab4e0')); ps(mx - 2, my - 2, H('#c8ccd2'));
+  const fl = tramo(t, W.STONE3, W.STONE3 + 0.35); if (fl > 0 && fl < 1) { manchaLuz(mx - 6, my, 40 * (1 - fl * 0.5), 26 * (1 - fl * 0.5), H('#ffffff'), 0.5 * (1 - fl)); destello(mx - 6, my, ri(4 - fl * 3), H('#ffffff')); }
 };
 // ── 21 · el mundo enterrado bajo las colinas: todo lo que espera abajo, y la lámpara que empieza a leer ─────────────
 const CERROS21 = [[20, 64], [56, 70], [96, 66], [160, 58], [214, 66], [252, 62], [296, 68]];
@@ -939,7 +981,10 @@ const p21 = (t) => {
 const año = (t) => t < P4 ? 2025 : t < P5 ? -9500 : t < P7 ? 2025 : t < P12 ? 2026 : t < P13 ? 2025 : t < P16 ? 2026 : t < P18 ? 2025 : t < P20 ? 2021 : 2026;
 const efectos = [[W.LEFT + 0.05, 'toc'], [W.NOT, 'bip'], [W.RESTORING, 'toc'], [W.LIFE, 'chof'], [W.LENGTHWISE, 'tic'], [W.BASE + 0.25, 'toc'], [W.OFFERING, 'brillo'], [W.FIRST, 'flash'], [W.KNOWS, 'pop'],
   [W.ALONE, 'brillo'], [P8 + 0.1, 'motor'], [W.TEN, 'pop'], [W.TASH, 'brillo'], [W.STONE, 'toc'], [W.ROCK, 'toc'], [W.RISING, 'whoosh'], [W.HUMAN, 'interruptor'], [W.FACE, 'brillo'], [W.LOOKING, 'boing'],
-  [P14 + 0.1, 'motor'], [P14 + 1.5, 'toc'], [W.LEOPARD, 'flash'], [W.FOX, 'pop'], [W.BOAR, 'pop'], [W.VULTURE, 'pop'], [W.SAME, 'brillo'], [W.SEALED, 'toc'], [W.TELLS - 0.1, 'whoosh'], [W.MAN, 'brillo'], [W.BULL, 'brillo'], [W.OLDEST, 'pop'], [W.READ, 'brillo']];
+  [P14 + 0.1, 'motor'], [P14 + 1.5, 'toc'], [W.LEOPARD, 'flash'], [W.FOX, 'pop'], [W.BOAR, 'pop'], [W.VULTURE, 'pop'], [W.SAME, 'brillo'], [W.SEALED, 'toc'], [W.TELLS - 0.1, 'whoosh'], [W.MAN, 'brillo'], [W.BULL, 'brillo'], [W.OLDEST, 'pop'], [W.READ, 'brillo'],
+  // los que acompañan una acción: pasos de quien camina, los pájaros del ocaso, la calle del pueblo, el flash de la cámara
+  [0.35, 'pasos', { n: 5 }], [P4 + 0.05, 'pasos', { n: 4, ritmo: 0.45 }], [P6 + 0.2, 'viento', { dur: 3 }], [P7 + 0.1, 'pajaros'], [P10 + 0.2, 'pasos', { n: 5, ritmo: 0.42 }],
+  [P12 + 1.2, 'golpecito'], [W.HAD - 0.05, 'pasos', { n: 3 }], [P18 + 0.1, 'aldea', { k: 1 }], [P20 + 0.25, 'pasos', { n: 5 }], [W.STONE3, 'flash'], [P21 + 0.1, 'viento', { dur: 3.5 }]];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9], [P10, p10], [P11, p11], [P12, p12], [P13, p13], [P14, p14], [P15, p15], [P16, p16], [P17, p17], [P18, p18], [P19, p19], [P20, p20], [P21, p21]], { cartela: '2025', efectos, año });
 </script>
 </body>

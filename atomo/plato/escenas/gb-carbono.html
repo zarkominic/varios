@@ -12,19 +12,21 @@
 // GB-CARBONO (frase 13, PAUSA «fijate2»): el laboratorio de gb-fechas congelado en gris azulado (el MISMO bloque LAB, copiado
 // literal, en su último instante) y Atom al doble, a color, con sus objetos. GAG DE LA TARTA: la parte por la mitad, y otra
 // vez, y otra, hasta una miga (5730). Seis planos, cortados en la palabra:
-// 1 · El laboratorio congelado entero (el último fotograma de gb-fechas): ⏸; Atom entra andando, saca una varita en «because»
-//   y en «magic» chisporrotea, se le dobla la estrella y sale la «X»; la tira. Corta en «Everything».
-// 2 · Congelado, de cerca, la ventana y el banco: un arbolito en su maceta y una gacela de madera, a color, respiran motas
-//   verdes con su «14»; en «carbon-14» Atom coge una y sale el «14» grande; en «breaks down very slowly» la mota parpadea y se
-//   apaga despacio. Corta en «and when».
-// 3 · Congelado, de cerca, el tanque y la pantalla del 9500: en «dies» el arbolito se marchita y las motas rebotan con su «X»;
-//   en «so every» Atom saca el reloj de arena y la tarta; en «5,700» el cuchillo la parte por la mitad y sale «5730». Corta en «or».
-// 4 · Congelado, la campana y la fuente de iones: la tarta al triple; en «half» Atom señala la mitad y en «what it had» se
-//   dibuja de puntos la que falta; en «measuring» otro corte, y en «left» otro. Corta en «charcoal».
-// 5 · Congelado y a oscuras, el pupitre: una hoguera a color que alumbra el laboratorio; Atom alza un trozo de carbón en
-//   «charcoal»; la tarta (pequeña) se parte otra vez en «how long ago». Corta en «like».
-// 6 · Congelado, el pupitre y el termo: la hoguera se apaga en «the fire went out» (humo) y el reloj brilla en «hourglass»;
-//   el último corte deja una miga, que Atom se come al final.
+// 1 · El laboratorio congelado entero (el último fotograma de gb-fechas; el gris entra en 0,35 s desde el color): Atom
+//   entra andando, saca una varita en «because» y en «magic» chisporrotea, se le dobla la estrella y sale la «X»; la tira.
+//   Corta en «Everything».
+// 2 · Congelado, de cerca, la ventana y el banco: Atom entra por la derecha y señala; el arbolito y la gacela de madera,
+//   a color, respiran motas verdes con su «14» (chispazo verde al absorberlas); en «carbon-14» Atom coge una y sale el «14»
+//   grande; en «breaks down very slowly» la mota parpadea y se apaga. Corta en «and when».
+// 3 · Congelado, de cerca, el tanque: Atom mira el arbolito, que se marchita en «dies» (cara triste); las motas rebotan
+//   con su «X»; va andando hacia el reloj y la tarta, que caen en «so every»; el cuchillo la parte en «5,700» y sale «5730».
+// 4 · Congelado, la campana: la tarta al triple; en «half» Atom señala la mitad y en «what it had» se dibuja de puntos la
+//   que falta; en «measuring» saca la lupa y se acerca a medir la arena del reloj; otro corte, y en «left» otro.
+// 5 · Congelado y a oscuras, el pupitre: una hoguera a color con brasas que suben; Atom alza un trozo de carbón en
+//   «charcoal», se acerca al fuego en «campfire» y en «how long ago» lo lanza al aire y lo recoge; la tarta se parte.
+// 6 · Congelado, el pupitre y el termo: Atom señala el reloj; en «started running» va andando hasta el plato; la hoguera se
+//   apaga en «the fire went out» (humo); el último corte deja una miga, que Atom coge y se come (migajas).
+// La zona de Atom (arriba a la derecha) se funde con su tono medio en los planos de cerca (calma()).
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gb-carbono');
@@ -132,8 +134,19 @@ const congelado = () => { if (!FZ) { labPlano(TF, enC); FZ = R.buf.slice(); } };
 const vista = (x0, y0, z) => { congelado(); const B = R.buf; if (z === 1) { B.set(FZ); return; }
   for (let y = 0; y < 180; y++) { const sy = (y0 + Math.floor(y / z)) * 320; for (let x = 0; x < 320; x++) B[y * 320 + x] = FZ[sy + x0 + Math.floor(x / z)]; } };
 // el viñeteado suave de los bordes (deja tranquila la esquina de Atom)
-const viñeta = (a = 0.35) => { for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.72 && b4(x, y) < (d - 0.72) * 3) tine(x, y, H('#10141e'), a); } };
+const viñeta = (a = 0.35) => { if (a <= 0) return; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.72 && b4(x, y) < (d - 0.72) * 3) tine(x, y, H('#10141e'), a); } };
 const pausa = (u = 1) => { AT.pausa(R, u); };
+// la zona de Atom (x 278–318, y 4–44) en calma: el congelado de cerca se funde con su tono medio, como una luz suave
+// de techo, para que no queden bordes de máquinas detrás de él (planos 2 y 3)
+const calma = (a = 0.84) => { const B = R.buf; let r = 0, g = 0, b = 0, n = 0;
+  for (let y = 4; y <= 44; y += 2) for (let x = 278; x <= 318; x += 2) { const c = B[y * 320 + x]; r += c & 255; g += (c >>> 8) & 255; b += (c >>> 16) & 255; n++; }
+  const L = (v) => Math.min(255, Math.round(v / n * 1.06 + 4)), m = (0xff000000 | (L(b) << 16) | (L(g) << 8) | L(r)) >>> 0;
+  for (let y = 0; y <= 56; y++) for (let x = 264; x < 320; x++) { const d = Math.max((278 - x) / 14, (y - 44) / 12, 0); if (d >= 1) continue;
+    if (d > 0 && b4(x, y) > 1 - d) continue; tine(x, y, m, a * (1 - d * 0.5)); } };
+// las brasas que suben de la hoguera (chispas que parpadean y se apagan al subir)
+const brasas = (x, y, t, n, b = 1) => { for (let k = 0; k < n; k++) { const u = (t * 0.8 + k / n + Math.sin(k * 3.1) * 0.2 + 1) % 1; if (u > b) continue;
+  const bx = x + Math.sin(u * 7 + k * 2) * (3 + u * 10), by = y - 18 - u * 60, c = u < 0.4 ? H('#fff0a0') : u < 0.7 ? H('#ffa03a') : H('#c84a1a');
+  if (Math.sin(t * 20 + k * 5) > -0.6) ps(bx, by, c); } };
 
 // el arbolito en su maceta (a color): de 0 a 1 se marchita (las hojas caen y se ponen pardas)
 const arbol = (x, y, t, seco = 0) => { x = ri(x); y = ri(y);
@@ -176,7 +189,7 @@ const luzHoguera = (x, y, r, a) => { for (let yy = Math.max(0, y - r); yy <= Mat
 
 // ── 1 · el laboratorio congelado, entero: Atom entra y la varita «mágica» falla ─────────────────────────────────────
 const p1 = (t) => {
-  vista(0, 0, 1); pausa(tramo(t, 0, 0.35));
+  const uP = tramo(t, 0, 0.35); vista(0, 0, 1); pausa(uP);
   const u = tramo(t, 0.35, 1.7), x = ri(lerp(-30, 58, ease(u)));
   const varita = t > W.BECAUSE, falla = t > W.MAGIC, tira = tramo(t, W.MAGIC + 0.55, W.MAGIC + 1.05);
   const a = AT.atom(R, x, 178, t, { s: 2, dir: 1, pose: u > 0 && u < 1 ? 'camina' : varita && tira < 1 ? 'sostiene' : 'brazos', cara: falla ? (tira > 0 ? 'guino' : 'sorpresa') : 'sonrisa', habla: habla(t) });
@@ -189,22 +202,25 @@ const p1 = (t) => {
     if (falla) { for (let k = 0; k < 5; k++) { const v = (t - W.MAGIC) * 1.6 + k * 0.2; tine(sx + Math.sin(k * 2) * 5 * v, sy - v * 10, H('#c8ccd4'), cl(0.8 - v * 0.6)); }
       const pX = pop(t, W.MAGIC + 0.08, 0.25); if (pX > 0) R.icono('X', sx - 5 + 2, sy - 26, H('#e83a3a'), K, 2); } }
   if (tira > 0 && tira < 1) { const vx = ri(lerp(a.mano[0], -20, tira)), vy = ri(a.mano[1] - Math.sin(tira * Math.PI) * 40); R.linea(vx, vy, vx + 10, vy - 6, H('#3a2a4a')); ps(vx + 11, vy - 7, H('#a8a070')); }
-  viñeta(0.25);
+  viñeta(0.25 * uP);
 };
 
 // ── 2 · la ventana y el banco, de cerca: todo lo vivo respira carbono 14 ─────────────────────────────────────────────
 const p2 = (t) => {
-  vista(4, 30, 2); pausa(1); viñeta();
+  vista(4, 30, 2); pausa(1); viñeta(); calma();
   const AX = 120, GX = 210;
   sombraS(AX, 178, 18, 0.4); arbol(AX, 177, t, 0);
   sombraS(GX, 177, 16, 0.4); gacelaM(GX, 176, t);
   // las motas bajan del aire hacia las hojas y hacia el hocico de la gacela
   const entra = tramo(t, W.TAKES - 0.3, W.TAKES + 0.4);
   if (entra > 0) for (let k = 0; k < 8; k++) { const u = (t * 0.32 + k / 8) % 1, haciaG = k & 1, tx = haciaG ? GX + 18 : AX + ((k * 7) % 24) - 12, ty = haciaG ? 140 : 132 + (k % 3) * 4;
-    const sx = 40 + k * 34, sy = 26 + (k % 3) * 8; if (u < 0.9) mota(lerp(sx, tx, u) + Math.sin(u * 9 + k) * 4, lerp(sy, ty, u), t, k, u < 0.6 ? 1 : 0); }
+    const sx = 40 + k * 34, sy = 26 + (k % 3) * 8; if (u < 0.9) mota(lerp(sx, tx, u) + Math.sin(u * 9 + k) * 4, lerp(sy, ty, u), t, k, u < 0.6 ? 1 : 0);
+    else if (u < 0.97) destello(tx, ty, 2, H('#c8ffd8')); }   // la absorbe: un chispazo verde en la hoja o en el hocico
   // Atom coge una mota y la enseña: el «14» grande; en «breaks down very slowly» parpadea y se apaga despacio
+  // Atom entra por la derecha y en «alive» señala el arbolito
+  const llega = tramo(t, P2 + 0.05, P2 + 0.95), ax = ri(lerp(352, 272, ease(llega)));
   const coge = t > W.CARBON - 0.2, apaga = tramo(t, W.BREAKS, W.SLOWLY + 0.6);
-  const a = AT.atom(R, 272, 178, t, { s: 2, dir: -1, pose: coge && apaga < 1 ? 'sostiene' : 'senala', cara: apaga > 0 ? 'sorpresa' : 'sonrisa', habla: habla(t) });
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: -1, pose: llega < 1 ? 'camina' : coge && apaga < 1 ? 'sostiene' : 'senala', cara: apaga > 0 ? 'sorpresa' : 'sonrisa', habla: habla(t) });
   if (coge) { const [mx, my] = a.mano, on = apaga < 1 && (apaga === 0 || Math.floor(t * (8 - apaga * 6)) % 2 === 0);
     if (apaga < 1) { R.disco(ri(mx - 2), ri(my - 8), 5, K); R.disco(ri(mx - 2), ri(my - 8), 4, on ? H('#5aff8a') : H('#3a8a5a')); R.disco(ri(mx - 3), ri(my - 9), 2, H('#e8fff0')); }
     else { R.disco(ri(mx - 2), ri(my - 8), 3, K); R.disco(ri(mx - 2), ri(my - 8), 2, H('#8a9098')); for (let k = 0; k < 4; k++) { const v = (t - W.SLOWLY - 0.6) * 2; if (v < 1) tine(mx - 2 + Math.cos(k * 1.6) * v * 10, my - 8 + Math.sin(k * 1.6) * v * 10, H('#c8ffd8'), 0.8 * (1 - v)); } }
@@ -213,7 +229,7 @@ const p2 = (t) => {
 
 // ── 3 · el tanque y la pantalla del 9500, de cerca: lo vivo muere; el reloj y el primer corte de la tarta ─────────────
 const p3 = (t) => {
-  vista(148, 40, 2); pausa(1); viñeta();
+  vista(148, 40, 2); pausa(1); viñeta(); calma();
   const seco = ease(tramo(t, W.DIES - 0.1, W.STOPS + 0.6));
   sombraS(54, 178, 18, 0.4); arbol(54, 177, t, seco);
   // las motas que llegan y ahora rebotan, con su «X»
@@ -222,7 +238,9 @@ const p3 = (t) => {
   // el reloj y la tarta caen en «so every»; el cuchillo la parte en «5,700»
   const cae = pop(t, W.SO, 0.35), mit = tramo(t, W.N5 + 0.05, W.YEARS + 0.3);
   if (cae > 0) reloj(206, ri(lerp(60, 172, cae)), t, mit, 2);
-  const a = AT.atom(R, 112, 178, t, { s: 2, dir: t > W.SO - 0.3 ? 1 : -1, pose: t > W.SO - 0.3 && t < W.N5 ? 'sostiene' : t >= W.N5 ? 'senala' : 'quieto', cara: seco > 0.3 && t < W.SO ? 'triste' : mit > 0.9 ? 'sonrisa' : 'normal', habla: habla(t) });
+  // Atom mira el arbolito y se pone triste cuando se seca; luego se da la vuelta y va hacia el reloj, que señala en «5,700»
+  const va = tramo(t, W.STOPS + 0.45, W.SO - 0.1), ax = ri(lerp(98, 132, ease(va)));
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: t > W.STOPS + 0.45 ? 1 : -1, pose: va > 0 && va < 1 ? 'camina' : t > W.SO - 0.1 && t < W.N5 ? 'brazos' : t >= W.N5 ? 'senala' : t < W.DIES ? 'senala' : 'piensa', cara: seco > 0.3 && t < W.SO ? 'triste' : mit > 0.9 ? 'sonrisa' : 'normal', habla: habla(t) });
 };
 
 // ── 4 · la campana y la fuente de iones, de cerca: la tarta al triple, la mitad, y otro corte, y otro ──────────────────
@@ -233,7 +251,10 @@ const p4 = (t) => {
   // en «what it had» se dibuja de puntos la tarta entera que había
   if (t > W.WHAT - 0.1 && t < W.BY) { const [cx, cy] = r.tarta, n = 64; for (let k = 0; k < n; k++) { if ((k + Math.floor(t * 10)) % 3) continue; const a = k / n * Math.PI * 2; ps(cx + Math.cos(a) * 46, cy + 6 + Math.sin(a) * 21, H('#ffe070')); } }
   const s1 = t > W.HALF - 0.1 && t < W.MEASURING;
-  AT.atom(R, 52, 178, t, { s: 2, dir: 1, pose: s1 ? 'senala' : t > W.MEASURING ? 'sostiene' : 'quieto', cara: t > W.LEFT ? 'sorpresa' : 'normal', habla: habla(t) });
+  // en «measuring» Atom saca la lupa y se acerca a medir la arena que le queda al reloj; en «left» se sorprende
+  const va = tramo(t, W.MEASURING - 0.1, W.MEASURING + 0.7), ax = ri(lerp(52, 88, ease(va)));
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: s1 ? 'senala' : va > 0 && va < 1 ? 'camina' : va >= 1 ? 'sostiene' : 'piensa', cara: t > W.LEFT ? 'sorpresa' : 'normal', habla: habla(t) });
+  if (va >= 1) { const ly = Math.sin(t * 2.2) * 1.5; AT.lupa(R, a.mano[0], a.mano[1] + ly, 2, 1); }
   if (s1 && t > W.HALF) { const g = pop(t, W.HALF, 0.3); R.numero('1', ri(r.tarta[0] - 6), ri(r.tarta[1] - 30 - g * 4), { tam: 16, centro: true }); R.linea(ri(r.tarta[0]) - 3, ri(r.tarta[1]) - 22, ri(r.tarta[0]) + 9, ri(r.tarta[1]) - 22, H('#ffe070')); R.numero('2', ri(r.tarta[0] + 4), ri(r.tarta[1] - 6), { tam: 16, centro: true }); }
 };
 
@@ -245,8 +266,12 @@ const p5 = (t) => {
   luzHoguera(FX, FY - 10, 110, 0.9 * viva);
   hoguera(FX, FY, t, viva);
   reloj(64, 172, t, 3 + tramo(t, W.LONG - 0.2, W.BURNED), 1, false);
-  const a = AT.atom(R, 262, 178, t, { s: 2, dir: -1, pose: 'sostiene', cara: t > W.BURNED ? 'guino' : 'sonrisa', habla: habla(t) });
-  const alza = ease(tramo(t, P5, P5 + 0.4)); carbon(a.mano[0] - 4, a.mano[1] - 5 - alza * 3, 2.4);
+  brasas(FX, FY, t, 9, viva);
+  // Atom alza el carbón en «charcoal», se acerca a la hoguera en «campfire» y en «how long ago» lo lanza al aire y lo recoge
+  const va = tramo(t, W.CAMPFIRE - 0.1, W.CAMPFIRE + 0.6), ax = ri(lerp(262, 236, ease(va)));
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: -1, pose: va > 0 && va < 1 ? 'camina' : 'sostiene', cara: t > W.BURNED ? 'guino' : 'sonrisa', habla: habla(t) });
+  const sube = Math.sin(Math.PI * tramo(t, W.LONG - 0.15, W.LONG + 0.5)) * 16;
+  const alza = ease(tramo(t, P5, P5 + 0.4)); carbon(a.mano[0] - 4, a.mano[1] - 5 - alza * 3 - sube, 2.4);
   if (alza > 0 && t < P5 + 1.2 && Math.floor(t * 6) % 2) destello(a.mano[0] - 10, a.mano[1] - 12, 2);
   viñeta(0.4);
 };
@@ -256,19 +281,22 @@ const p6 = (t) => {
   vista(160, 88, 2); pausa(1); viñeta();
   const b = 1 - ease(tramo(t, W.FIRE - 0.2, W.OUT + 0.3));
   if (b > 0.1) luzHoguera(64, 160, 70, 0.6 * b);
-  hoguera(64, 172, t, b);
+  hoguera(64, 172, t, b); brasas(64, 172, t, 6, b * 0.9);
   const mit = 4 + tramo(t, W.STARTED - 0.2, W.FIRE);
   const r = reloj(214, 172, t, mit, 2, true);
   if (t > W.HOURGLASS && t < W.HOURGLASS + 1.0 && Math.floor(t * 8) % 2) destello(r.reloj[0] + 10, r.reloj[1] - 20, 3);
-  // Atom coge la miga y se la come
-  const coge = tramo(t, W.OUT - 0.1, W.OUT + 0.35);
-  const a = AT.atom(R, 128, 178, t, { s: 2, dir: 1, pose: t < W.HOURGLASS ? 'senala' : coge > 0 ? 'sostiene' : 'brazos', cara: coge >= 1 ? 'sonrisa' : t > W.FIRE ? 'sorpresa' : 'normal', habla: coge > 0.9 ? (Math.floor(t * 8) & 1) : habla(t) });
-  if (coge > 0 && coge < 1) { const mx = lerp(r.tarta[0], a.mano[0], coge), my = lerp(r.tarta[1] + 4, a.mano[1], coge); rr(mx - 2, my - 2, mx + 2, my + 2, K); rr(mx - 1, my - 1, mx + 1, my + 1, H('#e8c080')); }
+  // Atom señala el reloj, en «started running» va andando hasta el plato y en «went out» coge la miga y se la come
+  const va = tramo(t, W.STARTED - 0.15, W.FIRE + 0.1), ax = ri(lerp(128, 216, ease(va)));
+  const coge = tramo(t, W.OUT - 0.05, W.OUT + 0.3), boca = tramo(t, W.OUT + 0.3, W.OUT + 0.6), come = t > W.OUT + 0.6;
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: t < W.HOURGLASS ? 'senala' : va > 0 && va < 1 ? 'camina' : coge > 0 && !come ? 'sostiene' : come ? 'brazos' : 'piensa', cara: come ? 'sonrisa' : t > W.FIRE ? 'sorpresa' : 'normal', habla: come && t < W.OUT + 1.6 ? (Math.floor(t * 8) & 1) : habla(t) });
+  if (coge > 0 && !come) { const mx = coge < 1 ? lerp(r.tarta[0] - 6, a.mano[0], coge) : lerp(a.mano[0], a.centro[0] + 2, boca), my = coge < 1 ? lerp(r.tarta[1] + 4, a.mano[1] - 2, coge) - Math.sin(coge * Math.PI) * 6 : lerp(a.mano[1] - 2, a.centro[1] + 4, boca);
+    rr(mx - 2, my - 2, mx + 2, my + 2, K); rr(mx - 1, my - 1, mx + 1, my + 1, H('#e8c080')); ps(mx - 1, my - 1, H('#ff5a6a')); }
+  if (come && t < W.OUT + 1.2) for (let k = 0; k < 3; k++) { const v = (t - W.OUT - 0.6) * 1.6 + k * 0.15; if (v < 1) ps(a.centro[0] + 6 + k * 2, a.centro[1] + 8 + v * 22, H('#e8c080')); }   // las migajas que caen
 };
 
-const efectos = [[0.05, 'tapestop'], [W.BECAUSE + 0.1, 'brillo'], [W.MAGIC + 0.08, 'chof'], [W.TAKES, 'brillo'], [W.N14, 'pop'], [W.SLOWLY + 0.3, 'tic'],
+const efectos = [[0.05, 'tapestop'], [0.5, 'pasos'], [W.BECAUSE + 0.1, 'brillo'], [W.MAGIC + 0.08, 'chof'], [W.MAGIC + 0.6, 'whoosh'], [P2 + 0.1, 'pasos'], [W.TAKES, 'brillo'], [W.N14, 'pop'], [W.SLOWLY + 0.3, 'tic'],
   [W.DIES + 0.1, 'chof'], [W.SO + 0.3, 'golpecito'], [W.N5 + 0.2, 'golpecito'], [W.YEARS + 0.35, 'brillo'], [W.HALF, 'pop'], [W.MEASURING + 0.15, 'golpecito'], [W.LEFT + 0.25, 'golpecito'],
-  [W.CAMPFIRE, 'vapor'], [W.LONG, 'golpecito'], [W.HOURGLASS, 'brillo'], [W.FIRE, 'vapor'], [W.OUT + 0.4, 'masca']];
+  [W.CAMPFIRE, 'vapor'], [W.LONG, 'golpecito'], [W.HOURGLASS, 'brillo'], [W.STARTED, 'pasos'], [W.FIRE, 'vapor'], [W.OUT + 0.65, 'masca']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 1998 });
 </script>
 </body>

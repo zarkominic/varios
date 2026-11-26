@@ -13,15 +13,18 @@
 // CASA, copiado literal, en su último instante) y Atom al doble, a color, con el enchufe con cara y la nube (T.pausa
 // 'nube'). GAG DE LAS NUBES: la nube es un conejo, luego un buitre, luego un cometa y al final se parece a Atom.
 // Seis planos, cortados en la palabra:
-// 1 · La casa congelada entera: ⏸; Atom entra andando, saluda en «notice» y abre los brazos en «all of us». Corta en «Our».
+// 1 · La casa congelada entera: ⏸ (el gris entra en 0,35 s; la costura con gb-tele es el mismo fotograma); Atom entra
+//   andando, saluda en «notice» y abre los brazos en «all of us»; luego entra deslizándose el enchufe con su nube y Atom
+//   lo señala sorprendido. Corta en «Our».
 // 2 · Congelada de cerca (ventana, mapa y tamices): Atom se toca la cabeza en «brain» y salen puntos que se unen en
 //   «patterns»; el enchufe con cara se rodea en «face in a power outlet». Corta en «or».
 // 3 · Congelada de cerca (la estantería y la mesa del fondo): Atom a la derecha señala la nube, que se rodea y es un
-//   conejo en «animal in a cloud»; detrás pasan los «miles de años» (el reloj de arena gira). Corta en «shadow».
+//   conejo en «animal in a cloud»; luego da dos pasos hacia el reloj de arena y, brazos arriba, lo hace girar en
+//   «thousands» (la arena cae antes y después). Corta en «shadow».
 // 4 · Congelada de cerca (la ventana con el gato): la sombra del gato se hace un león enorme en la pared en «shadow»;
 //   Atom da un salto en «lion» y se ríe en «safer»; la sombra vuelve a ser un gato. Corta en «once».
 // 5 · Congelada de cerca (los dibujos de pilares): la nube se vuelve buitre en «pattern» y cometa en «can't stop»;
-//   Atom la señala sorprendido cada vez. Corta en «That».
+//   Atom da un saltito de sorpresa en cada cambio y entre uno y otro se acerca a la nube. Corta en «That».
 // 6 · Congelada de cerca (la mesa de las bandejas): la nube se vuelve Atom en «false» y Atom guiña; en «how many
 //   stones» aparece una fila de piedras a color; Atom las mira una a una con la lupa y la última encaja (brilla con
 //   su cometa) en «fit».
@@ -93,7 +96,7 @@ const fantasma = (x0, y0, x1, y1, dentro, t, a = 1) => { if (a <= 0) return; for
 const W = { NOTICE: en('fijate4', 0.0042), BECAUSE: en('fijate4', 0.0361), ALL: en('fijate4', 0.0701), OUR: en('fijate4', 0.1437), BRAIN: en('fijate4', 0.1508), PATTERNS: en('fijate4', 0.2010), FACE: en('fijate4', 0.2442), OUTLET: en('fijate4', 0.2740), OR: en('fijate4', 0.2917), ANIMAL: en('fijate4', 0.3072), CLOUD: en('fijate4', 0.3306), BECAUSE2: en('fijate4', 0.3575), THOUSANDS: en('fijate4', 0.3738), SHADOW: en('fijate4', 0.4325), LION: en('fijate4', 0.4616), SAFER: en('fijate4', 0.4778), OPPOSITE: en('fijate4', 0.5076), AND: en('fijate4', 0.5387), ONCE: en('fijate4', 0.5854), SHOWS: en('fijate4', 0.6060), PATTERN: en('fijate4', 0.6272), CANT: en('fijate4', 0.6754), SEEING: en('fijate4', 0.6966), THAT: en('fijate4', 0.7518), Q6: en('fijate4', 0.7546), FALSE: en('fijate4', 0.7893), BUT: en('fijate4', 0.8169), ASK: en('fijate4', 0.8594), HOW: en('fijate4', 0.8722), MANY: en('fijate4', 0.8913), STONES: en('fijate4', 0.8983), LOOKED: en('fijate4', 0.9210), BEFORE: en('fijate4', 0.9366), FINDING: en('fijate4', 0.9493), FIT: en('fijate4', 0.9861) };
 // los instantes de gb-tele que usa el bloque CASA (en segundos de gb-tele), para congelar su último fotograma
 const WC = { THE9: 87.08, EVERYDAY: 87.16, TRASH: 87.56, UNTIL: 89.54, NOBODY: 90.96, ANYTHING: 91.76, THIS: 92.56 };
-const TF = 93.2;
+const TF = 2797 / 30;   // el último fotograma de gb-tele (93,233 s), para que la costura case
 // CASA · la casa de la excavación, la mesa de hallazgos (último plano de gb-tele; gb-patrones lo congela con este bloque,
 // literal). La arqueóloga ordena las puntas de sílex en su bandeja y alza una en «everyday trash»; el arqueólogo entra con
 // la caja de hallazgos, la deja en la mesa del fondo y señala los dibujos de pilares de la pared en «anything like this»;
@@ -141,7 +144,10 @@ const piedra = (x, y, k, buena = 0) => { x = ri(x); y = ri(y); const C = [['#8a8
 const q1 = (t) => {
   vista(0, 0, 1); pausa(tramo(t, 0, 0.35));
   const u = tramo(t, 0.3, 1.6), x = ri(lerp(-30, 54, ease(u)));
-  AT.atom(R, x, 178, t, { s: 2, dir: 1, pose: u > 0 && u < 1 ? 'camina' : t > W.ALL - 0.1 ? 'brazos' : t > W.NOTICE && t < W.BECAUSE + 0.6 ? 'saluda' : 'quieto', cara: t > W.ALL - 0.1 ? 'sonrisa' : 'normal', habla: habla(t) });
+  // tras «all of us», el enchufe con su nube entra deslizándose por la derecha (con su estela) y Atom se vuelve a mirarlo
+  const ve = ease(tramo(t, W.ALL + 0.5, W.ALL + 1.4)), mira = t > W.ALL + 0.9;
+  if (ve > 0) { const ex = ri(lerp(420, 218, ve)); if (ve < 1) for (let k = 1; k < 5; k++) R.linea(ex - 60 + k * 2, 150 + k * 5, ex - 60 + k * 2 + 18 + k * 4, 150 + k * 5, H('#e8f0ff')); nubeP(ex, 172, t, 0); }
+  AT.atom(R, x, 178, t, { s: 2, dir: 1, pose: u > 0 && u < 1 ? 'camina' : mira ? 'senala' : t > W.ALL - 0.1 ? 'brazos' : t > W.NOTICE && t < W.BECAUSE + 0.6 ? 'saluda' : 'quieto', cara: mira ? 'sorpresa' : t > W.ALL - 0.1 ? 'sonrisa' : 'normal', habla: habla(t) });
 };
 // ── 2 · de cerca, la ventana y el mapa: el cerebro busca patrones; la cara del enchufe ───────────────────────────
 const q2 = (t) => {
@@ -160,9 +166,14 @@ const q3 = (t) => {
   if (t > W.ANIMAL - 0.1) AT.anillo(R, 136, 112, 52, 30, t, tramo(t, W.ANIMAL - 0.1, W.CLOUD));
   // el reloj de arena de los «miles de años», a color, que gira
   const gx = 246, gy = 96, g = t > W.THOUSANDS - 0.2 ? ease(tramo(t, W.THOUSANDS - 0.2, W.THOUSANDS + 0.5)) : 0; const ang = g * Math.PI;
+  // el hilo de arena que cae del bulbo de arriba al de abajo (antes y después de girar), y el montoncito que crece
+  if (g <= 0 || g >= 1) { for (let j = 0; j < 10; j++) if (((j + ri(t * 14)) & 3) !== 0) ps(gx, gy - 1 + j, H('#e8c070')); }
   for (let j = -12; j <= 12; j++) { const w = Math.abs(j) * 0.7 + 1, c = Math.cos(ang), yy = j * c; for (let i = -w; i <= w; i++) ps(gx + i, gy + yy, Math.abs(i) > w - 1 ? K : ((j < 0) === (c > 0) ? H('#e8c070') : H('#f4f0e8'))); }
   rr(gx - 10, gy - 14, gx + 10, gy - 12, H('#8a5a2a')); rr(gx - 10, gy + 12, gx + 10, gy + 14, H('#8a5a2a'));
-  AT.atom(R, 270, 178, t, { s: 2, dir: -1, pose: t > W.ANIMAL - 0.2 && t < W.BECAUSE2 ? 'senala' : t > W.THOUSANDS ? 'piensa' : 'quieto', cara: t > W.CLOUD ? 'sonrisa' : 'normal', habla: habla(t) });
+  // Atom señala la nube-conejo y luego va hasta el reloj de arena y le da la vuelta en «thousands»
+  const va = ease(tramo(t, W.BECAUSE2 - 0.2, W.THOUSANDS - 0.3)), ax3 = ri(lerp(270, 262, va)), gira = t > W.THOUSANDS - 0.35 && t < W.THOUSANDS + 0.6;
+  AT.atom(R, ax3, 178, t, { s: 2, dir: -1, pose: va > 0 && va < 1 ? 'camina' : gira ? 'brazos' : t > W.ANIMAL - 0.2 && t < W.BECAUSE2 ? 'senala' : t > W.THOUSANDS ? 'piensa' : 'quieto', cara: gira ? 'sorpresa' : t > W.CLOUD ? 'sonrisa' : 'normal', habla: habla(t) });
+  if (gira) destello(gx + 14, gy - 16, 2 + ri(Math.sin(t * 12)));
 };
 // ── 4 · de cerca, la ventana con el gato: la sombra del león ───────────────────────────────────────────────────
 const leon = (cx, cy, s, a) => { if (a <= 0) return; // la silueta de un león de perfil (melena, hocico, orejas), tramada como sombra
@@ -188,7 +199,10 @@ const q5 = (t) => {
   const f = t < W.PATTERN - 0.2 ? 0 : t < W.CANT - 0.2 ? ease(tramo(t, W.PATTERN - 0.2, W.PATTERN + 0.4)) : 1 + ease(tramo(t, W.CANT - 0.2, W.CANT + 0.4));
   nubeP(214, 172, t, f);
   const sorp = (t > W.PATTERN && t < W.PATTERN + 0.8) || (t > W.CANT && t < W.CANT + 0.8);
-  AT.atom(R, 56, 178, t, { s: 2, dir: 1, pose: sorp ? 'brazos' : 'senala', cara: sorp ? 'sorpresa' : 'sonrisa', habla: habla(t) });
+  // Atom se acerca a la nube entre las dos formas y da un saltito de sorpresa en cada cambio
+  const va = ease(tramo(t, W.PATTERN + 0.8, W.CANT - 0.3)), ax5 = ri(lerp(56, 112, va));
+  const sal = (a) => t > a && t < a + 0.45 ? ri(Math.sin((t - a) / 0.45 * Math.PI) * 10) : 0;
+  AT.atom(R, ax5, 178 - sal(W.PATTERN) - sal(W.CANT), t, { s: 2, dir: 1, pose: va > 0 && va < 1 ? 'camina' : sorp ? 'brazos' : 'senala', cara: sorp ? 'sorpresa' : 'sonrisa', habla: habla(t) });
 };
 // ── 6 · de cerca, la mesa de las bandejas: la nube se parece a Atom; ¿cuántas piedras se miraron? ───────────────
 const q6 = (t) => {
@@ -212,6 +226,9 @@ const efectos = [
   [W.LION - 0.05, 'boing'], [W.SAFER + 0.1, 'brillo'],
   [W.PATTERN - 0.2, 'whoosh'], [W.CANT - 0.2, 'whoosh'],
   [W.FALSE - 0.4, 'whoosh'], [W.MANY, 'pop'], [W.FIT, 'campana'],
+  // los pasos de Atom, la entrada del enchufe, el giro del reloj, los saltos y la lupa que descarta piedras
+  [0.4, 'pasos'], [W.ALL + 0.5, 'whoosh'], [W.BRAIN, 'bip'], [W.BECAUSE2 - 0.1, 'pasos'],
+  [W.PATTERN + 0.9, 'pasos'], [W.PATTERN, 'boing'], [W.LOOKED + 0.3, 'golpecito'], [W.LOOKED + 0.8, 'golpecito'], [W.LOOKED + 1.3, 'golpecito'],
 ];
 T.rodar(E, R, [[0, q1], [W.OUR, q2], [W.OR, q3], [W.SHADOW, q4], [W.ONCE, q5], [W.Q6, q6]], { efectos, año: 2022 });
 </script>

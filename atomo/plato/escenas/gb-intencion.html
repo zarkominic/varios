@@ -12,16 +12,18 @@
 // GB-INTENCION (frase 24, PAUSA «fijate5»): el último plano de gb-relleno (la colina en sección, el MISMO código copiado
 // literal, en su último instante) congelado en gris azulado, y Atom al doble, a color, con sus objetos. T.pausa 'balanza'.
 // Seis planos, cortados en la palabra:
-// 1 · La colina congelada entera: ⏸; Atom entra, señala el lóbulo de tierra en «notice this»; en «internet» saca un móvil con
+// 1 · La colina congelada entera: ⏸ (el gris y la viñeta entran en 0,35 s; la costura con gb-relleno es el mismo
+//   fotograma); Atom entra, señala el lóbulo de tierra en «notice this»; en «internet» saca un móvil con
 //   una película y en «appealing» le salen corazones. Corta en «A story».
 // 2 · Congelado al doble, la lona y la ladera: la BALANZA (película contra lluvia); en «deliberately hiding» Atom señala la
 //   película y en «satisfies us far more» la balanza se inclina hacia ella. Corta en «a story of rain».
-// 3 · Congelado al doble, el recinto: una nube a color llueve sobre Atom, que saca el paraguas; en «mud» el barro le salpica
-//   y en «centuries» sale el reloj. Corta en «find».
+// 3 · Congelado al doble, el recinto: una nube a color llueve sobre Atom; el paraguas plegado se abre de golpe en «rain» y
+//   las gotas rebotan en la tela; en «mud» el barro le salpica; en «centuries» sale el reloj y cuenta de 100 a 1000
+//   años mientras Atom se aparta del charco. Corta en «find».
 // 4 · Congelado al doble, la ladera: una piedra a color rueda sola; en «intention» Atom sale con la lupa a buscar quién la
 //   empuja, mira detrás en «behind» y en «without one» no hay nadie: «X» y brazos arriba. Corta en «So».
 // 5 · Congelado al triple, las capas de la ladera con su rastro de etiquetas: Atom con la claqueta; en «movie» la cierra (destellos) y le sale la tira
-//   de película. Corta en «whether».
+//   de película. Entra andando con la claqueta abierta. Corta en «whether».
 // 6 · Congelado al doble, las capas y la roca: la balanza otra vez, inclinada a la película; en «true» Atom señala el libro
 //   de la lluvia, que brilla y pesa más; en «better story» señala la película y guiña.
 import * as T from '/atomo/plato/escenas/gb-comun.js';
@@ -853,7 +855,7 @@ const p19 = (t) => {
   const s = R.actor(EL.arqueologaGB, 96, ri(SUP19(104)) + 1, t, { dir: 1, dedo: t > W.CARRIED && t < W.FILL2, sonrisa: t > W.FILL2, habla: t < W.RAIN2 });
 };
 const WI = { AND: en('fijate5', 0.0000), NOTICE: en('fijate5', 0.0055), THIS: en('fijate5', 0.0137), BECAUSE: en('fijate5', 0.0385), IT: en('fijate5', 0.0502), EXPLAINS: en('fijate5', 0.0556), WHY: en('fijate5', 0.0742), THE: en('fijate5', 0.0866), INTERNET: en('fijate5', 0.0921), VERSION: en('fijate5', 0.1037), IS: en('fijate5', 0.1182), SO: en('fijate5', 0.1292), APPEALING: en('fijate5', 0.1374), A: en('fijate5', 0.1882), STORY: en('fijate5', 0.1930), WITH: en('fijate5', 0.2020), SOMEONE: en('fijate5', 0.2095), DELIBERATELY: en('fijate5', 0.2205), HIDING: en('fijate5', 0.2446), SOMETHING: en('fijate5', 0.2672), SATISFIES: en('fijate5', 0.2810), US: en('fijate5', 0.3043), FAR: en('fijate5', 0.3215), MORE: en('fijate5', 0.3332), THAN: en('fijate5', 0.3442), A2: en('fijate5', 0.3511), STORY2: en('fijate5', 0.3552), OF: en('fijate5', 0.3641), RAIN: en('fijate5', 0.3717), MUD: en('fijate5', 0.4019), AND2: en('fijate5', 0.4074), CENTURIES: en('fijate5', 0.4129), BECAUSE2: en('fijate5', 0.4493), OUR: en('fijate5', 0.4617), MINDS: en('fijate5', 0.4678), PREFER: en('fijate5', 0.4809), TO: en('fijate5', 0.4960), FIND: en('fijate5', 0.5084), AN: en('fijate5', 0.5166), INTENTION: en('fijate5', 0.5221), BEHIND: en('fijate5', 0.5365), THINGS: en('fijate5', 0.5503), EVEN: en('fijate5', 0.5785), THOUGH: en('fijate5', 0.5894), THE2: en('fijate5', 0.5970), WORLD: en('fijate5', 0.6018), OFTEN: en('fijate5', 0.6114), WORKS: en('fijate5', 0.6265), WITHOUT: en('fijate5', 0.6575), ONE: en('fijate5', 0.6664), SO2: en('fijate5', 0.7165), WHEN: en('fijate5', 0.7275), AN2: en('fijate5', 0.7323), EXPLANATION: en('fijate5', 0.7358), SOUNDS: en('fijate5', 0.7481), TOO: en('fijate5', 0.7770), MUCH: en('fijate5', 0.7894), LIKE: en('fijate5', 0.7969), A3: en('fijate5', 0.8038), MOVIE: en('fijate5', 0.8086), ITS: en('fijate5', 0.8354), WORTH: en('fijate5', 0.8436), ASKING: en('fijate5', 0.8519), WHETHER: en('fijate5', 0.8670), WE: en('fijate5', 0.8766), BELIEVE: en('fijate5', 0.8849), IT2: en('fijate5', 0.8945), BECAUSE3: en('fijate5', 0.9007), ITS2: en('fijate5', 0.9103), TRUE: en('fijate5', 0.9213), OR: en('fijate5', 0.9329), BECAUSE4: en('fijate5', 0.9529), ITS3: en('fijate5', 0.9611), A4: en('fijate5', 0.9694), BETTER: en('fijate5', 0.9721), STORY3: en('fijate5', 0.9790) };
-const TF = 95.30;   // el último instante de gb-relleno (el plano 19), el que se congela
+const TF = 2860 / 30;   // el último fotograma de gb-relleno (95,333 s, el plano 19), el que se congela
 const AT = T.AT;
 const TROZOS = [[0.2, 4.7], [5.68, 12.7], [13.28, 16.6], [17.04, 20.0], [21.06, 24.2], [24.52, 29.2]];
 const habla = (t) => TROZOS.some(([a, b]) => t > a && t < b) ? (Math.sin(t * 15) > -0.2 ? 1 : 0) : 0;
@@ -861,13 +863,13 @@ let FZ = null;
 const congelado = () => { if (!FZ) { p19(TF); FZ = R.buf.slice(); } };
 const vista = (x0, y0, z) => { congelado(); const B = R.buf; if (z === 1) { B.set(FZ); return; }
   for (let y = 0; y < 180; y++) { const sy = (y0 + Math.floor(y / z)) * 320; for (let x = 0; x < 320; x++) B[y * 320 + x] = FZ[sy + x0 + Math.floor(x / z)]; } };
-const viñeta = (a = 0.3) => { for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.74 && b4(x, y) < (d - 0.74) * 3) tine(x, y, H('#10141e'), a); } };
+const viñeta = (a = 0.3) => { if (a <= 0.004) return; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.74 && b4(x, y) < (d - 0.74) * 3) tine(x, y, H('#10141e'), a); } };
 const corazon = (x, y, c = H('#ff5a7a')) => { x = ri(x); y = ri(y); for (const [i, j] of [[-2, -1], [-1, -2], [1, -2], [2, -1], [-2, 0], [2, 0], [-1, 1], [1, 1], [0, 2]]) ps(x + i, y + j, K); for (const [i, j] of [[-1, -1], [1, -1], [-1, 0], [0, 0], [1, 0], [0, 1], [0, -1]]) ps(x + i, y + j, c); ps(x - 1, y - 1, H('#ffc0d0')); };
 const balanza = (x, y, t, peso) => T.pausa(R, x, y, t, { cual: 'balanza', peso, s: 2 });
 
 // ── 1 · la colina congelada entera: Atom entra y señala; el móvil con la película y los corazones ───────────────
 const q1 = (t) => {
-  vista(0, 0, 1); AT.pausa(R, tramo(t, 0, 0.35)); viñeta(0.2);
+  const fu = tramo(t, 0, 0.35); vista(0, 0, 1); AT.pausa(R, fu); viñeta(0.2 * fu);
   const u = tramo(t, 0.35, 1.5), x = ri(lerp(-30, 150, ease(u))), movil = t > WI.INTERNET - 0.2;
   const a = AT.atom(R, x, 178, t, { s: 2, dir: 1, pose: u > 0 && u < 1 ? 'camina' : movil ? 'sostiene' : t > WI.NOTICE ? 'senala' : 'quieto', cara: t > WI.APPEALING ? 'sonrisa' : 'normal', habla: habla(t) });
   if (movil) { const [mx, my] = a.mano, X = ri(mx) + 2, Y = ri(my) - 22;
@@ -891,11 +893,16 @@ const q3 = (t) => {
   vista(150, 86, 2); AT.pausa(R, 1); viñeta();
   const nx = 206, ny = 46; nube(nx, ny, 50, pal(['#c8d0e0', '#98a4bc', '#6a7896'])); nube(nx + 40, ny + 6, 32, pal(['#d0d8e6', '#a0acc4', '#727e9a']));
   for (let k = 0; k < 40; k++) { const x = nx - 30 + h2(k, 1, 7) * 90, y = ny + 14 + (h2(k, 2, 7) * 130 + t * 150) % 130; R.linea(ri(x), ri(y), ri(x - 1), ri(y + 5), H('#9ac8ff')); }
-  const a = AT.atom(R, 196, 178, t, { s: 2, dir: -1, pose: 'sostiene', cara: t > WI.MUD && t < WI.CENTURIES + 0.3 ? 'triste' : t > WI.CENTURIES + 0.3 ? 'sonrisa' : 'normal', habla: habla(t) });
-  const [mx, my] = a.mano; R.linea(ri(mx), ri(my), ri(mx), ri(my) - 50, K); R.linea(ri(mx) + 1, ri(my), ri(mx) + 1, ri(my) - 50, H('#3a2a4a'));
-  for (let j = -22; j <= 0; j++) for (let i = -30; i <= 30; i++) { const e = (i / 30) ** 2 + (j / 22) ** 2; if (e > 1) continue; ps(mx + i, my - 50 + j, e > 0.86 ? K : (Math.floor((i + 30) / 10) % 2 ? H('#e83a3a') : H('#f4f0e4'))); }
-  if (t > WI.MUD) { const v = tramo(t, WI.MUD, WI.MUD + 0.5); for (let k = 0; k < 9; k++) { const an = -Math.PI * (0.1 + k * 0.1); R.disco(ri(mx - 20 + Math.cos(an) * v * 30), ri(176 + Math.sin(an) * v * 20 + v * v * 10), 2, H('#6a4a2a')); } for (let k = 0; k < 4; k++) R.disco(ri(mx - 10 + k * 7), 176, 3, H('#5a3a22')); }
-  if (t > WI.CENTURIES) { const p = pop(t, WI.CENTURIES, 0.3); R.icono('reloj', 80, ri(96 - p * 6), H('#ffd34a'), K, 4); R.numero('1000', 94, ri(132 - p * 4), { centro: true }); }
+  const aparta = ease(tramo(t, WI.CENTURIES + 0.5, WI.CENTURIES + 1.5));
+  const a = AT.atom(R, ri(lerp(196, 222, aparta)), 178 - (aparta > 0 && aparta < 1 ? ri(Math.abs(Math.sin(t * 12)) * 2) : 0), t, { s: 2, dir: -1, pose: 'sostiene', cara: t > WI.MUD && t < WI.CENTURIES + 0.3 ? 'triste' : t > WI.CENTURIES + 0.3 ? 'sonrisa' : 'normal', habla: habla(t) });
+  const [mx, my] = a.mano, ab = cl(pop(t, WI.RAIN - 0.25, 0.35)), RX = 4 + ri(26 * ab), RY = 22;
+  R.linea(ri(mx), ri(my), ri(mx), ri(my) - 50, K); R.linea(ri(mx) + 1, ri(my), ri(mx) + 1, ri(my) - 50, H('#3a2a4a'));
+  // el paraguas, plegado hasta «rain»; ahí se abre de golpe (las varillas se separan) y las gotas rebotan en la tela
+  for (let j = -RY; j <= 0; j++) for (let i = -RX; i <= RX; i++) { const e = (i / RX) ** 2 + (j / RY) ** 2; if (e > 1 || (ab < 0.5 && j > -RY * (1 - ab))) continue; ps(mx + i, my - 50 + j, e > 0.86 ? K : (Math.floor((i + RX) / Math.max(2, RX / 3)) % 2 ? H('#e83a3a') : H('#f4f0e4'))); }
+  if (ab >= 1) for (let k = 0; k < 4; k++) { const u = (t * 3 + k * 0.27) % 1, bx = ri(mx - 24 + k * 15), by = ri(my - 52 - Math.sin(u * Math.PI) * 4); if (u < 0.5) { ps(bx - 1, by, H('#9ac8ff')); ps(bx + 1, by - 1, H('#9ac8ff')); } }
+  const mxB = mx - (ri(lerp(196, 222, aparta)) - 196);   // el charco se queda donde cayó aunque Atom se aparte
+  if (t > WI.MUD) { const v = tramo(t, WI.MUD, WI.MUD + 0.5); for (let k = 0; k < 9; k++) { const an = -Math.PI * (0.1 + k * 0.1); R.disco(ri(mxB - 20 + Math.cos(an) * v * 30), ri(176 + Math.sin(an) * v * 20 + v * v * 10), 2, H('#6a4a2a')); } for (let k = 0; k < 4; k++) R.disco(ri(mxB - 10 + k * 7), 176, 3, H('#5a3a22')); }
+  if (t > WI.CENTURIES) { const p = pop(t, WI.CENTURIES, 0.3), n = Math.round(tramo(t, WI.CENTURIES, WI.CENTURIES + 1.4) * 10) * 100; R.icono('reloj', 80, ri(96 - p * 6), H('#ffd34a'), K, 4); R.numero(String(Math.max(100, n)), 94, ri(132 - p * 4), { centro: true }); }
 };
 // ── 4 · la ladera, al doble: la piedra que rueda sola; Atom busca con la lupa quién la empuja ───────────────────
 const Y4 = (X) => (SUP19(60 + X / 2) - 30) * 2;
@@ -914,7 +921,8 @@ const q4 = (t) => {
 // ── 5 · el cielo y la cubierta, al doble: la claqueta de la película ────────────────────────────────────────────
 const q5 = (t) => {
   vista(126, 92, 3); AT.pausa(R, 1); viñeta();
-  const a = AT.atom(R, 110, 178, t, { s: 2, dir: 1, pose: 'sostiene', cara: t > WI.MOVIE ? 'guino' : 'normal', habla: habla(t) });
+  const en5 = ease(tramo(t, WI.SO2 + 0.05, WI.SO2 + 1.2));
+  const a = AT.atom(R, ri(lerp(-40, 110, en5)), 178 - (en5 > 0 && en5 < 1 ? ri(Math.abs(Math.sin(t * 12)) * 2) : 0), t, { s: 2, dir: 1, pose: 'sostiene', cara: t > WI.MOVIE ? 'guino' : 'normal', habla: habla(t) });
   const [mx, my] = a.mano, X = ri(mx) + 4, Y = ri(my) - 14, cierra = tramo(t, WI.MOVIE - 0.25, WI.MOVIE), an = lerp(-0.6, 0, cierra);
   rr(X - 1, Y - 1, X + 41, Y + 27, K); rr(X, Y, X + 40, Y + 26, H('#2a2a2e')); for (let k = 0; k < 3; k++) R.linea(X + 4, Y + 8 + k * 6, X + 36, Y + 8 + k * 6, H('#9a9aa4'));
   const P = (d, h) => [X + Math.cos(an) * d - Math.sin(an) * h, Y - 1 + Math.sin(an) * d + Math.cos(an) * h];
@@ -934,7 +942,10 @@ const q6 = (t) => {
   if (mejor && g.libros) { const [x, y] = g.libros[0]; destello(x, y - 6, 4); }
 };
 const efectos = [[0.05, 'tapestop'], [WI.APPEALING, 'brillo'], [WI.A + 0.15, 'pop'], [WI.SATISFIES, 'golpecito'], [WI.RAIN, 'lluvia'], [WI.MUD, 'chof'], [WI.CENTURIES, 'tic'],
-  [WI.FIND, 'carro'], [WI.WITHOUT, 'boing'], [WI.MOVIE, 'palmada'], [WI.TRUE, 'brillo']];
+  [WI.FIND, 'carro'], [WI.WITHOUT, 'boing'], [WI.MOVIE, 'palmada'], [WI.TRUE, 'brillo'],
+  // los pasos de Atom, el móvil, el paraguas que se abre, el reloj que cuenta, la lupa y la tira de película
+  [0.4, 'pasos'], [WI.INTERNET - 0.2, 'bip'], [WI.RAIN - 0.25, 'whoosh'], [WI.CENTURIES + 0.5, 'pasos'], [WI.INTENTION - 0.3, 'pasos'],
+  [WI.BEHIND, 'tic'], [WI.SO2 + 0.05, 'pasos'], [WI.MOVIE + 0.3, 'papel'], [WI.BETTER, 'pop']];
 T.rodar(E, R, [[0, q1], [WI.A, q2], [WI.A2, q3], [WI.FIND, q4], [WI.SO2, q5], [WI.WHETHER, q6]], { efectos, año: 2026 });
 </script>
 </body>

@@ -11,17 +11,19 @@
 <script type="module">
 // GB-BANQUETE (frase 16, PAUSA «fijate3»): el banquete de gb-cazadores congelado en gris azulado (el MISMO bloque BANQ,
 // copiado literal, en su último instante) y Atom al doble, a color, con sus objetos. GAG DE LA PAPILLA SIN SAL. Seis planos:
-// 1 · el banquete congelado entero: ⏸; Atom entra y abre los brazos en «beautiful». Corta en «For».
-// 2 · de cerca el muro con los pilares: «100» en «hundred», una fila de cabecitas; el sol sale y se pone en «weeks»; Atom
-//   muerde una lasca de caliza en «can't eat» (X) y en «feed them» pone cara triste. Corta en «so».
-// 3 · de cerca las molineras: la piedra de moler a color en «grinding stones», que muele; por miles, filas de piedras
-//   diminutas y el número que cuenta hasta 1000. Corta en «along».
-// 4 · de cerca el cuenco: la papilla burbujea en «porridge», espuma en «beer» con su «?»; GAG: Atom la prueba en «may»,
-//   le falta sal (cara triste y bocadillo con salero), saca un salero y echa; sonríe. Corta en «It's».
-// 5 · de cerca la cesta: el objeto de la pausa (muela, cuenco y espigas) a color; en «feasts» una fila de cuencos; en
-//   «tend wild wheat» Atom coge un manojo de espigas. Corta en «to plant».
-// 6 · el banquete de lejos: en «plant it nearby» las espigas se hacen un campo sembrado; en «change … forever» nacen
-//   casitas de adobe con su humo; Atom saluda y guiña.
+// 1 · el banquete congelado entero (el gris entra en 0,35 s desde el color): Atom entra y abre los brazos en «beautiful».
+//   Corta en «For».
+// 2 · de cerca el muro con los pilares: «100» en «hundred»; una fila de gente a color llega andando por lo alto del muro y
+//   se pone a alzar piedras; el sol sale y se pone en «weeks»; Atom muerde una lasca de caliza en «can't eat» (X) y en
+//   «feed them» se pone triste con un bocadillo de cuenco vacío. Corta en «so».
+// 3 · de cerca las molineras: Atom entra por la derecha; la piedra de moler a color en «grinding stones», que muele; por
+//   miles, filas de piedras diminutas y el número que cuenta hasta 1000. Corta en «along».
+// 4 · de cerca el cuenco: Atom se acerca en «porridge», la papilla burbujea, espuma en «beer» con su «?»; GAG: Atom la
+//   prueba en «may», le falta sal (bocadillo con salero) y da dos saltitos sacudiendo el salero sobre el cuenco. Corta en «It's».
+// 5 · de cerca la cesta: Atom entra por la izquierda; el objeto de la pausa a color; en «feasts» una fila de cuencos que
+//   humean; en «tend wild wheat» Atom coge un manojo de espigas. Corta en «to plant».
+// 6 · el banquete de lejos: en «plant it nearby» Atom echa el grano a puñados andando y nace el campo sembrado; en
+//   «change … forever» nacen casitas de adobe con su humo; Atom saluda y guiña.
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
 const { E, R, M } = await T.preparar('gb-banquete');
@@ -189,25 +191,30 @@ let FZ = null;
 const congelado = () => { if (!FZ) { banqPlano(TF, enC); FZ = R.buf.slice(); } };
 const vista = (x0, y0, z) => { congelado(); const B = R.buf; if (z === 1) { B.set(FZ); return; }
   for (let y = 0; y < 180; y++) { const sy = (y0 + Math.floor(y / z)) * 320; for (let x = 0; x < 320; x++) B[y * 320 + x] = FZ[sy + x0 + Math.floor(x / z)]; } };
-const viñeta = (a = 0.3) => { for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.74 && b4(x, y) < (d - 0.74) * 3) tine(x, y, H('#10141e'), a); } };
+const viñeta = (a = 0.3) => { if (a <= 0) return; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const d = Math.max(Math.abs(x - 160) / 160, Math.abs(y - 96) / 96); if (d > 0.74 && b4(x, y) < (d - 0.74) * 3) tine(x, y, H('#10141e'), a); } };
 const pausa = (u = 1) => AT.pausa(R, u);
 const salero = (x, y, ang) => { x = ri(x); y = ri(y); rr(x - 3, y - 9, x + 3, y, K); rr(x - 2, y - 8, x + 2, y - 1, H('#f8f8f4')); rr(x - 2, y - 8, x - 1, y - 1, H('#ffffff')); rr(x - 3, y - 11, x + 3, y - 9, K); rr(x - 2, y - 10, x + 2, y - 10, H('#c8ccd0')); ps(x - 1, y - 10, K); ps(x + 1, y - 10, K); };
 const cuchara = (x, y) => { x = ri(x); y = ri(y); R.linea(x, y, x + 6, y - 10, K); R.linea(x + 1, y, x + 7, y - 10, H('#a87440')); R.disco(x - 1, y + 2, 2, K); R.disco(x - 1, y + 2, 1, H('#e8d8a8')); };
 
 // ── 1 · el banquete congelado entero: ⏸; Atom entra y abre los brazos («la idea más bonita») ──────────────────────
 const p1 = (t) => {
-  vista(0, 0, 1); pausa(tramo(t, 0, 0.35));
+  const uP = tramo(t, 0, 0.35); vista(0, 0, 1); pausa(uP);
   const u = tramo(t, 0.4, W.BEAUTIFUL - 0.1), x = ri(lerp(340, 246, ease(u)));
   AT.atom(R, x, 178, t, { s: 2, dir: -1, pose: u > 0 && u < 1 ? 'camina' : t < W.ALL ? 'brazos' : 'senala', cara: t > W.BEAUTIFUL ? 'sonrisa' : 'normal', habla: habla(t) });
   if (t > W.BEAUTIFUL && t < W.ALL + 0.6) for (let k = 0; k < 4; k++) destello(x - 20 + k * 14, 112 - (k % 2) * 8 - ri(Math.sin(t * 4 + k) * 2), 2);
-  viñeta(0.22);
+  viñeta(0.22 * uP);
 };
 
 // ── 2 · de cerca, el muro con los pilares: cien personas, semanas de trabajo en algo que no se come ─────────────────
 const p2 = (t) => {
   vista(96, 18, 2); pausa(1); viñeta();
   const n = pop(t, W.HUNDRED, 0.35); if (n > 0) R.numero('100', 150, ri(60 - n * 6), { tam: 16, centro: true });
-  if (t > W.PEOPLE - 0.1) for (let k = 0; k < 10; k++) { const c = pop(t, W.PEOPLE + k * 0.06, 0.25); if (c > 0) { const x = 106 + k * 9, y = 82; R.disco(x, y, 3, K); R.disco(x, y, 2, H('#c88a52')); rr(x - 2, y + 2, x + 2, y + 8, K); rr(x - 1, y + 3, x + 1, y + 7, H('#8a5a34')); } }
+  // la fila de gente (a color) llega andando por lo alto del muro hasta su sitio y se pone a trabajar: alza su piedra
+  if (t > W.PEOPLE - 0.1) for (let k = 0; k < 10; k++) { const fin = 106 + k * 9, xa = -8 + (t - W.PEOPLE) * 95 - (9 - k) * 9; if (xa < -6) continue;
+    const llega = xa >= fin, x = ri(Math.min(fin, xa)), y = 82 - (llega ? 0 : Math.floor(t * 8 + k) % 2), alza = llega && Math.sin(t * 4 + k * 1.3) > 0.2;
+    R.disco(x, y, 3, K); R.disco(x, y, 2, H('#c88a52')); rr(x - 2, y + 2, x + 2, y + 8, K); rr(x - 1, y + 3, x + 1, y + 7, H(k & 1 ? '#8a5a34' : '#7a6a3a'));
+    if (!llega) { ps(x - 1, y + 9, K); ps(x + 1, y + 9 - (Math.floor(t * 8 + k) % 2), K); }
+    const py = alza ? y - 7 : y + 1; rr(x + 2, py - 1, x + 5, py + 2, K); rr(x + 3, py, x + 4, py + 1, H('#d8ceb4')); if (alza) ps(x + 2, y - 3, H('#c88a52')); }
   // «semanas»: el sol que sale y se pone varias veces sobre el muro
   const sem = tramo(t, W.WEEKS - 0.2, W.SOMETHING + 0.2);
   if (sem > 0 && sem < 1) { const a = sem * Math.PI * 3, sx = 260 + Math.cos(a) * 30, sy = 40 - Math.abs(Math.sin(a)) * 20; R.disco(ri(sx), ri(sy), 5, H('#ffd040')); R.disco(ri(sx) - 1, ri(sy) - 1, 2, H('#fffbe0')); }
@@ -216,6 +223,8 @@ const p2 = (t) => {
   const a = AT.atom(R, 60, 178, t, { s: 2, dir: 1, pose: coge ? 'sostiene' : t < W.SOMETHING - 0.3 ? 'senala' : 'piensa', cara: muerde ? 'sorpresa' : t > W.SOMEONE ? 'triste' : 'sonrisa', habla: habla(t) });
   if (coge) { const [mx, my] = a.mano, by = muerde ? my - 14 : my - 4; R.poligono([[mx - 4, by], [mx + 3, by - 4], [mx + 6, by + 2], [mx, by + 5]], K); R.poligono([[mx - 3, by], [mx + 3, by - 3], [mx + 5, by + 2], [mx, by + 4]], H('#d8ceb4')); ps(mx + 1, by - 2, H('#f4ecd8'));
     if (muerde) { const c = pop(t, W.CANT + 0.1, 0.2); if (c > 0) R.icono('X', ri(mx + 10), ri(by - 20), H('#e83a3a'), K, 2); for (let k = 0; k < 3; k++) destello(mx + 8 + k * 4, by - 8 + k * 3, 1); } }
+  // «someone has to feed them»: un bocadillo con un cuenco vacío que tiembla
+  if (t > W.FEED - 0.05) bocata(a.centro[0] + 22, a.centro[1] - 38, 24, 18, pop(t, W.FEED - 0.05, 0.25), (cx, cy) => cuenquito(cx + ri(Math.sin(t * 18) * 0.6), cy + 2));
 };
 
 // ── 3 · de cerca, las molineras: la piedra de moler a color, y luego por miles ──────────────────────────────────────
@@ -227,7 +236,8 @@ const p3 = (t) => {
   const mil = tramo(t, W.THOUSANDS - 0.2, W.ALONG - 0.1);
   for (let k = 0; k < 18; k++) { if (k / 18 > mil) break; const fila = k % 3, x = 30 + ((k / 3) | 0) * 50 + fila * 16, y = 118 - fila * 14; T.d_moler(R, x, y, { escala: 1, sombra: false }); }
   if (mil > 0) R.numero(String(ri(1000 * Math.min(1, mil * 1.2))), 160, 52, { tam: 16, centro: true });
-  AT.atom(R, 270, 178, t, { s: 2, dir: -1, pose: t < W.STONES ? 'quieto' : t < W.THOUSANDS ? 'senala' : 'brazos', cara: t > W.THOUSANDS ? 'sorpresa' : 'sonrisa', habla: habla(t) });
+  const llega = tramo(t, P3 + 0.05, P3 + 0.85), ax = ri(lerp(350, 270, ease(llega)));
+  AT.atom(R, ax, 178, t, { s: 2, dir: -1, pose: llega < 1 ? 'camina' : t < W.GRINDING ? 'piensa' : t < W.THOUSANDS ? 'senala' : 'brazos', cara: t > W.THOUSANDS ? 'sorpresa' : 'sonrisa', habla: habla(t) });
 };
 
 // ── 4 · de cerca, el cuenco grande: la papilla burbujea, quizá cerveza; GAG: Atom la prueba y le falta sal ──────────
@@ -241,12 +251,16 @@ const p4 = (t) => {
   if (es > 0) for (let i = -30; i <= 30; i++) { const hh = ri(es * (5 + Math.sin(i * 0.7 + t * 6) * 2)); for (let j = 0; j < hh; j++) ps(px + i, py - 2 - j, j === hh - 1 ? H('#ffffff') : H('#f4eedc')); }
   if (es > 0.5) { const q = pop(t, W.BEER + 0.1, 0.3); if (q > 0) R.icono('?', px + 40, ri(py - 40 - q * 4), H('#ffe070'), K, 2); }
   // Atom coge la cuchara, la prueba («may have been made») y le falta sal: saca un salero de hoy y echa un poco
+  // Atom se acerca al cuenco en «porridge»; para echar la sal, que no llega al borde, da dos saltitos sacudiendo el salero
   const prueba = t > W.MAY - 0.6, sabe = t > W.MAY + 0.1, sala = tramo(t, W.MADE + 0.2, W.ITS - 0.1);
-  const a = AT.atom(R, 62, 178, t, { s: 2, dir: 1, pose: prueba ? 'sostiene' : 'senala', cara: sala > 0.6 ? 'sonrisa' : sabe ? 'triste' : 'sonrisa', habla: habla(t) });
+  const va = tramo(t, W.PORRIDGE - 0.2, W.PORRIDGE + 0.6), ax = ri(lerp(56, 94, ease(va))), salto = sala > 0 && sala < 1 ? Math.abs(Math.sin(sala * Math.PI * 2)) * 30 : 0;
+  const a = AT.atom(R, ax, ri(178 - salto), t, { s: 2, dir: 1, pose: va > 0 && va < 1 ? 'camina' : prueba ? 'sostiene' : 'senala', cara: sala > 0.6 ? 'sonrisa' : sabe ? 'triste' : 'sonrisa', habla: habla(t) });
+  if (salto > 0) sombraS(ax, 178, ri(10 - salto / 5), 0.35);
   if (prueba && sala === 0) { const lleva = tramo(t, W.MAY - 0.6, W.MAY - 0.1); cuchara(lerp(px - 20, a.mano[0] + 2, lleva), lerp(py - 4, a.mano[1] - 4, lleva)); }
   if (sabe && sala === 0) { const b = pop(t, W.MAY + 0.15, 0.25); bocata(a.centro[0] + 18, a.centro[1] - 38, 22, 18, b, (cx, cy) => { salero(cx, cy + 6, 0); R.icono('?', cx + 5, cy - 6, H('#e83a3a'), K); }); }
-  if (sala > 0) { const sx = lerp(a.mano[0], px - 6, Math.min(1, sala * 2)), sy = lerp(a.mano[1] - 6, py - 22, Math.min(1, sala * 2)) + (sala > 0.5 ? Math.sin(t * 30) * 2 : 0); salero(sx, sy, 0);
-    if (sala > 0.5) for (let k = 0; k < 8; k++) { const v = (t * 3 + k / 8) % 1; ps(sx + (k % 3) - 1, sy + 2 + v * 14, H('#ffffff')); } }
+  if (sala > 0) { const sx = a.mano[0] + 3, sy = a.mano[1] - 3 + (salto > 12 ? Math.sin(t * 30) * 2 : 0); salero(sx, sy, 0);
+    // los granos de sal caen en diagonal hasta la papilla (solo desde lo alto del salto, que es cuando llega)
+    if (salto > 14) for (let k = 0; k < 8; k++) { const v = (t * 3 + k / 8) % 1, gx = sx + 2 + v * 14 + (k % 3) - 1, gy = lerp(sy + 2, py - 1, v); if (gy < py) ps(gx, gy, H('#ffffff')); } }
 };
 
 // ── 5 · de cerca, la cesta de espigas: alimentar los banquetes empujó a cuidar el trigo silvestre ───────────────────
@@ -256,9 +270,9 @@ const p5 = (t) => {
   if (ob > 0) T.pausa(R, 196, 172, t, { cual: 'banquete', s: 2, campo: 0 });
   // en «feasts» un rayo de comida: cuenquitos que suben como una fila (los banquetes) y en «tend wild wheat» Atom coge espigas
   const fe = tramo(t, W.FEASTS - 0.1, W.PUSHED + 0.4);
-  for (let k = 0; k < 5; k++) { const c = pop(t, W.FEASTS + k * 0.1, 0.25); if (c > 0 && t < W.TEND) cuenquito(96 + k * 16, 44 + (k % 2) * 4 - ri(c * 3)); }
-  const coge = t > W.TEND - 0.2;
-  const a = AT.atom(R, 66, 178, t, { s: 2, dir: 1, pose: coge ? 'sostiene' : fe > 0 ? 'senala' : 'quieto', cara: coge ? 'sonrisa' : 'normal', habla: habla(t) });
+  for (let k = 0; k < 5; k++) { const c = pop(t, W.FEASTS + k * 0.1, 0.25); if (c > 0 && t < W.TEND) { const x = 96 + k * 16, y = 44 + (k % 2) * 4 - ri(c * 3) + ri(Math.sin(t * 5 + k) * 1.2); cuenquito(x, y); humo(x, y - 4, t + k * 0.3, 2, 10, 0.35); } }
+  const coge = t > W.TEND - 0.2, llega = tramo(t, P5 + 0.05, P5 + 0.9), ax = ri(lerp(-26, 66, ease(llega)));
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: llega < 1 ? 'camina' : coge ? 'sostiene' : fe > 0 ? 'senala' : 'piensa', cara: coge ? 'sonrisa' : 'normal', habla: habla(t) });
   if (coge) { for (let k = -2; k <= 2; k++) espiga(a.mano[0] + k * 3, a.mano[1] + 6, 26 + Math.abs(k) * -2, k * 1.2 + Math.sin(t * 2 + k) * 0.8, ESP, 2); if (t < W.WHEAT + 0.5) destello(a.mano[0] + 4, a.mano[1] - 26, 3); }
 };
 
@@ -270,15 +284,19 @@ const p6 = (t) => {
   // «change the way humanity lived forever»: tras el campo nacen casitas de adobe con su humo
   for (let k = 0; k < 3; k++) { const c = pop(t, W.CHANGE + k * 0.3, 0.3); if (c > 0) { const x = 262 + k * 24, y = 166 - (k % 2) * 6; casita(x, ri(lerp(y - 20, y, Math.min(1, c))), 10, 12 + (k % 2) * 3, k); if (t > W.FOREVER) humo(x + 5, y - 22, t, 3, 14, 0.4); } }
   if (t > W.HUMANITY && t < W.FOREVER + 0.8) destello(176, 104, 4);
-  AT.atom(R, 58, 178, t, { s: 2, dir: 1, pose: t < W.PLANT ? 'sostiene' : t < W.CHANGE ? 'senala' : t < W.FOREVER ? 'brazos' : 'saluda', cara: t > W.FOREVER ? 'guino' : 'sonrisa', habla: habla(t) });
+  // «plant it nearby»: Atom echa el grano a puñados mientras anda hacia el campo, que va naciendo donde cae
+  const siembra = tramo(t, W.PLANT - 0.2, W.KNOWING), ax = ri(lerp(46, 88, siembra));
+  const a = AT.atom(R, ax, 178, t, { s: 2, dir: 1, pose: siembra > 0 && siembra < 1 ? 'camina' : t < W.PLANT ? 'sostiene' : t < W.CHANGE ? 'senala' : t < W.FOREVER ? 'brazos' : 'saluda', cara: t > W.FOREVER ? 'guino' : 'sonrisa', habla: habla(t) });
+  if (t < W.PLANT - 0.2) for (let k = -1; k <= 1; k++) espiga(a.mano[0] + k * 3, a.mano[1] + 6, 20, k * 1.2 + Math.sin(t * 2 + k) * 0.6, ESP, 2);
+  if (siembra > 0 && siembra < 1) for (let k = 0; k < 7; k++) { const v = (t * 1.8 + k / 7) % 1, gx = lerp(a.mano[0] + 2, 122 + k * 12, v), gy = lerp(a.mano[1] - 2, 160 + (k % 2) * 4, v) - Math.sin(v * Math.PI) * 18; ps(gx, gy, H('#f0c860')); ps(gx + 1, gy, H('#a87a30')); }
 };
 
-const efectos = [[0.15, 'tapestop'], [W.BEAUTIFUL, 'brillo'],
+const efectos = [[0.15, 'tapestop'], [0.6, 'pasos'], [W.BEAUTIFUL, 'brillo'], [W.PEOPLE + 0.3, 'pasos'],
   [W.HUNDRED, 'pop'], [W.CANT + 0.1, 'masca'],
-  [W.GRINDING, 'pop'], [W.THOUSANDS, 'golpecito'],
+  [P3 + 0.1, 'pasos'], [W.GRINDING, 'pop'], [W.THOUSANDS, 'golpecito'],
   [W.PORRIDGE, 'burbujas'], [W.MAY - 0.1, 'masca'], [W.MAY + 0.2, 'boing'], [W.MADE + 0.6, 'golpecito'],
   [W.FEASTS, 'pop'], [W.TEND, 'brillo'],
-  [W.PLANT, 'whoosh'], [W.CHANGE, 'pop'], [W.FOREVER, 'campana']];
+  [P5 + 0.1, 'pasos'], [W.PLANT, 'whoosh'], [W.CHANGE, 'pop'], [W.FOREVER, 'campana']];
 T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: -9600 });
 </script>
 </body>

@@ -705,12 +705,12 @@ const año = (t) => t < P2 ? -9600 : t < P6 ? -9500 : t < P7 ? Math.round(lerp(-
 const efectos = [[0.25, 'carro'], [W.QUESTION, 'pop'], [W.TO - 0.05, 'boom'], [W.TO + 0.35, 'publico'],
   [P2 + 0.1, 'pasos'], [W.VILLAGE + 0.4, 'toc'], [W.THIS, 'brillo'], [P2 + 4.2, 'golpecito'],
   [P3 + 0.2, 'lapiz'], [W.OPPOSITE, 'whoosh'], [W.OPPOSITE + 0.5, 'lapiz'], [W.THINK, 'toc'],
-  [P4 + 0.1, 'viento'], [W.GOBEKLI, 'brillo'], [W.TOGETHER, 'toc'],
+  [W.GOBEKLI, 'brillo'], [W.TOGETHER, 'toc'],
   [W.STARTED, 'golpecito'], [W.LIVING + 0.6, 'papel'], [W.BUILD2 + 0.4, 'golpecito'], [W.FEED - 0.3, 'pasos'], [W.PEOPLE + 0.3, 'chof'],
-  [P6 + 0.1, 'aldea'], [W.PLANT, 'viento'], [W.STOP, 'papel'], [W.NOMADS, 'pajaros'],
-  [P7 + 0.1, 'viento'], [W.DECIDE, 'carro'], [W.RAISE + 0.15, 'boom'], [W.TOGETHER3 + 0.15, 'publico'],
+  [P6 + 0.1, 'aldea'], [W.PLANT, 'viento'], [W.STOP, 'papel'],
+  [W.DECIDE, 'carro'], [W.RAISE + 0.15, 'boom'], [W.TOGETHER3 + 0.15, 'publico'],
   [W.TOUCH, 'brillo'], [W.HUNTERS2, 'pop'], [W.AGREE, 'brillo'],
-  [P9 + 0.1, 'viento'], [W.SOMEONE, 'brillo'], [W.TEACH, 'pop'],
+  [W.SOMEONE, 'brillo'], [W.TEACH, 'pop'],
   [P10 + 0.95, 'golpecito'], [W.COMMENTS, 'pop'], [W.CURIOUS, 'brillo']];
 T.rodar(E, R, [[0, q1], [P2, q2], [P3, q3], [P4, q4], [P5, q5], [P6, q6], [P7, q7], [P8, q8], [P9, q9], [P10, q10]], { efectos, año });
 </script>
