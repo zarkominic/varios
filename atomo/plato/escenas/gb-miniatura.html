@@ -11,14 +11,15 @@
 // GB-MINIATURA · ep49, la composición de siempre (la de referencia del 48: escena a la izquierda, corte en diagonal,
 // texto en blanco hueso y un chibi al doble), SIN ATOM. A la izquierda, el recinto al alba: el pilar en T ya de pie y,
 // a su pie, Stonehenge diminuto; un cazador, chibi al doble, levanta los brazos. A la derecha del corte, el cerro de hoy
-// con su gran cubierta blanca, un poco más oscuro. «OLDER» en pixel grande y «6000» en hueso. Lo cumple el vídeo: el
+// con su gran cubierta blanca, un poco más oscuro. «GÖBEKLI TEPE» en hueso y, debajo, «6000 YEARS OLDER» en oro
+// (el usuario, 27/11/2026: «en estos temas la gente va a eso», al nombre). Lo cumple el vídeo: el
 // título dice «Built 6,000 Years Before Stonehenge» y el gancho enseña lo mismo.
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
 import { hex } from '/atomo/plato/kits/pixel-retro.js';
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { figura, grado, halo, desplazar, cifra } from '/atomo/plato/escenas/mini-chibi.js';
-import { palabra } from '/atomo/plato/escenas/bl-mini-letras.js';
+import { palabra, nombre } from '/atomo/plato/escenas/gb-mini-letras.js';
 const R = conChibi(await crearRoma(document.getElementById('lienzo')));
 const mez = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * (1 - f) + ((b >>> sh) & 255) * f) & 255) << sh; return (0xff000000 | r) >>> 0; };
 const K = hex('#1a1424');
@@ -54,8 +55,8 @@ const dibujar = (t) => {
   // el corte en diagonal con su filo blanco hueso
   for (let y = 0; y < 180; y++) { const xd = 204 + Math.round((180 - y) * 0.28); for (let x = xd; x < 320; x++) B[y * 320 + x] = b[y * 320 + x]; for (let k = -1; k <= 1; k++) R.pset(xd + k, y, hex('#f4f0e4')); }
   grado(R, { cx: 160, cy: 100, tinte: '#060a14', f: 0.16, desde: 0.55, max: 0.65 });
-  palabra(R, 'OLDER', 12, 14, 5, hex('#f4f0e4'), hex('#2a1a30'));
-  cifra(R, '6000', 268, 26, 24);
+  nombre(R, 14, 18, 4, hex('#f4f0e4'), hex('#2a1a30'));
+  palabra(R, '6000 YEARS OLDER', 14, 54, 3, hex('#f0c860'), hex('#2a1a30'));
 };
 window.__frame = async (t) => { dibujar(t); R.presentar(); };
 window.__listo = true;

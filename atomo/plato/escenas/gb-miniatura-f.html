@@ -10,13 +10,13 @@
 <script type="module">
 // GB-MINIATURA-F · ep49, opción nueva: NO ESTÁ SOLO. Karahan Tepe, la sala tallada en la roca con sus pilares que brotan
 // del suelo y la cabeza humana de la pared; en primer plano, el pilar en T con cara de 2025; una arqueóloga chibi al
-// doble lo mira. «NOT ALONE» en hueso. Lo cumple el vídeo: el acto 6 («Las colinas de piedra»).
+// doble lo mira. «GÖBEKLI TEPE» en hueso y «NOT ALONE» en oro. Lo cumple el vídeo: el acto 6 («Las colinas de piedra»).
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
 import { hex } from '/atomo/plato/kits/pixel-retro.js';
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { figura, grado, halo, desplazar, cifra } from '/atomo/plato/escenas/mini-chibi.js';
-import { palabra, ancho } from '/atomo/plato/escenas/gb-mini-letras.js';
+import { palabra, ancho, nombre } from '/atomo/plato/escenas/gb-mini-letras.js';
 const R = conChibi(await crearRoma(document.getElementById('lienzo')));
 const HUESO = hex('#f4f0e4'), SOMBRA = hex('#2a1a30');
 const dibujar = (t) => {
@@ -27,8 +27,8 @@ const dibujar = (t) => {
   figura(R, T.GB.arqueologaGB, 196, 176, t, { dir: 1, sorpresa: true }, 2);
   T.hoyDelante(R, t, o);
   grado(R, { cx: 200, cy: 100, tinte: '#060a14', f: 0.16, desde: 0.5, max: 0.7 });
-  palabra(R, 'NOT', 12, 112, 5, HUESO, SOMBRA);
-  palabra(R, 'ALONE', 12, 146, 4, HUESO, SOMBRA);
+  nombre(R, 12, 18, 4, HUESO, SOMBRA);
+  palabra(R, 'NOT ALONE', 10, 156, 3, hex('#f0c860'), SOMBRA);
 };
 window.__frame = async (t) => { dibujar(t); R.presentar(); };
 window.__listo = true;

@@ -23,14 +23,14 @@
 
 **Miniatura** (`ep49-miniatura.jpg`): la composición de siempre, sin Atom, como la C de la prueba del 48. A la
 izquierda, el recinto al alba con el pilar en T de pie, Stonehenge diminuto a su lado y un cazador chibi al doble con
-los brazos en alto; a la derecha del corte, el cerro de hoy con su gran cubierta blanca. «OLDER» y «6000».
+los brazos en alto; a la derecha del corte, el cerro de hoy con su gran cubierta blanca. «GÖBEKLI TEPE» y «6000 YEARS OLDER» (el nombre va en las cuatro: lo pidió el usuario el 27/11/2026, «en estos temas la gente va a eso»).
 
 **Opciones nuevas de miniatura** (pedidas el 26/11/2026; letras en `gb-mini-letras.js`):
-- **D · `ep49-miniatura-d.jpg` «11600 YEARS»:** el pilar central de cerca, con su zorro, sus brazos y sus manos, al alba,
+- **D · `ep49-miniatura-d.jpg` «GÖBEKLI TEPE» + «11600 YEARS»:** el pilar central de cerca, con su zorro, sus brazos y sus manos, al alba,
   y un cazador chibi a su pie que lo mira boquiabierto. Va con el título principal.
-- **E · `ep49-miniatura-e.jpg` «BURIED?»:** el corte de tierra de un recinto con sus capas y el pilar inclinado y
+- **E · `ep49-miniatura-e.jpg` «GÖBEKLI TEPE» + «BURIED?»:** el corte de tierra de un recinto con sus capas y el pilar inclinado y
   apuntalado bajo la lluvia; Klaus Schmidt lo señala. Va con el título B («Was It Buried on Purpose?»).
-- **F · `ep49-miniatura-f.jpg` «NOT ALONE»:** Karahan Tepe, la sala tallada en la roca con la cabeza de la pared y el
+- **F · `ep49-miniatura-f.jpg` «GÖBEKLI TEPE» + «NOT ALONE»:** Karahan Tepe, la sala tallada en la roca con la cabeza de la pared y el
   pilar en T con cara de 2025; una arqueóloga lo mira. Va con el título principal.
 
 ## Descripción (EN)

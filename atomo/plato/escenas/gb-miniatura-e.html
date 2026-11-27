@@ -10,13 +10,13 @@
 <script type="module">
 // GB-MINIATURA-E · ep49, opción nueva: ¿ENTERRADO? El perfil de tierra de un recinto con sus capas y el pilar en T
 // inclinado y apuntalado, bajo la lluvia de siglos; Klaus Schmidt, chibi al doble, lo señala sorprendido.
-// «BURIED?» en hueso. Lo cumple el vídeo: el acto 5 («Enterrado») responde a esa pregunta.
+// «GÖBEKLI TEPE» en hueso y «BURIED?» en oro. Lo cumple el vídeo: el acto 5 («Enterrado») responde a esa pregunta.
 import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
 import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
 import { hex } from '/atomo/plato/kits/pixel-retro.js';
 import * as T from '/atomo/plato/escenas/gb-comun.js';
 import { figura, grado, halo, desplazar, cifra } from '/atomo/plato/escenas/mini-chibi.js';
-import { palabra, ancho } from '/atomo/plato/escenas/gb-mini-letras.js';
+import { palabra, ancho, nombre } from '/atomo/plato/escenas/gb-mini-letras.js';
 const R = conChibi(await crearRoma(document.getElementById('lienzo')));
 const HUESO = hex('#f4f0e4'), SOMBRA = hex('#2a1a30');
 const dibujar = (t) => {
@@ -26,7 +26,8 @@ const dibujar = (t) => {
   figura(R, T.GB.schmidtGB, 120, 178, t, { dir: 1, sorpresa: true, dedo: true }, 2);
   T.colinaDelante(R, t, o);
   grado(R, { cx: 160, cy: 100, tinte: '#060a14', f: 0.18, desde: 0.5, max: 0.7 });
-  palabra(R, 'BURIED?', 160 - (ancho('BURIED?', 5) >> 1), 10, 5, HUESO, SOMBRA);
+  nombre(R, 160 - (ancho('GOBEKLI TEPE', 4) >> 1), 16, 4, HUESO, SOMBRA);
+  palabra(R, 'BURIED?', 160 - (ancho('BURIED?', 5) >> 1), 50, 5, hex('#f0c860'), SOMBRA);
 };
 window.__frame = async (t) => { dibujar(t); R.presentar(); };
 window.__listo = true;
