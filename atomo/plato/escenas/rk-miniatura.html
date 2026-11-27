@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep39 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// RK-MINIATURA · ep39, con chibis (regla del 09/11/2026). Una sola idea: la palabra. El poste de la empalizada vacía de
+// 1590 con «CROATOAN» tallado, recortado por un claro de luz; John White, al doble y en primer plano a la izquierda, se
+// vuelve hacia él con sorpresa y lo señala. «1590» en blanco hueso. Sin nadie más: lo que promete el título («115 people
+// vanished and left one word»). Nada morboso.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { roanoke, roanokeDelante } from '/atomo/plato/escenas/rk-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'poste', epoca: 1590, talla: 1 };
+  roanoke(R, t, o); roanokeDelante(R, t, o);
+  grado(R, { cx: 236, cy: 96, tinte: '#1a1408', f: 0.22, desde: 0.5, max: 0.62 });
+  halo(R, 236, 96, 40, 80, '#fff2c8', 0.40);                    // la luz sobre la talla
+  halo(R, 70, 130, 60, 70, '#c8d8f0', 0.18);                    // el borde frío detrás de White
+  // el brazo apunta al poste (no el «dedo» de siempre, que dejaba la mano delante de la cara): brazo estirado hacia arriba a
+  // la derecha y el índice que sale de la mano, en el búfer del actor para que crezca con él
+  const indice = (R, m) => { if (!m) return; const [hx, hy] = m, K = 0xff302024, S = R.buf[hy * 320 + hx];
+    for (let a = 2; a <= 6; a++) { R.pset(hx + a, hy - 3, K); R.pset(hx + a, hy, K); R.pset(hx + a, hy - 2, S); R.pset(hx + a, hy - 1, S); }
+    R.pset(hx + 7, hy - 2, K); R.pset(hx + 7, hy - 1, K); };
+  figura(R, EL.whiteRK, 74, 172, t, { dir: 1, sorpresa: true, sostiene: [90, 72], cosa: indice }, 3);
+  cifra(R, '1590', 64, 24, 20);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

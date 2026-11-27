@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep41 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DD-SHORT2-MINIATURA · ep41, vertical: columna central (x 110–210). Con chibis, sin palabras.
+// En las ruinas de Wundagore, entre las rocas que flotan en luz verde, Doom (a la izquierda) despierta a Wanda (a la
+// derecha), que abre los ojos con su magia roja. Verde contra rojo.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { wundagore, wundagoreDelante } from '/atomo/plato/escenas/dd-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'ruinas', verde: 1, levanta: 1 };
+  wundagore(R, t, o); wundagoreDelante(R, t, o);
+  grado(R, { cx: 160, cy: 115, tinte: '#0a0614', f: 0.2, desde: 0.4, max: 0.8 });
+  halo(R, 140, 108, 30, 50, '#9affc0', 0.32);
+  figura(R, EL.doom, 136, 158, t, { dir: 1, dedo: true }, 2);
+  halo(R, 180, 112, 30, 46, '#ff2040', 0.45);
+  halo(R, 180, 108, 16, 26, '#ff8a9a', 0.35);
+  figura(R, EL.wandaDD, 178, 158, t, { dir: -1, sorpresa: true }, 2);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

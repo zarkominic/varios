@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Maniac Mansion · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-MANIAC (frases 7–8), 1987, cartela «1987». Cuatro planos:
+// 1. el estudio de 1987: el programador de gafas entra con su taza, la deja en la mesa y se pone a teclear; en
+//    «Ron Gilbert» señala su monitor y sonríe; la diseñadora teclea en la máquina de escribir y otro cruza con disquetes;
+// 2. inserto de la mesa: la mano en el ratón; el código compila con su barra; en «finish» hace clic y la pantalla de
+//    fósforo pasa al juego (la mansión de noche en píxeles gordos); en «horror» un relámpago; en «laughs» un tentáculo
+//    asoma por el tejado y la luna se ríe;
+// 3. la mansión de 1987 de noche, el porche: tres chavales (cámara, radiocasete, linterna) suben la escalinata a
+//    hurtadillas; la primera llama, en «sneaks» la puerta del decorado (o.puerta) se abre sola hacia dentro: el
+//    vestíbulo con la luz verde que late y el charco de luz por la escalinata; se cuelan uno a uno, a contraluz;
+// 4. el pasillo: los chavales entran en fila; en «Fred» el científico salta de su puerta; en «friend» se oye a la amiga
+//    tras la puerta cerrada; en «each one plays differently» el flash de la cámara, la música de la radio (el científico
+//    baila) y la linterna que alumbra la puerta.
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-maniac');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('maniac', f), b = (f) => en('chavales', f);
+const P2 = a(0.415), P3 = a(0.878), P4 = b(0.361);
+const progr = a(0.246), gilbert = a(0.314), acaba = a(0.559), horror = a(0.76), risa = a(0.804), raros = a(0.941);
+const chicos = b(0.061), cuela = b(0.129), fred = b(0.534), amiga = b(0.645), cada = b(0.765), juega = b(0.823), distinto = b(0.894);
+const { rect, pset } = R, K = T.C.k;
+const mez = (c, d, u) => { const ch = (s) => Math.round(((c >>> s) & 255) * (1 - u) + ((d >>> s) & 255) * u); return ((255 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)) >>> 0; };
+const bay = (x, y) => [0, 0.5, 0.75, 0.25][(y & 1) * 2 + (x & 1)];
+// los cacharros de los chavales, en la mano: la cámara de fotos, el radiocasete y la linterna
+const camara = (x, y) => { rect(x - 4, y - 3, x + 4, y + 3, K); rect(x - 3, y - 2, x + 3, y + 2, hex('#3a3a46')); rect(x - 3, y - 2, x + 3, y - 2, hex('#6a6a7a')); R.disco(x, y, 1.6, hex('#8ad8ff')); pset(x, y, K); rect(x + 1, y - 5, x + 3, y - 3, K); pset(x + 2, y - 4, hex('#e8e8f0')); pset(x - 2, y - 1, hex('#f04a3a')); };
+const radio = (x, y, t, suena) => { const v = suena ? Math.round(Math.sin(t * 30)) : 0; rect(x - 7, y - 4, x + 7, y + 3, K); rect(x - 6, y - 3, x + 6, y + 2, hex('#8a8e9a')); rect(x - 6, y - 3, x + 6, y - 3, hex('#b8bcc8'));
+  R.disco(x - 3, y, 2 + (v > 0 ? 0.5 : 0), K); R.disco(x + 3, y, 2 + (v < 0 ? 0.5 : 0), K); pset(x - 3, y, hex('#c8ccd8')); pset(x + 3, y, hex('#c8ccd8')); rect(x - 1, y - 2, x + 1, y - 2, hex('#f04a3a')); rect(x - 5, y - 6, x + 5, y - 5, K); pset(x - 5, y - 4, K); pset(x + 5, y - 4, K); };
+const linterna = (x, y, dir) => { rect(x - 4, y - 1, x + 4, y + 1, K); rect(x - 3, y, x + 3, y, hex('#c83a3a')); const cx = dir > 0 ? x + 5 : x - 5; rect(cx - 1, y - 2, cx + 1, y + 2, K); pset(cx, y - 1, hex('#fff0a0')); pset(cx, y, hex('#fff0a0')); pset(cx, y + 1, hex('#fff0a0')); };
+const taza = (x, y) => { rect(x - 3, y - 4, x + 3, y + 1, K); rect(x - 2, y - 3, x + 2, y, hex('#e8e2d2')); rect(x - 2, y - 3, x + 2, y - 3, hex('#5a3418')); rect(x + 4, y - 3, x + 5, y - 1, K); };
+const disquetes = (x, y) => { for (let k = 0; k < 4; k++) { const c = [hex('#c83a3a'), hex('#3a6ab8'), hex('#3a3a4a'), hex('#e8c040')][k], yy = y - k * 2; rect(x - 5, yy - 2, x + 5, yy, K); rect(x - 4, yy - 1, x + 4, yy - 1, c); pset(x + 2, yy - 1, hex('#f2eee2')); } };
+
+// 1 · el estudio de 1987
+const p1 = (t) => {
+  T.estudio(R, t, { encuadre: 'oficina', anyo: 1987 });
+  const tec = Math.floor(t * 8) % 2;
+  // la diseñadora teclea en la máquina de escribir de la mesa C; levanta la vista y sonríe cuando el otro señala
+  R.actor(EL.disenadora, 198, 152, t, { dir: 1, sostiene: t > gilbert + 0.2 && t < gilbert + 1.1 ? undefined : [224, 126 + tec], sonrisa: t > gilbert + 0.2, quieto: false });
+  // el programador entra por la derecha con su taza: cruza por delante de las mesas y sube hasta su puesto (mesa B)
+  const u1 = tramo(t, 0.5, 3.1), u2 = tramo(t, 3.1, 3.8), anda = (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1);
+  const x = Math.round(u2 > 0 ? lerp(112, 92, u2) : lerp(330, 112, u1)), y = Math.round(u2 > 0 ? lerp(170, 152, u2) : 170);
+  const sentado = t > 3.8, dejada = t > 4.1, señala = t > gilbert && t < gilbert + 1.1;
+  if (dejada) taza(116, 122);
+  const r = R.actor(EL.disenador, x, y, t, { dir: sentado ? 1 : -1, anda, sostiene: !dejada ? true : señala ? undefined : [120 + tec * 3, 127 + tec], dedo: señala, sonrisa: señala || t > gilbert + 1.1, habla: señala && Math.sin(t * 9) > 0 });
+  if (!dejada) taza(r.mano[0] + (sentado ? 2 : -1), r.mano[1] + 1);
+  // en primer término, un compañero cruza con una pila de disquetes
+  const u3 = tramo(t, 1.2, 6.4); if (u3 > 0 && u3 < 1) { const q = R.actor(EL.disenador2, Math.round(lerp(-20, 330, u3)), 176, t, { dir: 1, anda: true, sostiene: true }); disquetes(q.mano[0] + 1, q.mano[1] + 1); }
+};
+
+// 2 · inserto: la mano en el ratón, el código que compila y, con el clic, el juego
+const FOS = ['#03100a', '#08281a', '#0e4a26', '#1e7a3a', '#3ac868', '#8af0a8', '#e0ffe8'].map(hex);
+const pantallaJuego = (R, x0, y0, x1, y1, t) => {
+  const cl = [x0 + 1, y0 + 1, x1 - 1, y1 - 1], H = cl[3] - cl[1];
+  const r = (a0, b0, a1, b1, c) => { const A = Math.max(a0, cl[0]), B = Math.max(b0, cl[1]), C2 = Math.min(a1, cl[2]), D = Math.min(b1, cl[3]); if (A <= C2 && B <= D) rect(A, B, C2, D, c); };
+  const u = tramo(t, acaba + 0.05, acaba + 0.55), yW = cl[1] + Math.round(u * (H + 1));
+  // el código: renglones de rayitas que suben, el cursor que parpadea y la barra de compilar
+  if (u < 1) { r(cl[0], yW, cl[2], cl[3], FOS[0]); const sc = t * 7, base = Math.floor(sc);
+    for (let l = -1; l < 15; l++) { const n = base + l, yy = Math.round(cl[1] + 3 + l * 5 - (sc - base) * 5); if (yy < yW || yy > cl[3] - 12) continue;
+      let xx = cl[0] + 4 + Math.floor(((n * 7919) % 5)) * 6; const piezas = 2 + ((n * 31) % 4);
+      for (let p = 0; p < piezas && xx < cl[2] - 8; p++) { const w = 6 + ((n * 13 + p * 17) % 22); r(xx, yy, Math.min(xx + w, cl[2] - 6), yy + 1, p === 0 ? FOS[5] : (n + p) % 3 ? FOS[4] : FOS[3]); xx += w + 4; } }
+    const pb = tramo(t, P2, acaba), bx0 = cl[0] + 12, bx1 = cl[2] - 12, by = cl[3] - 9;
+    if (by >= yW) { r(bx0 - 1, by - 1, bx1 + 1, by + 5, FOS[4]); r(bx0, by, bx1, by + 4, FOS[0]); r(bx0 + 1, by + 1, bx0 + 1 + Math.round((bx1 - bx0 - 2) * pb), by + 3, FOS[5]); if (Math.floor(t * 3) % 2) r(cl[2] - 8, by - 9, cl[2] - 5, by - 4, FOS[5]); } }
+  if (yW <= cl[1]) return;
+  R.recorte([cl[0], cl[1], cl[2], Math.min(cl[3], yW - 1)]);
+  const flash = (t > horror && t < horror + 0.12) || (t > horror + 0.22 && t < horror + 0.34), hz = cl[1] + 52;
+  // el cielo tramado de fósforo con estrellas; la luna (que se ríe en «laughs»)
+  for (let yy = cl[1]; yy < Math.min(hz, yW); yy++) for (let xx = cl[0]; xx <= cl[2]; xx++) pset(xx, yy, flash ? (bay(xx, yy) < 0.5 ? FOS[6] : FOS[5]) : ((yy - cl[1]) / 52 + bay(xx >> 1, yy >> 1) * 0.5 > 0.7 ? FOS[1] : FOS[0]));
+  if (!flash) for (let k = 0; k < 22; k++) { const sx = cl[0] + ((k * 53) % 178), sy = cl[1] + 2 + ((k * 29) % 36); if (Math.sin(t * 3 + k * 1.7) > -0.3) { r(sx, sy, sx, sy, FOS[k % 3 ? 4 : 6]); } }
+  const lx = cl[0] + 148, ly = cl[1] + 15; R.disco(lx, ly, 8, flash ? FOS[6] : FOS[5]); R.disco(lx + 2, ly - 2, 2, FOS[4]); R.disco(lx - 3, ly + 3, 1.5, FOS[4]);
+  if (t > risa) { const ab = Math.sin(t * 14) > 0 ? 1 : 0; r(lx - 4, ly - 3, lx - 3, ly - 2, FOS[1]); r(lx + 2, ly - 3, lx + 3, ly - 2, FOS[1]); r(lx - 4, ly + 2, lx + 4, ly + 2 + ab, FOS[1]); pset(lx - 5, ly + 1, FOS[1]); pset(lx + 5, ly + 1, FOS[1]); }
+  // los murciélagos que cruzan
+  for (let k = 0; k < 3; k++) { const bx = cl[0] + ((t * (14 + k * 5) + k * 60) % 200) - 10, byy = cl[1] + 10 + k * 9 + Math.round(Math.sin(t * 4 + k) * 2), al = Math.sin(t * 16 + k) > 0 ? -1 : 1; r(bx - 2, byy + al, bx - 1, byy + al, FOS[0]); r(bx, byy, bx, byy + 1, FOS[0]); r(bx + 1, byy + al, bx + 2, byy + al, FOS[0]); }
+  // la colina y la mansión en píxeles gordos (de 2 px): cuerpo, torre torcida, torrecilla, tejados, ventanas encendidas
+  const S = flash ? FOS[0] : FOS[2], SL = flash ? FOS[0] : FOS[3], mx = cl[0] + 56, my = hz;
+  R.poligono([[cl[0], my + 2], [cl[0] + 40, my - 6], [cl[0] + 130, my - 6], [cl[2], my + 4], [cl[2], cl[3]], [cl[0], cl[3]]], flash ? FOS[1] : FOS[1]);
+  for (let xx = cl[0]; xx <= cl[2]; xx += 2) for (let yy = my - 4; yy <= cl[3]; yy += 2) if (((xx * 7 + yy * 13) % 11) === 0) r(xx, yy, xx + 1, yy + 1, FOS[2]);
+  r(mx, my - 30, mx + 70, my - 4, S); r(mx + 2, my - 28, mx + 68, my - 28, SL);
+  R.poligono([[mx - 4, my - 30], [mx + 35, my - 46], [mx + 74, my - 30]], S); R.poligono([[mx + 4, my - 46], [mx + 10, my - 64], [mx + 16, my - 46]], S); r(mx + 4, my - 46, mx + 16, my - 30, S);
+  R.poligono([[mx + 54, my - 36], [mx + 60, my - 52], [mx + 66, my - 36]], S); r(mx + 55, my - 36, mx + 65, my - 30, S); r(mx + 36, my - 52, mx + 40, my - 42, S);
+  if (!flash) for (let j = 0; j < 2; j++) for (let i = 0; i < 6; i++) { const wx = mx + 6 + i * 11, wy = my - 25 + j * 11, on = (i * 3 + j * 5 + Math.floor(t * 0.7)) % 7 !== 0; r(wx, wy, wx + 4, wy + 5, on ? FOS[5] : FOS[1]); if (on && (i + j) % 3 === 0) r(wx + 1, wy + 2, wx + 3, wy + 5, FOS[3]); }
+  if (!flash) { r(mx + 8, my - 42, mx + 11, my - 38, FOS[6]); r(mx + 31, my - 11, mx + 39, my - 4, FOS[0]); r(mx + 32, my - 10, mx + 38, my - 4, FOS[4]); }
+  // en «laughs», un tentáculo asoma por detrás del tejado, bota y saluda
+  if (t > risa - 0.1) { const v = tramo(t, risa - 0.1, risa + 0.3), bo = Math.round(Math.abs(Math.sin((t - risa) * 9)) * 3 * (t < risa + 1.2 ? 1 : 0.3)), tx = mx + 24, ty = my - 40 - Math.round(v * 14) - bo;
+    r(tx - 3, ty, tx + 3, my - 38, FOS[0]); r(tx - 2, ty + 1, tx + 2, my - 38, FOS[5]); r(tx - 2, ty + 1, tx - 2, my - 38, FOS[6]); r(tx - 2, ty + 3, tx - 1, ty + 4, FOS[0]); r(tx + 1, ty + 3, tx + 2, ty + 4, FOS[0]); r(tx - 1, ty + 7, tx + 1, ty + 7, FOS[0]); }
+  // los rayos del relámpago
+  if (flash) { let px0 = cl[0] + 110, py0 = cl[1]; for (let k = 0; k < 6; k++) { const nx = px0 + ((k * 37) % 13) - 6, ny = py0 + 7; R.linea(px0, py0, nx, ny, FOS[6]); R.linea(px0 + 1, py0, nx + 1, ny, FOS[5]); px0 = nx; py0 = ny; } }
+  // el sendero con los tres chavales diminutos que se acercan
+  for (let k = 0; k < 3; k++) { const kx = cl[0] + 10 + Math.round(tramo(t, acaba + 0.5, P3) * 40) + k * 7, ky = cl[3] - 6 - k; r(kx, ky - 5, kx + 2, ky, flash ? FOS[0] : FOS[5]); r(kx, ky - 7, kx + 2, ky - 6, flash ? FOS[0] : FOS[6]); }
+  R.recorte(null);
+};
+const p2 = (t) => {
+  T.estudio(R, t, { encuadre: 'oficina', camara: 'mesa', pantalla: pantallaJuego, raton: false });
+  // el ratón y la mano que lo lleva; en «finish», el clic
+  const clic = t > acaba && t < acaba + 0.25, dx = Math.round(Math.sin(t * 1.3) * 3 + tramo(t, P2, acaba) * -4), mx = 280 + dx;
+  rect(mx, 144, mx + 11, 157, K); rect(mx + 1, 145, mx + 10, 156, hex('#e8e0c8')); rect(mx + 1, 145, mx + 10, 148, clic ? hex('#8a8272') : hex('#f6f0dc')); rect(mx + 5, 145, mx + 5, 149, K); rect(mx + 1, 149, mx + 10, 149, hex('#c8c0a8'));
+  R.linea(mx + 5, 143, mx + 2, 132, hex('#3a3a3a'));
+  T.brazo(R, 326, 196, mx + 13, 153 + (clic ? 1 : 0), '#8a3a3a', -1, { codo: [318, 176] });
+  if (t > acaba && t < acaba + 0.4) { const rr = 3 + (t - acaba) * 30; for (let k = 0; k < 10; k++) { const an = k * 0.628; pset(Math.round(mx + 3 + Math.cos(an) * rr), Math.round(146 + Math.sin(an) * rr * 0.6), hex('#fff0a0')); } }
+};
+
+// 3 · la fachada de 1987 de noche, el porche: los chavales se cuelan
+const p3 = (t) => {
+  // en «sneaks» las dos hojas se abren solas (el decorado pinta el vestíbulo, la luz verde y el charco en los peldaños)
+  const ab = tramo(t, cuela - 0.1, cuela + 0.9), f = ab * ab * (3 - 2 * ab);
+  const g = T.mansion(R, t, { encuadre: 'fachada', camara: 'puerta', anyo: 1987, luz: 'noche', puerta: f });
+  const [dx0, dy0, dx1, dy1] = g.puerta;
+  // los tres chavales: suben la escalinata a hurtadillas, la primera llama y, abierta la puerta, se cuelan uno a uno
+  const mid = Math.round((dx0 + dx1) / 2) - 7, ys = dy1, quien = [
+    { d: EL.chicaRara, x0: -10, xp: 132, t0: P3 + 0.1, sube: chicos - 0.6, espera: mid, entra: cuela + 0.7, cosa: 'camara' },
+    { d: EL.roquero, x0: -26, xp: 120, t0: P3 + 0.6, sube: chicos - 0.1, espera: mid - 20, entra: cuela + 1.4, cosa: 'radio' },
+    { d: EL.empollon, x0: 332, xp: 196, t0: P3 + 0.4, sube: chicos + 0.2, espera: mid + 22, entra: cuela + 1.9, cosa: 'linterna' }];
+  const pintar = [];
+  for (const q of quien) {
+    const u1 = tramo(t, q.t0, q.sube), u2 = tramo(t, q.sube, q.sube + 1.1), u3 = tramo(t, q.entra, q.entra + 0.5), u4 = tramo(t, q.entra + 0.5, q.entra + 0.9);
+    let x = lerp(q.x0, q.xp, u1), y = 176, dir = q.x0 < 0 ? 1 : -1;
+    if (u2 > 0) { x = lerp(q.xp, q.espera, u2); y = lerp(176, ys, u2); }
+    if (u3 > 0) { x = lerp(q.espera, mid, u3); y = ys; dir = q.espera < mid ? 1 : -1; }
+    if (u4 >= 1) continue;
+    const anda = (u1 > 0 && u1 < 1) || (u2 > 0 && u2 < 1) || (u3 > 0 && u3 < 1) || (u4 > 0);
+    const mira = !anda && Math.sin(t * 2.2 + q.xp) > 0.2;
+    pintar.push({ q, x: Math.round(x), y: Math.round(y), dir: anda ? dir : mira ? -dir : dir, anda, u4 });
+  }
+  pintar.sort((p, q) => p.y - q.y);
+  for (const p of pintar) {
+    const llama = p.q.cosa === 'camara' && t > chicos && t < cuela - 0.05, shh = p.q.cosa === 'radio' && t > chicos + 0.3 && t < cuela + 1;
+    // lo que hay detrás del chaval, para saber luego qué píxeles son suyos (contraluz y silueta al entrar)
+    const bx0 = p.x - 14, by0 = p.y - 32, BW = 29, BH = 35, antes = [];
+    for (let yy = 0; yy < BH; yy++) for (let xx = 0; xx < BW; xx++) antes.push(R.pget(bx0 + xx, by0 + yy));
+    const r = R.actor(p.q.d, p.x, p.y, t, { dir: llama ? 1 : p.dir, anda: p.anda, sostiene: llama ? [mid + 12, p.y - 14 + (Math.floor(t * 8) % 2) * 2] : true, dedo: shh && !p.anda, sorpresa: t > cuela && t < cuela + 0.6 });
+    if (!llama) { if (p.q.cosa === 'camara') camara(r.mano[0], r.mano[1]); else if (p.q.cosa === 'radio') radio(r.mano[0], r.mano[1], t, false); else linterna(r.mano[0], r.mano[1], p.dir); }
+    // con la puerta abierta, la luz verde les tiñe el lado de la puerta; al cruzar el umbral se vuelven silueta contra la luz
+    const cerca = f > 0.2 && p.y <= ys + 2 ? f * Math.max(0, 1 - Math.abs(p.x - (dx0 + dx1) / 2) / 40) : 0;
+    if (cerca > 0 || p.u4 > 0) for (let yy = 0; yy < BH; yy++) for (let xx = 0; xx < BW; xx++) {
+      const X = bx0 + xx, Y = by0 + yy, c = R.pget(X, Y);
+      if (!c || c === antes[yy * BW + xx]) continue;
+      const dentro = X > dx0 && X < dx1 && Y > dy0 && Y <= dy1;
+      if (dentro && p.u4 > 0) pset(X, Y, mez(c, hex('#06120a'), Math.min(1, 0.35 + p.u4 * 1.2)));
+      else if (bay(X, Y) < 0.5) pset(X, Y, mez(c, hex('#4aa84a'), 0.28 * cerca));
+    }
+  }
+  if (t > chicos && t < cuela - 0.1) R.bocadillo(mid + 18, dy0 + 18, { icono: '?' });
+};
+
+// 4 · el pasillo: el científico, la amiga encerrada y cada chaval con su cacharro
+const p4 = (t) => {
+  const g = T.mansion(R, t, { encuadre: 'pasillo', anyo: 1987 });
+  const s = g.suelo;
+  // la luz verde que sale de la puerta entreabierta del científico
+  if (t > fred - 0.5 && t < fred + 0.4) { const v = Math.sin(t * 40) > 0; for (let yy = 70; yy < s; yy++) for (let xx = 52; xx < 52 + (yy - 60) * 0.6; xx++) if (v && bay(xx, yy) < 0.5) { const c = R.pget(xx, yy); if (c) pset(xx, yy, mez(c, hex('#6ae87a'), 0.4)); } }
+  // los chavales entran en fila por la derecha y se paran en seco
+  const fila = [[EL.chicaRara, 172, 0, 'camara'], [EL.roquero, 200, 0.35, 'radio'], [EL.empollon, 230, 0.7, 'linterna']];
+  const sx = 34, sal = tramo(t, fred - 0.15, fred + 0.25), baila = t > juega + 0.1, deslumbra = t > cada + 0.05 && t < cada + 0.9;
+  for (const [d, xf, dt, cosa] of fila) {
+    const u = tramo(t, P4 + dt, fred - 0.2 + dt * 0.5), x = Math.round(lerp(340 + dt * 30, xf, u)), anda = u > 0 && u < 1;
+    let sost = true, dir = -1, dedo = false;
+    if (cosa === 'camara' && t > amiga - 0.3 && t < cada - 0.1) { sost = undefined; dedo = true; }
+    if (cosa === 'camara' && t > cada - 0.1 && t < cada + 0.7) sost = [x - 3, s - 20];
+    if (cosa === 'radio' && t > juega - 0.1) sost = [x - 2, s - 21];
+    if (cosa === 'linterna' && t > distinto - 0.1) sost = [x - 4, s - 15];
+    const r = R.actor(d, x, s, t, { dir, anda, sostiene: sost, dedo, sorpresa: t > fred && t < fred + 0.9, sonrisa: t > cada + 0.9 });
+    if (sost) { if (cosa === 'camara') camara(r.mano[0], r.mano[1]); else if (cosa === 'radio') radio(r.mano[0], r.mano[1], t, t > juega); else linterna(r.mano[0], r.mano[1], -1); }
+    if (t > fred + 0.1 && t < fred + 0.8) R.bocadillo(x + 8, s - 30, { icono: '!' });
+    // el flash de la cámara
+    if (cosa === 'camara' && t > cada && t < cada + 0.18) { R.disco(r.mano[0] - 2, r.mano[1] - 2, 9, hex('#ffffff')); for (let k = 0; k < 8; k++) { const an = k * 0.785; R.linea(r.mano[0] - 2, r.mano[1] - 2, Math.round(r.mano[0] - 2 + Math.cos(an) * 22), Math.round(r.mano[1] - 2 + Math.sin(an) * 22), hex('#fff8c8')); } }
+    // las notas de la radio, que suben haciendo eses
+    if (cosa === 'radio' && t > juega) for (let k = 0; k < 5; k++) { const w = ((t - juega) * 0.8 + k / 5) % 1, nx = Math.round(r.mano[0] - 4 - w * 40 + Math.sin(w * 9 + k) * 3), ny = Math.round(r.mano[1] - 6 - w * 34); if (t - juega < k * 0.2) continue;
+      const c = [hex('#f0c040'), hex('#f08ac8'), hex('#8ad8ff')][k % 3]; rect(nx, ny - 5, nx, ny, K); R.disco(nx - 1, ny + 1, 1.6, K); pset(nx - 1, ny + 1, c); rect(nx + 1, ny - 5, nx + 2, ny - 4, K); }
+    // el haz de la linterna, tramado, hasta la puerta cerrada
+    if (cosa === 'linterna' && t > distinto) { const lx = r.mano[0] - 5, ly = r.mano[1], v = tramo(t, distinto, distinto + 0.3);
+      for (let xx = Math.round(lerp(lx, 150, v)); xx < lx; xx++) { const q = (lx - xx) / (lx - 150), half = 2 + q * 30; for (let yy = Math.round(ly - half - q * 20); yy <= ly + half - q * 20; yy++) if (bay(xx, yy) < 0.5) { const c = R.pget(xx, yy); if (c) pset(xx, yy, mez(c, hex('#fff4b0'), 0.45)); } } }
+  }
+  // el científico salta de su puerta; deslumbrado por el flash; con la música se pone a bailar
+  if (t > fred - 0.25) {
+    const x = Math.round(lerp(18, sx, sal)), bote = baila ? Math.round(Math.abs(Math.sin(t * 9)) * 4) : Math.round(Math.sin(sal * Math.PI) * 6);
+    R.actor(EL.cientifico, x, s, t, { dir: baila ? (Math.floor(t * 3) % 2 ? 1 : -1) : 1, salto: bote, enfado: t < cada, brazos: t > fred && t < fred + 0.6 || deslumbra, sorpresa: deslumbra, sonrisa: baila, dedo: t > fred + 0.6 && t < cada });
+    if (deslumbra) for (let k = 0; k < 3; k++) { const an = t * 8 + k * 2.1; pset(Math.round(x + 7 + Math.cos(an) * 8), Math.round(s - 30 + Math.sin(an) * 3), hex('#fff0a0')); }
+  }
+  // la amiga encerrada tras la puerta de las tablas: la puerta tiembla y sale un «!»
+  if (t > amiga - 0.3 && t < amiga + 1.2) { R.bocadillo(160, 52 + Math.round(Math.sin(t * 12)), { icono: '!' }); if (Math.sin(t * 30) > 0) { rect(140, 70, 141, 74, hex('#e8e0c8')); rect(179, 90, 180, 94, hex('#e8e0c8')); } }
+};
+const efectos = [[0.3, 'tecleo'], [4.3, 'golpecito'], [P2 + 0.3, 'tecleo'], [acaba, 'bip'], [horror, 'trueno'], [risa, 'boing'], [chicos, 'toc'], [cuela, 'puerta'], [fred, 'boing'], [amiga, 'golpecito'], [cada + 0.02, 'flash'], [distinto, 'interruptor']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1987', efectos, año: 1987 });
+</script>
+</body>
+</html>

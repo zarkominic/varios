@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TE-MINIATURA · la miniatura del episodio 17 (se captura en t = 1, 1280 × 720). El mismo tesoro con 700 años de
+// diferencia, partido por una diagonal: a la izquierda, la torre del Temple de París en 1307 con los cofres abiertos y
+// casi vacíos y un caballero templario al doble que mira dentro, sorprendido; a la derecha, hoy, el buscador al doble con
+// su detector que pita junto a un castillo en ruinas. Abajo en el centro, sobre la diagonal, el Grial que brilla (la copa
+// de ágata) encima de un cofre abierto. «1307» arriba a la izquierda y un «?» dorado arriba a la derecha. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_TE as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { C, temple, hoy, cofre, copa, detector } from '/atomo/plato/escenas/te-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const izq = R.nuevo(), der = R.nuevo(), pj = R.nuevo(), pj2 = R.nuevo(), VACIO = 0x01020304;
+const corte = (y) => 150 + Math.round((179 - y) * 0.25);
+const dibujar = (t) => {
+  let prev = R.usar(izq); temple(R, t, { encuadre: 'torre', camara: 'cofres', abre: 1 });
+  R.usar(der); hoy(R, t, { encuadre: 'campo' });
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.templario, 12, 60, 0.5, { dir: 1, quieto: true, sorpresa: true });
+  R.usar(pj2); pj2.fill(VACIO); R.actor(EL.buscador, 12, 60, 0.5, { dir: -1, quieto: true, sonrisa: true });
+  R.usar(prev);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = x < corte(y) ? izq[y * 320 + x] : der[y * 320 + x];
+  for (let y = 0; y < 180; y++) { const x = corte(y); R.pset(x - 1, y, C.k); R.pset(x, y, C.blanco); R.pset(x + 1, y, C.blanco); R.pset(x + 2, y, C.k); }
+  const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+  pon(pj, 0, 26, 28, 61, 30, 110, 2);
+  pon(pj2, 0, 26, 28, 61, 228, 110, 2);
+  detector(R, 232, 148, t, { dir: -1, pita: 1, suelo: 176, largo: 22 });
+  cofre(R, 160, 176, t, { abre: 1, brillo: 1, s: 3 });
+  copa(R, 160, 134, t, { tipo: 'agata', s: 3, brillo: 1 });
+  R.numero('1307', 46, 24, { tam: 16, centro: true });
+  R.numero('?', 270, 28, { tam: 24, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

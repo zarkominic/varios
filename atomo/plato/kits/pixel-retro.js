@@ -131,6 +131,7 @@ export async function crearRetro(lienzo) {
   const llenar = (c) => B.fill(c);
   const copiar = (de) => B.set(de);
   const linea = (x0, y0, x1, y1, c, punteado = 0) => {
+    if (!Number.isFinite(x0 + y0 + x1 + y1)) return;   // con un NaN (p. ej. R.actor() sin .mano) el bucle no acababa y la página se colgaba sin error (ep19)
     x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
     const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
     let e = dx + dy, k = 0;
@@ -214,6 +215,16 @@ export async function crearRetro(lienzo) {
     g.font = fuente; g.textBaseline = 'alphabetic'; g.fillStyle = '#fff';
     const BL = Math.round(size * 1.5);
     g.fillText(texto, 2, BL);
+    // El «8» de Press Start 2P lleva trazos en diagonal y, a este tamaño, se lee «S» (el 838 salía «S3S» en el 19):
+    // se cambia por un 8 propio de dos óvalos en la misma celda de 8 × 8 unidades (desde el 03/11/2026).
+    if (fuente.includes('Press Start') && texto.includes('8')) {
+      const u = size / 8, OCHO = ['.#####.', '##...##', '##...##', '.#####.', '##...##', '##...##', '.#####.'];
+      for (let i = 0; i < texto.length; i++) if (texto[i] === '8') {
+        const x0 = 2 + Math.round(g.measureText(texto.slice(0, i)).width), y0 = BL - size;
+        g.clearRect(x0, y0, size, size);
+        OCHO.forEach((fila, j) => { for (let k = 0; k < fila.length; k++) if (fila[k] === '#') g.fillRect(x0 + k * u, y0 + j * u, u, u); });
+      }
+    }
     const d = g.getImageData(0, 0, c.width, c.height).data;
     const w = c.width, h = c.height, m = new Uint8Array(w * h);
     for (let i = 0; i < m.length; i++) m[i] = d[i * 4 + 3] > 110 ? 1 : 0;

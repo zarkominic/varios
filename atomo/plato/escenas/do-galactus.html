@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Galactus · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-GALACTUS (frases 50–51), 2025. Tres planos:
+// 1. (sesenta cielo 'familia') en la azotea, Sue con Franklin en brazos y Reed; en «Franklin» los juguetes salen de la
+//    caja y flotan (gag 7); en «Galactus arrives» el gigante morado sube detrás de la ciudad; se queda mirando el pato que
+//    flota (los ojos lo siguen); en «devours planets» se traga una luna que pasaba; sube solo hasta gigante 0,72 para que
+//    las alas del casco no lleguen a la barra del año (puntas en y ≥ 22);
+// 2. (fondo local, el espacio morado) Galactus (galactusVivo: el del decorado con textura de armadura, cara modelada y
+//    energía que sube por las alas del casco) se acerca a la 828; en «wants the child» alza su brazo derecho (el de la
+//    pieza, girado sobre el hombro) hacia el planeta, abre la boca y la mano brilla; en «senses» le sale un haz violeta
+//    que tira de la 828, y en «enormous power» el poder de Franklin late y manda ondas; en «They refuse» la cúpula de
+//    fuerza de Sue corta el haz, lo rebota, el brazo sale despedido hacia arriba y vuelve a bajar en guardia, con la ceja
+//    fruncida y la boca apretada; en «whole family» cuatro chispas la rodean;
+// 3. (sesenta cielo 'general') los cuatro en la azotea: se abre el portal azul; en «banish» el campo de fuerza, las llamas
+//    de Johnny y los puñetazos de la Cosa lo empujan y Galactus se va por el portal; en «Earth-828 is saved» el portal se
+//    cierra y la familia lo celebra.
+import * as T from '/atomo/plato/escenas/do-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('do-galactus');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const bay = (x, y) => (BY[((y | 0) & 3) * 4 + ((x | 0) & 3)] + 0.5) / 16;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const K = hex('#140e1c'), BLANCO = hex('#ffffff');
+// la esquina de Atom y la barra del año: fondo tranquilo
+const tranquila = (x, y) => (x >= 270 && y <= 48) || (y <= 16 && x >= 16 && x <= 174);
+// polígono con su contorno negro
+const pol = (pts, c) => { R.poligono(pts, K); const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cy = pts.reduce((a, p) => a + p[1], 0) / pts.length;
+  R.poligono(pts.map(([x, y]) => { const d = Math.hypot(x - cx, y - cy) || 1; return [x - (x - cx) / d * 1.3, y - (y - cy) / d * 1.3]; }), c); };
+const estrella5 = (cx, cy, r, c) => { const p = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; p.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); } R.poligono(p, c); };
+const chispa = (x, y, t, k, c) => { const f = Math.sin(t * 6 + k * 1.7); if (f > 0.25) { R.pset(x, y, c); if (f > 0.8) { R.pset(x - 1, y, c); R.pset(x + 1, y, c); R.pset(x, y - 1, c); R.pset(x, y + 1, c); } } };
+// los juguetes de Franklin: 0 pato, 1 pelota, 2 cubo, 3 cohete, 4 osito
+function juguete(k, x, y, t) {
+  x = Math.round(x); y = Math.round(y);
+  if (k === 0) { R.disco(x, y, 3.4, K); R.disco(x, y, 2.6, hex('#ffd83a')); R.disco(x + 2, y - 3, 2.4, K); R.disco(x + 2, y - 3, 1.6, hex('#ffd83a')); R.pset(x + 2, y - 4, K); R.rect(x + 4, y - 3, x + 5, y - 2, hex('#f08a2a')); R.pset(x - 1, y - 1, hex('#fff6b0')); R.pset(x - 2, y + 1, hex('#e8a820')); }
+  else if (k === 1) { R.disco(x, y, 3.8, K); R.disco(x, y, 3, hex('#e83a3a')); for (let i = -3; i <= 3; i++) R.pset(x + i, y, BLANCO); R.pset(x - 1, y - 2, hex('#ffb0b0')); R.pset(x, y + 2, hex('#a82020')); }
+  else if (k === 2) { R.rect(x - 3, y - 3, x + 3, y + 3, K); R.rect(x - 2, y - 2, x + 2, y + 2, hex('#3a8ae8')); R.rect(x - 2, y - 2, x + 2, y - 2, hex('#8ac0ff')); R.rect(x + 2, y - 1, x + 2, y + 2, hex('#2a5ab0')); R.pset(x, y, hex('#ffd83a')); R.pset(x - 1, y, hex('#ffd83a')); R.pset(x, y - 1, hex('#ffd83a')); }
+  else if (k === 3) { R.rect(x - 2, y - 5, x + 2, y + 4, K); R.rect(x - 1, y - 4, x + 1, y + 3, hex('#f4f4f8')); R.rect(x - 1, y - 4, x + 1, y - 3, hex('#e83a3a')); R.pset(x, y - 5, hex('#e83a3a')); R.rect(x - 3, y + 2, x - 2, y + 4, hex('#e83a3a')); R.rect(x + 2, y + 2, x + 3, y + 4, hex('#e83a3a')); R.pset(x, y, hex('#3ab0a8')); if (Math.floor(t * 12) % 2) R.pset(x, y + 5, hex('#ffb83a')); }
+  else { R.disco(x, y + 2, 3.2, K); R.disco(x, y + 2, 2.4, hex('#b07a40')); R.disco(x, y - 3, 2.8, K); R.disco(x, y - 3, 2, hex('#b07a40')); R.disco(x - 2, y - 5, 1.3, K); R.disco(x + 2, y - 5, 1.3, K); R.pset(x - 2, y - 5, hex('#b07a40')); R.pset(x + 2, y - 5, hex('#b07a40')); R.pset(x - 1, y - 3, K); R.pset(x + 1, y - 3, K); R.pset(x, y - 2, hex('#5a3a1a')); R.pset(x, y + 2, hex('#e8c890')); }
+}
+let jb = null;
+function juguete2(k, x, y, t) {   // el juguete al doble (pixel a pixel), para que se lea a 640 px
+  if (!jb) jb = R.nuevo(); jb.fill(0); const prev = R.usar(jb); juguete(k, 12, 12, t); R.usar(prev);
+  for (let j = 4; j < 20; j++) for (let i = 4; i < 20; i++) { const c = jb[j * 320 + i]; if (!c) continue; const px = Math.round(x + (i - 12) * 2), py = Math.round(y + (j - 12) * 2); R.pset(px, py, c); R.pset(px + 1, py, c); R.pset(px, py + 1, c); R.pset(px + 1, py + 1, c); }
+}
+
+const ESP = {};
+function fondoEspacio(clave, P) {
+  if (ESP[clave]) return ESP[clave];
+  const b = R.nuevo(), prev = R.usar(b);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const d = bay(x, y), g = y / 179;
+    const n = 0.5 + 0.5 * (0.55 * Math.sin(x * 0.019 + y * 0.011 + P.f) + 0.3 * Math.sin(x * 0.043 - y * 0.029 + 1.7 + P.f * 2) + 0.15 * Math.sin(x * 0.12 + y * 0.083 + P.f));
+    let neb = Math.max(0, n - 0.42) * 2.4 * (0.55 + 0.45 * Math.cos((g - P.banda) * 2.6));
+    const veta = Math.sin(x * 0.03 + Math.sin(y * 0.045 + P.f) * 2.2 - y * 0.02);
+    if (veta > 0.86) neb *= 0.3; else if (veta > 0.76) neb *= 0.65;
+    { const dx = Math.max(0, 270 - x), dy = Math.max(0, y - 48), dd = Math.hypot(dx, dy); if (dd < 26) neb *= 0.3 + 0.7 * dd / 26; }
+    let c = g * 0.8 + 0.25 * Math.sin(x * 0.008 + P.f) > d * 0.7 + 0.2 ? P.b1 : P.b0;
+    if (neb > 0.12 + d * 0.3) c = P.n0;
+    if (neb > 0.42 + d * 0.3) c = P.n1;
+    if (neb > 0.74 + d * 0.25) c = P.n2;
+    R.pset(x, y, c);
+  }
+  for (const [gx, gy, gr, k] of P.galaxias) for (let j = -gr; j <= gr; j++) for (let i = -gr * 2; i <= gr * 2; i++) {
+    const e = (i / (gr * 2)) ** 2 + (j / gr) ** 2; if (e > 1) continue; const a = Math.atan2(j * 2, i), rr = Math.sqrt(e);
+    if (rr < 0.25 || (Math.sin(a * 2 - rr * 9 + k) > 0.3 && bay(gx + i, gy + j) > rr * 0.9)) R.pset(gx + i, gy + j, rr < 0.2 ? P.e2 : rr < 0.5 ? P.e1 : P.n2);
+  }
+  for (let k = 0; k < 430; k++) { const x = Math.floor(h(k, 1, P.s) * 320), y = Math.floor(h(k, 2, P.s) * 180); if (tranquila(x, y)) continue; const v = h(k, 3, P.s);
+    R.pset(x, y, v > 0.93 ? P.e2 : v > 0.6 ? P.e1 : P.e0); if (v > 0.985) { R.pset(x - 1, y, P.e1); R.pset(x + 1, y, P.e1); R.pset(x, y - 1, P.e1); R.pset(x, y + 1, P.e1); } }
+  R.usar(prev); ESP[clave] = b; return b;
+}
+function vidaEspacio(t, P, s = 0) {
+  for (let k = 0; k < 46; k++) { const x = Math.floor(h(k, 5, P.s + s) * 320), y = Math.floor(h(k, 6, P.s + s) * 180); if (tranquila(x, y)) continue; const v = Math.sin(t * (2 + h(k, 7) * 3) + k);
+    if (v > 0.2) { R.pset(x, y, P.e2); if (v > 0.85) { R.pset(x - 1, y, P.e1); R.pset(x + 1, y, P.e1); R.pset(x, y - 1, P.e1); R.pset(x, y + 1, P.e1); } } }
+  const ft = (t + s) % 5; if (ft < 0.6) { const k = Math.floor((t + s) / 5), x0 = 40 + h(k, 1, 9) * 180, y0 = 30 + h(k, 2, 9) * 50, u = ft / 0.6;
+    for (let i = 0; i < 14; i++) { const x = x0 + u * 70 - i * 2, y = y0 + u * 28 - i * 0.8; if (!tranquila(x, y)) R.pset(x, y, i < 3 ? P.e2 : i < 8 ? P.e1 : P.e0); } }
+}
+function roca(x, y, r, k, P) {
+  x = Math.round(x); y = Math.round(y);
+  for (let j = -r - 2; j <= r + 2; j++) for (let i = -r - 2; i <= r + 2; i++) { const a = Math.atan2(j, i), rr = r * (0.82 + 0.18 * Math.sin(a * 3 + k) + 0.08 * Math.sin(a * 7 + k * 2)), d = Math.hypot(i, j);
+    if (d > rr + 1) continue; if (d > rr) { R.pset(x + i, y + j, K); continue; } const l = (-i - j) / (r * 1.4); R.pset(x + i, y + j, l > 0.35 ? P.rocaL : l > -0.2 + bay(x + i, y + j) * 0.3 ? P.roca : P.rocaS); }
+  R.pset(x - Math.round(r * 0.3), y - Math.round(r * 0.2), P.rocaS); R.pset(x + Math.round(r * 0.25), y + Math.round(r * 0.3), P.rocaS); R.pset(x + Math.round(r * 0.3) - 1, y + Math.round(r * 0.3) - 1, P.rocaL);
+}
+const PAL828 = { mar1: hex('#3ab0a8'), mar2: hex('#24807e'), costa: hex('#f8e0b8'), tierra1: hex('#f0b888'), tierra2: hex('#d88a5a'), verde: hex('#8ac88a'), hielo: hex('#f4f8fc'), nube: hex('#fbfbff'),
+  noche: hex('#142838'), nocheT: hex('#20384a'), luces: hex('#ffd870'), halo: hex('#9ae8e0'), anillo1: hex('#f0c8a0'), anillo2: hex('#c8906a'), anillo3: hex('#fff0d8') };
+// un planeta que gira: mares y continentes de ruido, casquetes, nubes más rápidas, luz arriba a la izquierda, noche con luces
+function planeta(cx, cy, r, t, P, o = {}) {
+  const giro = t * (o.giro ?? 0.06), Lx = -0.62, Ly = -0.5, Lz = 0.6;
+  const y0 = Math.max(0, Math.floor(cy - r - 3)), y1 = Math.min(179, Math.ceil(cy + r + 3));
+  for (let y = y0; y <= y1; y++) { const dy = (y + 0.5 - cy) / r; if (Math.abs(dy) > 1 + 3 / r) continue;
+    const w = Math.sqrt(Math.max(0, 1 - Math.min(1, dy * dy))), xa = Math.max(0, Math.floor(cx - r * w - 4)), xb = Math.min(319, Math.ceil(cx + r * w + 4));
+    for (let x = xa; x <= xb; x++) { const dx = (x + 0.5 - cx) / r, q = dx * dx + dy * dy, d = bay(x, y);
+      if (q > 1) { const e = (Math.sqrt(q) - 1) * r; if (e < 3 && d > e / 3 && dx * Lx + dy * Ly > -0.3) R.pset(x, y, e < 1 ? P.halo : mez(R.pget(x, y), P.halo, 0.45)); continue; }
+      const z = Math.sqrt(1 - q), lon = Math.atan2(dx, z) + giro, lat = Math.asin(dy);
+      const f = Math.sin(3 * lon + 1.3) * Math.cos(2 * lat) + 0.6 * Math.sin(5 * lon + 2 * lat + 0.7) + 0.35 * Math.sin(11 * lon - 5 * lat + 2);
+      const nb = Math.sin(4 * (lon + t * 0.025) + 3 * lat) + 0.6 * Math.sin(9 * (lon + t * 0.025) - 7 * lat + 1) + 0.25 * Math.sin(23 * lon + 11 * lat);
+      const luz = dx * Lx + dy * Ly + z * Lz;
+      let c, tierra = false;
+      if (Math.abs(lat) > 1.22 - 0.05 * Math.sin(lon * 5)) c = P.hielo;
+      else if (f > 0.5) { tierra = true; c = f > 1.15 ? P.tierra2 : f > 0.8 && Math.sin(lon * 13 + lat * 9) > 0.2 ? P.verde : P.tierra1; }
+      else if (f > 0.38) c = P.costa; else c = f < -0.7 ? P.mar2 : P.mar1;
+      if (nb > 1.0 + d * 0.3) c = P.nube;
+      if (luz < -0.12 + d * 0.22) c = tierra && nb < 0.8 && h(x >> 1, y >> 1, 3) > 0.78 ? (Math.sin(t * 3 + x) > -0.6 ? P.luces : P.nocheT) : (c === P.nube ? P.nocheT : P.noche);
+      else if (luz < 0.2 + d * 0.22) c = mez(c, P.noche, 0.45);
+      else if (luz > 0.82 + d * 0.12) c = mez(c, BLANCO, 0.28);
+      if (q > 0.9) c = mez(c, P.halo, (q - 0.9) * 4);
+      R.pset(x, y, c);
+    }
+  }
+}
+// el anillo de la 828: elipse inclinada (ang), aplastada (k), de ra·r a rb·r; mitad 'atras' (no tapa el planeta) o 'delante'
+function anillo(cx, cy, r, P, mitad, ang, k, ra, rb) {
+  ra *= r; rb *= r; const ca = Math.cos(ang), sa = Math.sin(ang), ext = rb + 2;
+  const x0 = Math.max(0, Math.floor(cx - ext)), x1 = Math.min(319, Math.ceil(cx + ext)), ey = ext * (Math.abs(sa) + k) + 2, y0 = Math.max(0, Math.floor(cy - ey)), y1 = Math.min(179, Math.ceil(cy + ey));
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const X = x + 0.5 - cx, Y = y + 0.5 - cy, u = X * ca + Y * sa, v = (-X * sa + Y * ca) / k, rho = Math.hypot(u, v);
+    if (rho < ra || rho > rb) continue; const delante = v > 0; if ((mitad === 'delante') !== delante) continue; if (mitad === 'atras' && X * X + Y * Y < r * r) continue;
+    const band = (rho - ra) / (rb - ra), d = bay(x, y); if (band > 0.46 && band < 0.53) continue; if (band > 0.86 && d > 0.5) continue;
+    let c = band < 0.3 ? P.anillo1 : band < 0.72 ? P.anillo2 : P.anillo1; if (Math.sin(rho * 1.7) > 0.6) c = P.anillo3;
+    if (!delante && u > 0 && v > -r * 0.3) c = mez(c, P.noche, 0.5);
+    R.pset(x, y, mez(R.pget(x, y), c, 0.85)); }
+}
+
+const a = (f) => en('franklin', f), b = (f) => en('expulsar', f);
+const G2 = a(0.6398), G3 = b(0.245);
+const A = { franklin: a(0.2026), galactus: a(0.2588), llega: a(0.305), devora: a(0.51), planetas: a(0.547), nino: a(0.7077), nota: a(0.7967), poder: a(0.8297) };
+const B = { niega: b(0), familia: b(0.173), destierra: b(0.3635), galactus: b(0.425), universo: b(0.672), tierra: b(0.8056), salva: b(0.927) };
+const CIAN = hex('#9af0ff');
+// ── 1. la azotea de cerca ──
+function caja(x, y) {   // la caja de juguetes de madera (pie en y)
+  R.rect(x - 1, y - 13, x + 21, y, K); R.rect(x, y - 12, x + 20, y - 1, hex('#c8884a')); for (let j = y - 10; j < y - 1; j += 3) R.rect(x, j, x + 20, j, hex('#a8683a'));
+  R.rect(x, y - 12, x + 20, y - 11, hex('#e8a868')); estrella5(x + 10, y - 6, 3.6, hex('#ffd83a')); R.rect(x - 2, y - 16, x + 22, y - 13, K); R.rect(x - 1, y - 15, x + 21, y - 14, hex('#e8a868'));
+}
+const SALIDA = [[100, 146], [106, 147], [112, 146], [98, 145], [116, 144]];
+const g1 = (t) => {
+  const sube = ease(tramo(t, A.galactus, A.llega + 1.2));
+  // gigante hasta 0,72: la cara se queda en y≈84 y las puntas del casco no suben de y 22 (la barra del año queda libre)
+  const s = T.sesenta(R, t, { encuadre: 'cielo', camara: 'familia', gigante: sube * 0.72 }), su = s.suelo ?? 165;
+  // la luna que pasa y se traga
+  const lu = tramo(t, A.devora - 0.5, A.planetas + 0.15);
+  if (s.galactus && lu < 1) { const [bx, by] = [s.galactus.x + 2, s.galactus.y + 3 * s.galactus.s], mx = lerp(112, bx, ease(lu)), my = lerp(34, by, ease(lu)) - Math.sin(lu * Math.PI) * 10, r = 6 * (1 - lu * 0.7);
+    R.disco(mx, my, r + 1, K); R.disco(mx, my, r, hex('#d8d4e4')); R.disco(mx - r * 0.3, my - r * 0.3, r * 0.45, hex('#f0eef8')); R.disco(mx + r * 0.35, my + r * 0.2, Math.max(1, r * 0.25), hex('#a8a4b8')); }
+  if (s.galactus && t > A.planetas + 0.1 && t < A.planetas + 0.9) { const g = tramo(t, A.planetas + 0.1, A.planetas + 0.9); for (let k = 0; k < 6; k++) R.pset(Math.round(s.galactus.x + 2 + Math.cos(k) * (6 + g * 10)), Math.round(s.galactus.y + 18 - g * 6 + Math.sin(k * 2) * 4), hex('#d8d4e4')); }
+  caja(92, su);
+  const sue = R.actor(EL.sue, 128, su, t, { dir: 1, sostiene: [146, su - 14], sonrisa: t < A.llega, sorpresa: t > A.llega && t < A.planetas + 0.3, enfado: t > A.planetas + 0.3 });
+  T.PIEZAS_DO.franklin(R, sue.mano[0] - 4, sue.mano[1] + 6);
+  R.actor(EL.reed, 166, su, t, { dir: -1, sonrisa: t < A.llega, habla: t < A.franklin && Math.sin(t * 7) > 0, sorpresa: t > A.llega, dedo: t > A.llega + 0.3 && t < A.devora });
+  if (t > A.llega && t < A.llega + 0.9) R.icono('!', 172, su - 40, hex('#ffd860'), K, 1);
+  // los juguetes flotan alrededor de Franklin, con chispas
+  const fx = sue.mano[0], fy = sue.mano[1] - 22;
+  for (let k = 0; k < 5; k++) { const u = ease(tramo(t, A.franklin + k * 0.18, A.franklin + 1 + k * 0.18)), an = k * 1.256 + t * 0.7, ox = fx + Math.cos(an) * (30 + (k % 2) * 8), oy = fy + Math.sin(an) * 10 + Math.sin(t * 2 + k) * 2;
+    let x = lerp(SALIDA[k][0], ox, u), y = lerp(SALIDA[k][1], oy, u) - Math.sin(u * Math.PI) * 10;
+    if (k === 0 && t > A.llega + 0.8) { const v = ease(tramo(t, A.llega + 0.8, A.devora - 0.3)) * (1 - ease(tramo(t, A.planetas + 0.4, G2))); x = lerp(x, 176, v); y = lerp(y, 92, v); }
+    if (u > 0) { chispa(Math.round(x - 5), Math.round(y + 4), t, k, CIAN); chispa(Math.round(x + 5), Math.round(y - 4), t, k + 3, BLANCO); }
+    juguete2(k, x, y, t); if (k === 0) s.pato = [x, y]; }
+  if (t > A.franklin) for (let k = 0; k < 6; k++) chispa(fx - 2 + Math.round(Math.cos(t * 3 + k) * 7), fy + 12 + Math.round(Math.sin(t * 3 + k) * 5), t, k, CIAN);
+  // Galactus se queda mirando el pato: las pupilas lo siguen
+  if (s.galactus && sube > 0.6 && s.pato) { const gs = s.galactus.s, x0 = s.galactus.x - 12 * gs, y0 = s.galactus.y - 9.5 * gs;
+    for (const c of [10, 13]) { const ex = x0 + c * gs + gs / 2, ey = y0 + 9 * gs + gs / 2, d = Math.hypot(s.pato[0] - ex, s.pato[1] - ey) || 1; R.disco(ex + (s.pato[0] - ex) / d * 1.5, ey + (s.pato[1] - ey) / d * 1.5, 1.4, K); }
+    if (t > A.planetas + 0.5 && t < G2) R.icono('?', s.galactus.x + 26, s.galactus.y - 34, hex('#ffd860'), K, 2); }
+};
+// ── 2. Galactus en el espacio, ante la 828 ──
+const PM = { b0: hex('#0c0618'), b1: hex('#1a0c2e'), n0: hex('#2e1450'), n1: hex('#4a1e72'), n2: hex('#7a3aa0'), e0: hex('#6a5a8a'), e1: hex('#c8b0e8'), e2: BLANCO, f: 3.3, banda: 0.35, s: 37,
+  galaxias: [[200, 30, 4, 2], [40, 150, 5, 4]], roca: hex('#7a6a88'), rocaL: hex('#a89ab8'), rocaS: hex('#4a3a58') };
+let tg = null;
+function galactusLuz(cx, pie, s, t, brillo) {   // Galactus con luz de contorno (le da la 828 por la derecha), sombra tramada y aura
+  if (!tg) tg = R.nuevo(); tg.fill(0); const prev = R.usar(tg); T.PIEZAS_DO.galactus(R, cx, pie, { s }); R.usar(prev);
+  const x0 = Math.max(1, Math.round(cx - 12 * s) - 3), x1 = Math.min(318, Math.round(cx + 12 * s) + 3), y0 = Math.max(1, pie - 35 * s - 3), y1 = Math.min(178, pie);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const c = tg[y * 320 + x];
+    if (!c) { let cerca = 0; for (let d = 1; d <= 3 && !cerca; d++) if (tg[y * 320 + x - d] || tg[y * 320 + x + d] || tg[(y - d) * 320 + x] || tg[(y + d) * 320 + x]) cerca = d;
+      if (cerca && bay(x, y) < 0.55 - cerca * 0.14 + Math.sin(t * 3 + y * 0.2) * 0.08) R.pset(x, y, mez(R.pget(x, y), hex('#b06ae8'), 0.6)); continue; }
+    const u = (x - cx) / (12 * s), bb = bay(x, y);
+    let k = c; if (c === K) k = c; else if (!tg[y * 320 + x + 1] || !tg[y * 320 + x + 2]) k = mez(c, hex('#ffe8c8'), 0.55); else if (!tg[y * 320 + x - 1]) k = mez(c, hex('#2a0c40'), 0.45);
+    else if (u < -0.15 && bb < 0.25 + (-u - 0.15) * 0.8) k = mez(c, hex('#1a0828'), 0.38); else if (u > 0.2 && bb < (u - 0.2) * 0.5) k = mez(c, hex('#ffd8f0'), 0.22);
+    if (k !== K && tg[(y - s) * 320 + x] === K && bb < 0.5) k = mez(k, BLANCO, 0.18);
+    if (c !== K) { const ry = (y - (pie - 35 * s)) % (2 * s), rx = (x - Math.round(cx - 12 * s)) % (3 * s); if (ry === 0 && bb < 0.6) k = mez(k, K, 0.16); else if (ry === 1 && bb < 0.4) k = mez(k, BLANCO, 0.1); if (rx === 0 && y > pie - 22 * s && bb < 0.5) k = mez(k, K, 0.12); if (h(x, y, 5) > 0.95) k = mez(k, BLANCO, 0.14); }
+    R.pset(x, y, k); }
+  // los ojos
+  const ex = cx - 12 * s + 10 * s, ey = pie - 35 * s + 9 * s; for (const dx of [0, 3 * s]) { R.rect(ex + dx, ey, ex + dx + s - 1, ey + s - 1, brillo > 0.5 ? CIAN : hex('#e8f0ff')); if (brillo > 0) for (let k = 0; k < 4; k++) R.pset(ex + dx + s + k * 2, ey + Math.round(s / 2) - k, mez(R.pget(ex + dx + s + k * 2, ey + 1), CIAN, brillo)); }
+}
+// el aura de rayos detrás de la cabeza (la misma corona que pinta galactusGrande, aquí aparte para poder borrar el brazo
+// colgante sin agujerear el aura)
+const tranqH = (x, y) => (x > 274 && y < 48) || (y < 16 && x > 16 && x < 174);
+function corona(t, cx, cy, r, a) {
+  const B = R.buf, solL = hex('#fffce8'), halo = hex('#fff4c8'), aura = hex('#c8a0ff');
+  for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) { if (tranqH(x, y)) continue; const d = Math.hypot(x - cx, (y - cy) * 1.15) / r; if (d >= 1) continue;
+    const an = Math.atan2(y - cy, x - cx), ry = 0.5 + 0.5 * Math.sin(an * 9 + t * 0.6) * Math.sin(an * 5 - t * 0.4), q = (1 - d) * (0.35 + ry * 0.65) * a;
+    if (bay(x, y) < q) B[y * 320 + x] = mez(B[y * 320 + x], d < 0.35 ? solL : ry > 0.6 ? halo : aura, 0.55); }
+}
+const PG = { k: hex('#1c1222'), U: hex('#3a5ac8'), u: hex('#283e94'), A: hex('#6a3aa8'), a: hex('#4a2480'), S: hex('#b89ad8'), s: hex('#8a6ab0') };
+const BRAZO = { c0: 17, c1: 22, f0: 17, f1: 23 };   // el brazo derecho de la pieza (columnas y filas, en celdas)
+let sv = null, brz = null;
+// Galactus en el espacio (pies en gx, gy; escala 4): corona, la pieza sombreada del decorado, y encima, desde la escena:
+// textura de armadura (juntas de placas, remaches, tramado) en el traje azul y el casco, cara modelada (luz a la izquierda,
+// sombra de mejilla, ceja que se frunce, boca que se abre al querer al niño y aprieta al rebotar), energía que sube por
+// las alas del casco, y su propio brazo derecho (el de la pieza, girado sobre el hombro) que se alza hacia la 828
+function galactusVivo(gx, gy, t, avanza, rebota) {
+  const s = 4, x0 = gx - 12 * s, y0 = gy - 35 * s, fx = gx - s / 2, fy = gy - 25 * s;
+  corona(t, Math.round(fx), fy + 2 * s, 17 * s, 1);
+  if (!sv) sv = new Uint32Array(320 * 180); sv.set(R.buf);
+  T.galactusGrande(R, gx, gy, t, { s, pie: true, aura: 0 });
+  // el mapa de colores de la pieza (sin sombrear), para saber qué es traje, casco o cara
+  if (!tg) tg = R.nuevo(); tg.fill(0); { const prev = R.usar(tg); T.PIEZAS_DO.galactus(R, gx, gy, { s, ojos: false }); R.usar(prev); }
+  const BF = R.buf, KD = hex('#0e0618'), LUZ = hex('#e8d8ff'), VIO = hex('#e0b8ff');
+  const quiere = ease(tramo(t, A.nino - 0.3, A.nota)), carga = tramo(t, A.nino, B.niega), enfado = t > B.niega;
+  // la energía que sube por las alas del casco mientras alarga el brazo (y parpadea al rebotar)
+  const onda = (t * 26) % (12 * s);
+  for (let y = Math.max(0, y0); y <= Math.min(179, gy); y++) for (let x = Math.max(0, x0); x < Math.min(320, x0 + 24 * s); x++) {
+    const c = tg[y * 320 + x]; if (!c || c === PG.k) continue; const i = Math.floor((x - x0) / s), j = Math.floor((y - y0) / s), lx = (x - x0) % s, ly = (y - y0) % s, bb = bay(x, y), p = y * 320 + x;
+    let k = BF[p];
+    if (c === PG.U || c === PG.u) {   // el traje: placas con juntas, remaches con brillo, tramado de sombra
+      if (ly === 0 && j % 2 === 0) k = mez(k, KD, 0.24);
+      else if (lx === 0 && (i + (j >> 1)) % 3 === 0) k = mez(k, KD, 0.2);
+      else if (ly === 1 && lx === 1 && h(i, j, 11) > 0.62) k = mez(k, LUZ, 0.4);
+      else if (ly === 3 && lx === 2 && h(i, j, 11) > 0.62) k = mez(k, KD, 0.3);
+      else if (bb < 0.12 + h(i, j, 12) * 0.12) k = mez(k, KD, 0.14);
+      else if (lx === 1 && ly === 2 && (i + j) % 4 === 0) k = mez(k, hex('#7a9aff'), 0.25);
+    } else if (c === PG.A || c === PG.a) {   // el casco y las botas: estrías, remaches y la energía que sube por las alas
+      const ala = (i <= 5 || i >= 17) && j <= 11;
+      if ((y - y0) % 3 === 0 && !ala) k = mez(k, KD, 0.16);
+      if (lx === 2 && ly === 2 && h(i, j, 13) > 0.7) k = mez(k, LUZ, 0.45);
+      if (ala && carga > 0) { const yy = (y - y0), dd = Math.abs(yy - (12 * s - onda)); if (dd < 3 && bb < (1 - dd / 3) * (0.3 + 0.6 * carga) * (enfado && Math.sin(t * 40) > 0 ? 0.3 : 1)) k = mez(k, VIO, 0.6); }
+      else if (ala && bb < 0.1) k = mez(k, KD, 0.18);
+    } else if (c === PG.S || c === PG.s) {   // la cara (y los guantes): luz por la izquierda, sombra de mejilla tramada
+      const fxr = (x - (x0 + 8 * s)) / (7 * s);
+      if (fxr < 0.3 && ly < 2 && bb < 0.35) k = mez(k, LUZ, 0.25);
+      if (fxr > 0.62 && bb < (fxr - 0.62) * 1.6) k = mez(k, hex('#4a2a70'), 0.3);
+      if (j >= 11 && j <= 12 && bb < 0.18) k = mez(k, hex('#6a4a90'), 0.22);
+    }
+    BF[p] = k;
+  }
+  // la cara: ceja que se frunce, sombra de la nariz y la boca (se abre al querer al niño; aprieta al rebotar)
+  { const cx = x0 + 11.5 * s, by = y0 + 9 * s - 2, fr = enfado ? 2 : quiere > 0.5 ? 1 : 0;
+    for (const ex of [x0 + 9.5 * s, x0 + 12.5 * s]) for (let q = -3; q <= 3; q++) { const dentro = (ex < cx ? q : -q) + 3; R.pset(Math.round(ex + q), by + Math.round(dentro / 6 * fr) - (fr ? 1 : 0), KD); }
+    R.pset(Math.round(cx), y0 + 11 * s, hex('#6a4a90')); R.pset(Math.round(cx) + 1, y0 + 11 * s + 1, hex('#6a4a90'));
+    const my = y0 + 12 * s, ab = enfado ? 0 : Math.round(quiere * 2 + (quiere > 0.5 ? Math.max(0, Math.sin(t * 5)) : 0));
+    R.rect(Math.round(cx - 4), my, Math.round(cx + 4), my + ab, KD); if (ab > 1) R.rect(Math.round(cx - 3), my + 1, Math.round(cx + 3), my + ab - 1, hex('#3a1450'));
+    if (enfado) for (let q = -3; q <= 3; q += 2) R.pset(Math.round(cx + q), my, hex('#e8e0f0')); }
+  // el brazo derecho: se recorta de la pieza ya pintada, se borra (queda el fondo con la corona) y se pinta girado
+  const bx0 = x0 + BRAZO.c0 * s, bx1 = x0 + BRAZO.c1 * s - 1, by0 = y0 + BRAZO.f0 * s, by1 = y0 + BRAZO.f1 * s - 1, W = bx1 - bx0 + 1, Hh = by1 - by0 + 1;
+  if (!brz) brz = new Uint32Array(64 * 64); brz.fill(0);
+  for (let y = by0; y <= by1; y++) for (let x = bx0; x <= bx1; x++) { if (x < 0 || x > 319 || y < 0 || y > 179 || !tg[y * 320 + x]) continue; brz[(y - by0) * 64 + (x - bx0)] = BF[y * 320 + x]; BF[y * 320 + x] = sv[y * 320 + x]; }
+  for (let x = bx0; x <= bx1; x++) if (tg[(by0 - 1) * 320 + x] && tg[(by0 - 1) * 320 + x] !== PG.k) R.pset(x, by0, K);   // el filo de abajo del hombro
+  // el ángulo: cuelga; con «wants the child» se alza hacia la 828 (con los dedos que se cierran); la cúpula se lo
+  // rechaza: el brazo sale despedido hacia arriba y vuelve a bajar a medias, en guardia
+  const px = x0 + 19 * s + 2, py = by0 + 1, ap = Math.atan2(100 - py, 240 - px) - Math.PI / 2;
+  let th = ap * ease(tramo(t, A.nino - 0.2, A.nota + 0.1)) + (quiere > 0.9 && !enfado ? Math.sin(t * 4) * 0.05 : 0);
+  if (rebota > 0) th = ap - 0.9 * Math.sin(Math.min(1, rebota * 1.6) * Math.PI) * (1 - rebota * 0.3) + rebota * 0.55 + Math.sin(t * 3) * 0.03;
+  const ca = Math.cos(-th), sa = Math.sin(-th), rr = Math.hypot(W, Hh) + 2;
+  for (let y = Math.max(0, Math.floor(py - rr)); y <= Math.min(179, Math.ceil(py + rr)); y++) for (let x = Math.max(0, Math.floor(px - rr)); x <= Math.min(319, Math.ceil(px + rr)); x++) {
+    if (tranqH(x, y)) continue; const dx = x + 0.5 - px, dy = y + 0.5 - py, sx = Math.floor(px + dx * ca - dy * sa - bx0), sy = Math.floor(py + dx * sa + dy * ca - by0);
+    if (sx < 0 || sy < 0 || sx >= W || sy >= Hh) continue; const c = brz[sy * 64 + sx]; if (c) R.pset(x, y, c); }
+  // la mano: dónde queda, y la energía que tira de la 828 (se corta contra la cúpula y salta en chispas)
+  const hx = px - Math.sin(th) * 15, hy = py + Math.cos(th) * 15;
+  if (carga > 0 && !enfado) {   // el resplandor tramado de la mano que tira (late) y sus chispas
+    const rg = 5 + carga * 3 + Math.sin(t * 8) * 1.2; for (let y = Math.floor(hy - rg); y <= hy + rg; y++) for (let x = Math.floor(hx - rg); x <= hx + rg; x++) { const d = Math.hypot(x - hx, y - hy) / rg; if (d < 1 && !tranqH(x, y) && bay(x, y) < (1 - d) * 0.7) R.pset(x, y, mez(R.pget(x, y), VIO, 0.5)); }
+    const n = 3 + Math.round(carga * 4); for (let k = 0; k < n; k++) { const an = t * 7 + k * 2.1, r = 4 + Math.sin(t * 9 + k) * 2; chispa(Math.round(hx + Math.cos(an) * r), Math.round(hy + Math.sin(an) * r), t, k, VIO); } }
+  const haz = tramo(t, A.nota, A.nota + 0.6);
+  if (haz > 0 && t < B.niega + 0.1) { const tx = 240, ty = 100, L = Math.hypot(tx - hx, ty - hy), cu = tramo(t, B.niega - 0.05, B.niega + 0.25), rc = 52 * ease(cu);
+    for (let i = 0; i <= L * haz; i++) { const u = i / L, X = Math.round(hx + (tx - hx) * u), Y = Math.round(hy + (ty - hy) * u + Math.sin(i * 0.35 - t * 14) * 2 * (1 - u * 0.5)); if (rc > 0 && Math.hypot(X - 250, Y - 110) < rc + 1) break; if (tranqH(X, Y)) continue;
+      R.pset(X, Y, (i + Math.floor(t * 20)) % 4 ? VIO : BLANCO); if (bay(X, Y + 1) < 0.5) R.pset(X, Y + 1, mez(R.pget(X, Y + 1), hex('#9a5ae8'), 0.6)); } }
+}
+const g2 = (t) => {
+  R.copiar(fondoEspacio('morado', PM)); vidaEspacio(t, PM, 2);
+  const avanza = ease(tramo(t, G2, B.niega)), rebota = ease(tramo(t, B.niega + 0.05, B.niega + 0.8));
+  const gx = Math.round(70 + 62 * avanza - 34 * rebota + (rebota > 0 && rebota < 0.5 ? Math.sin(t * 50) * 2 : 0)), gy = 212 + Math.round(Math.sin(t * 0.9) * 2);
+  roca(((t * 6 + 200) % 380) - 30, 150, 6, 2, PM); roca(((t * 3 + 90) % 380) - 30, 40, 3, 5, PM);
+  anillo(250, 110, 30, PAL828, 'atras', -0.3, 0.3, 1.35, 1.95); planeta(250, 110, 30, t, PAL828, { giro: 0.1 }); anillo(250, 110, 30, PAL828, 'delante', -0.3, 0.3, 1.35, 1.95);
+  // el poder de Franklin: una lucecita que late en la 828 y ondas hacia Galactus
+  const late = tramo(t, A.nota - 0.3, A.nota + 0.2), sx = 240, sy = 100;
+  if (late > 0) { const p = 1.5 + Math.sin(t * 9) * 1 + late; R.disco(sx, sy, p + 1.5, mez(hex('#5ad0ff'), BLANCO, 0.3)); R.disco(sx, sy, p, BLANCO);
+    for (let k = 0; k < 4; k++) R.linea(sx - 6 - k, sy + (k - 1.5) * 3, sx - 2, sy, CIAN);
+    for (let w = 0; w < 3; w++) { const r = ((t - A.poder + w * 0.5) % 1.5) * 70; if (t < A.poder || t > B.niega || r < 8) continue;
+      for (let an = 2.2; an < 4.1; an += 0.02) { const px = sx + Math.cos(an) * r, py = sy + Math.sin(an) * r * 0.9; if (!tranquila(px, py) && bay(px, py) < 0.7 - r / 140) R.pset(px, py, CIAN); } } }
+  galactusVivo(gx, gy, t, avanza, rebota);   // el Galactus sombreado del decorado, con textura, cara y el brazo que se alza
+  // la cúpula de fuerza de Sue: salta en «They refuse» y le rebota
+  const cu = tramo(t, B.niega - 0.05, B.niega + 0.25);
+  if (cu > 0) { const r = 52 * ease(cu) + (rebota > 0 && rebota < 1 ? Math.sin(t * 30) * 1.5 * (1 - rebota) : 0);
+    for (let y = Math.max(0, Math.floor(110 - r - 1)); y <= Math.min(179, 110 + r + 1); y++) for (let x = Math.max(0, Math.floor(250 - r - 1)); x <= Math.min(319, 250 + r + 1); x++) { const d = Math.hypot(x + 0.5 - 250, y + 0.5 - 110); if (d > r || tranquila(x, y)) continue;
+      const hexa = (Math.abs(Math.sin((x + y * 0.58) * 0.32)) < 0.12 || Math.abs(Math.sin((x - y * 0.58) * 0.32)) < 0.12 || Math.abs(Math.sin(y * 0.37)) < 0.1);
+      if (d > r - 1.5) R.pset(x, y, BLANCO); else if (d > r - 3) R.pset(x, y, mez(R.pget(x, y), hex('#7ad8ff'), 0.7)); else if (hexa && Math.sin(t * 4 + d * 0.2) > -0.3) R.pset(x, y, mez(R.pget(x, y), hex('#bfeaff'), 0.35)); else if (bay(x, y) < 0.2) R.pset(x, y, mez(R.pget(x, y), hex('#7ad8ff'), 0.35)); }
+    if (rebota > 0 && rebota < 0.7) for (let k = 0; k < 9; k++) { const an = Math.PI + (k - 4) * 0.12; R.pset(Math.round(250 + Math.cos(an) * (r + 3 + rebota * 8)), Math.round(110 + Math.sin(an) * (r + 3 + rebota * 8)), BLANCO); } }
+  // la familia unida: cuatro chispas de colores que dan vueltas a la cúpula
+  if (t > B.familia) { const u = tramo(t, B.familia, B.familia + 0.4); ['#7ad8ff', '#ff8a2a', '#e8823a', '#3a6ae8'].forEach((c, k) => { for (let j = 0; j < 7; j++) { const an = t * 3 + k * Math.PI / 2 - j * 0.07, r = 58 * u; const px = 250 + Math.cos(an) * r, py = 110 + Math.sin(an) * r * 0.8; if (!tranquila(px, py)) R.disco(px, py, j === 0 ? 2.2 : 1.4 - j * 0.15, j === 0 ? BLANCO : hex(c)); } }); }
+};
+// ── 3. la azotea entera: lo echan por el portal ──
+function rayo(x0, y0, x1, y1, w, c1, c2, t, onda) {
+  const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0))), ux = (x1 - x0) / n, uy = (y1 - y0) / n, nx = -uy, ny = ux;
+  for (let i = 0; i <= n; i++) { const ww = w * (0.5 + 0.5 * i / n) + Math.sin(t * 22 - i * onda) * 0.9; for (let s = -ww; s <= ww; s += 0.5) { const px = x0 + ux * i + nx * s, py = y0 + uy * i + ny * s; if (tranquila(px, py)) continue; const e = Math.abs(s) / ww;
+    R.pset(px, py, e < 0.3 ? BLANCO : e < 0.68 ? c1 : mez(R.pget(px, py), c2, 0.55)); } }
+}
+const g3 = (t) => {
+  const por = ease(tramo(t, G3 + 0.1, G3 + 0.9)), ex = ease(tramo(t, B.galactus - 0.2, B.universo + 0.3)), cierra = tramo(t, B.tierra - 0.15, B.tierra + 0.5);
+  const s = T.sesenta(R, t, { encuadre: 'cielo', camara: 'general', gigante: 1, portal: ex >= 1 ? 1 - cierra : por, expulsa: ex }), su = s.suelo ?? 166;
+  const empuja = t > B.destierra && ex < 1, fiesta = t > B.tierra;
+  const ue = ex * ex * (3 - 2 * ex), g = ex < 1 ? [190 - 120 * ue, 68 - 14 * ue + 10 * (1 - ue * 0.94)] : null;
+  // Reed con Franklin en brazos; Sue con las dos manos arriba; la Cosa da puñetazos al aire; Johnny llega volando
+  const reed = R.actor(EL.reed, 104, su, t, { dir: 1, sostiene: [120, su - 14], sonrisa: fiesta, salto: fiesta ? Math.round(Math.abs(Math.sin((t - B.tierra) * 5)) * 4) : 0, sorpresa: t < B.destierra });
+  T.PIEZAS_DO.franklin(R, reed.mano[0] - 4, reed.mano[1] + 6); if (empuja) for (let k = 0; k < 4; k++) chispa(reed.mano[0] + Math.round(Math.cos(t * 4 + k * 1.6) * 8), reed.mano[1] - 4 + Math.round(Math.sin(t * 4 + k * 1.6) * 6), t, k, CIAN);
+  R.actor(EL.sue, 132, su, t, { dir: 1, brazos: empuja || fiesta, enfado: empuja, sonrisa: fiesta, salto: fiesta ? Math.round(Math.abs(Math.sin((t - B.tierra) * 5 + 1)) * 4) : 0 });
+  const golpe = empuja && Math.floor(t * 3) % 2 === 0;
+  R.actor(EL.cosa, 160, su, t, { dir: 1, brazos: golpe || fiesta, dedo: empuja && !golpe, enfado: empuja, sonrisa: fiesta, salto: fiesta ? Math.round(Math.abs(Math.sin((t - B.tierra) * 5 + 2)) * 4) : 0 });
+  const jl = ease(tramo(t, G3, G3 + 0.8)), jx = Math.round(lerp(330, 194, jl) + (fiesta ? Math.sin(t * 3) * 10 : 0)), jy = Math.round(lerp(96, 112, jl) + Math.sin(t * 2.4) * 2);
+  // los poderes: el campo de fuerza, las llamas y las ondas de los puñetazos
+  if (empuja && g) { const u = tramo(t, B.destierra, B.destierra + 0.3);
+    rayo(139, su - 27, lerp(139, g[0], u), lerp(su - 27, g[1], u), 3.2, hex('#9ae0ff'), hex('#5ab0ff'), t, 0.3);
+    rayo(jx + 7, jy - 10, lerp(jx + 7, g[0] + 6, u), lerp(jy - 10, g[1] - 4, u), 2.4, hex('#ffb83a'), hex('#ff5a1a'), t, 0.6);
+    for (let w = 0; w < 3; w++) { const v = ((t * 1.5 + w / 3) % 1); const cx = lerp(167, g[0], v), cy = lerp(su - 30, g[1], v), r = 3 + v * 7; for (let an = 0; an < 6.28; an += 0.25) { const px = cx + Math.cos(an) * r, py = cy + Math.sin(an) * r * 0.6; if (!tranquila(px, py)) R.pset(px, py, v < 0.5 ? hex('#ffb070') : hex('#e8823a')); } } }
+  R.actor(EL.antorcha, jx, jy + 12, t, { dir: -1, brazos: empuja || fiesta, sonrisa: fiesta, enfado: empuja });
+  if (fiesta && t < B.tierra + 1.2) for (let k = 0; k < 10; k++) chispa(70 + Math.round(Math.cos(k * 0.63) * (20 + (t - B.tierra) * 20)), 54 + Math.round(Math.sin(k * 0.63) * (14 + (t - B.tierra) * 14)), t, k, hex('#bfeaff'));
+};
+const efectos = [[A.franklin + 0.1, 'brillo'], [A.galactus + 0.2, 'trueno'], [A.planetas, 'masca'], [A.planetas + 0.6, 'boing'], [A.poder, 'zumbido'], [B.niega + 0.05, 'boing'], [B.familia, 'whoosh'],
+  [G3 + 0.2, 'viento'], [B.destierra, 'rafaga'], [B.galactus + 0.8, 'whoosh'], [B.universo, 'boom'], [B.tierra, 'brillo']];
+T.rodar(E, R, [[0, g1], [G2, g2], [G3, g3]], { efectos, año: 2025 });
+</script>
+</body>
+</html>

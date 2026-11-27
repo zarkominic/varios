@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Peor que morir · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-PEOR (frases 36–37), 1987 → 1989. Tres planos:
+// 1. el bosque al principio del camino (tarde): Graham pasa silbando; en «Losing an item» se le cae la llave, que se
+//    queda brillando en la hierba; un pajarito baja a mirarla; Graham sigue y se pierde detrás del árbol;
+// 2. (corta en «and not noticing») al final del juego, la puerta con el candado: Graham llega, señala el candado (que
+//    traquetea), busca en los bolsillos («?»), recuerda la llave en la hierba (bocadillo) y en «no going back» se lleva
+//    las manos a la cabeza;
+// 3. (corta en «The exact opposite») la pantalla partida: a la izquierda el cartel de la calavera tachada brilla en
+//    «LucasArts» y al paseante le cae una piedra en la cabeza que rebota sin hacerle nada («never die»); a la derecha el
+//    disquete corre al pedestal y guarda, y Graham le aplaude con el dedo.
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-peor');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const pe = (f) => en('peor', f), lu = (f) => en('lucas', f);
+const P2 = pe(0.482), P3 = lu(-0.01);
+const K = hex('#16121c');
+const suave = (u) => u * u * (3 - 2 * u);
+const llave = (x, y, s = 1) => {   // la llave dorada, tumbada (x, y: el centro del ojo)
+  const O = hex('#f0c030'), OS = hex('#b8861a'), OL = hex('#fff0a0');
+  R.disco(x, y, 3 * s, K); R.disco(x, y, 2 * s, O); R.disco(x, y, Math.max(0, s - 1), K); if (s === 1) R.pset(x, y, K);
+  R.rect(x + 3 * s, y - s, x + 11 * s, y + s - (s === 1 ? 0 : 0), K); R.rect(x + 3 * s, y - s + 1, x + 11 * s - 1, y + s - 1, O);
+  R.rect(x + 7 * s, y + s, x + 8 * s, y + 3 * s, K); R.rect(x + 10 * s, y + s, x + 11 * s, y + 3 * s, K); R.pset(x - s, y - 2 * s, OL); R.pset(x + 5 * s, y - s + 1, OL);
+  R.rect(x + 3 * s, y + s, x + 6 * s, y + s, OS);
+};
+const destello = (x, y, t, r = 3) => { const v = 0.5 + 0.5 * Math.sin(t * 7); const n = Math.round(1 + v * r); for (let i = -n; i <= n; i++) { R.pset(x + i, y, hex('#fffbe0')); R.pset(x, y + i, hex('#fffbe0')); } R.pset(x, y, hex('#ffffff')); };
+
+const p1 = (t) => {
+  const L = 'tarde';
+  T.reino(R, t, { encuadre: 'bosque', luz: L });
+  const gx = lerp(116, 244, tramo(t, 0.15, P2 + 0.2));
+  const cae = pe(0.284), kx0 = 168, gc = Math.round(lerp(116, 244, tramo(cae, 0.15, P2 + 0.2))) + 6;
+  // la llave: cae del cinto, bota y se queda en la hierba brillando
+  if (t > cae) {
+    const u = tramo(t, cae, cae + 0.35), bo = tramo(t, cae + 0.35, cae + 0.55);
+    const x = Math.round(lerp(gc, kx0, u)) + Math.round(bo * 3), y = Math.round(lerp(142, 156, u * u) - Math.sin(bo * Math.PI) * 3);
+    llave(x, y, 1);
+    if (bo >= 1) { for (const [dx, h] of [[-3, 3], [2, 2], [6, 3], [10, 2]]) R.linea(x + dx, 158, x + dx + 1, 158 - h, hex('#3a8a3a')); destello(x + 8, y - 4, t, 3); }
+  }
+  R.actor(EL.graham, Math.round(gx), 154, t, { dir: 1, anda: true, sonrisa: true, habla: Math.sin(t * 6) > 0.3 });
+  // las notitas de su silbido
+  for (let k = 0; k < 3; k++) { const u = ((t * 0.9 + k / 3) % 1); const x = Math.round(gx + 14 + u * 10 + Math.sin(u * 9) * 2), y = Math.round(128 - u * 14); if (x < 230 && gx < 226) { R.rect(x, y, x + 1, y + 1, K); R.rect(x + 1, y - 4, x + 1, y, K); R.pset(x + 2, y - 4, K); } }
+  // un pajarito baja a mirar la llave
+  const pj = tramo(t, pe(0.42), pe(0.47)), px = Math.round(lerp(212, kx0 + 16, suave(pj))), py = Math.round(lerp(96, 155, pj) - Math.sin(pj * Math.PI) * 8);
+  if (t > pe(0.4)) { const vu = pj < 1, ala = Math.floor(t * 14) % 2, mira = !vu && Math.sin(t * 4) > 0 ? 1 : 0;
+    R.rect(px - 3, py - 4, px + 1, py - 1, K); R.rect(px - 2, py - 3, px, py - 2, hex('#c8642a')); R.rect(px - 4, py - 6 - mira, px - 2, py - 4 - mira, K); R.pset(px - 3, py - 5 - mira, hex('#8a4a20')); R.pset(px - 5, py - 5 - mira, hex('#e8b040')); R.pset(px + 2, py - 3, K);
+    if (vu) { if (ala) R.linea(px - 1, py - 4, px + 2, py - 8, K); else R.linea(px - 1, py - 2, px + 2, py + 1, K); } else { R.pset(px - 2, py, K); R.pset(px, py, K); } }
+  T.reinoDelante(R, t, { encuadre: 'bosque', luz: L });
+};
+
+const p2 = (t) => {
+  T.cuento(R, t, { encuadre: 'alcoba', camara: 'puerta' });
+  const llega = P2 + 1.0, senala = pe(0.6), duda = pe(0.66), recuerda = pe(0.7), manos = pe(0.855);
+  const gx = lerp(-14, 140, suave(tramo(t, P2 + 0.05, llega)));
+  // el candado traquetea cuando lo señala
+  if (t > senala + 0.1 && t < senala + 0.6) { const v = Math.floor(t * 20) % 2; for (const [dx, dy] of [[-12, -6], [12, -6], [-13, 2], [13, 2]]) R.linea(196 + dx, 112 + dy + v, 196 + dx + Math.sign(dx) * 3, 112 + dy + v - 2, hex('#fff0a0')); }
+  R.actor(EL.graham, Math.round(gx), 162, t, { dir: t > senala - 0.2 && t < duda ? 1 : 1, anda: t < llega, dedo: t > senala && t < senala + 0.6, sorpresa: t > manos, manos: t > manos && t < manos + 1.0, triste: t > manos + 1.0 || (t > duda && t < manos) });
+  if (t > duda && t < recuerda + 0.1) R.bocadillo(Math.round(gx) + 8, 128, { icono: '?' });
+  // el recuerdo: la llave olvidada en la hierba, en un bocadillo de nube
+  const u = tramo(t, recuerda, recuerda + 0.3) * (1 - tramo(t, manos + 0.15, manos + 0.3));
+  if (u > 0) {
+    const cx = 80, cy = 70, rx = Math.round(42 * Math.min(1, u * 1.2)), ry = Math.round(28 * Math.min(1, u * 1.2));
+    for (const [i, r] of [[0.2, 2], [0.45, 3], [0.7, 4]]) { const x = Math.round(lerp(gx + 6, cx + 26, i)), y = Math.round(lerp(132, cy + ry - 2, i)); R.disco(x, y, r + 1, K); R.disco(x, y, r, hex('#f4f2fa')); }
+    const forma = (x, y, e) => { const an = Math.atan2(y, x), w = 1 + 0.07 * Math.sin(an * 9 + t * 2); return (x * x) / ((rx + e) * (rx + e)) + (y * y) / ((ry + e) * (ry + e)) <= w * w; };
+    for (let y = -ry - 3; y <= ry + 3; y++) for (let x = -rx - 3; x <= rx + 3; x++) {
+      if (!forma(x, y, 2)) continue;
+      if (!forma(x, y, 0)) { R.pset(cx + x, cy + y, forma(x, y, 1) ? hex('#f4f2fa') : K); continue; }
+      // dentro: el cielo de la tarde, los troncos, el camino y la hierba
+      const Y = y / ry;
+      let col = Y < -0.1 ? (Y < -0.55 ? hex('#f0b080') : hex('#f4d0a0')) : Y < 0.25 ? hex('#5a8a4a') : Y < 0.5 ? hex('#c8a070') : hex('#4a9a3a');
+      if (Y < 0.25 && ((x + 60) % 23 < 4)) col = hex('#6a4a2a');
+      if (Y >= 0.5 && ((x * 7 + y * 3) % 5 === 0)) col = hex('#6aba4a');
+      R.pset(cx + x, cy + y, col);
+    }
+    if (Math.min(1, u * 1.2) > 0.6) { llave(cx - 6, cy + 14, 2); destello(cx + 18, cy + 6, t, 4); for (const dx of [-14, -9, 6, 12]) R.linea(cx + dx, cy + 24, cx + dx + 1, cy + 18, hex('#2a7a2a')); }
+  }
+};
+
+const p3 = (t) => {
+  const ranura = tramo(t, lu(0.73), lu(0.8)) - tramo(t, lu(0.95), lu(1.05));
+  T.muerte(R, t, { encuadre: 'dividido', brillo: ranura });
+  // el cartel de la calavera tachada brilla en «LucasArts»
+  const br = tramo(t, lu(0.17), lu(0.2)) - tramo(t, lu(0.32), lu(0.38));
+  if (br > 0) for (let k = 0; k < 2; k++) { const r = 28 + k * 3 + Math.round(Math.sin(t * 12) * 1); for (let an = 0; an < Math.PI * 2; an += 0.04) { const x = Math.round(50 + Math.cos(an) * r), y = Math.round(100 + Math.sin(an) * r * 0.8); if (x < 156 && (Math.floor(an * 8) % 2 === 0)) R.pset(x, y, k ? hex('#f0c840') : hex('#fff4a0')); } }
+  // el paseante: le cae una piedra en la cabeza y rebota; él, tan contento
+  const cae0 = lu(0.42), toca = lu(0.52);
+  const ax = Math.round(lerp(76, 112, tramo(t, P3 + 0.1, cae0)));
+  R.actor(EL.chico, ax, 158, t, { dir: 1, anda: t > P3 + 0.1 && t < cae0, sorpresa: t > toca && t < toca + 0.3, sonrisa: t > toca + 0.3, dedo: t > toca + 0.4 && t < lu(0.9) });
+  if (t > cae0 && t < toca + 0.9) {
+    const u1 = tramo(t, cae0, toca), u2 = tramo(t, toca, toca + 0.9);
+    const rx = u2 > 0 ? Math.round(ax + 7 - u2 * 30) : ax + 7, ry = u2 > 0 ? Math.round(130 - Math.sin(u2 * Math.PI) * 26 + u2 * u2 * 30) : Math.round(lerp(40, 130, u1 * u1));
+    R.disco(rx, ry, 5, K); R.disco(rx, ry, 4, hex('#8a8494')); R.disco(rx - 1, ry - 1, 2, hex('#b0aabc'));
+  }
+  if (t > toca && t < toca + 1.0) for (let k = 0; k < 3; k++) { const an = t * 8 + k * 2.1, x = Math.round(ax + 7 + Math.cos(an) * 8), y = Math.round(126 + Math.sin(an) * 3); R.pset(x, y, hex('#f0c840')); R.pset(x - 1, y, hex('#fff0a0')); R.pset(x + 1, y, hex('#fff0a0')); R.pset(x, y - 1, hex('#fff0a0')); }
+  // a la derecha: Graham mira el cuadro; el disquete corre al pedestal, sube y guarda
+  const salta0 = lu(0.62), sube = lu(0.69), guarda0 = lu(0.73);
+  R.actor(EL.graham, 238, 158, t, { dir: t < salta0 ? 1 : -1, dedo: t > guarda0 + 0.2 && t < lu(1), sonrisa: t > guarda0 });
+  let dx = 300, dy = 158, corre = 0;
+  if (t < salta0) { const u = tramo(t, lu(0.5), salta0); dx = lerp(330, 214, u); corre = u > 0 && u < 1 ? 1 : 0; }
+  else if (t < sube) { const u = (t - salta0) / (sube - salta0); dx = lerp(214, 196, u); dy = lerp(158, 131, u) - Math.sin(u * Math.PI) * 10; }
+  else { dx = 196; dy = 131; }
+  T.disquete(R, Math.round(dx), Math.round(dy), t, { dir: -1, corre, guarda: tramo(t, guarda0, guarda0 + 0.5) - tramo(t, lu(0.98), lu(1.05)), expresion: t > guarda0 ? 'feliz' : 'normal', saluda: t > lu(0.86) ? 'mano' : undefined });
+};
+
+const año = (t) => t < P3 ? 1987 : 1989;
+const efectos = [[pe(0.3), 'tic'], [pe(0.36), 'brillo'], [pe(0.62), 'cerrojo'], [pe(0.7), 'pop'], [pe(0.855), 'boing'],
+  [lu(0.18), 'brillo'], [lu(0.52), 'boing'], [lu(0.73), 'bip']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año });
+</script>
+</body>
+</html>

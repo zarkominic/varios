@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lo que se mezcla · ep30</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GZ-MEZCLA (frase 11). Lo que mucha gente mezcla: el satélite (lo que dicen, en código de plano azul) y lo que sí se
+// encontró dentro de Keops, por otro equipo y con otra técnica. Cuatro planos:
+// 1. pantalla partida: la misma Keops de día dibujada dos veces; a la izquierda en plano azul con el satélite que barre,
+//    a la derecha de verdad, con el equipo que entra desde fuera del cuadro con sus cajas; en «mix up» las dos mitades se
+//    cruzan en zigzag y vuelven (arriba, junto a la barra del año, la costura no ondula): dentro de los «dedos» de la onda
+//    sigue el plano azul entero (rejilla con sus cruces, las pirámides de la mitad real en líneas, cotas con números, el
+//    filo holográfico, el barrido y el parpadeo, recortados a la forma de la onda); en «found» se enciende una lucecita
+//    dentro de la pirámide de verdad y el técnico la señala;  2. (en «inside») otro encuadre: el satélite de cerca, de
+//    tres cuartos (alas en perspectiva, lámina dorada, panel del radar), con la Tierra en diagonal abajo a la izquierda
+//    (mar, desierto, Nilo con su delta, mar Rojo, nubes, Giza) y la estación espacial que cruza; las ondas bajan a Giza;
+//    en «radar» una X roja sobre el satélite, las ondas se apagan y el satélite se aleja en profundidad (se encoge
+//    dentro del cuadro);  3. (en «It») la calzada de Kefrén de día: el
+//    japonés, la francesa y el técnico egipcio suben con las cajas; en «team» el técnico deja la suya y se vuelve a
+//    explicar; en «technique» la francesa alza el detector por encima de la cabeza y lo mantiene: los primeros muones le
+//    caen encima y destella, la placa del japonés se aclara y el técnico señala el cielo;  4. (en «raining») el cielo
+//    nocturno sobre Giza: luna, Vía Láctea, siete nubes en tres términos y tres tonos a tres velocidades, murciélagos;
+//    las pirámides con la cara derecha de luna y la izquierda en sombra, filo de luz en la arista; la arena con crestas,
+//    matas, piedras y huellas, el recinto de estacas y cuerdas que se mecen y dos detectores con su cable que destellan;
+//    llueve ámbar (los muones) desde el principio, cada vez más; el camellero, con su camello que rumia del ronzal, y dos
+//    turistas miran arriba; en «sky» el camello alza la cabeza y en «all the time» la turista abre un paraguas que los
+//    muones atraviesan.
+import * as T from '/atomo/plato/escenas/gz-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gz-mezcla');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const C = T.C, { pset, rect, linea, disco, poligono } = R;
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], bay = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const tono = (P, v, x, y) => { v = Math.max(0, Math.min(P.length - 1, v)); const i = Math.floor(v); return P[Math.min(P.length - 1, i + (v - i > bay(x, y) ? 1 : 0))]; };
+const mix = (a, b, u) => { u = Math.max(0, Math.min(1, u)); const f = (s) => Math.round(((a >>> s) & 255) + (((b >>> s) & 255) - ((a >>> s) & 255)) * u); return (0xff000000 | (f(16) << 16) | (f(8) << 8) | f(0)) >>> 0; };
+const H = (s) => s.split(' ').map(hex);
+// la zona de Atom y la barra del año se quedan tranquilas: lo que se mueve no entra ahí
+const libre = (x, y) => !((x >= 274 && y <= 47) || (x >= 16 && x <= 174 && y <= 16));
+const ps = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (libre(x, y)) pset(x, y, c); };
+const fijo = new Map();
+const capa = (k, f) => { if (!fijo.has(k)) { const b = R.nuevo(), prev = R.usar(b); f(); R.usar(prev); fijo.set(k, b); } return fijo.get(k); };
+const cielo = (y0, y1, P, k = 0) => { for (let y = y0; y < y1; y++) for (let x = 0; x < 320; x++) pset(x, y, tono(P, (y - y0) / (y1 - y0) * (P.length - 1) + (h(x >> 3, y >> 2, k) - 0.5) * 0.35, x, y)); };
+// una nube de tres bultos, en tres tonos (P: sombra, medio, luz), con el fondo plano
+const nube = (cx, cy, w, sem, P, dentro = null) => {
+  const a = Math.round(w * 0.34);
+  for (let j = -a; j <= Math.round(a * 0.45); j++) for (let i = -w; i <= w; i++) {
+    const d = Math.min(Math.hypot(i / (w * 0.55), (j + a * 0.25) / (a * 0.95)), Math.hypot((i + w * 0.45) / (w * 0.5), (j - a * 0.05) / (a * 0.62)), Math.hypot((i - w * 0.42) / (w * 0.52), (j - a * 0.1) / (a * 0.58)));
+    if (d > 1) continue;
+    const v = (j / a) * 1.1 + d * 0.45 - 0.25 + (h((i + sem * 13) >> 1, j >> 1, sem) - 0.5) * 0.45;
+    if (dentro && !dentro(Math.round(cx + i), Math.round(cy + j))) continue;
+    ps(cx + i, cy + j, v > 0.4 ? P[0] : v > -0.12 ? P[1] : P[2]);
+  }
+};
+// ¿este píxel es todavía el cielo del búfer b? (las nubes pasan por detrás de lo que hay delante)
+const esCielo = (b, bc) => (x, y) => x >= 0 && x < 320 && y >= 0 && y < 180 && b[y * 320 + x] === bc[y * 320 + x];
+// la pirámide de piedra: hiladas de 3 px con su canto de luz y su junta, sillares escalonados, desconchones; la cara de
+// la izquierda al sol y la de la derecha en sombra (arista en ar), la cima plana con el mástil (Keops)
+const PL = H('#7a5a32 #a8864e #c8a86c #dec290 #f0dcac'), PS = H('#4a3420 #604430 #7a5a3a #94744c #a88a5e');
+const piramide = (cx, ap, ba, half, o = {}) => {
+  const L = o.luz ?? PL, S = o.sombra ?? PS, ar = o.arista ?? 0.24, pa = o.paso ?? 3;
+  for (let y = ap; y <= ba; y++) {
+    const wy = (y - ap) / (ba - ap), hw = wy * half, xr = cx + ar * half * wy, fila = Math.floor((ba - y) / pa), r = (ba - y) % pa;
+    for (let x = Math.ceil(cx - hw); x <= Math.floor(cx + hw); x++) {
+      const lit = x < xr, P = lit ? L : S;
+      let v = 2.4 - wy * 0.5 + (h(x >> 2, fila, 3) - 0.5) * 0.9;
+      if (r === pa - 1) v += 0.9; else if (r === 0) v -= 1.2;
+      if ((x + fila * 5) % 8 === 0 && r !== pa - 1) v -= 1;
+      if (h(x, y, 7) > 0.95) v -= 1.2; else if (h(x, y, 8) > 0.97) v += 1;
+      if (x - (cx - hw) < 1.2 || (cx + hw) - x < 1.2) v -= 0.8;
+      if (Math.abs(x - xr) < 0.8) v += lit ? 1 : -0.6;
+      pset(x, y, tono(P, v, x, y));
+    }
+  }
+  if (o.mastil !== false) { const ty = ap + 2; rect(cx - 2, ty, cx + 2, ty + 1, L[1]); linea(cx, ty - 7, cx, ty - 1, S[0]); pset(cx, ty - 8, L[4]); }
+};
+const AR = H('#9a7a46 #b8955a #d0ae72 #e2c488 #f0d8a6');
+// arena con ondas, piedrecitas y huellas
+const arena = (y0, P = AR) => {
+  for (let y = y0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const u = (y - y0) / (180 - y0);
+    let v = 1.6 + u * 1.3 + Math.sin(x * 0.09 + y * 0.8 + Math.sin(x * 0.027 + y * 0.05) * 3) * 0.55 + (h(x >> 1, y, 9) - 0.5) * 0.7;
+    if (h(x, y, 21) > 0.985) v -= 1.6;
+    pset(x, y, tono(P, v, x, y));
+  }
+};
+// la lluvia de muones: rayitas que caen casi en vertical, cabeza clara, dos píxeles ámbar y cola tramada;
+// o.borde: un filo oscuro a la izquierda (para que se lean sobre piedra o arena clara)
+const MU = { l: hex('#fff6c8'), m: C.muon, s: hex('#c88a20'), k: hex('#3a2208') };
+const muon = (x, y, n = 7, dx = 0.18, borde = false) => {
+  for (let i = n - 1; i >= 0; i--) { const xx = Math.round(x - dx * i), yy = Math.round(y - i);
+    if (borde && i < 3) ps(xx - 1, yy, MU.k);
+    if (i === 0) ps(xx, yy, MU.l); else if (i < 3) ps(xx, yy, MU.m); else if ((xx + yy + i) & 1) ps(xx, yy, MU.s); }
+};
+const lluvia = (t, n, [x0, y0, x1, y1], o = {}) => {
+  const alto = y1 - y0 + 24, dx = o.dx ?? 0.18;
+  for (let k = 0; k < n; k++) {
+    const v = (o.v ?? 150) * (0.75 + h(k, 1, 4) * 0.5), y = y0 - 8 + ((t * v + h(k, 2, 4) * 900) % alto), x = x0 + h(k, 3, 4) * (x1 - x0) + dx * (y - y0);
+    if (o.filtro && !o.filtro(x, y, k)) continue;
+    muon(x, y, o.n ?? 7, dx, o.borde);
+  }
+};
+// un camello (22 px de alto): joroba con su manta, cuello curvo, cabeza que cabecea (o rumia), patas que se cruzan al
+// andar y la cola que se mueve; x = centro del cuerpo, dir = hacia dónde mira. Devuelve dónde va el ronzal (la cabeza).
+const CAM = { k: hex('#2a1a10'), a: hex('#c8995a'), s: hex('#9a7040'), l: hex('#e4c088'), m1: hex('#b83a2a'), m2: hex('#2a5a9a'), m3: hex('#e8c040') };
+const elipse = (cx, cy, rx, ry, c) => { for (let j = -ry; j <= ry; j++) { const w = Math.round(rx * Math.sqrt(Math.max(0, 1 - (j / (ry + 0.5)) ** 2))); rect(cx - w, cy + j, cx + w, cy + j, c); } };
+const camello = (x, suelo, t, dir = 1, anda = false, k = 0, o = {}) => {
+  const P = o.pal || CAM; x = Math.round(x); const X = (i) => x + i * dir, ph = t * 5 + k, p = anda ? Math.sin(ph) : 0, cab = anda ? Math.round(Math.sin(ph * 2)) : (o.alza ? -2 : Math.round(Math.sin(t * 1.3 + k) * 0.8));
+  for (const [i0, f, c] of [[-6, -p, P.s], [5, p, P.s], [-4, p, P.a], [7, -p, P.a]]) { const pie = Math.round(f * 2); linea(X(i0), suelo - 10, X(i0 + pie), suelo - 1, P.k); linea(X(i0) + dir, suelo - 10, X(i0 + pie) + dir, suelo - 1, c); rect(Math.min(X(i0 + pie), X(i0 + pie + 1)), suelo - 1, Math.max(X(i0 + pie), X(i0 + pie + 1)) + 1, suelo, P.k); }
+  elipse(x, suelo - 13, 10, 4, P.k); elipse(X(-1), suelo - 17, 6, 4, P.k);
+  elipse(x, suelo - 13, 9, 3, P.a); elipse(X(-1), suelo - 17, 5, 3, P.a);
+  rect(x - 7, suelo - 11, x + 7, suelo - 11, P.s); rect(X(-3) - 1, suelo - 20, X(-3) + 2, suelo - 20, P.l);
+  for (let i = -4; i <= 3; i++) { pset(X(i - 1), suelo - 16, [P.m1, P.m3, P.m2][(i + 8) % 3]); pset(X(i - 1), suelo - 15, P.m1); if (i % 2 === 0) pset(X(i - 1), suelo - 14, P.m3); }
+  for (let j = 0; j < 9; j++) { const nx = X(9 + Math.round(j * 0.5)), ny = suelo - 13 - j + (j > 5 ? cab : 0); rect(Math.min(nx, nx + dir * 2), ny, Math.max(nx, nx + dir * 2), ny, j < 2 ? P.s : P.a); pset(nx - dir, ny, P.k); }
+  const hy = suelo - 23 + cab, hx = X(13), rumia = o.rumia && Math.sin(t * 7) > 0 ? 1 : 0;
+  rect(Math.min(hx - dir, X(18)), hy - 1, Math.max(hx - dir, X(18)), hy + 2 + rumia, P.k); rect(Math.min(hx, X(17)), hy, Math.max(hx, X(17)), hy + 1, P.a); pset(X(15), hy, P.k); pset(X(17), hy + 1 + rumia, P.s); pset(X(13), hy - 2, P.s);
+  const cl = Math.round(Math.sin(t * 3 + k) * 1.5); linea(X(-10), suelo - 14, X(-11) + cl * dir, suelo - 8, P.k); pset(X(-11) + cl * dir, suelo - 7, P.s);
+  return [X(16), hy + 2];
+};
+// una caja de madera con flejes (lo que se lleva en la mano: x centro, y base)
+const caja = (x, y, w = 10, a = 8) => { rect(x - w / 2 - 1, y - a - 1, x + w / 2 + 1, y, C.k); rect(x - w / 2, y - a, x + w / 2, y - 1, hex('#b07a3e')); rect(x - w / 2, y - a, x + w / 2, y - a, hex('#d49a5a')); rect(x - w / 2, y - 3, x + w / 2, y - 3, hex('#6a4420')); rect(x - 1, y - a, x, y - 1, hex('#5a5a66')); };
+
+const w = (s) => en('mezcla', (s - 0.9) / 15.81);
+const P2 = w(5.32), P3 = w(10.07), P4 = w(14.13);
+const mixT = w(2.34), vuelve = w(3.42), found = w(4.98), equis = w(8.09), team = w(10.89), tecnica = w(12.17), cielo2 = w(15.37), siempre = w(15.67);
+// ── plano 1: la pantalla partida ──
+const AZ = H('#050c22 #08142e #0c1a3a #102248 #162d58'), RJ = hex('#173464'), RJM = hex('#22467e'), RJC = hex('#2a568e'), CO = hex('#2a8ab6'), CI = C.planoLinea, BR = C.planoBrillo, HAL = hex('#113a62');
+const CIE = H('#3a6ab0 #4a7cc0 #5a8ecc #74a4d6 #92bce0 #b4d2e8');
+const fondoAzul = () => capa('azul', () => {
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    let v = 2.6 - Math.hypot(x - 80, y - 100) / 150 * 2 + (h(x >> 2, y >> 2, 5) - 0.5) * 0.4;
+    pset(x, y, tono(AZ, v, x, y));
+    if (x % 8 === 0 || y % 8 === 0) pset(x, y, (x % 32 === 0 || y % 32 === 0) ? RJM : RJ);
+  }
+  // la pirámide en líneas: el contorno con su halo, las hiladas, las salas que se conocen y la base con sus cotas
+  const cx = 80, ap = 46, ba = 150, hf = 70;
+  for (let y = ap; y <= ba; y++) { const hw = (y - ap) / (ba - ap) * hf; if ((ba - y) % 6 === 0) linea(Math.round(cx - hw) + 2, y, Math.round(cx + hw) - 2, y, RJC); }
+  for (const s of [-1, 1]) { linea(cx, ap, cx + s * hf, ba, HAL); linea(cx + s, ap + 1, cx + s * (hf + 1), ba, HAL); linea(cx, ap, cx + s * hf, ba, CI); }
+  linea(cx - hf - 6, ba, cx + hf + 6, ba, CI); linea(cx, ap, cx + 18, ba, CO);
+  linea(cx - 4, 132, cx + 30, 104, CO); rect(cx + 30, 100, cx + 42, 106, HAL); linea(cx + 30, 100, cx + 42, 100, CI); linea(cx + 30, 106, cx + 42, 106, CI); linea(cx + 30, 100, cx + 30, 106, CI); linea(cx + 42, 100, cx + 42, 106, CI);
+  rect(cx - 6, 124, cx + 6, 129, HAL); linea(cx - 6, 124, cx + 6, 124, CI); linea(cx - 6, 129, cx + 6, 129, CI);
+  linea(cx - 30, 150, cx - 4, 132, CO, 2);
+  for (let x = cx - hf; x <= cx + hf; x += 10) linea(x, ba + 3, x, ba + 6, CO);
+  linea(cx - hf, ba + 8, cx + hf, ba + 8, CO, 2);
+  // el suelo: líneas de corte en perspectiva
+  for (let k = 0; k < 7; k++) linea(80 + (k - 3) * 30, 158, 80 + (k - 3) * 70, 179, RJC);
+  for (const y of [162, 168, 176]) linea(0, y, 319, y, RJC);
+  // las cruces de la rejilla mayor
+  for (let y = 32; y < 180; y += 32) for (let x = 32; x < 320; x += 32) if (libre(x, y)) { linea(x - 2, y, x + 2, y, RJC); linea(x, y - 2, x, y + 2, RJC); pset(x, y, CO); }
+  // las pirámides de la mitad real, también en líneas de plano (Kefrén, Keops y la reina): cuando la onda invade la
+  // mitad de verdad, se ve la misma vista dibujada en código azul, con sus hiladas, sus cotas y sus números
+  for (const [cx2, ap2, ba2, hf2, pun] of [[176, 74, 150, 60, 2], [240, 52, 150, 74, 0], [304, 126, 152, 20, 0]]) {
+    for (let y = ap2 + 3; y <= ba2; y++) if ((ba2 - y) % 6 === 0) { const hw = (y - ap2) / (ba2 - ap2) * hf2; linea(Math.round(cx2 - hw) + 2, y, Math.round(cx2 + hw) - 2, y, RJC, pun); }
+    for (const s2 of [-1, 1]) { linea(cx2 + s2, ap2 + 1, cx2 + s2 * (hf2 + 1), ba2, HAL); linea(cx2, ap2, cx2 + s2 * hf2, ba2, pun ? CO : CI, pun); }
+    linea(cx2, ap2, cx2 + Math.round(hf2 * 0.24), ba2, CO, 2);
+  }
+  // la cota de la altura de Keops y la de su base, con sus números
+  linea(322 - 12, 52, 322 - 12, 150, CO, 2); for (const y of [52, 150]) linea(306, y, 313, y, CI);
+  R.numero('146', 284, 104, { color: CI, sombra: false });
+  linea(166, 158, 314, 158, CO, 2); linea(166, 155, 166, 161, CI); linea(314, 155, 314, 161, CI);
+  R.numero('230', 228, 171, { color: CI, sombra: false });
+  // las entradas que se conocen, en su sitio (cuadraditos de línea)
+  for (const [x, y, w2, a] of [[232, 112, 4, 4], [222, 128, 8, 6]]) { linea(x, y, x + w2, y, CI); linea(x, y + a, x + w2, y + a, CI); linea(x, y, x, y + a, CI); linea(x + w2, y, x + w2, y + a, CI); }
+});
+const fondoReal = () => capa('real', () => {
+  cielo(0, 152, CIE, 2);
+  // Kefrén lejos, en la bruma, y la reina de Keops
+  piramide(176, 74, 150, 60, { luz: H('#9a8a78 #ac9a84 #bca88e #c8b498 #d4c0a2'), sombra: H('#7a6e66 #867a70 #928678 #9e9080 #a89a88'), mastil: false });
+  for (let y = 70; y <= 76; y++) rect(176 - (y - 74 + 4) * 0.8, y, 176 + (y - 74 + 4) * 0.8, y, hex('#e0d2b8'));
+  piramide(240, 52, 150, 74, { paso: 3 });
+  piramide(304, 126, 152, 20, { mastil: false });
+  arena(150);
+  // la entrada de Al-Mamún y la de verdad, la escalera de los turistas
+  rect(232, 112, 236, 116, hex('#3a2a1a')); rect(222, 128, 230, 134, hex('#2a1e14')); rect(223, 129, 229, 133, hex('#120c08'));
+  for (let k = 0; k < 6; k++) pset(232 + k * 2, 136 + k * 2, hex('#7a5a3a'));
+  // piedras caídas y la pista
+  for (let k = 0; k < 9; k++) { const x = 172 + h(k, 1, 30) * 140, y = 154 + h(k, 2, 30) * 6; rect(x, y, x + 4, y + 2, hex('#a8865a')); rect(x, y, x + 4, y, hex('#e8d0a0')); rect(x, y + 2, x + 4, y + 2, hex('#6a4a2a')); }
+  for (let x = 160; x < 320; x++) { const y = Math.round(166 + Math.sin(x * 0.03) * 2); if (x % 3) pset(x, y, hex('#b8955a')); }
+});
+const p1 = (t) => {
+  const bA = fondoAzul(), bR = fondoReal();
+  const amp = 70 * Math.sin(Math.PI * tramo(t, mixT - 0.15, vuelve - 0.1));
+  // arriba (la barra del año) la costura se aparta a x 174 y no ondula; el zigzag empieza por debajo
+  const seam = (y) => { const q = Math.max(0, Math.min(1, (y - 16) / 18)); return lerp(174, 160, q) + q * (amp * Math.sin(y * 0.11 + t * 9) + amp * 0.35 * Math.sin(y * 0.29 - t * 5)); };
+  const S = new Float32Array(180); for (let y = 0; y < 180; y++) S[y] = seam(y);
+  for (let y = 0; y < 180; y++) { const s = S[y]; for (let x = 0; x < 320; x++) pset(x, y, x < s ? bA[y * 320 + x] : bR[y * 320 + x]); }
+  // la mitad azul: lo que se mueve se recorta a la forma de la onda (también dentro de los «dedos» que invaden la mitad
+  // real), no a un rectángulo: el filo holográfico junto a la costura, el barrido, el parpadeo y el satélite que barre
+  const den = (x, y) => y >= 18 && y < 180 && x < S[y] - 1 && libre(x, y);
+  const pa = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (den(x, y)) pset(x, y, c); };
+  const az = (c) => (x, y) => (den(x, y) ? c : null);
+  const rc = (x0, y0, x1, y1, c) => { for (let y = Math.round(y0); y <= Math.round(y1); y++) for (let x = Math.round(x0); x <= Math.round(x1); x++) pa(x, y, c); };
+  for (let y = 18; y < 180; y++) { const s = Math.round(S[y]); for (let i = 2; i <= 6; i++) if (bay(s - i, y + Math.floor(t * 8)) < (7 - i) / 7) pa(s - i, y, i < 4 ? RJC : HAL); }
+  { const sy = 20 + ((t * 28) % 160), yy = Math.round(sy); for (let x = 0; x < 320; x++) { if ((x + yy) % 2 === 0) pa(x, yy, BR); if (x % 2) pa(x, yy - 2, CO); if (x % 4 === 0) pa(x, yy + 2, HAL); } }
+  const sx = 54 + Math.sin(t * 0.7) * 6, sy = 34;
+  for (const s of [-1, 1]) { const x0 = sx + s * 9, x1 = sx + s * 23; rc(Math.min(x0, x1), sy - 3, Math.max(x0, x1), sy + 3, HAL); linea(x0, sy - 3, x1, sy - 3, az(CI)); linea(x0, sy + 3, x1, sy + 3, az(CI)); linea(x1, sy - 3, x1, sy + 3, az(CI)); for (let k = 1; k < 4; k++) linea(x0 + s * k * 3.5, sy - 3, x0 + s * k * 3.5, sy + 3, az(CO)); }
+  rc(sx - 7, sy - 5, sx + 7, sy + 5, AZ[2]); linea(sx - 7, sy - 5, sx + 7, sy - 5, az(BR)); linea(sx - 7, sy + 5, sx + 7, sy + 5, az(CI)); linea(sx - 7, sy - 5, sx - 7, sy + 5, az(CI)); linea(sx + 7, sy - 5, sx + 7, sy + 5, az(CI)); linea(sx - 4, sy, sx + 4, sy, az(CO));
+  linea(sx, sy + 5, sx, sy + 9, az(CI)); for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) if (i * i + j * j <= 5) pa(sx + i, sy + 10 + j, i || j ? CO : BR);
+  const gx = 80 + Math.sin(t * 1.8) * 46;
+  for (let k = 0; k < 2; k++) { const ex = gx + (k ? 12 : -12); linea(sx, sy + 11, ex, 140, az(CO), 3); }
+  for (let k = 0; k < 4; k++) { const u = ((t * 1.4 + k * 0.25) % 1), y = sy + 12 + u * 110, hw = 3 + u * 12, cx = sx + (gx - sx) * u; if (u < 0.95) linea(cx - hw, y, cx + hw, y, az((k & 1) ? CI : CO)); }
+  for (let k = 0; k < 10; k++) if (Math.sin(t * 7 + k * 2.1) > 0.8) pa(10 + h(k, Math.floor(t * 3), 61) * 290, 24 + h(k, Math.floor(t * 3), 62) * 140, BR);
+  // la mitad de verdad: nubes de tres tonos a dos velocidades, golondrinas
+  const sc0 = esCielo(bR, capa('realCielo', () => cielo(0, 152, CIE, 2))), sc = (x, y) => y >= 0 && y < 180 && x > S[y] + 1 && sc0(x, y);
+  nube(170 + ((t * 4) % 200), 32, 22, 1, H('#9cb6d4 #d6e4f0 #ffffff'), sc); nube(230 + ((t * 2.5) % 120), 66, 16, 2, H('#a2bad6 #d8e6f2 #f8fcff'), sc);
+  nube(200 + ((t * 6) % 160), 96, 12, 3, H('#b0c4dc #dce8f2 #f4f8fc'), sc);
+  R.recorte([164 + Math.round(amp), 0, 319, 179]);
+  T.bandada(R, t, { tipo: 'golondrina', n: 3, y: 74, v: 34, cada: 6 });
+  // lo que se encontró dentro: una lucecita cálida que late en la piedra
+  const lz = tramo(t, found - 0.2, found + 0.4);
+  if (lz > 0) { const r = 3 + lz * 4 + Math.sin(t * 8) * 0.8; disco(242, 108, Math.round(r + 2), hex('#7a5428')); disco(242, 108, Math.round(r), hex('#ffd890')); disco(242, 108, Math.round(r * 0.5), C.blanco);
+    for (let k = 0; k < 8; k++) { const a = k * 0.785 + t * 0.8, l = r + 4 + lz * 6 + Math.sin(t * 6 + k) * 2; linea(242 + Math.cos(a) * (r + 2), 108 + Math.sin(a) * (r + 2), 242 + Math.cos(a) * l, 108 + Math.sin(a) * l, k & 1 ? hex('#ffe8a0') : C.blanco); }
+    R.anillo(242, 108, Math.round(r + 9 + Math.sin(t * 5) * 2), hex('#fff0c0'), 2); }
+  R.recorte(null);
+  // la costura que brilla (no por arriba, donde están las cifras del año)
+  for (let y = 20; y < 180; y++) { const s = Math.round(seam(y)); pset(s, y, BR); pset(s - 1, y, CO); pset(s + 1, y, hex('#f4f0e0')); }
+  // el equipo que llega con sus cajas
+  const u = tramo(t, 0.5, found - 0.4), anda = u > 0 && u < 1;
+  const xs = [Math.round(lerp(346, 214, u)), Math.round(lerp(374, 252, u)), Math.round(lerp(400, 290, u))];
+  const a = R.actor(EL.tecnicoEgipcio, xs[0], 170, t, { dir: -1, anda, dedo: t > found - 0.3, sonrisa: t > found, sostiene: t > found - 0.3 ? null : true });
+  if (a && a.mano && t <= found - 0.3) caja(a.mano[0], a.mano[1] + 3);
+  if (t > found - 0.3) caja(xs[0] + 8, 170, 12, 9);
+  const b = R.actor(EL.cientificoJapones, xs[1], 172, t, { dir: -1, anda, sostiene: true, sorpresa: t > found + 0.2 });
+  if (b && b.mano) T.PIEZAS_GZ.detectorMuones(R, b.mano[0], b.mano[1] + 6, { t, dir: -1 });
+  const c = R.actor(EL.cientificaFrancesa, xs[2], 171, t, { dir: -1, anda, sostiene: true, sonrisa: t > found });
+  if (c && c.mano) caja(c.mano[0], c.mano[1] + 3, 12, 7);
+};
+// ── plano 2: el satélite de cerca, de tres cuartos, con la Tierra en diagonal; una X roja en «radar» y se aleja ──
+const equisRoja = (x, y, s) => {
+  const r = Math.round(12 * s); if (r < 2) return;
+  for (const [dx, dy] of [[1, 1], [1, -1]]) for (let i = -r; i <= r; i++) { const px = x + i, py = y + i * dx * dy; disco(px, py, Math.max(1, Math.round(3 * s)) + 1, C.k); }
+  for (const [dx, dy] of [[1, 1], [1, -1]]) for (let i = -r; i <= r; i++) { const px = x + i, py = y + i * dx * dy; disco(px, py, Math.max(1, Math.round(3 * s)), hex('#e03a3a')); pset(px - 1, py - 1, hex('#ff8a7a')); }
+};
+// la Tierra: un disco enorme abajo a la izquierda (centro TX, TY, radio TR); el limbo cruza el cuadro en diagonal
+const TX = -40, TY = 330, TR = 290, GZ2 = [66, 126];
+const SP = H('#03050f #060a1c #0a1028 #0e1634 #131c40'), TI = {
+  mar: H('#0e2a5a #143a72 #1c4c8a #2a62a2 #3c78b4'), des: H('#8a6a3e #a8844e #c49e62 #d8b47a #e8cc96'),
+  verde: H('#2a5a2a #3a7a34 #58984a'), halo: H('#0e1a44 #1a3a7a #2a62b0 #5a9ad8 #a8d4f4') };
+const tierraFondo = () => capa('orbita2', () => {
+  // el espacio tramado, con una nebulosa tenue y estrellas de tres brillos
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    let v = 1.4 + (y / 180) * 1.2 - (x / 320) * 0.6 + (h(x >> 3, y >> 3, 51) - 0.5) * 0.5;
+    const nb = Math.exp(-(((x - 196) / 70) ** 2 + ((y - 30 - (x - 120) * 0.18) / 16) ** 2));
+    pset(x, y, nb > 0.2 && bay(x, y) < nb * 0.7 ? (h(x >> 2, y >> 2, 52) > 0.5 ? hex('#2a1e4a') : hex('#1a2a52')) : tono(SP, v, x, y));
+  }
+  for (let k = 0; k < 260; k++) { const x = Math.floor(h(k, 1, 53) * 320), y = Math.floor(h(k, 2, 53) * 180); if (!libre(x, y)) continue; const b = h(k, 3, 53);
+    pset(x, y, b > 0.92 ? C.blanco : b > 0.6 ? hex('#8a9ac8') : hex('#3a4a7a')); if (b > 0.97) { pset(x - 1, y, hex('#5a6aa0')); pset(x + 1, y, hex('#5a6aa0')); pset(x, y - 1, hex('#5a6aa0')); pset(x, y + 1, hex('#5a6aa0')); } }
+  // la Tierra de día: el Mediterráneo junto al limbo, el desierto con dunas y roca, el Nilo con su delta, el mar Rojo
+  const ang = Math.atan2(GZ2[1] - TY, GZ2[0] - TX);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) {
+    const d = Math.hypot(x - TX, y - TY); if (d > TR + 7) continue;
+    if (d > TR) { const f = (d - TR) / 7; pset(x, y, tono(TI.halo, 4 - f * 4.4, x, y)); continue; }
+    const pro = TR - d, a = Math.atan2(y - TY, x - TX), al = (a - ang) * TR;   // pro: hondura desde el limbo; al: a lo largo
+    const costa = 22 + Math.sin(al * 0.09) * 3 + Math.sin(al * 0.31) * 1.5 - Math.max(0, 8 - Math.abs(al)) * 0.9;
+    let c;
+    if (pro < costa) c = tono(TI.mar, 2.6 - pro / costa * 1.4 + (h(x >> 2, y >> 1, 54) - 0.5) * 0.5, x, y);
+    else {
+      const rojo = Math.abs(al - 66 - (pro - costa) * 0.28 + Math.sin(pro * 0.1) * 2) < 4 + Math.min(4, (pro - costa) * 0.08) && pro > costa + 6;
+      const nilo = Math.abs(al - Math.sin(pro * 0.12) * 3 - Math.sin(pro * 0.05) * 5) < 1.2;
+      const delta = pro < costa + 14 && Math.abs(al) < (costa + 14 - pro) * 0.9;
+      if (rojo) c = tono(TI.mar, 1.4 + (h(x >> 1, y, 55) - 0.5) * 0.6, x, y);
+      else if (nilo || (delta && h(x, y >> 1, 56) > 0.25)) c = tono(TI.verde, 1 + (h(x, y, 57) - 0.5) * 1.6, x, y);
+      else { let v = 2.4 + Math.sin(al * 0.35 + pro * 0.6 + Math.sin(al * 0.05) * 3) * 0.6 + (h(x >> 2, y >> 2, 58) - 0.5) * 1.2;
+        if (h(x >> 3, y >> 3, 59) > 0.82) v -= 1.2; c = tono(TI.des, v, x, y); }
+    }
+    if (pro < 16) c = mix(c, hex('#8ab8e8'), (1 - pro / 16) * 0.5);   // la bruma del limbo
+    pset(x, y, c);
+  }
+  // Giza: las tres pirámides, diminutas, en la orilla izquierda del Nilo
+  for (const [dx, a2] of [[0, 3], [5, 3], [9, 2]]) { const px = GZ2[0] - 6 + dx, py = GZ2[1] + 2 - Math.round(dx * 0.3); for (let j = 0; j < a2; j++) linea(px - j, py - a2 + j + 1, px + j, py - a2 + j + 1, j < 1 ? hex('#fff0c8') : hex('#e8d0a0')); pset(px + a2 - 1, py, hex('#7a5a3a')); }
+});
+// un cuadrilátero O + a·A + b·B (a, b de 0 a 1) pintado píxel a píxel; f(a, b) da el color (o null)
+const quad = (O, A, B, f) => {
+  const xs = [O[0], O[0] + A[0], O[0] + B[0], O[0] + A[0] + B[0]], ys = [O[1], O[1] + A[1], O[1] + B[1], O[1] + A[1] + B[1]], det = A[0] * B[1] - A[1] * B[0];
+  if (Math.abs(det) < 1e-6) return;
+  for (let y = Math.floor(Math.min(...ys)); y <= Math.ceil(Math.max(...ys)); y++) for (let x = Math.floor(Math.min(...xs)); x <= Math.ceil(Math.max(...xs)); x++) {
+    const px = x + 0.5 - O[0], py = y + 0.5 - O[1], a = (px * B[1] - py * B[0]) / det, b = (A[0] * py - A[1] * px) / det;
+    if (a < 0 || a > 1 || b < 0 || b > 1) continue; const c = f(a, b, x, y); if (c != null) ps(x, y, c);
+  }
+};
+const SA = { oro: H('#6a4a14 #9a7020 #c8982e #e8c050 #fff0a0'), pan: H('#0e1a44 #18306a #24468e #3a62b0 #8ab0e8'), gr: H('#2a2e3a #4a505e #707888 #a0a8b8 #e0e4ec') };
+// el satélite de radar de tres cuartos, a escala s alrededor de (cx, cy): las alas de paneles solares en perspectiva
+// con sus celdas y el brillo que corre, el cuerpo de lámina dorada arrugada (techo claro, frente medio, costado en
+// sombra), el panel largo del radar debajo y la antena con su luz. Devuelve el centro del radar
+const satelite3 = (cx, cy, s, t) => {
+  const P = (x, y) => [cx + x * s, cy + y * s], V = (x, y) => [x * s, y * s];
+  const brillo = ((t * 0.35) % 1.6) - 0.3;
+  const ala = (O) => quad(P(...O), V(76, 21), V(5, 15), (a, b, x, y) => {
+    const ca = (a * 12) % 1, cb = (b * 4) % 1, borde = a < 0.015 || a > 0.985 || b < 0.06 || b > 0.94;
+    if (borde) return SA.gr[1]; if (ca < 0.07 || cb < 0.1) return SA.pan[0];
+    if (Math.abs(a - brillo - b * 0.1) < 0.04) return SA.pan[4];
+    return tono(SA.pan, 2.2 - cb * 0.9 - ca * 0.4 + (ca > 0.8 && cb < 0.4 ? 1.2 : 0), x, y);
+  });
+  // el mástil de las alas, por detrás del cuerpo
+  linea(...P(-24, -6), ...P(-14, -3), SA.gr[2]); linea(...P(14, 4), ...P(28, 8), SA.gr[1]);
+  ala([-100, -34]); ala([26, 4]);
+  // el panel largo del radar, por debajo del cuerpo, con sus celdas, el canto claro y su grosor
+  quad(P(-46, 16), V(88, 12), V(0, 3), () => SA.gr[0]);
+  quad(P(-46, 12), V(88, 12), V(6, -6), (a, b, x, y) => ((a * 22) % 1 < 0.12 ? SA.gr[0] : b > 0.85 ? SA.gr[3] : tono(SA.gr, 1.8 - b * 0.6 + (h(Math.floor(a * 22), 0, 60) - 0.5) * 0.6, x, y)));
+  linea(...P(-6, 12), ...P(-4, 6), SA.gr[1]); linea(...P(8, 12), ...P(9, 6), SA.gr[1]);
+  // el cuerpo: lámina dorada que destella
+  const ch = Math.floor(t * 3) % 4, foil = (luz) => (a, b, x, y) => { const g = h(Math.floor(x / 2), Math.floor(y / 2), 61 + ch); return tono(SA.oro, luz + (g > 0.86 ? 1.4 : g < 0.25 ? -0.9 : 0) + (h(x, y, 62) - 0.5) * 0.6, x, y); };
+  quad(P(-14, -12), V(26, 0), V(7, -6), foil(3.2));
+  quad(P(12, -12), V(7, -6), V(0, 24), foil(1.0));
+  quad(P(-14, -12), V(26, 0), V(0, 24), foil(2.1));
+  linea(...P(-14, -12), ...P(12, -12), SA.oro[4]); linea(...P(-14, 12), ...P(12, 12), SA.oro[0]); linea(...P(12, -12), ...P(12, 12), SA.oro[0]);
+  // la antena de enlace (un platito) y la luz roja que parpadea
+  linea(...P(2, -15), ...P(4, -24), SA.gr[3]); const [dx, dy] = P(4, -25); disco(Math.round(dx), Math.round(dy), Math.max(1, Math.round(3 * s)), SA.gr[3]); ps(dx - 1, dy - 1, C.blanco);
+  if (Math.floor(t * 1.6) % 2) { const [lx, ly] = P(-14, -14); ps(lx, ly, hex('#ff4a4a')); ps(lx, ly - 1, hex('#ffb0b0')); }
+  return P(0, 19);
+};
+// un arco de onda alrededor de (ox, oy), a distancia d, hacia el ángulo a0
+const arcoOnda = (ox, oy, d, a0, c, cs, gordo) => { const sp = Math.min(0.32, (3 + d * 0.3) / Math.max(10, d)); for (let a = -sp; a <= sp; a += 0.5 / Math.max(8, d)) { const x = ox + Math.cos(a0 + a) * d, y = oy + Math.sin(a0 + a) * d; ps(x + 1, y + 1, cs); ps(x, y, c); if (gordo) { ps(x - Math.cos(a0 + a), y - Math.sin(a0 + a), C.blanco); } } };
+const p2 = (t) => {
+  R.copiar(tierraFondo());
+  // lo que se mueve al fondo: estrellas que titilan, la estación espacial que cruza y una estrella fugaz
+  for (let k = 0; k < 14; k++) { const x = Math.floor(h(k, 5, 63) * 320), y = Math.floor(h(k, 6, 63) * 120); if (Math.sin(t * (2 + k % 3) + k) > 0.6 && Math.hypot(x - TX, y - TY) > TR + 8) ps(x, y, C.blanco); }
+  { const u = (t - P2) * 9, ex = Math.round(170 - u), ey = Math.round(36 + u * 0.08); rect(ex - 3, ey, ex + 3, ey, hex('#8a92a8')); rect(ex - 5, ey - 2, ex - 4, ey + 2, SA.pan[2]); rect(ex + 4, ey - 2, ex + 5, ey + 2, SA.pan[2]); if (Math.floor(t * 2.5) % 3 === 0) ps(ex, ey - 1, hex('#ff5a5a')); }
+  { const f = (t - P2 - 2.6) / 0.5; if (f > 0 && f < 1) for (let i = 0; i < 14; i++) ps(250 - f * 70 + i * 1.6, 120 + f * 22 - i * 0.5 + 0, i < 2 ? C.blanco : i < 6 ? hex('#a8c0f0') : hex('#4a5a90')); }
+  // las nubes de la Tierra, a dos velocidades, solo sobre el disco
+  const enT = (x, y) => Math.hypot(x - TX, y - TY) < TR - 2;
+  for (let k = 0; k < 7; k++) { const v = k < 4 ? 2.2 : 3.6, cx = ((h(k, 1, 64) * 260 + (t - P2) * v) % 260) - 20, cy = 100 + h(k, 2, 64) * 80 - cx * 0.35; nube(cx, cy, 6 + Math.round(h(k, 3, 64) * 6), 20 + k, H('#a8b8d0 #dce6f2 #ffffff'), enT); }
+  const fuera = tramo(t, equis + 0.6, P3 - 0.2), fe = fuera * fuera * (3 - 2 * fuera);
+  const s = lerp(1, 0.34, fe), cx = lerp(206, 236, fe) + Math.sin(t * 0.7) * 1.2, cy = lerp(84, 72, fe) + Math.sin(t * 0.9) * 1.5;
+  const rad = satelite3(cx, cy, s, t);
+  // las ondas del radar bajan hacia Giza; al llegar, Giza destella; en «radar» se apagan
+  const on = tramo(t, P2 + 0.1, P2 + 0.8) * (1 - tramo(t, equis + 0.1, equis + 0.5));
+  const dx = GZ2[0] - rad[0], dy = GZ2[1] - rad[1], L = Math.hypot(dx, dy), a0 = Math.atan2(dy, dx);
+  if (on > 0) {
+    for (let d = 8; d < L * on; d += 4) { const w = 3 + d * 0.31; for (const sg of [-1, 1]) ps(rad[0] + Math.cos(a0) * d - Math.sin(a0) * w * sg, rad[1] + Math.sin(a0) * d + Math.cos(a0) * w * sg, hex('#2a5a8a')); }
+    for (let k = 0; k < 6; k++) { const pos = (t * 0.55 + k / 6) % 1; if (pos * L > L * on || pos < 0.04) continue; arcoOnda(rad[0], rad[1], pos * L, a0, hex('#7ae8ff'), hex('#1a4a7a'), false); }
+    if (on < 1) arcoOnda(rad[0], rad[1], L * on, a0, hex('#c8f8ff'), hex('#1a4a7a'), true);
+    else { const g = (t * 1.6) % 1; for (let a = 0; a < 6.28; a += 0.3) ps(GZ2[0] + Math.cos(a) * (2 + g * 8), GZ2[1] + Math.sin(a) * (1 + g * 4), g < 0.5 ? C.blanco : hex('#7ae8ff')); }
+  }
+  const e = tramo(t, equis - 0.05, equis + 0.2), sx = e < 1 ? e * 1.25 : 1 + 0.08 * Math.sin((t - equis) * 10) * Math.exp(-(t - equis) * 3);
+  if (e > 0) equisRoja(Math.round(cx + 2 * s), Math.round(cy + 4 * s), sx * 1.7 * s);
+};
+// ── plano 3: la calzada: el equipo sube con sus cajas; en «technique» la francesa levanta el detector y no lo baja:
+// los primeros muones caen sobre él y destella con cada uno; el japonés alza su placa y el técnico señala el cielo
+const p3 = (t) => {
+  const g = T.giza(R, t, { encuadre: 'meseta', camara: 'calzada', hora: 'dia' }), su = g?.suelo ?? 166;
+  const u = tramo(t, P3 + 0.05, team + 0.4), anda = u > 0 && u < 1;
+  const x0 = Math.round(lerp(-34, 30, u * (2 - u))), alza = tramo(t, tecnica - 0.15, tecnica + 0.3), mira = tramo(t, tecnica + 0.5, tecnica + 0.9);
+  // el técnico deja la caja en el suelo en «team», se vuelve, explica y luego señala el cielo
+  const deja = t > team + 0.4;
+  const a = R.actor(EL.tecnicoEgipcio, x0 + 92, su, t, { dir: deja && t < tecnica + 0.5 ? -1 : 1, anda, sostiene: deja ? null : true, dedo: t > tecnica + 0.5, habla: deja && t < tecnica - 0.1 && Math.sin(t * 9) > 0, sonrisa: t > tecnica + 0.9 });
+  if (!deja && a && a.mano) caja(a.mano[0], a.mano[1] + 3, 12, 9); else if (deja) caja(x0 + 104, su, 12, 9);
+  const yd = su - 14 - Math.round(alza * 16);   // con el detector en alto, la caja queda por encima de la cabeza
+  const b = R.actor(EL.cientificaFrancesa, x0 + 52, su, t, { dir: 1, anda, sostiene: [x0 + 52 + 12, yd], sonrisa: alza > 0.5, sorpresa: t > tecnica + 1.2 && t < tecnica + 1.6 });
+  // el japonés lleva la placa de emulsión al pecho: con los muones se va aclarando
+  const c = R.actor(EL.cientificoJapones, x0 + 18, su, t, { dir: 1, anda, sostiene: true, sorpresa: mira > 0 && mira < 1, sonrisa: mira >= 1 });
+  if (c && c.mano) T.PIEZAS_GZ.placaEmulsion(R, c.mano[0] + 2, c.mano[1] + 6, { luz: mira * tramo(t, tecnica + 0.9, P4) });
+  if (b && b.mano) {
+    const [dx, dy] = b.mano;
+    T.PIEZAS_GZ.detectorMuones(R, dx + 4, dy + 2 + Math.round((1 - alza) * 5), { t: alza > 0.5 ? t * 2 : 0 });
+    if (alza > 0.6) {
+      // los primeros muones bajan del cielo hasta el detector; cada llegada, un destello verde
+      for (let k = 0; k < 4; k++) { const per = 0.9 + k * 0.17, f = ((t - tecnica + k * 0.31) % per) / per, x = dx + 4 + (k - 1.5) * 9 + (1 - f) * 6, y = lerp(-6, dy - 14, f); if (t - tecnica + k * 0.31 > 0) muon(x, y, 8, 0.15, true); }
+      const latido = ((t - tecnica) * 2.1) % 1;
+      R.anillo(dx + 4, dy - 8, Math.round(8 + latido * 10), latido < 0.5 ? hex('#c8ffc8') : hex('#6ae06a'), 2);
+      for (let k = 0; k < 3; k++) if (Math.sin(t * 10 + k * 2) > 0.3) pset(dx + 2 + k * 3, dy - 16 - k, hex('#9aff9a'));
+    }
+  }
+  T.gizaDelante(R, t, { encuadre: 'meseta', camara: 'calzada', hora: 'dia' });
+};
+// ── plano 4: el cielo sobre Giza: llueven muones ──
+const CN = H('#0c1438 #121c48 #1a2a5e #243a74 #304c8a #42629e #5a7cae');
+const CAMN = { k: hex('#120c0a'), a: hex('#7a5a3e'), s: hex('#523a2a'), l: hex('#a8886a'), m1: hex('#7a2a2a'), m2: hex('#24406e'), m3: hex('#a88a3a') };
+const fondoCielo = () => capa('cielo', () => {
+  cielo(0, 136, CN, 4);
+  for (let k = 0; k < 40; k++) { const x = h(k, 1, 40) * 320, y = h(k, 2, 40) * 70; if (libre(x, y)) pset(x, y, k % 3 ? hex('#8a9ac8') : C.blanco); }
+  // el brillo del oeste en el horizonte
+  for (let y = 112; y < 136; y++) for (let x = 0; x < 320; x++) { const g = (y - 112) / 24 * (1 - x / 520); if (g > bay(x, y) * 1.2) pset(x, y, mix(R.pget(x, y), hex('#c8805a'), 0.45 * g)); }
+  // la luna está a la derecha: la cara derecha de cada pirámide, de luna (caliza fría); la izquierda, en sombra con el
+  // reflejo cálido del horizonte del oeste; un filo de luz en la arista y en el canto derecho
+  const LD = H('#2a2232 #34283a #3e3042 #4a384a #5a4450'), SD = H('#3a3448 #48405a #585070 #6a6080 #7e7494');
+  for (const [cx, ap, ba, hf, m] of [[206, 76, 138, 62, false], [112, 84, 138, 56, true], [36, 112, 140, 26, false]]) {
+    piramide(cx, ap, ba, hf, { luz: LD, sombra: SD, mastil: m, arista: -0.1 });
+    linea(cx + 1, ap + 1, cx + hf, ba, hex('#a8a4c0')); linea(cx, ap, cx - 0.1 * hf, ba, hex('#b4b0cc'), 3);
+    for (let k = 0; k < 18; k++) { const y = Math.round(ap + 6 + h(k, cx, 43) * (ba - ap - 8)), hw = (y - ap) / (ba - ap) * hf, x = Math.round(cx - 0.1 * hw + h(k, cx, 44) * hw * 1.05); if (x < cx + hw - 1) { pset(x, y, hex('#9c98b4')); pset(x + 1, y, hex('#847e9e')); } }
+  }
+  arena(136, H('#3a2a2a #4e3830 #644636 #7a563e #8e6648'));
+  // la luna creciente con su halo y una Vía Láctea tenue en diagonal
+  for (let j = -9; j <= 9; j++) for (let i = -9; i <= 9; i++) { const d = Math.hypot(i, j); if (d < 9 && d > 5 && bay(236 + i, 30 + j) < 0.35 * (1 - (d - 5) / 4)) pset(236 + i, 30 + j, hex('#3a4a7e')); }
+  disco(236, 30, 5, hex('#f4ecc8')); disco(238, 29, 4, tono(CN, 1.6, 238, 29)); pset(233, 28, hex('#fffbe8'));
+  for (let k = 0; k < 260; k++) { const u = h(k, 7, 41), x = 20 + u * 240, y = 92 - u * 70 + (h(k, 8, 41) - 0.5) * 22; if (libre(x, y) && y > 18) pset(x, y, k % 5 ? hex('#3c4c80') : hex('#8a9ac8')); }
+  // en la arena: piedras con su luz de luna y su sombra, matas secas y las huellas del camello
+  for (let k = 0; k < 22; k++) { const x = Math.round(h(k, 1, 42) * 316), y = Math.round(140 + h(k, 2, 42) * 38), w = 2 + Math.round(h(k, 3, 42) * 3);
+    rect(x, y, x + w, y + 1, hex('#2a1e1e')); rect(x, y - 1, x + w - 1, y, hex('#7a6050')); pset(x, y - 1, hex('#a88a6a')); rect(x + 1, y + 2, x + w + 1, y + 2, hex('#2e2220')); }
+  for (let k = 0; k < 12; k++) { const x = Math.round(h(k, 4, 42) * 310), y = Math.round(146 + h(k, 5, 42) * 30); for (let i = -3; i <= 3; i++) linea(x, y, x + i, y - 3 - (Math.abs(i) < 2 ? 1 : 0), i & 1 ? hex('#5a5030') : hex('#3e3a24')); }
+  for (let k = 0; k < 26; k++) { const x = 20 + k * 6, y = Math.round(178 - k * 0.5 + Math.sin(k * 0.6) * 2), dy = k & 1 ? -3 : 0;
+    rect(x, y + dy, x + 2, y + dy + 1, hex('#2a1e1e')); pset(x + 2, y + dy - 1, hex('#9a7a5e')); }
+  for (let k = 0; k < 18; k++) { const x = 180 + k * 7, y = Math.round(176 - k * 1.1 + (k & 1) * 2); pset(x, y, hex('#2a1e1e')); pset(x + 1, y, hex('#2a1e1e')); pset(x + 1, y - 1, hex('#9a7a5e')); }
+  for (let k = 0; k < 7; k++) { const y0 = 141 + k * 5 + Math.round(h(k, 1, 45) * 2); for (let x = 0; x < 320; x++) { const y = Math.round(y0 + Math.sin(x * 0.045 + k * 1.7) * 2.2); if ((x + k * 13) % 50 < 34) { pset(x, y, hex('#9a7a5e')); pset(x, y + 1, hex('#3a2a28')); } } }
+  for (let k = 0; k < 8; k++) { const x = Math.round(16 + h(k, 6, 42) * 290), y = Math.round(150 + h(k, 7, 42) * 26); for (let i = -5; i <= 5; i++) { linea(x, y, x + i, y - 5 - (Math.abs(i) < 3 ? 2 : 0), i & 1 ? hex('#6a6040') : hex('#3e3a24')); if (i > 1) pset(x + i, y - 5 - (i < 3 ? 2 : 0), hex('#a8a080')); } rect(x - 3, y + 1, x + 4, y + 1, hex('#241a18')); }
+  // palmeras al fondo y las luces de El Cairo
+  for (const px of [268, 284, 300]) { linea(px, 136, px + 2, 112, hex('#2a1e1a')); for (let k = 0; k < 5; k++) linea(px + 2, 112, px + 2 + Math.cos(k * 1.3) * 9, 112 + Math.sin(k * 1.3) * 4 + 2, hex('#1e2a1e')); }
+});
+// las cuerdas del recinto: estacas de madera con la luz de luna a la derecha y la cuerda que cuelga y se mece
+const ESTACAS = [[96, 150], [130, 148], [164, 147], [198, 146], [236, 147], [272, 148], [306, 150]];
+const cuerdas = (t) => {
+  for (let k = 0; k < ESTACAS.length - 1; k++) { const [x0, y0] = ESTACAS[k], [x1, y1] = ESTACAS[k + 1], cae = 4 + Math.sin(t * 1.3 + k) * 0.8;
+    for (let x = x0; x <= x1; x++) { const f = (x - x0) / (x1 - x0), y = Math.round(lerp(y0 - 8, y1 - 8, f) + Math.sin(f * Math.PI) * cae); pset(x, y, hex('#a88a5a')); pset(x, y + 1, hex('#3a2a20')); } }
+  for (const [x, y] of ESTACAS) { rect(x - 1, y - 10, x + 1, y, hex('#2a1c14')); pset(x + 1, y - 10, hex('#9a8aa8')); linea(x + 1, y - 9, x + 1, y - 1, hex('#6a5a6a')); rect(x - 2, y + 1, x + 3, y + 1, hex('#1e1416')); }
+};
+// un murciélago que aletea (tres dibujos de ala)
+const murcielago = (x, y, t, k) => {
+  x = Math.round(x); y = Math.round(y); const f = Math.floor(t * 12 + k * 3) % 3, c = hex('#0a0814');
+  rect(x - 1, y, x + 1, y + 1, c); pset(x - 1, y - 1, c); pset(x + 1, y - 1, c);
+  const alas = [[[-2, -1], [-3, -2], [-4, -2]], [[-2, 0], [-3, 0], [-4, 0]], [[-2, 1], [-3, 2], [-4, 1]]][f];
+  for (const [i, j] of alas) { ps(x + i, y + j, c); ps(x - i, y + j, c); }
+};
+const p4 = (t) => {
+  R.copiar(fondoCielo());
+  // las luces de El Cairo, a lo lejos, que titilan
+  for (let k = 0; k < 14; k++) if (Math.sin(t * 2 + k * 1.7) > 0.2) pset(250 + k * 5, 133 - (k % 3), k % 2 ? hex('#ffd080') : hex('#fff0c0'));
+  const sc = esCielo(fondoCielo(), capa('soloCielo', () => cielo(0, 136, CN, 4)));
+  // las nubes, en tres términos y tres tonos: lejos, pequeñas y lentas; en medio; cerca, grandes y rápidas
+  const NL = H('#18204a #222e60 #344676'), NM = H('#1e2a5a #34467c #566c9e'), NC = H('#26325e #3e5084 #6a84b8');
+  for (const [x0, cy, w, v, P, k] of [[30, 58, 14, 2, NL, 0], [170, 60, 16, 2, NL, 1], [250, 64, 12, 2, NL, 6], [110, 76, 20, 4, NM, 2], [300, 82, 18, 4, NM, 3], [40, 98, 26, 7, NC, 4], [220, 104, 24, 7, NC, 5]]) {
+    const cx = ((x0 + (t - P4) * v) % 380) - 30; nube(cx, cy, w, 30 + k, P, sc);
+  }
+  // murciélagos que revolotean entre las pirámides
+  for (let k = 0; k < 4; k++) { const ph = t * (0.9 + k * 0.17) + k * 2.1, x = 60 + k * 62 + Math.sin(ph) * 26 + Math.sin(ph * 2.7) * 6, y = 70 + (k % 2) * 16 + Math.cos(ph * 1.3) * 10 + Math.sin(ph * 3.1) * 3; murcielago(x, y, t, k); }
+  // los detectores en la arena (dentro del recinto), con su cable y su lucecita; destellan cuando les cae un muon
+  cuerdas(t);
+  for (const [x, y, k] of [[150, 160, 0], [282, 158, 1]]) {
+    linea(x - 12, y - 2, x - 26, y + 6, hex('#14100e')); rect(x - 30, y + 4, x - 24, y + 8, hex('#2a2a32')); pset(x - 29, y + 4, hex('#8a8aa0')); if (Math.floor(t * 2 + k) % 2) pset(x - 26, y + 6, hex('#6aff6a'));
+    rect(x - 13, y, x + 13, y + 1, hex('#1a1214'));
+    T.PIEZAS_GZ.detectorMuones(R, x, y, { t: t + k });
+    const g = ((t - P4) * 1.7 + k * 0.5) % 1; if (t > P4 + 0.3 && g < 0.35) R.anillo(x, y - 8, Math.round(6 + g * 14), g < 0.15 ? hex('#c8ffc8') : hex('#4ac04a'), 1);
+  }
+  const n = Math.round(24 + 46 * tramo(t, P4 + 0.05, cielo2 + 0.4));
+  lluvia(t, n, [0, 18, 319, 179], { v: 170 });
+  // un camellero con su camello, dos turistas: miran arriba; uno abre el paraguas y los muones lo atraviesan
+  const cx = 70 + Math.round(Math.sin(t * 0.6) * 2);
+  // el camello rumia; en «sky» levanta la cabeza a la vez que su camellero, que lo lleva del ronzal
+  const ron = camello(cx - 30, 170, t, 1, false, 0, { pal: CAMN, rumia: t < cielo2, alza: t > cielo2 });
+  const cm = R.actor(EL.camellero, cx, 170, t, { dir: -1, sostiene: [cx - 8, 154], sorpresa: t > cielo2, habla: t > P4 + 0.6 && t < cielo2 && Math.sin(t * 8) > 0 });
+  if (cm && cm.mano) { const [mx, my] = cm.mano; for (let k = 0; k <= 6; k++) { const f = k / 6; pset(Math.round(lerp(ron[0], mx, f)), Math.round(lerp(ron[1], my, f) + Math.sin(f * Math.PI) * 2), hex('#1a1210')); } }
+  const u = tramo(t, P4 + 0.2, P4 + 1.6);
+  R.actor(EL.turista1, Math.round(lerp(240, 176, u)), 172, t, { dir: -1, anda: u > 0 && u < 1, dedo: t > P4 + 1.4 && t < siempre, sorpresa: t > siempre });
+  const ab = tramo(t, siempre, siempre + 0.35), tx = 214;
+  const q = R.actor(EL.turista2, tx, 174, t, { dir: -1, sostiene: [tx - 2, 150], sonrisa: ab > 0.9 });
+  if (q && q.mano) { const [mx, my] = q.mano; linea(mx, my, mx, my - 16, C.k); if (ab > 0) { const r = Math.round(4 + ab * 10), y = my - 16; for (let i = -r; i <= r; i++) { const yy = y - Math.round(Math.sqrt(Math.max(0, r * r - i * i)) * 0.55); linea(mx + i, yy, mx + i, y, Math.floor((i + r) / 4) % 2 ? hex('#d04a4a') : hex('#f2e2c8')); pset(mx + i, yy - 1, C.k); } linea(mx - r, y, mx + r, y, C.k); } }
+  // los muones del primer término, más gordos, que lo atraviesan todo (también el paraguas)
+  lluvia(t, Math.round(3 + 10 * tramo(t, P4, cielo2)), [120, 60, 260, 179], { v: 120, n: 9, borde: false });
+};
+const efectos = [[0.3, 'viento', { dur: 1.8 }], [mixT - 0.1, 'whoosh'], [found, 'brillo'],
+  [P2 + 0.2, 'zumbido'], [equis, 'pop'], [equis + 0.9, 'whoosh'],
+  [team + 0.4, 'golpecito'], [tecnica + 0.05, 'bip'], [tecnica + 1.2, 'bip'],
+  [P4 + 0.1, 'lluvia'], [cielo2 - 0.2, 'viento', { dur: 1.6 }], [siempre + 0.3, 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: (t) => t < P3 ? 2026 : 2017 });
+</script>
+</body>
+</html>

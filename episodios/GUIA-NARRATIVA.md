@@ -35,7 +35,8 @@
 
 ## Qué aplicamos en ASK Atom
 
-- **Desde el episodio 9, primero el gancho y después Atom, en una línea.** En el episodio 4 se fue el 60 % de la gente en los primeros 20 s, mientras Atom se presentaba. El vídeo abre con lo que promete el título, sigue con la pregunta y solo entonces: «Soy Atom, y te explico lo que no te contaron en clase. Vamos a verlo.» («I'm Atom, and I explain what school didn't teach you. Let's find out.»)
+- **Desde el episodio 9, primero el gancho y después Atom, en una línea.** En el episodio 4 se fue el 60 % de la gente en los primeros 20 s, mientras Atom se presentaba. El vídeo abre con lo que promete el título, sigue con la pregunta y solo entonces: «Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.» («I'm Atom, and I explain the things you've always wondered about. Let's find out.»)
+  - **Desde el episodio 17** (elegida por el usuario el 30/10/2026). Hasta el 16 era «te explico lo que no te contaron en clase» («what school didn't teach you»); se cambió porque muchos temas (los juegos, una ciudad, los ovnis) no son cosas que se deberían enseñar en la escuela: la frase tiene que valer para cualquier tema.
 - **Hasta el episodio 8, Atom se presentaba al empezar, en una frase:** quién es y qué hace.
   - Fórmula: «Hola, soy Atom: uno de los ladrillos diminutos de los que está hecho todo lo que te rodea, y te explico lo que no te contaron en clase.»
   - En inglés: «Hi, I'm Atom, one of the tiny building blocks of everything around you, and I explain what school didn't teach you.»
@@ -87,7 +88,60 @@
   - Personas reales: solo hechos comprobados, con trato justo. Los gags van con máquinas y objetos, nunca para ridiculizar a nadie real.
 - **Cifras en el guion:** los años van en cifras (`hacer_guion.py` los pasa a palabras para la voz). Cualquier otra cifra va en palabras en los dos idiomas («nine billion», «ciento setenta y cinco mil»), porque un número de tres cifras se leería como un año («175» → «one seventy-five»). Si tiene que ir en cifras, va en `PREVIO` de `hacer_guion.py`, como las fechas con día.
 
-## Títulos
+## Narrar como un cuento (desde el 21, regla del usuario)
+
+«Se escucha como frases sueltas, parecen robots, no es una narración de un cuento» (05/11/2026). Desde el 21:
+- cada fila del guion es un párrafo de 2–4 oraciones, no una frase con un dato;
+- los párrafos encadenan: «Pero…», «Y ahí…», «Así que…», «Ahora, imagina…», «Por cierto…»;
+- hay un hilo que avanza (una noche, un viaje, una pregunta), y los datos van dentro de la historia, no en lista;
+- la voz se graba por oraciones enteras, sin cortar en las comas (la muestra «B»);
+- en español, todos los nombres propios extranjeros se escriben como se dicen en español de México.
+
+## Narrar como un relato hablado (desde el 43, aprobado el 20/11/2026 con la prueba de Roanoke)
+
+El usuario: «quiero que narremos diferente… esa es la forma de narrar» (el canal de Farid Dieck, «Relato y Reflexiones»), y
+tras la primera prueba: «sigue pareciendo lo que hacíamos, frases cortas sin hilar». Se aprobó la segunda prueba
+(`atomo/plato/escenas/mf-gancho.html`). Sustituye al tono de cuento en tercera persona:
+- **Atom te habla a ti.** Primera persona («hoy te la quiero contar de otra forma») y segunda («imagina que vuelves…»,
+  «fíjate en esto»). Sin muletillas exageradas («uf», «híjole»).
+- **Párrafos hilados, no frases sueltas.** Cada fila es un párrafo de 1–3 oraciones largas que avanzan con «así que»,
+  «y», «hasta que», «porque», «pero», «mientras»; nada de «Bajas del barco. Tocas una trompeta. Nadie contesta.»: se
+  escribe «…en cuanto la barca toca la arena ya estás tocando una trompeta…, y esperas, y nadie contesta.»
+- **El arranque te mete dentro de la escena:** la primera oración es la promesa del título (15 palabras o menos en
+  inglés); después, la escena en segunda persona y en presente, con detalles concretos, cortada en lo más alto; y solo
+  entonces la revelación («Eso le pasó de verdad a…»). Sin bienvenida, sin resumen y sin lista de lo que viene.
+- **Las paradas «fíjate en esto»:** la historia se para para explicar el porqué real (el ángulo de ASK Atom), breve y
+  sencillo, y lo lleva a la vida de quien escucha. En imagen, cada parada es una PAUSA (GUIA-ESTILO, «Atom en escena»):
+  4–6 por episodio, de 5 a 15 s.
+- **Sembrar y recoger:** uno o dos «guárdate esto» al principio que se recogen al final.
+- **Cierre:** vuelve a la imagen del principio, una reflexión con una frase para recordar, y una pregunta para los
+  comentarios. «Soy Atom, y te explico…» ya no va: Atom se presenta actuando.
+- **La voz:** cada párrafo se locuta DE UNA SOLA VEZ (`guion.json`: `"parrafo_entero": true`), sin silencios dentro del
+  párrafo (`"pausas": {"respiro": 0.2, "parrafo": 0.7, "acto": 1.0}`), el inglés a 0,95 y el español con
+  `mood.valence` 0,4 y `mood.arousal` 0,3 (más contenido, con misterio). Unas 170 palabras por minuto. Música presente
+  cuando calla la voz.
+- **Humanizado, sin afirmaciones cortas (regla del usuario, 21/11/2026, tras el 44):** «sigo escuchando frases cortas,
+  afirmaciones rápidas… “Él es así. Su madre también. Cien veces ganó, diez perdió.” Parecen de robot, humanízalo; no
+  perdamos la idea de una locución tipo cuento, con pausas explicativas». Por eso:
+  - **lo que de verdad suena a robot es encadenar hechos** (el usuario señaló esto en el 45: «la mujer del barón cae
+    enferma y el barón obliga a Werner a curarla, y Werner lo intenta todo… así que cuando ella muere el barón… lo
+    acusa… a esto me refiero, frases cortas»): seis hechos en una oración, aunque vayan unidos con «y» y «así que», se
+    oyen como un parte de noticias. Un momento por párrafo, y dentro de él lo que la persona ve, siente y piensa
+    («Imagina lo que siente Werner al cruzar la puerta de ese castillo…»), como Farid. Si algo no cabe así, se quita
+    de la historia (se avisa al usuario), no se comprime;
+  - nada de oraciones de 3–8 palabras seguidas («Victor lo echa. Enciende la máquina. La máquina explota.»): se unen con
+    el porqué («…porque su orgullo no lo soporta, así que, en cuanto se queda solo, enciende la máquina…»);
+  - cada dato lleva su emoción o su razón al lado (qué sintió, por qué lo hizo, qué significa), y menos datos por párrafo;
+  - nada de cifras en serie ni de balances («ganó tantas, perdió tantas»): una cifra por idea, y contada;
+  - las pausas «fíjate» explican despacio, como quien piensa en voz alta, y vuelven a la historia;
+  - revisa el guion entero buscando oraciones de menos de 10 palabras antes de presentarlo: cada una tiene que estar ahí
+    por algo (un remate, como mucho una por acto).
+- **Duración y destripes** (decidido el 20/11/2026 para el 43): relatos de 12–14 min (unas 2.100–2.300 palabras en
+  inglés); la historia se cuenta entera, con un aviso de destripes a los 10–15 s («si aún no la has visto, guárdate este
+  vídeo para después»), y la violencia nunca se ve.
+- **Títulos al estilo del relato:** una pregunta sobre la persona, con 1–3 palabras clave en mayúsculas, y después la
+  obra (p. ej. «Why Did the WINNER Fall Apart? | Haymitch, Sunrise on the Reaping»). Siempre cierto dentro del vídeo.
+
 
 - **El tema, o la persona o el nombre más buscado, va delante, y el gancho detrás.** Correcciones del usuario: «el título debe ser más catchy, con de lo que va el canal» (22/10) y «deben ser muy claros de qué hablamos, debe decir Los Griegos o Grecia antigua dentro del título, no solo el catch» (23/10). En el 11: «Elizabeth Holmes and Theranos: The Drop of Blood That Fooled Silicon Valley».
 - **Sin minutos en el título ni en la descripción.** El Halloween prometía 10 minutos y duraba menos de 7 («mencionas que son 10 minutos y en verdad son menos de 7»).
@@ -110,3 +164,12 @@
 | **papel** / **isométrico** | Las versiones con la paleta del canal | `kits/papel-adulta.js`, `kits/isometrico-adulta.js` |
 
 Cualquier estilo del muestrario se pide por su número (`estilos/NN-*.html`): «estilo 17 tal cual» significa copiarlo sin adaptarlo a la paleta ni al Atom del canal.
+
+## Antes de presentar un guion (regla del 23/11/2026)
+
+Siempre, y otra vez después de meter las correcciones de los escépticos: `python3 atomo/herramientas/frases-cortas.py
+episodios/<carpeta>/guion.md` (0 oraciones de 9 palabras o menos fuera del canon: la entrada de las pausas, la pregunta
+que recoge la imagen y el cierre) y una relectura buscando hechos encadenados. En el 47 la v2 tenía trece oraciones cortas
+(«Los demás empiezan enseguida. Mary no.», «Y Mary escribe.») y el usuario lo pidió: «valida que no estemos usando las
+frases cortas».
+

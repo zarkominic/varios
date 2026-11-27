@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep28</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NC-HOLA (frase 3), 2026, sin cartela. Un plano: el estudio de Atom de día, con la lata roja que aún gotea espuma en
+// el escritorio. Atom, todavía con pegotes de espuma, salta a saludar en «I'm Atom»; en «explain the things» la gráfica
+// del monitor sube y Atom gira en el aire; en «wondered about» salen los «?»; en «Let's find out» se sacude la espuma (los
+// pegotes salen volando) y se va hacia la ventana; el gato del alféizar sigue con la cabeza los pegotes.
+import * as T from '/atomo/plato/escenas/nc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nc-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#0c0a12'), BL = hex('#fbf6ea'), BS = hex('#c8c0b0');
+const h1 = (f) => en('hola', f);
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila
+const atom = h1(0.035), explica = h1(0.218), pregunta = h1(0.541), vamos = h1(0.798), fin = h1(0.898);
+const pegote = (x, y, r) => { R.disco(x, y, r + 1, K); R.disco(x, y, r, BL); R.pset(x - 1, y - 1, hex('#ffffff')); if (r > 1) R.pset(x + 1, y + 1, BS); };
+const p1 = (t) => {
+  const o = { encuadre: 'estudio', espuma: 0.25 };
+  T.hoy(R, t, o);
+  // los «?» de «wondered about»
+  if (t > pregunta - 0.1 && t < vamos + 0.3) for (let i = 0; i < 3; i++) { if (t < pregunta - 0.1 + i * 0.25) continue; R.icono('?', 146 + i * 16, 100 - (i & 1) * 8 - Math.round(Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 2); }
+  // Atom: salta en «Atom», gira en «explain», y en «Let's find out» se sacude y vuela a la ventana
+  const sal = t > atom && t < explica + 0.2 ? Math.round(Math.abs(Math.sin((t - atom) * Math.PI * 2.2)) * 12) : 0;
+  const v = tramo(t, vamos + 0.3, E.duracion - 0.1);
+  const ax = Math.round(lerp(168, 56, v)), ay = Math.round(lerp(134, 58, v)) - sal + Math.round(Math.sin(t * 2.6) * 2);
+  const sacude = t > vamos - 0.1 && t < vamos + 0.4 ? Math.round(Math.sin(t * 50) * 2) : 0;
+  for (let j = -22; j <= 22; j++) for (let i = -22; i <= 22; i++) { const g = 1 - Math.hypot(i, j) / 21; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + sacude + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  if (sal > 0 || (t > explica && t < explica + 0.8)) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 4, rr = 20 + Math.sin(t * 9) * 2; R.pset(Math.round(ax + Math.cos(an) * rr), Math.round(ay + Math.sin(an) * rr), hex('#c8f0ff')); }
+  R.atomo(ax + sacude, ay, t, { r: 15 + (sal > 0 ? 1.5 : 0), orbita: R.PAL.ATOM[7], energia: sal > 0 || v > 0 ? 0.7 : 0.35 });
+  // la espuma: pegada hasta «Let's», luego sale volando en abanico
+  const P = [[-8, -5, 3], [4, -9, 3], [9, 3, 3], [-3, 7, 2], [-11, 4, 2], [12, -4, 1]];
+  const vuela = tramo(t, vamos - 0.05, vamos + 0.9);
+  P.forEach(([dx, dy, r], k) => {
+    if (vuela <= 0) return pegote(ax + sacude + dx, ay + dy, r);
+    if (vuela >= 1) return;
+    const n = Math.hypot(dx, dy) || 1; pegote(Math.round(ax + dx + dx / n * vuela * 60), Math.round(ay + dy + dy / n * vuela * 40 + vuela * vuela * 50), r);
+  });
+  if (vuela <= 0) { const u = (t * 0.7) % 1; pegote(ax - 4, Math.round(ay + 9 + u * 18), 1); }
+  T.hoyDelante(R, t, o);
+};
+const efectos = [[atom + 0.05, 'pop'], [explica + 0.1, 'brillo'], [pregunta + 0.1, 'boing'], [vamos, 'chof'], [vamos + 0.4, 'whoosh']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

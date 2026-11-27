@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep24 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep24, «La bomba en la Luna», en el estilo noir aprobado
+// (ayudas en noir-mini.js). La Luna enorme y detallada llena el cielo con la mira roja encima; abajo, en lo alto de una
+// loma, junto a un radiotelescopio pequeño, la silueta de un hombre con sombrero y gabardina de espaldas, mirándola,
+// recortada con el filo de luna; niebla baja, grano y viñeta. Arriba, «1958» en blanco hueso.
+// Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, hh, tinte, poligono, elipse, halo, linea, SIL } = N;
+
+const dibujar = () => {
+  // 1 · el cielo y la Luna grande con la mira, en el centro de la columna
+  N.cielo({ cx: 160, cy: 82, r: 150, estrellas: 120, altoEstrellas: 150, semilla: 2 });
+  N.luna({ x: 160, y: 82, r: 46, halo: 22, haloF: 0.4, crateres: 34, mira: { dx: 6, dy: -4, r: 22, brazo: 60, hueco: 6 } });
+  // 2 · la niebla baja y las lomas en silueta; la del centro, más alta, con el hombre encima
+  for (let y = 120; y < H; y++) for (let x = 0; x < W; x++) tinte(x, y, hex('#3a4a7a'), 0.18 * Math.max(0, 1 - Math.abs(y - 146) / 26));
+  const LOMA = hex('#06070c'), LOMA2 = hex('#0b0d16');
+  for (let x = 0; x < W; x++) { const h = 150 + Math.round(Math.sin(x * 0.03) * 6 + hh(x >> 3, 0, 4) * 4); for (let y = h; y < H; y++) set(x, y, LOMA2); }
+  for (let x = 0; x < W; x++) { const d = (x - 162) / 70, h = Math.round(160 + d * d * 22 + hh(x >> 2, 1, 4) * 2); for (let y = h; y < H; y++) set(x, y, LOMA); }
+  // el radiotelescopio pequeño a la izquierda del hombre: plato inclinado hacia la Luna, en contraluz
+  poligono([[128, 161], [131, 150], [134, 161]], SIL);
+  { const cx = 129, cy = 142, a = -0.65, ca = Math.cos(a), sa = Math.sin(a);   // el plato: media elipse girada, cóncava hacia la Luna
+    for (let y = cy - 12; y <= cy + 12; y++) for (let x = cx - 12; x <= cx + 12; x++) { const u = (x - cx) * ca + (y - cy) * sa, v = -(x - cx) * sa + (y - cy) * ca;
+      if ((u / 11) ** 2 + (v / 4.5) ** 2 <= 1 && v > -1.5) set(x, y, SIL(x, y)); }
+    linea(cx, cy - 1, cx + 7, cy - 10, SIL); elipse(cx + 7, cy - 10, 1.2, 1.2, SIL); }
+  // 3 · el hombre de espaldas, mirándola (pequeño: la Luna manda)
+  N.hombre({ x: 160, base: 168, s: 0.36 });
+  N.filo({ x0: 140, x1: 182, y0: 118, y1: 168, lado: 'der', yClaro: 132 });
+  N.filoSup({ x0: 150, x1: 170, y0: 112, y1: 130, color: '#a8c0f0', f: 0.8 });
+  N.filo({ x0: 118, x1: 140, y0: 130, y1: 162, lado: 'der', yClaro: 0, color: '#4a64a8', doble: false });
+  // 4 · el año arriba
+  N.cifra('1958', 160, 24, { tam: 16 });
+  // 5 · grano y viñeta, centrados en la columna
+  N.granoVineta({ cx: 160, cy: 90, rx: 150, ry: 120, desde: 0.55 });
+};
+N.listo(dibujar);
+</script>
+</body>
+</html>

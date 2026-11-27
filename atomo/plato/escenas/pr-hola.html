@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep29</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// PR-HOLA (frase 3), hoy, sin cartela. Un plano: el escritorio de Atom de cerca (el globo pequeño que gira, la taza, el
+// tintero). Atom sube desde detrás de la mesa con el mapa enrollado pegado a su órbita y salta a saludar en «I'm Atom»;
+// en «explain» gira con un destello; en «wondered about» salen los «?» junto al globo; en «Let's find out» deja caer el
+// rollo sobre la mesa y el mapa se despliega (esta vez no se enrolla).
+import * as T from '/atomo/plato/escenas/pr-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('pr-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+R.companero = () => {};   // Atom está en el plano: la esquina queda tranquila
+const h1 = (f) => en('hola', f);
+const atom = h1(0.035), explica = h1(0.217), pregunta = h1(0.540), vamos = h1(0.799);
+const K = hex('#0c0a12');
+const p1 = (t) => {
+  const deja = tramo(t, vamos + 0.05, vamos + 0.35), abre = tramo(t, vamos + 0.35, vamos + 1.0);
+  const o = { encuadre: 'estudio', camara: 'mesa', mapa: abre };
+  T.hoy(R, t, o);
+  const sube = tramo(t, 0, atom + 0.2);
+  const sal = t > atom && t < explica + 0.2 ? Math.round(Math.abs(Math.sin((t - atom) * Math.PI * 2.2)) * 10) : 0;
+  const ax = 150, ay = Math.round(lerp(126, 82, sube) - sal + Math.sin(t * 2.6) * 2);
+  for (let j = -20; j <= 20; j++) for (let i = -20; i <= 20; i++) { const g = 1 - Math.hypot(i, j) / 19; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  if (t > explica && t < explica + 0.8) for (let k = 0; k < 10; k++) { const an = k * Math.PI / 5 + t * 4; R.pset(Math.round(ax + Math.cos(an) * 20), Math.round(ay + Math.sin(an) * 20), hex('#c8f0ff')); }
+  R.atomo(ax, ay, t, { r: 14, orbita: R.PAL.ATOM[7], energia: sal > 0 ? 0.7 : 0.35 });
+  T.hoyDelante(R, t, o);
+  // el rollo bajo «el brazo» (pegado a la órbita) hasta «Let's find out», que cae sobre la mesa
+  if (deja < 1) { const rx = Math.round(lerp(ax + 18, 232, deja)), ry = Math.round(lerp(ay + 4, 132, deja * deja)); R.rect(rx - 1, ry - 1, rx + 22, ry + 6, K); R.rect(rx, ry, rx + 21, ry + 5, hex('#e8d4a4')); R.rect(rx, ry + 4, rx + 21, ry + 5, hex('#b89a64')); R.rect(rx + 2, ry, rx + 2, ry + 5, hex('#a83224')); R.rect(rx + 18, ry, rx + 18, ry + 5, hex('#a83224')); R.rect(rx + 4, ry + 1, rx + 16, ry + 1, hex('#fff4d8')); }
+  // los «?» de «wondered about», junto al globo
+  if (t > pregunta - 0.1 && t < vamos + 0.2) for (let i = 0; i < 3; i++) { if (t < pregunta - 0.1 + i * 0.25) continue; R.icono('?', 246 + i * 14, 92 - (i & 1) * 8 - Math.round(Math.sin(t * 4 + i) * 2), hex('#ffe890'), K, 2); }
+};
+const efectos = [[atom + 0.05, 'pop'], [explica + 0.1, 'brillo'], [pregunta, 'pop'], [vamos + 0.35, 'papel']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

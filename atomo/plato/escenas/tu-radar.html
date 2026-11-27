@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El radar · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-RADAR (frases 14–15), finales de 2015, sin cartela. Seis planos:
+// 1. la cámara pintada de noche, a oscuras: el vigilante de la puerta barre el suelo con su linterna y Watanabe entra
+//    con el radar de mano (por delante de la caja del portátil); en «late 2015» el ayudante enciende el foco (clic,
+//    parpadeo) y el vigilante apaga la linterna; Watanabe se sube a la plataforma de aluminio al pie de la pintura, en
+//    «Watanabe» alza el radar contra la pintura (bip y anillo verde donde toca) y en «ran his device along the walls»
+//    lo pasa de figura en figura, de lado a lado, con el cable que lo sigue (pitidos); el ayudante apunta en su libreta;
+// 2. la rueda de prensa en Luxor: murmullo; un ayudante entra por detrás de la mesa y le pasa un papel al ministro en
+//    «minister» y se va; el ministro se levanta y habla; en «announced» la pantalla sube (tic, tic) y en «90 %» se para
+//    en 90; él señala, los de la mesa sonríen; flashes;
+// 3. el público desde la mesa: en «chance» y «hidden rooms» los periodistas alzan teléfonos y grabadoras uno tras otro
+//    y estalla la tanda de flashes;
+// 4. el cañón: el excursionista llega a la repisa con su compañera; en «shouting» grita: los pájaros de la pared
+//    salen volando y la compañera se tapa (sorpresa); la onda cruza, choca (caen piedrecitas) y en «echo» vuelve en
+//    arcos a trazos, y otra tanda más débil detrás (el eco repetido; sin burbuja);
+// 5. el corte de roca: un escarabajo empuja su bola por la superficie; el radar, apoyado en la arena (más bajo que el
+//    del decorado, con aire bajo el año); la onda baja y en «material to another» rebota en una lente irregular de aire
+//    (borde dentado, polvo que flota; no una franja de lado a lado); en «rubble» rebota en una lente de escombro; el cronómetro mide cada vuelta (pitido al salir, golpe al rebotar,
+//    tic al volver);
+// 6. la pantalla del radar: una polilla revolotea en la luz de la pantalla y se posa; en «bounces back» salen las
+//    hipérbolas y el contador de tiempo corre en «time it takes to return»; la mano entra (la polilla huye), señala la
+//    del fondo y en «how deep» baja por la escala de metros.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-radar');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= N(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const velo = (x, y, c, k) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, k)); };
+// todo el cuadro más oscuro (k 0–1) o más claro (sube 0–255): un solo recorrido del búfer
+const oscurece = (k) => { const B = R.buf, f = 1 - k; for (let i = 0; i < 57600; i++) { const p = B[i]; B[i] = (0xff000000 | (N(((p >> 16) & 255) * f) << 16) | (N(((p >> 8) & 255) * f) << 8) | N((p & 255) * f)) >>> 0; } };
+const P2 = en('watanabe', 0.4098), P3 = en('watanabe', 0.8659), P4 = en('eco', 0) - 0.33, P5 = en('eco', 0.3648), P6 = en('eco', 0.7472);
+const ENC = en('watanabe', 0.025);   // «late 2015»: el ayudante enciende el foco
+
+// 1 · la pared de noche: a oscuras la linterna del vigilante; se enciende el foco; Watanabe se pega a la pared, alza el
+// radar hasta la pintura (bip al tocarla) y lo pasa a lo largo de ella, de las primeras figuras a las últimas
+const p1 = (t) => {
+  const llega = en('watanabe', 0.1586), alza = ease(tramo(t, llega - 0.45, llega));
+  const pasada = ease(tramo(t, en('watanabe', 0.2181), en('watanabe', 0.4032)));
+  const o = { encuadre: 'pared', pasada, radar: false, ayudante: true };
+  T.radares(R, t, o);
+  // el vigilante en el paso del este, con la linterna; la apaga cuando se enciende el foco
+  const linterna = t < ENC + 0.6;
+  const vg = R.actor(EL.guardia, 284, 164, t, { dir: -1, sostiene: linterna ? [276, 150] : undefined, sonrisa: t > en('watanabe', 0.3) });
+  // la plataforma de trabajo de aluminio, baja y larga, al pie de la pintura (x 106–232): chapa de lágrimas, patas y
+  // riostras; Watanabe se sube a ella para que el radar llegue a la pintura
+  { const A = hex('#9aa4ae'), AL = hex('#d4dce2'), AS = hex('#5a626c'), K = hex('#14141a');
+    for (const lx of [110, 152, 192, 228]) { R.rect(lx - 1, 145, lx + 1, 151, K); R.rect(lx, 145, lx, 150, A); R.pset(lx, 151, AS); }
+    for (const [l0, l1] of [[110, 152], [152, 192], [192, 228]]) { R.linea(l0 + 1, 146, l1 - 1, 150, AS); R.linea(l0 + 1, 150, l1 - 1, 146, AS); }
+    R.rect(105, 139, 233, 145, K); R.rect(106, 140, 232, 141, AL); R.rect(106, 142, 232, 144, A); R.rect(106, 144, 232, 144, AS);
+    for (let x = 108; x < 232; x += 4) R.pset(x + ((x >> 2) % 2) * 2, 140, A);
+    for (let x = 112; x < 230; x += 24) { R.pset(x, 143, AL); R.pset(x + 1, 143, AS); } }
+  // Watanabe: entra por delante de la caja del portátil (suelo 171), sube en diagonal hasta el pie de la plataforma,
+  // se sube de un paso (suelo 141), alza el radar contra la pintura y camina de lado a lo largo de ella con la pasada
+  const u = ease(tramo(t, 0.3, llega - 0.85)), sube = ease(tramo(t, llega - 0.8, llega - 0.5));
+  let ax = N(lerp(50, 100, u)), ay = u < 0.55 ? 171 : N(lerp(171, 151, ease((u - 0.55) / 0.45)));
+  if (sube > 0) { ax = N(lerp(100, 114, sube)); ay = N(lerp(151, 141, sube) - Math.sin(sube * Math.PI) * 3); }
+  if (pasada > 0) ax = N(lerp(114, 200, pasada));
+  const mira = t > en('watanabe', 0.1719) && t < en('watanabe', 0.2181);
+  const anda = (u > 0 && u < 1) || (sube > 0 && sube < 1) || (pasada > 0.02 && pasada < 0.98);
+  const a = R.actor(T.ELENCO_TU.watanabeTU, ax, ay, t, { dir: 1, anda, sostiene: [ax + 14 + N(alza * 8), ay - 12 - N(alza * 22)], habla: mira });
+  const m = a && a.mano ? a.mano : [ax + 15, ay - 18];
+  // el radar: en la mano (colgado del asa) mientras camina; alzado, con la base en la mano y la placa contra la pintura
+  const rx = m[0] + 4 + N(alza * 3), ry = alza > 0.5 ? m[1] + 1 : m[1] + 9;
+  { // el cable, que cuelga desde el portátil hasta la trasera del radar
+    const sag = 14 + Math.sin(t * 1.3) * 1.5; let px = 96, py = 152;
+    for (let i = 1; i <= 16; i++) { const v = i / 16, bx = N(96 + (rx - 7 - 96) * v), by = N(152 + (ry - 4 - 152) * v + Math.sin(v * Math.PI) * sag); R.linea(px, py, bx, by, hex('#14141a')); px = bx; py = by; } }
+  T.PIEZAS_TU.radarMano(R, rx, ry, { t, dir: 1 });
+  // donde la placa toca la pintura: el halo verde del barrido y, con cada bip, un anillo que se abre sobre la pared
+  if (alza >= 1) { const cx = rx + 8, cy = ry - 8, on = pasada > 0.02 && pasada < 0.98;
+    for (let k = -5; k <= 5; k++) { velo(cx + 1, cy + k, hex('#8affb0'), 0.35 - Math.abs(k) * 0.05); velo(cx + 2, cy + k, hex('#8affb0'), 0.18 - Math.abs(k) * 0.03); }
+    for (const tb of [llega, en('watanabe', 0.37)]) { const s = tramo(t, tb, tb + 0.7); if (s > 0 && s < 1) for (let q = 0; q < 28; q++) { const an = q / 28 * Math.PI * 2; velo(N(cx + Math.cos(an) * (3 + s * 12)), N(cy + Math.sin(an) * (2 + s * 8)), hex('#c8ffd8'), 0.7 * (1 - s)); } }
+    // el rastro que deja la pasada: puntos verdes tenues en la pintura, ya barridos (se apagan poco a poco)
+    if (on || pasada >= 0.98) for (let x = 140; x < cx - 2; x += 3) velo(x, cy + ((x >> 2) % 2), hex('#6ae08a'), 0.22); }
+  T.radaresDelante(R, t, o);
+  // a oscuras hasta «late 2015»; el foco parpadea al encenderse
+  const k = t < ENC ? 0.62 : t < ENC + 0.35 ? (Math.floor((t - ENC) * 16) % 2 ? 0.45 : 0.1) : 0;
+  if (k > 0) oscurece(k);
+  // el haz de la linterna: un cono suave que barre el suelo (se pinta después de oscurecer)
+  if (linterna && vg && vg.mano) { const [lx, ly] = vg.mano, ang = Math.PI - 0.35 + Math.sin(t * 1.3) * 0.3, F = hex('#fff4c8'), on = t < ENC + 0.6;
+    R.rect(lx - 3, ly - 1, lx, ly + 1, hex('#2a2a32')); R.pset(lx - 4, ly, hex('#fff8e0'));
+    if (on) for (let r = 4; r < 70; r++) { const w = r * 0.22; for (let s = -w; s <= w; s += 0.8) { const x = N(lx - 4 + Math.cos(ang) * r - Math.sin(ang) * s), y = N(ly + Math.sin(ang) * r * -1 + Math.cos(ang) * s + r * 0.28); velo(x, y, F, (t < ENC ? 0.32 : 0.12) * (1 - r / 70)); } } }
+};
+
+// 2 · la rueda de prensa: el ayudante trae el papel; el ministro anuncia; la pantalla sube hasta 90 en «90 %»
+const p2 = (t) => {
+  const cifra = ease(tramo(t, en('watanabe', 0.7866), en('watanabe', 0.8494)));
+  const o = { encuadre: 'prensa', cifra, flash: 1, mesa: 131 };
+  T.radares(R, t, o);
+  const habla = t > en('watanabe', 0.5751) && Math.floor(t * 3) % 4 !== 3, punto = t > en('watanabe', 0.8494);
+  // el ministro se levanta en «minister» y señala la pantalla; antes, Reeves y Watanabe cuchichean
+  const de = ease(tramo(t, en('watanabe', 0.5751), en('watanabe', 0.5751) + 0.5)), charla = t < en('watanabe', 0.5751);
+  R.actor(T.ELENCO_TU.watanabeTU, 77, 136, t, { dir: 1, sonrisa: punto, habla: charla && Math.floor(t * 2) % 2 === 0 });
+  R.actor(T.ELENCO_TU.reevesTU, 113, 136, t, { dir: charla ? -1 : 1, sonrisa: punto || charla, habla: charla && Math.floor(t * 2) % 2 === 1, sorpresa: t > en('watanabe', 0.7866) && !punto });
+  // el ayudante: entra por la derecha detrás de la mesa, le da el papel al ministro y se va
+  const ta = en('watanabe', 0.56), va = ease(tramo(t, P2 + 0.5, ta)), vu = ease(tramo(t, ta + 0.5, ta + 1.9)), xa = N(lerp(322, 168, va) + 160 * vu);
+  const conPapel = t < ta + 0.25;
+  if (va > 0 && vu < 1) { const a = R.actor(EL.ejecutivo, xa, 128, t, { dir: vu > 0 ? 1 : -1, anda: (va > 0 && va < 1) || vu > 0, sostiene: conPapel ? [xa - 2, 120] : undefined, sonrisa: vu > 0 });
+    if (conPapel && a && a.mano) { const [mx, my] = a.mano; R.rect(mx - 4, my - 6, mx + 1, my + 1, hex('#1a1a22')); R.rect(mx - 3, my - 5, mx, my, hex('#f4f4ee')); R.linea(mx - 3, my - 3, mx - 1, my - 3, hex('#9a9aa8')); } }
+  const tienePapel = t > ta + 0.25 && t < en('watanabe', 0.7866);
+  const mi = R.actor(T.ELENCO_TU.eldamatyTU, 153, N(lerp(136, 125, de)), t, { dir: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) ? -1 : 1, habla: habla && !punto, dedo: de > 0.9 && !punto && !tienePapel ? t % 2 < 1.2 : false, brazos: punto, sonrisa: punto, sostiene: tienePapel ? true : undefined });
+  if (tienePapel && mi && mi.mano) { const [mx, my] = mi.mano; R.rect(mx - 2, my - 6, mx + 3, my + 1, hex('#1a1a22')); R.rect(mx - 1, my - 5, mx + 2, my, hex('#f4f4ee')); R.pset(mx, my - 3, hex('#9a9aa8')); }
+  R.actor(EL.guia, 193, 136, t, { dir: -1, habla: t > en('watanabe', 0.6941) && t < en('watanabe', 0.7866) });
+  R.actor(EL.tecnico, 229, 136, t, { dir: -1, sorpresa: punto });
+  T.radaresDelante(R, t, o);
+  // el papel, que el ministro deja en la mesa cuando la pantalla sube
+  if (t >= en('watanabe', 0.7866)) { R.rect(158, 130, 165, 132, hex('#1a1a22')); R.rect(159, 130, 164, 131, hex('#f4f4ee')); R.pset(161, 130, hex('#9a9aa8')); }
+};
+
+// 3 · el público: en «chance» y «hidden rooms» se alzan teléfonos y grabadoras; la tanda de flashes
+const p3 = (t) => {
+  const o = { encuadre: 'prensa', camara: 'publico', flash: 1 };
+  T.radares(R, t, o);
+  // los periodistas de las filas 3 y 4 (los que no llevan ya cámara o grabadora) alzan el teléfono, uno tras otro
+  const filas = [[120, 4, 12, 2], [146, 5, 10, 3]], ROPA = [hex('#3a4a6a'), hex('#5a3a3a'), hex('#3a5a4a'), hex('#4a4a52'), hex('#6a5a3a'), hex('#2a3a5a')];
+  let n = 0;
+  for (const [y, r, nn, f] of filas) for (let k = 0; k < nn; k++) { if ((k + f) % 3 === 0 || (k + f) % 4 === 1) continue;
+    const i = k * 7 + f * 3, x = N(12 + (k + (f % 2) * 0.5) * (300 / nn)), by = y + N(Math.sin(t * 1.1 + i) * 0.7), t0 = en('watanabe', 0.9) + (n++ % 7) * 0.17 + (k % 2) * 0.05, u = ease(tramo(t, t0, t0 + 0.35));
+    if (u <= 0) continue;
+    const s = (k % 2 ? -1 : 1), hx = x + s * (r + 2), hy = N(lerp(by + r, by - r - 8, u));
+    R.linea(x + s * (r + 1), by + r, hx, hy + 2, ROPA[i % 6]); R.linea(x + s * (r + 1) + s, by + r, hx + s, hy + 2, ROPA[(i + 1) % 6]);
+    R.rect(hx - 2, hy - 4, hx + 2, hy + 2, hex('#14141a')); R.rect(hx - 1, hy - 3, hx + 1, hy + 1, hex(Math.floor(t * 3 + k) % 4 ? '#8ac8f0' : '#c8e8ff'));
+    if (u >= 1 && Math.sin(t * 7 + i * 1.7) > 0.97) { R.linea(hx - 4, hy - 1, hx + 4, hy - 1, hex('#ffffff')); R.linea(hx, hy - 5, hx, hy + 3, hex('#ffffff')); } }
+  T.radaresDelante(R, t, o);
+  const f = [en('watanabe', 0.8924), en('watanabe', 0.9453), en('watanabe', 0.9717)].some((g) => t > g && t < g + 0.08);
+  if (f) { const B = R.buf; for (let i = 0; i < 57600; i++) { const p = B[i]; B[i] = (0xff000000 | (Math.min(255, ((p >> 16) & 255) + 70) << 16) | (Math.min(255, ((p >> 8) & 255) + 70) << 8) | Math.min(255, (p & 255) + 70)) >>> 0; } }
+};
+
+// 4 · el cañón: el excursionista llega y grita en «shouting»; los pájaros huyen; la onda cruza y el eco vuelve en «echo»
+const p4 = (t) => {
+  const u = ease(tramo(t, P4 + 0.1, en('eco', 0.0573)));
+  const x = N(lerp(24, 64, u));
+  const onda = ease(tramo(t, en('eco', 0.1108), en('eco', 0.2124)));
+  const vuelve = ease(tramo(t, en('eco', 0.2498), en('eco', 0.3568)));
+  // el decorado pinta la ida; la vuelta la pinta la escena (sin la burbuja del eco del decorado, que no se leía):
+  // dos tandas de arcos a trazos que vuelven de la pared, la segunda más débil y más tarde (el eco repetido)
+  const o = { encuadre: 'canon', boca: [x + 13, 134], onda: vuelve > 0 ? 0 : onda, vuelve: 0 };
+  const g = T.radares(R, t, o);
+  if (vuelve > 0 && g.eco) { const [ex0, ey0] = g.eco, [bx0, by0] = o.boca, dist = ex0 - bx0, D = hex('#8a3a24');
+    const arco = (r, c) => { for (let a = Math.PI - 0.45; a <= Math.PI + 0.45; a += 0.5 / r) { if (Math.floor(a * r / 3) % 2) continue; const xx = N(ex0 + Math.cos(a) * r), yy = N(ey0 + Math.sin(a) * r * 1.1); if (xx > bx0 + 4) { R.pset(xx - 1, yy, D); R.pset(xx, yy, c); R.pset(xx + 1, yy, c); } } };
+    for (let i = 0; i < 3; i++) { const r = vuelve * dist - i * 10; if (r > 4) arco(r, [hex('#fff0c8'), hex('#f8dcb0'), hex('#f0c8a0')][i]); }
+    const v2 = ease(tramo(t, en('eco', 0.2498) + 0.55, en('eco', 0.3568) + 0.55));
+    if (v2 > 0 && v2 < 1) for (let i = 0; i < 2; i++) { const r = v2 * dist - i * 10; if (r > 4) arco(r, [hex('#f0c8a0'), hex('#e0b08a')][i]); } }
+  const grita = t > en('eco', 0.1055) && t < en('eco', 0.1589);
+  // la compañera llega detrás, se sobresalta con el grito y sonríe con el eco
+  const uc = ease(tramo(t, P4 + 0.6, en('eco', 0.08))), xc = N(lerp(-14, 30, uc));
+  R.actor(EL.turista2, xc, 150, t, { dir: 1, anda: uc > 0 && uc < 1, sorpresa: grita, sonrisa: t > en('eco', 0.3354) });
+  R.actor(EL.turista1, x, 150, t, { dir: 1, anda: u > 0 && u < 1, habla: grita, brazos: grita, sonrisa: t > en('eco', 0.3354) });
+  // los pájaros que dormían en la pared de enfrente salen volando con el grito (hacia arriba a la izquierda)
+  const ex = g.eco ? g.eco[0] : 212;
+  for (let k = 0; k < 5; k++) { const t0 = en('eco', 0.12) + k * 0.12, s = tramo(t, t0, t0 + 2.4), bx0 = ex + 10 + k * 7, by0 = 96 + (k % 3) * 5;
+    const bx = N(lerp(bx0, -12 - k * 6, s)), by = N(lerp(by0, 30 + k * 5, Math.sqrt(s)) - Math.sin(s * Math.PI) * 6), D = hex('#2a1a14'), ala = Math.floor(t * 10 + k) % 2;
+    if (s <= 0) { R.pset(bx0, by0, D); R.pset(bx0 + 1, by0, D); R.pset(bx0, by0 - 1, D); }
+    else if (s < 1) { R.pset(bx, by, D); R.pset(bx - 1, by - 1 + ala * 2, D); R.pset(bx + 1, by - 1 + ala * 2, D); R.pset(bx - 2, by - ala, D); R.pset(bx + 2, by - ala, D); } }
+  // las piedrecitas que caen de la pared cuando la onda choca
+  { const s = tramo(t, en('eco', 0.2124), en('eco', 0.2124) + 1.2); if (s > 0 && s < 1) for (let k = 0; k < 4; k++) { const yy = N(122 + (s * (1.2 + k * 0.2)) ** 2 * 45); if (yy < 178) R.rect(ex + 1 + k * 2, yy, ex + 2 + k * 2, yy + 1, hex(k % 2 ? '#7a3a28' : '#b85a3a')); } }
+  T.radaresDelante(R, t, o);
+};
+
+// RETOQUES DEL CORTE (cámara 'roca'), pintados encima del decorado:
+// · el radar baja: el del decorado (escala 2, con la cabeza pegada a las cifras del año) se borra con el cielo y la
+//   superficie limpios de 60 px a la izquierda, y se pinta otra vez con la base de la caja apoyada en la arena (y 56)
+//   y el cable tendido por la superficie: la cabeza queda en y ≈ 30, con aire bajo «2015»;
+// · el cambio de material ya no es una franja recta de lado a lado: la franja del decorado (y 124–139) se tapa con la
+//   caliza limpia de cuatro capas más arriba (y 72–87: mismo dibujo de capas) y en su lugar va una LENTE irregular de
+//   borde dentado bajo el radar: de aire oscuro con polvo que flota y migas caídas (primera vuelta) o de escombro
+//   en cascotes (segunda), que no llega a los lados del corte; el chispazo del rebote se pinta de nuevo encima.
+let ROCA = null, TMP = null;
+const hh = (a, b) => { const v = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453; return v - Math.floor(v); };
+const enReloj = (x, y) => (x - 266) ** 2 + (y - 104) ** 2 <= 729 || (x - 269) ** 2 + (y - 107) ** 2 <= 729 || (x >= 246 && x <= 286 && y >= 132 && y <= 148) || (x >= 259 && x <= 273 && y >= 70 && y <= 80);
+function rocaRetoques(t, on, mat) {
+  const B = R.buf, CAM = 124, RX = 150, K = hex('#101014');
+  if (!ROCA) { ROCA = R.nuevo(); const prev = R.usar(ROCA); T.radares(R, 0, { encuadre: 'canon', camara: 'roca', onda: 0 }); R.usar(prev); TMP = R.nuevo(); }
+  // 1 · borrar el radar del decorado (cielo, colinas y arena limpios de x − 40)
+  for (let y = 20; y <= 57; y++) for (let x = 126; x <= 184; x++) B[y * 320 + x] = ROCA[y * 320 + x - 60];
+  if (on >= 1) R.disco(RX, 58, 2, Math.sin(t * 12) > 0 ? hex('#7aff9a') : hex('#ffffff'));
+  // 2 · el radar otra vez, más abajo: la caja apoyada en la arena; con el contorno y la luz de las piezas finas
+  for (let y = 26; y <= 60; y++) TMP.fill(0, y * 320 + 122, y * 320 + 186);
+  { const prev = R.usar(TMP); T.PIEZAS_TU.radarMano(R, RX, 63, { t, dir: 1, s: 2 }); R.usar(prev); }
+  const v = (x, y) => (y > 56 ? 0 : TMP[y * 320 + x]);
+  for (let y = 27; y <= 57; y++) for (let x = 124; x <= 184; x++) { const c = v(x, y), l = v(x - 1, y), u = v(x, y - 1), r = v(x + 1, y), d = v(x, y + 1);
+    if (!c) { if (l || u || r || d) B[y * 320 + x] = K; continue; }
+    B[y * 320 + x] = !l || !u ? mez(c, 0xffffffff, 0.3) : !r || !d ? mez(c, K, 0.3) : hh(x, y) > 0.84 ? mez(c, K, 0.1) : c; }
+  // el cable, que sale por detrás y se tiende enroscado por la arena hacia la izquierda; la sombra de la caja
+  for (let x = 129; x <= 167; x++) velo(x, 57, K, 0.35);
+  R.linea(133, 56, 124, 57, K); R.linea(124, 57, 116, 56, K); R.linea(116, 56, 112, 57, K); R.pset(118, 55, K); R.pset(119, 55, K);
+  // 3 · tapar la franja recta del decorado con caliza limpia (sin tocar el cronómetro)
+  for (let y = CAM; y <= CAM + 15; y++) for (let x = 24; x < 320; x++) { if (enReloj(x, y)) continue;
+    const sy = y - 52, sx = enReloj(x, sy) ? x - 64 : x; B[y * 320 + x] = ROCA[sy * 320 + sx]; }
+  // 4 · la lente irregular bajo el radar (no cruza el corte): aire (oscuro, polvo, migas) o escombro (cascotes)
+  const aire = mat === 'aire', W = aire ? 58 : 76, x0 = RX - W - 6, x1 = RX + W + 10;
+  for (let x = x0; x <= x1; x++) { const q = (x - RX) / (x < RX ? W + 6 : W + 10); if (q * q >= 1) continue;
+    const top = CAM + N(q * q * 6 + (x === RX ? 0 : hh(x >> 1, 3) * 2.2)), bot = CAM + 15 - N(q * q * 7 + hh(x >> 1, 7) * 2.2);
+    for (let y = top; y <= bot; y++) { if (enReloj(x, y)) continue; let c;
+      if (y === top || y === bot) c = aire ? hex('#3a2418') : hex('#5a3a24');
+      else if (aire) c = y >= bot - 1 && hh(x >> 1, 11) > 0.55 ? hex('#8a6a48') : hh(x >> 1, y >> 1) > 0.9 ? hex('#2e2436') : y <= top + 1 && hh(x, 13) > 0.7 ? hex('#4a3428') : hex('#1a1420');
+      else { // cascotes irregulares (celdas de Voronoi de 5 px): juntas oscuras, cara de arriba con luz, tonos de caliza
+        let d1 = 99, d2 = 99, id = 0, px = 0, py = 0; const gx = Math.floor(x / 5), gy = Math.floor(y / 5);
+        for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) { const cx = gx + a, cy = gy + b, qx = (cx + hh(cx, cy)) * 5, qy = (cy + hh(cy, cx + 9)) * 5, d = Math.hypot(x - qx, y - qy);
+          if (d < d1) { d2 = d1; d1 = d; id = hh(cx * 3, cy * 7); px = qx; py = qy; } else if (d < d2) d2 = d; }
+        c = d2 - d1 < 1.1 ? hex('#4a3020') : [hex('#f0dcb4'), hex('#dcc294'), hex('#c4a476'), hex('#a8865c')][Math.floor(id * 4)];
+        if (d2 - d1 >= 1.1 && y < py - 1 && x < px + 1) c = mez(c, 0xffffffff, 0.22); else if (d2 - d1 >= 1.1 && y > py + 1) c = mez(c, K, 0.18); }
+      B[y * 320 + x] = c; } }
+  // el polvo que flota en el aire de la lente, despacio
+  if (aire) for (let k = 0; k < 9; k++) { const px = N(RX - 44 + ((hh(k, 1) * 88 + t * 5) % 88)), py = N(CAM + 5 + hh(k, 2) * 6 + Math.sin(t * 1.3 + k) * 1.5); R.pset(px, py, k % 3 ? hex('#6a5a6a') : hex('#8a7a86')); }
+  // 5 · el chispazo del rebote, otra vez encima
+  if (on > 0.46 && on < 0.6) { const f = 1 - Math.abs(on - 0.53) / 0.07; for (let a = 0; a < 6; a++) R.linea(RX, CAM, RX + N(Math.cos(a * 1.05) * 8 * f), CAM + N(Math.sin(a * 1.05) * 4 * f), hex('#ffffff')); R.disco(RX, CAM, 2, hex('#fff4a0')); }
+}
+
+// 5 · el corte de roca: el escarabajo con su bola; dos idas y vueltas (aire en «another», escombro en «rubble»)
+const p5 = (t) => {
+  const c2 = en('eco', 0.6616);
+  const prim = t < c2;
+  const onda = prim ? tramo(t, en('eco', 0.3942), en('eco', 0.6616) - 0.1) : tramo(t, c2, en('eco', 0.7472) + 0.2);
+  T.radares(R, t, { encuadre: 'canon', camara: 'roca', onda, material: prim ? 'aire' : 'escombro' });
+  rocaRetoques(t, onda, prim ? 'aire' : 'escombro');
+  // un escarabajo empuja su bola de barro por la superficie (y 56), de izquierda a derecha, hasta pararse ante el radar
+  { const s = ease(tramo(t, P5 + 0.2, P6 - 0.4)), bx = N(lerp(28, 118, s)), rod = Math.floor(t * 6) % 2, D = hex('#1a2a2a'), V = hex('#3a6a5a'), B = hex('#8a6a42');
+    R.disco(bx + 8, 50, 5, hex('#4a3420')); R.disco(bx + 8, 50, 4, B); R.pset(bx + 6 + rod * 2, 48, hex('#b08a5a')); R.pset(bx + 9 - rod * 2, 52, hex('#6a4a2a'));
+    R.rect(bx - 6, 49, bx + 1, 54, D); R.rect(bx - 5, 49, bx, 53, V); R.linea(bx - 5, 49, bx - 1, 49, hex('#7ab09a')); R.linea(bx - 3, 49, bx - 3, 53, D); R.rect(bx + 1, 50, bx + 2, 52, D);
+    for (let k = 0; k < 3; k++) { R.pset(bx - 5 + k * 3 + (rod ^ (k % 2)), 55, D); R.pset(bx - 5 + k * 3 + (rod ^ (k % 2)), 56, D); } R.pset(bx + 3, 49 - rod, D); }
+  // al emitir: tres arquitos verdes que salen bajo el radar, en la superficie
+  for (const t0 of [en('eco', 0.3942), c2]) { const e = tramo(t, t0, t0 + 0.6); if (e > 0 && e < 1) for (let i = 0; i < 3; i++) { const r = 3 + e * 10 + i * 3; if (r > 14) continue;
+    for (let a = 0.35; a < Math.PI - 0.35; a += 0.12) R.pset(N(150 + Math.cos(a) * r * 1.6), N(58 + Math.sin(a) * r * 0.6), hex(i ? '#a8f0b8' : '#ffffff')); } }
+};
+
+// 6 · la pantalla: la polilla; las hipérbolas y el contador; la mano señala la del fondo y baja en «how deep»
+const p6 = (t) => {
+  const eco = ease(tramo(t, en('eco', 0.7579), en('eco', 0.9129)));
+  const g = T.radares(R, t, { encuadre: 'pared', camara: 'pantalla', eco });
+  const ex = (g.eco ? g.eco[0] : 168), ey = (g.eco ? g.eco[1] : 104);
+  // «the time it takes to return»: el contador de la barra de arriba corre de 0 a 48 y se queda
+  { const c = tramo(t, en('eco', 0.814), en('eco', 0.87)); if (c > 0) { const v = N(c * 48); R.rect(206, 31, 236, 39, hex('#101418')); R.numero(String(v), 208, 39, { tam: 8 }); } }
+  // la polilla: revolotea en la luz de la pantalla, se posa en el marco y huye cuando entra la mano
+  { const fin = en('eco', 0.8809) - 0.6, pos = t > P6 + 1.6 && t < fin, huye = tramo(t, fin, fin + 1.2);
+    let mx, my; if (huye > 0) { mx = N(lerp(268, 330, huye)); my = N(lerp(26, 92, Math.sqrt(huye)) + Math.sin(t * 20) * 2); }
+    else if (pos) { mx = 268; my = 26; } else { mx = N(250 + Math.sin(t * 3.1) * 22 + Math.sin(t * 7.3) * 5); my = N(60 + Math.cos(t * 2.3) * 22 + Math.sin(t * 9) * 3); }
+    if (mx < 324) { const ala = pos ? 0 : Math.floor(t * 18) % 2, C = hex('#5a4a36'), S = hex('#241a12');
+      R.rect(mx, my - 1, mx, my + 3, S); R.pset(mx, my - 2, hex('#2a2018'));
+      for (const d of [-1, 1]) { const a = ala ? -2 : 0; R.rect(mx + d, my + a, mx + d * 3, my + 1 + a, C); R.pset(mx + d * 4, my + a, C); R.rect(mx + d, my + 2, mx + d * 2, my + 3, S); R.pset(mx + d * 2, my + a, hex('#9a8668')); R.pset(mx + d * 4, my + 1 + a, S); } } }
+  const entra = ease(tramo(t, en('eco', 0.8809) - 0.6, en('eco', 0.8809))), baja = ease(tramo(t, en('eco', 0.9236), en('eco', 0.9611)));
+  // en «how deep»: la raya de puntos roja va del vértice a la escala de metros y la cifra se enciende
+  if (baja > 0) { const x1 = N(lerp(ex - 4, 58, baja)); for (let x = ex - 4; x >= x1; x--) if (x % 4 < 2) R.pset(x, ey, hex('#ff5a4a'));
+    if (baja >= 1 && Math.floor(t * 4) % 2 === 0) for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI * 2; R.pset(N(50 + Math.cos(an) * 8), N(ey + Math.sin(an) * 7), hex('#ff5a4a')); } }
+  const toc = t > en('eco', 0.8809) && Math.floor((t - en('eco', 0.8809)) * 3) % 3 === 0 ? 2 : 0;
+  if (entra > 0.02) { const hx = N(lerp(300, ex + 8, entra)), hy = N(lerp(200, ey + 12, entra)) + toc;
+    T.brazo(R, hx + 22, 196, hx, hy, '#4a5a6a', -1, { codo: [hx + 26, hy + 24] }); }
+};
+
+const efectos = [[ENC, 'interruptor'], [en('watanabe', 0.1586), 'bip'], [en('watanabe', 0.2181), 'zumbido'], [en('watanabe', 0.3), 'lapiz'], [en('watanabe', 0.37), 'bip'],
+  [P2 + 0.15, 'publico', { dur: 1.8 }], [en('watanabe', 0.56), 'papel'], [en('watanabe', 0.7866) + 0.1, 'tic'], [en('watanabe', 0.82), 'tic'], [en('watanabe', 0.8494), 'flash'],
+  [en('watanabe', 0.8924), 'publico', { dur: 2.4 }], [en('watanabe', 0.9453), 'flash'],
+  [P4 + 0.1, 'viento', { dur: 2.4 }], [en('eco', 0.1108), 'whoosh'], [en('eco', 0.13), 'papel'], [en('eco', 0.2124), 'golpecito'], [en('eco', 0.2498), 'whoosh'], [en('eco', 0.3354), 'pop'],
+  [en('eco', 0.3942), 'bip'], [en('eco', 0.5243), 'golpecito'], [en('eco', 0.6616) + 0.05, 'bip'], [en('eco', 0.6944), 'golpecito'], [en('eco', 0.7444), 'tic'],
+  [en('eco', 0.7579) + 0.15, 'bip'], [en('eco', 0.814), 'tic'], [en('eco', 0.85), 'tic'], [en('eco', 0.9236), 'golpecito']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2015 });
+</script>
+</body>
+</html>

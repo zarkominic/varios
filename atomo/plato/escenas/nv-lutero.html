@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El árbol de Lutero · ep22</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-LUTERO (frase 14). Cuatro planos:
+// 1. (imprenta, hacia 1845) el impresor tira de la barra y saca el pliego recién impreso; en «heard» lo enseña: un monje y
+//    un árbol con velas, la estampa que hizo famosa la leyenda; el aprendiz se asombra;
+// 2. (bosque) corta en «Martin»: un vecino con farol cruza el bosque nevado y piensa en la leyenda; en el globo, el monje
+//    pone velas al abeto («tree with candles»); en «no evidence» el globo se deshace en humo y el vecino sigue su camino;
+// 3. (copista) corta en «One»: el escribano de Sélestat entra y anota; la página grande: el abeto («tree»), el 1521
+//    («1521») y las monedas;
+// 4. (bosque, guardas) corta en «when»: los guardas se calientan en el brasero; el escribano llega y les paga en «paid»;
+//    en «protect» uno va a la cerca con su pértiga y el otro alza el farol; un zorro que husmeaba sale corriendo.
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nv-lutero');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const H = (c) => hex(c), K = hex('#1a1420');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], umbral = (x, y) => (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const capas = new Map();
+const capa = (clave, dibuja) => { let b = capas.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); capas.set(clave, b); } return b; };
+const fondo = (clave, dibuja) => R.copiar(capa(clave, dibuja));
+// halo: mezcla col sobre lo que ya hay, más fuerte en el centro
+const halo = (cx, cy, r, col, a) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j) / r; if (d < 1) { const x = cx + i, y = cy + j; R.pset(x, y, mez(R.pget(x, y), col, a * (1 - d) ** 1.4)); } } };
+// nube de tres tonos (sombra, medio, luz)
+const nube3 = (x, y, w, cs) => { x = Math.round(x); const n = Math.max(2, Math.round(w / 7));
+  for (let i = 0; i < n; i++) { const r = 3 + Math.round(3 * Math.sin((i + 0.5) / n * Math.PI)); R.disco(x + i * 7, y + 2, r, cs[0]); }
+  for (let i = 0; i < n; i++) { const r = 2 + Math.round(3 * Math.sin((i + 0.5) / n * Math.PI)); R.disco(x + i * 7, y, r, cs[1]); }
+  for (let i = 0; i < n; i++) { const r = Math.round(2 * Math.sin((i + 0.5) / n * Math.PI)); if (r > 0) R.disco(x + i * 7 - 1, y - 2, r, cs[2]); } };
+const pajaro = (x, y, t, k, c) => { const a = Math.sin(t * 11 + k) > 0; x = Math.round(x); y = Math.round(y); R.pset(x, y, c); R.pset(x - 1, y - (a ? 1 : 0), c); R.pset(x + 1, y - (a ? 1 : 0), c); R.pset(x - 2, y - (a ? 2 : -1), c); R.pset(x + 2, y - (a ? 2 : -1), c); };
+// madera con vetas, nudos y juntas (tablas horizontales de alto h)
+const madera = (x0, y0, x1, y1, h, base, veta, luz, junta, k = 0) => { R.rect(x0, y0, x1, y1, base);
+  for (let y = y0; y <= y1; y++) { const tabla = Math.floor((y - y0) / h), dy = (y - y0) % h; if (dy === 0) { R.rect(x0, y, x1, y, junta); continue; } if (dy === 1) { R.rect(x0, y, x1, y, luz); continue; }
+    for (let x = x0; x <= x1; x++) { const v = Math.sin(x * 0.045 + tabla * 7 + Math.sin(x * 0.013 + tabla) * 3 + dy * 0.9); if (v > 0.93) R.pset(x, y, veta); else if (hh(x >> 1, y, k + tabla) < 0.05) R.pset(x, y, veta); } }
+  for (let n = 0; n < (x1 - x0) / 40; n++) { const nx = x0 + Math.round(hh(n, 1, k) * (x1 - x0)), ny = y0 + Math.round(hh(n, 2, k) * (y1 - y0)); R.disco(nx, ny, 2, veta); R.pset(nx, ny, junta); } };
+// estrella de cinco puntas grande (relleno y contorno)
+const estrella5 = (cx, cy, r, col, borde) => { const P = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r; P.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]); }
+  R.poligono(P.map(([x, y]) => [x + 1, y + 1]), borde); R.poligono(P.map(([x, y]) => [x - 1, y]), borde); R.poligono(P.map(([x, y]) => [x, y - 1]), borde); R.poligono(P, col); };
+
+const L2 = en('lutero', 0.1802), L3 = en('lutero', 0.5017), L4 = en('lutero', 0.764);
+const estampa = (x, y, w, h) => { // el pliego con la estampa: el monje y el abeto con velas
+  R.rect(x - 1, y - 1, x + w, y + h, K); R.rect(x, y, x + w - 1, y + h - 1, H('#f4ecd8')); R.rect(x + 2, y + 2, x + w - 3, y + h - 3, H('#e8dcc0'));
+  const ax = x + Math.round(w * 0.62), ay = y + h - 5; for (let j = 0; j < 3; j++) { const yy = ay - 3 - j * 6, ww = 7 - j * 2; R.poligono([[ax - ww, yy], [ax + ww, yy], [ax, yy - 8]], H('#2a6a3a')); }
+  R.rect(ax - 1, ay - 3, ax + 1, ay, H('#6a4a2a')); for (const [dx, dy] of [[-4, -5], [3, -6], [-2, -11], [2, -15], [0, -20]]) { R.pset(ax + dx, ay + dy, H('#f0c040')); R.pset(ax + dx, ay + dy - 1, H('#ff9a30')); }
+  const mx = x + Math.round(w * 0.28); R.rect(mx - 2, ay - 9, mx + 2, ay, H('#2a2430')); R.disco(mx, ay - 11, 2, H('#e8b890')); R.pset(mx + 3, ay - 6, H('#e8b890'));
+  for (let k = 0; k < 3; k++) R.rect(x + 3, y + h - 3 + 0, x + 3, y + h - 3, H('#c8b898')); };
+// ── 1 · la imprenta ──
+const p1 = (t) => { const tira = tramo(t, en('lutero', -0.02), en('lutero', 0.015)) - tramo(t, en('lutero', 0.02), en('lutero', 0.0501));
+  const g = T.epoca(R, t, { encuadre: 'imprenta', tira });
+  const [bx, by] = g.prensa.barra;
+  // dos pliegos con un Santa rojo tendidos en la cuerda (el mito de antes), que se mecen; en «myth», el «?»
+  for (const [x0, y0, k] of [[58, 34, 0], [146, 31, 1]]) { const m = Math.round(Math.sin(t * 2.2 + k * 2) * 1.5);
+    R.rect(x0 - 1 + m, y0 + 2, x0 + 13 + m, y0 + 19, K); R.rect(x0 + m, y0 + 3, x0 + 12 + m, y0 + 18, H('#f4ecd8')); R.rect(x0 + 5, y0, x0 + 7, y0 + 3, H('#8a6a40'));
+    const sx = x0 + 6 + m, sy = y0 + 6; R.rect(sx - 3, sy + 3, sx + 3, sy + 10, H('#c8302a')); R.rect(sx - 3, sy + 7, sx + 3, sy + 7, H('#f6f0e2')); R.disco(sx, sy + 1, 2, H('#f0c090')); R.rect(sx - 2, sy - 2, sx + 2, sy - 1, H('#c8302a')); R.pset(sx + 3, sy - 2, H('#ffffff')); R.rect(sx - 2, sy + 3, sx + 2, sy + 4, H('#ffffff')); R.rect(sx - 2, sy + 10, sx - 1, sy + 11, K); R.rect(sx + 1, sy + 10, sx + 2, sy + 11, K); }
+  if (t > en('lutero', 0.0721) && t < en('lutero', 0.1302)) R.bocadillo(166, 30 + Math.round(Math.sin(t * 6)), { icono: '?' });
+  const u = tramo(t, en('lutero', 0.0551), en('lutero', 0.0901)), x = Math.round(lerp(196, 172, u)), ensena = tramo(t, en('lutero', 0.1402), en('lutero', 0.1602));
+  const i = R.actor(EL.impresor, x, g.suelo, t, { dir: u > 0 && u < 1 ? -1 : u >= 1 ? 1 : -1, anda: u > 0 && u < 1, sostiene: u === 0 ? [bx, by] : u >= 1 ? [x + 22, g.suelo - 26 - Math.round(ensena * 8)] : true, sonrisa: ensena > 0.5, habla: t > en('lutero', 0.0951) && t < en('lutero', 0.1352) && Math.sin(t * 9) > 0 });
+  if (u > 0) { const [mx, my] = i.mano; estampa(mx - (u >= 1 ? 2 : 10), my - 26 - Math.round(ensena * 4), 24 + Math.round(ensena * 6), 26 + Math.round(ensena * 6)); }
+  const ap = tramo(t, en('lutero', -0.035), en('lutero', 0.005)), xa = Math.round(lerp(70, 92, ap));
+  R.actor(EL.aprendiz, xa, g.suelo, t, { dir: 1, anda: ap > 0 && ap < 1, sorpresa: t > en('lutero', 0.1572), sonrisa: t > en('lutero', 0.0901) && t < en('lutero', 0.1552), dedo: t > en('lutero', 0.1652) });
+  T.epocaDelante(R, t, { encuadre: 'imprenta', tira });
+};
+// ── 2 · el bosque y la leyenda que se hace humo ──
+const p2 = (t) => { const g = T.epoca(R, t, { encuadre: 'bosque' });
+  const u = tramo(t, L2, en('lutero', 0.2503)), w = tramo(t, en('lutero', 0.4556), L3 + 0.3), xv = Math.round(lerp(-14, 92, u) + w * 120);
+  // la liebre que cruza la nieve
+  const lh = tramo(t, en('lutero', 0.2754), en('lutero', 0.3855)); if (lh > 0 && lh < 1) { const lx = Math.round(lerp(330, 220, lh)), sl = Math.abs(Math.sin(lh * 30)) * 4, ly = 172 - Math.round(sl);
+    R.rect(lx - 4, ly - 4, lx + 3, ly, H('#c8c0b0')); R.rect(lx - 4, ly - 1, lx + 3, ly, H('#a8a090')); R.rect(lx - 5, ly - 7, lx - 3, ly - 3, H('#c8c0b0')); R.pset(lx - 5, ly - 9, H('#c8c0b0')); R.pset(lx - 4, ly - 9, H('#a8a090')); R.pset(lx - 5, ly - 5, K); R.pset(lx + 3, ly - 3, H('#ffffff')); }
+  const humo = tramo(t, en('lutero', 0.4096), en('lutero', 0.4606));
+  const a = R.actor(EL.vecino, xv, g.suelo, t, { dir: 1, anda: (u > 0 && u < 1) || (w > 0 && w < 1), sostiene: true, sonrisa: t > en('lutero', 0.2654) && t < en('lutero', 0.4055), sorpresa: humo > 0 && w === 0 });
+  { const [mx, my] = a.mano; R.rect(mx - 3, my, mx + 3, my + 8, K); R.rect(mx - 2, my + 1, mx + 2, my + 7, H('#ffd870')); R.rect(mx - 2, my + 1, mx + 2, my + 1, H('#6a5a40')); R.rect(mx - 2, my + 7, mx + 2, my + 7, H('#6a5a40')); halo(mx, my + 4, 12, H('#ffd890'), 0.3); }
+  // el globo: la leyenda del monje que pone velas al abeto
+  const nace = tramo(t, en('lutero', 0.1853), en('lutero', 0.2203)); if (nace > 0 && humo < 1) {
+    const X0 = 128, Y0 = 44, X1 = 214, Y1 = 98, fuera = humo;
+    for (const [k, px, py] of [[0, xv + 12, 128], [1, xv + 22, 118], [2, xv + 30, 106]]) if (nace > k * 0.25 && fuera < 0.5) { R.disco(px, py, 2 + k, K); R.disco(px, py, 1 + k, H('#f6f0e2')); }
+    if (nace > 0.7) {
+      const borde = []; for (let x = X0; x <= X1; x += 9) borde.push([x, Y0], [x, Y1]); for (let y = Y0 + 9; y < Y1; y += 9) borde.push([X0, y], [X1, y]);
+      borde.forEach(([x, y], k) => { const dy = Math.round(-fuera * (16 + (k % 5) * 6)), dx = Math.round(Math.sin(k * 2.1) * fuera * 10), r = Math.max(0, Math.round(8 * (1 - fuera * 0.7))); if (hh(k, 3, 40) > fuera * 1.1) { R.disco(x + dx, y + dy, r + 1, fuera > 0 ? H('#5a6280') : K); R.disco(x + dx, y + dy, r, fuera > 0 ? mez(H('#f6f0e2'), H('#8a90a8'), fuera) : H('#f6f0e2')); } });
+      R.recorte([X0, Y0, X1, Y1]);
+      for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) { if (hh(x, y, 41) < fuera * 1.05) continue; const tabla = (x - X0) % 12; R.pset(x, y, y > 88 ? (hh(x >> 2, y, 42) < 0.2 ? H('#4a3018') : H('#5a3a22')) : tabla === 0 ? H('#4a2e18') : hh(x, y >> 3, 43) < 0.05 ? H('#6a4428') : H('#7a5030')); }
+      if (fuera < 0.6) {
+        R.rect(136, 54, 154, 72, K); R.rect(137, 55, 153, 71, H('#2a3460')); R.rect(144, 55, 145, 71, H('#5a3a22')); R.rect(137, 62, 153, 63, H('#5a3a22')); for (let k = 0; k < 5; k++) R.pset(138 + ((k * 7 + Math.floor(t * 6)) % 15), 56 + ((k * 5 + Math.floor(t * 9)) % 15), H('#eef4fa'));
+        const ax = 186, ay = 88; R.rect(ax - 5, ay - 2, ax + 5, ay + 6, K); R.rect(ax - 4, ay - 1, ax + 4, ay + 5, H('#8a5a34'));
+        for (let j = 0; j < 4; j++) { const y0 = ay - 2 - j * 8, ww = 14 - j * 3; R.poligono([[ax - ww - 1, y0 + 1], [ax + ww + 1, y0 + 1], [ax, y0 - 12]], K); R.poligono([[ax - ww, y0], [ax + ww, y0], [ax, y0 - 11]], j % 2 ? H('#2a7a3a') : H('#1e6a30')); }
+        const VELAS = [[-9, -6], [8, -7], [-6, -14], [6, -15], [-3, -22], [3, -24], [0, -32]], n = Math.floor(tramo(t, en('lutero', 0.2594), en('lutero', 0.3004)) * 7.99);
+        VELAS.forEach(([dx, dy], k) => { const vx = ax + dx, vy = ay + dy; R.rect(vx, vy - 2, vx, vy, H('#f4ecd8')); if (k < n) { R.pset(vx, vy - 3, Math.sin(t * 12 + k) > 0 ? H('#ffe090') : H('#ff9a30')); R.pset(vx, vy - 4, H('#fff4c0')); halo(vx, vy - 3, 5, H('#ffd890'), 0.3); } });
+        const pone = t > en('lutero', 0.2153) && t < en('lutero', 0.3054), mx = Math.round(lerp(150, 162, tramo(t, en('lutero', 0.1953), en('lutero', 0.2253))));
+        R.actor(EL.monje, mx, 96, t, { dir: 1, sostiene: pone ? [ax - 10, ay - 10 - Math.round(tramo(t, en('lutero', 0.2153), en('lutero', 0.3004)) * 12)] : undefined, sonrisa: t > en('lutero', 0.3004) });
+      }
+      R.recorte(null);
+      if (fuera > 0) for (let k = 0; k < 14; k++) { const px = Math.round(X0 + hh(k, 1, 44) * (X1 - X0)), py = Math.round(lerp(Y1, Y0 - 30, fuera) - hh(k, 2, 44) * 30 * fuera), r = Math.round(2 + 4 * hh(k, 3, 44) * (1 - fuera * 0.5)); R.disco(px, py, r, mez(H('#8a90a8'), H('#2a3060'), fuera * 0.7)); }
+    } }
+  T.epocaDelante(R, t, { encuadre: 'bosque' });
+};
+// ── 3 · el registro de 1521 ──
+const p3 = (t) => { const g = T.epoca(R, t, { encuadre: 'copista' });
+  const u = tramo(t, L3 + 0.1, en('lutero', 0.5558)), x = Math.round(lerp(-14, 140, u)), escribe = u >= 1;
+  R.actor(EL.escribanoParl, x, g.suelo, t, { dir: 1, anda: u > 0 && u < 1, sostiene: escribe ? [166 + Math.round(Math.sin(t * 9) * 2), 131 + (Math.floor(t * 4) % 2)] : undefined, sonrisa: t > en('lutero', 0.706) });
+  T.epocaDelante(R, t, { encuadre: 'copista' });
+  // la página del libro de cuentas, grande, a la derecha
+  const pg = tramo(t, en('lutero', 0.5608), en('lutero', 0.5808)); if (pg > 0) { const X0 = 204, Y0 = 46, X1 = 272, Y1 = 124, dy = Math.round((1 - pg) * 10);
+    for (let k = 0; k < 6; k++) R.pset(Math.round(lerp(190, X0, k / 6)), Math.round(lerp(128, Y1 + dy, k / 6)), H('#f4ecd8'));
+    R.rect(X0 + 3, Y0 + 3 + dy, X1 + 3, Y1 + 3 + dy, H('#2a2420')); R.rect(X0 - 1, Y0 - 1 + dy, X1 + 1, Y1 + 1 + dy, K); R.rect(X0, Y0 + dy, X1, Y1 + dy, H('#efe2c0'));
+    for (let y = Y0 + dy; y <= Y1 + dy; y++) for (let xx = X0; xx <= X1; xx++) if (hh(xx, y, 45) < 0.06) R.pset(xx, y, H('#e0d0a8'));
+    R.rect(X0 + 4, Y0 + 4 + dy, X0 + 9, Y0 + 11 + dy, H('#b8302a')); R.rect(X0 + 5, Y0 + 5 + dy, X0 + 8, Y0 + 10 + dy, H('#e0b040'));
+    const renglon = tramo(t, en('lutero', 0.5417), en('lutero', 0.756)); for (let k = 0; k < 6; k++) { const L = Math.round((44 - (k * 7) % 13) * Math.min(1, Math.max(0, renglon * 6 - k))); if (L > 0) R.rect(X0 + 6, Y0 + 98 - 46 + k * 5 + dy + 12, X0 + 6 + L, Y0 + 98 - 46 + k * 5 + dy + 12, H('#6a5a48')); }
+    const ab = tramo(t, en('lutero', 0.6048), en('lutero', 0.6309)); if (ab > 0) { const ax = X0 + 20, ay = Y0 + 50 + dy; for (let j = 0; j < 3; j++) { const yy = ay - j * 9, ww = 10 - j * 3, hgt = Math.round(11 * Math.min(1, ab * 3 - j)); if (hgt > 0) R.poligono([[ax - ww, yy], [ax + ww, yy], [ax, yy - hgt]], j % 2 ? H('#2a7a3a') : H('#1e5a30')); } R.rect(ax - 1, ay, ax + 1, ay + 4, H('#6a4a2a')); }
+    const mo = tramo(t, en('lutero', 0.721), en('lutero', 0.736)); if (mo > 0) T.PIEZAS_NV.monedas(R, X0 + 50, Y0 + 50 + dy - Math.round((1 - mo) * 4), { s: 2 });
+    const an = tramo(t, en('lutero', 0.6979), en('lutero', 0.711)); if (an > 0) { R.numero('1521', Math.round((X0 + X1) / 2) + 1, Y0 + 26 + dy, { tam: 16, centro: true }); if (an < 1) halo(Math.round((X0 + X1) / 2), Y0 + 18 + dy, 26, H('#fff4c0'), 0.6 * (1 - an)); }
+  }
+};
+// ── 4 · los guardas y la paga ──
+const p4 = (t) => { const g = T.epoca(R, t, { encuadre: 'bosque', camara: 'guardas' });
+  // el zorro que husmea en la cerca y huye
+  const zv = tramo(t, en('lutero', 0.8161), en('lutero', 0.8461)), zh = tramo(t, en('lutero', 0.9212), en('lutero', 0.9663)); if (zv > 0 && zh < 1) { const zx = Math.round(lerp(4, 46, zv) - zh * 70), zy = 166, run = zh > 0 ? Math.round(Math.abs(Math.sin(t * 20)) * 2) : 0;
+    R.rect(zx - 6, zy - 6 - run, zx + 4, zy - 2 - run, H('#c86a2a')); R.rect(zx - 6, zy - 3 - run, zx + 4, zy - 2 - run, H('#f0e0d0')); R.rect(zx + 4, zy - 9 - run, zx + 8, zy - 5 - run, H('#c86a2a')); R.pset(zx + 5, zy - 10 - run, H('#c86a2a')); R.pset(zx + 7, zy - 10 - run, H('#c86a2a')); R.pset(zx + 8, zy - 6 - run, K); R.pset(zx + 6, zy - 8 - run, K);
+    R.rect(zx - 11, zy - 6 - run, zx - 6, zy - 4 - run, H('#c86a2a')); R.pset(zx - 11, zy - 6 - run, H('#ffffff')); for (const dx of [-5, -2, 1, 3]) R.rect(zx + dx, zy - 2, zx + dx, zy - (run ? 1 : 0), H('#3a2418')); }
+  const e = tramo(t, L4 + 0.1, en('lutero', 0.8261)), sale = tramo(t, en('lutero', 0.8762), en('lutero', 0.9463)), xe = Math.round(lerp(-14, 160, e) - sale * 190);
+  const pasa = tramo(t, en('lutero', 0.8331), en('lutero', 0.8537)), va = tramo(t, en('lutero', 0.8802), en('lutero', 0.9212)), x2 = Math.round(lerp(238, 112, va));
+  const ge = R.actor(EL.escribanoParl, xe, g.suelo, t, { dir: sale > 0 ? -1 : 1, anda: (e > 0 && e < 1) || (sale > 0 && sale < 1), sostiene: pasa < 1 && e > 0.2 ? [xe + 22, g.suelo - 14] : undefined, habla: e >= 1 && t < en('lutero', 0.8712) && Math.sin(t * 9) > 0 });
+  const g1 = R.actor(EL.guarda, 188, g.suelo, t, { dir: -1, sostiene: pasa >= 1 && t < en('lutero', 0.9062) ? true : t > en('lutero', 0.9062) ? [182, g.suelo - 28] : undefined, sonrisa: pasa >= 1 && t < en('lutero', 0.9263), habla: t > en('lutero', 0.8537) && t < en('lutero', 0.8762) && Math.sin(t * 8) > 0 });
+  R.actor(EL.guarda2, x2, g.suelo, t, { dir: va > 0 ? -1 : -1, anda: va > 0 && va < 1, sorpresa: t > en('lutero', 0.9212) && t < en('lutero', 0.9513), dedo: t > en('lutero', 0.9513) && t < en('lutero', 1.0064) });
+  const bolsa = (x, y) => T.PIEZAS_NV.bolsa(R, x, y, {});
+  if (e > 0.2 && pasa < 1) { const [ax, ay] = ge.mano, [bx, by] = g1.mano; bolsa(Math.round(lerp(ax, bx, pasa)), Math.round(lerp(ay, by, pasa) + 5 - Math.sin(pasa * Math.PI) * 6)); }
+  else if (pasa >= 1 && t < en('lutero', 0.9062)) { bolsa(g1.mano[0], g1.mano[1] + 5); if (t < en('lutero', 0.8662)) for (let k = 0; k < 4; k++) { const a = t * 6 + k * 1.6; R.pset(Math.round(g1.mano[0] + Math.cos(a) * 7), Math.round(g1.mano[1] - 2 + Math.sin(a) * 5), H('#ffe890')); } }
+  if (t > en('lutero', 0.9062)) { const [fx, fy] = g1.mano; R.rect(fx - 3, fy, fx + 3, fy + 8, K); R.rect(fx - 2, fy + 1, fx + 2, fy + 7, H('#ffd870')); R.rect(fx - 2, fy + 1, fx + 2, fy + 1, H('#3a3a3a')); halo(fx, fy + 4, 22, H('#ffd890'), 0.35); }
+  T.epocaDelante(R, t, { encuadre: 'bosque', camara: 'guardas' });
+};
+const efectos = [[en('lutero', -0.015), 'maquina'], [en('lutero', 0.1602), 'papel'], [L2 + 0.3, 'viento'], [en('lutero', 0.2604), 'brillo'], [en('lutero', 0.4106), 'whoosh'], [L3 + 0.3, 'puerta'], [en('lutero', 0.6048), 'lapiz'], [en('lutero', 0.6979), 'brillo'], [en('lutero', 0.8361), 'tic'], [en('lutero', 0.9237), 'whoosh']];
+T.rodar(E, R, [[0, p1], [L2, p2], [L3, p3], [L4, p4]], { efectos, año: (t) => t < L2 ? 1845 : 1521 });
+</script>
+</body>
+</html>

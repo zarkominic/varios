@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep38</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MC-HOLA (frase 3), hoy (2026), sin cartela. Un plano: la botella de Atom de cerca, en su aparador. En «I'm Atom» el
+// guante de Atom sale de su esquina y saluda; en «and I explain» baja, coge la lupa grande y la trae sobre la botella;
+// en «wondered» la lente se posa sobre la cubierta del barquito: vacía, ni un muñequito; en «about» sale un «?»; en
+// «Let's find out» la lupa recorre la cubierta buscando.
+import * as T from '/atomo/plato/escenas/mc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('mc-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const th = (s) => en('hola', (s - 0.5) / 4.115);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), AZ = hex('#3a6ac8'), GUANTE = '#5a8ad0', ease = (u) => u * u * (3 - 2 * u);
+const SALUDA = th(0.55), BAJA = th(1.44), COGE = th(1.95), POSA = th(2.92), DUDA = th(3.2), BUSCA = th(3.93);
+const globo = (x, y, ic, c) => { R.disco(x, y, 8, K); R.disco(x, y, 7, BL); R.pset(x - 4, y + 8, K); R.pset(x - 3, y + 7, BL); R.pset(x - 5, y + 9, K); R.icono(ic, x - 3, y - 5, c, null, 1.4); };
+const p1 = (t) => {
+  // la lupa: entra entre «and I explain» y «wondered»; en «Let's find out» recorre la cubierta
+  const lu = ease(tramo(t, COGE, POSA)) - (t > BUSCA ? 0.06 * (0.5 - 0.5 * Math.cos((t - BUSCA) * 5)) : 0);
+  const o = { encuadre: 'estudio', camara: 'botella', vacia: 1, bote: 'barco', lupa: Math.max(0, lu) };
+  const g = T.hoy(R, t, o);
+  // el guante de Atom: sale de su esquina, saluda, baja por fuera del cuadro y vuelve agarrado al mango de la lupa
+  const sal = ease(tramo(t, SALUDA - 0.2, SALUDA + 0.15)), baja = ease(tramo(t, BAJA, COGE));
+  if (lu > 0.02 && g.mango) T.mano(R, g.mango[0] - 4, g.mango[1] - 2, -1, GUANTE, { sinManga: true });
+  else if (sal > 0) {
+    let hx = lerp(292, 268, sal) + (t < BAJA ? Math.round(Math.sin(t * 16) * 3) : 0), hy = lerp(30, 36, sal);
+    if (baja > 0) { hx = lerp(268, 330, baja); hy = lerp(36, 200, baja); }
+    T.mano(R, Math.round(hx), Math.round(hy), -1, GUANTE, { sinManga: true });
+  }
+  if (t > DUDA && g.lupa) globo(g.lupa[0] + 22, g.lupa[1] - 30, '?', AZ);
+};
+const efectos = [[SALUDA, 'pop'], [COGE + 0.2, 'whoosh'], [POSA, 'brillo'], [DUDA, 'pop']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Gancho · ep35</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JM-GANCHO (frases 1–2), sin cartela. Siete planos:
+// 1. la libreta de los intentos, de noche: la mano escribe garabatos y los tacha; en «anything» cae encima una nota con
+//    un «?»; la mano le da dos golpecitos con el lápiz (la J no sale: es de jm-pregunta);
+// 2. («for a thirty-two-page…») pasa la página: la lámina a lápiz del salón; el «32» en la esquina; en «book» el
+//    rinoceronte se dibuja en la alfombra y resopla;
+// 3. («Out of that book…») el contador de latón sube hasta 2027 (millones) y se clava en «billion»; llueven monedas;
+// 4. («Along the way…») la mesa del artista desde arriba, de noche: la mano dibuja el salón bajo el flexo; el café
+//    humea en volutas finas (más con el frío); en «cold» la mano tirita;
+// 5. («a white dog…») la esquina de una lámina: el perro blanco saca la cabeza y las orejas por el borde del seto ya en
+//    el primer segundo; en «sneaks» sale, cruza el césped al trote y se sienta en medio del dibujo, moviendo el rabo;
+// 6. («a New Hampshire town…») la esquina de la casa con el zapato pintado: el pintor llega con la esponja a la altura
+//    del pecho (por la izquierda del coche aparcado, sin pisarlo) y los vecinos se plantan delante en «refused»;
+// 7. («and a lion…») la sala de pantallas: el león de alambre en la pantalla grande; en «hair by hair» le sale melena.
+import * as T from '/atomo/plato/escenas/jm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jm-gancho');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), ROJO = hex('#d8402c'), ROJOS = hex('#8e2418'), PZ = T.PIEZAS_JM;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const ease = (u) => u * u * (3 - 2 * u);
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un destello de cuatro puntas
+const destello = (x, y, r, c = BL) => { x = Math.round(x); y = Math.round(y); for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 1) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+// Atom cuando baja de su esquina: el resplandor tramado y el átomo
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: o.vel ?? 1 });
+};
+const chispas = (x, y, t, r, n, c) => { for (let k = 0; k < n; k++) { const an = k * Math.PI * 2 / n + t * 4, q = r + Math.sin(t * 9 + k) * 2; R.pset(Math.round(x + Math.cos(an) * q), Math.round(y + Math.sin(an) * q), c); } };
+// el vapor del café, visto desde arriba: tres hilos finos y tramados que suben de la taza (x, y) haciendo eses y se deshacen
+const vaporTaza = (x, y, t, f = 1) => { for (let k = 0; k < 3; k++) for (let i = 0; i < 36; i++) { const u = i / 36, X = Math.round(x + (k - 1) * 4 + Math.sin(u * 5 - t * 2.2 + k * 2.1) * (1.5 + u * 4)), Y = y - 2 - i;
+  const v = (Math.sin(u * 9 - t * 3.4 + k * 1.7) * 0.5 + 0.5) * (1 - u) * Math.min(1, u * 7) * f; if (v > 0.2) { R.pset(X, Y, v > 0.45 ? hex('#f4f0e4') : hex('#c8bca4')); if (v > 0.62) R.pset(X + 1, Y, hex('#d8ccb8')); } } };
+// el borde izquierdo del seto de la lámina (el mismo de jm-comun, b_setoGordo): a su derecha, el seto tapa al perro
+const setoIz = (y) => 150 + Math.sin(y * 0.12) * 5 + Math.sin(y * 0.4) * 2;
+const SX0 = 138, SX1 = 233, SY0 = 96, SY1 = 149, GUARDA = new Uint32Array((SX1 - SX0 + 1) * (SY1 - SY0 + 1));
+// la mano que dibuja: la mano canónica sola (sin manga: el papel queda lejos del borde y un brazo pasaría de 45 px),
+// con su sombra tramada sobre el papel, y el lápiz con la punta en (px, py)
+const manoLapiz = (px, py, manga, o = {}) => {
+  px = Math.round(px); py = Math.round(py);
+  for (let j = 0; j < 9; j++) for (let i = 0; i < 16; i++) if (((i + j) & 1) && Math.hypot((i - 8) / 8, (j - 4) / 4.5) < 1) R.pset(px + 4 + i, py + 2 + j, hex('#8a8474'));
+  T.g_lapizGrande(R, px + 23, py - 24, px, py, { negro: !!o.negro });
+  T.mano(R, px + 12, py - 4, -1, manga, { sinManga: true });
+};
+
+const w = (s) => s;   // los instantes van en segundos de la escena (medidos en linea.json) y se anclan a las marcas
+const a = (s) => en('palabra', (s - 0.5) / 14.701), b = (s) => en('camino', (s - 16.756) / 13.597);
+const P2 = a(5.84), P3 = a(10.02), P4 = b(15.7), P5 = b(20.88), P6 = b(24.4), P7 = b(27.92);
+const NADA = a(1.56), ESCULTOR = a(5.04), N32 = a(6.36), LIBRO = a(7.2), BN = a(8.68), BILLON = a(13.04);
+const NOCHE = b(18.9), FRIO = b(20.32), PERRO = b(21.54), CUELA = b(22.48), REHUSA = b(25.8), BORRAR = b(26.5), LEON = b(27.92), PELO = b(29.54);
+const MANGA = '#6a5a3a';
+let JD = null;
+// 1 · la libreta: garabatos tachados y la nota con el «?»
+const p1 = (t) => {
+  if (JD == null) JD = ((T.taller(R, 0, { encuadre: 'palabras', intentos: 0 }) || {}).jDesde ?? 0.8) - 0.03;
+  const u = lerp(Math.min(0.42, JD - 0.2), JD, tramo(t, 0.1, a(4.4)));
+  const g = T.taller(R, t, { encuadre: 'palabras', intentos: u }) || {};
+  // la nota con el «?»: cae en «anything», rebota y se queda, un poco torcida
+  const cae = tramo(t, NADA - 0.3, NADA), nx = 110, ny = Math.round(lerp(-30, 146, cae * cae) - (t > NADA && t < NADA + 0.3 ? Math.abs(Math.sin((t - NADA) * 21)) * 5 * (1 - (t - NADA) / 0.3) : 0));
+  if (cae > 0) {
+    for (let j = 0; j <= 38; j++) for (let i = 0; i <= 40; i++) if ((i + j) & 1) R.pset(nx - 17 + i, 146 - 15 + j, hex('#6a6048'));
+    for (let j = -19; j <= 19; j++) { const s = Math.round(j * 0.08); R.rect(nx - 21 + s, ny + j, nx + 21 + s, ny + j, K); }
+    for (let j = -18; j <= 18; j++) { const s = Math.round(j * 0.08); R.rect(nx - 20 + s, ny + j, nx + 20 + s, ny + j, j < -12 ? hex('#f0d060') : hex('#ffe680')); R.pset(nx + 20 + s, ny + j, hex('#d8b848')); }
+    R.rect(nx - 18, ny + 17, nx + 20, ny + 18, hex('#d8b848'));
+    R.icono('?', nx - 9, ny - 13, ROJOS, null, 4); R.icono('?', nx - 10, ny - 14, ROJO, null, 4);
+    if (t > NADA && t < NADA + 0.5) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, r = 24 + (t - NADA) * 30; R.pset(Math.round(nx + Math.cos(an) * r), Math.round(ny + Math.sin(an) * r * 0.8), BL); }
+  }
+  // la mano: escribe y tacha; en «sculptor» baja a la nota y le da dos golpecitos
+  const [px, py] = g.punta || [140, 90], baja = ease(tramo(t, a(4.4), ESCULTOR)), toque = t > ESCULTOR ? Math.round(Math.abs(Math.sin((t - ESCULTOR) * Math.PI * 2.6)) * 4 * (t < ESCULTOR + 0.78 ? 1 : 0)) : 0;
+  manoLapiz(lerp(px, 136, baja), lerp(py, 152, baja) - toque - (baja > 0 && baja < 1 ? Math.sin(baja * Math.PI) * 8 : 0), MANGA);
+};
+// 2 · la lámina del libro, a lápiz: el salón y el rinoceronte
+const p2 = (t) => {
+  const o = { encuadre: 'salon', rino: ease(tramo(t, P2 + 0.5, LIBRO + 0.7)) };
+  T.casaJuego(R, t, o); T.casaJuegoDelante(R, t, o);
+  // el resoplido del rinoceronte, en grises
+  if (t > BN) for (let k = 0; k < 2; k++) { const f = ((t - BN) * 1.3 + k * 0.5) % 1, x = 157 + f * 13, y = 143 + f * 3, r = 2 + f * 4; for (let j = -6; j <= 6; j++) for (let i = -6; i <= 6; i++) { const d = Math.hypot(i, j); if (d < r && hh(i, j, k) > f * 0.7) R.pset(Math.round(x + i), Math.round(y + j), d > r - 1.1 ? hex('#4a4a52') : (i + j) & 1 ? hex('#f6f5ee') : hex('#d2d0c6')); } }
+  // el número de página
+  if (t > N32) { const e = tramo(t, N32, N32 + 0.25); const y0 = Math.round(lerp(180, 162, e)); R.rect(140, y0, 180, 179, K); R.rect(141, y0 + 1, 179, 179, hex('#34343c')); R.rect(141, y0 + 1, 179, y0 + 1, hex('#5a5a64')); for (let x = 144; x < 178; x += 2) R.pset(x, y0 + 3, hex('#5a5a64')); R.numero('32', 160, y0 + 15, { tam: 8, centro: true }); }
+};
+// 3 · el contador de taquilla
+const p3 = (t) => {
+  const u = tramo(t, P3 + 0.3, BILLON + 0.3), e = 1 - (1 - u) ** 2.2, fin = BILLON + 0.3;
+  const g = T.cine(R, t, { encuadre: 'contador', cifra: u >= 1 ? 2027 : 2027 * e, gira: u > 0 && u < 0.86 ? 1 : u < 1 ? (1 - u) / 0.14 : 0, signo: true, lluvia: u <= 0 ? 0 : u < 1 ? 0.4 + u * 0.6 : Math.max(0.45, 1 - (t - fin) * 0.25) }) || {};
+  if (t >= fin) { const s = t - fin; for (let k = 0; k < 6; k++) { const f = (s * 1.4 + k * 0.37) % 1, x = 82 + hh(k, Math.floor(s * 1.4 + k * 0.37)) * 164, y = 56 + hh(k, 7 + Math.floor(s * 1.4 + k * 0.37)) * 60; if (f < 0.5) destello(x, y, f < 0.25 ? 3 : 2, k & 1 ? hex('#fff4b8') : BL); }
+    if (s < 0.35) { const r = 20 + s * 260; for (let k = 0; k < 40; k++) { const an = k * Math.PI / 20; R.pset(Math.round(158 + Math.cos(an) * r), Math.round(87 + Math.sin(an) * r * 0.5), hex('#fff4b8')); } } }
+};
+// 4 · la mesa del artista, de noche
+const p4 = (t) => {
+  const u = lerp(0.3, 0.92, tramo(t, P4, P5 - 0.2)), g = T.taller(R, t, { encuadre: 'casa', camara: 'mesa', dibujo: u }) || {};
+  const [px, py] = g.punta || [160, 90], fr = t > FRIO ? Math.round(Math.sin(t * 38)) : 0;
+  manoLapiz(px + fr, py, MANGA, { negro: true });
+  // el café humea (más cuando aprieta el frío): hilos finos sobre la taza, lejos de la hoja y de la regla
+  const [tx, ty] = g.taza || [50, 140]; vaporTaza(tx, ty, t, t > FRIO ? 1.5 : 1);
+};
+// 5 · el perro blanco se cuela en la esquina del dibujo
+const p5 = (t) => {
+  const o = { encuadre: 'esquinas', camara: 'esquina', asoma: 0 };   // el perro lo pinta la escena (el del decorado no pasa del borde del seto)
+  T.editorial(R, t, o);
+  // en el margen de la lámina, el lápiz negro del dibujante y unas migas de goma
+  T.g_lapizGrande(R, 300, 62, 268, 122, { negro: true }); for (let k = 0; k < 9; k++) R.pset(262 + Math.round(hh(k, 5) * 40), 128 + Math.round(hh(k, 6) * 12), k % 3 ? hex('#bab8b0') : hex('#8a887e'));
+  // el perro: saca la cabeza por el borde del seto (primer segundo), mira, y en «sneaks» sale, cruza y se sienta
+  const sale = ease(tramo(t, P5 + 0.1, P5 + 0.6)), cruza = ease(tramo(t, CUELA - 0.12, CUELA + 0.8)), sentado = cruza >= 1;
+  const mira = sale >= 1 && cruza <= 0, cabeceo = t > PERRO && t < PERRO + 0.5 ? Math.abs(Math.sin((t - PERRO) * Math.PI * 4)) * 2 : 0;
+  const dx = Math.round(lerp(lerp(202, 151, sale), 100, cruza) + (mira ? Math.sin(t * 3) * 1.3 : 0)), dy = 146 - Math.round(cabeceo + (cruza > 0 && cruza < 1 ? Math.abs(Math.sin(t * 17)) * 2.4 : 0));
+  // se guarda el seto de esa zona, se pinta la sombra y el perro, y se devuelve el seto encima: le tapa lo que aún no ha salido
+  for (let y = SY0, n = 0; y <= SY1; y++) for (let x = SX0; x <= SX1; x++) GUARDA[n++] = R.pget(x, y);
+  for (let y = 145; y <= 148; y++) for (let x = dx - 26; x <= dx + (sentado ? 22 : 16); x++) if (((x + y) & 1) && x < setoIz(y)) R.pset(x, y, mez(R.pget(x, y), hex('#4a4a52'), y === 146 || y === 147 ? 0.5 : 0.3));
+  PZ.perro(R, dx, dy, { t, dir: -1, s: 3, sentado });
+  for (let y = SY0, n = 0; y <= SY1; y++) { const iz = setoIz(y); for (let x = SX0; x <= SX1; x++, n++) if (x >= iz) R.pset(x, y, GUARDA[n]); }
+  T.editorialDelante(R, t, o);
+  // las hojas del seto, que saltan y caen cuando asoma y cuando sale
+  for (let k = 0; k < 8; k++) { const t0 = (k < 4 ? P5 + 0.15 : CUELA - 0.05) + (k & 3) * 0.08, f = (t - t0) / 0.9; if (f > 0 && f < 1) { const x = 150 + hh(k, 1) * 12 - f * 8 + Math.sin(f * 9 + k) * 2, y = 96 + hh(k, 2) * 30 + f * f * 22; R.rect(Math.round(x), Math.round(y), Math.round(x) + 2, Math.round(y) + 1, K); R.pset(Math.round(x) + 1, Math.round(y), hex('#c6c4ba')); } }
+  // polvo de grava a su paso mientras trota
+  if (cruza > 0.1 && cruza < 1) for (let k = 0; k < 4; k++) { const f = (t * 3 + k * 0.25) % 1; const gx = dx + 20 + Math.round(f * 8 + k * 2), gy = 147 - Math.round(f * 4); if (gx < setoIz(gy) - 1) R.pset(gx, gy, f < 0.5 ? hex('#8a887e') : hex('#bab8b0')); }
+};
+// 6 · el pueblo que no quiso borrar el letrero
+const p6 = (t) => {
+  const o = { encuadre: 'calle', camara: 'esquina', letrero: 1, epoca: 1994 };
+  T.keene(R, t, o);
+  const llega = tramo(t, P6, REHUSA + 0.15), px = Math.round(lerp(264, 204, llega)), para = t >= REHUSA, no = t >= BORRAR;
+  const planta = ease(tramo(t, P6 + 0.2, REHUSA - 0.1));
+  R.actor(EL.vecina3JM, Math.round(lerp(84, 112, planta)), 156, t, { dir: 1, anda: planta > 0 && planta < 1, enfado: para, brazos: para && Math.sin(t * 9) > -0.3 });
+  R.actor(EL.vecino1JM, Math.round(lerp(222, 164, planta)), 158, t, { dir: planta < 1 ? -1 : 1, anda: planta > 0 && planta < 1, enfado: para, dedo: para, habla: para && Math.sin(t * 11) > 0 });
+  R.actor(EL.vecina2JM, Math.round(lerp(120, 138, planta)), 160, t, { dir: 1, anda: planta > 0 && planta < 1, enfado: para, brazos: no });
+  const pin = R.actor(EL.pintorJM, px, 157, t, { dir: -1, anda: llega < 1, sorpresa: para && !no, triste: no, sostiene: no ? [px - 5, 153] : [px - 8, 150] });
+  // la esponja cuelga de la mano, a la altura del pecho: no tapa ninguna cara ni toca al vecino
+  if (pin && pin.mano) PZ.esponja(R, pin.mano[0] - 5, pin.mano[1] + 5, {});
+  if (para && t < REHUSA + 1) { const gx = px + 4, gy = 116 - Math.round(tramo(t, REHUSA, REHUSA + 0.15) * 4); R.disco(gx, gy, 9, K); R.disco(gx, gy, 8, BL); R.disco(gx - 6, gy + 10, 2, K); R.disco(gx - 6, gy + 10, 1, BL); R.icono('!', gx - 3, gy - 6, ROJO, null, 2); }
+  T.keeneDelante(R, t, o);
+};
+// 7 · el león hecho por computadora
+const p7 = (t) => {
+  const pelo = 0.1 * tramo(t, P7, PELO) + 0.75 * tramo(t, PELO, E.duracion - 0.3), o = { encuadre: 'efectos', pelo };
+  T.keene(R, t, o);
+  const mira = t > P7 + 0.5;
+  R.actor(EL.tecnicoFX1JM, 112, 145, t, { dir: mira ? 1 : -1, dedo: t > PELO && t < PELO + 1.2, sonrisa: t > PELO });
+  R.actor(EL.tecnicoFX2JM, 208, 145, t, { dir: t > PELO + 0.2 ? -1 : 1, habla: t < PELO && Math.sin(t * 9) > 0, sorpresa: t > PELO + 0.2 && t < PELO + 1.1, sonrisa: t >= PELO + 1.1 });
+  T.keeneDelante(R, t, o);
+};
+const año = (t) => (t < P3 ? 1981 : t < P4 ? 2026 : t < P6 ? 1979 : 1995);
+const efectos = [[0.6, 'lapiz'], [NADA, 'papel'], [ESCULTOR + 0.1, 'toc'], [P2 + 0.1, 'papel'], [LIBRO + 0.3, 'lapiz'], [BN + 0.1, 'vapor'], [P3 + 0.3, 'maquina'], [BILLON + 0.3, 'campana'], [P4 + 0.4, 'lapiz'], [CUELA + 0.1, 'whoosh'], [CUELA + 0.7, 'guau'], [REHUSA, 'aviso'], [P7 + 0.3, 'tecleo'], [PELO, 'bip']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7]], { efectos, año });
+</script>
+</body>
+</html>

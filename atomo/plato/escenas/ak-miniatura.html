@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep40 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// AK-MINIATURA · ep40, con chibis. Una sola idea: el terrón de bronce verde en el fondo del mar con una rueda dentada que
+// brilla en la grieta; el buzo de 1900 (Stadiatis, con su escafandra de cobre) al doble, a la izquierda, lo descubre con
+// sorpresa. Lo que promete el título («a 2,000-year-old computer from a shipwreck»). Sin palabras. Nada morboso.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { fondo, fondoDelante } from '/atomo/plato/escenas/ak-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'naufragio', camara: 'terron', brillo: 1 };
+  fondo(R, t, o); fondoDelante(R, t, o);
+  grado(R, { cx: 175, cy: 112, tinte: '#06141c', f: 0.2, desde: 0.45, max: 0.78 });
+  halo(R, 172, 112, 80, 58, '#ffd27a', 0.32);
+  halo(R, 172, 112, 42, 32, '#ffe6a0', 0.7);
+  halo(R, 172, 114, 20, 16, '#fffbe8', 0.75);
+  halo(R, 70, 120, 50, 60, '#9ad0f0', 0.16);
+  figura(R, EL.stadiatisAK, 76, 176, t, { dir: 1, sorpresa: true }, 3);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

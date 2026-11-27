@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep41 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DD-MINIATURA · ep41, con chibis. Una sola idea, la del título («Doom Took Hulk and Woke Scarlet Witch»): en las ruinas
+// de Wundagore, con las rocas flotando en luz verde, Doom al doble en el centro con los brazos en alto; a su izquierda, la
+// silueta de Hulk atrapada en una columna de luz verde; a su derecha, Wanda de pie con su magia roja, despierta. Verde
+// contra rojo. Sin palabras. Nada morboso.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { wundagore, wundagoreDelante } from '/atomo/plato/escenas/dd-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+// tiñe hacia un color en una elipse (lo que un halo sumado no consigue sobre la nieve blanca)
+const tinte = (R, cx, cy, rx, ry, rgb, fmax) => { const B = R.buf;
+  for (let y = Math.max(0, cy - ry); y < Math.min(180, cy + ry); y++) for (let x = Math.max(0, cx - rx); x < Math.min(320, cx + rx); x++) {
+    const dx = (x - cx) / rx, dy = (y - cy) / ry, d = dx * dx + dy * dy; if (d >= 1) continue;
+    const f = fmax * (1 - d) * (1 - d), c = B[y * 320 + x], m = (v, w) => Math.min(255, Math.round(v * (1 - f) + w * f));
+    B[y * 320 + x] = (0xff000000 | (m((c >>> 16) & 255, rgb[2]) << 16) | (m((c >>> 8) & 255, rgb[1]) << 8) | m(c & 255, rgb[0])) >>> 0; } };
+const dibujar = (t) => {
+  const o = { encuadre: 'ruinas', verde: 1, levanta: 1 };
+  wundagore(R, t, o); wundagoreDelante(R, t, o);
+  grado(R, { cx: 160, cy: 110, tinte: '#0a0614', f: 0.18, desde: 0.5, max: 0.75 });
+  // la columna verde que se lleva a Hulk, a la izquierda: un haz que baja del cielo y lo levanta del suelo
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 44; x < 110; x++) {
+    const d = Math.abs(x - 77) / 30, f = Math.max(0, 1 - d * d) * (0.45 + 0.2 * (y / 180)) * (0.92 + 0.08 * Math.sin(y * 0.5 + t * 6));
+    const c = B[y * 320 + x], r = c & 255, g = (c >>> 8) & 255, bl = (c >>> 16) & 255;
+    const mz = (v, w) => Math.min(255, Math.round(v * (1 - f) + w * f));
+    B[y * 320 + x] = (0xff000000 | (mz(bl, 150) << 16) | (mz(g, 255) << 8) | mz(r, 120)) >>> 0;
+  }
+  halo(R, 77, 168, 34, 8, '#9affc0', 0.6);
+  figura(R, EL.hulk, 64, 144, t, { dir: 1, sorpresa: true }, 2);
+  tinte(R, 78, 110, 28, 60, [60, 230, 120], 0.28);
+  halo(R, 77, 90, 20, 90, '#e0fff0', 0.25);
+  // Wanda, despierta, con su magia roja, a la derecha
+  tinte(R, 250, 130, 50, 52, [200, 20, 50], 0.6);
+  halo(R, 252, 124, 56, 60, '#ff2040', 0.4);
+  halo(R, 252, 124, 26, 34, '#ff8a9a', 0.35);
+  figura(R, EL.wandaDD, 240, 172, t, { dir: -1, dedo: true }, 2);
+  // Doom en el centro, más grande, con los brazos en alto
+  halo(R, 160, 104, 52, 64, '#9affc0', 0.3);
+  figura(R, EL.doom, 160, 176, t, { dir: 1, brazos: true }, 3);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

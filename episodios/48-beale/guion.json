@@ -1,0 +1,541 @@
+{
+ "serie": "ASK Atom",
+ "numero": 48,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Is the BEALE Treasure Real? | A Fortune Hidden in Three Pages of Numbers",
+  "es": "¿Es real el tesoro de BEALE? | Una fortuna escondida en tres páginas de números"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "parrafo_entero": true,
+ "pausas": {
+  "respiro": 0.15,
+  "parrafo": 0.4,
+  "acto": 0.5,
+  "entrada": 0.2,
+  "salida": 0.25
+ },
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 0.95
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.4,
+    "mood.arousal": 0.3
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "bl-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "giro+2"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "giro",
+     "es": "En algún lugar de Virginia hay, supuestamente, una fortuna enterrada, y el único mapa que la señala es una lista de números.",
+     "en": "Somewhere in Virginia, a fortune is supposedly buried, and the only map is numbers.",
+     "visual": "C: el bosque de Bedford de noche, bajo la luna; en el suelo, entre hojas, una hoja vieja de papel cubierta de números; golpe en «números»."
+    },
+    {
+     "n": 2,
+     "marca": "folleto",
+     "es": "Imagina que tienes en las manos un folleto amarillento de 1885, que te ha costado cincuenta centavos, y que al abrirlo no encuentras palabras sino columnas y columnas de números separados por comas, setenta y uno, ciento noventa y cuatro, treinta y ocho, como si alguien hubiera querido esconder algo a plena vista. El folleto te jura que una de esas páginas dice exactamente en qué rincón del condado de Bedford esperan bajo tierra toneladas de oro y plata.",
+     "en": "Picture holding a yellowed pamphlet from 1885 that cost you fifty cents, and when you open it you find no words, only columns and columns of numbers separated by commas, seventy-one, one hundred ninety-four, thirty-eight, as if someone wanted to hide something in plain sight. The pamphlet swears that one of those pages says exactly which corner of Bedford County is hiding tons of gold and silver underground.",
+     "visual": "A y D: un folleto amarillento sobre una mesa; se abre y salen columnas de números (71, 194, 38…); los números flotan sobre el bosque y caen como hojas hacia un punto del suelo; Atom de buscador con farol lo sigue.",
+     "es_voz": "Imagina que tienes en las manos un folleto amarillento de mil ochocientos ochenta y cinco, que te ha costado cincuenta centavos, y que al abrirlo no encuentras palabras sino columnas y columnas de números separados por comas, setenta y uno, ciento noventa y cuatro, treinta y ocho, como si alguien hubiera querido esconder algo a plena vista. El folleto te jura que una de esas páginas dice exactamente en qué rincón del condado de Bedford esperan bajo tierra toneladas de oro y plata.",
+     "en_voz": "Picture holding a yellowed pamphlet from eighteen eighty-five that cost you fifty cents, and when you open it you find no words, only columns and columns of numbers separated by commas, seventy-one, one hundred ninety-four, thirty-eight, as if someone wanted to hide something in plain sight. The pamphlet swears that one of those pages says exactly which corner of Bedford County is hiding tons of gold and silver underground."
+    },
+    {
+     "n": 3,
+     "marca": "clave",
+     "es": "Y lo más inquietante es que una de las tres páginas ya se descifró, con una clave que puedes encontrar en cualquier biblioteca, la Declaración de Independencia, y lo que cuenta es un inventario de oro, plata y joyas guardado en ollas de hierro. Las otras dos, la que dice dónde y la que dice para quién, llevan ciento cuarenta años sin que nadie, ni siquiera los mejores descifradores del ejército de Estados Unidos, haya conseguido leerlas.",
+     "en": "And the most unsettling part is that one of the three pages has already been cracked, with a key you can find in any library, the Declaration of Independence, and what it reveals is an inventory of gold, silver and jewels packed in iron pots. The other two, the one that says where and the one that says for whom, have gone a hundred and forty years without anyone, not even the best codebreakers in the United States Army, managing to read them.",
+     "visual": "D: tres hojas de números en fila; la segunda se ilumina y se convierte en una lista de dibujos (lingotes, monedas, joyas, ollas de hierro); la primera y la tercera siguen a oscuras; al fondo, siluetas de descifradores con lupas que se rinden."
+    }
+   ]
+  },
+  {
+   "id": "bl-aviso",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "pregunta",
+     "es": "Así que hoy te voy a contar la historia de esas tres páginas como la vivieron quienes las tuvieron en las manos, desde el posadero que guardó la caja hasta la mujer que alquiló una excavadora. Y guárdate esta pregunta para el final, porque vamos a volver a ella: ¿quién escribió de verdad esos números?",
+     "en": "So today I'm going to tell you the story of those three pages the way it was lived by the people who held them, from the innkeeper who kept the box to the woman who rented a backhoe. And hold on to this question for the end, because we're coming back to it: who really wrote those numbers?",
+     "visual": "F: Atom en su estudio coloca en la pizarra las tres hojas de números y una gran interrogación con una pluma de escribir («guárdate esta pregunta»)."
+    }
+   ]
+  },
+  {
+   "id": "bl-posada",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1820",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "beale",
+     "es": "Imagina Lynchburg, en Virginia, en enero de 1820, una ciudad de almacenes de tabaco junto al río James, y una posada donde un forastero alto, moreno y de buenos modales se queda todo el invierno, encantador con todos pero sin decir nunca una palabra de su familia ni de dónde viene. Según el folleto, se llamaba Thomas Jefferson Beale, y el posadero, Robert Morriss, diría de él que era el hombre más apuesto que había visto en su vida.",
+     "en": "Picture Lynchburg, Virginia, in January 1820, a town of tobacco warehouses on the James River, and an inn where a tall, dark, well-mannered stranger stays the whole winter, charming everyone yet never saying a word about his family or where he comes from. According to the pamphlet, his name was Thomas Jefferson Beale, and the innkeeper, Robert Morriss, would say he was the handsomest man he had ever seen.",
+     "visual": "A: Lynchburg en invierno, almacenes de tabaco junto al río James con barcas; la posada con su chimenea; un forastero alto y moreno, elegante, charla con todos en el comedor; Morriss detrás del mostrador.",
+     "acto": true,
+     "es_voz": "Imagina Lynchburg, en Virginia, en enero de mil ochocientos veinte, una ciudad de almacenes de tabaco junto al río James, y una posada donde un forastero alto, moreno y de buenos modales se queda todo el invierno, encantador con todos pero sin decir nunca una palabra de su familia ni de dónde viene. Según el folleto, se llamaba Thomas Jefferson Beale, y el posadero, Robert Morriss, diría de él que era el hombre más apuesto que había visto en su vida.",
+     "en_voz": "Picture Lynchburg, Virginia, in January eighteen twenty, a town of tobacco warehouses on the James River, and an inn where a tall, dark, well-mannered stranger stays the whole winter, charming everyone yet never saying a word about his family or where he comes from. According to the pamphlet, his name was Thomas Jefferson Beale, and the innkeeper, Robert Morriss, would say he was the handsomest man he had ever seen."
+    },
+    {
+     "n": 6,
+     "marca": "caja",
+     "es": "En 1822 Beale vuelve a la posada, y antes de marcharse otra vez le deja a Morriss una caja de hierro cerrada con llave, con un encargo tan sencillo como extraño: que la guarde con cuidado y que, si en diez años ni él ni ninguno de sus compañeros vuelve a buscarla, la abra. Morriss, que es un hombre de palabra, la guarda en su despacho, y la caja se queda allí, quieta, como un huésped que nunca pide la cuenta.",
+     "en": "In 1822 Beale comes back to the inn, and before leaving again he hands Morriss a locked iron box, with a request as simple as it is strange: keep it safe, and if in ten years neither he nor any of his companions comes back for it, open it. Morriss, a man of his word, puts it away in his office, and there the box stays, still and silent, like a guest who never asks for the bill.",
+     "visual": "A: el despacho de Morriss; Beale le entrega una caja de hierro con candado; Morriss la guarda en un armario; gag: Atom intenta abrirla con una horquilla y la horquilla se dobla en forma de interrogación.",
+     "es_voz": "En mil ochocientos veintidós Beale vuelve a la posada, y antes de marcharse otra vez le deja a Morriss una caja de hierro cerrada con llave, con un encargo tan sencillo como extraño: que la guarde con cuidado y que, si en diez años ni él ni ninguno de sus compañeros vuelve a buscarla, la abra. Morriss, que es un hombre de palabra, la guarda en su despacho, y la caja se queda allí, quieta, como un huésped que nunca pide la cuenta.",
+     "en_voz": "In eighteen twenty-two Beale comes back to the inn, and before leaving again he hands Morriss a locked iron box, with a request as simple as it is strange: keep it safe, and if in ten years neither he nor any of his companions comes back for it, open it. Morriss, a man of his word, puts it away in his office, and there the box stays, still and silent, like a guest who never asks for the bill."
+    }
+   ],
+   "cartela": "1820"
+  },
+  {
+   "id": "bl-carta",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [
+    "abre+2"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "carta",
+     "es": "Unos meses después le llega una carta de Beale, fechada en mayo de 1822, en la que le explica que dentro hay papeles que nadie podrá entender sin una clave, y que esa clave la tiene un amigo, en un sobre cerrado, con orden de mandársela en junio de 1832. Pero junio de 1832 llega y pasa, y Morriss se queda esperando un sobre que nunca aparece, igual que nunca vuelve a aparecer Beale.",
+     "en": "A few months later a letter from Beale arrives, dated May 1822, explaining that the box holds papers no one can understand without a key, and that a friend is keeping that key in a sealed envelope, with orders to mail it in June 1832. But June 1832 comes and goes, and Morriss is left waiting for an envelope that never shows up, just as Beale never shows up again.",
+     "visual": "A: un cartero entrega una carta a Morriss; gag: Atom vigila el buzón mientras pasan las hojas del calendario de 1822 a 1832 y el buzón sigue vacío.",
+     "es_voz": "Unos meses después le llega una carta de Beale, fechada en mayo de mil ochocientos veintidós, en la que le explica que dentro hay papeles que nadie podrá entender sin una clave, y que esa clave la tiene un amigo, en un sobre cerrado, con orden de mandársela en junio de mil ochocientos treinta y dos. Pero junio de mil ochocientos treinta y dos llega y pasa, y Morriss se queda esperando un sobre que nunca aparece, igual que nunca vuelve a aparecer Beale.",
+     "en_voz": "A few months later a letter from Beale arrives, dated May eighteen twenty-two, explaining that the box holds papers no one can understand without a key, and that a friend is keeping that key in a sealed envelope, with orders to mail it in June eighteen thirty-two. But June eighteen thirty-two comes and goes, and Morriss is left waiting for an envelope that never shows up, just as Beale never shows up again."
+    },
+    {
+     "n": 8,
+     "marca": "abre",
+     "es": "Y aun así Morriss espera trece años más, por si acaso, porque romper aquella cerradura le parece traicionar a un amigo, hasta que en 1845 por fin se decide a abrirla. Dentro encuentra dos cartas escritas con letras normales y tres hojas cubiertas de números, y por primera vez en veintitrés años alguien lee lo que Beale quería contar.",
+     "en": "And still Morriss waits thirteen more years, just in case, because breaking that lock feels like betraying a friend, until in 1845 he finally makes up his mind to open it. Inside he finds two letters written in plain words and three sheets covered in numbers, and for the first time in twenty-three years someone reads what Beale wanted to say.",
+     "visual": "A: Morriss, mayor, rompe el candado a la luz de una lámpara; dentro, dos cartas y tres hojas de números.",
+     "es_voz": "Y aun así Morriss espera trece años más, por si acaso, porque romper aquella cerradura le parece traicionar a un amigo, hasta que en mil ochocientos cuarenta y cinco por fin se decide a abrirla. Dentro encuentra dos cartas escritas con letras normales y tres hojas cubiertas de números, y por primera vez en veintitrés años alguien lee lo que Beale quería contar.",
+     "en_voz": "And still Morriss waits thirteen more years, just in case, because breaking that lock feels like betraying a friend, until in eighteen forty-five he finally makes up his mind to open it. Inside he finds two letters written in plain words and three sheets covered in numbers, and for the first time in twenty-three years someone reads what Beale wanted to say."
+    }
+   ]
+  },
+  {
+   "id": "bl-oeste",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "oro+3"
+   ],
+   "empieza_con": "cartela 1817",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "oro",
+     "es": "Las cartas cuentan que en abril de 1817 Beale salió de Virginia con unos treinta hombres a cazar búfalos por las llanuras, y que, tras pasar el invierno en Santa Fe, unos cuantos que perseguían una manada acamparon en un barranco muy al norte, y mientras preparaban la cena uno de ellos vio brillar algo entre las rocas. Era oro, y aquellos cazadores, que habían salido a buscar pieles, mandaron llamar a Beale y se quedaron año y medio sacándolo de la montaña con herramientas traídas desde Santa Fe.",
+     "en": "The letters say that in April 1817 Beale left Virginia with about thirty men to hunt buffalo on the plains, and that, after wintering in Santa Fe, a few of them chasing a herd camped in a ravine far to the north, and while they were getting supper ready one of them saw something glinting in the rocks. It was gold, and those hunters, who had set out looking for hides, sent for Beale and stayed a year and a half digging it out of the mountain with tools brought up from Santa Fe.",
+     "visual": "B: las llanuras con una manada de búfalos y unos jinetes; luego el barranco al atardecer con el campamento y la cena al fuego; un hombre ve brillar algo entre las rocas (el brillo crece).",
+     "acto": true,
+     "es_voz": "Las cartas cuentan que en abril de mil ochocientos diecisiete Beale salió de Virginia con unos treinta hombres a cazar búfalos por las llanuras, y que, tras pasar el invierno en Santa Fe, unos cuantos que perseguían una manada acamparon en un barranco muy al norte, y mientras preparaban la cena uno de ellos vio brillar algo entre las rocas. Era oro, y aquellos cazadores, que habían salido a buscar pieles, mandaron llamar a Beale y se quedaron año y medio sacándolo de la montaña con herramientas traídas desde Santa Fe.",
+     "en_voz": "The letters say that in April eighteen seventeen Beale left Virginia with about thirty men to hunt buffalo on the plains, and that, after wintering in Santa Fe, a few of them chasing a herd camped in a ravine far to the north, and while they were getting supper ready one of them saw something glinting in the rocks. It was gold, and those hunters, who had set out looking for hides, sent for Beale and stayed a year and a half digging it out of the mountain with tools brought up from Santa Fe."
+    },
+    {
+     "n": 10,
+     "marca": "viaje",
+     "es": "Ahora imagina el problema que tienen, porque en mitad de la nada, a cientos de leguas del banco más cercano, han reunido más oro del que pueden vigilar, y deciden que lo más seguro es llevárselo a casa y esconderlo. Según las cartas, Beale cruza medio continente con el oro, la plata y diez hombres de escolta, y para no levantar sospechas se pasan un mes en la taberna de Buford's, en el condado de Bedford, fingiendo que han venido a cazar mientras buscan el sitio donde enterrarlo.",
+     "en": "Now picture the problem they have, because in the middle of nowhere, hundreds of miles from the nearest bank, they've piled up more gold than they can guard, and they decide the safest thing is to take it home and hide it. According to the letters, Beale crosses half a continent with the gold, the silver and an escort of ten men, and so as not to raise suspicion they spend a month at Buford's tavern, in Bedford County, pretending they've come to hunt while they look for the place to bury it.",
+     "visual": "B y C: una fila de mulas de carga con diez jinetes cruzando montes; luego la taberna de Buford en Bedford con los hombres fingiendo cazar; los picos de Otter al fondo.",
+     "es_voz": "Ahora imagina el problema que tienen, porque en mitad de la nada, a cientos de leguas del banco más cercano, han reunido más oro del que pueden vigilar, y deciden que lo más seguro es llevárselo a casa y esconderlo. Según las cartas, Beale cruza medio continente con el oro, la plata y diez hombres de escolta, y para no levantar sospechas se pasan un mes en la taberna de Biúfords, en el condado de Bedford, fingiendo que han venido a cazar mientras buscan el sitio donde enterrarlo."
+    }
+   ],
+   "cartela": "1817"
+  },
+  {
+   "id": "bl-peso",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "fijate1",
+     "es": "Y fíjate en esto, porque las cifras del folleto no son pequeñas. Habla de dos mil novecientas veintiuna libras de oro, que según cómo se cuente la libra son entre mil y mil trescientos kilos, y de cinco mil cien libras de plata, y solo ese oro, al precio de hoy, valdría más de cien millones de dólares; para que te hagas una idea, pesa tanto como un coche pequeño, todo de oro, metido en unas ollas de hierro en un bosque de Virginia.",
+     "en": "And notice this, because the pamphlet's numbers aren't small. It talks about two thousand nine hundred and twenty-one pounds of gold, somewhere between a thousand and thirteen hundred kilos depending on which pound you use, and five thousand one hundred pounds of silver, and that gold alone, at today's prices, would be worth more than a hundred million dollars; to give you an idea, it weighs as much as a small car, made entirely of gold, sitting in iron pots in a Virginia forest.",
+     "visual": "PAUSA: la taberna congelada; Atom (al doble) saca a color una balanza con lingotes que pesa tanto como un coche pequeño, ollas de hierro llenas; gag: Atom intenta levantar una olla y se le estiran los brazos; «2921»."
+    }
+   ]
+  },
+  {
+   "id": "bl-hojas",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "tres",
+     "es": "Beale le explica a Morriss que el camino al oeste es peligroso, que quiere que alguien de confianza pueda repartir el tesoro si a ellos les pasa algo, y que por eso cifró las tres hojas: la primera dice dónde está la cámara, la segunda qué hay dentro y la tercera quiénes son los treinta hombres y sus familias. Morriss lo lee todo con el corazón en un puño, se pasa años mirando aquellos números a la luz de la lámpara, y no consigue sacarles ni una sola palabra.",
+     "en": "Beale explains to Morriss that the road west is dangerous, that he wants someone he trusts to be able to share out the treasure if anything happens to them, and that this is why he put the three sheets in code: the first says where the vault is, the second what's inside, and the third who the thirty men and their families are. Morriss reads it all with his heart in his throat, spends years staring at those numbers by lamplight, and can't get a single word out of them.",
+     "visual": "A: la carta de Beale; tres hojas sobre la mesa de Morriss, cada una con su dibujo encima (un mapa, una olla, treinta siluetas); Morriss, ya viejo, las mira a la luz de la lámpara."
+    },
+    {
+     "n": 13,
+     "marca": "amigo",
+     "es": "Así que en 1862, ya viejo, a un año de su muerte y con Virginia convertida desde hacía meses en el campo de batalla de la guerra civil, le entrega la caja a un amigo más joven y le hace prometer que, si algún día descifra los números, cumplirá lo que Beale quería. El folleto nunca dice cómo se llamaba ese amigo, y ese hueco, como vamos a ver, es más importante de lo que parece.",
+     "en": "So in 1862, an old man by now, a year from his death, with Virginia already the main battleground of a Civil War that had been raging for over a year, he hands the box to a younger friend and makes him promise that, if he ever cracks the numbers, he'll carry out what Beale wanted. The pamphlet never says what that friend was called, and that gap, as we're about to see, matters more than it seems.",
+     "visual": "A: Lynchburg en 1862 con soldados por la calle; Morriss entrega la caja a un hombre más joven sin rostro claro (de espaldas, con sombrero) en la puerta.",
+     "es_voz": "Así que en mil ochocientos sesenta y dos, ya viejo, a un año de su muerte y con Virginia convertida desde hacía meses en el campo de batalla de la guerra civil, le entrega la caja a un amigo más joven y le hace prometer que, si algún día descifra los números, cumplirá lo que Beale quería. El folleto nunca dice cómo se llamaba ese amigo, y ese hueco, como vamos a ver, es más importante de lo que parece.",
+     "en_voz": "So in eighteen sixty-two, an old man by now, a year from his death, with Virginia already the main battleground of a Civil War that had been raging for over a year, he hands the box to a younger friend and makes him promise that, if he ever cracks the numbers, he'll carry out what Beale wanted. The pamphlet never says what that friend was called, and that gap, as we're about to see, matters more than it seems."
+    }
+   ]
+  },
+  {
+   "id": "bl-cuarto",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1862",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "vela",
+     "es": "Imagina a ese amigo solo en su cuarto, noche tras noche con las tres hojas y una vela, probando una idea detrás de otra, hasta que se le ocurre que los números podrían ser posiciones de palabras en algún texto famoso, uno que Beale hubiera tenido siempre a mano. Prueba con un libro, con otro, con todo lo que encuentra en las estanterías, y nada encaja, hasta que una noche abre la Declaración de Independencia.",
+     "en": "Picture that friend alone in his room, night after night with the three sheets and a candle, trying one idea after another, until it occurs to him that the numbers might be the positions of words in some famous text, one Beale would always have had at hand. He tries one book, then another, everything he can find on the shelves, and nothing fits, until one night he opens the Declaration of Independence.",
+     "visual": "D: el cuarto del amigo de noche; la mesa con las tres hojas, una vela y una pila de libros; prueba uno, otro; abre por fin un pergamino grande (la Declaración, sin letras legibles).",
+     "acto": true
+    }
+   ],
+   "cartela": "1862"
+  },
+  {
+   "id": "bl-cifrado",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "fijate2",
+     "es": "Y fíjate en cómo funciona, porque es más sencillo de lo que parece. Numeras las palabras de la Declaración, la primera es «When», la segunda es «in», y así hasta más de mil, y cada número de la hoja te dice qué palabra mirar, de la que solo te quedas con la primera letra; si no sabes qué texto es, los números son puro ruido, pero si lo sabes, cualquiera puede leer el mensaje con un lápiz y una tarde libre.",
+     "en": "And notice how it works, because it's simpler than it looks. You number the words of the Declaration, the first is \"When,\" the second is \"in,\" and so on past a thousand, and each number on the sheet tells you which word to look at, of which you keep only the first letter; if you don't know which text it is, the numbers are pure noise, but if you do, anyone can read the message with a pencil and a free afternoon.",
+     "visual": "PAUSA: el cuarto congelado; Atom (al doble) saca a color el pergamino con las palabras como bloques numerados (1, 2, 3…) y una flecha que va del número de la hoja a su bloque y saca la primera letra; gag: Atom cuenta con el dedo, estornuda y vuelve al 1.",
+     "es_voz": "Y fíjate en cómo funciona, porque es más sencillo de lo que parece. Numeras las palabras de la Declaración, la primera es «Uen», la segunda es «in», y así hasta más de mil, y cada número de la hoja te dice qué palabra mirar, de la que solo te quedas con la primera letra; si no sabes qué texto es, los números son puro ruido, pero si lo sabes, cualquiera puede leer el mensaje con un lápiz y una tarde libre."
+    }
+   ]
+  },
+  {
+   "id": "bl-mensaje",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "mensaje",
+     "es": "Y entonces, letra a letra, de la segunda hoja empieza a salir un mensaje: «He depositado en el condado de Bedford, a unas cuatro millas de Buford's, en una excavación o bóveda, a seis pies bajo tierra…», y después una lista de oro, de plata y de unas joyas que, según la hoja, cambiaron en San Luis por parte de la plata para no cargar tanto, y que valoraban en trece mil dólares. Imagina lo que siente ese hombre de madrugada, con la vela casi consumida, al ver su propio idioma saliendo de unos números que llevaban décadas callados.",
+     "en": "And then, letter by letter, a message starts coming out of the second sheet: \"I have deposited in the county of Bedford, about four miles from Buford's, in an excavation or vault, six feet below the surface of the ground…\", followed by a list of gold, of silver, and of jewels that, according to the sheet, were traded in St. Louis for some of the silver to lighten the load, and valued at thirteen thousand dollars. Imagine what that man feels in the small hours, his candle nearly burned down, watching his own language rise out of numbers that had been silent for decades.",
+     "visual": "D: letra a letra salen del papel unas formas luminosas que dibujan el bosque, la cámara de piedra a seis pies y las ollas; el amigo con la vela casi consumida, emocionado.",
+     "es_voz": "Y entonces, letra a letra, de la segunda hoja empieza a salir un mensaje: «He depositado en el condado de Bedford, a unas cuatro millas de Biúfords, en una excavación o bóveda, a seis pies bajo tierra…», y después una lista de oro, de plata y de unas joyas que, según la hoja, cambiaron en San Luis por parte de la plata para no cargar tanto, y que valoraban en trece mil dólares. Imagina lo que siente ese hombre de madrugada, con la vela casi consumida, al ver su propio idioma saliendo de unos números que llevaban décadas callados."
+    },
+    {
+     "n": 17,
+     "marca": "ruina",
+     "es": "Pero la alegría le dura poco, porque la Declaración no abre ni la primera hoja ni la tercera, y el amigo se pasa los veinte años siguientes probando con todo lo que se le ocurre, hasta quedarse, según cuenta él mismo, en la ruina más absoluta después de haber sido un hombre acomodado, y arrastrando con él a su familia. En 1885, arruinado y cansado, decide contarlo todo y publicar las tres hojas, para que otros sigan buscando donde él ya no puede.",
+     "en": "But the joy doesn't last, because the Declaration opens neither the first sheet nor the third, and the friend spends the next twenty years trying everything he can think of, until, by his own account, a once comfortable man has been reduced to absolute poverty, dragging his family down with him. In 1885, broke and worn out, he decides to tell the whole story and publish the three sheets, so that others can keep searching where he no longer can.",
+     "visual": "D: el cuarto años después, vacío de muebles, con los papeles por todas partes; el amigo, mayor y cansado; su familia en la puerta.",
+     "es_voz": "Pero la alegría le dura poco, porque la Declaración no abre ni la primera hoja ni la tercera, y el amigo se pasa los veinte años siguientes probando con todo lo que se le ocurre, hasta quedarse, según cuenta él mismo, en la ruina más absoluta después de haber sido un hombre acomodado, y arrastrando con él a su familia. En mil ochocientos ochenta y cinco, arruinado y cansado, decide contarlo todo y publicar las tres hojas, para que otros sigan buscando donde él ya no puede.",
+     "en_voz": "But the joy doesn't last, because the Declaration opens neither the first sheet nor the third, and the friend spends the next twenty years trying everything he can think of, until, by his own account, a once comfortable man has been reduced to absolute poverty, dragging his family down with him. In eighteen eighty-five, broke and worn out, he decides to tell the whole story and publish the three sheets, so that others can keep searching where he no longer can."
+    }
+   ]
+  },
+  {
+   "id": "bl-folleto",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1885",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "folleto",
+     "es": "Así nace el folleto, The Beale Papers, impreso en Lynchburg a nombre de un agente, James B. Ward, y vendido a cincuenta centavos, y poco después, según Ward, casi todos los ejemplares se perdieron en el incendio de una imprenta. Lo curioso es que nadie ha encontrado en los periódicos de la época ni una sola línea sobre ese incendio.",
+     "en": "That's how the pamphlet is born, The Beale Papers, printed in Lynchburg in the name of an agent, James B. Ward, and sold for fifty cents, and soon afterwards, according to Ward, almost every copy was lost in a fire at a print shop. The odd thing is that nobody has ever found a single line about that fire in the newspapers of the time.",
+     "visual": "D: una imprenta de Lynchburg; salen folletos amarillos; un letrero con un 50 en la ventana; luego, humo en una imprenta y un periódico en blanco (nadie lo cuenta)."
+    }
+   ],
+   "cartela": "1885"
+  },
+  {
+   "id": "bl-hart",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1898",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "medium",
+     "es": "Pero los pocos ejemplares que se salvaron bastaron para encender una fiebre que dura hasta hoy, y dos de los primeros en contagiarse fueron los hermanos Clayton y George Hart, que en 1898, desesperados por dar con el sitio, recurrieron a un médium hipnotizado para que les dijera dónde cavar. Imagina la escena unos meses después, de noche, con faroles y palas junto a Goose Creek, en Montvale, un hombre en trance que señala un hoyo en la tierra y las raíces de un roble, y una semana más tarde a Clayton, que no se resigna, volviendo solo a ese mismo punto con dinamita.",
+     "en": "But the few copies that survived were enough to start a fever that lasts to this day, and two of the first to catch it were the brothers Clayton and George Hart, who in 1898, desperate to find the spot, turned to a hypnotized medium to tell them where to dig. Picture the scene a few months later, at night, with lanterns and shovels by Goose Creek in Montvale, a man in a trance pointing at a hollow in the ground and at the roots of an oak, and a week later Clayton, who can't let it go, going back to that same spot alone with dynamite.",
+     "visual": "E y C: una mesa a oscuras con un hombre en trance y dos hermanos; gag: Atom limpia con la manga una bola de cristal empañada; luego el bosque de noche junto a Goose Creek, faroles, palas y un roble; una semana después, Clayton solo con dinamita (solo un resplandor lejano y tierra volando, sin heridos).",
+     "acto": true,
+     "es_voz": "Pero los pocos ejemplares que se salvaron bastaron para encender una fiebre que dura hasta hoy, y dos de los primeros en contagiarse fueron los hermanos Clayton y George Hart, que en mil ochocientos noventa y ocho, desesperados por dar con el sitio, recurrieron a un médium hipnotizado para que les dijera dónde cavar. Imagina la escena unos meses después, de noche, con faroles y palas junto a Goose Creek, en Móntveil, un hombre en trance que señala un hoyo en la tierra y las raíces de un roble, y una semana más tarde a Clayton, que no se resigna, volviendo solo a ese mismo punto con dinamita.",
+     "en_voz": "But the few copies that survived were enough to start a fever that lasts to this day, and two of the first to catch it were the brothers Clayton and George Hart, who in eighteen ninety-eight, desperate to find the spot, turned to a hypnotized medium to tell them where to dig. Picture the scene a few months later, at night, with lanterns and shovels by Goose Creek in Montvale, a man in a trance pointing at a hollow in the ground and at the roots of an oak, and a week later Clayton, who can't let it go, going back to that same spot alone with dynamite."
+    }
+   ],
+   "cartela": "1898"
+  },
+  {
+   "id": "bl-friedman",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1930",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "friedman",
+     "es": "Hasta quienes se ganaban la vida descifrando mensajes de verdad cayeron en la trampa, porque William Friedman, el hombre que dirigió en los años treinta el servicio de descifrado del ejército de Estados Unidos y cuyo equipo rompió el gran cifrado diplomático de Japón antes de que su país entrara en la Segunda Guerra Mundial, les dedicó a las hojas de Beale sus horas libres durante años. Y cuando acabó confesando por escrito que lo había hecho lo mejor que sabía y que se daba por vencido, en lugar de olvidarlas, las metió en el programa de entrenamiento de sus alumnos.",
+     "en": "Even the people who cracked real messages for a living fell into the trap, because William Friedman, the man who ran the U.S. Army's codebreaking service in the 1930s and whose team broke Japan's great diplomatic cipher before America entered World War Two, spent years of his free time on Beale's sheets. And when he finally admitted in writing that he had done the best he could and had to confess himself beaten, instead of forgetting them, he put them into the training program for his students.",
+     "visual": "E: el despacho de Friedman con máquinas de cifrar y alumnos en pupitres; Friedman con las hojas de Beale, se rinde y las reparte como ejercicio.",
+     "en_voz": "Even the people who cracked real messages for a living fell into the trap, because William Friedman, the man who ran the U.S. Army's codebreaking service in the nineteen-thirties and whose team broke Japan's great diplomatic cipher before America entered World War Two, spent years of his free time on Beale's sheets. And when he finally admitted in writing that he had done the best he could and had to confess himself beaten, instead of forgetting them, he put them into the training program for his students."
+    },
+    {
+     "n": 21,
+     "marca": "hammer",
+     "es": "Se cuenta que Friedman bromeaba con que los lunes, miércoles y viernes creía que era real, y los martes, jueves y sábados, que era un engaño, como quien ya no sabe a qué carta quedarse. Y aun así, en 1970, Carl Hammer, un experto en ordenadores de la empresa Sperry, metió los números en una de las máquinas más potentes de su tiempo, y anunció que las hojas uno y tres no eran garabatos al azar, que dentro había un mensaje.",
+     "en": "Friedman is said to have joked that on Mondays, Wednesdays and Fridays he thought it was real, and on Tuesdays, Thursdays and Saturdays that it was a hoax, like a man who could no longer decide which way to bet. And yet, in 1970, Carl Hammer, a computer expert at the Sperry company, fed the numbers into one of the most powerful machines of his day, and announced that sheets one and three were not random doodles, that there was a message inside.",
+     "visual": "E: un calendario de la semana que cambia de «real» a «engaño» (con iconos, sin letras); luego la sala de un ordenador enorme de 1970 con cintas y luces; sale una tira de papel y Hammer la levanta.",
+     "es_voz": "Se cuenta que Friedman bromeaba con que los lunes, miércoles y viernes creía que era real, y los martes, jueves y sábados, que era un engaño, como quien ya no sabe a qué carta quedarse. Y aun así, en mil novecientos setenta, Carl Hammer, un experto en ordenadores de la empresa Sperry, metió los números en una de las máquinas más potentes de su tiempo, y anunció que las hojas uno y tres no eran garabatos al azar, que dentro había un mensaje.",
+     "en_voz": "Friedman is said to have joked that on Mondays, Wednesdays and Fridays he thought it was real, and on Tuesdays, Thursdays and Saturdays that it was a hoax, like a man who could no longer decide which way to bet. And yet, in nineteen seventy, Carl Hammer, a computer expert at the Sperry company, fed the numbers into one of the most powerful machines of his day, and announced that sheets one and three were not random doodles, that there was a message inside."
+    }
+   ],
+   "cartela": "1930"
+  },
+  {
+   "id": "bl-casi",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "fijate3",
+     "es": "Y fíjate en esto, porque explica por qué nadie deja de cavar. En 2009, un equipo de la Universidad de Cambridge observó el cerebro de unos voluntarios mientras jugaban a una especie de máquina tragaperras, y vio que cuando se quedaban a punto de ganar, sin ganar, se activaban zonas del cerebro muy parecidas a las de un premio de verdad, y que después tenían más ganas de seguir jugando. Una hoja descifrada de tres es exactamente eso, un casi, y un casi nos empuja mucho más que un no.",
+     "en": "And notice this, because it explains why nobody stops digging. In 2009, a team at the University of Cambridge watched the brains of volunteers playing a kind of slot machine, and saw that when they came close to winning without winning, brain areas lit up much like they do for a real prize, and that afterwards they wanted to keep playing even more. One sheet cracked out of three is exactly that, a near miss, and a near miss pushes us much harder than a no.",
+     "visual": "PAUSA: la sala del ordenador congelada; Atom (al doble) saca a color una máquina tragaperras de juguete que se queda a una fruta de ganar y un cerebro que se ilumina igual que con un premio; «2009».",
+     "es_voz": "Y fíjate en esto, porque explica por qué nadie deja de cavar. En dos mil nueve, un equipo de la Universidad de Cambridge observó el cerebro de unos voluntarios mientras jugaban a una especie de máquina tragaperras, y vio que cuando se quedaban a punto de ganar, sin ganar, se activaban zonas del cerebro muy parecidas a las de un premio de verdad, y que después tenían más ganas de seguir jugando. Una hoja descifrada de tres es exactamente eso, un casi, y un casi nos empuja mucho más que un no.",
+     "en_voz": "And notice this, because it explains why nobody stops digging. In two thousand nine, a team at the University of Cambridge watched the brains of volunteers playing a kind of slot machine, and saw that when they came close to winning without winning, brain areas lit up much like they do for a real prize, and that afterwards they wanted to keep playing even more. One sheet cracked out of three is exactly that, a near miss, and a near miss pushes us much harder than a no."
+    }
+   ]
+  },
+  {
+   "id": "bl-parsons",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1983",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "excavadora",
+     "es": "Así que la gente siguió cavando, y en 1983 una mujer de Pensilvania, Marilyn Parsons, cobró un cheque y lo gastó en alquilar una excavadora, porque estaba convencida de que el tesoro estaba bajo una parcela sin marcar del cementerio de una iglesia, y fue allí a propósito a comprobarlo. Imagina cómo terminó aquello, con ella detenida por profanar el cementerio, un par de meses en la cárcel del condado de Bedford y el consejo de no volver a pisar Virginia nunca más.",
+     "en": "So people kept digging, and in 1983 a woman from Pennsylvania, Marilyn Parsons, cashed a check and spent it renting a backhoe, because she was convinced the treasure lay under an unmarked plot in a church graveyard, and she went there on purpose to prove it. Imagine how that ended, with her arrested for desecrating the cemetery, a couple of months in the Bedford County jail, and the advice never to set foot in Virginia again.",
+     "visual": "C y E: una excavadora amarilla junto a la valla de una iglesia blanca en el campo, de lejos y de día (sin tumbas a la vista); llega un coche del sheriff; gag: el detector de Atom pita por sus propios anillos y al final saca una percha.",
+     "es_voz": "Así que la gente siguió cavando, y en mil novecientos ochenta y tres una mujer de Pensilvania, Márilin Pársons, cobró un cheque y lo gastó en alquilar una excavadora, porque estaba convencida de que el tesoro estaba bajo una parcela sin marcar del cementerio de una iglesia, y fue allí a propósito a comprobarlo. Imagina cómo terminó aquello, con ella detenida por profanar el cementerio, un par de meses en la cárcel del condado de Bedford y el consejo de no volver a pisar Virginia nunca más.",
+     "en_voz": "So people kept digging, and in nineteen eighty-three a woman from Pennsylvania, Marilyn Parsons, cashed a check and spent it renting a backhoe, because she was convinced the treasure lay under an unmarked plot in a church graveyard, and she went there on purpose to prove it. Imagine how that ended, with her arrested for desecrating the cemetery, a couple of months in the Bedford County jail, and the advice never to set foot in Virginia again."
+    }
+   ],
+   "cartela": "1983"
+  },
+  {
+   "id": "bl-gillogly",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "tira+1"
+   ],
+   "empieza_con": "cartela 1980",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "tira",
+     "es": "Pero en 1980 un informático de la empresa RAND, Jim Gillogly, hizo algo que nadie había hecho con tanto cuidado: le aplicó la misma Declaración a la primera hoja, la que dice dónde está la cámara, para ver qué letras salían. Casi todo era un galimatías, pero en medio apareció algo que le puso los pelos de punta, una tira de letras casi en orden alfabético, a, b, f, d, e, f, g, h, i, i, j, k, l, m, m, n, o, h, p, p, con un par de tropiezos que parecen hechos a mano.",
+     "en": "But in 1980 a computer scientist at the RAND Corporation, Jim Gillogly, did something nobody had done so carefully: he applied the same Declaration to the first sheet, the one that says where the vault is, to see what letters came out. Almost all of it was gibberish, but in the middle appeared something that made his hair stand on end, a run of letters in almost perfect alphabetical order, a, b, f, d, e, f, g, h, i, i, j, k, l, m, m, n, o, h, p, p, with a couple of stumbles that look made by hand.",
+     "visual": "E: un despacho de 1980 con un ordenador y papel continuo; la primera hoja de Beale y el pergamino; salen letras revueltas y, de pronto, la tira «a b f d e f g h i i j k l m m n o h p p» en grande; gag: Atom la canta y se calla de golpe.",
+     "acto": true,
+     "es_voz": "Pero en mil novecientos ochenta un informático de la empresa RAND, Jim Gillogly, hizo algo que nadie había hecho con tanto cuidado: le aplicó la misma Declaración a la primera hoja, la que dice dónde está la cámara, para ver qué letras salían. Casi todo era un galimatías, pero en medio apareció algo que le puso los pelos de punta, una tira de letras casi en orden alfabético, a, be, efe, de, e, efe, ge, hache, i, i, jota, ka, ele, eme, eme, ene, o, hache, pe, pe, con un par de tropiezos que parecen hechos a mano.",
+     "en_voz": "But in nineteen eighty a computer scientist at the RAND Corporation, Jim Gillogly, did something nobody had done so carefully: he applied the same Declaration to the first sheet, the one that says where the vault is, to see what letters came out. Almost all of it was gibberish, but in the middle appeared something that made his hair stand on end, a run of letters in almost perfect alphabetical order, ay, bee, eff, dee, ee, eff, gee, aitch, eye, eye, jay, kay, el, em, em, en, oh, aitch, pee, pee, with a couple of stumbles that look made by hand."
+    }
+   ],
+   "cartela": "1980"
+  },
+  {
+   "id": "bl-azar",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "fijate4",
+     "es": "Y fíjate en por qué eso es tan grave, porque si la primera hoja escondiera un mensaje cifrado con otro libro, al aplicarle la Declaración tendrían que salir letras revueltas, sin ningún orden, y según la Asociación Americana de Criptogramas, que salgan tantas seguidas en orden alfabético por casualidad tiene menos de una posibilidad entre cien billones. Lo más fácil de creer es que quien escribió los números los fuera eligiendo con la Declaración delante, casi a ojo, sin cifrar nada.",
+     "en": "And notice why that's so serious, because if the first sheet hid a message coded with some other book, putting the Declaration on it should give you scrambled letters with no order at all, and according to the American Cryptogram Association, the odds of that many coming out in alphabetical order by chance are less than one in a hundred million million. The easiest thing to believe is that whoever wrote the numbers picked them with the Declaration in front of him, more or less at random, without encoding anything.",
+     "visual": "PAUSA: la tira congelada; Atom (al doble) saca a color un bombo de letras que suelta letras revueltas y, al lado, una mano que elige números mirando el pergamino; «1 / 100 000 000 000 000»."
+    }
+   ]
+  },
+  {
+   "id": "bl-nickell",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "registros+2"
+   ],
+   "empieza_con": "cartela 1982",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "stampede",
+     "es": "Dos años después, en 1982, el investigador Joe Nickell leyó las cartas de Beale como quien lee la declaración de un sospechoso, y se fijó en palabras que en 1822 aún no se usaban en inglés, como «stampede», estampida, que no aparece impresa en ese idioma hasta la década de 1830. Y cuando comparó la forma de escribir de Beale con la del resto del folleto, con sus frases largas y sus mismas manías, le pareció que las dos voces eran una sola, la de Ward, el hombre que había firmado el folleto.",
+     "en": "Two years later, in 1982, the researcher Joe Nickell read Beale's letters the way you'd read a suspect's statement, and noticed words that weren't yet used in English in 1822, like \"stampede,\" which doesn't appear in print in English until the 1830s. And when he compared Beale's way of writing with the rest of the pamphlet, with its long sentences and the same habits, the two voices seemed to him to be one and the same, that of Ward, the man who had put his name on the pamphlet.",
+     "visual": "E: un investigador con lupa sobre las cartas de Beale; una manada que sale en estampida de una página; dos voces (dos bocadillos con garabatos) que se juntan en una sola silueta: Ward.",
+     "es_voz": "Dos años después, en mil novecientos ochenta y dos, el investigador Joe Nickell leyó las cartas de Beale como quien lee la declaración de un sospechoso, y se fijó en palabras que en mil ochocientos veintidós aún no se usaban en inglés, como «stampede», estampida, que no aparece impresa en ese idioma hasta la década de mil ochocientos treinta. Y cuando comparó la forma de escribir de Beale con la del resto del folleto, con sus frases largas y sus mismas manías, le pareció que las dos voces eran una sola, la de Ward, el hombre que había firmado el folleto.",
+     "en_voz": "Two years later, in nineteen eighty-two, the researcher Joe Nickell read Beale's letters the way you'd read a suspect's statement, and noticed words that weren't yet used in English in eighteen twenty-two, like \"stampede,\" which doesn't appear in print in English until the eighteen-thirties. And when he compared Beale's way of writing with the rest of the pamphlet, with its long sentences and the same habits, the two voices seemed to him to be one and the same, that of Ward, the man who had put his name on the pamphlet."
+    },
+    {
+     "n": 27,
+     "marca": "registros",
+     "es": "A eso súmale que, según los registros, Morriss no aparece al frente del hotel Washington al menos hasta 1823, cuando el folleto dice que Beale ya se alojaba allí en 1820, y que Nickell no encontró en Virginia a ningún Thomas Jefferson Beale con la edad que pide la historia. Así que, poco a poco, la caja de hierro, el posadero honrado y el amigo sin nombre empiezan a parecer los personajes de un cuento muy bien escrito.",
+     "en": "Add to that the fact that, according to the records, Morriss doesn't show up running the Washington Hotel until 1823 at the earliest, while the pamphlet says Beale was already staying there in 1820, and that Nickell found no Thomas Jefferson Beale in Virginia of the right age for the story. So, little by little, the iron box, the honest innkeeper and the nameless friend start to look like characters in a very well written tale.",
+     "visual": "A: el hotel Washington con un libro de registro; un hueco vacío en la fila de 1820; un retrato de Beale que se vuelve una silueta de papel recortado; la caja, el posadero y el amigo como muñecos de un teatrillo.",
+     "es_voz": "A eso súmale que, según los registros, Morriss no aparece al frente del hotel Washington al menos hasta mil ochocientos veintitrés, cuando el folleto dice que Beale ya se alojaba allí en mil ochocientos veinte, y que Nickell no encontró en Virginia a ningún Thomas Jefferson Beale con la edad que pide la historia. Así que, poco a poco, la caja de hierro, el posadero honrado y el amigo sin nombre empiezan a parecer los personajes de un cuento muy bien escrito.",
+     "en_voz": "Add to that the fact that, according to the records, Morriss doesn't show up running the Washington Hotel until eighteen twenty-three at the earliest, while the pamphlet says Beale was already staying there in eighteen twenty, and that Nickell found no Thomas Jefferson Beale in Virginia of the right age for the story. So, little by little, the iron box, the honest innkeeper and the nameless friend start to look like characters in a very well written tale."
+    }
+   ],
+   "cartela": "1982"
+  },
+  {
+   "id": "bl-detalles",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "fijate5",
+     "es": "Y fíjate en esto, porque es la trampa en la que caemos casi todos. En 1983, los psicólogos Amos Tversky y Daniel Kahneman demostraron que una historia con más detalles nos parece más probable, aunque cada detalle añadido la haga en realidad menos probable, y el folleto está lleno de detalles exactos, mil catorce libras de oro, seis pies bajo tierra, cuatro millas de Buford's. Cada uno de esos detalles hace que la historia nos parezca más real, aunque cada uno sea una cosa más que tendría que ser cierta, y aquellas hojas lo aprovechan a la perfección.",
+     "en": "And notice this, because it's the trap almost all of us fall into. In 1983, the psychologists Amos Tversky and Daniel Kahneman showed that a story with more details seems more likely to us, even though every added detail actually makes it less likely, and the pamphlet is full of exact details, one thousand and fourteen pounds of gold, six feet underground, four miles from Buford's. Each of those details makes the story feel more real to us, even though each one is one more thing that would have to be true, and those sheets make perfect use of that.",
+     "visual": "PAUSA: el teatrillo congelado; Atom (al doble) saca a color una torre de piezas de detalles (1014, 6, 4) que parece más alta y más firme y, sin embargo, se tambalea; «1983».",
+     "es_voz": "Y fíjate en esto, porque es la trampa en la que caemos casi todos. En mil novecientos ochenta y tres, los psicólogos Amos Tversky y Daniel Kahneman demostraron que una historia con más detalles nos parece más probable, aunque cada detalle añadido la haga en realidad menos probable, y el folleto está lleno de detalles exactos, mil catorce libras de oro, seis pies bajo tierra, cuatro millas de Biúfords. Cada uno de esos detalles hace que la historia nos parezca más real, aunque cada uno sea una cosa más que tendría que ser cierta, y aquellas hojas lo aprovechan a la perfección.",
+     "en_voz": "And notice this, because it's the trap almost all of us fall into. In nineteen eighty-three, the psychologists Amos Tversky and Daniel Kahneman showed that a story with more details seems more likely to us, even though every added detail actually makes it less likely, and the pamphlet is full of exact details, one thousand and fourteen pounds of gold, six feet underground, four miles from Buford's. Each of those details makes the story feel more real to us, even though each one is one more thing that would have to be true, and those sheets make perfect use of that."
+    }
+   ]
+  },
+  {
+   "id": "bl-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 29,
+     "marca": "bedford",
+     "es": "¿Quiere decir eso que no hay nada bajo tierra en Bedford? Nadie lo ha demostrado del todo, todavía hay quien defiende que la tira alfabética de Gillogly es una pista y no una trampa, y quien sigue pasando los fines de semana con un detector entre los árboles de Montvale. Pero si me preguntas a mí, con todo lo que hemos visto, lo más probable es que el tesoro de Beale no esté enterrado en ningún bosque, sino dentro de un folleto de cincuenta centavos.",
+     "en": "Does that mean there's nothing underground in Bedford? Nobody has proven it completely, there are still people who argue that Gillogly's alphabet run is a clue rather than a trap, and people who still spend their weekends with a metal detector among the trees of Montvale. But if you ask me, after everything we've seen, the most likely answer is that Beale's treasure isn't buried in any forest at all, but inside a fifty-cent pamphlet.",
+     "visual": "C: el bosque de Bedford de día; un aficionado con detector entre los árboles; Atom guarda el folleto en el bolsillo.",
+     "acto": true,
+     "es_voz": "¿Quiere decir eso que no hay nada bajo tierra en Bedford? Nadie lo ha demostrado del todo, todavía hay quien defiende que la tira alfabética de Gillogly es una pista y no una trampa, y quien sigue pasando los fines de semana con un detector entre los árboles de Móntveil. Pero si me preguntas a mí, con todo lo que hemos visto, lo más probable es que el tesoro de Beale no esté enterrado en ningún bosque, sino dentro de un folleto de cincuenta centavos."
+    },
+    {
+     "n": 30,
+     "marca": "quien",
+     "es": "Y vuelve ahora a la pregunta que te pedí que guardaras: ¿quién escribió de verdad esos números? Probablemente alguien de Lynchburg que entendió que un misterio con oro, una caja de hierro y dos páginas sin resolver es algo que la gente no puede dejar en paz, y que ciento cuarenta años después sigue haciendo que alguien, en algún lugar de Virginia, coja una pala.",
+     "en": "Now go back to the question I asked you to hold on to: who really wrote those numbers? Most likely someone in Lynchburg who understood that a mystery with gold, an iron box and two unsolved pages is something people simply can't leave alone, and that a hundred and forty years later it still makes someone, somewhere in Virginia, pick up a shovel.",
+     "visual": "A: Lynchburg en 1885 de noche; una ventana con luz donde un hombre escribe números mirando un pergamino; luego, hoy, alguien en algún lugar de Virginia coge una pala."
+    },
+    {
+     "n": 31,
+     "marca": "pregunta",
+     "es": "A veces lo que más vale de un tesoro no es el oro, sino las ganas de buscar que nos deja dentro. Y tú, si tuvieras en las manos esas dos hojas sin resolver, ¿te pondrías a contar palabras de la Declaración, o crees que es una trampa? Cuéntamelo en los comentarios, que tengo mucha curiosidad por saber qué harías tú.",
+     "en": "Sometimes the most valuable part of a treasure isn't the gold, but the urge to search that it leaves inside us. And you, if you had those two unsolved sheets in your hands, would you start counting the words of the Declaration, or do you think it's a trap? Tell me in the comments, because I'm really curious what you'd do.",
+     "visual": "F: Atom en su estudio cierra el folleto, mira a cámara y señala los comentarios."
+    }
+   ]
+  }
+ ]
+}

@@ -62,8 +62,8 @@ def _seg(t):
 
 
 def _hms(x):
-    h, r = divmod(x, 3600); m, s = divmod(r, 60)
-    return f"{int(h):02d}:{int(m):02d}:{int(s):02d},{int(round((s % 1) * 1000)):03d}"
+    h, r = divmod(int(round(x * 1000)), 3600000); m, r = divmod(r, 60000); s, ms = divmod(r, 1000)  # en ms enteros: 59,9996 s no da «,1000»
+    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
 def repartir(entrada, salida):

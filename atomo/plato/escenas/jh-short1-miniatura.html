@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep20 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep20 (el gancho: Haymitch con 16 años arriba, en la plaza, y Haymitch mentor abajo, en el tren; el pan asustado en medio). Todo lo que cuenta va en la columna central
+// x 110–210 (lo que queda en 9:16). Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_JH as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const capa = R.nuevo(), VACIO = 0x01020304;
+const doble = (pinta, sx0, sx1, sy0, sy1, dx, dy) => { const prev = R.usar(capa); capa.fill(VACIO); pinta(); R.usar(prev);
+  for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = capa[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * 2, dy + (y - sy0) * 2, dx + (x - sx0) * 2 + 1, dy + (y - sy0) * 2 + 1, c); } };
+const dibujar = (t) => {
+  const a = R.nuevo(), b = R.nuevo(), prev = R.usar(a); T.distrito(R, t, { encuadre: 'plaza', luz: 'amanecer' }); R.usar(b); T.interior(R, t, { encuadre: 'tren', luz: 'noche' }); R.usar(prev);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.buf[y * 320 + x] = y < 92 ? a[y * 320 + x] : b[y * 320 + x];
+  R.rect(100, 91, 220, 92, T.C.k); R.rect(100, 93, 220, 93, hex('#f6f2ea'));
+  doble(() => R.actor(EL.haymitch, 40, 80, 0.5, { dir: 1, quieto: true }), 26, 62, 44, 81, 124, 14);
+  doble(() => R.actor(EL.haymitchViejo, 40, 80, 0.5, { dir: -1, quieto: true }), 22, 62, 44, 81, 120, 104);
+  T.pan(R, 190, 104, t, { s: 1, expresion: 'susto' });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

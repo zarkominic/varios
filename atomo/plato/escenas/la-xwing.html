@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>X-Wing y The Dig · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-XWING (frases 44–45), 1993 → 1995. Cuatro planos:
+// 1. el caza de alas en X (propio, sin marcas) entre estrellas con el crucero arriba; un dron enemigo se acerca, el caza
+//    dispara con las cuatro alas en «completely different» y el dron estalla; el tentáculo verde con casco, feliz;
+// 2. (corta en «in 1993») la cabina de cerca: el verde pilota, se inclina en «X-Wing» y el radar pita; gag: en «cockpit»
+//    el morado asoma por detrás del asiento con pose de conquistador; el verde lo mira harto y el morado se esconde;
+// 3. (corta tras «fighter», antes de «And in 1995») el asteroide: el astronauta baja por la rampa de la nave y camina
+//    hasta la puerta de luz; en «the Dig» la señala; el verde con casco salta detrás de él;
+// 4. (corta en «based») la puerta de cerca: en «idea» las hojas se abren y sale la luz; el astronauta se sorprende y en
+//    «Spielberg» entra en la luz; el verde se queda boquiabierto.
+// Sonido: nueve efectos (disparos, estallido, radar, gag, rampa y puerta de luz), el 58 % del tiempo (pide 50–60 %).
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-xwing');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('xwing', f), b = (f) => en('dig', f);
+const P2 = a(0.5075), P3 = b(-0.08), P4 = b(0.545);
+const dispara = a(0.33), estalla = a(0.4), xw = a(0.685), cabina = a(0.787), fighter = a(0.89);
+const dig = b(0.236), idea = b(0.693), spiel = b(0.861);
+const K = hex('#14101c');
+// un dron enemigo propio: platillo gris con un ojo rojo y dos aletas
+const dron = (x, y, t) => { x = Math.round(x); y = Math.round(y); const Q = (pts) => pts.map(([a, b]) => [x + a * 1.6, y + b * 1.6]);
+  R.poligono(Q([[-10, 0], [-4, -5], [4, -5], [10, 0], [4, 4], [-4, 4]]), K);
+  R.poligono(Q([[-9, 0], [-4, -4], [4, -4], [9, 0], [4, 3], [-4, 3]]), hex('#7a7e8e'));
+  R.poligono(Q([[-9, 0], [9, 0], [4, 3], [-4, 3]]), hex('#4a4e5e')); R.linea(x - 6, y - 6, x + 6, y - 6, hex('#c8ccd8'));
+  R.disco(x, y - 2, 3.4, K); R.disco(x, y - 2, 2.4, Math.floor(t * 6) % 2 ? hex('#ff4a3a') : hex('#c82a2a')); R.pset(x - 1, y - 3, hex('#ffd0c0'));
+  for (const sx of [-1, 1]) { R.linea(x + sx * 9, y + 5, x + sx * 14, y + 10, K); R.linea(x + sx * 10, y + 5, x + sx * 15, y + 10, hex('#5a5e6e')); }
+  if (Math.floor(t * 8) % 2) { R.pset(x - 16, y, hex('#ffb04a')); R.pset(x + 16, y, hex('#ffb04a')); } };
+// el estallido: anillos que crecen, chispas y humo
+const boom = (x, y, u) => { if (u <= 0 || u >= 1) return; const r = 3 + u * 16;
+  R.disco(x, y, r * (1 - u * 0.4), hex('#5a4a52')); R.disco(x, y, r * 0.8 * (1 - u * 0.6), hex('#e86a2a')); R.disco(x, y, r * 0.5 * (1 - u), hex('#ffe070'));
+  for (let k = 0; k < 10; k++) { const an = k * 0.63 + 0.3, d = r * 1.3; R.pset(Math.round(x + Math.cos(an) * d), Math.round(y + Math.sin(an) * d), k % 2 ? hex('#ffe070') : hex('#ff9a3a')); } };
+const rayo = (x0, y0, x1, y1) => { R.linea(x0, y0 + 1, x1, y1 + 1, hex('#8a1a1a')); R.linea(x0, y0 - 1, x1, y1 - 1, hex('#c82a2a')); R.linea(x0, y0, x1, y1, hex('#ffb0a0')); };
+const p1 = (t) => {
+  const g = T.espacio(R, t, { encuadre: 'combate' });
+  // el dron llega por la derecha haciendo eses; los rayos de las cuatro alas lo alcanzan en «completely different»
+  const u = tramo(t, 1.2, estalla), dx = lerp(340, 292, u), dy = 96 + Math.sin(t * 3.1) * 10 * (1 - u);
+  if (t < estalla) dron(dx, dy, t);
+  // dos ráfagas de rayos desde las puntas de los cañones (arriba y abajo) hasta el dron
+  for (const [r0, r1] of [[dispara - 0.45, dispara - 0.05], [dispara, estalla]]) if (t > r0 && t < r1) { const v = tramo(t, r0, r1), my = g.cabina[1] - 118;
+    for (const [x0, y0] of [[142, 47 + my], [152, 162 + my]]) { const tx = lerp(x0, dx, v), ty = lerp(y0, dy, v), k = 16 / Math.hypot(dx - x0, dy - y0); rayo(tx - (dx - x0) * k, ty - (dy - y0) * k, tx, ty); }
+    if (v < 0.15) for (const [x0, y0] of [[142, 47 + my], [152, 162 + my]]) R.disco(x0, y0, 3, hex('#ffd0c0')); }
+  boom(292, 96, tramo(t, estalla, estalla + 1.1));
+  // el piloto en su hueco
+  const prev = R.recorte(g.hueco);
+  const ex = t < 2.4 ? 'normal' : t < estalla ? 'sorpresa' : 'feliz';
+  T.tentaculo(R, g.cabina[0], g.suelo, t, { color: 'verde', accesorio: 'casco', dir: 1, expresion: ex, mira: [1, t > 2.4 && t < estalla ? -0.2 : 0], salto: t > estalla + 0.2 && t < estalla + 0.6 ? 2 : 0 });
+  R.recorte(null);
+  T.espacioDelante(R, t, { encuadre: 'combate' });
+};
+const p2 = (t) => {
+  const g = T.espacio(R, t, { encuadre: 'combate', camara: 'cabina' });
+  R.recorte(g.hueco);
+  // el morado se asoma por detrás del asiento en «cockpit», con pose de conquistador, y se esconde al ver al verde harto
+  const sube = tramo(t, cabina - 0.2, cabina + 0.3) - tramo(t, fighter + 0.7, fighter + 1.1);
+  if (sube > 0) T.tentaculo(R, 130, Math.round(g.suelo + 34 - sube * 40), t, { color: 'morado', s: 1.4, brazos: 1, pose: t > fighter - 0.3 ? 'arriba' : 'normal', expresion: 'malvado', dir: 1 });
+  const harto = t > fighter && t < fighter + 1.0;
+  T.tentaculo(R, g.cabina[0] + 10, g.suelo, t, { color: 'verde', accesorio: 'casco', s: 1.5, dir: harto ? -1 : 1, expresion: harto ? 'harto' : t > xw ? 'feliz' : 'normal', inclina: t > xw - 0.2 && t < xw + 1.2 ? 2 * Math.sin(tramo(t, xw - 0.2, xw + 1.2) * Math.PI) : 0, mira: [harto ? -1 : 1, 0] });
+  R.recorte(null);
+  // el radar pita cuando aparece un blanco
+  if (t > xw && Math.floor(t * 4) % 2) R.disco(g.radar[0] + 3, g.radar[1] - 2, 1.5, hex('#ff4a3a'));
+  T.espacioDelante(R, t, { encuadre: 'combate', camara: 'cabina' });
+};
+// el casco de cristal del astronauta (una burbuja con brillo) y su mochila
+const escafandra = (h, dir, x) => { const [cx, cy0] = h, cy = cy0 + 6;
+  R.rect(dir > 0 ? x - 3 : x + 14, cy0 + 12, dir > 0 ? x + 1 : x + 18, cy0 + 22, K); R.rect(dir > 0 ? x - 2 : x + 15, cy0 + 13, dir > 0 ? x : x + 17, cy0 + 21, hex('#c8c8d4'));
+  R.anillo(cx, cy, 10.5, K); R.anillo(cx, cy, 9.7, hex('#bfe6ff'));
+  for (const [i, j] of [[-5, -6], [-6, -5], [-6, -4], [-4, -7]]) R.pset(cx + i, cy + j, hex('#ffffff')); };
+const p3 = (t) => {
+  const luz = 0.06 + 0.12 * tramo(t, dig - 0.3, dig + 0.6) + 0.03 * Math.sin(t * 4);
+  const g = T.espacio(R, t, { encuadre: 'asteroide', abre: luz });
+  // baja por la rampa de la nave y camina hasta la puerta; en «the Dig» la señala
+  const u = tramo(t, P3 + 0.3, dig), x = Math.round(lerp(64, 150, u)), y = Math.round(u < 0.25 ? lerp(140, 150, u / 0.25) : 150);
+  // las huellas que deja en el polvo
+  for (let k = 0; k < 10; k++) { const hx = lerp(84, 150, k / 10); if (hx < x - 4) R.pset(Math.round(hx), 151 + (k % 2), hex('#5a5048')); }
+  const r = R.actor(EL.astronauta, x, y, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > dig && t < dig + 1.8, sorpresa: t > dig + 1.8 });
+  escafandra(r.cabeza, 1, x);
+  // el verde con casco, detrás, da saltitos de emoción
+  const v = tramo(t, P3 + 0.9, dig + 0.4);
+  T.tentaculo(R, Math.round(lerp(60, 118, v)), 150, t, { color: 'verde', accesorio: 'casco', anda: v > 0 && v < 1, expresion: t > dig ? 'sorpresa' : 'feliz', s: 0.8 });
+  T.espacioDelante(R, t, { encuadre: 'asteroide', abre: luz });
+};
+const p4 = (t) => {
+  const ab = tramo(t, idea - 0.15, idea + 0.9);
+  const g = T.espacio(R, t, { encuadre: 'asteroide', camara: 'puerta', abre: ab });
+  const w = tramo(t, spiel, spiel + 1.4), x = Math.round(lerp(62, 118, w));
+  const r = R.actor(EL.astronauta, x, 172, t, { dir: 1, anda: w > 0 && w < 1, sorpresa: t > idea && t < spiel, brazos: t > idea + 0.3 && t < spiel - 0.2 });
+  escafandra(r.cabeza, 1, x);
+  T.tentaculo(R, 262, 172, t, { color: 'verde', accesorio: 'casco', dir: -1, expresion: t > idea ? 'sorpresa' : 'normal', salto: t > idea && t < idea + 0.4 ? 4 : 0 });
+  T.espacioDelante(R, t, { encuadre: 'asteroide', camara: 'puerta', abre: ab });
+};
+const año = (t) => t < P3 ? 1993 : 1995;
+// efectos: los disparos, el estallido, el pitido del radar, el gag, la rampa y la puerta de luz; sin el segundo «jet», el
+// «pop» de relleno ni el «brillo» de «the Dig» (la escena sonaba el 71 % del tiempo; así, el 58 %, dentro del 50–60)
+const efectos = [[0.3, 'jet'], [dispara - 0.45, 'flash'], [dispara, 'flash'], [estalla, 'boom'], [xw + 0.3, 'bip'], [cabina, 'boing'], [P3 + 0.5, 'arranque'], [idea, 'zumbido'], [idea + 0.4, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año });
+</script>
+</body>
+</html>

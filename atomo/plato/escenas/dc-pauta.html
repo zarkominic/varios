@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La pauta · ep24</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DC-PAUTA (frase 22), hoy. Cinco planos:
+// 1. el escritorio de Atom: antes que las carpetas bajan revoloteando tres hojas sueltas (la de la franja roja, la de
+//    renglones tachados y la de la foto con su clip) junto al montón de papeles y el lápiz del cartapacio; caen las seis carpetas una al lado de
+//    otra («side by side»); el sello, de pie en su sitio del cartapacio, tiembla y con «a pattern appears» salta solo
+//    (sin mano ni brazo) a la última carpeta y va sellándolas de carpeta en carpeta hacia la izquierda: en cada una queda
+//    la cara sonrojada (cae justo sobre el círculo de cada una); luego vuelve de un salto a su sitio y aterriza con su nubecilla de polvo; el
+//    gato espía se acerca al micrófono (corta en «Most»);
+// 2. el corcho de la conspiración (Fort Meade): con «weren't hiding a conspiracy» saltan las chinchetas y los hilos rojos
+//    caen; con «embarrassment» el sello grande deja la cara sonrojada en el centro (corta en «A bomb»);
+// 3. tres cuadros en la pared del archivo, que se encienden con su palabra: la Luna en el observatorio, con el cohete
+//    de tiza y el destello dibujado («a bomb for the moon»); el gato del taller que se va de su cesta («wandered off»);
+//    las gallinas dentro de la mina («chickens inside a mine») (corta en «Governments»);
+// 4. la caja de archivo: entra una carpeta («keep secrets»), la tapa se cierra con el candado («good reasons»); con «but
+//    sometimes» la tapa se levanta un poco y asoma una gallina (corta en «the idea»);
+// 5. la sala de reuniones con el retroproyector: la diapositiva del portaaviones de hielo brilla y los mandos aplauden
+//    («sounded better in a meeting»); con «than in the real world» la diapositiva cambia al barco derretido en un charco y
+//    se les cae la cara; el gato cruza el retroproyector y su sombra pasa por la pantalla.
+import * as T from '/atomo/plato/escenas/dc-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dc-pauta');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('pauta', f);
+const P2 = a(0.218), P3 = a(0.4278), P4 = a(0.6239), P5 = a(0.8302);
+const files = a(0.0526), lado = a(0.0769), lado2 = a(0.1139), patron = a(0.1518);
+const weren = a(0.2472), consp = a(0.2823), they = a(0.3299), emb = a(0.3718);
+const bomba = a(0.4316), luna = a(0.4579), gato = a(0.4862), wander = a(0.5066), gall = a(0.5348), mina = a(0.5874);
+const secretos = a(0.657), buenas = a(0.6923), pero = a(0.7397), razon = a(0.7814);
+const suena = a(0.8516), mejor = a(0.874), reunion = a(0.911), than = a(0.9256), real = a(0.9606);
+const k = T.C.k;
+const hh = (i, s = 0) => { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return v - Math.floor(v); };
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], dith = (x, y) => (B4[(y & 3) * 4 + (x & 3)] + 0.5) / 16;
+const mez = (c1, c2, u) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255; return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * u) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * u) << 8) | Math.round(r1 + ((c2 & 255) - r1) * u)) >>> 0; };
+const suave = (u) => u * u * (3 - 2 * u);
+const destello = (x, y, r, c = hex('#fff6d0')) => { for (let i = 1; i <= r; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); if (i < r) { R.pset(x + i, y + i, c); R.pset(x - i, y - i, c); R.pset(x + i, y - i, c); R.pset(x - i, y + i, c); } } R.pset(x, y, hex('#ffffff')); };
+
+// 1 · el escritorio: las seis carpetas, una al lado de otra, y el sello de la cara sonrojada
+const DIB = ['luna', 'gato', 'gallina', 'ojo', 'tanque', 'hielo'], XC = DIB.map((_, i) => 72 + i * 35);
+// una hoja de papel girada (ang en radianes) con su canto, renglones grises, tachones negros y, según el tipo, la franja
+// roja de «secreto» o la foto con su clip; con sombra true deja su sombra en el cartapacio
+const sombraHoja = (cx, cy, w, hgt, ang, a) => { const ca = Math.cos(ang), sa = Math.sin(ang), rx = Math.ceil(Math.abs(w / 2 * ca) + Math.abs(hgt / 2 * sa)) + 1, ry = Math.ceil(Math.abs(w / 2 * sa) + Math.abs(hgt / 2 * ca)) + 1;
+  for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) { const dx = x - cx, dy = y - cy, u = dx * ca + dy * sa + w / 2, v = -dx * sa + dy * ca + hgt / 2; if (u >= 0 && v >= 0 && u < w && v < hgt) R.pset(x, y, mez(R.pget(x, y), k, a)); } };
+const hoja = (cx, cy, w, hgt, ang, tipo, sem, sombra) => {
+  if (sombra) sombraHoja(cx + 2, cy + 2, w, hgt, ang, 0.35);
+  const ca = Math.cos(ang), sa = Math.sin(ang), rx = Math.ceil(Math.abs(w / 2 * ca) + Math.abs(hgt / 2 * sa)) + 1, ry = Math.ceil(Math.abs(w / 2 * sa) + Math.abs(hgt / 2 * ca)) + 1;
+  for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) {
+    const dx = x - cx, dy = y - cy, u = dx * ca + dy * sa + w / 2, v = -dx * sa + dy * ca + hgt / 2;
+    if (u < 0 || v < 0 || u >= w || v >= hgt) continue;
+    const iu = Math.floor(u), iv = Math.floor(v);
+    let c = iu === 0 || iv === 0 || iu === w - 1 || iv === hgt - 1 ? hex('#9a8e74') : iv === 1 || iu === 1 ? hex('#fbf6e6') : u > w - 4 ? hex('#ddd2b4') : hex('#ece2c6');
+    if (iu > 1 && iv > 1 && iu < w - 1 && iv < hgt - 1) {
+      const fila = iv - 3;
+      if (tipo === 'secreto' && iv >= 2 && iv <= 3 && iu >= 3 && iu < 13) c = hex('#c8282a');
+      else if (tipo === 'foto' && iu >= 3 && iu < 12 && iv >= 3 && iv < 12) c = iu === 3 || iv === 3 || iu === 11 || iv === 11 ? hex('#f6f2e4') : (iu - 7) ** 2 + (iv - 8) ** 2 < 6 ? hex('#5a5e6a') : hex('#8a96a4');
+      else if (tipo === 'foto' && iu === 6 && iv >= 1 && iv <= 5) c = hex('#c8ccd4');
+      else if (fila >= 2 && fila % 3 === 0 && iu >= (tipo === 'foto' ? 14 : 3) && iu < w - 3 - Math.floor(hh(fila, sem) * 8)) c = hh(fila + 50, sem) < 0.3 && iu > 6 && iu < 6 + 8 + Math.floor(hh(fila, sem + 3) * 8) ? hex('#1a1a20') : hex('#8a8478');
+    }
+    R.pset(x, y, c);
+  }
+};
+// un lápiz amarillo sobre el cartapacio, con su punta afilada y su goma
+const lapiz = (x0, y0, x1, y1) => { R.linea(x0 + 1, y0 + 2, x1 + 1, y1 + 2, mez(R.pget(x0 + 1, y0 + 2), k, 0.4)); R.linea(x0, y0 + 1, x1, y1 + 1, hex('#b8862a')); R.linea(x0, y0, x1, y1, hex('#e8b830')); R.linea(x0, y0 - 1, x1, y1 - 1, hex('#f8e070'));
+  R.disco(x0, y0, 1, hex('#e88a9a')); R.pset(x0 + 2, y0, hex('#c8ccd4')); R.pset(x1, y1, hex('#e8c8a0')); R.pset(x1 + 1, y1, hex('#2a2a30')); };
+// las tres hojas que caen: [x, y de apoyo, ángulo, t de llegada, ancho, alto, tipo, semilla]
+const HOJAS = [[112, 136, -0.25, 0.3, 30, 20, 'secreto', 3], [150, 113, 0.12, 0.5, 30, 18, 'renglones', 1], [196, 162, -0.18, 0.95, 28, 18, 'foto', 2]];
+const p1 = (t) => {
+  T.hoy(R, t, { encuadre: 'archivo', camara: 'mesa', carpetas: [], sello: false });
+  // lo que ya hay en el cartapacio: el montón de papeles (el de encima con la franja roja), el lápiz y el cerco de la taza
+  for (let j = 0; j < 3; j++) hoja(78 + j * 2, 163 - j, 32, 16, 0.06 - j * 0.07, j === 2 ? 'secreto' : 'renglones', j + 7, true);
+  lapiz(110, 170, 134, 162);
+  for (let a = 0; a < 40; a++) { const an = a / 40 * Math.PI * 2, x = Math.round(118 + Math.cos(an) * 7), y = Math.round(113 + Math.sin(an) * 3); if (hh(a, 5) < 0.75) R.pset(x, y, mez(R.pget(x, y), hex('#4a3a1a'), 0.35)); }
+  // tres hojas sueltas bajan revoloteando antes que las carpetas, con su sombra que crece sobre el cartapacio
+  for (const [lx, ly, ang, tl, w, hgt, tipo, sem] of HOJAS) {
+    const u = Math.min(1, Math.max(0, (t - (tl - 0.9)) / 0.9)), vu = 1 - u;
+    const x = Math.round(lx + Math.sin(u * Math.PI * 2.5) * 16 * vu + (u >= 1 ? Math.min(2, (t - tl) * 14) : 0)), y = Math.round(lerp(-24, ly, suave(u)));
+    if (u > 0.4 && u < 1) sombraHoja(lx + 2, ly + 2, w, hgt, ang, 0.2 * (u - 0.4) / 0.6);
+    hoja(x, y, w, Math.max(3, Math.round(hgt * (u >= 1 ? 1 : 0.55 + 0.45 * Math.abs(Math.cos(u * Math.PI * 3))))), ang + Math.sin(u * Math.PI * 2.5 + 1) * 0.5 * vu, tipo, sem, u >= 1);
+  }
+  // motas de polvo que flotan en la luz de la izquierda
+  for (let i = 0; i < 6; i++) { const u = (t * 0.05 + hh(i, 9)) % 1, x = Math.round(50 + hh(i, 10) * 120 + Math.sin(t * 0.7 + i) * 4), y = Math.round(100 + u * 60); R.pset(x, y, mez(R.pget(x, y), hex('#fff6d0'), 0.55)); }
+  // el gato espía se acerca al micrófono de Atom, con cara de travieso
+  const ug = tramo(t, 0.6, 2.2);
+  T.gatoEspia(R, Math.round(lerp(96, 54, ug)), 175, t, { anda: ug > 0 && ug < 1, dir: -1, cara: 'travieso' });
+  // las carpetas caen una a una sobre el cartapacio
+  for (let i = 0; i < 6; i++) {
+    const t0 = files - 0.4 + i * ((lado2 - files + 0.3) / 5), u = tramo(t, t0 - 0.35, t0); if (u <= 0) continue;
+    const y = Math.round(lerp(-30, 150, u * u) - (t > t0 && t < t0 + 0.18 ? 3 : 0)), ts = patron - 0.15 + (5 - i) * 0.17;   // la carpeta i se sella cuando el sello baja sobre ella (de la última a la primera)
+    R.rect(XC[i] - 18, 150, XC[i] + 18, 151, mez(R.pget(XC[i], 151), k, 0.4));
+    T.PIEZAS_DC.carpeta(R, XC[i], y, { dibujo: DIB[i], s: 2, sello: t > ts ? 'sonrojado' : undefined });
+    if (t > ts && t < ts + 0.22) destello(XC[i] + 9, 130, 4, hex('#f08aa0'));
+  }
+  // el sello va solo (el gag es del objeto, sin mano ni brazo): espera de pie en su sitio del cartapacio; antes de «a
+  // pattern appears» tiembla, salta a la última carpeta, va sellando de carpeta en carpeta hacia la izquierda y vuelve
+  // de un salto a su sitio, donde aterriza con su nubecilla de polvo
+  const HX = 160, HY = 176, uj = tramo(t, patron - 0.5, patron - 0.15), ur = tramo(t, patron + 0.72, patron + 1.1);
+  let sx = HX, sy = HY, gy = HY + 1;
+  if (t < patron - 0.5) { if (t > patron - 0.95) sx += Math.round(Math.sin(t * 70)); }
+  else if (uj < 1) { sx = Math.round(lerp(HX, XC[5] + 9, uj)); sy = Math.round(lerp(HY, 140, uj) - Math.sin(uj * Math.PI) * 56); gy = Math.round(lerp(HY + 1, 142, uj)); }
+  else if (t < patron + 0.72) {
+    const f = Math.max(0, Math.min(5, (t - (patron - 0.15)) / 0.17)), i = Math.min(5, Math.floor(f)), fr = f - i;
+    sx = Math.round(lerp(XC[5 - i] + 9, XC[Math.max(0, 4 - i)] + 9, Math.max(0, (fr - 0.5) * 2))); sy = Math.round(140 - Math.abs(Math.sin(fr * Math.PI)) * 20); gy = 142;
+  } else if (ur < 1) { sx = Math.round(lerp(XC[0] + 9, HX, ur)); sy = Math.round(lerp(140, HY, ur) - Math.sin(ur * Math.PI) * 30); gy = Math.round(lerp(142, HY + 1, ur)); }
+  // su sombra, más pequeña y clara cuanto más alto va
+  const alto = Math.max(0, gy - 1 - sy), sw = Math.max(3, 8 - Math.round(alto / 8)), sa = Math.max(0.12, 0.4 - alto / 160);
+  for (let dx = -sw; dx <= sw; dx++) { R.pset(sx + dx, gy, mez(R.pget(sx + dx, gy), k, sa)); if (Math.abs(dx) < sw - 2) R.pset(sx + dx, gy + 1, mez(R.pget(sx + dx, gy + 1), k, sa * 0.7)); }
+  T.PIEZAS_DC.sello(R, sx, sy, { s: 2 });
+  // nubecillas de polvo al despegar y al aterrizar en el cartapacio
+  for (const [t0, px] of [[patron - 0.5, HX], [patron + 1.1, HX]]) { const u = (t - t0) / 0.35; if (u <= 0 || u >= 1) continue;
+    for (let i = 0; i < 6; i++) { const d = Math.round(6 + u * 10 + i % 3), x = px + (i < 3 ? -d : d), y = HY - Math.round(u * 4) - (i % 3); R.pset(x, y, mez(R.pget(x, y), hex('#e8e0c8'), 0.7 * (1 - u))); } }
+};
+
+// 2 · el corcho de la conspiración: los hilos caen; el sello grande de la cara sonrojada
+const PIN = [[46, 46], [118, 34], [236, 44], [290, 92], [52, 140], [204, 150], [262, 154], [96, 98]], CEN = [160, 92];
+const p2 = (t) => {
+  T.psiquicos(R, t, { encuadre: 'fortmeade', camara: 'pared', gato: true });
+  // los hilos rojos tensos de cada chincheta al centro; con «weren't» saltan y caen
+  PIN.forEach(([px, py], i) => {
+    const tc = weren + i * 0.09, u = tramo(t, tc, tc + 0.7);
+    if (u <= 0) { R.linea(CEN[0], CEN[1], px, py, hex('#c8282a')); R.linea(CEN[0] + 1, CEN[1], px + 1, py, hex('#8a1e26')); }
+    else if (u < 1) { const ex = Math.round(lerp(px, CEN[0] + (px - CEN[0]) * 0.3, u)), ey = Math.round(lerp(py, 200, u * u)), cy = Math.round(lerp(CEN[1], 200, Math.max(0, u - 0.45) / 0.55)); let x0 = CEN[0], y0 = cy;
+      for (let s = 1; s <= 12; s++) { const q = s / 12, x1 = Math.round(lerp(CEN[0], ex, q)), y1 = Math.round(lerp(cy, ey, q) + Math.sin(q * Math.PI) * 10 * u); R.linea(x0, y0, x1, y1, hex('#c8282a')); x0 = x1; y0 = y1; }
+      const pu = Math.min(1, u * 2.5); if (pu < 1) { R.disco(Math.round(px + pu * 10), Math.round(py - Math.sin(pu * Math.PI) * 8 + pu * pu * 20), 2, hex('#e8c040')); } }
+    if (u <= 0) { R.disco(px, py, 2, k); R.disco(px, py, 1, hex('#e8c040')); }
+  });
+  R.disco(CEN[0], CEN[1], 3, k); R.disco(CEN[0], CEN[1], 2, hex('#3a6ad8')); R.pset(CEN[0] - 1, CEN[1] - 1, hex('#c8e0ff'));
+  // el sello grande baja con «embarrassment» y deja la cara sonrojada
+  const us = tramo(t, emb - 0.55, emb), uv = tramo(t, emb + 0.3, emb + 0.85);
+  if (t > emb) { T.PIEZAS_DC.sello(R, 160, 118, { tipo: 'marca', cara: 'sonrojada', s: 5 }); if (t < emb + 0.35) for (let i = 0; i < 10; i++) { const an = i / 10 * Math.PI * 2, r = 24 + (t - emb) * 50; R.pset(Math.round(160 + Math.cos(an) * r), Math.round(100 + Math.sin(an) * r), hex('#f08aa0')); } }
+  if (us > 0 && uv < 1) { const sx = Math.round(lerp(330, 160, suave(us)) + uv * 190), sy = Math.round(lerp(150, t > emb && uv === 0 ? 124 : 118, suave(us)) + uv * 40);
+    T.PIEZAS_DC.sello(R, sx, sy, { s: 4 }); T.brazo(R, 360, sy + 10, sx + 22, sy - 48, '#5a4e6a', -1, { codo: [sx + 60, sy - 10] }); }
+};
+
+// 3 · tres cuadros en la pared del archivo (recortes de los decorados), que se encienden con su palabra
+const MARCO = [[12, 48], [114, 48], [216, 48]], PW = 92, PH = 100;
+const SRC = [[114, 0], [196, 70], [102, 50]];
+const bufs = [null, null, null], vivo = [false, false, false];
+let fPared = null;
+const pared = () => {
+  if (fPared) { R.copiar(fPared); return; }
+  fPared = R.nuevo(); const prev = R.usar(fPared);
+  // papel pintado verde oscuro de damasco, la moldura y el friso de madera
+  for (let y = 0; y < 156; y++) for (let x = 0; x < 320; x++) { const mx = (x % 24) - 12, my = (y % 28) - 14, rombo = Math.abs(mx) / 12 + Math.abs(my) / 14;
+    let c = rombo < 0.45 ? hex('#2e4a3a') : rombo > 0.92 && rombo < 1.02 ? hex('#3e5e48') : hex('#24392e'); if (dith(x, y) < 0.05) c = hex('#3e5e48'); if (y < 24 && dith(x, y) < 0.5) c = mez(c, hex('#141a18'), 0.3); R.pset(x, y, c); }
+  R.rect(0, 30, 319, 33, hex('#5a3a20')); R.rect(0, 30, 319, 30, hex('#a87a4a'));
+  for (let y = 156; y < 180; y++) for (let x = 0; x < 320; x++) { const pn = x % 53, c = pn < 2 ? hex('#3a2414') : y === 156 ? hex('#b8844a') : (Math.sin(x * 0.2 + y * 0.05) > 0.85 ? hex('#5a3a20') : hex('#6e4628')); R.pset(x, y, c); }
+  R.rect(0, 154, 319, 157, hex('#3a2414')); R.rect(0, 154, 319, 154, hex('#c89a62'));
+  // los marcos dorados con su paspartú y la placa de latón (sin letras)
+  for (const [x, y] of MARCO) { R.rect(x - 6, y - 6, x + PW + 5, y + PH + 5, k); R.rect(x - 5, y - 5, x + PW + 4, y + PH + 4, hex('#a8802a')); R.rect(x - 5, y - 5, x + PW + 4, y - 4, hex('#f0d070')); R.rect(x - 5, y - 5, x - 4, y + PH + 4, hex('#d8b050'));
+    for (let i = x - 3; i < x + PW + 3; i += 4) { R.pset(i, y - 3, hex('#6a4a1a')); R.pset(i, y + PH + 2, hex('#6a4a1a')); }
+    R.rect(x - 2, y - 2, x + PW + 1, y + PH + 1, hex('#e8e0c8')); R.rect(x + PW / 2 - 9, y + PH + 7, x + PW / 2 + 9, y + PH + 11, k); R.rect(x + PW / 2 - 8, y + PH + 8, x + PW / 2 + 8, y + PH + 10, hex('#d8b050'));
+    // la lámpara de cuadro, de latón, encima
+    R.rect(x + PW / 2 - 14, y - 16, x + PW / 2 + 14, y - 12, k); R.rect(x + PW / 2 - 13, y - 15, x + PW / 2 + 13, y - 13, hex('#c8a040')); R.rect(x + PW / 2 - 1, y - 12, x + PW / 2 + 1, y - 7, hex('#8a6a2a')); }
+  R.usar(prev); R.copiar(fPared);
+};
+const cuadro = (i, t) => {
+  if (!bufs[i]) bufs[i] = R.nuevo();
+  const prev = R.usar(bufs[i]);
+  if (i === 0) { T.carrera(R, t, { encuadre: 'observatorio' }); T.carreraDelante(R, t, { encuadre: 'observatorio' }); }
+  else if (i === 1) { T.animales(R, t, { encuadre: 'tallerCIA' }); T.animalesDelante(R, t, { encuadre: 'tallerCIA' });
+    const ug = tramo(t, wander - 0.15, wander + 1.1); if (ug < 1) T.gatoEspia(R, Math.round(lerp(267, 196, ug)), 146 + (ug > 0 ? 2 : 0), t, { anda: ug > 0, dir: -1 }); }
+  else { T.animales(R, t, { encuadre: 'campoNieve', camara: 'plano', trazo: 1 }); }
+  R.usar(prev);
+};
+const lucesEn = [bomba - 0.15, gato - 0.15, gall - 0.15];
+const p3 = (t) => {
+  pared();
+  for (let i = 0; i < 3; i++) {
+    const enc = t > lucesEn[i];
+    if (!bufs[i] || enc) cuadro(i, t);
+    const b = bufs[i], [mx, my] = MARCO[i], [sx, sy] = SRC[i], osc = enc ? 0 : 0.62;
+    for (let y = 0; y < PH; y++) for (let x = 0; x < PW; x++) { let c = b[(sy + y) * 320 + sx + x]; if (osc) c = mez(c, hex('#101418'), osc); R.pset(mx + x, my + y, c); }
+    // el haz de la lámpara del cuadro, con motas
+    if (enc) { const u = Math.min(1, (t - lucesEn[i]) * 5); R.rect(mx + PW / 2 - 12, my - 12, mx + PW / 2 + 12, my - 12, hex('#fff2c0'));
+      for (let y = my - 11; y < my + 30; y++) for (let x = mx; x < mx + PW; x++) if (dith(x, y) < 0.22 * u * (1 - (y - my + 11) / 41)) R.pset(x, y, mez(R.pget(x, y), hex('#fff2c0'), 0.4));
+      for (let j = 0; j < 5; j++) { const x = Math.round(mx + 10 + hh(j, i) * 70 + Math.sin(t + j) * 4), y = Math.round(my - 6 + ((t * 6 + hh(j, i + 3) * 30) % 30)); R.pset(x, y, hex('#fff8e0')); } }
+  }
+  // cuadro 1: el cohete de tiza va hacia la Luna y sale el destello dibujado (sin explosión)
+  const [m0x, m0y] = MARCO[0], lx = m0x + 46, ly = m0y + 48, ur = tramo(t, bomba - 0.1, luna);
+  R.recorte([m0x, m0y, m0x + PW - 1, m0y + PH - 1]);
+  if (ur > 0) { const n = Math.round(ur * 30); for (let s = 0; s < n; s += 2) { const q = s / 30, x = Math.round(lerp(m0x + 8, lx, q)), y = Math.round(lerp(m0y + 96, ly + 10, q) - Math.sin(q * Math.PI) * 18); R.pset(x, y, hex('#f4f0e0')); }
+    if (ur < 1) { const q = ur, x = Math.round(lerp(m0x + 8, lx, q)), y = Math.round(lerp(m0y + 96, ly + 10, q) - Math.sin(q * Math.PI) * 18); R.disco(x, y, 2, hex('#f4f0e0')); R.pset(x - 2, y + 2, hex('#e8783a')); } }
+  if (t > luna && t < luna + 1.6) { const r = Math.min(10, Math.round((t - luna) * 30)); for (let j = 0; j < 8; j++) { const an = j / 8 * Math.PI * 2 + 0.2, rr = j % 2 ? r * 0.55 : r; R.linea(lx, ly + 8, Math.round(lx + Math.cos(an) * rr), Math.round(ly + 8 + Math.sin(an) * rr), hex('#f8e060')); } R.disco(lx, ly + 8, 2, hex('#fffbe8')); }
+  // cuadro 3: las gallinas de verdad asoman y cacarean dentro de la mina con «chickens»
+  const [m2x, m2y] = MARCO[2];
+  R.recorte(null);
+  if (t > gall - 0.1) [[18, 58], [46, 60], [72, 58]].forEach(([dx, dy], j) => { const sal = t > gall + j * 0.18 && t < gall + j * 0.18 + 0.25 ? 2 : 0; T.PIEZAS_DC.gallina(R, m2x + dx, m2y + dy - sal, { t, picotea: true, color: j === 1 ? 'parda' : undefined }); });
+};
+
+// 4 · la caja de archivo: la carpeta entra, la tapa se cierra con candado; asoma una gallina
+const CAJA = { encuadre: 'archivos2004', camara: 'caja' };
+const p4 = (t) => {
+  const cierra = tramo(t, secretos - 0.3, secretos + 0.15), asoma = tramo(t, pero - 0.1, pero + 0.25), baja = tramo(t, razon + 0.5, razon + 0.8);
+  const abre = t < secretos + 0.15 ? lerp(0.75, 0, suave(cierra)) : Math.max(0, 0.3 * asoma - 0.3 * baja);
+  T.animales(R, t, { ...CAJA, abre });
+  // la mano deja caer una carpeta con un mapa y una flecha (un secreto de los de verdad)
+  const ue = tramo(t, P4 + 0.05, P4 + 0.55), uc = tramo(t, P4 + 0.55, secretos - 0.35);
+  if (uc < 1) { const fx = 170, fy = Math.round(lerp(lerp(-10, 70, suave(ue)), 96, uc * uc));
+    R.rect(fx - 20, fy - 26, fx + 20, fy, k); R.rect(fx - 19, fy - 25, fx + 19, fy - 1, hex('#d8c8a0')); R.rect(fx - 19, fy - 25, fx + 19, fy - 24, hex('#f0e4c0'));
+    R.rect(fx - 14, fy - 21, fx + 6, fy - 6, hex('#7ab0c8')); R.poligono([[fx - 12, fy - 8], [fx - 4, fy - 20], [fx + 4, fy - 14], [fx + 4, fy - 7]], hex('#c8b47a')); R.linea(fx - 12, fy - 14, fx, fy - 12, hex('#c8282a')); R.linea(fx - 1, fy - 13, fx + 1, fy - 11, hex('#c8282a')); R.disco(fx + 12, fy - 13, 3, hex('#c8282a'));
+  }
+  // el candado del frente con «good reasons»
+  const uk = tramo(t, buenas - 0.3, buenas);
+  if (uk > 0) { const kx = 164, ky = Math.round(lerp(60, 128, suave(uk)));
+    R.rect(kx - 3, ky - 14, kx + 3, ky - 13, k); R.rect(kx - 4, ky - 13, kx - 3, ky - 8, k); R.rect(kx + 3, ky - 13, kx + 4, ky - 8, k); R.pset(kx - 3, ky - 13, hex('#c8ccd8'));
+    R.rect(kx - 7, ky - 8, kx + 7, ky + 4, k); R.rect(kx - 6, ky - 7, kx + 6, ky + 3, hex('#d8a830')); R.rect(kx - 6, ky - 7, kx + 6, ky - 6, hex('#f8e070')); R.disco(kx, ky - 2, 1, k); R.rect(kx, ky - 1, kx, ky + 1, k); }
+  // la gallina asoma por la rendija con «but sometimes», mira a un lado y a otro, y se esconde
+  if (asoma > 0 && baja < 1) { const yb = Math.round(lerp(92, 66, asoma) + baja * 26); T.PIEZAS_DC.gallina(R, 176, yb, { s: 2, t, dir: Math.sin((t - pero) * 3) > 0 ? 1 : -1 });
+    const top = Math.round(83 - Math.sin(abre * Math.PI * 0.62) * 52); R.poligono([[96, 94], [232, 94], [242, top + 2], [108, top + 2]], hex('#6a7480')); R.linea(108, top + 2, 242, top + 2, hex('#8a949e')); }
+};
+
+// 5 · la sala de reuniones: la diapositiva del barco de hielo… y la del mundo real
+const SALA = { encuadre: 'revision', cruces: 0 };
+const diapo = (t, real) => {
+  R.recorte([101, 28, 195, 89]);
+  R.poligono([[101, 28], [195, 28], [195, 89], [101, 89]], hex('#f4f2ec'));
+  for (let y = 30; y < 88; y++) for (let x = 102; x < 195; x++) if (((x + y) & 1) === 0 && dith(x, y) < 0.3) R.pset(x, y, hex('#fffbe0'));
+  if (!real) {
+    // el portaaviones de hielo, flamante: el mar, el casco con brillo, la isla y tres aviones
+    R.poligono([[101, 70], [195, 70], [195, 89], [101, 89]], hex('#7ab0d8')); for (let x = 104; x < 194; x += 6) R.linea(x, 76 + (x % 12 ? 0 : 4), x + 3, 76 + (x % 12 ? 0 : 4), hex('#c8e4f4'));
+    R.poligono([[112, 60], [186, 60], [178, 72], [118, 72]], k); R.poligono([[113, 61], [185, 61], [177, 71], [119, 71]], hex('#d8f2fc')); R.linea(113, 61, 185, 61, hex('#ffffff')); R.linea(120, 69, 176, 69, hex('#8ac4dc'));
+    R.poligono([[160, 50], [170, 50], [170, 60], [160, 60]], k); R.poligono([[161, 51], [169, 51], [169, 59], [161, 59]], hex('#b8e4f4'));
+    for (const [x, y] of [[124, 56], [138, 54], [148, 57]]) { R.linea(x, y, x + 7, y, hex('#3a4a6a')); R.linea(x + 2, y - 2, x + 2, y + 2, hex('#3a4a6a')); }
+    for (let j = 0; j < 4; j++) { const p = (Math.sin(t * 5 + j * 1.7) + 1) / 2; if (p > 0.4) destello([118, 182, 140, 176][j], [44, 40, 36, 52][j], 2 + Math.round(p * 2), hex('#f8e060')); }
+  } else {
+    // el mundo real: el barco derretido en un charco que gotea, con la bandera caída
+    R.poligono([[101, 74], [195, 74], [195, 89], [101, 89]], hex('#c8b890'));
+    for (let y = 72; y < 88; y++) for (let x = 108; x < 190; x++) if (((x - 148) / 40) ** 2 + ((y - 80) / 7) ** 2 < 1) R.pset(x, y, ((x + y) % 7 === 0) ? hex('#e8f8fc') : hex('#8ac8e8'));
+    R.poligono([[126, 76], [140, 66], [158, 64], [172, 72], [170, 78], [128, 80]], k); R.poligono([[128, 76], [141, 67], [157, 65], [170, 72], [168, 77], [130, 79]], hex('#b8e0ee'));
+    for (let j = 0; j < 4; j++) { const f = (t * 1.5 + j / 4) % 1; R.pset(134 + j * 9, Math.round(70 + f * 10), hex('#5aa8d8')); }
+    R.linea(160, 64, 166, 58, k); R.poligono([[166, 58], [172, 62], [166, 63]], hex('#c8282a'));
+    R.rect(144, 40, 150, 42, k); R.rect(146, 34, 148, 46, k); R.pset(150, 36, k);
+  }
+  R.recorte(null);
+};
+const p5 = (t) => {
+  const g = T.psiquicos(R, t, SALA);
+  const realista = t > than;
+  diapo(t, realista);
+  // los mandos sentados: aplauden con «better» y se les cae la cara con «real world»
+  const aplaude = t > mejor - 0.1 && t < reunion + 0.2, caida = t > real - 0.1;
+  R.actor(EL.generalAF, 58, 150, t, { dir: 1, brazos: aplaude && Math.sin(t * 14) > 0, sonrisa: t < than, sorpresa: caida && t < real + 0.8, triste: t > real + 0.8 });
+  R.actor(EL.oficialAliado, 84, 150, t, { dir: 1, sonrisa: t < than, habla: t > suena && t < mejor && Math.sin(t * 8) > 0, sorpresa: caida && t < real + 1.0, triste: t > real + 1.0 });
+  R.actor(EL.generalAF2, 228, 150, t, { dir: -1, brazos: aplaude && Math.sin(t * 13 + 1) > 0, sonrisa: t < than, sorpresa: caida, enfado: t > real + 1.4 });
+  R.actor(EL.oficialAliado2, 252, 150, t, { dir: -1, sonrisa: t < than, sorpresa: caida && t < real + 0.6, triste: t > real + 0.6 });
+  // el que presenta, de pie junto a la pantalla: señala la diapositiva y cambia la transparencia con «than»
+  const cambia = t > than - 0.35 && t < than + 0.2;
+  const pr = R.actor(EL.portavoz, 202, 150, t, { dir: -1, dedo: t < than - 0.4, habla: t < than - 0.4 && Math.sin(t * 7) > 0, sostiene: cambia ? [186, 136] : undefined, sorpresa: t > real && t < real + 0.9, triste: t > real + 0.9 });
+  if (cambia) { const [hx, hy] = pr.mano; R.rect(hx - 6, hy - 1, hx, hy + 3, k); R.rect(hx - 5, hy, hx - 1, hy + 2, hex('#d8eef8')); }
+  T.psiquicosDelante(R, t, SALA);
+  // el gato espía cruza por encima del retroproyector… y su sombra pasa enorme por la pantalla
+  const ug = tramo(t, real + 0.5, P5 + 4.9);
+  if (ug > 0 && ug < 1) { const gx = Math.round(lerp(122, 178, ug)); T.gatoEspia(R, gx, 141, t, { anda: true, dir: 1 });
+    if (gx > 136 && gx < 166) { const sx = Math.round(lerp(196, 100, (gx - 136) / 30)), sy = 74, c = hex('#3a3a44'), p = Math.floor(t * 6) % 2;
+      R.recorte([101, 28, 195, 89]); R.disco(sx, sy, 9, c); R.disco(sx + 10, sy, 8, c); R.disco(sx + 18, sy - 7, 6, c); R.poligono([[sx + 14, sy - 12], [sx + 16, sy - 20], [sx + 19, sy - 12]], c); R.poligono([[sx + 19, sy - 12], [sx + 23, sy - 20], [sx + 24, sy - 10]], c);
+      for (const d of [-6, 0, 8, 14]) R.linea(sx + d, sy + 6, sx + d + ((d / 2 + p) % 2 ? 2 : -2), sy + 16, c); R.linea(sx - 8, sy - 2, sx - 14, sy - 14, c); R.linea(sx - 9, sy - 2, sx - 15, sy - 14, c); R.linea(sx + 18, sy - 14, sx + 22, sy - 26, c); R.recorte(null); } }
+};
+
+const efectos = [[files - 0.4, 'papel'], [lado2, 'papel'], [patron - 0.15, 'sello'], [weren, 'pop'], [emb, 'sello'], [bomba, 'whoosh'], [luna, 'brillo'], [wander, 'miau'], [gall, 'pop'], [secretos + 0.1, 'cerrojo'], [buenas, 'toc'], [pero + 0.1, 'pop'], [mejor, 'palmada'], [than, 'papel'], [real, 'aviso'], [real + 1.3, 'miau']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

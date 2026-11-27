@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Poema de Gilgamesh · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-GILGAMESH (frase «gilgamesh»), 1872. Tres planos:
+// 1. la línea del tiempo sobre el rollo, todo en boceto a tinta: con «That tablet» se enciende solo la tablilla grande
+//    (o.marcas como lista: la pequeña, que es de la escena siguiente, no se enciende) y una mano que se queda cerca
+//    del borde de abajo (T.brazo: se ven menos de 45 px de manga) sube un puntero largo de madera con contera de latón,
+//    cuya punta toca justo debajo de ella; luego la punta recorre la línea hasta el primer libro (que sigue apagado, a
+//    tinta) y, con «centuries older», vuelve a la tablilla mientras un arco de puntos salta hacia atrás por encima, con
+//    su punta sobre la tablilla. Vida por encima del decorado: la llama alta con halo y humo, el goterón de cera que
+//    baja y se amontona, una polilla que llega y ronda la vela, una pelusa que cae de la pluma y motas en la luz;
+// 2. diciembre de 1872, la sala llena: el presentador le da paso, Smith sale al atril y lee («Smith read it in public»);
+// 3. la primera fila desde el estrado: Gladstone, de patillas, escucha en el centro; un colega le cuchichea, él pide
+//    silencio con el dedo y al final los tres aplauden.
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-gilgamesh');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const g = (w) => en('gilgamesh', (w - 0.5) / 13.808);   // el segundo de cada palabra inglesa
+const P2 = g(7.1), P3 = g(11.4);
+const TABLET = g(0.68), OLDER = g(4.8), GENESIS = g(6.5), READ = g(9.04), PM = g(11.82);
+const sua = (u) => u * u * (3 - 2 * u);
+const K = hex('#14121c'), MANGA = '#2e3a56';
+const mez = (c1, c2, a) => { const r = (c) => c & 255, g = (c) => (c >>> 8) & 255, b = (c) => (c >>> 16) & 255; return (0xff000000 | (Math.round(b(c1) + (b(c2) - b(c1)) * a) << 16) | (Math.round(g(c1) + (g(c2) - g(c1)) * a) << 8) | Math.round(r(c1) + (r(c2) - r(c1)) * a)) >>> 0; };
+
+// 1. la línea del tiempo
+const PLL = { llama: hex('#ffb030'), llamaL: hex('#fff4b0'), cera: hex('#f0e8d0'), ceraS: hex('#c8bc98'), blanco: hex('#ffffff'), pluma: hex('#e8e4dc'), plumaS: hex('#a8a4a8'), humo: hex('#9a7a5c'), humoL: hex('#b89a78'), polilla: hex('#d8c8a0'), tintaS: hex('#6e5a48'), lacre: hex('#a8302a'), lacreL: hex('#e86050') };
+const p1 = (t) => {
+  const o = { encuadre: 'marnegro', camara: 'linea', marcas: [[1, tramo(t, TABLET, TABLET + 0.7)]] };   // solo la grande; la pequeña (la de Finkel) sigue en boceto
+  const G = T.diluvios(R, t, o), [xa, yi] = G.marcas[1], [xb] = G.marcas[2];
+  // ── la vida de la mesa, por encima del decorado (todo en x < 272 y por encima de la fila de iconos: los libros, con la misma luz) ──
+  // motas que suben con el calor de la vela
+  for (let k = 0; k < 13; k++) { const x = Math.round(184 + ((k * 37.7) % 84) + Math.sin(t * 0.7 + k) * 6), y = Math.round(65 - ((k * 13.3 + t * (2.5 + k % 3)) % 43)); if ((x > 270 && y < 50) || Math.sin(t * 2.2 + k * 1.9) < -0.3) continue; R.pset(x, y, PLL.llamaL); if (k % 4 === 0) R.pset(x + 1, y, PLL.llama); }
+  // la polilla: llega desde arriba y se queda dando vueltas a la llama (por detrás cuando pasa por el fondo)
+  const llega = sua(tramo(t, 1.2, 2.6)), an = t * 2.4, detras = Math.sin(an) < 0;
+  const polilla = () => { if (llega <= 0) return; const x = Math.round(lerp(202, 246 + Math.cos(an) * 15, llega)), y = Math.round(lerp(-3, 12 + Math.sin(an) * 5 + Math.sin(t * 9), llega)), al = Math.floor(t * 14) % 2;
+    R.rect(x, y, x, y + 1, K); if (al) { R.rect(x - 2, y - 2, x - 1, y, PLL.polilla); R.rect(x + 1, y - 2, x + 2, y, PLL.polilla); R.pset(x - 2, y, PLL.tintaS); R.pset(x + 2, y, PLL.tintaS); } else { R.rect(x - 3, y, x - 1, y + 1, PLL.polilla); R.rect(x + 1, y, x + 3, y + 1, PLL.polilla); R.pset(x - 3, y + 1, PLL.tintaS); R.pset(x + 3, y + 1, PLL.tintaS); } };
+  if (detras) polilla();
+  // el halo y la llama, más alta, que se ladea y tiembla; el hilo de humo
+  const fk = Math.sin(t * 11) * 0.5 + Math.sin(t * 17.3) * 0.5, alto = 8 + Math.round(fk * 2) + (Math.floor(t * 9) % 5 === 0 ? 1 : 0), lado = Math.sin(t * 6.3) * 1.6, rh = 9 + fk;
+  for (let j = -9; j <= 6; j++) for (let i = -10; i <= 10; i++) { const d = Math.hypot(i / rh, j / rh); if (d >= 1) continue; const x = 246 + i, y = 15 + j; if (y < 0 || ((x + y + Math.floor(t * 8)) & 1)) continue; R.pset(x, y, mez(R.pget(x, y), PLL.llama, (1 - d) * 0.55)); }
+  for (let j = 0; j <= alto; j++) { const u = j / alto, y = 21 - j, m = u < 0.4 ? 2 : u < 0.75 ? 1 : 0, cx = 246 + Math.round(lado * u * u); R.rect(cx - m, y, cx + m, y, PLL.llama); if (m > 0 && j > 0) R.rect(cx - m + 1, y, cx + m - 1, y, PLL.llamaL); }
+  R.pset(246, 21, hex('#b8dce8'));
+  for (let k = 0; k < 7; k++) { const u = (t * 0.45 + k / 7) % 1, y = Math.round(21 - alto - 2 - u * 12), x = Math.round(246 + lado + Math.sin(u * 5 + t * 1.5) * (1 + u * 3)); if (y >= 0) R.pset(x, y, u < 0.5 ? PLL.humoL : PLL.humo); }
+  if (!detras) polilla();
+  // la cera: un goterón que baja por la vela y se va amontonando en la palmatoria
+  { const per = 2.6, u = (t / per) % 1, n = Math.min(4, Math.floor(t / per)), y = 25 + Math.round(u * u * 12);
+    R.rect(245, y, 246, y + 1, PLL.blanco); R.pset(247, y + 1, PLL.ceraS); R.rect(245, y + 2, 246, y + 2, PLL.ceraS); R.rect(245, 24, 245, y, PLL.blanco);
+    for (let k = 0; k < n; k++) { R.rect(239 - k * 2, 39 - (k % 2), 241 - k * 2, 39, PLL.cera); R.pset(239 - k * 2, 40, PLL.ceraS); } }
+  // una pelusa que se suelta de la pluma y cae meciéndose hasta la mesa
+  if (t > 2.2) { const u = tramo(t, 2.2, 5.6), x = Math.round(214 + u * 12 + Math.sin(u * 10) * 4 * (1 - u)), y = Math.round(10 + u * 33), gi = u < 1 ? Math.floor(t * 5) % 2 : 0;
+    R.pset(x, y, PLL.pluma); R.pset(x + 1, y - gi, PLL.pluma); R.pset(x - 1, y + gi, PLL.plumaS); R.pset(x + 2, y - 1 + gi, PLL.plumaS); }
+  // ── el arco de «siglos antes»: sale de encima del libro (que sigue a tinta) y cae sobre la tablilla, con su punta ──
+  const arco = sua(tramo(t, OLDER, GENESIS - 0.2)), N = 28, pt = (u) => [Math.round(lerp(xb, xa, u)), Math.round(yi - 33 - Math.sin(u * Math.PI) * 7)];
+  if (arco > 0) { for (let i = 0; i <= N; i++) { const u = i / N; if (u > arco) break; const [x, y] = pt(u); if (i % 2 === 0) { R.rect(x, y, x + 1, y + 1, PLL.lacre); R.pset(x + 1, y + 2, hex('#d8c498')); } }
+    if (arco < 1) { const [x, y] = pt(arco); R.rect(x - 1, y - 1, x + 2, y + 2, K); R.rect(x, y, x + 1, y + 1, PLL.lacreL); } }
+  if (arco >= 1) { const [x, y] = pt(1), lat = Math.floor(t * 4) % 2; R.poligono([[x - 4, y - 1 - lat], [x + 5, y - 1 - lat], [x, y + 4 - lat]], K); R.poligono([[x - 3, y - 1 - lat], [x + 4, y - 1 - lat], [x, y + 3 - lat]], PLL.lacre); }
+  // ── el puntero: la mano se queda cerca del borde de abajo (se ve poca manga) y sostiene una vara larga de madera
+  //    con contera de latón; es la punta la que sube hasta justo debajo de la tablilla («That tablet») y la toca,
+  //    recorre la línea del tiempo hasta el primer libro y, con «centuries older», vuelve a la tablilla con el arco ──
+  const entra = sua(tramo(t, TABLET - 0.4, TABLET + 0.3)), ida = sua(tramo(t, g(2.6), g(3.4))), pos = ida * (1 - arco);
+  const toque = t > TABLET + 0.3 && t < g(2.5) ? Math.abs(Math.sin((t - TABLET - 0.3) * 5)) * 2 : t > GENESIS - 0.1 ? Math.abs(Math.sin((t - GENESIS + 0.1) * 6)) * 2 : 0;
+  const px = Math.round(lerp(xa, xb, pos)) + 3, py = Math.round(lerp(200, 112, entra) - toque - Math.sin(ida * Math.PI) * 3);
+  if (py < 184) { const hx = px + 27, hy = py + 38, NV = 48, pv = (k) => [px + (hx - 1 - px) * k / NV, py + (hy + 2 - py) * k / NV];
+    // la sombra de la vara sobre el pergamino y la mesa, y la de la punta cuando toca
+    for (let k = 0; k <= NV; k++) { const [x, y] = pv(k), sx = Math.round(x + 2), sy = Math.round(y + 4); if (sy > 179) continue; R.pset(sx, sy, mez(R.pget(sx, sy), K, 0.16)); R.pset(sx + 1, sy, mez(R.pget(sx + 1, sy), K, 0.16)); }
+    // la vara: contorno, madera con su filo de luz, la contera de latón en la punta y un anillo a media vara
+    for (let k = 0; k <= NV; k++) R.disco(...pv(k), k < 6 ? 1.6 : 2.3, K);
+    for (let k = 1; k <= NV; k++) { const [x, y] = pv(k), lat = k < 7 || k === 26 || k === 27; R.disco(x, y, k < 6 ? 0.7 : 1.3, lat ? hex('#c89a3c') : hex('#8a5a30')); if (k >= 6) R.pset(Math.round(x), Math.round(y - 1), lat ? hex('#f4dc8c') : hex('#b07a48')); }
+    R.pset(px, py, hex('#f4dc8c'));
+    T.brazo(R, hx + 14, hy + 34, hx, hy, MANGA, -1, { codo: [hx + 12, hy + 18] }); }
+  T.diluviosDelante(R, t, o);
+};
+
+// 2. la conferencia: el presentador da paso a Smith, que sale al atril y lee
+const p2 = (t) => {
+  const o = { encuadre: 'conferencia' };
+  const G = T.museo(R, t, o), [ox, oy] = G.orador, [hx, hy] = G.hueco;
+  const sale = sua(tramo(t, P2 + 0.2, READ - 0.25)), lee = t > READ - 0.2;
+  const pv = tramo(t, P2 + 1.1, READ + 0.3);
+  R.actor(EL.colega2NX, Math.round(lerp(114, 104, pv)), oy, t, { dir: pv > 0 && pv < 1 ? -1 : 1, anda: pv > 0 && pv < 1, dedo: pv === 0, habla: pv === 0 && Math.sin(t * 8) > 0, sonrisa: true });
+  const sx = Math.round(lerp(208, ox, sale));
+  const s = R.actor(EL.smith, sx, oy, t, { dir: -1, anda: sale > 0 && sale < 1, habla: lee && Math.sin(t * 7.5) > -0.1, sostiene: lee ? [sx - 4, oy - 12 + Math.round(Math.sin(t * 2.2))] : [sx - 2, oy - 9] });
+  { const [mx, my] = s.mano; R.rect(mx - 4, my - 5, mx + 2, my + 2, K); R.rect(mx - 3, my - 4, mx + 1, my + 1, hex('#f4ecd8')); R.rect(mx - 2, my - 3, mx, my - 3, hex('#8a7a66')); R.rect(mx - 2, my - 1, mx, my - 1, hex('#8a7a66')); }
+  R.actor(EL.gladstone, hx, hy, t, { dir: 1, salto: lee && Math.floor(t * 1.4) % 3 === 0 ? 1 : 0 });
+  T.museoDelante(R, t, o);
+};
+
+// 3. la primera fila, desde el estrado
+const p3 = (t) => {
+  const o = { encuadre: 'primerafila' };
+  const G = T.vistas(R, t, o), [a1, a2, a3] = G.asientos;
+  const cuchi = t > P3 + 0.5 && t < PM + 0.5, chis = t > PM + 0.5 && t < PM + 1.7, aplauso = t > E.duracion - 1.5, pal = Math.floor(t * 7) % 2;
+  // con «Prime Minister» la sala se apaga un poco y una luz cálida cae sobre su butaca
+  { const f = tramo(t, PM - 0.3, PM + 0.5); if (f > 0) { T.tinte(R, 15, 138, [10, 6, 20], 0.34 * f); const cx = a2[0] + 7, cy = a2[1] - 16;
+    for (let j = -30; j <= 24; j++) for (let i = -24; i <= 24; i++) { const d = Math.hypot(i / 24, j / 30); if (d >= 1) continue; const x = cx + i, y = cy + j; if (y > 138) continue; const a = (1 - d) * 0.75 * f; if (((x + y) & 1) === 0 || d < 0.6) R.pset(x, y, mez(R.pget(x, y), hex('#ffe8b0'), a * 0.6)); } } }
+  R.actor(EL.colega1NX, a1[0] + (cuchi ? 4 : 0), a1[1], t, { dir: 1, habla: cuchi && Math.sin(t * 9) > 0, sorpresa: chis, sonrisa: aplauso, brazos: aplauso && pal === 0 });
+  R.actor(EL.gladstone, a2[0], a2[1], t, { dir: chis ? -1 : 1, dedo: chis, enfado: chis, sonrisa: aplauso, brazos: aplauso && pal === 1, salto: !chis && !aplauso && Math.floor(t * 1.2) % 3 === 0 ? 1 : 0 });
+  R.actor(EL.colega2NX, a3[0], a3[1], t, { dir: -1, sonrisa: t > PM, brazos: aplauso && pal === 0, salto: t > PM && !aplauso && Math.floor(t * 1.5 + 1) % 4 === 0 ? 1 : 0 });
+  T.vistasDelante(R, t, o);
+};
+const efectos = [[TABLET, 'brillo'], [OLDER + 0.2, 'lapiz'], [GENESIS, 'toc'], [P2 + 0.3, 'publico'], [READ - 0.3, 'golpecito'], [P3 + 0.6, 'publico'], [E.duracion - 1.4, 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 1872 });
+</script>
+</body>
+</html>

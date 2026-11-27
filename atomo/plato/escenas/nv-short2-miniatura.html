@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep22 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NV-SHORT2-MINIATURA · miniatura vertical del Short 2 del ep22, «Coca-Cola no vistió de rojo a Santa». En el estudio del
+// dibujante, de noche: Santa en el centro, al triple, de rojo, con las manos arriba y cara de sorpresa (el de
+// nv-miniatura.html); encima, en abanico, tres postales antiguas con Santas de verde, marrón y azul (los de antes de 1931);
+// a su lado, una botella de refresco SIN etiqueta; arriba, el «1931» dorado y una interrogación. Todo lo que cuenta va en
+// la columna central x 110–210 (lo que queda en 9:16). Sin palabras ni logos: solo cifras y símbolos.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL, PIEZAS_NV as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/nv-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const fondo = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const contorno = (b, n = 1, c = K) => { for (let p = 0; p < n; p++) { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+// un actor en su búfer, copiado a escala s con su contorno (filo de color c)
+const actorGrande = (def, op, bx, dx, dy, s, filo, borra = []) => {
+  R.usar(pj); pj.fill(VACIO); R.actor(def, 20, 70, 0.5, { quieto: true, ...op }); R.usar(tmp); tmp.fill(VACIO);
+  for (const [x, y] of borra) pj[y * 320 + x] = VACIO;
+  pon(pj, bx[0], bx[1], bx[2], bx[3], dx, dy, s); contorno(tmp, 1, filo); R.usar(null); vuelca(tmp);
+};
+
+// un brillo suave: aclara hacia el color c en un círculo de radio r
+const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
+// una elipse rellena (a resolución de lienzo)
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
+// un trazo grueso de (x0, y0) a (x1, y1), de radio r
+const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
+
+// Santa al triple, centrado en la columna (en la miniatura del episodio estaba en dx 104)
+const SA = { s: 3, dx: 120, dy: 84, bx: [12, 42, 38, 70] };
+const enSanta = (px, py) => [SA.dx + (px - SA.bx[0]) * SA.s, SA.dy + (py - SA.bx[2]) * SA.s];
+const PIEL = hex('#f6c290'), PIELS = hex('#d8946a'), BARBA = [hex('#ffffff'), hex('#e6eaf4'), hex('#b8c0d4')], ROJO = [hex('#ff5a4a'), hex('#d8282a'), hex('#8a1420')];
+
+// la cara de Santa a escala grande: ojos de sorpresa con su brillo, cejas blancas alzadas, mofletes, nariz redonda, el
+// bigote y la boca abierta en O dentro de la barba
+function caraSanta() {
+  const [fx0, fy0] = enSanta(21, 49), [fx1, fy1] = enSanta(30, 54);
+  // la piel limpia (quita los ojos y la boca de bloque)
+  R.rect(fx0, fy0 + 1, fx1 - 1, fy1 - 1, PIEL); R.rect(fx1 - 1, fy0 + 1, fx1 + 2, fy1 - 1, PIELS);
+  // la barba redondeada que cubre de la mejilla a la barbilla
+  const bx = fx0 + 13, by = fy1 + 6;
+  for (let y = fy1 - 4; y <= fy1 + 16; y++) for (let x = fx0 - 1; x <= fx1 + 8; x++) { const d = Math.hypot((x - bx) / 17, (y - by) / 11); if (d <= 1 && y >= fy1 - 2) R.pset(x, y, d > 0.88 ? BARBA[2] : (hh(x >> 1, y >> 1, 7) < 0.25 || (x + y * 2) % 7 === 0) ? BARBA[1] : BARBA[0]); }
+  // los mofletes
+  elipse(fx0 + 3, fy1 - 4, 3, 2, hex('#f0907a')); elipse(fx0 + 25, fy1 - 4, 3, 2, hex('#f0907a'));
+  // los ojos muy abiertos, mirando a la izquierda (a la multa)
+  for (const ex of [fx0 + 7, fx0 + 19]) { const ey = fy0 + 6;
+    elipse(ex, ey, 3.4, 4.4, K); elipse(ex, ey, 2.5, 3.5, hex('#ffffff'));
+    elipse(ex - 1, ey + 0.5, 1.5, 2.2, hex('#1a1424')); R.pset(Math.round(ex) - 1, Math.round(ey) - 1, hex('#ffffff')); }
+  // las cejas blancas alzadas
+  for (const ex of [fx0 + 7, fx0 + 19]) for (let i = -4; i <= 4; i++) { const y = fy0 - 1 - Math.round(Math.cos(i / 4 * 1.2) * 2); R.rect(ex + i, y, ex + i, y + 1, BARBA[0]); R.pset(ex + i, y + 2, BARBA[2]); }
+  // la nariz redonda
+  elipse(fx0 + 13, fy1 - 2, 3, 2.6, hex('#f09a80')); R.pset(fx0 + 12, fy1 - 4, hex('#ffd8c0'));
+  // el bigote: dos mechones que se curvan
+  for (const lado of [-1, 1]) for (let i = 0; i <= 9; i++) { const x = fx0 + 13 + lado * (2 + i), y = fy1 + 1 + Math.round(Math.sin(i / 9 * Math.PI) * -1.5 + i * 0.25); elipse(x, y, 1.6, 1.8, BARBA[0]); R.pset(x, y + 2, BARBA[2]); }
+  // la boca abierta en O
+  const mx = fx0 + 13, my = fy1 + 7;
+  elipse(mx, my, 3.4, 4.2, K); elipse(mx, my, 2.5, 3.3, hex('#5a0e18')); elipse(mx, my + 1.6, 1.8, 1.4, hex('#d8485a'));
+}
+// los brazos de Santa, arriba, a resolución de lienzo: manga roja con su sombra, el puño de piel blanca y el guante
+function brazoSanta(sx, sy, ex, ey, hx, hy, lado) {
+  // la manga en dos tramos (hombro-codo y codo-muñeca), con su luz y su sombra
+  for (const [a, b, c, d] of [[sx, sy, ex, ey], [ex, ey, hx, hy + 6]]) trazo(a, b, c, d, 5.4, K);
+  for (const [a, b, c, d] of [[sx, sy, ex, ey], [ex, ey, hx, hy + 6]]) trazo(a, b, c, d, 4.3, ROJO[1]);
+  for (const [a, b, c, d] of [[sx, sy, ex, ey], [ex, ey, hx, hy + 6]]) trazo(a + lado * 1.6, b - 1, c + lado * 1.6, d - 1, 1.3, ROJO[0]);
+  for (const [a, b, c, d] of [[sx, sy, ex, ey], [ex, ey, hx, hy + 6]]) trazo(a - lado * 2.4, b + 1.5, c - lado * 2.4, d + 1, 1, ROJO[2]);
+  // el puño de piel blanca
+  elipse(hx, hy + 7, 6, 3.8, K); elipse(hx, hy + 7, 5, 2.8, BARBA[0]); R.rect(Math.round(hx) - 4, Math.round(hy) + 8, Math.round(hx) + 4, Math.round(hy) + 8, BARBA[2]);
+  // el guante blanco con los dedos abiertos (palma hacia delante)
+  const G = BARBA[0], g = BARBA[2];
+  const dedos = [[-2.25, 6.5], [-1.85, 7.5], [-1.45, 7.5], [-1.05, 6.2]];
+  for (const [a, l] of dedos) { const aa = lado > 0 ? a : -Math.PI - a; trazo(hx, hy, hx + Math.cos(aa) * l, hy + Math.sin(aa) * l, 1.9, K); }
+  { const aa = lado > 0 ? -0.2 : Math.PI + 0.2; trazo(hx, hy + 1, hx + Math.cos(aa) * 6, hy + 1 + Math.sin(aa) * 6, 1.9, K); }
+  elipse(hx, hy + 1, 4.6, 4.4, K);
+  for (const [a, l] of dedos) { const aa = lado > 0 ? a : -Math.PI - a; trazo(hx, hy, hx + Math.cos(aa) * l, hy + Math.sin(aa) * l, 0.95, G); }
+  { const aa = lado > 0 ? -0.2 : Math.PI + 0.2; trazo(hx, hy + 1, hx + Math.cos(aa) * 6, hy + 1 + Math.sin(aa) * 6, 0.95, G); }
+  elipse(hx, hy + 1, 3.6, 3.4, G); R.pset(Math.round(hx) + lado, Math.round(hy) + 3, g); R.pset(Math.round(hx), Math.round(hy) + 3, g);
+}
+// una postal antigua de pie, redibujada a escala grande (la PIEZAS_NV.postal tiene el Santa de 7 × 9; aquí va el muñeco
+// entero, el mismo Santa del centro con el traje del color de la postal): borde crema con su mancha de vieja, el fondo de
+// noche con copos y la nieve abajo, y el contorno oscuro con un filo claro que la despega de la pared
+const postal = (traje, x0, y0, t) => {
+  const W = 36, H = 46, x1 = x0 + W - 1, y1 = y0 + H - 1;
+  R.rect(x0 + 2, y0 + 2, x1 + 2, y1 + 2, hex('#0a0608'));
+  R.rect(x0 - 2, y0 - 2, x1 + 2, y1 + 2, hex('#fff4d8')); R.rect(x0 - 1, y0 - 1, x1 + 1, y1 + 1, K);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, hh(x >> 1, y >> 1, 21) < 0.12 ? hex('#e2d2a8') : hex('#f4e8c6'));
+  elipse(x1 - 5, y1 - 4, 4, 3, hex('#e0c898'));
+  const fx0 = x0 + 3, fy0 = y0 + 3, fx1 = x1 - 3, fy1 = y1 - 7;
+  R.rect(fx0 - 1, fy0 - 1, fx1 + 1, fy1 + 1, hex('#8a6a4a'));
+  for (let y = fy0; y <= fy1; y++) for (let x = fx0; x <= fx1; x++) R.pset(x, y, mezcla(hex('#2a3a8a'), hex('#141c4a'), 1 - (y - fy0) / (fy1 - fy0)));
+  for (let k = 0; k < 12; k++) R.pset(fx0 + Math.floor(hh(k, x0, 22) * (fx1 - fx0)), fy0 + Math.floor(hh(k, 3, 22) * (fy1 - fy0 - 6)), hex('#ffffff'));
+  R.rect(fx0, fy1 - 3, fx1, fy1, hex('#e8eef8')); R.rect(fx0, fy1 - 3, fx1, fy1 - 3, hex('#ffffff'));
+  // el Santa del color de la postal, a escala 1, centrado en el hueco y recortado a él
+  R.usar(pj); pj.fill(VACIO); R.actor(EL.santa, 20, 70, 0.5, { quieto: true, dir: 1, traje, sorpresa: false }); R.usar(null);
+  let a = 320, b = 0, c = 180, d = 0; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (pj[y * 320 + x] !== VACIO) { a = Math.min(a, x); b = Math.max(b, x); c = Math.min(c, y); d = Math.max(d, y); }
+  const ox = Math.round((fx0 + fx1) / 2 - (a + b) / 2), oy = fy1 - 1 - d;
+  for (let y = c; y <= d; y++) for (let x = a; x <= b; x++) { const v = pj[y * 320 + x], X = x + ox, Y = y + oy; if (v !== VACIO && X >= fx0 && X <= fx1 && Y >= fy0 && Y <= fy1) R.pset(X, Y, v); }
+};
+
+const dibujar = (t) => {
+  // el estudio del dibujante de noche, apagado hacia un pardo oscuro para que manden Santa y las postales
+  R.usar(fondo); T.epoca(R, t, { encuadre: 'estudio' }); R.usar(null);
+  const B = R.buf;
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) B[y * 320 + x] = mezcla(hex('#140c14'), fondo[y * 320 + x], 0.55);
+
+  // las tres postales antiguas en abanico: verde, marrón y azul
+  brillo(160, 62, 56, hex('#ffe0a0'), 0.25);
+  postal('verde', 110, 42, t); postal('azul', 174, 42, t); postal('marron', 142, 36, t);
+
+  // Santa, al triple, de rojo, con las manos arriba y cara de sorpresa, sobre un resplandor cálido
+  brillo(160, 130, 50, hex('#ff9070'), 0.35);
+  const sinBrazos = []; for (let y = 59; y <= 62; y++) for (const x of [20, 21, 33, 34]) sinBrazos.push([x, y]);
+  actorGrande(EL.santa, { dir: -1, sorpresa: true, traje: 'rojo' }, SA.bx, SA.dx, SA.dy, SA.s, hex('#fff4d8'), sinBrazos);
+  caraSanta();
+  { const [bx, by] = enSanta(34, 42); elipse(bx + 1.5, by + 1, 5.4, 5, K); elipse(bx + 1.5, by + 1, 4.4, 4, BARBA[0]); elipse(bx + 2.5, by + 2.5, 2, 1.4, BARBA[1]); }
+  { const [l0, ly] = enSanta(20, 59), [r0] = enSanta(33, 59);
+    brazoSanta(l0 + 4, ly - 1, l0 - 10, ly - 10, l0 - 12, ly - 30, -1); brazoSanta(r0 + 2, ly - 1, r0 + 16, ly - 10, r0 + 18, ly - 30, 1); }
+
+  // la botella sin etiqueta, abajo a la izquierda, con su brillo
+  R.usar(tmp); tmp.fill(VACIO); PZ.botella(R, 122, 178, { s: 3 }); contorno(tmp, 1, hex('#fff4d8')); R.usar(null); vuelca(tmp);
+
+  // arriba, el 1931 dorado con su interrogación
+  brillo(160, 18, 44, hex('#fff0a0'), 0.4);
+  R.numero('1931', 160, 31, { tam: 24, centro: true });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

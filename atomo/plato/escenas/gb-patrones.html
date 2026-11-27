@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Los patrones · ep49</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GB-PATRONES (frase 20, PAUSA «fijate4»): la casa de la excavación de gb-tele congelada en gris azulado (el MISMO bloque
+// CASA, copiado literal, en su último instante) y Atom al doble, a color, con el enchufe con cara y la nube (T.pausa
+// 'nube'). GAG DE LAS NUBES: la nube es un conejo, luego un buitre, luego un cometa y al final se parece a Atom.
+// Seis planos, cortados en la palabra:
+// 1 · La casa congelada entera: ⏸ (el gris entra en 0,35 s; la costura con gb-tele es el mismo fotograma); Atom entra
+//   andando, saluda en «notice» y abre los brazos en «all of us»; luego entra deslizándose el enchufe con su nube y Atom
+//   lo señala sorprendido. Corta en «Our».
+// 2 · Congelada de cerca (ventana, mapa y tamices): Atom se toca la cabeza en «brain» y salen puntos que se unen en
+//   «patterns»; el enchufe con cara se rodea en «face in a power outlet». Corta en «or».
+// 3 · Congelada de cerca (la estantería y la mesa del fondo): Atom a la derecha señala la nube, que se rodea y es un
+//   conejo en «animal in a cloud»; luego da dos pasos hacia el reloj de arena y, brazos arriba, lo hace girar en
+//   «thousands» (la arena cae antes y después). Corta en «shadow».
+// 4 · Congelada muy de cerca y baja (zoom ×3: el alféizar con el gato a color y la pared de ladrillo a su izquierda,
+//   sin el mapa ni la tele del plano 2): Atom se acerca con su farol a mirar al gato; la luz cálida tiembla en la pared
+//   y, cuanto más se acerca, más crece la sombra, que se vuelve un león enorme en «lion»; Atom salta, se ríe en «safer»,
+//   se aparta en «the opposite» y la sombra vuelve a ser un gato, que bosteza. Corta en «once».
+// 5 · Congelada de cerca (los dibujos de pilares): la nube se vuelve buitre en «pattern» y cometa en «can't stop»;
+//   Atom da un saltito de sorpresa en cada cambio y entre uno y otro se acerca a la nube. Corta en «That».
+// 6 · Congelada de cerca (la mesa de las bandejas): la nube se vuelve Atom en «false» y Atom guiña; en «how many
+//   stones» aparece una fila de piedras a color; Atom las mira una a una con la lupa y la última encaja (brilla con
+//   su cometa) en «fit».
+import * as T from '/atomo/plato/escenas/gb-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gb-patrones');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const ri = Math.round, H = (s) => hex(s), K = T.C.k;
+const B4M = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const b4 = (x, y) => (B4M[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const h2 = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const cl = (u) => Math.max(0, Math.min(1, u)), ease = (u) => u * u * (3 - 2 * u);
+const ps = (x, y, c) => R.pset(ri(x), ri(y), c);
+const rr = (x0, y0, x1, y1, c) => R.rect(ri(Math.min(x0, x1)), ri(Math.min(y0, y1)), ri(Math.max(x0, x1)), ri(Math.max(y0, y1)), c);
+const tine = (x, y, c, a) => { x = ri(x); y = ri(y); if (x < 0 || y < 0 || x > 319 || y > 179) return; const B = R.buf, i = y * 320 + x; B[i] = mez(B[i], c, a); };
+const pal = (a) => a.map((c) => H(c));
+const rmp = (ramp, v, x, y) => { let l = Math.floor(v); if (v - l > b4(x, y)) l++; return ramp[Math.max(0, Math.min(ramp.length - 1, l))]; };
+const pop = (t, a, d = 0.3) => { const u = Math.max(0, Math.min(1, (t - a) / d)); return u <= 0 ? 0 : u < 1 ? 1 - Math.pow(1 - u, 3) * Math.cos(u * 7) : 1; };
+const DIG = { 0: '111101101101111', 1: '010110010010111', 2: '111001111100111', 3: '111001111001111', 4: '101101111001001', 5: '111100111001111', 6: '111100111101111', 7: '111001001001001', 8: '111101111101111', 9: '111101111001111' };
+const cifras = (s, x, y, c) => { for (const ch of String(s)) { const g = DIG[ch]; if (g) for (let j = 0; j < 5; j++) for (let i = 0; i < 3; i++) if (g[j * 3 + i] === '1') R.pset(x + i, y + j, c); x += 4; } };
+const BOLLOS = [[-0.36, 0.08, 0.26], [-0.12, -0.12, 0.33], [0.16, -0.06, 0.3], [0.38, 0.1, 0.22], [0.02, 0.14, 0.3], [-0.24, 0.16, 0.2]];
+// una nube de tres tonos (cs: [sombra de abajo, cuerpo, luz de arriba]) con el borde tramado
+const nube = (cx, cy, w, cs) => {
+  const x0 = ri(cx - w * 0.65), x1 = ri(cx + w * 0.65), y0 = ri(cy - w * 0.48), y1 = ri(cy + w * 0.36);
+  for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) {
+    let d = 9; for (const [a, b, r] of BOLLOS) { const q = ((x - cx - a * w) ** 2 + ((y - cy - b * w) * 1.5) ** 2) / (r * w) ** 2; if (q < d) d = q; }
+    if (d > 1 || (d > 0.8 && b4(x, y) < (d - 0.8) * 5)) continue;
+    const v = (y - (cy - w * 0.3)) / (w * 0.5) + (d > 0.7 ? 0.25 : 0);
+    R.pset(x, y, v > 0.82 ? cs[0] : v > 0.42 + b4(x, y) * 0.2 ? cs[1] : cs[2]); }
+};
+const pajaro = (x, y, t, c, k = 0) => { x = ri(x); y = ri(y); const f = Math.floor(t * 6 + k * 1.7) % 3; ps(x, y, c);
+  if (f === 0) { ps(x - 1, y - 1, c); ps(x + 1, y - 1, c); ps(x - 2, y - 1, c); ps(x + 2, y - 1, c); } else if (f === 1) { ps(x - 1, y, c); ps(x + 1, y, c); ps(x - 2, y - 1, c); ps(x + 2, y - 1, c); } else { ps(x - 1, y + 1, c); ps(x + 1, y + 1, c); ps(x - 2, y + 1, c); ps(x + 2, y + 1, c); } };
+const sombraS = (cx, cy, w, a = 0.35) => { for (let i = -w; i <= w; i++) { const k = 1 - (i / (w + 1)) ** 2; tine(cx + i, cy, K, a * k); if (Math.abs(i) < w * 0.7) tine(cx + i, cy + 1, K, a * 0.6 * k); } };
+const destello = (x, y, r, c = H('#fff8d0')) => { x = ri(x); y = ri(y); for (let k = 1; k <= r; k++) { ps(x + k, y, c); ps(x - k, y, c); ps(x, y + k, c); ps(x, y - k, c); } ps(x, y, H('#ffffff')); };
+// lo fijo de un plano, pintado una vez en su búfer y copiado en cada fotograma
+const CACHE = {};
+const fijo = (k, f) => { let b = CACHE[k]; if (!b) { b = R.nuevo(); const prev = R.usar(b); f(); R.usar(prev); CACHE[k] = b; } R.buf.set(b); };
+// rellena un rectángulo píxel a píxel con f(x, y) (devuelve el color o undefined para dejarlo)
+const llena = (x0, y0, x1, y1, f) => { const B = R.buf; for (let y = Math.max(0, ri(y0)); y <= Math.min(179, ri(y1)); y++) for (let x = Math.max(0, ri(x0)); x <= Math.min(319, ri(x1)); x++) { const c = f(x, y); if (c !== undefined) B[y * 320 + x] = c; } };
+const ovalo = (cx, cy, rx, ry, f) => llena(cx - rx, cy - ry, cx + rx, cy + ry, (x, y) => { const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2; return d <= 1 ? (typeof f === 'function' ? f(x, y, d) : f) : undefined; });
+// zonas tranquilas: la de Atom (x 278–318, y 4–44) y la del año (x 20–170, y 0–20)
+const quieta = (x, y) => (x > 272 && y < 48) || (x < 176 && y < 22);
+// estrellas que titilan, fuera de las zonas tranquilas
+const estrellas = (t, n, x0, y0, x1, y1, k = 1) => { for (let i = 0; i < n; i++) { const x = ri(x0 + h2(i, 1, k) * (x1 - x0)), y = ri(y0 + h2(i, 2, k) * (y1 - y0)); if (quieta(x, y)) continue;
+  const b = Math.sin(t * (1.5 + h2(i, 3, k) * 3) + i), big = h2(i, 4, k) > 0.9; ps(x, y, b > 0.3 ? H('#fff8e0') : b > -0.4 ? H('#b8c0e0') : H('#6a7aa8'));
+  if (big && b > 0) { ps(x + 1, y, H('#8a96c8')); ps(x - 1, y, H('#8a96c8')); ps(x, y + 1, H('#8a96c8')); ps(x, y - 1, H('#8a96c8')); } } };
+// cielo tramado en degradado vertical (ramp de arriba a abajo)
+const cieloG = (y0, y1, ramp, k = 0) => llena(0, y0, 319, y1, (x, y) => rmp(ramp, (y - y0) / (y1 - y0 + 1) * (ramp.length - 1) + (h2(x >> 4, y >> 3, k) - 0.5) * 0.4, x, y));
+// madera con vetas (tablas horizontales de alto a)
+const veta = (x, y, ramp, base, a = 9, k = 0) => { const tabla = Math.floor(y / a), j = y % a; if (j === 0) return ramp[0];
+  return rmp(ramp, base + Math.sin(x * 0.05 + tabla * 2.1 + Math.sin(y * 0.6 + tabla) * 1.6) * 0.55 + (h2(x >> 3, tabla, k) - 0.5) * 0.7 + (j === 1 ? 0.5 : 0) + (j === a - 1 ? -0.5 : 0), x, y); };
+// sillería (bloques de w × h con juntas)
+const sillar = (x, y, ramp, w = 16, h = 8, k = 0) => { const fila = Math.floor(y / h), off = (fila & 1) * (w >> 1), col = Math.floor((x + off) / w), jx = (x + off) % w, jy = y % h;
+  if (jx === 0 || jy === 0) return ramp[0]; return rmp(ramp, 2 + (h2(col, fila, k) - 0.5) * 1.4 + (jy === 1 ? 0.7 : 0) + (jx === w - 1 || jy === h - 1 ? -0.7 : 0) + (h2(x, y, k + 3) - 0.5) * 0.7, x, y); };
+// tierra con chinas
+const tierra = (x, y, ramp, base, k = 0) => { const c = h2(x >> 1, y >> 1, k); if (c > 0.985) return ramp[ramp.length - 1]; if (c < 0.012) return ramp[0];
+  return rmp(ramp, base + (h2(x >> 2, y >> 2, k + 1) - 0.5) * 0.9 + (h2(x, y, k + 2) - 0.5) * 0.5, x, y); };
+// una mata de hierba seca que se mece
+const mata = (x, y, t, c1, c2, n = 5, alto = 6) => { for (let i = 0; i < n; i++) { const dx = (i - n / 2) * 1.4, s = Math.sin(t * 2 + x * 0.1 + i) * 1.2; R.linea(ri(x + dx), ri(y), ri(x + dx * 1.6 + s), ri(y - alto + (i & 1) * 2), i & 1 ? c1 : c2); } };
+// la «X» roja y el visto verde
+const equis = (x, y, s = 1, u = 1) => { if (u <= 0) return; const r = ri(6 * s * Math.min(1, u * 1.4)); for (let k = -r; k <= r; k++) for (const [a, b] of [[k, k], [k, -k]]) { rr(x + a - s, y + b - s, x + a + s, y + b + s, K); } for (let k = -r + 1; k <= r - 1; k++) for (const [a, b] of [[k, k], [k, -k]]) { rr(x + a - s + 1, y + b - s + 1, x + a + s - 1, y + b + s - 1, H('#e83a3a')); ps(x + a, y + b, H('#ff6a5a')); } };
+// el contorno de puntos de un fantasma (lo que NO aparece): f(x, y) dice si está dentro
+const fantasma = (x0, y0, x1, y1, dentro, t, a = 1) => { if (a <= 0) return; for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { if (!dentro(x, y)) continue;
+  const borde = !dentro(x - 1, y) || !dentro(x + 1, y) || !dentro(x, y - 1) || !dentro(x, y + 1);
+  if (borde) { if (((x + y + ri(t * 8)) & 3) < 3 && b4(x, y) < a) { ps(x, y, H('#ffffff')); tine(x + 1, y + 1, K, 0.3); } } else if (b4(x, y) < 0.4 * a) tine(x, y, H('#d8ecff'), 0.55); } };
+const W = { NOTICE: en('fijate4', 0.0042), BECAUSE: en('fijate4', 0.0361), ALL: en('fijate4', 0.0701), OUR: en('fijate4', 0.1437), BRAIN: en('fijate4', 0.1508), PATTERNS: en('fijate4', 0.2010), FACE: en('fijate4', 0.2442), OUTLET: en('fijate4', 0.2740), OR: en('fijate4', 0.2917), ANIMAL: en('fijate4', 0.3072), CLOUD: en('fijate4', 0.3306), BECAUSE2: en('fijate4', 0.3575), THOUSANDS: en('fijate4', 0.3738), SHADOW: en('fijate4', 0.4325), LION: en('fijate4', 0.4616), SAFER: en('fijate4', 0.4778), OPPOSITE: en('fijate4', 0.5076), AND: en('fijate4', 0.5387), ONCE: en('fijate4', 0.5854), SHOWS: en('fijate4', 0.6060), PATTERN: en('fijate4', 0.6272), CANT: en('fijate4', 0.6754), SEEING: en('fijate4', 0.6966), THAT: en('fijate4', 0.7518), Q6: en('fijate4', 0.7546), FALSE: en('fijate4', 0.7893), BUT: en('fijate4', 0.8169), ASK: en('fijate4', 0.8594), HOW: en('fijate4', 0.8722), MANY: en('fijate4', 0.8913), STONES: en('fijate4', 0.8983), LOOKED: en('fijate4', 0.9210), BEFORE: en('fijate4', 0.9366), FINDING: en('fijate4', 0.9493), FIT: en('fijate4', 0.9861) };
+// los instantes de gb-tele que usa el bloque CASA (en segundos de gb-tele), para congelar su último fotograma
+const WC = { THE9: 87.08, EVERYDAY: 87.16, TRASH: 87.56, UNTIL: 89.54, NOBODY: 90.96, ANYTHING: 91.76, THIS: 92.56 };
+const TF = 2797 / 30;   // el último fotograma de gb-tele (93,233 s), para que la costura case
+// CASA · la casa de la excavación, la mesa de hallazgos (último plano de gb-tele; gb-patrones lo congela con este bloque,
+// literal). La arqueóloga ordena las puntas de sílex en su bandeja y alza una en «everyday trash»; el arqueólogo entra con
+// la caja de hallazgos, la deja en la mesa del fondo y señala los dibujos de pilares de la pared en «anything like this»;
+// ella mira los dibujos y sonríe.
+const cajaH = (x, y) => { x = ri(x); y = ri(y); rr(x - 8, y - 6, x + 8, y + 3, K); rr(x - 7, y - 5, x + 7, y + 2, H('#c8a46a')); rr(x - 7, y - 5, x + 7, y - 4, H('#e0c08a')); rr(x - 1, y - 5, x + 1, y + 2, H('#b08a50'));
+  for (const [i, c] of [[-5, '#8a8478'], [-2, '#d8ccb0'], [3, '#5a5a62']]) { rr(x + i, y - 7, x + i + 2, y - 6, H(c)); } cifras('49', x + 2, y - 3, H('#5a3a1a')); };
+const punta = (x, y, c = '#b8a68a') => { x = ri(x); y = ri(y); R.poligono([[x, y - 4], [x + 3, y], [x, y + 2], [x - 3, y]], K); R.poligono([[x, y - 3], [x + 2, y], [x, y + 1], [x - 2, y]], H(c)); ps(x - 1, y - 1, H('#e8dcc0')); };
+const casaPlano = (t) => {
+  const g = T.arqueologos(R, t, { encuadre: 'casa', anos: 2022 });
+  // el arqueólogo entra por la derecha con la caja de hallazgos, la deja en la mesa del fondo y señala los dibujos
+  const u = tramo(t, WC.THE9 + 0.1, WC.THE9 + 1.6), ax = ri(lerp(330, 262, ease(u)));
+  const deja = t > WC.UNTIL - 0.4, señala = t > WC.ANYTHING - 0.15;
+  const a = R.actor(EL.arqueologoGB, ax, 150, t, { dir: -1, anda: u > 0 && u < 1, sostiene: !deja ? [ax - 3, 136] : undefined, dedo: señala, habla: t > WC.NOBODY && t < WC.THIS + 0.4, sonrisa: señala });
+  if (!deja) cajaH(a.mano[0], a.mano[1]); else cajaH(188, 96);
+  // la arqueóloga, tras la mesa, coge puntas del montón y las pasa a la bandeja; en «trash» alza una
+  const alza = t > WC.TRASH - 0.1 && t < WC.UNTIL + 0.2, mira = t > WC.ANYTHING + 0.1;
+  const vaiven = Math.sin(t * 3.2), mx = alza ? 214 : ri(222 + vaiven * 6), my = alza ? 128 : 146 + ri(Math.abs(vaiven) * 2);
+  const b = R.actor(EL.arqueologaGB, 216, 150, t, { dir: -1, sostiene: [mx, my], sonrisa: mira, sorpresa: alza && t < WC.TRASH + 0.5, habla: false });
+  if (alza) { punta(b.mano[0], b.mano[1] - 3, '#c8b494'); if (Math.sin(t * 9) > 0.4) destello(b.mano[0] + 3, b.mano[1] - 7, 2); }
+  T.arqueologosDelante(R, t, { encuadre: 'casa', ordena: tramo(t, WC.THE9, WC.ANYTHING) });
+  if (!alza) punta(b.mano[0], b.mano[1]);
+  if (mira) R.bocadillo(b.cabeza[0], b.cabeza[1] - 4, { icono: '!' });
+  return g;
+};
+
+const AT = T.AT;
+const TROZOS = [[0.0, 0.0868], [0.1437, 0.5210], [0.5387, 0.7300], [0.7518, 1.0]];
+const habla = (t) => TROZOS.some(([a, b]) => t > en('fijate4', a) && t < en('fijate4', b)) ? (Math.sin(t * 15) > -0.2 ? 1 : 0) : 0;
+let FZ = null;
+const congelado = () => { if (!FZ) { casaPlano(TF); FZ = R.buf.slice(); } };
+const vista = (x0, y0, z) => { congelado(); const B = R.buf; if (z === 1) { B.set(FZ); return; }
+  for (let y = 0; y < 180; y++) { const sy = (y0 + Math.floor(y / z)) * 320; for (let x = 0; x < 320; x++) B[y * 320 + x] = FZ[sy + x0 + Math.floor(x / z)]; } };
+const pausa = (u = 1) => AT.pausa(R, u);
+const nubeP = (x, y, t, forma, s = 2) => T.pausa(R, x, y, t, { cual: 'nube', forma, s });
+// los puntos del «patrón» que se unen solos (a color, sobre lo congelado)
+const PUNTOS = [[96, 60], [118, 48], [140, 58], [132, 80], [108, 84]];
+const patron = (t, t0) => { const u = tramo(t, t0, t0 + 0.9); PUNTOS.forEach(([x, y], k) => { if (u * 6 > k) { R.disco(x, y, 2, K); R.disco(x, y, 1, H('#ffd34a')); } });
+  for (let k = 0; k < 5; k++) { const q = cl(u * 6 - k - 1); if (q <= 0) continue; const [a, b] = PUNTOS[k], [c, d] = PUNTOS[(k + 1) % 5]; R.linea(a, b, ri(lerp(a, c, q)), ri(lerp(b, d, q)), H('#ffe890')); } };
+// una piedra a color (las que Atom mira con la lupa); la buena lleva su cometa
+const piedra = (x, y, k, buena = 0) => { x = ri(x); y = ri(y); const C = [['#8a8478', '#b8b2a4'], ['#9a7a5a', '#c8a47a'], ['#6a6a74', '#9a9aa4'], ['#a8946a', '#d0bc90'], ['#7a6a5a', '#a8967e'], ['#b8a888', '#e0d4b4']][k % 6];
+  ovalo(x, y, 9, 6, (a, b, d) => d > 0.8 ? K : b < y - 1 ? H(C[1]) : H(C[0])); for (let q = 0; q < 3; q++) R.disco(x - 4 + q * 4, y + (q & 1) * 2 - 1, 1, H('#3a3024'));
+  if (buena > 0) { const pts = [[x - 5, y - 1], [x, y - 3], [x + 4, y + 1], [x - 1, y + 2]]; for (let i = 0; i < 3; i++) R.linea(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], H('#ffe890')); destello(x + 5, y - 6, ri(2 + buena * 3)); } };
+
+// ── 1 · la casa congelada entera: Atom entra y saluda ─────────────────────────────────────────────────────────
+const q1 = (t) => {
+  vista(0, 0, 1); pausa(tramo(t, 0, 0.35));
+  const u = tramo(t, 0.3, 1.6), x = ri(lerp(-30, 54, ease(u)));
+  // tras «all of us», el enchufe con su nube entra deslizándose por la derecha (con su estela) y Atom se vuelve a mirarlo
+  const ve = ease(tramo(t, W.ALL + 0.5, W.ALL + 1.4)), mira = t > W.ALL + 0.9;
+  if (ve > 0) { const ex = ri(lerp(420, 218, ve)); if (ve < 1) for (let k = 1; k < 5; k++) R.linea(ex - 60 + k * 2, 150 + k * 5, ex - 60 + k * 2 + 18 + k * 4, 150 + k * 5, H('#e8f0ff')); nubeP(ex, 172, t, 0); }
+  AT.atom(R, x, 178, t, { s: 2, dir: 1, pose: u > 0 && u < 1 ? 'camina' : mira ? 'senala' : t > W.ALL - 0.1 ? 'brazos' : t > W.NOTICE && t < W.BECAUSE + 0.6 ? 'saluda' : 'quieto', cara: mira ? 'sorpresa' : t > W.ALL - 0.1 ? 'sonrisa' : 'normal', habla: habla(t) });
+};
+// ── 2 · de cerca, la ventana y el mapa: el cerebro busca patrones; la cara del enchufe ───────────────────────────
+const q2 = (t) => {
+  vista(150, 16, 2); pausa(1);
+  const obj = nubeP(206, 170, t, 0);
+  patron(t, W.PATTERNS - 0.2);
+  const cara = t > W.FACE - 0.1; if (cara) AT.anillo(R, 158, 138, 20, 22, t, tramo(t, W.FACE - 0.1, W.FACE + 0.4));
+  const piensa = t > W.BRAIN - 0.1 && t < W.FACE - 0.3;
+  const a = AT.atom(R, 50, 178, t, { s: 2, dir: 1, pose: piensa ? 'piensa' : cara ? 'senala' : 'quieto', cara: cara ? 'sorpresa' : 'normal', habla: habla(t) });
+  if (piensa) for (let k = 0; k < 3; k++) { const v = (t * 1.5 + k / 3) % 1; ps(a.centro[0] + 14 + k * 4, a.centro[1] - 20 - v * 10, H('#ffd34a')); }
+};
+// ── 3 · de cerca, la estantería: la nube es un conejo ──────────────────────────────────────────────────────────
+const q3 = (t) => {
+  vista(0, 64, 2); pausa(1);
+  nubeP(110, 172, t, 0);
+  if (t > W.ANIMAL - 0.1) AT.anillo(R, 136, 112, 52, 30, t, tramo(t, W.ANIMAL - 0.1, W.CLOUD));
+  // el reloj de arena de los «miles de años», a color, que gira
+  const gx = 246, gy = 96, g = t > W.THOUSANDS - 0.2 ? ease(tramo(t, W.THOUSANDS - 0.2, W.THOUSANDS + 0.5)) : 0; const ang = g * Math.PI;
+  // el hilo de arena que cae del bulbo de arriba al de abajo (antes y después de girar), y el montoncito que crece
+  if (g <= 0 || g >= 1) { for (let j = 0; j < 10; j++) if (((j + ri(t * 14)) & 3) !== 0) ps(gx, gy - 1 + j, H('#e8c070')); }
+  for (let j = -12; j <= 12; j++) { const w = Math.abs(j) * 0.7 + 1, c = Math.cos(ang), yy = j * c; for (let i = -w; i <= w; i++) ps(gx + i, gy + yy, Math.abs(i) > w - 1 ? K : ((j < 0) === (c > 0) ? H('#e8c070') : H('#f4f0e8'))); }
+  rr(gx - 10, gy - 14, gx + 10, gy - 12, H('#8a5a2a')); rr(gx - 10, gy + 12, gx + 10, gy + 14, H('#8a5a2a'));
+  // Atom señala la nube-conejo y luego va hasta el reloj de arena y le da la vuelta en «thousands»
+  const va = ease(tramo(t, W.BECAUSE2 - 0.2, W.THOUSANDS - 0.3)), ax3 = ri(lerp(270, 262, va)), gira = t > W.THOUSANDS - 0.35 && t < W.THOUSANDS + 0.6;
+  AT.atom(R, ax3, 178, t, { s: 2, dir: -1, pose: va > 0 && va < 1 ? 'camina' : gira ? 'brazos' : t > W.ANIMAL - 0.2 && t < W.BECAUSE2 ? 'senala' : t > W.THOUSANDS ? 'piensa' : 'quieto', cara: gira ? 'sorpresa' : t > W.CLOUD ? 'sonrisa' : 'normal', habla: habla(t) });
+  if (gira) destello(gx + 14, gy - 16, 2 + ri(Math.sin(t * 12)));
+};
+// ── 4 · muy de cerca, el alféizar con el gato: el farol de Atom y la sombra del león ───────────────────────────────────────────────────
+const leon = (cx, cy, s, a) => { if (a <= 0) return; // la silueta de un león de perfil (melena, hocico, orejas), tramada como sombra
+  const dentro = (x, y) => { const dx = (x - cx) / s, dy = (y - cy) / s, ang = Math.atan2(dy, dx), mel = 15 + (Math.abs(Math.sin(ang * 7)) > 0.6 ? 5 : 0);
+    if (dx > 2 && Math.hypot(dx - 6, dy + 2) < 8) return !(Math.hypot(dx - 8, dy + 5) < 1.5);   // la cara (con el ojo)
+    return Math.hypot(dx, dy) < mel || (dx > 8 && dx < 18 && dy > 0 && dy < 7) || (dx > -44 && dx < -4 && dy > 4 && dy < 20) || (Math.abs(dx + 38) < 3 && dy > 16 && dy < 32) || (Math.abs(dx + 12) < 3 && dy > 16 && dy < 32)
+      || (dx < -42 && dx > -56 && Math.abs(dy - 8 + (dx + 42) * 0.6) < 1.5) || Math.hypot(dx + 58, dy - 16) < 4; };
+  llena(cx - 52 * s, cy - 18 * s, cx + 24 * s, cy + 32 * s, (x, y) => dentro(x, y) && b4(x, y) < a * 0.95 ? mez(R.buf[y * 320 + x], H('#06080f'), 0.72) : undefined); };
+// el gato del alféizar, sentado de perfil mirando a la derecha (a color, lo único vivo del alféizar): pecho crema,
+// rayas, el lado de la luz más claro, la cola que barre el alféizar, parpadeo y un bostezo en o.bosteza
+const gatoP = (cx, base, t, o = {}) => {
+  const NA = H('#e8903a'), RA = H('#b85a22'), LU = H('#ffbe6a'), CR = H('#f4e6c8'), RS = H('#e88a9a');
+  // la cola (por detrás del cuerpo): sale de la grupa y barre el alféizar
+  const sw = Math.sin(t * 2.4) * 0.5 + 0.5;
+  for (let k = 0; k <= 14; k++) { const u = k / 14, x = cx - 8 - u * 14, y = base - 1 - Math.sin(u * Math.PI * 0.9) * (3 + sw * 5) - u * u * sw * 4;
+    R.disco(ri(x), ri(y), 2, K); }
+  for (let k = 0; k <= 14; k++) { const u = k / 14, x = cx - 8 - u * 14, y = base - 1 - Math.sin(u * Math.PI * 0.9) * (3 + sw * 5) - u * u * sw * 4;
+    R.disco(ri(x), ri(y), 1, k > 11 ? RA : (k & 3) === 1 ? RA : NA); }
+  // la grupa y el cuerpo (pera), con rayas en el lomo y el lado derecho iluminado por el farol
+  const piel = (x, y, d, cx0) => d > 0.78 ? K : x > cx0 + 4 && y > base - 20 && y < base - 5 ? CR : x > cx0 + 2 ? LU : ((y + (x >> 1)) % 4 === 0 && x < cx0 + 1) ? RA : NA;
+  ovalo(cx - 3, base - 5, 8, 5, (x, y, d) => piel(x, y, d, cx - 3));
+  ovalo(cx, base - 11, 7, 10, (x, y, d) => piel(x, y, d, cx));
+  // las patas delanteras y sus dedos
+  rr(cx + 2, base - 4, cx + 7, base, K); rr(cx + 3, base - 4, cx + 6, base - 1, CR); ps(cx + 4, base - 1, H('#c8b090')); ps(cx + 6, base - 1, H('#c8b090'));
+  // la cabeza con las orejas (por dentro rosas), el ojo verde y el hocico
+  for (const ex of [cx + 1, cx + 7]) { R.poligono([[ex - 1, base - 25], [ex + 2, base - 31], [ex + 4, base - 25]], K); R.poligono([[ex, base - 25], [ex + 2, base - 29], [ex + 3, base - 25]], NA); ps(ex + 2, base - 27, RS); }
+  ovalo(cx + 5, base - 21, 7, 5, (x, y, d) => d > 0.75 ? K : x > cx + 8 && y > base - 21 ? CR : x > cx + 7 ? LU : (x === cx + 1 || x === cx + 3) && y < base - 22 ? RA : NA);
+  const parpa = (t % 3.1) < 0.14 || o.bosteza;
+  if (parpa) { ps(cx + 8, base - 22, K); ps(cx + 9, base - 22, K); } else { ps(cx + 8, base - 23, H('#7ac84a')); ps(cx + 9, base - 23, H('#7ac84a')); ps(cx + 8, base - 22, H('#7ac84a')); ps(cx + 9, base - 22, K); }
+  ps(cx + 12, base - 20, RS); ps(cx + 11, base - 19, K);
+  if (o.bosteza) { rr(cx + 9, base - 18, cx + 12, base - 17, K); ps(cx + 10, base - 18, RS); ps(cx + 11, base - 18, RS); }
+  // los bigotes
+  R.linea(cx + 12, base - 19, cx + 17, base - 20, H('#fff4e0')); R.linea(cx + 12, base - 18, cx + 17, base - 17, H('#fff4e0'));
+};
+// la sombra del gato (sentado, de perfil), tramada como la del león
+const gatoSombra = (cx, cy, s, a) => { if (a <= 0) return;
+  const dentro = (x, y) => { const dx = (x - cx) / s, dy = (y - cy) / s;
+    return ((dx / 7) ** 2 + ((dy + 11) / 10) ** 2 < 1) || (((dx + 3) / 8) ** 2 + ((dy + 5) / 5) ** 2 < 1) || (((dx - 5) / 7) ** 2 + ((dy + 21) / 5) ** 2 < 1)
+      || (dy < -24 && dy > -31 && (Math.abs(dx - 3) < (dy + 31) * 0.4 || Math.abs(dx - 9) < (dy + 31) * 0.4)) || (dx < -8 && dx > -22 && Math.abs(dy + 3 + (dx + 8) * 0.5) < 1.6); };
+  llena(cx - 24 * s, cy - 32 * s, cx + 14 * s, cy + 2 * s, (x, y) => dentro(x, y) && b4(x, y) < a * 0.95 ? mez(R.buf[y * 320 + x], H('#06080f'), 0.72) : undefined); };
+// el farol de Atom (a color), colgado de la punta de una vara que sostiene en la mano (mx, my) y adelanta hacia dir:
+// la vara, el asa, el tejadillo y el cristal con la llama que tiembla; devuelve dónde está la llama
+const farol = (hx, hy, t, dir = -1) => { hx = ri(hx); hy = ri(hy); const fl = Math.sin(t * 17) * 0.5 + Math.sin(t * 7.3) * 0.5;
+  const mx = hx + 12 * dir, my = hy - 20 + ri(Math.sin(t * 2.1) * 1);
+  R.linea(hx, hy + 1, mx, my + 1, K); R.linea(hx + 1, hy, mx + 1, my, K); R.linea(hx, hy, mx, my, H('#9a6a3a')); ps(mx, my, H('#5a3a1a'));
+  R.linea(mx, my, mx - 2, my + 3, K); R.linea(mx, my, mx + 2, my + 3, K);
+  rr(mx - 4, my + 3, mx + 4, my + 5, K); rr(mx - 3, my + 4, mx + 3, my + 4, H('#3a5a6a'));
+  rr(mx - 4, my + 6, mx + 4, my + 15, K); rr(mx - 3, my + 7, mx + 3, my + 14, H('#ffe08a'));
+  rr(mx - 1, my + 9 - (fl > 0.3 ? 1 : 0), mx + 1, my + 13, H('#ff9a2a')); ps(mx, my + 10, H('#fffbe8')); ps(mx, my + 11, H('#fffbe8'));
+  ps(mx - 3, my + 7, H('#fffbe8')); rr(mx - 4, my + 16, mx + 4, my + 17, K); rr(mx - 3, my + 16, mx + 3, my + 16, H('#3a5a6a'));
+  return [mx, my + 11]; };
+const q4 = (t) => {
+  vista(168, 46, 3); pausa(1);
+  // Atom se acerca con el farol a mirar al gato (cuanto más cerca, más crece la sombra), salta en «lion», se ríe en
+  // «safer» y, en «the opposite», se aparta: la sombra vuelve a ser un gato
+  const va = ease(tramo(t, W.SHADOW + 0.15, W.LION - 0.08)), vuelve = ease(tramo(t, W.OPPOSITE - 0.1, W.AND + 0.2));
+  const ax = ri(lerp(lerp(262, 196, va), 258, vuelve)), anda = (va > 0 && va < 1) || (vuelve > 0 && vuelve < 1);
+  const crece = cl((262 - ax) / 66);
+  // la luz cálida del farol en la pared (tiembla con la llama); se calcula antes que Atom, con la mano aproximada
+  const dir = vuelve > 0 && vuelve < 1 ? 1 : -1;
+  const lx = ax + 28 * dir, ly = 150, fl = 0.85 + Math.sin(t * 17) * 0.08 + Math.sin(t * 7.3) * 0.07;
+  llena(0, 0, 319, 179, (x, y) => { const d = Math.hypot((x - lx) * 0.8, y - ly), a = (1 - d / 190) * 0.3 * fl; return a > b4(x, y) * 0.05 + 0.02 ? mez(R.buf[y * 320 + x], H('#ffc46a'), a) : undefined; });
+  // la sombra: el gato de verdad al principio y al final; en medio, el león enorme que trepa por la pared y la ventana
+  const cx = 120, base = 108;
+  gatoSombra(cx - 82 - crece * 10, base - 6 - crece * 6, 1.25 + crece * 0.4, cl(1 - crece * 1.8));
+  leon(lerp(46, 104, crece), lerp(92, 64, crece), lerp(0.8, 2.0, crece), cl((crece - 0.4) * 2.5));
+  // el gato, en el alféizar; bosteza al final, cuando todo se ha calmado
+  gatoP(cx, base, t, { bosteza: t > W.AND + 0.5 && t < W.AND + 1.3 });
+  // motas de polvo que brillan en el haz del farol
+  for (let k = 0; k < 22; k++) { const u = (h2(k, 7) + t * (0.05 + h2(k, 8) * 0.06)) % 1, x = lerp(lx, cx - 10 + h2(k, 9) * 40, u), y = lerp(ly, base - 30 + h2(k, 3) * 40, u) + Math.sin(t * 1.7 + k) * 3;
+    if (Math.sin(t * 2.3 + k * 1.9) > -0.2) { ps(x, y, h2(k, 5) > 0.5 ? H('#fff0b8') : H('#ffd27a')); if (h2(k, 6) > 0.7) ps(x + 1, y, H('#ffe6a0')); } }
+  const salta = t > W.LION - 0.05 && t < W.LION + 0.5, rie = t > W.SAFER - 0.05 && t < W.OPPOSITE - 0.1;
+  const sy = salta ? ri(Math.sin((t - W.LION) / 0.55 * Math.PI) * 14) : rie ? ri(Math.abs(Math.sin(t * 9)) * 2) : 0;
+  const a = AT.atom(R, ax, 178 - sy, t, { s: 2, dir, pose: 'sostiene', cara: salta ? 'sorpresa' : rie || t > W.AND ? 'sonrisa' : 'normal', habla: habla(t) });
+  farol(a.mano[0], a.mano[1] + (salta ? -3 : 0), t, dir);
+  if (salta) R.bocadillo(ax, 178 - sy - 46, { icono: '!' });
+};
+// ── 5 · de cerca, los dibujos de pilares: la nube se vuelve buitre y luego cometa ──────────────────────────────
+const q5 = (t) => {
+  vista(60, 6, 2); pausa(1);
+  const f = t < W.PATTERN - 0.2 ? 0 : t < W.CANT - 0.2 ? ease(tramo(t, W.PATTERN - 0.2, W.PATTERN + 0.4)) : 1 + ease(tramo(t, W.CANT - 0.2, W.CANT + 0.4));
+  nubeP(214, 172, t, f);
+  const sorp = (t > W.PATTERN && t < W.PATTERN + 0.8) || (t > W.CANT && t < W.CANT + 0.8);
+  // Atom se acerca a la nube entre las dos formas y da un saltito de sorpresa en cada cambio
+  const va = ease(tramo(t, W.PATTERN + 0.8, W.CANT - 0.3)), ax5 = ri(lerp(56, 112, va));
+  const sal = (a) => t > a && t < a + 0.45 ? ri(Math.sin((t - a) / 0.45 * Math.PI) * 10) : 0;
+  AT.atom(R, ax5, 178 - sal(W.PATTERN) - sal(W.CANT), t, { s: 2, dir: 1, pose: va > 0 && va < 1 ? 'camina' : sorp ? 'brazos' : 'senala', cara: sorp ? 'sorpresa' : 'sonrisa', habla: habla(t) });
+};
+// ── 6 · de cerca, la mesa de las bandejas: la nube se parece a Atom; ¿cuántas piedras se miraron? ───────────────
+const q6 = (t) => {
+  vista(40, 92, 2); pausa(1);
+  const f = 2 + ease(tramo(t, W.FALSE - 0.4, W.FALSE + 0.3));
+  nubeP(102, 150, t, f);
+  // la fila de piedras que aparecen en «how many stones»; la lupa las recorre y la última encaja en «fit»
+  const N = 6, X0 = 120, DX = 22, Y = 160;
+  for (let k = 0; k < N; k++) { const ap = pop(t, W.MANY + k * 0.12, 0.3); if (ap <= 0) continue; piedra(X0 + k * DX, Y + (1 - ap) * 6, k, k === N - 1 ? tramo(t, W.FIT - 0.15, W.FIT + 0.4) : 0);
+    if (k < N - 1 && t > W.LOOKED + k * 0.25 + 0.3) equis(X0 + k * DX, Y - 10, 1, pop(t, W.LOOKED + k * 0.25 + 0.3, 0.2) * 0.7); }
+  const mira = tramo(t, W.LOOKED - 0.2, W.FIT - 0.1), lx = X0 + mira * (N - 1) * DX;
+  const usa = t > W.LOOKED - 0.3 && t < W.FIT - 0.05, fin = t >= W.FIT - 0.05;
+  const a = AT.atom(R, usa ? ri(lx + 34) : fin ? 276 : 270, 178, t, { s: 2, dir: -1, pose: usa ? 'sostiene' : fin ? 'senala' : t > W.FALSE - 0.1 && t < W.ASK ? 'brazos' : 'quieto', cara: fin ? 'sonrisa' : t > W.FALSE - 0.1 && t < W.ASK ? 'guino' : 'normal', habla: habla(t) });
+  if (usa) AT.lupa(R, a.mano[0], a.mano[1], 2, -1);
+  if (t > W.FIT) R.bocadillo(X0 + (N - 1) * DX, Y - 18, { icono: '!' });
+};
+const efectos = [
+  [0.1, 'tapestop'], [W.NOTICE, 'pop'], [W.ALL, 'brillo'],
+  [W.PATTERNS, 'lapiz'], [W.FACE, 'boing'],
+  [W.ANIMAL, 'pop'], [W.THOUSANDS, 'tic'],
+  [W.LION - 0.05, 'boing'], [W.SAFER + 0.1, 'brillo'],
+  [W.PATTERN - 0.2, 'whoosh'], [W.CANT - 0.2, 'whoosh'],
+  [W.FALSE - 0.4, 'whoosh'], [W.MANY, 'pop'], [W.FIT, 'campana'],
+  // los pasos de Atom, la entrada del enchufe, el giro del reloj, los saltos y la lupa que descarta piedras
+  [0.4, 'pasos'], [W.ALL + 0.5, 'whoosh'], [W.BRAIN, 'bip'], [W.BECAUSE2 - 0.1, 'pasos'],
+  [W.PATTERN + 0.9, 'pasos'], [W.PATTERN, 'boing'], [W.LOOKED + 0.3, 'golpecito'], [W.LOOKED + 0.8, 'golpecito'], [W.LOOKED + 1.3, 'golpecito'],
+];
+T.rodar(E, R, [[0, q1], [W.OUR, q2], [W.OR, q3], [W.SHADOW, q4], [W.ONCE, q5], [W.Q6, q6]], { efectos, año: 2022 });
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep47 Short 3</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MS-SHORT3-MINIATURA · ep47, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// El libro sin nombre: Londres, enero de 1818, en la imprenta y librería (ms-comun.js, ciudad 'imprenta'). MARY (20)
+// sostiene los TRES TOMITOS de Frankenstein (los de ms-libro: tapa granate, nervios dorados y la etiqueta del lomo EN
+// BLANCO: sin nombre de autora); detrás, el escaparate con los juegos de tres tomos y la luz de la mañana.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import { ciudad, MS, d_tomito } from '/atomo/plato/escenas/ms-comun.js';
+import { figura, grado, halo, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const TOMO = [hex('#7a2a22'), hex('#4e1a16')];
+// los tres tomitos de pie, uno junto a otro, alzados en la mano (búfer de la figura, escala 1: crecen con ella)
+const tomos = (R, [hx, hy]) => { hx = Math.round(hx); hy = Math.round(hy);
+  for (let k = 0; k < 3; k++) d_tomito(R, hx - 6 + k * 4, hy + 1 - (k === 1 ? 1 : 0), TOMO, { w: 4, al: 9 }); };
+// la barbilla de Mary, limpia (la misma corrección que ms-miniatura y ms-short1: al triple, el contorno negro de la
+// mandíbula y la boca pegada al perfil se leían como barba)
+const caraLimpia = (R) => {
+  const piel = hex('#f6c290'), pelo = hex('#a8703e'), boca = hex('#b0584a'), filo = hex('#7a4630');
+  const sombra = hex('#d8986a');
+  R.pset(69, 74, piel); R.pset(70, 74, piel); R.pset(71, 74, boca); R.pset(72, 74, filo);
+  R.pset(64, 74, pelo); R.pset(64, 75, pelo); R.pset(65, 75, pelo); R.pset(71, 75, sombra); R.pset(72, 75, filo);
+  R.pset(64, 76, hex('#8a5a32')); R.pset(65, 76, hex('#8a5a32')); for (let x = 66; x <= 71; x++) R.pset(x, 76, sombra);
+};
+const DX = -78, MX = 124;
+const dibujar = (t) => {
+  ciudad(R, t, { encuadre: 'imprenta', camara: 'general' });
+  desplazar(R, DX);
+  // la luz de la mañana del escaparate, detrás de su cabeza
+  halo(R, 176, 84, 60, 50, '#fff4d8', 0.3);
+  const B = R.buf;
+  const m = figura(R, MS.maryMS, MX, 182, t, { dir: 1, sostiene: [78, 74], cosa: (R, mano) => { caraLimpia(R); tomos(R, mano); } }, 3);
+  // un toque cálido sobre los tomos y la cara
+  if (m && m.mano) halo(R, m.mano[0] + 4, m.mano[1] - 10, 36, 30, '#ffd890', 0.28);
+  grado(R, { cx: 160, cy: 100, rx: 80, ry: 120, tinte: '#1a1010', f: 0.1, desde: 0.55, max: 0.7 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

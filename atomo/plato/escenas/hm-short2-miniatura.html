@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep43 Short 2</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HM-SHORT2-MINIATURA · ep43, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// La toma repetida: Haymitch en el escenario de la cosecha y, delante, la claqueta de la «toma 2».
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/hm-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const oe = { encuadre: 'plaza', camara: 'escenario', luz: 'dia', urna: 1, pantalla: 'sello' };
+  const g = T.distrito(R, t, oe), S = g.suelo;
+  R.actor(EL.drusilla, 130, S, t, { dir: 1, sonrisa: true, brazos: true });
+  T.distritoDelante(R, t, oe);
+  grado(R, { cx: 160, cy: 110, tinte: '#0a0c18', f: 0.3, desde: 0.3, max: 0.85 });
+  halo(R, 162, 120, 40, 60, '#fff4d0', 0.35);
+  figura(R, EL.haymitch, 182, S + 4, t, { dir: -1, triste: true }, 2);
+  // la claqueta, grande, en primer término
+  { const x0 = 118, y0 = 136, K = hex('#1a1424'); R.rect(x0 - 1, y0 + 9, x0 + 49, y0 + 41, K); R.rect(x0, y0 + 10, x0 + 48, y0 + 40, hex('#22242a'));
+    R.rect(x0 + 2, y0 + 20, x0 + 46, y0 + 21, hex('#d8d8d0')); R.numero('2', x0 + 36, y0 + 38, { tam: 16, centro: true, color: hex('#f0e070'), sombra: false });
+    for (let u = 0; u <= 40; u++) for (let v = -8; v <= 0; v++) { const a = -0.22, x = x0 + u * Math.cos(a) - v * Math.sin(a), y = y0 + 8 + u * Math.sin(a) + v * Math.cos(a);
+      R.pset(Math.round(x), Math.round(y), v === -8 || v === 0 ? K : Math.floor((u - v) / 7) % 2 ? hex('#f2f2ee') : hex('#1a1a20')); } }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -2,27 +2,29 @@
 
 Nombre del canal: **ASK Atom**. Idioma principal: inglés. El español se añade como traducción en YouTube Studio → Personalización → Información básica → Añadir idioma.
 
+Reescrita el 30/10/2026 con el lema nuevo: el canal ya no es solo de ciencia (historia, ciudades, misterios, juegos), así que la descripción tiene que valer para cualquier tema.
+
 ## English (main)
 
-ASK Atom — What school didn't teach you.
+ASK Atom — The things you've always wondered about.
 
-I'm Atom, a tiny narrator made of 7,000 particles, and I turn into whatever I'm explaining: the Moon, a hurricane, a sink, the whole planet. Each video takes something you were told (or never told) and puts it to the test: true or false, and why.
+I'm Atom, a tiny atom who loves a good question. Why do New York's skyscrapers look like wedding cakes? Why does Oak Island's Money Pit flood every time someone gets close? How did hurricanes get their names? Why could you never die in Monkey Island? Each video picks one of those questions and tells the real story behind it, with the curious details nobody mentions.
 
-Science, space and everyday things nobody explained properly, in short animated videos you can watch in English or Spanish (switch the audio track in ⚙️ Settings).
+History, science, mysteries, cities and the things we grew up with, in animated pixel-art videos you can watch in English or Spanish (switch the audio track in ⚙️ Settings).
 
-Every claim comes with its sources in the video description.
+Every fact comes with its sources in the video description.
 
 Got a question? Ask Atom: tell me in the comments what you want me to explain next, and subscribe so you don't miss it.
 
 ## Español (traducción)
 
-ASK Atom — Lo que no te explicaron en clase.
+ASK Atom — Eso que siempre te has preguntado.
 
-Soy Atom, un pequeño narrador hecho de 7.000 partículas, y me convierto en lo que explico: la Luna, un huracán, un lavabo, el planeta entero. En cada vídeo pongo a prueba algo que te contaron (o que nunca te contaron): verdad o mentira, y por qué.
+Soy Atom, un átomo diminuto al que le encanta una buena pregunta. ¿Por qué los rascacielos de Nueva York parecen tartas de boda? ¿Por qué el pozo de Oak Island se inunda cada vez que alguien se acerca? ¿Cómo reciben su nombre los huracanes? ¿Por qué en Monkey Island no te podías morir? En cada vídeo tomo una de esas preguntas y cuento la historia de verdad que hay detrás, con los detalles curiosos que nadie menciona.
 
-Ciencia, espacio y cosas de todos los días que nadie te explicó bien, en vídeos animados cortos que puedes ver en español o en inglés (cambia la pista de audio en ⚙️ Configuración).
+Historia, ciencia, misterios, ciudades y las cosas con las que crecimos, en vídeos animados de pixel art que puedes ver en español o en inglés (cambia la pista de audio en ⚙️ Configuración).
 
-Todo lo que afirmo lleva sus fuentes en la descripción del vídeo.
+Cada dato lleva sus fuentes en la descripción del vídeo.
 
 ¿Tienes una pregunta? Pregúntale a Atom: dime en los comentarios qué quieres que te explique y suscríbete para no perdértelo.
 
@@ -30,4 +32,4 @@ Todo lo que afirmo lleva sus fuentes en la descripción del vídeo.
 
 YouTube Studio → Configuración → Canal → Información básica → Palabras clave:
 
-science, myths, true or false, explained, space, astronomy, physics, curiosities, ciencia, mitos, verdad o mentira, curiosidades, astronomía, física
+curiosities, explained, history, science, mysteries, animated history, pixel art, retro games, did you know, curiosidades, explicado, historia, ciencia, misterios, sabías que

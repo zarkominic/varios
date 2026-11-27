@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-MINIATURA · la miniatura del episodio 23, «The Real Origin of the 12 Grapes Isn't 1909» (se captura en t = 1), en
+// el estilo noir aprobado (25–35 años; ayudas en noir-mini.js). Madrid, Nochevieja de 1894: un comedor burgués a oscuras;
+// de perfil, junto a la ventana, la silueta de un caballero con chistera y levita levantando una copa, recortada con el
+// filo frío de la noche; por la ventana, sobre los tejados, la torre de la Casa de Correos de la Puerta del Sol con la
+// esfera del reloj encendida en ámbar marcando casi las doce; delante, sobre la mesa, en el charco de luz de una vela, un
+// racimo de uvas oscuro y brillante en su plato. Arriba a la izquierda, el «1909» tachado con una raya roja y, debajo y
+// más grande, el «1894» en blanco hueso. Persiana, humo de la vela, grano y viñeta. Sin palabras: solo cifras.
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, get, hh, tinte, mez, poligono, elipse, halo, linea, SIL } = N;
+
+// la ventana: x 150–314, y 6–128
+const VX0 = 150, VX1 = 314, VY0 = 6, VY1 = 128;
+const enVentana = (x, y) => x >= VX0 && x < VX1 && y >= VY0 && y < VY1;
+
+// el reloj de la torre: esfera con números romanos sugeridos por marcas, agujas a las doce menos dos
+const reloj = (cx, cy, r) => {
+  halo(cx, cy, r * 3.2, r * 3.2, N.AMBAR, 0.42, 1.6);
+  const C0 = hex('#fff0c4'), C1 = hex('#ffd890'), C2 = hex('#e8a650'), ARO = hex('#3a2410');
+  for (let y = Math.floor(cy - r - 2); y <= cy + r + 2; y++) for (let x = Math.floor(cx - r - 2); x <= cx + r + 2; x++) { const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
+    if (d < r) set(x, y, d < r * 0.45 ? C0 : d < r * 0.8 ? (d < r * 0.62 + N.trama(x, y) * r * 0.2 ? C0 : C1) : C2);
+    else if (d < r + 1.6) set(x, y, ARO); }
+  for (let k = 0; k < 12; k++) { const a = k / 12 * 6.283 - 1.5708; const x = Math.round(cx + Math.cos(a) * (r - 2)), y = Math.round(cy + Math.sin(a) * (r - 2)); set(x, y, hex('#5a3418')); if (k % 3 === 0) set(Math.round(cx + Math.cos(a) * (r - 3)), Math.round(cy + Math.sin(a) * (r - 3)), hex('#5a3418')); }
+  const ag = (ang, l, g) => { for (let i = 0; i <= l * 2; i++) { const u = i / 2, x = cx + Math.cos(ang) * u, y = cy + Math.sin(ang) * u; set(Math.round(x), Math.round(y), hex('#24140a')); if (g) set(Math.round(x) + 1, Math.round(y), hex('#24140a')); } };
+  ag(-1.5708 - 0.03, r * 0.55, true);           // la hora: casi las doce
+  ag(-1.5708 - 0.21, r * 0.85, false);          // el minutero: las doce menos dos
+  set(Math.round(cx), Math.round(cy), hex('#24140a'));
+};
+
+const dibujar = () => {
+  // 1 · el cielo de Madrid por la ventana, con la luz del reloj en el centro
+  N.cielo({ cx: 236, cy: 52, r: 150, colores: ['#080c20', '#141e42', '#22305c'], estrellas: 60, altoEstrellas: 70, x0: VX0, x1: VX1, y0: VY0, y1: VY1, semilla: 5 });
+  // 2 · los tejados de la Puerta del Sol en silueta, con alguna ventana encendida, y la Casa de Correos con su torre
+  const TEJ = hex('#0b0e1c'), TEJ2 = hex('#121628'), TORRE = hex('#0e1222');
+  for (let x = VX0; x < VX1; x++) { const h = 96 + Math.round(hh(x >> 4, 0, 3) * 10) - (x >> 4) % 2 * 3; for (let y = h; y < VY1; y++) set(x, y, (hh(x >> 3, y >> 3, 6) > 0.85 ? TEJ2 : TEJ)); }
+  for (let k = 0; k < 18; k++) { const x = VX0 + 4 + Math.floor(hh(k, 4, 2) * (VX1 - VX0 - 8)), y = 108 + Math.floor(hh(k, 5, 2) * 16); if (x > 196 && x < 278) continue; if (hh(k, 6, 2) > 0.45) { set(x, y, hex('#c88a3a')); set(x + 1, y, hex('#a06a2a')); set(x, y + 1, hex('#7a4a1e')); } }
+  // el edificio de Correos: cuerpo, cornisa con balaustrada y la torre del reloj con su remate de hierro y la bola
+  poligono([[196, 92], [278, 92], [278, 128], [196, 128]], TORRE);
+  for (let x = 194; x < 281; x++) set(x, 91, hex('#1c2238'));
+  for (let x = 196; x < 278; x += 3) { set(x, 89, TORRE); set(x, 90, TORRE); }
+  for (let k = 0; k < 8; k++) for (const fy of [100, 114]) { const x = 202 + k * 10; poligono([[x, fy], [x + 4, fy], [x + 4, fy + 7], [x, fy + 7]], hh(k, fy, 4) > 0.6 ? hex('#6a4420') : hex('#141a2c')); }
+  poligono([[224, 76], [250, 76], [250, 92], [224, 92]], TORRE);                     // el cuerpo de la torre
+  poligono([[221, 74], [253, 74], [253, 77], [221, 77]], hex('#151a2e'));          // la cornisa
+  poligono([[226, 42], [248, 42], [250, 74], [224, 74]], TORRE);                     // el templete del reloj
+  poligono([[224, 40], [250, 40], [251, 43], [223, 43]], hex('#151a2e'));
+  // el remate de hierro: patas curvas hacia el mástil, la bola de la hora y la veleta
+  for (let k = 0; k <= 20; k++) { const u = k / 20; set(Math.round(226 + u * 10 + Math.sin(u * 3.1) * 2), Math.round(40 - u * 16), TORRE); set(Math.round(248 - u * 10 - Math.sin(u * 3.1) * 2), Math.round(40 - u * 16), TORRE); }
+  for (let y = 10; y < 26; y++) set(237, y, TORRE);
+  elipse(237, 18, 3.2, 3.2, hex('#10142a')); tinte(236, 17, hex('#6a7ab0'), 0.6);
+  // el filo frío en el lado izquierdo de la torre
+  for (let y = 42; y < 92; y++) { const xa = y < 74 ? 226 - Math.round((y - 42) / 16) : 224; set(xa, y, hex('#2a3a66')); }
+  reloj(237, 58, 10);
+  // 3 · el marco de la ventana (con su cruceta) y la pared del comedor, con papel pintado apenas visible
+  const PARED = hex('#0c0d14'), PARED2 = hex('#13141e'), MARCO = hex('#1c1a20');
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { if (enVentana(x, y)) continue; const rombo = ((x + y) % 10 === 0 || (x - y + 200) % 10 === 0) && y < 132; set(x, y, rombo ? PARED2 : (hh(x >> 2, y >> 1, 11) > 0.7 ? PARED2 : PARED)); }
+  for (let y = VY0 - 3; y < VY1 + 3; y++) { for (let x = VX0 - 4; x < VX0 + 1; x++) set(x, y, MARCO); for (let x = VX1 - 1; x < VX1 + 4; x++) set(x, y, MARCO); }
+  for (let x = VX0 - 4; x < VX1 + 4; x++) { for (let y = VY0 - 4; y < VY0 + 1; y++) set(x, y, MARCO); for (let y = VY1 - 1; y < VY1 + 4; y++) set(x, y, MARCO); }
+  // la cortina recogida a la derecha, de terciopelo, casi negra
+  poligono([[300, 2], [320, 2], [320, 180], [306, 180], [302, 120], [310, 60]], (x, y) => ((x * 3 + (y >> 2)) % 7 < 2 ? hex('#1a0c10') : hex('#110709')));
+  // la luz fría de la ventana que cae sobre la pared, detrás del caballero, para que la silueta se recorte
+  for (let y = 0; y < H; y++) for (let x = 0; x < VX0 - 4; x++) { const d = Math.hypot((x - 92) / 80, (y - 110) / 70); if (d < 1) tinte(x, y, hex('#3a5490'), 0.5 * (1 - d) ** 1.3); }
+  // 4 · la persiana: bandas suaves sobre la ventana y duras sobre la pared
+  N.persiana({ paso: 13, ancho: 4, pendiente: 0.32, dentro: enVentana, fDentro: 0.14, fFuera: 0.45, luz: '#3a4a7a', fLuz: 0.08 });
+  // 5 · la mesa con el mantel en sombra y el charco de luz de la vela
+  const MESA = hex('#1a1210'), MESA2 = hex('#251a14');
+  poligono([[118, 140], [320, 136], [320, 180], [100, 180]], (x, y) => (hh(x >> 3, y, 2) > 0.5 ? MESA2 : MESA));
+  for (let x = 108; x < W; x++) set(x, Math.round(140 - (x - 118) * 4 / 202), hex('#2e2018'));
+  for (let y = 128; y < H; y++) for (let x = 100; x < W; x++) { const d = Math.hypot((x - 238) / 78, (y - 158) / 26); if (d < 1) tinte(x, y, N.AMBAR, 0.62 * (1 - d) ** 1.1); }
+  // el plato de plata, en elipse, con su borde que pilla la luz
+  elipse(238, 166, 32, 8, hex('#3a3430')); elipse(238, 165, 28, 6.4, hex('#5a5048'));
+  for (let t = 3.4; t < 6.0; t += 0.02) set(Math.round(238 + Math.cos(t) * 31), Math.round(166 + Math.sin(t) * 7.6), hex('#e8c890'));
+  const UVA = ['#0a0308', '#1a0714', '#300d26', '#4c1a3e', '#723660'];
+  // el racimo: oscuro y brillante, con la luz de la vela por la derecha
+  N.racimo({ x: 236, y: 125, s: 1.05, lx: 0.55, ly: -0.65, semilla: 3, filas: [4, 5, 6, 5, 5, 4, 3, 3, 2, 1], pal: UVA });
+  // dos granos sueltos en el plato
+  N.esfera(268, 164, 3.6, UVA, { lx: 0.4, ly: -0.7, brillo: '#ffe0b0' });
+  N.esfera(206, 166, 3.4, UVA, { lx: 0.6, ly: -0.6, brillo: '#ffe0b0' });
+  // la vela en su candelero, a la derecha, con el humo que sube
+  poligono([[285, 168], [301, 168], [298, 172], [288, 172]], hex('#2a2014'));
+  for (let y = 152; y < 168; y++) set(293, y, hex('#3a2c1a'));
+  poligono([[289, 150], [297, 150], [296, 153], [290, 153]], hex('#3a2c1a'));
+  poligono([[291, 128], [295, 128], [295, 150], [291, 150]], (x) => (x < 293 ? hex('#e8dcc0') : hex('#b8a888')));
+  N.llama(293, 125, 1.2, { halo: 0.3, rh: 30 });
+  N.humo({ x: 292, y: 117, alto: 40, deriva: -12, amp: 3, color: '#8a8070', f: 0.3, f2: 0.15 });
+  // 6 · el caballero de perfil, mirando a la ventana: chistera, levita, y la copa en alto (dibujado en unas
+  // coordenadas de 1:1 y llevado a su sitio con T: eje x 92, base 180, escala 0.8)
+  const SX = 0.8, T = ([x, y]) => [96 + (x - 92) * SX, 180 + (y - 180) * SX];
+  const P = (pts) => poligono(pts.map(T), SIL);
+  const E = (cx, cy, rx, ry) => { const [a, b] = T([cx, cy]); elipse(a, b, rx * SX, ry * SX, SIL); };
+  P([[78, 96], [92, 90], [108, 92], [116, 100], [118, 128], [122, 180], [62, 180], [66, 130], [70, 104]]);   // la levita
+  P([[90, 82], [104, 82], [106, 94], [88, 94]]);                                                          // el cuello alto
+  E(98, 74, 8.5, 10);                                                                                     // la cabeza
+  P([[104, 68], [108, 72], [111, 77], [107, 78], [108, 82], [104, 86], [98, 86]]);                        // nariz, boca y barbilla
+  P([[83, 64], [115, 62], [113, 66], [85, 67]]);                                                          // el ala de la chistera
+  P([[89, 64], [108, 64], [110, 38], [87, 38]]);                                                          // la copa
+  { const [x0, y] = T([89, 59]), [x1] = T([108, 0]); for (let x = Math.round(x0); x < Math.round(x1); x++) set(x, Math.round(y), hex('#16182a')); }
+  // el brazo: del hombro hacia delante y arriba hasta la mano, que sujeta la copa por el tallo
+  P([[104, 94], [114, 92], [128, 96], [131, 103], [118, 105], [106, 104]]);
+  P([[124, 99], [131, 97], [140, 70], [134, 68]]);
+  E(137, 67, 3.4, 3.4);
+  // la copa de champán ancha, de las de entonces: pie, tallo, cáliz con el vino ámbar y sus reflejos
+  const [gx, gy] = T([138, 64]).map(Math.round), CR = hex('#c8d4ec'), VINO = hex('#f0b860');
+  halo(gx, gy - 10, 16, 14, N.AMBAR, 0.22, 1.5);
+  for (let y = gy - 9; y < gy + 1; y++) set(gx, y, CR);
+  poligono([[gx - 8, gy - 17], [gx + 8, gy - 17], [gx + 5, gy - 10], [gx - 5, gy - 10]], (x, y) => (y < gy - 15 ? hex('#3a4460') : VINO));
+  for (let x = gx - 8; x <= gx + 8; x++) set(x, gy - 17, CR);
+  linea(gx - 8, gy - 17, gx - 5, gy - 10, CR); linea(gx + 8, gy - 17, gx + 5, gy - 10, CR);
+  set(gx - 4, gy - 15, hex('#fff4d8')); set(gx - 3, gy - 14, hex('#fff4d8'));
+  // el filo frío de la ventana en la cara, la chistera, el pecho y el brazo
+  N.filo({ x0: 50, x1: 136, y0: 60, y1: H, lado: 'der', yClaro: 120, color: '#7a98d8', claro: '#c8d8ff' });
+  N.filoSup({ x0: 88, x1: 118, y0: 58, y1: 100, color: '#9ab4ec', f: 0.7 });
+  // 7 · los años: «1909» tachado en rojo y, más grande, «1894» en blanco hueso
+  const a1 = N.cifra('1909', 66, 32, { tam: 16 });
+  N.tachon(66 - a1 / 2 - 4, 30, 66 + a1 / 2 + 2, 21, { g: 2 });
+  N.cifra('1894', 66, 64, { tam: 24 });
+  // 8 · grano y viñeta
+  N.granoVineta({ cx: 180, cy: 92, rx: 210, ry: 125 });
+};
+N.listo(dibujar);
+</script>
+</body>
+</html>

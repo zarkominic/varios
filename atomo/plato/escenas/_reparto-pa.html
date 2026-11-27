@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep44</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _REPARTO-PA · hoja estática del reparto del episodio 44 (Paul Atreides), al doble de la escala de las
+// escenas, sobre un gris frío (los caquis y la paja se perderían en el beis de las otras hojas). Cada personaje se pinta
+// a escala 1 en una esquina, se lee con pget y se vuelve a pintar a 2 × 2.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const FILAS = [
+  ['paulNino', 'paul', 'paulEmperador', 'paulCiego', 'chani', 'irulan', 'jessica', 'leto'],
+  ['alia', 'duncan', 'hayt', 'scytale', 'bijaz', 'reverendaMadre', 'fremen', 'fremenMujer'],
+  ['sacerdotePA', 'shaddam'],
+];
+const FONDO = hex('#8a96a6'), FONDO2 = hex('#808c9c'), MARCA = hex('#ff00ff');
+// caja de lectura a escala 1: 24 × 32 alrededor del actor (x − 4 … x + 19; suelo − 31 … suelo)
+const leer = (k) => {
+  R.rect(0, 0, 23, 31, MARCA);
+  R.actor(EL[k], 4, 31, 0, { quieto: true, parpadea: false });
+  const px = [];
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 24; x++) { const c = R.pget(x, y); if (c !== MARCA) px.push([x, y, c]); }
+  return px;
+};
+window.__frame = async (t) => {
+  const hojas = FILAS.map((f) => f.map(leer));
+  R.rect(0, 0, 319, 179, FONDO);
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) R.pset(x, y, FONDO2);
+  hojas.forEach((fila, r) => {
+    const suelo = 59 + r * 60;
+    R.rect(0, suelo + 1, 319, suelo + 1, hex('#6a7686'));
+    fila.forEach((px, i) => {
+      const x0 = 8 + i * 39 - 8, y0 = suelo - 63;
+      for (const [x, y, c] of px) R.rect(x0 + x * 2, y0 + y * 2, x0 + x * 2 + 1, y0 + y * 2 + 1, c);
+    });
+  });
+  R.presentar();
+};
+window.__listo = true;
+</script>
+</body>
+</html>

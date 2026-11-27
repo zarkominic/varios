@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Wanda · ep41</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DD-WANDA (frases 11–13). Nueve planos:
+// 1. las ruinas de Wundagore: la luz verde se abre paso entre las piedras; Doom llega y, en «lifts», levanta las rocas con
+//    su poder: en el hueco aparece Wanda, tumbada, como dormida;
+// 2. de cerca, en el hueco (Wanda a escala 1 en su lecho de nieve): el charco de luz verde que late sobre ella, motas
+//    verdes que suben por el haz, copos que caen de la abertura y piedrecillas nevadas alrededor; en el golpe («awaken»)
+//    abre los ojos, corre una onda roja por la nieve, saltan las piedrecillas y chispea su magia; fundido a negro;
+// 3. el corcho de Atom (sale del negro): la mano clava la foto de Wanda («Wanda isn't the only Maximoff»);
+// 4. de cerca, la foto de 2015 en el corcho (con su luz y su sombra, chinchetas, otras fotos y notas cortadas por el
+//    encuadre, el hilo rojo que llega a su chincheta, una ficha que se mueve con el aire y la luz de la persiana):
+//    Pietro (escala 1) cruza la calle a toda velocidad, las palomas echan a volar y se para; en «died» se vuelve sepia;
+// 5. el móvil sobre el escritorio: el dedo pulsa y Tommy (escala 1) corre por su barrio con su estela (recortada a la pantalla);
+//    en «like his uncle» llega al lado la foto de Pietro;
+// 6. el plató del bosque (techo con vigas, conducto, pasarela de celosía y focos colgados; la cortina de la izquierda con
+//    su saco de arena y sus cables): un operario trae una silla de director roja y la deja vacía; mira a un lado y a
+//    otro y sale el «?» («any Maximoff»); en «Elizabeth Olsen» el foco de la pasarela se enciende sobre la silla y él,
+//    junto a ella, se encoge de hombros hasta el final;
+// 7. (cómic) Latveria de noche: cielo tramado con nubes de tres tonos a tres velocidades y murciélagos, la luna con su
+//    halo, la sierra nevada; el castillo de sillares en su peña (ventanas que titilan, robots en el adarve), abetos,
+//    rocas y matas, y el pueblo de casas distintas con humo en las chimeneas; los cartuchos «2010» → «2012»; Wanda
+//    llega por el camino;
+// 8. (cómic) dentro del castillo, la boda: Wanda con velo y ramo, desorientada («?», «no memory»); Doom le tiende la mano
+//    («marry him»); en «catastrophe» le chispea la magia roja;
+// 9. las dos imágenes juntas: el cómic a la izquierda y la película a la derecha; en «resemblance», el «=».
+import * as T from '/atomo/plato/escenas/dd-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('dd-wanda');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#141018');
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const azar = (a, b = 0) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+const caja = (x0, y0, x1, y1, c, b = K) => { R.rect(x0, y0, x1, y1, b); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, c); };
+// oscurece (o aclara) una zona hacia un color, con un poco de trama: para dejar tranquila la esquina de Atom o la barra
+const velo = (x0, y0, x1, y1, col, a) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, mez(R.pget(x, y), col, a)); };
+// la taza de café de Banner (5 × 5, con su asa), (x, y) arriba a la izquierda; humo: el vapor que sube
+const taza = (x, y, t, humo = true) => { R.rect(x, y, x + 4, y + 5, K); R.rect(x + 1, y + 1, x + 3, y + 4, hex('#f2eee2')); R.pset(x + 1, y + 1, hex('#5a3a24')); R.pset(x + 2, y + 1, hex('#5a3a24')); R.pset(x + 3, y + 1, hex('#5a3a24'));
+  R.pset(x + 5, y + 2, K); R.pset(x + 6, y + 3, K); R.pset(x + 5, y + 4, K); R.pset(x + 3, y + 4, hex('#c8c4bc'));
+  if (humo) for (let k = 0; k < 3; k++) { const f = (t * 0.9 + k / 3) % 1; R.pset(Math.round(x + 2 + Math.sin(t * 3 + k * 2) * 1.2), Math.round(y - 1 - f * 7), f > 0.6 ? hex('#8a8a90') : hex('#c8c8d0')); } };
+// un actor del reparto dibujado a escala (silueta en una pantalla): col(c) da el color de cada píxel
+const BUFA = R.nuevo();
+const actorT = (def, x, suelo, t, o, col, a) => escalado(def, x - 12, suelo - 40, 1, t, o, (c) => mez(c, col, a));
+const escalado = (def, x0, y0, s, t, o, col, clip = null) => { R.recorte(null); const prev = R.usar(BUFA); BUFA.fill(0); R.actor(def, 20, 44, t, o); R.usar(prev);
+  for (let j = 4; j < 46; j++) for (let i = 8; i < 44; i++) { const c = BUFA[j * 320 + i]; if (!c) continue; const cc = col ? col(c, i, j) : c; for (let a = 0; a < s; a++) for (let b = 0; b < s; b++) { const px = x0 + (i - 8) * s + a, py = y0 + (j - 4) * s + b; if (!clip || (px >= clip[0] && px <= clip[2] && py >= clip[1] && py <= clip[3])) R.pset(px, py, cc); } } };
+
+const W = (f) => en('awaken', f), X = (f) => en('maximoff', f), Y = (f) => en('cruzada', f);
+const P2 = W(0.38), P3 = W(1.003), P4 = X(0.151), P5 = X(0.439), P6 = X(0.694), P7 = Y(0), P8 = Y(0.354), P9 = Y(0.737);
+const VERDE = hex('#3ae88a'), BLANCO = hex('#ffffff');
+// un actor tumbado (girado 90°, la cabeza a la izquierda y la cara hacia arriba), a escala s; (cx, cy) el centro
+const tumbado = (def, cx, cy, s, t, o, col = null) => { R.recorte(null); const prev = R.usar(BUFA); BUFA.fill(0); R.actor(def, 20, 44, t, o); R.usar(prev);
+  for (let j = 4; j < 46; j++) for (let i = 8; i < 44; i++) { const c = BUFA[j * 320 + i]; if (!c) continue; const X0 = cx + (j - 32) * s, Y0 = cy - (i - 27) * s; for (let a = 0; a < s; a++) for (let b = 0; b < s; b++) R.pset(X0 + a, Y0 + b, col ? col(c) : c); } };
+const chispas = (cx, cy, r, t, n = 10) => { for (let k = 0; k < n; k++) { const a = k * 2.4 + t * 6, rr = r * (0.6 + 0.4 * Math.sin(t * 9 + k)); R.pset(Math.round(cx + Math.cos(a) * rr), Math.round(cy + Math.sin(a) * rr * 0.7), k % 2 ? hex('#ff3a5a') : hex('#ffb0c0')); } };
+// 1 · las ruinas: la luz verde; Doom llega y levanta las rocas; Wanda en el hueco
+const p1 = (t) => {
+  const o = { encuadre: 'ruinas', verde: tramo(t, 0.4, W(0.12)), levanta: tramo(t, W(0.206), W(0.36)) };
+  T.wundagore(R, t, o);
+  if (o.levanta > 0) tumbado(EL.wandaDD, 204, 147, 1, t, { dir: 1, parpadea: true, quieto: true });
+  const u = tramo(t, 0.3, W(0.19)), x = Math.round(lerp(8, 118, u));
+  R.actor(EL.doom, x, 160, t, { dir: 1, anda: u > 0 && u < 1, brazos: t > W(0.206) });
+  T.wundagoreDelante(R, t, o);
+  if (t > W(0.206)) chispas(x + 7, 132, 12, t, 8);
+};
+// 2 · el hueco de cerca: el resplandor verde; en «awaken» abre los ojos; fundido a negro
+const p2 = (t) => {
+  const golpe = W(0.641), o = { encuadre: 'ruinas', camara: 'cara', reflejo: Math.min(1, tramo(t, P2, golpe) * 0.7 + (t > golpe ? 0.3 : 0)), negro: tramo(t, W(0.876), W(0.96)) };
+  T.wundagore(R, t, o);
+  const abre = t > golpe, cx = 180, cy = 121, hx = cx - 20, ga = t - golpe;
+  // el charco de luz verde que cae sobre ella y late (más fuerte al despertar)
+  const lv = (0.25 + o.reflejo) * (0.85 + 0.15 * Math.sin(t * 3.2));
+  for (let y = cy - 20; y <= cy + 20; y++) for (let x = cx - 66; x <= cx + 34; x++) { const d = ((x - cx + 16) / 50) ** 2 + ((y - cy) / 20) ** 2; if (d < 1) R.pset(x, y, mez(R.pget(x, y), hex('#8affc0'), (1 - d) * 0.32 * lv)); }
+  // las piedrecillas del lecho, con su gorro de nieve: al despertar saltan con la onda
+  for (let k = 0; k < 9; k++) { const a = k * 0.7 + 0.3, bx = Math.round(cx - 16 + Math.cos(a) * (40 + (k % 3) * 8)), by = Math.round(cy + Math.sin(a) * (13 + (k % 2) * 4));
+    const sal = abre && ga < 1.4 ? Math.round(Math.abs(Math.sin(ga * 9 + k)) * 3 * (1 - ga / 1.4)) : 0, py = by - sal;
+    if (sal) R.pset(bx, by + 1, hex('#8a90a0')); R.rect(bx - 1, py - 1, bx + 2, py + 1, K); R.rect(bx, py - 1, bx + 1, py, hex('#7a7488')); R.pset(bx, py - 1, hex('#e8f0ff')); R.pset(bx + 1, py - 1, hex('#c8d4e8')); }
+  // Wanda, tumbada a escala 1 en el hueco blando de la nieve
+  tumbado(EL.wandaDD, cx, cy, 1, t, { dir: 1, parpadea: !abre, sorpresa: abre, quieto: true });
+  // las motas verdes que suben por el haz y los copos que caen de la abertura
+  for (let k = 0; k < 16; k++) { const f = (t * (0.08 + (k % 4) * 0.02) + azar(k, 7)) % 1, x = Math.round(130 + azar(k, 8) * 70 + Math.sin(t * 1.3 + k) * 3), y = Math.round(140 - f * 120);
+    R.pset(x, y, mez(R.pget(x, y), k % 3 ? VERDE : hex('#d8ffe8'), (1 - Math.abs(f - 0.5) * 2) * (0.5 + o.reflejo * 0.5))); }
+  for (let k = 0; k < 12; k++) { const f = (t * (0.12 + (k % 3) * 0.03) + azar(k, 9)) % 1, x = Math.round(124 + azar(k, 10) * 80 + Math.sin(t * 2 + k * 1.7) * 4), y = Math.round(22 + f * 128); R.pset(x, y, k % 2 ? hex('#f0f4ff') : hex('#b8c4d8')); }
+  // al despertar: la onda roja que corre por la nieve y las chispas de su magia junto a la cabeza
+  if (abre && ga < 2.4) { const lr = Math.min(1, ga / 0.15) * (1 - Math.max(0, ga - 1.2) / 1.2); for (let y = cy - 16; y <= cy + 16; y++) for (let x = hx - 30; x <= hx + 40; x++) { const d = ((x - hx - 5) / 35) ** 2 + ((y - cy) / 16) ** 2; if (d < 1) R.pset(x, y, mez(R.pget(x, y), hex('#ff4a6a'), (1 - d) * 0.42 * lr)); } }
+  if (abre && ga < 1.1) { const rr = ga / 1.1, rx = 10 + rr * 70, ry = 4 + rr * 24; for (let s = 0; s < 180; s++) { const an = s / 180 * Math.PI * 2; for (const dd of [0, 1]) { const x = Math.round(hx + Math.cos(an) * (rx + dd)), y = Math.round(cy + Math.sin(an) * (ry + dd * 0.5)); R.pset(x, y, mez(R.pget(x, y), dd ? hex('#ffb0c0') : hex('#ff2a4a'), 0.9 * (1 - rr))); } } }
+  if (abre && ga < 2.4) { const n = ga < 1.6 ? 1 : 0.5; for (let k = 0; k < 22 * n; k++) { const an = k * 2.4 + t * 5, r = 8 + ((k * 7 + t * 30) % 24), x = Math.round(hx + 4 + Math.cos(an) * r), y = Math.round(cy - 2 + Math.sin(an) * r * 0.55 - (t * 20 + k * 3) % 8);
+    const c = k % 3 === 0 ? hex('#ffe0e8') : k % 3 === 1 ? hex('#ff3a5a') : hex('#c8102a'); R.pset(x, y, c); if (k % 2 === 0) { R.pset(x + 1, y, c); R.pset(x, y + 1, c); R.pset(x - 1, y, hex('#8a1020')); } } }
+  const f = 1 - Math.min(1, Math.abs(t - golpe) / 0.2); if (f > 0) velo(0, 0, 319, 179, hex('#d8ffe8'), f * 0.7);
+  T.wundagoreDelante(R, t, o);
+};
+// 3 · el corcho: sale del negro y la mano clava la foto de Wanda
+const foto = (r, dy, pinta) => { const [x0, y0, x1, y1] = r; caja(x0, y0 + dy, x1, y1 + dy, hex('#f6f2e6')); const a = x0 + 4, b = y0 + 4 + dy, c = x1 - 4, d = y1 - 12 + dy; pinta(a, b, c, d); };
+const fotoWanda = (a, b, c, d, t) => { for (let y = b; y <= d; y++) R.linea(a, y, c, y, mez(hex('#2a1030'), hex('#8a2a4a'), (y - b) / (d - b))); for (let k = 0; k < 8; k++) R.pset(a + Math.floor(azar(k, 1) * (c - a)), b + Math.floor(azar(k, 2) * (d - b) * 0.5), hex('#ff8aa8'));
+  escalado(EL.wandaDD, Math.round((a + c) / 2) - 19, d - 40, 1, t, { dir: 1, sonrisa: true }, null, [a, b, c, d]); R.recorte(null); };
+const p3 = (t) => {
+  const o = { encuadre: 'pared' }; const g = T.estudio(R, t, o), F = g.fotos;
+  const sube = tramo(t, X(0) - 0.6, X(0) + 0.05), dy = Math.round((1 - sube) * 120);
+  foto(F[0], dy, (a, b, c, d) => fotoWanda(a, b, c, d, t));
+  T.estudioDelante(R, t, o);
+  if (t < X(0) + 0.5) T.brazo(R, -4, Math.round(F[0][1] + dy + 54), F[0][0] - 2, Math.round(F[0][1] + dy + 32), '#2a3a5a', 1, {});
+  if (sube >= 1) { const q = tramo(t, X(0) + 0.6, X(0) + 1); if (q > 0 && Math.floor(t * 3) % 3) { const [a, b, c, d] = F[3]; R.icono('?', Math.round((a + c) / 2) - 13, b + 6, hex('#e83a3a'), K, 5); } }
+  const n = 1 - tramo(t, P3, P3 + 0.9); if (n > 0) velo(0, 0, 319, 179, hex('#000000'), n);
+};
+// el corcho de fondo para los insertos (fijo, en un búfer): la luz de la lámpara arriba a la izquierda y la sombra en
+// los bordes, agujeros de chinchetas viejas y, cortados por el encuadre, otras fotos y notas clavadas
+const BUFC = R.nuevo(); let corchoOK = false;
+const chinche = (x, y, c) => { R.pset(x + 1, y + 2, hex('#4a2a12')); R.pset(x + 2, y + 1, hex('#4a2a12')); R.disco(x, y, 2, K); R.disco(x, y, 1, hex(c)); R.pset(x - 1, y - 1, hex('#ffffff')); };
+const corcho = () => { R.recorte(null); const prev = R.usar(BUFC); const SOMB = hex('#4a2a10'), LUZ = hex('#f8d8a0');
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const n = azar(x, y), m = azar(x >> 2, y >> 2); let c = n > 0.93 ? hex('#7a5430') : n < 0.08 ? hex('#d8a868') : m > 0.6 ? hex('#b8864a') : hex('#c4925a');
+    const d = Math.hypot((x - 120) / 240, (y - 50) / 170); R.pset(x, y, d < 0.45 ? mez(c, LUZ, (0.45 - d) * 0.5) : mez(c, SOMB, Math.min(0.55, (d - 0.45) * 0.8))); }
+  for (let k = 0; k < 46; k++) { const x = Math.floor(azar(k, 11) * 318), y = 22 + Math.floor(azar(k, 12) * 156); R.pset(x, y, hex('#4a2a12')); R.pset(x, y + 1, hex('#e0b070')); }
+  const sombra = (pts) => R.poligono(pts.map(([x, y]) => [x + 3, y + 3]), (x, y) => mez(R.pget(x, y), hex('#2a1608'), 0.5));
+  // A · una foto vieja, un poco torcida y cortada por la izquierda: la montaña de Wundagore en sepia
+  const A = [[-6, 38], [48, 32], [54, 104], [-2, 110]]; sombra(A); R.poligono(A, hex('#efe8d6')); R.linea(-6, 38, 48, 32, hex('#b8b0a0')); R.linea(48, 32, 54, 104, hex('#b8b0a0'));
+  R.poligono([[-2, 42], [44, 37], [48, 90], [1, 95]], (x, y) => { const hor = 76 - x * 0.08, mo = 50 + Math.abs(x - 24) * 1.1; return y > hor ? (azar(x, y) > 0.8 ? hex('#5a3a1e') : hex('#6a4a28')) : y > mo ? (x > 24 ? hex('#4a2e16') : hex('#7a5632')) : mez(hex('#d8b888'), hex('#a88458'), (y - 38) / 40); });
+  for (let x = 2; x < 44; x += 5) R.linea(x, 77 - x * 0.08, x + 2, 75 - x * 0.08, hex('#3a2410'));
+  // B · una nota amarilla con trazos y un círculo rojo
+  R.rect(9, 117, 41, 149, hex('#5a3418')); R.rect(6, 114, 38, 146, hex('#f0d860')); R.rect(6, 114, 38, 118, hex('#e0c040')); R.rect(6, 146, 38, 146, hex('#c8a830'));
+  for (const [y, l] of [[123, 26], [129, 20], [135, 24], [141, 14]]) for (let x = 10; x < 10 + l; x++) if (azar(x, y) > 0.12) R.pset(x, y + Math.round(Math.sin(x * 1.3 + y) * 0.7), hex('#3a4a8a'));
+  for (let s = 0; s < 40; s++) { const an = s / 40 * Math.PI * 2.2; R.pset(Math.round(32 + Math.cos(an) * 4), Math.round(138 + Math.sin(an) * 3), hex('#c8202a')); }
+  // C · la entrada de cine con su troquel y sus barras
+  R.rect(31, 155, 61, 167, hex('#5a3418')); R.rect(28, 152, 58, 164, hex('#d87a6a')); R.rect(28, 152, 58, 152, hex('#f0a090')); for (let y = 153; y < 164; y += 2) R.pset(36, y, hex('#f6f2e6'));
+  for (let x = 40; x < 56; x += 2) R.rect(x, 155, x, 161 - (x % 3), hex('#5a2a2a'));
+  // D · una ficha cortada por abajo
+  R.rect(5, 171, 31, 179, hex('#5a3418')); R.rect(2, 168, 28, 179, hex('#ece6d6')); for (let y = 172; y < 180; y += 3) R.linea(4, y, 26, y, hex('#a8b8d8'));
+  // E · una foto de la ciudad de noche, cortada por la derecha
+  const E = [[264, 56], [330, 52], [330, 122], [268, 124]]; sombra(E); R.poligono(E, hex('#efe8d6')); R.linea(264, 56, 330, 52, hex('#b8b0a0'));
+  R.poligono([[268, 60], [330, 57], [330, 108], [271, 110]], (x, y) => { const ed = 84 + Math.round(Math.sin(Math.floor(x / 7) * 2.1) * 10); if (y > ed) return (x % 7 > 1 && (y % 5) === 2 && azar(x >> 1, y) > 0.5) ? hex('#e8d8a0') : hex('#1a1a26'); return mez(hex('#2a2a4a'), hex('#4a4a6a'), (y - 57) / 50); });
+  // G · un trozo de mapa con su ruta y su cruz, cortado por la esquina
+  R.rect(295, 151, 319, 179, hex('#5a3418')); R.rect(292, 148, 319, 179, hex('#b8d0d8')); for (let k = 0; k < 4; k++) R.linea(292, 154 + k * 7, 319, 150 + k * 8, hex('#8aa8b8'));
+  R.linea(296, 176, 304, 166, hex('#c8202a')); R.linea(304, 166, 312, 168, hex('#c8202a')); R.linea(310, 162, 314, 166, hex('#c8202a')); R.linea(314, 162, 310, 166, hex('#c8202a'));
+  // la chincheta de cada una
+  chinche(22, 40, '#e8c030'); chinche(22, 116, '#3a6ae8'); chinche(52, 154, '#3ab85a'); chinche(14, 170, '#e83a3a'); chinche(292, 60, '#e8c030'); chinche(305, 151, '#3ab85a'); chinche(40, 26, '#c8ccd8');
+  R.usar(prev); corchoOK = true; };
+// el hilo rojo (con su sombra), un poco combado, de chincheta en chincheta
+const hilo = (pts) => { for (let i = 0; i < pts.length - 1; i++) { const [a, b] = pts[i], [c, d] = pts[i + 1], mx = (a + c) / 2, my = (b + d) / 2 + 2;
+  for (const [o, col] of [[1, hex('#5a2a14')], [0, hex('#c8202a')]]) { R.linea(a + o, b + o, Math.round(mx) + o, Math.round(my) + o, col); R.linea(Math.round(mx) + o, Math.round(my) + o, c + o, d + o, col); } } };
+// F · la ficha que se mueve con el aire: sus esquinas de abajo se levantan
+const ficha = (t) => { const w1 = Math.max(0, Math.sin(t * 2.3) + Math.sin(t * 5.1) * 0.4), l = Math.round(w1 * 3), l2 = Math.round(w1 * 1.5);
+  const P = [[262, 124], [294, 124], [294 - l2, 158 - l], [262 + l, 158 - l2]];
+  R.poligono(P.map(([x, y], i) => [x + 2 + (i > 1 ? l : 0), y + 2 + (i > 1 ? l : 0)]), (x, y) => mez(R.pget(x, y), hex('#2a1608'), 0.45));
+  const fondo = 158 - l; R.poligono(P, (x, y) => (x === 267 ? hex('#e88a8a') : (y - 124) % 6 === 5 && y < fondo - 1 ? hex('#a8b8d8') : y > fondo - 3 ? hex('#ddd6c4') : hex('#f6f2e6')));
+  chinche(278, 126, '#e83a3a'); };
+// 4 · la foto de 2015: Pietro cruza la calle a toda velocidad; en «died» se vuelve sepia
+const BUFS = R.nuevo(); let calleOK = false;
+const calle = (x0, y0, x1, y1) => { R.recorte(null); const prev = R.usar(BUFS); BUFS.fill(0);
+  for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, mez(hex('#a8c8e8'), hex('#e8e0d0'), (y - y0) / (y1 - y0) * 1.4));
+  for (const [cx, cy, w] of [[110, 44, 18], [200, 38, 24]]) { R.disco(cx, cy, w / 3, hex('#f6f6f6')); R.disco(cx + w / 3, cy - 2, w / 3, hex('#f6f6f6')); R.disco(cx + w / 1.6, cy + 1, w / 4, hex('#e8e8f0')); }
+  const casas = [[72, 22, '#c8a87a', '#8a3a2a'], [96, 28, '#a8b8a0', '#6a4a3a'], [126, 20, '#d8c8a8', '#8a3a2a'], [148, 30, '#b89a8a', '#4a3a3a'], [180, 24, '#c8b088', '#8a3a2a'], [206, 26, '#a8a8b8', '#6a4a3a'], [234, 22, '#d0b890', '#8a3a2a']];
+  for (const [cx, w, cpar, ctej] of casas) { const top = y0 + 26 + (cx * 7) % 14, base = y1 - 30; caja(cx, top, cx + w, base, hex(cpar)); R.poligono([[cx - 2, top], [cx + w / 2, top - 10], [cx + w + 2, top]], hex(ctej)); R.linea(cx - 2, top, cx + w / 2, top - 10, K); R.linea(cx + w / 2, top - 10, cx + w + 2, top, K);
+    for (let wy = top + 5; wy < base - 8; wy += 10) for (let wx = cx + 4; wx < cx + w - 4; wx += 8) { caja(wx, wy, wx + 4, wy + 6, hex('#3a4a6a')); R.pset(wx + 1, wy + 1, hex('#a8c8e8')); }
+    caja(cx + w / 2 - 3, base - 10, cx + w / 2 + 3, base, hex('#5a3a24')); }
+  for (let y = y1 - 30; y <= y1; y++) for (let x = x0; x <= x1; x++) R.pset(x, y, ((x + (y % 4 < 2 ? 0 : 3)) % 6 === 0 || y % 4 === 0) ? hex('#6a6a70') : hex('#8a8a90'));
+  R.rect(x0, y1 - 31, x1, y1 - 30, hex('#5a5a60')); for (let x = x0 + 6; x < x1; x += 40) { R.rect(x, y1 - 58, x + 1, y1 - 30, K); R.disco(x + 1, y1 - 60, 3, hex('#e8d8a0')); }
+  R.usar(prev); calleOK = true; };
+const p4 = (t) => {
+  if (!corchoOK) corcho(); R.copiar(BUFC);
+  ficha(t);
+  const ix0 = 72, iy0 = 28, ix1 = 248, iy1 = 140;
+  // la sombra del marco sobre el corcho, blanda (dos pasos)
+  velo(66, 26, 258, 176, hex('#2a1608'), 0.5); velo(259, 28, 260, 178, hex('#2a1608'), 0.25); velo(68, 177, 258, 178, hex('#2a1608'), 0.25);
+  caja(62, 22, 254, 172, hex('#f6f2e6'), hex('#b8b0a0')); R.rect(63, 165, 253, 171, hex('#ebe5d4')); R.rect(63, 23, 64, 164, hex('#fffdf6'));
+  if (!calleOK) calle(ix0, iy0, ix1, iy1);
+  const sep = tramo(t, X(0.264), X(0.264) + 1.2), SEP = hex('#a8865a');
+  for (let y = iy0; y <= iy1; y++) for (let x = ix0; x <= ix1; x++) R.pset(x, y, BUFS[y * 320 + x]);
+  // Pietro (a escala 1) cruza a toda velocidad con su estela y se para en la acera; las palomas echan a volar
+  const u = tramo(t, P4 + 0.1, P4 + 1.2), px = Math.round(lerp(ix0 - 40, 128, u));
+  R.recorte([ix0, iy0, ix1, iy1]);
+  for (let k = 0; k < 3; k++) { const fp = tramo(t, P4 + 0.75 + k * 0.12, P4 + 2.4 + k * 0.12), bx = 170 + k * 12 + Math.round(fp * (50 + k * 10)), by = 131 + (k % 2) * 2 - Math.round(fp * (60 + k * 6) + Math.sin(fp * 4 + k) * 3), al = fp > 0 && Math.floor(t * 10 + k) % 2;
+    R.linea(bx, by, bx + 3, by, hex('#5a5a66')); R.pset(bx + 4, by - 1, hex('#4a4a56')); R.pset(bx + 5, by - 1, hex('#e8a030')); R.pset(bx + 1, by - 1, hex('#8a8a96')); if (fp > 0) { R.linea(bx + 1, by, bx - 1 + (al ? 0 : 1), by + (al ? -3 : 2), hex('#7a7a86')); R.linea(bx + 2, by, bx + 4, by + (al ? -3 : 2), hex('#7a7a86')); } else R.pset(bx + 2, by + 1, hex('#e8a030')); }
+  if (u > 0 && u < 1) for (let k = 0; k < 6; k++) R.linea(px - 50 + k * 4, 110 + k * 3, px + 8, 110 + k * 3, k % 2 ? hex('#5a8ae8') : hex('#d8e0f0'));
+  if (u > 0.6 && u < 1) for (let k = 0; k < 6; k++) R.pset(px + 4 + Math.round(azar(k, Math.floor(t * 12)) * 16), 128 + Math.round(azar(k, 3) * 4), hex('#c8c8c0'));
+  R.recorte(null);
+  escalado(EL.pietroDD, px, iy1 - 48, 1, t, { dir: 1, anda: u > 0 && u < 1, sonrisa: u >= 1, dedo: u >= 1 && t > X(0.23) }, null, [ix0, iy0, ix1, iy1]);
+  if (sep > 0) for (let y = iy0; y <= iy1; y++) for (let x = ix0; x <= ix1; x++) { const c = R.pget(x, y), l = ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) / 3 / 255; R.pset(x, y, mez(c, mez(hex('#3a2a1a'), hex('#f0d8a8'), l), sep * 0.85)); }
+  R.numero('2015', 158, 162, { centro: true, rampa: ['#3a3a4a', '#2a2a3a', '#2a2a3a', '#1a1a2a', '#141018'].map(hex) });
+  // el hilo rojo que llega a la foto: de la foto vieja de la montaña, por la nota, hasta su chincheta; y el de la derecha
+  hilo([[22, 116], [22, 40], [40, 26], [158, 24]]); hilo([[292, 60], [278, 126], [305, 151], [318, 179]]);
+  R.disco(158, 24, 4, K); R.disco(158, 24, 3, hex('#e83a3a')); R.pset(157, 23, hex('#ffb0b0'));
+  for (const [tx, ty] of [[62, 160], [240, 22]]) { velo(tx, ty, tx + 14, ty + 6, hex('#f0e8c0'), 0.65); R.linea(tx, ty, tx + 14, ty, hex('#fff8e0')); }
+  chinche(40, 26, '#c8ccd8'); chinche(22, 40, '#e8c030'); chinche(22, 116, '#3a6ae8'); chinche(292, 60, '#e8c030'); chinche(305, 151, '#3ab85a'); chinche(278, 126, '#e83a3a');
+  // la luz que entra por la persiana y se mueve despacio por el corcho y la foto
+  for (let y = 22; y < 180; y++) for (let x = 0; x < 320; x++) if (((x * 0.6 + y + t * 5) % 52) < 9 && !(x > 270 && y < 52)) R.pset(x, y, mez(R.pget(x, y), hex('#fff0c8'), 0.09));
+  velo(0, 0, 319, 21, hex('#6a4a2a'), 0.22); velo(272, 21, 319, 50, hex('#6a4a2a'), 0.22);
+};
+// 5 · el móvil en el escritorio: Tommy corre; llega la foto de Pietro al lado
+const BUFE = R.nuevo(); let mesaOK = false;
+const mesa = () => { R.recorte(null); const prev = R.usar(BUFE);
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const tabla = Math.floor(y / 30), v = Math.sin(x * 0.05 + Math.sin(y * 0.3 + tabla) * 2 + tabla * 3); R.pset(x, y, y % 30 === 0 ? hex('#3a2414') : v > 0.75 ? hex('#7a4a28') : v < -0.8 ? hex('#a8703c') : hex('#8e5a30')); }
+  // una taza vista desde arriba, un boli, unas llaves, migas de palomitas
+  R.disco(52, 120, 15, K); R.disco(52, 120, 14, hex('#f2eee2')); R.disco(52, 120, 11, hex('#4a2a14')); R.disco(48, 116, 3, hex('#6a4024')); R.rect(66, 116, 72, 124, K); R.rect(67, 117, 71, 123, hex('#f2eee2'));
+  R.linea(30, 60, 70, 76, K); R.linea(30, 61, 70, 77, hex('#2a4a9a')); R.linea(31, 62, 69, 77, hex('#2a4a9a')); R.rect(68, 75, 72, 78, hex('#e8e8f0'));
+  R.disco(270, 150, 6, K); R.disco(270, 150, 5, hex('#c8a040')); R.disco(270, 150, 2, K); R.rect(274, 152, 290, 154, hex('#a8acb8')); R.rect(286, 150, 290, 156, hex('#a8acb8'));
+  for (let k = 0; k < 9; k++) { const x = 20 + Math.floor(azar(k, 3) * 80), y = 150 + Math.floor(azar(k, 4) * 26); R.rect(x, y, x + 2, y + 1, hex('#fff4c8')); }
+  R.usar(prev); mesaOK = true; };
+const BUFB = R.nuevo(); let barrioOK = false;
+const barrio = (x0, y0, x1, y1) => { R.recorte(null); const prev = R.usar(BUFB); BUFB.fill(0);
+  for (let y = y0; y <= y1; y++) R.linea(x0, y, x1, y, mez(hex('#5aa8e8'), hex('#c8e0f0'), (y - y0) / (y1 - y0)));
+  for (let k = 0; k < 3; k++) { const hx = x0 + 4 + k * 24, top = y0 + 50 + (k % 2) * 6; caja(hx, top, hx + 20, y1 - 46, [hex('#e8e0d0'), hex('#c8d8e8'), hex('#e8d0b0')][k]); R.poligono([[hx - 2, top], [hx + 10, top - 12], [hx + 22, top]], hex('#6a4a3a')); R.linea(hx - 2, top, hx + 10, top - 12, K); R.linea(hx + 10, top - 12, hx + 22, top, K); caja(hx + 4, top + 6, hx + 9, top + 12, hex('#3a5a8a')); caja(hx + 12, top + 14, hx + 17, y1 - 46, hex('#8a3a2a')); }
+  for (let k = 0; k < 4; k++) { const tx = x0 + 6 + k * 18; R.rect(tx, y1 - 60, tx + 1, y1 - 46, hex('#5a3a24')); R.disco(tx + 1, y1 - 64, 6, hex('#3a8a3a')); R.disco(tx - 1, y1 - 62, 3, hex('#5aa84a')); }
+  R.rect(x0, y1 - 46, x1, y1 - 40, hex('#5aa84a')); for (let y = y1 - 40; y <= y1; y++) R.linea(x0, y, x1, y, (y % 6 === 0) ? hex('#a8a8a0') : hex('#c8c8c0'));
+  R.usar(prev); barrioOK = true; };
+const p5 = (t) => {
+  if (!mesaOK) mesa(); R.copiar(BUFE);
+  // el móvil
+  const mx0 = 116, my0 = 18, mx1 = 204, my1 = 172; R.rect(mx0 + 3, my0 + 4, mx1 + 3, my1 + 4, hex('#3a2414')); caja(mx0, my0, mx1, my1, hex('#1a1a22')); R.rect(mx0 + 2, my0 + 2, mx1 - 2, my0 + 3, hex('#3a3a46'));
+  const sx0 = mx0 + 5, sy0 = my0 + 12, sx1 = mx1 - 5, sy1 = my1 - 12; if (!barrioOK) barrio(sx0, sy0, sx1, sy1);
+  for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) R.pset(x, y, BUFB[y * 320 + x]);
+  const play = X(0.439) + 0.35, u = t > play ? ((t - play) / 1.3) % 1 : -1, tx = Math.round(lerp(sx0 - 28, sx1 + 4, Math.max(0, u)));
+  if (u >= 0) { R.recorte([sx0, sy0, sx1, sy1]); if (tx + 10 > sx0) for (let k = 0; k < 5; k++) R.linea(Math.max(sx0, tx - 34 + k * 3), sy1 - 30 + k * 3, Math.min(sx1, tx + 8), sy1 - 30 + k * 3, k % 2 ? hex('#e8e8f0') : hex('#5ae88a')); R.recorte(null);
+    escalado(EL.tommyDD, tx, sy1 - 52, 1, t, { dir: 1, anda: true }, null, [sx0, sy0, sx1, sy1]); R.recorte(null); }
+  else { R.disco(160, 140, 10, hex('#14141e')); R.poligono([[156, 134], [156, 146], [166, 140]], BLANCO); }
+  R.rect(sx0, sy1 - 6, sx1, sy1 - 5, hex('#3a3a46')); R.rect(sx0, sy1 - 6, sx0 + Math.round((sx1 - sx0) * tramo(t, play, P6)), sy1 - 5, hex('#e83a3a'));
+  R.rect(156, my1 - 7, 164, my1 - 6, hex('#5a5a66'));
+  // el dedo que pulsa el play
+  const dd = tramo(t, P5, play) * (1 - tramo(t, play + 0.2, play + 0.8)); if (dd > 0) T.brazo(R, 198, 188, Math.round(lerp(204, 174, dd)), Math.round(lerp(198, 146, dd)), '#2a3a5a', -1, {});
+  // la foto de Pietro llega al lado, en «like his uncle»
+  const ll = tramo(t, X(0.6), X(0.64)); if (ll > 0) { if (!calleOK) calle(72, 28, 248, 140); const fx = Math.round(lerp(330, 220, ll)), fy = 56; R.rect(fx + 3, fy + 3, fx + 77, fy + 91, hex('#3a2414')); caja(fx, fy, fx + 74, fy + 88, hex('#f6f2e6'));
+    for (let y = fy + 5; y <= fy + 66; y++) for (let x = fx + 5; x <= fx + 69; x++) { const sx = 72 + Math.floor((x - fx - 5) / 64 * 176), sy = 28 + Math.floor((y - fy - 5) / 61 * 112); const c = BUFS[sy * 320 + sx] || hex('#c8b090'); const l = ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) / 765; R.pset(x, y, mez(hex('#3a2a1a'), hex('#f0d8a8'), l)); }
+    escalado(EL.pietroDD, fx + 18, fy + 26, 1, t, { dir: 1, sonrisa: true }, (c) => { const l = ((c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255)) / 765; return mez(hex('#3a2a1a'), hex('#f0d8a8'), l); }, [fx + 5, fy + 5, fx + 69, fy + 66]); R.recorte(null);
+    R.numero('2015', fx + 37, fy + 82, { centro: true, rampa: ['#3a3a4a', '#2a2a3a', '#2a2a3a', '#1a1a2a', '#141018'].map(hex) }); }
+  velo(0, 0, 319, 21, hex('#5a3418'), 0.2); velo(272, 21, 319, 50, hex('#5a3418'), 0.2);
+};
+// 6 · el plató del bosque: la silla de director roja que queda vacía
+const silla = (x, y, back, t) => { // (x, y) = el pie izquierdo; 16 × 22
+  R.linea(x, y, x + 14, y - 10, hex('#8a5a30')); R.linea(x + 14, y, x, y - 10, hex('#8a5a30')); R.linea(x + 1, y, x + 15, y - 10, hex('#5a3a20'));
+  R.rect(x - 1, y - 12, x + 15, y - 10, K); R.rect(x, y - 12, x + 14, y - 11, back); R.rect(x, y - 22, x + 1, y - 10, hex('#8a5a30')); R.rect(x + 13, y - 22, x + 14, y - 10, hex('#8a5a30'));
+  R.rect(x + 1, y - 21, x + 13, y - 16, K); R.rect(x + 2, y - 20, x + 12, y - 17, back); R.rect(x + 2, y - 17, x + 12, y - 17, mez(back, K, 0.4)); };
+// el techo del plató (y 0–21: vigas, un conducto, la pasarela de celosía con su rejilla y los focos colgados) y la columna
+// negra de la izquierda (x 0–15: la cortina con sus pliegues, el saco de arena que se mece y el mazo de cables); solo
+// donde el decorado deja negro, para no tapar la pértiga del micro ni el foco de pie. La barra del año y la esquina de
+// Atom quedan oscuras y tranquilas.
+const TCH = ['#0a0b12', '#11131c', '#191c27', '#252935', '#3a3f4d', '#5a6070'].map(hex);
+const lum = (c) => (c & 255) + ((c >>> 8) & 255) + ((c >>> 16) & 255);
+const techoPx = (x, y) => {
+  // la pasarela va en dos tramos colgados (x 0–124 y 176–269) que dejan libres la barra del año y sus cifras
+  const at = x >= 270, barra = x >= 18 && x <= 174 && y <= 14, pas = !at && (x <= 124 || x >= 176);
+  if (pas && y === 15) return TCH[5]; if (pas && y === 20) return TCH[4];
+  if (pas && y > 15 && y < 20) { const p = x % 12, d = y - 16; if (p === d * 3 || 11 - p === d * 3) return TCH[4]; if (p === 0 || x === 124 || x === 176) return TCH[3]; return (x + y) % 3 ? TCH[0] : TCH[1]; }
+  if (pas && y === 21) return x % 2 ? TCH[3] : TCH[1];
+  if (!barra && !at && y < 15 && (x % 48 === 24 || x === 120 || x === 180)) return TCH[3];
+  if (!barra && !at && y >= 3 && y <= 6) return y === 3 ? TCH[3] : y === 6 ? TCH[1] : (x % 40 === 6 ? TCH[4] : TCH[2]);
+  if (!barra && x % 32 < 3) return x % 32 === 0 ? TCH[3] : TCH[2];
+  return (x + y * 3) % 7 === 0 ? TCH[2] : TCH[1];
+};
+const techoPlato = (t, foco) => {
+  for (let y = 0; y <= 21; y++) for (let x = 0; x < 320; x++) if (lum(R.pget(x, y)) < 110) R.pset(x, y, techoPx(x, y));
+  const sw = Math.sin(t * 1.1) * 2;
+  for (let y = 22; y <= 150; y++) for (let x = 0; x <= 15; x++) { if (lum(R.pget(x, y)) >= 110) continue; const v = Math.sin(x * 1.05 + 0.6) + Math.sin(y * 0.05 + x) * 0.15;
+    R.pset(x, y, x === 1 ? hex('#22222a') : v > 0.6 ? hex('#22222e') : v < -0.6 ? hex('#0c0c12') : hex('#16161e')); }
+  // el mazo de cables que baja de la pasarela por la columna
+  R.linea(2, 21, 2, 150, hex('#2a2a2a')); R.linea(3, 21, 3, 150, hex('#3a2a1a')); for (let y = 30; y < 150; y += 22) R.rect(1, y, 4, y + 1, hex('#5a5a62'));
+  R.linea(4, 21, 40, 21, hex('#2a2a2a'));
+  // el saco de arena que cuelga de su cuerda y se mece
+  const bx = 10 + Math.round(sw); R.linea(9, 22, bx, 58, hex('#8a7a5a')); R.rect(bx - 3, 58, bx + 3, 66, K); R.rect(bx - 2, 59, bx + 2, 65, hex('#7a6a44')); R.linea(bx - 2, 59, bx - 2, 65, hex('#9a8a5a')); R.linea(bx - 2, 62, bx + 2, 62, hex('#5a4a2a'));
+  // los focos colgados de la pasarela, con su horquilla, sus viseras y el brillo de la gelatina
+  for (const [x, g, k] of [[40, '#e88a3a', 0], [92, '#3a8ae8', 1], [200, '#fff0b0', 2], [236, '#e83a6a', 3], [258, '#8ae8a0', 4]]) {
+    const on = k === 2 ? foco : 0.55 + 0.1 * Math.sin(t * 2 + k * 1.7);
+    R.linea(x - 3, 21, x - 3, 24, TCH[4]); R.linea(x + 3, 21, x + 3, 24, TCH[4]); R.linea(x - 3, 21, x + 3, 21, TCH[5]);
+    R.rect(x - 3, 23, x + 3, 28, K); R.rect(x - 2, 24, x + 2, 27, hex('#2a2c36')); R.pset(x - 2, 24, hex('#4a4e5a'));
+    R.linea(x - 4, 29, x - 2, 28, TCH[4]); R.linea(x + 4, 29, x + 2, 28, TCH[4]); R.linea(x - 1, 29, x + 1, 29, mez(hex('#3a3a40'), hex(g), on));
+    for (let y = 30; y < 44; y++) { const w = 1 + (y - 30) * 0.35; for (let xx = Math.round(x - w); xx <= x + w; xx++) if ((xx + y) % 2) R.pset(xx, y, mez(R.pget(xx, y), hex(g), 0.14 * on * (1 - (y - 30) / 14))); } }
+};
+const p6 = (t) => {
+  const o = { encuadre: 'bosque' }; T.plato(R, t, o);
+  silla(60, 158, hex('#2a4a9a'), t); silla(84, 158, hex('#3a8a4a'), t); silla(204, 158, hex('#e8b830'), t);
+  const deja = X(0.79), u = tramo(t, P6 + 0.2, deja), ox = Math.round(lerp(300, 162, u)), hombros = X(0.925);
+  const foco = tramo(t, X(0.939), X(0.939) + 0.3);
+  techoPlato(t, foco);
+  // el haz del foco de la pasarela (x 200) que cae en diagonal sobre la silla vacía
+  if (foco > 0) { for (let y = 30; y < 160; y++) { const v = (y - 30) / 130, cx = lerp(200, 146, v), w = 3 + v * 15; for (let x = Math.round(cx - w); x <= cx + w; x++) R.pset(x, y, mez(R.pget(x, y), hex('#fff0b0'), 0.25 * foco)); } R.disco(146, 160, 18 * foco, (x, y) => mez(R.pget(x, y), hex('#fff0b0'), 0.3)); }
+  if (u >= 1) silla(138, 158, hex('#c8303a'), t);
+  R.actor(EL.camarografo, 30, 158, t, { dir: 1, dedo: t > X(0.81) && t < X(0.9) });
+  // el operario trae la silla, la deja, mira a un lado y a otro («any Maximoff») y se encoge de hombros junto a ella
+  const busca = u >= 1 && t > X(0.81) && t < hombros, dir = u < 1 ? -1 : busca ? (Math.floor((t - X(0.81)) * 1.6) % 2 ? 1 : -1) : -1;
+  const a = R.actor(EL.operario, ox, 158, t, { dir, anda: u > 0 && u < 1, sostiene: u < 1 ? true : undefined, brazos: u >= 1 && t > hombros });
+  if (u < 1) silla(a.mano[0] - 16, a.mano[1] + 10, hex('#c8303a'), t);
+  const q = tramo(t, X(0.804), X(0.804) + 0.3); if (q > 0) R.icono('?', 140, Math.round(lerp(130, 104, q)), Math.sin(t * 7) > 0 ? hex('#ffffff') : hex('#e83a3a'), K, 3);
+  T.platoDelante(R, t, o);
+};
+// 7 · (cómic) Latveria de noche: el castillo en su peña; los cartuchos 2010 → 2012; Wanda llega
+// en dos búferes: el cielo (BUFL: tramado, estrellas, la luna con su halo y la sierra lejana nevada) y lo de delante
+// (BUFL2, transparente donde vale 0: la peña con sus caras, grietas y repisas de nieve, abetos, matas y rocas, el
+// castillo de sillares, el camino empedrado y el pueblo de casas distintas); entre los dos pasan las nubes y los murciélagos
+const BUFL = R.nuevo(), BUFL2 = R.nuevo(); let latOK = false;
+const BAY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const rampa = (cs, v, x, y) => { const n = cs.length - 1, w = Math.max(0, Math.min(n, v)), i = Math.floor(w); return cs[(w - i) > (BAY[(y & 3) * 4 + (x & 3)] + 0.5) / 16 ? Math.min(n, i + 1) : i]; };
+const perfil = (pts, x) => { for (let i = 0; i < pts.length - 1; i++) if (x >= pts[i][0] && x <= pts[i + 1][0]) return lerp(pts[i][1], pts[i + 1][1], (x - pts[i][0]) / Math.max(1, pts[i + 1][0] - pts[i][0])); return pts[pts.length - 1][1]; };
+const VENT = [], CHIM = [];
+const MONTE = [[9, 118], [40, 104], [80, 114], [120, 96], [150, 104], [166, 80], [196, 66], [228, 74], [256, 96], [290, 94], [311, 100]];
+const latveria = () => { R.recorte(null); const TI = K; let prev = R.usar(BUFL);
+  // EL CIELO: tramado de cinco azules, una vía láctea de puntos y la trama de cómic cerca del horizonte
+  const CI = ['#121a3c', '#18224c', '#1e2a5a', '#263468', '#2e3e76', '#384a84'].map(hex);
+  for (let y = 8; y <= 171; y++) for (let x = 9; x <= 310; x++) { let c = rampa(CI, (y - 8) / 20 + (azar(x >> 3, y >> 3) - 0.5) * 0.4, x, y);
+    if (y > 64 && y % 4 === 0 && x % 4 === (y % 8 ? 0 : 2) && azar(x, y) < (y - 64) / 50) c = hex('#4a5c9c');
+    if (Math.abs((y - 8) - (x - 9) * 0.28 + 6) < 7 && azar(x, y) < 0.18) c = hex('#4e5e9a'); R.pset(x, y, c); }
+  for (let k = 0; k < 80; k++) { const x = 11 + Math.floor(azar(k, 1) * 298), y = 10 + Math.floor(azar(k, 2) * 86), b = azar(k, 5); R.pset(x, y, b > 0.7 ? hex('#f6eed6') : hex('#a8b0d8'));
+    if (b > 0.9) { R.pset(x - 1, y, hex('#6a78b0')); R.pset(x + 1, y, hex('#6a78b0')); R.pset(x, y - 1, hex('#6a78b0')); R.pset(x, y + 1, hex('#6a78b0')); } }
+  // la luna: halo tramado, el lado en sombra, cráteres con su borde de luz y la tinta
+  for (let y = 36; y <= 88; y++) for (let x = 66; x <= 118; x++) { const d = Math.hypot(x - 92, y - 62); if (d > 16 && d < 26 && (BAY[(y & 3) * 4 + (x & 3)] / 16) < (26 - d) / 14) R.pset(x, y, mez(R.pget(x, y), hex('#8a94c0'), 0.45)); }
+  R.disco(92, 62, 16, TI); R.disco(92, 62, 15, hex('#f6e8b0'));
+  for (let y = 47; y <= 77; y++) for (let x = 77; x <= 107; x++) if (Math.hypot(x - 92, y - 62) < 15) { const s = (x - 92) * 0.8 + (y - 62) * 0.5; if (s > 8 || (s > 5 && (x + y) % 2)) R.pset(x, y, hex('#d8c890')); }
+  for (const [cx, cy, r] of [[86, 57, 3], [98, 67, 2], [90, 70, 2], [97, 55, 1.5]]) { R.disco(cx, cy, r, hex('#d0c088')); R.pset(Math.round(cx - r + 1), Math.round(cy - r + 1), hex('#fff6d0')); }
+  // la sierra lejana con sus cumbres nevadas y su trama
+  const lej = (x) => 100 - 12 * Math.sin(x * 0.035 + 1) - 6 * Math.sin(x * 0.09) - 5 * Math.abs(Math.sin(x * 0.17));
+  for (let x = 9; x <= 310; x++) { const r = Math.round(lej(x)); for (let y = r; y <= 171; y++) { let c = rampa(['#20244a', '#282e58', '#323866'].map(hex), 1.6 - (y - r) / 18 + (x < 150 ? 0.3 : -0.2), x, y);
+    if (y - r < 2 + 3 * Math.abs(Math.sin(x * 0.3)) && r < 96) c = (x + y) % 3 ? hex('#a8b4d8') : hex('#7a86b0'); if (y === r) c = hex('#141634'); R.pset(x, y, c); } }
+  R.usar(prev); prev = R.usar(BUFL2); BUFL2.fill(0);
+  // LA PEÑA y las colinas: tramado con caras de roca iluminadas por la luna (desde la izquierda) y en sombra
+  const RO = ['#16132a', '#1e1a36', '#28233f', '#332e52', '#423d66', '#55507c'].map(hex);
+  for (let x = 9; x <= 310; x++) { const r = Math.round(perfil(MONTE, x)); for (let y = r; y <= 171; y++) {
+    const peña = x > 128 && x < 276 && y < 146, col = Math.floor((x + (y - 100) * 0.45) / 9), cara = peña ? (azar(col, 31) > 0.5 ? 0.9 : -0.7) : 0;
+    let c = rampa(RO, 3.2 - (y - r) * 0.035 + cara + (azar(x >> 1, y >> 1) - 0.5) * 0.5 + (x < 140 ? 0.3 : 0), x, y);
+    if (peña && Math.abs(((x + (y - 100) * 0.45) % 9)) < 0.7 && azar(col, Math.floor(y / 8)) > 0.35) c = TI;
+    if (y - r < 2) c = (x + y) % 3 ? hex('#c8d0e8') : hex('#9aa6cc'); if (y === r) c = hex('#0e0c1e'); R.pset(x, y, c); } }
+  // las repisas de nieve de la peña, con su sombra
+  for (const [cx, cy, w] of [[138, 124, 10], [160, 132, 12], [252, 118, 10], [266, 132, 8], [226, 138, 14], [184, 140, 10]]) { R.linea(cx - w / 2, cy + 1, cx + w / 2, cy + 1, TI); R.linea(cx - w / 2 + 1, cy, cx + w / 2 - 1, cy, hex('#c8d0e8')); R.linea(cx - w / 2 + 2, cy - 1, cx + w / 2 - 3, cy - 1, hex('#e8eefa')); }
+  // abetos nevados, matas y rocas
+  const abeto = (x, y, h) => { R.rect(x, y - 2, x + 1, y, hex('#3a2a1a')); for (let k = 0; k < 3; k++) { const ty = y - 2 - k * h / 3.4, w = (3 - k) * h / 7 + 1; R.poligono([[x - w - 1, ty + 1], [x + 0.5, ty - h / 2.4 - 1], [x + w + 2, ty + 1]], TI); R.poligono([[x - w, ty], [x + 0.5, ty - h / 2.4], [x + w + 1, ty]], (px, py) => (px < x ? hex('#2a5a48') : hex('#183a32'))); R.linea(x - w, ty, x - w + 2, ty - 1, hex('#d0d8f0')); R.pset(x, Math.round(ty - h / 2.4), hex('#e8eefa')); } };
+  for (const [x, y, h] of [[18, 138, 16], [30, 128, 14], [42, 120, 12], [94, 130, 14], [106, 124, 12], [128, 118, 12], [272, 112, 14], [286, 118, 16], [300, 110, 14], [62, 138, 10], [116, 136, 10]]) abeto(x, y, h);
+  for (const [x, y] of [[44, 160], [84, 154], [100, 148], [130, 140], [16, 156], [74, 146]]) { R.rect(x - 3, y - 2, x + 3, y, TI); R.rect(x - 2, y - 2, x + 2, y - 1, hex('#2a4a3a')); R.pset(x - 1, y - 2, hex('#4a7a5a')); R.pset(x + 1, y - 3, hex('#c8d0e8')); }
+  for (const [x, y, rx, ry] of [[90, 158, 5, 3], [30, 160, 4, 2], [140, 140, 4, 3], [58, 154, 3, 2]]) { R.disco(x, y, rx + 1, TI); R.disco(x, y, rx, hex('#3a3656')); R.disco(x - 1, y - 1, rx - 1.5, hex('#55507c')); R.linea(x - rx + 1, y - ry, x + rx - 2, y - ry, hex('#e8eefa')); }
+  // EL CASTILLO: muralla de sillares (bloques con canto de luz y junta), almenas con su lado en luz y en sombra
+  const sillar = (x0, y0, x1, y1, osc) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const fil = Math.floor((y - y0) / 4), off = fil % 2 ? 4 : 0, jy = (y - y0) % 4 === 3, jx = (x - x0 + off) % 8 === 7, bl = azar(Math.floor((x - x0 + off) / 8), fil + y0);
+      let c = jx || jy ? hex('#45455a') : (y - y0) % 4 === 0 ? hex('#8a8aa2') : bl > 0.66 ? hex('#727288') : bl < 0.25 ? hex('#5e5e74') : hex('#68687e');
+      if (osc(x)) c = mez(c, TI, 0.38); R.pset(x, y, c); } };
+  R.rect(149, 77, 251, 113, TI); sillar(150, 78, 250, 112, (x) => x > 236);
+  for (let x = 150; x < 250; x += 8) { R.rect(x, 72, x + 5, 78, TI); R.rect(x + 1, 73, x + 4, 78, hex('#68687e')); R.linea(x + 1, 73, x + 1, 78, hex('#8a8aa2')); R.linea(x + 4, 73, x + 4, 78, hex('#4a4a5e')); R.linea(x + 1, 73, x + 4, 73, hex('#9a9ab2')); }
+  for (let x = 152; x < 250; x += 4) R.pset(x, 79, hex('#3a3a4e'));
+  const torre = (x, top, w, alto) => { R.rect(x, top, x + w, top + alto, TI); sillar(x + 1, top + 1, x + w - 1, top + alto - 1, (xx) => xx > x + w - 4);
+    R.poligono([[x - 4, top + 1], [x + w / 2, top - w * 1.2 - 1], [x + w + 4, top + 1]], TI);
+    R.poligono([[x - 3, top], [x + w / 2, top - w * 1.2], [x + w + 3, top]], (px, py) => ((top - py) % 3 === 0 ? hex('#18482a') : px < x + w / 2 ? (px < x + w / 4 ? hex('#4a9a5a') : hex('#3a8a4a')) : hex('#1e5a30')));
+    R.linea(x - 3, top, x + w + 3, top, hex('#e8eefa')); R.linea(x + w / 2, top - w * 1.2, x + w / 2, top - w * 1.2 - 8, TI);
+    for (let y = top + 6; y < top + alto - 6; y += 10) { R.rect(x + w / 2 - 3, y - 1, x + w / 2 + 3, y + 6, TI); VENT.push([Math.round(x + w / 2 - 2), y, Math.round(x + w / 2 + 2), y + 5]); }
+    R.rect(x + 3, top + alto - 14, x + 3, top + alto - 10, TI); R.rect(x + w - 3, top + alto - 24, x + w - 3, top + alto - 20, TI); };
+  torre(140, 58, 16, 54); torre(186, 40, 22, 72); torre(240, 56, 16, 56);
+  for (const x of [162, 172, 222, 230]) { R.rect(x - 2, 86, x + 2, 92, TI); VENT.push([x - 1, 87, x + 1, 91]); }
+  // la puerta en arco con su rastrillo
+  R.disco(202, 98, 9, TI); R.rect(193, 98, 211, 112, TI); R.disco(202, 98, 8, hex('#2a1a14')); R.rect(194, 98, 210, 112, hex('#2a1a14'));
+  for (let x = 196; x <= 208; x += 3) R.linea(x, 92, x, 112, hex('#5a5a6a')); for (let y = 96; y <= 110; y += 4) R.linea(194, y, 210, y, hex('#4a4a5a'));
+  R.linea(150, 112, 250, 112, hex('#c8d0e8'));
+  // EL CAMINO empedrado que sube, con sus bordes de tinta y nieve en las orillas
+  const cam = [[20, 171], [70, 160], [50, 150], [120, 140], [150, 126], [196, 112]];
+  for (let i = 0; i < cam.length - 1; i++) for (let w = -3; w <= 3; w++) R.linea(cam[i][0], cam[i][1] + w, cam[i + 1][0], cam[i + 1][1] + w, Math.abs(w) === 3 ? TI : Math.abs(w) === 2 ? hex('#6a5a40') : hex('#8a7a5a'));
+  for (let i = 0; i < cam.length - 1; i++) for (let k = 0; k < 14; k++) { const f = (k + 0.5) / 14, x = Math.round(lerp(cam[i][0], cam[i + 1][0], f)), y = Math.round(lerp(cam[i][1], cam[i + 1][1], f)) + (k % 3) - 1; R.pset(x, y, hex('#a8987a')); R.pset(x + 1, y + 1, hex('#5a4a32')); if (k % 4 === 1) R.pset(x, y - 3, hex('#e8eefa')); }
+  // EL PUEBLO al pie: casas distintas (de dos aguas, altas, de tejado bajo; con entramado o de piedra), nieve en los
+  // tejados, chimeneas (el humo sale en cada fotograma) y ventanas (que titilan)
+  const casas = [[160, 150, 14, 12, '#7a6a5a', '#4a3a5a', 0, 1, 0], [196, 148, 18, 15, '#9a7a58', '#6a2a2a', 1, 0, 1], [236, 149, 12, 11, '#8a6a4a', '#5a3a2a', 0, 1, 0], [272, 147, 16, 15, '#a08060', '#4a3a5a', 1, 1, 1],
+    [148, 163, 16, 12, '#8a6a4a', '#7a3a2a', 0, 0, 1], [174, 165, 20, 13, '#a08060', '#6a2a2a', 1, 1, 0], [206, 163, 13, 10, '#6a6a7a', '#5a3a2a', 2, 0, 0], [228, 166, 18, 14, '#9a7a58', '#4a3a5a', 0, 1, 1], [256, 162, 14, 12, '#8a6a4a', '#7a3a2a', 1, 0, 0], [280, 165, 22, 13, '#a08060', '#5a3a2a', 2, 1, 1]];
+  for (const [x, base, w, h, cp, ct, tipo, chim, entr] of casas) { const top = base - h, rh = tipo === 1 ? Math.round(w * 0.75) : tipo === 2 ? 5 : Math.round(w / 2);
+    R.rect(x - 1, top - 1, x + w + 1, base + 1, TI); for (let y = top; y <= base; y++) for (let xx = x; xx <= x + w; xx++) R.pset(xx, y, xx > x + w - 3 ? mez(hex(cp), TI, 0.3) : y > base - 2 ? mez(hex(cp), hex('#4a4a5a'), 0.5) : hex(cp));
+    if (entr) { R.linea(x, top + 3, x + w, top + 3, hex('#3a2418')); R.linea(x + 3, top, x + 3, base, hex('#3a2418')); R.linea(x + w - 3, top, x + w - 3, base, hex('#3a2418')); R.linea(x + 3, top + 3, x + 7, base - 2, hex('#3a2418')); }
+    else for (let y = top + 2; y < base; y += 3) R.pset(x + 2 + (y % 6 ? 0 : 3), y, mez(hex(cp), TI, 0.3));
+    if (chim) { const cx = x + w - 4; R.rect(cx - 1, top - rh + 1, cx + 2, top, TI); R.rect(cx, top - rh + 2, cx + 1, top, hex('#6a4a3a')); CHIM.push([cx, top - rh]); }
+    const pts = tipo === 2 ? [[x - 2, top], [x + 3, top - rh], [x + w - 3, top - rh], [x + w + 2, top]] : [[x - 2, top], [x + w / 2, top - rh], [x + w + 2, top]];
+    R.poligono(pts.map(([a, b2]) => [a, b2 - 1]), TI); R.poligono(pts, (px, py) => ((top - py) % 3 === 2 ? mez(hex(ct), TI, 0.35) : px > x + w / 2 ? mez(hex(ct), TI, 0.25) : hex(ct)));
+    for (let i = 0; i < pts.length - 1; i++) R.linea(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], hex('#e8eefa'));
+    R.rect(x + Math.round(w / 2) - 1, base - 5, x + Math.round(w / 2) + 1, base, hex('#3a2418'));
+    for (const wx of w > 15 ? [x + 3, x + w - 6] : [x + 2]) { R.rect(wx - 1, top + 4, wx + 3, top + 8, TI); VENT.push([wx, top + 5, wx + 2, top + 7]); } }
+  // la cerca del pueblo
+  for (let x = 146; x < 306; x += 5) { R.rect(x, 168, x, 171, hex('#4a3020')); R.pset(x, 167, hex('#e8eefa')); } R.linea(146, 169, 306, 169, hex('#3a2418'));
+  R.usar(prev); latOK = true; };
+const p7 = (t) => {
+  T.comic(R, t, { encuadre: 'latveria' });
+  if (!latOK) latveria();
+  for (let y = 8; y <= 171; y++) for (let x = 9; x <= 310; x++) R.pset(x, y, BUFL[y * 320 + x]);
+  R.recorte([9, 8, 310, 171]);
+  // estrellas que titilan
+  for (let k = 0; k < 14; k++) if (Math.sin(t * (2 + k % 3) + k * 2.3) > 0.4) { const x = 11 + Math.floor(azar(k, 21) * 298), y = 10 + Math.floor(azar(k, 22) * 70); R.pset(x, y, hex('#ffffff')); R.pset(x + 1, y, hex('#8a96c8')); R.pset(x - 1, y, hex('#8a96c8')); }
+  // las nubes de tres tonos, a tres velocidades (las lejanas despacio, las cercanas deprisa), por detrás del castillo
+  for (const [x0, y, w, v] of [[30, 40, 18, 1.5], [200, 30, 14, 1.5], [10, 52, 26, 3.5], [160, 46, 22, 3.5], [100, 68, 34, 6]]) { const x = 9 + ((x0 + t * v) % 380) - 50;
+    for (const [dx, dy, r] of [[0, 0, w / 4], [w / 3, -w / 10, w / 3.4], [w / 1.6, 0, w / 4.4]]) { R.disco(x + dx, y + dy, r + 1, hex('#10142c')); }
+    for (const [dx, dy, r] of [[0, 0, w / 4], [w / 3, -w / 10, w / 3.4], [w / 1.6, 0, w / 4.4]]) { R.disco(x + dx, y + dy, r, hex('#34406c')); R.disco(x + dx, y + dy - 1, r - 1, hex('#56648e')); R.disco(x + dx - 1, y + dy - 2, Math.max(1, r - 3), hex('#8090b8')); } }
+  // los murciélagos que aletean entre la luna y las torres (con su filo claro, para que se lean sobre el cielo)
+  for (let k = 0; k < 4; k++) { const an = t * (0.6 + k * 0.12) + k * 1.6, bx = Math.round((k < 2 ? 112 : 196) + Math.cos(an) * (28 + k * 8)), by = Math.round((k < 2 ? 58 : 40) + Math.sin(an * 1.3) * (10 + k * 2)), al = Math.floor(t * 8 + k) % 2, w = al ? -2 : 1;
+    R.rect(bx, by, bx + 1, by + 1, K); R.pset(bx, by - 1, K); R.pset(bx + 1, by - 1, K);
+    for (const sg of [-1, 1]) { const ox = sg < 0 ? bx : bx + 1; R.linea(ox, by, ox + sg * 2, by + w, K); R.linea(ox + sg * 2, by + w, ox + sg * 4, by + w + (al ? -1 : 1), K); R.pset(ox + sg * 3, by + w + 1, hex('#5a6aa8')); } }
+  // los robots de guardia por el adarve, detrás de las almenas
+  for (let k = 0; k < 3; k++) { const gx = 156 + ((k * 30 + t * 8) % 88); R.rect(gx, 68, gx + 3, 76, K); R.rect(gx + 1, 69, gx + 2, 75, hex('#9a9eaa')); R.pset(gx + 1, 69, (Math.floor(t * 3 + k) % 2) ? hex('#5ae88a') : hex('#c8303a')); }
+  // lo de delante (la peña, el castillo, el camino y el pueblo)
+  for (let y = 8; y <= 171; y++) for (let x = 9; x <= 310; x++) { const c = BUFL2[y * 320 + x]; if (c) R.pset(x, y, c); }
+  // las ventanas que titilan (alguna se apaga un rato) y el humo de las chimeneas
+  VENT.forEach(([x0, y0, x1, y1], k) => { const v = Math.sin(t * 6 + k * 3.1) + Math.sin(t * 2.3 + k), apag = k % 6 === 4 && Math.sin(t * 0.9 + k) > 0.5;
+    R.rect(x0, y0, x1, y1, apag ? hex('#2a2238') : v > 1.4 ? hex('#fff0a0') : v < -1.3 ? hex('#d8962e') : hex('#f6d860')); if (!apag) R.pset(x0, y0, hex('#fff8d0')); });
+  CHIM.forEach(([cx, cy], j) => { for (let k = 0; k < 6; k++) { const f = (t * 0.32 + k / 6 + j * 0.13) % 1, px = cx + f * 14 + Math.sin(t * 1.5 + k + j) * 1.5, py = cy - 1 - f * 24, r = 1 + f * 2.6;
+    R.disco(px, py, r, (x, y) => mez(R.pget(x, y), hex('#9aa2c0'), 0.55 * (1 - f))); } });
+  // los estandartes verdes que ondean en las torres
+  for (const [bx, by] of [[148, 32], [197, 6], [248, 30]]) { if (by < 8) continue; for (let i = 0; i < 12; i++) { const yy = by + Math.round(Math.sin(t * 5 + i * 0.6) * 1.5); R.linea(bx + i, yy, bx + i, yy + 6, i % 4 === 0 ? hex('#1a4a26') : hex('#3a8a4a')); } R.linea(bx, by, bx + 12, by, K); }
+  R.recorte(null);
+  // Wanda sube por el camino
+  const u = tramo(t, P7 + 0.4, P8 - 0.2), tr = [[30, 168], [70, 160], [52, 150], [118, 140]], sg = Math.min(2.999, u * 3), i = Math.floor(sg), f = sg - i;
+  R.actor(EL.wandaDD, Math.round(lerp(tr[i][0], tr[i + 1][0], f)) - 7, Math.round(lerp(tr[i][1], tr[i + 1][1], f)), t, { dir: tr[i + 1][0] > tr[i][0] ? 1 : -1, anda: u > 0 && u < 1, triste: true });
+  for (let k = 0; k < 40; k++) { const x = 9 + ((azar(k, 3) * 302 + t * 4) % 302), y = 8 + ((azar(k, 4) * 164 + t * 12) % 164); if (k % 3 === 0) R.pset(Math.round(x), Math.round(y), hex('#c8d0e8')); }
+  T.comicDelante(R, t, { encuadre: 'latveria' });
+  // los cartuchos: 2010 → 2012
+  const c1 = tramo(t, Y(0.213) - 0.1, Y(0.213) + 0.15), c2 = tramo(t, Y(0.273) - 0.1, Y(0.273) + 0.15), tinta = ['#2a2030', '#141018', '#141018', '#141018', '#141018'].map(hex);
+  if (c1 > 0) { caja(14, 22, 14 + Math.max(4, Math.round(44 * c1)), 38, hex('#f6d860')); if (c1 >= 1) R.numero('2010', 36, 34, { centro: true, rampa: tinta }); }
+  if (c2 > 0) { R.linea(60, 30, 68, 30, K); R.linea(66, 28, 68, 30, K); R.linea(66, 32, 68, 30, K); caja(70, 22, 70 + Math.max(4, Math.round(44 * c2)), 38, hex('#f6d860')); if (c2 >= 1) R.numero('2012', 92, 34, { centro: true, rampa: tinta }); }
+};
+// 8 · (cómic) la boda en el castillo: Wanda con velo, desorientada; Doom le tiende la mano
+const velo2 = (hx, hy, dir) => { const b = -dir; R.poligono([[hx - 3, hy - 1], [hx + 4, hy - 1], [hx + b * 4, hy + 10], [hx + b * 9, hy + 24], [hx + b * 13, hy + 24], [hx + b * 7, hy + 6]], (x, y) => mez(R.pget(x, y), BLANCO, 0.6));
+  for (let i = -3; i <= 3; i++) R.pset(hx + i, hy, i % 2 ? hex('#f6f2e6') : hex('#ffb0c0')); };
+const p8 = (t) => {
+  const o = { encuadre: 'latveria', boda: 1 }; T.comic(R, t, o);
+  const duda = t > Y(0.402) && t < Y(0.58), mira = duda ? (Math.floor(t * 1.6) % 2 ? 1 : -1) : 1, cat = Y(0.655);
+  const ent = tramo(t, P8 + 0.2, Y(0.45)), wx = Math.round(lerp(58, 128, ent)), dv = tramo(t, Y(0.56), Y(0.6)), dx = Math.round(lerp(204, 172, dv));
+  const w = R.actor(EL.wandaDD, wx, 160, t, { anda: ent > 0 && ent < 1, dir: ent < 1 ? 1 : mira, sostiene: t < cat ? true : undefined, sorpresa: t > cat && t < cat + 1.2, brazos: t > cat && t < cat + 1.2 });
+  if (t < cat) { const [mx, my] = w.mano; for (const [i, j, c] of [[0, -2, '#ffffff'], [-2, -1, '#ffb0c0'], [2, -1, '#ffffff'], [-1, -3, '#ffb0c0'], [1, -3, '#ffffff'], [0, 0, '#3a8a4a'], [0, 2, '#3a8a4a']]) R.rect(mx + i, my + j, mx + i + 1, my + j + 1, hex(c)); }
+  velo2(w.cabeza[0], w.cabeza[1], mira);
+  R.actor(EL.doom, dx, 160, t, { dir: -1, anda: dv > 0 && dv < 1, dedo: t > Y(0.582) && t < Y(0.7), habla: t > Y(0.56) && t < Y(0.62) && Math.sin(t * 7) > 0 });
+  if (t > Y(0.526) && t < cat && Math.floor(t * 3) % 3) R.icono('?', w.cabeza[0] - 2, w.cabeza[1] - 14, hex('#ffffff'), K, 2);
+  if (t > cat && t < cat + 1.6) chispas(w.cabeza[0], w.cabeza[1] + 10, 16, t, 14);
+  T.comicDelante(R, t, o);
+};
+// 9 · el cómic y la película, juntos; «=»
+const BUFD = R.nuevo(), BUFF = R.nuevo(); let dipOK = false;
+const p9 = (t) => {
+  if (!dipOK) { const prev = R.usar(BUFD); p8(Y(0.6)); R.usar(prev); dipOK = true; }
+  const prev = R.usar(BUFF); const o = { encuadre: 'ruinas', verde: 0.7, levanta: 1 }; T.wundagore(R, t, o); tumbado(EL.wandaDD, 204, 147, 1, t, { dir: 1, sorpresa: true, quieto: true });
+  R.actor(EL.doom, 168, 160, t, { dir: 1, dedo: Math.sin(t * 1.5) > 0.3 }); T.wundagoreDelante(R, t, o); R.usar(prev);
+  const off = 0;
+  for (let y = 0; y < 180; y++) { for (let x = 0; x < 160; x++) R.pset(x, y, BUFF[y * 320 + x + 100]); for (let x = 160; x < 320; x++) R.pset(x, y, BUFD[y * 320 + x - 80]); }
+  R.rect(157, 0, 162, 179, K); R.rect(159, 0, 160, 179, hex('#f6f2e6'));
+  R.rect(268, 0, 319, 52, K); R.rect(271, 0, 319, 49, hex('#f0e4c0')); for (let k = 0; k < 30; k++) R.pset(272 + Math.floor(azar(k, 1) * 46), Math.floor(azar(k, 2) * 48), hex('#dccb9c'));
+  // los dos marcadores: Wanda y Doom en cada lado, que se rodean a la vez
+  const ma = tramo(t, Y(0.8), Y(0.8) + 0.8); if (ma > 0) for (const [cx, cy, rx, ry] of [[88, 150, 32, 16], [238, 150, 38, 16]]) for (let s2 = 0; s2 < ma * 60; s2++) { const an = -Math.PI / 2 + s2 / 60 * Math.PI * 2.1; R.rect(Math.round(cx + Math.cos(an) * rx), Math.round(cy + Math.sin(an) * ry), Math.round(cx + Math.cos(an) * rx) + 1, Math.round(cy + Math.sin(an) * ry), hex('#f6c83a')); }
+  const ig = tramo(t, Y(0.934) - 0.1, Y(0.934) + 0.2); if (ig > 0) { const s = Math.round(4 + 6 * ig); caja(146, 80, 173, 104, hex('#f6d860')); R.rect(151, 86, 168, 86 + Math.max(1, s / 3), K); R.rect(151, 96, 168, 96 + Math.max(1, s / 3), K); }
+};
+const efectos = [[0.5, 'zumbido'], [W(0.206), 'avalancha'], [W(0.3), 'rafaga'], [W(0.641), 'flash'], [W(0.66), 'brillo'], [W(0.876), 'viento'], [P3 + 0.4, 'papel'], [X(0) + 0.05, 'golpecito'],
+  [P4 + 0.1, 'whoosh'], [X(0.264), 'papel'], [X(0.439) + 0.35, 'golpecito'], [X(0.45), 'whoosh'], [X(0.6), 'papel'], [X(0.79), 'toc'], [X(0.804), 'pop'], [X(0.939), 'interruptor'],
+  [P7 + 0.3, 'viento'], [Y(0.213), 'pop'], [Y(0.273), 'pop'], [P8 + 0.2, 'campana'], [Y(0.526), 'pop'], [Y(0.655), 'flash'], [P9 + 0.1, 'whoosh'], [Y(0.934), 'brillo']];
+const año = (t) => (t >= P7 && t < P9 ? null : t >= P4 && t < P5 ? 2015 : 2026);
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9]], { efectos, año });
+</script>
+</body>
+</html>

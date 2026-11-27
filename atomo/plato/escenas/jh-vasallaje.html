@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El Vasallaje · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// JH-VASALLAJE (frases 18–19), Juegos 50. Tres planos:
+// 1. (0–«Special») el despacho de Snow: Snow, junto al cofre, lo abre en «twenty-five years» y sale un «25» dorado (el
+//    agente de la puerta se sorprende); un avox entra por la derecha con una bandeja y una taza que humea, el vigilante
+//    de visita se vuelve, coge la taza y el avox se va; Snow habla con él y en «Quarter Quell» levanta una tarjeta que
+//    brilla; el vigilante se inclina sorprendido (con la taza) y el agente saluda.
+// 2. («Special»–«The second») la mesa de cerca: del cofre asoman tres tarjetas, 25, 50 y 75; en «twist» la del 50 da
+//    una vuelta; en «remind» Snow levanta el dedo; en «that they lost» la del 25 vuelve a caer al cofre; en «fiftieth»
+//    Snow saca la del 50 y la tarjeta grande de la mesa pasa de «?» a «50»; cae un pétalo del jarrón. Snow está de pie
+//    detrás de la mesa (pies en y 118): el tablero (canto en y 112, T.capitolioDelante) lo tapa de cintura abajo.
+// 3. («The second»–final) el borde de la maqueta de la arena con 24 lucecitas blancas sobre el prado y el panel
+//    holográfico con el 24; a la derecha, por fuera del cristal (con su reflejo y chispas en el filo), la sala de control:
+//    bastidor con pilotos, la pantalla grande con el mapa de la arena que cuenta las lucecitas, focos con su haz, dos
+//    técnicos en la consola (tapados por su canto) con pantallas que se mueven, cables con un pulso de luz y la pasarela
+//    junto al borde de la maqueta (y 158), donde está el primer vigilante. Un segundo vigilante entra por la pasarela
+//    con una tableta y el primero lo saluda; antes de «double» pulsa la tableta, y desde ahí bajan desde lo alto de la
+//    cúpula las 24 lucecitas ámbar, escalonadas, cada una con su estela, hasta posarse en el prado: 48 en «forty-eight»
+//    (el panel y el mapa cuentan), con la baliza y la luz de alarma; los dos se miran y el de delante señala la maqueta.
+import * as T from '/atomo/plato/escenas/jh-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('jh-vasallaje');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C;
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const INK = hex('#1c1222');
+// las cifras legibles de a_cifras a e aumentos (con pset: respetan R.recorte), centradas en x con la base en base
+const cifrasG = (s, x, base, e = 2) => T.a_cifras({ pset: (px, py, c) => { for (let a = 0; a < e; a++) for (let b = 0; b < e; b++) R.pset(x + (px - x) * e + a, base + (py - base) * e + b, c); } }, s, x, base);
+// destello de cuatro puntas
+const destello = (x, y, n, c = hex('#fff8d0')) => { x = Math.round(x); y = Math.round(y); R.pset(x, y, hex('#ffffff')); for (let i = 1; i <= n; i++) { R.pset(x + i, y, c); R.pset(x - i, y, c); R.pset(x, y + i, c); R.pset(x, y - i, c); } };
+// mezcla el píxel ya pintado hacia [r, g, b] en la proporción k (luces y sombras sin tapar el dibujo)
+const mezcla = (x, y, [cr, cg, cb], k) => {
+  const c = R.pget(x, y), r = c & 255, g = (c >> 8) & 255, bb = (c >> 16) & 255;
+  R.pset(x, y, (0xff000000 | (Math.round(bb + (cb - bb) * k) << 16) | (Math.round(g + (cg - g) * k) << 8) | Math.round(r + (cr - r) * k)) >>> 0);
+};
+// una corchea con su contorno (cabeza en (x, y))
+const nota = (x, y, c) => { x = Math.round(x); y = Math.round(y);
+  R.rect(x - 2, y - 1, x + 2, y + 2, INK); R.rect(x - 1, y, x + 1, y + 1, c); R.rect(x + 1, y - 9, x + 3, y, INK); for (let j = -8; j <= 0; j++) R.pset(x + 2, y + j, c);
+  R.rect(x + 3, y - 9, x + 5, y - 5, INK); R.pset(x + 3, y - 8, c); R.pset(x + 4, y - 7, c); R.pset(x + 4, y - 6, c); };
+// una flecha de luz que apunta a dir (1 derecha, −1 izquierda), de largo l, con la punta en (x, y)
+const flecha = (x, y, l, dir, c, cS) => { x = Math.round(x); y = Math.round(y);
+  for (let i = 0; i < l; i++) { R.pset(x - dir * (i + 4), y, c); R.pset(x - dir * (i + 4), y + 1, cS); R.pset(x - dir * (i + 4), y - 1, INK); R.pset(x - dir * (i + 4), y + 2, INK); }
+  for (let j = -4; j <= 4; j++) for (let i = 0; i <= 4 - Math.abs(j); i++) R.pset(x - dir * i, y + j, Math.abs(j) === 4 - i ? INK : j > 0 ? cS : c); };
+
+const A = (f) => en('vasallaje', f), B = (f) => en('doble', f);
+const P2 = A(0.495), P3 = B(0.218);
+const V25 = A(0.034), QUARTER = A(0.34), TWIST = A(0.63), LOST = A(0.917), FIFTIETH = B(0.026);
+const REMIND = A(0.75), DOUBLE = B(0.527), N48 = B(0.745), INSTEAD = B(0.803);
+
+// una tarjeta del cofre con su número, centro abajo en (x, y); lo que queda por debajo de yMax no se pinta (el cofre)
+const tarjeta = (x, y, s, ancho = 22, yMax = 999) => { x = Math.round(x); y = Math.round(y); const a = Math.round(ancho / 2), yb = Math.min(y, yMax);
+  if (yb < y - 29) return; const { rect } = R;
+  rect(x - a - 1, y - 30, x + a, yb, INK); rect(x - a, y - 29, x + a - 1, yb - 1, hex('#f8f4ec')); rect(x - a, y - 29, x + a - 1, y - 28, hex('#f0c040')); rect(x - a, y - 29, x - a, yb - 1, hex('#f0c040'));
+  if (ancho > 10 && yb > y - 14) T.a_cifras(R, s, x, y - 15); };
+
+// ── plano 1: el despacho; Snow abre el cofre ───────────────────────────────────────────────────────────────────────
+// la bandeja de plata con la taza de té que humea (en la mano mx, my); conTaza false: solo la bandeja
+const bandeja = (mx, my, t, conTaza = true) => { mx = Math.round(mx); my = Math.round(my);
+  R.rect(mx - 5, my - 1, mx + 5, my + 1, INK); R.rect(mx - 4, my - 1, mx + 4, my, hex('#d8dce8')); R.linea(mx - 4, my - 1, mx + 1, my - 1, hex('#ffffff'));
+  if (conTaza) taza(mx, my - 1, t); };
+const taza = (x, y, t) => { x = Math.round(x); y = Math.round(y);
+  R.rect(x - 2, y - 4, x + 2, y, INK); R.rect(x - 1, y - 3, x + 1, y - 1, hex('#f8f4ec')); R.pset(x - 1, y - 3, hex('#f0c040')); R.pset(x + 1, y - 3, hex('#f0c040')); R.pset(x + 3, y - 3, INK); R.pset(x + 3, y - 2, INK);
+  for (let k = 0; k < 2; k++) { const u = (t * 0.9 + k * 0.5) % 1; R.pset(x + Math.round(Math.sin(u * 6 + k) * 1.5), y - 6 - Math.round(u * 7), u < 0.6 ? hex('#ffffff') : hex('#d8dce4')); } };
+const p1 = (t) => {
+  const ab = tramo(t, V25 - 0.1, V25 + 0.5), o = { encuadre: 'despacho', cofre: ab };
+  T.capitolio(R, t, o);
+  // el agente de la paz de guardia junto a la librería: se sorprende con el 25 y saluda en «Quarter Quell»
+  R.actor(EL.agentePaz, 70, 168, t, { dir: 1, sorpresa: t > V25 + 0.2 && t < V25 + 1.2, dedo: t > QUARTER && t < QUARTER + 1 });
+  // el avox entra por la derecha con el té, se lo ofrece al vigilante, que lo coge, y se va
+  const AV0 = 0.5, AV1 = 1.6, DA = 2.3, AV2 = 2.8, AV3 = 4.0;
+  const vin = tramo(t, AV0, AV1), vout = tramo(t, AV2, AV3), avx = Math.round(lerp(336, 290, vin) + lerp(0, 46, vout));
+  const tomada = t > DA;
+  // el vigilante de visita: se vuelve a por la taza, la coge, y se vuelve a Snow; se inclina sorprendido con la tarjeta
+  const vuelto = t > AV1 - 0.2 && t < AV2 + 0.1;
+  const vg = R.actor(EL.vigilante, 262, 168, t, { dir: vuelto ? 1 : -1, sostiene: vuelto ? [281, 152] : tomada ? true : undefined, habla: t > AV2 + 0.2 && t < QUARTER - 0.2 && Math.sin(t * 9) > 0, sorpresa: t > QUARTER + 0.1 && t < P2 - 0.7, sonrisa: t > P2 - 0.7, salto: t > QUARTER + 0.1 && t < QUARTER + 0.3 ? 2 : 0 });
+  if (tomada && vg.mano) taza(vg.mano[0], vg.mano[1] - 1, t);
+  if (vin > 0 && vout < 1) { const av = R.actor(EL.tributoChica, avx, 168, t, { dir: vout > 0 ? 1 : -1, anda: (vin > 0 && vin < 1) || (vout > 0 && vout < 1), sostiene: vout > 0 ? true : [vin < 1 ? avx - 4 : 286, 152], pal: { C: hex('#ece6da'), c: hex('#c4baa6'), H: hex('#b8442a'), h: hex('#d8643a') } });
+    if (av.mano) bandeja(av.mano[0], av.mano[1], t, !tomada); }
+  // Snow, junto al cofre, lo abre en «twenty-five years», habla con la visita y levanta una tarjeta en «Quarter Quell»
+  const alza = tramo(t, QUARTER - 0.3, QUARTER + 0.2);
+  const s = R.actor(EL.snow, 160, 133, t, { dir: 1, sostiene: alza > 0 ? [lerp(178, 172, alza), lerp(118, 108, alza)] : undefined, habla: t > V25 + 0.9 && t < QUARTER - 0.4 && Math.sin(t * 7) > 0, sonrisa: t > V25 + 0.3 });
+  if (alza > 0 && s.mano) { const [mx, my] = s.mano; R.rect(mx - 3, my - 9, mx + 3, my + 1, INK); R.rect(mx - 2, my - 8, mx + 2, my, hex('#f8f4ec')); R.rect(mx - 2, my - 8, mx + 2, my - 7, hex('#f0c040')); if (Math.floor(t * 4) % 2) destello(mx + 4, my - 10, 3); }
+  T.capitolioDelante(R, t, o);
+  // «twenty-five years»: el 25 dorado sale del cofre
+  { const v = tramo(t, V25, V25 + 0.5); if (v > 0 && t < QUARTER - 0.2) { cifrasG('25', 186, Math.round(lerp(118, 98, v)), 2); for (let i = 0; i < 3; i++) destello(172 + i * 14, Math.round(lerp(118, 82, v)) + (i % 2) * 6, 2); } }
+};
+
+// ── plano 2: la mesa de cerca; las tarjetas 25, 50 y 75 ───────────────────────────────────────────────────────────
+const SNOW_PIE = 118;   // detrás del tablero: el canto (y 112) y T.capitolioDelante lo tapan de cintura abajo
+const p2 = (t) => {
+  const revela = t > FIFTIETH, o = { encuadre: 'despacho', camara: 'mesa', cofre: 1, numero: revela ? '50' : '?' };
+  T.capitolio(R, t, o);
+  // Snow, detrás de la mesa, entre el cofre y la tarjeta grande: habla, sonríe y coge al vuelo la del 50
+  const vuela = tramo(t, FIFTIETH - 0.3, FIFTIETH + 0.2);
+  const s = R.actor(EL.snow, 128, SNOW_PIE, t, { dir: -1, dedo: t > REMIND && t < REMIND + 0.8, sonrisa: t > LOST - 0.6, sostiene: vuela > 0.6 ? [118, 101] : undefined, habla: t > P2 + 0.3 && t < TWIST && Math.sin(t * 8) > 0, sorpresa: t > TWIST && t < TWIST + 0.5 });
+  T.capitolioDelante(R, t, o);
+  // las tres tarjetas asoman del cofre; en «twist» la del 50 da una vuelta; en «lost» la del 25 vuelve a caer
+  const sube = (k) => tramo(t, P2 + 0.1 + k * 0.2, P2 + 0.5 + k * 0.2), BOCA = 134;
+  const cae25 = tramo(t, LOST - 0.2, LOST + 0.2), gira = tramo(t, TWIST - 0.1, TWIST + 0.6), anchoG = Math.max(2, Math.round(22 * Math.abs(Math.cos(gira * Math.PI))));
+  tarjeta(60, Math.round(150 - sube(0) * 30 + cae25 * 32), '25', 22, BOCA);
+  tarjeta(100, Math.round(150 - sube(2) * 26), '75', 22, BOCA);
+  if (vuela < 1) { const x = lerp(80, 112, vuela), y = lerp(150 - sube(1) * 36, 105, vuela) - Math.sin(vuela * Math.PI) * 16; tarjeta(x, y, '50', anchoG, vuela > 0 ? 999 : BOCA); }
+  else if (s.mano) { const [mx, my] = s.mano; tarjeta(mx - 6, my + 4, '50'); if (t < FIFTIETH + 0.9) destello(mx + 4, my - 24, 3); }
+  // la tarjeta grande de la mesa: destello al revelarse el 50
+  if (revela && t < FIFTIETH + 0.6) { for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2; R.linea(Math.round(169 + Math.cos(an) * 34), Math.round(137 + Math.sin(an) * 30), Math.round(169 + Math.cos(an) * 40), Math.round(137 + Math.sin(an) * 36), hex('#fff4a0')); } }
+  // un pétalo que cae del jarrón de rosas
+  { const w = ((t - P2) * 0.35) % 1, x = Math.round(282 - w * 18 + Math.sin(t * 3) * 3), y = Math.round(88 + w * 60); R.rect(x, y, x + 1, y, hex('#f8f6f0')); R.pset(x, y + 1, hex('#d8d4cc')); }
+};
+
+// ── plano 3: el borde de la maqueta; las lucecitas pasan de 24 a 48 ──────────────────────────────────────────────
+// el panel holográfico que flota en la sala: la cifra y la rejilla de figuritas (las nuevas, en ámbar)
+const panel = (t, n) => {
+  const [a, b, c, d] = [12, 18, 92, 60];
+  for (let y = b; y <= d; y++) for (let x = a; x <= c; x++) if (((x + y) & 1) === 0 || x === a || x === c || y === b || y === d) mezcla(x, y, [60, 200, 255], x === a || x === c || y === b || y === d ? 0.7 : 0.18);
+  for (let y = b + 2; y < d; y += 3) if (((y + Math.floor(t * 10)) % 9) === 0) for (let x = a + 1; x < c; x++) mezcla(x, y, [180, 240, 255], 0.25);
+  cifrasG(String(n), 34, b + 22, 2);
+  for (let k = 0; k < 48; k++) { const x = a + 6 + (k % 12) * 6, y = b + 30 + Math.floor(k / 12) * 6, on = k < n, nueva = k >= 24;
+    R.rect(x, y, x + 2, y + 3, on ? (nueva ? hex('#ffc040') : hex('#a0f0ff')) : hex('#1e3a4a')); if (on) R.pset(x + 1, y - 1, on ? (nueva ? hex('#ffc040') : hex('#a0f0ff')) : 0); }
+  R.linea(c, d, c + 14, d + 22, hex('#5ac8f0'));
+};
+// la tableta del vigilante (en la mano): pantalla que se ilumina al pulsarla y pasa a ámbar
+const tableta = (mx, my, t, pulsa, ambar) => { mx = Math.round(mx); my = Math.round(my);
+  R.rect(mx - 4, my - 6, mx + 4, my, INK); R.rect(mx - 3, my - 5, mx + 3, my - 1, pulsa ? hex('#ffffff') : ambar ? hex('#ffb040') : hex('#3ac8f0'));
+  if (!pulsa) for (let i = 0; i < 3; i++) R.pset(mx - 2 + i * 2, my - 3 + ((Math.floor(t * 4) + i) % 2), ambar ? hex('#fff0c0') : hex('#c8f4ff')); };
+// la sala de control a la derecha de la cúpula (fuera del arco del campo de fuerza; la misma curva que v_arco del decorado)
+const arco = (y) => -60 + Math.sqrt(Math.max(0, 300 * 300 - (190 - y) ** 2));
+const fuera = (x, y) => x > arco(y) + 3;
+const SC = Object.fromEntries(Object.entries({ k: '#05060f', m0: '#070a1a', m1: '#0c1230', m2: '#141c44', m3: '#1e2a5e', m4: '#2e3e80',
+  me0: '#141a34', me1: '#222c52', me2: '#34427a', me3: '#5266a4', me4: '#8a9cd8', s0: '#05081a', s1: '#0a1028', s2: '#121a3c',
+  h0: '#0c3a64', h1: '#1876b4', h2: '#36c8f4', h3: '#8aeeff', h4: '#e0fcff', p0: '#061428', p1: '#0a2442',
+  rojo: '#ff4a5a', ambar: '#ffb83a', ambarS: '#5a3e1a', verde: '#4af08a', verdeS: '#14482e', cable: '#0a0c1c', cableL: '#2a3466' }).map(([a, b]) => [a, hex(b)]));
+// dos capas fijas de la sala (se calculan una vez y se copian solo fuera del arco): el fondo (pared, bastidores, pantallas
+// apagadas, suelo, cables y la pasarela) y el canto de la consola, que va por delante de los técnicos sentados
+let SALA = null;
+const salaCapas = () => {
+  if (SALA) return SALA;
+  const b = R.nuevo(), prev = R.usar(b), { rect, pset, linea } = R, K = SC;
+  // la pared de paneles con juntas, remaches y la franja de aviso tramada
+  for (let y = 44; y < 132; y++) for (let x = 180; x < 320; x++) { const px = (x - 4) % 28, base = lerpC(K.m1, K.m2, Math.min(1, (y - 44) / 80));
+    let c = h(x >> 2, y >> 3, 89) < 0.25 ? lerpC(base, K.m3, 0.35) : base;
+    if (px === 0 || y === 70 || y === 98) c = K.m0; else if (px === 1 || y === 71 || y === 99) c = K.m3;
+    if ((px === 4 || px === 24) && (y === 74 || y === 102 || y === 48)) c = K.me3;
+    if (y > 92 && y < 97 && ((x + y) & 1)) c = lerpC(c, K.ambarS, 0.6);
+    pset(x, y, c); }
+  // el bastidor de servidores junto al cristal (los pilotos se encienden luego)
+  rect(212, 50, 236, 96, K.me0); rect(212, 50, 236, 50, K.me2); rect(212, 50, 212, 96, K.me2);
+  for (let y = 54; y < 94; y += 6) { rect(214, y, 234, y + 4, K.m0); rect(214, y, 234, y, K.me1); for (let x = 216; x < 233; x += 3) pset(x, y + 3, K.me1); }
+  // la pantalla grande de la pared (el mapa de la arena se pinta encima) y dos pequeñas debajo
+  rect(244, 48, 316, 84, K.me0); rect(244, 48, 316, 48, K.me3); rect(244, 48, 244, 84, K.me2); rect(246, 50, 314, 82, K.p0);
+  for (let y = 50; y <= 82; y++) for (let x = 246; x <= 314; x++) if ((x - 246) % 8 === 0 || (y - 50) % 6 === 0) pset(x, y, K.p1);
+  rect(278, 85, 282, 90, K.me1);
+  // los focos del techo con su cono (el haz se pinta tramado cada fotograma)
+  // la consola alargada: el tablero inclinado con teclas, y el frente con rejillas
+  for (let y = 112; y <= 132; y++) for (let x = 196; x < 320; x++) { let c;
+    if (y < 116) c = y === 112 ? K.me4 : ((x + y) % 4 === 0 ? K.me2 : K.me3);
+    else if (y === 116) c = K.k;
+    else { c = lerpC(K.me1, K.me0, (y - 117) / 16); if ((x % 22) === 0) c = K.m0; else if ((x % 22) === 1) c = K.me2; else if (y > 120 && y < 129 && (x % 22) > 4 && (x % 22) < 18 && (y & 1)) c = K.m0; }
+    pset(x, y, c); }
+  // el suelo pulido de la sala, con juntas y vetas de luz
+  for (let y = 133; y < 180; y++) for (let x = 196; x < 320; x++) { const yy = y < 167 ? y - 133 : y - 167; let c = y < 167 ? lerpC(K.m2, K.s1, yy / 34) : lerpC(K.me1, K.m2, yy / 13); if ((x + Math.round(yy * 0.6)) % 26 === 0 || y === 140 || y === 172) c = K.s1; else if ((x + Math.round(yy * 0.6)) % 26 === 1) c = K.m3;
+    if (y > 168 && ((x + y) & 1) && h(x >> 1, y, 32) < 0.35) c = lerpC(c, K.h0, 0.6); if (h(x, y, 31) < 0.04) c = K.m4; pset(x, y, c); }
+  // los cables que bajan de la consola y serpentean por el suelo hasta la base de la maqueta
+  for (const [x0, y0, x1, y1, cv] of [[236, 132, 222, 162, 10], [262, 132, 236, 172, 14], [300, 132, 250, 176, 8]]) {
+    let px = x0, py = y0; for (let i = 1; i <= 24; i++) { const u = i / 24, x = Math.round(lerp(x0, x1, u) + Math.sin(u * Math.PI) * cv), y = Math.round(lerp(y0, y1, u * u)); linea(px, py, x, y, K.cable); pset(x, y - 1, K.cableL); px = x; py = y; } }
+  // la pasarela de rejilla junto al borde de la maqueta, donde están los vigilantes (y 152–160), con su canto y remaches
+  for (let y = 150; y <= 166; y++) for (let x = 200; x < 320; x++) { let c;
+    if (y < 159) c = (x % 4 === 0 || y % 3 === 0) ? K.me1 : ((x + y) & 1 ? K.me2 : K.me1);
+    else if (y === 159) c = K.me4; else if (y < 165) c = (x % 14 === 3 && y === 162) ? K.me4 : K.me2; else c = K.k;
+    pset(x, y, c); }
+  // el poste y el pasamanos de la barandilla del fondo de la pasarela
+  rect(200, 138, 319, 139, K.me2); rect(200, 138, 319, 138, K.me4); for (let x = 210; x < 320; x += 24) { rect(x, 138, x + 1, 150, K.me1); pset(x, 138, K.me4); }
+  // se guardan los píxeles: fondo (todo) y frente de la consola (y 112–132)
+  const fondo = new Uint32Array(320 * 180), cons = new Uint32Array(320 * 180);
+  for (let y = 44; y < 180; y++) for (let x = 180; x < 320; x++) { const c = R.pget(x, y); fondo[y * 320 + x] = c; if (y >= 112 && y <= 132 && x >= 196) cons[y * 320 + x] = c; }
+  R.usar(prev);
+  SALA = { fondo, cons };
+  return SALA;
+};
+const lerpC = (a, b, k) => { const r = (a & 255) + ((b & 255) - (a & 255)) * k, g = ((a >> 8) & 255) + (((b >> 8) & 255) - ((a >> 8) & 255)) * k, bl = ((a >> 16) & 255) + (((b >> 16) & 255) - ((a >> 16) & 255)) * k;
+  return (0xff000000 | (Math.round(bl) << 16) | (Math.round(g) << 8) | Math.round(r)) >>> 0; };
+const copiaSala = (buf, y0, y1) => { for (let y = y0; y <= y1; y++) for (let x = Math.max(180, Math.ceil(arco(y) + 4)); x < 320; x++) { const c = buf[y * 320 + x]; if (c) R.pset(x, y, c); } };
+// la vida de la sala: el mapa de la arena en la pantalla grande (cuenta las lucecitas), los pilotos del bastidor, los
+// haces de los focos, las pantallas de la consola que parpadean y el pulso de luz que corre por los cables
+const salaViva = (t, n) => { const K = SC, { pset } = R;
+  // el mapa de la arena: el círculo del prado, la cornucopia y las lucecitas (las nuevas en ámbar), con el barrido
+  { const cx = 280, cy = 66, rr = 14;
+    for (let y = cy - rr; y <= cy + rr; y++) for (let x = cx - rr * 2; x <= cx + rr * 2; x++) { const d = ((x - cx) / 2) ** 2 + (y - cy) ** 2; if (d <= rr * rr) pset(x, y, d > (rr - 1.2) ** 2 ? K.verde : ((x + y) & 1 ? K.verdeS : K.p1)); }
+    pset(cx, cy, K.ambar); pset(cx + 1, cy, K.ambar);
+    for (let k = 0; k < n; k++) { const an = k / 24 * Math.PI * 2 + (k >= 24 ? Math.PI / 24 : 0), r = k >= 24 ? 7 : 11; pset(Math.round(cx + Math.cos(an) * r * 2), Math.round(cy + Math.sin(an) * r), k >= 24 ? K.ambar : K.h4); }
+    const ys = 50 + Math.floor((t * 22) % 33); for (let x = 246; x <= 314; x++) pset(x, ys, lerpC(R.pget(x, ys), K.h3, 0.35));
+    cifrasG(String(n), 302, 60, 1); }
+  // los pilotos del bastidor de servidores
+  for (let y = 54; y < 94; y += 6) for (let i = 0; i < 4; i++) { const on = ((Math.floor(t * (3 + i)) + y + i * 3) % 5) < 3; pset(216 + i * 4, y + 2, on ? [K.verde, K.h2, K.ambar, K.verde][i] : K.m3); }
+  // los haces de los focos del techo, tramados y con un leve parpadeo
+  for (const fx of [222, 262]) { R.rect(fx - 4, 44, fx + 4, 47, K.me1); R.rect(fx - 3, 47, fx + 3, 48, K.h3);
+    const k = 0.32 + 0.06 * Math.sin(t * 5 + fx); for (let y = 49; y < 112; y++) { const w = 3 + (y - 49) * 0.28; for (let x = Math.round(fx - w); x <= Math.round(fx + w); x++) if (fuera(x, y) && ((x + y) & 1) && h(x, y, 87) < 0.5) mezcla(x, y, [140, 230, 255], k * (1 - (y - 49) / 70)); } }
+  // las pantallas de la consola (inclinadas sobre el tablero): una onda, unas barras y un radar que barre
+  [[255, 100, 276], [300, 100, 318]].forEach(([a, b, c], k) => { if (!fuera(a, b)) return;
+    R.rect(a - 1, b - 1, c + 1, 111, K.me0); R.rect(a - 1, b - 1, c + 1, b - 1, K.me3); R.rect(a, b, c, 110, Math.floor(t * 7 + k * 3) % 23 === 0 ? K.h1 : K.p0);
+    if (k === 0) for (let x = a + 1; x < c; x++) pset(x, Math.round(105 + Math.sin(x * 0.6 - t * 6) * 3), K.verde);
+    else if (k === 1) for (let i = 0; i < 4; i++) { const al = 1 + Math.round(7 * Math.abs(Math.sin(t * 1.7 + i))); R.rect(a + 2 + i * 4, 110 - al, a + 4 + i * 4, 109, i % 2 ? K.ambar : K.h2); }
+    else { const an = t * 3; for (let r = 0; r < 5; r++) pset(Math.round(309 + Math.cos(an) * r), Math.round(105 + Math.sin(an) * r), K.verde); pset(308, 105, K.h4); } });
+  // el pulso de luz que corre por el cable del medio, del pupitre a la maqueta
+  { const u = (t * 0.7) % 1, x = Math.round(lerp(262, 236, u) + Math.sin(u * Math.PI) * 14), y = Math.round(lerp(132, 172, u * u)); if (fuera(x, y)) { pset(x, y, K.h4); pset(x - 1, y, K.h2); pset(x + 1, y, K.h2); } }
+};
+const salaConsolaViva = (t) => { // las teclas del tablero de la consola que parpadean (por delante de los técnicos)
+  for (let x = 200; x < 320; x += 5) { const y = 113 + ((x / 5) & 1); if (fuera(x, y) && ((Math.floor(t * 3) + x) % 7) < 2) R.pset(x, y, [SC.verde, SC.ambar, SC.h3][(x / 5) % 3 | 0]); } };
+// el reflejo del cristal de la cúpula: dos franjas de brillo inclinadas que se deslizan y chispas que bajan por el filo
+const reflejo = (t) => {
+  for (let y = 20; y < 150; y++) { const xa = arco(y); for (let i = 0; i < 2; i++) { const x = Math.round(xa - 12 - i * 9 - (y - 20) * 0.08 + Math.sin(t * 0.5 + i) * 2);
+    if (y > 24 + i * 14 && y < 120 - i * 30) { mezcla(x, y, [230, 250, 255], 0.42 - i * 0.12); mezcla(x - 1, y, [230, 250, 255], 0.24 - i * 0.06); mezcla(x + 1, y, [230, 250, 255], 0.12); } } }
+  for (let k = 0; k < 3; k++) { const y = Math.round(((t * 34 + k * 55) % 160) + 2), x = Math.round(arco(y)); if (y > 16) destello(x, y, (Math.floor(t * 8) + k) % 2 ? 2 : 1, hex('#c8f8ff')); }
+};
+// las 24 lucecitas ámbar que bajan desde lo alto de la cúpula, cada una con su estela, y se posan en su hueco del prado
+// (la misma colocación que las lucecitas del decorado, que pinta las que ya se han posado); devuelve cuántas hay posadas
+const CAE = 0.75;
+const salidaAmbar = (k) => { const ini = DOUBLE - 0.45, fin = Math.max(ini + 0.6, N48 - CAE); return ini + (fin - ini) * (k - 24) / 23; };
+const lucesAmbar = (t) => {
+  let posadas = 24;
+  for (let k = 24; k < 48; k++) { const s = salidaAmbar(k), u = (t - s) / CAE; if (u >= 1) { posadas++; continue; } if (u < 0) continue;
+    const j = k % 24, r = Math.floor(j / 6), col = ((j % 6) * 2 + ((r + 1) % 2) + 4) % 12;
+    const x0 = Math.round(10 + col * 15.5 + (r % 2) * 7.75 + (h(k, 1, 4325) - 0.5) * 3), y0 = 121 + r * 5;
+    const x = Math.round(lerp(x0 + (k % 2 ? 6 : -6), x0, u)), y = Math.round(lerp(22, y0, u * u));
+    for (let i = 1; i < 24; i++) { const yy = y - i, xx = Math.round(x + (k % 2 ? 1 : -1) * i * 0.2 * (1 - u)); if (yy > 18) { const a = 1 - i / 24; mezcla(xx, yy, i < 8 ? [255, 236, 170] : [255, 176, 48], 0.9 * a); mezcla(xx - 1, yy, [255, 160, 40], 0.45 * a); mezcla(xx + 1, yy, [255, 160, 40], 0.45 * a); } }
+    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) R.pset(x + dx, y + dy, hex('#ffc040'));
+    R.pset(x, y, hex('#ffffff')); for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2]]) mezcla(x + dx, y + dy, [255, 192, 64], 0.5); }
+  return posadas;
+};
+const p3 = (t) => {
+  const alarma = t > DOUBLE ? (0.5 + 0.5 * Math.sin((t - DOUBLE) * 7)) : 0;
+  // cuántas ámbar se han posado ya (las que caen las pinta la escena con su estela; las posadas, el decorado)
+  let posadas = 24; for (let k = 24; k < 48; k++) if (t >= salidaAmbar(k) + CAE) posadas++;
+  const o = { encuadre: 'cupula', camara: 'borde', luces: posadas, lucesAmbar: 24 };
+  T.arena(R, t, o);
+  // la sala de control de la derecha, por fuera del cristal: fondo fijo, vida, dos técnicos en la consola y su canto
+  const S = salaCapas();
+  copiaSala(S.fondo, 44, 179);
+  salaViva(t, posadas);
+  for (const [x, d, fase] of [[236, 1, 0], [281, 1, 1.7]]) R.actor(EL.vigilante, x, 121, t, { dir: d, pal: { C: hex('#5a6a7a'), c: hex('#3a4656') }, habla: Math.sin(t * 1.3 + fase) > 0.6 && Math.sin(t * 9) > 0 });
+  copiaSala(S.cons, 112, 132); salaConsolaViva(t);
+  reflejo(t);
+  // las nuevas que bajan del techo con su estela (detrás del panel, que es translúcido)
+  lucesAmbar(t);
+  panel(t, posadas);
+  // el vigilante de la tableta entra por la derecha por la pasarela y el de delante lo saluda con la mano; antes de «double» pulsa la tableta y
+  // empiezan a bajar las nuevas; el de delante se vuelve hacia él, se miran, y señala la maqueta en «forty-eight»
+  const SU = 158, TAP = DOUBLE - 0.9, e2 = tramo(t, P3 + 0.1, P3 + 1.2), x2 = Math.round(lerp(336, 276, e2));
+  const v1dir = (t < P3 + 1.8) || (t > DOUBLE + 0.3 && t < N48 - 0.1) ? 1 : -1;
+  R.actor(EL.vigilante, 248, SU, t, { dir: v1dir, sorpresa: t > DOUBLE && t < N48, dedo: (t > P3 + 1.0 && t < P3 + 1.6) || (t > N48 && t < INSTEAD + 0.6), habla: (t > P3 + 1.0 && t < P3 + 1.8 && Math.sin(t * 9) > 0) || (t > INSTEAD + 0.6 && Math.sin(t * 9) > 0) });
+  const v2 = R.actor(EL.vigilante, x2, SU, t, { dir: -1, anda: e2 > 0 && e2 < 1, pal: { C: hex('#3a5a9a'), c: hex('#2a4070') }, sostiene: t > TAP - 0.3 && t < TAP + 0.3 ? [x2 - 4, SU - 20] : true, sorpresa: t > DOUBLE + 0.1 && t < N48 + 0.2, sonrisa: t > INSTEAD, habla: t > P3 + 1.2 && t < P3 + 2.0 && Math.sin(t * 8) > 0 });
+  if (v2.mano) tableta(v2.mano[0], v2.mano[1], t, t > TAP && t < TAP + 0.25, t > TAP + 0.25);
+  // la baliza de alarma del techo y la luz roja que late en toda la sala
+  { const on = t > DOUBLE && Math.floor(t * 4) % 2 === 0; R.rect(236, 16, 246, 22, INK); R.rect(237, 17, 245, 21, on ? hex('#ff3a4a') : hex('#6a1a24')); R.rect(238, 17, 240, 18, on ? hex('#ffb0b8') : hex('#8a2a34'));
+    if (alarma > 0) for (let y = 0; y < 180; y++) for (let x = (y & 1); x < 320; x += 2) mezcla(x, y, [255, 40, 60], 0.12 * alarma); }
+};
+
+const efectos = [[V25, 'cerrojo'], [V25 + 1.0, 'brillo'], [2.3, 'toc'], [QUARTER, 'papel'], [P2 + 0.2, 'papel'], [TWIST, 'whoosh'], [REMIND + 0.1, 'toc'], [LOST, 'golpecito'],
+  [FIFTIETH, 'flash'], [FIFTIETH + 1.0, 'brillo'], [P3 + 0.3, 'zumbido'], [DOUBLE - 0.9, 'bip'], [DOUBLE + 0.1, 'aviso'], [N48 + 0.1, 'bip'], [INSTEAD + 0.9, 'brillo']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 50 });
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep20</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// _REPARTO-JH · hoja estática del reparto del episodio 20 («Los Juegos del Hambre», antes de «Amanecer en la cosecha»)
+// para que el usuario lo apruebe: todos de pie y quietos, a escala 1 (el tamaño real de las escenas), en filas por grupos
+// sobre fondo neutro claro, con sus piezas al lado. Dos páginas: t en [1, 2) la primera y t en [2, 3) la segunda (el pan
+// con ojos, los pájaros y las piezas al doble). La tabla HOJA la genera un script con los nombres para la versión
+// rotulada (los rótulos van solo en la imagen ampliada para el usuario, nunca en el lienzo).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_JH as EL, PIEZAS_JH as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const HOJA = [[{"g": "Distrito 12 · Juegos 50", "suelo": 46, "items": [{"k": "haymitch", "n": "Haymitch (16)", "w": 15, "t": "a", "o": {}, "x": 8}, {"k": "haymitchViejo", "n": "Haymitch mentor", "w": 15, "t": "a", "o": {}, "x": 32}, {"k": "petaca", "n": "petaca", "w": 4, "t": "p", "o": {}, "x": 56}, {"k": "lenore", "n": "Lenore Dove", "w": 15, "t": "a", "o": {}, "x": 69}, {"k": "maysilee", "n": "Maysilee Donner", "w": 15, "t": "a", "o": {}, "x": 93}, {"k": "madreHaymitch", "n": "madre de Haymitch", "w": 15, "t": "a", "o": {}, "x": 117}, {"k": "hermanoHaymitch", "n": "hermano", "w": 15, "t": "a", "o": {}, "x": 141}, {"k": "vendedoraHob", "n": "vendedora del Hob", "w": 15, "t": "a", "o": {}, "x": 165}, {"k": "tributoChico", "n": "tributo (chico)", "w": 15, "t": "a", "o": {}, "x": 189}, {"k": "tributoChica", "n": "tributo (chica)", "w": 15, "t": "a", "o": {}, "x": 213}, {"k": "urna", "n": "urna", "w": 19, "t": "p", "o": {}, "x": 237}], "fin": 265}, {"g": "Distrito 12 · Juegos 74", "suelo": 90, "items": [{"k": "katniss", "n": "Katniss", "w": 15, "t": "a", "o": {}, "x": 8}, {"k": "katnissArco", "n": "Katniss con arco", "w": 19, "t": "a", "o": {}, "x": 32}, {"k": "arco", "n": "arco", "w": 5, "t": "p", "o": {}, "x": 60}, {"k": "flecha", "n": "flecha", "w": 13, "t": "p", "o": {}, "x": 74}, {"k": "prim", "n": "Prim", "w": 15, "t": "a", "o": {}, "x": 96}, {"k": "peeta", "n": "Peeta", "w": 15, "t": "a", "o": {}, "x": 120}, {"k": "peetaPanadero", "n": "Peeta panadero", "w": 15, "t": "a", "o": {}, "x": 144}, {"k": "madge", "n": "Madge", "w": 15, "t": "a", "o": {}, "x": 168}, {"k": "broche", "n": "broche", "w": 13, "t": "p", "o": {}, "x": 192}], "fin": 214}, {"g": "Capitolio", "suelo": 134, "items": [{"k": "snow", "n": "Snow", "w": 15, "t": "a", "o": {}, "x": 8}, {"k": "rosaBlanca", "n": "rosa blanca", "w": 5, "t": "p", "o": {}, "x": 32}, {"k": "snowJoven", "n": "Snow joven", "w": 15, "t": "a", "o": {}, "x": 46}, {"k": "lucyGray", "n": "Lucy Gray", "w": 15, "t": "a", "o": {}, "x": 70}, {"k": "guitarra", "n": "guitarra", "w": 7, "t": "p", "o": {}, "x": 94}, {"k": "plutarch", "n": "Plutarch", "w": 15, "t": "a", "o": {}, "x": 110}, {"k": "effie", "n": "Effie joven", "w": 15, "t": "a", "o": {}, "x": 134}, {"k": "caesar", "n": "Caesar", "w": 15, "t": "a", "o": {}, "x": 158}, {"k": "drusilla", "n": "Drusilla", "w": 15, "t": "a", "o": {}, "x": 182}, {"k": "vigilante", "n": "vigilante", "w": 15, "t": "a", "o": {}, "x": 206}, {"k": "agentePaz", "n": "agente de la paz", "w": 15, "t": "a", "o": {}, "x": 230}], "fin": 254}, {"g": "Capitolio y vencedores", "suelo": 177, "items": [{"k": "capitolino1", "n": "capitolino 1", "w": 15, "t": "a", "o": {}, "x": 8}, {"k": "capitolino2", "n": "capitolino 2", "w": 15, "t": "a", "o": {}, "x": 32}, {"k": "tributoCarrera", "n": "tributo profesional", "w": 15, "t": "a", "o": {}, "x": 56}, {"k": "|", "n": "", "w": 4, "t": "sep", "o": {}, "x": 80}, {"k": "beetee", "n": "Beetee", "w": 15, "t": "a", "o": {}, "x": 93}, {"k": "cable", "n": "cable", "w": 10, "t": "p", "o": {}, "x": 117}, {"k": "wiress", "n": "Wiress", "w": 15, "t": "a", "o": {}, "x": 136}, {"k": "aguja", "n": "aguja", "w": 3, "t": "p", "o": {}, "x": 160}, {"k": "mags", "n": "Mags", "w": 15, "t": "a", "o": {}, "x": 172}, {"k": "anzuelo", "n": "anzuelo", "w": 5, "t": "p", "o": {}, "x": 196}], "fin": 210}], [{"g": "El mundo real y la historia", "suelo": 50, "items": [{"k": "mujerSofa", "n": "mujer del sofá", "w": 15, "t": "a", "o": {}, "x": 8}, {"k": "teseo", "n": "Teseo", "w": 15, "t": "a", "o": {}, "x": 32}, {"k": "emperador", "n": "emperador", "w": 15, "t": "a", "o": {}, "x": 56}, {"k": "hume", "n": "Hume", "w": 15, "t": "a", "o": {}, "x": 80}, {"k": "manifestante", "n": "manifestante", "w": 15, "t": "a", "o": {}, "x": 104}, {"k": "agenteCasco", "n": "agente con casco", "w": 15, "t": "a", "o": {}, "x": 128}], "fin": 152}, {"g": "El pan con ojos y los pájaros", "suelo": 100, "items": [{"k": "pan", "n": "pan", "w": 13, "t": "p", "o": {"cara": "normal"}, "x": 8}, {"k": "pan", "n": "pan (feliz)", "w": 13, "t": "p", "o": {"cara": "feliz"}, "x": 30}, {"k": "pan", "n": "pan (susto)", "w": 13, "t": "p", "o": {"cara": "susto"}, "x": 52}, {"k": "pan", "n": "pan (estornudo)", "w": 18, "t": "p", "o": {"cara": "estornudo"}, "x": 74}, {"k": "pan", "n": "pan (mordido)", "w": 13, "t": "p", "o": {"mordido": true}, "x": 101}, {"k": "charlajo", "n": "charlajo", "w": 13, "t": "p", "o": {}, "x": 123}, {"k": "sinsonte", "n": "sinsonte", "w": 13, "t": "p", "o": {}, "x": 145}, {"k": "sinsajo", "n": "sinsajo", "w": 13, "t": "p", "o": {}, "x": 167}], "fin": 189}, {"g": "Al doble (insertos)", "suelo": 150, "items": [{"k": "broche", "n": "broche ×2", "w": 26, "t": "p", "o": {"s": 2}, "x": 8}, {"k": "pan", "n": "pan ×2", "w": 26, "t": "p", "o": {"s": 2}, "x": 43}, {"k": "pan", "n": "pan susto ×2", "w": 26, "t": "p", "o": {"s": 2, "cara": "susto"}, "x": 78}, {"k": "sinsajo", "n": "sinsajo ×2", "w": 26, "t": "p", "o": {"s": 2}, "x": 113}, {"k": "rosaBlanca", "n": "rosa ×2", "w": 10, "t": "p", "o": {"s": 2}, "x": 148}, {"k": "petaca", "n": "petaca ×2", "w": 8, "t": "p", "o": {"s": 2}, "x": 167}, {"k": "urna", "n": "urna ×2", "w": 38, "t": "p", "o": {"s": 2}, "x": 184}], "fin": 231}]];
+const fondo = hex('#e8e4dc'), fondo2 = hex('#dcd6ca'), suelo = hex('#c8c0b0'), sombra = hex('#b0a898'), raya = hex('#a8a090');
+const dibujar = (t) => {
+  const pag = HOJA[Math.min(HOJA.length - 1, Math.max(0, Math.floor(t) - 1))];
+  R.rect(0, 0, 319, 179, fondo);
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) R.pset(x, y, fondo2);
+  for (const fila of pag) {
+    R.rect(0, fila.suelo + 1, 319, fila.suelo + 2, suelo);
+    for (const it of fila.items) {
+      const { k, x, w } = it, s = fila.suelo, q = { quieto: true, parpadea: false };
+      if (it.t !== 'sep') for (let i = 1; i < w - 1; i++) R.pset(x + i, s + 1, sombra);
+      if (it.t === 'a') R.actor(EL[k], Math.round(x + (w - 15) / 2), s, 0, q);
+      else if (it.t === 'p') PZ[k](R, x + w / 2, s + 1, { ...it.o });
+      else if (it.t === 'sep') for (let y = s - 40; y <= s; y += 2) R.pset(x + 2, y, raya);
+    }
+  }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Diez metros · ep30</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GZ-DIEZ (frase 18), 2025. Cinco planos:
+// 1. B italia/prensa/mesa: el anuncio de 2025 (el plano azul en la pantalla); Malanga habla; en «experts» suben del
+//    público tres manos con su «?»; en «2025» Biondi señala la pantalla y en «announcement» Mei levanta la lámina azul.
+//    Corta en «First».
+// 2. F hoy/suelo: el corte del suelo; la onda del radar entra en la arena y se para (o.radar) en «barely gets into the
+//    ground»; el técnico se encoge de hombros; en «European Space Agency» baja la señal de un satélite y se enciende la
+//    cota con un «10» grande. Corta en «puts».
+// 3. B italia/video: Biondi está en el escritorio de su estudio; en «10» el monitor enseña el satélite y el «10» y él lo
+//    señala hablando; vuelve andando a su marca por delante del trípode (el piloto de la cámara se enciende al llegar) y
+//    en «admits» abre las manos hacia la cámara, tranquilo, y sonríe. El gato cruza el suelo y se sienta a mirarlo.
+//    Corta tras «admits it».
+// 4. F hoy/orbita/rebote (gag 6): en «going straight through» la onda baja como una pelota, choca con la roca en
+//    «rock», salta el polvo y vuelve al satélite, que recula; en «impossible», una «X» roja sobre la roca. Corta en
+//    «depends».
+// 5. LOCAL la mesa de análisis: la traza de vibraciones corre en el monitor; en «depends» entra por la derecha la
+//    lectura de los pozos en plano azul y a la izquierda la de roca maciza; la mano repasa la traza impresa y rodea un
+//    pico en «vibrations»; en «interpreted» la balanza oscila entre las dos y parpadea el «?».
+import * as T from '/atomo/plato/escenas/gz-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gz-diez');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const tono = (P, v, x, y) => P[Math.max(0, Math.min(P.length - 1, Math.floor(v + (BY[(y & 3) * 4 + (x & 3)] + 0.5) / 16)))];
+const rampa = (...c) => c.map((s) => hex(s));
+const K = hex('#16121e');
+const lin = (t, a, b) => Math.max(0, Math.min(1, (t - a) / Math.max(1e-6, b - a)));
+const capas = new Map();
+// un fondo fijo se pinta una vez en su búfer y luego se copia (R.usar(prev), nunca R.usar() a secas)
+const capa = (k, f) => { if (!capas.has(k)) { const b = R.nuevo(), prev = R.usar(b); f(); R.usar(prev); capas.set(k, b); } R.copiar(capas.get(k)); };
+// la esquina de Atom y la barra del año: ahí no entran nubes, pájaros ni nada que se mueva
+const tranquilo = (x, y) => (x >= 272 && y <= 48) || (x >= 16 && x <= 174 && y <= 16);
+const CIELO = rampa('#3a74c4', '#4a84d0', '#5c96dc', '#70a8e6', '#88baee', '#a2ccf2', '#c0dcf6');
+const NUBE = rampa('#9eb0cc', '#d6e2f0', '#ffffff');
+const pintaCielo = (x0, y0, x1, y1, hor, dentro) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (dentro(x, y)) R.pset(x, y, tono(CIELO, 6.4 * (y - y0) / Math.max(1, hor - y0), x, y)); };
+// nubes de tres tonos a tres velocidades y pájaros, dentro de dentro(x, y)
+const nubes = (t, x0, y0, x1, hor, dentro, o = {}) => {
+  const lista = o.nubes ?? [[0.1, 0.35, 22, 3], [0.55, 0.6, 30, 5], [0.85, 0.3, 16, 8]];
+  for (const [fx, fy, w, v] of lista) {
+    const W = x1 - x0 + 2 * w + 20, cx = x0 - w - 10 + ((fx * W + t * v) % W), cy = y0 + fy * (hor - y0);
+    for (const [dx, dy, r] of [[-w * 0.45, 2, w * 0.32], [0, -2, w * 0.42], [w * 0.42, 1, w * 0.3], [w * 0.15, 3, w * 0.36]]) {
+      const ax = cx + dx, ay = cy + dy;
+      for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { if (i * i + j * j > r * r) continue; const x = Math.round(ax + i), y = Math.round(ay + j * 0.55);
+        if (x < x0 || x > x1 || y < y0 || y > hor || !dentro(x, y) || tranquilo(x, y)) continue;
+        R.pset(x, y, y > cy + 3 ? NUBE[0] : (j < -r * 0.35 && i < r * 0.3) ? NUBE[2] : tono(NUBE, 1.6 - (y - cy + 4) * 0.08, x, y)); } }
+  }
+  for (let k = 0; k < (o.aves ?? 3); k++) { const x = Math.round(x0 + ((t * (9 + k * 3) + k * 61) % (x1 - x0 + 30)) - 15), y = Math.round(y0 + 18 + k * 7 + Math.sin(t * 1.3 + k) * 3), a = Math.sin(t * 10 + k * 2) > 0 ? 1 : 0;
+    for (const [i, j] of [[-2, -a], [-1, 0], [0, 1], [1, 0], [2, -a]]) if (dentro(x + i, y + j) && !tranquilo(x + i, y + j) && x + i >= x0 && x + i <= x1) R.pset(x + i, y + j, hex('#2a3048')); }
+};
+const ARE = rampa('#8a6a3e', '#a8834e', '#c49c62', '#d8b276', '#e8c88c', '#f2d8a4', '#faeac2');
+const CAL = rampa('#5e4a32', '#7a6244', '#9a7e58', '#b89a70', '#d0b488', '#e2c89e', '#f0dcb6');
+// la pirámide lejana (Keops) con sus hiladas, vértice (ax, ay) hasta la base by, la cara de sombra a la derecha
+const piramideLejos = (ax, ay, by, pend, dentro = () => true) => {
+  for (let y = ay; y <= by; y++) { const hw = (y - ay) * pend; for (let x = Math.round(ax - hw); x <= ax + hw; x++) { if (!dentro(x, y)) continue;
+    const sombra = x > ax + (y - ay) * 0.12, hil = Math.floor((y - ay) / 2);
+    let v = (sombra ? 2.4 : 4.4) + (h(x >> 1, hil, 3) - 0.5) * 0.8 - (by - y) * 0.004 + 0.6;
+    if ((y - ay) % 2 === 1) v -= 0.7;
+    R.pset(x, y, tono(CAL, v, x, y)); } }
+};
+
+const w = (s) => en('diez', (s - 0.9) / 21.124);
+const P2 = w(4.70), P3 = w(9.66), P4 = w(14.66), P5 = w(18.98);
+const expertos = w(1.48), anio = w(2.74), anuncio = w(3.28), satelite = w(5.3), apenas = w(6.38), suelo = w(7.38), esa = w(8.28);
+const diez = w(10.68), admite = w(13.37), recto = w(15.07), roca = w(16.6), imposible = w(17.53), vibra = w(20.28), interpreta = w(21.26);
+const AZUL = { fondo: T.C.planoFondo, rej: T.C.planoRejilla, lin: T.C.planoLinea, bri: T.C.planoBrillo };
+
+// ── 1 · B italia/prensa/mesa: el anuncio ──
+const O1 = { encuadre: 'prensa', camara: 'mesa', pantalla: 'plano' };
+const p1 = (t) => {
+  const o = { ...O1, habla: t < anio - 0.1 ? 0 : t < anuncio ? 1 : 2 }; T.italia(R, t, o);
+  R.actor(EL.malanga, 83, 145, t, { dir: 1, habla: t < anio - 0.1 && Math.sin(t * 9) > -0.3 });
+  R.actor(EL.biondi, 143, 145, t, { dir: 1, dedo: t > anio && t < anuncio + 0.4, habla: t > anio && t < anuncio && Math.sin(t * 9) > -0.3 });
+  const lam = t > anuncio, me = R.actor(EL.mei, 203, 145, t, { dir: -1, sostiene: lam ? [196, 118] : undefined, sonrisa: lam });
+  if (lam) { const [mx, my] = me.mano, x0 = mx - 9, y0 = my - 15; R.rect(x0 - 1, y0 - 1, x0 + 13, y0 + 10, K); R.rect(x0, y0, x0 + 12, y0 + 9, AZUL.fondo);
+    for (let x = x0; x <= x0 + 12; x += 3) R.linea(x, y0, x, y0 + 9, AZUL.rej); R.linea(x0 + 2, y0 + 4, x0 + 6, y0 + 1, AZUL.lin); R.linea(x0 + 6, y0 + 1, x0 + 10, y0 + 4, AZUL.lin);
+    for (const x of [x0 + 4, x0 + 6, x0 + 8]) R.linea(x, y0 + 4, x, y0 + 8, Math.floor(t * 6) % 2 ? AZUL.bri : AZUL.lin); }
+  T.italiaDelante(R, t, o);
+  // en «experts» suben del público tres manos, cada una con su «?»
+  [[34, 0], [118, 0.35], [268, 0.7]].forEach(([x, d], k) => { const u = tramo(t, expertos + d, expertos + d + 0.4); if (u <= 0) return;
+    const y = Math.round(lerp(196, 150, u) + Math.sin(t * 3 + k) * 1.5);
+    T.brazo(R, x - 6, 206, x, y + 8, ['#5a6a8a', '#8a4a3a', '#4a6a4a'][k], 1, { codo: [x - 8, y + 26] });
+    if (u >= 1) { const qy = y - 30; R.rect(x + 4, qy + 17, x + 5, y + 4, hex('#8a6a3a')); R.rect(x - 3, qy - 3, x + 13, qy + 18, K); R.rect(x - 2, qy - 2, x + 12, qy + 17, hex('#f2eee2')); R.icono('?', x, qy, hex('#d83a3a'), hex('#e0d8c8'), 2); } });
+};
+
+// ── 2 · F hoy/suelo: la onda entra diez metros ──
+const p2 = (t) => {
+  const o = { encuadre: 'suelo', radar: tramo(t, satelite, suelo + 0.2) }; T.hoy(R, t, o);
+  // el técnico en la superficie mira la onda; en «barely» se encoge de hombros; en «ESA» señala la cota
+  R.actor(EL.tecnicoEgipcio, 58, 64, t, { dir: 1, brazos: t > apenas && t < suelo + 0.5, sorpresa: t > suelo && t < suelo + 0.8, dedo: t > esa + 0.3, habla: t > esa + 0.3 && Math.sin(t * 9) > 0 });
+  // la señal de un satélite que baja y la cota de 10 m que se enciende con su «10» grande
+  if (t > esa) { const a = lin(t, esa, esa + 0.5), sx = 104, sy = 26;
+    R.icono('satelite', sx - 3, sy - 3, hex('#e8e8f2'), K); for (let y = sy + 5; y < Math.round(lerp(sy + 5, 63, a)); y += 3) R.pset(sx, y, hex('#9ae8f8'));
+    if (a >= 1) { const on = Math.floor(t * 4) % 2 === 0;
+      R.rect(12, 64, 13, 86, hex('#ffe070')); R.rect(12, 64, 18, 64, hex('#ffe070')); R.rect(12, 86, 18, 86, hex('#ffe070'));
+      for (let x = 20; x < 300; x += 3) R.pset(x, 86, on ? hex('#ffe070') : hex('#c8a040'));
+      R.numero('10', 22, 82, { tam: 16 }); } }
+};
+
+// ── 3 · B italia/video: Biondi lo admite ──
+const p3 = (t) => {
+  const o = { encuadre: 'video' }, geo = T.italia(R, t, o), [kx, ky] = geo.camara ?? [196, 158];
+  // el monitor del escritorio: la gráfica que tiembla y, en «10», el satélite con su «10»
+  R.recorte([272, 88, 308, 108]);
+  for (let y = 88; y <= 108; y++) R.linea(272, y, 308, y, hex('#10182a'));
+  if (t < diez) { for (let x = 272; x < 308; x++) R.pset(x, Math.round(98 + Math.sin(x * 0.6 + t * 8) * 3 * Math.sin(x * 0.13)), hex('#5ae08a')); }
+  else { R.icono('satelite', 274, 92, hex('#e8e8f2'), K); for (let y = 99; y < 107; y += 2) R.pset(277, y, hex('#9ae8f8')); R.numero('10', 286, 104, { color: Math.floor(t * 3) % 2 ? hex('#ffe070') : hex('#fff6c0') }); }
+  R.recorte(null);
+  // Biondi empieza en el escritorio, de cara al monitor; en «10» lo señala y habla; luego vuelve a su marca delante de la
+  // cámara (por delante del trípode, que está en y 158) y en «admits» abre las manos hacia la cámara, tranquilo
+  const vu = tramo(t, diez + 0.9, admite - 0.25), vx = Math.round(lerp(246, 146, vu)), vy = Math.round(154 + Math.sin(vu * Math.PI) * 9 - vu * 2);
+  const enMarca = vu >= 1;
+  R.actor(EL.biondi, vx, vy, t, { dir: vu > 0 && !enMarca ? -1 : enMarca ? 1 : 1, anda: vu > 0 && vu < 1,
+    dedo: t > diez - 0.15 && t < diez + 0.9, habla: ((t > diez - 0.15 && t < diez + 0.9) || t > admite + 1.0) && Math.sin(t * 9) > -0.3,
+    brazos: t > admite - 0.1 && t < admite + 1.0, sonrisa: t > admite + 0.4 });
+  // el piloto rojo de la cámara: graba solo cuando Biondi está en su marca
+  if (enMarca && Math.floor(t * 3) % 2 === 0) { R.disco(kx + 11, ky - 38, 1.5, hex('#ff3040')); R.pset(kx + 11, ky - 39, hex('#ffb0b8')); }
+  // el gato cruza despacio por el suelo, de la estantería hacia la puerta, y se sienta a mirar a Biondi
+  { const u = lin(t, P3 + 0.2, admite - 0.4), x = Math.round(lerp(20, 104, u)), anda = u > 0 && u < 1, pa = anda ? Math.floor(t * 6) % 2 : 0, G = hex('#3a3a46'), GL = hex('#5a5a68');
+    if (anda) { R.rect(x, 172, x + 8, 176, G); R.rect(x + 1, 172, x + 7, 172, GL); R.rect(x + 7, 169, x + 11, 173, G); R.pset(x + 8, 168, G); R.pset(x + 11, 168, G); R.pset(x + 10, 171, hex('#e8d040'));
+      R.linea(x, 173, x - 4, 169 + pa, G); for (const i of [1, 7]) R.rect(x + i + pa, 177, x + i + pa, 179, G); }
+    else { const c = Math.sin(t * 4) > 0 ? 1 : 0; R.rect(x + 2, 168, x + 8, 177, G); R.rect(x + 3, 168, x + 4, 176, GL); R.rect(x + 3, 163, x + 9, 168, G); R.pset(x + 4, 162, G); R.pset(x + 8, 162, G);
+      R.pset(x + 7, 165, hex('#e8d040')); R.linea(x + 2, 177, x - 3, 175 - c, G); R.linea(x - 3, 175 - c, x - 4, 172 - c, G); } }
+  T.italiaDelante(R, t, o);
+};
+
+// ── 4 · F hoy/orbita/rebote: gag 6 ──
+const rebote = (t) => lin(t, w(14.86), w(18.34));
+const p4 = (t) => {
+  T.hoy(R, t, { encuadre: 'orbita', camara: 'rebote', rebote: rebote(t) });
+  if (t > imposible) { const s = Math.min(1, (t - imposible) / 0.15); R.icono('X', 104 - Math.round(s * 2), 128, hex('#e83a3a'), K, 2 + Math.round(s)); }
+};
+
+// ── 5 · LOCAL: la mesa de análisis con la gráfica de vibraciones ──
+const MAD = rampa('#4a2c18', '#5e3a20', '#744a2a', '#8a5c36', '#a07044');
+const PARED = rampa('#2a3040', '#323a4c', '#3a4458', '#465066');
+const traza = (x, t, k = 0) => Math.sin(x * 0.31 + t * k) * 3 * Math.sin(x * 0.07 + 1) + Math.sin(x * 0.9 + t * k * 1.7) * 1.4 + (((x + 12) % 37) < 3 ? -5 : 0);
+const fijo5 = () => {
+  // la pared del laboratorio con paneles y la balda de archivadores
+  for (let y = 0; y < 124; y++) for (let x = 0; x < 320; x++) { let v = 1.6 + (h(x >> 2, y >> 2, 60) - 0.5) * 0.5 + (y > 100 ? -0.4 : 0); if (x % 64 === 0 || y === 100) v = 0.2; R.pset(x, y, tono(PARED, v, x, y)); }
+  R.rect(0, 100, 319, 101, hex('#1e2230'));
+  R.rect(0, 30, 46, 33, MAD[1]); R.rect(0, 33, 46, 34, MAD[0]);
+  for (let k = 0; k < 7; k++) { const x = 2 + k * 6, c = ['#c84a3a', '#3a7ac8', '#e8c040', '#4a9a5a', '#e8e8f0', '#8a4ac8', '#c8743a'][k]; R.rect(x, 14, x + 4, 29, K); R.rect(x + 1, 15, x + 3, 29, hex(c)); R.rect(x + 1, 19, x + 3, 20, hex('#f2eee2')); }
+  // el reloj de pared y una lámina con un sismograma clavada
+  R.disco(24, 62, 9, K); R.disco(24, 62, 8, hex('#e8e4d8')); for (let a = 0; a < 12; a++) R.pset(Math.round(24 + Math.cos(a * Math.PI / 6) * 6), Math.round(62 + Math.sin(a * Math.PI / 6) * 6), K);
+  R.rect(270, 56, 310, 92, K); R.rect(271, 57, 309, 91, hex('#f2eee2')); for (let x = 273; x < 308; x++) R.pset(x, Math.round(74 + traza(x, 0) * 1.2), hex('#2a2a3a')); R.disco(290, 57, 1, hex('#d83a3a'));
+  // el monitor grande con su pie
+  R.rect(50, 16, 262, 116, K); R.rect(51, 17, 261, 115, hex('#2a2e3a')); R.rect(150, 116, 162, 124, hex('#3a3e4a')); R.rect(130, 124, 182, 127, hex('#2a2e3a'));
+  // la mesa de madera con vetas
+  for (let y = 124; y < 180; y++) for (let x = 0; x < 320; x++) { const v = 2.6 + Math.sin(x * 0.08 + Math.sin(y * 0.3) * 2) * 0.5 + (h(x >> 3, y, 61) - 0.5) * 0.5 - (y - 124) * 0.01; R.pset(x, y, tono(MAD, v, x, y)); }
+  R.linea(0, 124, 319, 124, MAD[4]);
+  // el teclado, la caja del sismómetro, la pirámide de maqueta y los papeles
+  R.rect(110, 134, 196, 146, K); R.rect(111, 135, 195, 145, hex('#3a3e4a')); for (let j = 0; j < 3; j++) for (let i = 0; i < 20; i++) R.rect(113 + i * 4, 137 + j * 3, 114 + i * 4, 138 + j * 3, hex('#8a8e9a'));
+  R.rect(206, 130, 246, 150, K); R.rect(207, 131, 245, 149, hex('#5a6a5a')); R.rect(207, 131, 245, 133, hex('#7a8a7a')); R.disco(216, 141, 4, K); R.disco(216, 141, 3, hex('#c8c8d2')); R.rect(226, 137, 242, 145, hex('#1a2a1a'));
+  for (let y = 124; y >= 108; y--) { const hw = (124 - y) * 0.9; for (let x = Math.round(290 - hw); x <= 290 + hw; x++) R.pset(x, y, x > 290 ? CAL[2] : CAL[4]); }
+  for (let y = 108; y <= 124; y += 3) R.linea(Math.round(290 - (124 - y) * 0.9), y, Math.round(290 + (124 - y) * 0.9), y, CAL[1]);
+  R.rect(8, 144, 100, 176, K); R.rect(9, 145, 99, 175, hex('#f2eee2')); R.rect(4, 150, 30, 172, hex('#e2ddd0')); R.linea(4, 150, 30, 150, hex('#c8c2b4'));
+  for (let x = 12; x < 98; x++) R.pset(x, Math.round(160 + traza(x, 0) * 1.4), hex('#3a3a5a'));
+  for (let y = 147; y < 175; y += 4) R.linea(10, y, 98, y, hex('#e0dccc'));
+};
+const p5 = (t) => {
+  capa('diez5', fijo5);
+  // la pantalla: a la izquierda la traza real (verde) que corre sobre roca maciza; a la derecha entra la lectura de
+  // los pozos en el código del plano azul
+  const gx0 = 56, gy0 = 22, gx1 = 256, gy1 = 110, mitad = 156, ent = tramo(t, P5 + 0.05, P5 + 0.8), corte = Math.round(lerp(gx1 + 1, mitad, ent)), vb = lin(t, vibra - 0.2, vibra + 0.8);
+  for (let y = gy0; y <= gy1; y++) for (let x = gx0; x <= gx1; x++) {
+    let c;
+    if (x >= corte) { c = ((x - gx0) % 12 === 0 || (y - gy0) % 12 === 0) ? AZUL.rej : AZUL.fondo; }
+    else { c = ((x - gx0) % 10 === 0 || (y - gy0) % 10 === 0) ? hex('#123a24') : hex('#0a1e14');
+      if (y > 64 && vb > 0) { const est = Math.floor((y - 64 + Math.sin(x * 0.1) * 2) / 8); if ((y - 64) / 46 < vb) c = tono(ROCA4, 1.4 + (est % 2) * 0.8 + (h(x >> 1, y >> 1, 62) - 0.5) * 0.6, x, y); } }
+    R.pset(x, y, c); }
+  // la traza: corre de derecha a izquierda; en la mitad azul, cian con brillo
+  for (let x = gx0; x <= gx1; x++) { const y = Math.round(48 + traza(x + Math.floor(t * 30), 0)), y2 = Math.round(48 + traza(x + 1 + Math.floor(t * 30), 0));
+    const az = x >= corte; R.linea(x, y, x + (x < gx1 ? 1 : 0), y2, az ? AZUL.lin : hex('#5ae08a')); if (az && Math.floor(t * 8 + x * 0.1) % 9 === 0) R.pset(x, y - 1, AZUL.bri); }
+  // en «vibrations» los pozos azules se trazan desde la traza hacia abajo, con su rosca
+  if (vb > 0) for (const x of [176, 196, 216, 236]) { if (x < corte + 2) continue; const yb = Math.round(lerp(56, 108, vb));
+    for (let y = 56; y <= yb; y++) { R.pset(x - 3, y, AZUL.lin); R.pset(x + 3, y, AZUL.lin); if ((y + Math.floor(t * 10)) % 6 === 0) R.linea(x - 3, y, x + 3, y + 2, AZUL.bri); } }
+  // el barrido de holograma y el corte entre las dos lecturas
+  if (corte <= gx1) { const yb = gy1 - Math.floor((t * 40) % (gy1 - gy0)); R.linea(Math.max(corte, gx0), yb, gx1, yb, AZUL.bri); R.linea(corte - 1, gy0, corte - 1, gy1, hex('#e8e8f2')); }
+  // la balanza y el «?» en «interpreted»
+  if (t > interpreta - 0.4) { const a = Math.sin((t - interpreta) * 5) * 3; R.rect(mitad - 12, 24, mitad + 12, 40, K); R.rect(mitad - 11, 25, mitad + 11, 39, hex('#2a2e3a'));
+    R.linea(mitad, 28, mitad, 37, hex('#e8c040')); R.linea(mitad - 8, Math.round(30 - a), mitad + 8, Math.round(30 + a), hex('#e8c040')); R.rect(mitad - 4, 37, mitad + 4, 38, hex('#e8c040'));
+    R.rect(mitad - 10, Math.round(32 - a), mitad - 6, Math.round(33 - a), hex('#5ae08a')); R.rect(mitad + 6, Math.round(32 + a), mitad + 10, Math.round(33 + a), AZUL.lin);
+    if (t > interpreta && Math.floor(t * 3) % 2 === 0) R.icono('?', mitad - 4, 84, hex('#ffe070'), K, 2); }
+  // el reflejo del cristal
+  for (let k = 0; k < 30; k++) R.pset(gx0 + 6 + k, gy0 + 2 + k, hex('#3a4a5a'));
+  // las agujas del reloj, el piloto del sismómetro, el vapor de la taza
+  { const a = t * Math.PI / 30 - Math.PI / 2, b = t * 0.05; R.linea(24, 62, Math.round(24 + Math.cos(a) * 6), Math.round(62 + Math.sin(a) * 6), hex('#d83a3a')); R.linea(24, 62, Math.round(24 + Math.cos(b) * 4), Math.round(62 + Math.sin(b) * 4), K); }
+  if (Math.floor(t * 2) % 2) R.pset(244, 134, hex('#3af06a'));
+  for (let x = 227; x < 242; x++) R.pset(x, Math.round(141 + traza(x + Math.floor(t * 20), 0) * 0.6), hex('#5ae08a'));
+  R.rect(262, 134, 276, 152, K); R.rect(263, 135, 275, 151, hex('#e8e4d8')); R.rect(276, 139, 279, 146, K); R.rect(264, 136, 274, 138, hex('#5a3a20'));
+  for (let k = 0; k < 4; k++) { const u = (t * 0.6 + k / 4) % 1; R.pset(Math.round(268 + Math.sin(u * 7 + k) * 2), Math.round(132 - u * 16), hex('#d8dce4')); }
+  // la mano repasa la traza impresa y rodea un pico en «vibrations»
+  const r0 = lin(t, P5 + 0.3, vibra), cerc = lin(t, vibra, vibra + 0.7);
+  let tx = Math.round(lerp(14, 60, r0)), ty = Math.round(160 + traza(tx, 0) * 1.4);
+  if (cerc > 0) { const an = cerc * Math.PI * 2; tx = Math.round(61 + Math.cos(an) * 6); ty = Math.round(154 + Math.sin(an) * 4); for (let a = 0; a < cerc * 30; a++) { const b = a / 30 * Math.PI * 2; R.pset(Math.round(61 + Math.cos(b) * 6), Math.round(154 + Math.sin(b) * 4), hex('#d83a3a')); } }
+  if (t > vibra + 0.7) { for (let a = 0; a < 30; a++) { const b = a / 30 * Math.PI * 2; R.pset(Math.round(61 + Math.cos(b) * 6), Math.round(154 + Math.sin(b) * 4), hex('#d83a3a')); } tx = 76; ty = 168; }
+  T.brazo(R, 6, 206, tx - 12, ty + 8, '#5a6a8a', 1, { codo: [tx - 22, ty + 30] });
+  R.linea(tx - 4, ty + 6, tx, ty, hex('#d83a3a')); R.linea(tx - 5, ty + 5, tx - 1, ty - 1, hex('#a82a2a')); R.pset(tx, ty, K);
+};
+const ROCA4 = rampa('#3a2e24', '#5a4838', '#7a6450', '#9a8068');
+const efectos = [[w(1.0), 'flash'], [expertos + 0.1, 'pop'], [anuncio + 0.05, 'papel'], [satelite, 'whoosh'], [suelo, 'bip'], [esa + 0.5, 'brillo'],
+  [diez, 'bip'], [w(14.9), 'whoosh'], [roca, 'boing'], [imposible, 'golpecito'], [P5 + 0.1, 'whoosh'], [vibra, 'lapiz'], [interpreta, 'tic']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { efectos, año: 2025 });
+</script>
+</body>
+</html>

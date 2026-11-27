@@ -503,6 +503,30 @@ function brassNote(midi, dur, { bright = 1, seed = 14, stab = false } = {}) {
   return { L, R };
 }
 
+// double reed (cor anglais / oboe) for pastoral solos (from episode 16): a narrow-pulse source rich in odd and even
+// harmonics, two fixed formants (the bore of the horn: ~1 kHz and ~2.6 kHz), a soft breath at the attack, a slight
+// pitch scoop and a slow vibrato that comes in after 0.3 s. dur = held length; bright 0.6 (cor anglais) … 1 (oboe).
+function reed(midi, dur, { bright = 0.75, vib = 0.16, seed = 31 } = {}) {
+  const f = mtof(midi), rel = 0.14;
+  const out = buf(dur + rel + 0.05);
+  const r = rng(seed + midi * 11), vibPh = Math.abs(r()) * TAU;
+  const src = new Square(Math.abs(r()), 0.28), src2 = new Saw(Math.abs(r()));
+  const f1 = new SVF(), f2 = new SVF(), lp = new SVF(), br = new SVF();
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR;
+    const env = adsr(t, dur, 0.05, 0.12, 0.85, rel);
+    const scoop = -0.25 * Math.exp(-t / 0.035);
+    const v = t > 0.3 ? vib * Math.min(1, (t - 0.3) / 0.4) * Math.sin(TAU * 5.2 * t + vibPh) : 0;
+    const ff = f * Math.pow(2, (scoop + v) / 12);
+    let s = src.next(ff) * 0.6 + src2.next(ff * 1.001) * 0.4;
+    s = lp.lp(s, 1800 + 2600 * bright, 0.8);
+    const formants = f1.bp(s, 1050, 2.2) * 1.1 + f2.bp(s, 2600, 3) * 0.55 * bright + s * 0.25;
+    const breath = br.bp(r() * 2 - 1, 1800, 1.5) * 0.25 * Math.exp(-t / 0.06);
+    out[i] = Math.tanh((formants + breath) * 1.4) * env * 0.6;
+  }
+  return out;
+}
+
 // ================= CHOIR (formant synthesis) =================
 // Tenor / alto vowel formants: [freq, gainDb, bandwidth]
 const VOWELS = {
@@ -924,5 +948,5 @@ module.exports = {
   kick, snare, clap, hat, crash, tom, shaker, bell, bass, padNote, pluck, guitar, epiano, musicBox, marimba, brassNote, voice,
   dholak, tabla, harmonium, ting, pulse, triangle, chipNoise, supersaw, bass808, strings, pizz, timpani, logDrum, rim, vinyl,
   noiseSweep, boing, thud, paperFwip, tvClick, whistle, bwomp, heartbeat, woodTick, thwack, subBoom, pop,
-  fireworkBurst, launchWhistle, scribble, buf,
+  fireworkBurst, launchWhistle, scribble, buf, reed,
 };

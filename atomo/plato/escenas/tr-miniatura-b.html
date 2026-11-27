@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura B · ep23</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-MINIATURA-B · la miniatura SIMPLE del ep23, para la prueba A/B de YouTube (la idea de la IA de Studio: un solo
+// elemento fuerte y contrastado). Sobre la Puerta del Sol de noche, oscurecida y desenfocada, la uva con ojos enorme a
+// la izquierda, con cara de susto, y a la derecha un «1909» blanco enorme con una cruz roja gruesa. Sin palabras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/tr-comun.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const fondo = R.nuevo(), pj = R.nuevo(), tmp = R.nuevo(), VACIO = 0x01020304, K = hex('#0c0814');
+const pon = (src, sx0, sx1, sy0, sy1, dx, dy, s = 2) => { for (let y = sy0; y <= sy1; y++) for (let x = sx0; x <= sx1; x++) { const c = src[y * 320 + x]; if (c === VACIO) continue; R.rect(dx + (x - sx0) * s, dy + (y - sy0) * s, dx + (x - sx0) * s + s - 1, dy + (y - sy0) * s + s - 1, c); } };
+const contorno = (b, c = K) => { const m = b.slice(); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { if (m[y * 320 + x] !== VACIO) continue; if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, d]) => { const X = x + a, Y = y + d; return X >= 0 && X < 320 && Y >= 0 && Y < 180 && m[Y * 320 + X] !== VACIO; })) b[y * 320 + x] = c; } };
+const vuelca = (b) => { for (let k = 0; k < 320 * 180; k++) if (b[k] !== VACIO) R.buf[k] = b[k]; };
+const mezcla = (a, b, f) => { let r = 0; for (const sh of [0, 8, 16]) r |= (Math.round(((a >>> sh) & 255) * f + ((b >>> sh) & 255) * (1 - f)) & 255) << sh; return (0xff000000 | r) >>> 0; };
+const brillo = (cx, cy, r, c, f = 0.5) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { if (x < 0 || x > 319 || y < 0 || y > 179) continue; const d = Math.hypot(x - cx, y - cy) / r; if (d < 1) R.buf[y * 320 + x] = mezcla(c, R.buf[y * 320 + x], f * (1 - d) * (1 - d)); } };
+const elipse = (cx, cy, rx, ry, c) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) R.pset(x, y, c); };
+const trazo = (x0, y0, x1, y1, r, c) => { const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * 2); for (let k = 0; k <= n; k++) { const u = k / n; elipse(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, r, r, c); } };
+// lo que pinta «pinta» en un búfer aparte, medido y copiado a escala s, centrado en cx y con la base en «base», con filo
+const grande = (pinta, cx, base, s, filo) => {
+  R.usar(pj); pj.fill(VACIO); pinta(); R.usar(null);
+  let x0 = 320, x1 = 0, y0 = 180, y1 = 0; for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) if (pj[y * 320 + x] !== VACIO) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  R.usar(tmp); tmp.fill(VACIO); pon(pj, x0, x1, y0, y1, Math.round(cx - (x1 - x0 + 1) * s / 2), base - (y1 - y0 + 1) * s, s); contorno(tmp, filo); R.usar(null); vuelca(tmp);
+};
+// el fondo de un decorado, desplazado dx (para centrar lo importante en la columna) y oscurecido hacia «tono»
+const pinta_fondo = (f, dx, tono, k) => { R.usar(fondo); f(); R.usar(null); for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) { const sx = Math.max(0, Math.min(319, x + dx)); R.buf[y * 320 + x] = mezcla(tono, fondo[y * 320 + sx], k); } };
+
+const dibujar = (t) => {
+  pinta_fondo(() => T.anuevo(R, t, { encuadre: 'sol', camara: 'reloj', bola: 1, campanada: 0, fuegos: 0.5, minuto: 59.8 }), -20, hex('#06061a'), 0.62);
+  // la uva, al quíntuple, con su halo morado
+  brillo(82, 110, 80, hex('#c890ff'), 0.55);
+  grande(() => T.uva(R, 60, 60, t, { cara: 'susto' }), 82, 172, 9, hex('#ffffff'));
+  // el «1909» enorme y la cruz roja gruesa
+  brillo(232, 80, 80, hex('#ffffff'), 0.22);
+  grande(() => R.numero('1909', 60, 60, { tam: 16, centro: true, rampa: [hex('#ffffff'), hex('#f0f0ff'), hex('#c8c8e0'), hex('#8a8aa8')] }), 232, 118, 2, hex('#06061a'));
+  // una sola raya roja gruesa, para que el año se siga leyendo
+  for (const [c, r] of [[hex('#1a0204'), 3], [hex('#ff2a2a'), 2]]) trazo(170, 116, 302, 72, r, c);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hola · ep37</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// WO-HOLA (frase 3), hoy (2026). Un plano: el estudio de Atom con su «gran oreja» casera (un embudo y un vaso pegados
+// al techo). Atom baja de su esquina en «I'm Atom» y saluda con la mano; se arrima al vaso para escuchar; en «and I
+// explain» el vecino de arriba pasa la aspiradora: el embudo tiembla, cae polvo de yeso y Atom tirita; en «wondered» le
+// sale un «?»; en «Let's find out» se sacude el polvo y vuelve a su esquina. La esquina de Atom (x 278–318, y 4–44) es
+// pared tranquila: papel liso con sus listas, sin estrellitas ni planetas, ni cortados al borde (esquinaTranquila).
+import * as T from '/atomo/plato/escenas/wo-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('wo-hola');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#17151d'), BL = hex('#f6f2ea'), AZ = hex('#3a6ac8'), ease = (u) => u * u * (3 - 2 * u);
+const atomAbajo = (ax, ay, t, o = {}) => {
+  const r = o.r ?? 12, rr = r + 7; ax = Math.round(ax); ay = Math.round(ay);
+  for (let j = -rr; j <= rr; j++) for (let i = -rr; i <= rr; i++) { const g = 1 - Math.hypot(i, j) / rr; if (g > 0.3 && ((i + j) & 1 || g > 0.6)) R.pset(ax + i, ay + j, g > 0.7 ? R.PAL.GLOW[1] : R.PAL.GLOW[0]); }
+  R.atomo(ax, ay, t, { r, orbita: R.PAL.ATOM[7], energia: o.e ?? 0.4, vel: 1 });
+};
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+// LA ESQUINA DE ATOM, tranquila del todo: el decorado ya deja liso el papel en x ≥ 264, y ≤ 50, pero al borde quedan
+// media estrellita cortada (x 260–263, y 31–37) y los puntos sueltos del motivo de abajo (x 271 y 303, y 51). Aquí se pasan a
+// papel liso (crema con sus listas finas cada 8 px y el moteado de siempre), cambiando solo los píxeles del motivo
+const MOTIVO = ['#8a9ab6', '#6e7e9c', '#c49a68', '#a47c4e'].map(hex), PAPEL = hex('#e8dcc0'), PAPELS = hex('#dccfb0');
+const hh = (x, y, k) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const esquinaTranquila = () => {
+  for (let y = 28; y <= 52; y++) for (let x = 259; x <= 319; x++) if (MOTIVO.includes(R.pget(x, y)))
+    R.pset(x, y, x % 8 === 0 || hh(x >> 1, y >> 1, 91) < 0.05 ? PAPELS : PAPEL);
+};
+R.companero = () => {};   // Atom baja al plano y al final vuelve a su esquina
+const th = (s) => en('hola', (s - 0.5) / 4.076);   // el instante de la palabra que dice la voz inglesa en s
+const BAJA = th(0.5), LLEGA = th(1.2), RUIDO = th(1.5), DUDA = th(2.88), VUELVE = th(3.89);
+const p1 = (t) => {
+  const o = { encuadre: 'estudio', ruido: t > RUIDO ? 1 : 0 };
+  const g = T.hoy(R, t, o);
+  esquinaTranquila();
+  const [vx, vy] = g.vaso || [246, 51], esq = [297, 24];
+  const AX = vx, AY = vy + 12;
+  const b = ease(tramo(t, BAJA, LLEGA)), v = ease(tramo(t, VUELVE + 0.3, E.duracion - 0.25));
+  let ax = lerp(esq[0], AX, b), ay = lerp(esq[1], AY, b) + Math.sin(b * Math.PI) * 14;
+  if (v > 0) { ax = lerp(AX, esq[0], v); ay = lerp(AY, esq[1], v) + Math.sin(v * Math.PI) * 12; }
+  const tirita = t > RUIDO && t < VUELVE + 0.3; if (tirita) { ax += (Math.floor(t * 24) % 2) * 2 - 1; ay += Math.floor(t * 17) % 2; }
+  if (!tirita && (b >= 1 || b === 0) && v === 0) ay += Math.round(1.4 * Math.sin(2 * Math.PI * t / 2.6));
+  // la mano: saluda en «I'm Atom»; luego hace de pantalla junto al vaso; en «Let's find out» sacude el polvo
+  const saluda = t > BAJA + 0.2 && t < RUIDO, sacude = t > VUELVE && t < VUELVE + 0.4;
+  let hx = ax + 16, hy = ay - 2;
+  if (saluda) { hx = ax + 17 + Math.round(Math.sin(t * 16) * 3); hy = ay - 8; }
+  else if (t >= RUIDO && t < VUELVE) { hx = ax + 13; hy = ay - 13; }
+  else if (sacude) { hx = ax + 15 + Math.round(Math.sin(t * 30) * 3); hy = ay + 2; }
+  if (t > BAJA + 0.1 && v < 0.6) T.mano(R, Math.round(hx), Math.round(hy), -1, '#5a8ad0', { sinManga: true });
+  atomAbajo(ax, ay, t, { r: Math.round(lerp(10, 12, b) - 2 * v), e: tirita ? 0.95 : 0.45 });
+  // el polvo de yeso que le cae encima
+  if (tirita) for (let k = 0; k < 7; k++) { const u = (t * 0.9 + k * 0.143) % 1, px = Math.round(ax - 9 + ((k * 37) % 18) + Math.sin(t * 3 + k) * 2), py = Math.round(vy + 4 + u * 30); if (py < ay - 8 || py > ay + 10) { R.pset(px, py, hex('#a89a86')); R.pset(px + 1, py, hex('#fffaf0')); } }
+  for (const [tt, xx, yy] of [[BAJA, 297, 40], [E.duracion - 0.3, esq[0], esq[1] + 14]]) { const d = (t - tt) / 0.35; if (d > 0 && d < 1) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, q = 4 + d * 10; R.pset(Math.round(xx + Math.cos(an) * q), Math.round(yy + Math.sin(an) * q), BL); } }
+  if (t > DUDA && t < VUELVE + 0.2) globo(Math.round(ax) - 22, Math.round(ay) - 22, '?', AZ);
+  T.hoyDelante(R, t, o);
+};
+const efectos = [[BAJA, 'pop'], [RUIDO, 'zumbido'], [DUDA, 'pop'], [VUELVE + 0.3, 'whoosh']];
+T.rodar(E, R, [[0, p1]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

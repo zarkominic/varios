@@ -1,0 +1,420 @@
+{
+ "banda": {
+  "tono": "re",
+  "modo": "dorico",
+  "tempo": 84,
+  "motivo": [
+   0,
+   2,
+   3,
+   7,
+   9,
+   7,
+   5,
+   2
+  ],
+  "sampleado": true,
+  "biblioteca": "real",
+  "paleta": {
+   "solista": "chelo",
+   "metal": "trompa",
+   "madera": "clarinete",
+   "aire": "flauta"
+  }
+ },
+ "escenas": [
+  {
+   "id": "bl-gancho",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 1,
+   "frase_fin": 3,
+   "marcas": [
+    "giro",
+    "folleto",
+    "clave"
+   ],
+   "guion_visual": [
+    "C: el bosque de Bedford de noche, bajo la luna; en el suelo, entre hojas, una hoja vieja de papel cubierta de números; golpe en «números».",
+    "A y D: un folleto amarillento sobre una mesa; se abre y salen columnas de números (71, 194, 38…); los números flotan sobre el bosque y caen como hojas hacia un punto del suelo; Atom de buscador con farol lo sigue.",
+    "D: tres hojas de números en fila; la segunda se ilumina y se convierte en una lista de dibujos (lingotes, monedas, joyas, ollas de hierro); la primera y la tercera siguen a oscuras; al fondo, siluetas de descifradores con lupas que se rinden."
+   ],
+   "animo": "misterio",
+   "golpes": [
+    "giro+4.7"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-aviso",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 4,
+   "frase_fin": 4,
+   "marcas": [
+    "pregunta"
+   ],
+   "guion_visual": [
+    "F: Atom en su estudio coloca en la pizarra las tres hojas de números y una gran interrogación con una pluma de escribir («guárdate esta pregunta»)."
+   ],
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-posada",
+   "estilo": "pixel",
+   "cartela": "1820",
+   "frase_ini": 5,
+   "frase_fin": 6,
+   "marcas": [
+    "beale",
+    "caja"
+   ],
+   "guion_visual": [
+    "A: Lynchburg en invierno, almacenes de tabaco junto al río James con barcas; la posada con su chimenea; un forastero alto y moreno, elegante, charla con todos en el comedor; Morriss detrás del mostrador.",
+    "A: el despacho de Morriss; Beale le entrega una caja de hierro con candado; Morriss la guarda en un armario; gag: Atom intenta abrirla con una horquilla y la horquilla se dobla en forma de interrogación."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1820",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-carta",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 7,
+   "frase_fin": 8,
+   "marcas": [
+    "carta",
+    "abre"
+   ],
+   "guion_visual": [
+    "A: un cartero entrega una carta a Morriss; gag: Atom vigila el buzón mientras pasan las hojas del calendario de 1822 a 1832 y el buzón sigue vacío.",
+    "A: Morriss, mayor, rompe el candado a la luz de una lámpara; dentro, dos cartas y tres hojas de números."
+   ],
+   "animo": "intriga",
+   "golpes": [
+    "abre+11.3"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-oeste",
+   "estilo": "pixel",
+   "cartela": "1817",
+   "frase_ini": 9,
+   "frase_fin": 10,
+   "marcas": [
+    "oro",
+    "viaje"
+   ],
+   "guion_visual": [
+    "B: las llanuras con una manada de búfalos y unos jinetes; luego el barranco al atardecer con el campamento y la cena al fuego; un hombre ve brillar algo entre las rocas (el brillo crece).",
+    "B y C: una fila de mulas de carga con diez jinetes cruzando montes; luego la taberna de Buford en Bedford con los hombres fingiendo cazar; los picos de Otter al fondo."
+   ],
+   "animo": "asombro",
+   "golpes": [
+    "oro+22.3"
+   ],
+   "empieza_con": "cartela 1817",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-peso",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 11,
+   "frase_fin": 11,
+   "marcas": [
+    "fijate1"
+   ],
+   "guion_visual": [
+    "PAUSA: la taberna congelada; Atom (al doble) saca a color una balanza con lingotes que pesa tanto como un coche pequeño, ollas de hierro llenas; gag: Atom intenta levantar una olla y se le estiran los brazos; «2921»."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-hojas",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 12,
+   "frase_fin": 13,
+   "marcas": [
+    "tres",
+    "amigo"
+   ],
+   "guion_visual": [
+    "A: la carta de Beale; tres hojas sobre la mesa de Morriss, cada una con su dibujo encima (un mapa, una olla, treinta siluetas); Morriss, ya viejo, las mira a la luz de la lámpara.",
+    "A: Lynchburg en 1862 con soldados por la calle; Morriss entrega la caja a un hombre más joven sin rostro claro (de espaldas, con sombrero) en la puerta."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-cuarto",
+   "estilo": "pixel",
+   "cartela": "1862",
+   "frase_ini": 14,
+   "frase_fin": 14,
+   "marcas": [
+    "vela"
+   ],
+   "guion_visual": [
+    "D: el cuarto del amigo de noche; la mesa con las tres hojas, una vela y una pila de libros; prueba uno, otro; abre por fin un pergamino grande (la Declaración, sin letras legibles)."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1862",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-cifrado",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 15,
+   "frase_fin": 15,
+   "marcas": [
+    "fijate2"
+   ],
+   "guion_visual": [
+    "PAUSA: el cuarto congelado; Atom (al doble) saca a color el pergamino con las palabras como bloques numerados (1, 2, 3…) y una flecha que va del número de la hoja a su bloque y saca la primera letra; gag: Atom cuenta con el dedo, estornuda y vuelve al 1."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-mensaje",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 16,
+   "frase_fin": 17,
+   "marcas": [
+    "mensaje",
+    "ruina"
+   ],
+   "guion_visual": [
+    "D: letra a letra salen del papel unas formas luminosas que dibujan el bosque, la cámara de piedra a seis pies y las ollas; el amigo con la vela casi consumida, emocionado.",
+    "D: el cuarto años después, vacío de muebles, con los papeles por todas partes; el amigo, mayor y cansado; su familia en la puerta."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-folleto",
+   "estilo": "pixel",
+   "cartela": "1885",
+   "frase_ini": 18,
+   "frase_fin": 18,
+   "marcas": [
+    "folleto"
+   ],
+   "guion_visual": [
+    "D: una imprenta de Lynchburg; salen folletos amarillos; un letrero con un 50 en la ventana; luego, humo en una imprenta y un periódico en blanco (nadie lo cuenta)."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1885",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-hart",
+   "estilo": "pixel",
+   "cartela": "1898",
+   "frase_ini": 19,
+   "frase_fin": 19,
+   "marcas": [
+    "medium"
+   ],
+   "guion_visual": [
+    "E y C: una mesa a oscuras con un hombre en trance y dos hermanos; gag: Atom limpia con la manga una bola de cristal empañada; luego el bosque de noche junto a Goose Creek, faroles, palas y un roble; una semana después, Clayton solo con dinamita (solo un resplandor lejano y tierra volando, sin heridos)."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1898",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-friedman",
+   "estilo": "pixel",
+   "cartela": "1930",
+   "frase_ini": 20,
+   "frase_fin": 21,
+   "marcas": [
+    "friedman",
+    "hammer"
+   ],
+   "guion_visual": [
+    "E: el despacho de Friedman con máquinas de cifrar y alumnos en pupitres; Friedman con las hojas de Beale, se rinde y las reparte como ejercicio.",
+    "E: un calendario de la semana que cambia de «real» a «engaño» (con iconos, sin letras); luego la sala de un ordenador enorme de 1970 con cintas y luces; sale una tira de papel y Hammer la levanta."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1930",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-casi",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 22,
+   "frase_fin": 22,
+   "marcas": [
+    "fijate3"
+   ],
+   "guion_visual": [
+    "PAUSA: la sala del ordenador congelada; Atom (al doble) saca a color una máquina tragaperras de juguete que se queda a una fruta de ganar y un cerebro que se ilumina igual que con un premio; «2009»."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-parsons",
+   "estilo": "pixel",
+   "cartela": "1983",
+   "frase_ini": 23,
+   "frase_fin": 23,
+   "marcas": [
+    "excavadora"
+   ],
+   "guion_visual": [
+    "C y E: una excavadora amarilla junto a la valla de una iglesia blanca en el campo, de lejos y de día (sin tumbas a la vista); llega un coche del sheriff; gag: el detector de Atom pita por sus propios anillos y al final saca una percha."
+   ],
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "cartela 1983",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-gillogly",
+   "estilo": "pixel",
+   "cartela": "1980",
+   "frase_ini": 24,
+   "frase_fin": 24,
+   "marcas": [
+    "tira"
+   ],
+   "guion_visual": [
+    "E: un despacho de 1980 con un ordenador y papel continuo; la primera hoja de Beale y el pergamino; salen letras revueltas y, de pronto, la tira «a b f d e f g h i i j k l m m n o h p p» en grande; gag: Atom la canta y se calla de golpe."
+   ],
+   "animo": "suspense",
+   "golpes": [
+    "tira+24.7"
+   ],
+   "empieza_con": "cartela 1980",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-azar",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 25,
+   "frase_fin": 25,
+   "marcas": [
+    "fijate4"
+   ],
+   "guion_visual": [
+    "PAUSA: la tira congelada; Atom (al doble) saca a color un bombo de letras que suelta letras revueltas y, al lado, una mano que elige números mirando el pergamino; «1 / 100 000 000 000 000»."
+   ],
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-nickell",
+   "estilo": "pixel",
+   "cartela": "1982",
+   "frase_ini": 26,
+   "frase_fin": 27,
+   "marcas": [
+    "stampede",
+    "registros"
+   ],
+   "guion_visual": [
+    "E: un investigador con lupa sobre las cartas de Beale; una manada que sale en estampida de una página; dos voces (dos bocadillos con garabatos) que se juntan en una sola silueta: Ward.",
+    "A: el hotel Washington con un libro de registro; un hueco vacío en la fila de 1820; un retrato de Beale que se vuelve una silueta de papel recortado; la caja, el posadero y el amigo como muñecos de un teatrillo."
+   ],
+   "animo": "suspense",
+   "golpes": [
+    "registros+2"
+   ],
+   "empieza_con": "cartela 1982",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-detalles",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 28,
+   "frase_fin": 28,
+   "marcas": [
+    "fijate5"
+   ],
+   "guion_visual": [
+    "PAUSA: el teatrillo congelado; Atom (al doble) saca a color una torre de piezas de detalles (1014, 6, 4) que parece más alta y más firme y, sin embargo, se tambalea; «1983»."
+   ],
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "bl-cierre",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 29,
+   "frase_fin": 31,
+   "marcas": [
+    "bedford",
+    "quien",
+    "pregunta"
+   ],
+   "guion_visual": [
+    "C: el bosque de Bedford de día; un aficionado con detector entre los árboles; Atom guarda el folleto en el bolsillo.",
+    "A: Lynchburg en 1885 de noche; una ventana con luz donde un hombre escribe números mirando un pergamino; luego, hoy, alguien en algún lugar de Virginia coge una pala.",
+    "F: Atom en su estudio cierra el folleto, mira a cámara y señala los comentarios."
+   ],
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  }
+ ],
+ "lotes": []
+}

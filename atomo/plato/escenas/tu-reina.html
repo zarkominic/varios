@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La reina · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-REINA (frases 12–13), sin cartela; la barra dice 2015 (las escenas antiguas llevan el año de la escena). Ocho planos:
+// 1. el corte del monte: en «Tutankhamun's tomb» un filo de luz recorre la tumba pequeña; en «entrance» la pared norte
+//    parpadea en azul con su flechita (la «entrada»); en «bigger one» la mano con el lápiz (del decorado) dibuja el
+//    contorno azul a rayas de la tumba grande; en «queen» destella su coronita; los pájaros cruzan el cielo;
+// 2. el museo de Berlín: un padre entra con su hija; la otra visitante abre el folleto en «wife» y explica; el padre
+//    señala la vitrina en «pharaoh Akhenaten»; en «father» la niña da saltitos para ver; una abuela pasa de la vitrina
+//    de pared al busto; el guarda cabecea;
+// 3. el busto en su vitrina: una franja de reflejo cruza el cristal; motas en el haz del foco; en «bust» la mano de
+//    la niña se apoya en el cristal (quedan las huellas y el vaho); en «never been found» sale la «?» grande;
+// 4. la cámara pintada (2015): Reeves entra por la pasarela y en «behind that wall» señala la pared norte, donde se
+//    traza y parpadea su contorno azul a rayas; la turista que se iba se para, se vuelve sorprendida y sigue;
+// 5. la ciudad del disco solar: los reyes salen al balcón; abajo, una mujer con su cesto, un campesino y un sacerdote
+//    van hacia el palacio; en «3,350 years ago» la cifra; en «With Akhenaten» el disco se enciende, los reyes alzan los
+//    brazos y la gente de abajo también (la mujer deja el cesto en el suelo);
+// 6. la pared del templo: una salamanquesa trepa por los sillares y la luz de la tarde barre la pared (pasa el tiempo);
+//    en «disk of the sun» el disco late con tres anillos de oro; en «After they died» la corona pasa de la reina al rey
+//    niño; en «erased» el cincel raspa los cartuchos y las caras: polvo a cada golpe y un montoncito de esquirlas abajo;
+// 7. la máscara en su vitrina, A LA IZQUIERDA (otra composición que el 3), y a la derecha la sala con el panel de piedra
+//    del cartucho: dos reflejos de visitantes cruzan el cristal, motas en los focos, el suelo devuelve el oro; una
+//    visitante entra por la derecha y se para ante el panel; en «pharaoh» el oro brilla; en «another name» el cartucho
+//    de cuerda dorada se traza en el panel, sale su «?» y ella lo señala; en «right before Tutankhamun» una flecha de
+//    puntos va del cartucho a la vitrina; delante, los postes con el cordón de terciopelo;
+// 8. (vista libre) el montón de arena del valle (2015): turistas diminutos suben al mirador; Reeves llega, mira; en
+//    «lost tomb» la arena resbala y él recula; en «mysteries» la «?»; una salamanquesa cruza.
+//    El decorado (valle/arena, o.epoca 2015) ya pinta el valle de hoy: sendero con turistas, plataforma con asomados,
+//    cuerda roja y letrero de pictograma; sin parches en la escena.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-reina');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const K = hex('#1a1410'), BL = hex('#f8f4e8');
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+const destello = (x, y, r, c = '#fff8d0') => { const C = hex(c); R.linea(x - r, y, x + r, y, C); R.linea(x, y - r, x, y + r, C); const d = N(r * 0.5); R.linea(x - d, y - d, x + d, y + d, C); R.linea(x - d, y + d, x + d, y - d, C); R.pset(x, y, hex('#ffffff')); };
+const rayas = (x0, y0, x1, y1, c, fase = 0) => { const C = hex(c); const per = (x1 - x0) * 2 + (y1 - y0) * 2; for (let i = 0; i < per; i++) { if (((i + fase) % 6) > 3) continue; let x, y; if (i < x1 - x0) { x = x0 + i; y = y0; } else if (i < x1 - x0 + y1 - y0) { x = x1; y = y0 + i - (x1 - x0); } else if (i < 2 * (x1 - x0) + y1 - y0) { x = x1 - (i - (x1 - x0) - (y1 - y0)); y = y1; } else { x = x0; y = y1 - (i - 2 * (x1 - x0) - (y1 - y0)); } R.pset(x, y, C); } };
+// mezcla de dos colores del búfer (k 0–1) y un velo (más claro u oscuro) sobre un píxel
+const mez = (a, b, k) => { let r = 0; for (const s of [0, 8, 16]) r |= N(((a >>> s) & 255) * (1 - k) + ((b >>> s) & 255) * k) << s; return (r | 0xff000000) >>> 0; };
+const velo = (x, y, c, k) => { if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, k)); };
+// una salamanquesa de 12 px (dir 1 a la derecha, -1 a la izquierda; arriba: trepa en vertical)
+const lagartija = (x, y, t, dir = 1, arriba = false, V = hex('#8a7a4a'), v = hex('#5a4a2a')) => { const pa = Math.floor(t * 8) % 2;
+  if (arriba) { R.rect(x, y, x + 1, y + 6, V); R.pset(x, y - 1, V); R.linea(x + 1, y + 7, x + 2 + pa, y + 11, v); R.pset(x - 1, y + 1 + pa, v); R.pset(x + 2, y + 1 - pa + 1, v); R.pset(x - 1, y + 5 - pa, v); R.pset(x + 2, y + 5 + pa - 1, v); R.pset(x, y, hex('#1a1410')); return; }
+  const s = dir > 0 ? 1 : -1; R.rect(Math.min(x, x - s * 6), y, Math.max(x, x - s * 6), y + 1, V); R.pset(x + (dir > 0 ? 1 : -1), y, V); R.linea(x - s * 7, y + 1, x - s * 12, y + 2 + pa, v);
+  R.pset(x - s, y - 1 + pa, v); R.pset(x - s, y + 2 - pa, v); R.pset(x - s * 5, y - pa, v); R.pset(x - s * 5, y + 2 + pa, v); R.pset(x, y, hex('#1a1410')); };
+const P2 = en('reina', 0.3409), P3 = en('reina', 0.6178), P4 = en('reina', 0.8716), P5 = en('nefertiti', 0) - 0.1;
+const P6 = en('nefertiti', 0.2789), P7 = en('nefertiti', 0.5437), P8 = en('nefertiti', 0.8085);
+
+// 1 · el corte: la tumba pequeña se enciende, la pared norte parpadea y la mano dibuja la grande; la coronita en «queen»
+const p1 = (t) => {
+  const traza = ease(tramo(t, en('reina', 0.1692), en('reina', 0.3025)));
+  const o = { encuadre: 'trazo', epoca: 2015, reeves: 1, traza, anomalias: 0 };
+  const g = T.ladera(R, t, o);
+  // «Tutankhamun's tomb»: un filo de luz recorre la tumba pequeña (pasillo, antecámara y cámara pintada)
+  const luz = tramo(t, en('reina', 0.1128), en('reina', 0.1128) + 1.4);
+  if (luz > 0 && luz < 1) { const a = Math.sin(luz * Math.PI), c = a > 0.5 ? '#fff2b0' : '#f0c860';
+    for (const [x0, y0, x1, y1] of [[62, 98, 112, 110], [112, 92, 168, 128], [174, 96, 214, 130]]) rayas(x0 - 1, y0 - 1, x1 + 1, y1 + 1, c, N(t * 12)); }
+  // «entrance»: la pared norte de la cámara pintada (x 214) parpadea en azul y una flechita sale hacia la derecha
+  const ent = tramo(t, en('reina', 0.2), en('reina', 0.2) + 1.3);
+  if (ent > 0 && ent < 1 && Math.floor(t * 6) % 2 === 0) { const A = hex('#7ac0ff'), S = hex('#14284a');
+    for (let y = 96; y <= 130; y++) if ((y + N(t * 20)) % 4 < 2) { R.pset(214, y, A); R.pset(215, y, S); }
+    const ax = 217 + N(ease(Math.min(1, ent * 2)) * 6); R.linea(217, 113, ax, 113, A); R.linea(217, 114, ax, 114, S); R.linea(ax, 113, ax - 2, 111, A); R.linea(ax, 113, ax - 2, 115, A); }
+  const q = tramo(t, en('reina', 0.3097), en('reina', 0.3097) + 0.7);
+  if (q > 0 && q < 1) { const [cx, cy] = g.corona; destello(cx, cy - 4, N(2 + 5 * Math.sin(q * Math.PI))); }
+};
+
+// 2 · el museo: el padre y la niña entran; la visitante abre el folleto y explica; él señala; ella da saltitos en «father»
+const p2 = (t) => {
+  const o = { encuadre: 'museo' };
+  T.radares(R, t, o);
+  const u = ease(tramo(t, P2 + 0.05, en('reina', 0.4153)));
+  const xd = N(lerp(10, 98, u)), xn = N(lerp(-8, 78, ease(tramo(t, P2 + 0.25, en('reina', 0.4153) + 0.3))));
+  const salt = tramo(t, en('reina', 0.5281), en('reina', 0.5845));
+  const hop = salt > 0 && salt < 1 ? N(Math.abs(Math.sin(salt * Math.PI * 3)) * 4) : 0;
+  // la abuela: mira la vitrina de pared y, en «Akhenaten», se va despacio hacia el busto
+  const ab = ease(tramo(t, en('reina', 0.448), en('reina', 0.56)));
+  R.actor(EL.abuela, N(lerp(252, 232, ab)), 166, t, { dir: ab > 0 && ab < 1 ? -1 : ab >= 1 ? -1 : 1, anda: ab > 0 && ab < 1, sonrisa: ab >= 1 });
+  // la visitante saca el folleto en «wife» y lo lee mientras explica
+  const lee = t > en('reina', 0.387);
+  const v = R.actor(EL.turista2, 212, 166, t, { dir: -1, habla: t > en('reina', 0.3845) && t < en('reina', 0.4819), sonrisa: t > en('reina', 0.5845), sostiene: lee ? true : undefined });
+  if (lee && v && v.mano) { const [mx, my] = v.mano, ab2 = N(ease(tramo(t, en('reina', 0.387), en('reina', 0.387) + 0.3)) * 3);
+    R.rect(mx - 4 - ab2, my - 5, mx + 1, my + 1, K); R.rect(mx - 3 - ab2, my - 4, mx, my, hex('#f4f0e0')); R.linea(mx - 3 - ab2, my - 2, mx - 1, my - 2, hex('#3a7ac8')); R.pset(mx - 2 - ab2, my, hex('#c84a3a')); if (ab2 > 1) R.linea(mx - 1 - ab2 + 2, my - 4, mx - 1 - ab2 + 2, my, hex('#c8c0a8')); }
+  R.actor(EL.turista1, xd, 166, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > en('reina', 0.4358) && t < en('reina', 0.5281), sonrisa: t > en('reina', 0.5281) });
+  R.actor(EL.nina, xn, 166, t, { dir: 1, anda: xn < 78 && t > P2 + 0.25, salto: hop, sonrisa: hop > 0 });
+  T.radaresDelante(R, t, o);
+};
+
+// 3 · el busto: un reflejo cruza; la mano de la niña se apoya en el cristal en «bust»; la «?» en «never been found»
+const p3 = (t) => {
+  const duda = ease(tramo(t, en('reina', 0.81), en('reina', 0.8408)));
+  T.radares(R, t, { encuadre: 'museo', camara: 'busto', duda });
+  // el reflejo de la sala en el cristal: una franja de luz en diagonal que se desliza despacio
+  R.recorte([82, 22, 238, 156]);
+  { const s = tramo(t, P3, P3 + 4.6), cx = N(lerp(260, 50, s)), L = hex('#d8f0ec');
+    if (s > 0 && s < 1) for (let y = 22; y < 157; y++) { const xo = cx + N((y - 90) * 0.45); for (let x = xo - 9; x <= xo + 9; x++) if (x > 82 && x < 238) velo(x, y, L, 0.14 * (1 - Math.abs(x - xo) / 10)); } }
+  // motas de polvo que bajan despacio por el haz del foco, encima del busto
+  for (let k = 0; k < 9; k++) { const f = (t * 0.06 + k * 0.111) % 1, x = N(150 + Math.sin(k * 2.3 + t * 0.7) * 26 + (k - 4) * 4), y = N(26 + f * 70); R.pset(x, y, hex(f < 0.5 ? '#c8e0d8' : '#8ab0a8')); }
+  R.recorte(null);
+  const sube = ease(tramo(t, en('reina', 0.6614) - 0.5, en('reina', 0.6614))), baja = ease(tramo(t, en('reina', 0.7844), en('reina', 0.7844) + 0.5));
+  const k = sube * (1 - baja), hx = 112, hy = N(lerp(204, 134, k));
+  // las huellas de los dedos y el vaho en el cristal, que se quedan (el vaho se va despacio)
+  if (t > en('reina', 0.6614)) { const f = 1 - 0.6 * tramo(t, en('reina', 0.7844), P4); const C = hex(f > 0.6 ? '#9ab8bc' : '#6a888c');
+    const va = 0.28 * (1 - tramo(t, en('reina', 0.7844), en('reina', 0.7844) + 1.6)); if (va > 0.01) for (let j = -5; j <= 5; j++) for (let i = -9; i <= 9; i++) if ((i * i) / 81 + (j * j) / 25 < 1) velo(hx + 3 + i, 118 + j, hex('#c8e0e0'), va);
+    for (let i = 0; i < 4; i++) { R.pset(hx - 2 + i * 3, 124, C); R.pset(hx - 2 + i * 3, 125, C); } R.pset(hx + 8, 129, C); R.pset(hx + 8, 130, C); }
+  if (k > 0.02) T.brazo(R, hx - 16, 196, hx, hy, '#e8783a', 1, { codo: [hx - 18, hy + 26] });
+};
+
+// 4 · la cámara pintada: Reeves entra y en «behind that wall» señala la pared norte; la turista se vuelve a mirar
+const p4 = (t) => {
+  const o = { encuadre: 'pintada', epoca: 2015 };
+  T.tumba(R, t, o);
+  const u = ease(tramo(t, P4 + 0.1, en('reina', 0.928)));
+  const xr = N(lerp(20, 86, u));
+  const ve = tramo(t, en('reina', 0.9485), en('reina', 0.9485) + 0.7);
+  if (ve > 0) { const on = Math.floor(t * 4) % 2 === 0 || ve < 1, f = N(t * 10);
+    // el contorno se traza de abajo arriba y luego parpadea
+    const y0 = N(lerp(148, 71, Math.min(1, ve * 1.2)));
+    if (on) { rayas(231, Math.max(71, y0), 277, 148, '#14284a', f); rayas(233, Math.max(73, y0 + 2), 275, 146, '#14284a', f); rayas(232, Math.max(72, y0 + 1), 276, 147, '#7ac0ff', f); }
+    if (ve >= 1) { R.disco(254, 104, 9, hex('#14284a')); R.icono('?', 250, 97, hex('#9ad0ff'), hex('#14284a'), 2); } }
+  // la turista que se iba: se para en «behind», se vuelve sorprendida y sigue su camino
+  const ida1 = ease(tramo(t, P4, en('reina', 0.9485))), para = t > en('reina', 0.9485) && t < en('reina', 0.9485) + 0.9, ida2 = ease(tramo(t, en('reina', 0.9485) + 0.9, P5 + 0.2));
+  R.actor(EL.turista2, N(lerp(236, 268, ida1) + 34 * ida2), 170, t, { dir: para ? -1 : 1, anda: (ida1 > 0 && ida1 < 1) || (ida2 > 0 && ida2 < 1), sorpresa: para });
+  R.actor(T.ELENCO_TU.reevesTU, xr, 170, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > en('reina', 0.9485), habla: t > en('reina', 0.9485) && t < en('reina', 1.0305), sonrisa: u >= 1 && t < en('reina', 0.9485) });
+  T.tumbaDelante(R, t, o);
+};
+
+// 5 · la ciudad del disco solar: los reyes salen al balcón; la gente va al palacio; todos alzan los brazos en «religion»
+const p5 = (t) => {
+  const disco = lerp(0.4, 1, ease(tramo(t, en('nefertiti', 0.2127), en('nefertiti', 0.2748))));
+  const o = { encuadre: 'amarna', disco };
+  T.radares(R, t, o);
+  const sal = ease(tramo(t, P5 + 0.15, en('nefertiti', 0.039)));
+  const alza = t > en('nefertiti', 0.2127), rel = t > en('nefertiti', 0.2127) + 0.4;
+  R.actor(T.ELENCO_TU.nefertitiTU, N(lerp(176, 186, sal)), 96, t, { dir: 1, anda: sal > 0 && sal < 1, brazos: alza, habla: t > en('nefertiti', 0.1755) && t < en('nefertiti', 0.2127), sonrisa: alza });
+  R.actor(T.ELENCO_TU.akenatonTU, N(lerp(213, 203, sal)), 96, t, { dir: -1, anda: sal > 0 && sal < 1, brazos: t > en('nefertiti', 0.2127) + 0.3 });
+  // abajo, en el camino: la mujer con el cesto, el campesino y el sacerdote van hacia el palacio y se paran debajo
+  const gente = [[EL.egipcia, 70, 150, P5 + 0.2, 3.6, 1], [EL.campesino, 300, 238, P5 + 0.8, 3.2, -1], [EL.calvo, 20, 112, P5 + 1.6, 3.4, 1]];
+  for (const [quien, x0, x1, t0, d, dir] of gente) { const w = ease(tramo(t, t0, t0 + d)), anda = w > 0 && w < 1;
+    const a = R.actor(quien, N(lerp(x0, x1, w)), 166, t, { dir: rel ? (quien === EL.campesino ? -1 : 1) : dir, anda, brazos: rel && !anda, sonrisa: rel, sostiene: quien === EL.egipcia && !rel ? true : undefined });
+    if (quien === EL.egipcia && rel) { const bx = N(lerp(x0, x1, w)) - 4; R.rect(bx - 4, 159, bx + 3, 166, hex('#3a2410')); R.rect(bx - 3, 160, bx + 2, 165, hex('#c89a4a')); R.linea(bx - 3, 162, bx + 2, 162, hex('#a87a32')); R.pset(bx - 2, 159, hex('#e84a3a')); R.pset(bx, 159, hex('#4a8a3a')); R.pset(bx + 1, 159, hex('#e8c040')); }
+    if (quien === EL.egipcia && !rel && a && a.mano) { const [mx, my] = a.mano; R.rect(mx - 4, my - 5, mx + 3, my - 1, hex('#5a3a1a')); R.rect(mx - 3, my - 5, mx + 2, my - 2, hex('#c89a4a')); R.pset(mx - 2, my - 6, hex('#e84a3a')); R.pset(mx, my - 6, hex('#4a8a3a')); R.pset(mx + 1, my - 6, hex('#e8c040')); } }
+  const n = tramo(t, en('nefertiti', 0.0472), en('nefertiti', 0.0472) + 0.35), fu = 1 - tramo(t, en('nefertiti', 0.1589), en('nefertiti', 0.1589) + 0.4);
+  if (n > 0 && fu > 0) R.numero('3350', 92, N(lerp(52, 48, n)), { tam: 16, centro: true });
+  T.radaresDelante(R, t, o);
+};
+
+// 6 · el templo: la luz de la tarde barre la pared y una salamanquesa trepa; el disco late en «disk of the sun»; la
+// corona pasa al rey niño en «After they died»; el cincel raspa en «erased» y caen las esquirlas
+const p6 = (t) => {
+  const corona = ease(tramo(t, en('nefertiti', 0.3865), en('nefertiti', 0.4279)));
+  const borra = tramo(t, en('nefertiti', 0.4361), en('nefertiti', 0.5313));
+  T.radares(R, t, { encuadre: 'amarna', camara: 'templo', corona, borra });
+  // la luz de la tarde: una franja inclinada de luz cálida que cruza despacio la pared (pasa el tiempo)
+  { const xc = N(lerp(-30, 330, tramo(t, P6, P7))), L = hex('#fff2c8');
+    for (let y = 46; y < 180; y++) { const xo = xc + N((180 - y) * 0.35); for (let x = xo - 26; x <= xo + 26; x++) { if (x < 0 || x > 319) continue; const d = 1 - Math.abs(x - xo) / 26; velo(x, y, L, 0.3 * Math.min(1, d * 2)); } } }
+  // la salamanquesa sube por la pared de la izquierda, se para a mirar y sigue hacia la cornisa
+  { const s = tramo(t, P6 + 0.2, P7), y = N(lerp(170, 30, s < 0.45 ? s / 0.45 * 0.55 : s < 0.6 ? 0.55 : 0.55 + (s - 0.6) / 0.4 * 0.45)), x = 113 + N(Math.sin(s * 9) * 1.5);
+    if (s > 0 && s < 1) lagartija(x, y, s > 0.45 && s < 0.6 ? 0 : t, 1, true, hex('#6a5a32'), hex('#3a2e1a')); }
+  // «disk of the sun»: el disco late y suelta tres anillos de oro por el panel grande
+  R.recorte([120, 48, 304, 154]);
+  for (let k = 0; k < 3; k++) { const a = tramo(t, en('nefertiti', 0.339) + k * 0.35, en('nefertiti', 0.339) + k * 0.35 + 1.1);
+    if (a > 0 && a < 1) { const r = 10 + a * 40, C = hex(a < 0.5 ? '#ffe070' : '#d8a840'); for (let i = 0; i < 90; i++) { if ((i + k) % 3 === 0) continue; const an = i / 90 * Math.PI * 2; R.pset(N(202 + Math.cos(an) * r), N(58 + Math.sin(an) * r * 0.9), C); } } }
+  R.recorte(null);
+  const d = tramo(t, en('nefertiti', 0.3286), en('nefertiti', 0.3575) + 0.3);
+  if (d > 0 && d < 1) destello(202, 58, N(3 + 6 * Math.sin(d * Math.PI)), '#fff0a0');
+  // las esquirlas: a cada golpe del cincel, una nubecilla de polvo; abajo, en el suelo, el montoncito que crece
+  for (const g of [0.45, 0.48, 0.51]) { const p = tramo(t, en('nefertiti', g), en('nefertiti', g) + 0.6); if (p > 0 && p < 1) { const cx = g < 0.47 ? 266 : 284;
+    for (let k = 0; k < 10; k++) { const an = k * 0.63, r = 2 + p * 9; velo(N(cx + Math.cos(an) * r), N(80 + Math.sin(an) * r * 0.7 + p * 6), hex('#fbf6ea'), 0.6 * (1 - p)); } } }
+  { const m = Math.min(1, borra * 1.3), Cl = hex('#f2ead6'), Cs = hex('#c8b490');
+    if (m > 0) { for (let x = 256; x <= 298; x++) { const q = 1 - ((x - 277) / 21) ** 2; const hgt = N(Math.max(0, q) ** 0.7 * 8 * m); for (let j = 0; j < hgt; j++) R.pset(x, 168 - j, j === hgt - 1 ? Cl : (x + j) % 5 === 0 ? hex('#a89470') : (x < 277 - j ? Cl : Cs)); }
+      R.linea(256, 169, 298, 169, hex('#b09a72')); for (let k = 0; k < N(10 * m); k++) R.pset(250 + k * 5, 170 + (k % 3), k % 2 ? Cl : Cs); }
+    if (borra > 0 && borra < 1) for (let k = 0; k < 5; k++) { const f = (t * 1.6 + k * 0.2) % 1; R.pset(262 + k * 7 + N(Math.sin(k) * 2), N(96 + f * 70), k % 2 ? Cl : hex('#ffffff')); } }
+};
+
+// 7 · la máscara (otra composición que el p3: la vitrina a la izquierda y el panel del cartucho a la derecha): reflejos
+// de visitantes que cruzan el cristal, motas en los focos; en «pharaoh» el oro brilla; en «another name» el cartucho
+// de cuerda dorada se traza en el panel y sale su «?»; en «right before Tutankhamun» una flecha de puntos va del
+// cartucho a la vitrina
+const p7 = (t) => {
+  const brillo = ease(tramo(t, en('nefertiti', 0.6409), en('nefertiti', 0.7878)));
+  const g = T.tumba(R, t, { encuadre: 'mascara', brillo, lado: 'izquierda' });
+  const [vx0, vy0, vx1, vy1] = g.vitrina;
+  // dos visitantes que pasan por delante de la vitrina se reflejan en el cristal (siluetas suaves)
+  R.recorte([vx0 + 2, vy0 + 2, vx1 - 2, vy1 - 2]);
+  for (const [t0, x0, x1, al] of [[P7 + 0.1, vx1 + 12, vx0 - 12, 34], [P7 + 2.6, vx0 - 12, vx1 + 12, 28]]) { const s = tramo(t, t0, t0 + 3.4), cx = N(lerp(x0, x1, s));
+    if (s > 0 && s < 1) for (let y = vy1 - 2 - al; y < vy1 - 1; y++) { const yy = y - (vy1 - 2 - al), w = yy < 10 ? N(Math.sqrt(Math.max(0, 25 - (yy - 5) ** 2))) : yy < 13 ? 3 : 9; for (let x = cx - w; x <= cx + w; x++) if ((x + y) % 2 === 0) velo(x, y, hex('#03061a'), 0.45); } }
+  R.recorte(null);
+  // motas en los conos de los focos
+  for (let k = 0; k < 10; k++) { const f = (t * 0.05 + k * 0.1) % 1, x = N(g.focos[k % 2] + Math.sin(t * 0.8 + k) * 10), y = N(30 + f * 50); R.pset(x, y, hex(f < 0.6 ? '#a8b0d8' : '#6a74a8')); }
+  const fa = tramo(t, en('nefertiti', 0.6409), en('nefertiti', 0.6409) + 0.9);
+  if (fa > 0 && fa < 1) destello(g.mascara[0] - 10, g.mascara[1] - 22, N(2 + 4 * Math.sin(fa * Math.PI)));
+  const c = ease(tramo(t, en('nefertiti', 0.7464), en('nefertiti', 0.7464) + 0.6));
+  if (c > 0) { const [cx, cy] = g.cartucho;
+    // el cartucho: un óvalo de cuerda dorada que se traza alrededor (con la raya de abajo), y dentro solo la «?»
+    const na = N(64 * c);
+    for (let a = 0; a < na; a++) { const an = Math.PI / 2 + a / 64 * Math.PI * 2, x = N(cx + Math.cos(an) * 10), y = N(cy + Math.sin(an) * 17); R.pset(x, y, hex(a % 2 ? '#f0c040' : '#a87818')); R.pset(x + 1, y + 1, hex('#2a1808')); }
+    if (na < 64) destello(N(cx + Math.cos(Math.PI / 2 + na / 64 * Math.PI * 2) * 10), N(cy + Math.sin(Math.PI / 2 + na / 64 * Math.PI * 2) * 17), 2);
+    if (c > 0.9) { R.linea(cx - 9, cy + 20, cx + 9, cy + 20, hex('#f0c040')); R.linea(cx - 9, cy + 21, cx + 9, cy + 21, hex('#a87818')); }
+    if (t > en('nefertiti', 0.765)) R.icono('?', cx - 2, cy - 5, hex('#f0c040'), hex('#2a1808'), 2);
+    // «right before Tutankhamun»: la flecha de puntos dorados del cartucho a la máscara
+    const fl = ease(tramo(t, en('nefertiti', 0.776), en('nefertiti', 0.798)));
+    if (fl > 0) { const x0 = cx - 13, x1 = N(lerp(x0, vx1 - 6, fl)), A = hex('#f0c040');
+      for (let x = x0; x >= x1; x--) if ((x + N(t * 12)) % 4 < 2) { R.pset(x, cy, A); R.pset(x, cy + 1, hex('#2a1808')); }
+      if (fl > 0.3) { R.linea(x1, cy, x1 + 3, cy - 3, A); R.linea(x1, cy, x1 + 3, cy + 3, A); } } }
+  // el suelo pulido devuelve el oro a los lados de la peana (más fuerte cuando brilla en «pharaoh») y tiembla un poco
+  { const k = 0.3 + 0.3 * Math.sin(brillo * Math.PI), O = hex('#e8b840');
+    for (const [a, b] of [[vx0 - 14, vx0 + 11], [vx1 - 11, vx1 + 14]]) for (let y = 140; y < 178; y++) { const sx = N(Math.sin(t * 2.2 + y * 0.5) * 1.2);
+      for (let x = a; x <= b; x++) if ((x + y + sx) % 2 === 0) velo(x, y, O, k * (1 - (y - 140) / 38) * (1 - Math.abs(x - (a + b) / 2) / 14)); } }
+  // otra visitante entra por la derecha, se para delante del panel y en «another name» lo señala (luego sonríe)
+  { const u = ease(tramo(t, P7 + 0.6, P7 + 4.2)), xv = N(lerp(334, 262, u)), ya = t > en('nefertiti', 0.7464);
+    R.actor(EL.turista2, xv, 166, t, { dir: -1, anda: u > 0 && u < 1, dedo: ya && t < en('nefertiti', 0.79), sonrisa: t > en('nefertiti', 0.79), habla: ya && t < en('nefertiti', 0.776) }); }
+  // primer término: los postes de latón con el cordón de terciopelo delante del panel (el visitante del fondo pasa
+  // por detrás); el cordón se mece un poco
+  { const Lt = hex('#c8a868'), Ls = hex('#6a5430'), Lb = hex('#f0e0b0'), C1 = hex('#8a1a2a'), C2 = hex('#c83a4a'), sw = Math.sin(t * 1.3) * 0.8;
+    for (const px of [176, 240]) { R.rect(px - 3, 174, px + 3, 177, Ls); R.rect(px - 2, 173, px + 2, 173, Lt); R.rect(px - 1, 152, px + 1, 173, Lt); R.rect(px + 1, 152, px + 1, 173, Ls); R.pset(px - 1, 154, Lb); R.disco(px, 150, 2, Lt); R.pset(px - 1, 149, Lb); }
+    for (let x = 178; x <= 238; x++) { const u = (x - 178) / 60, y = N(152 + Math.sin(u * Math.PI) * (7 + sw)); R.pset(x, y, C2); R.pset(x, y + 1, C1); } }
+};
+
+// 8 · el valle (vista libre, 2015): turistas al mirador; Reeves llega al montón; en «lost tomb» la arena resbala y recula
+const p8 = (t) => {
+  const resbala = ease(tramo(t, en('nefertiti', 0.8912), en('nefertiti', 0.9533)));
+  const o = { encuadre: 'valle', camara: 'arena', epoca: 2015, sombrero: false, resbala };
+  T.valle(R, t, o);
+  const u = ease(tramo(t, P8 + 0.1, en('nefertiti', 0.8705)));
+  const rec = ease(tramo(t, en('nefertiti', 0.9036), en('nefertiti', 0.9036) + 0.4));
+  const xr = N(lerp(30, 136, u) - 10 * rec), hop = rec > 0 && rec < 1 ? N(Math.sin(rec * Math.PI) * 4) : 0;
+  // una salamanquesa cruza la arena de delante
+  { const s = tramo(t, P8, P8 + 5.6); lagartija(N(lerp(330, 196, s)), 172, t, -1); }
+  R.actor(T.ELENCO_TU.reevesTU, xr, 156, t, { dir: 1, anda: u > 0 && u < 1, salto: hop, habla: t > en('nefertiti', 0.8705) && t < en('nefertiti', 0.9036), sorpresa: rec > 0 && t < en('nefertiti', 0.9657), dedo: t > en('nefertiti', 0.9657) });
+  if (t > en('nefertiti', 0.9657)) globo(xr + 8, 112, '?', hex('#3a6ad8'));
+  T.valleDelante(R, t, o);
+};
+
+const efectos = [
+  [en('reina', 0.1128), 'brillo'], [en('reina', 0.1692), 'lapiz'], [en('reina', 0.2), 'tic'], [en('reina', 0.25), 'lapiz'], [en('reina', 0.3097), 'brillo'],
+  [P2 + 0.1, 'publico', { dur: 2.2 }], [en('reina', 0.387), 'papel'], [en('reina', 0.5281), 'golpecito'], [en('reina', 0.5563), 'golpecito'],
+  [en('reina', 0.6614), 'golpecito'], [en('reina', 0.72), 'brillo'], [en('reina', 0.81), 'pop'],
+  [en('reina', 0.9485), 'lapiz'], [en('reina', 0.9485) + 0.75, 'pop'],
+  [P5 + 0.2, 'viento', { dur: 3 }], [en('nefertiti', 0.0472), 'pop'], [en('nefertiti', 0.2127), 'brillo'], [en('nefertiti', 0.2127) + 0.45, 'publico', { dur: 1.1 }],
+  [en('nefertiti', 0.339), 'brillo'], [en('nefertiti', 0.3865), 'whoosh'],
+  [en('nefertiti', 0.45), 'toc'], [en('nefertiti', 0.48), 'toc'], [en('nefertiti', 0.51), 'toc'], [en('nefertiti', 0.525), 'golpecito'],
+  [en('nefertiti', 0.6409), 'brillo'], [en('nefertiti', 0.7464), 'lapiz'], [en('nefertiti', 0.765), 'pop'],
+  [P8 + 0.1, 'viento', { dur: 4 }], [en('nefertiti', 0.8912), 'avalancha'], [en('nefertiti', 0.9657), 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], { efectos, año: 2015 });
+</script>
+</body>
+</html>

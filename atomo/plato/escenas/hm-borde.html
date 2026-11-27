@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El borde · ep43</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HM-BORDE (frases 24–25), Juegos 50 (75 en el plano 3), sin cartela; ánimo épico. Ocho planos; PAUSA 2 en 1–4:
+// (sonido de las pausas: entra con «cuelga» —no hay receta de tape-stop— y sale con «interruptor», el clic, en cada
+//  salida de la pausa (rampa de AT.pausa) y en cada vuelta a ella; un pop por cada cosa que sale a color)
+// 1. PAUSA: el borde de lado de hm-arena CONGELADO en gris azulado; Atom sale a color de su luciérnaga, baja a la cima,
+//    rodea con su órbita el piñón («notice this») y, en «idea», el punto del muro donde chocó (los hexágonos a color);
+// 2. PAUSA, el gag, con su propio encuadre: el MISMO instante congelado visto desde la meseta (cámara general del
+//    borde; los dos chicos quietos en las flores): Atom cruza hasta el filo y sigue por el aire («¿?»), empuja el muro
+//    invisible con la mano (las ondas de hexágonos a color) y en «weapon» el muro se pone rojo y le devuelve el empujón
+//    hasta la hierba; al final vuelve el color (clic);
+// 3. Juegos 75: el holograma del reloj; Plutarch entra, sube los dos peldaños de la tarima de la consola y en «cage
+//    works» toca con el dedo el filo del holograma (destello en la yema, ondas por el campo, el aro se enciende desde
+//    su dedo y da la vuelta); en «no longer… a prisoner» el sinsajo (alas claras y contorno de luz) sale de la
+//    cornucopia y vuela por encima de la selva verde hasta salir por la izquierda;
+// 4. PAUSA: el borde congelado otra vez (entra en gris con el fundido); en «Katniss» sale ella a color al doble, en «aims» monta la flecha, en «arrow»
+//    la flecha con su cable sube y en «sky» se clava en una cúpula de hexágonos que se agrieta con un rayo; vuelve el color;
+// 5. el bosque de la arena, la rama grande: Haymitch vigila; en «birds» una bandada de pájaros rosas (siluetas con
+//    alas que baten y contorno) baja en espiral por el claro y se mete en las copas; él la señala («!»), se echa atrás
+//    hacia el tronco (la bandada pasa alta, por las copas) y en «just for her» se da la vuelta, triste, y se va rama abajo;
+// 6. el borde de lejos, de tarde: Haymitch junto al filo; la chica del 1 llega por la izquierda («a girl from
+//    District 1»), con las manos vacías (el hacha solo se ve en la maqueta), le señala y en «throws» alza los brazos:
+//    una ráfaga de pétalos cruza y Haymitch se echa atrás; corte;
+// 7. la sala de control: la maqueta holográfica con dos lucecitas, «12» y «1»; el hacha sale de la naranja, la dorada se
+//    aparta en «dodges», el hacha choca con la cúpula en «hits» (destello y ondas), vuelve «the way it came» y la luz
+//    ámbar se apaga; el contador baja de 2 a 1;
+// 8. el plató: la pantalla grande con rayos que giran, focos que barren, chispas y la grada de la arena a contraluz
+//    que bota; el «1» dorado con su laurel que crece y el retrato de Haymitch que entra deslizándose; Caesar cruza el
+//    plató presentando, se planta y señala la pantalla y en «wins» salta con los brazos arriba; cae el confeti.
+import * as T from '/atomo/plato/escenas/hm-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hm-borde');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const AT = T.AT, K = hex('#1a1424'), BL = hex('#ffffff');
+const ri = Math.round, S3 = Math.sqrt(3);
+const B4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], bay = (x, y) => (B4[((y & 3) << 2) | (x & 3)] + 0.5) / 16;
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (ri(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (ri(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | ri(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const tono = (x, y, c, u) => { x = ri(x); y = ri(y); if (u <= 0 || x < 0 || y < 0 || x > 319 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, Math.min(1, u))); };
+// un rectángulo que respeta R.recorte (R.rect no lo respeta)
+const caja = (x0, y0, x1, y1, c) => { for (let y = ri(y0); y <= ri(y1); y++) for (let x = ri(x0); x <= ri(x1); x++) R.pset(x, y, c); };
+// halo tramado (Bayer) que aclara hacia c
+const halo = (cx, cy, r, c, f = 0.5) => { for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const g = 1 - Math.hypot(i, j) / r; if (g > 0 && g * f > bay(ri(cx + i), ri(cy + j))) tono(cx + i, cy + j, c, 0.5); } };
+// un «pop»: 0 antes de a; sube con un rebote y se asienta en 1
+const pop = (t, a, d = 0.3) => { const u = Math.max(0, Math.min(1, (t - a) / d)); return u <= 0 ? 0 : u < 1 ? 1 - Math.pow(1 - u, 3) * Math.cos(u * 7) : 1; };
+// dibuja f a escala 1 en la esquina de arriba (con una marca) y lo pega en (X, Y) con escalas sx, sy (para voltear)
+const MARCA = 0xff00ff01 >>> 0;
+const pegar = (f, w, h, X, Y, sx, sy = sx) => {
+  const B = R.buf, copia = B.slice(); for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) B[y * 320 + x] = MARCA;
+  f(); const px = []; for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const c = B[y * 320 + x]; if (c !== MARCA) px.push([x, y, c]); }
+  B.set(copia);
+  for (const [x, y, c] of px) { const X0 = ri(X + x * sx), Y0 = ri(Y + y * sy), X1 = ri(X + (x + 1) * sx) - 1, Y1 = ri(Y + (y + 1) * sy) - 1; if (X1 >= X0 && Y1 >= Y0) R.rect(X0, Y0, X1, Y1, c); }
+};
+// el campo de fuerza a color: celdas hexagonales (radio a) en la caja [x0..x1, y0..y1], con una onda que sale de (cx, cy)
+// a la distancia «ola» y un brillo cerca del toque; fuerza 0–1; col el color
+const panal = (x0, x1, y0, y1, cx, cy, ola, fuerza, col, a = 6, base = 0, dentro = null) => {
+  if (fuerza <= 0 && base <= 0) return;
+  for (let y = Math.max(0, y0); y <= Math.min(179, y1); y++) for (let x = Math.max(0, x0); x <= Math.min(319, x1); x++) {
+    if ((dentro && !dentro(x, y)) || (x >= 274 && y <= 47) || (x <= 172 && y <= 21)) continue;   // ni la zona de Atom ni la barra del año
+    const d = Math.hypot(x - cx, y - cy), w = Math.max(0, fuerza) * (Math.exp(-((d - ola) ** 2) / 90) + Math.max(0, 1 - d / 34) * 0.7) + base;
+    if (w < 0.06) continue;
+    const q = (2 / 3 * x) / a, r = (-1 / 3 * x + S3 / 3 * y) / a, s = -q - r;
+    let rq = Math.round(q), rr = Math.round(r), rs = Math.round(s);
+    const dq = Math.abs(rq - q), dr = Math.abs(rr - r), ds = Math.abs(rs - s);
+    if (dq > dr && dq > ds) rq = -rr - rs; else if (dr > ds) rr = -rq - rs; else rs = -rq - rr;
+    const e = (Math.abs(q - rq) + Math.abs(r - rr) + Math.abs(s - rs)) / 2;
+    if (e > 0.36) tono(x, y, col, w * 1.1); else if (e > 0.3) tono(x, y, col, w * 0.45); else if (w > 0.4 && bay(x, y) < 0.3) tono(x, y, col, w * 0.25);
+  }
+};
+// el hacha: (x, y) el centro del mango, giro en radianes, s escala; mango de madera y hoja de acero con su filo
+const hacha = (x, y, giro, s = 1, brillo = 0) => {
+  const c = Math.cos(giro), sn = Math.sin(giro), P = (u, v) => [ri(x + (u * c - v * sn) * s), ri(y + (u * sn + v * c) * s)];
+  const pinta = (f) => { for (let u = -5; u <= 6; u += 0.34) for (let v = -4; v <= 1.5; v += 0.34) { const col = f(u, v); if (col) { const [px, py] = P(u, v); R.pset(px, py, col); } } };
+  pinta((u, v) => (Math.abs(v) < 1.3 && u <= 4.6) || (u > 2.2 && u < 5.9 && v > -4.2 && v < 1.4) ? K : 0);
+  pinta((u, v) => Math.abs(v) < 0.5 && u < 4 ? (v < 0 ? hex('#b8804a') : hex('#7a4a22')) : u > 2.7 && u < 5.3 && v > -3.6 && v < 0.8 ? (v < -2.8 ? BL : u > 4.6 ? hex('#8a94a4') : hex('#c8d0dc')) : 0);
+  if (brillo > 0) halo(P(4, -2)[0], P(4, -2)[1], 6, hex('#fff0b0'), brillo);
+};
+// la corona del vencedor (12 × 8): aro de oro con picos y tres gemas; (x, y) el centro de abajo
+const corona = (x, y, s = 1) => pegar(() => {
+  R.rect(0, 3, 11, 7, K); R.rect(1, 4, 10, 6, hex('#f0c040')); R.rect(1, 6, 10, 6, hex('#a87a18'));
+  for (const i of [0, 4, 8]) { R.rect(i, 0, i + 3, 3, K); R.rect(i + 1, 1, i + 2, 3, hex('#f0c040')); R.pset(i + 1, 1, hex('#fff0a0')); }
+  R.pset(2, 5, hex('#c8303a')); R.pset(6, 5, hex('#3a8ad8')); R.pset(9, 5, hex('#3ab05a')); R.pset(1, 4, hex('#fff0a0'));
+}, 12, 8, ri(x - 6 * s), ri(y - 8 * s), s);
+// confeti que cae (n papelitos de colores; semilla k)
+const CONF = ['#f0c040', '#e86a9a', '#5ac8e8', '#9ae85a', '#ffffff', '#c86ae8'].map((c) => hex(c));
+const confeti = (t, t0, n = 70, k = 0) => { if (t < t0) return; for (let i = 0; i < n; i++) { const h = Math.sin(i * 91.7 + k) * 43758.5; const f = h - Math.floor(h);
+  const x = (f * 340 + Math.sin(t * 2 + i) * 6) % 330 - 5, y = -8 + (t - t0) * (40 + f * 50) - ((i * 37) % 120); if (y < -4 || y > 182) continue;
+  const c = CONF[i % CONF.length]; R.pset(ri(x), ri(y), c); if (Math.sin(t * 9 + i) > 0) R.pset(ri(x) + 1, ri(y), c); else R.pset(ri(x), ri(y) + 1, mez(c, K, 0.3)); } };
+
+const P2 = en('fijate2', 0.2215), P3 = en('fijate2', 0.432), P4 = en('fijate2', 0.6705), P5 = en('fijate2', 1.0082), P6 = en('hacha', 0.227), P7 = en('hacha', 0.4968), P8 = en('hacha', 0.8432);
+const VOZ = ['fijate2', 'hacha'].map((k) => [en(k, 0), en(k, 1)]);
+const habla = (t) => VOZ.some(([a, b]) => t > a && t < b) ? 1 : 0;
+
+// ── el mundo congelado: el último fotograma de hm-arena (plano 14, borde/acantilado), en el reloj de hm-arena ──
+const TA = 78.2, T0A = 72.557;   // su último instante y el lanzamiento del piñón (maysilee + 0,724 de la frase)
+const OA = { encuadre: 'borde', camara: 'acantilado', luz: 'dia', rebote: [T0A, 144, 102], objeto: 'pinon' };
+let HELADO = null, GA = null;
+const helado = () => {
+  if (!HELADO) {
+    const b = R.nuevo(), prev = R.usar(b);
+    const g = T.arena50(R, TA, OA); GA = g; const ti = g.rebote.impacto[0], tc = g.rebote.cae[0];
+    R.actor(EL.haymitch, 128, g.suelo, TA, { dir: 1, brazos: TA > tc && TA < tc + 0.6, sorpresa: TA > ti && TA < tc + 1.2, habla: Math.sin(TA * 8) > 0 });
+    R.actor(EL.maysilee, 98, g.suelo, TA, { dir: 1, sorpresa: TA > ti && TA < tc + 1.0, dedo: true, sonrisa: true });
+    T.arena50Delante(R, TA, OA);
+    R.usar(prev); HELADO = b;
+  }
+  R.copiar(HELADO); return GA;
+};
+// el MISMO instante congelado, visto desde la meseta (cámara general del borde): la pausa 2 tiene su propio encuadre
+const OB = { encuadre: 'borde', camara: 'general', luz: 'dia' };
+let HELADO2 = null, GB = null;
+const helado2 = () => {
+  if (!HELADO2) {
+    const b = R.nuevo(), prev = R.usar(b);
+    const g = T.arena50(R, TA, OB); GB = g;
+    R.actor(EL.maysilee, 70, g.suelo, TA, { dir: 1, sorpresa: true, dedo: true, sonrisa: true });
+    R.actor(EL.haymitch, 96, g.suelo, TA, { dir: 1, sorpresa: true });
+    T.arena50Delante(R, TA, OB);
+    R.usar(prev); HELADO2 = b;
+  }
+  R.copiar(HELADO2); return GB;
+};
+const CIAN = hex('#8ff0ff'), ROJO = hex('#ff6a3a'), ORO = hex('#ffd34a');
+
+// ═══ 1 · PAUSA: Atom sale de la luciérnaga, señala el piñón y el punto del muro ═══
+const p1 = (t) => {
+  const g = helado(); AT.pausa(R, tramo(t, 0.04, 0.34));
+  const [, ix, iy] = g.rebote.impacto, [, cx] = g.rebote.cae, cy = g.suelo - 2;
+  // el piñón caído (a color, con su órbita) en «this», y el punto del muro en «idea»
+  const u1 = tramo(t, en('fijate2', 0.0175), en('fijate2', 0.0451));
+  if (u1 > 0) { halo(cx, cy, 7, ORO, 0.5 * u1); AT.anillo(R, cx, cy - 1, 9, 6, t, u1); }
+  const u2 = tramo(t, en('fijate2', 0.1353), en('fijate2', 0.1704));
+  if (u2 > 0) { panal(196, 319, 48, 170, ix, iy, Math.min(46, (t - en('fijate2', 0.1353)) * 60), 0.9 * u2 * (0.75 + Math.sin(t * 5) * 0.25), CIAN); AT.anillo(R, ix, iy, 15, 20, t, u2); }
+  if (t < 0.85) { const v = tramo(t, 0.05, 0.85); AT.luciernaga(R, lerp(54, 52, v), lerp(74, 104, v) + Math.sin(t * 6) * 2, t, { dir: 1, cara: 'sorpresa' }); return; }
+  const a = tramo(t, 1.0, 2.2), x = lerp(40, 58, a);
+  const pose = a > 0 && a < 1 ? 'camina' : t > en('fijate2', 0.1303) ? 'senala' : t > en('fijate2', 0.0175) && t < en('fijate2', 0.0852) ? 'senala' : 'quieto';
+  AT.atom(R, x, 121 - (t < 1.0 ? (1 - tramo(t, 0.85, 1.0)) * 6 : 0), t, { s: 2, pose, dir: 1, cara: t > en('fijate2', 0.1353) ? 'sonrisa' : t < 1.4 ? 'sorpresa' : 'normal', habla: habla(t) });
+};
+
+// ═══ 2 · PAUSA, el gag: Atom cruza el vacío, empuja el muro y el muro le devuelve el empujón ═══
+const AIRE = en('fijate2', 0.2831), EMPUJA = en('fijate2', 0.3232), ARMA = en('fijate2', 0.3738);
+const p2 = (t) => {
+  const g = helado2(); AT.pausa(R, 1 - tramo(t, P3 - 0.42, P3 - 0.04));
+  // de lejos, desde la meseta: Atom sale de junto a los dos chicos (congelados), cruza las flores hasta el filo, sigue
+  // por el aire, empuja el muro y el muro le devuelve el empujón hasta la hierba
+  // (el muro va unos px más allá del filo que en la cámara general de hm-arena, para que se vea a Atom andar sobre el vacío)
+  const Y = g.suelo + 6, FILO = 212, MURO = 256, alto = (x, y2) => y2 > 56 + bay(x, y2) * 18 + Math.sin(x * 0.17) * 3;
+  let x, y = Y, pose = 'camina', cara = 'normal', dir = 1;
+  if (t < AIRE) { x = lerp(124, FILO, tramo(t, P2 + 0.15, AIRE)); }
+  else if (t < AIRE + 0.5) { x = FILO + (t - AIRE) * 16; pose = 'quieto'; cara = 'sorpresa'; }   // ¡anda por el aire!
+  else if (t < EMPUJA) { x = lerp(FILO + 8, MURO - 26, tramo(t, AIRE + 0.5, EMPUJA)); }
+  else if (t < ARMA) { x = MURO - 26 + Math.sin((t - EMPUJA) * 9) * 1.2; pose = 'senala'; cara = t > ARMA - 0.4 ? 'sorpresa' : 'normal'; }
+  else { const v = tramo(t, ARMA, ARMA + 0.55); x = lerp(MURO - 26, 140, 1 - (1 - v) * (1 - v)); y = Y - Math.sin(v * Math.PI) * 30; pose = v < 1 ? 'brazos' : 'quieto'; cara = v < 1 ? 'sorpresa' : t > ARMA + 1.0 ? 'triste' : 'sorpresa'; }
+  // el muro: ondas a color desde la mano mientras empuja; en «weapon» se pone rojo y empuja
+  const tx = MURO + 2, ty = Y - 22, M0 = MURO - 2;
+  const muro = 0.42 * tramo(t, en('fijate2', 0.2255), en('fijate2', 0.2556)) * (t < ARMA ? 1 : 1 - tramo(t, ARMA + 0.4, ARMA + 1.2) * 0.4);
+  if (t <= EMPUJA) panal(M0, 319, 30, 179, tx, ty, 0, 0, CIAN, 6, muro + Math.sin(t * 3) * 0.05, alto);
+  if (t > EMPUJA && t < ARMA) panal(M0, 319, 30, 179, tx, ty, ((t - EMPUJA) * 50) % 60, 0.85 + 0.15 * Math.sin(t * 7), CIAN, 6, muro, alto);
+  if (t >= ARMA) { const s = t - ARMA; panal(M0, 319, 30, 179, tx, ty, s * 140, Math.max(0, 1 - s / 1.0), s < 0.5 ? ROJO : CIAN, 6, s < 0.5 ? 0.55 : muro, alto); }
+  if (t > ARMA + 0.55 && t < ARMA + 1.0) for (let i = 0; i < 6; i++) { const s = t - ARMA - 0.55, px = x + (i - 2.5) * 6 * (1 + s * 3), py = Y - s * 10 - (i % 2) * 3; R.pset(ri(px), ri(py), hex('#d8d0c0')); R.pset(ri(px) + 1, ri(py), hex('#b8b0a0')); }
+  const r = AT.atom(R, x, y, t, { s: 2, pose, dir, cara, habla: habla(t) });
+  if (t > AIRE && t < AIRE + 0.9) R.icono('?', ri(x) - 5, Y - 58 + ri(Math.sin(t * 8)), hex('#ffd34a'), K, 2);
+  if (t > ARMA + 0.55 && t < ARMA + 1.2) for (let i = 0; i < 3; i++) { const p = t * 5 + i * 2.1; R.pset(ri(r.centro[0] + Math.cos(p) * 14), ri(r.centro[1] - 20 + Math.sin(p) * 4), ORO); }
+};
+
+// la tarima de la consola: dos peldaños de chapa estriada junto al aro proyector, con su barandilla y sus pilotos
+const PELD = [[30, 52, 163], [52, 98, 151]];   // [x0, x1, y de arriba] de cada peldaño
+const pieEn = (fx) => fx < PELD[0][0] + 3 ? 174 : fx < PELD[1][0] + 2 ? PELD[0][2] : PELD[1][2];
+const tarima = (t) => {
+  const M1 = hex('#4a5a78'), M2 = hex('#2e3a54'), M3 = hex('#7a8cb0'), FR = hex('#1a2236');
+  for (const [x0, x1, y0] of PELD) {
+    R.rect(x0, y0, x1, 175, K); R.rect(x0 + 1, y0 + 1, x1 - 1, 174, M2);
+    R.rect(x0 + 1, y0 + 1, x1 - 1, y0 + 3, M1); R.linea(x0 + 1, y0 + 1, x1 - 1, y0 + 1, M3);   // la huella con su canto de luz
+    for (let x = x0 + 3; x < x1 - 1; x += 4) { R.pset(x, y0 + 2, M3); R.pset(x + 1, y0 + 3, M2); }   // la chapa estriada
+    for (let y = y0 + 6; y < 172; y += 5) for (let x = x0 + 3; x < x1 - 2; x += 6) R.pset(x + ((y >> 2) & 1) * 3, y, FR);   // la rejilla de ventilación
+    R.pset(x0 + 2, y0 + 5, M3); R.pset(x1 - 2, y0 + 5, M3);   // remaches
+  }
+  // pilotos que parpadean en la contrahuella y la barandilla de tubo
+  for (let k = 0; k < 5; k++) { const on = Math.sin(t * 3 + k * 1.7) > 0.2; R.pset(58 + k * 8, 168, on ? hex('#5af0ff') : hex('#1a4a5a')); }
+  R.pset(36, 170, Math.sin(t * 5) > 0 ? hex('#ffb040') : hex('#5a3a1a'));
+  R.linea(30, 139, 30, 163, K); R.linea(31, 139, 31, 163, M3); R.linea(30, 139, 52, 127, K); R.linea(31, 140, 52, 128, M3); R.linea(52, 127, 52, 151, K); R.linea(53, 128, 53, 151, M1);
+  for (let x = 30; x <= 98; x++) R.pset(x, 175, hex('#0c1020'));   // la sombra sobre el suelo
+};
+// el sinsajo, claro y legible sobre el holograma: el del kit (s 1) con las alas grises aclaradas y un contorno de luz,
+// pegado a escala s; (X, Y) el centro del pájaro
+const SJ_OSC = hex('#3a3646'), SJ_ALA = hex('#d8dee8'), SJ_FILO = hex('#fff6dc');
+const sinsajoClaro = (X, Y, s, dir, t) => {
+  const B = R.buf, copia = B.slice(), w = 32, h = 28;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) B[y * 320 + x] = MARCA;
+  T.PIEZAS_JH.sinsajo(R, 16, 16, { s: 1, dir, t });
+  const px = [], hay = new Set();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const c = B[y * 320 + x]; if (c !== MARCA) { px.push([x, y, c]); hay.add(y * w + x); } }
+  B.set(copia); if (!px.length) return;
+  let sx = 0, sy = 0; for (const [x, y] of px) { sx += x; sy += y; } sx /= px.length; sy /= px.length;
+  const cel = (x, y, c) => { const X0 = ri(X + (x - sx) * s), Y0 = ri(Y + (y - sy) * s); R.rect(X0, Y0, X0 + s - 1, Y0 + s - 1, c); };
+  for (const [x, y] of px) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!hay.has((y + dy) * w + x + dx)) cel(x + dx, y + dy, SJ_FILO);
+  for (const [x, y, c] of px) cel(x, y, c === SJ_OSC ? SJ_ALA : c);
+};
+
+// ═══ 3 · Juegos 75: el holograma del reloj; Plutarch sube a la tarima, toca el filo y un sinsajo sale volando ═══
+const ENTIENDE = en('fijate2', 0.454), JAULA = en('fijate2', 0.5071), YANO = en('fijate2', 0.5763), PRESO = en('fijate2', 0.6274);
+const PX = 66;   // donde se planta Plutarch en el peldaño de arriba
+const p3 = (t) => {
+  const g = T.arena(R, t, { encuadre: 'reloj' });
+  const [cx, cy] = g.centro, [rx, ry] = g.radios;
+  tarima(t);
+  // Plutarch entra por la izquierda, sube los dos peldaños y se planta bajo el filo del holograma
+  const v = tramo(t, P3 - 0.3, JAULA - 0.45), px = ri(lerp(-14, PX, 1 - (1 - v) * (1 - v) * 0.6 - (1 - v) * 0.4));
+  const ps = pieEn(px + 7), toca = t > JAULA - 0.3 && t < JAULA + 1.3;
+  // el punto del filo que toca: el de la elipse justo encima de su mano (la mano del índice queda en x + 15)
+  const TX = px + 15, TY = cy + ry * Math.sqrt(Math.max(0, 1 - ((TX - cx) / rx) ** 2)), a0 = Math.atan2((TY - cy) / ry, (TX - cx) / rx);
+  // el aro del campo se enciende desde el dedo y da la vuelta entera
+  const u = tramo(t, JAULA, JAULA + 1.0);
+  if (u > 0) for (let k = 0; k < 160; k++) { const a = a0 + (k / 160) * Math.PI * 2 * u, f = 1 - (k / 160) * 0.6, X = cx + Math.cos(a) * rx, Y = cy + Math.sin(a) * ry; const fu = f * (1 - tramo(t, PRESO, PRESO + 0.8) * 0.5); for (let d = -2; d <= 2; d++) tono(X, Y + d, d ? ORO : BL, (d ? 0.95 : 0.9) * fu); tono(X, Y - 4, ORO, 0.4 * fu); tono(X, Y + 4, ORO, 0.4 * fu); }
+  if (u > 0 && u < 1) { const a = a0 + Math.PI * 2 * u; halo(cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, 9, BL, 0.9); }
+  // el toque: un destello en la yema y ondas que corren por el campo desde ahí
+  if (t > JAULA - 0.08 && t < JAULA + 0.9) { const s = t - JAULA + 0.08; halo(TX, TY, ri(6 + s * 6), BL, 0.9 * (1 - s / 1.0));
+    for (let r2 = 0; r2 < 2; r2++) { const rr = s * 40 - r2 * 12; if (rr > 2) for (let k = 0; k < 40; k++) { const a = k / 40 * Math.PI * 2, X = TX + Math.cos(a) * rr, Y = TY + Math.sin(a) * rr * 0.42; if (((X - cx) / rx) ** 2 + ((Y - cy) / ry) ** 2 < 1) tono(X, Y, CIAN, 0.7 * (1 - s)); } } }
+  const r = R.actor(EL.plutarch, px, ps, t, { dir: 1, anda: v > 0 && v < 1, dedo: toca, habla: t > ENTIENDE + 0.4 && t < JAULA - 0.3 && Math.sin(t * 8) > 0, sonrisa: t > YANO + 0.3, sorpresa: t > JAULA && t < JAULA + 0.5 });
+  if (toca && t > JAULA - 0.08) { R.pset(r.mano[0], r.mano[1] - 1, BL); tono(r.mano[0] + 1, r.mano[1] - 2, ORO, 0.8); }
+  const w = tramo(t, P3 + 0.8, P3 + 4.4); R.actor(T.JH.vigilante, ri(lerp(330, 262, w)), g.suelo - 2, t, { dir: -1, anda: w > 0 && w < 1, sostiene: true });
+  // el sinsajo: sale de la cornucopia, sube por encima de la selva verde (claro, con su contorno de luz) y se va por
+  // la izquierda batiendo las alas
+  const b = tramo(t, YANO, P4 + 1.4), VU = [[0, cx + 4, cy - 2], [0.4, 122, 68], [0.72, 86, 80], [1, 20, 70]];
+  if (b > 0 && b < 1) { const e = b, q = VU.findIndex((p) => p[0] >= e), [ea, xa, ya] = VU[Math.max(0, q - 1)], [eb, xb, yb] = VU[Math.max(1, q)], f = (e - ea) / (eb - ea || 1);
+    const bx = lerp(xa, xb, f), by = lerp(ya, yb, f) + Math.sin(e * 14) * 3;
+    for (let k = 1; k <= 4; k++) tono(bx + k * 4, by + Math.sin((e - k * 0.02) * 14) * 3, hex('#fff6dc'), 0.45 - k * 0.09);   // la estela
+    sinsajoClaro(bx, by, 2, -1, t); }
+  AT.luciernaga(R, PX + 44 + Math.sin(t * 1.3) * 4, 132 + Math.sin(t * 2.2) * 3, t, { dir: -1, cara: t > YANO ? 'sonrisa' : t > JAULA ? 'sorpresa' : 'normal', brillo: 0.85 });
+};
+
+// ═══ 4 · PAUSA: Katniss, a color, monta la flecha y la clava en el cielo de otra arena ═══
+const KAT = en('fijate2', 0.6905), APUNTA = en('fijate2', 0.8308), FLECHA = en('fijate2', 0.8589), CIELO = en('fijate2', 0.904);
+const DIANA = [236, 46];
+const p4 = (t) => {
+  const g = helado(); AT.pausa(R, 1 - tramo(t, P5 - 0.42, P5 - 0.04));
+  // Atom en la cima, a la izquierda, señala a Katniss y luego al cielo
+  AT.atom(R, 28, 121, t, { s: 2, pose: t > KAT + 0.2 ? 'senala' : 'quieto', dir: 1, cara: t > CIELO ? 'sorpresa' : t > KAT ? 'sonrisa' : 'normal', habla: habla(t) });
+  // Katniss, a color y al doble, con su arco
+  const k = pop(t, KAT, 0.35);
+  if (k > 0) pegar(() => R.actor(EL.katnissArco, 2, 29, t, { dir: 1, sonrisa: t > CIELO + 0.4 }), 20, 31, 46, 121 - 62 + ri((1 - k) * 30), 2);
+  const mx = 80, my = 82;   // la mano del arco (al doble)
+  if (t > APUNTA && t < FLECHA) { R.linea(mx, my, mx + 12, my - 10, K); R.linea(mx + 1, my - 1, mx + 12, my - 11, hex('#c8a060')); R.pset(mx + 13, my - 12, BL); }
+  // la flecha y su cable de plata
+  if (t >= FLECHA) {
+    const f = tramo(t, FLECHA, CIELO), ax = lerp(mx + 12, DIANA[0], f), ay = lerp(my - 10, DIANA[1], f) - Math.sin(f * Math.PI) * 10;
+    for (let i = 0; i <= 40; i++) { const s = i / 40, X = lerp(mx, ax, s), Y = lerp(my, ay, s) + Math.sin(s * Math.PI) * 4 * (1 - f * 0.8); tono(X, Y, hex('#e8eef8'), 0.9); }
+    const dx = ax - mx, dy = ay - my, L = Math.hypot(dx, dy) || 1;
+    R.linea(ri(ax - dx / L * 10), ri(ay - dy / L * 10), ri(ax), ri(ay), K); R.linea(ri(ax - dx / L * 10), ri(ay - dy / L * 10) - 1, ri(ax), ri(ay) - 1, hex('#c8a060'));
+    R.pset(ri(ax - dx / L * 10), ri(ay - dy / L * 10), hex('#e8303a')); R.pset(ri(ax), ri(ay), BL);
+  }
+  // la cúpula de la otra arena: hexágonos a color, tenues desde «Katniss», que se encienden con el golpe; grietas y rayo
+  const domo = (x, y) => ((x - 230) / 92) ** 2 + ((y - 118) / 100) ** 2 < 1 && ((x - 230) / 80) ** 2 + ((y - 118) / 86) ** 2 > 1 && !(x > 276 && y < 46);
+  const kb = 0.32 * pop(t, KAT + 0.2, 0.6);
+  if (t < CIELO && kb > 0) panal(140, 276, 20, 176, DIANA[0], DIANA[1], 0, 0, CIAN, 5, kb + Math.sin(t * 2.5) * 0.04, domo);
+  if (t >= CIELO) {
+    const s = t - CIELO; panal(140, 276, 20, 176, DIANA[0], DIANA[1], s * 60, Math.max(0.35, 1 - s * 0.4), CIAN, 5, kb, domo);
+    for (let k2 = 0; k2 < 7; k2++) { const a = k2 * 0.9 + 0.3, Lg = Math.min(1, s * 3) * (14 + (k2 % 3) * 8); let X = DIANA[0], Y = DIANA[1];
+      for (let i = 0; i < Lg; i++) { X += Math.cos(a + Math.sin(i * 0.7 + k2) * 0.4); Y += Math.sin(a + Math.sin(i * 0.7 + k2) * 0.4); if (Y < 20 || X > 276) break; R.pset(ri(X), ri(Y), BL); } }
+    if (s < 0.25) halo(DIANA[0], DIANA[1], 16, BL, 0.9);
+    if (s > 0.3 && s < 1.0 && Math.sin(t * 40) > -0.3) { let X = DIANA[0], Y = DIANA[1]; for (let i = 0; i < 12; i++) { const nx = lerp(DIANA[0], mx, (i + 1) / 12) + (i % 2 ? 4 : -4), ny = lerp(DIANA[1], my, (i + 1) / 12); R.linea(ri(X), ri(Y), ri(nx), ri(ny), ORO); X = nx; Y = ny; } }
+  }
+};
+
+// ═══ 5 · la rama: Haymitch ve bajar la bandada rosa sobre el bosque, se aparta y se va ═══
+const PAJAROS = en('hacha', 0.0706), SOLO = en('hacha', 0.2002);
+// un pájaro rosa de la bandada: cuerpo rosa con la cabeza, el pico dorado y la cola; las alas claras en V que baten
+// (arriba / en cruz / abajo); d la dirección del vuelo, s la escala (1 lejos, 2 cerca)
+const RO1 = hex('#f06aa8'), RO2 = hex('#c84a8a'), RO3 = hex('#ffc8e2'), ROK = hex('#4a1438'), PICO = hex('#f0b040');
+const pajaroRosa = (x, y, fase, d, s = 1) => {
+  const ala = Math.sin(fase), up = ala > 0.35, dn = ala < -0.35, cel = [];
+  const c = (i, j, col) => cel.push([ri(x + i * d * s), ri(y + j * s), col]);
+  // las alas en V (arriba / en cruz / abajo), el cuerpo, la cabeza con el pico y la cola en horquilla
+  if (up) { c(-1, -1, RO3); c(0, -1, RO3); c(-2, -2, RO3); c(1, -2, RO3); c(-3, -3, RO3); c(2, -3, RO3); }
+  else if (dn) { c(-1, 1, RO3); c(0, 1, RO3); c(-2, 2, RO3); c(1, 2, RO3); c(-3, 3, RO3); c(2, 3, RO3); }
+  else { c(-2, -1, RO3); c(-3, -1, RO3); c(1, -1, RO3); c(2, -1, RO3); }
+  c(-1, 0, RO1); c(0, 0, RO1); c(1, 0, RO1); c(0, 1, RO2); c(2, -1, RO1); c(2, 0, RO1); c(3, 0, PICO); c(-2, 0, RO2); c(-3, -1, RO2); c(-3, 1, RO2);
+  // el contorno oscuro de la silueta (1 px de pantalla alrededor) y luego el color
+  for (const [X, Y] of cel) for (const [dx, dy] of [[-1, 0], [s, 0], [0, -1], [0, s]]) R.rect(X + dx, Y + dy, X + dx + s - 1, Y + dy + s - 1, ROK);
+  for (const [X, Y, col] of cel) R.rect(X, Y, X + s - 1, Y + s - 1, col);
+  if (s > 1) R.pset(ri(x + 2 * d * s) + (d > 0 ? 1 : 0), ri(y - s) + 1, ROK);   // el ojo
+};
+const p5 = (t) => {
+  const o = { encuadre: 'bosque', camara: 'rama', luz: 'dia' };
+  const g = T.arena50(R, t, o);
+  // la bandada: pájaros rosas que bajan en espiral por el claro del centro, pasan por encima de la rama y se meten en las
+  // copas de la izquierda
+  const b = tramo(t, PAJAROS - 0.8, PAJAROS + 2.4);
+  if (b > 0 && b < 1) for (let i = 0; i < 18; i++) { const f = (i * 0.61) % 1, a = b * 6 + i * 0.9, r = 24 * (1 - b) + 8;
+    const X = lerp(262, 96, b) + Math.cos(a) * r + (f - 0.5) * 40, Y = lerp(48, 52, b) + Math.sin(a) * r * 0.4 + (i % 3) * 4 - Math.sin(b * Math.PI) * 4;
+    if (b > 0.82 && (i % 5) < (b - 0.82) * 30) continue;   // se meten en el bosque
+    if (X > 272 && Y < 50) continue;   // por debajo de la esquina de arriba a la derecha
+    pajaroRosa(X, Y, t * 18 + i * 1.7, -1, i % 3 === 0 ? 2 : 1); }
+  // Haymitch vigila desde la rama; en «birds» señala la bandada con el dedo, se echa atrás hacia el tronco (la bandada
+  // pasa alta, por las copas: no va por él) y, en «just for her», se da la vuelta, triste, y se va rama abajo
+  const ve = PAJAROS - 0.2, retro = tramo(t, PAJAROS + 0.6, PAJAROS + 1.2), v = tramo(t, SOLO - 0.4, P6 + 0.2);
+  const x = ri(lerp(150, 136, retro) - v * 70), mira = t > ve && t < PAJAROS + 0.6;
+  R.actor(EL.haymitch, x, g.suelo, t, { dir: t > SOLO - 0.4 ? -1 : 1, anda: (v > 0 && v < 1) || (retro > 0 && retro < 1), dedo: mira, sorpresa: t > PAJAROS && t < SOLO - 0.4, triste: t > SOLO - 0.4 });
+  if (mira) R.icono('!', x + 5, g.suelo - 38 + ri(Math.sin(t * 9)), hex('#ffd34a'), K, 1);
+  T.arena50Delante(R, t, o);
+  AT.luciernaga(R, x + (t > SOLO ? -14 : 30) + Math.sin(t * 1.2) * 4, g.suelo - 34 + Math.sin(t * 2.3) * 3, t, { dir: t > SOLO ? -1 : 1, cara: t > PAJAROS ? 'triste' : 'normal', brillo: 0.8 });
+};
+
+// ═══ 6 · el borde de lejos: la chica del 1 llega y levanta el hacha ═══
+const CHICA = en('hacha', 0.3499), LANZA = en('hacha', 0.4605);
+const p6 = (t) => {
+  const o = { encuadre: 'borde', camara: 'general', luz: 'tarde', campo: true };
+  const g = T.arena50(R, t, o);
+  const golpe = tramo(t, en('hacha', 0.2483), en('hacha', 0.2538)) * (1 - tramo(t, en('hacha', 0.2594), en('hacha', 0.3041)));   // el golpe de la música: el muro destella
+  if (golpe > 0) panal(232, 319, 20, 176, 270, 100, (t - en('hacha', 0.2483)) * 120, golpe * 0.8, CIAN);
+  const v = tramo(t, P6 + 0.2, CHICA + 0.3), sx = ri(lerp(-16, 44, v));
+  // la chica del 1 llega con las manos vacías (el hacha solo se ve en la maqueta): se planta, le señala y en «throws»
+  // levanta los brazos; una ráfaga de pétalos cruza hacia Haymitch, que se echa atrás
+  R.actor(EL.silkaHM, sx, g.suelo, t, { dir: 1, anda: v > 0 && v < 1, enfado: t > CHICA, dedo: t > CHICA + 0.4 && t < LANZA, brazos: t > LANZA && t < LANZA + 0.5 });
+  const rf = tramo(t, LANZA, LANZA + 0.55);
+  if (rf > 0 && rf < 1) for (let i = 0; i < 10; i++) { const s = Math.min(1, rf * 1.4 - i * 0.04); if (s <= 0) continue;
+    const X = lerp(sx + 18, 178, s), Y = g.suelo - 12 - Math.sin(s * Math.PI) * 12 + (i % 5) * 4 - 8, a = 1 - rf;
+    tono(X - 9, Y, BL, 0.35 * a); R.linea(ri(X - 7), ri(Y), ri(X - 2), ri(Y), mez(hex('#ffffff'), hex('#c8e0f0'), 0.3));   // la estela del viento
+    R.rect(ri(X), ri(Y) - 1, ri(X) + 1, ri(Y), i % 3 ? hex('#f07ab0') : hex('#fff0f6')); R.pset(ri(X) + 2, ri(Y), hex('#a83a7a')); }
+  const h = tramo(t, CHICA, CHICA + 1.2), hx = ri(lerp(168, 182, h)) + ri(tramo(t, LANZA + 0.2, LANZA + 0.5) * 6);
+  R.actor(EL.haymitch, hx, g.suelo, t, { dir: -1, anda: h > 0 && h < 1, sorpresa: t > CHICA - 0.2, brazos: t > LANZA + 0.2 });
+  T.arena50Delante(R, t, o);
+  AT.luciernaga(R, hx - 18 + Math.sin(t * 1.4) * 3, g.suelo - 46 + Math.sin(t * 2.4) * 2, t, { dir: -1, cara: t > CHICA ? 'sorpresa' : 'normal', brillo: 0.8 });
+};
+
+// ═══ 7 · la maqueta: el hacha va, la luz dorada se aparta, choca con la cúpula y vuelve; la luz ámbar se apaga ═══
+const ESQUIVA = en('hacha', 0.5868), CHOCA = en('hacha', 0.6717), VUELVE = en('hacha', 0.7778), APAGA = en('hacha', 0.8264);
+const p7 = (t) => {
+  const o = { encuadre: 'control', arena: 'prado', luces: 0, contador: t < APAGA + 0.1 ? 2 : 1 };
+  const g = T.arena(R, t, o);
+  const [mx0, my0, mx1, my1] = g.maqueta;
+  const A = [mx0 + 26, my1 - 18], D0 = [mx0 + 66, my1 - 24], esq = tramo(t, ESQUIVA - 0.2, ESQUIVA + 0.1), DOR = [D0[0] + 4 * esq, D0[1] + 10 * esq];
+  const BORDE = [mx1 - 4, my0 + 26];
+  // las dos lucecitas: la dorada (Haymitch) y la ámbar (la chica del 1), que se apaga
+  // cada lucecita: una columna de luz que baja del techo, un halo y una bolita con su filo
+  const luz = (p, c, f) => { if (f <= 0) return; const x = ri(p[0]), y = ri(p[1]); for (let yy = my0 - 30; yy < y - 4; yy++) if (bay(x, yy) < 0.5 * f) { tono(x, yy, c, 0.5 * f); tono(x + 1, yy, c, 0.3 * f); }
+    halo(x, y - 3, 10, c, 0.8 * f); R.rect(x - 3, y - 6, x + 3, y, K); R.rect(x - 2, y - 5, x + 2, y - 1, c); R.rect(x - 2, y - 5, x - 1, y - 4, BL); R.rect(x - 2, y + 1, x + 2, y + 1, mez(c, K, 0.5)); };
+  luz(DOR, ORO, 1); R.numero('12', ri(DOR[0]) - 6, ri(DOR[1]) - 9, { color: hex('#fff0a0') });
+  const fa = 1 - tramo(t, APAGA, APAGA + 0.35); luz(A, hex('#ff7a2a'), fa); if (fa > 0.5) R.numero('1', ri(A[0]) - 3, ri(A[1]) - 9, { color: hex('#ffc890') });
+  if (t > APAGA && t < APAGA + 0.8) for (let i = 0; i < 5; i++) { const s = t - APAGA; R.pset(ri(A[0] + Math.cos(i * 1.3) * s * 10), ri(A[1] - 3 - s * 14 - i), hex('#ffc890')); }
+  // el hacha diminuta: ida hasta el filo, quieta clavada en el campo, vuelta por donde vino
+  let p = null, giro = 0;
+  if (t > P7 + 0.2 && t < CHOCA) { const f = tramo(t, P7 + 0.2, CHOCA); p = [lerp(A[0], BORDE[0], f), lerp(A[1] - 4, BORDE[1], f) - Math.sin(f * Math.PI) * 8]; giro = t * 14; }
+  else if (t >= CHOCA && t < VUELVE) { p = [BORDE[0] - 1 + Math.sin(t * 30) * 0.6 * (1 - tramo(t, CHOCA, CHOCA + 0.6)), BORDE[1]]; giro = -0.6; }
+  else if (t >= VUELVE && t < APAGA) { const f = tramo(t, VUELVE, APAGA); p = [lerp(BORDE[0], A[0], f), lerp(BORDE[1], A[1] - 4, f) - Math.sin(f * Math.PI) * 8]; giro = -t * 14; }
+  // la cúpula se enciende donde choca: ondas en el cristal
+  if (t >= CHOCA && t < CHOCA + 1.6) { const s = t - CHOCA; panal(mx0 + 30, mx1 + 14, my0 - 16, my1 + 4, BORDE[0], BORDE[1], s * 36, 1 - s / 1.6, CIAN, 4); if (s < 0.25) halo(BORDE[0], BORDE[1], 16, BL, 0.95); }
+  if (p) { if (t < CHOCA || t > VUELVE) for (let k = 1; k < 5; k++) { const tt = t - k * 0.05; tono(p[0] - (t < CHOCA ? 1 : -1) * k * 3, p[1] + Math.sin(tt * 9) * 0.5, hex('#fff0b0'), 0.5 - k * 0.1); } hacha(p[0], p[1], giro, 2, 0.6); }
+  // un Vigilante junto al pedestal lo mira; señala la pantalla cuando cambia el contador
+  R.actor(T.JH.vigilante, g.pedestal[1] + 82, g.suelo, t, { dir: -1, sorpresa: t > CHOCA && t < VUELVE, dedo: t > APAGA + 0.1, habla: t > APAGA + 0.2 && Math.sin(t * 8) > 0 });
+  T.arenaDelante(R, t, o);
+  AT.luciernaga(R, mx0 - 14 + Math.sin(t * 1.2) * 3, my0 + 22 + Math.sin(t * 2.2) * 3, t, { dir: 1, cara: t > CHOCA && t < APAGA ? 'sorpresa' : t > APAGA ? 'triste' : 'normal', brillo: 0.8 });
+};
+
+// ═══ 8 · el plató: la pantalla grande con el «1» dorado, el retrato de Haymitch y la grada de la arena que celebra;
+//     Caesar cruza el plató, señala la pantalla y en «wins» salta; cae el confeti ═══
+const GANA = en('hacha', 0.9242);
+const PANT = [hex('#2a1238'), hex('#44205a'), hex('#5e2e74'), hex('#7a3e8e'), hex('#9a5aaa'), hex('#c48ad0')];
+const pantallaUno = (R2, t, [x0, y0, x1, y1]) => {
+  const cx = (x0 + x1) >> 1, cy = (y0 + y1) >> 1, W = (x1 - x0) / 2, H = (y1 - y0) / 2, fl = t > GANA && t < GANA + 0.25;
+  // el fondo: rayos que giran, más claros hacia el centro, con líneas de barrido, dos focos que barren en diagonal y
+  // un brillo que respira; tramado (Bayer) entre los seis tonos
+  const f1 = x0 - 40 + ((t * 60) % (x1 - x0 + 80)), f2 = x1 + 40 - ((t * 44 + 90) % (x1 - x0 + 80)), lat = 0.3 * Math.sin(t * 2.4);
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+    if (fl) { R.pset(x, y, bay(x, y) < 0.8 ? hex('#fff6d0') : hex('#ffe08a')); continue; }
+    const a = Math.atan2(y - cy, x - cx) + t * 0.3, rayo = (Math.floor(a / (Math.PI / 10)) & 1) === 0, d = Math.hypot((x - cx) / W, (y - cy) / H);
+    const fo = Math.exp(-((x - f1 - (y - y0) * 0.5) ** 2) / 50) * 1.6 + Math.exp(-((x - f2 + (y - y0) * 0.5) ** 2) / 70) * 1.2;
+    const lv = (rayo ? 3.0 : 1.7) - d * 1.9 + lat + fo - ((y & 1) ? 0.35 : 0);
+    R.pset(x, y, PANT[Math.max(0, Math.min(5, Math.floor(lv + bay(x, y))))]);
+  }
+  // chispas que titilan en la pantalla
+  for (let k = 0; k < 14; k++) { const h = Math.sin(k * 77.1) * 999, X = x0 + 4 + ri((h - Math.floor(h)) * (x1 - x0 - 8)), Y = y0 + 3 + ((k * 13) % (y1 - y0 - 24)); if (Math.sin(t * 5 + k * 2.3) > 0.6) { R.pset(X, Y, BL); R.pset(X - 1, Y, PANT[5]); R.pset(X + 1, Y, PANT[5]); R.pset(X, Y - 1, PANT[5]); R.pset(X, Y + 1, PANT[5]); } }
+  // la grada de la arena en la pantalla: siluetas a contraluz (cabezas y hombros) que botan; en «wins» alzan los brazos
+  const vivas = t > GANA - 0.1;
+  for (let k = 0; k < 30; k++) { const X = x0 + 3 + k * ((x1 - x0 - 6) / 29), sal = ri(Math.max(0, Math.sin(t * (vivas ? 11 : 4) + k * 1.9)) * (vivas ? 3 : 1)), Y = y1 - 6 - (k % 2) * 3 - sal;
+    const c = k % 2 ? hex('#1a0a24') : hex('#24102e');
+    caja(X - 2, Y + 1, X + 2, y1, c); caja(X - 1, Y - 2, X + 1, Y, c); R.pset(ri(X) - 1, Y - 3, c); R.pset(ri(X), Y - 3, c); R.pset(ri(X) + 1, Y - 3, c);
+    R.pset(ri(X) - 2, Y + 1, PANT[3]);   // el filo de luz del hombro
+    if (vivas && (k % 3) !== 1) { const ar = Math.sin(t * 9 + k) > 0 ? 1 : 0; R.linea(ri(X) - 2, Y + 1, ri(X) - 3 - ar, Y - 5, c); R.linea(ri(X) + 2, Y + 1, ri(X) + 3 + ar, Y - 5, c); } }
+  // el «1» grande con su laurel, que crece hoja a hoja
+  const k = pop(t, P8 + 0.3, 0.4);
+  if (k > 0) { const nh = ri(26 * Math.min(1, (t - P8 - 0.3) / 0.8));
+    for (let i = 0; i < nh; i++) { const a = Math.PI * (0.15 + i / 30), X = cx + 26 + Math.cos(a) * -22, Y = cy + 2 + Math.sin(a) * 22 * 0.8, c = i % 2 ? hex('#4aa04a') : hex('#7ad06a'); R.pset(ri(X), ri(Y), c); R.pset(ri(X) + 1, ri(Y) - 1, hex('#2a6a2a')); R.pset(ri(2 * (cx + 26) - X), ri(Y), c); R.pset(ri(2 * (cx + 26) - X) - 1, ri(Y) - 1, hex('#2a6a2a')); }
+    halo(cx + 26, cy, 16, hex('#ffe890'), 0.45 * k);
+    R.numero('1', cx + 26, cy + 16 - ri((1 - k) * 8), { tam: 32, centro: true }); }
+  // el retrato del vencedor: entra deslizándose desde la izquierda con su marco dorado; dentro, un cielo de la arena
+  // tramado y Haymitch, que en «wins» sonríe; un brillo cruza el cristal
+  const h = pop(t, P8 + 0.6, 0.5), dx = ri((1 - h) * -70);
+  if (h > 0) { const X0 = cx - 52 + dx, X1 = cx - 12 + dx, Y0 = cy - 22, Y1 = cy + 22;
+    caja(X0 - 1, Y0 - 1, X1 + 1, Y1 + 1, K); caja(X0, Y0, X1, Y1, hex('#f0c040')); caja(X0, Y1 - 1, X1, Y1, hex('#a87a18')); caja(X0, Y0, X1, Y0, hex('#fff0a0'));
+    for (let y = Y0 + 2; y <= Y1 - 2; y++) for (let x = X0 + 2; x <= X1 - 2; x++) { const u = (y - Y0) / (Y1 - Y0); R.pset(x, y, u + bay(x, y) * 0.35 < 0.55 ? hex('#5a8ac8') : u + bay(x, y) * 0.35 < 0.95 ? hex('#3a6a9a') : hex('#4a8a4a')); }
+    R.actor(EL.haymitch, cx - 40 + dx, Y1 - 2, t, { dir: 1, sonrisa: t > GANA });
+    const bx = X0 + ((t - P8) * 50) % 70; for (let y = Y0 + 2; y <= Y1 - 2; y++) { tono(bx + (y - Y0) * 0.4, y, BL, 0.5); tono(bx + 1 + (y - Y0) * 0.4, y, BL, 0.3); } }
+};
+const p8 = (t) => {
+  const o = { encuadre: 'plato', camara: 'sillones', pantalla: pantallaUno };
+  const g = T.capitolio(R, t, o);
+  // Caesar cruza el plató presentando, se planta entre el sillón y la mesita y señala la pantalla; en «wins» salta con los brazos
+  // arriba y sigue botando de alegría
+  const v = tramo(t, P8, GANA - 0.55), x = ri(lerp(64, 133, 1 - (1 - v) * (1 - v))), salta = t > GANA && t < GANA + 1.6;
+  R.actor(EL.caesar, x, g.suelo, t, { dir: 1, anda: v > 0 && v < 1, dedo: t > GANA - 0.55 && t < GANA, brazos: t > GANA, salto: salta ? ri(Math.abs(Math.sin((t - GANA) * 8)) * 5) : 0, sonrisa: true, habla: t < GANA && Math.sin(t * 8) > 0 });
+  T.capitolioDelante(R, t, o);
+  confeti(t, GANA, 80);
+  AT.luciernaga(R, 250 + Math.sin(t * 1.1) * 4, 118 + Math.sin(t * 2.1) * 3, t, { dir: -1, cara: t > GANA + 0.6 ? 'triste' : 'normal', brillo: 0.75 });
+};
+
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8]], {
+  año: (t) => t >= P3 && t < P4 ? 75 : 50,
+  efectos: [[0.05, 'tapestop'], [en('fijate2', 0.02), 'pop'], [en('fijate2', 0.1403), 'brillo'], [EMPUJA + 0.05, 'zumbido'], [ARMA, 'boing'], [ARMA + 0.55, 'golpecito'], [P3 - 0.3, 'interruptor'],
+    [JAULA, 'interruptor'], [YANO + 0.1, 'whoosh'], [P4 + 0.05, 'tapestop'], [KAT, 'pop'], [P5 - 0.3, 'interruptor'], [FLECHA + 0.05, 'whoosh'], [CIELO + 0.05, 'trueno'], [PAJAROS, 'viento'], [LANZA + 0.05, 'whoosh'],
+    [P7 + 0.25, 'whoosh'], [CHOCA, 'boing'], [APAGA, 'interruptor'], [GANA + 0.05, 'publico']],
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep43 Short 3</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HM-SHORT3-MINIATURA · ep43, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// El hacha: en el borde de la arena, el hacha choca con el campo invisible (destello de hexágonos) y Haymitch se agacha.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/hm-comun.js';
+import { figura, grado, halo, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  // primero, en un búfer aparte, cuándo choca el hacha con el campo; luego el decorado en ese instante
+  const b = R.nuevo(), prev = R.usar(b), base = { encuadre: 'borde', camara: 'general', luz: 'tarde', rebote: [0, 150, 120], objeto: 'hacha' };
+  const g0 = T.arena50(R, 0, base); R.usar(prev);
+  const ti = g0.rebote ? g0.rebote.impacto[0] + 0.12 : 0.6;
+  const o = { ...base, campo: 1, toque: g0.rebote ? [g0.rebote.impacto[1], g0.rebote.impacto[2]] : [200, 110] };
+  const g = T.arena50(R, ti, o);
+  T.arena50Delante(R, ti, o);
+  desplazar(R, -96);   // el borde y el choque del hacha, al centro de la columna vertical
+  grado(R, { cx: 160, cy: 110, tinte: '#0a0612', f: 0.2, desde: 0.4, max: 0.8 });
+  // el hacha, al doble, que rebota en el destello del campo y vuelve hacia él
+  { const ix = 168, iy = 74, s = 2.4, giro = -0.6,   // arriba, en el destello: lejos de Haymitch
+    c = Math.cos(giro), sn = Math.sin(giro);
+    const K = hex('#1a1424'), P = (u, v) => [Math.round(ix + (u * c - v * sn) * s), Math.round(iy + (u * sn + v * c) * s)];
+    const pinta = (f) => { for (let u = -5; u <= 6; u += 0.2) for (let v = -4; v <= 1.5; v += 0.2) { const col = f(u, v); if (col) { const [px, py] = P(u, v); R.pset(px, py, col); } } };
+    pinta((u, v) => (Math.abs(v) < 1.3 && u <= 4.6) || (u > 2.2 && u < 5.9 && v > -4.2 && v < 1.4) ? K : 0);
+    pinta((u, v) => Math.abs(v) < 0.5 && u < 4 ? (v < 0 ? hex('#b8804a') : hex('#7a4a22')) : u > 2.7 && u < 5.3 && v > -3.6 && v < 0.8 ? (v < -2.8 ? hex('#ffffff') : u > 4.6 ? hex('#8a94a4') : hex('#c8d0dc')) : 0);
+    halo(R, ix + 6, iy - 4, 12, 12, '#fff0b0', 0.5);
+    for (const [dx, dy] of [[-12, 8], [-17, 12], [-22, 16]]) R.pset(ix + dx, iy + dy, hex('#e8f4ff')); }   // la estela, de vuelta
+  figura(R, EL.haymitch, 122, g.suelo + 2, ti, { dir: 1, sorpresa: true }, 2);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

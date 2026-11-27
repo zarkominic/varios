@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep42 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LF-SHORT1-MINIATURA · ep42, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras.
+// El gancho: de madrugada, un caimán entra en la tienda por el pasillo, con la boca abierta, delante de las neveras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { tienda, tiendaDelante, a_caiman } from '/atomo/plato/escenas/lf-comun.js';
+import { grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'tienda', puerta: 1 };
+  tienda(R, t, o);
+  grado(R, { cx: 160, cy: 135, tinte: '#06101c', f: 0.32, desde: 0.3, max: 0.85 });
+  halo(R, 160, 162, 60, 22, '#fff2d0', 0.5);
+  a_caiman(R, 152, 172, t, { dir: 1, anda: 0, boca: 0.85, s: 3.6 });
+  tiendaDelante(R, t, { ...o, cctv: 0 });
+  cifra(R, '2018', 160, 22, 16);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

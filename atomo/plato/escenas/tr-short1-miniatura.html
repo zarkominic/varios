@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Miniatura vertical · ep23 Short 1</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TR-SHORT1-MINIATURA · miniatura vertical del Short 1 del ep23, «Las 12 uvas no empezaron en 1909», en el estilo noir
+// aprobado (ayudas en noir-mini.js). La torre del reloj de la Casa de Correos, en la Puerta del Sol, a medianoche y en
+// contraluz contra la bruma clara del cielo, con la esfera encendida en ámbar a punto de dar las doce; los tejados de
+// Madrid en silueta; en primer plano, sobre el alféizar en penumbra, un racimo de uvas oscuro y brillante en un charco de
+// luz ámbar. Arriba, el «1909» tachado con una raya roja y, debajo y más grande, el «1894» en blanco hueso.
+// Todo lo que cuenta va en la columna central x 110–210 (lo que queda en 9:16). Sin palabras: solo cifras y símbolos.
+import { preparar } from '/atomo/plato/escenas/noir-mini.js';
+const N = await preparar(document.getElementById('lienzo'));
+const { W, H, K, hex, set, get, hh, tinte, mez, trama, poligono, elipse, halo, linea } = N;
+
+// el reloj de la torre: esfera ámbar con sus marcas y las agujas a las doce menos dos
+const reloj = (cx, cy, r) => {
+  halo(cx, cy, r * 3.4, r * 3.4, N.AMBAR, 0.45, 1.6);
+  const C0 = hex('#fff0c4'), C1 = hex('#ffd890'), C2 = hex('#e8a650'), ARO = hex('#3a2410'), AG = hex('#24140a');
+  for (let y = Math.floor(cy - r - 2); y <= cy + r + 2; y++) for (let x = Math.floor(cx - r - 2); x <= cx + r + 2; x++) { const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy);
+    if (d < r) set(x, y, d < r * 0.45 ? C0 : d < r * 0.8 ? (d < r * 0.62 + trama(x, y) * r * 0.2 ? C0 : C1) : C2);
+    else if (d < r + 1.6) set(x, y, ARO); }
+  for (let k = 0; k < 12; k++) { const a = k / 12 * 6.283 - 1.5708; set(Math.round(cx + Math.cos(a) * (r - 2)), Math.round(cy + Math.sin(a) * (r - 2)), hex('#5a3418')); if (k % 3 === 0) set(Math.round(cx + Math.cos(a) * (r - 3)), Math.round(cy + Math.sin(a) * (r - 3)), hex('#5a3418')); }
+  const ag = (ang, l, g) => { for (let i = 0; i <= l * 2; i++) { const u = i / 2, x = Math.round(cx + Math.cos(ang) * u), y = Math.round(cy + Math.sin(ang) * u); set(x, y, AG); if (g) set(x + 1, y, AG); } };
+  ag(-1.5708 - 0.03, r * 0.55, true); ag(-1.5708 - 0.21, r * 0.85, false); set(Math.round(cx), Math.round(cy), AG);
+};
+
+const dibujar = () => {
+  // 1 · el cielo: bruma clara detrás de la torre (el contraluz) que se apaga hacia los lados
+  N.cielo({ cx: 160, cy: 92, r: 130, colores: ['#070b1c', '#141e40', '#26365e'], estrellas: 70, altoEstrellas: 70, semilla: 6 });
+  halo(160, 92, 60, 60, hex('#7a8cbc'), 0.5, 1.3);
+  // 2 · los tejados de Madrid y el edificio de Correos en silueta, con alguna ventana encendida
+  const TEJ = hex('#080a16'), TEJ2 = hex('#0e1222'), TORRE = hex('#090c18');
+  for (let x = 0; x < W; x++) { const h = 116 + Math.round(hh(x >> 4, 0, 3) * 12) - (x >> 4) % 2 * 4; for (let y = h; y < H; y++) set(x, y, hh(x >> 3, y >> 3, 6) > 0.85 ? TEJ2 : TEJ); }
+  for (let k = 0; k < 26; k++) { const x = 4 + Math.floor(hh(k, 4, 2) * 312), y = 124 + Math.floor(hh(k, 5, 2) * 14); if (hh(k, 6, 2) > 0.4) { set(x, y, hex('#c88a3a')); set(x + 1, y, hex('#a06a2a')); set(x, y + 1, hex('#7a4a1e')); } }
+  poligono([[112, 112], [208, 112], [208, 150], [112, 150]], TORRE);
+  for (let x = 110; x < 211; x++) set(x, 111, hex('#1a2038'));
+  for (let x = 112; x < 208; x += 3) { set(x, 109, TORRE); set(x, 110, TORRE); }
+  poligono([[146, 96], [174, 96], [174, 112], [146, 112]], TORRE);                     // el cuerpo de la torre
+  poligono([[143, 95], [177, 95], [177, 98], [143, 98]], hex('#121830'));              // la cornisa
+  poligono([[147, 62], [173, 62], [175, 95], [145, 95]], TORRE);                       // el templete del reloj
+  poligono([[145, 60], [175, 60], [176, 63], [144, 63]], hex('#121830'));
+  // el remate de hierro: patas curvas hacia el mástil, la bola de la hora
+  for (let k = 0; k <= 24; k++) { const u = k / 24; for (const lado of [-1, 1]) set(Math.round(160 + lado * (13 - u * 12 - Math.sin(u * 3.1) * 2)), Math.round(60 - u * 12), TORRE); }
+  for (let y = 44; y < 50; y++) set(160, y, TORRE);
+  elipse(160, 50, 2.6, 2.6, hex('#0c1024')); tinte(159, 49, hex('#8a9ac8'), 0.6);
+  // el filo frío de la bruma por los dos lados de la torre
+  for (let y = 62; y < 112; y++) { const xa = y < 95 ? 147 - Math.round((y - 62) / 17) : 146, xb = y < 95 ? 173 + Math.round((y - 62) / 17) : 174; set(xa, y, hex('#3a4c80')); set(xb, y, hex('#3a4c80')); }
+  reloj(160, 79, 11);
+  // 3 · el alféizar en primer plano, de piedra en penumbra, con el charco de luz ámbar
+  poligono([[0, 150], [320, 150], [320, 180], [0, 180]], (x, y) => (hh(x >> 3, y >> 1, 2) > 0.6 ? hex('#1a1414') : hex('#120e0e')));
+  for (let x = 0; x < W; x++) set(x, 150, hex('#2e2420'));
+  for (let y = 120; y < H; y++) for (let x = 90; x < 230; x++) { const d = Math.hypot((x - 160) / 62, (y - 160) / 26); if (d < 1) tinte(x, y, N.AMBAR, 0.5 * (1 - d) ** 1.2); }
+  // el racimo, grande, con la luz ámbar desde la derecha y por debajo; y un grano suelto
+  N.racimo({ x: 158, y: 124, s: 1.3, lx: 0.6, ly: -0.55, semilla: 4, filas: [4, 5, 5, 5, 4, 4, 3, 2, 1], pal: ['#0a0308', '#1a0714', '#300d26', '#4c1a3e', '#723660'] });
+  N.esfera(186, 172, 4, ['#0a0308', '#1a0714', '#300d26', '#4c1a3e', '#723660'], { lx: 0.5, ly: -0.6, brillo: '#ffe0b0' });
+  // 4 · los años: «1909» tachado en rojo y, más grande, «1894» en blanco hueso
+  const a1 = N.cifra('1909', 160, 20, { tam: 16 });
+  N.tachon(160 - a1 / 2 - 4, 18, 160 + a1 / 2 + 2, 9, { g: 2 });
+  N.cifra('1894', 160, 46, { tam: 20 });
+  // 5 · grano y viñeta, centrados en la columna
+  N.granoVineta({ cx: 160, cy: 96, rx: 150, ry: 120, desde: 0.5 });
+};
+N.listo(dibujar);
+</script>
+</body>
+</html>

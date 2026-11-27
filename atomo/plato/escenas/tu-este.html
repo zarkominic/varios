@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El pasillo del este · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-ESTE (frases 18–19), cartela «2020». Seis planos, cortados en la palabra inglesa:
+// 1. la ladera sobre la tumba (corta en «and led by»): un técnico sube empujando el radar de carrito; más arriba la
+//    geofísica clava un jalón con banderita a mazazos en «radar survey»; Eldamaty le sigue y en «hillside» señala el
+//    monte; turistas y el milano;
+// 2. el radar de carrito de cerca (corta en «but beside»): al fondo dos geofísicos diminutos suben con un jalón; en
+//    «Eldamati» Eldamaty llega andando hasta el carrito, se sube a una caja de aparatos bajo la pantalla grande y
+//    comenta; en «beside» sale el eco brillante y él alza la mano y toca el canto de la pantalla (geo.toca), sorprendido; polvo;
+// 3. el bloque del monte en corte (corta en «long»): el carrito de la cumbre barre (ondas que bajan por la roca); en
+//    «showed up» sale la mancha alargada paralela al pasillo; la mano con el puntero largo marca
+//    el alto en «six and a half feet high» y el largo en «30 feet long»;
+// 4. el radargrama (corta en «Zahi»): en «a few yards» sube la banda brillante alargada; el dedo la recorre en
+//    «running parallel»;
+// 5. el despacho oficial (corta en «discovery»): Hawass llega detrás de la mesa; la ayudante entra con el
+//    ESTUDIO (carpeta azul) y se lo ofrece; en «wasn't convinced» él dice que no con la cabeza (tres giros lentos, globo
+//    con X) y la carpeta de la mesa se queda a medio cerrar; en «never» señala, sale un globo con «0» y el sello baja,
+//    duda y vuelve a subir; la ayudante baja el estudio, se encoge y se va con él;
+// 6. el informe sin publicar (hasta el final; ladera 'informe'): la mesa del campamento con la carpeta azul cerrada y
+//    la hoja del radargrama asomando; en «full study wasn't published» entra por abajo la mano (brazo corto, cerca del
+//    borde) con un puntero láser y el punto rojo pasea por la portada sin decidirse; en «eastern corridor» se va a la
+//    banda brillante de la hoja y amaga dos veces (tiembla y parpadea); en
+//    «left hanging» se retira sin marcar, la hoja vuelve a entrar en la carpeta y la «?» parpadea encima; motas en la luz.
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-este');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const K = hex('#1a1410'), BL = hex('#f8f4e8');
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+const destello = (x, y, r, c = '#fff8d0') => { const C = hex(c); R.linea(x - r, y, x + r, y, C); R.linea(x, y - r, x, y + r, C); const d = N(r * 0.5); R.linea(x - d, y - d, x + d, y + d, C); R.linea(x - d, y + d, x + d, y - d, C); R.pset(x, y, hex('#ffffff')); };
+const puntero = (x, y, dx, dy, c = '#d83a2a') => { R.linea(x, y, x + dx, y + dy, hex('#2a2a34')); R.linea(x + 1, y, x + dx + 1, y + dy, hex('#6a6a78')); R.pset(x, y, hex(c)); R.pset(x - 1, y, hex(c)); };
+const pie = (x) => N(140 - 0.12 * (x - 160));
+const P2 = en('este', 0.2672), P3 = en('este', 0.499), P4 = en('este', 0.8028), P5 = en('hawass', 0) - 0.1, P6 = en('hawass', 0.5247);
+const ED = T.ELENCO_TU.eldamatyTU, HW = T.ELENCO_TU.hawassTU;
+
+// 1 · la ladera: el técnico empuja el radar de carrito monte arriba; Eldamaty le sigue y señala
+const p1 = (t) => {
+  const carrito = lerp(0, 0.6, ease(tramo(t, en('este', 0.03), en('este', 0.26))));
+  const o = { encuadre: 'ladera', epoca: 2020, carrito: Math.max(0.001, carrito) };
+  const g = T.ladera(R, t, o);
+  const [ax, ay] = g.asa || [96, 120];
+  const xt = N(ax - 15);
+  const mueve = t > en('este', 0.03) && t < en('este', 0.26);
+  R.actor(EL.tecnico, xt, pie(xt + 7), t, { dir: 1, anda: mueve, sostiene: [ax, ay] });
+  const ue = ease(tramo(t, en('este', 0.06), en('este', 0.24)));
+  const xe = N(lerp(40, xt - 26, ue));
+  R.actor(ED, xe, pie(xe + 7), t, { dir: 1, anda: ue > 0 && ue < 1, dedo: t > en('este', 0.213) && t < en('este', 0.27), habla: t > en('este', 0.2) && t < en('este', 0.25) });
+  // la geofísica, más arriba: en «radar survey» clava un jalón con su banderita a mazazos (dos golpes) y se aparta a
+  // mirar cómo llega el carrito
+  const xg = 214, sg = pie(xg + 7);
+  const g1 = tramo(t, en('este', 0.11), en('este', 0.135)), g2 = tramo(t, en('este', 0.15), en('este', 0.175));
+  const golpe = (g1 > 0 && g1 < 1) || (g2 > 0 && g2 < 1);
+  const hunde = N(4 * ease(tramo(t, en('este', 0.11), en('este', 0.175))));
+  R.linea(xg - 3, sg - 14 + hunde, xg - 3, sg + 1, hex('#f4f0e8')); for (let y = sg - 14 + hunde; y < sg; y += 4) R.pset(xg - 3, y, hex('#d83a2a'));
+  { const fl = N(Math.sin(t * 7) * 1.2); R.poligono([[xg - 3, sg - 14 + hunde], [xg + 3, sg - 12 + hunde + fl], [xg - 3, sg - 10 + hunde]], hex('#e8483a')); }
+  const ga = R.actor(EL.geofisica2TU, xg, sg, t, { dir: -1, sostiene: true, sonrisa: t > en('este', 0.2), habla: t > en('este', 0.19) && t < en('este', 0.22) });
+  if (ga && ga.mano) { const [mx, my] = ga.mano, alza = golpe ? N(Math.abs(Math.sin(((g1 > 0 && g1 < 1) ? g1 : g2) * Math.PI)) * 5) : 0;
+    R.linea(mx, my - alza, mx - 3, my - 5 - alza, hex('#6a4a2a')); R.rect(mx - 6, my - 7 - alza, mx - 2, my - 5 - alza, hex('#3a3a42')); }
+  T.laderaDelante(R, t, o);
+};
+
+// 2 · el radar de carrito de cerca: Eldamaty llega, mira la pantallita y señala el eco en «search»
+const p2 = (t) => {
+  const eco = ease(tramo(t, en('este', 0.44), en('este', 0.475)));
+  const o = { encuadre: 'ladera', camara: 'carrito', epoca: 2020, eco };
+  const g2 = T.ladera(R, t, o) || {};
+  // al fondo, en la ladera, dos geofísicos diminutos llevan un jalón largo entre los dos monte arriba
+  { const u2 = tramo(t, P2, P3), bx = N(lerp(40, 120, u2)), by = N(108 - (bx - 40) * 0.08), paso = Math.floor(t * 4) % 2;
+    for (const [dx, cam] of [[0, '#3a6a9a'], [16, '#c8783a']]) { const x = bx + dx, y = by - N(dx * 0.08);
+      R.rect(x - 1, y - 11, x + 1, y - 11, hex('#f4f0e8')); R.rect(x - 1, y - 10, x + 1, y - 9, hex('#d0905e'));   // gorro y cara
+      R.rect(x - 1, y - 8, x + 1, y - 4, hex(cam)); R.pset(x + 1, y - 8, hex('#1a1a1a'));                            // camisa
+      R.pset(x - 1 + (paso ? 0 : 1), y - 3, hex('#4a4038')); R.pset(x - 1 + (paso ? 0 : 1), y - 2, hex('#4a4038'));     // piernas que andan
+      R.pset(x + 1 - (paso ? 0 : 1), y - 3, hex('#4a4038')); R.pset(x + 1 - (paso ? 0 : 1), y - 2, hex('#4a4038')); }
+    for (let i = 0; i <= 16; i++) R.pset(bx + 1 + i, N(by - 7 - i * 0.08), (i >> 2) % 2 ? hex('#d83a2a') : hex('#f4f0e8')); }
+  // Eldamaty llega ya andando hasta la caja de aparatos de aluminio que hay junto al carrito, se sube a ella de un paso
+  // (la pantalla le queda alta), la mira y comenta; en «beside» sale el eco y él alza la mano y toca el canto de abajo
+  // de la pantalla (geo.toca), sorprendido. La caja: x 178–202, tapa en y 141
+  const [tx, ty] = g2.toca || [200, 122];
+  { const C0 = hex('#5a6068'), C1 = hex('#9aa2aa'), C2 = hex('#c4cad0'), C3 = hex('#e8ecf0');
+    R.rect(176, 156, 206, 159, hex('#8a6a44')); R.rect(180, 158, 208, 159, hex('#7a5a38'));                 // su sombra en la tierra
+    R.rect(178, 141, 202, 158, C0); R.rect(179, 142, 201, 157, C1); R.rect(179, 142, 201, 143, C3); R.rect(179, 144, 201, 145, C2);
+    for (let y = 147; y < 157; y += 3) R.linea(180, y, 200, y, C2);                                          // las nervaduras
+    R.rect(200, 144, 201, 157, hex('#7a828a')); R.rect(179, 149, 181, 152, hex('#2a2e34')); R.rect(198, 149, 199, 152, hex('#2a2e34')); // cierres de los cantos
+    R.pset(180, 149, C3); R.pset(198, 149, C3); R.linea(186, 140, 194, 140, hex('#2a2e34')); R.pset(186, 141, C0); R.pset(194, 141, C0); // el asa
+    for (let x = 179; x <= 201; x++) R.pset(x, 155, ((x >> 1) % 2) ? hex('#e8c030') : hex('#2a2a2a'));      // la franja de aviso
+    R.pset(180 + (N(t * 2) % 20), 142, hex('#ffffff')); }                                                     // el brillo del sol que resbala
+  const u = ease(tramo(t, P2 + 0.05, en('este', 0.35))), sube = ease(tramo(t, en('este', 0.35), en('este', 0.366)));
+  const x = N(lerp(lerp(64, 164, u), 183, sube)), y = N(lerp(158, 141, sube) - Math.sin(sube * Math.PI) * 4);
+  const toca = t > en('este', 0.452);
+  R.actor(ED, x, y, t, { dir: 1, anda: u > 0 && u < 1, habla: t > en('este', 0.37) && t < en('este', 0.43), sostiene: toca ? [tx, ty] : false,
+    sorpresa: t > en('este', 0.475) && t < en('este', 0.499), sonrisa: t > en('este', 0.485) });
+  // el polvo fino que el viento arrastra por el suelo
+  for (let i = 0; i < 9; i++) { const px = N(((t * 26 + i * 41) % 360) - 20), py = 150 + (i * 7) % 26 + N(Math.sin(t * 3 + i) * 1.5); R.pset(px, py, hex('#f4e4c4')); R.pset(px - 1, py, hex('#e8d4a8')); }
+  if (eco > 0.9) { const [ex, ey] = g2.eco || [210, 108], q = tramo(t, en('este', 0.475), en('este', 0.475) + 0.5); if (q < 1) destello(ex, ey, N(2 + 4 * Math.sin(q * Math.PI))); }
+};
+
+// 3 · el bloque en corte: la mancha alargada sale; el puntero mide el alto y el largo
+const p3 = (t) => {
+  const pasillo = ease(tramo(t, en('este', 0.5549), en('este', 0.61)));
+  const o = { encuadre: 'este', epoca: 2020, pasillo, duda: 0 };
+  const g = T.ladera(R, t, o);
+  const [x0, y0, x1, y1] = g.espacio || [70, 82, 160, 94];
+  // el radar de carrito de la cumbre sigue barriendo: cada 1,3 s una onda baja por la roca (a trazos, dentro del corte)
+  { const [cx, cy] = g.carrito || [70, 68];
+    for (let k = 0; k < 2; k++) { const f = ((t + k * 0.65) % 1.3) / 1.3, r = N(4 + f * 40);
+      for (let i = 0; i <= 18; i++) { if ((i + N(t * 6)) % 3 === 0) continue; const an = 0.35 + i / 18 * (Math.PI - 0.7), px = N(cx + Math.cos(an) * r * 1.4), py = N(cy + 2 + Math.sin(an) * r);
+        if (py > cy + 3 && py < 176 && px > 2 && px < 258) { R.pset(px, py, hex(f < 0.6 ? '#2a6ab8' : '#5a8ac0')); if (f < 0.6) R.pset(px, py - 1, hex('#cfeaff')); } } }}
+  const entra = ease(tramo(t, en('este', 0.62), en('este', 0.6858)));
+  const alto = tramo(t, en('este', 0.6858), en('este', 0.74)), largo = ease(tramo(t, en('este', 0.7758), en('este', 0.8)));
+  if (entra > 0.02) {
+    let tx, ty;
+    if (t < en('este', 0.75)) { tx = x1 + 3; ty = N(lerp(y1, y0, Math.min(1, alto))); }
+    else { tx = N(lerp(x1 + 3, x0, largo)); ty = y1 + 3; }
+    // un puntero largo (40 px) para que el brazo asome poco desde abajo
+    const hx = N(lerp(330, tx + 26, entra)), hy = N(lerp(210, ty + 42, entra));
+    puntero(tx, ty, hx - tx - 2, hy - ty - 4);
+    T.brazo(R, hx + 22, 200, hx, hy, '#4a6a8a', -1, { codo: [hx + 24, hy + 24] });
+  }
+};
+
+// 4 · el radargrama: la banda alargada sube y el dedo la recorre en «running parallel»
+const p4 = (t) => {
+  const eco = ease(tramo(t, en('este', 0.8369), en('este', 0.88)));
+  const g = T.ladera(R, t, { encuadre: 'este', camara: 'radargrama', epoca: 2020, eco });
+  const [ex, ey] = g.eco || [190, 100];
+  const entra = ease(tramo(t, en('este', 0.88), en('este', 0.9163))), corre = ease(tramo(t, en('este', 0.9163), en('este', 0.98)));
+  const sale = ease(tramo(t, en('este', 1.0) + 0.2, en('este', 1.0) + 0.7));
+  const k = entra * (1 - sale);
+  if (k > 0.02) { const tx = N(lerp(ex - 40, ex + 30, corre)), ty = ey + 2, hx = N(lerp(330, tx + 24, k)), hy = N(lerp(210, ty + 42, k));
+    puntero(tx, ty, hx - tx - 2, hy - ty - 4); T.brazo(R, hx + 22, 200, hx, hy, '#4a6a8a', -1, { codo: [hx + 24, hy + 24] }); }
+};
+
+// 5 · el despacho: Hawass detrás de la mesa niega con la cabeza; la carpeta a medio cerrar; el sello duda
+const p5 = (t) => {
+  const carpeta = ease(tramo(t, en('hawass', 0.2706), en('hawass', 0.36)));
+  const sello = tramo(t, en('hawass', 0.4415), en('hawass', 0.5247) + 0.05);
+  const o = { encuadre: 'permiso', carpeta, sello };
+  T.ladera(R, t, o);
+  const u = ease(tramo(t, P5 + 0.1, en('hawass', 0.12)));
+  const x = N(lerp(242, 214, u));
+  // el «no» de cabeza en «wasn't convinced»: tres giros lentos (≈ 0,35 s cada uno: izquierda, derecha, izquierda), con
+  // un píxel de vaivén y las rayitas del movimiento; nada de temblor
+  const n0 = en('hawass', 0.227), n1 = n0 + 1.05, niega = t > n0 && t < n1;
+  const fase = niega ? Math.floor((t - n0) / 0.35) : 0, dir = niega ? (fase % 2 ? 1 : -1) : -1, vaiven = niega ? (fase % 2 ? 1 : -1) : 0;
+  // la ayudante entra por la izquierda con el ESTUDIO (una carpeta azul gruesa) y se la ofrece; tras el «no» y el
+  // «never» la baja, se encoge y se va por donde vino con ella (el estudio no se publica)
+  const ua = ease(tramo(t, P5 + 0.2, en('hawass', 0.16))), va = ease(tramo(t, en('hawass', 0.40), P6 - 0.05));
+  const xa = N(lerp(lerp(-18, 62, ua), -18, va));
+  const ofrece = ease(tramo(t, en('hawass', 0.17), en('hawass', 0.22))) * (1 - ease(tramo(t, en('hawass', 0.4), en('hawass', 0.45))));
+  const ay = R.actor(EL.oficinista, xa, 156, t, { dir: va > 0 ? -1 : 1, anda: (ua > 0 && ua < 1) || (va > 0 && va < 1), sostiene: true,
+    habla: t > en('hawass', 0.17) && t < en('hawass', 0.22), triste: t > en('hawass', 0.33) });
+  if (ay && ay.mano) { const [mx, my0] = ay.mano, my = N(my0 - 6 * ofrece);
+    R.rect(mx - 5, my - 7, mx + 4, my + 1, hex('#1a2a4a')); R.rect(mx - 4, my - 6, mx + 3, my, hex('#3a5a9a')); R.rect(mx - 4, my - 6, mx - 3, my, hex('#2a4070'));
+    R.rect(mx - 1, my - 4, mx + 2, my - 2, hex('#f4f0e4')); R.rect(mx + 4, my - 5, mx + 5, my - 1, hex('#f4f0e4')); }
+  R.actor(HW, x + vaiven, 132, t, { dir, anda: u > 0 && u < 1, habla: (t > en('hawass', 0.3644) && t < en('hawass', 0.5)) , dedo: t > en('hawass', 0.4415) && t < en('hawass', 0.52), enfado: niega });
+  if (niega) { const s = -dir, hx = x + vaiven + 7 + s * 9; for (let k = 0; k < 3; k++) R.pset(hx + s * (k === 1 ? 1 : 0), 110 + k * 2, hex('#5a4a3a')); }
+  T.laderaDelante(R, t, o);
+  // lo que dice, en globos: «no» (X) mientras niega, y el radar con «0» descubrimientos en «never … single discovery»
+  if (niega) globo(x - 8, 92, 'X', hex('#d83a2a'));
+  if (t > en('hawass', 0.4415)) { const bx = x - 8, by = 92; R.disco(bx, by, 9, K); R.disco(bx, by, 8, BL); R.pset(bx - 7, by + 9, K); R.pset(bx - 6, by + 8, BL); R.pset(bx - 8, by + 10, K);
+    R.numero('0', bx + 1, by + 4, { centro: true }); }
+};
+
+// 6 · el informe sin publicar: el punto del puntero láser duda sobre la carpeta; en «eastern corridor» baja a la banda
+// del radargrama, amaga dos veces y en «left hanging» se retira; la hoja vuelve a entrar en la carpeta y queda la «?»
+const p6 = (t) => {
+  const cierra = ease(tramo(t, en('hawass', 0.95), en('hawass', 1.0) + 0.3));
+  const g = T.ladera(R, t, { encuadre: 'informe', epoca: 2020, cierra }) || {};
+  const [bx0, by0] = g.banda || [206, 94];
+  // las motas de polvo que flotan en la luz que pasa entre las rayas de la lona (vida)
+  for (let i = 0; i < 9; i++) { const mx = N(10 + ((i * 53 + t * (4 + i % 3)) % 300)), my = N(30 + ((i * 37) % 130) + Math.sin(t * 0.9 + i) * 4);
+    R.pset(mx, my, hex(i % 3 ? '#f4e2bc' : '#fff4d8')); }
+  // en «full study wasn't published» entra por abajo la mano con el puntero láser (un brazo corto en diagonal, la mano
+  // cerca del borde) y el punto rojo pasea por la portada de la carpeta sin decidirse; en «eastern corridor» se va a la
+  // banda brillante de la hoja, amaga dos veces (tiembla y parpadea) y en «left hanging» se apaga y la mano se retira
+  const entra = ease(tramo(t, en('hawass', 0.6), en('hawass', 0.68))), busca = tramo(t, en('hawass', 0.68), en('hawass', 0.82));
+  const acerca = ease(tramo(t, en('hawass', 0.839), en('hawass', 0.9))), retira = ease(tramo(t, en('hawass', 0.938), en('hawass', 0.985)));
+  const k = entra * (1 - retira);
+  const amago = acerca >= 1 && retira === 0 ? N(Math.abs(Math.sin((t - en('hawass', 0.9)) * 7)) * 4) : 0;
+  if (k > 0.02) {
+    // la mano: sube desde el borde de abajo hasta y≈152 y se desliza un poco a la derecha cuando apunta a la hoja
+    const hx = N(150 + 18 * acerca + Math.sin(t * 1.3) * 1.5), hy = N(lerp(200, 152, k) + Math.sin(t * 2.1) * 1);
+    T.brazo(R, hx + 34, hy + 50, hx, hy, '#4a6a8a', -1, { codo: [hx + 20, hy + 22] });
+    // el puntero láser en el puño, corto (10 px), apuntando al punto
+    const sx = 96 + 34 * (0.5 - 0.5 * Math.cos(busca * Math.PI * 3)), sy = 76 + Math.sin(t * 3) * 3;
+    const px = N(lerp(sx, bx0, acerca) + (amago ? Math.sin(t * 40) : 0)), py = N(lerp(sy, by0 - 2, acerca) - amago);
+    const ax = hx - 9, ay = hy - 2, d = Math.hypot(px - ax, py - ay) || 1, ux = (px - ax) / d, uy = (py - ay) / d;
+    const bx = N(ax + ux * 12), by = N(ay + uy * 12);
+    R.linea(ax - 1, ay + 1, bx - 1, by + 1, hex('#1a1a22')); R.linea(ax + 1, ay + 1, bx + 1, by + 1, hex('#1a1a22'));
+    R.linea(ax, ay, bx, by, hex('#4a4a58')); R.linea(ax + 1, ay, bx + 1, by, hex('#2a2a34'));
+    R.pset(N(ax + ux * 5), N(ay + uy * 5), hex('#c8c8d4')); R.pset(N(ax + ux * 6), N(ay + uy * 6), hex('#9a9aa8'));
+    R.pset(bx, by, hex('#ff5a3a')); R.pset(bx + 1, by, hex('#ffb08a'));
+    // el punto rojo: solo cuando la mano ya está dentro; con halo, y parpadea en el amago
+    const encendido = entra > 0.85 && retira < 0.25 && !(amago > 2 && Math.floor(t * 12) % 3 === 0);
+    if (encendido) { R.disco(px, py, 3, hex('#a83a3a')); R.disco(px, py, 2, hex('#ff3a2a')); R.pset(px, py, hex('#fff0e0'));
+      if (Math.floor(t * 8) % 2) { R.pset(px - 3, py, hex('#ff8a6a')); R.pset(px + 3, py, hex('#ff8a6a')); R.pset(px, py - 3, hex('#ff8a6a')); R.pset(px, py + 3, hex('#ff8a6a')); } }
+  }
+  if (t > en('hawass', 0.97) && Math.floor(t * 3) % 2 === 0) globo(186, 60, '?', hex('#3a6ad8'));
+};
+
+const efectos = [[en('este', 0.04), 'zumbido'], [en('este', 0.135), 'toc'], [en('este', 0.175), 'toc'],
+  [P2 + 0.3, 'viento'], [en('este', 0.366), 'toc'], [en('este', 0.44), 'bip'], [en('este', 0.47), 'golpecito'],
+  [P3 + 0.3, 'zumbido'], [en('este', 0.5549), 'brillo'], [en('este', 0.6858), 'lapiz'], [en('este', 0.7758), 'lapiz'],
+  [en('este', 0.8369), 'bip'], [en('este', 0.9163), 'golpecito'],
+  [en('hawass', 0.17), 'papel'], [en('hawass', 0.2706), 'papel'], [en('hawass', 0.4415), 'pop'], [en('hawass', 0.5), 'tic'],
+  [en('hawass', 0.9), 'golpecito'], [P6 + 0.2, 'viento'], [en('hawass', 0.938), 'pop'], [en('hawass', 0.97), 'papel']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, cartela: '2020', año: 2020 });
+</script>
+</body>
+</html>

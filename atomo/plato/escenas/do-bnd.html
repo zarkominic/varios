@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Brand New Day · ep19</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// DO-BND (frases 54–55), 2026, cartela «2026». Cinco planos:
+// 1. «ny hoy capas tarde» (decorado del 15, la calle de Nueva York de hoy al atardecer): Spider-Man entra columpiándose
+//    desde la izquierda, pasa rozando la calle entre los taxis y en «Spider-Man» cruza el centro; suelta la telaraña y
+//    aterriza en la acera; dos paseantes lo señalan. Corta en «with».
+// 2. «ny hoy muelle tarde» (decorado del 15): un ladrón le quita el bolso a una turista y corre; Spider-Man baja colgado de
+//    su telaraña en «protecting», le dispara una telaraña y lo deja pegado a la papelera; le devuelve el bolso y, en
+//    «forgot him», a ella le sale un «?»: no sabe quién es; él agacha la cabeza. Corta en «and».
+// 3. «mundo nyhoy general» (la azotea al atardecer): Spider-Man aterriza en la azotea y mira la valla, donde la entrada y
+//    la flecha de la taquilla suben en «biggest opening weekend»; en «ever» salta con los brazos arriba. El vecino riega
+//    las tomateras de la jardinera con la regadera inclinada (el chorro cae en la tierra), da un paso a la siguiente mata
+//    y en «ever» deja de regar, se acerca a Spider-Man y levanta la regadera. Corta en «and».
+// 4. «mundo nyhoy taquilla» (la fachada del cine): la cola de fans avanza hacia las puertas; en «re-release of Endgame» el
+//    cartel del guante destella; en «back on top» baja la corona dorada y los fans levantan los brazos. Corta en «The».
+// 5. fondo local: el mostrador de la taquilla de cerca: una balanza de latón con monedas y el guante en un platillo; en
+//    «highest grossing» le caen monedas hasta igualar; en «$2 million» cae una moneda con el 2 y el platillo del guante
+//    baja; las palomitas saltan de alegría y la corona se posa en el guante.
+import * as T from '/atomo/plato/escenas/do-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import * as NY from '/atomo/plato/escenas/ny-comun.js';
+const { E, R, M } = await T.preparar('do-bnd');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k, BL = hex('#ffffff');
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (p, q, u) => { let r = 0; for (const s of [0, 8, 16]) { const ca = (p >>> s) & 255, cb = (q >>> s) & 255; r += Math.round(ca + (cb - ca) * u) * (1 << s); } return (0xff000000 + r) >>> 0; };
+// resplandor: mezcla un disco con un color, en escalones con trama (pixel art), más fuerte en el centro
+const luz = (cx, cy, r, col, a) => { cx = Math.round(cx); cy = Math.round(cy);
+  for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { const d = Math.hypot(i, j) / r; if (d >= 1) continue; const x = cx + i, y = cy + j; if (x < 0 || y < 0 || x > 319 || y > 179) continue;
+    const lv = a * (1 - d) ** 1.3 * 6; let l = Math.floor(lv); if (lv - l > (((x & 1) * 2 + (y & 1) * 3) % 4 + 0.5) / 4) l++; if (l <= 0) continue; R.pset(x, y, mez(R.pget(x, y), col, Math.min(0.85, l / 6))); } };
+// el bocadillo redondeado con su rabito (x, y: la punta del rabito); devuelve el centro
+const bocadillo = (x, y, w = 10, h = 18) => { x = Math.round(x); y = Math.round(y); const x0 = x - w, x1 = x + w, y1 = y - 4, y0 = y1 - h;
+  R.rect(x0 + 1, y0, x1 - 1, y1, K); R.rect(x0, y0 + 1, x1, y1 - 1, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, BL); R.rect(x0 + 2, y1 - 1, x1 - 1, y1 - 1, hex('#d0d0dc'));
+  for (let k = 0; k < 4; k++) { R.pset(x - 1 + (k >> 1), y1 + k, K); R.pset(x + (k >> 1), y1 + k, k < 3 ? BL : K); R.pset(x + 1 + (k >> 1), y1 + k, K); }
+  return [x, Math.round((y0 + y1) / 2)]; };
+const globo = (x, y, ic, col = K) => { const [cx, cy] = bocadillo(x, y); R.icono(ic, cx - 5, cy - 7, col, hex('#c8c8d0'), 2); };
+// una estrellita de brillo (cruz de 5 px)
+const chispa = (x, y, c = hex('#fff6c8')) => { x = Math.round(x); y = Math.round(y); R.pset(x, y, BL); for (const [i, j] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) R.pset(x + i, y + j, c); R.pset(x + 2, y, hex('#e8c060')); R.pset(x - 2, y, hex('#e8c060')); R.pset(x, y + 2, hex('#e8c060')); R.pset(x, y - 2, hex('#e8c060')); };
+// anillo de chispas que se abre (u 0–1)
+const destello = (x, y, u, r0 = 4, r1 = 18, c = hex('#fff2b0')) => { if (u <= 0 || u >= 1) return; const r = r0 + (r1 - r0) * u;
+  for (let k = 0; k < 16; k++) { if ((k + Math.floor(u * 5)) % 3 === 0) continue; const a = k / 16 * Math.PI * 2; R.pset(Math.round(x + Math.cos(a) * r), Math.round(y + Math.sin(a) * r * 0.85), u < 0.6 ? c : hex('#e8c060')); } };
+// una capa fija de toda la pantalla, pintada una vez en un búfer (clave) y copiada en cada fotograma
+const capa = (clave, dibuja) => { const m = R._s9 ?? (R._s9 = new Map()); let b = m.get(clave); if (!b) { b = R.nuevo(); const prev = R.usar(b); dibuja(); R.usar(prev); m.set(clave, b); } return b; };
+const pegar = (b) => R.copiar(b);
+// la silueta de una silla de director (x: centro, y: suelo; s: escala; lona y pictograma)
+const sillaDir = (x, y, s = 1, lona = hex('#1e1e26'), pic = null, t = 0) => { x = Math.round(x); y = Math.round(y);
+  const M = hex('#a8763a'), m = hex('#6a4420'), Ml = hex('#d8a060'), w = Math.round(8 * s), hA = Math.round(12 * s), hR = Math.round(10 * s);
+  // patas en X
+  R.linea(x - w, y, x + w, y - hA + 2, m); R.linea(x + w, y, x - w, y - hA + 2, M); R.linea(x - w + 1, y, x + w + 1, y - hA + 2, Ml);
+  // montantes y reposabrazos
+  for (const sx of [-w, w]) { R.rect(x + sx - 1, y - hA - hR, x + sx, y, sx < 0 ? M : m); R.pset(x + sx - 1, y - hA - hR, Ml); }
+  R.rect(x - w - 1, y - hA - 1, x + w + 1, y - hA, M); R.rect(x - w - 1, y - hA - 1, x + w + 1, y - hA - 1, Ml);
+  // asiento de lona
+  R.rect(x - w + 1, y - hA + 1, x + w - 1, y - hA + 2, lona);
+  // respaldo de lona con pliegue y su pictograma
+  const y0 = y - hA - hR, y1 = y0 + Math.round(6 * s);
+  R.rect(x - w, y0, x + w, y1, lona); R.rect(x - w, y1, x + w, y1, mez(lona, K, 0.5)); R.rect(x - w, y0, x + w, y0, mez(lona, BL, 0.25));
+  if (pic) pic(x, Math.round((y0 + y1) / 2));
+};
+// la telaraña de un disparo: línea blanca con su sombra
+const tela = (x0, y0, x1, y1) => { R.linea(Math.round(x0), Math.round(y0) + 1, Math.round(x1), Math.round(y1) + 1, hex('#8a90a8')); R.linea(Math.round(x0), Math.round(y0), Math.round(x1), Math.round(y1), hex('#f4f6ff')); };
+// Spider-Man colgado de su telaraña (ancla ax, ay; largo L; ángulo th, 0 = vertical): la mano arriba
+const columpio = (ax, ay, L, th, t, dir = 1) => { const hx = ax + L * Math.sin(th), hy = ay + L * Math.cos(th);
+  const x = Math.round(dir > 0 ? hx - 15 : hx), suelo = Math.round(hy + 29);
+  R.actor(EL.spiderman, x, suelo, t, { dir, dedo: true, quieto: true }); tela(ax, ay, dir > 0 ? x + 14 : x + 1, suelo - 28); return [hx, hy]; };
+
+const s = (f) => en('spiderman', f), n = (f) => en('encore', f);
+const P2 = s(0.328), P3 = s(0.711), P4 = n(0), P5 = n(0.584);
+const nombre = s(0.125), protege = s(0.363), olvidan = s(0.623), taquilla = s(0.746), nunca = s(0.857);
+const endgame = n(0.176), arriba = n(0.455), dos = n(0.822);
+
+// 1 · la calle al atardecer: el columpio entre las torres
+const p1 = (t) => {
+  NY.hoy(R, t, { encuadre: 'capas', luz: 'tarde', encender: 0.35 + 0.3 * tramo(t, 0, P2) });
+  // los paseantes de la acera: la vecina con la bolsa de la compra y el chico; miran arriba y señalan cuando pasa
+  const v = tramo(t, 0.2, 2.6), mira = t > nombre - 0.2;
+  R.actor(EL.neoyorquina, Math.round(lerp(330, 236, v)), 152, t, { dir: -1, anda: v > 0 && v < 1, dedo: mira && t < nombre + 1.6, sorpresa: mira && t < nombre + 0.8, sonrisa: t > nombre + 0.8 });
+  R.actor(EL.chico, 58, 152, t, { dir: 1, dedo: mira, sonrisa: mira, salto: mira && t < nombre + 1.2 ? Math.round(Math.abs(Math.sin((t - nombre) * 8)) * 3) : 0 });
+  // el columpio en dos tirones: entra por la izquierda colgado de la casa de ladrillo, se suelta, engancha la torre art
+  // déco y pasa por delante de su fachada clara en «Spider-Man»; suelta y cae a la acera
+  const L = 82, suelta = nombre + 1.1;
+  if (t > 0.9 && t < 2.3) columpio(70, 18, 70, lerp(-1.5, 0.95, (t - 0.9) / 1.4), t, 1);
+  else if (t >= 2.3 && t < 2.4) { const u = (t - 2.3) / 0.1; R.actor(EL.spiderman, Math.round(lerp(112, 109, u)), Math.round(lerp(87, 89, u)), t, { dir: 1, brazos: true, quieto: true }); }
+  else if (t >= 2.4 && t < suelta) columpio(196, 20, L, lerp(-1.05, 0.9, tramo(t, 2.4, suelta)), t, 1);
+  if (t >= suelta) { const u = tramo(t, suelta, suelta + 0.8), x0 = 196 + L * Math.sin(0.9), y0 = 20 + L * Math.cos(0.9) + 29;
+    const x = Math.round(lerp(x0 - 15, 262, u)), su = Math.round(lerp(y0, 152, u) - Math.sin(u * Math.PI) * 26);
+    const posa = u >= 1; R.actor(EL.spiderman, x, posa ? 152 : su, t, { dir: posa ? -1 : 1, brazos: !posa, dedo: posa && t > suelta + 1.2, quieto: !posa });
+    if (posa && t < suelta + 1.2) destello(x + 7, 152, tramo(t, suelta + 0.8, suelta + 1.2), 3, 12, hex('#f4f6ff')); }
+};
+// 2 · el muelle: el bolso, la telaraña y el «?»
+const p2 = (t) => {
+  NY.hoy(R, t, { encuadre: 'muelle', luz: 'tarde' });
+  const roba = P2 + 0.3, pega = protege + 0.75, vuelve = olvidan - 1.3;
+  // el ladrón: viene por la derecha, coge el bolso y huye a la izquierda; queda pegado a la papelera
+  const lx = t < roba ? Math.round(lerp(300, 196, tramo(t, P2 - 0.1, roba))) : Math.round(lerp(196, 34, tramo(t, roba, pega)));
+  const pegado = t >= pega;
+  R.actor(EL.ladron, pegado ? 30 : lx, 162, t, { dir: t < roba ? -1 : -1, anda: !pegado, sorpresa: pegado, sostiene: t > roba && t < vuelve - 0.6 ? true : undefined });
+  if (pegado) { // la telaraña que lo sujeta a la papelera
+    for (let k = 0; k < 6; k++) { const yy = 140 + k * 4; R.linea(24, yy, 50, yy + (k % 2 ? 2 : -2), hex('#f4f6ff')); }
+    R.linea(26, 136, 48, 160, hex('#c8ccdc')); R.linea(48, 136, 26, 160, hex('#c8ccdc')); }
+  // el bolso: en el brazo de la turista, luego en la mano del ladrón, luego en la de Spider-Man y de vuelta
+  const bolso = (x, y) => { R.rect(x - 3, y - 2, x + 3, y + 3, K); R.rect(x - 2, y - 1, x + 2, y + 2, hex('#c83a6a')); R.pset(x - 1, y - 1, hex('#f07aa0')); R.linea(x - 2, y - 3, x + 2, y - 3, K); };
+  // la turista con la cámara: hace fotos al perfil; se lleva el susto y luego no sabe quién es él
+  const tu = R.actor(EL.turista, 196, 162, t, { dir: -1, sorpresa: t > roba && t < vuelve, sonrisa: t > vuelve + 0.4 && t < olvidan, sostiene: t > vuelve ? true : undefined });
+  if (t < roba) bolso(207, 150);
+  // Spider-Man: baja colgado de la telaraña desde arriba, dispara y aterriza; recoge el bolso y se lo lleva
+  const baja = tramo(t, protege - 0.5, protege + 0.2);
+  if (t < protege + 0.2) { if (t > protege - 0.5) { const y = Math.round(lerp(10, 118, baja)); R.actor(EL.spiderman, 120, y + 28, t, { dir: -1, dedo: true, quieto: true }); tela(128, 15, 121, y + 2); } }
+  else { const camina = tramo(t, pega + 0.4, vuelve - 0.2), x = Math.round(lerp(120, 178, camina));
+    const sm = R.actor(EL.spiderman, t < pega + 0.3 ? 120 : x, 162, t, { dir: t < pega + 0.4 ? -1 : 1, dedo: t < pega && t > protege + 0.3, anda: camina > 0 && camina < 1, sostiene: t > pega + 0.3 && t < vuelve ? true : undefined, triste: t > olvidan + 0.2 });
+    if (t > protege + 0.3 && t < pega) tela(118, 146, lerp(118, 40, tramo(t, protege + 0.3, pega)), lerp(146, 150, tramo(t, protege + 0.3, pega)));
+    if (t > pega + 0.3 && t < vuelve) bolso(sm.mano[0], sm.mano[1] + 2); }
+  if (t > roba && t < pega + 0.3) { const ld = Math.round(pegado ? 30 : lx); bolso(ld + 1, 152); }
+  if (t > vuelve) bolso(tu.mano[0], tu.mano[1] + 2);
+  if (t > olvidan) globo(204, 128, '?');
+};
+// la regadera de lata verde en la mano (hx, hy); inclinada: el pitorro hacia abajo a la derecha y el chorro cae en la
+// tierra de la jardinera (y 133) con salpicaduras; derecha: gotea de vez en cuando
+const regadera = (hx, hy, inclinada, t) => {
+  const V = hex('#3a8a5a'), VL = hex('#6aca8a'), VS = hex('#22583a'), A = hex('#8ac8f0'), AL = hex('#d8f0ff');
+  // la mano agarra el asa (a su izquierda); la lata cuelga a la derecha, con su brillo y su sombra
+  R.rect(hx + 1, hy - 3, hx + 4, hy - 3, VS); R.pset(hx + 1, hy - 2, VS); R.pset(hx + 1, hy - 1, VS);
+  R.rect(hx + 2, hy - 2, hx + 7, hy + 2, V); R.rect(hx + 2, hy - 2, hx + 7, hy - 2, VL); R.rect(hx + 2, hy + 2, hx + 7, hy + 2, VS); R.pset(hx + 3, hy - 1, VL); R.rect(hx + 7, hy - 1, hx + 7, hy + 1, VS);
+  if (inclinada) {
+    // el pitorro sale de abajo y sube en diagonal hasta la alcachofa, que mira hacia la tierra
+    for (let i = 0; i <= 4; i++) R.pset(hx + 8 + i, hy + 1 - (i >> 1), i & 1 ? VS : V);
+    const sx = hx + 13, sy = hy - 1; R.rect(sx, sy, sx + 1, sy + 1, VS); R.pset(sx + 1, sy, VL);
+    // el chorro en hilos de gotas que caen hasta la tierra, entre las matas, y salpican
+    const fondo = 132;
+    for (let k = 0; k < 3; k++) for (let j = 0; j < 4; j++) {
+      const f = (t * 2.2 + j / 4 + k * 0.29) % 1, y = Math.round(sy + 2 + f * (fondo - sy - 2)), x = Math.round(sx + k * 0.8 + f * (0.5 + k * 0.7));
+      if (y < fondo) R.pset(x, y, (j + k) & 1 ? A : AL);
+    }
+    for (let k = 0; k < 3; k++) { const f = (t * 3 + k / 3) % 1, x = Math.round(sx + 1 + (k - 1) * (1 + f * 3)), y = Math.round(fondo - Math.sin(f * Math.PI) * 3); R.pset(x, y, AL); }
+  } else {
+    R.rect(hx + 8, hy + 1, hx + 10, hy, V); R.rect(hx + 11, hy - 1, hx + 11, hy + 1, VS);
+    const f = (t * 1.4) % 1; if (f < 0.6) R.pset(hx + 11, Math.round(hy + 2 + f * 16), A);   // una gota que se escapa
+  }
+};
+// 3 · la azotea: la flecha de la taquilla sube en la valla
+const p3 = (t) => {
+  T.mundo(R, t, { encuadre: 'nyhoy', flecha: tramo(t, taquilla, s(0.938)) });
+  // llega de un salto desde la derecha y mira la valla
+  const u = tramo(t, P3, P3 + 0.8), x = Math.round(lerp(300, 168, u)), alto = Math.round(Math.sin(u * Math.PI) * 30);
+  const brinca = t > nunca && t < nunca + 1.1 ? Math.round(Math.abs(Math.sin((t - nunca) * 6)) * 9) : 0;
+  R.actor(EL.spiderman, x, 164, t, { dir: -1, salto: u < 1 ? alto : brinca, brazos: (u < 1 && u > 0) || brinca > 0, dedo: u >= 1 && t > taquilla && t < nunca, quieto: u < 1 });
+  if (brinca > 0) for (let k = 0; k < 5; k++) chispa(176 + Math.cos(k * 1.3 + t * 4) * 16, 128 + Math.sin(k * 1.3 + t * 4) * 9);
+  // el vecino riega las tomateras de la jardinera (x 118–156, tierra en y ~133): la regadera inclinada sobre ellas y el
+  // chorro cae en la tierra; a media frase da un paso a la siguiente mata; en «ever» deja de regar, da dos pasos hacia
+  // Spider-Man, se sorprende y levanta la regadera para celebrarlo
+  const paso1 = tramo(t, taquilla - 0.15, taquilla + 0.45), paso2 = tramo(t, nunca, nunca + 0.55), riega = t < nunca;
+  const vx = Math.round(96 + paso1 * 7 + paso2 * 12), anda = (paso1 > 0 && paso1 < 1) || (paso2 > 0 && paso2 < 1);
+  const vs = 144, vyC = vs - 13;   // suelo del vecino, delante de la jardinera; vyC: arriba del cuerpo (altoCuerpo 13)
+  const meneo = Math.sin(t * 2.4) * 2;   // al regar mueve la regadera de una mata a otra
+  const obj = riega ? [vx + 22 + meneo, vyC - 14] : t > nunca + 0.7 ? [vx + 24, vyC - 2 + Math.round(Math.sin(t * 9))] : true;
+  const vec = R.actor(EL.vecino, vx, vs, t, { dir: 1, anda, sostiene: obj, sorpresa: t > nunca && t < nunca + 0.8, sonrisa: t > nunca + 0.8 });
+  regadera(vec.mano[0], vec.mano[1], riega, t);
+};
+// 4 · la taquilla: la cola, el guante y la corona
+const p4 = (t) => {
+  T.mundo(R, t, { encuadre: 'nyhoy', camara: 'taquilla', corona: tramo(t, arriba - 0.2, arriba + 0.7), flecha: 0.6 });
+  // la cola avanza hacia las puertas; el primero entra
+  const fans = [EL.fanArana, EL.fanCapa, EL.neoyorquina, EL.fanCuernos, EL.chico, EL.neoyorquino];
+  const av = tramo(t, P4 + 0.2, arriba - 0.4) * 34, viva = t > arriba + 0.5;
+  fans.forEach((f, i) => { const x = Math.round(150 + i * 26 - av + (i === 0 ? -tramo(t, P4 + 0.2, endgame) * 10 : 0));
+    if (i === 0 && t > endgame + 0.4) return;   // ya entró
+    R.actor(f, x, 160, t, { dir: -1, anda: !viva && Math.floor(t * 2 + i) % 3 === 0 && t < arriba, brazos: viva && (i % 2 === 0 || t > arriba + 1), sonrisa: viva, sorpresa: t > endgame && t < endgame + 1 && i < 3 }); });
+  // el cartel del guante destella cuando la voz dice Endgame
+  const d = tramo(t, endgame, endgame + 1); if (d > 0 && d < 1) { destello(58, 102, d, 6, 30); luz(58, 102, 22, hex('#fff2b0'), 0.5 * (1 - d)); }
+  if (t > arriba + 0.6) for (let k = 0; k < 4; k++) chispa(58 + Math.cos(t * 3 + k * 1.6) * 18, 64 + Math.sin(t * 3 + k * 1.6) * 6);
+};
+// 5 · fondo local: el mostrador de la taquilla con la balanza
+const fondo5 = () => capa('mostrador', () => {
+  // la pared del vestíbulo: terciopelo rojo con pliegues y listones dorados; arriba a la derecha, tranquila
+  for (let y = 0; y < 118; y++) for (let x = 0; x < 320; x++) { const pl = Math.sin(x * 0.55) * 0.5 + 0.5, tq = x > 270 && y < 50;
+    let c = pl > 0.75 ? hex('#a82a3a') : pl > 0.3 ? hex('#8a1e2e') : hex('#6a1624'); if (tq) c = y < 30 ? hex('#7a1a2a') : hex('#8a1e2e');
+    if (!tq && hh(x >> 1, y >> 1, 3) < 0.06) c = mez(c, K, 0.3); R.pset(x, y, c); }
+  for (const lx of [30, 120, 210]) { R.rect(lx, 18, lx + 2, 117, hex('#c89a3a')); R.rect(lx, 18, lx, 117, hex('#f0d070')); R.rect(lx + 2, 18, lx + 2, 117, hex('#8a6420')); R.rect(lx - 2, 16, lx + 4, 18, hex('#c89a3a')); }
+  R.rect(0, 112, 319, 117, hex('#c89a3a')); R.rect(0, 112, 319, 112, hex('#f0d070')); R.rect(0, 117, 319, 117, hex('#6a4a18'));
+  // dos apliques art déco (abanicos de luz)
+  for (const ax of [26, 116, 204]) { R.poligono([[ax - 9, 40], [ax + 9, 40], [ax + 4, 52], [ax - 4, 52]], hex('#f0d070')); R.rect(ax - 4, 52, ax + 4, 54, hex('#c89a3a'));
+    for (let k = -2; k <= 2; k++) R.linea(ax, 52, ax + k * 4, 41, hex('#c89a3a')); }
+  // el mostrador de madera oscura con vetas y la barra de latón
+  for (let y = 118; y < 180; y++) for (let x = 0; x < 320; x++) { const v = Math.sin(x * 0.07 + Math.sin(y * 0.4 + x * 0.01) * 2 + y * 0.9);
+    R.pset(x, y, y < 126 ? (y === 118 ? hex('#a8703a') : hex('#7a4a22')) : v > 0.85 ? hex('#5a3418') : v < -0.8 ? hex('#3a2010') : hex('#4a2a14')); }
+  R.rect(0, 124, 319, 126, hex('#c89a3a')); R.rect(0, 124, 319, 124, hex('#f8e090')); R.rect(0, 127, 319, 127, hex('#2a1608'));
+  // el frente del mostrador: cuarterones en relieve con su bisel de luz y sombra, y el zócalo de latón con tachuelas
+  for (let x = 4; x < 320; x += 52) { R.rect(x, 136, x + 44, 168, hex('#2a1608')); R.rect(x + 1, 137, x + 43, 167, hex('#5a3418')); R.rect(x + 1, 137, x + 43, 137, hex('#8a5a30')); R.rect(x + 1, 137, x + 1, 167, hex('#7a4a26'));
+    R.rect(x + 6, 142, x + 38, 162, hex('#3a2010')); R.rect(x + 7, 143, x + 37, 161, hex('#4e2c14')); R.rect(x + 7, 161, x + 37, 161, hex('#7a4a26')); R.rect(x + 37, 143, x + 37, 161, hex('#7a4a26')); R.disco(x + 22, 152, 3, hex('#c89a3a')); R.pset(x + 21, 151, hex('#f8e090')); }
+  R.rect(0, 171, 319, 179, hex('#8a6420')); R.rect(0, 171, 319, 171, hex('#f0d070')); for (let x = 6; x < 320; x += 12) R.pset(x, 175, hex('#f8e090'));
+  // la caja registradora de latón (izquierda), estrecha
+  R.rect(4, 74, 50, 118, K); R.rect(5, 75, 49, 117, hex('#c89a3a')); R.rect(5, 75, 49, 76, hex('#f0d070')); R.rect(8, 62, 38, 76, K); R.rect(9, 63, 37, 75, hex('#2a2a2a')); R.rect(11, 66, 30, 70, hex('#3a5a3a'));
+  for (let j = 0; j < 3; j++) for (let i = 0; i < 4; i++) { R.rect(8 + i * 10, 81 + j * 9, 14 + i * 10, 86 + j * 9, K); R.rect(9 + i * 10, 82 + j * 9, 13 + i * 10, 85 + j * 9, hex('#f2eee2')); }
+  R.rect(5, 110, 49, 117, hex('#8a6420')); R.rect(22, 112, 30, 113, hex('#f0d070'));
+  // un taco de entradas y la bandeja de monedas (entre la caja y la balanza)
+  for (let k = 0; k < 5; k++) { R.rect(112 + k, 108 - k * 2, 132 + k, 111 - k * 2, K); R.rect(113 + k, 109 - k * 2, 131 + k, 110 - k * 2, k % 2 ? hex('#e8d8b0') : hex('#f2e4c0')); }
+  R.rect(116, 100, 118, 101, hex('#c83a3a'));
+  R.rect(56, 112, 92, 118, K); R.rect(57, 113, 91, 117, hex('#6a4a2a')); for (let k = 0; k < 6; k++) { R.disco(62 + k * 5, 115, 2, hex('#f0c030')); R.pset(61 + k * 5, 114, hex('#fff6c8')); }
+});
+const corona = (x, y) => { R.rect(x - 9, y - 1, x + 9, y + 4, K); R.rect(x - 8, y, x + 8, y + 3, hex('#f0c030')); R.rect(x - 8, y + 3, x + 8, y + 3, hex('#a8781a')); for (const i of [-8, -3, 3, 8]) { R.rect(x + i - 1, y - 6, x + i + 1, y - 1, K); R.pset(x + i, y - 5, hex('#f8e070')); R.pset(x + i, y - 4, hex('#f0c030')); R.pset(x + i, y - 3, hex('#f0c030')); R.pset(x + i, y - 2, hex('#f0c030')); }
+  R.rect(x - 5, y + 1, x - 4, y + 2, hex('#e83a3a')); R.rect(x - 1, y + 1, x, y + 2, hex('#3a8ae8')); R.rect(x + 4, y + 1, x + 5, y + 2, hex('#3ac85a')); R.pset(x - 7, y, hex('#fff6c8')); };
+// una moneda gruesa de canto (12 × 4)
+const moneda = (x, y) => { x = Math.round(x); y = Math.round(y); R.rect(x - 6, y - 2, x + 6, y + 2, K); R.rect(x - 5, y - 2, x + 5, y, hex('#f0c030')); R.rect(x - 5, y + 1, x + 5, y + 1, hex('#a8781a')); R.rect(x - 3, y - 2, x - 1, y - 2, hex('#fff6c8')); };
+// el guante de las gemas al doble de tamaño (la pieza del reparto, pixel a pixel)
+const guanteGrande = (x, y, t) => T.PIEZAS_DO.guantelete({ pset: (px, py, c) => R.rect(x + (px - x) * 2, y + (py - y) * 2, x + (px - x) * 2 + 1, y + (py - y) * 2 + 1, c) }, x, y, t);
+const p5 = (t) => {
+  pegar(fondo5());
+  // la balanza: el otro récord pesa más; en «highest grossing» le caen monedas al guante hasta igualar; en «$2 million»
+  // cae la moneda del 2 y el platillo del guante baja
+  const lluvia = tramo(t, P5 + 0.1, n(0.738)), cae2 = tramo(t, dos, dos + 0.35), bote = cae2 >= 1 ? Math.sin((t - dos - 0.35) * 14) * 0.03 * (1 - tramo(t, dos + 0.35, dos + 1.3)) : 0;
+  const inc = lerp(0.14, 0, lluvia) - 0.09 * cae2 + bote;
+  const cx = 160, cy = 30, br = 78, lx = cx - Math.cos(inc) * br, ly = cy + Math.sin(inc) * br, rx = cx + Math.cos(inc) * br, ry = cy - Math.sin(inc) * br;
+  // el pie y la columna, con su brillo
+  R.rect(136, 112, 184, 118, K); R.rect(137, 113, 183, 117, hex('#c89a3a')); R.rect(137, 113, 183, 113, hex('#f8e090')); R.rect(144, 106, 176, 112, K); R.rect(145, 107, 175, 111, hex('#c89a3a'));
+  R.rect(156, 34, 164, 106, K); R.rect(157, 34, 163, 106, hex('#c89a3a')); R.rect(157, 34, 158, 106, hex('#f0d070')); R.rect(162, 34, 163, 106, hex('#8a6420'));
+  { const b = Math.round(34 + ((t * 30) % 90)); if (b < 106) R.rect(157, b, 163, b + 2, hex('#fff6c8')); }
+  for (const d of [1, 0, -1]) R.linea(Math.round(lx), Math.round(ly) + d, Math.round(rx), Math.round(ry) + d, d === 0 ? hex('#f0d070') : d > 0 ? hex('#8a6420') : K);
+  R.linea(Math.round(lx), Math.round(ly) - 2, Math.round(rx), Math.round(ry) - 2, K); R.linea(Math.round(lx), Math.round(ly) + 2, Math.round(rx), Math.round(ry) + 2, K);
+  R.disco(cx, cy, 6, K); R.disco(cx, cy, 5, hex('#c89a3a')); R.disco(cx - 1, cy - 1, 2, hex('#f8e090'));
+  const plato = (px, py) => { px = Math.round(px); py = Math.round(py); R.disco(px, py, 2, K); R.linea(px, py, px - 24, py + 46, hex('#8a6420')); R.linea(px, py, px + 24, py + 46, hex('#8a6420')); R.linea(px, py, px, py + 46, hex('#6a4a18'));
+    R.rect(px - 28, py + 46, px + 28, py + 50, K); R.rect(px - 27, py + 46, px + 27, py + 49, hex('#c89a3a')); R.rect(px - 27, py + 46, px + 27, py + 46, hex('#f8e090')); R.rect(px - 26, py + 49, px + 26, py + 49, hex('#8a6420')); return [px, py + 46]; };
+  const [ax, ay] = plato(lx, ly), [bx, by] = plato(rx, ry);
+  // izquierda: el otro récord, una montaña de monedas con una estrella azul encima
+  for (let k = 0; k < 10; k++) moneda(ax - 18 + (k % 4) * 12 + (k >= 4 ? 6 : 0) - (k >= 8 ? 6 : 0), ay - 3 - Math.floor(k / 4) * 5);
+  R.disco(ax, ay - 22, 7, K); R.disco(ax, ay - 22, 6, hex('#3a8ae8')); R.disco(ax - 2, ay - 24, 2, hex('#9ad0ff')); chispa(ax + 5, ay - 28, hex('#c8e8ff'));
+  // derecha: las monedas (crecen con la lluvia) y el guante grande
+  const nm = 5 + Math.floor(lluvia * 5); for (let k = 0; k < nm; k++) moneda(bx - 18 + (k % 4) * 12 + (k >= 4 ? 6 : 0) - (k >= 8 ? 6 : 0), by - 3 - Math.floor(k / 4) * 5);
+  guanteGrande(bx, by - 8, t);
+  // las monedas que caen desde arriba hasta el platillo
+  if (lluvia > 0 && lluvia < 1) for (let k = 0; k < 3; k++) { const u = (lluvia * 4 + k / 3) % 1; moneda(bx - 12 + k * 12, Math.round(lerp(-6, by - 12, u))); }
+  // la moneda del 2, grande, que cae al platillo
+  if (t > dos - 0.25) { const u = tramo(t, dos - 0.25, dos + 0.35), mx = bx + 20, my = Math.round(lerp(-8, by - 8, u)); R.disco(mx, my, 8, K); R.disco(mx, my, 7, hex('#f8d040')); R.disco(mx, my, 5, hex('#e8b020')); R.numero('2', mx + 1, my + 4, { color: hex('#7a4a08'), sombra: false });
+    if (u >= 1) { destello(mx, my, tramo(t, dos + 0.35, dos + 1), 5, 20); const v = tramo(t, dos + 0.4, dos + 0.8); if (v > 0) { R.numero('$2', 236, Math.round(lerp(30, 24, v)), { tam: 16, centro: true }); for (let y = 30; y < my - 9; y += 3) R.pset(mx - 6 + Math.round((y - 30) * 0.2), y, hex('#f8e090')); } } }
+  // la corona se posa en el guante al final
+  const co = tramo(t, dos + 0.9, dos + 1.6); if (co > 0) { corona(bx, Math.round(lerp(-8, by - 34, co))); if (co >= 1) for (let k = 0; k < 3; k++) chispa(bx + Math.cos(t * 3 + k * 2.1) * 14, by - 36 + Math.sin(t * 3 + k * 2.1) * 4); }
+  // las palomitas en el mostrador: señalan la balanza, y saltan de alegría con la moneda
+  T.palomitas(R, 294, 118, t, { s: 2, dir: -1, expresion: t > dos + 0.4 ? 'emocion' : t > P5 + 0.4 && t < n(0.738) ? 'susto' : 'normal', salta: t > dos + 0.4 && t < dos + 2.2 ? 1 : 0, señala: t > n(0.738) && t < dos ? [bx + 10, by] : undefined });
+};
+const efectos = [[1.0, 'whoosh'], [nombre + 1.9, 'golpecito'], [protege - 0.4, 'whoosh'], [protege + 0.75, 'chof'], [olvidan, 'pop'], [taquilla + 0.4, 'brillo'], [nunca, 'boing'], [endgame, 'brillo'], [arriba + 0.6, 'publico'], [n(0.674), 'golpecito'], [dos + 0.35, 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5]], { cartela: '2026', efectos, año: 2026 });
+</script>
+</body>
+</html>

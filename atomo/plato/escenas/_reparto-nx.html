@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }
+#rotulos { position: fixed; inset: 0; pointer-events: none; font: 600 0.95vw/1 system-ui, sans-serif; color: #2a2430; }
+#rotulos span { position: absolute; transform: translateX(-50%); white-space: nowrap; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<div id="rotulos"></div>
+<script type="module">
+// _REPARTO-NX · hoja estática del reparto y las piezas del episodio 34 («El Arca de Noé: el relato, las religiones y la
+// roca con forma de barco») para aprobarlos, sobre fondo neutro claro. Cuatro páginas: t en [1, 2) los catorce primeros
+// personajes, arriba a escala 1 (el tamaño real de las escenas) y debajo al doble; [2, 3) los otros siete y unas poses;
+// [3, 4) todas las piezas a escala 1 con sus opciones; [4, 5) las piezas al doble.
+// Los rótulos (la clave de cada uno) son HTML encima del lienzo, solo en esta hoja de prueba: en el lienzo no hay letras.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_NX as EL, PIEZAS_NX as PZ } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const NOMBRES = Object.keys(EL);
+const fondo = hex('#e8e4dc'), fondo2 = hex('#dcd6ca'), suelo = hex('#c8c0b0'), sombra = hex('#b0a898');
+const rotulos = document.getElementById('rotulos');
+let lista = [];
+const rotulo = (txt, x, y) => lista.push([txt, x, y]);
+const q = { quieto: true, parpadea: false };
+// una fila de personajes a escala 1 y, debajo, cada uno al doble (se copia del lienzo, píxel a píxel)
+const filaReparto = (nombres) => {
+  const paso = 22, s0 = 33;
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => R.actor(EL[k], 4 + n * paso + 3, s0, 0, q));
+  nombres.forEach((k, n) => {
+    const fila = Math.floor(n / 7), col = n % 7, x0 = 4 + n * paso, X = 6 + col * 45, Y = 36 + fila * 71;
+    const copia = [];
+    for (let j = 0; j < 33; j++) for (let i = 0; i < 22; i++) copia.push(R.pget(x0 + i - 1, s0 - 32 + j));
+    R.rect(X, Y + 66, X + 43, Y + 67, suelo);
+    copia.forEach((c, m) => { const i = m % 22, j = Math.floor(m / 22); R.rect(X + i * 2, Y + j * 2, X + i * 2 + 1, Y + j * 2 + 1, c); });
+    rotulo(k, X + 22, Y + 67.6);
+  });
+};
+// filas de piezas: [clave, opciones, rótulo, ancho]
+const filaPiezas = (y, items, x0 = 3, hueco = 3) => {
+  R.rect(0, y + 1, 319, y + 2, suelo);
+  let x = x0;
+  for (const [k, o, n, w] of items) {
+    for (let i = 1; i < w - 1; i++) R.pset(x + i, y + 1, sombra);
+    PZ[k](R, Math.round(x + w / 2), y + 1, o);
+    rotulo(n, x + w / 2, y + 3.6); x += w + hueco;
+  }
+};
+const PAGINAS = [
+  () => filaReparto(NOMBRES.slice(0, 14)),
+  () => {
+    filaReparto(NOMBRES.slice(14));
+    const y = 150; R.rect(0, y + 1, 319, y + 2, suelo);
+    const poses = [['smith', { sorpresa: true }, 'smith sorpresa'], ['smithSinChaqueta', { brazos: true, salto: 3 }, 'sinChaqueta salta'], ['smith', { dir: -1, dedo: true }, 'smith dedo ←'], ['finkel', { sostiene: true }, 'finkel sostiene'], ['finkel', { dir: -1, sorpresa: true }, 'finkel ←'],
+      ['collins', { sorpresa: true }, 'collins sorpresa'], ['pastorNX', { dir: -1 }, 'pastor ←'], ['pastorNX', { sostiene: true }, 'pastor sostiene'], ['wyatt', { dir: -1 }, 'wyatt ←'], ['wyatt', { dedo: true }, 'wyatt dedo'], ['turista1NX', { dir: -1 }, 'turista1 ←'], ['fasold', { dir: -1, triste: true }, 'fasold ←'], ['durupinar', { sostiene: true }, 'durupinar sostiene'], ['gladstone', { dir: -1 }, 'gladstone ←']];
+    poses.forEach(([k, o, n], m) => {
+      const x = 5 + m * 22.5, r = R.actor(EL[k], Math.round(x), y, 0, { ...q, ...o });
+      if (k === 'finkel' && o.sostiene) PZ.tablillaPequena(R, r.mano[0] + 2, r.mano[1] + 4, {});
+      if (k === 'durupinar' && o.sostiene) PZ.lupa(R, r.mano[0] + 3, r.mano[1] + 6, {});
+      rotulo(n, x + 7, y + 3.6 + (m % 2) * 3.4);
+    });
+  },
+  () => {
+    filaPiezas(28, [['tablilla', {}, 'tablilla', 19], ['tablilla', { entera: true, t: 0.3 }, 'entera', 19], ['tablillaPequena', {}, 'pequeña', 11], ['fragmento', { n: 0 }, 'frag 0', 11], ['fragmento', { n: 1 }, '1', 11], ['fragmento', { n: 2 }, '2', 11],
+      ['barquito', {}, 'barquito', 19], ['barquito', { pez: true }, 'pez', 19], ['pecera', { t: 0 }, 'pecera', 27], ['pecera', { mira: true, t: 0.4 }, 'mira', 27], ['pecera', { pez: false, t: 0.7 }, 'pez:false', 27], ['lupa', {}, 'lupa', 15], ['remache', {}, 'remache', 12], ['hebilla', {}, 'hebilla', 16], ['caracol', { t: 0 }, 'caracol', 15], ['caracol', { t: 0.6, dir: -1 }, '←', 15]], 1, 1);
+    filaPiezas(60, [['fotoAerea', { giro: 0 }, 'fotoAerea 0', 24], ['fotoAerea', { giro: 1 }, 'giro 1', 18], ['fotoAerea', { giro: 2 }, 'giro 2', 24], ['fotoAerea', { giro: 3 }, 'giro 3', 18], ['revista', {}, 'revista', 38], ['mula', { t: 0 }, 'mula', 32], ['mula', { t: 0.25, dir: -1 }, 'mula ←', 32], ['martillo', {}, 'martillo', 17], ['bolsa', { n: 7 }, 'bolsa 7', 15], ['bolsa', { n: 12 }, 'n 12', 15], ['sobre', {}, 'sobre', 24], ['notaPrensa', {}, 'notaPrensa', 17]]);
+    filaPiezas(100, [['explosion', { f: 0.15 }, 'explosion .15', 36], ['explosion', { f: 0.3 }, '.3', 36], ['explosion', { f: 0.5 }, '.5', 36], ['explosion', { f: 0.75 }, '.75', 36], ['explosion', { f: 1 }, '1', 36], ['piedraAgujero', {}, 'piedraAgujero', 18], ['radar', {}, 'radar', 31], ['radar', { pita: true, t: 0.1 }, 'pita', 31], ['radar', { pita: true, t: 0 }, 'pita (2)', 31]], 3, 0);
+    PZ.cinta(R, 258, 115, { largo: 0 }); rotulo('cinta 0', 258, 117); const c = PZ.cinta(R, 275, 115, { largo: 30 }); R.pset(c.punta[0], c.punta[1] - 3, hex('#d8303a')); rotulo('cinta 30', 294, 117);
+    filaPiezas(152, [['perforadora', {}, 'perforadora', 30], ['perforadora', { gira: true, t: 0.15 }, 'gira', 30], ['testigo', {}, 'testigo', 38], ['testigo', { brillo: true, t: 0 }, 'brillo', 38], ['revistaCiencia', {}, 'revistaCiencia', 18], ['articulo', {}, 'articulo', 19],
+      ['libroSagrado', { simbolo: 'estrella' }, 'estrella', 20], ['libroSagrado', { simbolo: 'cruz' }, 'cruz', 20], ['libroSagrado', { simbolo: 'luna' }, 'luna', 20], ['paloma', { t: 0 }, 'paloma', 22], ['paloma', { t: 0.2, hoja: true, dir: -1 }, 'hoja ←', 22]]);
+  },
+  () => {
+    const s = 2;
+    filaPiezas(56, [['pecera', { s, mira: true, t: 0.4 }, 'pecera mira ×2', 54], ['barquito', { s, pez: true }, 'barquito pez', 38], ['tablilla', { s, t: 0.3 }, 'tablilla', 38], ['tablillaPequena', { s }, 'pequeña', 22], ['libroSagrado', { s, simbolo: 'estrella' }, 'estrella', 40], ['libroSagrado', { s, simbolo: 'cruz' }, 'cruz', 40], ['libroSagrado', { s, simbolo: 'luna' }, 'luna', 40]], 4, 5);
+    filaPiezas(116, [['radar', { s, pita: true, t: 0.1 }, 'radar pita', 62], ['paloma', { s, hoja: true, t: 0 }, 'paloma hoja', 44], ['caracol', { s }, 'caracol', 30], ['fotoAerea', { s, giro: 3 }, 'foto giro 3', 36], ['revista', { s }, 'revista', 76], ['notaPrensa', { s }, 'notaPrensa', 34]], 4, 5);
+    filaPiezas(172, [['testigo', { s, brillo: true, t: 0 }, 'testigo brillo', 76], ['bolsa', { s, n: 3 }, 'bolsa 3', 30], ['martillo', { s }, 'martillo', 34], ['remache', { s }, 'remache', 24], ['hebilla', { s }, 'hebilla', 32], ['lupa', { s }, 'lupa', 30], ['articulo', { s }, 'articulo', 38], ['revistaCiencia', { s }, 'revistaCiencia', 36]], 3, 2);
+  },
+];
+let pagRotulada = -1;
+const dibujar = (t) => {
+  const n = Math.min(PAGINAS.length - 1, Math.max(0, Math.floor(t) - 1));
+  R.rect(0, 0, 319, 179, fondo);
+  for (let y = 0; y < 180; y += 4) for (let x = (y / 4) % 2 ? 2 : 0; x < 320; x += 4) R.pset(x, y, fondo2);
+  lista = []; PAGINAS[n]();
+  if (n !== pagRotulada) {
+    pagRotulada = n; rotulos.textContent = '';
+    for (const [txt, x, y] of lista) { const e = document.createElement('span'); e.textContent = txt; e.style.left = x / 3.2 + '%'; e.style.top = y / 1.8 + '%'; rotulos.appendChild(e); }
+  }
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

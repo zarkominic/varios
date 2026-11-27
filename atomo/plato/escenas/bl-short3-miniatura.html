@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep48 · short 3 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// BL-SHORT3-MINIATURA · ep48, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras, sin Atom.
+// Los Hart en 1898: de noche en el claro de Goose Creek, al pie del roble, el hoyo a medio cavar a la luz de los faroles;
+// Clayton Hart al triple, con la pala, mira el hoyo sin poder dejarlo. Nada de dinamita ni de nada morboso.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+import * as T from '/atomo/plato/escenas/bl-comun.js';
+import { figura, grado, halo, desplazar } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const pala = (R, [hx, hy]) => { hx = Math.round(hx); hy = Math.round(hy); R.linea(hx, hy - 6, hx + 6, hy + 16, hex('#5a3a1a')); R.linea(hx + 1, hy - 6, hx + 7, hy + 16, hex('#8a5a2e'));
+  R.poligono([[hx + 4, hy + 16], [hx + 10, hy + 15], [hx + 11, hy + 21], [hx + 6, hy + 22]], hex('#6a6e76')); R.pset(hx + 5, hy + 16, hex('#a8acb4')); };
+const dibujar = (t) => {
+  const o = { encuadre: 'claro', hoyo: 0.7 };
+  T.bedford(R, t, o);
+  desplazar(R, -66);   // el hoyo (x 196) y el roble a la columna central
+  // el hoyo a medio cavar, con su montón de tierra y el farol en el borde
+  const B = R.buf, h = (x, y) => { const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5; return v - Math.floor(v); };
+  for (let y = 140; y <= 172; y++) for (let x = 98; x <= 164; x++) { const m = Math.hypot((x - 118) / 22, (y - 164) / 12); if (m < 1 && y < 164) B[y * 320 + x] = [hex('#3a2414'), hex('#5a3a1e'), hex('#7a5028')][Math.min(2, Math.round((1 - m) * 1.6 + h(x >> 1, y >> 1) * 0.8))]; }
+  for (let y = 156; y <= 176; y++) for (let x = 120; x <= 174; x++) { const d = Math.hypot((x - 146) / 24, (y - 166) / 8); if (d < 1) B[y * 320 + x] = d > 0.8 ? hex('#5a3a1e') : d > 0.55 ? hex('#2a1a0e') : hex('#0e0806'); }
+  T.d_farol(R, 124, 146, t, { luz: 1 });
+  const c = figura(R, T.BL.claytonBL, 158, 174, t, { dir: -1, sostiene: [74, 74], cosa: pala }, 3);
+  T.bedfordDelante(R, t, o);
+  halo(R, 136, 156, 56, 40, '#ffc870', 0.4);
+  grado(R, { cx: 160, cy: 110, rx: 80, ry: 120, tinte: '#060a14', f: 0.15, desde: 0.55, max: 0.8 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

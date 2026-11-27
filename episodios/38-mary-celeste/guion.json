@@ -1,0 +1,470 @@
+{
+ "serie": "ASK Atom",
+ "numero": 38,
+ "estado": "v2",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "The Mary Celeste: The Ship Found Sailing With No One Aboard",
+  "es": "El Mary Celeste: el barco que navegaba sin nadie a bordo"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "motor": "supertonic",
+   "voz": "M1",
+   "lang": "en",
+   "velocidad": 1.05
+  },
+  "es": {
+   "motor": "zonos3",
+   "voz": "Rodrigo_es_M_1",
+   "lang": "es",
+   "controles": {
+    "mood.valence": 0.5,
+    "mood.arousal": 0.5
+   },
+   "headroom": 3
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "mc-gancho",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [
+    "solo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "solo",
+     "es": "En diciembre de 1872, unos marineros encontraron un barco navegando solo en mitad del Atlántico. No había nadie a bordo. La carga estaba intacta, había comida para seis meses, y las diez personas que salieron de Nueva York en él nunca volvieron a aparecer.",
+     "en": "In December 1872, a group of sailors found a ship drifting alone in the middle of the Atlantic. There was no one on board. The cargo was intact, there was food for six months, and the ten people who had left New York on it were never seen again.",
+     "visual": "B y C: el Mary Celeste con unas pocas velas, dando bandazos en un Atlántico gris; la cubierta vacía, el timón que gira solo; la carga y los víveres intactos (golpe en «no había nadie»).",
+     "es_voz": "En diciembre de mil ochocientos setenta y dos, unos marineros encontraron un barco navegando solo en mitad del Atlántico. No había nadie a bordo. La carga estaba intacta, había comida para seis meses, y las diez personas que salieron de Nueva York en él nunca volvieron a aparecer.",
+     "en_voz": "In December eighteen seventy-two, a group of sailors found a ship drifting alone in the middle of the Atlantic. There was no one on board. The cargo was intact, there was food for six months, and the ten people who had left New York on it were never seen again."
+    },
+    {
+     "n": 2,
+     "marca": "camino",
+     "es": "Se llamaba Mary Celeste, y lleva más de ciento cincuenta años sin respuesta. Por el camino vas a conocer a un capitán con su familia, mil setecientos barriles de alcohol y un fiscal que veía sangre en todas partes. Y también a un escritor que adornó la leyenda, y a unos químicos que han hecho estallar una maqueta para entender aquella mañana.",
+     "en": "Her name was the Mary Celeste, and for more than a hundred and fifty years no one has been able to say what happened. Along the way, you'll meet a captain and his family, seventeen hundred barrels of alcohol, a prosecutor who saw blood everywhere, a writer who embellished the legend, and chemists who blew up a model ship to understand that morning.",
+     "visual": "C, D, G y E: el camarote del capitán con el diario; los barriles en la bodega; el fiscal con su lupa en Gibraltar; una pluma de 1884; una maqueta que hace «fuuum»."
+    }
+   ]
+  },
+  {
+   "id": "mc-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "G: Atom saluda en su estudio junto a un barco dentro de una botella; lo mira con lupa: la cubierta del barquito, vacía."
+    }
+   ]
+  },
+  {
+   "id": "mc-amazon",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "amazon",
+     "es": "La historia empieza en 1861, en la isla de Spencer, en Nueva Escocia, Canadá. Allí se botó un bergantín de madera al que llamaron Amazon. Tuvo mala suerte desde el principio: su primer capitán enfermó en el primer viaje y murió, y años después una tormenta lo dejó varado en la costa.",
+     "en": "The story begins in 1861, on Spencer's Island in Nova Scotia, Canada. A wooden brigantine was launched there and named the Amazon. Her luck was bad from the start: her first captain fell ill on her first voyage and died, and years later a storm drove her ashore.",
+     "visual": "A: el astillero de la isla de Spencer en 1861: el casco en grada, carpinteros, la botadura; el barco en una tormenta y varado en la playa.",
+     "acto": true,
+     "es_voz": "La historia empieza en mil ochocientos sesenta y uno, en la isla de Spencer, en Nueva Escocia, Canadá. Allí se botó un bergantín de madera al que llamaron Amazon. Tuvo mala suerte desde el principio: su primer capitán enfermó en el primer viaje y murió, y años después una tormenta lo dejó varado en la costa.",
+     "en_voz": "The story begins in eighteen sixty-one, on Spencer's Island in Nova Scotia, Canada. A wooden brigantine was launched there and named the Amazon. Her luck was bad from the start: her first captain fell ill on her first voyage and died, and years later a storm drove her ashore."
+    },
+    {
+     "n": 5,
+     "marca": "nombre",
+     "es": "Lo repararon, y en 1868 un dueño de Nueva York le puso un nombre nuevo: Mary Celeste. En 1872, uno de sus dueños era también su capitán, Benjamin Briggs, un marino de Massachusetts serio, religioso y con fama de llevar bien a su gente.",
+     "en": "She was repaired, and in 1868 a New York owner gave her a new name: the Mary Celeste. By 1872, one of her owners was also her captain, Benjamin Briggs, a sailor from Massachusetts who was serious, religious and known for treating his crew well.",
+     "visual": "A: el barco reparado en Nueva York; un pintor tapa «Amazon» en la popa y pinta «Mary Celeste»; la gaviota se mancha; Briggs (EL.briggsMC) en el muelle.",
+     "es_voz": "Lo repararon, y en mil ochocientos sesenta y ocho un dueño de Nueva York le puso un nombre nuevo: Mary Celeste. En mil ochocientos setenta y dos, uno de sus dueños era también su capitán, Benjamin Briggs, un marino de Massachusetts serio, religioso y con fama de llevar bien a su gente.",
+     "en_voz": "She was repaired, and in eighteen sixty-eight a New York owner gave her a new name: the Mary Celeste. By eighteen seventy-two, one of her owners was also her captain, Benjamin Briggs, a sailor from Massachusetts who was serious, religious and known for treating his crew well."
+    }
+   ]
+  },
+  {
+   "id": "mc-familia",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "familia",
+     "es": "Para este viaje, Briggs no fue solo. Se llevó a su mujer, Sarah, y a su hija de dos años, Sophia. Su hijo mayor, Arthur, de siete, se quedó en casa con su abuela para ir a la escuela.",
+     "en": "On this voyage, Briggs didn't go alone. He brought his wife, Sarah, and their two-year-old daughter, Sophia. Their son Arthur, who was seven, stayed home with his grandmother so he could go to school.",
+     "visual": "A: Briggs con Sarah (EL.sarahMC) y la pequeña Sophia (EL.sophiaMC) suben a bordo; Arthur (EL.arthurMC) se queda en el muelle de la mano de su abuela, y dice adiós."
+    }
+   ]
+  },
+  {
+   "id": "mc-salida",
+   "estilo": "pixel",
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1872",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "salida",
+     "es": "El 7 de noviembre de 1872, el Mary Celeste salió de Nueva York rumbo a Génova, en Italia. En la bodega llevaba mil setecientos un barriles de alcohol en bruto, para reforzar vino, no para beber. Además de la familia, iban siete marineros.",
+     "en": "On November 7, 1872, the Mary Celeste left New York for Genoa, in Italy. In her hold she carried one thousand seven hundred and one barrels of raw alcohol, meant for fortifying wine, not for drinking. Besides the family, there were seven crewmen.",
+     "visual": "A: el muelle de Nueva York en noviembre de 1872: la cabria sube barriles a la bodega, uno se escapa rodando y un estibador corre detrás; el barco zarpa.",
+     "acto": true,
+     "es_voz": "El siete de noviembre de mil ochocientos setenta y dos, el Mary Celeste salió de Nueva York rumbo a Génova, en Italia. En la bodega llevaba mil setecientos un barriles de alcohol en bruto, para reforzar vino, no para beber. Además de la familia, iban siete marineros.",
+     "en_voz": "On November seventh, eighteen seventy-two, the Mary Celeste left New York for Genoa, in Italy. In her hold she carried one thousand seven hundred and one barrels of raw alcohol, meant for fortifying wine, not for drinking. Besides the family, there were seven crewmen."
+    },
+    {
+     "n": 8,
+     "marca": "deigratia",
+     "es": "Ocho días después, el 15 de noviembre, salió del mismo puerto otro barco, el Dei Gratia, canadiense, con petróleo y rumbo a Gibraltar. Ninguno de los dos capitanes podía imaginar que sus barcos se iban a cruzar en mitad del océano.",
+     "en": "Eight days later, on November 15, another ship left the same port: the Dei Gratia, a Canadian vessel carrying petroleum, bound for Gibraltar. Neither captain could have imagined that their ships would meet in the middle of the ocean.",
+     "visual": "A y B: ocho días después zarpa el Dei Gratia, con su capitán (EL.morehouseMC); los dos barcos en un mapa del Atlántico, separados.",
+     "es_voz": "Ocho días después, el quince de noviembre, salió del mismo puerto otro barco, el Dei Gratia, canadiense, con petróleo y rumbo a Gibraltar. Ninguno de los dos capitanes podía imaginar que sus barcos se iban a cruzar en mitad del océano.",
+     "en_voz": "Eight days later, on November fifteenth, another ship left the same port: the Dei Gratia, a Canadian vessel carrying petroleum, bound for Gibraltar. Neither captain could have imagined that their ships would meet in the middle of the ocean."
+    }
+   ],
+   "cartela": "1872"
+  },
+  {
+   "id": "mc-hallazgo",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "abordo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "vigia",
+     "es": "El 4 de diciembre, entre las Azores y la costa de Portugal, el vigía del Dei Gratia vio un barco que avanzaba dando bandazos. Llevaba pocas velas puestas y nadie al timón. Lo siguieron un par de horas. Nadie respondió a sus señales.",
+     "en": "On December 4, between the Azores and the coast of Portugal, the lookout on the Dei Gratia spotted a ship moving erratically, with only a few sails set and no one at the wheel. They followed her for a couple of hours. No one answered their signals.",
+     "visual": "B: el vigía del Dei Gratia con su catalejo; el Mary Celeste a lo lejos, dando bandazos; banderas de señales sin respuesta.",
+     "acto": true,
+     "es_voz": "El cuatro de diciembre, entre las Azores y la costa de Portugal, el vigía del Dei Gratia vio un barco que avanzaba dando bandazos. Llevaba pocas velas puestas y nadie al timón. Lo siguieron un par de horas. Nadie respondió a sus señales.",
+     "en_voz": "On December fourth, between the Azores and the coast of Portugal, the lookout on the Dei Gratia spotted a ship moving erratically, with only a few sails set and no one at the wheel. They followed her for a couple of hours. No one answered their signals."
+    },
+    {
+     "n": 10,
+     "marca": "abordo",
+     "es": "El primer oficial, Oliver Deveau, subió a bordo con el segundo, John Wright. Encontraron un barco vacío, pero no destrozado. Había más de un metro de agua en la bodega, y una de las bombas estaba desmontada. Faltaba el único bote. Y faltaban el sextante, el cronómetro y casi todos los papeles del barco.",
+     "en": "The first mate, Oliver Deveau, went aboard with the second mate, John Wright. They found an empty ship, but not a wrecked one. There were more than three feet of water in the hold, and one of the pumps had been taken apart. The only lifeboat was gone. So were the sextant, the chronometer and almost all of the ship's papers.",
+     "visual": "C: Deveau (EL.deveauMC) y Wright suben a bordo; la cubierta vacía, el agua en la bodega, la bomba desmontada, el hueco del bote (golpe)."
+    }
+   ]
+  },
+  {
+   "id": "mc-abordo",
+   "estilo": "pixel",
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "ropa",
+     "es": "Todo lo demás seguía allí. La ropa de los marineros, seca en sus baúles. La comida y el agua para seis meses. Los barriles, casi todos intactos. Y el diario de a bordo, con una última anotación del 25 de noviembre: nueve días antes, junto a la isla de Santa María, en las Azores.",
+     "en": "Everything else was still there. The sailors' clothes, dry in their chests. Food and water for six months. The barrels, almost all of them untouched. And the logbook, with a final entry dated November 25: nine days earlier, off the island of Santa Maria, in the Azores.",
+     "visual": "C: los baúles con la ropa seca, la despensa llena, los barriles; el diario abierto en el 25 de noviembre, con la isla de Santa María dibujada al margen.",
+     "es_voz": "Todo lo demás seguía allí. La ropa de los marineros, seca en sus baúles. La comida y el agua para seis meses. Los barriles, casi todos intactos. Y el diario de a bordo, con una última anotación del veinticinco de noviembre: nueve días antes, junto a la isla de Santa María, en las Azores.",
+     "en_voz": "Everything else was still there. The sailors' clothes, dry in their chests. Food and water for six months. The barrels, almost all of them untouched. And the logbook, with a final entry dated November twenty-fifth: nine days earlier, off the island of Santa Maria, in the Azores."
+    },
+    {
+     "n": 12,
+     "marca": "nueve",
+     "es": "En esos nueve días, el barco había seguido solo unos setecientos cuarenta kilómetros. Nadie lo gobernaba. Y nadie sabía qué les había pasado a las diez personas que viajaban en él.",
+     "en": "In those nine days, the ship had sailed on by herself for some four hundred nautical miles. No one was steering her. And no one knew what had happened to the ten people on board.",
+     "visual": "B: el barco solo, sin nadie al timón, avanzando nueve días sobre un mapa que se desenrolla."
+    }
+   ]
+  },
+  {
+   "id": "mc-te",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "te",
+     "es": "Si has oído hablar del Mary Celeste, quizá te contaron que en la mesa había tazas de té todavía calientes, o el desayuno servido a medio comer. Eso nunca pasó. Ninguno de los que subieron a bordo lo dijo.",
+     "en": "If you've heard of the Mary Celeste, you may have been told there were cups of tea on the table, still warm, or breakfast served and half eaten. That never happened. None of the men who went aboard said so.",
+     "visual": "C: el camarote; aparece una taza humeante recortada de un periódico… y la goma de Atom la borra.",
+     "acto": true
+    }
+   ]
+  },
+  {
+   "id": "mc-doyle",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1884",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "doyle",
+     "es": "Esos detalles salieron de periódicos y relatos que fueron adornando la historia. El más famoso lo escribió en 1884 un joven médico que escribía cuentos para pagar las facturas: Arthur Conan Doyle, unos años antes de crear a Sherlock Holmes. Publicó sin firmar la declaración inventada de un superviviente, y le cambió el nombre al barco: Marie Celeste.",
+     "en": "Those details came from newspapers and retellings that kept embellishing the story. The most famous was written in 1884 by a young doctor who wrote stories to pay the bills: Arthur Conan Doyle, a few years before he created Sherlock Holmes. He published, without his name, the made-up statement of a survivor, and changed the ship's name to the Marie Celeste.",
+     "visual": "G: el escritorio de Conan Doyle (EL.doyleMC) en 1884, joven médico, escribiendo de noche; la revista impresa sin firma.",
+     "es_voz": "Esos detalles salieron de periódicos y relatos que fueron adornando la historia. El más famoso lo escribió en mil ochocientos ochenta y cuatro un joven médico que escribía cuentos para pagar las facturas: Arthur Conan Doyle, unos años antes de crear a Sherlock Holmes. Publicó sin firmar la declaración inventada de un superviviente, y le cambió el nombre al barco: Marie Celeste.",
+     "en_voz": "Those details came from newspapers and retellings that kept embellishing the story. The most famous was written in eighteen eighty-four by a young doctor who wrote stories to pay the bills: Arthur Conan Doyle, a few years before he created Sherlock Holmes. He published, without his name, the made-up statement of a survivor, and changed the ship's name to the Marie Celeste."
+    },
+    {
+     "n": 15,
+     "marca": "nombre2",
+     "es": "Mucha gente lo tomó por verdad, y hasta hoy el barco se conoce a menudo con el nombre equivocado. Así que, para entender qué pasó, lo primero es quitarle al barco todo lo que le pusieron después.",
+     "en": "Many people took it as true, and to this day the ship is often called by the wrong name. So, to understand what happened, the first step is to strip away everything that was added afterward.",
+     "visual": "G: Atom despega del barco las cosas que le pusieron después, una a una, como pegatinas."
+    }
+   ],
+   "cartela": "1884"
+  },
+  {
+   "id": "mc-gibraltar",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "gibraltar",
+     "es": "La tripulación del Dei Gratia se partió en dos: tres hombres llevaron el Mary Celeste hasta Gibraltar, a unos mil cien kilómetros, para cobrar el premio por salvamento. Y allí empezó un juicio que duró meses.",
+     "en": "The Dei Gratia's crew split in two: three men sailed the Mary Celeste all the way to Gibraltar, some six hundred nautical miles away, to claim a reward for salvaging her. And there, a hearing began that went on for months.",
+     "visual": "D: el Mary Celeste entra en la bahía de Gibraltar con tres marineros; el Peñón al fondo.",
+     "acto": true
+    },
+    {
+     "n": 17,
+     "marca": "fiscal",
+     "es": "El fiscal de Gibraltar, Frederick Solly-Flood, estaba convencido de que había habido un crimen. Señaló unas manchas en una espada y en la cubierta, y unos cortes en la proa. Pensaba que los marineros se habían emborrachado con la carga y habían matado a la familia.",
+     "en": "Gibraltar's attorney general, Frederick Solly-Flood, was convinced there had been a crime. He pointed to stains on a sword and on the deck, and to cuts in the bow. He believed the sailors had gotten drunk on the cargo and killed the family.",
+     "visual": "D: el fiscal (EL.sollyfloodMC) con una lupa enorme ante la espada y los cortes de la proa."
+    },
+    {
+     "n": 18,
+     "marca": "juicio",
+     "es": "Pero la carga estaba casi intacta, nadie bebe alcohol en bruto sin acabar muy enfermo, y los análisis dijeron que las manchas no eran sangre. El tribunal no encontró pruebas de ningún delito. Pagó a los salvadores, aunque mucho menos de lo que esperaban, como si no se fiara del todo de nadie.",
+     "en": "But the cargo was almost untouched, no one drinks raw alcohol without getting very sick, and the tests showed the stains were not blood. The court found no evidence of any crime. It paid the salvagers, but far less than they had hoped for, as if it didn't quite trust anyone.",
+     "visual": "D: sopla y sale una nube de óxido que le hace estornudar; el tribunal paga a los salvadores, poco."
+    }
+   ]
+  },
+  {
+   "id": "mc-teorias",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "piratas",
+     "es": "Desde entonces se han propuesto docenas de explicaciones, y la mayoría se caen con una pregunta sencilla. ¿Piratas? No se llevaron nada de valor. ¿Un motín? No había señales de pelea, y Briggs tenía fama de buen capitán.",
+     "en": "Since then, dozens of explanations have been proposed, and most of them fall apart with one simple question. Pirates? They took nothing of value. A mutiny? There were no signs of a fight, and Briggs had a reputation as a good captain.",
+     "visual": "D y B: Atom tacha teorías en una pizarra con dibujos: un barco pirata, una pelea, y la carga intacta.",
+     "acto": true
+    },
+    {
+     "n": 20,
+     "marca": "fraude",
+     "es": "¿Un fraude para cobrar el seguro? Briggs era copropietario del barco y no ganaba nada perdiéndolo, y menos aún perdiendo a su familia. ¿Un monstruo marino, una tromba de agua? Habrían dejado destrozos, y el barco estaba casi entero.",
+     "en": "An insurance fraud? Briggs part-owned the ship and had nothing to gain by losing it, let alone by losing his family. A sea monster, a waterspout? They would have left damage behind, and the ship was almost intact.",
+     "visual": "G: más teorías tachadas: un contrato de seguro, un tentáculo, una tromba; el barco casi entero."
+    }
+   ]
+  },
+  {
+   "id": "mc-pistas",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [
+    "cabo"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "varilla",
+     "es": "Así que conviene mirar lo que sí había. La varilla para medir el agua de la bodega estaba tirada en cubierta. Una bomba, desmontada. Dos escotillas, abiertas. El bote iba atado sobre otra escotilla, así que no se cayó: alguien lo echó al agua. Y se llevaron el sextante y el cronómetro, lo que necesitas para saber dónde estás en el mar.",
+     "en": "So it's worth looking at what was there. The rod used to measure the water in the hold was lying on the deck. One pump was taken apart. Two hatches were open. The lifeboat had been lashed on top of another hatch, so it didn't fall off: someone launched it. And they took the sextant and the chronometer, the tools you need to know where you are at sea.",
+     "visual": "C: la varilla de sondeo baja a la bodega y sale goteando; un pececito salta; la bomba desmontada; las escotillas abiertas; el hueco del bote.",
+     "acto": true
+    },
+    {
+     "n": 22,
+     "marca": "probable",
+     "es": "Todo eso cuenta una historia probable. Alguien midió el agua, pensó que el barco se hundía o que iba a pasar algo grave, y Briggs mandó abandonarlo a toda prisa. La isla de Santa María estaba cerca. Lo sensato era subir al bote, alejarse un poco y esperar.",
+     "en": "All of that tells a likely story: someone measured the water, thought the ship was sinking or that something terrible was about to happen, and Briggs ordered everyone off in a hurry. The island of Santa Maria was close by. The sensible thing was to get into the boat, pull away a little, and wait.",
+     "visual": "C y B: Briggs mide el agua, mira el horizonte con la isla cerca; todos al bote."
+    },
+    {
+     "n": 23,
+     "marca": "cabo",
+     "es": "Pero el Mary Celeste no se hundió. Siguió navegando. Y si el bote iba atado al barco con un cabo y ese cabo se rompió, diez personas vieron cómo su barco se alejaba con el viento. No pudieron alcanzarlo. Del bote no se volvió a saber nada.",
+     "en": "But the Mary Celeste didn't sink. She kept sailing. And if the lifeboat was tied to the ship with a line and that line snapped, ten people would have watched their ship sail away on the wind, unable to catch her. The lifeboat was never found.",
+     "visual": "B: el barco se aleja con el viento; un cabo roto en el agua (golpe); el horizonte vacío."
+    }
+   ]
+  },
+  {
+   "id": "mc-barriles",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "genova",
+     "es": "Queda la pregunta más difícil: ¿por qué un capitán con experiencia abandona un barco que no se hunde? En Génova, al descargar, apareció una pista: nueve barriles estaban vacíos. Y esos nueve eran de un roble distinto, más poroso, por el que el alcohol se escapa poco a poco.",
+     "en": "That leaves the hardest question: why would an experienced captain abandon a ship that wasn't sinking? In Genoa, when the cargo was unloaded, a clue turned up: nine barrels were empty. And those nine were made of a different oak, a more porous one, that lets alcohol slowly seep out.",
+     "visual": "A y C: el puerto de Génova, los barriles descargados; nueve vacíos, de otra madera, con gotas que se escapan.",
+     "acto": true
+    },
+    {
+     "n": 25,
+     "marca": "vapor",
+     "es": "Ese alcohol se convierte en vapor, y en una bodega cerrada el vapor se acumula. Una chispa basta. En 2006, el químico Andrea Sella, del University College de Londres, lo probó en una maqueta de la bodega con gas butano y cubos de papel. Una llamarada llenó la bodega, y los cubos no quedaron ni chamuscados.",
+     "en": "That alcohol turns into vapor, and in a closed hold the vapor builds up. A single spark is enough. In 2006, chemist Andrea Sella of University College London tested it in a model of the hold, with butane gas and paper cubes: a burst of flame filled the hold, and the cubes weren't even scorched.",
+     "visual": "E: el laboratorio de 2006 con la maqueta de la bodega y cubos de papel: «fuuum», llama azul, cubos intactos; la ceja del químico (EL.sellaMC), chamuscada.",
+     "es_voz": "Ese alcohol se convierte en vapor, y en una bodega cerrada el vapor se acumula. Una chispa basta. En dos mil seis, el químico Andrea Sella, del University College de Londres, lo probó en una maqueta de la bodega con gas butano y cubos de papel. Una llamarada llenó la bodega, y los cubos no quedaron ni chamuscados.",
+     "en_voz": "That alcohol turns into vapor, and in a closed hold the vapor builds up. A single spark is enough. In two thousand six, chemist Andrea Sella of University College London tested it in a model of the hold, with butane gas and paper cubes: a burst of flame filled the hold, and the cubes weren't even scorched."
+    }
+   ]
+  },
+  {
+   "id": "mc-manchester",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 2026",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "manchester",
+     "es": "En 2026, dos químicos de la Universidad de Mánchester, Jack Rowbotham y Frank Mair, lo repitieron con etanol de verdad y una maqueta de madera, para un documental. Con el frío de Nueva York, la chispa no hizo nada. Con el calor de las Azores, el vapor estalló con violencia, y la madera no quedó ni chamuscada.",
+     "en": "In 2026, two chemists from the University of Manchester, Jack Rowbotham and Frank Mair, repeated it with real ethanol and a wooden model, for a documentary. In New York's cold, the spark did nothing. In the warmth of the Azores, the vapor went off violently, and the wood wasn't even scorched.",
+     "visual": "E: el laboratorio de 2026 con la maqueta de madera; con frío, nada; con calor, la escotilla salta (EL.rowbothamMC, EL.mairMC).",
+     "es_voz": "En dos mil veintiséis, dos químicos de la Universidad de Mánchester, Jack Rowbotham y Frank Mair, lo repitieron con etanol de verdad y una maqueta de madera, para un documental. Con el frío de Nueva York, la chispa no hizo nada. Con el calor de las Azores, el vapor estalló con violencia, y la madera no quedó ni chamuscada.",
+     "en_voz": "In twenty twenty-six, two chemists from the University of Manchester, Jack Rowbotham and Frank Mair, repeated it with real ethanol and a wooden model, for a documentary. In New York's cold, the spark did nothing. In the warmth of the Azores, the vapor went off violently, and the wood wasn't even scorched."
+    },
+    {
+     "n": 27,
+     "marca": "pudo",
+     "es": "Eso explicaría las escotillas abiertas y la prisa. Pero hay que decirlo claro: demuestra que pudo pasar, no que pasara. No hay testigos, ni restos del bote, ni una sola carta de nadie que estuviera a bordo.",
+     "en": "That would explain the open hatches and the hurry. But it needs to be said clearly: it shows that it could have happened, not that it did. There are no witnesses, no remains of the boat, not a single letter from anyone who was on board.",
+     "visual": "G: Atom con la maqueta y un signo de igual tachado: «pudo» no es «pasó»."
+    }
+   ],
+   "cartela": "2026"
+  },
+  {
+   "id": "mc-haiti",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 28,
+     "marca": "haiti",
+     "es": "El Mary Celeste siguió trabajando doce años más, con fama de barco gafado. En 1885, su último capitán lo estrelló a propósito contra un arrecife de Haití para cobrar el seguro de una carga casi sin valor. Lo juzgaron, el jurado no se puso de acuerdo, y murió arruinado unos meses después.",
+     "en": "The Mary Celeste kept working for twelve more years, with a reputation as an unlucky ship. In 1885, her last captain ran her onto a reef off Haiti on purpose, to collect the insurance on a nearly worthless cargo. He was put on trial, the jury couldn't agree, and he died ruined a few months later.",
+     "visual": "F: el Mary Celeste viejo encalla a propósito en un arrecife de Haití en 1885; aguas turquesa.",
+     "acto": true,
+     "es_voz": "El Mary Celeste siguió trabajando doce años más, con fama de barco gafado. En mil ochocientos ochenta y cinco, su último capitán lo estrelló a propósito contra un arrecife de Haití para cobrar el seguro de una carga casi sin valor. Lo juzgaron, el jurado no se puso de acuerdo, y murió arruinado unos meses después.",
+     "en_voz": "The Mary Celeste kept working for twelve more years, with a reputation as an unlucky ship. In eighteen eighty-five, her last captain ran her onto a reef off Haiti on purpose, to collect the insurance on a nearly worthless cargo. He was put on trial, the jury couldn't agree, and he died ruined a few months later."
+    },
+    {
+     "n": 29,
+     "marca": "cussler",
+     "es": "En 2001, una expedición pagada por el novelista Clive Cussler anunció que había encontrado sus restos en ese arrecife. Pero la madera venía de árboles que seguían vivos en 1894, casi diez años después del naufragio. Hasta su final tiene un signo de interrogación.",
+     "en": "In 2001, an expedition funded by the novelist Clive Cussler announced that it had found her remains on that reef. But the wood came from trees that were still growing in 1894, nearly ten years after the wreck. Even her ending has a question mark.",
+     "visual": "F: buceadores en 2001 con una lancha; un trozo de madera con anillos que sigue creciendo hasta 1894.",
+     "es_voz": "En dos mil uno, una expedición pagada por el novelista Clive Cussler anunció que había encontrado sus restos en ese arrecife. Pero la madera venía de árboles que seguían vivos en mil ochocientos noventa y cuatro, casi diez años después del naufragio. Hasta su final tiene un signo de interrogación.",
+     "en_voz": "In two thousand one, an expedition funded by the novelist Clive Cussler announced that it had found her remains on that reef. But the wood came from trees that were still growing in eighteen ninety-four, nearly ten years after the wreck. Even her ending has a question mark."
+    }
+   ]
+  },
+  {
+   "id": "mc-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 30,
+     "marca": "entonces",
+     "es": "Entonces, ¿qué pasó en el Mary Celeste? Lo más probable es que nadie hiciera nada malo: que diez personas tuvieran miedo, bajaran al bote para salvarse, y el mar hiciera el resto. Las pistas encajan y el experimento dice que es posible, pero la última página del diario se quedó en blanco.",
+     "en": "So what happened on the Mary Celeste? Most likely, no one did anything wrong: ten people got scared, climbed into the boat to save themselves, and the sea did the rest. The clues fit and the experiment says it's possible, but the last page of the log was left blank.",
+     "visual": "B: el bote con diez siluetas pequeñas que se aleja en la niebla, de lejos y con respeto; el diario con la última página en blanco.",
+     "acto": true
+    },
+    {
+     "n": 31,
+     "marca": "final",
+     "es": "A veces la ciencia no puede decir qué pasó, pero sí puede descartar lo que no pasó: ni té caliente, ni monstruos, ni piratas. Y eso ya es mucho. Si alguna vez encuentras un misterio, empieza por quitarle lo que le pusieron después.",
+     "en": "Sometimes science can't say what happened, but it can rule out what didn't: no warm tea, no monsters, no pirates. And that's already a lot. If you ever come across a mystery, start by stripping away what was added afterward.",
+     "visual": "G: Atom borra de su pizarra el té, el monstruo y el pirata; el bote del barquito de la botella aparece flotando en su taza de té."
+    }
+   ]
+  }
+ ]
+}

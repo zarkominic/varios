@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El relato · ep34</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// NX-RELATO (frases 7–8), sin fecha (la barra sigue en 2026: lo cuenta Atom hoy). A Noé NO se le dibuja: no hay
+// ninguna figura humana en toda la escena; el barco, los animales y el cielo llevan la acción. Seis planos:
+// 1. el libro antiguo en su atril, a la luz de las velas y nada más (ni filos de luz, ni motas doradas: ningún libro
+//    recibe más luz que otro): cerrado, una polilla deja su vela y se posa en la tapa; el libro da dos respingos (cae
+//    polvo viejo del canto), la polilla huye y el libro se abre solo en «what does the story say?» con una nube de
+//    polvo gris en los cantos; sale un «?» en un globo; la otra polilla sigue en su vela;
+// 2. el astillero vacío: el barco se levanta solo, tabla a tabla (cada golpe, un «toc» y su polvo); en «a flood is
+//    coming» el frente de tormenta entra y cae un relámpago lejano; los pájaros huyen;
+// 3. la medida: la regla se tiende bajo el arca en «three hundred cubits» y la cifra late; luego bajan las cosas de hoy
+//    para comparar y un cursor recorre el campo de punta a punta;
+// 4. gag 3: las parejas suben por la rampa… y la fila entera se para y se vuelve a mirar al caracol, el último, que
+//    avanza milímetro a milímetro con sus puntos suspensivos; empieza a llover;
+// 5. el diluvio: el barco solo en el agua; un marcador cuenta 1…40 con su sol y su luna; el agua se calma, asoman las
+//    cumbres y la paloma sale del ventanuco y se aleja;
+// 6. el cielo que escampa: la paloma vuelve de cerca, dibujada a píxel nativo (unos 42 px de punta a punta, sin
+//    escalar: cuerpo, cola en abanico, dos alas que baten en cuatro poses, pico, ojo y la RAMITA de olivo de dos hojas
+//    en el pico, con su destello); el arcoíris se traza de lado a lado y la paloma se da la vuelta y baja a posarse
+//    en el barco (al alejarse pasa a un tamaño medio, también nativo, y al final a la pieza pequeña del kit).
+import * as T from '/atomo/plato/escenas/nx-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('nx-relato');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (s) => en('relato', (s - 0.9) / 14.524), b = (s) => en('lluvia', (s - 15.924) / 14.053);   // s: el segundo de la voz inglesa
+const K = T.C.k, PZ = T.PIEZAS_NX, BL = hex('#f6f2e6'), ROJO = hex('#d23a2e'), ORO = hex('#ffd86a');
+const P2 = a(4.19), P3 = a(9.75), P4 = b(15.924), P5 = b(20.01), P6 = b(24.58);
+const sua = (u) => u * u * (3 - 2 * u);
+const mez = (x, y, c, f) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; const p = R.pget(x, y); const m = (s) => Math.round(((p >>> s) & 255) * (1 - f) + ((c >>> s) & 255) * f); R.pset(x, y, (0xff000000 | (m(16) << 16) | (m(8) << 8) | m(0)) >>> 0); };
+// un globo redondo con su pico y un símbolo dentro (rebota al salir)
+const globo = (x, y, t0, t, pinta) => { if (t < t0) return; const d = t - t0, dy = -Math.round(Math.max(0, 5 * Math.sin(d * 11) * Math.exp(-d * 5))); y += dy;
+  R.disco(x, y, 12, K); R.poligono([[x - 8, y + 8], [x - 13, y + 19], [x - 1, y + 11]], K); R.disco(x, y, 11, BL); R.poligono([[x - 7, y + 8], [x - 11, y + 16], [x - 2, y + 10]], BL);
+  for (let i = -8; i <= 8; i++) R.pset(x + i, y + 10 - Math.round(Math.abs(i) * 0.4), hex('#d8d2c0')); pinta(x, y); };
+const destello = (x, y, r, c = hex('#ffffff')) => { for (let i = -r; i <= r; i++) { R.pset(x + i, y, c); R.pset(x, y + i, c); } if (r > 2) { R.pset(x - 1, y - 1, c); R.pset(x + 1, y - 1, c); R.pset(x - 1, y + 1, c); R.pset(x + 1, y + 1, c); } };
+const POLVO = hex('#c4b494'), POLVO2 = hex('#94866e');
+// la polilla que se posa en el libro, algo mayor que las de las velas: cuerpo oscuro y dos alas pardas que baten
+// (posada, abiertas y casi quietas)
+const polillaG = (x, y, t, posada) => { x = Math.round(x); y = Math.round(y); const al = posada ? (Math.floor(t * 2.2) % 3 ? 0 : 1) : Math.floor(t * 14) % 2, A = hex('#ece0c4'), B = hex('#bca884'), Kp = hex('#3a2e24');
+  for (const d of [-1, 1]) { if (!posada) { const h = al ? -1 : 1; for (let k = 1; k <= 4; k++) { R.pset(x + d * k, y - h * (k - 1), A); R.pset(x + d * k, y - h * k, k > 2 ? B : A); if (k < 4) R.pset(x + d * k, y - h * (k + 1), B); } }
+    else for (let j = -2; j <= 2; j++) for (let k = 1; k <= Math.min(5, j + 4 - al); k++) R.pset(x + d * k, y + j, k >= j + 3 - al || j === 2 ? B : k === 2 && j > -1 ? Kp : A); }
+  for (let j = -2; j <= 2; j++) R.pset(x, y + j, Kp); R.pset(x - 1, y - 3, Kp); R.pset(x + 1, y - 3, Kp); R.pset(x - 2, y - 4, Kp); R.pset(x + 2, y - 4, Kp); };
+// LA PALOMA de cerca, a píxel nativo: se dibuja en una rejilla propia por pose (0 alas arriba … 3 alas abajo) y tamaño
+// (f 1: ~40 × 30 px; f 0,58: la media), con el ala de detrás en sombra, el cuerpo y la cola en blanco con dos tonos de
+// sombra, el ala de delante encima, pico, ojo y la ramita de olivo; el contorno, de un píxel, sale solo. Mira a la
+// derecha; dir −1 la vuelve. Devuelve dónde queda la ramita
+const PAL = { W: hex('#ffffff'), w: hex('#dde5f2'), s: hex('#b0bdd4'), k: hex('#34405a'), N: hex('#f2a436'), n: hex('#c07a22'), G: hex('#96d444'), g: hex('#4c9c30'), d: hex('#1c5424'), o: hex('#161a28') };
+const ALAS = [[[4, -3], [2, -14], [-5, -24], [-10, -19], [-7, -3]], [[4, -3], [-1, -10], [-13, -17], [-18, -13], [-7, -2]], [[5, -2], [-3, -5], [-17, -3], [-18, 2], [-6, 2]], [[4, 0], [1, 10], [-6, 20], [-10, 15], [-7, 1]]];
+const PALOMAS = new Map();
+const palomaForma = (pose, f, hoja) => { const cl = pose + '/' + f + '/' + hoja; if (PALOMAS.has(cl)) return PALOMAS.get(cl);
+  const GW = 80, GH = 60, OX = 40, OY = 30, col = new Uint32Array(GW * GH), cap = new Uint8Array(GW * GH), q = (v) => Math.round(v * f);
+  const set = (u, v, c, L) => { const x = OX + u, y = OY + v; if (x < 1 || y < 1 || x > GW - 2 || y > GH - 2) return; col[y * GW + x] = PAL[c]; cap[y * GW + x] = L; };
+  const poli = (pts, c, L) => { const P = pts.map(([u, v]) => [u * f, v * f]); let u0 = 99, u1 = -99, v0 = 99, v1 = -99; for (const [u, v] of P) { u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); }
+    for (let v = Math.floor(v0); v <= Math.ceil(v1); v++) for (let u = Math.floor(u0); u <= Math.ceil(u1); u++) { let d = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [ui, vi] = P[i], [uj, vj] = P[j]; if ((vi > v) !== (vj > v) && u < (uj - ui) * (v - vi) / (vj - vi) + ui) d = !d; } if (d) set(u, v, c, L); } };
+  const raya = (u0, v0, u1, v1, c, L, solo) => { u0 *= f; v0 *= f; u1 *= f; v1 *= f; const n = Math.max(1, Math.ceil(Math.max(Math.abs(u1 - u0), Math.abs(v1 - v0)))); for (let i = 0; i <= n; i++) { const u = Math.round(u0 + (u1 - u0) * i / n), v = Math.round(v0 + (v1 - v0) * i / n); if (!solo || cap[(OY + v) * GW + OX + u] === solo) set(u, v, c, L); } };
+  const elip = (cu, cv, ru, rv, L, tono) => { cu *= f; cv *= f; ru *= f; rv *= f; for (let v = Math.floor(cv - rv); v <= Math.ceil(cv + rv); v++) for (let u = Math.floor(cu - ru); u <= Math.ceil(cu + ru); u++) { const a = (u - cu) / ru, b = (v - cv) / rv; if (a * a + b * b <= 1) set(u, v, tono(a, b), L); } };
+  const ala = (pts, L, c, cr) => { poli(pts, c, L); const [A, E, D, C, B] = pts, m = (p, r, k) => [p[0] + (r[0] - p[0]) * k, p[1] + (r[1] - p[1]) * k];
+    raya(B[0], B[1], C[0], C[1], cr, L, L); raya(C[0], C[1], D[0], D[1], cr, L, L);   // el borde de salida y la punta, en sombra
+    if (f === 1) for (let k = 1; k <= 3; k++) { const a = m(B, C, k / 4 + 0.1), b = m(E, D, k / 4), c2 = m(a, b, 0.62); raya(a[0], a[1], c2[0], c2[1], cr, L, L); }   // las plumas largas
+    if (f === 1) { const a = m(A, B, 0.55), b = m(E, m(D, C, 0.5), 0.5), c2 = m(a, b, 0.85); raya(m(a, b, 0.3)[0], m(a, b, 0.3)[1], c2[0], c2[1], cr, L, L); } };   // las cobertoras
+  const dx = pose === 2 ? 3 : 4, dy = pose === 2 ? -2 : pose === 3 ? 0 : -1;
+  ala(ALAS[pose].map(([u, v]) => [u + dx, v + dy]), 1, 'w', 's');   // el ala de detrás
+  // la cola en abanico, el cuerpo, el pecho y la cabeza
+  poli([[-8, -3], [-21, -5], [-23, -1], [-22, 3], [-8, 3]], 'W', 2); raya(-10, -1, -22, -3, 'w', 2, 2); raya(-10, 1, -22, 0, 'w', 2, 2); raya(-9, 3, -22, 3, 's', 2, 2); raya(-22, -4, -23, 2, 'w', 2, 2);
+  elip(1, 0, 12, 5.6, 2, (a, b) => b > 0.72 ? 's' : b > 0.3 ? 'w' : 'W'); elip(7, 0.4, 6.6, 5.8, 2, (a, b) => b > 0.78 ? 's' : b > 0.42 ? 'w' : 'W');
+  elip(13, -4, 4, 4, 2, (a, b) => b > 0.5 && a < 0.3 ? 'w' : 'W');
+  set(q(-1), q(6), 'n', 2); set(q(-2), q(6), 'N', 2);   // las patas, recogidas
+  ala(ALAS[pose], 3, 'W', 'w');   // el ala de delante
+  // el pico, el ojo y la ramita de olivo: el tallo y dos hojas, una hacia arriba y otra hacia abajo
+  const bx = q(13) + Math.round(4 * f) + 1, by = q(-4); set(bx, by, 'N', 4); set(bx + 1, by, 'N', 4); set(bx, by + 1, 'n', 4); set(q(14), q(-5), 'o', 2);
+  if (hoja) { const h = (pts, c, L) => { const sv = poli; return sv(pts.map(([u, v]) => [(bx + 1 + u * f) / f, (by + v * f) / f]), c, L); };
+    h([[1, 0], [4, -5], [10, -6], [8, -1], [4, 1]], 'G', 5); h([[1, 1], [4, 2], [9, 6], [5, 7], [2, 4]], 'g', 5);
+    if (f === 1) { for (let i = 0; i < 6; i++) set(bx + 4 + i, by - 1 - Math.round(i * 0.7), 'g', 5); for (let i = 0; i < 5; i++) set(bx + 4 + i, by + 3 + Math.round(i * 0.6), 'G', 5); }
+    set(bx + 2, by, 'd', 5); set(bx + 2, by + 1, 'd', 5); }
+  // las costuras (donde un ala pisa el cuerpo) y el contorno fino de fuera
+  const V = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  for (let y = 1; y < GH - 1; y++) for (let x = 1; x < GW - 1; x++) { const i = y * GW + x, L = cap[i]; if (L === 2 || L === 1) for (const [a, b] of V) { const L2 = cap[i + b * GW + a]; if ((L === 2 && L2 === 3) || (L === 1 && L2 === 2)) { col[i] = PAL.s; break; } } }
+  for (let y = 1; y < GH - 1; y++) for (let x = 1; x < GW - 1; x++) { const i = y * GW + x; if (cap[i]) continue; let v = 0; for (const [a, b] of V) v = Math.max(v, cap[i + b * GW + a] & 127); if (v) { col[i] = v === 5 ? PAL.d : PAL.k; cap[i] |= 128; } }
+  const r = { GW, GH, OX, OY, col, rama: [bx + Math.round(6 * f), by] }; PALOMAS.set(cl, r); return r; };
+const palomaCerca = (x, y, t, dir, f = 1) => { const c = Math.floor(t * 11) % 6, pose = c < 4 ? c : 6 - c, F = palomaForma(pose, f, true); y += pose === 0 ? 1 : pose === 3 ? -1 : 0;
+  for (let j = 0; j < F.GH; j++) for (let i = 0; i < F.GW; i++) { const cc = F.col[j * F.GW + i]; if (!cc) continue; const X = x + dir * (i - F.OX), Y = y + j - F.OY; if (X >= 0 && X < 320 && Y >= 0 && Y < 180) R.pset(X, Y, cc); }
+  return [x + dir * F.rama[0], y + F.rama[1]]; };
+const polilla = (x, y, t) => { x = Math.round(x); y = Math.round(y); const al = Math.floor(t * 14) % 2; R.pset(x, y, hex('#5a4a3a')); R.pset(x - 1, y - al, hex('#e8dcc0')); R.pset(x + 1, y - al, hex('#e8dcc0')); R.pset(x - 2, y - al * 2, hex('#c8b890')); R.pset(x + 2, y - al * 2, hex('#c8b890')); };
+
+// ── 1 · el libro se abre ──
+const p1 = (t) => {
+  const ABRE = a(2.55), ab = t < ABRE ? 0 : lerp(0.03, 1, tramo(t, ABRE, ABRE + 0.45) * 0.28 + sua(tramo(t, ABRE + 0.45, P2)) * 0.72);
+  const o = { encuadre: 'libro', abierto: ab };
+  const g = T.insertos(R, t, o);
+  // sin luz propia: solo la de las velas. La vida de antes de abrirse es física: dos respingos del libro (sube un
+  // píxel y vuelve) que sueltan polvo viejo del canto de abajo
+  const RESP = [ABRE - 0.95, ABRE - 0.45]; let salto = 0;
+  for (const r of RESP) { const d = t - r; if (d < 0 || d > 0.7) continue;
+    if (d < 0.14) { const n = d < 0.09 ? 2 : 1; salto = n; for (let y = 58; y < 139; y++) for (let x = 100; x <= 220; x++) R.pset(x, y, R.pget(x, y + n)); }
+    for (let k = 0; k < 18; k++) { const x0 = 108 + ((k * 37 + Math.round(r * 50)) % 104), dk = d - (k % 3) * 0.04; if (dk < 0 || dk > 0.6) continue;
+      const x = Math.round(x0 + Math.sin(k * 1.7) * dk * 9), y = Math.round(137 + dk * 5 + dk * dk * 36); R.pset(x, y, k % 2 ? POLVO : POLVO2); if (k % 3 === 0 && dk < 0.35) R.pset(x + 1, y, POLVO2); } }
+  // al abrirse: el polvo salta de los cantos de las tapas, hacia fuera, y cae
+  if (t >= ABRE) for (let k = 0; k < 28; k++) { const d = t - ABRE - (k % 4) * 0.05; if (d < 0 || d > 0.85) continue; const lado = k % 2 ? 1 : -1, hw = 56 + Math.min(1, d / 0.3) * 24;
+    const x = Math.round(160 + lado * (hw + d * (6 + (k % 5) * 4))), y = Math.round(70 + (k * 13) % 64 - d * 10 + d * d * 46); R.pset(x, y, k % 3 ? POLVO : POLVO2); if (k % 4 === 0 && d < 0.4) R.pset(x, y + 1, POLVO2); }
+  // dos polillas: la de la derecha ronda su llama; la de la izquierda deja la suya, se posa en la tapa, salta con cada
+  // respingo y huye a su vela cuando el libro se abre
+  { const va = sua(tramo(t, ABRE * 0.16, ABRE * 0.5)), vu = sua(tramo(t, ABRE - 0.06, ABRE + 0.5)), w = va * (1 - vu), ox = 38 + Math.sin(t * 2.3) * 13, oy = 48 + Math.cos(t * 3.1) * 8;
+    const px = lerp(ox, 146, w), py = lerp(oy, 80, w) - Math.sin(w * Math.PI) * 14 - (w > 0.98 ? salto * 2 : 0);
+    polillaG(px, py, t, w > 0.98 && !salto); }
+  polilla(282 + Math.cos(t * 1.9) * 12, 56 + Math.sin(t * 2.7) * 9, t + 0.3);
+  T.insertosDelante(R, t, o);
+  globo(232, 34, a(3.3), t, (x, y) => { R.icono('?', x - 4, y - 8, hex('#7a2e2e'), hex('#d8d2c0'), 2); });
+};
+
+// ── 2 · el astillero: el barco se levanta solo ──
+const GOLPES = [4.55, 5.25, 5.9, 6.6, 7.25, 7.9];
+const p2 = (t) => {
+  const ob = lerp(0.2, 1, tramo(t, P2, a(9.2))), nb = sua(tramo(t, a(7.6), a(9.5)));
+  const o = { encuadre: 'astillero', obra: ob, nubes: nb };
+  T.relato(R, t, o);
+  // cada tabla que encaja: polvo de serrín en el costado
+  GOLPES.forEach((s, k) => { const d = t - a(s); if (d < 0 || d > 0.5) return; const x = 70 + ((k * 67) % 190), y = 84 + ((k * 23) % 44);
+    for (let j = 0; j < 7; j++) { const an = j * 0.9 + k, r = 3 + d * 22; R.pset(Math.round(x + Math.cos(an) * r), Math.round(y + Math.sin(an) * r * 0.6 + d * d * 20), j % 2 ? hex('#f0d8a0') : hex('#c8a060')); }
+    if (d < 0.12) destello(x, y, 3, hex('#fff2c0')); });
+  // el aviso: un relámpago lejano en el frente de tormenta
+  const dr = t - a(9.02);
+  if (dr >= 0 && dr < 0.42 && (dr < 0.1 || (dr > 0.2 && dr < 0.3))) { const pts = [[26, 22], [30, 38], [24, 42], [31, 60], [26, 64], [33, 86]];
+    for (let i = 1; i < pts.length; i++) { R.linea(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], hex('#ffffff')); R.linea(pts[i - 1][0] + 1, pts[i - 1][1], pts[i][0] + 1, pts[i][1], hex('#fff0a0')); }
+    for (let y = 16; y < 100; y += 1) for (let x = (y % 2); x < 120; x += 2) mez(x, y, hex('#ffffff'), 0.16 * (1 - x / 120)); }
+  // los pájaros huyen del frente (de izquierda a derecha, bajos)
+  const hu = tramo(t, a(8.3), P3 + 0.5);
+  if (hu > 0) for (let k = 0; k < 6; k++) { const x = Math.round(-10 + hu * 250 - k * 17 + (k % 2) * 6), y = Math.round(40 + (k * 7) % 22 - hu * 14 + Math.sin(t * 3 + k) * 2), al = Math.floor(t * 9 + k) % 2;
+    if (x < 2 || x > 270) continue; R.pset(x, y, K); R.pset(x - 1, y - (al ? 1 : -1), K); R.pset(x + 1, y - (al ? 1 : -1), K); R.pset(x - 2, y - (al ? 2 : -1), K); R.pset(x + 2, y - (al ? 2 : -1), K); }
+  T.relatoDelante(R, t, o);
+};
+
+// ── 3 · la medida ──
+const p3 = (t) => {
+  const rg = lerp(0, 0.95, sua(tramo(t, a(10.0), a(12.0)))) + 0.05 * tramo(t, a(12.0), a(12.1)), cp = sua(tramo(t, a(13.3), a(14.3)));
+  const o = { encuadre: 'medida', regla: rg, compara: cp };
+  const g = T.insertos(R, t, o);
+  // mientras se tiende: la punta brilla y una etiqueta cuenta los codos (0…300)
+  if (rg > 0.01 && rg < 0.96 && g.reglaPunta) { const x = Math.round(g.reglaPunta[0]), y = Math.round(g.reglaPunta[1]), n = Math.round(rg / 0.95 * 30) * 10, tx = Math.min(236, Math.max(70, x));
+    destello(x, y, 2 + Math.floor(t * 12) % 2, ORO);
+    R.rect(tx - 15, 113, tx + 15, 127, K); R.rect(tx - 14, 114, tx + 14, 126, BL); R.poligono([[tx - 3, 113], [tx + 3, 113], [tx, 109]], K); R.numero(String(n), tx, 124, { centro: true, sombra: false, color: ROJO }); }
+  // «300»: un subrayado que se abre bajo la cifra y dos marcas que bajan de proa y popa a la regla
+  const d3 = t - a(12.1);
+  if (d3 >= 0) { const w = Math.round(sua(Math.min(1, d3 / 0.35)) * 22); if (t < a(13.7)) R.rect(105, 127, 105 + w, 128, ROJO);
+    for (const x of [53, 233]) for (let y = 98 + Math.floor(t * 6) % 2; y < 104; y += 2) R.pset(x, y, ROJO); }
+  // «140»: el otro lado de la cuenta
+  const d4 = t - a(13.87);
+  if (d4 >= 0 && d4 < 1.2) { const w = Math.round(sua(Math.min(1, d4 / 0.3)) * 22); R.rect(158, 127, 158 + w, 128, hex('#2e5a8a')); }
+  // un cursor recorre el campo de punta a punta: la misma longitud
+  const cu = tramo(t, a(14.3), P4 - 0.2);
+  if (cp >= 1) { const x = Math.round(lerp(30, 171, sua(cu))); for (let i = 30; i < x; i += 2) R.rect(i, 145, i, 146, ROJO); R.poligono([[x - 4, 151], [x + 4, 151], [x, 144]], K); R.poligono([[x - 2, 150], [x + 2, 150], [x, 146]], ORO); }
+  T.insertosDelante(R, t, o);
+};
+
+// ── 4 · gag 3: la fila espera al caracol ──
+const p4 = (t) => {
+  const PARA = b(18.35), fl = lerp(0.22, 0.43, tramo(t, P4, PARA)), esp = t >= PARA;
+  const o = { encuadre: 'astillero', camara: 'fila', fila: fl, espera: esp, caracol: esp ? tramo(t, PARA, P5) * 0.25 : 0, lluvia: lerp(0, 0.5, tramo(t, b(19.1), P5)) };
+  const g = T.relato(R, t, o);
+  T.relatoDelante(R, t, o);
+  // sobre el caracol: sus puntos suspensivos, uno a uno; y, cuando todos le miran, la gota de apuro
+  if (g.caracol) { const [cx, cy] = g.caracol, x = Math.max(20, Math.round(cx) + 6), y = Math.round(cy) - 28;
+    if (esp) { const d = t - PARA, n = Math.min(3, 1 + Math.floor(d / 0.32));
+      R.rect(x - 15, y - 9, x + 15, y + 5, K); R.rect(x - 16, y - 8, x + 16, y + 4, K); R.rect(x - 15, y - 8, x + 15, y + 4, BL); R.rect(x - 15, y + 3, x + 15, y + 4, hex('#d8d2c0')); R.poligono([[x - 5, y + 5], [x - 2, y + 12], [x + 3, y + 5]], K); R.poligono([[x - 4, y + 4], [x - 2, y + 10], [x + 2, y + 4]], BL);
+      for (let i = 0; i < Math.min(3, n); i++) R.rect(x - 10 + i * 8, y - 4, x - 7 + i * 8, y - 1, K);
+      const gx = Math.round(cx) + 12, gy = Math.round(cy) - 12 + Math.round(((d * 1.6) % 1) * 6); R.pset(gx, gy - 1, hex('#bfe6ff')); R.rect(gx - 1, gy, gx + 1, gy + 1, hex('#8ecbf0')); R.pset(gx, gy + 2, hex('#8ecbf0')); }
+  }
+  // los que esperan: un «!» sobre la pareja de cabeza cuando se vuelven
+  if (esp && t < PARA + 0.9 && g.parejas) { const c = g.parejas.filter((q) => !q.dentro && q.x > 60 && q.x < 240).slice(0, 2); c.forEach((q, i) => { const d = t - PARA - i * 0.12; if (d < 0) return; R.icono('!', Math.round(q.x) - 2, Math.round(q.y) - 34 - Math.round(Math.max(0, 4 * Math.sin(d * 12) * Math.exp(-d * 4))), ROJO, K, 1); }); }
+};
+
+// ── 5 · cuarenta días y cuarenta noches ──
+const p5 = (t) => {
+  const BAJA = b(22.0), sec = sua(tramo(t, BAJA, b(23.5)));
+  const o = { encuadre: 'diluvio', lluvia: lerp(1, 0.08, sec), calma: lerp(0, 0.62, sec), cumbres: lerp(0, 0.5, sua(tramo(t, b(22.4), P6))), paloma: lerp(0, 0.42, tramo(t, b(23.3), P6 + 0.25)) };
+  const g = T.relato(R, t, o);
+  T.relatoDelante(R, t, o);
+  // relámpago del principio
+  const dr = t - (P5 + 0.35); if (dr >= 0 && dr < 0.3 && (dr < 0.08 || dr > 0.18)) { const pts = [[262, 16], [256, 34], [264, 38], [254, 60], [261, 63], [252, 92]]; for (let i = 1; i < pts.length; i++) { R.linea(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], hex('#ffffff')); R.linea(pts[i - 1][0] + 1, pts[i - 1][1], pts[i][0] + 1, pts[i][1], hex('#e8f0ff')); } }
+  // el marcador: 1…40, con el sol y la luna que se turnan
+  const cu = tramo(t, P5 + 0.2, b(21.55)), n = Math.max(1, Math.round(sua(cu) * 40)), fin = cu >= 1, sale = 1 - sua(tramo(t, b(22.6), b(23.2)));
+  if (sale > 0) { const oy = Math.round((1 - sale) * -44), x0 = 34, y0 = 28 + oy, x1 = 108, y1 = 58 + oy, pul = fin && t - b(21.55) < 0.25 ? 1 : 0;
+    R.rect(x0 - pul, y0 + 1 - pul, x1 + pul, y1 - 1 + pul, K); R.rect(x0 + 1 - pul, y0 - pul, x1 - 1 + pul, y1 + pul, K); R.rect(x0 + 1, y0 + 1, x1 - 1, y1 - 1, hex('#f2e6c4')); R.rect(x0 + 1, y1 - 3, x1 - 1, y1 - 1, hex('#d8c698')); R.rect(x0 + 2, y0 + 2, x1 - 2, y0 + 2, hex('#fffaf0'));
+    for (const x of [x0 + 8, x1 - 8]) { R.rect(x - 1, y0 - 5, x + 1, y0 + 3, K); R.pset(x, y0 - 4, hex('#c8ccd8')); R.pset(x, y0 - 2, hex('#c8ccd8')); R.pset(x, y0, hex('#c8ccd8')); }   // las anillas
+    const dia = fin ? Math.floor(t * 1.6) % 2 === 0 : n % 2 === 1, sx = x0 + 17, sy = y0 + 16;
+    if (dia) { R.disco(sx, sy, 7, K); R.disco(sx, sy, 6, hex('#ffc83a')); R.disco(sx - 1, sy - 1, 3, hex('#ffe890')); for (let k = 0; k < 8; k++) { const an = k * 0.785 + t; R.pset(Math.round(sx + Math.cos(an) * 9), Math.round(sy + Math.sin(an) * 9), hex('#e89a20')); } }
+    else { R.disco(sx, sy, 7, K); R.disco(sx, sy, 6, hex('#dfe6f6')); R.disco(sx + 3, sy - 2, 5, hex('#2a3460')); R.pset(sx + 5, sy - 5, hex('#ffffff')); R.pset(sx + 7, sy + 2, hex('#ffffff')); }
+    R.numero(String(n), x0 + 50, y1 - 8, { centro: true, tam: 16, sombra: false, color: fin ? hex('#7a2e2e') : hex('#3a3a4a') }); }
+  // la paloma que sale: una estela corta de puntos tras ella
+  if (g.paloma) { const [px, py] = g.paloma; for (let i = 1; i <= 4; i++) if ((i + Math.floor(t * 8)) % 2) R.pset(Math.round(px - 10 - i * 5), Math.round(py - 6 + i), hex('#ffffff')); }
+};
+
+// ── 6 · la paloma, la hoja y el arcoíris ──
+const p6 = (t) => {
+  const ar = sua(tramo(t, b(27.3), b(29.3)));
+  const o = { encuadre: 'cielo', arco: ar };
+  const g = T.vistas(R, t, o);
+  T.vistasDelante(R, t, o);
+  const [bx, by] = g.barco ?? [236, 151];
+  // la paloma vuelve desde la derecha, de cerca y a píxel nativo, se queda aleteando en lo azul (bajo el arco que se
+  // traza) y, al final, se da la vuelta y baja al barco: grande, media y, ya lejos, la pieza pequeña del kit (sin escalar)
+  const llega = sua(tramo(t, P6, b(26.2))), baja = sua(tramo(t, b(29.1), b(30.45)));
+  let x = lerp(322, 172, llega) - sua(tramo(t, b(26.2), b(29.1))) * 24, y = lerp(80, 97, llega) + Math.sin(t * 2.6) * 2.5, dir = -1, f = 1;
+  if (baja > 0) { dir = 1; f = baja < 0.34 ? 1 : baja < 0.72 ? 0.58 : 0; x = lerp(148, bx - 2, baja); y = lerp(97, by - 12, baja) - Math.sin(baja * Math.PI) * 22; }
+  let rama = null;
+  if (f) rama = palomaCerca(Math.round(x), Math.round(y), t, dir, f); else PZ.paloma(R, Math.round(x), Math.round(y), { t: baja >= 1 ? undefined : t, dir, hoja: true, s: 1 });
+  // la hoja: un destello cuando la voz la nombra
+  const dh = t - b(25.8); if (dh >= 0 && dh < 0.9 && rama && baja === 0) { const r = dh < 0.15 ? 5 : dh < 0.3 ? 3 : 1 + Math.floor(t * 10) % 2; destello(rama[0], rama[1] - 1, r, hex('#eaffc0')); }
+  // la punta del arco brilla mientras se traza
+  if (ar > 0.01 && ar < 0.99 && g.arco?.punta) destello(Math.round(g.arco.punta[0]), Math.round(g.arco.punta[1]), 3 + Math.floor(t * 12) % 2);
+};
+const efectos = [[a(2.6), 'papel'], [a(3.3), 'pop'],
+  [a(4.55), 'toc'], [a(5.9), 'toc'], [a(7.25), 'toc'], [a(9.02), 'trueno'],
+  [a(10.5), 'whoosh'], [a(12.05), 'golpecito'], [a(13.87), 'pop'],
+  [b(18.4), 'boing'], [b(19.2), 'lluvia'],
+  [P5 + 0.35, 'trueno'], [b(21.55), 'toc'], [b(22.2), 'ola'], [b(23.4), 'whoosh'],
+  [b(25.8), 'brillo'], [b(27.35), 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

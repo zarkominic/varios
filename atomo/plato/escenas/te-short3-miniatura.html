@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Short 3 · ep17</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// Short 3 · ep17, con chibis: la dibuja nc-mini-chibi.js (n = 2: la centralita, para el tramo de las quejas).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { pintarTEchibi } from '/atomo/plato/escenas/te-mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+window.__frame = async (t) => { pintarTEchibi(R, t, 3); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El pasillo · ep30</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// GZ-PASILLO (frase 15), cartela «2023». Cuatro planos:
+// 1. D keops/norte/pasillo: lo que ve el endoscopio; a «there it was» (golpe «pasillo») la imagen se aclara de golpe y
+//    las aristas del techo se encienden; la cámara avanza (cifras que suben). Corta en «image».
+// 2. D keops/anuncio: la rueda de prensa del 2 de marzo; el ministro habla en el atril y se vuelve a señalar la
+//    pantalla; a «9» y a «2» salen las cotas sobre la pantalla; la periodista llega con su micrófono y pregunta; flashes. Corta en «with».
+// 3. LOCAL la prensa de cerca: una cámara de televisión en primer término con su monitor (el pasillo en directo);
+//    periodistas con móviles en alto y flashes; a «gabled roof» se encienden las dos losas del techo y a «4,500» sale
+//    la cifra. Corta en «That's».
+// 4. D keops/anuncio/radiografia: medirlo (el japonés señala mientras el barrido revela los huecos), publicarlo (la
+//    francesa deja la revista en la mesa) y mirarlo (en el monitor de la mesa, el pasillo; los dos se acercan).
+import * as T from '/atomo/plato/escenas/gz-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('gz-pasillo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const h = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const BY = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const tono = (P, v, x, y) => P[Math.max(0, Math.min(P.length - 1, Math.floor(v + (BY[(y & 3) * 4 + (x & 3)] + 0.5) / 16)))];
+const rampa = (...c) => c.map((s) => hex(s));
+const K = hex('#16121e');
+const capas = new Map();
+// un fondo fijo se pinta una vez en su búfer y luego se copia (R.usar(prev), nunca R.usar() a secas)
+const capa = (k, f) => { if (!capas.has(k)) { const b = R.nuevo(), prev = R.usar(b); f(); R.usar(prev); capas.set(k, b); } R.copiar(capas.get(k)); };
+const CIELO = rampa('#3a74c4', '#4a84d0', '#5c96dc', '#70a8e6', '#88baee', '#a2ccf2', '#c0dcf6');
+const NUBE = rampa('#9eb0cc', '#d6e2f0', '#ffffff');
+// el cielo tramado dentro de dentro(x, y), de y0 (arriba) a hor (horizonte); nubes de tres tonos a tres velocidades y
+// pájaros; ninguna nube sube por encima de yMin (la barra del año)
+const cielo = (t, x0, y0, x1, y1, hor, dentro, o = {}) => {
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (dentro(x, y)) R.pset(x, y, tono(CIELO, 6.4 * (y - y0) / Math.max(1, hor - y0), x, y));
+  const nubes = o.nubes ?? [[0.1, 0.25, 22, 3], [0.55, 0.45, 30, 5], [0.85, 0.15, 16, 8]];
+  for (const [fx, fy, w, v] of nubes) {
+    const W = x1 - x0 + 2 * w + 20, cx = x0 - w - 10 + ((fx * W + t * v) % W), cy = Math.max(o.yMin ?? 0, y0 + fy * (hor - y0));
+    for (const [dx, dy, r] of [[-w * 0.45, 2, w * 0.32], [0, -2, w * 0.42], [w * 0.42, 1, w * 0.3], [w * 0.15, 3, w * 0.36]]) {
+      const ax = cx + dx, ay = cy + dy;
+      for (let j = -r; j <= r; j++) for (let i = -r; i <= r; i++) { if (i * i + j * j > r * r) continue; const x = Math.round(ax + i), y = Math.round(ay + j * 0.55);
+        if (x < x0 || x > x1 || y < y0 || y > y1 || !dentro(x, y)) continue;
+        R.pset(x, y, y > cy + 3 ? NUBE[0] : (j < -r * 0.35 && i < r * 0.3) ? NUBE[2] : tono(NUBE, 1.6 - (y - cy + 4) * 0.08, x, y)); } }
+  }
+  for (let k = 0; k < (o.aves ?? 3); k++) { const x = Math.round(x0 + ((t * (9 + k * 3) + k * 61) % (x1 - x0 + 30)) - 15), y = Math.round(y0 + 6 + k * 7 + Math.sin(t * 1.3 + k) * 3), a = Math.sin(t * 10 + k * 2) > 0 ? 1 : 0;
+    for (const [i, j] of [[-2, -a], [-1, 0], [0, 1], [1, 0], [2, -a]]) if (dentro(x + i, y + j) && x + i >= x0 && x + i <= x1) R.pset(x + i, y + j, hex('#2a3048')); }
+};
+// el año que dice la verdad en cada momento
+const desde = (pares) => (t) => { let a = pares[0][1]; for (const [t0, v] of pares) if (t >= t0) a = v; return a; };
+
+const v = (s) => en('pasillo', (s - 1.5) / 17.996);
+const P2 = v(5.62), P3 = v(10.0), P4 = v(14.24);
+const ahi = v(1.6), egipto = v(4.72), muestra = v(5.04), nueve = v(7.26), dos = v(8.70), tejado = v(10.18), vacio = v(10.96), cifra = v(12.12);
+const mide = v(15.62), publica = v(17.34), mira = v(18.88);
+// el pasillo de 2023 visto por la cámara: el decorado lo pinta en un búfer aparte y aquí se copia en pequeño
+let bufPas = null;
+const pasilloEn = (t, x0, y0, w, h, esc) => {
+  if (!bufPas) bufPas = R.nuevo();
+  const prev = R.usar(bufPas); T.keops(R, t, { encuadre: 'norte', camara: 'pasillo', entra: 1 }); R.usar(prev);
+  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) { const sx = Math.round(160 + (i - w / 2) * esc), sy = Math.round(96 + (j - h / 2) * esc); R.pset(x0 + i, y0 + j, bufPas[sy * 320 + sx]); }
+};
+
+// ── 1 · D keops/norte/pasillo: «and there it was» ──
+const PAS = { encuadre: 'norte', camara: 'pasillo' };
+const p1 = (t) => {
+  T.keops(R, t, { ...PAS, entra: 0.3 + 0.7 * tramo(t, 1.3, egipto) });
+  // el golpe: la imagen se aclara de un fogonazo (tramado que se va) y un anillo de luz recorre el borde del círculo
+  const g = 1 - tramo(t, ahi, ahi + 0.9);
+  if (t > ahi - 0.05 && g > 0) { for (let y = 22; y <= 170; y++) for (let x = 86; x <= 234; x++) { if (Math.hypot(x - 160, y - 96) > 74) continue; if (h(x, y, 80) < g * 0.55) R.pset(x, y, hex('#fff2c8')); }
+    for (let a = 0; a < 240; a++) { const an = a / 240 * Math.PI * 2 + t; if ((a >> 2) % 2) continue; R.pset(Math.round(160 + Math.cos(an) * 76), Math.round(96 + Math.sin(an) * 76), hex('#ffe08a')); } }
+  // tras el golpe, el marco de la mira se cierra en el fondo del pasillo y parpadea: ahí está
+  const m = tramo(t, ahi + 0.4, ahi + 1.4);
+  if (m > 0 && t < P2 - 0.3 && Math.floor(t * 3) % 2 === 0) { const r = Math.round(lerp(40, 12, m)); for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { R.linea(160 + sx * r, 96 + sy * r, 160 + sx * (r - 5), 96 + sy * r, hex('#7cff9a')); R.linea(160 + sx * r, 96 + sy * r, 160 + sx * r, 96 + sy * (r - 5), hex('#7cff9a')); } }
+};
+
+// ── 2 · D keops/anuncio: la rueda de prensa ──
+const ANU = { encuadre: 'anuncio' };
+const flash = (x, y, t, k) => { const f = (t * 1.3 + h(k, 1, 81)) % 1; if (f < 0.08) { R.disco(x, y, 3, hex('#ffffff')); for (const [dx, dy] of [[-6, 0], [6, 0], [0, -6], [0, 6], [-4, -4], [4, 4], [4, -4], [-4, 4]]) R.pset(x + dx, y + dy, hex('#fff6c0')); } };
+const p2 = (t) => {
+  T.keops(R, t, ANU);
+  // el equipo en el estrado, a los lados del ministro
+  R.actor(EL.cientificoJapones, 62, 147, t, { dir: 1, sonrisa: t > dos, dedo: t > nueve && t < nueve + 0.8 });
+  R.actor(EL.cientificaFrancesa, 140, 147, t, { dir: -1, sonrisa: true, habla: t > dos + 0.2 && Math.sin(t * 8) > 0.3 });
+  // el ministro habla y, a «showed the image», se vuelve hacia la pantalla y la señala
+  const vuelve = t > P2 + 0.3;
+  R.actor(EL.ministro2023, 104, 141, t, { dir: vuelve ? 1 : -1, habla: Math.sin(t * 8) > 0 && !(t > nueve - 0.2 && t < nueve + 0.4), dedo: vuelve && t < dos + 0.9 });
+  // los periodistas: la del micrófono llega desde la derecha y lo levanta; el fotógrafo dispara
+  const u = tramo(t, P2, P2 + 1.6), px = Math.round(lerp(330, 236, u));
+  R.actor(EL.periodista2025, px, 172, t, { dir: -1, anda: u > 0 && u < 1, habla: u >= 1 && t > nueve && Math.sin(t * 8) > 0 });   // con su micrófono de mano
+  R.actor(EL.periodista1, 202, 172, t, { dir: -1, habla: t > dos + 0.3 && Math.sin(t * 7) > 0 });
+  R.actor(EL.turista2, 272, 172, t, { dir: -1, sostiene: [262, 152] });
+  R.rect(256, 148, 264, 154, K); R.rect(257, 149, 263, 153, hex('#3a3a46')); R.disco(258, 151, 1, hex('#8ac0e0'));
+  flash(260, 149, t, 1); flash(222, 160, t + 0.4, 2); flash(300, 156, t + 0.7, 3);
+  T.keopsDelante(R, t, ANU);
+  // las cotas sobre la pantalla: a «9» el largo del pasillo; a «2» el ancho
+  const a9 = tramo(t, nueve - 0.1, nueve + 0.3), a2 = tramo(t, dos - 0.1, dos + 0.3), C1 = hex('#ffffff');
+  if (a9 > 0) { const L = Math.round(26 * a9); R.linea(226 - L, 68, 226 + L, 68, C1); R.linea(226 - L, 69, 226 + L, 69, K);
+    if (a9 >= 1) { R.linea(200, 66, 198, 68, C1); R.linea(200, 70, 198, 68, C1); R.linea(252, 66, 254, 68, C1); R.linea(252, 70, 254, 68, C1); }
+    R.numero('9', 226, 64, { tam: 8, centro: true }); }
+  if (a2 > 0) { const L = Math.round(16 * a2); R.linea(188, 96 - L, 188, 96 + L, C1); R.linea(189, 96 - L, 189, 96 + L, K);
+    if (a2 >= 1) { R.linea(186, 82, 188, 80, C1); R.linea(190, 82, 188, 80, C1); R.linea(186, 110, 188, 112, C1); R.linea(190, 110, 188, 112, C1); }
+    R.numero('2', 181, 100, { tam: 8, centro: true }); }
+};
+
+// ── 3 · LOCAL la prensa de cerca: la cámara de televisión, el monitor con el pasillo y los flashes ──
+const CALP = rampa('#8a6a3e', '#a8875a', '#c4a270', '#d8b986', '#e8cc98', '#f4dcae');
+const prensaFija = () => {
+  const dentro = () => true;
+  for (let y = 0; y < 96; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(CIELO, 6.4 * y / 96, x, y));
+  // el desierto lejano tras el horizonte (y 96), con Kefrén en la bruma y las dunas
+  for (let y = 96; y < 112; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(ARE, 3.2 - (112 - y) * 0.05 + (h(x >> 2, y, 86) - 0.5) * 0.6, x, y));
+  for (let y = 58; y < 97; y++) { const hw = (y - 58) * 0.95; for (let x = Math.round(250 - hw); x <= 250 + hw; x++) R.pset(x, y, tono(rampa('#c0a684', '#d2b894', '#e0c8a4'), x > 250 ? 0.6 : 1.8, x, y)); }
+  // la base de Keops, enorme, de fondo: hiladas de sillares al sol con sus juntas
+  for (let y = 18; y < 112; y++) for (let x = 0; x < 320; x++) { const borde = 18 + Math.abs(x - 40) * 0.9; if (y < borde) continue;
+    const hil = Math.floor((y - 18) / 6), junta = (y - 18) % 6 === 5 || ((x + hil * 13 + Math.floor(h(hil, 0, 82) * 20)) % 23 === 0);
+    if (x > 272 && y < 48) { R.pset(x, y, tono(CALP, 3.2, x, y)); continue; }
+    R.pset(x, y, junta ? CALP[1] : tono(CALP, 3.4 + (h(x >> 2, hil, 83) - 0.5) * 1.2 - (x - 40) * 0.003, x, y)); }
+  // la explanada de arena con huellas, cables y conos
+  for (let y = 112; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, tono(ARE, 2.4 + (y - 112) * 0.02 + (h(x >> 1, y, 84) - 0.5) * 0.9, x, y));
+  for (let x = 0; x < 320; x++) { const y = Math.round(160 + Math.sin(x * 0.05) * 3); R.pset(x, y, K); R.pset(x, y + 1, hex('#3a3a46')); }
+  // el estrado lejano a la derecha: el telón azul con la pirámide dorada, los banderines y la pantalla en su torre
+  R.rect(182, 82, 300, 120, K); R.rect(183, 83, 299, 119, hex('#2a4a8a')); for (let x = 186; x < 299; x += 5) R.linea(x, 84, x, 118, hex('#1e3a72'));
+  R.poligono([[228, 112], [241, 92], [254, 112]], hex('#e8c040')); R.linea(241, 92, 254, 112, hex('#b89020'));
+  R.rect(178, 118, 304, 124, K); R.rect(179, 119, 303, 123, hex('#a83a3a'));
+  for (let k = 0; k < 14; k++) { const x = 184 + k * 8; R.poligono([[x, 80], [x + 6, 80], [x + 3, 85]], [hex('#d83a3a'), hex('#f2eee2'), hex('#2a2a34')][k % 3]); }
+  R.linea(182, 80, 300, 80, K);
+  // rodadas, huellas y piedrecitas en la arena
+  for (let k = 0; k < 2; k++) for (let x = 110; x < 320; x++) { const y = Math.round(146 + k * 7 + Math.sin(x * 0.03 + k) * 2); if ((x >> 1) % 3) R.pset(x, y, ARE[1]); }
+  for (let k = 0; k < 40; k++) { const x = Math.round(h(k, 1, 87) * 318), y = Math.round(114 + h(k, 2, 87) * 64); R.rect(x, y, x + 1, y, ARE[0]); R.pset(x, y - 1, ARE[4]); }
+  // las vallas de la prensa delante del estrado: tubos con su rejilla y sus pies
+  for (let x0 = 150; x0 < 320; x0 += 34) {
+    R.rect(x0, 126, x0 + 32, 127, K); R.rect(x0, 141, x0 + 32, 142, K); R.linea(x0, 127, x0 + 32, 127, hex('#c8d0dc'));
+    for (let x = x0 + 2; x < x0 + 32; x += 3) R.linea(x, 128, x, 140, hex('#8a929e'));
+    for (const x of [x0, x0 + 32]) { R.rect(x, 124, x + 1, 146, K); R.linea(x - 4, 146, x + 5, 146, K); } }
+  // las maletas de las cámaras, un cono y el carrete de cable
+  for (const [x, y, c] of [[262, 150, '#2a2c34'], [288, 154, '#5a5c68']]) { R.rect(x, y, x + 24, y + 14, K); R.rect(x + 1, y + 1, x + 23, y + 13, hex(c)); R.rect(x + 1, y + 1, x + 23, y + 2, hex('#7a7c88')); for (const xx of [x + 2, x + 20]) R.rect(xx, y + 5, xx + 1, y + 9, hex('#c8d0dc')); R.rect(x + 9, y - 2, x + 15, y, K); }
+  R.poligono([[110, 168], [114, 154], [118, 168]], hex('#f07a2a')); R.linea(112, 161, 116, 161, hex('#ffffff')); R.rect(108, 168, 120, 169, K);
+  R.disco(96, 150, 7, K); R.disco(96, 150, 6, hex('#e07a2a')); R.disco(96, 150, 2, hex('#3a3a46'));
+};
+const ARE2 = rampa('#9a7a4a', '#b8945e', '#cca872', '#dcbc86', '#ead09c');
+const ARE = ARE2;
+const p3 = (t) => {
+  capa('prensa', prensaFija);
+  const enCielo = (x, y) => y < 18 + Math.abs(x - 40) * 0.9 && !(x > 272 && y < 48) && !(y >= 58 && Math.abs(x - 250) <= (y - 58) * 0.95) && !(x >= 178 && x <= 304 && y >= 78);
+  cielo(t, 0, 0, 320, 95, 96, enCielo, { yMin: 18, aves: 3 });
+  // gente pequeña al fondo, junto al estrado, que va y viene
+  for (let k = 0; k < 4; k++) { const x = Math.round(180 + ((t * (5 + k) + k * 33) % 130)), y = 126; R.rect(x, y - 7, x + 2, y - 1, [hex('#3a6ac8'), hex('#d84a3a'), hex('#f2eee2'), hex('#5a7a4a')][k]); R.rect(x, y - 9, x + 2, y - 8, hex('#c8946a')); R.pset(x + (Math.sin(t * 8 + k) > 0 ? 1 : 0), y, K); }
+  // la fila de periodistas, de perfil hacia el estrado, con los móviles en alto; uno llega corriendo
+  const u = tramo(t, P3 - 0.2, P3 + 1.4), lx = Math.round(lerp(330, 286, u));
+  for (const [x, d, k] of [[134, EL.periodista1, 0], [166, EL.periodista2025, 1], [200, EL.turista1, 2], [232, EL.turista2, 3]]) {
+    const a = R.actor(d, x, 174, t + k * 0.4, { dir: 1, sostiene: [x + 18, 144 - (k % 2) * 3], sorpresa: t > tejado && t < tejado + 0.7 && k === 1 });
+    const [mx, my] = a.mano; R.rect(mx - 1, my - 7, mx + 2, my - 1, K); R.rect(mx, my - 6, mx + 1, my - 2, hex('#8ac0e0'));
+    flash(mx + 1, my - 6, t + k * 0.37, 10 + k); }
+  R.actor(EL.periodista1, lx, 174, t + 2, { dir: -1, anda: u > 0 && u < 1, pal: { C: hex('#4a6a3a'), c: hex('#36502a') } });
+  // la cámara de televisión en primer término, en su trípode, con el piloto rojo
+  for (const [x1, y1] of [[8, 178], [56, 178], [34, 180]]) { R.linea(32, 128, x1, y1, K); R.linea(33, 128, x1 + 1, y1, hex('#5a5a66')); }
+  R.rect(4, 104, 74, 132, K); R.rect(5, 105, 73, 131, hex('#3a3c46')); R.rect(5, 105, 73, 107, hex('#5a5c68')); R.rect(10, 112, 30, 126, hex('#2a2c34'));
+  for (let y = 114; y < 125; y += 3) R.linea(12, y, 28, y, hex('#4a4c56'));
+  R.rect(74, 108, 104, 128, K); R.rect(75, 109, 103, 127, hex('#2a2c34')); R.disco(104, 118, 10, K); R.disco(104, 118, 9, hex('#1a1c24')); R.disco(104, 118, 6, hex('#3a5a8a')); R.disco(101, 115, 2, hex('#a8d0f0'));
+  R.rect(20, 98, 60, 104, K); R.rect(21, 99, 59, 103, hex('#4a4c56'));
+  if (Math.floor(t * 1.6) % 2 === 0) { R.disco(68, 110, 2, hex('#ff3a3a')); R.pset(67, 109, hex('#ffd0d0')); }
+  // el monitor del cámara, grande, encima: el pasillo en directo
+  R.rect(14, 46, 106, 100, K); R.rect(15, 47, 105, 99, hex('#2a2c34')); R.rect(15, 47, 105, 48, hex('#5a5c68'));
+  pasilloEn(t, 19, 51, 82, 44, 1.45);
+  // a «gabled roof», las dos losas del techo se encienden en el monitor (un tejado a dos aguas)
+  const tj = tramo(t, tejado - 0.1, tejado + 0.4);
+  if (tj > 0 && t < cifra + 0.4) { R.recorte([19, 51, 100, 94]); const L = Math.round(22 * tj); R.linea(60, 56, 60 - L, 56 + Math.round(L * 0.55), hex('#ffe08a')); R.linea(60, 56, 60 + L, 56 + Math.round(L * 0.55), hex('#ffe08a')); R.linea(60, 57, 60 - L, 57 + Math.round(L * 0.55), hex('#c8902a')); R.linea(60, 57, 60 + L, 57 + Math.round(L * 0.55), hex('#c8902a')); R.recorte(null); }
+  // a «4,500», la cifra sale sobre el monitor, con su icono de pirámide
+  const c = tramo(t, cifra - 0.1, cifra + 0.3);
+  if (c > 0) { const y = Math.round(lerp(46, 38, c)); R.rect(22, y - 12, 98, y + 2, K); R.rect(23, y - 11, 97, y + 1, hex('#2a2030')); R.numero('4500', 66, y - 1, { tam: 8, centro: true }); R.icono('piramide', 26, y - 9, hex('#e8c040'), K, 1); }
+};
+
+// ── 4 · D keops/anuncio/radiografia: medir, publicar, mirar ──
+const RAD = { encuadre: 'anuncio', camara: 'radiografia' };
+const p4 = (t) => {
+  T.keops(R, t, { ...RAD, revela: tramo(t, mide - 0.2, publica - 0.2) });
+  // el japonés, debajo del negatoscopio, sigue el barrido con el dedo: medirlo
+  const jx = Math.round(lerp(70, 176, tramo(t, mide - 0.2, publica - 0.2)));
+  R.actor(EL.cientificoJapones, jx, 166, t, { dir: 1, anda: t > mide - 0.2 && t < publica - 0.2, dedo: t > mide - 0.2 && t < mira - 0.4, sonrisa: t > mira });
+  // la francesa trae la revista y la deja en la mesa: publicarlo
+  const u = tramo(t, P4 + 0.2, publica), fx = Math.round(lerp(330, 252, u));
+  const deja = t > publica + 0.5;
+  const fr = R.actor(EL.cientificaFrancesa, fx, 166, t, { dir: t > mira - 0.3 ? 1 : -1, anda: u > 0 && u < 1, sostiene: deja ? undefined : [fx - 4, 142], sonrisa: t > mira, dedo: t > mira && t < mira + 1.2 });
+  if (!deja && fr.mano) T.PIEZAS_GZ.revista(R, fr.mano[0], fr.mano[1] + 10, {});
+  if (deja) T.PIEZAS_GZ.revista(R, 248, 128, {});
+  // mirarlo: en la mesa, un monitor con el pasillo de verdad que se enciende a «look at it»
+  R.rect(270, 100, 304, 127, K); R.rect(271, 101, 303, 125, hex('#2a2c34')); R.rect(284, 126, 290, 128, hex('#5a5c68'));
+  if (t > mira - 0.2) pasilloEn(t, 273, 103, 29, 20, 3.4);
+  else for (let y = 103; y < 123; y++) for (let x = 273; x < 302; x++) R.pset(x, y, h(x, y, 85 + Math.floor(t * 8) % 3) < 0.3 ? hex('#3a3c46') : hex('#1a1c24'));
+  // el ojo que se abre sobre el monitor a «look»
+  if (t > mira && t < mira + 1.4 && Math.floor(t * 4) % 2 === 0) { R.disco(287, 92, 3, K); R.rect(282, 91, 292, 93, hex('#ffffff')); R.disco(287, 92, 1, hex('#2a4a8a')); }
+};
+
+const efectos = [[ahi, 'brillo'], [P2 + 0.1, 'publico'], [P2 + 0.6, 'flash'], [nueve, 'pop'], [dos, 'pop'],
+  [P3 + 0.4, 'flash'], [tejado, 'brillo'], [cifra, 'pop'], [mide - 0.1, 'interruptor'], [publica + 0.5, 'papel'], [mira, 'bip']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '2023', efectos, año: 2023 });
+</script>
+</body>
+</html>

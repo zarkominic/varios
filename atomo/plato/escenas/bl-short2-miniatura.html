@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep48 · short 2 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// BL-SHORT2-MINIATURA · ep48, vertical: lo que cuenta en la columna central (x 110–210). Con chibis, sin palabras, sin Atom.
+// Friedman, el jefe de los descifradores del ejército en los años treinta, al triple delante de la pizarra llena de
+// números de su oficina, con una hoja de Beale en la mano y el gesto de quien no puede con ella.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import * as T from '/atomo/plato/escenas/bl-comun.js';
+import { figura, grado, halo } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'sis' };
+  T.buscadores(R, t, o);
+  const f = figura(R, T.BL.friedmanBL, 120, 180, t, { dir: 1, sostiene: [76, 66] }, 3);
+  if (f && f.mano) T.d_hoja(R, f.mano[0] + 16, f.mano[1] - 33, { escala: 2, n: 1, t: 0.3 });
+  halo(R, 160, 110, 50, 70, '#fff0c8', 0.2);
+  grado(R, { cx: 160, cy: 100, rx: 80, ry: 120, tinte: '#0a1010', f: 0.12, desde: 0.55, max: 0.75 });
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

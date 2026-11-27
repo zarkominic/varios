@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hagrid · ep21</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// HP-HAGRID (frase 12), 2026. Tres planos:
+// 1. a ras del embarcadero (cámara 'muelle'): Hagrid, enorme, espera en las tablas junto al poste del farol; Harry, Ron
+//    y Hermione suben por el tablero desde la orilla; en «lantern» Hagrid levanta el farol y en «Hagrid» sonríe; la barca
+//    amarrada cabecea y las barcas con farol se alejan hacia la cueva del risco;
+// 2. (corta en «now») la cabaña de Hagrid: sale por la puerta, el perro mueve el rabo y ladra en «Frost»; en «walk into
+//    the castle» los tres pasan por la nieve camino del castillo y Hagrid les señala el camino;
+// 3. (corta en «a very strict») la escalinata: se abren las puertas, sale McGonagall y se planta seria en el rellano; en
+//    «greets» levanta el dedo; en «McGonagall» se aparta a la derecha del rellano y les hace pasar: los de primero se
+//    suben la escalinata uno tras otro, cada uno a su carril del umbral, y entran, tapados por las jambas.
+import * as T from '/atomo/plato/escenas/hp-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('hp-hagrid');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const a = (f) => en('hagrid', f);
+const P2 = a(0.284), P3 = a(0.572);
+const farolT = a(0.114), hag = a(0.234), frost = a(0.37), walk = a(0.481), strict = a(0.596), teacher = a(0.627), hat = a(0.715), greets = a(0.739), mcg = a(0.832), janet = a(0.915);
+const C = T.C, P = T.PIEZAS_HP;
+const halo = (cx, cy, r, c, k = 0, dens = 3) => { for (let y = Math.floor(cy - r); y <= cy + r; y++) for (let x = Math.floor(cx - r); x <= cx + r; x++) { const d = Math.hypot(x - cx, y - cy) / r; if (d < 1 && (((x * 374761 + y * 668265 + k * 1013) >>> 0) % 97) / 97 < (1 - d) * (1 - d) * dens * 0.25) R.pset(x, y, c); } };
+const sube = (t, t0, d = 0.5) => { const u = tramo(t, t0, t0 + d); return u > 0 && u < 1 ? Math.round(Math.sin(u * Math.PI) * 6) : 0; };
+const p1 = (t) => {
+  // a ras del embarcadero (cámara 'muelle', otra composición que el lago de hp-poster): el tablero en perspectiva hacia
+  // el lago, el farol en su poste, la barca amarrada y las barcas que se alejan hacia la cueva del risco
+  const g = T.hogwarts(R, t, { encuadre: 'anden', camara: 'muelle', barcas: tramo(t, 0, P2 + 1) });
+  const lev = tramo(t, farolT - 0.2, farolT + 0.3), fy = Math.round(lerp(150, 121, lev) + Math.sin(t * 3) * 2);
+  // los tres suben por las tablas desde la orilla (abajo a la izquierda) hasta Hagrid; de lejos a cerca
+  const chicos = [[EL.hermione, 1.0, 58, 163], [EL.ron, 0.6, 78, 168], [EL.harry, 0.2, 98, 174]];
+  const pinta = (d, re, xf, yf, k) => {
+    const u = tramo(t, re, re + 1.8), e = u * (2 - u), x = Math.round(lerp(xf - 34, xf, e)), y = Math.round(lerp(204, yf, e));
+    R.actor(d, x, y, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: u >= 1 && t > farolT && t < hag, sonrisa: t > hag + 0.3, salto: k === 2 && t > hag && t < hag + 0.4 ? 3 : 0 });
+  };
+  pinta(...chicos[0], 0); pinta(...chicos[1], 1);
+  // Hagrid, enorme, en el tablero junto al poste del farol; en «lantern» levanta su farol y en «Hagrid» sonríe
+  const rh = R.actor(EL.hagrid, 128, 171, t, { dir: -1, sostiene: [118, fy], sonrisa: t > hag, habla: t > hag - 0.1 && t < hag + 0.6 && Math.sin(t * 9) > 0 });
+  P.farol(R, rh.mano[0], rh.mano[1] + 10, { t });
+  // el halo del farol, tramado
+  halo(rh.mano[0], rh.mano[1] + 4, 14 + Math.sin(t * 9), hex('#ffd870'), Math.floor(t * 8), 2.2);
+  pinta(...chicos[2], 2);
+  T.hogwartsDelante(R, t, { encuadre: 'anden', camara: 'muelle', barcas: tramo(t, 0, P2 + 1) });
+};
+const p2 = (t) => {
+  const g = T.exterior(R, t, { encuadre: 'cabana' });
+  // Hagrid sale por la puerta (abre en «now») y se planta; en «Frost» se ríe; en «walk» señala el castillo
+  const sal = tramo(t, P2 + 0.1, P2 + 0.9), hx = Math.round(lerp(158, 132, sal));
+  // la puerta abierta: hueco con luz
+  const ab = tramo(t, P2, P2 + 0.3); if (ab > 0) { R.rect(156, 107, 156 + Math.round(24 * ab), 149, hex('#ffc860')); R.rect(156, 107, 156 + Math.round(24 * ab), 109, hex('#fff0b0')); for (let y = 112; y < 149; y += 5) R.pset(158, y, hex('#e89a40')); }
+  R.actor(EL.hagrid, hx, Math.round(lerp(150, 164, sal)), t, { dir: -1, anda: sal > 0 && sal < 1, sonrisa: t > frost - 0.2, habla: t > frost - 0.2 && t < frost + 0.8 && Math.sin(t * 10) > 0, dedo: t > walk - 0.1 });
+  // el perro (dibujado por el decorado en x 118) ladra en «Frost»: el bocadillo
+  if (t > frost + 0.1 && t < frost + 0.9) R.bocadillo(122, 140, { icono: '!' });
+  // los tres pasan por la nieve, de derecha a izquierda, camino del castillo (arriba a la izquierda)
+  [[EL.harry, 0], [EL.ron, 0.35], [EL.hermione, 0.7]].forEach(([d, re], k) => {
+    const u = tramo(t, walk - 1.2 + re, P3 + 0.8 + re), x = Math.round(lerp(330, 10, u));
+    if (u > 0 && u < 1) { R.actor(d, x + k * 2, 168 + k * 2, t, { dir: -1, anda: true, sonrisa: true }); if (Math.floor(t * 5 + k) % 2) R.pset(x + k * 2 + 10, 170 + k * 2, hex('#b8c8dc')); }
+  });
+  T.exteriorDelante(R, t, { encuadre: 'cabana' });
+};
+const p3 = (t) => {
+  const ab = tramo(t, P3 + 0.3, teacher - 0.1);
+  const g = T.exterior(R, t, { encuadre: 'castillo', camara: 'cerca', puertas: ab });
+  // McGonagall sale por la puerta en «teacher» y se planta en el rellano; seria, el dedo en «greets»; en «McGonagall»
+  // se da la vuelta y les hace pasar
+  const mg = tramo(t, teacher - 0.2, teacher + 0.5), ap = tramo(t, mcg, mcg + 0.6), mx = Math.round(lerp(153, 196, ap)), my = Math.round(lerp(132, 140, mg) + 2 * ap);
+  if (ab > 0.6) R.actor(EL.mcgonagall, mx, my, t, { dir: t > mcg ? -1 : 1, anda: ap > 0 && ap < 1, enfado: t > strict && t < mcg, dedo: t > greets && t < mcg, brazos: t > mcg && t < mcg + 0.7, habla: t > greets && t < mcg + 1 && Math.sin(t * 8) > 0 });
+  // los de primero esperan abajo; en «McGonagall» suben la escalinata uno tras otro, cada uno en diagonal desde su sitio
+  // hasta su carril del umbral (x 130–170, 10–14 px entre carriles, pero sin cruzarse: primero el que está más cerca
+  // del centro de cada lado, Harry, Hermione, Ron, Neville y la alumna, que alterna izquierda y derecha) y cruzan la puerta: dentro, recortados al
+  // hueco, se van tras la jamba (los de la izquierda a la izquierda, los de la derecha a la derecha).
+  const HU = [136, 40, 184, 141];   // el hueco de la puerta abierta (hojas de 3 px a cada lado), hasta el umbral
+  const fila = [[EL.alumna, 76, 130, 4, -1], [EL.ron, 98, 140, 2, -1], [EL.harry, 120, 150, 0, -1], [EL.hermione, 188, 164, 1, 1], [EL.nevilleSapo, 212, 170, 3, 1]];
+  const gente = fila.map(([d, x0, xc, o, lado], k) => {
+    const t0 = mcg + 0.45 + o * 0.45, s = tramo(t, t0, t0 + 0.9), w = tramo(t, t0 + 0.9, t0 + 1.6);
+    if (w >= 1) return null;
+    const dentro = s >= 1, x = dentro ? Math.round(lerp(xc, lado < 0 ? 112 : 186, w)) : Math.round(lerp(x0, xc, s));
+    const y = dentro ? Math.round(lerp(141, 131, Math.min(1, w * 2.5))) : Math.round(lerp(176, 141, s) - (s > 0 && s < 1 ? (Math.floor(t * 6 + k) % 2) : 0));
+    const dir = dentro ? lado : s > 0 ? (xc > x0 ? 1 : -1) : x0 < 150 ? 1 : -1;
+    return { d, x, y, dir, dentro, anda: s > 0, k };
+  }).filter(Boolean);
+  // primero los de dentro (al fondo, recortados al hueco) y luego los de la escalinata, de arriba abajo
+  gente.sort((p, q) => (q.dentro - p.dentro) || (p.y - q.y)).forEach(({ d, x, y, dir, dentro, anda, k }) => {
+    if (dentro) R.recorte(HU);
+    R.actor(d, x, y, t, { dir, anda, sorpresa: t > ab && t < strict + 0.4, triste: t > strict + 0.4 && t < mcg && k === 1, sonrisa: (k === 2 || dentro) && t > mcg });
+    R.recorte(null);
+  });
+  T.exteriorDelante(R, t, { encuadre: 'castillo', camara: 'cerca', puertas: ab });
+};
+const efectos = [[0.3, 'ola'], [farolT, 'brillo'], [P2 + 0.05, 'puerta'], [frost + 0.1, 'guau'], [P3 + 0.1, 'cerrojo'], [P3 + 0.5, 'puerta'], [greets, 'golpecito'], [mcg + 0.4, 'palmada']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3]], { efectos, año: 2026 });
+</script>
+</body>
+</html>

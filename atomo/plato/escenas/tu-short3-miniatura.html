@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep36 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// ep36 · miniatura vertical del Short 3: la dibuja tu-mini-chibi.js (n = 3).
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi } from '/atomo/plato/kits/pixel-chibi.js';
+import { pintarTUchibi } from '/atomo/plato/escenas/tu-mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+window.__frame = async (t) => { pintarTUchibi(R, t, 3); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Day of the Tentacle · ep16</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// LA-TENTACULO (frases 24–25), 1993, cartela «1993». Cuatro planos:
+// 1. mansion 'fachada' general de día, con rebote: los dos directores jóvenes suben por el camino con el guion; hablan; en
+//    «direct a game» uno levanta el guion; en «first time» saltan y chocan las manos, y la casa bota como en los dibujos;
+//    el tentáculo morado saluda desde el rellano. Corta en «Day of the Tentacle».
+// 2. mansion 'pasillo' general (1993, de día): el tentáculo morado, con bracitos y brillo, sale de la puerta verde en
+//    «Day of the Tentacle» y cruza a saltitos hasta el centro; pose de conquistador en «sequel to Maniac Mansion»; entran
+//    los tres amigos por la derecha; en «stop the purple tentacle» le señalan, enfadados, y él se sorprende. Corta en «Three».
+// 3. epocas 'presente' cerca (el jardín con los tres retretes): los amigos llegan corriendo, abren las puertas y se meten;
+//    el morado se cuela a saltitos en el retrete azul justo antes de que se cierre; en «travel through time» los tres
+//    tiemblan, se cargan y salen disparados con un destello en «portable toilets»; quedan las marcas y el humo. Corta en
+//    «and each one».
+// 4. epocas 'triple': la casa en 1793, 1993 y 2193; un retrete llega a cada época con su destello («each one», «different
+//    era», «same house») y de cada uno sale un amigo; en 1793 asoma después el morado.
+import * as T from '/atomo/plato/escenas/la-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('la-tentaculo');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = T.C.k;
+const hh = (x, y, k = 0) => { const s = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return s - Math.floor(s); };
+const mez = (c1, c2, a) => { a = Math.max(0, Math.min(1, a)); const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+// una nota musical: forma 0 negra, 1 dos corcheas unidas, 2 nota fantasma (rombo con cola ondulada); c color, s escala 1–2
+const nota = (x, y, forma, c, s = 1, t = 0) => {
+  x = Math.round(x); y = Math.round(y); const cs = mez(c, K, 0.45), cl = mez(c, hex('#ffffff'), 0.55);
+  if (forma === 2) {
+    const r = 3 * s; R.poligono([[x, y - r - 1], [x + r + 1, y], [x, y + r + 1], [x - r - 1, y]], K); R.poligono([[x, y - r], [x + r, y], [x, y + r], [x - r, y]], c);
+    R.pset(x - 1, y - 1, cl); for (let k = 0; k < 7 * s; k++) R.pset(x + Math.round(Math.sin(k * 0.9 + t * 8) * 1.5), y + r + 1 + k, k % 2 ? cs : c);
+    return;
+  }
+  const cab = (cx) => { R.disco(cx + 0.5, y + 0.5, 2.6 * s, K); R.disco(cx + 0.5, y + 0.5, 1.9 * s, c); R.pset(cx - 1, y - 1, cl); };
+  const palo = (cx) => { R.rect(cx + 2 * s, y - 9 * s, cx + 2 * s + s - 1, y, K); };
+  if (forma === 1) { cab(x - 4 * s); cab(x + 4 * s); palo(x - 4 * s); palo(x + 4 * s); R.rect(x - 2 * s, y - 9 * s, x + 6 * s + s - 1, y - 8 * s + s - 1, K); R.rect(x - 2 * s, y - 9 * s + 1, x + 6 * s, y - 9 * s + 1, c); return; }
+  cab(x); palo(x); R.rect(x + 3 * s, y - 9 * s, x + 4 * s, y - 8 * s, K); R.pset(x + 4 * s, y - 7 * s, K);
+};
+
+const a = (f) => en('dott', f), b = (f) => en('retretes', f);
+const P2 = a(0.6085), P3 = b(0.19), P4 = b(0.619);
+// ── plano 1: la fachada que bota ───────────────────────────────────────────────────────────────────────────────
+const p1 = (t) => {
+  const habla = a(0.203), dirige = a(0.332), primera = a(0.469);
+  const rebote = 0.12 + 0.88 * tramo(t, primera - 0.1, primera + 0.4) * (1 - 0.6 * tramo(t, primera + 0.9, P2));
+  const g = T.mansion(R, t, { encuadre: 'fachada', luz: 'dia', anyo: 1993, rebote });
+  // el tentáculo morado saluda desde el rellano
+  const [, , px1, py1] = g.puerta;
+  T.tentaculo(R, px1 + 9, py1, t, { color: 'morado', brazos: tramo(t, 1.8, 2.4), pose: t > 2.4 ? 'saluda' : 'normal', expresion: t > primera ? 'malvado' : 'feliz', dir: -1 });
+  // los dos directores suben por el camino con el guion
+  const anda = tramo(t, 1.4, habla), x1 = Math.round(lerp(-20, 128, anda)), x2 = Math.round(lerp(-44, 152, anda));
+  const salto = t > primera && t < primera + 0.45 ? Math.round(Math.sin((t - primera) / 0.45 * Math.PI) * 5) : 0;
+  const levanta = tramo(t, dirige - 0.1, dirige + 0.3) * (1 - tramo(t, primera - 0.3, primera));
+  const hablan = t > habla && t < primera;
+  const r1 = R.actor(EL.disenador, x1, 170, t, { dir: hablan && !levanta ? 1 : 1, anda: anda > 0 && anda < 1, salto, sonrisa: t > primera || levanta > 0, habla: hablan && Math.sin(t * 9) > 0 && t < dirige,
+    sostiene: levanta > 0 ? [x1 + 18, Math.round(lerp(152, 132, levanta))] : true });
+  R.actor(EL.disenador2, x2, 170, t, { dir: hablan || salto ? -1 : 1, anda: anda > 0 && anda < 1, salto, sonrisa: t > dirige, habla: hablan && Math.sin(t * 9 + 2) > 0 && t > dirige - 0.4, dedo: t > dirige + 0.2 && t < primera - 0.2 });
+  // el guion: unas hojas grapadas con renglones sin letras
+  const [gx, gy] = r1.mano; R.rect(gx - 4, gy - 9, gx + 5, gy + 2, K); R.rect(gx - 3, gy - 8, gx + 4, gy + 1, hex('#f6f2e6')); R.rect(gx - 3, gy - 8, gx + 4, gy - 7, hex('#c84a3a'));
+  for (let k = 0; k < 4; k++) R.rect(gx - 2, gy - 5 + k * 2, gx + (k % 2 ? 1 : 3), gy - 5 + k * 2, hex('#8a8a9a'));
+  if (levanta > 0.5 && Math.floor(t * 6) % 2) for (const [ox, oy] of [[-7, -10], [8, -11], [0, -14]]) R.pset(gx + ox, gy + oy, hex('#fff0a0'));
+  // en «first time», chocan las manos: un destello entre los dos
+  if (t > primera + 0.1 && t < primera + 0.5) { const cx = (x1 + x2 + 14) >> 1, cy = 136 - salto; for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, r = 3 + (t - primera) * 20; R.pset(Math.round(cx + Math.cos(an) * r), Math.round(cy + Math.sin(an) * r), hex('#fff0a0')); } }
+};
+// ── plano 2: el pasillo: el morado sale y los amigos le plantan cara ───────────────────────────────────────────
+const p2 = (t) => {
+  T.mansion(R, t, { encuadre: 'pasillo', luz: 'dia', anyo: 1993 });
+  const sale = a(0.66), pose = b(-0.2), stop = b(0.012), purple = b(0.059);
+  const cruza = tramo(t, sale, a(0.8)), tx = Math.round(lerp(34, 140, cruza)), sorp = t > purple + 0.1;
+  if (t > sale - 0.2) {
+    const brilla = 1 - tramo(t, sale + 0.6, sale + 1.6);
+    if (t < sale + 0.3) for (let k = 0; k < 8; k++) { const an = k * Math.PI / 4, r = 6 + (t - sale + 0.2) * 40; R.pset(Math.round(34 + Math.cos(an) * r), Math.round(130 + Math.sin(an) * r), hex('#b8f070')); }
+    T.tentaculo(R, tx, 160, t, { color: 'morado', brazos: 1, brillo: brilla, anda: cruza > 0 && cruza < 1, pose: t > a(0.82) && t < stop ? 'arriba' : 'normal', expresion: sorp ? 'sorpresa' : 'malvado', habla: t > a(0.82) && t < a(0.97), dir: sorp ? 1 : 1 });
+  }
+  // los tres amigos entran por la derecha y se plantan
+  const entra = tramo(t, a(0.8), pose + 0.3);
+  [[EL.roquero, 196, 0], [EL.empollon, 218, 1], [EL.chicaRara, 240, 2]].forEach(([d, x0, k]) => { const x = Math.round(lerp(330 + k * 22, x0, entra));
+    R.actor(d, x, 160, t, { dir: -1, anda: entra > 0 && entra < 1, enfado: t > stop, dedo: k === 1 && t > stop && t < P3 - 0.2, sorpresa: t < stop && entra >= 1 && k !== 1, habla: k === 1 && t > stop && Math.sin(t * 9) > 0 }); });
+  if (t > stop && t < P3) R.bocadillo(232, 124, { icono: '!' });
+};
+// ── plano 3: el jardín: se meten en los retretes y salen disparados ────────────────────────────────────────────
+const RT = [[118, 'azul', EL.roquero], [162, 'verde', EL.empollon], [206, 'rojo', EL.chicaRara]];
+const p3 = (t) => {
+  T.epocas(R, t, { encuadre: 'presente', camara: 'cerca', retretes: false });
+  const llegan = tramo(t, P3, P3 + 0.55), abre = tramo(t, P3 + 0.45, P3 + 0.75), dentro = P3 + 0.95, cierra = tramo(t, b(0.33), b(0.36));
+  const viajes = [b(0.36), b(0.385), b(0.41)];
+  // el morado llega a saltitos por la izquierda y se cuela en el retrete azul
+  const cuela = tramo(t, P3 + 0.5, b(0.32)), mx = Math.round(lerp(-20, 121, cuela)), mDentro = cuela >= 1;
+  RT.forEach(([cx, color, d], i) => {
+    const puerta = Math.min(abre, 1 - cierra), v = tramo(t, viajes[i], viajes[i] + 1.6);
+    const o = { color, puerta, viaje: v > 0 ? v : undefined };
+    const r = T.retrete(R, cx, 150, t, { ...o, capa: 'fondo' });
+    if (t > dentro && puerta > 0.05) { R.actor(d, cx - 7 - (i === 0 && mDentro ? 2 : 0), 149, t, { dir: 1, sorpresa: i === 0 && mDentro, sonrisa: i !== 0 }); if (i === 0 && mDentro) T.tentaculo(R, cx + 3, 149, t, { color: 'morado', expresion: 'malvado', dir: -1 }); }
+    T.retrete(R, cx, 150, t, { ...o, capa: 'frente' });
+    // los que aún no han entrado corren hasta su puerta y saltan dentro
+    if (t <= dentro) { const sx = Math.round(lerp(-30 - i * 24, cx - 7, llegan)), salto = t > dentro - 0.25 ? Math.round(Math.sin((t - dentro + 0.25) / 0.25 * Math.PI) * 6) : 0;
+      R.actor(d, sx, t > dentro - 0.12 ? 150 : 166, t, { dir: 1, anda: llegan > 0 && llegan < 1, salto, sonrisa: true }); }
+  });
+  if (!mDentro && cuela > 0) { const sj = tramo(t, b(0.32) - 0.3, b(0.32)); T.tentaculo(R, mx, Math.round(lerp(168, 149, sj)), t, { color: 'morado', brazos: 1, expresion: 'malvado', anda: sj === 0, salto: Math.round(Math.sin(sj * Math.PI) * 10), dir: 1 }); }
+  // un balón rojo rueda por el césped hacia el aspersor
+  const bl = tramo(t, P3, P4); { const bx = Math.round(lerp(40, 250, bl)), by = 172 - Math.round(Math.abs(Math.sin(bl * 9)) * 4 * (1 - bl)); R.disco(bx, by, 4, K); R.disco(bx, by, 3.2, hex('#d83a3a')); R.rect(bx - 3, by, bx + 3, by, hex('#f2eee2')); R.pset(bx - 1, by - 2, hex('#ff9a8a')); }
+};
+// ── plano 4: las tres épocas: un retrete llega a cada una ──────────────────────────────────────────────────────
+const p4 = (t) => {
+  const g = T.epocas(R, t, { encuadre: 'triple' });
+  const llegadas = [b(0.639), b(0.786), b(0.9)], quien = [EL.roquero, EL.empollon, EL.chicaRara], col = ['azul', 'verde', 'rojo'];
+  g.franjas.forEach((f, i) => {
+    const t0 = llegadas[i] - 0.35, cx = f.x1 - 26, llega = tramo(t, t0, t0 + 0.55), abre = tramo(t, t0 + 0.65, t0 + 0.9), sal = tramo(t, t0 + 0.85, t0 + 1.4);
+    if (t < t0) return;
+    T.retrete(R, cx, 150, t, { color: col[i], llega, puerta: abre });
+    R.recorte([f.x0, f.y0, f.x1, f.y1]);
+    if (abre > 0.6) { const x = Math.round(lerp(cx - 7, f.x0 + 14, sal));
+      R.actor(quien[i], x, 150, t, { dir: -1, anda: sal > 0 && sal < 1, sorpresa: sal >= 1 && i !== 1, sonrisa: i === 1 && sal >= 1, dedo: i === 1 && sal >= 1 && t > t0 + 1.6, salto: sal > 0 && sal < 0.25 ? 2 : 0 }); }
+    // en 1793, el morado asoma por la puerta del retrete
+    if (i === 0 && t > b(0.93)) T.tentaculo(R, cx + 1, 150, t, { color: 'morado', brazos: 1, expresion: 'malvado', dir: -1, salto: Math.round(tramo(t, b(0.93), b(0.97)) * 3) });
+    R.recorte(null);
+  });
+};
+const efectos = [[a(0.47), 'palmada'], [a(0.5), 'boing'], [a(0.66), 'puerta'], [a(0.83), 'boing'], [b(0.02), 'golpecito'], [P3 + 0.5, 'puerta'], [b(0.34), 'cerrojo'], [b(0.37), 'zumbido'], [b(0.47), 'flash'], [b(0.639), 'flash'], [b(0.786), 'flash'], [b(0.9), 'flash']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { cartela: '1993', efectos, año: 1993 });
+</script>
+</body>
+</html>

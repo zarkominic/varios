@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ep37 · miniatura</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// WO-MINIATURA · ep37, con chibis (regla del 09/11/2026: personas chibi del reparto, nada de mascotas ni objetos con
+// cara). Una sola idea: el listado de 1977 con la secuencia 6EQUJ5 rodeada en rojo y el «Wow!» al margen, grande y
+// recortado por un halo, delante de la gran oreja de noche bajo un cielo lleno de estrellas; Ehman, al doble, lo
+// sostiene con cara de sorpresa. «1977» en blanco hueso. Sin extraterrestres: el misterio es el papel.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+import { oreja, orejaDelante, piezaListado } from '/atomo/plato/escenas/wo-comun.js';
+import { figura, grado, halo, cifra } from '/atomo/plato/escenas/mini-chibi.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const dibujar = (t) => {
+  const o = { encuadre: 'campo', luz: 'noche' };
+  oreja(R, t, o); orejaDelante(R, t, o);
+  grado(R, { tinte: '#0a1838', f: 0.22, desde: 0.6, max: 0.62 });
+  halo(R, 214, 96, 96, 84, '#fff0c8', 0.30);                    // la luz que recorta el papel
+  piezaListado(R, 132, 14, { s: 2, rodea: 1, wow: 1, resalta: 1, sombra: true, recorte: [150, 14, 306, 154] });
+  halo(R, 72, 118, 60, 70, '#9ac8ff', 0.30);                    // el borde frío detrás de Ehman
+  figura(R, EL.ehmanWO, 70, 194, t, { dir: 1, sorpresa: true }, 3);
+  cifra(R, '1977', 62, 22, 20);
+};
+window.__frame = async (t) => { dibujar(t); R.presentar(); };
+window.__listo = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+{
+ "serie": "ASK Atom",
+ "numero": 27,
+ "estado": "v1",
+ "formato": "16:9",
+ "rotulos": false,
+ "titulo": {
+  "en": "Tetris: How a Soviet Game Escaped the USSR",
+  "es": "Tetris: el juego que se escapó de la Unión Soviética"
+ },
+ "principal": "en",
+ "narracion": "cuento",
+ "voces": {
+  "en": {
+   "voz": "am_puck",
+   "lang": "en-us",
+   "velocidad": 0.92
+  },
+  "es": {
+   "voz": "em_santa",
+   "lang": "es",
+   "velocidad": 0.95
+  }
+ },
+ "lotes": [],
+ "escenas": [
+  {
+   "id": "ts-gancho",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [
+    "laboratorio"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 1,
+     "marca": "laboratorio",
+     "es": "El videojuego de puzles más famoso del mundo nació en un laboratorio soviético, y durante doce años su creador no ganó ni un rublo con él. El dinero se lo llevó quien ganó una carrera a través del Telón de Acero.",
+     "en": "The most famous puzzle game in the world was born in a Soviet computer lab, and for twelve years, its creator didn't earn a single ruble from it. The money went to whoever won a race across the Iron Curtain.",
+     "visual": "A (el centro de cálculo de Moscú en 1984, de noche y con nieve): un científico ante un terminal de pantalla verde donde caen piezas hechas de corchetes; corte a una moneda de un rublo que rueda por la mesa y se para; un mapa de Europa partido por una línea de alambre (el Telón de Acero)."
+    },
+    {
+     "n": 2,
+     "marca": "carrera",
+     "es": "Por el camino vas a conocer a un científico con un ordenador que no sabía dibujar, a un vendedor que vendió unos derechos que no tenía, a un magnate de la prensa y a un diseñador de juegos que voló a Moscú sin que nadie lo invitara. Y vas a ver por qué, cuarenta años después, tu cerebro sigue sin poder dejar de jugarlo.",
+     "en": "Along the way, you'll meet a scientist with a computer that couldn't draw, a salesman who sold rights he didn't have, a newspaper tycoon, and a game designer who flew to Moscow without an invitation. And you'll see why, forty years later, your brain still can't stop playing it.",
+     "visual": "B, C y E: un télex que escupe cinta, un magnate de traje con teléfono, un hombre con maleta bajo la nieve de la Plaza Roja; en el estudio de Atom, unos libros caen del cielo y encajan solos en la estantería; cuando una balda se llena, desaparece (gag 1)."
+    }
+   ]
+  },
+  {
+   "id": "ts-hola",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 3,
+     "marca": "hola",
+     "es": "Soy Atom, y te explico eso que siempre te has preguntado. Vamos a verlo.",
+     "en": "I'm Atom, and I explain the things you've always wondered about. Let's find out.",
+     "visual": "E: Atom saluda en su estudio, junto a la estantería de los libros que encajan."
+    }
+   ]
+  },
+  {
+   "id": "ts-centro",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1984",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 4,
+     "marca": "centro",
+     "es": "En junio de 1984, en Moscú, Alexéi Pázhitnov trabajaba en el centro de cálculo de la Academia de Ciencias de la Unión Soviética. Investigaba cómo enseñar a los ordenadores a entender la voz, pero en su tiempo libre programaba rompecabezas, y su favorito era uno antiguo, con piezas hechas de cinco cuadrados que había que meter en una caja.",
+     "en": "In June 1984, in Moscow, Alexey Pajitnov worked at the computing center of the Soviet Academy of Sciences. He researched how to teach computers to understand speech, but in his free time he wrote puzzles, and his favorite was an old one, with pieces made of five squares that had to fit inside a box.",
+     "visual": "A (el centro de cálculo de la Academia de Ciencias): salas de ordenadores soviéticos con armarios de cinta, científicos con bata; Pázhitnov, joven con barba y gafas, juega en su mesa con un rompecabezas de madera de piezas de cinco cuadrados.",
+     "acto": true,
+     "es_voz": "En junio de mil novecientos ochenta y cuatro, en Moscú, Alexéi Pázhitnov trabajaba en el centro de cálculo de la Academia de Ciencias de la Unión Soviética. Investigaba cómo enseñar a los ordenadores a entender la voz, pero en su tiempo libre programaba rompecabezas, y su favorito era uno antiguo, con piezas hechas de cinco cuadrados que había que meter en una caja.",
+     "en_voz": "In June nineteen eighty-four, in Moscow, Alexey Pajitnov worked at the computing center of the Soviet Academy of Sciences. He researched how to teach computers to understand speech, but in his free time he wrote puzzles, and his favorite was an old one, with pieces made of five squares that had to fit inside a box."
+    }
+   ],
+   "cartela": "1984"
+  },
+  {
+   "id": "ts-corchetes",
+   "estilo": "pixel",
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 5,
+     "marca": "corchetes",
+     "es": "El problema era que su ordenador, un Elektronika 60, no sabía dibujar: solo mostraba letras y símbolos. Así que Pázhitnov hizo las piezas con corchetes, las dejó en cuatro cuadrados, las puso a caer y añadió una regla que lo cambió todo: cuando una fila quedaba completa, desaparecía. Lo llamó Tetris, de tetra, cuatro en griego, y de tenis, su deporte favorito.",
+     "en": "The trouble was that his computer, an Electronika 60, couldn't draw. It could only show letters and symbols. So Pajitnov built the pieces out of brackets, cut them down to four squares, made them fall, and added one rule that changed everything: when a row was full, it disappeared. He called it Tetris, from tetra, Greek for four, and tennis, his favorite sport.",
+     "visual": "A: el terminal Elektronika 60 de cerca: piezas hechas de corchetes [ ] verdes que caen y encajan; una fila completa parpadea y desaparece; un cuaderno con «tetra» y una raqueta de tenis dibujadas (pictogramas, sin letras).",
+     "es_voz": "El problema era que su ordenador, un Elektrónika 60, no sabía dibujar: solo mostraba letras y símbolos. Así que Pázhitnov hizo las piezas con corchetes, las dejó en cuatro cuadrados, las puso a caer y añadió una regla que lo cambió todo: cuando una fila quedaba completa, desaparecía. Lo llamó Tétris, de tetra, cuatro en griego, y de tenis, su deporte favorito."
+    }
+   ]
+  },
+  {
+   "id": "ts-disquetes",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 6,
+     "marca": "disquetes",
+     "es": "Y entonces pasó algo que nadie esperaba en un centro de investigación: nadie podía dejar de jugar. Él mismo contó que no conseguía terminar de probarlo porque siempre empezaba otra partida. Un estudiante de dieciséis años, Vadim Guerásimov, le ayudó a pasarlo a los ordenadores IBM del centro, y las copias en disquete empezaron a correr de mano en mano por Moscú y, de ahí, por el resto del bloque del Este.",
+     "en": "And then something happened that nobody expected at a research center: nobody could stop playing. He later said he couldn't finish testing it, because he kept starting another game. A sixteen-year-old student, Vadim Gerasimov, helped move it to the center's IBM computers, and copies on floppy disks started passing from hand to hand around Moscow and, from there, across the Eastern Bloc.",
+     "visual": "A: los compañeros se agolpan detrás del terminal; el café se queda frío en la mano del científico (gag 2); un estudiante joven en un ordenador de oficina; los disquetes pasan de mano en mano por pasillos y salen en un tren hacia el oeste sobre un mapa.",
+     "es_voz": "Y entonces pasó algo que nadie esperaba en un centro de investigación: nadie podía dejar de jugar. Él mismo contó que no conseguía terminar de probarlo porque siempre empezaba otra partida. Un estudiante de dieciséis años, Vadim Guerásimov, le ayudó a pasarlo a los ordenadores aibiém del centro, y las copias en disquete empezaron a correr de mano en mano por Moscú y, de ahí, por el resto del bloque del Este."
+    }
+   ]
+  },
+  {
+   "id": "ts-estado",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 7,
+     "marca": "estado",
+     "es": "Pero en la Unión Soviética, lo que hacía un empleado del Estado no era suyo. Tetris pertenecía al Estado, y el Estado no tenía ni idea de cómo venderle un videojuego a Occidente. Y ahí empezó la carrera.",
+     "en": "But in the Soviet Union, what a state employee made didn't belong to him. Tetris belonged to the state, and the state had no idea how to sell a video game to the West. And that's where the race began.",
+     "visual": "A: un sello rojo con una estrella cae sobre una carpeta; el disquete se queda en una caja con candado; un burócrata se rasca la cabeza ante un globo terráqueo.",
+     "es_voz": "Pero en la Unión Soviética, lo que hacía un empleado del Estado no era suyo. Tétris pertenecía al Estado, y el Estado no tenía ni idea de cómo venderle un videojuego a Occidente. Y ahí empezó la carrera."
+    }
+   ]
+  },
+  {
+   "id": "ts-budapest",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "cartela 1986",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 8,
+     "marca": "budapest",
+     "es": "En 1986, un vendedor de programas británico de origen húngaro, Robert Stein, vio Tetris funcionando en un instituto de Budapest. Le pareció genial y mandó un télex a Moscú pidiendo los derechos. Pázhitnov contestó con un sí a medias, y Stein lo tomó como un sí rotundo.",
+     "en": "In 1986, a Hungarian-born British software dealer named Robert Stein saw Tetris running at an institute in Budapest. He thought it was brilliant and sent a telex to Moscow asking for the rights. Pajitnov sent back a careful maybe, and Stein took it as a firm yes.",
+     "visual": "B (una oficina de un instituto de Budapest): Stein, con traje y bigote, ve el juego en un ordenador; manda un télex a Moscú; la cinta del télex no deja de salir y llena la oficina (gag 3).",
+     "acto": true,
+     "es_voz": "En mil novecientos ochenta y seis, un vendedor de programas británico de origen húngaro, Róbert Stáin, vio Tétris funcionando en un instituto de Budapest. Le pareció genial y mandó un télex a Moscú pidiendo los derechos. Pázhitnov contestó con un sí a medias, y Stáin lo tomó como un sí rotundo.",
+     "en_voz": "In nineteen eighty-six, a Hungarian-born British software dealer named Robert Stein saw Tetris running at an institute in Budapest. He thought it was brilliant and sent a telex to Moscow asking for the rights. Pajitnov sent back a careful maybe, and Stein took it as a firm yes."
+    }
+   ],
+   "cartela": "1986"
+  },
+  {
+   "id": "ts-maxwell",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 9,
+     "marca": "maxwell",
+     "es": "Sin ningún contrato firmado, Stein vendió los derechos a Mirrorsoft, una empresa británica del magnate de la prensa Robert Maxwell, y a su socia estadounidense, Spectrum HoloByte. En 1988, Tetris llegó a las tiendas de Estados Unidos en una caja con la Plaza Roja y sus cúpulas de cebolla: el primer videojuego soviético que se vendía en Estados Unidos.",
+     "en": "Without a signed contract, Stein sold the rights to Mirrorsoft, a British company owned by the newspaper tycoon Robert Maxwell, and to its American partner, Spectrum HoloByte. In 1988, Tetris reached American stores in a box with Red Square and its onion domes on it: the first Soviet video game ever sold in America.",
+     "visual": "B (la torre de oficinas del magnate en Londres y una tienda de informática de EE. UU. en 1988): Stein estrecha la mano a un ejecutivo; el magnate, grande y con cejas pobladas, firma desde su despacho alto; en la tienda, la caja del juego con la Plaza Roja y cúpulas de cebolla (sin letras) en el escaparate.",
+     "es_voz": "Sin ningún contrato firmado, Stáin vendió los derechos a Mírrorsoft, una empresa británica del magnate de la prensa Róbert Máksuel, y a su socia estadounidense, Spéctrum Jólobait. En mil novecientos ochenta y ocho, Tétris llegó a las tiendas de Estados Unidos en una caja con la Plaza Roja y sus cúpulas de cebolla: el primer videojuego soviético que se vendía en Estados Unidos.",
+     "en_voz": "Without a signed contract, Stein sold the rights to Mirrorsoft, a British company owned by the newspaper tycoon Robert Maxwell, and to its American partner, Spectrum HoloByte. In nineteen eighty-eight, Tetris reached American stores in a box with Red Square and its onion domes on it: the first Soviet video game ever sold in America."
+    }
+   ]
+  },
+  {
+   "id": "ts-elorg",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 10,
+     "marca": "elorg",
+     "es": "Mientras tanto, los soviéticos habían puesto los programas del país en manos de una agencia de comercio exterior, Elorg. Stein por fin firmó un contrato con ellos, pero solo para ordenadores. Y ese detalle le iba a salir muy caro: el contrato ni siquiera mencionaba las consolas. Poco después, un director nuevo y más duro, Nikolái Bélikov, se quedó con todos los papeles en su mesa.",
+     "en": "Meanwhile, the Soviets had put the country's software in the hands of a foreign trade agency, Elorg. Stein finally signed a contract with them, but only for computers. And that detail was going to cost him dearly: the contract never even mentioned game consoles. Soon after, a tougher new director, Nikolai Belikov, ended up with all the paperwork on his desk.",
+     "visual": "C (el edificio gris de la agencia soviética): Bélikov, serio y con traje, apila papeles en su mesa; un contrato con una sola casilla marcada (un ordenador) y dos vacías (una consola de salón y una de bolsillo).",
+     "es_voz": "Mientras tanto, los soviéticos habían puesto los programas del país en manos de una agencia de comercio exterior, Elórg. Stáin por fin firmó un contrato con ellos, pero solo para ordenadores. Y ese detalle le iba a salir muy caro: el contrato ni siquiera mencionaba las consolas. Poco después, un director nuevo y más duro, Nikolái Bélikov, se quedó con todos los papeles en su mesa."
+    }
+   ]
+  },
+  {
+   "id": "ts-reventa",
+   "estilo": "pixel",
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 11,
+     "marca": "reventa",
+     "es": "Aun así, los derechos se siguieron revendiendo de empresa en empresa, a Japón y a las máquinas recreativas, y cada comprador creía tener algo que en realidad no tenía del todo. Era como una fila de piezas mal encajadas, a punto de venirse abajo.",
+     "en": "Even so, the rights kept being resold from company to company, to Japan and to arcade machines, and every buyer believed they owned something they didn't fully own. It was like a row of pieces that didn't quite fit, about to come crashing down.",
+     "visual": "B: un mapa del mundo con flechas de contratos que saltan de Londres a EE. UU., a Japón y a una máquina recreativa; una torre de bloques de madera mal encajados que se tambalea y se cae."
+    }
+   ]
+  },
+  {
+   "id": "ts-rogers",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 12,
+     "marca": "rogers",
+     "es": "Uno de esos compradores era Henk Rogers, un diseñador de juegos de origen holandés que vivía en Japón. Había visto Tetris en una feria de Las Vegas en 1988 y no podía soltarlo. Consiguió los derechos japoneses a través de aquella cadena de ventas, y entonces Nintendo le contó un secreto: estaba a punto de lanzar una consola de bolsillo.",
+     "en": "One of those buyers was Henk Rogers, a Dutch-born game designer living in Japan. He had seen Tetris at a trade show in Las Vegas in 1988 and couldn't put it down. He got the Japanese rights through that chain of sales, and then Nintendo told him a secret: it was about to launch a handheld console.",
+     "visual": "E y B (una feria de Las Vegas en 1988 y una oficina de Tokio): Rogers, con bigote y camisa hawaiana, no suelta un ordenador de la feria; en Tokio, un ejecutivo le enseña en secreto una consola de bolsillo gris tapada con un paño.",
+     "acto": true,
+     "es_voz": "Uno de esos compradores era Jenk Róyers, un diseñador de juegos de origen holandés que vivía en Japón. Había visto Tétris en una feria de Las Vegas en mil novecientos ochenta y ocho y no podía soltarlo. Consiguió los derechos japoneses a través de aquella cadena de ventas, y entonces Nintendo le contó un secreto: estaba a punto de lanzar una consola de bolsillo.",
+     "en_voz": "One of those buyers was Henk Rogers, a Dutch-born game designer living in Japan. He had seen Tetris at a trade show in Las Vegas in nineteen eighty-eight and couldn't put it down. He got the Japanese rights through that chain of sales, and then Nintendo told him a secret: it was about to launch a handheld console."
+    }
+   ]
+  },
+  {
+   "id": "ts-viaje",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [],
+   "empieza_con": "cartela 1989",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 13,
+     "marca": "viaje",
+     "es": "Rogers comprendió que Tetris era el juego perfecto para ella, pero los derechos de bolsillo no eran de nadie de la cadena. Así que en febrero de 1989 voló a Moscú con un visado de turista y se presentó en las oficinas de Elorg sin cita, algo que en la Unión Soviética podía meterte en un buen lío.",
+     "en": "Rogers realized that Tetris was the perfect game for it, but the handheld rights didn't belong to anyone in the chain. So in February 1989, he flew to Moscow on a tourist visa and showed up at Elorg's offices without an appointment, which in the Soviet Union could get you into serious trouble.",
+     "visual": "C (Moscú en febrero de 1989): Rogers hace la maleta y todo encaja a la perfección menos el abrigo de invierno (gag 4); un avión sobre la nieve; Rogers con gorro de piel llama a la puerta de un edificio gris; un guardia lo mira con desconfianza.",
+     "es_voz": "Róyers comprendió que Tétris era el juego perfecto para ella, pero los derechos de bolsillo no eran de nadie de la cadena. Así que en febrero de mil novecientos ochenta y nueve voló a Moscú con un visado de turista y se presentó en las oficinas de Elórg sin cita, algo que en la Unión Soviética podía meterte en un buen lío.",
+     "en_voz": "Rogers realized that Tetris was the perfect game for it, but the handheld rights didn't belong to anyone in the chain. So in February nineteen eighty-nine, he flew to Moscow on a tourist visa and showed up at Elorg's offices without an appointment, which in the Soviet Union could get you into serious trouble."
+    }
+   ],
+   "cartela": "1989"
+  },
+  {
+   "id": "ts-cartucho",
+   "estilo": "pixel",
+   "animo": "suspense",
+   "golpes": [
+    "cartucho"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 14,
+     "marca": "cartucho",
+     "es": "Bélikov lo recibió con desconfianza, y Rogers cometió un error que se convirtió en su suerte: le enseñó el cartucho de Tetris que ya vendía en Japón para una consola. Elorg nunca había autorizado una versión para consolas. En vez de echarlo, los soviéticos entendieron que alguien estaba ganando dinero con su juego sin permiso, y que Rogers era el único que les decía la verdad.",
+     "en": "Belikov received him with suspicion, and Rogers made a mistake that turned into luck: he showed him the Tetris cartridge he was already selling in Japan for a console. Elorg had never authorized a console version. Instead of throwing him out, the Soviets realized that someone was making money from their game without permission, and that Rogers was the only one telling them the truth.",
+     "visual": "C (la sala de reuniones con mesa larga): Bélikov frunce el ceño; Rogers saca un cartucho genérico de su bolsillo; el cartucho sobre la mesa bajo la lámpara; los soviéticos se miran sorprendidos.",
+     "es_voz": "Bélikov lo recibió con desconfianza, y Róyers cometió un error que se convirtió en su suerte: le enseñó el cartucho de Tétris que ya vendía en Japón para una consola. Elórg nunca había autorizado una versión para consolas. En vez de echarlo, los soviéticos entendieron que alguien estaba ganando dinero con su juego sin permiso, y que Róyers era el único que les decía la verdad."
+    }
+   ]
+  },
+  {
+   "id": "ts-reuniones",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 15,
+     "marca": "reuniones",
+     "es": "Durante varios días, Rogers volvió a aquellas reuniones una y otra vez. Explicó cuánto había vendido, ofreció pagarles por lo que ya había vendido y, en una de esas visitas, conoció por fin a Pázhitnov. Hablaron de juegos como dos programadores cualquiera, y de ahí salió una amistad que dura hasta hoy.",
+     "en": "For several days, Rogers kept coming back to those meetings. He explained how much he had sold, offered to pay them for what he had already sold, and on one of those visits, he finally met Pajitnov. They talked about games like any two programmers would, and that turned into a friendship that lasts to this day.",
+     "visual": "C (la sala de reuniones de Elorg, varios días seguidos: la luz de la ventana cambia de mañana a noche): Rogers vuelve una y otra vez con su maletín; un ábaco y unas cuentas sobre la mesa; en una visita entra Pázhitnov, con barba y gafas, y los dos ríen hablando de juegos con un tablero de bloques de madera entre ellos.",
+     "es_voz": "Durante varios días, Róyers volvió a aquellas reuniones una y otra vez. Explicó cuánto había vendido, ofreció pagarles por lo que ya había vendido y, en una de esas visitas, conoció por fin a Pázhitnov. Hablaron de juegos como dos programadores cualquiera, y de ahí salió una amistad que dura hasta hoy."
+    }
+   ]
+  },
+  {
+   "id": "ts-pasillos",
+   "estilo": "pixel",
+   "animo": "aventura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 16,
+     "marca": "pasillos",
+     "es": "Lo más curioso es que Robert Stein y Kevin Maxwell, el hijo del magnate, también estaban en Moscú esos mismos días, negociando en otras reuniones, sin saber que los demás andaban por allí. Rogers salió con los derechos de bolsillo, y poco después, Nintendo consiguió también los de sus consolas.",
+     "en": "The strangest part is that Robert Stein and Kevin Maxwell, the tycoon's son, were also in Moscow those same days, negotiating in other meetings, without knowing the others were around. Rogers walked out with the handheld rights, and shortly after, Nintendo got the rights for its consoles too.",
+     "visual": "C: un pasillo con tres puertas: en una, Stein; en otra, el hijo del magnate con su maletín; en la otra, Rogers; no se ven entre ellos; Rogers sale con un contrato firmado y sonríe bajo la nieve de la Plaza Roja de noche.",
+     "es_voz": "Lo más curioso es que Róbert Stáin y Kévin Máksuel, el hijo del magnate, también estaban en Moscú esos mismos días, negociando en otras reuniones, sin saber que los demás andaban por allí. Róyers salió con los derechos de bolsillo, y poco después, Nintendo consiguió también los de sus consolas."
+    }
+   ]
+  },
+  {
+   "id": "ts-tengen",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 17,
+     "marca": "tengen",
+     "es": "Quedaba un problema. Una empresa llamada Tengen, de Atari Games, ya había sacado su propio Tetris para la consola de Nintendo, con unos derechos comprados a la cadena de Mirrorsoft. Robert Maxwell se enfadó tanto que presionó a ministros de dos gobiernos, y dice la leyenda que hasta se lo pidió al mismísimo Gorbachov.",
+     "en": "There was one problem left. A company called Tengen, part of Atari Games, had already released its own Tetris for Nintendo's console, with rights bought through the Mirrorsoft chain. Robert Maxwell was so angry that he leaned on ministers in two governments, and legend says he even asked Gorbachev himself.",
+     "visual": "D (un almacén y un despacho de EE. UU.): cajas de cartuchos de otra empresa; el magnate grita por un teléfono rojo; un retrato oficial en una pared del Kremlin (sin rasgos reconocibles, de lejos).",
+     "acto": true,
+     "es_voz": "Quedaba un problema. Una empresa llamada Ténguen, de Atári Guéims, ya había sacado su propio Tétris para la consola de Nintendo, con unos derechos comprados a la cadena de Mírrorsoft. Róbert Máksuel se enfadó tanto que presionó a ministros de dos gobiernos, y dice la leyenda que hasta se lo pidió al mismísimo Gorbachov."
+    }
+   ]
+  },
+  {
+   "id": "ts-juicio",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 18,
+     "marca": "juicio",
+     "es": "No le sirvió de nada. En junio de 1989, una jueza le prohibió a Tengen seguir vendiéndolo, y tuvo que retirar su Tetris de las tiendas a las pocas semanas de sacarlo. La mayoría de los cartuchos acabaron destruidos, y los pocos que llegaron a venderse son hoy piezas de coleccionista.",
+     "en": "It didn't help. In June 1989, a judge ordered Tengen to stop selling it, and it had to pull its Tetris from stores just weeks after releasing it. Most of the cartridges were destroyed, and the few that did get sold are collector's items today.",
+     "visual": "D (el juzgado de EE. UU. en junio de 1989): el juez da un golpe de mazo y las cajas de cartuchos de detrás se apilan en una fila perfecta (gag 5); unos operarios retiran cajas de una tienda; hoy, un cartucho en una vitrina de coleccionista.",
+     "es_voz": "No le sirvió de nada. En junio de mil novecientos ochenta y nueve, una jueza le prohibió a Ténguen seguir vendiéndolo, y tuvo que retirar su Tétris de las tiendas a las pocas semanas de sacarlo. La mayoría de los cartuchos acabaron destruidos, y los pocos que llegaron a venderse son hoy piezas de coleccionista.",
+     "en_voz": "It didn't help. In June nineteen eighty-nine, a judge ordered Tengen to stop selling it, and it had to pull its Tetris from stores just weeks after releasing it. Most of the cartridges were destroyed, and the few that did get sold are collector's items today."
+    }
+   ]
+  },
+  {
+   "id": "ts-bolsillo",
+   "estilo": "pixel",
+   "animo": "epico",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 19,
+     "marca": "bolsillo",
+     "es": "Ese verano, la consola de bolsillo de Nintendo llegó a Estados Unidos con Tetris dentro de la caja. Era la pareja perfecta: un juego que cualquiera entendía en cinco segundos, en una máquina que cabía en el bolsillo. Con los años, esa versión vendió unos treinta y cinco millones de copias.",
+     "en": "That summer, Nintendo's handheld console arrived in the United States with Tetris inside the box. It was the perfect match: a game anyone could understand in five seconds, on a machine that fit in your pocket. Over the years, that version sold some thirty-five million copies.",
+     "visual": "D (una juguetería de 1989): la consola portátil gris genérica en la caja con el juego; niños y adultos jugando en el autobús y en el sofá; un contador que sube hasta treinta y cinco millones.",
+     "es_voz": "Ese verano, la consola de bolsillo de Nintendo llegó a Estados Unidos con Tétris dentro de la caja. Era la pareja perfecta: un juego que cualquiera entendía en cinco segundos, en una máquina que cabía en el bolsillo. Con los años, esa versión vendió unos treinta y cinco millones de copias."
+    }
+   ]
+  },
+  {
+   "id": "ts-sueldo",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 20,
+     "marca": "sueldo",
+     "es": "¿Y Pázhitnov? Mientras su juego conquistaba el mundo, él seguía cobrando su sueldo de científico soviético. Los contratos los firmaba Elorg y el dinero iba para el Estado. Lo único que sacó fue un ordenador mejor para su oficina.",
+     "en": "And Pajitnov? While his game conquered the world, he kept collecting his salary as a Soviet scientist. Elorg signed the contracts, and the money went to the state. The only thing he got out of it was a better computer for his office.",
+     "visual": "A (el centro de cálculo): Pázhitnov en su mesa con su nómina; una sola moneda rueda por la mesa, da vueltas y se para (gag 6); le traen un ordenador nuevo en una caja.",
+     "acto": true,
+     "es_voz": "¿Y Pázhitnov? Mientras su juego conquistaba el mundo, él seguía cobrando su sueldo de científico soviético. Los contratos los firmaba Elórg y el dinero iba para el Estado. Lo único que sacó fue un ordenador mejor para su oficina."
+    }
+   ]
+  },
+  {
+   "id": "ts-tetriscompany",
+   "estilo": "pixel",
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 1996",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 21,
+     "marca": "compania",
+     "es": "En 1991 se mudó a Estados Unidos, y en 1996, cuando los derechos volvieron a él, fundó The Tetris Company junto a su amigo Henk Rogers, el mismo que había volado a Moscú sin invitación. Por primera vez, doce años después de inventarlo, el creador de Tetris empezó a ganar dinero con Tetris.",
+     "en": "In 1991, he moved to the United States, and in 1996, when the rights came back to him, he founded The Tetris Company with his friend Henk Rogers, the same man who had flown to Moscow uninvited. For the first time, twelve years after inventing it, the creator of Tetris started earning money from Tetris.",
+     "visual": "E (una oficina de EE. UU. en 1996): Pázhitnov y Rogers se dan la mano y brindan con dos tazas de café; un contrato con una firma; por la ventana, una ciudad soleada.",
+     "es_voz": "En mil novecientos noventa y uno se mudó a Estados Unidos, y en mil novecientos noventa y seis, cuando los derechos volvieron a él, fundó De Tétris Cómpani junto a su amigo Jenk Róyers, el mismo que había volado a Moscú sin invitación. Por primera vez, doce años después de inventarlo, el creador de Tétris empezó a ganar dinero con Tétris.",
+     "en_voz": "In nineteen ninety-one, he moved to the United States, and in nineteen ninety-six, when the rights came back to him, he founded The Tetris Company with his friend Henk Rogers, the same man who had flown to Moscow uninvited. For the first time, twelve years after inventing it, the creator of Tetris started earning money from Tetris."
+    }
+   ],
+   "cartela": "1996"
+  },
+  {
+   "id": "ts-cerebro",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 22,
+     "marca": "cerebro",
+     "es": "Y ahora, la pregunta que siempre te has hecho: ¿por qué cuesta tanto soltarlo? Parte de la respuesta es que a tu cerebro le cuesta dejar las cosas a medias. Cada fila con un hueco es una pequeña tarea pendiente, y cada fila que desaparece es un pequeño premio, así que el juego te deja siempre a punto de terminar.",
+     "en": "And now, the question you've always wondered about: why is it so hard to put down? Part of the answer is that your brain finds it hard to leave things unfinished. Every row with a gap is a small task left pending, and every row that disappears is a small reward, so the game always leaves you just about to finish.",
+     "visual": "E: dentro de una cabeza dibujada como una estantería, filas con un hueco que parpadean y una fila que se completa y se ilumina como un premio.",
+     "acto": true
+    }
+   ]
+  },
+  {
+   "id": "ts-efecto",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 23,
+     "marca": "efecto",
+     "es": "Es tan fuerte que tiene nombre: el efecto Tetris. En el año 2000, unos investigadores de Harvard pusieron a jugar a voluntarios durante varios días, y muchos vieron piezas cayendo al cerrar los ojos por la noche. Les pasó incluso a pacientes con amnesia que no recordaban haber jugado.",
+     "en": "It's so strong that it has a name: the Tetris effect. In 2000, researchers at Harvard had volunteers play for several days, and many of them saw pieces falling when they closed their eyes at night. It even happened to patients with amnesia who didn't remember playing at all.",
+     "visual": "E (el laboratorio del sueño de Harvard en 2000): voluntarios que juegan en ordenadores de la época; de noche, uno cierra los ojos en la cama y ve bloques que caen sobre la almohada (gag 7); una investigadora toma notas.",
+     "es_voz": "Es tan fuerte que tiene nombre: el efecto Tétris. En el año dos mil, unos investigadores de Járvard pusieron a jugar a voluntarios durante varios días, y muchos vieron piezas cayendo al cerrar los ojos por la noche. Les pasó incluso a pacientes con amnesia que no recordaban haber jugado.",
+     "en_voz": "It's so strong that it has a name: the Tetris effect. In two thousand, researchers at Harvard had volunteers play for several days, and many of them saw pieces falling when they closed their eyes at night. It even happened to patients with amnesia who didn't remember playing at all."
+    }
+   ]
+  },
+  {
+   "id": "ts-gibson",
+   "estilo": "pixel",
+   "animo": "asombro",
+   "golpes": [
+    "gibson"
+   ],
+   "empieza_con": "cartela 2023",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 24,
+     "marca": "gibson",
+     "es": "Y casi cuarenta años después, todavía hay sorpresas. En diciembre de 2023, un chico de trece años de Oklahoma, Willis Gibson, jugó a la vieja versión de Nintendo hasta tan lejos que el juego se colgó. Nadie lo había conseguido antes, y los jugadores lo cuentan como ganarle a Tetris. Y al año siguiente, otro chico llegó tan lejos que el juego volvió a empezar desde cero.",
+     "en": "And almost forty years later, there are still surprises. In December 2023, a thirteen-year-old from Oklahoma, Willis Gibson, played the old Nintendo version so far that the game froze. No one had ever done that before, and players count it as beating Tetris. And a year later, another teen went so far that the game started over from zero.",
+     "visual": "E (un salón de Oklahoma en 2023): un chico de trece años con cascos juega ante una tele vieja; la pantalla se congela; el chico se lleva las manos a la cabeza y grita de alegría.",
+     "es_voz": "Y casi cuarenta años después, todavía hay sorpresas. En diciembre de dos mil veintitrés, un chico de trece años de Oklahoma, Uílis Guíbson, jugó a la vieja versión de Nintendo hasta tan lejos que el juego se colgó. Nadie lo había conseguido antes, y los jugadores lo cuentan como ganarle a Tétris. Y al año siguiente, otro chico llegó tan lejos que el juego volvió a empezar desde cero.",
+     "en_voz": "And almost forty years later, there are still surprises. In December twenty twenty-three, a thirteen-year-old from Oklahoma, Willis Gibson, played the old Nintendo version so far that the game froze. No one had ever done that before, and players count it as beating Tetris. And a year later, another teen went so far that the game started over from zero."
+    }
+   ],
+   "cartela": "2023"
+  },
+  {
+   "id": "ts-resumen",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 25,
+     "marca": "resumen",
+     "es": "Así que, si lo piensas, Tetris tiene la historia más rara de todos los videojuegos: un juego sin dibujos, inventado por un hombre que no era su dueño, sacado del país en disquetes y ganado en una oficina de Moscú por el único que dijo la verdad. Y todo salió de una regla muy sencilla: completa la fila, y desaparece.",
+     "en": "So if you think about it, Tetris has the strangest story of any video game: a game with no pictures, invented by a man who didn't own it, carried out of the country on floppy disks, and won in a Moscow office by the only one who told the truth. And it all came from one simple rule: complete the row, and it disappears.",
+     "visual": "E (el estudio de Atom): un repaso en una pizarra: el terminal de corchetes, el disquete, la oficina de Moscú; una fila de bloques se completa y desaparece.",
+     "acto": true,
+     "es_voz": "Así que, si lo piensas, Tétris tiene la historia más rara de todos los videojuegos: un juego sin dibujos, inventado por un hombre que no era su dueño, sacado del país en disquetes y ganado en una oficina de Moscú por el único que dijo la verdad. Y todo salió de una regla muy sencilla: completa la fila, y desaparece."
+    }
+   ]
+  },
+  {
+   "id": "ts-cierre",
+   "estilo": "pixel",
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": "",
+   "frases": [
+    {
+     "n": 26,
+     "marca": "cierre",
+     "es": "Ahora cuéntame tú en los comentarios: ¿cuál es tu mejor puntuación, o tú también has soñado con piezas que caen? Yo, mientras tanto, voy a intentar meter un libro más en mi estantería… otra vez.",
+     "en": "Now tell me in the comments: what's your best score, or have you also dreamed of falling pieces? Meanwhile, I'm going to try to fit one more book on my shelf… again.",
+     "visual": "E (el estudio de Atom): Atom intenta meter un libro más en la estantería llena y la balda entera desaparece (gag 8)."
+    }
+   ]
+  }
+ ]
+}

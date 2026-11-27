@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>El aviso · ep47</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// MS-AVISO (frase 4), sin año. Dos planos en el estudio de Atom:
+// 1. la mesa de cerca: Atom llega con un libro viejo y gordo y lo deja en «tell it»; en «from the inside» lo abre y sale
+//    una luz cálida con motas; en «the way she lived it» se asoma, pensativo, y pasa una hoja;
+// 2. el estudio entero: Atom, subido a la repisa de la pizarra, dibuja con tiza dos ojos amarillos en «image of the eyes»
+//    y los rodea de noche en «dark»; en «because at the end» traza una flecha que da la vuelta y en «coming back to it»
+//    vuelve a los ojos, les da un toque y guiña: los ojos de tiza parpadean.
+import * as T from '/atomo/plato/escenas/ms-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('ms-aviso');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const K = hex('#1a1424'), ease = (u) => u * u * (3 - 2 * u), voz = (t) => E.energia(t), MS = T.MS;
+const hh = (a, b, c = 0) => { let n = (a * 374761393 + b * 668265263 + c * 1442695041) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+const mez = (c1, c2, a) => { const r1 = c1 & 255, g1 = (c1 >>> 8) & 255, b1 = (c1 >>> 16) & 255;
+  return (0xff000000 | (Math.round(b1 + (((c2 >>> 16) & 255) - b1) * a) << 16) | (Math.round(g1 + (((c2 >>> 8) & 255) - g1) * a) << 8) | Math.round(r1 + ((c2 & 255) - r1) * a)) >>> 0; };
+const BAY = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]];
+const tono = (cols, v, x, y) => { const n = cols.length - 1; v = Math.max(0, Math.min(n, v)); let l = Math.floor(v); if (v - l > BAY[y & 3][x & 3] / 16) l++; return cols[Math.min(n, l)]; };
+const pal = (...a) => a.map(hex);
+const cl = (v) => Math.max(0, Math.min(1, v));
+const capas = {};
+const capa = (k, f) => { if (!capas[k]) { const b = R.nuevo(); const prev = R.usar(b); f(); R.usar(prev); capas[k] = b; } return capas[k]; };
+// pega una capa con transparencia (los píxeles a 0 no se pintan)
+const pegar = (b) => { const D = R.buf; for (let i = 0; i < 57600; i++) { const c = b[i]; if (c) D[i] = c; } };
+// mezcla un color sobre lo que ya hay
+const tine = (x, y, c, a) => { x = Math.round(x); y = Math.round(y); if (x < 0 || x > 319 || y < 0 || y > 179) return; R.pset(x, y, mez(R.pget(x, y), c, a)); };
+// halo de luz tramado alrededor de (cx, cy)
+const halo = (cx, cy, r, c, a) => { cx = Math.round(cx); cy = Math.round(cy);
+  for (let y = Math.max(0, cy - r); y <= Math.min(179, cy + r); y++) for (let x = Math.max(0, cx - r); x <= Math.min(319, cx + r); x++) {
+    const d = Math.hypot(x - cx, y - cy) / r; if (d >= 1) continue; const q = Math.floor(((1 - d) * (1 - d)) * 4 + BAY[y & 3][x & 3] / 16) / 4; if (q > 0) R.pset(x, y, mez(R.pget(x, y), c, Math.min(0.9, q * a))); } };
+// nube de bolitas en tres tonos (sombra, cuerpo, luz)
+const nube = (cx, cy, w, cols, k) => { const n = Math.max(3, Math.round(w / 7)), r = (i) => 3 + hh(k, i, 3) * 3 + (i > 0 && i < n - 1 ? 2 : 0), X = (i) => Math.round(cx - w / 2 + (i + 0.5) * w / n);
+  for (let i = 0; i < n; i++) R.disco(X(i), Math.round(cy + 1), r(i), cols[0]);
+  for (let i = 0; i < n; i++) { R.disco(X(i), Math.round(cy), r(i) - 1, cols[1]); R.disco(X(i) - 1, Math.round(cy - 2), Math.max(1, r(i) - 3), cols[2]); } };
+// lluvia fina en diagonal
+const lluvia = (t, x0, y0, x1, y1, n, c, a = 0.55, v = 120, sem = 0) => { const W = x1 - x0, H = y1 - y0;
+  for (let k = 0; k < n; k++) { const x = x0 + ((hh(k, 1, sem) * W + t * v * 0.25) % W), y = y0 + ((hh(k, 2, sem) * H + t * v) % H);
+    for (let j = 0; j < 3; j++) tine(x - j * 0.3, y - j, c, a); } };
+// un pájaro o un murciélago pequeño que aletea
+const ave = (x, y, t, c, f = 0) => { x = Math.round(x); y = Math.round(y); const a = Math.sin(t * 14 + f) > 0; R.pset(x, y, c); R.pset(x - 1, y - (a ? 1 : 0), c); R.pset(x + 1, y - (a ? 1 : 0), c); R.pset(x - 2, y - (a ? 2 : 0), c); R.pset(x + 2, y - (a ? 2 : 0), c); };
+// un gato atigrado gris hecho un ovillo (despierta 0–1 levanta la cabeza y bosteza)
+const gatoOvillo = (x, y, t, despierta = 0) => { const G = pal('#3a3a48', '#5a5a6a', '#7a7a8c', '#9a9aac'), r = Math.sin(t * 2) > 0.2 ? 1 : 0;
+  for (let j = -4 - r; j <= 0; j++) for (let i = -8; i <= 8; i++) { const e = (i / 8.5) ** 2 + ((j + 2) / (4.5 + r * 0.5)) ** 2; if (e > 1) continue; R.pset(x + i, y + j, e > 0.8 ? G[0] : (i % 3 === 0 && j < -1) ? G[1] : j < -3 ? G[3] : G[2]); }
+  for (let i = -8; i <= 2; i++) R.pset(x + i, y + 1, G[0]);   // la cola enroscada delante
+  const hx = x + 7, hy = y - 3 - Math.round(despierta * 3);
+  R.disco(hx, hy, 3, G[1]); R.disco(hx, hy - 1, 2, G[2]); R.pset(hx - 2, hy - 4, G[0]); R.pset(hx - 2, hy - 3, G[1]); R.pset(hx + 2, hy - 4, G[0]); R.pset(hx + 2, hy - 3, G[1]);
+  if (despierta > 0.5) { R.pset(hx - 1, hy - 1, hex('#e8d060')); R.pset(hx + 1, hy - 1, hex('#e8d060')); R.pset(hx, hy + 1, hex('#c86a7a')); } else { R.pset(hx - 1, hy, G[0]); R.pset(hx + 1, hy, G[0]); }
+};
+// pasa todo el lienzo por un tinte (a 0–1) hacia el color c
+const velo = (c, a) => { if (a <= 0) return; const B = R.buf, cr = c & 255, cg = (c >>> 8) & 255, cb = (c >>> 16) & 255;
+  for (let i = 0; i < 57600; i++) { const v = B[i], r = v & 255, g = (v >>> 8) & 255, b = (v >>> 16) & 255;
+    B[i] = (0xff000000 | (Math.round(b + (cb - b) * a) << 16) | (Math.round(g + (cg - g) * a) << 8) | Math.round(r + (cr - r) * a)) >>> 0; } };
+
+const a = (f) => en('dentro', f);
+const Q2 = a(0.4945);
+const tell = a(0.1103), inside = a(0.1978), way = a(0.3518), lived = a(0.3994), image = a(0.601), eyes = a(0.6657), dark = a(0.717), because = a(0.776), end = a(0.8463), coming = a(0.9053), fin = a(0.9776);
+// el libro viejo y gordo, en tres cuartos: tapas de piel gastada con cantoneras de latón; abre 0–1 abre la tapa
+const LIBRO = (x, yb, abre, hoja, t) => {
+  const w = 56, h = 12, d = 8, P = pal('#3a2010', '#5a3418', '#7a4a24', '#9a6434'), OR = hex('#d8a840');
+  // el canto de las hojas
+  for (let i = 0; i <= d; i++) for (let y = yb - h - i; y <= yb - i; y++) R.pset(x + w + 1 + i, y, (y - yb) % 2 === 0 ? hex('#c8b890') : hex('#e8dcb8'));
+  R.linea(x + w + d + 2, yb - h - d, x + w + d + 2, yb - d, K);
+  // el lomo de frente con sus nervios
+  R.rect(x, yb - h, x + w, yb, K); for (let y = yb - h + 1; y < yb; y++) for (let xx = x + 1; xx < x + w; xx++) R.pset(xx, y, tono(P, 2 + Math.sin(xx * 0.4) * 0.3 + hh(xx, y) * 0.6 - (y > yb - 3 ? 0.8 : 0), xx, y));
+  for (const f of [0.15, 0.4, 0.6, 0.85]) { const xx = Math.round(x + w * f); R.rect(xx, yb - h + 1, xx + 1, yb - 1, OR); }
+  if (abre <= 0) {
+    for (let i = 0; i <= d; i++) for (let xx = x + i; xx <= x + w + i; xx++) R.pset(xx, yb - h - i, tono(P, 2.4 + hh(xx, i) * 0.8 - (i === d ? -0.6 : 0), xx, yb - h - i));
+    R.linea(x, yb - h, x + d, yb - h - d, K); R.linea(x + d, yb - h - d - 1, x + w + d + 1, yb - h - d - 1, K);
+    for (const [cx, cy] of [[x + 2, yb - h - 1], [x + w - 2, yb - h - 1], [x + d + 2, yb - h - d + 1], [x + w + d - 2, yb - h - d + 1]]) R.rect(cx - 1, cy - 1, cx + 1, cy, OR);
+    R.disco(x + w / 2 + d / 2, yb - h - d / 2, 3, hex('#b8862e')); R.disco(x + w / 2 + d / 2, yb - h - d / 2, 1, hex('#5a3418'));
+    return;
+  }
+  // abierto: las dos páginas con renglones de rayitas, y la tapa que se levanta hacia atrás
+  const sube = Math.round(abre * 30);
+  for (let i = 0; i <= d; i++) for (let xx = x + i; xx <= x + w + i; xx++) { const mid = x + i + w / 2, yy = yb - h - i - Math.round(Math.max(0, 2 - Math.abs(xx - mid)) * 0.8);
+    R.pset(xx, yy, Math.abs(xx - mid) < 1 ? hex('#b8a880') : hex('#f4ecd4')); }
+  for (let k = 0; k < 4; k++) for (const lado of [0, 1]) { const y = yb - h - 2 - k * 2, x0 = x + 4 + lado * 30 + k, x1 = x0 + 20; for (let xx = x0; xx < x1; xx++) if (hh(xx >> 2, k, lado) > 0.2) R.pset(xx, y, hex('#6a5a4a')); }
+  // la hoja que se pasa
+  if (hoja > 0 && hoja < 1) { const an = hoja * Math.PI, px = x + w / 2 + d / 2 + Math.cos(an) * 22, py = yb - h - d / 2 - Math.sin(an) * 12; R.poligono([[x + w / 2 + d / 2, yb - h - d / 2], [px, py - 3], [px, py + 3]], hex('#fffaec')); }
+  for (let i = 0; i <= d; i++) R.linea(x + i, yb - h - i, x + i - Math.round(abre * 4), yb - h - i - sube, tono(P, 2.2, x, i));
+  R.linea(x - Math.round(abre * 4), yb - h - sube, x + d - Math.round(abre * 4), yb - h - d - sube, hex('#d8a840'));
+};
+// 1 · la mesa de cerca: el libro viejo
+const q1 = (t) => {
+  const o = { camara: 'mesa' };
+  T.estudio(R, t, o);
+  const llega = tramo(t, 0.1, tell - 0.3), deja = t > tell, abre = tramo(t, inside - 0.1, inside + 0.4), hoja = tramo(t, lived - 0.1, lived + 0.6);
+  const ax = Math.round(lerp(246, 200, ease(llega))), lx = 140, ly = 146;
+  if (deja) LIBRO(lx, ly, abre, hoja, t);
+  // la luz cálida que sale del libro y las motas que suben
+  if (abre > 0) { halo(lx + 32, ly - 22, 40, hex('#ffd890'), 0.5 * abre); for (let k = 0; k < 14; k++) { const u = ((t * 0.4 + k / 14) % 1), x = lx + 14 + hh(k, 1) * 36 + Math.sin(t * 2 + k) * 3, y = ly - 18 - u * 44; if (abre > 0.5) tine(x, y, hex('#fff0b0'), 0.8 * (1 - u)); } }
+  const piensa = t > way - 0.2 && t < lived - 0.1;
+  const r = T.AT.atom(R, ax, 150, t, { s: 2, dir: -1, pose: llega > 0 && llega < 1 ? 'camina' : !deja ? 'sostiene' : abre > 0 && abre < 1 ? 'brazos' : piensa ? 'piensa' : 'senala', cara: abre > 0 && t < inside + 0.9 ? 'sorpresa' : piensa ? 'normal' : 'sonrisa', habla: voz(t) });
+  if (!deja && r && r.mano) { const [mx, my] = r.mano.map(Math.round); LIBRO(mx - 54, my + 8, 0, 0, t); }
+  T.estudioDelante(R, t, o);
+};
+// 2 · el estudio entero: los ojos en la oscuridad, en la pizarra
+const pizarra = (R, t, [x0, y0, x1, y1]) => {
+  const tiza = hex('#eef2e8'), am = hex('#f8d870'), az = hex('#8aa8d8'), cx = 156, cy = 62;
+  // la noche alrededor: un óvalo de rayado azul que se llena desde «dark»
+  const u0 = tramo(t, dark - 0.15, dark + 0.6);
+  if (u0 > 0) for (let k = 0; k < Math.round(u0 * 60); k++) { const a = k / 60 * Math.PI * 2, r1 = 22, r2 = 30 + hh(k, 1) * 6; R.linea(Math.round(cx + Math.cos(a) * r1 * 1.5), Math.round(cy + Math.sin(a) * r1 * 0.8), Math.round(cx + Math.cos(a + 0.15) * r2 * 1.4), Math.round(cy + Math.sin(a + 0.15) * r2 * 0.75), az); }
+  // los dos ojos: el contorno de almendra y el iris amarillo con su pupila; parpadean al final
+  const parp = Math.abs(t - (fin - 0.02)) < 0.09;
+  for (const [ex, t0] of [[cx - 13, image - 0.05], [cx + 13, eyes - 0.1]]) { const u = tramo(t, t0, t0 + 0.5); if (u <= 0) continue;
+    const n = Math.round(u * 40); for (let k = 0; k < n; k++) { const a = k / 40 * Math.PI * 2, hgt = parp ? 1 : 5; R.pset(Math.round(ex + Math.cos(a) * 9), Math.round(cy + Math.sin(a) * hgt * (Math.abs(Math.cos(a)) < 0.9 ? 1 : 0.6)), tiza); }
+    if (u >= 1 && !parp) { R.disco(ex, cy, 3, am); R.disco(ex, cy, 1, hex('#2a3a2e')); R.pset(ex - 1, cy - 2, hex('#ffffff')); for (let i = -4; i <= 4; i++) R.pset(ex + i, cy + 7, az); } }
+  // la flecha que da la vuelta («at the end») y vuelve a los ojos («coming back to it»)
+  const u1 = tramo(t, because - 0.1, end + 0.3), u2 = tramo(t, coming - 0.2, coming + 0.5);
+  if (u1 > 0) for (let i = 0; i <= Math.round(u1 * 50); i++) { const a = -0.3 + i / 50 * 3.4; R.pset(Math.round(cx + 4 + Math.cos(a) * 40), Math.round(cy + 2 + Math.sin(a) * 22), am); R.pset(Math.round(cx + 4 + Math.cos(a) * 40), Math.round(cy + 3 + Math.sin(a) * 22), am); }
+  if (u2 > 0) { for (let i = 0; i <= Math.round(u2 * 20); i++) { const a = 3.1 + i / 20 * 2.6; R.pset(Math.round(cx + Math.cos(a) * 40), Math.round(cy + Math.sin(a) * 22), am); }
+    if (u2 >= 1) { const [hx, hy] = [Math.round(cx + Math.cos(5.7) * 40), Math.round(cy + Math.sin(5.7) * 22)]; R.linea(hx, hy, hx - 5, hy - 1, am); R.linea(hx, hy, hx - 2, hy + 4, am); } }
+};
+const q2 = (t) => {
+  const o = { pizarra };
+  T.estudio(R, t, o);
+  // Atom en la repisa de la pizarra con la tiza: va de un ojo al otro, luego traza la flecha y da un toque
+  const ruta = t < eyes ? 170 : t < because ? 196 : t < coming ? 206 : 178;
+  const ax = Math.round(lerp(196, ruta, tramo(t, t < eyes ? Q2 : t < because ? eyes - 0.2 : t < coming ? because - 0.2 : coming - 0.3, t < eyes ? image : t < because ? eyes + 0.2 : t < coming ? because + 0.3 : coming + 0.1)));
+  const toque = t > fin - 0.25 && t < fin + 0.15, dibuja = (t > image - 0.1 && t < dark + 0.6) || (t > because - 0.1 && t < coming + 0.6);
+  const r = T.AT.atom(R, ax, 94, t, { s: 2, dir: -1, pose: dibuja || toque ? 'senala' : 'quieto', cara: t > fin + 0.1 ? 'guino' : t > dark ? 'sonrisa' : 'normal', habla: voz(t) });
+  if (r && r.mano && t < fin + 0.2) { const [mx, my] = r.mano.map(Math.round); R.rect(mx - 3, my - 1, mx, my, hex('#f4f4ee')); if (dibuja) for (let k = 0; k < 4; k++) { const u = ((t * 2 + k / 4) % 1); tine(mx - 2 + (k % 2), my + 2 + u * 10, hex('#e8f0e0'), 0.6 - u * 0.5); } }
+  T.estudioDelante(R, t, o);
+};
+const efectos = [[0.2, 'pasos'], [tell + 0.05, 'golpecito'], [inside, 'papel'], [inside + 0.25, 'brillo'], [lived, 'papel'], [image, 'lapiz'], [because, 'lapiz'], [fin - 0.2, 'toc']];
+T.rodar(E, R, [[0, q1], [Q2, q2]], { efectos });
+</script>
+</body>
+</html>

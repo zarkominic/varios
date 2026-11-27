@@ -1,0 +1,338 @@
+{
+ "banda": {
+  "tono": "do",
+  "modo": "menor",
+  "tempo": 66,
+  "motivo": [
+   0,
+   3,
+   7,
+   8,
+   7,
+   3,
+   2,
+   0
+  ],
+  "sampleado": true,
+  "biblioteca": "real",
+  "paleta": {
+   "solista": "chelo",
+   "metal": "trompa",
+   "madera": "clarinete",
+   "aire": "flauta"
+  }
+ },
+ "escenas": [
+  {
+   "id": "ms-gancho",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 1,
+   "frase_fin": 3,
+   "marcas": [
+    "giro",
+    "noche",
+    "mary"
+   ],
+   "guion_visual": [
+    "B: el cuarto de Mary de noche con la lluvia en los cristales; golpe en «Frankenstein».",
+    "B: la casa junto al lago bajo la tormenta; dentro, Mary en la cama con los ojos cerrados; sobre ella, como un sueño, la silueta de un estudiante arrodillado junto a una mesa, algo que se mueve y unos ojos amarillos que lo miran.",
+    "B y F: Mary al despertar; Atom de luciérnaga junto a la vela; un calendario con el 1 de enero."
+   ],
+   "animo": "misterio",
+   "golpes": [
+    "giro+2"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-aviso",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 4,
+   "frase_fin": 4,
+   "marcas": [
+    "dentro"
+   ],
+   "guion_visual": [
+    "F: Atom en su estudio abre un libro viejo y dibuja en la pizarra dos ojos en la oscuridad («guárdate esto»)."
+   ],
+   "animo": "misterio",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-lapida",
+   "estilo": "pixel",
+   "cartela": "1797",
+   "frase_ini": 5,
+   "frase_fin": 8,
+   "marcas": [
+    "nace",
+    "tumba",
+    "casa",
+    "percy"
+   ],
+   "guion_visual": [
+    "A: Londres en 1797; la casa de los Godwin; una cuna y un retrato de mujer en la pared.",
+    "A: el cementerio de St Pancras; Mary niña con un libro junto a la lápida, sigue las letras con el dedo; gag: Atom intenta leer la lápida al revés.",
+    "A: la biblioteca de los Godwin llena de visitas; Mary callada en un rincón, escuchando.",
+    "A: Percy y Mary junto a la tumba; luego, una calle de Londres de madrugada y un carruaje que se va."
+   ],
+   "animo": "ternura",
+   "golpes": [],
+   "empieza_con": "cartela 1797",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-bebe",
+   "estilo": "pixel",
+   "cartela": "1815",
+   "frase_ini": 9,
+   "frase_fin": 10,
+   "marcas": [
+    "vuelven",
+    "diario"
+   ],
+   "guion_visual": [
+    "A: un cuarto pobre de alquiler en Londres; Mary con una cuna pequeña.",
+    "A: de noche, Mary escribe en su diario junto a la chimenea; la cuna vacía (sin nada morboso)."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "cartela 1815",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-suenos",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 11,
+   "frase_fin": 11,
+   "marcas": [
+    "fijate1"
+   ],
+   "guion_visual": [
+    "PAUSA: el diario congelado; Atom (al doble) saca a color una nube de sueño con una figura que abraza a otra; «58»."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-lago",
+   "estilo": "pixel",
+   "cartela": "1816",
+   "frase_ini": 12,
+   "frase_fin": 13,
+   "marcas": [
+    "suiza",
+    "lluvia"
+   ],
+   "guion_visual": [
+    "B: el lago de Ginebra; Villa Diodati en la colina y la casita de al lado; un barco; las montañas.",
+    "B: la tormenta sobre el lago en junio; gag: a Atom se le da la vuelta el paraguas."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "cartela 1816",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-volcan",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 14,
+   "frase_fin": 14,
+   "marcas": [
+    "fijate2"
+   ],
+   "guion_visual": [
+    "PAUSA: la tormenta congelada; Atom (al doble) saca a color un volcán que estalla y una nube que da la vuelta al globo; nieve sobre un campo de maíz; «1815», «1816»."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-juego",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 15,
+   "frase_fin": 17,
+   "marcas": [
+    "juego",
+    "nada",
+    "sueno"
+   ],
+   "guion_visual": [
+    "B: el salón de Villa Diodati a la luz de las velas; Byron propone el juego; todos escriben; gag: Atom escribe y le sale un fantasma con sábana.",
+    "B: por la mañana, en la mesa del desayuno, todos con sus hojas y Mary con la suya en blanco.",
+    "B: de noche, Byron y Percy hablan junto a la chimenea; Mary en la cama sin dormir; la imagen del principio otra vez (la cosa que se mueve, los ojos amarillos); gag: Atom apaga la vela y se enciende otra."
+   ],
+   "animo": "asombro",
+   "golpes": [
+    "sueno+3"
+   ],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-galvani",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 18,
+   "frase_fin": 18,
+   "marcas": [
+    "fijate3"
+   ],
+   "guion_visual": [
+    "PAUSA: el cuarto congelado; Atom (al doble) saca a color una mesa de laboratorio antiguo con una pila, cables y una rana de juguete que salta (gag: Atom salta también); «1780»."
+   ],
+   "animo": "asombro",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-criatura",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 19,
+   "frase_fin": 21,
+   "marcas": [
+    "novela",
+    "libro",
+    "imagina"
+   ],
+   "guion_visual": [
+    "B: Mary escribe a la luz del día en un cuaderno; Percy lee por encima de su hombro.",
+    "C: la cabaña en el bosque con la familia dentro; la criatura (por el libro: alta, pelo negro largo, piel amarillenta) escondida tras la pared, escuchando; aprende a leer.",
+    "C: la buhardilla de Victor; la criatura abre los ojos; Victor huye; luego, en el bosque, la gente grita y la criatura se esconde (nada violento)."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-rechazo",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 22,
+   "frase_fin": 22,
+   "marcas": [
+    "fijate4"
+   ],
+   "guion_visual": [
+    "PAUSA: el bosque congelado; Atom (al doble) saca a color una pantalla antigua con tres figuras que se pasan una pelota y dejan fuera a una; un corazón agrietado; «2003»."
+   ],
+   "animo": "intriga",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-libro",
+   "estilo": "pixel",
+   "cartela": "1818",
+   "frase_ini": 23,
+   "frase_fin": 25,
+   "marcas": [
+    "victor",
+    "enero",
+    "teatro"
+   ],
+   "guion_visual": [
+    "C: el hielo del Ártico; Victor y la criatura lejos uno del otro (el final del libro, sin violencia).",
+    "D: una imprenta de 1818; tres tomos pequeños; un escaparate de librería; gag: a Atom se le caen los tres tomos.",
+    "D: un teatro de Londres lleno; Mary en un palco; gag: Atom busca el nombre en el programa y solo hay una raya."
+   ],
+   "animo": "curiosidad",
+   "golpes": [],
+   "empieza_con": "cartela 1818",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-precio",
+   "estilo": "pixel",
+   "cartela": "1818",
+   "frase_ini": 26,
+   "frase_fin": 27,
+   "marcas": [
+    "italia",
+    "mar"
+   ],
+   "guion_visual": [
+    "E: Italia; la casa blanca junto al mar; Mary con su hijo pequeño; dos cunas vacías (sin nada morboso).",
+    "E: el mar en tormenta, de lejos; un barquito de vela que se pierde; luego, Mary sola en la playa con su hijo de la mano."
+   ],
+   "animo": "calma",
+   "golpes": [
+    "mar+6"
+   ],
+   "empieza_con": "cartela 1818",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-escribir",
+   "estilo": "pixel",
+   "cartela": null,
+   "frase_ini": 28,
+   "frase_fin": 29,
+   "marcas": [
+    "fijate5",
+    "escribe"
+   ],
+   "guion_visual": [
+    "PAUSA: la playa congelada; Atom (al doble) saca a color un cuaderno que se escribe solo y una caja de la que sale luz; «1986».",
+    "E: Mary escribe junto a la ventana, años después; montones de libros; su hijo ya mayor; la vida vuelve a la casa."
+   ],
+   "animo": "calma",
+   "golpes": [],
+   "empieza_con": "corte desde la escena anterior",
+   "termina_con": "",
+   "produccion": ""
+  },
+  {
+   "id": "ms-cierre",
+   "estilo": "pixel",
+   "cartela": "1831",
+   "frase_ini": 30,
+   "frase_fin": 32,
+   "marcas": [
+    "1831",
+    "recuerdas",
+    "pregunta"
+   ],
+   "guion_visual": [
+    "D: Mary, mayor, firma la nueva edición; despide al libro con una sonrisa.",
+    "B: la noche del principio en el cuarto junto al lago, ya sin tormenta; los ojos amarillos en la oscuridad, ahora con luz cálida; luego, mil libros en mil idiomas.",
+    "F: Atom en su estudio cierra el libro, mira a cámara y señala los comentarios."
+   ],
+   "animo": "cierre",
+   "golpes": [],
+   "empieza_con": "cartela 1831",
+   "termina_con": "",
+   "produccion": ""
+  }
+ ],
+ "lotes": []
+}

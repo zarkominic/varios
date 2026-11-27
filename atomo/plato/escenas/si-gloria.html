@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Quest for Glory · ep18</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// SI-GLORIA (frases 51–53), 1989. Cuatro planos:
+// 1. la plaza del gremio: Lori y Corey cruzan el mercado con un rollo de papel; al decir «Quest for Glory» Corey lo
+//    levanta hacia el tablón y Lori lo señala (corta en «where»);
+// 2. el tablón de cerca: Lori clava el dibujo del héroe (en «hero»); su estrella sube de nivel 1 → 2 → 3 en «better» y
+//    «practice»; en «role-playing game» Corey tira un dado de veinte caras que cae en 20 y los dos lo celebran;
+// 3. la puerta de la muralla (corta en «There»): el guerrero la tumba de un empujón (en «fighter»); ¡puf!, se carga la
+//    partida (el disquete brilla) y el mago la abre con un rayo (en «wizard»); ¡puf!, y la ladrona se agacha con su
+//    ganzúa y la abre sin ruido (en «each one solved problems in their own way»);
+// 4. el camino (corta en «and you could carry»): el guerrero con su mochila cruza del mapa verde al desierto; sus tres
+//    estrellas aparecen en «everything they'd learned» y cruzan la costura con él en «to the next» (del cartel 1 al 2).
+import * as T from '/atomo/plato/escenas/si-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('si-gloria');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const k_ = T.C.k, BL = T.C.blanco;
+const rgb = (r, g, b) => hex('#' + [r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join(''));
+const grad = (a, b, n) => Array.from({ length: n }, (_, i) => rgb(...a.map((v, j) => v + (b[j] - v) * i / (n - 1))));
+const hh = (x, y, s = 0) => { const v = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453; return v - Math.floor(v); };
+const BAYER = [0, 0.5, 0.75, 0.25];
+// tono tramado: elige en la rampa P con el valor v (0–1) y un tramado 2×2
+const tono = (P, v, x, y) => { const f = Math.max(0, Math.min(0.999, v)) * (P.length - 1), i = Math.floor(f); return P[Math.min(P.length - 1, i + ((f - i) > BAYER[(x & 1) + 2 * (y & 1)] ? 1 : 0))]; };
+// estrella de 7 px con contorno
+const ESTR = ['...#...', '..###..', '#######', '.#####.', '..###..', '.##.##.', '##...##'];
+const estrella = (x, y, c, cS) => { for (let j = 0; j < 7; j++) for (let i = 0; i < 7; i++) if (ESTR[j][i] === '#') for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { const a = ESTR[j + dy]?.[i + dx]; if (a !== '#') R.pset(x - 3 + i + dx, y - 3 + j + dy, k_); }
+  for (let j = 0; j < 7; j++) for (let i = 0; i < 7; i++) if (ESTR[j][i] === '#') R.pset(x - 3 + i, y - 3 + j, j > 3 || i > 4 ? cS : c); R.pset(x - 1, y - 1, BL); };
+// bocadillo con ondas de voz (sin letras): esquina (x, y), w × h, la cola hacia (cx, cy)
+const bocadillo = (x, y, w, h, t, cx, cy, col = hex('#3a6ac8')) => {
+  const mx = Math.round(Math.max(x + 4, Math.min(x + w - 4, cx)));
+  R.poligono([[mx - 3, y + h - 1], [mx + 3, y + h - 1], [cx, cy]], k_);
+  R.rect(x + 1, y, x + w - 1, y + h, k_); R.rect(x, y + 1, x + w, y + h - 1, k_);
+  R.rect(x + 1, y + 1, x + w - 1, y + h - 1, BL); R.rect(x + 2, y + h - 2, x + w - 2, y + h - 1, hex('#d8d4ca'));
+  R.poligono([[mx - 2, y + h - 2], [mx + 2, y + h - 2], [cx + (cx < mx ? 1 : -1), cy - 2]], BL);
+  const n = Math.max(1, Math.floor((h - 3) / 4));
+  for (let q = 0; q < n; q++) { const yy = y + 3 + q * 4; for (let i = 3; i <= w - 3; i++) { const a = Math.sin(i * 0.9 - t * 14 + q * 1.7) * (1 - Math.abs(i - w / 2) / (w / 2)) * 1.6; R.pset(x + i, Math.round(yy + a), q === 1 ? col : k_); } }
+};
+
+const a = (f) => en('cole', f), b = (f) => en('clases', f), c = (f) => en('llevar', f);
+const P2 = a(0.537), P3 = b(-0.015), P4 = c(-0.01);
+// el rollo de papel en la mano (abre 0–1: se desenrolla hacia abajo y deja ver el héroe a lápiz)
+const rollo = (x, y, abre) => {
+  const pa = T.C.papel, pS = T.C.papelS;
+  if (abre > 0) { const al = Math.round(2 + abre * 11); R.rect(x - 6, y, x + 6, y + al, k_); R.rect(x - 5, y + 1, x + 5, y + al - 1, pa); R.rect(x + 3, y + 1, x + 5, y + al - 1, pS);
+    if (al > 8) { R.rect(x - 1, y + 3, x + 1, y + 7, hex('#6a5a4a')); R.pset(x, y + 2, hex('#6a5a4a')); R.pset(x + 2, y + 4, hex('#8a8a94')); R.pset(x - 3, y + 6, hex('#a83a3a')); estrella(x + 3, y + 3, T.C.oro, T.C.oroS); } }
+  R.rect(x - 6, y - 2, x + 6, y + 2, k_); R.rect(x - 5, y - 1, x + 5, y + 1, pa); R.rect(x - 5, y + 1, x + 5, y + 1, pS); R.pset(x - 4, y - 1, BL);
+  if (abre <= 0) { R.rect(x - 1, y - 2, x, y + 2, hex('#c83a3a')); R.pset(x + 1, y + 3, hex('#c83a3a')); } };
+const p1 = (t) => {
+  T.fantasia(R, t, { encuadre: 'gremio' });
+  const llega = a(0.40), muestra = tramo(t, a(0.41), a(0.47));
+  const u = tramo(t, 0.15, llega), v = tramo(t, 0.45, llega + 0.3);
+  const xc = Math.round(lerp(286, 138, u)), yc = Math.round(lerp(171, 157, u)), xl = Math.round(lerp(312, 156, v)), yl = Math.round(lerp(174, 159, v));
+  const m = R.actor(EL.corey, xc, yc, t, { dir: -1, anda: u > 0 && u < 1, sostiene: muestra > 0 ? [Math.round(lerp(xc - 3, 127, muestra)), Math.round(lerp(yc - 13, 117, muestra))] : true, sonrisa: muestra >= 1 }).mano;
+  rollo(m[0] - 2, m[1] - 1, tramo(t, a(0.45), a(0.5)));
+  R.actor(EL.lori, xl, yl, t, { dir: -1, anda: v > 0 && v < 1, dedo: t > a(0.41), habla: t > a(0.41) && t < a(0.5) && Math.sin(t * 9) > 0, sonrisa: t > a(0.5) });
+  // al pasar, las palomas de la plaza echan a volar
+  const vu = tramo(t, 1.4, 3.2); if (vu > 0 && vu < 1) for (let q = 0; q < 2; q++) { const px = Math.round(170 + q * 10 + vu * 40), py = Math.round(164 - vu * 60 - q * 6), al = Math.floor(t * 12 + q) % 2;
+    R.rect(px - 1, py, px + 1, py + 1, hex('#8a8a9a')); R.pset(px - 2, py - al, hex('#6a6a7a')); R.pset(px + 2, py - al, hex('#6a6a7a')); R.pset(px - 3, py - 1 - al, hex('#6a6a7a')); R.pset(px + 3, py - 1 - al, hex('#6a6a7a')); }
+};
+const p2 = (t) => {
+  const clava = a(0.60), n2 = a(0.674), n3 = a(0.767), tira = a(0.885), cae = tira + 0.55;
+  const nivel = t < n2 ? 1 : t < n3 ? 2 : 3;
+  T.fantasia(R, t, { encuadre: 'gremio', camara: 'tablon', clavado: t >= clava ? 0.3 + 0.7 * tramo(t, n2 - 0.2, n3 + 0.4) : 0, nivel });
+  // Lori trae el dibujo y lo clava en el hueco
+  const u = tramo(t, P2 + 0.05, clava - 0.12);
+  if (t < clava) { const hx = Math.round(lerp(140, 151, u)), hy = Math.round(lerp(150, 138, u));
+    T.h_dibujoHeroe(R, hx + 13, hy - 3, t, { nivel: 1, chincheta: false }); R.actor(EL.lori, Math.round(lerp(112, 132, u)), 166, t, { dir: 1, anda: u > 0 && u < 1, sostiene: [hx, hy] }); }
+  else { const fiesta = t > cae && t < cae + 1.1; R.actor(EL.lori, 132, 166, t, { dir: 1, sostiene: t < clava + 0.45 ? [151, 136] : undefined, sonrisa: true, brazos: fiesta, salto: fiesta ? Math.round(Math.abs(Math.sin((t - cae) * 7)) * 3) : 0 }); }
+  if (t >= clava && t < clava + 0.35) for (let q = 0; q < 6; q++) { const an = q * 1.05, r = 4 + (t - clava) * 26; R.pset(Math.round(165 + Math.cos(an) * r), Math.round(121 + Math.sin(an) * r * 0.6), q % 2 ? BL : T.C.papelS); }
+  // la estrella sube de nivel: «+1» que sube y se apaga
+  for (const tn of [n2, n3]) { const e = tramo(t, tn, tn + 0.9); if (e > 0 && e < 1) R.numero('+1', 190, Math.round(124 - e * 16), { centro: true }); }
+  // Corey lo explica con el dedo y tira el dado de veinte caras
+  const fiesta = t > cae && t < cae + 1.1;
+  const cm = R.actor(EL.corey, 196, 166, t, { dir: -1, dedo: t > n2 - 0.3 && t < tira - 0.4, habla: t > n2 - 0.3 && t < n3 + 0.6 && Math.sin(t * 8) > 0, sostiene: t > tira - 0.4 && t < tira ? [190, 142] : undefined, sonrisa: t > n3, brazos: fiesta, salto: fiesta ? Math.round(Math.abs(Math.sin((t - cae) * 7 + 1)) * 3) : 0 }).mano;
+  const dv = tramo(t, tira, cae);
+  if (t > tira - 0.4) { const dx = t < tira ? cm[0] - 2 : Math.round(lerp(190, 222, dv)), dy = t < tira ? cm[1] - 3 : Math.round(lerp(139, 162, dv) - Math.sin(dv * Math.PI) * 22 - (t > cae ? Math.max(0, Math.sin((t - cae) * 12)) * 2 * Math.max(0, 1 - (t - cae) * 2) : 0));
+    const gira = t < cae ? Math.floor(t * 14) % 2 : 0;
+    R.poligono([[dx, dy - 4], [dx + 4, dy - 2], [dx + 4, dy + 2], [dx, dy + 4], [dx - 4, dy + 2], [dx - 4, dy - 2]], k_);
+    R.poligono([[dx, dy - 3], [dx + 3, dy - 1], [dx + 3, dy + 1], [dx, dy + 3], [dx - 3, dy + 1], [dx - 3, dy - 1]], gira ? hex('#d8d0f0') : BL);
+    R.linea(dx - 3, dy - 1, dx + 3, dy - 1, hex('#a8a0c8')); R.pset(dx, dy + 1, hex('#c83a3a'));
+    if (t > cae) { const e = tramo(t, cae, cae + 0.4), by = Math.round(110 - e * 4); R.rect(193, by - 11, 215, by + 1, k_); R.rect(194, by - 10, 214, by, BL); R.poligono([[201, by], [207, by], [206, by + 5]], k_); R.rect(202, by, 205, by + 1, BL); R.numero('20', 205, by - 2, { centro: true }); } }
+};
+const p3 = (t) => {
+  const f1 = b(0.12), golpe = f1 + 0.32, r1 = b(0.285), w1 = b(0.308), r2 = b(0.53), l0 = b(0.575), click = b(0.80);
+  const tumbada = t >= golpe && t < r1;
+  let abierta = 0; if (t >= w1 && t < r2) abierta = tramo(t, w1 + 0.3, w1 + 0.7); if (t >= click) abierta = tramo(t, click + 0.15, click + 0.95);
+  const g = T.fantasia(R, t, { encuadre: 'camino', camara: 'puerta', abierta, tumbada });
+  // el disquete guarda antes del peligro y se ilumina cuando la partida se carga
+  const pulso = (t0) => (t >= t0 && t < t0 + 0.55 ? 1 - Math.abs((t - t0) / 0.55 - 0.5) * 2 : 0);
+  T.disquete(R, 252, 168, t, { dir: -1, guarda: Math.max(pulso(f1 - 0.6), pulso(r1 - 0.05), pulso(r2 - 0.05)), expresion: tumbada ? 'susto' : 'normal' });
+  // el mago: alza el bastón y lanza el rayo a la cerradura
+  const rayo = t > w1 + 0.05 && t < w1 + 0.65;
+  const mm = R.actor(EL.mago, 108, 160, t, { dir: 1, sostiene: t >= w1 && t < r2 ? [124, 124] : [122, 138], sonrisa: t > w1 + 0.7 && t < r2, habla: rayo }).mano;
+  R.linea(mm[0], mm[1] - 12, mm[0], mm[1] + 9, hex('#6a4a2a')); R.linea(mm[0] + 1, mm[1] - 12, mm[0] + 1, mm[1] + 9, hex('#4a2e18'));
+  R.disco(mm[0], mm[1] - 14, 2, k_); R.disco(mm[0], mm[1] - 14, 1, rayo || (t >= w1 && t < r2) ? hex('#aaf0ff') : hex('#5a8ad8'));
+  if (rayo) { let px = mm[0], py = mm[1] - 14; const [qx, qy] = [160, 118]; for (let s = 1; s <= 6; s++) { const nx = Math.round(lerp(mm[0], qx, s / 6) + (s < 6 ? (hh(s, Math.floor(t * 20)) - 0.5) * 8 : 0)), ny = Math.round(lerp(mm[1] - 14, qy, s / 6) + (s < 6 ? (hh(s + 9, Math.floor(t * 20)) - 0.5) * 8 : 0));
+      R.linea(px, py - 1, nx, ny - 1, hex('#fff0a0')); R.linea(px, py, nx, ny, BL); R.linea(px, py + 1, nx, ny + 1, hex('#5ae8f0')); px = nx; py = ny; }
+    for (let q = 0; q < 8; q++) { const an = q * 0.8 + t * 9; R.pset(Math.round(qx + Math.cos(an) * 6), Math.round(qy + Math.sin(an) * 6), q % 2 ? BL : hex('#fff0a0')); } }
+  // el guerrero: carga contra la puerta, la tumba y levanta los brazos
+  const carga = tramo(t, f1, golpe), gx = t < r1 ? Math.round(lerp(138, 150, carga)) : 138;
+  R.actor(EL.guerrero, gx, 160, t, { dir: 1, anda: carga > 0 && carga < 1, salto: carga > 0.5 && carga < 1 ? 2 : 0, brazos: tumbada, sonrisa: tumbada, sorpresa: t > r1 && t < r1 + 0.6 });
+  if (t >= golpe && t < golpe + 0.4) for (let q = 0; q < 10; q++) { const e = (t - golpe) / 0.4, an = Math.PI + q * 0.35; R.disco(Math.round(160 + Math.cos(an) * (20 + e * 18)), Math.round(150 + Math.sin(an) * (4 + e * 6)), Math.round(3 - e * 2), q % 2 ? T.C.caminoL : T.C.camino); }
+  // la ladrona: se acerca de puntillas, hurga con la ganzúa y la cerradura cede
+  const lv = tramo(t, l0, l0 + 0.5), lx = Math.round(lerp(172, 164, lv)), hurga = t > l0 + 0.5 && t < click + 0.2;
+  const lm = R.actor(EL.ladrona, lx, 160, t, { dir: -1, anda: lv > 0 && lv < 1, sostiene: t > l0 + 0.4 && t < click + 0.5 ? [161 + (hurga ? Math.round(Math.sin(t * 22)) : 0), 139] : undefined, sonrisa: t > click, habla: false }).mano;
+  if (t > l0 + 0.4 && t < click + 0.5) { R.linea(lm[0], lm[1], lm[0] - 4, lm[1] - 2, hex('#c8ccd8')); R.pset(lm[0] - 5, lm[1] - 3, hex('#8a8a9a')); }
+  if (t > click && t < click + 0.5) { const e = (t - click) / 0.5; for (let q = 0; q < 4; q++) { const an = q * 1.57 + 0.78; R.linea(Math.round(160 + Math.cos(an) * (3 + e * 4)), Math.round(137 + Math.sin(an) * (3 + e * 4)), Math.round(160 + Math.cos(an) * (5 + e * 6)), Math.round(137 + Math.sin(an) * (5 + e * 6)), T.C.oroL); } }
+  // ¡puf!: la partida se carga y la puerta vuelve a estar cerrada
+  for (const r of [r1, r2]) { const e = tramo(t, r - 0.12, r + 0.3); if (e > 0 && e < 1) for (let q = 0; q < 9; q++) { const an = q * 0.7, rr = 6 + e * 22; { const cx_ = Math.round(160 + Math.cos(an) * rr * 0.9), cy_ = Math.round(112 + Math.sin(an) * rr), r_ = Math.round(11 - e * 7); R.disco(cx_, cy_, r_ + 1, hex('#8a86a0')); R.disco(cx_, cy_, r_, q % 3 ? hex('#f2eee2') : hex('#d8d4e8')); R.disco(cx_ - 2, cy_ - 2, Math.max(1, r_ - 4), BL); } }
+    if (e < 0.6) for (let q = 0; q < 6; q++) { const an = q * 1.05 + 0.3; R.pset(Math.round(160 + Math.cos(an) * (30 + e * 20)), Math.round(112 + Math.sin(an) * (30 + e * 20)), T.C.oroL); } }
+  if (t > click + 1) { R.actor(EL.guerrero, 138, 160, t, { dir: 1, brazos: true, salto: Math.round(Math.abs(Math.sin(t * 8)) * 2) }); }
+};
+const p4 = (t) => {
+  T.fantasia(R, t, { encuadre: 'camino' });
+  // los dos carteles del camino: el juego 1 y el juego 2
+  for (const [px, n] of [[64, '1'], [266, '2']]) { R.rect(px - 1, 116, px + 1, 142, k_); R.rect(px, 117, px, 142, T.C.madera); R.rect(px - 9, 104, px + 9, 120, k_); R.rect(px - 8, 105, px + 8, 119, T.C.maderaL); R.rect(px - 8, 117, px + 8, 119, T.C.madera); R.pset(px - 7, 106, T.C.pajaL); R.numero(n, px + 1, 116, { centro: true }); }
+  const u = tramo(t, P4, E.duracion), x = Math.round(lerp(26, 244, u)), su = 156;
+  // la mochila a la espalda (va por detrás del cuerpo)
+  const bx = x - 2, by = su - 21 + (Math.floor(t * 5 + x * 0.37) % 2 ? 0 : 1);
+  R.rect(bx - 1, by - 1, bx + 6, by + 11, k_); R.rect(bx, by, bx + 5, by + 10, hex('#8a5a2a')); R.rect(bx, by, bx + 5, by + 2, hex('#a8743c')); R.rect(bx + 1, by + 5, bx + 4, by + 7, hex('#6a4220')); R.rect(bx - 1, by - 3, bx + 6, by - 1, k_); R.rect(bx, by - 2, bx + 5, by - 2, hex('#d8c8a0'));
+  const hm = R.actor(EL.guerrero, x, su, t, { dir: 1, anda: true, sonrisa: t > c(0.35) });
+  // las estrellas de lo aprendido: aparecen una a una y giran sobre su cabeza
+  const nace = [c(0.35), c(0.42), c(0.49)], cruza = c(0.84), cx = x + 7;
+  nace.forEach((t0, q) => { if (t < t0) return; const e = tramo(t, t0, t0 + 0.3), an = t * 2.4 + q * 2.09, sx = Math.round(cx + Math.cos(an) * 11), sy = Math.round(su - 36 + Math.sin(an) * 3 - (1 - e) * 8);
+    estrella(sx, sy, T.C.oro, T.C.oroS); if (e < 1) for (let r = 0; r < 4; r++) R.pset(sx + [5, -5, 0, 0][r], sy + [0, 0, 5, -5][r], BL); });
+  const fl = tramo(t, cruza - 0.2, cruza + 0.6); if (fl > 0 && fl < 1) for (let q = 0; q < 12; q++) { const an = q * 0.52, r = 6 + fl * 26; R.pset(Math.round(cx + Math.cos(an) * r), Math.round(su - 34 + Math.sin(an) * r * 0.7), q % 2 ? T.C.oroL : BL); }
+};
+const efectos = [[a(0.42), 'papel'], [a(0.575), 'toc'], [a(0.674), 'pop'], [a(0.767), 'brillo'], [a(0.885) + 0.55, 'toc'],
+  [b(0.12) + 0.32, 'boom'], [b(0.285) - 0.1, 'whoosh'], [b(0.308) + 0.05, 'zumbido'], [b(0.53) - 0.1, 'whoosh'], [b(0.80), 'cerrojo'], [b(0.80) + 0.2, 'puerta'],
+  [c(0.35), 'brillo'], [c(0.84), 'campana']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4]], { efectos, año: 1989 });
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reparto · ep37</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }
+#rotulos { position: fixed; inset: 0; pointer-events: none; font: 600 0.8vw/1 system-ui, sans-serif; color: #fff; text-shadow: 0 0 3px #000, 0 0 2px #000; }
+#rotulos span { position: absolute; transform: translateX(-50%); white-space: nowrap; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<div id="rotulos"></div>
+<script type="module">
+// WO-REPARTO · hoja estática del reparto del episodio 37 («La señal Wow!»): los personajes a escala 1 y al doble,
+// sobre un fondo gris. Los rótulos son HTML encima del lienzo, solo en esta hoja de prueba.
+import { crearRoma } from '/atomo/plato/kits/pixel-roma.js';
+import { conChibi, ELENCO_WO as EL, ELENCO_CHIBI } from '/atomo/plato/kits/pixel-chibi.js';
+import { hex } from '/atomo/plato/kits/pixel-retro.js';
+const R = conChibi(await crearRoma(document.getElementById('lienzo')));
+const NOMBRES = Object.keys(EL);
+const fondo = hex('#8c8c90'), fondo2 = hex('#84848a'), fondo3 = hex('#94949a'), suelo = hex('#6c6c72'), sombra = hex('#5c5c62');
+const rotulos = document.getElementById('rotulos');
+let lista = [];
+const rotulo = (txt, x, y) => lista.push([txt, x, y]);
+const q = { quieto: true, parpadea: false };
+const corto = (k) => k.replace(/WO$/, '');
+// una fila de personajes a escala 1
+const fila1 = (nombres, s0, paso = 28, x0 = 8, el = EL) => {
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => { R.actor(el[k], x0 + n * paso, s0, 0, q); rotulo(corto(k), x0 + n * paso + 7, s0 + 3.4 + (n % 2) * 2.6); });
+};
+// una fila de personajes a escala 1 y, debajo, cada uno al doble (se copia del lienzo, píxel a píxel)
+const filaReparto = (nombres) => {
+  const paso = 22, s0 = 34;
+  R.rect(0, s0 + 1, 319, s0 + 2, suelo);
+  nombres.forEach((k, n) => R.actor(EL[k], 4 + n * paso + 3, s0, 0, q));
+  nombres.forEach((k, n) => {
+    const fila = Math.floor(n / 7), col = n % 7, x0 = 4 + n * paso, X = 6 + col * 45, Y = 38 + fila * 70;
+    const copia = [];
+    for (let j = 0; j < 33; j++) for (let i = 0; i < 22; i++) copia.push(R.pget(x0 + i - 1, s0 - 32 + j));
+    R.rect(X, Y + 66, X + 43, Y + 67, suelo);
+    copia.forEach((c, m) => { const i = m % 22, j = Math.floor(m / 22); R.rect(X + i * 2, Y + j * 2, X + i * 2 + 1, Y + j * 2 + 1, c); });
+    rotulo(corto(k), X + 22, Y + 67.6);
+  });
+};
+window.__frame = async (t) => {
+  lista = [];
+  for (let y = 0; y < 180; y++) for (let x = 0; x < 320; x++) R.pset(x, y, (x + y) % 7 ? fondo : ((x * 3 + y) % 5 ? fondo2 : fondo3));
+  filaReparto(NOMBRES);
+  R.presentar();
+  rotulos.innerHTML = lista.map(([txt, x, y]) => `<span style="left:${x / 3.2}vw;top:${y / 1.8}vh">${txt}</span>`).join('');
+};
+window.__listo = true;
+</script>
+</body>
+</html>

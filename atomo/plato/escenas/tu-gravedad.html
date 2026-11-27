@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La gravedad · ep36</title>
+<style>html, body { margin: 0; height: 100%; background: #04050d; overflow: hidden; } canvas { display: block; position: fixed; inset: 0; }</style>
+</head>
+<body>
+<canvas id="lienzo"></canvas>
+<script type="module">
+// TU-GRAVEDAD (frases 20–21), cartela «2026»; la barra dice 2026, salvo en las medidas (2023 y, en «2024», 2024).
+// Nueve planos, cortados en la palabra inglesa (el 4 es la vista LIBRE hoy/mesa/general, para la frase de >7 s):
+// 1. la manzana en el escritorio de Atom (hasta «it,»): en «gravity» empieza a rodar, en «Everything with mass» llega
+//    al filo y cae con la flecha roja que crece y bota en la tarima en «around»; el gato da un respingo («!»);
+// 2. la pizarra de la gravedad (corta en «and gravity»): el geofísico entra y en «empty room» señala: aparece el hueco
+//    cuadrado en la roca y menguan las tres flechas de encima; la geofísica llega por la derecha con la maleta del
+//    gravímetro y la deja junto al todoterreno; cuando él le habla ella asiente con una sonrisa (un saltito);
+// 3. el corte de cerca (corta en «which»): en «a tiny bit weaker» crece el hueco, se acortan las flechas de encima y
+//    la pesa sube un pelo; en «differences of a few parts» una mano (T.brazo corto, ≤ 45 px de manga) con un lápiz rojo
+//    largo entra por abajo, subraya con la punta la cifra 0,00000001 del decorado, destella y se va;
+// 4. la mesa de Atom desde arriba (corta en «At heart»): en «extremely sensitive» entra la mano de Atom con la campana
+//    del estetoscopio (con su tubo) y la apoya junto a la manzana en «instruments»; salen las ondas y en «pick up» la
+//    manzana rueda un pelo;
+// 5. el muelle del gravímetro (corta en el silencio tras «difference»): una mano (T.brazo corto, que entra por abajo y
+//    se desliza pegado a la esquina hasta el borde derecho; ≤ 45 px de manga) con un lápiz largo entra y en «weight
+//    hanging» da un toque al marco: la pesa bota en su muelle; la mano espera junto a la lupa y, en «feel the
+//    difference», la pesa sube un pelo, la aguja se va a 0,3 y el lápiz deja una rayita roja junto a la lupa; se va;
+// 6. el gravímetro en la ladera (2023–24, corta en «And in»; gag 6): la geofísica llega con la libreta hasta el trípode
+//    (pasa una hoja); el geofísico teclea junto al portátil; en «twelve hundred» canta la cuenta (globo con la cifra); el
+//    escarabajo (el del decorado, o.escarabajo) pasa con su bola por delante del trípode, la aguja tiembla, los dos contienen el
+//    aire («!») y, al verlo, sonríen y ella lo señala; el escarabajo baja y sale por DELANTE de la caja del portátil;
+// 7. el mapa (2026, corta en «Low»): desde el inicio el papel ya tiene el relieve del valle (curvas de nivel, sombreado,
+//    el cauce seco, los vértices △), los pliegues, el cerco de la taza y los puntos a lápiz flojo, y la sombra de una nube
+//    cruza la mesa; en «September 2026» se pinta la rejilla de 1.242 puntos en zigzag; en
+//    «published the results» salen las manchas y en «Reeves himself» la mano del decorado clava una chincheta roja en la
+//    grande (o.chincheta) y se va; el borde de la mancha late;
+// 8. las esquinas (corta en «lined up»): en «Low density zones» la mancha late; en «right-angled corners» las escuadras
+//    entran y se posan en cada esquina recta (sale la cota 35) y, al posarse, cada esquina destella y queda marcada con
+//    su cuadradito;
+// 9. el trazo de Reeves (hasta el final): en «north wall» la pared norte se enciende; en «beyond the very wall» las
+//    manchas salen al otro lado; en «where he had seen» la mano de Reeves (la del decorado) dibuja el trazo azul de las
+//    salas; en «doorways» la mancha late con su «?».
+import * as T from '/atomo/plato/escenas/tu-comun.js';
+import { ELENCO_CHIBI as EL } from '/atomo/plato/kits/pixel-chibi.js';
+const { E, R, M } = await T.preparar('tu-gravedad');
+const { tramo, lerp, hex } = R;
+const en = (k, f) => T.momento(M, k, f);
+const N = Math.round;
+const ease = (u) => u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
+const K = hex('#1a1410'), BL = hex('#f8f4e8');
+const globo = (x, y, ic, c) => { R.disco(x, y, 7, K); R.disco(x, y, 6, BL); R.pset(x - 5, y + 7, K); R.pset(x - 4, y + 6, BL); R.pset(x - 6, y + 8, K); R.icono(ic, x - (ic === '?' ? 2 : 1), y - 4, c, null, 1); };
+// un lápiz de 3 px de grueso, del puño (x0, y0) a la punta (x1, y1): contorno, cuerpo con su brillo, la madera afilada
+// y la mina; el grosor va en el eje que cruza el lápiz (horizontal si baja casi vertical, vertical si va casi tumbado)
+const lapiz = (x0, y0, x1, y1, cuerpo, luz) => {
+  x0 = N(x0); y0 = N(y0); x1 = N(x1); y1 = N(y1);
+  const L = Math.hypot(x1 - x0, y1 - y0) || 1, ux = (x1 - x0) / L, uy = (y1 - y0) / L;
+  const vx = Math.abs(uy) > Math.abs(ux) ? 1 : 0, vy = 1 - vx, fx = N(x1 - ux * 4), fy = N(y1 - uy * 4);
+  R.linea(x0 - vx, y0 - vy, fx - vx, fy - vy, K); R.linea(x0 + 2 * vx, y0 + 2 * vy, fx + 2 * vx, fy + 2 * vy, K);
+  R.linea(x0, y0, fx, fy, hex(luz)); R.linea(x0 + vx, y0 + vy, fx + vx, fy + vy, hex(cuerpo));
+  R.linea(fx - vx, fy - vy, x1, y1, K); R.linea(fx, fy, x1, y1, hex('#e8c890')); R.linea(fx + vx, fy + vy, x1, y1, hex('#c8a070'));
+  R.pset(x1, y1, hex('#3a2a1a'));
+};
+const destello = (x, y, r, c = '#fff8d0') => { const C = hex(c); R.linea(x - r, y, x + r, y, C); R.linea(x, y - r, x, y + r, C); const d = N(r * 0.5); R.linea(x - d, y - d, x + d, y + d, C); R.linea(x - d, y + d, x + d, y - d, C); R.pset(x, y, hex('#ffffff')); };
+const anillo = (cx, cy, r, c) => { const C = hex(c), n = Math.max(10, N(r * 6)); for (let i = 0; i < n; i++) { if (i % 3 === 2) continue; const a = i / n * Math.PI * 2; R.pset(N(cx + Math.cos(a) * r), N(cy + Math.sin(a) * r), C); } };
+const G1 = T.ELENCO_TU.geofisico1TU, G2 = T.ELENCO_TU.geofisica2TU;
+const P2 = en('gravedad', 0.1969), P3 = en('gravedad', 0.3855), P4 = en('gravedad', 0.6275), P5 = en('gravedad', 0.7853),
+  P6 = en('medidas', 0) - 0.57, P7 = en('medidas', 0.3136), P8 = en('medidas', 0.5632), P9 = en('medidas', 0.7432);
+
+// 1 · la manzana: rueda al filo, cae con la flecha roja y bota en la tarima
+const p1 = (t) => {
+  const rueda = 0.12 * ease(tramo(t, en('gravedad', 0.03), en('gravedad', 0.1009)));
+  const cae = tramo(t, en('gravedad', 0.1009), en('gravedad', 0.18));
+  T.hoy(R, t, { encuadre: 'mesa', camara: 'manzana', cae: cae > 0 ? 0.12 + 0.88 * Math.pow(cae, 1.5) : rueda });
+  // el gato da un respingo al botar la manzana: «!» encima de él hasta el corte
+  const bote = en('gravedad', 0.1737);
+  if (t > bote) globo(262, 98 - N(3 * (1 - ease((t - bote) / 0.25))), '!', hex('#d83a2a'));
+};
+
+// 2 · la pizarra de la gravedad: el geofísico señala; sale el hueco y menguan las flechas
+const p2 = (t) => {
+  const hueco = ease(tramo(t, en('gravedad', 0.2863), en('gravedad', 0.315)));
+  const o = { encuadre: 'gravedad', flechas: 1, hueco };
+  T.ladera(R, t, o);
+  const u = ease(tramo(t, P2 + 0.1, en('gravedad', 0.27)));
+  const x = N(lerp(-10, 40, u));
+  R.actor(G1, x, 162, t, { dir: 1, anda: u > 0 && u < 1, dedo: t > en('gravedad', 0.28) && t < en('gravedad', 0.34), habla: t > en('gravedad', 0.34) && Math.floor(t * 6) % 2 === 0 });
+  // la geofísica llega por la derecha con la maleta del gravímetro, la deja en el suelo junto al todoterreno y, en
+  // «less rock», escucha a su compañero y asiente con una sonrisa
+  const v = ease(tramo(t, P2 + 0.4, en('gravedad', 0.245))), x2 = N(lerp(338, 284, v)), deja = t > en('gravedad', 0.252);
+  const m2 = R.actor(G2, x2, 162, t, { dir: -1, anda: v > 0 && v < 1, sostiene: !deja, sonrisa: t > en('gravedad', 0.345), salto: t > en('gravedad', 0.35) && t < en('gravedad', 0.365) && Math.floor(t * 8) % 2 === 0 ? 1 : 0 });
+  const maleta = (mx, my) => { R.rect(mx - 6, my - 1, mx + 6, my + 8, K); R.rect(mx - 5, my, mx + 5, my + 7, hex('#7a7a84')); R.rect(mx - 5, my + 3, mx + 5, my + 3, hex('#4a4a54')); R.rect(mx - 2, my - 3, mx + 2, my - 2, K); R.pset(mx - 3, my + 1, hex('#c8c8d0')); };
+  if (!deja && m2 && m2.mano) maleta(m2.mano[0], m2.mano[1]); else if (deja) maleta(x2 - 9, 154);
+  T.laderaDelante(R, t, o);
+};
+
+// 3 · el corte de cerca: el hueco crece, las flechas de encima se acortan; la cifra
+const p3 = (t) => {
+  // el hueco crece de «gravity» a «weaker»; en «Differences» late un pelo (lo poquito que cambia)
+  const late = tramo(t, en('gravedad', 0.5257), en('gravedad', 0.59));
+  const hueco = ease(tramo(t, en('gravedad', 0.3958), en('gravedad', 0.5069))) - (late > 0 && late < 1 ? 0.12 * Math.abs(Math.sin(late * Math.PI * 3)) : 0);
+  const o = { encuadre: 'gravedad', camara: 'flechas', hueco };
+  T.ladera(R, t, o);
+  T.laderaDelante(R, t, o);
+  // en «100 million» la cifra del decorado (0,00000001, abajo a la izquierda) se subraya y destella
+  // una mano con un lápiz rojo largo entra por abajo (brazo corto en diagonal: muñeca en y 138, codo a 20 px, el hombro
+  // fuera de cuadro; se ven ≤ 44 px de manga), subraya la cifra de izquierda a derecha con la punta y se va por abajo
+  const U0 = en('gravedad', 0.555), q = tramo(t, U0, U0 + 0.7);
+  const w = N(lerp(0, 58, ease(q)));
+  if (q > 0) { R.linea(18, 108, 18 + w, 108, hex('#d83a2a')); R.linea(18, 109, 18 + w, 109, hex('#d83a2a')); }
+  if (q >= 1) { const g = tramo(t, U0 + 0.7, U0 + 1.2); if (g > 0 && g < 1) destello(N(lerp(22, 76, g)), 104, N(2 + 3 * Math.sin(g * Math.PI))); }
+  const ent = ease(tramo(t, U0 - 0.6, U0)), sal = ease(tramo(t, U0 + 0.85, U0 + 1.35)), k = ent * (1 - sal);
+  if (k > 0.01) { const px = 18 + w, wx = px - 14, wy = N(lerp(206, 138, k)), py = wy - 30;
+    T.brazo(R, wx - 16, 214, wx, wy, '#8a5a3a', 1, { codo: [wx - 6, wy + 19] });
+    // el lápiz rojo sale de lo alto del puño y su punta va por la raya
+    lapiz(wx + 9, wy - 4, px, py, '#d83a2a', '#e86a5a'); }
+};
+
+// 4 · la mesa de Atom desde arriba: la mano apoya la campana del estetoscopio junto a la manzana
+const p4 = (t) => {
+  const rueda = 0.15 * ease(tramo(t, en('gravedad', 0.73), en('gravedad', 0.76)));
+  const o = { encuadre: 'mesa', rueda, estetoscopio: false };
+  const g = T.hoy(R, t, o) || {};
+  const [mx, my] = g.manzana || [244, 122];
+  const entra = ease(tramo(t, en('gravedad', 0.6578), en('gravedad', 0.7046))), sale = ease(tramo(t, en('gravedad', 0.76), en('gravedad', 0.78)));
+  const k = entra * (1 - sale);
+  const bx = N(lerp(150, mx - 16, k)), by = N(lerp(200, my + 4, k));
+  if (k > 0.01) {
+    // el tubo del estetoscopio: de la campana sale hacia abajo, junto al brazo, hasta el borde
+    for (let i = 0; i <= 24; i++) { const u = i / 24, x = N(lerp(bx - 4, bx - 22, u) - Math.sin(u * Math.PI) * 8), y = N(lerp(by + 3, 186, u)); R.disco(x, y, 1, K); R.pset(x, y - 1, hex('#5a606c')); }
+    T.brazo(R, bx + 10, 200, bx + 8, by + 8, '#5a8ad0', 1, { codo: [bx + 24, by + 34] });
+    const X = bx, Y = by; R.disco(X, Y, 6, K); R.disco(X, Y, 5, hex('#8a909c')); R.disco(X - 1, Y - 1, 4, hex('#c8ced8')); R.disco(X, Y, 2, hex('#eef2f6'));
+  }
+  if (t > en('gravedad', 0.7046) && k > 0.9) for (const d of [0, 0.5]) { const q = (t * 1.4 + d) % 1; anillo(mx, my, 7 + N(q * 16), q < 0.5 ? '#fff4a0' : '#e8c050'); anillo(mx, my, 8 + N(q * 16), '#5a3a1a'); }
+};
+
+// 5 · el muelle: la pesa cuelga y oscila; en «difference» sube un pelo y la aguja se mueve
+const p5 = (t) => {
+  const u = ease(tramo(t, en('gravedad', 0.948), en('gravedad', 0.962)));
+  // en «weight hanging» la mano da un toque al marco con el lápiz y la pesa bota en su muelle (oscilación que se apaga)
+  const TOQ = en('gravedad', 0.8542), d = t - TOQ, bota = d > 0 ? 0.35 * Math.exp(-d * 1.3) * Math.abs(Math.sin(d * 7)) : 0;
+  T.ladera(R, t, { encuadre: 'gravimetro', camara: 'muelle', hueco: Math.min(1, u + bota), aguja: 0.3 * u + (d > 0 ? 0.25 * Math.exp(-d * 1.3) * Math.sin(d * 7) : 0) });
+  // la rayita roja con la que el lápiz marca, en «feel the difference», dónde se ha quedado la aguja (y se queda)
+  const MK = en('gravedad', 0.962), raya = tramo(t, MK, MK + 0.4);
+  if (raya > 0) { const l = N(5 * raya); R.linea(231, 95, 231 + l, 95, hex('#d83a2a')); R.linea(231, 96, 231 + l, 96, hex('#a82a1a')); }
+  // un solo brazo corto con un lápiz amarillo largo: entra por abajo a la derecha, da el toque al marco (punta en x 181,
+  // muñeca pegada al borde de abajo), se desliza pegado a la esquina hasta el borde derecho (muñeca en x ≈ 279, el puño
+  // fuera de la hoja), espera junto a la lupa con el lápiz levantado (se mece mientras la pesa bota), marca la rayita y
+  // sale por la derecha; codo a 20 px de la muñeca y hombro fuera de cuadro: nunca se ven más de 45 px de manga
+  const entra = ease(tramo(t, P5 + 0.2, TOQ - 0.05)), sale = ease(tramo(t, MK + 1.1, MK + 1.7)), k = entra * (1 - sale);
+  if (k > 0.01) {
+    const espera = ease(tramo(t, TOQ + 0.25, TOQ + 0.9)), marca = ease(tramo(t, MK - 0.45, MK));
+    const tap = d > -0.08 && d < 0.12 ? -2 : 0, mece = Math.sin(t * 3) * 1.2 * (1 - marca);
+    // la muñeca va del toque (203, 172) a la espera (279, 120) por una curva pegada a la esquina de abajo a la derecha
+    const e = espera, b0 = (1 - e) * (1 - e), b1 = 2 * e * (1 - e), b2 = e * e;
+    let wx = b0 * 203 + b1 * 310 + b2 * 279 + tap + mece, wy = b0 * 172 + b1 * 175 + b2 * (120 - 6 * marca);
+    // la punta, respecto a la muñeca: el toque (−22, −22), la espera junto a la lupa (−41, −10) y la rayita (−48 + 5r, −19)
+    let ox = lerp(-22, -41, e), oy = lerp(-22, -10, e); ox = lerp(ox, -48 + 5 * raya, marca); oy = lerp(oy, -19, marca);
+    // al entrar viene de abajo a la derecha; al irse, sale por el borde derecho
+    const fx = sale > 0 ? 70 * (1 - k) : 60 * (1 - k), fy = sale > 0 ? 25 * (1 - k) : 60 * (1 - k);
+    wx = N(wx + fx); wy = N(wy + fy); const px = N(wx + ox), py = N(wy + oy);
+    // el brazo baja hacia abajo en el toque y se tumba hacia la derecha en la espera
+    const s = ease(tramo(e, 0.5, 0.95)), dx = lerp(0.45, 3.2, s), n = Math.hypot(dx, 1), ux = dx / n, uy = 1 / n;
+    T.brazo(R, N(wx + 75 * ux), N(wy + 75 * uy), wx, wy, '#4a6a8a', -1, { codo: [N(wx + 20 * ux - 3 * uy), N(wy + 20 * uy + 3 * ux)] });
+    lapiz(wx - 12, wy - 1, px, py, '#e8b840', '#f8d870'); }
+};
+
+// 6 · el gravímetro en la ladera (gag 6): miden; el escarabajo pasa y la aguja tiembla
+const p6 = (t) => {
+  // el escarabajo es el del decorado (o.escarabajo): cruza por delante del trípode y, desde x 192, laderaDelante lo pasa
+  // por DELANTE de la caja del portátil (geo escarabajo [96 + 140e, 160 → 176]), con su rastro en la arena
+  const esc = tramo(t, en('medidas', 0.12), en('medidas', 0.33));
+  const xe = N(96 + 140 * esc), tiembla = xe > 140 && xe < 182 ? Math.sin((xe - 140) / 42 * Math.PI) : 0;
+  const o = { encuadre: 'gravimetro', tiembla, escarabajo: esc };
+  T.ladera(R, t, o);
+  const susto = tiembla > 0.3, ve = esc > 0.62 && esc < 1;
+  // la geofísica llega desde la izquierda con la libreta hasta el trípode; el geofísico apunta en el portátil
+  const u = ease(tramo(t, P6 + 0.2, en('medidas', 0.08)));
+  const x2 = N(lerp(-16, 112, u));
+  const m2 = R.actor(G2, x2, 151, t, { dir: 1, anda: u > 0 && u < 1, sorpresa: susto, sonrisa: ve, sostiene: !ve, dedo: ve });
+  if (!ve && m2 && m2.mano) { const [lx, ly] = m2.mano; R.rect(lx - 2, ly - 4, lx + 3, ly + 2, K); R.rect(lx - 1, ly - 3, lx + 2, ly + 1, BL); R.pset(lx, ly - 2, hex('#3a6ad8')); 
+    // en «twelve hundred» pasa una hoja de la libreta (el borde que cruza)
+    const fl = tramo(t, en('medidas', 0.08), en('medidas', 0.08) + 0.3); if (fl > 0 && fl < 1) R.linea(lx - 1 + N(3 * fl), ly - 4, lx - 1 + N(3 * fl), ly + 1, hex('#b8b0a0')); }
+  const m1 = R.actor(G1, 198, 151, t, { dir: 1, sorpresa: susto, sonrisa: ve, sostiene: !susto && !ve ? [212, 140 - (t > P6 + 0.5 && t < P6 + 1.6 && Math.floor(t * 10) % 2 ? 1 : 0)] : false, habla: t > en('medidas', 0.1787) && t < en('medidas', 0.25) && Math.floor(t * 6) % 2 === 0 });
+  T.laderaDelante(R, t, o);
+  // en «1200» el geofísico canta la cuenta: globo con la cifra
+  if (t > en('medidas', 0.1787) && t < en('medidas', 0.31)) { const bx = 222, by = 96; R.rect(bx - 19, by - 9, bx + 19, by + 7, K); R.rect(bx - 18, by - 8, bx + 18, by + 6, BL); R.pset(bx - 14, by + 8, K); R.pset(bx - 15, by + 9, K); R.pset(bx - 14, by + 7, BL);
+    R.numero('1200', bx, by + 4, { centro: true }); }
+  if (susto) globo(150, 92, '!', hex('#d83a2a'));
+};
+
+// 7 · el papel del mapa antes de los colores: el relieve del valle (curvas de nivel cada 8, la maestra cada 4, con el
+// sombreado de luz del noroeste), el cauce seco del valle a rayas con su grava, los tres vértices de nivelación (△ con
+// su punto), los dos pliegues del papel (sombra y filo de luz), el cerco de la taza con su gota, un borrón de goma y los
+// 1.242 puntos de la rejilla ya marcados a lápiz flojo. Solo tiñe lo que sigue siendo PAPEL (crema claro): los puntos
+// negros, la planta y los colores quedan encima tal cual; se apaga a medida que entran las manchas. Se calcula una vez.
+const MX0 = 30, MY0 = 26, MW = 241, MH = 145;
+const mapaPapel = (() => {
+  const U = (x, y) => [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][((y & 3) << 2) | (x & 3)] / 16 + 1 / 32;
+  const ax = (y) => 100 + (y - 26) * 0.6 + 14 * Math.sin(y * 0.045);
+  const cerro = (x, y, cx, cy, a, r) => a * Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (r * r));
+  const H = (x, y) => 0.42 * Math.abs(x - ax(y)) ** 1.15 + cerro(x, y, 238, 50, 30, 40) + cerro(x, y, 62, 142, 26, 34) + cerro(x, y, 84, 48, 16, 20) - cerro(x, y, 150, 128, 6, 26) + Math.sin(x * 0.07 + y * 0.05) * 3 + Math.sin(x * 0.031 - y * 0.06) * 2;
+  const sA = new Float32Array(MW * MH), sB = new Uint8Array(MW * MH), lA = new Float32Array(MW * MH), lC = new Uint32Array(MW * MH);
+  const BR = hex('#8a6e48'), CL = hex('#fffcf2'), CUR = hex('#a08458'), MAE = hex('#7a5a34'), CAU = hex('#6a7a9a'), GRA = hex('#9a8e7a'), CAF = hex('#9a6a3a'), PUN = hex('#b8ae98'), GOM = hex('#a8a090'), PLI = hex('#9a8a6a');
+  // las salas de la planta (aprox.): dentro, el relieve va muy flojo para que la planta se lea limpia
+  const salas = [[140, 95, 178, 114], [180, 98, 202, 114], [108, 116, 188, 132], [188, 124, 236, 132], [236, 122, 258, 134], [112, 134, 134, 148]];
+  const enSala = (x, y) => salas.some(([a, b, c, d]) => x >= a && x <= c && y >= b && y <= d);
+  const pon = (x, y, c, a) => { if (x < MX0 || y < MY0 || x >= MX0 + MW || y >= MY0 + MH) return; const k = (y - MY0) * MW + x - MX0; if (a >= lA[k]) { lA[k] = a; lC[k] = c; } };
+  for (let y = 32; y <= 164; y++) for (let x = 36; x <= 264; x++) {
+    const k = (y - MY0) * MW + x - MX0, h0 = H(x, y), hx = H(x + 1, y) - h0, hy = H(x, y + 1) - h0, f = enSala(x, y) ? 0.25 : 1;
+    // sombreado del relieve (luz del noroeste), tramado en cuatro escalones
+    const s = (hx + hy) * 0.5, a = Math.min(0.32, Math.abs(s) * 0.16) * f, q = Math.floor(a * 20 + U(x, y)) / 20;
+    sA[k] = q; sB[k] = s > 0 ? 1 : 0;
+    // curvas de nivel: donde cambia el escalón de 8 con el vecino; cada cuarta, la maestra, más oscura
+    const n0 = Math.floor(h0 / 8), n1 = Math.floor((h0 + hx) / 8), n2 = Math.floor((h0 + hy) / 8);
+    if (n0 !== n1 || n0 !== n2) { const m = Math.max(n0, n1, n2); pon(x, y, m % 4 === 0 ? MAE : CUR, (m % 4 === 0 ? 0.75 : 0.5) * f); }
+  }
+  // el cauce seco por el fondo del valle: doble raya azul a trazos y la grava a los lados
+  for (let y = 30; y <= 166; y++) { const x = Math.round(ax(y) - 6 + Math.sin(y * 0.18) * 1.5); if ((y >> 2) % 3 !== 2 && !enSala(x, y)) { pon(x, y, CAU, 0.7); pon(x + 3, y, CAU, 0.45); } if ((y * 7) % 5 === 0) pon(x + ((y * 13) % 9) - 3, y, GRA, 0.55); }
+  // los vértices de nivelación en las cimas: triangulito con su punto
+  for (const [cx, cy] of [[238, 52], [62, 140], [84, 48]]) { for (let i = -3; i <= 3; i++) pon(cx + i, cy + 2, MAE, 0.85); for (let j = 0; j < 3; j++) { pon(cx - 3 + j, cy + 2 - j * 2, MAE, 0.85); pon(cx + 3 - j, cy + 2 - j * 2, MAE, 0.85); pon(cx - 3 + j + 1, cy + 1 - j * 2, MAE, 0.85); pon(cx + 2 - j, cy + 1 - j * 2, MAE, 0.85); } pon(cx, cy, MAE, 0.95); }
+  // el cerco de la taza (anillo con huecos, más cargado abajo) y una gota que resbaló
+  for (let i = 0; i < 140; i++) { const ang = i / 140 * Math.PI * 2; if (Math.sin(ang * 3 + 1) < -0.7) continue; for (const r of [10.5, 11.5]) pon(Math.round(80 + Math.cos(ang) * r), Math.round(64 + Math.sin(ang) * r * 0.92), CAF, 0.6 + Math.max(0, Math.sin(ang)) * 0.25); }
+  for (let i = 0; i < 60; i++) { const ang = i / 60 * Math.PI * 2; if (ang > 4) continue; pon(Math.round(96 + Math.cos(ang) * 6), Math.round(80 + Math.sin(ang) * 6), CAF, 0.55); }
+  for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1], [-1, 1], [2, 2], [3, 3]]) pon(91 + dx, 73 + dy, CAF, 0.65);
+  // el borrón de goma (gris, a trama) y los dos pliegues del papel, con su filo de luz
+  for (let y = 40; y <= 50; y++) for (let x = 196; x <= 218; x++) { const d = ((x - 207) / 11) ** 2 + ((y - 45) / 5) ** 2; if (d < 1 && (x + y) % 2 === 0) pon(x, y, GOM, 0.3 * (1 - d)); }
+  for (let y = MY0; y < MY0 + MH; y++) { pon(150, y, PLI, 0.4); pon(151, y, CL, 0.7); }
+  for (let x = MX0; x < MX0 + MW; x++) { pon(x, 98, PLI, 0.4); pon(x, 99, CL, 0.7); }
+  // los 1.242 puntos de la rejilla, ya marcados a lápiz flojo (los que se miden quedan negros encima)
+  for (let j = 0; j < 27; j++) for (let i = 0; i < 46; i++) pon(38 + i * 5, 34 + j * 5, PUN, 0.9);
+  return { sA, sB, lA, lC, BR, CL };
+})();
+const pintaPapel = (w) => {
+  if (w <= 0) return;
+  const { sA, sB, lA, lC, BR, CL } = mapaPapel;
+  for (let y = MY0; y < MY0 + MH; y++) for (let x = MX0; x < MX0 + MW; x++) {
+    const c = R.pget(x, y), r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255;
+    if (r < 200 || g < 188 || b < 150 || r - b > 62 || g > r + 4) continue; // solo el papel crema
+    const k = (y - MY0) * MW + x - MX0; let o = c;
+    if (sA[k] > 0) o = mezcla(o, sB[k] ? CL : BR, sA[k] * w);
+    if (lA[k] > 0) o = mezcla(o, lC[k], lA[k] * w);
+    if (o !== c) R.pset(x, y, o);
+  }
+};
+const mezcla = (c, d, a) => { const r = c & 255, g = (c >> 8) & 255, b = (c >> 16) & 255;
+  return (0xff000000 | (Math.round(b + (((d >> 16) & 255) - b) * a) << 16) | (Math.round(g + (((d >> 8) & 255) - g) * a) << 8) | Math.round(r + ((d & 255) - r) * a)) >>> 0; };
+// la sombra de una nube que cruza despacio la mesa y el mapa (borde tramado), de izquierda a derecha
+const nube = (t) => {
+  const cx = -60 + ((t * 9) % 420), cy = 92 + Math.sin(t * 0.3) * 10, S = hex('#2a1a10');
+  for (let y = Math.max(0, Math.round(cy - 34)); y <= Math.min(179, Math.round(cy + 34)); y++) for (let x = Math.max(0, Math.round(cx - 70)); x <= Math.min(272, Math.round(cx + 70)); x++) {
+    const d = ((x - cx) / 70) ** 2 + ((y - cy) / 34) ** 2 + Math.sin(x * 0.12 + y * 0.2) * 0.12; if (d >= 1) continue;
+    if (d > 0.7 && ((x + y) & 1)) continue; R.pset(x, y, mezcla(R.pget(x, y), S, 0.1)); }
+};
+
+// 7 · el mapa: la rejilla en zigzag y, al publicar, las manchas
+const p7 = (t) => {
+  const rejilla = tramo(t, P7 + 0.1, en('medidas', 0.4));
+  const manchas = ease(tramo(t, en('medidas', 0.436), en('medidas', 0.4849)));
+  // en «Reeves himself» la mano del decorado (o.chincheta) entra por la derecha y clava la chincheta roja en la mancha
+  // grande (172, 70) al 0,5 del tramo (con el «toc»), y se va; al clavarla, el borde de la mancha late
+  const r0 = en('medidas', 0.5032) + 0.3, k = tramo(t, r0 - 0.8, r0 + 0.8);
+  T.ladera(R, t, { encuadre: 'mapa', rejilla: Math.max(0.001, rejilla), manchas, chincheta: k });
+  // el papel con su relieve, su cauce, sus pliegues y su cerco de café (se apaga con los colores) y la nube que pasa
+  pintaPapel(1 - manchas / 0.5);
+  nube(t);
+  if (k >= 0.5 && Math.floor(t * 4) % 2 === 0) for (let i = 0; i < 90; i++) { const a = i / 90 * Math.PI * 2; if (i % 3) R.pset(N(162 + Math.cos(a) * 30), N(78 + Math.sin(a) * 16), hex('#fff4a0')); }
+};
+
+// 8 · las esquinas: la escuadra se posa en cada esquina recta; cota 35
+const p8 = (t) => {
+  const escuadra = tramo(t, en('medidas', 0.625), en('medidas', 0.70));
+  const g = T.ladera(R, t, { encuadre: 'mapa', camara: 'esquinas', escuadra: Math.max(0.001, escuadra) });
+  // al posarse, cada esquina recta destella y se marca con su cuadradito de ángulo recto, que se queda
+  if (escuadra >= 1 && g.mancha) { const [X0, Y0, X1] = g.mancha, d = t - en('medidas', 0.70);
+    for (const [cx, s] of [[X0, 1], [X1, -1]]) { R.linea(cx + s * 3, Y0 + 3, cx + s * 8, Y0 + 3, hex('#fff4a0')); R.linea(cx + s * 3, Y0 + 3, cx + s * 3, Y0 + 8, hex('#fff4a0'));
+      R.linea(cx + s * 8, Y0 + 3, cx + s * 8, Y0 + 8, hex('#fff4a0')); R.linea(cx + s * 3, Y0 + 8, cx + s * 8, Y0 + 8, hex('#fff4a0'));
+      if (d < 0.5) destello(cx, Y0, N(2 + 5 * Math.sin(Math.min(1, d / 0.5) * Math.PI))); } }
+  const q = tramo(t, en('medidas', 0.5781), en('medidas', 0.66));
+  if (q > 0 && q < 1) { const r = N(lerp(30, 70, (q * 2) % 1)); for (let i = 0; i < 80; i++) { const a = i / 80 * Math.PI * 2; R.pset(N(186 + Math.cos(a) * r * 1.2), N(78 + Math.sin(a) * r * 0.6), hex('#fff4a0')); } }
+};
+
+// 9 · el trazo de Reeves: la pared norte se enciende; las manchas salen al otro lado
+const p9 = (t) => {
+  const anomalias = ease(tramo(t, en('medidas', 0.8546), en('medidas', 0.9074)));
+  // en «where he had seen one of the doorways» la mano de Reeves (la del decorado) dibuja su trazo azul a rayas
+  const traza = tramo(t, en('medidas', 0.875), en('medidas', 0.985));
+  const o = { encuadre: 'trazo', reeves: traza > 0 ? 1 : 0, traza: Math.max(0.001, traza), anomalias };
+  T.ladera(R, t, o);
+  T.laderaDelante(R, t, o);
+  // en «north wall» la pared norte se enciende (dos rayas que laten)
+  if (t > en('medidas', 0.7806) && t < en('medidas', 0.88)) { const c = Math.floor(t * 5) % 2 ? '#fff4a0' : '#f8c040'; R.linea(213, 92, 213, 132, hex(c)); R.linea(214, 92, 214, 132, hex(c)); }
+  // (las manchas, ya reforzadas por el decorado en 'trazo': núcleo oscuro y borde tramado)
+  if (t > en('medidas', 0.9448)) { const q = (t * 2) % 1; anillo(256, 108, 16 + N(q * 6), '#fff4a0'); if (Math.floor(t * 3) % 2 === 0) globo(256, 78, '?', hex('#3a6ad8')); }
+};
+
+const efectos = [
+  // 1 · la manzana: cae, bota y el gato se sobresalta
+  [en('gravedad', 0.1009), 'whoosh'], [en('gravedad', 0.1737), 'toc'], [en('gravedad', 0.184), 'miau'],
+  // 2 · la maleta en el suelo, el dedo y el hueco
+  [en('gravedad', 0.252), 'golpecito'], [en('gravedad', 0.2863), 'pop'],
+  // 3 · la pesa sube un pelo; el lápiz rojo subraya la cifra
+  [en('gravedad', 0.4824), 'tic'], [en('gravedad', 0.555), 'lapiz'],
+  // 4 · la campana del estetoscopio en la mesa; la manzana rueda
+  [en('gravedad', 0.7046), 'golpecito'], [en('gravedad', 0.7482), 'tic'],
+  // 5 · el toque al marco, el muelle que bota, la aguja y la rayita del lápiz
+  [en('gravedad', 0.8542), 'golpecito'], [en('gravedad', 0.8542) + 0.12, 'boing'], [en('gravedad', 0.95), 'tic'], [en('gravedad', 0.962), 'lapiz'],
+  // 6 · el portátil, la libreta, la cifra, el temblor y el apunte
+  [P6 + 0.5, 'tecleo'], [en('medidas', 0.08), 'papel'], [en('medidas', 0.1787), 'bip'], [en('medidas', 0.205), 'zumbido'],
+  // 7 · la rejilla, los colores y la chincheta
+  [P7 + 0.15, 'tic'], [en('medidas', 0.436), 'papel'], [en('medidas', 0.5032) + 0.3, 'toc'],
+  // 8 · las escuadras que entran y se posan
+  [en('medidas', 0.625), 'papel'], [en('medidas', 0.70), 'golpecito'],
+  // 9 · la pared norte, las manchas, el trazo de Reeves y la «?»
+  [en('medidas', 0.7806), 'interruptor'], [en('medidas', 0.8546), 'brillo'], [en('medidas', 0.875), 'lapiz'], [en('medidas', 0.9448), 'pop']];
+T.rodar(E, R, [[0, p1], [P2, p2], [P3, p3], [P4, p4], [P5, p5], [P6, p6], [P7, p7], [P8, p8], [P9, p9]],
+  { efectos, cartela: '2026', año: (t) => t >= P6 && t < P7 ? (t < en('medidas', 0.0836) ? 2023 : 2024) : 2026 });
+</script>
+</body>
+</html>
